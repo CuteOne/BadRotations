@@ -116,6 +116,9 @@ local function createOptions()
         br.ui:createSpinner(section, "Aura Mastery Targets", 3, 0, 40, 1, "", "Minimum Aura Mastery Targets", true)
         br.ui:createSpinner(section, "Holy Avenger", 60, 0, 100, 5, "", "Health Percent to Cast At")
         br.ui:createSpinner(section, "Holy Avenger Targets", 3, 0, 40, 1, "", "Minimum Holy Avenger Targets", true)
+        -- Seraphim
+        br.ui:createSpinner(section, "Seraphim", 0, 0, 20, 2, "|cffFFFFFFEnemy TTD")
+
         br.ui:createSpinner(section, "Lay on Hands", 20, 0, 100, 5, "", "Min Health Percent to Cast At")
         br.ui:createSpinner(section, "Blessing of Protection", 20, 0, 100, 5, "", "Health Percent to Cast At")
         br.ui:createSpinner(section, "Blessing of Sacrifice", 40, 0, 100, 5, "", "Health Percent to Cast At")
@@ -270,6 +273,13 @@ local holyPower
 local holyPowerMax
 
 --lists
+
+local pre_BoF_list = {
+    [320788] = { targeted = true }, --"NW Last boss",
+    [324608] = { targeted = true }, --]/charged-stomp
+    [317231] = { targeted = nil }, --/crushing-slam
+    [320729] = { targeted = nil }, --/massive-cleave
+}
 
 -- Stun list - format  MOB_ID, CAST_ID, CHAN_ID, BUFF_ID, AGGRO_FLAG, NOTES
 local stunList = {
@@ -811,8 +821,10 @@ actionList.dps = function()
     --Consecration
     if cd.consecration.ready() and not br.isMoving("player") then
         for i = 1, #enemies.yards8 do
-            if not debuff.consecration.exists(enemies.yards8[i]) and not br.isBoss(enemies.yards8[i])
-                    or br._G.GetTotemTimeLeft(1) < 2
+            if not cast.last.consecration(1)
+                    and not noConc("target")
+                    and not debuff.consecration.exists(enemies.yards8[i])
+                    or GetTotemTimeLeft(1) < 2
                     or not cast.able.holyShock() and (cd.holyShock.remain() > 1.5 and cd.crusaderStrike.remain() ~= 0) then
                 if cast.consecration() then
                 end
@@ -913,6 +925,63 @@ actionList.Extra = function()
             return true
         end
     end
+
+    --BoP and BoF   blessing of freedom blessing of protection
+    if unit.inCombat() and mode.freedom == 1 and cd.blessingOfFreedom.ready() then
+        if cast.able.blessingOfFreedom() then
+            local endCast, spellcastID, spellTarget
+            for i = 1, #enemies.yards40 do
+                _, _, _, _, endCast, _, _, _, spellcastID = br._G.UnitCastingInfo(enemies.yards40[i])
+                if spellcastID ~= nil then
+                    local unitBOF = pre_BoF_list[spellcastID]
+                    if unitBOF and unitBOF.targeted == true then
+                        spellTarget = select(3, br._G.UnitCastID(enemies.yards40[i]))
+                    elseif unitBOF and unitBOF.targeted ~= true then
+                        spellTarget = "player"
+                    end
+                end
+            end
+            if spellTarget ~= nil and canheal(spellTarget) and endCast and pre_BoF_list[spellcastID] and ((endCast / 1000) - br._G.GetTime()) < 1 then
+                if cast.blessingOfFreedom(spellTarget) then
+                    return true
+                end
+            end
+
+            -- Debuff
+            local BoFDebuff = { 319941, 330810, 326827, 324608, 292942, 329326, 295929, 292910, 334926, 329905, 341746 }
+            for k, v in pairs(BoFDebuff) do
+                if br.getDebuffRemain("player", v) ~= 0 then
+                    if cast.blessingOfFreedom("player") then
+                        return true
+                    end
+                end
+                for i = 1, #br.friend do
+                    if br.getDebuffRemain(br.friend[i].unit, v) ~= 0 then
+                        if cast.blessingOfFreedom(br.friend[i].unit) then
+                            return true
+                        end
+                    end
+                end
+            end
+        end
+    end
+    if ui.checked("Blessing of Protection") and cd.blessingOfProtection.ready() then
+        for i = 1, #br.friend do
+            if br.friend[i].hp <= ui.value("Blessing of Protection")
+                    or br.getDebuffRemain(br.friend[i].unit, 323406) ~= 0 --323406/jagged-gash
+                    or br.getDebuffRemain(br.friend[i].unit, 324154) ~= 0 --324154 / dark - stride
+            then
+                if UnitInRange(br.friend[i].unit) and not debuff.forbearance.exists(br.friend[i].unit) and canheal(br.friend[i].unit)
+                        and not (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") then
+                    if cast.blessingOfProtection(br.friend[i].unit) then
+                        return true
+                    end
+                end
+            end
+        end
+    end
+
+
 
 
     -- I like DBM
@@ -1163,7 +1232,7 @@ actionList.Defensive = function()
 
 
         -- Blessing of Freedom
-        if ui.checked("Blessing of Freedom") and cd.blessingOfFreedom.ready() and br.hasNoControl(spell.blessingOfFreedom) then
+        if mode.freedom ~= 1 and ui.checked("Blessing of Freedom") and cd.blessingOfFreedom.ready() and br.hasNoControl(spell.blessingOfFreedom) then
             if cast.blessingOfFreedom("player") then
                 return true
             end
@@ -1358,68 +1427,12 @@ actionList.Cooldown = function()
         end
     end
 
-
-    --BoP and BoF   blessing of freedom blessing of protection
-    local pre_BoF_list = {
-        [320788] = { targeted = true }, --"NW Last boss",
-        [324608] = { targeted = true }, --]/charged-stomp
-        [317231] = { targeted = nil }, --/crushing-slam
-        [320729] = { targeted = nil }, --/massive-cleave
-    }
-
-    if unit.inCombat() and mode.freedom == 1 and cd.blessingOfFreedom.ready() then
-        local endCast, spellcastID, spellTarget
-        for i = 1, #enemies.yards40 do
-            _, _, _, _, endCast, _, _, _, spellcastID = br._G.UnitCastingInfo("player")
-            if spellcastID ~= nil then
-                local unitBOF = pre_BoF_list[spellcastID]
-                if unitBOF and unitBOF.targeted == true then
-                    spellTarget = select(3, br._G.UnitCastID(enemies.yards40[i]))
-                elseif unitBOF and unitBOF.targeted ~= true then
-                    spellTarget = "player"
-                end
-            end
-            if spellTarget ~= nil and canheal(spellTarget) and endCast and pre_BoF_list[spellcastID] and ((endCast / 1000) - br._G.GetTime()) < 1 then
-                if cast.blessingOfFreedom(spellTarget) then
-                    return true
-                end
-            end
-
-            -- Debuff
-            local BoFDebuff = { 319941, 330810, 326827, 324608, 292942, 329326, 295929, 292910, 334926, 329905, 341746 }
-            for k, v in pairs(BoFDebuff) do
-                if br.getDebuffRemain("player", v) ~= 0 then
-                    if cast.blessingOfFreedom("player") then
-                        return true
-                    end
-                end
-                for i = 1, #br.friend do
-                    if br.getDebuffRemain(br.friend[i].unit, v) ~= 0 then
-                        if cast.blessingOfFreedom(br.friend[i].unit) then
-                            return true
-                        end
-                    end
-                end
-            end
-        end
-
-        if ui.checked("Blessing of Protection") and cd.blessingOfProtection.ready() then
-            for i = 1, #br.friend do
-                if br.friend[i].hp <= ui.value("Blessing of Protection")
-                        or br.getDebuffRemain(br.friend[i].unit, 323406) ~= 0 --323406/jagged-gash
-                        or br.getDebuffRemain(br.friend[i].unit, 324154) ~= 0 --324154 / dark - stride
-                then
-                    if UnitInRange(br.friend[i].unit) and not debuff.forbearance.exists(br.friend[i].unit) and canheal(br.friend[i].unit)
-                            and not (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") then
-                        if cast.blessingOfProtection(br.friend[i].unit) then
-                            return true
-                        end
-                    end
-                end
-            end
+    -- Seraphim
+    if br.isChecked("Seraphim") and talent.seraphim and holyPower > 2 and br.getOptionValue("Seraphim") <= ttd then
+        if cast.seraphim() then
+            return true
         end
     end
-
 
     -- Lay on Hands        --LoH / LayonHands
     if ui.checked("Lay on Hands") and cd.layOnHands.ready() and not debuff.forbearance.exists(lowest.unit) and br._G.UnitInRange(lowest.unit) then
