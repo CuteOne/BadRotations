@@ -2539,7 +2539,7 @@ end
                 if br.timer:useTimer("hc stop Delay", 0.32 / (1 + GetHaste() / 100)) then
                     --CancelPendingSpell()
                     br._G.SpellStopCasting()
-                    ChatOverlay("no hardcast allowed!")
+                    br.ChatOverlay("no hardcast allowed!")
                   --  return false 
                 end 
             end 
@@ -2553,7 +2553,7 @@ end
                 --if br.timer:useTimer("hc stop Delay", 0.20 / (1 + GetHaste() / 100)) then
                 --CancelPendingSpell()
                     br._G.SpellStopCasting()
-                    ChatOverlay("no fireball during combust/aoe and having procs!")
+                    br.ChatOverlay("no fireball during combust/aoe and having procs!")
                 --return true 
                 --end
             end
