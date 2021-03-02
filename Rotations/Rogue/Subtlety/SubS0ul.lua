@@ -405,10 +405,10 @@ local function runRotation()
 
     local function trinket_Pop()
         if cdUsage and ui.checked("Trinkets") and (buff.symbolsOfDeath.exists() or cd.symbolsOfDeath.remain() < 1) and ttd("target") > ui.value("CDs TTD Limit") then
-            if br.canUseItem(13) and not hasEquiped(178715, 13) and not hasEquiped(184016, 13) and not hasEquiped(181333, 13) and not hasEquiped(179350, 13) then
+            if br.canUseItem(13) and not br.hasEquiped(178715, 13) and not br.hasEquiped(184016, 13) and not br.hasEquiped(181333, 13) and not br.hasEquiped(179350, 13) then
                 br.useItem(13)
             end
-            if br.canUseItem(14) and not hasEquiped(178715, 14) and not hasEquiped(184016, 14) and not hasEquiped(181333, 14) and not hasEquiped(179350, 14) then
+            if br.canUseItem(14) and not br.hasEquiped(178715, 14) and not br.hasEquiped(184016, 14) and not br.hasEquiped(181333, 14) and not br.hasEquiped(179350, 14) then
                 br.useItem(14)
             end
         end
