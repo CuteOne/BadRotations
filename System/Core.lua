@@ -34,7 +34,7 @@ end
 
 --[[This function is refired everytime wow ticks. This frame is located at the top of Core.lua]]
 function br:getUpdateRate()
-    local updateRate = updateRate or 0.1
+    local updateRate = 0.1
 
     local FrameRate = br._G.GetFramerate() or 0
     if br.isChecked("Auto Delay") then
@@ -224,7 +224,7 @@ function br.BadRotationsUpdate(self)
                 end
                 -- LoS Line Draw
                 if br.isChecked("Healer Line of Sight Indicator") then
-                    inLoSHealer()
+                    br.inLoSHealer()
                 end
                 -- Get DBM/BigWigs Timer/Bars
                 -- global -> br.DBM.Timer
