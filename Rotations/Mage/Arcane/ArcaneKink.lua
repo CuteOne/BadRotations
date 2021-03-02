@@ -555,8 +555,8 @@ local function runRotation()
     end
 
     --wipe timers table
-    if timersTable then
-        wipe(timersTable)
+    if br.timersTable then
+        wipe(br.timersTable)
     end
 
     --local enemies table with extra data

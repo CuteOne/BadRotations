@@ -52,6 +52,9 @@ function br:MinimapButton()
 	br.BadRotationsButton:SetScript(
 		"OnClick",
 		function(self, button)
+			if not br.unlocked then
+				print("|cffFFFFFFCannot Start... |cffFF1100BR |cffFFFFFFcan not complete loading. Please check requirements.")
+			end
 			if button == "LeftButton" then
 				if br._G.IsShiftKeyDown() and not br._G.IsAltKeyDown() and not br._G.UnitAffectingCombat("player") then
 					if br.data.settings[br.selectedSpec].toggles["Main"] == 1 then
