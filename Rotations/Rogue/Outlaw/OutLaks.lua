@@ -827,7 +827,7 @@ end
 --dps()
 actionList.dps = function()
 
-    if mode.vanish == 1 and cast.able.vanish() and br.isBoss() then
+    if mode.vanish == 1 and mode.cooldown == 1 and cast.able.vanish() and br.isBoss() then
         cast.adrenalineRush()
         cast.vanish()
         return true
@@ -843,7 +843,7 @@ actionList.dps = function()
         end
     else
 
-        if mode.vanish == 1 and not stealth and cast.able.vanish() and echoStealth() and br.getCombatTime() > 4 or br.isBoss() then
+        if mode.vanish == 1 and not stealth and cast.able.vanish() and echoStealth() and br.getCombatTime() > 4 then
             if cast.vanish() then
                 return true
             end
@@ -1109,18 +1109,18 @@ actionList.dps = function()
 
     if br.isChecked("Use Trinkets") then
 
-        local Trinket13 = _G.GetInventoryItemID("player", 13)
-        local Trinket14 = _G.GetInventoryItemID("player", 14)
+        local Trinket13 = br._G.GetInventoryItemID("player", 13)
+        local Trinket14 = br._G.GetInventoryItemID("player", 14)
 
         local hold13, hold14
 
         -- Skuler's Wing
-        if (_G.GetInventoryItemID("player", 13) == 184016 or _G.GetInventoryItemID("player", 14) == 184016)
+        if  (br._G.GetInventoryItemID("player", 13) == 184016 or br._G.GetInventoryItemID("player", 14) == 184016)
                 and br.canUseItem(184016) and br.getCombatTime() > 5 then
             br.useItem(184016)
         end
         --darkmoon trinket
-        if (_G.GetInventoryItemID("player", 13) == 173087 or _G.GetInventoryItemID("player", 14) == 173087)
+        if  (br._G.GetInventoryItemID("player", 13) == 173087 or br._G.GetInventoryItemID("player", 14) == 173087)
                 and br.canUseItem(173087) and inCombat and not stealth then
             br.useItem(173087)
         end
@@ -1286,14 +1286,14 @@ actionList.Extra = function()
     --OOC trinket usage
     --Mistcaller Ocarina
     if br.isChecked("Use Trinkets") and not inCombat then
-        if (_G.GetInventoryItemID("player", 13) == 178715 or _G.GetInventoryItemID("player", 14) == 178715)
+        if  (br._G.GetInventoryItemID("player", 13) == 178715 or br._G.GetInventoryItemID("player", 14) == 178715)
                 and buff.mistcallerOcarina.remain() < 60 and not br.isMoving("player") and br.canUseItem(178715) then
             br.useItem(178715)
             return true
         end
 
         --[[
-        if (_G.GetInventoryItemID("player", 13) == 184016 or _G.GetInventoryItemID("player", 14) == 184016) and br.canUseItem(184016) then
+        if  (br._G.GetInventoryItemID("player", 13) == 184016 or br._G.GetInventoryItemID("player", 14) == 184016) and br.canUseItem(184016) then
             if #enemies.yards25nc > 0 then
                 for i = 1, #enemies.yards25nc do
                     local thisUnit = enemies.yards25nc[i]
@@ -1306,7 +1306,7 @@ actionList.Extra = function()
             end
         end
         --Inscrutable Quantum Device
-        if (_G.GetInventoryItemID("player", 13) == 179350 or _G.GetInventoryItemID("player", 14) == 179350) and br.canUseItem(179350) then
+        if  (br._G.GetInventoryItemID("player", 13) == 179350 or br._G.GetInventoryItemID("player", 14) == 179350) and br.canUseItem(179350) then
             if #enemies.yards25nc > 0 then
                 for i = 1, #enemies.yards25nc do
                     local thisUnit = enemies.yards25nc[i]
@@ -1557,7 +1557,7 @@ actionList.Interrupt = function()
                         end
                     end
                 else
-                    if cloakList[interruptID] then
+                    if mode.cloak == 1 and cloakList[interruptID] then
                         if cast.cloakOfShadows() then
                             return true
                         end
@@ -1613,7 +1613,7 @@ actionList.Interrupt = function()
 
             if br.canInterrupt(interrupt_target, br.getOptionValue("Interrupt %")) then
                 distance = br.getDistance(interrupt_target)
-                if not (inInstance and #tanks > 0 and select(3, br._G.UnitClass(tanks[1].unit)) == 1 and br.hasBuff(23920, tanks[1].unit) and br._GetUnitIsUnit(select(3, br._G.UnitCastID(interrupt_target)), tanks[1].unit)) then
+                if not (inInstance and #tanks > 0 and select(3, br._G.UnitClass(tanks[1].unit)) == 1 and br.hasBuff(23920, tanks[1].unit) and br._G.GetUnitIsUnit(select(3, br._G.UnitCastID(interrupt_target)), tanks[1].unit)) then
                     if StunsBlackList[br.GetObjectID(interrupt_target)] == nil and br.player.cast.timeRemain(interrupt_target) < br.getTTD(interrupt_target) then
                         if cd.global.remain() == 0 then
                             if mode.gouge ~= 2 and mode.gouge < 5 and not cd.gouge.exists()
