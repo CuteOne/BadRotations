@@ -846,8 +846,8 @@ end
             return ttdSec
         end
 
-        if timersTable then
-             wipe(timersTable)
+        if br.timersTable then
+             wipe(br.timersTable)
         end
 
           --calc damge
