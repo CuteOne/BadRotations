@@ -90,20 +90,20 @@ br.rotations.support["PetCuteOne"] = function()
     if br.isChecked("Pet - Auto Attack/Passive") then
         -- Set Pet Mode Out of Comat / Set Mode Passive In Combat
         if inCombat and (petMode == "Defensive" or petMode == "Passive") and not haltProfile then
-            PetAssistMode()
+            br._G.PetAssistMode()
         elseif not inCombat and petMode == "Assist" and #enemies.yards40nc > 0 and not haltProfile then
-            PetDefensiveMode()
+            br._G.PetDefensiveMode()
         elseif petMode ~= "Passive" and ((inCombat and #enemies.yards40 == 0) or haltProfile) and not br.isUnitCasting("player") then
-            PetPassiveMode()
+            br._G.PetPassiveMode()
         end
         -- Pet Attack / retreat
         if (inCombat or petCombat) and not haltProfile then
-            PetAttack(petTarget)
+            br._G.PetAttack(petTarget)
         elseif not inCombat or (inCombat and not br.isValidUnit(petTarget)) or haltProfile
             and IsPetAttackActive() and not br.isUnitCasting("player")
         then
-            PetStopAttack()
-            PetFollow()
+            br._G.PetStopAttack()
+            br._G.PetFollow()
         end
     end
     -- Manage Pet Abilities
