@@ -820,6 +820,11 @@ local function runRotation()
         tank = "Player"
     end
 
+    local function round(num, numDecimalPlaces)
+        local mult = 10 ^ (numDecimalPlaces or 0)
+        return math.floor(num * mult + 0.5) / mult
+    end
+
     br.druid.shiftTimer = br.druid.shiftTimer or 0
     local function clearForm()
         if not noform and not buff.incarnationTreeOfLife.exists() then
@@ -2010,11 +2015,6 @@ local function runRotation()
     --- In Combat - Rotations ---
     -----------------------------
     --unused for now
-
-    local function round(num, numDecimalPlaces)
-        local mult = 10 ^ (numDecimalPlaces or 0)
-        return math.floor(num * mult + 0.5) / mult
-    end
 
     local function cat_combat()
         --cat_dps
