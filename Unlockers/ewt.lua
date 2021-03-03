@@ -18,7 +18,7 @@ function unlock.EWTUnlock()
     b.ObjectID = ObjectID
     b.ObjectIsUnit = ObjectIsUnit
     b.GetAnglesBetweenObjects = function(Object1, Object2)
-        if b.UnitIsVisible(Object1) and b.UnitIsVisible(Object2) then
+        if b.ObjectIsVisible(Object1) and b.ObjectIsVisible(Object2) then
             local X1, Y1, Z1 = b.ObjectPosition(Object1)
             local X2, Y2, Z2 = b.ObjectPosition(Object2)
             -- print(Unit1,X1,Y1,Z1,unit2,X2,Y2,Z2)
