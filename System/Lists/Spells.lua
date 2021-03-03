@@ -2114,6 +2114,7 @@ br.lists.spells = {
                 divinePurpose               = 223819,
                 ferventMartyr               = 223316,
                 infusionOfLight             = 54149,
+                innervate                   = 29166,
                 ruleOfLaw                   = 214202,
                 theLightSaves               = 200423,
                 vindicator                  = 200376,

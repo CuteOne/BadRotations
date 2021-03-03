@@ -77,6 +77,7 @@ local function createOptions()
         -- br.ui:createCheckbox(section, "Advanced Trinket Support")
         br.ui:checkSectionState(section) ]]
         section = br.ui:createSection(br.ui.window.profile, "General - Version 1.1")
+        --br.ui:createDropdown(section,"Spender Prio", {"Wog","Lod"})
         br.ui:createCheckbox(section, "Raid Boss Helper")
         -- Blessing of Freedom
         br.ui:createCheckbox(section, "Blessing of Freedom")
@@ -145,6 +146,9 @@ local function createOptions()
         br.ui:createSpinner(section, "FoL Beacon", 70, 0, 100, 5, "", "Health of Beacon Target to cast FoL At")
         br.ui:createSpinner(section, "FoL Tanks", 70, 0, 100, 5, "", "|cffFFFFFFTanks Health Percent to Cast At", true)
         br.ui:createSpinner(section, "FoL Infuse", 70, 0, 100, 5, "", "|cffFFFFFFIn Infuse buff Health Percent to Cast At", true)
+        br.ui:createSpinner(section, "Bestow Faith", 80, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At")
+        br.ui:createDropdownWithout(section, "Bestow Faith Target", {"|cffFFFFFFAll", "|cffFFFFFFTanks", "|cffFFFFFFSelf"}, 1, "Target for BF")
+        
         --Holy Light
         br.ui:createSpinner(section, "Holy Light", 85, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At")
         br.ui:createDropdownWithout(section, "Holy Light Infuse", {"|cffFFFFFFNormal", "|cffFFFFFFOnly Infuse"}, 2, "|cffFFFFFFOnly Use Infusion Procs.")
@@ -240,7 +244,7 @@ local function runRotation()
     end
     if setwindow == false then
         br._G.RunMacroText("/console SpellQueueWindow 0")
-        --Print("Set SQW")
+        br.player.ui.print("Set SQW")
         setwindow = true
     end
 
@@ -392,9 +396,10 @@ local function runRotation()
             facing = facing + 0.05
         end
         if bestAngleUnitsHit >= minUnits then
-            br._G.FaceDirection(bestAngle)
-            br._G.CastSpellByName(br._G.GetSpellInfo(spell))
-            br._G.FaceDirection(curFacing)
+			br._G.FaceDirection(bestAngle, true)
+			br._G.CastSpellByName(br._G.GetSpellInfo(spell))
+			br._G.FaceDirection(curFacing)
+			lodFaced = true
             return true
         end
         return false
@@ -537,7 +542,7 @@ local function runRotation()
                     end
                 end
             end
-            if cast.able.holyShock() then
+            if cast.able.holyShock() and (ui.checked("Dev Stuff Leave off") or unit.facing("player", "target")) then
                 if cast.holyShock("target") then
                     --Print("Holy Shock 12")
                     return
@@ -559,7 +564,7 @@ local function runRotation()
                 end
                 -- Start Attack
                 if not br._G.IsAutoRepeatSpell(br._G.GetSpellInfo(6603)) and unit.valid("target") and unit.distance("target") <= 5 then
-                    br._G.StartAttack(units.dyn5)
+                    br._G.StartAttack()
                 end
                 -- Light's Hammer
                 if ui.checked("Light's Hammer Damage") and talent.lightsHammer and cast.able.lightsHammer() and not unit.moving("player") then
@@ -776,7 +781,7 @@ local function runRotation()
         local blessingOfSacrificeDAMAGER = nil
         local layOnHandsTarget = nil
 
-        -- check for bop target / BoS target
+        -- for bop target / BoS target
         for i = 1, #br.friend do
             if br.friend[i].hp < 100 and br._G.UnitInRange(br.friend[i].unit) and not br.UnitDebuffID(br.friend[i].unit, 25771) and not unit.deadOrGhost(br.friend[i].unit) then
                 if br.friend[i].hp <= ui.value("Blessing of Protection") then
@@ -940,7 +945,7 @@ local function runRotation()
                         end
                     end
                 end
-                if cast.able.holyShock() then
+                if cast.able.holyShock() and (ui.checked("Dev Stuff Leave off") or unit.facing("player", "target")) then
                     if cast.holyShock("target") then
                         --Print("Holy Shock 12")
                         return
@@ -987,7 +992,7 @@ local function runRotation()
                     end
                     -- Start Attack
                     if not br._G.IsAutoRepeatSpell(br._G.GetSpellInfo(6603)) and unit.valid("target") and unit.distance("target") <= 5 then
-                        br._G.StartAttack(units.dyn5)
+                        br._G.StartAttack()
                     end
                     -- Light's Hammer
                     if ui.checked("Light's Hammer Damage") and talent.lightsHammer and cast.able.lightsHammer() and not unit.moving("player") then
@@ -1047,7 +1052,7 @@ local function runRotation()
 
         if mode.glimmer == 1 and (inInstance or inRaid or OWGroup or solo) then
             if br.getSpellCD(20473) < gcd then
-                -- Check here to see if shock is not ready, but dawn is - then use dawn
+                -- here to see if shock is not ready, but dawn is - then use dawn
                 --critical first
                 for i = 1, #tanks do
                     local thisUnit = tanks[i].unit
@@ -1149,7 +1154,7 @@ local function runRotation()
             end
         end
 
-        if ui.checked("Judgment Heal") and talent.judgmentOfLight and unit.facing("player", "target") and unit.inCombat() then
+        if ui.checked("Judgment Heal") and talent.judgmentOfLight and (ui.checked("Dev Stuff Leave off") or unit.facing("player", "target")) and unit.inCombat() then
             if cast.judgment("target") then
                 return true
             end
@@ -1158,6 +1163,28 @@ local function runRotation()
         if ui.checked("High Prio Crusader Strike") and talent.crusadersMight and br.getSpellCD(20473) > gcd * 1.5 then
             if cast.crusaderStrike(units.dyn5) then
                 return true
+            end
+        end
+
+        if talent.bestowFaith and ui.checked("Bestow Faith") and cast.able.bestowFaith() and br.getSpellCD(20473) > gcd then
+            if ui.value("Bestow Faith Target") == 1 then
+                if lowest.hp <= ui.value("Bestow Faith") and br._G.UnitInRange(lowest.unit) then
+                    if cast.bestowFaith(lowest.unit) then
+                        return true
+                    end
+                end
+            elseif ui.value("Bestow Faith Target") == 2 and #tanks > 0 and br._G.UnitInRange(tanks[1].unit) then
+                if tanks[1].hp <= ui.value("Bestow Faith") then
+                    if cast.bestowFaith(tanks[1].unit) then
+                        return true
+                    end
+                end
+            elseif ui.value("Bestow Faith Target") == 3 then
+                if php <= ui.value("Bestow Faith") then
+                    if cast.bestowFaith("player") then
+                        return true
+                    end
+                end
             end
         end
 
@@ -1248,6 +1275,13 @@ local function runRotation()
     end -- end healing
 
     local function mPlusGods() -- 99% Feng's massive brain
+
+        if ui.checked("Consecration") and cast.able.consecration() and #enemies.yards5 >= ui.value("Consecration") and br.getDebuffRemain("target", 204242) == 0 and (not br._G.GetTotemInfo(1) or (br.getDistanceToObject("player", cX, cY, cZ) > 7) or br._G.GetTotemTimeLeft(1) < 2) then
+            if cast.consecration() then
+                cX, cY, cZ = br._G.ObjectPosition("player")
+                return
+            end
+        end
         --Spiteful
         for i = 1, br._G.GetObjectCount() do
             local object = br._G.GetObjectWithIndex(i)
