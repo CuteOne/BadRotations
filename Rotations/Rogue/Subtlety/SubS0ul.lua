@@ -254,7 +254,7 @@ local function runRotation()
         elseif ui.value("Auto Tricks") == 2 then
             for i = 1, #br.friend do
                 local thisUnit = br.friend[i].unit
-                if br._G.unit.role(thisUnit) == "TANK" and not br.GetUnitIsDeadOrGhost(thisUnit) and br.getLineOfSight("player", thisUnit) then
+                if unit.role(thisUnit) == "TANK" and not br.GetUnitIsDeadOrGhost(thisUnit) and br.getLineOfSight("player", thisUnit) then
                     tricksUnit = thisUnit
                     break
                 end
