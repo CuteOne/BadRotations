@@ -827,7 +827,7 @@ end
 --dps()
 actionList.dps = function()
 
-    if mode.vanish == 1 and mode.cooldown == 1 and cast.able.vanish() and br.isBoss() then
+    if mode.vanish == 1 and mode.cooldown == 1 and cast.able.vanish() and br.isBoss() and not stealth then
         cast.adrenalineRush()
         cast.vanish()
         return true
@@ -843,7 +843,7 @@ actionList.dps = function()
         end
     else
 
-        if mode.vanish == 1 and not stealth and cast.able.vanish() and echoStealth() and br.getCombatTime() > 4 then
+        if mode.vanish == 1 and not stealth and cast.able.vanish() and echoStealth() and br.getCombatTime() > 4 and not stealth then
             if cast.vanish() then
                 return true
             end
