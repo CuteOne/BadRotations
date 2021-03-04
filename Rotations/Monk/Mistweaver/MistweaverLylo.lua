@@ -107,37 +107,37 @@ local text = {
 }
 
 local function createToggles()
-    CooldownModes = {
+    local CooldownModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.lifeCocoon },
         [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 1, icon = br.player.spell.lifeCocoon },
         [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.lifeCocoon }
     }
-    CreateButton("Cooldown",1,0)
-    ThunderFocusTeaModes = {
+    br.ui:createToggle(CooldownModes,"Cooldown",1,0)
+    local ThunderFocusTeaModes = {
         [1] = { mode = "Auto", value = 1, overlay = "Thunder Focus Tea Mode Auto", tip = "Thunder Focus Tea Mode Auto", highlight = 1, icon = br.player.spell.thunderFocusTea },
         [2] = { mode = "EM", value = 2, overlay = "Thunder Focus Tea Mode - Enveloping Mist", tip = "Thunder Focus Tea Mode - Enveloping Mist", highlight = 1, icon = br.player.spell.envelopingMist },
         [3] = { mode = "VVF", value = 3, overlay = "Thunder Focus Tea Mode - Vivify", tip = "Thunder Focus Tea Mode - Vivify", highlight = 1, icon = br.player.spell.vivify },
         [4] = { mode = "RM", value = 4, overlay = "Thunder Focus Tea Mode - Renewing Mist", tip = "Thunder Focus Tea Mode - Renewing Mist", highlight = 1, icon = br.player.spell.renewingMist },
         [5] = { mode = "RSK", value = 5, overlay = "Thunder Focus Tea Mode - Rising Sun Kick", tip = "Thunder Focus Tea Mode - Rising Sun Kick", highlight = 1, icon = br.player.spell.risingSunKick }
     }
-    CreateButton("ThunderFocusTea", 2, 0)
-    DPSModes = {
+    br.ui:createToggle(ThunderFocusTeaModes,"ThunderFocusTea", 2, 0)
+    local DPSModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.tigerPalm },
         [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 1, icon = br.player.spell.spinningCraneKick },
         [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 1, icon = br.player.spell.tigerPalm },
         [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.vivify}
     }
-    CreateButton("DPS", 3, 0)
-    InterruptModes = {
+    br.ui:createToggle(DPSModes,"DPS", 3, 0)
+    local InterruptModes = {
         [1] = { mode = "On", value = 1, overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.paralysis },
         [2] = { mode = "Off", value = 2, overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.paralysis }
     }
-    CreateButton("Interrupt", 4, 0)
-    DetoxModes = {
+    br.ui:createToggle(InterruptModes,"Interrupt", 4, 0)
+    local DetoxModes = {
         [1] = { mode = "On", value = 1, overlay = "Detox Enabled", tip = "Detox Enabled", highlight = 1, icon = br.player.spell.detox },
         [2] = { mode = "Off", value = 2, overlay = "Detox Disabled", tip = "Detox Disabled", highlight = 0, icon = br.player.spell.detox }
     };
-    CreateButton("Detox", 5, 0)
+    br.ui:createToggle(DetoxModes,"Detox", 5, 0)
 end
 
 local labels = {
@@ -354,7 +354,7 @@ local debugMessage = function(message)
 end
 
 local getRealHP = function(param)
-    return 100*(br._G.UnitHealth(param)+UnitGetIncomingHeals(param,"player"))/UnitHealthMax(param)
+    return 100*(br._G.UnitHealth(param)+br._G.UnitGetIncomingHeals(param,"player"))/br._G.UnitHealthMax(param)
 end
 
 
@@ -448,7 +448,7 @@ local actionList = {
                 end
             end
             -- Soothing Mist
-            if ui.checked(text.heal.soothingMist.soothingMist) and cd.soothingMist.ready() and not cast.active.soothingMist() and not player.isMoving then
+            if ui.checked(text.heal.soothingMist.soothingMist) and cd.soothingMist.ready() and not cast.active.soothingMist() and not player.br.isMoving then
                 if friends.lowest.hp <= ui.value(text.heal.soothingMist.soothingMist) then
                     if cast.soothingMist(friends.lowest.unit) then
                         lastSoothingMist = {
@@ -508,8 +508,8 @@ local actionList = {
         AoERotation = function()
             -- Chi Burst
             debugMessage("      Chi Burst Init")
-            if ui.checked(text.heal.chiBurst) and cd.chiBurst.ready() and talent.chiBurst and not player.isMoving then
-                local lowAlliesTargetsChiBurst = getUnitsInRect(7 , 40, false, ui.value(text.heal.chiBurst.."2"))
+            if ui.checked(text.heal.chiBurst) and cd.chiBurst.ready() and talent.chiBurst and not player.br.isMoving then
+                local lowAlliesTargetsChiBurst = br.getUnitsInRect(7 , 40, false, ui.value(text.heal.chiBurst.."2"))
                 if lowAlliesTargetsChiBurst >= ui.value(text.heal.chiBurst.."1") then
                     if cast.chiBurst(player.unit) then ui.debug("[AUTO - SUCCESS]: "..text.heal.chiBurst) return true else ui.debug("[AUTO - FAIL]: "..text.heal.chiBurst) return false end
                 end
@@ -525,9 +525,9 @@ local actionList = {
             debugMessage("      Essence Font End")
             -- Enveloping Breath
             debugMessage("      Enveloping Breath Init")
-            if ui.checked(text.heal.envelopingBreath) and cd.envelopingMist.ready() and not player.isMoving then
-                if totemInfo.yulonDuration > cast.time.envelopingMist() + getLatency() or totemInfo.chiJiDuration > cast.time.envelopingMist() + getLatency() then
-                    local lowHealthAroundUnit = getUnitsToHealAround(friends.lowest.unit, 7.5, ui.value(text.heal.envelopingBreath.."2"), 6)
+            if ui.checked(text.heal.envelopingBreath) and cd.envelopingMist.ready() and not player.br.isMoving then
+                if totemInfo.yulonDuration > cast.time.envelopingMist() + br.getLatency() or totemInfo.chiJiDuration > cast.time.envelopingMist() + br.getLatency() then
+                    local lowHealthAroundUnit = br.getUnitsToHealAround(friends.lowest.unit, 7.5, ui.value(text.heal.envelopingBreath.."2"), 6)
                     if #lowHealthAroundUnit >= ui.value(text.heal.envelopingBreath.."1") then
                         if cast.envelopingMist(friends.lowest.unit) then ui.debug("[AUTO - SUCCESS]: "..text.heal.envelopingBreath) return true else ui.debug("[AUTO - FAIL]: "..text.heal.envelopingBreath) return false end
                     end
@@ -536,7 +536,7 @@ local actionList = {
             debugMessage("      Enveloping Breath End")
             -- Vivify AoE - testing to be insta cast with soothingMist
             --debugMessage("      Vivify AoE Init")
-            --if ui.checked(text.heal.vivifyAoE) and cd.vivify.ready() and not player.isMoving then
+            --if ui.checked(text.heal.vivifyAoE) and cd.vivify.ready() and not player.br.isMoving then
             --    local countUnitsWithRenewingMistUnderHealth = 0
             --    if not buff.renewingMist.exists(friends.lowest.unit) and friends.lowest.hp <= ui.value(text.heal.vivifyAoE.."2") then
             --        countUnitsWithRenewingMistUnderHealth = 1
@@ -571,7 +571,7 @@ local actionList = {
             debugMessage("      Chi Wave End")
             -- Enveloping Mist
             debugMessage("      Enveloping Mist Init")
-            if ui.checked(text.heal.envelopingMist) and cd.envelopingMist.ready() and not player.isMoving then
+            if ui.checked(text.heal.envelopingMist) and cd.envelopingMist.ready() and not player.br.isMoving then
                 if friends.lowest.hp <= ui.value(text.heal.envelopingMist) then
                     if cast.envelopingMist(friends.lowest.unit) then ui.debug("[AUTO - SUCCESS]: "..text.heal.envelopingMist) return true else ui.debug("[AUTO - FAIL]: "..text.heal.envelopingMist) return false end
                 end
@@ -579,7 +579,7 @@ local actionList = {
             debugMessage("      Enveloping Mist End")
             -- Vivify
             debugMessage("      Vivify Init")
-            if ui.checked(text.heal.vivify) and cd.vivify.ready() and not player.isMoving then
+            if ui.checked(text.heal.vivify) and cd.vivify.ready() and not player.br.isMoving then
                 if friends.lowest.hp <= ui.value(text.heal.vivify) then
                     if cast.vivify(friends.lowest.unit) then ui.debug("[AUTO - SUCCESS]: "..text.heal.vivify) return true else ui.debug("[AUTO - FAIL]: "..text.heal.vivify) return false end
                 end
@@ -628,7 +628,7 @@ local actionList = {
                 end
             end
             -- Vivify
-            if ui.checked(text.heal.outOfCombat.vivify) and cd.vivify.ready() and not player.isMoving then
+            if ui.checked(text.heal.outOfCombat.vivify) and cd.vivify.ready() and not player.br.isMoving then
                 if friends.lowest.hp <= ui.value(text.heal.outOfCombat.vivify) then
                     if cast.vivify(friends.lowest.unit) then ui.debug("[AUTO - SUCCESS]: "..text.heal.outOfCombat.vivify) return true else ui.debug("[AUTO - FAIL]: "..text.heal.outOfCombat.vivify) return false end
                 end
@@ -637,7 +637,7 @@ local actionList = {
 
         thunderFocusTeaRotation = function()
             if cd.thunderFocusTea.ready() then
-                if ui.mode.thunderFocusTea == 1 or ui.mode.thunderFocusTea == 2 and not player.isMoving then -- EM
+                if ui.mode.thunderFocusTea == 1 or ui.mode.thunderFocusTea == 2 and not player.br.isMoving then -- EM
                     -- Thunder Focus Tea + Enveloping Mist
                     if ui.checked(text.heal.thunderFocusTea.envelopingMist) and friends.lowest.hp <= ui.value(text.heal.thunderFocusTea.envelopingMist) and cd.envelopingMist.ready() then
                         if cast.thunderFocusTea(player.unit) and cast.envelopingMist(friends.lowest.unit) then
@@ -646,7 +646,7 @@ local actionList = {
                         else ui.debug("[AUTO - FAIL]: "..text.heal.thunderFocusTea.envelopingMist) return false end
                     end
                 end
-                if ui.mode.thunderFocusTea == 1 or ui.mode.thunderFocusTea == 3 and not player.isMoving then -- VVF
+                if ui.mode.thunderFocusTea == 1 or ui.mode.thunderFocusTea == 3 and not player.br.isMoving then -- VVF
                     -- Thunder Focus Tea + Vivify
                     if ui.checked(text.heal.thunderFocusTea.vivify) and friends.lowest.hp <= ui.value(text.heal.thunderFocusTea.vivify.."2") and cd.vivify.ready() then
                         if player.mana <= ui.value(text.heal.thunderFocusTea.vivify.."1") then
@@ -668,7 +668,7 @@ local actionList = {
                 end
                 if ui.mode.thunderFocusTea == 1 or ui.mode.thunderFocusTea == 5 then -- RSK
                     -- Thunder Focus Tea + Rising Sun Kick
-                    if ui.checked(text.heal.thunderFocusTea.risingSunKick) and cd.risingSunKick.ready() and br.dynamicTarget.range5 ~= nil and ObjectIsFacing(player.unit, br.dynamicTarget.range5) then
+                    if ui.checked(text.heal.thunderFocusTea.risingSunKick) and cd.risingSunKick.ready() and br.dynamicTarget.range5 ~= nil and br._G.ObjectIsFacing(player.unit, br.dynamicTarget.range5) then
                         if cast.thunderFocusTea(player.unit) and cast.risingSunKick(friends.lowest.unit) then
                             ui.debug("[AUTO - SUCCESS]: "..text.heal.thunderFocusTea.risingSunKick)
                             return true
@@ -706,7 +706,7 @@ local actionList = {
         -- Summon Jade Serpent Statue
         debugMessage("      Summon Jade Serpent Statue Init")
         if ui.checked(text.utility.summonJadeSerpentStatue) and talent.summonJadeSerpentStatue and cd.summonJadeSerpentStatue.ready() then
-            local distanceToStatue = getDistanceToObject(player.unit, summonJadeSerpentStatuePosition.x, summonJadeSerpentStatuePosition.y, summonJadeSerpentStatuePosition.z)
+            local distanceToStatue = br.getDistanceToObject(player.unit, summonJadeSerpentStatuePosition.x, summonJadeSerpentStatuePosition.y, summonJadeSerpentStatuePosition.z)
             if distanceToStatue > 40 or totemInfo.jadeSerpentStatueDuration <= 5 then
                 local aroundUnit
                 if ui.value(text.utility.summonJadeSerpentStatue) == 1 and #br.friend > 1 then
@@ -717,7 +717,7 @@ local actionList = {
                 local px, py, pz = br.GetObjectPosition(aroundUnit)
                 px = px + math.random(-2, 2)
                 py = py + math.random(-2, 2)
-                if castGroundAtLocation({x = px, y = py, z = pz}, spell.summonJadeSerpentStatue) then
+                if br.castGroundAtLocation({x = px, y = py, z = pz}, spell.summonJadeSerpentStatue) then
                     summonJadeSerpentStatuePosition = {
                         x = px,
                         y = py,
@@ -815,7 +815,7 @@ local actionList = {
                 local touchOfDeathMode = ui.value(text.damage.touchOfDeath)
                 for i = 1, #enemies.range5 do
                     local thisUnit = enemies.range5[i]
-                    if ObjectIsFacing(player.unit, thisUnit) then
+                    if br._G.ObjectIsFacing(player.unit, thisUnit) then
                         if touchOfDeathMode == 1 or (touchOfDeathMode == 2 and br.isBoss(thisUnit)) then
                             if unit.health(player.unit) > unit.health(thisUnit) or (br.isBoss(thisUnit) and unit.hp(thisUnit) <= 15) then
                                 if cast.touchOfDeath(thisUnit) then ui.debug("[AUTO - SUCCESS]: "..text.damage.touchOfDeath) return true else ui.debug("[AUTO - FAIL]: "..text.damage.touchOfDeath) return false end
@@ -829,7 +829,7 @@ local actionList = {
         AoERotation = function()
             if #enemies.range8 >= 3 then
                 -- Rising Sun Kick
-                if cd.risingSunKick.ready() and ObjectIsFacing(player.unit, br.dynamicTarget.range5) then
+                if cd.risingSunKick.ready() and br._G.ObjectIsFacing(player.unit, br.dynamicTarget.range5) then
                     if cast.risingSunKick(br.dynamicTarget.range5) then ui.debug("[AUTO - SUCCESS]: Rising Sun Kick AoE") return true else ui.debug("[AUTO - FAIL]: Rising Sun Kick AoE") return false end
                 end
                 -- Spinning Crane Kick
@@ -840,7 +840,7 @@ local actionList = {
         end,
 
         singleTargetRotation = function()
-            if br.dynamicTarget.range5 ~= nil and ObjectIsFacing(player.unit, br.dynamicTarget.range5) then
+            if br.dynamicTarget.range5 ~= nil and br._G.ObjectIsFacing(player.unit, br.dynamicTarget.range5) then
                 -- Rising Sun Kick
                 if cd.risingSunKick.ready() then
                     if cast.risingSunKick(br.dynamicTarget.range5) then ui.debug("[AUTO - SUCCESS]: Rising Sun Kick ST") return true else ui.debug("[AUTO - FAIL]: Rising Sun Kick ST") return false end
@@ -858,7 +858,7 @@ local actionList = {
 
         chiJiRotation = function()
             -- Enveloping Mist Chi-Ji
-            if buff.invokeChiJiTheRedCrane.stack() == 3 or (totemInfo.chiJiDuration == 0 and buff.invokeChiJiTheRedCrane.stack() > 0 and not player.isMoving) then
+            if buff.invokeChiJiTheRedCrane.stack() == 3 or (totemInfo.chiJiDuration == 0 and buff.invokeChiJiTheRedCrane.stack() > 0 and not player.br.isMoving) then
                 debugMessage("      Enveloping Mist - Chi-Ji Init")
                 local theUnit
                 if cd.envelopingMist.ready() then
@@ -877,11 +877,11 @@ local actionList = {
             end
             if totemInfo.chiJiDuration > 0 and br.dynamicTarget.range5 ~= nil and friends.lowest.hp >= ui.value(text.damage.chiJiDpsThreshold) then
                 -- Rising Sun Kick
-                if cd.risingSunKick.ready() and ObjectIsFacing(player.unit, br.dynamicTarget.range5) then
+                if cd.risingSunKick.ready() and br._G.ObjectIsFacing(player.unit, br.dynamicTarget.range5) then
                     if cast.risingSunKick(br.dynamicTarget.range5) then ui.debug("[AUTO - SUCCESS]: Rising Sun Kick Chi-Ji") return true else ui.debug("[AUTO - FAIL]: Rising Sun Kick Chi-Ji") return false end
                 end
                 -- Blackout Kick on 3 stacks
-                if cd.blackoutKick.ready() and buff.teachingsOfTheMonastery.stack() == 3 and ObjectIsFacing(player.unit, br.dynamicTarget.range5) then
+                if cd.blackoutKick.ready() and buff.teachingsOfTheMonastery.stack() == 3 and br._G.ObjectIsFacing(player.unit, br.dynamicTarget.range5) then
                     if cast.blackoutKick(br.dynamicTarget.range5) then ui.debug("[AUTO - SUCCESS]: Blackout Kick Chi-Ji") return true else ui.debug("[AUTO - FAIL]: Blackout Kick Chi-Ji") return false end
                 end
                 if #enemies.range8 >= 3 then
@@ -891,7 +891,7 @@ local actionList = {
                     end
                 else
                     -- Tiger Palm alternate with Spinning Crane Kick
-                    if cd.tigerPalm.ready() and ObjectIsFacing(player.unit, br.dynamicTarget.range5) then
+                    if cd.tigerPalm.ready() and br._G.ObjectIsFacing(player.unit, br.dynamicTarget.range5) then
                         if cast.tigerPalm(br.dynamicTarget.range5) then ui.debug("[AUTO - SUCCESS]: Tiger Palm Chi-Ji") return true else ui.debug("[AUTO - FAIL]: Tiger Palm Chi-Ji") return false end
                     end
                 end
@@ -905,11 +905,11 @@ local actionList = {
                 end
                 if buff.ancientTeachingOfTheMonastery.exists() and br.dynamicTarget.range5 ~= nil and friends.lowest.hp >= ui.value(text.legendary.ancientTeachingOfTheMonastery) then
                     -- Rising Sun Kick
-                    if cd.risingSunKick.ready() and ObjectIsFacing(player.unit, br.dynamicTarget.range5) then
+                    if cd.risingSunKick.ready() and br._G.ObjectIsFacing(player.unit, br.dynamicTarget.range5) then
                         if cast.risingSunKick(br.dynamicTarget.range5) then ui.debug("[AUTO - SUCCESS]: Rising Sun Kick Ancient Teaching Of The Monastery") return true else ui.debug("[AUTO - FAIL]: Rising Sun Kick Ancient Teaching Of The Monastery") return false end
                     end
                     -- Blackout Kick on 3 stacks
-                    if cd.blackoutKick.ready() and buff.teachingsOfTheMonastery.stack() == 3 and ObjectIsFacing(player.unit, br.dynamicTarget.range5) then
+                    if cd.blackoutKick.ready() and buff.teachingsOfTheMonastery.stack() == 3 and br._G.ObjectIsFacing(player.unit, br.dynamicTarget.range5) then
                         if cast.blackoutKick(br.dynamicTarget.range5) then ui.debug("[AUTO - SUCCESS]: Blackout Kick Ancient Teaching Of The Monastery") return true else ui.debug("[AUTO - FAIL]: Blackout Kick Ancient Teaching Of The Monastery") return false end
                     end
                     if #enemies.range8 >= 3 and ui.mode.dps ~= 3 then
@@ -919,7 +919,7 @@ local actionList = {
                         end
                     else
                         -- Tiger Palm alternate with Spinning Crane Kick
-                        if cd.tigerPalm.ready() and ObjectIsFacing(player.unit, br.dynamicTarget.range5) then
+                        if cd.tigerPalm.ready() and br._G.ObjectIsFacing(player.unit, br.dynamicTarget.range5) then
                             if cast.tigerPalm(br.dynamicTarget.range5) then ui.debug("[AUTO - SUCCESS]: Tiger Palm Ancient Teaching Of The Monastery") return true else ui.debug("[AUTO - FAIL]: Tiger Palm Ancient Teaching Of The Monastery") return false end
                         end
                     end
@@ -931,7 +931,7 @@ local actionList = {
 
         rangedDamage = function()
             -- Crackling Jade Lightning
-            if br.dynamicTarget.range40 ~= nil and not player.isMoving and not cast.active.cracklingJadeLightning() then
+            if br.dynamicTarget.range40 ~= nil and not player.br.isMoving and not cast.active.cracklingJadeLightning() then
                 if ui.checked(text.damage.cracklingJadeLightning) and cd.cracklingJadeLightning.ready() then
                     if cast.cracklingJadeLightning(br.dynamicTarget.range40) then ui.debug("[AUTO - SUCCESS]: ".. text.damage.cracklingJadeLightning) return true else ui.debug("[AUTO - FAIL]: ".. text.damage.cracklingJadeLightning) return false end
                 end
@@ -997,7 +997,7 @@ local actionList = {
                     ui.debug("[MANUAL - SUCCESS]: "..text.manual.transcendenceOrTransfer)
                     return true
                 else ui.debug("[MANUAL - FAIL]: "..text.manual.transcendenceOrTransfer) return false end
-            elseif cd.transcendence.ready() and getDistanceToObject(player.unit,transcendencePosition.x, transcendencePosition.y, transcendencePosition.z) > 40 and buff.transcendence.exists() then
+            elseif cd.transcendence.ready() and br.getDistanceToObject(player.unit,transcendencePosition.x, transcendencePosition.y, transcendencePosition.z) > 40 and buff.transcendence.exists() then
                 if cast.transcendence() then
                     transcendencePosition.x, transcendencePosition.y, transcendencePosition.z = br._G.ObjectPosition(player.unit)
                     ui.debug("[MANUAL - SUCCESS]: "..text.manual.transcendenceOrTransfer)
@@ -1107,7 +1107,7 @@ local getTotemInfo = function()
     for index=1,4 do
         local exists, totemName, startTime, duration, _ = GetTotemInfo(index)
         if exists and totemName ~= nil then
-            local estimateDuration = round2(startTime + duration - GetTime())
+            local estimateDuration = br.round2(startTime + duration - GetTime())
             if string.find(totemName, "Jade") then
                 totemInfo.jadeSerpentStatueDuration = estimateDuration
             elseif string.find(totemName, "Yu'lon") then
@@ -1122,7 +1122,7 @@ end
 local getDebugInfo = function()
     if labels.lowest then
         if friends.lowest then
-            labels.lowest:SetText("   ".. UnitName(friends.lowest.unit) .. " at " .. round2(friends.lowest.hp, 2) .."%")
+            labels.lowest:SetText("   ".. br._G.UnitName(friends.lowest.unit) .. " at " .. br.round2(friends.lowest.hp, 2) .."%")
         end
         local tempColor = colors.red
         if friends.lowAllies.essenceFont >= ui.value(text.heal.essenceFont.."1") then
@@ -1155,12 +1155,12 @@ local getDebugInfo = function()
         end
         labels.lowAllies.weaponsOfOrder:SetText("   Weapons Of Order: ".. tempColor .. friends.lowAllies.weaponsOfOrder .."/".. ui.value(text.heal.weaponsOfOrder.."1") .. colors.white .. " under " .. ui.value(text.heal.weaponsOfOrder.."2").. "%")
         if br.dynamicTarget.range5 then
-            labels.br.dynamicTarget.range5:SetText("   ".. UnitName(br.dynamicTarget.range5) .. " at " .. round2(br.getHP(br.dynamicTarget.range5), 2) .."% at 5 yards")
+            labels.br.dynamicTarget.range5:SetText("   ".. br._G.UnitName(br.dynamicTarget.range5) .. " at " .. br.round2(br.getHP(br.dynamicTarget.range5), 2) .."% at 5 yards")
         else
             labels.br.dynamicTarget.range5:SetText("   No dynamic target at 5 yards")
         end
         if br.dynamicTarget.range40 then
-            labels.br.dynamicTarget.range40:SetText("   ".. UnitName(br.dynamicTarget.range40) .. " at " .. round2(br.getHP(br.dynamicTarget.range40), 2) .."% at 40 yards")
+            labels.br.dynamicTarget.range40:SetText("   ".. br._G.UnitName(br.dynamicTarget.range40) .. " at " .. br.round2(br.getHP(br.dynamicTarget.range40), 2) .."% at 40 yards")
         else
             labels.br.dynamicTarget.range40:SetText("   No dynamic target at 40 yards")
         end
@@ -1186,18 +1186,18 @@ local function runRotation()
     }
     friends             = {
         lowest          = br.friend[1],
-        range10         = getAllies("player", 10),
-        range30         = getAllies("player", 30),
-        range40         = getAllies("player", 40),
+        range10         = br.getAllies("player", 10),
+        range30         = br.getAllies("player", 30),
+        range40         = br.getAllies("player", 40),
     }
     friends.lowAllies   = {
-        essenceFont                 = getLowAlliesInTable(br.player.ui.value(text.heal.essenceFont.."2"), friends.range30),
-        essenceFontOoc              = getLowAlliesInTable(br.player.ui.value(text.heal.outOfCombat.essenceFont.."2") , friends.range30),
-        revival                     = getLowAlliesInTable(br.player.ui.value(text.heal.revival.."2"), friends.range40),
-        refreshingJadeWind          = getLowAlliesInTable(br.player.ui.value(text.heal.refreshingJadeWind.."2"), friends.range10),
-        invokeYulonTheJadeSerpent   = getLowAlliesInTable(br.player.ui.value(text.heal.invokeYulonTheJadeSerpent.."2"), friends.range40),
-        invokeChiJiTheRedCrane      = getLowAlliesInTable(br.player.ui.value(text.heal.invokeChiJiTheRedCrane.."2"), friends.range40),
-        weaponsOfOrder              = getLowAlliesInTable(br.player.ui.value(text.heal.weaponsOfOrder.."2"), friends.range40)
+        essenceFont                 = br.getLowAlliesInTable(br.player.ui.value(text.heal.essenceFont.."2"), friends.range30),
+        essenceFontOoc              = br.getLowAlliesInTable(br.player.ui.value(text.heal.outOfCombat.essenceFont.."2") , friends.range30),
+        revival                     = br.getLowAlliesInTable(br.player.ui.value(text.heal.revival.."2"), friends.range40),
+        refreshingJadeWind          = br.getLowAlliesInTable(br.player.ui.value(text.heal.refreshingJadeWind.."2"), friends.range10),
+        invokeYulonTheJadeSerpent   = br.getLowAlliesInTable(br.player.ui.value(text.heal.invokeYulonTheJadeSerpent.."2"), friends.range40),
+        invokeChiJiTheRedCrane      = br.getLowAlliesInTable(br.player.ui.value(text.heal.invokeChiJiTheRedCrane.."2"), friends.range40),
+        weaponsOfOrder              = br.getLowAlliesInTable(br.player.ui.value(text.heal.weaponsOfOrder.."2"), friends.range40)
     }
     player              = {
         hp              = br.player.health,
@@ -1206,7 +1206,7 @@ local function runRotation()
         race            = br.player.unit.race(),
         isFlying        = IsFlying(),
         isMounted       = IsMounted(),
-        isMoving        = isMoving("player"),
+        isMoving        = br.isMoving("player"),
         isDrinking      = br.getBuffRemain("player", 308433) > 0 or br.getBuffRemain("player", 167152) > 0,
         inCombat        = br.player.inCombat
     }
@@ -1237,8 +1237,8 @@ local function runRotation()
     debugMessage("Totem Info Done")
 
 
-    if pause(true) or player.isMounted or player.isFlying or player.isDrinking then
-        debugMessage("Paused")
+    if br.pause(true) or player.isMounted or player.isFlying or player.isDrinking then
+        debugMessage("paused")
         return true
     end
 
@@ -1253,7 +1253,7 @@ local function runRotation()
     if player.inCombat then
 
         if br._G.IsAoEPending() then
-            CancelPendingSpell()
+            br._G.CancelPendingSpell()
         end
 
         debugMessage("In Combat")
@@ -1395,7 +1395,7 @@ local function runRotation()
 
 end
 
-local id = 0
+local id = 270
 
 if br.rotations[id] == nil then
     br.rotations[id] = {}
