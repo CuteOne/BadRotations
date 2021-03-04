@@ -1445,7 +1445,7 @@ local function runRotation()
             end
             -- Travel Form
             if
-            not inCombat and not swimming and level >= 24 and not buff.prowl.exists() and not travel and not mount and not br._G.IsIndoors() and br.isMovingTime(1) and
+            not inCombat and not swimming and level >= 24 and not buff.prowl.exists() and not travel and not mount and not br._G.IsIndoors() and br.IsMovingTime(1) and
                     (br.getOptionValue("Auto Forms") == 1 or br.getOptionValue("Auto Forms") == 2)
             then
                 -- Print(br._G.GetShapeshiftForm())
