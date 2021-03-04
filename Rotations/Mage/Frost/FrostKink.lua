@@ -398,14 +398,14 @@ local function runRotation()
     -- Show/Hide toggles
     if not br._G.UnitAffectingCombat("player") then
         if not talent.cometStorm then
-            buttonCometStorm:Hide()
+            br.buttonCometStorm:Hide()
         else
-            buttonCometStorm:Show()
+            br.buttonCometStorm:Show()
         end
         if not talent.ebonbolt then
-            buttonEbonbolt:Hide()
+            br.buttonEbonbolt:Hide()
         else
-            buttonEbonbolt:Show()
+            br.buttonEbonbolt:Show()
         end
     end
     -- spellqueue ready
