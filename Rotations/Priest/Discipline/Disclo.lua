@@ -4,35 +4,35 @@ local rotationName = "PangDisc"
 
 local function createToggles()
     -- Cooldown Button
-    CooldownModes = {
+    local CooldownModes = {
         [1] = {mode = "Auto", value = 1, overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.divineStar},
         [2] = {mode = "On", value = 2, overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.divineStar},
         [3] = {mode = "Off", value = 3, overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.divineStar}
     }
-    CreateButton("Cooldown", 1, 0)
+    br.ui:createToggle("Cooldown", 1, 0)
     -- Defensive Button
-    DefensiveModes = {
+    local DefensiveModes = {
         [1] = {mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.powerWordBarrier},
         [2] = {mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.powerWordBarrier}
     }
-    CreateButton("Defensive", 2, 0)
+    br.ui:createToggle("Defensive", 2, 0)
     -- Decurse Button
-    DecurseModes = {
+    local DecurseModes = {
         [1] = {mode = "On", value = 1, overlay = "Decurse Enabled", tip = "Decurse Enabled", highlight = 1, icon = br.player.spell.purify},
         [2] = {mode = "Off", value = 2, overlay = "Decurse Disabled", tip = "Decurse Disabled", highlight = 0, icon = br.player.spell.purify}
     }
-    CreateButton("Decurse", 3, 0)
+    br.ui:createToggle("Decurse", 3, 0)
     -- Interrupt Button
-    InterruptModes = {
+    local InterruptModes = {
         [1] = {mode = "On", value = 1, overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.psychicScream},
         [2] = {mode = "Off", value = 2, overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.psychicScream}
     }
-    CreateButton("Interrupt", 4, 0)
-    BurstModes = {
+    br.ui:createToggle("Interrupt", 4, 0)
+    local BurstModes = {
         [1] = {mode = "Auto", value = 1, overlay = "Auto Ramp Enabled", tip = "Will Automatically Ramp based on DBM", highlight = 1, icon = br.player.spell.powerWordShield},
         [2] = {mode = "Hold", value = 2, overlay = "Ramp Disabled", tip = "No Ramp Logic.", highlight = 0, icon = br.player.spell.powerWordShield}
     }
-    CreateButton("Burst", 0, -1)
+    br.ui:createToggle("Burst", 0, -1)
 end
 
 local function createOptions()
@@ -42,7 +42,7 @@ local function createOptions()
         -------------------------
         -------- UTILITY --------
         -------------------------
-        section = br.ui:createSection(br.ui.window.profile, "General")
+        local section = br.ui:createSection(br.ui.window.profile, "General")
         br.ui:createCheckbox(section, "Enemy Target Lock")
         br.ui:createSpinner(section, "Heal OoC", 90, 1, 100, 1, "Set OoC HP value to heal.")
         br.ui:createCheckbox(section, "Power Word: Fortitude", "Maintain Fort Buff on Group")
@@ -185,20 +185,20 @@ local function runRotation()
     local drinking = br.getBuffRemain("player", 274914) ~= 0 or br.getBuffRemain("player", 167152) ~= 0 or br.getBuffRemain("player", 192001) ~= 0
 	local enemies = br.player.enemies
     local essence = br.player.essence
-    local falling, swimming, flying, moving = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player") > 0
+    local falling, swimming, flying, moving = br.getFallTime(), IsSwimming(), IsFlying(), br._G.GetUnitSpeed("player") > 0
     local freeMana = buff.innervate.exists() or buff.symbolOfHope.exists()
     local friends = friends or {}
     local gcd = br.player.gcd
     local gcdMax = br.player.gcdMax
-    local healPot = getHealthPot()
+    local healPot = br.getHealthPot()
     local inCombat = br.player.inCombat
     local inInstance = br.player.instance == "party"
     local inRaid = br.player.instance == "raid"
-    local lastSpell = lastSpellCast
+    local lastSpell = br.lastSpellCast
     local level = br.player.level
     local lootDelay = br.getOptionValue("LootDelay")
     local lowest = br.friend[1]
-    local mana = getMana("player")
+    local mana = br.getMana("player")
     local mode = br.player.ui.mode
     local perk = br.player.perk
     local php = br.player.health
@@ -216,8 +216,8 @@ local function runRotation()
     local units = br.player.units
     local schismCount = debuff.schism.count()
 
-    if timersTable then
-        wipe(timersTable)
+    if br.timersTable then
+        wipe(br.timersTable)
     end
 
     units.get(5)
@@ -226,7 +226,7 @@ local function runRotation()
     enemies.get(24)
     enemies.get(30)
     enemies.get(40)
-    friends.yards40 = getAllies("player", 40)
+    friends.yards40 = br.getAllies("player", 40)
 
     local atonementCount = br.player.buff.atonement.count()
     local schismBuff
@@ -251,8 +251,8 @@ local function runRotation()
     end
 
     if br.isChecked("Enemy Target Lock") and inCombat then
-        if UnitIsFriend("target", "player") or UnitIsDeadOrGhost("target") or not UnitExists("target") or UnitIsPlayer("target") then
-            TargetLastEnemy()
+        if br._G.UnitIsFriend("target", "player") or br.GetUnitIsDeadOrGhost("target") or not br.GetUnitExists("target") or br._G.UnitIsPlayer("target") then
+            br._G.TargetLastEnemy()
         end
     end
 
@@ -261,13 +261,13 @@ local function runRotation()
         local thisUnit = enemies.yards40[i]
         if debuff.schism.exists("target") and ttd("target") > 4 and br.getFacing("player","target")then
             schismBuff = "target"
-        elseif debuff.schism.exists(thisUnit) and not UnitIsOtherPlayersPet(thisUnit) and ttd(thisUnit) > 4 and br.getFacing("player",thisUnit) then
+        elseif debuff.schism.exists(thisUnit) and not br._G.UnitIsOtherPlayersPet(thisUnit) and ttd(thisUnit) > 4 and br.getFacing("player",thisUnit) then
             schismBuff = thisUnit
         end
         if schismBuff == nil then 
             if debuff.purgeTheWicked.exists("target") and ttd("target") > 4 and br.getFacing("player","target") then
                 ptwDebuff = "target"
-            elseif debuff.purgeTheWicked.exists(thisUnit) and not UnitIsOtherPlayersPet(thisUnit) and ttd(thisUnit) > 4 and br.getFacing("player",thisUnit)then
+            elseif debuff.purgeTheWicked.exists(thisUnit) and not br._G.UnitIsOtherPlayersPet(thisUnit) and ttd(thisUnit) > 4 and br.getFacing("player",thisUnit)then
                 ptwDebuff = thisUnit
             end
         end
@@ -300,9 +300,9 @@ local function runRotation()
     ----- APL LISTS -----
     ---------------------
     local function Interruptstuff()
-        if useInterrupts() then
+        if br.useInterrupts() then
             for i = 1, #enemies.yards40 do
-                thisUnit = enemies.yards40[i]
+                local thisUnit = enemies.yards40[i]
                 if br.canInterrupt(thisUnit, br.getOptionValue("Interrupt At")) then
                     if br.isChecked("Shining Force - Int") and br.getDistance(thisUnit) < 40 then
                         if cast.shiningForce() then
@@ -325,18 +325,18 @@ local function runRotation()
     end
 
     local function DefensiveTime()
-        if useDefensive() then
+        if br.useDefensive() then
             if br.isChecked("Fade") then
                 for i = 1, #enemies.yards30 do
                     local thisUnit = enemies.yards30[i]
-                    if UnitThreatSituation("player", thisUnit) ~= nil and UnitThreatSituation("player", thisUnit) > 1 and UnitAffectingCombat(thisUnit) then
+                    if br._G.UnitThreatSituation("player", thisUnit) ~= nil and br._G.UnitThreatSituation("player", thisUnit) > 1 and br._G.UnitAffectingCombat(thisUnit) then
                         if cast.fade() then
                             return
                         end
                     end
                 end
             end
-            if br.isChecked("Pot / Healthstone") and php <= br.getOptionValue("Pot / Healthstone") and inCombat and (hasHealthPot() or br.hasItem(5512) or br.hasItem(166799)) then
+            if br.isChecked("Pot / Healthstone") and php <= br.getOptionValue("Pot / Healthstone") and inCombat and (br.hasHealthPot() or br.hasItem(5512) or br.hasItem(166799)) then
                 if br.canUseItem(5512) then
                     br.useItem(5512)
                 elseif br.canUseItem(healPot) then
@@ -360,11 +360,11 @@ local function runRotation()
     end
 
     local function CooldownTime()
-        if useCDs() then
+        if br.useCDs() then
             -- Pain Suppression
             if br.isChecked("Pain Suppression Tank") and inCombat then
                 for i = 1, #br.friend do
-                    if br.friend[i].hp <= br.getValue("Pain Suppression Tank") and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+                    if br.friend[i].hp <= br.getValue("Pain Suppression Tank") and br._G.UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
                         if cast.painSuppression(br.friend[i].unit) then
                             return
                         end
@@ -386,21 +386,21 @@ local function runRotation()
                 end
             end
             for i = 1, #br.friend do
-                if br.isChecked("Revitalizing Voodoo Totem - Tank") and hasEquiped(158320) and br.friend[i].hp <= br.getValue("Revitalizing Voodoo Totem - Tank") and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+                if br.isChecked("Revitalizing Voodoo Totem - Tank") and br.hasEquiped(158320) and br.friend[i].hp <= br.getValue("Revitalizing Voodoo Totem - Tank") and br._G.UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
                     if GetItemCooldown(158320) <= gcdMax then
-                        UseItemByName(158320, lowest.unit)
+                        br._G.UseItemByName(158320, lowest.unit)
                         br.addonDebug("Using Revitalizing Voodoo Totem")
                     end
                 end
             end
-            if br.isChecked("Revitalizing Voodoo Totem - Party") and hasEquiped(158320) and lowest.hp < br.getValue("Revitalizing Voodoo Totem - Party") or br.getValue("Revitalizing Voodoo Totem - Party") == 100 then
+            if br.isChecked("Revitalizing Voodoo Totem - Party") and br.hasEquiped(158320) and lowest.hp < br.getValue("Revitalizing Voodoo Totem - Party") or br.getValue("Revitalizing Voodoo Totem - Party") == 100 then
                 if GetItemCooldown(158320) <= gcdMax then
-                    UseItemByName(158320, lowest.unit)
+                    br._G.UseItemByName(158320, lowest.unit)
                     br.addonDebug("Using Revitalizing Voodoo Totem")
                 end
             end
             if br.isChecked("Rapture") then
-                if getLowAllies(br.getValue("Rapture")) >= br.getValue("Rapture Targets") then
+                if br.getLowAllies(br.getValue("Rapture")) >= br.getValue("Rapture Targets") then
                     if cast.rapture() then
                         return
                     end
@@ -454,18 +454,18 @@ local function runRotation()
     end
 
     local function Extrastuff()
-        if IsMovingTime(br.getOptionValue("Angelic Feather")) and not IsSwimming() then
+        if br.isMovingTime(br.getOptionValue("Angelic Feather")) and not IsSwimming() then
             if not runningTime then
                 runningTime = GetTime()
             end
             if br.isChecked("Angelic Feather") and talent.angelicFeather and (not buff.angelicFeather.exists("player") or GetTime() > runningTime + 5) then
                 if cast.angelicFeather("player") then
                     runningTime = GetTime()
-                    SpellStopTargeting()
+                    br._G.SpellStopTargeting()
                 end
             end
         end
-        if IsMovingTime(br.getOptionValue("Body and Soul")) then
+        if br.isMovingTime(br.getOptionValue("Body and Soul")) then
             if bnSTimer == nil then
                 bnSTimer = GetTime() - 6
             end
@@ -478,7 +478,7 @@ local function runRotation()
         end
         if br.isChecked("Power Word: Fortitude") and br.timer:useTimer("PW:F Delay", math.random(20, 50)) then
             for i = 1, #br.friend do
-                if not buff.powerWordFortitude.exists(br.friend[i].unit, "any") and br.getDistance("player", br.friend[i].unit) < 40 and not UnitIsDeadOrGhost(br.friend[i].unit) then
+                if not buff.powerWordFortitude.exists(br.friend[i].unit, "any") and br.getDistance("player", br.friend[i].unit) < 40 and not br.GetUnitIsDeadOrGhost(br.friend[i].unit) then
                     if cast.powerWordFortitude() then
                         return
                     end
@@ -488,11 +488,11 @@ local function runRotation()
     end
 
     local function Keyshit()
-        if (SpecificToggle("Atonement Key") and not GetCurrentKeyBoardFocus()) and br.isChecked("Atonement Key") then
+        if (br.SpecificToggle("Atonement Key") and not GetCurrentKeyBoardFocus()) and br.isChecked("Atonement Key") then
             for i = 1, #br.friend do
                 local thisUnit = br.friend[i].unit
                 if not buff.atonement.exists(thisUnit) then
-                    if atoneCount() >= br.getOptionValue("Minimum PWR Targets") and not isMoving("player") and charges.powerWordRadiance.frac() >= 1 and level >= 23 then
+                    if atoneCount() >= br.getOptionValue("Minimum PWR Targets") and not br.isMoving("player") and charges.powerWordRadiance.frac() >= 1 and level >= 23 then
                         if cast.powerWordRadiance(thisUnit) then 
                             return true
                         end
@@ -502,9 +502,9 @@ local function runRotation()
                         end
                     end
                 end
-                if useCDs() and br.isChecked("Evangelism Ramp") and atonementCount >= br.getOptionValue("Atonement for Evangelism") and (charges.powerWordRadiance.count() == 0 or atoneCount() <= br.getOptionValue("Minimum PWR Targets")) then
+                if br.useCDs() and br.isChecked("Evangelism Ramp") and atonementCount >= br.getOptionValue("Atonement for Evangelism") and (charges.powerWordRadiance.count() == 0 or atoneCount() <= br.getOptionValue("Minimum PWR Targets")) then
                     if cast.evangelism() then
-                        RunMacroText("/br toggle burst 1")
+                        br._G.RunMacroText("/br toggle burst 1")
                         return true
                     end
                 end
@@ -516,7 +516,7 @@ local function runRotation()
         if buff.rapture.exists("player") then
             if br.isChecked("Obey Atonement Limits During Rapture") then
                 for i = 1, #br.friend do
-                    if atonementCount < br.getValue("Max Atonements") or (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") then
+                    if atonementCount < br.getValue("Max Atonements") or (br.friend[i].role == "TANK" or br._G.UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") then
                         if br.getBuffRemain(br.friend[i].unit, spell.buffs.powerWordShield, "player") < 1 then
                             if cast.powerWordShield(br.friend[i].unit) then
                                 return true
@@ -548,7 +548,7 @@ local function runRotation()
         end
 
         if br.isChecked("Evangelism") and talent.evangelism and (atonementCount >= br.getValue("Atonement for Evangelism") or (not inRaid and atonementCount >= 3)) and not buff.rapture.exists("player") then
-            if getLowAllies(br.getValue("Evangelism")) >= br.getValue("Evangelism Targets") then
+            if br.getLowAllies(br.getValue("Evangelism")) >= br.getValue("Evangelism Targets") then
                 if cast.evangelism() then
                     return true
                 end
@@ -557,9 +557,9 @@ local function runRotation()
 
         if br.isChecked("Power Word: Radiance") and atoneCount() >= 2 and not cast.last.powerWordRadiance() and mode.burst ~= 2 then
             if charges.powerWordRadiance.count() >= 1 then
-                if getLowAllies(br.getValue("Power Word: Radiance")) >= br.getValue("PWR Targets") then
+                if br.getLowAllies(br.getValue("Power Word: Radiance")) >= br.getValue("PWR Targets") then
                     for i = 1, #br.friend do
-                        if not buff.atonement.exists(br.friend[i].unit) and br.friend[i].hp <= br.getValue("Power Word: Radiance") and not isMoving("player") then
+                        if not buff.atonement.exists(br.friend[i].unit) and br.friend[i].hp <= br.getValue("Power Word: Radiance") and not br.isMoving("player") then
                             if cast.powerWordRadiance(br.friend[i].unit) then
                                 return true
                             end
@@ -570,7 +570,7 @@ local function runRotation()
         end
 
         if br.isChecked("Shadow Covenant") and talent.shadowCovenant then
-            if getLowAllies(br.getValue("Shadow Covenant")) >= br.getValue("Shadow Covenant Targets") then
+            if br.getLowAllies(br.getValue("Shadow Covenant")) >= br.getValue("Shadow Covenant Targets") then
                 if cast.shadowCovenant(lowest.unit) then
                     return true
                 end
@@ -583,7 +583,7 @@ local function runRotation()
             end
         end
 
-        if br.isChecked("Shadow Mend") and not isMoving("player") then
+        if br.isChecked("Shadow Mend") and not br.isMoving("player") then
             for i = 1, #br.friend do
                 if (br.friend[i].hp <= br.getValue("Shadow Mend") and (not buff.atonement.exists(br.friend[i].unit) or br.player.instance ~= "raid")) or 
                 (br.isChecked("Heal OoC") and not inCombat and lowest.hp <= br.getOptionValue("Heal OoC")) then
@@ -660,7 +660,7 @@ local function runRotation()
                             if cast.purgeTheWicked("target") then
                                 return 
                             end
-                        elseif debuff.purgeTheWicked.remain(thisUnit) < 6 and not UnitIsOtherPlayersPet(thisUnit) and ttd(thisUnit) > 6 then
+                        elseif debuff.purgeTheWicked.remain(thisUnit) < 6 and not br._G.UnitIsOtherPlayersPet(thisUnit) and ttd(thisUnit) > 6 then
                             if cast.purgeTheWicked(thisUnit) then
                                 return
                             end
@@ -676,7 +676,7 @@ local function runRotation()
                             if cast.shadowWordPain("target") then
                                 return 
                             end
-                        elseif debuff.shadowWordPain.remain(thisUnit) < 4.8 and not UnitIsOtherPlayersPet(thisUnit) and ttd(thisUnit) > 6 then
+                        elseif debuff.shadowWordPain.remain(thisUnit) < 4.8 and not br._G.UnitIsOtherPlayersPet(thisUnit) and ttd(thisUnit) > 6 then
                             if cast.shadowWordPain(thisUnit) then
                                 return
                             end
@@ -707,7 +707,7 @@ local function runRotation()
             end
         end
 
-        if talent.schism and br.isChecked("Schism") and cd.penance.remain() <= gcdMax + 1 and not isMoving("player") and ttd(units.dyn40) > 9 and not isExplosive(units.dyn40) then
+        if talent.schism and br.isChecked("Schism") and cd.penance.remain() <= gcdMax + 1 and not br.isMoving("player") and ttd(units.dyn40) > 9 and not isExplosive(units.dyn40) then
             if cast.schism(units.dyn40) then
                 return
             end
@@ -744,7 +744,7 @@ local function runRotation()
         end
 
 
-        if br.isChecked("Mind Blast") and not isMoving("player") then
+        if br.isChecked("Mind Blast") and not br.isMoving("player") then
             if schismBuff ~= nil and br.getFacing("player",schismBuff) then
                 if cast.mindBlast(schismBuff) then
                     return
@@ -754,7 +754,7 @@ local function runRotation()
             end
         end
 
-        if br.isChecked("Smite") and not isMoving("player") and not cast.current.mindSear() then
+        if br.isChecked("Smite") and not br.isMoving("player") and not cast.current.mindSear() then
             if schismBuff ~= nil and br.getFacing("player",schismBuff) then
                 if cast.smite(schismBuff) then
                     return
@@ -765,10 +765,10 @@ local function runRotation()
         end
     end
  
-    local localHealingCount = discHealCount
+    local localHealingCount = br.discHealCount
     ------------------------------
     ------- Start the Stuff ------
-    if pause(true) or drinking or isLooting() or (biggestGroup >= br.getOptionValue("Mind Sear - AoE - High Prio") and cast.current.mindSear()) or cast.current.penance() then
+    if br.pause(true) or drinking or br.isLooting() or (biggestGroup >= br.getOptionValue("Mind Sear - AoE - High Prio") and cast.current.mindSear()) or cast.current.penance() then
         return true
     else
         if not inCombat then
@@ -784,7 +784,7 @@ local function runRotation()
             if DefensiveTime() then return end
             if CooldownTime() then return end
             if Keyshit() then return true end
-            if localHealingCount < br.getOptionValue("Heal Counter") or not br.isChecked("Heal Counter") or #enemies.yards40 == 0 or buff.rapture.exists("player") or SpecificToggle("Oh shit need heals") then
+            if localHealingCount < br.getOptionValue("Heal Counter") or not br.isChecked("Heal Counter") or #enemies.yards40 == 0 or buff.rapture.exists("player") or br.SpecificToggle("Oh shit need heals") then
                 if HealingTime() then return true end
             end
             if Extrastuff() then return end
@@ -793,7 +793,7 @@ local function runRotation()
     end
 end
 
-local id = 0
+local id = 256
 if br.rotations[id] == nil then
     br.rotations[id] = {}
 end
