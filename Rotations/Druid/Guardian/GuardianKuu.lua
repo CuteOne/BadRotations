@@ -1108,6 +1108,11 @@ local function runRotation()
                     end
                 end
             end
+            if buff.berserk.exists() or buff.incarnationGuardianOfUrsoc.exists() and cd.thrashBear.remain() <= gcd then
+                if cast.thrashBear() then
+                    br.addonDebug("Serk/Incarn Thrash Spam!")
+                end
+            end
             -- Ravenous Frenzy
             if ui.checked("Use Covenant") and covenant.venthyr.active and buff.berserk.exists() then
                 if cast.ravenousFrenzy() then
