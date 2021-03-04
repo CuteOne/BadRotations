@@ -617,7 +617,7 @@ local function runRotation()
             module.BasicHealing()
 
             if ui.checked("Gift of The Naaru") and php <= ui.value("Gift of The Naaru") and php > 0 and race == "Draenei" then
-                if castSpell("player", racial, false, false, false) then
+                if br.castSpell("player", racial, false, false, false) then
                     return true
                 end
             end
@@ -848,7 +848,7 @@ local function runRotation()
                     elseif ui.value("Lay on Hands Target") == 3 and br.getDebuffRemain("player", 267037) == 0 and php <= math.random(ui.value("Lay on Hands - min"), ui.value("Lay on Hands - max")) then
                         layOnHandsTarget = "player"
                     elseif ui.value("Lay on Hands Target") == 4 then
-                        if unit.role(br.friend[i].unit) == "HEALER" or unit.role(lowestUnit) == "DAMAGER" then
+                        if unit.role(br.friend[i].unit) == "HEALER" or unit.role(lowest.unit) == "DAMAGER" then
                             if br.friend[i].hp <= math.random(ui.value("Lay on Hands - min"), ui.value("Lay on Hands - max")) and (not inInstance or (inInstance)) then
                                 layOnHandsTarget = br.friend[i].unit
                             end
