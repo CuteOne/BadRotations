@@ -878,11 +878,7 @@ local function runRotation()
 			for i = 1, #br.friend do
 				local thisUnit = br.friend[i].unit
 				if br.getLineOfSight("player",thisUnit) and not br._G.UnitIsDeadOrGhost(thisUnit) and not buff.glimmerOfLight.exists(thisUnit) then
-					if br._G.UnitGroupRolesAssigned(thisUnit) == "TANK" then
-						if cast.holyShock(thisUnit) then return true end
-					else
-						if cast.holyShock(thisUnit) then return true end
-					end
+					if cast.holyShock(thisUnit) then return true end
 				end
 			end
 		end
@@ -959,6 +955,27 @@ local function runRotation()
 			if cast.crusaderStrike(units.dyn5) then return true end
 		end
 
+		if inCombat and inInstance and cast.able.flashOfLight() and not br.castingUnit() and not moving then
+			for i = 1, #br.friend do
+				local thisUnit = br.friend[i].unit
+				if br.getDebuffRemain(thisUnit,319626) ~= 0 and br.getDebuffRemain(thisUnit,323195) ~= 0 and br.getHP(thisUnit) < 100 and br.getLineOfSight("player",thisUnit) and not br._G.UnitIsDeadOrGhost(thisUnit) then
+					if cast.flashOfLight(thisUnit) then return true end
+				end
+			end
+		end
+
+		-- Hammer of Wrath
+		if cast.able.hammerOfWrath() then
+			for i = 1, #enemies.yards30 do
+				local thisUnit = enemies.yards30[i]
+				if ccDoubleCheck(thisUnit) and (br.isChecked("Dev Stuff Leave off") or br.getFacing("player",thisUnit)) then
+					if br.getHP(thisUnit) <= 20 or buff.avengingWrath.exists() then
+						if cast.hammerOfWrath(thisUnit) then return true end
+					end
+				end
+			end
+		end
+
 		-- Shock Barrier
 		if holyPower < 5 and not inCombat and cast.able.holyShock() then
 			for i = 1, #br.friend do
@@ -971,7 +988,7 @@ local function runRotation()
 		end
 
 		-- Grievous Wound
-		if not inCombat and inInstance and cast.able.flashOfLight() and not br.castingUnit() then
+		if not inCombat and inInstance and cast.able.flashOfLight() and not br.castingUnit() and not moving then
 			for i = 1, #br.friend do
 				local thisUnit = br.friend[i].unit
 				if br.getDebuffRemain(thisUnit,240559) ~= 0 and br.getLineOfSight("player",thisUnit) and not br._G.UnitIsDeadOrGhost(thisUnit) then

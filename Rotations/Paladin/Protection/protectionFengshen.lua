@@ -301,14 +301,14 @@ local function runRotation()
 		-- Auto cancel BoP and DS
 		if mode.autocancel == 1 then
 			if inInstance or inRaid then
-				if buff.blessingOfProtection.exists() and cast.able.handOfReckoning() then
+				if buff.blessingOfProtection.exists() and cast.able.handOfReckoning() and #enemies.yards5 == 1 then
 					if cast.handOfReckoning("target") then return true end
 				end
 				if buff.blessingOfProtection.exists() and (debuff.handOfReckoning.remain("target") < 0.2 or br.getDebuffRemain("player",209858) ~= 0) then
 					br.CancelUnitBuffID("player",spell.blessingOfProtection)
 				end
 				if not talent.finalStand and br.GetObjectID("boss1") ~= 162060 and br.GetObjectID("boss1") ~= 164261 then
-					if buff.divineShield.exists() and cast.able.handOfReckoning() then
+					if buff.divineShield.exists() and cast.able.handOfReckoning() and #enemies.yards5 == 1 then
 						if cast.handOfReckoning("target") then return true end
 					end
 					if buff.divineShield.exists() and (debuff.handOfReckoning.remain("target") < 0.2 or br.getDebuffRemain("player",209858) ~= 0) then
@@ -863,10 +863,6 @@ local function runRotation()
 			if br.isChecked("Judgment") and br.getDistance("target") <= 30 and cast.able.judgment() then
 				if cast.judgment("target") then return true end
 			end
-			-- Start Attack
-			if not br._G.IsAutoRepeatSpell(br._G.GetSpellInfo(6603)) and br.getDistance("target") <= 5 then
-				br._G.StartAttack()
-			end
 		end
 	end -- End Action List - Opener
 	---------------------
@@ -888,6 +884,10 @@ local function runRotation()
 		----------------------------------
 		--- In Combat - Begin Rotation ---
 		----------------------------------
+		-- Start Attack
+		if not br._G.IsAutoRepeatSpell(br._G.GetSpellInfo(6603)) and br.getDistance("target") <= 5 then
+			br._G.StartAttack()
+		end
 		-- Shield of the Righteous
 		if br.isChecked("Shield of the Righteous") and cast.able.shieldOfTheRighteous() and SotR == true and (holyPower > 2 or buff.divinePurpose.exists())
 			and (mode.holyPowerlogic == 1 and (buff.holyAvenger.exists() or debuff.judgment.exists(units.dyn10) or holyPower == 5 or buff.shieldOfTheRighteous.remains("player") < 2))
