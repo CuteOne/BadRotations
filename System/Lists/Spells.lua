@@ -4092,6 +4092,7 @@ br.lists.spells = {
                 reapingFlames					= 311202,
                 worldveinResonance              = 313310,
                 soulshape                       = 310143,
+                soulIgnition                    = 345251,
             },
             conduits                            = {
 
