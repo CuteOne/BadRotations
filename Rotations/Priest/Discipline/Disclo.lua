@@ -707,7 +707,7 @@ local function runRotation()
             end
         end
 
-        if talent.schism and br.isChecked("Schism") and cd.penance.remain() <= gcdMax + 1 and not br.isMoving("player") and ttd(units.dyn40) > 9 and not isExplosive(units.dyn40) then
+        if talent.schism and br.isChecked("Schism") and cd.penance.remain() <= gcdMax + 1 and not br.isMoving("player") and ttd(units.dyn40) > 9 and not br.isExplosive(units.dyn40) then
             if cast.schism(units.dyn40) then
                 return
             end
