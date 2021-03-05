@@ -340,7 +340,7 @@ actionList.aa = function()
         --actions+=/use_items,slots=trinket1,if=buff.trueshot.up...
         if buff.trueshot.exists()
             and (getItemCooldownDuration(inventory.trinket1) >= getItemCooldownDuration(inventory.trinket2) or getItemCooldownExists(inventory.trinket2))
-            or (unit.instance(instanceTypes.raid) and unit.br.isBoss(units.target) -- do all this shit only in raid @ boss
+            or (unit.instance(instanceTypes.raid) and unit.isBoss(units.target) -- do all this shit only in raid @ boss
             and not buff.trueshot.exists()
             and cd.trueshot.remain() > 20
             and getItemCooldownDuration(inventory.trinket2) >= getItemCooldownDuration(inventory.trinket1)
@@ -356,7 +356,7 @@ actionList.aa = function()
         --actions+=/use_items,slots=trinket1,if=buff.trueshot.up...
         if buff.trueshot.exists()
             and (getItemCooldownDuration(inventory.trinket2) >= getItemCooldownDuration(inventory.trinket1) or getItemCooldownExists(inventory.trinket1))
-            or (unit.instance(instanceTypes.raid) and unit.br.isBoss(units.target) -- do all this shit only in raid @ boss
+            or (unit.instance(instanceTypes.raid) and unit.isBoss(units.target) -- do all this shit only in raid @ boss
             and not buff.trueshot.exists()
             and cd.trueshot.remain() > 20
             and getItemCooldownDuration(inventory.trinket1) >= getItemCooldownDuration(inventory.trinket2)
@@ -395,7 +395,7 @@ actionList.cds = function()
         end
     end
     -- potion,if=buff.trueshot.up&buff.bloodlust.up|buff.trueshot.up&target.health.pct<20|target.time_to_die<26
-    if cPotion.value and use.able.potionOfSpectralAgility() and unit.instance(instanceTypes.raid) and unit.br.isBoss(units.target) then
+    if cPotion.value and use.able.potionOfSpectralAgility() and unit.instance(instanceTypes.raid) and unit.isBoss(units.target) then
         if buff.trueshot.exists() and (buff.bloodLust.exists() or buff.trueshot.exists or (unit.ttd(units.units.dyn40) < 25)) then
            return use.potionOfSpectralAgility()
         end
@@ -427,7 +427,7 @@ actionList.st = function()
     if (dDoubleTap.value == 1 or (dDoubleTap.value == 2 and buff.trueshot.exists())) and cast.able.doubleTap() and talent.doubleTap and (not cast.last.steadyShot() or buff.steadyFocus.exists() or not talent.steadyFocus)
         and ((((covenant.kyrian.active and (cd.resonatingArrow.remains() < unit.gcd(true) or not dCovenant.value==1)) or not covenant.kyrian.active)
         and (not covenant.nightFae.active or (covenant.nightFae.active and ((cd.wildSpirits.remains() < unit.gcd(true) or not dCovenant.value==1) or cd.trueshot.remains() > 55))))
-        or (unit.br.isBoss(units.target) or unit.ttd(units.target) < 15))
+        or (unit.isBoss(units.target) or unit.ttd(units.target) < 15))
     then
         return cast.doubleTap()
     end
@@ -546,7 +546,7 @@ actionList.aoe = function()
     if (dDoubleTap.value == 1 or (dDoubleTap.value == 2 and buff.trueshot.exists())) and cast.able.doubleTap() and talent.doubleTap
         and ((((covenant.kyrian.active and (cd.resonatingArrow.remains() < unit.gcd(true) or not dCovenant.value==1)) or not covenant.kyrian.active)
         and (not covenant.nightFae.active or (covenant.nightFae.active and ((cd.wildSpirits.remain() < unit.gcd(true) or not dCovenant.value==1) or cd.trueshot.remains() > 55))))
-        or (unit.br.isBoss(units.target) and unit.ttd(units.target) < 10))
+        or (unit.isBoss(units.target) and unit.ttd(units.target) < 10))
     then
         return cast.doubleTap()
     end
@@ -662,7 +662,7 @@ actionList.extra = function()
     end
     -- Hunter's Mark
     if cHuntersMark.value and cast.able.huntersMark() and not debuff.huntersMark.exists(units.units.dyn40) then
-        if dHuntersMark == 1 or (dHuntersMark == 2 and unit.br.isBoss(units.target)) then
+        if dHuntersMark == 1 or (dHuntersMark == 2 and unit.isBoss(units.target)) then
             return cast.huntersMark()
         end
     end
@@ -673,7 +673,7 @@ actionList.extra = function()
     --Dummy Test
     if cDummy.value then
         if unit.exists(units.target) then
-            if br.getCombatTime() >= (tonumber(sDummy.value)*60) and unit.br.isDummy() then
+            if br.getCombatTime() >= (tonumber(sDummy.value)*60) and unit.isDummy() then
                 br._G.StopAttack()
                 br._G.ClearTarget()
                 br._G.PetStopAttack()

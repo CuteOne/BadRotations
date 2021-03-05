@@ -4093,6 +4093,7 @@ br.lists.spells = {
                 worldveinResonance              = 313310,
                 soulshape                       = 310143,
                 soulIgnition                    = 345251,
+                spectralFlaskOfPower            = 307185,
             },
             conduits                            = {
 
