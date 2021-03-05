@@ -1300,9 +1300,9 @@ end -- End Interrupt DS APL
     end -- End Action List - Cooldowns
     
     local function Line_cd (spellid, seconds)
-        if br.lastCast.line_cd then
-            if br.lastCast.line_cd[spellid] then
-                if br.lastCast.line_cd[spellid] + seconds >= GetTime() then
+        if br.lastCastTable.line_cd then
+            if br.lastCastTable.line_cd[spellid] then
+                if br.lastCastTable.line_cd[spellid] + seconds >= GetTime() then
                     return false
                 end
             end
