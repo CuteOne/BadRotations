@@ -593,7 +593,7 @@ local function runRotation()
         for i in string.gmatch(ui.value("Stun Blacklist"), "%d+") do
             noStunList[tonumber(i)] = true
         end
-        if useInterrupts() and not stealthedRogue then
+        if br.useInterrupts() and not stealthedRogue then
             for i=1, #enemies.yards20 do
                 if priority_target ~= nil then
                     interrupt_target = priority_target
