@@ -788,7 +788,7 @@ actionList.kick = function()
             end
 		else
 			for spellID in string.gmatch(tostring(eInterruptPersonal.value),"([^,]+)") do
-				if not br.isTableEmpty(br.player.interrupts.activeList) then
+				if not br.isTableEmpty(br.player.interrupts.activeList) and tonumber(spellID) then
 					br.player.interrupts.activeList[tonumber(spellID)] = false
 				end
 			end
