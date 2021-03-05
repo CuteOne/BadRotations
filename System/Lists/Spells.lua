@@ -1777,6 +1777,7 @@ br.lists.spells = {
                 blink                       = 1953,
                 counterspell                = 2139,
                 conjureRefreshment          = 190336,
+		disciplinaryCommand         = 327365,
               --  fireBlast                   = 319836,
                 frostBolt                   = 116,
                 frostNova                   = 122,
