@@ -997,8 +997,8 @@ end -- End Interrupt DS APL
 
 
     --Clear last cast table ooc to avoid strange casts
-    if not inCombat and #br.lastCast.tracker > 0 then
-        wipe(br.lastCast.tracker)
+    if not inCombat and #br.lastCastTable.tracker > 0 then
+        wipe(br.lastCastTable.tracker)
     end
 
     --------------------
