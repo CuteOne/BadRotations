@@ -9,30 +9,30 @@ local function createToggles()
         [2] = {mode = "On", value = 2, overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.divineStar},
         [3] = {mode = "Off", value = 3, overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.divineStar}
     }
-    br.ui:createToggle("Cooldown", 1, 0)
+    br.ui:createToggle(CooldownModes,"Cooldown", 1, 0)
     -- Defensive Button
     local DefensiveModes = {
         [1] = {mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.powerWordBarrier},
         [2] = {mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.powerWordBarrier}
     }
-    br.ui:createToggle("Defensive", 2, 0)
+    br.ui:createToggle(DefensiveModes,"Defensive", 2, 0)
     -- Decurse Button
     local DecurseModes = {
         [1] = {mode = "On", value = 1, overlay = "Decurse Enabled", tip = "Decurse Enabled", highlight = 1, icon = br.player.spell.purify},
         [2] = {mode = "Off", value = 2, overlay = "Decurse Disabled", tip = "Decurse Disabled", highlight = 0, icon = br.player.spell.purify}
     }
-    br.ui:createToggle("Decurse", 3, 0)
+    br.ui:createToggle(DecurseModes,"Decurse", 3, 0)
     -- Interrupt Button
     local InterruptModes = {
         [1] = {mode = "On", value = 1, overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.psychicScream},
         [2] = {mode = "Off", value = 2, overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.psychicScream}
     }
-    br.ui:createToggle("Interrupt", 4, 0)
+    br.ui:createToggle(InterruptModes,"Interrupt", 4, 0)
     local BurstModes = {
         [1] = {mode = "Auto", value = 1, overlay = "Auto Ramp Enabled", tip = "Will Automatically Ramp based on DBM", highlight = 1, icon = br.player.spell.powerWordShield},
         [2] = {mode = "Hold", value = 2, overlay = "Ramp Disabled", tip = "No Ramp Logic.", highlight = 0, icon = br.player.spell.powerWordShield}
     }
-    br.ui:createToggle("Burst", 0, -1)
+    br.ui:createToggle(BurstModes,"Burst", 0, -1)
 end
 
 local function createOptions()
@@ -454,7 +454,7 @@ local function runRotation()
     end
 
     local function Extrastuff()
-        if br.isMovingTime(br.getOptionValue("Angelic Feather")) and not IsSwimming() then
+        if br.IsMovingTime(br.getOptionValue("Angelic Feather")) and not IsSwimming() then
             if not runningTime then
                 runningTime = GetTime()
             end
@@ -465,7 +465,7 @@ local function runRotation()
                 end
             end
         end
-        if br.isMovingTime(br.getOptionValue("Body and Soul")) then
+        if br.IsMovingTime(br.getOptionValue("Body and Soul")) then
             if bnSTimer == nil then
                 bnSTimer = GetTime() - 6
             end
