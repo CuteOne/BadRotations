@@ -1777,7 +1777,6 @@ br.lists.spells = {
                 blink                       = 1953,
                 counterspell                = 2139,
                 conjureRefreshment          = 190336,
-		disciplinaryCommand         = 327365,
               --  fireBlast                   = 319836,
                 frostBolt                   = 116,
                 frostNova                   = 122,
@@ -1825,6 +1824,13 @@ br.lists.spells = {
             },
             glyphs                          = {
 
+            },
+            runeforges                      = {
+                disciplinaryCommand         = 327365,
+                sunKingsBlessings           = 333313,
+                grislyIcicle                = 333393,
+                firestorm                   = 333097,
+                
             },
             talents                         = {
                 incantersFlow               = 1463,
