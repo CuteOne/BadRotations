@@ -3704,6 +3704,7 @@ br.lists.spells = {
                 unendingResolve             = 104773,
             },
             conduits                        = {
+                corruptingLeer              = 339455,
 
             },
             covenants                       = {
