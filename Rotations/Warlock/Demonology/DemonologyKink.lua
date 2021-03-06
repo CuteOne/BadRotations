@@ -1599,7 +1599,7 @@ local function runRotation()
 
           --  if br.useCDs() then if actionList_Cooldowns() then return end end
             
-            var.DisembodiedTongue = br._G.UnitBuffID("player", 322455)
+            var.DisembodiedTongue = br.UnitBuffID("player", 322455)
             -- Instant Corruption | Torghast
             if (GetRealZoneText() == "Torghast, Tower of the Damned" and var.DisembodiedTongue or var.DisembodiedTongueLearned == true) then 
                 for i = 1, #enemyTable40 do
