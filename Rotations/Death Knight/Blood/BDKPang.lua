@@ -1,4 +1,3 @@
-local _, br = ...
 local rotationName = "PangloBDK"
 
 ---------------

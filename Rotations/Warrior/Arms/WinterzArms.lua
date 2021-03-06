@@ -5,38 +5,38 @@ local rotationName = "WinterzArms"
 ---------------
 local function createToggles()
 -- Rotation Button
-    RotationModes = {
+    local RotationModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.cleave },
         [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.whirlwind },
         [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.mortalStrike },
         [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.victoryRush}
     };
-    CreateButton("Rotation",1,0)
+    br.ui:createToggle(RotationModes,"Rotation",1,0)
 -- Cooldown Button
-    CooldownModes = {
+local CooldownModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.avatar },
         [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 1, icon = br.player.spell.avatar },
         [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.avatar }
     };
-    CreateButton("Cooldown",2,0)
+    br.ui:createToggle(CooldownModes,"Cooldown",2,0)
 -- Defensive Button
-    DefensiveModes = {
+local DefensiveModes = {
         [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.dieByTheSword },
         [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.dieByTheSword }
     };
-    CreateButton("Defensive",3,0)
+    br.ui:createToggle(DefensiveModes,"Defensive",3,0)
 -- Interrupt Button
-    InterruptModes = {
+local InterruptModes = {
         [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.pummel },
         [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.pummel }
     };
-    CreateButton("Interrupt",4,0)
+    br.ui:createToggle(InterruptModes,"Interrupt",4,0)
 -- Movement Button
-    MoverModes = {
+local MoverModes = {
         [1] = { mode = "On", value = 1 , overlay = "Mover Enabled", tip = "Will use Charge/Heroic Leap.", highlight = 1, icon = br.player.spell.charge },
         [2] = { mode = "Off", value = 2 , overlay = "Mover Disabled", tip = "Will NOT use Charge/Heroic Leap.", highlight = 0, icon = br.player.spell.charge }
     };
-    CreateButton("Mover",5,0)
+    br.ui:createToggle(MoverModes,"Mover",5,0)
 end
 
 ---------------
@@ -44,7 +44,7 @@ end
 ---------------
 local function createOptions()
     local optionTable
-
+    local section
     local function rotationOptions()
         -----------------------
         --- GENERAL OPTIONS ---
@@ -141,8 +141,8 @@ local function createOptions()
             br.ui:createDropdownWithout(section,  "Interrupt Mode", br.dropOptions.Toggle,  6)
             -- Mover Toggle
             br.ui:createDropdownWithout(section,  "Mover Mode", br.dropOptions.Toggle,  6)
-            -- Pause Toggle
-            br.ui:createDropdown(section,  "Pause Mode", br.dropOptions.Toggle,  6)
+            -- pause Toggle
+            br.ui:createDropdown(section,  "pause Mode", br.dropOptions.Toggle,  6)
         br.ui:checkSectionState(section)
     end
     optionTable = {
@@ -167,11 +167,11 @@ local function runRotation()
 ---------------
 --- Toggles ---
 ---------------
-        UpdateToggle("Rotation",0.25)
-        UpdateToggle("Cooldown",0.25)
-        UpdateToggle("Defensive",0.25)
-        UpdateToggle("Interrupt",0.25)
-        UpdateToggle("Mover",0.25)
+        br.UpdateToggle("Rotation",0.25)
+        br.UpdateToggle("Cooldown",0.25)
+        br.UpdateToggle("Defensive",0.25)
+        br.UpdateToggle("Interrupt",0.25)
+        br.UpdateToggle("Mover",0.25)
         br.player.ui.mode.mover = br.data.settings[br.selectedSpec].toggles["Mover"]
 --------------
 --- Locals ---
@@ -216,10 +216,10 @@ local function runRotation()
         enemies.get(8,"target")
         enemies.get(8,"player",false,true) -- makes enemies.yards8f
         enemies.get(20)
-        enemies.yards8r = getEnemiesInRect(10,20,false) or 0
+        enemies.yards8r = br.getEnemiesInRect(10,20,false) or 0
 
 
-        if profileStop == nil then profileStop = false end
+        if br.profileStop == nil then br.profileStop = false end
 
 --------------------
 --- Action Lists ---
@@ -230,7 +230,7 @@ local function runRotation()
         if br.isChecked("Battle Shout") and cast.able.battleShout() then
             for i = 1, #br.friend do
                 local thisUnit = br.friend[i].unit
-                if not UnitIsDeadOrGhost(thisUnit) and br.getDistance(thisUnit) < 100 and br.getBuffRemain(thisUnit, spell.battleShout) < 60 then
+                if not br.GetUnitIsDeadOrGhost(thisUnit) and br.getDistance(thisUnit) < 100 and br.getBuffRemain(thisUnit, spell.battleShout) < 60 then
                     if cast.battleShout() then
                         return
                     end
@@ -238,7 +238,7 @@ local function runRotation()
             end
         end
         -- Berserker Rage
-            if br.isChecked("Berserker Rage") and hasNoControl(spell.berserkerRage) then
+            if br.isChecked("Berserker Rage") and br.hasNoControl(spell.berserkerRage) then
                 if cast.berserkerRage() then debug("Casting Berserker Rage") return end
             end
         end -- End Action List - Extra
@@ -246,12 +246,12 @@ local function runRotation()
        local function actionList_Defensive()
             -- Healthstone/Health Potion
                 if br.isChecked("Healthstone/Potion") and php <= br.getOptionValue("Healthstone/Potion")
-                    and inCombat and (hasHealthPot() or br.hasItem(5512))
+                    and inCombat and (br.hasHealthPot() or br.hasItem(5512))
                 then
                     if br.canUseItem(5512) then debug("Using Healthstone")
                         br.useItem(5512)
-                    elseif br.canUseItem(getHealthPot()) then debug("Using Health Potion")
-                        br.useItem(getHealthPot())
+                    elseif br.canUseItem(br.getHealthPot()) then debug("Using Health Potion")
+                        br.useItem(br.getHealthPot())
                     end
             -- Gift of the Naaru
                 if br.isChecked("Gift of the Naaru") and cast.able.racial() and php <= br.getOptionValue("Gift of the Naaru") and race=="Draenei" and cd.giftOfTheNaaru.remain() == 0 then
@@ -289,7 +289,7 @@ local function runRotation()
         end -- End Action List - Defensive
     -- Action List - Interrupts
        local function actionList_Interrupts()
-            if useInterrupts() then
+            if br.useInterrupts() then
               --  if br.isChecked("Storm Bolt Logic") then
               --      if cast.able.stormBolt() then
               --          local Storm_list = {
@@ -309,8 +309,8 @@ local function runRotation()
               --      end
               --  end
                 for i=1, #enemies.yards20 do
-                    thisUnit = enemies.yards20[i]
-                    distance = br.getDistance(thisUnit)
+                    local thisUnit = enemies.yards20[i]
+                    local distance = br.getDistance(thisUnit)
                     if br.canInterrupt(thisUnit,br.getOptionValue("InterruptAt")) then
                     -- Pummel
                         if br.isChecked("Pummel") and cast.able.pummel(thisUnit) and distance < 5 then
@@ -326,7 +326,7 @@ local function runRotation()
         end -- End Action List - Interrupts
     -- Action List - Cooldowns
        local function actionList_Cooldowns()
-            if br.getDistance(units.dyn5) < 5 and useCDs() then
+            if br.getDistance(units.dyn5) < 5 and br.useCDs() then
             -- Racials
                 -- actions+=/blood_fury,if=debuff.colossus_smash.up
                 -- actions+=/berserking,if=debuff.colossus_smash.up
@@ -354,7 +354,7 @@ local function runRotation()
             end
         -- Trinkets
 		    -- Trinket 1
-            if (br.getOptionValue("Trinkets") == 1 or (br.getOptionValue("Trinkets") == 2 and useCDs())) and inCombat then
+            if (br.getOptionValue("Trinkets") == 1 or (br.getOptionValue("Trinkets") == 2 and br.useCDs())) and inCombat then
                 if br.isChecked("Trinket 1") and use.able.slot(13)
                  then br.addonDebug("Using Trinket 1")
                         br.useItem(13)
@@ -373,7 +373,7 @@ local function runRotation()
        local function actionList_Single()
             -- Warbreaker // actions.single_target+=/warbreaker
                 if (mode.rotation ~= 2 and #enemies.yards8 >= 1) then
-                    if cast.able.warbreaker() and br.isChecked("Warbreaker") and talent.warbreaker and useCDs() then
+                    if cast.able.warbreaker() and br.isChecked("Warbreaker") and talent.warbreaker and br.useCDs() then
                         if cast.warbreaker("player","aoe",1,8) then debug("ST Casting Warbreaker") return end
                     end
                 -- Colossus Smash // actions.single_target+=/colossus_smash
@@ -381,7 +381,7 @@ local function runRotation()
                         if cast.colossusSmash("target") then debug("ST Casting ColossusSmash") return end
                     end  
 				-- Ravager  //  actions.single_target+=/ravager,if=buff.avatar.remains<18&!dot.ravager.remains
-					if cast.able.ravager() and useCDs() then
+					if cast.able.ravager() and br.useCDs() then
 						if cast.ravager("target","ground") then debug("ST Casting Ravager @Target") return end
                     end
 				-- actions.single_target+=/overpower,if=charges=2
@@ -458,15 +458,15 @@ local function runRotation()
 					end
 					
 				--Warbreaker or Cleave to apply Deep Wounds
-					if cast.able.warbreaker() and br.isChecked("Warbreaker") and talent.warbreaker and useCDs() then
+					if cast.able.warbreaker() and br.isChecked("Warbreaker") and talent.warbreaker and br.useCDs() then
 						if cast.warbreaker("player","aoe",1,8) then debug("MT Casting Warbreaker") return end
 					end
 				--Bladestorm
-					if #enemies.yards8 >= br.getOptionValue("Bladestorm") and cast.able.bladestorm() and br.isChecked("Bladestorm") and useCDs() and not talent.ravager then
+					if #enemies.yards8 >= br.getOptionValue("Bladestorm") and cast.able.bladestorm() and br.isChecked("Bladestorm") and br.useCDs() and not talent.ravager then
 						if cast.bladestorm("player","aoe",1,8) then debug("MT Bladestorm @Rage: ".. power) return end
 					end
 				-- Ravager
-                    if cast.able.ravager() and (br.getOptionValue("Ravager") == 1 or (br.getOptionValue("Ravager") == 2 and useCDs())) then
+                    if cast.able.ravager() and (br.getOptionValue("Ravager") == 1 or (br.getOptionValue("Ravager") == 2 and br.useCDs())) then
                         -- Best Location
                         if br.getOptionValue("Ravager") == 1 then
                             if cast.ravager("best",nil,1,8) then debug("MT Casting Ravager @Best")return end
@@ -546,7 +546,7 @@ local function runRotation()
 				if cast.skullsplitter() then debug("EXEQT Casting Skullsplitter") return end
 			end
 		--actions.execute+=/ravager,if=buff.avatar.remains<18&!dot.ravager.remains
-			if cast.able.ravager() and useCDs() then
+			if cast.able.ravager() and br.useCDs() then
 				if cast.ravager("target","ground") then debug("EXEQT Casting Ravager @Target") return end
 			end
 		--actions.execute+=/cleave,if=spell_targets.whirlwind>1&dot.deep_wounds.remains<gcd
@@ -554,7 +554,7 @@ local function runRotation()
 				if cast.cleave(nil,"aoe") then debug("EXEQT Casting Cleave for DW") return end
 			end
 		--actions.execute+=/warbreaker
-			if cast.able.warbreaker() and br.isChecked("Warbreaker") and talent.warbreaker and useCDs() then
+			if cast.able.warbreaker() and br.isChecked("Warbreaker") and talent.warbreaker and br.useCDs() then
 				if cast.warbreaker("player","aoe",1,8) then debug("EXEQT Casting Warbreaker") return end
             end
 		--actions.execute+=/colossus_smash
@@ -624,10 +624,10 @@ local function runRotation()
 ---------------------
 --- Begin Profile ---
 ---------------------
-    -- Profile Stop | Pause
-        if not inCombat and not hastar and profileStop==true then
-            profileStop = false
-        elseif (inCombat and profileStop==true) or pause() or mode.rotation==4 then
+    -- Profile Stop | pause
+        if not inCombat and not hastar and br.profileStop==true then
+            br.profileStop = false
+        elseif (inCombat and br.profileStop==true) or br.pause() or mode.rotation==4 then
             return true
         else
             if actionList_Extra() then return end
@@ -688,10 +688,10 @@ local function runRotation()
                     if actionList_Single() then return end
                 end
         end -- End Combat Rotation
-        end -- Pause
+        end -- pause
     end -- End Timer
 end -- runRotation
-local id = 0
+local id = 71
 if br.rotations[id] == nil then br.rotations[id] = {} end
 tinsert(br.rotations[id],{
     name = rotationName,

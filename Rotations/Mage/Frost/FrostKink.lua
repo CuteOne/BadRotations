@@ -398,14 +398,14 @@ local function runRotation()
     -- Show/Hide toggles
     if not br._G.UnitAffectingCombat("player") then
         if not talent.cometStorm then
-            buttonCometStorm:Hide()
+            br.buttonCometStorm:Hide()
         else
-            buttonCometStorm:Show()
+            br.buttonCometStorm:Show()
         end
         if not talent.ebonbolt then
-            buttonEbonbolt:Hide()
+            br.buttonEbonbolt:Hide()
         else
-            buttonEbonbolt:Show()
+            br.buttonEbonbolt:Show()
         end
     end
     -- spellqueue ready
@@ -781,8 +781,8 @@ local function runRotation()
     end
 
     --Clear last cast table ooc to avoid strange casts
-    if not inCombat and #br.lastCast.tracker > 0 then
-        wipe(br.lastCast.tracker)
+    if not inCombat and #br.lastCastTable.tracker > 0 then
+        wipe(br.lastCastTable.tracker)
     end
 
     ---Target move timer

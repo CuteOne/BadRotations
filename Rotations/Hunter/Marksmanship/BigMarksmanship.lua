@@ -193,7 +193,7 @@ local function ccMobFinder(id, minHP, spellID)
 
     for _,v in pairs(units.enemies.get(40,nil,true)) do
         foundMatch = 0
-        if not isLongTimeCCed(v) then
+        if not br.isLongTimeCCed(v) then
             if id ~= nil then
                 if unit.id(v) == id then
                     foundMatch = foundMatch + 1
@@ -220,8 +220,8 @@ local function checkForUpdates()
     end
 end
 
-function getTimeToLastInterrupt()
-	if not isTableEmpty(br.lastCastTable.tracker) then
+local function getTimeToLastInterrupt()
+	if not br.isTableEmpty(br.lastCastTable.tracker) then
 		for _, v in ipairs(br.lastCastTable.tracker) do
 			for _,value in pairs(br.player.spell.interrupts) do
 				if tonumber(value) == tonumber(v) then
@@ -233,7 +233,7 @@ function getTimeToLastInterrupt()
 	return 0
 end
 
-function getItemCooldownDuration(itemId)
+local function getItemCooldownDuration(itemId)
     local _, itemSpell = GetItemSpell(itemId)
     if itemSpell  ~= nil then
         return GetSpellBaseCooldown(itemSpell) / 1000
@@ -242,7 +242,7 @@ function getItemCooldownDuration(itemId)
     end
 end
 
-function getItemSpellCd(itemId)
+local function getItemSpellCd(itemId)
     local retVal = GetItemCooldown(itemId) + getItemCooldownDuration(itemId) - GetTime()
     if retVal > 0 then
         return retVal
@@ -340,7 +340,7 @@ actionList.aa = function()
         --actions+=/use_items,slots=trinket1,if=buff.trueshot.up...
         if buff.trueshot.exists()
             and (getItemCooldownDuration(inventory.trinket1) >= getItemCooldownDuration(inventory.trinket2) or getItemCooldownExists(inventory.trinket2))
-            or (unit.instance(instanceTypes.raid) and unit.br.isBoss(units.target) -- do all this shit only in raid @ boss
+            or (unit.instance(instanceTypes.raid) and unit.isBoss(units.target) -- do all this shit only in raid @ boss
             and not buff.trueshot.exists()
             and cd.trueshot.remain() > 20
             and getItemCooldownDuration(inventory.trinket2) >= getItemCooldownDuration(inventory.trinket1)
@@ -356,7 +356,7 @@ actionList.aa = function()
         --actions+=/use_items,slots=trinket1,if=buff.trueshot.up...
         if buff.trueshot.exists()
             and (getItemCooldownDuration(inventory.trinket2) >= getItemCooldownDuration(inventory.trinket1) or getItemCooldownExists(inventory.trinket1))
-            or (unit.instance(instanceTypes.raid) and unit.br.isBoss(units.target) -- do all this shit only in raid @ boss
+            or (unit.instance(instanceTypes.raid) and unit.isBoss(units.target) -- do all this shit only in raid @ boss
             and not buff.trueshot.exists()
             and cd.trueshot.remain() > 20
             and getItemCooldownDuration(inventory.trinket1) >= getItemCooldownDuration(inventory.trinket2)
@@ -395,7 +395,7 @@ actionList.cds = function()
         end
     end
     -- potion,if=buff.trueshot.up&buff.bloodlust.up|buff.trueshot.up&target.health.pct<20|target.time_to_die<26
-    if cPotion.value and use.able.potionOfSpectralAgility() and unit.instance(instanceTypes.raid) and unit.br.isBoss(units.target) then
+    if cPotion.value and use.able.potionOfSpectralAgility() and unit.instance(instanceTypes.raid) and unit.isBoss(units.target) then
         if buff.trueshot.exists() and (buff.bloodLust.exists() or buff.trueshot.exists or (unit.ttd(units.units.dyn40) < 25)) then
            return use.potionOfSpectralAgility()
         end
@@ -427,7 +427,7 @@ actionList.st = function()
     if (dDoubleTap.value == 1 or (dDoubleTap.value == 2 and buff.trueshot.exists())) and cast.able.doubleTap() and talent.doubleTap and (not cast.last.steadyShot() or buff.steadyFocus.exists() or not talent.steadyFocus)
         and ((((covenant.kyrian.active and (cd.resonatingArrow.remains() < unit.gcd(true) or not dCovenant.value==1)) or not covenant.kyrian.active)
         and (not covenant.nightFae.active or (covenant.nightFae.active and ((cd.wildSpirits.remains() < unit.gcd(true) or not dCovenant.value==1) or cd.trueshot.remains() > 55))))
-        or (unit.br.isBoss(units.target) or unit.ttd(units.target) < 15))
+        or (unit.isBoss(units.target) or unit.ttd(units.target) < 15))
     then
         return cast.doubleTap()
     end
@@ -546,7 +546,7 @@ actionList.aoe = function()
     if (dDoubleTap.value == 1 or (dDoubleTap.value == 2 and buff.trueshot.exists())) and cast.able.doubleTap() and talent.doubleTap
         and ((((covenant.kyrian.active and (cd.resonatingArrow.remains() < unit.gcd(true) or not dCovenant.value==1)) or not covenant.kyrian.active)
         and (not covenant.nightFae.active or (covenant.nightFae.active and ((cd.wildSpirits.remain() < unit.gcd(true) or not dCovenant.value==1) or cd.trueshot.remains() > 55))))
-        or (unit.br.isBoss(units.target) and unit.ttd(units.target) < 10))
+        or (unit.isBoss(units.target) and unit.ttd(units.target) < 10))
     then
         return cast.doubleTap()
     end
@@ -657,12 +657,12 @@ end -- End Action List - aoe
 actionList.extra = function()
     -- Feign Death
     if buff.feignDeath.exists() then
-        StopAttack()
-        ClearTarget()
+        br._G.StopAttack()
+        br._G.ClearTarget()
     end
     -- Hunter's Mark
     if cHuntersMark.value and cast.able.huntersMark() and not debuff.huntersMark.exists(units.units.dyn40) then
-        if dHuntersMark == 1 or (dHuntersMark == 2 and unit.br.isBoss(units.target)) then
+        if dHuntersMark == 1 or (dHuntersMark == 2 and unit.isBoss(units.target)) then
             return cast.huntersMark()
         end
     end
@@ -673,12 +673,12 @@ actionList.extra = function()
     --Dummy Test
     if cDummy.value then
         if unit.exists(units.target) then
-            if br.getCombatTime() >= (tonumber(sDummy.value)*60) and unit.br.isDummy() then
-                StopAttack()
-                ClearTarget()
-                PetStopAttack()
-                PetFollow()
-                Print(tonumber(sDummy.value) .." Minute Dummy Test Concluded - Profile Stopped")
+            if br.getCombatTime() >= (tonumber(sDummy.value)*60) and unit.isDummy() then
+                br._G.StopAttack()
+                br._G.ClearTarget()
+                br._G.PetStopAttack()
+                br._G.PetFollow()
+                br._G.print(tonumber(sDummy.value) .." Minute Dummy Test Concluded - Profile Stopped")
                 var.profileStop = true
             end
         end
@@ -757,7 +757,7 @@ end -- End Action List - CCs
 -- Action List - Interrupts
 actionList.kick = function()
     if br.player.interrupts == nil then br.player.interrupts = {} end
-	if useInterrupts() then
+	if br.useInterrupts() then
         br.player.interrupts.enabled = true
     else
         br.player.interrupts.enabled = false
@@ -775,7 +775,7 @@ actionList.kick = function()
 			end
 		else
 			for spellID,_ in pairs(br.lists.interruptWhitelist) do
-				if not isTableEmpty(br.player.interrupts.activeList) then
+				if not br.isTableEmpty(br.player.interrupts.activeList) then
 					br.player.interrupts.activeList[spellID] = false
 				end
 			end
@@ -788,7 +788,7 @@ actionList.kick = function()
             end
 		else
 			for spellID in string.gmatch(tostring(eInterruptPersonal.value),"([^,]+)") do
-				if not isTableEmpty(br.player.interrupts.activeList) then
+				if not br.isTableEmpty(br.player.interrupts.activeList) and tonumber(spellID) then
 					br.player.interrupts.activeList[tonumber(spellID)] = false
 				end
 			end
@@ -803,7 +803,7 @@ actionList.kick = function()
 	local interruptAt = 100 - sInterruptsAt.value
 
 	for _,v in pairs(br.player.spell.interrupts) do
-		if canCast(v)then
+		if br.canCast(v)then
 			if br.getOptionCheck("Interrupt with " .. GetSpellInfo(v)) then
 				br.player.interrupts.currentSpell = v
 				break
@@ -817,8 +817,8 @@ actionList.kick = function()
     for i=1, #units.enemies.yards40f do
         local theUnit = units.enemies.yards40f[i]
         if cInterruptAll.value then
-            if castingUnit(theUnit) and br.canInterrupt(theUnit, interruptAt) then
-                if castingUnit(units.player) then RunMacroText("/stopcasting") end
+            if br.castingUnit(theUnit) and br.canInterrupt(theUnit, interruptAt) then
+                if br.castingUnit(units.player) then br._G.RunMacroText("/stopcasting") end
                 local castSuccess = br.createCastFunction(theUnit, _, _, _, br.player.interrupts.currentSpell)
                 if castSuccess then
                     lastUnit = theUnit
@@ -834,11 +834,11 @@ actionList.kick = function()
         end
     end
 
-	if isInCombat(units.player) and br.player.interrupts.currentUnit ~= nil and br.player.interrupts.unitSpell ~= nil and br.player.interrupts.currentSpell ~= nil then
+	if br.isInCombat(units.player) and br.player.interrupts.currentUnit ~= nil and br.player.interrupts.unitSpell ~= nil and br.player.interrupts.currentSpell ~= nil then
 		if br.isCastingSpell(br.player.interrupts.unitSpell, br.player.interrupts.currentUnit) and br.canInterrupt(br.player.interrupts.currentUnit, interruptAt) then
 			if (getTimeToLastInterrupt() >= 1 and br.GetObjectID(lastUnit) == br.GetObjectID(br.player.interrupts.currentUnit)) or
 		      (getTimeToLastInterrupt() < 1 and br.GetObjectID(lastUnit) ~= br.GetObjectID(br.player.interrupts.currentUnit)) then
-                if castingUnit(units.player) then RunMacroText("/stopcasting") end
+                if br.castingUnit(units.player) then br._G.RunMacroText("/stopcasting") end
 				if br.createCastFunction(br.player.interrupts.currentUnit, _, _, _, br.player.interrupts.currentSpell) then
 					br.addonDebug("Casting ", tostring(GetSpellInfo(br.player.interrupts.currentSpell)))
 					lastUnit = br.player.interrupts.currentUnit
@@ -856,7 +856,7 @@ actionList.md = function(skipModecheck)
         if unit.distance(units.target) < 40 and not unit.isCasting(units.player) then
             -- Misdirect to Tank
             if dMisdirection.value == 1 then
-                local tankInRange, tankUnit = isTankInRange()
+                local tankInRange, tankUnit = br.isTankInRange()
                 if tankInRange then misdirectUnit = tankUnit end
             end
             -- Misdirect to Focus
@@ -943,7 +943,7 @@ local function runRotation()
     if not unit.inCombat() and not unit.exists(units.target) and var.profileStop then
         var.profileStop = false
     elseif var.haltProfile and (not unit.isCasting() or ui.pause(true)) then
-        StopAttack()
+        br._G.StopAttack()
         return true
     else
         if actionList.extra() then return true end
@@ -966,7 +966,7 @@ local function runRotation()
         end --End In Combat
     end --End Rotation Logic
 end -- End runRotation
-local id = 0
+local id = 254
 if br.rotations[id] == nil then br.rotations[id] = {} end
 tinsert(br.rotations[id],{
     name = rotationName,

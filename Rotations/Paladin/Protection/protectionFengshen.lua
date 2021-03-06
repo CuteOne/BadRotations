@@ -56,7 +56,7 @@ end
 ---------------
 local function createOptions()
 	local optionTable
-	
+
 	local function rotationOptions()
 		-----------------------
 		--- GENERAL OPTIONS ---
@@ -105,6 +105,7 @@ local function createOptions()
 		br.ui:createSpinner (section, "PoS removes Necrotic", 20, 0, 50, 1, "","|cffFFFFFFNecrotic stacks Phial of Serenity to use at")
 		if br.player.race == "BloodElf" then
 			br.ui:createSpinner (section, "Arcane Torrent Dispel", 1, 0, 20, 1, "","|cffFFFFFFMinimum Torrent Targets")
+			br.ui:createCheckbox(section, "Arcane Torrent HolyPower")
 		end
 		-- Ardent Defender
 		br.ui:createSpinner(section, "Ardent Defender",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at")
@@ -234,7 +235,7 @@ local function runRotation()
 	local SotR          = true
 	local BoF           = true
 	local RInterrupts   = true
-	
+
 	units.get(5)
 	units.get(10)
 	units.get(30)
@@ -301,14 +302,14 @@ local function runRotation()
 		-- Auto cancel BoP and DS
 		if mode.autocancel == 1 then
 			if inInstance or inRaid then
-				if buff.blessingOfProtection.exists() and cast.able.handOfReckoning() then
+				if buff.blessingOfProtection.exists() and cast.able.handOfReckoning() and #enemies.yards10 == 1 then
 					if cast.handOfReckoning("target") then return true end
 				end
 				if buff.blessingOfProtection.exists() and (debuff.handOfReckoning.remain("target") < 0.2 or br.getDebuffRemain("player",209858) ~= 0) then
 					br.CancelUnitBuffID("player",spell.blessingOfProtection)
 				end
 				if not talent.finalStand and br.GetObjectID("boss1") ~= 162060 and br.GetObjectID("boss1") ~= 164261 then
-					if buff.divineShield.exists() and cast.able.handOfReckoning() then
+					if buff.divineShield.exists() and cast.able.handOfReckoning() and #enemies.yards10 == 1 then
 						if cast.handOfReckoning("target") then return true end
 					end
 					if buff.divineShield.exists() and (debuff.handOfReckoning.remain("target") < 0.2 or br.getDebuffRemain("player",209858) ~= 0) then
@@ -326,17 +327,22 @@ local function runRotation()
 				if use.phialOfSerenity() then return true end
 			end
 			-- Arcane Torrent
-			if br.isChecked("Arcane Torrent Dispel") and race == "BloodElf" and inCombat then
-				local torrentUnit = 0
-				for i=1, #enemies.yards8 do
-					local thisUnit = enemies.yards8[i]
-					if br.canDispel(thisUnit,select(7,br._G.GetSpellInfo(br._G.GetSpellInfo(69179)))) then
-						torrentUnit = torrentUnit + 1
-						if torrentUnit >= br.getOptionValue("Arcane Torrent Dispel") then
-							if br.castSpell("player",racial,false,false,false) then return true end
-							break
+			if race == "BloodElf" and inCombat and br.getSpellCD(155145) == 0 then
+				if br.isChecked("Arcane Torrent Dispel") then
+					local torrentUnit = 0
+					for i=1, #enemies.yards8 do
+						local thisUnit = enemies.yards8[i]
+						if br.canDispel(thisUnit,select(7,br._G.GetSpellInfo(br._G.GetSpellInfo(69179)))) then
+							torrentUnit = torrentUnit + 1
+							if torrentUnit >= br.getOptionValue("Arcane Torrent Dispel") then
+								if br._G.CastSpellByName(br._G.GetSpellInfo(155145)) then return true end
+								break
+							end
 						end
 					end
+				end
+				if br.isChecked("Arcane Torrent HolyPower") and (buff.avengingWrath.exists() or php <= 30) and holyPower < 3 then
+					if br._G.CastSpellByName(br._G.GetSpellInfo(155145)) then return true end
 				end
 			end
 			-- Lay On Hands
@@ -549,7 +555,7 @@ local function runRotation()
 			end
 			-- Ardent Defender
 			if br.isChecked("Ardent Defender") and cast.able.ardentDefender() then
-				if (php <= br.getOptionValue("Ardent Defender") or php <= 10) and inCombat and not buff.guardianOfAncientKings.exists() and not buff.divineShield.exists() then
+				if (php <= br.getOptionValue("Ardent Defender") or php <= 10 or buff.holyAvenger.exists()) and inCombat and not buff.guardianOfAncientKings.exists() and not buff.divineShield.exists() then
 					if cast.ardentDefender() then return true end
 				end
 			end
@@ -808,7 +814,7 @@ local function runRotation()
 						end
 					end
 					-- Rebuke
-					if br.isChecked("Rebuke - INT") and cast.able.rebuke() and distance <= 5 and br.getFacing("player",thisUnit) and not br.GetUnitIsUnit(hoj_unit,thisUnit) then
+					if br.isChecked("Rebuke - INT") and cast.able.rebuke() and (distance <= 5 or (br._G.IsFlying(thisUnit) and distance <= 10)) and br.getFacing("player",thisUnit) and not br.GetUnitIsUnit(hoj_unit,thisUnit) then
 						if cast.rebuke(thisUnit) then return true end
 					end
 				end
@@ -863,10 +869,6 @@ local function runRotation()
 			if br.isChecked("Judgment") and br.getDistance("target") <= 30 and cast.able.judgment() then
 				if cast.judgment("target") then return true end
 			end
-			-- Start Attack
-			if not br._G.IsAutoRepeatSpell(br._G.GetSpellInfo(6603)) and br.getDistance("target") <= 5 then
-				br._G.StartAttack()
-			end
 		end
 	end -- End Action List - Opener
 	---------------------
@@ -888,9 +890,13 @@ local function runRotation()
 		----------------------------------
 		--- In Combat - Begin Rotation ---
 		----------------------------------
+		-- Start Attack
+		if not br._G.IsAutoRepeatSpell(br._G.GetSpellInfo(6603)) and br.isValidUnit("target") and br.getDistance("target") <= 5 then
+			br._G.StartAttack()
+		end
 		-- Shield of the Righteous
 		if br.isChecked("Shield of the Righteous") and cast.able.shieldOfTheRighteous() and SotR == true and (holyPower > 2 or buff.divinePurpose.exists())
-			and (mode.holyPowerlogic == 1 and (buff.holyAvenger.exists() or debuff.judgment.exists(units.dyn10) or holyPower == 5 or buff.shieldOfTheRighteous.remains("player") < 2))
+			and (mode.holyPowerlogic == 1 and (buff.holyAvenger.exists() or br.getBuffRemain("player",337848) ~= 0 or debuff.judgment.exists(units.dyn10) or holyPower == 5 or buff.shieldOfTheRighteous.remains("player") < 2))
 			or (mode.holyPowerlogic == 2 and holyPower == 5 and (br.getSpellCD(275779) <= gcdMax or br.getSpellCD(31935) <= gcdMax or (talent.blessedHammer and br.getSpellCD(204019) <= gcdMax) or (not talent.blessedHammer and br.getSpellCD(53595) <= gcdMax) or ((br.getHP(units.dyn30) <= 20 or buff.avengingWrath.exists()) and br.getSpellCD(24275) <= gcdMax))) then
 			if cast.shieldOfTheRighteous(units.dyn5) then return true end
 		end
@@ -914,7 +920,7 @@ local function runRotation()
 			if cast.judgment(units.dyn30) then return true end
 		end
 		-- Hammer of Wrath
-		if br.isChecked("Hammer of Wrath") and cast.able.hammerOfWrath() and (br.getHP(units.dyn30) <= 20 or (level >= 58 and buff.avengingWrath.exists()) or br.getBuffRemain("player", 345693) ~= 0) and mob30 then
+		if br.isChecked("Hammer of Wrath") and cast.able.hammerOfWrath() and (br.getHP(units.dyn30) <= 20 or (level >= 58 and buff.avengingWrath.exists()) or br.getBuffRemain("player",345693) ~= 0) and mob30 then
 			if cast.hammerOfWrath(units.dyn30) then return true end
 		end
 		-- Avenger's Shield
@@ -926,7 +932,7 @@ local function runRotation()
 			if cast.crusaderStrike(units.dyn5) then return true end
 		end
 		-- Blessed Hammer
-		if br.isChecked("Blessed Hammer") and cast.able.blessedHammer() and talent.blessedHammer and (#enemies.yards5 >= 1 or holyPower < 3 or (charges.blessedHammer.frac() == 3 and holyPower < 5)) then
+		if br.isChecked("Blessed Hammer") and cast.able.blessedHammer() and talent.blessedHammer and (#enemies.yards8 >= 1 or holyPower < 3 or (charges.blessedHammer.frac() == 3 and holyPower < 5)) then
 			if cast.blessedHammer() then return true end
 		end
 		-- Hammer of the Righteous

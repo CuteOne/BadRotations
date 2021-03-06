@@ -439,7 +439,8 @@ function unlock.LBUnlock()
 	b.ObjectExists = lb.ObjectExists
 	-- br.GetUnitIsVisible = lb.ObjectExists
 	b.IsAoEPending = lb.IsAoEPending
-	b.ClickPosition = lb.ClickPosition
+	b.ClickPosition = function(...)
+		return lb.Unlock(lb.ClickPosition, ...)  end
 	b.UnitBoundingRadius = lb.UnitBoundingRadius
 	b.CancelPendingSpell = lb.CancelPendingSpells
 	unlocked = true

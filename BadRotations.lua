@@ -225,7 +225,6 @@ function frame:OnEvent(event)
 			br.data = {}
 		end
 		if br.data.tracker == nil then
-			br._G.print("br.data.tracker not found")
 			br.data.tracker = {}
 		end
 		if br.data.settings == nil then

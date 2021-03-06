@@ -6,7 +6,7 @@ local rotationName = "WinterzFury"
 ---------------
 local function createToggles()
     -- Rotation Button
-    RotationModes = {
+    local RotationModes = {
         [1] = {
             mode = "Auto",
             value = 1,
@@ -24,9 +24,9 @@ local function createToggles()
             icon = br.player.spell.execute
         }
     }
-    CreateButton("Rotation", 1, 0)
+    br.ui:createToggle(RotationModes,"Rotation", 1, 0)
     -- Cooldown Button
-    CooldownModes = {
+    local CooldownModes = {
         [1] = {
             mode = "Auto",
             value = 1,
@@ -52,9 +52,9 @@ local function createToggles()
             icon = br.player.spell.piercingHowl
         }
     }
-    CreateButton("Cooldown", 2, 0)
+    br.ui:createToggle(CooldownModes,"Cooldown", 2, 0)
     -- Defensive Button
-    DefensiveModes = {
+    local DefensiveModes = {
         [1] = {
             mode = "On",
             value = 1,
@@ -72,9 +72,9 @@ local function createToggles()
             icon = br.player.spell.enragedRegeneration
         }
     }
-    CreateButton("Defensive", 3, 0)
+    br.ui:createToggle(DefensiveModes,"Defensive", 3, 0)
     -- Interrupt Button
-    InterruptModes = {
+    local InterruptModes = {
         [1] = {
             mode = "On",
             value = 1,
@@ -92,7 +92,7 @@ local function createToggles()
             icon = br.player.spell.pummel
         }
     }
-    CreateButton("Interrupt", 4, 0)
+    br.ui:createToggle(InterruptModes,"Interrupt", 4, 0)
 
 end
 
@@ -102,7 +102,7 @@ end
 local function createOptions()
     local rotationKeys = {"None", GetBindingKey("Rotation Function 1"), GetBindingKey("Rotation Function 2"), GetBindingKey("Rotation Function 3"), GetBindingKey("Rotation Function 4"), GetBindingKey("Rotation Function 5")}
     local optionTable
-
+    local section
     local function rotationOptions()
         -----------------------
         --- GENERAL OPTIONS ---
@@ -180,13 +180,13 @@ end
 ----------------
 local function runRotation()
     --Toggles
-    UpdateToggle("Rotation", 0.25)
-    UpdateToggle("Cooldown", 0.25)
-    UpdateToggle("Defensive", 0.25)
-    UpdateToggle("Interrupt", 0.25)
-    UpdateToggle("Mover", 0.25)
-    UpdateToggle("Holdcd", 0.25)
-    UpdateToggle("Lazyass", 0.25)
+    br.UpdateToggle("Rotation", 0.25)
+    br.UpdateToggle("Cooldown", 0.25)
+    br.UpdateToggle("Defensive", 0.25)
+    br.UpdateToggle("Interrupt", 0.25)
+    br.UpdateToggle("Mover", 0.25)
+    br.UpdateToggle("Holdcd", 0.25)
+    br.UpdateToggle("Lazyass", 0.25)
     br.player.ui.mode.mover = br.data.settings[br.selectedSpec].toggles["Mover"]
     br.player.ui.mode.holdcd = br.data.settings[br.selectedSpec].toggles["Holdcd"]
     br.player.ui.mode.lazyass = br.data.settings[br.selectedSpec].toggles["Lazyass"]
@@ -202,13 +202,13 @@ local function runRotation()
     local equiped = br.player.equiped
     local gcd = br.player.gcdMax
     local gcdMax = br.player.gcdMax
-	local healPot = getHealthPot()
+	local healPot = br.getHealthPot()
     local heirloomNeck = 122667 or 122668
     local inCombat = br.player.inCombat
     local inRaid = br.player.instance == "raid"
     local level = br.player.level
     local mode = br.player.ui.mode
-    local moving = GetUnitSpeed("player") > 0
+    local moving = br._G.GetUnitSpeed("player") > 0
     local php = br.player.health
     local pullTimer = br.DBM:getPulltimer()
     local race = br.player.race
@@ -227,8 +227,8 @@ local function runRotation()
 
 
     --wipe timers table
-    if timersTable then
-        wipe(timersTable)
+    if br.timersTable then
+        wipe(br.timersTable)
     end
 
     units.get(5)
@@ -244,8 +244,8 @@ local function runRotation()
             [129758] = "Irontide Grenadier",
     }
     
-    if profileStop == nil then
-        profileStop = false
+    if br.profileStop == nil then
+        br.profileStop = false
     end
 
     if cd.bloodthirst.remain() > (gcdMax / 2) and cd.ragingBlow.remain() > (gcdMax / 2) then
@@ -258,7 +258,7 @@ local function runRotation()
         if br.isChecked("Battle Shout") and cast.able.battleShout() then
             for i = 1, #br.friend do
                 local thisUnit = br.friend[i].unit
-                if not UnitIsDeadOrGhost(thisUnit) and br.getDistance(thisUnit) < 100 and br.getBuffRemain(thisUnit, spell.battleShout) < 60 then
+                if not br.GetUnitIsDeadOrGhost(thisUnit) and br.getDistance(thisUnit) < 100 and br.getBuffRemain(thisUnit, spell.battleShout) < 60 then
                     if cast.battleShout() then
                         return
                     end
@@ -267,7 +267,7 @@ local function runRotation()
         end
 
         -- Berserker Rage
-        if br.isChecked("Berserker Rage") and cast.able.berserkerRage() and hasNoControl(spell.berserkerRage) then
+        if br.isChecked("Berserker Rage") and cast.able.berserkerRage() and br.hasNoControl(spell.berserkerRage) then
             if cast.berserkerRage() then
                 return
             end
@@ -276,9 +276,9 @@ local function runRotation()
 
 
     local function defensivelist()
-        if useDefensive() then
+        if br.useDefensive() then
             -- Healthstone/Health Potion
-            if br.isChecked("Healthstone/Potion") and php <= br.getOptionValue("Healthstone/Potion") and inCombat and (hasHealthPot() or br.hasItem(5512) or br.hasItem(177278) or br.hasItem(166799)) then
+            if br.isChecked("Healthstone/Potion") and php <= br.getOptionValue("Healthstone/Potion") and inCombat and (br.hasHealthPot() or br.hasItem(5512) or br.hasItem(177278) or br.hasItem(166799)) then
                 if br.canUseItem(5512) then
                     br.useItem(5512)
                 elseif br.canUseItem(healPot) then
@@ -305,7 +305,7 @@ local function runRotation()
             end
 
             -- Rallying Cry
-            if br.isChecked("Rallying Cry Units") and cast.able.rallyingCry() and getLowAllies(br.getValue("Rallying Cry HP")) >= br.getValue("Rallying Cry Units") then
+            if br.isChecked("Rallying Cry Units") and cast.able.rallyingCry() and br.getLowAllies(br.getValue("Rallying Cry HP")) >= br.getValue("Rallying Cry Units") then
                 if cast.rallyingCry() then
                     return
                 end
@@ -348,7 +348,7 @@ local function runRotation()
     end
 
     local function interruptlist()
-        if useInterrupts() then
+        if br.useInterrupts() then
 			if br.isChecked("Storm Bolt Logic") then
                     if cast.able.stormBolt() then
                         local Storm_list = {
@@ -357,7 +357,7 @@ local function runRotation()
                             local thisUnit = enemies.yards20[i]
                             local distance = br.getDistance(thisUnit)
                             for k, v in pairs(Storm_list) do
-                                if (Storm_unitList[br.GetObjectID(thisUnit)] ~= nil or UnitCastingInfo(thisUnit) == GetSpellInfo(v) or UnitChannelInfo(thisUnit) == GetSpellInfo(v)) and br.getBuffRemain(thisUnit, 226510) == 0 and distance <= 20 then
+                                if (Storm_unitList[br.GetObjectID(thisUnit)] ~= nil or br._G.UnitCastingInfo(thisUnit) == GetSpellInfo(v) or br._G.UnitChannelInfo(thisUnit) == GetSpellInfo(v)) and br.getBuffRemain(thisUnit, 226510) == 0 and distance <= 20 then
                                     if cast.stormBolt(thisUnit) then
                                         return
                                     end
@@ -367,8 +367,8 @@ local function runRotation()
 					end
             end
             for i = 1, #enemies.yards20 do
-                thisUnit = enemies.yards20[i]
-                distance = br.getDistance(thisUnit)
+                local thisUnit = enemies.yards20[i]
+                local distance = br.getDistance(thisUnit)
                 if br.canInterrupt(thisUnit, br.getOptionValue("Interrupt At")) then
                     -- Pummel
                     if br.isChecked("Pummel") and cast.able.pummel(thisUnit) and distance < 5 then
@@ -404,14 +404,14 @@ local function runRotation()
 
         -- Recklessness
 		-- actions+=/recklessness,if=!essence.condensed_lifeforce.major&!essence.blood_of_the_enemy.major|cooldown.guardian_of_azeroth.remains>20|buff.guardian_of_azeroth.up|cooldown.blood_of_the_enemy.remains<gcd
-        if not buff.recklessness.exists("player") and (br.getOptionValue("Recklessness") == 1 or (br.getOptionValue("Recklessness") == 2 and useCDs())) and br.player.ui.mode.cooldown ~= 3 and (cd.siegebreaker.remain() > 10 or cd.siegebreaker.remain() < gcdMax) then
+        if not buff.recklessness.exists("player") and (br.getOptionValue("Recklessness") == 1 or (br.getOptionValue("Recklessness") == 2 and br.useCDs())) and br.player.ui.mode.cooldown ~= 3 and (cd.siegebreaker.remain() > 10 or cd.siegebreaker.remain() < gcdMax) then
             if cast.recklessness() then
                 return
             end
         end
 
         -- Siegebreaker
-        if br.player.ui.mode.cooldown ~= 3 and (br.getBuffRemain("player", spell.recklessness) > 4.5 or cd.recklessness.remain() > 25 or (br.getOptionValue("Recklessness") == 2 and not useCDs())) then
+        if br.player.ui.mode.cooldown ~= 3 and (br.getBuffRemain("player", spell.recklessness) > 4.5 or cd.recklessness.remain() > 25 or (br.getOptionValue("Recklessness") == 2 and not br.useCDs())) then
             if cast.siegebreaker() then
                 return
             end
@@ -526,14 +526,14 @@ local function runRotation()
         end
 
         -- Recklessness
-        if not buff.recklessness.exists() and not buff.memoryOfLucidDreams.exists("player") and (br.getOptionValue("Recklessness") == 1 or (br.getOptionValue("Recklessness") == 2 and useCDs())) and br.player.ui.mode.cooldown ~= 3 and (cd.siegebreaker.remain() > 10 or cd.siegebreaker.remain() < gcdMax) then
+        if not buff.recklessness.exists() and not buff.memoryOfLucidDreams.exists("player") and (br.getOptionValue("Recklessness") == 1 or (br.getOptionValue("Recklessness") == 2 and br.useCDs())) and br.player.ui.mode.cooldown ~= 3 and (cd.siegebreaker.remain() > 10 or cd.siegebreaker.remain() < gcdMax) then
             if cast.recklessness() then
                 return
             end
         end
 
         -- Siegebreaker
-        if buff.whirlwind.exists("player") and (br.player.ui.mode.cooldown ~= 3 and (br.getBuffRemain("player", spell.recklessness) > 4.5 or cd.recklessness.remain() > 25 or (br.getOptionValue("Recklessness") == 2 and not useCDs()))) then
+        if buff.whirlwind.exists("player") and (br.player.ui.mode.cooldown ~= 3 and (br.getBuffRemain("player", spell.recklessness) > 4.5 or cd.recklessness.remain() > 25 or (br.getOptionValue("Recklessness") == 2 and not br.useCDs()))) then
             if cast.siegebreaker() then
                 return
             end
@@ -629,17 +629,17 @@ local function runRotation()
     --- Begin Profile ---
     ---------------------
     -- Profile Stop | Pause
-    if pause(true) or (IsMounted() or IsFlying() or UnitOnTaxi("player") or UnitInVehicle("player")) or mode.rotation == 2 then
+    if br.pause(true) or (IsMounted() or IsFlying() or br._G.UnitOnTaxi("player") or br._G.UnitInVehicle("player")) or mode.rotation == 2 then
         return true
     else
         if extralist() then
             return
         end
-        if inCombat and profileStop == false and not (IsMounted() or IsFlying()) and #enemies.yards5 >= 1 then
+        if inCombat and br.profileStop == false and not (IsMounted() or IsFlying()) and #enemies.yards5 >= 1 then
             if br.getDistance(units.dyn5) < 6 then
                 br._G.StartAttack()
             end
-            if isExplosive("target") then
+            if br.isExplosive("target") then
                 if explosivelist() then
                     return
                 end
@@ -668,7 +668,7 @@ local function runRotation()
     end
 end
 
-local id = 0
+local id = 72
 if br.rotations[id] == nil then
     br.rotations[id] = {}
 end

@@ -9,6 +9,8 @@ function br:loadUnlockerAPI()
         unlocked = br.unlock.EWTUnlock()
     elseif _G.wmbapi then
         unlocked = br.unlock.MBUnlock()
+    elseif _G.UCSLoaded then
+        _G.br = br
     else
         unlocked = false
     end

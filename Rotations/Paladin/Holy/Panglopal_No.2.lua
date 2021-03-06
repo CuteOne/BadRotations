@@ -1,5 +1,5 @@
 --Version 1.0.0
-local rotationName = "Panglopal_No.2" -- Change to name of profile listed in options drop down
+local rotationName = "FengshenHoly" -- Change to name of profile listed in options drop down
 local StunsBlackList="167876|169861|168318|165824|165919|171799|168942|167612|169893|167536|173044|167731|165137|167538|168886|170572"
 local StunSpellList="326450|328177|336451|331718|331743|334708|333145|321807|334748|327130|327240|330532|328400|330423|294171|164737|330586|329224|328429|295001|296355|295001|295985|330471|329753|296748|334542|242391"
 local HoJPrioList = "164702|164362|170488|165905|165251|165556"
@@ -72,6 +72,11 @@ local function createOptions()
 		br.player.module.BasicHealing(section)
 		br.ui:createSpinner(section, "Divine Protection", 60, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At")
 		br.ui:createSpinner(section, "Divine Shield", 20, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At")
+		if br.player.race == "BloodElf" then
+			br.ui:createSpinner(section, "Arcane Torrent Dispel", 1, 0, 20, 1, "", "|cffFFFFFFMinimum Torrent Targets")
+			br.ui:createSpinner(section, "Arcane Torrent Mana", 30, 0, 95, 1, "", "|cffFFFFFFMinimum When to use for mana")
+			br.ui:createCheckbox(section, "Arcane Torrent HolyPower")
+		end
 		-- Gift of The Naaru
 		if br.player.race == "Draenei" then
 			br.ui:createSpinner(section, "Gift of The Naaru", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
@@ -333,9 +338,9 @@ local function runRotation()
 	enemies.get(40)
 	friends.yards40 = br.getAllies("player", 40)
 
-    if br.timersTable then
-        br._G.wipe(br.timersTable)
-    end
+	if br.timersTable then
+		br._G.wipe(br.timersTable)
+	end
 
 	local noStunsUnits = {}
 	for i in string.gmatch(br.getOptionValue("Stuns Black Units"), "%d+") do
@@ -487,16 +492,7 @@ local function runRotation()
 				end
 			end
 			if br.isChecked("Light of Dawn") and cast.able.lightOfDawn() then
-				local LoDHealth = br.getValue("Light of Dawn")
-				local LoDUnits = br.getValue("LoD Targets")
-				if not br.unlocked then --EasyWoWToolbox == nil then
-					if br.healConeAround(LoDUnits,LoDHealth,90,lightOfDawn_distance*lightOfDawn_distance_coff,5*lightOfDawn_distance_coff) then
-						SotR = false
-						if cast.lightOfDawn() then return true end
-					end
-				else
-					if bestConeHeal(spell.lightOfDawn,LoDUnits,LoDHealth,45,lightOfDawn_distance*lightOfDawn_distance_coff,5) then return true end
-				end
+				if bestConeHeal(spell.lightOfDawn,br.getValue("LoD Targets"),br.getValue("Light of Dawn"),45,lightOfDawn_distance*lightOfDawn_distance_coff,5) then return true end
 			end
 			if br.isChecked("Word of Glory") and cast.able.wordOfGlory() and lowest.hp <= br.getValue("Word of Glory") then
 				SotR = false
@@ -508,6 +504,28 @@ local function runRotation()
 	actionList.defensiveTime = function()
 		if br.useDefensive() then
 			module.BasicHealing()
+			-- Arcane Torrent
+			if race == "BloodElf" and inCombat and br.getSpellCD(155145) == 0 then
+				if br.isChecked("Arcane Torrent Dispel") then
+					local torrentUnit = 0
+					for i=1, #enemies.yards8 do
+						local thisUnit = enemies.yards8[i]
+						if br.canDispel(thisUnit,select(7,br._G.GetSpellInfo(br._G.GetSpellInfo(69179)))) then
+							torrentUnit = torrentUnit + 1
+							if torrentUnit >= br.getOptionValue("Arcane Torrent Dispel") then
+								if br._G.CastSpellByName(br._G.GetSpellInfo(155145)) then return true end
+								break
+							end
+						end
+					end
+				end
+				if br.isChecked("Arcane Torrent Mana") and br.player.power.mana.percent() < br.getValue("Arcane Torrent Mana") then
+					if br._G.CastSpellByName(br._G.GetSpellInfo(155145)) then return true end
+				end
+				if br.isChecked("Arcane Torrent HolyPower") and holyPower < 3 and lowest.hp < br.getValue("Critical HP") then
+					if br._G.CastSpellByName(br._G.GetSpellInfo(155145)) then return true end
+				end
+			end
 
 			if br.isChecked("Gift of The Naaru") and php <= br.getOptionValue("Gift of The Naaru") and php > 0 and race == "Draenei" then
 				if br.castSpell("player",racial,false,false,false) then return true end
@@ -878,11 +896,7 @@ local function runRotation()
 			for i = 1, #br.friend do
 				local thisUnit = br.friend[i].unit
 				if br.getLineOfSight("player",thisUnit) and not br._G.UnitIsDeadOrGhost(thisUnit) and not buff.glimmerOfLight.exists(thisUnit) then
-					if br._G.UnitGroupRolesAssigned(thisUnit) == "TANK" then
-						if cast.holyShock(thisUnit) then return true end
-					else
-						if cast.holyShock(thisUnit) then return true end
-					end
+					if cast.holyShock(thisUnit) then return true end
 				end
 			end
 		end
@@ -959,6 +973,27 @@ local function runRotation()
 			if cast.crusaderStrike(units.dyn5) then return true end
 		end
 
+		if inCombat and inInstance and cast.able.flashOfLight() and not br.castingUnit() and not moving then
+			for i = 1, #br.friend do
+				local thisUnit = br.friend[i].unit
+				if br.getDebuffRemain(thisUnit,319626) ~= 0 and br.getDebuffRemain(thisUnit,323195) ~= 0 and br.getHP(thisUnit) < 100 and br.getLineOfSight("player",thisUnit) and not br._G.UnitIsDeadOrGhost(thisUnit) then
+					if cast.flashOfLight(thisUnit) then return true end
+				end
+			end
+		end
+
+		-- Hammer of Wrath
+		if cast.able.hammerOfWrath() then
+			for i = 1, #enemies.yards30 do
+				local thisUnit = enemies.yards30[i]
+				if ccDoubleCheck(thisUnit) and (br.isChecked("Dev Stuff Leave off") or br.getFacing("player",thisUnit)) then
+					if br.getHP(thisUnit) <= 20 or buff.avengingWrath.exists() then
+						if cast.hammerOfWrath(thisUnit) then return true end
+					end
+				end
+			end
+		end
+
 		-- Shock Barrier
 		if holyPower < 5 and not inCombat and cast.able.holyShock() then
 			for i = 1, #br.friend do
@@ -971,7 +1006,7 @@ local function runRotation()
 		end
 
 		-- Grievous Wound
-		if not inCombat and inInstance and cast.able.flashOfLight() and not br.castingUnit() then
+		if not inCombat and inInstance and cast.able.flashOfLight() and not br.castingUnit() and not moving then
 			for i = 1, #br.friend do
 				local thisUnit = br.friend[i].unit
 				if br.getDebuffRemain(thisUnit,240559) ~= 0 and br.getLineOfSight("player",thisUnit) and not br._G.UnitIsDeadOrGhost(thisUnit) then

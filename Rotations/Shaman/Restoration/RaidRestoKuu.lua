@@ -717,7 +717,7 @@ local function runRotation()
                 end
             end
             -- Riptide
-            if ui.checked("Riptide") then
+            if ui.checked("Riptide") and not buff.ghostWolf.exists() then
                 for i = 1, #br.friend do
                     if br.friend[i].hp <= ui.value("Riptide") and buff.riptide.refresh(br.friend[i].unit) then
                         if cast.riptide(br.friend[i].unit) then
