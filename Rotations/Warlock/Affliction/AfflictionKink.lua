@@ -3378,14 +3378,13 @@ end -- End Action List - PreCombat
         br._G.SpellStopTargeting()
         br.addonDebug("Canceling Spell")
         return false
-    elseif (inCombat and profileStop == true) or UnitIsAFK("player") or IsMounted() or IsFlying() or br.pause(true) or mode.rotation ==4 then
+    elseif (inCombat and br.profileStop == true) or UnitIsAFK("player") or IsMounted() or IsFlying() or br.pause(true) or mode.rotation ==4 then
         if not br.pause(true) and IsPetAttackActive() and br.isChecked("Pet Management") then
             br._G.PetStopAttack()
             br._G.PetFollow()
         end
         return true
     else
-
         --if mode.pc == 2 then br._G.PetStopAttack() br._G.PetFollow() return true end 
       --  return tru
         ------------------------------------------------
@@ -3412,7 +3411,6 @@ end -- End Action List - PreCombat
         ---------------------------
         if actionList_PetControl() then return end
         if actionList_PreCombat() then return end
-
 
         local mapMythicPlusModeID, mythicPlusLevel, mythicPlustime, mythicPlusOnTime, keystoneUpgradeLevels, practiceRun = C_ChallengeMode.GetCompletionInfo()
         if ui.checked("Soulstone Healer OOC [Mythic+]") and not inRaid and not moving then
@@ -3495,16 +3493,14 @@ end -- End Action List - PreCombat
             end
         end
 
-
         --------------------------
         --- In Combat Rotation ---
         --------------------------
-         if (inCombat or spellQueueReady()) and profileStop == false and br.isValidUnit("target") and br.getDistance("target") < 40 then
+         if (inCombat or spellQueueReady()) and br.profileStop == false and br.isValidUnit("target") and br.getDistance("target") < 40 then
             ------------------------------
             --- In Combat - Interrupts ---
             ------------------------------
             if actionList_Interrupts() then return end
-                
             if br.queueSpell then
                 br.ChatOverlay("Pausing for queuecast")
                 return true 
