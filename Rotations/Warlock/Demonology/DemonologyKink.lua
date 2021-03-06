@@ -44,7 +44,7 @@ local function createToggles()
             icon = br.player.spell.drainLife
         }
     }
-    br.ui:createToggle("Rotation", 1, 0)
+    br.ui:createToggle(RotationModes,"Rotation", 1, 0)
     -- Cooldown Button
     local CooldownModes = {
         [1] = {
@@ -80,7 +80,7 @@ local function createToggles()
             icon = br.player.spell.summonDemonicTyrant
         }
     }
-    br.ui:createToggle("Cooldown", 2, 0)
+    br.ui:createToggle(CooldownModes,"Cooldown", 2, 0)
     -- Defensive Button
     local DefensiveModes = {
         [1] = {
@@ -100,7 +100,7 @@ local function createToggles()
             icon = br.player.spell.unendingResolve
         }
     }
-    br.ui:createToggle("Defensive", 3, 0)
+    br.ui:createToggle(DefensiveModes,"Defensive", 3, 0)
     -- Interrupt Button
     local InterruptModes = {
         [1] = {
@@ -120,7 +120,7 @@ local function createToggles()
             icon = br.player.spell.spellLock
         }
     }
-    br.ui:createToggle("Interrupt", 4, 0)
+    br.ui:createToggle(InterruptModes,"Interrupt", 4, 0)
     -- BSB Button
     local BSBModes = {
         [1] = {
@@ -140,7 +140,7 @@ local function createToggles()
             icon = br.player.spell.bilescourgeBombers
         }
     }
-    br.ui:createToggle("BSB", 3, 1)
+    br.ui:createToggle(BSBModes,"BSB", 3, 1)
     -- GF Button
     local GFModes = {
         [1] = {
@@ -160,7 +160,7 @@ local function createToggles()
             icon = br.player.spell.grimoireFelguard
         }
     }
-    br.ui:createToggle("GF", 4, 1)
+    br.ui:createToggle(GFModes,"GF", 4, 1)
     --Pet summon
     local PetSummonModes = {
         [1] = { mode = "1", value = 1 , overlay = "Felguard", tip = "Summon Felguard", highlight = 1, icon = br.player.spell.summonFelguard },
@@ -170,14 +170,14 @@ local function createToggles()
         [5] = { mode = "5", value = 4 , overlay = "Succubus", tip = "Summon Succubus", highlight = 1, icon = br.player.spell.summonSuccubus },
         [6] = { mode = "None", value = 5 , overlay = "No pet", tip = "Dont Summon any Pet", highlight = 0, icon = br.player.spell.conflagrate }
     };
-    br.ui:createToggle("PetSummon",1,1)
+    br.ui:createToggle(PetSummonModes,"PetSummon",1,1)
 
     -- Burning Rush button
     local BurningRushModes = {
         [1] = { mode = "On", value = 1 , overlay = "Burning Rush Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.burningRush},
         [2] = { mode = "Off", value = 2 , overlay = "Burning Rush Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.burningRush}
     };
-    br.ui:createToggle("BurningRush",2,1)
+    br.ui:createToggle(BurningRushModes,"BurningRush",2,1)
 
 end
 
