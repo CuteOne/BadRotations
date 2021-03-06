@@ -217,6 +217,7 @@ local level
 local mode
 local php
 local spell
+local runeforge
 local talent
 local race
 local units
@@ -490,103 +491,9 @@ local StunsBlackList = {
       [164501] = "Mistcaller",
 
 
-      [164501] = "Mistcaller",
-      [164501] = "Mistcaller",
-      [164501] = "Mistcaller",
-      [164501] = "Mistcaller",
-      [164501] = "Mistcaller",
-      [164501] = "Mistcaller",
-      [164501] = "Mistcaller",
-      [164501] = "Mistcaller",
-      [164501] = "Mistcaller",
-      [164501] = "Mistcaller",
-      [164501] = "Mistcaller",
+
    ]]
 
-    -- 8.3 tier 4 adds
-    [161244] = "Blood of the Corruptor ",
-    [161243] = "Samh 'rek, Beckoner of Chaos",
-    [161124] = "Urg'roth, Breaker of Heroes ",
-    [161241] = "Voidweaver Mal 'thir",
-    -- Atal'Dazar
-    [87318] = "Dazar'ai Colossus",
-    [122984] = "Dazar'ai Colossus",
-    [128455] = "T'lonja",
-    [129553] = "Dinomancer Kish'o",
-    [129552] = "Monzumi",
-    -- Freehold
-    [129602] = "Irontide Enforcer",
-    [130400] = "Irontide Crusher",
-    -- King's Rest
-    [133935] = "Animated Guardian",
-    [134174] = "Shadow-Borne Witch Doctor",
-    [134158] = "Shadow-Borne Champion",
-    [137474] = "King Timalji",
-    [137478] = "Queen Wasi",
-    [137486] = "Queen Patlaa",
-    [137487] = "Skeletal Hunting Raptor",
-    [134251] = "Seneschal M'bara",
-    [134331] = "King Rahu'ai",
-    [137484] = "King A'akul",
-    [134739] = "Purification Construct",
-    [137969] = "Interment Construct",
-    [135231] = "Spectral Brute",
-    [138489] = "Shadow of Zul",
-    -- Shrine of the Storm
-    [134144] = "Living Current",
-    [136214] = "Windspeaker Heldis",
-    [134150] = "Runecarver Sorn",
-    [136249] = "Guardian Elemental",
-    [134417] = "Deepsea Ritualist",
-    [136353] = "Colossal Tentacle",
-    [136295] = "Sunken Denizen",
-    [136297] = "Forgotten Denizen",
-    -- Siege of Boralus
-    [129369] = "Irontide Raider",
-    [129373] = "Dockhound Packmaster",
-    [128969] = "Ashvane Commander",
-    [138255] = "Ashvane Spotter",
-    [138465] = "Ashvane Cannoneer",
-    [135245] = "Bilge Rat Demolisher",
-    -- Temple of Sethraliss
-    [134991] = "Sandfury Stonefist",
-    [139422] = "Scaled Krolusk Tamer",
-    [136076] = "Agitated Nimbus",
-    [134691] = "Static-charged Dervish",
-    [139110] = "Spark Channeler",
-    [136250] = "Hoodoo Hexer",
-    [139946] = "Heart Guardian",
-    -- MOTHERLODE!!
-    [130485] = "Mechanized Peacekeeper",
-    [136139] = "Mechanized Peacekeeper",
-    [136643] = "Azerite Extractor",
-    [134012] = "Taskmaster Askari",
-    [133430] = "Venture Co. Mastermind",
-    [133463] = "Venture Co. War Machine",
-    [133436] = "Venture Co. Skyscorcher",
-    [133482] = "Crawler Mine",
-    -- Underrot
-    [131436] = "Chosen Blood Matron",
-    [133912] = "Bloodsworn Defiler",
-    [138281] = "Faceless Corruptor",
-    -- Tol Dagor
-    [130025] = "Irontide Thug",
-    -- Waycrest Manor
-    [131677] = "Heartsbane Runeweaver",
-    [135329] = "Matron Bryndle",
-    [131812] = "Heartsbane Soulcharmer",
-    [131670] = "Heartsbane Vinetwister",
-    [135365] = "Matron Alma",
-    -- Mechagon Workshop
-    [151476] = "Blastatron X-80",
-    [151773] = "Junkyard D.0.G.",
-    -- Mechagon Junkyard
-    [152009] = "Malfunctioning Scrapbot",
-    [150160] = "Scrapbone Bully",
-    [150276] = "Heavy Scrapbot",
-    [150169] = "Toxic Lurker",
-    [150292] = "Mechagon Cavalry",
-    [150168] = "Toxic Monstrosity",
 }
 
 
@@ -709,23 +616,50 @@ local function dps_key()
 
     -- popping CD's with DPS Key
     if mode.rotation == 1 then
-        if (mode.cooldown == 1 and br.isChecked("Adrenaline Rush")) then
-            if cast.adrenalineRush() then
+
+        if runeforge.markOfTheMasterAssassin.equiped and talent.killingSpree then
+            if cd.killingSpree.ready()
+                    and (buff.bladeFlurry.remains() > 3.5 or cd.bladeFlurry.ready() or #enemies.yards8 == 1)
+                    and (stealth or cd.vanish.ready() or buff.masterAssassinsMark.exists())
+            then
+                if buff.bladeFlurry.remains() < 2 then
+                    if cast.bladeFlurry() then
+                        return true
+                    end
+                end
+                if not buff.masterAssassinsMark.exists() then
+                    if cast.vanish() then
+                        return true
+                    end
+                end
+                if stealth and buff.bladeFlurry.remains() > 3.5 then
+                    if cast.ambush("target") then
+                        return true
+                    end
+                end
+                if cast.killingSpree() then
+                    return true
+                end
+            end
+        else
+
+            if (mode.cooldown == 1 and br.isChecked("Adrenaline Rush")) then
+                if cast.adrenalineRush() then
+                    return true
+                end
+            end
+            if cast.bladeFlurry() then
                 return true
             end
-        end
-        if cast.bladeFlurry() then
-            return true
-        end
-        if (mode.cooldown == 1 and br.isChecked("Racial") or not br.isChecked("Racial")) then
-            if br.isChecked("Use Racial") and cast.able.racial() and (br.player.race == "Troll" or br.player.race == "Orc") then
-                if cast.racial() then
-                    return true
+            if (mode.cooldown == 1 and br.isChecked("Racial") or not br.isChecked("Racial")) then
+                if br.isChecked("Use Racial") and cast.able.racial() and (br.player.race == "Troll" or br.player.race == "Orc") then
+                    if cast.racial() then
+                        return true
+                    end
                 end
             end
         end
     end
-
 
 end
 
@@ -827,23 +761,29 @@ end
 --dps()
 actionList.dps = function()
 
-    if mode.vanish == 1 and cast.able.vanish() and br.isBoss() then
+    if mode.vanish == 1 and cast.able.vanish() and br.isBoss() and not stealth and unit.distance(dynamic_target_melee) < 8 and br.getCombatTime() < 4 then
         cast.adrenalineRush()
         cast.vanish()
         return true
+    end
+
+    if mode.vanish == 1 and not stealth and cast.able.vanish() and (cd.killingSpree.remain() < 1 or cd.bladeRush.remain() < 1) and not buff.masterAssassinsMark.exists() and runeforge.markOfTheMasterAssassin.equiped then
+        if cast.vanish() then
+            return true
+        end
     end
 
     if br.isChecked("Group CD's with DPS key") and br.SpecificToggle("DPS Key") and not GetCurrentKeyBoardFocus() then
         dps_key()
     end
 
-    if (stealth or lastSpellCast == spell.vanish) and (ambush_flag or mode.ambush == 1 or echoStealth()) then
+    if (stealth or lastSpellCast == spell.vanish) and (ambush_flag or mode.ambush == 1 or echoStealth() or runeforge.markOfTheMasterAssassin.equiped) then
         if actionList.Stealth() then
             return true
         end
     else
 
-        if mode.vanish == 1 and not stealth and cast.able.vanish() and echoStealth() and br.getCombatTime() > 4 or br.isBoss() then
+        if mode.vanish == 1 and not stealth and cast.able.vanish() and echoStealth() and br.getCombatTime() > 4 then
             if cast.vanish() then
                 return true
             end
@@ -906,8 +846,8 @@ actionList.dps = function()
         if (mode.cooldown == 1 and br.isChecked("Level 90 talent row") or not br.isChecked("Level 90 talent row")) then
             if br.getCombatTime() > 2 and br.getFacing("player", dynamic_target_melee, 45) then
                 if talent.killingSpree and cast.able.killingSpree(dynamic_target_melee)
-                        and ((br.getTTD(dynamic_target_melee) > 5 and #enemies.yards8 < 2 or talent.acrobaticStrikes and #enemies.yards8 < 2)
-                        or buff.bladeFlurry.exists()) then
+                        and (((br.getTTD(dynamic_target_melee) > 5 and #enemies.yards8 < 2 or talent.acrobaticStrikes and #enemies.yards8 < 2) or buff.bladeFlurry.remain() > 2)
+                        and (buff.masterAssassinsMark.remain() > 2 or cd.vanish.remain() > 30 or cast.last.vanish(1) or not runeforge.markOfTheMasterAssassin.equiped)) then
                     if cast.killingSpree() then
                         return true
                     end
@@ -915,8 +855,9 @@ actionList.dps = function()
 
                 if talent.bladeRush and cast.able.bladeRush(dynamic_target_melee)
                         and (#enemies.yards8 == 1 or buff.bladeFlurry.exists())
-                        --and (br.player.power.energy.ttm() > 1 or #enemies.yards8 > 3)
+                        --and (br.player.power.energy.ttm() > 1 or #enemies.yards8 > 2 or energy <= 30)
                         and unit.distance(dynamic_target_melee) <= dynamic_range
+                        and (buff.masterAssassinsMark.remain() > 1 or cd.vanish.remain() > 30 or cast.last.vanish(1) or runeforge.markOfTheMasterAssassin.equiped)
                 then
                     if cast.bladeRush(dynamic_target_melee) then
                         return true
@@ -1109,18 +1050,18 @@ actionList.dps = function()
 
     if br.isChecked("Use Trinkets") then
 
-        local Trinket13 = _G.GetInventoryItemID("player", 13)
-        local Trinket14 = _G.GetInventoryItemID("player", 14)
+        local Trinket13 = br._G.GetInventoryItemID("player", 13)
+        local Trinket14 = br._G.GetInventoryItemID("player", 14)
 
         local hold13, hold14
 
         -- Skuler's Wing
-        if (_G.GetInventoryItemID("player", 13) == 184016 or _G.GetInventoryItemID("player", 14) == 184016)
+        if (br._G.GetInventoryItemID("player", 13) == 184016 or br._G.GetInventoryItemID("player", 14) == 184016)
                 and br.canUseItem(184016) and br.getCombatTime() > 5 then
             br.useItem(184016)
         end
         --darkmoon trinket
-        if (_G.GetInventoryItemID("player", 13) == 173087 or _G.GetInventoryItemID("player", 14) == 173087)
+        if (br._G.GetInventoryItemID("player", 13) == 173087 or br._G.GetInventoryItemID("player", 14) == 173087)
                 and br.canUseItem(173087) and inCombat and not stealth then
             br.useItem(173087)
         end
@@ -1220,7 +1161,11 @@ actionList.Extra = function()
         return
     end
 
-    if (mode.cooldown == 1 and br.isChecked("Slice and Dice") or not br.isChecked("Slice and Dice")) and not buff.grandMelee.exists() then
+    if br.isChecked("Group CD's with DPS key") and br.SpecificToggle("DPS Key") and not br._G.GetCurrentKeyBoardFocus() then
+        dps_key()
+    end
+
+    if (mode.cooldown == 1 and br.isChecked("Slice and Dice") or not br.isChecked("Slice and Dice")) and not buff.grandMelee.exists() and not buff.masterAssassinsMark.exists() then
         if cast.able.sliceAndDice() and combo > 0 then
             if buff.sliceAndDice.remains() < (1 + combo) * 1.8 then
                 if cast.sliceAndDice() then
@@ -1228,9 +1173,6 @@ actionList.Extra = function()
                 end
             end
         end
-    end
-    if br.isChecked("Group CD's with DPS key") and br.SpecificToggle("DPS Key") and not br._G.GetSpellInfoGetCurrentKeyBoardFocus() then
-        dps_key()
     end
 
     if br.isChecked("Auto Sprint") and cast.able.sprint() and timers.time("is player moving", br.isMoving("player")) > rnd5 and br.isMoving("player") and (not inCombat or #enemies.yards8 == 0) then
@@ -1286,14 +1228,14 @@ actionList.Extra = function()
     --OOC trinket usage
     --Mistcaller Ocarina
     if br.isChecked("Use Trinkets") and not inCombat then
-        if (_G.GetInventoryItemID("player", 13) == 178715 or _G.GetInventoryItemID("player", 14) == 178715)
+        if (br._G.GetInventoryItemID("player", 13) == 178715 or br._G.GetInventoryItemID("player", 14) == 178715)
                 and buff.mistcallerOcarina.remain() < 60 and not br.isMoving("player") and br.canUseItem(178715) then
             br.useItem(178715)
             return true
         end
 
         --[[
-        if (_G.GetInventoryItemID("player", 13) == 184016 or _G.GetInventoryItemID("player", 14) == 184016) and br.canUseItem(184016) then
+        if  (br._G.GetInventoryItemID("player", 13) == 184016 or br._G.GetInventoryItemID("player", 14) == 184016) and br.canUseItem(184016) then
             if #enemies.yards25nc > 0 then
                 for i = 1, #enemies.yards25nc do
                     local thisUnit = enemies.yards25nc[i]
@@ -1306,7 +1248,7 @@ actionList.Extra = function()
             end
         end
         --Inscrutable Quantum Device
-        if (_G.GetInventoryItemID("player", 13) == 179350 or _G.GetInventoryItemID("player", 14) == 179350) and br.canUseItem(179350) then
+        if  (br._G.GetInventoryItemID("player", 13) == 179350 or br._G.GetInventoryItemID("player", 14) == 179350) and br.canUseItem(179350) then
             if #enemies.yards25nc > 0 then
                 for i = 1, #enemies.yards25nc do
                     local thisUnit = enemies.yards25nc[i]
@@ -1351,9 +1293,7 @@ actionList.Defensive = function()
         -- Feint
         if br.isChecked("Feint") and cast.able.feint() and not buff.feint.exists() and inCombat then
             for k, v in pairs(debuff_list) do
-                --   Print("K: " .. tostring(k) .. " V: " .. tostring(v.spellID))
                 if br.getDebuffRemain("player", v.spellID) > 0 then
-                    --      Print("foo33")
                     should_feint = true
                 end
             end
@@ -1402,7 +1342,7 @@ actionList.Defensive = function()
             end
         end
         if mode.cov == 1 then
-            if covenant.kyrian.active and not br.hasItem(177278) and cast.able.summonSteward() then
+            if covenant.kyrian.active and not br.hasItem(177278) and cast.able.summonSteward() and not inCombat then
                 if cast.summonSteward() then
                     return true
                 end
@@ -1445,7 +1385,7 @@ actionList.Defensive = function()
             end
         end
     end
-    if br.isChecked("Arcane Torrent regen") and inCombat and race == "BloodElf" and br.getSpellCD(25046) == 0 and (br.player.power.energy.deficit() >= 15 + br.player.power.energy.regen()) then
+    if br.isChecked("Arcane Torrent regen") and inCombat and race == "BloodElf" and br.getSpellCD(25046) == 0 and (br.player.power.energy.deficit() >= 15 + br.player.power.energy.regen()) and br.getCombatTime() > 4 then
         if br._G.CastSpellByID(25046, "player") then
             return true
         end
@@ -1557,7 +1497,7 @@ actionList.Interrupt = function()
                         end
                     end
                 else
-                    if cloakList[interruptID] then
+                    if mode.cloak == 1 and cloakList[interruptID] then
                         if cast.cloakOfShadows() then
                             return true
                         end
@@ -1613,7 +1553,7 @@ actionList.Interrupt = function()
 
             if br.canInterrupt(interrupt_target, br.getOptionValue("Interrupt %")) then
                 distance = br.getDistance(interrupt_target)
-                if not (inInstance and #tanks > 0 and select(3, br._G.UnitClass(tanks[1].unit)) == 1 and br.hasBuff(23920, tanks[1].unit) and br._GetUnitIsUnit(select(3, br._G.UnitCastID(interrupt_target)), tanks[1].unit)) then
+                if not (inInstance and #tanks > 0 and select(3, br._G.UnitClass(tanks[1].unit)) == 1 and br.hasBuff(23920, tanks[1].unit) and br._G.GetUnitIsUnit(select(3, br._G.UnitCastID(interrupt_target)), tanks[1].unit)) then
                     if StunsBlackList[br.GetObjectID(interrupt_target)] == nil and br.player.cast.timeRemain(interrupt_target) < br.getTTD(interrupt_target) then
                         if cd.global.remain() == 0 then
                             if mode.gouge ~= 2 and mode.gouge < 5 and not cd.gouge.exists()
@@ -1762,6 +1702,7 @@ local function runRotation()
     mode = br.player.ui.mode
     php = br.player.health
     race = br.player.race
+    runeforge = br.player.runeforge
     spell = br.player.spell
     lastSpell = lastSpellCast
     talent = br.player.talent
