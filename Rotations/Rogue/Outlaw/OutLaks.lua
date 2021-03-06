@@ -622,7 +622,7 @@ local function dps_key()
                     and (buff.bladeFlurry.remains() > 3.5 or cd.bladeFlurry.ready() or #enemies.yards8 == 1)
                     and (stealth or cd.vanish.ready() or buff.masterAssassinsMark.exists())
             then
-                if buff.bladeFlurry.remains() < 2 then
+                if buff.bladeFlurry.remains() < 2 and #enemies.yards8 > 1 then
                     if cast.bladeFlurry() then
                         return true
                     end
@@ -847,7 +847,7 @@ actionList.dps = function()
             if br.getCombatTime() > 2 and br.getFacing("player", dynamic_target_melee, 45) then
                 if talent.killingSpree and cast.able.killingSpree(dynamic_target_melee)
                         and (((br.getTTD(dynamic_target_melee) > 5 and #enemies.yards8 < 2 or talent.acrobaticStrikes and #enemies.yards8 < 2) or buff.bladeFlurry.remain() > 2)
-                        and (buff.masterAssassinsMark.remain() > 2 or cd.vanish.remain() > 30 or cast.last.vanish(1) or not runeforge.markOfTheMasterAssassin.equiped)) then
+                        and (buff.masterAssassinsMark.remain() > 2 or not runeforge.markOfTheMasterAssassin.equiped)) then
                     if cast.killingSpree() then
                         return true
                     end
