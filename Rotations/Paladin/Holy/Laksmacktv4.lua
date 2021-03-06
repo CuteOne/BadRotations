@@ -87,15 +87,17 @@ local function createOptions()
         br.ui:createDropdownWithout(section, "Repentance Key", br.dropOptions.Toggle, 6, "CC mousover")
         br.ui:createCheckbox(section, "Aggressive Glimmer")
         br.ui:createCheckbox(section, "Aggressive Hammer of Wrath")
+        br.ui:createCheckbox(section, "Aggressive Consecration")
+
         -- br.ui:createCheckbox(section, "Awakening/Mad Paragon Playstyle")
 
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "Healing")
-        br.ui:createSpinnerWithout(section, "Critical HP", 30, 0, 100, 5, "", "Health Percent to Critical Heals")
-        br.ui:createSpinner(section, "Word of Glory", 80, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At")
-        br.ui:createSpinner(section, "Holy Shock", 80, 0, 100, 5, "", "Health Percent to Cast At")
-        br.ui:createSpinner(section, "Light of the Martyr", 40, 0, 100, 5, "", "Health Percent to Cast At")
-        br.ui:createSpinnerWithout(section, "LotM player HP limit", 50, 0, 100, 5, "", "Light of the Martyr Self HP limit")
+        br.ui:createSpinnerWithout(section, "Critical HP", 40, 0, 100, 5, "", "Health Percent to Critical Heals")
+        br.ui:createSpinner(section, "Word of Glory", 75, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At")
+        br.ui:createSpinner(section, "Holy Shock", 90, 0, 100, 5, "", "Health Percent to Cast At")
+        br.ui:createSpinner(section, "Light of the Martyr", 55, 0, 100, 5, "", "Health Percent to Cast At")
+        br.ui:createSpinnerWithout(section, "LotM player HP limit", 65, 0, 100, 5, "", "Light of the Martyr Self HP limit")
         --Divine Toll
         br.ui:createDropdown(section, "Divine Toll", { "At 0 Holy Power", "As a Heal" }, 1)
         br.ui:createSpinnerWithout(section, "Divine Toll Units", 3, 1, 5, 1)
@@ -104,9 +106,9 @@ local function createOptions()
         br.ui:checkSectionState(section)
         -- Light of Dawn
         br.ui:createSpinner(section, "Light of Dawn", 90, 0, 100, 5, "", "Health Percent to Cast At")
-        br.ui:createSpinner(section, "LoD Targets", 3, 0, 40, 1, "", "Minimum LoD Targets", true)
-        br.ui:createSpinner(section, "Infused Flash of Light", 70, 0, 100, 5, "", "Health Percent to Cast At")
-        br.ui:createSpinner(section, "Flash of Light", 50, 0, 100, 5, "", "Health Percent to Cast At")
+        br.ui:createSpinner(section, "LoD Targets", 4, 0, 40, 1, "", "Minimum LoD Targets", true)
+        br.ui:createSpinner(section, "Infused Flash of Light", 65, 0, 100, 5, "", "Health Percent to Cast At")
+        br.ui:createSpinner(section, "Flash of Light", 45, 0, 100, 5, "", "Health Percent to Cast At")
         -- Beacon of Virtue
         br.ui:createSpinner(section, "Beacon of Virtue", 80, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At")
         br.ui:createSpinner(section, "BoV Targets", 3, 0, 40, 1, "", "|cffFFFFFFMinimum BoV Targets", true)
@@ -122,7 +124,7 @@ local function createOptions()
         br.ui:createSpinner(section, "Lay on Hands", 20, 0, 100, 5, "", "Min Health Percent to Cast At")
         br.ui:createSpinner(section, "Blessing of Protection", 20, 0, 100, 5, "", "Health Percent to Cast At")
         br.ui:createSpinner(section, "Blessing of Sacrifice", 40, 0, 100, 5, "", "Health Percent to Cast At")
-        br.ui:createDropdownWithout(section, "BoS Target", { "Any", "Tanks" }, 1, "Target for BoS")
+        br.ui:createDropdownWithout(section, "BoS Target", { "Any", "Tanks" }, 2, "Target for BoS")
         br.ui:createCheckbox(section, "Blessing of Freedom", "Use Blessing of Freedom")
         br.ui:createCheckbox(section, "Automatic Aura replacement")
         br.ui:checkSectionState(section)
@@ -137,8 +139,8 @@ local function createOptions()
 
         br.ui:createCheckbox(section, "Advanced Trinket Support")
         -- Tuft of Smoldering Plumeage Trinket Support
-        br.ui:createSpinner(section, "Tuft of Smoldering Plumeage - min", 20, 0, 100, 5, "", "|cffFFFFFFMin Health Percent to Cast At")
-        br.ui:createSpinner(section, "Tuft of Smoldering Plumeage - max", 20, 0, 100, 5, "", "|cffFFFFFFMax Health Percent to Cast At", true)
+        br.ui:createSpinner(section, "Tuft of Smoldering Plumeage - min", 1, 0, 100, 5, "", "|cffFFFFFFMin Health Percent to Cast At")
+        br.ui:createSpinner(section, "Tuft of Smoldering Plumeage - max", 40, 0, 100, 5, "", "|cffFFFFFFMax Health Percent to Cast At", true)
         br.ui:createDropdownWithout(section, "Tuft of Smoldering Plumeage Target", { "|cffFFFFFFAll", "|cffFFFFFFTanks", "|cffFFFFFFSelf", "|cffFFFFFFHealer/DPS" }, 1, "|cffFFFFFFTarget for Tuft of Smoldering Plumeage")
 
         br.ui:checkSectionState(section)
@@ -169,6 +171,8 @@ local function createOptions()
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "DPS Options")
         br.ui:createCheckbox(section, "Shield of the Righteous")
+        br.ui:createCheckbox(section, "DPS AoE Glimmer Spread")
+        br.ui:createCheckbox(section, "ST Holy Shock")
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "Pots")
         br.ui:createDropdownWithout(section, "Pots - 1 target (Boss)", { "None", "Battle", "RisingDeath", "Draenic", "Prolonged", "Empowered Proximity", "Focused Resolve", "Superior Battle", "Unbridled Fury" }, 1, "", "Use Pot when Incarnation/Celestial Alignment is up")
@@ -248,6 +252,7 @@ local ui
 local php
 --local spell
 local talent
+local lowest
 local units
 local unit
 local use
@@ -384,6 +389,21 @@ local function canheal(unit)
     else
         return false
     end
+end
+
+local function consecration()
+    --Consecration
+    if cd.consecration.ready() and not br.isMoving("player") then
+        for i = 1, #enemies.yards8 do
+            if not debuff.consecration.exists(enemies.yards8[i])
+                    or br._G.GetTotemTimeLeft(1) < 2
+                    or not cast.able.holyShock() and (cd.holyShock.remain() > 1.5 and cd.crusaderStrike.remain() ~= 0) then
+                if cast.consecration() then
+                end
+            end
+        end
+    end
+
 end
 
 
@@ -795,11 +815,11 @@ actionList.dps = function()
     -- j / con / HS / CS
 
     --Auto attack
-    if not IsAutoRepeatSpell(br._G.GetSpellInfo(6603)) and #enemies.yards8 >= 1 then
+    if not br._G.IsAutoRepeatSpell(br._G.GetSpellInfo(6603)) and #enemies.yards8 >= 1 then
         br._G.StartAttack()
     end
 
-    if br.isChecked("Divine Toll during DPS Key") and dpskey and #enemies.yards30 >= br.getValue("Divine Toll during DPS Key") then
+    if br.isChecked("Divine Toll during DPS Key") and br.SpecificToggle("DPS Key") and not br._G.GetCurrentKeyBoardFocus() and #enemies.yards30 >= br.getValue("Divine Toll during DPS Key") then
         if cast.divineToll(units.dyn30) then
             return true
         end
@@ -807,7 +827,7 @@ actionList.dps = function()
 
 
     --Judgment
-    if cast.able.judgment() and cd.holyShock.remain() > 1 then
+    if not talent.judgmentofLight and cast.able.judgment() and cd.holyShock.remain() > 1 then
         if #tanks == 0 or #tanks > 0 and br.getDistance(units.dyn30, tanks[1].unit) <= 10 then
             if br.getFacing("player", units.dyn30) then
                 if cast.judgment(units.dyn30) then
@@ -818,21 +838,9 @@ actionList.dps = function()
         end
     end
 
-    --Consecration
-    if cd.consecration.ready() and not br.isMoving("player") then
-        for i = 1, #enemies.yards8 do
-            if not cast.last.consecration(1)
-                    and not noConc("target")
-                    and not debuff.consecration.exists(enemies.yards8[i])
-                    or GetTotemTimeLeft(1) < 2
-                    or not cast.able.holyShock() and (cd.holyShock.remain() > 1.5 and cd.crusaderStrike.remain() ~= 0) then
-                if cast.consecration() then
-                end
-            end
-        end
-    end
+    consecration()
 
-    if ui.checked("Group CD's with DPS key") and br.SpecificToggle("DPS Key") and not GetCurrentKeyBoardFocus() then
+    if ui.checked("Group CD's with DPS key") and br.SpecificToggle("DPS Key") and not br._G.GetCurrentKeyBoardFocus() then
         -- popping CD's with DPS Key
         if cast.holyAvenger() then
             return true
@@ -853,23 +861,38 @@ actionList.dps = function()
         end
     end
 
-    if cd.holyShock.ready() and (inInstance and #tanks > 0 and br.getDistance(units.dyn40, tanks[1].unit) <= 15
-            or #tanks > 0 and br.getDistance(tanks[1].unit) >= 90)
-            or (inRaid and #tanks > 0 and br.getDistance(units.dyn40, tanks[1].unit) <= 40 or #tanks > 0 and br.getDistance(tanks[1].unit) >= 90)
-            or not inInstance or not inRaid or solo then
-        for i = 1, #enemies.yards40 do
-            local thisUnit = enemies.yards40[i]
-            if not debuff.glimmerOfLight.exists(thisUnit, "exact") and not noDamageCheck(thisUnit) and not br._G.UnitIsPlayer(thisUnit) and br.getFacing("player", thisUnit) then
-                if cast.holyShock(thisUnit) then
-                    br.addonDebug("[DPS]HolyShock on " .. br._G.UnitName(thisUnit) .. " w/Glimmer")
-                    return true
-                end
+    if ui.checked("ST Holy Shock") and br.player.ui.mode.DPS == 1 and br.player.inCombat and lowest.hp > ui.value("Critical HP") then
+        local glimmerCount = 0
+        if br.GetUnitExists("target") and br.getFacing("player", "target") then
+            if cast.holyShock("target") then
+                br.addonDebug("[DPS]ST HolyShock on: " .. br._G.UnitName("target"))
+                return true
             end
         end
-        if br.getFacing("player", units.dyn40) then
-            if cast.holyShock(units.dyn40) then
-                br.addonDebug("[DPS]HolyShock - No-Glimmer")
-                return true
+        if debuff.glimmerOfLight.exists("target", "EXACT") then
+            glimmerCount = glimmerCount + 1
+        end
+    end
+
+    if ui.checked("DPS AoE Glimmer Spread") then
+        if cd.holyShock.ready() and (inInstance and #tanks > 0 and br.getDistance(units.dyn40, tanks[1].unit) <= 15
+                or #tanks > 0 and br.getDistance(tanks[1].unit) >= 90)
+                or (inRaid and #tanks > 0 and br.getDistance(units.dyn40, tanks[1].unit) <= 40 or #tanks > 0 and br.getDistance(tanks[1].unit) >= 90)
+                or not inInstance or not inRaid or solo then
+            for i = 1, #enemies.yards40 do
+                local thisUnit = enemies.yards40[i]
+                if not debuff.glimmerOfLight.exists(thisUnit, "exact") and not noDamageCheck(thisUnit) and not br._G.UnitIsPlayer(thisUnit) and br.getFacing("player", thisUnit) then
+                    if cast.holyShock(thisUnit) then
+                        br.addonDebug("[DPS]AoE HolyShock on " .. br._G.UnitName(thisUnit) .. " w/Glimmer")
+                        return true
+                    end
+                end
+            end
+            if br.getFacing("player", units.dyn40) then
+                if cast.holyShock(units.dyn40) then
+                    br.addonDebug("[DPS]AoE HolyShock - No-Glimmer")
+                    return true
+                end
             end
         end
     end
@@ -895,7 +918,9 @@ actionList.dps = function()
         end
     end
 
+
     if ui.checked("Shield of the Righteous")
+            and healTarget == "none"
             and lowest.hp > ui.value("Word of Glory")
             and cast.able.shieldOfTheRighteous()
             and (holyPower >= 3 or buff.divinePurpose.exists())
@@ -926,8 +951,13 @@ actionList.Extra = function()
         end
     end
 
+    if ui.checked("Aggressive Consecration") and lowest.hp > ui.value("Critical HP") then
+        consecration()
+    end
+
+
     --BoP and BoF   blessing of freedom blessing of protection
-    if unit.inCombat() and mode.freedom == 1 and cd.blessingOfFreedom.ready() then
+    if inCombat and mode.freedom == 1 and cd.blessingOfFreedom.ready() then
         if cast.able.blessingOfFreedom() then
             local endCast, spellcastID, spellTarget
             for i = 1, #enemies.yards40 do
@@ -965,7 +995,7 @@ actionList.Extra = function()
             end
         end
     end
-    if ui.checked("Blessing of Protection") and cd.blessingOfProtection.ready() then
+    if ui.checked("Blessing of Protection") and cd.blessingOfProtection.ready() and inCombat then
         for i = 1, #br.friend do
             if br.friend[i].hp <= ui.value("Blessing of Protection")
                     or br.getDebuffRemain(br.friend[i].unit, 323406) ~= 0 --323406/jagged-gash
@@ -1015,7 +1045,7 @@ actionList.Extra = function()
         end
     end
 
-    if unit.inCombat() and mode.stuns == 1 and (talent.blindingLight and cd.blindingLight.ready() or cd.hammerOfJustice.ready()) then
+    if inCombat and mode.stuns == 1 and (talent.blindingLight and cd.blindingLight.ready() or cd.hammerOfJustice.ready()) then
         for i = 1, br._G.GetObjectCount() do
             local object = br._G.GetObjectWithIndex(i)
             local ID = br._G.ObjectID(object)
@@ -1603,7 +1633,7 @@ actionList.Cooldown = function()
     end
 
     -- Unstable Temporal Time Shifter
-    if ui.checked("Eng Brez") and br.canUseItem(184308) and not moving and inCombat and lowest.hp > ui.value("Critical HP") then
+    if ui.checked("Eng Brez") and br.canUseItem(184308) and not moving and inCombat then
         if br.getOptionValue("Eng Brez") == 1 and br._G.UnitIsPlayer("target") and br._G.UnitIsPlayer("target") and br.GetUnitIsFriend("target", "player") then
             br._G.UseItemByName(184308, "target")
         end
@@ -1708,6 +1738,33 @@ actionList.heal = function()
                     return true
                 end
             end
+        end
+    end
+
+    -- Light of Dawn
+    if ui.checked("Light of Dawn") and cd.lightOfDawn.ready() and (holyPower >= 3 or buff.divinePurpose.exists()) then
+        if bestConeHeal(spell.lightOfDawn, ui.value("LoD Targets"), ui.value("Light of Dawn"), 45, lightOfDawn_distance * lightOfDawn_distance_coff, 5) then
+            healTarget = "none"
+            return true
+        end
+    end
+    -- Word of Glory
+    if healTarget == "none" and ui.checked("Word of Glory") and (holyPower >= 3 or buff.divinePurpose.exists()) then
+        if (lowest.hp <= ui.value("Word of Glory")) and canheal(lowest.unit) then
+            healTarget = lowest.unit
+            healReason = "HEAL"
+        end
+        --WOG fishing for Wings
+        if healTarget == "none" and talent.awakening and not buff.avengingWrath.exists() then
+            healTarget = lowest.unit
+            healReason = "FISH"
+        end
+    end
+    if healTarget ~= "none" and canheal(healTarget) and ui.checked("Word of Glory") and (holyPower >= 3 or buff.divinePurpose.exists()) then
+        if cast.wordOfGlory(healTarget) then
+            br.addonDebug("[" .. healReason .. "] WOG : " .. br._G.UnitName(healTarget) .. "/" .. healTargetHealth)
+            healTarget = "none"
+            return true
         end
     end
 
@@ -2097,7 +2154,7 @@ local function runRotation()
                     return true
                 end
                 if spellQueueReady() then
-                    if not br.SpecificToggle("DPS Key") and not GetCurrentKeyBoardFocus() or lowest.hp <= br.getOptionValue("Critical HP") then
+                    if not br.SpecificToggle("DPS Key") and not br._G.GetCurrentKeyBoardFocus() or lowest.hp <= br.getOptionValue("Critical HP") then
                         if actionList.Defensive() then
                             return true
                         end
@@ -2119,7 +2176,6 @@ local function runRotation()
                             end
                         end
                         if ui.checked("Aggressive Hammer of Wrath") then
-                            -- and lowest.hp > br.getOptionValue("Critical HP") then
                             if actionList.hammerOfWrathDPS() then
                                 return true
                             end
