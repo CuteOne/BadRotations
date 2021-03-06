@@ -1620,7 +1620,7 @@ br.lists.spells = {
                 galvanizingSpark            = 278536,
             },
         },
-        -- Fire
+                -- Fire
         [63] = {
             abilities                       = {
                 alterTime                   = 108978,
@@ -1629,16 +1629,20 @@ br.lists.spells = {
                 cinderstorm                 = 198929,
                 combustion                  = 190319,
                 dragonsBreath               = 31661,
+                disciplinaryCommand         = 327365,
                 fireball                    = 133,
                 fireBlast                   = 108853,
                 fireBlast2                  = 319836,
                 flameOn                     = 205029,
                 flamestrike                 = 2120,
+                infernalCascade             = 336821,
                 livingBomb                  = 44457,
                 meteor                      = 153561,
-                phoenixFlames              = 257541,
+                phoenixFlames               = 257541,
                 pyroblast                   = 11366,
+                shiftingPower               = 314791,
                 scorch                      = 2948,
+                soulIgnition                = 345211,
             },
             artifacts                       = {
                 aftershocks                 = 194431,
@@ -1648,17 +1652,27 @@ br.lists.spells = {
                 blazingBarrier              = 235313,
                 blasterMaster               = 274598,
                 combustion                  = 190319,
+                disciplinaryArcane          = 327369,
+                disciplinaryCommand         = 327365,
+                disciplinaryCommandFrost    = 327366,
+                disciplinaryCommandFire     = 327368,
+                firestorm                   = 333097,
                 heatingUp                   = 48107,
                 hotStreak                   = 48108,
                 iceFloes                    = 108839,
+                infernalCascade             = 336832,
                 kaelthasUltimateAbility     = 209455,
                 preheat                     = 273333,
                 pyroclasm                   = 269651,
+                shiftingPower               = 314791,
+                sunKingsBlessings           = 333313,
+                soulIgnition                = 345211,
             },
             debuffs                         = {
+                ignite                      = 12654,
                 meteorBurn                  = 155158,
                 cauterized                  = 87024,
-
+               
             },
             glyphs                          = {
 
@@ -1683,9 +1697,21 @@ br.lists.spells = {
                 pyroclasm                   = 269650,
                 searingTouch                = 269644,
             },
+            covenants                       = {
+                shiftingPower               = 314791,
+            },
             traits                          = {
                 preheat                     = 273332,
                 blasterMaster               = 274596,
+            },
+            conduits                        = {
+                infernalCascade             = 336821,
+            },
+            runeforges                      = {
+                firestorm                   = 333097,
+                grislyIcicle                = 333393,
+                disciplinaryCommand         = 327365,
+                sunKingsBlessings           = 333313
             }
         },
         -- Frost
