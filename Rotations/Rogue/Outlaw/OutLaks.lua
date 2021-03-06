@@ -857,7 +857,7 @@ actionList.dps = function()
                         and (#enemies.yards8 == 1 or buff.bladeFlurry.exists())
                         --and (br.player.power.energy.ttm() > 1 or #enemies.yards8 > 2 or energy <= 30)
                         and unit.distance(dynamic_target_melee) <= dynamic_range
-                        and (buff.masterAssassinsMark.remain() > 1 or cd.vanish.remain() > 30 or cast.last.vanish(1) or runeforge.markOfTheMasterAssassin.equiped)
+                        and (buff.masterAssassinsMark.remain() > 1 or cd.vanish.remain() > 30 or cast.last.vanish(1) or not runeforge.markOfTheMasterAssassin.equiped)
                 then
                     if cast.bladeRush(dynamic_target_melee) then
                         return true

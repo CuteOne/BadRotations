@@ -147,26 +147,27 @@ local function createOptions()
     return optionTable
 end
 
+---------------
+---CombatLog---
+---------------
+local someone_casting = false
+local frame = br._G.CreateFrame("Frame")
+frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+local function reader()
+    local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = CombatLogGetCurrentEventInfo()
+    local unitType, zero, server_id, instance_id, zone_uid, npc_id, spawn_uid = strsplit("-",source);
+    if param == "SPELL_CAST_START" and unitType == "Creature" then
+        C_Timer.After(0.02, function()
+            someone_casting = true
+        end)
+    end
+end
+frame:SetScript("OnEvent", reader)
+
 ----------------
 --- ROTATION ---
 ----------------
 local function runRotation()
-    ---------------
-    ---CombatLog---
-    ---------------
-    local someone_casting = false
-    local frame = br._G.CreateFrame("Frame")
-    frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-    local function reader()
-        local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = CombatLogGetCurrentEventInfo()
-        local unitType, zero, server_id, instance_id, zone_uid, npc_id, spawn_uid = strsplit("-",source);
-        if param == "SPELL_CAST_START" and unitType == "Creature" then
-            C_Timer.After(0.02, function()
-                someone_casting = true
-            end)
-        end
-    end
-    frame:SetScript("OnEvent", reader)
     ---------------
     --- Toggles --- -- Add toggles if ability speced
     ---------------
