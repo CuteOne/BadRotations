@@ -15,4 +15,7 @@ br.lists.shieldUnits = {
 	-- Timewalking
 	[29309] = {coef = -100, buff = 56153}, -- Elder Nadox: Ahn'kahet The Old Kingdom (Invulnerable buff from Ahn'kahar Guardian)
 	[30178] = {coef = -100, buff = 56153}, -- Ahn'kahar Swarmer: Ahn'kahet The Old Kingdom (Invulnerable buff from Ahn'kahar Guardian)
+	-- Castle Nathria
+	[165318] = {coef = -100, buff = 329636}, -- Stone Legion Generals (Kaal) - Takes 95% reduced damage during Hardened Stone Forms
+	[170323] = {coef = -100, buff = 329636}, -- Stone Legion Generals (Grashaal) - Takes 95% reduced damage during Hardened Stone Forms
 }

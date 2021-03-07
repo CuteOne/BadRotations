@@ -72,20 +72,23 @@ br.lists.noTouchUnits = {
     -- Shadowlands
     { unitID = 174773}, -- Spiteful Shade
     -- Dungeons
-    --The Necrotic Wake
+    -- The Necrotic Wake
     { unitID = 162689, buff = 326629 }, -- Surgeon Stitchflesh with Noxious Fog buff
     { unitID = 166079, buff = 321576 }, -- can't kill them with this aura up
     { unitID = 163126, buff = 321576 }, -- can't kill them with this aura up
     { unitID = 163122, buff = 321576 }, -- can't kill them with this aura up
-    --Hall of Atonement
+    -- Hall of Atonement
     { unitID = 165913 }, -- https://www.wowhead.com/npc=165913/ghastly-parishioner
-    --de other side
+    -- De Other Side
     { unitID = 167966 }, -- https://www.wowhead.com/npc=167966/experimental-sludge
     { unitID = 170483 }, -- https://www.wowhead.com/npc=170483/atalai-deathwalkers-spirit
-    --Mists
+    -- Mists Of Tirna Scithe
     { unitID = 165251 }, -- https://www.wowhead.com/npc=165251/illusionary-vulpin
+    { unitID = 164501, buff = 336499 }, -- Mistcaller takes 100% less damage while playing Guessing Game
+
     -- Castle Nathria
     { unitID = 164406, buff = 328921 }, -- Don't attack Shriekwing when it casts Blood Shroud
+    { unitID = 1, buff = 346694 }, -- https://www.wowhead.com/spell=346694/unyielding-shield
     { unitID = 1, buff = 329636 }, -- General Kaal with Hardened Stone Form
     { unitID = 1, buff = 329636 }, -- General Grashaal with Hardened Stone Form
     { unitID = 1, buff = 346694 }, -- General Grashaal with Hardened Stone Form
