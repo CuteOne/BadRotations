@@ -81,6 +81,7 @@ br.lists.noTouchUnits = {
     { unitID = 165913 }, -- https://www.wowhead.com/npc=165913/ghastly-parishioner
     --de other side
     { unitID = 167966 }, -- https://www.wowhead.com/npc=167966/experimental-sludge
+    { unitID = 170483 }, -- https://www.wowhead.com/npc=170483/atalai-deathwalkers-spirit
     --Mists
     { unitID = 165251 }, -- https://www.wowhead.com/npc=165251/illusionary-vulpin
     -- Castle Nathria
