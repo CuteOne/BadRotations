@@ -384,7 +384,7 @@ actionList.Defensive = function()
             end
         end
         -- Flash of Light
-        if ui.checked("Flash of Light") and not (unit.mounted() or unit.flying()) then
+        if ui.checked("Flash of Light") and not (unit.mounted() or unit.flying()) and not cast.current.flashOfLight() then
             local thisUnit = getHealUnitOption("Flash of Light Target")
             if cast.able.flashOfLight(thisUnit) and unit.distance(thisUnit) < 40 then
                 -- Instant Cast
@@ -686,7 +686,7 @@ actionList.Generator = function()
     -- Wake of Ashes
     -- wake_of_ashes,if=(holy_power=0|holy_power<=2&(cooldown.blade_of_justice.remains>gcd*2|debuff.execution_sentence.up|debuff.final_reckoning.up))&(!raid_event.adds.exists|raid_event.adds.in>20)&(!talent.execution_sentence.enabled|cooldown.execution_sentence.remains>15)&(!talent.final_reckoning.enabled|cooldown.final_reckoning.remains>15)
     -- wake_of_ashes,if=(holy_power=0|holy_power<=2&(cooldown.blade_of_justice.remains>gcd*2|(debuff.execution_sentence.up|target.time_to_die<8)|debuff.final_reckoning.up))&(!raid_event.adds.exists|raid_event.adds.in>20)&(!talent.execution_sentence.enabled|cooldown.execution_sentence.remains>15)&(!talent.final_reckoning.enabled|cooldown.final_reckoning.remains>15)&(cooldown.avenging_wrath.remains>0|cooldown.crusade.remains>0)
-    if ui.alwaysCdNever("Wake of Ashes") and cast.able.wakeOfAshes() and (holyPower <= 0 or holyPower <= 2
+    if ui.alwaysCdNever("Wake of Ashes") and cast.able.wakeOfAshes(units.dyn12, "cone", 1, 12) and #enemies.yards12f > 0 and (holyPower <= 0 or holyPower <= 2
         and (cd.bladeOfJustice.remain() > unit.gcd(true) * 2 or (debuff.executionSentence.exists(units.dyn5) or unit.ttd(units.dyn5) < 8) or debuff.finalReckoning.exists(units.dyn5)))
         and ui.useST() and (not talent.executionSentence or cd.executionSentence.remains() > 15 or not ui.alwaysCdNever("Execution Sentence"))
         and (not talent.finalReckoning or cd.finalReckoning.remains() > 15 or not ui.alwaysCdNever("Final Reckoning"))
@@ -850,8 +850,8 @@ local runRotation = function()
     -- Enemies Lists
     enemies.get(5)
     enemies.get(8)
-    enemies.get(8, "player", false, true)
     enemies.get(10)
+    enemies.get(12, "player", false, true)
     enemies.get(20)
     enemies.get(30, "player", false, true)
     enemies.get(40)
