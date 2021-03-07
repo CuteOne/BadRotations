@@ -551,7 +551,7 @@ actionList.Single = function()
     end
     -- Lava Lash
     -- lava_lash,if=buff.hot_hand.up|(runeforge.primal_lava_actuators.equipped&buff.primal_lava_actuators.stack>6)
-    if cast.able.lavaLash() and (buff.hotHand.exist() or (runeforge.primalLavaActuators.equiped and buff.primalLavaActuators.stack() > 6)) then
+    if cast.able.lavaLash() and (buff.hotHand.exists() or (runeforge.primalLavaActuators.equiped and buff.primalLavaActuators.stack() > 6)) then
         if cast.lavaLash() then ui.debug("Casting Lava Lash [ST - Hot Hand / Primal Lava Actuators]") return true end
     end
     -- Primordial Wave
