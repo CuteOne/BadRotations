@@ -1721,7 +1721,7 @@ br.lists.spells = {
                 blizzard                    = 190356,
                 coldSnap                    = 235219,
                 coneOfCold                  = 120,
-                fireBlast                   = 108853,
+                --fireBlast                   = 108853, - Fire Mage version, Frost should not have this and already listed fireBlast below
                 flurry                      = 44614,
                 freeze                      = 231596,
                 frostbolt                   = 116,
@@ -2381,6 +2381,7 @@ br.lists.spells = {
             },
             runeforges                      = {
                 madParagon                  = 337594,
+                theMagistratesJudgment      = 337681,
             }
         },
     },
@@ -3029,7 +3030,7 @@ br.lists.spells = {
                 shadowmeld                  = 58984,
                 shiv                        = 5938,
                 sprint                      = 2983,
-                stealth                     = 115191,
+                -- stealth                     = 115191, -- COmmented out as stealth is already listed below
                 tricksOfTheTrade            = 57934,
                 vanish                      = 1856,
                 evasion                     = 5277,
@@ -4190,88 +4191,6 @@ br.lists.spells = {
                 vitalityConduit                 = 299958,
                 conflict                        = 303823,
                 worldveinResonance              = 295186
-            },
-        },
-    },
-    ClassTemplate = {
-        SpecTemplate = {
-            abilities                       = {
-
-            },
-            artifacts                       = {
-
-            },
-            buffs                           = {
-
-            },
-            debuffs                         = {
-
-            },
-            glyphs                          = {
-
-            },
-            talents                         = {
-
-            },
-        },
-        SpecTemplate = {
-            abilities                       = {
-
-            },
-            artifacts                       = {
-
-            },
-            buffs                           = {
-
-            },
-            debuffs                         = {
-
-            },
-            glyphs                          = {
-
-            },
-            talents                         = {
-
-            },
-        },
-        SpecTemplate = {
-            abilities                       = {
-
-            },
-            artifacts                       = {
-
-            },
-            buffs                           = {
-
-            },
-            debuffs                         = {
-
-            },
-            glyphs                          = {
-
-            },
-            talents                         = {
-
-            },
-        },
-        Shared = {
-            abilities                       = {
-
-            },
-            artifacts                       = {
-
-            },
-            buffs                           = {
-
-            },
-            debuffs                         = {
-
-            },
-            glyphs                          = {
-
-            },
-            talents                         = {
-
             },
         },
     },
