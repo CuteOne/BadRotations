@@ -158,7 +158,6 @@ end
 local buff
 local cast
 local cd
-local conduit
 local covenant
 local debuff
 local enemies
@@ -521,12 +520,14 @@ actionList.AOE = function()
     end
     -- Earth Elemental
     -- earth_elemental
-    if ui.alwaysCdNever("Earth Elemental") and cast.able.earthElemental() and #enemies.yards5 > 0 and unit.ttd("target") > 60 then
+    if ui.alwaysCdNever("Earth Elemental") and cast.able.earthElemental() and #enemies.yards5 > 0 and unit.ttd("target") > 30 then
         if cast.earthElemental() then ui.debug("Casting Earth Elemental [AOE]") return true end
     end
     -- Windfury Totem
     -- windfury_totem,if=buff.windfury_totem.remains<30
-    if cast.able.windfuryTotem() and not unit.moving() and buff.windfuryTotem.remains("player","any") < 30 and #enemies.yards8 > 0 and not ui.checked("Windfury Totem Key") then
+    if cast.able.windfuryTotem() and not unit.moving() and buff.windfuryTotem.remains("player","any") < 30 and #enemies.yards8 > 0 and not ui.checked("Windfury Totem Key")
+        and (not runeforge.doomWinds.equiped or (runeforge.doomWinds.equiped and unit.ttdGroup() > 6))
+    then
         if cast.windfuryTotem() then ui.debug("Casting Windfury Totem [AOE]") return true end
     end
     -- Primal Strike
@@ -547,6 +548,11 @@ actionList.Single = function()
     -- windstrike
     if cast.able.windstrike() and buff.ascendance.exists() then
         if cast.windstrike() then ui.debug("Casting Windstrike [ST]") return true end
+    end
+    -- Lava Lash
+    -- lava_lash,if=buff.hot_hand.up|(runeforge.primal_lava_actuators.equipped&buff.primal_lava_actuators.stack>6)
+    if cast.able.lavaLash() and (buff.hotHand.exist() or (runeforge.primalLavaActuators.equiped and buff.primalLavaActuators.stack() > 6)) then
+        if cast.lavaLash() then ui.debug("Casting Lava Lash [ST - Hot Hand / Primal Lava Actuators]") return true end
     end
     -- Primordial Wave
     -- primordial_wave,if=!buff.primordial_wave.up
@@ -593,10 +599,10 @@ actionList.Single = function()
     if ui.alwaysCdNever("Covenant Ability") and cast.able.faeTransfusion() then
         if cast.faeTransfusion("player","ground") then ui.debug("Casting Fae Transfusion [ST]") return true end
     end
-    -- Lightning Bolt
-    -- lightning_bolt,if=buff.stormkeeper.up
-    if cast.able.lightningBolt() and buff.stormkeeper.exists() then
-        if cast.lightningBolt() then ui.debug("Casting Lightning Bolt [ST Stormkeeper]") return true end
+    -- Chain Lightning
+    -- chain_lightning,if=buff.stormkeeper.up
+    if cast.able.chainLightning() and buff.stormkeeper.exists() then
+        if cast.chainLightning() then ui.debug("Casting Chain Lightning [ST Stormkeeper]") return true end
     end
     -- Elemental Blast
     -- elemental_blast,if=buff.maelstrom_weapon.stack>=5
@@ -680,12 +686,14 @@ actionList.Single = function()
     end
     -- Earth Elemental
     -- earth_elemental
-    if ui.alwaysCdNever("Earth Elemental") and cast.able.earthElemental() and not unit.moving() and #enemies.yards5 > 0 and unit.ttd("target") > 60 then
+    if ui.alwaysCdNever("Earth Elemental") and cast.able.earthElemental() and not unit.moving() and #enemies.yards5 > 0 and unit.ttd("target") > 30 then
         if cast.earthElemental() then ui.debug("Casting Earth Elemental [ST]") return true end
     end
     -- Windfury Totem
     -- windfury_totem,if=buff.windfury_totem.remains<30
-    if cast.able.windfuryTotem() and not unit.moving() and buff.windfuryTotem.remains("player","any") < 30 and #enemies.yards8 > 0 and not ui.checked("Windfury Totem Key") then
+    if cast.able.windfuryTotem() and not unit.moving() and buff.windfuryTotem.remains("player","any") < 30 and #enemies.yards8 > 0 and not ui.checked("Windfury Totem Key") 
+        and (not runeforge.doomWinds.equiped or (runeforge.doomWinds.equiped and unit.ttdGroup() > 6))
+    then
         if cast.windfuryTotem() then ui.debug("Casting Windfury Totem [ST]") return true end
     end
     -- Primal Strike
@@ -773,7 +781,6 @@ local function runRotation()
     buff                                          = br.player.buff
     cast                                          = br.player.cast
     cd                                            = br.player.cd
-    conduit                                       = br.player.conduit
     covenant                                      = br.player.covenant
     debuff                                        = br.player.debuff
     enemies                                       = br.player.enemies
@@ -873,69 +880,70 @@ local function runRotation()
             end
             -- Windfury Totem
             -- windfury_totem,if=!runeforge.doom_winds.equipped
-            if cast.able.windfuryTotem() and not unit.moving() and not runeforge.doomWinds.equiped
-                and not buff.windfuryTotem.exists("player","any") and #enemies.yards8 > 0 and not ui.checked("Windfury Totem Key")
+            if cast.able.windfuryTotem() and not unit.moving() and (not runeforge.doomWinds.equiped or
+                not buff.windfuryTotem.exists("player","any")) and #enemies.yards8 > 0 and not ui.checked("Windfury Totem Key")
             then
                 if cast.windfuryTotem() then ui.debug("Casting Windfury Totem") return true end
             end
             -- manual windury totem
             if ui.toggle("Windfury Totem Key") and ui.checked("Windfury Totem Key") then
                 if cast.windfuryTotem() then ui.debug("Casting Windfury Totem") return true end
-            end
-            -- Basic Trinkets Module
-            if #enemies.yards8f > 0 then
-                module.BasicTrinkets()
-            end
-            -- Racials
-            -- blood_fury,if=!talent.ascendance.enabled|buff.ascendance.up|cooldown.ascendance.remains>50
-            -- berserking,if=!talent.ascendance.enabled|buff.ascendance.up
-            -- fireblood,if=!talent.ascendance.enabled|buff.ascendance.up|cooldown.ascendance.remains>50
-            -- ancestral_call,if=!talent.ascendance.enabled|buff.ascendance.up|cooldown.ascendance.remains>50
-            -- bag_of_tricks,if=!talent.ascendance.enabled|!buff.ascendance.up
-            if ui.checked("Racial") and ui.alwaysCdNever("Racial") and (((unit.race() == "Orc" or unit.race() == "DarkIronDwarf" or unit.race() == "MagharOrc")
-                and (not talent.ascendance or (ui.useCDs() and buff.ascendance.exists()) or cd.ascendance.remains() > 50 or (not ui.useCDs() and ui.alwaysCdNever("Racial"))))
-                or (unit.race() == "Troll" and (not talent.ascendance or (ui.useCDs() and buff.ascendance.exists()) or (ui.useCDs() and ui.alwaysCdNever("Racial")))))
-            then
-                if cast.racial("player") then ui.debug("Casting Racial") return true end
-            end
-            -- Feral Spirit
-            -- feral_spirit
-            if ui.alwaysCdNever("Feral Spirit") and cast.able.feralSpirit() and unit.ttd("target") > 15 then
-                if cast.feralSpirit() then ui.debug("Casting Feral Spirit") return true end
-            end
-            -- Fae Transfusion
-            -- fae_transfusion,if=(talent.ascendance.enabled|runeforge.doom_winds.equipped)&(soulbind.grove_invigoration|soulbind.field_of_blossoms|active_enemies=1)
-            if ui.alwaysCdNever("Covenant Ability") and cast.able.faeTransfusion() and (talent.ascendance or runeforge.doomWinds.equiped) and #enemies.yards5 == 1 then
-                if cast.faeTransfusion("player","ground") then ui.debug("Casting Fae Transfusion") return true end
-            end
-            -- Ascendance
-            -- ascendance
-            if ui.alwaysCdNever("Ascendance") and cast.able.ascendance() and #enemies.yards8 > 0 and unit.ttd("target") > 15 then
-                if cast.ascendance() then ui.debug("Casting Ascendance") return true end
-            end
-            -- Windfury Totem
-            -- windfury_totem,if=runeforge.doom_winds.equipped&buff.doom_winds_debuff.down&(raid_event.adds.in>=60|active_enemies>1)
-            if cast.able.windfuryTotem() and not unit.moving() and runeforge.doomWinds.equiped and not debuff.doomWinds.exists("player")
-                and #enemies.yards8 > 0 and not ui.checked("Windfury Totem Key")
-            then
-                if cast.windfuryTotem() then ui.debug("Casting Windfury Totem [Doom Winds]") return true end
-            end
-            -- Call Action List - Single
-            -- call_action_list,name=single,if=active_enemies=1
-            if ui.useST(8,2) then
-                if actionList.Single() then return true end
-            end
-            -- Call Action List - AOE
-            -- call_action_list,name=aoe,if=active_enemies>1
-            if ui.useAOE(8,2) then
-                if actionList.AOE() then return true end
+            elseif buff.windfuryTotem.exists() or unit.level() < 49 or unit.ttdGroup() < 6 then
+                -- Basic Trinkets Module
+                if #enemies.yards8f > 0 then
+                    module.BasicTrinkets()
+                end
+                -- Racials
+                -- blood_fury,if=!talent.ascendance.enabled|buff.ascendance.up|cooldown.ascendance.remains>50
+                -- berserking,if=!talent.ascendance.enabled|buff.ascendance.up
+                -- fireblood,if=!talent.ascendance.enabled|buff.ascendance.up|cooldown.ascendance.remains>50
+                -- ancestral_call,if=!talent.ascendance.enabled|buff.ascendance.up|cooldown.ascendance.remains>50
+                -- bag_of_tricks,if=!talent.ascendance.enabled|!buff.ascendance.up
+                if ui.checked("Racial") and ui.alwaysCdNever("Racial") and (((unit.race() == "Orc" or unit.race() == "DarkIronDwarf" or unit.race() == "MagharOrc")
+                    and (not talent.ascendance or (ui.useCDs() and buff.ascendance.exists()) or cd.ascendance.remains() > 50 or (not ui.useCDs() and ui.alwaysCdNever("Racial"))))
+                    or (unit.race() == "Troll" and (not talent.ascendance or (ui.useCDs() and buff.ascendance.exists()) or (ui.useCDs() and ui.alwaysCdNever("Racial")))))
+                then
+                    if cast.racial("player") then ui.debug("Casting Racial") return true end
+                end
+                -- Feral Spirit
+                -- feral_spirit
+                if ui.alwaysCdNever("Feral Spirit") and cast.able.feralSpirit() and unit.ttd("target") > 15 then
+                    if cast.feralSpirit() then ui.debug("Casting Feral Spirit") return true end
+                end
+                -- Fae Transfusion
+                -- fae_transfusion,if=(talent.ascendance.enabled|runeforge.doom_winds.equipped)&(soulbind.grove_invigoration|soulbind.field_of_blossoms|active_enemies=1)
+                if ui.alwaysCdNever("Covenant Ability") and cast.able.faeTransfusion() and (talent.ascendance or runeforge.doomWinds.equiped) and #enemies.yards5 == 1 then
+                    if cast.faeTransfusion("player","ground") then ui.debug("Casting Fae Transfusion") return true end
+                end
+                -- Ascendance
+                -- ascendance
+                if ui.alwaysCdNever("Ascendance") and cast.able.ascendance() and #enemies.yards8 > 0 and unit.ttd("target") > 15 then
+                    if cast.ascendance() then ui.debug("Casting Ascendance") return true end
+                end
+                -- Windfury Totem
+                -- windfury_totem,if=runeforge.doom_winds.equipped&buff.doom_winds_debuff.down&(raid_event.adds.in>=60|active_enemies>1)
+                if cast.able.windfuryTotem() and not unit.moving() and runeforge.doomWinds.equiped and not debuff.doomWinds.exists("player")
+                    and #enemies.yards8 > 0 and not ui.checked("Windfury Totem Key") and unit.ttdGroup() >= 6
+                then
+                    if cast.windfuryTotem() then ui.debug("Casting Windfury Totem [Doom Winds]") return true end
+                end
+                -- Call Action List - Single
+                -- call_action_list,name=single,if=active_enemies=1
+                if ui.useST(8,2) then
+                    if actionList.Single() then return true end
+                end
+                -- Call Action List - AOE
+                -- call_action_list,name=aoe,if=active_enemies>1
+                if ui.useAOE(8,2) then
+                    if actionList.AOE() then return true end
+                end
             end
         end --End In Combat
     end --End Rotation Logic
 end -- End runRotation
 local id = 263
 if br.rotations[id] == nil then br.rotations[id] = {} end
-tinsert(br.rotations[id],{
+br._G.tinsert(br.rotations[id],{
     name = rotationName,
     toggles = createToggles,
     options = createOptions,
