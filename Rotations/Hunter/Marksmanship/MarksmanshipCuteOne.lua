@@ -75,6 +75,8 @@ local function createOptions()
             br.ui:createDropdownWithout(section,"Misdirection", {"|cff00FF00Tank","|cffFFFF00Focus","|cffFF0000Pet"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
 			 -- Beast Mode
             br.ui:createCheckbox(section, "Beast Mode", "|cffFFFFFFWARNING! Selecting this will attack everything!")
+            -- Aimed Shot - Multi-DoT
+            br.ui:createCheckbox(section, "Aimed Shot - Multi-DoT", "|cffFFFFFF Selecting this will multi-dot with Aimed Shot.")
             -- Volly Units
             br.ui:createSpinner(section,"Volley Units", 3, 1, 5, 1, "|cffFFFFFFSet minimal number of units to cast Volley on")
             -- Covenant Ability
@@ -108,6 +110,8 @@ local function createOptions()
             br.ui:createDropdownWithout(section,"Rapid Fire", {"Always", "Cooldown", "Never"}, 1, "|cffFFFFFFSet when to use ability.")
             -- Trueshot
             br.ui:createDropdownWithout(section,"Trueshot", {"Always", "Cooldown", "Never"}, 1, "|cffFFFFFFSet when to use ability.")
+            -- volley
+            br.ui:createDropdownWithout(section,"Volley", {"Always", "Cooldown", "Never"}, 1, "|cffFFFFFFSet when to use ability.")
         br.ui:checkSectionState(section)
         -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
@@ -176,7 +180,6 @@ local module
 local power
 local runeforge
 local talent
-local items
 local ui
 local unit
 local units
@@ -191,6 +194,26 @@ local function alwaysCdNever(option)
     if option == "Racial" then br._G.GetSpellInfo(br.player.spell.racial) end
     local thisOption = ui.value(option)
     return thisOption == 1 or (thisOption == 2 and ui.useCDs())
+end
+
+-- Multi-Dot HP Limit Set
+local function canDoT(thisUnit)
+    local unitHealthMax = unit.healthMax(thisUnit)
+    if not unit.exists(units.dyn40) then return false end
+    if not unit.isBoss(thisUnit) and unit.facing("player",thisUnit)
+        and unit.isUnit(thisUnit,units.dyn40) and not unit.charmed(thisUnit)
+    then
+        return ((unitHealthMax > unit.healthMax("player") * 3)
+            or (unit.health(thisUnit) < unitHealthMax and unit.ttd(thisUnit) > 10))
+    end
+    local maxHealth = 0
+    for i = 1, #enemies.yards40f do
+        local thisMaxHealth = unit.healthMax(enemies.yards40f[i])
+        if thisMaxHealth > maxHealth then
+            maxHealth = thisMaxHealth
+        end
+    end
+    return unitHealthMax > maxHealth / 10
 end
 
 --------------------
@@ -403,7 +426,7 @@ actionList.TrickShots = function()
     end
     -- Volley
     -- volley
-    if cast.able.volley() and ui.mode.volley == 1 and ui.checked("Volley Units") and #enemies.yards8t >= ui.value("Volley Units") then
+    if alwaysCdNever("Volley") and cast.able.volley() and ui.mode.volley == 1 and ui.checked("Volley Units") and #enemies.yards8t >= ui.value("Volley Units") then
         if cast.volley("best",nil,ui.value("Volley Units"),8) then ui.debug("Casting Volley [Trick Shots]") return true end
     end
     -- Barrage
@@ -550,7 +573,7 @@ actionList.SingleTarget = function()
     end
     -- Volley
     -- volley,if=buff.precise_shots.down|!talent.chimaera_shot|active_enemies<2
-    if cast.able.volley() and ui.mode.volley == 1 and ui.checked("Volley Units") and (not buff.preciseShots.exists() or not talent.chimaeraShot or #enemies.yards8t < 2) and (#enemies.yards8t >= ui.value("Volley Units")) then
+    if alwaysCdNever("Volley") and cast.able.volley() and ui.mode.volley == 1 and ui.checked("Volley Units") and (not buff.preciseShots.exists() or not talent.chimaeraShot or #enemies.yards8t < 2) and (#enemies.yards8t >= ui.value("Volley Units")) then
         if cast.volley("best",nil,ui.value("Volley Units"),8) then ui.debug("Casting Volley") return true end
     end
     -- Trueshot
@@ -562,11 +585,11 @@ actionList.SingleTarget = function()
     end
     -- Aimed Shot
     -- aimed_shot,target_if=min:dot.serpent_sting.remains+action.serpent_sting.in_flight_to_target*99,if=buff.precise_shots.down|(buff.trueshot.up|full_recharge_time<gcd+cast_time)&(!talent.chimaera_shot|active_enemies<2)|buff.trick_shots.remains>execute_time&active_enemies>1
-    if cast.able.aimedShot() and not unit.moving("player") and (not buff.preciseShots.exists()
+    if cast.able.aimedShot(var.lowestAimedSerpentSting) and not unit.moving("player") and (not buff.preciseShots.exists()
         or ((buff.trueshot.exists() or charges.aimedShot.timeTillFull() < unit.gcd(true) + cast.time.aimedShot())
         and (not talent.chimaeraShot or #enemies.yards10t < 2)) or buff.trickShots.remain() > cast.time.aimedShot() and #enemies.yards10t > 1)
     then
-        if cast.aimedShot() then ui.debug("Casting Aimed Shot") return true end
+        if cast.aimedShot(var.lowestAimedSerpentSting) then ui.debug("Casting Aimed Shot") return true end
     end
     -- Rapid Fire
     -- rapid_fire,if=focus+cast_regen<focus.max&(buff.trueshot.down|!runeforge.eagletalons_true_focus)&(buff.double_tap.down|talent.streamline)
@@ -689,7 +712,6 @@ local function runRotation()
     power                                         = br.player.power
     runeforge                                     = br.player.runeforge
     talent                                        = br.player.talent
-    items                                         = br.player.items
     ui                                            = br.player.ui
     unit                                          = br.player.unit
     units                                         = br.player.units
@@ -701,7 +723,7 @@ local function runRotation()
     enemies.get(8)
     enemies.get(8,"target")
     enemies.get(8,"pet")
-    enemies.yards10t = enemies.get(10,units.get(40))
+    enemies.get(10, "target")
     enemies.get(30,"pet")
     enemies.get(40)
     enemies.get(40,"player",true)
@@ -721,7 +743,7 @@ local function runRotation()
         local thisUnit = enemies.yards10t[i]
         local thisHP = unit.hp(thisUnit)
         local serpentStingRemain = debuff.serpentSting.remain(thisUnit) + var.serpentInFlight * 99
-        if ui.mode.rotation < 3 and serpentStingRemain < var.lowestAimedRemain then
+        if not ui.checked("Aimed Shot - Multi-DoT") and ui.mode.rotation < 3 and serpentStingRemain < var.lowestAimedRemain and canDoT(thisUnit) and unit.facing(thisUnit) then
             var.lowestAimedRemain = serpentStingRemain
             var.lowestAimedSerpentSting = thisUnit
         end

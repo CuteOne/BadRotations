@@ -478,7 +478,7 @@ br.rotations.support["PetCuteOne"] = {
             end
             -- Fetch
             if ui.checked("Fetch") and not unit.inCombat() and not unit.inCombat("pet") and cast.able.fetch() and petExists and not br.deadPet then
-                local lootCount = br.getLootableCount() or 0
+                local lootCount = getLootableCount() or 0
                 if fetching and (fetchCount ~= lootCount or lootCount == 0) then fetching = false end
                 for k, _ in pairs(br.lootable) do
                     if br.lootable[k] ~= nil then
