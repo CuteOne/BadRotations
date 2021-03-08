@@ -4,12 +4,25 @@ if br.lists == nil then
 end
 -- Interrupt Whitelist - A list of spells we know for sure we want to interrupt (Typically in Dungeons and Raids)
 br.lists.interruptWhitelist = {
+	-- Torghast start
+	[258935] = true, -- Inner Flames
+	[330438] = true, -- Fearsome Howl
+	[329608] = true, -- Terrifying Roar
+	[242391] = true, -- Terror
+	[330573] = true, -- Bounty of the Forest
+	[310392] = true, -- Intimidating Presence
+	-- Torghast end
 	-- Castle Nathria start
 	[333002] = true, -- Vulgar Brand
 	-- Castle Nathria end
 	-- Plaguefall start
-	[328475] = true, -- Enveloping Webbing
 	[319070] = true, -- Corrosive Gunk
+	[329239] = true, -- Creepy Crawlers
+	[328094] = true, -- Pestilence Bolt
+	[321999] = true, -- Viral Globs
+	[322358] = true, -- Burning Strain
+	[328338] = true, -- Call Venomfang
+	[328651] = true, -- Call Venomfang
 	-- Plaguefall end
 	-- De other side start
 	-- [333227] = true, -- Undying rage
@@ -20,20 +33,34 @@ br.lists.interruptWhitelist = {
 	[332084] = true, -- Self Cleaning Cycle
 	[321764] = true, -- Bark Armor
 	[333875] = true, -- Deaths Embrace
+	[334076] = true, -- Shadowcore
+	[332605] = true, -- Hex
+	[332196] = true, -- Discharge
+	[332234] = true, -- Essential Oil
+	[320008] = true, -- Frostbolt
 	-- De other side end
 	-- Sanguine Depths start
 	[319654] = true, -- hungering-drain
 	[321038] = true, -- wrack-soul
 	[322433] = true, -- Stoneskin
+	[321105] = true, -- Sap Lifeblood
+	[334653] = true, -- Engorge
+	[335305] = true, -- Barbed Shackles
+	[326952] = true, -- Fiery Cantrip
 	-- Sanguine Depths end
 	-- Halls of Atonement start
 	[325700] = true, -- collect-sins
+	[338003] = true, -- wicked bolt
 	[326607] = true, -- turn-to-stone
 	[328322] = true, -- villainous-bolt
 	[323538] = true, -- bolt-of-power
 	[323552] = true, -- volley-of-power
+	[325701] = true, -- Siphon Life
 	-- Halls of Atonemen end
 	-- Mists of Tirna Scithe start
+	[326319] = true, -- Spirit Bolt
+	[322767] = true, -- Spirit Bolt
+	[323057] = true, -- Spirit Bolt
 	[322938] = true, -- harvest-essence
 	[324914] = true, -- nourish-the-forest
 	[324776] = true, -- bramblethorn-coat
@@ -48,10 +75,10 @@ br.lists.interruptWhitelist = {
 	-- Spires of Ascension start
 	[317936] = true, -- forsworn-doctrine
 	[317963] = true, -- burden-of-knowledge
-	[327413] = true, -- rebellious-fist
 	[328295] = true, -- greater-mending
 	[328137] = true, -- dark-pulse
 	[328331] = true, -- forced-confession
+	[327648] = true, -- Internal Strife
 	-- Spires of Ascension end
 	-- Theater of Pain start
 	[341902] = true, -- unholy-fervor
@@ -61,6 +88,11 @@ br.lists.interruptWhitelist = {
 	[330868] = true, -- Necrotic Bolt Volley
 	[330784] = true, -- Necrotic Bolt
 	[330810] = true, -- Bind Soul
+	[333231] = true, -- Searing Death
+	[341977] = true, -- Meat Shield
+	[330586] = true, -- Devour Flesh
+	[342675] = true, -- Bone Spear
+	[324589] = true, -- Death Bolt
 	-- Theater of Pain end
 	-- Necrotic Wake start
 	[334748] = true, -- drain-fluids
@@ -69,10 +101,14 @@ br.lists.interruptWhitelist = {
 	[320170] = true, -- necrotic-bolt
 	[338353] = true, -- goresplatter
 	[333623] = true, -- frostbolt Volley
+	[328667] = true, -- frostbolt volley
 	[323190] = true, -- Meat Shield
+	[335143] = true, -- bonemend
 	-- Necrotic Wake end
 	-- Castle start
 	[337110] = true, -- dreadbolt-volley
+	[341146] = true, -- Sin Bolt Volley
+	[339992] = true, -- Alacrity
 	-- Castle end
 	-- Old Content start
 	[309648] = true, -- Tainted Polymorph
