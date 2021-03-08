@@ -857,7 +857,7 @@ actionList.dps = function()
                         and (#enemies.yards8 == 1 or buff.bladeFlurry.exists())
                         --and (br.player.power.energy.ttm() > 1 or #enemies.yards8 > 2 or energy <= 30)
                         and unit.distance(dynamic_target_melee) <= dynamic_range
-                        and (buff.masterAssassinsMark.remain() > 1 or cd.vanish.remain() > 30 or cast.last.vanish(1) or not runeforge.markOfTheMasterAssassin.equiped)
+                        and (buff.masterAssassinsMark.remain() > 1 or cd.vanish.remain() > 30 or cast.last.vanish(1) or mode.vanish ~= 1 or not runeforge.markOfTheMasterAssassin.equiped)
                 then
                     if cast.bladeRush(dynamic_target_melee) then
                         return true
@@ -967,14 +967,26 @@ actionList.dps = function()
                             end
                         end
                     end
-
-                    if cast.able.serratedBoneSpike(dynamic_target_melee) and buff.sliceAndDice.exists("player")
-                            and (not debuff.serratedBoneSpikeDot.exists(dynamic_target_melee)
-                            or (#enemies.yards8 == 1 and ttd(dynamic_target_melee) <= 5) or br.player.charges.serratedBoneSpike.frac() >= 2.75) then
-                        if cast.serratedBoneSpike(dynamic_target_melee) then
-                            return true
+                    if cast.able.serratedBoneSpike() and buff.sliceAndDice.exists("player") and (buff.bladeFlurry.exists("player") or #enemies.yards8 == 1) then
+                        if #enemies.yards8 == 1 then
+                            if (not debuff.serratedBoneSpikeDot.exists(dynamic_target_melee)
+                                    or (#enemies.yards8 == 1 and ttd(dynamic_target_melee) <= 5) or br.player.charges.serratedBoneSpike.frac() >= 2.75) then
+                                if cast.serratedBoneSpike(dynamic_target_melee) then
+                                    return true
+                                end
+                            end
+                        else
+                            for i = 1, #enemies.yards8 do
+                                if not debuff.serratedBoneSpikeDot.exists(enemies.yards8[i])
+                                        or br.player.charges.serratedBoneSpike.frac() >= 2.75 then
+                                    if cast.serratedBoneSpike(enemies.yards8[i]) then
+                                        return true
+                                    end
+                                end
+                            end
                         end
                     end
+
                 end
 
                 if cast.able.pistolShot() and not cast.able.ambush(dynamic_target_melee) and
