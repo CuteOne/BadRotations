@@ -507,8 +507,9 @@ actionList.TrickShots = function()
     -- Steady Shot
     -- steady_shot
     if cast.able.steadyShot() and unit.ttd(units.dyn40) > cast.time.steadyShot()
+        and ((not buff.preciseShots.exists() or power.focus.amount() < 20) and power.focus.amount() <= cast.cost.multishot() + cast.cost.aimedShot())
         and cast.timeSinceLast.steadyShot() > unit.gcd("true") and not cast.current.steadyShot()
-    then--and power.focus.amount() <= cast.cost.arcaneShot() + cast.cost.aimedShot() then
+    then-- and power.focus.amount() <= cast.cost.arcaneShot() + cast.cost.aimedShot() then
         if cast.steadyShot() then ui.debug("Casting Steady Shot [Trick Shots]") return true end
     end
 end -- End Action List - Trick Shots
