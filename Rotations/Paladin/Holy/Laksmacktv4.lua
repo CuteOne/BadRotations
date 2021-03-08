@@ -79,10 +79,15 @@ local function createOptions()
     local optionTable
 
     local function rotationOptions()
-        section = br.ui:createSection(br.ui.window.profile, "General - 20210223-0855")
+        section = br.ui:createSection(br.ui.window.profile, "General - 2103080827")
         br.ui:createDropdownWithout(section, "DPS Key", br.dropOptions.Toggle, 6, "DPS Override")
         br.ui:createCheckbox(section, "Group CD's with DPS key", "Pop wings and HA with Dps override", 1)
-        br.ui:createSpinner(section, "Divine Toll during DPS Key", 3, 1, 5, 1, "Use Divine Toll at >= x units")
+        if br.player.covenant.kyrian.active then
+            br.ui:createSpinner(section, "Divine Toll during DPS Key", 3, 1, 5, 1, "Use Divine Toll at >= x units")
+        end
+        if br.player.covenant.venthyr.active then
+            br.ui:createDropdownWithout(section, "Ashen Hallow Key", br.dropOptions.Toggle, 6, "Wings/AH on mouseover")
+        end
         br.ui:createDropdownWithout(section, "Turn Evil Key", br.dropOptions.Toggle, 6, "Fear mouseover")
         br.ui:createDropdownWithout(section, "Repentance Key", br.dropOptions.Toggle, 6, "CC mousover")
         br.ui:createCheckbox(section, "Aggressive Glimmer")
@@ -98,20 +103,28 @@ local function createOptions()
         br.ui:createSpinner(section, "Holy Shock", 90, 0, 100, 5, "", "Health Percent to Cast At")
         br.ui:createSpinner(section, "Light of the Martyr", 55, 0, 100, 5, "", "Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "LotM player HP limit", 65, 0, 100, 5, "", "Light of the Martyr Self HP limit")
-        --Divine Toll
-        br.ui:createDropdown(section, "Divine Toll", { "At 0 Holy Power", "As a Heal" }, 1)
-        br.ui:createSpinnerWithout(section, "Divine Toll Units", 3, 1, 5, 1)
-        br.ui:createSpinnerWithout(section, "Divine Toll Health", 70, 0, 100, 1)
-        br.ui:createSpinnerWithout(section, "Max Holy Power", 2, 0, 5, 1, "Only use Divine Toll when at or below this value")
+        if br.player.covenant.kyrian.active then
+            --Divine Toll
+            br.ui:createDropdown(section, "Divine Toll", { "At 0 Holy Power", "As a Heal" }, 1)
+            br.ui:createSpinnerWithout(section, "Divine Toll Units", 3, 1, 5, 1)
+            br.ui:createSpinnerWithout(section, "Divine Toll Health", 70, 0, 100, 1)
+            br.ui:createSpinnerWithout(section, "Max Holy Power", 2, 0, 5, 1, "Only use Divine Toll when at or below this value")
+        end
         br.ui:checkSectionState(section)
         -- Light of Dawn
         br.ui:createSpinner(section, "Light of Dawn", 90, 0, 100, 5, "", "Health Percent to Cast At")
         br.ui:createSpinner(section, "LoD Targets", 4, 0, 40, 1, "", "Minimum LoD Targets", true)
         br.ui:createSpinner(section, "Infused Flash of Light", 65, 0, 100, 5, "", "Health Percent to Cast At")
         br.ui:createSpinner(section, "Flash of Light", 45, 0, 100, 5, "", "Health Percent to Cast At")
+        br.ui:createCheckbox(section, "Infused Holy Light")
+        br.ui:createSpinner(section, "Tank Infused Holy Light HP Limit", 65, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At", true)
+        br.ui:createSpinner(section, "DPS/Healer Infused Holy Light HP Limit", 40, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At", true)
         -- Beacon of Virtue
         br.ui:createSpinner(section, "Beacon of Virtue", 80, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At")
         br.ui:createSpinner(section, "BoV Targets", 3, 0, 40, 1, "", "|cffFFFFFFMinimum BoV Targets", true)
+        -- Beacon Emergency Healing Swap
+        br.ui:createCheckbox(section, "Beacon Swap Emergency Healing")
+        br.ui:createSpinner(section, "Beacon Swap Min HP", 20, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At", true)
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
         br.ui:createSpinner(section, "Aura Mastery", 50, 0, 100, 5, "", "Health Percent to Cast At")
@@ -151,7 +164,6 @@ local function createOptions()
             br.ui:createSpinner(section, "Arcane Torrent Dispel", 1, 0, 20, 1, "", "|cffFFFFFFMinimum Torrent Targets")
             br.ui:createSpinner(section, "Arcane Torrent Mana", 30, 0, 95, 1, "", "|cffFFFFFFMinimum When to use for mana")
             br.ui:createCheckbox(section, "Arcane Torrent HolyPower")
-
         end
         if br.player.race == "LightforgedDraenei" then
             --lightsJudgment
@@ -208,7 +220,7 @@ local function createOptions()
         br.ui:createCheckbox(section, "OOC Glimmer", "Enables/Disables glimmer out of combat", 1)
         br.ui:createSpinnerWithout(section, "OOC Holy Heal - Time", 1, 0, 10, 5, "When I havent moved for x seconds")
         br.ui:createSpinnerWithout(section, "OOC Holy Heal - Mana", 60, 0, 100, 5, "and my mana is above")
-        br.ui:createSpinnerWithout(section, "OOC Holy Heal - Health", 80, 0, 100, 5, "and peoples health are below")
+        br.ui:createSpinnerWithout(section, "OOC Holy Heal - Health", 90, 0, 100, 5, "and peoples health are below")
         br.ui:checkSectionState(section)
     end
 
@@ -299,6 +311,8 @@ local stunList = {
     [168022] = { CAST_ID = nil, CHAN_ID = "328429", BUFF_ID = nil, AGGRO_FLAG = nil, NOTES = "PF - Slime Tentacle Stun Crushing Embrace" },
     [168907] = { CAST_ID = nil, CHAN_ID = "328429", BUFF_ID = nil, AGGRO_FLAG = nil, NOTES = "PF - Slime Tentacle Stun Crushing Embrace" },
     [165529] = { CAST_ID = "325701", CHAN_ID = nil, BUFF_ID = nil, AGGRO_FLAG = nil, NOTES = "HOA - Depraved Collector Siphon Life CC Logic" },
+    [165414] = { CAST_ID = "325876", CHAN_ID = nil, BUFF_ID = nil, AGGRO_FLAG = nil, NOTES = "HOA - Depraved Obliterator Curse of Obliteration CC Logic" },
+    [165414] = { CAST_ID = "338003", CHAN_ID = nil, BUFF_ID = nil, AGGRO_FLAG = nil, NOTES = "HOA - Depraved Obliterator Wicked Bolt CC Logic" },
     [170486] = { CAST_ID = nil, CHAN_ID = "332329", BUFF_ID = nil, AGGRO_FLAG = nil, NOTES = "DOS - Atal'ai Devoted CC Logic" },
     [170480] = { CAST_ID = nil, CHAN_ID = "332671", BUFF_ID = nil, AGGRO_FLAG = nil, NOTES = "DOS - Atal'ai Deathwalker CC Logic" },
     [167963] = { CAST_ID = "332156", CHAN_ID = nil, BUFF_ID = nil, AGGRO_FLAG = nil, NOTES = "DOS - Headless Client CC Logic" },
@@ -393,7 +407,7 @@ end
 
 local function consecration()
     --Consecration
-    if cd.consecration.ready() and not br.isMoving("player") then
+    if cast.able.consecration() and not br.isMoving("player") then
         for i = 1, #enemies.yards8 do
             if not debuff.consecration.exists(enemies.yards8[i])
                     or br._G.GetTotemTimeLeft(1) < 2
@@ -663,7 +677,6 @@ noconc_list = {
 
 actionList.hammerOfWrathDPS = function()
 
-
     --br._G.print(tostring(br.getSpellCD(24275)))
 
     if lowest.hp > ui.value("Critical HP") and br.player.inCombat and br.getSpellCD(24275) < 1 and (holyPower < 5 or buff.holyAvenger.exists() and holyPower < 3) then
@@ -918,7 +931,6 @@ actionList.dps = function()
         end
     end
 
-
     if ui.checked("Shield of the Righteous")
             and healTarget == "none"
             and lowest.hp > ui.value("Word of Glory")
@@ -935,7 +947,11 @@ end
 
 actionList.Extra = function()
 
-
+    if br.SpecificToggle("Ashen Hallow Key") and not br._G.GetCurrentKeyBoardFocus() then
+        br._G.CastSpellByName(br._G.GetSpellInfo(spell.avengingWrath))
+        br._G.CastSpellByName(br._G.GetSpellInfo(spell.ashenHallow), "cursor")
+        return
+    end
     if br.SpecificToggle("Turn Evil Key") and not br._G.GetCurrentKeyBoardFocus() then
         br._G.CastSpellByName(br._G.GetSpellInfo(spell.turnEvil), "mouseover")
         return
@@ -955,6 +971,31 @@ actionList.Extra = function()
         consecration()
     end
 
+    -- Judgment of Light Prio
+    if talent.judgmentOfLight and not buff.holyAvenger.exists() and cast.able.judgment() and cd.holyShock.remain() > 1 and lowest.hp > ui.value("Critical HP") and inCombat then
+        -- ST
+        if br.getDebuffRemain("target", 196941) == 0 or #enemies.yards30 == 1 then
+            if not noDamageCheck("target") and not br._G.UnitIsPlayer("target") and br.getFacing("player", "target") then
+                if cast.judgment("target") then
+                    br.addonDebug("[HEAL] Judgment of Light ST")
+                    return true
+                end
+            end
+        end
+        -- AOE
+        for i = 1, #enemies.yards30 do
+            local thisUnit = enemies.yards30[i]
+            if br.getDebuffRemain(thisUnit, 196941) == 0 or br.getDebuffRemain(thisUnit, 196941) < 10 then
+                if not noDamageCheck(thisUnit) and not br._G.UnitIsPlayer(thisUnit) and br.getFacing("player", thisUnit) and br.UnitIsTappedByPlayer(thisUnit) then
+                    if cast.judgment(thisUnit) then
+                        br.addonDebug("[HEAL] Judgment of Light Spread")
+                        -- br._G.print("FOOO")
+                        return true
+                    end
+                end
+            end
+        end
+    end
 
     --BoP and BoF   blessing of freedom blessing of protection
     if inCombat and mode.freedom == 1 and cd.blessingOfFreedom.ready() then
@@ -978,7 +1019,7 @@ actionList.Extra = function()
             end
 
             -- Debuff
-            local BoFDebuff = { 319941, 330810, 326827, 324608, 292942, 329326, 295929, 292910, 334926, 329905, 341746 }
+            local BoFDebuff = { 319941, 330810, 326827, 324608, 292942, 329326, 295929, 292910, 334926, 329905, 341746, 324859, 328180 }
             for k, v in pairs(BoFDebuff) do
                 if br.getDebuffRemain("player", v) ~= 0 then
                     if cast.blessingOfFreedom("player") then
@@ -1000,11 +1041,25 @@ actionList.Extra = function()
             if br.friend[i].hp <= ui.value("Blessing of Protection")
                     or br.getDebuffRemain(br.friend[i].unit, 323406) ~= 0 --323406/jagged-gash
                     or br.getDebuffRemain(br.friend[i].unit, 324154) ~= 0 --324154 / dark - stride
+                    or br.getDebuffRemain(br.friend[i].unit, 335306) ~= 0 --335306/barbed shackle
+                    or br.getDebuffRemain(br.friend[i].unit, 323020) ~= 0 --323020/bloodletting
+                    or br.getDebuffStacks(br.friend[i].unit, 240443) >= 3 --322796/wickedgash>3
+                    or br.getDebuffRemain(br.friend[i].unit, 326827) > 3 --326827/dreadbindings
+                    or br.getDebuffRemain(br.friend[i].unit, 322429) ~= 0 --322429/severing-slice
+                    or br.getDebuffRemain(br.friend[i].unit, 333861) ~= 0 --333861/ricocheting-blade
+                    or br.getDebuffRemain(br.friend[i].unit, 326827) > 3 --343555/morbid-fixation
             then
-                if UnitInRange(br.friend[i].unit) and not debuff.forbearance.exists(br.friend[i].unit) and canheal(br.friend[i].unit)
-                        and not (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") then
-                    if cast.blessingOfProtection(br.friend[i].unit) then
-                        return true
+                if not debuff.forbearance.exists(br.friend[i].unit) and canheal(br.friend[i].unit)
+                        and not (br.friend[i].role == "TANK" or br._G.UnitGroupRolesAssigned(br.friend[i].unit) == "TANK")
+                then
+                    if cd.divineShield.ready() and UnitIsUnit(br.friend[i].unit, "player") then
+                        if cast.divineShield() then
+                            return true
+                        end
+                    else
+                        if cast.blessingOfProtection(br.friend[i].unit) then
+                            return true
+                        end
                     end
                 end
             end
@@ -1125,13 +1180,17 @@ actionList.Extra = function()
 
     --dungeon specific stuff
     -- Plaguefall   (13228)
-    if ui.checked("PF - Fear Big Slime") and select(8, GetInstanceInfo()) == 13228 then
+    if cd.blessingOfFreedom.ready() and select(8, GetInstanceInfo()) == 13228 then
         for i = 1, br._G.GetObjectCount() do
             local object = br._G.GetObjectWithIndex(i)
             local ID = br._G.ObjectID(object)
-            if ID == 171887 and getDistance(object) <= 20 and cd.turnEvil.ready() then
-                if cast.turnEvil(object) then
-                    return true
+            if someone_casting and ID == 168878 and getDistance(object) <= 40 then
+                for j = 1, #tanks do
+                    if br._G.UnitCastingInfo(ID) == br._G.GetSpellInfo(334926) and cd.blessingOfFreedom.ready then
+                        if cast.blessingOfFreedom(tanks[i].unit) then
+                            return true
+                        end
+                    end
                 end
             end
         end
@@ -1165,43 +1224,6 @@ actionList.Extra = function()
     end
 
 
-    --Awakening/Mad Paragon
-    --[[if ui.checked("Awakening/Mad Paragon Playstyle") and lowest.hp > ui.value("Word of Glory") and lowest.hp > ui.value("Critical HP") then
-        --Non Holy Avenger Generation w/preset cap at less than 5
-        if (holyPower < 5 and not buff.holyAvenger.exists()) or holyPower < 2 and buff.holyAvenger.exists()) then
-            if cd.crusaderStrike.ready() and cd.holyShock.remain() >= 1.5 and br.getFacing("player", units.dyn5) then
-                if cast.crusaderStrike(units.dyn5) then
-                    br.addonDebug("[PARA]CrusaderStrike on " .. br._G.UnitName(units.dyn5) .. " CD/HS: " .. round(cd.holyShock.remain(), 2))
-                    return true
-                end
-            end
-        end
-        --Holy Avenger prevent overcap
-        if holyPower < 2 and buff.holyAvenger.exists() then
-            if cd.crusaderStrike.ready() and cd.holyShock.remain() >= 1.5 and br.getFacing("player", units.dyn5) then
-                if cast.crusaderStrike(units.dyn5) then
-                    br.addonDebug("[PARA]HA-CrusaderStrike on " .. br._G.UnitName(units.dyn5) .. " CD/HS: " .. round(cd.holyShock.remain(), 2))
-                    return true
-                end
-            end
-        end
-        --Use SOTR instead of WOG while wings is up
-        if (talent.awakening and buff.avengingWrath.exists() or not talent.awakening) and cast.able.shieldOfTheRighteous() and (holyPower >= 3 or buff.divinePurpose.exists()) and br.getFacing("player", units.dyn5) then
-            if cast.shieldOfTheRighteous() then
-                br.addonDebug("[PARA]SOTR on " .. br._G.UnitName(units.dyn5) .. " CD/HS: " .. round(cd.holyShock.remain(), 2))
-                return true
-            end
-        end
-        --WOG Fish for Wings
-        if talent.awakening and not buff.avengingWrath.exists() and holyPower >= 3 and canheal(lowest.unit) then
-            if cast.wordOfGlory(lowest.unit) then
-                br.addonDebug("[FISHING] WoG on: " .. br._G.UnitName(lowest.unit))
-                healTarget = lowest.unit
-                healReason = "GOFISH"
-                return true
-            end
-        end
-    end]]
 end -- End Action List - Extra
 
 -- Action List - Defensive
@@ -1458,7 +1480,7 @@ actionList.Cooldown = function()
     end
 
     -- Seraphim
-    if br.isChecked("Seraphim") and talent.seraphim and holyPower > 2 and br.getOptionValue("Seraphim") <= ttd then
+    if ui.checked("Seraphim") and talent.seraphim and holyPower > 2 and br.getOptionValue("Seraphim") <= 8 then
         if cast.seraphim() then
             return true
         end
@@ -1678,7 +1700,8 @@ actionList.heal = function()
     end
 
     if br.timer:useTimer("Beacon Delay", 3) then
-        if #tanks > 0 and (LightCount == 0 or buff.beaconOfLight.exists("Player")) then
+        -- Beacon Tank, Elseif Self
+        if #tanks > 0 and lowest.hp > ui.value("Beacon Swap Min HP") then
             for i = 1, #tanks do
                 if not buff.beaconOfLight.exists(tanks[i].unit) and not buff.beaconOfFaith.exists(tanks[i].unit) and br._G.UnitInRange(tanks[i].unit) then
                     if cast.beaconOfLight(tanks[i].unit) then
@@ -1686,8 +1709,14 @@ actionList.heal = function()
                     end
                 end
             end
-        elseif (#tanks == 0 and LightCount == 0) and not buff.beaconOfLight.exists("Player") and not buff.beaconOfFaith.exists("Player") then
+        elseif #tanks == 0 and not buff.beaconOfLight.exists("Player") then
             if cast.beaconOfLight("Player") then
+                return true
+            end
+        end
+        -- Emergency Beacon Swap
+        if ui.checked("Beacon Swap Emergency Healing") and lowest.hp <= ui.value("Beacon Swap Min HP") and not buff.beaconOfLight.exists(lowest.unit) and not buff.beaconOfFaith.exists(lowest.unit) then
+            if cast.beaconOfLight(lowest.unit) then
                 return true
             end
         end
@@ -1749,7 +1778,7 @@ actionList.heal = function()
         end
     end
     -- Word of Glory
-    if healTarget == "none" and ui.checked("Word of Glory") and (holyPower >= 3 or buff.divinePurpose.exists()) then
+    if ui.checked("Word of Glory") and healTarget == "none" and (holyPower >= 3 or buff.divinePurpose.exists()) then
         if (lowest.hp <= ui.value("Word of Glory")) and canheal(lowest.unit) then
             healTarget = lowest.unit
             healReason = "HEAL"
@@ -1784,6 +1813,7 @@ actionList.heal = function()
         end
     end
 
+    --Holyshock
     if cd.holyShock.ready() then
         if healTarget == "none" and mode.glimmer == 3 and #tanks > 0 and talent.glimmerOfLight then
             for i = 1, #tanks do
@@ -1825,16 +1855,6 @@ actionList.heal = function()
         end
     end -- end holy shock
 
-
-    --[[
-        if (holyPower < 5 and not buff.holyAvenger.exists() or holyPower < 3 and buff.holyAvenger.exists()) and talent.crusadersMight and cd.holyShock.remain() >= 1.5 and not cd.judgment.remain() == 0 and br.getFacing("player", units.dyn5) and #enemies.yards5 >= 1 then
-            if cast.crusaderStrike(units.dyn5) then
-                br.addonDebug("[FILL]CrusaderStrike on " .. br._G.UnitName(units.dyn5) .. " CD/HS: " .. round(cd.holyShock.remain(), 2))
-                return true
-            end
-        end
-    ]]
-
     -- Light of Dawn
     if ui.checked("Light of Dawn") and cd.lightOfDawn.ready() and (holyPower >= 3 or buff.divinePurpose.exists()) then
         if bestConeHeal(spell.lightOfDawn, ui.value("LoD Targets"), ui.value("Light of Dawn"), 45, lightOfDawn_distance * lightOfDawn_distance_coff, 5) then
@@ -1843,24 +1863,6 @@ actionList.heal = function()
         end
     end
 
-    if healTarget == "none" and ui.checked("Word of Glory") and (holyPower >= 3 or buff.divinePurpose.exists()) then
-        if (lowest.hp <= ui.value("Word of Glory")) and canheal(lowest.unit) then
-            healTarget = lowest.unit
-            healReason = "HEAL"
-        end
-        --WOG fishing for Wings
-        if healTarget == "none" and talent.awakening and not buff.avengingWrath.exists() then
-            healTarget = lowest.unit
-            healReason = "FISH"
-        end
-    end
-    if healTarget ~= "none" and canheal(healTarget) and ui.checked("Word of Glory") and (holyPower >= 3 or buff.divinePurpose.exists()) then
-        if cast.wordOfGlory(healTarget) then
-            br.addonDebug("[" .. healReason .. "] WOG : " .. br._G.UnitName(healTarget) .. "/" .. healTargetHealth)
-            healTarget = "none"
-            return true
-        end
-    end
     --Talent Crusaders Might   - should only be used to get full value out of holy shock proc .. hard coded to 1.5
     if talent.crusadersMight and (talent.holyAvenger and buff.holyAvenger.exists() and holyPower < 3 or holyPower < 5)
             and lowest.hp > ui.value("Critical HP") and (br.getSpellCD(20473) > (gcd)) and br.getFacing("player", units.dyn5) then
@@ -1887,54 +1889,17 @@ actionList.heal = function()
         end
     end -- end Bestow Faith
 
-    if cd.flashOfLight.ready() and buff.infusionOfLight.exists() and not cast.last.flashOfLight() and not br.isMoving("player") then
-        if healTarget == "none" then
-            if lowest.hp <= ui.value("Infused Flash of Light") and (br.getLineOfSight(lowest.unit, "player") and br._G.UnitInRange(lowest.unit) or lowest.unit == "player") then
-                healTarget = lowest.unit
-                healReason = "HEAL"
-                --                Print("healtarget: " .. healTarget .. " health:" .. round(lowest.hp, 2) .. " //" .. tostring(lowest.hp < ui.checked("Infused Flash of Light")))
-            end
-        end
-        if healTarget ~= "none" and healReason ~= "GRIV" then
-            healTargetHealth = round(br.getHP(healTarget), 1)
-            --   if healTargetHealth < ui.checked("Infused Flash of Light") then
-            if canheal(healTarget) then
-                if cast.flashOfLight(healTarget) then
-                    br.addonDebug("[" .. healReason .. "] (I)flashOfLight on: " .. br._G.UnitName(healTarget) .. "/" .. healTargetHealth .. "/" .. (ui.value("Infused Flash of Light")))
-                    healTarget = "none"
-                    return true
-                    --      end
-                end
-            end
-        end
-    end
-
-    if cd.holyLight.ready() and buff.infusionOfLight.exists() and not cast.last.holyLight() and not br.isMoving("player") then
-        if healTarget ~= "none" and healReason == "GRIV" then
-            if lowest.hp <= ui.value("Infused Holy Light Grievous") and (br.getLineOfSight(lowest.unit, "player") and br._G.UnitInRange(lowest.unit) or lowest.unit == "player") then
-                healTarget = lowest.unit
-                healReason = "HEAL"
-                --                Print("healtarget: " .. healTarget .. " health:" .. round(lowest.hp, 2) .. " //" .. tostring(lowest.hp < ui.checked("Infused Holy Light")))
-            end
-        end
-        if healTarget ~= "none" and healReason == "GRIV" and not buff.beaconOfLight.exists(healTarget) then
-            healTargetHealth = round(br.getHP(healTarget), 1)
-            if healTargetHealth < ui.value("Infused Holy Light Grievous" and canheal(healTarget)) then
-                if cast.holyLight(healTarget) then
-                    br.addonDebug("[" .. healReason .. "] (I)holyLight on: " .. br._G.UnitName(healTarget) .. "/" .. healTargetHealth .. "/" .. (ui.value("Infused Holy Light")))
-                    healTarget = "none"
-                    return true
-                end
-            end
-        end
-    end
-
-    --hs, dawn, flash(infused), Lotm, flash xxxxxx
     -- Light of Martyr
-    if healTarget == "none" then
-        if ui.checked("Light of the Martyr") and (php >= br.getOptionValue("LotM player HP limit") or buff.divineShield.exists("player")) and cast.able.lightOfTheMartyr()
+    if ui.checked("Light of the Martyr") then
+        if healTarget == "none" and (php >= br.getOptionValue("LotM player HP limit") or buff.divineShield.exists("player")) and cast.able.lightOfTheMartyr()
                 and br.getDebuffStacks("player", 267034) < 2 -- not if we got stacks on last boss of shrine
-                and br.getDebuffStacks("player", 265773) == 0 -- not if we got spit gold on us then  then
+                and br.getDebuffStacks("player", 323020) == 0 -- MISTS - Bloodletting Bleed DoT
+                and br.getDebuffStacks("player", 325021) == 0 -- MISTS - Mistveil Tear Bleed DoT
+                and br.getDebuffStacks("player", 326874) == 0 -- HOA - Ankle Bites DoT
+                and br.getDebuffStacks("player", 322429) == 0 -- SD - Severing Slice Bleed DoT
+                and br.getDebuffStacks("player", 335306) == 0 -- SD - Barbed Shackle DoT
+                and br.getDebuffStacks("player", 322554) == 0 -- SD - Castigate DoT
+                and br.getDebuffStacks("player", 333861) == 0 -- ToP - Richocheting Blade
                 and lowest.hp <= ui.value("Light of the Martyr") and not br.GetUnitIsUnit(lowest.unit, "player")
                 and br.getLineOfSight(lowest.unit, "player") and br._G.UnitInRange(lowest.unit) then
             healTarget = lowest.unit
@@ -1952,11 +1917,21 @@ actionList.heal = function()
         end
     end
 
-    if cd.flashOfLight.ready() and not br.isMoving("player") then
+    -- Flash of Light
+    if ui.checked("Flash of Light") and cd.flashOfLight.ready() and not br.isMoving("player") then
         if healTarget == "none" then
             if lowest.hp <= ui.value("Flash of Light") and canheal(lowest.unit) then
                 healTarget = lowest.unit
                 healReason = "HEAL"
+            end
+            --[[   if buff.innervate.exists() and cd.holyShock.remain() > 1.5 and cd.crusaderStrike.remain() ~= 0 and canheal(lowest.unit) then
+                   healTarget = lowest.unit
+                   healReason = "INNERVATED"
+               end
+               ]]
+            if lowest.hp <= ui.value("Beacon Swap Min HP") and buff.beaconOfLight.exists(lowest.unit) and holyPower < 3 and cd.holyShock.remain() > 1.5 and cd.crusaderStrike.remain() ~= 0 and canheal(lowest.unit) then
+                healTarget = lowest.unit
+                healReason = "FOL_HPGEN"
             end
         end
         if healTarget ~= "none" and healReason ~= "GRIV" then
@@ -1970,6 +1945,79 @@ actionList.heal = function()
             end
         end
     end
+
+    -- Flash of Light Infusion
+    if ui.checked("Infused Flash of Light") and cd.flashOfLight.ready() and buff.infusionOfLight.exists() and not cast.last.flashOfLight() and not br.isMoving("player") then
+        if healTarget == "none" then
+            if lowest.hp <= ui.value("Infused Flash of Light") and (br.getLineOfSight(lowest.unit, "player") and br._G.UnitInRange(lowest.unit) or lowest.unit == "player") then
+                healTarget = lowest.unit
+                healReason = "HEAL"
+                --                Print("healtarget: " .. healTarget .. " health:" .. round(lowest.hp, 2) .. " //" .. tostring(lowest.hp < ui.checked("Infused Flash of Light")))
+            end
+            if lowest.hp <= ui.value("Beacon Swap Min HP") and buff.beaconOfLight.exists(lowest.unit) and holyPower < 3 and cd.holyShock.remain() > 1.5 and cd.crusaderStrike.remain() ~= 0 and canheal(lowest.unit) then
+                healTarget = lowest.unit
+                healReason = "FOL_HPGEN"
+            end
+        end
+        if healTarget ~= "none" and healReason ~= "GRIV" then
+            healTargetHealth = round(br.getHP(healTarget), 1)
+            --   if healTargetHealth < ui.checked("Infused Flash of Light") then
+            if canheal(healTarget) then
+                if cast.flashOfLight(healTarget) then
+                    br.addonDebug("[" .. healReason .. "] (I)flashOfLight on: " .. br._G.UnitName(healTarget) .. "/" .. healTargetHealth .. "/" .. (ui.value("Infused Flash of Light")))
+                    healTarget = "none"
+                    return true
+                    --      end
+                end
+            end
+        end
+    end
+
+    -- Holy Light Infusion
+    if ui.checked("Infused Holy Light") and cd.holyLight.ready() and buff.infusionOfLight.exists() and not br.isMoving("player") then
+        if healTarget == "none" then
+            for i = 1, #br.friend do
+                if br.friend[i].role == "TANK" and br.friend[i].hp <= ui.value("Tank Infused Holy Light HP Limit") and canheal(br.friend[i].unit) then
+                    healTarget = br.friend[i].unit
+                    healReason = "HEAL"
+                end
+                if br.friend[i].role == "HEALER" and br.friend[i].hp <= ui.value("DPS/Healer Infused Holy Light HP Limit") and canheal(br.friend[i].unit) then
+                    healTarget = br.friend[i].unit
+                    healReason = "HEAL"
+                end
+                if br.friend[i].role == "DAMAGER" and br.friend[i].hp <= ui.value("DPS/Healer Infused Holy Light HP Limit") and canheal(br.friend[i].unit) then
+                    healTarget = br.friend[i].unit
+                    healReason = "HEAL"
+                end
+                if healReason == "GRIV" then
+                    if lowest.hp <= ui.value("Infused Holy Light Grievous") and (br.getLineOfSight(lowest.unit, "player") and br._G.UnitInRange(lowest.unit) or lowest.unit == "player") then
+                        healTarget = lowest.unit
+                        healReason = "HEAL"
+                    end
+                end
+            end
+        end
+        if healTarget ~= "none" and healReason ~= "GRIV" then
+            healTargetHealth = round(br.getHP(healTarget), 1)
+            if healTargetHealth < ui.value("Infused Holy Light") and canheal(healTarget) then
+                if cast.holyLight(healTarget) then
+                    br.addonDebug("[" .. healReason .. "] (I)holyLight on: " .. br._G.UnitName(healTarget) .. "/" .. healTargetHealth .. "/" .. (ui.value("Infused Holy Light")))
+                    healTarget = "none"
+                    return true
+                end
+            end
+        end
+        if healTarget ~= "none" and healReason == "GRIV" and not buff.beaconOfLight.exists(healTarget) then
+            healTargetHealth = round(br.getHP(healTarget), 1)
+            if healTargetHealth < ui.value("Infused Holy Light Grievous" and canheal(healTarget)) then
+                if cast.holyLight(healTarget) then
+                    br.addonDebug("[" .. healReason .. "] (I)holyLight on: " .. br._G.UnitName(healTarget) .. "/" .. healTargetHealth .. "/" .. (ui.value("Infused Holy Light")))
+                    healTarget = "none"
+                    return true
+                end
+            end
+        end
+    end --LoD/WoG >> DT >> HS >> BF >> LOTM >> FOL/HL
 end -- End Action List - heal
 
 
@@ -2042,7 +2090,7 @@ local function runRotation()
     healPot = br.getHealthPot()
     profileStop = profileStop or false
     ttd = br.getTTD
-    haltProfile = (inCombat and profileStop) or (br._G.IsMounted() or br._G.IsFlying()) or br.pause() or mode.rotation == 4
+    haltProfile = (inCombat and profileStop) or (br._G.IsMounted() or br._G.IsFlying()) or br.pause() or mode.rotation == 4 or br.getBuffRemain("player", 307195) > 0
     -- Units
     units.get(5)
     units.get(8)
