@@ -348,7 +348,7 @@ actionList.AOE = function()
     -- if ui.alwaysCdNever("Covenant Abiity") and cast.able.faeTransfusion() and (soulbind.groveInvigoration or soulbind.fieldOfBlossoms) then
     --     if cast.faeTransfusion() then ui.debug("Casting Fae Transfusion") return true end
     -- end
-    -- Crash Lightning 
+    -- Crash Lightning
     -- crash_lightning,if=runeforge.doom_winds.equipped&buff.doom_winds.up
     if cast.able.crashLightning() and runeforge.doomWinds.equiped and buff.doomWinds.exists() then
         if cast.crashLightning(nil,"cone",1,8) then ui.debug("Casting Crash Lightning [AOE Doom Winds]") return true end
@@ -364,8 +364,8 @@ actionList.AOE = function()
         if cast.sundering("player","rect",1,11) then ui.debug("Casting Sundering [AOE]") return true end
     end
     -- Flame Shock
-    -- flame_shock,target_if=refreshable,cycle_targets=1,if=talent.fire_nova.enabled|talent.lashing_flames.enabled|covenant.necrolord
-    if cast.able.flameShock() and (talent.fireNova or talent.lashingFlames or covenant.necrolord.active) then
+    -- flame_shock,target_if=refreshable,cycle_targets=1,if=talent.fire_nova.enabled|talent.lashing_flames.enabled|covenant.necrolord|runeforge.primal_lava_actuators.equipped
+    if cast.able.flameShock() and (talent.fireNova or talent.lashingFlames or covenant.necrolord.active or runeforge.primalLavaActuators.equiped) then
         for i = 1, #enemies.yards40f do
             local thisUnit = enemies.yards40f[i]
             if debuff.flameShock.refresh(thisUnit) then
@@ -393,14 +393,19 @@ actionList.AOE = function()
     if cast.able.lightningBolt() and buff.primordialWave.exists() and (buff.stormkeeper.exists() or buff.maelstromWeapon.stack() >= 5) then
         if cast.lightningBolt() then ui.debug("Casting Lightning Bolt [AOE Primordial Wave]") return true end
     end
+    -- Chain Lightning
+    -- chain_lightning,if=buff.stormkeeper.up
+    if cast.able.chainLightning() and buff.stormkeeper.exists() then
+        if cast.chainLightning() then ui.debug("Casting Chain Lightning [AOE Stormkeeper]") return true end
+    end
     -- Crash Lightning
     -- crash_lightning,if=talent.crashing_storm.enabled|buff.crash_lightning.down
     if cast.able.crashLightning() and (talent.crashingStorm or not buff.crashLightning.exists()) then
         if cast.crashLightning(nil,"cone",1,8) then ui.debug("Casting Crash Lightning [AOE Crashing Storm / No Buff]") return true end
     end
     -- Lava Lash
-    -- lava_lash,target_if=min:debuff.lashing_flames.remains,cycle_targets=1,if=talent.lashing_flames.enabled
-    if cast.able.lavaLash(var.lowestLashingFlames) and talent.lashingFlames then
+    -- lava_lash,target_if=min:debuff.lashing_flames.remains,cycle_targets=1,if=talent.lashing_flames.enabled|(runeforge.primal_lava_actuators.equipped&buff.primal_lava_actuators.stack>6)
+    if cast.able.lavaLash(var.lowestLashingFlames) and (talent.lashingFlames or (runeforge.primalLavaActuators.equiped and buff.primalLavaActuators.stack() > 6)) then
         if cast.lavaLash(var.lowestLashingFlames) then ui.debug("Casting Lashing Flames [AOE Lowest Lashing Flames]") return true end
     end
     -- Stormstrike
@@ -412,11 +417,6 @@ actionList.AOE = function()
     -- crash_lightning
     if cast.able.crashLightning() then
         if cast.crashLightning(nil,"cone",1,8) then ui.debug("Casting Crash Lightning [AOE]") return true end
-    end
-    -- Chain Lightning
-    -- chain_lightning,if=buff.stormkeeper.up
-    if cast.able.chainLightning() and buff.stormkeeper.exists() then
-        if cast.chainLightning() then ui.debug("Casting Chain Lightning [AOE Stormkeeper]") return true end
     end
     -- Chain Harvest
     -- chain_harvest,if=buff.maelstrom_weapon.stack>=5
@@ -437,26 +437,6 @@ actionList.AOE = function()
     -- chain_lightning,if=buff.maelstrom_weapon.stack=10
     if cast.able.chainLightning() and buff.maelstromWeapon.stack() == 10 then
         if cast.chainLightning() then ui.debug("Casting Chain Lightning [AOE 10 Maelstrom]") return true end
-    end
-    -- Flame Shock
-    -- flame_shock,target_if=refreshable,cycle_targets=1,if=talent.fire_nova.enabled
-    if talent.fireNova and cast.able.flameShock() then
-        for i = 1, #enemies.yards40f do
-            local thisUnit = enemies.yards40f[i]
-            if debuff.flameShock.refresh(thisUnit) then
-                if cast.flameShock(thisUnit) then ui.debug("Casting Flame Shock [AOE Fire Nova]") return true end
-            end
-        end
-    end
-    -- Lava lash
-    -- lava_lash,target_if=min:debuff.lashing_flames.remains,cycle_targets=1,if=runeforge.primal_lava_actuators.equipped&buff.primal_lava_actuators.stack>6
-    if cast.able.lavaLash(var.lowestLashingFlames) and runeforge.primalLavaActuators.equiped and buff.primalLavaActuators.stack() > 6 then
-        if cast.lavaLash(var.lowestLashingFlames) then ui.debug("Casting Lava Lash [AOE Primal Lava Actuators]") return true end
-    end
-    -- Chain Lightning
-    -- chain_lightning,if=buff.maelstrom_weapon.stack>=5&active_enemies>=3
-    if cast.able.chainLightning and buff.maelstromWeapon.stack() >= 5 and #enemies.yards10t >= 3 then
-        if cast.chainLightning() then ui.debug("Casting Chain Lightning [AOE 5+ Maelstrom 3+ Enemies]") return true end
     end
     -- Windstrike
     -- windstrike

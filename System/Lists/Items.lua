@@ -143,6 +143,8 @@ br.lists.items = {
     inscrutableQuantumDevice        = 179350,
     bottledFlayedWingToxin          = 178742,
     dreadfireVessel                 = 184030,
+    gladiatorsBadge                 = 175921,
+    wrathstone                      = 156000,
     --Consumables
     potionOfSpectralAgility         = 171270,
     shadowCoreOil                   = 171285,

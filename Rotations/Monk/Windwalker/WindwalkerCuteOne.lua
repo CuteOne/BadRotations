@@ -260,7 +260,7 @@ actionList.Extras = function()
         if unit.exists("target") then
             if var.combatTime() >= (tonumber(ui.value("DPS Testing"))*60) then
                 if buff.stormEarthAndFire.exists() then
-                    buff.stormEarthAndFile.cancel()
+                    buff.stormEarthAndFire.cancel()
                     ui.debug("Canceling Storm, Earth, and Fire")
                 end
                 br._G.StopAttack()
@@ -377,11 +377,6 @@ actionList.CdSef = function()
     if cast.able.invokeXuenTheWhiteTiger() and ui.alwaysCdNever("Invoke Xuen") and (not var.holdXuen or (ui.useCDs() and unit.ttd(units.dyn5) < 25)) then
         if cast.invokeXuenTheWhiteTiger() then ui.debug("Casting Invoke Xuen - The White Tiger [CD SEF]") return true end
     end
-    -- Racial - Arcane Torrent [Blood Elf]
-    -- arcane_torrent,if=chi.max-chi>=1
-    if cast.able.racial() and ui.alwaysCdNever("Racial") and (chiMax - chi >= 1 and unit.race() == "BloodElf") then
-        if cast.racial() then ui.debug("Casting Arcane Torrent [CD SEF]") return true end
-    end
     -- Touch of Death
     -- touch_of_death,if=buff.storm_earth_and_fire.down&pet.xuen_the_white_tiger.active|fight_remains<10|fight_remains>180
     if cast.able.touchOfDeath() and ui.alwaysCdNever("Touch of Death")
@@ -428,7 +423,7 @@ actionList.CdSef = function()
     end
     -- Basic Trinkets Module
     -- use_item,name=inscrutable_quantum_device
-    -- use_item,name=dreadfire_vessel
+    -- use_item,name=dreadfire_vessel,if=!variable.xuen_on_use_trinket|cooldown.invoke_xuen_the_white_tiger.remains>20|variable.hold_xuen
     br.player.module.BasicTrinkets()
     -- Touch of Karma
     -- touch_of_karma,if=fight_remains>159|pet.xuen_the_white_tiger.active|variable.hold_xuen
@@ -486,10 +481,6 @@ actionList.CdSerenity = function()
     then
         if cast.invokeXuenTheWhiteTiger() then ui.debug("Casting Invoke Xuen - The White Tiger [CD Serenity]") return true end
     end
-    -- Basic Trinket Module
-    -- use_item,name=inscrutable_quantum_device
-    -- use_item,name=dreadfire_vessel
-    br.player.module.BasicTrinkets()
     -- Racials
     if ui.alwaysCdNever("Racial") then
         -- Racial - Blood Fury
@@ -501,11 +492,6 @@ actionList.CdSerenity = function()
         -- berserking,if=variable.serenity_burst
         if cast.able.racial() and unit.race() == "Troll" and var.serenityBurst then
             if cast.racial() then ui.debug("Casting Berserking [CD Serenity]") return true end
-        end
-        -- Racial - Arcane Torrent
-        -- arcane_torrent,if=chi.max-chi>=1
-        if cast.able.racial() and unit.race() == "BloodElf" and chiMax - chi >= 1 then
-            if cast.racial() then ui.debug("Casting Arcane Torrent [CD Serenity]") return true end
         end
         -- Racial - Light's Judgment
         -- lights_judgment
@@ -547,6 +533,10 @@ actionList.CdSerenity = function()
     if ui.alwaysCdNever("Covenant Ability") and cast.able.weaponsOfOrder() and cd.risingSunKick.remains() < cast.time.weaponsOfOrder() then
         if cast.weaponsOfOrder("player") then ui.debug("Casting Weapons of Order [CD Serenity]") return true end
     end
+    -- Basic Trinkets Module
+    -- use_item,name=inscrutable_quantum_device
+    -- use_item,name=dreadfire_vessel,if=!variable.xuen_on_use_trinket|cooldown.invoke_xuen_the_white_tiger.remains>20|variable.hold_xuen
+    br.player.module.BasicTrinkets()
     -- Faeline Stomp
     -- faeline_stomp
     if ui.alwaysCdNever("Covenant Ability") and cast.able.faelineStomp() then
@@ -595,13 +585,6 @@ actionList.WeaponsOfTheOrder = function()
     if cast.able.risingSunKick(var.lowestMark) then
         if cast.risingSunKick(var.lowestMark) then ui.debug("Casting Rising Sun Kick [Weapons of Order]") return true end
     end
-    -- Spinning Crane Kick
-    -- spinning_crane_kick,if=combo_strike&buff.dance_of_chiji.up
-    if cast.able.spinningCraneKick("player","aoe") and not wasLastCombo(spell.spinningCraneKick)
-        and buff.danceOfChiJi.exists() and cast.timeSinceLast.spinningCraneKick() > unit.gcd("true")
-    then
-        if cast.spinningCraneKick("player","aoe") then ui.debug("Casting Spinning Crane Kick [Weapons of Order - Chi-Ji]") return true end
-    end
     -- Fists of Fury
     -- fists_of_fury,if=active_enemies>=2&buff.weapons_of_order_ww.remains<1
     if cast.able.fistsOfFury() and var.rskChiWoORemain < 1 and (#enemies.yards8 >= 2 or cd.whirlingDragonPunch.remain() <= unit.gcd("true")) then-- and ui.useAOE(8,ui.value("Fists of Fury Min Units")) then
@@ -623,9 +606,16 @@ actionList.WeaponsOfTheOrder = function()
         if cast.spinningCraneKick("player","aoe") then ui.debug("Casting Spinning Crane Kick [Weapons of Order - Chi Buff]") return true end
     end
     -- Blackout Kick
-    -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=combo_strike&active_enemies<=2
-    if cast.able.blackoutKick(var.lowestMark) and not wasLastCombo(spell.blackoutKick) and ui.useST(5,2) then
+    -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=combo_strike&active_enemies<=2&variable.blackout_kick_needed
+    if cast.able.blackoutKick(var.lowestMark) and not wasLastCombo(spell.blackoutKick) and ui.useST(5,2) and var.blackoutKickNeeded then
         if cast.blackoutKick(var.lowestMark) then ui.debug("Casting Blackout Kick [Weapons of Order]") return true end
+    end
+    -- Spinning Crane Kick
+    -- spinning_crane_kick,if=combo_strike&buff.dance_of_chiji.up
+    if cast.able.spinningCraneKick("player","aoe") and not wasLastCombo(spell.spinningCraneKick)
+        and buff.danceOfChiJi.exists() and cast.timeSinceLast.spinningCraneKick() > unit.gcd("true")
+    then
+        if cast.spinningCraneKick("player","aoe") then ui.debug("Casting Spinning Crane Kick [Weapons of Order - Chi-Ji]") return true end
     end
     -- Whirling Dragon Punch
     -- whirling_dragon_punch
@@ -664,15 +654,15 @@ actionList.WeaponsOfTheOrder = function()
     if cast.able.tigerPalm(var.lowestMarkSkyreach()) and (not talent.hitCombo or not wasLastCombo(spell.tigerPalm)) and chiMax - chi >= 2 then
         if cast.tigerPalm(var.lowestMarkSkyreach()) then ui.debug("Casting Tiger Palm [Weapons of Order]") return true end
     end
+    -- Blackout Kick
+    -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=active_enemies<=3&chi>=3|buff.weapons_of_order_ww.up
+    if cast.able.blackoutKick(var.lowestMark) and ui.useST(5,3) and (chi >= 3 or var.rskChiWoORemain > 0) and not wasLastCombo(spell.blackoutKick) then
+        if cast.blackoutKick(var.lowestMark) then ui.debug("Casting Blackout Kick [Weapons of Order - Chi Buff]") return true end
+    end
     -- Chi Wave
     -- chi_wave
     if cast.able.chiWave("player","aoe") then
         if cast.chiWave("player","aoe") then ui.debug("Casting Chi Wave [Weapons of Order]") return true end
-    end
-    -- Blackout Kick
-    -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=chi>=3|buff.weapons_of_order_ww.up
-    if cast.able.blackoutKick(var.lowestMark) and (chi >= 3 or var.rskChiWoORemain > 0) and not wasLastCombo(spell.blackoutKick) then
-        if cast.blackoutKick(var.lowestMark) then ui.debug("Casting Blackout Kick [Weapons of Order - Chi Buff]") return true end
     end
     -- Flying Serpent Kick
     -- flying_serpent_kick,interrupt=1
@@ -719,8 +709,8 @@ actionList.Serenity = function()
         if cast.spinningCraneKick() then ui.debug("Casting Spinning Crane Kick [Serenity Dance of Chi-Ji") return true end
     end
     -- Blackout Kick
-    -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=combo_strike&buff.weapons_of_order_ww.up&cooldown.rising_sun_kick.remains>2
-    if cast.able.blackoutKick(var.lowestMark) and not wasLastCombo(spell.blackoutKick) and var.rskChiWoORemain > 0 and cd.risingSunKick.remain() > 2 then
+    -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=combo_strike&buff.weapons_of_order.up&cooldown.rising_sun_kick.remains>2
+    if cast.able.blackoutKick(var.lowestMark) and not wasLastCombo(spell.blackoutKick) and buff.weaponsOfOrderWW.exists() and cd.risingSunKick.remain() > 2 then
         if cast.blackoutKick(var.lowestMark) then ui.debug("Casting Blackout Kick [Serenity Weapons of Order]") return true end
     end
     -- Fists of Fury
@@ -869,6 +859,11 @@ actionList.SingleTarget = function()
     then
         if cast.tigerPalm(var.lowestMarkSkyreach()) then ui.debug("Casting Tiger Palm [ST]") return true end
     end
+    -- Racial - Arcane Torrent [Blood Elf]
+    -- arcane_torrent,if=chi.max-chi>=1
+    if cast.able.racial() and ui.alwaysCdNever("Racial") and (chiMax - chi >= 1 and unit.race() == "BloodElf") then
+        if cast.racial() then ui.debug("Casting Arcane Torrent [ST]") return true end
+    end
     -- Flying Serpent Kick
     -- flying_serpent_kick,interrupt=1
     if ui.mode.fsk == 1 and cast.able.flyingSerpentKick() then
@@ -932,14 +927,6 @@ actionList.AoE = function()
     if cast.able.rushingJadeWind() and not buff.rushingJadeWind.exists() and not unit.isExplosive("target") then
         if cast.rushingJadeWind() then ui.debug("Casting Rushing Jade Wind [AOE]") return true end
     end
-    -- Spinning Crane Kick
-    -- spinning_crane_kick,if=combo_strike&((cooldown.bonedust_brew.remains>2&(chi>3|cooldown.fists_of_fury.remains>6)&(chi>=5|cooldown.fists_of_fury.remains>2))|energy.time_to_max<=3)
-    if cast.able.spinningCraneKick("player","aoe") and not wasLastCombo(spell.spinningCraneKick)
-        and ((cd.bonedustBrew.remains() > 2 and (chi > 3 or cd.fistsOfFury.remain() > 6) and (chi >= 5 or cd.fistsOfFury.remain() > 2)) or energy > 50)
-        and cast.timeSinceLast.spinningCraneKick() > unit.gcd("true")
-    then
-        if cast.spinningCraneKick("player","aoe") then ui.debug("Casting Spinning Crane Kick [AOE]") return true end
-    end
     -- Expel Harm
     -- expel_harm,if=chi.max-chi>=1
     if cast.able.expelHarm() and (chiMax - chi >= 1) then
@@ -968,6 +955,19 @@ actionList.AoE = function()
         and cast.timeSinceLast.tigerPalm() > unit.gcd("true")
     then
         if cast.tigerPalm(var.lowestMarkSkyreach()) then ui.debug("Casting Tiger Palm [AOE]") return true end
+    end
+    -- Racial - Arcane Torrent [Blood Elf]
+    -- arcane_torrent,if=chi.max-chi>=1
+    if cast.able.racial() and ui.alwaysCdNever("Racial") and (chiMax - chi >= 1 and unit.race() == "BloodElf") then
+        if cast.racial() then ui.debug("Casting Arcane Torrent [AOE]") return true end
+    end
+    -- Spinning Crane Kick
+    -- spinning_crane_kick,if=combo_strike&(cooldown.bonedust_brew.remains>2|!covenant.necrolord)&(chi>=5|cooldown.fists_of_fury.remains>6|cooldown.fists_of_fury.remains>3&chi>=3&energy.time_to_50<1|energy.time_to_max<=(3+3*cooldown.fists_of_fury.remains<5)|buff.storm_earth_and_fire.up)
+    if cast.able.spinningCraneKick("player","aoe") and not wasLastCombo(spell.spinningCraneKick) and (cd.bonedustBrew.remains() > 2 or not covenant.necrolord.active)
+        and (chi >= 5 or cd.fistsOfFury.remain() > 6 or (cd.fistsOfFucry.remain() > 3 and chi >= 3 and energyTTM(50) < 1) or energyTTM() <= (3 + 3 * var.fistsNotSoon) or buff.stormEarthAndFire.exists())
+        and cast.timeSinceLast.spinningCraneKick() > unit.gcd("true")
+    then
+        if cast.spinningCraneKick("player","aoe") then ui.debug("Casting Spinning Crane Kick [AOE]") return true end
     end
     -- Chi Wave
     -- chi_wave,if=combo_strike
@@ -1043,8 +1043,6 @@ actionList.PreCombat = function()
         module.FlaskUp("Agility")
         -- Augmentation
         -- augmentation
-        -- Potion
-        -- potion
         -- Pull
         if unit.valid("target") then
             if unit.exists("target") and unit.distance("target") < 5 then
@@ -1135,8 +1133,13 @@ local function runRotation()
     if var.lowestMarkSkyreach   == nil then var.lowestMarkSkyreach  = 99                    end
     if var.profileStop          == nil then var.profileStop         = false                 end
     if not unit.inCombat() or var.lastCombo == nil then var.lastCombo = 1822 end --6603 end
+    -- variable,name=blackout_kick_needed,op=set,value=buff.weapons_of_order_ww.remains&(cooldown.rising_sun_kick.remains>buff.weapons_of_order_ww.remains&buff.weapons_of_order_ww.remains<2|cooldown.rising_sun_kick.remains-buff.weapons_of_order_ww.remains>2&buff.weapons_of_order_ww.remains<4)
+    var.blackoutKickNeeded = buff.weaponsOfOrderWW.exists() and ((cd.risingSunKick.remains() > buff.weaponsOfOrderWW.remains() and buff.weaponsOfOrderWW.remains() < 2)
+        or (cd.risingSunKick.remains() - buff.weaponsOfOrderWW.remains() > 2 and buff.weaponsOfOrderWW.remains() < 4))
     var.chiBurstMoreThan1 = #enemies.yards40r >= 1 and 1 or 0
+    -- cooldown.fists_of_fury.remains>3
     var.fofExecute = 4 - (4 * (br._G.GetHaste() / 100))
+    var.fistsNotSoon = cd.fistsOfFury.remain() > 3 and 1 or 0
     var.lowestMark = debuff.markOfTheCrane.lowest(5,"remain")
     -- debuff.mark_of_the_crane.remains+(debuff.recently_rushing_tiger_palm.up*20)
     var.lowestMarkSkyreach = function()
@@ -1161,8 +1164,8 @@ local function runRotation()
     var.holdXuen = cd.invokeXuenTheWhiteTiger.remain() > unit.ttd(units.dyn5) or unit.ttd(unit.dyn5) < 120 and unit.ttd(unit.dyn5) > cd.serenity.remain() and cd.serenity.remain() > 10
     -- variable,name=serenity_burst,op=set,value=cooldown.serenity.remains<1|pet.xuen_the_white_tiger.active&cooldown.serenity.remains>30|fight_remains<20
     var.serenityBurst = talent.serenity and (cd.serenity.remains() < 1 or (pet.xuenTheWhiteTiger.active() and cd.serenity.remains() > 30) or (ui.useCDs() and unit.ttdGroup() < 20))
-    -- variable,name=xuen_on_use_trinket,op=set,value=0
-    var.xuenOnUseTrinket = 0
+    -- variable,name=xuen_on_use_trinket,op=set,value=equipped.inscrutable_quantum_device|equipped.gladiators_badge|equipped.wrathstone
+    var.xuenOnUseTrinket = equiped.inscrutableQuantumDevice() or equiped.gladiatorsBadge() or equiped.wrathstone()
 
     -- Lost Combo
     if buff.hitCombo.stack() < var.comboCounter and unit.inCombat() then
