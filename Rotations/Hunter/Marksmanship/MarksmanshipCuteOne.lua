@@ -387,7 +387,9 @@ end -- End Action List - Cooldowns
 actionList.TrickShots = function()
     -- Steady Shot
     -- steady_shot,if=talent.steady_focus&in_flight&buff.steady_focus.remains<5
-    if cast.able.steadyShot() and talent.steadyFocus and cast.inFlight.steadyShot() and buff.steadyFocus.remains() < 5 then
+    if cast.able.steadyShot() and talent.steadyFocus and cast.inFlight.steadyShot() and buff.steadyFocus.remains() < 5
+        and cast.timeSinceLast.steadyShot() > unit.gcd("true") and not cast.current.steadyShot()
+    then
         if cast.steadyShot() then ui.debug("Casting Steady Shot [Trick Shots Steady Focus]") return true end
     end
     -- Double Tap
@@ -450,6 +452,7 @@ actionList.TrickShots = function()
     -- aimed_shot,target_if=min:dot.serpent_sting.remains+action.serpent_sting.in_flight_to_target*99,if=buff.trick_shots.remains>=execute_time&(buff.precise_shots.down|full_recharge_time<cast_time+gcd|buff.trueshot.up)
     if cast.able.aimedShot(var.lowestAimedSerpentSting) and not unit.moving("player") and unit.ttd(units.dyn40) > cast.time.aimedShot() and buff.trickShots.remains() >= cast.time.aimedShot()
         and (not buff.preciseShots.exists() or charges.aimedShot.timeTillFull() < cast.time.aimedShot() + unit.gcd(true) or buff.trueshot.exists())
+        and cast.timeSinceLast.aimedShot() > unit.gcd("true") and not cast.current.aimedShot()
     then
         if cast.aimedShot(var.lowestAimedSerpentSting) then ui.debug("Casting Aimed Shot [Trick Shots]") return true end
     end
@@ -503,7 +506,9 @@ actionList.TrickShots = function()
     end
     -- Steady Shot
     -- steady_shot
-    if cast.able.steadyShot() and unit.ttd(units.dyn40) > cast.time.steadyShot() and power.focus.amount() <= cast.cost.arcaneShot() + cast.cost.aimedShot() then
+    if cast.able.steadyShot() and unit.ttd(units.dyn40) > cast.time.steadyShot()
+        and cast.timeSinceLast.steadyShot() > unit.gcd("true") and not cast.current.steadyShot()
+    then--and power.focus.amount() <= cast.cost.arcaneShot() + cast.cost.aimedShot() then
         if cast.steadyShot() then ui.debug("Casting Steady Shot [Trick Shots]") return true end
     end
 end -- End Action List - Trick Shots
@@ -512,7 +517,9 @@ end -- End Action List - Trick Shots
 actionList.SingleTarget = function()
     -- Steady Shot
     -- steady_shot,if=talent.steady_focus&(prev_gcd.1.steady_shot&buff.steady_focus.remains<5|buff.steady_focus.down)
-    if cast.able.steadyShot() and talent.steadyFocus and ((cast.last.steadyShot() and buff.steadyFocus.remain() < 5) or not buff.steadyFocus.exists()) then
+    if cast.able.steadyShot() and talent.steadyFocus and ((cast.last.steadyShot() and buff.steadyFocus.remain() < 5) or not buff.steadyFocus.exists())
+        and cast.timeSinceLast.steadyShot() > unit.gcd("true") and not cast.current.steadyShot()
+    then
         if cast.steadyShot() then ui.debug("Casting Steady Shot [Steady Focus]") return true end
     end
     -- Kill Shot
@@ -588,6 +595,7 @@ actionList.SingleTarget = function()
     if cast.able.aimedShot(var.lowestAimedSerpentSting) and not unit.moving("player") and (not buff.preciseShots.exists()
         or ((buff.trueshot.exists() or charges.aimedShot.timeTillFull() < unit.gcd(true) + cast.time.aimedShot())
         and (not talent.chimaeraShot or #enemies.yards10t < 2)) or buff.trickShots.remain() > cast.time.aimedShot() and #enemies.yards10t > 1)
+        and cast.timeSinceLast.aimedShot() > unit.gcd("true") and not cast.current.aimedShot()
     then
         if cast.aimedShot(var.lowestAimedSerpentSting) then ui.debug("Casting Aimed Shot") return true end
     end
@@ -639,7 +647,10 @@ actionList.SingleTarget = function()
     end
     -- Steady Shot
     -- steady_shot
-    if cast.able.steadyShot() and unit.ttd(units.dyn40) > cast.time.steadyShot() and power.focus.amount() <= cast.cost.arcaneShot() + cast.cost.aimedShot() then
+    if cast.able.steadyShot() and unit.ttd(units.dyn40) > cast.time.steadyShot()
+        and ((not buff.preciseShots.exists() or power.focus.amount() < 20) and power.focus.amount() <= cast.cost.arcaneShot() + cast.cost.aimedShot())
+        and cast.timeSinceLast.steadyShot() > unit.gcd("true") and not cast.current.steadyShot()
+    then-- and power.focus.amount() <= cast.cost.arcaneShot() + cast.cost.aimedShot() then
         if cast.steadyShot() then ui.debug("Casting Steady Shot") return true end
     end
 end -- End Action List - Single Target
@@ -673,7 +684,10 @@ actionList.PreCombat = function()
             end
             -- Aimed Shot
             -- aimed_shot,if=active_enemies<3&(!covenant.kyrian&!talent.volley|active_enemies<2)
-            if cast.able.aimedShot() and not unit.moving("player") and #enemies.yards10t < 3 and (#enemies.yards10t < 2 or (not covenant.kyrian.active and not talent.volley)) then
+            if cast.able.aimedShot() and not unit.moving("player") and #enemies.yards10t < 3
+                and (#enemies.yards10t < 2 or (not covenant.kyrian.active and not talent.volley))
+                and cast.timeSinceLast.aimedShot() > unit.gcd("true") and not cast.current.aimedShot()
+            then
                 if cast.aimedShot("target") then ui.debug("Casting Aimed Shot [Pre-Pull]") return true end
             end
             -- Arcane Shot
