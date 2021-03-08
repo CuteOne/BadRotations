@@ -55,7 +55,7 @@ local function createOptions()
         local section
         local alwaysCdNever = {"|cff00FF00Always","|cffFFFF00Cooldowns","|cffFF0000Never"}
         local race = select(2,br._G.UnitRace("player"))
-        local racial = br._G.GetSpellInfo(br.getRacial())
+        --local racial = br._G.GetSpellInfo(br.getRacial())
         -----------------------
         --- GENERAL OPTIONS ---
         -----------------------
@@ -184,10 +184,10 @@ local charges
 local chi
 local chiMax
 local covenant
-local conduit
+--local conduit
 local debuff
 local enemies
-local energy
+--local energy
 local energyTTM
 local equiped
 local module
@@ -1097,11 +1097,11 @@ local function runRotation()
     charges           = br.player.charges
     chi               = br.player.power.chi.amount()
     chiMax            = br.player.power.chi.max()
-    conduit           = br.player.conduit
+    --conduit           = br.player.conduit
     covenant          = br.player.covenant
     debuff            = br.player.debuff
     enemies           = br.player.enemies
-    energy            = br.player.power.energy.amount()
+    --energy            = br.player.power.energy.amount()
     energyTTM         = br.player.power.energy.ttm
     equiped           = br.player.equiped
     module            = br.player.module
