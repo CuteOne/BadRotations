@@ -88,7 +88,7 @@ br.api.unit = function(self)
     end
     -- Facing
     unit.facing = function(thisUnit,otherUnit,degrees)
-        if otherUnit == nil then otherUnit = "player" end
+        if otherUnit == nil then otherUnit = thisUnit; thisUnit = "player" end
         return br.getFacing(thisUnit,otherUnit,degrees)
     end
     -- Falling

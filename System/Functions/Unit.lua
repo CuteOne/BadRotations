@@ -223,7 +223,7 @@ function br.getLowestUnit(range)
 			local thisUnit = br.friend[i].unit
             local thisDist = br.getDistance(thisUnit)
             local thisHp = br.getHP(thisUnit)
-			if thisDist < range and thisHp < lowestHP then
+			if thisDist < range and thisHp < lowestHP and thisHp > 0 then
                 lowestUnit = thisUnit
                 lowestHP = thisHp
 			end
