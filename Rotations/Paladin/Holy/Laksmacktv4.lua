@@ -1480,7 +1480,7 @@ actionList.Cooldown = function()
     end
 
     -- Seraphim
-    if ui.checked("Seraphim") and talent.seraphim and holyPower > 2 and br.getOptionValue("Seraphim") <= 8 then
+    if ui.checked("Seraphim") and talent.seraphim and holyPower > 2 and br.getTTD("target") > br.getOptionValue("Seraphim") then
         if cast.seraphim() then
             return true
         end
