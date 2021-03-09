@@ -569,7 +569,7 @@ local function runRotation()
         local distance20Min
         for i = 1, #enemies.yards40 do
             local thisUnit = enemies.yards40[i]
-            if (not noDotCheck(thisUnit) or br.GetUnitIsUnit(thisUnit, "target")) and not br.GetUnitIsDeadOrGhost(thisUnit) and (mode.rotation ~= 2 or br.GetUnitIsUnit(thisUnit, "target")) then
+            if (not noDotCheck(thisUnit) or br._G.GetUnitIsUnit(thisUnit, "target")) and not br._G.GetUnitIsDeadOrGhost(thisUnit) and (mode.rotation ~= 2 or br._G.GetUnitIsUnit(thisUnit, "target")) then
                 local enemyUnit = {}
                 enemyUnit.unit = thisUnit
                 enemyUnit.ttd = ttd(thisUnit)
@@ -622,7 +622,7 @@ local function runRotation()
                 end
             )
         end
-        if br.isChecked("Auto Target") and #enemyTable40 > 0 and ((br.GetUnitExists("target") and (br.GetUnitIsDeadOrGhost("target") or (targetUnit and targetUnit.calcHP < 0)) and not br.GetUnitIsUnit(enemyTable40[1].unit, "target")) or not br.GetUnitExists("target")) then
+        if br.isChecked("Auto Target") and #enemyTable40 > 0 and ((br._G.GetUnitExists("target") and (br._G.GetUnitIsDeadOrGhost("target") or (targetUnit and targetUnit.calcHP < 0)) and not br.GetUnitIsUnit(enemyTable40[1].unit, "target")) or not br.GetUnitExists("target")) then
             br._G.TargetUnit(enemyTable40[1].unit)
             return true
         end
@@ -868,7 +868,7 @@ local function actionList_Extras()
         -- Arcane Intellect
         if br.isChecked("Arcane Intellect") and br.timer:useTimer("AI Delay", math.random(15, 30)) then
             for i = 1, #br.friend do
-                if not buff.arcaneIntellect.exists(br.friend[i].unit,"any") and br.getDistance("player", br.friend[i].unit) < 40 and not br._GetUnitIsDeadOrGhost(br.friend[i].unit) and br._G.UnitIsPlayer(br.friend[i].unit) then
+                if not buff.arcaneIntellect.exists(br.friend[i].unit,"any") and br.getDistance("player", br.friend[i].unit) < 40 and not br._G.GetUnitIsDeadOrGhost(br.friend[i].unit) and br._G.UnitIsPlayer(br.friend[i].unit) then
                     if cast.arcaneIntellect() then return true end
                 end
             end
