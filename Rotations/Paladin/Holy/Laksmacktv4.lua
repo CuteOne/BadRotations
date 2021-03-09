@@ -1,4 +1,4 @@
-local rotationName = "Laks M+ " -- Change to name of profile listed in options drop down
+local rotationName = "Laks M+" -- Change to name of profile listed in options drop down
 
 ---------------
 --- Toggles ---
@@ -1656,15 +1656,15 @@ actionList.Cooldown = function()
 
     -- Unstable Temporal Time Shifter
     if ui.checked("Eng Brez") and br.canUseItem(184308) and not moving and inCombat then
-        if br.getOptionValue("Eng Brez") == 1 and br._G.UnitIsPlayer("target") and br._G.UnitIsPlayer("target") and br.GetUnitIsFriend("target", "player") then
+        if br.getOptionValue("Eng Brez") == 1 and br._G.UnitIsPlayer("target") and br._G.UnitIsDeadOrGhost("target") and br.GetUnitIsFriend("target", "player") then
             br._G.UseItemByName(184308, "target")
         end
-        if br.getOptionValue("Eng Brez") == 2 and br._G.UnitIsPlayer("mouseover") and br._G.UnitIsPlayer("mouseover") and br.GetUnitIsFriend("mouseover", "player") then
+        if br.getOptionValue("Eng Brez") == 2 and br._G.UnitIsPlayer("mouseover") and br._G.UnitIsDeadOrGhost("mouseover") and br.GetUnitIsFriend("mouseover", "player") then
             br._G.UseItemByName(184308, "mouseover")
         end
         if br.getOptionValue("Eng Brez") == 3 then
             for i = 1, #br.friend do
-                if br._G.UnitIsPlayer(br.friend[i].unit) and br._G.UnitIsPlayer(br.friend[i].unit) and br.GetUnitIsFriend(br.friend[i].unit, "player") then
+                if br._G.UnitIsPlayer(br.friend[i].unit) and br._G.UnitIsDeadOrGhost(br.friend[i].unit) and br.GetUnitIsFriend(br.friend[i].unit, "player") then
                     br._G.UseItemByName(184308, br.friend[i].unit)
                 end
             end
