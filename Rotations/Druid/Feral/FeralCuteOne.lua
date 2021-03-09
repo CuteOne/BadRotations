@@ -762,7 +762,7 @@ actionList.Cooldowns = function()
         end
         -- Tiger's Fury
         -- tigers_fury,if=energy.deficit>40|buff.bs_inc.up|(talent.predator.enabled&variable.shortest_ttd<3)
-        if ui.checked("Tiger's Fury") and cast.able.tigersFury() and not buff.tigersFury.exists() and range.dyn5
+        if ui.checked("Tiger's Fury") and cast.able.tigersFury() and range.dyn5
             and (energyDeficit > 40 or snipeTF() or (buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists())
                 or (talent.predator and var.lowestTTD < 3))
         then
@@ -1378,7 +1378,7 @@ local function runRotation()
         end
     end
 
-    var.fbMaxEnergy = energy >= 50 or buff.apexPredatorsCraving.exists()
+    var.fbMaxEnergy = energy >= 50 or buff.apexPredatorsCraving.exists() or (energy >= 25 and var.clearcasting)
 
     var.bsInc = (buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists()) and 1 or 0
 
