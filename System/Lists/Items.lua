@@ -140,11 +140,41 @@ br.lists.items = {
     shroudOfResolve                 = 169223,
     ----------- SL items below -----------
     --Trinkets
+    -- Inscrutable Quantum Device 
     inscrutableQuantumDevice        = 179350,
+    -- Instructor's Divine Bell
+    instructorsDivineBell           = 184842, 
+    -- Bottled Flayed Wing Toxin
     bottledFlayedWingToxin          = 178742,
     dreadfireVessel                 = 184030,
+    -- Empyreal Ordnance
+    empyrealOrdnance                = 180117,
+    -- Everchill Brambles
+    everchillBrambles               = 182452,
+    -- Flame of Battle
+    flameOfBattle                   = 181501,
+    -- Gladiator's Insignia of Alacrity 
     gladiatorsBadge                 = 175921,
+    -- Gladiator's Badge of Ferocity 
+    gladiatorsBadgeAlacrity         = 175921,
+    -- Glyph of Assimilation
+    glyphOfAssimilation             = 184021,
+    -- Macabre Sheet Music
+    macabreSheetMusic               = 184024, 
+    -- Sunblood Amethyst
+    sunbloodAmethyst                = 178826,
+    -- Soulletting Ruby
+    soulettingRuby                  = 178809,
+    -- Soul Ignitor
+    soulIgnitor                     = 184019,
+    -- Tuft of Smoldering Plumage
+    tuftOfSmolderingPlumage         = 184020, 
+    -- Wakener's Frond
+    wakenersFrond                   = 181457,
+    -- Wrath Stone
     wrathstone                      = 156000,
+    -- Vial of Spectral
+    vialOfSpectral                  = 178810,
     --Consumables
     potionOfSpectralAgility         = 171270,
     shadowCoreOil                   = 171285,
