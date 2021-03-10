@@ -1,5 +1,5 @@
 local rotationName = "KinkAffliction"
-local VerNum  = "2.1.3"
+local VerNum  = "2.1.4"
 local var = {} 
 local dsInterrupt = false
 
@@ -1041,7 +1041,7 @@ end -- End Interrupt DS APL
             [120651]=true -- Explosive
         }
         if not moving and br.GetObjectExists("target") and burnUnits[br.GetObjectID("target")] ~= nil then
-            if cast.unstableAffliction("target") then br.addonDebug("[Action:BurnUnits] Unstable Affliction") return true end
+            if cast.unstableAffliction("target") and br.timer:useTimer("UA", math.random(2,3)) then br.addonDebug("[Action:BurnUnits] Unstable Affliction") return true end
             if not talent.drainSoul then
                 if cast.shadowBolt("target") then br.addonDebug("[Action:BurnUnits] Shadow Bolt") return true end
             end
@@ -1365,7 +1365,7 @@ local function actionList_LevelingAoE()
     ------------------------------------------------
     -- Unstable Affliction -------------------------
     ------------------------------------------------
-    if not moving and (not debuff.unstableAffliction.exists("target") or debuff.unstableAffliction.refresh("target")) and not cast.last.unstableAffliction(1) and not cast.last.unstableAffliction(2) and Line_cd(316099,3) then
+    if not moving and br.timer:useTimer("UA", math.random(2,3)) (not debuff.unstableAffliction.exists("target") or debuff.unstableAffliction.refresh("target")) and not cast.last.unstableAffliction(1) and not cast.last.unstableAffliction(2) and Line_cd(316099,3) then
         if cast.unstableAffliction("target") then br.addonDebug("[Action:Leveling AoE] Unstable Affliction [Refresh]") return true end
     end
     ------------------------------------------------
@@ -1701,7 +1701,7 @@ local function actionList_LevelingST()
     ------------------------------------------------
     -- Unstable Affliction -------------------------
     ------------------------------------------------
-    if not moving and debuff.unstableAffliction.remains("target") <= ui.value("UA Refresh") and not cast.last.unstableAffliction(1) and not cast.last.unstableAffliction(2) and Line_cd(316099,3) then
+    if not moving and br.timer:useTimer("UA", math.random(2,3)) and debuff.unstableAffliction.remains("target") <= ui.value("UA Refresh") and not cast.last.unstableAffliction(1) and not cast.last.unstableAffliction(2) and Line_cd(316099,3) then
         if cast.unstableAffliction("target") then br.addonDebug("[Action:Leveling ST] Unstable Affliction [Refresh]") return true end
     end
     ------------------------------------------------
@@ -2183,12 +2183,12 @@ apl.AoE = function()
     ------.:|:.-----.:|:.-----.:|:.-----.:|:.-----
     -- actions.aoe+=/unstable_affliction,if=dot.unstable_affliction.refreshable
     if talent.rampantAfflictions then 
-        if not moving and (not lcast or GetTime() - lcast >= 2.5) and debuff.unstableAffliction2.refresh("target") then
-            if br._G.CastSpellByName(GetSpellInfo(342938),"target") then br.addonDebug("[Action:AoE] Unstable Affliction [Refresh]") lcast = GetTime() return true end
+        if not moving and debuff.unstableAffliction2.refresh("target") and br.timer:useTimer("UA", math.random(2,3)) then
+            if br._G.CastSpellByName(GetSpellInfo(342938),"target") then br.addonDebug("[Action:AoE] Unstable Affliction [Refresh]") return true end
         end
     else -- We don't have rampantAfflictions 
-        if not moving and (not lcast or GetTime() - lcast >= 2.5) and debuff.unstableAffliction.refresh("target") then
-            if cast.unstableAffliction("target") then br.addonDebug("[Action:AoE] Unstable Affliction [Refresh]") lcast = GetTime() return true end
+        if not moving and debuff.unstableAffliction.refresh("target") and br.timer:useTimer("UA", math.random(2,3)) then
+            if cast.unstableAffliction("target") then br.addonDebug("[Action:AoE] Unstable Affliction [Refresh]") return true end
         end
     end
     ------.:|:.-----.:|:.-----.:|:.-----.:|:.-----
@@ -3206,7 +3206,6 @@ apl.drainSoulAoE = function()
             end
         end
     end
-
     if br.isChecked("Phantom of Singularity") and br._G.UnitChannelInfo("player") == GetSpellInfo(198590) then
         for i = 1, #enemies.yards40 do
         local thisUnit = enemies.yards40[i]
@@ -3251,6 +3250,7 @@ apl.drainSoulST = function()
     if br._G.UnitChannelInfo("player") == GetSpellInfo(198590) and shards > 0
     and (talent.phantomSingularity and debuff.phantomSingularity.exists("target") and (debuff.soulRot.exists("target") or cd.soulRot.remains() >= gcdMax))
     or (talent.vileTaint and debuff.vileTaint.exists("target") and (debuff.soulRot.exists("target") or cd.soulRot.remains() >= gcdMax))
+    and debuff.shadowEmbrace.stack("target") >= 3
     and not moving then
         if cast.maleficRapture("target") then br.addonDebug("[Action:Clipped ST] Malefic Rapture") return true end
     end
@@ -3321,7 +3321,6 @@ apl.drainSoulST = function()
     end
 end
 
-
 local function actionList_PreCombat()
         if not inCombat and not (IsFlying() or IsMounted()) then
             -- Flask
@@ -3347,24 +3346,18 @@ local function actionList_PreCombat()
                     if cast.soulstone("player") then br.addonDebug("Casting Soulstone [Player]" ) return true end
                 end
             end
-
             -- Create Healthstone
             if solo and not moving and not inCombat and ui.checked("Create Healthstone") then
-                if GetItemCount(5512) < 1 and br.timer:useTimer("CH", math.random(0.35,3.96)) then
+                if GetItemCount(5512) < 1 and br.timer:useTimer("CH", math.random(2,3.96)) then
                      if cast.createHealthstone() then br.addonDebug("Casting Create Healthstone" ) return true end
                 end
             end
-            -- Auto Engage
-            if ui.checked("Auto Engage") and not inCombat and br.getDistance("target") <= 40 and br.timer:useTimer("Agony Delay", math.random(0.55,1.75)) then
-                if cast.agony() then br.addonDebug("Casting Agony [Auto Engage]") return true end
-
             -- actions.precombat+=/seed_of_corruption,if=spell_targets.seed_of_corruption_aoe>=3&!equipped.169314
             if mode.soc ~= 2 and not moving and pullTimer <= 3 and br.timer:useTimer("SoC Delay", 3) and aoeUnits >= ui.value("Pre-Pull SoC Count") and ui.checked("Pre-Pull SoC") then
                 br._G.CastSpellByName(GetSpellInfo(spell.seedOfCorruption)) br.addonDebug("[Action:Pre-Combat] Seed of Corruption [Pre-Pull]") return
             end
             
          --   if ui.checked("Demon Armor") and not buff.GetSpellInfo(285933).react() and br.timer:useTimer("DA Delay", 1.5) then br._G.CastSpellByName(GetSpellInfo(285933),"player") debug("Demon Armor, but kinky...") return true end 
-        end
     end -- End No Combat
 end -- End Action List - PreCombat
 
@@ -3385,6 +3378,15 @@ end -- End Action List - PreCombat
         end
         return true
     else
+        -- Auto Engage
+        if br.isChecked("Auto Engage") and solo and not inCombat then 
+            if not moving and hastar and br._G.UnitCanAttack("target", "player") and not br.GetUnitIsDeadOrGhost("target") then
+                if br.timer:useTimer("target", math.random(0.2,1.5)) then
+                    if cast.agony("target") then br.addonDebug("Casting Agony (Pull Spell)") return end
+                end
+            end
+        end
+
         --if mode.pc == 2 then br._G.PetStopAttack() br._G.PetFollow() return true end 
       --  return tru
         ------------------------------------------------
@@ -3413,8 +3415,8 @@ end -- End Action List - PreCombat
         if actionList_PreCombat() then return end
 
         local mapMythicPlusModeID, mythicPlusLevel, mythicPlustime, mythicPlusOnTime, keystoneUpgradeLevels, practiceRun = C_ChallengeMode.GetCompletionInfo()
-        if ui.checked("Soulstone Healer OOC [Mythic+]") and not inRaid and not moving then
-            if mythicPlusLevel ~= 0 then
+        if ui.checked("Soulstone Healer OOC [Mythic+]") and not solo and not moving then
+            --if mythicPlusLevel ~= 0 then
                 for i = 1, #br.friend do
                     if br._G.UnitIsPlayer(br.friend[i].unit) and br.GetUnitIsFriend(br.friend[i].unit, "player") 
                     and (br._G.UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" or br.friend[i].role == "HEALER") 
@@ -3426,7 +3428,7 @@ end -- End Action List - PreCombat
                         end
                     end
                 end
-            end
+            --end
         end
 
         if br.GetUnitIsDeadOrGhost("pet") then br._G.RunMacroText("/petdismiss") return end 
@@ -3448,59 +3450,57 @@ end -- End Action List - PreCombat
             if actionList_SummonPet() then return end
         end
 
-        
-    -- Agony Moving
-    if moving then
-        if mode.md ~= 2 then
-            for i = 1, #enemies.yards40 do
-                local thisUnit = enemies.yards40[i]
-                local agonyRemain = debuff.agony.remain(thisUnit)
-                if not noDotCheck(thisUnit) and not debuff.agony.exists(thisUnit) or debuff.agony.refresh (thisUnit) and br.getTTD("target") > debuff.agony.remain("target") + (3/spellHaste) then
-                    if cast.agony(thisUnit) then br.addonDebug("[APL:Rotation] Agony Movement (Spread)") return true end
-                end
-            end
-        end
-    end
-    -- Corruption Moving
-    if moving then
-        if mode.md ~= 2 then
-            for i = 1, #enemies.yards40 do
-                local thisUnit = enemies.yards40[i]
-                local corRemain = debuff.corruption.remain(thisUnit)
-                if not noDotCheck(thisUnit) and not debuff.corruption.exists(thisUnit) or debuff.corruption.remains(thisUnit) <= ui.value("Corruption Refresh") and br.getTTD("target") > debuff.agony.remain("target") + (3/spellHaste) then
-                    if cast.corruption(thisUnit) then br.addonDebug("[APL:Rotation] Corruption Movement (Spread)") return true end
-                end
-            end
-        end
-    end
-
+    if inCombat then
         if level == 60 then
             if ((mode.rotation == 1 and #enemies.yards40f < ui.value("Multi-Target Units")) or (mode.rotation == 3 and #enemies.yards40f > 0)) then
               if apl.drainSoulST() then return end
             end
-
             if ((mode.rotation == 1 and #enemies.yards40f >= ui.value("Multi-Target Units")) or (mode.rotation == 2 and #enemies.yards40f > 0)) then
                if apl.drainSoulAoE() then return end
             end
-
         elseif level < 60 then
             if ((mode.rotation == 1 and #enemies.yards40f < ui.value("Multi-Target Units")) or (mode.rotation == 3 and #enemies.yards40f > 0)) then
                 if actionList_LevelingDsST() then return end
             end
-
             if ((mode.rotation == 1 and #enemies.yards40f >= ui.value("Multi-Target Units")) or (mode.rotation == 2 and #enemies.yards40f > 0)) then
                 if actionList_LevelingDsAoE() then return end
             end
-        end
+        end 
 
+        -- Agony Moving
+        if moving then
+            if mode.md ~= 2 then
+                for i = 1, #enemies.yards40 do
+                    local thisUnit = enemies.yards40[i]
+                    local agonyRemain = debuff.agony.remain(thisUnit)
+                    if not noDotCheck(thisUnit) and not debuff.agony.exists(thisUnit) or debuff.agony.refresh (thisUnit) and br.getTTD("target") > debuff.agony.remain("target") + (3/spellHaste) then
+                        if cast.agony(thisUnit) then br.addonDebug("[APL:Rotation] Agony Movement (Spread)") return true end
+                    end
+                end
+            end
+        end
+        -- Corruption Moving
+        if moving then
+            if mode.md ~= 2 then
+                for i = 1, #enemies.yards40 do
+                    local thisUnit = enemies.yards40[i]
+                    local corRemain = debuff.corruption.remain(thisUnit)
+                    if not noDotCheck(thisUnit) and not debuff.corruption.exists(thisUnit) or debuff.corruption.remains(thisUnit) <= ui.value("Corruption Refresh") and br.getTTD("target") > debuff.agony.remain("target") + (3/spellHaste) then
+                        if cast.corruption(thisUnit) then br.addonDebug("[APL:Rotation] Corruption Movement (Spread)") return true end
+                    end
+                end
+            end
+        end
+    end -- End Combat Check
         --------------------------
         --- In Combat Rotation ---
         --------------------------
-         if (inCombat or spellQueueReady()) and br.profileStop == false and br.isValidUnit("target") and br.getDistance("target") < 40 then
+        if inCombat or spellQeueReady() and br.profileStop == false and br.isValidUnit("target") and br.getDistance("target") < 40 then
             ------------------------------
             --- In Combat - Interrupts ---
             ------------------------------
             if actionList_Interrupts() then return end
+
             if br.queueSpell then
                 br.ChatOverlay("Pausing for queuecast")
                 return true 
@@ -3511,20 +3511,21 @@ end -- End Action List - PreCombat
                 -- AoE Rotation --------------------------------
                 ------------------------------------------------
                     if ((mode.rotation == 1 and #enemies.yards40f >= ui.value("Multi-Target Units")) or (mode.rotation == 2 and #enemies.yards40f > 0)) then
-                    if level == 60 then
-                        if apl.AoE() then return end
-                    elseif level < 60 then
-                        if actionList_LevelingAoE() then return end
-                    end
+                        if level == 60 then
+                            if apl.AoE() then return end
+                        elseif level < 60 then
+                            if actionList_LevelingAoE() then return end
+                        end
                     end
                 ------------------------------------------------
                 -- ST Rotation ---------------------------------
                 ------------------------------------------------
                     if ((mode.rotation == 1 and #enemies.yards40f < ui.value("Multi-Target Units")) or (mode.rotation == 3 and #enemies.yards40f > 0)) then
-                    if level == 60 then
-                        if apl.Rotation() then return end
-                    elseif level < 60 then
-                        if actionList_LevelingST() then return end
+                        if level == 60 then
+                            if apl.Rotation() then return end
+                        elseif level < 60 then
+                            if actionList_LevelingST() then return 
+                        end
                     end
                 end
             end
