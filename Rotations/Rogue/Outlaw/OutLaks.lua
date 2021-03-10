@@ -208,6 +208,7 @@ local debuff
 local enemies
 local equiped
 local gcd
+local charges
 local gcdMax
 local has
 local inCombat
@@ -896,7 +897,7 @@ actionList.dps = function()
                 or (br.hasBuff(323558) and combo == 2) or (br.hasBuff(323559) and combo == 3) or (br.hasBuff(323560) and combo == 4))
         then
 
-            if cast.able.betweenTheEyes() and ttd(units.dyn20) > combo * 3 then
+            if cast.able.betweenTheEyes() and ttd(units.dyn20) > combo * 3 and not buff.masterAssassinsMark.exists() then
                 if (br.GetUnitExists(units.dyn20) and not br.isExplosive(units.dyn20)) then
                     if cast.betweenTheEyes(units.dyn20) then
                         return true
@@ -905,7 +906,7 @@ actionList.dps = function()
             end
 
             --slice_and_dice,if=buff.slice_and_dice.remains<fight_remains&buff.slice_and_dice.remains<(1+combo_points)*1.8
-            if (mode.cooldown == 1 and br.isChecked("Slice and Dice") or not br.isChecked("Slice and Dice")) and not buff.grandMelee.exists() then
+            if (mode.cooldown == 1 and br.isChecked("Slice and Dice") or not br.isChecked("Slice and Dice")) and not buff.grandMelee.exists() and not buff.masterAssassinsMark.exists() then
                 if cast.able.sliceAndDice() and combo > 0 and not ((br.hasBuff(323558) and combo == 2) or (br.hasBuff(323559) and combo == 3) or (br.hasBuff(323560) and combo == 4)) then
                     if buff.sliceAndDice.remains() < ttd("target") and buff.sliceAndDice.remains() < (1 + combo) * 1.8 then
                         if cast.sliceAndDice() then
@@ -967,27 +968,29 @@ actionList.dps = function()
                             end
                         end
                     end
-                    if cast.able.serratedBoneSpike() and buff.sliceAndDice.exists("player") and (buff.bladeFlurry.exists("player") or #enemies.yards8 == 1) then
-                        if #enemies.yards8 == 1 then
-                            if (not debuff.serratedBoneSpikeDot.exists(dynamic_target_melee)
-                                    or (#enemies.yards8 == 1 and ttd(dynamic_target_melee) <= 5) or br.player.charges.serratedBoneSpike.frac() >= 2.75) then
-                                if cast.serratedBoneSpike(dynamic_target_melee) then
+                    if cast.able.serratedBoneSpike()
+                            and buff.sliceAndDice.exists("player") and (buff.bladeFlurry.exists("player") or #enemies.yards8 == 1)
+                            and comboDeficit >= 2 and not buff.opportunity.exists() then
+
+                        table.sort(enemies.yards30, function(x, y)
+                            return x.hp < y.hp
+                        end
+                        )
+
+                        for i = 1, #enemies.yards30 do
+                            if not debuff.serratedBoneSpikeDot.exists(enemies.yards30[i]) and br.getFacing(enemies.yards30[i], "player", 45) then
+                                if cast.serratedBoneSpike(enemies.yards30[i]) then
                                     return true
                                 end
                             end
-                        else
-                            for i = 1, #enemies.yards8 do
-                                if not debuff.serratedBoneSpikeDot.exists(enemies.yards8[i])
-                                        or br.player.charges.serratedBoneSpike.frac() >= 2.75 then
-                                    if cast.serratedBoneSpike(enemies.yards8[i]) then
-                                        return true
-                                    end
-                                end
+                        end
+                        if comboDeficit == 2 and br.getFacing("target", "player", 45) then
+                            if cast.serratedBoneSpike("target") then
+                                return true
                             end
                         end
                     end
-
-                end
+                end -- end covenant
 
                 if cast.able.pistolShot() and not cast.able.ambush(dynamic_target_melee) and
                         (buff.opportunity.exists() and (br.player.power.energy.amount() < 45 or talent.quickDraw)
@@ -1195,7 +1198,7 @@ actionList.Extra = function()
         end
     end
 
-    if cast.able.rollTheBones() and (inCombat or #enemies.yards25nc > 0 or br.DBM:getPulltimer() < 1.5) then
+    if cast.able.rollTheBones() and (inCombat or #enemies.yards25nc > 0 or br.DBM:getPulltimer() < 1.5) and not buff.masterAssassinsMark.exists() then
         local badguy = false
         if not inCombat and #enemies.yards25nc > 0 then
             for i = 1, #enemies.yards25nc do
@@ -1704,6 +1707,7 @@ local function runRotation()
     cast = br.player.cast
     cd = br.player.cd
     debuff = br.player.debuff
+    charges = br.player.charges
     enemies = br.player.enemies
     equiped = br.player.equiped
     gcd = br.player.gcd
