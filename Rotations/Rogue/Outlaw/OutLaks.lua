@@ -947,25 +947,33 @@ actionList.dps = function()
                             end
                         end
                     end
-                    if cast.able.serratedBoneSpike()
-                            and buff.sliceAndDice.exists("player") and (buff.bladeFlurry.exists("player") or #enemies.yards8 == 1)
-                            and comboDeficit >= 2 and not buff.opportunity.exists() then
-
-                        table.sort(enemies.yards30, function(x, y)
-                            return x.hp < y.hp
-                        end
-                        )
-
-                        for i = 1, #enemies.yards30 do
-                            if not debuff.serratedBoneSpikeDot.exists(enemies.yards30[i]) and br.getFacing(enemies.yards30[i], "player", 45) then
-                                if cast.serratedBoneSpike(enemies.yards30[i]) then
-                                    return true
+                    if charges.serratedBoneSpike.count() > 0 then
+                        local spikeList = enemies.get(30, "player", false, true) -- Makes a variable called, enemies.yards30
+                        if #spikeList > 0 then
+                   --         ui.print("how many mobs? " .. tostring(#spikeList))
+                            if buff.sliceAndDice.exists("player") and (buff.bladeFlurry.exists("player") or #enemies.yards8 == 1)
+                                    and comboDeficit >= 2 and not buff.opportunity.exists() then
+                                --[[
+                                                                if #spikeList > 1 then
+                                                                    table.sort(spikeList, function(x, y)
+                                                                        ui.print(x.hp)
+                                                                        return x.hp < y.hp
+                                                                    end
+                                                                    )
+                                                                end
+                                ]]
+                                for i = 1, #spikeList do
+                                    if not debuff.serratedBoneSpikeDot.exists(spikeList[i]) and br.getFacing(spikeList[i], "player", 45) then
+                                        if cast.serratedBoneSpike(spikeList[i]) then
+                                            return true
+                                        end
+                                    end
                                 end
-                            end
-                        end
-                        if comboDeficit == 2 and br.getFacing("target", "player", 45) then
-                            if cast.serratedBoneSpike("target") then
-                                return true
+                                if comboDeficit == 2 and br.getFacing("target", "player", 45) then
+                                    if cast.serratedBoneSpike("target") then
+                                        return true
+                                    end
+                                end
                             end
                         end
                     end
@@ -1725,7 +1733,7 @@ local function runRotation()
     enemies.get(8, "target") -- enemies.yards8t
     enemies.get(20)
     enemies.get(25, "player", true) -- makes enemies.yards25nc
-    enemies.get(30) -- Makes a variable called, enemies.yards40
+    enemies.get(30) -- Makes a variable called, enemies.yards30
     enemies.get(40) -- Makes a variable called, enemies.yards40
 
 
