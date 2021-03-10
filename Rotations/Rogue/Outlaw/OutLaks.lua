@@ -947,11 +947,11 @@ actionList.dps = function()
                             end
                         end
                     end
-                    if charges.serratedBoneSpike.count() > 0 then
+                    if charges.serratedBoneSpike.count() > 0 and br.getDebuffRemain("player", 342156) <= 3 then
                         local spikeList = enemies.get(30, "player", false, true) -- Makes a variable called, enemies.yards30
                         if #spikeList > 0 then
-                   --         ui.print("how many mobs? " .. tostring(#spikeList))
-                            if buff.sliceAndDice.exists("player") and (buff.bladeFlurry.exists("player") or #enemies.yards8 == 1)
+                            --         ui.print("how many mobs? " .. tostring(#spikeList))
+                            if (buff.bladeFlurry.exists("player") or #enemies.yards8 == 1)
                                     and comboDeficit >= 2 and not buff.opportunity.exists() then
                                 --[[
                                                                 if #spikeList > 1 then
@@ -963,13 +963,13 @@ actionList.dps = function()
                                                                 end
                                 ]]
                                 for i = 1, #spikeList do
-                                    if not debuff.serratedBoneSpikeDot.exists(spikeList[i]) and br.getFacing(spikeList[i], "player", 45) then
+                                    if not debuff.serratedBoneSpikeDot.exists(spikeList[i]) then
                                         if cast.serratedBoneSpike(spikeList[i]) then
                                             return true
                                         end
                                     end
                                 end
-                                if comboDeficit == 2 and br.getFacing("target", "player", 45) then
+                                if comboDeficit == 2 then
                                     if cast.serratedBoneSpike("target") then
                                         return true
                                     end
