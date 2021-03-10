@@ -953,15 +953,12 @@ actionList.dps = function()
                             --         ui.print("how many mobs? " .. tostring(#spikeList))
                             if (buff.bladeFlurry.exists("player") or #enemies.yards8 == 1)
                                     and comboDeficit >= 2 and not buff.opportunity.exists() then
-                                --[[
-                                                                if #spikeList > 1 then
-                                                                    table.sort(spikeList, function(x, y)
-                                                                        ui.print(x.hp)
-                                                                        return x.hp < y.hp
-                                                                    end
-                                                                    )
-                                                                end
-                                ]]
+                                if #spikeList > 1 then
+                                    table.sort(spikeList, function(x, y)
+                                        return br.getHP(x) < br.getHP(y)
+                                    end
+                                    )
+                                end
                                 for i = 1, #spikeList do
                                     if not debuff.serratedBoneSpikeDot.exists(spikeList[i]) then
                                         if cast.serratedBoneSpike(spikeList[i]) then
