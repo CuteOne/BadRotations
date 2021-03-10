@@ -154,10 +154,9 @@ local someone_casting = false
 local frame = br._G.CreateFrame("Frame")
 frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 local function reader()
-    local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = CombatLogGetCurrentEventInfo()
-    local unitType, zero, server_id, instance_id, zone_uid, npc_id, spawn_uid = strsplit("-",source);
-    if param == "SPELL_CAST_START" and unitType == "Creature" then
-        C_Timer.After(0.02, function()
+    local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = br._G.CombatLogGetCurrentEventInfo()
+    if param == "SPELL_CAST_START" and br._G.bit.band(sourceFlags, 0x00000800) > 0 then
+        br._G.C_Timer.After(0.02, function()
             someone_casting = true
         end)
     end
@@ -244,8 +243,8 @@ local function runRotation()
     enemies.get(25,"player",true) -- makes enemies.yards25nc
     enemies.get(30)
 
-    if timersTable then
-        wipe(timersTable)
+    if br.timersTable then
+        br._G.wipe(br.timersTable)
     end
 
     local tricksUnit
@@ -342,7 +341,7 @@ local function runRotation()
                 enemyUnit.distance = unit.distance(thisUnit)
                 enemyUnit.hpabs = br._G.UnitHealth(thisUnit)
                 enemyUnit.facing = unit.facing("player",thisUnit)
-                tinsert(enemyTable30, enemyUnit)
+                br._G.tinsert(enemyTable30, enemyUnit)
                 if highestHP == nil or highestHP < enemyUnit.hpabs then highestHP = enemyUnit.hpabs end
                 if lowestHP == nil or lowestHP > enemyUnit.hpabs then lowestHP = enemyUnit.hpabs end
                 if fightRemain == nil or fightRemain < enemyUnit.ttd then fightRemain = enemyUnit.ttd end
@@ -390,10 +389,10 @@ local function runRotation()
 
             if thisUnit.distance <= 10 then
                 if sStormIgnore[thisUnit.objectID] == nil and not isTotem(thisUnit.unit) then
-                    tinsert(enemyTable10, thisUnit)
+                    br._G.tinsert(enemyTable10, thisUnit)
                 end
                 if thisUnit.distance <= 5 then
-                    tinsert(enemyTable5, thisUnit)
+                    br._G.tinsert(enemyTable5, thisUnit)
                 end
                 if debuff.rupture.remain(thisUnit.unit) > 0.5 then ruptureCount = ruptureCount + 1 end
                 if br.getUnitID(thisUnit) == 175992 and thisUnit.distance <= 5 then br._G.TargetUnit(thisUnit) end
@@ -474,7 +473,7 @@ local function runRotation()
             end
             -- actions.precombat+=/stealth
             if ui.checked("Auto Stealth") and br._G.IsUsableSpell(br._G.GetSpellInfo(spell.stealth)) and not cast.last.vanish() and not br._G.IsResting() and
-            (botSpell ~= spell.stealth or (botSpellTime == nil or br._G.GetTime() - botSpellTime > 0.1)) then
+            (br.botSpell ~= spell.stealth or (br.botSpellTime == nil or br._G.GetTime() - br.botSpellTime > 0.1)) then
                 if ui.value("Auto Stealth") == 1 then
                     if cast.stealth("player") then return end
                 end
@@ -513,6 +512,7 @@ local function runRotation()
     local function actionList_Defensive()
         if br.useDefensive() then
             if ui.checked("Auto Defensive Unavoidables") then
+                local bossID = br.GetObjectID("boss1")
                 --Frozen Binds (4th boss NW)
                 if bossID == 162693 and br.isCastingSpell(320788, "boss1") and br.GetUnitIsUnit("player", br._G.UnitTarget("boss1")) and ui.checked("Cloak Unavoidables") then
                     if cd.cloakOfShadows.remain() > 2 then
@@ -525,7 +525,6 @@ local function runRotation()
                     if cast.vanish("player") then return true end
                 end
                 --Powder Shot (2nd boss freehold)
-                local bossID = br.GetObjectID("boss1")
                 if bossID == 126848 and br.isCastingSpell(256979, "target") and br.GetUnitIsUnit("player", br._G.UnitTarget("target")) then
                     if talent.elusiveness then
                         if cast.feint("player") then return true end
@@ -617,9 +616,9 @@ local function runRotation()
                         if cast.blind(interrupt_target) then return end
                     end
                 end
+                local interruptID, castStartTime
                 if ui.checked("Stuns") and distance < 5 and br.player.cast.timeRemain(interrupt_target) < br.getTTD(interrupt_target)  -- and isCrowdControlCandidates(interrupt_target)
                  and noStunList[br.GetObjectID(interrupt_target)] == nil and (not br.isBoss(interrupt_target) or stunList[interruptID]) and br.getBuffRemain(interrupt_target, 226510) == 0 then
-                    local interruptID, castStartTime
                     if br._G.UnitCastingInfo(interrupt_target) then
                         castStartTime = select(4,br._G.UnitCastingInfo(interrupt_target))
                         interruptID = select(9,br._G.UnitCastingInfo(interrupt_target))
@@ -785,7 +784,7 @@ local function runRotation()
             if cast.shadowDance("player") then return true end
         end
         -- actions.cds+=/potion,if=buff.bloodlust.react|fight_remains<30|buff.symbols_of_death.up&(buff.shadow_blades.up|cooldown.shadow_blades.remains<=10)
-        if cdUsage and ttd("target") > ui.value("CDs TTD Limit") and ui.checked("Potion") and (hasBloodLust() or (fightRemain < 30 and br.isBoss()) or (buff.shadowBlades.exists() or cd.shadowBlades.remain() <= 10)) then
+        if cdUsage and ttd("target") > ui.value("CDs TTD Limit") and ui.checked("Potion") and (br.hasBloodLust() or (fightRemain < 30 and br.isBoss()) or (buff.shadowBlades.exists() or cd.shadowBlades.remain() <= 10)) then
             if ui.value("Potion") == 1 and br.canUseItem(171349) then
                 br.useItem(171349)
             elseif ui.value("Potion") == 2 and br.canUseItem(171352) then
@@ -984,7 +983,7 @@ local function runRotation()
             for i = 1, #enemyTable10 do
                 local thisUnit = enemyTable10[i].unit
                 local buildersStorm = 0
-                if (talent.gloomblade and trait.perforate.rank >= 2 and not unit.facing(thisUnit,"player")) or br.isBoss(thisUnit) then buildersStorm = 1 else buildersStorm = 0 end
+                if (charges.serratedBoneSpike.frac() >= 2.75 or enemies10 > 4) then buildersStorm = 1 else buildersStorm = 0 end
                 if enemies10 >= (2 + buildersStorm) and ((not cast.last.vanish(1) or cast.last.shadowstrike(1)) and not buff.shadowDance.exists() and (not buff.symbolsOfDeath.exists() or charges.shadowDance.frac() < 1)) then
                     if cast.shurikenStorm("player") then return true end
                 end
@@ -1162,7 +1161,7 @@ local function runRotation()
 end -- End runRotation 
 local id = 261 --Change to the spec id profile is for.
 if br.rotations[id] == nil then br.rotations[id] = {} end
-tinsert(br.rotations[id],{
+br._G.tinsert(br.rotations[id],{
     name = rotationName,
     toggles = createToggles,
     options = createOptions,

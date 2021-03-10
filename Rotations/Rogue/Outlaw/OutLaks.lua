@@ -605,14 +605,6 @@ local function ambushCondition()
     end
 end
 
-local function echoStealth()
-    if covenant.kyrian.active and cd.echoingReprimand.ready() and mode.vanish == 1 and cd.vanish.ready() and mode.cov == 1 then
-        return true
-    else
-        return false
-    end
-end
-
 local function dps_key()
 
     -- popping CD's with DPS Key
@@ -702,13 +694,13 @@ function timers.time(name, fn)
     local time = timers._timers[name]
     if fn then
         if not time then
-            time = GetTime()
+            time = br._G.GetTime()
         end
     else
         time = nil
     end
     timers._timers[name] = time
-    return time and (GetTime() - time) or 0
+    return time and (br._G.GetTime() - time) or 0
 end
 
 local function getOutLaksTTD(ttd_time)
@@ -774,26 +766,20 @@ actionList.dps = function()
         end
     end
 
-    if br.isChecked("Group CD's with DPS key") and br.SpecificToggle("DPS Key") and not GetCurrentKeyBoardFocus() then
+    if br.isChecked("Group CD's with DPS key") and br.SpecificToggle("DPS Key") and not br._G.GetCurrentKeyBoardFocus() then
         dps_key()
     end
 
-    if (stealth or lastSpellCast == spell.vanish) and (ambush_flag or mode.ambush == 1 or echoStealth() or runeforge.markOfTheMasterAssassin.equiped) then
+    if (stealth or lastSpellCast == spell.vanish) and (ambush_flag or mode.ambush == 1 or runeforge.markOfTheMasterAssassin.equiped) then
         if actionList.Stealth() then
             return true
         end
     else
 
-        if mode.vanish == 1 and not stealth and cast.able.vanish() and echoStealth() and br.getCombatTime() > 4 then
-            if cast.vanish() then
-                return true
-            end
-        end
-
         --Print(units.dyn5 or talent.acrobaticStrikes and units.dyn8)
 
         --Auto attack
-        if not IsAutoRepeatSpell(br._G.GetSpellInfo(6603)) and #enemies.yards8 >= 1 then
+        if not br._G.IsAutoRepeatSpell(br._G.GetSpellInfo(6603)) and #enemies.yards8 >= 1 then
             br._G.StartAttack()
         end
         --[[
@@ -812,7 +798,7 @@ actionList.dps = function()
                     end
                 end]]
 
-        if not stealth and (ambushCondition() and not echoStealth()) and cd.vanish.remain() <= 0.2 and br.getDistance(units.dyn5) <= 5 and br.useCDs() and not cast.last.shadowmeld(1) and (br.GetUnitExists(units.dyn5) and (br.getBuffRemain(units.dyn5, 226510) == 0 or not br.isChecked("Cheap Shot")))
+        if not stealth and ambushCondition() and cd.vanish.remain() <= 0.2 and br.getDistance(units.dyn5) <= 5 and br.useCDs() and not cast.last.shadowmeld(1) and (br.GetUnitExists(units.dyn5) and (br.getBuffRemain(units.dyn5, 226510) == 0 or not br.isChecked("Cheap Shot")))
                 and #br.friend > 1 then
             ambush_flag = true
             if mode.vanish == 1 then
@@ -925,11 +911,6 @@ actionList.dps = function()
             if not stealth and not should_pool and not cast.last.vanish(1) and not cast.able.ambush(dynamic_target_melee) then
 
                 if mode.ambush == 1 and cast.able.ambush(dynamic_target_melee) then
-                    if cast.able.echoingReprimand(dynamic_target_melee) then
-                        if cast.echoingReprimand(dynamic_target_melee) then
-                            return true
-                        end
-                    end
                     if cast.ambush(dynamic_target_melee) then
                         return true
                     end
@@ -949,9 +930,7 @@ actionList.dps = function()
                         end
                     end
 
-                    --     Print(tostring((mode.vanish == 1 and echoStealth())))
-                    if cast.able.echoingReprimand(dynamic_target_melee) and not cast.able.ambush(dynamic_target_melee)
-                            and not (mode.vanish == 1 and echoStealth()) then
+                    if cast.able.echoingReprimand(dynamic_target_melee) and not cast.able.ambush(dynamic_target_melee) then
                         if cast.echoingReprimand(dynamic_target_melee) then
                             return true
                         end
@@ -1149,17 +1128,7 @@ actionList.Stealth = function()
             end
         end
 
-        if echoStealth() then
-            if cast.echoingReprimand(dynamic_target_melee) then
-                return true
-            end
-        end
         if mode.ambush == 1 then
-            if cast.able.echoingReprimand(dynamic_target_melee) then
-                if cast.echoingReprimand(dynamic_target_melee) then
-                    return true
-                end
-            end
             if cast.ambush(dynamic_target_melee) then
                 return true
             end
@@ -1490,7 +1459,7 @@ actionList.Interrupt = function()
                 --   Print(tostring(select(3, br._G.UnitCastID(thisUnit)) == br._G.ObjectPointer("player") or select(4, br._G.UnitCastID(thisUnit)) == br._G.ObjectPointer("player")) and castleft <= 1.5)
                 --   Print(br.GetUnitIsUnit("player", select(3, br._G.UnitCastID(thisUnit))))
 
-                local castleft = castEndTime - GetTime()
+                local castleft = castEndTime - br._G.GetTime()
                 if (select(3, br._G.UnitCastID(thisUnit)) == br._G.ObjectPointer("player") or select(4, br._G.UnitCastID(thisUnit)) == br._G.ObjectPointer("player")) and castleft <= 1.5 then
                     if mode.cloak == 1 and cloakList[interruptID] then
                         if cast.cloakOfShadows() then
@@ -1685,12 +1654,12 @@ end -- End Action List - PreCombat
 
 local someone_casting = false
 
-local frame = CreateFrame("Frame")
+local frame = br._G.CreateFrame("Frame")
 frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 local function reader()
-    local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = CombatLogGetCurrentEventInfo()
-    if param == "SPELL_CAST_START" and bit.band(sourceFlags, 0x00000800) > 0 then
-        C_Timer.After(0.02, function()
+    local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = br._G.CombatLogGetCurrentEventInfo()
+    if param == "SPELL_CAST_START" and br._G.bit.band(sourceFlags, 0x00000800) > 0 then
+        br._G.C_Timer.After(0.02, function()
             someone_casting = true
             --   Print(sourceName .. " is casting " .. spellName .. " - creature[" .. tostring(bit.band(sourceFlags, 0x00000800) > 0) .. "]")
         end)
@@ -1915,8 +1884,8 @@ local function runRotation()
                 auto_stealthed = nil
             end
         else
-            if br.isChecked("Auto Stealth") and IsUsableSpell(br._G.GetSpellInfo(spell.stealth)) and not cast.last.vanish() and not IsResting() and
-                    (br.botSpell ~= spell.stealth or (br.botSpellTime == nil or GetTime() - br.botSpellTime > 0.1)) then
+            if br.isChecked("Auto Stealth") and br._G.IsUsableSpell(br._G.GetSpellInfo(spell.stealth)) and not cast.last.vanish() and not br._G.IsResting() and
+                    (br.botSpell ~= spell.stealth or (br.botSpellTime == nil or br._G.GetTime() - br.botSpellTime > 0.1)) then
                 if br.getOptionValue("Auto Stealth") == 1 then
                     if cast.stealth() then
                         return
@@ -1967,7 +1936,7 @@ local function runRotation()
             if cd.global.remain() == 0 then
                 -- br.isValidUnit("target") and
                 if br.timersTable then
-                    wipe(timersTable)
+                    br._G.wipe(br.timersTable)
                 end
                 if actionList.Defensive() then
                     return true
@@ -1987,7 +1956,7 @@ local id = 260
 if br.rotations[id] == nil then
     br.rotations[id] = {}
 end
-tinsert(
+br._G.tinsert(
         br.rotations[id],
         {
             name = rotationName,
