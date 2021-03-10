@@ -3495,7 +3495,7 @@ end -- End Action List - PreCombat
         --------------------------
         --- In Combat Rotation ---
         --------------------------
-        if inCombat or spellQeueReady() and br.profileStop == false and br.isValidUnit("target") and br.getDistance("target") < 40 then
+        if inCombat or spellQueueReady() and br.profileStop == false and br.isValidUnit("target") and br.getDistance("target") < 40 then
             ------------------------------
             --- In Combat - Interrupts ---
             ------------------------------
