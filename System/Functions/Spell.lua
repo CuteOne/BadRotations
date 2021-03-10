@@ -133,7 +133,9 @@ function br.canInterrupt(unit,percentint)
 			 onWhitelist = true
 		end
 		-- Return when interrupt time is met
-		if ((br.isChecked("Interrupt Only Whitelist") and (onWhitelist or not (br.player.instance=="party" or br.player.instance=="raid"))) or not br.isChecked("Interrupt Only Whitelist")) then
+		if ((br.isChecked("Interrupt Only Whitelist") and (onWhitelist or not (br.player.instance=="party" or br.player.instance=="raid" or br.player.instance == "scenario")))
+			or not br.isChecked("Interrupt Only Whitelist"))
+		then
 			if castType == "spellcast" then
 				if math.ceil((castTimeRemain/castDuration)*100) <= castPercent and interruptable == true and br.getTTD(unit)>castTimeRemain then
 					return true
