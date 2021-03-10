@@ -6,11 +6,17 @@ end
 br.lists.interruptWhitelist = {
 	-- Torghast start
 	[258935] = true, -- Inner Flames
+	[329422] = true, -- Inner Flames
 	[330438] = true, -- Fearsome Howl
+	[298844] = true, -- Fearsome Howl
+	[320600] = true, -- Fearsome Howl
+	[297018] = true, -- Fearsome Howl
+	[332165] = true, -- Fearsome Shriek
 	[329608] = true, -- Terrifying Roar
 	[242391] = true, -- Terror
 	[330573] = true, -- Bounty of the Forest
 	[310392] = true, -- Intimidating Presence
+	[297310] = true, -- Steal Vitality
 	-- Torghast end
 	-- Castle Nathria start
 	[333002] = true, -- Vulgar Brand
@@ -200,7 +206,6 @@ br.lists.interruptWhitelist = {
 	[257791] = true, -- howling-fear
 	[258313] = true, -- handcuff
 	[258634] = true, -- fuselighter
-	[258935] = true, -- inner-flames
 	[274569] = true, -- revitalizing-mist
 	[272571] = true, -- choking-waters
 	[256957] = true, -- watertight-shell
