@@ -947,14 +947,16 @@ actionList.dps = function()
                             end
                         end
                     end
-                    if cast.able.serratedBoneSpike()
+                    if cast.able.serratedBoneSpike() and #enemies.yards30 > 0
                             and buff.sliceAndDice.exists("player") and (buff.bladeFlurry.exists("player") or #enemies.yards8 == 1)
                             and comboDeficit >= 2 and not buff.opportunity.exists() then
 
-                        table.sort(enemies.yards30, function(x, y)
-                            return x.hp < y.hp
+                        if #enemies.yards30 > 1 then
+                            table.sort(enemies.yards30, function(x, y)
+                                return x.hp < y.hp
+                            end
+                            )
                         end
-                        )
 
                         for i = 1, #enemies.yards30 do
                             if not debuff.serratedBoneSpikeDot.exists(enemies.yards30[i]) and br.getFacing(enemies.yards30[i], "player", 45) then
