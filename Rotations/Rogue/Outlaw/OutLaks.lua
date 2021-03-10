@@ -950,7 +950,7 @@ actionList.dps = function()
                     if charges.serratedBoneSpike.count() > 0 then
                         local spikeList = enemies.get(30, "player", false, true) -- Makes a variable called, enemies.yards30
                         if #spikeList > 0 then
-                            ui.print("how many mobs? " .. tostring(#spikeList))
+                   --         ui.print("how many mobs? " .. tostring(#spikeList))
                             if buff.sliceAndDice.exists("player") and (buff.bladeFlurry.exists("player") or #enemies.yards8 == 1)
                                     and comboDeficit >= 2 and not buff.opportunity.exists() then
                                 --[[
