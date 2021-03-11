@@ -1,5 +1,5 @@
 local rotationName = "KinkAffliction"
-local VerNum  = "2.1.4"
+local VerNum  = "2.1.5"
 local var = {} 
 local dsInterrupt = false
 
@@ -974,6 +974,148 @@ end
     var.drain_soul_channel_time = 5 / (1 + (br._G.UnitSpellHaste("player") / 100))
     var.drain_soul_tick_rate = var.drain_soul_channel_time / 5
 		
+    
+    --Tank/Healer move check for aoe
+    local tankMoving = false
+    local healerMoving = false
+    if inInstance then
+        for i = 1, #br.friend do
+            if (br.friend[i].role == "TANK" or br._G.UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and br.isMoving(br.friend[i].unit) then
+                tankMoving = true
+            elseif (br.friend[i].role == "HEALER" or br._G.UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER") and br.isMoving(br.friend[i].unit) then
+                healerMoving = true
+            end
+        end
+    end
+
+function _getMovingDirection(unit)
+	
+	local R = ObjectFacing(unit);
+	
+	local mod = 0;
+
+	local flags = UnitMovementFlags(unit)
+
+	if not flags then return false 
+	else flags = bit.band(flags, 0xF) end
+
+	if flags == 0x2 then
+		mod = math.pi;
+	elseif flags == 0x4 then
+		mod = math.pi * 0.5;
+	elseif flags == 0x8 then
+		mod = math.pi * 1.5;
+	elseif flags == bit.bor(0x1, 0x4) then
+		mod = math.pi * (1 / 8) * 2;
+	elseif flags == bit.bor(0x1, 0x8) then
+		mod = math.pi * (7 / 8) * 2;
+	elseif flags == bit.bor(0x2, 0x4) then
+		mod = math.pi * (3 / 8) * 2;
+	elseif flags == bit.bor(0x2, 0x8) then
+		mod = math.pi * (5 / 8) * 2;
+	end
+
+	return (R + mod) % (math.pi * 2);
+end
+GetMovingDirection = _getMovingDirection
+
+moving_towards_table = {}
+
+function _movingTowards(unit,amount,otherUnit,general,nostrafe)
+	if not unit then return false end
+	if not otherUnit then otherUnit="player" end
+	local amount = amount or .102
+	local X,Y,Z = ObjectPosition(unit);
+	local pX,pY,pZ = ObjectPosition(otherUnit);
+	local direction = _getMovingDirection(otherUnit);
+	local distance = GetUnitSpeed(otherUnit)*amount
+	if UnitIsVisible(unit) then
+		local yes = _distanceToCoord(pX + distance * math.cos(direction), pY + distance * math.sin(direction), pZ, X, Y, Z)+(GetUnitSpeed(otherUnit)/10) < _distanceToCoord(pX,pY,pZ,X,Y,Z);
+		local flags = {
+		1,
+		5,
+		9,
+		8,
+		4,
+		}
+		local playerflags = UnitMovementFlags("player") 
+		if yes and (not nostrafe or playerflags == 1 or playerflags == 5 or playerflags == 9) and (general or tContains(flags,playerflags)) then
+			for i=1,#moving_towards_table do
+				local m = moving_towards_table[i]
+				if m then
+					if m.unit == unit and m.amount == amount and m.otherUnit == otherUnit and m.general == general then
+						return true
+					end
+				end
+			end
+			table.insert(moving_towards_table,{unit=unit,amount=amount,otherUnit=otherUnit,general=general,time=GetTime()})
+			return true
+		else
+			for i=1,#moving_towards_table do
+				local m = moving_towards_table[i]
+				if m then
+					if m.unit == unit and m.amount == amount and m.otherUnit == otherUnit and m.general == general then
+						table.remove(moving_towards_table,i)
+					end
+				end
+			end
+		end
+	end
+end
+
+function moving_towards_unit_duration(unit,amount,otherUnit,general,directly,nostrafe)
+	if not otherUnit then otherUnit="player" end
+	local amount = amount or .102
+	for i=1,#moving_towards_table do
+		local m = moving_towards_table[i]
+		if m.unit == unit and m.amount == amount and m.otherUnit == otherUnit and m.general == general then
+			return GetTime()-m.time
+		end
+	end
+	return 0
+end
+
+function _movingAwayFrom(unit,amount,otherUnit,general,nostrafe)
+	if not otherUnit then otherUnit="player" end
+	local amount = amount or .102
+	local X,Y,Z = ObjectPosition(unit);
+	local pX,pY,pZ = ObjectPosition(otherUnit);
+	local direction = _getMovingDirection(otherUnit);
+	local distance = GetUnitSpeed(otherUnit)*amount
+	local yes = _distanceToCoord(pX + distance * math.cos(direction), pY + distance * math.sin(direction), pZ, X, Y, Z) > _distanceToCoord(pX,pY,pZ,X,Y,Z);
+	local flags = {
+	1,
+	5,
+	9
+	}
+	local playerflags = UnitMovementFlags(otherUnit) 
+	if yes and (not nostrafe or playerflags == 1) and (general or tContains(flags,playerflags)) then
+		return true
+	end
+end
+
+function predict_distance_from_unit(unit,time)
+	if not time then time = 1 end
+	local px,py,pz = PredictUnitPosition("player",time)
+	local x,y,z = PredictUnitPosition(unit,time)
+	if px and py and pz and x and y and z then
+		local d = GetDistanceBetweenPositions(px,py,pz,x,y,z)
+		return d
+	else
+		return -1
+	end
+end
+
+function moving_away_from(unit,extra)
+	extra = extra or 0
+	local d = _realDistance(unit)
+	if d < 5.5 and _amIfacing(unit) then return false end
+	if predict_distance_from_unit(unit) > d + extra then return true end
+end
+
+los_cache = {}
+
+
 local GetDSTicks = function()
 	local _, _, _, startTime, _, _, _, spellId = br._G.UnitChannelInfo("player")
 	if spellId == spell.drainSoul then
@@ -987,7 +1129,7 @@ end -- End Is DS Ticking APL
 local ClipDrainSoul = function()
 	if select(8, br._G.UnitChannelInfo('player')) == nil then return true end
     if select(8, br._G.UnitChannelInfo('player')) == spell.drainSoul then  
-	    if var.GetDSTicks() then  br._G.SpellStopCasting()
+	    if GetDSTicks() then br._G.SpellStopCasting()
             debug("[Action:Interrupt DS] Interrupting DS") 
             return true and br._G.SpellStopCasting()
         end
@@ -1718,7 +1860,7 @@ local function actionList_LevelingST()
         end
     end -- Multi-Dotting Disabled
     if not noDotCheck("target") and debuff.agony.remain("target") <= ui.value("Agony Refresh") and br.getTTD("target") > debuff.agony.remain("target") + (2/spellHaste) and (not isExhaust("target")) then
-            if cast.agony("target") then br.addonDebug("[Action:Leveling ST] Agony [ST-Refresh]") return true end
+        if cast.agony("target") then br.addonDebug("[Action:Leveling ST] Agony [ST-Refresh]") return true end
     end
     ------------------------------------------------
     -- Corruption ----------------------------------
@@ -2403,6 +2545,18 @@ apl.Rotation = function()
     --if #enemies.yards10t > 3 then
    --     if apl.AoE() then return end 
  --   end
+     ------.:|:.-----.:|:.-----.:|:.-----.:|:.-----
+    -- Haunt -------.:|:.-----.:|:.-----.:|:.-----
+    ------.:|:.-----.:|:.-----.:|:.-----.:|:.-----
+    -- actions+=/haunt
+    if not moving then 
+       -- if ClipDrainSoul() then 
+        if cast.haunt("target") then debug("[Action:Rotation] Haunt") return true end
+       -- end
+    end
+    if not moving and debuff.haunt.remains("target") <= 7 then
+        if cast.haunt("target") then debug("[Action:Rotation] Haunt") return true end
+    end
     ------.:|:.-----.:|:.-----.:|:.-----.:|:.-----
     -- Phantom Singularity ---.:|:.-----.:|:.-----
     ------.:|:.-----.:|:.-----.:|:.-----.:|:.-----
@@ -2439,11 +2593,11 @@ apl.Rotation = function()
         if apl.DarkGlarePrep() then return end 
     end
     ------.:|:.-----.:|:.-----.:|:.-----.:|:.-----
-    -- Haunt -------.:|:.-----.:|:.-----.:|:.-----
+    -- Agony -------.:|:.-----.:|:.-----.:|:.-----
     ------.:|:.-----.:|:.-----.:|:.-----.:|:.-----
     -- actions+=/agony,if=dot.agony.remains<4
-    if not moving and debuff.agony.exists("target") and debuff.agony.remains("target") < 4 then
-        if cast.agony("target") then debug("[Action:Rotation] Haunt") return true end 
+    if debuff.agony.exists("target") and debuff.agony.remains("target") < 4 then
+        if cast.agony("target") then debug("[Action:Rotation] Agony") return true end 
     end
     ------.:|:.-----.:|:.-----.:|:.-----.:|:.-----
     -- Agony -------.:|:.-----.:|:.-----.:|:.-----
@@ -2467,15 +2621,6 @@ apl.Rotation = function()
     if mode.md == 2 and not noDotCheck("target") and debuff.agony.remain("target") <= ui.value("Agony Refresh") and br.getTTD("target") > debuff.agony.remain("target") + (2/spellHaste) and (not isExhaust("target")) then
         --if ClipDrainSoul() then 
             if cast.agony("target") then br.addonDebug("[Action:Rotation] Agony [ST-Refresh]") return true end
-       -- end
-    end
-    ------.:|:.-----.:|:.-----.:|:.-----.:|:.-----
-    -- Haunt -------.:|:.-----.:|:.-----.:|:.-----
-    ------.:|:.-----.:|:.-----.:|:.-----.:|:.-----
-    -- actions+=/haunt
-    if not moving then 
-       -- if ClipDrainSoul() then 
-            if cast.haunt("target") then debug("[Action:Rotation] Haunt") return true end
        -- end
     end
     ------.:|:.-----.:|:.-----.:|:.-----.:|:.-----
@@ -2527,13 +2672,13 @@ apl.Rotation = function()
     ------.:|:.-----.:|:.-----.:|:.-----.:|:.-----
     -- actions+=/unstable_affliction,if=dot.unstable_affliction.remains<4
     if talent.rampantAfflictions then 
-        if not moving and (not lcast or GetTime() - lcast >= 2.5) and debuff.unstableAffliction2.remains("target") <= ui.value("UA Refresh") then
+        if not moving and br.timer:useTimer("UA Delay", 3) and debuff.unstableAffliction2.remains("target") <= ui.value("UA Refresh") then
          --   if ClipDrainSoul() then 
                 if br._G.CastSpellByName(GetSpellInfo(342938),"target") then br.addonDebug("[Action:Rotation] Unstable Affliction [Refresh]") lcast = GetTime() return true end
            -- end
         end
     else -- We don't have rampantAfflictions 
-        if not moving and (not lcast or GetTime() - lcast >= 2.5) and debuff.unstableAffliction.remains("target") < ui.value("UA Refresh") then 
+        if not moving and br.timer:useTimer("UA Delay", 3) and debuff.unstableAffliction.remains("target") < ui.value("UA Refresh") then 
             if cast.unstableAffliction("target") then br.addonDebug("[Action:Rotation] Unstable Affliction [Refresh]") lcast = GetTime() return true end
         end
     end
@@ -2776,11 +2921,11 @@ apl.Rotation = function()
     ------.:|:.-----.:|:.-----.:|:.-----.:|:.-----
     -- actions+=/unstable_affliction,if=refreshable
     if talent.rampantAfflictions then 
-        if not moving and (not lcast or GetTime() - lcast >= 3) and debuff.unstableAffliction2.refresh("target") then
+        if not moving and br.timer:useTimer("UA Delay", 3) and debuff.unstableAffliction2.refresh("target") then
             if br._G.CastSpellByName(GetSpellInfo(342938),"target") then br.addonDebug("[Action:Rotation] Unstable Affliction [Refresh]") lcast = GetTime() return true end
         end
     else -- We don't have rampantAfflictions 
-        if not moving and (not lcast or GetTime() - lcast >= 3) and debuff.unstableAffliction.refresh("target") then
+        if not moving and br.timer:useTimer("UA Delay", 3) and debuff.unstableAffliction.refresh("target") then
             if cast.unstableAffliction("target") then br.addonDebug("[Action:Rotation] Unstable Affliction [Refresh]") lcast = GetTime() return true end   
         end
     end
@@ -3125,6 +3270,11 @@ apl.drainSoulAoE = function()
     --- Drain Soul Clipped ---
     --------------------------
     if br._G.UnitChannelInfo("player") == GetSpellInfo(198590) then
+        if debuff.haunt.remains() <= 7 and not moving then
+            if cast.haunt("target") then br.addonDebug("[Action:Clipped AoE] Haunt [Refresh]") return true end
+        end
+    end
+    if br._G.UnitChannelInfo("player") == GetSpellInfo(198590) then
         if talent.rampantAfflictions then
             if not moving and (not lcast or GetTime() - lcast >= 2.5) and debuff.unstableAffliction2.remains("target") <= ui.value("UA Refresh") then
                 if br._G.CastSpellByName(GetSpellInfo(342938),"target") then br.addonDebug("[Action:Rotation] Unstable Affliction [Refresh]") lcast = GetTime() return true end
@@ -3220,6 +3370,11 @@ apl.drainSoulST = function()
     --------------------------
     --- Drain Soul Clipped ---
     --------------------------
+    if br._G.UnitChannelInfo("player") == GetSpellInfo(198590) then
+        if debuff.haunt.remains() <= 7 and not moving then
+            if cast.haunt("target") then br.addonDebug("[Action:Clipped AoE] Haunt [Refresh]") return true end
+        end
+    end
     if br._G.UnitChannelInfo("player") == GetSpellInfo(198590) then
         if talent.rampantAfflictions then
             if not moving and debuff.unstableAffliction2.remains("target") <= 6.3 and not cast.last.unstableAffliction2(1) and not cast.last.unstableAffliction2(2) and Line_cd(342938,3) then
@@ -3365,13 +3520,13 @@ end -- End Action List - PreCombat
     --- Begin Profile ---
     ---------------------
     -- Profile Stop | Pause
-    if not inCombat and not hastar and br.profileStop == true then
+    if not inCombat and not hastar and br.profileStop == true or br.SpecificToggle("Pause Mode") then
         br.profileStop = false
     elseif inCombat and br._G.IsAoEPending() then
         br._G.SpellStopTargeting()
         br.addonDebug("Canceling Spell")
         return false
-    elseif (inCombat and br.profileStop == true) or UnitIsAFK("player") or IsMounted() or IsFlying() or br.pause(true) or mode.rotation ==4 then
+    elseif (inCombat and br.profileStop == true) or UnitIsAFK("player") or IsMounted() or IsFlying() or br.pause(true) or mode.rotation ==4  then
         if not br.pause(true) and IsPetAttackActive() and br.isChecked("Pet Management") then
             br._G.PetStopAttack()
             br._G.PetFollow()
@@ -3405,9 +3560,6 @@ end -- End Action List - PreCombat
     if (not cast.current.drainLife() or (cast.current.drainLife() and php > 80)) then
         if actionList_Defensive() then return end
     end
-        -----------------------
-        --- Opener Rotation ---
-        -----------------------
         ---------------------------
         --- Pre-Combat Rotation ---
         ---------------------------
