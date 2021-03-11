@@ -1,5 +1,5 @@
 local rotationName = "KinkDestruction"
-local VerNum = "1.2.7"
+local VerNum = "1.2.8"
 local colorOrange = "|cffFF7C0A"
 ---------------
 --- Toggles ---
@@ -1729,14 +1729,20 @@ local function runRotation()
         end
     end
 
-    ---Target move timer
+    
+        --Clear last cast table ooc to avoid strange casts
+        if not inCombat and #br.lastCastTable.tracker > 0 then
+            wipe(br.lastCastTable.tracker)
+        end
+
+    --Target move timer
     if lastTargetX == nil then lastTargetX, lastTargetY, lastTargetZ = 0,0,0 end
-    targetMoveCheck = targetMoveCheck or false
-    if br.timer:useTimer("targetMove", 0.8) or combatTime < 0.2 then
-        if br.GetObjectExists("target") then
-            local currentX, currentY, currentZ = br._G.GetObjectPosition("target")
+        targetMoveCheck = targetMoveCheck or false
+        if br.timer:useTimer("targetMove", math.random(0.2,0.8)) or combatTime < 0.2 then
+            if br.GetObjectExists("target") then
+            local currentX, currentY, currentZ = br.GetObjectPosition("target")
             local targetMoveDistance = math.sqrt(((currentX-lastTargetX)^2)+((currentY-lastTargetY)^2)+((currentZ-lastTargetZ)^2))
-            lastTargetX, lastTargetY, lastTargetZ = br._G.GetObjectPosition("target")
+            lastTargetX, lastTargetY, lastTargetZ = br.GetObjectPosition("target")
             if targetMoveDistance < 3 then targetMoveCheck = true else targetMoveCheck = false end
         end
     end
