@@ -642,7 +642,7 @@ end -- End Action List - AOE Burst
 actionList.AOE = function()
     -- Wait for Cooldown - Soul Reaper
     -- wait_for_cooldown,name=soul_reaper,if=talent.soul_reaper&target.time_to_pct_35<5&fight_remains>5&cooldown.soul_reaper.remains<(gcd*0.75)&active_enemies<=3
-    if talent.soulReaper and unit.ttd(units.dyn5,35) < 5 and unit.ttdGroup(5) > 5 and cd.soulReaper.remains() < (unit.gcd(true) * 0.75) and #enemies.yards8 <= 3 then
+    if ui.alwaysCdNever("Soul Reaper") and talent.soulReaper and unit.ttd(units.dyn5,35) < 5 and unit.ttdGroup(5) > 5 and cd.soulReaper.remains() < (unit.gcd(true) * 0.75) and #enemies.yards8 <= 3 then
         ui.debug("Waiting for Soul Reaper [AOE]")
         return true
     end
@@ -850,7 +850,7 @@ local function runRotation()
     -- variable,name=pooling_runic_power,value=cooldown.summon_gargoyle.remains<5&talent.summon_gargoyle
     var.poolingRunicPower =  ui.alwaysCdNever("Summon Gargoyle") and cd.summonGargoyle.remain() < 5 and talent.summonGargoyle
     -- variable,name=pooling_runes,value=talent.soul_reaper&rune<2&target.time_to_pct_35<5&fight_remains>5
-    var.poolingRunes = talent.soulReaper and runes < 2 and unit.ttd(units.dyn5,30) < 5 and unit.ttdGroup(5) > 5
+    var.poolingRunes = ui.alwaysCdNever("Soul Reaper") and talent.soulReaper and runes < 2 and unit.ttd(units.dyn5,30) < 5 and unit.ttdGroup(5) > 5
     -- variable,name=st_planning,value=active_enemies=1&(!raid_event.adds.exists|raid_event.adds.in>15)
     var.stPlanning = ui.useST(8,2)
     -- variable,name=major_cooldowns_active,value=pet.gargoyle.active|buff.unholy_assault.up|talent.army_of_the_damned&pet.apoc_ghoul.active|buff.dark_transformation.up
@@ -991,7 +991,7 @@ local function runRotation()
                     if cast.outbreak(units.dyn25) then ui.debug("Casting Outbreak [Superstrain]") return true end
                 end
                 -- wait_for_cooldown,name=soul_reaper,if=talent.soul_reaper&target.time_to_pct_35<5&fight_remains>5&cooldown.soul_reaper.remains<(gcd*0.75)&active_enemies=1
-                if talent.soulReaper and unit.ttd(units.dyn5,35) < 5 and unit.ttdGroup(5) > 5 and cd.soulReaper.remains() < (unit.gcd(true) * 0.75) and #enemies.yards5 == 1 then
+                if ui.alwaysCdNever("Soul Reaper") and talent.soulReaper and unit.ttd(units.dyn5,35) < 5 and unit.ttdGroup(5) > 5 and cd.soulReaper.remains() < (unit.gcd(true) * 0.75) and #enemies.yards5 == 1 then
                     ui.debug("Waiting for Soul Reaper")
                     return true
                 end
