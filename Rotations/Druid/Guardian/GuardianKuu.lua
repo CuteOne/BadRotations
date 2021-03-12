@@ -1,4 +1,5 @@
 local rotationName = "Kuu"
+local wmbapi = _G.wmbapi
 ---------------
 --- Toggles ---
 ---------------
@@ -570,18 +571,27 @@ local function runRotation()
     local function actionList_OOC()
         -- Swiftmend
         if ui.checked("OOC Swiftmend") and php <= ui.value("OOC Swiftmend") and not inCombat and cast.able.swiftmend() then
+            if wmbapi then
+                unit.cancelForm()
+            end
             if cast.swiftmend("player") then
                 return
             end
         end
         -- Rejuvenation
         if ui.checked("OOC Rejuvenation") and php <= ui.value("OOC Rejuvenation") and not buff.rejuvenation.exists("player") and not inCombat and cast.able.rejuvenation() then
+            if wmbapi then
+                unit.cancelForm()
+            end
             if cast.rejuvenation("player") then
                 return
             end
         end
         -- Regrowth
         if ui.checked("OOC Regrowth") and not moving and php <= ui.value("OOC Regrowth") and not inCombat then
+            if wmbapi then
+                unit.cancelForm()
+            end
             if cast.regrowth("player") then
                 return
             end
@@ -592,6 +602,9 @@ local function runRotation()
                 if br._G.UnitInRange(br.friend[i].unit) then
                     local lowHealthCandidates = br.getUnitsToHealAround(br.friend[i].unit, 30, ui.value("OOC Wild Growth"), #br.friend)
                     if (#lowHealthCandidates >= ui.value("Friendly Targets")) and not moving then
+                        if wmbapi then
+                            unit.cancelForm()
+                        end
                         if cast.wildGrowth(br.friend[i].unit) then
                             return true
                         end
