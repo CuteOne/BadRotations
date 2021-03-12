@@ -1,9 +1,11 @@
 local rotationName = "KinkySpirit"
 local versionNum = "1.3.5"
 local colorPurple = "|cff8788EE"
-local colorOrange    = "|cffb28cc7"								   
+local colorOrange = "|cffb28cc7"	
+local colorWhite = "|cffffffff"							   
 local dreadstalkersActive, vilefiendActive, grimoireActive = false, false, false
 local dreadstalkersTime, vilefiendTime, grimoireTime, ppDb, castSummonId, opener, summonTime
+local DontDotUnits="171557"
 local var = {}
 ---------------
 --- Toggles ---
@@ -199,17 +201,27 @@ local function createOptions()
         -------------------------
 		---- GENERAL OPTIONS ----
 		-------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Demonology " .. ".:|:. " .. " General " .. "Ver " ..colorOrange .. versionNum .. colorPurple .." .:|:.")
+        section = br.ui:createSection(br.ui.window.profile, 
+        colorWhite .. "Demonology " 
+        .. colorPurple .. ".:|:. " 
+        .. colorWhite .. " General " 
+        .. colorWhite .. "Ver " 
+        .. colorOrange .. versionNum 
+        .. colorPurple .." .:|:.")
         -- APL
             br.ui:createDropdownWithout(section, "APL Mode", {"|cffb28cc7SimC"}, 1, "|cffb28cc7Set APL Mode to use.")
 		-- Multi-Target Units
 		br.ui:createSpinnerWithout(section, "Multi-Target Units", 3, 1, 25, 1, "|cffb28cc7Number of Targets to use Covenant at.")        
 		-- Burning Rush Health Cancel Percent
 		br.ui:createSpinnerWithout(section, "Burning Rush Health", 79, 1, 100, 1, "|cffb28cc7Health Percentage to cancel at.")
+        -- Auto target
+		br.ui:createCheckbox(section, "Auto Target", "|cffb28cc7 Will auto change to a new target, if current target is dead")
+        -- Auto Engage
+        br.ui:createCheckbox(section, "Auto Engage", "|cffb28cc7 Will auto engage combat when out of combat.")
+
 		-- Dummy DPS Test
 		br.ui:createSpinner(section, "DPS Testing", 5, 5, 60, 5, "|cffb28cc7Set to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
-		-- Pre-Pull Timer
-		br.ui:createCheckbox(section, "Pre-Pull Logic", "|cffb28cc7Will precast demonbolt on pull if pulltimer is active")
+
 		-- Corruption Torghast
         br.ui:createCheckbox(section,"Instant Corruption Torghast")
         -- Curse Of Tongues Torghast
@@ -217,26 +229,23 @@ local function createOptions()
 
 		-- Pet Management
         br.ui:createCheckbox(section, "Pet Management", "|cffb28cc7 Select to enable/disable auto pet management")
-        
+
+        -- Fel Domination
+        br.ui:createCheckbox(section, "Fel Domination", "|cffFFFFFF Toggle the auto casting of Fel Donmination")
         -- Fel Domination on low pet health
         br.ui:createCheckbox(section, "Fel Domination New Pet", "|cffFFBB00 Toggle the auto casting of Fel Donmination when your pet is low health.")
         -- Pet Summon 
         br.ui:createSpinnerWithout(section, "FelDom Pet HP", 8, 1, 100, 0.1, "|cffFFBB00Health percent of your pet to cast Fel Domination and re-summon your pet.")
 		-- Summon Pet
 		--br.ui:createDropdownWithout(section, "Summon Pet", {"|cffb28cc7Felguard", "|cffb28cc7Imp", "|cffb28cc7Voidwalker", "|cffb28cc7Felhunter", "|cffb28cc7Succubus", "|cffb28cc7None"}, 1, "|cffb28cc7Select default pet to summon.")
-		-- Life Tap
-		br.ui:createSpinner(section, "Life Tap HP Limit", 30, 0, 100, 5, "|cffb28cc7HP Limit that Life Tap will not cast below.")
 		-- No Dot units
 		br.ui:createCheckbox(section, "Dot Blacklist", "|cffb28cc7 Check to ignore certain units for dots")
-		-- Auto target
-		br.ui:createCheckbox(section, "Auto Target", "|cffb28cc7 Will auto change to a new target, if current target is dead")
-		-- Implosion Unit
+		-- Multi-Dot Limit
+		br.ui:createSpinnerWithout(section, "Multi-Dot Limit", 7, 1, 10, 1, "|cffb28cc7Unit Count Limit that DoTs will be cast on.")
+        -- Implosion Unit
         br.ui:createSpinnerWithout(section, "Implosion Units", 2, 1, 10, 1, "|cffb28cc7Minimum units to cast Implosion")
 		-- Implosion ST
 		br.ui:createCheckbox(section, "Implosion ST", "|cffb28cc7 Will cast Implosion on ST.")
-        
-		-- Multi-Dot Limit
-		br.ui:createSpinnerWithout(section, "Multi-Dot Limit", 7, 1, 10, 1, "|cffb28cc7Unit Count Limit that DoTs will be cast on.")
 		-- Bilescourge Bombers Target
 		br.ui:createDropdownWithout(section, "Bilescourge Bombers Target", {"|cffb28cc7Target", "|cffb28cc7Best"}, 2, "|cffb28cc7Bilescourge Bombers target")
 		-- Bilescourge Bombers Unit
@@ -245,8 +254,8 @@ local function createOptions()
         -------------------------
 		---- HOTKEYS OPTIONS ----
 		-------------------------
-		section = br.ui:createSection(br.ui.window.profile, "Affliction .:|:. Hotkeys")
-		            -- Summon Demonic Tyrant Key
+		section = br.ui:createSection(br.ui.window.profile, colorWhite .. "Demonology " .. colorPurple .. " .:|:." .. colorWhite .. "Hotkeys")
+		    -- Summon Demonic Tyrant Key
             br.ui:createDropdown(section, "Cooldowns", br.dropOptions.Toggle, 6)
             -- Summon Demonic Tyrant Key
             br.ui:createDropdown(section, "Summon Demonic Tyrant", br.dropOptions.Toggle, 6)
@@ -288,6 +297,8 @@ local function createOptions()
         br.player.module.BasicTrinkets(nil,section)
         -- Potion
         br.ui:createCheckbox(section, "Potion")
+        -- Pre-Pull Timer
+		br.ui:createCheckbox(section, "Pre-Pull Logic", "|cffb28cc7Will precast demonbolt on pull if pulltimer is active")
         -- Pre Pot
         br.ui:createCheckbox(section, "Pre Pot", "|cffb28cc7 Requires Pre-Pull logic to be active")
         -- FlaskUp Module
@@ -380,6 +391,7 @@ local function runRotation()
     local cast = br.player.cast
     local castable = br.player.cast.debug
     local combatTime = br.getCombatTime()
+    local conduit = br.player.conduit
     local cd = br.player.cd
     local debug = br.addonDebug
     local charges = br.player.charges
@@ -428,11 +440,44 @@ local function runRotation()
     local ui = br.player.ui
     local cl = br.read
 
-    units.get(40)
-    enemies.get(8, "target")
-    enemies.get(10, "target")
-    enemies.get(30)
-    enemies.get(40)
+
+        units.get(6)
+        units.get(8)
+        units.get(10)
+        units.get(12)
+        units.get(16)
+        units.get(25)
+        units.get(30)
+        units.get(40)
+        enemies.get(6)
+        enemies.get(8)
+        enemies.get(10)
+        enemies.get(10, "player", true)
+        enemies.get(12)
+        enemies.get(16)
+        enemies.get(18) -- Shifting Power
+        enemies.get(25)
+        enemies.get(30)
+        enemies.get(40)
+        enemies.get(6,"target")
+        enemies.get(8,"target")
+        enemies.get(10,"target")
+        enemies.get(12,"target")
+        enemies.get(16,"target")
+        enemies.get(18,"target") -- Shifting Power Target
+        enemies.get(25,"target")
+        enemies.get(30,"target")
+        enemies.get(40,"target")
+
+
+
+    -- Profile Specific Locals
+    if actionList_PetManagement == nil then
+        br.loadSupport("PetCuteOne")
+        actionList_PetManagement = br.rotations.support["PetCuteOne"]
+    end
+
+    if br.pauseTime == nil then br.pauseTime = GetTime() end
 
     if br.leftCombat == nil then
         br.leftCombat = GetTime()
@@ -447,6 +492,24 @@ local function runRotation()
         summonTime = 0
     end
 
+    local function isCC(unit)
+        if br.getOptionCheck("Don't break CCs") then return br.isLongTimeCCed(unit) end
+        return false
+    end
+
+    --ttd
+    -- spellqueue ready
+    local function spellQueueReady()
+        --Check if we can queue cast
+        local castingInfo = {br._G.UnitCastingInfo("player")}
+        if castingInfo[5] then
+            if (GetTime() - ((castingInfo[5] - tonumber(C_CVar.GetCVar("SpellQueueWindow")))/1000)) < 0 then
+                return false
+            end
+        end
+        return true
+    end
+
     --ttd
     local function ttd(unit)
         local ttdSec = br.getTTD(unit)
@@ -459,17 +522,6 @@ local function runRotation()
         return ttdSec
     end
 
-    -- spellqueue ready
-    local function spellQueueReady()
-        --Check if we can queue cast
-        local castingInfo = {br._G.UnitCastingInfo("player")}
-        if castingInfo[5] then
-            if (GetTime() - ((castingInfo[5] - tonumber(C_CVar.GetCVar("SpellQueueWindow")))/1000)) < 0 then
-                return false
-            end
-        end
-        return true
-    end
     -- Blacklist enemies
     local function isTotem(unit)
         local eliteTotems = {
@@ -488,41 +540,32 @@ local function runRotation()
         return false
     end
 
-    local coeUnits = {}
-    for i in string.gmatch(br.getOptionValue("Exhaustion Units"), "%d+") do
-        coeUnits[tonumber(i)] = true
-    end
 
-    local function isExhaust(unit)
-        if br.isChecked("Curse of Exhaustion") and exhaustionCount < ui.value("Curse of Exhaustion") and coeUnits[br.GetObjectID(unit)] then return true end 
-        return false
-    end
-
-    local noTouchUnits = {}
-    for i in string.gmatch(br.getOptionValue("No Touch Blacklist Units"), "%d+") do
-        noTouchUnits[tonumber(i)] = true
+    local noDotUnits = {}
+    for i in string.gmatch(br.getOptionValue("Dot Blacklist Units"), "%d+") do
+        noDotUnits[tonumber(i)] = true
     end
 
     local function noDotCheck(unit)
         if mode.dbl ~= 2 then
-            if br.isChecked("No Touch Blacklist") and (noTouchUnits[br.GetObjectID(unit)] or br._G.UnitIsCharmed(unit)) then
+            if (noDotUnits[br.GetObjectID(unit)] or br._G.UnitIsCharmed(unit)) then
                 return true
             end
+            if isTotem(unit) then
+                return true
+            end
+            local unitCreator = br._G.UnitCreator(unit)
+            if unitCreator ~= nil and br._G.UnitIsPlayer(unitCreator) ~= nil and br._G.UnitIsPlayer(unitCreator) == true then
+                return true
+            end
+            if br.GetObjectID(unit) == 137119 and br.getBuffRemain(unit, 271965) > 0 then
+                return true
+            end
+            return false
         end
-        if isTotem(unit) then
-            return true
-        end
-        local unitCreator = br._G.UnitCreator(unit)
-        if unitCreator ~= nil and br._G.UnitIsPlayer(unitCreator) ~= nil and br._G.UnitIsPlayer(unitCreator) == true then
-            return true
-        end
-        if br.GetObjectID(unit) == 137119 and br.getBuffRemain(unit, 271965) > 0 then
-            return true
-        end
-        return false
     end
 
-    --Defensive dispel whitelist, value is for range to allies on the unit you are dispelling
+ --Defensive dispel whitelist, value is for range to allies on the unit you are dispelling
     local dDispelList = {
         [255584] = 0, -- Molten Gold
         [255041] = 0, -- terrifying-screech
@@ -603,7 +646,7 @@ local function runRotation()
         return false
     end
 
-    --local enemies table with extra data
+--local enemies table with extra data
     local facingUnits = 0
     local enemyTable40 = {}
     if #enemies.yards40 > 0 then
@@ -686,6 +729,7 @@ local function runRotation()
         return false
     end
 
+    
     -- Pet Data
     if mode.petSummon == 1 and HasAttachedGlyph(spell.summonFelguard) then
         summonId = 58965
@@ -704,6 +748,8 @@ local function runRotation()
     elseif mode.petSummon == 5 then
         summonId = 1863
     end
+
+
 
     --Pet locals
     local wildImps = 0
@@ -769,7 +815,6 @@ local function runRotation()
     if vilefiendActive then
         vilefiendRemain = vilefiendTime - GetTime() + 12
     end
-
     --------------------
     --- Action Lists ---
     --------------------
@@ -966,12 +1011,6 @@ local function runRotation()
                     end
                 end
             end
-                    -- actions.implosion+=/summon_demonic_tyrant
-            if not moving then
-                if cast.summonDemonicTyrant("target") then ui.debug("[Action:Implosion] Summon Demonic Tyrant")
-                    return true
-                end
-            end
         end -- End useCDs check
     end -- End Action List - Cooldowns
 
@@ -1001,7 +1040,7 @@ local function runRotation()
 
     local function actionList_NetherPortalBuilding()
         
-
+    if spellQueueReady() then
         -- actions.nether_portal_building=nether_portal,if=so
         if not moving and shards >= 5 and (not talent.powerSiphon or buff.demonicCore.exists()) then
             if cast.netherPortal("target") then ui.debug("[Action:PortalBuilding] Nether Portal")
@@ -1037,24 +1076,27 @@ local function runRotation()
             return true
         end
     end
+    end
 
     local function actionList_NetherPortalActive()
-                local casttime = select(4,GetSpellInfo(172))
+    if spellQueueReady() then
+
+        local casttime = select(4,GetSpellInfo(172))
         --bilescourge_bombers
         if mode.bsb == 1 and mode.rotation ~= 3 then
-            if br.getOptionValue("Bilescourge Bombers Target") == 1 then
-                if (#enemies.yards8t >= br.getOptionValue("Bilescourge Bombers Units") or (br.isChecked("Ignore Bilescourge Bombers units when using CDs") and br.useCDs())) then
+            if getOptionValue("Bilescourge Bombers Target") == 1 then
+                if (#enemies.yards8t >= getOptionValue("Bilescourge Bombers Units") or (isChecked("Ignore Bilescourge Bombers units when using CDs") and br.useCDs())) then
                     if cast.bilescourgeBombers("target", "ground") then ui.debug("[Action:PortalActive] Bilescourge Bombers (Ground)")
                         return true
                     end
                 end
             else
-                if br.isChecked("Ignore Bilescourge Bombers units when using CDs") and br.useCDs() then
+                if isChecked("Ignore Bilescourge Bombers units when using CDs") and br.useCDs() then
                     if cast.bilescourgeBombers("best", false, 1, 8) then ui.debug("[Action:PortalActive] Bilescourge Bombers (Ignore Units)")
                         return true
                     end
                 else
-                    if cast.bilescourgeBombers("best", false, br.getOptionValue("Bilescourge Bombers Units"), 8) then ui.debug("[Action:PortalActive] Bilescourge Bombers (Best)")
+                    if cast.bilescourgeBombers("best", false, getOptionValue("Bilescourge Bombers Units"), 8) then ui.debug("[Action:PortalActive] Bilescourge Bombers (Best)")
                         return true
                     end
                 end
@@ -1111,12 +1153,12 @@ local function runRotation()
         -- actions.nether_portal_active+=/call_action_list,name=build_a_shard
         if actionList_BuildAShard() then
             return true
-        end
+        end 
+    end
     end
 
     local function actionList_NetherPortal()
-                local casttime = select(4,GetSpellInfo(172))
-
+        local casttime = select(4,GetSpellInfo(172))
         -- actions.nether_portal=call_action_list,name=nether_portal_building,if=cooldown.nether_portal.remains<20
         if cd.netherPortal.remain() < 20 then
             if actionList_NetherPortalBuilding() then
@@ -1132,11 +1174,11 @@ local function runRotation()
     end
 
     local function actionList_Implosion()
-
+    if spellQueueReady() then
                 local casttime = select(4,GetSpellInfo(172))
-        
+
         -- actions.implosion=implosion,if=(buff.wild_imps.stack>=6&(soul_shard<3|prev_gcd.1.call_dreadstalkers|buff.wild_imps.stack>=9|prev_gcd.1.bilescourge_bombers|(!prev_gcd.1.hand_of_guldan&!prev_gcd.2.hand_of_guldan))&!prev_gcd.1.hand_of_guldan&!prev_gcd.2.hand_of_guldan&buff.demonic_power.down)|(time_to_die<3&buff.wild_imps.stack>0)|(prev_gcd.2.call_dreadstalkers&buff.wild_imps.stack>2&!talent.demonic_calling.enabled)
-        if (wildImps >= 6 and (shards < 3 or cast.last.callDreadstalkers(1) or wildImps >= 9 or cast.last.bilescourgeBombers(1) or (not cast.last.handOfGuldan(1) or not cast.last.handOfGuldan(2))) and not cast.last.handOfGuldan(1) and not cast.last.handOfGuldan(2) and br.botSpell ~= spell.implosion and not buff.demonicPower.exists()) or (ttd("target") < 3 and wildImps > 0 and br.useCDs()) or (cast.last.callDreadstalkers(2) and wildImps > 2 and not talent.demonicCalling) then
+        if (wildImps >= 6 and (shards < 3 or cast.last.callDreadstalkers(1) or wildImps >= 9 or cast.last.bilescourgeBombers(1) or (not cast.last.handOfGuldan(1) or not cast.last.handOfGuldan(2))) and not cast.last.handOfGuldan(1) and not cast.last.handOfGuldan(2) and botSpell ~= spell.implosion and not buff.demonicPower.exists()) or (ttd("target") < 3 and wildImps > 0 and br.useCDs()) or (cast.last.callDreadstalkers(2) and wildImps > 2 and not talent.demonicCalling) then
             if cast.implosion("target") then ui.debug("[Action:Implosion] Implosion")
                 return true
             end
@@ -1185,19 +1227,19 @@ local function runRotation()
         end
         -- actions.implosion+=/bilescourge_bombers,if=cooldown.summon_demonic_tyrant.remains>9
         if mode.bsb == 1 and (cd.summonDemonicTyrant.remain() > 9 or not br.useCDs()) then
-            if br.getOptionValue("Bilescourge Bombers Target") == 1 then
-                if (#enemies.yards8t >= br.getOptionValue("Bilescourge Bombers Units") or (br.isChecked("Ignore Bilescourge Bombers units when using CDs") and br.useCDs())) then
+            if getOptionValue("Bilescourge Bombers Target") == 1 then
+                if (#enemies.yards8t >= getOptionValue("Bilescourge Bombers Units") or (isChecked("Ignore Bilescourge Bombers units when using CDs") and br.useCDs())) then
                     if cast.bilescourgeBombers("target", "ground") then ui.debug("[Action:Implosion] Bilescourge Bombers (Ground)")
                         return true
                     end
                 end
             else
-                if br.isChecked("Ignore Bilescourge Bombers units when using CDs") and br.useCDs() then
+                if isChecked("Ignore Bilescourge Bombers units when using CDs") and br.useCDs() then
                     if cast.bilescourgeBombers("best", false, 1, 8) then ui.debug("[Action:Implosion] Bilescourge Bombers (Ignore Units)")
                         return true
                     end
                 else
-                    if cast.bilescourgeBombers("best", false, br.getOptionValue("Bilescourge Bombers Units"), 8) then ui.debug("[Action:Implosion] Bilescourge Bombers (Best)")
+                    if cast.bilescourgeBombers("best", false, getOptionValue("Bilescourge Bombers Units"), 8) then ui.debug("[Action:Implosion] Bilescourge Bombers (Best)")
                         return true
                     end
                 end
@@ -1216,7 +1258,7 @@ local function runRotation()
             end
         end
         -- actions.implosion+=/doom,cycle_targets=1,max_cycle_targets=7,if=refreshable
-        if talent.doom and debuff.doom.count() < br.getOptionValue("Multi-Dot Limit") then
+        if talent.doom and debuff.doom.count() < getOptionValue("Multi-Dot Limit") then
             for i = 1, #enemyTable40 do
                 local thisUnit = enemyTable40[i].unit
                 if debuff.doom.refresh(thisUnit) then
@@ -1229,46 +1271,9 @@ local function runRotation()
         -- actions.implosion+=/call_action_list,name=build_a_shard
         if actionList_BuildAShard() then
             return true
-        end
+        end 
     end
-
-    local function actionList_DPS()
-        -- # Executed every time the actor is available.
-        -- actions=call_action_list,name=off_gcd
-        -- actions+=/run_action_list,name=tyrant_prep,if=cooldown.summon_demonic_tyrant.remains<4&!variable.tyrant_ready
-        -- actions+=/run_action_list,name=summon_tyrant,if=variable.tyrant_ready
-        -- actions+=/summon_vilefiend,if=cooldown.summon_demonic_tyrant.remains>40|time_to_die<cooldown.summon_demonic_tyrant.remains+25
-        -- actions+=/call_dreadstalkers
-        -- actions+=/doom,if=refreshable
-        -- actions+=/demonic_strength
-        -- actions+=/bilescourge_bombers
-        
-        -- actions+=/implosion,if=active_enemies>1&!talent.sacrificed_souls.enabled&buff.wild_imps.stack>=8&buff.tyrant.down&cooldown.summon_demonic_tyrant.remains>5
-       
-        -- actions+=/implosion,if=active_enemies>2&buff.wild_imps.stack>=8&buff.tyrant.down
-       
-        -- actions+=/hand_of_guldan,if=soul_shard=5|buff.nether_portal.up
-       
-        -- actions+=/hand_of_guldan,if=soul_shard>=3&cooldown.summon_demonic_tyrant.remains>20&(cooldown.summon_vilefiend.remains>5|!talent.summon_vilefiend.enabled)&cooldown.call_dreadstalkers.remains>2
-       
-        -- actions+=/call_action_list,name=covenant,if=(covenant.necrolord|covenant.night_fae)&!talent.nether_portal.enabled
-      
-        -- actions+=/demonbolt,if=buff.demonic_core.react&soul_shard<4
-      
-
-        -- actions+=/grimoire_felguard,if=cooldown.summon_demonic_tyrant.remains+cooldown.summon_demonic_tyrant.duration>time_to_die|time_to_die<cooldown.summon_demonic_tyrant.remains+15
-      
-        -- actions+=/use_items
-
-        -- actions+=/power_siphon,if=buff.wild_imps.stack>1&buff.demonic_core.stack<3
-
-        -- actions+=/soul_strike
-
-        -- actions+=/call_action_list,name=covenant
-
-        -- actions+=/shadow_bolt
     end
-
 
     local function actionList_CovenantSpells()
         ------------------------------------------------
@@ -1281,34 +1286,34 @@ local function runRotation()
             -- actions.covenant=impending_catastrophe,if=!talent.sacrificed_souls.enabled|active_enemies>1
             if covenant.venthyr.active and ttd("target") > 7 and spellUsable(321792) and select(2,GetSpellCooldown(321792)) <= gcdMax 
             and (not talent.sacrificedSouls or #enemies.yards10t > 1) then
-                if cast.impendingCatastrophe() then br.addonDebug("[Action:Rotation] Impending Catastrophe") return true end
+                if cast.impendingCatastrophe("target") then br.addonDebug("[Action:Rotation] Impending Catastrophe") return true end
             end
             ------------------------------------------------
             -- Impending Catastrophe : Venthyr -------------
             ------------------------------------------------
             if covenant.venthyr.active and spellUsable(321792) and select(2,GetSpellCooldown(321792)) <= gcdMax then
-                if cast.impendingCatastrophe() then br.addonDebug("[Action:AOE] Impending Catastrophe") return true end
+                if cast.impendingCatastrophe("target") then br.addonDebug("[Action:AOE] Impending Catastrophe") return true end
             end
             ------------------------------------------------
             -- Decimating Bolt : Necrolord -----------------
             ------------------------------------------------
             -- actions.covenant+=/decimating_bolt
             if covenant.necrolord.active and spellUsable(325289) and select(2,GetSpellCooldown(325289)) <= gcdMax then
-                if cast.decimatingBolt() then br.addonDebug("[Action:Rotation] Decimating Bolt") return true end
+                if cast.decimatingBolt("target") then br.addonDebug("[Action:Rotation] Decimating Bolt") return true end
             end    
             ------------------------------------------------
             -- Soul Rot : Night Fae ------------------------
             ------------------------------------------------
             -- actions.covenant+=/scouring_tithe,if=!talent.sacrificed_souls.enabled&active_enemies<4
             if covenant.nightFae.active and spellUsable(325640) and select(2,GetSpellCooldown(325640)) <= gcdMax and ttd("target") > 8
-            and br.useCDs() and #enemies.yards10t > 1 then
-                if cast.soulRot() then br.addonDebug("[Action:Rotation] Soul Rot (SOul Rot Active)") return true end
+            and br.useCDs() and #enemies.yards6t > 1 then
+                if cast.soulRot("target") then br.addonDebug("[Action:Rotation] Soul Rot (SOul Rot Active)") return true end
             end
             ------------------------------------------------
             -- Soul Rot ------------------------------------
             ------------------------------------------------
             if covenant.nightFae.active and ttd("target") > 8 and spellUsable(325640) and select(2,GetSpellCooldown(325640)) <= gcdMax then
-                if cast.soulRot() then br.addonDebug("[Action:AoE] Soul Rot") return true end
+                if cast.soulRot("target") then br.addonDebug("[Action:AoE] Soul Rot") return true end
             end 
             ------------------------------------------------
             -- Scouring Tithe : Kyrian ---------------------
@@ -1316,316 +1321,281 @@ local function runRotation()
             -- actions.covenant+=/scouring_tithe,if=talent.sacrificed_souls.enabled&active_enemies=1
             if covenant.kyrian.active and spellUsable(312321) and select(2,GetSpellCooldown(312321)) <= gcdMax
             and (talent.sacrificedSouls and #enemies.yards10t == 1) then
-                if cast.scouringTithe() then br.addonDebug("[Action:Rotation] Scouring Tithe") return true end
+                if cast.scouringTithe("target") then br.addonDebug("[Action:Rotation] Scouring Tithe") return true end
             end
             -- actions.covenant+=/scouring_tithe,if=!talent.sacrificed_souls.enabled&active_enemies<4
             if covenant.kyrian.active and spellUsable(312321) and select(2,GetSpellCooldown(312321)) <= gcdMax
             and (not talent.sacrificedSouls and #enemies.yards10t < 4) then
-                if cast.scouringTithe() then br.addonDebug("[Action:Rotation] Scouring Tithe") return true end
+                if cast.scouringTithe("target") then br.addonDebug("[Action:Rotation] Scouring Tithe") return true end
             end
-        end
-    end
-
-    local function actionList_OffGCD()
-        if spellQueueReady() then
-            if activePet then
-                -- actions.off_gcd+=/blood_fury,if=pet.demonic_tyrant.active
-                 -- actions.off_gcd+=/fireblood,if=pet.demonic_tyrant.active
-                -- actions.off_gcd=berserking,if=pet.demonic_tyrant.active
-                if br.isChecked("Racial") and race == "Troll" or race == "Orc" or race == "DarkIronDwarf" then
-                   if cast.racial("player") then debug("[Action:Dark Glare Prep] Racial") return true end
-                end
-
-            end
-            -- actions.off_gcd+=/potion,if=buff.berserking.up|pet.demonic_tyrant.active&!race.troll
-        end
-    end
-
-    local function actionList_TyrantPrep()
-        if spellQueueReady() then
-            -- actions.tyrant_prep=doom,line_cd=30
-            if not debuff.doom.exists("target") or debuff.doom.refresh("target") and ttd("target") > 30 and (#enemies.yards8t < 2 or mode.rotation == 3) and Line_cd(spell.doom,30) then
-                if cast.doom("target") then ui.debug("[Action:Rotation] Doom (3)")
-                    return true
-                end
-            end
-            -- actions.tyrant_prep+=/nether_portal
-            if talent.netherPortal and br.useCDs() and (#enemies.yards8t <= 2 or mode.rotation == 3) then
-                if actionList_NetherPortal() then return end
-            end
-            -- actions.tyrant_prep+=/grimoire_felguard
-            if mode.gf == 1 and br.useCDs() then
-                if cast.grimoireFelguard("target") then ui.debug("[Action:Tyrant Prep] Grimoire Felguard")
-                    return true
-                end
-            end
-            -- actions.tyrant_prep+=/summon_vilefiend
-            if not moving and br.useCDs() 
-            --and (cd.summonDemonicTyrant.remain() > 40 or cd.summonDemonicTyrant.remain() < 12) 
-            then
-                if cast.summonVilefiend("target") then ui.debug("[Action:Tyrant Prep] Summon Vilefiend")
-                    return true
-                end
-            end 
-            -- actions.tyrant_prep+=/call_dreadstalkers
-            if cast.callDreadstalkers("target") then ui.debug("[Action:Tyrant Prep] Call Dreadstalkers") return true end
-            -- actions.tyrant_prep+=/demonbolt,if=buff.demonic_core.up&soul_shard<4&(talent.demonic_consumption.enabled|buff.nether_portal.down)
-            if buff.demonicCore.react() and shards < 4 and (talent.demonicConsumption or not buff.netherPortal.react()) then
-                if cast.demonbolt("target") then ui.debug("[Action:Tyrant Prep] Demonbolt") return true end 
-            end
-            -- actions.tyrant_prep+=/soul_strike,if=soul_shard<5-4*buff.nether_portal.up
-            if shards < 5-4 * buff.netherPortal.remains() then
-                 if cast.shadowBolt("target") then ui.debug("[Action:Tyrant Prep] Shadow Bolt") return true end 
-            end
-            -- actions.tyrant_prep+=/shadow_bolt,if=soul_shard<5-4*buff.nether_portal.up
-            if not moving and shards < 5-4 * buff.netherPortal.remains() then
-                 if cast.shadowBolt("target") then ui.debug("[Action:Tyrant Prep] Shadow Bolt") return true end 
-            end
-            -- actions.tyrant_prep+=/variable,name=tyrant_ready,value=1
-            var.tyrant_ready = 1
-            -- actions.tyrant_prep+=/hand_of_guldan
-            if not moving and shards >= 2 then
-                if cast.handOfGuldan("target") then ui.debug("[Action:Tyrant Prep] HoG") return true end 
-            end
-        end
-    end
-
-    local function actionList_SummonTyrant()
-        if spellQueueReady() then 
-            -- actions.summon_tyrant=hand_of_guldan,if=soul_shard=5,line_cd=20
-            if not moving and shards >= 5 and Line_cd(spell.handOfGuldan,20) and not cast.last.handOfGuldan(1) and not cast.last.handOfGuldan(2) then
-                if cast.handOfGuldan("target") then ui.debug("[Action:Summon Tyrant] Demonbolt (DC, No NP, Line CD, 20) (1)")return true end 
-            end 
-            -- actions.summon_tyrant+=/demonbolt,if=buff.demonic_core.up&(talent.demonic_consumption.enabled|buff.nether_portal.down),line_cd=20
-            if buff.demonicCore.react() and (talent.demonicConsumption or not buff.netherPortal.react()) and Line_cd(spell.demonbolt,20) then
-                if cast.demonbolt("target") then ui.debug("[Action:Summon Tyrant] Demonbolt (DC, No NP, Line CD, 20) (2)")return true end 
-            end
-            -- actions.summon_tyrant+=/shadow_bolt,if=buff.wild_imps.stack+incoming_imps<4&(talent.demonic_consumption.enabled|buff.nether_portal.down),line_cd=20
-            if not moving and shards < 5 and wildImps < 4 and (talent.demonicConsumption or not buff.netherPortal.react()) and Line_cd(spell.shadowBolt,20) then
-                if cast.shadowBolt("target") then ui.debug("[Action:Summon Tyrant] Shadow Bolt (Line CD, 20) (3)")return true end 
-            end
-            -- actions.summon_tyrant+=/call_dreadstalkers
-            if not moving and ((cd.summonDemonicTyrant.remain() < 9 and buff.demonicCalling.exists()) or (cd.summonDemonicTyrant.remain() < 11 and not buff.demonicCalling.exists()) or cd.summonDemonicTyrant.remain() > 14) then
-                if cast.callDreadstalkers("target") then ui.debug("[Action:Summon Tyrant] Call Dreadstalkers (4)") return true end
-            end
-            -- actions.summon_tyrant+=/hand_of_guldan
-            if not moving and shards >= 2 then
-                if cast.handOfGuldan("target") then ui.debug("[Action:Summon Tyrant] HoG (5)") return true end 
-            end
-            -- actions.summon_tyrant+=/demonbolt,if=buff.demonic_core.up&buff.nether_portal.up&((buff.vilefiend.remains>5|!talent.summon_vilefiend.enabled)&(buff.grimoire_felguard.remains>5|buff.grimoire_felguard.down))
-            if buff.demonicCore.react() and buff.netherPortal.react()
-            and ((vilefiendRemain > 5 or not talent.summonVilefiend) and (grimoireRemain > 5 or not grimoireActive)) 
-            then
-                if cast.demonbolt("target") then ui.debug("[Action:Summon Tyrant] Demonbolt (Demonic Core/Nether Portal) (6)") return true end 
-            end
-            ------.:|:.-----.:|:.-----.:|:.-----.:|:.-----
-            -- Soul Strike -.:|:.-----.:|:.-----.:|:.-----
-            ------.:|:.-----.:|:.-----.:|:.-----.:|:.-----
-            -- actions.summon_tyrant+=/soul_strike,if=buff.nether_portal.up&((buff.vilefiend.remains>5|!talent.summon_vilefiend.enabled)&(buff.grimoire_felguard.remains>5|buff.grimoire_felguard.down))
-            var.felguardSpell = 30213 
-            var.wrathguardSpell = 115625
-            if talent.soulstrike
-            and br.GetUnitExists("pettarget")
-            and GetPetActionInfo(4) == GetSpellInfo(var.felguardSpell) or GetPetActionInfo(4) == GetSpellInfo(115625) 
-            and not br.GetUnitIsDeadOrGhost("pet")
-            and buff.netherPortal.react()
-            and ((vilefiendRemain > 5 or not talent.summonVilefiend) and (grimoireRemain > 5 or not grimoireActive)) 
-            then 
-                if cast.soulStrike("target") then ui.debug("[Action:Summon Tyrant] Soul Strike (Nether Portal) (7)") return true end 
-            end
-            -- actions.summon_tyrant+=/shadow_bolt,if=buff.nether_portal.up&((buff.vilefiend.remains>5|!talent.summon_vilefiend.enabled)&(buff.grimoire_felguard.remains>5|buff.grimoire_felguard.down))
-            if buff.netherPortal.react() and not moving 
-            and ((vilefiendRemain > 5 or not talent.summonVilefiend) and (grimoireRemain > 5 or not grimoireActive)) 
-            then
-                if cast.shadowBolt("target") then ui.debug("[Action:Summon Tyrant] Shadow Bolt (Nether Portal) (8)") return true end 
-            end
-            -- actions.summon_tyrant+=/variable,name=tyrant_ready,value=!cooldown.summon_demonic_tyrant.ready
-            var.tyrant_ready = not cd.summonDemonicTyrant.ready()
-            -- actions.summon_tyrant+=/summon_demonic_tyrant
-            if not moving and br.useCDs() then
-                 if cast.summonDemonicTyrant("target") then ui.debug("[Action:Summon Tyrant] Summon Demonic Tyrant (9)")
-                    return true
-                end
-            end
-            -- actions.summon_tyrant+=/shadow_bolt
-            if not moving and shards < 5 then
-                if cast.shadowBolt("target") then ui.debug("[Action:Summon Tyrant] Shadow Bolt (10)") return true end 
-           end 
         end
     end
 
     local function actionList_Rotation()
-        if spellQueueReady() then
-            -- actions=call_action_list,name=off_gcd
-            if actionList_OffGCD() then return end 
-            -- actions+=/run_action_list,name=tyrant_prep,if=cooldown.summon_demonic_tyrant.remains<4&!variable.tyrant_ready
-            if cd.summonDemonicTyrant.remains() < 4 then
-                if actionList_TyrantPrep() then return end 
+        if br.useCDs() then
+            if actionList_Cooldowns() then
+                return true
             end
-            -- actions+=/run_action_list,name=summon_tyrant,if=variable.tyrant_ready 
-            if cd.summonDemonicTyrant.remains() < 4 then 
-                if actionList_SummonTyrant() then return end 
+        end
+
+        local DisembodiedTongue = br.UnitBuffID("player", 322455)
+
+        if (GetRealZoneText() == "Torghast, Tower of the Damned" and DisembodiedTongue or DisembodiedTongueLearned == true) then 
+             for i = 1, #enemyTable40 do
+                local thisUnit = enemyTable40[i].unit
+                if debuff.curseOfTongues.refresh(thisUnit) then
+                    if cast.curseOfTongues(thisUnit) then ui.debug("[Action:Implosion] Torghast Tongues (Spreading)")
+                        DisembodiedTongueLearned = true 
+                        return true
+                    end
+                end
+            end
+        end
+        
+        local casttime = select(4,GetSpellInfo(172))
+        -- actions.implosion+=/doom,cycle_targets=1,max_cycle_targets=7,if=refreshable
+        if br.isChecked("Instant Corruption Torghast") and (GetRealZoneText() == "Torghast, Tower of the Damned" and casttime == 0) and debuff.corruption.count() < br.getOptionValue("Multi-Dot Limit") then
+            for i = 1, #enemyTable40 do
+                local thisUnit = enemyTable40[i].unit
+                if debuff.corruption.refresh(thisUnit) then
+                    if cast.corruption(thisUnit) then ui.debug("[Action:Implosion] Torghast Corruption (Spreading)")
+                        return true
+                    end
+                end
+            end
+        end
+        --
+        -- actions+=/hand_of_guldan,if=azerite.explosive_potential.rank&time<5&soul_shard>2&buff.explosive_potential.down&buff.wild_imps.stack<3&!prev_gcd.1.hand_of_guldan&&!prev_gcd.2.hand_of_guldan
+        if not moving and combatTime < 5 and shards > 2 and wildImps < 3 and not cast.last.handOfGuldan(1) and not cast.last.handOfGuldan(2) then
+            if cast.handOfGuldan("target") then ui.debug("[Action:Rotation] Hand of Guldan")
+                return true
+            end
+        end
+        -- actions+=/demonbolt,if=soul_shard<=3&buff.demonic_core.up&buff.demonic_core.stack=4
+        if shards < 4 and buff.demonicCore.exists() then
+            if cast.demonbolt("target") then ui.debug("[Action:Rotation] Demonbolt (Proc) ")
+                return true
+            end
+        end
+        -- actions+=/implosion,if=active_enemies>1&!talent.sacrificed_souls.enabled&buff.wild_imps.stack>=8&buff.tyrant.down&cooldown.summon_demonic_tyrant.remains>5
+        if br.isChecked("Implosion ST") and (#enemies.yards10t < 2 or mode.rotation == 3) and not talent.sacrificedSouls and wildImps >= 8 and not buff.demonicPower.exists() and cd.summonDemonicTyrant.remains() > 5 then
+            if cast.implosion("target") then ui.debug("[Action:Rotation] Implosion (Wild Imps >= 8)")
+                return true
+            end
+        end
+        -- actions+=/implosion,if=active_enemies>2&buff.wild_imps.stack>=8&buff.tyrant.down
+        -- actions+=/doom,if=!ticking&time_to_die>30&spell_targets.implosion<2
+        if not debuff.doom.exists("target") and ttd("target") > 30 and (#enemies.yards8t < 2 or mode.rotation == 3) then
+            if cast.doom("target") then ui.debug("[Action:Rotation] Doom")
+                return true
+            end
+        end
+        -- actions+=/demonic_strength,if=(buff.wild_imps.stack<6|buff.demonic_power.up)|spell_targets.implosion<2
+        if felguardActive and botSpell ~= spell.demonicStrength and br.useCDs() and (wildImps < 6 or buff.demonicPower.exists() or (#enemies.yards8t < 2 or mode.rotation == 3)) then
+            if cast.demonicStrength("target") then ui.debug("[Action:Rotation] Demonic Strength")
+                return true
+            end
+        end
+        -- actions+=/call_action_list,name=nether_portal,if=talent.nether_portal.enabled&spell_targets.implosion<=2
+        if talent.netherPortal and br.useCDs() and (#enemies.yards8t <= 2 or mode.rotation == 3) then
+            if actionList_NetherPortal() then
+                return true
+            end
+        end
+        -- actions+=/call_action_list,name=implosion,if=spell_targets.implosion>1
+        if mode.rotation ~= 3 and #enemies.yards8t >= br.getOptionValue("Implosion Units") then
+            if actionList_Implosion() then
+                return true
+            end
+        end
+        -- actions+=/grimoire_felguard,if=cooldown.summon_demonic_tyrant.remains<13|!equipped.132369
+        if mode.gf == 1 and br.useCDs() then
+            if cast.grimoireFelguard("target") then ui.debug("[Action:Rotation] Grimoire Felguard")
+                return true
+            end
+        end
+        -- actions+=/summon_vilefiend,if=equipped.132369|cooldown.summon_demonic_tyrant.remains>40|cooldown.summon_demonic_tyrant.remains<12
+        if not moving and br.useCDs() and (cd.summonDemonicTyrant.remain() > 40 or cd.summonDemonicTyrant.remain() < 12) then
+            if cast.summonVilefiend("target") then ui.debug("[Action:Rotation] Summon Vilefiend")
+                return true
+            end
+        end
+        -- actions+=/call_dreadstalkers,if=equipped.132369|(cooldown.summon_demonic_tyrant.remains<9&buff.demonic_calling.remains)|(cooldown.summon_demonic_tyrant.remains<11&!buff.demonic_calling.remains)|cooldown.summon_demonic_tyrant.remains>14
+        if not moving and ((cd.summonDemonicTyrant.remain() < 9 and buff.demonicCalling.exists()) or (cd.summonDemonicTyrant.remain() < 11 and not buff.demonicCalling.exists()) or cd.summonDemonicTyrant.remain() > 14) then
+            if cast.callDreadstalkers("target") then ui.debug("[Action:Rotation] Call Dreadstalkers")
+                return true
+            end
+        end
+        local dCTalent = 0
+        if talent.demonicConsumption then
+            dCTalent = 1
+        end
+        -- actions+=/summon_demonic_tyrant,if=equipped.132369|(buff.dreadstalkers.remains>cast_time&(buff.wild_imps.stack>=3+talent.inner_demons.enabled+talent.demonic_consumption.enabled*3|prev_gcd.1.hand_of_guldan&(!talent.demonic_consumption.enabled|buff.wild_imps.stack>=3+talent.inner_demons.enabled))&(soul_shard<3|buff.dreadstalkers.remains<gcd*2.7|buff.grimoire_felguard.remains<gcd*2.7))
+        --if not moving and br.useCDs() and (dreadstalkersRemain > cast.time.summonDemonicTyrant() and (wildImps >= (3) or (cast.last.handOfGuldan(1) and (not talent.demonicConsumption or wildImps >= 3))) and (shards < 3 or dreadstalkersRemain < gcdMax * 2.7 or grimoireRemain < gcdMax * 2.7)) then
+        if not moving and br.useCDs() and wildImps >= 3 and shards < 3 then
+            if (dreadstalkersActive or dreadstalkersRemain > cast.time.summonDemonicTyrant()) 
+            and (vilefiendActive or vilefiendRemain > cast.time.summonDemonicTyrant())
+            and (grimoireActive or grimoireRemain > cast.time.summonDemonicTyrant()) then
+                if cast.summonDemonicTyrant("target") then ui.debug("[Action:Rotation] Summon Demonic Tyrant (All)")
+                    return true
+                end
+            elseif (dreadstalkersActive or cd.callDreadstalkers.remains() >= gcdMax)
+            and (vilefiendActive or cd.summonVilefiend.remains() >= gcdMax)
+            and (grimoireActive or cd.grimoireFelguard.remains() >= gcdMax) then
+                if cast.summonDemonicTyrant("target") then ui.debug("[Action:Rotation] Summon Demonic Tyrant")
+                    return true
+                end
+            end
+        end
+        -- Talent Soul Strike
+        if not moving and br.useCDs() and talent.soulStrike and wildImps >= 3 and shards < 3 then
+            if (dreadstalkersActive or cd.callDreadstalkers.remains() >= gcdMax)
+            and (talent.summonVilefiend and (vilefiendActive or cd.summonVilefiend.remains() >= gcdMax) or not talent.summonVilefiend)
+            and (talent.grimoireFelguard and (grimoireActive or cd.grimoireFelguard.remains() >= gcdMax) or not talent.grimoireFelguard) then
+                if cast.summonDemonicTyrant("target") then ui.debug("[Action:Rotation] Summon Demonic Tyrant (DS)")
+                    return true
+                end
+            end
+        end
+        -- hotkey
+        if br.isChecked("Summon Demonic Tyrant") and br.SpecificToggle("Summon Demonic Tyrant") and not GetCurrentKeyBoardFocus() and not moving then
+            if cast.summonDemonicTyrant("target") then br.addonDebug("[Action:Rotation] Summon Demonic Tyrant (Hotkey)") return true end
+        end 
+        -- cooldowns hotkeys
+        if br.SpecificToggle("Cooldowns") and not GetCurrentKeyBoardFocus() and not moving then
+            if cast.summonDemonicTyrant("target") then br.addonDebug("[Action:Rotation] Summon Demonic Tyrant (Hotkey)") return true end
+            if cast.summonVilefiend("target") then br.addonDebug("[Action:Rotation] Summon Vilefiend (Hotkey)") return true end
+            if cast.grimoireFelguard("target") then br.addonDebug("[Action:Rotation] Grimoire Felguard (Hotkey)") return true end
+            if cast.callDreadstalkers("target") then br.addonDebug("[Action:Rotation] Call Dreadstalkers(Hotkey)") return true end
+            if wildImps <= 2 and buff.demonicCore.stack() <= 2 and not buff.demonicPower.exists() and (#enemies.yards8t < 2 or mode.rotation == 2) then
+                if cast.powerSiphon("target") then ui.debug("[Action:Rotation] Power Siphon (Hotkey)") return true end 
+            end
+            if cast.soulStrike("target") then ui.debug("[Action:Rotation] Soul Strike") return true end
+            if buff.demonicCore.exists() and (buff.demonicCore.stack() >= 0 or buff.demonicCore.remain() <= gcdMax * 5.7) then
+                if cast.demonbolt("target") then ui.debug("[Action:Implosion] Demonbolt (Proc)") return true end
+            end
+            if actionList_CovenantSpells() then return end 
+        end 
+        -- actions+=/power_siphon,if=buff.wild_imps.stack>=2&buff.demonic_core.stack<=2&buff.demonic_power.down&spell_targets.implosion<2
+        if wildImps <= 2 and buff.demonicCore.stack() <= 2 and not buff.demonicPower.exists() and (#enemies.yards8t < 2 or mode.rotation == 2) then
+            if cast.powerSiphon("target") then ui.debug("[Action:Rotation] Power Sipohn")
+                return true
+            end
+        end
+        -- actions+=/doom,if=talent.doom.enabled&refreshable&time_to_die>(dot.doom.remains+30)
+        if debuff.doom.refresh("target") and ttd("target") > (debuff.doom.remain() + 30) then
+            if cast.doom("target") then ui.debug("[Action:Rotation] Doom (Refresh)")
+                return true
+            end
+        end
+        -- actions+=/hand_of_guldan,if=soul_shard>=5|(soul_shard>=3&cooldown.call_dreadstalkers.remains>4&(!talent.summon_vilefiend.enabled|cooldown.summon_vilefiend.remains>3))
+        if not moving and not cast.last.handOfGuldan(1) and (shards >= 5 or (shards >= 3 and cd.callDreadstalkers.remain() > 4 and (not talent.summonVilefiend or cd.summonVilefiend.remain() > 3))) then
+            if cast.handOfGuldan("target") then ui.debug("[Action:Rotation] Hand of Guldan")
+                return true
+            end
+        end
+        --actions+=/power_siphon,if=buff.wild_imps.stack>1&buff.demonic_core.stack<3
+        if buff.demonicCore.stack() < 3 then
+            if cast.powerSiphon() then ui.debug("[Action:Rotation] Power Infusion")
+                return true
+            end
+        end
+        -- actions+=/soul_strike,if=soul_shard<5&buff.demonic_core.stack<=2
+        if shards < 5 and buff.demonicCore.stack() <= 2 and GetPetActionInfo(4) == GetSpellInfo(30213) then
+            if cast.soulStrike("target") then ui.debug("[Action:Rotation] Soul Strike")
+                return true
+            end
+        end
+
+        ------------------------------------------------
+        -- Covenants (Level 60) ------------------------
+        ------------------------------------------------
+        if level == 60 and not moving then
+            --actions.covenant=impending_catastrophe,if=cooldown.summon_darkglare.remains<10|cooldown.summon_darkglare.remains>50
+            ------------------------------------------------
+            -- Impending Catastrophe : Venthyr -------------
+            ------------------------------------------------
+            --321792
+            if covenant.venthyr.active and spellUsable(321792) and select(2,GetSpellCooldown(321792)) <= gcdMax then
+                if cast.impendingCatastrophe() then br.addonDebug("[Action:Rotation] Impending Catastrophe") return true end
+            end
+            ------------------------------------------------
+            -- Impending Catastrophe : Venthyr -------------
+            ------------------------------------------------
+            --321792
+            if covenant.venthyr.active and #enemies.yards10t >= ui.value("Multi-Target Units") and ttd("target") > 7 and spellUsable(321792) and select(2,GetSpellCooldown(321792)) <= gcdMax then
+                if cast.impendingCatastrophe() then br.addonDebug("[Action:AOE] Impending Catastrophe") return true end
+            end
+            --actions.covenant+=/decimating_bolt,if=cooldown.summon_darkglare.remains>5&(debuff.haunt.remains>4|!talent.haunt.enabled)
+            ------------------------------------------------
+            -- Decimating Bolt : Necrolord -----------------
+            ------------------------------------------------
+            if covenant.necrolord.active and spellUsable(325289) and select(2,GetSpellCooldown(325289)) <= gcdMax then
+                if cast.decimatingBolt() then br.addonDebug("[Action:Rotation] Decimating Bolt") return true end
+            end    
+
+            --actions.covenant+=/soul_rot,if=cooldown.summon_darkglare.remains<5|cooldown.summon_darkglare.remains>50|cooldown.summon_darkglare.remains>25&conduit.corrupting_leer.enabled
+            ------------------------------------------------
+            -- Soul Rot : Night Fae ------------------------
+            ------------------------------------------------
+            if covenant.nightFae.active and spellUsable(325640) and select(2,GetSpellCooldown(325640)) <= gcdMax and br.useCDs() then
+                if cast.soulRot() then br.addonDebug("[Action:Rotation] Soul Rot (SOul Rot Active)") return true end
+            end
+            ------------------------------------------------
+            -- Soul Rot ------------------------------------
+            ------------------------------------------------
+            if covenant.nightFae.active and #enemies.yards10t >= ui.value("Multi-Target Units") and ttd("target") > 7 and spellUsable(325640) and select(2,GetSpellCooldown(325640)) <= gcdMax then
+                if cast.soulRot() then br.addonDebug("[Action:AoE] Soul Rot") return true end
             end 
-            -- actions+=/summon_vilefiend,if=cooldown.summon_demonic_tyrant.remains>40|time_to_die<cooldown.summon_demonic_tyrant.remains+25
-            if not moving and br.useCDs() and (cd.summonDemonicTyrant.remain() > 40 or ttd("target") < cd.summonDemonicTyrant.remain() + 25) then
-                if cast.summonVilefiend("target") then ui.debug("[Action:Rotation] Summon Vilefien (1)")
-                    return true
-                end
+            ------------------------------------------------
+            -- Scouring Tithe : Kyrian ---------------------
+            ------------------------------------------------
+            if covenant.kyrian.active and spellUsable(312321) and select(2,GetSpellCooldown(312321)) <= gcdMax then
+                if cast.scouringTithe() then br.addonDebug("[Action:Rotation] Scouring Tithe") return true end
             end
-            -- actions+=/call_dreadstalkers
-            if not moving 
-            and ((cd.summonDemonicTyrant.remain() < 9 and buff.demonicCalling.exists()) or (cd.summonDemonicTyrant.remain() < 11 and not buff.demonicCalling.exists()) or cd.summonDemonicTyrant.remain() > 14) 
-            then
-                if cast.callDreadstalkers("target") then ui.debug("[Action:Rotation] Call Dreadstalkers (2)")
-                    return true
-                end
+        end
+        -- actions+=/demonbolt,if=soul_shard<=3&buff.demonic_core.up&((cooldown.summon_demonic_tyrant.remains<10|cooldown.summon_demonic_tyrant.remains>22)|buff.demonic_core.stack>=3|buff.demonic_core.remains<5|time_to_die<25)
+        if shards <= 3 and buff.demonicCore.exists() and (cd.summonDemonicTyrant.remain() < 10 or cd.summonDemonicTyrant.remain() > 22 or buff.demonicCore.stack() >= 3 or buff.demonicCore.remain() < 5 or ttd("target") < 25) then
+            if cast.demonbolt("target") then ui.debug("[Action:Rotation] Demonbolt (Proc)")
+                return true
             end
-            -- actions+=/doom,if=refreshable
-            if not debuff.doom.exists("target") or debuff.doom.refresh("target") and ttd("target") > 30 and (#enemies.yards8t < 2 or mode.rotation == 3) then
-                if cast.doom("target") then ui.debug("[Action:Rotation] Doom (3)")
-                    return true
+        end
+        -- actions+=/bilescourge_bombers
+        if mode.bsb == 1 and mode.rotation ~= 3 then
+            if br.getOptionValue("Bilescourge Bombers Target") == 1 then
+                if (#enemies.yards8t >= br.getOptionValue("Bilescourge Bombers Units") or (br.isChecked("Ignore Bilescourge Bombers units when using CDs") and br.useCDs())) then
+                    if cast.bilescourgeBombers("target", "ground") then ui.debug("[Action:Rotation] Bilescourge Bombers (Ground)")
+                        return true
+                    end
                 end
-            end
-            -- actions+=/demonic_strength
-            if felguardActive and br.botSpell ~= spell.demonicStrength and br.useCDs() or (#enemies.yards8t < 2 or mode.rotation == 3) then
-                if cast.demonicStrength("target") then ui.debug("[Action:Rotation] Demonic Strength (4)")
-                    return true
-                end
-            end
-            -- actions+=/bilescourge_bombers
-            if mode.bsb == 1 and mode.rotation ~= 3 then
-                if br.getOptionValue("Bilescourge Bombers Target") == 1 then
-                    if (#enemies.yards8t >= br.getOptionValue("Bilescourge Bombers Units") or (br.isChecked("Ignore Bilescourge Bombers units when using CDs") and br.useCDs())) then
-                        if cast.bilescourgeBombers("target", "ground") then ui.debug("[Action:Rotation] Bilescourge Bombers (Ground)")
-                            return true
-                        end
+            else
+                if br.isChecked("Ignore Bilescourge Bombers units when using CDs") and br.useCDs() then
+                    if cast.bilescourgeBombers("best", false, 1, 8) then ui.debug("[Action:Rotation] Bilescourge Bombers (Ignore Units)")
+                        return true
                     end
                 else
-                    if br.isChecked("Ignore Bilescourge Bombers units when using CDs") and br.useCDs() then
-                        if cast.bilescourgeBombers("best", false, 1, 8) then ui.debug("[Action:Rotation] Bilescourge Bombers (Ignore Units)")
-                            return true
-                        end
-                    else
-                        if cast.bilescourgeBombers("best", false, br.getOptionValue("Bilescourge Bombers Units"), 8) then ui.debug("[Action:Rotation] Bilescourge Bombers (Best)")
-                            return true
-                        end
+                    if cast.bilescourgeBombers("best", false, br.getOptionValue("Bilescourge Bombers Units"), 8) then ui.debug("[Action:Rotation] Bilescourge Bombers (Best)")
+                        return true
                     end
                 end
             end
-            -- actions+=/implosion,if=active_enemies>1&!talent.sacrificed_souls.enabled&buff.wild_imps.stack>=8&buff.tyrant.down&cooldown.summon_demonic_tyrant.remains>5
-            if br.isChecked("Implosion ST") and (#enemies.yards10t > 1 or mode.rotation == 3)
-            and not talent.sacrificedSouls 
-            and wildImps >= 8
-            and not tyrantActive
-            and cd.summonDemonicTyrant > 5 
-            then
-                if cast.implosion("target") then ui.debug("[Action:Rotation] Implosion (Wild Imps >= 8) (5)")
-                    return true 
-                end 
-            end
-            --if #enemies.yards10t > 1 and not talent.sacrificedSouls and wildImps >= 8 and 
-            -- actions+=/implosion,if=active_enemies>2&buff.wild_imps.stack>=8&buff.tyrant.down
-            if br.isChecked("Implosion ST") and (#enemies.yards10t > 2 or mode.rotation == 3)  
-            and wildImps >= 8
-            and not tyrantActive
-            then
-                if cast.implosion("target") then ui.debug("[Action:Rotation] Implosion (Wild Imps >= 8) (6)")
-                    return true
-                end
-            end
-            -- actions+=/hand_of_guldan,if=soul_shard=5|buff.nether_portal.up
-            if shards >= 5 and buff.netherPortal.react() 
-            or not talent.netherPortal 
-            and not moving
-            then
-                if cast.handOfGuldan("target") then ui.debug("[Action:Rotation] HoG (Shards>=5&BuffNetherPortal or not talented) (7)") return true end
-            end
-            -- actions+=/hand_of_guldan,if=soul_shard>=3&cooldown.summon_demonic_tyrant.remains>20&(cooldown.summon_vilefiend.remains>5|!talent.summon_vilefiend.enabled)&cooldown.call_dreadstalkers.remains>2
-            if shards >= 3 and cd.summonDemonicTyrant.remains() > 20 
-            and (cd.summonVilefiend.remains() > 5 or not talent.summonVilefiend) 
-            and cd.callDreadstalkers.remains() > 2 
-            and not moving and not cast.last.handOfGuldan(1)
-            then
-                if cast.handOfGuldan("target") then ui.debug("[Action:Rotation] HoG (Shards>=3&TyrantCD>20&VileCD>5&Stalkers>2) (8)") return true end 
-            end 
-           -- if not moving and not cast.last.handOfGuldan(1) and (shards >= 5 or (shards >= 3 and cd.callDreadstalkers.remain() > 4 and (not talent.summonVilefiend or cd.summonVilefiend.remain() > 3))) then
-          --      if cast.handOfGuldan("target") then ui.debug("[Action:Rotation] Hand of Guldan")
-            --        return true
-           --     end
-         --   end
-            -- actions+=/call_action_list,name=covenant,if=(covenant.necrolord|covenant.night_fae)&!talent.nether_portal.enabled
-            if (covenant.necrolord.active or covenant.nightFae.active) and not talent.netherPortal then
-                if actionList_CovenantSpells() then return end 
-            end
-            -- actions+=/demonbolt,if=buff.demonic_core.react&soul_shard<4
-            if shards < 4 and buff.demonicCore.react() then
-                if cast.demonbolt("target") then ui.debug("[Action:Rotation] Demonbolt (Demonic Core, Shards < 4) (9)") return true end 
-            end
-            -- actions+=/grimoire_felguard,if=cooldown.summon_demonic_tyrant.remains+cooldown.summon_demonic_tyrant.duration>time_to_die|time_to_die<cooldown.summon_demonic_tyrant.remains+15
-            if mode.gf == 1 and br.useCDs() and (cd.summonDemonicTyrant.remains() + cd.summonDemonicTyrant.duration() > ttd("target") or ttd("target") < cd.summonDemonicTyrant.remains() + 15)then
-                if cast.grimoireFelguard("target") then ui.debug("[Action:Rotation] Grimoire Felguard (9)")
-                    return true
-                end 
-            end
-            -- actions+=/use_items
-            ------.:|:.-----.:|:.-----.:|:.-----.:|:.-----
-            -- Power Siphon .:|:.-----.:|:.-----.:|:.-----
-            ------.:|:.-----.:|:.-----.:|:.-----.:|:.-----
-            -- actions+=/power_siphon,if=buff.wild_imps.stack>1&buff.demonic_core.stack<3
-            if wildImps > 1 and buff.demonicCore.stack() < 3 then
-                if cast.powerSiphon() then ui.debug("[Action:Rotation] Power Infusion (10)") return true end 
-            end
-            ------.:|:.-----.:|:.-----.:|:.-----.:|:.-----
-            -- Soul Strike -.:|:.-----.:|:.-----.:|:.-----
-            ------.:|:.-----.:|:.-----.:|:.-----.:|:.-----
-            var.felguardSpell = 30213 
-            var.wrathguardSpell = 115625
-            -- actions+=/soul_strike
-            if talent.soulstrike
-            and br.GetUnitExists("pettarget")
-            and GetPetActionInfo(4) == GetSpellInfo(var.felguardSpell) or GetPetActionInfo(4) == GetSpellInfo(115625) 
-            and not br.GetUnitIsDeadOrGhost("pet")
-            then 
-                if cast.soulStrike("target") then ui.debug("[Action:Rotation] Soul Strike (11)") return true end 
-            end  
-            ------.:|:.-----.:|:.-----.:|:.-----.:|:.-----
-            -- Covenant APL .:|:.-----.:|:.-----.:|:.-----
-            ------.:|:.-----.:|:.-----.:|:.-----.:|:.-----
-            -- actions+=/call_action_list,name=covenant
-            if actionList_CovenantSpells() then return end 
-
-            -- actions+=/shadow_bolt
-            if not moving and shards < 5 then if cast.shadowBolt("target") then ui.debug("[Action:Rotation] Shadow Bolt (12)") return true end end 
-
-          --  if br.useCDs() then if actionList_Cooldowns() then return end end
-            
-            var.DisembodiedTongue = br.UnitBuffID("player", 322455)
-            -- Instant Corruption | Torghast
-            if (GetRealZoneText() == "Torghast, Tower of the Damned" and var.DisembodiedTongue or var.DisembodiedTongueLearned == true) then 
-                for i = 1, #enemyTable40 do
-                    local thisUnit = enemyTable40[i].unit
-                    if debuff.curseOfTongues.refresh(thisUnit) then
-                        if cast.curseOfTongues(thisUnit) then ui.debug("[Action:Rotation] Torghast Tongues (Spreading) (13)")
-                            var.DisembodiedTongueLearned = true 
-                            return true
-                        end
-                     end
-                end   
-            end
-            -- Spread Tongues | Torghast
-            var.casttime = select(4,GetSpellInfo(172))
-            if br.isChecked("Instant Corruption Torghast") and (GetRealZoneText() == "Torghast, Tower of the Damned" and var.casttime == 0) and debuff.corruption.count() < br.getOptionValue("Multi-Dot Limit") then
-                for i = 1, #enemyTable40 do
-                    local thisUnit = enemyTable40[i].unit
-                    if debuff.corruption.refresh(thisUnit) then
-                        if cast.corruption(thisUnit) then ui.debug("[Action:Rotation] Torghast Corruption (Spreading) (14)")
-                            return true
-                        end
+        end
+        -- doom spread
+        if talent.doom and mode.rotation ~= 3 and debuff.doom.count() < br.getOptionValue("Multi-Dot Limit") then
+            for i = 1, #enemyTable40 do
+                local thisUnit = enemyTable40[i].unit
+                if debuff.doom.refresh(thisUnit) then
+                    if cast.doom(thisUnit) then ui.debug("[Action:Rotation] Doom Spread")
+                        return true
                     end
                 end
-            end 
-        end -- End Spell Queue Ready
-    end -- End Rotation | APL
+            end
+        end
+        -- actions+=/call_action_list,name=build_a_shard
+        if actionList_BuildAShard() then
+            return true
+        end
+    end
 
     local function actionList_CancelCast()
         local spellID = select(9, br._G.UnitCastingInfo("player"))
@@ -1791,6 +1761,7 @@ end
         end
     end
 
+
     local function actionList_PreCombat()
         -- Create Healthstone
         if not moving and not inCombat and ui.checked("Create Healthstone") then
@@ -1834,7 +1805,7 @@ end
     --- Begin Profile ---
     ---------------------
     -- Profile Stop | Pause
-    if not inCombat and not hastar and br.profileStop == true then
+    if not inCombat and not hastar and br.profileStop == true or  br.SpecificToggle("Pause Mode") then
         br.profileStop = false
     elseif inCombat and br._G.IsAoEPending() then
         br._G.SpellStopTargeting()
@@ -1895,12 +1866,13 @@ end
                 return
             end
         end
+         if actionList_CancelCast() then return end
         --------------------------
         --- In Combat Rotation ---
         --------------------------
         --br.getFacing("player","target") == true 
-        if inCombat and br.profileStop == false and br.isValidUnit("target") and br.getDistance("target") < 40 and (not cast.current.drainLife() or (cast.current.drainLife() and php > 80)) then
-            if actionList_CancelCast() then return end
+                if inCombat or spellQueueReady() and br.profileStop == false and br.isValidUnit("target") and br.getDistance("target") < 40 then
+        
             ------------------------------
             --- In Combat - Interrupts ---
             ------------------------------
