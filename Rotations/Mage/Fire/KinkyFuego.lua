@@ -1,8 +1,12 @@
 local rotationName = "KinkyFuego"
-local rotationVersion = "1.3.2"
+local rotationVersion = "1.3.3"
 local colorRed = "|cffFF0000"
 local colorWhite = "|cffffffff"
 
+--local AddonName, KMR = ...
+--local L = KMR.L
+local mainFrameStrata = "HIGH"
+local canvasDrawLayer = "BORDER"
 local InterruptCast = false 
 local var = {}
 
@@ -10,8 +14,8 @@ local var = {}
 if not var.kinky_tracker then 
     var.kinky_tracker = {} 
 end
-if not var.intBuffs then intBufs = 0 end 
-if not var.hasteBuffs then hasteBuffs = 0 end
+if not var.intBuffs then intBufs = 0; end 
+if not var.hasteBuffs then hasteBuffs = 0; end
 ---------------
 --- Toggles ---
 ---------------
@@ -98,6 +102,7 @@ local function createOptions()
         -- Pre-Pull Timer
             br.ui:createSpinner(section, "Pre-Pull",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
 
+            br.ui:createCheckbox(section,"Auto Target")
         -- Out of Combat Attack
             br.ui:createCheckbox(section,"Pull OoC", "Check to Engage the Target out of Combat.")
         br.ui:checkSectionState(section)
@@ -141,6 +146,8 @@ local function createOptions()
                        
             -- Covenant TTD
             br.ui:createSpinnerWithout(section, "Covenant TTD", 8, 1, 15, 1, "The TTD before casting your covenant ability default:8)")
+
+            br.ui:createSpinnerWithout(section,"Combustion Standing Time",  1.5,  1,  10,  0.1, "Min Standing Time before casting Combustion. default:1.5)")
 
         -- Elixir
             br.ui:createDropdownWithout(section,"Elixir", {"Greater Flask of Endless Fathoms","Flask of Endless Fathoms","None"}, 1, "|cffFFFFFFSet Elixir to use.")
@@ -248,6 +255,8 @@ local function createOptions()
             br.ui:createDropdown(section, "Interrupt Mode", br.dropOptions.Toggle,  6)
         -- Pause Toggle
             br.ui:createDropdown(section, "Pause Mode", br.dropOptions.Toggle,  6)
+        -- Couterspell
+            br.ui:createCheckbox(section, "Dev Debug")
         br.ui:checkSectionState(section)
     end
   
@@ -493,11 +502,55 @@ local function runRotation()
             --if val == nil then val = 0; end
             return val ~= 0
         end
+--[[
+        local sizex = 840
+        local sizey = 555
 
-        
+        var.mythicColor = "|cFFFFFFFF"
+        var.KMR.BackdropColor = { 0.058823399245739, 0.058823399245739, 0.058823399245739, 0.9}
+
+        local AceGUI = LibStub("AceGUI-3.0")
+        local db
+        local icon = LibStub("LibDBIcon-1.0")
+        local LDB = LibStub("LibDataBroker-1.1"):NewDataObject("MythicDungeonTools", {
+    	type = "data source",
+	    text = "Kinky Slave Dungeon Tools",
+	    icon = "Interface\\ICONS\\inv_relics_hourglass",
+	    OnClick = function(button,buttonPressed)
+		if buttonPressed == "RightButton" then
+			if db.minimap.lock then
+				icon:Unlock("KinkyDungeonTools")
+			else
+				icon:Lock("KinkyDungeonTools")
+			end
+		else
+			KMR:ShowInterface()
+		end
+	end,
+	OnTooltipShow = function(tooltip)
+		if not tooltip or not tooltip.AddLine then return end
+		tooltip:AddLine(var.mythicColor .."Kinky Slave Dungeon Tools|r")
+		tooltip:AddLine(L["Click to toggle AddOn Window"])
+		tooltip:AddLine(L["Right-click to lock Minimap Button"])
+	end,
+})
+
+
+        function MDT.PLAYER_ENTERING_WORLD(self, addon)
+        --initialize Blizzard_ChallengesUI
+        C_Timer.After(1,function()
+            LoadAddOn("Blizzard_ChallengesUI")
+            C_MythicPlus.RequestCurrentAffixes()
+            C_MythicPlus.RequestMapInfo()
+            C_MythicPlus.RequestRewards()
+        end)
+        self:UnregisterEvent("PLAYER_ENTERING_WORLD")
+    end]]
 function cl:Mage(...)
     if GetSpecialization() == 2 then
             local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = CombatLogGetCurrentEventInfo()
+
+            
 
             -- Declare our Tracker variables. 
             if var.fireball_crit == nil then var.fireball_crit = 0; end 
@@ -577,14 +630,35 @@ function cl:Mage(...)
                 end
             end]]
             
+
+            if param == "COMBAT_LOG_EVENT_UNFILTERED" then
+	     	    local subParam		= select(2, ...)
+		        local source		= select(5, ...)
+		        local destGUID		= select(8, ...)
+		        local destination	= select(9, ...)
+		        local spellID		= select(12, ...)
+		        local spell			= select(13, ...)
+		        local damage		= select(15, ...)
+		        local critical		= select(21, ...)
+
+	     	    -- Unit Death events
+		 	    if subParam == "UNIT_DIED" then
+			 	    -- A unit has died, is it in our tracker?
+			 	    if #kinky_tracker > 0 then
+				 	    for i=1,#kinky_tracker do
+					 	    if kinky_tracker[i].guid == destGUID then tremove(kinky_tracker, i) return true end
+				 	    end
+			     	end
+		     	end
+            end
+
+
             ------.:|:.-----.:|:.-----.:|:.-----.:|:.-----
             -- Proc Tracker .:|:.-----.:|:.-----.:|:.-----
             ------.:|:.-----.:|:.-----.:|:.-----.:|:.-----
             if param == "SPELL_DAMAGE" 
             and source == br.guid 
             then
-                local damage		= select(15, ...)
-		        local critical		= select(21, ...)
                 ------.:|:.-----.:|:.-----.:|:.-----.:|:.-----
                 -- Fireball Critical Tracker -------.:|:.-----
                 ------.:|:.-----.:|:.-----.:|:.-----.:|:.-----
@@ -608,6 +682,15 @@ function cl:Mage(...)
             end -- End SPELL_DAMAGE - Event
 
 
+            
+            var.igniteCount = 0;
+		    -- Periodic Damage Events
+		    if param == "SPELL_PERIODIC_DAMAGE" then
+            end
+		    -- Ignite spotted...
+			if UnitName("player") == source and destination == UnitName("target") then
+				if spell == 12654 then IgniteDamage = damage end
+			end
             --if param == "SPELL_AURA_REMOVED" 
            -- and source == br.guid 
            -- then
@@ -671,6 +754,7 @@ end
         -- # Check if we have any of these items in the designerGear table, and see if the homie is dripped down to his socks or not by keeping count of just how FUGGGGINNNN SEXY HE IS 
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         -- actions.precombat+=/variable,name=combustion_on_use,op=set,value=equipped.gladiators_badge|equipped.macabre_sheet_music|equipped.inscrutable_quantum_device|equipped.sunblood_amethyst|equipped.empyreal_ordnance|equipped.flame_of_battle|equipped.wakeners_frond|equipped.instructors_divine_bell
+        var.combustion_on_use = false; 
         var.onUseTrinkets = {
         178386, -- Gladiator's Insignia of Alacrity -- Intellect
         -----------------------------------------------------------------------------------------------------------------------
@@ -708,8 +792,6 @@ end
         -----------------------------------------------------------------------------------------------------------------------
         184019 -- Soul Ignitor
         }
-
-        var.big_dick_energy    = 0;
         local function on_use_trinkets(tbl)
 	        for i=1,#var.onUseTrinkets do
                 var.big_dick_energy = tbl[i];
@@ -717,9 +799,14 @@ end
 	        end
 	        return var.big_dick_energy or 0 
         end
-
+        -- Determine how many on use trinkets we have equipped. 
+        if var.big_dick_energy == nil and on_use_trinkets(var.onUseTrinkets) > 0 then
+            -- Set BDE's variable's count to 0, 1 or 2. 
+            var.big_dick_energy = on_use_trinkets(var.onUseTrinkets);
+        elseif on_use_trinkets(var.onUseTrinkets) > 1 then 
+            var.big_dick_energy = on_use_trinkets(var.onUseTrinkets);
+        end
         var.mythicDeathCount = C_ChallengeMode.GetDeathCount() or 0
-
 
         var.trinket1                                                                            = GetInventoryItemID("player", 13);
         var.trinket2                                                                            = GetInventoryItemID("player", 14);
@@ -807,27 +894,27 @@ end
         -- # Variable that controls Phoenix Flames usage to ensure its charges are pooled for Combustion.
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         -- actions+=/variable,name=phoenix_pooling,op=set,value=variable.time_to_combustion<action.phoenix_flames.full_recharge_time-action.shifting_power.full_reduction*variable.shifting_power_before_combustion&variable.time_to_combustion<fight_remains|runeforge.sun_kings_blessing|time<5
-        var.phoenix_pooling                                                                     = var.time_to_combustion < charges.phoenixFlames.timeTillFull()-4*var.num(var.shifting_power_before_combustion) and var.time_to_combustion < ttd("target") or runeforge.sunKingsBlessings or combatTime < 5;
-       --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        var.phoenix_pooling                                                                     = var.time_to_combustion < charges.phoenixFlames.timeTillFull()-4*var.num(var.shifting_power_before_combustion) and var.time_to_combustion < ttd("target") or combatTime < 5;
+        --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         -- # Adjust the variable that controls Fire Blast usage to ensure its charges are also pooled for Rune of Power.
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         -- actions+=/variable,use_off_gcd=1,use_while_casting=1,name=fire_blast_pooling,op=set,value=cooldown.rune_of_power.remains<action.fire_blast.full_recharge_time-action.shifting_power.full_reduction*(variable.shifting_power_before_combustion&cooldown.shifting_power.remains<cooldown.rune_of_power.remains)&cooldown.rune_of_power.remains<fight_remains,
         -- if=!variable.fire_blast_pooling&talent.rune_of_power&buff.rune_of_power.down
         if not var.fire_blast_pooling --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         and talent.runeOfPower and not buff.runeOfPower.react() then 
-        var.on_use_cutoff                                                                       = buff.runeOfPower.exists() and cd.runeOfPower.remains() < charges.fireBlast.timeTillFull()-4*(var.num(var.shifting_power_before_combustion) and cd.shiftingPower.remains() < cd.runeOfPower.remains() and cd.runeOfPower.remains() < ttd("target")); end                  
+        var.on_use_cutoff                                                                       = buff.runeOfPower.exists() and cd.runeOfPower.remains() < charges.fireBlast.timeTillFull()-3.4*(var.num(var.shifting_power_before_combustion) and cd.shiftingPower.remains() < cd.runeOfPower.remains() and cd.runeOfPower.remains() < ttd("target")); end                  
         ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         -- spellqueue ready
         local function spellQueueReady()
             --Check if we can queue cast
             local castingInfo = {br._G.UnitCastingInfo("player")}
-           if castingInfo[5] then
-            if (GetTime() - ((castingInfo[5] - tonumber(C_CVar.GetCVar("SpellQueueWindow")))/1000)) < 0 then
-                return false
+            if castingInfo[5] then
+                if (GetTime() - ((castingInfo[5] - tonumber(C_CVar.GetCVar("SpellQueueWindow")))/1000)) < 0 then
+                    return false
+                end
             end
+            return true
         end
-        return true
-    end
 
         local standingTime = 0
         if br.DontMoveStartTime then
@@ -854,32 +941,13 @@ end
         local spellPower = GetSpellBonusDamage(5)
         local spMod
         local dmg = 0
-        local frostMageDmg = 0.81
-        if spellID == spell.frostbolt then
-            dmg = spellPower * 0.511
-        elseif spellID == spell.iceLance then
-            dmg = spellPower * 0.35
-            if unit.frozen then
-                dmg = dmg * 3
-            end
-        elseif spellID == spell.waterbolt then
-            dmg = spellPower * 0.75 * 0.2925
-        elseif spellID == spell.iceNova then
-            dmg = spellPower * 0.45 * 400 / 100
-        elseif spellID == spell.flurry then
-            dmg = spellPower * 0.316 * 3
-        elseif spellID == spell.ebonbolt then
-            dmg = spellPower * 3.2175
-        else
-            return 0
-        end
-        return dmg * frostMageDmg * (1 + ((GetCombatRatingBonus(CR_VERSATILITY_DAMAGE_DONE) + GetVersatilityBonus(CR_VERSATILITY_DAMAGE_DONE)) / 100))
-    end
 
+        return dmg * (1 + ((GetCombatRatingBonus(CR_VERSATILITY_DAMAGE_DONE) + GetVersatilityBonus(CR_VERSATILITY_DAMAGE_DONE)) / 100))
+    end
     local function calcHP(unit)
         local thisUnit = unit.unit
         local hp = br._G.UnitHealth(thisUnit)
-        if br.unlocked then --EasyWoWToolbox ~= nil then
+        if br.unlocked then
             local castID, _, castTarget = br._G.UnitCastID("player")
             if castID and castTarget and br.GetUnitIsUnit(unit, castTarget) and playerCasting then
                 hp = hp - calcDamage(castID, unit)
@@ -943,6 +1011,621 @@ end
         end
     end
 
+GetDistanceBetweenPositions = function(X1, Y1, Z1, X2, Y2, Z2) return math.sqrt(math.pow(X2 - X1, 2) + math.pow(Y2 - Y1, 2) + math.pow(Z2 - Z1, 2)) end
+
+Module_TrumpSaidBlinkMeToAShitHoleCountry = function()
+	local px, py, pz = GetPlayerPosition()
+	local points = {}
+
+	for i=0,math.pi*2,.1256 do
+		local bx, by, bz = GroundZ ( px + 20 * math.cos(i), py + 20 * math.sin(i), pz )
+		if bx and by and bz and not TraceLine( px, py, pz + 1.2, bx, by, bz + 1.2, collisionflags ) then
+			local zdif = pz - bz
+			--max z dif of 1 yd
+			if zdif < 1.25 and zdif > -1.25 then
+				--make negative zdif positive for proper sorting (don't want climbing angle too high or too low)
+				if zdif < 0 then zdif = -zdif end
+				local _,_,avg_dist = Enemies_Around_Point(bx,by,bz,50)
+				if avg_dist then
+					table.insert(points,{x=bx,y=by,z=bz,dist=avg_dist,zdif=math.floor(zdif)})
+				end
+			end
+		end
+	end
+    
+	table.sort(points,function(x,y) return x.dist > y.dist end)
+
+	if #points > 0 then
+		if #points == 1 then
+			return points[1].x,points[1].y,points[1].z
+		else
+			local index = math.ceil(#points/8)
+			local a,b,c = points[index].x,points[index].y,points[index].z
+			return a,b,c,points[index].dist
+		end
+	end
+end
+    var.Module_KinkySex = function(spell,target)
+        if spell == nil then spell = spell.dragonsBreath end
+        
+        if ui.checked("Dev Debug") and select(4,GetSpellInfo(spell)) == 0 and br.getSpellCD(spell) == 0 then
+            if target == nil then 
+                if spell == spell.counterspell then
+                    for i = 1, #enemies.yards40 do
+                        target = enemies.yards40[i]
+                    end 
+                elseif spell == spell.dragonsBreath then
+                    for i = 1, #enemies.yards8 do
+                        target = enemies.yards8[i]
+                    end 
+                end
+            end
+            if unit.valid(target) and br.getLineOfSight("player",target) then
+                local curFacing = br._G.ObjectFacing("player")
+                br._G.FaceDirection(target, true)
+                br._G.CastSpellByName(br._G.GetSpellInfo(spell),target)
+                br._G.FaceDirection(curFacing)
+            end
+        end
+    end
+blinkDBPoint = function(unit)
+	if not UnitIsVisible(unit) then return false end
+	local x,y,z = ObjectPosition(unit)
+	local px,py,pz = GetPlayerPosition()
+
+	-- local step = (math.pi*2) / 8
+	-- for n=3,8 do
+	-- 	for i=0,math.pi*2,step do
+	-- 		if not TraceLine(x - n * math.cos(i), y - n * math.sin(i), z+2, px, py, pz+2, 0x100111) then
+
+	local maxdist = 10.5
+
+	local points = {}
+
+	local step = (math.pi*2) / 12
+	local direction
+	for i=0,math.pi*2,step do
+		local bx, by, bz = GroundZ ( px + 20 * math.cos(i), py + 20 * math.sin(i), pz )
+		if bx and by and bz and not TraceLine(px, py, pz+1.2, bx, by, bz+1.2, collisionflags) then
+			local zdif = pz - bz
+			if zdif < 1.5 and zdif > -1.5 then
+				if zdif < 0 then zdif = -zdif end
+				if not TraceLine( bx, by, bz + 1.7, x, y, z + 1.7, losflags ) then
+					local dist = GetDistanceBetweenPositions(x,y,z,bx,by,bz)
+					if dist < maxdist then
+						table.insert(points,{x=bx,y=by,z=bz,dist=dist,zdif=math.floor(zdif)})
+					end
+				end
+			end
+		end
+	end
+
+	table.sort(points,function(x,y) return x.zdif < y.zdif or ( x.zdif == y.zdif and x.dist < y.dist ) end)
+
+	if #points > 0 then
+		if #points == 1 then
+			local a,b,c = points[1].x,points[1].y,points[1].z
+			return a,b,c,points[1].dist
+		else
+			-- local a,b,c = GroundZ(points[1].x,points[1].y,points[1].z)
+			-- return a,b,c,points[1].dist
+			local index = math.ceil(#points/4)
+			local a,b,c = points[index].x,points[index].y,points[index].z
+			return a,b,c,points[index].dist
+		end
+	end
+end
+
+function blink_db(unit)
+
+	local time = GetTime()
+
+	if not Squid_DB then return false end
+
+	if _spellCooldown(31661) > .1 then return false end
+
+	if not UnitIsVisible(unit) then return false end
+
+	local px,py,pz = GetPlayerPosition()
+
+	local x,y,z = blink_db_point(unit)
+
+	if _distance(unit) > 12.5 then
+		if x and y and z and _spellCooldown(212653) == 0 and (not player_blink or time - player_blink > squid_avg_latency + .5) then
+			local dir = GetAnglesBetweenPositions(px,py,pz,x,y,z)
+			FaceDirection(dir,true)
+			local c = ObjectFacing("player") 
+			if abs( c - dir ) < .1 then
+				SQ_CastSpellByID(1953)
+				player_blink = time
+				return true
+			end
+		end
+	else 
+		x,y,z = PredictUnitPosition(unit,.08)
+		if GetDistanceBetweenPositions(x,y,z,px,py,pz) < 9.25 and not TraceLine(x,y,z+1.6,px,py,pz+1.6,losflags) then
+			if unit_casting_info("player") ~= "Greater Pyroblast" then
+				SpellStopCasting()
+			end
+			return Squid_DB(unit)
+		end
+	end
+
+end
+
+Enemies_Around_Point = function(x,y,z,dist,unit)
+    ObjectPosition = wmbapi.ObjectPosition
+	local avgdist=0
+	local totalcount=0
+	local totaldist=0.00001 -- sometimes will end up dividing by zero if this started at zero
+	local count=0
+	local bcc=0
+	for i=1,#Enemies do --(br.GetUnitIsUnit(thisUnit, "target")
+		if not unit or not br.GetUnitIsUnit(Enemies[i],unit) then
+			local ex,ey,ez = br.ObjectPosition(Enemies[i])
+			local distance_from_pos = GetDistanceBetweenPositions(x,y,z,ex,ey,ez)
+			if distance_from_pos <= dist then
+				count=count+1;
+				if _breakableCC(Enemies[i]) then
+					bcc=bcc+1
+					--prio bcc units in avg dist
+					if distance_from_pos < dist*1.75 then
+						totaldist = totaldist + distance_from_pos
+					end
+				end
+			end
+			--units within 2x the given dist
+			if distance_from_pos < dist*1.75 then
+
+				totalcount=totalcount+1
+
+				totaldist=totaldist+distance_from_pos
+
+			end
+		end
+	end
+	avgdist = totaldist/totalcount
+	return count,bcc,avgdist
+end
+
+EnemiesAttacking = function(friend,role)
+	local count=0
+	local melee=0
+	local range=0
+	local cds=0
+	for i=1,#Enemies do
+		local e = Enemies[i]
+		if (not arena or unit_is_player(e)) and _CCremains(e) < .25 and not _isHealer(e) then
+			local r = arena and _isRangedDps(e) or UnitCastingInfo(e)
+			local m = arena and _isMeleeDps(e) or not r
+
+			local inrange
+			if unit_is_unit(friend,"player") then
+				if m then inrange = _distance(e) < 6 end
+				if r then inrange = _distance(e) < 40 and _LoS(e) end
+			else
+				if m then inrange = _distance(friend,e) < 6 end
+				if r then inrange = _distance(friend,e) < 40 and _LoS(friend,e) end
+			end
+			if inrange then
+				if not role or (role == 1 and m) or (role == 2 and r) then
+					local cd_up = _CDcheck(e)
+					local enemytarget=UnitTarget(e)
+					if unit_is_unit(friend,enemytarget) then
+						count = count + 1
+						melee = melee + (m and 1 or 0)
+						range = range + (r and 1 or 0)
+						cds = cds + (cd_up and 1 or 0)
+					end
+				end
+			end
+		end
+	end
+	return count,melee,range,cds
+end
+
+UnitEnemiesAttacking = function(unit,role)
+	local count=0
+	local melee=0
+	local range=0
+	local cds=0
+	-- if not unit then error("No unit specified (UnitEnemiesAttacking") return 0,0,0,0 end
+	if unit_can_attack("player",unit) then
+		for i=1,#Friends do if not unit_is_unit(Friends[i],"player") then
+			local e = Friends[i]
+			if (not arena or unit_is_player(e)) and not _isHealer(e) then
+				local friend_target = UnitTarget(e)
+				if unit_is_unit(unit,friend_target) then
+
+					local m = _isMeleeDps(e)
+					local r = _isRangedDps(e)
+
+					local inrange = true
+					-- if m then inrange = _distance(unit,e) < 6.5 end
+					-- if r then inrange = _distance(unit,e) < 40 end
+
+					if inrange and (_CCremains(e) < .5 or ccdoesntmatter) then
+						if not role or (role == 1 and m) or (role == 2 and r) then
+							local cd_up = _CDcheck(e)
+							count = count + 1
+							melee = melee + (m and 1 or 0)
+							range = range + (r and 1 or 0)
+							cds = cds + (cd_up and 1 or 0)
+						end
+					end
+				end
+			end
+		end end
+	elseif UnitIsFriend("player",unit) then
+		return EnemiesAttacking(unit,role)
+	end
+	return count,melee,range,cds
+end
+
+getMovingDirection = 0;
+getMovingDirection = function(unit)
+	
+	local R = ObjectFacing(unit);
+	
+	local mod = 0;
+
+	local flags = UnitMovementFlags(unit)
+
+	if not flags then return false 
+	else flags = bit.band(flags, 0xF) end
+
+	if flags == 0x2 then
+		mod = math.pi;
+	elseif flags == 0x4 then
+		mod = math.pi * 0.5;
+	elseif flags == 0x8 then
+		mod = math.pi * 1.5;
+	elseif flags == bit.bor(0x1, 0x4) then
+		mod = math.pi * (1 / 8) * 2;
+	elseif flags == bit.bor(0x1, 0x8) then
+		mod = math.pi * (7 / 8) * 2;
+	elseif flags == bit.bor(0x2, 0x4) then
+		mod = math.pi * (3 / 8) * 2;
+	elseif flags == bit.bor(0x2, 0x8) then
+		mod = math.pi * (5 / 8) * 2;
+	end
+
+	return (R + mod) % (math.pi * 2);
+end
+getMovingDirection = getMovingDirection
+moving_towards_table = {}
+
+movingTowards = function(unit,amount,otherUnit,general,nostrafe)
+	if not unit then return false end
+	if not otherUnit then otherUnit="player" end
+	local amount = amount or .102
+	local X,Y,Z = ObjectPosition(unit);
+	local pX,pY,pZ = ObjectPosition(otherUnit);
+	local direction = _getMovingDirection(otherUnit);
+	local distance = GetUnitSpeed(otherUnit)*amount
+	if UnitIsVisible(unit) then
+		local yes = _distanceToCoord(pX + distance * math.cos(direction), pY + distance * math.sin(direction), pZ, X, Y, Z)+(GetUnitSpeed(otherUnit)/10) < _distanceToCoord(pX,pY,pZ,X,Y,Z);
+		local flags = {
+		1,
+		5,
+		9,
+		8,
+		4,
+		}
+		local playerflags = UnitMovementFlags("player") 
+		if yes and (not nostrafe or playerflags == 1 or playerflags == 5 or playerflags == 9) and (general or tContains(flags,playerflags)) then
+			for i=1,#moving_towards_table do
+				local m = moving_towards_table[i]
+				if m then
+					if m.unit == unit and m.amount == amount and m.otherUnit == otherUnit and m.general == general then
+						return true
+					end
+				end
+			end
+			table.insert(moving_towards_table,{unit=unit,amount=amount,otherUnit=otherUnit,general=general,time=GetTime()})
+			return true
+		else
+			for i=1,#moving_towards_table do
+				local m = moving_towards_table[i]
+				if m then
+					if m.unit == unit and m.amount == amount and m.otherUnit == otherUnit and m.general == general then
+						table.remove(moving_towards_table,i)
+					end
+				end
+			end
+		end
+	end
+end
+-- Moving Towards Unit Duration Function
+movingTowardsUnitDuration = function(unit,amount,otherUnit,general,directly,nostrafe)
+	if not otherUnit then otherUnit="player" end
+	local amount = amount or .102
+	for i=1,#moving_towards_table do
+		local m = moving_towards_table[i]
+		if m.unit == unit and m.amount == amount and m.otherUnit == otherUnit and m.general == general then
+			return GetTime()-m.time
+		end
+	end
+	return 0
+end
+-- Moving Away Function
+_movingAwayFrom = function(unit,amount,otherUnit,general,nostrafe)
+	if not otherUnit then otherUnit="player" end
+	local amount = amount or .102
+	local X,Y,Z = ObjectPosition(unit);
+	local pX,pY,pZ = ObjectPosition(otherUnit);
+	local direction = _getMovingDirection(otherUnit);
+	local distance = GetUnitSpeed(otherUnit)*amount
+	local yes = _distanceToCoord(pX + distance * math.cos(direction), pY + distance * math.sin(direction), pZ, X, Y, Z) > _distanceToCoord(pX,pY,pZ,X,Y,Z);
+	local flags = {
+	1,
+	5,
+	9
+	}
+	local playerflags = UnitMovementFlags(otherUnit) 
+	if yes and (not nostrafe or playerflags == 1) and (general or tContains(flags,playerflags)) then
+		return true
+	end
+end
+-- Moving Away Function
+predictDistanceFromUnit = function(unit,time)
+	if not time then time = 1 end
+	local px,py,pz = PredictUnitPosition("player",time)
+	local x,y,z = PredictUnitPosition(unit,time)
+	if px and py and pz and x and y and z then
+		local d = GetDistanceBetweenPositions(px,py,pz,x,y,z)
+		return d
+	else
+		return -1
+	end
+end
+-- Moving Away From Function 
+movingAwayFrom = function(unit,extra)
+	extra = extra or 0
+	local d = _realDistance(unit)
+	if d < 5.5 and _amIfacing(unit) then return false end
+	if predict_distance_from_unit(unit) > d + extra then return true end
+end
+los_cache = {}
+RealTravelTime = function(unit)
+	local dist = (GetUnitSpeed(unit)*apl.trapTravelTime(unit))*.9
+	return dist < 5 and dist or 5
+end
+PlayerZDiff = function()
+	local x,y,z = GetPlayerPosition()
+	local _,_,gz = GroundZ(x,y,z)
+	return z - gz
+end
+
+AnyKeyPressed = function()
+	if GetKeyState(0x01)
+	or GetKeyState(0x02)
+	or GetKeyState(0x04)
+	or GetKeyState(0x05)
+	or GetKeyState(0x06)
+	or GetKeyState(0x09)
+	or GetKeyState(0x10)
+	or GetKeyState(0x11)
+	or GetKeyState(0x12)
+	or GetKeyState(0x31)
+	or GetKeyState(0x32)
+	or GetKeyState(0x33)
+	or GetKeyState(0x34)
+	or GetKeyState(0x35)
+	or GetKeyState(0x36)
+	or GetKeyState(0x37)
+	or GetKeyState(0x38)
+	or GetKeyState(0x39)
+	or GetKeyState(0x41)
+	or GetKeyState(0x42)
+	or GetKeyState(0x43)
+	or GetKeyState(0x44)
+	or GetKeyState(0x45)
+	or GetKeyState(0x46)
+	or GetKeyState(0x47)
+	or GetKeyState(0x48)
+	or GetKeyState(0x49)
+	or GetKeyState(0x51)
+	or GetKeyState(0x52)
+	or GetKeyState(0x53)
+	or GetKeyState(0x54)
+	or GetKeyState(0x56)
+	or GetKeyState(0x57)
+	or GetKeyState(0x58)
+	or GetKeyState(0x5A)
+	or GetKeyState(0x60)
+	or GetKeyState(0x61)
+	or GetKeyState(0x62)
+	or GetKeyState(0x63)
+	or GetKeyState(0x64)
+	or GetKeyState(0x65)
+	or GetKeyState(0x66)
+	or GetKeyState(0x67)
+	or GetKeyState(0x68)
+	or GetKeyState(0x69) then
+		return true
+	end
+end
+
+point_between_points = function(points)
+	local valid_points = {}
+	for i=1,#points do
+		local point = points[i]
+		local x,y = point[1],point[2]
+		table.insert(valid_points,{x=x,y=y})
+	end
+	local total_x = 0
+	local total_y = 0
+	for i=1,#valid_points do
+		total_x = total_x + valid_points[i].x
+		total_y = total_y + valid_points[i].y
+	end
+	local x = total_x / #valid_points
+	local y = total_y / #valid_points
+
+	return TraceLine(x,y,-10000,x,y,10000,collisionflags)
+end
+
+point_between_units = function(units)
+	local points = {}
+	for i=1,#units do
+		local x,y,z = ObjectPosition(units[i])
+		table.insert(points,{x,y,z})
+	end
+	return point_between_points(points)
+end
+
+--param unit, unit to check
+--param elapsed, time of moving to predict position after
+--returns x,y,z, the grounded position of the unit after the given time
+PredictUnitPosition = function(unit,elapsed)
+	if not unit then return false end
+	if not elapsed then elapsed = 1 end
+	local x,y,z
+
+	if unit_is_unit(unit,"player") then
+		x,y,z = GetPlayerPosition()
+	else
+		x,y,z = ObjectPosition(unit)
+	end
+
+	if x and y and z then
+		local direction = GetMovingDirection(unit)
+		local distance = GetUnitSpeed(unit) * elapsed
+
+		local px=x + distance * math.cos(direction);
+		local py=y + distance * math.sin(direction);
+		local pz=z;
+
+		local tx,ty,tz = TraceLine(x,y,z+2,px,py,pz+2,collisionflags)
+
+		if not tx then
+			return GroundZ(px,py,pz)
+		else
+			return GroundZ(tx,ty,tz)
+
+		end
+	end
+
+end
+
+anglesBetweenObjects = function(unit1,unit2)
+	return GetAnglesBetweenObjects (unit1,unit2)
+end
+
+findCorner = function(fx,fy,fz,diameter,flags,dist)
+	if not fz then
+		fx,fy,fz = ObjectPosition(fx);
+		diameter = fy;
+	end
+	local sx,sy,sz = GetPlayerPosition()
+	local radius = diameter/2 or 0
+	local diameter = diameter or 0
+	if not dist then dist=10000 end
+
+	if not TraceLine(sx,sy,sz+2,fx,fy,fz+2,0x10) then
+		return fx,fy,fz
+	end
+
+	if TraceLine(sx,sy,sz,fx,fy,fz,0x10) then
+		for i=0,radius,2 do
+			if not TraceLine(sx,sy,sz+2,fx+i,fy,fz+2,0x10) and not TraceLine(fx+i,fy,fz+4,fx,fy,fz+4,0x10) then
+				return fx+i,fy,fz
+			end
+			
+			if not TraceLine(sx,sy,sz+2,fx,fy+i,fz+2,0x10) and not TraceLine(fx,fy+i,fz+4,fx,fy,fz+4,0x10) then
+				return fx,fy+i,fz
+			end
+			
+			if not TraceLine(sx,sy,sz+2,fx-i,fy,fz+2,0x10) and not TraceLine(fx-i,fy,fz+4,fx,fy,fz+4,0x10) then
+				return fx-i,fy,fz
+			end
+			
+			if not TraceLine(sx,sy,sz+2,fx,fy-i,fz+2,0x10) and not TraceLine(fx,fy-i,fz+4,fx,fy,fz+4,0x10) then
+				return fx,fy-i,fz
+			end
+			
+			if not TraceLine(sx,sy,sz+2,fx-i,fy-i,fz+2,0x10) and not TraceLine(fx,fy-i,fz+4,fx,fy,fz+4,0x10) then
+				return fx-i,fy-i,fz
+			end
+			
+			if not TraceLine(sx,sy,sz+2,fx+i,fy+i,fz+2,0x10) and not TraceLine(fx,fy-i,fz+4,fx,fy,fz+4,0x10) then
+				return fx+i,fy+i,fz
+			end
+		end
+	end
+	return fx,fy,fz
+end
+
+position_after_blink = function(direction)
+	local px,py,pz = GetPlayerPosition()
+	--ideal blink position (no obstacles)
+	local bx,by,bz = GroundZ(px + 20 * math.cos(direction), py + 20 * math.sin(direction), pz)
+	local x,y,z = px,py,pz
+	
+	if bx and by and bz then
+		for i=1,20,.5 do
+			local nx,ny,nz = GetPositionBetweenPositions(px,py,pz,bx,by,bz,i)
+			nx,ny,nz = GroundZ(nx,ny,nz)
+			local zdif = nz - z
+			if zdif > .5 or zdif < -.5 then
+				local lx,ly,lz = x,y,z--GetPositionBetweenPositions(x,y,z,px,py,pz,min(2,i))
+				return lx,ly,lz
+			else
+				x,y,z = nx,ny,nz
+			end
+		end
+	end
+	return x,y,z
+end
+
+get_future_position = function(unit, castTime)
+    local distance = min ( 5, GetUnitSpeed(unit) ) * castTime
+    if distance > 0 then
+        local x,y,z = ObjectPosition(unit)
+        local angle = _getMovingDirection(unit)--ObjectFacing(unit)
+        --If Unit have a target, let's make sure they don't collide
+        local unitTarget = UnitTarget(unit)
+        local unitTargetDist = 0
+        if unitTarget ~= nil then
+            local tX, tY, tZ = ObjectPosition(unitTarget)
+            --Lets get predicted position of unit target aswell
+            if GetUnitSpeed(unitTarget) > 0 then
+                local tDistance = ( GetUnitSpeed(unitTarget) * castTime ) / 1.7
+                local tAngle = GetAnglesBetweenObjects(unit,unitTarget) -- _getMovingDirection(unitTarget)
+                tX = tX + cos(tAngle) * tDistance
+                tY = tY + sin(tAngle) * tDistance
+                unitTargetDist = sqrt(((tX-x)^2) + ((tY-y)^2) + ((tZ-z)^2)) - ((UnitCombatReach(unit) or 0) + (UnitCombatReach(unitTarget) or 0))
+                if unitTargetDist < distance then distance = unitTargetDist end
+            else
+                unitTargetDist = _distance(unitTarget, unit)
+                if unitTargetDist < distance then distance = unitTargetDist end
+            end
+            -- calculate angle based on target position/future position
+            angle = rad(atan2(tY - y, tX - x))
+            if angle < 0 then
+                angle = rad(360 + atan2(tY - y, tX - x))
+            end
+        end
+        x = x + cos(angle) * distance
+        y = y + sin(angle) * distance
+        return x, y, z
+    end
+    return ObjectPosition(unit)
+end
+--check if unit is inside of a circle
+unitInCircle = function(unit, cx, cy, radius, castTime)
+    local uX, uY = 0, 0
+    if castTime == nil or castTime == 0 then
+          uX, uY = ObjectPosition(unit)
+    else
+          uX, uY = get_future_position(unit, castTime)
+    end
+    local rUnit = UnitBoundingRadius(unit)
+    return math.abs((uX - cx) * (uX - cx) + (uY - cy) * (uY - cy)) <= (rUnit + radius) * (rUnit + radius);
+end
+
+
         --Clear last cast table ooc to avoid strange casts
         if not inCombat and #br.lastCastTable.tracker > 0 then
             wipe(br.lastCastTable.tracker)
@@ -966,12 +1649,15 @@ end
             end
         end
 
-        --Tank move check for aoe
+        --Tank/Healer move check for aoe
         local tankMoving = false
+        local healerMoving = false
         if inInstance then
             for i = 1, #br.friend do
                 if (br.friend[i].role == "TANK" or br._G.UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and br.isMoving(br.friend[i].unit) then
                     tankMoving = true
+                elseif (br.friend[i].role == "HEALER" or br._G.UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER") and br.isMoving(br.friend[i].unit) then
+                    healerMoving = true
                 end
             end
         end
@@ -1303,7 +1989,6 @@ end
         -- actions.active_talents=living_bomb,if=active_enemies>1&buff.combustion.down&(variable.time_to_combustion>cooldown.living_bomb.duration|variable.time_to_combustion<=0)
         if #enemies.yards10t > 1 and not buff.combustion.react() 
         and (var.time_to_combustion > cd.livingBomb.duration() or var.time_to_combustion <= 0)
-        and interruptCast()
         then
             if cast.livingBomb("target") then debug("[Action:Talents] Living Bomb") return true end
         end
@@ -1312,7 +1997,6 @@ end
         or (cd.meteor.duration() < var.time_to_combustion and not talent.RuneOfPower) 
         or talent.runeOfPower and buff.runeOfpower.react() 
         and var.time_to_combustion > cd.meteor.remains() or ttd("target") < var.time_to_combustion
-        and interruptCast() 
         then
             if ui.value("Meteor Target") == 1 then -- We have "Target" selected.
                 if ui.checked("Predict Movement") then -- We have "Best" selected.
@@ -1376,7 +2060,7 @@ end
         end
         -- actions.combustion_phase+=/bag_of_tricks,if=buff.combustion.down
         -- actions.combustion_phase+=/living_bomb,if=active_enemies>1&buff.combustion.down
-        if talent.livingBomb and #enemies.yards6t > 1 and buff.combustion.react() and interruptCast() then 
+        if talent.livingBomb and #enemies.yards6t > 1 and buff.combustion.react() then 
             if cast.livingBomb("target") then debug("[Action:Combust Phase] Living Bomb (Combust,Enemies>1) (1)") return true end 
         end
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1387,7 +2071,6 @@ end
         and not buff.firestorm.react() and not buff.hotStreak.react() 
         and var.hot_streak_spells_in_flight+var.num(buff.heatingUp.react()
         and var.num(buff.heatingUp.remains() < 2))
-        and interruptCast()
         then
             if cast.fireBlast("target") then debug("[Action:Combust Phase] Fire Blast (Interrupt) (2)") return true end 
         end
@@ -1408,7 +2091,6 @@ end
         and buff.combustion.react() and not buff.firestorm.react() 
         and not buff.hotStreak.react() 
         and var.num(hot_streak_spells_in_flight) + var.num(buff.heatingUp.react()) < 2 
-        and interruptCast()
         then
             if cast.fireBlast("target") then debug("[Action:Combust Phase] Fire Blast (Combust, Hot Streak) (2)")  return true end 
         end
@@ -1429,26 +2111,27 @@ end
         ------.:|:.-----.:|:.-----.:|:.-----.:|:.-----
         -- actions.combustion_phase+=/combustion,use_off_gcd=1,use_while_casting=1,if=buff.combustion.down&(!runeforge.disciplinary_command|buff.disciplinary_command.up|buff.disciplinary_command_frost.up&talent.rune_of_power&cooldown.buff_disciplinary_command.ready)&(!runeforge.grisly_icicle|debuff.grisly_icicle.up)&(action.meteor.in_flight&action.meteor.in_flight_remains<=variable.combustion_cast_remains|action.scorch.executing&action.scorch.execute_remains<variable.combustion_cast_remains|action.fireball.executing&action.fireball.execute_remains<variable.combustion_cast_remains|action.pyroblast.executing&action.pyroblast.execute_remains<variable.combustion_cast_remains|action.flamestrike.executing&action.flamestrike.execute_remains<variable.combustion_cast_remains)
         if not moving and mode.cb == 1 then -- Combustion Mode - SimC
-            if not buff.combustion.react() and cast.last.meteor() 
-            and var.execute_remains <= var.combustion_cast_remains 
-            or cast.current.scorch() and var.execute_remains < var.combustion_cast_remains 
-            or cast.current.fireball() and var.execute_remains < var.combustion_cast_remains
-            or cast.current.pyroblast() and var.execute_remains < var.combustion_cast_remains 
-            or cast.current.flamestrike() and var.execute_remains < var.combustion_cast_remains 
-            and interruptCast()
-            then
-                if cast.combustion("player") then debug("[Action:Combust Phase] Combustion (SimC) (4)") return true end 
+            if br.useCDs or ttd("target") > 40 and ttd("target") > ui.value("Combustion TTD") and standingTIme > ui.value("Combustion Standing Time") then 
+                if not buff.combustion.react() and cast.last.meteor() 
+                and var.execute_remains <= var.combustion_cast_remains 
+                or cast.current.scorch() and var.execute_remains < var.combustion_cast_remains 
+                or cast.current.fireball() and var.execute_remains < var.combustion_cast_remains
+                or cast.current.pyroblast() and var.execute_remains < var.combustion_cast_remains 
+                or cast.current.flamestrike() and var.execute_remains < var.combustion_cast_remains 
+                then
+                    if cast.combustion("player") then debug("[Action:Combust Phase] Combustion (SimC) (4)") return true end 
+                end
             end
         elseif not moving and mode.cb == 2 then -- Combustion Mode - CDs
-            if br.useCDs or br.isBoss("target") or ttd("target") > 40 and ttd("target") > ui.value("Combustion TTD") and not moving then
+            if br.useCDs or ttd("target") > 40 and ttd("target") > ui.value("Combustion TTD") and standingTIme > ui.value("Combustion Standing Time") then
                 if cast.combustion("player") then debug("[Action:Combust Phase] Combustion (CDs) (5)") return true end
             end
-        elseif not moving and mode.cb == 3 then -- COmbustion Mode - TTD
-            if ttd("target") > ui.value("Combustion TTD") and cd.combustion.remains() > ttd("target") and not moving then
+        elseif not moving and mode.cb == 3 then -- Combustion Mode - TTD
+            if ttd("target") > ui.value("Combustion TTD") and cd.combustion.remains() > ttd("target") and standingTIme > ui.value("Combustion Standing Time") then
                 if cast.combustion("player") then debug("[Action:Combust Phase] Combustion (TTD) (6)") return true end
             end
         end
-        if br.isChecked("Combustion") and br.SpecificToggle("Combustion") and not GetCurrentKeyBoardFocus() and not moving then
+        if br.isChecked("Combustion") and br.SpecificToggle("Combustion") and not GetCurrentKeyBoardFocus() then
             if cast.combustion("player") then br.addonDebug("[Action:Combust Phase] Combustion (Hotkey)") return true end
         end 
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1518,19 +2201,17 @@ end
         if buff.pyroclasm.react() and buff.pyroclasm.remains() > cast.time.pyroblast() 
         and (buff.combustion.remains > cast.time.pyroblast() or not buff.combustion.react()) 
         and #enemies.yards6t < var.combustion_flamestrike 
-        and interruptCast()
         then
             if cast.pyroblast("target") then debug("[Action:Combust Phase] Pyroblast (Sun Kings Blessing) (1)") return true end
         end
         -- actions.combustion_phase+=/pyroblast,if=buff.hot_streak.react&buff.combustion.up
-        if buff.hotStreak.react() and buff.combustion.react() and interruptCast() then
+        if buff.hotStreak.react() and buff.combustion.react() then
             if cast.pyroblast("target") then debug("[Action:Combust Phase] Pyroblast (Sun Kings Blessing) (2)") return true end
         end
 
         -- actions.combustion_phase+=/pyroblast,if=prev_gcd.1.scorch&buff.heating_up.react&active_enemies<variable.combustion_flamestrike
         if cast.last.scorch() and buff.heatingUp.react() and buff.heatingUp.remains() < cast.time.pyroblast() + gcdMax 
         and #enemies.yards10t < var.combustion_flamestrike 
-        and interruptCast() 
         then
             if cast.pyroblast("target") then debug("[Action:Combust Phase] Pyroblast (Sun Kings Blessing) (3)") return true end
         end
@@ -1538,22 +2219,27 @@ end
         -- # Using Shifting Power during Combustion to restore Fire Blast and Phoenix Flame charges can be beneficial, but usually only on AoE.
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         -- actions.combustion_phase+=/shifting_power,if=buff.combustion.up&!action.fire_blast.charges&active_enemies>=variable.combustion_shifting_power&action.phoenix_flames.full_recharge_time>full_reduction,interrupt_if=action.fire_blast.charges=action.fire_blast.max_charges
-        if buff.combustion.react() and br.getDistance("target") <= 16 and not moving 
-        and charges.fireBlast.count() < 1 
-        and #enemies.yards8t >= var.num(var.combustion_shifting_power) 
+        if covenant.nightFae.active and buff.combustion.react() and charges.fireBlast.count() < 1 
+        and #enemies.yards10 >= var.num(var.combustion_shifting_power) 
         and charges.phoenixFlames.timeTillFull() > 4 
-        and interruptCast()
-        then 
-            if cast.shiftingPower("target") then debug("[Action:RoP Phase] Shifting Power (2)") return true end 
+        and br.getDistance("target") <= 17
+        then
+            if cast.shiftingPower("player") then debug("[Action:Combust Phase] Shifting Power (Rebuild FB/PF Charges) (4)") return true end 
         end
         -- var.num(var.shifting_power_before_combustion)
         -- actions.combustion_phase+=/phoenix_flames,if=buff.combustion.up&travel_time<buff.combustion.remains&((action.fire_blast.charges<1&talent.pyroclasm&active_enemies=1)|!talent.pyroclasm|active_enemies>1)&buff.heating_up.react+hot_streak_spells_in_flight<2
         if buff.combustion.react() and travelTime < buff.combustion.remains() 
         and ((charges.fireBlast.count() < 1 and talent.pyroclasm and #enemies.yards8t == 1) or talent.pyroclasm or #enemies.yards8t > 1) 
         and var.num(buff.heatingUp.react()) + var.num(var.hot_streak_spells_in_flight) 
-        and interruptCast()
         then
-            if cast.phoenixFlames("target") then debug("[Action:Combust Phase] Phoenix  Flames ()") return true end 
+            if cast.phoenixFlames("target") then debug("[Action:Combust Phase] Phoenix  Flames (5)") return true end 
+        end
+        if buff.combustion.react() and var.in_flight_remains < buff.combustion.remains() 
+        and ((charges.fireBlast.count() < 1 and talent.pyroclasm and #enemies.yards10t == 1) 
+        or not talent.pyroclasm or #enemies.yards10t > 1) 
+        and var.num(buff.heatingUp.react()) + var.num(var.hot_streak_spells_in_flight) < 2 
+        then
+            if cast.phoenixFlames("target") then debug("[Action:Combust Phase] Phoenix Flames (15)") return true end
         end
         -- actions.combustion_phase+=/flamestrike,if=buff.combustion.down&cooldown.combustion.remains<cast_time&active_enemies>=variable.combustion_flamestrike
         if not buff.combustion.react() 
@@ -1605,13 +2291,13 @@ end
             end 
         end
         -- actions.combustion_phase+=/fireball,if=buff.combustion.down&cooldown.combustion.remains<cast_time&!conduit.flame_accretion
-        if not buff.combustion.react() 
+        --[[if not buff.combustion.react() 
         and cd.combustion.remains() < cast.time.fireball() 
         and not conduit.flameAccretion 
         and not moving 
         then
              if cast.fireball("target") then debug("[Action:Combust Phase] Fireball ()") return true end
-        end
+        end]]
         -- actions.combustion_phase+=/scorch,if=buff.combustion.remains>cast_time&buff.combustion.up|buff.combustion.down&cooldown.combustion.remains<cast_time
         if buff.combustion.remains() < cast.time.scorch() 
         and buff.combustion.react() or not buff.combustion.react() 
@@ -1620,7 +2306,7 @@ end
             if cast.scorch("target") then return true end
         end
         -- actions.combustion_phase+=/living_bomb,if=buff.combustion.remains<gcd.max&active_enemies>1
-        if talent.livingBomb and buff.combustion.remains() < gcdMax and #enemies.yards10t > 1 and interruptCast() then
+        if talent.livingBomb and buff.combustion.remains() < gcdMax and #enemies.yards10t > 1 then
             if cast.livingBomb("target") then debug("[Action:Combust Phase] Living Bomb") return true end
         end
         -- actions.combustion_phase+=/dragons_breath,if=buff.combustion.remains<gcd.max&buff.combustion.up
@@ -1647,7 +2333,7 @@ end
         -- actions.combustion_phase+=/bag_of_tricks,if=buff.combustion.down
 
         -- actions.combustion_phase+=/living_bomb,if=active_enemies>1&buff.combustion.down
-        if talent.livingBomb and #enemies.yards10t > 1 and not buff.combustion.react() and interruptCast() then
+        if talent.livingBomb and #enemies.yards10t > 1 and not buff.combustion.react() then
             if cast.livingBomb("target") then debug("[Action:Combust Phase] Living Bomb (Combust Down,Enemies>1) ()") return true end 
         end
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1658,7 +2344,6 @@ end
         and buff.combustion.react() and not buff.firestorm.react() 
         and not buff.hotStreak.react() 
         and var.hot_streak_spells_in_flight + buff.heatingUp.remains() < 2 
-        and interruptCast()
         then 
             if cast.fireBlast("target") then return true end 
         end
@@ -1679,7 +2364,6 @@ end
         or buff.infernalCascade < gcdMax or cd.shiftingPower.ready() and covenant.nightFae.active) 
         and buff.combustion.react() and (not buff.firestorm.react or buff.infernalCascade.remains() < 0.5) 
         and not buff.hotStreak.react() and var.num(var.hot_streak_spells_in_flight) + var.num(buff.heatingUp.react()) < 2 
-        and interruptCast()
         then
             if cast.fireBlast("target") then debug("[Action:Combust Phase] Flamestrike (Hot streak, or firestorm) (3)") return true end 
         end
@@ -1697,41 +2381,30 @@ end
         -- Combustion --.:|:.-----.:|:.-----.:|:.-----
         ------.:|:.-----.:|:.-----.:|:.-----.:|:.-----
         -- actions.combustion_phase+=/combustion,use_off_gcd=1,use_while_casting=1,if=buff.combustion.down&(!runeforge.disciplinary_command|buff.disciplinary_command.up|buff.disciplinary_command_frost.up&talent.rune_of_power&cooldown.buff_disciplinary_command.ready)&(!runeforge.grisly_icicle|debuff.grisly_icicle.up)&(action.meteor.in_flight&action.meteor.in_flight_remains<=variable.combustion_cast_remains|action.scorch.executing&action.scorch.execute_remains<variable.combustion_cast_remains|action.fireball.executing&action.fireball.execute_remains<variable.combustion_cast_remains|action.pyroblast.executing&action.pyroblast.execute_remains<variable.combustion_cast_remains|action.flamestrike.executing&action.flamestrike.execute_remains<variable.combustion_cast_remains)
-        if not moving and mode.cb == 1 then -- Combustion Mode - SimC
-            if not buff.combustion.react() and cast.last.meteor() 
-            and var.execute_remains <= var.combustion_cast_remains 
-            or cast.current.scorch() and var.execute_remains < var.combustion_cast_remains 
-            or cast.current.fireball() and var.execute_remains < var.combustion_cast_remains
-            or cast.current.pyroblast() and var.execute_remains < var.combustion_cast_remains 
-            or cast.current.flamestrike() and var.execute_remains < var.combustion_cast_remains 
-            and interruptCast()
-            then
-                if cast.combustion("player") then 
-                    debug("[Action:Combust Phase] Combustion (SimC) (4)") 
-                    return true 
-                end 
+        --[[if not moving and mode.cb == 1 then -- Combustion Mode - SimC
+            if br.useCDs or ttd("target") > 40 and ttd("target") > ui.value("Combustion TTD") and standingTIme > ui.value("Combustion Standing Time") then 
+                if not buff.combustion.react() and cast.last.meteor() 
+                and var.execute_remains <= var.combustion_cast_remains 
+                or cast.current.scorch() and var.execute_remains < var.combustion_cast_remains 
+                or cast.current.fireball() and var.execute_remains < var.combustion_cast_remains
+                or cast.current.pyroblast() and var.execute_remains < var.combustion_cast_remains 
+                or cast.current.flamestrike() and var.execute_remains < var.combustion_cast_remains 
+                then
+                    if cast.combustion("player") then debug("[Action:Combust Phase] Combustion (SimC) (4)") return true end 
+                end
             end
         elseif not moving and mode.cb == 2 then -- Combustion Mode - CDs
-            if br.useCDs or br.isBoss("target") or ttd("target") > 40 and ttd("target") > ui.value("Combustion TTD") and not moving then
-                if cast.combustion("player") then 
-                    debug("[Action:Combust Phase] Combustion (CDs) (5)") 
-                    return true 
-                end
+            if br.useCDs or ttd("target") > 40 and ttd("target") > ui.value("Combustion TTD") and standingTIme > ui.value("Combustion Standing Time") then
+                if cast.combustion("player") then debug("[Action:Combust Phase] Combustion (CDs) (5)") return true end
             end
-        elseif not moving and mode.cb == 3 then -- COmbustion Mode - TTD
-            if ttd("target") > ui.value("Combustion TTD") and cd.combustion.remains() > ttd("target") and not moving then
-                if cast.combustion("player") then 
-                    debug("[Action:Combust Phase] Combustion (TTD) (6)") 
-                    return true 
-                end
+        elseif not moving and mode.cb == 3 then -- Combustion Mode - TTD
+            if ttd("target") > ui.value("Combustion TTD") and cd.combustion.remains() > ttd("target") and standingTIme > ui.value("Combustion Standing Time") then
+                if cast.combustion("player") then debug("[Action:Combust Phase] Combustion (TTD) (6)") return true end
             end
         end
-        if br.isChecked("Combustion") and br.SpecificToggle("Combustion") and not GetCurrentKeyBoardFocus() and not moving then
+        if br.isChecked("Combustion") and br.SpecificToggle("Combustion") and not GetCurrentKeyBoardFocus() then
             if cast.combustion("player") then br.addonDebug("[Action:Combust Phase] Combustion (Hotkey)") return true end
-        end
-        if br.isChecked("Combustion") and br.SpecificToggle("Combustion") and not GetCurrentKeyBoardFocus() and not moving then
-            if cast.combustion("player") then br.addonDebug("[Action:Combust Phase] Combustion (Hotkey)") return true end
-        end 
+        end ]]
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         -- # Other cooldowns that should be used with Combustion should only be used with an actual Combustion cast and not with a Sun King's Blessing proc.
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1801,17 +2474,16 @@ end
         and (buff.combustion.remains() > cast.time.pyroblast() 
         or not buff.combustion.react()) 
         and #enemies.yards6t < var.combustion_flamestrike
-        and interruptCast()
         then
              if cast.pyroblast("target") then debug("[Action:Combust Phase] Pyroblast (pyroclasm) (12)") return true end
         end
         -- actions.combustion_phase+=/pyroblast,if=buff.hot_streak.react&buff.combustion.up
-        if buff.hotStreak.react() and buff.combustion.react() and interruptCast() then
+        if buff.hotStreak.react() and buff.combustion.react()  then
             if cast.pyroblast("target") then debug("[Action:Combust Phase] Pyroblast (Hot Streak) (12)") return true end
         end
 
         -- actions.combustion_phase+=/pyroblast,if=prev_gcd.1.scorch&buff.heating_up.react&active_enemies<variable.combustion_flamestrike
-        if cast.last.scorch() and buff.heatingUp.react() and #enemies.yards10t < var.combustion_flamestrike and interruptCast() then
+        if cast.last.scorch() and buff.heatingUp.react() and #enemies.yards10t < var.combustion_flamestrike  then
             if cast.pyroblast("target") then debug("[Action:Combust Phase] Pyroblast (heating up) (12)") return true end 
         end
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1823,18 +2495,24 @@ end
         and charges.fireBlast.timeTillFull() > 4 and var.num(charges.fireBlast.count()) > 1 
         and not moving
         and br.getDistance("target") <= 17
-        and interruptCast()
         then
             if cast.shiftingPower("target") then debug("[Action:Combust Phase] Shifting Power (Fire Blast timing, combust up) (12)") return true end 
         end
         -- actions.combustion_phase+=/phoenix_flames,if=buff.combustion.up&travel_time<buff.combustion.remains&((action.fire_blast.charges<1&talent.pyroclasm&active_enemies=1)|!talent.pyroclasm|active_enemies>1)&buff.heating_up.react+hot_streak_spells_in_flight<2
-        if buff.combustion.react() and travelTime < buff.combustion.remains() 
+        --[[if buff.combustion.react() and travelTime < buff.combustion.remains() 
         and ((charges.fireBlast.count() < 1 and talent.pyroclasm and #enemies.yards10t == 1) 
         or not talent.pyroclasm or #enemies.yards10t > 1) 
         and var.num(buff.heatingUp.react())+var.num(hot_streak_spells_in_flight) < 2
-        and interruptCast()
         then
             if cast.phoenixFlames("target") then debug("[Action:Combust Phase] Phoenix Flames (St/AOE) (12)") return true end 
+        end]]
+        -- actions.combustion_phase+=/phoenix_flames,if=buff.combustion.up&travel_time<buff.combustion.remains&((action.fire_blast.charges<1&talent.pyroclasm&active_enemies=1)|!talent.pyroclasm|active_enemies>1)&buff.heating_up.react+hot_streak_spells_in_flight<2
+        if buff.combustion.react() and var.in_flight_remains < buff.combustion.remains() 
+        and ((charges.fireBlast.count() < 1 and talent.pyroclasm and #enemies.yards10t == 1) 
+        or not talent.pyroclasm or #enemies.yards10t > 1) 
+        and var.num(buff.heatingUp.react()) + var.num(var.hot_streak_spells_in_flight) < 2 
+        then
+            if cast.phoenixFlames("target") then debug("[Action:Combust Phase] Phoenix Flames (15)") return true end
         end
         -- actions.combustion_phase+=/flamestrike,if=buff.combustion.down&cooldown.combustion.remains<cast_time&active_enemies>=variable.combustion_flamestrike
         if not buff.combustion.react() and not moving 
@@ -1899,8 +2577,8 @@ end
             if cast.livingBomb("target") then debug("[Action:Combust Phase] Living Bomb (Enemies>1, combust, aoe) (12)") return true end 
         end
         -- actions.combustion_phase+=/dragons_breath,if=buff.combustion.remains<gcd.max&buff.combustion.up
-        if buff.combustion.remains() < gcdMax and buff.combustion.react() and br.getDistance("target") <= 8 then
-            if cast.dragonsBreath("player") then  debug("[Action:Combust Phase] Dragons Breath (Combust, aoe) (12)") return true end 
+        if buff.combustion.react() and buff.combustion.remains() < gcdMax and br.getDistance("target") <= 8 then
+            if cast.dragonsBreath("player") then debug("[Action:Combust Phase] Dragon's Breath (Combustion) (20)") return true end 
         end
         -- actions.combustion_phase+=/scorch,if=target.health.pct<=30&talent.searing_touch 
         if talent.searingTouch and thp < 30 then
@@ -1932,7 +2610,6 @@ end
         and (runeforge.firestorm.equiped and not buff.firestorm.react() or not runeforge.firestorm.equiped) 
         and not buff.hotStreak.react() 
         and var.num(hot_streak_spells_in_flight) + var.num(buff.heatingUp.remains()) < 2 
-        and interruptCast()
         then 
             if cast.fireBlast("target") then debug("[Action:Combust Phase] Fire Blast (No Infernal Cascade) (12)") return true end 
         end
@@ -1957,7 +2634,6 @@ end
         and #enemies.yards8t >= var.bool(var.combustion_shifting_power)
         and covenant.nightFae.active) and buff.combustion.react() and runeforge.firestorm.equiped and not buff.firestorm.react() or not runeforge.firestorm.equiped 
         or var.num(buff.infernalCascade.remains()) < 0.5) and not buff.hotStreak.react() and var.num(var.hot_streak_spells_in_flight) + var.num(buff.heatingUp.remains() < 2) 
-        and interruptCast()
         then
             if cast.fireBlast("target") then debug("Combust phase, infernal cascade bullshit") return true end 
         end
@@ -2016,16 +2692,15 @@ end
         and (buff.combustion.react() and buff.combustion.remains() > cast.time.pyroblast 
         or not buff.combustion.react()) 
         and #enemies.yards6t < var.combustion_flamestrike 
-        and interruptCast() 
         then
             if cast.pyroblast("target") then debug("[Action:RoP Phase] Pyroblast (Pyroclasm and combust, or no bust and enemies <combustFS ) (2)") return true end 
         end
         -- actions.combustion_phase+=/pyroblast,if=buff.hot_streak.react&buff.combustion.up
-        if buff.hotStreak.react() and buff.combustion.remains() and interruptCast() then
+        if buff.hotStreak.react() and buff.combustion.remains()  then
             if cast.pyroblast("target") then debug("[Action:RoP Phase] Pyroblast (Hot Streak, Combust Up) (2)") return true end 
         end
         -- actions.combustion_phase+=/pyroblast,if=prev_gcd.1.scorch&buff.heating_up.react&active_enemies<variable.combustion_flamestrike
-        if cast.last.scorch() and heatsUp and #enemies.yards6t < var.combustion_flamestrike and interruptCast() then
+        if cast.last.scorch() and heatsUp and #enemies.yards6t < var.combustion_flamestrike then
             if cast.pyroblast("target") then debug("[Action:RoP Phase] Pyroblast (Heating Up, enemies<combust FS) (2)") return true end 
         end
    -- end
@@ -2033,12 +2708,10 @@ end
         -- # Using Shifting Power during Combustion to restore Fire Blast and Phoenix Flame charges can be beneficial, but usually only on AoE.
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         -- actions.combustion_phase+=/shifting_power,if=buff.combustion.up&!action.fire_blast.charges&active_enemies>=variable.combustion_shifting_power&action.phoenix_flames.full_recharge_time>full_reduction,interrupt_if=action.fire_blast.charges=action.fire_blast.max_charges
-        if buff.combustion.react() and charges.fireBlast.count() < 1 and #enemies.yards8t >= var.num(var.shifting_power_before_combustion) and charges.phoenixFlames.timeTillFull() > 4 then
+        if buff.combustion.react() and charges.fireBlast.count() < 1 and #enemies.yards8t >= var.num(var.shifting_power_before_combustion) and charges.phoenixFlames.timeTillFull() > 3.4 then
             -- =action.fire_blast.charges=action.fire_blast.max_charges
-            if cast.current.shiftingPower() then 
-                if charges.fireBlast.max() and br.getDistance("target") <= 16 and not moving and interruptCast() then
-                    if cast.shiftingPower("target") then debug("[Action:Combust Phase] Shifting Power ()") return true end 
-                end
+            if charges.fireBlast.max() and br.getDistance("target") <= 16 and not moving then
+                if cast.shiftingPower("target") then debug("[Action:Combust Phase] Shifting Power ()") return true end 
             end
         end
         -- actions.combustion_phase+=/phoenix_flames,if=buff.combustion.up&travel_time<buff.combustion.remains&((action.fire_blast.charges<1&talent.pyroclasm&active_enemies=1)|!talent.pyroclasm|active_enemies>1)&buff.heating_up.react+hot_streak_spells_in_flight<2
@@ -2047,7 +2720,6 @@ end
         or not talent.pyroclasm or #enemies.yards10 > 1) 
         and buff.heatingUp.react() 
         and var.num(var.hot_streak_spells_in_flight) < 2
-        and interruptCast() 
         then
             if cast.phoenixFlames("player") then debug("[Action:Combust Phase] Phoenix Flames ()") return true end 
         end
@@ -2135,6 +2807,7 @@ end
     end
 
     local function actionList_RopPhase()
+    if spellQueueReady() then
         -- actions.rop_phase=flamestrike,if=active_enemies>=variable.hot_streak_flamestrike&(buff.hot_streak.react|buff.firestorm.react)
         if #enemies.yards6t >= var.hard_cast_flamestrike and (buff.hotStreak.react() or runeforge.firestorm.equiped and buff.firestorm.react()) and not moving and br.getDistance("target") < 40 then     
             if ui.value("Flamestrike Target") == 1 then -- We have "Target" selected.
@@ -2174,7 +2847,8 @@ end
                         return true 
                     end 
                 end
-            end
+            end 
+        end
         end
         -- actions.rop_phase+=/pyroblast,if=buff.sun_kings_blessing_ready.up&buff.sun_kings_blessing_ready.remains>cast_time
         if runeforge.sunKingsBlessings.equiped and buff.sunKingsBlessings.react() and buff.sunKingsBlessings.remains() > cast.time.pyroblast() then
@@ -2185,7 +2859,7 @@ end
             if cast.pyroblast("target") then debug("[Action:RoP Phase] Pyroblast (firestorm) (3)") return true end        
         end
         -- actions.rop_phase+=/pyroblast,if=buff.hot_streak.react
-        if buff.hotStreak.react() and interruptCast() then 
+        if buff.hotStreak.react() then 
             if cast.pyroblast("target") then debug("[Action:RoP Phase] Pyroblast (Hot Streak) (3.5)") return true end 
         end
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -2197,7 +2871,6 @@ end
         and (not buff.heatingUp.react() and not buff.hotStreak.react() and not cast.last.fireBlast() 
         and (charges.fireBlast.count() >= 2 or (talent.alexstraszasFury 
         and cd.dragonsBreath.ready()) or (talent.searchingTouch))) 
-        and interruptCast()
         then
             if cast.fireBlast("target") then debug("[Action:RoP Phase] Fire Blast (4)") return true end 
         end
@@ -2213,28 +2886,25 @@ end
         and (buff.heatingUp.react() 
         and not cast.current.scorch() or not buff.hotStreak.react() 
         and not buff.heatingUp.react() and cast.current.scorch() and not var.hot_streak_spells_in_flight)))
-        and interruptCast()
         then
             if cast.fireBlast("target") then debug("[Action:RoP Phase] Fire Blast (5)") return true end 
         end 
         -- actions.rop_phase+=/call_action_list,name=active_talents
         if actionList_ActiveTalents() then return end 
         -- actions.rop_phase+=/pyroblast,if=buff.pyroclasm.react&cast_time<buff.pyroclasm.remains&cast_time<buff.rune_of_power.remains
-        if buff.pyroclasm.react() and cast.time.pyroblast() < buff.pyroclasm.remains() and cast.time.pyroblast() < buff.runeOfPower.remains() and interruptCast() then
+        if buff.pyroclasm.react() and cast.time.pyroblast() < buff.pyroclasm.remains() and cast.time.pyroblast() < buff.runeOfPower.remains() then
              if cast.pyroblast("target") then debug("[Action:RoP Phase] Pyroblast (6)") return true end 
         end
         -- actions.rop_phase+=/pyroblast,if=prev_gcd.1.scorch&buff.heating_up.react&talent.searing_touch&target.health.pct<=30&active_enemies<variable.hot_streak_flamestrike
         if cast.last.scorch() and buff.heatingUp.react() 
         and talent.searingTouch and thp <= 30 
         and #enemies.yards10t < var.hot_streak_flamestrike 
-        and interruptCast()
         then
             if cast.pyroblast("target") then debug("[Action:RoP Phase] Pyroblast (7)") return true end 
         end
         -- actions.rop_phase+=/phoenix_flames,if=!variable.phoenix_pooling&buff.heating_up.react&!buff.hot_streak.react&(active_dot.ignite<2|active_enemies>=variable.hard_cast_flamestrike|active_enemies>=variable.hot_streak_flamestrike)
         if not var.phoenix_pooling 
         and buff.heatingUp.react() and not buff.hotStreak.react() and (var.soul_ignition_count < 2 or #enemies.yards10t >= var.hard_cast_flamestrike or #enemies.yards10 >= var.hot_streak_flamestrike)
-        and interruptCast()
         then
             if cast.phoenixFlames("target") then debug("[Action:RoP Phase] Phoenix Flames (8)") return true end 
         end
@@ -2310,23 +2980,51 @@ end
     end -- End Action List - RoP Phase
 
     local function actionList_Standard_Rotation()
+        if cast.last.scorch() and buff.heatingUp.react() and not buff.combustion.react()
+        and talent.searingTouch 
+        and #enemies.yards10 < var.hot_streak_flamestrike 
+        and pyroReady
+        and interruptCast(spell.fireball)
+        then
+            if cast.current.fireball() then 
+                br._G.SpellStopCasting()
+            end
+        end
+        if buff.hotStreak.react() and not buff.combustion.react()
+        and (cast.last.fireball() or firestarterActive or cast.pyroblast.inFlight()) 
+        and pyroReady
+        and interruptCast(spell.fireball)
+        then
+            if cast.current.fireball() then 
+                br._G.SpellStopCasting()
+                return true
+            end
+        end 
+        if not var.phoenix_pooling 
+        and (not talent.fromTheAshes or #enemies.yards10 > 1) 
+        and (var.soul_ignition_count < 2 or #enemies.yards10 >= var.hard_cast_flamestrike and not fsReady)
+        then
+            if cast.current.fireball() then 
+                br._G.SpellStopCasting()
+                return true
+            end
+        end
     if spellQueueReady() then
         -- actions.standard_rotation=flamestrike,if=active_enemies>=variable.hot_streak_flamestrike&(buff.hot_streak.react|buff.firestorm.react)
-        if #enemies.yards10 >= var.hot_streak_flamestrike and (buff.hotStreak.react() or runeforge.firestorm.equiped and buff.firestorm.react()) and interruptCast() then
+        if #enemies.yards10 >= var.hot_streak_flamestrike and (buff.hotStreak.react() or runeforge.firestorm.equiped and buff.firestorm.react()) then
             if cast.pyroblast("target") then debug("[Action:Standard] Fire Blast (1)") return true end 
         end
         -- actions.standard_rotation+=/pyroblast,if=buff.firestorm.react
-        if runeforge.firestorm.equiped and buff.firestorm.react() and interruptCast() then 
+        if runeforge.firestorm.equiped and buff.firestorm.react() then 
             if cast.pyroblast("target") then return true end 
         end
         -- actions.standard_rotation+=/pyroblast,if=buff.hot_streak.react&buff.hot_streak.remains<action.fireball.execute_time
-        if buff.hotStreak.react() and buff.hotStreak.remains() < cast.time.fireball() and interruptCast() then
+        if buff.hotStreak.react() and buff.hotStreak.remains() < cast.time.fireball() then
             if cast.pyroblast("target") then debug("[Action:Standard] Fire Blast (2)") return true end 
         end
         -- actions.standard_rotation+=/pyroblast,if=buff.hot_streak.react&(prev_gcd.1.fireball|firestarter.active|action.pyroblast.in_flight)
         if buff.hotStreak.react() and not buff.combustion.react()
         and (cast.last.fireball() or firestarterActive or cast.pyroblast.inFlight()) 
-        and interruptCast()
         then
             if cast.pyroblast("target") then debug("[Action:Standard] Fire Blast (4)") return true end 
         end
@@ -2338,16 +3036,15 @@ end
         and (cd.runeOfPower.remains()+cast.time.runeOfPower()+cast.time.pyroblast() > buff.sunKingsBlessings.remains() 
         or not talent.runeOfPower) 
         and var.time_to_combustion+cast.time.pyroblast() > buff.sunKingsBlessings.remains() 
-        and interruptCast()
         then
             if cast.pyroblast("target") then debug("[Action:Standard] Fire Blast (5)") return true end  
         end
         -- actions.standard_rotation+=/pyroblast,if=buff.hot_streak.react&target.health.pct<=30&talent.searing_touch
-        if buff.hotStreak.react() and talent.searingTouch and interruptCast() then
+        if buff.hotStreak.react() and talent.searingTouch then
             if cast.pyroblast("target") then debug("[Action:Standard] Fire Blast (6)") return true end 
         end
         -- actions.standard_rotation+=/pyroblast,if=buff.pyroclasm.react&cast_time<buff.pyroclasm.remains
-        if talent.pyroclasm and buff.pyroclasm.react() and cast.time.pyroblast() < buff.pyroclasm.remains() and interruptCast() then
+        if talent.pyroclasm and buff.pyroclasm.react() and cast.time.pyroblast() < buff.pyroclasm.remains() then
             if cast.pyroblast("target") then debug("[Action:Standard] Fire Blast (7)") return true end 
         end
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -2362,7 +3059,6 @@ end
         and (buff.heatingUp.react() and not cast.current.scorch() or not buff.hotStreak.react() 
         and not buff.heatingUo.react() and cast.current.scorch() 
         and not var.hot_streak_spells_in_flight))) 
-        and interruptCast()
         then 
             if cast.fireBlast("target") then debug("[Action:Standard] Fire Blast (8)") return true end 
         end
@@ -2370,7 +3066,6 @@ end
         if cast.last.scorch() and buff.heatingUp.react() 
         and talent.searingTouch
         and #enemies.yards10 < var.hot_streak_flamestrike 
-        and interruptCast()
         then
             if cast.pyroblast("target") then debug("[Action:Standard] Pyroblast (9)") return true end 
         end
@@ -2490,7 +3185,6 @@ end
         and cast.current.mirrorsOfTorment()
         and charges.fireBlast.timeTillFull()-var.execute_remains < 4 
         and not cast.inFlight.fireBlast() and buff.hotStreak.react()
-        and interruptCast() 
         then 
             if cast.fireBlast("target") then debug("[Action:Rotation] Fire Blast (5)") return true end
         end
@@ -2548,8 +3242,8 @@ end
         end
         -- actions+=/rune_of_power,if=buff.rune_of_power.down&!buff.firestorm.react&(variable.time_to_combustion>=buff.rune_of_power.duration&variable.time_to_combustion>action.fire_blast.full_recharge_time|variable.time_to_combustion>fight_remains)
         if not buff.runeOfPower.react() and not buff.firestorm.react() 
-        and cd.combustion.remains() > 14
         and not buff.combustion.react()
+        and cd.combustion.remains() > 20
         and (var.time_to_combustion >= buff.runeOfPower.duration() 
         and var.time_to_combustion > charges.fireBlast.timeTillFull() 
         or var.time_to_combustion > ttd("target")) 
@@ -2567,16 +3261,16 @@ end
         -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         -- actions+=/variable,name=phoenix_pooling,if=active_enemies<variable.combustion_flamestrike,value=variable.time_to_combustion+buff.combustion.duration-5<action.phoenix_flames.full_recharge_time+cooldown.phoenix_flames.duration-action.shifting_power.full_reduction*variable.shifting_power_before_combustion&variable.time_to_combustion<fight_remains|runeforge.sun_kings_blessing|time<5
         if #enemies.yards6t < var.combustion_flamestrike then
-            var.phoenix_pooling = var.time_to_combustion+buff.combustion.duration()-5<charges.phoenixFlames.timeTillFull()+cd.phoenixFlames.duration()-4*var.num(var.combustion_shifting_power) and var.time_to_combustion < ttd("target") or runeforge.sunKingsBlessings.equiped or combatTime < 5
+            var.phoenix_pooling = var.time_to_combustion+buff.combustion.duration()-5<charges.phoenixFlames.timeTillFull()+cd.phoenixFlames.duration()-4*var.num(var.combustion_shifting_power) and var.time_to_combustion < ttd("target") or combatTime < 5
         end
         -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         -- # When using Flamestrike in Combustion, save as many charges as possible for Combustion without capping.
         -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         -- actions+=/variable,name=phoenix_pooling,if=active_enemies>=variable.combustion_flamestrike,value=variable.time_to_combustion<action.phoenix_flames.full_recharge_time-action.shifting_power.full_reduction*variable.shifting_power_before_combustion&variable.time_to_combustion<fight_remains|runeforge.sun_kings_blessing|time<5
         if #enemies.yards6t >= var.combustion_flamestrike then
-            var.phoenix_pooling = var.time_to_combustion < charges.phoenixFlames.timeTillFull()-4*var.num(var.shifting_power_before_combustion) and var.time_to_combustion < ttd("target") or runeforge.sunKingsBlessings.equiped() or combatTime < 5
+            var.phoenix_pooling = var.time_to_combustion < charges.phoenixFlames.timeTillFull()-4*var.num(var.shifting_power_before_combustion) and var.time_to_combustion < ttd("target") or combatTime < 5
         end
-        --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         -- # When Hardcasting Flame Strike, Fire Blasts should be used to generate Hot Streaks and to extend Blaster Master.
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         -- actions+=/fire_blast,use_off_gcd=1,use_while_casting=1,if=!variable.fire_blast_pooling&variable.time_to_combustion>0
@@ -2585,7 +3279,6 @@ end
         and var.time_to_combustion > 0 and #enemies.yards10t >= var.hard_cast_flamestrike 
         and not talent.firestarter and not buff.hotStreak.react() 
         and (buff.heatingUp.react() and cast.current.flamestrike() and var.execute_remains or charges.fireBlast.frac() >= 2) 
-        and interruptCast()
         then
             if cast.fireBlast("target") then debug("[Action:Rotation] Fire Blast (Interrupt Flamestrike, extend Blaster Master)(8)") return true end 
         end 
@@ -2599,7 +3292,6 @@ end
         and (not cast.current.fireball() and not cast.pyroblast.inFlight() and buff.heatingUp.react() 
         or cast.current.fireball() and not buff.hotStreak.react() 
         or cast.pyroblast.inFlight() and buff.heatingUp.react() and not buff.hotStreak.react()) 
-        and interruptCast()
         then
             if cast.fireBlast("target") then debug("[Action:Rotation] Fire Blast (Interrupt Fireball) ()") return true end 
         end
@@ -2638,6 +3330,8 @@ end
         then
             if actionList_Standard_Rotation() then return end end
         end
+        -- Scorch movement
+        if moving then if cast.scorch("target") then return true end end 
     end
 
     local actionList_CancelCast = function()
@@ -2648,84 +3342,181 @@ end
                     --CancelPendingSpell()
                     br._G.SpellStopCasting()
                     br.ChatOverlay("no hardcast allowed!")
-                  --  return false 
+                  --  return true 
                 end 
             end 
         end
         -- Interrupt Fireball during combust/aoe w/ procs. 
-        if inCombat 
-        and (buff.combustion.react() and buff.hotStreak.exists() and pyroReady)
-       -- or (buff.runeOfPower.react() and buff.heatingUp.exists() or buff.hotStreak.exists() and pyroReady)
-        or (buff.hotStreak.exists() and #enemies.yards6t > 1 and fsReady)
+        if inCombat and buff.combustion.react() and  buff.hotStreak.exists() or buff.heatingUp.exists() and pyroReady
+        --or (buff.runeOfPower.react() and buff.heatingUp.exists() or buff.hotStreak.exists() and pyroReady)
+        or (buff.hotStreak.exists() and #enemies.yards6t > 2 and fsReady)
         and interruptCast(spell.fireball)
         then
-            if cast.current.fireball() then
-                --if br.timer:useTimer("hc stop Delay", 0.20 / (1 + GetHaste() / 100)) then
+             if cast.current.fireball()then
+            if br.timer:useTimer("fb stop delay", br.getOptionValue("Cast Interrupting Delay") / (1 + GetHaste() / 100)) then
+               
                 --CancelPendingSpell()
                     br._G.SpellStopCasting()
                     br.ChatOverlay("no fireball during combust/aoe and having procs!")
+                    --return true 
+                end
+            end
                 --return true 
-               -- end
+         --  end
+        end
+                -- Interrupt Fireball during combust/aoe w/ procs. 
+        if inCombat and buff.combustion.react() and buff.hotStreak.exists() or buff.heatingUp.exists() and pyroReady
+        -- or (buff.runeOfPower.react() and buff.heatingUp.exists() or buff.hotStreak.exists() and pyroReady)
+        or (buff.hotStreak.exists() and #enemies.yards6t > 2 and fsReady)
+        and interruptCast(spell.scorch)
+        then
+            if cast.current.scorch()then
+            if br.timer:useTimer("scorch stop delay", br.getOptionValue("Cast Interrupting Delay") / (1 + GetHaste() / 100)) then
+               
+                --CancelPendingSpell()
+                    br._G.SpellStopCasting()
+                    br.ChatOverlay("no fireball during combust/aoe and having procs!")
+                    --return true 
+                end
+            end
+                --return true 
+         --  end
+        end
+        -- Interrupt Flamestrike 
+        if inCombat
+        and (buff.hotStreak.exists() and #enemies.yards6t > 2 and pyroReady) 
+        or (buff.hotStreak.exists() and #enemies.yards6t > 2 and fsReady) 
+        and interruptCast(spell.fireball)
+        then
+            if cast.current.fireball() then
+                if br.timer:useTimer("scorch stop delay", br.getOptionValue("Cast Interrupting Delay") / (1 + GetHaste() / 100)) then
+                br._G.SpellStopCasting()
+                br.ChatOverlay("no fireball during aoe w/ hot streak!")
+               end
+               -- return true 
             end
         end
-        -- Interrupt Cast Fire Blast outside of combustion w/ Heating Up into a hot streak. 
+        -- Interrupt Fireball outside of combustion
         if inCombat 
+        and buff.hotStreak.exists() 
+        or buff.pyroclasm.react() 
+        or buff.heatingUp.exists() 
+        and pyroReady
+        and interruptCast(spell.fireball)
+        then 
+          
+            if cast.current.fireball() then
+            if br.timer:useTimer("fb stop delay", br.getOptionValue("Cast Interrupting Delay") / (1 + GetHaste() / 100)) then
+                --CancelPendingSpell()
+                    br._G.SpellStopCasting()
+                    br.ChatOverlay("no fireball and having procs!")
+                   -- return true 
+                end
+            end
+        end 
+        if cast.last.scorch() and buff.heatingUp.react() 
+        and talent.searingTouch and thp <= 30 
+        and #enemies.yards10t < var.hot_streak_flamestrike 
+        and pyroReady
+        and interruptCast(spell.scorch)
+        then
+            if cast.current.scorch() then
+                if br.timer:useTimer("scorch stop delay", br.getOptionValue("Cast Interrupting Delay") / (1 + GetHaste() / 100)) then
+                    br._G.SpellStopCasting()
+                end 
+            end
+        --    return true 
+        end
+        --[[if buff.hotStreak.react() and not buff.combustion.react() and pyroReady
+        and interruptCast(spell.fireball)
+        then
+            br._G.SpellStopCasting()
+            return true
+        end ]]
+        if not var.phoenix_pooling 
+        and buff.heatingUp.react() and not buff.hotStreak.react() 
+     --   and (var.soul_ignition_count < 2 or #enemies.yards10t >= var.hard_cast_flamestrike or #enemies.yards10 >= var.hot_streak_flamestrike) and fsReady
+        and interruptCast(spell.fireball)
+        then
+            if cast.current.fireball() then
+               -- if br.timer:useTimer("scorch stop delay", br.getOptionValue("Cast Interrupting Delay") / (1 + GetHaste() / 100)) then
+                    br._G.SpellStopCasting() 
+               -- end
+            end
+            return true
+        end
+        --[[if buff.hotStreak.react() and buff.hotStreak.remains() < cast.time.fireball() and not buff.combustion.react()
+        and pyroReady
+        and interruptCast(fireball)
+        then
+            br._G.SpellStopCasting()
+            return true 
+        end
+        if buff.hotStreak.react() and not buff.combustion.react()
+        --and (cast.last.fireball() or firestarterActive or cast.pyroblast.inFlight()) 
+        and pyroReady
+        and interruptCast(fireball)
+        then
+            br._G.SpellStopCasting()
+            return true
+        end ]]
+
+        -- Interrupt Cast Fire Blast outside of combustion w/ Heating Up into a hot streak. 
+       -- if inCombat and not buff.combustion.react() and buff.heatingUp.exists() and interruptCast(spell.fireBlast) then  br._G.SpellStopCasting() return true end
+       --[[ if inCombat 
         and (not buff.combustion.react() and buff.heatingUp.exists())
-        and interruptCast(spell.fireball) or interruptCast(spell.scorch)
+        and interruptCast()
         then  
             if cast.current.fireball() or cast.current.scorch() then
-                if cast.fireBlast("target") then return true end 
+                if cast.fireBlast("target") then return end 
                 debug("[-Interrupt Cast-]-Fire blast-Heating Up(!Combust)1")
-                br.ChatOverlay("[-Interrupt Cast-]-Fire blast-Heating Up(!Combust)")
             end
         end
         -- Interrupt Scorch outside of combustion w/ hot streak. 
         if inCombat 
         and not buff.combustion.react()
         and buff.hotStreak.exists() and pyroReady
-        and interruptCast(spell.fireball) or interruptCast(spell.scorch)
+        and interruptCast()
         then 
             if cast.current.scorch() or cast.current.fireball() then
-               if cast.pyroblast("target") then return true end 
+              -- br._G.SpellStopCasting()
+               if cast.pyroblast("target") then return end 
                debug("[-Interrupt Cast-]-Pyroblast-Hot Streak(!Combust)2")
-               br.ChatOverlay("[-Interrupt Cast-]-Pyroblast-Hot Streak(!Combust)")
             end
-        end
+        end]]
         -- Interrupt Cast Pyroblast during combust/RoP if we have heating up. 
-        if inCombat and (buff.combustion.react() 
+       --[[ if inCombat and (buff.combustion.react() 
         and buff.heatingUp.exists() and pyroReady)
-        and interruptCast(spell.fireball) or interruptCast(spell.scorch)
+        and interruptCast(spell.scorch)
         then 
-            if cast.current.fireball() or cast.current.scorch() then
+            if cast.current.scorch() then
                if cast.pyroblast("target") then return true end 
                debug("[-Interrupt Cast-]-Pyroblast-Heating Up(Combust)3")
-               br.ChatOverlay("[-Interrupt Cast-]-Pyroblast-Heating Up(Combust)")
             end
         end
         -- Interrupt Cast Fire Blast during Combust/RoP if we have Heating Up. 
-        if inCombat 
+       if inCombat 
         and (buff.combustion.react() and buff.heatingUp.exists())
-        or (buff.runeOfPower.react() and buff.heatingUp.exists())
-        and interruptCast(spell.fireball) or interruptCast(spell.scorch)
+    --.react() and buff.heatingUp.exists())
+        and interruptCast(spell.scorch)
         then
-            if cast.current.fireball() or cast.current.scorch() then
+            if cast.current.scorch() then
                 if cast.fireBlast("target") then return true end 
                 debug(br.ChatOverlay("[-Interrupt Cast-]-Fire blast-Heating Up(Combust)"))
-                br.ChatOverlay("[-Interrupt Cast-]-Fire blast-Heating Up(Combust)")
             end
         end
         -- Interrupt Cast Phoenix Flames during Combust/RoP if we have heating Up. 
+       -- if inCombat and not buff.combustion.react() and buff.heatingUp.exists() and interruptCast(spell.scorch) then br._G.SpellStopCasting() return true end
         if inCombat 
         and (buff.combustion.react() and buff.heatingUp.exists())
-        or (buff.runeOfPower.react() and buff.heatingUp.exists())
-        and interruptCast(spell.fireball) or interruptCast(spell.scorch)
+      --  or (buff.runeOfPower.react() and buff.heatingUp.exists())
+        and interruptCast(spell.scorch)
         then  
-            if cast.current.fireball() or cast.current.scorch() then
+            if cast.current.scorch() then
                 if cast.phoenixFlames("target") then return true end 
                 debug("[-Interrupt Cast-]-Fire blast-Heating Up(!Combust)")
-                br.ChatOverlay("[-Interrupt Cast-]-Fire blast-Heating Up(!Combust)")
             end
-        end
+        end]]
     --    --if inCombat and talent.searingTouch and thp < 30 and cast.current.fireball() and interruptCast() then
       --      SpellStopCasting()
       ---      ChatOverlay("Intterupt Fireball, we should be scorching!")
@@ -2740,7 +3531,12 @@ end
         if buff.hotStreak.exists("player") and br._G.IsAoEPending() then
             br._G.SpellStopTargeting()
             br.addonDebug(colorRed.."Aoe Not Cast. Canceling Spell",true)
-        end            
+        end     
+    
+
+
+
+        --var.Module_KinkySex(spell.counterspell)
     end
 ---------------------
 --- Begin Profile ---
@@ -2786,11 +3582,12 @@ end
 --- Out of Combat Rotation ---
 ------------------------------
             if actionList_PreCombat() then return end
+           if actionList_CancelCast() then return end
 --------------------------
 --- In Combat Rotation ---
 -------------------------- 
-             if inCombat or spellQueueReady() and br.isValidUnit("target") and br.getDistance("target") < 40 then
-                if actionList_CancelCast() then return end          
+            if (inCOmbat and cast.inFlight.frostbolt() or spellQueueReady()) and br.isValidUnit("target") and br.getDistance("target") < 40 then
+                           
     ------------------------------
     --- In Combat - Interrupts ---
     ------------------------------
@@ -2817,7 +3614,7 @@ end
                             end
                         end
                     elseif not talent.firestarter then
-                        if cd.combustion.remains() <= gcd or (charges.runeOfPower.count()== 2 or charges.runeOfPower.timeTillFull() < 2) and not buff.combustion.react() and ttd("target") > ui.value("Cooldowns Time to Die Limit") then
+                        if cd.combustion.remains() <= gcd or (charges.runeOfPower.count()== 2 or charges.runeOfPower.timeTillFull() < 2) and cd.combustion.remains() > 20 and not buff.combustion.react() and ttd("target") > ui.value("Cooldowns Time to Die Limit") then
                             if cast.runeOfPower("player") then br.addonDebug("Casting Rune of Power")
                                 return
                             end
