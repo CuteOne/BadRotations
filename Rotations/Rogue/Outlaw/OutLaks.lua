@@ -754,7 +754,8 @@ end
 --dps()
 actionList.dps = function()
 
-    if mode.vanish == 1 and cast.able.vanish() and br.isBoss() and not stealth and unit.distance(dynamic_target_melee) < 8 and br.getCombatTime() < 4 and not buff.masterAssassinsMark.exists() then
+    if mode.vanish == 1 and cast.able.vanish() and (mode.cooldown == 1 and br.isChecked("Adrenaline Rush") or not br.isChecked("Adrenaline Rush"))
+     and br.isBoss() and not stealth and unit.distance(dynamic_target_melee) < 8 and br.getCombatTime() < 4 and not buff.masterAssassinsMark.exists() then
         cast.adrenalineRush()
         cast.vanish()
         return true
