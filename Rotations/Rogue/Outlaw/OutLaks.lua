@@ -754,8 +754,7 @@ end
 --dps()
 actionList.dps = function()
 
-    if mode.vanish == 1 and cast.able.vanish() and (mode.cooldown == 1 and br.isChecked("Adrenaline Rush") or not br.isChecked("Adrenaline Rush"))
-     and br.isBoss() and not stealth and unit.distance(dynamic_target_melee) < 8 and br.getCombatTime() < 4 and not buff.masterAssassinsMark.exists() then
+    if mode.vanish == 1 and cast.able.vanish() and br.isBoss() and not stealth and unit.distance(dynamic_target_melee) < 8 and br.getCombatTime() < 4 then
         cast.adrenalineRush()
         cast.vanish()
         return true
@@ -863,7 +862,7 @@ actionList.dps = function()
         --        end
         --    end
 
-        if (mode.cooldown == 1 and br.isChecked("Adrenaline Rush") or not br.isChecked("Adrenaline Rush")) and (br.getCombatTime() > 2 or br.isBoss()) then
+        if (mode.cooldown == 1 and br.isChecked("Adrenaline Rush") or not br.isChecked("Adrenaline Rush")) and br.getCombatTime() > 2 or br.isBoss() then
             if cast.able.adrenalineRush() and not buff.adrenalineRush.exists() and getOutLaksTTD(25) > 0 then
                 if cast.adrenalineRush() then
                     return true
@@ -881,7 +880,11 @@ actionList.dps = function()
           then
         ]]
         if not stealth and ((combo >= comboMax - int(buff.broadside.exists()) - (int(buff.opportunity.exists()) * int(talent.quickDraw)))
-                or (br.hasBuff(323558) and combo == 2) or (br.hasBuff(323559) and combo == 3) or (br.hasBuff(323560) and combo == 4))
+                or covenant.kyrian.enabled and
+                (
+                        (br.hasBuff(323558) and combo == 2) or (br.hasBuff(323559) and combo == 3) or (br.hasBuff(323560) and combo == 4)
+                )
+        )
         then
 
             if cast.able.betweenTheEyes() and ttd(units.dyn20) > combo * 3 and not buff.masterAssassinsMark.exists() then
@@ -895,7 +898,7 @@ actionList.dps = function()
             --slice_and_dice,if=buff.slice_and_dice.remains<fight_remains&buff.slice_and_dice.remains<(1+combo_points)*1.8
             if (mode.cooldown == 1 and br.isChecked("Slice and Dice") or not br.isChecked("Slice and Dice")) and not buff.grandMelee.exists() and not buff.masterAssassinsMark.exists() then
                 if cast.able.sliceAndDice() and combo > 0 and not ((br.hasBuff(323558) and combo == 2) or (br.hasBuff(323559) and combo == 3) or (br.hasBuff(323560) and combo == 4)) then
-                    if buff.sliceAndDice.remains() < ttd("target") and buff.sliceAndDice.remains() < (1 + combo) * 1.8 and (br.getCombatTime() > 2 or cd.vanish.exists()) then
+                    if buff.sliceAndDice.remains() < ttd("target") and buff.sliceAndDice.remains() < (1 + combo) * 1.8 then
                         if cast.sliceAndDice() then
                             return true
                         end
@@ -948,12 +951,14 @@ actionList.dps = function()
                             end
                         end
                     end
-                    if charges.serratedBoneSpike.count() > 0 and br.getDebuffRemain("player", 342156) <= 3 then
-                        local spikeList = enemies.get(30, "player", false, true) -- Makes a variable called, enemies.yards30
+                    if charges.serratedBoneSpike.count() > 0 and br.getDebuffRemain("player", 342181) <= 3 then
+                        local spikeCount = debuff.serratedBoneSpike.count() + 2 + int(buff.broadside.exists())
+
+                        local spikeList = enemies.get(30, "player", false, true)
                         if #spikeList > 0 then
                             --         ui.print("how many mobs? " .. tostring(#spikeList))
                             if (buff.bladeFlurry.exists("player") or #enemies.yards8 == 1)
-                                    and comboDeficit >= 2 and not buff.opportunity.exists() then
+                                    and comboDeficit >= spikeCount and not buff.opportunity.exists() then
                                 if #spikeList > 1 then
                                     table.sort(spikeList, function(x, y)
                                         return br.getHP(x) < br.getHP(y)
@@ -967,7 +972,7 @@ actionList.dps = function()
                                         end
                                     end
                                 end
-                                if comboDeficit == 2 then
+                                if #spikeList == 1 and comboDeficit == 2 or comboDeficit >= spikeCount then
                                     if cast.serratedBoneSpike("target") then
                                         return true
                                     end
@@ -1046,7 +1051,6 @@ actionList.dps = function()
             end
         end
     end
-
 
     --trinkets
 
@@ -1159,7 +1163,7 @@ actionList.Extra = function()
 
     if (mode.cooldown == 1 and br.isChecked("Slice and Dice") or not br.isChecked("Slice and Dice")) and not buff.grandMelee.exists() and not buff.masterAssassinsMark.exists() then
         if cast.able.sliceAndDice() and combo > 0 then
-            if buff.sliceAndDice.remains() < (1 + combo) * 1.8 and (br.getCombatTime() > 2 or cd.vanish.exists()) then
+            if buff.sliceAndDice.remains() < (1 + combo) * 1.8 then
                 if cast.sliceAndDice() then
                     return true
                 end
@@ -1173,7 +1177,7 @@ actionList.Extra = function()
         end
     end
 
-    if cast.able.rollTheBones() and (inCombat or #enemies.yards8 > 0 or br.DBM:getPulltimer() < 1.5) and not buff.masterAssassinsMark.exists() then
+    if cast.able.rollTheBones() and (inCombat or #enemies.yards25nc > 0 or br.DBM:getPulltimer() < 1.5) and not buff.masterAssassinsMark.exists() then
         local badguy = false
         if not inCombat and #enemies.yards25nc > 0 then
             for i = 1, #enemies.yards25nc do

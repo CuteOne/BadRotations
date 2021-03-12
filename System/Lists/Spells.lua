@@ -3084,6 +3084,7 @@ br.lists.spells = {
                 shiv                        = 115196,
                 kidneyShot                  = 408,
                 cheapShot                   = 1833,
+                 serratedBoneSpike           = 328547,
                 markedForDeath              = 137619,
                 sap                         = 6770,
                 serratedBoneSpikeDot        = 324073,
