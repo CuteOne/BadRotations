@@ -390,7 +390,7 @@ local function runRotation()
 				end
 			end
 			-- Moving
-			if br.isMovingTime(br.getOptionValue("Angelic Feather")) then
+			if br.IsMovingTime(br.getOptionValue("Angelic Feather")) then
 				if br.isChecked("Angelic Feather") and talent.angelicFeather and not buff.angelicFeather.exists("player") then
 					if cast.angelicFeather("player") then
 						br.addonDebug("Casting Angelic Feather")
@@ -1046,7 +1046,7 @@ local function runRotation()
 				end
 			end
 			-- Moving
-			if br.isMovingTime(1) then
+			if br.IsMovingTime(1) then
 				if br.isChecked("Angelic Feather") and talent.angelicFeather and not buff.angelicFeather.exists("player") then
 					if cast.angelicFeather("player") then
 						br._G.SpellStopTargeting()
