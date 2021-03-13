@@ -1,4 +1,3 @@
-local br = _G["br"]
 local rotationName = "Lylo"
 local version = "2.2.2"
 
