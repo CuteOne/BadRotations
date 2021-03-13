@@ -1,5 +1,5 @@
 local rotationName = "KinkDestruction"
-local VerNum = "1.3.1"
+local VerNum = "1.3.6"
 local colorOrange = "|cffFF7C0A"
 local colorfel = "|cff00ff00"
 local colorWhite = "|cff000000"
@@ -210,6 +210,7 @@ local function createOptions()
             -- Soulstone
 		    br.ui:createDropdown(section, "Soulstone", {"|cffFFFFFFTarget","|cffFFFFFFMouseover","|cffFFFFFFTank", "|cffFFFFFFHealer", "|cffFFFFFFHealer/Tank", "|cffFFFFFFAny", "|cffFFFFFFPlayer"},
             1, "|cffFFFFFFTarget to cast on")
+            br.ui:createCheckbox(section, "Soulstone Healer OOC [Mythic+]", "|cffFFBB00Toggle soulstoning your healer while doing mythic+ runs.")
 
             -- Healthstone
             br.ui:createSpinner(section, "Health Funnel Cancel Cast",  85,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cancel At")
@@ -1833,14 +1834,15 @@ else
         if actionList_PetControl() then return end
         if actionList.PreCombat() then return true end
 
-                local mapMythicPlusModeID, mythicPlusLevel, mythicPlustime, mythicPlusOnTime, keystoneUpgradeLevels, practiceRun = C_ChallengeMode.GetCompletionInfo()
-        if not solo and not moving then
+
+        local mapMythicPlusModeID, mythicPlusLevel, mythicPlustime, mythicPlusOnTime, keystoneUpgradeLevels, practiceRun = C_ChallengeMode.GetCompletionInfo()
+        if ui.checked("Soulstone Healer OOC [Mythic+]") and not solo and not moving then
             --if mythicPlusLevel ~= 0 then
                 for i = 1, #br.friend do
                     if br._G.UnitIsPlayer(br.friend[i].unit) and br.GetUnitIsFriend(br.friend[i].unit, "player") 
                     and (br._G.UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" or br.friend[i].role == "HEALER") 
-                    and (not buff.soulstone.exists(br.friend[i].unit)) 
-                    and br.timer:useTimer("target", 3)
+                    and (not buff.soulstone.exists(br.friend[i].unit))
+                    and br.timer:useTimer("Healer SS", 3) 
                     then
                         if cast.soulstone(br.friend[i].unit) then
                             br.addonDebug("Soulstone Healer OOC [Mythic+] YEEEEEEEEEEEEEEEEET")
@@ -1850,7 +1852,6 @@ else
                 end
             --end
         end
-
     if solo then
         -- Burning Rush
         if buff.burningRush.exists() and not moving or buff.burningRush.exists() and php <= ui.value("Burning Rush Health") then br._G.RunMacroText("/cancelaura Burning Rush") br.addonDebug("Canceling Burning Rush") return true end 

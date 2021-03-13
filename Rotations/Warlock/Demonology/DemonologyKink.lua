@@ -1,5 +1,5 @@
 local rotationName = "KinkySpirit"
-local versionNum = "1.3.5"
+local versionNum = "1.3.6"
 local colorPurple = "|cff8788EE"
 local colorOrange = "|cffb28cc7"	
 local colorWhite = "|cffffffff"							   
@@ -210,6 +210,8 @@ local function createOptions()
         .. colorPurple .." .:|:.")
         -- APL
             br.ui:createDropdownWithout(section, "APL Mode", {"|cffb28cc7SimC"}, 1, "|cffb28cc7Set APL Mode to use.")
+        -- Soulstone healers in Mythic+s
+        br.ui:createCheckbox(section, "Soulstone Healer OOC [Mythic+]", "|cffFFBB00Toggle soulstoning your healer while doing mythic+ runs.")
 		-- Multi-Target Units
 		br.ui:createSpinnerWithout(section, "Multi-Target Units", 3, 1, 25, 1, "|cffb28cc7Number of Targets to use Covenant at.")        
 		-- Burning Rush Health Cancel Percent
@@ -1084,8 +1086,8 @@ local function runRotation()
         local casttime = select(4,GetSpellInfo(172))
         --bilescourge_bombers
         if mode.bsb == 1 and mode.rotation ~= 3 then
-            if getOptionValue("Bilescourge Bombers Target") == 1 then
-                if (#enemies.yards8t >= getOptionValue("Bilescourge Bombers Units") or (isChecked("Ignore Bilescourge Bombers units when using CDs") and br.useCDs())) then
+            if br.getOptionValue("Bilescourge Bombers Target") == 1 then
+                if (#enemies.yards8t >= br.getOptionValue("Bilescourge Bombers Units") or (isChecked("Ignore Bilescourge Bombers units when using CDs") and br.useCDs())) then
                     if cast.bilescourgeBombers("target", "ground") then ui.debug("[Action:PortalActive] Bilescourge Bombers (Ground)")
                         return true
                     end
@@ -1096,7 +1098,7 @@ local function runRotation()
                         return true
                     end
                 else
-                    if cast.bilescourgeBombers("best", false, getOptionValue("Bilescourge Bombers Units"), 8) then ui.debug("[Action:PortalActive] Bilescourge Bombers (Best)")
+                    if cast.bilescourgeBombers("best", false, br.getOptionValue("Bilescourge Bombers Units"), 8) then ui.debug("[Action:PortalActive] Bilescourge Bombers (Best)")
                         return true
                     end
                 end
@@ -1227,8 +1229,8 @@ local function runRotation()
         end
         -- actions.implosion+=/bilescourge_bombers,if=cooldown.summon_demonic_tyrant.remains>9
         if mode.bsb == 1 and (cd.summonDemonicTyrant.remain() > 9 or not br.useCDs()) then
-            if getOptionValue("Bilescourge Bombers Target") == 1 then
-                if (#enemies.yards8t >= getOptionValue("Bilescourge Bombers Units") or (isChecked("Ignore Bilescourge Bombers units when using CDs") and br.useCDs())) then
+            if br.getOptionValue("Bilescourge Bombers Target") == 1 then
+                if (#enemies.yards8t >= br.getOptionValue("Bilescourge Bombers Units") or (isChecked("Ignore Bilescourge Bombers units when using CDs") and br.useCDs())) then
                     if cast.bilescourgeBombers("target", "ground") then ui.debug("[Action:Implosion] Bilescourge Bombers (Ground)")
                         return true
                     end
@@ -1239,7 +1241,7 @@ local function runRotation()
                         return true
                     end
                 else
-                    if cast.bilescourgeBombers("best", false, getOptionValue("Bilescourge Bombers Units"), 8) then ui.debug("[Action:Implosion] Bilescourge Bombers (Best)")
+                    if cast.bilescourgeBombers("best", false, br.getOptionValue("Bilescourge Bombers Units"), 8) then ui.debug("[Action:Implosion] Bilescourge Bombers (Best)")
                         return true
                     end
                 end
@@ -1258,7 +1260,7 @@ local function runRotation()
             end
         end
         -- actions.implosion+=/doom,cycle_targets=1,max_cycle_targets=7,if=refreshable
-        if talent.doom and debuff.doom.count() < getOptionValue("Multi-Dot Limit") then
+        if talent.doom and debuff.doom.count() < br.getOptionValue("Multi-Dot Limit") then
             for i = 1, #enemyTable40 do
                 local thisUnit = enemyTable40[i].unit
                 if debuff.doom.refresh(thisUnit) then
@@ -1763,6 +1765,24 @@ end
 
 
     local function actionList_PreCombat()
+
+        local mapMythicPlusModeID, mythicPlusLevel, mythicPlustime, mythicPlusOnTime, keystoneUpgradeLevels, practiceRun = C_ChallengeMode.GetCompletionInfo()
+        if ui.checked("Soulstone Healer OOC [Mythic+]") and not solo and not moving then
+            --if mythicPlusLevel ~= 0 then
+                for i = 1, #br.friend do
+                    if br._G.UnitIsPlayer(br.friend[i].unit) and br.GetUnitIsFriend(br.friend[i].unit, "player") 
+                    and (br._G.UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" or br.friend[i].role == "HEALER") 
+                    and (not buff.soulstone.exists(br.friend[i].unit))
+                    and br.timer:useTimer("Healer SS", 3) 
+                    then
+                        if cast.soulstone(br.friend[i].unit) then
+                            br.addonDebug("Soulstone Healer OOC [Mythic+] YEEEEEEEEEEEEEEEEET")
+                            return true
+                        end
+                    end
+                end
+            --end
+        end
         -- Create Healthstone
         if not moving and not inCombat and ui.checked("Create Healthstone") then
             if GetItemCount(5512) < 1 and br.timer:useTimer("CH", 5) then
@@ -1848,6 +1868,23 @@ end
         and (br.GetObjectExists("pet") == true and not br.GetUnitIsDeadOrGhost("pet"))
         then
             if cast.felDomination() then br.addonDebug("Fel Domination Low Pet Health") return true end
+        end
+        
+        local mapMythicPlusModeID, mythicPlusLevel, mythicPlustime, mythicPlusOnTime, keystoneUpgradeLevels, practiceRun = C_ChallengeMode.GetCompletionInfo()
+        if ui.checked("Soulstone Healer OOC [Mythic+]") and not solo and not moving then
+            --if mythicPlusLevel ~= 0 then
+                for i = 1, #br.friend do
+                    if br._G.UnitIsPlayer(br.friend[i].unit) and br.GetUnitIsFriend(br.friend[i].unit, "player") 
+                    and (br._G.UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" or br.friend[i].role == "HEALER") 
+                    and (not buff.soulstone.exists(br.friend[i].unit))
+                    then
+                        if cast.soulstone(br.friend[i].unit) then
+                            br.addonDebug("Soulstone Healer OOC [Mythic+] YEEEEEEEEEEEEEEEEET")
+                            return true
+                        end
+                    end
+                end
+            --end
         end
         ---------------------------
         --- Pre-Combat Rotation ---
