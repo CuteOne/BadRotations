@@ -661,7 +661,7 @@ actionList.extra = function()
         br._G.ClearTarget()
     end
     -- Hunter's Mark
-    if cHuntersMark.value and cast.able.huntersMark() and not debuff.huntersMark.exists(units.units.dyn40) then
+    if cHuntersMark and cHuntersMark.value and cast.able.huntersMark() and not debuff.huntersMark.exists(units.units.dyn40) then
         if dHuntersMark == 1 or (dHuntersMark == 2 and unit.isBoss(units.target)) then
             return cast.huntersMark()
         end
