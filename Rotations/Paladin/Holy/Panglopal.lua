@@ -66,19 +66,10 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS ---
         ----------------------
-        --[[ section = br.ui:createSection(br.ui.window.profile, "Trinkets")
-        --br.ui:createCheckbox(section,"glimmer debug")
-        br.ui:createSpinner(section, "Trinket 1", 70, 0, 100, 5, "Health Percent to Cast At")
-        br.ui:createSpinnerWithout(section, "Min Trinket 1 Targets", 3, 1, 40, 1, "", "Minimum Trinket 1 Targets(This includes you)", true)
-        br.ui:createDropdownWithout(section, "Trinket 1 Mode", {"|cffFFFFFFNormal", "|cffFFFFFFTarget", "|cffFFFFFFGround", "|cffFFFFFFDPS-Target"}, 1, "", "")
-        br.ui:createSpinner(section, "Trinket 2", 70, 0, 100, 5, "Health Percent to Cast At")
-        br.ui:createSpinnerWithout(section, "Min Trinket 2 Targets", 3, 1, 40, 1, "", "Minimum Trinket 2 Targets(This includes you)", true)
-        br.ui:createDropdownWithout(section, "Trinket 2 Mode", {"|cffFFFFFFNormal", "|cffFFFFFFTarget", "|cffFFFFFFGround", "|cffFFFFFFDPS-Target"}, 1, "", "")
-        -- br.ui:createCheckbox(section, "Advanced Trinket Support")
-        br.ui:checkSectionState(section) ]]
         section = br.ui:createSection(br.ui.window.profile, "General - Version 1.1")
         --br.ui:createDropdown(section,"Spender Prio", {"Wog","Lod"})
         br.ui:createCheckbox(section, "Raid Boss Helper")
+        br.ui:createSpinnerWithout(section, "Flash of Light on KT Mana", 75, 0, 100, 5)
         -- Blessing of Freedom
         br.ui:createCheckbox(section, "Blessing of Freedom")
         br.ui:createCheckbox(section, "Automatic Aura replacement")
@@ -123,7 +114,11 @@ local function createOptions()
         ------ COOL  DOWNS ------
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Cool Downs")
-
+        br.ui:createCheckbox(section, "Advanced Trinket Support")
+        -- Tuft of Smoldering Plumeage Trinket Support
+        br.ui:createSpinner(section, "Tuft of Smoldering Plumeage - min", 1, 0, 100, 5, "", "|cffFFFFFFMin Health Percent to Cast At")
+        br.ui:createSpinner(section, "Tuft of Smoldering Plumeage - max", 40, 0, 100, 5, "", "|cffFFFFFFMax Health Percent to Cast At", true)
+        br.ui:createDropdownWithout(section, "Tuft of Smoldering Plumeage Target", { "|cffFFFFFFAll", "|cffFFFFFFTanks", "|cffFFFFFFSelf", "|cffFFFFFFHealer/DPS" }, 1, "|cffFFFFFFTarget for Tuft of Smoldering Plumeage")
         -- Lay on Hand
         br.ui:createSpinner(section, "Lay on Hands - min", 20, 0, 100, 5, "", "|cffFFFFFFMin Health Percent to Cast At")
         br.ui:createSpinner(section, "Lay on Hands - max", 20, 0, 100, 5, "", "|cffFFFFFFMax Health Percent to Cast At", true)
@@ -286,6 +281,10 @@ local function runRotation()
     local unit  = br.player.unit
     local wingsup = buff.avengingCrusader.exists("player") or buff.avengingWrath.exists("player")
 
+    if br.timer:useTimer("random_timer", 10) then
+        tuftTargetHP = math.random(ui.value("Tuft of Smoldering Plumeage - min"), ui.value("Tuft of Smoldering Plumeage - max"))
+    end
+
     if br.player.runeforge.shadowbreaker.equiped then
         lightOfDawn_distance = 40
     else
@@ -406,7 +405,7 @@ local function runRotation()
     end
 
     if ui.checked("Raid Boss Helper") then
-        if br.pause() then
+        if br.pause(true) then
             return true
         end
         if (br._G.ObjectID("target") == 165759 or br._G.ObjectID("target") == 171577 or br._G.ObjectID("target") == 173112) and unit.inCombat() then
@@ -424,15 +423,15 @@ local function runRotation()
                         return true
                     end
                 end
-                if buff.holyAvenger.exists("player") and not (cast.last.flashOfLight() and holyPower > 2) then
+                if cast.bestowFaith("target") then
+                    return true
+                end
+                if not cast.able.wordOfGlory() and mana >= ui.value("Flash of Light on KT Mana") and not (cast.last.flashOfLight() and holyPower >= 2) then
                     if cast.flashOfLight("target") then
                         return true
                     end
                 end
-                if br._G.ObjectID("target") == 165759 and not buff.holyAvenger.exists("player") then
-                    if cast.bestowFaith("target") then
-                        return true
-                    end
+                if br._G.ObjectID("target") == 165759 and mana < ui.value("Flash of Light on KT Mana") then
                     if cast.holyLight("target") then
                         return true
                     end
@@ -836,7 +835,7 @@ local function runRotation()
         --get lay-d
         if ui.checked("Lay on Hands - min") and br.getSpellCD(633) == 0 then
             for i = 1, #br.friend do
-                if br.friend[i].hp < 100 and br._G.UnitInRange(br.friend[i].unit) and not br.UnitDebuffID(br.friend[i].unit, 25771) and not unit.deadOrGhost(br.friend[i].unit) then
+                if br.friend[i].hp < 100 and br._G.UnitInRange(br.friend[i].unit) and not br.UnitDebuffID(br.friend[i].unit, 25771) and not unit.deadOrGhost(br.friend[i].unit) and not br.UnitBuffID(br.friend[i].unit, 344916) then
                     if ui.value("Lay on Hands Target") == 1 then
                         if br.friend[i].hp <= math.random(ui.value("Lay on Hands - min"), ui.value("Lay on Hands - max")) and (solo or OWGroup or inRaid or (inInstance)) then
                             layOnHandsTarget = br.friend[i].unit
@@ -1407,6 +1406,41 @@ local function runRotation()
                     if mode.mythic == 1 then
                         if mPlusGods() then 
                             return
+                        end
+                    end
+                    if ui.checked("Advanced Trinket Support") then
+                        local Trinket13 = _G.GetInventoryItemID("player", 13)
+                        local Trinket14 = _G.GetInventoryItemID("player", 14)
+                        -- Tuft Logic
+                        local tuftTarget = nil
+                        if (Trinket13 == 184020 or Trinket14 == 184020) then
+                            if br.canUseItem(184020) then
+                                for i = 1, #br.friend do
+                                    if br.friend[i].hp < 100 then
+                                        if ui.value("Tuft of Smoldering Plumeage Target") == 1 then
+                                            if br.friend[i].hp <= tuftTargetHP then
+                                                tuftTarget = br.friend[i].unit
+                                            end
+                                        elseif ui.value("Tuft of Smoldering Plumeage Target") == 2 then
+                                            if br.friend[i].hp <= tuftTargetHP and (br.friend[i].role == "TANK" or unit.role(br.friend[i].unit) == "TANK") then
+                                                tuftTarget = br.friend[i].unit
+                                            end
+                                        elseif ui.value("Tuft of Smoldering Plumeage Target") == 3 and php <= tuftTargetHP then
+                                            tuftTarget = "player"
+                                        elseif ui.value("Tuft of Smoldering Plumeage Target") == 4 then
+                                            if unit.role(br.friend[i].unit) == "HEALER" or unit.role(lowestUnit) == "DAMAGER" then
+                                                if br.friend[i].hp <= tuftTargetHP then
+                                                    tuftTarget = br.friend[i].unit
+                                                end
+                                            end
+                                        end
+                                        if tuftTarget ~= nil and br.canUseItem(184020) then
+                                            br._G.UseItemByName(184020, tuftTarget)
+                                            return true
+                                        end
+                                    end
+                                end
+                            end
                         end
                     end
                     if (ui.checked("Blessing of Freedom") and cast.able.blessingOfFreedom()) then
