@@ -1,5 +1,5 @@
 local rotationName = "KinkySpirit"
-local versionNum = "1.3.6"
+local versionNum = "1.3.7"
 local colorPurple = "|cff8788EE"
 local colorOrange = "|cffb28cc7"	
 local colorWhite = "|cffffffff"							   
@@ -1087,13 +1087,13 @@ local function runRotation()
         --bilescourge_bombers
         if mode.bsb == 1 and mode.rotation ~= 3 then
             if br.getOptionValue("Bilescourge Bombers Target") == 1 then
-                if (#enemies.yards8t >= br.getOptionValue("Bilescourge Bombers Units") or (isChecked("Ignore Bilescourge Bombers units when using CDs") and br.useCDs())) then
+                if (#enemies.yards8t >= br.getOptionValue("Bilescourge Bombers Units") or (br.isChecked("Ignore Bilescourge Bombers units when using CDs") and br.useCDs())) then
                     if cast.bilescourgeBombers("target", "ground") then ui.debug("[Action:PortalActive] Bilescourge Bombers (Ground)")
                         return true
                     end
                 end
             else
-                if isChecked("Ignore Bilescourge Bombers units when using CDs") and br.useCDs() then
+                if br.isChecked("Ignore Bilescourge Bombers units when using CDs") and br.useCDs() then
                     if cast.bilescourgeBombers("best", false, 1, 8) then ui.debug("[Action:PortalActive] Bilescourge Bombers (Ignore Units)")
                         return true
                     end
@@ -1230,13 +1230,13 @@ local function runRotation()
         -- actions.implosion+=/bilescourge_bombers,if=cooldown.summon_demonic_tyrant.remains>9
         if mode.bsb == 1 and (cd.summonDemonicTyrant.remain() > 9 or not br.useCDs()) then
             if br.getOptionValue("Bilescourge Bombers Target") == 1 then
-                if (#enemies.yards8t >= br.getOptionValue("Bilescourge Bombers Units") or (isChecked("Ignore Bilescourge Bombers units when using CDs") and br.useCDs())) then
+                if (#enemies.yards8t >= br.getOptionValue("Bilescourge Bombers Units") or (br.isChecked("Ignore Bilescourge Bombers units when using CDs") and br.useCDs())) then
                     if cast.bilescourgeBombers("target", "ground") then ui.debug("[Action:Implosion] Bilescourge Bombers (Ground)")
                         return true
                     end
                 end
             else
-                if isChecked("Ignore Bilescourge Bombers units when using CDs") and br.useCDs() then
+                if br.isChecked("Ignore Bilescourge Bombers units when using CDs") and br.useCDs() then
                     if cast.bilescourgeBombers("best", false, 1, 8) then ui.debug("[Action:Implosion] Bilescourge Bombers (Ignore Units)")
                         return true
                     end
