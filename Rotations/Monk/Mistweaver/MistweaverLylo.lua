@@ -141,7 +141,7 @@ end
 
 local labels = {
     lowest = nil,
-    dynamicTarget = {
+    dynamic = {
         range5 = nil,
         range40 = nil,
     },
@@ -166,8 +166,8 @@ local function createOptions()
         br.ui:createText(section, "Lowest Unit")
         labels.lowest   = br.ui:createText(section, "")
         br.ui:createText(section, "Dynamic Target")
-        labels.br.dynamic.range5     = br.ui:createText(section, "")
-        labels.br.dynamic.range40    = br.ui:createText(section, "")
+        labels.dynamic.range5     = br.ui:createText(section, "")
+        labels.dynamic.range40    = br.ui:createText(section, "")
         br.ui:createText(section, "Group Healing")
         labels.lowAllies.essenceFont                = br.ui:createText(section, "")
         labels.lowAllies.essenceFontOoc             = br.ui:createText(section, "")
@@ -564,7 +564,7 @@ local actionList = {
         singleTargetRotation = function()
             -- Chi Wave
             debugMessage("      Chi Wave Init")
-            if ui.checked(text.heal.chiWave) and cd.chiWave.ready() and talent.chiWave and br.dynamic.range40 ~= nil then
+            if ui.checked(text.heal.chiWave) and cd.chiWave.ready() and talent.chiWave and dynamic.range40 ~= nil then
                 if cast.chiWave(player.unit,"aoe") then ui.debug("[AUTO - SUCCESS]: "..text.heal.chiWave) return true else ui.debug("[AUTO - FAIL]: "..text.heal.chiWave) return false end
             end
             debugMessage("      Chi Wave End")
@@ -667,7 +667,7 @@ local actionList = {
                 end
                 if ui.mode.thunderFocusTea == 1 or ui.mode.thunderFocusTea == 5 then -- RSK
                     -- Thunder Focus Tea + Rising Sun Kick
-                    if ui.checked(text.heal.thunderFocusTea.risingSunKick) and cd.risingSunKick.ready() and br.dynamic.range5 ~= nil and br._G.ObjectIsFacing(player.unit, br.dynamic.range5) then
+                    if ui.checked(text.heal.thunderFocusTea.risingSunKick) and cd.risingSunKick.ready() and dynamic.range5 ~= nil and br._G.ObjectIsFacing(player.unit, dynamic.range5) then
                         if cast.thunderFocusTea(player.unit) and cast.risingSunKick(friends.lowest.unit) then
                             ui.debug("[AUTO - SUCCESS]: "..text.heal.thunderFocusTea.risingSunKick)
                             return true
@@ -828,8 +828,8 @@ local actionList = {
         AoERotation = function()
             if #enemies.range8 >= 3 then
                 -- Rising Sun Kick
-                if cd.risingSunKick.ready() and br._G.ObjectIsFacing(player.unit, br.dynamic.range5) then
-                    if cast.risingSunKick(br.dynamic.range5) then ui.debug("[AUTO - SUCCESS]: Rising Sun Kick AoE") return true else ui.debug("[AUTO - FAIL]: Rising Sun Kick AoE") return false end
+                if cd.risingSunKick.ready() and br._G.ObjectIsFacing(player.unit, dynamic.range5) then
+                    if cast.risingSunKick(dynamic.range5) then ui.debug("[AUTO - SUCCESS]: Rising Sun Kick AoE") return true else ui.debug("[AUTO - FAIL]: Rising Sun Kick AoE") return false end
                 end
                 -- Spinning Crane Kick
                 if cd.spinningCraneKick.ready() and not cast.active.spinningCraneKick() then
@@ -839,18 +839,18 @@ local actionList = {
         end,
 
         singleTargetRotation = function()
-            if br.dynamic.range5 ~= nil and br._G.ObjectIsFacing(player.unit, br.dynamic.range5) then
+            if dynamic.range5 ~= nil and br._G.ObjectIsFacing(player.unit, dynamic.range5) then
                 -- Rising Sun Kick
                 if cd.risingSunKick.ready() then
-                    if cast.risingSunKick(br.dynamic.range5) then ui.debug("[AUTO - SUCCESS]: Rising Sun Kick ST") return true else ui.debug("[AUTO - FAIL]: Rising Sun Kick ST") return false end
+                    if cast.risingSunKick(dynamic.range5) then ui.debug("[AUTO - SUCCESS]: Rising Sun Kick ST") return true else ui.debug("[AUTO - FAIL]: Rising Sun Kick ST") return false end
                 end
                 -- Blackout Kick
                 if cd.blackoutKick.ready() and buff.teachingsOfTheMonastery.stack() == 3 then
-                    if cast.blackoutKick(br.dynamic.range5) then ui.debug("[AUTO - SUCCESS]: Blackout Kick ST") return true else ui.debug("[AUTO - FAIL]: Blackout Kick ST") return false end
+                    if cast.blackoutKick(dynamic.range5) then ui.debug("[AUTO - SUCCESS]: Blackout Kick ST") return true else ui.debug("[AUTO - FAIL]: Blackout Kick ST") return false end
                 end
                 -- Tiger Palm
                 if cd.tigerPalm.ready() then
-                    if cast.tigerPalm(br.dynamic.range5) then ui.debug("[AUTO - SUCCESS]: Tiger Palm ST") return true else ui.debug("[AUTO - FAIL]: Tiger Palm ST") return false end
+                    if cast.tigerPalm(dynamic.range5) then ui.debug("[AUTO - SUCCESS]: Tiger Palm ST") return true else ui.debug("[AUTO - FAIL]: Tiger Palm ST") return false end
                 end
             end
         end,
@@ -874,14 +874,14 @@ local actionList = {
                 end
                 debugMessage("      Enveloping Mist - Chi-Ji End")
             end
-            if totemInfo.chiJiDuration > 0 and br.dynamic.range5 ~= nil and friends.lowest.hp >= ui.value(text.damage.chiJiDpsThreshold) then
+            if totemInfo.chiJiDuration > 0 and dynamic.range5 ~= nil and friends.lowest.hp >= ui.value(text.damage.chiJiDpsThreshold) then
                 -- Rising Sun Kick
-                if cd.risingSunKick.ready() and br._G.ObjectIsFacing(player.unit, br.dynamic.range5) then
-                    if cast.risingSunKick(br.dynamic.range5) then ui.debug("[AUTO - SUCCESS]: Rising Sun Kick Chi-Ji") return true else ui.debug("[AUTO - FAIL]: Rising Sun Kick Chi-Ji") return false end
+                if cd.risingSunKick.ready() and br._G.ObjectIsFacing(player.unit, dynamic.range5) then
+                    if cast.risingSunKick(dynamic.range5) then ui.debug("[AUTO - SUCCESS]: Rising Sun Kick Chi-Ji") return true else ui.debug("[AUTO - FAIL]: Rising Sun Kick Chi-Ji") return false end
                 end
                 -- Blackout Kick on 3 stacks
-                if cd.blackoutKick.ready() and buff.teachingsOfTheMonastery.stack() == 3 and br._G.ObjectIsFacing(player.unit, br.dynamic.range5) then
-                    if cast.blackoutKick(br.dynamic.range5) then ui.debug("[AUTO - SUCCESS]: Blackout Kick Chi-Ji") return true else ui.debug("[AUTO - FAIL]: Blackout Kick Chi-Ji") return false end
+                if cd.blackoutKick.ready() and buff.teachingsOfTheMonastery.stack() == 3 and br._G.ObjectIsFacing(player.unit, dynamic.range5) then
+                    if cast.blackoutKick(dynamic.range5) then ui.debug("[AUTO - SUCCESS]: Blackout Kick Chi-Ji") return true else ui.debug("[AUTO - FAIL]: Blackout Kick Chi-Ji") return false end
                 end
                 if #enemies.range8 >= 3 then
                     -- Tiger Palm alternate with Spinning Crane Kick
@@ -890,8 +890,8 @@ local actionList = {
                     end
                 else
                     -- Tiger Palm alternate with Spinning Crane Kick
-                    if cd.tigerPalm.ready() and br._G.ObjectIsFacing(player.unit, br.dynamic.range5) then
-                        if cast.tigerPalm(br.dynamic.range5) then ui.debug("[AUTO - SUCCESS]: Tiger Palm Chi-Ji") return true else ui.debug("[AUTO - FAIL]: Tiger Palm Chi-Ji") return false end
+                    if cd.tigerPalm.ready() and br._G.ObjectIsFacing(player.unit, dynamic.range5) then
+                        if cast.tigerPalm(dynamic.range5) then ui.debug("[AUTO - SUCCESS]: Tiger Palm Chi-Ji") return true else ui.debug("[AUTO - FAIL]: Tiger Palm Chi-Ji") return false end
                     end
                 end
             end
@@ -902,14 +902,14 @@ local actionList = {
                 if not buff.ancientTeachingOfTheMonastery.exists() and cd.essenceFont.ready() then
                     if cast.essenceFont(player.unit) then ui.debug("[AUTO - SUCCESS]: Essence Font Ancient Teaching Of The Monastery") return true else ui.debug("[AUTO - FAIL]: Essence Font Ancient Teaching Of The Monastery") return false end
                 end
-                if buff.ancientTeachingOfTheMonastery.exists() and br.dynamic.range5 ~= nil and friends.lowest.hp >= ui.value(text.legendary.ancientTeachingOfTheMonastery) then
+                if buff.ancientTeachingOfTheMonastery.exists() and dynamic.range5 ~= nil and friends.lowest.hp >= ui.value(text.legendary.ancientTeachingOfTheMonastery) then
                     -- Rising Sun Kick
-                    if cd.risingSunKick.ready() and br._G.ObjectIsFacing(player.unit, br.dynamic.range5) then
-                        if cast.risingSunKick(br.dynamic.range5) then ui.debug("[AUTO - SUCCESS]: Rising Sun Kick Ancient Teaching Of The Monastery") return true else ui.debug("[AUTO - FAIL]: Rising Sun Kick Ancient Teaching Of The Monastery") return false end
+                    if cd.risingSunKick.ready() and br._G.ObjectIsFacing(player.unit, dynamic.range5) then
+                        if cast.risingSunKick(dynamic.range5) then ui.debug("[AUTO - SUCCESS]: Rising Sun Kick Ancient Teaching Of The Monastery") return true else ui.debug("[AUTO - FAIL]: Rising Sun Kick Ancient Teaching Of The Monastery") return false end
                     end
                     -- Blackout Kick on 3 stacks
-                    if cd.blackoutKick.ready() and buff.teachingsOfTheMonastery.stack() == 3 and br._G.ObjectIsFacing(player.unit, br.dynamic.range5) then
-                        if cast.blackoutKick(br.dynamic.range5) then ui.debug("[AUTO - SUCCESS]: Blackout Kick Ancient Teaching Of The Monastery") return true else ui.debug("[AUTO - FAIL]: Blackout Kick Ancient Teaching Of The Monastery") return false end
+                    if cd.blackoutKick.ready() and buff.teachingsOfTheMonastery.stack() == 3 and br._G.ObjectIsFacing(player.unit, dynamic.range5) then
+                        if cast.blackoutKick(dynamic.range5) then ui.debug("[AUTO - SUCCESS]: Blackout Kick Ancient Teaching Of The Monastery") return true else ui.debug("[AUTO - FAIL]: Blackout Kick Ancient Teaching Of The Monastery") return false end
                     end
                     if #enemies.range8 >= 3 and ui.mode.dps ~= 3 then
                         -- Tiger Palm alternate with Spinning Crane Kick
@@ -918,8 +918,8 @@ local actionList = {
                         end
                     else
                         -- Tiger Palm alternate with Spinning Crane Kick
-                        if cd.tigerPalm.ready() and br._G.ObjectIsFacing(player.unit, br.dynamic.range5) then
-                            if cast.tigerPalm(br.dynamic.range5) then ui.debug("[AUTO - SUCCESS]: Tiger Palm Ancient Teaching Of The Monastery") return true else ui.debug("[AUTO - FAIL]: Tiger Palm Ancient Teaching Of The Monastery") return false end
+                        if cd.tigerPalm.ready() and br._G.ObjectIsFacing(player.unit, dynamic.range5) then
+                            if cast.tigerPalm(dynamic.range5) then ui.debug("[AUTO - SUCCESS]: Tiger Palm Ancient Teaching Of The Monastery") return true else ui.debug("[AUTO - FAIL]: Tiger Palm Ancient Teaching Of The Monastery") return false end
                         end
                     end
                 end
@@ -930,9 +930,9 @@ local actionList = {
 
         rangedDamage = function()
             -- Crackling Jade Lightning
-            if br.dynamic.range40 ~= nil and not player.br.isMoving and not cast.active.cracklingJadeLightning() then
+            if dynamic.range40 ~= nil and not player.br.isMoving and not cast.active.cracklingJadeLightning() then
                 if ui.checked(text.damage.cracklingJadeLightning) and cd.cracklingJadeLightning.ready() then
-                    if cast.cracklingJadeLightning(br.dynamic.range40) then ui.debug("[AUTO - SUCCESS]: ".. text.damage.cracklingJadeLightning) return true else ui.debug("[AUTO - FAIL]: ".. text.damage.cracklingJadeLightning) return false end
+                    if cast.cracklingJadeLightning(dynamic.range40) then ui.debug("[AUTO - SUCCESS]: ".. text.damage.cracklingJadeLightning) return true else ui.debug("[AUTO - FAIL]: ".. text.damage.cracklingJadeLightning) return false end
                 end
             end
         end
@@ -1153,15 +1153,15 @@ local getDebugInfo = function()
             tempColor = colors.green
         end
         labels.lowAllies.weaponsOfOrder:SetText("   Weapons Of Order: ".. tempColor .. friends.lowAllies.weaponsOfOrder .."/".. ui.value(text.heal.weaponsOfOrder.."1") .. colors.white .. " under " .. ui.value(text.heal.weaponsOfOrder.."2").. "%")
-        if br.dynamic.range5 then
-            labels.br.dynamic.range5:SetText("   ".. br._G.UnitName(br.dynamic.range5) .. " at " .. br.round2(br.getHP(br.dynamic.range5), 2) .."% at 5 yards")
+        if dynamic.range5 then
+            labels.dynamic.range5:SetText("   ".. br._G.UnitName(dynamic.range5) .. " at " .. br.round2(br.getHP(dynamic.range5), 2) .."% at 5 yards")
         else
-            labels.br.dynamic.range5:SetText("   No dynamic target at 5 yards")
+            labels.dynamic.range5:SetText("   No dynamic target at 5 yards")
         end
-        if br.dynamic.range40 then
-            labels.br.dynamic.range40:SetText("   ".. br._G.UnitName(br.dynamic.range40) .. " at " .. br.round2(br.getHP(br.dynamic.range40), 2) .."% at 40 yards")
+        if dynamic.range40 then
+            labels.dynamic.range40:SetText("   ".. br._G.UnitName(dynamic.range40) .. " at " .. br.round2(br.getHP(dynamic.range40), 2) .."% at 40 yards")
         else
-            labels.br.dynamic.range40:SetText("   No dynamic target at 40 yards")
+            labels.dynamic.range40:SetText("   No dynamic target at 40 yards")
         end
     end
 end
@@ -1173,7 +1173,7 @@ local function runRotation()
     cast                = br.player.cast
     cd                  = br.player.cd
     charges             = br.player.charges
-    br.dynamic       = {
+    dynamic       = {
         range5          = br.player.units.get(5),
         range40         = br.player.units.get(40)
     }
@@ -1223,6 +1223,8 @@ local function runRotation()
     ui.mode.thunderFocusTea = br.data.settings[br.selectedSpec].toggles["ThunderFocusTea"]
     ui.mode.dps = br.data.settings[br.selectedSpec].toggles["DPS"]
 
+    local current
+
     debugMessage("Loaded variables")
 
     if ui.checked(text.debug) then
@@ -1248,7 +1250,6 @@ local function runRotation()
         return true
     end
 
-    local current
     if player.inCombat then
 
         if br._G.IsAoEPending() then
