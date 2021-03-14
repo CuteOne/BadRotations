@@ -570,7 +570,7 @@ actionList.Defensive = function()
                     cast.catForm("player")
                     ui.debug("Casting Cat Form [Breaking CC]")
                 else
-                    for i=1, cast.formCount() do
+                    for i=1, unit.formCount() do
                         if i == unit.form() then
                             var.lastForm = i
                             cast.form(i)
