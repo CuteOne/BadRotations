@@ -150,18 +150,18 @@ end
 ---------------
 ---CombatLog---
 ---------------
-local someone_casting = false
-local frame = br._G.CreateFrame("Frame")
-frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-local function reader()
-    local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = br._G.CombatLogGetCurrentEventInfo()
-    if param == "SPELL_CAST_START" and br._G.bit.band(sourceFlags, 0x00000800) > 0 then
-        br._G.C_Timer.After(0.02, function()
-            someone_casting = true
-        end)
-    end
-end
-frame:SetScript("OnEvent", reader)
+-- local someone_casting = false
+-- local frame = br._G.CreateFrame("Frame")
+-- frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+-- local function reader()
+--     local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = br._G.CombatLogGetCurrentEventInfo()
+--     if param == "SPELL_CAST_START" and br._G.bit.band(sourceFlags, 0x00000800) > 0 then
+--         br._G.C_Timer.After(0.02, function()
+--             someone_casting = true
+--         end)
+--     end
+-- end
+-- frame:SetScript("OnEvent", reader)
 
 ----------------
 --- ROTATION ---
@@ -439,7 +439,7 @@ local function runRotation()
     if talent.gloomblade then gloombladeActive = 1 else gloombladeActive = 0 end
     if enemies10 >= 4 then ssThd = 1 else ssThd = 0 end
     if covenant.necrolord.active then necroActive = 1 else necroActive = 0 end
-    if cast.last.kick() or cast.last.kidneyShot() or cast.last.cheapShot() or cast.last.blind() or combatTime < 1 then someone_casting = false end
+    --if cast.last.kick() or cast.last.kidneyShot() or cast.last.cheapShot() or cast.last.blind() or combatTime < 1 then someone_casting = false end
     -- # Used to determine whether cooldowns wait for SnD based on targets.
     -- variable,name=snd_condition,value=buff.slice_and_dice.up|spell_targets.shuriken_storm>=6
     if buff.sliceAndDice.exists("player") or enemies10 >= 6 then sndCondition = 1 else sndCondition = 0 end
@@ -712,13 +712,9 @@ local function runRotation()
     end
 
     local function actionList_Cooldowns()
-        -- actions.cds+=/flagellation,if=variable.snd_condition&!stealthed.mantle"
+        -- actions.cds+=/flagellation,if=variable.snd_condition&!stealthed.mantle
         if sndCondition == 1 and cast.able.flagellation("target") and not debuff.flagellation.exists("target") and ttd("target") > 10 then -- and not buff.stealthedMantle.exists()
             if cast.flagellation("target") then return true end
-        end
-        -- actions.cds+=/flagellation_cleanse,if=debuff.flagellation.remains<2
-        if debuff.flagellation.remain("target") < 2 and debuff.flagellation.exists("target") and cast.able.flagellationCleanse("target") then
-            if cast.flagellationCleanse("target") then return true end
         end
         -- actions.cds+=/vanish,if=(runeforge.mark_of_the_master_assassin&combo_points.deficit<=1-talent.deeper_strategem.enabled|runeforge.deathly_shadows&combo_points<1)&buff.symbols_of_death.up&buff.shadow_dance.up&master_assassin_remains=0&buff.deathly_shadows.down
         if mode.vanish == 1 and (runeforge.markOfTheMasterAssassin.equiped and comboDeficit <= (1 - dSEnabled) or runeforge.deathlyShadows.equiped and combo < 1) 
@@ -1036,7 +1032,7 @@ local function runRotation()
         if (inCombat or (not ui.checked("Disable Auto Combat") and (cast.last.vanish(1) or (validTarget and targetDistance < 5)))) then
             if cast.last.vanish(1) and mode.vanish == 2 then br._G.StopAttack() end
             if actionList_Defensive() then return true end
-            if someone_casting == true then
+            if mode.interrupt == 1 then
                 if actionList_Interrupts() then return true end
             end
             --pre mfd
