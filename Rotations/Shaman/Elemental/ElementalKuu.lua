@@ -637,7 +637,7 @@ local function runRotation()
             end
             if cc == false then
                 if br.createCastFunction("best", false, 1, 8, spell.earthquake, nil, true) then
-                    br.addonDebug("Casting Earthquake")
+                    br.addonDebug("Casting Earthquake (Echoing Shock)")
                     return
                 end
             end
@@ -784,7 +784,7 @@ local function runRotation()
                 end
                 if cc == false then
                     if br.createCastFunction("best", false, 1, 8, spell.earthquake, nil, true) then
-                        br.addonDebug("Casting Earthquake")
+                        br.addonDebug("Casting Earthquake (Dump AoE)")
                         return
                     end
                 end
@@ -1012,7 +1012,7 @@ local function runRotation()
             end
             if cc == false then
                 if br.createCastFunction("best", false, 1, 8, spell.earthquake, nil, true) then
-                    br.addonDebug("Casting Earthquake")
+                    br.addonDebug("Casting Earthquake (EoGS Single Storm)")
                     return
                 end
             end
@@ -1249,7 +1249,7 @@ local function runRotation()
             end
             if cc == false then
                 if br.createCastFunction("best", false, 1, 8, spell.earthquake, nil, true) then
-                    br.addonDebug("Casting Earthquake")
+                    br.addonDebug("Casting Earthquake (MotE Single")
                     return
                 end
             end
@@ -1258,8 +1258,8 @@ local function runRotation()
         --actions.single_target+=/earthquake,if=spell_targets.chain_lightning>1&!dot.flame_shock.refreshable&!runeforge.echoes_of_great_sundering.equipped
         --&(!talent.master_of_the_elements.enabled|buff.master_of_the_elements.up|cooldown.lava_burst.remains>0&maelstrom>=92)
         if
-            #enemies.yards8t >= ui.value("Earthquake Targets") and not debuff.flameShock.exists() or
-                debuff.flameShock.remain() < 5.4 and not runeforge.echoesOfGreatSundering.equiped and
+            #enemies.yards8t >= ui.value("Earthquake Targets") and (not debuff.flameShock.exists() or
+                debuff.flameShock.remain() < 5.4) and not runeforge.echoesOfGreatSundering.equiped and
                     (not talent.masterOfTheElements or buff.masterOfTheElements.exists() or (cd.lavaBurst.remains() > gcd and power >= ui.value("Earth Shock Maelstrom Dump"))) and
                     holdBreak
          then
@@ -1276,7 +1276,7 @@ local function runRotation()
                 end
                 if cc == false then
                     if br.createCastFunction("best", false, 1, 8, spell.earthquake, nil, true) then
-                        br.addonDebug("Casting Earthquake")
+                        br.addonDebug("Casting Earthquake (Dump Single)")
                         return
                     end
                 end
@@ -1408,7 +1408,7 @@ local function runRotation()
                 end
                 if cc == false then
                     if br.createCastFunction("best", false, 1, 8, spell.earthquake, nil, true) then
-                        br.addonDebug("Casting Earthquake")
+                        br.addonDebug("Casting Earthquake (EoGS Single)")
                         return
                     end
                 end
