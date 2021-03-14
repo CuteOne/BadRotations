@@ -11,6 +11,8 @@ function br:loadUnlockerAPI()
         unlocked = br.unlock.MBUnlock()
     elseif _G.UCSLoaded then
         _G.br = br
+    elseif _G.CallSecureFunction then
+        unlocked = br.unlock.WowAdUnlock()
     else
         unlocked = false
     end
