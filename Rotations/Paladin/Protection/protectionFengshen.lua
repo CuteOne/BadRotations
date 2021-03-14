@@ -224,6 +224,7 @@ local function runRotation()
 	local php           = br.player.health
 	local race          = br.player.race
 	local racial        = br.player.getRacial()
+	local eating        = br.getBuffRemain("player",192002) ~= 0 or br.getBuffRemain("player",167152) ~= 0 or br.getBuffRemain("player",192001) ~= 0 or br.getBuffRemain("player",308433) ~= 0
 	local resable       = br._G.UnitIsPlayer("target") and br._G.UnitIsDeadOrGhost("target") and br.GetUnitIsFriend("target","player")
 	local spell         = br.player.spell
 	local talent        = br.player.talent
@@ -346,7 +347,7 @@ local function runRotation()
 				end
 			end
 			-- Lay On Hands
-			if br.isChecked("Lay On Hands") and cast.able.layOnHands() and inCombat and not buff.ardentDefender.exists() then
+			if br.isChecked("Lay On Hands") and br.getSpellCD(633) == 0 and inCombat and not buff.ardentDefender.exists() then
 				-- Player
 				if br.getOptionValue("Lay on Hands Target") == 1 then
 					if php <= br.getValue("Lay On Hands") and not debuff.forbearance.exists("player") then
@@ -434,7 +435,7 @@ local function runRotation()
 				end
 			end
 			-- Blessing of Protection
-			if br.isChecked("Blessing of Protection") and cast.able.blessingOfProtection() and inCombat and not br.isBoss("boss1") then
+			if br.isChecked("Blessing of Protection") and br.getSpellCD(1022) == 0 and inCombat and not br.isBoss("boss1") then
 				-- Player
 				if br.getOptionValue("Blessing of Protection Target") == 1 then
 					if php <= br.getValue("Blessing of Protection") and not debuff.forbearance.exists("player") then
@@ -607,6 +608,7 @@ local function runRotation()
 			end
 		end
 	end -- End Action List - Defensive
+	-- Action List - BossEncounterCase
 	actionList.BossEncounterCase = function()
 		if (br.GetObjectID("target") == 165759 or br.GetObjectID("target") == 171577 or br.GetObjectID("target") == 173112) then
 			if br.getHP("target") < 100 and (holyPower > 2 or buff.divinePurpose.exists() or buff.shiningLight.exists() or buff.royalDecree.exists()) then
@@ -667,10 +669,10 @@ local function runRotation()
 			end
 		end
 		-- Divine Toll
-		if (br.GetObjectID("boss1") == 165946 or br.GetObjectID("boss1") == 164185 or br.GetObjectID("boss1") == 167406) and cast.able.divineToll() then
+		if (br.GetObjectID("boss1") == 165946 or br.GetObjectID("boss1") == 164185 or br.GetObjectID("boss1") == 167406 or br.GetObjectID("boss1") == 163157) and cast.able.divineToll() then
 			for i = 1, #enemies.yards30 do
 				local thisUnit = enemies.yards30[i]
-				if br.GetObjectID(thisUnit) == 166524 or br.GetObjectID(thisUnit) == 164363 or br.GetObjectID(thisUnit) == 167999 then
+				if br.GetObjectID(thisUnit) == 166524 or br.GetObjectID(thisUnit) == 164363 or br.GetObjectID(thisUnit) == 167999 or br.GetObjectID(thisUnit) == 164414 then
 					if cast.divineToll(thisUnit) then return true end
 				end
 			end
@@ -710,7 +712,7 @@ local function runRotation()
 				end
 			end
 		end
-	end
+	end -- End Action List - BossEncounterCase
 	-- Action List - Cooldowns
 	actionList.Cooldowns = function()
 		-- Trinkets
@@ -871,25 +873,8 @@ local function runRotation()
 			end
 		end
 	end -- End Action List - Opener
-	---------------------
-	--- Begin Profile ---
-	---------------------
-	--Profile Stop | Pause
-	if not inCombat and not br._G.IsMounted() and not br.pause() then
-		if actionList.Opener() then return true end
-		if actionList.Defensive() then return true end
-	end
-	if inCombat and (not br._G.IsMounted() or buff.divineSteed.exists()) and BoF == true and not br.pause() then
-		if actionList.Extras() then return true end
-		if mode.bossCase == 1 then
-			if actionList.BossEncounterCase() then return true end
-		end
-		if actionList.Interrupts() then return true end
-		if actionList.Cooldowns() then return true end
-		if actionList.Defensive() then return true end
-		----------------------------------
-		--- In Combat - Begin Rotation ---
-		----------------------------------
+	-- Action List - Damage
+	actionList.Damage = function()
 		-- Start Attack
 		if not br._G.IsAutoRepeatSpell(br._G.GetSpellInfo(6603)) and br.isValidUnit("target") and br.getDistance("target") <= 5 then
 			br._G.StartAttack()
@@ -906,7 +891,7 @@ local function runRotation()
 			if cast.avengersShield(units.dyn30) then return true end
 		end
 		-- Divine Toll
-		if br.isChecked("Divine Toll") and cast.able.divineToll() and br.GetObjectID("boss1") ~= 165946 and br.GetObjectID("boss1") ~= 164185 then
+		if br.isChecked("Divine Toll") and cast.able.divineToll() and br.GetObjectID("boss1") ~= 165946 and br.GetObjectID("boss1") ~= 164185 and br.GetObjectID("boss1") ~= 163157 then
 			if (#enemies.yards10 >= br.getValue("Divine Toll") or (br.isBoss(units.dyn30) and br.GetObjectID("boss1") ~= 167406) or (br.isBoss(units.dyn30) and br.GetObjectID("boss1") == 167406 and br.getHP("boss1") <= 70)) then
 				if cast.divineToll(units.dyn30) then return true end
 			end
@@ -920,7 +905,7 @@ local function runRotation()
 			if cast.judgment(units.dyn30) then return true end
 		end
 		-- Hammer of Wrath
-		if br.isChecked("Hammer of Wrath") and cast.able.hammerOfWrath() and (br.getHP(units.dyn30) <= 20 or (level >= 58 and buff.avengingWrath.exists()) or br.getBuffRemain("player",345693) ~= 0) and mob30 then
+		if br.isChecked("Hammer of Wrath") and br.getSpellCD(24275) == 0 and (br.getHP(units.dyn30) <= 20 or (level >= 58 and buff.avengingWrath.exists()) or br.getBuffRemain("player",345693) ~= 0) and mob30 then
 			if cast.hammerOfWrath(units.dyn30) then return true end
 		end
 		-- Avenger's Shield
@@ -942,6 +927,30 @@ local function runRotation()
 		-- Consecration
 		if br.isChecked("Consecration") and cast.able.consecration() and br.GetUnitExists(units.dyn5) and consecrationRemain < 5 then
 			if cast.consecration() then return true end
+		end
+	end -- End Action List - Damage
+	---------------------
+	--- Begin Profile ---
+	---------------------
+	--Profile Stop | Pause
+	if br.pause() or eating or br.hasBuff(250873) or br.hasBuff(115834) or br.hasBuff(58984) or br.hasBuff(185710) or br.isCastingSpell(212056) or (br._G.IsMounted() and not buff.divineSteed.exists()) then
+		return true
+	else
+		if not inCombat then
+			if actionList.Opener() then return true end
+			if actionList.Defensive() then return true end
+		end
+		if inCombat then
+			if actionList.Extras() then return true end
+			if mode.bossCase == 1 then
+				if actionList.BossEncounterCase() then return true end
+			end
+			if actionList.Interrupts() then return true end
+			if actionList.Cooldowns() then return true end
+			if actionList.Defensive() then return true end
+			if BoF == true then
+				if actionList.Damage() then return true end
+			end
 		end
 	end -- End In Combat
 end -- runRotation

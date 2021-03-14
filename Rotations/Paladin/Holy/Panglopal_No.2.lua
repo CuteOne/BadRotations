@@ -109,8 +109,7 @@ local function createOptions()
 		br.ui:createDropdownWithout(section,"Trinkets 2 Mode", {"|cffFFFFFFNormal","|cffFFFFFFGround","|cffFFFFFFAll Health","|cffFFFFFFTanks Health","|cffFFFFFFSelf Health"}, 1, "","|cffFFFFFFSelect Trinkets mode.")
 		br.ui:createSpinnerWithout(section, "Trinkets 2",  70,  0,  100,  5,  "Health Percentage to use at")
 		-- Lay on Hand
-		br.ui:createSpinner(section, "Lay on Hands - min", 20, 0, 100, 5, "", "|cffFFFFFFMin Health Percent to Cast At")
-		br.ui:createSpinner(section, "Lay on Hands - max", 20, 0, 100, 5, "", "|cffFFFFFFMax Health Percent to Cast At", true)
+		br.ui:createSpinner(section, "Lay on Hands", 15, 0, 100, 5, "", "|cffFFFFFFMin Health Percent to Cast At")
 		br.ui:createDropdownWithout(section, "Lay on Hands Target", {"|cffFFFFFFAll", "|cffFFFFFFTanks", "|cffFFFFFFSelf", "|cffFFFFFFHealer/DPS"}, 1, "|cffFFFFFFTarget for LoH")
 		-- Blessing of Protection
 		br.ui:createSpinner(section, "Blessing of Protection", 20, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At")
@@ -248,7 +247,7 @@ local function runRotation()
 	local charges = br.player.charges
 	local cd = br.player.cd
 	local debuff = br.player.debuff
-	local drinking = br.getBuffRemain("player",192002) ~= 0 or br.getBuffRemain("player",167152) ~= 0 or br.getBuffRemain("player",192001) ~= 0
+	local eating = br.getBuffRemain("player",192002) ~= 0 or br.getBuffRemain("player",167152) ~= 0 or br.getBuffRemain("player",192001) ~= 0 or br.getBuffRemain("player",308433) ~= 0
 	local resable = br._G.UnitIsPlayer("target") and br._G.UnitIsDeadOrGhost("target") and br.GetUnitIsFriend("target", "player")
 	local inCombat = br.player.inCombat
 	local inInstance = br.player.instance == "party" or br.player.instance == "scenario"
@@ -430,7 +429,7 @@ local function runRotation()
 		end
 
 		-- Hammer of Wrath
-		if (br.isChecked("Hammer of Wrath") or dpskey) and cast.able.hammerOfWrath() then
+		if (br.isChecked("Hammer of Wrath") or dpskey) and br.getSpellCD(24275) == 0 then
 			for i = 1, #enemies.yards30 do
 				local thisUnit = enemies.yards30[i]
 				if ccDoubleCheck(thisUnit) and (br.isChecked("Dev Stuff Leave off") or br.getFacing("player",thisUnit)) then
@@ -485,16 +484,16 @@ local function runRotation()
 
 	actionList.spendies = function()
 		if holyPower >= 3 or buff.divinePurpose.exists() then
-			if br.isChecked("Word of Glory") and cast.able.wordOfGlory() then
+			if br.isChecked("Word of Glory") then
 				if php <= br.getValue("Critical HP") then
 					SotR = false
 					if cast.wordOfGlory("player") then return true end
 				end
 			end
-			if br.isChecked("Light of Dawn") and cast.able.lightOfDawn() then
+			if br.isChecked("Light of Dawn") then
 				if bestConeHeal(spell.lightOfDawn,br.getValue("LoD Targets"),br.getValue("Light of Dawn"),45,lightOfDawn_distance*lightOfDawn_distance_coff,5) then return true end
 			end
-			if br.isChecked("Word of Glory") and cast.able.wordOfGlory() and lowest.hp <= br.getValue("Word of Glory") then
+			if br.isChecked("Word of Glory") and lowest.hp <= br.getValue("Word of Glory") then
 				SotR = false
 				if cast.wordOfGlory(lowest.unit) then return true end
 			end
@@ -737,25 +736,23 @@ local function runRotation()
 			end
 		end
 
-		--get lay-d
-		if br.isChecked("Lay on Hands - min") and br.getSpellCD(633) == 0 then
+		-- Lay on Hands
+		if br.isChecked("Lay on Hands") and br.getSpellCD(633) == 0 then
 			for i = 1, #br.friend do
-				if br.friend[i].hp < 100 and br._G.UnitInRange(br.friend[i].unit) and not br.UnitDebuffID(br.friend[i].unit, 25771) and not br._G.UnitIsDeadOrGhost(br.friend[i].unit) then
+				if br.friend[i].hp < 100 and br._G.UnitInRange(br.friend[i].unit) and not br.UnitDebuffID(br.friend[i].unit,25771) and not br._G.UnitIsDeadOrGhost(br.friend[i].unit) then
 					if br.getOptionValue("Lay on Hands Target") == 1 then
-						if br.friend[i].hp <= math.random(br.getValue("Lay on Hands - min"), br.getValue("Lay on Hands - max")) and (solo or OWGroup or inRaid or (inInstance)) then
+						if br.friend[i].hp <= br.getValue("Lay on Hands") then
 							layOnHandsTarget = br.friend[i].unit
 						end
 					elseif br.getOptionValue("Lay on Hands Target") == 2 then
-						if br.friend[i].hp <= math.random(br.getValue("Lay on Hands - min"), br.getValue("Lay on Hands - max")) and (br.friend[i].role == "TANK" or br._G.UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and (not inInstance or (inInstance)) then
+						if br.friend[i].hp <= br.getValue("Lay on Hands") and (br.friend[i].role == "TANK" or br._G.UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") then
 							layOnHandsTarget = br.friend[i].unit
 						end
-					elseif br.getOptionValue("Lay on Hands Target") == 3 and br.getDebuffRemain("player", 267037) == 0 and php <= math.random(br.getValue("Lay on Hands - min"), br.getValue("Lay on Hands - max")) then
+					elseif br.getOptionValue("Lay on Hands Target") == 3 and php <= br.getValue("Lay on Hands") and not br.UnitDebuffID("player",25771) then
 						layOnHandsTarget = "player"
 					elseif br.getOptionValue("Lay on Hands Target") == 4 then
-						if br._G.UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" or br._G.UnitGroupRolesAssigned(lowestUnit) == "DAMAGER" then
-							if br.friend[i].hp <= math.random(br.getValue("Lay on Hands - min"), br.getValue("Lay on Hands - max")) and (not inInstance or (inInstance)) then
-								layOnHandsTarget = br.friend[i].unit
-							end
+						if br.friend[i].hp <= br.getValue("Lay on Hands") and (br._G.UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" or br._G.UnitGroupRolesAssigned(lowestUnit) == "DAMAGER") then
+							layOnHandsTarget = br.friend[i].unit
 						end
 					end
 					if layOnHandsTarget ~= nil then
@@ -765,7 +762,7 @@ local function runRotation()
 			end
 		end
 
-		-- Cast BoS
+		-- Blessing of Sacrifice
 		if br.isChecked("Blessing of Sacrifice") and cast.able.blessingOfSacrifice() then
 			if br.getOptionValue("BoS Target") == 1 then
 				if blessingOfSacrificeall ~= nil then
@@ -983,7 +980,7 @@ local function runRotation()
 		end
 
 		-- Hammer of Wrath
-		if cast.able.hammerOfWrath() then
+		if br.getSpellCD(24275) == 0 then
 			for i = 1, #enemies.yards30 do
 				local thisUnit = enemies.yards30[i]
 				if ccDoubleCheck(thisUnit) and (br.isChecked("Dev Stuff Leave off") or br.getFacing("player",thisUnit)) then
@@ -1123,54 +1120,52 @@ local function runRotation()
 		end
 	end
 
-	if (not br._G.IsMounted() or buff.divineSteed.exists()) then
-		if br.pause(true) or drinking or br.isLooting() then
-			return true
-		else
-			if not inCombat and not br.UnitBuffID("player",115834) then
+	if br.pause() or eating or br.hasBuff(250873) or br.hasBuff(115834) or br.hasBuff(58984) or br.hasBuff(185710) or br.isCastingSpell(212056) or br.isLooting() or (br._G.IsMounted() and not buff.divineSteed.exists()) then
+		return true
+	else
+		if not inCombat then
+			if actionList.bellsAndWhistles() then return true end
+
+			if actionList.defensiveTime() then return true end
+
+			if br.isChecked("OOC Healing") then
+				if mode.beacon ~= 4 and not talent.beaconOfVirtue then
+					if actionList.Beacon() then return true end
+				end
+
+				if br.isChecked("OoC Spenders") then
+					if actionList.spendies() then return true end
+				end
+
+				if actionList.healingTime() then return true end
+			end
+		end
+		if inCombat then
+			if br.isChecked("Hard DPS Key") and (br.SpecificToggle("Hard DPS Key") and not br._G.GetCurrentKeyBoardFocus()) then
+				if actionList.damageTime() then return true end
+			elseif not br.isChecked("Hard DPS Key") or not (br.SpecificToggle("Hard DPS Key") and not br._G.GetCurrentKeyBoardFocus()) then
+				if mode.mythic == 1 then
+					if actionList.mPlusGods() then return true end
+				end
+
 				if actionList.bellsAndWhistles() then return true end
+
+				if br.useCDs() then
+					if actionList.Coolies() then return true end
+				end
 
 				if actionList.defensiveTime() then return true end
 
-				if br.isChecked("OOC Healing") then
-					if mode.beacon ~= 4 and not talent.beaconOfVirtue then
-						if actionList.Beacon() then return true end
-					end
+				if actionList.spendies() then return true end
 
-					if br.isChecked("OoC Spenders") then
-						if actionList.spendies() then return true end
-					end
-
-					if actionList.healingTime() then return true end
+				if mode.beacon ~= 4 and not talent.beaconOfVirtue then
+					if actionList.Beacon() then return true end
 				end
-			end
-			if inCombat and not br.UnitBuffID("player",115834) then
-				if br.isChecked("Hard DPS Key") and (br.SpecificToggle("Hard DPS Key") and not br._G.GetCurrentKeyBoardFocus()) then
+
+				if actionList.healingTime() then return true end
+
+				if mode.damage == 1 and lowest.hp > br.getValue("Critical HP") then
 					if actionList.damageTime() then return true end
-				elseif not br.isChecked("Hard DPS Key") or not (br.SpecificToggle("Hard DPS Key") and not br._G.GetCurrentKeyBoardFocus()) then
-					if mode.mythic == 1 then
-						if actionList.mPlusGods() then return true end
-					end
-
-					if actionList.bellsAndWhistles() then return true end
-
-					if br.useCDs() then
-						if actionList.Coolies() then return true end
-					end
-
-					if actionList.defensiveTime() then return true end
-
-					if actionList.spendies() then return true end
-
-					if mode.beacon ~= 4 and not talent.beaconOfVirtue then
-						if actionList.Beacon() then return true end
-					end
-
-					if actionList.healingTime() then return true end
-
-					if mode.damage == 1 and lowest.hp > br.getValue("Critical HP") then
-						if actionList.damageTime() then return true end
-					end
 				end
 			end
 		end
