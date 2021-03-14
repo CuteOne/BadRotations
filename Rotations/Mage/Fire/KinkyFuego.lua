@@ -1,5 +1,5 @@
 local rotationName = "KinkyFuego"
-local rotationVersion = "1.3.3"
+local rotationVersion = "1.3.4"
 local colorRed = "|cffFF0000"
 local colorWhite = "|cffffffff"
 
@@ -84,6 +84,9 @@ local function createOptions()
          colorWhite.." .:|:. ")
         -- Casting Interrupt Delay
             br.ui:createSpinner(section, "Casting Interrupt Delay", 0.1, 0, 1, 0.1, "|cffFFBB00Activate to delay interrupting own casts to use procs.")
+            --
+             br.ui:createSpinner(section, "Combustion Standing Time", 0.1, 0, 10, 0.1, "|cffFFBB00Activate to delay interrupting own casts to use procs.")
+             br.ui:createSpinnerWithout(section,"Combustion TTD",  15,  1,  50,  1, "Min AoE Units")
         -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  1,  1,  60,  1,  "|cffFFFFFFSet to desired time for test in minuts. Min: 1 / Max: 60 / Interval: 5")
         -- Conjure Refreshments
@@ -2039,6 +2042,7 @@ end
     end -- End Action List - Active Talents
 
     local function actionList_CombustionPhase()
+        
         -- actions.combustion_phase=lights_judgment,if=buff.combustion.down
         -- actions.combustion_phase=lights_judgment,if=buff.combustion.down
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -2055,7 +2059,7 @@ end
         if conduit.infernalCascade 
         and (buff.sunKingsBlessings.react() 
         or var.num(var.extended_combustion_remains)) > 1.5*gcdMax*(11-var.num(buff.sunKingsBlessings.stack()))
-        then 
+        then  
             var.extended_combustion_remains = var.skb_duration; 
         end
         -- actions.combustion_phase+=/bag_of_tricks,if=buff.combustion.down
@@ -2072,6 +2076,9 @@ end
         and var.hot_streak_spells_in_flight+var.num(buff.heatingUp.react()
         and var.num(buff.heatingUp.remains() < 2))
         then
+         --   if br._G.UnitCastingInfo("player") then
+         --      br._G.SpellStopCasting()
+          --  end
             if cast.fireBlast("target") then debug("[Action:Combust Phase] Fire Blast (Interrupt) (2)") return true end 
         end
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -2092,6 +2099,9 @@ end
         and not buff.hotStreak.react() 
         and var.num(hot_streak_spells_in_flight) + var.num(buff.heatingUp.react()) < 2 
         then
+          --  if br._G.UnitCastingInfo("player") then
+         --      br._G.SpellStopCasting()
+         --   end
             if cast.fireBlast("target") then debug("[Action:Combust Phase] Fire Blast (Combust, Hot Streak) (2)")  return true end 
         end
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -2201,18 +2211,31 @@ end
         if buff.pyroclasm.react() and buff.pyroclasm.remains() > cast.time.pyroblast() 
         and (buff.combustion.remains > cast.time.pyroblast() or not buff.combustion.react()) 
         and #enemies.yards6t < var.combustion_flamestrike 
+       -- and interruptCast()
         then
+         --   if br._G.UnitCastingInfo("player") then
+          --     br._G.SpellStopCasting()
+          --  end
             if cast.pyroblast("target") then debug("[Action:Combust Phase] Pyroblast (Sun Kings Blessing) (1)") return true end
         end
         -- actions.combustion_phase+=/pyroblast,if=buff.hot_streak.react&buff.combustion.up
-        if buff.hotStreak.react() and buff.combustion.react() then
+        if buff.hotStreak.react() and buff.combustion.react() 
+        --and interruptCast() 
+        then 
+           -- if br._G.UnitCastingInfo("player") then
+            --   br._G.SpellStopCasting()
+          --  end
             if cast.pyroblast("target") then debug("[Action:Combust Phase] Pyroblast (Sun Kings Blessing) (2)") return true end
         end
 
         -- actions.combustion_phase+=/pyroblast,if=prev_gcd.1.scorch&buff.heating_up.react&active_enemies<variable.combustion_flamestrike
         if cast.last.scorch() and buff.heatingUp.react() and buff.heatingUp.remains() < cast.time.pyroblast() + gcdMax 
         and #enemies.yards10t < var.combustion_flamestrike 
-        then
+        --and interruptCast()
+        then 
+         --   if br._G.UnitCastingInfo("player") then
+           --    br._G.SpellStopCasting()
+         --   end
             if cast.pyroblast("target") then debug("[Action:Combust Phase] Pyroblast (Sun Kings Blessing) (3)") return true end
         end
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -2231,14 +2254,22 @@ end
         if buff.combustion.react() and travelTime < buff.combustion.remains() 
         and ((charges.fireBlast.count() < 1 and talent.pyroclasm and #enemies.yards8t == 1) or talent.pyroclasm or #enemies.yards8t > 1) 
         and var.num(buff.heatingUp.react()) + var.num(var.hot_streak_spells_in_flight) 
+     --   and interruptCast()
         then
+       --     if br._G.UnitCastingInfo("player") then
+           --    br._G.SpellStopCasting()
+         --   end
             if cast.phoenixFlames("target") then debug("[Action:Combust Phase] Phoenix  Flames (5)") return true end 
         end
         if buff.combustion.react() and var.in_flight_remains < buff.combustion.remains() 
         and ((charges.fireBlast.count() < 1 and talent.pyroclasm and #enemies.yards10t == 1) 
         or not talent.pyroclasm or #enemies.yards10t > 1) 
         and var.num(buff.heatingUp.react()) + var.num(var.hot_streak_spells_in_flight) < 2 
+   --     and interruptCast()
         then
+         --   if br._G.UnitCastingInfo("player") then
+     --          br._G.SpellStopCasting()
+        --    end
             if cast.phoenixFlames("target") then debug("[Action:Combust Phase] Phoenix Flames (15)") return true end
         end
         -- actions.combustion_phase+=/flamestrike,if=buff.combustion.down&cooldown.combustion.remains<cast_time&active_enemies>=variable.combustion_flamestrike
@@ -2302,6 +2333,7 @@ end
         if buff.combustion.remains() < cast.time.scorch() 
         and buff.combustion.react() or not buff.combustion.react() 
         and cd.combustion.remains() < cast.time.scorch() 
+        and talent.searingTouch 
         then
             if cast.scorch("target") then return true end
         end
@@ -2569,6 +2601,7 @@ end
         -- actions.combustion_phase+=/scorch,if=buff.combustion.remains>cast_time&buff.combustion.up|buff.combustion.down&cooldown.combustion.remains<cast_time
         if buff.combustion.remains() > cast.time.scorch() and buff.combustion.react() 
         or not buff.combustion.react() and cd.combustion.remains() < cast.time.scorch() 
+        and talent.searingTouch 
         then
              if cast.scorch("target") then debug("[Action:Combust Phase] Scorch (Combust or cd < cast time, aoe) (12)") return true end 
         end
@@ -2581,7 +2614,7 @@ end
             if cast.dragonsBreath("player") then debug("[Action:Combust Phase] Dragon's Breath (Combustion) (20)") return true end 
         end
         -- actions.combustion_phase+=/scorch,if=target.health.pct<=30&talent.searing_touch 
-        if talent.searingTouch and thp < 30 then
+        if talent.searingTouch and thp < 30 and buff.combustion.react()then
             if cast.scorch("target") then debug("[Action:Combust Phase] Scorch (Target HP <= 30%, Searing Touch, aoe) (12)") return true end 
         end 
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -2807,6 +2840,7 @@ end
     end
 
     local function actionList_RopPhase()
+                -- actions.rop_phase+=/pyroblast,if=buff.hot_streak.react
     if spellQueueReady() then
         -- actions.rop_phase=flamestrike,if=active_enemies>=variable.hot_streak_flamestrike&(buff.hot_streak.react|buff.firestorm.react)
         if #enemies.yards6t >= var.hard_cast_flamestrike and (buff.hotStreak.react() or runeforge.firestorm.equiped and buff.firestorm.react()) and not moving and br.getDistance("target") < 40 then     
@@ -2859,7 +2893,12 @@ end
             if cast.pyroblast("target") then debug("[Action:RoP Phase] Pyroblast (firestorm) (3)") return true end        
         end
         -- actions.rop_phase+=/pyroblast,if=buff.hot_streak.react
-        if buff.hotStreak.react() then 
+        if buff.hotStreak.react()
+        -- and interruptCast() 
+         then
+          --  if br._G.UnitCastingInfo("player") then
+          --     br._G.SpellStopCasting()
+          --  end 
             if cast.pyroblast("target") then debug("[Action:RoP Phase] Pyroblast (Hot Streak) (3.5)") return true end 
         end
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -2886,7 +2925,11 @@ end
         and (buff.heatingUp.react() 
         and not cast.current.scorch() or not buff.hotStreak.react() 
         and not buff.heatingUp.react() and cast.current.scorch() and not var.hot_streak_spells_in_flight)))
+      --  and interruptCast()
         then
+        --    if br._G.UnitCastingInfo("player") then
+          --     br._G.SpellStopCasting()
+          --  end
             if cast.fireBlast("target") then debug("[Action:RoP Phase] Fire Blast (5)") return true end 
         end 
         -- actions.rop_phase+=/call_action_list,name=active_talents
@@ -2899,13 +2942,21 @@ end
         if cast.last.scorch() and buff.heatingUp.react() 
         and talent.searingTouch and thp <= 30 
         and #enemies.yards10t < var.hot_streak_flamestrike 
+      --  and interruptCast()
         then
+          --  if br._G.UnitCastingInfo("player") then
+          --     br._G.SpellStopCasting()
+          --  end
             if cast.pyroblast("target") then debug("[Action:RoP Phase] Pyroblast (7)") return true end 
         end
         -- actions.rop_phase+=/phoenix_flames,if=!variable.phoenix_pooling&buff.heating_up.react&!buff.hot_streak.react&(active_dot.ignite<2|active_enemies>=variable.hard_cast_flamestrike|active_enemies>=variable.hot_streak_flamestrike)
         if not var.phoenix_pooling 
-        and buff.heatingUp.react() and not buff.hotStreak.react() and (var.soul_ignition_count < 2 or #enemies.yards10t >= var.hard_cast_flamestrike or #enemies.yards10 >= var.hot_streak_flamestrike)
+        and buff.heatingUp.react() and not buff.hotStreak.react() and (var.soul_ignition_count < 2 or #enemies.yards10t >= var.hard_cast_flamestrike or #enemies.yards10 >= var.hot_streak_flamestrike) 
+        --and interruptCast()
         then
+          --  if br._G.UnitCastingInfo("player") then
+          --     br._G.SpellStopCasting()
+          --  end
             if cast.phoenixFlames("target") then debug("[Action:RoP Phase] Phoenix Flames (8)") return true end 
         end
         -- actions.rop_phase+=/scorch,if=target.health.pct<=30&talent.searing_touch
@@ -2980,16 +3031,6 @@ end
     end -- End Action List - RoP Phase
 
     local function actionList_Standard_Rotation()
-        if cast.last.scorch() and buff.heatingUp.react() and not buff.combustion.react()
-        and talent.searingTouch 
-        and #enemies.yards10 < var.hot_streak_flamestrike 
-        and pyroReady
-        and interruptCast(spell.fireball)
-        then
-            if cast.current.fireball() then 
-                br._G.SpellStopCasting()
-            end
-        end
         if buff.hotStreak.react() and not buff.combustion.react()
         and (cast.last.fireball() or firestarterActive or cast.pyroblast.inFlight()) 
         and pyroReady
@@ -3331,7 +3372,7 @@ end
             if actionList_Standard_Rotation() then return end end
         end
         -- Scorch movement
-        if moving then if cast.scorch("target") then return true end end 
+        if talent.searingTouch and moving or talent.searingTouch and thp < 30 then if cast.scorch("target") then return true end end 
     end
 
     local actionList_CancelCast = function()
@@ -3341,7 +3382,7 @@ end
                 if br.timer:useTimer("hc stop Delay", 0.32 / (1 + GetHaste() / 100)) then
                     --CancelPendingSpell()
                     br._G.SpellStopCasting()
-                    br.ChatOverlay("no hardcast allowed!")
+                    debug("no hardcast allowed!")
                   --  return true 
                 end 
             end 
@@ -3357,28 +3398,40 @@ end
                
                 --CancelPendingSpell()
                     br._G.SpellStopCasting()
-                    br.ChatOverlay("no fireball during combust/aoe and having procs!")
+                    debug("no fireball during combust/aoe and having procs!")
                     --return true 
                 end
             end
                 --return true 
          --  end
         end
-                -- Interrupt Fireball during combust/aoe w/ procs. 
+        -- Interrupt Scorch w/ procs. 
+        if inCombat and buff.hotStreak.exists() or buff.heatingUp.exists() and pyroReady 
+        or (buff.hotStreak.exists() and #enemies.yards6t > 2 and fsReady)
+        and interruptCast(spell.scorch)
+        then 
+            if cast.current.scorch() then
+                if br.timer:useTimer("scorch stop delay", br.getOptionValue("Cast Interrupting Delay") / (1 + GetHaste() / 100)) then 
+                    br._G.SpellStopCasting()
+                    debug("no fireball during combust/aoe and having procs!")
+                end
+            end
+        end
+        -- Interrupt Fireball during combust/aoe w/ procs. 
         if inCombat and buff.combustion.react() and buff.hotStreak.exists() or buff.heatingUp.exists() and pyroReady
         -- or (buff.runeOfPower.react() and buff.heatingUp.exists() or buff.hotStreak.exists() and pyroReady)
         or (buff.hotStreak.exists() and #enemies.yards6t > 2 and fsReady)
         and interruptCast(spell.scorch)
         then
             if cast.current.scorch()then
-            if br.timer:useTimer("scorch stop delay", br.getOptionValue("Cast Interrupting Delay") / (1 + GetHaste() / 100)) then
+            --if br.timer:useTimer("scorch stop delay", br.getOptionValue("Cast Interrupting Delay") / (1 + GetHaste() / 100)) then
                
                 --CancelPendingSpell()
                     br._G.SpellStopCasting()
-                    br.ChatOverlay("no fireball during combust/aoe and having procs!")
+                    debug("no fireball during combust/aoe and having procs!")
                     --return true 
                 end
-            end
+           -- end
                 --return true 
          --  end
         end
@@ -3404,7 +3457,6 @@ end
         and pyroReady
         and interruptCast(spell.fireball)
         then 
-          
             if cast.current.fireball() then
             if br.timer:useTimer("fb stop delay", br.getOptionValue("Cast Interrupting Delay") / (1 + GetHaste() / 100)) then
                 --CancelPendingSpell()
@@ -3418,10 +3470,10 @@ end
         and talent.searingTouch and thp <= 30 
         and #enemies.yards10t < var.hot_streak_flamestrike 
         and pyroReady
-        and interruptCast(spell.scorch)
+      --  and interruptCast(spell.scorch)
         then
             if cast.current.scorch() then
-                if br.timer:useTimer("scorch stop delay", br.getOptionValue("Cast Interrupting Delay") / (1 + GetHaste() / 100)) then
+               if br.timer:useTimer("scorch stop delay", br.getOptionValue("Cast Interrupting Delay") / (1 + GetHaste() / 100)) then
                     br._G.SpellStopCasting()
                 end 
             end
@@ -3436,14 +3488,14 @@ end
         if not var.phoenix_pooling 
         and buff.heatingUp.react() and not buff.hotStreak.react() 
      --   and (var.soul_ignition_count < 2 or #enemies.yards10t >= var.hard_cast_flamestrike or #enemies.yards10 >= var.hot_streak_flamestrike) and fsReady
-        and interruptCast(spell.fireball)
+     --   and interruptCast(spell.fireball)
         then
             if cast.current.fireball() then
-               -- if br.timer:useTimer("scorch stop delay", br.getOptionValue("Cast Interrupting Delay") / (1 + GetHaste() / 100)) then
+                if br.timer:useTimer("scorch stop delay", br.getOptionValue("Cast Interrupting Delay") / (1 + GetHaste() / 100)) then
                     br._G.SpellStopCasting() 
-               -- end
+                end
             end
-            return true
+          --  return true
         end
         --[[if buff.hotStreak.react() and buff.hotStreak.remains() < cast.time.fireball() and not buff.combustion.react()
         and pyroReady
@@ -3564,7 +3616,7 @@ end
                     if br.timer:useTimer("target", math.random(0.2,1.5)) then
                         if cast.fireball("target") then br.addonDebug("Casting Fireball (Pull Spell)") return end
                     end
-                elseif moving and hastar and br._G.UnitCanAttack("target", "player") and not br.GetUnitIsDeadOrGhost("target") then
+                elseif moving and hastar and br._G.UnitCanAttack("target", "player") and not br.GetUnitIsDeadOrGhost("target") and talent.searingTouch and thp < 30 then
                     if br.timer:useTimer("Scorch Delay", math.random(0.2,1.5)) then
                         if cast.scorch("target") then br.addonDebug("Casting Scorch (Pull Spell)") return end
                     end
@@ -3610,7 +3662,7 @@ end
                     if talent.firestarter then
                         if (cd.combustion.remains() <= gcd and br.getHP("target") < 90) or (charges.runeOfPower.count() == 2 and (cd.combustion.remains() > 20 or br.getHP("target") >= 90)) then
                             if cast.runeOfPower("player") then br.addonDebug("Casting Rune of Power")
-                                return
+                                return 
                             end
                         end
                     elseif not talent.firestarter then
