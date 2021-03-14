@@ -499,7 +499,7 @@ function unlock.WowAdUnlock()
 	b.ClickPosition = function(...)
 		return ClickPosition(...)  
     end
-	b.UnitBoundingRadius = nil
+	b.UnitBoundingRadius = function(...) return 0 end
 	b.CancelPendingSpell =  SpellStopTargeting;
 	unlocked = true
 	return unlocked
