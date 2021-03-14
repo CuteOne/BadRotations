@@ -15,6 +15,35 @@ br.api.module = function(self)
     local var               = {}
     var.getItemInfo         = _G["GetItemInfo"]
     var.getHealPot          = br.getHealthPot
+    
+    -- Auto Put Keystone into Receptable during mythic+ dungeons. | Kinky BR Module Code example
+    module.autoKeystone = function(section)
+        if section ~= nil then 
+            -- Auto Keystone 
+            br.ui:createCheckbox(section, "Auto Mythic+ Keystone","|cffFFFFFFCheck to Auto click keystones if you're at a Font of Power")
+           -- br.ui:createSpinner(section, "Minimum Keystone to Auto Use", 2, 2, 30, 1, "|cffFFFFFFMinimum keystone number of the key before submitting it. ")
+        end
+        if section == nil then
+            if ui.checked("Auto Mythic+ Keystone") then
+               var.autoKeystone = CreateFrame("Frame")
+               var.autoKeystone:RegisterEvent("ADDON_LOADED")
+               var.autoKeystone:SetScript("OnEvent", function(self, event, addon)
+	               if (addon == "Blizzard_ChallengesUI") then
+		               if ChallengesKeystoneFrame then ChallengesKeystoneFrame:HookScript("OnShow", function()
+				            for Bag = 0, NUM_BAG_SLOTS do
+				    	        for Slot = 1, GetContainerNumSlots(Bag) do
+					    	        local ID = GetContainerItemID(Bag, Slot)
+						            if (ID and ID == 180653) then return UseContainerItem(Bag, Slot) end
+					           end
+				            end
+			            end)
+			                self:UnregisterEvent(event)
+		                end
+	                 end
+                end)
+            end 
+        end
+    end
 
     -- Basic Healing Module
     module.BasicHealing = function(section)
