@@ -326,7 +326,7 @@ br.tableSave = function(tbl, filename)
     local charS, charE = "   ", "\n"
     -- local file,err = io.open( filename, "wb" )
     -- if err then return err end
-    br._G.WriteFile(filename, "")
+    br._G.WriteFile(filename, "", false)
     -- initiate variables for save procedure
     local tables, lookup = {tbl}, {[tbl] = 1}
     -- file:write( "return {"..charE )

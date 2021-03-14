@@ -82,14 +82,18 @@ function br:loadSettings(folder, class, spec, profile)
 		if br:findFileInFolder("savedSettings.lua", loadDir) then
 			br._G.print("Loading Settings File From Directory: " .. loadDir)
 			brdata = br.tableLoad(loadDir .. "savedSettings.lua")
-			fileFound = true
+			if brdata then
+				fileFound = true
+			end
 		end
 		-- Load Profile
 		if br:findFileInFolder("savedProfile.lua", loadDir) then
 			-- Print("Loading Saved Profiles")
 			-- Print("From Directory: "..loadDir)
 			brprofile = br.tableLoad(loadDir .. "savedProfile.lua")
-			profileFound = true
+			if brprofile then
+				profileFound = true
+			end
 		end
 		if fileFound then
 			br.ui:closeWindow("all")
