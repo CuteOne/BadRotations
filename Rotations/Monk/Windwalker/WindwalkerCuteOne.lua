@@ -1200,14 +1200,14 @@ local function runRotation()
         if buff.rushingJadeWind.cancel() then ui.debug("Canceled Rushing Jade Wind") return true end
     end
 
-    -- Fists of Fury Cancel - WoO SEF
-    if var.fofCastRemain == nil then var.fofCastRemain = br._G.GetTime() end
-    if buff.weaponsOfOrderWW.exists() and buff.stormEarthAndFire.exists() and cast.current.fistsOfFury()
-        --and ((mode.rotation == 1 and #enemies.yards8 < 3) or (mode.rotation == 3 and #enemies.yards8 > 0))
-    then
-        var.fofCastRemain = br._G.GetTime() + cast.timeRemain() + unit.gcd("true")
-        if cast.cancel.fistsOfFury() then ui.debug("|cffFF0000Canceling Fists of Fury") return true end
-    end
+    -- -- Fists of Fury Cancel - WoO SEF
+    -- if var.fofCastRemain == nil then var.fofCastRemain = br._G.GetTime() end
+    -- if buff.weaponsOfOrderWW.exists() and buff.stormEarthAndFire.exists() and cast.current.fistsOfFury()
+    --     --and ((mode.rotation == 1 and #enemies.yards8 < 3) or (mode.rotation == 3 and #enemies.yards8 > 0))
+    -- then
+    --     var.fofCastRemain = br._G.GetTime() + cast.timeRemain() + unit.gcd("true")
+    --     if cast.cancel.fistsOfFury() then ui.debug("|cffFF0000Canceling Fists of Fury") return true end
+    -- end
 
     -- Rising Sun Kick - WoO Chi Reduction Buff Remaining
     if var.rskChiWoORemain == nil then var.rskChiWoORemain = 0 var.rskChiWoOExpires = br._G.GetTime() end
