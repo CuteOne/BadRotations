@@ -235,10 +235,10 @@ actionList.Defensive = function()
         module.BasicHealing()
         -- Ancestral Spirit
         if ui.checked("Ancestral Spirit") and cast.timeSinceLast.ancestralSpirit() > 5 then
-            if ui.value("Ancestral Spirit")==1 and cast.able.ancestralSpirit("target") and unit.player("target") then
+            if ui.value("Ancestral Spirit")==1 and cast.able.ancestralSpirit("target","dead") and unit.player("target") then
                 if cast.ancestralSpirit("target","dead") then ui.debug("Casting Ancestral Spirit [Target]") return true end
             end
-            if ui.value("Ancestral Spirit")==2 and cast.able.ancestralSpirit("mouseover") and unit.player("mouseover") then
+            if ui.value("Ancestral Spirit")==2 and cast.able.ancestralSpirit("mouseover","dead") and unit.player("mouseover") then
                 if cast.ancestralSpirit("mouseover","dead") then ui.debug("Casting Ancestral Spirit [Mouseover]") return true end
             end
         end
@@ -350,8 +350,8 @@ actionList.AOE = function()
     -- end
     -- Crash Lightning
     -- crash_lightning,if=runeforge.doom_winds.equipped&buff.doom_winds.up
-    if cast.able.crashLightning() and runeforge.doomWinds.equiped and buff.doomWinds.exists() then
-        if cast.crashLightning(nil,"cone",1,8) then ui.debug("Casting Crash Lightning [AOE Doom Winds]") return true end
+    if cast.able.crashLightning("player","cone",1,8) and runeforge.doomWinds.equiped and buff.doomWinds.exists() then
+        if cast.crashLightning("player","cone",1,8) then ui.debug("Casting Crash Lightning [AOE Doom Winds]") return true end
     end
     -- Frost Shock
     -- frost_shock,if=buff.hailstorm.up
@@ -360,7 +360,7 @@ actionList.AOE = function()
     end
     -- Sundering
     -- sundering
-    if ui.alwaysCdNever("Sundering") and cast.able.sundering() and #enemies.yards11r > 0 then
+    if ui.alwaysCdNever("Sundering") and cast.able.sundering("player","rect",1,11) and #enemies.yards11r > 0 then
         if cast.sundering("player","rect",1,11) then ui.debug("Casting Sundering [AOE]") return true end
     end
     -- Flame Shock
@@ -375,12 +375,12 @@ actionList.AOE = function()
     end
     -- Primodial Wave
     -- primordial_wave,target_if=min:dot.flame_shock.remains,cycle_targets=1,if=!buff.primordial_wave.up&(!talent.stormkeeper.enabled|buff.stormkeeper.up)
-    if ui.alwaysCdNever("Covenant Ability") and cast.able.primordialWave() and not buff.primordialWave.exists() and (not talent.stormkeeper or buff.stormkeeper.exists()) then
+    if ui.alwaysCdNever("Covenant Ability") and cast.able.primordialWave(var.lowestFlameShock) and not buff.primordialWave.exists() and (not talent.stormkeeper or buff.stormkeeper.exists()) then
         if cast.primordialWave(var.lowestFlameShock) then ui.debug("Casting Primordial Wave") return true end
     end
     -- Fire Nova
     -- fire_nova,if=active_dot.flame_shock>=3
-    if cast.able.fireNova() and debuff.flameShock.count() >= 3 then
+    if cast.able.fireNova("player","aoe",1,8) and debuff.flameShock.count() >= 3 then
         if cast.fireNova("player","aoe",1,8) then ui.debug("Casting Fire Nova [AOE 3+ Flame Shock]") return true end
     end
     -- Vesper Totem
@@ -400,8 +400,8 @@ actionList.AOE = function()
     end
     -- Crash Lightning
     -- crash_lightning,if=talent.crashing_storm.enabled|buff.crash_lightning.down
-    if cast.able.crashLightning() and (talent.crashingStorm or not buff.crashLightning.exists()) then
-        if cast.crashLightning(nil,"cone",1,8) then ui.debug("Casting Crash Lightning [AOE Crashing Storm / No Buff]") return true end
+    if cast.able.crashLightning("player","cone",1,8) and (talent.crashingStorm or not buff.crashLightning.exists()) then
+        if cast.crashLightning("player","cone",1,8) then ui.debug("Casting Crash Lightning [AOE Crashing Storm / No Buff]") return true end
     end
     -- Lava Lash
     -- lava_lash,target_if=min:debuff.lashing_flames.remains,cycle_targets=1,if=talent.lashing_flames.enabled|(runeforge.primal_lava_actuators.equipped&buff.primal_lava_actuators.stack>6)
@@ -411,7 +411,7 @@ actionList.AOE = function()
     end
     -- lava_lash,if=buff.crash_lightning.up&(buff.hot_hand.up|(runeforge.primal_lava_actuators.equipped&buff.primal_lava_actuators.stack>6))
     if cast.able.lavaLash() and buff.crashLightning.exists() and (buff.hotHand.exists() or (runeforge.primalLavaActuators.equiped and buff.primalLavaActuators.stack() > 6)) then
-        if cast.lavaLash(var.lowestLashingFlames) then ui.debug("Casting Lashing Flames [AOE Crash Lightning, Hot Hand / Primal Lava Actuators]") return true end
+        if cast.lavaLash() then ui.debug("Casting Lashing Flames [AOE Crash Lightning, Hot Hand / Primal Lava Actuators]") return true end
     end
     -- Stormstrike
     -- stormstrike,if=buff.crash_lightning.up
@@ -420,8 +420,8 @@ actionList.AOE = function()
     end
     -- Crash Lightning
     -- crash_lightning
-    if cast.able.crashLightning() then
-        if cast.crashLightning(nil,"cone",1,8) then ui.debug("Casting Crash Lightning [AOE]") return true end
+    if cast.able.crashLightning("player","cone",1,8) then
+        if cast.crashLightning("player","cone",1,8) then ui.debug("Casting Crash Lightning [AOE]") return true end
     end
     -- Chain Harvest
     -- chain_harvest,if=buff.maelstrom_weapon.stack>=5
@@ -470,7 +470,7 @@ actionList.AOE = function()
     end
     -- Fae Trasfusion
     -- fae_transfusion
-    if ui.alwaysCdNever("Covenant Ability") and cast.able.faeTransfusion() then
+    if ui.alwaysCdNever("Covenant Ability") and cast.able.faeTransfusion("player","ground") then
         if cast.faeTransfusion("player","ground") then ui.debug("Casting Fae Transfusion [AOE]") return true end
     end
     -- Frost Shock
@@ -495,7 +495,7 @@ actionList.AOE = function()
     end
     -- Fire Nova
     -- fire_nova,if=active_dot.flame_shock>1
-    if cast.able.fireNova() and debuff.flameShock.count() > 1 then
+    if cast.able.fireNova("player","aoe",1,8) and debuff.flameShock.count() > 1 then
         if cast.fireNova("player","aoe",1,8) then ui.debug("Casting Fire Nova [AOE 2+ Flame Shock]") return true end
     end
     -- Earthen Spike
@@ -551,8 +551,8 @@ actionList.Single = function()
     end
     -- Crash Lightning
     -- crash_lightning,if=runeforge.doom_winds.equipped&buff.doom_winds.up
-    if cast.able.crashLightning() and runeforge.doomWinds.equiped and buff.doomWinds.exists() then
-        if cast.crashLightning(nil,"cone",1,8) then ui.debug("Casting Crash Lightning [ST - Doom Winds]") return true end
+    if cast.able.crashLightning("player","cone",1,8) and runeforge.doomWinds.equiped and buff.doomWinds.exists() then
+        if cast.crashLightning("player","cone",1,8) then ui.debug("Casting Crash Lightning [ST - Doom Winds]") return true end
     end
     -- Ice Strike
     -- ice_strike,if=runeforge.doom_winds.equipped&buff.doom_winds.up
@@ -581,7 +581,7 @@ actionList.Single = function()
     end
     -- Fae Transfusion
     -- fae_transfusion
-    if ui.alwaysCdNever("Covenant Ability") and cast.able.faeTransfusion() then
+    if ui.alwaysCdNever("Covenant Ability") and cast.able.faeTransfusion("player","ground") then
         if cast.faeTransfusion("player","ground") then ui.debug("Casting Fae Transfusion [ST]") return true end
     end
     -- Chain Lightning
@@ -626,8 +626,8 @@ actionList.Single = function()
     end
     -- Crash Lightning
     -- crash_lightning
-    if cast.able.crashLightning() then
-        if cast.crashLightning(nil,"cone",1,8) then ui.debug("Casting Crash Lightning [ST]") return true end
+    if cast.able.crashLightning("player","cone",1,8) then
+        if cast.crashLightning("player","cone",1,8) then ui.debug("Casting Crash Lightning [ST]") return true end
     end
     -- Flame Shock
     -- flame_shock,target_if=refreshable
@@ -651,12 +651,12 @@ actionList.Single = function()
     end
     -- Sundering
     -- sundering,if=raid_event.adds.in>=40
-    if ui.alwaysCdNever("Sundering") and cast.able.sundering() and #enemies.yards11r > 0 then
+    if ui.alwaysCdNever("Sundering") and cast.able.sundering("player","rect",1,11) and #enemies.yards11r > 0 then
         if cast.sundering("player","rect",1,11) then ui.debug("Casting Sundering [ST]") return true end
     end
     -- Fire Nova
     -- fire_nova,if=active_dot.flame_shock
-    if cast.able.fireNova() and debuff.flameShock.count() > 1 then
+    if cast.able.fireNova("player","aoe",1,8) and debuff.flameShock.count() > 1 then
         if cast.fireNova("player","aoe",1,8) then ui.debug("Casting Fire Nova [ST]") return true end
     end
     -- Lightning Bolt
@@ -787,6 +787,7 @@ local function runRotation()
     enemies.get(5)
     enemies.get(8)
     enemies.get(8,"player",false,true)
+    enemies.cone.get(90,8,false,true)
     enemies.get(10)
     enemies.get(10,units.get(5))
     enemies.rect.get(10,11,false)
@@ -865,7 +866,7 @@ local function runRotation()
             end
             -- Windfury Totem
             -- windfury_totem,if=!runeforge.doom_winds.equipped
-            if cast.able.windfuryTotem() and not unit.moving() and not runeforge.doomWinds.equiped and not buff.windfuryTotem.exists("player","any")
+            if cast.able.windfuryTotem() and not unit.moving() and not buff.windfuryTotem.exists("player","any")
                 and #enemies.yards8 > 0 and not ui.checked("Windfury Totem Key")
             then
                 if cast.windfuryTotem() then ui.debug("Casting Windfury Totem") return true end
@@ -897,7 +898,7 @@ local function runRotation()
                 end
                 -- Fae Transfusion
                 -- fae_transfusion,if=(talent.ascendance.enabled|runeforge.doom_winds.equipped)&(soulbind.grove_invigoration|soulbind.field_of_blossoms|active_enemies=1)
-                if ui.alwaysCdNever("Covenant Ability") and cast.able.faeTransfusion() and (talent.ascendance or runeforge.doomWinds.equiped) and #enemies.yards5 == 1 then
+                if ui.alwaysCdNever("Covenant Ability") and cast.able.faeTransfusion("player","ground") and (talent.ascendance or runeforge.doomWinds.equiped) and #enemies.yards5 == 1 then
                     if cast.faeTransfusion("player","ground") then ui.debug("Casting Fae Transfusion") return true end
                 end
                 -- Ascendance
