@@ -547,8 +547,8 @@ actionList.St = function()
         if cast.flayedShot() then ui.debug("Casting Flayed Shot [Venthhyr]") return true end
     end
     -- Kill Shot
-    -- kill_shot,if=buff.flayers_mark.remains<5|target.health.pct<=20
-    if cast.able.killShot(var.lowestHPUnit) and (buff.flayersMark.remains() < 5 or unit.hp(var.lowestHPUnit) < 20) then
+    -- kill_shot
+    if cast.able.killShot(var.lowestHPUnit) then
         if cast.killShot(var.lowestHPUnit) then ui.debug("Casting Kill Shot") return true end
     end
     -- Barbed Shot
