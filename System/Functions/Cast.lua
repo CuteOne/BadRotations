@@ -632,6 +632,7 @@ function br.createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,p
 		and (br.isKnown(spellID) or debug == "known") --and ((not _G.IsCurrentSpell(spellID) and not br.isCastingSpell(spellID,"player"))) -- Known/Current Checks
 	 	and hasTalent(spellID) and hasEssence() and not br.isIncapacitated(spellID) and queensCourtCastCheck(spellID) -- Talent/Essence/Incapacitated/Special Checks
 	 	and (not aoeCast or (aoeCast and (br.isDummy() or br.isSafeToAoE(spellID,thisUnit,effectRng,minUnits)))) -- Safe to AoE Check
+		and (thisUnit == nil or debug ~= "dead" or (debug == "dead" and br.GetUnitIsDeadOrGhost(thisUnit))) -- Dead Check
 	then
 		local function printReport(debugOnly,debugReason,thisCount)
 			if debugReason == nil then debugReason = "" end
@@ -721,7 +722,7 @@ function br.createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,p
 		end
 		if thisUnit == "None" then printReport(true,"No Unit") return false end
 		-- Other Cast Conditions - Require Target
-		if thisUnit ~= nil and thisUnit ~= "None" and (debug == "dead" or not br._G.UnitIsDeadOrGhost(thisUnit))
+		if thisUnit ~= nil and thisUnit ~= "None"
 			and (br.GetUnitIsUnit(thisUnit,"player") or br.units[thisUnit] ~= nil or br.getLineOfSight(thisUnit))
 		then
 			-- Determined Target Pet/Normal Cast (Early Exit as Range Checks done to determine target)
