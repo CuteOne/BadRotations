@@ -389,8 +389,8 @@ actionList.AOE = function()
         if cast.vesperTotem() then ui.debug("Casting Vesper Totem [AOE]") return true end
     end
     -- Lightning Bolt
-    -- lightning_bolt,if=buff.primordial_wave.up&(buff.stormkeeper.up|buff.maelstrom_weapon.stack>=5)
-    if cast.able.lightningBolt() and buff.primordialWave.exists() and (buff.stormkeeper.exists() or buff.maelstromWeapon.stack() >= 5) then
+    -- lightning_bolt,if=buff.primordial_wave.up&buff.maelstrom_weapon.stack>=5
+    if cast.able.lightningBolt() and buff.primordialWave.exists() and buff.maelstromWeapon.stack() >= 5 then
         if cast.lightningBolt() then ui.debug("Casting Lightning Bolt [AOE Primordial Wave]") return true end
     end
     -- Chain Lightning
@@ -405,8 +405,13 @@ actionList.AOE = function()
     end
     -- Lava Lash
     -- lava_lash,target_if=min:debuff.lashing_flames.remains,cycle_targets=1,if=talent.lashing_flames.enabled|(runeforge.primal_lava_actuators.equipped&buff.primal_lava_actuators.stack>6)
-    if cast.able.lavaLash(var.lowestLashingFlames) and (talent.lashingFlames or (runeforge.primalLavaActuators.equiped and buff.primalLavaActuators.stack() > 6)) then
+    -- lava_lash,target_if=min:debuff.lashing_flames.remains,cycle_targets=1,if=talent.lashing_flames.enabled
+    if cast.able.lavaLash(var.lowestLashingFlames) and talent.lashingFlames then
         if cast.lavaLash(var.lowestLashingFlames) then ui.debug("Casting Lashing Flames [AOE Lowest Lashing Flames]") return true end
+    end
+    -- lava_lash,if=buff.crash_lightning.up&(buff.hot_hand.up|(runeforge.primal_lava_actuators.equipped&buff.primal_lava_actuators.stack>6))
+    if cast.able.lavaLash() and buff.crashLightning.exists() and (buff.hotHand.exists() or (runeforge.primalLavaActuators.equiped and buff.primalLavaActuators.stack() > 6)) then
+        if cast.lavaLash(var.lowestLashingFlames) then ui.debug("Casting Lashing Flames [AOE Crash Lightning, Hot Hand / Primal Lava Actuators]") return true end
     end
     -- Stormstrike
     -- stormstrike,if=buff.crash_lightning.up
@@ -860,8 +865,8 @@ local function runRotation()
             end
             -- Windfury Totem
             -- windfury_totem,if=!runeforge.doom_winds.equipped
-            if cast.able.windfuryTotem() and not unit.moving() and (not runeforge.doomWinds.equiped or
-                not buff.windfuryTotem.exists("player","any")) and #enemies.yards8 > 0 and not ui.checked("Windfury Totem Key")
+            if cast.able.windfuryTotem() and not unit.moving() and not runeforge.doomWinds.equiped and not buff.windfuryTotem.exists("player","any")
+                and #enemies.yards8 > 0 and not ui.checked("Windfury Totem Key")
             then
                 if cast.windfuryTotem() then ui.debug("Casting Windfury Totem") return true end
             end
