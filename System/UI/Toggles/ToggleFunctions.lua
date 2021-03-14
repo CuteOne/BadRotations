@@ -1,7 +1,7 @@
 local _, br = ...
 function br.ui:createToggle(table,name,col,row)
 	if type(name) ~= "string" then
-		br._G.print("Invaild type"..type(name).."detected for table "..name..".  Please let devs know!")
+		br._G.print("Invaild type "..type(name).." detected for table "..name..".  Please let devs know!")
 	else
 		br[name.."Modes"] = table
 		br["CreateButton"](name,col,row)
@@ -232,7 +232,7 @@ end
 -- /run CreateButton("AoE",2,2)
 function br.CreateButton(Name, x, y)
 	if type(Name) ~= "string" then
-		br._G.print("Invaild type"..type(Name).."detected for table "..Name..".  Please let devs know!")
+		br._G.print("Invaild type "..type(Name).." detected for table "..Name..".  Please let devs know!")
 		return
 	end
 	if br.data.settings[br.selectedSpec] ~= nil then
