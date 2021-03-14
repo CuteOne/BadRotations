@@ -2344,7 +2344,8 @@ br.lists.spells = {
                 vanquishersHammer           = 328204,
             },
             conduits                        = {
-
+                expurgation                 = 339371,
+                templarsVindication         = 339531,
             },
             covenants                       = {
                 ashenHallow                 = 316958,
@@ -2380,8 +2381,11 @@ br.lists.spells = {
                 unbreakableSpirit           = 114154,
             },
             runeforges                      = {
+                finalVerdict                = 337247,
                 madParagon                  = 337594,
+                theMadParagon               = 337594,
                 theMagistratesJudgment      = 337681,
+                vanguardsMomentum           = 337638,
             }
         },
     },
