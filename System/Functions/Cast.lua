@@ -582,7 +582,11 @@ function br.createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,p
 	if maxRange == nil or maxRange == 0 then maxRange = tonumber(effectRng) else maxRange = tonumber(maxRange) end
 	if debug == nil then debug = "norm" end
 	-- Lighter Cast Spell
-	local function castingSpell(thisUnit,spellID,spellName,icon,debug)
+	local function castingSpell(thisUnit, spellID,spellName,icon,debug, printReport)
+        -- Debug Only
+        if debug == "debug" then
+			return printReport(true)
+		end
 		if br._G.UnitHealth(thisUnit) > 0 or debug == "dead" then
 			br.botCast = true -- Used by old Queue Cast
 			br.botSpell = spellID -- Used by old Queue Cast
@@ -659,11 +663,12 @@ function br.createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,p
 				elseif debugReason == "Invalid Unit" then
 					if br.units[thisUnit] == nil then
 						br.player.ui.debug("Spell: "..spellName.." failed to cast because Unit is not in br.units.")
+						return false
 					end
 					if not br.getLineOfSight(thisUnit) then
 						br.player.ui.debug("Spell: "..spellName.." failed to cast because Unit is out line of sight.")
+						return false
 					end
-					return false
 				else
 					br._G.print("|cffFF0000Error: |r Failed to cast. - "
 							.."Spell: "..spellName
@@ -679,6 +684,10 @@ function br.createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,p
 				end
 			end
 			return true
+		end		
+        -- Debug Only
+        if thisUnit ~= nil and thisUnit ~= "None" and debug == "debug" then
+			return printReport(true)
 		end
 		-- Attempt to determine best unit for spell's range
 		local unitAssigned = false
@@ -690,10 +699,6 @@ function br.createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,p
 				thisUnit = br.getSpellUnit(baseSpellID,true,minRange,maxRange,spellType)
 			end
 			if thisUnit ~= nil and thisUnit ~= "None" then unitAssigned = true end
-		end
-        -- Debug Only
-        if debug == "debug" then
-			return printReport(true)
 		end
 		-- Cast Ground AOE at "Best" Locaton
         if thisUnit == "best" then
@@ -711,7 +716,7 @@ function br.createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,p
 		-- Cast on Pet's Target
 		if thisUnit == "pettarget" then
 			if (br.getDistance(thisUnit,"pet") < maxRange or br._G.IsSpellInRange(spellName,thisUnit) == 1) then
-				return castingSpell(thisUnit,spellID,spellName,icon)
+				return castingSpell(thisUnit,spellID,spellName,icon,debug,printReport)
 			end
 		end
 		if thisUnit == "None" then printReport(true,"No Unit") return false end
@@ -723,8 +728,7 @@ function br.createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,p
 			if unitAssigned and (debug == "norm" or debug == "pet") then
 				local enemyFacingCount = #br.getEnemies("player",maxRange,false,true) or 0
 				if (minUnits == 1 and br._G.IsSpellInRange(spellName,thisUnit) == 1) or (enemyFacingCount >= minUnits) or spellType == "Helpful" or spellType == "Unknown" then
-					-- Cast Ability
-					if debug == "pet" then return castingSpell(thisUnit,spellID,spellName,icon) else return castingSpell(thisUnit,spellID,spellName,icon) end
+					return castingSpell(thisUnit,spellID,spellName,icon,debug,printReport)
 				else
 					return printReport(false,"Below Min Units Facing",enemyFacingCount)
 				end
@@ -735,7 +739,7 @@ function br.createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,p
 				-- Dead Friend
 				if debug == "dead" then
 					if br._G.UnitIsPlayer(thisUnit) and br.GetUnitIsDeadOrGhost(thisUnit) and br.GetUnitIsFriend(thisUnit,"player") then
-						return castingSpell(thisUnit,spellID,spellName,icon,debug)
+						return castingSpell(thisUnit,spellID,spellName,icon,debug,printReport)
 					else
 						return printReport(false,"Not Dead")
 					end
@@ -750,7 +754,7 @@ function br.createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,p
 								return br.castGround(thisUnit,spellCast,maxRange,minRange,effectRng,castTime)
 							end
 							if debug == "aoe" then
-								return castingSpell(thisUnit,spellID,spellName,icon)
+								return castingSpell(thisUnit,spellID,spellName,icon,debug,printReport)
 							end
 						else
 							return printReport(false,"Below Min Units",enemyCount)
@@ -759,7 +763,7 @@ function br.createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,p
 					if debug == "cone" then
 						local enemyConeCount = br.getEnemiesInCone(effectRng,maxRange) or 0
 						if enemyConeCount >= minUnits then
-							return castingSpell(thisUnit,spellID,spellName,icon)
+							return castingSpell(thisUnit,spellID,spellName,icon,debug,printReport)
 						else
 							return printReport(false,"Below Min Units",enemyConeCount)
 						end
@@ -767,7 +771,7 @@ function br.createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,p
 					if debug == "rect" then
 						local enemyRectCount = br.getEnemiesInRect(effectRng,maxRange) or 0
 						if enemyRectCount >= minUnits then
-							return castingSpell(thisUnit,spellID,spellName,icon)
+							return castingSpell(thisUnit,spellID,spellName,icon,debug,printReport)
 						else
 							return printReport(false,"Below Min Units",enemyRectCount)
 						end
@@ -778,7 +782,7 @@ function br.createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,p
 				if (debug == "norm" or debug == "pet") then
 					local enemyFacingCount = #br.getEnemies("player",maxRange,false,true) or 0
 					if (minUnits == 1 and br._G.IsSpellInRange(spellName,thisUnit) == 1) or (enemyFacingCount >= minUnits) or spellType == "Helpful" or spellType == "Unknown" then
-						return castingSpell(thisUnit,spellID,spellName,icon)
+						return castingSpell(thisUnit,spellID,spellName,icon,debug,printReport)
 					else
 						return printReport(false,"Below Min Units Facing",enemyFacingCount)
 					end
@@ -791,6 +795,38 @@ function br.createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,p
 		end
 		return printReport()
     end
+	return false
+end
+
+local function enemiesPresent(thisUnit, debug, minUnits, effectRng, maxRange, spellName, spellType)
+	-- Cast on Pet's Target
+	if thisUnit == "pettarget" then
+		if (br.getDistance(thisUnit,"pet") < maxRange or br._G.IsSpellInRange(spellName,thisUnit) == 1) then return true end
+	end
+	-- Dead Friend
+	if debug == "dead" then
+		if br._G.UnitIsPlayer(thisUnit) and br.GetUnitIsDeadOrGhost(thisUnit) and br.GetUnitIsFriend(thisUnit,"player") then return true end
+	end
+	-- Ground / AOE
+	if (debug == "ground" or debug == "aoe") then
+		local enemyCount = #br.getEnemies("player",maxRange) or 0
+		if enemyCount >= minUnits then return true end
+	end
+	-- Cone
+	if debug == "cone" then
+		local enemyConeCount = br.getEnemiesInCone(effectRng,maxRange) or 0
+		if enemyConeCount >= minUnits then return true end
+	end
+	-- Rect
+	if debug == "rect" then
+		local enemyRectCount = br.getEnemiesInRect(effectRng,maxRange) or 0
+		if enemyRectCount >= minUnits then return true end
+	end
+	-- Normal / Pet
+	if (debug == "norm" or debug == "pet") then
+		local enemyFacingCount = #br.getEnemies("player",maxRange,false,true) or 0
+		if ((minUnits == 1 and br._G.IsSpellInRange(spellName,thisUnit) == 1) or (enemyFacingCount >= minUnits) or spellType == "Helpful" or spellType == "Unknown") then return true end
+	end
 	return false
 end
 
