@@ -1917,7 +1917,7 @@ local function runRotation()
 		end
 		-- Nature's Swiftness
 		if br.isChecked("Nature's Swiftness") and lowest.hp < br.getOptionValue("Nature's Swiftness") then
-			if cast.naturesSwiftness(lowest.unit) then
+			if cast.naturesSwiftness() then
 				br.addonDebug("Casting Nature's Swiftness")
 				return true
 			end
