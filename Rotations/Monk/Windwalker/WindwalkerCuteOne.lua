@@ -594,7 +594,6 @@ actionList.WeaponsOfTheOrder = function()
     -- whirling_dragon_punch,if=active_enemies>=2
     if cast.able.whirlingDragonPunch("player","aoe",1,8) and cd.risingSunKick.exists() and cd.fistsOfFury.exists()
         and ui.useAOE(8,2) and not unit.moving() and not unit.isExplosive("target")
-        and var.fofCastRemain - br._G.GetTime() <= 0
     then
         if cast.whirlingDragonPunch("player","aoe",1,8) then ui.debug("Casting Whirling Dragon Punch [Weapons of Order - AOE]") return true end
     end
@@ -619,7 +618,7 @@ actionList.WeaponsOfTheOrder = function()
     end
     -- Whirling Dragon Punch
     -- whirling_dragon_punch
-    if cast.able.whirlingDragonPunch("player","aoe",1,8) and cd.risingSunKick.exists() and cd.fistsOfFury.exists() and var.fofCastRemain - br._G.GetTime() <= 0 then
+    if cast.able.whirlingDragonPunch("player","aoe",1,8) and cd.risingSunKick.exists() and cd.fistsOfFury.exists() then
         if cast.whirlingDragonPunch("player","aoe",1,8) then ui.debug("Casting Whirling Dragon Punch [Weapons of Order]") return true end
     end
     -- Fists of Fury
@@ -636,7 +635,7 @@ actionList.WeaponsOfTheOrder = function()
     end
     -- Fist of the White Tiger
     -- fist_of_the_white_tiger,target_if=min:debuff.mark_of_the_crane.remains,if=chi<3
-    if cast.able.fistOfTheWhiteTiger(var.lowestMark) and chi < 3 and var.fofCastRemain - br._G.GetTime() <= 0 then
+    if cast.able.fistOfTheWhiteTiger(var.lowestMark) and chi < 3 then
         if cast.fistOfTheWhiteTiger(var.lowestMark) then ui.debug("Casting Fist of the White Tiger [Weapons of Order]") return true end
     end
     -- Expel Harm
