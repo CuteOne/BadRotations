@@ -185,48 +185,46 @@ function br.ui:createConfigWindow()
     end
 
     local function callSettingsEngine()
-        if not _G.CallSecureFunction then
-            local profileSettings = {"Solo", "Dungeon", "M+ Dungeon", "Raid"}
-            section = br.ui:createSection(br.ui.window.config, "Load Saved Profiles")
-            br.ui:createDropdownWithout(section, "Select Settings", profileSettings, 2, "Select profile to use, then click load")
-            br.ui:createText(section, "|cffDB4437Save your settings before loading a new one!!")
-            local saveProfile = function()
-                br:saveSettings("Profile Settings", br.player.class, br.selectedSpec, br.selectedProfileName .. "\\" .. profileSettings[br.getValue("Select Settings")])
-            end
-            local loadProfile = function()
-                br.data.loadedSettings = false
-                local loadDir =
-                    br:checkDirectories("Profile Settings", br.player.class, br.selectedSpec, br.selectedProfileName .. "\\" .. profileSettings[br.getValue("Select Settings")])
-                if br:findFileInFolder("savedSettings.lua", loadDir) then
-                    br:loadSettings("Profile Settings", br.player.class, br.selectedSpec, br.selectedProfileName .. "\\" .. profileSettings[br.getValue("Select Settings")])
-                    br.rotationChanged = true
-                else
-                    br._G.print("You don't have saved setting for :" .. profileSettings[br.getValue("Select Settings")])
-                end
-            end
-            local y = -5
-            for i = 1, #section.children do
-                if section.children[i].type ~= "Spinner" and section.children[i].type ~= "Dropdown" then
-                    y = y - section.children[i].frame:GetHeight() * 1.2
-                end
-            end
-            y = br.round2(y, 1)
-            br.ui:createButton(section, "Save", 10, y, saveProfile)
-            br.ui:createButton(section, "Load", -10, y, loadProfile, true)
-            br.ui:checkSectionState(section)
-            section = br.ui:createSection(br.ui.window.config, "Export/Import from Settings Folder")
-            br.ui:createText(section, "Export/Import from Settings Folder")
-            br.ui:createExportButton(section, "Export", 40, y)
-            -- -90)
-            br.ui:createImportButton(section, "Import", 140, y)
-            -- -90)
-            br.ui:createText(section, "FileName: " .. br.selectedSpec .. br.selectedProfileName .. ".lua")
-            br.ui:checkSectionState(section)
-        else
-            local section = br.ui:createSection(br.ui.window.config, "Load Saved Profiles")
-            br.ui:createText(section, "Save/Load is currently not supported for WA.")
-            br.ui:checkSectionState(section)
+        local profileSettings = {"Solo", "Dungeon", "M+ Dungeon", "Raid"}
+        section = br.ui:createSection(br.ui.window.config, "Load Saved Profiles")
+        br.ui:createDropdownWithout(section, "Select Settings", profileSettings, 2, "Select profile to use, then click load")
+        br.ui:createText(section, "|cffDB4437Save your settings before loading a new one!!")
+        local saveProfile = function()
+            br:saveSettings("Profile Settings", br.player.class, br.selectedSpec, br.selectedProfileName, profileSettings[br.getValue("Select Settings")])
         end
+        local loadProfile = function()
+            br.data.loadedSettings = false
+            local loadDir =
+                br:checkDirectories("Profile Settings", br.player.class, br.selectedSpec, br.selectedProfileName, profileSettings[br.getValue("Select Settings")])
+            if not loadDir then
+                br._G.print("Load Directory is nil!")                    
+                return
+            end
+            if loadDir and br:findFileInFolder("savedSettings.lua", loadDir) then
+                br:loadSettings("Profile Settings", br.player.class, br.selectedSpec, br.selectedProfileName, profileSettings[br.getValue("Select Settings")])
+                br.rotationChanged = true
+            else
+                br._G.print("You don't have saved setting for :" .. profileSettings[br.getValue("Select Settings")])
+            end
+        end
+        local y = -5
+        for i = 1, #section.children do
+            if section.children[i].type ~= "Spinner" and section.children[i].type ~= "Dropdown" then
+                y = y - section.children[i].frame:GetHeight() * 1.2
+            end
+        end
+        y = br.round2(y, 1)
+        br.ui:createButton(section, "Save", 10, y, saveProfile)
+        br.ui:createButton(section, "Load", -10, y, loadProfile, true)
+        br.ui:checkSectionState(section)
+        section = br.ui:createSection(br.ui.window.config, "Export/Import from Settings Folder")
+        br.ui:createText(section, "Export/Import from Settings Folder")
+        br.ui:createExportButton(section, "Export", 40, y)
+        -- -90)
+        br.ui:createImportButton(section, "Import", 140, y)
+        -- -90)
+        br.ui:createText(section, "FileName: " .. br.selectedSpec .. br.selectedProfileName .. ".lua")
+        br.ui:checkSectionState(section)
     end
 
     local function callTrackerEngine()
@@ -238,15 +236,6 @@ function br.ui:createConfigWindow()
         br.ui:createCheckbox(section, "Rare Tracker", "Track All Rares In Range")
         br.ui:createDropdown(section, "Quest Tracker", {"Units", "Objects", "Both"}, 3, "Track Quest Units/Objects")
         br.ui:createScrollingEditBox(section, "Custom Tracker", nil, "Type custom search, Can Seperate items by comma", 300, 40)
-        br.ui:checkSectionState(section)
-        -- Horrific Visions
-        section = br.ui:createSection(br.ui.window.config, "Horrific Visions")
-        --br.ui:createDropdownWithout(section, "Bad Potion", {"Blank","Red","Black","Green","Blue","Purple"}, 1, "Set this to the Bad potion.")
-        br.ui:createCheckbox(section, "Bonus NPC Tracker", "Random Spawns - Give Buffs")
-        br.ui:createCheckbox(section, "Chest Tracker", "English Clients Only - Non English Clients, Use Custom Search")
-        br.ui:createCheckbox(section, "Mailbox Tracker", "Chance for Rare-Spawn Mount")
-        br.ui:createCheckbox(section, "Odd Crystal Tracker", "Collect 10 (2 from each zone) before turn-in!")
-        br.ui:createDropdown(section, "Potions Tracker", {"Auto", "All"}, 1, "Auto find bad potion or track all")
         br.ui:checkSectionState(section)
     end
 

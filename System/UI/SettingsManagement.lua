@@ -11,9 +11,9 @@ local function getFolderClassName(class)
 end
 
 -- Check Directories
-function br:checkDirectories(folder, class, spec, profile)
+function br:checkDirectories(folder, class, spec, profile, instance)
 	-- Set Settings Directory
-	local settingsDir = br._G.GetWoWDirectory() .. "\\Interface\\AddOns\\" .. br.addonName .. "\\Settings\\"
+	local mainDir = br._G.GetWoWDirectory() .. "\\Interface\\AddOns\\" .. br.addonName .. "\\Settings\\"
 
 	-- Set Folder to Specified Folder if any
 	if folder == nil then
@@ -21,18 +21,28 @@ function br:checkDirectories(folder, class, spec, profile)
 	else
 		folder = folder .. "\\"
 	end
-	br.settingsDir = settingsDir .. folder
-	if not br._G.DirectoryExists(br.settingsDir) then
-		br._G.CreateDirectory(br.settingsDir)
+	local settingsDir = mainDir .. folder
+	if not br._G.DirectoryExists(settingsDir) then
+		br._G.CreateDirectory(settingsDir)
+		if not br._G.DirectoryExists(settingsDir) then
+		-- Return Path
+			br._G.print("Creating Settings Directory "..settingsDir.." failed!")
+			return nil
+		end
 	end
 
 	-- Set the Class Directory
 	if class == nil then
 		class = select(2, br._G.UnitClass("player"))
 	end
-	local classDir = br.settingsDir .. getFolderClassName(class) .. "\\"
+	local classDir = settingsDir .. getFolderClassName(class) .. "\\"
 	if not br._G.DirectoryExists(classDir) then
 		br._G.CreateDirectory(classDir)
+		if not br._G.DirectoryExists(classDir) then
+		-- Return Path
+			br._G.print("Creating Class Directory "..classDir.." failed!")
+			return nil
+		end
 	end
 
 	-- Return Spec Directory if Profile is Tracker
@@ -50,6 +60,11 @@ function br:checkDirectories(folder, class, spec, profile)
 	local specDir = classDir .. spec .. "\\"
 	if not br._G.DirectoryExists(specDir) then
 		br._G.CreateDirectory(specDir)
+		if not br._G.DirectoryExists(specDir) then
+		-- Return Path
+			br._G.print("Creating Spec Directory "..specDir.." failed!")
+			return nil
+		end
 	end
 
 	-- Set the Profile Directory
@@ -65,22 +80,44 @@ function br:checkDirectories(folder, class, spec, profile)
 	if not br._G.DirectoryExists(profileDir) then
 		br._G.CreateDirectory(profileDir)
 	end
-
+	if br._G.DirectoryExists(profileDir) and not instance then
 	-- Return Path
-	return profileDir
+		return profileDir
+	elseif instance then
+		local instanceDir = profileDir .. instance .. "\\"
+		if not br._G.DirectoryExists(instanceDir) then
+			br._G.CreateDirectory(instanceDir)
+			if br._G.DirectoryExists(instanceDir) then
+				-- Return Path
+				return instanceDir
+			else
+				br._G.print("Creating Instance Directory "..instanceDir.." failed!")
+				return nil
+			end
+		else 
+			return instanceDir
+		end
+	else
+		br._G.print("Creating Instance Directory "..profileDir.." failed!")
+		return nil
+	end
 end
 
 -- Load Settings
-function br:loadSettings(folder, class, spec, profile)
+function br:loadSettings(folder, class, spec, profile, instance)
 	if br.unlocked and not br.data.loadedSettings then
-		local loadDir = br:checkDirectories(folder, class, spec, profile)
+		local loadDir = br:checkDirectories(folder, class, spec, profile, instance)
+		if not loadDir then
+			br._G.print("No settings directory found for "..profile.."!")
+			return
+		end
 		local brdata
 		local brprofile
 		local fileFound = false
 		local profileFound = false
 		-- Load Settings
 		if br:findFileInFolder("savedSettings.lua", loadDir) then
-			br._G.print("Loading Settings File From Directory: " .. loadDir)
+			--br._G.print("Loading Settings File From Directory: " .. loadDir)
 			brdata = br.tableLoad(loadDir .. "savedSettings.lua")
 			if brdata then
 				fileFound = true
@@ -127,8 +164,12 @@ function br:loadSettings(folder, class, spec, profile)
 end
 
 -- Save Settings
-function br:saveSettings(folder, class, spec, profile, wipe)
-	local saveDir = br:checkDirectories(folder, class, spec, profile)
+function br:saveSettings(folder, class, spec, profile, instance, wipe)
+	local saveDir = br:checkDirectories(folder, class, spec, profile, instance)
+	if not saveDir then
+		br._G.print("No settings directory found for "..profile.."!")
+		return
+	end
 	local brdata = wipe and {} or br.deepcopy(br.data)
 	local brprofile = wipe and {} or br.deepcopy(br.profile)
 	br._G.print("Saving Profiles and Settings to Directory: " .. tostring(saveDir))
