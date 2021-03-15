@@ -762,7 +762,7 @@ function br.createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,p
 						end
 					end
 					if debug == "cone" then
-						local enemyConeCount = br.getEnemiesInCone(effectRng,maxRange) or 0
+						local enemyConeCount = br.getEnemiesInCone(180,effectRng) or 0
 						if enemyConeCount >= minUnits then
 							return castingSpell(thisUnit,spellID,spellName,icon,debug,printReport)
 						else
