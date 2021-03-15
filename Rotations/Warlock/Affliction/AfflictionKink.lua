@@ -1,5 +1,5 @@
 local rotationName = "KinkAffliction"
-local VerNum  = "2.1.5"
+local VerNum  = "2.1.6"
 local var = {} 
 local dsInterrupt = false
 
@@ -296,6 +296,8 @@ local function createOptions ()
                 1, "|cffFFBB00Target to cast on")
                 
                 br.ui:createCheckbox(section, "Soulstone Healer OOC [Mythic+]", "|cffFFBB00Toggle soulstoning your healer while doing mythic+ runs.")
+                -- Auto Keystone Module
+                br.player.module.autoKeystone(section)
 
                 --Fear Solo Farming
                 br.ui:createSpinner(section, "Fear Bonus Mobs",   7,  0,  15,  1,  "|cffFFBB00Toggle the use of auto casting fear when solo farming.")
@@ -1507,7 +1509,7 @@ local function actionList_LevelingAoE()
     ------------------------------------------------
     -- Unstable Affliction -------------------------
     ------------------------------------------------
-    if not moving and br.timer:useTimer("UA", math.random(2,3)) (not debuff.unstableAffliction.exists("target") or debuff.unstableAffliction.refresh("target")) and not cast.last.unstableAffliction(1) and not cast.last.unstableAffliction(2) and Line_cd(316099,3) then
+    if not moving and br.timer:useTimer("UA", math.random(2,3)) and (not debuff.unstableAffliction.exists("target") or debuff.unstableAffliction.refresh("target")) and not cast.last.unstableAffliction(1) and not cast.last.unstableAffliction(2) and Line_cd(316099,3) then
         if cast.unstableAffliction("target") then br.addonDebug("[Action:Leveling AoE] Unstable Affliction [Refresh]") return true end
     end
     ------------------------------------------------
@@ -3573,6 +3575,7 @@ end -- End Action List - PreCombat
                     if br._G.UnitIsPlayer(br.friend[i].unit) and br.GetUnitIsFriend(br.friend[i].unit, "player") 
                     and (br._G.UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" or br.friend[i].role == "HEALER") 
                     and (not buff.soulstone.exists(br.friend[i].unit))
+                    and br.timer:useTimer("Healer SS", 3) 
                     then
                         if cast.soulstone(br.friend[i].unit) then
                             br.addonDebug("Soulstone Healer OOC [Mythic+] YEEEEEEEEEEEEEEEEET")
@@ -3582,6 +3585,14 @@ end -- End Action List - PreCombat
                 end
             --end
         end
+        -- Auto Mythic+ Keystone | Module
+        var.mapID = C_ChallengeMode.GetActiveChallengeMapID();
+        if not inCombat and not (IsFlying() or IsMounted()) and not solo then
+            if var.activeMythicMapID then
+                module.autoKeystone()
+            end
+        end
+        
 
         if br.GetUnitIsDeadOrGhost("pet") then br._G.RunMacroText("/petdismiss") return end 
 
