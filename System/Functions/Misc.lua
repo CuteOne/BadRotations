@@ -995,8 +995,14 @@ function br.isTableEmpty(table)
 end
 
 function br.getItemGlow(object)
+	if _G.CallSecureFunction then
+		return false
+	end
 	if not lb then
-		return br._G.ObjectDescriptor(object,br._G.GetOffset("CGObjectData__DynamicFlags"),"uint")
+		local glow = br._G.ObjectDescriptor(object,br._G.GetOffset("CGObjectData__DynamicFlags"),"uint")
+		if glow and (_G.bit.band(glow,0x4)~=0 or _G.bit.band(glow,0x20)~=0) then
+			return true
+		end
 	else
 		return lb.ObjectHasDynamicFlag(object, lb.EUnitDynamicFlags.SpecialInfo)
 	end
