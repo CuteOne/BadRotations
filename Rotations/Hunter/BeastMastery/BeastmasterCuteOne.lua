@@ -884,6 +884,8 @@ local function runRotation()
         opener.complete = false
     end
 
+    if br.petTarget == nil then br.petTarget = "player" end
+
     -----------------
     --- Pet Logic ---
     -----------------
