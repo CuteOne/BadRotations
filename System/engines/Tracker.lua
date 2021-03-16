@@ -45,16 +45,16 @@ function br.objectTracker()
                     local object = br._G.GetObjectWithIndex(i)
                     local name = br._G.ObjectName(object)
                     local objectid = br._G.ObjectID(object)
-                    if object and name and objectid then
+                    if object and objectid then
                         if br.isChecked("Rare Tracker") and not br.GetUnitIsDeadOrGhost(object) and
                             (br._G.UnitClassification(object) == "rare" or br._G.UnitClassification(object) ==
                                 "rareelite") then
                             trackObject(object, name, objectid, false)
                         end
                         if br.isChecked("Custom Tracker") then
-                            for k in string.gmatch(tostring(br.getOptionValue("Custom Tracker")), "([^,]+)") do
+                             for k in string.gmatch(tostring(br.getOptionValue("Custom Tracker")), "([^,]+)") do
                                 if string.len(_G.string.trim(k)) >= 3 and
-                                    _G.strmatch(_G.strupper(name), _G.strupper(_G.string.trim(k))) then
+                                     _G.strmatch(_G.strupper(name), _G.strupper(_G.string.trim(k))) then
                                     trackObject(object, name, objectid)
                                 end
                             end
@@ -79,7 +79,7 @@ function br.objectTracker()
                                 end
                             end
                             if (br.getOptionValue("Quest Tracker") == 2 or br.getOptionValue("Quest Tracker") == 3) and
-                                br.isQuestObject(object) and not br._G.ObjectIsUnit(object) then
+                            not br._G.ObjectIsUnit(object) and br.isQuestObject(object) then
                                 trackObject(object, name, objectid)
                             end
                         end

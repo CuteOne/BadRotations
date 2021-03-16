@@ -76,6 +76,7 @@ function unlock.EWTUnlock()
     b.Draw2DLine = Draw2DLine
     b.Draw2DText = Draw2DText
     b.WorldToScreenRaw = WorldToScreenRaw
+    b.IsQuestObject = IsQuestObject
     unlocked = true
     return unlocked
 end

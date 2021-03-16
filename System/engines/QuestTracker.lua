@@ -118,7 +118,6 @@ local function FunctionQuestLogUpdate() --private
 end
 
 function br.isQuestObject(object) --Ty Ssateneth
-	if _G.lb then return end
 	local objectID = br._G.ObjectID(object)
 	local ignoreObjects = {
 		[327571] = true,
@@ -137,18 +136,6 @@ function br.isQuestObject(object) --Ty Ssateneth
         return true
     end
     return false
-end
-
-function br.ObjectFlags(object)
-    local glow = br._G.ObjectDescriptor(object,br._G.GetOffset("CGObjectData__DynamicFlags"),"uint")
-    if glow then
-        for i = 0, 32 do
-            local band = "0x"..i
-            if _G.bit.band(glow,band) ~= 0 then
-                print(band)
-            end
-        end
-    end
 end
 
 local eventFunctions = {

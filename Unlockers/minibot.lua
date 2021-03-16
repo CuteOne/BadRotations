@@ -47,10 +47,10 @@ function unlock.MBUnlock()
         end
     end
     b.ObjectName = function(obj)
-        if b.UnitIsVisible(obj) then
+        if b.ObjectExistts(obj) then
             return b.UnitName(obj)
         else
-            return ""
+            return "Unknown"
         end
     end
     b.ObjectID = function(obj)
@@ -196,7 +196,6 @@ function unlock.MBUnlock()
     b.GetKeyState = wmbapi.GetKeyState
     br.Offsets = {
         ["cggameobjectdata__flags"] = "CGGameObjectData__Flags",
-        ["cgobjectdata__dynamicflags"] = "CGObjectData__DynamicFlags"
     }
     b.GetOffset = function(offset)
         return wmbapi.GetObjectDescriptorsTable()[br.Offsets[string.lower(offset)]]
@@ -208,6 +207,9 @@ function unlock.MBUnlock()
     b.WorldToScreenRaw = function(...)
         local x, y = select(2, wmbapi.WorldToScreen(...))
         return x, 1 - y
+    end
+    b.IsQuestObject = function(...)
+        return wmbapi.ObjectIsQuestObjective(...,false)
     end
     unlocked = true
     return unlocked

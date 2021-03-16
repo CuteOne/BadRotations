@@ -163,7 +163,7 @@ function unlock.WowAdUnlock()
         return ObjectField(unit, 0x1C58, 15)
     end
     b.IsQuestObject = function(obj)
-        return false, false
+        return false
     end
     b.UnitCastID = function(...)
         local name, text, texture, startTimeMS, endTimeMS, isTradeSkill, castID, notInterruptible, spellId =

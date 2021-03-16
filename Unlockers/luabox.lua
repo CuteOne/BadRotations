@@ -305,7 +305,7 @@ function unlock.LBUnlock()
 	end
 	b.UnitTarget = lb.UnitTarget
 	b.IsQuestObject = function(obj)
-		return false, false
+		return lb.ObjectHasDynamicFlag(object, lb.EUnitDynamicFlags.SpecialInfo)
 	end
 	b.UnitCastID = function(...)
 		local CastSpellID, CastTargetGUID, timeLeft, NotInterruptible = lb.UnitCastingInfo(...)
