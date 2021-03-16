@@ -90,10 +90,7 @@ local function createOptions()
         end
         br.ui:createDropdownWithout(section, "Turn Evil Key", br.dropOptions.Toggle, 6, "Fear mouseover")
         br.ui:createDropdownWithout(section, "Repentance Key", br.dropOptions.Toggle, 6, "CC mousover")
-        br.ui:createCheckbox(section, "Aggressive Glimmer")
-        br.ui:createCheckbox(section, "Aggressive Hammer of Wrath")
-        br.ui:createCheckbox(section, "Aggressive Consecration")
-
+        -- br.ui:createCheckbox(section, "Aggressive Glimmer")
         -- br.ui:createCheckbox(section, "Awakening/Mad Paragon Playstyle")
 
         br.ui:checkSectionState(section)
@@ -180,16 +177,19 @@ local function createOptions()
             br.ui:createSpinner(section, "Gift of The Naaru", 50, 0, 100, 5, "Health Percent to Cast At")
         end
         br.ui:createSpinner(section, "Engineering Belt", 60, 0, 100, 5, "Health Percentage to use at.")
+        br.ui:createDropdown(section, "Cardboard Assassin BoP Taunt", { "|cffFFFFFFTank", "|cffFFFFFFSelf" }, 1, "|cffFFFFFFTarget used for Engineering Min Health percentage.")
+        br.ui:createCheckbox(section, "Engineering Belt on Player HP")
         br.ui:createSpinner(section, "Mana Potion", 50, 0, 100, 1, "Mana Percent to Cast At")
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "DPS Options")
+        br.ui:createCheckbox(section, "Prioritize Hammer of Wrath")
         br.ui:createCheckbox(section, "Shield of the Righteous")
-        br.ui:createCheckbox(section, "DPS Holy Shock")
+        br.ui:createCheckbox(section, "Use Holy Shock for DPS")
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "Pots")
-        br.ui:createDropdownWithout(section, "Pots - 1 target (Boss)", { "None", "Battle", "RisingDeath", "Draenic", "Prolonged", "Empowered Proximity", "Focused Resolve", "Superior Battle", "Unbridled Fury" }, 1, "", "Use Pot when Incarnation/Celestial Alignment is up")
-        br.ui:createDropdownWithout(section, "Pots - 2-3 targets", { "None", "Battle", "RisingDeath", "Draenic", "Prolonged", "Empowered Proximity", "Focused Resolve", "Superior Battle", "Unbridled Fury" }, 1, "", "Use Pot when Incarnation/Celestial Alignment is up")
-        br.ui:createDropdownWithout(section, "Pots - 4+ target", { "None", "Battle", "RisingDeath", "Draenic", "Prolonged", "Empowered Proximity", "Focused Resolve", "Superior Battle", "Unbridled Fury" }, 1, "", "Use Pot when Incarnation/Celestial Alignment is up")
+        br.ui:createDropdownWithout(section, "Pots - 1 target (Boss)", { "None", "Potion of Spectral Intellect", "Potion of Phantom Fire" }, 1, "", "Use Pot when Avenging Wrath/Crusader is up")
+        br.ui:createDropdownWithout(section, "Pots - 2-3 targets", { "None", "Potion of Spectral Intellect", "Potion of Phantom Fire" }, 1, "", "Use Pot when Avenging Wrath/Crusader is up")
+        br.ui:createDropdownWithout(section, "Pots - 4+ target", { "None", "Potion of Spectral Intellect", "Potion of Phantom Fire" }, 1, "", "Use Pot when Avenging Wrath/Crusader is up")
         br.ui:checkSectionState(section)
 
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
@@ -200,7 +200,7 @@ local function createOptions()
         br.ui:createSpinner(section, "InterruptAt", 0, 0, 95, 5, "|cffFFBB00Cast Percentage to use at.")
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "Keys")
-        br.ui:createDropdown(section, "Eng Brez", { "Target", "Mouseover", "Auto" }, 1, "", "Target to cast on")
+        br.ui:createDropdown(section, "Eng Brez", { "target", "Mouseover", "Auto" }, 1, "", "Target to cast on")
 
         br.ui:checkSectionState(section)
 
@@ -210,7 +210,7 @@ local function createOptions()
         -- m+ Rot
         br.ui:createSpinner(section, "Grievous Wounds", 2, 0, 10, 1, "Enables/Disables GrievousWound")
         br.ui:createSpinner(section, "Infused Holy Light Grievous", 70, 0, 100, 5, "", "Health Percent to Cast At")
-        br.ui:createCheckbox(section, "DBM/BW Precast CDs", "Uses DBM or BW to precast mitigation spells", 1)
+        br.ui:createCheckbox(section, "DBM/BW Precast CDs", "Uses DBM (ONLY DBM) to precast mitigation spells", 1)
         br.ui:checkSectionState(section)
     end
 
@@ -243,7 +243,7 @@ local function createOptions()
 end
 
 -----Locals
-
+local AssFlag
 local buff
 local cast
 local cd
@@ -412,19 +412,16 @@ end
 
 local function consecration()
     --Consecration
-    if cast.able.consecration() and not br.isMoving("player") then
+    if cast.able.consecration() and not br.isMoving("player") and not buff.holyAvenger.exists() and cd.holyShock.remain() >= 1 then
         for i = 1, #enemies.yards8 do
             if not debuff.consecration.exists(enemies.yards8[i])
-                    or br._G.GetTotemTimeLeft(1) < 2
-                    or not cast.able.holyShock() and (cd.holyShock.remain() > 1.5 and cd.crusaderStrike.remain() ~= 0) then
+                    or br._G.GetTotemTimeLeft(1) < 2 then
                 if cast.consecration() then
                 end
             end
         end
     end
-
 end
-
 
 -- spellqueue ready
 local function spellQueueReady()
@@ -680,12 +677,66 @@ noconc_list = {
     [161241] = "voidweaver - malthir"
 }
 
+-- hard dps key rotation
+local function HardDPSkey()
+    -- Hard DPS SOTR
+    if cast.able.shieldOfTheRighteous() and (holyPower >= 3 or buff.divinePurpose.exists()) then
+        if cast.shieldOfTheRighteous() then
+            br.addonDebug("[HARDKEY] SOTR")
+            return true
+        end
+    end
+    -- Hard DPS Hammer
+    if br.player.inCombat and br._G.IsSpellOverlayed(24275) and holyPower < 5 then
+        if not noDamageCheck("target") and not br._G.UnitIsPlayer("target") and br.getFacing("player", "target") and br.UnitIsTappedByPlayer("target") and (not cd.holyShock.ready() or holyPower == 2) then
+            if cast.hammerOfWrath("target") then
+                br.addonDebug("[HARDKEY] Hammer Time")
+                return true
+            end
+        end
+    end
+
+    -- Hard DPS Holy Shock
+    if br.player.inCombat then
+        if cd.holyShock.ready() and holyPower < 5 then
+            if cast.holyShock("target") then
+                br.addonDebug("[HARDKEY] ST DPS Holy Shock")
+                return true
+            end
+        end
+    end
+
+    -- Hard DPS Talent Crusaders Might   - should only be used to get full value out of holy shock proc .. hard coded to 1.5
+    if talent.crusadersMight and (talent.holyAvenger and buff.holyAvenger.exists() and holyPower < 3 or holyPower < 5)
+            and not noDamageCheck(units.dyn5) and not br._G.UnitIsPlayer(units.dyn5) and br.getFacing("player", units.dyn5) and (br.getSpellCD(20473) > (gcd)) and ((holyPower == 2 and not cd.holyShock.ready) or cd.holyShock.remain() >= 1.5) then
+        if cast.crusaderStrike(units.dyn5) then
+            br.addonDebug("[HARDKEY]CrusaderStrike on " .. br._G.UnitName(units.dyn5) .. " CD/HS: " .. round(cd.holyShock.remain(), 2))
+            return true
+        end
+    end
+
+    -- Hard DPS Judgment
+    if not buff.holyAvenger.exists() and cd.judgment.ready() and not cd.holyShock.ready() and inCombat then
+        if not noDamageCheck("target") and not br._G.UnitIsPlayer("target") and br.getFacing("player", "target") and br.UnitIsTappedByPlayer("target") then
+            if cast.judgment("target") then
+                br.addonDebug("[HARDKEY] ST DPS Judgment")
+                return true
+            end
+        end
+    end
+
+    -- Hard DPS Consecrate, don't waste GCD during HA/DS Spam
+    if not buff.holyAvenger.exists() and cd.holyShock.remain() > 1 then
+        consecration()
+    end
+end
+
 actionList.hammerOfWrathDPS = function()
 
     --br._G.print(tostring(br.getSpellCD(24275)))
 
-    if lowest.hp > ui.value("Critical HP") and br.player.inCombat and br.getSpellCD(24275) < 1 and (holyPower < 5 or buff.holyAvenger.exists() and holyPower < 3) then
-        if br._G.IsSpellOverlayed(24275) and br.getFacing("player", "target") then
+    if lowest.hp > ui.value("Critical HP") and br.player.inCombat and br.getSpellCD(24275) < 1 and ((buff.holyAvenger.exists() and holyPower < 3) or holyPower < 5) then
+        if br._G.IsSpellOverlayed(24275) and br.getFacing("player", "target") and not cast.able.holyShock() then
             if cast.hammerOfWrath("target") then
                 br.addonDebug("[DPS] Hammer of Wrath 1")
                 return true
@@ -716,7 +767,7 @@ actionList.glimmer = function()
                 glimmerCount = glimmerCount + 1
             end
         end
-        --Glimmer support
+        --[[ Glimmer support
         if ui.checked("Aggressive Glimmer") and br.player.ui.mode.DPS == 1 and br.player.inCombat and br._G.UnitIsEnemy("target", "player") and lowest.hp > ui.value("Critical HP") then
             if not debuff.glimmerOfLight.exists("target", "EXACT") and br.GetUnitExists("target") and br.getFacing("player", "target") then
                 if cast.holyShock("target") then
@@ -727,7 +778,7 @@ actionList.glimmer = function()
             if debuff.glimmerOfLight.exists("target", "EXACT") then
                 glimmerCount = glimmerCount + 1
             end
-        end
+        end]]
 
         if #tanks > 1 then
             --find lowest friend without glitter buff on them - tank first  for i = 1, #tanks do
@@ -843,159 +894,11 @@ actionList.dps = function()
         end
     end
 
-
-    --Judgment
-    if not talent.judgmentofLight and cast.able.judgment() and cd.holyShock.remain() > 1 then
-        if #tanks == 0 or #tanks > 0 and br.getDistance(units.dyn30, tanks[1].unit) <= 10 then
-            if br.getFacing("player", units.dyn30) then
-                if cast.judgment(units.dyn30) then
-                    br.addonDebug("[DPS]Judgment [" .. round(br.getHP(enemies.yards30[i]), 2) .. "/" .. round(br.getHP("player"), 2) .. "]")
-                    return true
-                end
-            end
-        end
-    end
-
-    consecration()
-
-    if ui.checked("Group CD's with DPS key") and br.SpecificToggle("DPS Key") and not br._G.GetCurrentKeyBoardFocus() then
-        -- popping CD's with DPS Key
-        if cast.holyAvenger() then
-            return true
-        end
-        if cast.avengingWrath() then
-            return true
-        end
-        --trinkets w/CD
-        if ui.checked("Trinket 1") and br.getOptionValue("Trinket 1 Mode") == 5 and inCombat then
-            if br.canUseItem(13) then
-                br.useItem(13)
-            end
-        end
-        if ui.checked("Trinket 2") and br.getOptionValue("Trinket 1 Mode") == 5 and inCombat then
-            if br.canUseItem(14) then
-                br.useItem(14)
-            end
-        end
-    end
-
-    if ui.checked("DPS Holy Shock") and br.player.ui.mode.DPS == 1 and br.player.inCombat and lowest.hp > ui.value("Holy Shock") then
-        if cd.holyShock.ready() and (inInstance and #tanks > 0 and br.getDistance(units.dyn40, tanks[1].unit) <= 15
-                or #tanks > 0 and br.getDistance(tanks[1].unit) >= 90)
-                or (inRaid and #tanks > 0 and br.getDistance(units.dyn40, tanks[1].unit) <= 40 or #tanks > 0 and br.getDistance(tanks[1].unit) >= 90)
-                or not inInstance or not inRaid or solo then
-            if talent.glimmerOfLight then
-                for i = 1, #enemies.yards40 do
-                    local thisUnit = enemies.yards40[i]
-                    if not debuff.glimmerOfLight.exists(thisUnit, "exact") and not noDamageCheck(thisUnit) and not br._G.UnitIsPlayer(thisUnit) and br.getFacing("player", thisUnit) then
-                        if cast.holyShock(thisUnit) then
-                            br.addonDebug("[DPS]HolyShock on " .. br._G.UnitName(thisUnit) .. " w/Glimmer")
-                            return true
-                        end
-                    end
-                    if br.getFacing("player", units.dyn40) then
-                        if cast.holyShock(units.dyn40) then
-                            br.addonDebug("[DPS]HolyShock - No-Glimmer")
-                            return true
-                        end
-                    end
-                end
-            else
-                if br.getFacing("player", units.dyn40) then
-                    if cast.holyShock(units.dyn40) then
-                        br.addonDebug("[DPS] HolyShock - No-Glimmer")
-                        return true
-                    end
-                end
-            end
-        end
-    end
-
-    --using DPS trinkets
-    if ui.checked("Trinket 1") and br.getOptionValue("Trinket 1 Mode") == 4 and inCombat then
-        if br.canUseItem(13) then
-            br.useItem(13)
-        end
-    end
-    if ui.checked("Trinket 2") and br.getOptionValue("Trinket 2 Mode") == 4 and inCombat then
-        if br.canUseItem(14) then
-            br.useItem(14)
-        end
-    end
-
-    --Talent Crusaders Might   - should only be used to get full value out of holy shock proc .. hard coded to 1.5
-    if talent.crusadersMight and (talent.holyAvenger and buff.holyAvenger.exists() and holyPower < 3 or holyPower < 5)
-            and lowest.hp > ui.value("Critical HP") and (br.getSpellCD(20473) > (gcd)) and br.getFacing("player", units.dyn5) then
-        if cast.crusaderStrike(units.dyn5) then
-            br.addonDebug("[xDPS]CrusaderStrike on " .. br._G.UnitName(units.dyn5) .. " CD/HS: " .. round(cd.holyShock.remain(), 2))
-            return true
-        end
-    end
-    if ui.checked("Shield of the Righteous") and cast.able.shieldOfTheRighteous() and br.SpecificToggle("DPS Key") and not br._G.GetCurrentKeyBoardFocus() then
-        if (holyPower >= 3 or buff.divinePurpose.exists()) then
-            if cast.shieldOfTheRighteous() then
-                return true
-            end
-        end
-    end
-
-
-end
-
-actionList.Extra = function()
-
-    if br.SpecificToggle("Ashen Hallow Key") and not br._G.GetCurrentKeyBoardFocus() then
-        br._G.CastSpellByName(br._G.GetSpellInfo(spell.avengingWrath))
-        br._G.CastSpellByName(br._G.GetSpellInfo(spell.ashenHallow), "cursor")
-        return
-    end
-    if br.SpecificToggle("Turn Evil Key") and not br._G.GetCurrentKeyBoardFocus() then
-        br._G.CastSpellByName(br._G.GetSpellInfo(spell.turnEvil), "mouseover")
-        return
-    end
-    if br.SpecificToggle("Repentance Key") and not br._G.GetCurrentKeyBoardFocus() then
-        br._G.CastSpellByName(br._G.GetSpellInfo(spell.repentance), "mouseover")
-        return
-    end
-
-    if br.player.covenant.kyrian.active and not br.hasItem(177278) and cast.able.summonSteward() then
-        if cast.summonSteward() then
-            return true
-        end
-    end
-
-
-
-    -- Light of Martyr spam w/DS
-    if ui.checked("Light of the Martyr") and ui.checked("LOTM Spam w/DS")
-            and buff.divineShield.exists() and not cast.able.holyShock() and php > 40 then
-        if healTarget == "none" and cast.able.lightOfTheMartyr()
-                and lowest.hp <= ui.value("Light of the Martyr") and not br.GetUnitIsUnit(lowest.unit, "player")
-                and canheal(lowest.unit) then
-            healTarget = lowest.unit
-            healReason = "SPAM"
-        end
-        if healTarget ~= "none" and not br.GetUnitIsUnit(healTarget, "player") then
-            healTargetHealth = round(br.getHP(healTarget), 1)
-            if canheal(healTarget) then
-                if cast.lightOfTheMartyr(healTarget) then
-                    br.addonDebug("[" .. healReason .. "] lightOfTheMartyr on: " .. br._G.UnitName(healTarget) .. "/" .. healTargetHealth)
-                    healTarget = "none"
-                    return true
-                end
-            end
-        end
-    end
-
-    if ui.checked("Aggressive Consecration") and lowest.hp > ui.value("Critical HP") then
-        consecration()
-    end
-
-    -- Judgment of Light Prio
-    if talent.judgmentOfLight and not buff.holyAvenger.exists() and cast.able.judgment() and cd.holyShock.remain() > 1 and lowest.hp > ui.value("Critical HP") and inCombat then
+    -- Judgment of Light
+    if talent.judgmentOfLight and not buff.holyAvenger.exists() and cast.able.judgment() and inCombat then
         -- ST
         if br.getDebuffRemain("target", 196941) == 0 or #enemies.yards30 == 1 then
-            if not noDamageCheck("target") and not br._G.UnitIsPlayer("target") and br.getFacing("player", "target") then
+            if not noDamageCheck("target") and not br._G.UnitIsPlayer("target") and br.getFacing("player", "target") and br.UnitIsTappedByPlayer("target") then
                 if cast.judgment("target") then
                     br.addonDebug("[HEAL] Judgment of Light ST")
                     return true
@@ -1015,6 +918,123 @@ actionList.Extra = function()
                 end
             end
         end
+    end
+
+    --Judgment
+    if not talent.judgmentofLight and cast.able.judgment() and cd.holyShock.remain() > 1 then
+        if #tanks == 0 or #tanks > 0 and br.getDistance(units.dyn30, tanks[1].unit) <= 10 then
+            if br.getFacing("player", units.dyn30) then
+                if cast.judgment(units.dyn30) then
+                    br.addonDebug("[DPS]Judgment [" .. round(br.getHP(enemies.yards30[i]), 2) .. "/" .. round(br.getHP("player"), 2) .. "]")
+                    return true
+                end
+            end
+        end
+    end
+
+    -- Consecrate, don't waste GCD during HA/DS Spam
+    if not buff.holyAvenger.exists() or not buff.divineShield.exists() then
+        consecration()
+    end
+
+    if ui.checked("Group CD's with DPS key") and br.SpecificToggle("DPS Key") and not br._G.GetCurrentKeyBoardFocus() then
+        -- popping CD's with DPS Key
+        if cd.avengingWrath.ready() then
+            if cast.avengingWrath() then
+                return true
+            end
+        end
+        if br.player.covenant.venthyr.active and cd.ashenHallow.ready() then
+            br._G.CastSpellByName(br._G.GetSpellInfo(spell.ashenHallow), "player")
+            return true
+        end
+        if talent.holyAvenger and cd.holyAvenger.ready() then
+            if cast.holyAvenger() then
+                return true
+            end
+        end
+        --trinkets w/CD
+        if ui.checked("Trinket 1") and br.getOptionValue("Trinket 1 Mode") == 5 and inCombat then
+            if br.canUseItem(13) then
+                br.useItem(13)
+            end
+        end
+        if ui.checked("Trinket 2") and br.getOptionValue("Trinket 1 Mode") == 5 and inCombat then
+            if br.canUseItem(14) then
+                br.useItem(14)
+            end
+        end
+        -- Kyrian DT After Powered Up
+        if br.player.covenant.kyrian.active and cd.divineToll.ready() then
+            br._G.CastSpellByName(br._G.GetSpellInfo(spell.divineToll), "target")
+            return true
+        end
+    end
+
+    --using DPS trinkets
+    if ui.checked("Trinket 1") and br.getOptionValue("Trinket 1 Mode") == 4 and inCombat then
+        if br.canUseItem(13) then
+            br.useItem(13)
+        end
+    end
+    if ui.checked("Trinket 2") and br.getOptionValue("Trinket 2 Mode") == 4 and inCombat then
+        if br.canUseItem(14) then
+            br.useItem(14)
+        end
+    end
+end
+
+actionList.Extra = function()
+
+    if br.SpecificToggle("Ashen Hallow Key") and not br._G.GetCurrentKeyBoardFocus() then
+        br._G.CastSpellByName(br._G.GetSpellInfo(spell.avengingWrath))
+        br._G.CastSpellByName(br._G.GetSpellInfo(spell.ashenHallow), "cursor")
+        return
+    end
+    if br.SpecificToggle("Turn Evil Key") and not br._G.GetCurrentKeyBoardFocus() then
+        br._G.CastSpellByName(br._G.GetSpellInfo(spell.turnEvil), "mouseover")
+        return
+    end
+    if br.SpecificToggle("Repentance Key") and not br._G.GetCurrentKeyBoardFocus() then
+        br._G.CastSpellByName(br._G.GetSpellInfo(spell.repentance), "mouseover")
+        return
+    end
+
+    if br.SpecificToggle("DPS Key") and not br._G.GetCurrentKeyBoardFocus() then
+        if HardDPSkey() then
+            return true
+        end
+    end
+
+    if br.player.covenant.kyrian.active and not br.hasItem(177278) and cast.able.summonSteward() then
+        if cast.summonSteward() then
+            return true
+        end
+    end
+
+    -- Light of Martyr spam w/DS
+    if ui.checked("Light of the Martyr") and ui.checked("LOTM Spam w/DS")
+            and buff.divineShield.exists() and not cast.able.holyShock() and php > 40 then
+        if healTarget == "none" and cast.able.lightOfTheMartyr()
+                and not br.GetUnitIsUnit(lowest.unit, "player")
+                and canheal(lowest.unit) then
+            healTarget = lowest.unit
+            healReason = "SPAM"
+        end
+        if healTarget ~= "none" and not br.GetUnitIsUnit(healTarget, "player") then
+            healTargetHealth = round(br.getHP(healTarget), 1)
+            if canheal(healTarget) then
+                if cast.lightOfTheMartyr(healTarget) then
+                    br.addonDebug("[" .. healReason .. "] lightOfTheMartyr on: " .. br._G.UnitName(healTarget) .. "/" .. healTargetHealth)
+                    healTarget = "none"
+                    return true
+                end
+            end
+        end
+    end
+
+    if lowest.hp > ui.value("Critical HP") and (not buff.holyAvenger.exists() or not buff.divineShield.exists()) and cd.holyShock.remain() > 1 then
+        consecration()
     end
 
     --BoP and BoF   blessing of freedom blessing of protection
@@ -1086,9 +1106,6 @@ actionList.Extra = function()
         end
     end
 
-
-
-
     -- I like DBM
     if ui.checked("DBM/BW Precast CDs") and cd.devotionAura.ready() and inCombat then
         for i = 1, 7 do
@@ -1100,7 +1117,7 @@ actionList.Extra = function()
             --   br._G.print(spelltocast)
             -- Cast things for boss encounter
             if spelltocast == "devotionAura" and time_remain < precast_time then
-                if cast.devotionAura("player") then
+                if cast.auraMastery("player") then
                     br.addonDebug("[PRE-DBM] Devo (" .. spell_name .. ")")
                     return true
                 end
@@ -1161,38 +1178,28 @@ actionList.Extra = function()
         -- Tuft Logic
         local tuftTarget = nil
         if (Trinket13 == 184020 or Trinket14 == 184020) then
-            if br.hasItem(184020) and br.canUseItem(184020) then
-
-                -- br._G.print("1. Trinket Detected")
+            if br.canUseItem(184020) then
                 for i = 1, #br.friend do
-                    -- br._G.print("1.5. Finding Friends")
                     if br.friend[i].hp < 100 and canheal(br.friend[i].unit) then
-                        -- br._G.print("2. Found Friends")
                         if ui.value("Tuft of Smoldering Plumeage Target") == 1 then
                             if br.friend[i].hp <= tuftTargetHP then
                                 tuftTarget = br.friend[i].unit
-                                -- br._G.print("[ALL] Acquired Tuft Target")
                             end
                         elseif ui.value("Tuft of Smoldering Plumeage Target") == 2 then
                             if br.friend[i].hp <= tuftTargetHP and (br.friend[i].role == "TANK" or unit.role(br.friend[i].unit) == "TANK") then
                                 tuftTarget = br.friend[i].unit
-                                -- br._G.print("[TANK] Acquired Target")
                             end
                         elseif ui.value("Tuft of Smoldering Plumeage Target") == 3 and php <= tuftTargetHP then
                             tuftTarget = "player"
-                            -- br._G.print("[SELF] Acquired Tuft Target")
                         elseif ui.value("Tuft of Smoldering Plumeage Target") == 4 then
                             if unit.role(br.friend[i].unit) == "HEALER" or unit.role(lowestUnit) == "DAMAGER" then
                                 if br.friend[i].hp <= tuftTargetHP then
                                     tuftTarget = br.friend[i].unit
-                                    -- br._G.print("[HEALER/DPS] Acquired Tuft Target")
                                 end
                             end
                         end
                         if tuftTarget ~= nil and br.canUseItem(184020) then
-                            -- br._G.print("3. Can use trinket")
                             br._G.UseItemByName(184020, tuftTarget)
-                            -- br._G.print("4. Using trinket on target")
                             return true
                         end
                     end
@@ -1209,7 +1216,7 @@ actionList.Extra = function()
             local ID = br._G.ObjectID(object)
             if someone_casting and ID == 168878 and getDistance(object) <= 40 then
                 for j = 1, #tanks do
-                    if br._G.UnitCastingInfo(ID) == br._G.GetSpellInfo(334926) and cd.blessingOfFreedom.ready then
+                    if br._G.UnitCastingInfo(ID) == br._G.GetSpellInfo(334926) and cd.blessingOfFreedom.ready() then
                         if cast.blessingOfFreedom(tanks[i].unit) then
                             return true
                         end
@@ -1225,7 +1232,7 @@ actionList.Extra = function()
             local object = br._G.GetObjectWithIndex(i)
             local ID = br._G.ObjectID(object)
             if someone_casting and ID == 162040 and getDistance(object) <= 40 then
-                if br._G.UnitCastingInfo("target") == br._G.GetSpellInfo(326827) and cd.blessingOfFreedom.ready then
+                if br._G.UnitCastingInfo("target") == br._G.GetSpellInfo(326827) and cd.blessingOfFreedom.ready() then
                     if cast.blessingOfFreedom("player") then
                         return true
                     end
@@ -1251,26 +1258,57 @@ end -- End Action List - Extra
 
 -- Action List - Defensive
 actionList.Defensive = function()
-
-
     if br.useDefensive() then
         --engineering belt / plate pants
-        if ui.checked("Engineering Belt") and php <= br.getOptionValue("Engineering Belt") and br.canUseItem(6) then
-            br.useItem(6)
+        -- belt on player hp
+        if ui.checked("Engineering Belt") and ui.checked("Engineering Belt on Player HP") and php <= br.getOptionValue("Engineering Belt") and br.canUseItem(6) then
+            if ui.checked("Engineering Belt on Player HP") and php <= br.getOptionValue("Engineering Belt") then
+                br._G.UseItemByName(_G.GetInventoryItemID("player", 6), "target")
+            end
         end
+        -- belt assassin shenanigans
+
+        if ui.checked("Cardboard Assassin BoP Taunt") then
+            if inCombat and br.canUseItem(6) then
+                if ui.value("Cardboard Assassin BoP Taunt") == 1 and inInstance and #tanks > 0 then
+                    for i = 1, #tanks do
+                        if tanks[i].hp <= ui.value("Engineering Belt") then
+                            br._G.UseItemByName(_G.GetInventoryItemID("player", 6), "target")
+                            AssFlag = true
+                        end
+                    end
+                elseif ui.value("Cardboard Assassin BoP Taunt") == 2 and php <= br.getOptionValue("Engineering Belt") then
+                    br._G.UseItemByName(_G.GetInventoryItemID("player", 6), "target")
+                    AssFlag = true
+                end
+            end
+            if cd.blessingOfProtection.ready() and AssFlag then
+                for i = 1, br._G.GetObjectCount() do
+                    local object = br._G.GetObjectWithIndex(i)
+                    local ID = br._G.ObjectID(object)
+                    if ID == 51229 then
+                        if object ~= nil then
+                            br._G.CastSpellByName(br._G.GetSpellInfo(1022), object)
+                            AssFlag = nil
+                            return true
+                        end
+                    end
+                end
+            end
+        end
+
 
         --Healthstone / Heathpots :  156634 == Silas Vial of Continuous curing / 5512 == warlock health stones
         if ui.checked("Pot/Stoned") and php <= ui.value("Pot/Stoned") and (br.hasHealthPot() or br.hasItem(5512) or br.hasItem(156634)) then
-            if br.canUseItem(166799) then
-                br.useItem(166799)
-            elseif br.canUseItem(5512) then
+            if br.canUseItem(5512) then
                 br.useItem(5512)
-            elseif br.canUseItem(156634) then
-                br.useItem(156634)
-            elseif br.canUseItem(169451) then
-                br.useItem(169451)
+            elseif br.canUseItem(177278) then
+                br.useItem(177278)
+            elseif br.canUseItem(171267) then
+                br.useItem(171267)
             end
         end
+
 
         -- Gift of the Naaru
         if ui.checked("Gift of The Naaru") and php <= br.getOptionValue("Gift of The Naaru") and php > 0 and br.player.race == "Draenei" then
@@ -1291,7 +1329,6 @@ actionList.Defensive = function()
             end
         end
 
-
         --	Divine Protection
         if ui.checked("Divine Protection") and cd.divineProtection.ready() and not buff.divineShield.exists("player") then
             if php <= br.getOptionValue("Divine Protection") then
@@ -1305,15 +1342,12 @@ actionList.Defensive = function()
             end
         end
 
-
         -- Blessing of Freedom
         if mode.freedom ~= 1 and ui.checked("Blessing of Freedom") and cd.blessingOfFreedom.ready() and br.hasNoControl(spell.blessingOfFreedom) then
             if cast.blessingOfFreedom("player") then
                 return true
             end
         end
-
-
     end
 end -- End Action List - Defensive
 
@@ -1427,22 +1461,10 @@ actionList.Cooldown = function()
 
         if auto_pot ~= 1 and (buff.avengingWrath.remain() > 12 or buff.avengingCrusader.remain() > 12) then
 
-            if auto_pot == 2 and br.canUseItem(163222) then
-                br.useItem(163222)
-            elseif auto_pot == 3 and br.canUseItem(152559) then
-                br.useItem(152559)
-            elseif auto_pot == 4 and br.canUseItem(109218) then
-                br.useItem(109218)
-            elseif auto_pot == 5 and br.canUseItem(142117) then
-                br.useItem(142117)
-            elseif auto_pot == 6 and #enemies.yards8 > 3 and br.canUseItem(168529) then
-                br.useItem(168529)
-            elseif auto_pot == 7 and br.canUseItem(168506) then
-                br.useItem(168506)
-            elseif auto_pot == 8 and br.canUseItem(168498) then
-                br.useItem(168498)
-            elseif auto_pot == 9 and br.canUseItem(169299) then
-                br.useItem(169299)
+            if auto_pot == 2 and br.canUseItem(171273) then
+                br._G.UseItemByName(171273, "player")
+            elseif auto_pot == 3 and #enemies.yards8 > 3 and br.canUseItem(171349) then
+                br._G.UseItemByName(171349, "player")
             end
         end
     end -- end pots
@@ -1463,6 +1485,7 @@ actionList.Cooldown = function()
             br.useItem(127835)
         end
     end
+
     -- Arcane Torrent
 
     -- br._G.print(tostring(br.player.getRacial()))
@@ -1510,7 +1533,7 @@ actionList.Cooldown = function()
     end
 
     -- Lay on Hands        --LoH / LayonHands
-    if ui.checked("Lay on Hands") and cd.layOnHands.ready() and not debuff.forbearance.exists(lowest.unit) and canheal(lowest.unit) then
+    if ui.checked("Lay on Hands") and cd.layOnHands.ready() and not debuff.forbearance.exists(lowest.unit) and not br.UnitBuffID(lowest.unit, 344916) and canheal(lowest.unit) then
         if timers.time("LoH Timer", lowest.hp <= ui.value("Lay on Hands")) > 0.8 then
             if cast.layOnHands(lowest.unit) then
                 return true
@@ -1677,7 +1700,7 @@ actionList.Cooldown = function()
         end
     end
 
-    -- Unstable Temporal Time Shifter
+    -- Disposable Spectrophasic Reanimator
     if ui.checked("Eng Brez") and br.canUseItem(184308) and not moving and inCombat then
         if br.getOptionValue("Eng Brez") == 1 and br._G.UnitIsPlayer("target") and br._G.UnitIsDeadOrGhost("target") and br.GetUnitIsFriend("target", "player") then
             br._G.UseItemByName(184308, "target")
@@ -1699,16 +1722,93 @@ end -- End Action List - Cooldowns
 actionList.bossfight = function()
 end
 
-actionList.spenders = function()
+actionList.generators = function()
 
-    -- Light of Dawn
-    if ui.checked("Light of Dawn") and cd.lightOfDawn.ready() and (holyPower >= 3 or buff.divinePurpose.exists())
-            and lowest.hp > ui.value("Critical HP")
-    then
-        if bestConeHeal(spell.lightOfDawn, ui.value("LoD Targets"), ui.value("Light of Dawn"), 45, lightOfDawn_distance * lightOfDawn_distance_coff, 5) then
+    healTarget = "none"
+
+    --Holyshock
+    if cd.holyShock.ready() then
+        if healTarget == "none" and mode.glimmer == 3 and #tanks > 0 and talent.glimmerOfLight then
+            for i = 1, #tanks do
+                if not br.UnitBuffID(tanks[i].unit, 287280, "PLAYER") and not br.UnitBuffID(tanks[i].unit, 115191) and canheal(tanks[i].unit) then
+                    healTarget = tanks[i].unit
+                    healReason = "GLIM"
+                end
+            end
+        end
+        if healTarget == "none" then
+            if lowest.hp <= ui.value("Holy Shock") and canheal(lowest.unit) then
+                --and canheal(lowest.unit) then
+                healTarget = lowest.unit
+                healReason = "HEAL"
+                --        br.addonDebug("setting lowest to: " .. healTarget)
+            end
+        end
+        if talent.glimmerOfLight and healTarget == "none" and mode.glimmer == 1 and (not br.player.inCombat or ui.checked("OOC Glimmer")) then
+            -- br._G.print("GLIMMER - Heal Target?:  " .. healTarget .. "|" .. healReason)
+            -- ooc blanketting
+            for i = 1, #br.friend do
+                if not buff.glimmerOfLight.exists(br.friend[i].unit, "exact") and canheal(br.friend[i].unit) then
+                    healTarget = br.friend[i].unit
+                    healReason = "GLIM"
+                end
+            end
+        end
+        if healTarget ~= "none" and canheal(healTarget) then
+            healTargetHealth = round(br.getHP(healTarget), 1)
+            --      br._G.print("HS HS  - Heal Target?:  " .. healTarget .. "|" .. healReason)
+            --      br._G.print("Can Heal? " .. tostring(canheal(healTarget)))
+            if canheal(healTarget) then
+                if cast.holyShock(healTarget) then
+                    br.addonDebug("[" .. healReason .. "] Holyshock on: " .. br._G.UnitName(healTarget) .. "/" .. healTargetHealth)
+                    healTarget = "none"
+                    return true
+                end
+            end
+        end
+    end -- end holy shock
+
+    -- DPS Holy Shock
+    if ui.checked("Use Holy Shock for DPS") and br.player.inCombat and lowest.hp > ui.value("Holy Shock") and cd.holyShock.ready() then
+        -- ST
+        if br.getDebuffRemain("target", 287268) == 0 or #enemies.yards30 == 1 then
+            if not noDamageCheck("target") and not br._G.UnitIsPlayer("target") and br.getFacing("player", "target") and br.UnitIsTappedByPlayer("target") then
+                if cast.holyShock("target") then
+                    br.addonDebug("[GEN] ST DPS Holy Shock")
+                    return true
+                end
+            end
+        end
+        -- AOE
+        for i = 1, #enemies.yards30 do
+            local thisUnit = enemies.yards30[i]
+            if br.getDebuffRemain(thisUnit, 287268) == 0 or br.getDebuffRemain(thisUnit, 287268) < 10 then
+                if not noDamageCheck(thisUnit) and not br._G.UnitIsPlayer(thisUnit) and br.getFacing("player", thisUnit) and br.UnitIsTappedByPlayer(thisUnit) then
+                    if cast.holyShock(thisUnit) then
+                        br.addonDebug("[GEN] AoE DPS Holyshock")
+                        -- br._G.print("FOOO")
+                        return true
+                    end
+                end
+            end
+        end
+        -- Use if nothing else
+        if cast.holyShock("target") then
             return true
         end
     end
+
+    --Talent Crusaders Might   - should only be used to get full value out of holy shock proc .. hard coded to 1.5
+    if talent.crusadersMight and (talent.holyAvenger and buff.holyAvenger.exists() and holyPower < 3 or holyPower < 5)
+            and br.getFacing("player", units.dyn5) and (br.getSpellCD(20473) > (gcd)) and ((holyPower == 2 and not cd.holyShock.ready) or cd.holyShock.remain() >= 1.5) then
+        if cast.crusaderStrike(units.dyn5) then
+            br.addonDebug("[GEN]CrusaderStrike on " .. br._G.UnitName(units.dyn5) .. " CD/HS: " .. round(cd.holyShock.remain(), 2))
+            return true
+        end
+    end
+end
+
+actionList.spenders = function()
 
     -- Word of Glory
     if ui.checked("Word of Glory") and healTarget == "none" and (holyPower >= 3 or buff.divinePurpose.exists()) then
@@ -1730,6 +1830,16 @@ actionList.spenders = function()
             return true
         end
     end
+
+    -- Light of Dawn
+    if ui.checked("Light of Dawn") and cd.lightOfDawn.ready() and (holyPower >= 3 or buff.divinePurpose.exists())
+            and lowest.hp > ui.value("Critical HP")
+    then
+        if bestConeHeal(spell.lightOfDawn, ui.value("LoD Targets"), ui.value("Light of Dawn"), 45, lightOfDawn_distance * lightOfDawn_distance_coff, 5) then
+            return true
+        end
+    end
+
     if ui.checked("Shield of the Righteous")
             and healTarget == "none"
             and lowest.hp > ui.value("Critical HP")
@@ -1836,57 +1946,6 @@ actionList.heal = function()
                     return true
                 end
             end
-        end
-    end
-
-    --Holyshock
-    if cd.holyShock.ready() then
-        if healTarget == "none" and mode.glimmer == 3 and #tanks > 0 and talent.glimmerOfLight then
-            for i = 1, #tanks do
-                if not br.UnitBuffID(tanks[i].unit, 287280, "PLAYER") and not br.UnitBuffID(tanks[i].unit, 115191) and canheal(tanks[i].unit) then
-                    healTarget = tanks[i].unit
-                    healReason = "GLIM"
-                end
-            end
-        end
-        if healTarget == "none" then
-            if lowest.hp <= ui.value("Holy Shock") and canheal(lowest.unit) then
-                --and canheal(lowest.unit) then
-                healTarget = lowest.unit
-                healReason = "HEAL"
-                --        br.addonDebug("setting lowest to: " .. healTarget)
-            end
-        end
-        if talent.glimmerOfLight and healTarget == "none" and mode.glimmer == 1 and (not br.player.inCombat or ui.checked("OOC Glimmer")) then
-            -- br._G.print("GLIMMER - Heal Target?:  " .. healTarget .. "|" .. healReason)
-            -- ooc blanketting
-            for i = 1, #br.friend do
-                if not buff.glimmerOfLight.exists(br.friend[i].unit, "exact") and canheal(br.friend[i].unit) then
-                    healTarget = br.friend[i].unit
-                    healReason = "GLIM"
-                end
-            end
-        end
-        if healTarget ~= "none" and canheal(healTarget) then
-            healTargetHealth = round(br.getHP(healTarget), 1)
-            --      br._G.print("HS HS  - Heal Target?:  " .. healTarget .. "|" .. healReason)
-            --      br._G.print("Can Heal? " .. tostring(canheal(healTarget)))
-            if canheal(healTarget) then
-                if cast.holyShock(healTarget) then
-                    br.addonDebug("[" .. healReason .. "] Holyshock on: " .. br._G.UnitName(healTarget) .. "/" .. healTargetHealth)
-                    healTarget = "none"
-                    return true
-                end
-            end
-        end
-    end -- end holy shock
-
-    --Talent Crusaders Might   - should only be used to get full value out of holy shock proc .. hard coded to 1.5
-    if talent.crusadersMight and (talent.holyAvenger and buff.holyAvenger.exists() and holyPower < 3 or holyPower < 5)
-            and lowest.hp > ui.value("Critical HP") and (br.getSpellCD(20473) > (gcd)) and br.getFacing("player", units.dyn5) then
-        if cast.crusaderStrike(units.dyn5) then
-            br.addonDebug("[FILL]CrusaderStrike on " .. br._G.UnitName(units.dyn5) .. " CD/HS: " .. round(cd.holyShock.remain(), 2))
-            return true
         end
     end
 
@@ -2150,9 +2209,9 @@ local function runRotation()
                 glimmerCount = glimmerCount + 1
             end
         end
-        if ui.checked("Aggressive Glimmer") and debuff.glimmerOfLight.remain("target", "exact") > gcd then
+        --[[ if ui.checked("Aggressive Glimmer") and debuff.glimmerOfLight.remain("target", "exact") > gcd then
             glimmerCount = glimmerCount + 1
-        end
+        end ]]
     end
 
     br.player.ui.mode.DPS = br.data.settings[br.selectedSpec].toggles["DPS"]
@@ -2197,6 +2256,9 @@ local function runRotation()
                         return true
                     end
                 end
+                if actionList.generators() then
+                    return true
+                end
                 if actionList.spenders() then
                     return true
                 end
@@ -2210,6 +2272,7 @@ local function runRotation()
                 --Print("In Combat")
 
                 --combat stuff
+
                 if actionList.Extra() then
                     return true
                 end
@@ -2235,16 +2298,19 @@ local function runRotation()
                                 return true
                             end
                         end
-                        if ui.checked("Aggressive Hammer of Wrath") then
+                        if ui.checked("Prioritize Hammer of Wrath") then
                             if actionList.hammerOfWrathDPS() then
                                 return true
                             end
                         end
                         if holyPower >= 3 or buff.divinePurpose.exists()
-                                and (not cd.holyShock.ready() or holyPower == 5) then
+                                and ((cd.holyShock.remain() >= 1 and not cd.crusaderStrike.ready) or holyPower == 5) then
                             if actionList.spenders() then
                                 return true
                             end
+                        end
+                        if actionList.generators() then
+                            return true
                         end
                         if talent.glimmerOfLight and (mode.glimmer == 1 or mode.glimmer == 3) and cd.holyShock.ready() then
                             -- and glimmerCount <= 8
