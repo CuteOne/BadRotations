@@ -47,7 +47,7 @@ function unlock.MBUnlock()
         end
     end
     b.ObjectName = function(obj)
-        if b.ObjectExistts(obj) then
+        if b.ObjectExists(obj) then
             return b.UnitName(obj)
         else
             return "Unknown"
