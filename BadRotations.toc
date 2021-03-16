@@ -2,7 +2,7 @@
 ## Title: |cffa330c9BadRotations
 ## Notes: |cffa330c9By CuteOne.
 ## Author: CuteOne
-## Version: 1.34.2
+## Version: 1.34.3
 
 
 BadRotations.lua
@@ -61,6 +61,7 @@ System\Lists\Spells.lua
 System\Lists\Range.lua
 System\Lists\ThreatBypass.lua
 System\Lists\Tier.lua
+System\Lists\TankBusters.lua
 
 ## Readers
 
