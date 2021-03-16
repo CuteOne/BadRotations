@@ -135,10 +135,14 @@ function unlock.WowAdUnlock()
         local ObjType = ObjectType(...)
         return ObjType == 8 or ObjType == 11
     end
-    b.ObjectID = function(...)
-        local GUID = b.ObjectGUID(...)
-        local type, zero, server_id, instance_id, zone_uid, OBJECTID, spawn_uid = strsplit("-", GUID);
-        return tonumber(OBJECTID);
+    b.ObjectID = function(object)
+        local GUID = b.ObjectGUID(object)       
+        if GUID then
+            local type, zero, server_id, instance_id, zone_uid, OBJECTID, spawn_uid = strsplit("-", GUID);
+            return tonumber(OBJECTID);
+        else
+            return 0
+        end
     end
     b.UnitMovementFlags = function(...)
         return GetUnitMovementFlags(...)
