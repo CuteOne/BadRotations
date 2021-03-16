@@ -862,7 +862,7 @@ actionList.dps = function()
         --        end
         --    end
 
-        if (mode.cooldown == 1 and br.isChecked("Adrenaline Rush") or not br.isChecked("Adrenaline Rush")) and br.getCombatTime() > 2 or br.isBoss() then
+        if (mode.cooldown == 1 and br.isChecked("Adrenaline Rush") or not br.isChecked("Adrenaline Rush")) and (br.getCombatTime() > 2 or br.isBoss()) then
             if cast.able.adrenalineRush() and not buff.adrenalineRush.exists() and getOutLaksTTD(25) > 0 then
                 if cast.adrenalineRush() then
                     return true
