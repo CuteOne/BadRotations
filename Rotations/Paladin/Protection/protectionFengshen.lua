@@ -232,6 +232,7 @@ local function runRotation()
 	local units         = br.player.units
 	local module        = br.player.module
 	local use           = br.player.use
+	local ui            = br.player.ui
 	local actionList    = {}
 	local SotR          = true
 	local BoF           = true
@@ -262,19 +263,19 @@ local function runRotation()
 		end
 	end
 	local noStunsUnits = {}
-	for i in string.gmatch(br.getOptionValue("Stuns Black Units"), "%d+") do
+	for i in string.gmatch(ui.value("Stuns Black Units"), "%d+") do
 		noStunsUnits[tonumber(i)] = true
 	end
 	local StunSpellsList = {}
-	for i in string.gmatch(br.getOptionValue("Stun Spells"), "%d+") do
+	for i in string.gmatch(ui.value("Stun Spells"), "%d+") do
 		StunSpellsList[tonumber(i)] = true
 	end
 	local HoJList = {}
-	for i in string.gmatch(br.getOptionValue("HoJ Prio Units"), "%d+") do
+	for i in string.gmatch(ui.value("HoJ Prio Units"), "%d+") do
 		HoJList[tonumber(i)] = true
 	end
 
-	if br.isChecked("Automatic Aura replacement") and not br.castingUnit() then
+	if ui.checked("Automatic Aura replacement") and not br.castingUnit() then
 		if not inInstance and not inRaid then
 			if not buff.devotionAura.exists() and (not br._G.IsMounted() or buff.divineSteed.exists()) and cast.able.devotionAura() then
 				if cast.devotionAura("player") then return true end
@@ -292,7 +293,7 @@ local function runRotation()
 	-- Action List - Extras
 	actionList.Extras = function()
 		-- Taunt
-		if br.isChecked("Taunt") and cast.able.handOfReckoning() and inInstance then
+		if ui.checked("Taunt") and cast.able.handOfReckoning() and inInstance then
 			for i = 1, #enemies.yards30 do
 				local thisUnit = enemies.yards30[i]
 				if br._G.UnitThreatSituation("player",thisUnit) ~= nil and br._G.UnitThreatSituation("player",thisUnit) <= 2 and br._G.UnitAffectingCombat(thisUnit) and br.GetObjectID(thisUnit) ~= 174773 then
@@ -324,106 +325,106 @@ local function runRotation()
 	actionList.Defensive = function()
 		if br.useDefensive() then
 			module.BasicHealing()
-			if br.isChecked("PoS removes Necrotic") and inInstance and br.getDebuffStacks("player", 209858) >= br.getValue("PoS removes Necrotic") and use.able.phialOfSerenity() then
+			if ui.checked("PoS removes Necrotic") and inInstance and br.getDebuffStacks("player", 209858) >= br.getValue("PoS removes Necrotic") and use.able.phialOfSerenity() then
 				if use.phialOfSerenity() then return true end
 			end
 			-- Arcane Torrent
 			if race == "BloodElf" and inCombat and br.getSpellCD(155145) == 0 then
-				if br.isChecked("Arcane Torrent Dispel") then
+				if ui.checked("Arcane Torrent Dispel") then
 					local torrentUnit = 0
 					for i=1, #enemies.yards8 do
 						local thisUnit = enemies.yards8[i]
 						if br.canDispel(thisUnit,select(7,br._G.GetSpellInfo(br._G.GetSpellInfo(69179)))) then
 							torrentUnit = torrentUnit + 1
-							if torrentUnit >= br.getOptionValue("Arcane Torrent Dispel") then
+							if torrentUnit >= ui.value("Arcane Torrent Dispel") then
 								if br._G.CastSpellByName(br._G.GetSpellInfo(155145)) then return true end
 								break
 							end
 						end
 					end
 				end
-				if br.isChecked("Arcane Torrent HolyPower") and (buff.avengingWrath.exists() or php <= 30) and holyPower < 3 then
+				if ui.checked("Arcane Torrent HolyPower") and (buff.avengingWrath.exists() or php <= 30) and holyPower < 3 then
 					if br._G.CastSpellByName(br._G.GetSpellInfo(155145)) then return true end
 				end
 			end
 			-- Lay On Hands
-			if br.isChecked("Lay On Hands") and br.getSpellCD(633) == 0 and inCombat and not buff.ardentDefender.exists() then
+			if ui.checked("Lay On Hands") and br.getSpellCD(633) == 0 and inCombat and not buff.ardentDefender.exists() then
 				-- Player
-				if br.getOptionValue("Lay on Hands Target") == 1 then
+				if ui.value("Lay on Hands Target") == 1 then
 					if php <= br.getValue("Lay On Hands") and not debuff.forbearance.exists("player") then
 						if cast.layOnHands("player") then return true end
 					end
 					-- Target
-				elseif br.getOptionValue("Lay on Hands Target") == 2 then
+				elseif ui.value("Lay on Hands Target") == 2 then
 					if br.getHP("target") <= br.getValue("Lay On Hands") and not debuff.forbearance.exists("target") and br._G.UnitIsPlayer("target") and br.GetUnitIsFriend("target","player") then
 						if cast.layOnHands("target") then return true end
 					end
 					-- Mouseover
-				elseif br.getOptionValue("Lay on Hands Target") == 3 then
+				elseif ui.value("Lay on Hands Target") == 3 then
 					if br.getHP("mouseover") <= br.getValue("Lay On Hands") and not debuff.forbearance.exists("mouseover") and br._G.UnitIsPlayer("mouseover") and br.GetUnitIsFriend("mouseover","player") then
 						if cast.layOnHands("mouseover") then return true end
 					end
 				elseif br.getHP(lowestUnit) <= br.getValue("Lay On Hands") and not debuff.forbearance.exists(lowestUnit) then
 					-- Tank
-					if br.getOptionValue("Lay on Hands Target") == 4 then
+					if ui.value("Lay on Hands Target") == 4 then
 						if br._G.UnitGroupRolesAssigned(lowestUnit) == "TANK" then
 							if cast.layOnHands(lowestUnit) then return true end
 						end
 						-- Healer
-					elseif br.getOptionValue("Lay on Hands Target") == 5 then
+					elseif ui.value("Lay on Hands Target") == 5 then
 						if br._G.UnitGroupRolesAssigned(lowestUnit) == "HEALER" then
 							if cast.layOnHands(lowestUnit) then return true end
 						end
 						-- Healer/Tank
-					elseif br.getOptionValue("Lay on Hands Target") == 6 then
+					elseif ui.value("Lay on Hands Target") == 6 then
 						if br._G.UnitGroupRolesAssigned(lowestUnit) == "HEALER" or br._G.UnitGroupRolesAssigned(lowestUnit) == "TANK" then
 							if cast.layOnHands(lowestUnit) then return true end
 						end
 						-- Healer/Damager
-					elseif br.getOptionValue("Lay on Hands Target") == 7 then
+					elseif ui.value("Lay on Hands Target") == 7 then
 						if br._G.UnitGroupRolesAssigned(lowestUnit) == "HEALER" or br._G.UnitGroupRolesAssigned(lowestUnit) == "DAMAGER" then
 							if cast.layOnHands(lowestUnit) then return true end
 						end
 						-- Any
-					elseif  br.getOptionValue("Lay on Hands Target") == 8 then
+					elseif  ui.value("Lay on Hands Target") == 8 then
 						if cast.layOnHands(lowestUnit) then return true end
 					end
 				end
 			end
 			-- Divine Shield
-			if br.isChecked("Divine Shield") and cast.able.divineShield() and not buff.ardentDefender.exists() and not buff.guardianOfAncientKings.exists() and not debuff.forbearance.exists() then
-				if php <= br.getOptionValue("Divine Shield") and inCombat then
+			if ui.checked("Divine Shield") and cast.able.divineShield() and not buff.ardentDefender.exists() and not buff.guardianOfAncientKings.exists() and not debuff.forbearance.exists() then
+				if php <= ui.value("Divine Shield") and inCombat then
 					if cast.divineShield() then return true end
 				end
 			end
 			-- Word of Glory
-			if php <= br.getOptionValue("Free Word of Glory") and (buff.divinePurpose.exists() or buff.shiningLight.exists() or buff.royalDecree.exists()) then
+			if php <= ui.value("Free Word of Glory") and (buff.divinePurpose.exists() or buff.shiningLight.exists() or buff.royalDecree.exists()) then
 				SotR = false
 				if cast.wordOfGlory("player") then return true end
 			end
 			if holyPower > 2 or buff.divinePurpose.exists() or buff.shiningLight.exists() or buff.royalDecree.exists() then
-				if br.isChecked("Word of Glory") and php <= br.getOptionValue("Word of Glory") then
+				if ui.checked("Word of Glory") and php <= ui.value("Word of Glory") then
 					SotR = false
 					if cast.wordOfGlory("player") then return true end
 				end
-				if br.isChecked("Word of Glory - Party") then
-					if br.getHP(lowestUnit) <= br.getOptionValue("Word of Glory - Party") and not br.GetUnitIsUnit(lowestUnit,"player") then
-						if br.getOptionValue("WoG - Party Target") == 1 then
+				if ui.checked("Word of Glory - Party") then
+					if br.getHP(lowestUnit) <= ui.value("Word of Glory - Party") and not br.GetUnitIsUnit(lowestUnit,"player") then
+						if ui.value("WoG - Party Target") == 1 then
 							if br._G.UnitGroupRolesAssigned(lowestUnit) == "TANK" then
 								SotR = false
 								if cast.wordOfGlory(lowestUnit) then return true end
 							end
-						elseif br.getOptionValue("WoG - Party Target") == 2 then
+						elseif ui.value("WoG - Party Target") == 2 then
 							if br._G.UnitGroupRolesAssigned(lowestUnit) == "HEALER" then
 								SotR = false
 								if cast.wordOfGlory(lowestUnit) then return true end
 							end
-						elseif br.getOptionValue("WoG - Party Target") == 3 then
+						elseif ui.value("WoG - Party Target") == 3 then
 							if br._G.UnitGroupRolesAssigned(lowestUnit) == "TANK" or br._G.UnitGroupRolesAssigned(lowestUnit) == "HEALER" then
 								SotR = false
 								if cast.wordOfGlory(lowestUnit) then return true end
 							end
-						elseif br.getOptionValue("WoG - Party Target") == 4 then
+						elseif ui.value("WoG - Party Target") == 4 then
 							SotR = false
 							if cast.wordOfGlory(lowestUnit) then return true end
 						end
@@ -435,109 +436,109 @@ local function runRotation()
 				end
 			end
 			-- Blessing of Protection
-			if br.isChecked("Blessing of Protection") and br.getSpellCD(1022) == 0 and inCombat and not br.isBoss("boss1") then
+			if ui.checked("Blessing of Protection") and br.getSpellCD(1022) == 0 and inCombat and not br.isBoss("boss1") then
 				-- Player
-				if br.getOptionValue("Blessing of Protection Target") == 1 then
+				if ui.value("Blessing of Protection Target") == 1 then
 					if php <= br.getValue("Blessing of Protection") and not debuff.forbearance.exists("player") then
 						if cast.blessingOfProtection("player") then return true end
 					end
 					-- Target
-				elseif br.getOptionValue("Blessing of Protection Target") == 2 then
+				elseif ui.value("Blessing of Protection Target") == 2 then
 					if br.getHP("target") <= br.getValue("Blessing of Protection") and not debuff.forbearance.exists("target") and br._G.UnitIsPlayer("target") and br.GetUnitIsFriend("target","player") then
 						if cast.blessingOfProtection("target") then return true end
 					end
 					-- Mouseover
-				elseif br.getOptionValue("Blessing of Protection Target") == 3 then
+				elseif ui.value("Blessing of Protection Target") == 3 then
 					if br.getHP("mouseover") <= br.getValue("Blessing of Protection") and not debuff.forbearance.exists("mouseover") and br._G.UnitIsPlayer("mouseover") and br.GetUnitIsFriend("mouseover","player") then
 						if cast.blessingOfProtection("mouseover") then return true end
 					end
 				elseif br.getHP(lowestUnit) <= br.getValue("Blessing of Protection") and not debuff.forbearance.exists(lowestUnit) then
 					-- Tank
-					if br.getOptionValue("Blessing of Protection Target") == 4 then
+					if ui.value("Blessing of Protection Target") == 4 then
 						if br._G.UnitGroupRolesAssigned(lowestUnit) == "TANK" then
 							if cast.blessingOfProtection(lowestUnit) then return true end
 						end
 						-- Healer
-					elseif br.getOptionValue("Blessing of Protection Target") == 5 then
+					elseif ui.value("Blessing of Protection Target") == 5 then
 						if br._G.UnitGroupRolesAssigned(lowestUnit) == "HEALER" then
 							if cast.blessingOfProtection(lowestUnit) then return true end
 						end
 						-- Healer/Tank
-					elseif br.getOptionValue("Blessing of Protection Target") == 6 then
+					elseif ui.value("Blessing of Protection Target") == 6 then
 						if br._G.UnitGroupRolesAssigned(lowestUnit) == "HEALER" or br._G.UnitGroupRolesAssigned(lowestUnit) == "TANK" then
 							if cast.blessingOfProtection(lowestUnit) then return true end
 						end
 						-- Healer/Damager
-					elseif br.getOptionValue("Blessing of Protection Target") == 7 then
+					elseif ui.value("Blessing of Protection Target") == 7 then
 						if br._G.UnitGroupRolesAssigned(lowestUnit) == "HEALER" or br._G.UnitGroupRolesAssigned(lowestUnit) == "DAMAGER" then
 							if cast.blessingOfProtection(lowestUnit) then return true end
 						end
 						-- Any
-					elseif  br.getOptionValue("Blessing of Protection Target") == 8 then
+					elseif  ui.value("Blessing of Protection Target") == 8 then
 						if cast.blessingOfProtection(lowestUnit) then return true end
 					end
 				end
 			end
 			-- Blessing Of Sacrifice
-			if br.isChecked("Blessing Of Sacrifice") and cast.able.blessingOfSacrifice() and php >= 50 and inCombat then
+			if ui.checked("Blessing Of Sacrifice") and cast.able.blessingOfSacrifice() and php >= 50 and inCombat then
 				-- Target
-				if br.getOptionValue("Blessing Of Sacrifice Target") == 1 then
+				if ui.value("Blessing Of Sacrifice Target") == 1 then
 					if br.getHP("target") <= br.getValue("Blessing Of Sacrifice") and br._G.UnitIsPlayer("target") and br.GetUnitIsFriend("target","player") then
 						if cast.blessingOfSacrifice("target") then return true end
 					end
 					-- Mouseover
-				elseif br.getOptionValue("Blessing Of Sacrifice Target") == 2 then
+				elseif ui.value("Blessing Of Sacrifice Target") == 2 then
 					if br.getHP("mouseover") <= br.getValue("Blessing Of Sacrifice") and br._G.UnitIsPlayer("mouseover") and br.GetUnitIsFriend("mouseover","player") then
 						if cast.blessingOfSacrifice("mouseover") then return true end
 					end
 				elseif br.getHP(lowestUnit) <= br.getValue("Blessing Of Sacrifice") and not br.GetUnitIsUnit(lowestUnit,"player") and not cast.last.blessingOfProtection() then
 					-- Tank
-					if br.getOptionValue("Blessing Of Sacrifice Target") == 3 then
+					if ui.value("Blessing Of Sacrifice Target") == 3 then
 						if br._G.UnitGroupRolesAssigned(lowestUnit) == "TANK" then
 							if cast.blessingOfSacrifice(lowestUnit) then return true end
 						end
 						-- Healer
-					elseif br.getOptionValue("Blessing Of Sacrifice Target") == 4 then
+					elseif ui.value("Blessing Of Sacrifice Target") == 4 then
 						if br._G.UnitGroupRolesAssigned(lowestUnit) == "HEALER" then
 							if cast.blessingOfSacrifice(lowestUnit) then return true end
 						end
 						-- Healer/Tank
-					elseif br.getOptionValue("Blessing Of Sacrifice Target") == 5 then
+					elseif ui.value("Blessing Of Sacrifice Target") == 5 then
 						if br._G.UnitGroupRolesAssigned(lowestUnit) == "HEALER" or br._G.UnitGroupRolesAssigned(lowestUnit) == "TANK" then
 							if cast.blessingOfSacrifice(lowestUnit) then return true end
 						end
 						-- Healer/Damager
-					elseif br.getOptionValue("Blessing Of Sacrifice Target") == 6 then
+					elseif ui.value("Blessing Of Sacrifice Target") == 6 then
 						if br._G.UnitGroupRolesAssigned(lowestUnit) == "HEALER" or br._G.UnitGroupRolesAssigned(lowestUnit) == "DAMAGER" then
 							if cast.blessingOfSacrifice(lowestUnit) then return true end
 						end
 						-- Any
-					elseif  br.getOptionValue("Blessing Of Sacrifice Target") == 7 then
+					elseif  ui.value("Blessing Of Sacrifice Target") == 7 then
 						if cast.blessingOfSacrifice(lowestUnit) then return true end
 					end
 				end
 			end
 			-- Cleanse Toxins
-			if br.isChecked("Clease Toxin") and cast.able.cleanseToxins() and br.GetObjectID("boss1") ~= 164267 then
-				if br.getOptionValue("Clease Toxin")==1 then
+			if ui.checked("Clease Toxin") and cast.able.cleanseToxins() and br.GetObjectID("boss1") ~= 164267 then
+				if ui.value("Clease Toxin")==1 then
 					if br.canDispel("player",spell.cleanseToxins) then
 						if cast.cleanseToxins("player") then return true end
 					end
-				elseif br.getOptionValue("Clease Toxin")==2 then
+				elseif ui.value("Clease Toxin")==2 then
 					if br.canDispel("target",spell.cleanseToxins) then
 						if cast.cleanseToxins("target") then return true end
 					end
-				elseif br.getOptionValue("Clease Toxin")==3 then
+				elseif ui.value("Clease Toxin")==3 then
 					if br.canDispel("player",spell.cleanseToxins) then
 						if cast.cleanseToxins("player") then return true end
 					elseif br.canDispel("target",spell.cleanseToxins) then
 						if cast.cleanseToxins("target") then return true end
 					end
-				elseif br.getOptionValue("Clease Toxin")==4 then
+				elseif ui.value("Clease Toxin")==4 then
 					if br.canDispel("mouseover",spell.cleanseToxins) then
 						if cast.cleanseToxins("mouseover") then return true end
 					end
-				elseif br.getOptionValue("Clease Toxin")==5 then
+				elseif ui.value("Clease Toxin")==5 then
 					for i = 1, #br.friend do
 						if br.canDispel(br.friend[i].unit,spell.cleanseToxins) then
 							if cast.cleanseToxins(br.friend[i].unit) then return true end
@@ -546,26 +547,26 @@ local function runRotation()
 				end
 			end
 			-- Blinding Light
-			if br.isChecked("Blinding Light - HP") and cast.able.blindingLight() and talent.blindingLight and php <= br.getOptionValue("Blinding Light - HP") and inCombat and #enemies.yards10 > 0 then
+			if ui.checked("Blinding Light - HP") and cast.able.blindingLight() and talent.blindingLight and php <= ui.value("Blinding Light - HP") and inCombat and #enemies.yards10 > 0 then
 				if cast.blindingLight() then return true end
 			end
-			if br.isChecked("Guardian of Ancient Kings") and cast.able.guardianOfAncientKings() then
-				if php <= br.getOptionValue("Guardian of Ancient Kings") and inCombat and not buff.ardentDefender.exists() and not buff.divineShield.exists() then
+			if ui.checked("Guardian of Ancient Kings") and cast.able.guardianOfAncientKings() then
+				if php <= ui.value("Guardian of Ancient Kings") and inCombat and not buff.ardentDefender.exists() and not buff.divineShield.exists() then
 					if cast.guardianOfAncientKings() then return true end
 				end
 			end
 			-- Ardent Defender
-			if br.isChecked("Ardent Defender") and cast.able.ardentDefender() then
-				if (php <= br.getOptionValue("Ardent Defender") or php <= 10 or buff.holyAvenger.exists()) and inCombat and not buff.guardianOfAncientKings.exists() and not buff.divineShield.exists() then
+			if ui.checked("Ardent Defender") and cast.able.ardentDefender() then
+				if (php <= ui.value("Ardent Defender") or php <= 10 or buff.holyAvenger.exists()) and inCombat and not buff.guardianOfAncientKings.exists() and not buff.divineShield.exists() then
 					if cast.ardentDefender() then return true end
 				end
 			end
 			-- Gift of the Naaru
-			if br.isChecked("Gift of the Naaru") and php <= br.getOptionValue("Gift of the Naaru") and php > 0 and race == "Draenei" then
+			if ui.checked("Gift of the Naaru") and php <= ui.value("Gift of the Naaru") and php > 0 and race == "Draenei" then
 				if br.castSpell("player",racial,false,false,false) then return true end
 			end
 			-- Hammer of Justice
-			if br.isChecked("Hammer of Justice - HP") and cast.able.hammerOfJustice() and php <= br.getOptionValue("Hammer of Justice - HP") and inCombat then
+			if ui.checked("Hammer of Justice - HP") and cast.able.hammerOfJustice() and php <= ui.value("Hammer of Justice - HP") and inCombat then
 				for i = 1, #enemies.yards10 do
 					local thisUnit = enemies.yards10[i]
 					if not br.isBoss(thisUnit) and br.getBuffRemain(thisUnit,226510) == 0 and noStunsUnits[br.GetObjectID(thisUnit)] == nil then
@@ -574,31 +575,31 @@ local function runRotation()
 				end
 			end
 			-- Redemption
-			if br.isChecked("Redemption") and not inCombat and not moving and not br.castingUnit() then
-				if br.getOptionValue("Redemption")==1 and resable then
+			if ui.checked("Redemption") and not inCombat and not moving and not br.castingUnit() then
+				if ui.value("Redemption")==1 and resable then
 					if cast.redemption("target","dead") then return true end
 				end
-				if br.getOptionValue("Redemption")==2 and resable then
+				if ui.value("Redemption")==2 and resable then
 					if cast.redemption("mouseover","dead") then return true end
 				end
 			end
 			-- Blessing of Freedom
-			if br.isChecked("Blessing of Freedom") and cast.able.blessingOfFreedom() and br.hasNoControl(spell.blessingOfFreedom) then
+			if ui.checked("Blessing of Freedom") and cast.able.blessingOfFreedom() and br.hasNoControl(spell.blessingOfFreedom) then
 				if cast.blessingOfFreedom("player") then return true end
 			end
 			-- Flash of Light
-			if br.isChecked("Flash of Light") then
-				if (forceHeal or (inCombat and php <= br.getOptionValue("Flash of Light") / 2) or (not inCombat and php <= br.getOptionValue("Flash of Light"))) and not moving then
+			if ui.checked("Flash of Light") then
+				if (forceHeal or (inCombat and php <= ui.value("Flash of Light") / 2) or (not inCombat and php <= ui.value("Flash of Light"))) and not moving then
 					if cast.flashOfLight("player") then return true end
 				end
 			end
 			-- Engineering Revive
-			if br.isChecked("Engineering Revive") and br.canUseItem(184308) and not moving and inCombat then
-				if br.getOptionValue("Engineering Revive") == 1 and br._G.UnitIsPlayer("target") and br._G.UnitIsDeadOrGhost("target") and br.GetUnitIsFriend("target","player") then
+			if ui.checked("Engineering Revive") and br.canUseItem(184308) and not moving and inCombat then
+				if ui.value("Engineering Revive") == 1 and br._G.UnitIsPlayer("target") and br._G.UnitIsDeadOrGhost("target") and br.GetUnitIsFriend("target","player") then
 					br._G.UseItemByName(184308,"target")
-				elseif br.getOptionValue("Engineering Revive") == 2 and br._G.UnitIsPlayer("mouseover") and br._G.UnitIsDeadOrGhost("mouseover") and br.GetUnitIsFriend("mouseover","player") then
+				elseif ui.value("Engineering Revive") == 2 and br._G.UnitIsPlayer("mouseover") and br._G.UnitIsDeadOrGhost("mouseover") and br.GetUnitIsFriend("mouseover","player") then
 					br._G.UseItemByName(184308,"mouseover")
-				elseif br.getOptionValue("Engineering Revive") == 3 then
+				elseif ui.value("Engineering Revive") == 3 then
 					for i =1, #br.friend do
 						if br._G.UnitIsPlayer(br.friend[i].unit) and br._G.UnitIsDeadOrGhost(br.friend[i].unit) and br.GetUnitIsFriend(br.friend[i].unit,"player") then
 							br._G.UseItemByName(184308,br.friend[i].unit)
@@ -678,7 +679,7 @@ local function runRotation()
 			end
 		end
 		-- Blessing of Freedom
-		if cast.able.blessingOfFreedom() then
+		if br.getSpellCD(1044) <= gcdMax then
 			if br._G.UnitCastingInfo("boss1") == br._G.GetSpellInfo(320788) or br._G.UnitCastingInfo("boss1") == br._G.GetSpellInfo(324608) or br._G.UnitCastingInfo("boss1") == br._G.GetSpellInfo(319941) then
 				BoF = false
 				if cast.blessingOfFreedom("boss1target") then return true end
@@ -716,52 +717,52 @@ local function runRotation()
 	-- Action List - Cooldowns
 	actionList.Cooldowns = function()
 		-- Trinkets
-		if br.isChecked("Use Trinkets 1") and br.canUseItem(13) and ((br.getOptionValue("Use Trinkets 1") == 2 and br.useCDs()) or br.getOptionValue("Use Trinkets 1") == 1) then
-			if br.getOptionValue("Trinkets 1 Mode") == 1 then
+		if ui.checked("Use Trinkets 1") and br.canUseItem(13) and ((ui.value("Use Trinkets 1") == 2 and br.useCDs()) or ui.value("Use Trinkets 1") == 1) then
+			if ui.value("Trinkets 1 Mode") == 1 then
 				if br.useItem(13) then return true end
-			elseif br.getOptionValue("Trinkets 1 Mode") == 2 then
+			elseif ui.value("Trinkets 1 Mode") == 2 then
 				if br.useItemGround("target",13,40,0,nil) then return true end
-			elseif br.getOptionValue("Trinkets 1 Mode") == 3 and lowest.hp <= br.getOptionValue("Trinkets 1") then
+			elseif ui.value("Trinkets 1 Mode") == 3 and lowest.hp <= ui.value("Trinkets 1") then
 				if br.useItem(13,lowest.unit) then return true end
-			elseif br.getOptionValue("Trinkets 1 Mode") == 4 and lowest.hp <= br.getOptionValue("Trinkets 1") and br._G.UnitGroupRolesAssigned(lowest.unit) == "TANK" then
+			elseif ui.value("Trinkets 1 Mode") == 4 and lowest.hp <= ui.value("Trinkets 1") and br._G.UnitGroupRolesAssigned(lowest.unit) == "TANK" then
 				if br.useItem(13,lowest.unit) then return true end
-			elseif br.getOptionValue("Trinkets 1 Mode") == 5 and php <= br.getOptionValue("Trinkets 1") then
+			elseif ui.value("Trinkets 1 Mode") == 5 and php <= ui.value("Trinkets 1") then
 				if br.useItem(13,"player") then return true end
 			end
 		end
-		if br.isChecked("Use Trinkets 2") and br.canUseItem(14) and ((br.getOptionValue("Use Trinkets 2") == 2 and br.useCDs()) or br.getOptionValue("Use Trinkets 2") == 1) then
-			if br.getOptionValue("Trinkets 2 Mode") == 1 then
+		if ui.checked("Use Trinkets 2") and br.canUseItem(14) and ((ui.value("Use Trinkets 2") == 2 and br.useCDs()) or ui.value("Use Trinkets 2") == 1) then
+			if ui.value("Trinkets 2 Mode") == 1 then
 				if br.useItem(14) then return true end
-			elseif br.getOptionValue("Trinkets 2 Mode") == 2 then
+			elseif ui.value("Trinkets 2 Mode") == 2 then
 				if br.useItemGround("target",14,40,0,nil) then return true end
-			elseif br.getOptionValue("Trinkets 2 Mode") == 3 and lowest.hp <= br.getOptionValue("Trinkets 2") then
+			elseif ui.value("Trinkets 2 Mode") == 3 and lowest.hp <= ui.value("Trinkets 2") then
 				if br.useItem(14,lowest.unit) then return true end
-			elseif br.getOptionValue("Trinkets 2 Mode") == 4 and lowest.hp <= br.getOptionValue("Trinkets 2") and br._G.UnitGroupRolesAssigned(lowest.unit) == "TANK" then
+			elseif ui.value("Trinkets 2 Mode") == 4 and lowest.hp <= ui.value("Trinkets 2") and br._G.UnitGroupRolesAssigned(lowest.unit) == "TANK" then
 				if br.useItem(14,lowest.unit) then return true end
-			elseif br.getOptionValue("Trinkets 2 Mode") == 5 and php <= br.getOptionValue("Trinkets 2") then
+			elseif ui.value("Trinkets 2 Mode") == 5 and php <= ui.value("Trinkets 2") then
 				if br.useItem(14,"player") then return true end
 			end
 		end
 		if br.useCDs() or burst then
 			-- Racials
-			if br.isChecked("Racial") then
+			if ui.checked("Racial") then
 				if race == "Orc" or race == "Troll" and br.getSpellCD(racial) == 0 then
 					if br.castSpell("player",racial,false,false,false) then return true end
 				end
 			end
 			if br.GetUnitExists(units.dyn5) then
 				-- Seraphim
-				if br.isChecked("Seraphim") and talent.seraphim and holyPower > 2 and br.getOptionValue("Seraphim") <= ttd then
+				if ui.checked("Seraphim") and talent.seraphim and holyPower > 2 and ui.value("Seraphim") <= ttd then
 					SotR = false
 					if cast.seraphim() then return true end
 				end
 				-- Avenging Wrath
-				if br.isChecked("Avenging Wrath") and cast.able.avengingWrath() and br.getOptionValue("Avenging Wrath") <= ttd and not buff.avengingWrath.exists() then
+				if ui.checked("Avenging Wrath") and cast.able.avengingWrath() and ui.value("Avenging Wrath") <= ttd and not buff.avengingWrath.exists() then
 					if cast.avengingWrath() then return true end
 				end
 				-- Holy Avenger
-				if br.isChecked("Holy Avenger") and cast.able.holyAvenger() and talent.holyAvenger and
-					((not br.isChecked("Holy Avenger with Wings") and br.getOptionValue("Holy Avenger") <= ttd ) or (br.isChecked("Holy Avenger with Wings") and br.getSpellCD(31884) == 0))then
+				if ui.checked("Holy Avenger") and cast.able.holyAvenger() and talent.holyAvenger and
+					((not ui.checked("Holy Avenger with Wings") and ui.value("Holy Avenger") <= ttd ) or (ui.checked("Holy Avenger with Wings") and br.getSpellCD(31884) == 0))then
 					if cast.holyAvenger() then return true end
 				end
 			end
@@ -770,7 +771,7 @@ local function runRotation()
 	-- Action List - Interrupts
 	actionList.Interrupts = function()
 		if br.useInterrupts() then
-			if br.isChecked("Avenger's Shield - INT") and cast.able.avengersShield() then
+			if ui.checked("Avenger's Shield - INT") and cast.able.avengersShield() then
 				for i = 1, #enemies.yards30 do
 					local thisUnit = enemies.yards30[i]
 					if (select(8,br._G.UnitCastingInfo(thisUnit)) == false or select(7,br._G.UnitChannelInfo(thisUnit)) == false) and br.getFacing("player",thisUnit) then
@@ -791,32 +792,32 @@ local function runRotation()
 					interruptID = select(8,br._G.UnitChannelInfo(thisUnit))
 				end
 				if interruptID ~=nil and StunSpellsList[interruptID] and br.getBuffRemain(thisUnit,343503) == 0 then
-					if br.isChecked("Hammer of Justice - INT") and cast.able.hammerOfJustice() and br.getBuffRemain(thisUnit,226510) == 0 then
+					if ui.checked("Hammer of Justice - INT") and cast.able.hammerOfJustice() and br.getBuffRemain(thisUnit,226510) == 0 then
 						if cast.hammerOfJustice(thisUnit) then return true end
 					end
-					if br.isChecked("Blinding Light - INT") and cast.able.blindingLight() and talent.blindingLight then
+					if ui.checked("Blinding Light - INT") and cast.able.blindingLight() and talent.blindingLight then
 						if cast.blindingLight() then return true end
 					end
 				end
-				if br.canInterrupt(thisUnit,br.getOptionValue("Interrupt At")) then
+				if br.canInterrupt(thisUnit,ui.value("Interrupt At")) then
 					-- Blinding Light
-					if br.isChecked("Blinding Light - INT") and cast.able.blindingLight() and talent.blindingLight and br.getBuffRemain(thisUnit,343503) == 0 then
+					if ui.checked("Blinding Light - INT") and cast.able.blindingLight() and talent.blindingLight and br.getBuffRemain(thisUnit,343503) == 0 then
 						if not br.isBoss(thisUnit) and noStunsUnits[br.GetObjectID(thisUnit)] == nil then
 							BL_Unit = BL_Unit + 1
-							if BL_Unit >= br.getOptionValue("Blinding Light - INT") then
+							if BL_Unit >= ui.value("Blinding Light - INT") then
 								RInterrupts = false
 								if cast.blindingLight() then return true end
 							end
 						end
 					end
 					-- Hammer of Justice
-					if br.isChecked("Hammer of Justice - INT") and cast.able.hammerOfJustice() then
+					if ui.checked("Hammer of Justice - INT") and cast.able.hammerOfJustice() then
 						if not br.isBoss(thisUnit) and br.getBuffRemain(thisUnit,226510) == 0 and br.getBuffRemain(thisUnit,343503) == 0 and noStunsUnits[br.GetObjectID(thisUnit)] == nil then
 							if cast.hammerOfJustice(thisUnit) then hoj_unit = thisUnit return true end
 						end
 					end
 					-- Rebuke
-					if br.isChecked("Rebuke - INT") and cast.able.rebuke() and (distance <= 5 or (br._G.IsFlying(thisUnit) and distance <= 10)) and br.getFacing("player",thisUnit) and not br.GetUnitIsUnit(hoj_unit,thisUnit) then
+					if ui.checked("Rebuke - INT") and cast.able.rebuke() and (distance <= 5 or (br._G.IsFlying(thisUnit) and distance <= 10)) and br.getFacing("player",thisUnit) and not br.GetUnitIsUnit(hoj_unit,thisUnit) then
 						if cast.rebuke(thisUnit) then return true end
 					end
 				end
@@ -826,7 +827,7 @@ local function runRotation()
 	-- Action List - Opener
 	actionList.Opener = function()
 		-- infinite Divine Steed
-		if br.isChecked("infinite Divine Steed key") and (br.SpecificToggle("infinite Divine Steed key") and not br._G.GetCurrentKeyBoardFocus()) then
+		if ui.checked("infinite Divine Steed key") and (br.SpecificToggle("infinite Divine Steed key") and not br._G.GetCurrentKeyBoardFocus()) then
 			if br.getBuffRemain("player", 254474) <= 0.5 then
 				if cast.divineSteed() then return true end
 				RemoveTalent(22433)
@@ -841,19 +842,19 @@ local function runRotation()
 			end
 		end
 		-- Flash of Light
-		if br.isChecked("OOC FoL") and cast.able.flashOfLight() and not moving then
+		if ui.checked("OOC FoL") and cast.able.flashOfLight() and not moving then
 			-- Player
-			if br.getOptionValue("OOC FoL Target") == 1 then
+			if ui.value("OOC FoL Target") == 1 then
 				if php <= br.getValue("OOC FoL") then
 					if cast.flashOfLight("player") then return true end
 				end
 				-- Target
-			elseif br.getOptionValue("OOC FoL Target") == 2 then
+			elseif ui.value("OOC FoL Target") == 2 then
 				if br.getHP("target") <= br.getValue("OOC FoL") and br._G.UnitIsPlayer("target") and br.GetUnitIsFriend("target","player") then
 					if cast.flashOfLight("target") then return true end
 				end
 				-- Player and Target
-			elseif br.getOptionValue("OOC FoL Target") == 3 then
+			elseif ui.value("OOC FoL Target") == 3 then
 				if php <= br.getValue("OOC FoL") then
 					if cast.flashOfLight("player") then return true end
 				elseif br.getHP("target") <= br.getValue("OOC FoL") and br._G.UnitIsPlayer("target") and br.GetUnitIsFriend("target","player")then
@@ -868,7 +869,7 @@ local function runRotation()
 			end
 		end
 		if br.isValidUnit("target") and br.getFacing("player","target") then
-			if br.isChecked("Judgment") and br.getDistance("target") <= 30 and cast.able.judgment() then
+			if ui.checked("Judgment") and br.getDistance("target") <= 30 and cast.able.judgment() then
 				if cast.judgment("target") then return true end
 			end
 		end
@@ -880,36 +881,36 @@ local function runRotation()
 			br._G.StartAttack()
 		end
 		-- Shield of the Righteous
-		if br.isChecked("Shield of the Righteous") and cast.able.shieldOfTheRighteous() and SotR == true and (holyPower > 2 or buff.divinePurpose.exists())
+		if ui.checked("Shield of the Righteous") and cast.able.shieldOfTheRighteous() and SotR == true and (holyPower > 2 or buff.divinePurpose.exists())
 			and (mode.holyPowerlogic == 1 and (buff.holyAvenger.exists() or br.getBuffRemain("player",337848) ~= 0 or debuff.judgment.exists(units.dyn10) or holyPower == 5 or buff.shieldOfTheRighteous.remains("player") < 2))
 			or (mode.holyPowerlogic == 2 and holyPower == 5 and (br.getSpellCD(275779) <= gcdMax or br.getSpellCD(31935) <= gcdMax or (talent.blessedHammer and br.getSpellCD(204019) <= gcdMax) or (not talent.blessedHammer and br.getSpellCD(53595) <= gcdMax) or ((br.getHP(units.dyn30) <= 20 or buff.avengingWrath.exists()) and br.getSpellCD(24275) <= gcdMax))) then
 			if cast.shieldOfTheRighteous(units.dyn5) then return true end
 		end
 		local mob30 = br.GetUnitExists(units.dyn30) and br.getFacing("player",units.dyn30)
 		-- Avenger's Shield
-		if br.isChecked("Avenger's Shield") and cast.able.avengersShield() and #enemies.yards10 >= 3 and mob30 then
+		if ui.checked("Avenger's Shield") and cast.able.avengersShield() and #enemies.yards10 >= 3 and mob30 then
 			if cast.avengersShield(units.dyn30) then return true end
 		end
 		-- Divine Toll
-		if br.isChecked("Divine Toll") and cast.able.divineToll() and br.GetObjectID("boss1") ~= 165946 and br.GetObjectID("boss1") ~= 164185 and br.GetObjectID("boss1") ~= 163157 then
+		if ui.checked("Divine Toll") and cast.able.divineToll() and br.GetObjectID("boss1") ~= 165946 and br.GetObjectID("boss1") ~= 164185 and br.GetObjectID("boss1") ~= 163157 then
 			if (#enemies.yards10 >= br.getValue("Divine Toll") or (br.isBoss(units.dyn30) and br.GetObjectID("boss1") ~= 167406) or (br.isBoss(units.dyn30) and br.GetObjectID("boss1") == 167406 and br.getHP("boss1") <= 70)) then
 				if cast.divineToll(units.dyn30) then return true end
 			end
 		end
 		-- Consecration
-		if br.isChecked("Consecration") and cast.able.consecration() and br.GetUnitExists(units.dyn5) and not buff.consecration.exists() then
+		if ui.checked("Consecration") and cast.able.consecration() and br.GetUnitExists(units.dyn5) and not buff.consecration.exists() then
 			if cast.consecration() then return true end
 		end
 		-- Judgment
-		if br.isChecked("Judgment") and cast.able.judgment() and ((talent.crusadersJudgment and charges.judgment.frac() >= 1.99) or not talent.crusadersJudgment or not debuff.judgment.exists(units.dyn30)) and mob30 then
+		if ui.checked("Judgment") and cast.able.judgment() and ((talent.crusadersJudgment and charges.judgment.frac() >= 1.99) or not talent.crusadersJudgment or not debuff.judgment.exists(units.dyn30)) and mob30 then
 			if cast.judgment(units.dyn30) then return true end
 		end
 		-- Hammer of Wrath
-		if br.isChecked("Hammer of Wrath") and br.getSpellCD(24275) == 0 and (br.getHP(units.dyn30) <= 20 or (level >= 58 and buff.avengingWrath.exists()) or br.getBuffRemain("player",345693) ~= 0) and mob30 then
+		if ui.checked("Hammer of Wrath") and br.getSpellCD(24275) == 0 and (br.getHP(units.dyn30) <= 20 or (level >= 58 and buff.avengingWrath.exists()) or br.getBuffRemain("player",345693) ~= 0) and mob30 then
 			if cast.hammerOfWrath(units.dyn30) then return true end
 		end
 		-- Avenger's Shield
-		if br.isChecked("Avenger's Shield") and cast.able.avengersShield() and mob30 then
+		if ui.checked("Avenger's Shield") and cast.able.avengersShield() and mob30 then
 			if cast.avengersShield(units.dyn30) then return true end
 		end
 		-- Crusader Strike
@@ -917,15 +918,15 @@ local function runRotation()
 			if cast.crusaderStrike(units.dyn5) then return true end
 		end
 		-- Blessed Hammer
-		if br.isChecked("Blessed Hammer") and cast.able.blessedHammer() and talent.blessedHammer and (#enemies.yards8 >= 1 or holyPower < 3 or (charges.blessedHammer.frac() == 3 and holyPower < 5)) then
+		if ui.checked("Blessed Hammer") and cast.able.blessedHammer() and talent.blessedHammer and (#enemies.yards8 >= 1 or holyPower < 3 or (charges.blessedHammer.frac() == 3 and holyPower < 5)) then
 			if cast.blessedHammer() then return true end
 		end
 		-- Hammer of the Righteous
-		if br.isChecked("Hammer of the Righteous") and cast.able.hammerOfTheRighteous() and not talent.blessedHammer and br.getFacing("player",units.dyn5) and br.GetUnitExists(units.dyn5) then
+		if ui.checked("Hammer of the Righteous") and cast.able.hammerOfTheRighteous() and not talent.blessedHammer and br.getFacing("player",units.dyn5) and br.GetUnitExists(units.dyn5) then
 			if cast.hammerOfTheRighteous(units.dyn5) then return true end
 		end
 		-- Consecration
-		if br.isChecked("Consecration") and cast.able.consecration() and br.GetUnitExists(units.dyn5) and consecrationRemain < 5 then
+		if ui.checked("Consecration") and cast.able.consecration() and br.GetUnitExists(units.dyn5) and consecrationRemain < 5 then
 			if cast.consecration() then return true end
 		end
 	end -- End Action List - Damage
