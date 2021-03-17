@@ -1,5 +1,5 @@
 local rotationName = "KinkAffliction"
-local VerNum  = "2.1.6"
+local VerNum  = "2.1.7"
 local var = {} 
 local dsInterrupt = false
 
@@ -2393,27 +2393,40 @@ apl.AoE = function()
     -- Dark Soul: Misery -----.:|:.-----.:|:.-----
     ------.:|:.-----.:|:.-----.:|:.-----.:|:.-----
     -- actions.aoe+=/dark_soul,if=cooldown.summon_darkglare.remains>time_to_die
-    if talent.darkSoul then
-        if mode.ds ~= 4 and mode.ds == 1 then -- We don't have dark soul toggle off, so use with darkglare.
-            if not moving and pet.darkglare.active() then -- Dark soul is enabled, use with cooldowns. 
-                if cast.darkSoul("player") then br.addonDebug("[Action:Rotation] Dark Soul (Darkglare Active)") return true end 
-            end 
-        elseif mode.ds ~= 4 and mode.ds == 2 then -- Dark Soul is enabled, use with cds or boss targets. 
-            if not moving and br.useCDs or br.isBoss("target") or ttd("target") > 40 and ttd("target") > ui.value("Dark Soul TTD") then 
-                if cast.darkSoul("player") then br.addonDebug("[Action:Rotation] Dark Soul (Cooldowns)") return true end 
-            end
-        elseif mode.ds ~= 4 and mode.ds == 3 then
-            if ttd("target") > ui.value("Dark Soul TTD") and cd.summonDarkglare.remains() > ttd("target") then 
-                if cast.darkSoul("player") then br.addonDebug("[Action:Rotation] Dark Soul (TTD)") return true end 
-            end
+    if not moving and mode.ds == 1 then -- Dark Soul Mode - Darkglare
+        if br.useCDs and ttd("target") > ui.value("Dark Soul TTD") and not moving and pet.darkglare.active() then 
+            if cast.darkSoul("player") then br.addonDebug("[Action:Rotation] Dark Soul (Darkglare Active)") return true end 
+        end
+    elseif not moving and mode.ds == 2 then -- Dark Soul Mode - CDs
+        if not moving and br.useCDs or br.isBoss("target") and pet.darkglare.active() and ttd("target") > ui.value("Dark Soul TTD") then
+            if cast.darkSoul("player") then br.addonDebug("[Action:Rotation] Dark Soul (Cooldowns)") return true end 
+        end
+    elseif not moving and mode.ds == 3 then -- Dark Soul Mode - TTD
+        if ttd("target") > ui.value("Dark Soul TTD") and cd.summonDarkglare.remains() > ttd("target") and br.isBoss() or ttd("target") > 120 then
+            if cast.darkSoul("player") then br.addonDebug("[Action:Rotation] Dark Soul (TTD)") return true end 
         end
     end
     if br.isChecked("Dark Soul: Misery") and br.SpecificToggle("Dark Soul: Misery") and not GetCurrentKeyBoardFocus() and not moving then
         if cast.darkSoul("player") then br.addonDebug("[Action:Rotation] Dark Soul (Hotkey)") return true end
     end 
     if br.isChecked("Cooldowns") and br.SpecificToggle("Cooldowns") and not GetCurrentKeyBoardFocus() and not moving then
+        -- Trinkets
+        module.BasicTrinkets()
+
+        -- Racials
+        if br.isChecked("Racial") and race == "Troll" or race == "Orc" or race == "DarkIronDwarf" then
+            if cast.racial("player") then debug("[Action:Dark Glare Prep] Racial") return true end
+        end
+        -- Covenant Abilities
+        if apl.Covenant() then return end 
+        -- Dark Soul
         if cast.darkSoul("player") then br.addonDebug("[Action:Rotation] Cooldowns (Hotkey)") return true end
-        if br.getSpellCD(spell.summonDarkglare) == 0 then br._G.CastSpellByName(GetSpellInfo(spell.summonDarkglare)) br.addonDebug("[Action:Rotation] Cooldowns (Hotkey)") return true end
+        -- Darkglare
+        if br.getSpellCD(spell.summonDarkglare) == 0 then br._G.CastSpellByName(GetSpellInfo(spell.summonDarkglare)) br.addonDebug("[Action:Rotation] Darkglare (Hotkey)") return true end 
+        -- Malefic Rapture
+        if not moving and shards > 0 then
+            if cast.maleficRapture() then debug ("[Action:Rotation] Malefic Rapture (Hotkey)") return true end 
+        end
     end
     ------.:|:.-----.:|:.-----.:|:.-----.:|:.-----
     -- Malefic Rapture -------.:|:.-----.:|:.-----
@@ -2792,20 +2805,17 @@ apl.Rotation = function()
     -- Dark Soul: Misery -----.:|:.-----.:|:.-----
     ------.:|:.-----.:|:.-----.:|:.-----.:|:.-----
     -- actions+=/dark_soul,if=cooldown.summon_darkglare.remains>time_to_die
-    if talent.darkSoul then
-        if mode.ds ~= 4 and mode.ds == 1 then -- We don't have dark soul toggle off, so use with darkglare.
-            if not moving and pet.darkglare.active() then -- Dark soul is enabled, use with cooldowns. 
-                if cast.darkSoul("player") then br.addonDebug("[Action:Rotation] Dark Soul (Darkglare Active)") return true end 
-            end 
-        elseif mode.ds ~= 4 and mode.ds == 2 then
-            if not moving and br.useCDs or br.isBoss("target") and pet.darkglare.active() and ttd("target") > ui.value("Dark Soul TTD") then 
-                if cast.darkSoul("player") then br.addonDebug("[Action:Rotation] Dark Soul (Cooldowns)") return true end 
-            end
-
-        elseif mode.ds ~= 4 and mode.ds == 3 then
-            if ttd("target") > ui.value("Dark Soul TTD") and cd.summonDarkglare.remains() > ttd("target") and br.isBoss() or ttd("target") > 30 then 
-                if cast.darkSoul("player") then br.addonDebug("[Action:Rotation] Dark Soul (TTD)") return true end 
-            end
+    if not moving and mode.ds == 1 then -- Dark Soul Mode - Darkglare
+        if br.useCDs and ttd("target") > ui.value("Dark Soul TTD") and not moving and pet.darkglare.active() then 
+            if cast.darkSoul("player") then br.addonDebug("[Action:Rotation] Dark Soul (Darkglare Active)") return true end 
+        end
+    elseif not moving and mode.ds == 2 then -- Dark Soul Mode - CDs
+        if not moving and br.useCDs or br.isBoss("target") and pet.darkglare.active() and ttd("target") > ui.value("Dark Soul TTD") then
+            if cast.darkSoul("player") then br.addonDebug("[Action:Rotation] Dark Soul (Cooldowns)") return true end 
+        end
+    elseif not moving and mode.ds == 3 then -- Dark Soul Mode - TTD
+        if ttd("target") > ui.value("Dark Soul TTD") and cd.summonDarkglare.remains() > ttd("target") and br.isBoss() or ttd("target") > 120 then
+            if cast.darkSoul("player") then br.addonDebug("[Action:Rotation] Dark Soul (TTD)") return true end 
         end
     end
     if br.isChecked("Dark Soul: Misery") and br.SpecificToggle("Dark Soul: Misery") and not GetCurrentKeyBoardFocus() and not moving then
@@ -2814,8 +2824,6 @@ apl.Rotation = function()
     if br.isChecked("Cooldowns") and br.SpecificToggle("Cooldowns") and not GetCurrentKeyBoardFocus() and not moving then
         -- Trinkets
         module.BasicTrinkets()
-
-        
 
         -- Racials
         if br.isChecked("Racial") and race == "Troll" or race == "Orc" or race == "DarkIronDwarf" then
@@ -3658,7 +3666,7 @@ end -- End Action List - PreCombat
         --------------------------
         --- In Combat Rotation ---
         --------------------------
-        if inCombat or spellQueueReady() and br.profileStop == false and br.isValidUnit("target") and br.getDistance("target") < 40 then
+        if inCombat and br.profileStop == false and br.isValidUnit("target") and br.getDistance("target") < 40 then
             ------------------------------
             --- In Combat - Interrupts ---
             ------------------------------
