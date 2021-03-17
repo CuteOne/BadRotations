@@ -412,7 +412,7 @@ end
 
 local function consecration()
     --Consecration
-    if mode.dps == 1 and cast.able.consecration() and not br.isMoving("player") and not buff.holyAvenger.exists() and cd.holyShock.remain() >= 1 then
+    if mode.DPS == 1 and cast.able.consecration() and not br.isMoving("player") and not buff.holyAvenger.exists() and cd.holyShock.remain() >= 1 then
         for i = 1, #enemies.yards8 do
             if not debuff.consecration.exists(enemies.yards8[i])
                     or br._G.GetTotemTimeLeft(1) < 2 then
@@ -1858,7 +1858,7 @@ actionList.spenders = function()
             healReason = "HEAL"
         end
         -- WOG fishing for Wings
-        if healTarget == "none" and talent.awakening and not buff.avengingWrath.exists() then
+        if healTarget == "none" and talent.awakening and not buff.avengingWrath.exists() and (holyPower == 5 or buff.divinePurpose.exists()) then
             healTarget = lowest.unit
             healReason = "FISH"
         end
@@ -1881,7 +1881,8 @@ actionList.spenders = function()
         end
     end
 
-    if ui.checked("Shield of the Righteous") and mode.dps == 1
+
+    if ui.checked("Shield of the Righteous") and mode.DPS == 1
             and healTarget == "none"
             and lowest.hp > ui.value("Critical HP")
             and lowest.hp > ui.value("Word of Glory")
@@ -2320,7 +2321,7 @@ local function runRotation()
                                 return true
                             end
                         end
-                        if mode.dps == 1 then
+                        if mode.DPS == 1 then
                             if ui.checked("Prioritize Hammer of Wrath") then
                                 if actionList.hammerOfWrathDPS() then
                                     return true
@@ -2350,7 +2351,7 @@ local function runRotation()
                     if actionList.hammerOfWrathDPS() then
                         return true
                     end
-                    if mode.dps == 1 then
+                    if mode.DPS == 1 then
                         if actionList.dps() then
                             return true
                         end
