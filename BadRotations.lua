@@ -120,6 +120,7 @@ function br.Run()
 		br:ObjectManager()
 		-- Complete Loadin
 		br.ChatOverlay("-= BadRotations Loaded =-")
+		br._G.print("Loaded")
 		br.loadedIn = true
 	end
 end
