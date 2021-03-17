@@ -1977,9 +1977,6 @@ actions.st+=/frostbolt
             end
 
             if not br.pause(true) and hastar then
-                if br.isChecked("Pet Management") and not talent.lonelyWinter and br.GetUnitIsVisible("pet") and not br.GetUnitIsUnit("pettarget", "target")  then
-                    br.PetAttack()
-                end
             --------------------------
             ---      Rotation      ---
             --------------------------
