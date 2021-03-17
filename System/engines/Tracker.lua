@@ -45,7 +45,7 @@ function br.objectTracker()
                     local object = br._G.GetObjectWithIndex(i)
                     local name = br._G.ObjectName(object)
                     local objectid = br._G.ObjectID(object)
-                    if object and objectid then
+                    if object and name and objectid then
                         if br.isChecked("Rare Tracker") and not br.GetUnitIsDeadOrGhost(object) and
                             (br._G.UnitClassification(object) == "rare" or br._G.UnitClassification(object) ==
                                 "rareelite") then
