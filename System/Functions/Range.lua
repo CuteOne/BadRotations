@@ -226,7 +226,7 @@ function br.isInMelee(Unit)
   end
 end
 
-function br.isSafeToAoE(spellID,Unit,effectRng,minUnits,aoeType)
+function br.isSafeToAoE(spellID,Unit,effectRng,minUnits,aoeType, enemies)
     if not br.isChecked("Safe Damage Check") then return true end
     local enemiesValid, enemiesAll
     local maxRange = select(6,br._G.GetSpellInfo(spellID))
@@ -235,13 +235,13 @@ function br.isSafeToAoE(spellID,Unit,effectRng,minUnits,aoeType)
     if minUnits == nil then minUnits = 1 end
     if aoeType == "rect" then
         enemiesValid    = br.getEnemiesInRect(effectRng,maxRange,false)
-        enemiesAll      = br.getEnemiesInRect(effectRng,maxRange,false,true)
+        enemiesAll      = not enemies and br.getEnemiesInRect(effectRng,maxRange,false,true) or enemies
     elseif aoeType == "cone" then
-        enemiesValid    = br.getEnemiesInCone(effectRng,maxRange,false)
-        enemiesAll      = br.getEnemiesInCone(effectRng,maxRange,false,true)
+        enemiesValid    = br.getEnemiesInCone(180,effectRng,false)
+        enemiesAll      = not enemies and br.getEnemiesInCone(180,effectRng,false,true) or enemies
     else
         enemiesValid    = #br.getEnemies(Unit,effectRng)
-        enemiesAll      = #br.getEnemies(Unit,effectRng,true)
+        enemiesAll      = not enemies and #br.getEnemies(Unit,effectRng,true) or enemies
     end
     return enemiesValid >= minUnits and enemiesValid >= enemiesAll
 end

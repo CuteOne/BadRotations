@@ -3,15 +3,15 @@ local b = br._G
 function br:loadUnlockerAPI()
     local unlocked = false
     local class = br.class
-    if _G.lb then
+    if br._G.lb then
         unlocked = br.unlock.LBUnlock()
-    elseif _G.EWT then
+    elseif br._G.EWT then
         unlocked = br.unlock.EWTUnlock()
-    elseif _G.wmbapi then
+    elseif br._G.wmbapi then
         unlocked = br.unlock.MBUnlock()
-    elseif _G.UCSLoaded then
-        _G.br = br
-    elseif _G.CallSecureFunction then
+    elseif br._G.UCSLoaded then
+        br._G.br = br
+    elseif br._G.CallSecureFunction then
         unlocked = br.unlock.WowAdUnlock()
     else
         unlocked = false

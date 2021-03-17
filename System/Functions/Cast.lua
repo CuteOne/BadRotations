@@ -631,8 +631,7 @@ function br.createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,p
 	 	-- and (br.isKnown(spellID) or debug == "known") -- Known/Current Checks
 		and (br.isKnown(spellID) or debug == "known") --and ((not _G.IsCurrentSpell(spellID) and not br.isCastingSpell(spellID,"player"))) -- Known/Current Checks
 	 	and hasTalent(spellID) and hasEssence() and not br.isIncapacitated(spellID) and queensCourtCastCheck(spellID) -- Talent/Essence/Incapacitated/Special Checks
-	 	and (not aoeCast or (aoeCast and (br.isDummy() or br.isSafeToAoE(spellID,thisUnit,effectRng,minUnits)))) -- Safe to AoE Check
-		and (thisUnit == nil or debug ~= "dead" or (debug == "dead" and br.GetUnitIsDeadOrGhost(thisUnit))) -- Dead Check
+	 	and (thisUnit == nil or debug ~= "dead" or (thisUnit ~= nil and debug == "dead" and br._G.UnitIsDeadOrGhost(thisUnit)))
 	then
 		local function printReport(debugOnly,debugReason,thisCount)
 			if debugReason == nil then debugReason = "" end
@@ -750,7 +749,7 @@ function br.createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,p
 				if (debug == "ground" or debug == "aoe" or debug == "cone" or debug == "rect") then
 					if (debug == "ground" or debug == "aoe") then
 						local enemyCount = #br.getEnemies("player",maxRange) or 0
-						if enemyCount >= minUnits then
+						if enemyCount >= minUnits and br.isSafeToAoE(spellID,thisUnit,effectRng,minUnits,nil,enemyCount) then
 							if debug == "ground" then
 								return br.castGround(thisUnit,spellCast,maxRange,minRange,effectRng,castTime)
 							end
@@ -763,7 +762,7 @@ function br.createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,p
 					end
 					if debug == "cone" then
 						local enemyConeCount = br.getEnemiesInCone(180,effectRng) or 0
-						if enemyConeCount >= minUnits then
+						if enemyConeCount >= minUnits and br.isSafeToAoE(spellID,thisUnit,effectRng,minUnits,"cone",enemyConeCount) then
 							return castingSpell(thisUnit,spellID,spellName,icon,debug,printReport)
 						else
 							return printReport(false,"Below Min Units",enemyConeCount)
@@ -771,7 +770,7 @@ function br.createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,p
 					end
 					if debug == "rect" then
 						local enemyRectCount = br.getEnemiesInRect(effectRng,maxRange) or 0
-						if enemyRectCount >= minUnits then
+						if enemyRectCount >= minUnits and br.isSafeToAoE(spellID,thisUnit,effectRng,minUnits,"rect",enemyRectCount) then
 							return castingSpell(thisUnit,spellID,spellName,icon,debug,printReport)
 						else
 							return printReport(false,"Below Min Units",enemyRectCount)

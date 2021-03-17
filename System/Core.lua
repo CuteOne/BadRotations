@@ -16,10 +16,10 @@ function br:ObjectManager()
                 br.data.settings[br.selectedSpec].toggles ~= nil then
                 if br.data.settings[br.selectedSpec].toggles["Power"] ~= nil and
                     br.data.settings[br.selectedSpec].toggles["Power"] == 1 then
-                    -- if br.timer:useTimer("omUpdate", 1) then
-                    br:updateOM()
-                    br.om:Update()
-                    -- end
+                    if br.timer:useTimer("omUpdate", 1) then
+                        br:updateOM()
+                        br.om:Update()
+                    end
                 end
             end
         end
@@ -54,7 +54,7 @@ end
 local collectGarbage = true
 function br.BadRotationsUpdate(self)
     local startTime = br._G.debugprofilestop()
-    local LibDraw = _G.LibStub("LibDraw-1.0")
+    local LibDraw = br._G.LibStub("LibDraw-1.0")
     local Print = br._G["print"]
     -- Check for Unlocker
     if not br.unlocked then
@@ -89,7 +89,6 @@ function br.BadRotationsUpdate(self)
             -- BR Main Toggle Off
             if br.data.settings[br.selectedSpec].toggles["Power"] ~= nil and
                 br.data.settings[br.selectedSpec].toggles["Power"] ~= 1 then
-                -- BR Main Toggle On - Main Cycle
                 -- BR Main Toggle On - Main Cycle
                 -- Clear Queue
                 if br.player ~= nil and br.player.queue ~= nil and #br.player.queue ~= 0 then
@@ -175,8 +174,7 @@ function br.BadRotationsUpdate(self)
                     br.smartQueue()
                 end
                 -- Update Player
-                if br.player ~= nil and
-                    (not br._G.CanExitVehicle() or (br.GetUnitExists("target") and br.getDistance("target") < 5)) then
+                if br.player ~= nil and (not br._G.CanExitVehicle() or (br.GetUnitExists("target") and br.getDistance("target") < 5)) then
                     br.player:update()
                 end
                 -- Automatic catch the pig

@@ -383,7 +383,7 @@ function br.handler(message, editbox)
 		end
 	elseif msg == "disengage" then
 		-- Forward Disengage
-		if _G.IsLeftShiftKeyDown() then
+		if br._G.IsLeftShiftKeyDown() then
 			br._G.CastSpellByName(br._G.GetSpellInfo(781))
 		else
 			forewardDisengage()
@@ -399,7 +399,7 @@ function br.handler(message, editbox)
 			br.ui:toggleWindow("profile")
 		elseif msg2 == "togglebar" then
 			-- Show/Hide Toggle Bar
-			if _G.UnitAffectingCombat("player") then
+			if br._G.UnitAffectingCombat("player") then
 				br._G.print("Combat Lockdown detected. Unable to modify button bar. Please try again when out of combat.")
 			else
 				if br.data.settings[br.selectedSpec].toggles["Main"] == 1 then

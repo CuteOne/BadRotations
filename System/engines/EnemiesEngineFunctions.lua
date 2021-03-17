@@ -1,4 +1,5 @@
 local _, br = ...
+local LibDraw = LibStub("LibDraw-1.0")
 br.enemy	= {}
 br.lootable = {}
 br.units 	= {}
@@ -22,7 +23,7 @@ end
 --Update OM
 function br:updateOM()
 	local om = br.om
-	local startTime = _G.debugprofilestop()
+	local startTime = br._G.debugprofilestop()
 	local total, updated, added, removed = br._G.GetObjectCount(true,"BR")
 	-- if br.initOM then
 	-- 	br.initOM = false
@@ -31,7 +32,7 @@ function br:updateOM()
 			if br._G.ObjectIsUnit(thisUnit)  then
 				local enemyUnit = br.unitSetup:new(thisUnit)
 				if enemyUnit then
-					_G.tinsert(om, enemyUnit)
+					br._G.tinsert(om, enemyUnit)
 				end
 			end
 		end
@@ -395,8 +396,31 @@ function br.dynamicTarget(range,facing)
 	return bestUnit
 end
 
+local function angleDifference(unit1, unit2)
+	local facing = br.GetObjectFacing(unit1)
+	local distance = br.getDistance(unit1, unit2)
+	local unit1X, unit1Y, unit1Z = br.GetObjectPosition(unit1)
+	local unit2X, unit2Y, unit2Z = br.GetObjectPosition(unit2)
+	local pX, pY, pZ = br._G.GetPositionFromPosition(unit1X, unit1Y, unit1Z, distance, facing, 0)
+	local vectorAX, vectorAY = unit1X - pX, unit1Y - pY
+	local vectorBX, vectorBY = unit1X - unit2X, unit1Y - unit2Y
+	local dotProduct = function(ax, ay, bx, by)
+		return (ax * bx) + (ay * by)
+	end
+	local vectorProduct = dotProduct(vectorAX, vectorAY, vectorBX, vectorBX)
+	local magnitudeA = math.pow(dotProduct(vectorAX, vectorAY, vectorAX, vectorAY), 0.5)
+	local magnitudeB = math.pow(dotProduct(vectorBX, vectorBY, vectorBX, vectorBY), 0.5)
+	local angle = math.acos((vectorProduct / magnitudeB) / magnitudeA)
+	local finalAngle = (angle * 57.2958) % 360
+	if (finalAngle - 180) >= 0 then return 360 - finalAngle else return finalAngle end
+end
+local function isWithinAngleDifference(unit1, unit2, angle)
+	local angleDiff = angleDifference(unit1,unit2)
+	return angleDiff <= angle
+end
+
 -- Cone Logic for Enemies
-function br.getEnemiesInCone(angle,length,checkNoCombat)
+function br.getEnemiesInCone(angle,length,checkNoCombat, showLines)
 	if angle == nil then angle = 180 end
 	if length == nil then length = 0 end
     local playerX, playerY, playerZ = br.GetObjectPosition("player")
@@ -405,6 +429,7 @@ function br.getEnemiesInCone(angle,length,checkNoCombat)
 	local unitsCounter = 0
 	local enemiesTable = br.getEnemies("player",length,checkNoCombat,true)
 	local inside = false
+	if showLines then LibDraw.Arc(playerX, playerY, playerZ, length, angle, 0) end
     for i = 1, #enemiesTable do
 		local thisUnit = enemiesTable[i]
 		local radius = br._G.UnitCombatReach(thisUnit)
@@ -426,8 +451,11 @@ function br.getEnemiesInCone(angle,length,checkNoCombat)
 					break
 				end
 			end
-
             if inside then
+			-- if isWithinAngleDifference("player", thisUnit, angle) then
+				if showLines then
+					LibDraw.Circle(unitX, unitY, playerZ, br._G.UnitBoundingRadius(thisUnit))
+				end
                 unitsCounter = unitsCounter + 1
 				table.insert(units,thisUnit)
             end
@@ -455,7 +483,6 @@ function br.getEnemiesInRect(width,length,showLines,checkNoCombat)
 
 		return nlX, nlY, nrX, nrY, frX, frY
 	end
-	local LibDraw = _G.LibStub("LibDraw-1.0")
 	checkNoCombat = checkNoCombat or false
 	local nlX, nlY, nrX, nrY, frX, frY = getRect(width,length)
 	local enemyCounter = 0
