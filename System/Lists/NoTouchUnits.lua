@@ -70,7 +70,7 @@ br.lists.noTouchUnits = {
     { unitID = 160652 }, -- Void Tentacle
     
     -- Shadowlands
-    { unitID = 174773}, -- Spiteful Shade
+  --  { unitID = 174773}, -- Spiteful Shade
     -- Dungeons
     -- The Necrotic Wake
     { unitID = 162689, buff = 326629 }, -- Surgeon Stitchflesh with Noxious Fog buff
