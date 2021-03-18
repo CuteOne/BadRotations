@@ -754,7 +754,8 @@ end
 --dps()
 actionList.dps = function()
 
-    if mode.vanish == 1 and cast.able.vanish() and br.isBoss() and not stealth and unit.distance(dynamic_target_melee) < 8 and br.getCombatTime() < 4 then
+    if mode.vanish == 1 and cast.able.vanish() and (mode.cooldown == 1 and br.isChecked("Adrenaline Rush") or not br.isChecked("Adrenaline Rush"))
+     and br.isBoss() and not stealth and unit.distance(dynamic_target_melee) < 8 and br.getCombatTime() < 4 and not buff.masterAssassinsMark.exists() then
         cast.adrenalineRush()
         cast.vanish()
         return true
@@ -880,10 +881,10 @@ actionList.dps = function()
           then
         ]]
         if not stealth and ((combo >= comboMax - int(buff.broadside.exists()) - (int(buff.opportunity.exists()) * int(talent.quickDraw)))
-                or covenant.kyrian.enabled and
+                or (cd.echoingReprimand.exists() and
                 (
                         (br.hasBuff(323558) and combo == 2) or (br.hasBuff(323559) and combo == 3) or (br.hasBuff(323560) and combo == 4)
-                )
+                ))
         )
         then
 
@@ -898,7 +899,7 @@ actionList.dps = function()
             --slice_and_dice,if=buff.slice_and_dice.remains<fight_remains&buff.slice_and_dice.remains<(1+combo_points)*1.8
             if (mode.cooldown == 1 and br.isChecked("Slice and Dice") or not br.isChecked("Slice and Dice")) and not buff.grandMelee.exists() and not buff.masterAssassinsMark.exists() then
                 if cast.able.sliceAndDice() and combo > 0 and not ((br.hasBuff(323558) and combo == 2) or (br.hasBuff(323559) and combo == 3) or (br.hasBuff(323560) and combo == 4)) then
-                    if buff.sliceAndDice.remains() < ttd("target") and buff.sliceAndDice.remains() < (1 + combo) * 1.8 then
+                    if buff.sliceAndDice.remains() < ttd("target") and buff.sliceAndDice.remains() < (1 + combo) * 1.8 and (br.getCombatTime() > 2 or cd.vanish.exists()) then
                         if cast.sliceAndDice() then
                             return true
                         end
@@ -1163,7 +1164,7 @@ actionList.Extra = function()
 
     if (mode.cooldown == 1 and br.isChecked("Slice and Dice") or not br.isChecked("Slice and Dice")) and not buff.grandMelee.exists() and not buff.masterAssassinsMark.exists() then
         if cast.able.sliceAndDice() and combo > 0 then
-            if buff.sliceAndDice.remains() < (1 + combo) * 1.8 then
+            if buff.sliceAndDice.remains() < (1 + combo) * 1.8 and (br.getCombatTime() > 2 or cd.vanish.exists()) then
                 if cast.sliceAndDice() then
                     return true
                 end
