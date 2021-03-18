@@ -26,8 +26,8 @@ br.dropOptions.CD = {"Never", "CDs", "Always"}
 br.engines = {}
 br.loadedIn = false
 br.loadFile = false
-br.pauseCast = br._G.GetTime()
-br.prevQueueWindow = br._G.GetCVar("SpellQueueWindow")
+br.pauseCast = _G.GetTime()
+br.prevQueueWindow = _G.GetCVar("SpellQueueWindow")
 br.profile = {}
 br.rotations = {}
 br.selectedSpec = "None"
@@ -64,8 +64,8 @@ br.druid = {}
 local nameSet = false
 function br.setAddonName()
 	if not nameSet then
-		for i = 1, br._G.GetNumAddOns() do
-			local name, title = br._G.GetAddOnInfo(i)
+		for i = 1, _G.GetNumAddOns() do
+			local name, title = _G.GetAddOnInfo(i)
 			if title == "|cffa330c9BadRotations" then
 				br.addonName = name
 				if br.addonName ~= "BadRotations" then
@@ -85,7 +85,7 @@ end
 -- 	{
 -- 		__index = function(t, v)
 -- 			local a = {_G.GetSpellInfo(v)}
--- 			if br._G.GetSpellInfo(v) then
+-- 			if _G.GetSpellInfo(v) then
 -- 				t[v] = a
 -- 			end
 -- 			return a
@@ -101,7 +101,7 @@ end
 -- Run
 function br.Run()
 	if br.selectedSpec == nil then
-		br.selectedSpecID, br.selectedSpec = select(br._G.GetSpecializationInfo(br._G.GetSpecialization()))
+		br.selectedSpecID, br.selectedSpec = select(_G.GetSpecializationInfo(_G.GetSpecialization()))
 		if br.selectedSpec == "" then
 			br.selectedSpec = "Initial"
 		end
@@ -126,7 +126,7 @@ function br.Run()
 end
 -- Default Settings
 function br.defaultSettings()
-	br._G.C_Timer.After(
+	_G.C_Timer.After(
 		2,
 		function()
 			if br.ui.window.config == nil then
@@ -183,7 +183,7 @@ function br.loadSavedSettings()
 		br.initializeSettings = false
 	end
 end
-local frame = br._G.CreateFrame("FRAME")
+local frame = _G.CreateFrame("FRAME")
 frame:RegisterEvent("ADDON_LOADED")
 frame:RegisterEvent("PLAYER_LOGOUT")
 frame:RegisterUnitEvent("PLAYER_ENTERING_WORLD")
@@ -200,7 +200,7 @@ function frame:OnEvent(event)
 	if event == "PLAYER_LOGOUT" then
 		if br.unlocked then
 			-- Return queue window to previous setting
-			if br._G.GetCVar("SpellQueueWindow") == "0" then
+			if _G.GetCVar("SpellQueueWindow") == "0" then
 				br._G.RunMacroText("/console SpellQueueWindow " .. br.prevQueueWindow)
 			end
 			br.ui:saveWindowPosition()
@@ -216,11 +216,11 @@ function frame:OnEvent(event)
 	end
 	if event == "PLAYER_ENTERING_WORLD" then
 		-- Update Selected Spec
-		br.selectedSpecID, br.selectedSpec = br._G.GetSpecializationInfo(br._G.GetSpecialization())
+		br.selectedSpecID, br.selectedSpec = _G.GetSpecializationInfo(_G.GetSpecialization())
 		if br.selectedSpec == "" then
 			br.selectedSpec = "Initial"
 		end
-		br.activeSpecGroup = br._G.GetActiveSpecGroup()
+		br.activeSpecGroup = _G.GetActiveSpecGroup()
 		if br.data == nil then
 			br.data = {}
 		end
@@ -238,7 +238,7 @@ function frame:OnEvent(event)
 		end
 		if not br.unlocked then
 			br.initializeSettings = true
-			br._G.print(br.classColor .. "[BadRotations] |cffFFFFFFPlease wait for settings to load!")
+			print(br.classColor .. "[BadRotations] |cffFFFFFFPlease wait for settings to load!")
 		end
 		br.equipHasChanged = true
 		if not br.loadedIn then
