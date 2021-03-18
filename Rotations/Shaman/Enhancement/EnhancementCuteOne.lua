@@ -195,6 +195,7 @@ end
 --------------------
 -- Action List - Extras
 actionList.Extras = function()
+    local startTime = br._G.debugprofilestop()
     -- Dummy Test
     if ui.checked("DPS Testing") then
         if unit.exists("target") then
@@ -227,9 +228,11 @@ actionList.Extras = function()
     if ui.checked("Water Walking") and cast.able.waterWalking() and not unit.inCombat() and unit.swimming() and not buff.waterWalking.exists() then
         if cast.waterWalking() then ui.debug("Casting Water Walking") return true end
     end
+    br.debug.cpu:updateDebug(startTime,"rotation.profile.extras")
 end -- End Action List - Extras
 -- Action List - Defensive
 actionList.Defensive = function()
+    local startTime = br._G.debugprofilestop()
     if ui.useDefensive() then
         -- Basic Healing Module
         module.BasicHealing()
@@ -247,12 +250,12 @@ actionList.Defensive = function()
             if cast.astralShift() then ui.debug("Casting Astral Shift") return true end
         end
         -- Capacitor Totem
-        if ui.checked("Capacitor Totem - HP") and cast.able.capacitorTotem() and cd.capacitorTotem.ready()
+        if ui.checked("Capacitor Totem - HP") and cast.able.capacitorTotem("player","ground") and cd.capacitorTotem.ready()
             and unit.hp() <= ui.value("Capacitor Totem - HP") and unit.inCombat() and #enemies.yards5 > 0
         then
             if cast.capacitorTotem("player","ground") then ui.debug("Casting Capacitor Totem [Low HP]") return true end
         end
-        if ui.checked("Capacitor Totem - AoE") and cast.able.capacitorTotem() and cd.capacitorTotem.ready()
+        if ui.checked("Capacitor Totem - AoE") and cast.able.capacitorTotem("best",nil,ui.value("Capacitor Totem - AoE"),8) and cd.capacitorTotem.ready()
             and #enemies.yards5 >= ui.value("Capacitor Totem - AoE") and unit.inCombat()
         then
             if cast.capacitorTotem("best",nil,ui.value("Capacitor Totem - AoE"),8) then ui.debug("Casting Capacitor Totem [AOE]") return true end
@@ -302,15 +305,17 @@ actionList.Defensive = function()
             end
         end
         -- Healing Stream Totem
-        if ui.checked("Healing Stream Totem") and cast.able.healingStreamTotem()
+        if ui.checked("Healing Stream Totem") and cast.able.healingStreamTotem("player","ground")
             and var.unitsNeedingHealing >= ui.value("Healing Stream Totem - Min Units")
         then
             if cast.healingStreamTotem("player","ground") then ui.debug("Casting Healing Stream Totem") return true end
         end
     end -- End Defensive Toggle
+    br.debug.cpu:updateDebug(startTime,"rotation.profile.defensive")
 end -- End Action List - Defensive
 -- Action List - Interrupts
 actionList.Interrupts = function()
+    local startTime = br._G.debugprofilestop()
     if ui.useInterrupt() then
         for i=1, #enemies.yards30 do
             local thisUnit = enemies.yards30[i]
@@ -325,7 +330,7 @@ actionList.Interrupts = function()
                     if cast.hex(thisUnit) then ui.debug("Casting Hex") return true end
                 end
                 -- Capacitor Totem
-                if ui.checked("Capacitor Totem") and cast.able.capacitorTotem(thisUnit)
+                if ui.checked("Capacitor Totem") and cast.able.capacitorTotem(thisUnit,"ground")
                     and cd.capacitorTotem.ready() and cd.windShear.remain() > unit.gcd(true)
                 then
                     if unit.threat(thisUnit) and not unit.moving(thisUnit) and unit.ttd(thisUnit) > 7 then
@@ -335,9 +340,11 @@ actionList.Interrupts = function()
             end
         end
     end -- End useInterrupts check
+    br.debug.cpu:updateDebug(startTime,"rotation.profile.interrupts")
 end -- End Action List - Interrupts
 -- Action List - AOE
 actionList.AOE = function()
+    local startTime = br._G.debugprofilestop()
     -- Windstrike
     -- windstrike,if=buff.crash_lightning.up
     if cast.able.windstrike() and buff.ascendance.exists() and buff.crashLightning.exists() then
@@ -350,7 +357,7 @@ actionList.AOE = function()
     -- end
     -- Crash Lightning
     -- crash_lightning,if=runeforge.doom_winds.equipped&buff.doom_winds.up
-    if cast.able.crashLightning("player","cone",1,8) and runeforge.doomWinds.equiped and buff.doomWinds.exists() then
+    if cast.able.crashLightning("player","cone",1,8) and #enemies.yards8c > 0 and runeforge.doomWinds.equiped and buff.doomWinds.exists() then
         if cast.crashLightning("player","cone",1,8) then ui.debug("Casting Crash Lightning [AOE Doom Winds]") return true end
     end
     -- Frost Shock
@@ -400,7 +407,7 @@ actionList.AOE = function()
     end
     -- Crash Lightning
     -- crash_lightning,if=talent.crashing_storm.enabled|buff.crash_lightning.down
-    if cast.able.crashLightning("player","cone",1,8) and (talent.crashingStorm or not buff.crashLightning.exists()) then
+    if cast.able.crashLightning("player","cone",1,8) and #enemies.yards8c > 0 and (talent.crashingStorm or not buff.crashLightning.exists()) then
         if cast.crashLightning("player","cone",1,8) then ui.debug("Casting Crash Lightning [AOE Crashing Storm / No Buff]") return true end
     end
     -- Lava Lash
@@ -420,7 +427,7 @@ actionList.AOE = function()
     end
     -- Crash Lightning
     -- crash_lightning
-    if cast.able.crashLightning("player","cone",1,8) then
+    if cast.able.crashLightning("player","cone",1,8) and #enemies.yards8c > 0 then
         if cast.crashLightning("player","cone",1,8) then ui.debug("Casting Crash Lightning [AOE]") return true end
     end
     -- Chain Harvest
@@ -526,9 +533,11 @@ actionList.AOE = function()
     if cast.able.lightningBolt() and unit.level() < 24 and canLightning() then
         if cast.lightningBolt() then var.fillLightning = true ui.debug("Casting Lightning Bolt [AOE - Filler]") return true end
     end
+    br.debug.cpu:updateDebug(startTime,"rotation.profile.aoe")
 end -- End Action List - AOE
 -- Action List - Single
 actionList.Single = function()
+    local startTime = br._G.debugprofilestop()
     -- Windstrike
     -- windstrike
     if cast.able.windstrike() and buff.ascendance.exists() then
@@ -551,7 +560,7 @@ actionList.Single = function()
     end
     -- Crash Lightning
     -- crash_lightning,if=runeforge.doom_winds.equipped&buff.doom_winds.up
-    if cast.able.crashLightning("player","cone",1,8) and runeforge.doomWinds.equiped and buff.doomWinds.exists() then
+    if cast.able.crashLightning("player","cone",1,8) and #enemies.yards8c > 0 and runeforge.doomWinds.equiped and buff.doomWinds.exists() then
         if cast.crashLightning("player","cone",1,8) then ui.debug("Casting Crash Lightning [ST - Doom Winds]") return true end
     end
     -- Ice Strike
@@ -626,7 +635,7 @@ actionList.Single = function()
     end
     -- Crash Lightning
     -- crash_lightning
-    if cast.able.crashLightning("player","cone",1,8) then
+    if cast.able.crashLightning("player","cone",1,8) and #enemies.yards8c > 0 then
         if cast.crashLightning("player","cone",1,8) then ui.debug("Casting Crash Lightning [ST]") return true end
     end
     -- Flame Shock
@@ -689,9 +698,11 @@ actionList.Single = function()
     if cast.able.lightningBolt() and canLightning() then
         if cast.lightningBolt() then var.fillLightning = true ui.debug("Casting Lightning Bolt [ST - Filler]") return true end
     end
+    br.debug.cpu:updateDebug(startTime,"rotation.profile.single")
 end -- End Action List - Single
 -- Action List - PreCombat
 actionList.PreCombat = function()
+    local startTime = br._G.debugprofilestop()
     if not unit.inCombat() and not (unit.flying() or unit.mounted() or unit.taxi()) then
         -- Flask Up Module
         -- flask
@@ -753,6 +764,7 @@ actionList.PreCombat = function()
             end
         end
     end -- End No Combat
+    br.debug.cpu:updateDebug(startTime,"rotation.profile.precombat")
 end -- End Action List - PreCombat
 
 ----------------
@@ -787,7 +799,7 @@ local function runRotation()
     enemies.get(5)
     enemies.get(8)
     enemies.get(8,"player",false,true)
-    enemies.cone.get(90,8,false,true)
+    enemies.cone.get(180,8,false)
     enemies.get(10)
     enemies.get(10,units.get(5))
     enemies.rect.get(10,11,false)
