@@ -10,7 +10,8 @@ function br:loadUnlockerAPI()
     elseif br._G.wmbapi then
         unlocked = br.unlock.MBUnlock()
     elseif br._G.UCSLoaded then
-        br._G.br = br
+        -- Must be _G.br to load
+        _G.br = br
     elseif br._G.CallSecureFunction then
         unlocked = br.unlock.WowAdUnlock()
     else
