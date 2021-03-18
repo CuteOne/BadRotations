@@ -736,7 +736,7 @@ actionList.hammerOfWrathDPS = function()
     --br._G.print(tostring(br.getSpellCD(24275)))
 
     if lowest.hp > ui.value("Critical HP") and br.player.inCombat and br.getSpellCD(24275) < 1 and ((buff.holyAvenger.exists() and holyPower < 3) or holyPower < 5) then
-        if br._G.IsSpellOverlayed(24275) and br.getFacing("player", "target") and not cast.able.holyShock() then
+        if br._G.IsSpellOverlayed(24275) and br.getFacing("player", "target") and not cast.able.holyShock() and br.getDistance("target", "player") <= 30 then
             if cast.hammerOfWrath("target") then
                 br.addonDebug("[DPS] Hammer of Wrath 1")
                 return true
@@ -1724,7 +1724,7 @@ end
 
 actionList.generators = function()
 
-    healTarget = "none"
+    --  healTarget = "none"
 
     --Holyshock
     if cd.holyShock.ready() then
@@ -1732,7 +1732,12 @@ actionList.generators = function()
             for i = 1, #tanks do
                 if not br.UnitBuffID(tanks[i].unit, 287280, "PLAYER") and not br.UnitBuffID(tanks[i].unit, 115191) and canheal(tanks[i].unit) then
                     healTarget = tanks[i].unit
-                    healReason = "GLIM"
+                    healReason = "GLIM-PRE"
+
+                    if cast.holyShock(tanks[i].unit) then
+                        healTarget = "none"
+                        return true
+                    end
                 end
             end
         end
@@ -1745,8 +1750,6 @@ actionList.generators = function()
             end
         end
         if talent.glimmerOfLight and healTarget == "none" and mode.glimmer == 1 and (not br.player.inCombat or ui.checked("OOC Glimmer")) then
-            -- br._G.print("GLIMMER - Heal Target?:  " .. healTarget .. "|" .. healReason)
-            -- ooc blanketting
             for i = 1, #br.friend do
                 if not buff.glimmerOfLight.exists(br.friend[i].unit, "exact") and canheal(br.friend[i].unit) then
                     healTarget = br.friend[i].unit
@@ -1769,7 +1772,7 @@ actionList.generators = function()
     end -- end holy shock
 
     -- DPS Holy Shock
-    if ui.checked("Use Holy Shock for DPS") and br.player.inCombat and lowest.hp > ui.value("Holy Shock") and cd.holyShock.ready() then
+    if ui.checked("Use Holy Shock for DPS") and mode.DPS == 1 and br.player.inCombat and lowest.hp > ui.value("Holy Shock") and cd.holyShock.ready() then
         -- ST
         if br.getDebuffRemain("target", 287268) == 0 or #enemies.yards30 == 1 then
             if not noDamageCheck("target") and not br._G.UnitIsPlayer("target") and br.getFacing("player", "target") and br.UnitIsTappedByPlayer("target") then
@@ -1851,6 +1854,15 @@ actionList.spenders = function()
 
     --  ui.print("Debug - HP: " .. tostring(holyPower) .. " Buff?: " .. tostring(buff.divinePurpose.exists()))
 
+    -- Light of Dawn
+    if ui.checked("Light of Dawn") and cd.lightOfDawn.ready() and (holyPower >= 3 or buff.divinePurpose.exists())
+            and lowest.hp > ui.value("Critical HP")
+    then
+        if bestConeHeal(spell.lightOfDawn, ui.value("LoD Targets"), ui.value("Light of Dawn"), 45, lightOfDawn_distance * lightOfDawn_distance_coff, 5) then
+            return true
+        end
+    end
+
     -- Word of Glory
     if ui.checked("Word of Glory") and healTarget == "none" and (holyPower >= 3 or buff.divinePurpose.exists()) then
         if (lowest.hp <= ui.value("Word of Glory")) and canheal(lowest.unit) then
@@ -1871,16 +1883,6 @@ actionList.spenders = function()
             return true
         end
     end
-
-    -- Light of Dawn
-    if ui.checked("Light of Dawn") and cd.lightOfDawn.ready() and (holyPower >= 3 or buff.divinePurpose.exists())
-            and lowest.hp > ui.value("Critical HP")
-    then
-        if bestConeHeal(spell.lightOfDawn, ui.value("LoD Targets"), ui.value("Light of Dawn"), 45, lightOfDawn_distance * lightOfDawn_distance_coff, 5) then
-            return true
-        end
-    end
-
 
     if ui.checked("Shield of the Righteous") and mode.DPS == 1
             and healTarget == "none"
