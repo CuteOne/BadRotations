@@ -228,8 +228,7 @@ local function runRotation()
     units                                           = br.player.units
     use                                             = br.player.use
     -- General Locals
-    var.getHealPot                                  = br["getHealthPot"]()
-    var.haltProfile                                 = (unit.inCombat() and var.profileStop) or unit.mounted() or br.pause() or buff.feignDeath.exists() or ui.mode.rotation==4
+    var.haltProfile                         = (unit.inCombat() and var.profileStop) or unit.mounted() or br.pause() or buff.feignDeath.exists() or ui.mode.rotation==4
     -- Units
     units.get(5)
     units.get(40)
