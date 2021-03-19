@@ -103,7 +103,6 @@ function unlock.WowAdUnlock()
     end
     local function UnitTagHandler(method)
         b[method] = SecureCall(_G[method])
-
     end
     for _, method in ipairs(TagHandlerList) do
         UnitTagHandler(method)
@@ -120,7 +119,7 @@ function unlock.WowAdUnlock()
     end
     b.ObjectPointer = function(...)
         if b.UnitExists(...) then
-            return b.UnitGUID
+            return b.UnitGUID(...)
         end
     end -- compatibility change as LB returns GUIDs instead of Pointers in their OM
     b.ObjectPosition = function(...)
