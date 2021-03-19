@@ -1770,7 +1770,8 @@ actionList.generators = function()
                 end
             end
         end
-        if healTarget ~= "none" and canheal(healTarget) and cast.able.holyShock() then
+
+        if healTarget ~= "none" and canheal(healTarget) then
             healTargetHealth = round(br.getHP(healTarget), 1)
             if canheal(healTarget) then
                 if cast.holyShock(healTarget) then
@@ -2099,7 +2100,7 @@ actionList.heal = function()
             healTargetHealth = round(br.getHP(healTarget), 1)
             if canheal(healTarget) then
                 if cast.flashOfLight(healTarget) then
-                    br.addonDebug(" OF [" .. healReason .. "] flashOfLight on: " .. br._G.UnitName(healTarget) .. "/" .. healTargetHealth)
+                    br.addonDebug(" FoL [" .. healTarget .. "|" .. healReason .. "] flashOfLight on: " .. br._G.UnitName(healTarget) .. "/" .. healTargetHealth)
                     healTarget = "none"
                     return true
                 end
