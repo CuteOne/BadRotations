@@ -826,7 +826,6 @@ actionList.glimmer = function()
                     end
                 end
                 if cast.holyShock(glimmerTable[1].unit) then
-                    --Print("Just glimmered: " .. glimmerTable[1].unit)
                     br.addonDebug("[GLIM] Glimmer on: " .. br._G.UnitName(glimmerTable[1].unit) .. "/" .. tostring(glimmerCount))
                     return true
                 end
@@ -1541,9 +1540,24 @@ actionList.Cooldown = function()
         end
     end
 
+    -- Divine Toll
+    if br.isChecked("Divine Toll") and cast.able.divineToll() and (holyPower <= br.getValue("Max Holy Power") or br.getDebuffStacks(lowest.unit, 240443) >= 4) then
+        if br.getOptionValue("Divine Toll") == 1 and holyPower == 0 then
+            if cast.divineToll(lowest.unit) then
+                return true
+            end
+        end
+        if br.getOptionValue("Divine Toll") == 2 then
+            if br.getLowAllies(br.getValue("Divine Toll Health")) >= br.getValue("Divine Toll Units") then
+                if cast.divineToll(lowest.unit) then
+                    return true
+                end
+            end
+        end
+    end
+
+
     -- Blessing of Sacrifice
-
-
     if ui.checked("Blessing of Sacrifice") and cd.blessingOfSacrifice.ready() and inCombat then
         if br.getOptionValue("BoS Target") == 2 then
             -- tank only
@@ -1733,7 +1747,6 @@ actionList.generators = function()
                 if not br.UnitBuffID(tanks[i].unit, 287280, "PLAYER") and not br.UnitBuffID(tanks[i].unit, 115191) and canheal(tanks[i].unit) then
                     healTarget = tanks[i].unit
                     healReason = "GLIM-PRE"
-
                     if cast.holyShock(tanks[i].unit) then
                         healTarget = "none"
                         return true
@@ -1743,7 +1756,6 @@ actionList.generators = function()
         end
         if healTarget == "none" then
             if lowest.hp <= ui.value("Holy Shock") and canheal(lowest.unit) then
-                --and canheal(lowest.unit) then
                 healTarget = lowest.unit
                 healReason = "HEAL"
                 --        br.addonDebug("setting lowest to: " .. healTarget)
@@ -1754,17 +1766,17 @@ actionList.generators = function()
                 if not buff.glimmerOfLight.exists(br.friend[i].unit, "exact") and canheal(br.friend[i].unit) then
                     healTarget = br.friend[i].unit
                     healReason = "GLIM"
+                    break
                 end
             end
         end
         if healTarget ~= "none" and canheal(healTarget) and cast.able.holyShock() then
             healTargetHealth = round(br.getHP(healTarget), 1)
-            --      br._G.print("HS HS  - Heal Target?:  " .. healTarget .. "|" .. healReason)
-            --      br._G.print("Can Heal? " .. tostring(canheal(healTarget)))
             if canheal(healTarget) then
                 if cast.holyShock(healTarget) then
                     br.addonDebug("[" .. healReason .. "] Holyshock on: " .. br._G.UnitName(healTarget) .. "/" .. healTargetHealth)
                     healTarget = "none"
+                    healReason = "none"
                     return true
                 end
             end
@@ -1943,21 +1955,7 @@ actionList.heal = function()
             end
         end
     ]]
-    -- Divine Toll
-    if br.isChecked("Divine Toll") and cast.able.divineToll() and (holyPower <= br.getValue("Max Holy Power") or br.getDebuffStacks(lowest.unit, 240443) >= 4) then
-        if br.getOptionValue("Divine Toll") == 1 and holyPower == 0 then
-            if cast.divineToll(lowest.unit) then
-                return true
-            end
-        end
-        if br.getOptionValue("Divine Toll") == 2 then
-            if br.getLowAllies(br.getValue("Divine Toll Health")) >= br.getValue("Divine Toll Units") then
-                if cast.divineToll(lowest.unit) then
-                    return true
-                end
-            end
-        end
-    end
+
 
     -- Bestow Faith
     if talent.bestowFaith and cd.bestowFaith.ready() then
