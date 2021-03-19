@@ -213,6 +213,7 @@ local gcdMax
 local has
 local inCombat
 local item
+local MA_flag
 local covenant
 local level
 local mode
@@ -611,19 +612,18 @@ local function dps_key()
     if mode.rotation == 1 then
 
         if runeforge.markOfTheMasterAssassin.equiped and talent.killingSpree then
-            if cd.killingSpree.ready()
+
+            if cd.killingSpree.ready() and (cd.vanish.ready() or MA_flag)
                     and (buff.bladeFlurry.remains() > 3.5 or cd.bladeFlurry.ready() or #enemies.yards8 == 1)
-                    and (stealth or cd.vanish.ready() or buff.masterAssassinsMark.exists())
             then
                 if buff.bladeFlurry.remains() < 2 and #enemies.yards8 > 1 then
                     if cast.bladeFlurry() then
                         return true
                     end
                 end
-                if not buff.masterAssassinsMark.exists() then
-                    if cast.vanish() then
-                        return true
-                    end
+                if cast.vanish() then
+                    MA_flag = true
+                    return true
                 end
                 if stealth and buff.bladeFlurry.remains() > 3.5 then
                     if cast.ambush("target") then
@@ -631,11 +631,11 @@ local function dps_key()
                     end
                 end
                 if cast.killingSpree() then
+                    MA_flag = nil
                     return true
                 end
             end
         else
-
             if (mode.cooldown == 1 and br.isChecked("Adrenaline Rush")) then
                 if cast.adrenalineRush() then
                     return true
@@ -653,7 +653,6 @@ local function dps_key()
             end
         end
     end
-
 end
 
 --[[
@@ -1317,7 +1316,7 @@ actionList.Defensive = function()
                 end
             end
 
-            if should_feint then
+            if cast.able.feint() and should_feint then
                 if cast.feint() then
                     br.addonDebug("Feint!")
                     return true
@@ -1328,16 +1327,15 @@ actionList.Defensive = function()
 
         --Healthstone / Heathpots :  156634 == Silas Vial of Continuous curing / 5512 == warlock health stones
         if br.isChecked("Pot/Stoned") and php <= br.getValue("Pot/Stoned") and (br.hasHealthPot() or br.hasItem(5512) or br.hasItem(156634) or br.hasItem(177278)) then
-            if br.canUseItem(177278) then
-                br.useItem(177278)
-            elseif br.canUseItem(5512) then
+            if br.canUseItem(5512) then
                 br.useItem(5512)
-            elseif br.canUseItem(156634) then
-                br.useItem(156634)
-            elseif br.canUseItem(169451) then
-                br.useItem(169451)
+            elseif br.canUseItem(177278) then
+                br.useItem(177278)
+            elseif br.canUseItem(171267) then
+                br.useItem(171267)
             end
         end
+
         if mode.cov == 1 then
             if covenant.kyrian.active and not br.hasItem(177278) and cast.able.summonSteward() and not inCombat then
                 if cast.summonSteward() then
@@ -1472,15 +1470,15 @@ actionList.Interrupt = function()
 
                 local castleft = castEndTime - br._G.GetTime()
                 if (select(3, br._G.UnitCastID(thisUnit)) == br._G.ObjectPointer("player") or select(4, br._G.UnitCastID(thisUnit)) == br._G.ObjectPointer("player")) and castleft <= 1.5 then
-                    if mode.cloak == 1 and cloakList[interruptID] then
+                    if cast.able.cloakOfShadows() and mode.cloak == 1 and cloakList[interruptID] then
                         if cast.cloakOfShadows() then
                             return true
                         end
-                    elseif dodgeList[interruptID] then
+                    elseif cast.able.evasion and dodgeList[interruptID] then
                         if cast.evasion() then
                             return true
                         end
-                    elseif br.player.talent.elusiveness and (feintList[interruptID] or br.getDebuffStacks("player", 240443) > 3) then
+                    elseif cast.able.feint() and br.player.talent.elusiveness and (feintList[interruptID] or br.getDebuffStacks("player", 240443) > 3) then
                         if cast.pool.feint() and cd.feint.remain() <= castleft then
                             should_pool = true
                         end
@@ -1488,21 +1486,21 @@ actionList.Interrupt = function()
                             should_pool = false
                             return true
                         end
-                    elseif vanishList[interruptID] and mode.vanish == 1 then
+                    elseif cast.able.vanish() and vanishList[interruptID] and mode.vanish == 1 then
                         if cast.vanish() then
                             return true
                         end
                     end
                 else
-                    if mode.cloak == 1 and cloakList[interruptID] then
+                    if cast.able.cloakOfShadows() and mode.cloak == 1 and cloakList[interruptID] then
                         if cast.cloakOfShadows() then
                             return true
                         end
-                    elseif dodgeList[interruptID] then
+                    elseif cast.able.evasion() and dodgeList[interruptID] then
                         if cast.evasion() then
                             return true
                         end
-                    elseif feintList[interruptID] then
+                    elseif cast.able.feint() and feintList[interruptID] then
                         if cast.pool.feint() and cd.feint.remain() <= castleft then
                             should_pool = true
                         end
@@ -1591,7 +1589,6 @@ actionList.Interrupt = function()
                             end
                             return true
                         end
-
                     end
                 end
             end
