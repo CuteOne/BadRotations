@@ -277,28 +277,25 @@ actionList.Defensive = function()
             if cast.earthShield("player") then ui.debug("Casting Earth Shield") return true end
         end
         -- Healing Surge
-        if ui.checked("Healing Surge") and cast.able.healingSurge() and not (unit.mounted() or unit.flying())
+        if ui.checked("Healing Surge") and cast.able.healingSurge(var.healUnit) and not (unit.mounted() or unit.flying())
             and (ui.value("Heal Target") ~= 1 or (ui.value("Heal Target") == 1
             and unit.distance(br.friend[1].unit) < 40)) and not cast.current.healingSurge()
         then
-            local thisHP = unit.hp()
-            local thisUnit = "player"
-            if ui.value("Heal Target") == 1 then thisUnit = unit.lowest(40); thisHP = unit.hp(thisUnit) end
             if not unit.inCombat() then
                 -- Lowest Party/Raid or Player
-                if (thisHP <= ui.value("Healing Surge OoC") and not unit.moving())
+                if (var.healHP <= ui.value("Healing Surge OoC") and not unit.moving())
                     and (buff.maelstromWeapon.stack() == 0 or ui.value("Instant Behavior") == 1)
                 then
-                    if cast.healingSurge(thisUnit) then ui.debug("Casting Healing Surge [OoC] on "..unit.name(thisUnit)) return true end
+                    if cast.healingSurge(var.healUnit) then ui.debug("Casting Healing Surge [OoC] on "..unit.name(var.healUnit)) return true end
                 end
             elseif unit.inCombat() and (not unit.moving() or buff.maelstromWeapon.stack() >= 5) then
                 -- Lowest Party/Raid or Player
-                if thisHP <= ui.value("Healing Surge") then
+                if var.healHP <= ui.value("Healing Surge") then
                     if ui.value("Instant Behavior") == 1 or (ui.value("Instant Behavior") == 2 and buff.maelstromWeapon.stack() >= 5) or (ui.value("Instant Behavior") == 3 and buff.maelstromWeapon.stack() == 0) then
                         if buff.maelstromWeapon.stack() >= 5 then
-                            if cast.healingSurge(thisUnit) then ui.debug("Casting Healing Surge [IC Instant] on "..unit.name(thisUnit)) return true end
+                            if cast.healingSurge(var.healUnit) then ui.debug("Casting Healing Surge [IC Instant] on "..unit.name(var.healUnit)) return true end
                         else
-                            if cast.healingSurge(thisUnit) then ui.debug("Casting Healing Surge [IC Long] on "..unit.name(thisUnit)) return true end
+                            if cast.healingSurge(var.healUnitUnit) then ui.debug("Casting Healing Surge [IC Long] on "..unit.name(var.healUnit)) return true end
                         end
                     end
                 end
@@ -822,6 +819,9 @@ local function runRotation()
         end
     end
 
+    
+    var.healUnit = ui.value("Heal Target") == 1 and unit.lowest(40) or "player"
+    var.healHP = unit.hp(var.healUnit)
     var.unitsNeedingHealing = 0
     if ui.checked("Use HST While Solo") and br.getHP("player") <= ui.value("Healing Stream Totem") then
         var.unitsNeedingHealing = var.unitsNeedingHealing + 1
