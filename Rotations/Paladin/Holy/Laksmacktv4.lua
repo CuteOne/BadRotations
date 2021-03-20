@@ -306,7 +306,7 @@ local pre_BoF_list = {
 -- Stun list - format  MOB_ID, CAST_ID, CHAN_ID, BUFF_ID, AGGRO_FLAG, NOTES
 local stunList = {
     [168319] = { CAST_ID = nil, CHAN_ID = nil, BUFF_ID = nil, AGGRO_FLAG = nil, NOTES = "TEST MOB" },
-    [171887] = { CAST_ID = nil, CHAN_ID = nil, BUFF_ID = nil, AGGRO_FLAG = 1, NOTES = "Affix - Stun Spiteful" },
+    [174773] = { CAST_ID = nil, CHAN_ID = nil, BUFF_ID = nil, AGGRO_FLAG = 1, NOTES = "Affix - Stun Spiteful" },
     [168572] = { CAST_ID = nil, CHAN_ID = "328177", BUFF_ID = nil, AGGRO_FLAG = nil, NOTES = "PF - Fungi Stormer CC Logic" },
     [173943] = { CAST_ID = nil, CHAN_ID = "336451", BUFF_ID = nil, AGGRO_FLAG = nil, NOTES = "PF - Domina Venomblade Trash CC Logic" },
     [163862] = { CAST_ID = nil, CHAN_ID = "336451", BUFF_ID = nil, AGGRO_FLAG = nil, NOTES = "PF - Domina Venomblade Trash CC Logic" },
