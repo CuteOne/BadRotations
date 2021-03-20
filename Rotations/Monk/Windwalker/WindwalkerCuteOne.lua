@@ -618,7 +618,9 @@ actionList.WeaponsOfTheOrder = function()
     end
     -- Whirling Dragon Punch
     -- whirling_dragon_punch
-    if cast.able.whirlingDragonPunch("player","aoe",1,8) and cd.risingSunKick.exists() and cd.fistsOfFury.exists() then
+    if cast.able.whirlingDragonPunch("player","aoe",1,8) and cd.risingSunKick.exists() and cd.fistsOfFury.exists()
+        and not unit.moving() and not unit.isExplosive("target")
+    then
         if cast.whirlingDragonPunch("player","aoe",1,8) then ui.debug("Casting Whirling Dragon Punch [Weapons of Order]") return true end
     end
     -- Fists of Fury
