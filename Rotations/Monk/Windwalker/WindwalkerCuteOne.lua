@@ -424,7 +424,17 @@ actionList.CdSef = function()
     -- Basic Trinkets Module
     -- use_item,name=inscrutable_quantum_device
     -- use_item,name=dreadfire_vessel,if=!variable.xuen_on_use_trinket|cooldown.invoke_xuen_the_white_tiger.remains>20|variable.hold_xuen
-    br.player.module.BasicTrinkets()
+    for i = 13, 14 do
+        local opValue = ui.value("Trinket "..i - 12)
+        local useTrinket = (opValue == 1 or (opValue == 2 and (ui.useCDs() or ui.useAOE())) or (opValue == 3 and ui.useCDs()))
+        if useTrinket and equiped.dreadfireVessel(i) and use.able.dreadfireVessel(i)
+            and (not var.xuenOnUseTrinket or cd.invokeXuenTheWhiteTiger.remains() > 20 or var.holdXuen or not ui.alwaysCdNever("Invoke Xuen"))
+        then
+            if use.deadfireVessel() then ui.debug("Using Dreadfire Vessel [CD SEF]") return true end
+        else
+            br.player.module.BasicTrinkets(i)
+        end
+    end
     -- Touch of Karma
     -- touch_of_karma,if=fight_remains>159|pet.xuen_the_white_tiger.active|variable.hold_xuen
     if cast.able.touchOfKarma() and ui.alwaysCdNever("Touch of Karma - CD") and (unit.ttdGroup(5) > 159 or pet.xuenTheWhiteTiger.active() or var.holdXuen) then
@@ -536,7 +546,17 @@ actionList.CdSerenity = function()
     -- Basic Trinkets Module
     -- use_item,name=inscrutable_quantum_device
     -- use_item,name=dreadfire_vessel,if=!variable.xuen_on_use_trinket|cooldown.invoke_xuen_the_white_tiger.remains>20|variable.hold_xuen
-    br.player.module.BasicTrinkets()
+    for i = 13, 14 do
+        local opValue = ui.value("Trinket "..i - 12)
+        local useTrinket = (opValue == 1 or (opValue == 2 and (ui.useCDs() or ui.useAOE())) or (opValue == 3 and ui.useCDs()))
+        if useTrinket and equiped.dreadfireVessel(i) and use.able.dreadfireVessel(i)
+            and (not var.xuenOnUseTrinket or cd.invokeXuenTheWhiteTiger.remains() > 20 or var.holdXuen or not ui.alwaysCdNever("Invoke Xuen"))
+        then
+            if use.deadfireVessel() then ui.debug("Using Dreadfire Vessel [CD Serenity]") return true end
+        else
+            br.player.module.BasicTrinkets(i)
+        end
+    end
     -- Faeline Stomp
     -- faeline_stomp
     if ui.alwaysCdNever("Covenant Ability") and cast.able.faelineStomp() then
