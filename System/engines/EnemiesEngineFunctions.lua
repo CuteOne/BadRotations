@@ -434,7 +434,7 @@ function br.getEnemiesInCone(angle,length,checkNoCombat, showLines)
 		local thisUnit = enemiesTable[i]
 		local radius = br._G.UnitCombatReach(thisUnit)
         local unitX, unitY, unitZ = br._G.GetPositionBetweenObjects(thisUnit, "player", radius)
-		if playerX and unitX then
+		if playerX and unitX and playerY and unitY then
 			for j = radius, 0, -0.1 do
 				inside = false
 				if j > 0 then
