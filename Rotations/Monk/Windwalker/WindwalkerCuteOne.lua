@@ -430,7 +430,7 @@ actionList.CdSef = function()
         if useTrinket and equiped.dreadfireVessel(i) and use.able.dreadfireVessel(i)
             and (not var.xuenOnUseTrinket or cd.invokeXuenTheWhiteTiger.remains() > 20 or var.holdXuen or not ui.alwaysCdNever("Invoke Xuen"))
         then
-            if use.deadfireVessel() then ui.debug("Using Dreadfire Vessel [CD SEF]") return true end
+            if use.dreadfireVessel() then ui.debug("Using Dreadfire Vessel [CD SEF]") return true end
         else
             br.player.module.BasicTrinkets(i)
         end
@@ -552,7 +552,7 @@ actionList.CdSerenity = function()
         if useTrinket and equiped.dreadfireVessel(i) and use.able.dreadfireVessel(i)
             and (not var.xuenOnUseTrinket or cd.invokeXuenTheWhiteTiger.remains() > 20 or var.holdXuen or not ui.alwaysCdNever("Invoke Xuen"))
         then
-            if use.deadfireVessel() then ui.debug("Using Dreadfire Vessel [CD Serenity]") return true end
+            if use.dreadfireVessel() then ui.debug("Using Dreadfire Vessel [CD Serenity]") return true end
         else
             br.player.module.BasicTrinkets(i)
         end
