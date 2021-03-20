@@ -965,7 +965,7 @@ actionList.AoE = function()
     -- Spinning Crane Kick
     -- spinning_crane_kick,if=combo_strike&(cooldown.bonedust_brew.remains>2|!covenant.necrolord)&(chi>=5|cooldown.fists_of_fury.remains>6|cooldown.fists_of_fury.remains>3&chi>=3&energy.time_to_50<1|energy.time_to_max<=(3+3*cooldown.fists_of_fury.remains<5)|buff.storm_earth_and_fire.up)
     if cast.able.spinningCraneKick("player","aoe") and not wasLastCombo(spell.spinningCraneKick) and (cd.bonedustBrew.remains() > 2 or not covenant.necrolord.active)
-        and (chi >= 5 or cd.fistsOfFury.remain() > 6 or (cd.fistsOfFucry.remain() > 3 and chi >= 3 and energyTTM(50) < 1) or energyTTM() <= (3 + 3 * var.fistsNotSoon) or buff.stormEarthAndFire.exists())
+        and (chi >= 5 or cd.fistsOfFury.remain() > 6 or (cd.fistsOfFury.remain() > 3 and chi >= 3 and energyTTM(50) < 1) or energyTTM() <= (3 + 3 * var.fistsNotSoon) or buff.stormEarthAndFire.exists())
         and cast.timeSinceLast.spinningCraneKick() > unit.gcd("true")
     then
         if cast.spinningCraneKick("player","aoe") then ui.debug("Casting Spinning Crane Kick [AOE]") return true end
