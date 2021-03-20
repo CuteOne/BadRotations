@@ -140,7 +140,7 @@ br.api.unit = function(self)
     unit.hp = function(thisUnit)
         local getHP = br["getHP"]
         if thisUnit == nil then thisUnit = "player" end
-        return getHP(thisUnit)
+        return br.round2(getHP(thisUnit),2)
     end
     -- Humanoid
     unit.humanoid = function(thisUnit)

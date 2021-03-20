@@ -298,19 +298,18 @@ actionList.Extras = function()
     end
     -- Blessing of Freedom
     if ui.checked("Blessing of Freedom") then
-        local thisUnit = getHealUnitOption("Blessing of Freedom")
-        if cast.able.blessingOfFreedom(thisUnit) and cast.noControl.blessingOfFreedom(thisUnit) and unit.distance(thisUnit) < 40 then
-            if cast.blessingOfFreedom(thisUnit) then
+        var.freedomUnit = getHealUnitOption("Blessing of Freedom")
+        if cast.able.blessingOfFreedom(var.freedomUnit) and cast.noControl.blessingOfFreedom(var.freedomUnit) and unit.distance(var.freedomUnit) < 40 then
+            if cast.blessingOfFreedom(var.freedomUnit) then
                 ui.debug("Casting Blessing of Freedom")
                 return true
             end
         end
     end
     -- Hand of Hindrance
-    if
-        ui.checked("Hand of Hindrance") and cast.able.handOfHindrance("target") and unit.moving("target") and not unit.facing("target", "player") and unit.distance("target") > 8 and
-            unit.hp("target") < 25
-     then
+    if ui.checked("Hand of Hindrance") and cast.able.handOfHindrance("target") and unit.moving("target")
+        and not unit.facing("target", "player") and unit.distance("target") > 8 and unit.hp("target") < 25
+    then
         if cast.handOfHindrance("target") then
             ui.debug("Casting Hand of Hindrance on " .. unit.name("target"))
             return true
@@ -324,27 +323,25 @@ actionList.Defensive = function()
         module.BasicHealing()
         -- Blessing of Protection
         if ui.checked("Blessing of Protection", true) then
-            local thisUnit = getHealUnitOption("Blessing of Protection Target")
-            if
-                cast.able.blessingOfProtection(thisUnit) and unit.inCombat(thisUnit) and unit.role(thisUnit) ~= "TANK" and not debuff.forbearance.exists(thisUnit) and
-                    unit.hp(thisUnit) < ui.value("Blessing of Protection") and
-                    unit.distance(thisUnit) < 40
-             then
-                if cast.blessingOfProtection(thisUnit) then
-                    ui.debug("Casting Blessing of Protection on " .. unit.name(thisUnit) .. " [" .. unit.hp(thisUnit) .. "% Remaining]")
+            var.protectionUnit = getHealUnitOption("Blessing of Protection Target")
+            if cast.able.blessingOfProtection(var.protectionUnit) and unit.inCombat(var.protectionUnit)
+                and unit.role(var.protectionUnit) ~= "TANK" and not debuff.forbearance.exists(var.protectionUnit)
+                and unit.hp(var.protectionUnit) < ui.value("Blessing of Protection") and unit.distance(var.protectionUnit) < 40
+            then
+                if cast.blessingOfProtection(var.protectionUnit) then
+                    ui.debug("Casting Blessing of Protection on " .. unit.name(var.protectionUnit) .. " [" .. unit.hp(var.protectionUnit) .. "% Remaining]")
                     return true
                 end
             end
         end
         -- Blessing of Sacrifice
         if ui.checked("Blessing of Sacrifice") then
-            local thisUnit = getHealUnitOption("Blessing of Sacrifice")
-            if
-                cast.able.blessingOfSacrifice(thisUnit) and unit.inCombat(thisUnit) and unit.distance(thisUnit) < 40 and unit.hp(thisUnit) < ui.value("Friendly HP") and
-                    unit.hp() >= ui.value("Personal HP Limit")
-             then
-                if cast.blessingOfSacrifice(thisUnit) then
-                    ui.debug("Casting Blessing of Sacrifice on " .. unit.name(thisUnit) .. " [" .. unit.hp(thisUnit) .. "% Remaining]")
+           var.sacificeUnit = getHealUnitOption("Blessing of Sacrifice")
+            if cast.able.blessingOfSacrifice(var.sacificeUnit) and unit.inCombat(var.sacificeUnit) and unit.distance(var.sacificeUnit) < 40
+                and unit.hp(var.sacificeUnit) < ui.value("Friendly HP") and unit.hp() >= ui.value("Personal HP Limit")
+            then
+                if cast.blessingOfSacrifice(var.sacificeUnit) then
+                    ui.debug("Casting Blessing of Sacrifice on " .. unit.name(var.sacificeUnit) .. " [" .. unit.hp(var.sacificeUnit) .. "% Remaining]")
                     return true
                 end
             end
@@ -358,10 +355,10 @@ actionList.Defensive = function()
         end
         -- Cleanse Toxins
         if ui.checked("Cleanse Toxins") then
-            local thisUnit = getHealUnitOption("Cleanse Toxin")
-            if cast.able.cleanseToxins(thisUnit) and cast.dispel.cleanseToxins(thisUnit) and unit.distance(thisUnit) < 40 then
-                if cast.cleanseToxins(thisUnit) then
-                    ui.debug("Casting Cleanse Toxins on " .. unit.name(thisUnit))
+            var.cleanseUnit = getHealUnitOption("Cleanse Toxin")
+            if cast.able.cleanseToxins(var.cleanseUnit) and cast.dispel.cleanseToxins(var.cleanseUnit) and unit.distance(var.cleanseUnit) < 40 then
+                if cast.cleanseToxins(var.cleanseUnit) then
+                    ui.debug("Casting Cleanse Toxins on " .. unit.name(var.cleanseUnit))
                     return true
                 end
             end
@@ -386,24 +383,24 @@ actionList.Defensive = function()
         end
         -- Flash of Light
         if ui.checked("Flash of Light") and not (unit.mounted() or unit.flying()) and not cast.current.flashOfLight() then
-            local thisUnit = getHealUnitOption("Flash of Light Target")
-            if cast.able.flashOfLight(thisUnit) and unit.distance(thisUnit) < 40 then
+            var.flashUnit = getHealUnitOption("Flash of Light Target")
+            if cast.able.flashOfLight(var.flashUnit) and unit.distance(var.flashUnit) < 40 then
                 -- Instant Cast
                 if talent.selflessHealer and buff.selflessHealer.stack() == 4 then
                     -- Don't waste instant heal!
-                    thisUnit = unit.hp(thisUnit) <= ui.value("Flash of Light") and thisUnit or var.lowestUnit
-                    if cast.flashOfLight(thisUnit) then
-                        ui.debug("Casting Flash of Light on " .. unit.name(thisUnit) .. " [Instant]")
+                    var.flashUnit = unit.hp(var.flashUnit) <= ui.value("Flash of Light") and var.flashUnit or var.lowestUnit
+                    if cast.flashOfLight(var.flashUnit) then
+                        ui.debug("Casting Flash of Light on " .. unit.name(var.flashUnit) .. " [Instant]")
                         return true
                     end
                 end
                 -- Long Cast
-                if
-                    not unit.moving("player") and
-                        (var.forceHeal or (unit.inCombat() and unit.hp(thisUnit) <= ui.value("Flash of Light")) or (not unit.inCombat() and unit.hp(thisUnit) <= 90))
-                 then
-                    if cast.flashOfLight(thisUnit) then
-                        ui.debug("Casting Flash of Light on " .. unit.name(thisUnit) .. " [Long]")
+                if not unit.moving("player") and (var.forceHeal
+                    or (unit.inCombat() and unit.hp(var.flashUnit) <= ui.value("Flash of Light"))
+                    or (not unit.inCombat() and unit.hp(var.flashUnit) <= 90))
+                then
+                    if cast.flashOfLight(var.flashUnit) then
+                        ui.debug("Casting Flash of Light on " .. unit.name(var.flashUnit) .. " [Long]")
                         return true
                     end
                 end
@@ -429,12 +426,12 @@ actionList.Defensive = function()
         end
         -- Lay On Hands
         if ui.checked("Lay On Hands") then
-            local thisUnit = getHealUnitOption("Lay On Hands Target", true)
-            if thisUnit ~= nil and cast.able.layOnHands(thisUnit) and unit.inCombat(thisUnit) and not debuff.forbearance.exists(thisUnit)
-                and unit.hp(thisUnit) <= ui.value("Lay On Hands") and unit.distance(thisUnit) < 40
+            var.layUnit = getHealUnitOption("Lay On Hands Target", true)
+            if var.layUnit ~= nil and cast.able.layOnHands(var.layUnit) and unit.inCombat(var.layUnit) and not debuff.forbearance.exists(var.layUnit)
+                and unit.hp(var.layUnit) <= ui.value("Lay On Hands") and unit.distance(var.layUnit) < 40
             then
-                if cast.layOnHands(thisUnit) then
-                    ui.debug("Casting Lay On Hands on " .. tostring(unit.name(thisUnit)) .. " [" .. tostring(unit.hp(thisUnit)) .. "% Remaining]")
+                if cast.layOnHands(var.layUnit) then
+                    ui.debug("Casting Lay On Hands on " .. tostring(unit.name(var.layUnit)) .. " [" .. tostring(unit.hp(var.layUnit)) .. "% Remaining]")
                     return true
                 end
             end
@@ -480,7 +477,7 @@ actionList.Defensive = function()
             end
         end
         -- Word of Glory
-        if ui.checked("Word of Glory") and cast.able.wordOfGlory() and canGlory() then
+        if ui.checked("Word of Glory") and cast.able.wordOfGlory(var.thisGlory) and canGlory() then
             if cast.wordOfGlory(var.thisGlory) then
                 ui.debug("Casting Word of Glory on " .. unit.name(var.thisGlory))
                 return true
@@ -492,11 +489,11 @@ end -- End Action List - Defensive
 actionList.Interrupts = function()
     if ui.useInterrupt() then
         for i = 1, #enemies.yards20 do
-            local thisUnit = enemies.yards20[i]
-            local distance = unit.distance(thisUnit)
-            if unit.interruptable(thisUnit, ui.value("Interrupt At")) then
+            var.interruptUnit = enemies.yards20[i]
+            local distance = unit.distance(var.interruptUnit)
+            if unit.interruptable(var.interruptUnit, ui.value("Interrupt At")) then
                 -- Blinding Light
-                if ui.checked("Blinding Light - Int") and cast.able.blindingLight(thisUnit) and distance < 10 and
+                if ui.checked("Blinding Light - Int") and cast.able.blindingLight(var.interruptUnit) and distance < 10 and
                     ((cd.rebuke.remains() > unit.gcd() or distance >= 5) and cd.hammerOfJustice.remains() > unit.gcd())
                 then
                     if cast.blindingLight() then
@@ -505,15 +502,15 @@ actionList.Interrupts = function()
                     end
                 end
                 -- Hammer of Justice
-                if ui.checked("Hammer of Justice") and cast.able.hammerOfJustice(thisUnit) and distance < 10 and (cd.rebuke.remains() > unit.gcd() or distance >= 5) then
-                    if cast.hammerOfJustice(thisUnit) then
+                if ui.checked("Hammer of Justice") and cast.able.hammerOfJustice(var.interruptUnit) and distance < 10 and (cd.rebuke.remains() > unit.gcd() or distance >= 5) then
+                    if cast.hammerOfJustice(var.interruptUnit) then
                         ui.debug("Casting Hammer of Justice [Interrupt]")
                         return true
                     end
                 end
                 -- Rebuke
-                if ui.checked("Rebuke") and cast.able.rebuke(thisUnit) and distance < 5 then
-                    if cast.rebuke(thisUnit) then
+                if ui.checked("Rebuke") and cast.able.rebuke(var.interruptUnit) and distance < 5 then
+                    if cast.rebuke(var.interruptUnit) then
                         ui.debug("Casting Rebuke")
                         return true
                     end
