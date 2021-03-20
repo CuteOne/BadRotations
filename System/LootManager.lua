@@ -201,7 +201,7 @@ function br.autoLoot()
 				if br.lM:emptySlots() ~= 0 then
 					if br._G.UnitCastingInfo("player") == nil and br._G.UnitChannelInfo("player") == nil
 						and not br._G.IsMounted("player") and br._G.GetUnitSpeed("player") == 0
-						and br.timer:useTimer("lootTimer", 1)
+						and br.timer:useTimer("lootTimer", 1) and not br._G.UnitIsDeadOrGhost("player")
 					 then
 						-- Print("Getting Loot")
 						br.lM:getLoot(br.lM.lootUnit)
