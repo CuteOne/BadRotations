@@ -327,7 +327,7 @@ br.lists.spells = {
                 huddle                      = 91838,
                 necrosis                    = 207346,
                 soulReaper                  = 215711,
-                suddenDoom                  = 49530,
+                suddenDoom                  = 81340, --49530,
                 runicCorruption             = 51460,
                 unholyAssault               = 207289,
 		        unholyBlight 		        = 115989,
@@ -1203,7 +1203,6 @@ br.lists.spells = {
                 trickShots                  = 257622,
                 trueshot                    = 288613,
                 unerringVision              = 274447,
-
             },
             debuffs                         = {
                 aMurderOfCrows              = 131894,
@@ -1465,7 +1464,8 @@ br.lists.spells = {
                 mendPet                     = 136,
                 nesingwarysTrappingApparatus= 336744,
                 playDead                    = 209997,
-                prowl                       = 24450,
+                prowl                       = 24450,                
+                resonatingArrow             = 308498, -- Covenant
                 spiritWalk                  = 90328,
                 surfaceTrot                 = 126311, -- Water Strider - Water Walking
                 updraft                     = 160007, -- Feathermane/Pterrordax - Slow Fall
