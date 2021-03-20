@@ -651,7 +651,7 @@ actionList.Finisher = function()
             or (not talent.seraphim and cd.finalReckoning.remains() > unit.gcd(true) * 2) or not ui.alwaysCdNever("Final Reckoning"))
         and (not talent.seraphim or cd.seraphim.remains() / unit.gcd(true) + holyPower > 3 or talent.finalReckoning
             or talent.executionSentence or covenant.kyrian.active or not ui.alwaysCdNever("Seraphim")))
-        or (talent.holyAvenger and cd.holyAvenger.remains() < unit.gcd(true) * 3 or buff.hoylAvenger.exists() or (talent.crusade and buff.crusade.exists() and buff.crusade.stack() < 10)))
+        or (talent.holyAvenger and cd.holyAvenger.remains() < unit.gcd(true) * 3 or buff.holyAvenger.exists() or (talent.crusade and buff.crusade.exists() and buff.crusade.stack() < 10)))
     then
         if cast.divineStorm("player", "aoe", theseUnits, 8) then ui.debug("Casting Divine Storm") return true end
     end
