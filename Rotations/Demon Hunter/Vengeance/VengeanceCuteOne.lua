@@ -296,11 +296,11 @@ actionList.Cooldowns = function()
             if cast.able.theHunt() then
                 if cast.theHunt() then ui.debug("Casting The Hunt") return true end
             end
-            -- Fodder to the Flame
-            -- fodder_to_the_flame
-            if cast.able.fodderToTheFlame() then
-                if cast.fodderToTheFlame() then ui.debug("Casting Fodder to the Flame") return true end
-            end
+            -- -- Fodder to the Flame
+            -- -- fodder_to_the_flame
+            -- if cast.able.fodderToTheFlame() then
+            --     if cast.fodderToTheFlame() then ui.debug("Casting Fodder to the Flame") return true end
+            -- end
             -- Elysian Decree
             -- elysian_decree
             if cast.able.elysianDecree() then
@@ -319,7 +319,7 @@ actionList.FieryBrand = function()
     end
     -- Immolation Aura
     -- immolation_aura,if=dot.fiery_brand.ticking
-    if ui.checked("Immolation Aura") and cast.able.immolationAura() and debuff.fieryBrand.exists(units.dyn5) and #enemies.yards5 > 0 then
+    if ui.checked("Immolation Aura") and cast.able.immolationAura() and debuff.fieryBrand.exists(units.dyn5) and #enemies.yards8 > 0 then
         if cast.immolationAura() then ui.debug("Casting Immolation Aura [Fiery Brand]") return true end
     end
 end -- End Action List - PreCombat
@@ -356,7 +356,7 @@ actionList.Normal = function()
     end
     -- Immolation Aura
     -- immolation_aura,if=((variable.brand_build&cooldown.fiery_brand.remains>10)|!variable.brand_build)&fury<=90
-    if ui.checked("Immolation Aura") and cast.able.immolationAura("player") and ((var.brandBuild and cd.fieryBrand.remains() > 10) or not var.brandBuild) and fury <= 90 and #enemies.yards5 > 0 then
+    if ui.checked("Immolation Aura") and cast.able.immolationAura("player") and ((var.brandBuild and cd.fieryBrand.remains() > 10) or not var.brandBuild) and fury <= 90 and #enemies.yards8 > 0 then
         if cast.immolationAura("player") then ui.debug("Casting Immolation Aura") return true end
     end
     -- Felblade
@@ -465,7 +465,7 @@ local function runRotation()
     units.get(5)
     units.get(8,true)
     units.get(20)
-    -- Enemies Listss
+    -- Enemies Lists
     enemies.get(5)
     enemies.get(8)
     enemies.get(30)
