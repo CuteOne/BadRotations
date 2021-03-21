@@ -595,7 +595,7 @@ end -- End Action List - Covenants
 -- Action List - AOE Setup
 actionList.AOE_Setup = function()
     -- Death and Decal / Defile
-    if ui.mode.dnd == 1 and unit.standing() >= 2 then
+    if ui.mode.dnd == 1 and unit.standingTime() >= 2 then
         -- any_dnd,if=death_knight.fwounded_targets=active_enemies|raid_event.adds.exists&raid_event.adds.remains<=11
         -- any_dnd,if=death_knight.fwounded_targets=active_enemies|raid_event.adds.exists&raid_event.adds.remains<=11
         if var.fwoundTargets == #enemies.yards5 or (ui.mode.rotation == 2 and #enemies.yards5 <= 11) then
@@ -610,7 +610,7 @@ actionList.AOE_Setup = function()
             end
         end
         -- any_dnd,if=death_knight.fwounded_targets>=5
-        if var.fwoundTargets >= 5 then
+        if var.fwoundTargets >= 5 and unit.standingTime() >= 2 then
             if cast.able.defile("best",nil,5,8) and talent.defile then
                 if cast.defile("best",nil,5,8) then ui.debug("Casting Defile [AOE Setup - 5+]") return true end
             end
@@ -745,7 +745,7 @@ actionList.Generic = function()
     end
     -- Any DnD
     -- any_dnd,if=cooldown.apocalypse.remains&(talent.defile.enabled|covenant.night_fae|runeforge.phearomones)&(!variable.pooling_runes|fight_remains<5)
-    if ui.mode.dnd == 1 and ((cd.apocalypse.exists() or not ui.alwaysCdNever("Apocalypse"))
+    if ui.mode.dnd == 1 and unit.standingTime() >= 2 and ((cd.apocalypse.exists() or not ui.alwaysCdNever("Apocalypse"))
         and (talent.defile or covenant.nightFae.active or runeforge.phearomones.equiped) and not var.poolingRunes)
     then
         if cast.able.defile() and talent.defile then
