@@ -61,6 +61,7 @@ br.api.module = function(self)
             br.ui:createCheckbox(section, "Music of Bastion","|cffFFFFFFCheck to use.")
             -- Phial of Serenity
             br.ui:createSpinner(section, "Phial of Serenity", 30, 0, 80, 5, "|cffFFFFFFHealth Percent to Cast At")
+            br.ui:createCheckbox(section, "Auto Summon Steward")
         end
 
         -- Abilities - Call, module.BasicHealing(), in your rotation to use these
@@ -115,7 +116,7 @@ br.api.module = function(self)
             end
             -- Phial of Serenity
             if ui.checked("Phial of Serenity") then
-                if not unit.inCombat() and not has.phialOfSerenity() and cast.able.summonSteward() then
+                if ui.checked("Auto Summon Steward") and not unit.inCombat() and not has.phialOfSerenity() and cast.able.summonSteward() then
                     if cast.summonSteward() then ui.debug("Casting Call Steward") return true end
                 end
                 if unit.inCombat() and use.able.phialOfSerenity() and unit.hp() < ui.value("Phial of Serenity") then
