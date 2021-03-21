@@ -989,37 +989,25 @@ function cl:Rogue(...)
                         local k
                         if debuffID ~= nil then
                             if spell == 200806 then
-                                if debuff.rupture.exsa == nil then
-                                    debuff.rupture.exsa = {}
-                                end
-                                if debuff.garrote.exsa == nil then
-                                    debuff.garrote.exsa = {}
-                                end
-                                if debuff.garrote.exsa[thisUnit] == nil then
-                                    debuff.garrote.exsa[thisUnit] = true
-                                end
-                                if debuff.rupture.exsa[thisUnit] == nil then
-                                    debuff.rupture.exsa[thisUnit] = true
-                                end
+                                if debuff.crimsonTempest.exsa[thisUnit] == nil then debuff.crimsonTempest.exsa[thisUnit] = true end
+                                if debuff.garrote.exsa[thisUnit] == nil then debuff.garrote.exsa[thisUnit] = true end
+                                if debuff.rupture.exsa[thisUnit] == nil then debuff.rupture.exsa[thisUnit] = true end
                                 if param == "SPELL_CAST_SUCCESS" then
                                     debuff.rupture.exsa[thisUnit] = true
                                     debuff.garrote.exsa[thisUnit] = true
+                                    debuff.crimsonTempest.exsa[thisUnit] = true
                                     if br.GetUnitIsUnit(thisUnit, "target") then
                                         debuff.rupture.exsa["target"] = true
                                         debuff.garrote.exsa["target"] = true
+                                        debuff.crimsonTempest.exsa["target"] = true
                                     end
                                 end
                             end
                             if spell == debuffID.rupture or spell == debuffID.garrote then
-                                if spell == debuffID.rupture then
-                                    k = "rupture"
-                                end
-                                if spell == debuffID.garrote then
-                                    k = "garrote"
-                                end
-                                if debuff[k].bleed == nil then
-                                    debuff[k].bleed = {}
-                                end
+                                if spell == debuffID.rupture then k = "rupture" end
+                                if spell == debuffID.garrote then k = "garrote" end
+                                if spell == debuffID.crimsonTempest then k = "crimsonTempest" end
+                                if debuff[k].bleed == nil then debuff[k].bleed = {} end
                                 if param == "SPELL_AURA_APPLIED" or param == "SPELL_AURA_REFRESH" then
                                     debuff[k].bleed[thisUnit] = debuff[k].calc()
                                     debuff[k].exsa[thisUnit] = false
