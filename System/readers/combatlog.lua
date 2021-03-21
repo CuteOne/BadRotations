@@ -1003,7 +1003,7 @@ function cl:Rogue(...)
                                     end
                                 end
                             end
-                            if spell == debuffID.rupture or spell == debuffID.garrote then
+                            if spell == debuffID.rupture or spell == debuffID.garrote or spell == debuffID.crimsonTempest then
                                 if spell == debuffID.rupture then k = "rupture" end
                                 if spell == debuffID.garrote then k = "garrote" end
                                 if spell == debuffID.crimsonTempest then k = "crimsonTempest" end
