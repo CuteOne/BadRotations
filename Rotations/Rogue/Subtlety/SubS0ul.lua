@@ -1,4 +1,4 @@
-local rotationName = "SubS0ul - 9.0"
+local rotationName = "SubS0ul - 9.0.5"
 local dotBlacklist = "168962|175992|171557|175992"
 local stunSpellList = "332329|332671|326450|328177|336451|331718|331743|334708|333145|326450|332671|321807|334748|327130|327240|330532|328475|330423|328177|336451|294171|330586|328429"
 local StunsBlackList = "167876|169861|168318|165824|165919|171799|168942|167612|169893|167536"
@@ -189,6 +189,7 @@ local function runRotation()
     --------------
     --- Locals ---
     --------------
+    local lastSpell                           = br.lastSpellCast
     local module                              = br.player.module
     local runeforge                           = br.player.runeforge
     local buff                                = br.player.buff
@@ -202,6 +203,7 @@ local function runRotation()
     local charges                             = br.player.charges
     local debuff                              = br.player.debuff
     local enemies                             = br.player.enemies
+    local equiped                             = br.player.equiped
     local gcd                                 = br.player.gcd
     local gcdMax                              = br.player.gcdMax
     local has                                 = br.player.has
@@ -328,6 +330,7 @@ local function runRotation()
     local deadlyPoison10 = true
     local fightRemain = 0
     local ruptureCount = 0
+    local serratedCount = 0
     if #enemies.yards30 > 0 then
         local highestHP
         local lowestHP
@@ -386,7 +389,7 @@ local function runRotation()
                 [168962]=true, -- Sun King's Reborn Phoenix
                 [166969]=true, -- Baroness Frieda
             }
-
+            if debuff.serratedBoneSpike.exists(thisUnit.unit) then serratedCount = serratedCount + 1 end
             if thisUnit.distance <= 10 then
                 if sStormIgnore[thisUnit.objectID] == nil and not isTotem(thisUnit.unit) then
                     br._G.tinsert(enemyTable10, thisUnit)
@@ -413,11 +416,11 @@ local function runRotation()
             end
         end
         -- Inscrutable Quantum Device
-        if ui.checked("Trinkets") and (_G.GetInventoryItemID("player", 13) == 179350 or _G.GetInventoryItemID("player", 14) == 179350) and br.canUseItem(179350) and (buff.shadowBlades.exists() or (br.isBoss() and fightRemain <= 20)) then
+        if ui.checked("Trinkets") and (br._G.GetInventoryItemID("player", 13) == 179350 or br._G.GetInventoryItemID("player", 14) == 179350) and br.canUseItem(179350) and (buff.shadowBlades.exists() or (br.isBoss() and fightRemain <= 20)) then
             br.useItem(179350)
         end
         -- Skuler's Wing
-        if ui.checked("Trinkets") and (_G.GetInventoryItemID("player", 13) == 184016 or _G.GetInventoryItemID("player", 14) == 184016) and br.canUseItem(184016) and combatTime > 5 then
+        if ui.checked("Trinkets") and (br._G.GetInventoryItemID("player", 13) == 184016 or br._G.GetInventoryItemID("player", 14) == 184016) and br.canUseItem(184016) then
             br.useItem(184016)
         end
     end
@@ -678,7 +681,7 @@ local function runRotation()
         end
         -- Necro, Fae, Venthyr opener
         if sndCondition == 1 and not stealthedRogue and (not talent.premeditation or debuff.rupture.exists("target")) and (combatTime < 4 and cd.vanish.remain() < 118) then
-            if covenant.necrolord.active and cast.able.serratedBoneSpike() then
+            if covenant.necrolord.active and cast.able.serratedBoneSpike() and lastSpell ~= spell.serratedBoneSpike then
                 if cast.serratedBoneSpike("target") then return true end
             elseif covenant.nightFae.active and cast.able.sepsis() then
                 if cast.sepsis("target") then return true end
@@ -693,11 +696,13 @@ local function runRotation()
         end
         -- # (Unless already up because we took Shadow Focus) use Symbols off-gcd before the first Shuriken Storm from Tornado comes in.
         -- actions.cds+=/symbols_of_death,use_off_gcd=1,if=buff.shuriken_tornado.up&buff.shuriken_tornado.remains<=3.5
-        if mode.sod == 1 and sndCondition == 1 and (buff.shurikenTornado.exists() and buff.shurikenTornado.remain() <= 3.5 or not talent.shurikenTornado) and ttd("target") > ui.value("CDs TTD Limit") then
+        if mode.sod == 1 and sndCondition == 1 and (buff.shurikenTornado.exists() and buff.shurikenTornado.remain() <= 3.5 or not talent.shurikenTornado) and ttd("target") > ui.value("CDs TTD Limit") and
+         (not covenant.necrolord.active or charges.serratedBoneSpike.frac() < 2.75) then
             if cast.symbolsOfDeath("player") then return true end
         end
         -- actions.cds+=/shadow_blades,if=variable.snd_condition&combo_points.deficit>=2
-        if cdUsage and sndCondition == 1 and comboDeficit >= 2 and ui.checked("Shadow Blades") and ttd("target") > ui.value("CDs TTD Limit") and (combatTime > 1.5 or cd.vanish.remain() > 118 or sndCondition == 1) then
+        if cdUsage and sndCondition == 1 and comboDeficit >= 2 and ui.checked("Shadow Blades") and ttd("target") > ui.value("CDs TTD Limit") and (combatTime > 1.5 or cd.vanish.remain() > 118 or sndCondition == 1) 
+         and (not covenant.necrolord.active or charges.serratedBoneSpike.frac() < 2.75) then
             if cast.shadowBlades("player") then return true end
         end
         -- actions.cds+=/blood_fury,if=buff.symbols_of_death.up
@@ -731,12 +736,38 @@ local function runRotation()
         if energy >= 60 and sndCondition == 1 and not cd.symbolsOfDeath.exists() and charges.shadowDance.frac() >= 1 then
             if cast.shurikenTornado("player") then return true end
         end
-        -- actions.cds+=/serrated_bone_spike,cycle_targets=1,if=variable.snd_condition&!dot.serrated_bone_spike_dot.ticking&target.time_to_die>=21|fight_remains<=5&spell_targets.shuriken_storm<3
-        if enemies10 < 3 and sndCondition == 1 and not stealthedRogue then
-            for i = 1, #enemyTable10 do
-                local thisUnit = enemyTable10[i].unit
-                if not debuff.serratedBoneSpikeDot.exists(thisUnit) and (ttd(thisUnit) >= 21 or fightRemain <= 5) and cast.able.serratedBoneSpike(thisUnit) then
-                    if cast.serratedBoneSpike(thisUnit) then return true end
+        -- -- actions.cds+=/serrated_bone_spike,cycle_targets=1,if=variable.snd_condition&!dot.serrated_bone_spike_dot.ticking&target.time_to_die>=21|fight_remains<=5&spell_targets.shuriken_storm<3
+        -- if enemies10 < 3 and sndCondition == 1 and not stealthedRogue then
+        --     for i = 1, #enemyTable10 do
+        --         local thisUnit = enemyTable10[i].unit
+        --         if not debuff.serratedBoneSpikeDot.exists(thisUnit) and (ttd(thisUnit) >= 21 or fightRemain <= 5) and cast.able.serratedBoneSpike(thisUnit) then
+        --             if cast.serratedBoneSpike(thisUnit) then return true end
+        --         end
+        --     end
+        -- end
+        if not stealthedRogue and not buff.masterAssassinsMark.exists() and sndCondition == 1 and lastSpell ~= spell.serratedBoneSpike then
+            local spikeCount = serratedCount + 2
+            local spikeList = enemies.get(30, "player", false, true)
+            if #spikeList > 0 then
+                if comboDeficit >= spikeCount then
+                    if #spikeList > 1 then
+                        table.sort(spikeList, function(x, y)
+                            return br.getHP(x) < br.getHP(y)
+                        end
+                        )
+                    end
+                    for i = 1, #spikeList do
+                        if not debuff.serratedBoneSpikeDot.exists(spikeList[i]) then
+                            if cast.serratedBoneSpike(spikeList[i]) then
+                                return true
+                            end
+                        end
+                    end
+                    if #spikeList == 1 and (comboDeficit == 2 or comboDeficit >= spikeCount or (spikeCount > 4 and combo < 2)) then
+                        if cast.serratedBoneSpike("target") then
+                            return true
+                        end
+                    end
                 end
             end
         end
@@ -746,7 +777,7 @@ local function runRotation()
         end
         -- # Use Symbols on cooldown (after first SnD) unless we are going to pop Tornado and do not have Shadow Focus.
         -- actions.cds+=/symbols_of_death,if=variable.snd_condition&(talent.enveloping_shadows.enabled|cooldown.shadow_dance.charges>=1)&(!talent.shuriken_tornado.enabled|talent.shadow_focus.enabled|cooldown.shuriken_tornado.remains>2)
-        if mode.sod == 1 and sndCondition == 1 and (talent.envelopingShadows or charges.shadowDance.frac() >= 1) and (fightRemain > 10 or br.isBoss()) and
+        if mode.sod == 1 and sndCondition == 1 and (talent.envelopingShadows or charges.shadowDance.frac() >= 1) and (fightRemain > 10 or br.isBoss()) and (not covenant.necrolord.active or charges.serratedBoneSpike.frac() < 2.75) and
          (not talent.shurikenTornado or talent.shadowFocus or cd.shurikenTornado.remain() > 2) and gcd < 0.5 and ttd("target") > ui.value("CDs TTD Limit") then
             if cast.symbolsOfDeath("player") then return true end
         end
@@ -878,7 +909,7 @@ local function runRotation()
         -- actions.stealth_cds+=/shadow_dance,if=variable.shd_combo_points&(variable.shd_threshold|buff.symbols_of_death.remains>=1.2|spell_targets.shuriken_storm>=4&cooldown.symbols_of_death.remains>10)
         if mode.sd == 1 and (ttd(enemyTable30.highestTTDUnit) > 8 or enemies10 > 3 or charges.shadowDance.frac() >= 1.75) and ((ui.checked("Save SD Charges for CDs") and buff.symbolsOfDeath.remain() >= 1.2 or buff.shadowBlades.remain() > 5 or charges.shadowDance.frac() >= (ui.value("Save SD Charges for CDs") + 1)) or (combatTime < 12 and cd.vanish.remain() < 108) or not ui.checked("Save SD Charges for CDs"))
          and shdComboPoints and (shdThreshold or buff.symbolsOfDeath.remain() >= 1.2 or buff.shadowBlades.remain() > 5 or enemies10 >= 4 and cd.symbolsOfDeath.remain() > 10) and (not covenant.kyrian.active or combatTime > 6 or debuff.rupture.exists("target"))
-         and (not cast.last.vanish(1) or cast.last.shadowstrike(1)) and gcd < 0.5 and (not covenant.kyrian.active or cd.echoingReprimand.exists()) then
+         and (not cast.last.vanish(1) or cast.last.shadowstrike(1)) and gcd < 0.5 and (not covenant.kyrian.active or cd.echoingReprimand.exists()) and (not covenant.necrolord.active or charges.serratedBoneSpike.frac() < 3) then
             if cast.shadowDance("player") then return true end
         end
         -- Burn remaining Dances before the fight ends if SoD won't be ready in time.
@@ -985,10 +1016,9 @@ local function runRotation()
                 end
             end
         end
-        -- actions.build+=/serrated_bone_spike,if=cooldown.serrated_bone_spike.charges_fractional>=2.75|soulbind.lead_by_example.enabled&!buff.lead_by_example.up
-        if charges.serratedBoneSpike.frac() >= 2.75 and cast.able.serratedBoneSpike() and not stealthedRogue then -- or not buff.leadByExample.exists()
-            if cast.serratedBoneSpike(enemyTable30.lowestTTDUnit) then return true end
-        end
+        -- if charges.serratedBoneSpike.frac() >= 2.75 and cast.able.serratedBoneSpike() and not stealthedRogue then -- or not buff.leadByExample.exists()
+        --     if cast.serratedBoneSpike(enemyTable30.lowestTTDUnit) then return true end
+        -- end
         -- actions.build+=/gloomblade
         if talent.gloomblade then
             if cast.gloomblade("target") then return true end
@@ -1031,7 +1061,9 @@ local function runRotation()
     -----------------------------
         if (inCombat or (not ui.checked("Disable Auto Combat") and (cast.last.vanish(1) or (validTarget and targetDistance < 5)))) then
             if cast.last.vanish(1) and mode.vanish == 2 then br._G.StopAttack() end
-            if actionList_Defensive() then return true end
+            if mode.defensive == 1 then
+                if actionList_Defensive() then return true end
+            end
             if mode.interrupt == 1 then
                 if actionList_Interrupts() then return true end
             end
@@ -1064,7 +1096,8 @@ local function runRotation()
                 br._G.StartAttack("target")
             end
             -- OG Opener
-            if cdUsage and ui.checked("Opener") and combatTime < 2 and cd.vanish.remain() < 115 and sndCondition == 1 and gcd < (0.1 + br.getLatency()) and br.isBoss() then
+            if cdUsage and ui.checked("Opener") and combatTime < 2 and cd.vanish.remain() < 115 and sndCondition == 1 and gcd < (0.1 + br.getLatency()) and br.isBoss() 
+             and (not covenant.necrolord.active or charges.serratedBoneSpike.frac() < 2.75) then
                 cast.shadowBlades("player")
                 cast.symbolsOfDeath("player")
                 if ui.checked("Trinkets") then
