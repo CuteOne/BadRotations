@@ -340,12 +340,6 @@ actionList.Extras = function()
             if cast.deathGrip() then ui.debug("Casting Death Grip") return true end
         end
     end
-    -- Path of Frost
-    if ui.checked("Path of Frost") and cast.able.pathOfFrost() then
-        if not unit.inCombat() and unit.swimming() and not buff.pathOfFrost.exists() then
-            if cast.pathOfFrost() then ui.debug("Casting Path of Frost") return true end
-        end
-    end
 end -- End Action List - Extras
 
 -- Action List - Defensive
@@ -437,7 +431,7 @@ actionList.Cooldowns = function()
     end
     -- Soul Reaper
     -- soul_reaper,target_if=target.time_to_pct_35<5&target.time_to_die>5
-    if ui.alwaysCdNever("Soul Reaper") and cast.able.soulReaper() and unit.ttd(units.dyn5,35) < 5 and unit.ttd(units.dyn5) > 5 then
+    if ui.alwaysCdNever("Soul Reaper") and cast.able.soulReaper() and cd.soulReaper.remain() == 0 and unit.ttd(units.dyn5,35) < 5 and unit.ttd(unit.dyn5) > 5 then
         if cast.soulReaper() then ui.debug("Casting Soul Reaper") return true end
     end
     -- Unholy Blight
@@ -473,11 +467,11 @@ actionList.Cooldowns = function()
         if ui.useST(8,2) and debuff.festeringWound.stack(units.dyn5) >= 4 then
             if talent.unholyBlight then
                 -- apocalypse,if=active_enemies=1&debuff.festering_wound.stack>=4&talent.unholy_blight&talent.army_of_the_damned&runeforge.deadliest_coil&conduit.convocation_of_the_dead.rank>=5&dot.unholy_blight_dot.remains
-                if talent.armyOfTheDamned and runeforge.deadliestCoil.equiped and conduit.convocationOfTheDead.rank >= 5 and debuff.unholyBlight.exists(units.dyn5) then
+                if talent.armyOfTheDamned and runeforge.deadliestCoil.equiped and conduit.convocationOfTheDead.rank >= 5 and (debuff.unholyBlight.exists(units.dyn5) or not ui.alwaysCdNever("UnholyBlight")) then
                     if cast.apocalypse() then ui.debug("Casting Apocalypse [Deadliest Coil]") return true end
                 end
                 -- apocalypse,if=active_enemies=1&debuff.festering_wound.stack>=4&talent.unholy_blight&dot.unholy_blight_dot.remains>10&!talent.army_of_the_damned&conduit.convocation_of_the_dead.rank<5
-                if debuff.unholyBlight.remains() > 10 and not talent.armyOfTheDamned and conduit.convocationOfTheDead.rank < 5 then
+                if (debuff.unholyBlight.remains() > 10 or not ui.alwaysCdNever("UnholyBlight")) and not talent.armyOfTheDamned and conduit.convocationOfTheDead.rank < 5 then
                     if cast.apocalypse() then ui.debug("Casting Apocalyse [Unholy Blight]") return true end
                 end
             end
@@ -517,16 +511,16 @@ end -- End Action List - Cooldowns
 actionList.Covenants = function()
     -- Swarming Mist
     -- swarming_mist,if=variable.st_planning&runic_power.deficit>16&(cooldown.apocalypse.remains|!talent.army_of_the_damned&cooldown.dark_transformation.remains)|fight_remains<11
-    if cast.able.swarmingMist() and ui.useST(8,2) and runicPowerDeficit > 16 and (cd.apocalypse.exists() or not talent.armyOfTheDamned and cd.darkTransformation.exists()) then
+    if cast.able.swarmingMist() and ui.useST(8,2) and runicPowerDeficit > 16 and ((cd.apocalypse.exists() or not ui.alwaysCdNever("Apocalypse")) or not talent.armyOfTheDamned and (cd.darkTransformation.exists() or not ui.alwaysCdNever("Dark Transformation"))) then
         if cast.swarmingMist("player","aoe",1,8) then ui.debug("Casting Swarming Mist") return true end
     end
     -- swarming_mist,if=cooldown.apocalypse.remains&(active_enemies>=2&active_enemies<=5&runic_power.deficit>10+(active_enemies*6)|active_enemies>5&runic_power.deficit>40)
-    if cast.able.swarmingMist() and cd.apocalypse.exists() and #enemies.yards8 >= 2 and ((#enemies.yards8 <= 5 and runicPowerDeficit > 10 + (#enemies.yards8 * 6)) or (#enemies.yards8 > 5 and runicPowerDeficit > 40)) then
+    if cast.able.swarmingMist() and (cd.apocalypse.exists() or not ui.alwaysCdNever("Apocalypse")) and #enemies.yards8 >= 2 and ((#enemies.yards8 <= 5 and runicPowerDeficit > 10 + (#enemies.yards8 * 6)) or (#enemies.yards8 > 5 and runicPowerDeficit > 40)) then
         if cast.swarmingMist("player","aoe",2,8) then ui.debug("Casting Swarming Mist [AOE]") return true end
     end
     -- Abomination Limb
     -- abomination_limb,if=variable.st_planning&!soulbind.lead_by_example&(cooldown.apocalypse.remains|!talent.army_of_the_damned&cooldown.dark_transformation.remains)&rune.time_to_4>(3+buff.runic_corruption.remains)|fight_remains<21
-    if cast.able.abominationLimb() and var.stPlanning and (cd.apocalypse.exists() or not talent.armyOfTheDamned and cd.darkTransformation.exists()) and runesTTM(4) > (3 + buff.runicCorruption.remains()) then
+    if cast.able.abominationLimb() and var.stPlanning and ((cd.apocalypse.exists() or not ui.alwaysCdNever("Apocalypse")) or not talent.armyOfTheDamned and (cd.darkTransformation.exists() or not ui.alwaysCdNever("Dark Transformation"))) and runesTTM(4) > (3 + buff.runicCorruption.remains()) then
         if cast.abominationLimb("player","aoe",1,20) then ui.debug("Casting Abomination Limb") return true end
     end
     -- abomination_limb,if=variable.st_planning&soulbind.lead_by_example&(dot.unholy_blight_dot.remains>11|!talent.unholy_blight&cooldown.dark_transformation.remains)
@@ -537,7 +531,7 @@ actionList.Covenants = function()
     end
     -- Shackle the Unworthy
     -- shackle_the_unworthy,if=variable.st_planning&(cooldown.apocalypse.remains|!talent.army_of_the_damned&cooldown.dark_transformation.remains)|fight_remains<15
-    if cast.able.shackleTheUnworthy() and var.stPlanning and (cd.apocalypse.exists() or not talent.armyOfTheDamned and cd.darkTransformation.exists()) then
+    if cast.able.shackleTheUnworthy() and var.stPlanning and ((cd.apocalypse.exists() or not ui.alwaysCdNever("Apocalypse")) or not talent.armyOfTheDamned and (cd.darkTransformation.exists() or not ui.alwaysCdNever("Dark Transformation"))) then
         if cast.shackleTheUnworthy() then ui.debug("Casting Shackle the Unworthy") return true end
     end
     -- shackle_the_unworthy,if=active_enemies>=2&(death_and_decay.ticking|raid_event.adds.remains<=14)
@@ -658,7 +652,7 @@ actionList.AOE = function()
     end
     -- Scourge Strike
     -- wound_spender,target_if=max:debuff.festering_wound.stack,if=(cooldown.apocalypse.remains>5&debuff.festering_wound.up|debuff.festering_wound.stack>4)&(fight_remains<cooldown.death_and_decay.remains+10|fight_remains>cooldown.apocalypse.remains)
-    if cast.able.scourgeStrike() and ((cd.apocalypse.remain() > 5 or var.apocBypass) and debuff.festeringWound.exists(var.fwoundHighUnit) or var.fwoundHighest > 4)
+    if cast.able.scourgeStrike() and ((cd.apocalypse.remain() > 5 or not ui.alwaysCdNever("Apocalypse")) and debuff.festeringWound.exists(var.fwoundHighUnit) or var.fwoundHighest > 4)
         and (unit.ttdGroup(40) < cd.deathAndDecay.remains() + 10 or unit.ttdGroup(40) > cd.apocalypse.remains())
     then
         if cast.scourgeStrike(var.fwoundHighUnit) then ui.debug("Casting Scourge Strike [AOE]") return true end
@@ -670,7 +664,7 @@ actionList.AOE = function()
             if cast.festeringStrike(var.fwoundHighUnit) then ui.debug("Casting Festering Strike [AOE - Max Stack Low") return true end
         end 
         -- festering_strike,target_if=min:debuff.festering_wound.stack,if=cooldown.apocalypse.remains>5&debuff.festering_wound.stack<1
-        if (cd.apocalypse.remains() > 5 or var.apocBypass) and var.fwoundLowest < 1 then
+        if (cd.apocalypse.remains() > 5 or not ui.alwaysCdNever("Apocalypse")) and var.fwoundLowest < 1 then
             if cast.festeringStrike(var.fwoundLowUnit) then ui.debug("Casting Festering Strike [AOE - Low Stack") return true end
         end
     end
@@ -691,7 +685,7 @@ actionList.Single = function()
     end
     -- Any DnD
     -- any_dnd,if=cooldown.apocalypse.remains&(talent.defile.enabled|covenant.night_fae|runeforge.phearomones)&(!variable.pooling_runes|fight_remains<5)
-    if ui.mode.dnd == 1 and ((cd.apocalypse.exists() or var.apocBypass) and (talent.defile or covenant.nightFae.active or runeforge.phearomones.equiped) and not var.poolingRunes) then
+    if ui.mode.dnd == 1 and ((cd.apocalypse.exists() or not ui.alwaysCdNever("Apocalypse")) and (talent.defile or covenant.nightFae.active or runeforge.phearomones.equiped) and not var.poolingRunes) then
         if cast.able.defile() and talent.defile then
             if cast.defile("best",nil,1,8) then ui.debug("Casting Defile [ST]") return true end
         end
@@ -706,7 +700,7 @@ actionList.Single = function()
             if cast.scourgeStrike() then ui.debug("Casting Scourge Strike [ST - High Wound Stack]") return true end
         end
         -- wound_spender,if=debuff.festering_wound.up&cooldown.apocalypse.remains>5&!variable.pooling_runes&(!talent.unholy_blight|talent.army_of_the_damned&conduit.convocation_of_the_dead.rank<5|!talent.army_of_the_damned&conduit.convocation_of_the_dead.rank>=5|!conduit.convocation_of_the_dead)
-        if debuff.festeringWound.exists(unit.dyn5) and (cd.apocalypse.remains() > 5 or var.apocBypass) and not var.poolingRunes
+        if debuff.festeringWound.exists(unit.dyn5) and (cd.apocalypse.remains() > 5 or not ui.alwaysCdNever("Apocalypse")) and not var.poolingRunes
             and (not talent.unholyBlight or (talent.armyOfTheDamned and conduit.convocationOfTheDead.rank < 5)
                 or (not talent.armyOfTheDamned and conduit.convocationOfTheDead.rank >= 5) or not conduit.convocationOfTheDead.active)
         then
@@ -715,7 +709,7 @@ actionList.Single = function()
         -- wound_spender,if=debuff.festering_wound.up&talent.unholy_blight&!variable.pooling_runes&(!talent.army_of_the_damned&conduit.convocation_of_the_dead.rank<5|talent.army_of_the_damned&conduit.convocation_of_the_dead.rank>=5)&(cooldown.unholy_blight.remains>10&!dot.unholy_blight_dot.remains|cooldown.apocalypse.remains>10)
         if debuff.festeringWound.exists(unit.dyn5) and talent.unholyBlight and not var.poolingRunes
             and (not talent.armyOfTheDamned and conduit.convocationOfTheDead.rank < 5 or talent.armyOfTheDamned and conduit.convocationOfTheDead.rank >= 5)
-            and (cd.unholyBlight.remains() > 10 and not debuff.unholyBlight.exists(units.dyn5) or cd.apocalypse.remains() > 10)
+            and ((cd.unholyBlight.remains() > 10 or not ui.alwaysCdNever("Unholy Blight")) and not debuff.unholyBlight.exists(units.dyn5) or (cd.apocalypse.remains() > 10 or not ui.alwaysCdNever("Apocalypse")))
         then
             if cast.scourgeStrike() then ui.debug("Casting Scourge Strike [ST - Unholy Blight]") return true end
         end
@@ -741,7 +735,7 @@ actionList.Single = function()
         -- festering_strike,if=debuff.festering_wound.stack<4&talent.unholy_blight&!variable.pooling_runes&(!talent.army_of_the_damned&conduit.convocation_of_the_dead.rank<5|talent.army_of_the_damned&conduit.convocation_of_the_dead.rank>=5)&(cooldown.unholy_blight.remains<10|cooldown.apocalypse.remains<10&dot.unholy_blight_dot.remains)
         if debuff.festeringWound.stack(unit.dyn5) < 4 and talent.unholyBlight and not var.poolingRunes
             and (not talent.armyOfTheDamned and conduit.convocationOfTheDead.rank < 5 or talent.armyOfTheDamned and conduit.convocationOfTheDead.rank >= 5)
-            and (cd.unholyBlight.remains() < 10 or cd.apocalypse.remains() < 10 and debuff.unholyBlight.exists(units.dyn5))
+            and (cd.unholyBlight.remains() < 10 or cd.apocalypse.remains() < 10 and (debuff.unholyBlight.exists(units.dyn5) or not ui.alwaysCdNever("UnholyBlight")))
         then
             if cast.festeringStrike() then ui.debug("Casting Festering Strike [ST - Unholy Blight]") return true end
         end
@@ -880,6 +874,13 @@ local function runRotation()
         end
     end
 
+    -- Path of Frost
+    if ui.checked("Path of Frost") and cast.able.pathOfFrost() then
+        if not unit.inCombat() and unit.swimming() and not buff.pathOfFrost.exists() then
+            if cast.pathOfFrost() then ui.debug("Casting Path of Frost") return true end
+        end
+    end
+
 -----------------
 --- Rotations ---
 -----------------
@@ -982,7 +983,7 @@ local function runRotation()
                 end
                 -- outbreak,if=dot.virulent_plague.refreshable&active_enemies>=2&(!talent.unholy_blight|talent.unholy_blight&cooldown.unholy_blight.remains)
                 if cast.able.outbreak(units.dyn25) and debuff.virulentPlague.refresh(units.dyn25) and ui.useAOE(25,2)
-                    and (not talent.unholyBlight or (talent.unholyBlight and cd.unholyBlight.exists()))
+                    and (not talent.unholyBlight or (talent.unholyBlight and cd.unholyBlight.exists()) or not ui.alwaysCdNever("Unholy Blight"))
                 then
                     if cast.outbreak(units.dyn25) then ui.debug("Casting Outbreak [AOE]") return true end
                 end
