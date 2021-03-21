@@ -445,7 +445,7 @@ actionList.Cooldowns = function()
     -- Unholy Blight
     if ui.alwaysCdNever("Unholy Blight") then
         -- unholy_blight,if=variable.st_planning&(cooldown.apocalypse.remains_expected<5|cooldown.apocalypse.remains_expected>10)&(cooldown.dark_transformation.remains<gcd|buff.dark_transformation.up)
-        if cast.able.unholyBlight("player","aoe",1,10) and var.stPlanning and (cd.apocalypse.remain() < 5 or cd.apocalyse.remains() > 10)
+        if cast.able.unholyBlight("player","aoe",1,10) and var.stPlanning and (cd.apocalypse.remain() < 5 or cd.apocalypse.remains() > 10)
             and (cd.darkTransformation.remain() < unit.gcd(true) or buff.darkTransformation.exists())
         then
             if cast.unholyBlight("player","aoe",1,10) then ui.debug("Casting Unholy Blight [ST]") return true end
