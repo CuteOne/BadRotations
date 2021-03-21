@@ -2790,7 +2790,7 @@ br.lists.spells = {
                 shroudedSuffocation         = 278666,
 		        twistTheKnife               = 273488,
             },
-            runeforge                         = {
+            runeforges                      = {
                 dashingScoundrel            = 340081,
                 doomblade                   = 340082,
                 zoldyckInsignia             = 340083,
@@ -2901,14 +2901,14 @@ br.lists.spells = {
                 dancingSteel                = 272026,
                 dreadblades                 = 343142,
             },
-             traits                          = {
+             traits                         = {
                 deadshot                    = 272935,
                 aceupyoursleeve             = 278676,
                 snakeeyes                   = 275846,
                 keepYourWitsAboutYou        = 288979,
 
             },
-            runeforge                         = {
+            runeforges                      = {
                 greenskinsWickers           = 340085,
                 guileCharm                  = 340086,
                 celerity                    = 340087,
