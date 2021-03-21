@@ -786,7 +786,7 @@ actionList.Generator = function()
     end
     -- Consecration
     -- consecration,if=!consecration.up&spell_targets.divine_storm>=2
-    if cast.able.consecration("player", "aoe", 1, 8) and not br._G.GetTotemInfo(1) and var.dsUnits then
+    if #enemies.yards8 > 0 and cast.able.consecration("player", "aoe", 1, 8) and not br._G.GetTotemInfo(1) and var.dsUnits and unit.standingTime() >= 2 then
         if cast.consecration("player", "aoe", 1, 8) then ui.debug("Casting Consecration [AOE]") return true end
     end
     -- Call Action List: Finishers
@@ -796,7 +796,7 @@ actionList.Generator = function()
     end
     -- Consecration
     -- consecration,if=!consecration.up
-    if cast.able.consecration("player", "aoe", 1, 8) and not br._G.GetTotemInfo(1) then
+    if #enemies.yards8 > 0 and cast.able.consecration("player", "aoe", 1, 8) and not br._G.GetTotemInfo(1) and unit.standingTime() >= 2 then
         if cast.consecration("player", "aoe", 1, 8) then ui.debug("Casting Consecration") return true end
     end
     -- Crusader Strike
@@ -811,7 +811,7 @@ actionList.Generator = function()
     end
     -- Consecration
     -- consecration
-    if cast.able.consecration("player", "aoe", 1, 8) then
+    if #enemies.yards8 > 0 and cast.able.consecration("player", "aoe", 1, 8) and unit.standingTime() >= 2 then
         if cast.consecration("player", "aoe", 1, 8) then ui.debug("Casting Consecration [Nothing Else Available]") return true end
     end
 end -- End Action List - Generator
@@ -1017,25 +1017,12 @@ local runRotation = function()
                     ui.debug("Casting Racial: Lightforged Draenei [AOE]")
                     return true
                 end
-                -- for i = 1, #enemies.yards40 do
-                --     local thisUnit = enemies.yards40[i]
-                --     if #enemies.get(8, thisUnit) > 2 and unit.health(thisUnit) < unit.healthMax(thisUnit) and unit.ttd(thisUnit) > cast.time.racial() then
-                --         if cast.racial(thisUnit) then
-                --             ui.debug("Casting Racial: Lightforged Draenei [AOE]")
-                --             return true
-                --         end
-                --     end
-                -- end
             end
             -- Action List - Cooldowns
             -- call_action_list,name=cooldowns
             if actionList.Cooldowns() then
                 return
             end
-            -- Divine Storm
-            -- if cast.able.divineStorm() and buff.empyreanPower.exists() then
-            --     if cast.divineStorm(nil,"aoe",1,8) then ui.debug("Casting Divine Storm [Empyrean Power]") return true end
-            -- end
             -- Call Action List - Generator
             -- call_action_list,name=generators
             if actionList.Generator() then
