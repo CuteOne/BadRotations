@@ -988,7 +988,7 @@ function cl:Rogue(...)
                         local debuffID = br.player.spell.debuffs
                         local k
                         if debuffID ~= nil then
-                            if spell == 200806 then
+                            if spell == br.player.spell.exsanguinate then
                                 if debuff.crimsonTempest.exsa[thisUnit] == nil then debuff.crimsonTempest.exsa[thisUnit] = true end
                                 if debuff.garrote.exsa[thisUnit] == nil then debuff.garrote.exsa[thisUnit] = true end
                                 if debuff.rupture.exsa[thisUnit] == nil then debuff.rupture.exsa[thisUnit] = true end

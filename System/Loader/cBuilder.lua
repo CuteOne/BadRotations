@@ -428,7 +428,7 @@ function br.loader:new(spec,specName)
     function self.getBleeds()
         if spec == 103 or spec == 259 then
             for k, _ in pairs(self.debuff) do
-                if k == "rake" or k == "rip" or k == "rupture" or k == "garrote" then
+                if k == "rake" or k == "rip" or k == "rupture" or k == "garrote" or k == "crimsonTempest" then
                     if self.debuff[k].bleed == nil then self.debuff[k].bleed = {} end
                     for l, _ in pairs(self.debuff[k].bleed) do
                         if --[[not UnitAffectingCombat("player") or]] br.GetUnitIsDeadOrGhost(l) then
@@ -443,7 +443,7 @@ function br.loader:new(spec,specName)
 
         if spec == 259 then
             for k, _ in pairs(self.debuff) do
-                if k == "garrote" or k == "rupture" then
+                if k == "crimsonTempest" or k == "garrote" or k == "rupture" then
                     if self.debuff[k].exsa == nil then self.debuff[k].exsa = {} end
                     for l, _ in pairs(self.debuff[k].exsa) do
                         if --[[not UnitAffectingCombat("player") or]] br.GetUnitIsDeadOrGhost(l) then
