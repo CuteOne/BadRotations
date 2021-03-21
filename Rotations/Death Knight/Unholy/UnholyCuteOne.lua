@@ -507,7 +507,7 @@ actionList.Cooldowns = function()
     -- Sacrificial Pact
     -- sacrificial_pact,if=active_enemies>=2&!buff.dark_transformation.up&!cooldown.dark_transformation.ready|fight_remains<gcd
     if ui.alwaysCdNever("Sacrificial Pact CD") and cast.able.sacrificialPact("pet") and ui.useAOE(8,2)
-        and not buff.darkTransformation.exists() and (cd.darkTrasformation.exists() or not ui.alwaysCdNever("Dark Transformation"))
+        and not buff.darkTransformation.exists() and (cd.darkTransformation.exists() or not ui.alwaysCdNever("Dark Transformation"))
     then
         if cast.sacrificialPact("pet") then ui.debug("Casting Sacrificial Pact [CD]") return true end
     end
