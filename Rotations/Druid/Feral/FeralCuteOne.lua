@@ -1007,7 +1007,7 @@ actionList.Filler = function()
     end
     -- Swipe
     -- swipe,if=variable.filler=4
-    if cast.able.swipeCat() and filler == 4 and not talent.brutalSlash
+    if cast.able.swipeCat("player","aoe",1,8) and filler == 4 and not talent.brutalSlash
         and not unit.isExplosive("target") and range.dyn8AOE
     then       
         if cast.swipeCat("player","aoe",1,8) then ui.debug("Casting Swipe [Filler - 4]") return true end
@@ -1040,7 +1040,7 @@ actionList.Stealth = function()
     -- -- Thrash
     -- -- pool_resource,for_next=1
     -- -- thrash_cat,target_if=refreshable&druid.thrash_cat.ticks_gained_on_refresh>variable.thrash_ticks,if=spell_targets.thrash_cat>3
-    -- if cast.able.thrashCat() and #enemies.yards8 > 3 then
+    -- if cast.able.thrashCat("player","aoe",1,8) and #enemies.yards8 > 3 then
     --     for i = 1, #enemies.yards8 do
     --         local thisUnit = enemies.yards8[i]
     --         if debuff.thrashCat.refresh(thisUnit) and ticksGain.thrash > thrashTicks then
@@ -1050,7 +1050,7 @@ actionList.Stealth = function()
     -- end
     -- Brutal Slash
     -- brutal_slash,if=spell_targets.brutal_slash>2
-    if cast.able.brutalSlash() and talent.brutalSlash and #enemies.yards8 > 2 then
+    if cast.able.brutalSlash("player","aoe",3,8) and talent.brutalSlash and #enemies.yards8 > 2 then
         if cast.brutalSlash("player","aoe",3,8) then ui.debug("Casting Brutal Slash [Stealth]") return true end
     end
     -- Shred
@@ -1103,7 +1103,7 @@ actionList.Bloodtalons = function()
     end
     -- Thrash
     -- thrash_cat,target_if=refreshable&buff.bt_thrash.down&druid.thrash_cat.ticks_gained_on_refresh>(4+spell_targets.thrash_cat*4)%(1+mastery_value)-conduit.taste_for_blood.enabled
-    if cast.able.thrashCat() and not btGen.thrash then
+    if cast.able.thrashCat("player","aoe",1,8) and not btGen.thrash then
         for i = 1, #enemies.yards8 do
             local thisUnit = enemies.yards8[i]
             if debuff.thrashCat.refresh(thisUnit) and ticksGain.thrash > (4 + #enemies.yards8 * 4) / (1 + br._G.GetMastery()) - var.tastyBlood then
@@ -1118,7 +1118,7 @@ actionList.Bloodtalons = function()
     end
     -- Brutal Slash
     -- brutal_slash,if=buff.bt_brutal_slash.down
-    if cast.able.brutalSlash() and not btGen.brutalSlash then
+    if cast.able.brutalSlash("player","aoe",1,8) and not btGen.brutalSlash then
         if cast.brutalSlash("player","aoe",1,8) then
             ui.debug("Casting Brutal Slash [BT]")
             btGen.brutalSlash = true
@@ -1128,7 +1128,7 @@ actionList.Bloodtalons = function()
     end
     -- Swipe
     -- swipe_cat,if=buff.bt_swipe.down&spell_targets.swipe_cat>1
-    if cast.able.swipeCat() and not talent.brutalSlash and not btGen.swipe and (#enemies.yards8 > 1) then
+    if cast.able.swipeCat("player","aoe",1,8) and not talent.brutalSlash and not btGen.swipe and (#enemies.yards8 > 1) then
         if cast.swipeCat("player","aoe",1,8) then
             ui.debug("Casting Swipe [BT - Multi]")
             btGen.swipe = true
@@ -1148,7 +1148,7 @@ actionList.Bloodtalons = function()
     end
     -- Swipe
     -- swipe_cat,if=buff.bt_swipe.down
-    if cast.able.swipeCat() and not talent.brutalSlash and not btGen.swipe then
+    if cast.able.swipeCat("player","aoe",1,8) and not talent.brutalSlash and not btGen.swipe then
         if cast.swipeCat("player","aoe",1,8) then
             ui.debug("Casting Swipe [BT]")
             btGen.swipe = true
@@ -1158,7 +1158,7 @@ actionList.Bloodtalons = function()
     end
     -- Thrash
     -- thrash_cat,if=buff.bt_thrash.down
-    if cast.able.thrashCat() and not btGen.thrash then
+    if cast.able.thrashCat("player","aoe",1,8) and not btGen.thrash then
         if cast.thrashCat("player","aoe",1,8) then
             ui.debug("Casting Thrash [BT - No Buff]")
             btGen.thrash = true
@@ -1624,7 +1624,7 @@ local function runRotation()
                         -- Thrash
                         -- pool_resource,for_next=1
                         -- thrash_cat,target_if=refreshable&druid.thrash_cat.ticks_gained_on_refresh>(4+spell_targets.thrash_cat*4)%(1+mastery_value)-conduit.taste_for_blood.enabled
-                        if cast.able.thrashCat() then
+                        if cast.able.thrashCat("player","aoe",1,8) then
                             for i = 1, #enemies.yards8 do
                                 local thisUnit = enemies.yards8[i]
                                 if debuff.thrashCat.refresh(thisUnit) and ticksGain.thrash > (4 + #enemies.yards8 * 4) / (1 + br._G.GetMastery()) - var.tastyBlood
@@ -1637,20 +1637,20 @@ local function runRotation()
                         -- Brutal Slash
                         -- pool_resource,for_next=1
                         -- brutal_slash,if=(raid_event.adds.in>(1+max_charges-charges_fractional)*recharge_time)&(spell_targets.brutal_slash*action.brutal_slash.damage%action.brutal_slash.cost)>(action.shred.damage%action.shred.cost)
-                        if cast.able.brutalSlash() and talent.brutalSlash and range.dyn8AOE
+                        if cast.able.brutalSlash("player","aoe",ui.value("Brutal Slash Targets"),8) and talent.brutalSlash and range.dyn8AOE
                             and ((charges.brutalSlash.timeTillFull() < unit.gcd(true) and ui.useST(8,ui.value("Brutal Slash Targets")))
                             or ui.useAOE(8,ui.value("Brutal Slash Targets"))) 
                         then
-                            if cast.brutalSlash("player","aoe",1,8) then ui.debug("Casting Brutal Slash") return true end
+                            if cast.brutalSlash("player","aoe",ui.value("Brutal Slash Targets"),8) then ui.debug("Casting Brutal Slash") return true end
                         end
                         -- Swipe
                         -- swipe_cat,if=spell_targets.swipe_cat>1+buff.bs_inc.up*2
-                        if cast.able.swipeCat() and not talent.brutalSlash and #enemies.yards8 > 1 + (var.bsInc * 2) then
+                        if cast.able.swipeCat("player","aoe",1,8) and not talent.brutalSlash and #enemies.yards8 > 1 + (var.bsInc * 2) then
                             if cast.swipeCat("player","aoe",1,8) then ui.debug("Casting Swipe") return true end
                         end
                         -- Thrash
                         -- thrash_cat,if=spell_targets.thrash_cat>3
-                        if cast.able.thrashCat() and range.dyn8AOE and #enemies.yards8 >= 3 then
+                        if cast.able.thrashCat("player","aoe",1,8) and range.dyn8AOE and #enemies.yards8 >= 3 then
                             if cast.thrashCat("player","aoe",1,8) then ui.debug("Casting Thrash") return true end
                         end
                         -- Shred
