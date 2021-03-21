@@ -191,7 +191,6 @@ local debuff
 local enemies
 local energy, energyRegen, energyDeficit
 local equiped
-local essence
 local module
 local power
 local spell
@@ -213,7 +212,6 @@ local ticksGain = {}
 -- Variables
 var.bsInc = 0
 var.clearcasting = 0
-var.enemyBlood = 0
 var.fbMaxEnergy = false
 var.friendsInRange = false
 var.getTime = br._G.GetTime()
@@ -1292,7 +1290,6 @@ local function runRotation()
         debuff          = br.player.debuff
         enemies         = br.player.enemies
         equiped         = br.player.equiped
-        essence         = br.player.essence
         module          = br.player.module
         opener          = br.player.opener
         race            = br.player.race
@@ -1341,12 +1338,6 @@ local function runRotation()
     end
     var.unit5ID = br.GetObjectID(units.dyn5) or 0
     var.noDoT = var.unit5ID == 153758 or var.unit5ID == 156857 or var.unit5ID == 156849 or var.unit5ID == 156865 or var.unit5ID == 156869
-
-    -- Blood of the Enemy
-    var.enemyBlood = essence.bloodOfTheEnemy.active and 1 or 0
-
-    -- Jagged Wounds Rip Duration Adj
-    var.ripDuration = talent.jaggedWounds and 1.6 * (24 / 2) or 24
 
     -- Sabertooth
     var.sabertooth = talent.sabertooth and 1 or 0
