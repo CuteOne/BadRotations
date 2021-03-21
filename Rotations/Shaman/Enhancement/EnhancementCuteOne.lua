@@ -354,7 +354,7 @@ actionList.AOE = function()
     -- end
     -- Crash Lightning
     -- crash_lightning,if=runeforge.doom_winds.equipped&buff.doom_winds.up
-    if cast.able.crashLightning("player","cone",1,8) and #enemies.yards8c > 0 and runeforge.doomWinds.equiped and buff.doomWinds.exists() then
+    if #enemies.yards8c > 0 and cast.able.crashLightning("player","cone",1,8) and runeforge.doomWinds.equiped and buff.doomWinds.exists() then
         if cast.crashLightning("player","cone",1,8) then ui.debug("Casting Crash Lightning [AOE Doom Winds]") return true end
     end
     -- Frost Shock
@@ -364,7 +364,7 @@ actionList.AOE = function()
     end
     -- Sundering
     -- sundering
-    if ui.alwaysCdNever("Sundering") and cast.able.sundering("player","rect",1,11) and #enemies.yards11r > 0 then
+    if ui.alwaysCdNever("Sundering") and #enemies.yards11r > 0 and cast.able.sundering("player","rect") then
         if cast.sundering("player","rect",1,11) then ui.debug("Casting Sundering [AOE]") return true end
     end
     -- Flame Shock
@@ -384,7 +384,7 @@ actionList.AOE = function()
     end
     -- Fire Nova
     -- fire_nova,if=active_dot.flame_shock>=3
-    if cast.able.fireNova("player","aoe",1,8) and debuff.flameShock.count() >= 3 then
+    if #enemies.yards8 > 0 and cast.able.fireNova("player","aoe",1,8) and debuff.flameShock.count() >= 3 then
         if cast.fireNova("player","aoe",1,8) then ui.debug("Casting Fire Nova [AOE 3+ Flame Shock]") return true end
     end
     -- Vesper Totem
@@ -404,7 +404,7 @@ actionList.AOE = function()
     end
     -- Crash Lightning
     -- crash_lightning,if=talent.crashing_storm.enabled|buff.crash_lightning.down
-    if cast.able.crashLightning("player","cone",1,8) and #enemies.yards8c > 0 and (talent.crashingStorm or not buff.crashLightning.exists()) then
+    if #enemies.yards8c > 0 and cast.able.crashLightning("player","cone",1,8) and (talent.crashingStorm or not buff.crashLightning.exists()) then
         if cast.crashLightning("player","cone",1,8) then ui.debug("Casting Crash Lightning [AOE Crashing Storm / No Buff]") return true end
     end
     -- Lava Lash
@@ -424,7 +424,7 @@ actionList.AOE = function()
     end
     -- Crash Lightning
     -- crash_lightning
-    if cast.able.crashLightning("player","cone",1,8) and #enemies.yards8c > 0 then
+    if #enemies.yards8c > 0 and cast.able.crashLightning("player","cone",1,8) then
         if cast.crashLightning("player","cone",1,8) then ui.debug("Casting Crash Lightning [AOE]") return true end
     end
     -- Chain Harvest
@@ -499,7 +499,7 @@ actionList.AOE = function()
     end
     -- Fire Nova
     -- fire_nova,if=active_dot.flame_shock>1
-    if cast.able.fireNova("player","aoe",1,8) and debuff.flameShock.count() > 1 then
+    if #enemies.yards8 > 0 and cast.able.fireNova("player","aoe",1,8) and debuff.flameShock.count() > 1 then
         if cast.fireNova("player","aoe",1,8) then ui.debug("Casting Fire Nova [AOE 2+ Flame Shock]") return true end
     end
     -- Earthen Spike
@@ -557,7 +557,7 @@ actionList.Single = function()
     end
     -- Crash Lightning
     -- crash_lightning,if=runeforge.doom_winds.equipped&buff.doom_winds.up
-    if cast.able.crashLightning("player","cone",1,8) and #enemies.yards8c > 0 and runeforge.doomWinds.equiped and buff.doomWinds.exists() then
+    if #enemies.yards8c > 0 and cast.able.crashLightning("player","cone",1,8) and runeforge.doomWinds.equiped and buff.doomWinds.exists() then
         if cast.crashLightning("player","cone",1,8) then ui.debug("Casting Crash Lightning [ST - Doom Winds]") return true end
     end
     -- Ice Strike
@@ -632,7 +632,7 @@ actionList.Single = function()
     end
     -- Crash Lightning
     -- crash_lightning
-    if cast.able.crashLightning("player","cone",1,8) and #enemies.yards8c > 0 then
+    if #enemies.yards8c > 0 and cast.able.crashLightning("player","cone",1,8) then
         if cast.crashLightning("player","cone",1,8) then ui.debug("Casting Crash Lightning [ST]") return true end
     end
     -- Flame Shock
@@ -657,12 +657,12 @@ actionList.Single = function()
     end
     -- Sundering
     -- sundering,if=raid_event.adds.in>=40
-    if ui.alwaysCdNever("Sundering") and cast.able.sundering("player","rect",1,11) and #enemies.yards11r > 0 then
+    if ui.alwaysCdNever("Sundering") and #enemies.yards11r > 0 and cast.able.sundering("player","rect",1,11) then
         if cast.sundering("player","rect",1,11) then ui.debug("Casting Sundering [ST]") return true end
     end
     -- Fire Nova
     -- fire_nova,if=active_dot.flame_shock
-    if cast.able.fireNova("player","aoe",1,8) and debuff.flameShock.count() > 1 then
+    if #enemies.yards8 > 0 and cast.able.fireNova("player","aoe",1,8) and debuff.flameShock.count() > 1 then
         if cast.fireNova("player","aoe",1,8) then ui.debug("Casting Fire Nova [ST]") return true end
     end
     -- Lightning Bolt
