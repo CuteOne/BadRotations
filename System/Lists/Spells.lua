@@ -394,7 +394,7 @@ br.lists.spells = {
                 raiseDead                   = 46585,
                 runeStrike                  = 316239,
                 runeforging                 = 53428,
-                sacraficialPact             = 327574,
+                sacrificialPact             = 327574,
             },
             artifacts                       = {
 

@@ -165,10 +165,12 @@ local covenant
 local debuff
 local enemies
 local module
+local pet
 local runeforge
 local runicPower
 local runicPowerDeficit
 local runes
+local runesDeficit
 local runesTTM
 local spell
 local talent
@@ -200,8 +202,8 @@ actionList.Extras = function()
     end
     -- Chains of Ice
     if ui.checked("Chains of Ice") and cast.able.chainsOfIce() then
-        for i = 1, #enemies.yards30 do
-            local thisUnit = enemies.yards30[i]
+        for i = 1, #enemies.yards30f do
+            local thisUnit = enemies.yards30f[i]
             if not debuff.chainsOfIce.exists(thisUnit) and not unit.facing(thisUnit,"player") and unit.facing("player",thisUnit)
                 and unit.moving(thisUnit) and unit.distance(thisUnit) > 8 and unit.inCombat()
             then
@@ -211,8 +213,8 @@ actionList.Extras = function()
     end
     -- Death Grip
     if ui.checked("Death Grip") and cast.able.deathGrip() and unit.inCombat() then
-        for i = 1, #enemies.yards30 do
-            local thisUnit = enemies.yards30[i]
+        for i = 1, #enemies.yards30f do
+            local thisUnit = enemies.yards30f[i]
             if unit.distance(thisUnit) > 10 and not unit.isDummy(thisUnit)
                 and ((not unit.facing(thisUnit) and unit.moving(thisUnit)) or not unit.moving(thisUnit))                
             then
@@ -232,8 +234,8 @@ actionList.Defensive = function()
         if ui.checked("Anti-Magic Shell") and cast.able.antiMagicShell() then
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
-                if unit.isCasting(thisUnit) and unit.isUnit(br._G.UnitTarget(thisUnit),"player")
-                    and cast.timeRemain(thisUnit) < unit.gcd(true) * 2
+                if unit.isCasting(thisUnit) and unit.isUnit(br._G.UnitTarget(thisUnit),"player") 
+                    and cast.timeRemain(thisUnit) >= unit.gcd(true) * 2
                 then
                     if cast.antiMagicShell("player") then ui.debug("Casting Anti-Magic Shell") return true end
                 end
@@ -284,8 +286,8 @@ actionList.Interrupts = function()
         if not buff.antiMagicShell.exists() then
             -- Death Grip
             if ui.checked("Death Grip - Interrupt") and cast.able.deathGrip() then
-                for i = 1, #enemies.yards30 do
-                    local thisUnit = enemies.yards30[i]
+                for i = 1, #enemies.yards30f do
+                    local thisUnit = enemies.yards30f[i]
                     if unit.distance(thisUnit) > 10 and unit.moving(thisUnit)
                         and unit.interruptable(thisUnit,ui.value("Interrupt At"))
                     then
@@ -295,8 +297,8 @@ actionList.Interrupts = function()
             end
             -- Mind Freeze
             if ui.checked("Mind Freeze") and cast.able.mindFreeze() then
-                for i=1, #enemies.yards15 do
-                    local thisUnit = enemies.yards15[i]
+                for i=1, #enemies.yards15f do
+                    local thisUnit = enemies.yards15f[i]
                     if unit.interruptable(thisUnit,ui.value("Interrupt At")) then
                         if cast.mindFreeze(thisUnit) then ui.debug("Casting Mind Freeze") return true end
                     end
@@ -304,8 +306,8 @@ actionList.Interrupts = function()
             end
             --Asphyxiate
             if ui.checked("Asphyxiate") and cast.able.asphyxiate() then
-                for i=1, #enemies.yards20 do
-                    local thisUnit = enemies.yards20[i]
+                for i=1, #enemies.yards20f do
+                    local thisUnit = enemies.yards20f[i]
                     if unit.interruptable(thisUnit,ui.value("Interrupt At")) then
                         if cast.asphyxiate(thisUnit) then ui.debug("Casting Asphixiate") return true end
                     end
@@ -353,34 +355,65 @@ actionList.ColdHeart = function()
     end
 end -- End Action List - Cold Heart
 
--- Action List - Cooldowns
-actionList.Cooldowns = function()
-    var.profileDebug = "Cooldowns"
+-- Action List - Racials
+actionList.Racials = function()
+    if unit.distance(units.dyn5) < 5 then
+        -- Racial: Orc Blood Fury | Troll Berserking
+        if ui.checked("Racial") and ui.useCDs() and cast.able.racial() then
+            -- blood_fury,if=buff.pillar_of_frost.up
+            if unit.race() == "Orc" and buff.pillarOfFrost.exists() then
+                if cast.racial() then ui.debug("Casting Racial") return true end
+            end
+            -- berserking,if=buff.pillar_of_frost.up
+            if unit.race() == "Troll" and buff.pillarOfFrost.exists() then
+                if cast.racial() then ui.debug("Casting Racial") return true end
+            end
+            -- arcane_pulse,if=(!buff.pillar_of_frost.up&active_enemies>=2)|!buff.pillar_of_frost.up&(rune.deficit>=5&runic_power.deficit>=60)
+            if unit.race() == "BloodElf" and not buff.pillarOfFrost.exists() and (ui.useAOE(5,2) or (runesDeficit >= 5 and runicPowerDeficit >= 60)) then
+                if cast.racial() then ui.debug("Casting Racial") return true end
+            end
+            -- lights_judgment,if=buff.pillar_of_frost.up
+            if unit.race() == "LightforgedDraenei" and buff.pillarOfFrost.exists() then
+                if cast.racial() then ui.debug("Casting Racial") return true end
+            end
+            -- ancestral_call,if=buff.pillar_of_frost.up&buff.empower_rune_weapon.up
+            if unit.race() == "MagharOrc" and buff.pillarOfFrost.exists() and buff.empowerRuneWeapon.exists() then
+                if cast.racial() then ui.debug("Casting Racial") return true end
+            end
+            -- fireblood,if=buff.pillar_of_frost.remains<=8&buff.empower_rune_weapon.up
+            if buff.pillarOfFrost.exists() and unit.race() == "DarkIronDwarf" and buff.pillarOfFrost.remains() <= 8 and buff.empowerRuneWeapon.exists() then
+                if cast.racial() then ui.debug("Casting Racial") return true end
+            end
+            -- bag_of_tricks,if=buff.pillar_of_frost.up&active_enemies=1&(buff.pillar_of_frost.remains<5&talent.cold_heart.enabled|!talent.cold_heart.enabled&buff.pillar_of_frost.remains<3)
+        end
+    end
+end -- End Action List - Racials
+
+-- Action List - Trinkets
+actionList.Trinkets = function()
+    -- use_item,name=inscrutable_quantum_device,if=buff.pillar_of_frost.up|target.time_to_pct_20<5|fight_remains<21
+    -- use_item,slot=trinket1,if=!variable.specified_trinket&buff.pillar_of_frost.up&(!talent.icecap|talent.icecap&buff.pillar_of_frost.remains>=10)&(!trinket.2.has_cooldown|trinket.2.cooldown.remains|variable.trinket_priority=1)|trinket.1.proc.any_dps.duration>=fight_remains
+    -- use_item,slot=trinket2,if=!variable.specified_trinket&buff.pillar_of_frost.up&(!talent.icecap|talent.icecap&buff.pillar_of_frost.remains>=10)&(!trinket.1.has_cooldown|trinket.1.cooldown.remains|variable.trinket_priority=2)|trinket.2.proc.any_dps.duration>=fight_remains
+    -- use_item,slot=trinket1,if=!trinket.1.has_use_buff&(trinket.2.cooldown.remains|!trinket.2.has_use_buff)|cooldown.pillar_of_frost.remains>20
+    -- use_item,slot=trinket2,if=!trinket.2.has_use_buff&(trinket.1.cooldown.remains|!trinket.1.has_use_buff)|cooldown.pillar_of_frost.remains>20
     if unit.distance(units.dyn5) < 5 then
         -- Trinkets
         -- use_items,if=cooldown.pillar_of_frost.ready|cooldown.pillar_of_frost.remains>20
         if (cd.pillarOfFrost.remain() == 0 or cd.pillarOfFrost.remain() > 20) then
             module.BasicTrinkets()
         end
+    end
+end -- End Action List - Trinkets
+
+-- Action List - Cooldowns
+actionList.Cooldowns = function()
+    var.profileDebug = "Cooldowns"
+    if unit.distance(units.dyn5) < 5 then
         -- Potion
-        -- potion,if=buff.pillar_of_frost.up&buff.empower_rune_weapon.up
+        -- potion,if=buff.pillar_of_frost.up
         if ui.checked("Potion") and ui.useCDs() and unit.instance("raid") then
-            if buff.pillarOfFrost.exists() and buff.empowerRuneWeapon.exists() then
+            if buff.pillarOfFrost.exists() then
                 use.potionOfProlongedPower()
-            end
-        end
-        -- Racial: Orc Blood Fury | Troll Berserking
-        -- blood_fury,if=buff.pillar_of_frost.up&buff.empower_rune_weapon.up
-        -- berserking,if=buff.pillar_of_frost.up
-        -- lights_judgment,if=buff.pillar_of_frost.up
-        -- ancestral_call,if=buff.pillar_of_frost.up&buff.empower_rune_weapon.up
-        -- fireblood,if=buff.pillar_of_frost.remains<=8&buff.empower_rune_weapon.up
-        if ui.checked("Racial") and ui.useCDs() and cast.able.racial() then
-            if (buff.pillarOfFrost.exists() and ((unit.race() == "Troll" or unit.race() == "LightforgedDraenei")
-                or ((unit.race() == "Orc" or unit.race() == "MagharOrc") and buff.empowerRuneWeapon.exists())))
-                or (unit.race() == "DarkIronDwarf" and buff.pillarOfFrost.remains() <= 8 and buff.empowerRuneWeapon.exists())
-            then
-                if cast.racial() then ui.debug("Casting Racial") return true end
             end
         end
         -- Empower Rune Weapon
@@ -391,8 +424,8 @@ actionList.Cooldowns = function()
             then
                 if cast.empowerRuneWeapon() then ui.debug("Casting Empower Rune Weapon [Obliteration]") return true end
             end
-            -- empower_rune_weapon,if=talent.breath_of_sindragosa&runic_power.deficit>40&rune.time_to_5>gcd&(buff.breath_of_sindragosa.up|fight_remains<20)
-            if talent.breathOfSindragosa and runicPowerDeficit > 40 and runesTTM(5) > unit.gcd(true) and (var.breathOfSindragosaActive or unit.ttdGroup(5) < 20) then
+            -- empower_rune_weapon,if=talent.breath_of_sindragosa&runic_power.deficit>30&rune.time_to_5>gcd&(buff.breath_of_sindragosa.up|fight_remains<20)
+            if talent.breathOfSindragosa and runicPowerDeficit > 30 and runesTTM(5) > unit.gcd(true) and (var.breathOfSindragosaActive or unit.ttdGroup(5) < 20) then
                 if cast.empowerRuneWeapon() then ui.debug("Casting Empower Rune Weapon [Breath of Sindragosa]") return true end
             end
             -- empower_rune_weapon,if=talent.icecap&rune<3
@@ -402,8 +435,8 @@ actionList.Cooldowns = function()
         end
         -- Pillar of Frost
         if ui.alwaysCdNever("Pillar of Frost") and cast.able.pillarOfFrost() then
-            -- pillar_of_frost,if=talent.breath_of_sindragosa&(cooldown.breath_of_sindragosa.remains|cooldown.breath_of_sindragosa.ready&runic_power.deficit<60)
-            if talent.breathOfSindragosa and (cd.breathOfSindragosa.exists() or not var.breathOfSindragosaActive and runicPowerDeficit < 60) then
+            -- pillar_of_frost,if=talent.breath_of_sindragosa&(cooldown.breath_of_sindragosa.remains|cooldown.breath_of_sindragosa.ready&runic_power.deficit<50)
+            if talent.breathOfSindragosa and (cd.breathOfSindragosa.exists() or not var.breathOfSindragosaActive and runicPowerDeficit < 50) then
                 if cast.pillarOfFrost() then ui.debug("Casting Pillar of Frost [Breath of Sindragosa]") return true end
             end
             -- pillar_of_frost,if=talent.icecap&!buff.pillar_of_frost.up
@@ -421,23 +454,20 @@ actionList.Cooldowns = function()
             if cast.breathOfSindragosa(nil,"cone",1,8) then ui.debug("Casting Breath of Sindragosa") return true end
         end
         -- Frostwyrm's Fury
-        if ui.alwaysCdNever("Frostwyrm's Fury") and cast.able.frostwyrmsFury() then
+        if ui.alwaysCdNever("Frostwyrm's Fury") and cast.able.frostwyrmsFury("player","cone",1,40) then
             -- frostwyrms_fury,if=buff.pillar_of_frost.remains<gcd&buff.pillar_of_frost.up&!talent.obliteration
-            if cast.able.frostwyrmsFury() and (buff.pillarOfFrost.remain() < unit.gcd(true) and buff.pillarOfFrost.exists() and not talent.obliteration) then
-                if cast.frostwyrmsFury() then ui.debug("Casting Frostwyrm's Fury") return true end
+            if (buff.pillarOfFrost.remain() < unit.gcd(true) and buff.pillarOfFrost.exists() and not talent.obliteration) then
+                if cast.frostwyrmsFury("player","cone",1,40) then ui.debug("Casting Frostwyrm's Fury") return true end
             end
             -- frostwyrms_fury,if=active_enemies>=2&(buff.pillar_of_frost.up&buff.pillar_of_frost.remains<gcd|raid_event.adds.exists&raid_event.adds.remains<gcd|fight_remains<gcd)
-            if cast.able.frostwyrmsFury() and (#enemies.yards40r >= ui.value("Frostwyrm's Fury Units")
-                and (buff.pillarOfFrost.exists() and buff.pillarOfFrost.remain() < unit.gcd(true) or unit.ttdGroup(5) < unit.gcd(true)))
+            if (#enemies.yards40r >= ui.value("Frostwyrm's Fury Units")
+                and (buff.pillarOfFrost.exists("player","cone",1,40) and buff.pillarOfFrost.remain() < unit.gcd(true) or unit.ttdGroup(5) < unit.gcd(true)))
             then
                 if cast.frostwyrmsFury() then ui.debug("Casting Frostwyrm's Fury [AOE]") return true end
             end
             -- frostwyrms_fury,if=talent.obliteration&!buff.pillar_of_frost.up&((buff.unholy_strength.up|!death_knight.runeforge.fallen_crusader)&(debuff.razorice.stack=5|!death_knight.runeforge.razorice))
-            if cast.able.frostwyrmsFury() and (talent.obliteration and not buff.pillarOfFrost.exists()
-                and ((buff.unholyStrength.exists() or not var.fallenCrusader)
-                    and (debuff.razorice.stack() == 5 or not var.razorice)))
-            then
-                if cast.frostwyrmsFury() then ui.debug("Casting Frostwyrm's Fury [Obliteration]") return true end
+            if (talent.obliteration and not buff.pillarOfFrost.exists() and ((buff.unholyStrength.exists() or not var.fallenCrusader) and (debuff.razorice.stack() == 5 or not var.razorice))) then
+                if cast.frostwyrmsFury("player","cone",1,40) then ui.debug("Casting Frostwyrm's Fury [Obliteration]") return true end
             end
         end
         -- Hypothermic Presence
@@ -451,6 +481,11 @@ actionList.Cooldowns = function()
         -- raise_dead,if=buff.pillar_of_frost.up
         if ui.alwaysCdNever("Raise Dead") and cast.able.raiseDead() and (buff.pillarOfFrost.exists()) then
             if cast.raiseDead() then ui.debug("Casting Raise Dead") return true end
+        end
+        -- Sacrificial Pact
+        -- sacrificial_pact,if=active_enemies>=2&(pet.ghoul.remains<gcd|target.time_to_die<gcd)
+        if cast.able.sacrificialPact() and #enemies.yards5 >= 2 and (pet.ghost.remains() < unit.gcd(true) or unit.ttd(units.dyn5) < unit.gcd(true)) then
+            if cast.sacrificialPact() then ui.debug("Casting Sacrificial Pact") return true end
         end
         -- Death and Decay
         -- death_and_decay,if=active_enemies>5|runeforge.phearomones
@@ -468,38 +503,45 @@ actionList.Covenants = function()
         if cast.deathsDue("best",nil,2,8) then ui.debug("Casting Death's Due") return true end
     end
     -- Swarming Mist
-    -- swarming_mist,if=active_enemies=1&runic_power.deficit>3&cooldown.pillar_of_frost.remains<3&!talent.breath_of_sindragosa&(!raid_event.adds.exists|raid_event.adds.in>15)
-    if cast.able.swarmingMist() and ui.useST(8,2) and runicPowerDeficit > 3 and cd.pillarOfFrost.remains() < 3 and not talent.breathOfSindragosa then
-        if cast.swarmingMist("player","aoe",1,8) then ui.debug("Casting Swarming Mist") return true end
-    end
-    -- swarming_mist,if=active_enemies>=2&!talent.breath_of_sindragosa
-    if cast.able.swarmingMist() and ui.useAOE(8,2) and not talent.breathOfSindragosa then
-        if cast.swarmingMist("player","aoe",2,8) then ui.debug("Casting Swarming Mist [AOE]") return true end
-    end
-    -- swarming_mist,if=talent.breath_of_sindragosa&(buff.breath_of_sindragosa.up&(active_enemies=1&runic_power.deficit>40|active_enemies>=2&runic_power.deficit>60)|!buff.breath_of_sindragosa.up&cooldown.breath_of_sindragosa.remains)
-    if cast.able.swarmingMist() and talent.breathOfSindragosa 
-        and ((buff.breathOfSindragosa.exists() and ((ui.useST(8,2) and runicPowerDeficit > 40) or (ui.useAOE(8,2) and runicPowerDeficit > 60)))
-            or (not buff.breathOfSindragosa.exists() and cd.breathOfSindragosa.exists()))
-    then
-        if cast.swarmingMist("player","aoe",2,8) then ui.debug("Casting Swarming Mist [Breath of Sindragosa]") return true end
+    if cast.able.swarmingMist("player","aoe",1,8) then
+        -- swarming_mist,if=active_enemies=1&runic_power.deficit>3&cooldown.pillar_of_frost.remains<3&!talent.breath_of_sindragosa&(!raid_event.adds.exists|raid_event.adds.in>15)
+        if ui.useST(8,2) and runicPowerDeficit > 3 and cd.pillarOfFrost.remains() < 3 and not talent.breathOfSindragosa then
+            if cast.swarmingMist("player","aoe",1,8) then ui.debug("Casting Swarming Mist") return true end
+        end
+        -- swarming_mist,if=active_enemies>=2&!talent.breath_of_sindragosa
+        if ui.useAOE(8,2) and not talent.breathOfSindragosa then
+            if cast.swarmingMist("player","aoe",2,8) then ui.debug("Casting Swarming Mist [AOE]") return true end
+        end
+        -- swarming_mist,if=talent.breath_of_sindragosa&(buff.breath_of_sindragosa.up&(active_enemies=1&runic_power.deficit>40|active_enemies>=2&runic_power.deficit>60)|!buff.breath_of_sindragosa.up&cooldown.breath_of_sindragosa.remains)
+        if talent.breathOfSindragosa and ((buff.breathOfSindragosa.exists() and ((ui.useST(8,2) and runicPowerDeficit > 40)
+            or (ui.useAOE(8,2) and runicPowerDeficit > 60))) or (not buff.breathOfSindragosa.exists() and cd.breathOfSindragosa.exists()))
+        then
+            if cast.swarmingMist("player","aoe",2,8) then ui.debug("Casting Swarming Mist [Breath of Sindragosa]") return true end
+        end
     end
     -- Abomintation Limb
-    -- abomination_limb,if=active_enemies=1&cooldown.pillar_of_frost.remains<3&(!raid_event.adds.exists|raid_event.adds.in>15)
-    if cast.able.abominationLimb() and ui.useST(20,2) and cd.pillarOfFrost.remains() < 3 then
-        if cast.abominationLimb("player","aoe",1,20) then ui.debug("Casting Abomination Limb") return true end
-    end
-    -- abomination_limb,if=active_enemies>=2
-    if cast.able.abominationLimb() and ui.useAOE(20,2) then
-        if cast.abominationLimb("player","aoe",2,20) then ui.debug("Casting Abomination Limb [AOE]") return true end
+    if cast.able.abominationLimb("player","aoe",1,20) then
+        -- abomination_limb,if=active_enemies=1&cooldown.pillar_of_frost.remains<3&(!raid_event.adds.exists|raid_event.adds.in>15)&(talent.breath_of_sindragosa&runic_power.deficit<60&cooldown.breath_of_sindragosa.remains<2|!talent.breath_of_sindragosa)
+        if ui.useST(20,2) and cd.pillarOfFrost.remains() < 3 and ui.useCDs()
+            and ((talent.breathOfSindragosa and runicPowerDeficit < 60 and cd.breathOfSindragosa.remains() < 2) or not talent.breathOfSindragosa)
+        then
+            if cast.abominationLimb("player","aoe",1,20) then ui.debug("Casting Abomination Limb") return true end
+        end
+        -- abomination_limb,if=active_enemies>=2
+        if ui.useAOE(20,2) then
+            if cast.abominationLimb("player","aoe",2,20) then ui.debug("Casting Abomination Limb [AOE]") return true end
+        end
     end
     -- Shackle The Unworthy
-    -- shackle_the_unworthy,if=active_enemies=1&cooldown.pillar_of_frost.remains<3&(!raid_event.adds.exists|raid_event.adds.in>15)
-    if cast.able.shackleTheUnworthy() and ui.useST(30,2) and cd.pillarOfFrost.remains() < 3 then
-        if cast.shackleTheUnworthy() then ui.debug("Casting Shackle the Unworthy") return true end
-    end
-    -- shackle_the_unworthy,if=active_enemies>=2
-    if cast.able.shackleTheUnworthy() and ui.useAOE(30,2) then
-        if cast.shackleTheUnworthy() then ui.debug("Casting Shackle the Unworthy [AOE]") return true end
+    if cast.able.shackleTheUnworthy() then
+        -- shackle_the_unworthy,if=active_enemies=1&cooldown.pillar_of_frost.remains<3&(!raid_event.adds.exists|raid_event.adds.in>15)
+        if cast.able.shackleTheUnworthy() and ui.useST(30,2) and cd.pillarOfFrost.remains() < 3 then
+            if cast.shackleTheUnworthy() then ui.debug("Casting Shackle the Unworthy") return true end
+        end
+        -- shackle_the_unworthy,if=active_enemies>=2
+        if cast.able.shackleTheUnworthy() and ui.useAOE(30,2) then
+            if cast.shackleTheUnworthy() then ui.debug("Casting Shackle the Unworthy [AOE]") return true end
+        end
     end
 end -- End Action List - Covenants
 
@@ -508,13 +550,13 @@ actionList.BoSPooling = function()
     var.profileDebug = "Breath Of Sindragosa - Pooling"
     -- Howling Blast
     -- howling_blast,if=buff.rime.up
-    if cast.able.howlingBlast() and buff.rime.exists() then
-        if cast.howlingBlast() then ui.debug("Casting Howling Blast [BoS Pool]") return true end
+    if cast.able.howlingBlast(units.dyn30,"aoe",1,10) and buff.rime.exists() then
+        if cast.howlingBlast(units.dyn30,"aoe",1,10) then ui.debug("Casting Howling Blast [BoS Pool]") return true end
     end
     -- Remorseless Winter
     -- remorseless_winter,if=active_enemies>=2|rune.time_to_5<=gcd&(talent.gathering_storm|conduit.everfrost|runeforge.biting_cold)
-    if cast.able.remorselessWinter() and (ui.useAOE(8,2) or runesTTM(5) <= unit.gcd(true) and (talent.gatheringStorm or conduit.everfrost.enabled or runeforge.bitingCold.equiped)) then
-        if cast.remorselessWinter() then ui.debug("Casting Remorseless Winter [BoS Pool]") return true end
+    if cast.able.remorselessWinter("player","aoe",1,8) and (ui.useAOE(8,2) or runesTTM(5) <= unit.gcd(true) and (talent.gatheringStorm or conduit.everfrost.enabled or runeforge.bitingCold.equiped)) then
+        if cast.remorselessWinter("player","aoe",1,8) then ui.debug("Casting Remorseless Winter [BoS Pool]") return true end
     end
     -- Obliterate
     -- obliterate,target_if=max:(debuff.razorice.stack+1)%(debuff.razorice.remains+1)*death_knight.runeforge.razorice,if=runic_power.deficit>=25
@@ -523,8 +565,8 @@ actionList.BoSPooling = function()
     end
     -- Glacial Advance
     -- glacial_advance,if=runic_power.deficit<20&spell_targets.glacial_advance>=2&cooldown.pillar_of_frost.remains>5
-    if cast.able.glacialAdvance() and runicPowerDeficit < 20 and #enemies.yards20r >= ui.value("Glacial Advance") and cd.pillarOfFrost.remain() > 5 then
-        if cast.glacialAdvance(nil,"rect",1,10) then ui.debug("Casting Glacial Advance [BoS Pool - Pillar of Frost CD]") return true end
+    if cast.able.glacialAdvance("player","rect",1,10) and runicPowerDeficit < 20 and #enemies.yards20r >= ui.value("Glacial Advance") and cd.pillarOfFrost.remain() > 5 then
+        if cast.glacialAdvance("player","rect",1,10) then ui.debug("Casting Glacial Advance [BoS Pool - Pillar of Frost CD]") return true end
     end
     -- Frost Strike
     -- frost_strike,target_if=max:(debuff.razorice.stack+1)%(debuff.razorice.remains+1)*death_knight.runeforge.razorice,if=runic_power.deficit<20&cooldown.pillar_of_frost.remains>5
@@ -532,31 +574,26 @@ actionList.BoSPooling = function()
         if cast.frostStrike(var.maxRazorice) then ui.debug("Casting Frost Strike [BoS Pool - Pillar of Frost CD]") return true end
     end
     -- Frostscythe
-    if cast.able.frostscythe() then
-        -- frostscythe,if=buff.killing_machine.up&runic_power.deficit>(15+talent.runic_attenuation*3)&spell_targets.frostscythe>=2&(buff.deaths_due.stack=8|!death_and_decay.ticking|!covenant.night_fae)
+    if cast.able.frostscythe("player","cone",1,8) then
+        -- frostscythe,if=buff.killing_machine.react&runic_power.deficit>(15+talent.runic_attenuation*3)&spell_targets.frostscythe>=2&(buff.deaths_due.stack=8|!death_and_decay.ticking|!covenant.night_fae)
         if (buff.killingMachine.exists() and runicPowerDeficit > (15 + var.attenuation * 3))
             and (not buff.deathdDue.stack() == 8 or not buff.deathAndDecay.exists() or not covenant.nightFae.active)
-            and enemies.yards8c >= 2
+            and #enemies.yards8c >= 2
         then
-            if cast.frostscythe() then ui.debug("Casting Frostscythe [BoS Pool - Killing Machine]") return true end
+            if cast.frostscythe("player","cone",1,8) then ui.debug("Casting Frostscythe [BoS Pool - Killing Machine]") return true end
         end
         -- frostscythe,if=runic_power.deficit>=(35+talent.runic_attenuation*3)&spell_targets.frostscythe>=2&(buff.deaths_due.stack=8|!death_and_decay.ticking|!covenant.night_fae)
-        if (runicPowerDeficit > (15 + var.attenuation * 3) and enemies.yards8c >= 2)
+        if (runicPowerDeficit > (15 + var.attenuation * 3) and #enemies.yards8c >= 2)
             and (not buff.deathdDue.stack() == 8 or not buff.deathAndDecay.exists() or not covenant.nightFae.active)
         then
-            if cast.frostscythe() then ui.debug("Casting Frostscythe [BoS Pool]") return true end
+            if cast.frostscythe("player","cone",1,8) then ui.debug("Casting Frostscythe [BoS Pool]") return true end
         end
-    end
-    -- Obliterate
-    -- obliterate,target_if=max:(debuff.razorice.stack+1)%(debuff.razorice.remains+1)*death_knight.runeforge.razorice,if=runic_power.deficit>=(35+talent.runic_attenuation*3)
-    if cast.able.obliterate(var.maxRazorice) and runicPowerDeficit >= (35 + var.attenuation * 3) then
-        if cast.obliterate(var.maxRazorice) then ui.debug("Casting Obliterate [BoS Pool]") return true end
     end
     -- Glacial Advance
     -- glacial_advance,if=cooldown.pillar_of_frost.remains>rune.time_to_4&runic_power.deficit<40&spell_targets.glacial_advance>=2
-    if cast.able.glacialAdvance() and (cd.pillarOfFrost.remain() > runesTTM(4) and runicPowerDeficit < 40
+    if cast.able.glacialAdvance("player","rect",1,10) and (cd.pillarOfFrost.remain() > runesTTM(4) and runicPowerDeficit < 40
         and ((ui.mode.rotation == 1 and #enemies.yards20r >= ui.value("Glacial Advance")) or (ui.mode.rotation == 2 and #enemies.yards20r > 0))) then
-        if cast.glacialAdvance(nil,"rect",1,10) then ui.debug("Casting Glacial Advance [BoS Pool]") return true end
+        if cast.glacialAdvance("player","rect",1,10) then ui.debug("Casting Glacial Advance [BoS Pool]") return true end
     end
     -- Frost Strike
     -- frost_strike,target_if=max:(debuff.razorice.stack+1)%(debuff.razorice.remains+1)*death_knight.runeforge.razorice,if=cooldown.pillar_of_frost.remains>rune.time_to_4&runic_power.deficit<40
@@ -569,32 +606,34 @@ end -- End Action List - Breath of Sindragosa Pooling
 actionList.BoSTicking = function()
     var.profileDebug = "Breath Of Sindragosa - Ticking"
     -- Obliterate
-    -- obliterate,target_if=max:(debuff.razorice.stack+1)%(debuff.razorice.remains+1)*death_knight.runeforge.razorice,if=runic_power<=40
-    if cast.able.obliterate(var.maxRazorice) and (runicPower <= 40) then
+    -- obliterate,target_if=max:(debuff.razorice.stack+1)%(debuff.razorice.remains+1)*death_knight.runeforge.razorice,if=runic_power.deficit>=(45+talent.runic_attenuation*3)
+    if cast.able.obliterate(var.maxRazorice) and (runicPowerDeficit >= (45 + var.attenuation * 3)) then
         if cast.obliterate(var.maxRazorice) then ui.debug("Casting Obliterate [BoS Active - Power <= 40]") return true end
     end
     -- Remorseless Winter
-    -- remorseless_winter,if=talent.gathering_storm|conduit.everfrost|runeforge.biting_cold|active_enemies>=2
-    if cast.able.remorselessWinter() and (talent.gatheringStorm or conduit.everfrost or runeforge.bitingCold or #enemies.yards8 >= ui.value("Remorseless Winter")) then
-        if cast.remorselessWinter() then ui.debug("Casting Remorseless Winter [BoS Active]") return true end
+    -- remorseless_winter,if=talent.gathering_storm|conduit.everfrost|runeforge.biting_cold|active_enemies>=2|!talent.gathering_storm&!conduit.everfrost&!runeforge.biting_cold&runic_power<32
+    if cast.able.remorselessWinter("player","aoe",1,8) and (talent.gatheringStorm or conduit.everfrost or runeforge.bitingCold
+        or #enemies.yards8 >= ui.value("Remorseless Winter") or not talent.gatheringStorm and not conduit.everfrost.enabled and not runeforge.bitingCold and runicPower < 32)
+    then
+        if cast.remorselessWinter("player","aoe",1,8) then ui.debug("Casting Remorseless Winter [BoS Active]") return true end
+    end
+    -- Death and Decay
+    -- death_and_decay,if=runic_power<32
+    if cast.able.deathAndDecay("player","ground",1,8) and runicPower < 32 then
+        if cast.deathAndDecay("player","ground",1,8) then ui.debug("Casting Death and Decay [BoS Active]") return true end
     end
     -- Howling Blast
-    -- howling_blast,if=buff.rime.up
-    if cast.able.howlingBlast() and buff.rime.exists() then
-        if cast.howlingBlast() then ui.debug("Casting Howling Blast [BoS Active]") return true end
-    end
-    -- Obliterate
-    -- obliterate,target_if=max:(debuff.razorice.stack+1)%(debuff.razorice.remains+1)*death_knight.runeforge.razorice,if=rune.time_to_4<gcd|runic_power<=45
-    if cast.able.obliterate(var.maxRazorice) and (runesTTM(4) < unit.gcd(true) or runicPower <= 45) then
-        if cast.obliterate(var.maxRazorice) then ui.debug("Casting Obliterate [BoS Active - 4 Rune / Power <= 45]") return true end
+    -- howling_blast,if=buff.rime.up&(runic_power.deficit<55|rune.time_to_3<=gcd|spell_targets.howling_blast>=2)|runic_power<32
+    if cast.able.howlingBlast(units.dyn30,"aoe",1,10) and buff.rime.exists() and (runicPowerDeficit < 55 or runesTTM(3) <= unit.gcd(true) or #enemies.yards10t >= 2) or runicPower < 32 then
+        if cast.howlingBlast(units.dyn30,"aoe",1,10) then ui.debug("Casting Howling Blast [BoS Active]") return true end
     end
     -- Frostscythe
     -- frostscythe,if=buff.killing_machine.up&spell_targets.frostscythe>=2&(buff.deaths_due.stack=8|!death_and_decay.ticking|!covenant.night_fae)
-    if cast.able.frostscythe() and (buff.killingMachine.exists())
+    if cast.able.frostscythe("player","cone",1,8) and (buff.killingMachine.exists())
         and (buff.deathsDue.stack() == 8 or not buff.deathAndDecay.exists() or not covenant.nightFae.active)
-        and enemies.yards8c >= 2
+        and #enemies.yards8c >= 2
     then
-        if cast.frostscythe() then ui.debug("Casting Frostscythe [BoS Active - Killing Machine]") return true end
+        if cast.frostscythe("player","cone",1,8) then ui.debug("Casting Frostscythe [BoS Active - Killing Machine]") return true end
     end
     -- Horn of Winter
     -- horn_of_winter,if=runic_power.deficit>=32&rune.time_to_3>gcd
@@ -603,16 +642,21 @@ actionList.BoSTicking = function()
     end
     -- Frostscythe
     -- frostscythe,if=spell_targets.frostscythe>=2&(buff.deaths_due.stack=8|!death_and_decay.ticking|!covenant.night_fae)
-    if cast.able.frostscythe() and ((ui.mode.rotation == 1 and enemies.yards8c >= 2) or (ui.mode.rotation == 2 and enemies.yards8c > 0))
+    if cast.able.frostscythe("player","cone",1,8) and ((ui.mode.rotation == 1 and #enemies.yards8c >= 2) or (ui.mode.rotation == 2 and #enemies.yards8c > 0))
         and (buff.deathsDue.stack() == 8 or not buff.deathAndDecay.exists() or not covenant.nightFae.active)
     then
-        if cast.frostscythe() then ui.debug("Casting Frostscythe [BoS Active]") return true end
+        if cast.frostscythe("player","cone",1,8) then ui.debug("Casting Frostscythe [BoS Active]") return true end
     end
     -- Obliterate
-    -- obliterate,target_if=max:(debuff.razorice.stack+1)%(debuff.razorice.remains+1)*death_knight.runeforge.razorice,if=runic_power.deficit>25|rune>3
-    if cast.able.obliterate(var.maxRazorice) and (runicPowerDeficit > 25 or runes > 3) then
+    -- obliterate,target_if=max:(debuff.razorice.stack+1)%(debuff.razorice.remains+1)*death_knight.runeforge.razorice,if=runic_power.deficit>25|rune.time_to_3<gcd
+    if cast.able.obliterate(var.maxRazorice) and (runicPowerDeficit > 25 or runesTTM(3) < unit.gcd(true)) then
         if cast.obliterate(var.maxRazorice) then ui.debug("Casting Obliterate [BoS Active]") return true end
     end
+    -- Howling Blast
+    -- howling_blast,if=buff.rime.up
+    if cast.able.howlingBlast(units.dyn30,"aoe",1,10) and buff.rime.exists() then
+        if cast.howlingBlast(units.dyn30,"aoe",1,10) then ui.debug("Casting Howling Blast [BoS Active Rime]") return true end
+    end   
     -- Racial: Arcane Torrent
     -- arcane_torrent,if=runic_power.deficit>50
     if cast.able.racial() and (runicPowerDeficit > 50 and unit.race() == "BloodElf") then
@@ -625,38 +669,38 @@ actionList.Obliteration = function()
     var.profileDebug = "Obliteration"
     -- Remorseless Winter
     -- remorseless_winter,if=active_enemies>=3&(talent.gathering_storm|conduit.everfrost|runeforge.biting_cold)
-    if cast.able.remorselessWinter() and #enemies.yards8 >= ui.value("Remorseless Winter")
+    if cast.able.remorselessWinter("player","aoe",1,8) and #enemies.yards8 >= ui.value("Remorseless Winter")
         and (talent.gatheringStorm or conduit.everfrost or runeforge.bitingCold)
     then
-        if cast.remorselessWinter() then ui.debug("Casting Remorseless Winter [Obliteration]") return true end
+        if cast.remorselessWinter("player","aoe",1,8) then ui.debug("Casting Remorseless Winter [Obliteration]") return true end
     end
     -- Howling Blast
     -- howling_blast,if=!dot.frost_fever.ticking&!buff.killing_machine.up
-    if cast.able.howlingBlast() and (not debuff.frostFever.exists(units.dyn5) and not buff.killingMachine.exists()
+    if cast.able.howlingBlast(units.dyn30,"aoe",1,10) and (not debuff.frostFever.exists(units.dyn5) and not buff.killingMachine.exists()
         and ((not buff.deathAndDecay.exists() and covenant.nightFae.active) or not covenant.nightFae.active))
     then
-        if cast.howlingBlast() then ui.debug("Casting Howling Blast [Obliteration]") return true end
+        if cast.howlingBlast(units.dyn30,"aoe",1,10) then ui.debug("Casting Howling Blast [Obliteration]") return true end
     end    
     -- Frostscythe
     -- frostscythe,if=buff.killing_machine.react&spell_targets.frostscythe>=2&(buff.deaths_due.stack=8|!death_and_decay.ticking|!covenant.night_fae)
-    if cast.able.frostscythe() and buff.killingMachine.exists() and ((ui.mode.rotation == 1 and enemies.yards8c >= 2) or (ui.mode.rotation == 2 and enemies.yards8c > 0))
+    if cast.able.frostscythe("player","cone",1,8) and buff.killingMachine.exists() and ((ui.mode.rotation == 1 and #enemies.yards8c >= 2) or (ui.mode.rotation == 2 and #enemies.yards8c > 0))
         and (buff.deathsDue.stack() == 8 or not buff.deathAndDecay.exists() or not covenant.nightFae.active)
     then
-        if cast.frostscythe() then ui.debug("Casting Frostscythe [Obliteration]") return true end
+        if cast.frostscythe("player","cone",1,8) then ui.debug("Casting Frostscythe [Obliteration]") return true end
     end
     -- Obliterate
     -- obliterate,target_if=max:(debuff.razorice.stack+1)%(debuff.razorice.remains+1)*death_knight.runeforge.razorice,if=buff.killing_machine.react|!buff.rime.up&spell_targets.howling_blast>=3
     if cast.able.obliterate(var.maxRazorice) and (buff.killingMachine.exists() or not buff.rime.exists()
-        and ((ui.mode.rotation == 1 and #enemies.yards10t >= 3) or (ui.mode.rotation == 2 and #enemies.yards10t > 0)))
+        and ((ui.mode.rotation == 1 and #enemies.yards5f >= 3) or (ui.mode.rotation == 2 and #enemies.yards5f > 0)))
     then
         if cast.obliterate(var.maxRazorice) then ui.debug("Casting Obliterate [Obliteration - Killing Machine / AoE]") return true end
     end
     -- Glacial Advance
     -- glacial_advance,if=spell_targets.glacial_advance>=2&(runic_power.deficit<10|rune.time_to_2>gcd)|(debuff.razorice.stack<5|debuff.razorice.remains<15)
-    if cast.able.glacialAdvance() and (((ui.mode.rotation == 1 and #enemies.yards20r >= ui.value("Glacial Advance")) or (ui.mode.rotation == 2 and #enemies.yards20r > 0))
+    if cast.able.glacialAdvance("player","rect",1,10) and (((ui.mode.rotation == 1 and #enemies.yards20r >= ui.value("Glacial Advance")) or (ui.mode.rotation == 2 and #enemies.yards20r > 0))
         and (runicPowerDeficit < 10 or runesTTM(2) > unit.gcd(true)) or (debuff.razorice.stack(units.dyn5) < 5 or debuff.razorice.remains(units.dyn5) < 15))
     then
-        if cast.glacialAdvance(nil,"rect",1,10) then ui.debug("Casting Glacial Advance [Obliteration - Low Resource / Razorice]") return true end
+        if cast.glacialAdvance("player","rect",1,10) then ui.debug("Casting Glacial Advance [Obliteration - Low Resource / Razorice]") return true end
     end
     -- Frost Strike
     -- frost_strike,if=conduit.eradicating_blow.enabled&buff.eradicating_blow.stack=2&active_enemies=1
@@ -665,15 +709,15 @@ actionList.Obliteration = function()
     end
     -- Howling Blast
     -- howling_blast,if=buff.rime.up&spell_targets.howling_blast>=2
-    if cast.able.howlingBlast() and (buff.rime.exists() and ((ui.mode.rotation == 1 and #enemies.yards10t >= 2) or (ui.mode.rotation == 2 and #enemies.yards10t > 0))) then
-        if cast.howlingBlast() then ui.debug("Casting Howling Blast [Obliteration - Rime AoE]") return true end
+    if cast.able.howlingBlast(units.dyn30,"aoe",1,10) and (buff.rime.exists() and ((ui.mode.rotation == 1 and #enemies.yards10t >= 2) or (ui.mode.rotation == 2 and #enemies.yards10t > 0))) then
+        if cast.howlingBlast(units.dyn30,"aoe",1,10) then ui.debug("Casting Howling Blast [Obliteration - Rime AoE]") return true end
     end
     -- Glacial Advance
     -- glacial_advance,if=spell_targets.glacial_advance>=2&(runic_power.deficit<10|rune.time_to_2>gcd)|(debuff.razorice.stack<5|debuff.razorice.remains<15)
-    if cast.able.glacialAdvance() and ((ui.mode.rotation == 1 and #enemies.yards20r >= ui.value("Glacial Advance")) or (ui.mode.rotation == 2 and #enemies.yards20r > 0))
+    if cast.able.glacialAdvance("player","rect",1,10) and ((ui.mode.rotation == 1 and #enemies.yards20r >= ui.value("Glacial Advance")) or (ui.mode.rotation == 2 and #enemies.yards20r > 0))
         and (runicPowerDeficit < 10 or runesTTM(2) > unit.gcd(true)) or (debuff.razorice.stack() < 5 or debuff.razorice.remains() < 15)
     then
-        if cast.glacialAdvance(nil,"rect",1,10) then ui.debug("Casting Glacial Advance [Obliteration]") return true end
+        if cast.glacialAdvance("player","rect",1,10) then ui.debug("Casting Glacial Advance [Obliteration]") return true end
     end
     -- Frost Strike
     -- frost_strike,target_if=max:(debuff.razorice.stack+1)%(debuff.razorice.remains+1)*death_knight.runeforge.razorice,if=!talent.avalanche&!buff.killing_machine.up|talent.avalanche&!buff.rime.up
@@ -682,8 +726,8 @@ actionList.Obliteration = function()
     end
     -- Howling Blast
     -- howling_blast,if=buff.rime.up
-    if cast.able.howlingBlast() and buff.rime.exists() then
-        if cast.howlingBlast() then ui.debug("Casting Howling Blast [Obliteration - Rime]") return true end
+    if cast.able.howlingBlast(units.dyn30,"aoe",1,10) and buff.rime.exists() then
+        if cast.howlingBlast(units.dyn30,"aoe",1,10) then ui.debug("Casting Howling Blast [Obliteration - Rime]") return true end
     end
     -- Obliterate
     -- obliterate,target_if=max:(debuff.razorice.stack+1)%(debuff.razorice.remains+1)*death_knight.runeforge.razorice
@@ -696,15 +740,15 @@ end -- End Action List - Obliteration
 actionList.ObliterationPooling = function()
     -- Remorseless Winter
     -- remorseless_winter,if=talent.gathering_storm|conduit.everfrost|runeforge.biting_cold|active_enemies>=2
-    if cast.able.remorselessWinter() and #enemies.yards8 >= ui.value("Remorseless Winter")
+    if cast.able.remorselessWinter("player","aoe",1,8) and #enemies.yards8 >= ui.value("Remorseless Winter")
         and (talent.gatheringStorm or conduit.everfrost or runeforge.bitingCold)
     then
-        if cast.remorselessWinter() then ui.debug("Casting Remorseless Winter [Obliteration Pooling]") return true end
+        if cast.remorselessWinter("player","aoe",1,8) then ui.debug("Casting Remorseless Winter [Obliteration Pooling]") return true end
     end
     -- Howling Blast
     -- howling_blast,if=buff.rime.up
-    if cast.able.howlingBlast() and buff.rime.exists() then
-        if cast.howlingBlast() then ui.debug("Casting Howling Blast [Obliteration Pooling]") return true end
+    if cast.able.howlingBlast(units.dyn30,"aoe",1,10) and buff.rime.exists() then
+        if cast.howlingBlast(units.dyn30,"aoe",1,10) then ui.debug("Casting Howling Blast [Obliteration Pooling]") return true end
     end
     -- Obliterate
     -- obliterate,target_if=max:(debuff.razorice.stack+1)%(debuff.razorice.remains+1)*death_knight.runeforge.razorice,if=buff.killing_machine.react
@@ -713,10 +757,10 @@ actionList.ObliterationPooling = function()
     end
     -- Glacial Advance
     -- glacial_advance,if=spell_targets.glacial_advance>=2&runic_power.deficit<60
-    if cast.able.glacialAdvance() and runicPowerDeficit < 60
+    if cast.able.glacialAdvance("player","rect",1,10) and runicPowerDeficit < 60
         and ((ui.mode.rotation == 1 and #enemies.yards20r >= ui.value("Glacial Advance")) or (ui.mode.rotation == 2 and #enemies.yards20r > 0))
     then
-        if cast.glacialAdvance(nil,"rect",1,10) then ui.debug("Casting Glacial Advance [Obliteration Pooling]") return true end
+        if cast.glacialAdvance("player","rect",1,10) then ui.debug("Casting Glacial Advance [Obliteration Pooling]") return true end
     end
     -- Frost Strike
     -- frost_strike,target_if=max:(debuff.razorice.stack+1)%(debuff.razorice.remains+1)*death_knight.runeforge.razorice,if=runic_power.deficit<70
@@ -730,10 +774,10 @@ actionList.ObliterationPooling = function()
     end
     -- Frostscythe
     -- frostscythe,if=active_enemies>=4&(!death_and_decay.ticking&covenant.night_fae|!covenant.night_fae)
-    if cast.able.frostscythe() and buff.killingMachine.exists() and ((ui.mode.rotation == 1 and enemies.yards8c >= 4) or (ui.mode.rotation == 2 and enemies.yards8c > 0))
+    if cast.able.frostscythe("player","cone",1,8) and buff.killingMachine.exists() and ((ui.mode.rotation == 1 and #enemies.yards8c >= 4) or (ui.mode.rotation == 2 and #enemies.yards8c > 0))
         and (buff.deathsDue.stack() == 8 or not buff.deathAndDecay.exists() or not covenant.nightFae.active)
     then
-        if cast.frostscythe() then ui.debug("Casting Frostscythe [Obliteration Pooling]") return true end
+        if cast.frostscythe("player","cone",1,8) then ui.debug("Casting Frostscythe [Obliteration Pooling]") return true end
     end
 end -- End Action List - Obliteration Pooling
 
@@ -741,13 +785,13 @@ end -- End Action List - Obliteration Pooling
 actionList.Aoe = function()
     -- Remorseless Winter
     -- remorseless_winter
-    if cast.able.remorselessWinter() then
-        if cast.remorselessWinter() then ui.debug("Casting Remorseless Winter [AoE]") return true end
+    if cast.able.remorselessWinter("player","aoe",1,8) then
+        if cast.remorselessWinter("player","aoe",1,8) then ui.debug("Casting Remorseless Winter [AoE]") return true end
     end
     -- Glacial Advance
     -- glacial_advance,if=talent.frostscythe
-    if cast.able.glacialAdvance() and (talent.frostscythe) and #enemies.yards20r >= ui.value("Glacial Advance") then
-        if cast.glacialAdvance(nil,"rect",1,10) then ui.debug("Casting Glacial Advance [AoE - Frostscythe]") return true end
+    if cast.able.glacialAdvance("player","rect",1,10) and (talent.frostscythe) and #enemies.yards20r >= ui.value("Glacial Advance") then
+        if cast.glacialAdvance("player","rect",1,10) then ui.debug("Casting Glacial Advance [AoE - Frostscythe]") return true end
     end
     -- Frost Strike
     -- frost_strike,target_if=max:(debuff.razorice.stack+1)%(debuff.razorice.remains+1)*death_knight.runeforge.razorice,if=cooldown.remorseless_winter.remains<=2*gcd&talent.gathering_storm
@@ -756,23 +800,23 @@ actionList.Aoe = function()
     end
     -- Howling Blast
     -- howling_blast,if=buff.rime.up
-    if cast.able.howlingBlast() and buff.rime.exists() then
-        if cast.howlingBlast() then ui.debug("Casting Howling Blast [AoE - Rime]") return true end
+    if cast.able.howlingBlast(units.dyn30,"aoe",1,10) and buff.rime.exists() then
+        if cast.howlingBlast(units.dyn30,"aoe",1,10) then ui.debug("Casting Howling Blast [AoE - Rime]") return true end
     end
     -- Obliterate
-    -- obliterate,if=death_and_decay.ticking&covenant.night_fae&buff.deaths_due.stack>8
-    if buff.deathAndDecay.exists() and covenant.nightFae.active and buff.deathsDue.stack() > 8 then
+    -- obliterate,if=death_and_decay.ticking&covenant.night_fae&buff.deaths_due.stack<8
+    if buff.deathAndDecay.exists() and covenant.nightFae.active and buff.deathsDue.stack() < 8 then
         if cast.obliterate() then ui.debug("Casting Obliterate [AOE - Death's Due") return true end
     end
     -- Frostscythe
     -- frostscythe,if=buff.killing_machine.up&(!death_and_decay.ticking&covenant.night_fae|!covenant.night_fae)
-    if cast.able.frostscythe() and (buff.killingMachine.exists() and ((not buff.deathAndDecay.exists() and covenant.nightFae.active) or not covenant.nightFae.active)) and enemies.yards8c then
-        if cast.frostscythe() then ui.debug("Casting Frostscythe [AoE - Killing Machine]") return true end
+    if cast.able.frostscythe("player","cone",1,8) and (buff.killingMachine.exists() and ((not buff.deathAndDecay.exists() and covenant.nightFae.active) or not covenant.nightFae.active)) and #enemies.yards8c then
+        if cast.frostscythe("player","cone",1,8) then ui.debug("Casting Frostscythe [AoE - Killing Machine]") return true end
     end
     -- Glacial Advance
     -- glacial_advance,if=runic_power.deficit<(15+talent.runic_var.attenuation.enabled*3)
-    if cast.able.glacialAdvance() and (runicPowerDeficit < (15 + var.attenuation * 3) and #enemies.yards20r >= ui.value("Glacial Advance")) then
-        if cast.glacialAdvance(nil,"rect",1,10) then ui.debug("Casting Glacial Advance [AoE - Low Power Deficit]") return true end
+    if cast.able.glacialAdvance("player","rect",1,10) and (runicPowerDeficit < (15 + var.attenuation * 3) and #enemies.yards20r >= ui.value("Glacial Advance")) then
+        if cast.glacialAdvance("player","rect",1,10) then ui.debug("Casting Glacial Advance [AoE - Low Power Deficit]") return true end
     end
     -- Frost Strike
     -- frost_strike,target_if=max:(debuff.razorice.stack+1)%(debuff.razorice.remains+1)*death_knight.runeforge.razorice,if=runic_power.deficit<(15+talent.runic_attenuation*3)
@@ -781,8 +825,8 @@ actionList.Aoe = function()
     end
     -- Frostscythe
     -- frostscythe&(!death_and_decay.ticking&covenant.night_fae|!covenant.night_fae)
-    if cast.able.frostscythe() and ((not buff.deathAndDecay.exists() and covenant.nightFae.active) or not covenant.nightFae.active) and enemies.yards8c > 0 then
-        if cast.frostscythe() then ui.debug("Casting Frostscythe [AoE]") return true end
+    if cast.able.frostscythe("player","cone",1,8) and ((not buff.deathAndDecay.exists() and covenant.nightFae.active) or not covenant.nightFae.active) and #enemies.yards8c > 0 then
+        if cast.frostscythe("player","cone",1,8) then ui.debug("Casting Frostscythe [AoE]") return true end
     end
     -- Obliterate
     -- obliterate,target_if=max:(debuff.razorice.stack+1)%(debuff.razorice.remains+1)*death_knight.runeforge.razorice,if=runic_power.deficit>(25+talent.runic_attenuation*3)
@@ -791,8 +835,8 @@ actionList.Aoe = function()
     end
     -- Glacial Advance
     -- glacial_advance
-    if cast.able.glacialAdvance() and #enemies.yards20r >= ui.value("Glacial Advance") then
-        if cast.glacialAdvance(nil,"rect",1,10) then ui.debug("Casting Glacial Advance [AoE]") return true end
+    if cast.able.glacialAdvance("player","rect",1,10) and #enemies.yards20r >= ui.value("Glacial Advance") then
+        if cast.glacialAdvance("player","rect",1,10) then ui.debug("Casting Glacial Advance [AoE]") return true end
     end
     -- Frost Strike
     -- frost_strike,target_if=max:(debuff.razorice.stack+1)%(debuff.razorice.remains+1)*death_knight.runeforge.razorice
@@ -816,13 +860,13 @@ actionList.Standard = function()
     var.profileDebug = "Standard"
     -- Remorseless Winter
     -- remorseless_winter,if=talent.gathering_storm|conduit.everfrost.enabled|runeforge.biting_cold.equipped
-    if cast.able.remorselessWinter() and (talent.gatheringStorm or conduit.everfrost.enabled or runeforge.bitingCold.equiped) then
-        if cast.remorselessWinter() then ui.debug("Casting Remorseless Winter") return true end
+    if cast.able.remorselessWinter("player","aoe",1,8) and (talent.gatheringStorm or conduit.everfrost.enabled or runeforge.bitingCold.equiped) then
+        if cast.remorselessWinter("player","aoe",1,8) then ui.debug("Casting Remorseless Winter") return true end
     end
     -- Glacial Advance
     -- glacial_advance,if=!death_knight.runeforge.razorice&(debuff.razorice.stack<5|debuff.razorice.remains<7)
-    if cast.able.glacialAdvance() and not var.razorice and (debuff.razorice.stack(units.dyn5) < 5 or debuff.razorice.remains(units.dyn5) < 7) then
-        if cast.glacialAdvance(nil,"rect",1,10) then ui.debug("Casting Glacial Advance") return true end
+    if cast.able.glacialAdvance("player","rect",1,10) and not var.razorice and (debuff.razorice.stack(units.dyn5) < 5 or debuff.razorice.remains(units.dyn5) < 7) then
+        if cast.glacialAdvance("player","rect",1,10) then ui.debug("Casting Glacial Advance") return true end
     end
     -- Frost Strike
     if cast.able.frostStrike() then
@@ -837,8 +881,8 @@ actionList.Standard = function()
     end
     -- Howling Blast
     -- howling_blast,if=buff.rime.up
-    if cast.able.howlingBlast() and buff.rime.exists() and #enemies.yards10t > 0 then
-        if cast.howlingBlast() then ui.debug("Casting Howling Blast") return true end
+    if cast.able.howlingBlast(units.dyn30,"aoe",1,10) and buff.rime.exists() and #enemies.yards10t > 0 then
+        if cast.howlingBlast(units.dyn30,"aoe",1,10) then ui.debug("Casting Howling Blast") return true end
     end
     -- Obliterate
     -- obliterate,if=!buff.frozen_pulse.up&talent.frozen_pulse|buff.killing_machine.react|death_and_decay.ticking&covenant.night_fae&buff.deaths_due.stack>8|rune.time_to_4<=gcd
@@ -891,19 +935,19 @@ actionList.PreCombat = function()
 
     end -- Pre-Pull
     if unit.valid("target") and not unit.inCombat() then
-        -- -- Death Grip
-        -- if ui.checked("Death Grip") and cast.able.deathGrip("target") and not unit.moving() and #br.friend == 1 then
-        --     if cast.deathGrip("target") then ui.debug("Casting Death Grip [Pull]") return true end
-        -- end
-        -- -- Dark Command
-        -- if ui.checked("Dark Command") and cast.able.darkCommand("target") and #br.friend == 1
-        --     and not cast.last.deathGrip() and (not ui.checked("Death Grip") or cd.deathGrip.exists("target"))
-        -- then
-        --     if cast.darkCommand("target") then ui.debug("Casting Dark Command [Pull]") return true end
-        -- end
         -- Howling Blast
-        if cast.able.howlingBlast("target") then
-            if cast.howlingBlast("target") then ui.debug("Casting Howling Blast [Pull]") return true end
+        if unit.distance("target") < 30 and #enemies.yards10t > 0 and cast.able.howlingBlast("target","aoe",1,10) then
+            if cast.howlingBlast("target","aoe",1,10) then ui.debug("Casting Howling Blast [Pull]") return true end
+        end
+        -- Death Grip
+        if ui.checked("Death Grip") and cast.able.deathGrip("target") and not unit.moving() and #br.friend == 1 then
+            if cast.deathGrip("target") then ui.debug("Casting Death Grip [Pull]") return true end
+        end
+        -- Dark Command
+        if ui.checked("Dark Command") and cast.able.darkCommand("target") and #br.friend == 1
+            and not cast.last.deathGrip() and (not ui.checked("Death Grip") or cd.deathGrip.exists("target"))
+        then
+            if cast.darkCommand("target") then ui.debug("Casting Dark Command [Pull]") return true end
         end
         -- Start Attack
         if unit.distance("target") < 5 then
@@ -924,10 +968,12 @@ local function runRotation()
     debuff            = br.player.debuff
     enemies           = br.player.enemies
     module            = br.player.module
+    pet               = br.player.pet
     runeforge         = br.player.runeforge
     runicPower        = br.player.power.runicPower.amount()
     runicPowerDeficit = br.player.power.runicPower.deficit()
     runes             = br.player.power.runes.amount()
+    runesDeficit      = br.player.power.runes.deficit()
     runesTTM          = br.player.power.runes.ttm
     spell             = br.player.spell
     talent            = br.player.talent
@@ -943,12 +989,12 @@ local function runRotation()
     units.get(40)
 
     -- Enemies Tables
-    enemies.get(5)
+    enemies.get(5,"player",false,true)
     enemies.get(8)
     enemies.get(10,"target")
-    enemies.get(15)
-    enemies.get(20)
-    enemies.get(30)
+    enemies.get(15,"player",false,true)
+    enemies.get(20,"player",false,true)
+    enemies.get(30,"player",false,true)
     enemies.get(40)
 
     -- Special Enemy Counts
@@ -990,8 +1036,8 @@ local function runRotation()
     var.maxRazorice = "target"
     var.razoriceMax = 0
     var.razorMod = var.razorice and 1 or 0
-    for i = 1, #enemies.yards5 do
-        local thisUnit = enemies.yards5[i]
+    for i = 1, #enemies.yards5f do
+        local thisUnit = enemies.yards5f[i]
         local thisValue = (debuff.razorice.stack(thisUnit) + 1) / (debuff.razorice.remains(thisUnit) + 1) * var.razorMod
         if thisValue > var.razoriceMax then
             var.maxRazorice = thisUnit
@@ -1007,7 +1053,6 @@ local function runRotation()
     -- Profile Stop
     if var.profileStop == nil then var.profileStop = false end
 
-    
     -- Path of Frost
     if ui.checked("Path of Frost") and cast.able.pathOfFrost() then
         if not unit.inCombat() and (unit.mounted() or unit.swimming()) and not buff.pathOfFrost.exists() then
@@ -1046,29 +1091,30 @@ local function runRotation()
             if unit.distance(units.dyn5) < 5 then
                 unit.startAttack(units.dyn5)
             end
-            ------------------------------
-            --- In Combat - Interrupts ---
-            ------------------------------
-            if actionList.Interrupts() then return true end
             ---------------------
             --- Main Rotation ---
             ---------------------            
             if not var.breathOfSindragosaActive then
+                -- Remorseless Winter
+                -- remorseless_winter,if=conduit.everfrost&talent.gathering_storm&!talent.obliteration&cooldown.pillar_of_frost.remains
+                if cast.able.remorselessWinter("player","aoe",1,8) and conduit.everfrost.enabled and talent.gatheringStorm and cd.pillarOfFrost.exists() then
+                    if cast.remorselessWinter("player","aoe",1,8) then ui.debug("Casting Remorseless Winter [Everfrost]") return true end
+                end
                 -- Howling Blast
                 -- howling_blast,if=!dot.frost_fever.ticking&(talent.icecap|cooldown.breath_of_sindragosa.remains>15|talent.obliteration&cooldown.pillar_of_frost.remains&!buff.killing_machine.up)
-                if cast.able.howlingBlast() and (not debuff.frostFever.exists(units.dyn5) and (talent.icecap
+                if cast.able.howlingBlast(units.dyn30,"aoe",1,10) and (not debuff.frostFever.exists(units.dyn5) and (talent.icecap
                     or (cd.breathOfSindragosa.remain() > 15 or not talent.breathOfSindragosa or not ui.alwaysCdNever("Breath of Sindragosa"))
                     or talent.obliteration and cd.pillarOfFrost.exists() and not buff.killingMachine.exists()))
                 then
-                    if cast.howlingBlast() then ui.debug("Casting Howling Blast [No Frost Fever]") return true end
+                    if cast.howlingBlast(units.dyn30,"aoe",1,10) then ui.debug("Casting Howling Blast [No Frost Fever]") return true end
                 end
                 -- Glacial Advance
                 -- glacial_advance,if=buff.icy_talons.remains<=gcd&buff.icy_talons.up&spell_targets.glacial_advance>=2&(!talent.breath_of_sindragosa|cooldown.breath_of_sindragosa.remains>15)
-                if cast.able.glacialAdvance() and (buff.icyTalons.remain() <= unit.gcd(true) and buff.icyTalons.exists() 
+                if cast.able.glacialAdvance("player","rect",1,10) and (buff.icyTalons.remain() <= unit.gcd(true) and buff.icyTalons.exists() 
                     and ((ui.mode.rotation == 1 and #enemies.yards20r >= ui.value("Glacial Advance")) or (ui.mode.rotation == 2 and #enemies.yards20r > 0))
                     and (not talent.breathOfSindragosa or cd.breathOfSindragosa.remain() > 15 or not ui.alwaysCdNever("Breath of Sindragosa")))
                 then
-                    if cast.glacialAdvance(nil,"rect",1,10) then ui.debug("Casting Glacial Advance [Icy Talons]") return true end
+                    if cast.glacialAdvance("player","rect",1,10) then ui.debug("Casting Glacial Advance [Icy Talons]") return true end
                 end
                 -- Frost Strike
                 -- frost_strike,if=buff.icy_talons.remains<=gcd&buff.icy_talons.up&(!talent.breath_of_sindragosa|cooldown.breath_of_sindragosa.remains>15)
@@ -1078,11 +1124,21 @@ local function runRotation()
                     if cast.frostStrike() then ui.debug("Casting Frost Strike [Icy Talons]") return true end
                 end
             end
+            ------------------------------
+            --- In Combat - Interrupts ---
+            ------------------------------
+            if actionList.Interrupts() then return true end
             -- Action List - Covenants
             -- call_action_list,name=covenants
             if ui.alwaysCdNever("Covenant Ability") then
                 if actionList.Covenants() then return true end
             end
+            -- Action List - Racials
+            -- call_action_list,name=racials
+            if actionList.Racials() then return true end
+            -- Action List - Trinkets
+            -- call_action_list,name=trinkets
+            -- if actionList.Trinkets() then return true end
             -- Action List - Cooldowns
             -- call_action_list,name=cooldowns
             if actionList.Cooldowns() then return true end
@@ -1103,7 +1159,7 @@ local function runRotation()
             then
                 if actionList.BoSPooling() then return true end
             end
-            if not var.breathOfSindragosaActive and (not ui.alwaysCdNever("Breath of Sindragosa") or not talent.breathOfSindragosa or cd.breathOfSindragosa.remain() >= 5) then               
+            if not var.breathOfSindragosaActive and (not ui.alwaysCdNever("Breath of Sindragosa") or not talent.breathOfSindragosa or cd.breathOfSindragosa.remain() >= 5) then             
                 -- Death Strike
                 if ui.checked("Death Strike") and cast.able.deathStrike() and unit.inCombat() and buff.darkSuccor.exists() then
                     if cast.deathStrike() then ui.debug("Casting Death Strike [Dark Succor]") return true end
@@ -1129,8 +1185,8 @@ local function runRotation()
                     if actionList.Standard() then return true end
                 end
                 -- Howling Blast
-                if cast.able.howlingBlast() and not spell.known.obliterate() then
-                    if cast.howlingBlast() then ui.debug("Casting Howling Blast [Low Level]") return true end
+                if cast.able.howlingBlast(units.dyn30,"aoe",1,10) and not spell.known.obliterate() then
+                    if cast.howlingBlast(units.dyn30,"aoe",1,10) then ui.debug("Casting Howling Blast [Low Level]") return true end
                 end
             end
         end -- End Combat Check
