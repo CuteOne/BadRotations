@@ -40,14 +40,14 @@ br.api.cast = function(self,spell,id)
         predict - If passed "true" will attempt to predict enemmy movements on ground location AoE spells.
         predictPad - Pad the prediction cast time, predict must be "true".
     ]]
-    cast[spell] = function(thisUnit,castType,minUnits,effectRng,predict,predictPad)
-        return br.createCastFunction(thisUnit,castType,minUnits,effectRng,id,spell,predict,predictPad)
+    cast[spell] = function(thisUnit,castType,minUnits,effectRng,predict,predictPad,enemies)
+        return br.createCastFunction(thisUnit,castType,minUnits,effectRng,id,spell,predict,predictPad,enemies)
     end
 
     -- br.player.cast.able.spell() - same as above but instead of casting returns True/False
     if cast.able == nil then cast.able = {} end
-    cast.able[spell] = function(thisUnit,debug,minUnits,effectRng,predict,predictPad)
-        return br.createCastFunction(thisUnit,"debug",minUnits,effectRng,id,spell,predict,predictPad)
+    cast.able[spell] = function(thisUnit,castType,minUnits,effectRng,predict,predictPad,enemies)
+        return br.createCastFunction(thisUnit,castType,minUnits,effectRng,id,spell,predict,predictPad,enemies,true)
     end
 
     -- br.player.cast.active.spell() - Returns if the spell is the one currently being cast.
