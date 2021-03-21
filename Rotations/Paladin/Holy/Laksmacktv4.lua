@@ -118,8 +118,8 @@ local function createOptions()
         br.ui:createSpinner(section, "Tank Infused Holy Light HP Limit", 65, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At", true)
         br.ui:createSpinner(section, "DPS/Healer Infused Holy Light HP Limit", 40, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At", true)
         -- Beacon of Virtue
-        --    br.ui:createSpinner(section, "Beacon of Virtue", 80, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At")
-        --   br.ui:createSpinner(section, "BoV Targets", 3, 0, 40, 1, "", "|cffFFFFFFMinimum BoV Targets", true)
+        br.ui:createSpinner(section, "Beacon of Virtue", 80, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At")
+        br.ui:createSpinner(section, "BoV Targets", 3, 0, 40, 1, "", "|cffFFFFFFMinimum BoV Targets", true)
         -- Beacon Emergency Healing Swap
         br.ui:createCheckbox(section, "Beacon Swap Emergency Healing")
         br.ui:createSpinner(section, "Beacon Swap Min HP", 20, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At", true)
@@ -412,7 +412,7 @@ end
 
 local function consecration()
     --Consecration
-    if mode.DPS == 1 and cast.able.consecration() and not br.isMoving("player") and not buff.holyAvenger.exists() and cd.holyShock.remain() >= 1 then
+    if mode.DPS == 1 and cast.able.consecration() and not br.isMoving("player") and not buff.holyAvenger.exists() and cd.holyShock.remain() >= 1 and lowest.hp > ui.value("Critical HP") then
         for i = 1, #enemies.yards8 do
             if not debuff.consecration.exists(enemies.yards8[i])
                     or br._G.GetTotemTimeLeft(1) < 2 then
@@ -894,7 +894,7 @@ actionList.dps = function()
     end
 
     -- Judgment of Light
-    if talent.judgmentOfLight and not buff.holyAvenger.exists() and cast.able.judgment() and inCombat then
+    if talent.judgmentOfLight and not buff.holyAvenger.exists() and cast.able.judgment() and inCombat and lowest.hp > ui.value("Critical HP") then
         -- ST
         if br.getDebuffRemain("target", 196941) == 0 or #enemies.yards30 == 1 then
             if not noDamageCheck("target") and not br._G.UnitIsPlayer("target") and br.getFacing("player", "target") and br.UnitIsTappedByPlayer("target") then
@@ -920,7 +920,7 @@ actionList.dps = function()
     end
 
     --Judgment
-    if not talent.judgmentofLight and cast.able.judgment() and cd.holyShock.remain() > 1 then
+    if not talent.judgmentofLight and cast.able.judgment() and cd.holyShock.remain() > 1 and lowest.hp > ui.value("Critical HP") then
         if #tanks == 0 or #tanks > 0 and br.getDistance(units.dyn30, tanks[1].unit) <= 10 then
             if br.getFacing("player", units.dyn30) then
                 if cast.judgment(units.dyn30) then
@@ -1920,31 +1920,30 @@ actionList.heal = function()
         return
     end
 
-    if br.timer:useTimer("Beacon Delay", 3) then
-        -- Beacon Tank, Elseif Self
-        if #tanks > 0 and (lowest.hp > ui.value("Beacon Swap Min HP") or not ui.checked("Beacon Swap Emergency Healing")) then
-            for i = 1, #tanks do
-                if not buff.beaconOfLight.exists(tanks[i].unit) and not buff.beaconOfFaith.exists(tanks[i].unit) and br._G.UnitInRange(tanks[i].unit) then
-                    if cast.beaconOfLight(tanks[i].unit) then
-                        return true
+    if not talent.beaconOfVirtue then
+        if br.timer:useTimer("Beacon Delay", 3) then
+            -- Beacon Tank, Elseif Self
+            if #tanks > 0 and (lowest.hp > ui.value("Beacon Swap Min HP") or not ui.checked("Beacon Swap Emergency Healing")) then
+                for i = 1, #tanks do
+                    if not buff.beaconOfLight.exists(tanks[i].unit) and not buff.beaconOfFaith.exists(tanks[i].unit) and br._G.UnitInRange(tanks[i].unit) then
+                        if cast.beaconOfLight(tanks[i].unit) then
+                            return true
+                        end
                     end
                 end
+            elseif #tanks == 0 and not buff.beaconOfLight.exists("Player") then
+                if cast.beaconOfLight("Player") then
+                    return true
+                end
             end
-        elseif #tanks == 0 and not buff.beaconOfLight.exists("Player") then
-            if cast.beaconOfLight("Player") then
-                return true
+            -- Emergency Beacon Swap
+            if ui.checked("Beacon Swap Emergency Healing") and lowest.hp <= ui.value("Beacon Swap Min HP") and not buff.beaconOfLight.exists(lowest.unit) and not buff.beaconOfFaith.exists(lowest.unit) then
+                if cast.beaconOfLight(lowest.unit) then
+                    return true
+                end
             end
         end
-        -- Emergency Beacon Swap
-        if ui.checked("Beacon Swap Emergency Healing") and lowest.hp <= ui.value("Beacon Swap Min HP") and not buff.beaconOfLight.exists(lowest.unit) and not buff.beaconOfFaith.exists(lowest.unit) then
-            if cast.beaconOfLight(lowest.unit) then
-                return true
-            end
-        end
-    end
-
-
-    --[[
+    else
         -- Beacon of Virtue
         if br.isChecked("Beacon of Virtue") and talent.beaconOfVirtue and br.getSpellCD(200025) == 0 then
             if br.getSpellCD(20473) <= gcdMax or holyPower >= 3 or br.getSpellCD(304971) <= gcdMax or buff.divinePurpose.exists() then
@@ -1955,8 +1954,7 @@ actionList.heal = function()
                 end
             end
         end
-    ]]
-
+    end
 
     -- Bestow Faith
     if talent.bestowFaith and cd.bestowFaith.ready() then
