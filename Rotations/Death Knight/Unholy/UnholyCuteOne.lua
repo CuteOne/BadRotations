@@ -676,10 +676,10 @@ actionList.AOE_Burst = function()
     end
     -- Scourge Strike
     -- wound_spender
-    if not talent.clawingShadows() and cast.able.scourgeStrike() then
+    if not talent.clawingShadows and cast.able.scourgeStrike() then
         if cast.scourgeStrike() then ui.debug("Casting Scourge Strike [AOE Burst]") return true end
     end
-    if talent.clawingShadows() and cast.able.clawingShadows() then
+    if talent.clawingShadows and cast.able.clawingShadows() then
         if cast.clawingShadows() then ui.debug("Casting Clawing Shadows [AOE Burst]") return true end
     end
     -- Epidemic
