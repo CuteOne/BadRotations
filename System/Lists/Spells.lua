@@ -2720,10 +2720,9 @@ br.lists.spells = {
         -- Assassination
         [259] = {
             abilities                       = {
-                blindside                   = 111240,
                 ambush                      = 8676,
                 crimsonTempest              = 121411,
-                deadlyPoison                = 2823,
+                deadlyPoison                = 315584,
                 envenom                     = 32645,
                 eviscerate                  = 196819,
                 exsanguinate                = 200806,
@@ -2734,14 +2733,13 @@ br.lists.spells = {
                 rupture                     = 1943,
                 shadowstep                  = 36554,
                 sinisterStrike              = 1752,
-                toxicBlade                  = 245388,
                 vendetta                    = 79140,
             },
             artifacts                       = {
 
             },
             buffs                           = {
-                blindside                   = 111240,
+                blindside                   = 121153,
                 deadlyPoison                = 2823,
                 elaboratePlanning           = 193641,
                 envenom                     = 32645,
@@ -2766,7 +2764,7 @@ br.lists.spells = {
 
             },
             talents                         = {
-                blindside                   = 111240,
+                blindside                   = 328085,
                 crimsonTempest              = 121411,
                 elaboratePlanning           = 193640,
                 elusiveness                 = 79008,
@@ -2780,7 +2778,6 @@ br.lists.spells = {
                 nightstalker                = 14062,
                 poisonBomb                  = 255544,
                 subterfuge                  = 108208,
-                toxicBlade                  = 245388,
                 venomRush                   = 152152,
             },
             traits                          = {
@@ -2790,11 +2787,12 @@ br.lists.spells = {
                 shroudedSuffocation         = 278666,
 		        twistTheKnife               = 273488,
             },
-            runeforge                         = {
+            runeforges                      = {
                 dashingScoundrel            = 340081,
                 doomblade                   = 340082,
                 zoldyckInsignia             = 340083,
                 duskwalkersPatch            = 340084,
+                deathlyShadows              = 340092,
             },
         },
         -- Outlaw
@@ -2901,14 +2899,14 @@ br.lists.spells = {
                 dancingSteel                = 272026,
                 dreadblades                 = 343142,
             },
-             traits                          = {
+             traits                         = {
                 deadshot                    = 272935,
                 aceupyoursleeve             = 278676,
                 snakeeyes                   = 275846,
                 keepYourWitsAboutYou        = 288979,
 
             },
-            runeforge                         = {
+            runeforges                      = {
                 greenskinsWickers           = 340085,
                 guileCharm                  = 340086,
                 celerity                    = 340087,
@@ -3081,14 +3079,15 @@ br.lists.spells = {
                 serratedBoneSpike           = 328547,
             },
             debuffs                         = {
+                sepsis                      = 328305,
                 instantPoison               = 315584,
                 woundPoison                 = 8679,
                 numbingPoison               = 5761,
                 cripplingPoison             = 3408,
-                shiv                        = 115196,
+                shiv                        = 319504,
                 kidneyShot                  = 408,
                 cheapShot                   = 1833,
-                 serratedBoneSpike           = 328547,
+                serratedBoneSpike           = 328547,
                 markedForDeath              = 137619,
                 sap                         = 6770,
                 serratedBoneSpikeDot        = 324073,
@@ -4119,18 +4118,6 @@ br.lists.spells = {
                 cracklingTourmaline             = 290372,
                 saphireofBrilliance             = 290365,
                 vigorEngaged                    = 287916,
-                -- Essences
-                concentratedFlame               = 295378,
-                guardianOfAzeroth               = 295855,
-                guardianShell                   = 310425,
-                lifeblood                       = 295137,
-                memoryOfLucidDreams             = 298357,
-                recklessForce                   = 302932,
-                recklessForceCounter            = 298452,
-                seethingRage                    = 297126,
-                vigilantProtector               = 310592,
-                reapingFlames					= 311202,
-                worldveinResonance              = 313310,
                 soulshape                       = 310143,
                 soulIgnition                    = 345251,
                 spectralFlaskOfPower            = 307185,
@@ -4168,34 +4155,6 @@ br.lists.spells = {
                 cascadingTerror                 = 314478,
             },
             essences                            = {
-                aegisOfTheDeep                  = 298168,
-                animaOfDeath                    = 294926,
-                azerothsUndyingGift             = 298081,
-                bloodOfTheEnemy                 = 297108,
-                concentratedFlame               = 295373,
-                condensedLifeForce              = 299357,
-                empoweredNullBarrier            = 295746,
-                focusedAzeriteBeam              = 295258,
-                guardianOfAzeroth               = 299355,
-                guardianShell                   = 296036, --added in 8.3
-                heartEssence                    = 296208,
-                lifeBindersInvocation           = 293032,
-                memoryOfLucidDreams             = 298357,
-                overchargeMana                  = 296072,
-                purifyingBlast                  = 299345,
-                reapingFlames                   = 310690, -- Added in 8.3
-                refreshment                     = 296197,
-                replicaOfKnowledge              = 312725, --added in 8.3
-                rippleInSpace                   = 302731,
-                spiritOfPreservation            = 297375, -- added in 8.3
-                standstill                      = 299882,
-                suppressingPulse                = 300009,
-                theUnboundForce                 = 299376,
-                vigilantProtector               = 310592,
-                visionOfPerfection              = 299370,
-                vitalityConduit                 = 299958,
-                conflict                        = 303823,
-                worldveinResonance              = 295186
             },
         },
     },

@@ -259,7 +259,7 @@ Ralph            |     Full      | 9.0   | ???    | :interrobang:
 
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
-None    | Unknown | ???   |  ???   | :interrobang:
+S0ul    | Testing | 9.0.5 |  69%   | :white_check_mark:
 
 - Outlaw
 
@@ -271,7 +271,7 @@ Laks    |  Full   | 9.0   |  100%  | :heavy_check_mark:
 
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
-S0ul    |  Full   | 9.0   |   100% | :white_check_mark:
+S0ul    |  Full   | 9.0.5 |  100%  | :white_check_mark:
 
 - Inital 1-10 Supported - Patch 9.0
 
