@@ -135,8 +135,8 @@ local function createOptions()
             br.ui:createSpinner(section, "Death Pact", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to use at.")
             -- Icebound Fortitude
             br.ui:createSpinner(section, "Icebound Fortitude", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to use at.")
-			-- Sacraficial Pact
-            br.ui:createSpinner(section, "Sacraficial Pact", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to use at.")
+			-- Sacrificial Pact
+            br.ui:createSpinner(section, "Sacrificial Pact", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to use at.")
             -- Raise Ally
             br.ui:createDropdown(section, "Raise Ally", {"|cff00FF00Target","|cffFF0000Mouseover"}, 1, "|cffFFFFFFTarget to cast on")
         br.ui:checkSectionState(section)
@@ -362,9 +362,9 @@ actionList.Defensive = function()
     if ui.checked("Icebound Fortitude") and cast.able.iceboundFortitude() and unit.hp() < ui.value("Icebound Fortitude") then
         if cast.iceboundFortitude() then ui.debug("Casting Icebound Fortitude") return true end
     end
-	-- Sacraficial Pact
-    if ui.checked("Sacraficial Pact") and cast.able.sacraficialPact() and unit.hp() < ui.value("Sacraficial Pact") then
-        if cast.sacraficialPact() then ui.debug("Casting Sacraficial Pact") return true end
+	-- Sacrificial Pact
+    if ui.checked("Sacrificial Pact") and cast.able.sacrificialPact() and unit.hp() < ui.value("Sacrificial Pact") then
+        if cast.sacrificialPact() then ui.debug("Casting Sacrificial Pact") return true end
     end
     -- Raise Ally
     if ui.checked("Raise Ally") then
