@@ -210,6 +210,7 @@ local equiped
 local gcd
 local charges
 local gcdMax
+local someone_casting
 local has
 local inCombat
 local item
@@ -711,8 +712,8 @@ local function getOutLaksTTD(ttd_time)
         mob_count = 6
     end
     for i = 1, mob_count do
-        if br.getTTD(enemies.yards8[i]) < lowTTD and not br.isExplosive(enemies.yards8[i]) and
-                br.isSafeToAttack(enemies.yards8[i]) then
+        if br.getTTD(enemies.yards8[i]) < lowTTD and not br.GetObjectID(enemies.yards8[i]) == 120651 and not br.GetObjectID(enemies.yards8[i]) == 174773
+               and  br.isSafeToAttack(enemies.yards8[i]) then
             LowTTDtarget = enemies.yards8[i]
             lowTTD = br.getTTD(LowTTDtarget)
         end
@@ -754,7 +755,7 @@ end
 actionList.dps = function()
 
     if mode.vanish == 1 and cast.able.vanish() and (mode.cooldown == 1 and br.isChecked("Adrenaline Rush") or not br.isChecked("Adrenaline Rush"))
-     and br.isBoss() and not stealth and unit.distance(dynamic_target_melee) < 8 and br.getCombatTime() < 4 and not buff.masterAssassinsMark.exists() then
+            and br.isBoss() and not stealth and unit.distance(dynamic_target_melee) < 8 and br.getCombatTime() < 4 and not buff.masterAssassinsMark.exists() then
         cast.adrenalineRush()
         cast.vanish()
         return true
@@ -951,13 +952,13 @@ actionList.dps = function()
                             end
                         end
                     end
-                    if charges.serratedBoneSpike.count() > 0 and br.getDebuffRemain("player", 342181) <= 3 then
+                    if charges.serratedBoneSpike.count() > 0 and br.getBuffRemain("player", 342181) <= 3 then
                         local spikeCount = debuff.serratedBoneSpike.count() + 2 + int(buff.broadside.exists())
 
                         local spikeList = enemies.get(30, "player", false, true)
                         if #spikeList > 0 then
                             --         ui.print("how many mobs? " .. tostring(#spikeList))
-                            if (buff.bladeFlurry.exists("player") or #enemies.yards8 == 1)
+                            if (buff.bladeFlurry.exists("player") or #enemies.yards8 <= 1)
                                     and comboDeficit >= spikeCount and not buff.opportunity.exists() then
                                 if #spikeList > 1 then
                                     table.sort(spikeList, function(x, y)
@@ -1461,7 +1462,9 @@ actionList.Interrupt = function()
                 interruptID = select(9, br._G.UnitChannelInfo(thisUnit))
                 castorchan = "channel"
             end
-            if spellname ~= nil and (select(1, br._G.UnitCastID(thisUnit)) > 0 or select(2, br._G.UnitCastID(thisUnit)) > 0) then
+            if spellname ~= nil
+                    and (select(1, br._G.UnitCastID(thisUnit)) > 0
+                    or select(2, br._G.UnitCastID(thisUnit)) > 0) then
 
                 --   Print("--")
                 --   Print(tostring(br.GetUnitIsUnit("player", br._G.UnitTarget(thisUnit))))
@@ -1492,20 +1495,11 @@ actionList.Interrupt = function()
                         end
                     end
                 else
-                    if cast.able.cloakOfShadows() and mode.cloak == 1 and cloakList[interruptID] then
-                        if cast.cloakOfShadows() then
-                            return true
-                        end
-                    elseif cast.able.evasion() and dodgeList[interruptID] then
-                        if cast.evasion() then
-                            return true
-                        end
-                    elseif cast.able.feint() and feintList[interruptID] then
+                    if cast.able.feint() and feintList[interruptID] then
                         if cast.pool.feint() and cd.feint.remain() <= castleft then
                             should_pool = true
                         end
                         if cast.feint() then
-
                             should_pool = false
                             return true
                         end
@@ -1660,7 +1654,6 @@ end -- End Action List - PreCombat
 ---------------
 
 
-local someone_casting = false
 
 local frame = br._G.CreateFrame("Frame")
 frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
@@ -1757,7 +1750,7 @@ local function runRotation()
 
     --marked for death
     --marked_for_death,target_if=min:target.time_to_die,if=raid_event.adds.up&(target.time_to_die<combo_points.deficit|!stealthed.rogue&combo_points.deficit>=cp_max_spend-1)
-    if #enemies.yards8 > 0 and talent.markedForDeath and cast.able.markedForDeath() and not stealth and (comboDeficit >= 4) then
+    if #enemies.yards8 > 0 and talent.markedForDeath and cd.markedForDeath.ready() and not stealth and (comboDeficit >= 4) then
         --lets find the lowest health mob to cast this on
         local unit_health = br._G.UnitHealth(enemies.yards8[1])
         local mfd_target = enemies.yards8[1]
@@ -1799,7 +1792,7 @@ local function runRotation()
                             break
                         end
                     end
-                    if tricksunit ~= nil then
+                    if tricksunit ~= nil and cd.tricksOfTheTrade.ready() then
                         -- and br.getFacing(tricksunit, "player", 45) then
                         if cast.tricksOfTheTrade(tricksunit) then
                             br.addonDebug("[AM] - Tricks on: " .. tricksunit)
