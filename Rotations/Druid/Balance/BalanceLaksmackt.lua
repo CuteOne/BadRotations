@@ -206,23 +206,6 @@ local function createOptions()
         br.ui:createSpinner(section, "InterruptAt", 0, 0, 95, 5, "Cast Percentage to use at.")
         br.ui:checkSectionState(section)
 
-        --[[
-           ----------------------
-           --- TOGGLE OPTIONS --- -- Define Toggle Options
-           ----------------------
-           section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
-           -- Single/Multi Toggle
-           br.ui:createDropdown(section, "Rotation Mode", br.dropOptions.Toggle, 4)
-           --Cooldown Key Toggle
-           br.ui:createDropdown(section, "Cooldown Mode", br.dropOptions.Toggle, 3)
-           --Defensive Key Toggle
-           br.ui:createDropdown(section, "Defensive Mode", br.dropOptions.Toggle, 6)
-           -- Interrupts Key Toggle
-           br.ui:createDropdown(section, "Interrupt Mode", br.dropOptions.Toggle, 6)
-           -- Pause Toggle
-           br.ui:createDropdown(section, "Pause Mode", br.dropOptions.Toggle, 6)
-           br.ui:checkSectionState(section)
-       ]]
     end
 
     optionTable = {
@@ -436,16 +419,6 @@ local function runRotation()
         return tonumber(counter)
     end
     local function getBiggestUnitCluster(maxRange, radius)
-        -- Description:
-        -- returns the enemy with most enemies in radius in maxRange from player
-
-        -- rerturns:
-        -- "0x0000000110E4F09C"
-
-        -- how to use:
-        -- castSpell(getBiggestUnitCluster(40,10),SpellID,...,...)
-        -- use "getBiggestUnitCluster(maxRange,radius)" instead of "target"
-
         if type(maxRange) ~= "number" then
             return nil
         end
@@ -700,8 +673,6 @@ local function runRotation()
                 convoke_desync = false
             end
 
-            --   local cd_condition = ( not equiped.empyreal_ordnance|cooldown.empyreal_ordnance.remains<160&!cooldown.empyreal_ordnance.ready)|covenant.kyrian
-
             local current_eclipse = "none"
             local eclipse_in = false
             local eclipse_last = "none"
@@ -950,18 +921,6 @@ local function runRotation()
                                         end
                                     end
                                 end
-
-                                --[[
-                                --stellarFlare
-                                if talent.stellarFlare and debuff.stellarFlare.refresh() and ttd(thisUnit) > 15 then
-                                    if #enemies.yards45 < 4
-                                            and astral_def > 8 and (buff.celestialAlignment.remain() > 10 or buff.incarnationChoseOfElune.remain() > 10 or not pewbuff)
-                                    then
-                                        if cast.stellarFlare(thisUnit) then
-                                            return true
-                                        end
-                                    end
-                                end  ]]
                             end
                         end
                     end
@@ -1829,9 +1788,6 @@ local function runRotation()
                 end
             end
         end
-        if br.isChecked("Freehold - pig") and br._G.GetMinimapZoneText() == "Ring of Booty" then
-            br.bossHelper()
-        end
     end
 
     local function travel_form()
@@ -2062,7 +2018,7 @@ local function runRotation()
     -- Pause
     if not br._G.IsMounted() or mode.rotation == 4 then
         -- br.player.buff.travelForm.exists() or br.player.buff.flightForm.exists())
-        if br.pause() or drinking or mode.rotation == 4 or cast.current.focusedAzeriteBeam() or buff.soulshape.exists() then
+        if br.pause() or drinking or mode.rotation == 4 or buff.soulshape.exists() then
             return true
         else
             ---------------------------------
