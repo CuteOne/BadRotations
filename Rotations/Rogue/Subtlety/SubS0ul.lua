@@ -745,7 +745,7 @@ local function runRotation()
         --         end
         --     end
         -- end
-        if not stealthedRogue and not buff.masterAssassinsMark.exists() and sndCondition == 1 and lastSpell ~= spell.serratedBoneSpike and not buff.leadByExample.exists() then
+        if not stealthedRogue and not buff.masterAssassinsMark.exists() and sndCondition == 1 and lastSpell ~= spell.serratedBoneSpike and buff.leadByExample.remain() <= 3 then
             local spikeCount = serratedCount + 2
             local spikeList = enemies.get(30, "player", false, true)
             if #spikeList > 0 then
