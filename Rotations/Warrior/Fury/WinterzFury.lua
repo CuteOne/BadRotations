@@ -123,6 +123,8 @@ local function createOptions()
         br.ui:createCheckbox(section, "Racials")
         -- Bladestorm Units
         br.ui:createSpinner(section, "Bladestorm Units", 3, 1, 10, 1, "Number of units to Bladestorm on")
+        -- Ancient Aftershock Units
+        br.ui:createSpinner(section, "Ancient Aftershock Units", 3, 1, 10, 1, "Number of units to use NF Ability on")
         -- Dragons Roar
         br.ui:createCheckbox(section, "Dragon Roar")
         -- Bloodrage
@@ -134,8 +136,8 @@ local function createOptions()
         --- DEFENSIVE OPTIONS ---
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
-        -- Healthstone
-        br.ui:createSpinner(section, "Healthstone/Potion", 60, 0, 100, 5, "Health Percentage to use at.")
+        -- Healing Module
+        br.player.module.BasicHealing(section)
         -- Enraged Regeneration
         br.ui:createSpinner(section, "Enraged Regeneration", 60, 0, 100, 5, "Health Percentage to use at.")
         -- Intimidating Shout
@@ -191,38 +193,39 @@ local function runRotation()
     br.player.ui.mode.holdcd = br.data.settings[br.selectedSpec].toggles["Holdcd"]
     br.player.ui.mode.lazyass = br.data.settings[br.selectedSpec].toggles["Lazyass"]
 
-    local buff = br.player.buff
-    local cast = br.player.cast
-    local combatTime = br.getCombatTime()
-    local cd = br.player.cd
-    local charges = br.player.charges
-    local hastar = hastar or br.GetObjectExists("target")
-    local debuff = br.player.debuff
-    local enemies = br.player.enemies
-    local equiped = br.player.equiped
-    local gcd = br.player.gcdMax
-    local gcdMax = br.player.gcdMax
-	local healPot = br.getHealthPot()
-    local heirloomNeck = 122667 or 122668
-    local inCombat = br.player.inCombat
-    local inRaid = br.player.instance == "raid"
-    local level = br.player.level
-    local mode = br.player.ui.mode
-    local moving = br._G.GetUnitSpeed("player") > 0
-    local php = br.player.health
-    local pullTimer = br.DBM:getPulltimer()
-    local race = br.player.race
-    local rage = br.player.power.rage.amount()
-    local racial = br.player.getRacial()
-    local spell = br.player.spell
-    local talent = br.player.talent
-    local thp = br.getHP("target")
-    local traits = br.player.traits
-    local units = br.player.units
-	local ttd = br.getTTD
-    local reapingDamage = br.getOptionValue("Reaping Flame Damage") * 1000
-    local massacreTalent = talent.massacre and 1.5 or 0
-    local condemnCDdur = (6 - massacreTalent) - ((6 - massacreTalent) * (GetHaste() / 100))
+    local buff                                              = br.player.buff
+    local cast                                              = br.player.cast
+    local combatTime                                        = br.getCombatTime()
+    local cd                                                = br.player.cd
+    local charges                                           = br.player.charges
+    local hastar                                            = hastar or br.GetObjectExists("target")
+    local debuff                                            = br.player.debuff
+    local enemies                                           = br.player.enemies
+    local equiped                                           = br.player.equiped
+    local gcd                                               = br.player.gcdMax
+    local gcdMax                                            = br.player.gcdMax
+	local healPot                                           = br.getHealthPot()
+    local heirloomNeck                                      = 122667 or 122668
+    local inCombat                                          = br.player.inCombat
+    local inRaid                                            = br.player.instance == "raid"
+    local level                                             = br.player.level
+    local mode                                              = br.player.ui.mode
+    local moving                                            = br._G.GetUnitSpeed("player") > 0
+    local php                                               = br.player.health
+    local pullTimer                                         = br.DBM:getPulltimer()
+    local race                                              = br.player.race
+    local rage                                              = br.player.power.rage.amount()
+    local racial                                            = br.player.getRacial()
+    local spell                                             = br.player.spell
+    local talent                                            = br.player.talent
+    local thp                                               = br.getHP("target")
+    local traits                                            = br.player.traits
+    local units                                             = br.player.units
+	local ttd                                               = br.getTTD
+    local module 										    = br.player.module
+    local debug                                             = br.addonDebug
+    local massacreTalent                                    = talent.massacre and 1.5 or 0
+    local condemnCDdur                                      = (6 - massacreTalent) - ((6 - massacreTalent) * (GetHaste() / 100))
 
 
 
@@ -237,13 +240,14 @@ local function runRotation()
     enemies.get(8)
     enemies.get(15)
     enemies.get(20)
+    enemies.cone.get(45, 12, false, false)
 
 	local Storm_unitList = {
             [131009] = "Spirit of Gold",
             [134388] = "A Knot of Snakes",
             [129758] = "Irontide Grenadier",
     }
-    
+
     if br.profileStop == nil then
         br.profileStop = false
     end
@@ -278,18 +282,7 @@ local function runRotation()
     local function defensivelist()
         if br.useDefensive() then
             -- Healthstone/Health Potion
-            if br.isChecked("Healthstone/Potion") and php <= br.getOptionValue("Healthstone/Potion") and inCombat and (br.hasHealthPot() or br.hasItem(5512) or br.hasItem(177278) or br.hasItem(166799)) then
-                if br.canUseItem(5512) then
-                    br.useItem(5512)
-                elseif br.canUseItem(healPot) then
-                    br.useItem(healPot)
-                elseif br.hasItem(166799) and br.canUseItem(166799) then
-                    br.useItem(166799)
-                elseif br.canUseItem(177278) then
-                    br.useItem(177278)
-                end
-            end
-
+            module.BasicHealing()
             -- Enraged Regeneration
             if br.isChecked("Enraged Regeneration") and cast.able.enragedRegeneration() and php <= br.getOptionValue("Enraged Regeneration") then
                 if cast.enragedRegeneration() then
@@ -403,7 +396,7 @@ local function runRotation()
         end
 
         -- Recklessness
-		-- actions+=/recklessness,if=!essence.condensed_lifeforce.major&!essence.blood_of_the_enemy.major|cooldown.guardian_of_azeroth.remains>20|buff.guardian_of_azeroth.up|cooldown.blood_of_the_enemy.remains<gcd
+		--
         if not buff.recklessness.exists("player") and (br.getOptionValue("Recklessness") == 1 or (br.getOptionValue("Recklessness") == 2 and br.useCDs())) and br.player.ui.mode.cooldown ~= 3 and (cd.siegebreaker.remain() > 10 or cd.siegebreaker.remain() < gcdMax) then
             if cast.recklessness() then
                 return
@@ -418,21 +411,35 @@ local function runRotation()
         end
 
         -- condemn test
-        for i = 1, #enemies.yards5 do
-            local thisUnit = enemies.yards5[i]
-            if (br.getHP(thisUnit) >80 or buff.suddenDeath.exists("player") or (br.getHP(thisUnit) <= 20 or (talent.massacre and br.getHP(thisUnit) <= 35))) then
-                if br._G.CastSpellByName(GetSpellInfo(330325)) then
-                    return
+        if ((C_Covenants.GetActiveCovenantID()) == 2) then
+            for i = 1, #enemies.yards5 do
+             local thisUnit = enemies.yards5[i]
+                if (br.getHP(thisUnit) >80 or buff.suddenDeath.exists("player") or (br.getHP(thisUnit) <= 20 or (talent.massacre and br.getHP(thisUnit) <= 35))) then
+                 if br._G.CastSpellByName(GetSpellInfo(330325)) then debug("Condemn ST")
+                      return
+                 end
+             end
+            end
+        end
+        -- EXECUTE MASSACRE
+        if not ((C_Covenants.GetActiveCovenantID()) == 2) then
+            for i = 1, #enemies.yards5 do
+                local thisUnit = enemies.yards5[i]
+                if br.getFacing("player",thisUnit) and talent.massacre and br.getHP(thisUnit) <= 35 or buff.suddenDeath.exists("player") and (buff.enrage.exists("player") or rage <= 70) then
+                    if cast.executeMassacre(thisUnit) then debug("Execute Massacre")
+                        return
+                    end
                 end
             end
         end
-
-        -- Execute
-        for i = 1, #enemies.yards5 do
-            local thisUnit = enemies.yards5[i]
-            if br.getFacing("player",thisUnit) and cast.able.execute() and (br.getHP(thisUnit) <= 20 or (talent.massacre and br.getHP(thisUnit) <= 35) or buff.suddenDeath.exists("player")) and (buff.enrage.exists("player") or rage <= 70) then
-                if cast.execute(thisUnit) then
-                    return
+        -- Execute non-MASSACRE
+        if not ((C_Covenants.GetActiveCovenantID()) == 2) then
+            for i = 1, #enemies.yards5 do
+                local thisUnit = enemies.yards5[i]
+                if br.getFacing("player",thisUnit) and br.getHP(thisUnit) <= 20 and (buff.enrage.exists("player") or rage <= 70) then
+                    if cast.execute(thisUnit) then debug("Execute NON Massacre")
+                        return
+                    end
                 end
             end
         end
@@ -517,7 +524,12 @@ local function runRotation()
     local function multilist()
 
         -- BT if Fresh Meat and not Enraged   test later
-
+        -- Ancient Aftershock
+        if br.isChecked("Ancient Aftershock Units") and cast.able.ancientAftershock(units.dyn12, "cone", 1, 12) and #enemies.yards12c >= br.getOptionValue("Ancient Aftershock Units") and buff.enrage.exists("player") and (buff.recklessness.exists("player") or cd.recklessness.remain() > 5) then
+            if cast.ancientAftershock(units.dyn12, "cone", 1, 12) then debug("Aftershock!!")
+                return
+            end
+        end
         -- Maintain Whirlwind buff
         if not buff.whirlwind.exists("player") then
             if cast.whirlwind(units.dyn5, "aoe", 1, 5) then
@@ -526,7 +538,7 @@ local function runRotation()
         end
 
         -- Recklessness
-        if not buff.recklessness.exists() and not buff.memoryOfLucidDreams.exists("player") and (br.getOptionValue("Recklessness") == 1 or (br.getOptionValue("Recklessness") == 2 and br.useCDs())) and br.player.ui.mode.cooldown ~= 3 and (cd.siegebreaker.remain() > 10 or cd.siegebreaker.remain() < gcdMax) then
+        if not buff.recklessness.exists() and (br.getOptionValue("Recklessness") == 1 or (br.getOptionValue("Recklessness") == 2 and br.useCDs())) and br.player.ui.mode.cooldown ~= 3 and (cd.siegebreaker.remain() > 10 or cd.siegebreaker.remain() < gcdMax) then
             if cast.recklessness() then
                 return
             end
@@ -560,25 +572,38 @@ local function runRotation()
         end
 
                 -- condemn test
-        for i = 1, #enemies.yards5 do
-            local thisUnit = enemies.yards5[i]
-            if (br.getHP(thisUnit) >80 or buff.suddenDeath.exists("player") or (br.getHP(thisUnit) <= 20 or (talent.massacre and br.getHP(thisUnit) <= 35))) then
-                if br._G.CastSpellByName(GetSpellInfo(330325)) then
-                    return
+        if ((C_Covenants.GetActiveCovenantID()) == 2) then
+            for i = 1, #enemies.yards5 do
+                local thisUnit = enemies.yards5[i]
+                if (br.getHP(thisUnit) >80 or buff.suddenDeath.exists("player") or (br.getHP(thisUnit) <= 20 or (talent.massacre and br.getHP(thisUnit) <= 35))) then
+                    if br._G.CastSpellByName(GetSpellInfo(330325)) then debug("Condemn Multitarget")
+                        return
+                    end
                 end
             end
         end
-
-        -- Execute
-        for i = 1, #enemies.yards5 do
-            local thisUnit = enemies.yards5[i]
-            if buff.whirlwind.exists("player") and br.getFacing("player",thisUnit) and cast.able.execute() and (br.getHP(thisUnit) <= 20 or (talent.massacre and br.getHP(thisUnit) <= 35) or buff.suddenDeath.exists("player")) and (buff.enrage.exists("player") or rage <= 70) then
-                if cast.execute(thisUnit) then
-                    return
+        -- EXECUTE MASSACRE
+        if not ((C_Covenants.GetActiveCovenantID()) == 2) then
+            for i = 1, #enemies.yards5 do
+                local thisUnit = enemies.yards5[i]
+                if buff.whirlwind.exists("player") and br.getFacing("player",thisUnit) and cast.able.executeMassacre() and talent.massacre and br.getHP(thisUnit) <= 35 or buff.suddenDeath.exists("player") and (buff.enrage.exists("player") or rage <= 70) then
+                    if cast.executeMassacre(thisUnit) then debug("Execute Massacre Multitarget")
+                        return
+                    end
                 end
             end
         end
-
+        -- Execute non-MASSACRE
+        if not ((C_Covenants.GetActiveCovenantID()) == 2) then
+            for i = 1, #enemies.yards5 do
+                local thisUnit = enemies.yards5[i]
+                if buff.whirlwind.exists("player") and br.getFacing("player",thisUnit) and cast.able.execute() and br.getHP(thisUnit) <= 20 and (buff.enrage.exists("player") or rage <= 70) then
+                    if cast.execute(thisUnit) then debug("Execute non-Massacre Multitarget")
+                        return
+                    end
+                end
+            end
+        end
                 -- Onslaught
         if (rage <= 85) and buff.enrage.exists("player") then
             if cast.onslaught() then
