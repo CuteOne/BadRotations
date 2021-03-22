@@ -515,7 +515,7 @@ function br.getDistance(unit)
     if unit then
         local x2, y2, z2 = br._G.ObjectPosition("target")
         local x1, y1, z1 = br._G.ObjectPosition("player")
-               br.addonDebug("Distance: " .. tostring(GetDistanceBetweenPositions(x1, y1, z1, x2, y2, z2)))
+               br.addonDebug("Distance: " .. tostring(GetDistanceBetweenPositions(x1, y1, z1, x2, y2, z2)))xxxxxxxxxxxx
         return (GetDistanceBetweenPositions(x1, y1, z1, x2, y2, z2))
     end
 end
@@ -713,7 +713,7 @@ local function getOutLaksTTD(ttd_time)
     end
     for i = 1, mob_count do
         if br.getTTD(enemies.yards8[i]) < lowTTD and not br.GetObjectID(enemies.yards8[i]) == 120651 and not br.GetObjectID(enemies.yards8[i]) == 174773
-               and  br.isSafeToAttack(enemies.yards8[i]) then
+                and br.isSafeToAttack(enemies.yards8[i]) then
             LowTTDtarget = enemies.yards8[i]
             lowTTD = br.getTTD(LowTTDtarget)
         end
@@ -724,6 +724,15 @@ local function getOutLaksTTD(ttd_time)
     return tonumber(lowTTDcount)
 end
 
+local function shitmob(Unit)
+    if br.GetObjectID(Unit) == 120651
+            or br.GetObjectID(Unit) == 174773
+    then
+        return true
+    else
+        return false
+    end
+end
 local function getOutLaksTTDMAX()
     local highTTD = 0
     local mob_count = #enemies.yards
@@ -888,11 +897,11 @@ actionList.dps = function()
         )
         then
 
-            if cast.able.betweenTheEyes() and ttd(units.dyn20) > combo * 3 and not buff.masterAssassinsMark.exists() then
-                if (br.GetUnitExists(units.dyn20) and not br.isExplosive(units.dyn20)) then
-                    if cast.betweenTheEyes(units.dyn20) then
-                        return true
-                    end
+            if cd.betweenTheEyes.ready() and not buff.masterAssassinsMark.exists() and ttd(dynamic_target_melee) > 3
+                    and not shitmob(dynamic_target_melee)
+            then
+                if cast.betweenTheEyes(dynamic_target_melee) then
+                    return true
                 end
             end
 
