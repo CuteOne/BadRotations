@@ -606,7 +606,7 @@ local function runRotation()
                     end
                 end
                 local interruptID, castStartTime
-                if ui.checked("Stuns") and distance < 5 and br.player.cast.timeRemain(interrupt_target) < br.getTTD(interrupt_target)  -- and isCrowdControlCandidates(interrupt_target)
+                if ui.checked("Stuns") and distance < 5 and br.player.cast.timeRemain(interrupt_target) < br.getTTD(interrupt_target) and br.isCrowdControlCandidates(interrupt_target)
                  and noStunList[br.GetObjectID(interrupt_target)] == nil and (not br.isBoss(interrupt_target) or stunList[interruptID]) and br.getBuffRemain(interrupt_target, 226510) == 0 then
                     if br._G.UnitCastingInfo(interrupt_target) then
                         castStartTime = select(4,br._G.UnitCastingInfo(interrupt_target))
@@ -795,7 +795,7 @@ local function runRotation()
         --         end
         --     end
         -- end
-        if not stealthedRogue and not buff.masterAssassin.exists() and buff.sliceAndDice.exists("player") and not buff.leadByExample.exists() then
+        if not stealthedRogue and not buff.masterAssassin.exists() and buff.sliceAndDice.exists("player") and buff.leadByExample.remain() <= 3 then
             local spikeCount = serratedCount + 2
             local spikeList = enemies.get(30, "player", false, true)
             if #spikeList > 0 then
