@@ -18,12 +18,13 @@ br.lists.ccUnits = {
 
     -- Necrotic Wake
     [164702] = { name = "Carrion Worm" }, -- Necrotic Wake
-    [163619] = { name = "Zolramus Bonecarver", spell = 321807 }, -- Zolramus Bonecarver casting Boneflay
-    [173016] = { name = "Corpse Collector", spell = 334748 },
-    [166302] = { name = "Corpse Collector", spell = 334748 },
-    [173044] = { name = "Stitching Assistant", spell = 334748 },
-    [165911] = { name = "Loyal Creation", spell = 327240 },
-    [165872] = { name = "Flesh Crafter", spell = 327130 },
+    [163619] = { name = "BoneFlay", spell = 321807 }, -- Zolramus Bonecarver casting Boneflay
+    [173016] = { name = "Drain Fluids", spell = 334748 },
+    [166302] = { name = "Drain Fluids", spell = 334748 },
+    [173044] = { name = "Drain Fluids", spell = 334748 },
+    [165911] = { name = "Spine Crush", spell = 327240 },
+    [165872] = { name = "Repair Flesh", spell = 327130 },
+    [165222] = { name = "Final Bargain", spell = 320822 },
 
     --Theater of Pain
     [164510] = { name = "Shambling Arbalest" }, -- Nasty dot - needs to be cc'ed
