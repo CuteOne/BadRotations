@@ -3853,6 +3853,7 @@ br.lists.spells = {
                 deathWish                   = 199261,
                 enragedRegeneration         = 184364,
                 execute                     = 5308,
+				executeMassacre				= 280735,
                 onslaught                   = 315720,
                 piercingHowl                = 12323,
                 ragingBlow                  = 85288,
