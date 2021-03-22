@@ -173,6 +173,8 @@ function unlock.WowAdUnlock()
             UnitCastingInfo(...)
         local _, _, _, _, endingTime, _, _, notInterruptiblee, spellIdd = UnitChannelInfo(...)
         local castGUID = ObjectField(select(1, ...), 0x1C58, 15);
+        if spellId == nil then spellId = 0 end
+        if spellIdd == nil then spellIdd = 0 end
         return spellId, spellIdd, castGUID, castGUID
     end
     b.GetWoWDirectory = GetWowDirectory
