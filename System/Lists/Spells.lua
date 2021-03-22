@@ -3047,6 +3047,7 @@ br.lists.spells = {
 
             },
             buffs                           = {
+                leadByExample               = 342156,
                 sliceAndDice                = 315496,
                 numbingPoison               = 5761,
                 cripplingPoison             = 3408,
