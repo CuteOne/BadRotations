@@ -795,7 +795,7 @@ local function runRotation()
         --         end
         --     end
         -- end
-        if not stealthedRogue and not buff.masterAssassin.exists() and buff.sliceAndDice.exists("player") then
+        if not stealthedRogue and not buff.masterAssassin.exists() and buff.sliceAndDice.exists("player") and not buff.leadByExample.exists() then
             local spikeCount = serratedCount + 2
             local spikeList = enemies.get(30, "player", false, true)
             if #spikeList > 0 then
