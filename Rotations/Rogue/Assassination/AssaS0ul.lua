@@ -246,6 +246,10 @@ local function runRotation()
         end
     end
 
+    local function int (b)
+        return b and 1 or 0
+    end
+
     local function ttd(unit)
         if br._G.UnitIsPlayer(unit) then return 999 end
         local ttdSec = br.getTTD(unit)
