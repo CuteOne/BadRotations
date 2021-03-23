@@ -79,7 +79,7 @@ local function createOptions()
     local optionTable
 
     local function rotationOptions()
-        section = br.ui:createSection(br.ui.window.profile, "General - 2103121258")
+        section = br.ui:createSection(br.ui.window.profile, "General - 2103231451")
         br.ui:createDropdownWithout(section, "DPS Key", br.dropOptions.Toggle, 6, "DPS Override")
         br.ui:createCheckbox(section, "Group CD's with DPS key", "Pop wings and HA with Dps override", 1)
         if br.player.covenant.kyrian.active then
@@ -400,6 +400,7 @@ end
 local function canheal(unit)
     if br.GetUnitIsUnit(unit, "player")
             or br._G.UnitInRange(unit)
+            and not br.UnitBuffID(unit, 327140)
             and br.getLineOfSight(unit, "player")
             and not br.GetUnitIsDeadOrGhost(unit)
             and br._G.UnitIsPlayer(unit)
@@ -2328,7 +2329,7 @@ local function runRotation()
                             end
                         end
                         actionList.triage()
-                        if holyPower >= 3 or buff.divinePurpose.exists()
+                        if (holyPower >= 3 or buff.divinePurpose.exists())
                                 and ((cd.holyShock.remain() >= 1 and not cd.crusaderStrike.ready) or holyPower == 5) then
                             if actionList.spenders() then
                                 return true
