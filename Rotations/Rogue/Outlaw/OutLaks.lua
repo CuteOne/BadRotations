@@ -99,7 +99,7 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "Keys - 2103080827 ")
+        section = br.ui:createSection(br.ui.window.profile, "Keys - 2103231459")
         br.ui:createDropdownWithout(section, "DPS Key", br.dropOptions.Toggle, 6, "DPS Override")
         br.ui:createCheckbox(section, "Group CD's with DPS key", "Adrenaline + BladeFurry", 1)
         br.ui:createDropdownWithout(section, "Distract", br.dropOptions.Toggle, 6, "Distract at cursor")
@@ -808,7 +808,7 @@ actionList.dps = function()
                     end
                 end]]
 
-        if not stealth and ambushCondition() and cd.vanish.remain() <= 0.2 and br.getDistance(units.dyn5) <= 5 and br.useCDs() and not cast.last.shadowmeld(1) and (br.GetUnitExists(units.dyn5) and (br.getBuffRemain(units.dyn5, 226510) == 0 or not br.isChecked("Cheap Shot")))
+        if not stealth and ambushCondition() and cd.vanish.remain() <= 0.2 and br.getDistance(units.dyn5) <= 5 and not cast.last.shadowmeld(1) and (br.GetUnitExists(units.dyn5) and (br.getBuffRemain(units.dyn5, 226510) == 0 or not br.isChecked("Cheap Shot")))
                 and #br.friend > 1 then
             ambush_flag = true
             if mode.vanish == 1 then
@@ -1113,7 +1113,7 @@ actionList.Stealth = function()
 
     if stealth then
         --marked for death
-        if talent.markedForDeath and cast.able.markedForDeath() and #enemies.yards25nc > 1 then
+        if talent.markedForDeath and cast.able.markedForDeath() and not buff.sliceAndDice.exists and #enemies.yards25nc > 1 then
             local mfd_target
             --lets find the lowest health mob to cast this on
             for i = 1, #enemies.yards25nc do
@@ -1757,9 +1757,12 @@ local function runRotation()
     end
 
 
+    --marked_for_death,target_if=min:target.time_to_die,if=raid_event.adds.up&(target.time_to_die<combo_points.deficit|!stealthed.rogue&combo_points.deficit>=cp_max_spend-1)
+    --If adds are up, snipe the one with lowest TTD. Use when dying faster than CP deficit or without any CP.
+
     --marked for death
     --marked_for_death,target_if=min:target.time_to_die,if=raid_event.adds.up&(target.time_to_die<combo_points.deficit|!stealthed.rogue&combo_points.deficit>=cp_max_spend-1)
-    if #enemies.yards8 > 0 and talent.markedForDeath and cd.markedForDeath.ready() and not stealth and (comboDeficit >= 4) then
+    if not cast.last.markedForDeath(1) and #enemies.yards8 > 0 and talent.markedForDeath and cd.markedForDeath.ready() and not stealth and comboDeficit >= 4 then
         --lets find the lowest health mob to cast this on
         local unit_health = br._G.UnitHealth(enemies.yards8[1])
         local mfd_target = enemies.yards8[1]
