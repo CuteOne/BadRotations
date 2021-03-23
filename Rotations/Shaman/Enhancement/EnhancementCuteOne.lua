@@ -860,7 +860,7 @@ local function runRotation()
         --------------------------
         --- In Combat Rotation ---
         --------------------------
-        if unit.inCombat() and unit.valid("target") and not var.profileStop and not cast.current.focusedAzeriteBeam() then
+        if unit.inCombat() and unit.valid("target") and not var.profileStop then
             ------------------------------
             --- In Combat - Interrupts ---
             ------------------------------
