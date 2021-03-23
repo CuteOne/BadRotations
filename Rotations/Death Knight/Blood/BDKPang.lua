@@ -182,14 +182,6 @@ local function createOptions()
         br.ui:createDropdown(section, "Death and Decay Key", br.dropOptions.Toggle, 6 ,"","Use DnD when this key is held")
         br.ui:checkSectionState(section)
 
-        -- Essence Options
-        section = br.ui:createSection(br.ui.window.profile, "Essences")
-        br.ui:createDropdownWithout(section, "Use Concentrated Flame", {"DPS", "Heal", "Hybrid", "Never"}, 1)
-		br.ui:createSpinnerWithout(section, "Concentrated Flame Heal", 70, 10, 90, 5)
-        br.ui:createSpinner(section,"Anima of Death", 75, 0, 100, 5, "Health Percentage to use at.")
-        br.ui:createSpinnerWithout(section, "Anima Units", 3, 1, 10, 1, "Amount of units Anima Requires.")
-        br.ui:checkSectionState(section)
-
         -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
         -- Death Strike Values
@@ -250,7 +242,6 @@ local function runRotation()
         playertar = br.GetUnitIsDeadOrGhost("target"), br._G.UnitCanAttack("target", "player"), br.GetObjectExists("target"), br._G.UnitIsPlayer("target")
     local debuff = br.player.debuff
     local enemies = br.player.enemies
-    local essence = br.player.essence
     local falling,
         swimming,
         flying,
@@ -382,16 +373,6 @@ local function runRotation()
             end
         end
 
-        if br.getOptionValue("Use Concentrated Flame") == 1 or (br.getOptionValue("Use Concentrated Flame") == 3 and php > br.getValue("Concentrated Flame Heal")) then
-            if cast.concentratedFlame("target") then
-                return
-            end
-        end
-        
-        if br.isChecked("Anima of Death") and cd.animaOfDeath.remain() <= gcd and inCombat and (#enemies.yards8 >= br.getOptionValue("Anima Units") or br.isBoss()) and php <= br.getOptionValue("Anima of Death") then
-            if cast.animaOfDeath("player") then return end
-        end
-
         --HS Cast
         if buff.dancingRuneWeapon.exists() or (br.runeTimeTill(4) < gcd) then
             if cast.heartStrike("target") then
@@ -493,11 +474,6 @@ local function runRotation()
             -- Vampiric Blood
             if br.isChecked("Vampiric Blood") and php <= br.getOptionValue("Vampiric Blood") and not buff.iceboundFortitude.exists("player") then
                 if cast.vampiricBlood() then
-                    return
-                end
-            end
-            if br.getOptionValue("Use Concentrated Flame") ~= 1 and br.getOptionValue("Use Concentrated Flame") ~= 4 and php <= br.getValue("Concentrated Flame Heal") then
-                if cast.concentratedFlame("player") then
                     return
                 end
             end
