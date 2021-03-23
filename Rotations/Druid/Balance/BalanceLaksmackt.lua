@@ -15,54 +15,54 @@ local function createToggles()
             highlight = 1,
             icon = br.player.spell.moonfire
         },
-        [2] = {mode = "Mult", value = 2, overlay = "Multi Target rotation", tip = "Multi Target rotation", highlight = 1, icon = br.player.spell.starfall},
-        [3] = {mode = "Sing", value = 3, overlay = "Force single target", tip = "Force single target", highlight = 0, icon = br.player.spell.wrath},
-        [4] = {mode = "Off", value = 4, overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.soothe}
+        [2] = { mode = "Mult", value = 2, overlay = "Multi Target rotation", tip = "Multi Target rotation", highlight = 1, icon = br.player.spell.starfall },
+        [3] = { mode = "Sing", value = 3, overlay = "Force single target", tip = "Force single target", highlight = 0, icon = br.player.spell.wrath },
+        [4] = { mode = "Off", value = 4, overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.soothe }
     }
-    br.ui:createToggle(RotationModes,"Rotation", 1, 0)
+    br.ui:createToggle(RotationModes, "Rotation", 1, 0)
 
     -- Cooldown Button
     local CooldownModes = {
-        [1] = {mode = "Auto", value = 1, overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.celestialAlignment},
-        [2] = {mode = "On", value = 2, overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 1, icon = br.player.spell.celestialAlignment},
-        [3] = {mode = "Off", value = 3, overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.celestialAlignment}
+        [1] = { mode = "Auto", value = 1, overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.celestialAlignment },
+        [2] = { mode = "On", value = 2, overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 1, icon = br.player.spell.celestialAlignment },
+        [3] = { mode = "Off", value = 3, overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.celestialAlignment }
     }
-    br.ui:createToggle(CooldownModes,"Cooldown", 2, 0)
+    br.ui:createToggle(CooldownModes, "Cooldown", 2, 0)
 
     -- Defensive Button
     local DefensiveModes = {
-        [1] = {mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.barkskin},
-        [2] = {mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.barkskin}
+        [1] = { mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.barkskin },
+        [2] = { mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.barkskin }
     }
-    br.ui:createToggle(DefensiveModes,"Defensive", 3, 0)
+    br.ui:createToggle(DefensiveModes, "Defensive", 3, 0)
 
     -- Interrupt Button
     local InterruptModes = {
-        [1] = {mode = "On", value = 1, overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.solarBeam},
-        [2] = {mode = "Off", value = 2, overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.solarBeam}
+        [1] = { mode = "On", value = 1, overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.solarBeam },
+        [2] = { mode = "Off", value = 2, overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.solarBeam }
     }
-    br.ui:createToggle(InterruptModes,"Interrupt", 4, 0)
+    br.ui:createToggle(InterruptModes, "Interrupt", 4, 0)
 
     -- FoN Button
     local ForceofNatureModes = {
-        [1] = {mode = "On", value = 1, overlay = "Force of Nature Enabled", tip = "Will Use Force of Nature", highlight = 0, icon = br.player.spell.forceOfNature},
-        [2] = {mode = "Key", value = 2, overlay = "Force of Nature hotkey", tip = "Key triggers Force of Nature", highlight = 0, icon = br.player.spell.forceOfNature},
-        [3] = {mode = "Off", value = 2, overlay = "Force of Nature Disabled", tip = "Will Not Use Force of Nature", highlight = 0, icon = br.player.spell.forceOfNature}
+        [1] = { mode = "On", value = 1, overlay = "Force of Nature Enabled", tip = "Will Use Force of Nature", highlight = 0, icon = br.player.spell.forceOfNature },
+        [2] = { mode = "Key", value = 2, overlay = "Force of Nature hotkey", tip = "Key triggers Force of Nature", highlight = 0, icon = br.player.spell.forceOfNature },
+        [3] = { mode = "Off", value = 2, overlay = "Force of Nature Disabled", tip = "Will Not Use Force of Nature", highlight = 0, icon = br.player.spell.forceOfNature }
     }
-    br.ui:createToggle(ForceofNatureModes,"ForceofNature", 5, 0)
+    br.ui:createToggle(ForceofNatureModes, "ForceofNature", 5, 0)
 
     local FormsModes = {
-        [1] = {mode = "On", value = 1, overlay = "Auto Forms Enabled", tip = "Will change forms", highlight = 0, icon = br.player.spell.travelForm},
-        [2] = {mode = "Key", value = 2, overlay = "Auto Forms hotkey", tip = "Key triggers Auto Forms", highlight = 0, icon = br.player.spell.travelForm},
-        [3] = {mode = "Off", value = 3, overlay = "Auto Forms Disabled", tip = "Will Not change forms", highlight = 0, icon = br.player.spell.travelForm}
+        [1] = { mode = "On", value = 1, overlay = "Auto Forms Enabled", tip = "Will change forms", highlight = 0, icon = br.player.spell.travelForm },
+        [2] = { mode = "Key", value = 2, overlay = "Auto Forms hotkey", tip = "Key triggers Auto Forms", highlight = 0, icon = br.player.spell.travelForm },
+        [3] = { mode = "Off", value = 3, overlay = "Auto Forms Disabled", tip = "Will Not change forms", highlight = 0, icon = br.player.spell.travelForm }
     }
-    br.ui:createToggle(FormsModes,"Forms", 6, 0)
+    br.ui:createToggle(FormsModes, "Forms", 6, 0)
 
     local CovModes = {
-        [1] = {mode = "On", value = 1, overlay = "Use Covenant", tip = "Use Covenant powers", highlight = 0, icon = br.player.spell.summonSteward},
-        [2] = {mode = "Off", value = 2, overlay = "Use Covenant", tip = "Use Covenant powers", highlight = 0, icon = br.player.spell.summonSteward}
+        [1] = { mode = "On", value = 1, overlay = "Use Covenant", tip = "Use Covenant powers", highlight = 0, icon = br.player.spell.summonSteward },
+        [2] = { mode = "Off", value = 2, overlay = "Use Covenant", tip = "Use Covenant powers", highlight = 0, icon = br.player.spell.summonSteward }
     }
-    br.ui:createToggle(CovModes,"Cov", 1, -1)
+    br.ui:createToggle(CovModes, "Cov", 1, -1)
 
     --[[
     --pots
@@ -106,10 +106,10 @@ local function createOptions()
         br.ui:createCheckbox(section, "Auto Engage On Target", "Check this to cast sunfire on target OOC to engage combat")
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "Healing")
-        br.ui:createDropdown(section, "Rebirth", {"Tanks", "Healers", "Tanks and Healers", "Mouseover Target", "Any"}, 3, "", "Target to Cast On")
-        br.ui:createDropdown(section, "Revive", {"Target", "mouseover"}, 1, "", "Target to Cast On")
-        br.ui:createDropdown(section, "Remove Corruption", {"Player Only", "Selected Target", "Player and Target", "Mouseover Target", "Any"}, 3, "", "Target to Cast On")
-        br.ui:createDropdown(section, "Off-healing", {"Nope", "always", "No-Healer"}, 1, "", "offheal")
+        br.ui:createDropdown(section, "Rebirth", { "Tanks", "Healers", "Tanks and Healers", "Mouseover Target", "Any" }, 3, "", "Target to Cast On")
+        br.ui:createDropdown(section, "Revive", { "Target", "mouseover" }, 1, "", "Target to Cast On")
+        br.ui:createDropdown(section, "Remove Corruption", { "Player Only", "Selected Target", "Player and Target", "Mouseover Target", "Any" }, 3, "", "Target to Cast On")
+        br.ui:createDropdown(section, "Off-healing", { "Nope", "always", "No-Healer" }, 1, "", "offheal")
 
         br.ui:checkSectionState(section)
 
@@ -121,30 +121,30 @@ local function createOptions()
         --- COOLDOWN OPTIONS --- -- Define Cooldown Options
         ------------------------
         section = br.ui:createSection(br.ui.window.profile, "Pots")
-        br.ui:createDropdown(section, "Auto use Pots", {"Always", "Groups", "Raids", "solo", "never"}, 5, "", "when to use pots")
+        br.ui:createDropdown(section, "Auto use Pots", { "Always", "Groups", "Raids", "solo", "never" }, 5, "", "when to use pots")
         br.ui:createDropdownWithout(
-            section,
-            "Pots - 1 target",
-            {"None", "Battle", "RisingDeath", "Draenic", "Prolonged", "Empowered Proximity", "Focused Resolve", "Superior Battle", "Unbridled Fury"},
-            1,
-            "",
-            "Use Pot when Incarnation/Celestial Alignment is up"
+                section,
+                "Pots - 1 target",
+                { "None", "Battle", "RisingDeath", "Draenic", "Prolonged", "Empowered Proximity", "Focused Resolve", "Superior Battle", "Unbridled Fury" },
+                1,
+                "",
+                "Use Pot when Incarnation/Celestial Alignment is up"
         )
         br.ui:createDropdownWithout(
-            section,
-            "Pots - 2-3 targets",
-            {"None", "Battle", "RisingDeath", "Draenic", "Prolonged", "Empowered Proximity", "Focused Resolve", "Superior Battle", "Unbridled Fury"},
-            1,
-            "",
-            "Use Pot when Incarnation/Celestial Alignment is up"
+                section,
+                "Pots - 2-3 targets",
+                { "None", "Battle", "RisingDeath", "Draenic", "Prolonged", "Empowered Proximity", "Focused Resolve", "Superior Battle", "Unbridled Fury" },
+                1,
+                "",
+                "Use Pot when Incarnation/Celestial Alignment is up"
         )
         br.ui:createDropdownWithout(
-            section,
-            "Pots - 4+ target",
-            {"None", "Battle", "RisingDeath", "Draenic", "Prolonged", "Empowered Proximity", "Focused Resolve", "Superior Battle", "Unbridled Fury"},
-            1,
-            "",
-            "Use Pot when Incarnation/Celestial Alignment is up"
+                section,
+                "Pots - 4+ target",
+                { "None", "Battle", "RisingDeath", "Draenic", "Prolonged", "Empowered Proximity", "Focused Resolve", "Superior Battle", "Unbridled Fury" },
+                1,
+                "",
+                "Use Pot when Incarnation/Celestial Alignment is up"
         )
         br.ui:checkSectionState(section)
 
@@ -168,7 +168,7 @@ local function createOptions()
         br.ui:createSpinnerWithout(section, "Max Moonfire Targets", 5, 1, 10, 1, "Set to maximum number of targets to dot with Moonfire. Min: 1 / Max: 10 / Interval: 1")
         br.ui:createSpinnerWithout(section, "Max Sunfire Targets", 10, 1, 10, 1, "Set to maximum number of targets to dot with Sunfire. Min: 1 / Max: 10 / Interval: 1")
         br.ui:createCheckbox(section, "Safe Dots")
-        br.ui:createDropdownWithout(section, "Starfall", {"Simc", "AOE", "Never"}, 1, "", "Do We use Starfall?")
+        br.ui:createDropdownWithout(section, "Starfall", { "Simc", "AOE", "Never" }, 1, "", "Do We use Starfall?")
         br.ui:createCheckbox(section, "Starfall While moving")
         br.ui:createSpinnerWithout(section, "Fury of Elune Targets", 2, 1, 10, 1, "Set to minimum number of targets to use Fury of Elune. Min: 1 / Max: 10 / Interval: 1")
         br.ui:createCheckbox(section, "Prefer Lunar Eclipse")
@@ -269,13 +269,15 @@ local function runRotation()
     local moonkin = br.player.buff.moonkinForm.exists()
     local bear = br.player.buff.bearForm.exists()
 
+    local unit = br.player.unit
+    local units = br.player.units
     local ui = br.player.ui
     local runeforge = br.player.runeforge
 
     -- spellqueue ready
     local function spellQueueReady()
         --Check if we can queue cast
-        local castingInfo = {br._G.UnitCastingInfo("player")}
+        local castingInfo = { br._G.UnitCastingInfo("player") }
         if castingInfo[5] then
             if (br._G.GetTime() - ((castingInfo[5] - tonumber(br._G.C_CVar.GetCVar("SpellQueueWindow"))) / 1000)) < 0 then
                 return false
@@ -530,6 +532,7 @@ local function runRotation()
 
             if mode.forms ~= 3 then
                 if not br.player.buff.moonkinForm.exists() and not buff.prowl.exists() and not cast.last.moonkinForm(1) then
+                    unit.cancelForm()
                     if cast.moonkinForm() then
                         return true
                     end
@@ -565,9 +568,9 @@ local function runRotation()
                         local object = br._G.GetObjectWithIndex(i)
                         local ID = br._G.ObjectID(object)
                         if
-                            root_UnitList[ID] ~= nil and br.getBuffRemain(object, 226510) == 0 and br.getHP(object) > 90 and not br.isLongTimeCCed(object) and
+                        root_UnitList[ID] ~= nil and br.getBuffRemain(object, 226510) == 0 and br.getHP(object) > 90 and not br.isLongTimeCCed(object) and
                                 (br.getBuffRemain(object, 102359) < 2 or br.getBuffRemain(object, 339) < 2)
-                         then
+                        then
                             local x1, y1, z1 = br._G.ObjectPosition("player")
                             local x2, y2, z2 = br._G.ObjectPosition(object)
                             local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
@@ -597,9 +600,9 @@ local function runRotation()
             if br.isChecked("Auto use Pots") then
                 local pot_use
                 if
-                    br.getValue("Auto use Pots") == 1 or br.getValue("Auto use Pots") == 2 and inInstance or br.getValue("Auto use Pots") == 3 and inRaid or
+                br.getValue("Auto use Pots") == 1 or br.getValue("Auto use Pots") == 2 and inInstance or br.getValue("Auto use Pots") == 3 and inRaid or
                         br.getValue("Auto use Pots") == 4 and solo
-                 then
+                then
                     pot_use = true
                 end
 
@@ -614,9 +617,9 @@ local function runRotation()
                     end
 
                     if
-                        not auto_pot == 1 and (buff.incarnationChoseOfElune.exists() and buff.incarnationChoseOfElune.remain() > 16.5) or
+                    not auto_pot == 1 and (buff.incarnationChoseOfElune.exists() and buff.incarnationChoseOfElune.remain() > 16.5) or
                             (buff.celestialAlignment.exists() and buff.celestialAlignment.remain() > 13)
-                     then
+                    then
                         if auto_pot == 2 and br.canUseItem(163222) then
                             br.useItem(163222)
                         elseif auto_pot == 3 and br.canUseItem(152559) then
@@ -639,10 +642,10 @@ local function runRotation()
             end
 
             if
-                race == "Troll" and br.isChecked("Racial") and br.useCDs() and ttd("target") >= 12 and
+            race == "Troll" and br.isChecked("Racial") and br.useCDs() and ttd("target") >= 12 and
                     ((buff.incarnationChoseOfElune.exists() and buff.incarnationChoseOfElune.remain() > 16.5) or
-                        (buff.celestialAlignment.exists() and buff.celestialAlignment.remain() > 13))
-             then
+                            (buff.celestialAlignment.exists() and buff.celestialAlignment.remain() > 13))
+            then
                 cast.racial("player")
             end
 
@@ -662,12 +665,12 @@ local function runRotation()
 
             local convoke_desync = false
             if
-                math.floor((getOutLaksTTDMAX() - 20 - cd.convokeTheSpirits.remains() - gcd) / 120) >
+            math.floor((getOutLaksTTDMAX() - 20 - cd.convokeTheSpirits.remains() - gcd) / 120) >
                     math.floor((getOutLaksTTDMAX() - 25 - (10 * int(talent.incarnationChoseOfElune) - (int(conduit.preciseAlignment.enabled)) - pew_remain())) / 180) or
                     pew_remain() > getOutLaksTTDMAX() or
                     cd.convokeTheSpirits.remains() - gcd > getOutLaksTTDMAX() or
                     not covenant.nightFae.active
-             then
+            then
                 convoke_desync = true
             else
                 convoke_desync = false
@@ -749,10 +752,10 @@ local function runRotation()
 
                 --	fury_of_elune
                 if
-                    talent.furyOfElune and br.isChecked("Fury Of Elune") and (furyUnits >= br.getValue("Fury of Elune Targets") or br.isBoss("target")) and astral_def > 8 and
+                talent.furyOfElune and br.isChecked("Fury Of Elune") and (furyUnits >= br.getValue("Fury of Elune Targets") or br.isBoss("target")) and astral_def > 8 and
                         (br.isChecked("Group Fury with CD") and (pewbuff or cd.celestialAlignment.remain() > 30 or cd.incarnationChoseOfElune.remain() > 30) or
-                            not br.isChecked("Group Fury with CD"))
-                 then
+                                not br.isChecked("Group Fury with CD"))
+                then
                     if cast.furyOfElune() then
                         return true
                     end
@@ -813,11 +816,11 @@ local function runRotation()
                     if mode.cov == 1 then
                         --convoke_the_spirits,
                         if
-                            br.useCDs() and cd.convokeTheSpirits.remain() - gcd <= 0 and getOutLaksTTDMAX() > 10 and
+                        br.useCDs() and cd.convokeTheSpirits.remain() - gcd <= 0 and getOutLaksTTDMAX() > 10 and
                                 ((convoke_desync and pew_remain() > 0 or pewbuff) and (power < 50 or ignore_starsurge) and
-                                    (buff.eclipse_lunar.remains() > 6 or buff.eclipse_solar.remains() > 6) and
-                                    (not runeforge.balanceOfAllThings.equiped or buff.balanceOfAllThingsNature.stack() > 3 or buff.balanceOfAllThingsArcane.stack() > 3))
-                         then
+                                        (buff.eclipse_lunar.remains() > 6 or buff.eclipse_solar.remains() > 6) and
+                                        (not runeforge.balanceOfAllThings.equiped or buff.balanceOfAllThingsNature.stack() > 3 or buff.balanceOfAllThingsArcane.stack() > 3))
+                        then
                             if cast.convokeTheSpirits() then
                                 return true
                             end
@@ -928,11 +931,11 @@ local function runRotation()
                     -- Force Of Nature / treants
                     if talent.forceOfNature and cast.able.forceOfNature() and astral_def > 20 then
                         if
-                            br.player.ui.mode.forceofNature == 1 and br.getTTD("target") >= 10 and
+                        br.player.ui.mode.forceofNature == 1 and br.getTTD("target") >= 10 and
                                 (br.isChecked("Group treants with CD") and (pewbuff or cd.celestialAlignment.remain() > 30 or cd.incarnationChoseOfElune.remain() > 30) or
-                                    not br.isChecked("Group treants with CD")) and
+                                        not br.isChecked("Group treants with CD")) and
                                 (#enemies.yards12t >= br.getValue("Treant Targets") or br.isBoss())
-                         then
+                        then
                             if cast.forceOfNature("best", nil, 1, 15, true) then
                                 return true
                             end
@@ -957,9 +960,9 @@ local function runRotation()
                     -- celestialAlignment
                     if br.getCombatTime() > 2 and br.useCDs() and br.isChecked("Incarnation/Celestial Alignment") and getOutLaksTTDMAX() > br.getValue("Incarnation/Celestial Alignment") then
                         if
-                            (buff.starfall.exists() or power > 50) and not eclipse_in and not pewbuff and
+                        (buff.starfall.exists() or power > 50) and not eclipse_in and not pewbuff and
                                 (not covenant.nightFae.active or convoke_desync or cd.convokeTheSpirits.ready() or getOutLaksTTDMAX() < 20)
-                         then
+                        then
                             if not talent.incarnationChoseOfElune and cast.able.celestialAlignment() then
                                 if cast.celestialAlignment() then
                                 end
@@ -973,11 +976,11 @@ local function runRotation()
                     if mode.cov == 1 then
                         if cast.able.kindredSpirits() then
                             if
-                                getOutLaksTTDMAX() > 15 and -- or (buff.primordial_arcanic_pulsar.value<250|buff.primordial_arcanic_pulsar.value>=250)
+                            getOutLaksTTDMAX() > 15 and -- or (buff.primordial_arcanic_pulsar.value<250|buff.primordial_arcanic_pulsar.value>=250)
                                     buff.starfall.exists() and
                                     (pew_remain() > 50) or
                                     not br.useCDs()
-                             then
+                            then
                                 if cast.kindredSpirits("player") then
                                     return true
                                 end
@@ -1015,9 +1018,9 @@ local function runRotation()
                     --new starfall here
                     if cast.able.starfall() and (br.getValue("Starfall") == 1 or br.getValue("Starfall") == 2) then
                         if
-                            covenant.nightFae.active and (convoke_desync or pew_remain() == 0 or pewbuff) and cd.convokeTheSpirits.remains() < gcd * math.ceil(power / 50) and
+                        covenant.nightFae.active and (convoke_desync or pew_remain() == 0 or pewbuff) and cd.convokeTheSpirits.remains() < gcd * math.ceil(power / 50) and
                                 buff.starfall.remains() < 4
-                         then
+                        then
                             if cast.starfall() then
                                 return true
                             end
@@ -1027,10 +1030,10 @@ local function runRotation()
                     if not noDamageCheck(units.dyn45) and cast.able.starsurge(units.dyn45) and starfall_wont_fall_off then
                         -- starsurge 2
                         if
-                            covenant.nightFae.active and (convoke_desync or pew_remain() == 0 or pewbuff and cd.convokeTheSpirits.remains() - gcd < 6) and buff.starfall.exists() and
+                        covenant.nightFae.active and (convoke_desync or pew_remain() == 0 or pewbuff and cd.convokeTheSpirits.remains() - gcd < 6) and buff.starfall.exists() and
                                 eclipse_in and
                                 not ignore_starsurge
-                         then
+                        then
                             if cast.starsurge(units.dyn45) then
                                 br.addonDebug("[SS] - 3")
                                 return true
@@ -1100,12 +1103,11 @@ local function runRotation()
                         end
                     end
 
-                    local dot_requirements =
-                        (buff.incarnationChoseOfElune.remains() < 5 or buff.celestialAlignment.remains() < 5) and
-                        (buff.ravenousFrenzy.remains() > 5 or not buff.ravenousFrenzy.exists() or not pewbuff or power < 30) and
-                        (not buff.kindredEmpowermentEnergize.exists() or power < 30) and
-                        (buff.eclipse_solar.remains() > gcd or buff.eclipse_lunar.remains() > gcd) or
-                        false
+                    local dot_requirements = (buff.incarnationChoseOfElune.remains() < 5 or buff.celestialAlignment.remains() < 5) and
+                            (buff.ravenousFrenzy.remains() > 5 or not buff.ravenousFrenzy.exists() or not pewbuff or power < 30) and
+                            (not buff.kindredEmpowermentEnergize.exists() or power < 30) and
+                            (buff.eclipse_solar.remains() > gcd or buff.eclipse_lunar.remains() > gcd) or
+                            false
 
                     if not noDamageCheck(thisUnit) then
                         if br.isChecked("Safe Dots") and
@@ -1142,11 +1144,11 @@ local function runRotation()
                     -- Force Of Nature / treants   SINGLE TARGET
                     if talent.forceOfNature and cast.able.forceOfNature() and astral_def > 20 then
                         if
-                            br.player.ui.mode.forceofNature == 1 and br.getTTD("target") >= 10 and
+                        br.player.ui.mode.forceofNature == 1 and br.getTTD("target") >= 10 and
                                 (br.isChecked("Group treants with CD") and (pewbuff or cd.celestialAlignment.remain() > 30 or cd.incarnationChoseOfElune.remain() > 30) or
-                                    not br.isChecked("Group treants with CD")) and
+                                        not br.isChecked("Group treants with CD")) and
                                 (#enemies.yards12t >= br.getValue("Treant Targets") or br.isBoss())
-                         then
+                        then
                             if cast.forceOfNature("best", nil, 1, 15, true) then
                                 return true
                             end
@@ -1169,10 +1171,10 @@ local function runRotation()
                         --kindred spirit
                         if cast.able.kindredSpirits() then
                             if
-                                ((buff.eclipse_solar.remains() > 10 or buff.eclipse_lunar.remains() > 10) and pew_remain() > 30) or --buff.primordial_arcanic_pulsar.value < 240
+                            ((buff.eclipse_solar.remains() > 10 or buff.eclipse_lunar.remains() > 10) and pew_remain() > 30) or --buff.primordial_arcanic_pulsar.value < 240
                                     --  |!runeforge.primordial_arcanic_pulsar.equipped))|buff.primordial_arcanic_pulsar.value>=270
                                     pew_remain() == 0 and (power > 90 or is_aoe)
-                             then
+                            then
                                 if cast.kindredSpirits("player") then
                                     return true
                                 end
@@ -1182,22 +1184,22 @@ local function runRotation()
                     if br.getCombatTime() > 2 and br.useCDs() and br.isChecked("Incarnation/Celestial Alignment") and getOutLaksTTDMAX() > br.getValue("Incarnation/Celestial Alignment") then
                         if not talent.incarnationChoseOfElune then
                             if
-                                (power > 90 and (buff.kindredEmpowermentEnergize.exists() or not covenant.kyrian.active) or covenant.nightFae.active or is_aoe or
+                            (power > 90 and (buff.kindredEmpowermentEnergize.exists() or not covenant.kyrian.active) or covenant.nightFae.active or is_aoe or
                                     br.hasBloodLust() and (br.br.hasBloodLustRemain() < 20) + ((9 * int(runeforge.primordialArcanicPulsar.equiped)) + (int(conduit.preciseAlignment)))) and
                                     not pewbuff and
                                     (not covenant.nightFae.active or (cd.convokeTheSpirits.remains() - gcd) <= 0 or getOutLaksTTDMAX() < (cd.convokeTheSpirits.remains() + 6 - gcd))
-                             then
+                            then
                                 if cast.celestialAlignment() then
                                     return true
                                 end
                             end
                         else
                             if
-                                (power > 90 and (buff.kindredEmpowermentEnergize.exists() or not covenant.kyrian.active) or covenant.nightFae.active or is_aoe or
+                            (power > 90 and (buff.kindredEmpowermentEnergize.exists() or not covenant.kyrian.active) or covenant.nightFae.active or is_aoe or
                                     br.hasBloodLust() and (br.br.hasBloodLustRemain() < 30) + ((9 * int(runeforge.primordialArcanicPulsar.equiped)) + (int(conduit.preciseAlignment)))) and
                                     not pewbuff and
                                     (not covenant.nightFae.active or cd.convokeTheSpirits.remains() == 0 or getOutLaksTTDMAX() < (cd.convokeTheSpirits.remains() + 6))
-                             then
+                            then
                                 if cast.incarnationChoseOfElune() then
                                     return true
                                 end
@@ -1209,10 +1211,10 @@ local function runRotation()
 
                     -- fury of elune - single target
                     if
-                        eclipse_in and astral_def > 20 and --and buff.primordialArcanicPulsar.value() < 240
+                    eclipse_in and astral_def > 20 and --and buff.primordialArcanicPulsar.value() < 240
                             (debuff.adaptiveSwarm.exists("target") or not covenant.necrolord.active) and
                             save_for_ca_inc
-                     then
+                    then
                         if cast.furyOfElune("target") then
                             return true
                         end
@@ -1245,12 +1247,12 @@ local function runRotation()
 
                     --Starfall - ST
                     if
-                        br.getValue("Starfall") == 1 and talent.stellarDrift and not talent.starlord and buff.starfall.remains() < 2 and
+                    br.getValue("Starfall") == 1 and talent.stellarDrift and not talent.starlord and buff.starfall.remains() < 2 and
                             (buff.eclipse_lunar.remains() > 6 and current_eclipse == "lunar" or
-                                --          and buff.primordialArcanicPulsar.value() < 250 or buff.primordialArcanicPulsar.value() >= 250 and power > 90
-                                debuff.adaptiveSwarm.remains("target") > 8) and
+                                    --          and buff.primordialArcanicPulsar.value() < 250 or buff.primordialArcanicPulsar.value() >= 250 and power > 90
+                                    debuff.adaptiveSwarm.remains("target") > 8) and
                             pew_remain() > 0
-                     then
+                    then
                         if cast.starfall() then
                             br.addonDebug("[SF] Stellardrift")
                             return true
@@ -1260,22 +1262,22 @@ local function runRotation()
                     --sTarsurge wave 2
                     if cast.able.starsurge("target") then
                         if
-                            buff.onethsClearVision.exists() or buff.kindredEmpowermentEnergize.exists() or
+                        buff.onethsClearVision.exists() or buff.kindredEmpowermentEnergize.exists() or
                                 pewbuff and
-                                    (buff.ravenousFrenzy.remains() < gcd * math.ceil(power / 30) and buff.ravenousFrenzy.exists() or
-                                        not buff.ravenousFrenzy.exists() and not cd.ravenousFrenzy.ready() or
-                                        not covenant.venthyr) or
+                                        (buff.ravenousFrenzy.remains() < gcd * math.ceil(power / 30) and buff.ravenousFrenzy.exists() or
+                                                not buff.ravenousFrenzy.exists() and not cd.ravenousFrenzy.ready() or
+                                                not covenant.venthyr) or
                                 power > 90 and eclipse_in
-                         then
+                        then
                             if cast.starsurge("target") then
                                 br.addonDebug("[SS] COND1")
                                 return true
                             end
                         end
                         if
-                            talent.starlord and (buff.starlord.exists() or power > 90) and buff.starlord.stack() < 3 and (current_eclipse == "solar" or current_eclipse == "lunar") and
+                        talent.starlord and (buff.starlord.exists() or power > 90) and buff.starlord.stack() < 3 and (current_eclipse == "solar" or current_eclipse == "lunar") and
                                 (pew_remain() > 10 or not convoke_desync and covenant.nightFae.active)
-                         then
+                        then
                             if cast.starsurge("target") then
                                 br.addonDebug("[SS] COND2")
                                 return true
@@ -1299,10 +1301,10 @@ local function runRotation()
 
                     --starfire
                     if
-                        cast.able.starfire("target") and current_eclipse == "lunar" or eclipse_next == "solar" or eclipse_next == "any" or
+                    cast.able.starfire("target") and current_eclipse == "lunar" or eclipse_next == "solar" or eclipse_next == "any" or
                             buff.warriorOfElune.exists() and current_eclipse == "lunar" or
                             ((buff.incarnationChoseOfElune.remains() > br.getCastTime(spell.wrath) or buff.celestialAlignment.remains() > br.getCastTime(spell.wrath)) and pewbuff)
-                     then
+                    then
                         if cast.starfire("target") then
                             return true
                         end
@@ -1334,9 +1336,9 @@ local function runRotation()
                         end
                         --convoke_the_spirits,
                         if
-                            br.useCDs() and cd.convokeTheSpirits.remain() - gcd <= 0 and getOutLaksTTDMAX() > 10 and
+                        br.useCDs() and cd.convokeTheSpirits.remain() - gcd <= 0 and getOutLaksTTDMAX() > 10 and
                                 ((convoke_desync and pew_remain() ~= 0 or pewbuff) and (buff.balanceOfAllThingsNature.stack() == 5 or buff.balanceOfAllThingsArcane.stack() == 5))
-                         then
+                        then
                             br._G.CastSpellByID(323764, "player")
                             return true
                         end
@@ -1345,9 +1347,9 @@ local function runRotation()
                     --starlord cancel here
                     if talent.starlord then
                         if
-                            (buff.balanceOfAllThingsNature.remains() > 4.5 or buff.balanceOfAllThingsArcane.remains() > 4.5) and
+                        (buff.balanceOfAllThingsNature.remains() > 4.5 or buff.balanceOfAllThingsArcane.remains() > 4.5) and
                                 (pew_remain() > 7 or (cd.empowerBond.remains() > 7 and not buff.kindredEmpowermentEnergize.exists() and covenant.kyrian.active))
-                         then
+                        then
                             br.cancelBuff(279709)
                         end
                     end
@@ -1421,11 +1423,11 @@ local function runRotation()
                     -- Force Of Nature / treants
                     if talent.forceOfNature and cast.able.forceOfNature() and astral_def > 20 then
                         if
-                            br.player.ui.mode.forceofNature == 1 and br.getTTD("target") >= 10 and
+                        br.player.ui.mode.forceofNature == 1 and br.getTTD("target") >= 10 and
                                 (br.isChecked("Group treants with CD") and (pewbuff or cd.celestialAlignment.remain() > 30 or cd.incarnationChoseOfElune.remain() > 30) or
-                                    not br.isChecked("Group treants with CD")) and
+                                        not br.isChecked("Group treants with CD")) and
                                 (#enemies.yards12t >= br.getValue("Treant Targets") or br.isBoss())
-                         then
+                        then
                             if cast.forceOfNature("best", nil, 1, 15, true) then
                                 return true
                             end
@@ -1441,11 +1443,11 @@ local function runRotation()
                     if mode.cov == 1 then
                         if cast.able.kindredSpirits() then
                             if
-                                (eclipse_next == "lunar" or eclipse_next == "solar" or eclipse_next == "any" or buff.balanceOfAllThingsNature.remains() > 4.5 or
+                            (eclipse_next == "lunar" or eclipse_next == "solar" or eclipse_next == "any" or buff.balanceOfAllThingsNature.remains() > 4.5 or
                                     buff.balanceOfAllThingsArcane.remains() > 4.5 or
                                     power > 90 and pew_remain() == 0 and br.useCDs()) and
                                     (pew_remain() > 30 or pew_remain() == 0)
-                             then
+                            then
                                 if cast.kindredSpirits("player") then
                                     return true
                                 end
@@ -1457,21 +1459,21 @@ local function runRotation()
                     if br.getCombatTime() > 2 and br.useCDs() and br.isChecked("Incarnation/Celestial Alignment") and getOutLaksTTDMAX() > br.getValue("Incarnation/Celestial Alignment") then
                         if not talent.incarnationChoseOfElune and cast.able.celestialAlignment() then
                             if
-                                (power > 90 and (buff.kindredEmpowermentEnergize.exists() or not covenant.kyrian.active) or covenant.nightFae.active or
+                            (power > 90 and (buff.kindredEmpowermentEnergize.exists() or not covenant.kyrian.active) or covenant.nightFae.active or
                                     br.hasBloodLust() and (br.br.hasBloodLustRemain() < 20)) and
                                     (convoke_desync or cd.convokeTheSpirits.remain() - gcd <= 0)
-                             then
+                            then
                                 if cast.celestialAlignment() then
                                     return true
                                 end
                             end
                         else
                             if
-                                cast.able.incarnationChoseOfElune() and
+                            cast.able.incarnationChoseOfElune() and
                                     (power > 90 and (buff.kindredEmpowermentEnergize.exists() or not covenant.kyrian.active) or covenant.nightFae.active or
-                                        br.hasBloodLust() and (br.br.hasBloodLustRemain() < 30)) and
+                                            br.hasBloodLust() and (br.br.hasBloodLustRemain() < 30)) and
                                     (convoke_desync or cd.convokeTheSpirits.remain() - gcd <= 0)
-                             then
+                            then
                                 if cast.incarnationChoseOfElune() then
                                     return true
                                 end
@@ -1569,12 +1571,14 @@ local function runRotation()
         end
         -- Swiftmend
         if talent.restorationAffinity and br.isChecked("Swiftmend") and cast.able.swiftmend() and php <= br.getValue("Swiftmend") and charges.swiftmend.count() >= 1 and hasHot("player") then
+           unit.cancelForm()
             if cast.swiftmend("player") then
                 return true
             end
         end
         -- Regrowth
         if br.isChecked("Regrowth") and not moving and php <= br.getValue("Regrowth") then
+             unit.cancelForm()
             if cast.regrowth("player") then
                 return true
             end
@@ -1582,6 +1586,7 @@ local function runRotation()
 
         --rejuvenation
         if br.isChecked("Rejuvenation") and php <= br.getValue("Rejuvenation") and not buff.rejuvenation.exists("player") then
+             unit.cancelForm()
             if cast.rejuvenation("player") then
                 return true
             end
@@ -1766,6 +1771,7 @@ local function runRotation()
                 if br.PullTimerRemain() <= br.getOptionValue("Pre-Pull Timer") then
                     if mode.forms ~= 3 then
                         if not br.player.buff.moonkinForm.exists() and not cast.last.moonkinForm(1) and not br.isMoving("player") then
+                             unit.cancelForm()
                             if cast.moonkinForm() then
                                 return true
                             end
@@ -1871,6 +1877,7 @@ local function runRotation()
         --Forms key management, in and out of combat
         if mode.forms == 2 then
             if not moonkin then
+                 unit.cancelForm()
                 if cast.moonkinForm() then
                     return true
                 end
@@ -1880,10 +1887,10 @@ local function runRotation()
         if br.isChecked("Auto Innervate") and inCombat and cast.able.innervate() then
             for i = 1, #br.friend do
                 if
-                    br._G.UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" and br.getDistance(br.friend[i].unit) < 45 and not br.GetUnitIsDeadOrGhost(br.friend[i].unit) and
+                br._G.UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" and br.getDistance(br.friend[i].unit) < 45 and not br.GetUnitIsDeadOrGhost(br.friend[i].unit) and
                         br.getLineOfSight(br.friend[i].unit) and
                         not br.hasBuff(29166, br.friend[i].unit)
-                 then
+                then
                     if cast.innervate(br.friend[i].unit) then
                         return true
                     end
@@ -1940,6 +1947,7 @@ local function runRotation()
             if mode.forms == 1 then
                 if br.isChecked("Standing Time") then
                     if (travel or buff.catForm.exists()) and not buff.prowl.exists() and standingTime > br.getValue("Standing Time") then
+                         unit.cancelForm()
                         if cast.moonkinForm("player") then
                             return true
                         end
@@ -1948,9 +1956,9 @@ local function runRotation()
 
                 -- Flight Form
                 if
-                    not inCombat and br.canFly() and not swimming and br.fallDist > 90 --[[falling > br.getOptionValue("Fall Timer")]] and br.player.level >= 58 and
+                not inCombat and br.canFly() and not swimming and br.fallDist > 90 --[[falling > br.getOptionValue("Fall Timer")]] and br.player.level >= 58 and
                         not buff.prowl.exists()
-                 then
+                then
                     if br._G.GetShapeshiftForm() ~= 0 and not cast.last.travelForm() then
                         -- CancelShapeshiftForm()
                         br._G.RunMacroText("/CancelForm")
@@ -2099,11 +2107,11 @@ if br.rotations[id] == nil then
 end
 
 br._G.tinsert(
-    br.rotations[id],
-    {
-        name = rotationName,
-        toggles = createToggles,
-        options = createOptions,
-        run = runRotation
-    }
+        br.rotations[id],
+        {
+            name = rotationName,
+            toggles = createToggles,
+            options = createOptions,
+            run = runRotation
+        }
 )
