@@ -79,7 +79,7 @@ local function createOptions()
     local optionTable
 
     local function rotationOptions()
-        section = br.ui:createSection(br.ui.window.profile, "General - 2103231451")
+        section = br.ui:createSection(br.ui.window.profile, "General - 2103231638")
         br.ui:createDropdownWithout(section, "DPS Key", br.dropOptions.Toggle, 6, "DPS Override")
         br.ui:createCheckbox(section, "Group CD's with DPS key", "Pop wings and HA with Dps override", 1)
         if br.player.covenant.kyrian.active then
@@ -2330,7 +2330,7 @@ local function runRotation()
                         end
                         actionList.triage()
                         if (holyPower >= 3 or buff.divinePurpose.exists())
-                                and ((cd.holyShock.remain() >= 1 and not cd.crusaderStrike.ready) or holyPower == 5) then
+                                and (cd.holyShock.remain() >= 1 and not cd.crusaderStrike.ready) or holyPower == 5 then
                             if actionList.spenders() then
                                 return true
                             end
