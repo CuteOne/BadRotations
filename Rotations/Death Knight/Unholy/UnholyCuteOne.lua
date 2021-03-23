@@ -64,6 +64,8 @@ local function createOptions()
             -- Death Grip
             br.ui:createCheckbox(section, "Death Grip","|cffFFFFFFWill grip units out that are >8yrds away from you while in combat.")
             br.ui:createCheckbox(section, "Death Grip - Pre-Combat","|cffFFFFFFWill grip selected target to begin combat.")
+            -- DnD Stand Time
+            br.ui:createSpinnerWithout(section, "DnD Stand Time", 2, 0, 3, 0.25, "|cffFFFFFFSet to desired time to stand still before use. Min: 0 / Max: 3 / Interval: 0.25")
             -- Pre-Pull Timer
             br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
             -- Path of Frost
@@ -595,7 +597,7 @@ end -- End Action List - Covenants
 -- Action List - AOE Setup
 actionList.AOE_Setup = function()
     -- Death and Decal / Defile
-    if ui.mode.dnd == 1 and unit.standingTime() >= 2 then
+    if ui.mode.dnd == 1 and unit.standingTime() >= ui.value("DnD Stand Time") then
         -- any_dnd,if=death_knight.fwounded_targets=active_enemies|raid_event.adds.exists&raid_event.adds.remains<=11
         -- any_dnd,if=death_knight.fwounded_targets=active_enemies|raid_event.adds.exists&raid_event.adds.remains<=11
         if var.fwoundTargets == #enemies.yards5 or (ui.mode.rotation == 2 and #enemies.yards5 <= 11) then
@@ -745,7 +747,7 @@ actionList.Generic = function()
     end
     -- Any DnD
     -- any_dnd,if=cooldown.apocalypse.remains&(talent.defile.enabled|covenant.night_fae|runeforge.phearomones)&(!variable.pooling_runes|fight_remains<5)
-    if ui.mode.dnd == 1 and unit.standingTime() >= 2 and ((cd.apocalypse.exists() or not ui.alwaysCdNever("Apocalypse"))
+    if ui.mode.dnd == 1 and unit.standingTime() >= ui.value("DnD Stand Time") and ((cd.apocalypse.exists() or not ui.alwaysCdNever("Apocalypse"))
         and (talent.defile or covenant.nightFae.active or runeforge.phearomones.equiped) and not var.poolingRunes)
     then
         if cast.able.defile() and talent.defile then
