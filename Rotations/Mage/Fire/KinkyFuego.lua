@@ -1,5 +1,5 @@
 local rotationName = "KinkyFuego"
-local rotationVersion = "1.3.7"
+local rotationVersion = "1.3.8"
 local colorRed = "|cffFF0000"
 local colorWhite = "|cffffffff"
 
@@ -3526,7 +3526,7 @@ end
         or (buff.hotStreak.exists() and #enemies.yards6t > 2 and fsReady)
      --   and interruptCast()
         then
-            if cast.current.fireball()then
+            if cast.current.fireball() then
                 if br.timer:useTimer("fb stop delay", br.getOptionValue("Cast Interrupting Delay") / (1 + GetHaste() / 100)) then
                
                 --CancelPendingSpell()
@@ -3540,16 +3540,16 @@ end
          -- Interrupt Scorch w/ procs. 
         if inCombat and buff.hotStreak.exists() or buff.heatingUp.exists() and pyroReady 
         --or (buff.hotStreak.exists() and #enemies.yards6t > 2 and fsReady)
-       -- and interruptCast()
+        --and interruptCast()
         then 
-            if cast.current.fireball() then
-                if br.timer:useTimer("scorch stop delay", br.getOptionValue("Cast Interrupting Delay") / (1 + GetHaste() / 100)) then 
-               br._G.SpellStopCasting()
+          if cast.current.fireball() then
+                if br.timer:useTimer("fb stop delay2", br.getOptionValue("Cast Interrupting Delay") / (1 + GetHaste() / 100)) then 
+                    br._G.SpellStopCasting()
                     debug("no fireball during combust/aoe and having procs!")
                 end
-           end
+            end
         end
-        if not var.phoenix_pooling 
+      --[[ if not var.phoenix_pooling 
         and buff.heatingUp.react() and not buff.hotStreak.react() 
        -- and (var.soul_ignition_count < 2 or #enemies.yards10t >= var.hard_cast_flamestrike 
     --    or #enemies.yards10 >= var.hot_streak_flamestrike) and fsReady
@@ -3560,7 +3560,21 @@ end
                     br._G.SpellStopCasting() 
                 end
             end
-       end
+       end]]
+        if buff.combustion.react() and travelTime < buff.combustion.remains() 
+        and ((charges.fireBlast.count() < 1 and talent.pyroclasm and #enemies.yards10 == 1) 
+        or not talent.pyroclasm or #enemies.yards10 > 1) 
+        and buff.heatingUp.react() 
+        and var.num(var.hot_streak_spells_in_flight) < 2
+        --and interruptCast()
+       -- and interruptCast()
+        then
+            if cast.current.scorch() then
+                if br.timer:useTimer("scorch stop delay5", br.getOptionValue("Cast Interrupting Delay") / (1 + GetHaste() / 100)) then
+                    br._G.SpellStopCasting() 
+                end
+           end
+        end
         
         -- Cancel Ice Block. 
         if buff.iceBlock.exists("player") and php >= 75 then
