@@ -420,7 +420,7 @@ local function runRotation()
             br.useItem(179350)
         end
         -- Skuler's Wing
-        if ui.checked("Trinkets") and (br._G.GetInventoryItemID("player", 13) == 184016 or br._G.GetInventoryItemID("player", 14) == 184016) and br.canUseItem(184016) then
+        if ui.checked("Trinkets") and (br._G.GetInventoryItemID("player", 13) == 184016 or br._G.GetInventoryItemID("player", 14) == 184016) and br.canUseItem(184016) and #enemyTable10 > 0 then
             br.useItem(184016)
         end
     end
