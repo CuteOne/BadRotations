@@ -99,7 +99,7 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "Keys - 2103231459")
+        section = br.ui:createSection(br.ui.window.profile, "Keys - 2103241515")
         br.ui:createDropdownWithout(section, "DPS Key", br.dropOptions.Toggle, 6, "DPS Override")
         br.ui:createCheckbox(section, "Group CD's with DPS key", "Adrenaline + BladeFurry", 1)
         br.ui:createDropdownWithout(section, "Distract", br.dropOptions.Toggle, 6, "Distract at cursor")
@@ -613,7 +613,6 @@ local function dps_key()
     if mode.rotation == 1 then
 
         if runeforge.markOfTheMasterAssassin.equiped and talent.killingSpree then
-
             if cd.killingSpree.ready() and (cd.vanish.ready() or MA_flag)
                     and (buff.bladeFlurry.remains() > 3.5 or cd.bladeFlurry.ready() or #enemies.yards8 == 1)
             then
@@ -632,6 +631,24 @@ local function dps_key()
                     end
                 end
                 if cast.killingSpree() then
+                    MA_flag = nil
+                    return true
+                end
+            end
+        elseif runeforge.deathlyShadows.equiped and talent.bladeRush then
+            if cd.bladeRush.ready() and (cd.vanish.ready() or MA_flag)
+                    and (buff.bladeFlurry.remains() > 3.5 or cd.bladeFlurry.ready() or #enemies.yards8 == 1)
+            then
+                if buff.bladeFlurry.remains() < 2 and #enemies.yards8 > 1 then
+                    if cast.bladeFlurry() then
+                        return true
+                    end
+                end
+                if cast.vanish() then
+                    MA_flag = true
+                    return true
+                end
+                if cast.bladeRush() then
                     MA_flag = nil
                     return true
                 end
@@ -1171,7 +1188,7 @@ actionList.Extra = function()
         dps_key()
     end
 
-    if (mode.cooldown == 1 and br.isChecked("Slice and Dice") or not br.isChecked("Slice and Dice")) and not buff.grandMelee.exists() and not buff.masterAssassinsMark.exists() then
+    if (mode.cooldown == 1 and br.isChecked("Slice and Dice") or not br.isChecked("Slice and Dice")) and not buff.grandMelee.exists() and (not buff.masterAssassinsMark.exists() or stealth) then
         if cast.able.sliceAndDice() and combo > 0 then
             if buff.sliceAndDice.remains() < (1 + combo) * 1.8 and (br.getCombatTime() > 2 or cd.vanish.exists()) then
                 if cast.sliceAndDice() then
@@ -1187,7 +1204,7 @@ actionList.Extra = function()
         end
     end
 
-    if cast.able.rollTheBones() and (inCombat or #enemies.yards25nc > 0 or br.DBM:getPulltimer() < 1.5) and not buff.masterAssassinsMark.exists() then
+    if cast.able.rollTheBones() and (inCombat or #enemies.yards25nc > 0 or br.DBM:getPulltimer() < 1.5) and (not buff.masterAssassinsMark.exists() or stealth) then
         local badguy = false
         if not inCombat and #enemies.yards25nc > 0 then
             for i = 1, #enemies.yards25nc do
@@ -1445,7 +1462,7 @@ actionList.Interrupt = function()
     }
 
     local feintList = {
-        [256979] = true -- Powder shot FH 2nd
+        [320596] = true -- Heaving Retch in NW
     }
 
     if br.useDefensive() and (cast.able.vanish() or cast.able.cloakOfShadows() or cast.able.evasion() or cast.able.feint()) then
