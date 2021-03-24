@@ -1,5 +1,5 @@
 local rotationName = "KinkySpirit"
-local versionNum = "1.3.7"
+local versionNum = "1.3.8"
 local colorPurple = "|cff8788EE"
 local colorOrange = "|cffb28cc7"	
 local colorWhite = "|cffffffff"							   
@@ -220,6 +220,10 @@ local function createOptions()
 		br.ui:createCheckbox(section, "Auto Target", "|cffb28cc7 Will auto change to a new target, if current target is dead")
         -- Auto Engage
         br.ui:createCheckbox(section, "Auto Engage", "|cffb28cc7 Will auto engage combat when out of combat.")
+        -- Target Faccia Check
+        br.ui:createCheckbox(section, "Target Faccia", "|cffFFFFFFToggle Unit Faccia Check")
+        -- Auto Faccia
+        br.ui:createCheckbox(section, "Auto Faccia", "|cffFFFFFFToggle Auto Faccia")
 
 		-- Dummy DPS Test
 		br.ui:createSpinner(section, "DPS Testing", 5, 5, 60, 5, "|cffb28cc7Set to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
@@ -231,6 +235,8 @@ local function createOptions()
 
 		-- Pet Management
         br.ui:createCheckbox(section, "Pet Management", "|cffb28cc7 Select to enable/disable auto pet management")
+        -- Pet Summon Delay
+        br.ui:createSpinnerWithout(section, "Summon Pet Delay", 3, 1, 10, 0.1, "|cffFFBB00Delay between Pet Summons")
 
         -- Fel Domination
         br.ui:createCheckbox(section, "Fel Domination", "|cffFFFFFF Toggle the auto casting of Fel Donmination")
@@ -1148,9 +1154,14 @@ local function runRotation()
         end
         -- actions.nether_portal_active+=/demonbolt,if=buff.demonic_core.up
         if buff.demonicCore.exists() then
-            if cast.demonbolt("target") then ui.debug("[Action:PortalActive] Demonbolt")
-                return true
-            end
+            if cast.demonbolt("target") then ui.debug("[Action:PortalActive] Demonbolt") return true end
+                if br.isChecked("Auto Faccia") and not br.getLineOfSight("player","target") then
+                    var.Module_KinkySex(spell.dragonsBreath,"target")
+                    debug("[Action:Combust Phase] Dragons Breath (COMBUUUST) (11)")
+                    return true 
+            else 
+                if cast.dragonsBreath("target") then debug("[Action:Combust Phase] Dragons Breath (COMBUUUST) (11)") return true end
+            end  
         end
         -- actions.nether_portal_active+=/call_action_list,name=build_a_shard
         if actionList_BuildAShard() then
@@ -1464,7 +1475,15 @@ local function runRotation()
             if cast.summonDemonicTyrant("target") then br.addonDebug("[Action:Rotation] Summon Demonic Tyrant (Hotkey)") return true end
         end 
         -- cooldowns hotkeys
-        if br.SpecificToggle("Cooldowns") and not GetCurrentKeyBoardFocus() and not moving then
+        if br.SpecificToggle("Cooldowns") 
+        --and not GetCurrentKeyBoardFocus() and not moving 
+        then
+            module.BasicTrinkets()
+            if br.isChecked("Racial") and race == "Troll" or race == "Orc" or race == "DarkIronDwarf" then
+                if cast.racial("player") then debug("[Action:Rotation] Racial")
+                    return true
+                end
+            end
             if cast.summonDemonicTyrant("target") then br.addonDebug("[Action:Rotation] Summon Demonic Tyrant (Hotkey)") return true end
             if cast.summonVilefiend("target") then br.addonDebug("[Action:Rotation] Summon Vilefiend (Hotkey)") return true end
             if cast.grimoireFelguard("target") then br.addonDebug("[Action:Rotation] Grimoire Felguard (Hotkey)") return true end
@@ -1473,6 +1492,7 @@ local function runRotation()
                 if cast.powerSiphon("target") then ui.debug("[Action:Rotation] Power Siphon (Hotkey)") return true end 
             end
             if cast.soulStrike("target") then ui.debug("[Action:Rotation] Soul Strike") return true end
+            
             if buff.demonicCore.exists() and (buff.demonicCore.stack() >= 0 or buff.demonicCore.remain() <= gcdMax * 5.7) then
                 if cast.demonbolt("target") then ui.debug("[Action:Implosion] Demonbolt (Proc)") return true end
             end
@@ -1513,13 +1533,11 @@ local function runRotation()
         -- Covenants (Level 60) ------------------------
         ------------------------------------------------
         if level == 60 and not moving then
-            --actions.covenant=impending_catastrophe,if=cooldown.summon_darkglare.remains<10|cooldown.summon_darkglare.remains>50
             ------------------------------------------------
             -- Impending Catastrophe : Venthyr -------------
             ------------------------------------------------
-            --321792
-            if covenant.venthyr.active and spellUsable(321792) and select(2,GetSpellCooldown(321792)) <= gcdMax then
-                if cast.impendingCatastrophe() then br.addonDebug("[Action:Rotation] Impending Catastrophe") return true end
+            if #enemies.yards10t > 1 or br.useCDs() and covenant.venthyr.active and spellUsable(321792) and select(2,GetSpellCooldown(321792)) <= gcdMax then
+                if cast.impendingCatastrophe() then br.addonDebug("[Action:Leveling ST] Impending Catastrophe") return true end
             end
             ------------------------------------------------
             -- Impending Catastrophe : Venthyr -------------
@@ -1535,14 +1553,13 @@ local function runRotation()
             if covenant.necrolord.active and spellUsable(325289) and select(2,GetSpellCooldown(325289)) <= gcdMax then
                 if cast.decimatingBolt() then br.addonDebug("[Action:Rotation] Decimating Bolt") return true end
             end    
-
             --actions.covenant+=/soul_rot,if=cooldown.summon_darkglare.remains<5|cooldown.summon_darkglare.remains>50|cooldown.summon_darkglare.remains>25&conduit.corrupting_leer.enabled
             ------------------------------------------------
             -- Soul Rot : Night Fae ------------------------
             ------------------------------------------------
-            if covenant.nightFae.active and spellUsable(325640) and select(2,GetSpellCooldown(325640)) <= gcdMax and br.useCDs() then
-                if cast.soulRot() then br.addonDebug("[Action:Rotation] Soul Rot (SOul Rot Active)") return true end
-            end
+            if #enemies.yards40 > 1 or br.useCDs() and covenant.necrolord.active then
+                if cast.soulRot("target") then br.addonDebug("[Action:Leveling ST] Soul Rot")  return true end
+            end 
             ------------------------------------------------
             -- Soul Rot ------------------------------------
             ------------------------------------------------
@@ -1552,8 +1569,12 @@ local function runRotation()
             ------------------------------------------------
             -- Scouring Tithe : Kyrian ---------------------
             ------------------------------------------------
-            if covenant.kyrian.active and spellUsable(312321) and select(2,GetSpellCooldown(312321)) <= gcdMax then
-                if cast.scouringTithe() then br.addonDebug("[Action:Rotation] Scouring Tithe") return true end
+            if talent.sacrificedSouls and #enemies.yards10t == 1 and covenant.kyrian.active and spellUsable(312321) and select(2,GetSpellCooldown(312321)) <= gcdMax then
+                if cast.scouringTithe() then br.addonDebug("[Action:Leveling ST] Scouring Tithe") return true end
+            else 
+                if not talent.sacrificedSouls and #enemies.yards10t < 4 and covenant.kyrian.active and spellUsable(312321) and select(2,GetSpellCooldown(312321)) <= gcdMax then
+                    if cast.scouringTithe() then br.addonDebug("[Action:Leveling ST] Scouring Tithe") return true end
+                end
             end
         end
         -- actions+=/demonbolt,if=soul_shard<=3&buff.demonic_core.up&((cooldown.summon_demonic_tyrant.remains<10|cooldown.summon_demonic_tyrant.remains>22)|buff.demonic_core.stack>=3|buff.demonic_core.remains<5|time_to_die<25)
@@ -1723,7 +1744,7 @@ end
             if cast.felDomination() then br.addonDebug("Fel Domination Low Pet Health") return true end
         end
         -- Summon our pet. 
-        if br.isChecked("Pet Management") and not (IsFlying() or IsMounted()) or (buff.demonicPower.exists()) and level >= 5 and br.timer:useTimer("summonPet",math.random(1.5,2.5)) then
+         if br.isChecked("Pet Management") and not (IsFlying() or IsMounted()) and ((not talent.grimoireOfSacrifice or not buff.demonicPower.exists()) or talent.grimoireOfSacrifice and not buff.grimoireOfSacrifice.exists("player")) and level >= 5 and br.timer:useTimer("Summon Pet Delay", br.getOptionValue("Summon Pet Delay")) and not moving then
             if (activePetId == 0 or activePetId ~= summonId) and (lastSpell ~= castSummonId or activePetId ~= summonId or activePetId == 0)  then
                 if HasAttachedGlyph(spell.summonFelguard) then
                     var.summonFelguard = var.summonWrathguard
@@ -1765,24 +1786,6 @@ end
 
 
     local function actionList_PreCombat()
-
-        local mapMythicPlusModeID, mythicPlusLevel, mythicPlustime, mythicPlusOnTime, keystoneUpgradeLevels, practiceRun = C_ChallengeMode.GetCompletionInfo()
-        if ui.checked("Soulstone Healer OOC [Mythic+]") and not solo and not moving then
-            --if mythicPlusLevel ~= 0 then
-                for i = 1, #br.friend do
-                    if br._G.UnitIsPlayer(br.friend[i].unit) and br.GetUnitIsFriend(br.friend[i].unit, "player") 
-                    and (br._G.UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" or br.friend[i].role == "HEALER") 
-                    and (not buff.soulstone.exists(br.friend[i].unit))
-                    and br.timer:useTimer("Healer SS", 3) 
-                    then
-                        if cast.soulstone(br.friend[i].unit) then
-                            br.addonDebug("Soulstone Healer OOC [Mythic+] YEEEEEEEEEEEEEEEEET")
-                            return true
-                        end
-                    end
-                end
-            --end
-        end
         -- Create Healthstone
         if not moving and not inCombat and ui.checked("Create Healthstone") then
             if GetItemCount(5512) < 1 and br.timer:useTimer("CH", 5) then
@@ -1838,6 +1841,13 @@ end
         end
         return true
     else
+        if br.isChecked("Auto Engage") and solo and not inCombat then 
+            if not moving and hastar and br._G.UnitCanAttack("target", "player") and not br.GetUnitIsDeadOrGhost("target") and br.getLineOfSight("player","target") then
+                if br.timer:useTimer("target", math.random(0.2,1.5)) then
+                    if cast.shadowBolt("target") then br.addonDebug("Casting Shadow Bolt (Pull Spell)") return end
+                end
+            end
+        end
         -----------------------
         --- Extras Rotation ---
         -----------------------
@@ -1851,6 +1861,7 @@ end
         -------------------
         --- Pet Control ---
         -------------------
+        
         if actionList_PetControl() then return end
             -- Our pet's dead, let's dismiss him so we can summon another. 
             if br.GetUnitIsDeadOrGhost("pet") then br._G.RunMacroText("/petdismiss") return end 
@@ -1908,7 +1919,8 @@ end
         --- In Combat Rotation ---
         --------------------------
         --br.getFacing("player","target") == true 
-                if inCombat or spellQueueReady() and br.profileStop == false and br.isValidUnit("target") and br.getDistance("target") < 40 then
+            if (inCOmbat and br._G.UnitCanAttack("target", "player") and not br.GetUnitIsDeadOrGhost("target") and br.getLineOfSight("player","target") and cast.inFlight.shadowBolt() or spellQueueReady()) 
+            and (br.isChecked("Target Faccia") and br.getFacing("player", "target") or br.isChecked("Auto Faccia")) and br.isValidUnit("target") and br.getDistance("target") < 40  and br._G.UnitCanAttack("target", "player") and not br.GetUnitIsDeadOrGhost("target") and br.getLineOfSight("player","target") then
         
             ------------------------------
             --- In Combat - Interrupts ---
@@ -1924,9 +1936,7 @@ end
             ---------------------------
             if br.getOptionValue("APL Mode") == 1 and not br.pause() then
                 -- rotation
-                if actionList_Rotation() then 
-                    return 
-                end
+                if actionList_Rotation() then return end
             end -- End SimC APL
         end --End In Combat
     end --End Rotation Logic
