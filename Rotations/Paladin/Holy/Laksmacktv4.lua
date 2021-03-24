@@ -2329,8 +2329,7 @@ local function runRotation()
                             end
                         end
                         actionList.triage()
-                        if (holyPower >= 3 or buff.divinePurpose.exists())
-                                and (cd.holyShock.remain() >= 1 and not cd.crusaderStrike.ready) or holyPower == 5 then
+                        if (holyPower >= 3 and not cd.holyShock.ready()) or buff.divinePurpose.exists() or holyPower == 5 then
                             if actionList.spenders() then
                                 return true
                             end
