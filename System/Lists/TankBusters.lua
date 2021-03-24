@@ -17,6 +17,9 @@ br.lists.tankBuster = {
     --*Dungeons
     --ToP
     [320069] = {Type = "Physical", CanMitigate = true },-- Mortal Strike
+    [320063] = {Type = "Physical", CanMitigate = true },-- Slam
+    [330697] = {Type = "Physical", CanMitigate = true },-- Decaying Strike
+    [333845] = {Type = "Physical", CanMitigate = true },-- Unbalancing Blow
     [331316] = {Type = "Physical", CanMitigate = true },-- Savage Flurry - Channeled
     [323515] = {Type = "Physical", CanMitigate = true }, --Hateful Strike
     [320644] = {Type = "Physical", CanMitigate = true },-- Brutal Combo
@@ -24,6 +27,7 @@ br.lists.tankBuster = {
     --DoS
     [331288] = {Type = "Physical", CanMitigate = true }, -- Colossus Smash
     [322736] = {Type = "Physical", CanMitigate = true },-- Piercing Barb
+    [320168] = {Type = "Physical", CanMitigate = true },-- Buzz-Saw
     [327646] = {Type = "Physical", CanMitigate = true },-- Soul Crusher
     [340016] = {Type = "Physical", CanMitigate = true },-- Talon Rake
     [331548] = {Type = "Physical", CanMitigate = true },-- Metallic Jaws
@@ -33,7 +37,11 @@ br.lists.tankBuster = {
     [340208] = {Type = "Physical", CanMitigate = true },-- Shred Armor
     --HoA
     [322936] = {Type = "Physical", CanMitigate = true },-- Crumbling Slam
-    --Pl,aguefall
+    [326409] = {Type = "Physical", CanMitigate = true },-- Thrash
+    [338005] = {Type = "Physical", CanMitigate = true },-- Smack
+    [329324] = {Type = "Physical", CanMitigate = true },-- Jaws of Stone
+    [329321] = {Type = "Physical", CanMitigate = true },-- Jagged Swipe
+    --Plaguefall
     [325552] = {Type = "Physical", CanMitigate = true },-- Cytotoxic Slash
     --Sanguine
     [319650] = {Type = "Physical", CanMitigate = true },-- Vicious Headbutt
@@ -44,5 +52,9 @@ br.lists.tankBuster = {
     [324608] = {Type = "Magical", CanReflect = false},-- Charged Stomp
     --NW
     [320655] = {Type = "Physical", CanMitigate = true },-- Crunch
+    [334488] = {Type = "Physical", CanMitigate = true },-- Sever Flesh
+    [320771] = {Type = "Physical", CanMitigate = true },-- Icy Shard
     [320376] = {Type = "Physical", CanMitigate = true },-- Mutilate
+    [338357] = {Type = "Physical", CanMitigate = true },-- Tenderize
+
     }

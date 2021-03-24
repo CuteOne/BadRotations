@@ -37,6 +37,11 @@ local function createToggles()
         [2] = { mode = "Off", value = 1 , overlay = "Auto Movement Disabled", tip = "Will NOT Cast Movement Abilities", highlight = 0, icon = br.player.spell.infernalStrike}
     };
     br.ui:createToggle(MoverModes,"Mover",5,0)
+    local TankbusterModes = {
+        [1] = {mode = "On", value = 1, overlay = "M+ Tankbuster Enabled", tip = "Will use Demon Spikes to Mitigate Tank Busters", highlight = 1, icon = br.player.spell.demonSpikes},
+        [2] = {mode = "Off", value = 2, overlay = "M+ Tankbuster Disabled", tip = "Will NOT use Demon Spikes to Mitigate Tank Busters", highlight = 0, icon = br.player.spell.demonSpikes}
+    }
+    br.ui:createToggle(TankbusterModes,"Tankbuster", 0, 1)
 end
 
 ---------------
@@ -48,6 +53,9 @@ local function createOptions()
         local section
         -- General Options
         section = br.ui:createSection(br.ui.window.profile, "General")
+            if br.player.covenant.kyrian.active then
+                br.ui:createDropdown(section, "Elysian Decree Key", br.dropOptions.Toggle, 6, "Elysian Decree on mouseover")
+            end
             -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
             -- Auto Engage
@@ -105,6 +113,8 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
             -- Consume Magic
             br.ui:createCheckbox(section, "Disrupt")
+            -- Imprison
+            br.ui:createCheckbox(section, "Imprison")
             -- Sigil of Silence
             br.ui:createCheckbox(section, "Sigil of Silence")
             -- Sigil of Misery
@@ -168,11 +178,35 @@ var.inRaid          = false
 var.lastRune        = var.getTime()
 var.profileStop     = false
 
+
+local function TankBuster()
+    if br.player.ui.mode.tankbuster == 1 and inInstance then
+        for i = 1, #enemies.yards30 do
+            local thisUnit = enemies.yards30[i]    
+            if br._G.UnitThreatSituation("player", thisUnit) == 3 and UnitCastingInfo("target") then
+                if br.lists.tankBuster[select(9, UnitCastingInfo("target"))] ~= nil then
+                    return true
+                end
+            end
+            return false
+        end
+    end
+end
+
+local Stun_unitList = {
+    -- Theater of Pain
+    [164510] = "Shambling Arbalest",
+}
 --------------------
 --- Action Lists ---
 --------------------
 -- Action List - Extras
 actionList.Extras = function()
+    -- Key Holds
+    if br.SpecificToggle("Elysian Decree Key") and not br._G.GetCurrentKeyBoardFocus() then
+        br._G.CastSpellByID(306830, "cursor")
+        return
+    end
     -- Dummy Test
     if ui.checked("DPS Testing") then
         if unit.exists("target") then
@@ -193,6 +227,24 @@ actionList.Extras = function()
             end
         end
     end
+    -- Throw Glaive Aggro
+    if ui.checked("Throw Glaive") and cast.able.throwGlaive() then
+        for i = 1, #enemies.yards30 do
+            local thisUnit = enemies.yards30[i]
+            if not unit.isTanking(thisUnit) and unit.threat(thisUnit) and not unit.isExplosive(thisUnit) then
+                if cast.throwGlaive(thisUnit) then ui.debug("Casting Throw Glaive [Not Tanking]") return true end
+            end
+        end
+    end
+    --Tank buster
+    if TankBuster() and mode.tankbuster == 1 and inInstance then
+        if unit.inCombat() and cast.able.demonSpikes() and charges.demonSpikes.count() > 1 then
+            if cast.demonSpikes() then
+                br.addonDebug("[TANKBUST] Demon Spike")
+                return
+            end
+        end
+    end  -- End Tankbuster
 end -- End Action List - Extras
 
 -- Action List - Defensive
@@ -264,6 +316,10 @@ actionList.Interrupts = function()
                 if ui.checked("Disrupt") and cast.able.disrupt(thisUnit) and unit.distance(thisUnit) < 20 then
                     if cast.disrupt(thisUnit) then ui.debug("Casting Disrupt") return true end
                 end
+                -- Imprison
+                if ui.checked("Imprison") and cast.able.imprison(thisUnit) and unit.distance(thisUnit) < 20 then
+                    if cast.imprison(thisUnit) then ui.debug("Casting Imprison") return true end
+                end
                 -- Sigil of Silence
                 if ui.checked("Sigil of Silence") and cast.able.sigilOfSilence(thisUnit) and cd.disrupt.remain() > 0 then
                     if cast.sigilOfSilence(thisUnit,"ground",1,8) then ui.debug("Casting Sigil of Silence") return true end
@@ -276,6 +332,49 @@ actionList.Interrupts = function()
                 end
             end
         end
+        if ui.checked("Chaos Nova") and cast.able.chaosNova() then
+    
+            local Stun_list = {
+                -- The Necrotic Wake
+                [320822] = true, -- Final Bargain
+                [321807] = true, -- Boneflay
+                [334747] = true, -- Throw Flesh
+                -- Mists of Tirna Scithe
+                [322569] = true, -- Hand of Thros
+                [324987] = true, -- Mistveil Bite
+                [317936] = true, -- Forsworn Doctrine
+                [317661] = true, -- Insidious Venom
+                -- Halls of Atonement
+                [326450] = true, -- Loyal Beasts
+                [325701] = true, -- Siphon Life
+                -- De Other Side
+                [332329] = true, -- Devoted Sacrafice
+                [332671] = true, -- Bladestorm
+                [332156] = true, -- Spinning Up
+                [334664] = true, -- Frightened Cries
+                --Plaguefall
+                [328177] = true, -- Fungi Storm
+                [321935] = true, -- Withering Filth
+                [328429] = true, -- Crushing Embrace
+                [336451] = true, -- Bulwark of Maldraxxus
+                [328651] = true, -- Call Venomfang
+                [328400] = true, -- Stealthlings
+                -- Sanguine Depths
+                [322169] = true, -- Growing Mistrust
+                -- Theater of Pain
+                [333540] = true, -- Opportunity Strikes
+                [330586] = true -- Devour Flesh
+            }
+            for i = 1, #enemies.yards8 do
+                local thisUnit = enemies.yards8[i]
+                local distance = br.getDistance(thisUnit)
+                if (Stun_unitList[br.GetObjectID(thisUnit)] ~= nil or Stun_list[select(9, br._G.UnitCastingInfo(thisUnit))] ~= nil or Stun_list[select(7, br._G.GetSpellInfo(br._G.UnitChannelInfo(thisUnit)))] ~= nil) and br.getBuffRemain(thisUnit, 226510) == 0 and distance <= 10 then
+                    if cast.chaosNova() then
+                        return true
+                    end
+                end
+            end
+        end    
     end -- End useInterrupts check
 end -- End Action List - Interrupts
 
@@ -296,11 +395,11 @@ actionList.Cooldowns = function()
             if cast.able.theHunt() then
                 if cast.theHunt() then ui.debug("Casting The Hunt") return true end
             end
-            -- -- Fodder to the Flame
-            -- -- fodder_to_the_flame
-            -- if cast.able.fodderToTheFlame() then
-            --     if cast.fodderToTheFlame() then ui.debug("Casting Fodder to the Flame") return true end
-            -- end
+            -- Fodder to the Flame
+            -- fodder_to_the_flame
+            if cast.able.fodderToTheFlame() then
+                if cast.fodderToTheFlame() then ui.debug("Casting Fodder to the Flame") return true end
+            end
             -- Elysian Decree
             -- elysian_decree
             if cast.able.elysianDecree() then
@@ -319,7 +418,7 @@ actionList.FieryBrand = function()
     end
     -- Immolation Aura
     -- immolation_aura,if=dot.fiery_brand.ticking
-    if ui.checked("Immolation Aura") and cast.able.immolationAura() and debuff.fieryBrand.exists(units.dyn5) and #enemies.yards8 > 0 then
+    if ui.checked("Immolation Aura") and cast.able.immolationAura() and debuff.fieryBrand.exists(units.dyn5) and #enemies.yards5 > 0 then
         if cast.immolationAura() then ui.debug("Casting Immolation Aura [Fiery Brand]") return true end
     end
 end -- End Action List - PreCombat
@@ -356,7 +455,7 @@ actionList.Normal = function()
     end
     -- Immolation Aura
     -- immolation_aura,if=((variable.brand_build&cooldown.fiery_brand.remains>10)|!variable.brand_build)&fury<=90
-    if ui.checked("Immolation Aura") and cast.able.immolationAura("player") and ((var.brandBuild and cd.fieryBrand.remains() > 10) or not var.brandBuild) and fury <= 90 and #enemies.yards8 > 0 then
+    if ui.checked("Immolation Aura") and cast.able.immolationAura("player") and ((var.brandBuild and cd.fieryBrand.remains() > 10) or not var.brandBuild) and fury <= 90 and #enemies.yards5 > 0 then
         if cast.immolationAura("player") then ui.debug("Casting Immolation Aura") return true end
     end
     -- Felblade
@@ -465,7 +564,7 @@ local function runRotation()
     units.get(5)
     units.get(8,true)
     units.get(20)
-    -- Enemies Lists
+    -- Enemies Listss
     enemies.get(5)
     enemies.get(8)
     enemies.get(30)
