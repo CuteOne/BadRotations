@@ -4021,6 +4021,7 @@ br.lists.spells = {
             covenants                       = {
                 ancientAftershock           = 325886,
                 conquerorsBanner            = 324143,
+                fleshcraft                  = 324631,
                 spearOfBastion              = 307865,
             },
             debuffs                         = {
@@ -4028,6 +4029,9 @@ br.lists.spells = {
             },
             glyphs                          = {
 
+            },
+            runeforges                      = {
+                reprisal                    = 335718,
             },
             talents                         = {
                 angerManagement             = 152278,
