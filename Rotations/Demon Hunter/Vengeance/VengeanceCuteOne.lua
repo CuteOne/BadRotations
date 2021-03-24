@@ -113,6 +113,8 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
             -- Consume Magic
             br.ui:createCheckbox(section, "Disrupt")
+            -- Chaos Nova
+            br.ui:createCheckbox(section, "Chaos Nova")
             -- Imprison
             br.ui:createCheckbox(section, "Imprison")
             -- Sigil of Silence
