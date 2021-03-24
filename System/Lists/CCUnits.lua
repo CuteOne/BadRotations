@@ -11,9 +11,13 @@ br.lists.ccUnits = {
     -- SL Dungeons
     [174773] = { name = "All-Consuming Spite"}, -- M+ Affix
 
-
+    -- HoA
     [164562] = { name = "Loyal Beasts", spell = 326450 }, -- Halls of Atonement
+
+    -- DoS
     [170480] = { name = "Bladestorm", spell = 332671 }, -- De Other Side
+
+    -- Mists
     [165251] = { name = "Illusionary Vulpin" }, -- https://www.wowhead.com/npc=165251/illusionary-vulpin
 
     -- Necrotic Wake
@@ -36,7 +40,6 @@ br.lists.ccUnits = {
     [168572] = { name = "Fungistorm", spell = 328177 }, -- -- big AOE, can be stunned
     [163862] = { name = "Bulwark of Maldraxxus", spell = 336451 }, -- Prevent the shield from going on
     [163892] = { name = "Corroded Claws", spell = 320512 }, -- Prevent the shield from going on 
-
 
     -- Thorghast
     [150959] = { name = "Critical Shot", spell = 294171 }, -- Torghast Mawsworn Interceptor

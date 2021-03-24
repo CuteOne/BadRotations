@@ -89,7 +89,6 @@ local function createOptions()
             br.ui:createCheckbox(section, "Precombat", "Will use items/pots on pulltimer")
             br.ui:createDropdown(section, "Potion", {"Agility", "Unbridled Fury", "Focused Resolve"}, 3, "Potion with CDs")
             br.ui:createCheckbox(section, "Vendetta", "Will use Vendetta")
-            br.ui:createCheckbox(section, "Hold Vendetta", "Will hold Vendetta for Vanish")
             br.ui:createSpinnerWithout(section,  "CDs TTD Limit",  5,  0,  20,  1,  "Time to die limit for using cooldowns.")
         br.ui:checkSectionState(section)
         -------------------------
@@ -402,7 +401,7 @@ local function runRotation()
     end
 
     local function trinket_Pop()
-        if cdUsage then
+        if (debuff.vendetta.exists() or (br.isBoss() and fightRemain <= 20)) and targetDistance < 5 and ttd("target") > br.getOptionValue("CDs TTD Limit") then
             if br.canUseItem(13) and not br.hasEquiped(178715, 13) and not br.hasEquiped(184016, 13) and not br.hasEquiped(181333, 13) and not br.hasEquiped(179350, 13) then
                 br.useItem(13)
             end
@@ -411,11 +410,12 @@ local function runRotation()
             end
         end
         -- Inscrutable Quantum Device
-        if (br._G.GetInventoryItemID("player", 13) == 179350 or br._G.GetInventoryItemID("player", 14) == 179350) and br.canUseItem(179350) and (buff.vendetta.exists() or (br.isBoss() and fightRemain <= 20)) then
+        if (debuff.vendetta.exists() or (br.isBoss() and fightRemain <= 20)) and targetDistance < 5 and ttd("target") > br.getOptionValue("CDs TTD Limit") and
+         (br._G.GetInventoryItemID("player", 13) == 179350 or br._G.GetInventoryItemID("player", 14) == 179350) and br.canUseItem(179350) then
             br.useItem(179350)
         end
         -- Skuler's Wing
-        if (br._G.GetInventoryItemID("player", 13) == 184016 or br._G.GetInventoryItemID("player", 14) == 184016) and br.canUseItem(184016) then
+        if (br._G.GetInventoryItemID("player", 13) == 184016 or br._G.GetInventoryItemID("player", 14) == 184016) and br.canUseItem(184016) and #enemyTable10 > 0 then
             br.useItem(184016)
         end
     end
@@ -758,7 +758,7 @@ local function runRotation()
             end
         end
         -- actions.cds+=/use_items,slots=trinket1,if=variable.trinket_sync_slot=1&(debuff.vendetta.up|fight_remains<=20)
-        if ui.checked("Trinkets") and (debuff.vendetta.exists("target") or fightRemain <= 20) and targetDistance < 5 and ttd("target") > br.getOptionValue("CDs TTD Limit") then
+        if ui.checked("Trinkets") then
             if trinket_Pop() then return true end
         end
         -- actions.cds+=/blood_fury,if=debuff.vendetta.up
@@ -964,7 +964,8 @@ local function runRotation()
                 local ruptureRemain = debuff.rupture.remain(thisUnit)
                 if debuff.rupture.refresh(thisUnit) and (debuff.rupture.applied(thisUnit) <= 1 or (ruptureRemain <= tickTime and enemies10 >= 3)) and
                  (not debuff.rupture.exsang(thisUnit) or (ruptureRemain < (tickTime *2) and enemies10 >= 3)) and 
-                 (enemyTable5[i].ttd-ruptureRemain) > (4 + (DSEquipped*9) + (DoomEquipped*6)) then
+                 (enemyTable5[i].ttd-ruptureRemain) > (4 + (DSEquipped*9) + (DoomEquipped*6)) and 
+                 (debuff.garrote.exists(thisUnit) or combatTime > 5) then
                     if cast.rupture(thisUnit) then return true end
                 end
             end
@@ -1065,7 +1066,7 @@ local function runRotation()
                 br._G.StartAttack("target")
             end
             -- actions+=/call_action_list,name=cds,if=(!talent.master_assassin.enabled|dot.garrote.ticking)
-            if validTarget and (not talent.masterAssassin or garroteCount > 0) then
+            if validTarget and (not talent.masterAssassin or debuff.garrote.exists("target")) then
                 if actionList_Cooldowns() then return true end
             end
             --# Put SnD up initially for Cut to the Chase, refresh with Envenom if at low duration
