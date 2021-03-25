@@ -850,7 +850,7 @@ actionList.dps = function()
                 end
             end
             -- dps cd's
-            if (#enemies.yards8 - explosiveCount) >= 2 and not buff.bladeFlurry.exists() and getOutLaksTTD(8) >= 2 then
+            if (#enemies.yards8 - explosiveCount) >= 2 and not buff.bladeFlurry.exists() then
                 if cast.bladeFlurry() then
                     return true
                 end
