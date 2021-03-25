@@ -53,9 +53,6 @@ local function createOptions()
         local section
         -- General Options
         section = br.ui:createSection(br.ui.window.profile, "General")
-            if br.player.covenant.kyrian.active then
-                br.ui:createDropdown(section, "Elysian Decree Key", br.dropOptions.Toggle, 6, "Elysian Decree on mouseover")
-            end
             -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
             -- Auto Engage
@@ -113,8 +110,6 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
             -- Consume Magic
             br.ui:createCheckbox(section, "Disrupt")
-            -- Chaos Nova
-            br.ui:createCheckbox(section, "Chaos Nova")
             -- Imprison
             br.ui:createCheckbox(section, "Imprison")
             -- Sigil of Silence
@@ -180,35 +175,11 @@ var.inRaid          = false
 var.lastRune        = var.getTime()
 var.profileStop     = false
 
-
-local function TankBuster()
-    if br.player.ui.mode.tankbuster == 1 and inInstance then
-        for i = 1, #enemies.yards30 do
-            local thisUnit = enemies.yards30[i]    
-            if br._G.UnitThreatSituation("player", thisUnit) == 3 and UnitCastingInfo("target") then
-                if br.lists.tankBuster[select(9, UnitCastingInfo("target"))] ~= nil then
-                    return true
-                end
-            end
-            return false
-        end
-    end
-end
-
-local Stun_unitList = {
-    -- Theater of Pain
-    [164510] = "Shambling Arbalest",
-}
 --------------------
 --- Action Lists ---
 --------------------
 -- Action List - Extras
 actionList.Extras = function()
-    -- Key Holds
-    if br.SpecificToggle("Elysian Decree Key") and not br._G.GetCurrentKeyBoardFocus() then
-        br._G.CastSpellByID(306830, "cursor")
-        return
-    end
     -- Dummy Test
     if ui.checked("DPS Testing") then
         if unit.exists("target") then
@@ -239,11 +210,24 @@ actionList.Extras = function()
         end
     end
     --Tank buster
-    if TankBuster() and mode.tankbuster == 1 and inInstance then
-        if unit.inCombat() and cast.able.demonSpikes() and charges.demonSpikes.count() > 1 then
-            if cast.demonSpikes() then
-                br.addonDebug("[TANKBUST] Demon Spike")
-                return
+    if ui.mode.tankbuster == 1 and unit.inCombat() then
+        for i = 1, #enemies.yards30 do
+            local thisUnit = enemies.yards30[i]
+            if br._G.UnitThreatSituation("player", thisUnit) == 3 and UnitCastingInfo("target") then
+                if br.lists.tankBuster[select(9, UnitCastingInfo("target"))] ~= nil then
+                    if cd.demonSpikes.ready() and not debuff.fieryBrand.exists(thisUnit) then
+                        if cast.demonSpikes() then
+                            br.addonDebug("[TANKBUST] Demon Spike")
+                            return true
+                        end
+                    end
+                    if cast.able.fieryBrand() and not buff.demonSpikes.exists() then
+                        if cast.fieryBrand(thisUnit) then
+                            br.addonDebug("[TANKBUST] Fiery Brand")
+                            return true
+                        end
+                    end                
+                end
             end
         end
     end  -- End Tankbuster
@@ -334,49 +318,6 @@ actionList.Interrupts = function()
                 end
             end
         end
-        if ui.checked("Chaos Nova") and cast.able.chaosNova() then
-    
-            local Stun_list = {
-                -- The Necrotic Wake
-                [320822] = true, -- Final Bargain
-                [321807] = true, -- Boneflay
-                [334747] = true, -- Throw Flesh
-                -- Mists of Tirna Scithe
-                [322569] = true, -- Hand of Thros
-                [324987] = true, -- Mistveil Bite
-                [317936] = true, -- Forsworn Doctrine
-                [317661] = true, -- Insidious Venom
-                -- Halls of Atonement
-                [326450] = true, -- Loyal Beasts
-                [325701] = true, -- Siphon Life
-                -- De Other Side
-                [332329] = true, -- Devoted Sacrafice
-                [332671] = true, -- Bladestorm
-                [332156] = true, -- Spinning Up
-                [334664] = true, -- Frightened Cries
-                --Plaguefall
-                [328177] = true, -- Fungi Storm
-                [321935] = true, -- Withering Filth
-                [328429] = true, -- Crushing Embrace
-                [336451] = true, -- Bulwark of Maldraxxus
-                [328651] = true, -- Call Venomfang
-                [328400] = true, -- Stealthlings
-                -- Sanguine Depths
-                [322169] = true, -- Growing Mistrust
-                -- Theater of Pain
-                [333540] = true, -- Opportunity Strikes
-                [330586] = true -- Devour Flesh
-            }
-            for i = 1, #enemies.yards8 do
-                local thisUnit = enemies.yards8[i]
-                local distance = br.getDistance(thisUnit)
-                if (Stun_unitList[br.GetObjectID(thisUnit)] ~= nil or Stun_list[select(9, br._G.UnitCastingInfo(thisUnit))] ~= nil or Stun_list[select(7, br._G.GetSpellInfo(br._G.UnitChannelInfo(thisUnit)))] ~= nil) and br.getBuffRemain(thisUnit, 226510) == 0 and distance <= 10 then
-                    if cast.chaosNova() then
-                        return true
-                    end
-                end
-            end
-        end    
     end -- End useInterrupts check
 end -- End Action List - Interrupts
 
