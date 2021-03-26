@@ -132,7 +132,7 @@ ADSpirit| Unknown |  8.0  |   100% | :interrobang:
 
 author           | support | patch | status |     raidable?
 :--------------- | :-----: | :---: | -----: | :----------------:
-Laksmackt        |  Full   | 9.0   |   98% | :white_check_mark:
+Laksmackt        |  Full   | 9.0   |   90% | :white_check_mark:
 
 - Restoration
 
@@ -197,7 +197,7 @@ Panglo |   Full  |  9.0  |    100%| :white_check_mark:
 
 author   | support  | patch | status |     raidable?
 :------- | :------: | :---: | -----: | :----------------:
-Laksmackt| Full     | 8.3   |    75% | :interrobang:
+Laksmackt| none     | 8.3   |   0% | :interrobang:
 
 - Windwalker
 
@@ -213,7 +213,7 @@ CuteOne |  Full   |  9.0  |  100%  | :white_check_mark:
 
 author   | support | patch | status | raidable?
 :-----   | :-----: | :---: | -----: | :-------:
-Laksmackt| Unknown |  9.0  |   99%  | :white_check_mark:
+Laksmackt| M+ |  9.0.5  |   100%  | :x:
 Panglo   |   Full  |  9.0  |  100%  | :white_check_mark:
 
 - Protection
@@ -265,7 +265,7 @@ S0ul    | Testing | 9.0.5 |  69%   | :white_check_mark:
 
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
-Laks    |  Full   | 9.0   |  100%  | :heavy_check_mark:
+Laks    |  Full   | 9.0.5   |  100%  | :x:
 
 - Subtlety
 

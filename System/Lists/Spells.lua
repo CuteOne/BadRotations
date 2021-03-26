@@ -3114,6 +3114,7 @@ br.lists.spells = {
                 essenceOfBloodfang          = 340079,
                 invigoratingShadowdust      = 340080,
                 tinyToxicBlade              = 340078,
+                deathlyShadows              = 340092,
             },
         },
     },
