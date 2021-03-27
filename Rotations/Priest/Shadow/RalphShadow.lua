@@ -810,7 +810,7 @@ actionList.Main = function()
     if debuff.shadowWordPain.count() < SWPmaxTargets then
         for i = 1, #enemies.yards40 do
             local thisUnit = enemies.yards40[i]
-            if debuff.shadowWordPain.refresh("target") and ttd("target") > 4 and not talent.misery and talent.psychicLink and #searEnemies > 2 then
+            if debuff.shadowWordPain.refresh(thisUnit) and ttd(thisUnit) > 4 and not talent.misery and talent.psychicLink and #searEnemies > 2 then
                 if not noDotCheck(thisUnit) then
                     if cast.shadowWordPain(thisUnit) then ui.debug("Spreading SW:P [Main]") return end
                 end
@@ -1023,3 +1023,15 @@ br._G.tinsert(br.rotations[id],{
     options = createOptions,
     run = runRotation,
 })
+
+if agonyCount < ui.value("Agony Count") then
+    for i = 1, #enemies.yards40 do
+        local thisUnit = enemies.yards40[i]
+        if not debuff.agony.exists("target") then
+            thisUnit = "target"
+        end         
+        if not noDotCheck(thisUnit) and (not debuff.agony.exists(thisUnit) or debuff.agony.remains(thisUnit) <= 5.4) and getTTD(thisUnit) > 10 then
+            if cast.agony(thisUnit) then br.addonDebug("[Action:AoE] Agony [Multi-Cycle (Target)]") return true end
+        end
+    end
+end
