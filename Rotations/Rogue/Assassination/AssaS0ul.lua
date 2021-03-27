@@ -66,7 +66,7 @@ local function createOptions()
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
         section = br.ui:createSection(br.ui.window.profile,  "General")
-            br.ui:createDropdown(section, "Non-Lethal Poison", {"Crippling","Numbing",}, 1, "Non-Lethal Poison to apply")
+        br.ui:createDropdown(section, "Non-Lethal Poison", {"Crippling","Numbing",}, 2, "Non-Lethal Poison to apply")
             br.ui:createDropdown(section, "Lethal Poison", {"Deadly","Wound",}, 1, "Lethal Poison to apply")
             br.ui:createDropdown(section, "Auto Stealth", {"Always", "25 Yards"},  1, "Auto stealth mode")
             br.ui:createDropdown(section, "Auto Tricks", {"Focus", "Tank"},  1, "Tricks of the Trade target" )
@@ -98,8 +98,8 @@ local function createOptions()
             br.player.module.BasicHealing(section)
             br.ui:createCheckbox(section, "Cloak of Shadows")
             br.ui:createSpinner(section, "Crimson Vial",  40,  0,  100,  5,  "Health Percentage to use at.")
-            br.ui:createSpinner(section, "Evasion",  50,  0,  100,  5,  "Health Percentage to use at.")
-            br.ui:createSpinner(section, "Feint", 75, 0, 100, 5, "Health Percentage to use at.")
+            br.ui:createSpinner(section, "Evasion",  30,  0,  100,  5,  "Health Percentage to use at.")
+            br.ui:createSpinner(section, "Feint", 50, 0, 100, 5, "Health Percentage to use at.")
             br.ui:createCheckbox(section, "Auto Defensive Unavoidables", "Will use feint/evasion on certain unavoidable boss abilities")
             br.ui:createSpinnerWithout(section,  "Evasion Unavoidables HP Limit",  85,  0,  100,  5,  "Player HP to use evasion on unavoidables.")
             br.ui:createCheckbox(section, "Cloak Unavoidables", "Will cloak on unavoidables")
@@ -107,22 +107,22 @@ local function createOptions()
         -------------------------
         --- INTERRUPT OPTIONS --- -- Define Interrupt Options
         -------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Interrupts")
+            section = br.ui:createSection(br.ui.window.profile, "Interrupts")
             br.ui:createCheckbox(section, "Kick")
             br.ui:createCheckbox(section, "Kidney Shot")
             br.ui:createCheckbox(section, "Blind")
-            br.ui:createSpinnerWithout(section,  "Interrupt %",  0,  0,  95,  5,  "Remaining Cast Percentage to interrupt at.")
+            br.ui:createSpinnerWithout(section, "Interrupt %",  0,  0,  95,  5,  "Remaining Cast Percentage to interrupt at.")
             br.ui:createCheckbox(section, "Stuns", "Auto stun mobs from whitelist")
-            br.ui:createSpinnerWithout(section,  "Max CP For Stun",  3,  1,  6,  1,  " Maximum number of combo points to stun")
+            br.ui:createSpinnerWithout(section, "Max CP For Stun",  3,  1,  6,  1,  " Maximum number of combo points to stun")
         br.ui:checkSectionState(section)
         ----------------------
         --- TOGGLE OPTIONS --- -- Degine Toggle Options
         ----------------------
         section = br.ui:createSection(br.ui.window.profile,  "Toggle Keys")
-            br.ui:createDropdownWithout(section,  "Rotation Mode", br.dropOptions.Toggle,  4)
-            br.ui:createDropdownWithout(section,  "Cooldown Mode", br.dropOptions.Toggle,  3)
-            br.ui:createDropdownWithout(section,  "Defensive Mode", br.dropOptions.Toggle,  6)
-            br.ui:createDropdownWithout(section,  "Pause Mode", br.dropOptions.Toggle,  6)
+            br.ui:createDropdownWithout(section, "Rotation Mode", br.dropOptions.Toggle,  4)
+            br.ui:createDropdownWithout(section, "Cooldown Mode", br.dropOptions.Toggle,  3)
+            br.ui:createDropdownWithout(section, "Defensive Mode", br.dropOptions.Toggle,  6)
+            br.ui:createDropdownWithout(section, "Pause Mode", br.dropOptions.Toggle,  6)
         br.ui:checkSectionState(section)
         ----------------------
         -------- LISTS -------
@@ -651,6 +651,10 @@ local function runRotation()
     end
 
     local function actionList_Cooldowns()
+        -- flagellation for opener
+        if covenant.venthyr.active and cast.able.flagellation() and buff.sliceAndDice.exists("player") and not debuff.flagellation.exists("target") then
+            if cast.flagellation("target") then return true end
+        end
         --actions.precombat+=/variable,name=vendetta_cdr,value=1-(runeforge.duskwalkers_patch*0.45)
         local vendettaCDR = 1-(DPEquipped*0.45)
         -- # If adds are up, snipe the one with lowest TTD. Use when dying faster than CP deficit or without any CP.
@@ -666,7 +670,7 @@ local function runRotation()
         --# Sync Flagellation with Vendetta as long as we won't lose a cast over the fight duration
         if covenant.venthyr.active and cast.able.flagellation() then
             --actions.cds+=/flagellation,if=!stealthed.rogue&(cooldown.vendetta.remains<3&effective_combo_points>=4&target.time_to_die>10|debuff.vendetta.up|fight_remains<24)
-            if not stealthedAll and (cd.vendetta.remain() < 3 and combo >= 4 and ttd("target") > 10 or debuff.vendetta.exists("target") or fightRemain < 24) then
+            if not stealthedAll and ((cd.vendetta.remain() < 3 and combo >= 4 and ttd("target") > 10) or debuff.vendetta.exists("target") or fightRemain < 24) then
                 if cast.flagellation("target") then return true end
             end
             --actions.cds+=/flagellation,if=!stealthed.rogue&effective_combo_points>=4&(floor((fight_remains-24)%cooldown)>floor((fight_remains-24-cooldown.vendetta.remains*variable.vendetta_cdr)%cooldown))
@@ -677,11 +681,11 @@ local function runRotation()
         --# Sync Sepsis with Vendetta as long as we won't lose a cast over the fight duration, but prefer targets that will live at least 10s
         if covenant.nightFae.active and cast.able.sepsis() then
             --actions.cds+=/sepsis,if=!stealthed.rogue&(cooldown.vendetta.remains<1&target.time_to_die>10|debuff.vendetta.up|fight_remains<10)
-            if not stealthedAll and (cd.vendetta.remain() < 1 and ttd("target") > 10 or debuff.vendetta.exists("target") or fightRemain < 10) then
+            if not stealthedAll and ((cd.vendetta.remain() < 1 and ttd("target") > 10) or debuff.vendetta.exists("target") or fightRemain < 10) then
                 if cast.sepsis("target") then return true end
             end
             --actions.cds+=/sepsis,if=!stealthed.rogue&(floor((fight_remains-10)%cooldown)>floor((fight_remains-10-cooldown.vendetta.remains*variable.vendetta_cdr)%cooldown))
-            if not stealthedAll and (math.floor((fightRemain-10)%cd.sepsis.remain())>math.floor((fightRemain-10-cd.vendetta.remain()*vendettaCDR)%cd.sepsis.remain())) then
+            if not stealthedAll and (math.floor((fightRemain-10)%cd.sepsis.remain()) > math.floor((fightRemain-10-cd.vendetta.remain()*vendettaCDR)%cd.sepsis.remain())) then
                 if cast.sepsis("target") then return true end
             end
         end
@@ -694,8 +698,8 @@ local function runRotation()
         --actions.cds+=/variable,name=vendetta_covenant_condition,if=covenant.night_fae,value=floor((fight_remains-20)%(120*variable.vendetta_cdr))>floor((fight_remains-20-cooldown.sepsis.remains)%(120*variable.vendetta_cdr))|dot.sepsis.ticking|fight_remains<20
         local vendettaCovenantCondition = 0
         if covenant.kyrian.active or covenant.necrolord.active then vendettaCovenantCondition = 1 end
-        if (covenant.venthyr.active and math.floor((fightRemain-20)%(120*vendettaCDR)) > math.floor((fightRemain-20-cd.flagellation.remain())%(120*vendettaCDR)) or buff.flagellation.exists() or debuff.flagellation.exists("target") or fightRemain < 20) then vendettaCovenantCondition = 1 end
-        if (covenant.nightFae.active and math.floor((fightRemain-20)%(120*vendettaCDR)) > math.floor((fightRemain-20-cd.sepsis.remain())%(120*vendettaCDR)) or debuff.sepsis.exists("target") or fightRemain < 20) then vendettaCovenantCondition = 1 end
+        if (covenant.venthyr.active and (math.floor((fightRemain-20)%(120*vendettaCDR)) > math.floor((fightRemain-20-cd.flagellation.remain())%(120*vendettaCDR)) or buff.flagellation.exists() or debuff.flagellation.exists("target") or fightRemain < 20)) then vendettaCovenantCondition = 1 end
+        if (covenant.nightFae.active and (math.floor((fightRemain-20)%(120*vendettaCDR)) > math.floor((fightRemain-20-cd.sepsis.remain())%(120*vendettaCDR)) or debuff.sepsis.exists("target") or fightRemain < 20)) then vendettaCovenantCondition = 1 end
         --actions.cds+=/vendetta,if=!stealthed.rogue&dot.rupture.ticking&!debuff.vendetta.up&variable.vendetta_nightstalker_condition&variable.vendetta_covenant_condition
         if cdUsage and ttd("target") > br.getOptionValue("CDs TTD Limit") and targetDistance < 5 and not stealthedAll
          and debuff.rupture.exists("target") and not debuff.vendetta.exists("target") and vendettaNightstalkerCondition and vendettaCovenantCondition then
@@ -775,7 +779,7 @@ local function runRotation()
 
     local function actionList_Direct()
         -- # Refresh garrote when we have Vendetta or Toxic Blade on a target with Master Assassin
-        if talent.masterAssassin and debuff.garrote.refresh("target") and (debuff.vendetta.exists("target") or debuff.shiv.exists("target")) then
+        if talent.masterAssassin and debuff.garrote.refresh("target") and debuff.vendetta.exists("target") and not debuff.shiv.exists("target") and comboDeficit > 0 then
             if cast.garrote("target") then return true end
         end
         -- # Shiv if we are about to Envenom, and attempt to sync with Sepsis final hit if we won't waste more than half the cooldown
