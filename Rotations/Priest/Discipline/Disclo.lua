@@ -184,7 +184,6 @@ local function runRotation()
     local debuff = br.player.debuff
     local drinking = br.getBuffRemain("player", 274914) ~= 0 or br.getBuffRemain("player", 167152) ~= 0 or br.getBuffRemain("player", 192001) ~= 0
 	local enemies = br.player.enemies
-    local essence = br.player.essence
     local falling, swimming, flying, moving = br.getFallTime(), IsSwimming(), IsFlying(), br._G.GetUnitSpeed("player") > 0
     local freeMana = buff.innervate.exists() or buff.symbolOfHope.exists()
     local friends = friends or {}
@@ -725,14 +724,6 @@ local function runRotation()
             elseif (not schismBuff or ptwDebuff) and ttd(units.dyn40) > 2.5 then
                 if cast.penance(units.dyn40) then
                    return
-                end
-            end
-        end
-
-        if essence.concentratedFlame.active and br.getSpellCD(295373) <= gcd then
-            if br.getLineOfSight(units.dyn40) and br.getDistance(units.dyn40) <= 40 then
-                if cast.concentratedFlame(units.dyn40) then
-                    return true
                 end
             end
         end
