@@ -693,12 +693,13 @@ local function runRotation()
         --actions.cds+=/variable,name=vendetta_covenant_condition,if=covenant.venthyr,value=floor((fight_remains-20)%(120*variable.vendetta_cdr))>floor((fight_remains-20-cooldown.flagellation.remains)%(120*variable.vendetta_cdr))|buff.flagellation_buff.up|debuff.flagellation.up|fight_remains<20
         --actions.cds+=/variable,name=vendetta_covenant_condition,if=covenant.night_fae,value=floor((fight_remains-20)%(120*variable.vendetta_cdr))>floor((fight_remains-20-cooldown.sepsis.remains)%(120*variable.vendetta_cdr))|dot.sepsis.ticking|fight_remains<20
         local vendettaCovenantCondition = 0
-        if covenant.kyrian.active or covenant.necrolord.active then vendettaCovenantCondition = 1 else vendettaCovenantCondition = 0 end
-        if (covenant.venthyr.active and math.floor((fightRemain-20)%(120*vendettaCDR)) > math.floor((fightRemain-20-cd.flagellation.remain())%(120*vendettaCDR)) or buff.flagellation.exists() or debuff.flagellation.exists("target") or fightRemain < 20) then vendettaCovenantCondition = 1 else vendettaCovenantCondition = 0 end
-        if (covenant.nightFae.active and math.floor((fightRemain-20)%(120*vendettaCDR)) > math.floor((fightRemain-20-cd.sepsis.remain())%(120*vendettaCDR)) or debuff.sepsis.exists("target") or fightRemain < 20) then vendettaCovenantCondition = 1 else vendettaCovenantCondition = 0 end
+        if covenant.kyrian.active or covenant.necrolord.active then vendettaCovenantCondition = 1 end
+        if (covenant.venthyr.active and math.floor((fightRemain-20)%(120*vendettaCDR)) > math.floor((fightRemain-20-cd.flagellation.remain())%(120*vendettaCDR)) or buff.flagellation.exists() or debuff.flagellation.exists("target") or fightRemain < 20) then vendettaCovenantCondition = 1 end
+        if (covenant.nightFae.active and math.floor((fightRemain-20)%(120*vendettaCDR)) > math.floor((fightRemain-20-cd.sepsis.remain())%(120*vendettaCDR)) or debuff.sepsis.exists("target") or fightRemain < 20) then vendettaCovenantCondition = 1 end
         --actions.cds+=/vendetta,if=!stealthed.rogue&dot.rupture.ticking&!debuff.vendetta.up&variable.vendetta_nightstalker_condition&variable.vendetta_covenant_condition
         if cdUsage and ttd("target") > br.getOptionValue("CDs TTD Limit") and targetDistance < 5 and not stealthedAll
          and debuff.rupture.exists("target") and not debuff.vendetta.exists("target") and vendettaNightstalkerCondition and vendettaCovenantCondition then
+            vendettaCovenantCondition = 0
             if cast.vendetta("target") then return true end
         end
         --# Exsanguinate when not stealthed and both Rupture and Garrote are up for long enough.
