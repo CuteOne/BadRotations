@@ -630,6 +630,7 @@ br.lists.spells = {
             runeforges                      = {
                 burningWound                = 346279,
                 chaosTheory                 = 337551,
+                darkglareMedallion          = 337534,
                 felBombardment              = 337775,
                 razelikhsDefilement         = 337544,
             },
@@ -1074,6 +1075,7 @@ br.lists.spells = {
             },
             covenants                       = {
                 adaptiveSwarm               = 325727,
+                adaptiveSwarmHeal           = 325748,
                 convokeTheSpirits           = 323764,
                 kindredSpirits              = 326434,
                 ravenousFrenzy              = 323546,

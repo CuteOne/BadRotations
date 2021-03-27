@@ -353,11 +353,11 @@ actionList.Cooldowns = function()
             if cast.able.theHunt() and ((not talent.demonic and not var.waitingForMomentum) or buff.furiousGaze.exists()) then
                 if cast.theHunt() then ui.debug("Casting The Hunt") return true end
             end
-            -- Fodder to the Flame
-            -- fodder_to_the_flame
-            if cast.able.fodderToTheFlame() then
-                if cast.fodderToTheFlame() then ui.debug("Casting Fodder to the Flame") return true end
-            end
+            -- -- Fodder to the Flame
+            -- -- fodder_to_the_flame
+            -- if cast.able.fodderToTheFlame() then
+            --     if cast.fodderToTheFlame() then ui.debug("Casting Fodder to the Flame") return true end
+            -- end
             -- Elysian Decree
             -- elysian_decree,if=(active_enemies>desired_targets|raid_event.adds.in>30)
             if cast.able.elysianDecree() and unit.standingTime() > 2
@@ -376,6 +376,8 @@ actionList.Cooldowns = function()
             end
         end
         -- Trinkets
+        -- use_items,slots=trinket1,if=variable.trinket_sync_slot=1&(buff.metamorphosis.up|(!talent.demonic.enabled&cooldown.metamorphosis.remains>(fight_remains>?trinket.1.cooldown.duration%2))|fight_remains<=20)|(variable.trinket_sync_slot=2&!trinket.2.cooldown.ready)|!variable.trinket_sync_slot
+        -- use_items,slots=trinket2,if=variable.trinket_sync_slot=2&(buff.metamorphosis.up|(!talent.demonic.enabled&cooldown.metamorphosis.remains>(fight_remains>?trinket.2.cooldown.duration%2))|fight_remains<=20)|(variable.trinket_sync_slot=1&!trinket.1.cooldown.ready)|!variable.trinket_sync_slot
         if buff.metamorphosis.exists() or not ui.alwaysCdNever("Metamorphosis") then
             module.BasicTrinkets()
         end
@@ -449,13 +451,15 @@ actionList.Demonic = function()
         if cast.throwGlaive() then ui.debug("Casting Throw Glaive [Serrated Glaive]") return true end
     end
     -- Eye Beam
-    -- eye_beam,if=raid_event.adds.up|raid_event.adds.in>25
-    if ui.mode.eyeBeam == 1 and not unit.isExplosive("target") and cast.able.eyeBeam("player","rect",1,20) and not unit.moving() and #enemies.yards20r > 0
-        and ((ui.value("Eye Beam Usage") == 1 and ui.mode.rotation == 1)
-            or (ui.value("Eye Beam Usage") == 2 and ui.mode.rotation == 1 and #enemies.yards20r >= ui.value("Units To AoE"))
-            or ui.mode.rotation == 2) and (eyebeamTTD() or unit.isDummy(units.dyn8))
+    -- eye_beam,if=active_enemies>desired_targets|raid_event.adds.in>25&(!variable.use_eye_beam_fury_condition|spell_targets>1|fury<60)
+    if ui.mode.eyeBeam == 1 and not unit.isExplosive("target") and cast.able.eyeBeam("player","rect",1,20)
+        and not unit.moving() and #enemies.yards20r > 0 and (eyebeamTTD() or unit.isDummy(units.dyn8))
     then
-        if cast.eyeBeam("player","rect",1,20) then ui.debug("Casting Eye Beam") return true end
+        if (ui.value("Eye Beam Usage") == 1 and (not var.useEyeBeamFuryCondition or #enemies.yards20r >= ui.value("Units To AoE") or fury < 60))
+            or (ui.value("Eye Beam Usage") == 2 and (#enemies.yards20r >= ui.value("Units To AoE") or ui.mode.rotation == 2))
+        then
+            if cast.eyeBeam("player","rect",1,20) then ui.debug("Casting Eye Beam") return true end
+        end
     end
     -- Blade Dance
     -- blade_dance,if=variable.blade_dance&!cooldown.metamorphosis.ready&(cooldown.eye_beam.remains>5|(raid_event.adds.in>cooldown&raid_event.adds.in<25))
@@ -581,11 +585,16 @@ actionList.Normal = function()
         if cast.throwGlaive() then ui.debug("Casting Throw Glaive [Serrated Glaive]") return true end
     end
     -- Eye Beam
-    -- eye_beam,if=!variable.waiting_for_momentum&(active_enemies>desired_targets|raid_event.adds.in>15)
-    if ui.mode.eyeBeam == 1 and not unit.isExplosive("target") and cast.able.eyeBeam("player","rect",1,20) and #enemies.yards20r > 1 and not unit.moving() and not var.waitingForMomentum
-        and (eyebeamTTD() or unit.isDummy(units.dyn8))
+    -- eye_beam,if=!variable.waiting_for_momentum&(active_enemies>desired_targets|raid_event.adds.in>15&(!variable.use_eye_beam_fury_condition|spell_targets>1|fury<60))
+    if ui.mode.eyeBeam == 1 and not unit.isExplosive("target") and cast.able.eyeBeam("player","rect",1,20)
+        and not unit.moving() and #enemies.yards20r >= ui.value("Units To AoE") and (eyebeamTTD() or unit.isDummy(units.dyn8))
+        and not var.waitingForMomentum
     then
-        if cast.eyeBeam("player","rect",1,20) then ui.debug("Casting Eye Beam [Multi]") return true end
+        if (ui.value("Eye Beam Usage") == 1 and (not var.useEyeBeamFuryCondition or #enemies.yards20r >= ui.value("Units To AoE") or fury < 60))
+            or (ui.value("Eye Beam Usage") == 2 and (#enemies.yards20r >= ui.value("Units To AoE") or ui.mode.rotation == 2))
+        then
+            if cast.eyeBeam("player","rect",1,20) then ui.debug("Casting Eye Beam") return true end
+        end
     end
     -- Blade Dance
     -- blade_dance,if=variable.blade_dance
@@ -802,6 +811,12 @@ local function runRotation()
     -- Wait for Momentum
     -- variable,name=waiting_for_momentum,value=talent.momentum.enabled&!buff.momentum.up
     var.waitingForMomentum = talent.momentum and not buff.momentum.exists()
+    -- Trinket Sync
+    -- variable,name=trinket_sync_slot,value=1,if=trinket.1.has_stat.any_dps&(!trinket.2.has_stat.any_dps|trinket.1.cooldown.duration>=trinket.2.cooldown.duration)
+    -- variable,name=trinket_sync_slot,value=2,if=trinket.2.has_stat.any_dps&(!trinket.1.has_stat.any_dps|trinket.2.cooldown.duration>trinket.1.cooldown.duration)
+    -- Use Eye Beam
+    -- variable,name=use_eye_beam_fury_condition,value=talent.blind_fury.enabled&(runeforge.darkglare_medallion|talent.demon_blades.enabled)
+    var.useEyeBeamFuryCondition = talent.blindFury and (runeforge.darkglareMedallion or talent.demonBlades)
 
     -- if ui.mode.mover == 1 and cast.last.vengefulRetreat() then StopFalling(); end
     -- if IsHackEnabled("NoKnockback") then

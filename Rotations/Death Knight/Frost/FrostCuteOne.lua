@@ -252,8 +252,9 @@ actionList.Defensive = function()
         -- Death Strike
         if ui.checked("Death Strike") and cast.able.deathStrike() and unit.inCombat()
             and unit.hp() < ui.value("Death Strike") and not var.breathOfSindragosaActive
+            and cast.timeSinceLast.deathStrike() > 5
         then
-            if cast.deathStrike() then ui.debug("Casting Death Strike") return true end
+            if cast.deathStrike() then ui.debug("Casting Death Strike [Heal]") return true end
         end
         -- Icebound Fortitude
         if ui.checked("Icebound Fortitude") and cast.able.iceboundFortitude() and unit.hp() < ui.value("Icebound Fortitude") and unit.inCombat() then
@@ -499,7 +500,7 @@ end -- End Action List - Cooldowns
 actionList.Covenants = function()
     -- Death's Due
     -- deaths_due,if=raid_event.adds.in>15|!raid_event.adds.exists|active_enemies>=2
-    if cast.able.deathsDue() and (ui.useCDs() or ui.useAOE(8,2)) then
+    if cast.able.deathsDue("best",nil,2,8) and (ui.useCDs() or ui.useAOE(8,2)) and unit.standingTime() >= 2 then
         if cast.deathsDue("best",nil,2,8) then ui.debug("Casting Death's Due") return true end
     end
     -- Swarming Mist
@@ -804,8 +805,8 @@ actionList.Aoe = function()
         if cast.howlingBlast(units.dyn30,"aoe",1,10) then ui.debug("Casting Howling Blast [AoE - Rime]") return true end
     end
     -- Obliterate
-    -- obliterate,if=death_and_decay.ticking&covenant.night_fae&buff.deaths_due.stack<8
-    if buff.deathAndDecay.exists() and covenant.nightFae.active and buff.deathsDue.stack() < 8 then
+    -- obliterate,if=death_and_decay.ticking&covenant.night_fae&buff.deaths_due.stack<4
+    if buff.deathAndDecay.exists() and covenant.nightFae.active and buff.deathsDue.stack() < 4 then
         if cast.obliterate() then ui.debug("Casting Obliterate [AOE - Death's Due") return true end
     end
     -- Frostscythe
@@ -999,7 +1000,7 @@ local function runRotation()
     enemies.get(40)
 
     -- Special Enemy Counts
-    enemies.cone.get(180,8,false)
+    enemies.cone.get(180,8,false,true)
     enemies.rect.get(10,20,false)
     enemies.rect.get(10,40,false)
 
@@ -1088,6 +1089,7 @@ local function runRotation()
         -- Combat Start
         if unit.inCombat() and var.profileStop==false and unit.valid(units.dyn5) and unit.exists("target") then
             var.profileDebug = "Combat Rotation"
+            -- Start Attack
             -- auto_attack
             if unit.distance(units.dyn5) < 5 then
                 unit.startAttack(units.dyn5)
