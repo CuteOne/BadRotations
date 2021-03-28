@@ -1502,6 +1502,7 @@ br.lists.spells = {
             runeforges                      = {
                 eagletalonsTrueFocus        = 336849,
                 nesingwarysTrappingApparatus= 336743,
+                rylakstalkersConfoundingStrikes = 336901,
                 serpentstalkersTrickery     = 336870,
                 soulforgeEmbers             = 336745,
                 surgingShots                = 336867,
