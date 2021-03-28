@@ -244,6 +244,7 @@ local dynamic_target_melee
 local dynamic_range
 local buff_rollTheBones_remain = 0
 local buff_rollTheBones_count = 0
+local buff_rollTheBones_high = 0
 local unit
 
 -- lists ...lots of lists
@@ -1090,7 +1091,7 @@ actionList.dps = function()
 
         -- Skuler's Wing
         if (br._G.GetInventoryItemID("player", 13) == 184016 or br._G.GetInventoryItemID("player", 14) == 184016)
-                and br.canUseItem(184016) and br.getCombatTime() > 5 then
+                and br.canUseItem(184016) and #enemies.yards8 > 0 then
             br.useItem(184016)
         end
         --darkmoon trinket
@@ -1204,7 +1205,7 @@ actionList.Extra = function()
         end
     end
 
-    if cast.able.rollTheBones() and (inCombat or #enemies.yards25nc > 0 or br.DBM:getPulltimer() < 1.5) and (not buff.masterAssassinsMark.exists() or stealth) then
+    if cast.able.rollTheBones() and (inCombat or #enemies.yards8 > 0 or br.DBM:getPulltimer() < 1.5) and (not buff.masterAssassinsMark.exists() or stealth) then
         local badguy = false
         if not inCombat and #enemies.yards25nc > 0 then
             for i = 1, #enemies.yards25nc do
@@ -1222,10 +1223,13 @@ actionList.Extra = function()
                     if br.UnitBuffID("player", tonumber(v)) then
                         buff_rollTheBones_remain = tonumber(br.getBuffRemain("player", tonumber(v)))
                         buff_rollTheBones_count = buff_rollTheBones_count + 1
+                        if buff_rollTheBones_remain > buff_rollTheBones_high then
+                            buff_rollTheBones_high = buff_rollTheBones_remain
+                        end
                     end
                 end
             end
-            if (buff_rollTheBones_count == 0 or buff_rollTheBones_remain < 3 or buff_rollTheBones_count < 2 and (buff.buriedTreasure.exists() or buff.grandMelee.exists() or buff.trueBearing.exists())) then
+            if (buff_rollTheBones_count == 0 or buff_rollTheBones_high <= 3 or (buff_rollTheBones_count < 2 and not buff.trueBearing.exists() and not buff.broadside.exists())) then
                 if cast.rollTheBones() then
                     br.player.ui.debug("rolling bones!")
                     return true
@@ -1760,7 +1764,7 @@ local function runRotation()
 
     -- executed outside of gcd
     --We will check for interrupt whenever someone is casting (based on log)
-    if someone_casting == true and inCombat then
+    if someone_casting == true and inCombat and (mode.interrupt == 1 or mode.interrupt == 3) then
         -- if actionList.Defensive() then
         --end
         if actionList.Interrupt() then
