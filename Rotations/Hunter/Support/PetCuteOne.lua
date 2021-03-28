@@ -142,7 +142,7 @@ br.rotations.support["PetCuteOne"] = {
 
         -- Pet Target Modes
         if br.petTarget == nil then br.petTarget = "player" end
-        if br.petTarget ~= "player" and (not unit.exists(br.petTarget) or unit.deadOrGhost(br.petTarget) or not unit.isUnit("pettarget",br.petTarget)) then br.petTarget = "player" end
+        if br.petTarget ~= "player" and (not unit.exists(br.petTarget) or unit.deadOrGhost(br.petTarget) or (unit.exists("pettarget") and not unit.isUnit("pettarget",br.petTarget))) then br.petTarget = "player" end
         if br.petTarget == "player" or (unit.exists("pettarget") and not unit.isUnit("pettarget",br.petTarget) and not unit.deadOrGhost(br.petTarget)) then
             -- Dynamic
             if ui.value("Pet Target") == 1 and units.dyn40 ~= nil
@@ -211,11 +211,11 @@ br.rotations.support["PetCuteOne"] = {
             end
             -- Pet Attack / Retreat
             -- if br.petTarget == nil and unit.valid("target") then br.petTarget = "target" end
-            if br.petTarget ~= "player" and not buff.playDead.exists("pet") and not var.haltPetProfile 
-                and (not unit.exists("pettarget") or not unit.isUnit("pettarget",br.petTarget))
+            if br.petTarget ~= "player" and not buff.playDead.exists("pet") and not var.haltPetProfile
+                and (not unit.exists("pettarget") or (unit.exists("pettarget") and not unit.isUnit("pettarget",br.petTarget)))
                 and ((not unit.inCombat() and not unit.inCombat("pet")) 
                     or ((unit.inCombat() or unit.inCombat("pet")) and (currentTarget == nil or not unit.isUnit(br.petTarget,currentTarget))))
-                and unit.distance("target") < 40
+                and unit.distance("target") < 40 and not unit.friend("target")
             then
                 ui.debug("[Pet] Pet is now attacking "..tostring(unit.name(br.petTarget)))
                 br._G.PetAttack(br.petTarget)
@@ -462,12 +462,10 @@ br.rotations.support["PetCuteOne"] = {
                     if ui.value("Misdirection") == 3 and cast.able.misdirection("pet") and #enemies.yards8p > 1 then
                         if cast.misdirection("pet") then ui.debug("[Pet] Cast Misdirection on Pet") return true end
                     end
-                    if cast.able.growl() then
-                        for i = 1, #enemies.yards30p do
-                            local thisUnit = enemies.yards30p[i]
-                            if unit.isTanking(thisUnit) and unit.distance(thisUnit,"pet") < 30 then
-                                if cast.growl(thisUnit,"pet") then ui.debug("[Pet] Cast Growl") return true end
-                            end
+                    for i = 1, #enemies.yards30p do
+                        local thisUnit = enemies.yards30p[i]
+                        if cast.able.growl(thisUnit,"pet") and unit.isTanking(thisUnit) and unit.distance(thisUnit,"pet") < 30 then
+                            if cast.growl(thisUnit,"pet") then ui.debug("[Pet] Cast Growl") return true end
                         end
                     end
                 end
