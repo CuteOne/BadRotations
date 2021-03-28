@@ -771,7 +771,7 @@ function br.createCastFunction(thisUnit,castType,minUnits,effectRng,spellID,inde
 					end
 				end
 				-- Cast Non-AOE
-				if (castType == "norm" or castType == "pet") and br.getFacing("player",thisUnit) then
+				if (castType == "norm" or castType == "pet") and (br.getFacing("player",thisUnit) or spellType == "Helpful" or spellType == "Unknown") then
 					-- Failsafe, incase we were unable to retrieve enemies counts
 					local enemyFacingCount = enemies or #br.getEnemies("player",maxRange,false,true) or 0
 					if (minUnits == 1 and br._G.IsSpellInRange(spellName,thisUnit) == 1) or (enemyFacingCount >= minUnits) or spellType == "Helpful" or spellType == "Unknown" then
