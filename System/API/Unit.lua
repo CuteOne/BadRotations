@@ -38,6 +38,18 @@ br.api.unit = function(self)
         local CancelShapeshiftForm = br._G["CancelShapeshiftForm"]
         return CancelShapeshiftForm() or RunMacroText("/CancelForm")
     end
+    -- Casting / Channelling
+    unit.casting = function(thisUnit, spellID)
+        if thisUnit == nil then thisUnit = "player" end
+        local spellCasting = br._G.UnitCastingInfo(thisUnit)
+        if spellCasting == nil then
+            spellCasting = br._G.UnitChannelInfo(thisUnit)
+        end
+        if spellID == nil then return spellCasting ~= nil end
+        local spellName = br._G.GetSpellInfo(spellID)
+        return tostring(spellCasting) == tostring(spellName)
+    end
+
     -- Combat Time
     unit.combatTime = function()
         return br.getCombatTime()
