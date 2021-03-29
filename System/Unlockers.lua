@@ -6,7 +6,7 @@ function br:loadUnlockerAPI()
     if br._G.lb then
         unlocked = br.unlock.LBUnlock()
     elseif br._G.EWT then
-        unlocked = br.unlock.EWTUnlock()
+        unlocked = br.unlock.UCSUnlock()
     elseif br._G.wmbapi then
         unlocked = br.unlock.MBUnlock()
     elseif br._G.UCSLoaded then
