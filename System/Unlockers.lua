@@ -12,10 +12,12 @@ function br:loadUnlockerAPI()
     elseif br._G.UCSLoaded then
         -- Must be _G.br to load
         _G.br = br
-    elseif br._G.CallSecureFunction then
-        unlocked = br.unlock.WowAdUnlock()
     else
-        unlocked = false
+		if br.unlock.WowAdUnlock() then
+			unlocked = true
+		else
+			unlocked = false
+		end
     end
     -- Set Spell Queue Window
     --if class == 8 or class == 9 then
