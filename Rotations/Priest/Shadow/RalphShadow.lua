@@ -1024,6 +1024,8 @@ br._G.tinsert(br.rotations[id],{
     run = runRotation,
 })
 
+-- Ralph ... this looks like ..maybe it should not be there? :)  **Laks
+--[[
 if agonyCount < ui.value("Agony Count") then
     for i = 1, #enemies.yards40 do
         local thisUnit = enemies.yards40[i]
@@ -1035,3 +1037,4 @@ if agonyCount < ui.value("Agony Count") then
         end
     end
 end
+]]
