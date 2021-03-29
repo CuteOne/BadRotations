@@ -333,10 +333,10 @@ function unlock.WowAdUnlock()
 		end
 	end
 	b.UnitCastID = function(...)
-		local spellId1 = select(9, UnitCastingInfo(...)) or 0
-		local spellId2 = select(9, UnitChannelInfo(...)) or 0
-		local castGUID = UnitTarget(select(1,...))
-		return spellId1, spellIdd, castGUID, castGUID
+		local spellId1 = select(9, b.UnitCastingInfo(...)) or 0
+		local spellId2 = select(9, b.UnitChannelInfo(...)) or 0
+		local castGUID = b.UnitTarget(select(1,...))
+		return spellId1, spellId2, castGUID, castGUID
 	end
 	b.GetDirectoryFiles = function(...)
 		local filter = stringsplit(..., "*")
