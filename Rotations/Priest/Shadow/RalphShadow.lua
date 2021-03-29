@@ -601,7 +601,7 @@ actionList.PreCombat = function()
         -- actions.precombat+=/use_item,name=azsharas_font_of_power
         -- actions.precombat+=/variable,name=mind_sear_cutoff,op=set,value=2
         -- actions.precombat+=/vampiric_touch
-        if ui.checked("VT OoC") and not debuff.vampiricTouch.exists() and not moving then
+        if ui.checked("VT OoC") and not debuff.vampiricTouch.exists() and not moving and not cast.last.vampiricTouch() then
             if cast.vampiricTouch("target") then ui.debug("Pulling with VT [Pre-Combat]") return end
         end
         -- Pre-Pull
@@ -655,7 +655,7 @@ actionList.Main = function()
         end
     end
 
-    if not debuff.vampiricTouch.exists() and not moving and #searEnemies < searCutoff then
+    if not debuff.vampiricTouch.exists() and not moving and #searEnemies < searCutoff and not cast.last.vampiricTouch() then
         if cast.vampiricTouch("target") then ui.debug("Casting VT on target [Main]") return end
     end
    
@@ -707,7 +707,7 @@ actionList.Main = function()
     if debuff.vampiricTouch.count() < VTmaxTargets and not cast.last.vampiricTouch() then
         for i = 1, #enemies.yards40 do
             local thisUnit = enemies.yards40[i]
-            if not moving and not cast.current.vampiricTouch() and (debuff.vampiricTouch.refresh(thisUnit) and ttd(thisUnit) > 6 or (talent.misery and debuff.shadowWordPain.refresh() or buff.unfurlingDarkness.exists())) then
+            if not moving and not cast.last.vampiricTouch() and (debuff.vampiricTouch.refresh(thisUnit) and ttd(thisUnit) > 6 or (talent.misery and debuff.shadowWordPain.refresh() or buff.unfurlingDarkness.exists())) then
                 if not noDotCheck(thisUnit) then
                     if cast.vampiricTouch(thisUnit) then ui.debug("Spreading VT to enemies [Main]") return end
                 end
@@ -785,7 +785,7 @@ actionList.Main = function()
     end
    
     -- actions.main+=/vampiric_touch,target_if=refreshable&target.time_to_die>6|(talent.misery.enabled&dot.shadow_word_pain.refreshable)|buff.unfurling_darkness.up
-    if not moving and not cast.current.vampiricTouch() and (debuff.vampiricTouch.refresh('target') and ttd('target') > 6 or (talent.misery and debuff.shadowWordPain.refresh() or buff.unfurlingDarkness.exists())) then
+    if not moving and not cast.last.vampiricTouch() and (debuff.vampiricTouch.refresh('target') and ttd('target') > 6 or (talent.misery and debuff.shadowWordPain.refresh() or buff.unfurlingDarkness.exists())) then
         --if not cast.last.vampiricTouch() then
             if cast.vampiricTouch('target') then ui.debug("Casting VT on target [Main]") return end
         --end
@@ -793,7 +793,7 @@ actionList.Main = function()
     if debuff.vampiricTouch.count() < VTmaxTargets then
         for i = 1, #enemies.yards40 do
             local thisUnit = enemies.yards40[i]
-            if not moving and not cast.current.vampiricTouch() and (debuff.vampiricTouch.refresh(thisUnit) and ttd(thisUnit) > 6 or (talent.misery and debuff.shadowWordPain.refresh() or buff.unfurlingDarkness.exists())) then
+            if not moving and not cast.last.vampiricTouch() and (debuff.vampiricTouch.refresh(thisUnit) and ttd(thisUnit) > 6 or (talent.misery and debuff.shadowWordPain.refresh() or buff.unfurlingDarkness.exists())) then
                 if not noDotCheck(thisUnit) then
                     if cast.vampiricTouch(thisUnit) then ui.debug("Refreshing VT on enemies [Main]") return end
                 end
@@ -1024,14 +1024,3 @@ br._G.tinsert(br.rotations[id],{
     run = runRotation,
 })
 
-if agonyCount < ui.value("Agony Count") then
-    for i = 1, #enemies.yards40 do
-        local thisUnit = enemies.yards40[i]
-        if not debuff.agony.exists("target") then
-            thisUnit = "target"
-        end         
-        if not noDotCheck(thisUnit) and (not debuff.agony.exists(thisUnit) or debuff.agony.remains(thisUnit) <= 5.4) and getTTD(thisUnit) > 10 then
-            if cast.agony(thisUnit) then br.addonDebug("[Action:AoE] Agony [Multi-Cycle (Target)]") return true end
-        end
-    end
-end
