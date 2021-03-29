@@ -468,11 +468,11 @@ actionList.ApBoP = function()
     end
     -- Wildfire Bomb
     -- wildfire_bomb,if=focus+cast_regen<focus.max&!ticking&(full_recharge_time<gcd|!dot.wildfire_bomb.ticking&buff.mongoose_fury.remains>full_recharge_time-1*gcd|!dot.wildfire_bomb.ticking&!buff.mongoose_fury.remains)|time_to_die<18&!dot.wildfire_bomb.ticking
-    if cast.able.wildfireBomb(units.dyn40,"aoe",1,8) and focus + cast.regen.wildfireBomb() < focusMax and ((charges.wildfireBomb.timeTillFull() < unit.gcd(true) or not debuff.wildfireBomb.exists(units.dyn40)
+    if cast.able.wildfireBomb(units.dyn40,"cone",1,8) and focus + cast.regen.wildfireBomb() < focusMax and ((charges.wildfireBomb.timeTillFull() < unit.gcd(true) or not debuff.wildfireBomb.exists(units.dyn40)
         and buff.mongooseFury.remains() > charges.wildfireBomb.timeTillFull() - 1 * unit.gcd(true) or debuff.wildfireBomb.exists(units.dyn40))
             or (unit.ttd(units.dyn40) < 18 and not debuff.wildfireBomb.exists(units.dyn40)))
     then
-        if cast.wildfireBomb(units.dyn40,"aoe",1,8) then ui.debug("Casting Wildfire Bomb [ApBoP - High Focus]") return true end
+        if cast.wildfireBomb(units.dyn40,"cone",1,8) then ui.debug("Casting Wildfire Bomb [ApBoP - High Focus]") return true end
     end
     -- Steel Trap
     -- steel_trap,if=focus+cast_regen<focus.max
@@ -534,8 +534,8 @@ actionList.ApBoP = function()
     end
     -- Wildfire Bomb
     -- wildfire_bomb,if=!ticking
-    if cast.able.wildfireBomb(units.dyn40,"aoe",1,8) and not debuff.wildfireBomb.exists(units.dyn40) then
-        if cast.wildfireBomb(units.dyn40,"aoe",1,8) then ui.debug("Casting Wildfire Bomb [ApBoP]") return true end
+    if cast.able.wildfireBomb(units.dyn40,"cone",1,8) and not debuff.wildfireBomb.exists(units.dyn40) then
+        if cast.wildfireBomb(units.dyn40,"cone",1,8) then ui.debug("Casting Wildfire Bomb [ApBoP]") return true end
     end
 end -- End Action List - Alpha Predator / Birds of Prey
 
@@ -588,11 +588,11 @@ actionList.ApSt = function()
     end
     -- Wildfire Bomb
     -- wildfire_bomb,if=full_recharge_time<gcd|focus+cast_regen<focus.max&(next_wi_bomb.volatile&dot.serpent_sting.ticking&dot.serpent_sting.refreshable|next_wi_bomb.pheromone&!buff.mongoose_fury.up&focus+cast_regen<focus.max-action.kill_command.cast_regen*3)|time_to_die<10
-    if cast.able.wildfireBomb(units.dyn40,"aoe",1,8) and (charges.wildfireBomb.timeTillFull() < unit.gcd(true) or focus + cast.regen.wildfireBomb() < focusMax
+    if cast.able.wildfireBomb(units.dyn40,"cone",1,8) and (charges.wildfireBomb.timeTillFull() < unit.gcd(true) or focus + cast.regen.wildfireBomb() < focusMax
         and (nextBomb(spell.volatileBomb) and debuff.serpentSting.exists(units.dyn40) and debuff.serpentSting.refresh(units.dyn40) or nextBomb(spell.pheromoneBomb)
         and not buff.mongooseFury.exists() and focus + cast.regen.wildfireBomb() < focusMax - cast.regen.killCommand() * 3) or unit.ttd(units.dyn40) < 10)
     then
-        if cast.wildfireBomb(units.dyn40,"aoe",1,8) then ui.debug("Casting Wildfire Bomb [ApSt - Max Charges]") return true end
+        if cast.wildfireBomb(units.dyn40,"cone",1,8) then ui.debug("Casting Wildfire Bomb [ApSt - Max Charges]") return true end
     end
     -- Carve
     -- carve,if=active_enemies>1&!runeforge.rylakstalkers_confounding_strikes.equipped
@@ -641,8 +641,8 @@ actionList.ApSt = function()
     end
     -- Wildfire Bomb
     -- wildfire_bomb,if=next_wi_bomb.shrapnel&focus>action.mongoose_bite.cost*2&dot.serpent_sting.remains>5*gcd
-    if cast.able.wildfireBomb(units.dyn40,"aoe",1,8) and nextBomb(spell.shrapnelBomb) and focus > cast.cost.mongooseBite() * 2 and debuff.serpentSting.remains(units.dyn40) > 5 * unit.gcd(true) then
-        if cast.wildfireBomb(units.dyn40,"aoe",1,8) then ui.debug("Casting Wildfire Bomb [ApSt - Next Bomb Shrapnel") return true end
+    if cast.able.wildfireBomb(units.dyn40,"cone",1,8) and nextBomb(spell.shrapnelBomb) and focus > cast.cost.mongooseBite() * 2 and debuff.serpentSting.remains(units.dyn40) > 5 * unit.gcd(true) then
+        if cast.wildfireBomb(units.dyn40,"cone",1,8) then ui.debug("Casting Wildfire Bomb [ApSt - Next Bomb Shrapnel") return true end
     end
     -- Chakrams
     -- chakrams
@@ -656,8 +656,8 @@ actionList.ApSt = function()
     end
     -- Wildfire Bomb
     -- wildfire_bomb,if=runeforge.rylakstalkers_confounding_strikes.equipped
-    if cast.able.wildfireBomb(units.dyn40,"aoe",1,8) and runeforge.rylakstalkersConfoundingStrikes.equiped then
-        if cast.wildfireBomb(units.dyn40,"aoe",1,8) then ui.debug("Casting Wildfire Bomb [ApSt - Rylakstalker's Confounding Strikes]") return true end
+    if cast.able.wildfireBomb(units.dyn40,"cone",1,8) and runeforge.rylakstalkersConfoundingStrikes.equiped then
+        if cast.wildfireBomb(units.dyn40,"cone",1,8) then ui.debug("Casting Wildfire Bomb [ApSt - Rylakstalker's Confounding Strikes]") return true end
     end
     -- Mongoose Bite
     -- mongoose_bite,target_if=max:debuff.latent_poison_injection.stack,if=buff.mongoose_fury.up|focus+action.kill_command.cast_regen>focus.max-15|dot.shrapnel_bomb.ticking|buff.wild_spirits.remains
@@ -673,10 +673,10 @@ actionList.ApSt = function()
     end
     -- Wildfire Bomb
     -- wildfire_bomb,if=next_wi_bomb.volatile&dot.serpent_sting.ticking|next_wi_bomb.pheromone|next_wi_bomb.shrapnel&focus>50
-    if cast.able.wildfireBomb(units.dyn40,"aoe",1,8) and (nextBomb(spell.volatileBomb) and debuff.serpentSting.exists(units.dyn40)
+    if cast.able.wildfireBomb(units.dyn40,"cone",1,8) and (nextBomb(spell.volatileBomb) and debuff.serpentSting.exists(units.dyn40)
         or nextBomb(spell.pheromoneBomb) or nextBomb(spell.shrapnelBomb) and focus > 50)
     then
-        if cast.wildfireBomb(units.dyn40,"aoe",1,8) then ui.debug("Casting Wildfire Bomb [ApSt]") return true end
+        if cast.wildfireBomb(units.dyn40,"cone",1,8) then ui.debug("Casting Wildfire Bomb [ApSt]") return true end
     end
 end -- End Action List - Alpha Predator
 
@@ -694,8 +694,8 @@ actionList.BoP = function()
     end
     -- Wildfire Bomb
     -- wildfire_bomb,if=focus+cast_regen<focus.max&!ticking&full_recharge_time<gcd
-    if cast.able.wildfireBomb(units.dyn40,"aoe",1,8) and focus + cast.regen.wildfireBomb() < focusMax and charges.wildfireBomb.timeTillFull() < unit.gcd(true) then
-        if cast.wildfireBomb(units.dyn40,"aoe",1,8) then ui.debug("Casting Wildfire Bomb [BoP - Max Charges]") return true end
+    if cast.able.wildfireBomb(units.dyn40,"cone",1,8) and focus + cast.regen.wildfireBomb() < focusMax and charges.wildfireBomb.timeTillFull() < unit.gcd(true) then
+        if cast.wildfireBomb(units.dyn40,"cone",1,8) then ui.debug("Casting Wildfire Bomb [BoP - Max Charges]") return true end
     end
     -- Wild Spirits
     -- wild_spirits
@@ -748,12 +748,12 @@ actionList.BoP = function()
     end
     -- Wildfire Bomb
     -- wildfire_bomb,if=focus+cast_regen<focus.max&!ticking&(full_recharge_time<gcd|!dot.wildfire_bomb.ticking&buff.mongoose_fury.remains>full_recharge_time-1*gcd|!dot.wildfire_bomb.ticking&!buff.mongoose_fury.remains)|time_to_die<18&!dot.wildfire_bomb.ticking
-    if cast.able.wildfireBomb(units.dyn40,"aoe",1,8) and focus + cast.regen.wildfireBomb() < focusMax
+    if cast.able.wildfireBomb(units.dyn40,"cone",1,8) and focus + cast.regen.wildfireBomb() < focusMax
         and not debuff.wildfireBomb.exists(units.dyn40) and (charges.wildfireBomb.timeTillFull() < unit.gcd(true)
         or not debuff.wildfireBomb.exists(units.dyn40) and buff.mongooseFury.remains() > charges.wildfireBomb.timeTillFull() - 1 * unit.gcd(true)
         or not debuff.wildfireBomb.exists(units.dyn40) and not buff.mongooseFury.exists()) or unit.ttd(units.dyn40) < 18 and not debuff.wildfireBomb.exist(units.dyn40)
     then
-        if cast.wildfireBomb(units.dyn40,"aoe",1,8) then ui.debug("Wildfire Bomb [BoP]") return true end
+        if cast.wildfireBomb(units.dyn40,"cone",1,8) then ui.debug("Wildfire Bomb [BoP]") return true end
     end
     -- Kill Command
     -- kill_command,target_if=min:bloodseeker.remains,if=focus+cast_regen<focus.max&!runeforge.nessingwarys_trapping_apparatus.equipped|focus+cast_regen<focus.max&((runeforge.nessingwarys_trapping_apparatus.equipped&!talent.steel_trap.enabled&cooldown.freezing_trap.remains&cooldown.tar_trap.remains)|(runeforge.nessingwarys_trapping_apparatus.equipped&talent.steel_trap.enabled&cooldown.freezing_trap.remains&cooldown.tar_trap.remains&cooldown.steel_trap.remains))|focus<action.mongoose_bite.cost
@@ -798,8 +798,8 @@ actionList.BoP = function()
     end
     -- Wildfire Bomb
     -- wildfire_bomb,if=dot.wildfire_bomb.refreshable
-    if cast.able.wildfireBomb(units.dyn40,"aoe",1,8) and debuff.wildfireBomb.refresh(units.dyn40) then
-        if cast.wildfireBomb(units.dyn40,"aoe",1,8) then ui.debug("Casting Wildfire Bomb [BoP - Refresh]") return true end
+    if cast.able.wildfireBomb(units.dyn40,"cone",1,8) and debuff.wildfireBomb.refresh(units.dyn40) then
+        if cast.wildfireBomb(units.dyn40,"cone",1,8) then ui.debug("Casting Wildfire Bomb [BoP - Refresh]") return true end
     end
     -- Serpent Sting
     -- serpent_sting,target_if=min:remains,if=buff.vipers_venom.up
@@ -827,8 +827,8 @@ actionList.Cleave = function()
     end
     -- Wildfire Bomb
     -- wildfire_bomb,if=full_recharge_time<gcd
-    if cast.able.wildfireBomb(units.dyn40,"aoe",1,8) and charges.wildfireBomb.timeTillFull() < unit.gcd(true) then
-        if cast.wildfireBomb(units.dyn40,"aoe",1,8) then ui.debug("Casting Wildfire Bomb [Cleave - Max Charges]") return true end
+    if cast.able.wildfireBomb(units.dyn40,"cone",1,8) and charges.wildfireBomb.timeTillFull() < unit.gcd(true) then
+        if cast.wildfireBomb(units.dyn40,"cone",1,8) then ui.debug("Casting Wildfire Bomb [Cleave - Max Charges]") return true end
     end
     -- Chakrams
     -- chakrams
@@ -881,8 +881,8 @@ actionList.Cleave = function()
     end
     -- Wildfire Bomb
     -- wildfire_bomb,if=!dot.wildfire_bomb.ticking
-    if cast.able.wildfireBomb(units.dyn40,"aoe",1,8) and not debuff.wildfireBomb.exists(units.dyn40) then
-        if cast.wildfireBomb(units.dyn40,"aoe",1,8) then ui.debug("Casting Wildfire Bomb [Cleave]") return true end
+    if cast.able.wildfireBomb(units.dyn40,"cone",1,8) and not debuff.wildfireBomb.exists(units.dyn40) then
+        if cast.wildfireBomb(units.dyn40,"cone",1,8) then ui.debug("Casting Wildfire Bomb [Cleave]") return true end
     end
     -- Butchery
     -- butchery,if=(!next_wi_bomb.shrapnel|!talent.wildfire_infusion.enabled)&cooldown.wildfire_bomb.full_recharge_time>spell_targets%2
@@ -994,11 +994,11 @@ actionList.St = function()
     end
     -- Wildfire Bomb
     -- wildfire_bomb,if=full_recharge_time<gcd&focus+cast_regen<focus.max|(next_wi_bomb.volatile&dot.serpent_sting.ticking&dot.serpent_sting.refreshable|next_wi_bomb.pheromone&focus+cast_regen<focus.max-action.kill_command.cast_regen*3&!buff.mongoose_fury.remains)
-    if cast.able.wildfireBomb(units.dyn40,"aoe",1,8) and (charges.wildfireBomb.timeTillFull() < unit.gcd(true) and focus + cast.regen.wildfireBomb() < focusMax or (nextBomb(spell.volatileBomb)
+    if cast.able.wildfireBomb(units.dyn40,"cone",1,8) and (charges.wildfireBomb.timeTillFull() < unit.gcd(true) and focus + cast.regen.wildfireBomb() < focusMax or (nextBomb(spell.volatileBomb)
         and debuff.serpentSting.exists(units.dyn40) and debuff.serpentSting.refresh(units.dyn40) or nextBomb(spell.phearomoneBomb)
         and focus + cast.regen.wildfireBomb() < focusMax - cast.regen.killCommand() * 3 and not buff.mongooseFury.exists()))
     then
-        if cast.wildfireBomb(units.dyn40,"aoe",1,8) then ui.debug("Casting Wildfire Bomb [St - Max Charges]") return true end
+        if cast.wildfireBomb(units.dyn40,"cone",1,8) then ui.debug("Casting Wildfire Bomb [St - Max Charges]") return true end
     end
     -- Steel Trap
     -- steel_trap,if=focus+cast_regen<focus.max
@@ -1046,10 +1046,10 @@ actionList.St = function()
     end
     -- Wildfire Bomb
     -- wildfire_bomb,if=next_wi_bomb.shrapnel&dot.serpent_sting.remains>5*gcd|runeforge.rylakstalkers_confounding_strikes.equipped
-    if cast.able.wildfireBomb(units.dyn40,"aoe",1,8) and (nextBomb(spell.shrapnelBomb)
+    if cast.able.wildfireBomb(units.dyn40,"cone",1,8) and (nextBomb(spell.shrapnelBomb)
         and debuff.serpentSting.remains(units.dyn40) > 5 * unit.gcd(true) or runeforge.rylakstalkersConfoundingStrikes.equiped)
     then
-        if cast.wildfireBomb(units.dyn40,"aoe",1,8) then ui.debug("Casting Wildfire Bomb [St - Shrapnel Bomb / Rylakstalker's]") return true end
+        if cast.wildfireBomb(units.dyn40,"cone",1,8) then ui.debug("Casting Wildfire Bomb [St - Shrapnel Bomb / Rylakstalker's]") return true end
     end
     -- Chakrams
     -- chakrams
@@ -1070,10 +1070,10 @@ actionList.St = function()
     end
     -- Wildfire Bomb
     -- wildfire_bomb,if=next_wi_bomb.volatile&dot.serpent_sting.ticking|next_wi_bomb.pheromone|next_wi_bomb.shrapnel
-    if cast.able.wildfireBomb(units.dyn40,"aoe",1,8) and (nextBomb(spell.volatileBomb) and debuff.serpentSting.exists(units.dyn40)
+    if cast.able.wildfireBomb(units.dyn40,"cone",1,8) and (nextBomb(spell.volatileBomb) and debuff.serpentSting.exists(units.dyn40)
         or nextBomb(spell.pheromoneBomb) or nextBomb(spell.shrapnelBomb))
     then
-        if cast.wildfireBomb(units.dyn40,"aoe",1,8) then ui.debug("Casting Wildfire Bomb [St]") return true end
+        if cast.wildfireBomb(units.dyn40,"cone",1,8) then ui.debug("Casting Wildfire Bomb [St]") return true end
     end
 end -- End Action List - Single Target
 
@@ -1221,8 +1221,10 @@ local function runRotation()
     enemies.get(5)
     enemies.get(5,"pet")
     enemies.get(8)
+    enemies.get(8,"player",false,true)
     enemies.get(8,"target")
-    -- enemies.get(8,"pet")
+    enemies.get(12)
+    enemies.get(15)
     -- enemies.get(20,"pet")
     enemies.get(30)
     -- enemies.get(30,"pet")
@@ -1341,8 +1343,8 @@ local function runRotation()
             end
             -- Call Action List - Cleave
             -- call_action_list,name=cleave,if=active_enemies>1&!talent.birds_of_prey.enabled|active_enemies>2
-            if ((ui.mode.rotation == 1 and (((eagleScout() > 1 or #enemies.yards8t > 1) and not talent.birdsOfPrey)
-                    or (eagleScout() > 2 or #enemies.yards8t > 2)))
+            if ((ui.mode.rotation == 1 and (((eagleScout() > 1 or #enemies.yards8f > 1) and not talent.birdsOfPrey)
+                    or (eagleScout() > 2 or #enemies.yards8f > 2)))
                 or (ui.mode.rotation == 2 and eagleScout() > 0)) and level >= 23
             then
                 if actionList.Cleave() then return true end
