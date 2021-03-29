@@ -3,6 +3,7 @@ local b = br._G
 local unlock = br.unlock
 -- Minibot
 function unlock.MBUnlock()
+    local wmbapi = _G.wmbapi
     local unlocked = false
     -- Active Player
     b.StopFalling = wmbapi.StopFalling
@@ -92,8 +93,52 @@ function unlock.MBUnlock()
         end
     end
     b.ObjectInteract = b.InteractUnit
-    -- Object Manager
-    b.GetObjectCount = wmbapi.GetObjectCount
+    --------------------------------
+    -- internal unit manager
+    --------------------------------
+    local const_updateObjectListTickDelay = 10
+    local g_lastKnownObjectList = {}
+    local g_lastObjectCount = nil
+    local g_lastObjectGuid = nil
+    local g_lastUpdateTick = 0
+
+    b.GetObjectCount = function()
+        local count = wmbapi.GetObjectCount()
+        if g_lastUpdateTick < const_updateObjectListTickDelay and g_lastObjectCount == count and g_lastObjectGuid ==
+            wmbapi.GetObjectWithIndex(count) then
+            g_lastUpdateTick = g_lastUpdateTick + 1
+            return count, false, added, removed
+        else
+            g_lastUpdateTick = 0
+        end
+
+        local currentObjects = {}
+        local added = {}
+        local removed = {}
+
+        for i = 1, count do
+            local guid = wmbapi.GetObjectWithIndex(i)
+            if not g_lastKnownObjectList[guid] then
+                added[#added + 1] = guid
+            end
+            g_lastKnownObjectList[guid] = true
+            currentObjects[guid] = true
+        end
+
+        for guid, v in pairs(g_lastKnownObjectList) do
+            if not currentObjects[guid] then
+                removed[#removed + 1] = guid
+                g_lastKnownObjectList[guid] = nil
+            end
+        end
+
+        g_lastObjectCount = count
+        g_lastObjectGuid = wmbapi.GetObjectWithIndex(count)
+
+        local updated = (#added > 1) or (#removed > 0)
+        return count, true, added, removed
+    end
+    
     b.GetNpcCount = wmbapi.GetNpcCount
     b.GetPlayerCount = wmbapi.GetPlayerCount
     b.GetObjectWithIndex = wmbapi.GetObjectWithIndex
