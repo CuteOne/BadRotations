@@ -1,8 +1,8 @@
 local _, br = ...
 local b = br._G
 local unlock = br.unlock
--- EWT Unlocker
-function unlock.EWTUnlock()
+-- UCS Unlocker
+function unlock.UCSUnlock()
     local unlocked = false
     -- Active Player
     b.StopFalling = StopFalling

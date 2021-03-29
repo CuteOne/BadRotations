@@ -597,8 +597,8 @@ actionList.St = function()
     end
     -- Kill Command
     -- kill_command
-    if cast.able.killCommand(br.petTarget) then
-        if cast.killCommand(br.petTarget) then if br.petTarget ~= nil then ui.debug("[ST] Casting Kill Command on "..unit.name(br.petTarget)) else ui.debug("[ST] Casting Kill Command on nil") end return true end
+    if unit.exists(br.petTarget) and cast.able.killCommand(br.petTarget) then
+        if cast.killCommand(br.petTarget) then ui.debug("[ST] Casting Kill Command on "..unit.name(br.petTarget)) return true end
     end
     -- Racial - Bag of Tricks
     -- bag_of_tricks,if=buff.bestial_wrath.down|target.time_to_die<5

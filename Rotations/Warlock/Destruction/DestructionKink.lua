@@ -1336,8 +1336,7 @@ actionList.ST = function()
             -- chaos_bolt,if=(talent.grimoire_of_supremacy.enabled|azerite.crashing_chaos.enabled)&pet.infernal.active|buff.dark_soul_instability.up|buff.reckless_force.react&buff.reckless_force.remains>cast_time
             if not moving  and cast.timeSinceLast.chaosBolt() > gcdMax
                 and ((talent.grimoireOfSupremacy or traits.crashingChaos.active) and pet.infernal.active() 
-                or buff.darkSoulInstability.exists() or buff.recklessForce.exists()
-                and buff.recklessForce.remain() > cast.time.chaosBolt())
+                or buff.darkSoulInstability.exists())
             then
                 if cast.chaosBolt() then debug("Cast Chaos Bolt [Main - Supremacy or Crashing Chaos]") return true end
             end

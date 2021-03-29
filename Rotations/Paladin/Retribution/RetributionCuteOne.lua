@@ -592,7 +592,7 @@ actionList.Cooldowns = function()
     end
     -- Holy Avenger
     -- holy_avenger,if=time_to_hpg=0&(buff.avenging_wrath.up|buff.crusade.up|buff.avenging_wrath.down&cooldown.avenging_wrath.remains>40|buff.crusade.down&cooldown.crusade.remains>40)
-    if ui.alwaysCdNever("Holy Avenger") and var.timeToHPG == 0 and (buff.avengingWrath.exists() or buff.crusade.exists()
+    if ui.alwaysCdNever("Holy Avenger") and cast.able.holyAvenger() and var.timeToHPG == 0 and (buff.avengingWrath.exists() or buff.crusade.exists()
         or (not buff.avengingWrath.exists() and (cd.avengingWrath.remains() > 40 or not ui.alwaysCdNever("Avenging Wrath")))
         or (not buff.crusade.exists() and (buff.crusade.remains() > 40 or not ui.alwaysCdNever("Crusade"))))
     then
@@ -600,7 +600,9 @@ actionList.Cooldowns = function()
     end
     -- Final Reckoning
     -- final_reckoning,if=(holy_power>=4&time<8|holy_power>=3&time>=8)&cooldown.avenging_wrath.remains>gcd&time_to_hpg=0&(!talent.seraphim.enabled|buff.seraphim.up)&(!raid_event.adds.exists|raid_event.adds.up|raid_event.adds.in>40)
-    if ui.alwaysCdNever("Final Reckoning") and ((holyPower >= 4 and unit.combatTime() < 8) or (holyPower >= 3 and unit.combatTime() >= 8)) and (cd.avengingWrath.remains() > unit.gcd(true) or not ui.alwaysCdNever("Avenging Wrath"))
+    if ui.alwaysCdNever("Final Reckoning") and cast.able.finalReckoning()
+        and ((holyPower >= 4 and unit.combatTime() < 8) or (holyPower >= 3 and unit.combatTime() >= 8))
+        and (cd.avengingWrath.remains() > unit.gcd(true) or talent.crusade or not ui.alwaysCdNever("Avenging Wrath"))
         and var.timeToHPG == 0 and (not talent.seraphim or buff.seraphim.exists() or not ui.alwaysCdNever("Seraphim"))
     then
         if cast.finalReckoning() then ui.debug("Casting Final Reckoning") return true end
@@ -611,10 +613,11 @@ actionList.Finisher = function()
     -- Seraphim
     -- seraphim,if=(cooldown.avenging_wrath.remains>15|cooldown.crusade.remains>15|talent.final_reckoning.enabled)&(!talent.final_reckoning.enabled|cooldown.final_reckoning.remains<=gcd*3&(!raid_event.adds.exists|raid_event.adds.in>40|raid_event.adds.in<gcd|raid_event.adds.up))&(!talent.execution_sentence.enabled|cooldown.execution_sentence.remains<=gcd*3|talent.final_reckoning.enabled)&(!covenant.kyrian|cooldown.divine_toll.remains<9)|target.time_to_die<15&target.time_to_die>5
     if ui.alwaysCdNever("Seraphim") and cast.able.seraphim()
-        and ((not talent.crusade and (cd.avengingWrath.remains() > 15 or not ui.alwaysCdNever("Avenging Wrath"))) or (talent.crusade and (cd.crusade.remains() > 15 or not ui.alwaysCdNever("Crusade")))
-        and (not talent.finalReckoning or (cd.finalReckoning.remains() > unit.gcd(true) * 3 or ui.alwaysCdNever("Final Reckoning")))
-        and (not talent.executionSentence or (cd.executionSentence.remains() > unit.gcd(true) * 3 or talent.finalReckoning or ui.alwaysCdNever("Execution Sentence")))
-        and (not covenant.kyrian.active or cd.divineToll.remain() < 9) --[[or unit.ttdGroup(5) < 15]] and unit.ttdGroup(5) > 5)
+        and (((not talent.crusade and (cd.avengingWrath.remains() > 15 or not ui.alwaysCdNever("Avenging Wrath")))
+            or (talent.crusade and (cd.crusade.remains() > 15 or not ui.alwaysCdNever("Crusade"))) or talent.finalReckoning)
+        and (not talent.finalReckoning or cd.finalReckoning.remains() <= unit.gcd(true) * 3 or ui.alwaysCdNever("Final Reckoning"))
+        and (not talent.executionSentence or (cd.executionSentence.remains() <= unit.gcd(true) * 3 or talent.finalReckoning or ui.alwaysCdNever("Execution Sentence")))
+        and (not covenant.kyrian.active or cd.divineToll.remain() < 9) or unit.ttdGroup(5) < 15 and unit.ttdGroup(5) > 5)
     then
         if cast.seraphim() then ui.debug("Casting Seraphim") return true end
     end
@@ -642,13 +645,14 @@ actionList.Finisher = function()
     if cast.able.divineStorm("player", "aoe", theseUnits, 8) and var.dsCastable and not buff.vanquishersHammer.exists()
         and (((not talent.crusade or cd.crusade.remains() > unit.gcd(true) * 3 or not ui.alwaysCdNever("Crusade"))
         and (not talent.executionSentence or cd.executionSentence.remains() > unit.gcd(true) * 6
-            or (cd.executionSentence.remains() > unit.gcd(true) * 5 and holyPower >= 4) --or unit.ttdGroup(8) < 8
+            or (cd.executionSentence.remains() > unit.gcd(true) * 5 and holyPower >= 4) or unit.ttdGroup(8) < 8
             or (not talent.seraphim and cd.executionSentence.remain() > unit.gcd(true) * 2) or not ui.alwaysCdNever("Execution Sentence"))
         and (not talent.finalReckoning or (cd.finalReckoning.remains() > unit.gcd(true) * 6) or (cd.finalReckoning.remains() > unit.gcd(true) * 5 and holyPower >= 4)
             or (not talent.seraphim and cd.finalReckoning.remains() > unit.gcd(true) * 2) or not ui.alwaysCdNever("Final Reckoning"))
         and (not talent.seraphim or cd.seraphim.remains() / unit.gcd(true) + holyPower > 3 or talent.finalReckoning
             or talent.executionSentence or covenant.kyrian.active or not ui.alwaysCdNever("Seraphim")))
         or (talent.holyAvenger and cd.holyAvenger.remains() < unit.gcd(true) * 3 or buff.holyAvenger.exists() or (talent.crusade and buff.crusade.exists() and buff.crusade.stack() < 10)))
+        --or buff.empyreanPower.exists())
     then
         if cast.divineStorm("player", "aoe", theseUnits, 8) then ui.debug("Casting Divine Storm") return true end
     end
@@ -657,9 +661,9 @@ actionList.Finisher = function()
     if cast.able.templarsVerdict() then
         if ((not talent.crusade or cd.crusade.remains() > unit.gcd(true) * 3 or not ui.alwaysCdNever("Crusade"))
             and (not talent.executionSentence or cd.executionSentence.remains() > unit.gcd(true) * 6 or (cd.executionSentence.remains() > unit.gcd(true) * 5 and holyPower >= 4)
-                --[[or unit.ttdGroup(5) < 8]] or (not talent.searphim and cd.executionSentence.remains() > unit.gcd() * 2) or not ui.alwaysCdNever("Execution Sentence"))
+                or unit.ttdGroup(5) < 8 or (not talent.searphim and cd.executionSentence.remains() > unit.gcd() * 2) or not ui.alwaysCdNever("Execution Sentence"))
             and (not talent.finalReckoning or cd.finalReckoning.remains() > unit.gcd(true) * 6 or (cd.finalReckoning.remains() > unit.gcd(true) * 5 and holyPower >= 4)
-                or (not talent.seraphim or cd.finalReckoning.remains() >= unit.gcd(true) * 2) or not ui.alwaysCdNever("Final Reckoning"))
+                or (not talent.seraphim and cd.finalReckoning.remains() >= unit.gcd(true) * 2) or not ui.alwaysCdNever("Final Reckoning"))
             and (not talent.seraphim or cd.seraphim.remains() / unit.gcd(true) + holyPower > 3 or talent.finalReckoning
                 or talent.executionSentence or covenant.kyrian.active or not ui.alwaysCdNever("Seraphim")))
             or (talent.holyAvenger and cd.holyAvenger.remains() < unit.gcd(true) * 3) or buff.holyAvenger.exists() or (talent.crusade and buff.crusade.exists() and buff.crusade.stack() < 10)
@@ -904,7 +908,7 @@ local runRotation = function()
 
     -- Profile Variables
     -- variable,name=ds_castable,value=spell_targets.divine_storm=2&!(runeforge.final_verdict&talent.righteous_verdict.enabled&conduit.templars_vindication.enabled)|spell_targets.divine_storm>2|buff.empyrean_power.up&debuff.judgment.down&buff.divine_purpose.down
-    var.dsUnits = ((ui.mode.rotation == 1 and ((#enemies.yards8 == 2 and not (runeforge.finalVerdict.equiped and talent.righteousVerdict and conduit.templarsVindication)) or #enemies.yards8 > 2)) or (ui.mode.rotation == 2 and #enemies.yards8 > 0))
+    var.dsUnits = ((ui.mode.rotation == 1 and ((#enemies.yards8 == 2 and not (runeforge.finalVerdict.equiped and talent.righteousVerdict and conduit.templarsVindication.enabled)) or #enemies.yards8 > 2)) or (ui.mode.rotation == 2 and #enemies.yards8 > 0))
     var.dsCastable = (var.dsUnits or (buff.empyreanPower.exists() and not debuff.judgment.exists(units.dyn8) and not buff.divinePurpose.exists()))
     var.lowestUnit = br.friend[1].unit
     var.resable = unit.player("target") and unit.deadOrGhost("target") and unit.friend("target", "player")
@@ -937,32 +941,35 @@ local runRotation = function()
         end
     end
 
-    -- Crusader Aura
-    if unit.mounted() and cast.able.crusaderAura() and not buff.crusaderAura.exists() then
-        if cast.crusaderAura("player") then
-            ui.debug("Casting Crusader Aura")
-            return true
+    -- Auras
+    if not unit.casting() then
+        -- Crusader Aura
+        if unit.mounted() and cast.able.crusaderAura() and not buff.crusaderAura.exists() then
+            if cast.crusaderAura("player") then
+                ui.debug("Casting Crusader Aura")
+                return true
+            end
         end
-    end
-    -- Concentration Aura
-    if ui.mode.aura == 1 and not unit.mounted() and cast.able.concentrationAura() and not buff.concentrationAura.exists() then
-        if cast.concentrationAura("player") then
-            ui.debug("Casting Concentration Aura")
-            return true
+        -- Concentration Aura
+        if ui.mode.aura == 1 and not unit.mounted() and cast.able.concentrationAura() and not buff.concentrationAura.exists() then
+            if cast.concentrationAura("player") then
+                ui.debug("Casting Concentration Aura")
+                return true
+            end
         end
-    end
-    -- Devotion Aura
-    if ui.mode.aura == 2 and not unit.mounted() and cast.able.devotionAura() and not buff.devotionAura.exists() then
-        if cast.devotionAura("player") then
-            ui.debug("Casting Devotion Aura")
-            return true
+        -- Devotion Aura
+        if ui.mode.aura == 2 and not unit.mounted() and cast.able.devotionAura() and not buff.devotionAura.exists() then
+            if cast.devotionAura("player") then
+                ui.debug("Casting Devotion Aura")
+                return true
+            end
         end
-    end
-    -- Retribution Aura
-    if ui.mode.aura == 3 and not unit.mounted() and cast.able.retributionAura() and not buff.retributionAura.exists() then
-        if cast.retributionAura("player") then
-            ui.debug("Casting Retribution Aura")
-            return true
+        -- Retribution Aura
+        if ui.mode.aura == 3 and not unit.mounted() and cast.able.retributionAura() and not buff.retributionAura.exists() then
+            if cast.retributionAura("player") then
+                ui.debug("Casting Retribution Aura")
+                return true
+            end
         end
     end
 

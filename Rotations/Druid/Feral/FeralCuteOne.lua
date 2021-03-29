@@ -183,10 +183,11 @@ end
 -- BR API Locals
 local buff
 local cast
-local comboPoints
 local cd
 local charges
+local comboPoints
 local conduit
+local covenant
 local debuff
 local enemies
 local energy, energyRegen, energyDeficit
@@ -741,11 +742,24 @@ end -- End Action List - Interrupts
 -- Action List - Cooldowns
 actionList.Cooldowns = function()
     if unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
+        -- Adaptive Swarm
+        -- adaptive_swarm,target_if=((!dot.adaptive_swarm_damage.ticking|dot.adaptive_swarm_damage.remains<2)&(dot.adaptive_swarm_damage.stack<3|!dot.adaptive_swarm_heal.stack>1)&!action.adaptive_swarm_heal.in_flight&!action.adaptive_swarm_damage.in_flight&!action.adaptive_swarm.in_flight)&target.time_to_die>5|active_enemies>2&!dot.adaptive_swarm_damage.ticking&energy<35&target.time_to_die>5
+        if ui.alwaysCdNever("Covenant Ability") then
+            for i = 1, #enemies.yards40 do
+                local thisUnit = enemies.yards40[i]
+                if ((not debuff.adaptiveSwarm.exists(thisUnit) or debuff.adaptiveSwarm.remains(thisUnit) < 2)
+                    and (debuff.adaptiveSwarm.stack(thisUnit) < 3 or not buff.adaptiveSwarmHeal.stack() > 1)
+                        and cast.inFlight.adaptiveSwarmHeal() and not cast.inFlight.adaptiveSwarm(thisUnit))
+                    and unit.ttd(thisUnit) > 5 or #enemies.yards40 > 2 and not debuff.adaptiveSwarm.exists(thisUnit) and energy < 35 and unit.ttd(thisUnit) > 5
+                then
+                    if cast.adaptiveSwarm(thisUnit) then ui.debug("Casting Adaptive Swarm [Necrolord]") return true end
+                end
+            end
+        end
         -- Feral Frenzy
-        -- feral_frenzy,if=combo_points<3
-        -- feral_frenzy,target_if=max:target.time_to_die,if=combo_points<3&target.time_to_die>7
-        if cast.able.feralFrenzy() and comboPoints < 3 and unit.ttd(units.dyn5) > 7 then
-            if cast.feralFrenzy() then ui.debug("Casting Feral Frenzy") return true end
+        -- feral_frenzy,target_if=max:target.time_to_die,if=combo_points<3&target.time_to_die>7&!cooldown.tigers_fury.up|fight_remains<8&fight_remains>2
+        if cast.able.feralFrenzy(var.maxTTDUnit) and comboPoints < 3 and unit.ttd(var.maxTTDUnit) > 7 and not cd.tigersFury.exists() then
+            if cast.feralFrenzy(var.maxTTDUnit) then ui.debug("Casting Feral Frenzy") return true end
         end
         -- Berserk/Incarnation
         -- berserk,if=combo_points>=3
@@ -767,12 +781,13 @@ actionList.Cooldowns = function()
             if cast.tigersFury() then ui.debug("Casting Tiger's Fury") return true end
         end
         -- Shadowmeld
-        -- shadowmeld,if=buff.tigers_fury.up&buff.bs_inc.down&combo_points<4&dot.rake.pmultiplier<1.6&energy>40
+        -- shadowmeld,if=buff.tigers_fury.up&buff.bs_inc.down&combo_points<4&dot.rake.pmultiplier<1.6&energy>40&druid.rake.ticks_gained_on_refresh>spell_targets.swipe_cat*2-2&target.time_to_die>5
         if ui.checked("Racial") and race == "NightElf" and cast.able.racial() and ui.useCDs() and not unit.moving()
-            and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 and not var.solo and var.friendsInRange --findFriends() > 0
+            and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 and not var.solo and var.friendsInRange
         then
             if buff.tigersFury.exists() and not buff.berserk.exists() and not buff.incarnationKingOfTheJungle.exists()
                 and not buff.prowl.exists() and comboPoints < 4 and debuff.rake.applied(units.dyn5) < 1.6 and energy > 40
+                and ticksGain.rake > (#enemies.yards8 * 2) - 2 and unit.ttd(units.dyn5) > 5
             then
                 if cast.racial() then ui.debug("Casting Shadowmeld") return true end
             end
@@ -820,11 +835,6 @@ actionList.Cooldowns = function()
                     if cast.empowerBond("player") then ui.debug("Casting Empower Bond [Kyrian]") return true end
                 end
             end
-        end
-        -- Adaptive Swarm
-        -- adaptive_swarm,target_if=max:time_to_die*(combo_points=5&!dot.adaptive_swarm_damage.ticking)
-        if ui.alwaysCdNever("Covenant Ability") and cast.able.adaptiveSwarm(var.maxTTDUnit) and comboPoints == 5 and not debuff.adaptiveSwarm.exists(var.maxTTDUnit) then
-            if cast.adaptiveSwarm(var.maxTTDUnit) then ui.debug("Casting Adaptive Swarm [Necrolord]") return true end
         end
         -- Trinkets
         module.BasicTrinkets()
@@ -1035,17 +1045,13 @@ actionList.Stealth = function()
             end
         end
     end
-    -- -- Thrash
-    -- -- pool_resource,for_next=1
-    -- -- thrash_cat,target_if=refreshable&druid.thrash_cat.ticks_gained_on_refresh>variable.thrash_ticks,if=spell_targets.thrash_cat>3
-    -- if cast.able.thrashCat("player","aoe",1,8) and #enemies.yards8 > 3 then
-    --     for i = 1, #enemies.yards8 do
-    --         local thisUnit = enemies.yards8[i]
-    --         if debuff.thrashCat.refresh(thisUnit) and ticksGain.thrash > thrashTicks then
-    --             if cast.thrashCat("player","aoe",1,8) then ui.debug("Casting Thrash [Stealth]") return true end
-    --         end
-    --     end
-    -- end
+    -- Moonfire
+    -- lunar_inspiration,if=spell_targets.thrash_cat<3&refreshable&druid.lunar_inspiration.ticks_gained_on_refresh>5&(combo_points=4|dot.lunar_inspiration.remains<5|!dot.lunar_inspiration.ticking)
+    if cast.able.moonfireFeral() and talent.lunarInspiration and #enemies.yards8 < 3 and debuff.moonfireFeral.refresh(units.dyn40)
+        and ticksGain.moonfireFeral > 5 and (comboPoints == 4 or debuff.moonfireFeral.remain() < 5)
+    then
+        if cast.moonfireFeral() then ui.debug("Casting Moonfire [Stealth]") return true end
+    end
     -- Brutal Slash
     -- brutal_slash,if=spell_targets.brutal_slash>2
     if cast.able.brutalSlash("player","aoe",3,8) and talent.brutalSlash and #enemies.yards8 > 2 then
@@ -1287,6 +1293,7 @@ local function runRotation()
         cd              = br.player.cd
         charges         = br.player.charges
         conduit         = br.player.conduit
+        covenant        = br.player.covenant
         debuff          = br.player.debuff
         enemies         = br.player.enemies
         equiped         = br.player.equiped
@@ -1352,10 +1359,13 @@ local function runRotation()
     var.brutal = talent.brutalSlash and 1 or 0
 
     -- Lunar Inspiration
-    var.lunar = talent.lunarInspiration and 1 or 0 
+    var.lunar = talent.lunarInspiration and 1 or 0
 
     -- Taste For Blood
     var.tastyBlood = conduit.tasteForBlood.enabled and 1 or 0
+
+    -- Necrolord
+    var.necro = covenant.necrolord and 1 or 0
 
     -- Friends In Range
     var.solo = #br.friend < 2
@@ -1470,7 +1480,7 @@ local function runRotation()
                 -- Rake Ticks to Gain
                 ticksGain.rake = debuff.rake.exists(thisUnit,"EXACT") and (ticksGain.rake + (var.rakeTicksTotal(thisUnit) - var.rakeTicksRemain(thisUnit))) or ticksGain.rake + 5
             end
-            -- variable,name=shortest_ttd,value=target.time_to_die,if=variable.shortest_ttd=0
+            -- variable,name=shortest_ttd,value=target.time_to_die
             -- cycling_variable,name=shortest_ttd,op=min,value=target.time_to_die
             if thisTTD < var.lowestTTD then var.lowestTTD = thisTTD var.lowestTTDUnit = thisUnit end
             if thisTTD > var.maxTTD then var.maxTTD = thisTTD var.maxTTDUnit = thisUnit end
@@ -1478,6 +1488,11 @@ local function runRotation()
     end
     --if talent.primalWrath then bestRip = var.ripTicksGain end
     
+    var.ripTicksGainUnit = function(ripUnit)
+        return not debuff.rip.exists(ripUnit) and 12 or (var.ripTicksTotal(ripUnit) - var.ripTicksRemain(ripUnit))
+    end
+
+
     ---------------------
     --- Begin Profile ---
     ---------------------
@@ -1551,16 +1566,30 @@ local function runRotation()
                     -- Call Action List - Cooldowns
                     -- call_action_list,name=cooldown
                     if actionList.Cooldowns() then return true end
-                    -- Primal Wrath
-                    -- primal_wrath,if=druid.primal_wrath.ticks_gained_on_refresh>=20&combo_points>=2
-                    if usePrimalWrath() and ticksGain.rip >= 20 and comboPoints >= 2 then
-                        if cast.primalWrath("player","aoe",1,8) then ui.debug("Casting Primal Wrath [High Tick Gain]") return true end
+                    -- Rip
+                    -- rip,target_if=covenant.necrolord&spell_targets.thrash_cat=1&combo_points>2&refreshable&druid.rip.ticks_gained_on_refresh>variable.rip_ticks&(!buff.bs_inc.up|cooldown.bs_inc.up|(buff.bs_inc.up&cooldown.feral_frenzy.up))
+                    if covenant.necrolord.active and #enemies.yards8 == 1 and comboPoints > 2
+                        and (not (buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists()) 
+                            or (cd.berserk.exists() or cd.incarnationKingOfTheJungle.exists()) 
+                            or ((buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists()) and not cd.feralFrenzy.exists()))
+                    then
+                        for i = 1, #enemies.yards5 do
+                            local thisUnit = enemies.yards5[i]
+                            if cast.able.rip(thisUnit) and debuff.rip.refresh(thisUnit) and var.ripTicksGainUnit(thisUnit) > ripTicks then
+                                if cast.rip(thisUnit) then ui.debug("Casting Rip [Necrolord Ticks Gain]") return true end
+                            end
+                        end
                     end
                     -- Run Action List - Finisher
                     -- run_action_list,name=finisher,if=combo_points>=(5-variable.4cp_bite)
                     if comboPoints >= (5 - cp4Bite) then
                         if actionList.Finisher() then return true end
-                    else
+                    else                        
+                        -- Primal Wrath
+                        -- primal_wrath,if=druid.primal_wrath.ticks_gained_on_refresh>=20&combo_points>=2,line_cd=5
+                        if usePrimalWrath() and ticksGain.rip >= 20 and comboPoints >= 2 and cast.timeSinceLast.primalWrath() >= 5 then
+                            if cast.primalWrath("player","aoe",1,8) then ui.debug("Casting Primal Wrath [High Tick Gain]") return true end
+                        end
                         -- Run Action List - Stealth
                         -- call_action_list,name=stealth,if=buff.bs_inc.up|buff.sudden_ambush.up
                         if buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists() or buff.suddenAmbush.exists() then
@@ -1603,7 +1632,7 @@ local function runRotation()
                             end
                         end
                         -- Lunar Inspiration
-                        -- moonfire_cat,target_if=refreshable&druid.moonfire.ticks_gained_on_refresh>spell_targets.swipe_cat*2-2
+                        -- lunar_inspiration,target_if=refreshable&druid.lunar_inspiration.ticks_gained_on_refresh>spell_targets.swipe_cat*2-2
                         if cast.able.moonfireFeral() and talent.lunarInspiration then
                             for i = 1, #enemies.yards40 do
                                 local thisUnit = enemies.yards40[i]
@@ -1614,11 +1643,11 @@ local function runRotation()
                         end
                         -- Thrash
                         -- pool_resource,for_next=1
-                        -- thrash_cat,target_if=refreshable&druid.thrash_cat.ticks_gained_on_refresh>(4+spell_targets.thrash_cat*4)%(1+mastery_value)-conduit.taste_for_blood.enabled
+                        -- thrash_cat,target_if=refreshable&druid.thrash_cat.ticks_gained_on_refresh>(4+spell_targets.thrash_cat*4)%(1+mastery_value)-conduit.taste_for_blood.enabled-covenant.necrolord
                         if cast.able.thrashCat("player","aoe",1,8) then
                             for i = 1, #enemies.yards8 do
                                 local thisUnit = enemies.yards8[i]
-                                if debuff.thrashCat.refresh(thisUnit) and ticksGain.thrash > (4 + #enemies.yards8 * 4) / (1 + br._G.GetMastery()) - var.tastyBlood
+                                if debuff.thrashCat.refresh(thisUnit) and ticksGain.thrash > (4 + #enemies.yards8 * 4) / (1 + br._G.GetMastery()) - var.tastyBlood - var.necro
                                     and not buff.berserk.exists() and not buff.incarnationKingOfTheJungle.exists()
                                 then
                                     if cast.thrashCat("player","aoe",1,8) then ui.debug("Casting Thrash [Ticks Gain]") return true end

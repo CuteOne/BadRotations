@@ -64,6 +64,9 @@ function br.ToggleValue(toggleValue)
 	if br[toggleValue .. "Modes"] == nil then
 		toggleValue = FindToggle(toggleValue)
 	end
+	if br[toggleValue.."Modes"] == nil then
+		br._G.print("No toggle mode found for "..toggleValue..". Please inform devs of this error!")
+	end
 	-- prevent nil fails
 	local toggleOldValue
 	if br.data.settings[br.selectedSpec].toggles then
