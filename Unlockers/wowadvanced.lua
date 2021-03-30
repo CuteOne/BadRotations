@@ -15,7 +15,6 @@ local unlockList =
 	"CancelLogout",
 	"CancelShapeshiftForm",
 	"CancelUnitBuff",
-	"CanGrantLevel",
 	"CanSummonFriend",
 	"CastPetAction",
 	"CastShapeshiftForm",
@@ -38,18 +37,14 @@ local unlockList =
 	"FocusUnit",
 	"FollowUnit",
 	"ForceQuit",
-	"GetCritChanceFromAgility",
 	"GetDefaultLanguage",
 	"GetPartyAssignment",
 	"GetPlayerInfoByGUID",
 	"GetRaidTargetIndex",
 	"GetReadyCheckStatus",
-	"GetSpellCritChanceFromIntellect",
 	"GetUnitName",
-	"GetUnitPitch",
 	"GetUnitSpeed",
 	"GetUnscaledFrameRect",
-	"GrantLevel",
 	"GuildControlSetRank",
 	"GuildControlSetRankFlag",
 	"GuildDemote",
@@ -57,13 +52,10 @@ local unlockList =
 	"GuildUninvite",
 	"InitiateTrade",
 	"InteractUnit",
-	"InviteUnit",
 	"IsItemInRange",
 	"IsSpellInRange",
-	"IsUnitOnQuest",
 	"JoinBattlefield",
 	"JumpOrAscendStart",
-	"JumpOrAscendStop",
 	"Logout",
 	"MoveBackwardStart",
 	"MoveBackwardStop",
@@ -88,7 +80,6 @@ local unlockList =
 	"PitchUpStart",
 	"PromoteToAssistant",
 	"Quit",
-	"RegisterForSave",
 	"ReplaceEnchant",
 	"ReplaceTradeEnchant",
 	"RunMacro",
@@ -142,7 +133,6 @@ local unlockList =
 	"UninviteUnit",
 	"UnitAffectingCombat",
 	"UnitArmor",
-	"UnitAttackBothHands",
 	"UnitAttackPower",
 	"UnitAttackSpeed",
 	"UnitAura",
@@ -159,7 +149,6 @@ local unlockList =
 	"UnitCreatureType",
 	"UnitDamage",
 	"UnitDebuff",
-	"UnitDefense",
 	"UnitDetailedThreatSituation",
 	"UnitExists",
 	"UnitGetIncomingHeals",
@@ -170,7 +159,6 @@ local unlockList =
 	"UnitHealthMax",
 	"UnitInBattleground",
 	"UnitInParty",
-	"UnitInPhase",
 	"UnitInRaid",
 	"UnitInRange",
 	"UnitIsAFK",
@@ -191,14 +179,10 @@ local unlockList =
 	"UnitIsPVPFreeForAll",
 	"UnitIsPVPSanctuary",
 	"UnitIsSameServer",
-	"UnitIsTapped",
-	"UnitIsTappedByPlayer",
 	"UnitIsTrivial",
 	"UnitIsUnit",
 	"UnitIsVisible",
 	"UnitLevel",
-	"UnitMana",
-	"UnitManaMax",
 	"UnitName",
 	"UnitOnTaxi",
 	"UnitPhaseReason",
@@ -211,11 +195,9 @@ local unlockList =
 	"UnitPowerType",
 	"UnitPVPName",
 	"UnitRace",
-	"UnitRangedAttack",
 	"UnitRangedAttackPower",
 	"UnitRangedDamage",
 	"UnitReaction",
-	"UnitResistance",
 	"UnitSelectionColor",
 	"UnitSex",
 	"UnitStat",
@@ -238,6 +220,7 @@ local _, br = ...
 local b = br._G
 local unlock = br.unlock
 local wa = nil
+local funcCopies = {}
 
 -- helper function
 local function stringsplit(inputstr, sep)
@@ -255,6 +238,12 @@ end
 if _G.BR_WA then
 	wa = _G.BR_WA
 	_G.BR_WA = nil
+	
+	-- make a backup copy of all APIs before AddOns hook them
+	for i = 1, #unlockList do
+		local func = unlockList[i]
+		funcCopies[func] = _G[func]
+	end
 else
 	-- either not WA or BR addon is not enabled
 end
@@ -267,9 +256,8 @@ function unlock.WowAdUnlock()
 	--------------------------------
 	-- API unlocking
 	--------------------------------
-	for i = 1, #unlockList do
-		local func = unlockList[i]
-		b[func] = function(...) return wa.CallSecureFunction(_G[func], ...) end
+	for k, v in pairs(funcCopies) do
+		b[k] = function(...) return wa.CallSecureFunction(v, ...) end
 	end
 	
 	--------------------------------
@@ -321,8 +309,13 @@ function unlock.WowAdUnlock()
 		return ObjType == 5 or ObjType == 6 or ObjType == 7
 	end
 	b.ObjectID = function(object)
-		local guid = b.UnitGUID(object)
-		return guid and select(6,strsplit("-", guid)) or 0
+		local guid = b.UnitGUID(object)   
+		if guid then
+			local _, _, _, _, _, objectId, _ = strsplit("-", guid);
+			return tonumber(objectId);
+		else
+			return 0
+		end
 	end
 	b.TraceLine = function(...)
 		local hit, hitx, hity, hitz = wa.TraceLine(...)
@@ -436,14 +429,14 @@ function unlock.WowAdUnlock()
 	local const_updateObjectListFastTickDelay = 3
 	local const_updateObjectListAccurateTickDelay = 15
 
-    b.GetObjectCount = function()
+	b.GetObjectCount = function()
 		local count = wa.GetObjectCount()
-		if (g_lastUpdateTick < const_updateObjectListFastTickDelay
+		if (g_lastUpdateTick < const_updateObjectListAccurateTickDelay
 		and g_lastObjectCount == count
 		and g_lastObjectGuid == wa.GetObjectWithIndex(count))
-		or g_lastUpdateTick < const_updateObjectListAccurateTickDelay then
+		or g_lastUpdateTick < const_updateObjectListFastTickDelay then
 			g_lastUpdateTick = g_lastUpdateTick + 1
-			return count, false, added, removed
+			return g_lastObjectCount, false, added, removed
 		else
 			g_lastUpdateTick = 0
 		end
@@ -473,6 +466,6 @@ function unlock.WowAdUnlock()
 		
 		local updated = (#added > 0) or (#removed > 0)
 		return count, updated, added, removed
-    end
+	end
 	return true
 end
