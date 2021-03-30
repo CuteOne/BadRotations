@@ -275,7 +275,7 @@ function unlock.WowAdUnlock()
 	b.UnitMovementFlags = wa.GetUnitMovementFlags
 	b.GetWoWDirectory = wa.GetWowDirectory
 	b.ObjectFacing = wa.UnitFacing
-	b.GetMousePosition = wa.GetCursorPosition
+	b.GetMousePosition = b.GetCursorPosition
 	b.ObjectExists = wa.ObjectExists
 	b.GetCameraPosition = wa.GetCameraPosition
 	b.CancelPendingSpell = b.SpellStopTargeting	
