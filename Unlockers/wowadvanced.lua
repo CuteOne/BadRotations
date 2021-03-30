@@ -352,6 +352,7 @@ function unlock.WowAdUnlock()
 	b.GetObjectWithGUID = function(...)
 		return ...
 	end
+    b.IsHackEnabled = function(...) return false end
 	--------------------------------
 	-- math
 	--------------------------------
