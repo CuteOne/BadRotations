@@ -695,7 +695,8 @@ function br.createCastFunction(thisUnit,castType,minUnits,effectRng,spellID,inde
 			-- if thisUnit ~= nil and thisUnit ~= "None" then unitAssigned = true end
 		end
 		-- Cast Ground AOE at "Best" Locaton
-        if thisUnit == "best" and not debug then
+        if thisUnit == "best" then
+			if debug then return true end
 			return br.castGroundAtBestLocation(spellCast,effectRng,minUnits,maxRange,minRange,castType,castTime)
 		end
 		-- Cast Ground AOE at Player/Target Location
@@ -703,7 +704,8 @@ function br.createCastFunction(thisUnit,castType,minUnits,effectRng,spellID,inde
 			local targetUnit
 			targetUnit = thisUnit == "playerGround" and "player" or "target"
 			if castType == "groundCC" then targetUnit = thisUnit end
-			if (br.getDistance(targetUnit) < maxRange or br._G.IsSpellInRange(spellName,targetUnit) == 1) and not debug then
+			if (br.getDistance(targetUnit) < maxRange or br._G.IsSpellInRange(spellName,targetUnit) == 1) then
+				if debug then return true end
 				return br.castGroundAtUnit(spellCast,effectRng,minUnits,maxRange,minRange,castType,targetUnit)
 			end
 		end
@@ -736,7 +738,8 @@ function br.createCastFunction(thisUnit,castType,minUnits,effectRng,spellID,inde
 						or (castType == "rect" and br.getEnemiesInRect(effectRng,maxRange))
 						or 0
 					if enemyCount >= minUnits and br.isSafeToAoE(spellID,thisUnit,effectRng,minUnits,castType,enemyCount) then
-						if castType == "ground" and not debug then
+						if castType == "ground" then
+							if debug then return true end
 							return br.castGround(thisUnit,spellCast,maxRange,minRange,effectRng,castTime)
 						else
 							return castingSpell(thisUnit,spellID,spellName,icon,castType,printReport,debug)
