@@ -1,5 +1,24 @@
 local _, br = ...
 br.engines = {}
+
+function br:getUpdateRate()
+    local updateRate = 0.1
+
+    local FrameRate = br._G.GetFramerate() or 0
+    if br.isChecked("Auto Delay") then
+        if FrameRate >= 0 and FrameRate < 60 then
+            updateRate = (60 - FrameRate) / 60
+        else
+            updateRate = 0.1
+        end
+    elseif br.getOptionValue("Bot Update Rate") == nil then
+        updateRate = 0.1
+    else
+        updateRate = br.getOptionValue("Bot Update Rate")
+    end
+    return updateRate
+end
+
 -- Main Engine
 function br:Engine()
     if br.engines.Pulse_Engine == nil then
@@ -18,10 +37,10 @@ function br:ObjectManager()
                 if br.data.settings[br.selectedSpec].toggles["Power"] ~= nil
                     and br.data.settings[br.selectedSpec].toggles["Power"] == 1
                 then
-                    -- if br.timer:useTimer("omUpdate", 1) then
+                    if br.timer:useTimer("omUpdate", br:getUpdateRate()) then
                         br:updateOM()
                         br.om:Update()
-                    -- end
+                    end
                 end
             end
         end
@@ -34,24 +53,6 @@ function br:ObjectManager()
     end
 end
 
---[[This function is refired everytime wow ticks. This frame is located at the top of Core.lua]]
-function br:getUpdateRate()
-    local updateRate = 0.1
-
-    local FrameRate = br._G.GetFramerate() or 0
-    if br.isChecked("Auto Delay") then
-        if FrameRate >= 0 and FrameRate < 60 then
-            updateRate = (60 - FrameRate) / 60
-        else
-            updateRate = 0.1
-        end
-    elseif br.getOptionValue("Bot Update Rate") == nil then
-        updateRate = 0.1
-    else
-        updateRate = br.getOptionValue("Bot Update Rate")
-    end
-    return updateRate
-end
 
 local collectGarbage = true
 function br.BadRotationsUpdate(self)
