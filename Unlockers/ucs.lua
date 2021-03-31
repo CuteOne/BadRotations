@@ -17,16 +17,7 @@ function unlock.UCSUnlock()
     b.ObjectName = ObjectName
     b.ObjectID = ObjectID
     b.ObjectIsUnit = ObjectIsUnit
-    b.GetAnglesBetweenObjects = function(Object1, Object2)
-        if b.ObjectIsVisible(Object1) and b.ObjectIsVisible(Object2) then
-            local X1, Y1, Z1 = b.ObjectPosition(Object1)
-            local X2, Y2, Z2 = b.ObjectPosition(Object2)
-            -- print(Unit1,X1,Y1,Z1,unit2,X2,Y2,Z2)
-            return math.atan2(Y2 - Y1, X2 - X1) % (math.pi * 2), math.atan((Z1 - Z2) / math.sqrt(math.pow(X1 - X2, 2) + math.pow(Y1 - Y2, 2))) % math.pi
-        else
-            return 0,0
-        end
-	end
+    b.GetAnglesBetweenObjects = GetAnglesBetweenObjects
     b.GetDistanceBetweenPositions = GetDistanceBetweenPositions
     b.GetDistanceBetweenObjects = GetDistanceBetweenObjects
     b.GetPositionBetweenObjects = GetPositionBetweenObjects
