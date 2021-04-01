@@ -413,8 +413,8 @@ actionList.TrickShots = function()
     end
     -- Explosive Shot
     -- explosive_shot
-    if alwaysCdNever("Explosive Shot") and cast.able.explosiveShot() and talent.explosiveShot and unit.ttd(units.dyn40) > 3 then
-        if cast.explosiveShot() then ui.debug("Casting Explosive Shot [Trick Shots]") return true end
+    if alwaysCdNever("Explosive Shot") and cast.able.explosiveShot(units.dyn40,"aoe",3,8) and talent.explosiveShot and unit.ttd(units.dyn40) > 3 then
+        if cast.explosiveShot(units.dyn40,"aoe",3,8) then ui.debug("Casting Explosive Shot [Trick Shots]") return true end
     end
     -- Wild Spirits
     -- wild_spirits
@@ -558,8 +558,8 @@ actionList.SingleTarget = function()
     end
     -- Explosive Shot
     -- explosive_shot
-    if alwaysCdNever("Explosive Shot") and cast.able.explosiveShot() and talent.explosiveShot and unit.ttd(units.dyn40) > 3 then
-        if cast.explosiveShot() then ui.debug("Casting Explosive Shot") return true end
+    if alwaysCdNever("Explosive Shot") and cast.able.explosiveShot(units.dyn40,"aoe",3,8) and talent.explosiveShot and unit.ttd(units.dyn40) > 3 then
+        if cast.explosiveShot(units.dyn40,"aoe",3,8) then ui.debug("Casting Explosive Shot") return true end
     end
     -- Wild Spirits
     -- wild_spirits
