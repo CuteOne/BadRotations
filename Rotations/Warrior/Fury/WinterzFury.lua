@@ -638,7 +638,7 @@ local function runRotation()
         if not ((C_Covenants.GetActiveCovenantID()) == 2) then
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]
-                if buff.whirlwind.exists("player") and br.getFacing("player",thisUnit) and cast.able.executeMassacre() and talent.massacre and br.getHP(thisUnit) <= 35 or buff.suddenDeath.exists("player") or rage <= 70) then
+                if buff.whirlwind.exists("player") and br.getFacing("player",thisUnit) and cast.able.executeMassacre() and talent.massacre and br.getHP(thisUnit) <= 35 or buff.suddenDeath.exists("player") or rage <= 70 then
                     if cast.executeMassacre(thisUnit) then debug("Execute Massacre Multitarget")
                         return
                     end
@@ -649,7 +649,7 @@ local function runRotation()
         if not ((C_Covenants.GetActiveCovenantID()) == 2) then
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]
-                if buff.whirlwind.exists("player") and br.getFacing("player",thisUnit) and cast.able.execute() and br.getHP(thisUnit) <= 20 or rage <= 70) then
+                if buff.whirlwind.exists("player") and br.getFacing("player",thisUnit) and cast.able.execute() and br.getHP(thisUnit) <= 20 or rage <= 70 then
                     if cast.execute(thisUnit) then debug("Execute non-Massacre Multitarget")
                         return
                     end
