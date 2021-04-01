@@ -472,7 +472,7 @@ actionList.AOE = function()
             end
         end
     end
-    -- Fae Trasfusion
+    -- Fae Transfusion
     -- fae_transfusion
     if ui.alwaysCdNever("Covenant Ability") and cast.able.faeTransfusion("player","ground") then
         if cast.faeTransfusion("player","ground") then ui.debug("Casting Fae Transfusion [AOE]") return true end
@@ -557,14 +557,23 @@ actionList.Single = function()
     end
     -- Crash Lightning
     -- crash_lightning,if=runeforge.doom_winds.equipped&buff.doom_winds.up
-    if #enemies.yards8c > 0 and cast.able.crashLightning("player","cone",1,8) and runeforge.doomWinds.equiped and buff.doomWinds.exists() then
+    if #enemies.yards8c > 0 and cast.able.crashLightning("player","cone",1,8)
+        and runeforge.doomWinds.equiped and buff.doomWinds.exists()
+    then
         if cast.crashLightning("player","cone",1,8) then ui.debug("Casting Crash Lightning [ST - Doom Winds]") return true end
     end
     -- Ice Strike
     -- ice_strike,if=runeforge.doom_winds.equipped&buff.doom_winds.up
     if cast.able.iceStrike() and runeforge.doomWinds.equiped and buff.doomWinds.exists() then
         if cast.iceStrike() then ui.debug("Casting Ice Strike [ST - Doom Winds]") return true end
-    end 
+    end
+    -- Sundering
+    -- sundering,if=runeforge.doom_winds.equipped&buff.doom_winds.up
+    if ui.alwaysCdNever("Sundering") and #enemies.yards11r > 0 and cast.able.sundering("player","rect",1,11)
+        and runeforge.doomWinds.equiped and buff.doomWinds.exists()
+    then
+        if cast.sundering("player","rect",1,11) then ui.debug("Casting Sundering [ST - Doom Winds]") return true end
+    end
     -- Flame Shock
     -- flame_shock,if=!ticking
     if cast.able.flameShock() and not debuff.flameShock.exists(units.dyn40) then
