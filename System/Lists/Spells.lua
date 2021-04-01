@@ -3881,8 +3881,8 @@ br.lists.spells = {
 
             },
             covenants                       = {
-                condemn                     = 317349,
-				condemnMassacre				= 330334,
+                condemn                     = 317485,
+				condemnMassacre				= 330325,
             },
             debuffs                         = {
                 siegebreaker                = 280773,
