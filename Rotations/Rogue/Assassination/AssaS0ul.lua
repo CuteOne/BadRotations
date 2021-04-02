@@ -947,7 +947,7 @@ local function runRotation()
             local crimsonTargets
             if ctenemies10 >= 5 then crimsonTargets = 1 else crimsonTargets = 0 end
             for i = 1, ctenemies10 do
-                local thisUnit = enemyTable10[i].unit
+                local thisUnit = ctenemies10[i].unit
                 local crimsonRemain = debuff.crimsonTempest.remain(thisUnit)
                 if crimsonRemain < (2+crimsonTargets) and combo >= 4 then
                     if cast.crimsonTempest("player") then return true end
