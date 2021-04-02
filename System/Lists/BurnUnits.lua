@@ -8,9 +8,11 @@ br.lists.burnUnits = {
     [175992] = { coef = 150, name = "Dutiful Attendant", id = 175992 }, -- gives immunity to boss
     [172858] = { coef = 200, name = "Stone Legion Goliath", id = 172858 },
     [174335] = { coef = 100, name = "Stone Legion Skirmisher", id = 174335 },
+    [174134] = { coef = 200, name = "Lord Evershade", id = 174134 },
     --Shadowlands dungeons
     -- m+ stuff
     [343502] = { coef = 50, name = "Inspiring - M+ Affix", id = 343502 },
+    [173729] = { coef = 150, name = "Manifestation of Pride", id = 173729 },
     --Plaguefall
     [164362] = { coef = 50, name = "Slimy Morsel", id = 164362 }, -- Plaguefall Dungeon - if they reach boss the heal him
     [169498] = { coef = 150, name = "Plague Bomb", id = 169498 }, -- kill before it explodes
