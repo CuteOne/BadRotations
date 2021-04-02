@@ -1175,16 +1175,14 @@ local function runRotation()
         -- aggressive dots
         if br.isChecked("Aggressive Dots") and mode.dPS == 1 and lowest.hp > br.getValue("DPS Min % health") and not noDamageCheck("target") and burst == false then
             local thisUnit = "target"
-            if
-            br.isChecked("Safe Dots") and not noDamageCheck(thisUnit) and
-                    ((inInstance and #tanks > 0 and br.getDistance(thisUnit, tanks[1].unit) <= 10) or (inInstance and #tanks == 0) or
-                            (inRaid and #tanks > 1 and (br.getDistance(thisUnit, tanks[1].unit) <= 10 or (br.getDistance(thisUnit, tanks[2].unit) <= 10))) or
-                            solo or
-                            (inInstance and #tanks > 0 and br.getDistance(tanks[1].unit) >= 90))(
-                    --need to add, or if tank is dead or
-                            not br.isChecked("Safe Dots") or #tanks == 0
-                    )
-            then
+            if br.isChecked("Safe Dots") and not noDamageCheck(thisUnit) and
+                    ((inInstance and #tanks > 0 and br.getDistance(thisUnit, tanks[1].unit) <= 10)
+                        or (inInstance and #tanks == 0)
+                        or (inRaid and #tanks > 1 and (br.getDistance(thisUnit, tanks[1].unit) <= 10 or (br.getDistance(thisUnit, tanks[2].unit) <= 10)))
+                        or solo
+                        or (inInstance and #tanks > 0 and br.getDistance(tanks[1].unit) >= 90)
+                        --need to add, or if tank is dead
+                    ) or (not br.isChecked("Safe Dots") or #tanks == 0) then
                 if not debuff.sunfire.exists("target") and mana > br.getOptionValue("DPS Save mana") then
                     if cast.sunfire("target", "aoe", 1, sunfire_radius) then
                         br.addonDebug("Aggressive  Sunfire - target")
