@@ -601,6 +601,8 @@ function br.createCastFunction(thisUnit,castType,minUnits,effectRng,spellID,inde
 			-- Cast Spell
 			br.botCast = true -- Used by old Queue Cast
 			br.botSpell = spellID -- Used by old Queue Cast
+			-- Condemn Patch (Blizz is an small indie developer!)
+			if spellID == br.player.spell.condemn then spellName = br._G.GetSpellInfo(br.player.spell.execute) end
 			br._G.CastSpellByName(spellName,thisUnit)
 			if br._G.IsAoEPending() then
 				local X,Y,Z = br._G.ObjectPosition(thisUnit)
@@ -638,10 +640,11 @@ function br.createCastFunction(thisUnit,castType,minUnits,effectRng,spellID,inde
 	if (baseSpellID == spellID or overrideSpellID == spellID) and br._G.IsUsableSpell(spellID) and not select(2,br._G.IsUsableSpell(spellID)) -- Usability Checks
 	 	and br.getSpellCD(spellID) <= br:getUpdateRate() and (br.getSpellCD(61304) <= 0 or select(2,br._G.GetSpellBaseCooldown(spellID)) <= 0
 		 	or (br.getCastTime(spellID) > 0 and br.getCastTimeRemain("player") <= br:getUpdateRate())) -- Cooldown Checks
-		and (br.isKnown(spellID) or castType == "known") -- Known/Current Checks
+		and (br.isKnown(spellID) or castType == "known" or spellID == br.player.spell.condemn) -- Known/Current Checks
 	 	and hasTalent(spellID) and hasEssence() and not br.isIncapacitated(spellID) and queensCourtCastCheck(spellID) -- Talent/Essence/Incapacitated/Special Checks
-	 	and (thisUnit == nil or castType ~= "dead" or (thisUnit ~= nil and castType == "dead" and br._G.UnitIsDeadOrGhost(thisUnit)))
+	 	and (thisUnit == nil or castType ~= "dead" or (thisUnit ~= nil and castType == "dead" and br._G.UnitIsDeadOrGhost(thisUnit))) -- Dead Check
 	then
+		if castType == "known" then castType = "norm" end
 		local function printReport(debugOnly,debugReason,thisCount)
 			if debugReason == nil then debugReason = "" end
 			if ((br.isChecked("Display Failcasts") and not debugOnly) or br.isChecked("Cast Debug")) and not debug then
@@ -715,7 +718,7 @@ function br.createCastFunction(thisUnit,castType,minUnits,effectRng,spellID,inde
 			and (br.GetUnitIsUnit(thisUnit,"player") or br.units[thisUnit] ~= nil or br.getLineOfSight(thisUnit))
 		then
 			-- Range Check
-			local inRange = function(minRange, maxRange)				
+			local inRange = function(minRange, maxRange)
 				local distance = castType == "pet" and br.getDistance(thisUnit,"pet") or br.getDistance(thisUnit)
 				return distance >= minRange and distance < maxRange
 			end
