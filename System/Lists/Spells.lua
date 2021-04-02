@@ -3870,6 +3870,7 @@ br.lists.spells = {
 
             },
             buffs                           = {
+                bladestorm                  = 46924,
                 deathWish                   = 199261,
                 enrage                      = 184362,
                 meatCleaver                 = 85739,
@@ -4036,6 +4037,21 @@ br.lists.spells = {
             },
             runeforges                      = {
                 reprisal                    = 335718,
+                signetOfTormentedKings      = 335266,
+                deathmaker                  = 335567,
+                exploiter                   = 335451,
+                battlelord                  = 335274,
+                unhinged                    = 335282,
+                enduringBlow                = 335458,
+                theWall                     = 335239,
+                misshapenMirror             = 335253,
+                leaper                      = 335214,
+                seismicReverberation        = 335758,
+                willOfTheBerserker          = 335594,
+                cadenceOfFujieda            = 335555,
+                unbreakableWill             = 335629,
+                recklessDefence             = 335582,
+                thunderlord                 = 335229,
             },
             talents                         = {
                 angerManagement             = 152278,
