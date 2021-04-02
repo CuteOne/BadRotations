@@ -615,7 +615,7 @@ local function runRotation()
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]
                 if buff.whirlwind.exists("player") and br.getHP(thisUnit) >80 or (talent.massacre and br.getHP(thisUnit) <= 35) or buff.suddenDeath.exists("player") then
-                    if cast.condemnMassacre(thisUnit) then debug("Condemn MASSACRE Multitarget")
+                    if br._G.CastSpellByName(GetSpellInfo(330325)) then debug("Condemn MASSACRE Multitarget")
                         return
                     end
                 end
@@ -626,7 +626,7 @@ local function runRotation()
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]
                 if buff.whirlwind.exists("player") and br.getHP(thisUnit) >80 or buff.suddenDeath.exists("player") or br.getHP(thisUnit) <= 20 then
-                    if cast.condemn(thisUnit) then debug("Condemn Non-Massacre Multitarget")
+                    if br._G.CastSpellByName(GetSpellInfo(317485)) then debug("Condemn Non-Massacre Multitarget")
                         return
                     end
                 end
