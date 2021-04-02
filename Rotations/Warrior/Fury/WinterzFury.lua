@@ -95,7 +95,7 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS ---
         -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "General - Version 1.1.1")
+        section = br.ui:createSection(br.ui.window.profile, "General - Version 1.1.2")
         -- Battle Shout
         br.ui:createCheckbox(section, "Battle Shout", "Automatic Battle Shout for Party Memebers")
         -- Berserker Rage
@@ -415,8 +415,13 @@ local function runRotation()
 
     local function singlelist()
 
+        -- Cancel BS SingleTarget
+        -- br.CancelUnitBuffID("player",spell.blessingOfProtection)
+        if runeforge.signetOfTormentedKings.equiped and rage > 85 and buff.bladestorm.exists() then debug("cancelling BS")
+            br.CancelUnitBuffID("player",spell.bladestorm)
+        end
         -- Rampage
-        if buff.recklessness.exists("player") or (rage >= 90) or not buff.enrage.exists("player") then
+        if buff.recklessness.exists("player") or (rage >= 85) or not buff.enrage.exists("player") then
             if cast.rampage() then
                 return
             end
@@ -424,7 +429,7 @@ local function runRotation()
 
         -- Recklessness
 		--
-        if not buff.recklessness.exists("player") and (br.getOptionValue("Recklessness") == 1 or (br.getOptionValue("Recklessness") == 2 and br.useCDs())) and br.player.ui.mode.cooldown ~= 3 and (cd.siegebreaker.remain() > 10 or cd.siegebreaker.remain() < gcdMax) then
+        if not buff.recklessness.exists("player") and (br.getOptionValue("Recklessness") == 1 or (br.getOptionValue("Recklessness") == 2 and br.useCDs())) and br.player.ui.mode.cooldown ~= 3 and buff.enrage.exists("player") then
             if cast.recklessness() then
                 return
             end
@@ -441,8 +446,8 @@ local function runRotation()
         if ((C_Covenants.GetActiveCovenantID()) == 2) then
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]
-                if br.getHP(thisUnit) >80 or (talent.massacre and br.getHP(thisUnit) <= 35) or buff.suddenDeath.exists("player") then
-                    if br._G.CastSpellByName(GetSpellInfo(330325)) then debug("Condemn MASSACRE ST")
+                if ((br.getHP(thisUnit) >80 or buff.suddenDeath.exists("player")) or (talent.massacre and br.getHP(thisUnit) <= 35)) then
+                    if br._G.CastSpellByName(GetSpellInfo(330325)) then debug("Condemn MASSACRE Multitarget")
                         return
                     end
                 end
@@ -452,8 +457,8 @@ local function runRotation()
         if ((C_Covenants.GetActiveCovenantID()) == 2) then
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]
-                if br.getHP(thisUnit) >80 or buff.suddenDeath.exists("player") or br.getHP(thisUnit) <= 20 then
-                    if br._G.CastSpellByName(GetSpellInfo(317485)) then debug("Condemn Non-Massacre ST")
+                if (br.getHP(thisUnit) >80 or buff.suddenDeath.exists("player")) then
+                    if br._G.CastSpellByName(GetSpellInfo(317485)) then debug("Condemn Non-Massacre Multitarget")
                         return
                     end
                 end
@@ -463,7 +468,7 @@ local function runRotation()
         if not ((C_Covenants.GetActiveCovenantID()) == 2) then
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]
-                if br.getFacing("player",thisUnit) and talent.massacre and br.getHP(thisUnit) <= 35 or buff.suddenDeath.exists("player") or rage <= 70 then
+                if br.getFacing("player",thisUnit) and talent.massacre and br.getHP(thisUnit) <= 35 or buff.suddenDeath.exists("player") and (buff.enrage.exists("player") or rage <= 70) then
                     if cast.executeMassacre(thisUnit) then debug("Execute Massacre")
                         return
                     end
@@ -474,7 +479,7 @@ local function runRotation()
         if not ((C_Covenants.GetActiveCovenantID()) == 2) then
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]
-                if br.getFacing("player",thisUnit) and br.getHP(thisUnit) <= 20 or rage <= 70 then
+                if br.getFacing("player",thisUnit) and br.getHP(thisUnit) <= 20 and (buff.enrage.exists("player") or rage <= 70) then
                     if cast.execute(thisUnit) then debug("Execute NON Massacre")
                         return
                     end
@@ -513,12 +518,10 @@ local function runRotation()
                 return
             end
         end
-        -- Cancel BS SingleTarget
-        -- br.CancelUnitBuffID("player",spell.blessingOfProtection)
 
         -- Bladestorm Single target
         if buff.enrage.exists("player") and br.isChecked("Bladestorm Units") and br.player.ui.mode.cooldown ~= 3 and br.isBoss("target") then
-            if cast.bladestorm() then
+            if cast.bladestorm() then debug("Bladestorm ST")
                 return
             end
         end
@@ -614,8 +617,8 @@ local function runRotation()
         if ((C_Covenants.GetActiveCovenantID()) == 2) then
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]
-                if buff.whirlwind.exists("player") and br.getHP(thisUnit) >80 or (talent.massacre and br.getHP(thisUnit) <= 35) or buff.suddenDeath.exists("player") then
-                    if br._G.CastSpellByName(GetSpellInfo(330325)) then debug("Condemn MASSACRE Multitarget")
+                if buff.whirlwind.exists("player") and ((br.getHP(thisUnit) >80 or buff.suddenDeath.exists("player")) or (talent.massacre and br.getHP(thisUnit) <= 35)) then
+                    if cast.condemnMassacre(thisUnit) then debug("Condemn MASSACRE Multitarget")
                         return
                     end
                 end
@@ -625,8 +628,8 @@ local function runRotation()
         if ((C_Covenants.GetActiveCovenantID()) == 2) then
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]
-                if buff.whirlwind.exists("player") and br.getHP(thisUnit) >80 or buff.suddenDeath.exists("player") or br.getHP(thisUnit) <= 20 then
-                    if br._G.CastSpellByName(GetSpellInfo(317485)) then debug("Condemn Non-Massacre Multitarget")
+                if buff.whirlwind.exists("player") and (br.getHP(thisUnit) >80 or buff.suddenDeath.exists("player")) then
+                    if cast.condemn(thisUnit) then debug("Condemn Non-Massacre Multitarget")
                         return
                     end
                 end
@@ -638,7 +641,7 @@ local function runRotation()
         if not ((C_Covenants.GetActiveCovenantID()) == 2) then
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]
-                if buff.whirlwind.exists("player") and br.getFacing("player",thisUnit) and cast.able.executeMassacre() and talent.massacre and br.getHP(thisUnit) <= 35 or buff.suddenDeath.exists("player") or rage <= 70 then
+                if buff.whirlwind.exists("player") and br.getFacing("player",thisUnit) and cast.able.executeMassacre() and talent.massacre and br.getHP(thisUnit) <= 35 or buff.suddenDeath.exists("player") and (buff.enrage.exists("player") or rage <= 70) then
                     if cast.executeMassacre(thisUnit) then debug("Execute Massacre Multitarget")
                         return
                     end
@@ -649,7 +652,7 @@ local function runRotation()
         if not ((C_Covenants.GetActiveCovenantID()) == 2) then
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]
-                if buff.whirlwind.exists("player") and br.getFacing("player",thisUnit) and cast.able.execute() and br.getHP(thisUnit) <= 20 or rage <= 70 then
+                if buff.whirlwind.exists("player") and br.getFacing("player",thisUnit) and cast.able.execute() and br.getHP(thisUnit) <= 20 and (buff.enrage.exists("player") or rage <= 70) then
                     if cast.execute(thisUnit) then debug("Execute non-Massacre Multitarget")
                         return
                     end
