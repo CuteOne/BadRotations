@@ -141,6 +141,12 @@ if not br.metaTable1 then
 			if br.UnitBuffID(o.unit, 295271) then
 				return 250, 250, 250
 			end
+			if br.UnitBuffID(o.unit, 344916) then
+				return 250, 250, 250
+			end
+			if br.UnitBuffID(o.unit, 327140) or br.UnitBuffID(o.unit, 327676) then
+				return 250, 250, 250
+			end
 			if br.isChecked("Toxic Brand") and br.player.eID and br.player.eID == 2298 then
 				if br.getDebuffStacks(o.unit, 294715) > 0 and br.getDebuffStacks(o.unit, 294715) >= toxicBrand then
 					return 250, 250, 250
