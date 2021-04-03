@@ -33,6 +33,7 @@ local unlockList =
 	"DemoteAssistant",
 	"DescendStop",
 	"DestroyTotem",
+	"DisableSpellAutocast",
 	"DropItemOnUnit",
 	"FocusUnit",
 	"FollowUnit",
@@ -238,7 +239,7 @@ end
 if _G.BR_WA then
 	wa = _G.BR_WA
 	_G.BR_WA = nil
-	
+
 	-- make a backup copy of all APIs before AddOns hook them
 	for i = 1, #unlockList do
 		local func = unlockList[i]
@@ -259,7 +260,7 @@ function unlock.WowAdUnlock()
 	for k, v in pairs(funcCopies) do
 		b[k] = function(...) return wa.CallSecureFunction(v, ...) end
 	end
-	
+
 	--------------------------------
 	-- API copy/rename/unlock
 	--------------------------------
@@ -278,11 +279,11 @@ function unlock.WowAdUnlock()
 	b.GetMousePosition = b.GetCursorPosition
 	b.ObjectExists = wa.ObjectExists
 	b.GetCameraPosition = wa.GetCameraPosition
-	b.CancelPendingSpell = b.SpellStopTargeting	
+	b.CancelPendingSpell = b.SpellStopTargeting
 	b.ObjectIsVisible = b.UnitIsVisible
 	b.IsAoEPending = b.SpellIsTargeting
 	b.ObjectInteract = b.InteractUnit
-	
+
 	--------------------------------
 	-- object fields
 	--------------------------------
@@ -295,7 +296,7 @@ function unlock.WowAdUnlock()
 	b.UnitCombatReach = function(unit)
 		return wa.ObjectField(unit, 0x1CF0, 10)
 	end
-	
+
 	--------------------------------
 	-- API conversions
 	--------------------------------
@@ -309,7 +310,7 @@ function unlock.WowAdUnlock()
 		return ObjType == 5 or ObjType == 6 or ObjType == 7
 	end
 	b.ObjectID = function(object)
-		local guid = b.UnitGUID(object)   
+		local guid = b.UnitGUID(object)
 		if guid then
 			local _, _, _, _, _, objectId, _ = strsplit("-", guid);
 			return tonumber(objectId);
@@ -340,7 +341,7 @@ function unlock.WowAdUnlock()
 		local multiplier = UIParent:GetScale()
 		local sX, sY = wa.WorldToScreen(...)
 		return sX * multiplier, -sY * multiplier
-	end	
+	end
 	b.FaceDirection = function(arg)
 		if type(arg) == "number" then
 			wa.FaceDirection(arg)
@@ -362,7 +363,7 @@ function unlock.WowAdUnlock()
 	b.GetAnglesBetweenObjects = function(Object1, Object2)
 		local X1, Y1, Z1 = b.ObjectPosition(Object1)
 		local X2, Y2, Z2 = b.ObjectPosition(Object2)
-		return math.atan2(Y2 - Y1, X2 - X1) % (math.pi * 2), 
+		return math.atan2(Y2 - Y1, X2 - X1) % (math.pi * 2),
 			math.atan((Z1 - Z2) / math.sqrt(math.pow(X1 - X2, 2) + math.pow(Y1 - Y2, 2))) % math.pi
 	end
 	b.GetAnglesBetweenPositions = function(X1, Y1, Z1, X2, Y2, Z2)
@@ -419,7 +420,7 @@ function unlock.WowAdUnlock()
 	b.ScreenToWorld = function()
 		return 0, 0
 	end
-	
+
 	--------------------------------
 	-- internal unit manager
 	--------------------------------
@@ -441,11 +442,11 @@ function unlock.WowAdUnlock()
 		else
 			g_lastUpdateTick = 0
 		end
-		
+
 		local currentObjects = {}
 		local added = {}
 		local removed = {}
-		
+
 		for i = 1, count do
 			local guid = wa.GetObjectWithIndex(i)
 			if not g_lastKnownObjectList[guid] then
@@ -454,17 +455,17 @@ function unlock.WowAdUnlock()
 			g_lastKnownObjectList[guid] = true
 			currentObjects[guid] = true
 		end
-		
+
 		for guid, v in pairs(g_lastKnownObjectList) do
 			if not currentObjects[guid] then
 				removed[#removed + 1] = guid
 				g_lastKnownObjectList[guid] = nil
 			end
 		end
-		
+
 		g_lastObjectCount = count
 		g_lastObjectGuid = wa.GetObjectWithIndex(count)
-		
+
 		local updated = (#added > 0) or (#removed > 0)
 		return count, updated, added, removed
 	end
