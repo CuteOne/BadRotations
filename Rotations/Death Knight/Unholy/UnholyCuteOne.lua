@@ -95,7 +95,7 @@ local function createOptions()
         ------------------------
         section = br.ui:createSection(br.ui.window.profile,  "Cooldowns")
             -- Cooldowns Time To Die Limit
-            br.ui:createSpinnerWithout(section,  "Cooldowns Time To Die Limit",  30,  0,  40,  1,  "|cffFFFFFFTarget Time to die limit for using cooldowns (in sec).")        
+            br.ui:createSpinnerWithout(section,  "Cooldowns Time To Die Limit",  30,  0,  40,  1,  "|cffFFFFFFTarget Time to die limit for using cooldowns (in sec).")
             -- Augment Rune
             br.ui:createCheckbox(section, "Augment Rune")
             -- Potion
@@ -107,7 +107,7 @@ local function createOptions()
             -- Trinkets
             br.player.module.BasicTrinkets(nil,section)
             -- Covenant Ability
-            br.ui:createDropdownWithout(section, "Covenant Ability", alwaysCdNever, 1, "{cffFFFFFFWhen to use Covenant Ability.")
+            br.ui:createDropdownWithout(section, "Covenant Ability", alwaysCdNever, 1, "|cffFFFFFFWhen to use Covenant Ability.")
             -- Apocalypse
             br.ui:createDropdownWithout(section, "Apocalypse", alwaysCdNever, 1, "|cffFFFFFFWhen to use Apocalypse.")
             -- Army of the Dead
@@ -618,7 +618,7 @@ actionList.AOE_Setup = function()
             end
             if cast.able.deathAndDecay("best",nil,5,8) and not talent.defile then
                 if cast.deathAndDecay("best",nil,5,8) then ui.debug("Casting Death and Decay [AOE Setup - 5+]") return true end
-            end           
+            end
             if covenant.nightFae.active and cast.able.deathsDue("best",nil,5,8) then
                 if cast.deathsDue("best",nil,5,8) then ui.debug("Casting Death's Due [AOE Setup - 5+]") return true end
             end
@@ -755,7 +755,7 @@ actionList.Generic = function()
         end
         if cast.able.deathAndDecay("best",nil,1,8) and not talent.defile then
             if cast.deathAndDecay("best",nil,1,8) then ui.debug("Casting Death and Decay [ST]") return true end
-        end        
+        end
         if covenant.nightFae.active and cast.able.deathsDue("best",nil,1,8) then
             if cast.deathsDue("best",nil,1,8) then ui.debug("Casting Death's Due [ST]") return true end
         end
@@ -782,7 +782,7 @@ actionList.Generic = function()
         -- wound_spender,if=debuff.festering_wound.stack>4&!variable.pooling_runes
         if debuff.festeringWound.stack(units.dyn5) > 4 and not var.poolingRunes then
             if talent.clawingShadows then
-                if cast.clawingShadows() then ui.debug("Casting Clawing Shadows [ST - High Wound Stack]") return true end                
+                if cast.clawingShadows() then ui.debug("Casting Clawing Shadows [ST - High Wound Stack]") return true end
             else
                 if cast.scourgeStrike() then ui.debug("Casting Scourge Strike [ST - High Wound Stack]") return true end
             end
@@ -790,7 +790,7 @@ actionList.Generic = function()
         -- wound_spender,if=debuff.festering_wound.up&cooldown.apocalypse.remains_expected>5&!variable.pooling_runes
         if debuff.festeringWound.exists(unit.dyn5) and (cd.apocalypse.remains() > 5 or not ui.alwaysCdNever("Apocalypse")) and not var.poolingRunes then
             if talent.clawingShadows then
-                if cast.clawingShadows() then ui.debug("Casting Clawing Shadows [ST - No Apocalypse Soon]") return true end                
+                if cast.clawingShadows() then ui.debug("Casting Clawing Shadows [ST - No Apocalypse Soon]") return true end
             else
                 if cast.scourgeStrike() then ui.debug("Casting Scourge Strike [ST - No Apocalypse Soon]") return true end
             end
@@ -835,12 +835,12 @@ actionList.PreCombat = function()
             if cast.armyOfTheDead() then ui.debug("Casting Army of the Dead [Pre-Pull]") return true end
         end
         -- Azshara's Font of Power
-        if (ui.value("Trinkets") == 1 or (ui.value("Trinkets") == 2 and ui.useCDs())) and equiped.azsharasFontOfPower() 
+        if (ui.value("Trinkets") == 1 or (ui.value("Trinkets") == 2 and ui.useCDs())) and equiped.azsharasFontOfPower()
             and use.able.azsharasFontOfPower() and not unit.moving("player") and not unit.inCombat() and ui.pullTimer()<= ui.value("Pre-Pull Timer")
         then
             if use.azsharasFontOfPower() then ui.debug("Using Azshara's Font of Power [Pre-Pull]") return true end
-        end               
-    end 
+        end
+    end
     -- Pull
     if unit.valid("target") and not unit.inCombat() then
         -- Death Grip
@@ -917,7 +917,7 @@ local function runRotation()
     -- variable,name=trinket_1_sync,op=setif,value=1,value_else=0.5,condition=trinket.1.has_use_buff&(trinket.1.cooldown.duration%%45=0)
     -- variable,name=trinket_2_sync,op=setif,value=1,value_else=0.5,condition=trinket.2.has_use_buff&(trinket.2.cooldown.duration%%45=0)
     -- variable,name=trinket_priority,op=setif,value=2,value_else=1,condition=!trinket.1.has_use_buff&trinket.2.has_use_buff|trinket.2.has_use_buff&((trinket.2.cooldown.duration%trinket.2.proc.any_dps.duration)*(1.5+trinket.2.has_buff.strength)*(variable.trinket_2_sync))>((trinket.1.cooldown.duration%trinket.1.proc.any_dps.duration)*(1.5+trinket.1.has_buff.strength)*(variable.trinket_1_sync))
-    
+
     -- variable,name=pooling_runic_power,value=cooldown.summon_gargoyle.remains<5&talent.summon_gargoyle
     var.poolingRunicPower =  ui.alwaysCdNever("Summon Gargoyle") and cd.summonGargoyle.remain() < 5 and talent.summonGargoyle
     -- variable,name=pooling_runes,value=talent.soul_reaper&rune<2&target.time_to_pct_35<5&fight_remains>5
@@ -1032,7 +1032,7 @@ local function runRotation()
                     and buff.deathAndDecay.remains() < (unit.gcd(true) * 1.5) and buff.deathAndDecay.exists()
                 then
                     if talent.clawingShadows then
-                        if cast.clawingShadows() then ui.debug("Casting Clawing Shadows [Death's Due Buff Refresh]") return true end                
+                        if cast.clawingShadows() then ui.debug("Casting Clawing Shadows [Death's Due Buff Refresh]") return true end
                     else
                         if cast.scourgeStrike() then ui.debug("Casting Scourge Strike [Death's Due Buff Refresh]") return true end
                     end
