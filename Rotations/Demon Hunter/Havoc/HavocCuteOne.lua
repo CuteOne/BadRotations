@@ -81,7 +81,7 @@ local function createOptions()
             br.ui:createCheckbox(section, "Fel Rush Only In Melee")
             -- Fel Rush After Vengeful Retreat
             br.ui:createCheckbox(section, "Auto Fel Rush After Retreat")
-            -- Throw Glaive 
+            -- Throw Glaive
             br.ui:createCheckbox(section, "Throw Glaive")
             -- Vengeful Retreat
             br.ui:createCheckbox(section, "Vengeful Retreat")
@@ -295,7 +295,7 @@ actionList.Interrupts = function()
                 if br.canInterrupt(thisUnit,ui.value("Interrupt At")) and cast.able.felEruption(thisUnit) then
                     if cast.felEruption(thisUnit) then ui.debug("Casting Fel Eruption") return true end
                 end
-            end 
+            end
         end
         -- Disrupt
         if ui.checked("Disrupt") then
@@ -421,7 +421,7 @@ end -- End Action List - Essence Break
 actionList.Demonic = function()
     -- Fel Rush
     -- fel_rush,if=(talent.unbound_chaos.enabled&buff.unbound_chaos.up)&(charges=2|(raid_event.movement.in>10&raid_event.adds.in>10))
-    if cast.able.felRush() and not unit.isExplosive("target") and unit.facing("player","target",10)        
+    if cast.able.felRush() and not unit.isExplosive("target") and unit.facing("player","target",10)
         and talent.unboundChaos and buff.unboundChaos.exists()
         and charges.felRush.count() > ui.value("Hold Fel Rush Charge")
     then
@@ -558,7 +558,7 @@ actionList.Normal = function()
     -- Fel Barrage
     -- fel_barrage,if=active_enemies>desired_targets|raid_event.adds.in>30
     if ui.mode.felBarrage == 1 and not unit.isExplosive("target") and cast.able.felBarrage("player","aoe",1,8)
-        and ((ui.mode.rotation == 1 and #enemies.yards8 >= ui.value("Units To AoE")) or (ui.mode.rotation == 2 and #enemies.yards8 > 0)) 
+        and ((ui.mode.rotation == 1 and #enemies.yards8 >= ui.value("Units To AoE")) or (ui.mode.rotation == 2 and #enemies.yards8 > 0))
     then
         if cast.felBarrage("player","aoe",1,8) then ui.debug("Casting Fel Barrage") return true end
     end
@@ -587,7 +587,7 @@ actionList.Normal = function()
     -- Eye Beam
     -- eye_beam,if=!variable.waiting_for_momentum&(active_enemies>desired_targets|raid_event.adds.in>15&(!variable.use_eye_beam_fury_condition|spell_targets>1|fury<70))
     if ui.mode.eyeBeam == 1 and not unit.isExplosive("target") and cast.able.eyeBeam("player","rect",1,20)
-        and not unit.moving() and #enemies.yards20r >= ui.value("Units To AoE") and (eyebeamTTD() or unit.isDummy(units.dyn8))
+        and not unit.moving() and #enemies.yards20r >= 0 and (eyebeamTTD() or unit.isDummy(units.dyn8))
         and not var.waitingForMomentum
     then
         if (ui.value("Eye Beam Usage") == 1 and (not var.useEyeBeamFuryCondition or #enemies.yards20r >= ui.value("Units To AoE") or fury < 70))
@@ -781,7 +781,7 @@ local function runRotation()
     enemies.get(50)
     enemies.rect.get(10,20,false)
     enemies.rect.get(10,25,false)
-    
+
     if cast.active.eyeBeam("player") and buff.metamorphosis.exists() then
         var.metaExtended = true
     elseif not buff.metamorphosis.exists() then
@@ -799,11 +799,14 @@ local function runRotation()
     end
     -- variable,name=blade_dance,if=runeforge.chaos_theory,value=buff.chaos_theory.down|talent.first_blood.enabled&spell_targets.blade_dance1>=(2-talent.trail_of_ruin.enabled)|!talent.cycle_of_hatred.enabled&spell_targets.blade_dance1>=(4-talent.trail_of_ruin.enabled)
     if runeforge.chaosTheory.equiped then
-        var.bladeDance = not unit.isExplosive("target") and (not buff.chaosTheory.exists() or (talent.firstBlood and #enemies.yards8 >= (2 - var.ruinedTrail)) or (not talent.cycleOfHatred and #enemies.yards8 >= (4 - var.ruinedTrail)))
+        var.bladeDance = not unit.isExplosive("target") and (not buff.chaosTheory.exists() or (talent.firstBlood and #enemies.yards8 >= (2 - var.ruinedTrail))
+            or (not talent.cycleOfHatred and #enemies.yards8 >= (4 - var.ruinedTrail)))
     end
-    -- variable,name=blade_dance,if=runeforge.darkglare_medallion,value=talent.first_blood.enabled|(buff.metamorphosis.up|talent.trail_of_ruin.enabled|debuff.essence_break.up)&spell_targets.blade_dance1>=(3-talent.trail_of_ruin.enabled)|!talent.demonic.enabled&spell_targets.blade_dance1>=4
+    -- variable,name=blade_dance,if=runeforge.darkglare_medallion,value=talent.first_blood.enabled|(buff.metamorphosis.up|talent.trail_of_ruin.enabled|debuff.essence_break.up)
+        --&spell_targets.blade_dance1>=(3-talent.trail_of_ruin.enabled)|!talent.demonic.enabled&spell_targets.blade_dance1>=4
     if runeforge.darkglareMedallion.equiped then
-        var.bladeDance = not unit.isExplosive("target") and (talent.firstBlood or (buff.metamorphosis.exists() or talent.trailOfRuin or debuff.essenceBreak.exists("target")) or not (talent.cycleOfHatred and #enemies.yards8 >= (3 - var.ruinedTrail)) or (not talent.demonic and #enemies.yards8 >= 4))
+        var.bladeDance = not unit.isExplosive("target") and (talent.firstBlood or ((buff.metamorphosis.exists() or talent.trailOfRuin or debuff.essenceBreak.exists("target"))
+            and #enemies.yards8 >= (3 - var.ruinedTrail)) or (not talent.demonic and #enemies.yards8 >= 4))
     end
     -- Pool for Meta Variable
     -- variable,name=pooling_for_meta,value=!talent.demonic.enabled&cooldown.metamorphosis.remains<6&fury.deficit>30
