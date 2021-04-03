@@ -149,26 +149,26 @@ br.rotations.support["PetCuteOne"] = {
                 and (br.petTarget == "player" or (unit.exists("pettarget") and not unit.isUnit(units.dyn40,br.petTarget)))
             then
                 br.petTarget = units.dyn40
-                if unit.exists(br.petTarget) then ui.debug("[Pet - Target Mode Dynamic] Pet is now targeting - "..unit.name(br.petTarget)) end
+                -- if unit.exists(br.petTarget) then ui.debug("[Pet - Target Mode Dynamic] Pet is now targeting - "..unit.name(br.petTarget)) end
             end
             -- Target
             if ui.value("Pet Target") == 2 and unit.valid("target")
                 and (br.petTarget == "player" or (unit.exists("pettarget") and not unit.isUnit("target",br.petTarget)))
             then
                 br.petTarget = "target"
-                if unit.exists(br.petTarget) then ui.debug("[Pet - Target Mode Only Target] Pet is now targeting - "..unit.name(br.petTarget)) end
+                -- if unit.exists(br.petTarget) then ui.debug("[Pet - Target Mode Only Target] Pet is now targeting - "..unit.name(br.petTarget)) end
             end
             -- Any
             if ui.value("Pet Target") == 3 and enemies.yards40[1] ~= nil
                 and (br.petTarget == "player" or (unit.exists("pettarget") and not unit.isUnit(enemies.yards40[1],br.petTarget)))
             then
                 br.petTarget = enemies.yards40[1]
-                if unit.exists(br.petTarget) then ui.debug("[Pet - Target Mode Any Unit] Pet is now targeting - "..unit.name(br.petTarget)) end
+                -- if unit.exists(br.petTarget) then ui.debug("[Pet - Target Mode Any Unit] Pet is now targeting - "..unit.name(br.petTarget)) end
             end
             -- Assist
             if ui.value("Pet Target") == 4 and (br.petTarget == "player" or (unit.exists("pettarget") and not unit.isUnit("pettarget",br.petTarget))) then
                 br.petTarget = "pettarget"
-                if unit.exists(br.petTarget) then ui.debug("[Pet - Target Mode Assist] Pet is now targeting - "..unit.name(br.petTarget)) end
+                -- if unit.exists(br.petTarget) then ui.debug("[Pet - Target Mode Assist] Pet is now targeting - "..unit.name(br.petTarget)) end
             end
         end
 
@@ -213,7 +213,7 @@ br.rotations.support["PetCuteOne"] = {
             -- if br.petTarget == nil and unit.valid("target") then br.petTarget = "target" end
             if br.petTarget ~= "player" and not buff.playDead.exists("pet") and not var.haltPetProfile
                 and (not unit.exists("pettarget") or (unit.exists("pettarget") and not unit.isUnit("pettarget",br.petTarget)))
-                and ((not unit.inCombat() and not unit.inCombat("pet")) 
+                and ((not unit.inCombat() and not unit.inCombat("pet"))
                     or ((unit.inCombat() or unit.inCombat("pet")) and (currentTarget == nil or not unit.isUnit(br.petTarget,currentTarget))))
                 and unit.distance("target") < 40 and not unit.friend("target")
             then
@@ -226,8 +226,8 @@ br.rotations.support["PetCuteOne"] = {
                 then
                     ui.debug("[Pet] Pet stopped attacking!")
                     br._G.PetStopAttack()
-                    if (#enemies.yards40 == 0 and #enemies.yards40p == 0) or var.haltPetProfile then 
-                        ui.debug("[Pet] Pet is now following, Enemies40: "..#enemies.yards40..", var.haltPetProfile : "..tostring(var.haltPetProfile )) 
+                    if (#enemies.yards40 == 0 and #enemies.yards40p == 0) or var.haltPetProfile then
+                        ui.debug("[Pet] Pet is now following, Enemies40: "..#enemies.yards40..", var.haltPetProfile : "..tostring(var.haltPetProfile ))
                         br._G.PetFollow()
                     end
                 end
@@ -275,71 +275,71 @@ br.rotations.support["PetCuteOne"] = {
             -- Defense Abilities
             if ui.checked("Use Defense Ability") and unit.inCombat("pet") and unit.hp("pet") < ui.value("Use Defense Ability") then
                 -- Agile Reflexes
-                if cast.able.agileReflexes() then 
+                if cast.able.agileReflexes() then
                     if cast.agileReflexes() then ui.debug("[Pet] Cast Agile Reflexes") return true end
                 end
                 -- Bristle
-                if cast.able.bristle() then 
+                if cast.able.bristle() then
                     if cast.bristle() then ui.debug("[Pet] Cast Bristle") return true end
                 end
                 -- Bulwark
-                if cast.able.bulwark() then 
+                if cast.able.bulwark() then
                     if cast.bulwark() then ui.debug("[Pet] Cast Bulwark") return true end
                 end
                 -- Cat-like Reflexes
-                if cast.able.catlikeReflexes() then 
+                if cast.able.catlikeReflexes() then
                     if cast.catlikeReflexes() then ui.debug("[Pet] Cast Cat-like Reflexes") return true end
                 end
                 -- Defense Matrix
-                if cast.able.defenseMatrix() then 
+                if cast.able.defenseMatrix() then
                     if cast.defenseMatrix() then ui.debug("[Pet] Cast Defense Matrix") return true end
                 end
                 -- Dragon'checkSectionState Guile
-                if cast.able.dragonsGuile() then 
+                if cast.able.dragonsGuile() then
                     if cast.dragonsGuile() then ui.debug("[Pet] Cast Dragon's Guile") return true end
                 end
                 -- Feather Flurry
-                if cast.able.featherFlurry() then 
+                if cast.able.featherFlurry() then
                     if cast.featherFlurry() then ui.debug("[Pet] Cast Feather Flurry") return true end
                 end
                 -- Fleethoof
-                if cast.able.fleethoof() then 
+                if cast.able.fleethoof() then
                     if cast.fleethoof() then ui.debug("[Pet] Cast Fleethood") return true end
                 end
                 -- Harden Carapace
-                if cast.able.hardenCarapace() then 
+                if cast.able.hardenCarapace() then
                     if cast.hardenCarapace() then ui.debug("[Pet] Cast Harden Carapace") return true end
                 end
                 -- Obsidian Skin
-                if cast.able.obsidianSkin() then 
+                if cast.able.obsidianSkin() then
                     if cast.obsidianSkin() then ui.debug("[Pet] Cast Obsidian Skin") return true end
                 end
                 -- Primal Agility
-                if cast.able.primalAgility() then 
+                if cast.able.primalAgility() then
                     if cast.primalAgility() then ui.debug("[Pet] Cast Primal Agility") return true end
                 end
                 -- Scale Shield
-                if cast.able.scaleShield() then 
+                if cast.able.scaleShield() then
                     if cast.scaleShield() then ui.debug("[Pet] Cast Scale Shield") return true end
                 end
                 -- Serpent Swiftness
-                if cast.able.serpentSwiftness() then 
+                if cast.able.serpentSwiftness() then
                     if cast.serpentSwiftness() then ui.debug("[Pet] Cast Serpent Swiftness") return true end
                 end
                 -- Shell Shield
-                if cast.able.shellShield() then 
+                if cast.able.shellShield() then
                     if cast.shellShield() then ui.debug("[Pet] Cast Shell Shield") return true end
                 end
                 -- Solid Shell
-                if cast.able.solidShell() then 
+                if cast.able.solidShell() then
                     if cast.solidShell() then ui.debug("[Pet] Cast Solid Shell") return true end
                 end
                 -- Swarm Of Flies
-                if cast.able.swarmOfFlies() then 
+                if cast.able.swarmOfFlies() then
                     if cast.swarmOfFlies() then ui.debug("[Pet] Cast Swarm of Flies") return true end
                 end
                 -- Winged Agility
-                if cast.able.wingedAgility() then 
+                if cast.able.wingedAgility() then
                     if cast.wingedAgility() then ui.debug("[Pet] Cast Winged Agility") return true end
                 end
             end
@@ -457,7 +457,7 @@ br.rotations.support["PetCuteOne"] = {
             -- Auto Growl
             if ui.checked("Auto Growl") and unit.inCombat() then
                 local _, autoCastEnabled = br._G.GetSpellAutocast(spell.growl)
-                if autoCastEnabled then br._G.DisableSpellAutocast(spell.growl) end
+                if autoCastEnabled then br._G.ToggleSpellAutocast(spell.growl) end
                 if not unit.isTankInRange() and not buff.prowl.exists("pet") then
                     if ui.value("Misdirection") == 3 and cast.able.misdirection("pet") and #enemies.yards8p > 1 then
                         if cast.misdirection("pet") then ui.debug("[Pet] Cast Misdirection on Pet") return true end
@@ -471,7 +471,7 @@ br.rotations.support["PetCuteOne"] = {
                 end
             end
             -- Dash
-            if ui.checked("Dash") and cast.able.dash("player") and validTarget and petDistance > 10 and petDistance < 40 and not ui.pause() then
+            if ui.checked("Dash") and cast.able.dash("player") and validTarget and petDistance > 10 and petDistance < 40 and not ui.pause() and not cast.last.dash() then
                 if cast.dash("player") then ui.debug("[Pet] Cast Dash") return true end
             end
             -- Fetch
@@ -516,7 +516,7 @@ br.rotations.support["PetCuteOne"] = {
                 if cast.able.spiritWalk() and not buff.spiritWalk.exists("pet") and not cd.spiritWalk.exists() then
                     if cast.spiritWalk("player") then ui.debug("[Pet] Cast Spirit Walk") return true end
                 end
-                if cast.able.prowl("player") and not buff.prowl.exists("pet") and not cd.prowl.exists() and cast.timeSinceLast.prowl() > unit.gcd(true) then
+                if cast.able.prowl("player") and not buff.prowl.exists("pet") and not cd.prowl.exists() and not cast.last.prowl() then
                     if cast.prowl("player") then ui.debug("[Pet] Cast Prowl") return true end
                 end
             end
