@@ -513,7 +513,7 @@ local function runRotation()
     enemies.get(30)
 
     -- variable,name=brand_build,value=talent.agonizing_flames.enabled&talent.burning_alive.enabled&talent.charred_flesh.enabled
-    var.brandBuild = talent.agonizingFLames and talent.burningAlive and talent.charredFlesh 
+    var.brandBuild = talent.agonizingFlames and talent.burningAlive and talent.charredFlesh 
 
     ---------------------
     --- Begin Profile ---
