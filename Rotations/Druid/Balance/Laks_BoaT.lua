@@ -199,6 +199,49 @@ local actionList = {}
 local function int (b)
     return b and 1 or 0
 end
+
+local function already_stunned(Unit)
+    if Unit == nil then
+        return false
+    end
+    local already_stunned_list = {
+        [47481] = "Gnaw",
+        [5211] = "Mighty Bash",
+        [22570] = "Maim",
+        [19577] = "Intimidation",
+        [119381] = "Leg Sweep",
+        [853] = "Hammer of Justice",
+        [408] = "Kidney Shot",
+        [1833] = "Cheap Shot",
+        [199804] = "Between the eyes",
+        [107570] = "Storm Bolt",
+        [46968] = "Shockwave",
+        [221562] = "Asphyxiate",
+        [91797] = "Monstrous Blow",
+        [179057] = "Chaos Nova",
+        [211881] = "Fel Eruption",
+        [1822] = "Rake",
+        [192058] = "Capacitor Totem",
+        [118345] = "Pulverize",
+        [89766] = "Axe Toss",
+        [30283] = "Shadowfury",
+        [1122] = "Summon Infernal",
+    }
+    for i = 1, #already_stunned_list do
+        --  Print(select(10, UnitDebuff(Unit, i)))
+        local debuffSpellID = select(10, br._G.UnitDebuff(Unit, i))
+        if debuffSpellID == nil then
+            return false
+        end
+
+        --    Print(tostring(already_stunned_list[tonumber(debuffSpellID)]))
+        if already_stunned_list[tonumber(debuffSpellID)] ~= nil then
+            return true
+        end
+    end
+    return false
+end
+
 local function hasHot(unit)
     if buff.rejuvenation.exists(unit) or buff.regrowth.exists(unit) or buff.wildGrowth.exists(unit) then
         return true
@@ -380,7 +423,7 @@ actionList.Extra = function()
     if ui.checked("Rejuvenation") and php <= 90 and not buff.rejuvenation.exists("player") then
         unit.cancelForm()
         if cast.rejuvenation("player") then
-             br.addonDebug("[EXTRA]  Rejuv at: " .. tostring(php))
+            br.addonDebug("[EXTRA]  Rejuv at: " .. tostring(php))
             return true
         end
     end
@@ -441,7 +484,7 @@ actionList.Defensive = function()
     if ui.checked("Rejuvenation") and php <= br.getValue("Rejuvenation") and not buff.rejuvenation.exists("player") then
         unit.cancelForm()
         if cast.rejuvenation("player") then
-             br.addonDebug("[DEF]  Rejuv at: " .. tostring(php))
+            br.addonDebug("[DEF]  Rejuv at: " .. tostring(php))
             return true
         end
     end
@@ -1100,7 +1143,7 @@ local function runRotation()
                     return true
                 end
             else
-                 br.addonDebug("nope, not supported ")
+                br.addonDebug("nope, not supported ")
             end
 
         end -- End In Combat Rotation

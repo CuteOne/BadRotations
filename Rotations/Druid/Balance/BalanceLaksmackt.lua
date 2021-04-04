@@ -7,14 +7,7 @@ local function createToggles()
     -- Define custom toggles
     -- Rotation Button
     local RotationModes = {
-        [1] = {
-            mode = "Auto",
-            value = 1,
-            overlay = "Automatic Rotation",
-            tip = "Swaps between Single and Multiple based on number of enemies in range.",
-            highlight = 1,
-            icon = br.player.spell.moonfire
-        },
+        [1] = { mode = "Auto", value = 1, overlay = "Automatic Rotation", tip = "Swaps Single/aoebased on number of enemies in range.", highlight = 1, icon = br.player.spell.moonfire },
         [2] = { mode = "Mult", value = 2, overlay = "Multi Target rotation", tip = "Multi Target rotation", highlight = 1, icon = br.player.spell.starfall },
         [3] = { mode = "Sing", value = 3, overlay = "Force single target", tip = "Force single target", highlight = 0, icon = br.player.spell.wrath },
         [4] = { mode = "Off", value = 4, overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.soothe }
@@ -233,6 +226,36 @@ function timers.time(name, fn)
     return time and (br._G.GetTime() - time) or 0
 end
 
+local function EclipseUpdate()
+
+    local eclipse_in = false
+    local current_eclipse = "none"
+
+    -- 190984 == wrath 
+    -- 194153 starfire
+
+    if (br._G.GetSpellCount(190984) == 0 or br.isCastingSpell(br.player.spell.wrath) and br._G.GetSpellCount(190984))
+            and (br._G.GetSpellCount(194153) == 0 or br.isCastingSpell(br.player.spell.starfire) and br._G.GetSpellCount(194153) == 1) then
+        eclipse_in = true
+    end
+    if not eclipse_in then
+        if br._G.GetSpellCount(190984) == 2 and br._G.GetSpellCount(194153) == 2 then
+            eclipse_next = "any"
+        elseif br._G.GetSpellCount(190984) == 0 and br._G.GetSpellCount(194153) > 0 then
+            eclipse_next = "solar"
+        elseif br._G.GetSpellCount(190984) > 0 and br._G.GetSpellCount(194153) == 0 then
+            eclipse_next = "lunar"
+        end
+    else
+        if br._G.IsSpellOverlayed(spell.wrath) or br.isCastingSpell(br.player.spell.starfire) and br._G.GetSpellCount(194153) == 1 then
+            current_eclipse = "solar"
+        end
+        if br._G.IsSpellOverlayed(spell.starfire) or br.isCastingSpell(br.player.spell.wrath) and br._G.GetSpellCount(190984) == 1 then
+            current_eclipse = "lunar"
+        end
+    end
+end
+
 local function runRotation()
     --------------
     --- Locals ---
@@ -242,6 +265,7 @@ local function runRotation()
     local buff = br.player.buff
     local cast = br.player.cast
     local php = br.player.health
+    local eclipse_in = false
     local spell = br.player.spell
     local talent = br.player.talent
     local cd = br.player.cd
@@ -548,7 +572,7 @@ local function runRotation()
                 radar = "on"
             end
             if br.isChecked("Plague - Globgrod") then
-                root_UnitList[171887] = "Globgrod"
+                root_UnitList[171887] = "Smorgasbord"
                 radar = "on"
             end
             if br.isChecked("Root - Spiteful(M+)") then
@@ -1053,7 +1077,7 @@ local function runRotation()
                     --moon shit here .. not supported ..cause fuck that
 
                     -- Warrior of Elune
-                    if br.useCDs() and br.isChecked("Warrior Of Elune") and talent.warriorOfElune and not buff.warriorOfElune.exists() then
+                    if br.useCDs() and ui.checked("Warrior Of Elune") and talent.warriorOfElune and not buff.warriorOfElune.exists() then
                         if cast.warriorOfElune() then
                             return true
                         end
@@ -1366,7 +1390,6 @@ local function runRotation()
                                 return true
                             end
                         end
-
                         --starsurge,if=(cooldown.convoke_the_spirits.remains<5&!druid.no_cds&(variable.convoke_desync|cooldown.ca_inc.remains<5))&astral_power>40&covenant.night_fae&!druid.no_cds
                         if not noDamageCheck("target") and ((cd.convokeTheSpirits.remains() < 5 and cd.convokeTheSpirits.remains() - gcd > 0)
                                 and br.useCDs() and (convoke_desync or pew_remain() < 5))
@@ -1506,7 +1529,7 @@ local function runRotation()
                         --moon stuff goes here ... as if
 
 
-                        if cast.able.starfire("target") then
+                        if cast.able.starfire("target") and br.getFacing("player", "target", 45) then
                             if current_eclipse == "lunar"
                                     or current_eclipse ~= "solar" and eclipse_next == "solar"
                                     or current_eclipse ~= "solar" and eclipse_next == "any"
@@ -1521,9 +1544,11 @@ local function runRotation()
                             end
                         end
 
-                        if cast.wrath("target") then
-                            br.addonDebug("[WRATH] Lunar:" .. tostring(current_eclipse == "lunar") .. " Solar:" .. tostring(current_eclipse == "solar") .. " Next:" .. eclipse_next)
-                            return true
+                        if br.getFacing("player", "target", 45) then
+                            if cast.wrath("target") then
+                                br.addonDebug("[WRATH] Lunar:" .. tostring(current_eclipse == "lunar") .. " Solar:" .. tostring(current_eclipse == "solar") .. " Next:" .. eclipse_next)
+                                return true
+                            end
                         end
                     end
                 end
@@ -1538,14 +1563,10 @@ local function runRotation()
                 br.useItem(177278)
             elseif br.canUseItem(5512) then
                 br.useItem(5512)
-            elseif br.canUseItem(156634) then
-                br.useItem(156634)
+            elseif br.canUseItem(171267) then
+                br.useItem(171267)
             elseif br.canUseItem(169451) then
                 br.useItem(169451)
-            elseif br.canUseItem(br.getHealthPot()) then
-                br.useItem(br.getHealthPot())
-            elseif br.canUseItem(br.getHealthPot()) then
-                br.useItem(br.getHealthPot())
             end
         end
 
@@ -1571,14 +1592,14 @@ local function runRotation()
         end
         -- Swiftmend
         if talent.restorationAffinity and br.isChecked("Swiftmend") and cast.able.swiftmend() and php <= br.getValue("Swiftmend") and charges.swiftmend.count() >= 1 and hasHot("player") then
-           unit.cancelForm()
+            unit.cancelForm()
             if cast.swiftmend("player") then
                 return true
             end
         end
         -- Regrowth
         if br.isChecked("Regrowth") and not moving and php <= br.getValue("Regrowth") then
-             unit.cancelForm()
+            unit.cancelForm()
             if cast.regrowth("player") then
                 return true
             end
@@ -1586,7 +1607,7 @@ local function runRotation()
 
         --rejuvenation
         if br.isChecked("Rejuvenation") and php <= br.getValue("Rejuvenation") and not buff.rejuvenation.exists("player") then
-             unit.cancelForm()
+            unit.cancelForm()
             if cast.rejuvenation("player") then
                 return true
             end
@@ -1734,7 +1755,6 @@ local function runRotation()
 
         for i = 1, #enemies.yards45 do
             thisUnit = enemies.yards45[i]
-
             if br.isChecked("Auto Soothe") then
                 if cast.able.soothe() and br.canDispel(thisUnit, spell.soothe) then
                     if cast.soothe(thisUnit) then
@@ -1771,7 +1791,7 @@ local function runRotation()
                 if br.PullTimerRemain() <= br.getOptionValue("Pre-Pull Timer") then
                     if mode.forms ~= 3 then
                         if not br.player.buff.moonkinForm.exists() and not cast.last.moonkinForm(1) and not br.isMoving("player") then
-                             unit.cancelForm()
+                            unit.cancelForm()
                             if cast.moonkinForm() then
                                 return true
                             end
@@ -1843,7 +1863,6 @@ local function runRotation()
                     end
                 end
             end
-
             if br.isChecked("auto dash") and not catspeed then
                 if cast.stampedingRoarCat("player") then
                     return true
@@ -1877,7 +1896,7 @@ local function runRotation()
         --Forms key management, in and out of combat
         if mode.forms == 2 then
             if not moonkin then
-                 unit.cancelForm()
+                unit.cancelForm()
                 if cast.moonkinForm() then
                     return true
                 end
@@ -1947,7 +1966,7 @@ local function runRotation()
             if mode.forms == 1 then
                 if br.isChecked("Standing Time") then
                     if (travel or buff.catForm.exists()) and not buff.prowl.exists() and standingTime > br.getValue("Standing Time") then
-                         unit.cancelForm()
+                        unit.cancelForm()
                         if cast.moonkinForm("player") then
                             return true
                         end
