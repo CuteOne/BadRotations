@@ -602,7 +602,7 @@ function br.createCastFunction(thisUnit,castType,minUnits,effectRng,spellID,inde
 			br.botCast = true -- Used by old Queue Cast
 			br.botSpell = spellID -- Used by old Queue Cast
 			-- Condemn Patch (Blizz is an small indie developer!)
-			if spellID == br.player.spell.condemn then spellName = br._G.GetSpellInfo(br.player.spell.execute) end
+			if spellID == br.player.spell.condemn or spellID == br.player.spell.condemnMassacre then spellName = br._G.GetSpellInfo(br.player.spell.execute) end
 			br._G.CastSpellByName(spellName,thisUnit)
 			if br._G.IsAoEPending() then
 				local X,Y,Z = br._G.ObjectPosition(thisUnit)
