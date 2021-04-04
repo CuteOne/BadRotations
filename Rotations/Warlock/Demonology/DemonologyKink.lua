@@ -1,5 +1,5 @@
 local rotationName = "KinkySpirit"
-local versionNum = "1.3.8"
+local versionNum = "1.4.0"
 local colorPurple = "|cff8788EE"
 local colorOrange = "|cffb28cc7"	
 local colorWhite = "|cffffffff"							   
@@ -1858,20 +1858,34 @@ end
         if (not cast.current.drainLife() or (cast.current.drainLife() and php > 80)) then
             if actionList_Defensive() then return end
         end
-        -------------------
-        --- Pet Control ---
-        -------------------
-        
-        if actionList_PetControl() then return end
+
+        if inCombat then
+            -------------------
+            --- Pet Control ---
+            -------------------
+            if ui.checked("Pet Management") 
+            and hastar 
+            and br._G.UnitCanAttack("target", "player") 
+            and not br.GetUnitIsDeadOrGhost("target") 
+            and br.getLineOfSight("player","target") 
+            then
+                if actionList_PetControl() then return end
+            end
+
             -- Our pet's dead, let's dismiss him so we can summon another. 
             if br.GetUnitIsDeadOrGhost("pet") then br._G.RunMacroText("/petdismiss") return end 
+
             -- Fel demonination summon a new pet in combat. 
             if ui.checked("Fel Domination") and inCombat
+
             and (not br.GetObjectExists("pet") or br.GetUnitIsDeadOrGhost("pet"))
             and cd.felDomination.remain() <= gcdMax  
             then
                 if cast.felDomination() then br.addonDebug("Fel Domination") return true end
             end
+        end
+
+
         -- Fel domination summon a new pet before our current one dies. 
         if ui.checked("Fel Domination New Pet") and not moving 
         and cd.felDomination.remain() <= gcdMax 
@@ -1918,10 +1932,7 @@ end
         --------------------------
         --- In Combat Rotation ---
         --------------------------
-        --br.getFacing("player","target") == true 
-            if (inCOmbat and br._G.UnitCanAttack("target", "player") and not br.GetUnitIsDeadOrGhost("target") and br.getLineOfSight("player","target") and cast.inFlight.shadowBolt() or spellQueueReady()) 
-            and (br.isChecked("Target Faccia") and br.getFacing("player", "target") or br.isChecked("Auto Faccia")) and br.isValidUnit("target") and br.getDistance("target") < 40  and br._G.UnitCanAttack("target", "player") and not br.GetUnitIsDeadOrGhost("target") and br.getLineOfSight("player","target") then
-        
+        if inCombat and br.profileStop == false and br.isValidUnit("target") and br.getDistance("target") < 40 then
             ------------------------------
             --- In Combat - Interrupts ---
             ------------------------------
