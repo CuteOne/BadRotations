@@ -227,8 +227,8 @@ actionList.Extras = function()
         unit.clearTarget()
     end
     -- Hunter's Mark
-    if ui.checked("Hunter's Mark") and cast.able.huntersMark() and not debuff.huntersMark.exists(units.dyn40) then
-        if cast.huntersMark() then ui.debug("Cast Hunter's Mark") return true end
+    if ui.checked("Hunter's Mark") and cast.able.huntersMark("target") and not debuff.huntersMark.exists("target") then
+        if cast.huntersMark("target") then ui.debug("Cast Hunter's Mark") return true end
     end
     -- Dummy Test
     if ui.checked("DPS Testing") then
