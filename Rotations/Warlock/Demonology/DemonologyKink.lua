@@ -1,5 +1,5 @@
 local rotationName = "KinkySpirit"
-local versionNum = "1.4.0"
+local versionNum = "1.4.1"
 local colorPurple = "|cff8788EE"
 local colorOrange = "|cffb28cc7"	
 local colorWhite = "|cffffffff"							   
@@ -477,8 +477,6 @@ local function runRotation()
         enemies.get(30,"target")
         enemies.get(40,"target")
 
-
-
     -- Profile Specific Locals
     if actionList_PetManagement == nil then
         br.loadSupport("PetCuteOne")
@@ -505,7 +503,6 @@ local function runRotation()
         return false
     end
 
-    --ttd
     -- spellqueue ready
     local function spellQueueReady()
         --Check if we can queue cast
@@ -719,6 +716,10 @@ local function runRotation()
         if br.isChecked("Auto Target") and inCombat and #enemyTable40 > 0 and ((br.GetUnitExists("target") and br.GetUnitIsDeadOrGhost("target") and not br.GetUnitIsUnit(enemyTable40[1].unit, "target")) or not br.GetUnitExists("target")) then
             br._G.TargetUnit(enemyTable40[1].unit)
         end
+        if br.isChecked("Auto Faccia") and inCombat and #enemyTable40 > 0 and (br.GetUnitExists("target") and br.isValidTarget("target")) and not br.getFacing("player", thisUnit) then
+           br._G.FaceDirection("target",true)
+           br._G.FaceDirection("target")
+        end
     end
 
     --Keybindings
@@ -895,6 +896,32 @@ local function runRotation()
                 return true
             end
         end
+        local mapMythicPlusModeID, mythicPlusLevel, mythicPlustime, mythicPlusOnTime, keystoneUpgradeLevels, practiceRun = C_ChallengeMode.GetCompletionInfo()
+        if ui.checked("Soulstone Healer OOC [Mythic+]") and not solo and not moving then
+            --if mythicPlusLevel ~= 0 then
+                for i = 1, #br.friend do
+                    if br._G.UnitIsPlayer(br.friend[i].unit) and br.GetUnitIsFriend(br.friend[i].unit, "player") 
+                    and (br._G.UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" or br.friend[i].role == "HEALER") 
+                    and (not buff.soulstone.exists(br.friend[i].unit))
+                    and br.timer:useTimer("Healer SS", 3) 
+                    then
+                        if cast.soulstone(br.friend[i].unit) then
+                            br.addonDebug("Soulstone Healer OOC [Mythic+] YEEEEEEEEEEEEEEEEET")
+                            return true
+                        end
+                    end
+                end
+            --end
+        end
+        -- Auto Mythic+ Keystone | Module
+        var.mapID = C_ChallengeMode.GetActiveChallengeMapID();
+        if not inCombat and not (IsFlying() or IsMounted()) and not solo then
+            if var.activeMythicMapID then
+                module.autoKeystone()
+            end
+        end
+        
+
         if br.isChecked("Auto Soulstone Player") and not inInstance and not inRaid and (not buff.soulstone.exists("player") or buff.soulstone.remain("player") < 100) and not inCombat and not moving then
             if cast.soulstone("player") then
                 return
@@ -1635,6 +1662,24 @@ local function runRotation()
             br._G.SpellStopCasting()
             return true
         end
+                local mapMythicPlusModeID, mythicPlusLevel, mythicPlustime, mythicPlusOnTime, keystoneUpgradeLevels, practiceRun = C_ChallengeMode.GetCompletionInfo()
+        if ui.checked("Soulstone Healer OOC [Mythic+]") and not solo and not moving then
+            --if mythicPlusLevel ~= 0 then
+                for i = 1, #br.friend do
+                    if br._G.UnitIsPlayer(br.friend[i].unit) and br.GetUnitIsFriend(br.friend[i].unit, "player") 
+                    and (br._G.UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" or br.friend[i].role == "HEALER") 
+                    and (not buff.soulstone.exists(br.friend[i].unit))
+                    and br.timer:useTimer("Healer SS", 3) 
+                    then
+                        if cast.soulstone(br.friend[i].unit) then
+                            br.addonDebug("Soulstone Healer OOC [Mythic+] YEEEEEEEEEEEEEEEEET")
+                            return true
+                        end
+                    end
+                end
+            --end
+        end
+
     end
 
     local function actionList_PetControl()
@@ -1786,6 +1831,32 @@ end
 
 
     local function actionList_PreCombat()
+                local mapMythicPlusModeID, mythicPlusLevel, mythicPlustime, mythicPlusOnTime, keystoneUpgradeLevels, practiceRun = C_ChallengeMode.GetCompletionInfo()
+        if ui.checked("Soulstone Healer OOC [Mythic+]") and not solo and not moving then
+            --if mythicPlusLevel ~= 0 then
+                for i = 1, #br.friend do
+                    if br._G.UnitIsPlayer(br.friend[i].unit) and br.GetUnitIsFriend(br.friend[i].unit, "player") 
+                    and (br._G.UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" or br.friend[i].role == "HEALER") 
+                    and (not buff.soulstone.exists(br.friend[i].unit))
+                    and br.timer:useTimer("Healer SS", 3) 
+                    then
+                        if cast.soulstone(br.friend[i].unit) then
+                            br.addonDebug("Soulstone Healer OOC [Mythic+] YEEEEEEEEEEEEEEEEET")
+                            return true
+                        end
+                    end
+                end
+            --end
+        end
+        -- Auto Mythic+ Keystone | Module
+        var.mapID = C_ChallengeMode.GetActiveChallengeMapID();
+        if not inCombat and not (IsFlying() or IsMounted()) and not solo then
+            if var.activeMythicMapID then
+                module.autoKeystone()
+            end
+        end
+        
+
         -- Create Healthstone
         if not moving and not inCombat and ui.checked("Create Healthstone") then
             if GetItemCount(5512) < 1 and br.timer:useTimer("CH", 5) then
@@ -1894,7 +1965,7 @@ end
         then
             if cast.felDomination() then br.addonDebug("Fel Domination Low Pet Health") return true end
         end
-        
+
         local mapMythicPlusModeID, mythicPlusLevel, mythicPlustime, mythicPlusOnTime, keystoneUpgradeLevels, practiceRun = C_ChallengeMode.GetCompletionInfo()
         if ui.checked("Soulstone Healer OOC [Mythic+]") and not solo and not moving then
             --if mythicPlusLevel ~= 0 then
@@ -1902,6 +1973,7 @@ end
                     if br._G.UnitIsPlayer(br.friend[i].unit) and br.GetUnitIsFriend(br.friend[i].unit, "player") 
                     and (br._G.UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" or br.friend[i].role == "HEALER") 
                     and (not buff.soulstone.exists(br.friend[i].unit))
+                    and br.timer:useTimer("Healer SS", 3) 
                     then
                         if cast.soulstone(br.friend[i].unit) then
                             br.addonDebug("Soulstone Healer OOC [Mythic+] YEEEEEEEEEEEEEEEEET")
@@ -1911,6 +1983,15 @@ end
                 end
             --end
         end
+        -- Auto Mythic+ Keystone | Module
+        var.mapID = C_ChallengeMode.GetActiveChallengeMapID();
+        if not inCombat and not (IsFlying() or IsMounted()) and not solo then
+            if var.activeMythicMapID then
+                module.autoKeystone()
+            end
+        end
+        
+
         ---------------------------
         --- Pre-Combat Rotation ---
         ---------------------------
