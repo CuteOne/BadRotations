@@ -57,7 +57,7 @@ end
 local collectGarbage = true
 function br.BadRotationsUpdate(self)
     local startTime = br._G.debugprofilestop()
-    local LibDraw = br._G.LibStub("LibDraw-1.0")
+    local LibDraw = br._G.LibStub("LibDraw-BR")
     local Print = br._G["print"]
     -- Check for Unlocker
     if not br.unlocked then
