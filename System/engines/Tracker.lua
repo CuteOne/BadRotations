@@ -1,5 +1,5 @@
 local _, br = ...
-local LibDraw = LibStub("LibDraw-1.0")
+local LibDraw = LibStub("LibDraw-BR")
 
 local function trackObject(object, name, objectid, interact)
     local xOb, yOb, zOb = br._G.ObjectPosition(object)
