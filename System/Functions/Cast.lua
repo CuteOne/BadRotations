@@ -597,10 +597,12 @@ function br.createCastFunction(thisUnit,castType,minUnits,effectRng,spellID,inde
 	local function castingSpell(thisUnit, spellID, spellName, icon, castType, printReport, debug)
 		if br._G.UnitHealth(thisUnit) > 0 or castType == "dead" then
 			-- Debug Only
-			if debug then return printReport(true) end
+			if debug then return true end
 			-- Cast Spell
 			br.botCast = true -- Used by old Queue Cast
 			br.botSpell = spellID -- Used by old Queue Cast
+			-- Condemn Patch (Blizz is an small indie developer!)
+			if spellID == br.player.spell.condemn or spellID == br.player.spell.condemnMassacre then spellName = br._G.GetSpellInfo(br.player.spell.execute) end
 			br._G.CastSpellByName(spellName,thisUnit)
 			if br._G.IsAoEPending() then
 				local X,Y,Z = br._G.ObjectPosition(thisUnit)
@@ -638,45 +640,36 @@ function br.createCastFunction(thisUnit,castType,minUnits,effectRng,spellID,inde
 	if (baseSpellID == spellID or overrideSpellID == spellID) and br._G.IsUsableSpell(spellID) and not select(2,br._G.IsUsableSpell(spellID)) -- Usability Checks
 	 	and br.getSpellCD(spellID) <= br:getUpdateRate() and (br.getSpellCD(61304) <= 0 or select(2,br._G.GetSpellBaseCooldown(spellID)) <= 0
 		 	or (br.getCastTime(spellID) > 0 and br.getCastTimeRemain("player") <= br:getUpdateRate())) -- Cooldown Checks
-		and (br.isKnown(spellID) or castType == "known") -- Known/Current Checks
+		and (br.isKnown(spellID) or castType == "known" or spellID == br.player.spell.condemn or spellID == br.player.spell.condemnMassacre) -- Known/Current Checks
 	 	and hasTalent(spellID) and hasEssence() and not br.isIncapacitated(spellID) and queensCourtCastCheck(spellID) -- Talent/Essence/Incapacitated/Special Checks
-	 	and (thisUnit == nil or castType ~= "dead" or (thisUnit ~= nil and castType == "dead" and br._G.UnitIsDeadOrGhost(thisUnit)))
+	 	and (thisUnit == nil or castType ~= "dead" or (thisUnit ~= nil and castType == "dead" and br._G.UnitIsDeadOrGhost(thisUnit))) -- Dead Check
 	then
+		if castType == "known" then castType = "norm" end
 		local function printReport(debugOnly,debugReason,thisCount)
 			if debugReason == nil then debugReason = "" end
 			if ((br.isChecked("Display Failcasts") and not debugOnly) or br.isChecked("Cast Debug")) and not debug then
 				if debugReason == "No Unit" then
 					br.player.ui.debug("Spell: "..spellName.." failed to cast because there was not unit found in "..maxRange.."yrds.")
-					return false
 				elseif debugReason == "Below Min Units" then
 					br.player.ui.debug("Spell: "..spellName.." failed to cast because there are "..thisCount.." enemies in "..maxRange.."yrds, but "..minUnits.." are needed to cast.")
-					return false
 				elseif debugReason == "Below Min Units Facing" then
 					br.player.ui.debug("Spell: "..spellName.." failed to cast because there are "..thisCount.." enemies in "..maxRange.."yrds in front, but "..minUnits.." are needed to cast.")
-					return false
 				elseif debugReason == "Below Min Units Cone" then
 					br.player.ui.debug("Spell: "..spellName.." failed to cast because there are "..thisCount.." enemies in "..maxRange.."yrds in an "..effectRng.."deg cone, but "..minUnits.." are needed to cast.")
-					return false
 				elseif debugReason == "Below Min Units Rect" then
 					br.player.ui.debug("Spell: "..spellName.." failed to cast because there are "..thisCount.." enemies in "..maxRange.."yrds by "..effectRng.."yrd rectange, but "..minUnits.." are needed to cast.")
-					return false
 				elseif debugReason == "Not Dead" then
 					br.player.ui.debug("Spell: "..spellName.." failed to cast because Unit is not dead.")
-					return false
 				elseif debugReason == "No Range" then
 					br.player.ui.debug("Spell: "..spellName.." failed to cast because Unit is not in range.")
-					return false
 				elseif debugReason == "Not Safe" then
 					br.player.ui.debug("Spell: "..spellName.." failed to cast because it is not safe to aoe.")
-					return false
 				elseif debugReason == "Invalid Unit" then
 					if br.units[thisUnit] == nil then
 						br.player.ui.debug("Spell: "..spellName.." failed to cast because Unit is not in br.units.")
-						return false
 					end
 					if not br.getLineOfSight(thisUnit) then
 						br.player.ui.debug("Spell: "..spellName.." failed to cast because Unit is out line of sight.")
-						return false
 					end
 				else
 					br._G.print("|cffFF0000Error: |r Failed to cast. - "
@@ -689,17 +682,12 @@ function br.createCastFunction(thisUnit,castType,minUnits,effectRng,spellID,inde
 							..", SpellRange: "..tostring(br._G.IsSpellInRange(spellName,thisUnit) == 1)
 							..", thisUnit: "..tostring(thisUnit)
 					)
-					return false
 				end
 			end
-			return true
-		end		
-        -- Debug Only
-        if thisUnit ~= nil and thisUnit ~= "None" and debug then
-			return printReport(true)
+			return false
 		end
 		-- Attempt to determine best unit for spell's range
-		local unitAssigned = false
+		-- local unitAssigned = false
 		if thisUnit == nil then
 			if castType == "norm" or castType == "dead" or castType == "rect" or castType == "cone" then
 				thisUnit = br.getSpellUnit(baseSpellID,false,minRange,maxRange,spellType)
@@ -707,25 +695,21 @@ function br.createCastFunction(thisUnit,castType,minUnits,effectRng,spellID,inde
 			else
 				thisUnit = br.getSpellUnit(baseSpellID,true,minRange,maxRange,spellType)
 			end
-			if thisUnit ~= nil and thisUnit ~= "None" then unitAssigned = true end
+			-- if thisUnit ~= nil and thisUnit ~= "None" then unitAssigned = true end
 		end
 		-- Cast Ground AOE at "Best" Locaton
         if thisUnit == "best" then
+			if debug then return true end
 			return br.castGroundAtBestLocation(spellCast,effectRng,minUnits,maxRange,minRange,castType,castTime)
 		end
 		-- Cast Ground AOE at Player/Target Location
-		if thisUnit == "playerGround" or thisUnit == "targetGround" or debug == "groundCC" then
+		if thisUnit == "playerGround" or thisUnit == "targetGround" or castType == "groundCC" then
 			local targetUnit
 			targetUnit = thisUnit == "playerGround" and "player" or "target"
 			if castType == "groundCC" then targetUnit = thisUnit end
-			if br.getDistance(targetUnit) < maxRange or br._G.IsSpellInRange(spellName,targetUnit) == 1 then
+			if (br.getDistance(targetUnit) < maxRange or br._G.IsSpellInRange(spellName,targetUnit) == 1) then
+				if debug then return true end
 				return br.castGroundAtUnit(spellCast,effectRng,minUnits,maxRange,minRange,castType,targetUnit)
-			end
-		end
-		-- Cast on Pet's Target
-		if thisUnit == "pettarget" then
-			if (br.getDistance(thisUnit,"pet") < maxRange or br._G.IsSpellInRange(spellName,thisUnit) == 1) then
-				return castingSpell(thisUnit,spellID,spellName,icon,castType,printReport,debug)
 			end
 		end
 		if thisUnit == "None" then printReport(true,"No Unit") return false end
@@ -733,12 +717,8 @@ function br.createCastFunction(thisUnit,castType,minUnits,effectRng,spellID,inde
 		if thisUnit ~= nil and thisUnit ~= "None"
 			and (br.GetUnitIsUnit(thisUnit,"player") or br.units[thisUnit] ~= nil or br.getLineOfSight(thisUnit))
 		then
-			-- Determined Target Pet/Normal Cast (Early Exit as Range Checks done to determine target)
-			if unitAssigned and (castType == "norm" or castType == "pet") then
-				return castingSpell(thisUnit,spellID,spellName,icon,castType,printReport,debug)
-			end
 			-- Range Check
-			local inRange = function(minRange, maxRange)				
+			local inRange = function(minRange, maxRange)
 				local distance = castType == "pet" and br.getDistance(thisUnit,"pet") or br.getDistance(thisUnit)
 				return distance >= minRange and distance < maxRange
 			end
@@ -762,6 +742,7 @@ function br.createCastFunction(thisUnit,castType,minUnits,effectRng,spellID,inde
 						or 0
 					if enemyCount >= minUnits and br.isSafeToAoE(spellID,thisUnit,effectRng,minUnits,castType,enemyCount) then
 						if castType == "ground" then
+							if debug then return true end
 							return br.castGround(thisUnit,spellCast,maxRange,minRange,effectRng,castTime)
 						else
 							return castingSpell(thisUnit,spellID,spellName,icon,castType,printReport,debug)
@@ -771,7 +752,7 @@ function br.createCastFunction(thisUnit,castType,minUnits,effectRng,spellID,inde
 					end
 				end
 				-- Cast Non-AOE
-				if (castType == "norm" or castType == "pet") then
+				if (castType == "norm" or castType == "pet") and (br.getFacing("player",thisUnit) or spellType == "Helpful" or spellType == "Unknown") then
 					-- Failsafe, incase we were unable to retrieve enemies counts
 					local enemyFacingCount = enemies or #br.getEnemies("player",maxRange,false,true) or 0
 					if (minUnits == 1 and br._G.IsSpellInRange(spellName,thisUnit) == 1) or (enemyFacingCount >= minUnits) or spellType == "Helpful" or spellType == "Unknown" then
@@ -780,6 +761,7 @@ function br.createCastFunction(thisUnit,castType,minUnits,effectRng,spellID,inde
 						return printReport(false,"Below Min Units Facing",enemyFacingCount)
 					end
 				end
+				return false
 			else
 				return printReport(false,"No Range")
 			end

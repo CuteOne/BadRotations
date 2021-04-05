@@ -95,7 +95,7 @@ local function forewardDisengage() -- from Stinky Twitch
 	if s == 0 then
 		br._G.FaceDirection(_G.mod(br._G.ObjectFacing("player") + math.pi, math.pi * 2), true)
 		br._G.CastSpellByID(781)
-		br._G.FaceDirection(_G.mod(br._G.ObjectFacing("player") + math.pi, math.pi * 2), true)
+		C_Timer.After(0.05, function() br._G.FaceDirection(_G.mod(br._G.ObjectFacing("player") + math.pi, math.pi * 2), true) end )
 	end
 end
 

@@ -6,16 +6,18 @@ function br:loadUnlockerAPI()
     if br._G.lb then
         unlocked = br.unlock.LBUnlock()
     elseif br._G.EWT then
-        unlocked = br.unlock.EWTUnlock()
+        unlocked = br.unlock.UCSUnlock()
     elseif br._G.wmbapi then
         unlocked = br.unlock.MBUnlock()
     elseif br._G.UCSLoaded then
         -- Must be _G.br to load
         _G.br = br
-    elseif br._G.CallSecureFunction then
-        unlocked = br.unlock.WowAdUnlock()
     else
-        unlocked = false
+		if br.unlock.WowAdUnlock() then
+			unlocked = true
+		else
+			unlocked = false
+		end
     end
     -- Set Spell Queue Window
     --if class == 8 or class == 9 then

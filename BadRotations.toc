@@ -7,7 +7,7 @@
 
 BadRotations.lua
 Unlockers\luabox.lua
-Unlockers\ewt.lua
+Unlockers\ucs.lua
 Unlockers\minibot.lua
 Unlockers\wowadvanced.lua
 bindings.xml

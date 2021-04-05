@@ -99,7 +99,7 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "Keys - 2103231459")
+        section = br.ui:createSection(br.ui.window.profile, "Keys - 2103241515")
         br.ui:createDropdownWithout(section, "DPS Key", br.dropOptions.Toggle, 6, "DPS Override")
         br.ui:createCheckbox(section, "Group CD's with DPS key", "Adrenaline + BladeFurry", 1)
         br.ui:createDropdownWithout(section, "Distract", br.dropOptions.Toggle, 6, "Distract at cursor")
@@ -244,6 +244,7 @@ local dynamic_target_melee
 local dynamic_range
 local buff_rollTheBones_remain = 0
 local buff_rollTheBones_count = 0
+local buff_rollTheBones_high = 0
 local unit
 
 -- lists ...lots of lists
@@ -613,7 +614,6 @@ local function dps_key()
     if mode.rotation == 1 then
 
         if runeforge.markOfTheMasterAssassin.equiped and talent.killingSpree then
-
             if cd.killingSpree.ready() and (cd.vanish.ready() or MA_flag)
                     and (buff.bladeFlurry.remains() > 3.5 or cd.bladeFlurry.ready() or #enemies.yards8 == 1)
             then
@@ -632,6 +632,24 @@ local function dps_key()
                     end
                 end
                 if cast.killingSpree() then
+                    MA_flag = nil
+                    return true
+                end
+            end
+        elseif runeforge.deathlyShadows.equiped and talent.bladeRush then
+            if cd.bladeRush.ready() and (cd.vanish.ready() or MA_flag)
+                    and (buff.bladeFlurry.remains() > 3.5 or cd.bladeFlurry.ready() or #enemies.yards8 == 1)
+            then
+                if buff.bladeFlurry.remains() < 2 and #enemies.yards8 > 1 then
+                    if cast.bladeFlurry() then
+                        return true
+                    end
+                end
+                if cast.vanish() then
+                    MA_flag = true
+                    return true
+                end
+                if cast.bladeRush() then
                     MA_flag = nil
                     return true
                 end
@@ -833,7 +851,7 @@ actionList.dps = function()
                 end
             end
             -- dps cd's
-            if (#enemies.yards8 - explosiveCount) >= 2 and not buff.bladeFlurry.exists() and getOutLaksTTD(8) >= 2 then
+            if (#enemies.yards8 - explosiveCount) >= 2 and not buff.bladeFlurry.exists() then
                 if cast.bladeFlurry() then
                     return true
                 end
@@ -1073,7 +1091,7 @@ actionList.dps = function()
 
         -- Skuler's Wing
         if (br._G.GetInventoryItemID("player", 13) == 184016 or br._G.GetInventoryItemID("player", 14) == 184016)
-                and br.canUseItem(184016) and br.getCombatTime() > 5 then
+                and br.canUseItem(184016) and #enemies.yards8 > 0 then
             br.useItem(184016)
         end
         --darkmoon trinket
@@ -1171,7 +1189,7 @@ actionList.Extra = function()
         dps_key()
     end
 
-    if (mode.cooldown == 1 and br.isChecked("Slice and Dice") or not br.isChecked("Slice and Dice")) and not buff.grandMelee.exists() and not buff.masterAssassinsMark.exists() then
+    if (mode.cooldown == 1 and br.isChecked("Slice and Dice") or not br.isChecked("Slice and Dice")) and not buff.grandMelee.exists() and (not buff.masterAssassinsMark.exists() or stealth) then
         if cast.able.sliceAndDice() and combo > 0 then
             if buff.sliceAndDice.remains() < (1 + combo) * 1.8 and (br.getCombatTime() > 2 or cd.vanish.exists()) then
                 if cast.sliceAndDice() then
@@ -1187,7 +1205,7 @@ actionList.Extra = function()
         end
     end
 
-    if cast.able.rollTheBones() and (inCombat or #enemies.yards25nc > 0 or br.DBM:getPulltimer() < 1.5) and not buff.masterAssassinsMark.exists() then
+    if cast.able.rollTheBones() and (inCombat or #enemies.yards8 > 0 or br.DBM:getPulltimer() < 1.5) and (not buff.masterAssassinsMark.exists() or stealth) then
         local badguy = false
         if not inCombat and #enemies.yards25nc > 0 then
             for i = 1, #enemies.yards25nc do
@@ -1205,10 +1223,13 @@ actionList.Extra = function()
                     if br.UnitBuffID("player", tonumber(v)) then
                         buff_rollTheBones_remain = tonumber(br.getBuffRemain("player", tonumber(v)))
                         buff_rollTheBones_count = buff_rollTheBones_count + 1
+                        if buff_rollTheBones_remain > buff_rollTheBones_high then
+                            buff_rollTheBones_high = buff_rollTheBones_remain
+                        end
                     end
                 end
             end
-            if (buff_rollTheBones_count == 0 or buff_rollTheBones_remain < 3 or buff_rollTheBones_count < 2 and (buff.buriedTreasure.exists() or buff.grandMelee.exists() or buff.trueBearing.exists())) then
+            if (buff_rollTheBones_count == 0 or buff_rollTheBones_high <= 3 or (buff_rollTheBones_count < 2 and not buff.trueBearing.exists() and not buff.broadside.exists())) then
                 if cast.rollTheBones() then
                     br.player.ui.debug("rolling bones!")
                     return true
@@ -1445,7 +1466,7 @@ actionList.Interrupt = function()
     }
 
     local feintList = {
-        [256979] = true -- Powder shot FH 2nd
+        [320596] = true -- Heaving Retch in NW
     }
 
     if br.useDefensive() and (cast.able.vanish() or cast.able.cloakOfShadows() or cast.able.evasion() or cast.able.feint()) then
@@ -1743,7 +1764,7 @@ local function runRotation()
 
     -- executed outside of gcd
     --We will check for interrupt whenever someone is casting (based on log)
-    if someone_casting == true and inCombat then
+    if someone_casting == true and inCombat and (mode.interrupt == 1 or mode.interrupt == 3) then
         -- if actionList.Defensive() then
         --end
         if actionList.Interrupt() then

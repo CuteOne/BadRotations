@@ -578,15 +578,15 @@ local function runRotation()
         return true
     end
 
-    -- Brews
-    if mode.brews == 1 then
-        if actionList_Brews() then return end
-    end
     ----------------------
     --- Begin Rotation ---
     ----------------------
     -- Profile Stop | Pause
     if not br._G.IsMounted() then
+        -- Brews
+        if mode.brews == 1 then
+            if actionList_Brews() then return end
+        end
         if br.pause() or br.isLooting() then
             return true
         else

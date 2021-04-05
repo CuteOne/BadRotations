@@ -221,7 +221,7 @@ local function createOptions()
         ----------------------
         --- General Options---
         ----------------------
-        section = br.ui:createSection(br.ui.window.profile, "General - Version 1.03")
+        section = br.ui:createSection(br.ui.window.profile, "General - Version 1.04")
         -- Travel Shapeshifts
         br.ui:createDropdownWithout(section, "Cat Key", br.dropOptions.Toggle, 6, "Set a key for cat")
         br.ui:createDropdownWithout(section, "Travel Key", br.dropOptions.Toggle, 6, "Set a key for travel")
@@ -273,6 +273,8 @@ local function createOptions()
         br.ui:createSpinner(section, "Incarnation/Berserk", 50, 0, 100, 5, "Use Incarnation/Berserk when below %hp")
         --Barkskin
         br.ui:createSpinner(section, "Barkskin", 50, 0, 100, 5, "Health Percentage to use at.")
+        --Renewal
+        br.ui:createSpinner(section, "Renewal", 50, 0, 100, 5, "Health Percentage to use at.")
         -- Frenzied Regen
         br.ui:createCheckbox(section, "Frenzied Regeneration", "Enable FR")
         br.ui:createSpinnerWithout(section, "FR - HP Interval (2 Charge)", 65, 0, 100, 5, "Health Interval to use at with 2 charges.")
@@ -660,6 +662,13 @@ local function runRotation()
                 return
             end
         end
+        -- Renewal
+        if not buff.frenziedRegeneration.exists() then
+            if cast.renewal() then
+                br.addonDebug("Casting Renewal (Big Hit)")
+                return
+            end
+        end
         -- Ironfur
         if buff.ironfur.remain() < 1.5 and not buff.survivalInstincts.exists() then
             if cast.ironfur() then
@@ -798,6 +807,12 @@ local function runRotation()
                     if cast.barkskin() then
                         return
                     end
+                end
+            end
+            -- Renewal
+            if ui.checked("Renewal") and php <= ui.value("Renewal") and not buff.frenziedRegeneration.exists() then
+                if cast.renewal() then
+                    return
                 end
             end
             -- Ironfur

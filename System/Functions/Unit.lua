@@ -179,7 +179,7 @@ end
 function br.getHP(Unit)
 	if br.GetObjectExists(Unit) then
 		if br._G.UnitIsEnemy("player", Unit) then
-			return 100*br._G.UnitHealth(Unit)/br._G.UnitHealthMax(Unit)
+			return 100*(br._G.UnitHealth(Unit)/br._G.UnitHealthMax(Unit))
 		else
 			if not br.GetUnitIsDeadOrGhost(Unit) and br.GetUnitIsVisible(Unit) then
 				for i = 1,#br.friend do
@@ -305,7 +305,9 @@ function br.isCritter(Unit) -- From LibBabble
 		"小动物",
 		"小動物"
 	}
-	return types[unitType] ~= nil
+	for i = 1, #types do
+		return types[i] == unitType
+	end
 end
 function br.isDemon(Unit)
 	if Unit == nil then Unit = "target" end
@@ -322,7 +324,9 @@ function br.isDemon(Unit)
 		"恶魔",
 		"惡魔"
 	}
-	return types[unitType] ~= nil
+	for i = 1, #types do
+		return types[i] == unitType
+	end
 end
 function br.isExplosive(Unit)
 	return br.GetObjectID(Unit) == 120651
@@ -342,7 +346,9 @@ function br.isUndead(Unit)
 		"亡灵",
 		"不死族",
 	}
-	return types[unitType] ~= nil
+	for i = 1, #types do
+		return types[i] == unitType
+	end
 end
 function br.isBeast(Unit)
 	if Unit == nil then Unit = "target" end
@@ -358,7 +364,9 @@ function br.isBeast(Unit)
 		"野兽",
 		"野獸"
 	}
-	return types[unitType] ~= nil
+	for i = 1, #types do
+		return types[i] == unitType
+	end
 end
 function br.isHumanoid(Unit)
 	if Unit == nil then Unit = "target" end
@@ -372,7 +380,9 @@ function br.isHumanoid(Unit)
 		"인간형",
 		"人型生物",
 	}
-	return types[unitType] ~= nil
+	for i = 1, #types do
+		return types[i] == unitType
+	end
 end
 -- Dummy Check
 function br.isDummy(Unit)

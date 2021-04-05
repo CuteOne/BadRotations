@@ -43,11 +43,21 @@ br.api.cast = function(self,spell,id)
     cast[spell] = function(thisUnit,castType,minUnits,effectRng,predict,predictPad,enemies)
         return br.createCastFunction(thisUnit,castType,minUnits,effectRng,id,spell,predict,predictPad,enemies)
     end
+    if cast.id == nil then
+        cast.id = function(spellID,thisUnit,castType,minUnits,effectRng,predict,predictPad,enemies)
+            return br.createCastFunction(thisUnit,castType,minUnits,effectRng,spellID,spell,predict,predictPad,enemies)
+        end
+    end
 
     -- br.player.cast.able.spell() - same as above but instead of casting returns True/False
     if cast.able == nil then cast.able = {} end
     cast.able[spell] = function(thisUnit,castType,minUnits,effectRng,predict,predictPad,enemies)
         return br.createCastFunction(thisUnit,castType,minUnits,effectRng,id,spell,predict,predictPad,enemies,true)
+    end
+    if cast.able.id == nil then
+        cast.able.id = function(spellID,thisUnit,castType,minUnits,effectRng,predict,predictPad,enemies)
+            return br.createCastFunction(thisUnit,castType,minUnits,effectRng,spellID,spell,predict,predictPad,enemies,true)
+        end
     end
 
     -- br.player.cast.active.spell() - Returns if the spell is the one currently being cast.

@@ -630,6 +630,7 @@ br.lists.spells = {
             runeforges                      = {
                 burningWound                = 346279,
                 chaosTheory                 = 337551,
+                darkglareMedallion          = 337534,
                 felBombardment              = 337775,
                 razelikhsDefilement         = 337544,
             },
@@ -1074,6 +1075,7 @@ br.lists.spells = {
             },
             covenants                       = {
                 adaptiveSwarm               = 325727,
+                adaptiveSwarmHeal           = 325748,
                 convokeTheSpirits           = 323764,
                 kindredSpirits              = 326434,
                 ravenousFrenzy              = 323546,
@@ -1500,6 +1502,7 @@ br.lists.spells = {
             runeforges                      = {
                 eagletalonsTrueFocus        = 336849,
                 nesingwarysTrappingApparatus= 336743,
+                rylakstalkersConfoundingStrikes = 336901,
                 serpentstalkersTrickery     = 336870,
                 soulforgeEmbers             = 336745,
                 surgingShots                = 336867,
@@ -3114,6 +3117,7 @@ br.lists.spells = {
                 essenceOfBloodfang          = 340079,
                 invigoratingShadowdust      = 340080,
                 tinyToxicBlade              = 340078,
+                deathlyShadows              = 340092,
             },
         },
     },
@@ -3848,7 +3852,9 @@ br.lists.spells = {
         [72] = {
             abilities                       = {
                 bladestorm                  = 46924,
+                bloodbath                   = 335096,
                 bloodthirst                 = 23881,
+                crushingBlow                = 335098,
                 dragonRoar                  = 118000,
                 deathWish                   = 199261,
                 enragedRegeneration         = 184364,
@@ -3866,9 +3872,12 @@ br.lists.spells = {
 
             },
             buffs                           = {
+                bladestorm                  = 46924,
                 deathWish                   = 199261,
                 enrage                      = 184362,
+                frenzy                      = 335082,
                 meatCleaver                 = 85739,
+                mercilessBonegrinder        = 346574,
                 recklessness                = 1719,
                 suddenDeath                 = 280776,
                 whirlwind                   = 85739,
@@ -3877,8 +3886,8 @@ br.lists.spells = {
 
             },
             covenants                       = {
-                condemn                     = 317349,
-				condemnMassacre				= 330334,
+                condemn                     = 317485,
+				condemnMassacre				= 330325,
             },
             debuffs                         = {
                 siegebreaker                = 280773,
@@ -4032,6 +4041,21 @@ br.lists.spells = {
             },
             runeforges                      = {
                 reprisal                    = 335718,
+                signetOfTormentedKings      = 335266,
+                deathmaker                  = 335567,
+                exploiter                   = 335451,
+                battlelord                  = 335274,
+                unhinged                    = 335282,
+                enduringBlow                = 335458,
+                theWall                     = 335239,
+                misshapenMirror             = 335253,
+                leaper                      = 335214,
+                seismicReverberation        = 335758,
+                willOfTheBerserker          = 335594,
+                cadenceOfFujieda            = 335555,
+                unbreakableWill             = 335629,
+                recklessDefence             = 335582,
+                thunderlord                 = 335229,
             },
             talents                         = {
                 angerManagement             = 152278,

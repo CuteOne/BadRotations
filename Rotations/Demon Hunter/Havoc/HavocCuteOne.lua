@@ -81,7 +81,7 @@ local function createOptions()
             br.ui:createCheckbox(section, "Fel Rush Only In Melee")
             -- Fel Rush After Vengeful Retreat
             br.ui:createCheckbox(section, "Auto Fel Rush After Retreat")
-            -- Throw Glaive 
+            -- Throw Glaive
             br.ui:createCheckbox(section, "Throw Glaive")
             -- Vengeful Retreat
             br.ui:createCheckbox(section, "Vengeful Retreat")
@@ -295,7 +295,7 @@ actionList.Interrupts = function()
                 if br.canInterrupt(thisUnit,ui.value("Interrupt At")) and cast.able.felEruption(thisUnit) then
                     if cast.felEruption(thisUnit) then ui.debug("Casting Fel Eruption") return true end
                 end
-            end 
+            end
         end
         -- Disrupt
         if ui.checked("Disrupt") then
@@ -353,11 +353,11 @@ actionList.Cooldowns = function()
             if cast.able.theHunt() and ((not talent.demonic and not var.waitingForMomentum) or buff.furiousGaze.exists()) then
                 if cast.theHunt() then ui.debug("Casting The Hunt") return true end
             end
-            -- Fodder to the Flame
-            -- fodder_to_the_flame
-            if cast.able.fodderToTheFlame() then
-                if cast.fodderToTheFlame() then ui.debug("Casting Fodder to the Flame") return true end
-            end
+            -- -- Fodder to the Flame
+            -- -- fodder_to_the_flame
+            -- if cast.able.fodderToTheFlame() then
+            --     if cast.fodderToTheFlame() then ui.debug("Casting Fodder to the Flame") return true end
+            -- end
             -- Elysian Decree
             -- elysian_decree,if=(active_enemies>desired_targets|raid_event.adds.in>30)
             if cast.able.elysianDecree() and unit.standingTime() > 2
@@ -376,6 +376,8 @@ actionList.Cooldowns = function()
             end
         end
         -- Trinkets
+        -- use_items,slots=trinket1,if=variable.trinket_sync_slot=1&(buff.metamorphosis.up|(!talent.demonic.enabled&cooldown.metamorphosis.remains>(fight_remains>?trinket.1.cooldown.duration%2))|fight_remains<=20)|(variable.trinket_sync_slot=2&!trinket.2.cooldown.ready)|!variable.trinket_sync_slot
+        -- use_items,slots=trinket2,if=variable.trinket_sync_slot=2&(buff.metamorphosis.up|(!talent.demonic.enabled&cooldown.metamorphosis.remains>(fight_remains>?trinket.2.cooldown.duration%2))|fight_remains<=20)|(variable.trinket_sync_slot=1&!trinket.1.cooldown.ready)|!variable.trinket_sync_slot
         if buff.metamorphosis.exists() or not ui.alwaysCdNever("Metamorphosis") then
             module.BasicTrinkets()
         end
@@ -419,7 +421,7 @@ end -- End Action List - Essence Break
 actionList.Demonic = function()
     -- Fel Rush
     -- fel_rush,if=(talent.unbound_chaos.enabled&buff.unbound_chaos.up)&(charges=2|(raid_event.movement.in>10&raid_event.adds.in>10))
-    if cast.able.felRush() and not unit.isExplosive("target") and unit.facing("player","target",10)        
+    if cast.able.felRush() and not unit.isExplosive("target") and unit.facing("player","target",10)
         and talent.unboundChaos and buff.unboundChaos.exists()
         and charges.felRush.count() > ui.value("Hold Fel Rush Charge")
     then
@@ -449,13 +451,15 @@ actionList.Demonic = function()
         if cast.throwGlaive() then ui.debug("Casting Throw Glaive [Serrated Glaive]") return true end
     end
     -- Eye Beam
-    -- eye_beam,if=raid_event.adds.up|raid_event.adds.in>25
-    if ui.mode.eyeBeam == 1 and not unit.isExplosive("target") and cast.able.eyeBeam("player","rect",1,20) and not unit.moving() and #enemies.yards20r > 0
-        and ((ui.value("Eye Beam Usage") == 1 and ui.mode.rotation == 1)
-            or (ui.value("Eye Beam Usage") == 2 and ui.mode.rotation == 1 and #enemies.yards20r >= ui.value("Units To AoE"))
-            or ui.mode.rotation == 2) and (eyebeamTTD() or unit.isDummy(units.dyn8))
+    -- eye_beam,if=active_enemies>desired_targets|raid_event.adds.in>25&(!variable.use_eye_beam_fury_condition|spell_targets>1|fury<70)
+    if ui.mode.eyeBeam == 1 and not unit.isExplosive("target") and cast.able.eyeBeam("player","rect",1,20)
+        and not unit.moving() and #enemies.yards20r > 0 and (eyebeamTTD() or unit.isDummy(units.dyn8))
     then
-        if cast.eyeBeam("player","rect",1,20) then ui.debug("Casting Eye Beam") return true end
+        if (ui.value("Eye Beam Usage") == 1 and (not var.useEyeBeamFuryCondition or #enemies.yards20r >= ui.value("Units To AoE") or fury < 70))
+            or (ui.value("Eye Beam Usage") == 2 and (#enemies.yards20r >= ui.value("Units To AoE") or ui.mode.rotation == 2))
+        then
+            if cast.eyeBeam("player","rect",1,20) then ui.debug("Casting Eye Beam") return true end
+        end
     end
     -- Blade Dance
     -- blade_dance,if=variable.blade_dance&!cooldown.metamorphosis.ready&(cooldown.eye_beam.remains>5|(raid_event.adds.in>cooldown&raid_event.adds.in<25))
@@ -554,7 +558,7 @@ actionList.Normal = function()
     -- Fel Barrage
     -- fel_barrage,if=active_enemies>desired_targets|raid_event.adds.in>30
     if ui.mode.felBarrage == 1 and not unit.isExplosive("target") and cast.able.felBarrage("player","aoe",1,8)
-        and ((ui.mode.rotation == 1 and #enemies.yards8 >= ui.value("Units To AoE")) or (ui.mode.rotation == 2 and #enemies.yards8 > 0)) 
+        and ((ui.mode.rotation == 1 and #enemies.yards8 >= ui.value("Units To AoE")) or (ui.mode.rotation == 2 and #enemies.yards8 > 0))
     then
         if cast.felBarrage("player","aoe",1,8) then ui.debug("Casting Fel Barrage") return true end
     end
@@ -581,11 +585,16 @@ actionList.Normal = function()
         if cast.throwGlaive() then ui.debug("Casting Throw Glaive [Serrated Glaive]") return true end
     end
     -- Eye Beam
-    -- eye_beam,if=!variable.waiting_for_momentum&(active_enemies>desired_targets|raid_event.adds.in>15)
-    if ui.mode.eyeBeam == 1 and not unit.isExplosive("target") and cast.able.eyeBeam("player","rect",1,20) and #enemies.yards20r > 1 and not unit.moving() and not var.waitingForMomentum
-        and (eyebeamTTD() or unit.isDummy(units.dyn8))
+    -- eye_beam,if=!variable.waiting_for_momentum&(active_enemies>desired_targets|raid_event.adds.in>15&(!variable.use_eye_beam_fury_condition|spell_targets>1|fury<70))
+    if ui.mode.eyeBeam == 1 and not unit.isExplosive("target") and cast.able.eyeBeam("player","rect",1,20)
+        and not unit.moving() and #enemies.yards20r >= 0 and (eyebeamTTD() or unit.isDummy(units.dyn8))
+        and not var.waitingForMomentum
     then
-        if cast.eyeBeam("player","rect",1,20) then ui.debug("Casting Eye Beam [Multi]") return true end
+        if (ui.value("Eye Beam Usage") == 1 and (not var.useEyeBeamFuryCondition or #enemies.yards20r >= ui.value("Units To AoE") or fury < 70))
+            or (ui.value("Eye Beam Usage") == 2 and (#enemies.yards20r >= ui.value("Units To AoE") or ui.mode.rotation == 2))
+        then
+            if cast.eyeBeam("player","rect",1,20) then ui.debug("Casting Eye Beam") return true end
+        end
     end
     -- Blade Dance
     -- blade_dance,if=variable.blade_dance
@@ -772,7 +781,7 @@ local function runRotation()
     enemies.get(50)
     enemies.rect.get(10,20,false)
     enemies.rect.get(10,25,false)
-    
+
     if cast.active.eyeBeam("player") and buff.metamorphosis.exists() then
         var.metaExtended = true
     elseif not buff.metamorphosis.exists() then
@@ -783,10 +792,22 @@ local function runRotation()
     var.meta = buff.metamorphosis.exists() and 1 or 0
 
     -- Blade Dance Variable
-    -- variable,name=blade_dance,if=!runeforge.chaos_theory,value=talent.first_blood.enabled|spell_targets.blade_dance1>=(3-talent.trail_of_ruin.enabled)
+    var.bladeDance = false
+    -- variable,name=blade_dance,if=!runeforge.chaos_theory&!runeforge.darkglare_medallion,value=talent.first_blood.enabled|spell_targets.blade_dance1>=(3-talent.trail_of_ruin.enabled)
+    if not runeforge.chaosTheory.equiped and not runeforge.darkglareMedallion.equiped then
+        var.bladeDance = not unit.isExplosive("target") and (talent.firstBlood or #enemies.yards8 >= (3 - var.ruinedTrail))
+    end
     -- variable,name=blade_dance,if=runeforge.chaos_theory,value=buff.chaos_theory.down|talent.first_blood.enabled&spell_targets.blade_dance1>=(2-talent.trail_of_ruin.enabled)|!talent.cycle_of_hatred.enabled&spell_targets.blade_dance1>=(4-talent.trail_of_ruin.enabled)
-    var.bladeDance = (not runeforge.chaosTheory.equiped and (talent.firstBlood or #enemies.yards8 >= (3 - var.ruinedTrail) and not unit.isExplosive("target")))
-        or (runeforge.chaosTheory.equiped and (not buff.chaosTheory.exists() or (talent.firstBlood and #enemies.yards8 >= (2 - var.ruinedTrail)) or not (talent.cycleOfHatred and #enemies.yards8 >= (4 - var.ruinedTrail))))
+    if runeforge.chaosTheory.equiped then
+        var.bladeDance = not unit.isExplosive("target") and (not buff.chaosTheory.exists() or (talent.firstBlood and #enemies.yards8 >= (2 - var.ruinedTrail))
+            or (not talent.cycleOfHatred and #enemies.yards8 >= (4 - var.ruinedTrail)))
+    end
+    -- variable,name=blade_dance,if=runeforge.darkglare_medallion,value=talent.first_blood.enabled|(buff.metamorphosis.up|talent.trail_of_ruin.enabled|debuff.essence_break.up)
+        --&spell_targets.blade_dance1>=(3-talent.trail_of_ruin.enabled)|!talent.demonic.enabled&spell_targets.blade_dance1>=4
+    if runeforge.darkglareMedallion.equiped then
+        var.bladeDance = not unit.isExplosive("target") and (talent.firstBlood or ((buff.metamorphosis.exists() or talent.trailOfRuin or debuff.essenceBreak.exists("target"))
+            and #enemies.yards8 >= (3 - var.ruinedTrail)) or (not talent.demonic and #enemies.yards8 >= 4))
+    end
     -- Pool for Meta Variable
     -- variable,name=pooling_for_meta,value=!talent.demonic.enabled&cooldown.metamorphosis.remains<6&fury.deficit>30
     var.poolForMeta = ui.checked("Metamorphosis") and ui.useCDs() and not talent.demonic and cd.metamorphosis.remain() < 6 and furyDeficit >= 30
@@ -802,6 +823,12 @@ local function runRotation()
     -- Wait for Momentum
     -- variable,name=waiting_for_momentum,value=talent.momentum.enabled&!buff.momentum.up
     var.waitingForMomentum = talent.momentum and not buff.momentum.exists()
+    -- Trinket Sync
+    -- variable,name=trinket_sync_slot,value=1,if=trinket.1.has_stat.any_dps&(!trinket.2.has_stat.any_dps|trinket.1.cooldown.duration>=trinket.2.cooldown.duration)
+    -- variable,name=trinket_sync_slot,value=2,if=trinket.2.has_stat.any_dps&(!trinket.1.has_stat.any_dps|trinket.2.cooldown.duration>trinket.1.cooldown.duration)
+    -- Use Eye Beam
+    -- variable,name=use_eye_beam_fury_condition,value=talent.blind_fury.enabled&(runeforge.darkglare_medallion|talent.demon_blades.enabled)
+    var.useEyeBeamFuryCondition = talent.blindFury and (runeforge.darkglareMedallion.equiped or talent.demonBlades)
 
     -- if ui.mode.mover == 1 and cast.last.vengefulRetreat() then StopFalling(); end
     -- if IsHackEnabled("NoKnockback") then

@@ -227,8 +227,8 @@ actionList.Extras = function()
         unit.clearTarget()
     end
     -- Hunter's Mark
-    if ui.checked("Hunter's Mark") and cast.able.huntersMark() and not debuff.huntersMark.exists(units.dyn40) then
-        if cast.huntersMark() then ui.debug("Cast Hunter's Mark") return true end
+    if ui.checked("Hunter's Mark") and cast.able.huntersMark("target") and not debuff.huntersMark.exists("target") then
+        if cast.huntersMark("target") then ui.debug("Cast Hunter's Mark") return true end
     end
     -- Dummy Test
     if ui.checked("DPS Testing") then
@@ -413,8 +413,8 @@ actionList.TrickShots = function()
     end
     -- Explosive Shot
     -- explosive_shot
-    if alwaysCdNever("Explosive Shot") and cast.able.explosiveShot() and talent.explosiveShot and unit.ttd(units.dyn40) > 3 then
-        if cast.explosiveShot() then ui.debug("Casting Explosive Shot [Trick Shots]") return true end
+    if alwaysCdNever("Explosive Shot") and cast.able.explosiveShot(units.dyn40,"aoe",3,8) and talent.explosiveShot and unit.ttd(units.dyn40) > 3 then
+        if cast.explosiveShot(units.dyn40,"aoe",3,8) then ui.debug("Casting Explosive Shot [Trick Shots]") return true end
     end
     -- Wild Spirits
     -- wild_spirits
@@ -558,8 +558,8 @@ actionList.SingleTarget = function()
     end
     -- Explosive Shot
     -- explosive_shot
-    if alwaysCdNever("Explosive Shot") and cast.able.explosiveShot() and talent.explosiveShot and unit.ttd(units.dyn40) > 3 then
-        if cast.explosiveShot() then ui.debug("Casting Explosive Shot") return true end
+    if alwaysCdNever("Explosive Shot") and cast.able.explosiveShot(units.dyn40,"aoe",3,8) and talent.explosiveShot and unit.ttd(units.dyn40) > 3 then
+        if cast.explosiveShot(units.dyn40,"aoe",3,8) then ui.debug("Casting Explosive Shot") return true end
     end
     -- Wild Spirits
     -- wild_spirits
