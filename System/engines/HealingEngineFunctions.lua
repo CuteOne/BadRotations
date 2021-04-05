@@ -243,7 +243,7 @@ end
 
 function br.inLoSHealer()
 	local function drawHealers(healer)
-		local LibDraw 					= _G.LibStub("LibDraw-1.0")
+		local LibDraw 					= _G.LibStub("LibDraw-BR")
 		local facing 					= br.GetObjectFacing("player")
 		local playerX, playerY, playerZ = br.GetObjectPosition("player")
 		local locateX, locateY, locateZ = br.GetObjectPosition(healer)
@@ -279,7 +279,7 @@ function br.isInside(x,y,ax,ay,bx,by,dx,dy)
 end
 
 function br.getUnitsInRect(width,length, showLines, hp)
-	local LibDraw = _G.LibStub("LibDraw-1.0")
+	local LibDraw = _G.LibStub("LibDraw-BR")
 	local playerX, playerY, playerZ = br.GetObjectPosition("player")
 	local facing = br.GetObjectFacing("player")
 	-- Near Left
