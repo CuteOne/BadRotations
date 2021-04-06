@@ -1,5 +1,5 @@
 local rotationName = "KinkyFuego"
-local rotationVersion = "1.4.0"
+local rotationVersion = "1.4.1"
 local colorRed = "|cffFF0000"
 local colorWhite = "|cffffffff"
 
@@ -85,9 +85,22 @@ local function createOptions()
         -- Casting Interrupt Delay
             br.ui:createSpinner(section, "Casting Interrupt Delay", 0.1, 0, 1, 0.1, "|cffFFBB00Activate to delay interrupting own casts to use procs.")
 
+            -- Out of Combat Attack
+            br.ui:createCheckbox(section,"Auto Engage", "Check to Engage the Target out of Combat.")
+            -- Out of Combat Attack
+            br.ui:createCheckbox(section,"Auto Engage", "Check to Engage the Target out of Combat.")
+
+            -- Auto Faccia
+            br.ui:createCheckbox(section, "Auto Faccia", "|cffFFFFFFToggle Auto Faccia")
+            --Auto Faccia Delay
+            br.ui:createSpinnerWithout(section, "Auto Faccia Delay", 4.5, 0, 15, 0.1, "|cffFFBB00Time in seconds before Auto Faccia - Default: 4.5 / Min: 0 / Max: 15")
+
             -- Auto Keystone Module
             br.player.module.autoKeystone(section)
-            --
+            -- Anti Coof
+            --br.ui:createCheckbox(section,"Anti Coof", "|cff5100FFCheck to never let acid trips, cat shits, or Coof Endemics ruin your day.")
+                   -- br.ui:createSpinnerWithout(section, "Coof Social Distance", math.random(8,25), 6.5, 40, 0.1, "|cffFFBB00Distance to stay away while coofing, you poor thang. - Default: Random / Min: 6.5 / ")
+            -- Combustion Standing Time
              br.ui:createSpinner(section, "Combustion Standing Time", 0.1, 0, 10, 0.1, "|cffFFBB00Activate to delay interrupting own casts to use procs.")
              br.ui:createSpinnerWithout(section,"Combustion TTD",  15,  1,  50,  1, "Min AoE Units")
         -- Dummy DPS Test
@@ -108,14 +121,6 @@ local function createOptions()
         -- Pre-Pull Timer
             br.ui:createSpinner(section, "Pre-Pull",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
 
-            -- Auto Target
-            br.ui:createCheckbox(section,"Auto Target")
-            -- Out of Combat Attack
-            br.ui:createCheckbox(section,"Auto Engage", "Check to Engage the Target out of Combat.")
-            -- Target Faccia Check
-            br.ui:createCheckbox(section, "Target Faccia", "|cffFFFFFFToggle Unit Faccia Check")
-            -- Auto Faccia
-            br.ui:createCheckbox(section, "Auto Faccia", "|cffFFFFFFToggle Auto Faccia")
 
         br.ui:checkSectionState(section)
     end
@@ -454,6 +459,11 @@ local function runRotation()
         enemies.get(30,"target")
         enemies.get(40,"target")
 
+        local dispelDelay = 1.5
+        if br.isChecked("Dispel delay") then
+            dispelDelay = br.getValue("Dispel delay")
+        end
+
         if #enemies.yards6t > 0 then fSEnemies = #enemies.yards6t else fSEnemies = #enemies.yards40 end
         local dBEnemies = br.getEnemies(units.dyn12, 6, true)
         local firestarterActive = talent.firestarter and thp > 90
@@ -514,55 +524,46 @@ local function runRotation()
             --if val == nil then val = 0; end
             return val ~= 0
         end
---[[
-        local sizex = 840
-        local sizey = 555
 
-        var.mythicColor = "|cFFFFFFFF"
-        var.KMR.BackdropColor = { 0.058823399245739, 0.058823399245739, 0.058823399245739, 0.9}
-
-        local AceGUI = LibStub("AceGUI-3.0")
-        local db
-        local icon = LibStub("LibDBIcon-1.0")
-        local LDB = LibStub("LibDataBroker-1.1"):NewDataObject("MythicDungeonTools", {
-    	type = "data source",
-	    text = "Kinky Slave Dungeon Tools",
-	    icon = "Interface\\ICONS\\inv_relics_hourglass",
-	    OnClick = function(button,buttonPressed)
-		if buttonPressed == "RightButton" then
-			if db.minimap.lock then
-				icon:Unlock("KinkyDungeonTools")
-			else
-				icon:Lock("KinkyDungeonTools")
-			end
-		else
-			KMR:ShowInterface()
-		end
-	end,
-	OnTooltipShow = function(tooltip)
-		if not tooltip or not tooltip.AddLine then return end
-		tooltip:AddLine(var.mythicColor .."Kinky Slave Dungeon Tools|r")
-		tooltip:AddLine(L["Click to toggle AddOn Window"])
-		tooltip:AddLine(L["Right-click to lock Minimap Button"])
-	end,
-})
-
-
-        function MDT.PLAYER_ENTERING_WORLD(self, addon)
-        --initialize Blizzard_ChallengesUI
-        C_Timer.After(1,function()
-            LoadAddOn("Blizzard_ChallengesUI")
-            C_MythicPlus.RequestCurrentAffixes()
-            C_MythicPlus.RequestMapInfo()
-            C_MythicPlus.RequestRewards()
-        end)
-        self:UnregisterEvent("PLAYER_ENTERING_WORLD")
-    end]]
 function cl:Mage(...)
     if GetSpecialization() == 2 then
-            local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = CombatLogGetCurrentEventInfo()
+        local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = CombatLogGetCurrentEventInfo()
+        var.sourcePointer = nil
+		var.destPointer = nil
 
-            
+		if not IsHackEnabled then return; end
+
+        -- 
+        for i = 1, #enemyTable40 do
+            var.thisUnit = enemyTable40[i].unit
+            var.guid = br._G.UnitGUID(#enemyTable40[i].unit)
+
+
+			if destGUID == guid then destPointer = #enemyTable40[i].unit; end
+			if sourceGUID == guid then sourcePointer = #enemyTable40[i].unit; end
+		end
+
+
+		for i=1,#Friends do
+			local guid = br._G.UnitGUID(Friends[i])
+			if destGUID == guid then
+				destPointer = Friends[i];
+			end
+			if sourceGUID == guid then
+				sourcePointer = Friends[i];
+			end
+		end
+
+		if not sourcePointer and sourceGUID then
+			sourcePointer = GetObjectWithGUID(sourceGUID)
+		end
+
+		if not destPointer and destGUID then
+			destPointer = GetObjectWithGUID(destGUID)
+		end
+
+		local time = GetTime()
+
 
             -- Declare our Tracker variables. 
             if var.fireball_crit == nil then var.fireball_crit = 0; end 
@@ -994,6 +995,8 @@ end
         end
         return false
     end
+
+    
           --calc damge
     local function calcDamage(spellID, unit)
         local spellPower = GetSpellBonusDamage(5)
@@ -1149,31 +1152,51 @@ Module_TrumpSaidBlinkMeToAShitHoleCountry = function()
 		end
 	end
 end
+    -- Auto Folgen 
+    local LibDraw = LibStub("LibDraw-1.0")
+    var.kinkyNavigation = {}
+    local Navigation = var.kinkyNaviation
+    local destX, destY, destZ
+    local endX, endY, endZ
+    local px, py, pz = br._G.GetPlayerPosition()
 
-var.Module_KinkySex = function(spell,target)
-    if spell == nil then spell = spell.dragonsBreath end
-    if ui.checked("Dev Debug") or ui.checked("Auto Faccia") and select(4,GetSpellInfo(spell)) == 0 and br.getSpellCD(spell) == 0 then
-        if target == nil then 
-            if spell == spell.counterspell or spell == spell.fireBlast or spell == spell.phoenixFlames then
-                for i = 1, #enemies.yards40 do
-                    target = enemies.yards40[i]
-                end 
-            elseif spell == spell.dragonsBreath then
-                for i = 1, #enemies.yards8 do
-                    target = enemies.yards8[i]
-                end  
-            else 
-                target = "target"  
-            end
-        end
-        if br.isValidUnit(target) and br.getLineOfSight("player",target) then
-            local curFacing = br._G.ObjectFacing("player")
-            br._G.FaceDirection(target, true)
-            br._G.CastSpellByName(br._G.GetSpellInfo(spell),target)
-        --    br._G.FaceDirection(curFacing)
-        end
-        
+    var.path = nil 
+    var.pathIndex = 1
+    var.pathUpdated = false 
+    var.kinkyRoute = {}
+    var.RouteIndex = 1 
+
+    var.pause = GetTime()
+    var.food = nil
+
+    local AceGUI = LibStub and LibStub("AceGUI-3.0", true)
+    Navigation.Frame = AceGUI:Create("Window")
+        local Frame = Navigation.Frame
+        local function Round(num, numDecimalPlaces)
+        local mult = 10 ^ (numDecimalPlaces or 0)
+        return math.floor(num * mult + 0.5) / mult
     end
+    Frame:SetTitle("Route")
+    Frame:SetWidth(300)
+    Frame:Hide()
+
+    local Modes = {
+        Disabled = 0,
+        Grinding = 1,
+        Transport = 2
+    }
+    Navigation.Mode = Modes.Disabled
+    Navigation.CombatRange = 18
+
+    
+local function NextNodeRange()
+    if IsMounted() then
+        return 3
+    end
+    if PathIndex == #Path and DMW.Settings.profile.Gatherers.AutoLoot and DMW.Player.Target and DMW.Player.Target.Dead and UnitCanBeLooted(DMW.Player.Target.Pointer) then
+        return 0.7
+    end
+    return 2
 end
 blinkDBPoint = function(unit)
 	if not UnitIsVisible(unit) then return false end
@@ -1792,6 +1815,24 @@ end
         end
 
         local instantPyro = br.getCastTime(spell.pyroblast) == 0 or false
+
+        var.kinkyModule_blinkToLife = function() 
+            
+        end
+
+        
+        var.blinkTo = function (x,y,z)
+    	local px,py,pz = GetPlayerPosition()
+    	if x and y and z and _spellCooldown(212653) == 0 then
+
+
+		local dir = GetAnglesBetweenPositions(px,py,pz,x,y,z)
+		FaceDirection(dir,true)
+		SQ_CastSpellByID(1953)
+		player_blink = GetTime()
+		return true
+	end
+end
 
 --------------------
 --- Action Lists ---
