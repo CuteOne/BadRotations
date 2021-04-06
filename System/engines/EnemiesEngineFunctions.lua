@@ -1,5 +1,5 @@
 local _, br = ...
-local LibDraw = LibStub("LibDraw-1.0")
+local LibDraw = LibStub("LibDraw-BR")
 br.enemy	= {}
 br.lootable = {}
 br.units 	= {}
