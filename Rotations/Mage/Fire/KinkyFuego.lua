@@ -1152,7 +1152,7 @@ Module_TrumpSaidBlinkMeToAShitHoleCountry = function()
 		end
 	end
 end
-    -- Auto Folgen 
+   --[[ -- Auto Folgen 
     local LibDraw = LibStub("LibDraw-1.0")
     var.kinkyNavigation = {}
     local Navigation = var.kinkyNaviation
@@ -1197,7 +1197,7 @@ local function NextNodeRange()
         return 0.7
     end
     return 2
-end
+end]]
 blinkDBPoint = function(unit)
 	if not UnitIsVisible(unit) then return false end
 	local x,y,z = ObjectPosition(unit)
