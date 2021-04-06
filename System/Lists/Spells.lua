@@ -4160,6 +4160,7 @@ br.lists.spells = {
                 doorOfShadows                   = 300728,
                 fleshcraft                      = 324631,
                 soulshape                       = 310143,
+                flicker                         = 324701,
                 summonSteward                   = 324739,
             },
             debuffs                             = {
