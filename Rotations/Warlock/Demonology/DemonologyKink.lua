@@ -1,5 +1,5 @@
 local rotationName = "KinkySpirit"
-local versionNum = "1.4.1"
+local versionNum = "1.4.2"
 local colorPurple = "|cff8788EE"
 local colorOrange = "|cffb28cc7"	
 local colorWhite = "|cffffffff"							   
@@ -209,7 +209,7 @@ local function createOptions()
         .. colorOrange .. versionNum 
         .. colorPurple .." .:|:.")
         -- APL
-            br.ui:createDropdownWithout(section, "APL Mode", {"|cffb28cc7SimC"}, 1, "|cffb28cc7Set APL Mode to use.")
+        br.ui:createDropdownWithout(section, "APL Mode", {"|cffb28cc7SimC"}, 1, "|cffb28cc7Set APL Mode to use.")
         -- Soulstone healers in Mythic+s
         br.ui:createCheckbox(section, "Soulstone Healer OOC [Mythic+]", "|cffFFBB00Toggle soulstoning your healer while doing mythic+ runs.")
 		-- Multi-Target Units
@@ -220,10 +220,13 @@ local function createOptions()
 		br.ui:createCheckbox(section, "Auto Target", "|cffb28cc7 Will auto change to a new target, if current target is dead")
         -- Auto Engage
         br.ui:createCheckbox(section, "Auto Engage", "|cffb28cc7 Will auto engage combat when out of combat.")
-        -- Target Faccia Check
-        br.ui:createCheckbox(section, "Target Faccia", "|cffFFFFFFToggle Unit Faccia Check")
         -- Auto Faccia
         br.ui:createCheckbox(section, "Auto Faccia", "|cffFFFFFFToggle Auto Faccia")
+        --Auto Faccia Delay
+        br.ui:createSpinnerWithout(section, "Auto Faccia Delay", 4.5, 0, 15, 0.1, "|cffFFBB00Time in seconds before Auto Faccia - Default: 4.5")
+        -- Anti Coof
+       -- br.ui:createCheckbox(section,"Anti Coof", "|cff5100FFCheck to never let acid trips, cat shits, or Coof Endemics ruin your day.")
+       -- br.ui:createSpinnerWithout(section, "Coof Social Distance", math.random(8,25), 6.5, 40, 0.1, "|cffFFBB00Distance to stay away while coofing, you poor thang. - Default: Random / Min: 6.5 / ")
 
 		-- Dummy DPS Test
 		br.ui:createSpinner(section, "DPS Testing", 5, 5, 60, 5, "|cffb28cc7Set to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
@@ -244,8 +247,7 @@ local function createOptions()
         br.ui:createCheckbox(section, "Fel Domination New Pet", "|cffFFBB00 Toggle the auto casting of Fel Donmination when your pet is low health.")
         -- Pet Summon 
         br.ui:createSpinnerWithout(section, "FelDom Pet HP", 8, 1, 100, 0.1, "|cffFFBB00Health percent of your pet to cast Fel Domination and re-summon your pet.")
-		-- Summon Pet
-		--br.ui:createDropdownWithout(section, "Summon Pet", {"|cffb28cc7Felguard", "|cffb28cc7Imp", "|cffb28cc7Voidwalker", "|cffb28cc7Felhunter", "|cffb28cc7Succubus", "|cffb28cc7None"}, 1, "|cffb28cc7Select default pet to summon.")
+	
 		-- No Dot units
 		br.ui:createCheckbox(section, "Dot Blacklist", "|cffb28cc7 Check to ignore certain units for dots")
 		-- Multi-Dot Limit
@@ -616,7 +618,8 @@ local function runRotation()
         local remain
         local validDispel = false
         local dispelDuration = 0
-        if br._G.UnitInPhase(unit) then
+
+        if br._G.UnitPhaseReason(unit) ~= nil then
             if br.GetUnitIsFriend("player", unit) then
                 while br._G.UnitDebuff(unit, i) do
                     local _, _, _, dispelType, debuffDuration, expire, _, _, _, dispelId = br._G.UnitDebuff(unit, i)
@@ -713,13 +716,43 @@ local function runRotation()
                 end
             )
         end
-        if br.isChecked("Auto Target") and inCombat and #enemyTable40 > 0 and ((br.GetUnitExists("target") and br.GetUnitIsDeadOrGhost("target") and not br.GetUnitIsUnit(enemyTable40[1].unit, "target")) or not br.GetUnitExists("target")) then
+        -- Auto target if we have no target in combat. 
+        if br.isChecked("Auto Target") and (inCombat or not inCombat and solo ) and #enemyTable40 > 0 
+        and ((br.GetUnitExists("target") 
+        and br.GetUnitIsDeadOrGhost("target") 
+        and not br.GetUnitIsUnit(enemyTable40[1].unit, "target")) 
+        or not br.GetUnitExists("target")) 
+        then
             br._G.TargetUnit(enemyTable40[1].unit)
         end
-        if br.isChecked("Auto Faccia") and inCombat and #enemyTable40 > 0 and (br.GetUnitExists("target") and br.isValidTarget("target")) and not br.getFacing("player", thisUnit) then
-           br._G.FaceDirection("target",true)
-           br._G.FaceDirection("target")
+        
+    -- Declare Auto Faccia's glory into existence. 
+    var.kinkyModule_AutoFaccia = function(delay) 
+        if delay == nil then delay = ui.value("Auto Faccia Delay") end;
+        if bool == nil then bool = true end;
+
+        -- Auto Faccia and solo and are not facing this unit mafukkaaaaa 
+        if br.isChecked("Auto Faccia") and (inCombat or not inCombat and solo ) and #enemyTable40 > 0 
+        and (br.GetUnitExists("target") and br._G.UnitCanAttack("target", "player") 
+        and not br.GetUnitIsDeadOrGhost("target") and br.isValidTarget("target")) and br.getDistance("target") < 30
+        and not br.getFacing("player", "target") 
+        and br.timer:useTimer("Fauccia Delay1", math.random(5))
+        then
+            br._G.FaceDirection("target",true);
+            -- Persistence is key, young padawan. 
+            if not br.getFacing("player", "target") and br.timer:useTimer("Fauccia Delay15", math.random(5)) then br._G.FaceDirection("target",true) end;
         end
+    end
+
+        var.kinkyModule_AutoFaccia()
+        -- Yeah, my rotation got the vaccine. Fuck off. 
+        --var.kinkyModule_AntiCoof = function()
+            
+      --  end
+        
+
+     --   var.kinkyModule_AntiCoof()
+
     end
 
     --Keybindings
@@ -876,6 +909,14 @@ local function runRotation()
         then
             if br.timer:useTimer("DC Delay", 1) and buff.demonicCircle.exists() then cast.demonicTeleport("player") br.addonDebug("Demonic Circle (Summon)") return true end 
         end
+        -- Demonic Circle: Teleport
+        if br.SpecificToggle("Demonic Circle Teleport (HP%)")
+        and not GetCurrentKeyBoardFocus() 
+        then
+            if br.timer:useTimer("DC Delay", 1) and buff.demonicCircle.exists() then cast.demonicTeleport("player") br.addonDebug("Demonic Circle (Summon)") return true end 
+        end
+
+
         --Burn Units
         local burnUnits = {
             [120651] = true, -- Explosive
