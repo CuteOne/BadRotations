@@ -247,8 +247,8 @@ function unlock.MBUnlock()
     end
     -- Drawing
     b.GetWoWWindow = b.GetPhysicalScreenSize
-    b.Draw2DLine = _G.LibStub("LibDraw-1.0").Draw2DLine
-    b.Draw2DText = _G.LibStub("LibDraw-1.0").Text
+    b.Draw2DLine = _G.LibStub("LibDraw-BR").Draw2DLine
+    b.Draw2DText = _G.LibStub("LibDraw-BR").Text
     b.WorldToScreenRaw = function(...)
         local x, y = select(2, wmbapi.WorldToScreen(...))
         return x, 1 - y
