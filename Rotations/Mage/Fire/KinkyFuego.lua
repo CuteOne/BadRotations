@@ -1,5 +1,5 @@
 local rotationName = "KinkyFuego"
-local rotationVersion = "1.4.1"
+local rotationVersion = "1.4.2"
 local colorRed = "|cffFF0000"
 local colorWhite = "|cffffffff"
 
@@ -16,6 +16,7 @@ if not var.kinky_tracker then
 end
 if not var.intBuffs then intBufs = 0; end 
 if not var.hasteBuffs then hasteBuffs = 0; end
+
 ---------------
 --- Toggles ---
 ---------------
@@ -32,7 +33,6 @@ local function createToggles()
         [2] = {mode = "CDs", value = 2, overlay = "CDs Combustion Enabled", tip = "Will use Combustion during ", highlight = 1, icon = br.player.spell.combustion},
         [3] = { mode = "TTD", value = 3 , overlay = "TTD Combustion Enabled", tip = "No Cooldowns will be used.", highlight = 1, icon = br.player.spell.combustion},
         [4] = { mode = "Hotkey", value = 4 , overlay = "Combustion Disabled (Hotkey Only)", tip = "Auto Combustion.", highlight = 1, icon = br.player.spell.combustion}
-
     };
     br.ui:createToggle(CombustionModes,"Combustion",0,1)
 -- Cooldown Button
@@ -71,8 +71,7 @@ end
 --- OPTIONS ---
 ---------------
 local function createOptions()
-        local optionsTable
-        
+        local optionsTable        
     local GeneralOptions = function()
     -- General Options
          section = br.ui:createSection(br.ui.window.profile, 
@@ -85,10 +84,10 @@ local function createOptions()
         -- Casting Interrupt Delay
             br.ui:createSpinner(section, "Casting Interrupt Delay", 0.1, 0, 1, 0.1, "|cffFFBB00Activate to delay interrupting own casts to use procs.")
 
+            -- Auto target
+		    br.ui:createCheckbox(section, "Auto Target", "|cffb28cc7Will auto change to a new target, if current target is dead")
             -- Out of Combat Attack
-            br.ui:createCheckbox(section,"Auto Engage", "Check to Engage the Target out of Combat.")
-            -- Out of Combat Attack
-            br.ui:createCheckbox(section,"Auto Engage", "Check to Engage the Target out of Combat.")
+            br.ui:createCheckbox(section,"Auto Engage", "|cffb28cc7Check to Engage the Target out of Combat.")
 
             -- Auto Faccia
             br.ui:createCheckbox(section, "Auto Faccia", "|cffFFFFFFToggle Auto Faccia")
@@ -97,12 +96,11 @@ local function createOptions()
 
             -- Auto Keystone Module
             br.player.module.autoKeystone(section)
-            -- Anti Coof
-            --br.ui:createCheckbox(section,"Anti Coof", "|cff5100FFCheck to never let acid trips, cat shits, or Coof Endemics ruin your day.")
-                   -- br.ui:createSpinnerWithout(section, "Coof Social Distance", math.random(8,25), 6.5, 40, 0.1, "|cffFFBB00Distance to stay away while coofing, you poor thang. - Default: Random / Min: 6.5 / ")
-            -- Combustion Standing Time
-             br.ui:createSpinner(section, "Combustion Standing Time", 0.1, 0, 10, 0.1, "|cffFFBB00Activate to delay interrupting own casts to use procs.")
-             br.ui:createSpinnerWithout(section,"Combustion TTD",  15,  1,  50,  1, "Min AoE Units")
+            
+            -- Scorch Mafugger
+            br.ui:createCheckbox(section,"Scorch Sniper","|cffFFBB00Will snipe mobs <= 30 hp% when using searing touch.")
+            br.ui:createSpinner(section, "Scorch Standing Time", 1, 0, 10, 0.1, "|cffFFBB00Minimum standing time before casting scorch.")
+
         -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  1,  1,  60,  1,  "|cffFFFFFFSet to desired time for test in minuts. Min: 1 / Max: 60 / Interval: 5")
         -- Conjure Refreshments
@@ -120,8 +118,6 @@ local function createOptions()
 
         -- Pre-Pull Timer
             br.ui:createSpinner(section, "Pre-Pull",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
-
-
         br.ui:checkSectionState(section)
     end
 
@@ -156,15 +152,27 @@ local function createOptions()
     -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, colorWhite .. "CDs " .. colorRed .. ".:|:. " .. colorWhite .. " Cooldowns")
         -- Cooldowns Time to Die limit
-            br.ui:createSpinnerWithout(section, "Cooldowns Time to Die Limit", 5, 1, 30, 1, "|cffFFBB00Min. calculated time to die to use CDs.")
+            br.ui:createSpinnerWithout(section, "Cooldowns Time to Die Limit", 15, 0, 300, 0.5, "|cffFFBB00Min. calculated time to die to use CDs.")
                        
-            -- Combustion TTD
-            br.ui:createSpinnerWithout(section, "Combustion TTD", 8, 1, 15, 1, "The TTD before casting your Combustion ability default:8)")
-                       
+         section = br.ui:createSection(br.ui.window.profile, 
+         colorRed .. "Fire" .. 
+         colorWhite .. " .:|:. " .. 
+         colorRed .. "Combust/Covenant ".. 
+         colorWhite.."Ver: " ..
+         colorRed .. rotationVersion .. 
+         colorWhite.." .:|:. ")
+
+            -- Combustion Standing Time/TTD
+            br.ui:createSpinner(section, "Combustion Standing Time", 0.1, 0, 10, 0.1, "|cffFFBB00Minimum standing time before casting combustion.")
+            br.ui:createSpinnerWithout(section,"Combustion TTD",  15,  1,  50,  1, "|cffFFBB00Min TTD of unit before considering casting Combustion. ")
+            
+            -- Shifting Power during combustion toggle. 
+            br.ui:createCheckbox(section,"Shifting Power (Combustion)", "|cffFFBB00Toggles the use of shifting power during combust/AoE.")
+            -- Shifting Power
+            br.ui:createDropdownWithout(section, "Shifting Power (Combustion)", {"AoE", "AoE/CD(s)", ""}, 1, "|cffFFFFFFMeteor target")
             -- Covenant TTD
             br.ui:createSpinnerWithout(section, "Covenant TTD", 8, 1, 15, 1, "The TTD before casting your covenant ability default:8)")
-
-            br.ui:createSpinnerWithout(section,"Combustion Standing Time",  1.5,  1,  10,  0.1, "Min Standing Time before casting Combustion. default:1.5)")
+            br.ui:createSpinnerWithout(section,"Covenant Standing Time",  1.5,  1,  10,  0.1, "Min Standing Time before casting Combustion. default:1.5)")
 
         -- Elixir
             br.ui:createDropdownWithout(section,"Elixir", {"Greater Flask of Endless Fathoms","Flask of Endless Fathoms","None"}, 1, "|cffFFFFFFSet Elixir to use.")
@@ -528,42 +536,6 @@ local function runRotation()
 function cl:Mage(...)
     if GetSpecialization() == 2 then
         local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = CombatLogGetCurrentEventInfo()
-        var.sourcePointer = nil
-		var.destPointer = nil
-
-		if not IsHackEnabled then return; end
-
-        -- 
-        for i = 1, #enemyTable40 do
-            var.thisUnit = enemyTable40[i].unit
-            var.guid = br._G.UnitGUID(#enemyTable40[i].unit)
-
-
-			if destGUID == guid then destPointer = #enemyTable40[i].unit; end
-			if sourceGUID == guid then sourcePointer = #enemyTable40[i].unit; end
-		end
-
-
-		for i=1,#Friends do
-			local guid = br._G.UnitGUID(Friends[i])
-			if destGUID == guid then
-				destPointer = Friends[i];
-			end
-			if sourceGUID == guid then
-				sourcePointer = Friends[i];
-			end
-		end
-
-		if not sourcePointer and sourceGUID then
-			sourcePointer = GetObjectWithGUID(sourceGUID)
-		end
-
-		if not destPointer and destGUID then
-			destPointer = GetObjectWithGUID(destGUID)
-		end
-
-		local time = GetTime()
-
 
             -- Declare our Tracker variables. 
             if var.fireball_crit == nil then var.fireball_crit = 0; end 
@@ -1107,20 +1079,99 @@ end
                 end
             )
         end
-        if br.isChecked("Auto Target") and #enemyTable40 > 0 and ((br.GetUnitExists("target") and (br._G.UnitIsDeadOrGhost("target") or (targetUnit and targetUnit.calcHP < 0)) and not br.GetUnitIsUnit(enemyTable40[1].unit, "target")) or not br.GetUnitExists("target")) then
+        -- Auto target if we have no target in combat. 
+        if br.isChecked("Auto Target") and (inCombat or not inCombat and solo ) and #enemyTable40 > 0 
+        and ((br.GetUnitExists("target") 
+        and br.GetUnitIsDeadOrGhost("target") 
+        and not br.GetUnitIsUnit(enemyTable40[1].unit, "target")) 
+        or not br.GetUnitExists("target")) 
+        then
             br._G.TargetUnit(enemyTable40[1].unit)
-            return true
         end
-        for i = 1, #enemyTable40 do
-            if br._G.UnitIsUnit(enemyTable40[i].unit, "target") then
-                targetUnit = enemyTable40[i]
-            end
+        
+    -- Declare Auto Faccia's glory into existence. 
+    var.kinkyModule_AutoFaccia = function(delay) 
+        if delay == nil then delay = ui.value("Auto Faccia Delay") end;
+        if bool == nil then bool = true end;
+
+        -- Auto Faccia and solo and are not facing this unit mafukkaaaaa 
+        if br.isChecked("Auto Faccia") and (inCombat or not inCombat and solo ) and #enemyTable40 > 0 
+        and (br.GetUnitExists("target") and br._G.UnitCanAttack("target", "player") 
+        and not br.GetUnitIsDeadOrGhost("target") and br.isValidTarget("target")) and br.getDistance("target") < 30
+        and not br.getFacing("player", "target") 
+        and br.timer:useTimer("Fauccia Delay1", math.random(5))
+        then
+            br._G.FaceDirection("target",true);
+            -- Persistence is key, young padawan. 
+            if not br.getFacing("player", "target") and br.timer:useTimer("Fauccia Delay15", math.random(5)) then br._G.FaceDirection("target",true) end;
         end
     end
+        -- It's a 15 year old game and I'm a caster, would you just fuck off. 
 
-GetDistanceBetweenPositions = function(X1, Y1, Z1, X2, Y2, Z2) return math.sqrt(math.pow(X2 - X1, 2) + math.pow(Y2 - Y1, 2) + math.pow(Z2 - Z1, 2)) end
+        var.kinkyModule_AutoFaccia(ui.value("Auto Faccia Delay") + math.random())
+    end
 
-Module_TrumpSaidBlinkMeToAShitHoleCountry = function()
+function cl:Mage(...)
+    if GetSpecialization() == 2 then
+        local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = CombatLogGetCurrentEventInfo()
+        var.sourcePointer = nil
+		var.destPointer = nil
+
+        -- Scan enemy table for our pointers. 
+        for i = 1, #enemyTable40 do
+            var.thisUnit = enemyTable40[i].unit
+            var.guid = br._G.UnitGUID(var.thisUnit)
+			if destGUID == guid then var.destPointer = var.thisUnit; end
+			if sourceGUID == guid then var.sourcePointer = var.thisUnit; end
+		end
+        -- Scan friendly table for our pointers. 
+		for i = 1, #br.friend do
+            var.thisFriend = br.friend[i].unit
+            var.guid = br._G.UnitGUID(var.thisFriend)
+            if destGUID == guid then var.destPointer = var.thisFriend; end
+			if sourceGUID == guid then var.sourcePointer = var.thisFriend;end
+           
+        end
+        -- Declare pointers if they're nil. 
+		if not var.sourcePointer and sourceGUID then 
+            var.sourcePointerr = br.ObjectPosition(sourceGUID); 
+        end
+		if not var.destPointer and destGUID then 
+            var.destPointer = br.ObjectPosition(destGUID); 
+        end
+
+		var.time = GetTime()
+
+        -- Detect stealthy assholes. 
+		--[[if subEvent == "SPELL_CAST_SUCCESS" and sourcePointer then
+			local stealthTable = {
+				[115191] = 115191,		-- Rogue Stealth
+				[1856] = 11327,			-- Rogue Vanish
+				[5215] = 5215, 			-- Druid Prowl	
+				[66] = 32612,			-- Mage Invis
+			}
+			if stealthTable[spellID] and br._G.UnitCanAttack("player", sourcePointer) then
+				local x,y,z = ObjectPosition(sourcePointer)
+				local info = {
+					speed = GetUnitSpeed(sourcePointer),
+					direction = GetMovingDirection(sourcePointer),
+					x = x,
+					y = y,
+					z = z,
+					time = GetTime(),
+					pointer = sourcePointer,
+					id = stealth_ids[spellID],
+					name = spellName,
+				}
+				table.insert(stealth_tracker,info)
+			end 
+        end]]
+    end 
+end
+
+local GetDistanceBetweenPositions = function(X1, Y1, Z1, X2, Y2, Z2) return math.sqrt(math.pow(X2 - X1, 2) + math.pow(Y2 - Y1, 2) + math.pow(Z2 - Z1, 2)) end
+
+var.kinkyModule_TrumpSaidBlinkMeToAShitHoleCountry = function()
 	local px, py, pz = GetPlayerPosition()
 	local points = {}
 
@@ -1152,56 +1203,11 @@ Module_TrumpSaidBlinkMeToAShitHoleCountry = function()
 		end
 	end
 end
-   --[[ -- Auto Folgen 
-    local LibDraw = LibStub("LibDraw-1.0")
-    var.kinkyNavigation = {}
-    local Navigation = var.kinkyNaviation
-    local destX, destY, destZ
-    local endX, endY, endZ
-    local px, py, pz = br._G.GetPlayerPosition()
 
-    var.path = nil 
-    var.pathIndex = 1
-    var.pathUpdated = false 
-    var.kinkyRoute = {}
-    var.RouteIndex = 1 
-
-    var.pause = GetTime()
-    var.food = nil
-
-    local AceGUI = LibStub and LibStub("AceGUI-3.0", true)
-    Navigation.Frame = AceGUI:Create("Window")
-        local Frame = Navigation.Frame
-        local function Round(num, numDecimalPlaces)
-        local mult = 10 ^ (numDecimalPlaces or 0)
-        return math.floor(num * mult + 0.5) / mult
-    end
-    Frame:SetTitle("Route")
-    Frame:SetWidth(300)
-    Frame:Hide()
-
-    local Modes = {
-        Disabled = 0,
-        Grinding = 1,
-        Transport = 2
-    }
-    Navigation.Mode = Modes.Disabled
-    Navigation.CombatRange = 18
-
-    
-local function NextNodeRange()
-    if IsMounted() then
-        return 3
-    end
-    if PathIndex == #Path and DMW.Settings.profile.Gatherers.AutoLoot and DMW.Player.Target and DMW.Player.Target.Dead and UnitCanBeLooted(DMW.Player.Target.Pointer) then
-        return 0.7
-    end
-    return 2
-end]]
-blinkDBPoint = function(unit)
+local blinkDBPoint = function(unit)
 	if not UnitIsVisible(unit) then return false end
-	local x,y,z = ObjectPosition(unit)
-	local px,py,pz = GetPlayerPosition()
+	local x,y,z = br.ObjectPosition(unit)
+	local px,py,pz = br.GetPlayerPosition()
 
 	-- local step = (math.pi*2) / 8
 	-- for n=3,8 do
@@ -1216,12 +1222,12 @@ blinkDBPoint = function(unit)
 	local direction
 	for i=0,math.pi*2,step do
 		local bx, by, bz = GroundZ ( px + 20 * math.cos(i), py + 20 * math.sin(i), pz )
-		if bx and by and bz and not TraceLine(px, py, pz+1.2, bx, by, bz+1.2, collisionflags) then
+		if bx and by and bz and not br.TraceLine(px, py, pz+1.2, bx, by, bz+1.2, collisionflags) then
 			local zdif = pz - bz
 			if zdif < 1.5 and zdif > -1.5 then
 				if zdif < 0 then zdif = -zdif end
 				if not TraceLine( bx, by, bz + 1.7, x, y, z + 1.7, losflags ) then
-					local dist = GetDistanceBetweenPositions(x,y,z,bx,by,bz)
+					local dist = br.GetDistanceBetweenPositions(x,y,z,bx,by,bz)
 					if dist < maxdist then
 						table.insert(points,{x=bx,y=by,z=bz,dist=dist,zdif=math.floor(zdif)})
 					end
@@ -1246,7 +1252,7 @@ blinkDBPoint = function(unit)
 	end
 end
 
-function blink_db(unit)
+local function blink_db(unit)
 
 	local time = GetTime()
 
@@ -1318,7 +1324,7 @@ Enemies_Around_Point = function(x,y,z,dist,unit)
 	return count,bcc,avgdist
 end
 
-EnemiesAttacking = function(friend,role)
+local EnemiesAttacking = function(friend,role)
 	local count=0
 	local melee=0
 	local range=0
@@ -1354,7 +1360,7 @@ EnemiesAttacking = function(friend,role)
 	return count,melee,range,cds
 end
 
-UnitEnemiesAttacking = function(unit,role)
+local UnitEnemiesAttacking = function(unit,role)
 	local count=0
 	local melee=0
 	local range=0
@@ -1393,7 +1399,7 @@ UnitEnemiesAttacking = function(unit,role)
 end
 
 getMovingDirection = 0;
-getMovingDirection = function(unit)
+local getMovingDirection = function(unit)
 	
 	local R = ObjectFacing(unit);
 	
@@ -1425,7 +1431,7 @@ end
 getMovingDirection = getMovingDirection
 moving_towards_table = {}
 
-movingTowards = function(unit,amount,otherUnit,general,nostrafe)
+local movingTowards = function(unit,amount,otherUnit,general,nostrafe)
 	if not unit then return false end
 	if not otherUnit then otherUnit="player" end
 	local amount = amount or .102
@@ -1467,7 +1473,7 @@ movingTowards = function(unit,amount,otherUnit,general,nostrafe)
 	end
 end
 -- Moving Towards Unit Duration Function
-movingTowardsUnitDuration = function(unit,amount,otherUnit,general,directly,nostrafe)
+local movingTowardsUnitDuration = function(unit,amount,otherUnit,general,directly,nostrafe)
 	if not otherUnit then otherUnit="player" end
 	local amount = amount or .102
 	for i=1,#moving_towards_table do
@@ -1479,7 +1485,7 @@ movingTowardsUnitDuration = function(unit,amount,otherUnit,general,directly,nost
 	return 0
 end
 -- Moving Away Function
-_movingAwayFrom = function(unit,amount,otherUnit,general,nostrafe)
+local movingAwayFrom = function(unit,amount,otherUnit,general,nostrafe)
 	if not otherUnit then otherUnit="player" end
 	local amount = amount or .102
 	local X,Y,Z = ObjectPosition(unit);
@@ -1498,7 +1504,7 @@ _movingAwayFrom = function(unit,amount,otherUnit,general,nostrafe)
 	end
 end
 -- Moving Away Function
-predictDistanceFromUnit = function(unit,time)
+var.predictDistanceFromUnit = function(unit,time)
 	if not time then time = 1 end
 	local px,py,pz = PredictUnitPosition("player",time)
 	local x,y,z = PredictUnitPosition(unit,time)
@@ -1510,24 +1516,24 @@ predictDistanceFromUnit = function(unit,time)
 	end
 end
 -- Moving Away From Function 
-movingAwayFrom = function(unit,extra)
+local movingAwayFrom = function(unit,extra)
 	extra = extra or 0
 	local d = _realDistance(unit)
 	if d < 5.5 and _amIfacing(unit) then return false end
 	if predict_distance_from_unit(unit) > d + extra then return true end
 end
 los_cache = {}
-RealTravelTime = function(unit)
+local RealTravelTime = function(unit)
 	local dist = (GetUnitSpeed(unit)*apl.trapTravelTime(unit))*.9
 	return dist < 5 and dist or 5
 end
-PlayerZDiff = function()
+local PlayerZDiff = function()
 	local x,y,z = GetPlayerPosition()
 	local _,_,gz = GroundZ(x,y,z)
 	return z - gz
 end
 
-AnyKeyPressed = function()
+local AnyKeyPressed = function()
 	if GetKeyState(0x01)
 	or GetKeyState(0x02)
 	or GetKeyState(0x04)
@@ -1577,7 +1583,7 @@ AnyKeyPressed = function()
 	end
 end
 
-point_between_points = function(points)
+local point_between_points = function(points)
 	local valid_points = {}
 	for i=1,#points do
 		local point = points[i]
@@ -1596,7 +1602,7 @@ point_between_points = function(points)
 	return TraceLine(x,y,-10000,x,y,10000,collisionflags)
 end
 
-point_between_units = function(units)
+local point_between_units = function(units)
 	local points = {}
 	for i=1,#units do
 		local x,y,z = ObjectPosition(units[i])
@@ -1608,7 +1614,7 @@ end
 --param unit, unit to check
 --param elapsed, time of moving to predict position after
 --returns x,y,z, the grounded position of the unit after the given time
-PredictUnitPosition = function(unit,elapsed)
+local PredictUnitPosition = function(unit,elapsed)
 	if not unit then return false end
 	if not elapsed then elapsed = 1 end
 	local x,y,z
@@ -1639,11 +1645,11 @@ PredictUnitPosition = function(unit,elapsed)
 
 end
 
-anglesBetweenObjects = function(unit1,unit2)
+local anglesBetweenObjects = function(unit1,unit2)
 	return GetAnglesBetweenObjects (unit1,unit2)
 end
 
-findCorner = function(fx,fy,fz,diameter,flags,dist)
+local findCorner = function(fx,fy,fz,diameter,flags,dist)
 	if not fz then
 		fx,fy,fz = ObjectPosition(fx);
 		diameter = fy;
@@ -1687,7 +1693,7 @@ findCorner = function(fx,fy,fz,diameter,flags,dist)
 	return fx,fy,fz
 end
 
-position_after_blink = function(direction)
+local position_after_blink = function(direction)
 	local px,py,pz = GetPlayerPosition()
 	--ideal blink position (no obstacles)
 	local bx,by,bz = GroundZ(px + 20 * math.cos(direction), py + 20 * math.sin(direction), pz)
@@ -1709,7 +1715,7 @@ position_after_blink = function(direction)
 	return x,y,z
 end
 
-get_future_position = function(unit, castTime)
+local get_future_position = function(unit, castTime)
     local distance = min ( 5, GetUnitSpeed(unit) ) * castTime
     if distance > 0 then
         local x,y,z = ObjectPosition(unit)
@@ -1744,7 +1750,7 @@ get_future_position = function(unit, castTime)
     return ObjectPosition(unit)
 end
 --check if unit is inside of a circle
-unitInCircle = function(unit, cx, cy, radius, castTime)
+local unitInCircle = function(unit, cx, cy, radius, castTime)
     local uX, uY = 0, 0
     if castTime == nil or castTime == 0 then
           uX, uY = ObjectPosition(unit)
@@ -1833,6 +1839,39 @@ end
 		return true
 	end
 end
+
+var.kinkyModule_dragonsBrooth = function() 
+    var.objFacing = br.ObjectFacing("player")
+    
+
+    for i = 1, #Enemies.yards10 do 
+        if br.getDistance("target") <= 8.5 and interruptCast() then 
+        
+        end
+    end
+end
+
+var.kinkyModule_scorchSniper = function()
+    if not talent.searingTouch then return false; end
+
+    if standingTime >= 1 then
+        for i = 1, #enemies.yards40f do
+        local thisUnit = enemies.yards40f[i]
+            if br.getHP(thisUnit) <= 30 then
+                scorchTarget = thisUnit
+            end
+        end
+    end
+    if br.isChecked("Scorch Sniper") and scorchTarget ~= nil
+    and standingTime >= ui.value("Scorch Standing Time") 
+    and not br.isBoss("target") and not br.isExplosive("target") 
+    and br.getFacing("player","target") or ui.checked("Auto Faccia")
+    then
+        if cast.scorch(scorchTarget) then debug("[Scorch Sniper] Scorch Snipe mafukkkakakaka!")
+            return true
+        end
+    end    
+end -- End Drain Soul Sniper APL
 
 --------------------
 --- Action Lists ---
@@ -1967,8 +2006,14 @@ end
             end -- End Defensive Toggle
         end -- End Action List - Defensive
         
+    var.IsForeground = function() return true; end
     local function actionList_Interrupts()
+        var.frameBuffer = 2 / GetFramerate() -- 2 frame buffer
+        var.backgroundDelay = (not var.IsForeground() and var.frameBuffer)
+
+
         if br.useInterrupts() and cd.counterspell.remain() == 0 then
+
             if not br.isChecked("Do Not Cancel Cast") or not playerCasting then
                 for i = 1, #enemyTable40 do
                     local thisUnit = enemyTable40[i].unit
@@ -2163,25 +2208,18 @@ end
         end -- End SimC Meteor APL
         -- actions.active_talents+=/dragons_breath,if=talent.alexstraszas_fury&(buff.combustion.down&!buff.hot_streak.react)
         if talent.alexstraszasFury and (not buff.combustion.react() and not buff.hotStreak.react()) and br.getDistance("target") <= 8 then
-            if br.isChecked("Auto Faccia") and not br.getLineOfSight("player","target") then
-                var.Module_KinkySex(spell.dragonsBreath,"player")
-                debug("[Action:Talents] Dragon's Breath")
-                return true 
-            else 
-                if cast.dragonsBreath("player") then debug("[Action:Talents] Dragon's Breath") return true end
-            end
+            if cast.dragonsBreath("player") then debug("[Action:Talents] Dragon's Breath") return true end
         end
     end -- End Action List - Active Talents
 
     local function actionList_CombustionPhase()
-        
-        -- actions.combustion_phase=lights_judgment,if=buff.combustion.down
+
         -- actions.combustion_phase=lights_judgment,if=buff.combustion.down
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         -- # Estimate how long Combustion will last thanks to Sun King's Blessing to determine how Fire Blasts should be used.
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         -- actions.combustion_phase+=/variable,use_off_gcd=1,use_while_casting=1,name=extended_combustion_remains,op=set,value=buff.combustion.remains+buff.combustion.duration*(cooldown.combustion.remains<buff.combustion.remains),if=conduit.infernal_cascade
-        if conduit.infernalCascade then 
+        if conduit.infernalCascade and cast.current.scorch() then 
             var.extended_combustion_remains = buff.combustion.remains() + buff.combustion.duration() * var.num(var.bool(cd.combustion.remains() < var.num(buff.combustion.remains())));
         end
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -2191,6 +2229,7 @@ end
         if conduit.infernalCascade 
         and (buff.sunKingsBlessings.react() 
         or var.num(var.extended_combustion_remains)) > 1.5*gcdMax*(11-var.num(buff.sunKingsBlessings.stack()))
+        and cast.current.scorch()
         then  
             var.extended_combustion_remains = var.skb_duration; 
         end
@@ -2207,24 +2246,19 @@ end
         and not buff.firestorm.react() and not buff.hotStreak.react() 
         and var.hot_streak_spells_in_flight+var.num(buff.heatingUp.react()
         and var.num(buff.heatingUp.remains() < 2))
+        and cast.current.scorch()
         then
-            if br.isChecked("Auto Faccia") and not br.getLineOfSight("player","target") then
-                var.Module_KinkySex(spell.fireBlast,"target")
-                debug("[Action:Combust Phase] Fire Blast (Interrupt) (2)")
-                return true 
-            else 
-                if cast.fireBlast("target") then debug("[Action:Combust Phase] Fire Blast (Interrupt) (2)") return true end
-            end
+            if cast.fireBlast("target") then debug("[Action:Combust Phase] Fire Blast (Interrupt) (2)") return true end
         end 
        -- end
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         -- # With Infernal Cascade, Fire Blast use should be additionally constrained so that it is not be used unless Infernal Cascade is about to expire or there are more than enough Fire Blasts to extend Infernal Cascade to the end of Combustion.
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-        if conduit.infernalCascade then
+        if conduit.infernalCascade and cast.current.scorch() then
             -- actions.combustion_phase+=/variable,use_off_gcd=1,use_while_casting=1,name=expected_fire_blasts,op=set,value=action.fire_blast.charges_fractional+(variable.extended_combustion_remains-buff.infernal_cascade.duration)%cooldown.fire_blast.duration,if=conduit.infernal_cascade
             var.expected_fire_blasts = charges.fireBlast.frac() + (var.extended_combustion_remains-var.num(buff.infernalCascade.duration() + var.num(cd.fireBlast.duration())))
             -- actions.combustion_phase+=/variable,use_off_gcd=1,use_while_casting=1,name=needed_fire_blasts,op=set,value=ceil(variable.extended_combustion_remains%(buff.infernal_cascade.duration-gcd.max)),if=conduit.infernal_cascade
-            if conduit.infernalCascade then
+            if conduit.infernalCascade and cast.current.scorch() then
                 var.needed_fire_blasts = math.ceil(var.extended_combustion_remains and (var.num(buff.infernalCascade.duration()-gcdMax)));
             end
         end -- End infernalCascade Check
@@ -2234,14 +2268,9 @@ end
         and buff.combustion.react() and not buff.firestorm.react() 
         and not buff.hotStreak.react() 
         and var.num(hot_streak_spells_in_flight) + var.num(buff.heatingUp.react()) < 2 
+        and cast.current.scorch()
         then
-            if br.isChecked("Auto Faccia") and not br.getLineOfSight("player","target") then
-                var.Module_KinkySex(spell.fireBlast,"target")
-                debug("[Action:Combust Phase] Fire Blast (Interrupt) (2)")
-                return true 
-            else 
-                if cast.fireBlast("target") then debug("[Action:Combust Phase] Fire Blast (Interrupt) (3)") return true end
-            end
+            if cast.fireBlast("target") then debug("[Action:Combust Phase] Fire Blast (Interrupt) (3)") return true end
         end
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         -- # Prepare Disciplinary Command for Combustion. Note that the Rune of Power from Combustion counts as an Arcane spell, so Arcane spells are only necessary if that talent is not used.
@@ -2283,230 +2312,21 @@ end
         if br.isChecked("Combustion") and br.SpecificToggle("Combustion") and not GetCurrentKeyBoardFocus() then
             if cast.combustion("player") then br.addonDebug("[Action:Combust Phase] Combustion (Hotkey)") return true end
         end 
-        --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-        -- # Other cooldowns that should be used with Combustion should only be used with an actual Combustion cast and not with a Sun King's Blessing proc.
-        --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-        -- actions.combustion_phase+=/call_action_list,name=combustion_cooldowns,if=buff.combustion.remains>8|cooldown.combustion.remains<5
-        if standingTime > 1 and buff.combustion.react() and buff.combustion.remains() > 8 or cd.combustion.remains() < 5 then
-            if actionList_Combustion_Cooldown() then return end 
-        end
-        -- actions.combustion_phase+=/flamestrike,if=(buff.hot_streak.react&active_enemies>=variable.combustion_flamestrike)|(buff.firestorm.react&active_enemies>=variable.combustion_flamestrike-runeforge.firestorm)
-        if (buff.hotStreak.react() and #enemies.yards6t >= var.combustion_flamestrike
-        or (runeforge.firestorm.equiped and buff.firestorm.react()
-        and #enemies.yards6t >= var.combustion_flamestrike-var.num(runeforge.firestorm.equiped)))
-        then
-            if ui.value("Flamestrike Target") == 1 then -- We have "Target" selected.
-                if ui.checked("Predict Movement") then -- We have "Best" selected.
-                    if br.createCastFunction("best", false, 1, 8, spell.flamestrike, nil, false, 0) then
-                        br._G.SpellStopTargeting() 
-                        debug("[Action:Combust Phase] Flamestrike [No combust] (1)")
-                        return true 
-                    end
-                elseif not moving or targetMovingCheck then
-                    if br.createCastFunction("best", false, 1, 8, spell.flamestrike, nil, false, 0) then 
-                        br._G.SpellStopTargeting()
-                        debug("[Action:Combust Phase] Flamestrike [No combust] (1)") 
-                        return true 
-                    end
-                end
-            elseif ui.value("Flamestrike Target") == 2 then
-                if ui.checked("Predict Movement") then
-                    if cast.flamestrike("best",false,1,8,true) then
-                        br._G.SpellStopTargeting()
-                        debug("[Action:Combust Phase] Flamestrike [No combust] (1)") 
-                        return true 
-                    end
-                elseif not moving or targetMovingCheck then
-                    if cast.flamestrike("best",false,1,8) then
-                        br._G.SpellStopTargeting()
-                        debug("[Action:Combust Phase] Flamestrike [No combust] (1)") 
-                        return true 
-                    end 
-                end
-                if ui.checked("Predict Movement") then
-                    if cast.flamestrike("best",false,1,8,true) then
-                        br._G.SpellStopTargeting()
-                        debug("[Action:Combust Phase] Flamestrike [No combust] (1)") 
-                        return true 
-                    end
-                elseif not moving or targetMovingCheck then
-                    if cast.flamestrike("best",false,1,8) then
-                        br._G.SpellStopTargeting()
-                        debug("[Action:Combust Phase] Flamestrike [No combust] (1)") 
-                        return true 
-                    end 
-                end
-            end 
-        end
-        -- actions.combustion_phase+=/pyroblast,if=buff.sun_kings_blessing_ready.up&buff.sun_kings_blessing_ready.remains>cast_time
-        if runeforge.sunKingsBlessings.equiped and buff.sunKingsBlessings.react() and not moving and buff.sunKingsBlessings.remains() > cast.time.pyroblast() then 
-            if cast.pyroblast("target") then debug("[Action:Combust Phase] Pyroblast (Sun Kings Blessing) (12)") return true end
-        end
-        -- actions.combustion_phase+=/pyroblast,if=buff.firestorm.react
-        if (runeforge.firestorm.equiped and buff.firestorm.react()) then
-            if cast.pyroblast("target") then debug("[Action:Combust Phase] Pyroblast (Firestorm) (12)") return true end
-        end
-        -- actions.combustion_phase+=/pyroblast,if=buff.pyroclasm.react&buff.pyroclasm.remains>cast_time&(buff.combustion.remains>cast_time|buff.combustion.down)&active_enemies<variable.combustion_flamestrike
-        if buff.pyroclasm.react() and buff.pyroclasm.remains() > cast.time.pyroblast() 
-        and (buff.combustion.remains > cast.time.pyroblast() or not buff.combustion.react()) 
-        and #enemies.yards6t < var.combustion_flamestrike 
-       -- and interruptCast()
-        then
-            if cast.pyroblast("target") then debug("[Action:Combust Phase] Fire Blast (Interrupt) (2)") return true end
-        end
-        -- actions.combustion_phase+=/pyroblast,if=buff.hot_streak.react&buff.combustion.up
-        if buff.hotStreak.react() and buff.combustion.react() 
-        --and interruptCast() 
-        then 
-            if cast.pyroblast("target") then debug("[Action:Combust Phase] Pyroblast (Sun Kings Blessing) (2)") return true end
-        end
-
-        -- actions.combustion_phase+=/pyroblast,if=prev_gcd.1.scorch&buff.heating_up.react&active_enemies<variable.combustion_flamestrike
-        if cast.last.scorch() and buff.heatingUp.react() and buff.heatingUp.remains() < cast.time.pyroblast() + gcdMax 
-        and #enemies.yards10t < var.combustion_flamestrike 
-        --and interruptCast()
-        then 
-            if cast.pyroblast("target") then debug("[Action:Combust Phase] Pyroblast (Heating Up) (3)") return true end
-        end
-        --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-        -- # Using Shifting Power during Combustion to restore Fire Blast and Phoenix Flame charges can be beneficial, but usually only on AoE.
-        --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-        -- actions.combustion_phase+=/shifting_power,if=buff.combustion.up&!action.fire_blast.charges&active_enemies>=variable.combustion_shifting_power&action.phoenix_flames.full_recharge_time>full_reduction,interrupt_if=action.fire_blast.charges=action.fire_blast.max_charges
-        if covenant.nightFae.active and buff.combustion.react() and charges.fireBlast.count() < 1 
-        and #enemies.yards10 >= var.num(var.combustion_shifting_power) 
-        and charges.phoenixFlames.timeTillFull() > 4 
-        and br.getDistance("target") <= 17
-        then
-            if cast.shiftingPower("player") then debug("[Action:Combust Phase] Shifting Power (Rebuild FB/PF Charges) (4)") return true end 
-        end
-        -- var.num(var.shifting_power_before_combustion)
-        -- actions.combustion_phase+=/phoenix_flames,if=buff.combustion.up&travel_time<buff.combustion.remains&((action.fire_blast.charges<1&talent.pyroclasm&active_enemies=1)|!talent.pyroclasm|active_enemies>1)&buff.heating_up.react+hot_streak_spells_in_flight<2
-        if buff.combustion.react() and travelTime < buff.combustion.remains() 
-        and ((charges.fireBlast.count() < 1 and talent.pyroclasm and #enemies.yards8t == 1) or talent.pyroclasm or #enemies.yards8t > 1) 
-        and var.num(buff.heatingUp.react()) + var.num(var.hot_streak_spells_in_flight) 
-     --   and interruptCast()
-        then
-            if br.isChecked("Auto Faccia") and not br.getLineOfSight("player","target") then
-                var.Module_KinkySex(spell.phoenixFlames,"target")
-                debug("[Action:Combust Phase] Phoenix  Flames (5)")
-                return true 
-            else 
-                if cast.phoenixFlames("target") then debug("[Action:Combust Phase] Phoenix  Flames (5)") return true end 
-            end
-        end
-        if buff.combustion.react() and var.in_flight_remains < buff.combustion.remains() 
-        and ((charges.fireBlast.count() < 1 and talent.pyroclasm and #enemies.yards10t == 1) 
-        or not talent.pyroclasm or #enemies.yards10t > 1) 
-        and var.num(buff.heatingUp.react()) + var.num(var.hot_streak_spells_in_flight) < 2 
-   --     and interruptCast()
-        then
-            if br.isChecked("Auto Faccia") and not br.getLineOfSight("player","target") then
-                var.Module_KinkySex(spell.phoenixFlames,"target") 
-                debug("[Action:Combust Phase] Phoenix Flames (15)")
-                return true 
-            else 
-                if cast.phoenixFlames("target") then debug("[Action:Combust Phase] Phoenix Flames (15)") return true end 
-            end
-        end
-        -- actions.combustion_phase+=/flamestrike,if=buff.combustion.down&cooldown.combustion.remains<cast_time&active_enemies>=variable.combustion_flamestrike
-        if not buff.combustion.react() 
-        and cd.combustion.remains() < cast.time.flamestrike() 
-        and #enemies.yards6t >= var.combustion_flamestrike 
-        and not moving 
-        then 
-            if ui.value("Flamestrike Target") == 1 then -- We have "Target" selected.
-                if ui.checked("Predict Movement") then -- We have "Best" selected.
-                    if br.createCastFunction("best", false, 1, 8, spell.flamestrike, nil, false, 0) then
-                        br._G.SpellStopTargeting() 
-                        debug("[Action:Combust Phase] Flamestrike [No combust] (1)")
-                        return true 
-                    end
-                elseif not moving or targetMovingCheck then
-                    if br.createCastFunction("best", false, 1, 8, spell.flamestrike, nil, false, 0) then 
-                        br._G.SpellStopTargeting()
-                        debug("[Action:Combust Phase] Flamestrike [No combust] (1)") 
-                        return true 
-                    end
-                end
-            elseif ui.value("Flamestrike Target") == 2 then
-                if ui.checked("Predict Movement") then
-                    if cast.flamestrike("best",false,1,8,true) then
-                        br._G.SpellStopTargeting()
-                        debug("[Action:Combust Phase] Flamestrike [No combust] (1)") 
-                        return true 
-                    end
-                elseif not moving or targetMovingCheck then
-                    if cast.flamestrike("best",false,1,8) then
-                        br._G.SpellStopTargeting()
-                        debug("[Action:Combust Phase] Flamestrike [No combust] (1)") 
-                        return true 
-                    end 
-                end
-                if ui.checked("Predict Movement") then
-                    if cast.flamestrike("best",false,1,8,true) then
-                        br._G.SpellStopTargeting()
-                        debug("[Action:Combust Phase] Flamestrike [No combust] (1)") 
-                        return true 
-                    end
-                elseif not moving or targetMovingCheck then
-                    if cast.flamestrike("best",false,1,8) then
-                        br._G.SpellStopTargeting()
-                        debug("[Action:Combust Phase] Flamestrike [No combust] (1)") 
-                        return true 
-                    end 
-                end
-            end 
-        end
-        -- actions.combustion_phase+=/fireball,if=buff.combustion.down&cooldown.combustion.remains<cast_time&!conduit.flame_accretion
-        --[[if not buff.combustion.react() 
-        and cd.combustion.remains() < cast.time.fireball() 
-        and not conduit.flameAccretion 
-        and not moving 
-        then
-             if cast.fireball("target") then debug("[Action:Combust Phase] Fireball ()") return true end
-        end]]
-        -- actions.combustion_phase+=/scorch,if=buff.combustion.remains>cast_time&buff.combustion.up|buff.combustion.down&cooldown.combustion.remains<cast_time
-        if buff.combustion.remains() < cast.time.scorch() 
-        and buff.combustion.react() or not buff.combustion.react() 
-        and cd.combustion.remains() < cast.time.scorch() 
-        and talent.searingTouch 
-        and br.getLineOfSight("player","target")
-        then
-            if cast.scorch("target") then return true end
-        end
         -- actions.combustion_phase+=/living_bomb,if=buff.combustion.remains<gcd.max&active_enemies>1
         if talent.livingBomb and buff.combustion.remains() < gcdMax and #enemies.yards10t > 1 then
             if cast.livingBomb("target") then debug("[Action:Combust Phase] Living Bomb") return true end
-        end
-        -- actions.combustion_phase+=/dragons_breath,if=buff.combustion.remains<gcd.max&buff.combustion.up
-        if buff.combustion.remains() < gcdMax 
-        and buff.combustion.react() 
-        and br.getDistance("target") <= 8 
-        then
-            if br.isChecked("Auto Faccia") and not br.getLineOfSight("player","target") then
-                var.Module_KinkySex(spell.dragonsBreath,"player")
-                debug("[Action:Talents] Dragon's Breath")
-                return true 
-            else 
-                if cast.dragonsBreath("player") then debug("[Action:Combust Phase] Dragons Breath ()") return true end
-            end
-        end
-        -- actions.combustion_phase+=/scorch,if=target.health.pct<=30&talent.searing_touchactions.combustion_phase=lights_judgment,if=buff.combustion.down
-        if thp <= 30 and talent.searingTouch and br.getLineOfSight("player","target") then
-            if cast.scorch("target") then debug("[Action:Combust Phase] Scorch (Searing Touch, thp <= 30)") return true end 
         end
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         -- # Estimate how long Combustion will last thanks to Sun King's Blessing to determine how Fire Blasts should be used.
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         -- actions.combustion_phase+=/variable,use_off_gcd=1,use_while_casting=1,name=extended_combustion_remains,op=set,value=buff.combustion.remains+buff.combustion.duration*(cooldown.combustion.remains<buff.combustion.remains),if=conduit.infernal_cascade
-        if conduit.infernalCascade then var.extended_combustion_remains = buff.combustion.remains() + buff.combustion.duration() * var.num(var.bool(cd.combustion.remains() < var.num(buff.combustion.remains()))) end
+        if conduit.infernalCascade and cast.current.scorch() then var.extended_combustion_remains = buff.combustion.remains() + buff.combustion.duration() * var.num(var.bool(cd.combustion.remains() < var.num(buff.combustion.remains()))) end
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         -- # Adds the duration of the Sun King's Blessing Combustion to the end of the current Combustion if the cast would complete during this Combustion.
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         -- actions.combustion_phase+=/variable,use_off_gcd=1,use_while_casting=1,name=extended_combustion_remains,op=add,value=variable.skb_duration,if=conduit.infernal_cascade&(buff.sun_kings_blessing_ready.up|variable.extended_combustion_remains>1.5*gcd.max*(buff.sun_kings_blessing.max_stack-buff.sun_kings_blessing.stack))
-        if conduit.infernalCascade and (buff.sunKingsBlessings.react() or var.extended_combustion_remains > 1.5*gcdMax*(12-buff.sunKingsBlessings.stack())) then var.extended_combustion_remains = var.skb_duration end
+        if conduit.infernalCascade and cast.current.scorch() and (buff.sunKingsBlessings.react() or var.extended_combustion_remains > 1.5*gcdMax*(12-buff.sunKingsBlessings.stack())) then var.extended_combustion_remains = var.skb_duration end
         -- actions.combustion_phase+=/bag_of_tricks,if=buff.combustion.down
-
         -- actions.combustion_phase+=/living_bomb,if=active_enemies>1&buff.combustion.down
         if talent.livingBomb and #enemies.yards10t > 1 and not buff.combustion.react() then
             if cast.livingBomb("target") then debug("[Action:Combust Phase] Living Bomb (Combust Down,Enemies>1) ()") return true end 
@@ -2519,24 +2339,19 @@ end
         and buff.combustion.react() and not buff.firestorm.react() 
         and not buff.hotStreak.react() 
         and var.hot_streak_spells_in_flight + buff.heatingUp.remains() < 2 
+        and cast.current.scorch()
         then 
-            if br.isChecked("Auto Faccia") and not br.getLineOfSight("player","target") then
-                var.Module_KinkySex(spell.fireBlast,"target")
-                debug("[Action:Combust Phase] Phoenix Flames (17)")
-                return true 
-            else 
-                if cast.fireBlast("target") then return true end 
-            end
+            if cast.fireBlast("target") then return true end 
         end
          --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         -- # With Infernal Cascade, Fire Blast use should be additionally constrained so that it is not be used unless Infernal Cascade is about to expire or there are more than enough Fire Blasts to extend Infernal Cascade to the end of Combustion.
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         -- actions.combustion_phase+=/variable,use_off_gcd=1,use_while_casting=1,name=expected_fire_blasts,op=set,value=action.fire_blast.charges_fractional+(variable.extended_combustion_remains-buff.infernal_cascade.duration)%cooldown.fire_blast.duration,if=conduit.infernal_cascade
-        if conduit.infernalCascade then 
+        if conduit.infernalCascade and cast.current.scorch() then 
             var.expected_fire_blasts = charges.fireBlast.frac()+(var.extended_combustion_remains-buff.infernalCascade.duration()) + cd.fireBlast.duration() 
         end
         -- actions.combustion_phase+=/variable,use_off_gcd=1,use_while_casting=1,name=needed_fire_blasts,op=set,value=ceil(variable.extended_combustion_remains%(buff.infernal_cascade.duration-gcd.max)),if=conduit.infernal_cascade
-        if conduit.infernalCascade then
+        if conduit.infernalCascade and cast.current.scorch() then
             var.needed_fire_blasts = math.ceil(var.extended_combustion_remains and (var.num(buff.infernalCascade.duration()-gcdMax)));
         end
         -- actions.combustion_phase+=/fire_blast,use_off_gcd=1,use_while_casting=1,if=conduit.infernal_cascade&charges>=1&(variable.expected_fire_blasts>=variable.needed_fire_blasts|variable.extended_combustion_remains<=buff.infernal_cascade.duration|buff.infernal_cascade.stack<2|buff.infernal_cascade.remains<gcd.max|cooldown.shifting_power.ready&active_enemies>=variable.combustion_shifting_power&covenant.night_fae)&buff.combustion.up&(!buff.firestorm.react|buff.infernal_cascade.remains<0.5)&!buff.hot_streak.react&hot_streak_spells_in_flight+buff.heating_up.react<2
@@ -2545,14 +2360,9 @@ end
         or buff.infernalCascade < gcdMax or cd.shiftingPower.ready() and covenant.nightFae.active) 
         and buff.combustion.react() and (not buff.firestorm.react or buff.infernalCascade.remains() < 0.5) 
         and not buff.hotStreak.react() and var.num(var.hot_streak_spells_in_flight) + var.num(buff.heatingUp.react()) < 2 
+        and cast.current.scorch()
         then
-            if br.isChecked("Auto Faccia") and not br.getLineOfSight("player","target") then
-                var.Module_KinkySex(spell.fireBlast,"target")
-                debug("[Action:Combust Phase] Flamestrike (Hot streak, or firestorm) (3)")
-                return true 
-            else 
-                if cast.fireBlast("target") then debug("[Action:Combust Phase] Flamestrike (Hot streak, or firestorm) (3)") return true end 
-            end
+            if cast.fireBlast("target") then debug("[Action:Combust Phase] Flamestrike (Hot streak, or firestorm) (3)") return true end 
         end
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         -- # Prepare Disciplinary Command for Combustion. Note that the Rune of Power from Combustion counts as an Arcane spell, so Arcane spells are only necessary if that talent is not used.
@@ -2564,34 +2374,6 @@ end
         -- actions.combustion_phase+=/call_action_list,name=active_talents
         if actionList_ActiveTalents() then return end
         -- actions.combustion_phase+=/combustion,use_off_gcd=1,use_while_casting=1,if=buff.combustion.down&(!runeforge.disciplinary_command|buff.disciplinary_command.up|buff.disciplinary_command_frost.up&talent.rune_of_power&cooldown.buff_disciplinary_command.ready)&(!runeforge.grisly_icicle|debuff.grisly_icicle.up)&(action.meteor.in_flight&action.meteor.in_flight_remains<=variable.combustion_cast_remains|action.scorch.executing&action.scorch.execute_remains<variable.combustion_cast_remains|action.fireball.executing&action.fireball.execute_remains<variable.combustion_cast_remains|action.pyroblast.executing&action.pyroblast.execute_remains<variable.combustion_cast_remains|action.flamestrike.executing&action.flamestrike.execute_remains<variable.combustion_cast_remains)
-        ------.:|:.-----.:|:.-----.:|:.-----.:|:.-----
-        -- Combustion --.:|:.-----.:|:.-----.:|:.-----
-        ------.:|:.-----.:|:.-----.:|:.-----.:|:.-----
-        -- actions.combustion_phase+=/combustion,use_off_gcd=1,use_while_casting=1,if=buff.combustion.down&(!runeforge.disciplinary_command|buff.disciplinary_command.up|buff.disciplinary_command_frost.up&talent.rune_of_power&cooldown.buff_disciplinary_command.ready)&(!runeforge.grisly_icicle|debuff.grisly_icicle.up)&(action.meteor.in_flight&action.meteor.in_flight_remains<=variable.combustion_cast_remains|action.scorch.executing&action.scorch.execute_remains<variable.combustion_cast_remains|action.fireball.executing&action.fireball.execute_remains<variable.combustion_cast_remains|action.pyroblast.executing&action.pyroblast.execute_remains<variable.combustion_cast_remains|action.flamestrike.executing&action.flamestrike.execute_remains<variable.combustion_cast_remains)
-        --[[if not moving and mode.cb == 1 then -- Combustion Mode - SimC
-            if br.useCDs or ttd("target") > 40 and ttd("target") > ui.value("Combustion TTD") and standingTIme > ui.value("Combustion Standing Time") then 
-                if not buff.combustion.react() and cast.last.meteor() 
-                and var.execute_remains <= var.combustion_cast_remains 
-                or cast.current.scorch() and var.execute_remains < var.combustion_cast_remains 
-                or cast.current.fireball() and var.execute_remains < var.combustion_cast_remains
-                or cast.current.pyroblast() and var.execute_remains < var.combustion_cast_remains 
-                or cast.current.flamestrike() and var.execute_remains < var.combustion_cast_remains 
-                then
-                    if cast.combustion("player") then debug("[Action:Combust Phase] Combustion (SimC) (4)") return true end 
-                end
-            end
-        elseif not moving and mode.cb == 2 then -- Combustion Mode - CDs
-            if br.useCDs or ttd("target") > 40 and ttd("target") > ui.value("Combustion TTD") and standingTIme > ui.value("Combustion Standing Time") then
-                if cast.combustion("player") then debug("[Action:Combust Phase] Combustion (CDs) (5)") return true end
-            end
-        elseif not moving and mode.cb == 3 then -- Combustion Mode - TTD
-            if ttd("target") > ui.value("Combustion TTD") and cd.combustion.remains() > ttd("target") and standingTIme > ui.value("Combustion Standing Time") then
-                if cast.combustion("player") then debug("[Action:Combust Phase] Combustion (TTD) (6)") return true end
-            end
-        end
-        if br.isChecked("Combustion") and br.SpecificToggle("Combustion") and not GetCurrentKeyBoardFocus() then
-            if cast.combustion("player") then br.addonDebug("[Action:Combust Phase] Combustion (Hotkey)") return true end
-        end ]]
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         -- # Other cooldowns that should be used with Combustion should only be used with an actual Combustion cast and not with a Sun King's Blessing proc.
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -2653,7 +2435,7 @@ end
             if cast.pyroblast("target") then debug("[Action:Combust Phase] Pyroblast (Sun Kings Blessing) (12)") return true end
         end
         -- actions.combustion_phase+=/pyroblast,if=buff.firestorm.react
-        if runeforge.firestorm.equiped and  buff.firestorm.react() and not moving then
+        if runeforge.firestorm.equiped and buff.firestorm.react() and not moving then
             if cast.pyroblast("target") then debug("[Action:Combust Phase] Pyroblast (Firestorm) (12)") return true end
         end
         -- actions.combustion_phase+=/pyroblast,if=buff.pyroclasm.react&buff.pyroclasm.remains>cast_time&(buff.combustion.remains>cast_time|buff.combustion.down)&active_enemies<variable.combustion_flamestrike
@@ -2670,20 +2452,21 @@ end
         end
 
         -- actions.combustion_phase+=/pyroblast,if=prev_gcd.1.scorch&buff.heating_up.react&active_enemies<variable.combustion_flamestrike
-        if cast.last.scorch() and buff.heatingUp.react() and #enemies.yards10t < var.combustion_flamestrike then
+        if cast.last.scorch() and buff.heatingUp.react() and #enemies.yards10t < var.combustion_flamestrike and buff.combustion.react() then
             if cast.pyroblast("target") then debug("[Action:Combust Phase] Pyroblast (heating up) (12)") return true end 
         end
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         -- # Using Shifting Power during Combustion to restore Fire Blast and Phoenix Flame charges can be beneficial, but usually only on AoE.
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         -- actions.combustion_phase+=/shifting_power,if=buff.combustion.up&!action.fire_blast.charges&active_enemies>=variable.combustion_shifting_power&action.phoenix_flames.full_recharge_time>full_reduction,interrupt_if=action.fire_blast.charges=action.fire_blast.max_charges
-        if buff.combustion.react() and charges.fireBlast.count() < 1 
+        if ui.value("Shifting Power (Combustion)")
+        and buff.combustion.react() and charges.fireBlast.count() < 1 
         and #enemies.yards8t >= var.num(var.combustion_shifting_power)
         and charges.fireBlast.timeTillFull() > 4 and var.num(charges.fireBlast.count()) > 1 
-        and not moving
-        and br.getDistance("target") <= 17
+        and standingTime >= ui.value("Covenant Standing Time")
+        and br.getDistance("target") <= 15
         then
-            if cast.shiftingPower("target") then debug("[Action:Combust Phase] Shifting Power (Fire Blast timing, combust up) (12)") return true end 
+            if cast.shiftingPower() then debug("[Action:Combust Phase] Shifting Power (Fire Blast timing, combust up, SP Bust Toggled On) (12)") return true end 
         end
         -- actions.combustion_phase+=/phoenix_flames,if=buff.combustion.up&travel_time<buff.combustion.remains&((action.fire_blast.charges<1&talent.pyroclasm&active_enemies=1)|!talent.pyroclasm|active_enemies>1)&buff.heating_up.react+hot_streak_spells_in_flight<2
         --[[if buff.combustion.react() and travelTime < buff.combustion.remains() 
@@ -2698,14 +2481,9 @@ end
         and ((charges.fireBlast.count() < 1 and talent.pyroclasm and #enemies.yards10t == 1) 
         or not talent.pyroclasm or #enemies.yards10t > 1) 
         and var.num(buff.heatingUp.react()) + var.num(var.hot_streak_spells_in_flight) < 2 
+        and cast.current.scorch()
         then
-            if br.isChecked("Auto Faccia") and not br.getLineOfSight("player","target") then
-                var.Module_KinkySex(spell.phoenixFlames,"target")
-                 debug("[Action:Combust Phase] Phoenix Flames (15)")
-                return true 
-            else 
-                if cast.phoenixFlames("target") then debug("[Action:Combust Phase] Phoenix Flames (15)") return true end
-            end
+            if cast.phoenixFlames("target") then debug("[Action:Combust Phase] Phoenix Flames (15)") return true end
         end
         -- actions.combustion_phase+=/flamestrike,if=buff.combustion.down&cooldown.combustion.remains<cast_time&active_enemies>=variable.combustion_flamestrike
         if not buff.combustion.react() and not moving 
@@ -2772,19 +2550,9 @@ end
             if cast.livingBomb("target") then debug("[Action:Combust Phase] Living Bomb (Enemies>1, combust, aoe) (12)") return true end 
         end
         -- actions.combustion_phase+=/dragons_breath,if=buff.combustion.remains<gcd.max&buff.combustion.up
-        if buff.combustion.react() and buff.combustion.remains() < gcdMax and br.getDistance("target") <= 8 then
-            if br.isChecked("Auto Faccia") and not br.getLineOfSight("player","target") then
-                var.Module_KinkySex(spell.dragonsBreath,"player")
-                debug("[Action:Combust Phase] Phoenix Flames (15)")
-                return true 
-            else 
-                if cast.dragonsBreath("player") then debug("[Action:Combust Phase] Dragon's Breath (Combustion) (20)") return true end 
-            end
+        if buff.combustion.react() and buff.combustion.remains() < gcdMax and br.getDistance("target") <= 8.5 then
+            if cast.dragonsBreath("player") then debug("[Action:Combust Phase] Dragon's Breath (Combustion) (20)") return true end 
         end
-        -- actions.combustion_phase+=/scorch,if=target.health.pct<=30&talent.searing_touch 
-        if talent.searingTouch and thp < 30 and buff.combustion.react() and br.getLineOfSight("player","target") then
-            if cast.scorch("target") then debug("[Action:Combust Phase] Scorch (Target HP <= 30%, Searing Touch, aoe) (12)") return true end 
-        end 
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         -- # Estimate how long Combustion will last thanks to Sun King's Blessing to determine how Fire Blasts should be used.
         -- actions.combustion_phase+=/variable,use_off_gcd=1,use_while_casting=1,name=extended_combustion_remains,op=set,value=buff.combustion.remains+buff.combustion.duration*(cooldown.combustion.remains<buff.combustion.remains),if=conduit.infernal_cascade
@@ -2811,25 +2579,20 @@ end
         and (runeforge.firestorm.equiped and not buff.firestorm.react() or not runeforge.firestorm.equiped) 
         and not buff.hotStreak.react() 
         and var.num(hot_streak_spells_in_flight) + var.num(buff.heatingUp.remains()) < 2 
+        and cast.current.scorch()
         then 
-            if br.isChecked("Auto Faccia") and not br.getLineOfSight("player","target") then
-                var.Module_KinkySex(spell.fireBlast,"target")
-                debug("[Action:Combust Phase] Fire Blast (No Infernal Cascade) (12)")
-                return true 
-            else 
-                if cast.fireBlast("target") then debug("[Action:Combust Phase] Fire Blast (No Infernal Cascade) (12)") return true end  
-            end
+            if cast.fireBlast("target") then debug("[Action:Combust Phase] Fire Blast (No Infernal Cascade) (12)") return true end  
         end
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         -- # With Infernal Cascade, Fire Blast use should be additionally constrained so that it is not be used unless Infernal Cascade is about to expire or there are more than enough Fire Blasts to extend Infernal Cascade to the end of Combustion.
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         -- actions.combustion_phase+=/variable,use_off_gcd=1,use_while_casting=1,name=expected_fire_blasts,op=set,value=action.fire_blast.charges_fractional+(variable.extended_combustion_remains-buff.infernal_cascade.duration)%cooldown.fire_blast.duration,if=conduit.infernal_cascade
         --fblastCDduration
-        if conduit.infernalCascade then
+        if conduit.infernalCascade and cast.current.scorch() then
             var.expected_fire_blasts = charges.fireBlast.frac()+(var.extended_combustion_remains-var.num(buff.infernalCascade.duration()) and var.num(cd.fireBlast.duration()));
         end
         -- actions.combustion_phase+=/variable,use_off_gcd=1,use_while_casting=1,name=needed_fire_blasts,op=set,value=ceil(variable.extended_combustion_remains%(buff.infernal_cascade.duration-gcd.max)),if=conduit.infernal_cascade
-        if conduit.infernalCascade then
+        if conduit.infernalCascade and cast.current.scorch() then
             var.needed_fire_blasts = math.ceil(var.extended_combustion_remains and (var.num(buff.infernalCascade.duration()-gcdMax)));
         end
         -- actions.combustion_phase+=/fire_blast,use_off_gcd=1,use_while_casting=1,if=conduit.infernal_cascade&charges>=1&(variable.expected_fire_blasts>=variable.needed_fire_blasts|variable.extended_combustion_remains<=buff.infernal_cascade.duration|buff.infernal_cascade.stack<2|buff.infernal_cascade.remains<gcd.max|cooldown.shifting_power.ready
@@ -2841,14 +2604,9 @@ end
         and #enemies.yards8t >= var.bool(var.combustion_shifting_power)
         and covenant.nightFae.active) and buff.combustion.react() and runeforge.firestorm.equiped and not buff.firestorm.react() or not runeforge.firestorm.equiped 
         or var.num(buff.infernalCascade.remains()) < 0.5) and not buff.hotStreak.react() and var.num(var.hot_streak_spells_in_flight) + var.num(buff.heatingUp.remains() < 2) 
+        and cast.current.scorch()
         then
-            if br.isChecked("Auto Faccia") and not br.getLineOfSight("player","target") then
-                var.Module_KinkySex(spell.fireBlast,"target")
-                debug("Combust phase, infernal cascade bullshit")
-                return true 
-            else
-                if cast.fireBlast("target") then debug("Combust phase, infernal cascade bullshit") return true end  
-            end
+            if cast.fireBlast("target") then debug("Combust phase, infernal cascade bullshit") return true end  
         end
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         -- # Prepare Disciplinary Command for Combustion. Note that the Rune of Power from Combustion counts as an Arcane spell, so Arcane spells are only necessary if that talent is not used.
@@ -2868,12 +2626,10 @@ end
         then
             if cast.frostbolt("target") then debug("[Action:Combust Phase] Frostbolt [Disciplinary Command down, Frost down] (1)") return true end 
         end
-
         -- actions.combustion_phase+=/frost_nova,if=runeforge.grisly_icicle&buff.combustion.down
         if runeforge.grislyIcicle.equiped and buff.combustion.react() and br.getDistance("target") < 12 then 
             if cast.frostNova("target") then debug("[Action:Combust Phase] Frost Nova [Grisly Icicle, combust down] (1)") return true end 
         end
-
         -- actions.combustion_phase+=/call_action_list,name=active_talents
         if actionList_ActiveTalents() then return end 
 
@@ -3231,7 +2987,10 @@ end
             if cast.pyroblast("target") then return true end 
         end
         -- actions.standard_rotation+=/pyroblast,if=buff.hot_streak.react&buff.hot_streak.remains<action.fireball.execute_time
-        if buff.hotStreak.react() and buff.hotStreak.remains() < cast.time.fireball() then
+        if buff.hotStreak.react() and buff.hotStreak.remains() < cast.time.fireball() 
+        or buff.hotStreak.exists() and cast.current.scorch() 
+        and thp > 30
+        then
             if cast.pyroblast("target") then debug("[Action:Standard] Fire Blast (2)") return true end 
         end
         -- actions.standard_rotation+=/pyroblast,if=buff.hot_streak.react&(prev_gcd.1.fireball|firestarter.active|action.pyroblast.in_flight)
@@ -3267,7 +3026,7 @@ end
         and(((cast.current.fireball() and (cast.timeRemain() < 0.5 
         or not runeforge.firestorm.equiped) or cast.current.pyroblast 
         and (cast.timeRemain() or not runeforge.firestorm.equiped)) 
-        and buff.heatingUp.react()) or (talent.searingTouch
+        and buff.heatingUp.react()) or (talent.searingTouch and thp <= 30
         and (buff.heatingUp.react() and not cast.current.scorch() or not buff.hotStreak.react() 
         and not buff.heatingUo.react() and cast.current.scorch() 
         and not var.hot_streak_spells_in_flight))) 
@@ -3276,7 +3035,7 @@ end
         end
         -- actions.standard_rotation+=/pyroblast,if=prev_gcd.1.scorch&buff.heating_up.react&talent.searing_touch&target.health.pct<=30&active_enemies<variable.hot_streak_flamestrike
         if cast.last.scorch() and buff.heatingUp.react() 
-        and talent.searingTouch
+        and talent.searingTouch and thp <= 30 and cast.current.scorch()
         and #enemies.yards10 < var.hot_streak_flamestrike 
         then
             if cast.pyroblast("target") then debug("[Action:Standard] Pyroblast (9)") return true end 
@@ -3307,7 +3066,8 @@ end
         -- # With enough targets, it is a gain to cast Flamestrike as filler instead of Fireball.
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         -- actions.standard_rotation+=/flamestrike,if=active_enemies>=variable.hard_cast_flamestrike
-        if #enemies.yards6t >= var.hard_cast_flamestrike and not moving and br.getDistance("target") < 40 then 
+        if #enemies.yards6t >= var.hard_cast_flamestrike 
+        and not moving and br.getDistance("target") < 40 then 
             if ui.value("Flamestrike Target") == 1 then -- We have "Target" selected.
                 if ui.checked("Predict Movement") then -- We have "Best" selected.
                     if br.createCastFunction("best", false, 1, 8, spell.flamestrike, nil, false, 0) then 
@@ -3401,35 +3161,53 @@ end
             if cast.fireBlast("target") then debug("[Action:Rotation] Fire Blast (5)") return true end
         end
         -- actions+=/use_item,effect_name=gladiators_badge,if=variable.time_to_combustion>cooldown-5
-        if use.able.gladiatorsBadge() and var.time_to_combustion > item.gladiatorsBadge.cd()-5 then use.gladiatorsBadge() end 
-        if use.able.gladiatorsBadgeAlacrity() and var.time_to_combustion > item.gladiatorsBadge.cd()-5 then use.gladiatorsBadgeAlacrity() end
-        -- actions+=/use_item,name=empyreal_ordnance,if=variable.time_to_combustion<=variable.empyreal_ordnance_delay&variable.time_to_combustion>variable.empyreal_ordnance_delay-5
-        if use.able.empyrealOrdnance() and var.time_to_combustion <= var.empyreal_ordnance_delay 
-        and var.time_to_combustion > var.empyreal_ordnance_delay-5 
-        then
-            use.empyrealOrdnance()
+        if use.able.gladiatorsBadge() and var.time_to_combustion > 60-5 then use.gladiatorsBadge(); end 
+        if use.able.gladiatorsBadgeAlacrity() and var.time_to_combustion > 60-5 then use.gladiatorsBadgeAlacrity(); end
+        
+        if use.able.empyrealOrdnance() then
+            -- actions+=/use_item,name=empyreal_ordnance,if=variable.time_to_combustion<=variable.empyreal_ordnance_delay&variable.time_to_combustion>variable.empyreal_ordnance_delay-5
+            if var.time_to_combustion <= var.empyreal_ordnance_delay and var.time_to_combustion > var.empyreal_ordnance_delay-5 then use.empyrealOrdnance(); end
+            -- actions+=/use_item,name=empyreal_ordnance,if=variable.time_to_combustion<=variable.empyreal_ordnance_delay
+            if var.time_to_combustion <= var.empyreal_ordnance_delay then use.empyrealOrdnance(); end
         end
-        -- actions+=/use_item,name=empyreal_ordnance,if=variable.time_to_combustion<=variable.empyreal_ordnance_delay
-
         -- actions+=/use_item,name=glyph_of_assimilation,if=variable.time_to_combustion>=variable.on_use_cutoff
-
+        if use.able.glyphOfAssimilation() and var.time_to_combustion >= var.on_use_cutoff then use.glyphOfAssimilation(); end
         -- actions+=/use_item,name=macabre_sheet_music,if=variable.time_to_combustion<=5
+        if use.able.macabreSheetMusic and var.time_to_combustion <= 5 then use.macabreSheetMusic(); end
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         -- # If using a steroid on-use item, always use Dreadfire Vessel outside of Combustion. Otherwise, prioritize using Dreadfire Vessel with Combustion only if Infernal Cascade is enabled and a usage won't be lost over the duration of the fight.
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         -- actions+=/use_item,name=dreadfire_vessel,if=variable.time_to_combustion>=variable.on_use_cutoff&(buff.infernal_cascade.stack=buff.infernal_cascade.max_stack|!conduit.infernal_cascade|variable.combustion_on_use|variable.time_to_combustion+5>fight_remains%%cooldown)
+        if var.time_to_combustion >= var.num(var.on_use_cutoff) 
+        and (buff.infernalCascade.stack() > 1 
+        or not conduit.infernalCascade 
+        or var.combustion_on_use > 0 
+        or var.time_to_combustion+5 > ttd("target")) 
+        then 
+            if use.dreadfireVessel() then 
+                debug("[Action:Rotation] Dreadfire Vessel  (SimC)")
+                return true 
+            end 
+        end
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         -- # Soul Igniter should be used in a way that doesn't interfere with other on-use trinkets. Other trinkets do not trigger a shared ICD on it, so it can be used right after any other on-use trinket.
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         -- actions+=/use_item,name=soul_igniter,if=(variable.time_to_combustion>=30*(variable.on_use_cutoff>0)|cooldown.item_cd_1141.remains)&(!equipped.dreadfire_vessel|cooldown.dreadfire_vessel_344732.remains>5)
-        --if IsEquippedItem(184019) and (var.time_to_combustion >= 30*(var.on_use_cutoff > 0) or cd.)
+        if use.able.soulIgnitor()
+        and (var.time_to_combustion >= 30*(var.bool(var.on_use_cutoff) > 0) 
+        or cd.soulIgnitor.remains()) 
+        and (not use.able.dreadfireVessel() 
+        or cd.dreadfireVessel.remains() > 5) 
+        then
+            use.soulIgnitor()
+            debug("[Action:Rotation] Soul Ignitor (SimC)")
+            return true 
+        end
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         -- # Trigger Soul Igniter early with Infernal Cascade or when it was precast.
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         -- actions+=/cancel_buff,name=soul_ignition,if=!conduit.infernal_cascade&time<5|buff.infernal_cascade.stack=buff.infernal_cascade.max_stack
-        if not conduit.infernalCascade 
-        and combatTime < 5 or buff.infernalCascade.stack() > 1 
-        then 
+        if not conduit.infernalCascade and combatTime < 5 or buff.infernalCascade.stack() > 1 then 
             debug("[Action:Rotation] Infernal Cascade (6)")
             br._G.RunMacroText("/cancelaura Soul Ignition")
             return true
@@ -3437,10 +3215,20 @@ end
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         -- # Items that do not benefit Combustion should just be used outside of Combustion at some point.
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        -- actions+=/use_item,name=inscrutable_quantum_device,if=equipped.gladiators_badge&variable.time_to_combustion>=variable.on_use_cutoff
+        if use.able.inscrutableQuantumDevice() and (use.able.gladiatorsBadge() or use.able.gladiatorsBadgeAlacrity()) and var.time_to_combustion >= var.on_use_cutoff then 
+            use.inscrutableQuantumDevice()
+        end
+        -- actions+=/use_item,name=flame_of_battle,if=equipped.gladiators_badge&variable.time_to_combustion>=variable.on_use_cutoff
+
+
+        -- actions+=/use_item,name=wakeners_frond,if=equipped.gladiators_badge&variable.time_to_combustion>=variable.on_use_cutoff
+        -- actions+=/use_item,name=instructors_divine_bell,if=equipped.gladiators_badge&variable.time_to_combustion>=variable.on_use_cutoff
+        -- actions+=/use_item,name=sunblood_amethyst,if=equipped.gladiators_badge&variable.time_to_combustion>=variable.on_use_cutoff
         -- actions+=/use_items,if=variable.time_to_combustion>=variable.on_use_cutof
         --if var.time_to_combustion >= var.on_use_cutoff then
-      --      if actionList_Use_Items() then return end 
-        --end
+        --    if actionList_Use_Items() then return end 
+       -- end
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         -- # Get the Disciplinary Command buff up, unless combustion is soon.
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -3603,7 +3391,7 @@ end
         if buff.combustion.react() and travelTime < buff.combustion.remains() 
         and ((charges.fireBlast.count() < 1 and talent.pyroclasm and #enemies.yards8t == 1) or talent.pyroclasm or #enemies.yards8t > 1) 
         and var.num(buff.heatingUp.react()) + var.num(var.hot_streak_spells_in_flight) 
-      --  and interruptCast()
+        and cast.current.scorch()
         then
             if cast.current.scorch() then
                 if br.timer:useTimer("fb stop delay2", br.getOptionValue("Cast Interrupting Delay") / (1 + GetHaste() / 100)) then 
@@ -3626,6 +3414,7 @@ end
                 end
             end
         end
+
         -- Cancel Ice Block. 
         if buff.iceBlock.exists("player") and php >= 75 then
             br.cancelBuff(spell.iceBlock)
