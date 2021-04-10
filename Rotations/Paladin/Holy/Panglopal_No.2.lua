@@ -1,7 +1,7 @@
 --Version 1.0.0
 local rotationName = "FengshenHoly" -- Change to name of profile listed in options drop down
 local StunsBlackList="167876|169861|168318|165824|165919|171799|168942|167612|169893|167536|173044|167731|165137|167538|168886|170572"
-local StunSpellList="326450|328177|336451|331718|331743|334708|333145|321807|334748|327130|327240|330532|328400|330423|294171|164737|330586|329224|328429|295001|296355|295001|295985|330471|329753|296748|334542|242391"
+local StunSpellList="326450|328177|331718|331743|334708|333145|321807|334748|327130|327240|330532|328400|330423|294171|164737|330586|329224|328429|295001|296355|295001|295985|330471|329753|296748|334542|242391"
 local HoJPrioList = "164702|164362|170488|165905|165251|165556"
 ---------------
 --- Toggles ---
@@ -181,6 +181,9 @@ local function createOptions()
 		-------------------------
 		section = br.ui:createSection(br.ui.window.profile, "DPS")
 		br.ui:createDropdown(section, "Hard DPS Key", br.dropOptions.Toggle, 6)
+		-- Seraphim
+		br.ui:createSpinner(section, "Seraphim",  0,  0,  20,  2,  "|cffFFFFFFEnemy TTD")
+		-- Divine Toll Damage
 		br.ui:createSpinner(section, "Divine Toll during DPS Key", 3, 1, 5, 1, "Use Divine Toll at >= x units")
 		-- Light's Hammer Damage
 		br.ui:createSpinner(section, "Light's Hammer Damage", 1, 0, 40, 1, "", "|cffFFFFFFMinimum Light's Hammer Targets")
@@ -424,6 +427,12 @@ local function runRotation()
 			br._G.StartAttack()
 		end
 
+		-- Seraphim
+		if (br.isChecked("Seraphim") or dpskey) and talent.seraphim and holyPower > 2 and br.getTTD("target") > br.getOptionValue("Seraphim") and br.getSpellCD(152262) <= gcdMax then
+			SotR = false
+			if cast.seraphim() then return true end
+		end
+
 		if br.isChecked("Divine Toll during DPS Key") and dpskey and #enemies.yards30 >= br.getValue("Divine Toll during DPS Key") then
 			if cast.divineToll(units.dyn30) then return true end
 		end
@@ -440,7 +449,7 @@ local function runRotation()
 			end
 		end
 
-		if ((br.isChecked("Shield of the Righteous") and SotR == true and #enemies.yards5 >= br.getValue("Shield of the Righteous")) or dpskey) and cd.shieldOfTheRighteous.ready() then
+		if ((br.isChecked("Shield of the Righteous") and #enemies.yards5 >= br.getValue("Shield of the Righteous")) or dpskey) and SotR == true and cd.shieldOfTheRighteous.ready() then
 			if (holyPower >= 3 or buff.divinePurpose.exists()) and br.getFacing("player",units.dyn5) then
 				if cast.shieldOfTheRighteous(units.dyn5) then return true end
 			end
@@ -1031,8 +1040,8 @@ local function runRotation()
 					if cast.hammerOfJustice(thisUnit) then return true end
 				end
 			end
-			-- Atal'ai Devoted logic
-			if br._G.UnitCastingInfo(thisUnit) == br._G.GetSpellInfo(332329) and br.getCastTimeRemain(thisUnit) ~=0 and br.getCastTimeRemain(thisUnit) < 2 then
+			-- Special interrupt logic
+			if (br._G.UnitCastingInfo(thisUnit) == br._G.GetSpellInfo(332329) and br.getCastTimeRemain(thisUnit) ~=0 and br.getCastTimeRemain(thisUnit) < 2 and br.getBuffRemain(thisUnit,343503) == 0) or br._G.UnitChannelInfo(thisUnit) == br._G.GetSpellInfo(336451) then
 				if cd.hammerOfJustice.ready() then
 					if cast.hammerOfJustice(thisUnit) then return true end
 				end
