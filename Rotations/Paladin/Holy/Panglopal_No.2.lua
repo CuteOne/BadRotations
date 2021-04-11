@@ -238,6 +238,7 @@ local function runRotation()
 
 	local holyPower = br.player.power.holyPower.amount()
 	local holyPowerMax = br.player.power.holyPower.max()
+	local runeforge = br.player.runeforge
 	local buff = br.player.buff
 	local cast = br.player.cast
 	local php = br.player.health
@@ -271,12 +272,13 @@ local function runRotation()
 	local mode = br.player.ui.mode
 	local pullTimer = br.DBM:getPulltimer()
 	local units = br.player.units
+	local wingsup = buff.avengingCrusader.exists("player") or buff.avengingWrath.exists("player")
 	local LightCount = 0
 	local FaithCount = 0
 	local SotR = true
 	local actionList = {}
 
-	if br.player.runeforge.shadowbreaker.equiped then
+	if runeforge.shadowbreaker.equiped then
 		lightOfDawn_distance = 40
 	else
 		lightOfDawn_distance = 15
@@ -476,13 +478,17 @@ local function runRotation()
 			if cast.judgment(units.dyn30) then return true end
 		end
 
-		if (br.isChecked("Holy Shock Damage") or dpskey) and cd.holyShock.ready() and (br.isChecked("Dev Stuff Leave off") or br.getFacing("player",units.dyn40)) then
-			if br.getLineOfSight(units.dyn40,"player") and ccDoubleCheck(units.dyn40) then
-				if not debuff.glimmerOfLight.exists(units.dyn40,"player") then
-					if cast.holyShock(units.dyn40) then return true end
-				else
-					if cast.holyShock(units.dyn40) then return true end
+		if (br.isChecked("Holy Shock Damage") or dpskey) and cd.holyShock.ready() then
+			if talent.glimmerOfLight then
+				for i = 1, #enemies.yards40 do
+					local thisUnit = enemies.yards40[i]
+					if not debuff.glimmerOfLight.exists(thisUnit,"player") and br.getLineOfSight(thisUnit,"player") and ccDoubleCheck(thisUnit) and (br.isChecked("Dev Stuff Leave off") or br.getFacing("player",thisUnit)) then
+						if cast.holyShock(thisUnit) then return true end
+					end
 				end
+			end
+			if br.getLineOfSight(units.dyn40,"player") and ccDoubleCheck(units.dyn40) and (br.isChecked("Dev Stuff Leave off") or br.getFacing("player",units.dyn40)) then
+				if cast.holyShock(units.dyn40) then return true end
 			end
 		end
 
@@ -897,16 +903,7 @@ local function runRotation()
 			end
 		end
 
-		-- Glimmer
-		if talent.glimmerOfLight and cd.holyShock.ready() then
-			for i = 1, #br.friend do
-				local thisUnit = br.friend[i].unit
-				if br.getLineOfSight("player",thisUnit) and not br._G.UnitIsDeadOrGhost(thisUnit) and not buff.glimmerOfLight.exists(thisUnit) then
-					if cast.holyShock(thisUnit) then return true end
-				end
-			end
-		end
-
+		-- BoVing
 		if talent.beaconOfVirtue and not moving and cd.flashOfLight.ready() and buff.infusionOfLight.remain() > br.getCastTime(spell.flashOfLight) then
 			for i = 1, #br.friend do
 				if br.friend[i].hp <= br.getValue("Beacon of Virtue") and buff.beaconOfVirtue.remain(br.friend[i].unit) > br.getCastTime(spell.flashOfLight) then
@@ -1005,11 +1002,11 @@ local function runRotation()
 			end
 		end
 
-		-- Shock Barrier
+		-- Shock Barrier and Glimmer Of Light
 		if holyPower < 5 and not inCombat and cd.holyShock.ready() then
 			for i = 1, #br.friend do
 				local thisUnit = br.friend[i].unit
-				if br.getBuffRemain(thisUnit,337824) == 0 and br.getLineOfSight("player",thisUnit) and not br._G.UnitIsDeadOrGhost(thisUnit) then
+				if (br.getBuffRemain(thisUnit,337824) == 0 and runeforge.shockBarrier.equiped) or (talent.glimmerOfLight and not buff.glimmerOfLight.exists(thisUnit,"exact")) and br.getLineOfSight("player",thisUnit) and not br._G.UnitIsDeadOrGhost(thisUnit) then
 					if cast.holyShock(thisUnit) then return true end
 				end
 			end
@@ -1063,6 +1060,17 @@ local function runRotation()
 				end
 			end
 		end
+		-- Divine Protection
+		if cd.divineProtection.ready() then 
+			-- Castigate
+			if br._G.UnitCastingInfo("boss1") == br._G.GetSpellInfo(322554) and br.GetUnitIsUnit("player",br._G.UnitTarget("boss1")) then
+				if cast.divineProtection() then return true end
+			end
+			-- Rite of Supremacy
+			if br._G.UnitCastingInfo("boss1") == br._G.GetSpellInfo(325360) and br.getCastTimeRemain(thisUnit) ~=0 and br.getCastTimeRemain(thisUnit) < 2 then
+				if cast.divineProtection() then return true end
+			end
+		end
 		-- Blessing of Freedom
 		if cd.blessingOfFreedom.ready() then
 			-- Frozen Binds or Charged Stomp
@@ -1094,6 +1102,22 @@ local function runRotation()
 				for i = 1, #br.friend do
 					if br.getDebuffRemain(br.friend[i].unit,341746) ~= 0 then
 						if cast.blessingOfFreedom(br.friend[i].unit) then return true end
+					end
+				end
+			end
+		end
+	end
+
+	actionList.madParagon = function()
+		if runeforge.theMadParagon.equiped and br.getSpellCD(24275) == 0 then
+			if (br.getHP("target") <= 20 or br._G.IsSpellOverlayed(24275) or wingsup) and (br.isChecked("Dev Stuff Leave off") or br.getFacing("player","target")) then
+				if cast.hammerOfWrath("target") then return end
+			end
+			for i = 1, #enemies.yards30 do
+				local thisUnit = enemies.yards30[i]
+				if ccDoubleCheck(thisUnit) and (br.isChecked("Dev Stuff Leave off") or br.getFacing("player",thisUnit)) and lowest.hp >= br.getOptionValue("Critical HP") then
+					if br.getHP(thisUnit) <= 20 or br._G.IsSpellOverlayed(24275) or wingsup then
+						if br._G.CastSpellByName(br._G.GetSpellInfo(spell.hammerOfWrath),thisUnit) then return end
 					end
 				end
 			end
@@ -1169,6 +1193,8 @@ local function runRotation()
 				end
 
 				if actionList.defensiveTime() then return true end
+
+				if actionList.madParagon() then return true end
 
 				if actionList.spendies() then return true end
 

@@ -2190,6 +2190,7 @@ br.lists.spells = {
             },
             runeforges                      = {
                 shadowbreaker               = 337812,
+                shockBarrier                = 337825,
             }
         },
         -- Protection
@@ -2385,7 +2386,6 @@ br.lists.spells = {
             },
             runeforges                      = {
                 finalVerdict                = 337247,
-                madParagon                  = 337594,
                 theMadParagon               = 337594,
                 theMagistratesJudgment      = 337681,
                 vanguardsMomentum           = 337638,

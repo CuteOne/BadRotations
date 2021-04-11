@@ -204,6 +204,7 @@ local function runRotation()
 	--------------
 	local holyPower     = br.player.power.holyPower.amount()
 	local holyPowerMax  = br.player.power.holyPower.max()
+	local runeforge     = br.player.runeforge
 	local buff          = br.player.buff
 	local cast          = br.player.cast
 	local cd            = br.player.cd
