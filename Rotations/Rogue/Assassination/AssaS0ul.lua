@@ -1,6 +1,6 @@
 local rotationName = "AssaS0ul - 9.0.5"
 local garrotePrioList = "157475"
-local dotBlacklist = "168962|175992|171557|175992"
+local dotBlacklist = "168962|175992|171557|175992" -- |167999
 local stunSpellList = "332329|332671|326450|328177|336451|331718|331743|334708|333145|326450|332671|321807|334748|327130|327240|330532|328475|330423|328177|336451|294171|330586|328429"
 local StunsBlackList = "167876|169861|168318|165824|165919|171799|168942|167612|169893|167536"
 local bossPool = false
@@ -428,12 +428,13 @@ local function runRotation()
     local enemies10 = #enemyTable10
     local fokenemies10 = #enemyTable10
     local ctenemies10 = #enemyTable10
-    local dSEnabled, sRogue, priorityRotation, animachargedCP, DPEquipped, DSEquipped, DoomEquipped
+    local dSEnabled, sRogue, priorityRotation, animachargedCP, DPEquipped, DSEquipped, DoomEquipped, critOnly
     if talent.deeperStratagem then dSEnabled = 1 else dSEnabled = 0 end
     if stealthedRogue == true then sRogue = 1 else sRogue = 0 end
     if runeforge.duskwalkersPatch.equiped then DPEquipped = 1 else DPEquipped = 0 end
     if runeforge.dashingScoundrel.equiped then DSEquipped = 1 else DSEquipped = 0 end
     if runeforge.doomblade.equiped then DoomEquipped = 1 else DoomEquipped = 0 end
+    if buff.masterAssassin.exists() or buff.masterAssassinsMark.exists() then critOnly = 1 else critOnly = 0 end
     --actions+=/variable,name=energy_regen_combined,value=energy.regen+poisoned_bleeds*8%(2*spell_haste)
     local energyRegenCombined = energyRegen + ((garroteCount + ruptureCount) * 8 / (2 * (1 / (1 + (br._G.GetHaste()/100)))))
     local poisonedBleeds = garroteCount + ruptureCount
@@ -645,9 +646,9 @@ local function runRotation()
             if cast.markedForDeath("target") then return true end
         end
         -- actions.precombat+=/Slice and Dice, if=precombat_seconds=1
-        if ui.checked("Precombat") and (pullTimer <= 1 or targetDistance < 10) and combo > 0 and buff.sliceAndDice.remain() < 6+(combo*3) then
-            if cast.sliceAndDice("player") then return true end
-        end
+        -- if ui.checked("Precombat") and (pullTimer <= 1 or targetDistance < 10) and combo > 0 and buff.sliceAndDice.remain() < 6+(combo*3) then
+        --     if cast.sliceAndDice("player") then return true end
+        -- end
     end
 
     local function actionList_Cooldowns()
@@ -779,7 +780,7 @@ local function runRotation()
 
     local function actionList_Direct()
         -- # Refresh garrote when we have Vendetta or Toxic Blade on a target with Master Assassin
-        if talent.masterAssassin and debuff.garrote.refresh("target") and debuff.vendetta.exists("target") and not debuff.shiv.exists("target") and comboDeficit > 0 then
+        if talent.masterAssassin and debuff.garrote.refresh("target") and debuff.vendetta.exists("target") and not debuff.shiv.exists("target") and comboDeficit > 0 and buff.sliceAndDice.exists("player") and combo > 1 then
             if cast.garrote("target") then return true end
         end
         -- # Shiv if we are about to Envenom, and attempt to sync with Sepsis final hit if we won't waste more than half the cooldown
@@ -804,7 +805,7 @@ local function runRotation()
         --         end
         --     end
         -- end
-        if not stealthedRogue and not buff.masterAssassin.exists() and buff.sliceAndDice.exists("player") and buff.leadByExample.remain() <= 3 then
+        if not stealthedRogue and cd.vanish.remain() < 115 and buff.sliceAndDice.exists("player") and buff.leadByExample.remain() <= 3 then
             local spikeCount = serratedCount + 2
             local spikeList = enemies.get(30, "player", false, true)
             if #spikeList > 0 then
@@ -822,7 +823,8 @@ local function runRotation()
                             end
                         end
                     end
-                    if #spikeList == 1 and (comboDeficit == 2 or comboDeficit >= spikeCount or (spikeCount > 4 and combo < 2)) and debuff.shiv.exists("target") then
+                    if #spikeList == 1 and (comboDeficit == 2 or comboDeficit >= spikeCount or (spikeCount >= 3 and combo < 2)) and 
+                     debuff.shiv.exists("target") and not buff.masterAssassin.exists() then
                         if cast.serratedBoneSpike("target") then
                             return true
                         end
@@ -941,16 +943,17 @@ local function runRotation()
                 end
             end
         end
-        --# Crimson Tempest on multiple targets at 4+ CP when running out in 2s (up to 4 targets) or 3s (5+ targets)
+        --# Crimson Tempest on multiple targets at 4+ CP when running out in 2-3s as long as we have enough regen and aren't setting up for Vendetta
         --actions.dot+=/crimson_tempest,if=spell_targets>=2&remains<2+(spell_targets>=5)&effective_combo_points>=4
-        if talent.crimsonTempest and ctenemies10 > 1 and not stealthedAll then
+        --actions.dot+=/crimson_tempest,if=spell_targets>=2&remains<2+(spell_targets>=5)&effective_combo_points>=4&energy.regen_combined>20&(!cooldown.vendetta.ready|dot.rupture.ticking)
+        if talent.crimsonTempest and ctenemies10 > 1 and not stealthedAll and combo >= 4 and energyRegenCombined > 20 and (cd.vendetta.exists() or ruptureCount > 0) then
             local crimsonTargets
             if ctenemies10 >= 5 then crimsonTargets = 1 else crimsonTargets = 0 end
             for i = 1, ctenemies10 do
-                local thisUnit = ctenemies10[i].unit
+                local thisUnit = enemyTable10[i].unit
                 local crimsonRemain = debuff.crimsonTempest.remain(thisUnit)
-                if crimsonRemain < (2+crimsonTargets) and combo >= 4 then
-                    if cast.crimsonTempest("player") then return true end
+                if crimsonRemain < (2+crimsonTargets) then
+                    if cast.crimsonTempest("player", "aoe", 1, 10) then return true end
                 end
             end
         end
@@ -978,7 +981,7 @@ local function runRotation()
         --# Crimson Tempest on ST if in pandemic and nearly max energy and if Envenom won't do more damage due to TB/MA
         --actions.dot+=/crimson_tempest,if=spell_targets=1&effective_combo_points>=(cp_max_spend-1)&refreshable&!exsanguinated&!debuff.shiv.up&master_assassin_remains=0&(energy.deficit<=25+variable.energy_regen_combined)&target.time_to_die-remains>4
         if singleTarget and combo >= (comboMax-1) and debuff.crimsonTempest.refresh("target") and not debuff.crimsonTempest.exsang("target") and not debuff.shiv.exists("target") and not buff.masterAssassin.exists() and (energyDeficit <= (25 + energyRegenCombined)) and ttd("target") > 4 then
-            if cast.crimsonTempest("player") then return true end
+            if cast.crimsonTempest("player", "aoe", 1, 10) then return true end
         end
     end
 
@@ -986,7 +989,7 @@ local function runRotation()
         --# Nighstalker on 3T: Crimson Tempest
         --actions.stealthed=crimson_tempest,if=talent.nightstalker.enabled&spell_targets>=3&combo_points>=4&target.time_to_die-remains>6
         if talent.nightstalker and enemies10 >= 3 and combo >= 4 and (ttd("target")-debuff.crimsonTempest.remain("target")) > 6 then
-            if cast.crimsonTempest("player") then return true end
+            if cast.crimsonTempest("player", "aoe", 1, 10) then return true end
         end
         --# Nighstalker on 1T: Snapshot Rupture
         --actions.stealthed+=/rupture,if=talent.nightstalker.enabled&combo_points>=4&target.time_to_die-remains>6
@@ -1012,6 +1015,9 @@ local function runRotation()
         if mode.exsang == 1 and talent.subterfuge and talent.exsanguinate and enemies10 == 1 and buff.subterfuge.remain() < 1.3 and not debuff.vendetta.exists("target") then
             if cast.pool.garrote() then return true end
             if cast.garrote("target") then return true end
+        end
+        if cast.able.serratedBoneSpike() and (combatTime < 1.5 and cd.vanish.remain() < 118) then
+            if cast.serratedBoneSpike("target") then return true end
         end
         --actions.stealthed+=/mutilate,if=talent.subterfuge.enabled&combo_points<=3
         if talent.subterfuge and combo <= 3 then
@@ -1063,7 +1069,7 @@ local function runRotation()
                 cast.stealth("player")
             end
             -- actions+=/call_action_list,name=stealthed,if=stealthed.rogue
-            if stealthedAll then
+            if stealthedAll and targetDistance < 5 then
                 if actionList_Stealthed() then return true end
             end
             --start aa
@@ -1076,18 +1082,20 @@ local function runRotation()
             end
             --# Put SnD up initially for Cut to the Chase, refresh with Envenom if at low duration
             -- actions+=/slice_and_dice,if=!buff.slice_and_dice.up&combo_points>=3
-            if not buff.sliceAndDice.exists() and combo >= 3 and not animachargedCP then
+            if (not buff.sliceAndDice.exists("player") and combo >= 3 and not animachargedCP) or (not buff.sliceAndDice.exists("player") and combatTime < 3 and cd.vanish.remain() < 117) then
                 if cast.sliceAndDice("player") then return true end
             end
             -- actions+=/call_action_list,name=dot
-            if actionList_Dot() then return true end
+            if buff.sliceAndDice.exists("player") then
+                if actionList_Dot() then return true end
+            end
             -- actions+=/call_action_list,name=direct
             if actionList_Direct() then return true end
             -- actions+=/arcane_torrent,if=energy.deficit>=15+variable.energy_regen_combined
             -- actions+=/arcane_pulse
             -- actions+=/lights_judgment
             if cdUsage and br.isChecked("Racial") and targetDistance < 5 then
-                if race == "BloodElf" and energyDeficit >= (15 + energyRegenCombined) then
+                if race == "BloodElf" and energyDeficit >= (15 + energyRegenCombined) and not buff.masterAssassin.exists() then
                     if cast.racial("player") then return true end
                 elseif race == "Nightborne" then
                     if cast.racial("player") then return true end
