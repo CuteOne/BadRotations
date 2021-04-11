@@ -210,7 +210,7 @@ if not br.metaTable2 then
 			o.objectID = br._G.ObjectID(o.unit)
 			o.range = o.range
 			o.debuffs = o.debuffs
-			if o.distance <= 50 and not br.GetUnitIsDeadOrGhost(o.unit) then
+			if o.distance <= 50 and not br.GetUnitIsDeadOrGhost(o.unit) and not br.isCritter(o.unit) then
 				-- EnemyListCheck
 				if o.enemyRefresh == nil or o.enemyRefresh < GetTime() - 1 then
 					o.enemyListCheck = br.enemyListCheck(o.unit)
