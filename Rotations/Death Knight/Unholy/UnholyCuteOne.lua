@@ -215,6 +215,7 @@ local var
 -- General Locals
 local actionList = {}
 local waitForPetToAppear
+var.controlledDead = "player"
 
 --------------------
 --- Action Lists ---
@@ -330,11 +331,11 @@ actionList.Extras = function()
         end
     end
     -- Control Undead
-    if ui.checked("Control Undead") and cast.able.controlUndead() then
+    if ui.checked("Control Undead") and cast.able.controlUndead() and unit.player(var.controlledDead) then
         for i = 1, #enemies.yards30 do
             local thisUnit = enemies.yards30[i]
             if unit.undead(thisUnit) and not unit.isDummy(thisUnit) and not unit.isBoss(thisUnit) and unit.level(thisUnit) <= unit.level() + 1 then
-                if cast.controlUndead(thisUnit) then ui.debug("Casting Control Undead") return true end
+                if cast.controlUndead(thisUnit) then ui.debug("Casting Control Undead") var.controlledDead = thisUnit return true end
             end
         end
     end
@@ -432,10 +433,10 @@ actionList.Cooldowns = function()
     -- end
     -- Army of the Dead
     -- army_of_the_dead,if=cooldown.unholy_blight.remains<5&cooldown.dark_transformation.remains_expected<5&talent.unholy_blight|!talent.unholy_blight|fight_remains<35
-    if ui.alwaysCdNever("Army of the Dead") and (unit.ttdGroup(40) >= ui.value("Cooldowns Time To Die Limit") or unit.isDummy()) and cast.able.armyOfTheDead()
-        and ((cd.unholyBlight.remains() < 5 and cd.darkTransformation.remains() < 5 and talent.unholyBlight) or not talent.unholyBlight or not ui.alwaysCdNever("Unholy Blight"))
+    if ui.alwaysCdNever("Army of the Dead") and (unit.ttdGroup(40) >= ui.value("Cooldowns Time To Die Limit") or unit.isDummy()) and cast.able.armyOfTheDead("player")
+        and (cd.unholyBlight.remains() < 5 and cd.darkTransformation.remains() < 5 and talent.unholyBlight or not talent.unholyBlight)
     then
-        if cast.armyOfTheDead() then ui.debug("Casting Army of the Dead") return true end
+        if cast.armyOfTheDead("player") then ui.debug("Casting Army of the Dead") return true end
     end
     -- Soul Reaper
     -- soul_reaper,target_if=target.time_to_pct_35<5&target.time_to_die>5&active_enemies<=3
@@ -831,14 +832,8 @@ actionList.PreCombat = function()
             ui.debug("Using Battle Potion of Strength")
         end
         -- Army of the Dead
-        if ui.alwaysCdNeer("Army of the Dead") and ui.pullTimer() <= 2 then
-            if cast.armyOfTheDead() then ui.debug("Casting Army of the Dead [Pre-Pull]") return true end
-        end
-        -- Azshara's Font of Power
-        if (ui.value("Trinkets") == 1 or (ui.value("Trinkets") == 2 and ui.useCDs())) and equiped.azsharasFontOfPower()
-            and use.able.azsharasFontOfPower() and not unit.moving("player") and not unit.inCombat() and ui.pullTimer()<= ui.value("Pre-Pull Timer")
-        then
-            if use.azsharasFontOfPower() then ui.debug("Using Azshara's Font of Power [Pre-Pull]") return true end
+        if ui.alwaysCdNeer("Army of the Dead") and ui.pullTimer() <= 2 and cast.able.armyOfTheDead("player") then
+            if cast.armyOfTheDead("player") then ui.debug("Casting Army of the Dead [Pre-Pull]") return true end
         end
     end
     -- Pull
@@ -869,19 +864,16 @@ local function runRotation()
     buff                                          = br.player.buff
     cast                                          = br.player.cast
     cd                                            = br.player.cd
-    -- conduit                                       = br.player.conduit
     covenant                                      = br.player.covenant
     debuff                                        = br.player.debuff
     enemies                                       = br.player.enemies
     equiped                                       = br.player.equiped
-    -- essence                                       = br.player.essence
     module                                        = br.player.module
     pet                                           = br.player.pet
     runeforge                                     = br.player.runeforge
     runes                                         = br.player.power.runes.amount()
     runeDeficit                                   = br.player.power.runes.deficit()
     runesTTM                                      = br.player.power.runes.ttm
-    -- runicPower                                    = br.player.power.runicPower.amount()
     runicPowerDeficit                             = br.player.power.runicPower.deficit()
     spell                                         = br.player.spell
     talent                                        = br.player.talent
@@ -957,6 +949,8 @@ local function runRotation()
             if cast.pathOfFrost() then ui.debug("Casting Path of Frost") return true end
         end
     end
+
+    if not unit.exists(var.controlledDead) then var.controlledDead = "player" end
 
 -----------------
 --- Rotations ---
