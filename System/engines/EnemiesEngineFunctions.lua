@@ -24,7 +24,7 @@ end
 function br:updateOM()
 	local om = br.om
 	local startTime = br._G.debugprofilestop()
-	local total, updated, added, removed = br._G.GetObjectCount(true,"BR")
+	local total, updated, added, removed = br._G.GetObjectCount(true,"BR") or 0
 	-- if br.initOM then
 	-- 	br.initOM = false
 		for i = 1,total do

@@ -117,13 +117,8 @@ function cl:common(...)
     br.guid = br._G.UnitGUID("player")
     -- Unit Dies - Remove from enemy tracking
     if param == "UNIT_DIED" and br.unlocked then
-        -- Print("Unit Died Updating Tables")
-        -- local unit = GetObjectWithGUID(destination)
+        br:updateOM()
         br.om:Update()
-    -- if br.enemy ~= nil and br.enemy[unit] ~= nil then br.enemy[unit] = nil end
-    -- if br.damaged ~= nil and br.damaged[unit] ~= nil then br.damaged[unit] = nil end
-    -- if br.units ~= nil and br.units[unit] ~= nil then br.units[unit] = nil end
-    --if br.unitSetup ~= nil and br.unitSetup.cache ~= nil and br.unitSetup.cache[unit] ~= nil then br.unitSetup.cache[unit] = nil end
     end
     --[[Combat Validation]]
     if br.player ~= nil then
