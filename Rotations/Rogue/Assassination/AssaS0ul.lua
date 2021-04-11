@@ -790,7 +790,7 @@ local function runRotation()
         end
         -- # Envenom at 4+ (5+ with DS) CP. Immediately on 2+ targets, with Vendetta, or with TB; otherwise wait for some energy. Also wait if Exsg combo is coming up.
         -- actions.direct=envenom,if=combo_points>=4+talent.deeper_stratagem.enabled&(debuff.vendetta.up|debuff.shiv.up|debuff.flagellation.up|energy.deficit<=25+variable.energy_regen_combined|!variable.single_target)&(!talent.exsanguinate.enabled|cooldown.exsanguinate.remains>2)
-        if combo >= (4 + dSEnabled - critOnly) and ((debuff.vendetta.exists("target") or not cdUsage or ttd("target") < br.getOptionValue("CDs TTD Limit")) or debuff.shiv.exists("target") or debuff.flagellation.exists("target") or energyDeficit <= (25 + energyRegenCombined) or not singleTarget) and 
+        if combo >= (4 + dSEnabled) and ((debuff.vendetta.exists("target") or not cdUsage or ttd("target") < br.getOptionValue("CDs TTD Limit")) or debuff.shiv.exists("target") or debuff.flagellation.exists("target") or energyDeficit <= (25 + energyRegenCombined) or not singleTarget) and 
          (not talent.exsanguinate or cd.exsanguinate.remain() > 2 or debuff.rupture.remain("target") > 27 or ttd("target") < 4 or mode.exsang == 2) then
             if cast.envenom("target") then return true end
         end
@@ -823,7 +823,7 @@ local function runRotation()
                             end
                         end
                     end
-                    if #spikeList == 1 and (comboDeficit == 2 or comboDeficit >= spikeCount or (spikeCount > 4 and combo < 2)) and 
+                    if #spikeList == 1 and (comboDeficit == 2 or comboDeficit >= spikeCount or (spikeCount >= 3 and combo < 2)) and 
                      debuff.shiv.exists("target") and not buff.masterAssassin.exists() then
                         if cast.serratedBoneSpike("target") then
                             return true
@@ -952,9 +952,8 @@ local function runRotation()
             for i = 1, ctenemies10 do
                 local thisUnit = enemyTable10[i].unit
                 local crimsonRemain = debuff.crimsonTempest.remain(thisUnit)
-                print("crimson Targets: " .. tostring(crimsonTargets) .. " crimson Remain: " .. tostring(crimsonRemain))
                 if crimsonRemain < (2+crimsonTargets) then
-                    if cast.crimsonTempest("player") then return true end
+                    if cast.crimsonTempest("player", "aoe", 1, 10) then return true end
                 end
             end
         end
@@ -982,7 +981,7 @@ local function runRotation()
         --# Crimson Tempest on ST if in pandemic and nearly max energy and if Envenom won't do more damage due to TB/MA
         --actions.dot+=/crimson_tempest,if=spell_targets=1&effective_combo_points>=(cp_max_spend-1)&refreshable&!exsanguinated&!debuff.shiv.up&master_assassin_remains=0&(energy.deficit<=25+variable.energy_regen_combined)&target.time_to_die-remains>4
         if singleTarget and combo >= (comboMax-1) and debuff.crimsonTempest.refresh("target") and not debuff.crimsonTempest.exsang("target") and not debuff.shiv.exists("target") and not buff.masterAssassin.exists() and (energyDeficit <= (25 + energyRegenCombined)) and ttd("target") > 4 then
-            if cast.crimsonTempest("player") then return true end
+            if cast.crimsonTempest("player", "aoe", 1, 10) then return true end
         end
     end
 
@@ -990,7 +989,7 @@ local function runRotation()
         --# Nighstalker on 3T: Crimson Tempest
         --actions.stealthed=crimson_tempest,if=talent.nightstalker.enabled&spell_targets>=3&combo_points>=4&target.time_to_die-remains>6
         if talent.nightstalker and enemies10 >= 3 and combo >= 4 and (ttd("target")-debuff.crimsonTempest.remain("target")) > 6 then
-            if cast.crimsonTempest("player") then return true end
+            if cast.crimsonTempest("player", "aoe", 1, 10) then return true end
         end
         --# Nighstalker on 1T: Snapshot Rupture
         --actions.stealthed+=/rupture,if=talent.nightstalker.enabled&combo_points>=4&target.time_to_die-remains>6
