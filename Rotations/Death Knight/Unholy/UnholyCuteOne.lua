@@ -215,7 +215,7 @@ local var
 -- General Locals
 local actionList = {}
 local waitForPetToAppear
-var.controlledDead = "player"
+
 
 --------------------
 --- Action Lists ---
@@ -950,7 +950,7 @@ local function runRotation()
         end
     end
 
-    if not unit.exists(var.controlledDead) then var.controlledDead = "player" end
+    if not var.controlledDead or not unit.exists(var.controlledDead) then var.controlledDead = "player" end
 
 -----------------
 --- Rotations ---
