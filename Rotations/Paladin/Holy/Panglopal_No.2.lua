@@ -1033,7 +1033,7 @@ local function runRotation()
 					if cast.hammerOfJustice(thisUnit) then return true end
 				end
 				-- Spiteful
-				if br.GetObjectID(thisUnit) == 174773 and br.GetUnitIsUnit("player",UnitTarget(thisUnit)) then
+				if br.GetObjectID(thisUnit) == 174773 and br.GetUnitIsUnit("player",br._G.UnitTarget(thisUnit)) then
 					if cast.hammerOfJustice(thisUnit) then return true end
 				end
 			end
