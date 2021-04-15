@@ -87,7 +87,7 @@ local function createOptions()
             br.ui:createCheckbox(section, "Racial", "Will use Racial")
             br.ui:createCheckbox(section, "Trinkets", "Will use Trinkets")
             br.ui:createCheckbox(section, "Precombat", "Will use items/pots on pulltimer")
-            br.ui:createDropdown(section, "Potion", {"Agility", "Unbridled Fury", "Focused Resolve"}, 3, "Potion with CDs")
+            br.ui:createDropdown(section, "Potion", {"Phantom Fire", "Empowered Exorcism", "Spectral Agi"}, 3, "Potion with CDs")
             br.ui:createCheckbox(section, "Vendetta", "Will use Vendetta")
             br.ui:createSpinnerWithout(section,  "CDs TTD Limit",  5,  0,  20,  1,  "Time to die limit for using cooldowns.")
         br.ui:checkSectionState(section)
@@ -328,7 +328,7 @@ local function runRotation()
         for i = 1, #enemies.yards30 do
             local thisUnit = enemies.yards30[i]
             if (not noDotCheck(thisUnit) or br.GetUnitIsUnit(thisUnit, "target")) and not br.GetUnitIsDeadOrGhost(thisUnit) and br.isSafeToAttack(thisUnit)
-             and (mode.rotation ~= 2 or (mode.rotation == 2 and br.GetUnitIsUnit(thisUnit, "target"))) and not debuff.vendetta.exists("target") then
+             and (mode.rotation ~= 2 or (mode.rotation == 2 and br.GetUnitIsUnit(thisUnit, "target"))) then
                 local enemyUnit = {}
                 enemyUnit.unit = thisUnit
                 enemyUnit.ttd = ttd(thisUnit)
@@ -837,7 +837,7 @@ local function runRotation()
         end
         --# Fan of Knives at 19+ stacks of Hidden Blades or against 4+ targets.
         --actions.direct+=/fan_of_knives,if=variable.use_filler&(buff.hidden_blades.stack>=19|(!priority_rotation&spell_targets.fan_of_knives>=4+stealthed.rogue))
-        if useFiller and (buff.hiddenBlades.stack() >= 19 or (fokenemies10 >= (4 + sRogue))) then --not priorityRotation and 
+        if useFiller and (buff.hiddenBlades.stack() >= 19 or (not priorityRotation and fokenemies10 >= (4 + sRogue))) then
             if cast.fanOfKnives("player") then return true end
         end
         --# Fan of Knives to apply Deadly Poison if inactive on any target at 3 targets.
@@ -899,7 +899,7 @@ local function runRotation()
     local function actionList_Dot()
         --# Limit Garrotes on non-primrary targets for the priority rotation if 5+ bleeds are already up
         --actions.dot=variable,name=skip_cycle_garrote,value=priority_rotation&spell_targets.fan_of_knives>3&(dot.garrote.remains<cooldown.garrote.duration|poisoned_bleeds>5)
-        local skipCycleGarrote = (priorityRotation and enemies10 > 3 and (debuff.garrote.remain() < cd.garrote.remain() or poisonedBleeds > 5)) or false
+        local skipCycleGarrote = (priorityRotation and enemies10 > 3 and (debuff.garrote.remain("target") < cd.garrote.remain() or poisonedBleeds > 5)) or false
         --# Limit Ruptures on non-primrary targets for the priority rotation if 5+ bleeds are already up
         --actions.dot+=/variable,name=skip_cycle_rupture,value=priority_rotation&spell_targets.fan_of_knives>3&(debuff.shiv.up|poisoned_bleeds>5)
         local skipCycleRupture = (priorityRotation and enemies10 > 3 and (debuff.shiv.exists("target") or poisonedBleeds > 5)) or false
@@ -946,13 +946,13 @@ local function runRotation()
         --# Crimson Tempest on multiple targets at 4+ CP when running out in 2-3s as long as we have enough regen and aren't setting up for Vendetta
         --actions.dot+=/crimson_tempest,if=spell_targets>=2&remains<2+(spell_targets>=5)&effective_combo_points>=4
         --actions.dot+=/crimson_tempest,if=spell_targets>=2&remains<2+(spell_targets>=5)&effective_combo_points>=4&energy.regen_combined>20&(!cooldown.vendetta.ready|dot.rupture.ticking)
-        if talent.crimsonTempest and ctenemies10 > 1 and not stealthedAll and combo >= 4 and energyRegenCombined > 20 and (cd.vendetta.exists() or ruptureCount > 0) then
+        if talent.crimsonTempest and ctenemies10 > 1 and not stealthedAll and combo >= 4 and energyRegenCombined > 20 then
             local crimsonTargets
             if ctenemies10 >= 5 then crimsonTargets = 1 else crimsonTargets = 0 end
             for i = 1, ctenemies10 do
                 local thisUnit = enemyTable10[i].unit
                 local crimsonRemain = debuff.crimsonTempest.remain(thisUnit)
-                if crimsonRemain < (2+crimsonTargets) then
+                if crimsonRemain < (2+crimsonTargets) and (cd.vendetta.exists() or debuff.rupture.exists(thisUnit)) then
                     if cast.crimsonTempest("player", "aoe", 1, 10) then return true end
                 end
             end
