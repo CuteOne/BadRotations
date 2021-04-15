@@ -193,7 +193,7 @@ function br.getLineOfSight(Unit1, Unit2)
 		local X2, Y2, Z2 = br.GetObjectPosition(Unit2)
 		local pX, pY, pZ = br.GetObjectPosition("player")
 		local trace
-		if br.player and br.player.eID and br.player.eID == 2398 then
+		if br.player and br.player.eID and (br.player.eID == 2398 or br.player.eID == 2399) then
 			trace = br._G.TraceLine(X1, Y1, Z1 + 2, X2, Y2, Z2 + 2, 0x100111)
 		else
 			trace = br._G.TraceLine(X1, Y1, Z1 + 2, X2, Y2, Z2 + 2, 0x10)
