@@ -8,7 +8,8 @@ br.lists.burnUnits = {
     [175992] = { coef = 150, name = "Dutiful Attendant", id = 175992 }, -- gives immunity to boss
     [172858] = { coef = 200, name = "Stone Legion Goliath", id = 172858 },
     [174335] = { coef = 100, name = "Stone Legion Skirmisher", id = 174335 },
-    [174134] = { coef = 200, name = "Lord Evershade", id = 174134 },
+    [173162] = { coef = 200, name = "Lord Evershade", id = 173162 },
+    [173163] = { coef = 200, name = "Baron Duskhollow", id = 173163 },
     --Shadowlands dungeons
     -- m+ stuff
     [343502] = { coef = 50, name = "Inspiring - M+ Affix", id = 343502 },
