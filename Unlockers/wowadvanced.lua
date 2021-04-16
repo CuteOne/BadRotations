@@ -283,7 +283,10 @@ function unlock.WowAdUnlock()
 	b.ObjectIsVisible = b.UnitIsVisible
 	b.IsAoEPending = b.SpellIsTargeting
 	b.ObjectInteract = b.InteractUnit
-
+	b.UnitFacing = wa.UnitFacing
+	b.GetObjectCount = wa.GetObjectCount
+	b.GetNewObjects = wa.GetNewObjects
+	
 	--------------------------------
 	-- object fields
 	--------------------------------
@@ -293,10 +296,12 @@ function unlock.WowAdUnlock()
 	b.UnitCreator = function(unit)
 		return wa.ObjectField(unit, 0x13C8, 15)
 	end
+	b.UnitBoundingRadius = function(unit)
+		return wa.ObjectField(unit, 0x1CEC, 10)
+	end
 	b.UnitCombatReach = function(unit)
 		return wa.ObjectField(unit, 0x1CF0, 10)
-	end
-
+	end	
 	--------------------------------
 	-- API conversions
 	--------------------------------
@@ -307,7 +312,7 @@ function unlock.WowAdUnlock()
 	end
 	b.ObjectIsUnit = function(...)
 		local ObjType = wa.ObjectType(...)
-		return ObjType == 5 or ObjType == 6 or ObjType == 7
+		return ObjType == 5
 	end
 	b.ObjectID = function(object)
 		local guid = b.UnitGUID(object)
@@ -361,10 +366,14 @@ function unlock.WowAdUnlock()
 		return math.sqrt(math.pow(X2 - X1, 2) + math.pow(Y2 - Y1, 2) + math.pow(Z2 - Z1, 2))
 	end
 	b.GetAnglesBetweenObjects = function(Object1, Object2)
-		local X1, Y1, Z1 = b.ObjectPosition(Object1)
-		local X2, Y2, Z2 = b.ObjectPosition(Object2)
-		return math.atan2(Y2 - Y1, X2 - X1) % (math.pi * 2),
-			math.atan((Z1 - Z2) / math.sqrt(math.pow(X1 - X2, 2) + math.pow(Y1 - Y2, 2))) % math.pi
+		if Object1 and Object2 then
+			local X1, Y1, Z1 = b.ObjectPosition(Object1)
+			local X2, Y2, Z2 = b.ObjectPosition(Object2)
+			return math.atan2(Y2 - Y1, X2 - X1) % (math.pi * 2),
+				math.atan((Z1 - Z2) / math.sqrt(math.pow(X1 - X2, 2) + math.pow(Y1 - Y2, 2))) % math.pi
+		else
+			return 0, 0
+		end
 	end
 	b.GetAnglesBetweenPositions = function(X1, Y1, Z1, X2, Y2, Z2)
 		return math.atan2(Y2 - Y1, X2 - X1) % (math.pi * 2),
@@ -383,11 +392,13 @@ function unlock.WowAdUnlock()
 		local AngleXY, AngleXYZ = b.GetAnglesBetweenPositions(X1, Y1, Z1, X2, Y2, Z2)
 		return b.GetPositionFromPosition(X1, Y1, Z1, DistanceFromPosition1, AngleXY, AngleXYZ)
 	end
-	b.GetDistanceBetweenObjects = function(X1, Y1, Z1, X2, Y2, Z2)
-		return math.sqrt(math.pow(X2 - X1, 2) + math.pow(Y2 - Y1, 2) + math.pow(Z2 - Z1, 2))
+	b.GetDistanceBetweenObjects = function(unit1, unit2)
+		local X1, Y1, Z1 = b.ObjectPosition(unit1)
+		local X2, Y2, Z2 = b.ObjectPosition(unit2)
+		return math.sqrt((X2-X1)^2 + (Y2-Y1)^2 + (Z2-Z1)^2)
 	end
 	b.ObjectIsFacing = function(obj1, obj2, degrees)
-		local Facing = UnitFacing(obj1)
+		local Facing = b.UnitFacing(obj1)
 		local AngleToUnit = b.GetAnglesBetweenObjects(obj1, obj2)
 		local AngleDifference = Facing > AngleToUnit and Facing - AngleToUnit or AngleToUnit - Facing
 		local ShortestAngle = AngleDifference < math.pi and AngleDifference or math.pi * 2 - AngleDifference
@@ -411,63 +422,43 @@ function unlock.WowAdUnlock()
 	--------------------------------
 	-- missing APIs
 	--------------------------------
-	b.UnitBoundingRadius = function(...)
-		return 0
-	end
 	b.IsQuestObject = function(obj)
 		return false
 	end
 	b.ScreenToWorld = function()
 		return 0, 0
 	end
-
 	--------------------------------
-	-- internal unit manager
-	--------------------------------
-	local g_lastKnownObjectList = {}
-	local g_lastObjectCount = nil
-	local g_lastObjectGuid = nil
-	local g_lastUpdateTick = 0
-	local const_updateObjectListFastTickDelay = 3
-	local const_updateObjectListAccurateTickDelay = 15
-
-	b.GetObjectCount = function()
-		local count = wa.GetObjectCount()
-		if (g_lastUpdateTick < const_updateObjectListAccurateTickDelay
-		and g_lastObjectCount == count
-		and g_lastObjectGuid == wa.GetObjectWithIndex(count))
-		or g_lastUpdateTick < const_updateObjectListFastTickDelay then
-			g_lastUpdateTick = g_lastUpdateTick + 1
-			return g_lastObjectCount, false, added, removed
-		else
-			g_lastUpdateTick = 0
-		end
-
-		local currentObjects = {}
-		local added = {}
-		local removed = {}
-
-		for i = 1, count do
-			local guid = wa.GetObjectWithIndex(i)
-			if not g_lastKnownObjectList[guid] then
-				added[#added + 1] = guid
-			end
-			g_lastKnownObjectList[guid] = true
-			currentObjects[guid] = true
-		end
-
-		for guid, v in pairs(g_lastKnownObjectList) do
-			if not currentObjects[guid] then
-				removed[#removed + 1] = guid
-				g_lastKnownObjectList[guid] = nil
-			end
-		end
-
-		g_lastObjectCount = count
-		g_lastObjectGuid = wa.GetObjectWithIndex(count)
-
-		local updated = (#added > 0) or (#removed > 0)
-		return count, updated, added, removed
-	end
+	-- cached functions
+	--------------------------------	
+	b.ObjectExists = wa.createCachedFunction(b.ObjectExists, 1)
+	b.UnitExists = wa.createCachedFunction(b.UnitExists, 1)
+	b.UnitIsVisible = wa.createCachedFunction(b.UnitIsVisible, 1)
+	b.ObjectIsVisible = wa.createCachedFunction(b.ObjectIsVisible, 1)
+	
+	b.ObjectPointer = wa.createCachedFunction(b.ObjectPointer, 2)
+	b.UnitGUID = wa.createCachedFunction(b.UnitGUID, 2)
+	b.UnitIsDeadOrGhost = wa.createCachedFunction(b.UnitIsDeadOrGhost, 2)
+	b.UnitHealthMax = wa.createCachedFunction(b.UnitHealthMax, 2)
+	b.UnitHealth = wa.createCachedFunction(b.UnitHealth, 2)
+	b.ObjectIsUnit = wa.createCachedFunction(b.ObjectIsUnit, 2)
+	b.ObjectID = wa.createCachedFunction(b.ObjectID, 2)
+	b.UnitName = wa.createCachedFunction(b.UnitName, 2)
+	b.ObjectName = wa.createCachedFunction(b.ObjectName, 2)
+	b.UnitIsPlayer = wa.createCachedFunction(b.UnitIsPlayer, 2)
+	b.UnitAffectingCombat = wa.createCachedFunction(b.UnitAffectingCombat, 2)
+	b.UnitTarget = wa.createCachedFunction(b.UnitTarget, 2)
+	b.UnitCombatReach = wa.createCachedFunction(b.UnitCombatReach, 2, true)
+	b.UnitBoundingRadius = wa.createCachedFunction(b.UnitBoundingRadius, 2, true)
+	b.UnitPhaseReason = wa.createCachedFunction(b.UnitPhaseReason, 2, true)
+	b.UnitCreator = wa.createCachedFunction(b.UnitCreator, 2, true)
+	
+	b.UnitCastingInfo = wa.createCachedFunction(b.UnitCastingInfo, 3)
+	b.UnitChannelInfo = wa.createCachedFunction(b.UnitChannelInfo, 3)
+	b.UnitCastID = wa.createCachedFunction(b.UnitCastID, 3)	
+	
+	b.UnitIsUnit = function(unit1, unit2)
+		return b.UnitGUID(unit1) == b.UnitGUID(unit2)
+	end	
 	return true
 end

@@ -320,8 +320,17 @@ if not br.metaTable2 then
 			--Cycle and clean tables
 			local i=1
 			while i <= #br.om do
-				if br.om[i].pulseTime == nil or GetTime() >= (br.om[i].pulseTime + (math.random(1,12)/100)) then
-					br.om[i].pulseTime = GetTime()
+				if br.om[i].pulseTime == nil or GetTime() >= br.om[i].pulseTime then
+					
+					-- this delay is extremely important as the unit updates are a major source of FPS loss for BR
+					-- for non-raids, this code will spread out unit updates so that everything gets updated every update
+					-- for raids, only half of units will be updated per BR update
+					local delay = ((math.random() * 0.25)  + 0.75) * br.getUpdateRate()
+					if IsInRaid() then
+						delay = delay * 2.00
+					end
+					
+					br.om[i].pulseTime = GetTime() + delay
 					local thisUnit = br.om[i].unit
 					if not br.GetUnitIsVisible(thisUnit) then
 						--Delete units no longer in OM

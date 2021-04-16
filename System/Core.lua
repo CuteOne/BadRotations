@@ -37,10 +37,10 @@ function br:ObjectManager()
                 if br.data.settings[br.selectedSpec].toggles["Power"] ~= nil
                     and br.data.settings[br.selectedSpec].toggles["Power"] == 1
                 then
-                    if br.timer:useTimer("omUpdate", br:getUpdateRate()) then
-                        br:updateOM()
-                        br.om:Update()
-                    end
+					-- attempt to update objects every frame
+					-- updates for each object will be spread out randomly
+                    br:updateOM()
+                    br.om:Update()
                 end
             end
         end
