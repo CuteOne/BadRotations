@@ -1159,7 +1159,7 @@ local function runRotation()
                             and inCombat 
                             and br.hasItem(177278) 
                     then
-                        if br.canUseitem(177278) then
+                        if br.canUseItem(177278) then
                             br.useItem(177278)
                         end
                         -- Remove Necrotic
@@ -1169,7 +1169,7 @@ local function runRotation()
                             and br.hasItem(177278)
                             and br.getDebuffStacks("player", 209858) >= br.getValue("Phial of Serenity - Necrotic Stacks")
                     then
-                        if br.canUseitem(177278) then
+                        if br.canUseItem(177278) then
                             br.useItem(177278)
                         end
                         -- Remove Grievous
@@ -1179,7 +1179,7 @@ local function runRotation()
                             and br.hasitem(177278)
                             and br.getDebuffStacks("player", 240559) >= br.getValue("Phial of Serenity - Grievous Stacks")
                     then
-                        if br.canUseitem(177278) then
+                        if br.canUseItem(177278) then
                             br.useItem(177278)
                         end
                     end
