@@ -93,13 +93,13 @@ local function createOptions()
             -- Basic Trinkets Module
             br.player.module.BasicTrinkets(nil,section)
             -- Covenant
-            br.ui:createDropdownWithout(section,"Covenant Ability", {"Always", "Cooldown", "Never"}, 1, "|cffFFFFFFSet when to use ability.")
+            br.ui:createCheckbox(section,"Covenant Ability")
             -- A Murder of Crows
-            br.ui:createDropdownWithout(section,"A Murder of Crows", {"Always", "Cooldown", "Never"}, 1, "|cffFFFFFFSet when to use ability.")
+            br.ui:createDropdownWithout(section,"A Murder of Crows", {"|cff0000FFAlways", "|cffFFFF00Cooldown", "|cffFF0000Never"}, 1, "|cffFFFFFFSet when to use ability.")
             -- Aspect of the Eagle
-            br.ui:createDropdownWithout(section,"Aspect of the Eagle", {"Always", "Cooldown", "Never"}, 1, "|cffFFFFFFSet when to use ability.")
+            br.ui:createDropdownWithout(section,"Aspect of the Eagle", {"|cff0000FFAlways", "|cffFFFF00Cooldown", "|cffFF0000Never"}, 1, "|cffFFFFFFSet when to use ability.")
             -- Coordinated Assault
-            br.ui:createDropdownWithout(section,"Coordinated Assault", {"Always", "Cooldown", "Never"}, 1, "|cffFFFFFFSet when to use ability.")
+            br.ui:createDropdownWithout(section,"Coordinated Assault", {"|cff0000FFAlways", "|cffFFFF00Cooldown", "|cffFF0000Never"}, 1, "|cffFFFFFFSet when to use ability.")
         br.ui:checkSectionState(section)
         -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
@@ -239,7 +239,7 @@ actionList.Extra = function()
     -- Misdirection
     if ui.mode.misdirection == 1 then
         local misdirectUnit = nil
-        if unit.valid("target") and unit.distance("target") < 40 then
+        if unit.valid("target") and unit.distance("target") < 40 and not buff.playDead.exists("pet") then
             -- Misdirect to Tank
             if ui.value("Misdirection") == 1 then
                 local tankInRange, tankUnit = unit.isTankInRange()
@@ -396,10 +396,10 @@ actionList.Cooldown = function()
     end
     -- Kill Shot
     -- kill_shot,if=active_enemies=1&target.time_to_die<focus%(action.mongoose_bite.cost-cast_regen)*gcd
-    if cast.able.killShot() and (unit.hp("target") < 20 or buff.flayersMark.exist()) and #enemies.yards40 == 1
+    if cast.able.killShot("target") and (unit.hp("target") < 20 or buff.flayersMark.exist()) and #enemies.yards40 == 1
         and unit.ttd(units.dyn40) < focus / (cast.cost.mongooseBite() - cast.regen.killShot()) * unit.gcd(true)
     then
-        if cast.killShot() then ui.debug("Casting Kill Shot [CD]") return true end
+        if cast.killShot("target") then ui.debug("Casting Kill Shot [CD]") return true end
     end
     -- Mongoose Bite
     -- mongoose_bite,if=active_enemies=1&target.time_to_die<focus%(action.mongoose_bite.cost-cast_regen)*gcd
@@ -414,7 +414,7 @@ actionList.Cooldown = function()
     -- Aspect of the Eagle
     -- aspect_of_the_eagle,if=target.distance>=6
     if ui.mode.aotE == 1 and ui.alwaysCdNever("Aspect of the Eagle") and cast.able.aspectOfTheEagle()
-        and unit.standingTime() >= 2 and (unit.distance("target") >= 6)        
+        and unit.standingTime() >= 2 and (unit.distance("target") >= 6)
     then
         if cast.aspectOfTheEagle() then ui.debug("Casting Aspect of the Eagle") return true end
     end
@@ -424,17 +424,17 @@ end -- End Action List - Cooldowns
 actionList.ApBoP = function()
     -- Wild Spirits
     -- wild_spirits
-    if ui.alwaysCdNever("Covenant Ability") and cast.able.wildSpirits("best",nil,1,12) then
-        if cast.wildSpirits("best",nil,1,12) then ui.debug("Casting Wild Spirits [ApBoP]") return true end
+    if ui.checked("Covenant Ability") and cast.able.wildSpirits("best",nil,var.spiritUnits,12) then
+        if cast.wildSpirits("best",nil,var.spiritUnits,12) then ui.debug("Casting Wild Spirits [ApBoP]") return true end
     end
     -- Flanking Strike
     -- flanking_strike,if=focus+cast_regen<focus.max
-    if cast.able.flankingStrike() and (focus + cast.regen.flankingStrike() < focusMax) then
+    if cast.able.flankingStrike() and unit.distance("pet",units.dyn15) < 15 and (focus + cast.regen.flankingStrike() < focusMax) then
         if cast.flankingStrike() then ui.debug("Casting Flanking Strike [ApBoP - Higher Priority]") return true end
     end
     -- Flayed Shot
     -- flayed_shot
-    if ui.alwaysCdNever("Covenant Ability") and cast.able.flayedShot() then
+    if ui.alwaysCdAoENever("Covenant Ability") and cast.able.flayedShot() then
         if cast.flayedShot() then ui.debug("Casting Flayed Shot [ApBop]") return true end
     end
     -- Death Chakrams
@@ -463,7 +463,7 @@ actionList.ApBoP = function()
     end
     -- Flanking Strike
     -- flanking_strike,if=focus+cast_regen<focus.max
-    if cast.able.flankingStrike() and (focus + cast.regen.flankingStrike() < focusMax) then
+    if cast.able.flankingStrike() and unit.distance("pet",units.dyn15) < 15 and (focus + cast.regen.flankingStrike() < focusMax) then
         if cast.flankingStrike() then ui.debug("Casting Flanking Strike [ApBoP - Lower Priority]") return true end
     end
     -- Wildfire Bomb
@@ -488,8 +488,9 @@ actionList.ApBoP = function()
     end
     -- Kill Command
     -- kill_command,target_if=min:bloodseeker.remains,if=full_recharge_time<gcd&focus+cast_regen<focus.max&(runeforge.nessingwarys_trapping_apparatus.equipped&cooldown.freezing_trap.remains&cooldown.tar_trap.remains|!runeforge.nessingwarys_trapping_apparatus.equipped)
-    if cast.able.killCommand(var.lowestBloodseeker) and charges.killCommand.timeTillFull() < unit.gcd(true) and focus + cast.regen.killCommand() < focusMax
-        and (runeforge.nesingwarysTrappingApparatus.equiped and cd.freezingTrap.exists() and cd.tarTrap.exists() or not runeforge.nesingwarysTrappingApparatus.equiped)
+    if cast.able.killCommand(var.lowestBloodseeker) and unit.distance("pet",units.dyn40) < 50 and charges.killCommand.timeTillFull() < unit.gcd(true)
+        and focus + cast.regen.killCommand() < focusMax and (runeforge.nesingwarysTrappingApparatus.equiped
+        and cd.freezingTrap.exists() and cd.tarTrap.exists() or not runeforge.nesingwarysTrappingApparatus.equiped)
     then
         if cast.killCommand(var.lowestBloodseeker) then ui.debug("Casting Kill Command [ApBoP - Full Charges]") return true end
     end
@@ -500,8 +501,9 @@ actionList.ApBoP = function()
     end
     -- Kill Command
     -- kill_command,target_if=min:bloodseeker.remains,if=focus+cast_regen<focus.max&(buff.mongoose_fury.stack<5|focus<action.mongoose_bite.cost)&(runeforge.nessingwarys_trapping_apparatus.equipped&cooldown.freezing_trap.remains&cooldown.tar_trap.remains|!runeforge.nessingwarys_trapping_apparatus.equipped)
-    if cast.able.killCommand(var.lowestBloodseeker) and focus + cast.regen.killCommand() < focusMax and (buff.mongooseFury.stack() < 5 or focus < cast.cost.mongooseBite())
-        and (runeforge.nesingwarysTrappingApparatus.equiped and cd.freezingTrap.exists() and cd.tarTrap.exists() or not runeforge.nesingwarysTrappingApparatus.equiped)
+    if cast.able.killCommand(var.lowestBloodseeker) and unit.distance("pet",units.dyn40) < 50 and focus + cast.regen.killCommand() < focusMax
+        and (buff.mongooseFury.stack() < 5 or focus < cast.cost.mongooseBite()) and (runeforge.nesingwarysTrappingApparatus.equiped and cd.freezingTrap.exists()
+        and cd.tarTrap.exists() or not runeforge.nesingwarysTrappingApparatus.equiped)
     then
         if cast.killCommand(var.lowestBloodseeker) then ui.debug("Casting Kill Command [ApBoP - Low Mongoose Fury / Focus]") return true end
     end
@@ -512,7 +514,7 @@ actionList.ApBoP = function()
     end
     -- Resonating Arrow
     -- resonating_arrow
-    if ui.alwaysCdNever("Covenant Ability") and cast.able.resonatingArrow("best",nil,1,15) then
+    if ui.alwaysCdAoENever("Covenant Ability") and cast.able.resonatingArrow("best",nil,1,15) then
         if cast.resonatingArrow("best",nil,1,15) then ui.debug("Casting Resonating Arrow [ApBoP]") return true end
     end
     -- Coordinated Assault
@@ -553,18 +555,18 @@ actionList.ApSt = function()
     end
     -- Flayed Shot
     -- flayed_shot
-    if ui.alwaysCdNever("Covenant Ability") and cast.able.flayedShot() then
+    if ui.alwaysCdAoENever("Covenant Ability") and cast.able.flayedShot() then
         if cast.flayedShot() then ui.debug("Casting Flayed Shot [ApSt]") return true end
     end
     -- Resonating Arrow
     -- resonating_arrow
-    if ui.alwaysCdNever("Covenant Ability") and cast.able.resonatingArrow("best",nil,1,15) then
+    if ui.alwaysCdAoENever("Covenant Ability") and cast.able.resonatingArrow("best",nil,1,15) then
         if cast.resonatingArrow("best",nil,1,15) then ui.debug("Casting Resonating Arrow [ApSt]") return true end
     end
     -- Wild Spirits
     -- wild_spirits
-    if ui.alwaysCdNever("Covenant Ability") and cast.able.wildSpirits("best",nil,1,12) then
-        if cast.wildSpirits("best",nil,1,12) then ui.debug("Casting Wild Spirits [ApSt]") return true end
+    if ui.checked("Covenant Ability") and cast.able.wildSpirits("best",nil,var.spiritUnits,12) then
+        if cast.wildSpirits("best",nil,var.spiritUnits,12) then ui.debug("Casting Wild Spirits [ApSt]") return true end
     end
     -- Coordinated Assault
     -- coordinated_assault
@@ -578,7 +580,7 @@ actionList.ApSt = function()
     end
     -- Flanking Strike
     -- flanking_strike,if=focus+cast_regen<focus.max
-    if cast.able.flankingStrike() and (focus + cast.regen.flankingStrike() < focusMax) then
+    if cast.able.flankingStrike() and unit.distance("pet",units.dyn15) < 15 and (focus + cast.regen.flankingStrike() < focusMax) then
         if cast.flankingStrike() then ui.debug("Casting Flanking Strike [ApSt]") return true end
     end
     -- A Murder of Crows
@@ -621,7 +623,9 @@ actionList.ApSt = function()
     end
     -- Kill Command
     -- kill_command,target_if=min:bloodseeker.remains,if=full_recharge_time<gcd&focus+cast_regen<focus.max
-    if cast.able.killCommand(var.lowestBloodseeker) and charges.killCommand.timeTillFull() < unit.gcd(true) and focus + cast.regen.killCommand() < focusMax then
+    if cast.able.killCommand(var.lowestBloodseeker) and unit.distance("pet",units.dyn40) < 50
+        and charges.killCommand.timeTillFull() < unit.gcd(true) and focus + cast.regen.killCommand() < focusMax
+    then
         if cast.killCommand(var.lowestBloodseeker) then ui.debug("Casting Kill Command [ApSt - Max Charges]") return true end
     end
     -- Raptor Strike
@@ -651,7 +655,7 @@ actionList.ApSt = function()
     end
     -- Kill Command
     -- kill_command,target_if=min:bloodseeker.remains,if=focus+cast_regen<focus.max
-    if cast.able.killCommand(var.lowestBloodseeker) and focus + cast.regen.killCommand() < focusMax then
+    if cast.able.killCommand(var.lowestBloodseeker) and unit.distance("pet",units.dyn40) < 50 and focus + cast.regen.killCommand() < focusMax then
         if cast.killCommand(var.lowestBloodseeker) then ui.debug("Casting Kill Command [ApSt - High Focus]") return true end
     end
     -- Wildfire Bomb
@@ -689,7 +693,9 @@ actionList.BoP = function()
     end
     -- Kill Command
     -- kill_command,target_if=min:bloodseeker.remains,if=focus+cast_regen<focus.max&buff.nesingwarys_trapping_apparatus.up
-    if cast.able.killCommand(var.lowestBloodseeker) and focus + cast.regen.killCommand() < focusMax and buff.nesingwarysTrappingApparatus.exists() then
+    if cast.able.killCommand(var.lowestBloodseeker) and unit.distance("pet",units.dyn40) < 50
+        and focus + cast.regen.killCommand() < focusMax and buff.nesingwarysTrappingApparatus.exists()
+    then
         if cast.killCommand(var.lowestBloodseeker) then ui.debug("Casting Kill Command [BoP - Nesingwary's Trapping Apparatus]") return true end
     end
     -- Wildfire Bomb
@@ -699,17 +705,17 @@ actionList.BoP = function()
     end
     -- Wild Spirits
     -- wild_spirits
-    if ui.alwaysCdNever("Covenant Ability") and cast.able.wildSpirits("best",nil,1,12) then
-        if cast.wildSpirits("best",nil,1,12) then ui.debug("Casting Wild Spirits [BoP]") return true end
+    if ui.checked("Covenant Ability") and cast.able.wildSpirits("best",nil,var.spiritUnits,12) then
+        if cast.wildSpirits("best",nil,var.spiritUnits,12) then ui.debug("Casting Wild Spirits [BoP]") return true end
     end
     -- Flanking Strike
     -- flanking_strike,if=focus+cast_regen<focus.max
-    if cast.able.flankingStrike() and (focus + cast.regen.flankingStrike() < focusMax) then
+    if cast.able.flankingStrike() and unit.distance("pet",units.dyn15) < 15 and (focus + cast.regen.flankingStrike() < focusMax) then
         if cast.flankingStrike() then ui.debug("Casting Flanking Strike [BoP]") return true end
     end
     -- Flayed Shot
     -- flayed_shot
-    if ui.alwaysCdNever("Covenant Ability") and cast.able.flayedShot() then
+    if ui.alwaysCdAoENever("Covenant Ability") and cast.able.flayedShot() then
         if cast.flayedShot() then ui.debug("Casting Flayed Shot [BoP]") return true end
     end
     -- Death Chakram
@@ -757,7 +763,7 @@ actionList.BoP = function()
     end
     -- Kill Command
     -- kill_command,target_if=min:bloodseeker.remains,if=focus+cast_regen<focus.max&!runeforge.nessingwarys_trapping_apparatus.equipped|focus+cast_regen<focus.max&((runeforge.nessingwarys_trapping_apparatus.equipped&!talent.steel_trap.enabled&cooldown.freezing_trap.remains&cooldown.tar_trap.remains)|(runeforge.nessingwarys_trapping_apparatus.equipped&talent.steel_trap.enabled&cooldown.freezing_trap.remains&cooldown.tar_trap.remains&cooldown.steel_trap.remains))|focus<action.mongoose_bite.cost
-    if cast.able.killCommand(var.lowestBloodseeker) and focus + cast.regen.killCommand() < focusMax and not runeforge.nesingwarysTrappingApparatus.equiped
+    if cast.able.killCommand(var.lowestBloodseeker) and unit.distance("pet",units.dyn40) < 50 and focus + cast.regen.killCommand() < focusMax and not runeforge.nesingwarysTrappingApparatus.equiped
         or focus + cast.regen.killCommand() < focusMax and ((runeforge.nesingwarysTrappingApparatus.equiped and not talent.steelTrap and cd.freezingTrap.exists() and cd.tarTrap.exists())
             or (runeforge.nesingwarysTrappingApparatus.equiped and talent.steelTrap and cd.freezingTrap.exists() and cd.tarTrap.exists() and cd.steelTrap.exists()))
         or focus < cast.cost.mongooseBite()
@@ -778,7 +784,7 @@ actionList.BoP = function()
     end
     -- Resonating Arrow
     -- resonating_arrow
-    if ui.alwaysCdNever("Covenant Ability") and cast.able.resonatingArrow("best",nil,1,15) then
+    if ui.alwaysCdAoENever("Covenant Ability") and cast.able.resonatingArrow("best",nil,1,15) then
         if cast.resonatingArrow("best",nil,1,15) then ui.debug("Casting Resonating Arrow [BoP]") return true end
     end
     -- Coordinated Assault
@@ -817,12 +823,12 @@ actionList.Cleave = function()
     end
     -- Wild Spirits
     -- wild_spirits
-    if ui.alwaysCdNever("Covenant Ability") and cast.able.wildSpirits("best",nil,1,12) then
-        if cast.wildSpirits("best",nil,1,12) then ui.debug("Casting Wild Spirits [Cleave]") return true end
+    if ui.checked("Covenant Ability") and cast.able.wildSpirits("best",nil,var.spiritUnits,12) then
+        if cast.wildSpirits("best",nil,var.spiritUnits,12) then ui.debug("Casting Wild Spirits [Cleave]") return true end
     end
     -- Resonating Arrow
     -- resonating_arrow
-    if ui.alwaysCdNever("Covenant Ability") and cast.able.resonatingArrow("best",nil,1,15) then
+    if ui.alwaysCdAoENever("Covenant Ability") and cast.able.resonatingArrow("best",nil,1,15) then
         if cast.resonatingArrow("best",nil,1,15) then ui.debug("Casting Resonating Arrow [Cleave]") return true end
     end
     -- Wildfire Bomb
@@ -864,7 +870,7 @@ actionList.Cleave = function()
     end
     -- Flanking Strike
     -- flanking_strike,if=focus+cast_regen<focus.max
-    if cast.able.flankingStrike() and (focus + cast.regen.flankingStrike() < focusMax) then
+    if cast.able.flankingStrike() and unit.distance("pet",units.dyn15) < 15 and (focus + cast.regen.flankingStrike() < focusMax) then
         if cast.flankingStrike() then ui.debug("Casting Flanking Strike [Cleave]") return true end
     end
     -- Carve
@@ -874,7 +880,7 @@ actionList.Cleave = function()
     end
     -- Kill Command
     -- kill_command,target_if=min:bloodseeker.remains,if=focus+cast_regen<focus.max&full_recharge_time<gcd&(runeforge.nessingwarys_trapping_apparatus.equipped&cooldown.freezing_trap.remains&cooldown.tar_trap.remains|!runeforge.nessingwarys_trapping_apparatus.equipped)
-    if cast.able.killCommand(var.lowestBloodseeker) and focus + cast.regen.killCommand() < focusMax and charges.killCommand.timeTillFull() < unit.gcd(true)
+    if cast.able.killCommand(var.lowestBloodseeker) and unit.distance("pet",units.dyn40) < 50 and focus + cast.regen.killCommand() < focusMax and charges.killCommand.timeTillFull() < unit.gcd(true)
         and (runeforge.nesingwarysTrappingApparatus.equiped and cd.freezingTrap.exists() and cd.tarTrap.exists() or not runeforge.nesingwarysTrappingApparatus.equiped)
     then
         if cast.killCommand(var.lowestBloodseeker) then ui.debug("Casting Kill Command [Cleave - Max Charges]") return true end
@@ -903,7 +909,7 @@ actionList.Cleave = function()
     end
     -- Flayed Shot
     -- flayed_shot
-    if ui.alwaysCdNever("Covenant Ability") and cast.able.flayedShot() then
+    if ui.alwaysCdAoENever("Covenant Ability") and cast.able.flayedShot() then
         if cast.flayedShot() then ui.debug("Casting Flayed Shot [Cleave]") return true end
     end
     -- A Murder of Crows
@@ -928,7 +934,7 @@ actionList.Cleave = function()
     end
     -- Kill Command
     -- kill_command,target_if=focus+cast_regen<focus.max&(runeforge.nessingwarys_trapping_apparatus.equipped&cooldown.freezing_trap.remains&cooldown.tar_trap.remains|!runeforge.nessingwarys_trapping_apparatus.equipped)
-    if cast.able.killCommand(var.lowestBloodseeker) and focus + cast.regen.killCommand() < focusMax
+    if cast.able.killCommand(var.lowestBloodseeker) and unit.distance("pet",units.dyn40) < 50 and focus + cast.regen.killCommand() < focusMax
         and (runeforge.nesingwarysTrappingApparatus.equiped and cd.freezingTrap.exists() and cd.tarTrap.exists() or not runeforge.nesingwarysTrappingApparatus.equiped)
     then
         if cast.killCommand(var.lowestBloodseeker) then ui.debug("Casting Kill Command [Cleave]") return true end
@@ -954,17 +960,17 @@ end -- End Action List - Cleave
 actionList.St = function()
     -- Flayed Shot
     -- flayed_shot
-    if ui.alwaysCdNever("Covenant Ability") and cast.able.flayedShot() then
+    if ui.alwaysCdAoENever("Covenant Ability") and cast.able.flayedShot() then
         if cast.flayedShot() then ui.debug("Casting Flayed Shot [St]") return true end
     end
     -- Wild Spirits
     -- wild_spirits
-    if ui.alwaysCdNever("Covenant Ability") and cast.able.wildSpirits("best",nil,1,12) then
-        if cast.wildSpirits("best",nil,1,12) then ui.debug("Casting Wild Spirits [St]") return true end
+    if ui.checked("Covenant Ability") and cast.able.wildSpirits("best",nil,var.spiritUnits,12) then
+        if cast.wildSpirits("best",nil,var.spiritUnits,12) then ui.debug("Casting Wild Spirits [St]") return true end
     end
     -- Resonating Arrow
     -- resonating_arrow
-    if ui.alwaysCdNever("Covenant Ability") and cast.able.resonatingArrow("best",nil,1,15) then
+    if ui.alwaysCdAoENever("Covenant Ability") and cast.able.resonatingArrow("best",nil,1,15) then
         if cast.resonatingArrow("best",nil,1,15) then ui.debug("Casting Resonating Arrow [St]") return true end
     end
     -- Serpent Sting
@@ -1007,12 +1013,12 @@ actionList.St = function()
     end
     -- Flanking Strike
     -- flanking_strike,if=focus+cast_regen<focus.max
-    if cast.able.flankingStrike() and (focus + cast.regen.flankingStrike() < focusMax) then
+    if cast.able.flankingStrike() and unit.distance("pet",units.dyn15) < 15 and (focus + cast.regen.flankingStrike() < focusMax) then
         if cast.flankingStrike() then ui.debug("Casting Flanking Strike [St]") return true end
     end
     -- Kill Command
     -- kill_command,target_if=min:bloodseeker.remains,if=focus+cast_regen<focus.max&(runeforge.nessingwarys_trapping_apparatus.equipped&cooldown.freezing_trap.remains&cooldown.tar_trap.remains|!runeforge.nessingwarys_trapping_apparatus.equipped)
-    if cast.able.killCommand(var.lowestBloodseeker) and focus + cast.regen.killCommand() < focusMax
+    if cast.able.killCommand(var.lowestBloodseeker) and unit.distance("pet",units.dyn40) < 50 and focus + cast.regen.killCommand() < focusMax
         and (runeforge.nesingwarysTrappingApparatus.equiped and cd.freezingTrap.exists() and cd.tarTrap.exists() or not runeforge.nesingwarysTrappingApparatus.equiped)
     then
         if cast.killCommand(var.lowestBloodseeker) then ui.debug("Casting Kill Comamand [St]") return true end
@@ -1246,16 +1252,17 @@ local function runRotation()
     end
     -- General Locals
     var.minCount                                  = ui.useCDs() and 1 or 3
-    var.haltProfile                               = (unit.inCombat() and var.profileStop) or (unit.mounted() or unit.flying()) or ui.pause() or buff.feignDeath.exists() or ui.mode.rotation==4
+    var.haltProfile                               = (unit.inCombat() and var.profileStop) or unit.mounted() or unit.flying() or ui.pause() or buff.feignDeath.exists() or ui.mode.rotation==4
     -- Profile Specific Locals
     var.eagleUnit                                       = buff.aspectOfTheEagle.exists() and units.dyn40 or units.dyn5
     var.eagleRange                               = buff.aspectOfTheEagle.exists() and 40 or 5
     var.eagleEnemies                                    = buff.aspectOfTheEagle.exists() and enemies.yards40 or enemies.yards5
-    var.lowestBloodseeker                         = debuff.bloodseeker.lowest(40,"remain") or "target"
-    var.lowestSerpentSting                        = debuff.serpentSting.lowest(40,"remain") or "target"
-    var.maxLatentPoison                           = debuff.latentPoison.max(var.eagleRange,"stack") or "target"
-    
-    if var.eagleUnit == nil then var.eagleUnit = "target" end
+    var.lowestBloodseeker                         = debuff.bloodseeker.lowest(40,"remain") or var.eagleUnit
+    var.lowestSerpentSting                        = debuff.serpentSting.lowest(40,"remain") or var.eagleUnit
+    var.maxLatentPoison                           = debuff.latentPoison.max(var.eagleRange,"stack") or var.eagleUnit
+    var.spiritUnits                                     = ui.useCDs() and 1 or 3
+
+    -- if var.eagleUnit == nil then var.eagleUnit = "target" end
     -- variable,name=carve_cdr,op=setif,value=active_enemies,value_else=5,condition=active_enemies<5
     var.carveCdr = #enemies.yards5 < 5 and #enemies.yards5 or 5
 
@@ -1269,7 +1276,6 @@ local function runRotation()
         end
     end
 
-
     -----------------
     --- Pet Logic ---
     -----------------
@@ -1278,14 +1284,20 @@ local function runRotation()
     --- Begin Profile ---
     ---------------------
     -- Profile Stop | Pause
+    -- if not unit.inCombat() and not unit.exists("target") and var.profileStop then
+    --     var.profileStop = false
+    -- elseif var.haltProfile then
+    --     if cast.able.playDead() and cast.last.feignDeath() and not buff.playDead.exists("pet") then
+    --         if cast.playDead() then ui.debug("Casting Play Dead [Pet]") return true end
+    --     end
+    --     -- unit.stopAttack()
+    --     --if unit.isDummy() then unit.clearTarget() end
+    --     return true
+    -- else
+    -- Profile Stop | Pause
     if not unit.inCombat() and not unit.exists("target") and var.profileStop then
         var.profileStop = false
     elseif var.haltProfile then
-        if cast.able.playDead() and cast.last.feignDeath() and not buff.playDead.exists("pet") then
-            if cast.playDead() then ui.debug("Casting Play Dead [Pet]") return true end
-        end
-        unit.stopAttack()
-        if unit.isDummy() then unit.clearTarget() end
         return true
     else
         ---------------------------------

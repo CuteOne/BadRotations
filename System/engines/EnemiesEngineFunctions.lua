@@ -1,5 +1,5 @@
 local _, br = ...
-local LibDraw = LibStub("LibDraw-1.0")
+local LibDraw = LibStub("LibDraw-BR")
 br.enemy	= {}
 br.lootable = {}
 br.units 	= {}
@@ -24,37 +24,32 @@ end
 function br:updateOM()
 	local om = br.om
 	local startTime = br._G.debugprofilestop()
-	local total, updated, added, removed = br._G.GetObjectCount(true,"BR")
-	-- if br.initOM then
-	-- 	br.initOM = false
+	
+	if br._G.GetNewObjects then
+		local added, removed = br._G.GetNewObjects()
+		for k, v in pairs(added) do
+			if br._G.ObjectIsUnit(v) then
+				local enemyUnit = br.unitSetup:new(v)
+				if enemyUnit then
+					tinsert(om, enemyUnit)
+				end
+			end
+		end	
+	else
+		local total = br._G.GetObjectCount(true,"BR") or 0
 		for i = 1,total do
-			local thisUnit = br._G.GetObjectWithIndex(i)  -- thisUnit contains the '0x' string representing the object address
-			if br._G.ObjectIsUnit(thisUnit)  then
+			local thisUnit = br._G.GetObjectWithIndex(i)
+			if br._G.ObjectIsUnit(thisUnit) then
 				local enemyUnit = br.unitSetup:new(thisUnit)
 				if enemyUnit then
 					br._G.tinsert(om, enemyUnit)
 				end
 			end
 		end
-	-- end
-	-- for k, v in pairs(added) do
-	-- 	if ObjectIsUnit(v) then
-	-- 		local enemyUnit = br.unitSetup:new(v)
-	-- 		if enemyUnit then
-	-- 			tinsert(om, enemyUnit)
-	-- 		end
-	-- 	end
-	-- end
-	-- for k,v in pairs(removed) do
-	-- 		for i = #om, 1, -1 do
-	-- 			if om[i].unit == v then
-	-- 				tremove(om, i)
-	-- 			end
-	-- 		end
-	-- 	end
-	--end
-    refreshStored = true
-    -- Debugging
+	end	
+	
+	refreshStored = true
+	-- Debugging
     br.debug.cpu:updateDebug(startTime,"enemiesEngine.objects")
 end
 

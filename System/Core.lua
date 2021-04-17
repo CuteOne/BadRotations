@@ -37,10 +37,10 @@ function br:ObjectManager()
                 if br.data.settings[br.selectedSpec].toggles["Power"] ~= nil
                     and br.data.settings[br.selectedSpec].toggles["Power"] == 1
                 then
-                    if br.timer:useTimer("omUpdate", br:getUpdateRate()) then
-                        br:updateOM()
-                        br.om:Update()
-                    end
+					-- attempt to update objects every frame
+					-- updates for each object will be spread out randomly
+                    br:updateOM()
+                    br.om:Update()
                 end
             end
         end
@@ -57,7 +57,7 @@ end
 local collectGarbage = true
 function br.BadRotationsUpdate(self)
     local startTime = br._G.debugprofilestop()
-    local LibDraw = br._G.LibStub("LibDraw-1.0")
+    local LibDraw = br._G.LibStub("LibDraw-BR")
     local Print = br._G["print"]
     -- Check for Unlocker
     if not br.unlocked then

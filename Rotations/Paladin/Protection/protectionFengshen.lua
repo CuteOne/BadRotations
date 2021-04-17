@@ -1,6 +1,6 @@
 local rotationName = "Feng"
 local StunsBlackList="167876|169861|168318|165824|165919|171799|168942|167612|169893|167536|173044|167731|165137|167538|168886|170572"
-local StunSpellList="326450|328177|336451|331718|331743|334708|333145|321807|334748|327130|327240|330532|328400|330423|294171|164737|330586|329224|328429|295001|296355|295001|295985|330471|329753|296748|334542|242391"
+local StunSpellList="326450|328177|331718|331743|334708|333145|321807|334748|327130|327240|330532|328400|330423|294171|164737|330586|329224|328429|295001|296355|295001|295985|330471|329753|296748|334542|242391|322169|324609"
 local HoJPrioList = "164702|164362|170488|165905|165251|165556"
 ---------------
 --- Toggles ---
@@ -204,6 +204,7 @@ local function runRotation()
 	--------------
 	local holyPower     = br.player.power.holyPower.amount()
 	local holyPowerMax  = br.player.power.holyPower.max()
+	local runeforge     = br.player.runeforge
 	local buff          = br.player.buff
 	local cast          = br.player.cast
 	local cd            = br.player.cd
@@ -229,6 +230,7 @@ local function runRotation()
 	local spell         = br.player.spell
 	local talent        = br.player.talent
 	local ttd           = br.getTTD("target")
+	local unit          = br.player.unit
 	local units         = br.player.units
 	local module        = br.player.module
 	local use           = br.player.use
@@ -277,13 +279,13 @@ local function runRotation()
 
 	if ui.checked("Automatic Aura replacement") and not br.castingUnit() then
 		if not inInstance and not inRaid then
-			if not buff.devotionAura.exists() and (not br._G.IsMounted() or buff.divineSteed.exists()) and cast.able.devotionAura() then
+			if not buff.devotionAura.exists() and (not br._G.IsMounted() or buff.divineSteed.exists()) and cd.devotionAura.ready() then
 				if cast.devotionAura("player") then return true end
-			elseif not buff.crusaderAura.exists() and br._G.IsMounted() and cast.able.crusaderAura() then
+			elseif not buff.crusaderAura.exists() and br._G.IsMounted() and cd.crusaderAura.ready() then
 				if cast.crusaderAura("player") then return true end
 			end
 		end
-		if (inInstance or inRaid) and not inCombat and not buff.devotionAura.exists() and cast.able.devotionAura() then
+		if (inInstance or inRaid) and not inCombat and not buff.devotionAura.exists() and cd.devotionAura.ready() then
 			if cast.devotionAura("player") then return true end
 		end
 	end
@@ -293,7 +295,7 @@ local function runRotation()
 	-- Action List - Extras
 	actionList.Extras = function()
 		-- Taunt
-		if ui.checked("Taunt") and cast.able.handOfReckoning() and inInstance then
+		if ui.checked("Taunt") and cd.handOfReckoning.ready() and inInstance then
 			for i = 1, #enemies.yards30 do
 				local thisUnit = enemies.yards30[i]
 				if br._G.UnitThreatSituation("player",thisUnit) ~= nil and br._G.UnitThreatSituation("player",thisUnit) <= 2 and br._G.UnitAffectingCombat(thisUnit) and br.GetObjectID(thisUnit) ~= 174773 then
@@ -304,14 +306,14 @@ local function runRotation()
 		-- Auto cancel BoP and DS
 		if mode.autocancel == 1 then
 			if inInstance or inRaid then
-				if buff.blessingOfProtection.exists() and cast.able.handOfReckoning() and #enemies.yards10 == 1 then
+				if buff.blessingOfProtection.exists() and cd.handOfReckoning.ready() and #enemies.yards10 == 1 then
 					if cast.handOfReckoning("target") then return true end
 				end
 				if buff.blessingOfProtection.exists() and (debuff.handOfReckoning.remain("target") < 0.2 or br.getDebuffRemain("player",209858) ~= 0) then
 					br.CancelUnitBuffID("player",spell.blessingOfProtection)
 				end
 				if not talent.finalStand and br.GetObjectID("boss1") ~= 162060 and br.GetObjectID("boss1") ~= 164261 then
-					if buff.divineShield.exists() and cast.able.handOfReckoning() and #enemies.yards10 == 1 then
+					if buff.divineShield.exists() and cd.handOfReckoning.ready() and #enemies.yards10 == 1 then
 						if cast.handOfReckoning("target") then return true end
 					end
 					if buff.divineShield.exists() and (debuff.handOfReckoning.remain("target") < 0.2 or br.getDebuffRemain("player",209858) ~= 0) then
@@ -392,7 +394,7 @@ local function runRotation()
 				end
 			end
 			-- Divine Shield
-			if ui.checked("Divine Shield") and cast.able.divineShield() and not buff.ardentDefender.exists() and not buff.guardianOfAncientKings.exists() and not debuff.forbearance.exists() then
+			if ui.checked("Divine Shield") and cd.divineShield.ready() and not buff.ardentDefender.exists() and not buff.guardianOfAncientKings.exists() and not debuff.forbearance.exists() then
 				if php <= ui.value("Divine Shield") and inCombat then
 					if cast.divineShield() then return true end
 				end
@@ -480,7 +482,7 @@ local function runRotation()
 				end
 			end
 			-- Blessing Of Sacrifice
-			if ui.checked("Blessing Of Sacrifice") and cast.able.blessingOfSacrifice() and php >= 50 and inCombat then
+			if ui.checked("Blessing Of Sacrifice") and cd.blessingOfSacrifice.ready() and php >= 50 and inCombat then
 				-- Target
 				if ui.value("Blessing Of Sacrifice Target") == 1 then
 					if br.getHP("target") <= br.getValue("Blessing Of Sacrifice") and br._G.UnitIsPlayer("target") and br.GetUnitIsFriend("target","player") then
@@ -519,7 +521,7 @@ local function runRotation()
 				end
 			end
 			-- Cleanse Toxins
-			if ui.checked("Clease Toxin") and cast.able.cleanseToxins() and br.GetObjectID("boss1") ~= 164267 then
+			if ui.checked("Clease Toxin") and cd.cleanseToxins.ready() and br.GetObjectID("boss1") ~= 164267 then
 				if ui.value("Clease Toxin")==1 then
 					if br.canDispel("player",spell.cleanseToxins) then
 						if cast.cleanseToxins("player") then return true end
@@ -547,16 +549,16 @@ local function runRotation()
 				end
 			end
 			-- Blinding Light
-			if ui.checked("Blinding Light - HP") and cast.able.blindingLight() and talent.blindingLight and php <= ui.value("Blinding Light - HP") and inCombat and #enemies.yards10 > 0 then
+			if ui.checked("Blinding Light - HP") and cd.blindingLight.ready() and talent.blindingLight and php <= ui.value("Blinding Light - HP") and inCombat and #enemies.yards10 > 0 then
 				if cast.blindingLight() then return true end
 			end
-			if ui.checked("Guardian of Ancient Kings") and cast.able.guardianOfAncientKings() then
+			if ui.checked("Guardian of Ancient Kings") and cd.guardianOfAncientKings.ready() then
 				if php <= ui.value("Guardian of Ancient Kings") and inCombat and not buff.ardentDefender.exists() and not buff.divineShield.exists() then
 					if cast.guardianOfAncientKings() then return true end
 				end
 			end
 			-- Ardent Defender
-			if ui.checked("Ardent Defender") and cast.able.ardentDefender() then
+			if ui.checked("Ardent Defender") and cd.ardentDefender.ready() then
 				if (php <= ui.value("Ardent Defender") or php <= 10 or buff.holyAvenger.exists()) and inCombat and not buff.guardianOfAncientKings.exists() and not buff.divineShield.exists() then
 					if cast.ardentDefender() then return true end
 				end
@@ -566,7 +568,7 @@ local function runRotation()
 				if br.castSpell("player",racial,false,false,false) then return true end
 			end
 			-- Hammer of Justice
-			if ui.checked("Hammer of Justice - HP") and cast.able.hammerOfJustice() and php <= ui.value("Hammer of Justice - HP") and inCombat then
+			if ui.checked("Hammer of Justice - HP") and cd.hammerOfJustice.ready() and php <= ui.value("Hammer of Justice - HP") and inCombat then
 				for i = 1, #enemies.yards10 do
 					local thisUnit = enemies.yards10[i]
 					if not br.isBoss(thisUnit) and br.getBuffRemain(thisUnit,226510) == 0 and noStunsUnits[br.GetObjectID(thisUnit)] == nil then
@@ -584,7 +586,7 @@ local function runRotation()
 				end
 			end
 			-- Blessing of Freedom
-			if ui.checked("Blessing of Freedom") and cast.able.blessingOfFreedom() and br.hasNoControl(spell.blessingOfFreedom) then
+			if ui.checked("Blessing of Freedom") and cd.blessingOfFreedom.ready() and br.hasNoControl(spell.blessingOfFreedom) then
 				if cast.blessingOfFreedom("player") then return true end
 			end
 			-- Flash of Light
@@ -617,22 +619,22 @@ local function runRotation()
 				if cast.wordOfGlory("target") then return true end
 			end
 		end
-		-- Atal'ai Devoted logic
-		if select(8,br._G.GetInstanceInfo()) == 2291 then
+		-- Special interrupt logic
+		if inInstance then
 			for i = 1, #enemies.yards10 do
 				local thisUnit = enemies.yards10[i]
-				if br._G.UnitCastingInfo(thisUnit) == br._G.GetSpellInfo(332329) and br.getCastTimeRemain(thisUnit) ~=0 and br.getCastTimeRemain(thisUnit) < 2 and br.getBuffRemain(thisUnit,343503) == 0 then
-					if cast.able.hammerOfJustice() then
+				if (br._G.UnitCastingInfo(thisUnit) == br._G.GetSpellInfo(332329) and br.getCastTimeRemain(thisUnit) ~=0 and br.getCastTimeRemain(thisUnit) < 2 and br.getBuffRemain(thisUnit,343503) == 0) or br._G.UnitChannelInfo(thisUnit) == br._G.GetSpellInfo(336451) then
+					if cd.hammerOfJustice.ready() then
 						if cast.hammerOfJustice(thisUnit) then return true end
 					end
-					if cast.able.blindingLight() and talent.blindingLight then
+					if cd.blindingLight.ready() and talent.blindingLight then
 						if cast.blindingLight() then return true end
 					end
 				end
 			end
 		end
 		-- Wicked Gash or Dark Stride
-		if cast.able.blessingOfProtection() and not talent.blessingOfSpellwarding then
+		if cd.blessingOfProtection.ready() and not talent.blessingOfSpellwarding then
 			for i = 1, #br.friend do
 				if br.getDebuffStacks(br.friend[i].unit,331415) > 1 or br.getDebuffStacks(br.friend[i].unit,324154) > 1 then
 					if cast.blessingOfProtection(br.friend[i].unit) then return true end
@@ -640,7 +642,7 @@ local function runRotation()
 			end
 		end
 		-- Infectious Rain
-		if br._G.UnitChannelInfo("boss1") ~= br._G.GetSpellInfo(331399) and br.getDebuffRemain("player",331399) ~= 0 and cast.able.cleanseToxins() then
+		if br._G.UnitChannelInfo("boss1") ~= br._G.GetSpellInfo(331399) and br.getDebuffRemain("player",331399) ~= 0 and cd.cleanseToxins.ready() then
 			if cast.cleanseToxins("player") then return true end
 		end
 		-- Will to
@@ -656,8 +658,15 @@ local function runRotation()
 				end
 			end
 		end
+		-- Castigate
+		if holyPower > 2 or buff.divinePurpose.exists() or buff.shiningLight.exists() or buff.royalDecree.exists() then
+			if br._G.UnitChannelInfo("boss1") == br._G.GetSpellInfo(322554) and br.getHP("boss1target") <= 50 then
+				SotR = false
+				if cast.wordOfGlory("boss1target") then return true end
+			end
+		end
 		-- Hammer of Justice
-		if cast.able.hammerOfJustice() then
+		if cd.hammerOfJustice.ready() then
 			for i = 1, #enemies.yards10 do
 				local thisUnit = enemies.yards10[i]
 				if HoJList[br.GetObjectID(thisUnit)] ~= nil and br.getBuffRemain(thisUnit,343503) == 0 then
@@ -670,7 +679,7 @@ local function runRotation()
 			end
 		end
 		-- Divine Toll
-		if (br.GetObjectID("boss1") == 165946 or br.GetObjectID("boss1") == 164185 or br.GetObjectID("boss1") == 167406 or br.GetObjectID("boss1") == 163157) and cast.able.divineToll() then
+		if (br.GetObjectID("boss1") == 165946 or br.GetObjectID("boss1") == 164185 or br.GetObjectID("boss1") == 167406 or br.GetObjectID("boss1") == 163157) and cd.divineToll.ready() then
 			for i = 1, #enemies.yards30 do
 				local thisUnit = enemies.yards30[i]
 				if br.GetObjectID(thisUnit) == 166524 or br.GetObjectID(thisUnit) == 164363 or br.GetObjectID(thisUnit) == 167999 or br.GetObjectID(thisUnit) == 164414 then
@@ -752,16 +761,16 @@ local function runRotation()
 			end
 			if br.GetUnitExists(units.dyn5) then
 				-- Seraphim
-				if ui.checked("Seraphim") and talent.seraphim and holyPower > 2 and ui.value("Seraphim") <= ttd then
+				if ui.checked("Seraphim") and talent.seraphim and holyPower > 2 and ui.value("Seraphim") <= ttd and br.getSpellCD(152262) <= gcdMax then
 					SotR = false
 					if cast.seraphim() then return true end
 				end
 				-- Avenging Wrath
-				if ui.checked("Avenging Wrath") and cast.able.avengingWrath() and ui.value("Avenging Wrath") <= ttd and not buff.avengingWrath.exists() then
+				if ui.checked("Avenging Wrath") and cd.avengingWrath.ready() and ui.value("Avenging Wrath") <= ttd and not buff.avengingWrath.exists() then
 					if cast.avengingWrath() then return true end
 				end
 				-- Holy Avenger
-				if ui.checked("Holy Avenger") and cast.able.holyAvenger() and talent.holyAvenger and
+				if ui.checked("Holy Avenger") and cd.holyAvenger.ready() and talent.holyAvenger and
 					((not ui.checked("Holy Avenger with Wings") and ui.value("Holy Avenger") <= ttd ) or (ui.checked("Holy Avenger with Wings") and br.getSpellCD(31884) == 0))then
 					if cast.holyAvenger() then return true end
 				end
@@ -771,7 +780,7 @@ local function runRotation()
 	-- Action List - Interrupts
 	actionList.Interrupts = function()
 		if br.useInterrupts() then
-			if ui.checked("Avenger's Shield - INT") and cast.able.avengersShield() then
+			if ui.checked("Avenger's Shield - INT") and cd.avengersShield.ready() then
 				for i = 1, #enemies.yards30 do
 					local thisUnit = enemies.yards30[i]
 					if (select(8,br._G.UnitCastingInfo(thisUnit)) == false or select(7,br._G.UnitChannelInfo(thisUnit)) == false) and br.getFacing("player",thisUnit) then
@@ -792,16 +801,16 @@ local function runRotation()
 					interruptID = select(8,br._G.UnitChannelInfo(thisUnit))
 				end
 				if interruptID ~=nil and StunSpellsList[interruptID] and br.getBuffRemain(thisUnit,343503) == 0 then
-					if ui.checked("Hammer of Justice - INT") and cast.able.hammerOfJustice() and br.getBuffRemain(thisUnit,226510) == 0 then
+					if ui.checked("Hammer of Justice - INT") and cd.hammerOfJustice.ready() and br.getBuffRemain(thisUnit,226510) == 0 then
 						if cast.hammerOfJustice(thisUnit) then return true end
 					end
-					if ui.checked("Blinding Light - INT") and cast.able.blindingLight() and talent.blindingLight then
+					if ui.checked("Blinding Light - INT") and cd.blindingLight.ready() and talent.blindingLight then
 						if cast.blindingLight() then return true end
 					end
 				end
 				if br.canInterrupt(thisUnit,ui.value("Interrupt At")) then
 					-- Blinding Light
-					if ui.checked("Blinding Light - INT") and cast.able.blindingLight() and talent.blindingLight and br.getBuffRemain(thisUnit,343503) == 0 then
+					if ui.checked("Blinding Light - INT") and cd.blindingLight.ready() and talent.blindingLight and br.getBuffRemain(thisUnit,343503) == 0 then
 						if not br.isBoss(thisUnit) and noStunsUnits[br.GetObjectID(thisUnit)] == nil then
 							BL_Unit = BL_Unit + 1
 							if BL_Unit >= ui.value("Blinding Light - INT") then
@@ -811,13 +820,13 @@ local function runRotation()
 						end
 					end
 					-- Hammer of Justice
-					if ui.checked("Hammer of Justice - INT") and cast.able.hammerOfJustice() then
+					if ui.checked("Hammer of Justice - INT") and cd.hammerOfJustice.ready() then
 						if not br.isBoss(thisUnit) and br.getBuffRemain(thisUnit,226510) == 0 and br.getBuffRemain(thisUnit,343503) == 0 and noStunsUnits[br.GetObjectID(thisUnit)] == nil then
 							if cast.hammerOfJustice(thisUnit) then hoj_unit = thisUnit return true end
 						end
 					end
 					-- Rebuke
-					if ui.checked("Rebuke - INT") and cast.able.rebuke() and (distance <= 5 or (br._G.IsFlying(thisUnit) and distance <= 10)) and br.getFacing("player",thisUnit) and not br.GetUnitIsUnit(hoj_unit,thisUnit) then
+					if ui.checked("Rebuke - INT") and cd.rebuke.ready() and (distance <= 5 or (br._G.IsFlying(thisUnit) and distance <= 10)) and br.getFacing("player",thisUnit) and not br.GetUnitIsUnit(hoj_unit,thisUnit) then
 						if cast.rebuke(thisUnit) then return true end
 					end
 				end
@@ -842,7 +851,7 @@ local function runRotation()
 			end
 		end
 		-- Flash of Light
-		if ui.checked("OOC FoL") and cast.able.flashOfLight() and not moving then
+		if ui.checked("OOC FoL") and cd.flashOfLight.ready() and not moving then
 			-- Player
 			if ui.value("OOC FoL Target") == 1 then
 				if php <= br.getValue("OOC FoL") then
@@ -864,45 +873,65 @@ local function runRotation()
 		end
 		-- Blessed Hammer
 		if mode.blessedHammer == 1 then
-			if cast.able.blessedHammer() and talent.blessedHammer and charges.blessedHammer.frac() == 3 and holyPower < 5 then
+			if cd.blessedHammer.ready() and talent.blessedHammer and charges.blessedHammer.frac() == 3 and holyPower < 5 then
 				if cast.blessedHammer() then return true end
 			end
 		end
 		if br.isValidUnit("target") and br.getFacing("player","target") then
-			if ui.checked("Judgment") and br.getDistance("target") <= 30 and cast.able.judgment() then
+			if ui.checked("Judgment") and br.getDistance("target") <= 30 and cd.judgment.ready() then
 				if cast.judgment("target") then return true end
 			end
 		end
 	end -- End Action List - Opener
 	-- Action List - Damage
 	actionList.Damage = function()
+		-- Explosives
+		if inInstance then
+			for i = 1, #enemies.yards30 do
+				local thisUnit = enemies.yards30[i]
+				if br.GetObjectID(thisUnit) == 120651 and br.getFacing("player",thisUnit) then
+					if br.getDistance(thisUnit) <= 5 then
+						br._G.StartAttack(thisUnit)
+					end
+					if cd.hammerOfWrath.ready() and buff.avengingWrath.exists() then
+						if cast.hammerOfWrath(thisUnit) then return true end
+					end
+					if cd.judgment.ready() then
+						if cast.judgment(thisUnit) then return true end
+					end
+					if cd.avengersShield.ready() then
+						if cast.avengersShield(thisUnit) then return true end
+					end
+				end
+			end
+		end
 		-- Start Attack
-		if not br._G.IsAutoRepeatSpell(br._G.GetSpellInfo(6603)) and br.isValidUnit("target") and br.getDistance("target") <= 5 then
-			br._G.StartAttack()
+		if not br._G.IsAutoRepeatSpell(br._G.GetSpellInfo(6603)) and br.isValidUnit(units.dyn5) and br.getFacing("player",units.dyn5) and br.getDistance(units.dyn5) <= 5 then
+			br._G.StartAttack(units.dyn5)
 		end
 		-- Shield of the Righteous
-		if ui.checked("Shield of the Righteous") and cast.able.shieldOfTheRighteous() and SotR == true and (holyPower > 2 or buff.divinePurpose.exists())
+		if ui.checked("Shield of the Righteous") and cd.shieldOfTheRighteous.ready() and SotR == true and (holyPower > 2 or buff.divinePurpose.exists())
 			and (mode.holyPowerlogic == 1 and (buff.holyAvenger.exists() or br.getBuffRemain("player",337848) ~= 0 or debuff.judgment.exists(units.dyn10) or holyPower == 5 or buff.shieldOfTheRighteous.remains("player") < 2))
 			or (mode.holyPowerlogic == 2 and holyPower == 5 and (br.getSpellCD(275779) <= gcdMax or br.getSpellCD(31935) <= gcdMax or (talent.blessedHammer and br.getSpellCD(204019) <= gcdMax) or (not talent.blessedHammer and br.getSpellCD(53595) <= gcdMax) or ((br.getHP(units.dyn30) <= 20 or buff.avengingWrath.exists()) and br.getSpellCD(24275) <= gcdMax))) then
 			if cast.shieldOfTheRighteous(units.dyn5) then return true end
 		end
 		local mob30 = br.GetUnitExists(units.dyn30) and br.getFacing("player",units.dyn30)
 		-- Avenger's Shield
-		if ui.checked("Avenger's Shield") and cast.able.avengersShield() and #enemies.yards10 >= 3 and mob30 then
+		if ui.checked("Avenger's Shield") and cd.avengersShield.ready() and #enemies.yards10 >= 3 and mob30 then
 			if cast.avengersShield(units.dyn30) then return true end
 		end
 		-- Divine Toll
-		if ui.checked("Divine Toll") and cast.able.divineToll() and br.GetObjectID("boss1") ~= 165946 and br.GetObjectID("boss1") ~= 164185 and br.GetObjectID("boss1") ~= 163157 then
+		if ui.checked("Divine Toll") and cd.divineToll.ready() and br.GetObjectID("boss1") ~= 165946 and br.GetObjectID("boss1") ~= 164185 and br.GetObjectID("boss1") ~= 163157 then
 			if (#enemies.yards10 >= br.getValue("Divine Toll") or (br.isBoss(units.dyn30) and br.GetObjectID("boss1") ~= 167406) or (br.isBoss(units.dyn30) and br.GetObjectID("boss1") == 167406 and br.getHP("boss1") <= 70)) then
 				if cast.divineToll(units.dyn30) then return true end
 			end
 		end
 		-- Consecration
-		if ui.checked("Consecration") and cast.able.consecration() and br.GetUnitExists(units.dyn5) and not buff.consecration.exists() then
+		if ui.checked("Consecration") and cd.consecration.ready() and br.GetUnitExists(units.dyn5) and not buff.consecration.exists() then
 			if cast.consecration() then return true end
 		end
 		-- Judgment
-		if ui.checked("Judgment") and cast.able.judgment() and ((talent.crusadersJudgment and charges.judgment.frac() >= 1.99) or not talent.crusadersJudgment or not debuff.judgment.exists(units.dyn30)) and mob30 then
+		if ui.checked("Judgment") and cd.judgment.ready() and ((talent.crusadersJudgment and charges.judgment.frac() >= 1.99) or not talent.crusadersJudgment or not debuff.judgment.exists(units.dyn30)) and mob30 then
 			if cast.judgment(units.dyn30) then return true end
 		end
 		-- Hammer of Wrath
@@ -910,23 +939,23 @@ local function runRotation()
 			if cast.hammerOfWrath(units.dyn30) then return true end
 		end
 		-- Avenger's Shield
-		if ui.checked("Avenger's Shield") and cast.able.avengersShield() and mob30 then
+		if ui.checked("Avenger's Shield") and cd.avengersShield.ready() and mob30 then
 			if cast.avengersShield(units.dyn30) then return true end
 		end
 		-- Crusader Strike
-		if cast.able.crusaderStrike() and level < 14 and br.getFacing("player",units.dyn5) and br.GetUnitExists(units.dyn5) then
+		if cd.crusaderStrike.ready() and level < 14 and br.getFacing("player",units.dyn5) and br.GetUnitExists(units.dyn5) then
 			if cast.crusaderStrike(units.dyn5) then return true end
 		end
 		-- Blessed Hammer
-		if ui.checked("Blessed Hammer") and cast.able.blessedHammer() and talent.blessedHammer and (#enemies.yards8 >= 1 or holyPower < 3 or (charges.blessedHammer.frac() == 3 and holyPower < 5)) then
+		if ui.checked("Blessed Hammer") and cd.blessedHammer.ready() and talent.blessedHammer and (#enemies.yards8 >= 1 or holyPower < 3 or (charges.blessedHammer.frac() == 3 and holyPower < 5)) then
 			if cast.blessedHammer() then return true end
 		end
 		-- Hammer of the Righteous
-		if ui.checked("Hammer of the Righteous") and cast.able.hammerOfTheRighteous() and not talent.blessedHammer and br.getFacing("player",units.dyn5) and br.GetUnitExists(units.dyn5) then
+		if ui.checked("Hammer of the Righteous") and cd.hammerOfTheRighteous.ready() and not talent.blessedHammer and br.getFacing("player",units.dyn5) and br.GetUnitExists(units.dyn5) then
 			if cast.hammerOfTheRighteous(units.dyn5) then return true end
 		end
 		-- Consecration
-		if ui.checked("Consecration") and cast.able.consecration() and br.GetUnitExists(units.dyn5) and consecrationRemain < 5 then
+		if ui.checked("Consecration") and cd.consecration.ready() and br.GetUnitExists(units.dyn5) and consecrationRemain < 5 then
 			if cast.consecration() then return true end
 		end
 	end -- End Action List - Damage

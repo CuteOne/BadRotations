@@ -129,8 +129,10 @@ local runeforge
 local talent
 local items
 local ui
+local unit
 local use
 local var
+local spell
 local actionList = {}
 local _ = nil
 
@@ -661,7 +663,7 @@ actionList.extra = function()
         br._G.ClearTarget()
     end
     -- Hunter's Mark
-    if cHuntersMark and cHuntersMark.value and cast.able.huntersMark() and not debuff.huntersMark.exists(units.units.dyn40) then
+    if cHuntersMark.value and cast.able.huntersMark() and not debuff.huntersMark.exists(units.units.dyn40) then
         if dHuntersMark == 1 or (dHuntersMark == 2 and unit.isBoss(units.target)) then
             return cast.huntersMark()
         end
@@ -898,7 +900,7 @@ local function runRotation()
     talent                                        = br.player.talent
     items                                         = br.player.items
     ui                                            = br.player.ui
-    unit                                    = br.player.unit
+    unit                                          = br.player.unit
     units.units                                   = br.player.units
     use                                           = br.player.use
     var                                           = br.player.variables
@@ -946,24 +948,26 @@ local function runRotation()
         br._G.StopAttack()
         return true
     else
-        if actionList.extra() then return true end
-        if actionList.pc() then return true end
-        -- IN COMBAT
-        if unit.inCombat() and var.profileStop == false and unit.valid(units.units.dyn40) and unit.distance(units.units.dyn40) < 40
-            and not cast.current.barrage() and not cast.current.rapidFire() and not cast.current.aimedShot() and not cast.current.steadyShot()
-        then
-            if actionList.CCs() then return true end
-            if actionList.kick() then return true end
-            if actionList.md(false) then return true end
-            if actionList.aa() then return true end
-            if actionList.cds() then return true end
-            if ui.useST(8,nil,units.target) then
-                return actionList.st()
-            end
-            if ui.useAOE(8,3,units.target) then
-                return actionList.aoe()
-            end
-        end --End In Combat
+        if cDummy then
+            if actionList.extra() then return true end
+            if actionList.pc() then return true end
+            -- IN COMBAT
+            if unit.inCombat() and var.profileStop == false and unit.valid(units.units.dyn40) and unit.distance(units.units.dyn40) < 40
+                and not cast.current.barrage() and not cast.current.rapidFire() and not cast.current.aimedShot() and not cast.current.steadyShot()
+            then
+                if actionList.CCs() then return true end
+                if actionList.kick() then return true end
+                if actionList.md(false) then return true end
+                if actionList.aa() then return true end
+                if actionList.cds() then return true end
+                if ui.useST(8,nil,units.target) then
+                    return actionList.st()
+                end
+                if ui.useAOE(8,3,units.target) then
+                    return actionList.aoe()
+                end
+            end --End In Combat
+        end
     end --End Rotation Logic
 end -- End runRotation
 local id = 254

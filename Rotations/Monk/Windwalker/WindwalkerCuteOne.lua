@@ -706,7 +706,7 @@ actionList.Serenity = function()
     br.player.module.BasicTrinkets()
     -- Spinning Crane Kick
     -- spinning_crane_kick,if=combo_strike&(active_enemies>=3|active_enemies>1&!cooldown.rising_sun_kick.up)
-    if cast.able.spinningCraneKick("player","aoe") and not wasLastCombo(spell.spinningCraneKick) 
+    if cast.able.spinningCraneKick("player","aoe") and not wasLastCombo(spell.spinningCraneKick)
         and ((ui.mode.rotation == 1 and (#enemies.yards8 >= 3 or (#enemies.yards8 > 1 and cd.risingSunKick.exists()))) or (ui.mode.rotation == 2 and #enemies.yards8 > 0))
         and cast.timeSinceLast.spinningCraneKick() > unit.gcd("true")
     then
@@ -794,7 +794,7 @@ actionList.SingleTarget = function()
     end
     -- Rising Sun Kick
     -- rising_sun_kick,target_if=min:debuff.mark_of_the_crane.remains,if=cooldown.serenity.remains>1|!talent.serenity
-    if cast.able.risingSunKick(var.lowestMark) and (cd.serenity.remain() > 1 or not talent.serenity) then
+    if cast.able.risingSunKick(var.lowestMark) and (cd.serenity.remain() > 1 or not talent.serenity or not ui.alwaysCdNever("Serenity")) then
         if cast.risingSunKick(var.lowestMark) then ui.debug("Casting Rising Sun Kick [ST]") return true end
     end
     -- Fists of Fury
@@ -853,7 +853,7 @@ actionList.SingleTarget = function()
     -- Spinning Crane Kick
     -- spinning_crane_kick,if=buff.chi_energy.stack>30-5*active_enemies&buff.storm_earth_and_fire.down&(cooldown.rising_sun_kick.remains>2&cooldown.fists_of_fury.remains>2|cooldown.rising_sun_kick.remains<3&cooldown.fists_of_fury.remains>3&chi>3|cooldown.rising_sun_kick.remains>3&cooldown.fists_of_fury.remains<3&chi>4|chi.max-chi<=1&energy.time_to_max<2)|buff.chi_energy.stack>10&fight_remains<7
     if cast.able.spinningCraneKick("player","aoe") and (buff.chiEnergy.stack() > 30 - 5 * #enemies.yards5 and not buff.stormEarthAndFire.exists()
-        and (((cd.risingSunKick.remain() > 2 and cd.fistsOfFury.remain() > 2) 
+        and (((cd.risingSunKick.remain() > 2 and cd.fistsOfFury.remain() > 2)
             or (cd.risingSunKick.remain() < 3 and cd.fistsOfFury.remain() > 3 and chi > 3)
             or (cd.risingSunKick.remain() > 3 and cd.fistsOfFury.remain() < 3 and chi > 4)
             or (chiMax - chi <= 1 and energyTTM() < 2)) or buff.chiEnergy.stack() > 10)
@@ -913,7 +913,7 @@ actionList.AoE = function()
     local startTime = br._G.debugprofilestop()
     -- Whirling Dragon Punch
     -- whirling_dragon_punch
-    if cast.able.whirlingDragonPunch("player","aoe",1,8) and ui.checked("Whirling Dragon Punch") 
+    if cast.able.whirlingDragonPunch("player","aoe",1,8) and ui.checked("Whirling Dragon Punch")
         and talent.whirlingDragonPunch and not unit.moving() and not unit.isExplosive("target")
         and ui.useAOE(8,ui.value("Whirling Dragon Punch Min Units")) and buff.whirlingDragonPunch.exists()
     then
@@ -1134,7 +1134,7 @@ local function runRotation()
     units             = br.player.units
     use               = br.player.use
     var               = br.player.variables
-    
+
     units.get(5)
     enemies.get(5)
     enemies.get(5,"player",false,true)
@@ -1179,7 +1179,7 @@ local function runRotation()
     end
     var.rskDuration = 10 - (10 * (br._G.GetHaste() / 100))
     var.solo = unit.instance("none") or #br.friend == 1
-    
+
     -- Simc Variables
     -- variable,name=hold_xuen,op=set,value=cooldown.invoke_xuen_the_white_tiger.remains>fight_remains|fight_remains<120&fight_remains>cooldown.serenity.remains&cooldown.serenity.remains>10
     var.holdXuen = cd.invokeXuenTheWhiteTiger.remain() > unit.ttd(units.dyn5) or unit.ttd(unit.dyn5) < 120 and unit.ttd(unit.dyn5) > cd.serenity.remain() and cd.serenity.remain() > 10
@@ -1276,7 +1276,7 @@ local function runRotation()
             --- Start Rotation ---
             ----------------------
             -- Touch of Death
-            if cast.able.touchOfDeath("target") and ui.alwaysCdNever("Touch of Death") and (unit.health("target") < unit.health("player") 
+            if cast.able.touchOfDeath("target") and ui.alwaysCdNever("Touch of Death") and (unit.health("target") < unit.health("player")
                 or (unit.level() > 44 and unit.health("target") >= unit.health("player") and unit.hp("target") < 15))
             then
                 if cast.touchOfDeath("target") then ui.debug("Casting Touch of Death - DIE!") return true end

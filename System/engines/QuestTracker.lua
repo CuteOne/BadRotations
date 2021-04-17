@@ -1,5 +1,5 @@
 local _, br = ...
-local LibDraw = _G.LibStub("LibDraw-1.0")
+local LibDraw = _G.LibStub("LibDraw-BR")
 br.QuestCache = {}
 
 --Quest stuff

@@ -28,13 +28,13 @@ local function loadFile(profile,file,support)
     local custom_env = setmetatable({br = br}, {__index=_G})
     local func, errorMessage = _G.loadstring(profile, file);
     if not func then
-        print('Error initializing 1')
+        print("Error: "..file.. " Cannot Load.  Please inform devs!")
         errorhandler(errorMessage)
     end
     _G.setfenv(func, custom_env)
     local success, xerrorMessage = xpcall(func, errorhandler);
     if not success then
-        print('Error initializing 2')
+        print('Error: '..file..' Cannot Run.  Please inform devs!')
         errorhandler(xerrorMessage)
     end
 end
@@ -79,7 +79,9 @@ end
 function br.loadSupport(thisFile) -- Loads support rotation file from Class Folder
     if thisFile == nil then return end
     if br.rotations.support == nil then br.rotations.support = {} end
-    _G.wipe(br.rotations.support)
+    if br.rotations.support[thisFile] then
+        _G.wipe(br.rotations.support[thisFile])
+    end
     local file = thisFile..".lua"
     local profile = br._G.ReadFile(rotationsDirectory()..getFolderClassName(class)..'\\Support\\'..file)
     loadFile(profile,file,true)

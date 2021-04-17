@@ -1106,7 +1106,7 @@ local function runRotation()
                 if not covenant.kyrian.active then
                     cast.shadowDance("player")
                 end
-                if race == "Orc" or race == "Troll" then
+                if race == "Orc" or race == "Troll" or race == "MagharOrc" then
                     cast.racial("player")
                 end
                 return true

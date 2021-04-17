@@ -79,6 +79,7 @@ br.lists.interruptWhitelist = {
 	[337253] = true, -- Parasitic Domination
 	-- Mists of Tirna Scithe end
 	-- Spires of Ascension start
+	[327413] = true, -- rebellious-fist
 	[317936] = true, -- forsworn-doctrine
 	[317963] = true, -- burden-of-knowledge
 	[328295] = true, -- greater-mending

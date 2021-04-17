@@ -1459,7 +1459,7 @@ local function runRotation()
                         end
                     end
 
-                    if mode.wrath == 1 and buff.avengingWrath.exists("player") and br.player.runeforge.madParagon.equiped and br.getSpellCD(24275) == 0 then
+                    if mode.wrath == 1 and buff.avengingWrath.exists("player") and br.player.runeforge.theMadParagon.equiped and br.getSpellCD(24275) == 0 then
                         if (unit.hp("target") <= 20 or br._G.IsSpellOverlayed(24275) or wingsup) and unit.facing("player", "target") then
                             if cast.hammerOfWrath("target") then
                                 return

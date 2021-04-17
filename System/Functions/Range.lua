@@ -11,7 +11,7 @@ local testSpell = {
     ["DRUIDB"] = 33917,
     ["DHH"] = 162794,
     ["DHV"] = 214743,
-    ["SHUNTER"] = 185855
+    ["SHUNTER"] = 186270
 }
 
 function br.getDistance(Unit1,Unit2,option)
@@ -122,13 +122,7 @@ function br.getDistanceCalc(Unit1,Unit2,option)
         if option == "dist3" then return dist3 end
         if option == "dist4" then return dist4 end
         if option == "meleeRange" then return meleeRange end
-        if br._G.GetSpecializationInfo(br._G.GetSpecialization()) == 255 then
-            if dist > meleeRange then
-                currentDist = dist
-            else
-                currentDist = 0
-            end
-        elseif dist > 13 then
+        if dist > 13 then
             currentDist = dist
         elseif dist2 > 8 and dist3 > 8 then
             currentDist = dist2

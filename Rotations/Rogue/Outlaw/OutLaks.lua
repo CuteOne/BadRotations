@@ -664,7 +664,7 @@ local function dps_key()
                 return true
             end
             if (mode.cooldown == 1 and br.isChecked("Racial") or not br.isChecked("Racial")) then
-                if br.isChecked("Use Racial") and cast.able.racial() and (br.player.race == "Troll" or br.player.race == "Orc") then
+                if br.isChecked("Use Racial") and cast.able.racial() and (br.player.race == "Troll" or br.player.race == "Orc" or br.player.race == "MagharOrc") then
                     if cast.racial() then
                         return true
                     end
@@ -926,7 +926,7 @@ actionList.dps = function()
             --slice_and_dice,if=buff.slice_and_dice.remains<fight_remains&buff.slice_and_dice.remains<(1+combo_points)*1.8
             if (mode.cooldown == 1 and br.isChecked("Slice and Dice") or not br.isChecked("Slice and Dice")) and not buff.grandMelee.exists() and not buff.masterAssassinsMark.exists() then
                 if cast.able.sliceAndDice() and combo > 0 and not ((br.hasBuff(323558) and combo == 2) or (br.hasBuff(323559) and combo == 3) or (br.hasBuff(323560) and combo == 4)) then
-                    if buff.sliceAndDice.remains() < ttd("target") and buff.sliceAndDice.remains() < (1 + combo) * 1.8 and (br.getCombatTime() > 2 or cd.vanish.exists()) then
+                    if buff.sliceAndDice.remains() < ttd("target") and buff.sliceAndDice.remains() < (1 + combo) * 1.8 and br.getCombatTime() > 2 then
                         if cast.sliceAndDice() then
                             return true
                         end

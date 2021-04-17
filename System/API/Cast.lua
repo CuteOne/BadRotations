@@ -109,7 +109,7 @@ br.api.cast = function(self,spell,id)
         if thisUnit == nil then thisUnit = "player" end
         return br.isCastingSpell(id,thisUnit)
     end
-    
+
     -- br.player.cast.dispel.spell() - Returns if the spell if capable of dispelling the target.
     --[[Args:
         thisUnit - Acceptable parameters listed below
