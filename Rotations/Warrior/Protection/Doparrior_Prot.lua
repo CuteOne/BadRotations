@@ -1283,18 +1283,39 @@ local function runRotation()
             end
 
             -- demoralizing_shout,if=talent.booming_voice.enabled
-            if cd.demoralizingShout.ready()
-                    and br.getOptionValue("Demo Shout Useage") == 1
-                    or ((br.getOptionValue("Demo Shout Useage") == 2 and buff.avatar.exists())
-                    or (br.getOptionValue("Demo Shout Useage") == 3 and #enemies.yards10 >= br.getOptionValue("Demo Shout - Unit Count"))
-                    or (br.getOptionValue("Demo Shout Useage") == 4 and php <= br.getOptionValue("Demo Shout - HP"))
-                    or (br.getOptionValue("Demo Shout Useage") == 5 and rage <= br.getOptionValue("Demo Shout - Rage")))
-                    and #enemies.yards10 >= 1
-                    and not talent.booming_voice or (talent.booming_voice and rage <= 100)
-            then
-                if cast.demoralizingShout() then
-                    br.addonDebug("[CD] Demoralizing Shout")
-                    return true
+            if inCombat and cd.demoralizingShout.ready() then
+                if #enemies.yards10 >= 1 
+                        and (not talent.boomingVoice or (talent.boomingVoice and rage <= 100))
+                then
+                    if br.getOptionValue("Demo Shout Useage") == 1 then
+                        br._G.CastSpellByName(GetSpellInfo(spell.demoralizingShout))
+                        br.addonDebug("[CD] Demoralizing Shout- Always")
+                        return true
+                    elseif br.getOptionValue("Demo Shout Useage") == 2 then
+                        if buff.avatar.exists() then
+                            br._G.CastSpellByName(GetSpellInfo(spell.demoralizingShout))
+                            br.addonDebug("[CD] Demoralizing Shout - On Avatar")
+                            return true
+                        end
+                    elseif br.getOptionValue("Demo Shout Useage") == 3 then 
+                        if #enemies.yards10 >= br.getOptionValue("Demo Shout - Unit Count") then
+                            br._G.CastSpellByName(GetSpellInfo(spell.demoralizingShout))
+                            br.addonDebug("[CD] Demoralizing Shout - Unit Count")
+                            return true
+                        end
+                    elseif br.getOptionValue("Demo Shout Useage") == 4 then
+                        if php <= br.getOptionValue("Demo Shout - HP") then
+                            br._G.CastSpellByName(GetSpellInfo(spell.demoralizingShout))
+                            br.addonDebug("[CD] Demoralizing Shout - On HP")
+                            return true
+                        end
+                    elseif br.getOptionValue("Demo Shout Useage") == 5 then
+                        if rage <= br.getOptionValue("Demo Shout - Rage") then
+                            br._G.CastSpellByName(GetSpellInfo(spell.demoralizingShout))
+                            br.addonDebug("[CD] Demoralizing Shout - Rage Generator")
+                            return true
+                        end
+                    end
                 end
             end
 
@@ -1311,7 +1332,7 @@ local function runRotation()
                 end
             end
 
-          -- Spear of Bastion
+            -- Spear of Bastion
             if ui.checked("Spear of Bastion Units") 
                     and cd.spearOfBastion.ready() 
                     and br.getCombatTime() > 2
@@ -1328,6 +1349,18 @@ local function runRotation()
                     end
                 end
             end
+
+            -- Conquerors Banner
+            if br.isChecked("Conqueror's Banner")
+                    and cd.conquerorsBanner.ready()
+                    and br.player.covenant.necrolord.active
+            then
+                if cast.conquerorsBanner() then
+                    br.addonDebug("[COV] Conqueror's Banner")
+                    return true
+                end
+            end
+
             -- ravager
             if br.isChecked("Ravager")
                     and cast.able.ravager()
@@ -1345,17 +1378,6 @@ local function runRotation()
                 end
             end
 
-
-            -- Conquerors Banner
-            if br.isChecked("Conqueror's Banner")
-                    and cd.conquerorsBanner.ready()
-                    and br.player.covenant.necrolord.active
-            then
-                if cast.conquerorsBanner() then
-                    br.addonDebug("[COV] Conqueror's Banner")
-                    return true
-                end
-            end
             -- run_action_list,name=aoe,if=spell_targets.thunder_clap>=3
 
             -- all_action_list,name=Rotation
@@ -1391,6 +1413,8 @@ local function runRotation()
 
             -- shield_slam
             if cd.shieldSlam.ready()
+                    and #enemies.yards5 >= 1
+                    and cast.able.shieldSlam
                     and br.getFacing("player", units.dyn5)
                     and (buff.shieldBlock.exists() or (br.getSpellCD(spell.thunderClap) >= gcd))
             then
@@ -1401,36 +1425,37 @@ local function runRotation()
             end
 
             -- execute
-                if not br.player.covenant.venthyr.active then
-                    local execList = enemies.get(5)
-                    if execList ~= nil and #execList > 0 and #execList <= 3 then
-                        for i = 1, #execList do
-                            local execUnit = execList[i]
-                            if unit.hp(execUnit) < 20 and br.getFacing("player", execUnit) then
-                                if br._G.CastSpellByName(br._G.GetSpellInfo(spell.execute), execUnit) then
-                                    br.addonDebug("[DPS] Execute")
-                                    return true
-                                end
-                            end
-                        end
-                    end
-                else
-                    -- Condemn
-                    if br.player.covenant.venthyr.active
-                            and br.isChecked("Condemn")
-                    then
-                        local condemnList = enemies.get(5)
-                        if condemnList ~= nil and #condemnList > 0 then
-                            for i = 1, #condemnList do
-                                local condemnUnit = condemnList[i]
-                                if (unit.hp(condemnUnit) <= 20 or unit.hp(condemnUnit) >= 80) and br.getFacing("player", condemnUnit) then
-                                    br._G.CastSpellByID(317349, condemnUnit)
-                                    br.addonDebug("[DPS] Condemn")
-                                end
+            if not br.player.covenant.venthyr.active then
+                local execList = enemies.get(5)
+                if execList ~= nil and #execList > 0 and #execList <= 3 then
+                    for i = 1, #execList do
+                        local execUnit = execList[i]
+                        if unit.hp(execUnit) < 20 and br.getFacing("player", execUnit) then
+                            if br._G.CastSpellByName(br._G.GetSpellInfo(spell.execute), execUnit) then
+                                br.addonDebug("[DPS] Execute")
+                                return true
                             end
                         end
                     end
                 end
+            else
+                -- Condemn
+                if br.player.covenant.venthyr.active
+                        and br.isChecked("Condemn")
+                then
+                    local condemnList = enemies.get(5)
+                    if condemnList ~= nil and #condemnList > 0 then
+                        for i = 1, #condemnList do
+                            local condemnUnit = condemnList[i]
+                            if (unit.hp(condemnUnit) <= 20 or unit.hp(condemnUnit) >= 80) and br.getFacing("player", condemnUnit) then
+                                br._G.CastSpellByID(317349, condemnUnit)
+                                br.addonDebug("[DPS] Condemn")
+                            end
+                        end
+                    end
+                end
+            end
+
             -- revenge me brah
             if #enemies.yards5 >= 1 
                     and cast.able.revenge(units.dyn5, "cone", 1, 5)
@@ -1441,15 +1466,14 @@ local function runRotation()
                     return true
                 end
             else
-                if br.getSpellCD(spell.thunderClap) <= gcd then
+                if cd.thunderClap.ready() and rage <= 95 then
                     if talent.unstoppableForce and buff.avatar.exists()
                             or #enemies.yards8 >= br.getOptionValue("AoE Threshold")
                             or not cd.shieldSlam.ready() and not buff.revenge.exists()
                     then
-                        if br._G.CastSpellByName(br._G.GetSpellInfo(spell.thunderClap)) then
-                            br.addonDebug("[DPS] Aggressive Thunderclap")
-                            return true
-                        end
+                        br._G.CastSpellByName(br._G.GetSpellInfo(spell.thunderClap))
+                        br.addonDebug("[DPS] Aggressive Thunderclap")
+                        return true
                     end
                 end
             end
@@ -1466,16 +1490,12 @@ local function runRotation()
                 end
             end
 
-
             -- thunder_clap
             if cd.thunderClap.ready() then
-                if cast.thunderClap() then
-                    br.addonDebug("[NEVER] Thunderclap")
-                    return true
-                end
+                br._G.CastSpellByName(br._G.GetSpellInfo(spell.thunderClap))
+                br.addonDebug("[NEVER] Thunderclap")
+                return true
             end
-
-
         end -- end action_list rotation
 
 
