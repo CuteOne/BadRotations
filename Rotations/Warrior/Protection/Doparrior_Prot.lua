@@ -1,4 +1,4 @@
---Version 1.1
+--Version 1.1.5
 -- Big thank yous to Laks, Panglo, Kuu, and Ashley <333
 local rotationName = "Doparrior_Prot"
 
@@ -71,6 +71,16 @@ local function createToggles()
         }
         br.ui:createToggle(SoulshaperModes, "Soulshaper", 5, 1)
     end
+
+    -- Kyrian Steward Button
+    if br.player.covenant.kyrian.active then
+        local StewardModes = {
+            [1] = { mode = "On", value = 1, overlay = "PoS Enabled", tip = "Will auto summon your steward for phial of serenity when you run out, will also auto use Phial based on your settings.", highlight = 1, icon = br.player.spell.summonSteward },
+            [2] = { mode = "Off", value = 2, overlay = "PoS Disabled", tip = "Will not auto summon your steward. (Useful for dungeons like NW)", highlight = 0, icon = br.player.spell.summonSteward }
+        }
+        br.ui:createToggle(StewardModes, "Steward", 5, 1)
+    end
+
 end
 
 ---------------
@@ -83,7 +93,7 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS ---
         -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "General - Version 1.1")
+        section = br.ui:createSection(br.ui.window.profile, "General - Version 1.1.5")
             br.ui:createCheckbox(section, "Open World Defensives", "Use this checkbox to ensure defensives are used while in Open World")
             -- Berserker Rage
             br.ui:createCheckbox(section, "Berserker Rage", "Check to use Berserker Rage")
@@ -168,7 +178,7 @@ local function createOptions()
             -- Challenging Shout
             br.ui:createSpinnerWithout(section, "Challenging Shout - Units", 5, 0, 10, 1, "|cffFFFFFFAmount of enemies not aggro'd to you and near you to cast Challenging Shout on")
             -- Avatar
-            br.ui:createDropdown(section, "Avatar - CD", { "Always", "When CDs Up", "On unit count", "Never" }, 1)
+            br.ui:createDropdownWithout(section, "Avatar - CD", { "Always", "When CDs Up", "On unit count", "Never" }, 1)
             br.ui:createSpinnerWithout(section, "Avatar Mob Count", 5, 0, 10, 1, "|cffFFFFFFEnemies needed to cast Avatar")
             br.ui:createCheckbox(section, "Avatar - Racials", "Automatically Use racials with Avatar")
             if br.player.race == "Vulpera" then
@@ -204,7 +214,7 @@ local function createOptions()
             -- Shield Block
             br.ui:createSpinner(section, "Shield Block - HP", 65, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
             br.ui:createSpinner(section, "Shield Block - Unit Count", 3, 1, 10, 1, "Set number of units to prioritise Shield Block")
-            br.ui:createSpinnerWithout(section, "Shield Block - Hold Charges", 1, 0, 2, 1, "|cffFFBB00Number of Shield Block charges the rotation will hold for manual use or tankbuster.");
+            --br.ui:createSpinnerWithout(section, "Shield Block - Hold Charges", 1, 0, 2, 1, "|cffFFBB00Number of Shield Block charges the rotation will hold for manual use or tankbuster.");
             br.ui:createSpinnerWithout(section, "Shield Block - Time Remain", 10, 1, 12, 1, "|cffFFFFFF Set (in seconds) time remaining on shield block before refresh.")
             -- Shield Wall
             br.ui:createSpinner(section, "Shield Wall", 45, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
@@ -222,7 +232,10 @@ local function createOptions()
             br.ui:createSpinner(section, "Engineering Belt", 45, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
             if br.player.covenant.kyrian.active then
                 -- Phial of Serenity
-                br.ui:createSpinnerWithout(section, "Spear of Bastion Units", 3, 1, 10, 1, "Number of units to use Spear of Bastion on")
+                br.ui:createDropdown(section, "Phial of Serenity Useage", { "HP", "Necrotic Stacks", "Grievous Stacks" }, 1)
+                br.ui:createSpinnerWithout(section, "Phial of Serenity - HP", 35, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
+                br.ui:createSpinnerWithout(section, "Phial of Serenity - Necrotic Stacks", 40, 0, 100, 5, "|cffFFBB00Number of stacks before using POS to remove stacks.")
+                br.ui:createSpinnerWithout(section, "Phial of Serenity - Grievous Stacks", 2, 0, 4, 5, "|cffFFBB00Number of stacks before using POS to remove stacks")
             end
             -- Healthstone
             br.ui:createSpinner(section, "Healthstone/Potion", 35, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
@@ -323,10 +336,12 @@ local function runRotation()
         br.UpdateToggle("Taunt", 0.25)
         br.UpdateToggle("Holdcd", 0.25)
         br.UpdateToggle("Soulshaper", 0.25)
+        br.UpdateToggle("Steward", 0.25)
         br.UpdateToggle("Aggression", 0.25)
         br.player.ui.mode.mover = br.data.settings[br.selectedSpec].toggles["Mover"]
         br.player.ui.mode.taunt = br.data.settings[br.selectedSpec].toggles["Taunt"]
         br.player.ui.mode.Aggression = br.data.settings[br.selectedSpec].toggles["Aggression"]
+        br.player.ui.mode.Steward = br.data.settings[br.selectedSpec].toggles["Steward"]
         br.player.ui.mode.Soulshaper = br.data.settings[br.selectedSpec].toggles["Soulshaper"]
         br.player.ui.mode.tankbuster = br.data.settings[br.selectedSpec].toggles["Tankbuster"]
 
@@ -485,12 +500,15 @@ local function runRotation()
         }
 
         local DoNotTank_unitList = {
+            [174773] = "Spiteful Shade",
             [120651] = "Explosives",
             -- Plaguefall
             [170927] = "Erupting Ooze",
             [165010] = "Congealed Slime",
             -- Mists of Tirna Scythe
             [165108] = "Illusionary Clone",
+            [165251] = "Illusionary Vulpin",
+            [165560] = "Gormling Larva",
             -- Halls of Atonement
             [165913] = "Ghastly Parishioner"
 
@@ -506,28 +524,43 @@ local function runRotation()
             [327416] = { BUFF_ID = "327416" } --Recharge Anima"
         }
 
-        -- Heroic Leap for Charge
-        local function heroicLeapCharge()
-            local thisUnit = "target"
-            local x1, y1, z1 = br.GetObjectPosition("player")
-            local hitBoxCompensation = math.max(5, br._G.UnitCombatReach("player") + br._G.UnitCombatReach(thisUnit))
-            local yards = br.getOptionValue("Heroic Charge") + hitBoxCompensation
-            for deg = 0, 360, 45 do
-                local dX, dY, dZ = br._G.GetPositionFromPosition(x1, y1, z1, yards, deg, 0)
-                if br._G.TraceLine(x1, y1, z1 + 2.25, dX, dY, dZ + 2.25, 0x10) == nil -- Find Spot
-                        and br._G.TraceLine(x1, y1, z1 + 4, dX, dY, dZ, 0x1) == nil --Check Collisions
-                        and cd.heroicLeap.ready()
-                        and charges.charge.count() > 0--]]
-                then
-                    if not br._G.IsAoEPending() then
-                        br._G.CastSpellByName(br._G.GetSpellInfo(spell.heroicLeap))
-                    elseif br._G.IsAoEPending() then
-                        br._G.ClickPosition(dX, dY, dZ)
-                        return true
-                    end
-                end
-            end
-        end
+        local tankBusterList = {
+            [164406] =  "shriekwing",
+            [165067] = "margore",
+            [164407] = "sludgefist",
+            [168113] = "general-grashaal",
+            [168112] = "general-kaal",
+            [164451] = "dessia-the-decapitator",
+            [170690] = "diseased-horror",
+            [167534] = "rek-the-hardened",
+            [167538] = "dokigg-the-brutalizer",
+            [162317] = "gorechop",
+            [162329] = "xav-the-unfallen",
+            [165946] = "mordretha-the-endless-empress",
+            [167532] = "heavin-the-breaker",
+            [164558] = "hakkar-the-soulflayer",
+            [164555] = "millificent-manastorm",
+            [166608] = "muehzala",
+            [171184] = "mythresh-skys-talons",
+            [167964] = "4-rf-4-rf",
+            [173714] = "mistveil-nightblossom",
+            [165408] = "halkias",
+            [164557] = "shard-of-halkias",
+            [165415] = "toiling-groundskeeper",
+            [164563] = "vicious-gargon",
+            [164266] = "domina-venomblade",
+            [162100] = "kryxis-the-voracious",
+            [162102] = "grand-proctor-beryllia",
+            [162057] = "chamber-sentinel",
+            [168594] = "chamber-sentinel",
+            [162059] = "kin-tara",
+            [162691] = "blightbone",
+            [162689] = "surgeon-stitchflesh",
+            [162693] = "nalthor-the-rimebinder",
+            [164578] = "stitchfleshs-creation",
+            [172981] = "kyrian-stitchwerk",
+            [163621] = "goregrind" 
+        }
 
         -- Soulshape NF
         local function soulShape_NF()
@@ -600,13 +633,29 @@ local function runRotation()
                 end
             end
 
+            -- Kyrian Steward
+            if mode.Steward == 1 then
+                if br.player.covenant.kyrian.active 
+                        and not br.hasItem(177278)
+                        and cast.able.summonSteward()
+                then
+                    if cast.summonSteward() then
+                        return true
+                    end
+                end
+            end
+
             --Tank buster
             if mode.tankbuster == 1 and inInstance and inCombat then
                 for i = 1, #enemies.yards30 do
                     local thisUnit = enemies.yards30[i]
                     if br._G.UnitThreatSituation("player", thisUnit) == 3 and br._G.UnitCastingInfo("target") then
                         if br.lists.tankBuster[select(9, br._G.UnitCastingInfo("target"))] ~= nil then
-                            if cast.able.shieldBlock() and mainTank() and (not buff.shieldBlock.exists() or (buff.shieldBlock.remain() <= (gcd * 1.5))) and rage >= 30 then
+                            if cast.able.shieldBlock() 
+                                    and mainTank() 
+                                    and (not buff.shieldBlock.exists() or (buff.shieldBlock.remain() <= (gcd * 1.5))) 
+                                    and rage >= 30 
+                            then
                                 if cast.shieldBlock() then
                                     br.addonDebug("[TANKBUST] Shield Block")
                                     return true
@@ -618,16 +667,18 @@ local function runRotation()
             end
 
             -- Battle Shout Check
-            if br.isChecked("Battle Shout") then
-                if cast.able.battleShout() and not br.player.covenant.nightFae.active or (br.player.covenant.nightFae.active and not shaped) then
-                    for i = 1, #br.friend do
-                        local thisUnit = br.friend[i].unit
-                        if not br.GetUnitIsDeadOrGhost(thisUnit)
-                                and br.getDistance(thisUnit) < 100
-                                and br.getBuffRemain(thisUnit, spell.battleShout) < 60
-                        then
-                            if cast.battleShout() then
-                                return true
+            if br.timer:useTimer("BSTimer", math.random(15,40)) then
+                if br.isChecked("Battle Shout") then
+                    if cast.able.battleShout() and not br.player.covenant.nightFae.active or (br.player.covenant.nightFae.active and not shaped) then
+                        for i = 1, #br.friend do
+                            local thisUnit = br.friend[i].unit
+                            if not br.GetUnitIsDeadOrGhost(thisUnit)
+                                    and br.getDistance(thisUnit) < 100
+                                    and br.getBuffRemain(thisUnit, spell.battleShout) < 60
+                            then
+                                if cast.battleShout() then
+                                    return true
+                                end
                             end
                         end
                     end
@@ -677,6 +728,7 @@ local function runRotation()
                 if br.player.runeforge.reprisal.equiped
                         and #br.friend > 1
                         and inCombat
+                        and inInstance
                         and mainTank()
                 then
                     -- Intervene Melee to Refresh SB
@@ -687,7 +739,7 @@ local function runRotation()
                     then
                         for i = 1, #br.friend do
                             local thisUnit = br.friend[i].unit
-                            if br.getDistance(thisUnit) >= 1 and br.getDistance(thisUnit) <= 5 then
+                            if br.getDistance(thisUnit) >= 0 and br.getDistance(thisUnit) <= 5 then
                                 if cast.intervene(thisUnit) then
                                     br.addonDebug("[REPRISAL]Intervene Melee - Refresh shield block, and Revenge!")
                                     return true
@@ -741,13 +793,14 @@ local function runRotation()
                     -- Ignore Pain if checks are met, if covenant=venthyr then dont use ignore pain in favor of condemn
                     if br.getOptionValue("Ignore Pain Useage") == 1
                             or (br.getOptionValue("Ignore Pain Useage") == 2 and charges.shieldBlock.count() == 0)
-                            or (br.getOptionValue("Ignore Pain Useage") == 3 and br.player.health <= br.getOptionValue("Ignore Pain - HP"))
+                            or (br.getOptionValue("Ignore Pain Useage") == 3 and php <= br.getOptionValue("Ignore Pain - HP"))
                     then
                         if cast.able.ignorePain()
                                 and rage >= 40
                                 and mainTank()
                                 and ipCapCheck()
                                 and not cast.last.ignorePain()
+                                and (not mode.Aggression == 1 or (mode.Aggression == 1 and php <= br.getOptionValue("Ignore Pain - HP")))
                                 and not br.player.covenant.venthyr.active or (br.player.covenant.venthyr.active and (br.getHP("target") > 20 or br.getHP("target") < 80))
                         then
                             --print("dumping IP")
@@ -757,19 +810,22 @@ local function runRotation()
                     end
 
                     -- Use Off GCD Offensive CD's
-                    if br.useCDs() and #enemies.yards5 >= 1 then
+                    if br.useCDs() and #enemies.yards5 >= 1 and getMaxTTD() >= 20 then
                         -- avatar
-                        if br.isChecked("Avatar - CD") then
-                            if not br.getOptionValue("Avatar - CD") == 4
-                                    and br.isBoss("target")
-                                    or (br.getOptionValue("Avatar - CD") == 3 and #enemies.yards8 >= br.getOptionValue("Avatar Mob Count"))
-                                    or (br.getOptionValue("Avatar - CD") == 2 and (cd.ravager.ready() or not talent.ravager) and (not br.player.covenant.nightFae.active or (br.player.covenant.nightFae.active and (cd.ancientAftershock.remain() < 15 or cd.ancientAftershock.remain() > 33))))
-                                    or (br.getOptionValue("Avatar - CD") == 1)
-                            then
-                                if cast.avatar() then
-                                    br.addonDebug("[CD] Avatar")
-                                    return true
-                                end
+                        if br.getOptionValue("Avatar - CD") == 1 or br.isBoss("target") then
+                            if cast.avatar() then
+                                br.addonDebug("[CD] Always be Avatar'n")
+                                return true
+                            end
+                        elseif br.getOptionValue("Avatar - CD") == 2 and (cd.ravager.ready() or not talent.ravager) and (not br.player.covenant.nightFae.active or (br.player.covenant.nightFae.active and (cd.ancientAftershock.remain() < 15 or cd.ancientAftershock.remain() > 33))) then
+                            if cast.avatar() then
+                                br.addonDebug("[CD] Avatar w/CDs")
+                                return true
+                            end
+                        elseif br.getOptionValue("Avatar - CD") == 3 and #enemies.yards8 >= br.getOptionValue("Avatar Mob Count") then
+                            if cast.avatar() then
+                                br.addonDebug("[CD] Avatar AoE")
+                                return true
                             end
                         end
                     end
@@ -796,20 +852,28 @@ local function runRotation()
                         end
 
                         -- Le Shield Block
-                        if cast.able.shieldBlock()
-                                and charges.shieldBlock.count() > br.getValue("Shield Block - Hold Charges")
-                                and (not br.isChecked("Shield Block - Unit Count") or (br.isChecked("Shield Block - Unit Count") and #enemies.yards5 >= br.getOptionValue("Shield Block - Unit Count")))
-                                and (not br.isChecked("Shield Block - HP") or (br.isChecked("Shield Block - HP") and php <= br.getOptionValue("Shield Block - HP")))
-                                and mainTank()
-                                and ((talent.bolster and not buff.lastStand.exists()) or not talent.bolster) -- Bolster
-                                and (not buff.shieldBlock.exists() or buff.shieldBlock.remain() <= (gcd * br.getValue("Shield Block - Time Remain"))) -- Extension/Missing
-                        then
-                            if cast.shieldBlock() then
-                                br.addonDebug("[DEF] Shield Block")
-                                return
+                        for i = 1, #enemies.yards30 do
+                            if tankBusterList[br.GetObjectID(enemies.yards30[i])] then
+                                shieldHoldCharge = 1
+                            else
+                                shieldHoldCharge = 0
+                            end
+
+                            if charges.shieldBlock.count() > shieldHoldCharge
+                                    and (not br.isChecked("Shield Block - Unit Count") or (br.isChecked("Shield Block - Unit Count") and #enemies.yards5 >= br.getOptionValue("Shield Block - Unit Count")))
+                                    and (not br.isChecked("Shield Block - HP") or (br.isChecked("Shield Block - HP") and php <= br.getOptionValue("Shield Block - HP")))
+                                    and mainTank()
+                                    and ((talent.bolster and not buff.lastStand.exists()) or not talent.bolster) -- Bolster
+                                    and (not buff.shieldBlock.exists() or buff.shieldBlock.remain() <= (gcd * br.getValue("Shield Block - Time Remain"))) -- Extension/Missing
+                            then
+                                if cast.shieldBlock() then
+                                    br.addonDebug("[DEF] Shield Block")
+                                    return
+                                end
                             end
                         end
 
+                        
                         -- Last Stand
                         if cast.able.lastStand()
                                 and (talent.bolster or br.getOptionValue("Last Stand Useage") == 1)
@@ -921,15 +985,14 @@ local function runRotation()
                         then
                             for i = 1, #enemies.yards30 do
                                 local thisUnit = enemies.yards30[i]
-                                if ((ui.checked("Heroic Throw - Aggro") and (br._G.UnitThreatSituation("player", thisUnit) <= 2 and not cast.last.heroicThrow() and not DoNotTank_unitList[br.GetObjectID(thisUnit)]))
-                                        or (ui.checked("Heroic Throw - Ranged DPS") and #enemies.yards5 == 0)
-                                        or (ui.checked("Heroic Throw - Explosive") and br.isExplosive(thisUnit)))
+                                if ((ui.checked("Heroic Throw - Aggro") and (br._G.UnitThreatSituation("player", thisUnit) ~= nil and br._G.UnitThreatSituation("player", thisUnit) <= 2 and not cast.last.heroicThrow() and not DoNotTank_unitList[br.GetObjectID(thisUnit)])) 
+                                or (ui.checked("Heroic Throw - Explosive") and br.isExplosive(thisUnit)) or (ui.checked("Heroic Throw - Ranged DPS")))
                                 then
                                     if br.getDistance("player", thisUnit) > 8
                                             and br.getFacing("player", thisUnit, 45)
                                     then
                                         if cast.heroicThrow(thisUnit) then
-                                            br.addonDebug("[THROW] Casting Heroic Throw on: " .. br._G.UnitName("target"))
+                                            br.addonDebug("[THROW] Casting Heroic Throw on: " .. br._G.UnitName(thisUnit))
                                             return
                                         end
                                     end
@@ -1087,6 +1150,41 @@ local function runRotation()
                         br.useItem(166799)
                     end
                 end
+
+                -- Phial of Serenity
+                if mode.Steward == 1 then
+                        -- Heal
+                    if br.getOptionValue("Phial of Serenity Useage") == 1
+                            and php <= br.getOptionValue("Phial of Serenity - HP") 
+                            and inCombat 
+                            and br.hasItem(177278) 
+                    then
+                        if br.canUseItem(177278) then
+                            br.useItem(177278)
+                        end
+                        -- Remove Necrotic
+                    elseif br.getOptionValue("Phial of Serenity Useage") == 2
+                            and inInstance
+                            and inCombat
+                            and br.hasItem(177278)
+                            and br.getDebuffStacks("player", 209858) >= br.getValue("Phial of Serenity - Necrotic Stacks")
+                    then
+                        if br.canUseItem(177278) then
+                            br.useItem(177278)
+                        end
+                        -- Remove Grievous
+                    elseif br.getOptionValue("Phial of Serenity Useage") == 3
+                            and inInstance
+                            and inCombat
+                            and br.hasitem(177278)
+                            and br.getDebuffStacks("player", 240559) >= br.getValue("Phial of Serenity - Grievous Stacks")
+                    then
+                        if br.canUseItem(177278) then
+                            br.useItem(177278)
+                        end
+                    end
+                end
+
                 -- Fleshcraft
                 if br.isChecked("Fleshcraft - HP")
                         and cd.fleshcraft.ready()
@@ -1213,18 +1311,23 @@ local function runRotation()
                 end
             end
 
-            -- Spear of Bastion
-            if ui.checked("Spear of Bastion Units") and cd.spearOfBastion.ready() and br.getCombatTime() > 2
-                    and ((br.getOptionValue("Avatar - CD") == 2 and (buff.avatar.exists() or cd.avatar.remain() >= 60) or br.getOptionValue("Avatar - CD") ~= 2)
-                    or br.isBoss("target")
-                    or #enemies.yards12 == 1)
-                    and not moving and rage <= 75 and getMaxTTD() >= 10 then
-                if br.createCastFunction("best", false, br.getValue("Spear of Bastion Units"), 8, spell.spearOfBastion, nil, true) then
-                    br.addonDebug("[COV] Spear of Bastion")
-                    return true
+          -- Spear of Bastion
+            if ui.checked("Spear of Bastion Units") 
+                    and cd.spearOfBastion.ready() 
+                    and br.getCombatTime() > 2
+            then
+                if
+                ((br.getOptionValue("Avatar - CD") == 2 and (buff.avatar.exists() or cd.avatar.remain() >= 60) or br.getOptionValue("Avatar - CD") ~= 2)
+                        or br.isBoss("target")
+                        or #enemies.yards12 >= ui.value("Spear of Bastion Units")
+                )
+                        and not moving and getMaxTTD() >= 10 then
+                    if br.createCastFunction("best", false, br.getValue("Spear of Bastion Units"), 8, spell.spearOfBastion, nil, true) then
+                        br.addonDebug("[COV] Spear of Bastion")
+                        return true
+                    end
                 end
             end
-
             -- ravager
             if br.isChecked("Ravager")
                     and cast.able.ravager()
@@ -1258,7 +1361,20 @@ local function runRotation()
             -- all_action_list,name=Rotation
         end
 
+
         local function actionList_Rotation()
+
+            local ragePooling = rage > br.getValue("Rage Pooling")
+            
+            local aggressiveRevenge = nil
+            if mode.Aggression == 1
+                    and not br.isExplosive("target")
+                    and br.getHP("target") > 20
+                    and br.getSpellCD(spell.thunderClap) > gcd
+                    and br.getSpellCD(spell.shieldSlam) > gcd
+            then
+                aggressiveRevenge = true
+            end
 
             -- dragon_roar
             if talent.dragonRoar
@@ -1273,31 +1389,10 @@ local function runRotation()
                 end
             end
 
-
-        end
-
-        local function actionList_Rotation()
-
-            local is_aoe = #enemies.yards5 >= br.getOptionValue("AoE Threshold")
-            local ragePooling = rage < br.getValue("Rage Pooling")
-            local aggressiveRevenge = nil
-            if mode.Aggression == 1
-                    and not br.isExplosive("target")
-                    and br.getHP("target") > 20
-                    and br.getSpellCD(spell.thunderClap) > gcd
-                    and br.getSpellCD(spell.shieldSlam) > gcd
-            then
-                aggressiveRevenge = true
-            end
-
-
-
             -- shield_slam
             if cd.shieldSlam.ready()
                     and br.getFacing("player", units.dyn5)
-                    and (buff.shieldBlock.exists()
-                    or (br.getSpellCD(spell.thunderClap) >= gcd)
-                    or not is_aoe)
+                    and (buff.shieldBlock.exists() or (br.getSpellCD(spell.thunderClap) >= gcd))
             then
                 if cast.shieldSlam(units.dyn5) then
                     br.addonDebug("[DPS] Shield Slam")
@@ -1306,7 +1401,6 @@ local function runRotation()
             end
 
             -- execute
-            if not is_aoe and not ragePooling then
                 if not br.player.covenant.venthyr.active then
                     local execList = enemies.get(5)
                     if execList ~= nil and #execList > 0 and #execList <= 3 then
@@ -1337,10 +1431,12 @@ local function runRotation()
                         end
                     end
                 end
-            end
             -- revenge me brah
-            if not ragePooling or buff.revenge.exists() or aggressiveRevenge then
-                if cast.revenge() then
+            if #enemies.yards5 >= 1 
+                    and cast.able.revenge(units.dyn5, "cone", 1, 5)
+                    and (((ragePooling and br.getHP("target") > 20) or (br.player.covenant.venthyr.active and ragePooling and (br.getHP("target") >= 20 or br.getHP("target") <= 80))) or buff.revenge.exists() or aggressiveRevenge) 
+            then
+                if cast.revenge(units.dyn5, "cone", 1, 5) then
                     br.addonDebug("[DPS] Revenge")
                     return true
                 end
@@ -1384,7 +1480,7 @@ local function runRotation()
 
 
         -- charge
-        if br.isChecked("Charge") and mode.mover == 1 then
+        if br.isChecked("Charge") and mode.mover == 1 and inCombat then
             if cd.charge.ready()
                     and br.isValidUnit("target")
                     and br.getLineOfSight("player", "target")
