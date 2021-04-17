@@ -1,4 +1,4 @@
---Version 1.1.1
+--Version 1.1
 -- Big thank yous to Laks, Panglo, Kuu, and Ashley <333
 local rotationName = "Doparrior_Prot"
 
@@ -921,8 +921,9 @@ local function runRotation()
                         then
                             for i = 1, #enemies.yards30 do
                                 local thisUnit = enemies.yards30[i]
-                                if ((ui.checked("Heroic Throw - Aggro") and (br._G.UnitThreatSituation("player", thisUnit) ~= nil and br._G.UnitThreatSituation("player", thisUnit) <= 2 and not cast.last.heroicThrow() and not DoNotTank_unitList[br.GetObjectID(thisUnit)])) 
-                                or (ui.checked("Heroic Throw - Explosive") and br.isExplosive(thisUnit)) or (ui.checked("Heroic Throw - ")))
+                                if ((ui.checked("Heroic Throw - Aggro") and (br._G.UnitThreatSituation("player", thisUnit) <= 2 and not cast.last.heroicThrow() and not DoNotTank_unitList[br.GetObjectID(thisUnit)]))
+                                        or (ui.checked("Heroic Throw - Ranged DPS") and #enemies.yards5 == 0)
+                                        or (ui.checked("Heroic Throw - Explosive") and br.isExplosive(thisUnit)))
                                 then
                                     if br.getDistance("player", thisUnit) > 8
                                             and br.getFacing("player", thisUnit, 45)
@@ -1257,6 +1258,23 @@ local function runRotation()
             -- all_action_list,name=Rotation
         end
 
+        local function actionList_Rotation()
+
+            -- dragon_roar
+            if talent.dragonRoar
+                    and br.isChecked("Dragon Roar")
+                    and not br.isExplosive("target")
+                    and cd.dragonRoar.ready()
+                    and not moving
+            then
+                if cast.dragonRoar() then
+                    br.addonDebug("[DPS] Dragon Roar")
+                    return true
+                end
+            end
+
+
+        end
 
         local function actionList_Rotation()
 
@@ -1272,18 +1290,7 @@ local function runRotation()
                 aggressiveRevenge = true
             end
 
-            -- dragon_roar
-            if talent.dragonRoar
-                    and br.isChecked("Dragon Roar")
-                    and not br.isExplosive("target")
-                    and cd.dragonRoar.ready()
-                    and not moving
-            then
-                if cast.dragonRoar() then
-                    br.addonDebug("[DPS] Dragon Roar")
-                    return true
-                end
-            end
+
 
             -- shield_slam
             if cd.shieldSlam.ready()
