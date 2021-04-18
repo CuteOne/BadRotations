@@ -1075,7 +1075,7 @@ local function runRotation()
     ---------------------
 
     if inCombat then
-        if power >= 30 and cast.able.starsurge() and
+        if not is_aoe and power >= 30 and cast.able.starsurge() and
                 (br.UnitBuffID("player", 339943) and br.UnitBuffID("player", 339946))
                 and (br.isCastingSpell(br.player.spell.wrath) or br.isCastingSpell(br.player.spell.starfire))
         then
