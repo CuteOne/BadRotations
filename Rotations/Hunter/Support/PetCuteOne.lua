@@ -178,18 +178,18 @@ br.rotations.support["PetCuteOne"] = {
                 -- Check for Pet
                 if (petCalled or petRevived) and petExists and petActive then petCalled = false; petRevived = false end
                 -- Dismiss Pet
-                if cast.able.dismissPet() and petExists and petActive and (callPet == nil or unit.name("pet") ~= callPetName) then
-                    if cast.dismissPet("player") then ui.debug("[Pet] Cast Dismiss Pet") petAppearTimer = br._G.GetTime(); return true end
+                if cast.able.dismissPet("player") and petExists and petActive and (callPet == nil or unit.name("pet") ~= callPetName) then
+                    if cast.dismissPet("player") then ui.debug("[Pet] Casting Dismiss Pet") petAppearTimer = br._G.GetTime(); return true end
                 end
                 if mode.petSummon <  6 and callPetName ~= "" then
                     -- Call Pet
                     if ((not br.deadPet and not petExists) or not petActive) and not buff.playDead.exists("pet") and not petCalled then
-                        if cast["callPet"..mode.petSummon]("player") then ui.debug("[Pet] Call Pet") --[[ui.print("Hey "..callPetName.."...WAKE THE FUCK UP! It's already past noon!...GET YOUR LIFE TOGETHER!")]] petAppearTimer = br._G.GetTime(); petCalled = true; petRevived = false; return true end
+                        if cast["callPet"..mode.petSummon]("player") then ui.debug("[Pet] Casting Call Pet") --[[ui.print("Hey "..callPetName.."...WAKE THE FUCK UP! It's already past noon!...GET YOUR LIFE TOGETHER!")]] petAppearTimer = br._G.GetTime(); petCalled = true; petRevived = false; return true end
                     end
                     -- Revive Pet
                     if br.deadPet or (petExists and petHealth == 0) or petCalled == true then
-                        if cast.able.revivePet() and cast.timeSinceLast.revivePet() > unit.gcd(true) then
-                            if cast.revivePet("player") then ui.debug("[Pet] Revive Pet") --[[ui.print("Hey "..callPetName.."...WAKE THE FUCK UP! It's already past noon!...GET YOUR LIFE TOGETHER!")]] petAppearTimer = br._G.GetTime(); petRevived = true; petCalled = false; return true end
+                        if cast.able.revivePet("player") and cast.timeSinceLast.revivePet() > unit.gcd(true) then
+                            if cast.revivePet("player") then ui.debug("[Pet] Casting Revive Pet") --[[ui.print("Hey "..callPetName.."...WAKE THE FUCK UP! It's already past noon!...GET YOUR LIFE TOGETHER!")]] petAppearTimer = br._G.GetTime(); petRevived = true; petCalled = false; return true end
                         end
                     end
                 end
@@ -241,7 +241,7 @@ br.rotations.support["PetCuteOne"] = {
             if ui.checked("Master's Call - Cunning") and cast.noControl.mastersCall() then
                 if cast.mastersCall() then ui.debug("[Pet] Cast Master's Call") return true end
             end
-            if ui.value("Primal Rage - Ferocity") == 1 or (ui.value("Primal Rage") == 2 and ui.useCDs()) then
+            if ui.value("Primal Rage - Ferocity") == 1 or (ui.value("Primal Rage - Ferocity") == 2 and ui.useCDs()) then
                 if cast.primalRage() then ui.debug("[Pet] Cast Primal Rage") return true end
             end
             if ui.checked("Survival of the Fittest - Tenacity") and unit.hp("pet") < ui.value("Survival of the Fittest - Tenacity") then
