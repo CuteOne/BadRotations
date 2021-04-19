@@ -227,6 +227,7 @@ local units
 local use
 local conduit
 -- General Locals - Common Non-BR API Locals used in profiles
+local devtest
 local haltProfile
 local hastar
 local profileStop
@@ -590,6 +591,10 @@ local function already_stunned(Unit)
     return false
 end
 
+local function int (b)
+    return b and 1 or 0
+end
+
 local function ambushCondition()
     if mode.ambush == 1 and #br.friend > 1 then
         local buff_count = 0
@@ -730,7 +735,9 @@ local function getOutLaksTTD(ttd_time)
         mob_count = 6
     end
     for i = 1, mob_count do
-        if br.getTTD(enemies.yards8[i]) < lowTTD and not br.GetObjectID(enemies.yards8[i]) == 120651 and not br.GetObjectID(enemies.yards8[i]) == 174773
+        if br.getTTD(enemies.yards8[i]) < lowTTD
+                and br.GetObjectID(enemies.yards8[i]) ~= 120651
+                and br.GetObjectID(enemies.yards8[i]) ~= 174773
                 and br.isSafeToAttack(enemies.yards8[i]) then
             LowTTDtarget = enemies.yards8[i]
             lowTTD = br.getTTD(LowTTDtarget)
@@ -766,6 +773,54 @@ local function getOutLaksTTDMAX()
     return tonumber(highTTD)
 end
 
+local function focus(spell, target)
+    if devtest == 1 then
+        if select(4, GetSpellInfo(spell)) == 0 and br.getSpellCD(spell) == 0 then
+            if target == nil then
+                if spell == 35395 then
+                    for i = 1, #enemies.yards5 do
+                        if unit.exists("target") and unit.distance("target") <= 5 and not unit.isUnit("target", "player") then
+                            target = "target"
+                        else
+                            target = enemies.yards5[i]
+                        end
+                    end
+                end
+                if spell == 24275 or spell == 275773 or spell == 20473 then
+                    for i = 1, #enemies.yards30 do
+                        if unit.exists("target") and unit.distance("target") <= 30 and not unit.isUnit("target", "player") then
+                            target = "target"
+                        else
+                            target = enemies.yards30[i]
+                        end
+                    end
+                end
+            end
+            if unit.valid(target) and br.getLineOfSight("player", target) then
+                local curFacing = br._G.ObjectFacing("player")
+                br._G.FaceDirection(target, true)
+                br._G.CastSpellByName(br._G.GetSpellInfo(spell), target)
+                br._G.FaceDirection(curFacing)
+            end
+        else
+            if not ui.checked("Dev Stuff Leave off") and br.getSpellCD(spell) == 0 then
+                if target == nil then
+                    if spell == 35395 then
+                        target = units.dyn5
+                    end
+                    if spell == 24275 or spell == 275773 or spell == 20473 then
+                        target = units.dyn30
+                    end
+                end
+                if unit.valid(target) and br.getLineOfSight("player", target) then
+                    if unit.facing("player", target) then
+                        br._G.CastSpellByName(br._G.GetSpellInfo(spell), target)
+                    end
+                end
+            end
+        end
+    end
+end
 
 --------------------
 --- Action Lists --- -- All Action List functions from SimC (or other rotation logic) here, some common ones provided
@@ -794,7 +849,7 @@ actionList.dps = function()
         end
     end
 
-    if br.isChecked("Group CD's with DPS key") and br.SpecificToggle("DPS Key") and not br._G.GetCurrentKeyBoardFocus() then
+    if br.SpecificToggle("DPS Key") and not br._G.GetCurrentKeyBoardFocus() then
         dps_key()
     end
 
@@ -979,12 +1034,16 @@ actionList.dps = function()
                             end
                         end
                     end
-                    if charges.serratedBoneSpike.count() > 0 and br.getBuffRemain("player", 342181) <= 3 then
-                        local spikeCount = debuff.serratedBoneSpike.count() + 2 + int(buff.broadside.exists())
 
-                        local spikeList = enemies.get(30, "player", false, true)
+                    if not stealth and charges.serratedBoneSpike.count() > 0 and br.getBuffRemain("player", 342181) <= 3 then
+                        local spikeCount = debuff.serratedBoneSpike.count() + 2 + int(buff.broadside.exists())
+                        local spikeList
+                        if devtest == 0 then
+                            spikeList = enemies.get(30, "player", false, true)
+                        else
+                            spikeList = enemies.get(30)
+                        end
                         if #spikeList > 0 then
-                            --         ui.print("how many mobs? " .. tostring(#spikeList))
                             if (buff.bladeFlurry.exists("player") or #enemies.yards8 <= 1)
                                     and comboDeficit >= spikeCount and not buff.opportunity.exists() then
                                 if #spikeList > 1 then
@@ -994,9 +1053,18 @@ actionList.dps = function()
                                     )
                                 end
                                 for i = 1, #spikeList do
-                                    if not debuff.serratedBoneSpikeDot.exists(spikeList[i]) then
-                                        if cast.serratedBoneSpike(spikeList[i]) then
-                                            return true
+                                    if br.isSafeToAttack(spikeList[i]) and not debuff.serratedBoneSpikeDot.exists(spikeList[i]) then
+                                        if devtest == 0 then
+                                            if cast.serratedBoneSpike(spikeList[i]) then
+                                                return true
+                                            end
+                                        else
+                                            if unit.valid(spikeList[i]) and br.getLineOfSight("player", spikeList[i]) then
+                                                local curFacing = br._G.ObjectFacing("player")
+                                                br._G.FaceDirection(spikeList[i], true)
+                                                br._G.CastSpellByName(br._G.GetSpellInfo(328547), spikeList[i])
+                                                br._G.FaceDirection(curFacing)
+                                            end
                                         end
                                     end
                                 end
@@ -1010,14 +1078,22 @@ actionList.dps = function()
                     end
                 end -- end covenant
 
-                if cast.able.pistolShot() and not cast.able.ambush(dynamic_target_melee) and
-                        (buff.opportunity.exists() and (br.player.power.energy.amount() < 45 or talent.quickDraw)
-                                or br.isChecked("Pistol Spam") and (#enemies.yards5 == 0 or talent.acrobaticStrikes and #enemies.yards8 == 0) and br.player.power.energy.amount() > br.getOptionValue("Pistol Spam")
-                                or buff.opportunity.exists() and buff.deadShot.exists()) --or buff.greenskinsWickers.exists() or buff.concealedBlunderbuss.exists())
+                if cast.able.pistolShot()
+                        and (buff.opportunity.exists()
+                        and (br.player.power.energy.deficit() > (br.player.power.energy.regen() + 10) or comboDeficit <= 1 + int(buff.broadside.exists()) or talent.quickDraw)
+                        or br.isChecked("Pistol Spam") and (#enemies.yards5 == 0 or talent.acrobaticStrikes and #enemies.yards8 == 0) and br.player.power.energy.amount() > br.getOptionValue("Pistol Spam"))
                         and not br.isExplosive(units.dyn20) and not noDamageCheck(units.dyn20) and not stealth then
-                    --    Print("Shooting with " .. tostring(combo) .. " combo points and a deficit of: " .. tostring(comboDeficit))
-                    if cast.pistolShot(units.dyn20) then
-                        return true
+                    if devtest == 0 then
+                        if cast.pistolShot(units.dyn20) then
+                            return true
+                        end
+                    else
+                        if unit.valid(enemies.dyn20) and br.getLineOfSight("player", enemies.dyn20) then
+                            local curFacing = br._G.ObjectFacing("player")
+                            br._G.FaceDirection(enemies.dyn20, true)
+                            br._G.CastSpellByName(br._G.GetSpellInfo(185763), enemies.dyn20)
+                            br._G.FaceDirection(curFacing)
+                        end
                     end
                 end
 
@@ -1087,7 +1163,6 @@ actionList.dps = function()
         local Trinket13 = br._G.GetInventoryItemID("player", 13)
         local Trinket14 = br._G.GetInventoryItemID("player", 14)
 
-        local hold13, hold14
 
         -- Skuler's Wing
         if (br._G.GetInventoryItemID("player", 13) == 184016 or br._G.GetInventoryItemID("player", 14) == 184016)
@@ -1104,9 +1179,11 @@ actionList.dps = function()
         if br.canUseItem(13) then
             if Trinket13 == 169769 then
                 br.useItem(13, br.getBiggestUnitCluster(30, 8))
+            elseif Trinket13 == 179356 and br.getTTD("target") > 15 then
+                br.useItem(13)
             else
-                if not hold13 and (Trinket13 ~= 178715) then
-                    if br.hasBloodLust() or getOutLaksTTD(20) > 1 or buff.adrenalineRush.exists() then
+                if (Trinket13 ~= 178715 and Trinket13 ~= 179356) then
+                    if br.hasBloodLust() or getOutLaksTTD(20) > 0 or buff.adrenalineRush.exists() then
                         br.useItem(13)
                     end
                 end
@@ -1116,8 +1193,8 @@ actionList.dps = function()
             if Trinket14 == 169769 then
                 br.useItem(13, br.getBiggestUnitCluster(30, 8))
             else
-                if not hold14 and (Trinket14 ~= 178715) then
-                    if br.hasBloodLust() or getOutLaksTTD(20) > 1 or buff.adrenalineRush.exists() then
+                if (Trinket14 ~= 178715) then
+                    if br.hasBloodLust() or getOutLaksTTD(20) > 0 or buff.adrenalineRush.exists() then
                         br.useItem(14)
                     end
                 end
@@ -1185,7 +1262,7 @@ actionList.Extra = function()
         return
     end
 
-    if br.isChecked("Group CD's with DPS key") and br.SpecificToggle("DPS Key") and not br._G.GetCurrentKeyBoardFocus() then
+    if br.SpecificToggle("DPS Key") and not br._G.GetCurrentKeyBoardFocus() then
         dps_key()
     end
 
@@ -1684,7 +1761,6 @@ end -- End Action List - PreCombat
 ---------------
 
 
-
 local frame = br._G.CreateFrame("Frame")
 frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 local function reader()
@@ -1734,8 +1810,7 @@ local function runRotation()
     profileStop = profileStop or false
     ttd = br.getTTD
     haltProfile = (inCombat and profileStop) or (br._G.IsMounted() or br._G.IsFlying()) or br.pause() or mode.rotation == 4 or buff.soulshape.exists()
-    dynamic_target_melee = talent.acrobaticStrikes and units.dyn8 or units.dyn5
-    dynamic_range = talent.acrobaticStrikes and 8 or 5
+    devtest = 0
     unit = br.player.unit
     ui = br.player.ui
 
@@ -1759,7 +1834,10 @@ local function runRotation()
     enemies.get(30) -- Makes a variable called, enemies.yards30
     enemies.get(40) -- Makes a variable called, enemies.yards40
 
-
+    if br.timer:useTimer("target_timer", 0.5) then
+        dynamic_target_melee = talent.acrobaticStrikes and units.dyn8 or units.dyn5
+        dynamic_range = talent.acrobaticStrikes and 8 or 5
+    end
     -- Profile Specific Locals
 
     -- executed outside of gcd
@@ -1791,18 +1869,16 @@ local function runRotation()
             if br._G.UnitHealth(enemies.yards8[i]) < unit_health then
                 unit_health = br._G.UnitHealth(enemies.yards8[i])
                 mfd_target = enemies.yards8[i]
-                --      Print("mfd_target: " .. mfd_target .. " health: " .. unit_health)
             end
         end
         if cast.markedForDeath(mfd_target) then
-            --         Print("BAM BAM BAM : " .. mfd_target .. " health: " .. unit_health)
-            -- return true
         end
     end
 
 
     --        br.ui:createDropdown(section, "Draw Range", { "Never", "Blade Flurry", "always" }, 1, "Draw range on screen")
     if inCombat and br.getOptionValue("Draw Range") == 3 or br.getOptionValue("Draw Range") == 2 and buff.bladeFlurry.exists() then
+        local LibDraw = LibStub:NewLibrary("LibDraw-BR", 3)
         local draw_range = talent.acrobaticStrikes and 8 or 5
         local playerX, playerY, playerZ = br.GetObjectPosition("player")
         LibDraw.SetColorRaw(1, 0, 0, 1)
