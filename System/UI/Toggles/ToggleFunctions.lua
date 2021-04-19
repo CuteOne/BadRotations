@@ -363,7 +363,7 @@ function br.CreateButton(Name, x, y)
 		end
 		br.SlashCommandHelp(
 			"br toggle " .. Name .. " 1-" .. #br[Name .. "Modes"],
-			"Toggles " .. Name .. " Modes, Optional: specify number"
+			"Toggles " .. Name .. " Modes, Optional: specify number to toggle to or 2 numbers to toggle between"
 		)
 	end
 end
