@@ -188,6 +188,7 @@ end
 
 -- set to desired button value
 function br.changeButton(toggleValue, newValue)
+	if newValue == 0 then newValue = 1 end
 	local Icon
 	-- define text
 	br["text" .. toggleValue]:SetText(br[toggleValue .. "Modes"][newValue].mode)
