@@ -2795,7 +2795,6 @@ br.lists.spells = {
                 doomblade                   = 340082,
                 zoldyckInsignia             = 340083,
                 duskwalkersPatch            = 340084,
-                deathlyShadows              = 340092,
             },
         },
         -- Outlaw
@@ -2954,8 +2953,6 @@ br.lists.spells = {
                 symbolsOfDeath              = 212283,
                 symbolsOfDeathCrit          = 227151,
                 theDreadlordsDeceit         = 228224,
-                theRotten                   = 341134,
-                deathlyShadows              = 341202,
                 masterAssassin              = 256735,
                 coldBlood                   = 213981,
                 perforatedVeins             = 341572,
@@ -3000,8 +2997,6 @@ br.lists.spells = {
             runeforges                      = {
                 finality                    = 340089,
                 akaarisSoulFragment         = 340090,
-                theRotten                   = 340091,
-                deathlyShadows              = 340092,
             },
             conduits                        = {
                 deeperDaggers               = 341549,
@@ -3068,6 +3063,7 @@ br.lists.spells = {
                 flagellation                = 345569,
                 sepsis                      = 328305,
                 theRotten                   = 341134,
+                deathlyShadows              = 341202,
             },
             conduits                        = {
                 lashingScars                = 341310,
@@ -3113,6 +3109,7 @@ br.lists.spells = {
               --  blindingPowder              = 256165,   commented it out as it created errors
             },
             runeforges                      = {
+                theRotten                   = 340091,
                 markOfTheMasterAssassin     = 340076,
                 essenceOfBloodfang          = 340079,
                 invigoratingShadowdust      = 340080,

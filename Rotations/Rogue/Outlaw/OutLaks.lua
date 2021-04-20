@@ -605,7 +605,9 @@ local function ambushCondition()
         then
             buff_count = buff_count + 1
         end
-        if (comboDeficit >= 2 + buff_count) and (#enemies.yards8 == 1 or buff.bladeFlurry.exists()) then
+        -- (!runeforge.deathly_shadows|buff.deathly_shadows.down&combo_points<=2)
+        if (comboDeficit >= 2 + buff_count) and (#enemies.yards8 == 1 or buff.bladeFlurry.exists())
+                and (not runeforge.deathlyShadows.equiped or not buff.deathlyShadows.exists() and combo <= 2) then
             return true
         else
             return false
