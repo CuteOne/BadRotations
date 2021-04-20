@@ -9,7 +9,7 @@ br.lists.ccUnits = {
     [167566] = { name = "Return to Stone", spell = 333145 }, -- Sun King's Salvation
     [165762] = { name = "Soul Infuser" }, -- Sun King's Salvation
     -- SL Dungeons
-    [174773] = { name = "All-Consuming Spite"}, -- M+ Affix
+    --[174773] = { name = "All-Consuming Spite"}, -- M+ Affix
 
     -- HoA
     [164562] = { name = "Loyal Beasts", spell = 326450 }, -- Halls of Atonement
@@ -17,13 +17,14 @@ br.lists.ccUnits = {
     -- DoS
     [170480] = { name = "Bladestorm", spell = 332671 }, -- De Other Side
     [167963] = { name = "Spinning Up", spell = 332156 },
+    [171341] = { name = "Frightened Cries", spell = 334664 }, -- https://www.wowhead.com/spell=334664/frightened-cries
 
     -- Mists
     [165251] = { name = "Illusionary Vulpin" }, -- https://www.wowhead.com/npc=165251/illusionary-vulpin
     [166301] = { name = "Mistveil Bite", spell = 324987 }, -- https://www.wowhead.com/spell=324987/mistveil-bite
     [166301] = { name = "Mistveil Tear", spell = 325021 }, -- https://www.wowhead.com/spell=325021/mistveil-tear
+    [167113] = { name = "Mistveil Tear", spell = 325418 }, -- https://www.wowhead.com/spell=325418/volatile-acid
     --[166276] = { name = "Mistveil Bite", spell = 331743 }, -- https://www.wowhead.com/spell=331743/bucking-rampage
-    [171341] = { name = "Frightened Cries", spell = 334664 }, -- https://www.wowhead.com/spell=334664/frightened-cries
     -- NW
     [163618] = { name = "Animate Dead", spell = 321780 }, -- Zolramus Necromancer
 
