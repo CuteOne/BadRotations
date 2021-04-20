@@ -84,6 +84,8 @@ local function createOptions()
         br.ui:createDropdownWithout(section, "DPS Key", br.dropOptions.Toggle, 6, "DPS Override")
         br.ui:createDropdownWithout(section, "Travel Key", br.dropOptions.Toggle, 6, "Set a key for travel")
         br.ui:createDropdownWithout(section, "Cat Key", br.dropOptions.Toggle, 6, "Set a key for cat")
+        br.ui:createDropdown(section, "Treants Key", br.dropOptions.Toggle, 6, "", "Treant Key")
+
         br.ui:createCheckbox(section, "auto stealth", 1)
         br.ui:createCheckbox(section, "auto dash", 1)
         br.ui:createCheckbox(section, "Starfall While moving")
@@ -97,14 +99,7 @@ local function createOptions()
         br.ui:createSpinner(section, "Potion/Healthstone", 20, 0, 100, 5, "Health Percent to Cast At")
         br.ui:createSpinner(section, "Renewal", 25, 0, 100, 1, "Health Percent to Cast At")
         br.ui:createSpinner(section, "Barkskin", 60, 0, 100, 1, "Health Percent to Cast At")
-        br.ui:createSpinner(section, "Regrowth", 30, 0, 100, 1, "Health Percent to Cast At")
-        if br.player.talent.restorationAffinity then
-            br.ui:createSpinner(section, "Swiftmend", 15, 0, 100, 1, "Health Percent to Cast At")
-            br.ui:createSpinner(section, "Rejuvenation", 50, 0, 100, 1, "Health Percent to Cast At")
-        end
-
         br.ui:checkSectionState(section)
-
         section = br.ui:createSection(br.ui.window.profile, "Heal/Support")
         br.ui:createDropdown(section, "Rebirth", { "Tanks", "Healers", "Tanks and Healers", "Mouseover Target", "Any" }, 3, "", "Target to Cast On")
         br.ui:createDropdown(section, "Revive", { "Target", "mouseover" }, 1, "", "Target to Cast On")
@@ -124,12 +119,42 @@ local function createOptions()
         br.ui:createSpinner(section, "InterruptAt", 0, 0, 95, 5, " or cffFFBB00Cast Percentage to use at.")
         br.ui:checkSectionState(section)
     end
-    optionTable = { {
-                        [1] = "Rotation Options",
-                        [2] = rotationOptions,
-                    } }
+
+    local function healingOptions()
+        section = br.ui:createSection(br.ui.window.profile, "Heal Settings")
+        br.ui:createDropdown(section, "Regrowth?", { "Always", "OOC", "SOLO+OOC" }, 2, "Wanna Regrowth?")
+        br.ui:createSpinnerWithout(section, "Regrowth%", 30, 0, 100, 1, "Health Percent to Cast At")
+        if br.player.talent.restorationAffinity then
+            br.ui:createDropdown(section, "WildGrowth?", { "Always", "OOC", "SOLO+OOC" }, 2, "Wanna WildGrowth?")
+            br.ui:createSpinnerWithout(section, "WildGrowth%", 30, 0, 100, 1, "Health Percent to Cast At")
+            br.ui:createDropdown(section, "Rejuv?", { "Always", "OOC", "SOLO+OOC" }, 2, "Wanna Rejuv?")
+            br.ui:createSpinnerWithout(section, "Rejuv%", 30, 0, 100, 1, "Health Percent to Cast At")
+            br.ui:createDropdown(section, "Swiftmend?", { "Always", "OOC", "SOLO+OOC" }, 2, "Wanna Rejuv?")
+            br.ui:createSpinnerWithout(section, "Swiftmend%", 30, 0, 100, 1, "Health Percent to Cast At")
+        end
+
+        br.ui:checkSectionState(section)
+        section = br.ui:createSection(br.ui.window.profile, "Offheal - REQUIRES HE ENABLED")
+        br.ui:createCheckbox(section, "Always")
+        br.ui:createCheckbox(section, "healer dead")
+        br.ui:createSpinner(section, "Prideful Stacks", 20, 0, 20, 1, "Stacks to offheal @")
+    end
+
+    optionTable = {
+
+        {
+            [1] = "Rotation Options",
+            [2] = rotationOptions
+        },
+        {
+            [1] = "Healing",
+            [2] = healingOptions
+
+        }
+    }
     return optionTable
 end
+
 
 --------------
 --- Locals ---
@@ -192,6 +217,7 @@ local cat
 local catspeed
 local travel
 local charges
+local solo
 -- Profile Specific Locals - Any custom to profile locals
 local actionList = {}
 
@@ -466,18 +492,57 @@ end
 --------------------
 -- Action List - Extra
 actionList.Extra = function()
+end -- End Action List - Extra
 
 
-    --rejuvenation
-    if ui.checked("Rejuvenation") and php <= 90 and not buff.rejuvenation.exists("player") then
-        unit.cancelForm()
-        if cast.rejuvenation("player") then
-            br.addonDebug("[EXTRA]  Rejuv at: " .. tostring(php))
+actionList.Heal = function()
+
+
+    --Heal here
+
+    -- Regrowth
+    if ui.checked("Regrowth?") and (ui.value("Regrowth?") == 1 or ui.value("Regrowth?") >= 2 and not inCombat or ui.value("Regrowth?") == 3 and solo)
+            and not br.isMoving("player")
+            and php <= br.getValue("Regrowth%") then
+        if cast.regrowth("player") then
+            br.addonDebug("[DEF]Regrowth at: " .. tostring(php))
             return true
         end
     end
+    if talent.restorationAffinity then
+        -- WildGrowth
+        if ui.checked("WildGrowth?") and (ui.value("WildGrowth?") == 1 or ui.value("WildGrowth?") >= 2 and not inCombat or ui.value("WildGrowth?") == 3 and solo)
+                and not br.isMoving("player") and cast.able.wildGrowth("player")
+                and php <= br.getValue("WildGrowth%") then
+            if cast.wildGrowth("player") then
+                br.addonDebug("[DEF]WildGrowth at: " .. tostring(php))
+                return true
+            end
+        end
+        -- Swiftmend
+        if ui.checked("Swiftmend?") and (ui.value("Swiftmend?") == 1 or ui.value("Swiftmend?") >= 2 and not inCombat or ui.value("Swiftmend?") == 3 and solo)
+                and charges.swiftmend.count() >= 1 and hasHot("player")
+                and php <= br.getValue("Swiftmend%") then
+            if cast.swiftmend("player") then
+                br.addonDebug("[DEF]  Swiftmend at: " .. tostring(php))
+                return true
+            end
+        end
+        -- rejuvenation
+        if ui.checked("Rejuv?") and (ui.value("Rejuv?") == 1 or ui.value("Rejuv?") >= 2 and not inCombat or ui.value("Rejuv?") == 3 and solo)
+                and php <= br.getValue("Rejuv%") and not buff.rejuvenation.exists() then
+            if cast.rejuvenation("player") then
+                br.addonDebug("[DEF]  Rejuv at: " .. tostring(php))
+                return true
+            end
+        end
+    end
 
-end -- End Action List - Extra
+
+end
+
+
+
 -- Action List - Defensive
 actionList.Defensive = function()
 
@@ -514,29 +579,8 @@ actionList.Defensive = function()
             return
         end
     end
-    -- Swiftmend
-    if talent.restorationAffinity and ui.checked("Swiftmend") and cast.able.swiftmend() and php <= br.getValue("Swiftmend") and charges.swiftmend.count() >= 1 and hasHot("player") then
-        unit.cancelForm()
-        if cast.swiftmend("player") then
-            return true
-        end
-    end
-    -- Regrowth
-    if ui.checked("Regrowth") and not moving and php <= br.getValue("Regrowth") then
-        -- unit.cancelForm()
-        if cast.regrowth("player") then
-            return true
-        end
-    end
 
-    --rejuvenation
-    if ui.checked("Rejuvenation") and php <= br.getValue("Rejuvenation") and not buff.rejuvenation.exists("player") then
-        unit.cancelForm()
-        if cast.rejuvenation("player") then
-            br.addonDebug("[DEF]  Rejuv at: " .. tostring(php))
-            return true
-        end
-    end
+
     -- Rebirth
     if inCombat and ui.checked("Rebirth") and cd.rebirth.remain() <= gcd and not br.isMoving("player") then
         if br.getOptionValue("Rebirth") == 1 then
@@ -895,6 +939,7 @@ actionList.dps_aoe = function()
             and #enemies.yards45 >= 2 and getMaxTTD() > 10
     then
         if cast.starfall() then
+            br.addonDebug("[STARFALL]Mobs: " .. " GetTTD:" .. tostring(getMaxTTD))
             return true
         end
     end
@@ -944,7 +989,7 @@ actionList.dps_aoe = function()
             for i = 1, #enemies.yards45 do
                 thisUnit = enemies.yards45[i]
                 if br._G.UnitAffectingCombat(thisUnit) then
-                    if br.getTTD(thisUnit) > (buff.eclipse_solar.remains() + 2)
+                    if br.getTTD(thisUnit) > (buff.eclipse_solar.remains() + 6)
                             and (not debuff.moonfire.exists(thisUnit) or debuff.moonfire.refresh(thisUnit))
                     then
                         if cast.moonfire(thisUnit) then
@@ -958,7 +1003,7 @@ actionList.dps_aoe = function()
                 for i = 1, #enemies.yards45 do
                     thisUnit = enemies.yards45[i]
                     if br._G.UnitAffectingCombat(thisUnit) then
-                        if (current_eclipse == "lunar" and br.getTTD(thisUnit) > (buff.eclipse_lunar.remains() + 2)
+                        if (current_eclipse == "lunar" and br.getTTD(thisUnit) > (buff.eclipse_lunar.remains() + 6)
                                 or (br.getCombatTime() < 10 and not eclipse_in and br.getTTD(thisUnit) > 14)
                                 or br.isBoss(thisUnit))
                                 and (not debuff.moonfire.exists(thisUnit) or debuff.moonfire.refresh(thisUnit))
@@ -1086,6 +1131,7 @@ local function runRotation()
     cat = br.player.buff.catForm.exists()
     travel = br.player.buff.travelForm.exists()
     charges = br.player.charges
+    solo = #br.friend == 1
 
     catspeed = br.player.buff.dash.exists() or br.player.buff.tigerDash.exists() or br.player.buff.stampedingRoar.exists() or br.player.buff.stampedingRoarCat.exists() or br.player.buff.stampedingRoar.exists()
 
@@ -1097,9 +1143,11 @@ local function runRotation()
     astral_def = astral_max - power
 
     pool = false
-    if (getMaxTTD() < 20 and power < 80)
+    if ((getMaxTTD() < 20 or (#enemies.yards45 > 1 and buff.starfall.remains() > 5)) and power < 80)
             and not br.isBoss("target")
-            and br.getUnitID("target") ~= 173729 then
+            and br.getUnitID("target") ~= 173729
+
+    then
         pool = true
     end
 
@@ -1118,6 +1166,12 @@ local function runRotation()
     ---------------------
 
     if inCombat then
+
+        local ChannelInfo = { br._G.UnitChannelInfo("player") }
+        if ChannelInfo[4] then
+            return true
+        end
+
         if not is_aoe and power >= 30 and cast.able.starsurge() and not pool and
                 (br.UnitBuffID("player", 339943) and br.UnitBuffID("player", 339946))
                 and (br.isCastingSpell(br.player.spell.wrath) or br.isCastingSpell(br.player.spell.starfire))
@@ -1149,6 +1203,9 @@ local function runRotation()
             end
         end
         if actionList.Extra() then
+            return true
+        end
+        if actionList.Heal() then
             return true
         end
         if actionList.Defensive() then
@@ -1231,6 +1288,10 @@ local function runRotation()
                     if cast.moonfire(units.dyn45) then
                         return true
                     end
+                end
+
+                if actionList.Heal() then
+                    return true
                 end
 
                 if mode.rotation == 1 and is_aoe or mode.rotation == 2 then
