@@ -605,7 +605,9 @@ local function ambushCondition()
         then
             buff_count = buff_count + 1
         end
-        if (comboDeficit >= 2 + buff_count) and not (buff.bladeFlurry.exists and #enemies.yards8 >= 2) then
+        -- (!runeforge.deathly_shadows|buff.deathly_shadows.down&combo_points<=2)
+        if (comboDeficit >= 2 + buff_count) and (#enemies.yards8 == 1 or buff.bladeFlurry.exists())
+                and (not runeforge.deathlyShadows.equiped or not buff.deathlyShadows.exists() and combo <= 2) then
             return true
         else
             return false
@@ -736,8 +738,8 @@ local function getOutLaksTTD(ttd_time)
     end
     for i = 1, mob_count do
         if br.getTTD(enemies.yards8[i]) < lowTTD
-                and br.GetObjectID(enemies.yards8[i]) ~= 120651
-                and br.GetObjectID(enemies.yards8[i]) ~= 174773
+        and br.GetObjectID(enemies.yards8[i]) ~= 120651
+        and br.GetObjectID(enemies.yards8[i]) ~= 174773
                 and br.isSafeToAttack(enemies.yards8[i]) then
             LowTTDtarget = enemies.yards8[i]
             lowTTD = br.getTTD(LowTTDtarget)
@@ -849,20 +851,6 @@ actionList.dps = function()
         end
     end
 
-    if not stealth and ambushCondition() and cd.vanish.remain() <= 0.2 and br.getDistance(units.dyn5) <= 5 and not cast.last.shadowmeld(1) and (br.GetUnitExists(units.dyn5) and (br.getBuffRemain(units.dyn5, 226510) == 0 or not br.isChecked("Cheap Shot"))) then
-        ambush_flag = true
-        if mode.vanish == 1 then
-            if cast.vanish() then
-                return true
-            end
-        end
-        if br.player.race == "NightElf" and br.isChecked("Use Racial") and not cast.last.vanish(1) then
-            if cast.shadowmeld() then
-                return true
-            end
-        end
-    end
-
     if br.SpecificToggle("DPS Key") and not br._G.GetCurrentKeyBoardFocus() then
         dps_key()
     end
@@ -894,6 +882,21 @@ actionList.dps = function()
                         end
                     end
                 end]]
+
+        if not stealth and ambushCondition() and cd.vanish.remain() <= 0.2 and br.getDistance(units.dyn5) <= 5 and not cast.last.shadowmeld(1) and (br.GetUnitExists(units.dyn5) and (br.getBuffRemain(units.dyn5, 226510) == 0 or not br.isChecked("Cheap Shot")))
+                and #br.friend > 1 then
+            ambush_flag = true
+            if mode.vanish == 1 then
+                if cast.vanish() then
+                    return true
+                end
+            end
+            if br.player.race == "NightElf" and br.isChecked("Use Racial") and not cast.last.vanish(1) then
+                if cast.shadowmeld() then
+                    return true
+                end
+            end
+        end
 
         --  Print(tostring(getOutLaksTTD(8)))
         if cast.able.bladeFlurry() and mode.rotation == 1 then
@@ -1164,12 +1167,12 @@ actionList.dps = function()
 
 
         -- Skuler's Wing
-        if (br._G.GetInventoryItemID("player", 13) == 184016 or br._G.GetInventoryItemID("player", 14) == 184016)
-                and br.canUseItem(184016) and #enemies.yards8 > 0 then
+        if (Trinket13 == 184016 or Trinket14  == 184016)
+                and br.canUseItem(184016) and unit.distance(dynamic_target_melee) < 8 then
             br.useItem(184016)
         end
         --darkmoon trinket
-        if (br._G.GetInventoryItemID("player", 13) == 173087 or br._G.GetInventoryItemID("player", 14) == 173087)
+        if (Trinket13 == 173087 or Trinket14  == 173087)
                 and br.canUseItem(173087) and inCombat and not stealth then
             br.useItem(173087)
         end
