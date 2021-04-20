@@ -849,6 +849,20 @@ actionList.dps = function()
         end
     end
 
+    if not stealth and ambushCondition() and cd.vanish.remain() <= 0.2 and br.getDistance(units.dyn5) <= 5 and not cast.last.shadowmeld(1) and (br.GetUnitExists(units.dyn5) and (br.getBuffRemain(units.dyn5, 226510) == 0 or not br.isChecked("Cheap Shot"))) then
+        ambush_flag = true
+        if mode.vanish == 1 then
+            if cast.vanish() then
+                return true
+            end
+        end
+        if br.player.race == "NightElf" and br.isChecked("Use Racial") and not cast.last.vanish(1) then
+            if cast.shadowmeld() then
+                return true
+            end
+        end
+    end
+
     if br.SpecificToggle("DPS Key") and not br._G.GetCurrentKeyBoardFocus() then
         dps_key()
     end
@@ -880,21 +894,6 @@ actionList.dps = function()
                         end
                     end
                 end]]
-
-        if not stealth and ambushCondition() and cd.vanish.remain() <= 0.2 and br.getDistance(units.dyn5) <= 5 and not cast.last.shadowmeld(1) and (br.GetUnitExists(units.dyn5) and (br.getBuffRemain(units.dyn5, 226510) == 0 or not br.isChecked("Cheap Shot")))
-                and #br.friend > 1 then
-            ambush_flag = true
-            if mode.vanish == 1 then
-                if cast.vanish() then
-                    return true
-                end
-            end
-            if br.player.race == "NightElf" and br.isChecked("Use Racial") and not cast.last.vanish(1) then
-                if cast.shadowmeld() then
-                    return true
-                end
-            end
-        end
 
         --  Print(tostring(getOutLaksTTD(8)))
         if cast.able.bladeFlurry() and mode.rotation == 1 then
@@ -1536,14 +1535,18 @@ actionList.Interrupt = function()
         [320788] = true, -- Frozen Binds, last boss Necrotic wave
         [261439] = true, -- Virulent Pathogen WM
         [261440] = true, -- Virulent Pathogen WM
-        [265773] = true -- Spit Gold KR
+        [265773] = true, -- Spit Gold KR
+        [322554] = true, -- Castigate SD
     }
     local dodgeList = {
-        [266231] = true -- Severing Axe KR
+        [266231] = true, -- Severing Axe KR
     }
 
     local feintList = {
-        [320596] = true -- Heaving Retch in NW
+        [320596] = true, -- Heaving Retch in NW
+        [325245] = true, -- Shadow Ambush PF
+        [323195] = true, -- Purifying Blast SoA
+        [319592] = true, -- Stone Shattering Leap HoA
     }
 
     if br.useDefensive() and (cast.able.vanish() or cast.able.cloakOfShadows() or cast.able.evasion() or cast.able.feint()) then
@@ -1602,7 +1605,7 @@ actionList.Interrupt = function()
                         end
                     end
                 else
-                    if cast.able.feint() and feintList[interruptID] then
+                    if cast.able.feint() and feintList[interruptID] and castleft <= 3 then
                         if cast.pool.feint() and cd.feint.remain() <= castleft then
                             should_pool = true
                         end
@@ -1695,11 +1698,17 @@ actionList.Interrupt = function()
             end
 
             --check for stun here
-            if cd.global.remain() == 0 and mode.stun == 1 then
+            if (mode.blind == 2 or mode.blind == 3) or (mode.gouge == 2 or mode.gouge == 3) or (mode.kidney == 2 or mode.kidney == 3) then
                 if cast.able.blind() or cast.able.cheapShot() or cast.able.kidneyShot() then
                     distance = br.getDistance(interrupt_target)
-                    if br.isCrowdControlCandidates(interrupt_target)
-                            and not already_stunned(interrupt_target)
+                    local castStartTime
+                    if br._G.UnitCastingInfo(interrupt_target) then
+                        castStartTime = select(4,br._G.UnitCastingInfo(interrupt_target))
+                    elseif br._G.UnitChannelInfo(interrupt_target) then
+                        castStartTime = select(4,br._G.UnitChannelInfo(interrupt_target))
+                    end
+                    if br.isCrowdControlCandidates(interrupt_target) and (br._G.GetTime()-(castStartTime/1000)) > 0.1
+                    and not already_stunned(interrupt_target)
                             and br.GetUnitExists(interrupt_target) and br.getBuffRemain(interrupt_target, 226510) == 0 and distance <= 20 then
                         if mode.gouge > 1 and mode.gouge ~= 5 and cast.able.gouge() and (distance <= dynamic_range) and br.getFacing(interrupt_target, "player", 45) then
                             if cast.gouge(interrupt_target) then
