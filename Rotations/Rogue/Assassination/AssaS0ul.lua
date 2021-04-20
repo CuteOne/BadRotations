@@ -217,9 +217,6 @@ local function runRotation()
     local inInstance                          = br.player.instance == "party" or br.player.instance == "scenario" or br.player.instance == "pvp" or br.player.instance == "arena" or br.player.instance == "none"
     local inRaid                              = br.player.instance == "raid" or br.player.instance == "pvp" or br.player.instance == "arena" or br.player.instance == "none"
 
-    if leftCombat == nil then leftCombat = br._G.GetTime() end
-    if profileStop == nil then profileStop = false end
-
     enemies.get(5)
     enemies.get(20)
     enemies.get(20,"player",true)
@@ -244,6 +241,10 @@ local function runRotation()
             end
         end
     end
+
+    -----------------
+    --- Functions ---
+    -----------------
 
     local function int (b)
         return b and 1 or 0
@@ -327,7 +328,8 @@ local function runRotation()
         local lowestHP
         for i = 1, #enemies.yards30 do
             local thisUnit = enemies.yards30[i]
-            if (not noDotCheck(thisUnit) or br.GetUnitIsUnit(thisUnit, "target")) and not br.GetUnitIsDeadOrGhost(thisUnit) and br.isSafeToAttack(thisUnit)
+            if (not noDotCheck(thisUnit) or br.GetUnitIsUnit(thisUnit, "target")) 
+             and not br.GetUnitIsDeadOrGhost(thisUnit) and br.isSafeToAttack(thisUnit)
              and (mode.rotation ~= 2 or (mode.rotation == 2 and br.GetUnitIsUnit(thisUnit, "target"))) then
                 local enemyUnit = {}
                 enemyUnit.unit = thisUnit
@@ -385,7 +387,11 @@ local function runRotation()
             if thisUnit.distance <= 10 then
                 if fokIgnore [thisUnit.objectID] == nil and not isTotem(thisUnit.unit) then
                     br._G.tinsert(enemyTable10, thisUnit)
-                    if deadlyPoison10 and (br.getOptionValue("Lethal Poison") == 1 and not debuff.instantPoison.exists(thisUnit.unit)) or (br.getOptionValue("Lethal Poison") == 2 and not debuff.woundPoison.exists(thisUnit.unit)) then deadlyPoison10 = false end
+                    if deadlyPoison10 and 
+                        (br.getOptionValue("Lethal Poison") == 1 and not debuff.instantPoison.exists(thisUnit.unit)) or 
+                        (br.getOptionValue("Lethal Poison") == 2 and not debuff.woundPoison.exists(thisUnit.unit)) 
+                        then deadlyPoison10 = false 
+                    end
                 end
                 if thisUnit.distance <= 5 then
                     br._G.tinsert(enemyTable5, thisUnit)
@@ -495,12 +501,6 @@ local function runRotation()
         end
         --Burn Units
         local burnUnits = {
-            [120651] = true, -- Explosive
-            [164362] = true, -- Plaguefall Slimy Morsel
-            [164427] = true, -- NW Reanimated Warrior
-            [164414] = true, -- NW Reanimated Mage
-            [168246] = true, -- NW Reanimated Crossbowman
-            [164702] = true, -- NW Carrion Worm
             [175992] = true, -- Dutiful Attendant
         }
         if br.GetObjectExists("target") and burnUnits[br.GetObjectID("target")] ~= nil then
@@ -611,8 +611,9 @@ local function runRotation()
                     end
                 end
                 local interruptID, castStartTime
-                if ui.checked("Stuns") and distance < 5 and br.player.cast.timeRemain(interrupt_target) < br.getTTD(interrupt_target) and br.isCrowdControlCandidates(interrupt_target)
-                 and noStunList[br.GetObjectID(interrupt_target)] == nil and (not br.isBoss(interrupt_target) or stunList[interruptID]) and br.getBuffRemain(interrupt_target, 226510) == 0 then
+                if ui.checked("Stuns") and distance < 5 and br.player.cast.timeRemain(interrupt_target) < br.getTTD(interrupt_target)
+                 and noStunList[br.GetObjectID(interrupt_target)] == nil and br.getBuffRemain(interrupt_target, 226510) == 0 
+                 and (not br.isBoss(interrupt_target) or stunList[interruptID] or br.isCrowdControlCandidates(interrupt_target)) then
                     if br._G.UnitCastingInfo(interrupt_target) then
                         castStartTime = select(4,br._G.UnitCastingInfo(interrupt_target))
                         interruptID = select(9,br._G.UnitCastingInfo(interrupt_target))
@@ -744,7 +745,7 @@ local function runRotation()
             if talent.exsanguinate and talent.nightstalker and nightstalkerCpCondition and cd.exsanguinate.remain() < 1 then
                 if cast.vanish("player") then return true end
             end
-            --# Vanish with Nightstalker + No Exsg: Maximum CP and Vendetta up
+            --# Vanish with Nightstnalker + No Exsg: Maximum CP and Vendetta up
             --actions.vanish+=/vanish,if=talent.nightstalker.enabled&!talent.exsanguinate.enabled&variable.nightstalker_cp_condition&debuff.vendetta.up
             if talent.nightstalker and not talent.exsanguinate and nightstalkerCpCondition and (debuff.vendetta.exists("target") or not ui.checked("Vendetta")) then
                 if cast.vanish("player") then return true end
@@ -790,8 +791,8 @@ local function runRotation()
         end
         -- # Envenom at 4+ (5+ with DS) CP. Immediately on 2+ targets, with Vendetta, or with TB; otherwise wait for some energy. Also wait if Exsg combo is coming up.
         -- actions.direct=envenom,if=combo_points>=4+talent.deeper_stratagem.enabled&(debuff.vendetta.up|debuff.shiv.up|debuff.flagellation.up|energy.deficit<=25+variable.energy_regen_combined|!variable.single_target)&(!talent.exsanguinate.enabled|cooldown.exsanguinate.remains>2)
-        if combo >= (4 + dSEnabled) and ((debuff.vendetta.exists("target") or not cdUsage or ttd("target") < br.getOptionValue("CDs TTD Limit")) or debuff.shiv.exists("target") or debuff.flagellation.exists("target") or energyDeficit <= (25 + energyRegenCombined) or not singleTarget) and 
-         (not talent.exsanguinate or cd.exsanguinate.remain() > 2 or debuff.rupture.remain("target") > 27 or ttd("target") < 4 or mode.exsang == 2) then
+        if combo >= (4 + dSEnabled) and ((debuff.vendetta.exists("target") or not cdUsage or ttd("target") < br.getOptionValue("CDs TTD Limit")) or debuff.shiv.exists("target") or debuff.flagellation.exists("target") or energyDeficit <= (25 + energyRegenCombined) or not singleTarget) 
+         and (not talent.exsanguinate or cd.exsanguinate.remain() > 2 or debuff.rupture.remain("target") > 27 or ttd("target") < 4 or mode.exsang == 2) then
             if cast.envenom("target") then return true end
         end
         -- actions.direct+=/variable,name=use_filler,value=combo_points.deficit>1|energy.deficit<=25+variable.energy_regen_combined|!variable.single_target
