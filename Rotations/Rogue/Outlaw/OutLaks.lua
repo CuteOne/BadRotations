@@ -1167,12 +1167,12 @@ actionList.dps = function()
 
 
         -- Skuler's Wing
-        if (br._G.GetInventoryItemID("player", 13) == 184016 or br._G.GetInventoryItemID("player", 14) == 184016)
-                and br.canUseItem(184016) and #enemies.yards8 > 0 then
+        if (Trinket13 == 184016 or Trinket14  == 184016)
+                and br.canUseItem(184016) and unit.distance(dynamic_target_melee) < 8 then
             br.useItem(184016)
         end
         --darkmoon trinket
-        if (br._G.GetInventoryItemID("player", 13) == 173087 or br._G.GetInventoryItemID("player", 14) == 173087)
+        if (Trinket13 == 173087 or Trinket14  == 173087)
                 and br.canUseItem(173087) and inCombat and not stealth then
             br.useItem(173087)
         end
