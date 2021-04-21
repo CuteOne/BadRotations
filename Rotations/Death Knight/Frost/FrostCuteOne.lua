@@ -324,9 +324,9 @@ actionList.ColdHeart = function()
     -- Chains of Ice
     if cast.able.chainsOfIce() then
         -- chains_of_ice,if=fight_remains<gcd
-        if unit.ttdGroup(30) < unit.gcd(true) then
-            if cast.chainsOfIce() then ui.debug("Casting Chains of Ice [Low TTD]") return true end
-        end
+        -- if unit.ttdGroup(30) < unit.gcd(true) then
+        --     if cast.chainsOfIce() then ui.debug("Casting Chains of Ice [Low TTD]") return true end
+        -- end
         if not talent.obliteration then
             -- chains_of_ice,if=!talent.obliteration&buff.pillar_of_frost.remains<3&buff.pillar_of_frost.up&buff.cold_heart.stack>=10
             if buff.pillarOfFrost.remain() < 3 and buff.pillarOfFrost.exists() and buff.coldHeart.stack() >= 10 then
