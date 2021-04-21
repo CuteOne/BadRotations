@@ -165,7 +165,6 @@ local covenant
 local debuff
 local enemies
 local module
-local pet
 local runeforge
 local runicPower
 local runicPowerDeficit
@@ -216,7 +215,7 @@ actionList.Extras = function()
         for i = 1, #enemies.yards30f do
             local thisUnit = enemies.yards30f[i]
             if unit.distance(thisUnit) > 10 and not unit.isDummy(thisUnit)
-                and ((not unit.facing(thisUnit) and unit.moving(thisUnit)) or not unit.moving(thisUnit))                
+                and ((not unit.facing(thisUnit) and unit.moving(thisUnit)) or not unit.moving(thisUnit))
             then
                 if cast.deathGrip(thisUnit) then ui.debug("Casting Death Grip [Out of Melee]") return true end
             end
@@ -234,7 +233,7 @@ actionList.Defensive = function()
         if ui.checked("Anti-Magic Shell") and cast.able.antiMagicShell() then
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
-                if unit.isCasting(thisUnit) and unit.isUnit(br._G.UnitTarget(thisUnit),"player") 
+                if unit.isCasting(thisUnit) and unit.isUnit(br._G.UnitTarget(thisUnit),"player")
                     and cast.timeRemain(thisUnit) >= unit.gcd(true) * 2
                 then
                     if cast.antiMagicShell("player") then ui.debug("Casting Anti-Magic Shell") return true end
@@ -657,7 +656,7 @@ actionList.BoSTicking = function()
     -- howling_blast,if=buff.rime.up
     if cast.able.howlingBlast(units.dyn30,"aoe",1,10) and buff.rime.exists() then
         if cast.howlingBlast(units.dyn30,"aoe",1,10) then ui.debug("Casting Howling Blast [BoS Active Rime]") return true end
-    end   
+    end
     -- Racial: Arcane Torrent
     -- arcane_torrent,if=runic_power.deficit>50
     if cast.able.racial() and (runicPowerDeficit > 50 and unit.race() == "BloodElf") then
@@ -681,7 +680,7 @@ actionList.Obliteration = function()
         and ((not buff.deathAndDecay.exists() and covenant.nightFae.active) or not covenant.nightFae.active))
     then
         if cast.howlingBlast(units.dyn30,"aoe",1,10) then ui.debug("Casting Howling Blast [Obliteration]") return true end
-    end    
+    end
     -- Frostscythe
     -- frostscythe,if=buff.killing_machine.react&spell_targets.frostscythe>=2&(buff.deaths_due.stack=8|!death_and_decay.ticking|!covenant.night_fae)
     if cast.able.frostscythe("player","cone",1,8) and buff.killingMachine.exists() and ((ui.mode.rotation == 1 and #enemies.yards8c >= 2) or (ui.mode.rotation == 2 and #enemies.yards8c > 0))
@@ -969,7 +968,6 @@ local function runRotation()
     debuff            = br.player.debuff
     enemies           = br.player.enemies
     module            = br.player.module
-    pet               = br.player.pet
     runeforge         = br.player.runeforge
     runicPower        = br.player.power.runicPower.amount()
     runicPowerDeficit = br.player.power.runicPower.deficit()
@@ -1000,7 +998,7 @@ local function runRotation()
     enemies.get(40)
 
     -- Special Enemy Counts
-    enemies.cone.get(180,8,false,true)
+    enemies.cone.get(180,8,false)
     enemies.rect.get(10,20,false)
     enemies.rect.get(10,40,false)
 
@@ -1011,12 +1009,12 @@ local function runRotation()
     -- Profile Vars
     if var.breathOfSindragosaActive == nil then var.breathOfSindragosaActive = false end
     if var.breathOfSindragosaActive and not var.breathTimerSet then var.currentBreathTime = var.getTime(); var.breathTimerSet = true end
-    if not var.breathOfSindragosaActive then var.breathTimerSet = false end --; var.breathTimer = var.getTime() end
+    if not var.breathOfSindragosaActive then var.breathTimerSet = false end
     if var.currentBreathTime == nil then var.breathTimer = 0 end
     if var.breathTimerSet then var.breathTimer = br.round2(var.getTime() - var.currentBreathTime,2) end
     if var.profileDebug == nil or not unit.inCombat() then var.profileDebug = "None" end
     if talent.runicattenuation then var.attenuation = 1 else var.attenuation = 0 end
-    
+
     -- Runeforge Detection
     var.fallenCrusader = false
     var.razorice = false
@@ -1096,7 +1094,7 @@ local function runRotation()
             end
             ---------------------
             --- Main Rotation ---
-            ---------------------            
+            ---------------------
             if not var.breathOfSindragosaActive then
                 -- Remorseless Winter
                 -- remorseless_winter,if=conduit.everfrost&talent.gathering_storm&!talent.obliteration&cooldown.pillar_of_frost.remains
@@ -1113,7 +1111,7 @@ local function runRotation()
                 end
                 -- Glacial Advance
                 -- glacial_advance,if=buff.icy_talons.remains<=gcd&buff.icy_talons.up&spell_targets.glacial_advance>=2&(!talent.breath_of_sindragosa|cooldown.breath_of_sindragosa.remains>15)
-                if cast.able.glacialAdvance("player","rect",1,10) and (buff.icyTalons.remain() <= unit.gcd(true) and buff.icyTalons.exists() 
+                if cast.able.glacialAdvance("player","rect",1,10) and (buff.icyTalons.remain() <= unit.gcd(true) and buff.icyTalons.exists()
                     and ((ui.mode.rotation == 1 and #enemies.yards20r >= ui.value("Glacial Advance")) or (ui.mode.rotation == 2 and #enemies.yards20r > 0))
                     and (not talent.breathOfSindragosa or cd.breathOfSindragosa.remain() > 15 or not ui.alwaysCdNever("Breath of Sindragosa")))
                 then
@@ -1162,7 +1160,7 @@ local function runRotation()
             then
                 if actionList.BoSPooling() then return true end
             end
-            if not var.breathOfSindragosaActive and (not ui.alwaysCdNever("Breath of Sindragosa") or not talent.breathOfSindragosa or cd.breathOfSindragosa.remain() >= 5) then             
+            if not var.breathOfSindragosaActive and (not ui.alwaysCdNever("Breath of Sindragosa") or not talent.breathOfSindragosa or cd.breathOfSindragosa.remain() >= 5) then
                 -- Death Strike
                 if ui.checked("Death Strike") and cast.able.deathStrike() and unit.inCombat() and buff.darkSuccor.exists() then
                     if cast.deathStrike() then ui.debug("Casting Death Strike [Dark Succor]") return true end
