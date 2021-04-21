@@ -485,7 +485,7 @@ actionList.Cooldowns = function()
         end
         -- Sacrificial Pact
         -- sacrificial_pact,if=active_enemies>=2&(pet.ghoul.remains<gcd|target.time_to_die<gcd)
-        if cast.able.sacrificialPact() and #enemies.yards5 >= 2 and (pet.ghoul.remains() < unit.gcd(true) or unit.ttd(units.dyn5) < unit.gcd(true)) then
+        if cast.able.sacrificialPact() and #enemies.yards5 >= 2 and (--[[pet.ghoul.remains() < unit.gcd(true) or]] unit.ttd(units.dyn5) < unit.gcd(true)) then
             if cast.sacrificialPact() then ui.debug("Casting Sacrificial Pact") return true end
         end
         -- Death and Decay
