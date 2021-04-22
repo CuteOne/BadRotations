@@ -221,12 +221,12 @@ actionList.Extras = function()
         end
     end
     -- Resuscitate
-    if ui.checked("Resuscitate") and cast.able.resuscitate() then
+    if ui.checked("Resuscitate") then
         local opValue = ui.value("Resuscitate")
         local thisUnit
         if opValue == 1 then thisUnit = "target" end
         if opValue == 2 then thisUnit = "mouseover" end
-        if unit.player(thisUnit) and unit.deadOrGhost(thisUnit) and unit.friend(thisUnit,"player") then
+        if cast.able.resuscitate(thisUnit) and unit.player(thisUnit) and unit.deadOrGhost(thisUnit) and unit.friend(thisUnit,"player") then
             if cast.resuscitate(thisUnit) then ui.debug("Casting Resuscitate") return true end
         end
     end
@@ -304,7 +304,7 @@ actionList.Defensive = function()
             end
         end
         -- Detox
-        if ui.checked("Detox") and cast.able.detox() then
+        if ui.checked("Detox") then
             if cast.dispel.detox("player") then
                 if cast.detox("player") then ui.debug("Casting Detox [Player]") return true end
             end
@@ -332,9 +332,9 @@ actionList.Defensive = function()
             if cast.touchOfKarma() then ui.debug("Casting Touch of Karma [Defensive]") return true end
         end
         -- Vivify
-        if ui.checked("Vivify") and cast.able.vivify() and not unit.moving() then
+        if ui.checked("Vivify") and not unit.moving() then
             local thisUnit = (unit.friend("target") and not unit.deadOrGhost("target") and unit.player("target")) and "target" or "player"
-            if unit.hp(thisUnit) <= ui.value("Vivify") or (not unit.inCombat() and unit.hp(thisUnit) < 90) then
+            if cast.able.vivify(thisUnit) and unit.hp(thisUnit) <= ui.value("Vivify") or (not unit.inCombat() and unit.hp(thisUnit) < 90) then
                 if cast.vivify(thisUnit) then ui.debug("Casting Vivify on "..unit.name(thisUnit)) return true end
             end
         end
@@ -379,7 +379,7 @@ actionList.CdSef = function()
     end
     -- Touch of Death
     -- touch_of_death,if=buff.storm_earth_and_fire.down&pet.xuen_the_white_tiger.active|fight_remains<10|fight_remains>180
-    if cast.able.touchOfDeath() and ui.alwaysCdNever("Touch of Death")
+    if cast.able.touchOfDeath("target") and ui.alwaysCdNever("Touch of Death")
         and not buff.stormEarthAndFire.exists() and (pet.xuenTheWhiteTiger.active() or (ui.useCDs() and unit.ttdGroup() < 10) or unit.ttdGroup(5) > 180)
         and (unit.health("target") < unit.health("player") or (unit.level() > 44 and unit.health("target") >= unit.health("player") and unit.hp("target") < 15))
     then
@@ -387,12 +387,12 @@ actionList.CdSef = function()
     end
     -- Weapons of Order
     -- weapons_of_order,if=(raid_event.adds.in>45|raid_event.adds.up)&cooldown.rising_sun_kick.remains<execute_time
-    if ui.alwaysCdNever("Covenant Ability") and cast.able.weaponsOfOrder() and cd.risingSunKick.remain() < cast.time.weaponsOfOrder() then
+    if ui.alwaysCdNever("Covenant Ability") and cast.able.weaponsOfOrder("player") and cd.risingSunKick.remain() < cast.time.weaponsOfOrder() then
         if cast.weaponsOfOrder("player") then ui.debug("Casting Weapons of Order [CD SEF]") return true end
     end
     -- Faeline Stomp
     -- faeline_stomp,if=combo_strike&(raid_event.adds.in>10|raid_event.adds.up)
-    if ui.alwaysCdNever("Covenant Ability") and cast.able.faelineStomp() and not wasLastCombo(spell.faelineStomp) then
+    if ui.alwaysCdNever("Covenant Ability") and cast.able.faelineStomp("player","rect",1,5) and not wasLastCombo(spell.faelineStomp) then
         if cast.faelineStomp("player","rect",1,5) then ui.debug("Casting Faeline Stomp [CD SEF]") return true end
     end
     -- Fallen Order
@@ -402,8 +402,8 @@ actionList.CdSef = function()
     end
     -- Bonedust Brew
     -- bonedust_brew,if=raid_event.adds.in>50|raid_event.adds.up,line_cd=60
-    if ui.alwaysCdNever("Bonedust Brew") and cast.able.bonedustBrew() then
-        if cast.bonedustBrew() then ui.debug("Casting Bonedust Brew [CD SEF]") return true end
+    if ui.alwaysCdNever("Covenant Ability") and cast.able.bonedustBrew("best",nil,1,8) then
+        if cast.bonedustBrew("best",nil,1,8) then ui.debug("Casting Bonedust Brew [CD SEF]") return true end
     end
     -- Storm, Earth, and Fire
     if cast.able.stormEarthAndFire() and ui.alwaysCdNever("Storm, Earth, and Fire") and not buff.stormEarthAndFire.exists() then
@@ -432,7 +432,7 @@ actionList.CdSef = function()
         then
             if use.dreadfireVessel() then ui.debug("Using Dreadfire Vessel [CD SEF]") return true end
         else
-            br.player.module.BasicTrinkets(i)
+            module.BasicTrinkets(i)
         end
     end
     -- Touch of Karma
@@ -444,17 +444,17 @@ actionList.CdSef = function()
     if ui.alwaysCdNever("Racial") then
         -- Racial - Blood Fury
         -- blood_fury,if=cooldown.invoke_xuen_the_white_tiger.remains>30|variable.hold_xuen|fight_remains<20
-        if cast.able.racial() and unit.race() == "Orc"
+        if cast.able.racial("player") and unit.race() == "Orc"
             and (cd.invokeXuenTheWhiteTiger.remain() > 30 or var.holdXuen or (ui.useCDs() and unit.ttdGroup() < 20))
         then
             if cast.racial("player") then ui.debug("Casting Blood Fury [CD SEF]") return true end
         end
         -- Racial - Berserking
         -- berserking,if=cooldown.invoke_xuen_the_white_tiger.remains>30|variable.hold_xuen|fight_remains<15
-        if cast.able.racial() and unit.race() == "Troll"
+        if cast.able.racial("player") and unit.race() == "Troll"
             and (cd.invokeXuenTheWhiteTiger.remain() > 30 or var.holdXuen or (ui.useCDs() and unit.ttdGroup() < 15))
         then
-            if cast.racial() then ui.debug("Casting Berserking [CD SEF]") return true end
+            if cast.racial("player") then ui.debug("Casting Berserking [CD SEF]") return true end
         end
         -- Racial - Light's Judgment
         -- lights_judgment
@@ -495,13 +495,13 @@ actionList.CdSerenity = function()
     if ui.alwaysCdNever("Racial") then
         -- Racial - Blood Fury
         -- blood_fury,if=variable.serenity_burst
-        if cast.able.racial() and unit.race() == "Orc" and var.serenityBurst then
+        if cast.able.racial("player") and unit.race() == "Orc" and var.serenityBurst then
             if cast.racial("player") then ui.debug("Casting Blood Fury [CD Serenity]") return true end
         end
         -- Racial - Berserking
         -- berserking,if=variable.serenity_burst
-        if cast.able.racial() and unit.race() == "Troll" and var.serenityBurst then
-            if cast.racial() then ui.debug("Casting Berserking [CD Serenity]") return true end
+        if cast.able.racial("player") and unit.race() == "Troll" and var.serenityBurst then
+            if cast.racial("player") then ui.debug("Casting Berserking [CD Serenity]") return true end
         end
         -- Racial - Light's Judgment
         -- lights_judgment
@@ -525,7 +525,7 @@ actionList.CdSerenity = function()
     end
     -- Touch of Death
     -- touch_of_death,if=fight_remains>180|pet.xuen_the_white_tiger.active|fight_remains<10
-    if cast.able.touchOfDeath() and ui.alwaysCdNever("Touch of Death")
+    if cast.able.touchOfDeath("target") and ui.alwaysCdNever("Touch of Death")
         and (unit.ttdGroup(5) > 180 or pet.xuenTheWhiteTiger.active() or (ui.useCDs() and unit.ttdGroup() < 10))
         and (unit.health("target") < unit.health("player") or (unit.level() > 44 and unit.health("target") >= unit.health("player") and unit.hp("target") < 15))
     then
@@ -540,7 +540,7 @@ actionList.CdSerenity = function()
     end
     -- Weapons of Order
     -- weapons_of_order,if=cooldown.rising_sun_kick.remains<execute_time
-    if ui.alwaysCdNever("Covenant Ability") and cast.able.weaponsOfOrder() and cd.risingSunKick.remains() < cast.time.weaponsOfOrder() then
+    if ui.alwaysCdNever("Covenant Ability") and cast.able.weaponsOfOrder("player") and cd.risingSunKick.remains() < cast.time.weaponsOfOrder() then
         if cast.weaponsOfOrder("player") then ui.debug("Casting Weapons of Order [CD Serenity]") return true end
     end
     -- Basic Trinkets Module
@@ -554,12 +554,12 @@ actionList.CdSerenity = function()
         then
             if use.dreadfireVessel() then ui.debug("Using Dreadfire Vessel [CD Serenity]") return true end
         else
-            br.player.module.BasicTrinkets(i)
+            module.BasicTrinkets(i)
         end
     end
     -- Faeline Stomp
     -- faeline_stomp
-    if ui.alwaysCdNever("Covenant Ability") and cast.able.faelineStomp() then
+    if ui.alwaysCdNever("Covenant Ability") and cast.able.faelineStomp("player","rect",1,5) then
         if cast.faelineStomp("player","rect",1,5) then ui.debug("Casting Faeline Stomp [CD Serenity]") return true end
     end
     -- Fallen Order
@@ -569,8 +569,8 @@ actionList.CdSerenity = function()
     end
     -- Bonedust Brew
     -- bonedust_brew
-    if ui.alwaysCdNever("Bonedust Brew") and cast.able.bonedustBrew() then
-        if cast.bonedustBrew() then ui.debug("Casting Bonedust Brew [CD Serenity]") return true end
+    if ui.alwaysCdNever("Covenant Ability") and cast.able.bonedustBrew("best",nil,1,8) then
+        if cast.bonedustBrew("best",nil,1,8) then ui.debug("Casting Bonedust Brew [CD Serenity]") return true end
     end
     -- Serenity
     -- serenity,if=cooldown.rising_sun_kick.remains<2|fight_remains<15
@@ -703,7 +703,7 @@ actionList.Serenity = function()
     -- Basic Trinkets Module
     -- use_item,name=inscrutable_quantum_device
     -- use_item,name=dreadfire_vessel
-    br.player.module.BasicTrinkets()
+    module.BasicTrinkets()
     -- Spinning Crane Kick
     -- spinning_crane_kick,if=combo_strike&(active_enemies>=3|active_enemies>1&!cooldown.rising_sun_kick.up)
     if cast.able.spinningCraneKick("player","aoe") and not wasLastCombo(spell.spinningCraneKick)
@@ -727,7 +727,7 @@ actionList.Serenity = function()
     if cast.able.spinningCraneKick("player","aoe") and not wasLastCombo(spell.spinningCraneKick) and buff.danceOfChiJi.exists()
         and cast.timeSinceLast.spinningCraneKick() > unit.gcd("true")
     then
-        if cast.spinningCraneKick() then ui.debug("Casting Spinning Crane Kick [Serenity Dance of Chi-Ji") return true end
+        if cast.spinningCraneKick("player","aoe") then ui.debug("Casting Spinning Crane Kick [Serenity Dance of Chi-Ji") return true end
     end
     -- Blackout Kick
     -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=combo_strike&buff.weapons_of_order.up&cooldown.rising_sun_kick.remains>2
@@ -744,7 +744,7 @@ actionList.Serenity = function()
     if cast.able.spinningCraneKick("player","aoe") and not wasLastCombo(spell.spinningCraneKick)
         and debuff.bonedustBrew.exists(units.dyn8) and cast.timeSinceLast.spinningCraneKick() > unit.gcd("true")
     then
-        if cast.spinningCraneKick() then ui.debug("Casting Spinning Crane Kick [Serenity Bonedust Brew]") return true end
+        if cast.spinningCraneKick("player","aoe") then ui.debug("Casting Spinning Crane Kick [Serenity Bonedust Brew]") return true end
     end
     -- Fist of the White Tiger
     -- fist_of_the_white_tiger,target_if=min:debuff.mark_of_the_crane.remains,if=chi<3
@@ -763,7 +763,7 @@ actionList.Serenity = function()
     if cast.able.spinningCraneKick("player","aoe") and not wasLastCombo(spell.spinningCraneKick)
         and cast.timeSinceLast.spinningCraneKick() > unit.gcd("true")
     then
-        if cast.spinningCraneKick() then ui.debug("Casting Spinning Crane Kick [Serenity]") return true end
+        if cast.spinningCraneKick("player","aoe") then ui.debug("Casting Spinning Crane Kick [Serenity]") return true end
     end
     -- Debugging
 	br.debug.cpu:updateDebug(startTime,"rotation.profile.serenity")
@@ -1037,7 +1037,7 @@ actionList.Opener = function()
     -- Chi Wave
     -- chi_wave,if=chi.max-chi=2
     if cast.able.chiWave("player","aoe") and chiMax - chi == 2 then
-        if cast.chiWave() then ui.debug("Casting Chi Wave [Opener]") return true end
+        if cast.chiWave("player","aoe") then ui.debug("Casting Chi Wave [Opener]") return true end
     end
     -- Expel Harm
     -- expel_harm

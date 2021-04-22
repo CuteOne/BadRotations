@@ -136,12 +136,12 @@ function br.ToggleMinus(toggleValue)
 				br.ResetTip(toggleValue, newValue)
 				break
 			else
-				-- if cannot go higher we define to last mode
+				-- if cannot go lower we define to last mode
 				br.data.settings[br.selectedSpec].toggles[tostring(toggleValue)] = modesCount
-				br.specialToggleCodes(toggleValue, newValue)
-				br.changeButton(toggleValue, newValue)
+				br.specialToggleCodes(toggleValue, modesCount)
+				br.changeButton(toggleValue, modesCount)
 				-- We reset the tip
-				br.ResetTip(toggleValue, newValue)
+				br.ResetTip(toggleValue, modesCount)
 				break
 			end
 		end
