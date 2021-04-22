@@ -1168,7 +1168,7 @@ actionList.dps = function()
 
         -- Skuler's Wing
         if (Trinket13 == 184016 or Trinket14  == 184016)
-                and br.canUseItem(184016) and unit.distance(dynamic_target_melee) < 8 then
+                and br.canUseItem(184016) and inCombat and not stealth and unit.distance(dynamic_target_melee) < 8 then
             br.useItem(184016)
         end
         --darkmoon trinket
