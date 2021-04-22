@@ -65,9 +65,6 @@ br.lists.interruptWhitelist = {
 	[325701] = true, -- Siphon-Life
 	-- Halls of Atonemen end
 	-- Mists of Tirna Scithe start
-	[326319] = true, -- Spirit Bolt
-	[322767] = true, -- Spirit Bolt
-	[323057] = true, -- Spirit Bolt
 	[322938] = true, -- harvest-essence
 	[324914] = true, -- nourish-the-forest
 	[324776] = true, -- bramblethorn-coat
