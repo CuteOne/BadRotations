@@ -1,4 +1,4 @@
---Version 1.1.5
+--Version 1.2.0
 -- Big thank yous to Laks, Panglo, Kuu, and Ashley <333
 local rotationName = "Doparrior_Prot"
 
@@ -14,7 +14,7 @@ local function createToggles()
     br.ui:createToggle(RotationModes, "Rotation", 1, 0)
     -- Cooldown Button
     local CooldownModes = {
-        [1] = { mode = "Auto", value = 1, overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Based on settings", highlight = 0, icon = br.player.spell.avatar },
+        [1] = { mode = "Bosses", value = 1, overlay = "Cooldowns Bosses", tip = "Use CD's on bosses only", highlight = 0, icon = br.player.spell.avatar },
         [2] = { mode = "On", value = 2, overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.avatar },
         [3] = { mode = "Off", value = 3, overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.avatar }
     }
@@ -40,7 +40,9 @@ local function createToggles()
     local TauntModes = {
         [1] = { mode = "Dun", value = 1, overlay = "Taunt only in Dungeon", tip = "Taunt will be used in dungeons.", highlight = 0, icon = br.player.spell.taunt },
         [2] = { mode = "All", value = 2, overlay = "Auto Taunt Enabled", tip = "Taunt will be used everywhere.", highlight = 0, icon = br.player.spell.taunt },
-        [3] = { mode = "Off", value = 3, overlay = "Auto Taunt Disabled", tip = "Taunt will not be used.", highlight = 0, icon = br.player.spell.taunt }
+        [3] = { mode = "Off", value = 3, overlay = "Auto Taunt Disabled", tip = "Taunt will not be used.", highlight = 0, icon = br.player.spell.taunt },
+        [4] = { mode = "Raid", value = 4, overlay = "Raid Taunt Logic", tip = "Raid Tank Taunt Swap (Check 'Raiding Options' Settings)", highlight = 0, icon = br.player.spell.taunt }
+
     }
     br.ui:createToggle(TauntModes, "Taunt", 6, 0)
     -- Tankbuster Button
@@ -93,7 +95,7 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS ---
         -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "General - Version 1.1.5")
+        section = br.ui:createSection(br.ui.window.profile, "General - Version 1.2.0")
             br.ui:createCheckbox(section, "Open World Defensives", "Use this checkbox to ensure defensives are used while in Open World")
             -- Berserker Rage
             br.ui:createCheckbox(section, "Berserker Rage", "Check to use Berserker Rage")
@@ -125,9 +127,9 @@ local function createOptions()
             br.ui:createCheckbox(section, "Charge", "Check to use Charge")
             br.ui:createCheckbox(section, "OOC Charge")
             -- Heroic Leap
-            br.ui:createDropdownWithout(section, "Heroic Leap Useage", br.dropOptions.Toggle, 6, "Set auto usage (No Hotkey) or desired hotkey to use Heroic Leap.")
-            br.ui:createDropdownWithout(section, "Heroic Leap - Target", { "Best", "Target", "Heroic Charge" }, 1, "Desired Target of Heroic Leap")
-            br.ui:createSpinnerWithout(section, "Heroic Charge - Min Distance", 15, 8, 25, 1, "|cffFFBB00Set to desired yards to Heroic Leap out for Charge/Leap Combo. Min: 8 / Max: 25 / Interval: 1")
+            br.ui:createDropdownWithout(section, "Heroic Leap Key", br.dropOptions.Toggle, 6, "Set desired hotkey to use Heroic Leap.")
+            br.ui:createDropdownWithout(section, "Heroic Leap - Target", { "Best", "Target", "Ally" }, 1, "Desired Target of Heroic Leap")
+            br.ui:createSpinnerWithout(section, "Heroic Leap - Ally - Min Distance", 15, 8, 25, 1, "|cffFFBB00Set to desired yards to Heroic Leap out to ally. Min: 8 / Max: 25 / Interval: 1")
         br.ui:checkSectionState(section)
         -------------------------
         --- RAGE OPTIONS ---
@@ -198,7 +200,7 @@ local function createOptions()
                 br.ui:createSpinnerWithout(section, "Fleshcraft - Units", 3, 1, 10, 1, "Set number of units to use Fleshcraft")
             end
             -- Demoralizing Shout
-            br.ui:createDropdown(section, "Demo Shout Useage", { "Always", "When CDs are enabled", "On unit count", "HP", "Rage Generator", "Never" }, 1)
+            br.ui:createDropdownWithout(section, "Demo Shout Useage", { "Always", "When CDs are enabled", "On unit count", "HP", "Rage Generator", "Never" }, 1)
             br.ui:createSpinnerWithout(section, "Demo Shout - HP", 65, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
             br.ui:createSpinnerWithout(section, "Demo Shout - Rage", 65, 0, 100, 5, "|cffFFBB00Minimum rage to cast Demo Shout for Booming Voice")
             br.ui:createSpinnerWithout(section, "Demo Shout - Unit Count", 3, 1, 10, 1, "Set number of units to prioritise Demo Shout")
@@ -206,8 +208,7 @@ local function createOptions()
             br.ui:createDropdownWithout(section, "Last Stand Useage", { "Always", "HP", "Never" }, 1)
             br.ui:createSpinnerWithout(section, "Last Stand - HP", 65, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
             -- Ignore Pain
-            br.ui:createDropdownWithout(section, "Ignore Pain Useage", { "Always", "IP if SB on CD", "HP", "Never" }, 1)
-            br.ui:createSpinnerWithout(section, "Ignore Pain - HP", 90, 1, 100, 1, "|cffFFFFFF Set to personal HP percent to start considering using Ignore Pain")
+            br.ui:createSpinnerWithout(section, "Ignore Pain - HP", 90, 1, 100, 1, "|cffFFFFFF Set to HP percent to start considering using Ignore Pain")
             br.ui:createSpinnerWithout(section, "Ignore Pain - Time Remain", 2, 1, 12, 1, "|cffFFFFFF Set (in seconds) time remaining on ignore pain before refresh.")
             -- Rallying Cry
             br.ui:createSpinner(section, "Rallying Cry", 45, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
@@ -271,11 +272,45 @@ local function createOptions()
             br.ui:createSpinner(section, "Interrupt At", 0, 0, 95, 5, "|cffFFBB00Cast Percentage to use at.")
         br.ui:checkSectionState(section)
     end
+    local function raidingOptions()
+        -----------------------
+        --- RAIDING OPTIONS ---
+        -----------------------
+        section = br.ui:createSection(br.ui.window.profile, "Castle Nathria [WIP]")
+            -- Castle Nathria
+                -- Shriekwing
+            br.ui:createCheckbox(section, "Shriekwing - Exsang Bite Taunt", "Taunt when your co-tank gets Exsang Bite Debuff.")
+                -- Huntsman
+            br.ui:createSpinner(section, "Huntsman - Jagged Claws Taunt", 3, 0, 10, 5, "|cffFFBB00Number of stacks to taunt Margore from your co-tank.")
+                -- Hungering Destroyer
+            br.ui:createSpinner(section, "Hungering - Growing Hunger Taunt", 4, 0, 30, 5, "|cffFFBB00Number of stacks to taunt Hungering from your co-tank.")
+                -- Sun King
+            br.ui:createSpinner(section, "Sun King - Vanquished Bleed Taunt", 2, 0, 10, 5, "|cffFFBB00Number of stacks to taunt Rockbound Vanquisher from your co-tank. (recommended 2-3 stacks)")
+            br.ui:createSpinner(section, "Sun King - Burning Remnants Taunt", 2, 0, 10, 5, "|cffFFBB00Number of stacks to taunt Shade of Kael from your co-tank. (recommended 2-3 stacks)")
+                -- Lady Inerva
+            br.ui:createSpinner(section, "Lady Inerva - Warped Desires Taunt", 2, 0, 10, 5, "|cffFFBB00Number of stacks to taunt Lady Inerva from your co-tank. (recommended 2-3 stacks)")
+                -- Artificer
+            br.ui:createCheckbox(section, "Artificer - Glyph of Destruction Taunt", "Taunt when your co-tank gets Glyph of Destruction debuff.")
+                -- Council of Blood
+            br.ui:createSpinner(section, "Council - Duelist's Riposte Taunt", 2, 0, 10, 5, "|cffFFBB00Number of stacks to taunt Niklaus from your co-tank. (recommended 2 stacks)")
+                -- Stone Legion Generals
+            br.ui:createSpinner(section, "SLG - Serrated Tear Taunt", 2, 0, 10, 5, "|cffFFBB00Number of stacks to taunt General Kaal from your co-tank. (recommended 2 stacks)")
+            br.ui:createSpinner(section, "SLG - Stone Fist Taunt", 2, 0, 10, 5, "|cffFFBB00Number of stacks to taunt General Grashaal from your co-tank. (recommended 2 stacks)")
+                -- Sire Denathrius
+            br.ui:createCheckbox(section, "Sire - Cleansing Pain Taunt", "Taunt sire after every cleansing pain.")
+            br.ui:createSpinner(section, "Sire - Wracking Pain Taunt", 2, 0, 10, 5, "|cffFFBB00Number of stacks to taunt Sire Denathrius from your co-tank. (recommended 1-3 stacks)")
+        br.ui:checkSectionState(section)
+    end
     optionTable = {
         {
             [1] = "Rotation Options",
-            [2] = rotationOptions
+            [2] = rotationOptions,
+        },
+        {
+            [1] = "Raiding Options",
+            [2] = raidingOptions
         }
+
     }
     return optionTable
 end
@@ -290,8 +325,9 @@ local function ipCapCheck()
             ipCurrent = 0
             return
         end
-        if ipCurrent <= (ipMax * 0.2) or br.player.buff.ignorePain.remain() <= (br.player.gcd * br.getValue("Ignore Pain - Time Remain")) then
-            ---print("We're below IP Health Threshold, and IP below cap or IP about to expire")
+        --print ("set IP Value")
+        if br.player.health <= br.getValue("Ignore Pain - HP") and (ipCurrent <= (ipMax * 0.2) or br.player.buff.ignorePain.remain() <= (br.player.gcd * br.getValue("Ignore Pain - Time Remain"))) then
+            --print("We're below IP Health Threshold, and IP below cap or IP about to expire")
             return true
         else
             --print("dont cast IP")
@@ -303,6 +339,7 @@ local function ipCapCheck()
     end
 end
 
+-- Get TTD
 local function getMaxTTD()
     local highTTD = 0
     local mobs = br.player.enemies.get(5)
@@ -317,6 +354,24 @@ local function getMaxTTD()
     end
     return tonumber(highTTD)
 end
+
+-- Combat Reader
+local someone_casted = false
+local spellString = nil
+
+local frame = br._G.CreateFrame("Frame")
+frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+local function reader()
+    local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = br._G.CombatLogGetCurrentEventInfo()
+    if param == "SPELL_CAST_SUCCESS" and br._G.bit.band(sourceFlags, 0x00000800) > 0 then
+        br._G.C_Timer.After(0.02, function()
+            someone_casted = true
+            spellString = spellName
+            --br.player.ui.print(sourceName .. " is casting " .. spellName .. " - creature[" .. tostring(bit.band(sourceFlags, 0x00000800) > 0) .. "]")
+        end)
+    end
+end
+frame:SetScript("OnEvent", reader)
 
 ----------------
 --- ROTATION ---
@@ -352,12 +407,14 @@ local function runRotation()
         local cast = br.player.cast
         local cd = br.player.cd
         local charges = br.player.charges
+        local conduit = br.player.conduit
         local enemies = br.player.enemies
         local gcd = br.player.gcd
         local gcdMax = br.player.gcdMax
         local healPot = br.getHealthPot()
         local inCombat = br.player.inCombat
         local inInstance = br.player.instance == "party"
+        local inRaid = br.player.instance=="raid"
         local mode = br.player.ui.mode
         local php = br.player.health
         local race = br.player.race
@@ -399,6 +456,8 @@ local function runRotation()
         if br.profileStop == nil then
             br.profileStop = false
         end
+
+        
 
         local reflectID = {
             --De Other Side
@@ -455,7 +514,12 @@ local function runRotation()
             [330784] = "Necrotic Bolt",
             [330810] = "Bind Soul",
             [324079] = "Reaping Scythe",
-            [330875] = "Spirit Frost"
+            [330875] = "Spirit Frost",
+            --Castle Nathria
+            --Huntsman
+            [334797] = "Rip Soul",
+            --LadyInerva
+            [331573] = "Unconscionable Guilt"
         }
 
         local StormBoltSpell_list = {
@@ -509,8 +573,12 @@ local function runRotation()
             [165108] = "Illusionary Clone",
             [165251] = "Illusionary Vulpin",
             [165560] = "Gormling Larva",
+            -- Necrotic Wake
+            [164702] = "Carrion Worm",
             -- Halls of Atonement
-            [165913] = "Ghastly Parishioner"
+            [165913] = "Ghastly Parishioner",
+            -- Theater of Pain
+            [170234] = "Oppressive Banner"
 
         }
 
@@ -520,6 +588,7 @@ local function runRotation()
             [326046] = { BUFF_ID = "326046" }, --Stimulate Resistance",
             -- The Necrotic Wake
             [319290] = { BUFF_ID = "319290" }, --"Meatshield",
+            [321754] = { BUFF_ID = "321754" }, --"Icebound Aegis",
             -- Spires of Ascension
             [327416] = { BUFF_ID = "327416" } --Recharge Anima"
         }
@@ -527,6 +596,8 @@ local function runRotation()
         local tankBusterList = {
             [164406] =  "shriekwing",
             [165067] = "margore",
+            [169457] = "bargast",
+            [164261] = "hungering-destroyer",
             [164407] = "sludgefist",
             [168113] = "general-grashaal",
             [168112] = "general-kaal",
@@ -739,7 +810,7 @@ local function runRotation()
                     then
                         for i = 1, #br.friend do
                             local thisUnit = br.friend[i].unit
-                            if br.getDistance(thisUnit) >= 0 and br.getDistance(thisUnit) <= 5 then
+                            if not br._G.UnitIsPlayer(thisUnit) and br.getDistance(thisUnit) >= 1 and br.getDistance(thisUnit) <= 5 then
                                 if cast.intervene(thisUnit) then
                                     br.addonDebug("[REPRISAL]Intervene Melee - Refresh shield block, and Revenge!")
                                     return true
@@ -787,25 +858,23 @@ local function runRotation()
             then
                 return true
             else
-                if inCombat
-                        and not br.isCastingSpell(spell.fleshcraft)
-                then
+                if inCombat and not br.isCastingSpell(spell.fleshcraft) then
                     -- Ignore Pain if checks are met, if covenant=venthyr then dont use ignore pain in favor of condemn
-                    if br.getOptionValue("Ignore Pain Useage") == 1
-                            or (br.getOptionValue("Ignore Pain Useage") == 2 and charges.shieldBlock.count() == 0)
-                            or (br.getOptionValue("Ignore Pain Useage") == 3 and php <= br.getOptionValue("Ignore Pain - HP"))
-                    then
-                        if cast.able.ignorePain()
-                                and rage >= 40
-                                and mainTank()
-                                and ipCapCheck()
-                                and not cast.last.ignorePain()
-                                and (not mode.Aggression == 1 or (mode.Aggression == 1 and php <= br.getOptionValue("Ignore Pain - HP")))
-                                and not br.player.covenant.venthyr.active or (br.player.covenant.venthyr.active and (br.getHP("target") > 20 or br.getHP("target") < 80))
+                    if mode.Aggression == 2 or (mode.Aggression == 1 and (php <= 80 or charges.shieldBlock.count() == 0)) then
+                        --print("We're in aggressive mode, but we're starting get lower health. Using IP to refresh/gain absorbs.")
+                        if ipCapCheck() 
+                            and rage >= 40
+                            and mainTank
+                            and cast.able.ignorePain()
                         then
-                            --print("dumping IP")
-                            br._G.CastSpellByName(GetSpellInfo(190456))
-                            br.addonDebug("[DEF] Casting Ignore Pain")
+                            --print("aggression check")
+                            if not br.player.covenant.venthyr.active 
+                                    or (br.player.covenant.venthyr.active and (br.getHP("target") >= 20 or br.getHP("target") <= 80)) 
+                            then
+                                -- print("dumping IP")
+                                br._G.CastSpellByName(GetSpellInfo(190456))
+                                br.addonDebug("[DEF] Casting Ignore Pain")
+                            end
                         end
                     end
 
@@ -853,6 +922,7 @@ local function runRotation()
 
                         -- Le Shield Block
                         for i = 1, #enemies.yards30 do
+                            local shieldHoldCharge
                             if tankBusterList[br.GetObjectID(enemies.yards30[i])] then
                                 shieldHoldCharge = 1
                             else
@@ -931,7 +1001,7 @@ local function runRotation()
                     end
 
                     -- Aggro Engine
-                    if inInstance and mainTank() and inCombat then
+                    if (inInstance or inRaid) and mainTank() and inCombat then
                         local NonAggroCount = 0
                         -- lets check 8 yards only, or 12?
                         local aggroList
@@ -985,8 +1055,24 @@ local function runRotation()
                         then
                             for i = 1, #enemies.yards30 do
                                 local thisUnit = enemies.yards30[i]
-                                if ((ui.checked("Heroic Throw - Aggro") and (br._G.UnitThreatSituation("player", thisUnit) ~= nil and br._G.UnitThreatSituation("player", thisUnit) <= 2 and not cast.last.heroicThrow() and not DoNotTank_unitList[br.GetObjectID(thisUnit)])) 
-                                or (ui.checked("Heroic Throw - Explosive") and br.isExplosive(thisUnit)) or (ui.checked("Heroic Throw - Ranged DPS")))
+                                if (
+                                    (
+                                    ui.checked("Heroic Throw - Aggro") 
+                                        and (#enemies.yards8 == 0 or talent.cracklingThunder and #enemies.yards12 == 0)
+                                        and (br._G.UnitThreatSituation("player", thisUnit) ~= nil 
+                                        and br._G.UnitThreatSituation("player", thisUnit) <= 2 
+                                        and not cast.last.heroicThrow() 
+                                        and not DoNotTank_unitList[br.GetObjectID(thisUnit)])
+                                    )
+                                or (
+                                    ui.checked("Heroic Throw - Explosive") 
+                                        and br.isExplosive(thisUnit)
+                                    ) 
+                                or (
+                                    ui.checked("Heroic Throw - Ranged DPS") 
+                                        and (#enemies.yards8 == 0 or talent.cracklingThunder and #enemies.yards12 == 0)
+                                    )
+                                    )
                                 then
                                     if br.getDistance("player", thisUnit) > 8
                                             and br.getFacing("player", thisUnit, 45)
@@ -1000,6 +1086,61 @@ local function runRotation()
                             end
                         end -- end heroicThrow
                     end -- end aggro
+
+                    -- Taunt Swap Engine (Raid)
+                    if (mode.taunt == 4 or mode.taunt == 2)
+                            and inRaid 
+                            and unit.exists("boss1") 
+                            and select(8, GetInstanceInfo()) == 13224
+                    then
+                        if cd.taunt.ready() then
+                            for i = 1, #br.friend do
+                                if not br.GetUnitIsUnit(br.friend[i].unit, "player") and (br.friend[i].role == "TANK" or unit.role(br.friend[i].unit) == "TANK") then
+                                    local thisUnit = br.friend[i].unit
+                                    local tauntTarget = br._G.UnitTarget(br.GetUnit(thisUnit))
+                                    -- Shriekwing - Exsanguinated Bite
+                                    if br.isChecked("Shriekwing - Exsanguinated Bite") and br.getBossID("boss1") == 172145 and br.getDebuffRemain(br.friend[i].unit, 328857) ~= 0
+                                            -- Huntsman - Jagged Claws Taunt on tank debuff stacks
+                                            or br.isChecked("Huntsman - Jagged Claws Taunt") and br.getBossID("boss1") == 165066 and br.getDebuffRemain(thisUnit, 334971) == br.getValue("Huntsman - Jagged Claws Taunt")
+                                            -- Hungering - Growing Hunger Taunt Swap on boss buff stacks
+                                            or br.isChecked("Hungering - Growing Hunger Taunt") and br.getBossID("boss1") == 164261 and br.getBuffRemain("target", 332295) == br.getValue("Hungering - Growing Hunger Taunt")
+                                            -- Sun King - Vanquished Bleed Taunt Swap on add debuff stacks
+                                            or br.isChecked("Sun King - Vanquished Bleed Taunt") and  br.getDebuffRemain(thisUnit, 325442) == br.getValue("Sun King - Vanquished Bleed Taunt")
+                                            -- Sun King - Burning Remnants Taunt Swap on tank debuff stacks
+                                            or br.isChecked("Sun King - Burning Remnants Taunt") and br.getDebuffRemain(thisUnit, 326456) == br.getValue("Sun King - Burning Remnants Taunt")
+                                            -- Lady Inerva - Warped Desires taunt Swap on tank debuff stacks
+                                            or br.isChecked("Lady Inerva - Warped Desires Taunt") and br.getBossID("boss1") == 167517 and br.getDebuffRemain(thisUnit, 325382) == br.getValue("Lady Inerva - Warped Desires Taunt")
+                                            -- Artificer - Glyph of Destruction on tank debuff
+                                            or br.isChecked("Artificer - Glyph of Destruction") and br.getBossID("boss1") == 166644 and br.getDebuffRemain(thisUnit, 325361) ~= 0
+                                            -- Council of Blood - Niklaus Duelist's Riposte Taunt Swap on tank debuff stacks
+                                            or br.isChecked("Council - Duelist's Riposte Taunt") and (br.getBossID("boss1") == 166969 or br.getBossID("boss1") == 166971 or br.getBossID("boss1") == 166970) and br.getDebuffRemain(thisUnit, 346690) == br.getValue("Council - Duelist's Riposte Taunt")
+                                            -- SLG Serrated Tear Taunt Swap on tank debuff stacks
+                                            or br.isChecked("SLG - Serrated Tear Taunt") and (br.getBossID("boss1") == 165318 or br.getBossID("boss1") == 170323) and br.getDebuffRemain(thisUnit, 343881) == br.getValue("SLG - Serrated Tear Taunt")
+                                            -- SLG - Stone Fist Taunt Swap on tank debuff stacks
+                                            or br.isChecked("SLG - Stone Fist Taunt") and (br.getBossID("boss1") == 165318 or br.getBossID("boss1") == 170323) and br.getDebuffRemain(thisUnit, 342425) == br.getValue("SLG - Stone Fist Taunt")
+                                            -- Sire - Cleansing Pain Taunt Swap after cast
+                                            or br.isChecked("Sire - Cleansing Pain Taunt") and br.getBossID("boss1") == 168938 and someone_casted and spellString == "Cleansing Pain"
+                                            -- Sire Wracking Pain Taunt Swap on tank debuff stacks
+                                            or br.isChecked("Sire - Wracking Pain Taunt") and br.getBossID("boss1") == 168938 and br.getDebuffRemain(thisUnit, 329181) == br.getValue("Sire - Wracking Pain Taunt")
+                                    then
+                                        if cast.taunt(tauntTarget) then
+                                            return true
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end -- End taunt Swap engine
+                    -- Dev Taunt Swap Test
+                    --[[if cd.taunt.ready() then
+                        if someone_casted and spellString == "Dummy Strike"  -- Tank Taunt Dummy Test
+                                or someone_casted and spellString == "Uber Strike"  -- Tank Taunt Dummy Test
+                        then
+                            if cast.taunt() then
+                                print("[DEVTEST] Taunt Swap on " .. br._G.UnitName("target"))
+                            end
+                        end
+                    end--]]
                 end
             end
         end
@@ -1066,8 +1207,8 @@ local function runRotation()
 
         local function actionList_Movement()
             if mode.mover == 1 then
-                -- Heroic Leap (Auto/Hotkey Useage)
-                if not br.SpecificToggle("Heroic Leap Useage") or (br.SpecificToggle("Heroic Leap Useage") and not br._G.GetCurrentKeyBoardFocus()) then
+                -- Heroic Leap (Hotkey Useage)
+                if br.SpecificToggle("Heroic Leap Key") and not br._G.GetCurrentKeyBoardFocus() then
                     -- Best Location
                     if br.getOptionValue("Heroic Leap - Target") == 1 then
                         if cast.able.heroicLeap() then
@@ -1086,14 +1227,15 @@ local function runRotation()
                         end
                         -- Heroic Charge
                     elseif br.getOptionValue("Heroic Leap - Target") == 3 then
-                        if cast.able.heroicLeap() and charges.charge.count() > 0 and inCombat then
+                        if cd.heroicLeap.ready() then
                             for i = 1, #br.friend do
                                 local thisUnit = br.friend[i].unit
                                 if not br.GetUnitIsUnit(thisUnit, "player")
-                                        and br.getDistance(thisUnit) >= br.getOptionValue("Heroic Charge - Min Distance")
+                                        and br.getDistance(thisUnit) >= br.getOptionValue("Heroic Leap - Ally - Min Distance") 
+                                        and br.getDistance(thisUnit) <= 40
                                 then
-                                    if cast.heroicLeap(thisUnit, "ground") then
-                                        br.addonDebug("Casting Heroic Leap for Charge, Ally Leaped to: " .. br._G.UnitName(thisUnit) .. ":)")
+                                    if br.castGround(thisUnit, spell.heroicLeap, 40, br.getOptionValue("Heroic Leap - Ally - Min Distance"), nil, nil) then
+                                        br.addonDebug("Casting Heroic Leap, Ally Leaped to: " .. br._G.UnitName(thisUnit) .. ":)")
                                         return
                                     end
                                 end
@@ -1285,7 +1427,7 @@ local function runRotation()
             -- demoralizing_shout,if=talent.booming_voice.enabled
             if inCombat and cd.demoralizingShout.ready() then
                 if #enemies.yards10 >= 1 
-                        and (not talent.boomingVoice or (talent.boomingVoice and rage <= 100))
+                        and (not talent.boomingVoice or (talent.boomingVoice and rage <= 60))
                 then
                     if br.getOptionValue("Demo Shout Useage") == 1 then
                         br._G.CastSpellByName(GetSpellInfo(spell.demoralizingShout))
@@ -1323,7 +1465,10 @@ local function runRotation()
             -- Ancient Aftershock | thnx Winterz
             if cd.ancientAftershock.ready()
                     and cast.able.ancientAftershock(units.dyn12, "cone", 1, 12)
-                    and (not br.getOptionValue("Avatar - CD") == 2 or (br.getOptionValue("Avatar - CD") == 2 and (buff.avatar.exists() or cd.avatar.remain() >= 90)) or (br.isBoss("target") or (#enemies.yards12 == 1 and ttd("target") >= 15)))
+                    and (br.getOptionValue("Avatar - CD") == 2 and (buff.avatar.exists() or (cd.avatar.remain() >= 90 or conduit.destructiveReverberations.enabled and cd.avatar.remain() >= 75) or br.getOptionValue("Avatar - CD") ~= 2)
+                            or br.isBoss("target")
+                            or #enemies.yards12 == 1)
+                    and getMaxTTD() >= 12
                     and not moving
             then
                 if cast.ancientAftershock(units.dyn12, "cone", 1, 12) then
@@ -1414,7 +1559,7 @@ local function runRotation()
             -- shield_slam
             if cd.shieldSlam.ready()
                     and #enemies.yards5 >= 1
-                    and cast.able.shieldSlam
+                    and cast.able.shieldSlam()
                     and br.getFacing("player", units.dyn5)
                     and (buff.shieldBlock.exists() or (br.getSpellCD(spell.thunderClap) >= gcd))
             then
@@ -1427,13 +1572,15 @@ local function runRotation()
             -- execute
             if not br.player.covenant.venthyr.active then
                 local execList = enemies.get(5)
-                if execList ~= nil and #execList > 0 and #execList <= 3 then
-                    for i = 1, #execList do
-                        local execUnit = execList[i]
-                        if unit.hp(execUnit) < 20 and br.getFacing("player", execUnit) then
-                            if br._G.CastSpellByName(br._G.GetSpellInfo(spell.execute), execUnit) then
-                                br.addonDebug("[DPS] Execute")
-                                return true
+                if mode.Aggression == 1 and php >= br.getValue("Ignore Pain - HP") or (not mode.Aggression == 1 and buff.ignorePain.exists()) then
+                    if execList ~= nil and #execList > 0 and #execList <= 3 then
+                        for i = 1, #execList do
+                            local execUnit = execList[i]
+                            if unit.hp(execUnit) < 20 and br.getFacing("player", execUnit) then
+                                if br._G.CastSpellByName(br._G.GetSpellInfo(spell.execute), execUnit) then
+                                    br.addonDebug("[DPS] Execute")
+                                    return true
+                                end
                             end
                         end
                     end
@@ -1467,13 +1614,15 @@ local function runRotation()
                 end
             else
                 if cd.thunderClap.ready() and rage <= 95 then
-                    if talent.unstoppableForce and buff.avatar.exists()
-                            or #enemies.yards8 >= br.getOptionValue("AoE Threshold")
-                            or not cd.shieldSlam.ready() and not buff.revenge.exists()
-                    then
-                        br._G.CastSpellByName(br._G.GetSpellInfo(spell.thunderClap))
-                        br.addonDebug("[DPS] Aggressive Thunderclap")
-                        return true
+                    if #enemies.yards8 >= 1 or talent.cracklingThunder and #enemies.yards12 >= 1 then
+                        if talent.unstoppableForce and buff.avatar.exists()
+                                or #enemies.yards8 >= br.getOptionValue("AoE Threshold")
+                                or not cd.shieldSlam.ready() and not buff.revenge.exists()
+                        then
+                            br._G.CastSpellByName(br._G.GetSpellInfo(spell.thunderClap))
+                            br.addonDebug("[DPS] Aggressive Thunderclap")
+                            return true
+                        end
                     end
                 end
             end
@@ -1483,7 +1632,7 @@ local function runRotation()
                 if cd.shieldSlam.remain() > (gcdMax / 2)
                         and (br.isExplosive("target") or cd.thunderClap.remain() > (gcdMax / 2))
                 then
-                    if cast.devastate() then
+                    if cast.devastate(units.dyn5) then
                         br.addonDebug("[DPS] Devestate")
                         return true
                     end
