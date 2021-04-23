@@ -136,12 +136,12 @@ function br.ToggleMinus(toggleValue)
 				br.ResetTip(toggleValue, newValue)
 				break
 			else
-				-- if cannot go higher we define to last mode
+				-- if cannot go lower we define to last mode
 				br.data.settings[br.selectedSpec].toggles[tostring(toggleValue)] = modesCount
-				br.specialToggleCodes(toggleValue, newValue)
-				br.changeButton(toggleValue, newValue)
+				br.specialToggleCodes(toggleValue, modesCount)
+				br.changeButton(toggleValue, modesCount)
 				-- We reset the tip
-				br.ResetTip(toggleValue, newValue)
+				br.ResetTip(toggleValue, modesCount)
 				break
 			end
 		end
@@ -188,6 +188,7 @@ end
 
 -- set to desired button value
 function br.changeButton(toggleValue, newValue)
+	if newValue == 0 then newValue = 1 end
 	local Icon
 	-- define text
 	br["text" .. toggleValue]:SetText(br[toggleValue .. "Modes"][newValue].mode)
@@ -362,7 +363,7 @@ function br.CreateButton(Name, x, y)
 		end
 		br.SlashCommandHelp(
 			"br toggle " .. Name .. " 1-" .. #br[Name .. "Modes"],
-			"Toggles " .. Name .. " Modes, Optional: specify number"
+			"Toggles " .. Name .. " Modes, Optional: specify number to toggle to or 2 numbers to toggle between"
 		)
 	end
 end

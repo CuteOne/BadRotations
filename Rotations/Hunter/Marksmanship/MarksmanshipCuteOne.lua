@@ -710,7 +710,7 @@ actionList.PreCombat = function()
                 if cast.arcaneShot("target") then ui.debug("Casting Arcane Shot [Pre-Pull]") return true end
             end
             -- Auto Shot
-            unit.startAttack("target")
+            unit.startAttack("target",true)
         end
     end
 end -- End Action List - Pre-Pull
@@ -792,14 +792,16 @@ local function runRotation()
         if unit.isDummy() then unit.clearTarget() end
         return true
     else
-        -----------------------
-        --- Extras Rotation ---
-        -----------------------
-        if actionList.Extras() then return true end
-        --------------------------
-        --- Defensive Rotation ---
-        --------------------------
-        if actionList.Defensive() then return true end
+        if not cast.current.barrage() and not cast.current.rapidFire() and not cast.current.aimedShot() and not cast.current.steadyShot() then
+            -----------------------
+            --- Extras Rotation ---
+            -----------------------
+            if actionList.Extras() then return true end
+            --------------------------
+            --- Defensive Rotation ---
+            --------------------------
+            if actionList.Defensive() then return true end
+        end
         -----------------
         --- Pet Logic ---
         -----------------

@@ -217,9 +217,6 @@ local function runRotation()
     local inInstance                          = br.player.instance == "party" or br.player.instance == "scenario" or br.player.instance == "pvp" or br.player.instance == "arena" or br.player.instance == "none"
     local inRaid                              = br.player.instance == "raid" or br.player.instance == "pvp" or br.player.instance == "arena" or br.player.instance == "none"
 
-    if leftCombat == nil then leftCombat = br._G.GetTime() end
-    if profileStop == nil then profileStop = false end
-
     enemies.get(5)
     enemies.get(20)
     enemies.get(20,"player",true)
@@ -244,6 +241,10 @@ local function runRotation()
             end
         end
     end
+
+    -----------------
+    --- Functions ---
+    -----------------
 
     local function int (b)
         return b and 1 or 0
@@ -327,7 +328,8 @@ local function runRotation()
         local lowestHP
         for i = 1, #enemies.yards30 do
             local thisUnit = enemies.yards30[i]
-            if (not noDotCheck(thisUnit) or br.GetUnitIsUnit(thisUnit, "target")) and not br.GetUnitIsDeadOrGhost(thisUnit) and br.isSafeToAttack(thisUnit)
+            if (not noDotCheck(thisUnit) or br.GetUnitIsUnit(thisUnit, "target")) 
+             and not br.GetUnitIsDeadOrGhost(thisUnit) and br.isSafeToAttack(thisUnit)
              and (mode.rotation ~= 2 or (mode.rotation == 2 and br.GetUnitIsUnit(thisUnit, "target"))) then
                 local enemyUnit = {}
                 enemyUnit.unit = thisUnit
@@ -380,12 +382,18 @@ local function runRotation()
                 [120651]=true, -- Explosive
                 [168962]=true, -- Sun King's Reborn Phoenix
                 [166969]=true, -- Baroness Frieda
+                [166971]=true, -- Castellan Niklaus
+                [166970]=true, -- Lord Stavros
             }
             if debuff.serratedBoneSpike.exists(thisUnit.unit) then serratedCount = serratedCount + 1 end
             if thisUnit.distance <= 10 then
                 if fokIgnore [thisUnit.objectID] == nil and not isTotem(thisUnit.unit) then
                     br._G.tinsert(enemyTable10, thisUnit)
-                    if deadlyPoison10 and (br.getOptionValue("Lethal Poison") == 1 and not debuff.instantPoison.exists(thisUnit.unit)) or (br.getOptionValue("Lethal Poison") == 2 and not debuff.woundPoison.exists(thisUnit.unit)) then deadlyPoison10 = false end
+                    if deadlyPoison10 and 
+                        (br.getOptionValue("Lethal Poison") == 1 and not debuff.instantPoison.exists(thisUnit.unit)) or 
+                        (br.getOptionValue("Lethal Poison") == 2 and not debuff.woundPoison.exists(thisUnit.unit)) 
+                        then deadlyPoison10 = false 
+                    end
                 end
                 if thisUnit.distance <= 5 then
                     br._G.tinsert(enemyTable5, thisUnit)
@@ -495,12 +503,6 @@ local function runRotation()
         end
         --Burn Units
         local burnUnits = {
-            [120651] = true, -- Explosive
-            [164362] = true, -- Plaguefall Slimy Morsel
-            [164427] = true, -- NW Reanimated Warrior
-            [164414] = true, -- NW Reanimated Mage
-            [168246] = true, -- NW Reanimated Crossbowman
-            [164702] = true, -- NW Carrion Worm
             [175992] = true, -- Dutiful Attendant
         }
         if br.GetObjectExists("target") and burnUnits[br.GetObjectID("target")] ~= nil then
@@ -611,8 +613,9 @@ local function runRotation()
                     end
                 end
                 local interruptID, castStartTime
-                if ui.checked("Stuns") and distance < 5 and br.player.cast.timeRemain(interrupt_target) < br.getTTD(interrupt_target) and br.isCrowdControlCandidates(interrupt_target)
-                 and noStunList[br.GetObjectID(interrupt_target)] == nil and (not br.isBoss(interrupt_target) or stunList[interruptID]) and br.getBuffRemain(interrupt_target, 226510) == 0 then
+                if ui.checked("Stuns") and distance < 5 and br.player.cast.timeRemain(interrupt_target) < br.getTTD(interrupt_target)
+                 and noStunList[br.GetObjectID(interrupt_target)] == nil and br.getBuffRemain(interrupt_target, 226510) == 0 
+                 and (not br.isBoss(interrupt_target) or stunList[interruptID] or br.isCrowdControlCandidates(interrupt_target)) then
                     if br._G.UnitCastingInfo(interrupt_target) then
                         castStartTime = select(4,br._G.UnitCastingInfo(interrupt_target))
                         interruptID = select(9,br._G.UnitCastingInfo(interrupt_target))
@@ -744,7 +747,7 @@ local function runRotation()
             if talent.exsanguinate and talent.nightstalker and nightstalkerCpCondition and cd.exsanguinate.remain() < 1 then
                 if cast.vanish("player") then return true end
             end
-            --# Vanish with Nightstalker + No Exsg: Maximum CP and Vendetta up
+            --# Vanish with Nightstnalker + No Exsg: Maximum CP and Vendetta up
             --actions.vanish+=/vanish,if=talent.nightstalker.enabled&!talent.exsanguinate.enabled&variable.nightstalker_cp_condition&debuff.vendetta.up
             if talent.nightstalker and not talent.exsanguinate and nightstalkerCpCondition and (debuff.vendetta.exists("target") or not ui.checked("Vendetta")) then
                 if cast.vanish("player") then return true end
@@ -785,31 +788,23 @@ local function runRotation()
         end
         -- # Shiv if we are about to Envenom, and attempt to sync with Sepsis final hit if we won't waste more than half the cooldown
         if ((debuff.rupture.remain("target") > 9 and debuff.garrote.remain("target") > 9) or debuff.vendetta.exists("target")) and ttd("target") > 9
-        and not buff.masterAssassin.exists() then
+        and not buff.masterAssassin.exists() and (cd.vendetta.remain() > 9 or mode.cooldown == 3) then
             if cast.shiv("target") then return true end
         end
         -- # Envenom at 4+ (5+ with DS) CP. Immediately on 2+ targets, with Vendetta, or with TB; otherwise wait for some energy. Also wait if Exsg combo is coming up.
         -- actions.direct=envenom,if=combo_points>=4+talent.deeper_stratagem.enabled&(debuff.vendetta.up|debuff.shiv.up|debuff.flagellation.up|energy.deficit<=25+variable.energy_regen_combined|!variable.single_target)&(!talent.exsanguinate.enabled|cooldown.exsanguinate.remains>2)
-        if combo >= (4 + dSEnabled) and ((debuff.vendetta.exists("target") or not cdUsage or ttd("target") < br.getOptionValue("CDs TTD Limit")) or debuff.shiv.exists("target") or debuff.flagellation.exists("target") or energyDeficit <= (25 + energyRegenCombined) or not singleTarget) and 
-         (not talent.exsanguinate or cd.exsanguinate.remain() > 2 or debuff.rupture.remain("target") > 27 or ttd("target") < 4 or mode.exsang == 2) then
+        if combo >= (4 + dSEnabled) and ((debuff.vendetta.exists("target") or not cdUsage or ttd("target") < br.getOptionValue("CDs TTD Limit")) or debuff.shiv.exists("target") or debuff.flagellation.exists("target") or energyDeficit <= (25 + energyRegenCombined) or not singleTarget) 
+         and (not talent.exsanguinate or cd.exsanguinate.remain() > 2 or debuff.rupture.remain("target") > 27 or ttd("target") < 4 or mode.exsang == 2) then
             if cast.envenom("target") then return true end
         end
         -- actions.direct+=/variable,name=use_filler,value=combo_points.deficit>1|energy.deficit<=25+variable.energy_regen_combined|!variable.single_target
         local useFiller = (comboDeficit > 1 or energyDeficit <= (25 + energyRegenCombined) or enemies10 > 1) and (not stealthedRogue or talent.masterAssassin) and not br.GetUnitIsFriend("player", "target")
-        -- actions.direct+=/serrated_bone_spike,cycle_targets=1,if=master_assassin_remains=0&(buff.slice_and_dice.up&!dot.serrated_bone_spike_dot.ticking|fight_remains<=5|cooldown.serrated_bone_spike.charges_fractional>=2.75|soulbind.lead_by_example.enabled&!buff.lead_by_example.up)
-        -- if enemies10 < 3 and not stealthedRogue and not buff.masterAssassin.exists() and buff.sliceAndDice.exists("player") then
-        --     for i = 1, #enemyTable10 do
-        --         local thisUnit = enemyTable10[i].unit
-        --         if cast.able.serratedBoneSpike(thisUnit) and (not debuff.serratedBoneSpikeDot.exists(thisUnit) or fightRemain <= 5 or charges.serratedBoneSpike.frac() >= 2.75) then
-        --             if cast.serratedBoneSpike(thisUnit) then return true end
-        --         end
-        --     end
-        -- end
+        -- actions.direct+=/serrated_bone_spike
         if not stealthedRogue and cd.vanish.remain() < 115 and buff.sliceAndDice.exists("player") and buff.leadByExample.remain() <= 3 then
             local spikeCount = serratedCount + 2
             local spikeList = enemies.get(30, "player", false, true)
             if #spikeList > 0 then
-                if comboDeficit >= spikeCount then
+                if (comboDeficit >= spikeCount or (spikeCount > 3 and combo < 2)) then
                     if #spikeList > 1 then
                         table.sort(spikeList, function(x, y)
                             return br.getHP(x) < br.getHP(y)
@@ -823,8 +818,7 @@ local function runRotation()
                             end
                         end
                     end
-                    if #spikeList == 1 and (comboDeficit == 2 or comboDeficit >= spikeCount or (spikeCount >= 3 and combo < 2)) and 
-                     debuff.shiv.exists("target") and not buff.masterAssassin.exists() then
+                    if #spikeList == 1 and debuff.shiv.exists("target") and not buff.masterAssassin.exists() and (charges.serratedBoneSpike.frac() >= 2 or fightRemain < 30) then
                         if cast.serratedBoneSpike("target") then
                             return true
                         end
@@ -850,7 +844,7 @@ local function runRotation()
             if cast.echoingReprimand("target") then return true end
         end
         --actions.direct+=/ambush,if=variable.use_filler&(master_assassin_remains=0|buff.blindside.up)
-        if useFiller and cast.able.ambush("target") and (not buff.masterAssassin.exists() or buff.blindside.exists()) then
+        if useFiller and cast.able.ambush("target") and (not buff.masterAssassin.exists() or buff.blindside.exists()) and debuff.rupture.exists("target") then
             if cast.ambush("target") then return true end
         end
         --# Tab-Mutilate to apply Deadly Poison at 2 targets
@@ -933,7 +927,7 @@ local function runRotation()
                 for i = 1, #enemyTable5 do
                     local thisUnit = enemyTable5[i].unit
                     local garroteRemain = debuff.garrote.remain(thisUnit)
-                    if ((garroteRemain == 0 and garroteCount < br.getOptionValue("Multidot Limit")) or (garroteRemain > 0 and garroteCount <= br.getOptionValue("Multidot Limit"))) and
+                    if br.GetObjectID(thisUnit) ~= 167999 and ((garroteRemain == 0 and garroteCount < br.getOptionValue("Multidot Limit")) or (garroteRemain > 0 and garroteCount <= br.getOptionValue("Multidot Limit"))) and
                      debuff.garrote.refresh(thisUnit) and (debuff.garrote.applied(thisUnit) <= 1 or (garroteRemain <= tickTime and enemies10 >= 3)) and
                      (not debuff.garrote.exsang(thisUnit) or (garroteRemain < (tickTime * 2) and enemies10 >= 3)) and
                      (((enemyTable5[i].ttd-garroteRemain)>4 and enemies10 <= 1) or (enemyTable5[i].ttd-garroteRemain)>12)  then
@@ -970,7 +964,8 @@ local function runRotation()
             for i = 1, #enemyTable5 do
                 local thisUnit = enemyTable5[i].unit
                 local ruptureRemain = debuff.rupture.remain(thisUnit)
-                if debuff.rupture.refresh(thisUnit) and (debuff.rupture.applied(thisUnit) <= 1 or (ruptureRemain <= tickTime and enemies10 >= 3)) and
+                if br.GetObjectID(thisUnit) ~= 167999 and debuff.rupture.refresh(thisUnit) and
+                 (debuff.rupture.applied(thisUnit) <= 1 or (ruptureRemain <= tickTime and enemies10 >= 3)) and
                  (not debuff.rupture.exsang(thisUnit) or (ruptureRemain < (tickTime *2) and enemies10 >= 3)) and 
                  (enemyTable5[i].ttd-ruptureRemain) > (4 + (DSEquipped*9) + (DoomEquipped*6)) and 
                  (debuff.garrote.exists(thisUnit) or combatTime > 5) then

@@ -396,7 +396,7 @@ actionList.Cooldown = function()
     end
     -- Kill Shot
     -- kill_shot,if=active_enemies=1&target.time_to_die<focus%(action.mongoose_bite.cost-cast_regen)*gcd
-    if cast.able.killShot("target") and (unit.hp("target") < 20 or buff.flayersMark.exist()) and #enemies.yards40 == 1
+    if cast.able.killShot("target") and (unit.hp("target") < 20 or buff.flayersMark.exists()) and #enemies.yards40 == 1
         and unit.ttd(units.dyn40) < focus / (cast.cost.mongooseBite() - cast.regen.killShot()) * unit.gcd(true)
     then
         if cast.killShot("target") then ui.debug("Casting Kill Shot [CD]") return true end
@@ -444,7 +444,7 @@ actionList.ApBoP = function()
     end
     -- Kill Shot
     -- kill_shot
-    if cast.able.killShot("target") and (unit.hp("target") < 20 or buff.flayersMark.exist()) then
+    if cast.able.killShot("target") and (unit.hp("target") < 20 or buff.flayersMark.exists()) then
         if cast.killShot("target") then ui.debug("Casting Kill Shot [ApBoP]") return true end
     end
     -- Mongoose Bite
@@ -575,7 +575,7 @@ actionList.ApSt = function()
     end
     -- Kill Shot
     -- kill_shot
-    if cast.able.killShot("target") and (unit.hp("target") < 20 or buff.flayersMark.exist()) then
+    if cast.able.killShot("target") and (unit.hp("target") < 20 or buff.flayersMark.exists()) then
         if cast.killShot("target") then ui.debug("Casting Kill Shot [ApSt]") return true end
     end
     -- Flanking Strike
@@ -725,7 +725,7 @@ actionList.BoP = function()
     end
     -- Kill Shot
     -- kill_shot
-    if cast.able.killShot("target") and (unit.hp("target") < 20 or buff.flayersMark.exist()) then
+    if cast.able.killShot("target") and (unit.hp("target") < 20 or buff.flayersMark.exists()) then
         if cast.killShot("target") then ui.debug("Casting Kill Shot [BoP]") return true end
     end
     -- Raptor Strike
@@ -757,7 +757,7 @@ actionList.BoP = function()
     if cast.able.wildfireBomb(units.dyn40,"cone",1,8) and focus + cast.regen.wildfireBomb() < focusMax
         and not debuff.wildfireBomb.exists(units.dyn40) and (charges.wildfireBomb.timeTillFull() < unit.gcd(true)
         or not debuff.wildfireBomb.exists(units.dyn40) and buff.mongooseFury.remains() > charges.wildfireBomb.timeTillFull() - 1 * unit.gcd(true)
-        or not debuff.wildfireBomb.exists(units.dyn40) and not buff.mongooseFury.exists()) or unit.ttd(units.dyn40) < 18 and not debuff.wildfireBomb.exist(units.dyn40)
+        or not debuff.wildfireBomb.exists(units.dyn40) and not buff.mongooseFury.exists()) or unit.ttd(units.dyn40) < 18 and not debuff.wildfireBomb.exists(units.dyn40)
     then
         if cast.wildfireBomb(units.dyn40,"cone",1,8) then ui.debug("Wildfire Bomb [BoP]") return true end
     end
@@ -904,7 +904,7 @@ actionList.Cleave = function()
     end
     -- Kill Shot
     -- kill_shot
-    if cast.able.killShot("target") and (unit.hp("target") < 20 or buff.flayersMark.exist()) then
+    if cast.able.killShot("target") and (unit.hp("target") < 20 or buff.flayersMark.exists()) then
         if cast.killShot("target") then ui.debug("Casting Kill Shot [Cleave]") return true end
     end
     -- Flayed Shot
@@ -995,7 +995,7 @@ actionList.St = function()
     end
     -- Kill Shot
     -- kill_shot
-    if cast.able.killShot("target") and (unit.hp("target") < 20 or buff.flayersMark.exist()) then
+    if cast.able.killShot("target") and (unit.hp("target") < 20 or buff.flayersMark.exists()) then
         if cast.killShot("target") then ui.debug("Casting Kill Shot [St]") return true end
     end
     -- Wildfire Bomb

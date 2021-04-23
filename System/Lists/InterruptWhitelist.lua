@@ -56,17 +56,15 @@ br.lists.interruptWhitelist = {
 	-- Sanguine Depths end
 	-- Halls of Atonement start
 	[325700] = true, -- collect-sins
-	[338003] = true, -- wicked bolt
+	[325876] = true, -- curse-of-obliteration
+	--[338003] = true, -- wicked-bolt
 	[326607] = true, -- turn-to-stone
 	[328322] = true, -- villainous-bolt
 	[323538] = true, -- bolt-of-power
 	[323552] = true, -- volley-of-power
-	[325701] = true, -- Siphon Life
+	[325701] = true, -- Siphon-Life
 	-- Halls of Atonemen end
 	-- Mists of Tirna Scithe start
-	[326319] = true, -- Spirit Bolt
-	[322767] = true, -- Spirit Bolt
-	[323057] = true, -- Spirit Bolt
 	[322938] = true, -- harvest-essence
 	[324914] = true, -- nourish-the-forest
 	[324776] = true, -- bramblethorn-coat
