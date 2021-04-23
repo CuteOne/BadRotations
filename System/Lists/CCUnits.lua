@@ -9,16 +9,27 @@ br.lists.ccUnits = {
     [167566] = { name = "Return to Stone", spell = 333145 }, -- Sun King's Salvation
     [165762] = { name = "Soul Infuser" }, -- Sun King's Salvation
     -- SL Dungeons
-    [174773] = { name = "All-Consuming Spite"}, -- M+ Affix
+    --[174773] = { name = "All-Consuming Spite"}, -- M+ Affix
 
     -- HoA
     [164562] = { name = "Loyal Beasts", spell = 326450 }, -- Halls of Atonement
 
     -- DoS
     [170480] = { name = "Bladestorm", spell = 332671 }, -- De Other Side
+    [167963] = { name = "Spinning Up", spell = 332156 },
+    [171341] = { name = "Frightened Cries", spell = 334664 }, -- https://www.wowhead.com/spell=334664/frightened-cries
 
     -- Mists
     [165251] = { name = "Illusionary Vulpin" }, -- https://www.wowhead.com/npc=165251/illusionary-vulpin
+    [166301] = { name = "Mistveil Bite", spell = 324987 }, -- https://www.wowhead.com/spell=324987/mistveil-bite
+    [166301] = { name = "Mistveil Tear", spell = 325021 }, -- https://www.wowhead.com/spell=325021/mistveil-tear
+    [167113] = { name = "Mistveil Tear", spell = 325418 }, -- https://www.wowhead.com/spell=325418/volatile-acid
+    --[166276] = { name = "Mistveil Bite", spell = 331743 }, -- https://www.wowhead.com/spell=331743/bucking-rampage
+    -- NW
+    [163618] = { name = "Animate Dead", spell = 321780 }, -- Zolramus Necromancer
+
+    -- SD
+    [166396] = { name = "Animate Weapon", spell = 324609 },
 
     -- Necrotic Wake
     [164702] = { name = "Carrion Worm" }, -- Necrotic Wake
@@ -31,8 +42,8 @@ br.lists.ccUnits = {
     [165222] = { name = "Final Bargain", spell = 320822 },
 
     --Theater of Pain
-    [164510] = { name = "Shambling Arbalest" }, -- Nasty dot - needs to be cc'ed
-    [330586] = { name = "Devour Flesh" }, -- Big heal from Putrid Butcher
+    [164510] = { name = "Shambling Arbalest", spell = 330532 }, -- Nasty dot - needs to be cc'ed
+    [169927] = { name = "Devour Flesh", spell = 330586 }, -- Big heal from Putrid Butcher
 
     -- Plaguefall
     [171887] = { name = "Slimy Smorgasbord" }, -- Plaguefall Dungeon
@@ -40,6 +51,13 @@ br.lists.ccUnits = {
     [168572] = { name = "Fungistorm", spell = 328177 }, -- -- big AOE, can be stunned
     [163862] = { name = "Bulwark of Maldraxxus", spell = 336451 }, -- Prevent the shield from going on
     [163892] = { name = "Corroded Claws", spell = 320512 }, -- Prevent the shield from going on 
+    [164737] = { name = "Stealthlings", spell = 328400 }, -- https://www.wowhead.com/spell=328400/stealthlings
+    [168907] = { name = "Crushing Embrace", spell = 328429 },
+    [168907] = { name = "Crushing Embrace", spell = 328432 },
+    [168907] = { name = "Crushing Embrace", spell = 345429 },
+    [168022] = { name = "Crushing Embrace", spell = 328429 },
+    [168022] = { name = "Crushing Embrace", spell = 328432 },
+    [168022] = { name = "Crushing Embrace", spell = 345429 },
 
     -- Thorghast
     [150959] = { name = "Critical Shot", spell = 294171 }, -- Torghast Mawsworn Interceptor

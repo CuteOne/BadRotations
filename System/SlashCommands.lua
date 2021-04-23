@@ -74,6 +74,31 @@ local function toggle(name, index, check)
 	end
 end
 
+local function toggleRange(name, index1, index2)
+	if br.data == nil then return end
+	if br.data.settings == nil then return end
+	if br.data.settings[br.selectedSpec] == nil then return end
+	if br.data.settings[br.selectedSpec].toggles == nil then return end
+	for k, _ in pairs(br.data.settings[br.selectedSpec].toggles) do
+		local toggle = string.upper(name) --name --(name:gsub("^%l", string.upper))
+		name = string.lower(name)
+		local lowerKey = string.lower(k)
+		if name == lowerKey then
+			if tostring(br.data.settings[br.selectedSpec].toggles[k]) == index1 then
+				br.ToggleToValue(toggle, index2)
+				return
+			elseif tostring(br.data.settings[br.selectedSpec].toggles[k]) == index2 then
+				br.ToggleToValue(toggle, index1)
+				return
+			else
+				br.ToggleToValue(toggle, index1)
+				return
+			end
+		end
+	end
+	br._G.print("No toggle found with name: "..tostring(name))
+end
+
 local function getStringIndex(string, index)
 	local s = string
 	local count = 0
@@ -210,12 +235,14 @@ function br.handler(message, editbox)
 		end
 	elseif msg1 == "toggle" then
 		-- Toggles
-		if msg2 ~= nil then
+		if msg2 ~= nil and msg4 == nil then
 			if toggle(msg2, msg3, true) then
 				toggle(msg2, msg3)
 			else
 				br._G.print("Invalid Toggle: |cFFFF0000" .. msg2 .. "|r try |cffFFDD11 /br help |r for list of toggles.")
 			end
+		elseif msg2 ~= nil and msg4 ~= nil then
+			toggleRange(msg2, msg3, msg4)
 		else
 			br._G.print("No Toggle Specified: Try |cffFFDD11 /br help |r for list of toggles.")
 		end

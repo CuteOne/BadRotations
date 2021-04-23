@@ -94,6 +94,10 @@ local function createOptions()
 		-- Holy Avenger
 		br.ui:createSpinner(section, "Holy Avenger",  0,  0,  200,  5,  "|cffFFFFFFEnemy TTD")
 		br.ui:createCheckbox(section, "Holy Avenger with Wings")
+		-- Ashen Hallow
+		if br.player.covenant.venthyr.active then
+			br.ui:createCheckbox(section,"Ashen Hallow")
+		end
 		br.ui:checkSectionState(section)
 		-------------------------
 		--- DEFENSIVE OPTIONS ---
@@ -162,7 +166,9 @@ local function createOptions()
 		------------------------
 		section = br.ui:createSection(br.ui.window.profile, "Rotation Options")
 		-- Divine Toll
-		br.ui:createSpinner(section, "Divine Toll",  3,  1,  5,  1,  "|cffFFBB00Units to use Divine Toll.")
+		if br.player.covenant.kyrian.active then
+			br.ui:createSpinner(section, "Divine Toll",  3,  1,  5,  1,  "|cffFFBB00Units to use Divine Toll.")
+		end
 		-- Avenger's Shield
 		br.ui:createCheckbox(section,"Avenger's Shield")
 		-- Consecration
@@ -679,7 +685,7 @@ local function runRotation()
 			end
 		end
 		-- Divine Toll
-		if (br.GetObjectID("boss1") == 165946 or br.GetObjectID("boss1") == 164185 or br.GetObjectID("boss1") == 167406 or br.GetObjectID("boss1") == 163157) and cd.divineToll.ready() then
+		if br.player.covenant.kyrian.active and (br.GetObjectID("boss1") == 165946 or br.GetObjectID("boss1") == 164185 or br.GetObjectID("boss1") == 167406 or br.GetObjectID("boss1") == 163157) and cd.divineToll.ready() then
 			for i = 1, #enemies.yards30 do
 				local thisUnit = enemies.yards30[i]
 				if br.GetObjectID(thisUnit) == 166524 or br.GetObjectID(thisUnit) == 164363 or br.GetObjectID(thisUnit) == 167999 or br.GetObjectID(thisUnit) == 164414 then
@@ -774,6 +780,10 @@ local function runRotation()
 					((not ui.checked("Holy Avenger with Wings") and ui.value("Holy Avenger") <= ttd ) or (ui.checked("Holy Avenger with Wings") and br.getSpellCD(31884) == 0))then
 					if cast.holyAvenger() then return true end
 				end
+			end
+			-- Ashen Hallow
+			if ui.checked("Holy Avenger") and br.player.covenant.venthyr.active and cd.ashenHallow.ready() then
+				if br._G.CastSpellByName(br._G.GetSpellInfo(spell.ashenHallow), "player") then return true end
 			end
 		end -- End Cooldown Usage Check
 	end -- End Action List - Cooldowns
@@ -893,7 +903,7 @@ local function runRotation()
 					if br.getDistance(thisUnit) <= 5 then
 						br._G.StartAttack(thisUnit)
 					end
-					if cd.hammerOfWrath.ready() and buff.avengingWrath.exists() then
+					if (cd.hammerOfWrath.ready() and buff.avengingWrath.exists()) or (br.player.covenant.venthyr.active and cd.ashenHallow.remain() > 210) then
 						if cast.hammerOfWrath(thisUnit) then return true end
 					end
 					if cd.judgment.ready() then
@@ -921,7 +931,7 @@ local function runRotation()
 			if cast.avengersShield(units.dyn30) then return true end
 		end
 		-- Divine Toll
-		if ui.checked("Divine Toll") and cd.divineToll.ready() and br.GetObjectID("boss1") ~= 165946 and br.GetObjectID("boss1") ~= 164185 and br.GetObjectID("boss1") ~= 163157 then
+		if ui.checked("Divine Toll") and br.player.covenant.kyrian.active and cd.divineToll.ready() and br.GetObjectID("boss1") ~= 165946 and br.GetObjectID("boss1") ~= 164185 and br.GetObjectID("boss1") ~= 163157 then
 			if (#enemies.yards10 >= br.getValue("Divine Toll") or (br.isBoss(units.dyn30) and br.GetObjectID("boss1") ~= 167406) or (br.isBoss(units.dyn30) and br.GetObjectID("boss1") == 167406 and br.getHP("boss1") <= 70)) then
 				if cast.divineToll(units.dyn30) then return true end
 			end
@@ -935,7 +945,7 @@ local function runRotation()
 			if cast.judgment(units.dyn30) then return true end
 		end
 		-- Hammer of Wrath
-		if ui.checked("Hammer of Wrath") and br.getSpellCD(24275) == 0 and (br.getHP(units.dyn30) <= 20 or (level >= 58 and buff.avengingWrath.exists()) or br.getBuffRemain("player",345693) ~= 0) and mob30 then
+		if ui.checked("Hammer of Wrath") and br.getSpellCD(24275) == 0 and (br.getHP(units.dyn30) <= 20 or (level >= 58 and buff.avengingWrath.exists()) or br.getBuffRemain("player",345693) ~= 0 or (br.player.covenant.venthyr.active and cd.ashenHallow.remain() > 210)) and mob30 then
 			if cast.hammerOfWrath(units.dyn30) then return true end
 		end
 		-- Avenger's Shield
