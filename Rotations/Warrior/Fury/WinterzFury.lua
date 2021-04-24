@@ -429,7 +429,7 @@ local function runRotation()
             br.CancelUnitBuffID("player",spell.bladestorm)
         end
         -- Prio BT during Enraged
-        if br.isChecked("Prio BT during Enraged") then
+        if br.isChecked("Prio BT during Enraged") and buff.enragedRegeneration.exists("player") then
             if cast.bloodthirst() then
                 return
             end
