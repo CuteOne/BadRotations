@@ -3870,6 +3870,7 @@ br.lists.spells = {
             },
             buffs                           = {
                 bladestorm                  = 46924,
+				enragedRegeneration         = 184364,
                 deathWish                   = 199261,
                 enrage                      = 184362,
                 frenzy                      = 335082,
