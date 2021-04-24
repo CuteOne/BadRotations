@@ -1,6 +1,10 @@
---Version 1.1.0
+--Version 1.2.0
 local rotationName = "WinterzFury"
 
+-- TODO
+-- Trinket Checkboxes
+-- Bloodthirst prio support during enraged
+-- Bladestorm checkboxes
 ---------------
 --- Toggles ---
 ---------------
@@ -110,9 +114,11 @@ local function createOptions()
         -- Racials
         br.ui:createCheckbox(section, "Racials")
         -- Bladestorm Units
-        br.ui:createSpinner(section, "Bladestorm Units", 3, 1, 10, 1, "Number of units to Bladestorm on")
+        br.ui:createSpinner(section, "Bladestorm AoE Units", 3, 1, 10, 1, "Number of units to Bladestorm on")
+        -- Bladestorm Units
+        br.ui:createCheckbox(section, "Bladestorm Singletarget")
         -- Ancient Aftershock Units
-        br.ui:createSpinner(section, "Ancient Aftershock Units", 3, 1, 10, 1, "Number of units to use NF Ability on")
+        br.ui:createSpinner(section, "Ancient Aftershock AoE Units", 3, 1, 10, 1, "Number of units to use NF Ability on")
         -- Aftershock SingleTarget
         br.ui:createCheckbox(section, "Use Aftershock in ST")
         -- Dragons Roar
@@ -130,6 +136,8 @@ local function createOptions()
         br.player.module.BasicHealing(section)
         -- Enraged Regeneration
         br.ui:createSpinner(section, "Enraged Regeneration", 60, 0, 100, 5, "Health Percentage to use at.")
+        -- high prio BT during Enraged
+        br.ui:createCheckbox(section, "Prio BT during Enraged", "Do we prioritize BT for healing during ER?")
         -- Intimidating Shout
         br.ui:createSpinner(section, "Intimidating Shout", 60, 0, 100, 5, "Health Percentage to use at.")
         -- Rallying Cry
@@ -420,6 +428,12 @@ local function runRotation()
         if runeforge.signetOfTormentedKings.equiped and rage > 85 and buff.bladestorm.exists() then debug("cancelling BS")
             br.CancelUnitBuffID("player",spell.bladestorm)
         end
+        -- Prio BT during Enraged
+        if br.isChecked("Prio BT during Enraged") then
+            if cast.bloodthirst() then
+                return
+            end
+        end
         -- Rampage
         if buff.recklessness.exists("player") or (rage >= 85) or not buff.enrage.exists("player") then
             if cast.rampage() then
@@ -520,7 +534,7 @@ local function runRotation()
         end
 
         -- Bladestorm Single target
-        if buff.enrage.exists("player") and br.isChecked("Bladestorm Units") and br.player.ui.mode.cooldown ~= 3 and br.isBoss("target") then
+        if buff.enrage.exists("player") and br.isChecked("Bladestorm Singletarget") and br.player.ui.mode.cooldown ~= 3 and br.isBoss("target") then
             if cast.bladestorm() then debug("Bladestorm ST")
                 return
             end
@@ -607,7 +621,7 @@ local function runRotation()
             end
         end
         -- Bladestorm
-        if br.isChecked("Bladestorm Units") and #enemies.yards8 >= br.getOptionValue("Bladestorm Units") and buff.enrage.exists("player") and br.player.ui.mode.cooldown ~= 3 then
+        if br.isChecked("Bladestorm AoE Units") and #enemies.yards8 >= br.getOptionValue("Bladestorm AoE Units") and buff.enrage.exists("player") and br.player.ui.mode.cooldown ~= 3 then
             if cast.bladestorm() then
                 return
             end
@@ -704,12 +718,12 @@ local function runRotation()
        -- if (br._G.GetInventoryItemID("player", 13) == 178825 or br._G.GetInventoryItemID("player", 14) == 178825) and br.canUseItem(178825) and #enemies.yards8 > 0 then
         --    br.useItem(178825)
        -- end
-        if br.getOptionValue("Trinkets") == 1 or (br.getOptionValue("Trinkets") == 2 and buff.recklessness.exists("player")) and inCombat and br.canUseItem(13) then
+        if br.isChecked("Trinkets") and (br.getOptionValue("Trinkets") == 1 or (br.getOptionValue("Trinkets") == 2 and buff.recklessness.exists("player"))) and inCombat and br.canUseItem(13) then
             if br.useItem(13) then debug("Using Trinket 1")
                 return
             end
         end
-        if br.getOptionValue("Trinkets") == 1 or (br.getOptionValue("Trinkets") == 2 and buff.recklessness.exists("player")) and inCombat and br.canUseItem(14) then
+        if br.isChecked("Trinkets") and (br.getOptionValue("Trinkets") == 1 or (br.getOptionValue("Trinkets") == 2 and buff.recklessness.exists("player"))) and inCombat and br.canUseItem(14) then
             if br.useItem(14) then debug("Using Trinket 2")
                 return
             end
