@@ -156,10 +156,12 @@ local function createOptions()
 		section = br.ui:createSection(br.ui.window.profile, "AOE Healing")
 		--Trinket?
 		--Divine Toll
-		br.ui:createDropdown(section, "Divine Toll", {"At 0 Holy Power", "As a Heal"}, 1)
-		br.ui:createSpinnerWithout(section, "Divine Toll Units", 3, 1, 5, 1)
-		br.ui:createSpinnerWithout(section, "Divine Toll Health", 70, 0, 100, 1)
-		br.ui:createSpinnerWithout(section, "Max Holy Power", 2, 0, 5, 1, "Only use Divine Toll when at or below this value")
+		if br.player.covenant.kyrian.active then
+			br.ui:createDropdown(section, "Divine Toll", {"At 0 Holy Power", "As a Heal"}, 1)
+			br.ui:createSpinnerWithout(section, "Divine Toll Units", 3, 1, 5, 1)
+			br.ui:createSpinnerWithout(section, "Divine Toll Health", 70, 0, 100, 1)
+			br.ui:createSpinnerWithout(section, "Max Holy Power", 2, 0, 5, 1, "Only use Divine Toll when at or below this value")
+		end
 		-- Rule of Law
 		br.ui:createSpinner(section, "Rule of Law", 70, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At")
 		br.ui:createSpinner(section, "RoL Targets", 3, 0, 40, 1, "", "|cffFFFFFFMinimum RoL Targets", true)
@@ -184,7 +186,9 @@ local function createOptions()
 		-- Seraphim
 		br.ui:createSpinner(section, "Seraphim",  0,  0,  20,  2,  "|cffFFFFFFEnemy TTD")
 		-- Divine Toll Damage
-		br.ui:createSpinner(section, "Divine Toll during DPS Key", 3, 1, 5, 1, "Use Divine Toll at >= x units")
+		if br.player.covenant.kyrian.active then
+			br.ui:createSpinner(section, "Divine Toll during DPS Key", 3, 1, 5, 1, "Use Divine Toll at >= x units")
+		end
 		-- Light's Hammer Damage
 		br.ui:createSpinner(section, "Light's Hammer Damage", 1, 0, 40, 1, "", "|cffFFFFFFMinimum Light's Hammer Targets")
 		-- Shield of the Righteous
@@ -435,7 +439,7 @@ local function runRotation()
 			if cast.seraphim() then return true end
 		end
 
-		if br.isChecked("Divine Toll during DPS Key") and dpskey and #enemies.yards30 >= br.getValue("Divine Toll during DPS Key") then
+		if br.isChecked("Divine Toll during DPS Key") and br.player.covenant.kyrian.active and dpskey and #enemies.yards30 >= br.getValue("Divine Toll during DPS Key") then
 			if cast.divineToll(units.dyn30) then return true end
 		end
 
@@ -444,7 +448,7 @@ local function runRotation()
 			for i = 1, #enemies.yards30 do
 				local thisUnit = enemies.yards30[i]
 				if ccDoubleCheck(thisUnit) and (br.isChecked("Dev Stuff Leave off") or br.getFacing("player",thisUnit)) then
-					if br.getHP(thisUnit) <= 20 or buff.avengingWrath.exists() then
+					if br.getHP(thisUnit) <= 20 or buff.avengingWrath.exists() or (br.player.covenant.venthyr.active and cd.ashenHallow.remain() > 210) then
 						if cast.hammerOfWrath(thisUnit) then return true end
 					end
 				end
@@ -561,13 +565,13 @@ local function runRotation()
 
 			-- Engineering Revive
 			if br.isChecked("Engineering Revive") and br.canUseItem(184308) and not moving and inCombat then
-				if br.getOptionValue("Engineering Revive") == 1 and br._G.UnitIsPlayer("target") and br._G.UnitIsDeadOrGhost("target") and br.GetUnitIsFriend("target","player") then
+				if br.getOptionValue("Engineering Revive") == 1 and br._G.UnitIsPlayer("target") and br._G.UnitIsDeadOrGhost("target") and br.GetUnitIsFriend("target","player") and br.getDistance("target") <= 5 then
 					br._G.UseItemByName(184308,"target")
-				elseif br.getOptionValue("Engineering Revive") == 2 and br._G.UnitIsPlayer("mouseover") and br._G.UnitIsDeadOrGhost("mouseover") and br.GetUnitIsFriend("mouseover","player") then
+				elseif br.getOptionValue("Engineering Revive") == 2 and br._G.UnitIsPlayer("mouseover") and br._G.UnitIsDeadOrGhost("mouseover") and br.GetUnitIsFriend("mouseover","player") and br.getDistance("mouseover") <= 5 then
 					br._G.UseItemByName(184308,"mouseover")
 				elseif br.getOptionValue("Engineering Revive") == 3 then
 					for i =1, #br.friend do
-						if br._G.UnitIsPlayer(br.friend[i].unit) and br._G.UnitIsDeadOrGhost(br.friend[i].unit) and br.GetUnitIsFriend(br.friend[i].unit,"player") then
+						if br._G.UnitIsPlayer(br.friend[i].unit) and br._G.UnitIsDeadOrGhost(br.friend[i].unit) and br.GetUnitIsFriend(br.friend[i].unit,"player") and br.getDistance(br.friend[i].unit) <= 5 then
 							if br._G.UseItemByName(184308,br.friend[i].unit) then return true end
 						end
 					end
@@ -861,7 +865,7 @@ local function runRotation()
 		end
 
 		-- Divine Toll
-		if br.isChecked("Divine Toll") and cd.divineToll.ready() and (holyPower <= br.getValue("Max Holy Power") or br.getDebuffStacks(lowest.unit,240443) >= 4) then
+		if br.isChecked("Divine Toll") and br.player.covenant.kyrian.active and cd.divineToll.ready() and (holyPower <= br.getValue("Max Holy Power") or br.getDebuffStacks(lowest.unit,240443) >= 4) then
 			if br.getOptionValue("Divine Toll") == 1 and holyPower == 0 then
 				if cast.divineToll(lowest.unit) then return true end
 			end
@@ -995,7 +999,7 @@ local function runRotation()
 			for i = 1, #enemies.yards30 do
 				local thisUnit = enemies.yards30[i]
 				if ccDoubleCheck(thisUnit) and (br.isChecked("Dev Stuff Leave off") or br.getFacing("player",thisUnit)) then
-					if br.getHP(thisUnit) <= 20 or buff.avengingWrath.exists() then
+					if br.getHP(thisUnit) <= 20 or buff.avengingWrath.exists() or (br.player.covenant.venthyr.active and cd.ashenHallow.remain() > 210) then
 						if cast.hammerOfWrath(thisUnit) then return true end
 					end
 				end
@@ -1110,13 +1114,13 @@ local function runRotation()
 
 	actionList.madParagon = function()
 		if runeforge.theMadParagon.equiped and br.getSpellCD(24275) == 0 then
-			if (br.getHP("target") <= 20 or br._G.IsSpellOverlayed(24275) or wingsup) and (br.isChecked("Dev Stuff Leave off") or br.getFacing("player","target")) then
+			if (br.getHP("target") <= 20 or br._G.IsSpellOverlayed(24275) or wingsup or (br.player.covenant.venthyr.active and cd.ashenHallow.remain() > 210)) and (br.isChecked("Dev Stuff Leave off") or br.getFacing("player","target")) then
 				if cast.hammerOfWrath("target") then return end
 			end
 			for i = 1, #enemies.yards30 do
 				local thisUnit = enemies.yards30[i]
 				if ccDoubleCheck(thisUnit) and (br.isChecked("Dev Stuff Leave off") or br.getFacing("player",thisUnit)) and lowest.hp >= br.getOptionValue("Critical HP") then
-					if br.getHP(thisUnit) <= 20 or br._G.IsSpellOverlayed(24275) or wingsup then
+					if br.getHP(thisUnit) <= 20 or br._G.IsSpellOverlayed(24275) or wingsup or (br.player.covenant.venthyr.active and cd.ashenHallow.remain() > 210) then
 						if br._G.CastSpellByName(br._G.GetSpellInfo(spell.hammerOfWrath),thisUnit) then return end
 					end
 				end

@@ -603,13 +603,13 @@ local function runRotation()
 			end
 			-- Engineering Revive
 			if ui.checked("Engineering Revive") and br.canUseItem(184308) and not moving and inCombat then
-				if ui.value("Engineering Revive") == 1 and br._G.UnitIsPlayer("target") and br._G.UnitIsDeadOrGhost("target") and br.GetUnitIsFriend("target","player") then
+				if ui.value("Engineering Revive") == 1 and br._G.UnitIsPlayer("target") and br._G.UnitIsDeadOrGhost("target") and br.GetUnitIsFriend("target","player") and br.getDistance("target") <= 5 then
 					br._G.UseItemByName(184308,"target")
-				elseif ui.value("Engineering Revive") == 2 and br._G.UnitIsPlayer("mouseover") and br._G.UnitIsDeadOrGhost("mouseover") and br.GetUnitIsFriend("mouseover","player") then
+				elseif ui.value("Engineering Revive") == 2 and br._G.UnitIsPlayer("mouseover") and br._G.UnitIsDeadOrGhost("mouseover") and br.GetUnitIsFriend("mouseover","player") and br.getDistance("mouseover") <= 5 then
 					br._G.UseItemByName(184308,"mouseover")
 				elseif ui.value("Engineering Revive") == 3 then
 					for i =1, #br.friend do
-						if br._G.UnitIsPlayer(br.friend[i].unit) and br._G.UnitIsDeadOrGhost(br.friend[i].unit) and br.GetUnitIsFriend(br.friend[i].unit,"player") then
+						if br._G.UnitIsPlayer(br.friend[i].unit) and br._G.UnitIsDeadOrGhost(br.friend[i].unit) and br.GetUnitIsFriend(br.friend[i].unit,"player") and br.getDistance(br.friend[i].unit) <= 5 then
 							br._G.UseItemByName(184308,br.friend[i].unit)
 						end
 					end
