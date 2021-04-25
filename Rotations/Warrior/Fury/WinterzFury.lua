@@ -581,7 +581,7 @@ local function runRotation()
 
         -- BT if Fresh Meat and not Enraged   test later
         -- Ancient Aftershock
-        if br.isChecked("Ancient Aftershock Units") and cast.able.ancientAftershock(units.dyn12, "cone", 1, 12) and #enemies.yards12c >= br.getOptionValue("Ancient Aftershock Units") and buff.enrage.exists("player") and (buff.recklessness.exists("player") or cd.recklessness.remain() > 5) then
+        if br.isChecked("Ancient Aftershock AoE Units") and cast.able.ancientAftershock(units.dyn12, "cone", 1, 12) and #enemies.yards12c >= br.getOptionValue("Ancient Aftershock AoE Units") and buff.enrage.exists("player") and (buff.recklessness.exists("player") or cd.recklessness.remain() > 5) then
             if cast.ancientAftershock(units.dyn12, "cone", 1, 12) then debug("Aftershock!!")
                 return
             end
