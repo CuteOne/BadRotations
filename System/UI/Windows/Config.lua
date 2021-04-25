@@ -45,7 +45,7 @@ function br.ui:createConfigWindow()
             2,
             "Check this to allow dynamic targetting. If unchecked, profile will only attack current target."
         )
-        br.ui:createCheckbox(section, "Include Range", "Checking this will pick a new target if current target is out of range. (Only valid on Lite mode)")
+        //br.ui:createCheckbox(section, "Include Range", "Checking this will pick a new target if current target is out of range. (Only valid on Lite mode)")
         br.ui:createCheckbox(section, "Target Dynamic Target", "Check this will target the current dynamic target.")
         br.ui:createCheckbox(section, "Tank Aggro = Player Aggro", "If checked, when tank gets aggro, player will go into combat")
         br.ui:createCheckbox(section, "Hostiles Only", "Checking this will target only units hostile to you.")
@@ -98,7 +98,7 @@ function br.ui:createConfigWindow()
             "Mark to interrupt if Marked is selected in Interrupt Target."
         )
         br.ui:createCheckbox(section, "Only Known Units", "Check this to interrupt only on known units using whitelist.")
-        br.ui:createCheckbox(section, "Crowd Control", "Check to use crowd controls on select units/buffs.")
+        //br.ui:createCheckbox(section, "Crowd Control", "Check to use crowd controls on select units/buffs.")
         br.ui:createCheckbox(section, "Enrages Handler", "Check this to allow Enrages Handler.")
         br.ui:checkSectionState(section)
     end
