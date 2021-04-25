@@ -34,6 +34,16 @@ br.api.ui = function(self)
             return br.lootManager:emptySlots() == 0
         end
     end
+    if ui.isMouseDown == nil then
+        ui.isMouseDown = function(mouseButton)
+            local mouseDown = br._G.IsMouseButtonDown
+            if mouseButton == nil then
+                return mouseDown("LeftButton") or mouseDown("RightButton") or mouseDown("MiddleButton") or mouseDown("Button4") or mouseDown("Button5")
+            else
+                return mouseDown(mouseButton)
+            end
+        end
+    end
     if ui.pause == nil then
         ui.pause = function(ignoreChannel)
             --local pause = _G["pause"]

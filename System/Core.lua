@@ -254,7 +254,7 @@ function br.BadRotationsUpdate(self)
                     br.ui:recreateWindows()
                     -- Compare br.data.settings for the current spec/profile to the ui options
                     for k, _ in pairs(br.data.settings[br.selectedSpec][br.selectedProfile]) do
-                        local inOptions = br.data.ui[k] ~= nil
+                        -- local inOptions = br.data.ui[k] ~= nil
                         -- Remove any Check/Drop/Status Options that are no longer a UI Option
                         if br.data.ui[k] == nil then
                             local drop = k.sub(k, -4)

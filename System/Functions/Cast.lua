@@ -699,15 +699,17 @@ function br.createCastFunction(thisUnit,castType,minUnits,effectRng,spellID,inde
 		end
 		-- Cast Ground AOE at "Best" Locaton
         if thisUnit == "best" then
-			if debug then return true end
-			return br.castGroundAtBestLocation(spellCast,effectRng,minUnits,maxRange,minRange,castType,castTime)
+			if not br.player.ui.isMouseDown() then
+				if debug then return true end
+				return br.castGroundAtBestLocation(spellCast,effectRng,minUnits,maxRange,minRange,castType,castTime)
+			end
 		end
 		-- Cast Ground AOE at Player/Target Location
 		if thisUnit == "playerGround" or thisUnit == "targetGround" or castType == "groundCC" then
 			local targetUnit
 			targetUnit = thisUnit == "playerGround" and "player" or "target"
 			if castType == "groundCC" then targetUnit = thisUnit end
-			if (br.getDistance(targetUnit) < maxRange or br._G.IsSpellInRange(spellName,targetUnit) == 1) then
+			if not br.player.ui.isMouseDown() and (br.getDistance(targetUnit) < maxRange or br._G.IsSpellInRange(spellName,targetUnit) == 1) then
 				if debug then return true end
 				return br.castGroundAtUnit(spellCast,effectRng,minUnits,maxRange,minRange,castType,targetUnit)
 			end
@@ -742,8 +744,10 @@ function br.createCastFunction(thisUnit,castType,minUnits,effectRng,spellID,inde
 						or 0
 					if enemyCount >= minUnits and br.isSafeToAoE(spellID,thisUnit,effectRng,minUnits,castType,enemyCount) then
 						if castType == "ground" then
-							if debug then return true end
-							return br.castGround(thisUnit,spellCast,maxRange,minRange,effectRng,castTime)
+							if br.player.ui.isMouseDown() then
+								if debug then return true end
+								return br.castGround(thisUnit,spellCast,maxRange,minRange,effectRng,castTime)
+							end
 						else
 							return castingSpell(thisUnit,spellID,spellName,icon,castType,printReport,debug)
 						end

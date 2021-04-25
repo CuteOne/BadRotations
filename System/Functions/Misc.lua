@@ -108,7 +108,7 @@ function br.carapaceMath(Unit1, Unit2)
 	if (br.player and br.player.eID and br.player.eID == 2337) then
 		local pX, pY = br.GetObjectPosition(Unit1)
 		local tX, tY = br.GetObjectPosition(Unit2)
-		local tentExists = false
+		-- local tentExists = false
 		local tentCheck
 		local tentX, tentY
 		--[[ LibDraw.clearCanvas()
@@ -120,7 +120,7 @@ function br.carapaceMath(Unit1, Unit2)
 			local object = br._G.GetObjectWithIndex(i)
 			local objectid = br._G.ObjectID(object)
 			if objectid == 157485 then
-				tentExists = true
+				-- tentExists = true
 				local tentFacing = br.GetObjectFacing(object)
 				tentX, tentY = br.GetObjectPosition(object)
 				table.insert(
@@ -191,8 +191,11 @@ function br.getLineOfSight(Unit1, Unit2)
 	if br.GetObjectExists(Unit1) and br.GetUnitIsVisible(Unit1) and br.GetObjectExists(Unit2) and br.GetUnitIsVisible(Unit2) then
 		local X1, Y1, Z1 = br.GetObjectPosition(Unit1)
 		local X2, Y2, Z2 = br.GetObjectPosition(Unit2)
-		local pX, pY, pZ = br.GetObjectPosition("player")
+		local pX = br.GetObjectPosition("player")
 		local trace
+		-- Only calculate if we actually got values
+		if (X1 == nil or X2 == nil or pX == nil) then return false end
+		-- Trace to see if we are in Line of Sight
 		if br.player and br.player.eID and (br.player.eID == 2398 or br.player.eID == 2399) then
 			trace = br._G.TraceLine(X1, Y1, Z1 + 2, X2, Y2, Z2 + 2, 0x100111)
 		else
@@ -704,17 +707,14 @@ function br.pause(skipCastingCheck)
 		return true
 	end
 	-- Pause Hold/Auto
-	if
-		(pausekey and br._G.GetCurrentKeyBoardFocus() == nil and br.isChecked("Pause Mode")) or br.profileStop or
-			(((br._G.IsMounted() or br._G.IsFlying() or br._G.UnitOnTaxi("player") or br._G.UnitInVehicle("player")) and not br.isChecked("Bypass Vehicle Check")) and
-				not (br.UnitBuffID("player", 190784) or br.UnitBuffID("player", 164222) or br.UnitBuffID("player", 165803) or br.UnitBuffID("player", 157059))) or
-			br._G.SpellIsTargeting() or
-			(br._G.UnitCastingInfo("player") and not skipCastingCheck) or
-			(br._G.UnitChannelInfo("player") and not skipCastingCheck) or
-			br._G.UnitIsDeadOrGhost("player") or
-			eating or
-			br.UnitDebuffID("player", 252753) or -- Potion of Replenishment (BFA Mana channel) Apparently a debuff
-			br.UnitBuffID("player", 114018)
+	if (pausekey and br._G.GetCurrentKeyBoardFocus() == nil and br.isChecked("Pause Mode")) or br.profileStop
+		or (br._G.IsMounted() or br._G.IsFlying() or br._G.UnitOnTaxi("player")
+			or (br._G.UnitInVehicle("player") and not br.isChecked("Bypass Vehicle Check")
+				and (not br._G.UnitExists("target") or (br._G.UnitExists("target") and not br._G.UnitCanAttack("player", "target"))))
+			and not (br.UnitBuffID("player", 190784) or br.UnitBuffID("player", 164222) or br.UnitBuffID("player", 165803) or br.UnitBuffID("player", 157059)))
+		or br._G.SpellIsTargeting() or (br._G.UnitCastingInfo("player") and not skipCastingCheck) or (br._G.UnitChannelInfo("player") and not skipCastingCheck)
+		or br._G.UnitIsDeadOrGhost("player") or eating or br.UnitDebuffID("player", 252753) or -- Potion of Replenishment (BFA Mana channel) Apparently a debuff
+		br.UnitBuffID("player", 114018)
 	 then
 		if (br._G.UnitCastingInfo("player") and not skipCastingCheck) then
 			local _, _, _, _, endTime = br._G.UnitCastingInfo("player")
