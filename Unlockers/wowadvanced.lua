@@ -459,6 +459,7 @@ function unlock.WowAdUnlock()
 	
 	b.UnitIsUnit = function(unit1, unit2)
 		return b.UnitGUID(unit1) == b.UnitGUID(unit2)
-	end	
+	end
+	br.unlocker = "WA"
 	return true
 end

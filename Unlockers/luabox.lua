@@ -443,6 +443,7 @@ function unlock.LBUnlock()
 		return lb.Unlock(lb.ClickPosition, ...)  end
 	b.UnitBoundingRadius = lb.UnitBoundingRadius
 	b.CancelPendingSpell = lb.CancelPendingSpells
+	br.unlocker = "LuaBox"
 	unlocked = true
 	return unlocked
 end

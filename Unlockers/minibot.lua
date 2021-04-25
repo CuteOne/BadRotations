@@ -227,6 +227,7 @@ function unlock.MBUnlock()
     b.IsQuestObject = function(...)
         return wmbapi.ObjectIsQuestObjective(...,false)
     end
+    br.unlocker = "Minibot"
     unlocked = true
     return unlocked
 end

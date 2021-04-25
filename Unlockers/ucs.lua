@@ -68,6 +68,7 @@ function unlock.UCSUnlock()
     b.Draw2DText = Draw2DText
     b.WorldToScreenRaw = WorldToScreenRaw
     b.IsQuestObject = IsQuestObject
+    br.unlocker = "UCS"
     unlocked = true
     return unlocked
 end

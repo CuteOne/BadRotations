@@ -36,6 +36,7 @@ br.selectedProfile = 1
 br.selectedProfileName = "None"
 br.settingsDir = "\\"
 br.settingsFile = "None.lua"
+br.unlocker = "None"
 
 -- The colors Duke, the colors!
 br.classColors = {
@@ -184,10 +185,8 @@ function br.loadSavedSettings()
 	end
 end
 local frame = _G.CreateFrame("FRAME")
-frame:RegisterEvent("ADDON_LOADED")
 frame:RegisterEvent("PLAYER_LOGOUT")
 frame:RegisterUnitEvent("PLAYER_ENTERING_WORLD")
-frame:RegisterUnitEvent("PLAYER_LEAVING_WORLD")
 frame:RegisterEvent("LOADING_SCREEN_ENABLED")
 frame:RegisterEvent("LOADING_SCREEN_DISABLED")
 function frame:OnEvent(event)
@@ -248,6 +247,7 @@ function frame:OnEvent(event)
 			br.bagsUpdated = true
 			br:Run()
 		end
+		br.timeOfLastLoadingScreen = GetTime()
 	end
 end
 frame:SetScript("OnEvent", frame.OnEvent)
