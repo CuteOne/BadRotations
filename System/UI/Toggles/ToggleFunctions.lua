@@ -66,6 +66,7 @@ function br.ToggleValue(toggleValue)
 	end
 	if br[toggleValue.."Modes"] == nil then
 		br._G.print("No toggle mode found for "..toggleValue..". Please inform devs of this error!")
+		return
 	end
 	-- prevent nil fails
 	local toggleOldValue
