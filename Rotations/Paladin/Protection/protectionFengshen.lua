@@ -704,7 +704,7 @@ local function runRotation()
 				if cast.blessingOfFreedom("player") then return true end
 			end
 			-- Debuff
-			local BoFDebuff = {330810,326827,324608,292942,329326,295929,292910,329905}
+			local BoFDebuff = {330810,326827,324608,292942,329326,295929,292910,329905,322893,322908}
 			for k,v in pairs(BoFDebuff) do
 				if br.getDebuffRemain("player",v) ~= 0 then
 					if cast.blessingOfFreedom("player") then return true end
