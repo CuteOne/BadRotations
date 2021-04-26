@@ -143,22 +143,6 @@ local function createOptions()
 		-- Leap of Faith
 		br.ui:createSpinner(section, "Leap of Faith",  20,  0,  100,  5,  "Health Percent to Cast At")
 		br.ui:checkSectionState(section)
-		 -- Essence Options
-		section = br.ui:createSection(br.ui.window.profile, "Essence Options")
-		 --Concentrated Flame
-			br.ui:createSpinner(section, "Concentrated Flame", 75, 0, 100, 5, colorWhite.."Will cast Concentrated Flame if party member is below value. Default: 75")
-		 --Memory of Lucid Dreams
-			br.ui:createCheckbox(section, "Lucid Dreams")
-		-- Ever-Rising Tide
-			br.ui:createDropdown(section, "Ever-Rising Tide", { "Always", "Based on Health" }, 1, "When to use this Essence")
-            br.ui:createSpinner(section, "Ever-Rising Tide - Mana", 30, 0, 100, 5, "", "Min mana to use")
-			br.ui:createSpinner(section, "Ever-Rising Tide - Health", 30, 0, 100, 5, "", "Health threshold to use")
-		-- Well of Existence
-			br.ui:createCheckbox(section, "Well of Existence")
-		-- Life Binder's Invocation
-			br.ui:createSpinner(section, "Life-Binder's Invocation", 85, 1, 100, 5, "Health threshold to use")
-            br.ui:createSpinnerWithout(section, "Life-Binder's Invocation Targets", 5, 1, 40, 1, "Number of targets to use")
-		br.ui:checkSectionState(section)
 		-- Defensive Options
 		section = br.ui:createSection(br.ui.window.profile, colorwarrior.."Defensive")
 		-- Healthstone
@@ -271,7 +255,6 @@ local function runRotation()
 		local debuff                                        = br.player.debuff
 		local enemies                                       = br.player.enemies
 		local falling, swimming, flying, moving             = br.getFallTime(), IsSwimming(), IsFlying(), br.isMoving("player")
-		local essence										= br.player.essence
 		local gcd                                           = br.player.gcd
 		local gcdMax                                        = br.player.gcdMax
 		local healPot                                       = br.getHealthPot()
@@ -545,10 +528,6 @@ local function runRotation()
 						if cast.apotheosis() then br.addonDebug("Casting Apothesis") return end
 					end
 				end	
-				--  Lucid Dream
-				if br.isChecked("Lucid Dreams") and essence.memoryOfLucidDreams.active and mana <= 85 and br.getSpellCD(298357) <= gcdMax then
-					if cast.memoryOfLucidDreams("player") then br.addonDebug("Casting Memory of Lucid Dreams") return end
-				end
 				-- Trinkets
 				if br.isChecked("Revitalizing Voodoo Totem") and br.hasEquiped(158320) and lowest.hp < br.getValue("Revitalizing Voodoo Totem") then
 					if GetItemCooldown(158320) <= gcdMax then
@@ -695,26 +674,6 @@ local function runRotation()
 									br._G.ClickPosition(loc.x, loc.y, loc.z)
 									return true
 								end
-							end
-						end
-					end
-				end
-				if br.isChecked("Life-Binder's Invocation") and essence.lifeBindersInvocation.active and cd.lifeBindersInvocation.remain() <= gcd and br.getLowAllies(br.getOptionValue("Life-Binder's Invocation")) >= br.getOptionValue("Life-Binder's Invocation Targets") then
-					if cast.lifeBindersInvocation() then
-						br.addonDebug("Casting Life-Binder's Invocation")
-						return true
-					end
-				end
-				if br.isChecked("Ever-Rising Tide") and essence.overchargeMana.active and cd.overchargeMana.remain() <= gcd and br.getOptionValue("Ever-Rising Tide - Mana") <= mana then
-					if br.getOptionValue("Ever-Rising Tide") == 1 then
-						if cast.overchargeMana() then
-							return
-						end
-					end
-					if br.getOptionValue("Ever-Rising Tide") == 2 then
-						if lowest.hp < br.getOptionValue("Ever Rising Tide - Health") or burst == true then
-							if cast.overchargeMana() then
-								return
 							end
 						end
 					end
@@ -996,16 +955,6 @@ local function runRotation()
 					end
 				end
 			end
-			-- Concentrated Flame
-			if br.isChecked("Concentrated Flame") and essence.concentratedFlame.active and br.getSpellCD(295373) <= gcdMax then
-				if lowest.hp <= br.getValue("Concentrated Flame") then
-					if cast.concentratedFlame(lowest.unit) then br.addonDebug("Casting Concentrated Flame") return end
-				end
-			end
-			-- Refreshment
-            if br.isChecked("Well of Existence") and essence.refreshment.active and cd.refreshment.remain() <= gcdMax and br.UnitBuffID("player",296138) and select(16,br.UnitBuffID("player",296138,"EXACT")) >= 15000 and lowest.hp <= br.getValue("Flash Heal") then
-                if cast.refreshment(lowest.unit) then br.addonDebug("Casting Refreshment") return true end
-            end
 			-- Flash Heal
 			if br.isChecked("Flash Heal") and br.getDebuffRemain("player",240447) == 0 and not moving then
 				if lowest.hp <= br.getValue("Flash Heal") then
