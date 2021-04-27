@@ -112,6 +112,10 @@ function br.ToggleMinus(toggleValue)
 	if br[toggleValue .. "Modes"] == nil then
 		toggleValue = FindToggle(toggleValue)
 	end
+	if br[toggleValue.."Modes"] == nil then
+		br._G.print("No toggle mode found for "..toggleValue..". Please inform devs of this error!")
+		return
+	end
 	-- prevent nil fails
 	if not br.data.settings[br.selectedSpec].toggles then
 		br.data.settings[br.selectedSpec].toggles = {}
@@ -183,6 +187,10 @@ end
 function br.changeButtonValue(toggleValue, newValue)
 	if br[toggleValue .. "Modes"] == nil then
 		toggleValue = FindToggle(toggleValue)
+	end
+	if br[toggleValue.."Modes"] == nil then
+		br._G.print("No toggle mode found for "..toggleValue..". Please inform devs of this error!")
+		return
 	end
 	br.data.settings[br.selectedSpec].toggles[tostring(toggleValue)] = newValue
 end
