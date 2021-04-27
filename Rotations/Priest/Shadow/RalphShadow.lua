@@ -101,6 +101,8 @@ local function createOptions()
         --- COOLDOWN OPTIONS --- -- Define Cooldown Options
         ------------------------
         section = br.ui:createSection(br.ui.window.profile,  "Cooldowns")
+            -- Power Infusion
+            br.ui:createCheckbox(section,"Power Infusion")
             -- Surrender to Madness
             br.ui:createCheckbox(section,"Surrender to Madness")
             -- Pots
@@ -127,7 +129,7 @@ local function createOptions()
             -- Shadow Mend
             br.ui:createSpinner(section, "Shadow Mend",  40,  0,  100,  5,  "Health Percentage to cast at.")
             br.ui:createSpinner(section, "Shadow Mend OOC", 80, 0, 100, 5, "Health Percentage to cast at OOC.")
-            -- -- Psychic Scream / Mind Bomb
+            -- Psychic Scream / Mind Bomb
             -- br.ui:createSpinner(section, "Psychic Scream / Mind Bomb",  40,  0,  100,  5,  "Health Percentage to use at.")
         br.ui:checkSectionState(section)
         -------------------------
@@ -481,7 +483,7 @@ end -- End Action List - Interrupt
 actionList.Cooldown = function()
     -- # Use Power Infusion with Voidform. Hold for Voidform comes off cooldown in the next 10 seconds otherwise use on cd unless the Pelagos Trait Combat Meditation is talented, or if there will not be another Void Eruption this fight.
     -- actions.cds=power_infusion,if=buff.voidform.up|!soulbind.combat_meditation.enabled&cooldown.void_eruption.remains>=10|fight_remains<cooldown.void_eruption.remains
-    if br.useCDs() then
+    if br.useCDs() and ui.checked("Power Infusion") then
         if voidform or cd.voidEruption.remain() >= 10 or ttd('target') < cd.voidEruption.remain() then
             if cast.powerInfusion() then return end
         end
