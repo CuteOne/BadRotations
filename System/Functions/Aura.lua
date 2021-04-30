@@ -402,7 +402,7 @@ function br.getDebuffMinMax(spell, range, debuffType, returnType, source)
 		local thisUnit = br.enemy[k].unit
 		local distance = br.getDistance(thisUnit,source)
 		local thisDebuff = br.player.debuff[spell][debuffType](thisUnit)
-		if br.getFacing("player",thisUnit) and distance < range and thisDebuff >= 0
+		if br.getFacing("player",thisUnit) and distance <= range and thisDebuff >= 0
 			and ((returnType == "min" and thisDebuff < thisMin) or (returnType == "max" and thisDebuff > thisMax))
 		then
 			if returnType == "min" then
