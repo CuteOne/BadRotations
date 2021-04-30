@@ -87,6 +87,7 @@ local methods = {
 	["SetChecked"] = function(self,value)
 		self.settings.checked = value
 		self.frame:SetChecked(value)
+		self.value = self.settings.checked
 
 		self[self.settings.disabled and "Disable" or "Enable"](self)
 	end,
@@ -107,6 +108,7 @@ local methods = {
 		self.frame:RegisterForClicks(...)
 	end,
 }
+
 -- ~~| Button Constructor |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 local function Constructor()
 	local self 		= DiesalGUI:CreateObjectBase(TYPE)

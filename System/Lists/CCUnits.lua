@@ -1,3 +1,4 @@
+local _, br = ...
 if br.lists == nil then
     br.lists = {}
 end
@@ -8,32 +9,56 @@ br.lists.ccUnits = {
     [167566] = { name = "Return to Stone", spell = 333145 }, -- Sun King's Salvation
     [165762] = { name = "Soul Infuser" }, -- Sun King's Salvation
     -- SL Dungeons
+    --[174773] = { name = "All-Consuming Spite"}, -- M+ Affix
 
+    -- HoA
     [164562] = { name = "Loyal Beasts", spell = 326450 }, -- Halls of Atonement
+
+    -- DoS
     [170480] = { name = "Bladestorm", spell = 332671 }, -- De Other Side
-    [165251] = { name = "Illusionary Vulpin" }, -- https://www.wowhead.com/npc=165251/illusionary-vulpin
+    [167963] = { name = "Spinning Up", spell = 332156 },
+    [171341] = { name = "Frightened Cries", spell = 334664 }, -- https://www.wowhead.com/spell=334664/frightened-cries
+
+    -- Mists
+    --[165251] = { name = "Illusionary Vulpin" }, -- https://www.wowhead.com/npc=165251/illusionary-vulpin
+    [166301] = { name = "Mistveil Bite", spell = 324987 }, -- https://www.wowhead.com/spell=324987/mistveil-bite
+    [166301] = { name = "Mistveil Tear", spell = 325021 }, -- https://www.wowhead.com/spell=325021/mistveil-tear
+    [167113] = { name = "Mistveil Tear", spell = 325418 }, -- https://www.wowhead.com/spell=325418/volatile-acid
+    --[166276] = { name = "Mistveil Bite", spell = 331743 }, -- https://www.wowhead.com/spell=331743/bucking-rampage
+
+    -- SD
+    [166396] = { name = "Animate Weapon", spell = 324609 },
 
     -- Necrotic Wake
-    [164702] = { name = "Carrion Worm" }, -- Necrotic Wake
-    [163619] = { name = "Zolramus Bonecarver", spell = 321807 }, -- Zolramus Bonecarver casting Boneflay
-    [173016] = { name = "Corpse Collector", spell = 334748 },
-    [166302] = { name = "Corpse Collector", spell = 334748 },
-    [173044] = { name = "Stitching Assistant", spell = 334748 },
-    [165872] = { name = "Stitching Assistant", spell = 327130 },
-    [165911] = { name = "Loyal Creation", spell = 327240 },
-    [165872] = { name = "Flesh Crafter", spell = 327130 },
+    [163619] = { name = "BoneFlay", spell = 321807 }, -- Zolramus Bonecarver casting Boneflay
+    [173016] = { name = "Drain Fluids", spell = 334748 },
+    [166302] = { name = "Drain Fluids", spell = 334748 },
+    [173044] = { name = "Drain Fluids", spell = 334748 },
+    [165911] = { name = "Spine Crush", spell = 327240 },
+    [165872] = { name = "Repair Flesh", spell = 327130 },
+    [165222] = { name = "Final Bargain", spell = 320822 },
+    [163618] = { name = "Animate Dead", spell = 321780 }, -- Zolramus Necromancer
+    [163618] = { name = "Animate Dead", spell = 323954 }, -- Zolramus Necromancer
+    [163618] = { name = "Animate Dead", spell = 324022 }, -- Zolramus Necromancer
+    [163618] = { name = "Animate Dead", spell = 324024 }, -- Zolramus Necromancer
 
     --Theater of Pain
-    [164510] = { name = "Shambling Arbalest" }, -- Nasty dot - needs to be cc'ed
+    [164510] = { name = "Shambling Arbalest", spell = 330532 }, -- Nasty dot - needs to be cc'ed
+    [169927] = { name = "Devour Flesh", spell = 330586 }, -- Big heal from Putrid Butcher
 
     -- Plaguefall
     [171887] = { name = "Slimy Smorgasbord" }, -- Plaguefall Dungeon
-    [164737] = { name = "Enveloping Webbing", spell = 328475 }, -- Plaguefall Dungeon
     [168572] = { name = "Fungistorm", spell = 330423 }, -- big AOE, can be stunned
     [168572] = { name = "Fungistorm", spell = 328177 }, -- -- big AOE, can be stunned
     [163862] = { name = "Bulwark of Maldraxxus", spell = 336451 }, -- Prevent the shield from going on
-
-
+    [163892] = { name = "Corroded Claws", spell = 320512 }, -- Prevent the shield from going on 
+    [164737] = { name = "Stealthlings", spell = 328400 }, -- https://www.wowhead.com/spell=328400/stealthlings
+    [168907] = { name = "Crushing Embrace", spell = 328429 },
+    [168907] = { name = "Crushing Embrace", spell = 328432 },
+    [168907] = { name = "Crushing Embrace", spell = 345429 },
+    [168022] = { name = "Crushing Embrace", spell = 328429 },
+    [168022] = { name = "Crushing Embrace", spell = 328432 },
+    [168022] = { name = "Crushing Embrace", spell = 345429 },
 
     -- Thorghast
     [150959] = { name = "Critical Shot", spell = 294171 }, -- Torghast Mawsworn Interceptor
@@ -66,7 +91,6 @@ br.lists.ccUnits = {
     [152033] = { name = "inconspicuous-plant" }, -- plant boss in workshop
     [152703] = { name = "walkie-shockie-x1" }, --Last boss in Mech Junkyard
     [134331] = { name = "Channel Lightning", spell = 270889 }, -- Motherload
-    [129640] = { name = "Clamping Jaws", spell = 256897 }, -- Seige of Boralus
     [131009] = { name = "Spirit of Gold" }, -- AD
     [134388] = { name = "A Knot of Snakes" }, -- temple, snakes!
     [129758] = { name = "Irontide Grenadier" }, --FH last boss
@@ -83,7 +107,6 @@ br.lists.ccUnits = {
     [129928] = { name = "Molten Slug", spell = 257641 }, -- SIEGE OF BORALUS - Molten Slug (lots of mobs)
     [129989] = { name = "Molten Slug", spell = 257641 }, -- SIEGE OF BORALUS - Molten Slug (lots of mobs)
     [137521] = { name = "Molten Slug", spell = 257641 }, -- SIEGE OF BORALUS - Molten Slug (lots of mobs)
-    [138254] = { name = "Molten Slug", spell = 257641 }, -- SIEGE OF BORALUS - Molten Slug (lots of mobs)
     [138254] = { name = "Molten Slug", spell = 257641 }, -- SIEGE OF BORALUS - Molten Slug (lots of mobs)
     [132491] = { name = "Molten Slug", spell = 257641 }, -- SIEGE OF BORALUS - Molten Slug (lots of mobs)
     [132532] = { name = "Molten Slug", spell = 257641 }, -- SIEGE OF BORALUS - Molten Slug (lots of mobs)

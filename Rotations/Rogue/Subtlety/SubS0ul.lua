@@ -1,55 +1,56 @@
-local rotationName = "SubS0ul - 9.0"
-local dotBlacklist = ""
-local stunSpellList = "332329|332671|326450|328177|336451|331718|331743|334708|333145|326450|332671|321807|334748|327130|327240|330532|328475|330423|328177|336451|294171|164737"
-local StunsBlackList = "167876|169861|168318|165824|165919|171799|168942|167612"
+local rotationName = "SubS0ul - 9.0.5"
+local dotBlacklist = "168962|175992|171557|175992"
+local stunSpellList = "332329|332671|326450|328177|336451|331718|331743|334708|333145|326450|332671|321807|334748|327130|327240|330532|328475|330423|328177|336451|294171|330586|328429"
+local StunsBlackList = "167876|169861|168318|165824|165919|171799|168942|167612|169893|167536"
 ---------------
 --- Toggles ---
 ---------------
 local function createToggles() -- Define custom toggles
-    RotationModes = {
+    local CreateButton = br["CreateButton"]
+    br.RotationModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of enemies in range.", highlight = 1, icon = br.player.spell.shurikenStorm },
         [2] = { mode = "Sing", value = 2 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.shadowstrike },
         [3] = { mode = "Off", value = 3 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.stealth}
     };
     CreateButton("Rotation",1,0)
-    AoeModes = {
+    br.AoeModes = {
         [1] = { mode = "Std", value = 1 , overlay = "Standard AoE Rotation", tip = "Standard AoE Rotation.", highlight = 1, icon = br.player.spell.rupture },
         [2] = { mode = "Prio", value = 2 , overlay = "Priority Target AoE Rotation", tip = "Priority Target AoE Rotation.", highlight = 1, icon = br.player.spell.eviscerate }
     };
     CreateButton("Aoe",1,-1)
-    CooldownModes = {
+    br.CooldownModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.shadowBlades },
         [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.shadowBlades },
         [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.shadowBlades },
         [4] = { mode = "Lust", value = 4 , overlay = "Cooldowns With Bloodlust", tip = "Cooldowns will be used with bloodlust or simlar effects.", highlight = 0, icon = br.player.spell.shadowBlades }
     };
     CreateButton("Cooldown",2,0)
-    DefensiveModes = {
+    br.DefensiveModes = {
         [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.evasion },
         [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.evasion }
     };
     CreateButton("Defensive",2,-1)
-    InterruptModes = {
+    br.InterruptModes = {
         [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.kick },
         [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.kick }
     };
     CreateButton("Interrupt",3,0)
-    VanishModes = {
+    br.VanishModes = {
         [1] = { mode = "On", value = 1 , overlay = "Use Vanish", tip = "Use Vanish", highlight = 1, icon = br.player.spell.vanish },
         [2] = { mode = "Off", value = 2 , overlay = "Vanish Disabled", tip = "Vanish Disabled.", highlight = 0, icon = br.player.spell.vanish }
     };
     CreateButton("Vanish",3,-1)
-    SDModes = {
+    br.SDModes = {
         [1] = { mode = "On", value = 1 , overlay = "Use Shadow Dance", tip = "Using Shadow Dance.", highlight = 1, icon = br.player.spell.shadowDance },
         [2] = { mode = "Off", value = 2 , overlay = "Shadow Dance Disabled", tip = "Shadow Dance Disabled.", highlight = 0, icon = br.player.spell.shadowDance }
     };
     CreateButton("SD",4,0)
-    SoDModes = {
+    br.SoDModes = {
         [1] = { mode = "On", value = 1 , overlay = "Use Symbols of Death", tip = "Using Symbols of Death.", highlight = 1, icon = br.player.spell.symbolsOfDeath },
         [2] = { mode = "Off", value = 2 , overlay = "Symbols of Death Disabled", tip = "Symbols of Death Disabled.", highlight = 0, icon = br.player.spell.symbolsOfDeath }
     };
     CreateButton("SoD",4,-1)
-    STModes = {
+    br.STModes = {
         [1] = { mode = "On", value = 1 , overlay = "Use Secret Technique", tip = "Using Secret Technique.", highlight = 1, icon = br.player.spell.secretTechnique },
         [2] = { mode = "Off", value = 2 , overlay = "Secret Technique Disabled", tip = "Secret Technique Disabled.", highlight = 0, icon = br.player.spell.secretTechnique }
     };
@@ -63,6 +64,7 @@ local function createOptions()
     local optionTable
 
     local function rotationOptions()
+        local section
         -----------------------
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
@@ -78,6 +80,7 @@ local function createOptions()
             br.ui:createCheckbox(section, "Auto Rupture HP Limit", "Will try to calculate if we should rupture units, based on their HP")
             br.ui:createSpinnerWithout(section,  "Multidot Limit",  3,  0,  8,  1,  "Max units to dot with rupture.")
             br.ui:createSpinner(section, "Shuriken Toss out of range", 90,  1,  100,  5,  "Use Shuriken Toss out of range")
+            br.ui:createCheckbox(section, "Spread Find Weakness", "Will shadowstrike to apply find weakness on multiple enemies, I advise uncheking that in raids.")
             br.ui:createCheckbox(section, "Ignore Blacklist for SS", "Ignore blacklist for Shrukien Storm usage.")
             br.ui:createSpinner(section,  "Save SD Charges for CDs",  0.75,  0,  1,  0.05,  "Shadow Dance charges to save for CDs. (Use toggle to disable SD for saving all)")
             br.ui:createDropdownWithout(section, "MfD Target", {"Lowest TTD", "Always Target"},  1, "MfD Target.")
@@ -99,8 +102,6 @@ local function createOptions()
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
             br.player.module.BasicHealing(section)
-            -- br.ui:createSpinner(section, "Health Pot / Healthstone",  25,  0,  100,  5,  "Health Percentage to use at.")
-            -- br.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "Health Percentage to use at.")
             br.ui:createCheckbox(section, "Cloak of Shadows")
             br.ui:createSpinner(section, "Crimson Vial",  40,  0,  100,  5,  "Health Percentage to use at.")
             br.ui:createSpinner(section, "Evasion",  50,  0,  100,  5,  "Health Percentage to use at.")
@@ -114,7 +115,7 @@ local function createOptions()
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
             br.ui:createCheckbox(section, "Kick")
-            br.ui:createCheckbox(section, "Kidney/Cheap Shot interrupt")
+            br.ui:createDropdown(section, "Kidney/Cheap interrupt", {"Kidney","Cheap","Both"}, 3, "What to use to interrupt")
             br.ui:createCheckbox(section, "Blind")
             br.ui:createDropdown(section, "Priority Mark", { "|cffffff00Star", "|cffffa500Circle", "|cff800080Diamond", "|cff008000Triangle", "|cffffffffMoon", "|cff0000ffSquare", "|cffff0000Cross", "|cffffffffSkull" }, 8, "Mark to Prioritize")
             br.ui:createSpinnerWithout(section,  "Interrupt %",  0,  0,  95,  5,  "Remaining Cast Percentage to interrupt at.")
@@ -146,47 +147,49 @@ local function createOptions()
     return optionTable
 end
 
+---------------
+---CombatLog---
+---------------
+-- local someone_casting = false
+-- local frame = br._G.CreateFrame("Frame")
+-- frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+-- local function reader()
+--     local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = br._G.CombatLogGetCurrentEventInfo()
+--     if param == "SPELL_CAST_START" and br._G.bit.band(sourceFlags, 0x00000800) > 0 then
+--         br._G.C_Timer.After(0.02, function()
+--             someone_casting = true
+--         end)
+--     end
+-- end
+-- frame:SetScript("OnEvent", reader)
+
 ----------------
 --- ROTATION ---
 ----------------
-local someone_casting = false
-local frame = CreateFrame("Frame")
-frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-local function reader()
-    local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = CombatLogGetCurrentEventInfo()
-    local unitType, zero, server_id, instance_id, zone_uid, npc_id, spawn_uid = strsplit("-",source);
-    if param == "SPELL_CAST_START" and unitType == "Creature" then
-        C_Timer.After(0.02, function()
-            someone_casting = true
-        end)
-    end
-end
-frame:SetScript("OnEvent", reader)
-
 local function runRotation()
----------------
---- Toggles --- -- List toggles here in order to update when pressed
----------------
-    UpdateToggle("Rotation",0.25)
-    UpdateToggle("Cooldown",0.25)
-    UpdateToggle("Defensive",0.25)
-    UpdateToggle("Interrupt",0.25)
+    ---------------
+    --- Toggles --- -- Add toggles if ability speced
+    ---------------
+    br.UpdateToggle("Rotation",0.25)
+    br.UpdateToggle("Cooldown",0.25)
+    br.UpdateToggle("Defensive",0.25)
+    br.UpdateToggle("Interrupt",0.25)
     br.player.ui.mode.aoe = br.data.settings[br.selectedSpec].toggles["Aoe"]
     br.player.ui.mode.sd = br.data.settings[br.selectedSpec].toggles["SD"]
     br.player.ui.mode.sod = br.data.settings[br.selectedSpec].toggles["SoD"]
     br.player.ui.mode.st = br.data.settings[br.selectedSpec].toggles["ST"]
-    br.player.ui.mode.sap = br.data.settings[br.selectedSpec].toggles["Sap"]
     br.player.ui.mode.vanish = br.data.settings[br.selectedSpec].toggles["Vanish"]
-    if not UnitAffectingCombat("player") then
+    if not br.isInCombat("player") then
         if not br.player.talent.secretTechnique then
-            buttonST:Hide()
+            br.buttonST:Hide()
         else
-            buttonST:Show()
+            br.buttonST:Show()
         end
     end
---------------
---- Locals ---
---------------
+    --------------
+    --- Locals ---
+    --------------
+    local lastSpell                           = br.lastSpellCast
     local module                              = br.player.module
     local runeforge                           = br.player.runeforge
     local buff                                = br.player.buff
@@ -200,35 +203,37 @@ local function runRotation()
     local charges                             = br.player.charges
     local debuff                              = br.player.debuff
     local enemies                             = br.player.enemies
+    local equiped                             = br.player.equiped
     local gcd                                 = br.player.gcd
     local gcdMax                              = br.player.gcdMax
     local has                                 = br.player.has
     local inCombat                            = br.player.inCombat
     local level                               = br.player.level
+    local ui                                  = br.player.ui
     local mode                                = br.player.ui.mode
     local race                                = br.player.race
     local racial                              = br.player.getRacial()
     local spell                               = br.player.spell
     local units                               = br.player.units
+    local unit                                = br.player.unit
     local use                                 = br.player.use
     local covenant                            = br.player.covenant
     local conduit                             = br.player.conduit
     local stealth                             = br.player.buff.stealth.exists()
     local stealthedRogue                      = stealth or br.player.buff.vanish.exists() or br.player.buff.subterfuge.remain() > 0.2 or br.player.cast.last.vanish(1)
     local stealthedAll                        = stealth or br.player.buff.vanish.exists() or br.player.buff.subterfuge.remain() > 0.2 or br.player.cast.last.vanish(1) or br.player.buff.shadowmeld.exists() or br.player.buff.shadowDance.exists() or br.player.cast.last.shadowDance(1)
-    local combatTime                          = getCombatTime()
-    local cdUsage                             = useCDs()
-    local falling, swimming, flying           = getFallTime(), IsSwimming(), IsFlying()
-    local healPot                             = getHealthPot()
-    local moving                              = isMoving("player") ~= false or br.player.moving
+    local combatTime                          = br.getCombatTime()
+    local cdUsage                             = br.useCDs()
+    local falling, swimming, flying           = br.getFallTime(), br._G.IsSwimming(), br._G.IsFlying()
+    local moving                              = unit.moving("player")
     local pullTimer                           = br.DBM:getPulltimer()
-    local thp                                 = getHP("target")
-    local tickTime                            = 2 / (1 + (GetHaste()/100))
-    local validTarget                         = isValidUnit("target")
-    local targetDistance                      = getDistance("target")
+    local thp                                 = unit.hp("target")
+    local tickTime                            = 2 / (1 + (br._G.GetHaste()/100))
+    local validTarget                         = unit.valid("target")
+    local targetDistance                      = unit.distance("target")
     local inInstance                          = br.player.instance == "party" or br.player.instance == "scenario" or br.player.instance == "pvp" or br.player.instance == "arena" or br.player.instance == "none"
     local inRaid                              = br.player.instance == "raid" or br.player.instance == "pvp" or br.player.instance == "arena" or br.player.instance == "none"
-    if leftCombat == nil then leftCombat = GetTime() end
+    if leftCombat == nil then leftCombat = br._G.GetTime() end
     if profileStop == nil then profileStop = false end
 
     -- Units
@@ -240,18 +245,18 @@ local function runRotation()
     enemies.get(25,"player",true) -- makes enemies.yards25nc
     enemies.get(30)
 
-    if timersTable then
-        wipe(timersTable)
+    if br.timersTable then
+        br._G.wipe(br.timersTable)
     end
 
     local tricksUnit
-    if isChecked("Auto Tricks") and GetSpellCooldown(spell.tricksOfTheTrade) == 0 and inCombat then
-        if getOptionValue("Auto Tricks") == 1 and GetUnitIsFriend("player", "focus") and getLineOfSight("player", "focus") then
+    if ui.checked("Auto Tricks") and br._G.GetSpellCooldown(spell.tricksOfTheTrade) == 0 and inCombat then
+        if ui.value("Auto Tricks") == 1 and br.GetUnitIsFriend("player", "focus") and br.getLineOfSight("player", "focus") then
             tricksUnit = "focus"
-        elseif getOptionValue("Auto Tricks") == 2 then
+        elseif ui.value("Auto Tricks") == 2 then
             for i = 1, #br.friend do
                 local thisUnit = br.friend[i].unit
-                if UnitGroupRolesAssigned(thisUnit) == "TANK" and not UnitIsDeadOrGhost(thisUnit) and getLineOfSight("player", thisUnit) then
+                if unit.role(thisUnit) == "TANK" and not br.GetUnitIsDeadOrGhost(thisUnit) and br.getLineOfSight("player", thisUnit) then
                     tricksUnit = thisUnit
                     break
                 end
@@ -260,32 +265,32 @@ local function runRotation()
     end
 
     local function ttd(unit)
-        if UnitIsPlayer(unit) then return 999 end
-        local ttdSec = getTTD(unit)
-        if getOptionCheck("Enhanced Time to Die") then return ttdSec end
+        if br._G.UnitIsPlayer(unit) then return 999 end
+        local ttdSec = br.getTTD(unit)
+        if br.getOptionCheck("Enhanced Time to Die") then return ttdSec end
         if ttdSec == -1 then return 999 end
         return ttdSec
     end
 
     local function shallWeDot(unit)
-        if isChecked("Auto Rupture HP Limit") and ttd(unit) == 999 and not UnitIsPlayer(unit) and not isDummy(unit) then
+        if ui.checked("Auto Rupture HP Limit") and ttd(unit) == 999 and not br._G.UnitIsPlayer(unit) and not br.isDummy(unit) then
             local hpLimit = 0
             if #br.friend == 1 then
-                if UnitHealth(unit) > UnitHealthMax("player") * 0.40 then
+                if br._G.UnitHealth(unit) > br._G.UnitHealthMax("player") * 0.40 then
                     return true
                 end
                 return false
             end
             for i = 1, #br.friend do
                 local thisUnit = br.friend[i].unit
-                local thisHP = UnitHealthMax(thisUnit)
-                local thisRole = UnitGroupRolesAssigned(thisUnit)
-                if not UnitIsDeadOrGhost(thisUnit) and getDistance(unit, thisUnit) < 40 then
+                local thisHP = br._G.UnitHealthMax(thisUnit)
+                local thisRole = unit.role(thisUnit)
+                if not br.GetUnitIsDeadOrGhost(thisUnit) and unit.distance(unit, thisUnit) < 40 then
                     if thisRole == "TANK" then hpLimit = hpLimit + (thisHP * 0.15) end
                     if (thisRole == "DAMAGER" or thisRole == "NONE") then hpLimit = hpLimit + (thisHP * 0.3) end
                 end
             end
-            if UnitHealth(unit) > hpLimit then return true end
+            if br._G.UnitHealth(unit) > hpLimit then return true end
             return false
         end
         return true
@@ -297,8 +302,8 @@ local function runRotation()
             [127315] = "Reanimate Totem",
             [146731] = "Zombie Dust Totem"
         }
-        local creatureType = UnitCreatureType(unit)
-        local objectID = GetObjectID(unit)
+        local creatureType = br._G.UnitCreatureType(unit)
+        local objectID = br.GetObjectID(unit)
         if creatureType ~= nil and eliteTotems[objectID] == nil then
             if creatureType == "Totem" or creatureType == "Tótem" or creatureType == "Totém" or creatureType == "Тотем" or creatureType == "토템" or creatureType == "图腾" or creatureType == "圖騰" then return true end
         end
@@ -306,16 +311,16 @@ local function runRotation()
     end
 
     local noDotUnits = {}
-    for i in string.gmatch(getOptionValue("Dot Blacklist Units"), "%d+") do
+    for i in string.gmatch(ui.value("Dot Blacklist Units"), "%d+") do
         noDotUnits[tonumber(i)] = true
     end
 
     local function noDotCheck(unit)
-        if isChecked("Dot Blacklist") and (noDotUnits[GetObjectID(unit)] or UnitIsCharmed(unit)) then return true end
+        if ui.checked("Dot Blacklist") and (noDotUnits[br.GetObjectID(unit)] or br._G.UnitIsCharmed(unit)) then return true end
         if isTotem(unit) then return true end
-        local unitCreator = UnitCreator(unit)
-        if unitCreator ~= nil and UnitIsPlayer(unitCreator) ~= nil and UnitIsPlayer(unitCreator) == true then return true end
-        if GetObjectID(unit) == 137119 and getBuffRemain(unit, 271965) > 0 then return true end
+        local unitCreator = br._G.UnitCreator(unit)
+        if unitCreator ~= nil and br._G.UnitIsPlayer(unitCreator) ~= nil and br._G.UnitIsPlayer(unitCreator) == true then return true end
+        if br.GetObjectID(unit) == 137119 and br.getBuffRemain(unit, 271965) > 0 then return true end
         return false
     end
 
@@ -325,20 +330,21 @@ local function runRotation()
     local deadlyPoison10 = true
     local fightRemain = 0
     local ruptureCount = 0
+    local serratedCount = 0
     if #enemies.yards30 > 0 then
         local highestHP
         local lowestHP
         for i = 1, #enemies.yards30 do
             local thisUnit = enemies.yards30[i]
-            if (not noDotCheck(thisUnit) or GetUnitIsUnit(thisUnit, "target")) and not UnitIsDeadOrGhost(thisUnit) 
-             and (mode.rotation ~= 2 or (mode.rotation == 2 and GetUnitIsUnit(thisUnit, "target"))) then
+            if (not noDotCheck(thisUnit) or br.GetUnitIsUnit(thisUnit, "target")) and not br.GetUnitIsDeadOrGhost(thisUnit) and br.isSafeToAttack(thisUnit)
+             and (mode.rotation ~= 2 or (mode.rotation == 2 and br.GetUnitIsUnit(thisUnit, "target"))) then
                 local enemyUnit = {}
                 enemyUnit.unit = thisUnit
                 enemyUnit.ttd = ttd(thisUnit)
-                enemyUnit.distance = getDistance(thisUnit)
-                enemyUnit.hpabs = UnitHealth(thisUnit)
-                enemyUnit.facing = getFacing("player",thisUnit)
-                tinsert(enemyTable30, enemyUnit)
+                enemyUnit.distance = unit.distance(thisUnit)
+                enemyUnit.hpabs = br._G.UnitHealth(thisUnit)
+                enemyUnit.facing = unit.facing("player",thisUnit)
+                br._G.tinsert(enemyTable30, enemyUnit)
                 if highestHP == nil or highestHP < enemyUnit.hpabs then highestHP = enemyUnit.hpabs end
                 if lowestHP == nil or lowestHP > enemyUnit.hpabs then lowestHP = enemyUnit.hpabs end
                 if fightRemain == nil or fightRemain < enemyUnit.ttd then fightRemain = enemyUnit.ttd end
@@ -361,8 +367,11 @@ local function runRotation()
                 if thisUnit.ttd > 1.5 then enemyScore = enemyScore + 10 end
                 if thisUnit.facing then enemyScore = enemyScore + 30 end
                 if thisUnit.distance <= 5 then enemyScore = enemyScore + 30 end
-                if GetUnitIsUnit(thisUnit.unit, "target") then enemyScore = enemyScore + 100 end
-                local raidTarget = GetRaidTargetIndex(thisUnit.unit)
+                if br.GetUnitIsUnit(thisUnit.unit, "target") then enemyScore = enemyScore + 100 end
+                if br.getUnitID(thisUnit) == 166969 then enemyScore = enemyScore + 500 end
+                if br.getUnitID(thisUnit) == 166970 then enemyScore = enemyScore + 150 end
+                if br.getUnitID(thisUnit) == 166971 then enemyScore = enemyScore + 50 end
+                local raidTarget = br._G.GetRaidTargetIndex(thisUnit.unit)
                 if raidTarget ~= nil then
                     enemyScore = enemyScore + raidTarget * 3
                     if raidTarget == 8 then enemyScore = enemyScore + 5 end
@@ -377,23 +386,48 @@ local function runRotation()
             local thisUnit = enemyTable30[i]
             local sStormIgnore = {
                 [120651]=true, -- Explosive
+                [168962]=true, -- Sun King's Reborn Phoenix
+                [166969]=true, -- Baroness Frieda
+                [166971]=true, -- Castellan Niklaus
+                [166970]=true, -- Lord Stavros
             }
-
+            if debuff.serratedBoneSpike.exists(thisUnit.unit) then serratedCount = serratedCount + 1 end
             if thisUnit.distance <= 10 then
                 if sStormIgnore[thisUnit.objectID] == nil and not isTotem(thisUnit.unit) then
-                    tinsert(enemyTable10, thisUnit)
+                    br._G.tinsert(enemyTable10, thisUnit)
                 end
                 if thisUnit.distance <= 5 then
-                    tinsert(enemyTable5, thisUnit)
+                    br._G.tinsert(enemyTable5, thisUnit)
                 end
                 if debuff.rupture.remain(thisUnit.unit) > 0.5 then ruptureCount = ruptureCount + 1 end
+                if br.getUnitID(thisUnit) == 175992 and thisUnit.distance <= 5 then br._G.TargetUnit(thisUnit) end
             end
         end
-        if isChecked("Auto Target") and inCombat and #enemyTable30 > 0 and ((GetUnitExists("target") and UnitIsDeadOrGhost("target") and not GetUnitIsUnit(enemyTable30[1].unit, "target")) or not GetUnitExists("target")) then
-            TargetUnit(enemyTable30[1].unit)
+        if ui.checked("Auto Target") and inCombat and #enemyTable30 > 0 and ((br.GetUnitExists("target") and br.GetUnitIsDeadOrGhost("target") and not br.GetUnitIsUnit(enemyTable30[1].unit, "target")) or not br.GetUnitExists("target")) then
+            br._G.TargetUnit(enemyTable30[1].unit)
         end
     end
-    --Just nil fixes
+
+    local function trinket_Pop()
+        if cdUsage and ui.checked("Trinkets") and (buff.symbolsOfDeath.exists() or cd.symbolsOfDeath.remain() < 1) and ttd("target") > ui.value("CDs TTD Limit") then
+            if br.canUseItem(13) and not br.hasEquiped(178715, 13) and not br.hasEquiped(184016, 13) and not br.hasEquiped(181333, 13) and not br.hasEquiped(179350, 13) then
+                br.useItem(13)
+            end
+            if br.canUseItem(14) and not br.hasEquiped(178715, 14) and not br.hasEquiped(184016, 14) and not br.hasEquiped(181333, 14) and not br.hasEquiped(179350, 14) then
+                br.useItem(14)
+            end
+        end
+        -- Inscrutable Quantum Device
+        if ui.checked("Trinkets") and (br._G.GetInventoryItemID("player", 13) == 179350 or br._G.GetInventoryItemID("player", 14) == 179350) and br.canUseItem(179350) and (buff.shadowBlades.exists() or (br.isBoss() and fightRemain <= 20)) then
+            br.useItem(179350)
+        end
+        -- Skuler's Wing
+        if ui.checked("Trinkets") and (br._G.GetInventoryItemID("player", 13) == 184016 or br._G.GetInventoryItemID("player", 14) == 184016) and br.canUseItem(184016) and #enemyTable10 > 0 then
+            br.useItem(184016)
+        end
+    end
+
+    -- nil fixes
     if enemyTable30.lowestTTD == nil then enemyTable30.lowestTTD = 999 end
     if enemyTable30.highestTTD == nil then enemyTable30.highestTTD = 999 end
 
@@ -410,45 +444,45 @@ local function runRotation()
     if talent.gloomblade then gloombladeActive = 1 else gloombladeActive = 0 end
     if enemies10 >= 4 then ssThd = 1 else ssThd = 0 end
     if covenant.necrolord.active then necroActive = 1 else necroActive = 0 end
-    if cast.last.kick() or cast.last.kidneyShot() or cast.last.cheapShot() or cast.last.blind() then someone_casting = false end
+    --if cast.last.kick() or cast.last.kidneyShot() or cast.last.cheapShot() or cast.last.blind() or combatTime < 1 then someone_casting = false end
     -- # Used to determine whether cooldowns wait for SnD based on targets.
     -- variable,name=snd_condition,value=buff.slice_and_dice.up|spell_targets.shuriken_storm>=6
     if buff.sliceAndDice.exists("player") or enemies10 >= 6 then sndCondition = 1 else sndCondition = 0 end
     -- # Only change rotation if we have priority_rotation set and multiple targets up.
     -- actions+=/variable,name=use_priority_rotation,value=priority_rotation&spell_targets.shuriken_storm>=2
     if mode.aoe == 2 and enemies10 >= 2 then priorityRotation = true else priorityRotation = false end
-    if hasBuff(323558) and combo == 2 or hasBuff(323559) and combo == 3 or hasBuff(323560) and combo == 4 then animachargedCP = true else animachargedCP = false end
+    if br.hasBuff(323558) and combo == 2 or br.hasBuff(323559) and combo == 3 or br.hasBuff(323560) and combo == 4 then animachargedCP = true else animachargedCP = false end
 
-    if isChecked("Ignore Blacklist for SS") then
+    if ui.checked("Ignore Blacklist for SS") and mode.rotation ~= 2 then
         enemies10 = #enemies.get(10)
     end
---------------------
---- Action Lists ---
---------------------
+    --------------------
+    --- Action Lists ---
+    --------------------
     local function actionList_Extra()
         if not inCombat then
             -- actions.precombat+=/apply_poison
-            if isChecked("Lethal Poison") and not moving then
-                if getOptionValue("Lethal Poison") == 1 and buff.instantPoison.remain() < 300 and not cast.last.instantPoison(1) then
+            if ui.checked("Lethal Poison") and not moving then
+                if ui.value("Lethal Poison") == 1 and buff.instantPoison.remain() < 300 and not cast.last.instantPoison(1) then
                     if cast.instantPoison("player") then return true end
-                elseif getOptionValue("Lethal Poison") == 2 and buff.woundPoison.remain() < 300 and not cast.last.woundPoison(1) then
+                elseif ui.value("Lethal Poison") == 2 and buff.woundPoison.remain() < 300 and not cast.last.woundPoison(1) then
                     if cast.woundPoison("player") then return true end
                 end
             end
-            if isChecked("Non-Lethal Poison") and not moving then
-                if getOptionValue("Non-Lethal Poison") == 1 and buff.cripplingPoison.remain() < 300 and not cast.last.cripplingPoison(1) then
+            if ui.checked("Non-Lethal Poison") and not moving then
+                if ui.value("Non-Lethal Poison") == 1 and buff.cripplingPoison.remain() < 300 and not cast.last.cripplingPoison(1) then
                     if cast.cripplingPoison("player") then return true end
-                elseif getOptionValue("Non-Lethal Poison") == 2 and buff.numbingPoison.remain() < 300 and not cast.last.numbingPoison(1) then
+                elseif ui.value("Non-Lethal Poison") == 2 and buff.numbingPoison.remain() < 300 and not cast.last.numbingPoison(1) then
                     if cast.numbingPoison("player") then return true end
                 end
             end
             -- actions.precombat+=/stealth
-            if isChecked("Auto Stealth") and IsUsableSpell(GetSpellInfo(spell.stealth)) and not cast.last.vanish() and not IsResting() and
-            (botSpell ~= spell.stealth or (botSpellTime == nil or GetTime() - botSpellTime > 0.1)) then
-                if getOptionValue("Auto Stealth") == 1 then
+            if ui.checked("Auto Stealth") and br._G.IsUsableSpell(br._G.GetSpellInfo(spell.stealth)) and not cast.last.vanish() and not br._G.IsResting() and
+            (br.botSpell ~= spell.stealth or (br.botSpellTime == nil or br._G.GetTime() - br.botSpellTime > 0.1)) then
+                if ui.value("Auto Stealth") == 1 then
                     if cast.stealth("player") then return end
                 end
-                if #enemies.yards25nc > 0 and getOptionValue("Auto Stealth") == 2 then
+                if #enemies.yards25nc > 0 and ui.value("Auto Stealth") == 2 then
                     if cast.stealth("player") then return end
                 end
             end
@@ -457,17 +491,22 @@ local function runRotation()
         local burnUnits = {
             [120651] = true, -- Explosive
             [164362] = true, -- Plaguefall Slimy Morsel
+            [164427] = true, -- NW Reanimated Warrior
+            [164414] = true, -- NW Reanimated Mage
+            [168246] = true, -- NW Reanimated Crossbowman
+            [164702] = true, -- NW Carrion Worm
+            [175992] = true, -- Dutiful Attendant
         }
-        if GetObjectExists("target") and burnUnits[GetObjectID("target")] ~= nil then
+        if br.GetObjectExists("target") and burnUnits[br.GetObjectID("target")] ~= nil then
             if combo >= 4 then
                 if cast.eviscerate("target") then return true end
             end
         end
         -- Soothe
-        if isChecked("Auto Soothe") and cast.able.shiv() then
+        if ui.checked("Auto Soothe") and cast.able.shiv() then
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]
-                if canDispel(thisUnit, spell.shiv) and ttd(thisUnit) > getValue("Auto Soothe") then
+                if br.canDispel(thisUnit, spell.shiv) and ttd(thisUnit) > ui.value("Auto Soothe") then
                     if cast.shiv(thisUnit) then
                         return true
                     end
@@ -476,31 +515,42 @@ local function runRotation()
         end
     end
     local function actionList_Defensive()
-        if useDefensive() then
-            if isChecked("Auto Defensive Unavoidables") then
+        if br.useDefensive() then
+            if ui.checked("Auto Defensive Unavoidables") then
+                local bossID = br.GetObjectID("boss1")
+                --Frozen Binds (4th boss NW)
+                if bossID == 162693 and br.isCastingSpell(320788, "boss1") and br.GetUnitIsUnit("player", br._G.UnitTarget("boss1")) and ui.checked("Cloak Unavoidables") then
+                    if cd.cloakOfShadows.remain() > 2 then
+                        if cast.vanish("player") then return true end
+                    end
+                    if cast.cloakOfShadows("player") then return true end
+                end
+                --Dark Exile (4th boss NW)
+                if bossID == 162693 and br.isCastingSpell(321894, "boss1") and br.GetUnitIsUnit("player", br._G.UnitTarget("boss1")) then
+                    if cast.vanish("player") then return true end
+                end
                 --Powder Shot (2nd boss freehold)
-                local bossID = GetObjectID("boss1")
-                if bossID == 126848 and isCastingSpell(256979, "target") and GetUnitIsUnit("player", UnitTarget("target")) then
+                if bossID == 126848 and br.isCastingSpell(256979, "target") and br.GetUnitIsUnit("player", br._G.UnitTarget("target")) then
                     if talent.elusiveness then
                         if cast.feint("player") then return true end
-                    elseif getOptionValue("Evasion Unavoidables HP Limit") >= php then
+                    elseif ui.value("Evasion Unavoidables HP Limit") >= php then
                         if cast.evasion("player") then return true end
                     end
                 end
                 --Azerite Powder Shot (1st boss freehold)
-                if bossID == 126832 and isCastingSpell(256106, "boss1") and getFacing("boss1", "player") then
+                if bossID == 126832 and br.isCastingSpell(256106, "boss1") and unit.facing("boss1", "player") then
                     if cast.feint("player") then return true end
                 end
                 --Spit gold (1st boss KR)
-                if bossID == 135322 and isCastingSpell(265773, "boss1") and GetUnitIsUnit("player", UnitTarget("boss1")) and isChecked("Cloak Unavoidables") then
+                if bossID == 135322 and br.isCastingSpell(265773, "boss1") and br.GetUnitIsUnit("player", br._G.UnitTarget("boss1")) and ui.checked("Cloak Unavoidables") then
                     if cast.cloakOfShadows("player") then return true end
                 end
-                if UnitDebuffID("player",265773) and getDebuffRemain("player",265773) <= 2 then
+                if br.UnitDebuffID("player",265773) and br.getDebuffRemain("player",265773) <= 2 then
                     if cast.feint("player") then return true end
                 end
                 --Static Shock (1st boss Temple)
-                if (bossID == 133944 or GetObjectID("boss2") == 133944) and (isCastingSpell(263257, "boss1") or isCastingSpell(263257, "boss2")) then
-                    if isChecked("Cloak Unavoidables") then
+                if (bossID == 133944 or br.GetObjectID("boss2") == 133944) and (br.isCastingSpell(263257, "boss1") or br.isCastingSpell(263257, "boss2")) then
+                    if ui.checked("Cloak Unavoidables") then
                         if cast.cloakOfShadows("player") then return true end
                     end
                     if not buff.cloakOfShadows.exists() then
@@ -508,39 +558,21 @@ local function runRotation()
                     end
                 end
                 --Noxious Breath (2nd boss temple)
-                if bossID == 133384 and isCastingSpell(263912, "boss1") and (select(5,UnitCastingInfo("boss1"))/1000-GetTime()) < 1.5 then
+                if bossID == 133384 and br.isCastingSpell(263912, "boss1") and (select(5,br._G.UnitCastingInfo("boss1"))/1000-br._G.GetTime()) < 1.5 then
                     if cast.feint("player") then return true end
                 end
             end
             module.BasicHealing()
-            -- if isChecked("Heirloom Neck") and php <= getOptionValue("Heirloom Neck") and not inCombat then
-            --     if hasEquiped(122668) then
-            --         if GetItemCooldown(122668)==0 then
-            --             useItem(122668)
-            --         end
-            --     end
-            -- end
-            -- if isChecked("Health Pot / Healthstone") and php <= getOptionValue("Health Pot / Healthstone") and inCombat and (hasItem(171267) or hasItem(177278) or has.healthstone() or hasItem(176409)) then
-            --     if use.able.healthstone() then
-            --         use.healthstone()
-            --     elseif canUseItem(177278) then
-            --         useItem(177278)
-            --     elseif canUseItem(176409) then
-            --         useItem(176409)
-            --     elseif canUseItem(171267) then
-            --         useItem(171267)
-            --     end
-            -- end
-            if isChecked("Cloak of Shadows") and canDispel("player",spell.cloakOfShadows) and inCombat then
+            if ui.checked("Cloak of Shadows") and br.canDispel("player",spell.cloakOfShadows) and inCombat then
                 if cast.cloakOfShadows("player") then return true end
             end
-            if isChecked("Crimson Vial") and php < getOptionValue("Crimson Vial") then
+            if ui.checked("Crimson Vial") and php < ui.value("Crimson Vial") then
                 if cast.crimsonVial("player") then return true end
             end
-            if isChecked("Evasion") and php < getOptionValue("Evasion") and inCombat and not stealth then
+            if ui.checked("Evasion") and php < ui.value("Evasion") and inCombat and not stealth then
                 if cast.evasion("player") then return true end
             end
-            if isChecked("Feint") and php <= getOptionValue("Feint") and inCombat and not buff.feint.exists() then
+            if ui.checked("Feint") and php <= ui.value("Feint") and inCombat and not buff.feint.exists() then
                 if cast.feint("player") then return true end
             end
         end
@@ -552,58 +584,57 @@ local function runRotation()
         local interrupt_target
         local priority_target
         local distance
-        if isChecked("Priority Mark") then
+        if ui.checked("Priority Mark") then
             for i = 1, #enemies.yards20 do
-                if GetRaidTargetIndex(enemies.yards20[i]) == getOptionValue("Priority Mark") then
+                if br._G.GetRaidTargetIndex(enemies.yards20[i]) == ui.value("Priority Mark") then
                     priority_target = enemies.yards20[i]
                     break
                 end
             end
         end
-        for i in string.gmatch(getOptionValue("Stun Spells"), "%d+") do
+        for i in string.gmatch(ui.value("Stun Spells"), "%d+") do
             stunList[tonumber(i)] = true
         end
-        for i in string.gmatch(getOptionValue("Stun Blacklist"), "%d+") do
+        for i in string.gmatch(ui.value("Stun Blacklist"), "%d+") do
             noStunList[tonumber(i)] = true
         end
-        if useInterrupts() and not stealthedRogue then
+        if br.useInterrupts() and not stealthedRogue then
             for i=1, #enemies.yards20 do
                 if priority_target ~= nil then
                     interrupt_target = priority_target
                 else
                     interrupt_target = enemies.yards20[i]
                 end
-                distance = getDistance(interrupt_target)
-                if canInterrupt(interrupt_target,getOptionValue("Interrupt %")) and br.player.cast.timeRemain(interrupt_target) < getTTD(interrupt_target) then
-                    if isChecked("Kick") and distance < 5 and cast.able.kick() then
+                distance = unit.distance(interrupt_target)
+                if br.canInterrupt(interrupt_target,ui.value("Interrupt %")) and br.player.cast.timeRemain(interrupt_target) < br.getTTD(interrupt_target) then
+                    if ui.checked("Kick") and distance < 5 and cast.able.kick() then
                         if cast.kick(interrupt_target) then end
                     end
-                    if cd.kick.exists() and distance < 5 and isChecked("Kidney/Cheap Shot interrupt") and noStunList[GetObjectID(interrupt_target)] == nil then
-                        print("In stun interrupt")
-                        if cast.able.cheapShot() then
+                    if cd.kick.exists() and distance < 5 and ui.checked("Kidney/Cheap interrupt") and noStunList[br.GetObjectID(interrupt_target)] == nil and br.getBuffRemain(interrupt_target, 226510) == 0 then
+                        if cast.able.cheapShot() and ui.value("Kidney/Cheap interrupt") ~= 1 then
                             if cast.cheapShot(interrupt_target) then return true end
-                        else
+                        elseif ui.value("Kidney/Cheap interrupt") ~= 2 then
                             if cast.kidneyShot(interrupt_target) then return true end
                         end
                     end
-                    if isChecked("Blind") and (cd.kick.exists() or distance >= 5) and noStunList[GetObjectID(interrupt_target)] == nil then
+                    if ui.checked("Blind") and (cd.kick.exists() or distance >= 5) and noStunList[br.GetObjectID(interrupt_target)] == nil then
                         if cast.blind(interrupt_target) then return end
                     end
                 end
-                if isChecked("Stuns") and distance < 5 and br.player.cast.timeRemain(interrupt_target) < getTTD(interrupt_target)  -- and isCrowdControlCandidates(interrupt_target)
-                 and noStunList[GetObjectID(interrupt_target)] == nil then -- and not isBoss(interrupt_target)
-                    local interruptID, castStartTime
-                    if UnitCastingInfo(interrupt_target) then
-                        castStartTime = select(4,UnitCastingInfo(interrupt_target))
-                        interruptID = select(9,UnitCastingInfo(interrupt_target))
-                    elseif UnitChannelInfo(interrupt_target) then
-                        castStartTime = select(4,UnitChannelInfo(interrupt_target))
-                        interruptID = select(7,GetSpellInfo(UnitChannelInfo(interrupt_target)))
+                local interruptID, castStartTime
+                if ui.checked("Stuns") and distance < 5 and br.player.cast.timeRemain(interrupt_target) < br.getTTD(interrupt_target) and br.isCrowdControlCandidates(interrupt_target)
+                 and noStunList[br.GetObjectID(interrupt_target)] == nil and (not br.isBoss(interrupt_target) or stunList[interruptID]) and br.getBuffRemain(interrupt_target, 226510) == 0 then
+                    if br._G.UnitCastingInfo(interrupt_target) then
+                        castStartTime = select(4,br._G.UnitCastingInfo(interrupt_target))
+                        interruptID = select(9,br._G.UnitCastingInfo(interrupt_target))
+                    elseif br._G.UnitChannelInfo(interrupt_target) then
+                        castStartTime = select(4,br._G.UnitChannelInfo(interrupt_target))
+                        interruptID = select(7,br._G.GetSpellInfo(br._G.UnitChannelInfo(interrupt_target)))
                     end
-                    if interruptID ~=nil and stunList[interruptID] and (GetTime()-(castStartTime/1000)) > 0.1 then
+                    if interruptID ~=nil and stunList[interruptID] and (br._G.GetTime()-(castStartTime/1000)) > 0.1 then
                         if cast.able.cheapShot() then
                             if cast.cheapShot(interrupt_target) then return true end
-                        elseif combo > 0 and combo <= getOptionValue("Max CP For Stun") then
+                        elseif combo > 0 and combo <= ui.value("Max CP For Stun") then
                             if cast.kidneyShot(interrupt_target) then return true end
                         end
                     end
@@ -614,21 +645,21 @@ local function runRotation()
 
     local function actionList_PreCombat()
         -- actions.precombat+=/potion
-        if isChecked("Precombat") and pullTimer <= 0.5 then
-            if getOptionValue("Potion") == 1 and canUseItem(171349) then
-                useItem(171349)
-            elseif getOptionValue("Potion") == 2 and canUseItem(171352) then
-                useItem(171352)
-            elseif getOptionValue("Potion") == 3 and canUseItem(171270) then
-                useItem(171270)
+        if ui.checked("Precombat") and pullTimer <= 0.5 then
+            if ui.value("Potion") == 1 and br.canUseItem(171349) then
+                br.useItem(171349)
+            elseif ui.value("Potion") == 2 and br.canUseItem(171352) then
+                br.useItem(171352)
+            elseif ui.value("Potion") == 3 and br.canUseItem(171270) then
+                br.useItem(171270)
             end
         end
         -- actions.precombat+=/marked_for_death,precombat_seconds=15
-        if isChecked("Precombat") and validTarget and pullTimer < 15 and stealth and comboDeficit > 2 and talent.markedForDeath and targetDistance < 25 then
+        if ui.checked("Precombat") and validTarget and pullTimer < 15 and stealth and comboDeficit > 2 and talent.markedForDeath and targetDistance < 25 then
             if cast.markedForDeath("target") then return true end
         end
         -- actions.precombat+=/Slice and Dice, if=precombat_seconds=1
-        if isChecked("Precombat") and (pullTimer <= 1 or targetDistance < 10) and combo > 0 and buff.sliceAndDice.remain() < 6+(combo*3) then
+        if ui.checked("Precombat") and (pullTimer <= 1 or targetDistance < 10) and combo > 0 and buff.sliceAndDice.remain() < 6+(combo*3) then
             if cast.sliceAndDice("player") then return true end
         end
     end
@@ -639,16 +670,20 @@ local function runRotation()
             if cast.sliceAndDice("player") then return true end
         end
         -- # Rupture condition for opener with MA
-        if talent.premeditation and not debuff.rupture.exists("target") and combo > 1 and (combatTime < 4 and cd.vanish.remain() < 118) then
+        if talent.premeditation and br.isBoss() and not debuff.rupture.exists("target") and combo > 1 and (combatTime < 5 and cd.vanish.remain() < 118) then
             if cast.rupture("target") then return true end
         end
         -- Kyrian opener
         if sndCondition == 1 and buff.symbolsOfDeath.exists() and (combatTime < 4 and cd.vanish.remain() < 118) and cast.able.echoingReprimand() then
             if cast.echoingReprimand("target") then return true end
         end
+        -- # Rupture for opener
+        if not talent.premeditation and sndCondition == 1 and buff.symbolsOfDeath.exists() and (combatTime < 5 and cd.vanish.remain() < 118) and not debuff.rupture.exists("target") and combo > 1 then
+            if cast.rupture("target") then return true end
+        end
         -- Necro, Fae, Venthyr opener
         if sndCondition == 1 and not stealthedRogue and (not talent.premeditation or debuff.rupture.exists("target")) and (combatTime < 4 and cd.vanish.remain() < 118) then
-            if covenant.necrolord.active and cast.able.serratedBoneSpike() then
+            if covenant.necrolord.active and cast.able.serratedBoneSpike() and lastSpell ~= spell.serratedBoneSpike then
                 if cast.serratedBoneSpike("target") then return true end
             elseif covenant.nightFae.active and cast.able.sepsis() then
                 if cast.sepsis("target") then return true end
@@ -663,18 +698,20 @@ local function runRotation()
         end
         -- # (Unless already up because we took Shadow Focus) use Symbols off-gcd before the first Shuriken Storm from Tornado comes in.
         -- actions.cds+=/symbols_of_death,use_off_gcd=1,if=buff.shuriken_tornado.up&buff.shuriken_tornado.remains<=3.5
-        if mode.sod == 1 and sndCondition == 1 and (buff.shurikenTornado.exists() and buff.shurikenTornado.remain() <= 3.5 or not talent.shurikenTornado) and ttd("target") > getOptionValue("CDs TTD Limit") then
+        if mode.sod == 1 and sndCondition == 1 and (buff.shurikenTornado.exists() and buff.shurikenTornado.remain() <= 3.5 or not talent.shurikenTornado) and ttd("target") > ui.value("CDs TTD Limit") and
+         (not covenant.necrolord.active or charges.serratedBoneSpike.frac() < 2.75) then
             if cast.symbolsOfDeath("player") then return true end
         end
         -- actions.cds+=/shadow_blades,if=variable.snd_condition&combo_points.deficit>=2
-        if cdUsage and sndCondition == 1 and comboDeficit >= 2 and isChecked("Shadow Blades") and ttd("target") > getOptionValue("CDs TTD Limit") and (combatTime > 1.5 or cd.vanish.remain() > 118 or sndCondition == 1) then
+        if cdUsage and sndCondition == 1 and comboDeficit >= 2 and ui.checked("Shadow Blades") and ttd("target") > ui.value("CDs TTD Limit") and (combatTime > 1.5 or cd.vanish.remain() > 118 or sndCondition == 1) 
+         and (not covenant.necrolord.active or charges.serratedBoneSpike.frac() < 2.75) then
             if cast.shadowBlades("player") then return true end
         end
         -- actions.cds+=/blood_fury,if=buff.symbols_of_death.up
         -- actions.cds+=/berserking,if=buff.symbols_of_death.up
         -- actions.cds+=/fireblood,if=buff.symbols_of_death.up
         -- actions.cds+=/ancestral_call,if=buff.symbols_of_death.up
-        if cdUsage and isChecked("Racial") and buff.symbolsOfDeath.exists() and ttd("target") > getOptionValue("CDs TTD Limit") then
+        if cdUsage and ui.checked("Racial") and buff.symbolsOfDeath.exists() and ttd("target") > ui.value("CDs TTD Limit") then
             if race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf" or race == "Troll" then
                 if cast.racial("player") then return true end
             end
@@ -682,13 +719,9 @@ local function runRotation()
     end
 
     local function actionList_Cooldowns()
-        -- actions.cds+=/flagellation,if=variable.snd_condition&!stealthed.mantle"
+        -- actions.cds+=/flagellation,if=variable.snd_condition&!stealthed.mantle
         if sndCondition == 1 and cast.able.flagellation("target") and not debuff.flagellation.exists("target") and ttd("target") > 10 then -- and not buff.stealthedMantle.exists()
             if cast.flagellation("target") then return true end
-        end
-        -- actions.cds+=/flagellation_cleanse,if=debuff.flagellation.remains<2
-        if debuff.flagellation.remain("target") < 2 and debuff.flagellation.exists("target") and cast.able.flagellationCleanse("target") then
-            if cast.flagellationCleanse("target") then return true end
         end
         -- actions.cds+=/vanish,if=(runeforge.mark_of_the_master_assassin&combo_points.deficit<=1-talent.deeper_strategem.enabled|runeforge.deathly_shadows&combo_points<1)&buff.symbols_of_death.up&buff.shadow_dance.up&master_assassin_remains=0&buff.deathly_shadows.down
         if mode.vanish == 1 and (runeforge.markOfTheMasterAssassin.equiped and comboDeficit <= (1 - dSEnabled) or runeforge.deathlyShadows.equiped and combo < 1) 
@@ -705,12 +738,30 @@ local function runRotation()
         if energy >= 60 and sndCondition == 1 and not cd.symbolsOfDeath.exists() and charges.shadowDance.frac() >= 1 then
             if cast.shurikenTornado("player") then return true end
         end
-        -- actions.cds+=/serrated_bone_spike,cycle_targets=1,if=variable.snd_condition&!dot.serrated_bone_spike_dot.ticking&target.time_to_die>=21|fight_remains<=5&spell_targets.shuriken_storm<3
-        if enemies10 < 3 and sndCondition == 1 and not stealthedRogue then
-            for i = 1, #enemyTable10 do
-                local thisUnit = enemyTable10[i].unit
-                if not debuff.serratedBoneSpikeDot.exists(thisUnit) and (ttd(thisUnit) >= 21 or fightRemain <= 5) and cast.able.serratedBoneSpike(thisUnit) then
-                    if cast.serratedBoneSpike(thisUnit) then return true end
+        -- -- actions.cds+=/serrated_bone_spike,cycle_targets=1,if=variable.snd_condition&!dot.serrated_bone_spike_dot.ticking&target.time_to_die>=21|fight_remains<=5&spell_targets.shuriken_storm<3
+        if not stealth and not buff.masterAssassinsMark.exists() and sndCondition == 1 and lastSpell ~= spell.serratedBoneSpike and buff.leadByExample.remain() <= 3 then
+            local spikeCount = serratedCount + 2
+            local spikeList = enemies.get(30, "player", false, true)
+            if #spikeList > 0 then
+                if (comboDeficit >= spikeCount or (spikeCount > 3 and combo < 2)) then
+                    if #spikeList > 1 then
+                        table.sort(spikeList, function(x, y)
+                            return br.getHP(x) < br.getHP(y)
+                        end
+                        )
+                    end
+                    for i = 1, #spikeList do
+                        if not debuff.serratedBoneSpikeDot.exists(spikeList[i]) then
+                            if cast.serratedBoneSpike(spikeList[i]) then
+                                return true
+                            end
+                        end
+                    end
+                    if #spikeList == 1 and (charges.serratedBoneSpike.frac() >= 2 or fightRemain < 30) then
+                        if cast.serratedBoneSpike("target") then
+                            return true
+                        end
+                    end
                 end
             end
         end
@@ -720,13 +771,13 @@ local function runRotation()
         end
         -- # Use Symbols on cooldown (after first SnD) unless we are going to pop Tornado and do not have Shadow Focus.
         -- actions.cds+=/symbols_of_death,if=variable.snd_condition&(talent.enveloping_shadows.enabled|cooldown.shadow_dance.charges>=1)&(!talent.shuriken_tornado.enabled|talent.shadow_focus.enabled|cooldown.shuriken_tornado.remains>2)
-        if mode.sod == 1 and sndCondition == 1 and (talent.envelopingShadows or charges.shadowDance.frac() >= 1) and (fightRemain > 10 or isBoss()) and
-         (not talent.shurikenTornado or talent.shadowFocus or cd.shurikenTornado.remain() > 2) and gcd == 0 and ttd("target") > getOptionValue("CDs TTD Limit") then
+        if mode.sod == 1 and sndCondition == 1 and (talent.envelopingShadows or charges.shadowDance.frac() >= 1) and (fightRemain > 10 or br.isBoss()) and (not covenant.necrolord.active or charges.serratedBoneSpike.frac() < 2.75) and
+         (not talent.shurikenTornado or talent.shadowFocus or cd.shurikenTornado.remain() > 2) and gcd < 0.5 and ttd("target") > ui.value("CDs TTD Limit") then
             if cast.symbolsOfDeath("player") then return true end
         end
         -- # If adds are up, snipe the one with lowest TTD. Use when dying faster than CP deficit or not stealthed without any CP.
         -- actions.cds+=/marked_for_death,target_if=min:target.time_to_die,if=raid_event.adds.up&(target.time_to_die<combo_points.deficit|!stealthed.all&combo_points.deficit>=cp_max_spend)
-        if getOptionValue("MfD Target") == 1 then
+        if ui.value("MfD Target") == 1 then
             if #enemyTable30 > 1 and (enemyTable30.lowestTTD < comboDeficit or (not stealthedAll and comboDeficit >= comboMax)) then
                 if cast.markedForDeath(enemyTable30.lowestTTDUnit) then return true end
             end
@@ -750,28 +801,21 @@ local function runRotation()
             if cast.shurikenTornado("player") then return true end
         end
         -- actions.cds+=/shadow_dance,if=!buff.shadow_dance.up&fight_remains<=8+talent.subterfuge.enabled
-        if mode.sd == 1 and cdUsage and not buff.shadowDance.exists() and fightRemain <= (8 + subterfugeActive) and ttd("target") > getOptionValue("CDs TTD Limit") then
+        if mode.sd == 1 and cdUsage and not buff.shadowDance.exists() and fightRemain <= (8 + subterfugeActive) and ttd("target") > ui.value("CDs TTD Limit") then
             if cast.shadowDance("player") then return true end
         end
         -- actions.cds+=/potion,if=buff.bloodlust.react|fight_remains<30|buff.symbols_of_death.up&(buff.shadow_blades.up|cooldown.shadow_blades.remains<=10)
-        if cdUsage and ttd("target") > getOptionValue("CDs TTD Limit") and isChecked("Potion") and (hasBloodLust() or (fightRemain < 30 and isBoss()) or (buff.symbolsOfDeath.exists("target") and (buff.shadowBlades.exists() or cd.shadowBlades.remain() <= 10))) then
-            if getOptionValue("Potion") == 1 and canUseItem(171349) then
-                useItem(171349)
-            elseif getOptionValue("Potion") == 2 and canUseItem(171352) then
-                useItem(171352)
-            elseif getOptionValue("Potion") == 3 and canUseItem(171270) then
-                useItem(171270)
+        if cdUsage and ttd("target") > ui.value("CDs TTD Limit") and ui.checked("Potion") and (br.hasBloodLust() or (fightRemain < 30 and br.isBoss()) or (buff.shadowBlades.exists() or cd.shadowBlades.remain() <= 10)) then
+            if ui.value("Potion") == 1 and br.canUseItem(171349) then
+                br.useItem(171349)
+            elseif ui.value("Potion") == 2 and br.canUseItem(171352) then
+                br.useItem(171352)
+            elseif ui.value("Potion") == 3 and br.canUseItem(171270) then
+                br.useItem(171270)
             end
         end
         -- actions.cds+=/use_items,if=buff.symbols_of_death.up|fight_remains<20
-        if cdUsage and isChecked("Trinkets") and (buff.symbolsOfDeath.exists() or cd.symbolsOfDeath.remain() < 1) and ttd("target") > getOptionValue("CDs TTD Limit") then
-            if canUseItem(13) and not hasEquiped(184052, 13) and not hasEquiped(178715, 13) then
-                useItem(13)
-            end
-            if canUseItem(14) and not hasEquiped(184052, 14) and not hasEquiped(178715, 14) then
-                useItem(14)
-            end
-        end
+        if trinket_Pop() then return true end
     end
 
     local function actionList_Finishers()
@@ -790,9 +834,9 @@ local function runRotation()
         end
         -- # Helper Variable for Rupture. Skip during Master Assassin or during Dance with Dark and no Nightstalker.
         -- actions.finish+=/variable,name=skip_rupture,value=master_assassin_remains>0|!talent.nightstalker.enabled&talent.dark_shadow.enabled&buff.shadow_dance.up|spell_targets.shuriken_storm>=5
-        local skipRupture = (buff.masterAssassinsMark.exists() or (not talent.nightstalker and talent.darkShadow and buff.shadowDance.exists()) or enemies10 >= 5) or false
+        local skipRupture = (ttd("target") == 999 or not br.isBoss() or buff.masterAssassinsMark.exists() or (not talent.nightstalker and talent.darkShadow and buff.shadowDance.exists()) or enemies10 >= 5) or false
         -- # Keep up Rupture if it is about to run out. Don't ruptre if they die faster than debuff.
-        -- actions.finish+=/rupture,if=!variable.skip_rupture&target.time_to_die-remains>6&refreshable
+        -- actions.finish+=/rupture,if=(!variable.skip_rupture|variable.use_priority_rotation)&target.time_to_die-remains>6&refreshable
         if (not skipRupture or priorityRotation) and ttd("target") >= (5 + 2 * combo) and debuff.rupture.refresh("target") and shallWeDot("target") then
             if cast.rupture("target") then return true end
         end
@@ -802,10 +846,10 @@ local function runRotation()
         end
         -- # Multidotting targets that will live for the duration of Rupture, refresh during pandemic.
         -- actions.finish+=/rupture,cycle_targets=1,if=!variable.skip_rupture&!variable.use_priority_rotation&spell_targets.shuriken_storm>=2&target.time_to_die>=(5+(2*combo_points))&refreshable
-        if not skipRupture and not priorityRotation and enemies10 >= 2 and getSpellCD(spell.rupture) == 0 and ruptureCount <= getOptionValue("Multidot Limit") then
+        if not skipRupture and not priorityRotation and enemies10 >= 2 and br.getSpellCD(spell.rupture) == 0 and ruptureCount < ui.value("Multidot Limit") then
             for i = 1, #enemyTable5 do
                 local thisUnit = enemyTable5[i].unit
-                if ttd(thisUnit) >= (5 + 2 * combo) and debuff.rupture.refresh(thisUnit) and shallWeDot(thisUnit) then
+                if ttd(thisUnit) >= (5 + 2 * combo) and debuff.rupture.refresh(thisUnit) and shallWeDot(thisUnit) and unit.facing("player",thisUnit) then
                     if cast.rupture(thisUnit) then return true end
                 end
             end
@@ -815,8 +859,9 @@ local function runRotation()
         if not skipRupture and ruptureRemain < cd.symbolsOfDeath.remain() + 10 and cd.symbolsOfDeath.remain() <= 5 and shallWeDot("target") and ttd("target") - ruptureRemain > cd.symbolsOfDeath.remain() + 5 then
             if cast.rupture(thisUnit) then return true end
         end
-        -- actions.finish+=/black_powder,if=!variable.use_priority_rotation&spell_targets>=3
-        if not priorityRotation and enemies10 >= 3 and cast.able.blackPowder() then
+        local skipPowder = (br.getUnitID("target") == 166969 or br.getUnitID("target") == 175992) or false
+        -- actions.finish+=/black_powder,if=!variable.use_priority_rotation&spell_targets>=4-debuff.find_weakness.down
+        if (enemies10 >= 3 and not priorityRotation or enemies10 >= 5) and cast.able.blackPowder() and not skipPowder then
             if cast.blackPowder("target") then return true end
         end
         -- actions.finish+=/eviscerate
@@ -831,13 +876,13 @@ local function runRotation()
         -- # Vanish if we are capping on Dance charges. Early before first dance if we have no Nightstalker but Dark Shadow in order to get Rupture up (no Master Assassin).
         -- actions.stealth_cds+=/vanish,if=(!variable.shd_threshold|!talent.nightstalker.enabled&talent.dark_shadow.enabled)&combo_points.deficit>1&!runeforge.mark_of_the_master_assassin.equipped
         if cdUsage and mode.vanish == 1 and (not shdThreshold or not talent.nightstalker and talent.darkShadow) and comboDeficit > 1 and targetDistance < 5 and combatTime > 16 
-         and not runeforge.markOfTheMasterAssassin.equiped and ttd("target") > getOptionValue("CDs TTD Limit") then
+         and not runeforge.markOfTheMasterAssassin.equiped and ttd("target") > ui.value("CDs TTD Limit") then
             if cast.vanish("player") then return true end
         end
         -- # Pool for Shadowmeld + Shadowstrike unless we are about to cap on Dance charges. Only when Find Weakness is about to run out.
         -- actions.stealth_cds+=/pool_resource,for_nextement: Dance only before finishers i=1,extra_amount=40,if=race.night_elf
         -- actions.stealth_cds+=/shadowmeld,if=energy>=40&energy.deficit>=10&!variable.shd_threshold&combo_points.deficit>1&debuff.find_weakness.remains<1
-        if cdUsage and isChecked("Racial") and race == "NightElf" and not cast.last.vanish() and not buff.vanish.exists() then
+        if cdUsage and ui.checked("Racial") and race == "NightElf" and not cast.last.vanish() and not buff.vanish.exists() then
             if (cast.pool.racial() or cast.able.racial()) and energy >= 40 and energyDeficit >= 10 and not shdThreshold 
              and comboDeficit > 1 and debuff.findWeakness.remain(units.dyn5) < 1 then
                 if cast.pool.racial() then return true end
@@ -856,9 +901,9 @@ local function runRotation()
         -- # Dance during Symbols or above threshold.
         -- Added vanish checks, coming off gcd to prevent casting after finisher and on GCD
         -- actions.stealth_cds+=/shadow_dance,if=variable.shd_combo_points&(variable.shd_threshold|buff.symbols_of_death.remains>=1.2|spell_targets.shuriken_storm>=4&cooldown.symbols_of_death.remains>10)
-        if mode.sd == 1 and (ttd(enemyTable30.highestTTDUnit) > 8 or enemies10 > 3) and ((isChecked("Save SD Charges for CDs") and buff.symbolsOfDeath.remain() >= 1.2 or buff.shadowBlades.remain() > 5 or charges.shadowDance.frac() >= (getOptionValue("Save SD Charges for CDs") + 1)) or (combatTime < 12 and cd.vanish.remain() < 108) or not isChecked("Save SD Charges for CDs"))
-         and shdComboPoints and (shdComboPoints or buff.symbolsOfDeath.remain() >= 1.2 or buff.shadowBlades.remain() > 5 or enemies10 >= 4 and cd.symbolsOfDeath.remain() > 10) and (not covenant.kyrian.active or combatTime > 6 or debuff.rupture.exists("target") or not talent.premeditation)
-         and (not cast.last.vanish(1) or cast.last.shadowstrike(1)) and combo < (4 + dSEnabled) and gcd == 0 and (not covenant.kyrian.active or cd.echoingReprimand.exists()) then
+        if mode.sd == 1 and (ttd(enemyTable30.highestTTDUnit) > 8 or enemies10 > 3 or charges.shadowDance.frac() >= 1.75) and ((ui.checked("Save SD Charges for CDs") and buff.symbolsOfDeath.remain() >= 1.2 or buff.shadowBlades.remain() > 5 or charges.shadowDance.frac() >= (ui.value("Save SD Charges for CDs") + 1)) or (combatTime < 12 and cd.vanish.remain() < 108) or not ui.checked("Save SD Charges for CDs"))
+         and shdComboPoints and (shdThreshold or buff.symbolsOfDeath.remain() >= 1.2 or buff.shadowBlades.remain() > 5 or enemies10 >= 4 and cd.symbolsOfDeath.remain() > 10) and (not covenant.kyrian.active or combatTime > 6 or debuff.rupture.exists("target"))
+         and (not cast.last.vanish(1) or cast.last.shadowstrike(1)) and gcd < 0.5 and (not covenant.kyrian.active or cd.echoingReprimand.exists()) and (not covenant.necrolord.active or charges.serratedBoneSpike.frac() < 3) then
             if cast.shadowDance("player") then return true end
         end
         -- Burn remaining Dances before the fight ends if SoD won't be ready in time.
@@ -893,7 +938,7 @@ local function runRotation()
         if (buff.shurikenTornado.exists() and comboDeficit <= 2) or (enemies10 >= 4 and combo >= 4) or (comboDeficit <= (1 - finishThd)) then
             if actionList_Finishers() then return true end
         end
----------------------------WTF IS STEALTHED SEPSIS
+    ---------------------------WTF IS STEALTHED SEPSIS
         -- actions.stealthed+=/shadowstrike,if=stealthed.sepsis&spell_targets.shuriken_storm<4
         -- actions.stealthed+=/shiv,if=talent.nightstalker.enabled&runeforge.tiny_toxic_blade.equipped&spell_targets.shuriken_storm<5
         if talent.nightstalker and runeforge.tinyToxicBlade.equiped and enemies10 < 5 then
@@ -906,7 +951,7 @@ local function runRotation()
         end
         -- # Up to 3 targets (no prio) keep up Find Weakness by cycling Shadowstrike.
         -- actions.stealthed+=/shadowstrike,cycle_targets=1,if=!variable.use_priority_rotation&debuff.find_weakness.remains<1&spell_targets.shuriken_storm<=3&target.time_to_die-remains>6
-        if enemies10 <= 3 and not priorityRotation then
+        if enemies10 <= 3 and not priorityRotation and ui.checked("Spread Find Weakness") then
             for i = 1, #enemyTable5 do
                 local thisUnit = enemyTable5[i].unit
                 if debuff.findWeakness.remain(thisUnit) < 1 and ttd(thisUnit) > 6 then
@@ -916,7 +961,7 @@ local function runRotation()
         end
         -- # For priority rotation, use Shadowstrike over Storm 1) with WM against up to 4 targets, 2) if FW is running off (on any amount of targets), or 3) to maximize SoD extension with Inevitability on 3 targets (4 with BitS).
         -- actions.stealthed+=/shadowstrike,if=variable.use_priority_rotation&(debuff.find_weakness.remains<1|talent.weaponmaster.enabled&spell_targets.shuriken_storm<=4)
-        if priorityRotation and (debuff.findWeakness.remain("target")<1 or talent.weaponmaster and enemies10 <= 4) and targetDistance < 5 then
+        if priorityRotation and (debuff.findWeakness.remain("target") < 1 or talent.weaponmaster and enemies10 <= 4) and targetDistance < 5 then
             if cast.shadowstrike("target") then return true end
         end
         -- actions.stealthed+=/shuriken_storm,if=spell_targets>=3+(buff.the_rotten.up|runeforge.akaaris_soul_fragment&conduit.deeper_daggers.rank>=7)&(buff.symbols_of_death_autocrit.up|!buff.premeditation.up|spell_targets>=5)
@@ -947,7 +992,7 @@ local function runRotation()
             if cast.shadowstrike("target") then return true end
         end
         -- actions.stealthed+=/cheap_shot,if=!target.is_boss&combo_points.deficit>=1&buff.shot_in_the_dark.up&energy.time_to_40>gcd.max
-        if cast.able.cheapShot() and isBoss() and comboDeficit >= 1 and buff.shotInTheDark.exists() and getTimeToMax("player", 40) > gcdMax then
+        if cast.able.cheapShot() and br.isBoss() and comboDeficit >= 1 and buff.shotInTheDark.exists() and br.getTimeToMax("player", 40) > gcdMax then
             if cast.cheapShot("target") then return true end
         end
     end
@@ -959,15 +1004,11 @@ local function runRotation()
             for i = 1, #enemyTable10 do
                 local thisUnit = enemyTable10[i].unit
                 local buildersStorm = 0
-                if (talent.gloomblade and trait.perforate.rank >= 2 and not getFacing(thisUnit,"player")) or isBoss(thisUnit) then buildersStorm = 1 else buildersStorm = 0 end
+                if (charges.serratedBoneSpike.frac() >= 2.75 or enemies10 > 4) then buildersStorm = 1 else buildersStorm = 0 end
                 if enemies10 >= (2 + buildersStorm) and ((not cast.last.vanish(1) or cast.last.shadowstrike(1)) and not buff.shadowDance.exists() and (not buff.symbolsOfDeath.exists() or charges.shadowDance.frac() < 1)) then
                     if cast.shurikenStorm("player") then return true end
                 end
             end
-        end
-        -- actions.build+=/serrated_bone_spike,if=cooldown.serrated_bone_spike.charges_fractional>=2.75|soulbind.lead_by_example.enabled&!buff.lead_by_example.up
-        if charges.serratedBoneSpike.frac() >= 2.75 and cast.able.serratedBoneSpike() and not stealthedRogue then -- or not buff.leadByExample.exists()
-            if cast.serratedBoneSpike(enemyTable30.lowestTTDUnit) then return true end
         end
         -- actions.build+=/gloomblade
         if talent.gloomblade then
@@ -986,33 +1027,35 @@ local function runRotation()
             if cast.backstab("target") then return true end
         end
         -- Use Shuriken Toss if we can't reach the target
-        if isChecked("Shuriken Toss out of range") and not stealthedRogue and #enemyTable5 == 0 and energy >= getOptionValue("Shuriken Toss out of range") and inCombat then
+        if ui.checked("Shuriken Toss out of range") and not stealthedRogue and #enemyTable5 == 0 and energy >= ui.value("Shuriken Toss out of range") and inCombat then
             if cast.shurikenToss("target") then return true end
         end
     end
------------------
---- Rotations ---
------------------
+    -----------------
+    --- Rotations ---
+    -----------------
     -- Pause
-    if IsMounted() or IsFlying() or pause() or mode.rotation==3 or ((buff.soulshape.exists() or hasBuff(338659)) and not inCombat) then
+    if br._G.IsMounted() or br._G.IsFlying() or br.isLooting() or br.pause() or mode.rotation==3 or ((buff.soulshape.exists() or br.hasBuff(338659)) and not inCombat) then
         return true
     else
----------------------------------
---- Out Of Combat - Rotations ---
----------------------------------
+    ---------------------------------
+    --- Out Of Combat - Rotations ---
+    ---------------------------------
         if not cast.last.vanish(1) then
             if actionList_Extra() then return true end
         end
-        if not inCombat and GetObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
+        if not inCombat and br.GetObjectExists("target") and not br.GetUnitIsDeadOrGhost("target") and br._G.UnitCanAttack("target", "player") then
             if actionList_PreCombat() then return true end
         end -- End Out of Combat Rotation
------------------------------
---- In Combat - Rotations --- 
------------------------------
-        if (inCombat or (not isChecked("Disable Auto Combat") and (cast.last.vanish(1) or (validTarget and targetDistance < 5)))) then
-            if cast.last.vanish(1) and mode.vanish == 2 then StopAttack() end
-            if actionList_Defensive() then return true end
-            if someone_casting == true then
+    -----------------------------
+    --- In Combat - Rotations --- 
+    -----------------------------
+        if (inCombat or (not ui.checked("Disable Auto Combat") and (cast.last.vanish(1) or (validTarget and targetDistance < 5)))) then
+            if cast.last.vanish(1) and mode.vanish == 2 then br._G.StopAttack() end
+            if mode.defensive == 1 then
+                if actionList_Defensive() then return true end
+            end
+            if mode.interrupt == 1 then
                 if actionList_Interrupts() then return true end
             end
             --pre mfd
@@ -1023,12 +1066,12 @@ local function runRotation()
                 end
             end
             --tricks
-            if tricksUnit ~= nil and validTarget and targetDistance < 5 and UnitThreatSituation("player") and UnitThreatSituation("player") > 0 then 
+            if tricksUnit ~= nil and validTarget and targetDistance < 5 and br._G.UnitThreatSituation("player") and br._G.UnitThreatSituation("player") > 0 then 
                 cast.tricksOfTheTrade(tricksUnit)
             end
             -- # Restealth if possible (no vulnerable enemies in combat)
             -- actions=stealth
-            if IsUsableSpell(GetSpellInfo(spell.stealth)) and not IsStealthed() and not inCombat and not cast.last.vanish() then
+            if br._G.IsUsableSpell(br._G.GetSpellInfo(spell.stealth)) and not br._G.IsStealthed() and not inCombat and not cast.last.vanish() then
                 cast.stealth("player")
             end
             -- # Run fully switches to the Stealthed Rotation (by doing so, it forces pooling if nothing is available).
@@ -1040,30 +1083,37 @@ local function runRotation()
                 if actionList_Stealthed() then return true end
             end
             --start aa
-            if not stealthedRogue and validTarget and targetDistance < 5 and not IsCurrentSpell(6603) then
-                StartAttack("target")
+            if not stealthedRogue and validTarget and targetDistance < 5 and not br._G.IsCurrentSpell(6603) then
+                br._G.StartAttack("target")
             end
             -- OG Opener
-            if cdUsage and isChecked("Opener") and combatTime < 2 and cd.vanish.remain() < 115 and sndCondition == 1 and gcd < (0.1 + getLatency()) and isBoss() then
+            if cdUsage and ui.checked("Opener") and combatTime < 2 and cd.vanish.remain() < 115 and sndCondition == 1 and gcd < (0.1 + br.getLatency()) and br.isBoss() 
+             and (not covenant.necrolord.active or charges.serratedBoneSpike.frac() < 2.75) then
                 cast.shadowBlades("player")
                 cast.symbolsOfDeath("player")
+                if ui.checked("Trinkets") then
+                    br.useItem(179350)
+                end
                 if not covenant.kyrian.active then
                     cast.shadowDance("player")
                 end
-                if race == "Orc" or race == "Troll" then
+                if race == "Orc" or race == "Troll" or race == "MagharOrc" then
                     cast.racial("player")
                 end
                 return true
             end
+            if br.isBoss() and buff.shadowBlades.exists() and buff.shadowDance.exists() then
+                if trinket_Pop() then return true end
+            end
             -- Off GCD Cooldowns
-            if ttd("target") > getOptionValue("CDs TTD Limit") and validTarget and targetDistance < 5 then
+            if ttd("target") > ui.value("CDs TTD Limit") and validTarget and targetDistance < 5 then
                 if actionList_CooldownsOGCD() then return true end
             end
-            if validTarget and (combatTime > 1.5 or cd.vanish.remain() > 118.5 or sndCondition == 1) then
-                if gcd < getLatency() then
+            if validTarget and (combatTime >= 1.5 or cd.vanish.remain() > 118.5 or sndCondition == 1) then
+                if gcd < br.getLatency() then
                     -- # Check CDs at first
                     -- actions+=/call_action_list,name=cds
-                    if validTarget and targetDistance < 5 then
+                    if targetDistance < 5 then
                         if actionList_Cooldowns() then return true end
                     end
                     -- # Apply Slice and Dice at 2+ CP during the first 10 seconds, after that 4+ CP if it expires within the next GCD or is not up
@@ -1079,7 +1129,7 @@ local function runRotation()
                 -- # Priority Rotation? Let's give a crap about energy for the stealth CDs (builder still respect it). Yup, it can be that simple.
                 -- actions+=/call_action_list,name=stealth_cds,if=variable.use_priority_rotation
                 if priorityRotation and validTarget and not stealthedAll and targetDistance < 5 then
-                    --print("Valid target: " .. (validTarget and 'true' or 'false'))
+                    --br._G.print("Valid target: " .. (validTarget and 'true' or 'false'))
                     if actionList_StealthCD() then return true end
                 end
                 -- # Used to define when to use stealth CDs or builders
@@ -1094,7 +1144,7 @@ local function runRotation()
                 if animachargedCP then
                     if actionList_Finishers() then return true end
                 end
-                if gcd < getLatency() then             
+                if gcd < br.getLatency() then             
                     -- # Finish at 4+ without DS or with SoD crit buff, 5+ with DS (outside stealth)
                     -- actions+=/call_action_list,name=finish,if=combo_points.deficit<=1|fight_remains<=1&combo_points>=3|buff.symbols_of_death_autocrit.up&combo_points>=4
                     if comboDeficit <= 1 or (fightRemain <= 1 and combo >= 3) or (buff.symbolsOfDeathCrit.exists() and combo >= 4) then
@@ -1116,7 +1166,7 @@ local function runRotation()
                 -- actions+=/arcane_pulse
                 -- actions+=/lights_judgment
                 -- actions+=/bag_of_tricks
-                if cdUsage and isChecked("Racial") and targetDistance < 5 then
+                if cdUsage and ui.checked("Racial") and targetDistance < 5 then
                     if race == "BloodElf" and energyDeficit >= (15 + energyRegen) then
                         if cast.racial("player") then return true end
                     elseif race == "Nightborne" then
@@ -1131,7 +1181,7 @@ local function runRotation()
 end -- End runRotation 
 local id = 261 --Change to the spec id profile is for.
 if br.rotations[id] == nil then br.rotations[id] = {} end
-tinsert(br.rotations[id],{
+br._G.tinsert(br.rotations[id],{
     name = rotationName,
     toggles = createToggles,
     options = createOptions,

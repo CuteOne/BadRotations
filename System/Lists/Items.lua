@@ -1,5 +1,6 @@
+local _, br = ...
 if br.lists == nil then br.lists = {} end
-function getHeirloomNeck()
+function br.getHeirloomNeck()
     local necks = {
         eternalAmuletOfTheRedeemed  = 122663,
         eternalEmberfuryTalisman    = 122667,
@@ -10,7 +11,7 @@ function getHeirloomNeck()
         manariTrainingAmulet        = 153130,
     }
     for _,v in pairs(necks) do
-        if hasEquiped(v,2) then return v end
+        if br.hasEquiped(v,2) then return v end
     end
     return 0
 end
@@ -65,7 +66,6 @@ br.lists.items = {
     greaterFlaskOfTheUndertow       = 168654,
     greaterFlaskOfTheVastHorizon    = 168653,
     -- Healing Items
-    kyrianBell                      = 179982,
     phialOfSerenity                  = 177278,
     -- Healthstones
     healthstone                     = 5512,
@@ -77,7 +77,7 @@ br.lists.items = {
     eternalTalismanOfEvasion        = 122662,
     eternalWillOfTheMartyr          = 122668,
     eternalWovenIvyNecklace         = 122666,
-    heirloomNeck                    = getHeirloomNeck(),
+    heirloomNeck                    = br.getHeirloomNeck(),
     manariTrainingAmulet            = 153130,
     touchOfTheVoid                  = 128318,
     -- Potions
@@ -133,8 +133,56 @@ br.lists.items = {
     vigorTrinket                    = 165572,
     visionOfDemise                  = 169307,
     hummingBlackDragonscale         = 174044,
+
     --weapons that are clickable
     neuralSynapseEnhancer           = 168973,
     -- Legendary 8.3 cloak
     shroudOfResolve                 = 169223,
+    ----------- SL items below -----------
+    --Trinkets
+    -- Inscrutable Quantum Device 
+    inscrutableQuantumDevice        = 179350,
+    -- Instructor's Divine Bell
+    instructorsDivineBell           = 184842, 
+    -- Bottled Flayed Wing Toxin
+    bottledFlayedWingToxin          = 178742,
+    dreadfireVessel                 = 184030,
+    -- Empyreal Ordnance
+    empyrealOrdnance                = 180117,
+    -- Everchill Brambles
+    everchillBrambles               = 182452,
+    -- Flame of Battle
+    flameOfBattle                   = 181501,
+    -- Gladiator's Insignia of Alacrity 
+    gladiatorsBadge                 = 175921,
+    -- Gladiator's Badge of Ferocity 
+    gladiatorsBadgeAlacrity         = 175921,
+    -- Glyph of Assimilation
+    glyphOfAssimilation             = 184021,
+    -- Macabre Sheet Music
+    macabreSheetMusic               = 184024, 
+    -- Sunblood Amethyst
+    sunbloodAmethyst                = 178826,
+    -- Soulletting Ruby
+    soulettingRuby                  = 178809,
+    -- Soul Ignitor
+    soulIgnitor                     = 184019,
+    -- Tuft of Smoldering Plumage
+    tuftOfSmolderingPlumage         = 184020, 
+    -- Wakener's Frond
+    wakenersFrond                   = 181457,
+    -- Wrath Stone
+    wrathstone                      = 156000,
+    -- Vial of Spectral
+    vialOfSpectral                  = 178810,
+    --Consumables
+    potionOfSpectralAgility         = 171270,
+    shadowCoreOil                   = 171285,
+    spectralFlaskOfPower            = 171276,
+    -- Music of Bastion
+    ascendedFlute                   = 180064,
+    benevolentGong                  = 179977,
+    heavenlyDrum                    = 180062,
+    kyrianBell                      = 179982,
+    unearthlyChime                  = 180063,
 }

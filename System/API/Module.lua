@@ -1,4 +1,5 @@
-local br = _G["br"]
+
+local _, br = ...
 if br.api == nil then br.api = {} end
 br.api.module = function(self)
     -- Local reference to actionList
@@ -13,7 +14,36 @@ br.api.module = function(self)
     local use               = self.use
     local var               = {}
     var.getItemInfo         = _G["GetItemInfo"]
-    var.getHealPot          = _G["getHealthPot"]
+    var.getHealPot          = br.getHealthPot
+    
+    -- Auto Put Keystone into Receptable during mythic+ dungeons. | Kinky BR Module Code example
+    module.autoKeystone = function(section)
+        if section ~= nil then 
+            -- Auto Keystone 
+            br.ui:createCheckbox(section, "Auto Mythic+ Keystone","|cffFFFFFFCheck to Auto click keystones if you're at a Font of Power")
+           -- br.ui:createSpinner(section, "Minimum Keystone to Auto Use", 2, 2, 30, 1, "|cffFFFFFFMinimum keystone number of the key before submitting it. ")
+        end
+        if section == nil then
+            if ui.checked("Auto Mythic+ Keystone") then
+               var.autoKeystone = CreateFrame("Frame")
+               var.autoKeystone:RegisterEvent("ADDON_LOADED")
+               var.autoKeystone:SetScript("OnEvent", function(self, event, addon)
+	               if (addon == "Blizzard_ChallengesUI") then
+		               if ChallengesKeystoneFrame then ChallengesKeystoneFrame:HookScript("OnShow", function()
+				            for Bag = 0, NUM_BAG_SLOTS do
+				    	        for Slot = 1, GetContainerNumSlots(Bag) do
+					    	        local ID = GetContainerItemID(Bag, Slot)
+						            if (ID and ID == 180653) then return UseContainerItem(Bag, Slot) end
+					           end
+				            end
+			            end)
+			                self:UnregisterEvent(event)
+		                end
+	                 end
+                end)
+            end 
+        end
+    end
 
     -- Basic Healing Module
     module.BasicHealing = function(section)
@@ -27,10 +57,11 @@ br.api.module = function(self)
             br.ui:createSpinner(section, "Healthstone/Potion", 60, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
             -- Heirloom Neck
             br.ui:createSpinner(section, "Heirloom Neck", 80, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-            -- Kyrian Bell
-            br.ui:createCheckbox(section, "Kyrian Bell","|cffFFFFFFCheck to use.")
+            -- Music of Bastion
+            br.ui:createCheckbox(section, "Music of Bastion","|cffFFFFFFCheck to use.")
             -- Phial of Serenity
             br.ui:createSpinner(section, "Phial of Serenity", 30, 0, 80, 5, "|cffFFFFFFHealth Percent to Cast At")
+            br.ui:createCheckbox(section, "Auto Summon Steward")
         end
 
         -- Abilities - Call, module.BasicHealing(), in your rotation to use these
@@ -65,22 +96,33 @@ br.api.module = function(self)
             then
                 if cast.racial() then ui.debug("Casting Gift of the Naaru") return true end
             end
-            -- Kyrian Bell
-            if ui.checked("Kyrian Bell") and (isInArdenweald() or isInBastion() or isInMaldraxxus() or isInRevendreth())-- or isInTheMaw())
-                and use.able.kyrianBell() and has.kyrianBell()
-            then
-                if use.kyrianBell() then ui.debug("Using Kyrian Bell") return true end
+            -- Music of Bastion
+            if ui.checked("Music of Bastion") and (br.isInArdenweald() or br.isInBastion() or br.isInMaldraxxus() or br.isInRevendreth()) then
+                if use.able.ascendedFlute() and has.ascendedFlute() then
+                    if use.ascendedFlute() then ui.debug("Using Ascended Flute") return true end
+                end
+                if use.able.benevolentGong() and has.benevolentGong() then
+                    if use.benevolentGong() then ui.debug("Using Benevolent Gong") return true end
+                end
+                if use.able.heavenlyDrum() and has.heavenlyDrum() then
+                    if use.heavenlyDrum() then ui.debug("Using Heavenly Drum") return true end
+                end
+                if use.able.kyrianBell() and has.kyrianBell() then
+                    if use.kyrianBell() then ui.debug("Using Kyrian Bell") return true end
+                end
+                if use.able.unearthlyChime() and has.unearthlyChime() then
+                    if use.unearthlyChime() then ui.debug("Using Unearthly Chime") return true end
+                end
             end
             -- Phial of Serenity
             if ui.checked("Phial of Serenity") then
-                if not unit.inCombat() and not has.phialOfSerenity() and cast.able.summonSteward() then
+                if ui.checked("Auto Summon Steward") and not unit.inCombat() and not has.phialOfSerenity() and cast.able.summonSteward() then
                     if cast.summonSteward() then ui.debug("Casting Call Steward") return true end
                 end
                 if unit.inCombat() and use.able.phialOfSerenity() and unit.hp() < ui.value("Phial of Serenity") then
                     if use.phialOfSerenity() then ui.debug("Using Phial of Serenity") return true end
                 end
             end
-            return true
         end
     end
 
@@ -115,7 +157,7 @@ br.api.module = function(self)
 
     -- Flask Module
     module.FlaskUp = function(buffType,section)
-        local function getFlaskByType(buffType)
+        local function getFlaskByType()
             local thisFlask = ""
             if buffType == "Agility" then thisFlask = "Greater Flask of the Currents" end
             if buffType == "Intellect" then thisFlask = "Greater Flask of Endless Fathoms" end
@@ -123,8 +165,8 @@ br.api.module = function(self)
             if buffType == "Strength" then thisFlask = "Greater Flask of the Undertow" end
             return thisFlask
         end
-        local flaskList = {}
-        local isDH = select(2,UnitClass("player")) == "DEMONHUNTER"
+        local flaskList
+        local isDH = select(2,br._G.UnitClass("player")) == "DEMONHUNTER"
         if isDH then
             flaskList = {getFlaskByType(buffType),"Inquisitor's Menacing Eye","Repurposed Fel Focuser","Oralius' Whispering Crystal","None"}
         else
@@ -142,15 +184,15 @@ br.api.module = function(self)
             end
             if ui.value("Flask") == 3 then
                 if isDH then -- Greater FLask or Gaze of the Legion
-                    return buff.greaterFlaskOfTheCurrents.exists() or buff.greaterFlaskOfEndlessFathoms.exists() or buff.greaterFlaskOfTheVastHorizon.exists() 
+                    return buff.greaterFlaskOfTheCurrents.exists() or buff.greaterFlaskOfEndlessFathoms.exists() or buff.greaterFlaskOfTheVastHorizon.exists()
                         or buff.greaterFlaskOfTheUndertow.exists() or buff.gazeOfTheLegion.exists()
                 else -- Greater Flask or Fel Focus
-                    return buff.greaterFlaskOfTheCurrents.exists() or buff.greaterFlaskOfEndlessFathoms.exists() or buff.greaterFlaskOfTheVastHorizon.exists() 
+                    return buff.greaterFlaskOfTheCurrents.exists() or buff.greaterFlaskOfEndlessFathoms.exists() or buff.greaterFlaskOfTheVastHorizon.exists()
                         or buff.greaterFlaskOfTheUndertow.exists() or buff.felFocus.exists()
                 end
             end
             if ui.value("Flask") == 4 and isDH then -- DH - Greater Flask or Gaze of the Legion or Fel Focus
-                return buff.greaterFlaskOfTheCurrents.exists() or buff.greaterFlaskOfEndlessFathoms.exists() or buff.greaterFlaskOfTheVastHorizon.exists() 
+                return buff.greaterFlaskOfTheCurrents.exists() or buff.greaterFlaskOfEndlessFathoms.exists() or buff.greaterFlaskOfTheVastHorizon.exists()
                         or buff.greaterFlaskOfTheUndertow.exists() or buff.gazeOfTheLegion.exists() or buff.felFocus.exists()
             end
         end
@@ -208,7 +250,7 @@ br.api.module = function(self)
                     if use.oraliusWhisperingCrystal() then ui.debug("Using Oralius's Whispering Crystal") return true end
                 end
             end
-            if opValue == 4 then 
+            if opValue == 4 then
                 if isDH and (not unit.instance("raid") or (unit.instance("raid") and not hasFlaskBuff()))
                     and use.able.oraliusWhisperingCrystal() and not buff.whispersOfInsanity.exists()
                 then

@@ -150,13 +150,13 @@ local function runRotation()
     local php = br.player.health
     local pullTimer = br.DBM:getPulltimer()
     local traits = br.player.traits
-    local tanks = getTanksTable()
+    local tanks = br.getTanksTable()
     local units = br.player.units
     local use = br.player.use
     local artifact = br.player.artifact
     local buff = br.player.buff
     local cast = br.player.cast
-    local combatTime = getCombatTime()
+    local combatTime = br.getCombatTime()
     local cd = br.player.cd
     local charges = br.player.charges
     local debuff = br.player.debuff
@@ -179,7 +179,7 @@ local function runRotation()
     local talent = br.player.talent
     local ttm = br.player.timeToMax
     local mana = br.player.power.mana.percent()
-    local tanks = getTanksTable()
+    local tanks = br.getTanksTable()
     local function tideTotemExists()
         for i=1, 10 do
             if GetTotemInfo(i) ~= nil then
@@ -222,10 +222,10 @@ local function runRotation()
     local bestUnit
     for i = 1, #br.friend do
         local thisUnit = br.friend[i].unit
-        local thisGroup = #getUnitsToHealAround(thisUnit, 8, getValue("Healing Rain"), getValue("Healing Rain Targets"))
+        local thisGroup = #getUnitsToHealAround(thisUnit, 8, br.getValue("Healing Rain"), br.getValue("Healing Rain Targets"))
         local tankGroup = 0
         if #tanks > 0 then
-            tankGroup = #getUnitsToHealAround(tanks[1].unit, 8, getValue("Healing Rain"), getValue("Healing Rain Targets"))
+            tankGroup = #getUnitsToHealAround(tanks[1].unit, 8, br.getValue("Healing Rain"), br.getValue("Healing Rain Targets"))
         end
 
         if thisGroup > biggestGroup then
@@ -250,13 +250,13 @@ local function runRotation()
 
     local function cooldownTime()
         if useCDs() then
-            if isChecked("Ascendance") and getLowAllies(getValue("Ascendance")) >= getValue("Ascendance Targets") and not tideTotemExists() then
+            if br.isChecked("Ascendance") and getLowAllies(br.getValue("Ascendance")) >= br.getValue("Ascendance Targets") and not tideTotemExists() then
                 if cast.ascendance("player") then
                     return 
                 end
             end
-            if isChecked("Healing Tide Totem") and useCDs() and not buff.ascendance.exists() and cd.healingTideTotem.remain() <= gcd then
-                if getLowAllies(getValue("Healing Tide Totem")) >= getValue("Healing Tide Totem Targets") then
+            if br.isChecked("Healing Tide Totem") and useCDs() and not buff.ascendance.exists() and cd.healingTideTotem.remain() <= gcd then
+                if getLowAllies(br.getValue("Healing Tide Totem")) >= br.getValue("Healing Tide Totem Targets") then
                     if cast.healingTideTotem("player") then
                         return 
                     end
@@ -266,7 +266,7 @@ local function runRotation()
     end
 
     local function dontDie()
-        if isChecked("Astral Shift") and php <= getValue("Astral Shift") then
+        if br.isChecked("Astral Shift") and php <= br.getValue("Astral Shift") then
             if cast.astralShift("player") then
                 return 
             end
@@ -274,9 +274,9 @@ local function runRotation()
     end
 
     local function healingTime()
-        if isChecked("Riptide") then
+        if br.isChecked("Riptide") then
             for i = 1, #br.friend do
-                if br.friend[i].hp <= getValue("Riptide") and buff.riptide.remain(br.friend[i].unit) < 2.1 then
+                if br.friend[i].hp <= br.getValue("Riptide") and buff.riptide.remain(br.friend[i].unit) < 2.1 then
                     if cast.riptide(br.friend[i].unit) then
                         return 
                     end
@@ -285,16 +285,16 @@ local function runRotation()
         end
 
         -- upkeep riptide start
-        if isChecked("Upkeep Riptide") and (inCombat or not isChecked("Only in Combat (Riptide Upkeep)")) then
-            if getOptionValue("Upkeep Riptide") == 1 and UnitIsPlayer("target") and not buff.riptide.exists("target") then -- Target
+        if br.isChecked("Upkeep Riptide") and (inCombat or not br.isChecked("Only in Combat (Riptide Upkeep)")) then
+            if br.getOptionValue("Upkeep Riptide") == 1 and UnitIsPlayer("target") and not buff.riptide.exists("target") then -- Target
                 if cast.riptide("target") then
                     return 
                 end
             end
 
-            if getOptionValue("Upkeep Riptide") == 2 then -- Tank
+            if br.getOptionValue("Upkeep Riptide") == 2 then -- Tank
                 for i = 1, #tanks do
-                    if UnitIsPlayer(tanks[i].unit) and GetUnitIsFriend(tanks[i].unit, "player") and getDistance(tanks[i].unit) <= 40 and not buff.riptide.exists(tanks[i].unit) then
+                    if UnitIsPlayer(tanks[i].unit) and br.GetUnitIsFriend(tanks[i].unit, "player") and br.getDistance(tanks[i].unit) <= 40 and not buff.riptide.exists(tanks[i].unit) then
                         if cast.riptide(tanks[i].unit) then
                             return 
                         end
@@ -302,7 +302,7 @@ local function runRotation()
                 end
             end
 
-            if getOptionValue("Upkeep Riptide") == 3 then -- Player
+            if br.getOptionValue("Upkeep Riptide") == 3 then -- Player
                 if not UnitIsDeadOrGhost("player") and not buff.riptide.exists("player") then
                     if cast.riptide("player") then
                         return 
@@ -312,20 +312,20 @@ local function runRotation()
         end
 
         -- start of ES upkeep
-        if isChecked("Upkeep Earth Shield") and (inCombat or not isChecked("Only in Combat (Earth Shield)")) then
-            if getOptionValue("Upkeep Earth Shield") == 1 and UnitIsPlayer("target") and not buff.earthShield.exists("target") then -- Target
+        if br.isChecked("Upkeep Earth Shield") and (inCombat or not br.isChecked("Only in Combat (Earth Shield)")) then
+            if br.getOptionValue("Upkeep Earth Shield") == 1 and UnitIsPlayer("target") and not buff.earthShield.exists("target") then -- Target
                 if cast.earthShield("target") then
                     return 
                 end
             end
 
-            if getOptionValue("Upkeep Earth Shield") == 2 then -- Tank
+            if br.getOptionValue("Upkeep Earth Shield") == 2 then -- Tank
                 for i = 1, #tanks do
                     if inRaid then
-                        if GetUnitIsUnit(tanks[i].unit, "boss1target") and not buff.earthShield.exists(tanks[i].unit) then
+                        if br.GetUnitIsUnit(tanks[i].unit, "boss1target") and not buff.earthShield.exists(tanks[i].unit) then
                             cast.earthShield(tanks[i].unit)
                         end
-                    elseif (not inRaid or buff.earthShield.count() < 1) and UnitIsPlayer(tanks[i].unit) and GetUnitIsFriend(tanks[i].unit, "player") and getDistance(tanks[i].unit) <= 40 and not buff.earthShield.exists(tanks[i].unit) then
+                    elseif (not inRaid or buff.earthShield.count() < 1) and UnitIsPlayer(tanks[i].unit) and br.GetUnitIsFriend(tanks[i].unit, "player") and br.getDistance(tanks[i].unit) <= 40 and not buff.earthShield.exists(tanks[i].unit) then
                         if cast.earthShield(tanks[i].unit) then
                             return 
                         end
@@ -334,17 +334,17 @@ local function runRotation()
             end
         end -- end of ES upkeep
 
-        if isChecked("Unleash Life") then
-            if lowest.hp <= getValue("Unleash Life") then
+        if br.isChecked("Unleash Life") then
+            if lowest.hp <= br.getValue("Unleash Life") then
                 if cast.unleashLife(lowest.unit) then
                     return 
                 end
             end
         end
 
-        if isChecked("Healing Surge") and notmoving then
+        if br.isChecked("Healing Surge") and notmoving then
             for i = 1, #tanks do
-                if tanks[i].hp <= getValue("Healing Surge")/2 then
+                if tanks[i].hp <= br.getValue("Healing Surge")/2 then
                     if cast.healingSurge(tanks[i].unit) then
                         return 
                     end
@@ -352,16 +352,16 @@ local function runRotation()
             end
         end
 
-        if isChecked("Healing Surge") and notmoving then
-            if lowest.hp <= getValue("Healing Surge") then
+        if br.isChecked("Healing Surge") and notmoving then
+            if lowest.hp <= br.getValue("Healing Surge") then
                 if cast.healingSurge(lowest.unit) then
                     return true
                 end
             end
         end
 
-        if isChecked("Healing Rain") and inCombat and not buff.healingRain.exists("player") and notmoving then
-            if biggestGroup >= getValue("Healing Rain Targets") then
+        if br.isChecked("Healing Rain") and inCombat and not buff.healingRain.exists("player") and notmoving then
+            if biggestGroup >= br.getValue("Healing Rain Targets") then
                 if cast.healingRain(bestUnit) then
                     SpellStopTargeting()
                     return 
@@ -369,22 +369,22 @@ local function runRotation()
             end
         end
 
-        if isChecked("Chain Heal") and notmoving then
-            if chainHealUnits(spell.chainHeal, 15, getValue("Chain Heal"), getValue("Chain Heal Targets")) then
+        if br.isChecked("Chain Heal") and notmoving then
+            if chainHealUnits(spell.chainHeal, 15, br.getValue("Chain Heal"), br.getValue("Chain Heal Targets")) then
                 return 
             end
         end
 
-        if isChecked("Healing Wave") and notmoving and not isChecked("HW Buff") then
-            if lowest.hp <= getValue("Healing Wave") then
+        if br.isChecked("Healing Wave") and notmoving and not br.isChecked("HW Buff") then
+            if lowest.hp <= br.getValue("Healing Wave") then
                 if cast.healingWave(lowest.unit) then
                     return 
                 end
             end
         end
 
-        if isChecked("Healing Wave") and notmoving and isChecked("HW Buff") then
-            if lowest.hp <= getValue("Healing Wave") and buff.tidalWaves.exists() or lowest.hp <= getValue("Healing Wave") and buff.undulation.exists() then
+        if br.isChecked("Healing Wave") and notmoving and br.isChecked("HW Buff") then
+            if lowest.hp <= br.getValue("Healing Wave") and buff.tidalWaves.exists() or lowest.hp <= br.getValue("Healing Wave") and buff.undulation.exists() then
                 if cast.healingWave(lowest.unit) then
                     return 
                 end
@@ -394,10 +394,10 @@ local function runRotation()
 
     local function dpstime()
 
-        if buff.lavaSurge.exists() and isChecked("Lavaburst") then
+        if buff.lavaSurge.exists() and br.isChecked("Lavaburst") then
             for i = 1, #enemies.yards40f do
                 local thisUnit = enemies.yards40[i]
-                if debuff.flameShock.remains(thisUnit) > 1 and getFacing("player",thisUnit) then
+                if debuff.flameShock.remains(thisUnit) > 1 and br.getFacing("player",thisUnit) then
                     if cast.lavaBurst(thisUnit) then
                         return 
                     end
@@ -405,33 +405,33 @@ local function runRotation()
             end
         end
 
-        if isChecked("Flame Shock") and (not debuff.flameShock.exists("target") or debuff.flameShock.remains("target") < 6) and getFacing("player","target") then
+        if br.isChecked("Flame Shock") and (not debuff.flameShock.exists("target") or debuff.flameShock.remains("target") < 6) and br.getFacing("player","target") then
             if cast.flameShock("target") then
                 return 
             end
         end
 
-        if isChecked("Flame Shock") and getOptionValue("Flame Shock") ~= 2 then
+        if br.isChecked("Flame Shock") and br.getOptionValue("Flame Shock") ~= 2 then
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
-                if not debuff.flameShock.exists(thisUnit) and getFacing("player",thisUnit) then
+                if not debuff.flameShock.exists(thisUnit) and br.getFacing("player",thisUnit) then
                     if cast.flameShock(thisUnit) then
                         return 
                     end
                 end
             end
         end
-        if isChecked("Lavaburst") and getOptionValue("Lavaburst") ~= 2 then
+        if br.isChecked("Lavaburst") and br.getOptionValue("Lavaburst") ~= 2 then
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
-                if debuff.flameShock.remains(thisUnit) > 4 and getFacing("player",thisUnit) then
+                if debuff.flameShock.remains(thisUnit) > 4 and br.getFacing("player",thisUnit) then
                     if cast.lavaBurst(thisUnit) then
                         return 
                     end
                 end
             end
         end
-        if isChecked("Lightning Fillers") then
+        if br.isChecked("Lightning Fillers") then
             if #enemies.yards40 > 1 then
                 if cast.chainLightning(units.dyn40) then
                     return 
@@ -454,7 +454,7 @@ local function runRotation()
             RunMacroText("/cancelAura Ghost Wolf")
         end
 
-        if isChecked("Water Shield") and not buff.waterShield.exists() then
+        if br.isChecked("Water Shield") and not buff.waterShield.exists() then
             if cast.waterShield("player") then
                 return 
             end
@@ -462,7 +462,7 @@ local function runRotation()
 
         if mode.purify == 1 then
             for i = 1, #br.friend do
-                if canDispel(br.friend[i].unit, spell.purifySpirit) then
+                if br.canDispel(br.friend[i].unit, spell.purifySpirit) then
                     if cast.purifySpirit(br.friend[i].unit) then
                         return 
                     end
@@ -473,7 +473,7 @@ local function runRotation()
         if mode.purge == 1 then
             for i = 1, #enemies.yards30 do
                 local thisUnit = enemies.yards30[i]
-                if canDispel(thisUnit, spell.purge) then
+                if br.canDispel(thisUnit, spell.purge) then
                     if cast.purge(thisUnit) then
                         return 
                     end
@@ -481,7 +481,7 @@ local function runRotation()
             end
         end
         if mode.purge == 2 then
-            if canDispel("target", spell.purge) and GetObjectExists("target") then
+            if br.canDispel("target", spell.purge) and br.GetObjectExists("target") then
                 if cast.purge("target") then
                     return 
                 end
@@ -493,8 +493,8 @@ local function runRotation()
         if useInterrupts() then
             for i=1, #enemies.yards30 do
                 thisUnit = enemies.yards30[i]
-                if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
-                    if isChecked("Wind Shear") then
+                if br.canInterrupt(thisUnit,br.getOptionValue("Interrupt At")) then
+                    if br.isChecked("Wind Shear") then
                         if cast.windShear(thisUnit) then 
                             return  
                         end
@@ -504,7 +504,7 @@ local function runRotation()
         end
     end
 
-    --if IsAoEPending() and inCombat then SpellStopTargeting() return true end
+    --if br._G.IsAoEPending() and inCombat then SpellStopTargeting() return true end
     -- Pause
     if (select(2,GetSpellCooldown(61304))) == 1 or ((pause(true) or isLooting() or (SpecificToggle("Ghost Wolf Key") and buff.ghostWolf.exists("player"))) or IsMounted() or IsFlying()) then
         return true
@@ -513,7 +513,7 @@ local function runRotation()
         --- Out Of Combat - Rotations ---
         ---------------------------------
         if not inCombat then
-            if isChecked("OOC Healing") then
+            if br.isChecked("OOC Healing") then
                 if healingTime() then
                     return  
                 end
@@ -560,7 +560,7 @@ local function runRotation()
         end -- End In Combat Rotation
     end -- Pause -- End Timer
 end -- End runRotation
-local id = 264
+local id = 0
 -- Change to the spec id profile is for.
 if br.rotations[id] == nil then
     br.rotations[id] = {}

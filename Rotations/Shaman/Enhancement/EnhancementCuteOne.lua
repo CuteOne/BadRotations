@@ -1,37 +1,36 @@
 local rotationName = "CuteOne"
-local br = _G["br"]
 
 ---------------
 --- Toggles ---
 ---------------
 local function createToggles()
     -- Rotation Button
-    RotationModes = {
+    local RotationModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.windstrike},
         [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.crashLightning},
         [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.stormstrike},
         [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.healingSurge}
     };
-    CreateButton("Rotation",1,0)
+    br.ui:createToggle(RotationModes,"Rotation",1,0)
     -- Cooldown Button
-    CooldownModes = {
+    local CooldownModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.feralSpirit},
         [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.feralSpirit},
         [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.feralSpirit}
     };
-    CreateButton("Cooldown",2,0)
+    br.ui:createToggle(CooldownModes,"Cooldown",2,0)
     -- Defensive Button
-    DefensiveModes = {
+    local DefensiveModes = {
         [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.astralShift},
         [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.astralShift}
     };
-    CreateButton("Defensive",3,0)
+    br.ui:createToggle(DefensiveModes,"Defensive",3,0)
     -- Interrupt Button
-    InterruptModes = {
+    local InterruptModes = {
         [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.windShear},
         [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.windShear}
     };
-    CreateButton("Interrupt",4,0)
+    br.ui:createToggle(InterruptModes,"Interrupt",4,0)
 end
 
 ---------------
@@ -50,7 +49,7 @@ local function createOptions()
             -- Pre-Pull Timer
             br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
             -- Ghost Wolf
-            br.ui:createCheckbox(section,"Ghost Wolf")
+            br.ui:createDropdownWithout(section,"Ghost Wolf", {"|cff00FF00Always","|cffFFFF00OoC Only","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Ghost Wolf.")
             -- Feral Lunge
             br.ui:createCheckbox(section,"Feral Lunge")
             -- Lightning Bolt OOC
@@ -159,7 +158,6 @@ end
 local buff
 local cast
 local cd
-local conduit
 local covenant
 local debuff
 local enemies
@@ -197,19 +195,20 @@ end
 --------------------
 -- Action List - Extras
 actionList.Extras = function()
+    local startTime = br._G.debugprofilestop()
     -- Dummy Test
     if ui.checked("DPS Testing") then
         if unit.exists("target") then
             if unit.combatTime() >= (tonumber(ui.value("DPS Testing"))*60) and unit.isDummy() then
-                StopAttack()
-                ClearTarget()
+                unit.stopAttack()
+                unit.clearTarget()
                 ui.print(tonumber(ui.value("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
                 var.profileStop = true
             end
         end
     end -- End Dummy Test
     -- Ghost Wolf
-    if ui.checked("Ghost Wolf") and cast.able.ghostWolf() and not (unit.mounted() or unit.flying()) then
+    if (ui.value("Ghost Wolf") == 1 or (ui.value("Ghost Wolf") == 2 and not unit.inCombat())) and cast.able.ghostWolf() and not (unit.mounted() or unit.flying()) then
         if ((#enemies.yards20 == 0 and not unit.inCombat()) or (#enemies.yards10 == 0 and unit.inCombat())) and unit.moving("player") and not buff.ghostWolf.exists() then
             if cast.ghostWolf() then ui.debug("Casting Ghost Wolf") return true end
         end
@@ -229,18 +228,20 @@ actionList.Extras = function()
     if ui.checked("Water Walking") and cast.able.waterWalking() and not unit.inCombat() and unit.swimming() and not buff.waterWalking.exists() then
         if cast.waterWalking() then ui.debug("Casting Water Walking") return true end
     end
+    br.debug.cpu:updateDebug(startTime,"rotation.profile.extras")
 end -- End Action List - Extras
 -- Action List - Defensive
 actionList.Defensive = function()
+    local startTime = br._G.debugprofilestop()
     if ui.useDefensive() then
         -- Basic Healing Module
         module.BasicHealing()
         -- Ancestral Spirit
         if ui.checked("Ancestral Spirit") and cast.timeSinceLast.ancestralSpirit() > 5 then
-            if ui.value("Ancestral Spirit")==1 and cast.able.ancestralSpirit("target") and unit.player("target") then
+            if ui.value("Ancestral Spirit")==1 and cast.able.ancestralSpirit("target","dead") and unit.player("target") then
                 if cast.ancestralSpirit("target","dead") then ui.debug("Casting Ancestral Spirit [Target]") return true end
             end
-            if ui.value("Ancestral Spirit")==2 and cast.able.ancestralSpirit("mouseover") and unit.player("mouseover") then
+            if ui.value("Ancestral Spirit")==2 and cast.able.ancestralSpirit("mouseover","dead") and unit.player("mouseover") then
                 if cast.ancestralSpirit("mouseover","dead") then ui.debug("Casting Ancestral Spirit [Mouseover]") return true end
             end
         end
@@ -249,12 +250,12 @@ actionList.Defensive = function()
             if cast.astralShift() then ui.debug("Casting Astral Shift") return true end
         end
         -- Capacitor Totem
-        if ui.checked("Capacitor Totem - HP") and cast.able.capacitorTotem() and cd.capacitorTotem.ready()
+        if ui.checked("Capacitor Totem - HP") and cast.able.capacitorTotem("player","ground") and cd.capacitorTotem.ready()
             and unit.hp() <= ui.value("Capacitor Totem - HP") and unit.inCombat() and #enemies.yards5 > 0
         then
             if cast.capacitorTotem("player","ground") then ui.debug("Casting Capacitor Totem [Low HP]") return true end
         end
-        if ui.checked("Capacitor Totem - AoE") and cast.able.capacitorTotem() and cd.capacitorTotem.ready()
+        if ui.checked("Capacitor Totem - AoE") and cast.able.capacitorTotem("best",nil,ui.value("Capacitor Totem - AoE"),8) and cd.capacitorTotem.ready()
             and #enemies.yards5 >= ui.value("Capacitor Totem - AoE") and unit.inCombat()
         then
             if cast.capacitorTotem("best",nil,ui.value("Capacitor Totem - AoE"),8) then ui.debug("Casting Capacitor Totem [AOE]") return true end
@@ -276,43 +277,42 @@ actionList.Defensive = function()
             if cast.earthShield("player") then ui.debug("Casting Earth Shield") return true end
         end
         -- Healing Surge
-        if ui.checked("Healing Surge") and cast.able.healingSurge() and not (unit.mounted() or unit.flying())
+        if ui.checked("Healing Surge") and cast.able.healingSurge(var.healUnit) and not (unit.mounted() or unit.flying())
             and (ui.value("Heal Target") ~= 1 or (ui.value("Heal Target") == 1
             and unit.distance(br.friend[1].unit) < 40)) and not cast.current.healingSurge()
         then
-            local thisHP = unit.hp()
-            local thisUnit = "player"
-            if ui.value("Heal Target") == 1 then thisUnit = unit.lowest(40); thisHP = unit.hp(thisUnit) end
             if not unit.inCombat() then
                 -- Lowest Party/Raid or Player
-                if (thisHP <= ui.value("Healing Surge OoC") and not unit.moving())
+                if (var.healHP <= ui.value("Healing Surge OoC") and not unit.moving())
                     and (buff.maelstromWeapon.stack() == 0 or ui.value("Instant Behavior") == 1)
                 then
-                    if cast.healingSurge(thisUnit) then ui.debug("Casting Healing Surge [OoC] on "..unit.name(thisUnit)) return true end
+                    if cast.healingSurge(var.healUnit) then ui.debug("Casting Healing Surge [OoC] on "..unit.name(var.healUnit)) return true end
                 end
             elseif unit.inCombat() and (not unit.moving() or buff.maelstromWeapon.stack() >= 5) then
                 -- Lowest Party/Raid or Player
-                if thisHP <= ui.value("Healing Surge") then
+                if var.healHP <= ui.value("Healing Surge") then
                     if ui.value("Instant Behavior") == 1 or (ui.value("Instant Behavior") == 2 and buff.maelstromWeapon.stack() >= 5) or (ui.value("Instant Behavior") == 3 and buff.maelstromWeapon.stack() == 0) then
                         if buff.maelstromWeapon.stack() >= 5 then
-                            if cast.healingSurge(thisUnit) then ui.debug("Casting Healing Surge [IC Instant] on "..unit.name(thisUnit)) return true end
+                            if cast.healingSurge(var.healUnit) then ui.debug("Casting Healing Surge [IC Instant] on "..unit.name(var.healUnit)) return true end
                         else
-                            if cast.healingSurge(thisUnit) then ui.debug("Casting Healing Surge [IC Long] on "..unit.name(thisUnit)) return true end
+                            if cast.healingSurge(var.healUnitUnit) then ui.debug("Casting Healing Surge [IC Long] on "..unit.name(var.healUnit)) return true end
                         end
                     end
                 end
             end
         end
         -- Healing Stream Totem
-        if ui.checked("Healing Stream Totem") and cast.able.healingStreamTotem()
+        if ui.checked("Healing Stream Totem") and cast.able.healingStreamTotem("player","ground")
             and var.unitsNeedingHealing >= ui.value("Healing Stream Totem - Min Units")
         then
             if cast.healingStreamTotem("player","ground") then ui.debug("Casting Healing Stream Totem") return true end
         end
     end -- End Defensive Toggle
+    br.debug.cpu:updateDebug(startTime,"rotation.profile.defensive")
 end -- End Action List - Defensive
 -- Action List - Interrupts
 actionList.Interrupts = function()
+    local startTime = br._G.debugprofilestop()
     if ui.useInterrupt() then
         for i=1, #enemies.yards30 do
             local thisUnit = enemies.yards30[i]
@@ -327,7 +327,7 @@ actionList.Interrupts = function()
                     if cast.hex(thisUnit) then ui.debug("Casting Hex") return true end
                 end
                 -- Capacitor Totem
-                if ui.checked("Capacitor Totem") and cast.able.capacitorTotem(thisUnit)
+                if ui.checked("Capacitor Totem") and cast.able.capacitorTotem(thisUnit,"ground")
                     and cd.capacitorTotem.ready() and cd.windShear.remain() > unit.gcd(true)
                 then
                     if unit.threat(thisUnit) and not unit.moving(thisUnit) and unit.ttd(thisUnit) > 7 then
@@ -337,29 +337,39 @@ actionList.Interrupts = function()
             end
         end
     end -- End useInterrupts check
+    br.debug.cpu:updateDebug(startTime,"rotation.profile.interrupts")
 end -- End Action List - Interrupts
 -- Action List - AOE
 actionList.AOE = function()
+    local startTime = br._G.debugprofilestop()
+    -- Windstrike
+    -- windstrike,if=buff.crash_lightning.up
+    if cast.able.windstrike() and buff.ascendance.exists() and buff.crashLightning.exists() then
+        if cast.windstrike() then ui.debug("Casting Windstrike [AOE - Crash Lightning]") return true end
+    end
     -- Fae Transfusion
     -- fae_transfusion,if=soulbind.grove_invigoration|soulbind.field_of_blossoms
     -- if ui.alwaysCdNever("Covenant Abiity") and cast.able.faeTransfusion() and (soulbind.groveInvigoration or soulbind.fieldOfBlossoms) then
     --     if cast.faeTransfusion() then ui.debug("Casting Fae Transfusion") return true end
     -- end
+    -- Crash Lightning
+    -- crash_lightning,if=runeforge.doom_winds.equipped&buff.doom_winds.up
+    if #enemies.yards8c > 0 and cast.able.crashLightning("player","cone",1,8) and runeforge.doomWinds.equiped and buff.doomWinds.exists() then
+        if cast.crashLightning("player","cone",1,8) then ui.debug("Casting Crash Lightning [AOE Doom Winds]") return true end
+    end
     -- Frost Shock
     -- frost_shock,if=buff.hailstorm.up
     if cast.able.frostShock() and buff.hailstorm.exists() then
         if cast.frostShock() then ui.debug("Casting Frost Shock [AOE Hailstorm]") return true end
     end
-    -- Windfury Totem
-    -- windfury_totem,if=runeforge.doom_winds.equipped&buff.doom_winds_debuff.down
-    if cast.able.windfuryTotem() and not unit.moving() and buff.windfuryTotem.remains("player","any") < 30 and #enemies.yards8 > 0
-        and runeforge.doomWinds.equiped and not buff.doomWinds.exists() and not ui.checked("Windfury Totem Key")
-    then
-        if cast.windfuryTotem() then ui.debug("Casting Windfury Totem [AOE Doom Winds]") return true end
+    -- Sundering
+    -- sundering
+    if ui.alwaysCdNever("Sundering") and #enemies.yards11r > 0 and cast.able.sundering("player","rect") then
+        if cast.sundering("player","rect",1,11) then ui.debug("Casting Sundering [AOE]") return true end
     end
     -- Flame Shock
-    -- flame_shock,target_if=refreshable,cycle_targets=1,if=talent.fire_nova.enabled|talent.lashing_flames.enabled|covenant.necrolord
-    if cast.able.flameShock() and (talent.fireNova or talent.lashingFlames or covenant.necrolord.active) then
+    -- flame_shock,target_if=refreshable,cycle_targets=1,if=talent.fire_nova.enabled|talent.lashing_flames.enabled|covenant.necrolord|runeforge.primal_lava_actuators.equipped
+    if cast.able.flameShock() and (talent.fireNova or talent.lashingFlames or covenant.necrolord.active or runeforge.primalLavaActuators.equiped) then
         for i = 1, #enemies.yards40f do
             local thisUnit = enemies.yards40f[i]
             if debuff.flameShock.refresh(thisUnit) then
@@ -369,12 +379,12 @@ actionList.AOE = function()
     end
     -- Primodial Wave
     -- primordial_wave,target_if=min:dot.flame_shock.remains,cycle_targets=1,if=!buff.primordial_wave.up&(!talent.stormkeeper.enabled|buff.stormkeeper.up)
-    if ui.alwaysCdNever("Covenant Ability") and cast.able.primordialWave() and not buff.primordialWave.exists() and (not talent.stormkeeper or buff.stormkeeper.exists()) then
+    if ui.alwaysCdNever("Covenant Ability") and cast.able.primordialWave(var.lowestFlameShock) and not buff.primordialWave.exists() and (not talent.stormkeeper or buff.stormkeeper.exists()) then
         if cast.primordialWave(var.lowestFlameShock) then ui.debug("Casting Primordial Wave") return true end
     end
     -- Fire Nova
     -- fire_nova,if=active_dot.flame_shock>=3
-    if cast.able.fireNova() and debuff.flameShock.count() >= 3 then
+    if #enemies.yards8 > 0 and cast.able.fireNova("player","aoe",1,8) and debuff.flameShock.count() >= 3 then
         if cast.fireNova("player","aoe",1,8) then ui.debug("Casting Fire Nova [AOE 3+ Flame Shock]") return true end
     end
     -- Vesper Totem
@@ -383,29 +393,39 @@ actionList.AOE = function()
         if cast.vesperTotem() then ui.debug("Casting Vesper Totem [AOE]") return true end
     end
     -- Lightning Bolt
-    -- lightning_bolt,if=buff.primordial_wave.up&(buff.stormkeeper.up|buff.maelstrom_weapon.stack>=5)
-    if cast.able.lightningBolt() and buff.primordialWave.exists() and (buff.stormkeeper.exists() or buff.maelstromWeapon.stack() >= 5) then
+    -- lightning_bolt,if=buff.primordial_wave.up&buff.maelstrom_weapon.stack>=5
+    if cast.able.lightningBolt() and buff.primordialWave.exists() and buff.maelstromWeapon.stack() >= 5 then
         if cast.lightningBolt() then ui.debug("Casting Lightning Bolt [AOE Primordial Wave]") return true end
-    end
-    -- Crash Lightning
-    -- crash_lightning,if=talent.crashing_storm.enabled|buff.crash_lightning.down
-    if cast.able.crashLightning() and (talent.crashingStorm or not buff.crashLightning.exists()) then
-        if cast.crashLightning(nil,"cone",1,8) then ui.debug("Casting Crash Lightning [AOE Crashing Storm / No Buff]") return true end
-    end
-    -- Lava Lash
-    -- lava_lash,target_if=min:debuff.lashing_flames.remains,cycle_targets=1,if=talent.lashing_flames.enabled
-    if cast.able.lavaLash(var.lowestLashingFlames) and talent.lashingFlames then
-        if cast.lavaLash(var.lowestLashingFlames) then ui.debug("Casting Lashing Flames [AOE Lowest Lashing Flames]") return true end
-    end
-    -- Crash Lightning
-    -- crash_lightning
-    if cast.able.crashLightning() then
-        if cast.crashLightning(nil,"cone",1,8) then ui.debug("Casting Crash Lightning [AOE]") return true end
     end
     -- Chain Lightning
     -- chain_lightning,if=buff.stormkeeper.up
     if cast.able.chainLightning() and buff.stormkeeper.exists() then
         if cast.chainLightning() then ui.debug("Casting Chain Lightning [AOE Stormkeeper]") return true end
+    end
+    -- Crash Lightning
+    -- crash_lightning,if=talent.crashing_storm.enabled|buff.crash_lightning.down
+    if #enemies.yards8c > 0 and cast.able.crashLightning("player","cone",1,8) and (talent.crashingStorm or not buff.crashLightning.exists()) then
+        if cast.crashLightning("player","cone",1,8) then ui.debug("Casting Crash Lightning [AOE Crashing Storm / No Buff]") return true end
+    end
+    -- Lava Lash
+    -- lava_lash,target_if=min:debuff.lashing_flames.remains,cycle_targets=1,if=talent.lashing_flames.enabled|(runeforge.primal_lava_actuators.equipped&buff.primal_lava_actuators.stack>6)
+    -- lava_lash,target_if=min:debuff.lashing_flames.remains,cycle_targets=1,if=talent.lashing_flames.enabled
+    if cast.able.lavaLash(var.lowestLashingFlames) and talent.lashingFlames then
+        if cast.lavaLash(var.lowestLashingFlames) then ui.debug("Casting Lashing Flames [AOE Lowest Lashing Flames]") return true end
+    end
+    -- lava_lash,if=buff.crash_lightning.up&(buff.hot_hand.up|(runeforge.primal_lava_actuators.equipped&buff.primal_lava_actuators.stack>6))
+    if cast.able.lavaLash() and buff.crashLightning.exists() and (buff.hotHand.exists() or (runeforge.primalLavaActuators.equiped and buff.primalLavaActuators.stack() > 6)) then
+        if cast.lavaLash() then ui.debug("Casting Lashing Flames [AOE Crash Lightning, Hot Hand / Primal Lava Actuators]") return true end
+    end
+    -- Stormstrike
+    -- stormstrike,if=buff.crash_lightning.up
+    if cast.able.stormstrike() and unit.level() >= 20 and buff.crashLightning.exists() then
+        if cast.stormstrike() then ui.debug("Casting Stormstrike [AOE - Crash Lightning]") return true end
+    end
+    -- Crash Lightning
+    -- crash_lightning
+    if #enemies.yards8c > 0 and cast.able.crashLightning("player","cone",1,8) then
+        if cast.crashLightning("player","cone",1,8) then ui.debug("Casting Crash Lightning [AOE]") return true end
     end
     -- Chain Harvest
     -- chain_harvest,if=buff.maelstrom_weapon.stack>=5
@@ -427,25 +447,10 @@ actionList.AOE = function()
     if cast.able.chainLightning() and buff.maelstromWeapon.stack() == 10 then
         if cast.chainLightning() then ui.debug("Casting Chain Lightning [AOE 10 Maelstrom]") return true end
     end
-    -- Flame Shock
-    -- flame_shock,target_if=refreshable,cycle_targets=1,if=talent.fire_nova.enabled
-    if talent.fireNova and cast.able.flameShock() then
-        for i = 1, #enemies.yards40f do
-            local thisUnit = enemies.yards40f[i]
-            if debuff.flameShock.refresh(thisUnit) then
-                if cast.flameShock(thisUnit) then ui.debug("Casting Flame Shock [AOE Fire Nova]") return true end
-            end
-        end
-    end
-    -- Sundering
-    -- sundering
-    if ui.alwaysCdNever("Sundering") and cast.able.sundering() and enemies.yards11r > 0 then
-        if cast.sundering("player","rect",1,11) then ui.debug("Casting Sundering [AOE]") return true end
-    end
-    -- Lava lash
-    -- lava_lash,target_if=min:debuff.lashing_flames.remains,cycle_targets=1,if=runeforge.primal_lava_actuators.equipped&buff.primal_lava_actuators.stack>6
-    if cast.able.lavaLash(var.lowestLashingFlames) and runeforge.primalLavaActuators.equiped and buff.primalLavaActuators.stack() > 6 then
-        if cast.lavaLash(var.lowestLashingFlames) then ui.debug("Casting Lava Lash [AOE Primal Lava Actuators]") return true end
+    -- Windstrike
+    -- windstrike
+    if cast.able.windstrike() and buff.ascendance.exists() then
+        if cast.windstrike() then ui.debug("Casting Windstrike [AOE]") return true end
     end
     -- Stormstrike
     -- stormstrike
@@ -467,9 +472,9 @@ actionList.AOE = function()
             end
         end
     end
-    -- Fae Trasfusion
+    -- Fae Transfusion
     -- fae_transfusion
-    if ui.alwaysCdNever("Covenant Ability") and cast.able.faeTransfusion() then
+    if ui.alwaysCdNever("Covenant Ability") and cast.able.faeTransfusion("player","ground") then
         if cast.faeTransfusion("player","ground") then ui.debug("Casting Fae Transfusion [AOE]") return true end
     end
     -- Frost Shock
@@ -494,7 +499,7 @@ actionList.AOE = function()
     end
     -- Fire Nova
     -- fire_nova,if=active_dot.flame_shock>1
-    if cast.able.fireNova() and debuff.flameShock.count() > 1 then
+    if #enemies.yards8 > 0 and cast.able.fireNova("player","aoe",1,8) and debuff.flameShock.count() > 1 then
         if cast.fireNova("player","aoe",1,8) then ui.debug("Casting Fire Nova [AOE 2+ Flame Shock]") return true end
     end
     -- Earthen Spike
@@ -504,12 +509,14 @@ actionList.AOE = function()
     end
     -- Earth Elemental
     -- earth_elemental
-    if ui.alwaysCdNever("Earth Elemental") and cast.able.earthElemental() and #enemies.yards5 > 0 and unit.ttd("target") > 60 then
+    if ui.alwaysCdNever("Earth Elemental") and cast.able.earthElemental() and #enemies.yards5 > 0 and unit.ttd("target") > 30 then
         if cast.earthElemental() then ui.debug("Casting Earth Elemental [AOE]") return true end
     end
     -- Windfury Totem
     -- windfury_totem,if=buff.windfury_totem.remains<30
-    if cast.able.windfuryTotem() and not unit.moving() and buff.windfuryTotem.remains("player","any") < 30 and #enemies.yards8 > 0 and not ui.checked("Windfury Totem Key") then
+    if cast.able.windfuryTotem() and not unit.moving() and buff.windfuryTotem.remains("player","any") < 30 and #enemies.yards8 > 0 and not ui.checked("Windfury Totem Key")
+        and (not runeforge.doomWinds.equiped or (runeforge.doomWinds.equiped and unit.ttdGroup() > 6))
+    then
         if cast.windfuryTotem() then ui.debug("Casting Windfury Totem [AOE]") return true end
     end
     -- Primal Strike
@@ -523,20 +530,49 @@ actionList.AOE = function()
     if cast.able.lightningBolt() and unit.level() < 24 and canLightning() then
         if cast.lightningBolt() then var.fillLightning = true ui.debug("Casting Lightning Bolt [AOE - Filler]") return true end
     end
+    br.debug.cpu:updateDebug(startTime,"rotation.profile.aoe")
 end -- End Action List - AOE
 -- Action List - Single
 actionList.Single = function()
+    local startTime = br._G.debugprofilestop()
+    -- Windstrike
+    -- windstrike
+    if cast.able.windstrike() and buff.ascendance.exists() then
+        if cast.windstrike() then ui.debug("Casting Windstrike [ST]") return true end
+    end
+    -- Lava Lash
+    -- lava_lash,if=buff.hot_hand.up|(runeforge.primal_lava_actuators.equipped&buff.primal_lava_actuators.stack>6)
+    if cast.able.lavaLash() and (buff.hotHand.exists() or (runeforge.primalLavaActuators.equiped and buff.primalLavaActuators.stack() > 6)) then
+        if cast.lavaLash() then ui.debug("Casting Lava Lash [ST - Hot Hand / Primal Lava Actuators]") return true end
+    end
     -- Primordial Wave
     -- primordial_wave,if=!buff.primordial_wave.up
     if ui.alwaysCdNever("Covenant Ability") and not buff.primordialWave.exists() then
         if cast.primordialWave() then ui.debug("Casting Primordial Wave [ST]") return true end
     end
-    -- Windfury Totem
-    -- windfury_totem,if=runeforge.doom_winds.equipped&buff.doom_winds_debuff.down
-    if cast.able.windfuryTotem() and not unit.moving() and buff.windfuryTotem.remains("player","any") < 30 and #enemies.yards8 > 0 
-        and runeforge.doomWinds.equiped and not buff.doomWinds.exists() and not ui.checked("Windfury Totem Key")
+    -- Stormstrike
+    -- stormstrike,if=runeforge.doom_winds.equipped&buff.doom_winds.up
+    if cast.able.stormstrike() and runeforge.doomWinds.equiped and buff.doomWinds.exists() then
+        if cast.stormstrike() then ui.debug("Casting Stormstrike [ST - Doom Winds]") return true end
+    end
+    -- Crash Lightning
+    -- crash_lightning,if=runeforge.doom_winds.equipped&buff.doom_winds.up
+    if #enemies.yards8c > 0 and cast.able.crashLightning("player","cone",1,8)
+        and runeforge.doomWinds.equiped and buff.doomWinds.exists()
     then
-        if cast.windfuryTotem() then ui.debug("Casting Windfury Totem [ST Doom Winds]") return true end
+        if cast.crashLightning("player","cone",1,8) then ui.debug("Casting Crash Lightning [ST - Doom Winds]") return true end
+    end
+    -- Ice Strike
+    -- ice_strike,if=runeforge.doom_winds.equipped&buff.doom_winds.up
+    if cast.able.iceStrike() and runeforge.doomWinds.equiped and buff.doomWinds.exists() then
+        if cast.iceStrike() then ui.debug("Casting Ice Strike [ST - Doom Winds]") return true end
+    end
+    -- Sundering
+    -- sundering,if=runeforge.doom_winds.equipped&buff.doom_winds.up
+    if ui.alwaysCdNever("Sundering") and #enemies.yards11r > 0 and cast.able.sundering("player","rect",1,11)
+        and runeforge.doomWinds.equiped and buff.doomWinds.exists()
+    then
+        if cast.sundering("player","rect",1,11) then ui.debug("Casting Sundering [ST - Doom Winds]") return true end
     end
     -- Flame Shock
     -- flame_shock,if=!ticking
@@ -560,13 +596,13 @@ actionList.Single = function()
     end
     -- Fae Transfusion
     -- fae_transfusion
-    if ui.alwaysCdNever("Covenant Ability") and cast.able.faeTransfusion() then
+    if ui.alwaysCdNever("Covenant Ability") and cast.able.faeTransfusion("player","ground") then
         if cast.faeTransfusion("player","ground") then ui.debug("Casting Fae Transfusion [ST]") return true end
     end
-    -- Lightning Bolt
-    -- lightning_bolt,if=buff.stormkeeper.up
-    if cast.able.lightningBolt() and buff.stormkeeper.exists() then
-        if cast.lightningBolt() then ui.debug("Casting Lightning Bolt [ST Stormkeeper]") return true end
+    -- Chain Lightning
+    -- chain_lightning,if=buff.stormkeeper.up
+    if cast.able.chainLightning() and buff.stormkeeper.exists() then
+        if cast.chainLightning() then ui.debug("Casting Chain Lightning [ST Stormkeeper]") return true end
     end
     -- Elemental Blast
     -- elemental_blast,if=buff.maelstrom_weapon.stack>=5
@@ -585,7 +621,7 @@ actionList.Single = function()
     end
     -- Lava Lash
     -- lava_lash,if=buff.hot_hand.up|(runeforge.primal_lava_actuators.equipped&buff.primal_lava_actuators.stack>6)
-    if cast.able.lavaLash() and (buff.hotHand.exists() --[[or (runeforge.primalLavaActuators.equiped() and buff.primalLavaActuators.stack() > 6)]]) then
+    if cast.able.lavaLash() and (buff.hotHand.exists() or (runeforge.primalLavaActuators.equiped and buff.primalLavaActuators.stack() > 6)) then
         if cast.lavaLash() then ui.debug("Casting Lava Lash [ST Hot Hand / Primal Lava Actuators]") return true end
     end
     -- Stormstrike
@@ -605,8 +641,8 @@ actionList.Single = function()
     end
     -- Crash Lightning
     -- crash_lightning
-    if cast.able.crashLightning() then
-        if cast.crashLightning(nil,"cone",1,8) then ui.debug("Casting Crash Lightning [ST]") return true end
+    if #enemies.yards8c > 0 and cast.able.crashLightning("player","cone",1,8) then
+        if cast.crashLightning("player","cone",1,8) then ui.debug("Casting Crash Lightning [ST]") return true end
     end
     -- Flame Shock
     -- flame_shock,target_if=refreshable
@@ -629,13 +665,13 @@ actionList.Single = function()
         if cast.iceStrike() then ui.debug("Casting Ice Strike [ST]") return true end
     end
     -- Sundering
-    -- sundering
-    if ui.alwaysCdNever("Sundering") and cast.able.sundering() and enemies.yards11r > 0 then
+    -- sundering,if=raid_event.adds.in>=40
+    if ui.alwaysCdNever("Sundering") and #enemies.yards11r > 0 and cast.able.sundering("player","rect",1,11) then
         if cast.sundering("player","rect",1,11) then ui.debug("Casting Sundering [ST]") return true end
     end
     -- Fire Nova
     -- fire_nova,if=active_dot.flame_shock
-    if cast.able.fireNova() and debuff.flameShock.count() > 1 then
+    if #enemies.yards8 > 0 and cast.able.fireNova("player","aoe",1,8) and debuff.flameShock.count() > 1 then
         if cast.fireNova("player","aoe",1,8) then ui.debug("Casting Fire Nova [ST]") return true end
     end
     -- Lightning Bolt
@@ -650,12 +686,14 @@ actionList.Single = function()
     end
     -- Earth Elemental
     -- earth_elemental
-    if ui.alwaysCdNever("Earth Elemental") and cast.able.earthElemental() and not unit.moving() and #enemies.yards5 > 0 and unit.ttd("target") > 60 then
+    if ui.alwaysCdNever("Earth Elemental") and cast.able.earthElemental() and not unit.moving() and #enemies.yards5 > 0 and unit.ttd("target") > 30 then
         if cast.earthElemental() then ui.debug("Casting Earth Elemental [ST]") return true end
     end
     -- Windfury Totem
     -- windfury_totem,if=buff.windfury_totem.remains<30
-    if cast.able.windfuryTotem() and not unit.moving() and buff.windfuryTotem.remains("player","any") < 30 and #enemies.yards8 > 0 and not ui.checked("Windfury Totem Key") then
+    if cast.able.windfuryTotem() and not unit.moving() and buff.windfuryTotem.remains("player","any") < 30 and #enemies.yards8 > 0 and not ui.checked("Windfury Totem Key") 
+        and (not runeforge.doomWinds.equiped or (runeforge.doomWinds.equiped and unit.ttdGroup() > 6))
+    then
         if cast.windfuryTotem() then ui.debug("Casting Windfury Totem [ST]") return true end
     end
     -- Primal Strike
@@ -666,9 +704,11 @@ actionList.Single = function()
     if cast.able.lightningBolt() and canLightning() then
         if cast.lightningBolt() then var.fillLightning = true ui.debug("Casting Lightning Bolt [ST - Filler]") return true end
     end
+    br.debug.cpu:updateDebug(startTime,"rotation.profile.single")
 end -- End Action List - Single
 -- Action List - PreCombat
 actionList.PreCombat = function()
+    local startTime = br._G.debugprofilestop()
     if not unit.inCombat() and not (unit.flying() or unit.mounted() or unit.taxi()) then
         -- Flask Up Module
         -- flask
@@ -698,9 +738,9 @@ actionList.PreCombat = function()
             end
             -- Potion
             -- potion
-            -- if ui.checked("Potion") and canUseItem(142117) and unit.instance("raid") then
+            -- if ui.checked("Potion") and br.canUseItem(142117) and unit.instance("raid") then
             --     if feralSpiritRemain > 5 and not buff.prolongedPower.exists() then
-            --         useItem(142117)
+            --         br.useItem(142117)
             --     end
             -- end
         end -- End Pre-Pull
@@ -710,8 +750,10 @@ actionList.PreCombat = function()
                 if cast.feralLunge("target") then ui.debug("Casting Feral Lunge [Pull]") return true end
             end
             -- Windfury Totem
-            -- windfury_totem
-            if cast.able.windfuryTotem() and not unit.moving() and not buff.windfuryTotem.exists("player","any") and #enemies.yards8 > 0 and not ui.checked("Windfury Totem Key") then
+            -- windfury_totem,if=!runeforge.doom_winds.equipped
+            if cast.able.windfuryTotem() and not unit.moving() and not runeforge.doomWinds.equiped
+                and not buff.windfuryTotem.exists("player","any") and #enemies.yards8 > 0 and not ui.checked("Windfury Totem Key")
+            then
                 if cast.windfuryTotem() then ui.debug("Casting Windfury Totem [Pull]") return true end
             end
             -- Lightning Bolt
@@ -728,6 +770,7 @@ actionList.PreCombat = function()
             end
         end
     end -- End No Combat
+    br.debug.cpu:updateDebug(startTime,"rotation.profile.precombat")
 end -- End Action List - PreCombat
 
 ----------------
@@ -741,7 +784,6 @@ local function runRotation()
     buff                                          = br.player.buff
     cast                                          = br.player.cast
     cd                                            = br.player.cd
-    conduit                                       = br.player.conduit
     covenant                                      = br.player.covenant
     debuff                                        = br.player.debuff
     enemies                                       = br.player.enemies
@@ -761,11 +803,12 @@ local function runRotation()
 
     -- Enemies Lists
     enemies.get(5)
-    -- enemies.get(5,"player",false,true)
     enemies.get(8)
     enemies.get(8,"player",false,true)
+    enemies.cone.get(180,8,false)
     enemies.get(10)
-    enemies.yards11r = getEnemiesInRect(10,11,false) or 0
+    enemies.get(10,units.get(5))
+    enemies.rect.get(10,11,false)
     enemies.get(20)
     enemies.get(30)
     enemies.get(40,"player",false,true)
@@ -785,8 +828,11 @@ local function runRotation()
         end
     end
 
+    
+    var.healUnit = ui.value("Heal Target") == 1 and unit.lowest(40) or "player"
+    var.healHP = unit.hp(var.healUnit)
     var.unitsNeedingHealing = 0
-    if ui.checked("Use HST While Solo") and getHP("player") <= ui.value("Healing Stream Totem") then
+    if ui.checked("Use HST While Solo") and br.getHP("player") <= ui.value("Healing Stream Totem") then
         var.unitsNeedingHealing = var.unitsNeedingHealing + 1
     end
     if #br.friend > 1 then
@@ -823,7 +869,7 @@ local function runRotation()
         --------------------------
         --- In Combat Rotation ---
         --------------------------
-        if unit.inCombat() and unit.valid("target") and not var.profileStop and not cast.current.focusedAzeriteBeam() then
+        if unit.inCombat() and unit.valid("target") and not var.profileStop then
             ------------------------------
             --- In Combat - Interrupts ---
             ------------------------------
@@ -840,61 +886,71 @@ local function runRotation()
                 unit.startAttack("target")
             end
             -- Windfury Totem
-            -- windfury_totem
-            if cast.able.windfuryTotem() and not unit.moving() and not buff.windfuryTotem.exists("player","any") and #enemies.yards8 > 0 and not ui.checked("Windfury Totem Key") then
+            -- windfury_totem,if=!runeforge.doom_winds.equipped
+            if cast.able.windfuryTotem() and not unit.moving() and not buff.windfuryTotem.exists("player","any")
+                and #enemies.yards8 > 0 and not ui.checked("Windfury Totem Key")
+            then
                 if cast.windfuryTotem() then ui.debug("Casting Windfury Totem") return true end
             end
             -- manual windury totem
             if ui.toggle("Windfury Totem Key") and ui.checked("Windfury Totem Key") then
                 if cast.windfuryTotem() then ui.debug("Casting Windfury Totem") return true end
-            end
-            -- Windstrike
-            -- windstrike
-            if cast.able.windstrike() and buff.ascendance.exists() then
-                if cast.windstrike() then ui.debug("Casting Windstrike") return true end
-            end
-            -- Basic Trinkets Module
-            if #enemies.yards8f > 0 then
-                module.BasicTrinkets()
-            end
-            -- Racials
-            -- blood_fury,if=!talent.ascendance.enabled|buff.ascendance.up|cooldown.ascendance.remains>50
-            -- berserking,if=!talent.ascendance.enabled|buff.ascendance.up
-            -- fireblood,if=!talent.ascendance.enabled|buff.ascendance.up|cooldown.ascendance.remains>50
-            -- ancestral_call,if=!talent.ascendance.enabled|buff.ascendance.up|cooldown.ascendance.remains>50
-            -- bag_of_tricks,if=!talent.ascendance.enabled|!buff.ascendance.up
-            if ui.checked("Racial") and ui.alwaysCdNever("Racial") and (((unit.race() == "Orc" or unit.race() == "DarkIronDwarf" or unit.race() == "MagharOrc")
-                and (not talent.ascendance or (ui.useCDs() and buff.ascendance.exists()) or cd.ascendance.remains() > 50 or (not ui.useCDs() and ui.alwaysCdNever("Racial"))))
-                or (unit.race() == "Troll" and (not talent.ascendance or (ui.useCDs() and buff.ascendance.exists()) or (ui.useCDs() and ui.alwaysCdNever("Racial")))))
-            then
-                if cast.racial("player") then ui.debug("Casting Racial") return true end
-            end
-            -- Feral Spirit
-            -- feral_spirit
-            if ui.alwaysCdNever("Feral Spirit") and cast.able.feralSpirit() and unit.ttd("target") > 15 then
-                if cast.feralSpirit() then ui.debug("Casting Feral Spirit") return true end
-            end
-            -- Ascendance
-            -- ascendance
-            if ui.alwaysCdNever("Ascendance") and cast.able.ascendance() and #enemies.yards8 > 0 and unit.ttd("target") > 15 then
-                if cast.ascendance() then ui.debug("Casting Ascendance") return true end
-            end
-            -- Call Action List - Single
-            -- call_action_list,name=single,if=active_enemies=1
-            if ui.useST(8,2) then
-                if actionList.Single() then return true end
-            end
-            -- Call Action List - AOE
-            -- call_action_list,name=aoe,if=active_enemies>1
-            if ui.useAOE(8,2) then
-                if actionList.AOE() then return true end
+            elseif buff.windfuryTotem.exists() or unit.level() < 49 or unit.ttdGroup() < 6 then
+                -- Basic Trinkets Module
+                if #enemies.yards8f > 0 then
+                    module.BasicTrinkets()
+                end
+                -- Racials
+                -- blood_fury,if=!talent.ascendance.enabled|buff.ascendance.up|cooldown.ascendance.remains>50
+                -- berserking,if=!talent.ascendance.enabled|buff.ascendance.up
+                -- fireblood,if=!talent.ascendance.enabled|buff.ascendance.up|cooldown.ascendance.remains>50
+                -- ancestral_call,if=!talent.ascendance.enabled|buff.ascendance.up|cooldown.ascendance.remains>50
+                -- bag_of_tricks,if=!talent.ascendance.enabled|!buff.ascendance.up
+                if ui.checked("Racial") and ui.alwaysCdNever("Racial") and (((unit.race() == "Orc" or unit.race() == "DarkIronDwarf" or unit.race() == "MagharOrc")
+                    and (not talent.ascendance or (ui.useCDs() and buff.ascendance.exists()) or cd.ascendance.remains() > 50 or (not ui.useCDs() and ui.alwaysCdNever("Racial"))))
+                    or (unit.race() == "Troll" and (not talent.ascendance or (ui.useCDs() and buff.ascendance.exists()) or (ui.useCDs() and ui.alwaysCdNever("Racial")))))
+                then
+                    if cast.racial("player") then ui.debug("Casting Racial") return true end
+                end
+                -- Feral Spirit
+                -- feral_spirit
+                if ui.alwaysCdNever("Feral Spirit") and cast.able.feralSpirit() and unit.ttd("target") > 15 then
+                    if cast.feralSpirit() then ui.debug("Casting Feral Spirit") return true end
+                end
+                -- Fae Transfusion
+                -- fae_transfusion,if=(talent.ascendance.enabled|runeforge.doom_winds.equipped)&(soulbind.grove_invigoration|soulbind.field_of_blossoms|active_enemies=1)
+                if ui.alwaysCdNever("Covenant Ability") and cast.able.faeTransfusion("player","ground") and (talent.ascendance or runeforge.doomWinds.equiped) and #enemies.yards5 == 1 then
+                    if cast.faeTransfusion("player","ground") then ui.debug("Casting Fae Transfusion") return true end
+                end
+                -- Ascendance
+                -- ascendance
+                if ui.alwaysCdNever("Ascendance") and cast.able.ascendance() and #enemies.yards8 > 0 and unit.ttd("target") > 15 then
+                    if cast.ascendance() then ui.debug("Casting Ascendance") return true end
+                end
+                -- Windfury Totem
+                -- windfury_totem,if=runeforge.doom_winds.equipped&buff.doom_winds_debuff.down&(raid_event.adds.in>=60|active_enemies>1)
+                if cast.able.windfuryTotem() and not unit.moving() and runeforge.doomWinds.equiped and not debuff.doomWinds.exists("player")
+                    and #enemies.yards8 > 0 and not ui.checked("Windfury Totem Key") and unit.ttdGroup() >= 6
+                then
+                    if cast.windfuryTotem() then ui.debug("Casting Windfury Totem [Doom Winds]") return true end
+                end
+                -- Call Action List - Single
+                -- call_action_list,name=single,if=active_enemies=1
+                if ui.useST(8,2) then
+                    if actionList.Single() then return true end
+                end
+                -- Call Action List - AOE
+                -- call_action_list,name=aoe,if=active_enemies>1
+                if ui.useAOE(8,2) then
+                    if actionList.AOE() then return true end
+                end
             end
         end --End In Combat
     end --End Rotation Logic
 end -- End runRotation
 local id = 263
 if br.rotations[id] == nil then br.rotations[id] = {} end
-tinsert(br.rotations[id],{
+br._G.tinsert(br.rotations[id],{
     name = rotationName,
     toggles = createToggles,
     options = createOptions,

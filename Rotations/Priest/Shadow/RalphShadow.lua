@@ -4,33 +4,62 @@ local rotationName = "RalphShadow" -- Change to name of profile listed in option
 --- Toggles ---
 ---------------
 local function createToggles() -- Define custom toggles
+    local CreateButton = br["CreateButton"]
     -- Rotation Button
-    RotationModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range.", highlight = 0, icon = br.player.spell.shadowform },
-        [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.mindSear },
-        [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.mindFlay },
-        [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.shadowMend}
-    };
-    CreateButton("Rotation",1,0)
+    br.RotationModes = {
+        [1] = {
+            mode = "Auto",
+            value = 1,
+            overlay = "Automatic Rotation",
+            tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range",
+            highlight = 1,
+            icon = br.player.spell.swipeBear
+        },
+        [2] = {
+            mode = "Multi",
+            value = 2,
+            overlay = "Multi Target",
+            tip = "Multi Target Rotation",
+            highlight = 1,
+            icon = br.player.spell.regrowth
+        },
+		[3] = {
+            mode = "Sing",
+            value = 3,
+            overlay = "Single Target",
+            tip = "Single Target Only",
+            highlight = 1,
+            icon = br.player.spell.swipeBear
+        },
+        [4] = {
+            mode = "Off",
+            value = 4,
+            overlay = "DPS Rotation Disabled",
+            tip = "Disable DPS Rotation",
+            highlight = 0,
+            icon = br.player.spell.regrowth
+        }
+    }
+     CreateButton("Rotation", 1, 0)
     -- Cooldown Button
-    CooldownModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.voidEruption },
-        [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.voidEruption },
-        [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.mindBlast }
-    };
-    CreateButton("Cooldown",2,0)
+    br.CooldownModes = {
+        [1] = {mode = "Auto", value = 1, overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.ascendance},
+        [2] = {mode = "On", value = 2, overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 1, icon = br.player.spell.fireElemental},
+        [3] = {mode = "Off", value = 3, overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.earthElemental}
+    }
+    CreateButton("Cooldown", 2, 0)
     -- Defensive Button
-    DefensiveModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.dispersion },
-        [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.dispersion }
-    };
-    CreateButton("Defensive",3,0)
+    br.DefensiveModes = {
+        [1] = {mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.astralShift},
+        [2] = {mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.earthShield}
+    }
+    CreateButton("Defensive", 3, 0)
     -- Interrupt Button
-    InterruptModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.silence },
-        [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.silence }
-    };
-    CreateButton("Interrupt",4,0)
+    br.InterruptModes = {
+        [1] = {mode = "On", value = 1, overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.windShear},
+        [2] = {mode = "Off", value = 2, overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.hex}
+    }
+    CreateButton("Interrupt", 4, 0)
 end
 
 ---------------
@@ -43,7 +72,7 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
-        section = br.ui:createSection(br.ui.window.profile,  "General")
+        local section = br.ui:createSection(br.ui.window.profile,  "General")
             -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  1,  1,  60,  1,  "Set to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
             -- Pre-Pull Timer
@@ -72,6 +101,8 @@ local function createOptions()
         --- COOLDOWN OPTIONS --- -- Define Cooldown Options
         ------------------------
         section = br.ui:createSection(br.ui.window.profile,  "Cooldowns")
+            -- Power Infusion
+            br.ui:createCheckbox(section,"Power Infusion")
             -- Surrender to Madness
             br.ui:createCheckbox(section,"Surrender to Madness")
             -- Pots
@@ -98,7 +129,7 @@ local function createOptions()
             -- Shadow Mend
             br.ui:createSpinner(section, "Shadow Mend",  40,  0,  100,  5,  "Health Percentage to cast at.")
             br.ui:createSpinner(section, "Shadow Mend OOC", 80, 0, 100, 5, "Health Percentage to cast at OOC.")
-            -- -- Psychic Scream / Mind Bomb
+            -- Psychic Scream / Mind Bomb
             -- br.ui:createSpinner(section, "Psychic Scream / Mind Bomb",  40,  0,  100,  5,  "Health Percentage to use at.")
         br.ui:checkSectionState(section)
         -------------------------
@@ -224,7 +255,7 @@ local function CwC()
         if cd.shadowWordDeath.ready() then
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
-                if not talent.deathAndMadness and getHP(thisUnit) < 20 or talent.deathAndMadness and getHP(thisUnit) and ttd(thisUnit) < 7 then
+                if not talent.deathAndMadness and br.getHP(thisUnit) < 20 or talent.deathAndMadness and br.getHP(thisUnit) and ttd(thisUnit) < 7 then
                     if not noDotCheck(thisUnit) then
                         if cast.shadowWordDeath(thisUnit) then ui.debug("Casting SW:D on low enemies [CwC]") return end
                     end
@@ -233,7 +264,7 @@ local function CwC()
         end
     end
     -- Consume dark thoughts proc while channeling mindflay or mind sear
-    if (cast.current.mindFlay() or cast.current.mindSear()) and cd.mindBlast.ready() then
+    if (cast.current.mindFlay() or cast.current.mindSear()) and cd.mindBlast.ready() and (voidform and cd.voidBolt.exists() or not voidform) then
         if buff.darkThoughts.exists() and power < 30 or #searEnemies < searCutoff then
             if cast.mindBlast("target") then ui.debug("Casting Mind Blast [CwC]") return end
         end
@@ -256,7 +287,7 @@ local function CwC()
     
     -- # Use Searing Nightmare if you will hit enough targets and Power Infusion and Voidform are not ready, or to refresh SW:P on two or more targets.
     -- actions.cwc=searing_nightmare,use_while_casting=1,target_if=(variable.searing_nightmare_cutoff&!variable.pool_for_cds)|(dot.shadow_word_pain.refreshable&spell_targets.mind_sear>1)
-    if (useCDs() and cd.voidEruption.exists() or not useCDs()) and ((snmCutoff and not pool) or (not swpCheck and #searEnemies > 1)) and cast.current.mindSear() then
+    if (br.useCDs() and cd.voidEruption.exists() or not br.useCDs()) and ((snmCutoff and not pool) or (not swpCheck and #searEnemies > 1)) and cast.current.mindSear() then
         if power > 30 then
             if cast.searingNightmare("target") then ui.debug("Searing nightmare if will hit 3+ targets [CwC]") return end
         end
@@ -264,14 +295,8 @@ local function CwC()
     
     -- # Short Circuit Searing Nightmare condition to keep SW:P up in AoE
     -- actions.cwc+=/searing_nightmare,use_while_casting=1,target_if=talent.searing_nightmare.enabled&dot.shadow_word_pain.refreshable&spell_targets.mind_sear>2
-    if ((useCDs() and cd.voidEruption.exists()) or not useCDs()) and talent.searingNightmare and not swpCheck and #searEnemies > 2 and select(1,UnitChannelInfo("player")) == GetSpellInfo(48045) and power > 30 then
+    if ((br.useCDs() and cd.voidEruption.exists()) or not br.useCDs()) and talent.searingNightmare and not swpCheck and #searEnemies > 2 and select(1,br._G.UnitChannelInfo("player")) == br._G.GetSpellInfo(48045) and power > 30 then
         if cast.searingNightmare("target") then ui.debug('SNM to refresh SW:P [CwC]') return end
-    end
-    -- Consume dark thoughts proc while channeling mindflay or mind sear
-    if (cast.current.mindFlay() or cast.current.mindSear()) then
-        if buff.darkThoughts.exists() then
-            if cast.mindBlast("target") then ui.debug("Consuming dark thoughts before SnM if insanity < 30 [CwC]") return end
-        end
     end
 end
 
@@ -331,7 +356,7 @@ local function snmEnabled()
 end
 
 function noDotCheck(unit)
-    if GetObjectID(unit) == 171557 or UnitIsCharmed(unit) then
+    if br.GetObjectID(unit) == 171557 or br._G.UnitIsCharmed(unit) then
         return true
     else
         return false
@@ -351,18 +376,18 @@ actionList.Extra = function()
     -- PowerWord: Fort
     if ui.checked("Power Word: Fortitude") then
         for i = 1, #br.friend do
-            if not buff.powerWordFortitude.exists(br.friend[i].unit,"any") and getDistance("player", br.friend[i].unit) < 40 and not UnitIsDeadOrGhost(br.friend[i].unit) and UnitIsPlayer(br.friend[i].unit) then
+            if not buff.powerWordFortitude.exists(br.friend[i].unit,"any") and br.getDistance("player", br.friend[i].unit) < 40 and not br._G.UnitIsDeadOrGhost(br.friend[i].unit) and br._G.UnitIsPlayer(br.friend[i].unit) then
                 if cast.powerWordFortitude() then return end
             end
         end
     end
     -- Dummy Test
     if ui.checked("DPS Testing") then
-        if GetObjectExists("target") then
-            if getCombatTime() >= (tonumber(ui.value("DPS Testing"))*60) and isDummy() then
-                StopAttack()
-                ClearTarget()
-                Print(tonumber(ui.value("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
+        if br.GetObjectExists("target") then
+            if br.getCombatTime() >= (tonumber(ui.value("DPS Testing"))*60) and br.isDummy() then
+                br._G.StopAttack()
+                br._G.ClearTarget()
+                br._G.print(tonumber(ui.value("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
                 profileStop = true
             end
         end
@@ -372,19 +397,19 @@ end -- End Action List - Extra
 -- Action List - Defensive
 actionList.Defensive = function()
     -- Fade
-    if isChecked("Fade") then
-        if not solo and UnitThreatSituation("player") ~= nil and UnitThreatSituation("player") > 1 then
+    if br.isChecked("Fade") then
+        if not solo and br._G.UnitThreatSituation("player") ~= nil and br._G.UnitThreatSituation("player") > 1 then
             if cast.fade("player") then ui.debug("Defensive - Casting fade") return end
         end
     end
     -- Healthstone
-    if ui.checked("Healthstone") and php <= ui.value("Healthstone") and inCombat and (hasHealthPot() or hasItem(5512) or hasItem(171267)) then
-        if canUseItem(5512) then
-            useItem(5512)
-        elseif canUseItem(healPot) then
-            useItem(healPot)
-        elseif hasItem(171267) and canUseItem(171267) then
-            useItem(171267)
+    if ui.checked("Healthstone") and php <= ui.value("Healthstone") and inCombat and (br.hasHealthPot() or br.hasItem(5512) or br.hasItem(171267)) then
+        if br.canUseItem(5512) then
+            br.useItem(5512)
+        elseif br.canUseItem(healPot) then
+            br.useItem(healPot)
+        elseif br.hasItem(171267) and br.canUseItem(171267) then
+            br.useItem(171267)
         end
     end
 
@@ -393,16 +418,16 @@ actionList.Defensive = function()
         if cast.dispersion() then ui.debug("Casting dispersion [Defensive]") return end
     end
     -- Dispel Magic
-    if isChecked("Dispel Magic") then
+    if br.isChecked("Dispel Magic") then
         for i = 1, #enemies.yards40 do
             local thisUnit = enemies.yards40[i]
-            if canDispel(enemies.yards40[i],spell.dispelMagic) then
+            if br.canDispel(enemies.yards40[i],spell.dispelMagic) then
                 if cast.dispelMagic() then br.addonDebug("Casting Dispel Magic") return end
             end
         end
     end
     -- PowerWord: Shield
-    if not debuff.weakenedSoul.exists('player') and (ui.checked("PWS: Body and Soul") and talent.bodyAndSoul and moving and not IsFalling() or inCombat and php <= ui.value('Power Word: Shield')) then
+    if not debuff.weakenedSoul.exists('player') and (ui.checked("PWS: Body and Soul") and talent.bodyAndSoul and moving and not br._G.IsFalling() or inCombat and php <= ui.value('Power Word: Shield')) then
         if cast.powerWordShield("player") then ui.debug("BnS or low health PW:S [Defensive]") return end
     end
     -- Shadow Mend
@@ -413,7 +438,7 @@ end -- End Action List - Defensive
 
 -- Action List - Interrrupt
 actionList.Interrupt = function()
-    if useInterrupts() then
+    if br.useInterrupts() then
         -- Silence
         unit.interruptable(thisUnit,ui.value("Interrupt At"))
         if ui.checked("Silence") then
@@ -458,7 +483,7 @@ end -- End Action List - Interrupt
 actionList.Cooldown = function()
     -- # Use Power Infusion with Voidform. Hold for Voidform comes off cooldown in the next 10 seconds otherwise use on cd unless the Pelagos Trait Combat Meditation is talented, or if there will not be another Void Eruption this fight.
     -- actions.cds=power_infusion,if=buff.voidform.up|!soulbind.combat_meditation.enabled&cooldown.void_eruption.remains>=10|fight_remains<cooldown.void_eruption.remains
-    if useCDs() then
+    if br.useCDs() and ui.checked("Power Infusion") then
         if voidform or cd.voidEruption.remain() >= 10 or ttd('target') < cd.voidEruption.remain() then
             if cast.powerInfusion() then return end
         end
@@ -476,24 +501,24 @@ actionList.Cooldown = function()
     -- actions.cds+=/unholy_nova,if=((!raid_event.adds.up&raid_event.adds.in>20)|raid_event.adds.remains>=15|raid_event.adds.duration<15)&
     --(buff.power_infusion.up|cooldown.power_infusion.remains>=10|!priest.self_power_infusion)&(!talent.hungering_void.enabled|debuff.hungering_void.up|!buff.voidform.up)
         if covenant.necrolord.active then
-            if (buff.powerInfusion.exists() or cd.powerInfusion.remain >= 10) and (not talent.hungeringVoid or debuff.hungeringVoid.exists() or not voidform) then
+            if (buff.powerInfusion.exists() or cd.powerInfusion.remain() >= 10) and (not talent.hungeringVoid or debuff.hungeringVoid.exists() or not voidform) then
                 if cast.unholyNova() then return end
             end
         end
     -- Pot is good
-        if isChecked("Auto use Pots") then
-            if getValue("Auto use Pots") == 1
-                or getValue("Auto use Pots") == 2 and inInstance
-                or getValue("Auto use Pots") == 3 and inRaid
-                or getValue("Auto use Pots") == 4 and solo
+        if br.isChecked("Auto use Pots") then
+            if br.getValue("Auto use Pots") == 1
+                or br.getValue("Auto use Pots") == 2 and inInstance
+                or br.getValue("Auto use Pots") == 3 and inRaid
+                or br.getValue("Auto use Pots") == 4 and solo
             then
                 pot_use = true
             end
 
             if pot_use then
                 if buff.voidForm.exists() then
-                    if canUseItem(171349) then
-                        if useItem(171349) then ui.debug("Pot is good [Cooldown]") return end
+                    if br.canUseItem(171349) then
+                        if br.useItem(171349) then ui.debug("Pot is good [Cooldown]") return end
                     end
                 end
             end
@@ -503,61 +528,61 @@ actionList.Cooldown = function()
         -- # Use on CD ASAP to get DoT ticking and expire to line up better with Voidform
         -- actions.trinkets=use_item,name=empyreal_ordnance(180117),if=cooldown.void_eruption.remains<=12|cooldown.void_eruption.remains>27
             if trinket13 == 180117 or trinket14 == 180117 then
-                if canUseItem(180117) and (cd.voidEruption.remain() <= 14 or cd.voidEruption.remain() > 27) then
-                    useItem(180117)
+                if br.canUseItem(180117) and (cd.voidEruption.remain() <= 14 or cd.voidEruption.remain() > 27) then
+                    br.useItem(180117)
                 end
             end
         -- # Sync IQD with Voidform
         -- actions.trinkets+=/use_item,name=inscrutable_quantum_device(179350),if=cooldown.void_eruption.remains>10
             if trinket13 == 179350 or trinket14 == 179350 then
-                if canUseItem(179350) and cd.voidEruption.remain() > 10 then
-                    useItem(179350)
+                if br.canUseItem(179350) and cd.voidEruption.remain() > 10 then
+                    br.useItem(179350)
                 end
             end
         -- # Sync Sheet Music with Voidform
         -- actions.trinkets+=/use_item,name=macabre_sheet_music(184024),if=cooldown.void_eruption.remains>10
             if trinket13 == 184024 or trinket14 == 184024 then
-                if canUseItem(184024) and cd.voidEruption.remain() > 10 then
-                    useItem(184024)
+                if br.canUseItem(184024) and cd.voidEruption.remain() > 10 then
+                    br.useItem(184024)
                 end
             end
         -- # Sync Ruby with Power Infusion usage, make sure to snipe the lowest HP target
         -- actions.trinkets+=/use_item,name=soulletting_ruby(178809),if=buff.power_infusion.up|!priest.self_power_infusion,target_if=min:target.health.pct
             -- if trinket13 ==  or trinket14 ==  then
-            --     if canUseItem() and (buff.powerInfusion.exists()  then
-            --         useItem()
+            --     if br.canUseItem() and (buff.powerInfusion.exists()  then
+            --         br.useItem()
             --     end
             -- end
         -- # Use Badge inside of VF for the first use or on CD after the first use. Short circuit if void eruption cooldown is 10s or more away.
         -- actions.trinkets+=/use_item,name=sinful_gladiators_badge_of_ferocity,if=cooldown.void_eruption.remains>=10
             if trinket13 == 175921 or trinket14 == 175921 then
-                if canUseItem(175921) and cd.voidEruption.remain() >= 10 then
-                    useItem(175921)
+                if br.canUseItem(175921) and cd.voidEruption.remain() >= 10 then
+                    br.useItem(175921)
                 end
             end
         -- # Use list of on-use damage trinkets only if Hungering Void Debuff is active, or you are not talented into it.
         -- actions.trinkets+=/call_action_list,name=dmg_trinkets,if=(!talent.hungering_void.enabled|debuff.hungering_void.up)&(buff.voidform.up|cooldown.void_eruption.remains>10)
         -- darkmoon_deck__putrescence(173069), sunblood_amethyst(178826), glyph_of_assimilation(184021), dreadfire_vessel(184030)
             if trinket13 == 173069 or trinket13 == 178826 or trinket13 ==  184021 or trinket13 == 184030 then
-                if canUseItem(13) and (not talent.hungeringVoid or debuff.hungeringVoid.exists()) and (buff.voidForm.exists() or cd.voidEruption.remain() > 10) then
-                    useItem(13)
+                if br.canUseItem(13) and (not talent.hungeringVoid or debuff.hungeringVoid.exists()) and (buff.voidForm.exists() or cd.voidEruption.remain() > 10) then
+                    br.useItem(13)
                 end
             end
             if trinket14 == 173069 or trinket14 == 178826 or trinket14 ==  184021 or trinket14 == 184030 then
-                if canUseItem(14) and (not talent.hungeringVoid or debuff.hungeringVoid.exists()) and (buff.voidForm.exists() or cd.voidEruption.remain() > 10) then
-                    useItem(14)
+                if br.canUseItem(14) and (not talent.hungeringVoid or debuff.hungeringVoid.exists()) and (buff.voidForm.exists() or cd.voidEruption.remain() > 10) then
+                    br.useItem(14)
                 end
             end
         -- # Default fallback for usable items: Use on cooldown in order by trinket slot.
         -- actions.trinkets+=/use_items,if=buff.voidform.up|buff.power_infusion.up|cooldown.void_eruption.remains>10
             if trinket13 ~= 180117 and trinket13 ~= 179350 and trinket13 ~= 184024 and trinket13 == 178809 and trinket13 ~= 175921 and trinket13 ~= 173069 and trinket13 ~= 178826 and trinket13 ~= 184021 and trinket13 ~= 184030 then
-                if canUseItem(13) and (buff.voidForm.exists() or buff.powerInfusion.exists() or cd.voidEruption.remain() > 10) then
-                    useItem(13)
+                if br.canUseItem(13) and (buff.voidForm.exists() or buff.powerInfusion.exists() or cd.voidEruption.remain() > 10) then
+                    br.useItem(13)
                 end
             end
             if trinket14 ~= 180117 and trinket14 ~= 179350 and trinket14 ~= 184024 and trinket14 == 178809 and trinket14 ~= 175921 and trinket14 ~= 173069 and trinket14 ~= 178826 and trinket14 ~= 184021 and trinket14 ~= 184030 then
-                if canUseItem(14) and (buff.voidForm.exists() or buff.powerInfusion.exists() or cd.voidEruption.remain() > 10) then
-                    useItem(14)
+                if br.canUseItem(14) and (buff.voidForm.exists() or buff.powerInfusion.exists() or cd.voidEruption.remain() > 10) then
+                    br.useItem(14)
                 end
             end
         end
@@ -578,7 +603,7 @@ actionList.PreCombat = function()
         -- actions.precombat+=/use_item,name=azsharas_font_of_power
         -- actions.precombat+=/variable,name=mind_sear_cutoff,op=set,value=2
         -- actions.precombat+=/vampiric_touch
-        if ui.checked("VT OoC") and not debuff.vampiricTouch.exists() and not moving then
+        if ui.checked("VT OoC") and not debuff.vampiricTouch.exists() and not moving and not cast.last.vampiricTouch() then
             if cast.vampiricTouch("target") then ui.debug("Pulling with VT [Pre-Combat]") return end
         end
         -- Pre-Pull
@@ -595,11 +620,11 @@ actionList.Main = function()
     if buff.boonOfTheAscended.exists() then
         -- actions.boon=ascended_blast,if=spell_targets.mind_sear<=3
         if #searEnemies <= 3 then
-            if createCastFunction("target",nil,1,nil,325283) then ui.debug("Casting Ascended Blast [Main]") return end
+            if br.createCastFunction("target",nil,1,nil,325283) then ui.debug("Casting Ascended Blast [Main]") return end
         end
         -- actions.boon+=/ascended_nova,if=spell_targets.ascended_nova>1&spell_targets.mind_sear>1+talent.searing_nightmare.enabled
         if #novaEnemies > 1 and #searEnemies > 1 + snmEnabled() then
-            if createCastFunction("target",nil,1,nil,325020) then ui.debug("Casting Ascended Nova [Main]") return end
+            if br.createCastFunction("target",nil,1,nil,325020) then ui.debug("Casting Ascended Nova [Main]") return end
         end
     end
 
@@ -624,7 +649,7 @@ actionList.Main = function()
     if cd.shadowWordDeath.ready() then
         for i = 1, #enemies.yards40 do
             local thisUnit = enemies.yards40[i]
-            if not talent.deathAndMadness and getHP(thisUnit) < 20 or talent.deathAndMadness and ttd(thisUnit) < 7 then
+            if not talent.deathAndMadness and br.getHP(thisUnit) < 20 or talent.deathAndMadness and ttd(thisUnit) < 7 then
                 if not noDotCheck(thisUnit) then
                     if cast.shadowWordDeath(thisUnit) then ui.debug("SW:D on low enemies [Main]") return end
                 end
@@ -632,13 +657,13 @@ actionList.Main = function()
         end
     end
 
-    if not debuff.vampiricTouch.exists() and not moving and #searEnemies < searCutoff then
+    if not debuff.vampiricTouch.exists() and not moving and #searEnemies < searCutoff and not cast.last.vampiricTouch() then
         if cast.vampiricTouch("target") then ui.debug("Casting VT on target [Main]") return end
     end
    
     -- # Use Void Eruption on cooldown pooling at least 40 insanity but not if you will overcap insanity in VF. Make sure shadowfiend/mindbender is on cooldown before VE.
     -- actions.main+=/void_eruption,if=variable.pool_for_cds&insanity>=40&(insanity<=85|talent.searing_nightmare.enabled&variable.searing_nightmare_cutoff)&!cooldown.fiend.up
-    if useCDs() and not voidform and not moving and power >= 40 and (power <= 85 or (talent.searingNightmare and snmCutoff)) and cd.shadowfiend.exists() then
+    if br.useCDs() and not voidform and not moving and power >= 40 and (power <= 85 or (talent.searingNightmare and snmCutoff)) and cd.shadowfiend.exists() then
         if cast.voidEruption() then ui.debug("Casting Void Eruption [Main]") return end
     end
     
@@ -650,12 +675,12 @@ actionList.Main = function()
 
     -- # Use Shadow Crash on CD unless there are adds incoming.
     -- actions.main+=/shadow_crash,if=raid_event.adds.in>10
-    if talent.shadowCrash and cd.shadowCrash.ready() and ui.checked('Shadow Crash') and ttd("target") > 3 and ((not tankMoving and (inRaid or inInstance)) or (not inInstance and not inRaid and not isMoving("target"))) then
-        if cast.shadowCrash("best",nil,1,8) then ui.debug("Casting Shadow Crash [Main]") SpellStopTargeting() return end
+    if talent.shadowCrash and cd.shadowCrash.ready() and ui.checked('Shadow Crash') and ttd("target") > 3 and ((not tankMoving and (inRaid or inInstance)) or (not inInstance and not inRaid and not br.isMoving("target"))) then
+        if cast.shadowCrash("best",nil,1,8) then ui.debug("Casting Shadow Crash [Main]") br._G.SpellStopTargeting() return end
     end
 
     -- actions.main+=/mind_sear,target_if=spell_targets.mind_sear>variable.mind_sear_cutoff,chain=1,interrupt_immediate=1,interrupt_if=ticks>=2
-    if ((useCDs() and cd.voidEruption.exists()) or not useCDs()) and talent.searingNightmare and #searEnemies > searCutoff and not moving and power > 30 and not cast.current.mindSear() then
+    if ((br.useCDs() and cd.voidEruption.exists()) or not br.useCDs()) and talent.searingNightmare and #searEnemies > searCutoff and not moving and power > 30 and not cast.current.mindSear() then
         if cast.mindSear('target') then ui.debug("Mind Sear on 4+ [Main]") return end
     end
 
@@ -684,7 +709,7 @@ actionList.Main = function()
     if debuff.vampiricTouch.count() < VTmaxTargets and not cast.last.vampiricTouch() then
         for i = 1, #enemies.yards40 do
             local thisUnit = enemies.yards40[i]
-            if not moving and not cast.current.vampiricTouch() and (debuff.vampiricTouch.refresh(thisUnit) and ttd(thisUnit) > 6 or (talent.misery and debuff.shadowWordPain.refresh() or buff.unfurlingDarkness.exists())) then
+            if not moving and not cast.last.vampiricTouch() and (debuff.vampiricTouch.refresh(thisUnit) and ttd(thisUnit) > 6 or (talent.misery and debuff.shadowWordPain.refresh() or buff.unfurlingDarkness.exists())) then
                 if not noDotCheck(thisUnit) then
                     if cast.vampiricTouch(thisUnit) then ui.debug("Spreading VT to enemies [Main]") return end
                 end
@@ -711,7 +736,7 @@ actionList.Main = function()
     end
     for i = 1, #enemies.yards40 do
         local thisUnit = enemies.yards40[i]
-        if not talent.deathAndMadness and getHP(thisUnit) < 20 and #searEnemies < 4 or talent.deathAndMadness and ttd(thisUnit) < 7 then
+        if not talent.deathAndMadness and br.getHP(thisUnit) < 20 and #searEnemies < 4 or talent.deathAndMadness and ttd(thisUnit) < 7 then
             if not noDotCheck(thisUnit) then
                 if cast.shadowWordDeath(thisUnit) then ui.debug("Casting SW:D on low enemies [Main]") return end
             end
@@ -731,7 +756,7 @@ actionList.Main = function()
     end
     
     -- actions.main+=/mindbender,if=dot.vampiric_touch.ticking&(talent.searing_nightmare.enabled&spell_targets.mind_sear>variable.mind_sear_cutoff|dot.shadow_word_pain.ticking)
-    if useCDs() and debuff.vampiricTouch.exists('target') and (talent.searingNightmare and #searEnemies > searCutoff or debuff.shadowWordPain.exists('target')) then
+    if br.useCDs() and debuff.vampiricTouch.exists('target') and (talent.searingNightmare and #searEnemies > searCutoff or debuff.shadowWordPain.exists('target')) then
         if talent.mindBender and ttd("target") >= 6 then
             if cast.mindBender('target') then ui.debug("Casting Mindbender [Main]") return end
         else
@@ -762,7 +787,7 @@ actionList.Main = function()
     end
    
     -- actions.main+=/vampiric_touch,target_if=refreshable&target.time_to_die>6|(talent.misery.enabled&dot.shadow_word_pain.refreshable)|buff.unfurling_darkness.up
-    if not moving and not cast.current.vampiricTouch() and (debuff.vampiricTouch.refresh('target') and ttd('target') > 6 or (talent.misery and debuff.shadowWordPain.refresh() or buff.unfurlingDarkness.exists())) then
+    if not moving and not cast.last.vampiricTouch() and (debuff.vampiricTouch.refresh('target') and ttd('target') > 6 or (talent.misery and debuff.shadowWordPain.refresh() or buff.unfurlingDarkness.exists())) then
         --if not cast.last.vampiricTouch() then
             if cast.vampiricTouch('target') then ui.debug("Casting VT on target [Main]") return end
         --end
@@ -770,7 +795,7 @@ actionList.Main = function()
     if debuff.vampiricTouch.count() < VTmaxTargets then
         for i = 1, #enemies.yards40 do
             local thisUnit = enemies.yards40[i]
-            if not moving and not cast.current.vampiricTouch() and (debuff.vampiricTouch.refresh(thisUnit) and ttd(thisUnit) > 6 or (talent.misery and debuff.shadowWordPain.refresh() or buff.unfurlingDarkness.exists())) then
+            if not moving and not cast.last.vampiricTouch() and (debuff.vampiricTouch.refresh(thisUnit) and ttd(thisUnit) > 6 or (talent.misery and debuff.shadowWordPain.refresh() or buff.unfurlingDarkness.exists())) then
                 if not noDotCheck(thisUnit) then
                     if cast.vampiricTouch(thisUnit) then ui.debug("Refreshing VT on enemies [Main]") return end
                 end
@@ -787,7 +812,7 @@ actionList.Main = function()
     if debuff.shadowWordPain.count() < SWPmaxTargets then
         for i = 1, #enemies.yards40 do
             local thisUnit = enemies.yards40[i]
-            if debuff.shadowWordPain.refresh("target") and ttd("target") > 4 and not talent.misery and talent.psychicLink and #searEnemies > 2 then
+            if debuff.shadowWordPain.refresh(thisUnit) and ttd(thisUnit) > 4 and not talent.misery and talent.psychicLink and #searEnemies > 2 then
                 if not noDotCheck(thisUnit) then
                     if cast.shadowWordPain(thisUnit) then ui.debug("Spreading SW:P [Main]") return end
                 end
@@ -813,12 +838,12 @@ actionList.Main = function()
     end
     
     -- actions.main+=/mind_flay,chain=1,interrupt_immediate=1,interrupt_if=ticks>=2&cooldown.void_bolt.up
-    if dotsUp and not moving and #searEnemies <= searCutoff and cd.mindBlast.exists() and cd.voidTorrent.exists() then
+    if dotsUp and not moving and #searEnemies <= searCutoff then
         if cast.mindFlay('target') then ui.debug("Casting Mindflay on target [Main]") return end
     end
 
     -- actions.main+=/mind_sear,target_if=spell_targets.mind_sear>variable.mind_sear_cutoff,chain=1,interrupt_immediate=1,interrupt_if=ticks>=2
-    if not talent.searingNightmare and #searEnemies > searCutoff and not moving and cd.mindBlast.exists() and cd.voidTorrent.exists() then
+    if not talent.searingNightmare and #searEnemies > searCutoff and not moving then
         if cast.mindSear('target') then ui.debug("Casting Mind Sear on target [Main]") return end
     end
   
@@ -827,12 +852,17 @@ actionList.Main = function()
     if moving and cd.shadowWordDeath.ready() then
         for i = 1, #enemies.yards40 do
             local thisUnit = enemies.yards40[i]
-            if not talent.deathAndMadness and getHP(thisUnit) < 20 or talent.deathAndMadness and ttd(thisUnit) < 7 then
+            if not talent.deathAndMadness and br.getHP(thisUnit) < 20 or talent.deathAndMadness and ttd(thisUnit) < 7 then
                 if not noDotCheck(thisUnit) then
                     if cast.shadowWordDeath(thisUnit) then ui.debug("Casting SW:D on low enemies [Main]") return end
                 end
             end
         end
+    end
+
+    -- Consume dark thoughts proc while moving
+    if moving and buff.darkThoughts.exists() then
+        if cast.mindBlast("target") then ui.debug("Consuming dark thoughts while moving [CwC]") return end
     end
     
     -- # Use SW:P as last resort if on the move and SW:D is on CD
@@ -873,25 +903,25 @@ local function runRotation()
     inRaid = br.player.instance == "raid"
     level                                           = br.player.level
     mode                                            = br.player.ui.mode
-    moving                                          = isMoving('player')
+    moving                                          = br.isMoving('player')
     mrdm                                            = math.random
     power                                           = br.player.power.insanity.amount()
     php                                             = br.player.health
     solo                                            = #br.friend < 2
     spell                                           = br.player.spell
     talent                                          = br.player.talent
-    thp                                             = getHP("target")
+    thp                                             = br.getHP("target")
     unit                                            = br.player.unit
     units                                           = br.player.units
     ui                                              = br.player.ui
     use                                             = br.player.use
     voidform                                        = buff.voidForm.exists()
     -- General Locals   
-    hastar                                          = GetObjectExists("target")
-    healPot                                         = getHealthPot()
-    profileStop                                     = profileStop or false
-    ttd                                             = getTTD
-    haltProfile = (inCombat and profileStop) or (IsMounted() or IsFlying()) or pause() or mode.rotation==4
+    hastar                                          = br.GetObjectExists("target")
+    healPot                                         = br.getHealthPot()
+    profileStop                                     = br.profileStop or false
+    ttd                                             = br.getTTD
+    haltProfile = (inCombat and profileStop) or (br._G.IsMounted() or br._G.IsFlying()) or br.pause() or mode.rotation==4
     -- Units
     units.get(5) -- Makes a variable called, units.dyn5
     units.get(40) -- Makes a variable called, units.dyn40
@@ -908,26 +938,26 @@ local function runRotation()
     dotsUp                                          = debuff.shadowWordPain.exists() and debuff.vampiricTouch.exists()
     mfTicks                                         = br.mfTicks
     msTicks                                         = br.msTicks
-    novaEnemies                                     = getEnemies('player', 8, true)
+    novaEnemies                                     = br.getEnemies('player', 8, true)
     --actions+=/variable,name=pool_for_cds,op=set,value=cooldown.void_eruption.up&(!raid_event.adds.up|raid_event.adds.duration<=10
     --|raid_event.adds.remains>=10+5*(talent.hungering_void.enabled|covenant.kyrian))&((raid_event.adds.in>20|spell_targets.void_eruption>=5)
     --|talent.hungering_void.enabled|covenant.kyrian)
-    pool                                            = cd.voidEruption.ready()
+    pool                                            = cd.voidEruption.remain() < 5
     searCutoff                                      = 2
     searEnemies                                     = enemies.yards8t
     --# Start using Searing Nightmare at 3+ targets or 4+ if you are in Voidform
     --actions+=/variable,name=searing_nightmare_cutoff,op=set,value=spell_targets.mind_sear>2+buff.voidform.up
     snmCutoff                                       = #searEnemies > 2 + buff.voidForm.count()
     SWPmaxTargets                                   = ui.value("SWP Max Targets")
-    trinket13 = GetInventoryItemID("player", 13)
-    trinket14 = GetInventoryItemID("player", 14)
+    trinket13 = _G.GetInventoryItemID("player", 13)
+    trinket14 = _G.GetInventoryItemID("player", 14)
     VTmaxTargets                                    = ui.value("VT Max Targets")
 
     --Tank move check for aoe
     tankMoving = false
     if inInstance then
         for i = 1, #br.friend do
-            if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and isMoving(br.friend[i].unit) then
+            if (br.friend[i].role == "TANK" or br._G.UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and br.isMoving(br.friend[i].unit) then
                 tankMoving = true
             end
         end
@@ -937,8 +967,8 @@ local function runRotation()
     
 
     --Clear last cast table ooc to avoid strange casts
-    if not inCombat and #br.lastCast.tracker > 0 then
-        wipe(br.lastCast.tracker)
+    if not inCombat and #br.lastCastTable.tracker > 0 then
+        br._G.wipe(br.lastCastTable.tracker)
     end
     ---------------------
     --- Begin Profile ---
@@ -968,7 +998,7 @@ local function runRotation()
         -----------------------------
         --- In Combat - Rotations ---
         -----------------------------
-        if inCombat and isValidUnit("target") then
+        if inCombat and br.isValidUnit("target") then
             ------------------------------
             --- In Combat - Interrupts ---
             ------------------------------
@@ -989,9 +1019,10 @@ local function runRotation()
 end -- End runRotation
 local id = 258 -- Change to the spec id profile is for.
 if br.rotations[id] == nil then br.rotations[id] = {} end
-tinsert(br.rotations[id],{
+br._G.tinsert(br.rotations[id],{
     name = rotationName,
     toggles = createToggles,
     options = createOptions,
     run = runRotation,
 })
+

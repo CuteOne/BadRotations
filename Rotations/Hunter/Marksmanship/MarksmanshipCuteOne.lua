@@ -1,45 +1,50 @@
 local rotationName = "CuteOne"
-local br = _G["br"]
-loadSupport("PetCuteOne")
+br.loadSupport("PetCuteOne")
 ---------------
 --- Toggles ---
 ---------------
 local function createToggles()
     -- Rotation Button
-    RotationModes = {
+    local RotationModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.aimedShot },
         [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.multishot },
         [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.arcaneShot },
         [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.aspectOfTheCheetah}
     };
-    CreateButton("Rotation",1,0)
+    br.ui:createToggle(RotationModes,"Rotation",1,0)
     -- Cooldown Button
-    CooldownModes = {
+    local CooldownModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.trueshot },
         [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.trueshot },
         [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.trueshot }
     };
-    CreateButton("Cooldown",2,0)
+    br.ui:createToggle(CooldownModes,"Cooldown",2,0)
     -- Defensive Button
-    DefensiveModes = {
+    local DefensiveModes = {
         [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.aspectOfTheTurtle },
         [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.aspectOfTheTurtle }
     };
-    CreateButton("Defensive",3,0)
+    br.ui:createToggle(DefensiveModes,"Defensive",3,0)
     -- Interrupt Button
-    InterruptModes = {
+    local InterruptModes = {
         [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.counterShot },
         [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.counterShot }
     };
-    CreateButton("Interrupt",4,0)
+    br.ui:createToggle(InterruptModes,"Interrupt",4,0)
     -- MD Button
-    MisdirectionModes = {
+    local MisdirectionModes = {
         [1] = { mode = "On", value = 1 , overlay = "Misdirection Enabled", tip = "Misdirection Enabled", highlight = 1, icon = br.player.spell.misdirection },
         [2] = { mode = "Off", value = 2 , overlay = "Misdirection Disabled", tip = "Misdirection Disabled", highlight = 0, icon = br.player.spell.misdirection }
     };
-    CreateButton("Misdirection",5,0)
+    br.ui:createToggle(MisdirectionModes,"Misdirection",5,0)
+    -- Volley Button
+    local VolleyModes = {
+        [1] = { mode = "On", value = 1 , overlay = "Volley Enabled", tip = "Volley Enabled", highlight = 1, icon = br.player.spell.volley },
+        [2] = { mode = "Off", value = 2 , overlay = "Volley Disabled", tip = "Volley Disabled", highlight = 0, icon = br.player.spell.volley }
+    };
+    br.ui:createToggle(VolleyModes,"Volley",6,0)
     --Pet summon
-    PetSummonModes = {
+    local PetSummonModes = {
         [1] = { mode = "1", value = 1 , overlay = "Summon Pet 1", tip = "Summon Pet 1", highlight = 1, icon = br.player.spell.callPet1 },
         [2] = { mode = "2", value = 2 , overlay = "Summon Pet 2", tip = "Summon Pet 2", highlight = 1, icon = br.player.spell.callPet2 },
         [3] = { mode = "3", value = 3 , overlay = "Summon Pet 3", tip = "Summon Pet 3", highlight = 1, icon = br.player.spell.callPet3 },
@@ -47,7 +52,7 @@ local function createToggles()
         [5] = { mode = "5", value = 5 , overlay = "Summon Pet 5", tip = "Summon Pet 5", highlight = 1, icon = br.player.spell.callPet5 },
         [6] = { mode = "None", value = 6 , overlay = "No pet", tip = "Dont Summon any Pet", highlight = 0, icon = br.player.spell.callPet }
     };
-    CreateButton("PetSummon",6,0)
+    br.ui:createToggle(PetSummonModes,"PetSummon",7,0)
 end
 
 ---------------
@@ -68,6 +73,10 @@ local function createOptions()
             br.ui:createCheckbox(section, "Do Not Auto Engage if OOC")
             -- Misdirection
             br.ui:createDropdownWithout(section,"Misdirection", {"|cff00FF00Tank","|cffFFFF00Focus","|cffFF0000Pet"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
+			 -- Beast Mode
+            br.ui:createCheckbox(section, "Beast Mode", "|cffFFFFFFWARNING! Selecting this will attack everything!")
+            -- Aimed Shot - Multi-DoT
+            br.ui:createCheckbox(section, "Aimed Shot - Multi-DoT", "|cffFFFFFF Selecting this will multi-dot with Aimed Shot.")
             -- Volly Units
             br.ui:createSpinner(section,"Volley Units", 3, 1, 5, 1, "|cffFFFFFFSet minimal number of units to cast Volley on")
             -- Covenant Ability
@@ -77,12 +86,16 @@ local function createOptions()
         br.rotations.support["PetCuteOne"].options()
         -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
+            -- Cooldown harmonization
+            br.ui:createCheckbox(section,"Cooldown harmonizing with Trueshot", "|cffFFFFFFUse other cooldowns with trueshot")
             -- Agi Pot
             br.ui:createCheckbox(section,"Potion")
             -- Flask Up Module
             br.player.module.FlaskUp("Agility",section)
             -- Racial
             br.ui:createCheckbox(section,"Racial")
+            -- Hunter's Mark
+            br.ui:createCheckbox(section,"Hunter's Mark")
             -- Basic Trinkets Module
             br.player.module.BasicTrinkets(nil,section)
             -- A Murder of Crows
@@ -97,6 +110,8 @@ local function createOptions()
             br.ui:createDropdownWithout(section,"Rapid Fire", {"Always", "Cooldown", "Never"}, 1, "|cffFFFFFFSet when to use ability.")
             -- Trueshot
             br.ui:createDropdownWithout(section,"Trueshot", {"Always", "Cooldown", "Never"}, 1, "|cffFFFFFFSet when to use ability.")
+            -- volley
+            br.ui:createDropdownWithout(section,"Volley", {"Always", "Cooldown", "Never"}, 1, "|cffFFFFFFSet when to use ability.")
         br.ui:checkSectionState(section)
         -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
@@ -121,6 +136,8 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
             -- Counter Shot
             br.ui:createCheckbox(section,"Counter Shot")
+            -- Freezing Trap
+            br.ui:createCheckbox(section, "Freezing Trap")
             -- Interrupt Percentage
             br.ui:createSpinnerWithout(section, "Interrupt At",  0,  0,  95,  5,  "|cffFFFFFFCast Percent to Cast At")
         br.ui:checkSectionState(section)
@@ -134,8 +151,8 @@ local function createOptions()
             br.ui:createDropdownWithout(section, "Defensive Mode", br.dropOptions.Toggle,  6)
             -- Interrupts Key Toggle
             br.ui:createDropdownWithout(section, "Interrupt Mode", br.dropOptions.Toggle,  6)
-            -- Explosive Shot Key Toggle
-            br.ui:createDropdownWithout(section, "Explosive Shot Mode", br.dropOptions.Toggle,  6)
+            -- Volley Key Toggle
+            br.ui:createDropdownWithout(section, "Volley Mode", br.dropOptions.Toggle,  6)
             -- Pause Toggle
             br.ui:createDropdown(section, "Pause Mode", br.dropOptions.Toggle,  6)
         br.ui:checkSectionState(section)
@@ -155,10 +172,10 @@ local cast
 local cd
 local charges
 local covenant
-local conduit
+--local conduit
 local debuff
 local enemies
-local equiped
+--local equiped
 local module
 local power
 local runeforge
@@ -166,6 +183,7 @@ local talent
 local ui
 local unit
 local units
+local use
 local var
 local actionList = {}
 
@@ -173,9 +191,29 @@ local actionList = {}
 --- Local Functions ---
 -----------------------
 local function alwaysCdNever(option)
-    if option == "Racial" then GetSpellInfo(br.player.spell.racial) end
+    if option == "Racial" then br._G.GetSpellInfo(br.player.spell.racial) end
     local thisOption = ui.value(option)
     return thisOption == 1 or (thisOption == 2 and ui.useCDs())
+end
+
+-- Multi-Dot HP Limit Set
+local function canDoT(thisUnit)
+    local unitHealthMax = unit.healthMax(thisUnit)
+    if not unit.exists(units.dyn40) then return false end
+    if not unit.isBoss(thisUnit) and unit.facing("player",thisUnit)
+        and unit.isUnit(thisUnit,units.dyn40) and not unit.charmed(thisUnit)
+    then
+        return ((unitHealthMax > unit.healthMax("player") * 3)
+            or (unit.health(thisUnit) < unitHealthMax and unit.ttd(thisUnit) > 10))
+    end
+    local maxHealth = 0
+    for i = 1, #enemies.yards40f do
+        local thisMaxHealth = unit.healthMax(enemies.yards40f[i])
+        if thisMaxHealth > maxHealth then
+            maxHealth = thisMaxHealth
+        end
+    end
+    return unitHealthMax > maxHealth / 10
 end
 
 --------------------
@@ -183,15 +221,24 @@ end
 --------------------
 -- Action List - Extras
 actionList.Extras = function()
+    -- Feign Death
+    if buff.feignDeath.exists() then
+        unit.stopAttack()
+        unit.clearTarget()
+    end
+    -- Hunter's Mark
+    if ui.checked("Hunter's Mark") and cast.able.huntersMark("target") and not debuff.huntersMark.exists("target") then
+        if cast.huntersMark("target") then ui.debug("Cast Hunter's Mark") return true end
+    end
     -- Dummy Test
     if ui.checked("DPS Testing") then
         if unit.exists("target") then
-            if var.getCombatTime() >= (tonumber(ui.value("DPS Testing"))*60) and unit.isDummy() then
-                StopAttack()
-                ClearTarget()
-                PetStopAttack()
-                PetFollow()
-                Print(tonumber(ui.value("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
+            if unit.combatTime() >= (tonumber(ui.value("DPS Testing"))*60) and unit.isDummy() then
+                unit.stopAttack()
+                unit.clearTarget()
+                br._G.PetStopAttack()
+                br._G.PetFollow()
+                ui.print(tonumber(ui.value("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
                 var.profileStop = true
             end
         end
@@ -199,10 +246,10 @@ actionList.Extras = function()
     -- Misdirection
     if ui.mode.misdirection == 1 then
         local misdirectUnit = nil
-        if unit.valid("target") and unit.distance("target") < 40 and not unit.isCasting("player") then
+        if unit.valid("target") and unit.distance("target") < 40 and not unit.isCasting("player") and not buff.playDead.exists("pet") then
             -- Misdirect to Tank
             if ui.value("Misdirection") == 1 then
-                local tankInRange, tankUnit = isTankInRange()
+                local tankInRange, tankUnit = unit.isTankInRange()
                 if tankInRange then misdirectUnit = tankUnit end
             end
             -- Misdirect to Focus
@@ -276,11 +323,15 @@ actionList.Interrupts = function()
         for i=1, #enemies.yards40f do
             local thisUnit = enemies.yards40f[i]
             local distance = unit.distance(thisUnit)
-            if canInterrupt(thisUnit,ui.value("Interrupt At")) then
+            if unit.interruptable(thisUnit,ui.value("Interrupt At")) then
                 if distance < 50 then
                     -- Counter Shot
                     if ui.checked("Counter Shot") then
                         if cast.counterShot(thisUnit) then ui.debug("Casting Counter Shot") return true end
+                    end
+					 -- Freezing Trap
+                    if ui.checked("Freezing Trap") then
+                        if cast.freezingTrap(thisUnit,"ground") then ui.debug("Casting Freezing Trap") return true end
                     end
                 end
             end
@@ -309,20 +360,36 @@ actionList.Cooldowns = function()
         end
         -- bag_of_tricks,if=buff.trueshot.down
     end
+
+    -- Cooldown Harmonizing
+    if ui.checked("Cooldown harmonizing with Trueshot") then
+        if buff.trueshot.exists() then
+            --Inscrutable Quantum Device
+            if use.able.inscrutableQuantumDevice() then
+                use.inscrutableQuantumDevice()
+            end
+            --Double Tap
+            if cast.able.doubleTap() then
+                cast.doubleTap()
+            end
+        end
+    end
     -- Potion
     -- potion,if=buff.trueshot.up&buff.bloodlust.up|buff.trueshot.up&target.health.pct<20|target.time_to_die<26
-    -- if ui.useCDs() and ui.checked("Potion") and canUseItem(142117) and unit.instance("raid") then
-    --     if buff.trueshot.exists() and (buff.bloodLust.exists() or var.caActive or buff.trueshot.exists or (unit.ttd(units.dyn40) < 25 and ui.useCDs())) then
-    --         useItem(142117)
-    --     end
-    -- end
+    if ui.useCDs() and ui.checked("Potion") and use.able.potionOfSpectralAgility() and unit.instance("raid") then
+        if buff.trueshot.exists() and (buff.bloodLust.exists() or var.caActive or buff.trueshot.exists or (unit.ttd(units.dyn40) < 25 and ui.useCDs())) then
+            use.potionOfSpectralAgility()
+        end
+    end
 end -- End Action List - Cooldowns
 
 -- Action List - Trick Shots
 actionList.TrickShots = function()
     -- Steady Shot
     -- steady_shot,if=talent.steady_focus&in_flight&buff.steady_focus.remains<5
-    if cast.able.steadyShot() and talent.steadyFocus and cast.inFlight.steadyShot() and buff.steadyFocus.remains() < 5 then
+    if cast.able.steadyShot() and talent.steadyFocus and cast.inFlight.steadyShot() and buff.steadyFocus.remains() < 5
+        and cast.timeSinceLast.steadyShot() > unit.gcd("true") and not cast.current.steadyShot()
+    then
         if cast.steadyShot() then ui.debug("Casting Steady Shot [Trick Shots Steady Focus]") return true end
     end
     -- Double Tap
@@ -336,7 +403,7 @@ actionList.TrickShots = function()
     end
     -- Tar Trap
     -- tar_trap,if=runeforge.soulforge_embers&tar_trap.remains<gcd&cooldown.flare.remains<gcd
-    if cast.able.tarTrap() and runeforge.soulforgeEmbers.equiped and debuff.tarTrap.remains(units.dyn40) < unit.gcd(true) and cd.flare.remains() < unit.gcd(true) then
+    if cast.able.tarTrap(units.dyn40,"ground") and runeforge.soulforgeEmbers.equiped and debuff.tarTrap.remains(units.dyn40) < unit.gcd(true) and cd.flare.remains() < unit.gcd(true) then
         if cast.tarTrap(units.dyn40,"ground") then ui.debug("Casting Tar Trap [Trick Shots Soulforge Embers]") return true end
     end
     -- Flare
@@ -346,8 +413,8 @@ actionList.TrickShots = function()
     end
     -- Explosive Shot
     -- explosive_shot
-    if alwaysCdNever("Explosive Shot") and cast.able.explosiveShot() and talent.explosiveShot then
-        if cast.explosiveShot() then ui.debug("Casting Explosive Shot [Trick Shots]") return true end
+    if alwaysCdNever("Explosive Shot") and cast.able.explosiveShot(units.dyn40,"aoe",3,8) and talent.explosiveShot and unit.ttd(units.dyn40) > 3 then
+        if cast.explosiveShot(units.dyn40,"aoe",3,8) then ui.debug("Casting Explosive Shot [Trick Shots]") return true end
     end
     -- Wild Spirits
     -- wild_spirits
@@ -360,8 +427,10 @@ actionList.TrickShots = function()
         if cast.resonatingArrow() then ui.debug("Casting Resonating Arrow [Trick Shots Kyrian]") return true end
     end
     -- Volley
-    -- volley
-    if cast.able.volley() and ui.checked("Volley Units") and (#enemies.yards8t >= ui.value("Volley Units")) then
+    -- volley,if=buff.resonating_arrow.up|!covenant.kyrian|talent.lethal_shots
+    if alwaysCdNever("Volley") and cast.able.volley() and ui.mode.volley == 1 and ui.checked("Volley Units") and #enemies.yards8t >= ui.value("Volley Units")
+        and (buff.resonatingArrow.exists() or not covenant.kyrian.active or talent.lethalShots or (covenant.kyrian.active and not alwaysCdNever("Covenant Ability")))
+    then
         if cast.volley("best",nil,ui.value("Volley Units"),8) then ui.debug("Casting Volley [Trick Shots]") return true end
     end
     -- Barrage
@@ -373,11 +442,12 @@ actionList.TrickShots = function()
     -- trueshot
     if alwaysCdNever("Trueshot") and cast.able.trueshot() then
         if cast.trueshot("player") then ui.debug("Casting Trueshot [Trick Shots]") return true end
-    end 
+    end
     -- Rapid Fire
-    -- rapid_fire,if=buff.trick_shots.remains>=execute_time&runeforge.surging_shots&buff.double_tap.down
-    if alwaysCdNever("Rapid Fire") and cast.able.rapidFire() and buff.trickShots.remains() > cast.time.rapidFire()
-        and runeforge.surgingShots.equiped and not buff.doubleTap.exists()
+    -- rapid_fire,if=runeforge.surging_shots&(cooldown.resonating_arrow.remains>10|!covenant.kyrian|talent.lethal_shots)&buff.trick_shots.remains>=execute_time
+    if alwaysCdNever("Rapid Fire") and cast.able.rapidFire()
+        and runeforge.surgingShots.equiped and (cd.resonatingArrow.remains() > 10 or not covenant.kyrian.active or talent.lethalShots or (covenant.kyrian.active and not alwaysCdNever("Covenant Ability")))
+        and buff.trickShots.remains() > cast.time.rapidFire() and unit.ttd(units.dyn40) > cast.time.rapidFire()
     then
         if cast.rapidFire() then ui.debug("Casting Rapid Fire [Trick Shots Surging Shots]") return true end
     end
@@ -385,6 +455,7 @@ actionList.TrickShots = function()
     -- aimed_shot,target_if=min:dot.serpent_sting.remains+action.serpent_sting.in_flight_to_target*99,if=buff.trick_shots.remains>=execute_time&(buff.precise_shots.down|full_recharge_time<cast_time+gcd|buff.trueshot.up)
     if cast.able.aimedShot(var.lowestAimedSerpentSting) and not unit.moving("player") and unit.ttd(units.dyn40) > cast.time.aimedShot() and buff.trickShots.remains() >= cast.time.aimedShot()
         and (not buff.preciseShots.exists() or charges.aimedShot.timeTillFull() < cast.time.aimedShot() + unit.gcd(true) or buff.trueshot.exists())
+        and cast.timeSinceLast.aimedShot() > unit.gcd("true") and not cast.current.aimedShot()
     then
         if cast.aimedShot(var.lowestAimedSerpentSting) then ui.debug("Casting Aimed Shot [Trick Shots]") return true end
     end
@@ -394,21 +465,25 @@ actionList.TrickShots = function()
         if cast.deathChakram() then ui.debug("Casting Death Chakram [Trick Shots Necrolord]") return true end
     end
     -- Rapid Fire
-    -- rapid_fire,if=buff.trick_shots.remains>=execute_time
-    if alwaysCdNever("Rapid Fire") and cast.able.rapidFire() and buff.trickShots.remains() >= cast.time.rapidFire() then
+    -- rapid_fire,if=(cooldown.resonating_arrow.remains>10&runeforge.surging_shots|!covenant.kyrian|!runeforge.surging_shots|talent.lethal_shots)&buff.trick_shots.remains>=execute_time
+    if alwaysCdNever("Rapid Fire") and cast.able.rapidFire()
+        and (cd.resonatingArrow.remains() > 10 and runeforge.surgingShots.equiped or not covenant.kyrian.active
+            or not runeforge.surgingShots.equiped or talent.lethalShots or (covenant.kyrian.active and not alwaysCdNever("Covenant Ability")))
+        and buff.trickShots.remains() >= cast.time.rapidFire() and unit.ttd(units.dyn40) > cast.time.rapidFire()
+    then
         if cast.rapidFire() then ui.debug("Casting Rapid Fire [Trick Shots]") return true end
     end
     -- Multishot
     -- multishot,if=buff.trick_shots.down|buff.precise_shots.up&focus>cost+action.aimed_shot.cost&(!talent.chimaera_shot|active_enemies>3)
     if cast.able.multishot() and (not buff.trickShots.exists() or buff.preciseShots.exists()
-        and power.focus.amount() > cast.cost.multishot() + cast.cost.aimedShot() and (not talent.chimaeraShot or #enemies.yards40f > 3))
-        and #enemies.yards40f > 0
+        and power.focus.amount() > cast.cost.multishot() + cast.cost.aimedShot() and (not talent.chimaeraShot or #enemies.yards10t > 3))
+        and #enemies.yards10t > 0
     then
         if cast.multishot() then ui.debug("Casting Multishot [Trick Shots]") return true end
     end
     -- Chimaera Shot
     -- chimaera_shot,if=buff.precise_shots.up&focus>cost+action.aimed_shot.cost&active_enemies<4
-    if cast.able.chimaeraShot() and buff.preciseShots.exists() and power.focus.amount() > cast.cost.chimaeraShot() + cast.cost.aimedShot() and #enemies.yards40f < 4 then
+    if cast.able.chimaeraShot() and buff.preciseShots.exists() and power.focus.amount() > cast.cost.chimaeraShot() + cast.cost.aimedShot() and #enemies.yards10t < 4 then
         if cast.chimaeraShot() then ui.debug("Casting Chimaera Shot [Trick Shots]") return true end
     end
     -- Kill Shot
@@ -433,12 +508,15 @@ actionList.TrickShots = function()
     end
     -- Multishot
     -- multishot,if=focus>cost+action.aimed_shot.cost
-    if cast.able.multishot() and power.focus.amount() > cast.cost.multishot() + cast.cost.aimedShot() and #enemies.yards40f > 0 then
+    if cast.able.multishot() and power.focus.amount() > cast.cost.multishot() + cast.cost.aimedShot() and #enemies.yards10t > 0 then
         if cast.multishot() then ui.debug("Casting Multishot [Trick Shots]") return true end
     end
     -- Steady Shot
     -- steady_shot
-    if cast.able.steadyShot() and unit.ttd(units.dyn40) > cast.time.steadyShot() then
+    if cast.able.steadyShot() and unit.ttd(units.dyn40) > cast.time.steadyShot()
+        and ((not buff.preciseShots.exists() or power.focus.amount() < 20) and power.focus.amount() <= cast.cost.multishot() + cast.cost.aimedShot())
+        and cast.timeSinceLast.steadyShot() > unit.gcd("true") and not cast.current.steadyShot()
+    then-- and power.focus.amount() <= cast.cost.arcaneShot() + cast.cost.aimedShot() then
         if cast.steadyShot() then ui.debug("Casting Steady Shot [Trick Shots]") return true end
     end
 end -- End Action List - Trick Shots
@@ -447,7 +525,9 @@ end -- End Action List - Trick Shots
 actionList.SingleTarget = function()
     -- Steady Shot
     -- steady_shot,if=talent.steady_focus&(prev_gcd.1.steady_shot&buff.steady_focus.remains<5|buff.steady_focus.down)
-    if cast.able.steadyShot() and talent.steadyFocus and ((cast.last.steadyShot() and buff.steadyFocus.remain() < 5) or not buff.steadyFocus.exists()) then
+    if cast.able.steadyShot() and talent.steadyFocus and ((cast.last.steadyShot() and buff.steadyFocus.remain() < 5) or not buff.steadyFocus.exists())
+        and cast.timeSinceLast.steadyShot() > unit.gcd("true") and not cast.current.steadyShot()
+    then
         if cast.steadyShot() then ui.debug("Casting Steady Shot [Steady Focus]") return true end
     end
     -- Kill Shot
@@ -471,15 +551,15 @@ actionList.SingleTarget = function()
     end
     -- Tar Trap
     -- tar_trap,if=runeforge.soulforge_embers&tar_trap.remains<gcd&cooldown.flare.remains<gcd
-    if cast.able.tarTrap() and runeforge.soulforgeEmbers.equiped
+    if cast.able.tarTrap(units.dyn40,"ground") and runeforge.soulforgeEmbers.equiped
         and debuff.tarTrap.remains(units.dyn40) < unit.gcd(true) and cd.flare.remains() < unit.gcd(true)
     then
         if cast.tarTrap(units.dyn40,"ground") then ui.debug("Casting Tar Trap [Soulforge Embers]") return true end
     end
     -- Explosive Shot
     -- explosive_shot
-    if alwaysCdNever("Explosive Shot") and cast.able.explosiveShot() and talent.explosiveShot then
-        if cast.explosiveShot() then ui.debug("Casting Explosive Shot") return true end
+    if alwaysCdNever("Explosive Shot") and cast.able.explosiveShot(units.dyn40,"aoe",3,8) and talent.explosiveShot and unit.ttd(units.dyn40) > 3 then
+        if cast.explosiveShot(units.dyn40,"aoe",3,8) then ui.debug("Casting Explosive Shot") return true end
     end
     -- Wild Spirits
     -- wild_spirits
@@ -507,30 +587,37 @@ actionList.SingleTarget = function()
         if cast.resonatingArrow() then ui.debug("Casting Resonating Arrow [Kyrian]") return true end
     end
     -- Volley
-    -- volley,if=buff.precise_shots.down|!talent.chimaera_shot|active_enemies<2
-    if cast.able.volley() and ui.checked("Volley Units") and (not buff.preciseShots.exists() or not talent.chimaeraShot or #enemies.yards8t < 2) and (#enemies.yards8t >= ui.value("Volley Units")) then
+    -- volley,if=(buff.resonating_arrow.up|!covenant.kyrian|talent.lethal_shots)&(buff.precise_shots.down|!talent.chimaera_shot|active_enemies<2)
+    if alwaysCdNever("Volley") and cast.able.volley() and ui.mode.volley == 1 and ui.checked("Volley Units")
+        and (buff.resonatingArrow.exists() or not covenant.kyrian.active or talent.leathalShots or (covenant.kyrian.active and not alwaysCdNever("Covenant Ability")))
+        and (not buff.preciseShots.exists() or not talent.chimaeraShot or #enemies.yards8t < 2) and (#enemies.yards8t >= ui.value("Volley Units"))
+    then
         if cast.volley("best",nil,ui.value("Volley Units"),8) then ui.debug("Casting Volley") return true end
     end
     -- Trueshot
     -- trueshot,if=buff.precise_shots.down|buff.resonating_arrow.up|buff.wild_spirits.up|buff.volley.up&active_enemies>1
     if alwaysCdNever("Trueshot") and cast.able.trueshot() and (not buff.preciseShots.exists() or debuff.resonatingArrow.exists(units.dyn40)
-        or debuff.wildMark.exists(units.dyn40) or buff.volley.exists() and #enemies.yards40f > 1)
+        or debuff.wildMark.exists(units.dyn40) or buff.volley.exists() and #enemies.yards10t > 1)
     then
         if cast.trueshot("player") then ui.debug("Casting Trueshot [Trick Shots]") return true end
-    end 
+    end
     -- Aimed Shot
     -- aimed_shot,target_if=min:dot.serpent_sting.remains+action.serpent_sting.in_flight_to_target*99,if=buff.precise_shots.down|(buff.trueshot.up|full_recharge_time<gcd+cast_time)&(!talent.chimaera_shot|active_enemies<2)|buff.trick_shots.remains>execute_time&active_enemies>1
     if cast.able.aimedShot(var.lowestAimedSerpentSting) and not unit.moving("player") and (not buff.preciseShots.exists()
         or ((buff.trueshot.exists() or charges.aimedShot.timeTillFull() < unit.gcd(true) + cast.time.aimedShot())
-        and (not talent.chimaeraShot or #enemies.yards40f < 2)) or buff.trickShots.remain() > cast.time.aimedShot() and #enemies.yards40f > 1)
+        and (not talent.chimaeraShot or #enemies.yards10t < 2)) or buff.trickShots.remain() > cast.time.aimedShot() and #enemies.yards10t > 1)
+        and cast.timeSinceLast.aimedShot() > unit.gcd("true") and not cast.current.aimedShot()
     then
         if cast.aimedShot(var.lowestAimedSerpentSting) then ui.debug("Casting Aimed Shot") return true end
     end
     -- Rapid Fire
-    -- rapid_fire,if=focus+cast_regen<focus.max&(buff.trueshot.down|!runeforge.eagletalons_true_focus)&(buff.double_tap.down|talent.streamline)
-    if alwaysCdNever("Rapid Fire") and cast.able.rapidFire() and (power.focus.amount() + power.focus.regen() < power.focus.max()
-        and (not buff.trueshot.exists() or not runeforge.eagletalonsTrueFocus.equiped)
-        and (not buff.doubleTap.exists() or talent.streamline))
+    -- rapid_fire,if=(cooldown.resonating_arrow.remains>10|!covenant.kyrian|talent.lethal_shots)&focus+cast_regen<focus.max&(buff.trueshot.down|!runeforge.eagletalons_true_focus)&(buff.double_tap.down|talent.streamline)
+    if alwaysCdNever("Rapid Fire") and cast.able.rapidFire() 
+        and (cd.resonatingArrow.remain() > 10 or not covenant.kyrian.active or talent.lethalShots or (covenant.kyrian.active and not alwaysCdNever("Covenant Ability")))
+        and (power.focus.amount() + power.focus.regen() < power.focus.max()
+            and (not buff.trueshot.exists() or not runeforge.eagletalonsTrueFocus.equiped)
+            and (not buff.doubleTap.exists() or talent.streamline))
+		and unit.ttd(units.dyn40) > cast.time.rapidFire()
     then
         if cast.rapidFire() then ui.debug("Casting Rapid Fire") return true end
     end
@@ -558,21 +645,26 @@ actionList.SingleTarget = function()
     -- Barrage
     -- barrage,if=active_enemies>1
     if alwaysCdNever("Barrage") and cast.able.barrage() and talent.barrage
-        and ((ui.mode.rotation == 1 and #enemies.yards40f > 1) or (ui.mode.rotation == 2 and #enemies.yards40f > 0))
+        and ((ui.mode.rotation == 1 and #enemies.yards10t > 1) or (ui.mode.rotation == 2 and #enemies.yards10t > 0))
     then
         if cast.barrage() then ui.debug("Casting Barrage") return true end
     end
     -- Rapid Fire
-    -- rapid_fire,if=focus+cast_regen<focus.max&(buff.double_tap.down|talent.streamline)
+    -- rapid_fire,if=(cooldown.resonating_arrow.remains>10&runeforge.surging_shots|!covenant.kyrian|talent.lethal_shots)&focus+cast_regen<focus.max&(buff.double_tap.down|talent.streamline)
     if alwaysCdNever("Rapid Fire") and cast.able.rapidFire()
+        and (cd.resonatingArrow.remains() > 10 and runeforge.surgingShots.equiped or not covenant.kyrian.active or talent.leathalShots or (covenant.kyrian.active and not alwaysCdNever("Covenant Ability")))
         and (power.focus.amount() + power.focus.regen() < power.focus.max()
         and (not buff.doubleTap.exists() or talent.streamline))
+		and unit.ttd(units.dyn40) > cast.time.rapidFire()
     then
         if cast.rapidFire() then ui.debug("Casting Rapid Fire") return true end
     end
     -- Steady Shot
     -- steady_shot
-    if cast.able.steadyShot() and unit.ttd(units.dyn40) > cast.time.steadyShot() then
+    if cast.able.steadyShot() and unit.ttd(units.dyn40) > cast.time.steadyShot()
+        and ((not buff.preciseShots.exists() or power.focus.amount() < 20) and power.focus.amount() <= cast.cost.arcaneShot() + cast.cost.aimedShot())
+        and cast.timeSinceLast.steadyShot() > unit.gcd("true") and not cast.current.steadyShot()
+    then-- and power.focus.amount() <= cast.cost.arcaneShot() + cast.cost.aimedShot() then
         if cast.steadyShot() then ui.debug("Casting Steady Shot") return true end
     end
 end -- End Action List - Single Target
@@ -584,32 +676,41 @@ actionList.PreCombat = function()
         module.FlaskUp("Agility")
         -- Augmentation
         -- augmentation
+		        -- Beast Mode
+        if (ui.checked("Beast Mode")) then
+            for k,v in pairs(enemies.yards40nc) do
+                br._G.TargetUnit(v)
+            end
+        end
         -- Summon Pet
         -- summon_pet
         -- if actionList.PetManagement() then ui.debug("") return true end
         if unit.valid("target") and unit.distance("target") < 40 and not ui.checked("Do Not Auto Engage if OOC") then
             -- Tar Trap
             -- tar_trap,if=runeforge.soulforge_embers
-            if cast.able.tarTrap() and runeforge.soulforgeEmbers.equiped then
+            if cast.able.tarTrap(units.dyn40,"ground") and runeforge.soulforgeEmbers.equiped then
                 if cast.tarTrap(units.dyn40,"ground") then ui.debug("Casting Tar Trap [Soulforge Embers]") return true end
             end
             -- Double Tap
             -- double_tap,precast_time=10,if=active_enemies>1|!covenant.kyrian&!talent.volley
-            if cast.able.doubleTap() and ui.pullTimer() <= 10 and (#enemies.yards40f > 1 or (not covenant.kyrian.active and not talent.volley)) then
+            if cast.able.doubleTap() and ui.pullTimer() <= 10 and (#enemies.yards10t > 1 or (not covenant.kyrian.active and not talent.volley)) then
                 if cast.doubleTap() then ui.debug("Casting Double Tap [Pre-Pull]") return true end
             end
             -- Aimed Shot
             -- aimed_shot,if=active_enemies<3&(!covenant.kyrian&!talent.volley|active_enemies<2)
-            if cast.able.aimedShot() and not unit.moving("player") and #enemies.yards40f < 3 and (#enemies.yards40f < 2 or (not covenant.kyrian.active and not talent.volley)) then
+            if cast.able.aimedShot() and not unit.moving("player") and #enemies.yards10t < 3
+                and (#enemies.yards10t < 2 or (not covenant.kyrian.active and not talent.volley))
+                and cast.timeSinceLast.aimedShot() > unit.gcd("true") and not cast.current.aimedShot()
+            then
                 if cast.aimedShot("target") then ui.debug("Casting Aimed Shot [Pre-Pull]") return true end
             end
             -- Arcane Shot
             -- steady_shot,if=active_enemies>2|(covenant.kyrian|talent.volley)&active_enemies=2
-            if cast.able.arcaneShot() and (#enemies.yards40f > 2 or ((covenant.kyrian.active or talent.volley) and #enemies.yards40f == 2)) then
+            if cast.able.arcaneShot() and (#enemies.yards10t > 2 or ((covenant.kyrian.active or talent.volley) and #enemies.yards10t == 2)) then
                 if cast.arcaneShot("target") then ui.debug("Casting Arcane Shot [Pre-Pull]") return true end
             end
             -- Auto Shot
-            unit.startAttack("target")
+            unit.startAttack("target",true)
         end
     end
 end -- End Action List - Pre-Pull
@@ -633,10 +734,8 @@ local function runRotation()
     cd                                            = br.player.cd
     charges                                       = br.player.charges
     covenant                                      = br.player.covenant
-    conduit                                       = br.player.conduit
     debuff                                        = br.player.debuff
     enemies                                       = br.player.enemies
-    equiped                                       = br.player.equiped
     module                                        = br.player.module
     power                                         = br.player.power
     runeforge                                     = br.player.runeforge
@@ -644,6 +743,7 @@ local function runRotation()
     ui                                            = br.player.ui
     unit                                          = br.player.unit
     units                                         = br.player.units
+    use                                           = br.player.use
     var                                           = br.player.variables
 
     units.get(40)
@@ -651,7 +751,7 @@ local function runRotation()
     enemies.get(8)
     enemies.get(8,"target")
     enemies.get(8,"pet")
-    enemies.yards25r = getEnemiesInRect(8,25,false) or 0
+    enemies.get(10, "target")
     enemies.get(30,"pet")
     enemies.get(40)
     enemies.get(40,"player",true)
@@ -659,22 +759,19 @@ local function runRotation()
 
     -- Variables
     if var.profileStop == nil then var.profileStop = false end
-    var.getCombatTime = _G["getCombatTime"]
-    var.haltProfile = (unit.inCombat() and var.profileStop) or (unit.mounted() or unit.flying()) or pause() or buff.feignDeath.exists() or ui.mode.rotation==4
-    var.role = _G["UnitGroupRolesAssigned"]
+    var.haltProfile = (unit.inCombat() and var.profileStop) or (unit.mounted() or unit.flying()) or ui.pause() or buff.feignDeath.exists() or ui.mode.rotation==4
     var.caActive = talent.carefulAim and (unit.hp(units.dyn40) > 80 or unit.hp(units.dyn40) < 20)
     var.lowestSerpentSting = debuff.serpentSting.lowest(40,"remain") or "target"
     var.serpentInFlight = cast.inFlight.serpentSting() and 1 or 0
-    
     var.lowestAimedSerpentSting = "target"
     var.lowestAimedRemain = 99
     var.lowestHPUnit = "target"
     var.lowestHP = 100
-    for i = 1, #enemies.yards40f do
-        local thisUnit = enemies.yards40f[i]
+    for i = 1, #enemies.yards10t do
+        local thisUnit = enemies.yards10t[i]
         local thisHP = unit.hp(thisUnit)
         local serpentStingRemain = debuff.serpentSting.remain(thisUnit) + var.serpentInFlight * 99
-        if ui.mode.rotation < 3 and serpentStingRemain < var.lowestAimedRemain then
+        if not ui.checked("Aimed Shot - Multi-DoT") and ui.mode.rotation < 3 and serpentStingRemain < var.lowestAimedRemain and canDoT(thisUnit) and unit.facing(thisUnit) then
             var.lowestAimedRemain = serpentStingRemain
             var.lowestAimedSerpentSting = thisUnit
         end
@@ -690,19 +787,21 @@ local function runRotation()
     -- Profile Stop | Pause
     if not unit.inCombat() and not unit.exists("target") and var.profileStop then
         var.profileStop = false
-    elseif var.haltProfile and (not unit.isCasting() or pause(true)) then
-        StopAttack()
-        if unit.isDummy() then ClearTarget() end
+    elseif var.haltProfile and (not unit.isCasting() or ui.pause(true)) then
+        unit.stopAttack()
+        if unit.isDummy() then unit.clearTarget() end
         return true
     else
-        -----------------------
-        --- Extras Rotation ---
-        -----------------------
-        if actionList.Extras() then return true end
-        --------------------------
-        --- Defensive Rotation ---
-        --------------------------
-        if actionList.Defensive() then return true end
+        if not cast.current.barrage() and not cast.current.rapidFire() and not cast.current.aimedShot() and not cast.current.steadyShot() then
+            -----------------------
+            --- Extras Rotation ---
+            -----------------------
+            if actionList.Extras() then return true end
+            --------------------------
+            --- Defensive Rotation ---
+            --------------------------
+            if actionList.Defensive() then return true end
+        end
         -----------------
         --- Pet Logic ---
         -----------------
@@ -736,12 +835,12 @@ local function runRotation()
             if actionList.Cooldowns() then return true end
             -- Call Action List - Single Target
             -- call_action_list,name=st,if=active_enemies<3
-            if ((ui.mode.rotation == 1 and #enemies.yards40f < 3) or (ui.mode.rotation == 3 and #enemies.yards40f > 0) or unit.level() < 32) then
+            if ((ui.mode.rotation == 1 and #enemies.yards10t < 3) or (ui.mode.rotation == 3 and #enemies.yards10t > 0) or unit.level() < 32) then
                 if actionList.SingleTarget() then return true end
             end
             -- Call Action List - Trick Shots
             -- call_action_list,name=trickshots,if=active_enemies>2
-            if unit.level() >= 32 and ((ui.mode.rotation == 1 and #enemies.yards40f > 2) or (ui.mode.rotation == 2 and #enemies.yards40f > 0)) then
+            if unit.level() >= 32 and ((ui.mode.rotation == 1 and #enemies.yards10t > 2) or (ui.mode.rotation == 2 and #enemies.yards10t > 0)) then
                 if actionList.TrickShots() then return true end
             end
         end --End In Combat
@@ -749,7 +848,7 @@ local function runRotation()
 end -- End runRotation
 local id = 254
 if br.rotations[id] == nil then br.rotations[id] = {} end
-tinsert(br.rotations[id],{
+br._G.tinsert(br.rotations[id],{
     name = rotationName,
     toggles = createToggles,
     options = createOptions,

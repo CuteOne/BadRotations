@@ -10,7 +10,7 @@
 -- im:RegisterEvent("PLAYER_REGEN_ENABLED") -- wipe when we get out of combat(its needed because br.enemy will also be cleared)
 -- im:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED") -- pulse when combat log events occurs
 -- local function spellCastListener(self,category,...)
--- 	-- if getOptionCheck("Interrupts Handler") then
+-- 	-- if br.getOptionCheck("Interrupts Handler") then
 -- 		-- if event is a combatlog event
 -- 		if category == "COMBAT_LOG_EVENT_UNFILTERED" then
 -- 			-- prevent nils of bot not started
@@ -53,15 +53,15 @@
 -- -- local that will be used inside function environment
 -- local canCast = canCast
 -- local castSpell = castSpell
--- local getOptionCheck = getOptionCheck
--- local getOptionValue = getOptionValue
--- local getDistance = getDistance
--- local getSpellCD = getSpellCD
+-- local br.getOptionCheck = br.getOptionCheck
+-- local br.getOptionValue = br.getOptionValue
+-- local br.getDistance = br.getDistance
+-- local br.getSpellCD = br.getSpellCD
 -- local GetSpellInfo = GetSpellInfo
 -- local GetTime = GetTime
--- local GetObjectID = GetObjectID
+-- local br.GetObjectID = br.GetObjectID
 -- local Print = Print
--- --local ObjectExists,ObjectPosition = ObjectExists,ObjectPosition
+-- --local ObjectExists,br._G.ObjectPosition = ObjectExists,br._G.ObjectPosition
 -- local select = select
 -- local tinsert,tremove,sort = tinsert,tremove,table.sort
 -- local UnitCastingInfo,UnitChannelInfo = UnitCastingInfo,UnitChannelInfo
@@ -78,7 +78,7 @@
 -- 	-- first make sure we will be able to cast the spell
 -- 	if canCast(spell,false,false) == true and #casters > 0 then
 -- 		-- ToDo if the user sets its selector to target, only interupt current target.
--- 		local selectedMode,selectedTargets = getOptionValue("Interrupts Handler"),{}
+-- 		local selectedMode,selectedTargets = br.getOptionValue("Interrupts Handler"),{}
 -- 		if selectedMode == 1 then
 -- 			selectedTargets = { "target" }
 -- 		elseif selectedMode == 2 then
@@ -96,13 +96,13 @@
 -- 		-- iterate casters and find best occurance to cast on
 -- 		local bestAoEInterruptTarget,bestAoEInterruptUnits = casters[1].unit,0
 -- 		for i = 1, #casters do
--- 			if GetObjectExists(casters[i].unit) then
+-- 			if br.GetObjectExists(casters[i].unit) then
 -- 				local thisCaster = casters[i]
 -- 				if selectedMode == 4 or isSelectedTarget(thisCaster.guid) then
 -- 					-- make sure unit is in a cluster > targets
 -- 					if thisCaster.castersAround > targets then
 -- 						-- see if we are in range
--- 						if getDistance("player",thisCaster.unit) < allowedDistance then
+-- 						if br.getDistance("player",thisCaster.unit) < allowedDistance then
 -- 							if thisCaster.castersAround > bestAoEInterruptUnits then
 -- 								bestAoEInterruptTarget = thisCaster.unit
 -- 								bestAoEInterruptUnits = thisCaster.castersAround
@@ -112,7 +112,7 @@
 -- 				end
 -- 			end
 -- 		end
--- 		if bestAoEInterruptUnits > targets and GetObjectExists(bestAoEInterruptTarget) then
+-- 		if bestAoEInterruptUnits > targets and br.GetObjectExists(bestAoEInterruptTarget) then
 -- 			if castSpell(bestAoEInterruptTarget,spell,false,false) then
 -- 				im:debug("Cast AoE Interrupt on "..bestAoEInterruptTarget.."("..bestAoEInterruptUnits..") with "..spell..".",true)
 -- 				return true
@@ -126,7 +126,7 @@
 -- 	-- first make sure we will be able to cast the spell
 -- 	if canCast(spell,false,false) == true then
 -- 		-- ToDo if the user sets its selector to target, only interupt current target.
--- 		selectedMode,selectedTargets = getOptionValue("Interrupts Handler"),{ }
+-- 		selectedMode,selectedTargets = br.getOptionValue("Interrupts Handler"),{ }
 -- 		if selectedMode == 1 then
 -- 			selectedTargets = { "target" }
 -- 		elseif selectedMode == 2 then
@@ -140,16 +140,16 @@
 -- 			allowedDistance = 5
 -- 		end
 -- 		for i = 1, #casters do
--- 			if GetObjectExists(casters[i].unit) then
+-- 			if br.GetObjectExists(casters[i].unit) then
 -- 				local thisCaster = casters[i]
 -- 				if selectedMode == 4 or isSelectedTarget(thisCaster.guid) then
 -- 					-- make sure we can interupt this spell
 -- 					if thisCaster.canInterupt == true then
 -- 						-- see if the spell is about to be finished casting or is a channel
 -- 						local castPercent = (thisCaster.castEnd - GetTime())/thisCaster.castLenght
--- 						if thisCaster.castType == "chan" or (getSpellCD(spell) < thisCaster.castEnd - GetTime()
+-- 						if thisCaster.castType == "chan" or (br.getSpellCD(spell) < thisCaster.castEnd - GetTime()
 -- 							and castPercent < (100 - percent)/100)
--- 							and getDistance("player",thisCaster.unit) < allowedDistance then
+-- 							and br.getDistance("player",thisCaster.unit) < allowedDistance then
 -- 							if castSpell(thisCaster.unit,spell,false,false) then
 -- 								im:debug("Cast Interrupt "..thisCaster.unit.." with "..spell.." at "..castPercent,true)
 -- 								-- if developer need to keep this spell/unit combo
@@ -192,8 +192,8 @@
 -- 	-- find if that unit/spell combination should be interrupted
 -- 	-- Prepare GUID to be reused via UnitID
 -- 	local br = im
--- 	local function GetObjectExists(Unit)
--- 	    if EWT and GetObjectExists(Unit) == true then
+-- 	local function br.GetObjectExists(Unit)
+-- 	    if EWT and br.GetObjectExists(Unit) == true then
 -- 	        return true
 -- 	    else
 -- 	        return false
@@ -201,11 +201,11 @@
 -- 	end
 -- 	if br.enemy ~= nil then
 -- 		for k, v in pairs(br.enemy) do
--- 			if GetObjectExists(br.enemy[k].unit) then
+-- 			if br.GetObjectExists(br.enemy[k].unit) then
 -- 				if br.enemy[k] and br.enemy[k].unit and sourceGUID == br.enemy[k].guid  then
 -- 					local thisUnit = br.enemy[k]
 -- 					-- gather our infos
--- 					if getOptionCheck("Only Known Units") and not isInteruptCandidate(thisUnit.unit, spellID) then
+-- 					if br.getOptionCheck("Only Known Units") and not isInteruptCandidate(thisUnit.unit, spellID) then
 -- 						im:debug(sourceName.." started casting "..spellID.." but is not gonna be interrupt.")
 -- 						return --exit since we have checkd only known units but is not on the list
 -- 					else
@@ -217,8 +217,8 @@
 -- 						end
 -- 						-- Send to table
 -- 						local unitCasting,unitCastLenght,unitCastTime,unitCantBeInterrupt,unitCastType = getCastingInfo(thisUnit.unit)
--- 						--local _, ObjectPosition7,ObjectPosition8,ObjectPosition9 = pcall(ObjectPosition,thisUnit.unit)
--- 						--local _, ObjectPosition1,ObjectPosition2,ObjectPosition3 = pcall(ObjectPosition,thisUnit)
+-- 						--local _, ObjectPosition7,ObjectPosition8,ObjectPosition9 = pcall(br._G.ObjectPosition,thisUnit.unit)
+-- 						--local _, ObjectPosition1,ObjectPosition2,ObjectPosition3 = pcall(br._G.ObjectPosition,thisUnit)
 -- 						--Print(ObjectPosition7)
 -- 						--Print(ObjectPosition8)
 -- 						--Print(ObjectPosition9)
@@ -235,7 +235,7 @@
 -- 								castLenght = unitCastLenght,
 -- 								castType = castOrChan,
 -- 								-- usually this distance check should use lib range
--- 								distance = getDistance("player",thisUnit),
+-- 								distance = br.getDistance("player",thisUnit),
 -- 								guid = sourceGUID,
 -- 								id = thisUnit.id,
 -- 								shouldInterupt = candidate,
@@ -296,7 +296,7 @@
 -- 			thisCaster = casters[j]
 -- 			-- if more than 0.25 remains on unit cast and its in range we count it
 -- 			if (thisCaster.castEnd - GetTime() > 0.25 or thisCaster.castType == "chan") and
--- 				getDistance(thatCaster,thisCaster) < radius then
+-- 				br.getDistance(thatCaster,thisCaster) < radius then
 -- 				enemyCastersAround = enemyCastersAround + 1
 -- 			end
 -- 		end
@@ -307,8 +307,8 @@
 -- -- function that return frange from thisCaster to thatCaster using their stored positions
 -- function getDistanceInt(thatCaster,thisCaster)
 -- 	local thatCaster,thisCaster = thatCaster,thisCaster
--- 	if GetObjectExists(thatCaster.unit) and GetUnitIsVisible(thatCaster.unit) == true
--- 		and GetObjectExists(thisCaster.unit) and GetUnitIsVisible(thisCaster.unit) == true then
+-- 	if br.GetObjectExists(thatCaster.unit) and br.GetUnitIsVisible(thatCaster.unit) == true
+-- 		and br.GetObjectExists(thisCaster.unit) and br.GetUnitIsVisible(thisCaster.unit) == true then
 -- 		local X1,Y1,Z1 = thatCaster.pos
 -- 		local X2,Y2,Z2 = thisCaster.pos
 -- 		return math.sqrt(((X2-X1)^2) + ((Y2-Y1)^2) + ((Z2-Z1)^2))
@@ -340,7 +340,7 @@
 -- end
 -- -- check if a unit is a casting candidate according to its unitID and its current spell cast
 -- function isInteruptCandidate(Unit,SpellID)
--- 	local unitID = GetObjectID(Unit)
+-- 	local unitID = br.GetObjectID(Unit)
 -- 	for i = 1,#interruptCandidates do
 -- 		thisCandidate = interruptCandidates[i]
 -- 		if thisCandidate.unitID == 0 or unitID == thisCandidate.unitID then

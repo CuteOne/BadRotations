@@ -1,5 +1,5 @@
 
-_br = br
+local _, br = ...
 if br.lists == nil then
     br.lists = {}
 end
@@ -11,5 +11,4 @@ br.lists.AoEDamage = {
     282107, -- Paku's Wrath (Conclave)
     -- Crucible of Storms
     282742, -- Storm of Annihilation
-    
 }

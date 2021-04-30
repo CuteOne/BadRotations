@@ -214,14 +214,14 @@ local function runRotation()
     local buff = br.player.buff
     local cast = br.player.cast
     local castable = br.player.cast.debug
-    local combatTime = getCombatTime()
+    local combatTime = br.getCombatTime()
     local cd = br.player.cd
-    local hastar, playertar = hastar or GetObjectExists("target"), UnitIsPlayer("target")
+    local hastar, playertar = hastar or br.GetObjectExists("target"), UnitIsPlayer("target")
     local debuff = br.player.debuff
     local enemies = br.player.enemies
     local equiped = br.player.equiped
     local falling, swimming, flying = getFallTime(), IsSwimming(), IsFlying()
-    local friendly = friendly or GetUnitIsFriend("target", "player")
+    local friendly = friendly or br.GetUnitIsFriend("target", "player")
     local gcd = br.player.gcdMax
     local gcdMax = br.player.gcdMax
     local hasPet = IsPetActive()
@@ -231,7 +231,7 @@ local function runRotation()
     local inRaid = br.player.instance == "raid"
     local lastSpell = lastSpellCast
     local level = br.player.level
-    local lootDelay = getOptionValue("LootDelay")
+    local lootDelay = br.getOptionValue("LootDelay")
     local manaPercent = br.player.power.mana.percent()
     local mode = br.player.ui.mode
     local moving = isMoving("player") ~= false or br.player.moving
@@ -241,16 +241,16 @@ local function runRotation()
     local pullTimer = PullTimerRemain()
     local race = br.player.race
     local shards											= shards or UnitPower("player", Enum.PowerType.SoulShards)
-    local summonPet = getOptionValue("Summon Pet")
+    local summonPet = br.getOptionValue("Summon Pet")
     local solo = br.player.instance == "none"
     shards = WarlockPowerBar_UnitPower("player")
     local spell = br.player.spell
     local spell_haste 										= 1 / (1 + (GetHaste()/100))
     local talent = br.player.talent
-    local thp = getHP("target")
+    local thp = br.getHP("target")
     local trait = br.player.traits
-    local travelTime = getDistance("target") / 16
-    local ttd                                           	= getTTD
+    local travelTime = br.getDistance("target") / 16
+    local ttd                                           	= br.getTTD
     local units = br.player.units
     local use = br.player.use
 
@@ -312,29 +312,29 @@ local function runRotation()
     --- See if the current unit is really a boss
     -- @return Wether the boss is a boss1-2-3-4-5
     local function isTargetUnitEqualBossFrameUnit_local (thisUnit)
-        if isDummy() then return true end
+        if br.isDummy() then return true end
         return UnitIsUnit(thisUnit, "Boss1") or UnitIsUnit(thisUnit, "Boss2") or UnitIsUnit(thisUnit, "Boss3") or UnitIsUnit(thisUnit, "Boss4") or UnitIsUnit(thisUnit, "Boss5")
     end
 
     --- Get whether the unit is a boss.
     local function isBoss_local (thisUnit)
         if thisUnit == nil then thisUnit = "target" end
-        if isValidUnit(thisUnit) then
+        if br.isValidUnit(thisUnit) then
             -- Check if the target is boss1 - boss5
             if isTargetUnitEqualBossFrameUnit_local(thisUnit) then return true end
-            -- check classic isBoss()
-            if isBoss(thisUnit) then return true end
+            -- check classic br.isBoss()
+            if br.isBoss(thisUnit) then return true end
         end
         return false
     end
 
     function CDOptionEnabled (OptionName)
-        local OptionValue = getOptionValue(OptionName)
+        local OptionValue = br.getOptionValue(OptionName)
         -- Always				Will use the ability even if CDs are disabled.
         -- Always Boss			Will use the ability even if CDs are disabled as long as the current target is a Boss.
         -- OnCooldown			Will only use the ability if the Cooldown Toggle is Enabled.
         -- OnCooldown Boss		Will only use the ability if the Cooldown Toggle is Enabled and Target is a Boss.
-        if isChecked(OptionName) then
+        if br.isChecked(OptionName) then
             if OptionValue == 1 then
                 return true
             end
@@ -352,8 +352,8 @@ local function runRotation()
 
     -- --ttd
     -- local function ttd(unit)
-    --     local ttdSec = getTTD(unit)
-    --     if getOptionCheck("Enhanced Time to Die") then
+    --     local ttdSec = br.getTTD(unit)
+    --     if br.getOptionCheck("Enhanced Time to Die") then
     --         return ttdSec
     --     end
     --     if ttdSec == -1 then
@@ -371,7 +371,7 @@ local function runRotation()
             [146731] = "Zombie Dust Totem"
         }
         local creatureType = UnitCreatureType(unit)
-        local objectID = GetObjectID(unit)
+        local objectID = br.GetObjectID(unit)
         if creatureType ~= nil and eliteTotems[objectID] == nil then
             if creatureType == "Totem" or creatureType == "Tótem" or creatureType == "Totém" or creatureType == "Тотем" or creatureType == "토템" or creatureType == "图腾" or creatureType == "圖騰" then
                 return true
@@ -392,17 +392,17 @@ local function runRotation()
     }
 
     -- local function noDotCheck (unit)
-    --     if isChecked("Dot Blacklist") and (noDotUnits[GetObjectID(unit)] or UnitIsCharmed(unit)) then
+    --     if br.isChecked("Dot Blacklist") and (noDotUnits[br.GetObjectID(unit)] or UnitIsCharmed(unit)) then
     --         return true
     --     end
-    --     if isTotem(unit) then
+    --     if br.isTotem(unit) then
     --         return true
     --     end
-    --     local unitCreator = UnitCreator(unit)
+    --     local unitCreator = br._G.UnitCreator(unit)
     --     if unitCreator ~= nil and UnitIsPlayer(unitCreator) ~= nil and UnitIsPlayer(unitCreator) == true then
     --         return true
     --     end
-    --     if GetObjectID(unit) == 137119 and getBuffRemain(unit, 271965) > 0 then
+    --     if br.GetObjectID(unit) == 137119 and br.getBuffRemain(unit, 271965) > 0 then
     --         return true
     --     end
     --     return false
@@ -455,7 +455,7 @@ local function runRotation()
     --     local validDispel = false
     --     local dispelDuration = 0
     --     if UnitInPhase(unit) then
-    --         if GetUnitIsFriend("player", unit) then
+    --         if br.GetUnitIsFriend("player", unit) then
     --             while UnitDebuff(unit, i) do
     --                 local _, _, _, dispelType, debuffDuration, expire, _, _, _, dispelId = UnitDebuff(unit, i)
     --                 if (dispelType and dispelType == "Magic") and dDispelList[dispelId] ~= nil and (dDispelList[dispelId] == 0 or (dDispelList[dispelId] > 0 and #getAllies(unit, dDispelList[dispelId]) == 1)) then
@@ -480,8 +480,8 @@ local function runRotation()
     --         end
     --     end
     --     local dispelDelay = 1.5
-    --     if isChecked("Dispel delay") then
-    --         dispelDelay = getValue("Dispel delay")
+    --     if br.isChecked("Dispel delay") then
+    --         dispelDelay = br.getValue("Dispel delay")
     --     end
     --     if validDispel and (dispelDuration - remain) > (dispelDelay - 0.3 + math.random() * 0.6) then
     --         return true
@@ -499,14 +499,14 @@ local function runRotation()
     --     local distance20Min
     --     for i = 1, #enemies.yards40 do
     --         local thisUnit = enemies.yards40[i]
-    --         if (not noDotCheck(thisUnit) or GetUnitIsUnit(thisUnit, "target")) and not UnitIsDeadOrGhost(thisUnit) then
+    --         if (not noDotCheck(thisUnit) or br.GetUnitIsUnit(thisUnit, "target")) and not UnitIsDeadOrGhost(thisUnit) then
     --             local enemyUnit = {}
     --             enemyUnit.unit = thisUnit
     --             enemyUnit.ttd = ttd(thisUnit)
-    --             enemyUnit.distance = getDistance(thisUnit)
-    --             enemyUnit.distance20 = math.abs(getDistance(thisUnit) - 20)
-    --             enemyUnit.hpabs = UnitHealth(thisUnit)
-    --             enemyUnit.facing = getFacing("player", thisUnit)
+    --             enemyUnit.distance = br.getDistance(thisUnit)
+    --             enemyUnit.distance20 = math.abs(br.getDistance(thisUnit) - 20)
+    --             enemyUnit.hpabs = br._G.UnitHealth(thisUnit)
+    --             enemyUnit.facing = br.getFacing("player", thisUnit)
     --             if enemyUnit.facing then
     --                 facingUnits = facingUnits + 1
     --             end
@@ -551,29 +551,29 @@ local function runRotation()
     --             end
     --         )
     --     end
-    --     if isChecked("Auto Target") and inCombat and #enemyTable40 > 0 and ((GetUnitExists("target") and UnitIsDeadOrGhost("target") and not GetUnitIsUnit(enemyTable40[1].unit, "target")) or not GetUnitExists("target")) then
+    --     if br.isChecked("Auto Target") and inCombat and #enemyTable40 > 0 and ((br.GetUnitExists("target") and UnitIsDeadOrGhost("target") and not br.GetUnitIsUnit(enemyTable40[1].unit, "target")) or not br.GetUnitExists("target")) then
     --         TargetUnit(enemyTable40[1].unit)
     --     end
     -- end
 
     --Keybindings
     local shadowfuryKey = false
-    if getOptionValue("Shadowfury Hotkey (hold)") ~= 1 then
-        shadowfuryKey = _G["rotationFunction" .. (getOptionValue("Shadowfury Hotkey (hold)") - 1)]
+    if br.getOptionValue("Shadowfury Hotkey (hold)") ~= 1 then
+        shadowfuryKey = _G["rotationFunction" .. (br.getOptionValue("Shadowfury Hotkey (hold)") - 1)]
         if shadowfuryKey == nil then
             shadowfuryKey = false
         end
     end
     -- spell usable check
     local function spellUsable(spellID)
-        if isKnown(spellID) and not select(2, IsUsableSpell(spellID)) and getSpellCD(spellID) == 0 then
+        if br.isKnown(spellID) and not select(2, IsUsableSpell(spellID)) and br.getSpellCD(spellID) == 0 then
             return true
         end
         return false
     end
 
     -- Opener Variables
-    if not inCombat and not GetObjectExists("target") then
+    if not inCombat and not br.GetObjectExists("target") then
         -- openerCount = 0
         -- OPN1 = false
         -- AGN1 = false
@@ -631,7 +631,7 @@ local function runRotation()
     --             foundDreakstalker = true
     --             dreadstalkersActive = true
     --         elseif thisUnit.id == 17252 and not UnitIsDeadOrGhost(thisUnit.unit) then
-    --             local grimoire = getBuffRemain(thisUnit.unit, 216187)
+    --             local grimoire = br.getBuffRemain(thisUnit.unit, 216187)
     --             if grimoire == 0 then
     --                 felguardActive = true
     --             end
@@ -697,35 +697,35 @@ local function runRotation()
                 -- Hand of Guldan
                 if spell == 105174 then
                     ImpsIncoming = ImpsIncoming + ImpsCasting
-                    if not br.lastCast.hog then br.lastCast.hog = {} end
+                    if not br.lastCastTable.hog then br.lastCastTable.hog = {} end
                     -- if br.lastCast then
-                    --     tinsert(br.lastCast.hog, 1, GetTime())
-                    --     if #br.lastCast.hog == 5 then
-                    --         br.lastCast.hog[5] = nil
+                    --     tinsert(br.lastCastTable.hog, 1, GetTime())
+                    --     if #br.lastCastTable.hog == 5 then
+                    --         br.lastCastTable.hog[5] = nil
                     --     end
                     -- end
-                    if br.lastCast.hog then
+                    if br.lastCastTable.hog then
                         if ImpsCasting == 1 then
-                            tinsert(br.lastCast.hog, 1, GetTime()+1.2*spell_haste)
+                            tinsert(br.lastCastTable.hog, 1, GetTime()+1.2*spell_haste)
                         elseif ImpsCasting == 2 then
-                            tinsert(br.lastCast.hog, 1, GetTime()+1.2*spell_haste)
-                            tinsert(br.lastCast.hog, 1, GetTime()+1.6*spell_haste)
+                            tinsert(br.lastCastTable.hog, 1, GetTime()+1.2*spell_haste)
+                            tinsert(br.lastCastTable.hog, 1, GetTime()+1.6*spell_haste)
                         elseif ImpsCasting == 3 then
-                            tinsert(br.lastCast.hog, 1, GetTime()+1.2*spell_haste)
-                            tinsert(br.lastCast.hog, 1, GetTime()+1.6*spell_haste)
-                            tinsert(br.lastCast.hog, 1, GetTime()+2.0*spell_haste)
+                            tinsert(br.lastCastTable.hog, 1, GetTime()+1.2*spell_haste)
+                            tinsert(br.lastCastTable.hog, 1, GetTime()+1.6*spell_haste)
+                            tinsert(br.lastCastTable.hog, 1, GetTime()+2.0*spell_haste)
                         end
                     end
                 end
                 -- Line CD
-                if not br.lastCast.line_cd then br.lastCast.line_cd = {} end
-                br.lastCast.line_cd[spell] = GetTime()
+                if not br.lastCastTable.line_cd then br.lastCastTable.line_cd = {} end
+                br.lastCastTable.line_cd[spell] = GetTime()
             end
 
             -- DEMON MANAGER
             -- Imps are summoned
             if param == "SPELL_SUMMON" and source == br.guid and (spell == 104317 or spell == 279910) then
-                if br.lastCast.hog[1] then tremove(br.lastCast.hog, #br.lastCast.hog) end
+                if br.lastCastTable.hog[1] then tremove(br.lastCastTable.hog, #br.lastCastTable.hog) end
                 local tyrantExtra = TyrantActive and TyrantDuration - (GetTime() - TyrantStart) or 0
                 ImpEnergy[destination] = {ImpMaxCasts, GetTime() + ImpMaxTime + tyrantExtra - 0.1}
                 C_Timer.After(ImpMaxTime + tyrantExtra, function()
@@ -882,9 +882,9 @@ local function runRotation()
     --end
 
     -- clean up imps incoming hog table
-    -- for i=1, #br.lastCast.hog do
-    --     if br.lastCast.hog[i] < GetTime() then
-    --         br.lastCast.hog[i] = nil
+    -- for i=1, #br.lastCastTable.hog do
+    --     if br.lastCastTable.hog[i] < GetTime() then
+    --         br.lastCastTable.hog[i] = nil
     --     end
     -- end
     
@@ -894,10 +894,10 @@ local function runRotation()
 
     local function Imps_spawned_during (seconds)
         local imps = 0
-        if br.lastCast.hog then
-            for i=1, #br.lastCast.hog do
-                if GetTime() + seconds >= br.lastCast.hog[i] then
-                --if br.lastCast.hog[i] <= GetTime() + seconds then
+        if br.lastCastTable.hog then
+            for i=1, #br.lastCastTable.hog do
+                if GetTime() + seconds >= br.lastCastTable.hog[i] then
+                --if br.lastCastTable.hog[i] <= GetTime() + seconds then
                     imps = imps + 1
                 end
             end
@@ -907,13 +907,13 @@ local function runRotation()
     end
 
     local function time_to_imps ()
-        return br.lastCast.hog[1] or 999
+        return br.lastCastTable.hog[1] or 999
     end
 
     local function Line_cd (spellid, seconds)
-        if br.lastCast.line_cd then
-            if br.lastCast.line_cd[spellid] then
-                if br.lastCast.line_cd[spellid] + seconds >= GetTime() then
+        if br.lastCastTable.line_cd then
+            if br.lastCastTable.line_cd[spellid] then
+                if br.lastCastTable.line_cd[spellid] + seconds >= GetTime() then
                     return false
                 end
             end
@@ -923,19 +923,19 @@ local function runRotation()
 
     local function castBilescourgeBombers ()
         if mode.bsb == 1 then
-            if getOptionValue("Bilescourge Target") == 1 then
-                if (#enemies.yards8t >= getOptionValue("Bilescourge Units") or (isChecked("Ignore Bilescourge Bombers units when using CDs") and useCDs())) then
+            if br.getOptionValue("Bilescourge Target") == 1 then
+                if (#enemies.yards8t >= br.getOptionValue("Bilescourge Units") or (br.isChecked("Ignore Bilescourge Bombers units when using CDs") and useCDs())) then
                     if cast.bilescourgeBombers("target", "ground") then
                         return true
                     end
                 end
             else
-                if isChecked("Ignore Bilescourge Bombers units when using CDs") and useCDs() then
+                if br.isChecked("Ignore Bilescourge Bombers units when using CDs") and useCDs() then
                     if cast.bilescourgeBombers("best", false, 1, 8) then
                         return true
                     end
                 else
-                    if cast.bilescourgeBombers("best", false, getOptionValue("Bilescourge Units"), 8) then
+                    if cast.bilescourgeBombers("best", false, br.getOptionValue("Bilescourge Units"), 8) then
                         return true
                     end
                 end
@@ -949,31 +949,31 @@ local function runRotation()
     -- Action List - Extras
     local function actionList_Extras()
         -- Dummy Test
-        if isChecked("DPS Testing") then
-            if GetObjectExists("target") then
-                if getCombatTime() >= (tonumber(getOptionValue("DPS Testing")) * 60) and isDummy() then
+        if br.isChecked("DPS Testing") then
+            if br.GetObjectExists("target") then
+                if br.getCombatTime() >= (tonumber(br.getOptionValue("DPS Testing")) * 60) and br.isDummy() then
                     StopAttack()
                     ClearTarget()
-                    if isChecked("Pet Management") then
+                    if br.isChecked("Pet Management") then
                         PetStopAttack()
                         PetFollow()
                     end
-                    Print(tonumber(getOptionValue("DPS Testing")) .. " Minute Dummy Test Concluded - Profile Stopped")
+                    Print(tonumber(br.getOptionValue("DPS Testing")) .. " Minute Dummy Test Concluded - Profile Stopped")
                     profileStop = true
                 end
             end
         end -- End Dummy Test
-        if isChecked("Shadowfury Hotkey (hold)") and shadowfuryKey and not GetCurrentKeyBoardFocus() then
-            if getOptionValue("Shadowfury Target") == 1 then
+        if br.isChecked("Shadowfury Hotkey (hold)") and shadowfuryKey and not GetCurrentKeyBoardFocus() then
+            if br.getOptionValue("Shadowfury Target") == 1 then
                 if cast.shadowfury("best", false, 1, 8) then
                     return true
                 end
-            elseif getOptionValue("Shadowfury Target") == 2 then
+            elseif br.getOptionValue("Shadowfury Target") == 2 then
                 if cast.shadowfury("target", "ground") then
                     return true
                 end
-            elseif getOptionValue("Shadowfury Target") == 3 and isKnown(spell.shadowfury) and getSpellCD(spell.shadowfury) == 0 then
-                CastSpellByName(GetSpellInfo(spell.shadowfury), "cursor")
+            elseif br.getOptionValue("Shadowfury Target") == 3 and br.isKnown(spell.shadowfury) and br.getSpellCD(spell.shadowfury) == 0 then
+                br._G.CastSpellByName(GetSpellInfo(spell.shadowfury), "cursor")
                 return true
             end
         end
@@ -982,15 +982,15 @@ local function runRotation()
             [120651] = true, -- Explosive
             [141851] = true -- Infested
         }
-        if GetObjectExists("target") and burnUnits[GetObjectID("target")] ~= nil then
+        if br.GetObjectExists("target") and burnUnits[br.GetObjectID("target")] ~= nil then
         end
         --Soulstone
-        if isChecked("Auto Soulstone Mouseover") and not moving and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and GetUnitIsFriend("mouseover", "player") then
+        if br.isChecked("Auto Soulstone Mouseover") and not moving and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and br.GetUnitIsFriend("mouseover", "player") then
             if cast.soulstone("mouseover", "dead") then
                 return true
             end
         end
-        if isChecked("Auto Soulstone Player") and not inInstance and not inRaid and (not buff.soulstone.exists("player") or buff.soulstone.remain("player") < 100) and not inCombat and not moving then
+        if br.isChecked("Auto Soulstone Player") and not inInstance and not inRaid and (not buff.soulstone.exists("player") or buff.soulstone.remain("player") < 100) and not inCombat and not moving then
             if cast.soulstone("player") then
                 return true
             end
@@ -1000,19 +1000,19 @@ local function runRotation()
     local function actionList_Defensive()
         if useDefensive() then
             -- Healthstone
-            if isChecked("Healthstone") and php <= getOptionValue("Healthstone")
-                and inCombat and (hasHealthPot() or hasItem(5512))
+            if br.isChecked("Healthstone") and php <= br.getOptionValue("Healthstone")
+                and inCombat and (hasHealthPot() or br.hasItem(5512))
             then
-                if canUseItem(5512) then useItem(5512) end
+                if br.canUseItem(5512) then br.useItem(5512) end
             end
             -- Health Pot
-            if isChecked("Healing Potion") and php <= getOptionValue("Healing Potion")
-                and inCombat and (hasHealthPot() or hasItem(5512))
+            if br.isChecked("Healing Potion") and php <= br.getOptionValue("Healing Potion")
+                and inCombat and (hasHealthPot() or br.hasItem(5512))
             then
-                if canUseItem(healPot) then useItem(healPot) end
+                if br.canUseItem(healPot) then br.useItem(healPot) end
             end
             -- --dispel logic for m+
-            -- if inInstance and isChecked("Auto Dispel/Purge") then
+            -- if inInstance and br.isChecked("Auto Dispel/Purge") then
             --     if spellUsable(spell.devourMagic) then
             --         for i = 1, #enemyTable40 do
             --             local thisUnit = enemyTable40[i].unit
@@ -1038,31 +1038,31 @@ local function runRotation()
             --     end
             -- end
             -- Gift of the Naaru
-            if isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and php > 0 and br.player.race == "Draenei" then
+            if br.isChecked("Gift of the Naaru") and php <= br.getOptionValue("Gift of the Naaru") and php > 0 and br.player.race == "Draenei" then
                 if castSpell("player", racial, false, false, false) then
                     return true
                 end
             end
             -- Dark Pact
-            if isChecked("Dark Pact") and talent.darkPact and php <= getOptionValue("Dark Pact") then
+            if br.isChecked("Dark Pact") and talent.darkPact and php <= br.getOptionValue("Dark Pact") then
                 if cast.darkPact() then
                     return true
                 end
             end
             -- Drain Life
-            if isChecked("Drain Life") and php <= getOptionValue("Drain Life") and isValidTarget("target") and not moving then
+            if br.isChecked("Drain Life") and php <= br.getOptionValue("Drain Life") and isValidTarget("target") and not moving then
                 if cast.drainLife() then
                     return true
                 end
             end
             -- Health Funnel
-            if isChecked("Health Funnel") and getHP("pet") <= getOptionValue("Health Funnel") and GetObjectExists("pet") == true and not UnitIsDeadOrGhost("pet") and not moving then
+            if br.isChecked("Health Funnel") and br.getHP("pet") <= br.getOptionValue("Health Funnel") and br.GetObjectExists("pet") == true and not UnitIsDeadOrGhost("pet") and not moving then
                 if cast.healthFunnel("pet") then
                     return true
                 end
             end
             -- Unending Resolve
-            if isChecked("Unending Resolve") and php <= getOptionValue("Unending Resolve") and inCombat then
+            if br.isChecked("Unending Resolve") and php <= br.getOptionValue("Unending Resolve") and inCombat then
                 if cast.unendingResolve() then
                     return true
                 end
@@ -1075,7 +1075,7 @@ local function runRotation()
             if talent.grimoireOfSacrifice then
                 for i = 1, #enemyTable40 do
                     local thisUnit = enemyTable40[i].unit
-                    if canInterrupt(thisUnit, getOptionValue("Interrupt At")) then
+                    if br.canInterrupt(thisUnit, br.getOptionValue("Interrupt At")) then
                         if cast.spellLockgrimoire(thisUnit) then
                             return true
                         end
@@ -1084,7 +1084,7 @@ local function runRotation()
             elseif activePetId ~= nil and (activePetId == 417 or activePetId == 78158) then
                 for i = 1, #enemyTable40 do
                     local thisUnit = enemyTable40[i].unit
-                    if canInterrupt(thisUnit, getOptionValue("Interrupt At")) then
+                    if br.canInterrupt(thisUnit, br.getOptionValue("Interrupt At")) then
                         if activePetId == 417 then
                             if cast.spellLock(thisUnit) then
                                 return true
@@ -1097,25 +1097,25 @@ local function runRotation()
     end -- End Action List - Interrupts
     -- Action List - Cooldowns
     -- local function actionList_Cooldowns()
-    --     if getDistance("target") < 40 then
+    --     if br.getDistance("target") < 40 then
     --         -- actions=potion,if=pet.demonic_tyrant.active|target.time_to_die<30
-    --         -- if isChecked("Potion") and use.able.battlePotionOfIntellect() and not buff.battlePotionOfIntellect.exists() and (TyrantActive or ttd("target") < 30) then
+    --         -- if br.isChecked("Potion") and use.able.battlePotionOfIntellect() and not buff.battlePotionOfIntellect.exists() and (TyrantActive or ttd("target") < 30) then
     --         --     use.battlePotionOfIntellect()
     --         --     return true
     --         -- end
     --         -- actions+=/use_items,if=pet.demonic_tyrant.active|target.time_to_die<=15
     --         if TyrantActive then
-	-- 			if canUseItem(13) and CDOptionEnabled("Trinket 1") and not hasEquiped(165572, 13) then
-	-- 				if useItem(13) then return true end
+	-- 			if br.canUseItem(13) and CDOptionEnabled("Trinket 1") and not hasEquiped(165572, 13) then
+	-- 				if br.useItem(13) then return true end
 	-- 			end
-	-- 			if canUseItem(14) and CDOptionEnabled("Trinket 2") and not hasEquiped(165572, 14) then
-	-- 				if useItem(14) then return true end
+	-- 			if br.canUseItem(14) and CDOptionEnabled("Trinket 2") and not hasEquiped(165572, 14) then
+	-- 				if br.useItem(14) then return true end
 	-- 			end
 	-- 		end
     --         -- actions+=/berserking,if=pet.demonic_tyrant.active|target.time_to_die<=15
     --         -- actions+=/blood_fury,if=pet.demonic_tyrant.active|target.time_to_die<=15
     --         -- actions+=/fireblood,if=pet.demonic_tyrant.active|target.time_to_die<=15
-    --         if isChecked("Racial") and not moving and TyrantActive then
+    --         if br.isChecked("Racial") and not moving and TyrantActive then
     --             if race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf" or race == "LightforgedDraenei" or race == "Troll" then
     --                 if race == "LightforgedDraenei" then
     --                     if cast.racial("target", "ground") then
@@ -1375,7 +1375,7 @@ local function runRotation()
             petPadding = 5
         end
         -- summon_pet,if=!talent.grimoire_of_supremacy.enabled&(!talent.grimoire_of_sacrifice.enabled|buff.demonic_power.down)
-        if isChecked("Pet Management") and not (IsFlying() or IsMounted()) and (not talent.grimoireOfSacrifice or not buff.demonicPower.exists()) and level >= 5 and br.timer:useTimer("summonPet", cast.time.summonFelguard() + petPadding) and not moving then
+        if br.isChecked("Pet Management") and not (IsFlying() or IsMounted()) and (not talent.grimoireOfSacrifice or not buff.demonicPower.exists()) and level >= 5 and br.timer:useTimer("summonPet", cast.time.summonFelguard() + petPadding) and not moving then
             if (activePetId == 0 or activePetId ~= summonId) and (lastSpell ~= castSummonId or activePetId ~= summonId or activePetId == 0) then
                 if summonPet == 1 and (lastSpell ~= spell.summonFelguard or activePetId == 0) then
                     if cast.summonFelguard("player") then
@@ -1406,7 +1406,7 @@ local function runRotation()
             end
         end
         -- grimoire_of_sacrifice,if=talent.grimoire_of_sacrifice.enabled
-        if talent.grimoireOfSacrifice and isChecked("Pet Management") and GetObjectExists("pet") and not UnitIsDeadOrGhost("pet") then
+        if talent.grimoireOfSacrifice and br.isChecked("Pet Management") and br.GetObjectExists("pet") and not UnitIsDeadOrGhost("pet") then
             if cast.grimoireOfSacrifice() then
                 return
             end
@@ -1416,11 +1416,11 @@ local function runRotation()
             -- flask,type=whispered_pact
             -- Food
             -- food,type=azshari_salad
-            if (not isChecked("Opener") or opener == true) then
-                if useCDs() and isChecked("Pre-Pull Logic") and GetObjectExists("target") and getDistance("target") < 40 then
+            if (not br.isChecked("Opener") or opener == true) then
+                if useCDs() and br.isChecked("Pre-Pull Logic") and br.GetObjectExists("target") and br.getDistance("target") < 40 then
                     local demonboltExecute = cast.time.demonbolt()
                     if pullTimer <= demonboltExecute then
-                        if isChecked("Pre Pot") and use.able.battlePotionOfIntellect() and not buff.battlePotionOfIntellect.exists() then
+                        if br.isChecked("Pre Pot") and use.able.battlePotionOfIntellect() and not buff.battlePotionOfIntellect.exists() then
                             use.battlePotionOfIntellect()
                         end
                         if ppDb == false then
@@ -1431,7 +1431,7 @@ local function runRotation()
                         end
                     end
                 end -- End Pre-Pull
-                if isValidUnit("target") and getDistance("target") < 40 and (not isChecked("Opener") or opener == true) then
+                if br.isValidUnit("target") and br.getDistance("target") < 40 and (not br.isChecked("Opener") or opener == true) then
                     -- Life Tap
                     -- life_tap,if=talent.empowered_life_tap.enabled&!buff.empowered_life_tap.remains
                     if talent.empoweredLifeTap and not buff.empoweredLifeTap.exists() then
@@ -1440,7 +1440,7 @@ local function runRotation()
                         end
                     end
                     -- Pet Attack/Follow
-                    if isChecked("Pet Management") and GetUnitExists("target") and not UnitAffectingCombat("pet") then
+                    if br.isChecked("Pet Management") and br.GetUnitExists("target") and not UnitAffectingCombat("pet") then
                         PetAssistMode()
                         PetAttack("target")
                     end
@@ -1472,11 +1472,11 @@ local function runRotation()
         -- actions=potion,if=pet.demonic_tyrant.active&(!talent.nether_portal.enabled|cooldown.nether_portal.remains>160)|target.time_to_die<30
         -- actions+=/use_items,if=pet.demonic_tyrant.active|target.time_to_die<=15
         if TyrantActive then
-            if canUseItem(13) and CDOptionEnabled("Trinket 1") and not hasEquiped(165572, 13) then
-                if useItem(13) then return true end
+            if br.canUseItem(13) and CDOptionEnabled("Trinket 1") and not hasEquiped(165572, 13) then
+                if br.useItem(13) then return true end
             end
-            if canUseItem(14) and CDOptionEnabled("Trinket 2") and not hasEquiped(165572, 14) then
-                if useItem(14) then return true end
+            if br.canUseItem(14) and CDOptionEnabled("Trinket 2") and not hasEquiped(165572, 14) then
+                if br.useItem(14) then return true end
             end
         end
         -- actions+=/berserking,if=pet.demonic_tyrant.active|target.time_to_die<=15
@@ -1502,7 +1502,7 @@ local function runRotation()
             end
         end
         -- actions+=/demonbolt,if=soul_shard<=3&buff.demonic_core.up&buff.demonic_core.stack=4
-        if shards <= 3 and buff.demonicCore.exists() and buff.demonicCore.stack() >= getOptionValue("Demonbolt Dump") then
+        if shards <= 3 and buff.demonicCore.exists() and buff.demonicCore.stack() >= br.getOptionValue("Demonbolt Dump") then
             if cast.able.demonbolt() then
                 if cast.demonbolt() then return true end
             end
@@ -1601,7 +1601,7 @@ local function runRotation()
     if not inCombat and not hastar and profileStop == true then
         profileStop = false
     elseif (inCombat and profileStop == true) or IsMounted() or IsFlying() or pause(true) or mode.rotation == 4 then
-        if not pause(true) and IsPetAttackActive() and isChecked("Pet Management") then
+        if not pause(true) and IsPetAttackActive() and br.isChecked("Pet Management") then
             PetStopAttack()
             PetFollow()
         end
@@ -1623,7 +1623,7 @@ local function runRotation()
         -- -----------------------
         -- --- Opener Rotation ---
         -- -----------------------
-        -- if opener == false and isChecked("Opener") and isBoss("target") then
+        -- if opener == false and br.isChecked("Opener") and br.isBoss("target") then
         --     if actionList_Opener() then
         --         return
         --     end
@@ -1637,7 +1637,7 @@ local function runRotation()
         --------------------------
         --- In Combat Rotation ---
         --------------------------
-        if inCombat and profileStop == false and isValidUnit("target") and getDistance("target") < 40 and (opener == true or not isChecked("Opener") or not isBoss("target")) and (not cast.current.drainLife() or (cast.current.drainLife() and php > 80)) then
+        if inCombat and profileStop == false and br.isValidUnit("target") and br.getDistance("target") < 40 and (opener == true or not br.isChecked("Opener") or not br.isBoss("target")) and (not cast.current.drainLife() or (cast.current.drainLife() and php > 80)) then
             if actionList_CancelCast() then
                 return true
             end
@@ -1650,9 +1650,9 @@ local function runRotation()
             ---------------------------
             --- SimulationCraft APL ---
             ---------------------------
-            if getOptionValue("APL Mode") == 1 and not pause() then
+            if br.getOptionValue("APL Mode") == 1 and not pause() then
                 -- Pet Attack
-                if isChecked("Pet Management") and not GetUnitIsUnit("pettarget", "target") and isValidUnit("target") then
+                if br.isChecked("Pet Management") and not br.GetUnitIsUnit("pettarget", "target") and br.isValidUnit("target") then
                     PetAttack()
                 end
                 -- rotation

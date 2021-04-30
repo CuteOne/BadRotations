@@ -1,10 +1,11 @@
-br.lastCast = {}
-br.lastCast.tracker = {}
-br.lastCast.castTime = {}
-local tracker = br.lastCast.tracker
-local castTime = br.lastCast.castTime
+local _, br = ...
+br.lastCastTable = {}
+br.lastCastTable.tracker = {}
+br.lastCastTable.castTime = {}
+local tracker = br.lastCastTable.tracker
+local castTime = br.lastCastTable.castTime
 local waitForSuccess
-local lastCastFrame = CreateFrame("Frame")
+local lastCastFrame = br._G.CreateFrame("Frame")
 
 local ignoreList = {
     [2139] = "Counterspell",
@@ -13,26 +14,26 @@ local ignoreList = {
 }
 
 local function addSpell(spellID)
-    for k, v in pairs(br.player.spell.abilities) do
+    for _, v in pairs(br.player.spell.abilities) do
         if v == spellID then
-            tinsert(tracker, 1, spellID)
+            _G.tinsert(tracker, 1, spellID)
             if #tracker == 10 then
                 tracker[10] = nil
             end
-            lastCast = spellID -- legacy support for some rotations reading this in locals
+            br.lastCast = spellID -- legacy support for some rotations reading this in locals
         end
     end
 end
 
 local function addCastTime(spellID)
-    for k, v in pairs(br.player.spell.abilities) do
+    for _, v in pairs(br.player.spell.abilities) do
         if v == spellID then
-            castTime[v] = GetTime()
+            castTime[v] = _G.GetTime()
         end
     end
 end
 
-local function eventTracker(self, event, ...)
+local function eventTracker(_, event, ...)
     local sourceUnit = select(1, ...)
     local spellID = select(3, ...)
     if sourceUnit == "player" and br.player and not ignoreList[spellID] then
@@ -49,9 +50,9 @@ local function eventTracker(self, event, ...)
             end
         elseif event == "UNIT_SPELLCAST_STOP" then
             if waitForSuccess == spellID then
-                tremove(tracker,1)
+                _G.tremove(tracker,1)
                 waitForSuccess = nil
-                lastCast = tracker[1]
+                br.lastCast = tracker[1]
             end
         end
     end

@@ -1,31 +1,32 @@
-function ProfessionHelper()
-	if isChecked("Profession Helper") then
-		if not isInCombat("player") and not (IsMounted() or IsFlying()) then
-			local lootDelay = getValue("Profession Helper")
+local _, br = ...
+function br.ProfessionHelper()
+	if br.isChecked("Profession Helper") then
+		if not br.isInCombat("player") and not (br._G.IsMounted() or br._G.IsFlying()) then
+			local lootDelay = br.getValue("Profession Helper")
 			local function processThatTable(thisTable, spell)
 				for i = 1, #thisTable do
 					local thisItem = thisTable[i]
-					if GetItemCount(thisItem, false, false) >= 5 or spell == 13262 then
+					if br._G.GetItemCount(thisItem, false, false) >= 5 or spell == 13262 then
 						for bagID = 0, NUM_BAG_SLOTS do
-							for slotID = 1, GetContainerNumSlots(bagID) do
-								if lootTimer == nil or lootTimer <= GetTime() - lootDelay and not LootFrame:IsShown() then
-									local _, _, _, _, _, _, itemLink = GetContainerItemInfo(bagID, slotID);
+							for slotID = 1, br._G.GetContainerNumSlots(bagID) do
+								if br.lootTimer == nil or br.lootTimer <= br._G.GetTime() - lootDelay and not br._G.LootFrame:IsShown() then
+									local _, _, _, _, _, _, itemLink = br._G.GetContainerItemInfo(bagID, slotID);
 									if itemLink ~= nil then
-										local itemName, _, _, _, _, itemClass, itemSubClass = GetItemInfo(itemLink);
+										local itemName, _, _, _, _, itemClass, itemSubClass = br._G.GetItemInfo(itemLink);
 										local itemID = tonumber(string.match(itemLink, "Hitem:(%d+)"))
 										if itemID == thisItem then
-											RunMacroText("/cast "..GetSpellInfo(spell))
-											RunMacroText("/use item:"..itemID)
-											lootTimer = GetTime()
+											br._G.RunMacroText("/cast "..br._G.GetSpellInfo(spell))
+											br._G.RunMacroText("/use item:"..itemID)
+											br.lootTimer = br._G.GetTime()
 										end
 									end
-								elseif LootFrame:IsShown() then
-									for l = 1, GetNumLootItems() do
-										if LootSlotHasItem(l) then
-											LootSlot(l)
+								elseif br._G.LootFrame:IsShown() then
+									for l = 1, br._G.GetNumLootItems() do
+										if br._G.LootSlotHasItem(l) then
+											br._G.LootSlot(l)
 										end
 									end
-									CloseLoot()
+									br._G.CloseLoot()
 								end
 							end
 						end
@@ -35,8 +36,8 @@ function ProfessionHelper()
 			------------------------------------------------------------------------------------------------------
 			-- Milling -------------------------------------------------------------------------------------------
 			------------------------------------------------------------------------------------------------------
-			if isChecked("Mill Herbs") and IsSpellKnown(51005) then
-				local millMode = getValue("Mill Herbs")
+			if br.isChecked("Mill Herbs") and br._G.IsSpellKnown(51005) then
+				local millMode = br.getValue("Mill Herbs")
 				if millMode == 7 or millMode == 1 then
 					local tableMillSL = {
 					168586, -- Rising Glory
@@ -93,7 +94,7 @@ function ProfessionHelper()
 					processThatTable(tableMillMoP, 51005)
 				end
 				if millMode == 7 or millMode == 6 then
-					tableMillCata = {
+					local tableMillCata = {
 					52986, -- Heartblossom
 					52984, -- Stormvine
 					52983, -- Cinderbloom
@@ -106,8 +107,8 @@ function ProfessionHelper()
 			------------------------------------------------------------------------------------------------------
 			-- Prospecting ---------------------------------------------------------------------------------------
 			------------------------------------------------------------------------------------------------------
-			if isChecked("Prospect Ores") and IsSpellKnown(31252) then
-				local prospectMode = getValue("Prospect Ores")
+			if br.isChecked("Prospect Ores") and br._G.IsSpellKnown(31252) then
+				local prospectMode = br.getValue("Prospect Ores")
 				if prospectMode == 7 or prospectMode == 1 then
 					local tableProspectSL = {
 					171828, -- Laestrite Ore
@@ -162,7 +163,7 @@ function ProfessionHelper()
 			------------------------------------------------------------------------------------------------------
 			-- Disenchant ----------------------------------------------------------------------------------------
 			------------------------------------------------------------------------------------------------------
-			if isChecked("Disenchant") and IsSpellKnown(13262) then
+			if br.isChecked("Disenchant") and br._G.IsSpellKnown(13262) then
 				-- list of items to me DE
 				local tableDisenchant = {
 				90905, -- JC Blue Neck ilvl 415
@@ -193,13 +194,13 @@ function ProfessionHelper()
 			------------------------------------------------------------------------------------------------------
 			-- Leather Scraps-------------------------------------------------------------------------------------
 			------------------------------------------------------------------------------------------------------
-			if isChecked("Leather Scraps") then
+			if br.isChecked("Leather Scraps") then
 				-- Raw Beast Hide Scraps
-				if GetItemCount(110610, false, false) >= 10 then
-					if lootTimer == nil or lootTimer <= GetTime() - lootDelay then
-						if IsUsableItem(110610) then
-							UseItemByName(110610)
-							lootTimer = GetTime()
+				if br._G.GetItemCount(110610, false, false) >= 10 then
+					if br.lootTimer == nil or br.lootTimer <= br._G.GetTime() - lootDelay then
+						if br._G.IsUsableItem(110610) then
+							br._G.UseItemByName(110610)
+							br.lootTimer = br._G.GetTime()
 						end
 					end
 				end
@@ -207,34 +208,34 @@ function ProfessionHelper()
 			------------------------------------------------------------------------------------------------------
 			-- Lockboxes -----------------------------------------------------------------------------------------
 			------------------------------------------------------------------------------------------------------
-			if isChecked("Lockboxes") then
+			if br.isChecked("Lockboxes") then
 				local tableLockBox = {
 				121331 -- Leystone Lockbox
 				}
 				for i = 1, #tableLockBox do
 					local thisItem = tableLockBox[i]
-					if GetItemCount(thisItem, false, false) >= 1 then
-						if lootTimer == nil or lootTimer <= GetTime() - lootDelay and not LootFrame:IsShown() then
-							CastSpellByName(GetSpellInfo(1804), "player")
-							UseItemByName(tostring(select(1, GetItemInfo(thisItem))))
-							C_Timer.After(1.5, function() UseItemByName(tostring(select(1, GetItemInfo(thisItem)))) end)
-							lootTimer = GetTime()
+					if br._G.GetItemCount(thisItem, false, false) >= 1 then
+						if br.lootTimer == nil or br.lootTimer <= br._G.GetTime() - lootDelay and not br._G.LootFrame:IsShown() then
+							br._G.CastSpellByName(br._G.GetSpellInfo(1804), "player")
+							br._G.UseItemByName(tostring(select(1, br._G.GetItemInfo(thisItem))))
+							br._G.C_Timer.After(1.5, function() br._G.UseItemByName(tostring(select(1, br._G.GetItemInfo(thisItem)))) end)
+							br.lootTimer = br._G.GetTime()
 							return
 						end
-					elseif LootFrame:IsShown() then
-						for l = 1, GetNumLootItems() do
-							if LootSlotHasItem(l) then
-								LootSlot(l)
+					elseif br._G.LootFrame:IsShown() then
+						for l = 1, br._G.GetNumLootItems() do
+							if br._G.LootSlotHasItem(l) then
+								br._G.LootSlot(l)
 							end
 						end
-						CloseLoot()
+						br._G.CloseLoot()
 					end
 				end
 			end
 			------------------------------------------------------------------------------------------------------
 			-- Fish Oil ------------------------------------------------------------------------------------------
 			------------------------------------------------------------------------------------------------------
-			if isChecked("Fish Oil") then
+			if br.isChecked("Fish Oil") then
 				local tableFish = {
 				152545, -- Frenzied Fangtooth
 				152547, -- Great Sea Catfish
@@ -247,11 +248,11 @@ function ProfessionHelper()
 				}
 				for i = 1, #tableFish do
 					local thisItem = tableFish[i]
-					if GetItemCount(thisItem, false, false) >= 1 then
-						if lootTimer == nil or lootTimer <= GetTime() - lootDelay then
-							if IsUsableItem(thisItem) then
-								UseItemByName(thisItem)
-								lootTimer = GetTime()
+					if br._G.GetItemCount(thisItem, false, false) >= 1 then
+						if br.lootTimer == nil or br.lootTimer <= br._G.GetTime() - lootDelay then
+							if br._G.IsUsableItem(thisItem) then
+								br._G.UseItemByName(thisItem)
+								br.lootTimer = br._G.GetTime()
 							end
 						end
 					end
@@ -262,59 +263,59 @@ function ProfessionHelper()
 end
 
 function br.fishing()
-	if isChecked("Fishing") and br.unlocked --[[EasyWoWToolbox ~= nil]] and getOptionValue("Fishing") == 1 then
-		if not IsHackEnabled("fish") then
-			SetHackEnabled("fish",true)
+	if br.isChecked("Fishing") and br.unlocked --[[EasyWoWToolbox ~= nil]] and br.getOptionValue("Fishing") == 1 then
+		if not br._G.IsHackEnabled("fish") then
+			br._G.SetHackEnabled("fish",true)
 		end
-	elseif isChecked("Fishing") and br.unlocked --[[EasyWoWToolbox ~= nil]] and getOptionValue("Fishing") == 2 then
-		if IsHackEnabled("fish") then
-			SetHackEnabled("fish",false)
+	elseif br.isChecked("Fishing") and br.unlocked --[[EasyWoWToolbox ~= nil]] and br.getOptionValue("Fishing") == 2 then
+		if br._G.IsHackEnabled("fish") then
+			br._G.SetHackEnabled("fish",false)
 		end
 	end
 	------------------------------------------------------------------------------------------------------
 	-- Bait ----------------------------------------------------------------------------------------------
 	------------------------------------------------------------------------------------------------------
-	if isChecked("Bait") then
-		local bait = getValue("Bait")
+	if br.isChecked("Bait") then
+		local bait = br.getValue("Bait")
 		if bait == 1 then -- Lost Sole Bait
-			if hasItem(173038) and getBuffRemain("player",331688) == 0 then
-				if canUseItem(173038) then
-					useItem(173038)
+			if br.hasItem(173038) and br.getBuffRemain("player",331688) == 0 then
+				if br.canUseItem(173038) then
+					br.useItem(173038)
 				end
 			end
 		end
 		if bait == 2 then -- Silvergill Pike Bait
-			if hasItem(173040) and getBuffRemain("player",331690) == 0 then
-				if canUseItem(173040) then
-					useItem(173040)
+			if br.hasItem(173040) and br.getBuffRemain("player",331690) == 0 then
+				if br.canUseItem(173040) then
+					br.useItem(173040)
 				end
 			end
 		end
 		if bait == 3 then -- Pocked Bonefish Bait
-			if hasItem(173041) and getBuffRemain("player",331695) == 0 then
-				if canUseItem(173041) then
-					useItem(173041)
+			if br.hasItem(173041) and br.getBuffRemain("player",331695) == 0 then
+				if br.canUseItem(173041) then
+					br.useItem(173041)
 				end
 			end
 		end
 		if bait == 4 then -- Iridescent Amberjack Bait
-			if hasItem(173039) and getBuffRemain("player",331692) == 0 then
-				if canUseItem(173039) then
-					useItem(173039)
+			if br.hasItem(173039) and br.getBuffRemain("player",331692) == 0 then
+				if br.canUseItem(173039) then
+					br.useItem(173039)
 				end
 			end
 		end
 		if bait == 5 then -- Spinefin Piranha Bait
-			if hasItem(173042) and getBuffRemain("player",331699) == 0 then
-				if canUseItem(173042) then
-					useItem(173042)
+			if br.hasItem(173042) and br.getBuffRemain("player",331699) == 0 then
+				if br.canUseItem(173042) then
+					br.useItem(173042)
 				end
 			end
 		end
 		if bait == 6 then -- Elysian Thade Bait
-			if hasItem(173043) and getBuffRemain("player",331698) == 0 then
-				if canUseItem(173043) then
-					useItem(173043)
+			if br.hasItem(173043) and br.getBuffRemain("player",331698) == 0 then
+				if br.canUseItem(173043) then
+					br.useItem(173043)
 				end
 			end
 		end

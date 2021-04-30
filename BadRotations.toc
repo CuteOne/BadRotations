@@ -1,10 +1,15 @@
-## Interface: 90001
+## Interface: 90002
 ## Title: |cffa330c9BadRotations
 ## Notes: |cffa330c9By CuteOne.
 ## Author: CuteOne
-## Version: 1.33.7
+## Version: 1.35.0
+
 
 BadRotations.lua
+Unlockers\luabox.lua
+Unlockers\ucs.lua
+Unlockers\minibot.lua
+Unlockers\wowadvanced.lua
 bindings.xml
 misc.xml
 
@@ -53,9 +58,10 @@ System\Lists\Pets.lua
 System\Lists\ShieldUnits.lua
 System\Lists\Specs.lua
 System\Lists\Spells.lua
-#System\Lists\Range.lua
+System\Lists\Range.lua
 System\Lists\ThreatBypass.lua
 System\Lists\Tier.lua
+System\Lists\TankBusters.lua
 
 ## Readers
 
@@ -77,15 +83,11 @@ Libs\DiesalMenu-1.0\DiesalMenu-1.0.xml
 Libs\DiesalLibs.lua
 
 Libs\!LibDraw\LibDraw.lua
-Libs\LibBossIDs-1.0\LibBossIDs-1.0.lua
-Libs\LibSpellRange-1.0\LibSpellRange-1.0.lua
-Libs\LibRangeCheck-2.0\LibRangeCheck-2.0.lua
-Libs\LibArtifactData-1.0\LibArtifactData-1.0.lua
+Libs\LibGroupInSpecT-1.1\LibGroupInSpecT-1.1.lua
 #@end-no-lib-strip@
 
 ## Engines
 
-System\Engines\ArtifactTable.lua
 System\Engines\EnemiesEngine.lua
 System\Engines\EnemiesEngineFunctions.lua
 System\Engines\HealingEngine.lua
@@ -131,6 +133,7 @@ System\API\CD.lua
 System\API\Conduit.lua
 System\API\Covenant.lua
 System\API\Debuff.lua
+System\API\Enemies.lua
 System\API\Essence.lua
 System\API\Item.lua
 System\API\Module.lua
@@ -140,6 +143,7 @@ System\API\Runeforge.lua
 System\API\Spell.lua
 System\API\UI.lua
 System\API\Unit.lua
+System\API\Units.lua
 
 ## Loader
 
@@ -165,8 +169,7 @@ System\Misc\ProfessionHelper\ProfessionHelper.lua
 ## Zu BossManager -------------------------------------
 
 System\Misc\Zu\BossManager.lua
-System\Misc\Zu\MawOfSouls\Helya\coverThatHole.lua
-System\Misc\Zu\MawOfSouls\Helya.lua
 
+exports.lua
 ## Updater --------------------------------------------
 System\Updater.lua

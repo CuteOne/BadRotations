@@ -1,4 +1,3 @@
-local br = _G["br"]
 local rotationName = "Initial"
 
 ---------------
@@ -6,23 +5,23 @@ local rotationName = "Initial"
 ---------------
 local function createToggles()
     -- Rotation Button
-    RotationModes = {
+    local RotationModes = {
         [1] = { mode = "On", value = 1 , overlay = "Rotation Enabled", tip = "Enables Rotation", highlight = 1, icon = br.player.spell.crusaderStrike},
         [2] = { mode = "Off", value = 2 , overlay = "Rotation Disabled", tip = "Disables Rotation", highlight = 0, icon = br.player.spell.crusaderStrike}
     };
-    CreateButton("Rotation",1,0)
+    br.ui:createToggle(RotationModes,"Rotation",1,0)
     -- Defensive Button
-    DefensiveModes = {
+    local DefensiveModes = {
         [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Enables Defensive", highlight = 1, icon = br.player.spell.flashOfLight},
         [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "Disables Defensive", highlight = 0, icon = br.player.spell.flashOfLight}
     };
-    CreateButton("Defensive",2,0)
+    br.ui:createToggle(DefensiveModes,"Defensive",2,0)
     -- Interrupt Button
-    InterruptModes = {
+    local InterruptModes = {
         [1] = { mode = "On", value = 1 , overlay = "Interrupt Enabled", tip = "Enables Interrupt", highlight = 1, icon = br.player.spell.hammerOfJustice},
         [2] = { mode = "Off", value = 2 , overlay = "Interrupt Disabled", tip = "Disables Interrupt", highlight = 0, icon = br.player.spell.hammerOfJustice}
     };
-    CreateButton("Interrupt",3,0)
+    br.ui:createToggle(InterruptModes,"Interrupt",3,0)
 end
 
 ---------------
@@ -199,7 +198,7 @@ actionList.Interrupt = function()
     if ui.useInterrupt() then
         for i=1, #enemies.yards10 do
             local thisUnit = enemies.yards10[i]
-            if canInterrupt(thisUnit,ui.value("Interrupt At")) then
+            if br.canInterrupt(thisUnit,ui.value("Interrupt At")) then
                 -- Hammer of Justice
                 if ui.checked("Hammer of Justice") and cast.able.hammerOfJustice(thisUnit) then
                     if cast.hammerOfJustice(thisUnit) then ui.debug("Casting Hammer of Justice [Interrupt]") return true end
@@ -219,7 +218,7 @@ actionList.PreCombat = function()
             end
             -- Start Attack
             if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
-                StartAttack(units.dyn5)
+                br._G.StartAttack(units.dyn5)
             end
         end
     end
@@ -261,8 +260,8 @@ local function runRotation()
     var.range5                                      = #enemies.yards5 > 0 and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5
     var.range30                                     = #enemies.yards30 > 0 and unit.exists(units.dyn30) and unit.distance(units.dyn30) < 30
     var.range40                                     = #enemies.yards40 > 0 and unit.exists(units.dyn40) and unit.distance(units.dyn40) < 40
-    var.getHealPot                                  = _G["getHealthPot"]()
-    var.haltProfile                                 = (unit.inCombat() and var.profileStop) or unit.mounted() or pause() or ui.mode.rotation==4
+    var.getHealPot                                  = br["getHealthPot"]()
+    var.haltProfile                                 = (unit.inCombat() and var.profileStop) or unit.mounted() or br.pause() or ui.mode.rotation==4
 
 
     ---------------------
@@ -305,7 +304,7 @@ local function runRotation()
                 if var.range5 then
                     -- Start Attack
                     if not IsAutoRepeatSpell(GetSpellInfo(6603)) then
-                        StartAttack(units.dyn5)
+                        br._G.StartAttack(units.dyn5)
                     end
                     -- Trinket - Non-Specific
                     local thisTrinket

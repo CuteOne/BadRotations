@@ -1,15 +1,21 @@
-local LibDraw = LibStub("LibDraw-1.0")
+local _, br = ...
+local LibDraw = _G.LibStub("LibDraw-BR")
 br.QuestCache = {}
 
 --Quest stuff
 --local questPlateTooltip = CreateFrame('GameTooltip', 'QuestPlateTooltip', nil, 'GameTooltipTemplate')
-local questTooltipScanQuest = CreateFrame ("GameTooltip", "QuestPlateTooltipScanQuest", nil, "GameTooltipTemplate")
+local questTooltipScanQuest = _G.CreateFrame ("GameTooltip", "QuestPlateTooltipScanQuest", nil, "GameTooltipTemplate")
 local ScannedQuestTextCache = {}
 
-function isQuestUnit(Pointer)
-	local guid = ObjectGUID(Pointer)
+function br.isQuestUnit(Pointer)
+	local guid
+	if not _G.lb then
+		guid = br._G.UnitGUID(Pointer)
+	else
+		guid = Pointer
+	end
 	--local myName = UnitName("player")
-	questTooltipScanQuest:SetOwner(WorldFrame, 'ANCHOR_NONE')
+	questTooltipScanQuest:SetOwner(_G.WorldFrame, 'ANCHOR_NONE')
 	questTooltipScanQuest:SetHyperlink('unit:' .. guid)
 	for i = 1, questTooltipScanQuest:NumLines() do
 		ScannedQuestTextCache[i] = _G ["QuestPlateTooltipScanQuestTextLeft" .. i]
@@ -51,7 +57,7 @@ function isQuestUnit(Pointer)
 			end
 		end
 	end
-	if isQuestUnit and atLeastOneQuestUnfinished and (not UnitIsDeadOrGhost(Pointer) or UnitIsFriend("player", Pointer)) then
+	if isQuestUnit and atLeastOneQuestUnfinished and (not br.GetUnitIsDeadOrGhost(Pointer) or br.GetUnitIsFriend("player", Pointer)) then
 		return true
 	else
 		return false
@@ -62,36 +68,39 @@ local QuestCacheUpdate = function()
 
 	local ignoreQuest = {
 		[56064] = true, -- Assault Black Empire (Vale)
+		[57157] = true, -- Assault Black Empire (Uldum)
 		[55350] = true, -- Assault Amathet Advance
 		[56308] = true, -- Assault Aqir Unearthed
+		[57008] = true, -- Assault The Warring Clans
+		[57728] = true, --- Assault: The Endless Swarm
 	}
 	--clear the quest cache
-	wipe(br.QuestCache)
+	_G.wipe(br.QuestCache)
 
 	--do not update if is inside an instance
-	local isInInstance = IsInInstance()
+	local isInInstance = _G.IsInInstance()
 	if (isInInstance) then
 		return
 	end
 
 	--update the quest cache
-	local numEntries, numQuests = C_QuestLog.GetNumQuestLogEntries()
+	local numEntries, numQuests = _G.C_QuestLog.GetNumQuestLogEntries()
 	for questIdx = 1, numEntries do
 		-- local title, level, suggestedGroup, isHeader, isCollapsed, isComplete, frequency, questId, startEvent, displayQuestID, isOnMap, hasLocalPOI, isTask, isStory = GetQuestLogTitle (questId)
-		local title, _, questId = C_QuestLog.GetInfo(questIdx)
+		local title, _, questId = _G.C_QuestLog.GetInfo(questIdx)
 		if (type (questId) == "number" and questId > 0 and ignoreQuest[questId] == nil) then -- and not isComplete
 			br.QuestCache[title] = true
 		end
 	end
 
-	local mapId = C_Map.GetBestMapForUnit ("player")
+	local mapId = _G.C_Map.GetBestMapForUnit ("player")
 	if (mapId) then
-		local worldQuests = C_TaskQuest.GetQuestsForPlayerByMapID (mapId)
+		local worldQuests = _G.C_TaskQuest.GetQuestsForPlayerByMapID (mapId)
 		if (type (worldQuests) == "table") then
-			for i, questTable in ipairs (worldQuests) do
+			for _, questTable in ipairs (worldQuests) do
 				local x, y, floor, numObjectives, questId, inProgress = questTable.x, questTable.y, questTable.floor, questTable.numObjectives, questTable.questId, questTable.inProgress
 				if (type (questId) == "number" and questId > 0 and ignoreQuest[questId] == nil) then
-					local questName = C_TaskQuest.GetQuestInfoByQuestID (questId)
+					local questName = _G.C_TaskQuest.GetQuestInfoByQuestID (questId)
 					if (questName) then
 						br.QuestCache[questName] = true
 					end
@@ -102,18 +111,18 @@ local QuestCacheUpdate = function()
 end
 
 local function FunctionQuestLogUpdate() --private
-	if (QuestCacheThrottle and not QuestCacheThrottle._cancelled) then
-		QuestCacheThrottle:Cancel()
+	if (br.QuestCacheThrottle and not br.QuestCacheThrottle._cancelled) then
+		br.QuestCacheThrottle:Cancel()
 	end
-	QuestCacheThrottle = C_Timer.NewTimer (2, QuestCacheUpdate)
+	br.QuestCacheThrottle = _G.C_Timer.NewTimer (2, QuestCacheUpdate)
 end
 
-function isQuestObject(object) --Ty Ssateneth
-	local objectID = ObjectID(object)
+function br.isQuestObject(object) --Ty Ssateneth
+	local objectID = br._G.ObjectID(object)
 	local ignoreObjects = {
 		[327571] = true,
 	}
-	if ignoreObjects[objectID] ~= nil then 
+	if ignoreObjects[objectID] ~= nil then
 		return false
 	end
     if objectID == 325958 or objectID == 325962 or objectID == 325963 or objectID == 325959 or objectID == 335703 or objectID == 152692 or objectID == 163757 or objectID == 290542 or objectID == 113768 or objectID == 113771 or objectID == 113769 or objectID == 113770 or objectID == 153290 or
@@ -122,23 +131,11 @@ function isQuestObject(object) --Ty Ssateneth
         objectID == 325662 or objectID == 325659 or objectID == 325660 or objectID == 325661 or objectID == 325663 or objectID == 325664 or objectID == 325665 or objectID == 325666 or objectID == 325667 or objectID == 325668 or -- mechagon chests
         objectID == 151166 -- algan units
     then return true end
-    local glow = ObjectDescriptor(object,GetOffset("CGObjectData__DynamicFlags"),"uint")
-    if glow and (bit.band(glow,0x4)~=0 or bit.band(glow,0x20)~=0) then
+    local glow = br.getItemGlow(object)
+    if glow then
         return true
     end
     return false
-end
-
-function ObjectFlags(object)
-    local glow = ObjectDescriptor(object,GetOffset("CGObjectData__DynamicFlags"),"uint")
-    if glow then
-        for i = 0, 32 do
-            local band = "0x"..i
-            if bit.band(glow,band) ~= 0 then
-                print(band)
-            end
-        end
-    end
 end
 
 local eventFunctions = {
@@ -178,17 +175,17 @@ local eventFunctions = {
 }
 
 local function QuestEventHandler(_, event, ...)
-    if GetObjectWithGUID then
+    if br._G.GetObjectWithGUID then
         local func = eventFunctions [event]
         if (func) then
             func (event, ...)
         else
-            Print("no registered function for event " .. (event or "unknown event"))
+            br._G.print("no registered function for event " .. (event or "unknown event"))
         end
     end
 end
 
-local f = CreateFrame("Frame", "QuestFrame", UIParent)
+local f = _G.CreateFrame("Frame", "QuestFrame", _G.UIParent)
 		f:RegisterEvent ("QUEST_ACCEPTED")
 		f:RegisterEvent ("QUEST_REMOVED")
 		f:RegisterEvent ("QUEST_ACCEPT_CONFIRM")

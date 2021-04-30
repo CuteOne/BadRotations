@@ -1,57 +1,56 @@
 local rotationName = "CuteOne"
-local br = _G["br"]
-loadSupport("PetCuteOne")
+br.loadSupport("PetCuteOne")
 ---------------
 --- Toggles ---
 ---------------
 local function createToggles()
     -- Rotation Button
-    RotationModes = {
+    local RotationModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.cobraShot },
         [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.multishot },
         [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.killCommand },
         [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.exhilaration}
     };
-    CreateButton("Rotation",1,0)
+    br.ui:createToggle(RotationModes,"Rotation",1,0)
     -- Cooldown Button
-    CooldownModes = {
+    local CooldownModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.aspectOfTheWild },
         [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.aspectOfTheWild },
         [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.aspectOfTheWild }
     };
-    CreateButton("Cooldown",2,0)
+    br.ui:createToggle(CooldownModes,"Cooldown",2,0)
     -- BW Button
-    BestialWrathModes = {
+    local BestialWrathModes = {
         [1] = { mode = "On", value = 1 , overlay = "Will use BW", tip = "Will use BW according to rotation", highlight = 1, icon = br.player.spell.bestialWrath },
         [2] = { mode = "Off", value = 2 , overlay = "Will hold BW", tip = "Will hold BW until toggled again", highlight = 0, icon = br.player.spell.bestialWrath }
     };
-    CreateButton("BestialWrath",3,0)
+    br.ui:createToggle(BestialWrathModes,"BestialWrath",3,0)
     -- Defensive Button
-    DefensiveModes = {
+    local DefensiveModes = {
         [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.aspectOfTheTurtle },
         [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.aspectOfTheTurtle }
     };
-    CreateButton("Defensive",4,0)
+    br.ui:createToggle(DefensiveModes,"Defensive",4,0)
     -- Interrupt Button
-    InterruptModes = {
+    local InterruptModes = {
         [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.counterShot },
         [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.counterShot }
     };
-    CreateButton("Interrupt",5,0)
+    br.ui:createToggle(InterruptModes,"Interrupt",5,0)
     -- MD Button
-    MisdirectionModes = {
+    local MisdirectionModes = {
         [1] = { mode = "On", value = 1 , overlay = "Misdirection Enabled", tip = "Misdirection Enabled", highlight = 1, icon = br.player.spell.misdirection },
         [2] = { mode = "Off", value = 2 , overlay = "Misdirection Disabled", tip = "Misdirection Disabled", highlight = 0, icon = br.player.spell.misdirection }
     };
-    CreateButton("Misdirection",6,0)
+    br.ui:createToggle(MisdirectionModes,"Misdirection",6,0)
     -- Murder of crows
-    MurderOfCrowsModes = {
+    local MurderOfCrowsModes = {
         [1] = { mode = "On", value = 1 , overlay = "Always use MoC", tip = "Will Use Murder of Crows At All Times", highlight = 1, icon = br.player.spell.aMurderOfCrows },
         [2] = { mode = "CD", value = 2 , overlay = "Use MoC only on Cooldowns", tip = "Will Use Murder of Crows Only on Cooldowns", highlight = 0, icon = br.player.spell.aMurderOfCrows }
     };
-    CreateButton("MurderOfCrows",7,0)
+    br.ui:createToggle(MurderOfCrowsModes,"MurderOfCrows",7,0)
     --Pet summon
-    PetSummonModes = {
+    local PetSummonModes = {
         [1] = { mode = "1", value = 1 , overlay = "Summon Pet 1", tip = "Summon Pet 1", highlight = 1, icon = br.player.spell.callPet1 },
         [2] = { mode = "2", value = 2 , overlay = "Summon Pet 2", tip = "Summon Pet 2", highlight = 1, icon = br.player.spell.callPet2 },
         [3] = { mode = "3", value = 3 , overlay = "Summon Pet 3", tip = "Summon Pet 3", highlight = 1, icon = br.player.spell.callPet3 },
@@ -59,7 +58,7 @@ local function createToggles()
         [5] = { mode = "5", value = 5 , overlay = "Summon Pet 5", tip = "Summon Pet 5", highlight = 1, icon = br.player.spell.callPet5 },
         [6] = { mode = "None", value = 6 , overlay = "No pet", tip = "Dont Summon any Pet", highlight = 0, icon = br.player.spell.callPet }
     };
-    CreateButton("PetSummon",8,0)
+    br.ui:createToggle(PetSummonModes,"PetSummon",8,0)
 end
 
 ---------------
@@ -199,10 +198,10 @@ actionList.Extras = function()
     -- Dummy Test
     if ui.checked("DPS Testing") then
         if unit.exists("target") then
-            if var.getCombatTime() >= (tonumber(ui.value("DPS Testing"))*60) and unit.isDummy() then
-                StopAttack()
-                ClearTarget()
-                Print(tonumber(ui.value("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
+            if unit.combatTime() >= (tonumber(ui.value("DPS Testing"))*60) and unit.isDummy() then
+                unit.stopAttack()
+                unit.clearTarget()
+                ui.print(tonumber(ui.value("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
                 var.profileStop = true
             end
         end
@@ -210,10 +209,10 @@ actionList.Extras = function()
     -- Misdirection
     if ui.mode.misdirection == 1 then
         local misdirectUnit = nil
-        if unit.valid("target") and unit.distance("target") < 40 then
+        if unit.valid("target") and unit.distance("target") < 40 and not buff.playDead.exists("pet") then
             -- Misdirect to Tank
             if ui.value("Misdirection") == 1 then
-                local tankInRange, tankUnit = isTankInRange()
+                local tankInRange, tankUnit = unit.isTankInRange()
                 if tankInRange then misdirectUnit = tankUnit end
             end
             -- Misdirect to Focus
@@ -282,13 +281,13 @@ actionList.Interrupts = function()
         if ui.checked("Counter Shot") then
             for i=1, #enemies.yards40f do
             thisUnit = enemies.yards40f[i]
-                if canInterrupt(thisUnit,ui.value("Interrupt At")) then
+                if unit.interruptable(thisUnit,ui.value("Interrupt At")) then
                     if cast.counterShot(thisUnit) then ui.debug("Casting Counter Shot") return true end
                 end
             end
         end
         -- Freezing Trap
-        if ui.checked("Freezing Trap") and cast.able.freezingTrap() then
+        if ui.checked("Freezing Trap") and cast.able.freezingTrap(thisUnit,"ground") then
             for i = 1, #enemies.yards40 do
                 thisUnit = enemies.yards40[i]
                 if unit.distance(thisUnit) > 8 and cast.timeRemain(thisUnit) > 3 then
@@ -300,7 +299,7 @@ actionList.Interrupts = function()
         if ui.checked("Intimidation") and not unit.deadOrGhost("pet") and unit.exists("pet") then
             for i=1, #enemies.yards40f do
                 thisUnit = enemies.yards40f[i]
-                if canInterrupt(thisUnit,ui.value("Interrupt At")) then
+                if unit.interruptable(thisUnit,ui.value("Interrupt At")) then
                     if cast.intimidation(thisUnit) then ui.debug("Casting Intimidation") return true end
                 end
             end
@@ -343,14 +342,14 @@ actionList.Opener = function()
     -- auto_attack
     if ui.checked("Opener") and ui.useCDs() and not opener.complete then
         if unit.valid("target") and unit.distance("target") < 40
-            and unit.facing("player","target") and getSpellCD(61304) == 0
+            and unit.facing("player","target") and cd.global.remain() == 0
         then
             -- Begin
             if not opener.OPN1 then
-                Print("Starting Opener")
+                ui.print("Starting Opener")
                 opener.count = opener.count + 1
                 opener.OPN1 = true
-                StartAttack()
+                unit.startAttack()
                 return
             -- Aspect of the Wild - No Primal Instincts
             elseif opener.OPN1 and not opener.AOW1 then
@@ -358,27 +357,27 @@ actionList.Opener = function()
                     opener.AOW1 = true
                     opener.count = opener.count - 1
                 elseif cd.aspectOfTheWild.remain() > unit.gcd(true) then
-                    castOpenerFail("aspectOfTheWild","AOW1",opener.count)
+                    br.castOpenerFail("aspectOfTheWild","AOW1",opener.count)
                 elseif cast.able.aspectOfTheWild() then
-                    castOpener("aspectOfTheWild","AOW1",opener.count)
+                    br.castOpener("aspectOfTheWild","AOW1",opener.count)
                 end
                 opener.count = opener.count + 1
                 return
             -- Bestial Wrath
             elseif opener.AOW1 and not opener.BW1 then
                 if cd.bestialWrath.remain() > unit.gcd(true) then
-                    castOpenerFail("bestialWrath","BW1",opener.count)
+                    br.castOpenerFail("bestialWrath","BW1",opener.count)
                 elseif cast.able.bestialWrath() then
-                    castOpener("bestialWrath","BW1",opener.count)
+                    br.castOpener("bestialWrath","BW1",opener.count)
                 end
                 opener.count = opener.count + 1
                 return
             -- Barbed Shot
             elseif opener.BW1 and not opener.BS1 then
                 if charges.barbedShot.count() == 0 then
-                    castOpenerFail("barbedShot","BS1",opener.count)
+                    br.castOpenerFail("barbedShot","BS1",opener.count)
                 elseif cast.able.barbedShot() then
-                    castOpener("barbedShot","BS1",opener.count)
+                    br.castOpener("barbedShot","BS1",opener.count)
                 end
                 opener.count = opener.count + 1
                 return
@@ -388,9 +387,9 @@ actionList.Opener = function()
                     opener.BS2 = true
                     opener.count = opener.count - 1
                 elseif charges.barbedShot.count() == 0 then
-                    castOpenerFail("barbedShot","BS2",opener.count)
+                    br.castOpenerFail("barbedShot","BS2",opener.count)
                 elseif cast.able.barbedShot() then
-                    castOpener("barbedShot","BS2",opener.count)
+                    br.castOpener("barbedShot","BS2",opener.count)
                 end
                 opener.count = opener.count + 1
                 return
@@ -400,9 +399,9 @@ actionList.Opener = function()
                     opener.KC1 = true
                     opener.count = opener.count - 1
                 elseif cd.killCommand.remain() > unit.gcd(true) then
-                    castOpenerFail("killCommand","KC1",opener.count)
+                    br.castOpenerFail("killCommand","KC1",opener.count)
                 elseif cast.able.killCommand() then
-                    castOpener("killCommand","KC1",opener.count)
+                    br.castOpener("killCommand","KC1",opener.count)
                 end
                 opener.count = opener.count + 1
                 return
@@ -412,18 +411,18 @@ actionList.Opener = function()
                     opener.AOW2 = true
                     opener.count = opener.count - 1
                 elseif cd.aspectOfTheWild.remain() > unit.gcd(true) then
-                    castOpenerFail("aspectOfTheWild","AOW2",opener.count)
+                    br.castOpenerFail("aspectOfTheWild","AOW2",opener.count)
                 elseif cast.able.aspectOfTheWild() then
-                    castOpener("aspectOfTheWild","AOW2",opener.count)
+                    br.castOpener("aspectOfTheWild","AOW2",opener.count)
                 end
                 opener.count = opener.count + 1
                 return
             -- A Murder of Crows
             elseif opener.AOW2 and not opener.MOC1 then
                 if not talent.aMurderOfCrows or cd.aMurderOfCrows.remain() > unit.gcd(true) then
-                    castOpenerFail("aMurderOfCrows","MOC1",opener.count)
+                    br.castOpenerFail("aMurderOfCrows","MOC1",opener.count)
                 elseif cast.able.aMurderOfCrows() then
-                    castOpener("aMurderOfCrows","MOC1",opener.count)
+                    br.castOpener("aMurderOfCrows","MOC1",opener.count)
                 end
                 opener.count = opener.count + 1
                 return
@@ -433,45 +432,45 @@ actionList.Opener = function()
                     opener.KC2 = true
                     opener.count = opener.count - 1
                 elseif cd.killCommand.remain() > unit.gcd(true) then
-                    castOpenerFail("killCommand","KC2",opener.count)
+                    br.castOpenerFail("killCommand","KC2",opener.count)
                 elseif cast.able.killCommand() then
-                    castOpener("killCommand","KC2",opener.count)
+                    br.castOpener("killCommand","KC2",opener.count)
                 end
                 opener.count = opener.count + 1
                 return
             -- Chimaera Shot
             elseif opener.KC2 and not opener.CHS1 then
                 if not talent.chimaeraShot or cd.chimaeraShot.remain() > unit.gcd(true) then
-                    castOpenerFail("chimaeraShot","CHS1",opener.count)
+                    br.castOpenerFail("chimaeraShot","CHS1",opener.count)
                 elseif cast.able.chimaeraShot() then
-                    castOpener("chimaeraShot","CHS1",opener.count)
+                    br.castOpener("chimaeraShot","CHS1",opener.count)
                 end
                 opener.count = opener.count + 1
                 return
             -- Cobra Shot
             elseif opener.CHS1 and not opener.COS1 then
                 if not cast.able.cobraShot() then
-                    castOpenerFail("cobraShot","COS1",opener.count)
+                    br.castOpenerFail("cobraShot","COS1",opener.count)
                 elseif cast.able.cobraShot() then
-                    castOpener("cobraShot","COS1",opener.count)
+                    br.castOpener("cobraShot","COS1",opener.count)
                 end
                 opener.count = opener.count + 1
                 return
             -- Kill Command 3
             elseif opener.COS1 and not opener.KC3 then
                 if cd.killCommand.remain() > unit.gcd(true) then
-                    castOpenerFail("killCommand","KC3",opener.count)
+                    br.castOpenerFail("killCommand","KC3",opener.count)
                 elseif cast.able.killCommand() then
-                    castOpener("killCommand","KC3",opener.count)
+                    br.castOpener("killCommand","KC3",opener.count)
                 end
                 opener.count = opener.count + 1
                 return
             -- Barbed Shot 3
             elseif opener.KC3 and not opener.BS3 then
                 if charges.barbedShot.count() == 0 then
-                    castOpenerFail("barbedShot","BS3",opener.count)
+                    br.castOpenerFail("barbedShot","BS3",opener.count)
                 elseif cast.able.barbedShot() then
-                    castOpener("barbedShot","BS3",opener.count)
+                    br.castOpener("barbedShot","BS3",opener.count)
                 end
                 opener.count = opener.count + 1
                 return
@@ -481,9 +480,9 @@ actionList.Opener = function()
                     opener.COS2 = true;
                     opener.count = opener.count - 1
                 elseif not cast.able.cobraShot() then
-                    castOpenerFail("cobraShot","COS2",opener.count)
+                    br.castOpenerFail("cobraShot","COS2",opener.count)
                 elseif cast.able.cobraShot() then
-                    castOpener("cobraShot","COS2",opener.count)
+                    br.castOpener("cobraShot","COS2",opener.count)
                 end
                 opener.count = opener.count + 1
                 return
@@ -493,14 +492,14 @@ actionList.Opener = function()
                     opener.KC4 = true;
                     opener.count = opener.count - 1
                 elseif cd.killCommand.remain() > unit.gcd(true) then
-                    castOpenerFail("killCommand","KC4",opener.count)
+                    br.castOpenerFail("killCommand","KC4",opener.count)
                 elseif cast.able.killCommand() then
-                    castOpener("killCommand","KC4",opener.count)
+                    br.castOpener("killCommand","KC4",opener.count)
                 end
                 opener.count = opener.count + 1
                 return
             elseif opener.KC4 and opener.OPN1 then
-                Print("Opener Complete")
+                ui.print("Opener Complete")
                 opener.count = 0
                 opener.complete = true
             end
@@ -514,7 +513,7 @@ end -- End Action List - Opener
 actionList.St = function()
     -- Aspect of the Wild
     -- aspect_of_the_wild
-    if ui.checked("Aspect of the Wild") and ui.useCDs() and cast.able.aspectOfTheWild() and (unit.ttd(units.dyn40) > 15 or ui.useCDs()) then
+    if ui.checked("Aspect of the Wild") and ui.useCDs() and cast.able.aspectOfTheWild() then
         if cast.aspectOfTheWild() then ui.debug("Casting Aspect of the Wild") return true end
     end
     -- Barbed Shot
@@ -524,7 +523,7 @@ actionList.St = function()
     end
     -- Tar Trap
     -- tar_trap,if=runeforge.soulforge_embers&tar_trap.remains<gcd&cooldown.flare.remains<gcd
-    if cast.able.tarTrap() and runeforge.soulforgeEmbers.equiped and debuff.tarTrap.remains(units.dyn40) < unit.gcd(true) and cd.flare.remains() < unit.gcd(true) then
+    if cast.able.tarTrap(units.dyn40,"ground") and runeforge.soulforgeEmbers.equiped and debuff.tarTrap.remains(units.dyn40) < unit.gcd(true) and cd.flare.remains() < unit.gcd(true) then
         if cast.tarTrap(units.dyn40,"ground") then ui.debug("Casting Tar Trap [Soulforge Embers]") return true end
     end
     -- Flare
@@ -548,8 +547,8 @@ actionList.St = function()
         if cast.flayedShot() then ui.debug("Casting Flayed Shot [Venthhyr]") return true end
     end
     -- Kill Shot
-    -- kill_shot,if=buff.flayers_mark.remains<5|target.health.pct<=20
-    if cast.able.killShot(var.lowestHPUnit) and (buff.flayersMark.remains() < 5 or unit.hp(var.lowestHPUnit) < 20) then
+    -- kill_shot
+    if cast.able.killShot(var.lowestHPUnit) then
         if cast.killShot(var.lowestHPUnit) then ui.debug("Casting Kill Shot") return true end
     end
     -- Barbed Shot
@@ -598,8 +597,8 @@ actionList.St = function()
     end
     -- Kill Command
     -- kill_command
-    if cast.able.killCommand(br.petTarget) then
-        if cast.killCommand(br.petTarget) then if br.petTarget ~= nil then ui.debug("[ST] Casting Kill Command on "..unit.name(br.petTarget)) else ui.debug("[ST] Casting Kill Command on nil") end return true end
+    if unit.exists(br.petTarget) and cast.able.killCommand(br.petTarget) then
+        if cast.killCommand(br.petTarget) then ui.debug("[ST] Casting Kill Command on "..unit.name(br.petTarget)) return true end
     end
     -- Racial - Bag of Tricks
     -- bag_of_tricks,if=buff.bestial_wrath.down|target.time_to_die<5
@@ -625,21 +624,21 @@ actionList.St = function()
     -- arcane_pulse,if=buff.bestial_wrath.down|target.time_to_die<5
     -- Tar Trap
     -- tar_trap,if=runeforge.soulforge_embers|runeforge.nessingwarys_trapping_apparatus
-    if cast.able.tarTrap() and (runeforge.soulforgeEmbers.equiped or runeforge.nesingwarysTrappingApparatus.equiped) then
-        if cast.tarTrap() then ui.debug("Casting Tar Trap [Soulforge Embers / Nesingwary's Trapping Apparatus]") return true end
+    if cast.able.tarTrap(units.dyn40,"ground") and (runeforge.soulforgeEmbers.equiped or runeforge.nesingwarysTrappingApparatus.equiped) then
+        if cast.tarTrap(units.dyn40,"ground") then ui.debug("Casting Tar Trap [Soulforge Embers / Nesingwary's Trapping Apparatus]") return true end
     end
     -- Freezing Trap
     -- freezing_trap,if=runeforge.nessingwarys_trapping_apparatus
-    if cast.able.freezingTrap() and runeforge.nesingwarysTrappingApparatus.equiped then
-        if cast.freezingTrap() then ui.debug("Casting Freezing Trap [Nesingwary's Trapping Apparatus]") return true end
-    end  
+    if cast.able.freezingTrap(units.dyn40,"ground") and runeforge.nesingwarysTrappingApparatus.equiped then
+        if cast.freezingTrap(units.dyn40,"ground") then ui.debug("Casting Freezing Trap [Nesingwary's Trapping Apparatus]") return true end
+    end
 end -- End Action List - Single Target
 
 -- Action List - Cleave
 actionList.Cleave = function()
     -- Aspect of the Wild
     -- aspect_of_the_wild
-    if ui.checked("Aspect of the Wild") and not buff.aspectOfTheWild.exists() and ui.useCDs() and cast.able.aspectOfTheWild() and (unit.ttd(units.dyn40) > 15 or ui.useCDs()) then
+    if ui.checked("Aspect of the Wild") and not buff.aspectOfTheWild.exists() and ui.useCDs() and cast.able.aspectOfTheWild() then
         if cast.aspectOfTheWild() then ui.debug("Casting Aspect of the Wild [AOE]") return true end
     end
     -- Barbed Shot
@@ -656,7 +655,7 @@ actionList.Cleave = function()
     end
     -- Tar Trap
     -- tar_trap,if=runeforge.soulforge_embers&tar_trap.remains<gcd&cooldown.flare.remains<gcd
-    if cast.able.tarTrap() and runeforge.soulforgeEmbers.equiped and debuff.tarTrap.remains(units.dyn40) < unit.gcd(true) and cd.flare.remains() < unit.gcd(true) then
+    if cast.able.tarTrap(units.dyn40,"ground") and runeforge.soulforgeEmbers.equiped and debuff.tarTrap.remains(units.dyn40) < unit.gcd(true) and cd.flare.remains() < unit.gcd(true) then
         if cast.tarTrap(units.dyn40,"ground") then ui.debug("Casting Tar Trap [Soulforge Embers AOE]") return true end
     end
     -- Flare
@@ -750,13 +749,13 @@ actionList.Cleave = function()
     end
     -- Tar Trap
     -- tar_trap,if=runeforge.soulforge_embers|runeforge.nessingwarys_trapping_apparatus
-    if cast.able.tarTrap() and (runeforge.soulforgeEmbers.equiped or runeforge.nesingwarysTrappingApparatus.equiped) then
-        if cast.tarTrap() then ui.debug("Casting Tar Trap [AOE Soulforge Embers / Nesingwary's Trapping Apparatus]") return true end
+    if cast.able.tarTrap(units.dyn40,"ground") and (runeforge.soulforgeEmbers.equiped or runeforge.nesingwarysTrappingApparatus.equiped) then
+        if cast.tarTrap(units.dyn40,"ground") then ui.debug("Casting Tar Trap [AOE Soulforge Embers / Nesingwary's Trapping Apparatus]") return true end
     end
     -- Freezing Trap
     -- freezing_trap,if=runeforge.nessingwarys_trapping_apparatus
-    if cast.able.freezingTrap() and runeforge.nesingwarysTrappingApparatus.equiped then
-        if cast.freezingTrap() then ui.debug("Casting Freezing Trap [AOE Nesingwary's Trapping Apparatus]") return true end
+    if cast.able.freezingTrap(units.dyn40,"ground") and runeforge.nesingwarysTrappingApparatus.equiped then
+        if cast.freezingTrap(units.dyn40,"ground") then ui.debug("Casting Freezing Trap [AOE Nesingwary's Trapping Apparatus]") return true end
     end
 end -- End Action List - Cleave
 
@@ -768,7 +767,7 @@ actionList.PreCombat = function()
         -- Beast Mode
         if (ui.checked("Beast Mode")) then
             for k,v in pairs(enemies.yards40nc) do
-                TargetUnit(v)
+                br._G.TargetUnit(v)
             end
         end
         -- Init Combat
@@ -815,35 +814,33 @@ local function runRotation()
     var                                = br.player.variables
 
     -- Global Functions
-    
+
     -- Get Best Unit for Range
     -- units.get(range, aoe)
     units.get(40)
-    
+
     -- Get List of Enemies for Range
     -- enemies.get(range, from unit, no combat, variable)
     enemies.get(40)
     enemies.get(40,"player",false,true)
     enemies.get(40,"player",true)
-    enemies.yards30r = getEnemiesInRect(10,30,false) or 0
     enemies.get(30,"pet")
     enemies.get(20,"pet")
     enemies.get(8,"pet")
     enemies.get(8,"player",false,true)
     enemies.get(8,"target")
     enemies.get(5,"pet")
-    
+
     -- Variables
-    var.getCombatTime = _G["getCombatTime"]
-    var.haltProfile   = ((unit.inCombat() and var.profileStop) or IsMounted() or unit.flying() or pause() or buff.feignDeath.exists() or ui.mode.rotation==4)
+    var.haltProfile   = ((unit.inCombat() and var.profileStop) or unit.mounted() or unit.flying() or ui.pause() or buff.feignDeath.exists() or ui.mode.rotation==4)
 
     --wipe timers table
-    if timersTable then
-        wipe(timersTable)
+    if br._G.timersTable then
+        br._G.wipe(br._G.timersTable)
     end
 
     if ui.checked("Enemy Target Lock") and unit.inCombat() and unit.friend("target", "player") then
-        TargetLastEnemy()
+        br._G.TargetLastEnemy()
     end
 
     -- General Vars
@@ -887,6 +884,8 @@ local function runRotation()
         opener.complete = false
     end
 
+    if br.petTarget == nil then br.petTarget = "player" end
+
     -----------------
     --- Pet Logic ---
     -----------------
@@ -901,8 +900,8 @@ local function runRotation()
         -- if cast.able.playDead() and cast.last.feignDeath() and not buff.playDead.exists("pet") then
         --     if cast.playDead() then ui.debug("") return true end
         -- end
-        StopAttack()
-        if unit.isDummy() then ClearTarget() end
+        unit.stopAttack()
+        if unit.isDummy() then unit.clearTarget() end
         return true
     else
         -----------------
@@ -957,7 +956,7 @@ local function runRotation()
 end -- End runRotation
 local id = 253
 if br.rotations[id] == nil then br.rotations[id] = {} end
-tinsert(br.rotations[id],{
+br._G.tinsert(br.rotations[id],{
     name = rotationName,
     toggles = createToggles,
     options = createOptions,

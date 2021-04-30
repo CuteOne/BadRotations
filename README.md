@@ -125,13 +125,14 @@ CuteOne  |   Full   |  9.0  |   100% | :white_check_mark:
 
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
+Kuukuu  |  Full   | 9.0   |   99%  |  :white_check_mark:
 ADSpirit| Unknown |  8.0  |   100% | :interrobang:
 
 - Moonkin
 
 author           | support | patch | status |     raidable?
 :--------------- | :-----: | :---: | -----: | :----------------:
-Laksmackt        |  Full   | 9.0   |   98% | :white_check_mark:
+Laksmackt        |  Full   | 9.0   |   90% | :white_check_mark:
 
 - Restoration
 
@@ -196,7 +197,7 @@ Panglo |   Full  |  9.0  |    100%| :white_check_mark:
 
 author   | support  | patch | status |     raidable?
 :------- | :------: | :---: | -----: | :----------------:
-Laksmackt| Full     | 8.3   |    75% | :interrobang:
+Laksmackt| none     | 8.3   |   0% | :interrobang:
 
 - Windwalker
 
@@ -212,7 +213,7 @@ CuteOne |  Full   |  9.0  |  100%  | :white_check_mark:
 
 author   | support | patch | status | raidable?
 :-----   | :-----: | :---: | -----: | :-------:
-Laksmackt| Unknown |  9.0  |   99%  | :white_check_mark:
+Laksmackt| M+ |  9.0.5  |   100%  | :x:
 Panglo   |   Full  |  9.0  |  100%  | :white_check_mark:
 
 - Protection
@@ -258,19 +259,19 @@ Ralph            |     Full      | 9.0   | ???    | :interrobang:
 
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
-CuteOne | Unknown | ???   |  ???   | :interrobang:
+S0ul    | Testing | 9.0.5 |  69%   | :white_check_mark:
 
 - Outlaw
 
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
-Laks    |  Full   | 9.0   |  100%  | :heavy_check_mark:
+Laks    |  Full   | 9.0.5   |  100%  | :x:
 
 - Subtlety
 
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
-S0ul    |  Full   | 9.0   |   100% | :white_check_mark:
+S0ul    |  Full   | 9.0.5 |  100%  | :white_check_mark:
 
 - Inital 1-10 Supported - Patch 9.0
 
@@ -286,7 +287,7 @@ Aura    | Unknown | 8.0   |   ???  | :interrobang:
 
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
-CuteOne |  Full   | 9.0   |   99%  | :white_check_mark:
+CuteOne |  Full   | 9.0   |   100% | :white_check_mark:
 
 - Restoration
 
@@ -325,13 +326,13 @@ Kink    |  FUll   | 9.0   |   100% | :white_check_mark:
 
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
-CuteOne |  Full   | 8.0 |   100% | :interrobang:
+Winterz |  Full   | 9.0 |   100% | :interrobang:
 
 - Fury
 
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
-CuteOne |  Full   | 8.0 |   100% | :interrobang:
+Winters |  Full   | 9.0 |   100% | :interrobang:
 
 
 - Protection

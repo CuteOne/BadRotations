@@ -1,4 +1,3 @@
-local br = _G["br"]
 local rotationName = "CuteOne"
 
 ---------------
@@ -6,38 +5,43 @@ local rotationName = "CuteOne"
 ---------------
 local function createToggles()
     -- Rotation Button
-    RotationModes = {
+    local RotationModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.soulCleave},
         [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.soulCleave},
         [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.shear},
         [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.spectralSight}
     };
-    CreateButton("Rotation",1,0)
+    br.ui:createToggle(RotationModes,"Rotation",1,0)
     -- Cooldown Button
-    CooldownModes = {
+    local CooldownModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.metamorphosis},
         [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.metamorphosis},
         [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.metamorphosis}
     };
-   	CreateButton("Cooldown",2,0)
+   	br.ui:createToggle(CooldownModes,"Cooldown",2,0)
     -- Defensive Button
-    DefensiveModes = {
+    local DefensiveModes = {
         [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.demonSpikes},
         [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.demonSpikes}
     };
-    CreateButton("Defensive",3,0)
+    br.ui:createToggle(DefensiveModes,"Defensive",3,0)
     -- Interrupt Button
-    InterruptModes = {
+    local InterruptModes = {
         [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.consumeMagic},
         [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.consumeMagic}
     };
-    CreateButton("Interrupt",4,0)
+    br.ui:createToggle(InterruptModes,"Interrupt",4,0)
     -- Mover
-    MoverModes = {
+    local MoverModes = {
         [1] = { mode = "On", value = 2 , overlay = "Auto Movement Enabled", tip = "Will Cast Movement Abilities.", highlight = 1, icon = br.player.spell.infernalStrike},
         [2] = { mode = "Off", value = 1 , overlay = "Auto Movement Disabled", tip = "Will NOT Cast Movement Abilities", highlight = 0, icon = br.player.spell.infernalStrike}
     };
-    CreateButton("Mover",5,0)
+    br.ui:createToggle(MoverModes,"Mover",5,0)
+    local TankbusterModes = {
+        [1] = {mode = "On", value = 1, overlay = "M+ Tankbuster Enabled", tip = "Will use Demon Spikes to Mitigate Tank Busters", highlight = 1, icon = br.player.spell.demonSpikes},
+        [2] = {mode = "Off", value = 2, overlay = "M+ Tankbuster Disabled", tip = "Will NOT use Demon Spikes to Mitigate Tank Busters", highlight = 0, icon = br.player.spell.demonSpikes}
+    }
+    br.ui:createToggle(TankbusterModes,"Tankbuster", 0, 1)
 end
 
 ---------------
@@ -85,6 +89,7 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
             -- Basic Healing Module
             br.player.module.BasicHealing(section)
+            br.ui:createSpinnerWithout(section, "PoS removes Necrotic", 20, 0, 50, 1, "","|cffFFFFFFNecrotic stacks Phial of Serenity to use at")
 		    -- Fiery Brand
             br.ui:createSpinner(section, "Fiery Brand",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
             -- Demon Spikes
@@ -92,6 +97,9 @@ local function createOptions()
             br.ui:createSpinnerWithout(section, "Hold Demon Spikes", 1, 0, 2, 1, "|cffFFBB00Number of Demon Spikes the bot will hold for manual use.");
             -- Metamorphosis
             br.ui:createSpinner(section, "Metamorphosis",  40,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
+            -- Sigil of Chains
+            br.ui:createSpinner(section, "Sigil of Chains - HP",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
+            br.ui:createSpinner(section, "Sigil of Chains - AoE", 3, 0, 10, 1, "|cffFFFFFFNumber of Units in 8 Yards to Cast At")
             -- Sigil of Misery
             br.ui:createSpinner(section, "Sigil of Misery - HP",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
             br.ui:createSpinner(section, "Sigil of Misery - AoE", 3, 0, 10, 1, "|cffFFFFFFNumber of Units in 8 Yards to Cast At")
@@ -102,6 +110,8 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
             -- Consume Magic
             br.ui:createCheckbox(section, "Disrupt")
+            -- Imprison
+            br.ui:createCheckbox(section, "Imprison")
             -- Sigil of Silence
             br.ui:createCheckbox(section, "Sigil of Silence")
             -- Sigil of Misery
@@ -156,17 +166,9 @@ local use
 local actionList    = {}
 local var           = {}
 -- WoW Globals to Varaibles
-var.clearTarget     = _G["ClearTarget"]
-var.getItemInfo     = _G["GetItemInfo"]
-var.getTime         = _G["GetTime"]
-var.stopAttack      = _G["StopAttack"]
-var.tonumber        = _G["tonumber"]
--- BR Globals to Variables
-var.canInterrupt    = _G["canInterrupt"]
-var.getCombatTime   = _G["getCombatTime"]
-var.hasThreat       = _G["hasThreat"]
-var.isTanking       = _G["isTanking"]
-var.pause           = _G["pause"]
+var.getItemInfo     = br._G.GetItemInfo
+var.getTime         = br._G.GetTime
+var.tonumber        = br._G.tonumber
 -- Profile Variables
 var.brandBuilt      = false
 var.inRaid          = false
@@ -181,9 +183,9 @@ actionList.Extras = function()
     -- Dummy Test
     if ui.checked("DPS Testing") then
         if unit.exists("target") then
-            if var.getCombatTime() >= (var.tonumber(ui.value("DPS Testing"))*60) and unit.isDummy() then
-                var.stopAttack()
-                var.clearTarget()
+            if unit.combatTime() >= (var.tonumber(ui.value("DPS Testing"))*60) and unit.isDummy() then
+                unit.stopAttack()
+                unit.clearTarget()
                 ui.print(var.tonumber(ui.value("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
                 var.profileStop = true
             end
@@ -193,11 +195,42 @@ actionList.Extras = function()
     if ui.checked("Torment") and cast.able.torment() then
         for i = 1, #enemies.yards30 do
             local thisUnit = enemies.yards30[i]
-            if not var.isTanking(thisUnit) and var.hasThreat(thisUnit) and not unit.isExplosive(thisUnit) then
+            if not unit.isTanking(thisUnit) and unit.threat(thisUnit) and not unit.isExplosive(thisUnit) then
                 if cast.torment(thisUnit) then ui.debug("Casting Torment [Not Tanking]") return true end
             end
         end
     end
+    -- Throw Glaive Aggro
+    if ui.checked("Throw Glaive") and cast.able.throwGlaive() then
+        for i = 1, #enemies.yards30 do
+            local thisUnit = enemies.yards30[i]
+            if not unit.isTanking(thisUnit) and unit.threat(thisUnit) and not unit.isExplosive(thisUnit) then
+                if cast.throwGlaive(thisUnit) then ui.debug("Casting Throw Glaive [Not Tanking]") return true end
+            end
+        end
+    end
+    --Tank buster
+    if ui.mode.tankbuster == 1 and unit.inCombat() then
+        for i = 1, #enemies.yards30 do
+            local thisUnit = enemies.yards30[i]
+            if br._G.UnitThreatSituation("player", thisUnit) == 3 and UnitCastingInfo("target") then
+                if br.lists.tankBuster[select(9, UnitCastingInfo("target"))] ~= nil then
+                    if cd.demonSpikes.ready() and not debuff.fieryBrand.exists(thisUnit) then
+                        if cast.demonSpikes() then
+                            br.addonDebug("[TANKBUST] Demon Spike")
+                            return true
+                        end
+                    end
+                    if cast.able.fieryBrand() and not buff.demonSpikes.exists() then
+                        if cast.fieryBrand(thisUnit) then
+                            br.addonDebug("[TANKBUST] Fiery Brand")
+                            return true
+                        end
+                    end                
+                end
+            end
+        end
+    end  -- End Tankbuster
 end -- End Action List - Extras
 
 -- Action List - Defensive
@@ -210,9 +243,9 @@ actionList.Defensive = function()
         -- Demon Spikes
         -- demon_spikes
         if ui.checked("Demon Spikes") and unit.inCombat() and cast.able.demonSpikes() and charges.demonSpikes.count() > ui.value("Hold Demon Spikes") and unit.hp() <= ui.value("Demon Spikes") then
-            if (charges.demonSpikes.count() == 2 or not buff.demonSpikes.exists()) and not debuff.fieryBrand.exists(units.dyn5) and not buff.metamorphosis.exists() then
+            -- if (charges.demonSpikes.count() == 2 or not buff.demonSpikes.exists()) and not debuff.fieryBrand.exists(units.dyn5) and not buff.metamorphosis.exists() then
                 if cast.demonSpikes() then ui.debug("Casting Demon Spikes") return true end
-            end
+            -- end
         end
         -- Metamorphosis
         -- metamorphosis,if=!(talent.demonic.enabled)&(!covenant.venthyr.enabled|!dot.sinful_brand.ticking)|target.time_to_die<15
@@ -231,6 +264,9 @@ actionList.Defensive = function()
         end
         -- Basic Healing Module
         module.BasicHealing()
+        if ui.checked("PoS removes Necrotic") and unit.instance() and debuff.necroticWound.stacks() >= ui.value("PoS removes Necrotic") and use.able.phialOfSerenity() then
+            if use.phialOfSerenity() then return true end
+        end
         -- Sigil of Misery
         if ui.checked("Sigil of Misery - HP") and cast.able.sigilOfMisery()
             and unit.hp() <= ui.value("Sigil of Misery - HP") and unit.inCombat() and #enemies.yards8 > 0
@@ -242,6 +278,17 @@ actionList.Defensive = function()
         then
             if cast.sigilOfMisery("best",false,ui.value("Sigil of Misery - AoE"),8) then ui.debug("Casting Sigil of Misery [AOE]") return true end
         end
+        -- Sigil of Chains
+        if ui.checked("Sigil of Chains - HP") and cast.able.sigilOfChains()
+            and unit.hp() <= ui.value("Sigil of Chains - HP") and unit.inCombat() and #enemies.yards8 > 0
+        then
+            if cast.sigilOfChains("player","ground") then ui.debug("Casting Sigil of Chains [HP]") return true end
+        end
+        if ui.checked("Sigil of Chains - AoE") and cast.able.sigilOfChains()
+            and #enemies.yards8 >= ui.value("Sigil of Chains - AoE") and unit.inCombat()
+        then
+            if cast.sigilOfChains("best",false,ui.value("Sigil of Chains - AoE"),8) then ui.debug("Casting Sigil of Chains [AOE]") return true end
+        end
     end -- End Defensive Toggle
 end -- End Action List - Defensive
 
@@ -250,10 +297,14 @@ actionList.Interrupts = function()
     if ui.useInterrupt() then
         for i=1, #enemies.yards30 do
             local thisUnit = enemies.yards30[i]
-            if var.canInterrupt(thisUnit,ui.value("Interrupt At")) then
+            if unit.interruptable(thisUnit,ui.value("Interrupt At")) then
                 -- Disrupt
                 if ui.checked("Disrupt") and cast.able.disrupt(thisUnit) and unit.distance(thisUnit) < 20 then
                     if cast.disrupt(thisUnit) then ui.debug("Casting Disrupt") return true end
+                end
+                -- Imprison
+                if ui.checked("Imprison") and cast.able.imprison(thisUnit) and unit.distance(thisUnit) < 20 then
+                    if cast.imprison(thisUnit) then ui.debug("Casting Imprison") return true end
                 end
                 -- Sigil of Silence
                 if ui.checked("Sigil of Silence") and cast.able.sigilOfSilence(thisUnit) and cd.disrupt.remain() > 0 then
@@ -418,8 +469,8 @@ actionList.PreCombat = function()
             end
             -- Start Attack
             -- auto_attack
-            if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
-                StartAttack(units.dyn5)
+            if not br._G.IsAutoRepeatSpell(br._G.GetSpellInfo(6603)) and unit.exists("target") and unit.distance("target") < 5 then
+                unit.startAttack("target")
             end
         end -- End Pull
     end -- End No Combat
@@ -462,7 +513,7 @@ local function runRotation()
     enemies.get(30)
 
     -- variable,name=brand_build,value=talent.agonizing_flames.enabled&talent.burning_alive.enabled&talent.charred_flesh.enabled
-    var.brandBuild = talent.agonizingFLames and talent.burningAlive and talent.charredFlesh 
+    var.brandBuild = talent.agonizingFlames and talent.burningAlive and talent.charredFlesh 
 
     ---------------------
     --- Begin Profile ---
@@ -470,13 +521,20 @@ local function runRotation()
     -- Profile Stop | Pause
     if not unit.inCombat() and not unit.exists("target") and var.profileStop==true then
         var.profileStop = false
-    elseif (unit.inCombat() and var.profileStop==true) or unit.mounted() or unit.flying() or var.pause() or ui.mode.rotation==4 then
+    elseif (unit.inCombat() and var.profileStop==true) or unit.mounted() or unit.flying() or ui.pause() or ui.mode.rotation==4 then
         return true
     else
+        if actionList.Defensive() then return true end
         -----------------------
         --- Extras Rotation ---
         -----------------------
         if actionList.Extras() then return true end
+        --------------------------
+        --- Defensive Rotation ---
+        --------------------------
+        if not unit.inCombat() then
+            if actionList.Defensive() then return true end
+        end
         ------------------------------
         --- Out of Combat Rotation ---
         ------------------------------
@@ -494,8 +552,8 @@ local function runRotation()
             ---------------------------
             -- Start Attack
             -- auto_attack
-            if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
-                StartAttack(units.dyn5)
+            if not br._G.IsAutoRepeatSpell(br._G.GetSpellInfo(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
+                unit.startAttack(units.dyn5)
             end
             -- Consume Magic
             if ui.checked("Consume Magic") and cast.able.consumeMagic("target") and cast.dispel.consumeMagic("target") and not unit.isBoss("target") and unit.exists("target") then
@@ -525,7 +583,7 @@ local function runRotation()
 end -- End runRotation
 local id = 581
 if br.rotations[id] == nil then br.rotations[id] = {} end
-tinsert(br.rotations[id],{
+br._G.tinsert(br.rotations[id],{
     name = rotationName,
     toggles = createToggles,
     options = createOptions,

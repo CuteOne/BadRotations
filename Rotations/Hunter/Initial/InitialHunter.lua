@@ -1,31 +1,30 @@
-local br = _G["br"]
 local rotationName = "Initial"
-loadSupport("PetCuteOne")
+br.loadSupport("PetCuteOne")
 
 ---------------
 --- Toggles ---
 ---------------
 local function createToggles()
     -- Rotation Button
-    RotationModes = {
+    local RotationModes = {
         [1] = { mode = "On", value = 1 , overlay = "Rotation Enabled", tip = "Enables Rotation", highlight = 1, icon = br.player.spell.steadyShot},
         [2] = { mode = "Off", value = 2 , overlay = "Rotation Disabled", tip = "Disables Rotation", highlight = 0, icon = br.player.spell.steadyShot}
     };
-    CreateButton("Rotation",1,0)
+    br.ui:createToggle(RotationModes,"Rotation",1,0)
     -- Defensive Button
-    DefensiveModes = {
+    local DefensiveModes = {
         [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Enables Defensive", highlight = 1, icon = br.player.spell.exhilaration},
         [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "Disables Defensive", highlight = 0, icon = br.player.spell.exhilaration}
     };
-    CreateButton("Defensive",2,0)
+    br.ui:createToggle(DefensiveModes,"Defensive",2,0)
     -- Interrupt Button
-    InterruptModes = {
+    local InterruptModes = {
         [1] = { mode = "On", value = 1 , overlay = "Interrupt Enabled", tip = "Enables Interrupt", highlight = 1, icon = br.player.spell.freezingTrap},
         [2] = { mode = "Off", value = 2 , overlay = "Interrupt Disabled", tip = "Disables Interrupt", highlight = 0, icon = br.player.spell.freezingTrap}
     };
-    CreateButton("Interrupt",3,0)
+    br.ui:createToggle(InterruptModes,"Interrupt",3,0)
     -- Pet summon
-    PetSummonModes = {
+    local PetSummonModes = {
         [1] = { mode = "1", value = 1 , overlay = "Summon Pet 1", tip = "Summon Pet 1", highlight = 1, icon = br.player.spell.callPet1 },
         [2] = { mode = "2", value = 2 , overlay = "Summon Pet 2", tip = "Summon Pet 2", highlight = 1, icon = br.player.spell.callPet2 },
         [3] = { mode = "3", value = 3 , overlay = "Summon Pet 3", tip = "Summon Pet 3", highlight = 1, icon = br.player.spell.callPet3 },
@@ -33,7 +32,7 @@ local function createToggles()
         [5] = { mode = "5", value = 5 , overlay = "Summon Pet 5", tip = "Summon Pet 5", highlight = 1, icon = br.player.spell.callPet5 },
         [6] = { mode = "None", value = 6 , overlay = "No pet", tip = "Dont Summon any Pet", highlight = 0, icon = br.player.spell.callPet }
     };
-    CreateButton("PetSummon",4,0)
+    br.ui:createToggle(PetSummonModes,"PetSummon",4,0)
 end
 
 ---------------
@@ -175,7 +174,7 @@ actionList.Interrupt = function()
     if ui.useInterrupt() then
         for i=1, #enemies.yards5 do
             local thisUnit = enemies.yards5[i]
-            if canInterrupt(thisUnit,ui.value("Interrupt At")) then
+            if br.canInterrupt(thisUnit,ui.value("Interrupt At")) then
                 -- Freezing Trap
                 if ui.hecked("Freezing Trap") and cast.able.freezingTrap() then
                     for i = 1, #enemies.yards40 do
@@ -195,8 +194,8 @@ actionList.PreCombat = function()
     if not unit.inCombat() and not unit.mounted() then
         if unit.valid("target") then
             -- Start Attack
-            if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.exists(units.dyn40) and unit.distance(units.dyn40) < 40 then
-                StartAttack(units.dyn40)
+            if not br._G.IsAutoRepeatSpell(br._G.GetSpellInfo(6603)) and unit.exists(units.dyn40) and unit.distance(units.dyn40) < 40 then
+                br._G.StartAttack(units.dyn40)
             end
         end
     end
@@ -229,8 +228,7 @@ local function runRotation()
     units                                           = br.player.units
     use                                             = br.player.use
     -- General Locals
-    var.getHealPot                                  = _G["getHealthPot"]()
-    var.haltProfile                                 = (unit.inCombat() and var.profileStop) or unit.mounted() or pause() or buff.feignDeath.exists() or ui.mode.rotation==4
+    var.haltProfile                         = (unit.inCombat() and var.profileStop) or unit.mounted() or br.pause() or buff.feignDeath.exists() or ui.mode.rotation==4
     -- Units
     units.get(5)
     units.get(40)
@@ -281,8 +279,8 @@ local function runRotation()
                 --- Main ---
                 ------------              
                 -- Start Attack
-                if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.exists(units.dyn40) and unit.distance(units.dyn40) < 40 then
-                    StartAttack(units.dyn40)
+                if not br._G.IsAutoRepeatSpell(br._G.GetSpellInfo(6603)) and unit.exists(units.dyn40) and unit.distance(units.dyn40) < 40 then
+                    br._G.StartAttack(units.dyn40)
                 end
                 -- Trinket - Non-Specific
                 if unit.exists(units.dyn40) and unit.distance(units.dyn40) < 40  then
@@ -313,7 +311,7 @@ local function runRotation()
 end -- End runRotation
 local id = 1448
 if br.rotations[id] == nil then br.rotations[id] = {} end
-tinsert(br.rotations[id],{
+br._G.tinsert(br.rotations[id],{
     name = rotationName,
     toggles = createToggles,
     options = createOptions,
