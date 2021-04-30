@@ -20,19 +20,16 @@ br.lists.ccUnits = {
     [171341] = { name = "Frightened Cries", spell = 334664 }, -- https://www.wowhead.com/spell=334664/frightened-cries
 
     -- Mists
-    [165251] = { name = "Illusionary Vulpin" }, -- https://www.wowhead.com/npc=165251/illusionary-vulpin
+    --[165251] = { name = "Illusionary Vulpin" }, -- https://www.wowhead.com/npc=165251/illusionary-vulpin
     [166301] = { name = "Mistveil Bite", spell = 324987 }, -- https://www.wowhead.com/spell=324987/mistveil-bite
     [166301] = { name = "Mistveil Tear", spell = 325021 }, -- https://www.wowhead.com/spell=325021/mistveil-tear
     [167113] = { name = "Mistveil Tear", spell = 325418 }, -- https://www.wowhead.com/spell=325418/volatile-acid
     --[166276] = { name = "Mistveil Bite", spell = 331743 }, -- https://www.wowhead.com/spell=331743/bucking-rampage
-    -- NW
-    [163618] = { name = "Animate Dead", spell = 321780 }, -- Zolramus Necromancer
 
     -- SD
     [166396] = { name = "Animate Weapon", spell = 324609 },
 
     -- Necrotic Wake
-    [164702] = { name = "Carrion Worm" }, -- Necrotic Wake
     [163619] = { name = "BoneFlay", spell = 321807 }, -- Zolramus Bonecarver casting Boneflay
     [173016] = { name = "Drain Fluids", spell = 334748 },
     [166302] = { name = "Drain Fluids", spell = 334748 },
@@ -40,6 +37,10 @@ br.lists.ccUnits = {
     [165911] = { name = "Spine Crush", spell = 327240 },
     [165872] = { name = "Repair Flesh", spell = 327130 },
     [165222] = { name = "Final Bargain", spell = 320822 },
+    [163618] = { name = "Animate Dead", spell = 321780 }, -- Zolramus Necromancer
+    [163618] = { name = "Animate Dead", spell = 323954 }, -- Zolramus Necromancer
+    [163618] = { name = "Animate Dead", spell = 324022 }, -- Zolramus Necromancer
+    [163618] = { name = "Animate Dead", spell = 324024 }, -- Zolramus Necromancer
 
     --Theater of Pain
     [164510] = { name = "Shambling Arbalest", spell = 330532 }, -- Nasty dot - needs to be cc'ed
