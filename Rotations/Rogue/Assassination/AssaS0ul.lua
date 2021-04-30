@@ -506,7 +506,7 @@ local function runRotation()
             [175992] = true, -- Dutiful Attendant
         }
         if br.GetObjectExists("target") and burnUnits[br.GetObjectID("target")] ~= nil then
-            if combo >= 4 then
+            if combo >= 4 + dSEnabled then
                 if cast.eviscerate("target") then return true end
             end
         end
@@ -544,6 +544,10 @@ local function runRotation()
                 --Dark Exile (4th boss NW)
                 if bossID == 162693 and br.isCastingSpell(321894, "boss1") and br.GetUnitIsUnit("player", br._G.UnitTarget("boss1")) then
                     if cast.vanish("player") then return true end
+                end
+                --Sire Shattering Pain
+                if bossID == 167406 and br.isCastingSpell(332626, "boss1") then
+                    if cast.feint() then return true end
                 end
                 --Azerite Powder Shot (1st boss freehold)
                 if not bossPool and bossID == 126832 and br.DBM:getTimer(256106) <= 1 then -- pause 1 sec before cast for pooling
@@ -800,7 +804,7 @@ local function runRotation()
         -- actions.direct+=/variable,name=use_filler,value=combo_points.deficit>1|energy.deficit<=25+variable.energy_regen_combined|!variable.single_target
         local useFiller = (comboDeficit > 1 or energyDeficit <= (25 + energyRegenCombined) or enemies10 > 1) and (not stealthedRogue or talent.masterAssassin) and not br.GetUnitIsFriend("player", "target")
         -- actions.direct+=/serrated_bone_spike
-        if not stealthedRogue and cd.vanish.remain() < 115 and buff.sliceAndDice.exists("player") and buff.leadByExample.remain() <= 3 then
+        if not stealthedRogue and not buff.masterAssassin.exists() and cd.vanish.remain() < 115 and buff.sliceAndDice.exists("player") and buff.leadByExample.remain() <= 3 then
             local spikeCount = serratedCount + 2
             local spikeList = enemies.get(30, "player", false, true)
             if #spikeList > 0 then
@@ -818,7 +822,7 @@ local function runRotation()
                             end
                         end
                     end
-                    if #spikeList == 1 and debuff.shiv.exists("target") and not buff.masterAssassin.exists() and (charges.serratedBoneSpike.frac() >= 2 or fightRemain < 30) then
+                    if #spikeList == 1 and (debuff.shiv.exists("target") or charges.serratedBoneSpike.frac() >= 2.75) and (charges.serratedBoneSpike.frac() >= 2 or fightRemain < 30) then
                         if cast.serratedBoneSpike("target") then
                             return true
                         end
@@ -831,12 +835,12 @@ local function runRotation()
         end
         --# Fan of Knives at 19+ stacks of Hidden Blades or against 4+ targets.
         --actions.direct+=/fan_of_knives,if=variable.use_filler&(buff.hidden_blades.stack>=19|(!priority_rotation&spell_targets.fan_of_knives>=4+stealthed.rogue))
-        if useFiller and (buff.hiddenBlades.stack() >= 19 or (not priorityRotation and fokenemies10 >= (4 + sRogue))) then
+        if useFiller and not buff.masterAssassin.exists() and (buff.hiddenBlades.stack() >= 19 or (not priorityRotation and fokenemies10 >= (4 + sRogue))) then
             if cast.fanOfKnives("player") then return true end
         end
         --# Fan of Knives to apply Deadly Poison if inactive on any target at 3 targets.
         --actions.direct+=/fan_of_knives,target_if=!dot.deadly_poison_dot.ticking,if=variable.use_filler&spell_targets.fan_of_knives>=3
-        if not deadlyPoison10 and useFiller and fokenemies10 >= 3 then
+        if useFiller and not deadlyPoison10 and fokenemies10 >= 3 then
             if cast.fanOfKnives("player") then return true end
         end
         --actions.direct+=/echoing_reprimand,if=variable.use_filler&cooldown.vendetta.remains>10

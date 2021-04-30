@@ -1047,7 +1047,7 @@ actionList.dps = function()
                         end
                         if #spikeList > 0 then
                             if (buff.bladeFlurry.exists("player") or #enemies.yards8 <= 1)
-                                    and comboDeficit >= spikeCount and not buff.opportunity.exists() then
+                                    and (comboDeficit >= spikeCount or (spikeCount > 3 and combo < 2)) and not buff.opportunity.exists() then
                                 if #spikeList > 1 then
                                     table.sort(spikeList, function(x, y)
                                         return br.getHP(x) < br.getHP(y)
@@ -1546,7 +1546,6 @@ actionList.Interrupt = function()
     }
 
     local feintList = {
-        [320596] = true, -- Heaving Retch in NW
         [325245] = true, -- Shadow Ambush PF
         [323195] = true, -- Purifying Blast SoA
         [319592] = true, -- Stone Shattering Leap HoA
