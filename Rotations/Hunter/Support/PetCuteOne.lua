@@ -124,7 +124,7 @@ br.rotations.support["PetCuteOne"] = {
         local petMode                                       = getCurrentPetMode()
         local validTarget                                   = unit.exists(br.petTarget) and (unit.valid(br.petTarget) or unit.isDummy()) --or (not unit.exists(br.petTarget) and unit.valid("target")) or unit.isDummy()
 
-        if unit.deadOrGhost("pet") then deadPet = true end
+        if unit.deadOrGhost("pet") then petDead = true end
 
         -- Units
         units.get(5)
