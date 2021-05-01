@@ -212,12 +212,13 @@ local pool
 local critnotup
 local dot_requirements
 local aspPerSec
-local moving
 local cat
 local catspeed
 local travel
 local charges
 local solo
+local castWhileMoving
+local boatUP
 -- Profile Specific Locals - Any custom to profile locals
 local actionList = {}
 
@@ -420,72 +421,75 @@ end
 ]]
 local function dps_key()
 
-    if inCombat and cd.celestialAlignment.ready() and cd.convokeTheSpirits.ready() then
 
-        if not br.player.buff.moonkinForm.exists() then
-            unit.cancelForm()
-            if cast.moonkinForm() then
-                return true
-            end
+    if not br.player.buff.moonkinForm.exists() then
+        unit.cancelForm()
+        if cast.moonkinForm() then
+            return true
         end
+    end
 
-        if not debuff.moonfire.exists("target") then
-            if cast.moonfire("target") then
-                return true
-            end
-        end
+    if covenant.nightFae.active then
+        if inCombat and cd.celestialAlignment.ready() and cd.convokeTheSpirits.ready() then
 
-        if use.able.inscrutableQuantumDevice() then
-            use.inscrutableQuantumDevice()
-        end
-
-        if not debuff.sunfire.exists("target") then
-            if cast.sunfire("target") then
-                return true
-            end
-        end
-
-        if cast.able.starfall() and buff.starfall.remains() < 4 then
-            if cast.starfall() then
-                return true
-            end
-        end
-
-        if not isTrash("target") and cast.able.starsurge("target") then
-            if cast.starsurge("target") then
-                return true
-            end
-        end
-
-        if not br.isCastingSpell(323764) then
-            if br.canUseItem(171349) then
-                br.useItem(171349)
-            end
-            if br.canUseItem(307096) then
-                br.useItem(307096)
-            end
-            --171273
-            if br.canUseItem(171273) then
-                br.useItem(171273)
-            end
-            if race == "Troll" then
-                if cast.racial("player") then
+            if not debuff.moonfire.exists("target") then
+                if cast.moonfire("target") then
                     return true
                 end
             end
-        end
 
-        if cast.able.celestialAlignment() then
-            if cast.celestialAlignment() then
+            if use.able.inscrutableQuantumDevice() then
+                use.inscrutableQuantumDevice()
+            end
+
+            if not debuff.sunfire.exists("target") then
+                if cast.sunfire("target") then
+                    return true
+                end
+            end
+
+            if cast.able.starfall() and buff.starfall.remains() < 4 then
+                if cast.starfall() then
+                    return true
+                end
+            end
+
+            if not isTrash("target") and cast.able.starsurge("target") then
+                if cast.starsurge("target") then
+                    return true
+                end
+            end
+
+            if not br.isCastingSpell(323764) then
+                if br.canUseItem(171349) then
+                    br.useItem(171349)
+                end
+                if br.canUseItem(307096) then
+                    br.useItem(307096)
+                end
+                --171273
+                if br.canUseItem(171273) then
+                    br.useItem(171273)
+                end
+                if race == "Troll" then
+                    if cast.racial("player") then
+                        return true
+                    end
+                end
+            end
+
+            if cast.able.celestialAlignment() then
+                if cast.celestialAlignment() then
+                end
+            end
+
+            if cast.convokeTheSpirits() then
+                return true
+
             end
         end
-
-        if cast.convokeTheSpirits() then
-            return true
-
-        end
-    end
-end
+    end -- end night fae
+end --end DPS key
 
 --------------------
 --- Action Lists ---
@@ -531,6 +535,7 @@ actionList.Heal = function()
         -- rejuvenation
         if ui.checked("Rejuv?") and (ui.value("Rejuv?") == 1 or ui.value("Rejuv?") >= 2 and not inCombat or ui.value("Rejuv?") == 3 and solo)
                 and php <= br.getValue("Rejuv%") and not buff.rejuvenation.exists() then
+            unit.cancelForm()
             if cast.rejuvenation("player") then
                 br.addonDebug("[DEF]  Rejuv at: " .. tostring(php))
                 return true
@@ -540,7 +545,6 @@ actionList.Heal = function()
 
 
 end
-
 
 
 -- Action List - Defensive
@@ -809,7 +813,8 @@ actionList.dps_boat = function()
 
     --  critnotup = not buff.balanceOfAllThingsNature.exists() and not buff.balanceOfAllThingsArcane.exists()
     critnotup = not br.UnitBuffID("player", 339943) and not br.UnitBuffID("player", 339946)
-    -- ui.print("Crit: " .. tostring(not critnotup))
+    boatUP = (br.UnitBuffID("player", 339943) or br.UnitBuffID("player", 339946)) and true or false
+    -- ui.print("BoatUP: " .. tostring(boatUP))
     --starlord cancel here
     if talent.starlord then
         if (buff.balanceOfAllThingsNature.remains() > 4.5 or buff.balanceOfAllThingsArcane.remains() > 4.5)
@@ -822,9 +827,7 @@ actionList.dps_boat = function()
     --starsurge - its why we boat :)
     if not pool then
         if not noDamageCheck("target") and cast.able.starsurge(units.dyn45) then
-            if not critnotup
-                    and covenant.nightFae.active or buff.celestialAlignment.remains() > 7
-            then
+            if boatUP then
                 if cast.starsurge("target") then
                     br.addonDebug("[SS] - Critting a boatload")
                     return true
@@ -894,25 +897,26 @@ actionList.dps_boat = function()
     0.00	full_moon,if=(buff.eclipse_lunar.remains>execute_time&(cooldown.ca_inc.remains>50|cooldown.convoke_the_spirits.remains>50)|(charges=2&recharge_time<5)|charges=3)&ap_check
     ]]
 
-    if cast.able.starfire("target") and br.getFacing("player", "target", 45) and moving
+    if cast.able.starfire("target") and br.getFacing("player", "target", 45) and castWhileMoving
             and (critnotup or power < 30 or not cast.able.starsurge() or pool) then
         if current_eclipse == "lunar"
                 or current_eclipse ~= "solar" and eclipse_next == "solar"
                 or current_eclipse ~= "solar" and eclipse_next == "any"
                 or (buff.warriorOfElune.exists() and current_eclipse == "lunar")
+                or buff.celestialAlignment.remain() > br.getCastTime(spell.starfire) and (br._G.GetHaste() / 100) > 110
                 or ((buff.celestialAlignment.remain() < br.getCastTime(spell.wrath) or buff.incarnationChoseOfElune.remain() < br.getCastTime(spell.wrath)) and buff.celestialAlignment.exists())
         then
             --    if cast.starfire(getBiggestUnitCluster(45, 8)) then
             if cast.starfire("target") then
-                br.addonDebug("[SFIRE] Lunar:" .. tostring(current_eclipse == "lunar") .. " Solar:" .. tostring(current_eclipse == "solar") .. " Next:" .. eclipse_next .. " Crit?: " .. tostring(not critnotup))
+                br.addonDebug("[SFIRE] Lunar:" .. tostring(current_eclipse == "lunar") .. " Solar:" .. tostring(current_eclipse == "solar") .. " Next:" .. eclipse_next .. " Crit?: " .. tostring(boatUP))
                 return true
             end
         end
     end
 
-    if br.getFacing("player", "target", 45) and moving and (critnotup or power < 30 or not cast.able.starsurge() or pool) then
+    if br.getFacing("player", "target", 45) and castWhileMoving and (critnotup or power < 30 or not cast.able.starsurge() or pool) then
         if cast.wrath("target") then
-            br.addonDebug("[WRATH] Lunar:" .. tostring(current_eclipse == "lunar") .. " Solar:" .. tostring(current_eclipse == "solar") .. " Next:" .. eclipse_next .. " Crit?: " .. tostring(not critnotup))
+            br.addonDebug("[WRATH] Lunar:" .. tostring(current_eclipse == "lunar") .. " Solar:" .. tostring(current_eclipse == "solar") .. " Next:" .. eclipse_next .. " Crit?: " .. tostring(boatUP))
             return true
         end
     end
@@ -927,10 +931,98 @@ R	0.00	run_action_list,name=fallthru
 
 
 
+actionList.kyrian = function()
+
+    local partnerLinkGO
+
+    if covenant.kyrian.active then
+
+        if not br.UnitBuffID("player", 326967) and not buff.loneSpirit.exists() then
+            ui.print("USE KINDRED SPIRITS YOU FOOL!!")
+        end
+
+        if br.UnitBuffID("player", 326967) and br.getSpellCD(326446) <= 0.2
+                or buff.loneSpirit.exists() and cd.loneEmpowerment.ready() and (cd.celestialAlignment.remains() > 20 or cd.celestialAlignment.ready())
+        then
+            if br.UnitBuffID("player", 326967) and br.getSpellCD(326446) <= 0.2 then
+                for i = 1, #br.friend do
+                    thisUnit = br.friend[i].unit
+                    --     ui.print("Unit: " .. tostring(thisUnit))
+                    if br.UnitBuffID(thisUnit, 326434) and not br.GetUnitIsUnit("player", thisUnit) then
+                        local empowerClass = select(2, br._G.UnitClass(thisUnit))
+                        br.addonDebug("Buff Unit is : " .. tostring(thisUnit) .. " Class =" .. empowerClass)
+                        if empowerClass == "MAGE" and br.UnitBuffID(thisUnit, 190319)
+                                or empowerClass == "DRUID" and (br.UnitBuffID(thisUnit, 194223) or br.UnitBuffID(thisUnit, 102560))
+                                or empowerClass == "WARRIOR" and br.UnitBuffID(thisUnit, 107574)
+                                or empowerClass == "WARRIOR" and br.UnitBuffID(thisUnit, 46924)
+                                or empowerClass == "WARLOCK" and br.UnitBuffID(thisUnit, 113860)
+                                or empowerClass == "ROGUE" and br.UnitBuffID(thisUnit, 121471)
+                                or empowerClass == "PALADIN" and br.UnitBuffID(thisUnit, 31884)
+                                or empowerClass == "HUNTER" and br.UnitBuffID(thisUnit, 260402) --260402/double-tap
+                                or empowerClass == "SHAMAN" and br.UnitBuffID(thisUnit, 191634) -- storm keeper
+                                or empowerClass == "DEATHKNIGHT" and (br.UnitBuffID(thisUnit, 275699) or br.UnitBuffID(thisUnit, 63560) or br.UnitBuffID(thisUnit, 42650))
+                        then
+                            partnerLinkGO = true
+                        end
+                    end
+                end
+
+            end
+
+            if partnerLinkGO or (buff.loneSpirit.exists() and cd.loneEmpowerment.ready() and getMaxTTD() > 15) or unit.isDummy("target") then
+
+                if not debuff.sunfire.exists("target") then
+                    if cast.sunfire("target") then
+                        return true
+                    end
+                end
+
+                if br.canUseItem(13) then
+                    br.useItem(13)
+                end
+                if br.canUseItem(14) then
+                    br.useItem(14)
+                end
+
+                if not debuff.moonfire.exists("target") then
+                    if cast.moonfire("target") then
+                        return true
+                    end
+                end
+                if br.canUseItem(171349) then
+                    br.useItem(171349)
+                end
+                if br.canUseItem(307096) then
+                    br.useItem(307096)
+                end
+                --171273
+                if br.canUseItem(171273) then
+                    br.useItem(171273)
+                end
+                if race == "Troll" then
+                    if cast.racial("player") then
+                        return true
+                    end
+                end
+                if cast.celestialAlignment() then
+                end
+                if cast.empowerBond("player") then
+                    return true
+                end
+                if cast.loneEmpowerment("player") then
+                    return true
+                end
+            end
+        end
+    end
+end -- end Kyrian
+
+
+
 actionList.dps_aoe = function()
 
 
-    br.addonDebug("Pool: " .. tostring(pool) .. " TTD:" .. getMaxTTD() .. " Power: " .. power .. " Mobs:" .. tostring(#enemies.yards45))
+    -- br.addonDebug("Pool: " .. tostring(pool) .. " TTD:" .. getMaxTTD() .. " Power: " .. power .. " Mobs:" .. tostring(#enemies.yards45))
 
     ignore_starsurge = current_eclipse ~= "solar" and (#enemies.yards8t > 5 and talent.soulOfTheForest or #enemies.yards8t > 7)
 
@@ -939,52 +1031,41 @@ actionList.dps_aoe = function()
             and #enemies.yards45 >= 2 and getMaxTTD() > 10
     then
         if cast.starfall() then
-            br.addonDebug("[STARFALL]Mobs: " .. " GetTTD:" .. tostring(getMaxTTD))
+            br.addonDebug("[STARFALL]Mobs: " .. #enemies.yards45 .. " GetTTD:" .. tostring(getMaxTTD()))
             return true
         end
     end
 
 
     --sunfire
-    splash_count = 0
-    for i = 1, #enemies.yards45 do
-        thisUnit = enemies.yards45[i]
-        if br._G.UnitAffectingCombat(thisUnit) and not noDamageCheck(thisUnit) then
-            if (br.getDistance(thisUnit, tank) <= 8 or #br.friend == 1) then
-                if debuff.sunfire.refresh(thisUnit) then
-                    splash_count = splash_count + 1
+    if br.timer:useTimer("sunfire_delay", 5) then
+        splash_count = 0
+        for i = 1, #enemies.yards45 do
+            thisUnit = enemies.yards45[i]
+            if br._G.UnitAffectingCombat(thisUnit) and not noDamageCheck(thisUnit) then
+                if (br.getDistance(thisUnit, tank) <= 8 or #br.friend == 1) then
+                    if debuff.sunfire.refresh(thisUnit) then
+                        splash_count = splash_count + 1
+                    end
                 end
-            end
-            if debuff.sunfire.refresh(thisUnit) and (splash_count == #enemies.yards45 or splash_count >= 2 or br.getCombatTime() > 3 or #br.friend == 1) then
-                if cast.sunfire(thisUnit) then
-                    return true
+                if debuff.sunfire.refresh(thisUnit) and (splash_count == #enemies.yards45 or splash_count >= 2 or br.getCombatTime() > 3 or #br.friend == 1) then
+                    if cast.sunfire(thisUnit) then
+                        return true
+                    end
                 end
             end
         end
     end
 
-    --[[
-        if cast.able.starfall()
-                and (buff.starfall.refresh()
-                or talent.soulOfTheForest and buff.eclipse_solar.remains() < 3 and eclipse_in == "solar" and buff.starfall.remains() < 7
-                and #enemies.yards45 < 4)
-        then
-            if cast.starfall() then
-                return true
-            end
-        end
-    ]]
-
-
     if not pool and not noDamageCheck(units.dyn45) and not ignore_starsurge and (#enemies.yards45 == 1 or buff.starfall.exists())
-            or (buff.balanceOfAllThingsNature.stack() > 3 or buff.balanceOfAllThingsArcane.stack() > 3) and #enemies.yards45 < 6 then
+            and boatUP and #enemies.yards45 < 6 then
         if cast.starsurge(units.dyn45) then
             br.addonDebug("SS - BOAT")
             return true
         end
     end
 
-    if cast.able.moonfire() then
+    if cast.able.moonfire() and br.timer:useTimer("moonfire_delay", 4) then
         if current_eclipse == "solar" then
             for i = 1, #enemies.yards45 do
                 thisUnit = enemies.yards45[i]
@@ -1041,7 +1122,7 @@ actionList.dps_aoe = function()
       0.00	full_moon,if=(buff.eclipse_solar.remains>execute_time and (cooldown.ca_inc.remains>50 or cooldown.convoke_the_spirits.remains>50) or (charges=2 and recharge_time<5) or charges=3) and ap_check
     ]]
 
-    if not noDamageCheck(units.dyn45) and br.getFacing("player", "target", 45) and moving then
+    if not noDamageCheck(units.dyn45) and br.getFacing("player", "target", 45) and castWhileMoving == true then
         if current_eclipse == "solar" and #enemies.yards45 < (4 + (br._G.GetMastery() / 100) / 20)
                 or (eclipse_next == "lunar" and not eclipse_in) then
             --  or buff.eclipse_solar.exists() then
@@ -1058,18 +1139,6 @@ actionList.dps_aoe = function()
             end
         end
     end
-
-    --[[
-
-          O	34.38	wrath,if=(eclipse.lunar_next or eclipse.any_next and variable.is_cleave) and (target.time_to_die>4 or eclipse.lunar_in_2 or fight_remains<10) or buff.eclipse_solar.remains<action.starfire.execute_time and buff.eclipse_solar.up or  current_eclipse == "solar" and  not variable.starfire_in_solar or buff.ca_inc.remains<action.starfire.execute_time and  not variable.is_cleave and buff.ca_inc.remains<execute_time and buff.ca_inc.up or buff.ravenous_frenzy.up and spell_haste>0.6 and (spell_targets<=3 or  not talent.talent.soulOfTheForest) or  not variable.is_cleave and buff.ca_inc.remains>execute_time
-          Use Wrath in Solar Eclipse or if no Starfire will fit into CA/Inc anymore
-          P	41.51	starfire
-          Use Starfire if in Lunar Eclipse, in Solar Eclipse on 4+ targets or to proc Solar Eclipse
-          Q	0.00	run_action_list,name=fallthru
-          Fallthru
-
-          ]]
-
 end
 
 ----------------
@@ -1127,12 +1196,13 @@ local function runRotation()
     power = br.player.power.astralPower.amount()
     starfire_in_solar = #enemies.yards8t > 4 + math.floor(br._G.GetHaste() % 20) + math.floor(buff.solarEmpowerment.stack() / 4)
     race = br.player.race
-    moving = (buff.starfall.exists() or not br.isMoving("player")) and true or false
     cat = br.player.buff.catForm.exists()
     travel = br.player.buff.travelForm.exists()
     charges = br.player.charges
     solo = #br.friend == 1
-
+    castWhileMoving = false
+    boatUP = (br.UnitBuffID("player", 339943) or br.UnitBuffID("player", 339946)) and true or false
+    castWhileMoving = (buff.starfall.exists() or not br.isMoving("player")) and true or false
     catspeed = br.player.buff.dash.exists() or br.player.buff.tigerDash.exists() or br.player.buff.stampedingRoar.exists() or br.player.buff.stampedingRoarCat.exists() or br.player.buff.stampedingRoar.exists()
 
     if talent.naturesBalance then
@@ -1146,7 +1216,6 @@ local function runRotation()
     if ((getMaxTTD() < 20 or (#enemies.yards45 > 1 and buff.starfall.remains() > 5)) and power < 80)
             and not br.isBoss("target")
             and br.getUnitID("target") ~= 173729
-
     then
         pool = true
     end
@@ -1159,6 +1228,9 @@ local function runRotation()
     else
         br.api.buffs(br.player.buff["pewbuff"], 194223)
     end
+
+
+
 
 
     ---------------------
@@ -1177,8 +1249,12 @@ local function runRotation()
                 and (br.isCastingSpell(br.player.spell.wrath) or br.isCastingSpell(br.player.spell.starfire))
         then
             br._G.SpellStopCasting()
-            ui.print("STOP!")
-            return true
+            --       ui.print("STOP! - should surge")
+            if cast.starsurge("target") then
+                br.addonDebug("[SS] - SURGE SNIPE")
+                return true
+            end
+
         end
     end
     -- Profile Stop  or  Pause
@@ -1200,8 +1276,16 @@ local function runRotation()
             elseif br.SpecificToggle("Travel Key") and not br._G.GetCurrentKeyBoardFocus() then
                 travel_form()
                 return true
+            else
+                if not br.player.buff.moonkinForm.exists() and not cast.last.moonkinForm(1) then
+                    unit.cancelForm()
+                    if cast.moonkinForm() then
+                        return true
+                    end
+                end
             end
         end
+
         if actionList.Extra() then
             return true
         end
@@ -1227,7 +1311,6 @@ local function runRotation()
             else
                 tank = "Player"
             end
-
 
 
             --Auto attack
@@ -1277,7 +1360,7 @@ local function runRotation()
                         end
                     end
 
-                    if br.isChecked("Starfall While moving") and talent.stellarDrift and not buff.starfall.exists() and br.getValue("Starfall") ~= 3 then
+                    if br.isChecked("Starfall While moving") and not castWhileMoving and talent.stellarDrift and not buff.starfall.exists() and br.getValue("Starfall") ~= 3 then
                         if power < 50 then
                             return true
                         end
@@ -1292,6 +1375,11 @@ local function runRotation()
 
                 if actionList.Heal() then
                     return true
+                end
+                if covenant.kyrian.active and (cd.loneEmpowerment.ready() or cd.empowerBond.ready()) then
+                    if actionList.kyrian() then
+                        return true
+                    end
                 end
 
                 if mode.rotation == 1 and is_aoe or mode.rotation == 2 then
