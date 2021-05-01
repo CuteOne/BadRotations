@@ -524,12 +524,12 @@ actionList.St = function()
     -- Tar Trap
     -- tar_trap,if=runeforge.soulforge_embers&tar_trap.remains<gcd&cooldown.flare.remains<gcd
     if cast.able.tarTrap("best",nil,1,8) and runeforge.soulforgeEmbers.equiped and debuff.tarTrap.remains(units.dyn40) < unit.gcd(true) and cd.flare.remains() < unit.gcd(true) then
-        if cast.tarTrap("best",nil,1,8) then ui.debug("Casting Tar Trap [Soulforge Embers]") return true end
+        if cast.tarTrap("best",nil,1,8) then ui.debug("Casting Tar Trap [Soulforge Embers]") var.tarred = true return true end
     end
     -- Flare
     -- flare,if=tar_trap.up&runeforge.soulforge_embers
-    if cast.able.flare(units.dyn40,"ground") and debuff.tarTrap.exists(units.dyn40) and runeforge.soulforgeEmbers.equiped then
-        if cast.flare(units.dyn40,"ground") then ui.debug("Casting Flare [Soulforge Embers]") return true end
+    if cast.able.flare("groundLocation",br.castPosition.x,br.castPosition.y,8) and var.tarred and runeforge.soulforgeEmbers.equiped then
+        if cast.flare("groundLocation",br.castPosition.x,br.castPosition.y,8) then ui.debug("Casting Flare [Soulforge Embers]") var.tarred = false return true end
     end
     -- Bloodshed
     -- bloodshed
@@ -656,12 +656,12 @@ actionList.Cleave = function()
     -- Tar Trap
     -- tar_trap,if=runeforge.soulforge_embers&tar_trap.remains<gcd&cooldown.flare.remains<gcd
     if cast.able.tarTrap("best",nil,1,8) and runeforge.soulforgeEmbers.equiped and debuff.tarTrap.remains(units.dyn40) < unit.gcd(true) and cd.flare.remains() < unit.gcd(true) then
-        if cast.tarTrap("best",nil,1,8) then ui.debug("Casting Tar Trap [Soulforge Embers AOE]") return true end
+        if cast.tarTrap("best",nil,1,8) then ui.debug("Casting Tar Trap [Soulforge Embers AOE]") var.tarred = true return true end
     end
     -- Flare
     -- flare,if=tar_trap.up&runeforge.soulforge_embers
-    if cast.able.flare(units.dyn40,"ground") and debuff.tarTrap.exists(units.dyn40) and runeforge.soulforgeEmbers.equiped then
-        if cast.flare(units.dyn40,"ground") then ui.debug("Casting Flare [Soulforge Embers]") return true end
+    if cast.able.flare("groundLocation",br.castPosition.x,br.castPosition.y,8) and var.tarred and runeforge.soulforgeEmbers.equiped then
+        if cast.flare("groundLocation",br.castPosition.x,br.castPosition.y,8) then ui.debug("Casting Flare [Soulforge Embers]") var.tarred = false return true end
     end
     -- Death Chakram
     -- death_chakram,if=focus+cast_regen<focus.max
@@ -844,6 +844,8 @@ local function runRotation()
     if ui.checked("Enemy Target Lock") and unit.inCombat() and unit.friend("target", "player") then
         br._G.TargetLastEnemy()
     end
+
+    if var.tarred == nil then var.tarred = false end
 
     -- General Vars
     if var.profileStop == nil or (not unit.inCombat() and not unit.exists("target") and var.profileStop == true) then

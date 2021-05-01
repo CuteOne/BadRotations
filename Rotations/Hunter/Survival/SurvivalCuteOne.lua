@@ -398,12 +398,14 @@ actionList.Cooldown = function()
         or focus + cast.regen.steelTrap() < focusMax and runeforge.soulforgeEmbers.equiped and debuff.tarTrap.remains(units.dyn40) < unit.gcd(true)
         and (#enemies.yards40 > 1 or #enemies.yards40 == 1 and unit.ttd(units.dyn40) > 5 * unit.gcd(true)))
     then
-        if cast.tarTrap("best",nil,1,8) then ui.debug("Casting Tar Trap [CD]") return true end
+        if cast.tarTrap("best",nil,1,8) then ui.debug("Casting Tar Trap [CD]") var.tarred = true return true end
     end
     -- Flare
     -- flare,if=focus+cast_regen<focus.max&tar_trap.up&runeforge.soulforge_embers.equipped&time_to_die>4*gcd
-    if cast.able.flare(units.dyn40,"ground") and focus + cast.regen.flare() and debuff.tarTrap.exists(units.dyn40) and runeforge.soulforgeEmbers.equiped and unit.ttd(units.dyn40) > 4 * unit.gcd(true) then
-        if cast.flare(units.dyn40,"ground") then ui.debug("Casting Flare [CD]") return true end
+    if cast.able.flare("groundLocation",br.castPosition.x,br.castPosition.y,8) and var.tarred and focus + cast.regen.flare()
+        and runeforge.soulforgeEmbers.equiped and unit.ttd(units.dyn40) > 4 * unit.gcd(true)
+    then
+        if cast.flare("groundLocation",br.castPosition.x,br.castPosition.y,8) then ui.debug("Casting Flare [CD]") var.tarred = false return true end
     end
     -- Kill Shot
     -- kill_shot,if=active_enemies=1&target.time_to_die<focus%(action.mongoose_bite.cost-cast_regen)*gcd
@@ -788,7 +790,7 @@ actionList.BoP = function()
     end
     -- Serpent Sting
     -- serpent_sting,target_if=min:remains,if=buff.vipers_venom.up&refreshable|dot.serpent_sting.refreshable&!buff.coordinated_assault.up
-    if cast.able.serpentSting(var.lowestSerpentSting) and buff.vipersVenom.exists() and debuff.vipersVenom.refresh(var.lowestSerpentSting)
+    if cast.able.serpentSting(var.lowestSerpentSting) and buff.vipersVenom.exists() and debuff.serpentSting.refresh(var.lowestSerpentSting)
         or debuff.serpentSting.refresh(var.lowestSerpentSting) and not buff.coordinatedAssault.exists()
     then
         if cast.serpentSting(var.lowestSerpentSting) then ui.debug("Casting Serpent Sting [BoP - Refresh]") return true end
@@ -1189,8 +1191,8 @@ actionList.PreCombat = function()
         end
         -- Auto Attack
         -- actions=auto_attack
-        if cast.able.autoAttack(units.dyn5) then
-            if cast.autoAttack(units.dyn5) then ui.debug("Casting Auto Attack [Pre-Combat]") return true end
+        if cast.able.autoAttack("target") then
+            if cast.autoAttack("target") then ui.debug("Casting Auto Attack [Pre-Combat]") return true end
         end
     end
     -- Call Action List - Opener
@@ -1274,6 +1276,8 @@ local function runRotation()
     var.maxLatentPoison                           = debuff.latentPoison.max(var.eagleRange,"stack") or var.eagleUnit
     var.spiritUnits                                     = ui.useCDs() and 1 or 3
 
+    if var.tarred == nil then var.tarred = false end
+
     -- if var.eagleUnit == nil then var.eagleUnit = "target" end
     -- variable,name=carve_cdr,op=setif,value=active_enemies,value_else=5,condition=active_enemies<5
     var.carveCdr = #enemies.yards5 < 5 and #enemies.yards5 or 5
@@ -1337,17 +1341,17 @@ local function runRotation()
             if actionList.Interrupt() then return true end
             -- Auto Attack
             -- actions=auto_attack
-            if cast.able.autoAttack(units.dyn5) then
-                if cast.autoAttack(units.dyn5) then ui.debug("Casting Auto Attack") return true end
+            if cast.able.autoAttack("target") then
+                if cast.autoAttack("target") then ui.debug("Casting Auto Attack") return true end
             end
-            -- Tar Trap
-            if ui.alwaysCdAoENever("Tar Trap",3,#enemies.yards40) and cast.able.tarTrap("best",nil,1,8) then
-                if cast.tarTrap("best",nil,1,8) then ui.debug("Casting Tar Trap") return true end
-            end
-            -- Flare
-            if ui.alwaysCdAoENever("Flare",1,#enemies.yards40) and cast.able.flare(units.dyn40,"ground",1,8) and debuff.tarTrap.exists(units.dyn40) then
-                if cast.flare(units.dyn40,"ground",1,8) then ui.debug("Casting Flare") return true end
-            end
+            -- -- Tar Trap
+            -- if ui.alwaysCdAoENever("Tar Trap",3,#enemies.yards40) and cast.able.tarTrap("best",nil,1,8) then
+            --     if cast.tarTrap("best",nil,1,8) then ui.debug("Casting Tar Trap") var.tarred = true return true end
+            -- end
+            -- -- Flare
+            -- if ui.alwaysCdAoENever("Flare",1,#enemies.yards40) and cast.able.flare("groundLocation",br.castPosition.x,br.castPosition.y,8) and var.tarred then--and debuff.tarTrap.exists(units.dyn40) then
+            --     if cast.flare("groundLocation",br.castPosition.x,br.castPosition.y,8) then ui.debug("Casting Flare") var.tarred = false return true end
+            -- end
             -- Cooldowns
             -- call_action_list,name=CDs
             if actionList.Cooldown() then return true end

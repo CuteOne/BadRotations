@@ -400,12 +400,12 @@ actionList.TrickShots = function()
     -- Tar Trap
     -- tar_trap,if=runeforge.soulforge_embers&tar_trap.remains<gcd&cooldown.flare.remains<gcd
     if cast.able.tarTrap("best",nil,1,8) and runeforge.soulforgeEmbers.equiped and debuff.tarTrap.remains(units.dyn40) < unit.gcd(true) and cd.flare.remains() < unit.gcd(true) then
-        if cast.tarTrap("best",nil,1,8) then ui.debug("Casting Tar Trap [Trick Shots Soulforge Embers]") return true end
+        if cast.tarTrap("best",nil,1,8) then ui.debug("Casting Tar Trap [Trick Shots Soulforge Embers]") var.tarred = true return true end
     end
     -- Flare
     -- flare,if=tar_trap.up&runeforge.soulforge_embers
-    if cast.able.flare(units.dyn40,"ground") and debuff.tarTrap.exists(units.dyn40) and runeforge.soulforgeEmbers.equiped then
-        if cast.flare(units.dyn40,"ground") then ui.debug("Casting Flare [Trick Shots Soulforge Embers]") return true end
+    if cast.able.flare("groundLocation",br.castPosition.x,br.castPosition.y,8) and var.tarred and runeforge.soulforgeEmbers.equiped then
+        if cast.flare("groundLocation",br.castPosition.x,br.castPosition.y,8) then ui.debug("Casting Flare [Trick Shots Soulforge Embers]") var.tarred = false return true end
     end
     -- Explosive Shot
     -- explosive_shot
@@ -542,15 +542,15 @@ actionList.SingleTarget = function()
     end
     -- Flare
     -- flare,if=tar_trap.up&runeforge.soulforge_embers
-    if cast.able.flare(units.dyn40,"ground") and debuff.tarTrap.exists(units.dyn40) and runeforge.soulforgeEmbers.equiped then
-        if cast.flare(units.dyn40,"ground") then ui.debug("Casting Flare [Soulforge Embers]") return true end
+    if cast.able.flare("groundLocation",br.castPosition.x,br.castPosition.y,8) and var.tarred and runeforge.soulforgeEmbers.equiped then
+        if cast.flare("groundLocation",br.castPosition.x,br.castPosition.y,8) then ui.debug("Casting Flare [Soulforge Embers]") var.tarred = false return true end
     end
     -- Tar Trap
     -- tar_trap,if=runeforge.soulforge_embers&tar_trap.remains<gcd&cooldown.flare.remains<gcd
     if cast.able.tarTrap("best",nil,1,8) and runeforge.soulforgeEmbers.equiped
         and debuff.tarTrap.remains(units.dyn40) < unit.gcd(true) and cd.flare.remains() < unit.gcd(true)
     then
-        if cast.tarTrap("best",nil,1,8) then ui.debug("Casting Tar Trap [Soulforge Embers]") return true end
+        if cast.tarTrap("best",nil,1,8) then ui.debug("Casting Tar Trap [Soulforge Embers]") var.tarred = true return true end
     end
     -- Explosive Shot
     -- explosive_shot
@@ -777,6 +777,8 @@ local function runRotation()
             var.lowestHPUnit = thisUnit
         end
     end
+
+    if var.tarred == nil then var.tarred = true end
 
     -- ui.print("Auto Shot Enabled: ".._G.tostring(cast.autoRepeat.autoShot()))
 
