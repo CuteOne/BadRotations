@@ -101,7 +101,7 @@ local function createOptions()
             br.player.module.BasicTrinkets(nil,section)
             -- Bestial Wrath
             br.ui:createDropdownWithout(section,"Bestial Wrath", alwaysCdAoENever, 2, "|cffFFFFFFSelect Bestial Wrath Usage.")
-            -- Trueshot
+            -- Aspect of the Wild
             br.ui:createCheckbox(section,"Aspect of the Wild")
             -- Stampede
             br.ui:createCheckbox(section,"Stampede")
