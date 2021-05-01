@@ -97,7 +97,7 @@ function br.castGroundAtUnit(spellID, radius, minUnits, maxRange, minRange, spel
 
     if br.getUnits(unit,allUnitsInRange, radius - 3) >= minUnits and #br.getEnemies(unit,radius) >= #br.getEnemies(unit,radius,true) then
         local X1,Y1,Z1 = br.GetObjectPosition(unit)
-        if br.castAtPosition(X1,Y1,Z1, spellID) then return true else return false end
+        if br.castAtPosition(X1,Y1,Z1, spellID) then br.castPosition = {x = X1, y = Y1, z = Z1} return true else return false end
     end
 
 
@@ -304,7 +304,7 @@ function br.castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRan
             end
         end
         bestCircle.x, bestCircle.y = (newBestCircleX + math.random() * 2), (newBestCircleY + math.random() * 2)
-        if br.castAtPosition(bestCircle.x,bestCircle.y,bestCircle.z, spellID) then return true else return false end
+        if br.castAtPosition(bestCircle.x,bestCircle.y,bestCircle.z, spellID) then br.castPosition = {x = bestCircleX, y = bestCircleY, z = bestCircleZ} return true else return false end
     end
 end
 

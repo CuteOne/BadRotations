@@ -78,6 +78,31 @@ function br.castGround(Unit,SpellID,maxDistance,minDistance,radius,castTime)
 		if mouselookActive then
 			_G.MouselookStart()
 		end
+		br.castPosition = {x = X, y = Y, z = Z}
+		return true
+	end
+	return false
+end
+--castGroundLocation(123,456,98765,40,0,8)
+function br.castGroundLocation(X,Y,SpellID,maxDistance,minDistance,radius)
+	if radius == nil then radius = maxDistance end
+	if minDistance == nil then minDistance = 0 end
+	local groundDistance = br.getDistance("player",Unit,"dist4")+1
+	local pX, pY, Z = br.GetObjectPosition("player")
+	local distance = sqrt(((X-pX)^2) + ((Y-pY)^2))
+	local mouselookActive = false
+	if br.getSpellCD(SpellID) == 0 and br.getLineOfSight("player",Unit)
+		and distance < maxDistance and distance >= minDistance
+	then
+		if _G.IsMouselooking() then
+			mouselookActive = true
+			_G.MouselookStop()
+		end
+		br._G.CastSpellByName(_G.GetSpellInfo(SpellID))
+		br._G.ClickPosition((X + math.random() * 2),(Y + math.random() * 2),Z) --distanceToGround
+		if mouselookActive then
+			_G.MouselookStart()
+		end
 		return true
 	end
 	return false
@@ -607,6 +632,7 @@ function br.createCastFunction(thisUnit,castType,minUnits,effectRng,spellID,inde
 			if br._G.IsAoEPending() then
 				local X,Y,Z = br._G.ObjectPosition(thisUnit)
 				br._G.ClickPosition(X,Y,Z)
+				br.castPosition = {x = X, y = Y, z = Z}
 			end
 			-- change main button icon
 			br.mainButton:SetNormalTexture(icon)
@@ -692,7 +718,7 @@ function br.createCastFunction(thisUnit,castType,minUnits,effectRng,spellID,inde
 		if thisUnit == nil then
 			if castType == "norm" or castType == "dead" or castType == "rect" or castType == "cone" then
 				thisUnit = br.getSpellUnit(baseSpellID,false,minRange,maxRange,spellType)
-			elseif castType == "groundCC" then return
+			elseif castType == "groundCC" or "groundLocation" then return
 			else
 				thisUnit = br.getSpellUnit(baseSpellID,true,minRange,maxRange,spellType)
 			end
@@ -713,6 +739,17 @@ function br.createCastFunction(thisUnit,castType,minUnits,effectRng,spellID,inde
 			if not br.player.ui.isMouseDown() and (br.getDistance(targetUnit) < maxRange or br._G.IsSpellInRange(spellName,targetUnit) == 1) then
 				if debug then return true end
 				return br.castGroundAtUnit(spellCast,effectRng,minUnits,maxRange,minRange,castType,targetUnit)
+			end
+		end
+		-- Cast Ground AOE at Provide X/Y Location
+		if thisUnit == "groundLocation" then
+			if not br.player.ui.isMouseDown() then--and (br.getDistance(targetUnit) < maxRange or br._G.IsSpellInRange(spellName,targetUnit) == 1) then
+				if debug then return true end
+				local X = castType
+				local Y = minUnits
+				--local _, _, Z = br._G.ObjectPosition("player")
+				--return br.castAtPosition(X,Y,Z, baseSpellID)
+				return br.castGroundLocation(X,Y,baseSpellID,maxRange,minRange,effectRng)
 			end
 		end
 		if thisUnit == "None" then printReport(true,"No Unit") return false end

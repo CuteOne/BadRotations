@@ -346,7 +346,7 @@ function br.loader:new(spec,specName)
                 br.api.pets(pet,k,v,self)
             end
         end
-        
+
         -- Cycle through Items List
         for k,v in pairs(self.items) do --self.spell.items) do
             if self.charges         == nil then self.charges    = {} end -- Item Charge Functions
@@ -420,6 +420,10 @@ function br.loader:new(spec,specName)
             if br.updatePlayerInfo then getSpellsForSpec(spec); getTalentInfo(); getAzeriteTraitInfo(); getFunctions(); br.updatePlayerInfo = false end
             self.getToggleModes()
             -- Start selected rotation
+            if br.castPosition.x == 0 then
+                X, Y, Z = br.GetObjectPosition("player")
+                br.castPosition = {x = X, y = Y, z = Z}
+            end
             self.startRotation()
         end
     end
