@@ -1071,7 +1071,9 @@ actionList.Extra = function()
                     end
                 end
             end
-            if spellTarget ~= nil and canheal(spellTarget) and endCast and pre_BoF_list[spellcastID] and ((endCast / 1000) - br._G.GetTime()) < 1 then
+            if spellTarget ~= nil and canheal(spellTarget) and endCast and pre_BoF_list[spellcastID]
+                    and ((endCast / 1000) - br._G.GetTime()) < 1.2
+                    and ((endCast / 1000) - br._G.GetTime()) > 0 then
                 if cast.blessingOfFreedom(spellTarget) then
                     return true
                 end
@@ -1601,107 +1603,107 @@ actionList.Cooldown = function()
         end
     end
 
-    --[[
-      -- Trinkets
-      if ui.checked("Trinket 1") and br.canUseItem(13) then
-          if br.getOptionValue("Trinket 1 Mode") == 1 then
-              if br.getLowAllies(br.getOptionValue("Trinket 1")) >= br.getOptionValue("Min Trinket 1 Targets") then
-                  br.useItem(13)
-                  return true
-              end
-          elseif br.getOptionValue("Trinket 1 Mode") == 2 then
-              for i = 1, #br.friend do
-                  if br.friend[i].hp <= ui.checked("Trinket 1") then
-                      UseItemByName(select(1, _G.GetInventoryItemID("player", 13)), br.friend[i].unit)
-                      return true
-                  end
-              end
-          elseif br.getOptionValue("Trinket 1 Mode") == 3 and #tanks > 0 then
-              for i = 1, #tanks do
-                  -- get the tank's target
-                  local tankTarget = br._G.UnitTarget(tanks[i].unit)
-                  if tankTarget ~= nil then
-                      -- get players in melee range of tank's target
-                      local meleeFriends = getAllies(tankTarget, 5)
-                      -- get the best ground circle to encompass the most of them
-                      local loc
-                      if #meleeFriends >= 8 then
-                          loc = br.getBestGroundCircleLocation(meleeFriends, 4, 6, 10)
-                      else
-                          local meleeHurt = {}
-                          for j = 1, #meleeFriends do
-                              if meleeFriends[j].hp < ui.checked("Trinket 1") then
-                                  tinsert(meleeHurt, meleeFriends[j])
-                              end
-                          end
-                          if #meleeHurt >= ui.checked("Min Trinket 1 Targets") or burst == true then
-                              loc = getBestGroundCircleLocation(meleeHurt, 2, 6, 10)
-                          end
-                      end
-                      if loc ~= nil then
-                          br.useItem(13)
-                          ClickPosition(loc.x, loc.y, loc.z)
-                          return true
-                      end
-                  end
-              end
-          elseif br.getOptionValue("Trinket 1 Mode") == 4 and inCombat then
-              if br.canUseItem(13) then
-                  br.useItem(13)
-              end
-          end
-      end
 
-      if ui.checked("Trinket 2") and br.canUseItem(14) then
-          if br.getOptionValue("Trinket 2 Mode") == 1 then
-              if br.getLowAllies(ui.value("Trinket 2")) >= ui.value("Min Trinket 2 Targets") then
-                  br.useItem(14)
-                  return true
-              end
-          elseif br.getOptionValue("Trinket 2 Mode") == 2 then
-              for i = 1, #br.friend do
-                  if br.friend[i].hp <= ui.checked("Trinket 2") then
-                      UseItemByName(select(1, _G.GetInventoryItemID("player", 14)), br.friend[i].unit)
-                      return true
-                  end
-              end
-          elseif br.getOptionValue("Trinket 2 Mode") == 3 and #tanks > 0 then
-              for i = 1, #tanks do
-                  -- get the tank's target
-                  local tankTarget = br._G.UnitTarget(tanks[i].unit)
-                  if tankTarget ~= nil then
-                      -- get players in melee range of tank's target
-                      local meleeFriends = getAllies(tankTarget, 5)
-                      -- get the best ground circle to encompass the most of them
-                      local loc
-                      if #meleeFriends >= 8 then
-                          loc = getBestGroundCircleLocation(meleeFriends, 4, 6, 10)
-                      else
-                          local meleeHurt = {}
-                          for j = 1, #meleeFriends do
-                              if meleeFriends[j].hp < ui.checked("Trinket 2") then
-                                  tinsert(meleeHurt, meleeFriends[j])
-                              end
-                          end
-                          if #meleeHurt >= ui.checked("Min Trinket 2 Targets") or burst == true then
-                              loc = getBestGroundCircleLocation(meleeHurt, 2, 6, 10)
-                          end
-                      end
-                      if loc ~= nil then
-                          br.useItem(14)
-                          ClickPosition(loc.x, loc.y, loc.z)
-                          return true
-                      end
-                  end
-              end
-          elseif br.getOptionValue("Trinket 1 Mode") == 4 then
-              if br.canUseItem(14) and ttd(units.dyn40) > 5 then
-                  UseItemByName(select(1, _G.GetInventoryItemID("player", 14)), units.dyn40)
-                  return true
-              end
-          end
-      end
-    ]]
+    -- Trinkets
+    if ui.checked("Trinket 1") and br.canUseItem(13) then
+        if br.getOptionValue("Trinket 1 Mode") == 1 then
+            if br.getLowAllies(br.getOptionValue("Trinket 1")) >= br.getOptionValue("Min Trinket 1 Targets") then
+                br.useItem(13)
+                return true
+            end
+        elseif br.getOptionValue("Trinket 1 Mode") == 2 then
+            for i = 1, #br.friend do
+                if br.friend[i].hp <= ui.checked("Trinket 1") then
+                    br._G.UseItemByName(select(1, _G.GetInventoryItemID("player", 13)), br.friend[i].unit)
+                    return true
+                end
+            end
+        elseif br.getOptionValue("Trinket 1 Mode") == 3 and #tanks > 0 then
+            for i = 1, #tanks do
+                -- get the tank's target
+                local tankTarget = br._G.UnitTarget(tanks[i].unit)
+                if tankTarget ~= nil then
+                    -- get players in melee range of tank's target
+                    local meleeFriends = br.getAllies(tankTarget, 5)
+                    -- get the best ground circle to encompass the most of them
+                    local loc
+                    if #meleeFriends >= 8 then
+                        loc = br.getBestGroundCircleLocation(meleeFriends, 4, 6, 10)
+                    else
+                        local meleeHurt = {}
+                        for j = 1, #meleeFriends do
+                            if meleeFriends[j].hp < ui.checked("Trinket 1") then
+                                br._G.tinsert(meleeHurt, meleeFriends[j])
+                            end
+                        end
+                        if #meleeHurt >= ui.checked("Min Trinket 1 Targets") or burst == true then
+                            loc = br.getBestGroundCircleLocation(meleeHurt, 2, 6, 10)
+                        end
+                    end
+                    if loc ~= nil then
+                        br.useItem(13)
+                        br._G.ClickPosition(loc.x, loc.y, loc.z)
+                        return true
+                    end
+                end
+            end
+        elseif br.getOptionValue("Trinket 1 Mode") == 4 and inCombat then
+            if br.canUseItem(13) then
+                br.useItem(13)
+            end
+        end
+    end
+
+    if ui.checked("Trinket 2") and br.canUseItem(14) then
+        if br.getOptionValue("Trinket 2 Mode") == 1 then
+            if br.getLowAllies(ui.value("Trinket 2")) >= ui.value("Min Trinket 2 Targets") then
+                br.useItem(14)
+                return true
+            end
+        elseif br.getOptionValue("Trinket 2 Mode") == 2 then
+            for i = 1, #br.friend do
+                if br.friend[i].hp <= ui.checked("Trinket 2") then
+                    br._G.UseItemByName(select(1, _G.GetInventoryItemID("player", 14)), br.friend[i].unit)
+                    return true
+                end
+            end
+        elseif br.getOptionValue("Trinket 2 Mode") == 3 and #tanks > 0 then
+            for i = 1, #tanks do
+                -- get the tank's target
+                local tankTarget = br._G.UnitTarget(tanks[i].unit)
+                if tankTarget ~= nil then
+                    -- get players in melee range of tank's target
+                    local meleeFriends = br.getAllies(tankTarget, 5)
+                    -- get the best ground circle to encompass the most of them
+                    local loc
+                    if #meleeFriends >= 8 then
+                        loc = br.getBestGroundCircleLocation(meleeFriends, 4, 6, 10)
+                    else
+                        local meleeHurt = {}
+                        for j = 1, #meleeFriends do
+                            if meleeFriends[j].hp < ui.checked("Trinket 2") then
+                                br._G.tinsert(meleeHurt, meleeFriends[j])
+                            end
+                        end
+                        if #meleeHurt >= ui.checked("Min Trinket 2 Targets") or burst == true then
+                            loc = br.getBestGroundCircleLocation(meleeHurt, 2, 6, 10)
+                        end
+                    end
+                    if loc ~= nil then
+                        br.useItem(14)
+                        br._G.ClickPosition(loc.x, loc.y, loc.z)
+                        return true
+                    end
+                end
+            end
+        elseif br.getOptionValue("Trinket 1 Mode") == 4 then
+            if br.canUseItem(14) and ttd(units.dyn40) > 5 then
+                br._G.UseItemByName(select(1, _G.GetInventoryItemID("player", 14)), units.dyn40)
+                return true
+            end
+        end
+    end
+
     -- Holy Avenger
     if ui.checked("Holy Avenger") and cd.holyAvenger.ready() and talent.holyAvenger then
         if br.getLowAllies(ui.value("Holy Avenger")) >= ui.value("Holy Avenger Targets") then
