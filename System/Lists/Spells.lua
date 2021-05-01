@@ -707,7 +707,7 @@ br.lists.spells = {
             covenants                       = {
                 loneEmpowerment             = 338142,
                 ravenousFrenzy              = 323546,
-                empowerBond                 = 326647,
+                empowerBond                 = 326446,
             },
             debuffs                         = {
                 stellarFlare                = 202347,
@@ -1051,7 +1051,7 @@ br.lists.spells = {
                 frenziedRegeneration        = 22842,
                 ironfur                     = 192081,
                 kindredEmpowerment          = 327139,
-                kindredSpirits              = 326434,
+                kindredSpiritsBuff          = 326967, --This is buff on ourselves...at least as dps
                 kindredEmpowermentEnergize  = 327022, --/kindred-empowerment  this is when someone else cast it on you
                 loneSpirit                  = 338041,
                 moonkinForm                 = 197625,
