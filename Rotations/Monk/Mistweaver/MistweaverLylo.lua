@@ -3,7 +3,7 @@
 --- Created by 15483.
 --- DateTime: 4/22/2021 11:41 PM
 ---
-
+local LibDraw = LibStub("LibDraw-BR")
 
 local function createToggles()
     local DamagingModes = {
@@ -43,19 +43,10 @@ local text = {
         heal = "HEAL Key",
         teleport = "TELEPORT Key",
     },
-    input = {
-        text = "Input values of spell",
-        gustOfMist = colors.aqua .. "Gust of Mist",
-        vivify = colors.aqua .. "Vivify",
-        envelopingMist = colors.aqua .. "Enveloping Mist",
-        expelHarm = colors.aqua .. "Expel Harm",
-        lifeCocoon = colors.aqua .. "Life Cocoon",
-        revival = colors.aqua .. "Revival",
-        soothingMist = colors.aqua .. "Soothing Mist",
-        essenceFont = colors.aqua .. "Essence Font",
-        tigerPalm = colors.aqua .. "Tiger Palm",
-        blackoutKick = colors.aqua .. "Blackout Kick",
-        risingSunKick = colors.aqua .. "Rising Sun Kick",
+    autoCDS = {
+        text = "Auto CDS",
+        fortifyingBrew = "Fortifying Brew",
+
     },
     draw = {
         text = "Draw settings",
@@ -77,7 +68,10 @@ local function createOptions()
         br.ui:createDropdown(section, text.keys.teleport, br.dropOptions.Toggle, 6, "Keep pressing this key to use this rotation", "Select key")
         br.ui:checkSectionState(section)
 
-        section = br.ui:createSection(br.ui.window.profile, text.input.text)
+        section = br.ui:createSection(br.ui.window.profile, text.autoCDS.text)
+        --parent, text, number, min, max, step, tooltip, tooltipSpin, hideCheckbox
+        br.ui:createSpinner(section, text.autoCDS.fortifyingBrew, 30, 0, 100, 1, "Hp <= to X to use it")
+
         --br.ui:createSpinnerWithout(section, text.input.gustOfMist, 0, 0, 50, 1, "How much healing your Gust of Mist does?")
         --br.ui:createSpinnerWithout(section, text.input.vivify, 0, 0, 50, 1, "How much healing your Vivify does?")
         --br.ui:createSpinnerWithout(section, text.input.envelopingMist, 0, 0, 50, 1, "How much healing your Enveloping Mist does?")
@@ -107,6 +101,8 @@ local function createOptions()
     return optionTable
 end
 
+local transcendence
+
 local function runRotation()
     local buff = br.player.buff
     local cast = br.player.cast
@@ -114,21 +110,24 @@ local function runRotation()
     local charges = br.player.charges
     local debuff = br.player.debuff
     local runeforge = br.player.runeforge
+    local enemies = br.player.enemies
+    enemies.get(5)
+    enemies.get(6)
+    enemies.get(8)
     local mysticTouch = {
         lowest = debuff.mysticTouch.lowest(5, "remain"),
         count = debuff.mysticTouch.refreshCount(5),
         --range40 = br.player.units.get(40)
     }
-    local enemies = br.player.enemies
+    if not br.GetObjectExists(mysticTouch.lowest) then
+        mysticTouch.lowest = enemies.yards5[1]
+    end
     --local enemies = {
     --    range5 = br.player.enemies.get(5, "player", false, true),
     --    range6 = br.player.enemies.get(6, "player", false, true),
     --    range8 = br.player.enemies.get(8, "player", false, true),
     --    --range40 = br.player.enemies.get(40)
     --}
-    enemies.get(5)
-    enemies.get(6)
-    enemies.get(8)
 
     local friends = {
         all = br.friend,
@@ -200,6 +199,7 @@ local function runRotation()
     end
 
 
+
     --print(#enemies.yards5 - mysticTouch.count)
     --print("%%%%%")
     --print(mastery)
@@ -241,7 +241,7 @@ local function runRotation()
         br.memberSetup:new("mouseover")
     end
 
-    local transcendence = {
+    transcendence = {
         x = 0,
         y = 0,
         z = 0
@@ -308,6 +308,9 @@ local function runRotation()
                 return cast.expelHarm(player.unit)
             end
             -- Fortifying Brew
+            if ui.checked(text.autoCDS.fortifyingBrew) and player.hp <= ui.value(text.autoCDS.fortifyingBrew) and cd.fortifyingBrew.ready() then
+                return cast.fortifyingBrew(player.unit)
+            end
             -- Diffuse Magic
             -- Dampen Harm
             -- Touch Of Death
@@ -518,8 +521,8 @@ local function runRotation()
         end
         local usable, _ = IsUsableSpell(spell.transcendenceTransfer)
         if usable and cd.transcendenceTransfer.ready() then
-            cast.transcendenceTransfer()
-            br._G.C_Timer.After(1.3, function()
+            cast.transcendenceTransfer(player.unit)
+            br._G.C_Timer.After(2, function()
                 cast.transcendence()
             end)
             return true
@@ -621,47 +624,38 @@ local function runRotation()
         return cast.summonSteward()
     end
 
-    --local pX, pY, pZ = br._G.ObjectPosition("player")
-    --for i = 1, br._G.GetObjectCount() do
-    --    local object = br._G.GetObjectWithIndex(i)
-    --    local name = br._G.ObjectName(object)
-    --    local objectid = br._G.ObjectID(object)
-    --    local X1, Y1, Z1 = br.GetObjectPosition(object)
-    --    local distance = br._G.GetDistanceBetweenPositions(pX, pY, pZ, X1, Y1, Z1)
-    --    if object and name and objectid then
-    --        if distance <= 5 then
-    --            print(name)
-    --            print(objectid)
-    --            print("################")
-    --        end
-    --    end
-    --end
-
-    if ui.checked(text.draw.update) and br.timer:useTimer("Draw", ui.value(text.draw.update)) then
-        LibDraw.clearCanvas()
-        if br.UnitBuffID("player", 101643, "player") ~= nil then
-            local pX, pY, pZ = br._G.ObjectPosition("player")
-            if transcendence.x and transcendence.y and transcendence.z then
-                local distance = br._G.GetDistanceBetweenPositions(pX, pY, pZ, transcendence.x, transcendence.y, transcendence.z)
-                if distance >= 38 then
-                    LibDraw.SetColor(255, 0, 0, 100)
-                else
-                    LibDraw.SetColor(0, 255, 0, 100)
-                end
-
-                LibDraw.Line(pX, pY, pZ, transcendence.x, transcendence.y, transcendence.z)
-            end
-        end
-
-        if br.GetObjectExists("target") then
-            local X1, Y1, Z1 = br._G.ObjectPosition("target")
-            if X1 and Y1 and Z1 then
-                LibDraw.SetColor(235, 177, 52, 100)
-                LibDraw.Arc(X1, Y1, Z1, 5, 160, br._G.ObjectFacing("target") + math.pi)
-            end
-        end
-    end
 end
+
+br._G.CreateFrame("Frame"):SetScript(
+        "OnUpdate",
+        function()
+            if br.player then
+                if br.player.ui.checked(text.draw.update) and br.timer:useTimer("Draw", br.player.ui.value(text.draw.update)) then
+                    LibDraw.clearCanvas()
+                    if br.UnitBuffID("player", 101643, "player") ~= nil then
+                        local pX, pY, pZ = br._G.ObjectPosition("player")
+                        if transcendence.x and transcendence.y and transcendence.z then
+                            local distance = br._G.GetDistanceBetweenPositions(pX, pY, pZ, transcendence.x, transcendence.y, transcendence.z)
+                            if distance >= 38 then
+                                LibDraw.SetColor(255, 0, 0, 100)
+                            else
+                                LibDraw.SetColor(0, 255, 0, 100)
+                            end
+                            LibDraw.Line(pX, pY, pZ, transcendence.x, transcendence.y, transcendence.z)
+                        end
+                    end
+
+                    if br.GetObjectExists("target") then
+                        local X1, Y1, Z1 = br._G.ObjectPosition("target")
+                        if X1 and Y1 and Z1 then
+                            LibDraw.SetColor(235, 64, 52, 100)
+                            LibDraw.Arc(X1, Y1, Z1, 5, 160, br._G.ObjectFacing("target") + math.pi)
+                        end
+                    end
+                end
+            end
+        end
+)
 
 local id = 270
 
@@ -669,7 +663,7 @@ if br.rotations[id] == nil then
     br.rotations[id] = {}
 end
 
-local rotationName = "Lylo2"
+local rotationName = "LyLo Mistweaver"
 tinsert(
         br.rotations[id],
         {
