@@ -5,6 +5,7 @@ br.unlock = {}
 br.data = {}
 br.data.settings = {}
 br.addonName = "BadRotations"
+br.castPosition = {x = 0, y = 0, z = 0}
 br.commandHelp = {}
 br.deadPet = false
 -- developers debug, use /run br.data.settings[br.selectedSpec].toggles["isDebugging"] = true
