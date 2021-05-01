@@ -318,7 +318,11 @@ actionList.pc = function()
             if cast.able.steadyShot() and (#units.enemies.yards8tnc > 2 or ((covenant.kyrian.active or talent.volley) and #units.enemies.yards8tnc == 2)) then
                 return cast.steadyShot(units.target)
             end
-            if not cOOC.value then unit.startAttack(units.target) end
+            if not cOOC.value then
+                if cast.able.autoAttack(units.target) then
+                    return cast.autoAttack(units.target)
+                end
+            end
         end
     end
 end -- End Action List - pc
@@ -326,7 +330,7 @@ end -- End Action List - pc
 -- Action List - aa
 actionList.aa = function()
     --actions=auto_shot
-    unit.startAttack(units.target)
+    cast.autoAttack(units.target)
 
     if cTrinkets.value then
 

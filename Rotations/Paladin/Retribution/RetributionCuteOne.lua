@@ -324,7 +324,7 @@ actionList.Defensive = function()
         -- Blessing of Protection
         if ui.checked("Blessing of Protection", true) then
             var.protectionUnit = getHealUnitOption("Blessing of Protection Target")
-            if cast.able.blessingOfProtection(var.protectionUnit) and unit.inCombat(var.protectionUnit)
+            if var.protectionUnit ~= nil and cast.able.blessingOfProtection(var.protectionUnit) and unit.inCombat(var.protectionUnit)
                 and unit.role(var.protectionUnit) ~= "TANK" and not debuff.forbearance.exists(var.protectionUnit)
                 and unit.hp(var.protectionUnit) < ui.value("Blessing of Protection") and unit.distance(var.protectionUnit) < 40
             then
@@ -337,7 +337,7 @@ actionList.Defensive = function()
         -- Blessing of Sacrifice
         if ui.checked("Blessing of Sacrifice") then
            var.sacificeUnit = getHealUnitOption("Blessing of Sacrifice")
-            if cast.able.blessingOfSacrifice(var.sacificeUnit) and unit.inCombat(var.sacificeUnit) and unit.distance(var.sacificeUnit) < 40
+            if var.sacrificeUnit ~= nil and cast.able.blessingOfSacrifice(var.sacificeUnit) and unit.inCombat(var.sacificeUnit) and unit.distance(var.sacificeUnit) < 40
                 and unit.hp(var.sacificeUnit) < ui.value("Friendly HP") and unit.hp() >= ui.value("Personal HP Limit")
             then
                 if cast.blessingOfSacrifice(var.sacificeUnit) then
@@ -356,7 +356,7 @@ actionList.Defensive = function()
         -- Cleanse Toxins
         if ui.checked("Cleanse Toxins") then
             var.cleanseUnit = getHealUnitOption("Cleanse Toxin")
-            if cast.able.cleanseToxins(var.cleanseUnit) and cast.dispel.cleanseToxins(var.cleanseUnit) and unit.distance(var.cleanseUnit) < 40 then
+            if var.cleanseUnit ~= nil and cast.able.cleanseToxins(var.cleanseUnit) and cast.dispel.cleanseToxins(var.cleanseUnit) and unit.distance(var.cleanseUnit) < 40 then
                 if cast.cleanseToxins(var.cleanseUnit) then
                     ui.debug("Casting Cleanse Toxins on " .. unit.name(var.cleanseUnit))
                     return true
@@ -384,7 +384,7 @@ actionList.Defensive = function()
         -- Flash of Light
         if ui.checked("Flash of Light") and not (unit.mounted() or unit.flying()) and not cast.current.flashOfLight() then
             var.flashUnit = getHealUnitOption("Flash of Light Target")
-            if cast.able.flashOfLight(var.flashUnit) and unit.distance(var.flashUnit) < 40 then
+            if var.flashUnit ~= nil and cast.able.flashOfLight(var.flashUnit) and unit.distance(var.flashUnit) < 40 then
                 -- Instant Cast
                 if talent.selflessHealer and buff.selflessHealer.stack() == 4 then
                     -- Don't waste instant heal!
@@ -449,7 +449,7 @@ actionList.Defensive = function()
             if redemptionTar == 3 then
                 redemptionUnit = "focus"
             end
-            if cast.able.redemption(redemptionUnit, "dead") then
+            if redemptionUnit ~= nil and cast.able.redemption(redemptionUnit, "dead") then
                 if cast.redemption(redemptionUnit, "dead") then
                     ui.debug("Casting Redemption on " .. unit.name(redemptionUnit))
                     return true
@@ -477,7 +477,7 @@ actionList.Defensive = function()
             end
         end
         -- Word of Glory
-        if ui.checked("Word of Glory") and cast.able.wordOfGlory(var.thisGlory) and canGlory() then
+        if var.thisGlory ~= nil and ui.checked("Word of Glory") and cast.able.wordOfGlory(var.thisGlory) and canGlory() then
             if cast.wordOfGlory(var.thisGlory) then
                 ui.debug("Casting Word of Glory on " .. unit.name(var.thisGlory))
                 return true
@@ -572,7 +572,7 @@ actionList.Cooldowns = function()
     module.BasicTrinkets()
     -- Avenging Wrath
     -- avenging_wrath,if=(holy_power>=4&time<5|holy_power>=3&(time>5|runeforge.the_magistrates_judgment)|talent.holy_avenger.enabled&cooldown.holy_avenger.remains=0)&(!talent.seraphim.enabled|cooldown.seraphim.remains>0|talent.sanctified_wrath.enabled)
-    if ui.alwaysCdNever("Avenging Wrath") and not talent.crusade and cast.able.avengingWrath()
+    if ui.alwaysCdNever("Avenging Wrath") and not talent.crusade and cast.able.avengingWrath() and unit.distance("target") < 5
         and (holyPower >= 4 and unit.combatTime() < 5 or holyPower >= 3 and (unit.combatTime() > 5 or runeforge.theMagistratesJudgment.equiped) or talent.holyAvenger and not cd.holyAvenger.exists())
         and (not talent.seraphim or cd.seraphim.exists() or not ui.alwaysCdNever("Seraphim") or talent.sanctifiedWrath)
     then
@@ -858,7 +858,9 @@ actionList.PreCombat = function()
             end
             -- Start Attack
             if unit.distance("target") < 5 then
-                unit.startAttack("target")
+                if cast.able.autoAttack("target") then
+                    if cast.autoAttack("target") then ui.debug("Casting Auto Attack [Pre-Pull]") return true end
+                end
             end
         end
     end
@@ -912,19 +914,20 @@ local runRotation = function()
     var.dsCastable = (var.dsUnits or (buff.empyreanPower.exists() and not debuff.judgment.exists(units.dyn8) and not buff.divinePurpose.exists()))
     var.lowestUnit = br.friend[1].unit
     var.resable = unit.player("target") and unit.deadOrGhost("target") and unit.friend("target", "player")
-    var.timeToHPG = cd.crusaderStrike.remain()
+    var.timeToHPG = 99
     if unit.level() >= 46 then
         var.timeToHPG = math.min(cd.crusaderStrike.remain(), cd.bladeOfJustice.remain(), cd.judgment.remain(), cd.hammerOfWrath.remain(), cd.wakeOfAshes.remain())
     end
-    if unit.level() >= 39 then
+    if unit.level() < 46 then
         var.timeToHPG = math.min(cd.crusaderStrike.remain(), cd.bladeOfJustice.remain(), cd.judgment.remain(), cd.wakeOfAshes.remain())
     end
-    if unit.level() >= 19 then
+    if unit.level() < 39 then
         var.timeToHPG = math.min(cd.crusaderStrike.remain(), cd.bladeOfJustice.remain(), cd.judgment.remain())
     end
-    if unit.level() >= 16 then
+    if unit.level() < 19 then
         var.timeToHPG = math.min(cd.crusaderStrike.remain(), cd.judgment.remain())
     end
+    if unit.level() < 16 then var.timeToHPG = cd.crusaderStrike.remain() end
     var.turnedEvil = var.turnedEvil or "player"
     if var.profileStop == nil then
         var.profileStop = false
@@ -1011,7 +1014,9 @@ local runRotation = function()
             -- Start Attack
             -- auto_attack
             if unit.distance(units.dyn5) < 5 then
-                unit.startAttack(units.dyn5)
+                if cast.able.autoAttack(units.dyn5) then
+                    if cast.autoAttack(units.dyn5) then ui.debug("Casting Auto Attack") return true end
+                end
             end
             -- Action List - Interrupts
             -- rebuke
