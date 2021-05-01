@@ -197,15 +197,14 @@ local function runRotation()
     if buff.lifeCocoon.remains(friends.lowest.unit) > 2 then
         healingMultiplier = healingMultiplier + 0.5
     end
-
-
-
-    --print(#enemies.yards5 - mysticTouch.count)
-    --print("%%%%%")
-    --print(mastery)
-    --print(spellPower)
-    --print(versatility)
-    --print(healingMultiplier)
+    local soothingMistUnit
+    for i = 1, #friends.all do
+        local tempUnit = friends.all[i]
+        if buff.soothingMist.exists(tempUnit.unit) then
+            soothingMistUnit = tempUnit.unit
+            break
+        end
+    end
 
     local healingValues = {
         gustOfMist = ((0.1 / 100) + (mastery / 100)) * spellPower * versatility * 1.09 * healingMultiplier,
@@ -225,7 +224,7 @@ local function runRotation()
     --    print('\t', key, value)
     --end
     local getMissingHP = function(unit)
-        return br._G.UnitHealthMax(unit) - br._G.UnitHealth(unit) + br._G.UnitGetIncomingHeals(unit)
+        return br._G.UnitGetTotalAbsorbs("player") + br._G.UnitHealthMax(unit) + br._G.UnitGetIncomingHeals(unit) - br._G.UnitHealth(unit)
     end
     local function countMissingHPAllies(Value, unitTable)
         local lowAllies = 0
@@ -299,12 +298,12 @@ local function runRotation()
         end
         -- Self Healing
         if br.timer:useTimer("healingElixir", 0.5) then
-            if (charges.healingElixir.count() > 1 and player.hp <= 75 and not cast.active.soothingMist()) or (charges.healingElixir.count() > 0 and player.hp <= 45 and not cast.active.soothingMist()) then
+            if (charges.healingElixir.count() > 1 and player.hp <= 75 and soothingMistUnit == nil) or (charges.healingElixir.count() > 0 and player.hp <= 45 and soothingMistUnit == nil) then
                 return cast.healingElixir(player.unit)
             end
         end
         if gcd <= 0.1 then
-            if cd.expelHarm.ready() and getMissingHP(player.unit) >= healingValues.expelHarm + healingValues.gustOfMist and not cast.active.soothingMist() then
+            if cd.expelHarm.ready() and getMissingHP(player.unit) >= healingValues.expelHarm + healingValues.gustOfMist and soothingMistUnit == nil then
                 return cast.expelHarm(player.unit)
             end
             -- Fortifying Brew
@@ -322,10 +321,6 @@ local function runRotation()
                         return true
                     end
                 end
-                --print(unit.distance(enemy))
-                --print(unit.name(enemy))
-                --print(unit.isBoss(enemy))
-                --print(unit.health(enemy))
                 if unit.distance(enemy) <= 5 and unit.facing(player.unit, enemy) then
                     if br._G.UnitIsPlayer(enemy) then
                         if unit.hp(enemy) <= 15 then
@@ -354,14 +349,14 @@ local function runRotation()
                 for i = 1, #friends.all do
                     local dispelUnit = friends.all[i]
                     if br.getLineOfSight(dispelUnit.unit) and br.getDistance(dispelUnit.unit) <= 40 then
-                        if br.canDispel(dispelUnit.unit, spell.detox) and friends.lowest.hp >= 80 then
+                        if br.canDispel(dispelUnit.unit, spell.detox) and friends.lowest.hp >= 60 then
                             return cast.detox(dispelUnit.unit)
                         end
                     end
                 end
             end
             -- Renewing Mist
-            if charges.renewingMist.exists() and cd.renewingMist.ready() and not cast.active.soothingMist() then
+            if charges.renewingMist.exists() and cd.renewingMist.ready() and soothingMistUnit == nil then
                 for i = 1, #friends.all do
                     local tempUnit = friends.all[i]
                     if not buff.renewingMist.exists(tempUnit.unit) then
@@ -531,51 +526,97 @@ local function runRotation()
     end
 
     local function HealRotation()
-        local countUnitsWithRenewingMistUnderHealth = 0
-        for i = 1, #friends.all do
-            local tempUnit = friends.all[i]
-            if buff.renewingMist.exists(tempUnit.unit) and getMissingHP(tempUnit.unit) >= healingValues.vivifyRenewingMistAmount then
+        if not cast.active.vivify() then
+            local countUnitsWithRenewingMistUnderHealth = 0
+            for i = 1, #friends.all do
+                local tempUnit = friends.all[i]
+                if buff.renewingMist.exists(tempUnit.unit) and getMissingHP(tempUnit.unit) >= healingValues.vivifyRenewingMistAmount then
+                    countUnitsWithRenewingMistUnderHealth = countUnitsWithRenewingMistUnderHealth + 1
+                end
+            end
+            if not buff.renewingMist.exists(friends.lowest.unit) then
                 countUnitsWithRenewingMistUnderHealth = countUnitsWithRenewingMistUnderHealth + 1
             end
-        end
-        if not buff.renewingMist.exists(friends.lowest.unit) then
-            countUnitsWithRenewingMistUnderHealth = countUnitsWithRenewingMistUnderHealth + 1
-        end
-        if countUnitsWithRenewingMistUnderHealth >= 2 then
-            if getMissingHP(friends.lowest.unit) >= (healingValues.vivify + healingValues.gustOfMist) + healingValues.soothingMist then
-                if cast.active.soothingMist() then
-                    return cast.vivify(friends.lowest.unit)
+            if countUnitsWithRenewingMistUnderHealth >= 2 then
+                if getMissingHP(friends.lowest.unit) >= (healingValues.vivify + healingValues.gustOfMist) + healingValues.soothingMist then
+                    if soothingMistUnit == nil then
+                        --print("Casting Soothing Mist AOE")
+                        soothingMistUnit = friends.lowest.unit
+                        return cast.soothingMist(soothingMistUnit)
+                    end
                 end
-                print("Casting Soothing Mist AOE")
-                return cast.soothingMist(friends.lowest.unit)
+                if buff.envelopingMist.remains(soothingMistUnit) < 2 then
+                    if getMissingHP(soothingMistUnit) >= healingValues.envelopingMist + healingValues.gustOfMist + healingValues.soothingMist + healingValues.vivify + healingValues.gustOfMist then
+                        --print("Enveloping Mist AOE Soothing Mist")
+                        return cast.envelopingMist(soothingMistUnit)
+                    end
+                end
+                if soothingMistUnit ~= nil and getMissingHP(soothingMistUnit) >= (healingValues.vivify + healingValues.gustOfMist) + healingValues.soothingMist then
+                    --print("Vivify AOE Soothing Mist")
+                    return cast.vivify(soothingMistUnit)
+                end
             end
         end
         --
 
-        if not cast.active.soothingMist() and getMissingHP(friends.lowest.unit) >= healingValues.soothingMist + healingValues.envelopingMist + healingValues.gustOfMist + healingValues.soothingMist + healingValues.vivify + healingValues.gustOfMist then
-            print("Casting Soothing Mist ST")
-            return cast.soothingMist(friends.lowest.unit)
+        if not cast.active.vivify() and soothingMistUnit == nil and getMissingHP(friends.lowest.unit) >= healingValues.soothingMist + healingValues.envelopingMist + healingValues.gustOfMist + healingValues.soothingMist + healingValues.vivify + healingValues.gustOfMist then
+            --print("Casting Soothing Mist ST")
+            soothingMistUnit = friends.lowest.unit
+            return cast.soothingMist(soothingMistUnit)
         end
-        if cast.active.soothingMist() then
-            if buff.envelopingMist.remains(friends.lowest.unit) < 2 then
-                if getMissingHP(friends.lowest.unit) >= healingValues.envelopingMist + healingValues.gustOfMist + healingValues.soothingMist + healingValues.vivify + healingValues.gustOfMist then
-                    return cast.envelopingMist(friends.lowest.unit)
+        if soothingMistUnit ~= nil then
+            if buff.envelopingMist.remains(soothingMistUnit) < 2 then
+                if getMissingHP(soothingMistUnit) >= healingValues.envelopingMist + healingValues.gustOfMist + healingValues.soothingMist + healingValues.vivify + healingValues.gustOfMist then
+                    --print("Enveloping Mist ST Soothing Mist")
+                    return cast.envelopingMist(soothingMistUnit)
                 end
-            elseif buff.envelopingMist.remains(friends.lowest.unit) > 1 then
-                if getMissingHP(friends.lowest.unit) >= healingValues.soothingMist + healingValues.vivify + healingValues.gustOfMist then
-                    return cast.vivify(friends.lowest.unit)
+            elseif buff.envelopingMist.remains(soothingMistUnit) > 1 then
+                if getMissingHP(soothingMistUnit) >= healingValues.soothingMist + healingValues.vivify + healingValues.gustOfMist then
+                    --print("Vivify ST Soothing Mist")
+                    return cast.vivify(soothingMistUnit)
                 end
             end
         end
         --
-        if not cast.active.soothingMist() and not cast.active.vivify() and getMissingHP(friends.lowest.unit) >= healingValues.vivify + healingValues.gustOfMist then
+        if soothingMistUnit == nil and not cast.active.vivify() and getMissingHP(friends.lowest.unit) >= healingValues.vivify + healingValues.gustOfMist then
+            --print("Vivify ST")
             return cast.vivify(friends.lowest.unit)
         end
         return false
     end
 
+    local function localToggle(toggleValue, newValue)
+        newValue = tonumber(newValue)
+        br.data.settings[br.selectedSpec].toggles[tostring(toggleValue)] = newValue
+        --br.changeButton(toggleValue, index)
+        if newValue == 0 then
+            newValue = 1
+        end
+        local Icon
+        -- define text
+        br["text" .. toggleValue]:SetText(br[toggleValue .. "Modes"][newValue].mode)
+        -- define icon
+        if type(br[toggleValue .. "Modes"][newValue].icon) == "number" then
+            Icon = select(3, _G.GetSpellInfo(br[toggleValue .. "Modes"][newValue].icon))
+        else
+            Icon = br[toggleValue .. "Modes"][newValue].icon
+        end
+        br["button" .. toggleValue]:SetNormalTexture(Icon or br.emptyIcon)
+        -- define highlight
+        if br[toggleValue .. "Modes"][newValue].highlight == 0 then
+            br["frame" .. toggleValue].texture:SetTexture(br.genericIconOff)
+        else
+            br["frame" .. toggleValue].texture:SetTexture(br.genericIconOn)
+        end
+        ---- We tell the user we changed mode
+        --br.ChatOverlay("\124cFF3BB0FF" .. br[toggleValue .. "Modes"][newValue].overlay)
+        ---- We reset the tip
+        --br.ResetTip(toggleValue, newValue)
+    end
+
     if ui.toggle(text.keys.damage) then
-        br._G.RunMacroText("/br toggle Damaging 1")
+        --br._G.RunMacroText("/br toggle Damaging 1")
+        localToggle("Damaging", "1")
         if AlwaysRotation() then
             return true
         elseif totemInfo.chiJiDuration > 0 or buff.invokeChiJiTheRedCrane.stack() > 0 then
@@ -603,21 +644,26 @@ local function runRotation()
         end
         return true
     else
-        br._G.RunMacroText("/br toggle Damaging 2")
+        --br._G.RunMacroText("/br toggle Damaging 2")
+        localToggle("Damaging", "2")
     end
 
     if ui.toggle(text.keys.heal) then
-        br._G.RunMacroText("/br toggle Healing 1")
+        localToggle("Healing", "1")
+        --br._G.RunMacroText("/br toggle Healing 1")
         return AlwaysRotation() or HealRotation()
     else
-        br._G.RunMacroText("/br toggle Healing 2")
+        localToggle("Healing", "2")
+        --br._G.RunMacroText("/br toggle Healing 2")
     end
 
     if ui.toggle(text.keys.teleport) then
-        br._G.RunMacroText("/br toggle Teleporting 1")
+        localToggle("Teleporting", "1")
+        --br._G.RunMacroText("/br toggle Teleporting 1")
         return TeleportRotation()
     else
-        br._G.RunMacroText("/br toggle Teleporting 2")
+        localToggle("Teleporting", "2")
+        --br._G.RunMacroText("/br toggle Teleporting 2")
     end
 
     if ui.checked("Auto Summon Steward") and not unit.inCombat() and not has.phialOfSerenity() and cast.able.summonSteward() then
@@ -634,7 +680,7 @@ br._G.CreateFrame("Frame"):SetScript(
                     LibDraw.clearCanvas()
                     if br.UnitBuffID("player", 101643, "player") ~= nil then
                         local pX, pY, pZ = br._G.ObjectPosition("player")
-                        if transcendence.x and transcendence.y and transcendence.z then
+                        if transcendence and transcendence.x and transcendence.y and transcendence.z then
                             local distance = br._G.GetDistanceBetweenPositions(pX, pY, pZ, transcendence.x, transcendence.y, transcendence.z)
                             if distance >= 38 then
                                 LibDraw.SetColor(255, 0, 0, 100)
