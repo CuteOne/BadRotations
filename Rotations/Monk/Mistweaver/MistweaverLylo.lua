@@ -220,11 +220,17 @@ local function runRotation()
         blackoutKick = (84.7 / 100) * spellPower * versatility * 0.77 * (250 / 100),
         risingSunKick = (143.8 / 100) * spellPower * versatility * 1.12 * (250 / 100)
     }
+    --print("$$$$")
     --for key, value in pairs(healingValues) do
-    --    print('\t', key, value)
+        --print('\t', key, value)
     --end
     local getMissingHP = function(unit)
-        return br._G.UnitGetTotalAbsorbs(unit) + br._G.UnitHealthMax(unit) + br._G.UnitGetIncomingHeals(unit) - br._G.UnitHealth(unit)
+        if br.GetUnitIsDeadOrGhost(unit) then
+            return 0
+        end
+        local actualHealth = br._G.UnitHealth(unit) + br._G.UnitGetIncomingHeals(unit) + br._G.UnitGetTotalAbsorbs(unit)
+        local missingHealth = br._G.UnitHealthMax(unit) - actualHealth
+        return  missingHealth
     end
     local function countMissingHPAllies(Value, unitTable)
         local lowAllies = 0
@@ -538,22 +544,28 @@ local function runRotation()
                 countUnitsWithRenewingMistUnderHealth = countUnitsWithRenewingMistUnderHealth + 1
             end
             if countUnitsWithRenewingMistUnderHealth >= 2 then
-                if getMissingHP(friends.lowest.unit) >= (healingValues.vivify + healingValues.gustOfMist) + healingValues.soothingMist then
-                    if soothingMistUnit == nil then
+                if soothingMistUnit == nil then
+                    if getMissingHP(friends.lowest.unit) >= (healingValues.vivify + healingValues.gustOfMist) + healingValues.soothingMist then
+                        if player.mana <= 75 and talent.manaTea then
+                            cast.manaTea(player.unit)
+                        end
                         --print("Casting Soothing Mist AOE")
-                        soothingMistUnit = friends.lowest.unit
-                        return cast.soothingMist(soothingMistUnit)
+                        return cast.soothingMist(friends.lowest.unit)
                     end
-                end
-                if buff.envelopingMist.remains(soothingMistUnit) < 2 then
-                    if getMissingHP(soothingMistUnit) >= healingValues.envelopingMist + healingValues.gustOfMist + healingValues.soothingMist + healingValues.vivify + healingValues.gustOfMist then
-                        --print("Enveloping Mist AOE Soothing Mist")
-                        return cast.envelopingMist(soothingMistUnit)
+                else
+                    if buff.envelopingMist.remains(soothingMistUnit) < 2 then
+                        if getMissingHP(soothingMistUnit) >= healingValues.envelopingMist + healingValues.gustOfMist + healingValues.soothingMist + healingValues.vivify + healingValues.gustOfMist then
+                            --print("Enveloping Mist AOE Soothing Mist")
+                            return cast.envelopingMist(soothingMistUnit)
+                        end
                     end
-                end
-                if soothingMistUnit ~= nil and getMissingHP(soothingMistUnit) >= (healingValues.vivify + healingValues.gustOfMist) + healingValues.soothingMist then
-                    --print("Vivify AOE Soothing Mist")
-                    return cast.vivify(soothingMistUnit)
+                    if getMissingHP(soothingMistUnit) >= (healingValues.vivify + healingValues.gustOfMist) + healingValues.soothingMist then
+                        if player.mana <= 75 and talent.manaTea then
+                            cast.manaTea(player.unit)
+                        end
+                        --print("Vivify AOE Soothing Mist")
+                        return cast.vivify(soothingMistUnit)
+                    end
                 end
             end
         end
@@ -561,8 +573,7 @@ local function runRotation()
 
         if not cast.active.vivify() and soothingMistUnit == nil and getMissingHP(friends.lowest.unit) >= healingValues.soothingMist + healingValues.envelopingMist + healingValues.gustOfMist + healingValues.soothingMist + healingValues.vivify + healingValues.gustOfMist then
             --print("Casting Soothing Mist ST")
-            soothingMistUnit = friends.lowest.unit
-            return cast.soothingMist(soothingMistUnit)
+            return cast.soothingMist(friends.lowest.unit)
         end
         if soothingMistUnit ~= nil then
             if buff.envelopingMist.remains(soothingMistUnit) < 2 then
