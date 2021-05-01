@@ -538,7 +538,7 @@ actionList.St = function()
     end
     -- Wild Spirits
     -- wild_spirits
-    if ui.alwaysCdAoENever()("Covenant Ability") and cast.able.wildSpirits() then
+    if ui.alwaysCdAoENever("Covenant Ability") and cast.able.wildSpirits() then
         if cast.wildSpirits() then ui.debug("Casting Wild Spirits [Night Fae]") return true end
     end
     -- Flayed Shot
