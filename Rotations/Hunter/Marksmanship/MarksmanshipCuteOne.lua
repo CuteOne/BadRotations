@@ -63,6 +63,7 @@ local function createOptions()
 
     local function rotationOptions()
         local section
+        local alwaysCdAoENever = {"Always", "|cff008000AOE", "|cffffff00AOE/CD", "|cff0000ffCD", "|cffff0000Never"}
         -- General Options
         section = br.ui:createSection(br.ui.window.profile, "General")
             -- APL
@@ -80,7 +81,7 @@ local function createOptions()
             -- Volly Units
             br.ui:createSpinner(section,"Volley Units", 3, 1, 5, 1, "|cffFFFFFFSet minimal number of units to cast Volley on")
             -- Covenant Ability
-            br.ui:createDropdownWithout(section,"Covenant Ability", {"Always", "Cooldown", "Never"}, 1, "|cffFFFFFFSet when to use ability.")
+            br.ui:createDropdownWithout(section,"Covenant Ability", alwaysCdAoENever, 1, "|cffFFFFFFSet when to use ability.")
         br.ui:checkSectionState(section)
         -- Pet Options
         br.rotations.support["PetCuteOne"].options()
@@ -99,19 +100,19 @@ local function createOptions()
             -- Basic Trinkets Module
             br.player.module.BasicTrinkets(nil,section)
             -- A Murder of Crows
-            br.ui:createDropdownWithout(section,"A Murder of Crows", {"Always", "Cooldown", "Never"}, 1, "|cffFFFFFFSet when to use ability.")
+            br.ui:createDropdownWithout(section,"A Murder of Crows", alwaysCdAoENever, 1, "|cffFFFFFFSet when to use ability.")
             -- Barrage
-            br.ui:createDropdownWithout(section,"Barrage", {"Always", "Cooldown", "Never"}, 1, "|cffFFFFFFSet when to use ability.")
+            br.ui:createDropdownWithout(section,"Barrage", alwaysCdAoENever, 1, "|cffFFFFFFSet when to use ability.")
             -- Double Tap
-            br.ui:createDropdownWithout(section,"Double Tap", {"Always", "Cooldown", "Never"}, 1, "|cffFFFFFFSet when to use ability.")
+            br.ui:createDropdownWithout(section,"Double Tap", alwaysCdAoENever, 1, "|cffFFFFFFSet when to use ability.")
             -- Explosive Shot
-            br.ui:createDropdownWithout(section,"Explosive Shot", {"Always", "Cooldown", "Never"}, 1, "|cffFFFFFFSet when to use ability.")
+            br.ui:createDropdownWithout(section,"Explosive Shot", alwaysCdAoENever, 1, "|cffFFFFFFSet when to use ability.")
             -- Rapid Fire
-            br.ui:createDropdownWithout(section,"Rapid Fire", {"Always", "Cooldown", "Never"}, 1, "|cffFFFFFFSet when to use ability.")
+            br.ui:createDropdownWithout(section,"Rapid Fire", alwaysCdAoENever, 1, "|cffFFFFFFSet when to use ability.")
             -- Trueshot
-            br.ui:createDropdownWithout(section,"Trueshot", {"Always", "Cooldown", "Never"}, 1, "|cffFFFFFFSet when to use ability.")
+            br.ui:createDropdownWithout(section,"Trueshot", alwaysCdAoENever, 1, "|cffFFFFFFSet when to use ability.")
             -- volley
-            br.ui:createDropdownWithout(section,"Volley", {"Always", "Cooldown", "Never"}, 1, "|cffFFFFFFSet when to use ability.")
+            br.ui:createDropdownWithout(section,"Volley", alwaysCdAoENever, 1, "|cffFFFFFFSet when to use ability.")
         br.ui:checkSectionState(section)
         -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
@@ -193,7 +194,7 @@ local actionList = {}
 local function alwaysCdNever(option)
     if option == "Racial" then br._G.GetSpellInfo(br.player.spell.racial) end
     local thisOption = ui.value(option)
-    return thisOption == 1 or (thisOption == 2 and ui.useCDs())
+    return ui.alwaysCdAoENever(thisOption)--thisOption == 1 or (thisOption == 2 and ui.useCDs())
 end
 
 -- Multi-Dot HP Limit Set
@@ -403,13 +404,13 @@ actionList.TrickShots = function()
     end
     -- Tar Trap
     -- tar_trap,if=runeforge.soulforge_embers&tar_trap.remains<gcd&cooldown.flare.remains<gcd
-    if cast.able.tarTrap(units.dyn40,"ground") and runeforge.soulforgeEmbers.equiped and debuff.tarTrap.remains(units.dyn40) < unit.gcd(true) and cd.flare.remains() < unit.gcd(true) then
-        if cast.tarTrap(units.dyn40,"ground") then ui.debug("Casting Tar Trap [Trick Shots Soulforge Embers]") return true end
+    if cast.able.tarTrap("best",nil,1,8) and runeforge.soulforgeEmbers.equiped and debuff.tarTrap.remains(units.dyn40) < unit.gcd(true) and cd.flare.remains() < unit.gcd(true) then
+        if cast.tarTrap("best",nil,1,8) then ui.debug("Casting Tar Trap [Trick Shots Soulforge Embers]") return true end
     end
     -- Flare
     -- flare,if=tar_trap.up&runeforge.soulforge_embers
-    if cast.able.flare() and debuff.tarTrap.exists(units.dyn40) and runeforge.soulforgeEmbers.equiped then
-        if cast.flare(units.dyn40) then ui.debug("Casting Flare [Trick Shots Soulforge Embers]") return true end
+    if cast.able.flare(units.dyn40,"ground") and debuff.tarTrap.exists(units.dyn40) and runeforge.soulforgeEmbers.equiped then
+        if cast.flare(units.dyn40,"ground") then ui.debug("Casting Flare [Trick Shots Soulforge Embers]") return true end
     end
     -- Explosive Shot
     -- explosive_shot
@@ -546,15 +547,15 @@ actionList.SingleTarget = function()
     end
     -- Flare
     -- flare,if=tar_trap.up&runeforge.soulforge_embers
-    if cast.able.flare() and debuff.tarTrap.exists(units.dyn40) and runeforge.soulforgeEmbers.equiped then
-        if cast.flare(units.dyn40) then ui.debug("Casting Flare [Soulforge Embers]") return true end
+    if cast.able.flare(units.dyn40,"ground") and debuff.tarTrap.exists(units.dyn40) and runeforge.soulforgeEmbers.equiped then
+        if cast.flare(units.dyn40,"ground") then ui.debug("Casting Flare [Soulforge Embers]") return true end
     end
     -- Tar Trap
     -- tar_trap,if=runeforge.soulforge_embers&tar_trap.remains<gcd&cooldown.flare.remains<gcd
-    if cast.able.tarTrap(units.dyn40,"ground") and runeforge.soulforgeEmbers.equiped
+    if cast.able.tarTrap("best",nil,1,8) and runeforge.soulforgeEmbers.equiped
         and debuff.tarTrap.remains(units.dyn40) < unit.gcd(true) and cd.flare.remains() < unit.gcd(true)
     then
-        if cast.tarTrap(units.dyn40,"ground") then ui.debug("Casting Tar Trap [Soulforge Embers]") return true end
+        if cast.tarTrap("best",nil,1,8) then ui.debug("Casting Tar Trap [Soulforge Embers]") return true end
     end
     -- Explosive Shot
     -- explosive_shot
@@ -698,7 +699,7 @@ actionList.PreCombat = function()
             end
             -- Aimed Shot
             -- aimed_shot,if=active_enemies<3&(!covenant.kyrian&!talent.volley|active_enemies<2)
-            if cast.able.aimedShot() and not unit.moving("player") and #enemies.yards10t < 3
+            if cast.able.aimedShot("target") and not unit.moving("player") and #enemies.yards10t < 3
                 and (#enemies.yards10t < 2 or (not covenant.kyrian.active and not talent.volley))
                 and cast.timeSinceLast.aimedShot() > unit.gcd("true") and not cast.current.aimedShot()
             then
@@ -706,11 +707,12 @@ actionList.PreCombat = function()
             end
             -- Arcane Shot
             -- steady_shot,if=active_enemies>2|(covenant.kyrian|talent.volley)&active_enemies=2
-            if cast.able.arcaneShot() and (#enemies.yards10t > 2 or ((covenant.kyrian.active or talent.volley) and #enemies.yards10t == 2)) then
+            if cast.able.arcaneShot("target") and (#enemies.yards10t > 2 or ((covenant.kyrian.active or talent.volley) and #enemies.yards10t == 2)) then
                 if cast.arcaneShot("target") then ui.debug("Casting Arcane Shot [Pre-Pull]") return true end
             end
-            -- Auto Shot
-            unit.startAttack("target",true)
+            if cast.able.autoShot("target") then
+                if cast.autoShot("target") then ui.debug("Casting Auto Shot [Pre-Pull]") return true end
+            end
         end
     end
 end -- End Action List - Pre-Pull
@@ -781,6 +783,8 @@ local function runRotation()
         end
     end
 
+    -- ui.print("Auto Shot Enabled: ".._G.tostring(cast.autoRepeat.autoShot()))
+
     ---------------------
     --- Begin Profile ---
     ---------------------
@@ -823,6 +827,10 @@ local function runRotation()
             ------------------------
             --- In Combat - Main ---
             ------------------------
+            -- Auto Shot
+            if cast.able.autoShot(units.dyn40) then
+                if cast.autoShot(units.dyn40) then ui.debug("Casting Auto Shot") return true end
+            end
             -- Counter Shot
             -- counter_shot,line_cd=30,if=runeforge.sephuzs_proclamation|soulbind.niyas_tools_poison|(conduit.reversal_of_fortune&!runeforge.sephuzs_proclamation)
             -- Basic Trinkets Module

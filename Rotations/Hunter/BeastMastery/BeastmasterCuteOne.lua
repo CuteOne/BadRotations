@@ -69,7 +69,7 @@ local function createOptions()
 
     local function rotationOptions()
         local section
-        local alwaysCdNever = {"Always", "Cooldown", "Never"}
+        local alwaysCdAoENever = {"Always", "|cff008000AOE", "|cffffff00AOE/CD", "|cff0000ffCD", "|cffff0000Never"}
         -- General Options
         section = br.ui:createSection(br.ui.window.profile, "General")
             -- Target Lock
@@ -83,7 +83,7 @@ local function createOptions()
             -- Misdirection
             br.ui:createDropdownWithout(section,"Misdirection", {"|cff00FF00Tank","|cffFFFF00Focus","|cffFF0000Pet"}, 1, "|cffFFFFFFSelect target to Misdirect to.")
             -- Covenant Ability
-            br.ui:createDropdownWithout(section,"Covenant Ability", alwaysCdNever, 1, "|cffFFFFFFSet when to use ability.")
+            br.ui:createDropdownWithout(section,"Covenant Ability", alwaysCdAoENever, 1, "|cffFFFFFFSet when to use ability.")
             -- Opener
             -- br.ui:createCheckbox(section, "Opener")
         br.ui:checkSectionState(section)
@@ -100,7 +100,7 @@ local function createOptions()
             -- Trinkets
             br.player.module.BasicTrinkets(nil,section)
             -- Bestial Wrath
-            br.ui:createDropdownWithout(section,"Bestial Wrath", alwaysCdNever, 2, "|cffFFFFFFSelect Bestial Wrath Usage.")
+            br.ui:createDropdownWithout(section,"Bestial Wrath", alwaysCdAoENever, 2, "|cffFFFFFFSelect Bestial Wrath Usage.")
             -- Trueshot
             br.ui:createCheckbox(section,"Aspect of the Wild")
             -- Stampede
@@ -523,13 +523,13 @@ actionList.St = function()
     end
     -- Tar Trap
     -- tar_trap,if=runeforge.soulforge_embers&tar_trap.remains<gcd&cooldown.flare.remains<gcd
-    if cast.able.tarTrap(units.dyn40,"ground") and runeforge.soulforgeEmbers.equiped and debuff.tarTrap.remains(units.dyn40) < unit.gcd(true) and cd.flare.remains() < unit.gcd(true) then
-        if cast.tarTrap(units.dyn40,"ground") then ui.debug("Casting Tar Trap [Soulforge Embers]") return true end
+    if cast.able.tarTrap("best",nil,1,8) and runeforge.soulforgeEmbers.equiped and debuff.tarTrap.remains(units.dyn40) < unit.gcd(true) and cd.flare.remains() < unit.gcd(true) then
+        if cast.tarTrap("best",nil,1,8) then ui.debug("Casting Tar Trap [Soulforge Embers]") return true end
     end
     -- Flare
     -- flare,if=tar_trap.up&runeforge.soulforge_embers
-    if cast.able.flare() and debuff.tarTrap.exists(units.dyn40) and runeforge.soulforgeEmbers.equiped then
-        if cast.flare(units.dyn40) then ui.debug("Casting Flare [Soulforge Embers]") return true end
+    if cast.able.flare(units.dyn40,"ground") and debuff.tarTrap.exists(units.dyn40) and runeforge.soulforgeEmbers.equiped then
+        if cast.flare(units.dyn40,"ground") then ui.debug("Casting Flare [Soulforge Embers]") return true end
     end
     -- Bloodshed
     -- bloodshed
@@ -538,12 +538,12 @@ actionList.St = function()
     end
     -- Wild Spirits
     -- wild_spirits
-    if ui.alwaysCdNever("Covenant Ability") and cast.able.wildSpirits() then
+    if ui.alwaysCdAoENever()("Covenant Ability") and cast.able.wildSpirits() then
         if cast.wildSpirits() then ui.debug("Casting Wild Spirits [Night Fae]") return true end
     end
     -- Flayed Shot
     -- flayed_shot
-    if ui.alwaysCdNever("Covenant Ability") and cast.able.flayedShot() then
+    if ui.alwaysCdAoENever("Covenant Ability") and cast.able.flayedShot() then
         if cast.flayedShot() then ui.debug("Casting Flayed Shot [Venthhyr]") return true end
     end
     -- Kill Shot
@@ -554,16 +554,16 @@ actionList.St = function()
     -- Barbed Shot
     -- barbed_shot,if=(cooldown.wild_spirits.remains>full_recharge_time|!covenant.night_fae)&(cooldown.bestial_wrath.remains<12*charges_fractional+gcd&talent.scent_of_blood|full_recharge_time<gcd&cooldown.bestial_wrath.remains)|target.time_to_die<9
     if unit.exists(br.petTarget) and cast.able.barbedShot(br.petTarget)
-        and ((cd.wildSpirits.remains() > charges.barbedShot.timeTillFull() or not covenant.nightFae.active or not ui.alwaysCdNever("Covenant Ability"))
+        and ((cd.wildSpirits.remains() > charges.barbedShot.timeTillFull() or not covenant.nightFae.active or not ui.alwaysCdAoENever("Covenant Ability"))
         and ((cd.bestialWrath.remains() < 12 * charges.barbedShot.frac() + unit.gcd(true) and talent.scentOfBlood)
-            or (charges.barbedShot.timeTillFull() < unit.gcd(true) and (cd.bestialWrath.remains() > 0 or ui.mode.bestialWrath == 2 or not ui.alwaysCdNever("Bestial Wrath")))
+            or (charges.barbedShot.timeTillFull() < unit.gcd(true) and (cd.bestialWrath.remains() > 0 or ui.mode.bestialWrath == 2 or not ui.alwaysCdAoENever("Bestial Wrath")))
             or (unit.ttd(br.petTarget) < 9 and ui.useCDs())))
     then
         if cast.barbedShot(br.petTarget) then ui.debug("[ST 2] Casting Barbed Shot on "..unit.name(br.petTarget)) return true end
     end
     -- Death Chakram
     -- death_chakram,if=focus+cast_regen<focus.max
-    if ui.alwaysCdNever("Covenant Ability") and cast.able.deathChakram() and power.focus.amount() + cast.regen.deathChakram() < power.focus.max() then
+    if ui.alwaysCdAoENever("Covenant Ability") and cast.able.deathChakram() and power.focus.amount() + cast.regen.deathChakram() < power.focus.max() then
         if cast.deathChakram() then ui.debug("Casting Death Chakram [Necrolord]") return true end
     end
     -- Stampede
@@ -580,12 +580,12 @@ actionList.St = function()
     end
     -- Resonating Arrow
     -- resonating_arrow,if=buff.bestial_wrath.up|target.time_to_die<10
-    if ui.alwaysCdNever("Covenant Ability") and cast.able.resonatingArrow() and (buff.bestialWrath.exists() or (unit.ttd(units.dyn40) < 10 and ui.useCDs())) then
+    if ui.alwaysCdAoENever("Covenant Ability") and cast.able.resonatingArrow() and (buff.bestialWrath.exists() or (unit.ttd(units.dyn40) < 10 and ui.useCDs())) then
         if cast.resonatingArrow() then ui.debug("Casting Resonating Arrow [Kyrian]") return true end
     end
     -- Bestial Wrath
     -- bestial_wrath,if=cooldown.wild_spirits.remains>15|!covenant.night_fae|target.time_to_die<15
-    if ui.mode.bestialWrath == 1 and ui.alwaysCdNever("Bestial Wrath") and cast.able.bestialWrath()
+    if ui.mode.bestialWrath == 1 and ui.alwaysCdAoENever("Bestial Wrath") and cast.able.bestialWrath()
         and (cd.wildSpirits.remains() > 15 or not covenant.nightFae.active or (unit.ttd(units.dyn40) < 15 + unit.gcd(true) or ui.useCDs()))
     then
         if cast.bestialWrath() then ui.debug("Casting Bestial Wrath") return true end
@@ -655,22 +655,22 @@ actionList.Cleave = function()
     end
     -- Tar Trap
     -- tar_trap,if=runeforge.soulforge_embers&tar_trap.remains<gcd&cooldown.flare.remains<gcd
-    if cast.able.tarTrap(units.dyn40,"ground") and runeforge.soulforgeEmbers.equiped and debuff.tarTrap.remains(units.dyn40) < unit.gcd(true) and cd.flare.remains() < unit.gcd(true) then
-        if cast.tarTrap(units.dyn40,"ground") then ui.debug("Casting Tar Trap [Soulforge Embers AOE]") return true end
+    if cast.able.tarTrap("best",nil,1,8) and runeforge.soulforgeEmbers.equiped and debuff.tarTrap.remains(units.dyn40) < unit.gcd(true) and cd.flare.remains() < unit.gcd(true) then
+        if cast.tarTrap("best",nil,1,8) then ui.debug("Casting Tar Trap [Soulforge Embers AOE]") return true end
     end
     -- Flare
     -- flare,if=tar_trap.up&runeforge.soulforge_embers
-    if cast.able.flare() and debuff.tarTrap.exists(units.dyn40) and runeforge.soulforgeEmbers.equiped then
-        if cast.flare(units.dyn40) then ui.debug("Casting Flare [Soulforge Embers]") return true end
+    if cast.able.flare(units.dyn40,"ground") and debuff.tarTrap.exists(units.dyn40) and runeforge.soulforgeEmbers.equiped then
+        if cast.flare(units.dyn40,"ground") then ui.debug("Casting Flare [Soulforge Embers]") return true end
     end
     -- Death Chakram
     -- death_chakram,if=focus+cast_regen<focus.max
-    if ui.alwaysCdNever("Covenant Ability") and cast.able.deathChakram() and power.focus.amount() + cast.regen.deathChakram() < power.focus.max() then
+    if ui.alwaysCdAoENever("Covenant Ability") and cast.able.deathChakram() and power.focus.amount() + cast.regen.deathChakram() < power.focus.max() then
         if cast.deathChakram() then ui.debug("Casting Death Chakram [AOE Necrolord]") return true end
     end
     -- Wild Spirits
     -- wild_spirits
-    if ui.alwaysCdNever("Covenant Ability") and cast.able.wildSpirits() then
+    if ui.alwaysCdAoENever("Covenant Ability") and cast.able.wildSpirits() then
         if cast.wildSpirits() then ui.debug("Casting Wild Spirits [AOE Night Fae]") return true end
     end
     -- Barbed Shot
@@ -687,7 +687,7 @@ actionList.Cleave = function()
     end
     -- Resonating Arrow
     -- resonating_arrow
-    if ui.alwaysCdNever("Covenant Ability") and cast.able.resonatingArrow() then
+    if ui.alwaysCdAoENever("Covenant Ability") and cast.able.resonatingArrow() then
         if cast.resonatingArrow() then ui.debug("Casting Resonating Arrow [Kyrian]") return true end
     end
     -- Stampede
@@ -699,7 +699,7 @@ actionList.Cleave = function()
     end
     -- Flayed Shot
     -- flayed_shot
-    if ui.alwaysCdNever("Covenant Ability") and cast.able.flayedShot() then
+    if ui.alwaysCdAoENever("Covenant Ability") and cast.able.flayedShot() then
         if cast.flayedShot() then ui.debug("Casting Flayed Shot [AOE Venthhyr]") return true end
     end
     -- Kill Shot
@@ -773,7 +773,9 @@ actionList.PreCombat = function()
         -- Init Combat
         if unit.distance("target") < 40 and unit.valid("target") then-- and opener.complete then
             -- Auto Shot
-            unit.startAttack("target",true)
+            if cast.able.autoShot("target") then
+                if cast.autoShot("target") then ui.debug("Casting Auto Shot [Pre-Pull]") return true end
+            end
         end
     end -- End No Combat
     -- Opener
@@ -931,9 +933,11 @@ local function runRotation()
             ------------------------
             --- In Combat - Main ---
             ------------------------
-            -- Start Attack
+            -- Auto Shot
             -- auto_shot
-            unit.startAttack("target",true)
+            if cast.able.autoShot(units.dyn40) then
+                if cast.autoShot(units.dyn40) then ui.debug("Casting Auto Shot") return true end
+            end
             -- Counter Shot
             -- counter_shot,line_cd=30,if=runeforge.sephuzs_proclamation|soulbind.niyas_tools_poison|(conduit.reversal_of_fortune&!runeforge.sephuzs_proclamation)
             -- Basic Trinket Module
