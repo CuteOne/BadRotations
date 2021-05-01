@@ -104,7 +104,7 @@ if not br.metaTable1 then
 		if
 			(br.GetUnitIsVisible(tar) and br.GetUnitReaction("player", tar) > 4 and not br.GetUnitIsDeadOrGhost(tar) and br.getLineOfSight("player", tar) and CheckCreatureType(tar) and
 				not br._G.UnitPhaseReason(tar)) and
-				((br._G.UnitIsPlayer(tar) and br._G.UnitIsConnected(tar) and CheckBadDebuff(tar) and not br._G.UnitIsCharmed(tar) and not br._G.UnitIsOtherPlayersPet(tar)) or
+				((br.isPlayer(tar) and br._G.UnitIsConnected(tar) and CheckBadDebuff(tar) and not br._G.UnitIsCharmed(tar) and not br._G.UnitIsOtherPlayersPet(tar)) or
 					((GetUnitIsUnit(tar,"pet") or br._G.UnitIsOtherPlayersPet(tar)) and br.getOptionCheck("Heal Pets")) or
 					br.novaEngineTables.SpecialHealUnitList[tonumber(select(2, br.getGUID(tar)))] ~= nil)
 		 then
