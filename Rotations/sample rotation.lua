@@ -229,8 +229,8 @@ local function runRotation() -- This is the main profile loop, any below this po
             ------------
             -- Start Attack - This will start auto attacking your target if it's within 5yrds and valid
             if unit.distance("target") <= 5 then
-                if cast.able.autoAttack(units.dyn5) then
-                    if cast.autoAttack(units.dyn5) then ui.debug("Casting Auto Attack [Pre-Combat]") return true end
+                if cast.able.autoAttack("target") then
+                    if cast.autoAttack("target") then ui.debug("Casting Auto Attack [Pre-Combat]") return true end
                 end
             end
         end -- End In Combat Rotation

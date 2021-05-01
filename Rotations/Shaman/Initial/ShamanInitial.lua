@@ -229,8 +229,8 @@ local function runRotation()
         -----------------------------
         if unit.inCombat() and unit.valid("target") and cd.global.remain() == 0 then
             -- Start Attack
-            if cast.able.autoAttack(units.dyn5) then
-                if cast.autoAttack(units.dyn5) then ui.debug("Casting Auto Attack") return true end
+            if cast.able.autoAttack("target") then
+                if cast.autoAttack("target") then ui.debug("Casting Auto Attack") return true end
             end
             -- Basic Trinkets Module
             module.BasicTrinkets()

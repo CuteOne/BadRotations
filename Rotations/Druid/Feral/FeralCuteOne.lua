@@ -1539,8 +1539,8 @@ local function runRotation()
             -- Auto Attack
             -- auto_attack,if=!buff.prowl.up&!buff.shadowmeld.up
             if range.dyn5 and not (buff.prowl.exists() or buff.shadowmeld.exists()) then
-                if cast.able.autoAttack(units.dyn5) then
-                    if cast.autoAttack(units.dyn5) then ui.debug("Casting Auto Attack") return true end
+                if cast.able.autoAttack("target") then
+                    if cast.autoAttack("target") then ui.debug("Casting Auto Attack") return true end
                 end
             end
             ---------------------------

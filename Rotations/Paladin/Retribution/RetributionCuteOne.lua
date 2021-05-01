@@ -944,6 +944,14 @@ local runRotation = function()
         end
     end
 
+    -- MultiUnits
+    var.freedomUnit = getHealUnitOption("Blessing of Freedom") or "player"
+    var.protectionUnit = "player"
+    var.sacificeUnit = "player"
+    var.cleanseUnit = "player"
+    var.flashUnit = "player"
+    var.layUnit = "player"
+
     -- Auras
     if not unit.casting() then
         -- Crusader Aura
@@ -1013,9 +1021,9 @@ local runRotation = function()
             local startTime = debugprofilestop()
             -- Start Attack
             -- auto_attack
-            if unit.distance(units.dyn5) < 5 then
-                if cast.able.autoAttack(units.dyn5) then
-                    if cast.autoAttack(units.dyn5) then ui.debug("Casting Auto Attack") return true end
+            if #enemies.yards5 > 0 and unit.distance("target") < 5 then
+                if cast.able.autoAttack("target") then
+                    if cast.autoAttack("target") then ui.debug("Casting Auto Attack") return true end
                 end
             end
             -- Action List - Interrupts
