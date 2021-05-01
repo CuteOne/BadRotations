@@ -538,12 +538,12 @@ actionList.St = function()
     end
     -- Wild Spirits
     -- wild_spirits
-    if ui.alwaysCdAoENever("Covenant Ability") and cast.able.wildSpirits() then
+    if ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards12t) and cast.able.wildSpirits() then
         if cast.wildSpirits() then ui.debug("Casting Wild Spirits [Night Fae]") return true end
     end
     -- Flayed Shot
     -- flayed_shot
-    if ui.alwaysCdAoENever("Covenant Ability") and cast.able.flayedShot() then
+    if ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards40) and cast.able.flayedShot() then
         if cast.flayedShot() then ui.debug("Casting Flayed Shot [Venthhyr]") return true end
     end
     -- Kill Shot
@@ -554,16 +554,16 @@ actionList.St = function()
     -- Barbed Shot
     -- barbed_shot,if=(cooldown.wild_spirits.remains>full_recharge_time|!covenant.night_fae)&(cooldown.bestial_wrath.remains<12*charges_fractional+gcd&talent.scent_of_blood|full_recharge_time<gcd&cooldown.bestial_wrath.remains)|target.time_to_die<9
     if unit.exists(br.petTarget) and cast.able.barbedShot(br.petTarget)
-        and ((cd.wildSpirits.remains() > charges.barbedShot.timeTillFull() or not covenant.nightFae.active or not ui.alwaysCdAoENever("Covenant Ability"))
+        and ((cd.wildSpirits.remains() > charges.barbedShot.timeTillFull() or not covenant.nightFae.active or not ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards12t))
         and ((cd.bestialWrath.remains() < 12 * charges.barbedShot.frac() + unit.gcd(true) and talent.scentOfBlood)
-            or (charges.barbedShot.timeTillFull() < unit.gcd(true) and (cd.bestialWrath.remains() > 0 or ui.mode.bestialWrath == 2 or not ui.alwaysCdAoENever("Bestial Wrath")))
+            or (charges.barbedShot.timeTillFull() < unit.gcd(true) and (cd.bestialWrath.remains() > 0 or ui.mode.bestialWrath == 2 or not ui.alwaysCdAoENever("Bestial Wrath",3,#enemies.yards40)))
             or (unit.ttd(br.petTarget) < 9 and ui.useCDs())))
     then
         if cast.barbedShot(br.petTarget) then ui.debug("[ST 2] Casting Barbed Shot on "..unit.name(br.petTarget)) return true end
     end
     -- Death Chakram
     -- death_chakram,if=focus+cast_regen<focus.max
-    if ui.alwaysCdAoENever("Covenant Ability") and cast.able.deathChakram() and power.focus.amount() + cast.regen.deathChakram() < power.focus.max() then
+    if ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards8t) and cast.able.deathChakram() and power.focus.amount() + cast.regen.deathChakram() < power.focus.max() then
         if cast.deathChakram() then ui.debug("Casting Death Chakram [Necrolord]") return true end
     end
     -- Stampede
@@ -580,12 +580,12 @@ actionList.St = function()
     end
     -- Resonating Arrow
     -- resonating_arrow,if=buff.bestial_wrath.up|target.time_to_die<10
-    if ui.alwaysCdAoENever("Covenant Ability") and cast.able.resonatingArrow() and (buff.bestialWrath.exists() or (unit.ttd(units.dyn40) < 10 and ui.useCDs())) then
+    if ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards12t) and cast.able.resonatingArrow() and (buff.bestialWrath.exists() or (unit.ttd(units.dyn40) < 10 and ui.useCDs())) then
         if cast.resonatingArrow() then ui.debug("Casting Resonating Arrow [Kyrian]") return true end
     end
     -- Bestial Wrath
     -- bestial_wrath,if=cooldown.wild_spirits.remains>15|!covenant.night_fae|target.time_to_die<15
-    if ui.mode.bestialWrath == 1 and ui.alwaysCdAoENever("Bestial Wrath") and cast.able.bestialWrath()
+    if ui.mode.bestialWrath == 1 and ui.alwaysCdAoENever("Bestial Wrath",3,#enemies.yards40) and cast.able.bestialWrath()
         and (cd.wildSpirits.remains() > 15 or not covenant.nightFae.active or (unit.ttd(units.dyn40) < 15 + unit.gcd(true) or ui.useCDs()))
     then
         if cast.bestialWrath() then ui.debug("Casting Bestial Wrath") return true end
@@ -665,12 +665,12 @@ actionList.Cleave = function()
     end
     -- Death Chakram
     -- death_chakram,if=focus+cast_regen<focus.max
-    if ui.alwaysCdAoENever("Covenant Ability") and cast.able.deathChakram() and power.focus.amount() + cast.regen.deathChakram() < power.focus.max() then
+    if ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards8t) and cast.able.deathChakram() and power.focus.amount() + cast.regen.deathChakram() < power.focus.max() then
         if cast.deathChakram() then ui.debug("Casting Death Chakram [AOE Necrolord]") return true end
     end
     -- Wild Spirits
     -- wild_spirits
-    if ui.alwaysCdAoENever("Covenant Ability") and cast.able.wildSpirits() then
+    if ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards12t) and cast.able.wildSpirits() then
         if cast.wildSpirits() then ui.debug("Casting Wild Spirits [AOE Night Fae]") return true end
     end
     -- Barbed Shot
@@ -687,7 +687,7 @@ actionList.Cleave = function()
     end
     -- Resonating Arrow
     -- resonating_arrow
-    if ui.alwaysCdAoENever("Covenant Ability") and cast.able.resonatingArrow() then
+    if ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards12t) and cast.able.resonatingArrow() then
         if cast.resonatingArrow() then ui.debug("Casting Resonating Arrow [Kyrian]") return true end
     end
     -- Stampede
@@ -699,7 +699,7 @@ actionList.Cleave = function()
     end
     -- Flayed Shot
     -- flayed_shot
-    if ui.alwaysCdAoENever("Covenant Ability") and cast.able.flayedShot() then
+    if ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards8t) and cast.able.flayedShot() then
         if cast.flayedShot() then ui.debug("Casting Flayed Shot [AOE Venthhyr]") return true end
     end
     -- Kill Shot
@@ -828,6 +828,7 @@ local function runRotation()
     enemies.get(40,"player",true)
     enemies.get(30,"pet")
     enemies.get(20,"pet")
+    enemies.get(12,"target")
     enemies.get(8,"pet")
     enemies.get(8,"player",false,true)
     enemies.get(8,"target")
