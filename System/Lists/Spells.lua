@@ -4069,6 +4069,7 @@ br.lists.spells = {
         Shared = {
             abilities                           = {
                 autoAttack                      = 6603,
+                autoShot                        = 75,
                 giftOfTheNaaru                  = br.getRacial("Draenei"),--select(7, GetSpellInfo(GetSpellInfo(28880))),
                 global                          = 61304,
                 latentArcana                    = 296971,
