@@ -224,7 +224,7 @@ local function runRotation()
     --    print('\t', key, value)
     --end
     local getMissingHP = function(unit)
-        return br._G.UnitGetTotalAbsorbs("player") + br._G.UnitHealthMax(unit) + br._G.UnitGetIncomingHeals(unit) - br._G.UnitHealth(unit)
+        return br._G.UnitGetTotalAbsorbs(unit) + br._G.UnitHealthMax(unit) + br._G.UnitGetIncomingHeals(unit) - br._G.UnitHealth(unit)
     end
     local function countMissingHPAllies(Value, unitTable)
         local lowAllies = 0
