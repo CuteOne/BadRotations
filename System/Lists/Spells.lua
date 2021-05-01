@@ -1885,7 +1885,7 @@ br.lists.spells = {
                 purifyingBrew               = 119582,
                 spearHandStrike             = 116705,
                 spinningCraneKick           = 322729,
-                zenMeditation               = 115176,
+                zenMeditation               = 115176
             },
             artifacts                       = {
 
@@ -1942,10 +1942,14 @@ br.lists.spells = {
                 invokeYulonTheJadeSerpent   = 322118,
                 invokeChiJiTheRedCrane      = 325197,
                 fortifyingBrew              = 243435,
+                zenFocusTea                 = 209584,
+                transcendenceTransfer       = 119996,
             },
             artifacts                       = {
             },
             buffs                           = {
+                weaponsOfOrder              = 310454,
+                fortifyingBrew              = 243435,
                 soothingMist                = 115175,
                 renewingMist                = 119611,
                 envelopingMist              = 124682,
@@ -1974,7 +1978,7 @@ br.lists.spells = {
                 ancientTeachingOfTheMonastery = 347553
             },
             debuffs                         = {
-                mysticTouch                 = 8647,
+                mysticTouch                 = 113746,
             },
             glyphs                          = {
             },
@@ -1992,8 +1996,10 @@ br.lists.spells = {
                 spiritOfTheCrane            = 210802,
                 summonJadeSerpentStatue     = 115313,
                 upwelling                   = 274963,
-
             },
+            runeforges                      = {
+                ancientTeachingsOfTheMonastery             = 337172
+            }
         },
         -- Windwalker
         [269] = {
@@ -2009,12 +2015,16 @@ br.lists.spells = {
                 stormEarthAndFire           = 137639,
                 stormEarthAndFireFixate     = 221771,
                 touchOfKarma                = 122470,
+                grappleWeapon               = 233759,
             },
             artifacts                       = {
 
             },
             buffs                           = {
-                blackoutKick                = 116868,
+                alphaTiger                  = 287504,
+                fortifyingBrew              = 243435,
+                invokersDelight           = 338321,
+                blackoutKick                = 116768,
                 chiEnergy                   = 337571,
                 danceOfChiJi                = 325202,
                 hitCombo                    = 196741,
@@ -2032,6 +2042,7 @@ br.lists.spells = {
                 disable                     = 116095,
                 disableRoot                 = 116706,
                 markOfTheCrane              = 228287,
+                mortalWounds                = 115804,
                 risingFist                  = 242259,
                 skyreachExhaustion          = 337341,
             },
@@ -2057,6 +2068,9 @@ br.lists.spells = {
                 gloryOfTheDawn              = 288634,
                 openPalmStrikes             = 279918,
                 swiftRoundhouse             = 277669,
+            },
+            runeforges                      = {
+                fatalTouch                  = 337296
             }
         },
         -- All
