@@ -1662,7 +1662,7 @@ actionList.Cooldown = function()
             end
         elseif br.getOptionValue("Trinket 2 Mode") == 2 then
             for i = 1, #br.friend do
-                if br.friend[i].hp <= ui.checked("Trinket 2") then
+                if br.friend[i].hp <= ui.value("Trinket 2") then
                     br._G.UseItemByName(select(1, _G.GetInventoryItemID("player", 14)), br.friend[i].unit)
                     return true
                 end
@@ -1681,7 +1681,7 @@ actionList.Cooldown = function()
                     else
                         local meleeHurt = {}
                         for j = 1, #meleeFriends do
-                            if meleeFriends[j].hp < ui.checked("Trinket 2") then
+                            if meleeFriends[j].hp < ui.value("Trinket 2") then
                                 br._G.tinsert(meleeHurt, meleeFriends[j])
                             end
                         end
