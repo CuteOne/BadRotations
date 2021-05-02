@@ -319,10 +319,10 @@ actionList.Cooldowns = function()
             end
             -- berserking,if=buff.aspect_of_the_wild.up&(target.time_to_die>cooldown.berserking.duration+duration|(target.health.pct<35|!talent.killer_instinct.enabled))|target.time_to_die<13
             -- blood_fury,if=buff.aspect_of_the_wild.up&(target.time_to_die>cooldown.blood_fury.duration+duration|(target.health.pct<35|!talent.killer_instinct.enabled))|target.time_to_die<16
-            if (buff.aspectOfTheWild.exists()
-                and ((unit.race() == "Troll" and unit.ttd(units.dyn40) < 13) or (unit.race() == "Orc" and unit.ttd(units.dyn40) < 16))
+            if (unit.race() == "Troll" or unit.race() == "Orc") and ((buff.aspectOfTheWild.exists() or not ui.checked("Aspect of the Wild"))
                 and (unit.ttd(units.dyn40) > cd.racial.remain() + buff.racial.remain()
-                    or (unit.hp(units.dyn40) < 35 or not talent.killerInstinct)))
+                    or (unit.hp(units.dyn40) < 35 or not talent.killerInstinct))
+                    or (unit.isBoss(units.dyn40) and ((unit.race() == "Troll" and unit.ttd(units.dyn40) < 13) or (unit.race() == "Orc" and unit.ttd(units.dyn40) < 16))))
             then
                 if cast.racial() then ui.debug("Casting Racial") return true end
             end
@@ -569,7 +569,7 @@ actionList.St = function()
     -- Stampede
     -- stampede,if=buff.aspect_of_the_wild.up|target.time_to_die<15
     if ui.checked("Stampede") and talent.stampede and cast.able.stampede()
-        and (buff.aspectOfTheWild.exists() or (unit.ttd(units.dyn40) < 15 and ui.useCDs()))
+        and ((buff.aspectOfTheWild.exists() or not ui.checked("Aspect of the Wild")) or (unit.ttd(units.dyn40) < 15 and ui.useCDs()))
     then
         if cast.stampede() then ui.debug("Casting Stampede") return true end
     end
@@ -586,7 +586,8 @@ actionList.St = function()
     -- Bestial Wrath
     -- bestial_wrath,if=cooldown.wild_spirits.remains>15|!covenant.night_fae|target.time_to_die<15
     if ui.mode.bestialWrath == 1 and ui.alwaysCdAoENever("Bestial Wrath",3,#enemies.yards40) and cast.able.bestialWrath()
-        and (cd.wildSpirits.remains() > 15 or not covenant.nightFae.active or (unit.ttd(units.dyn40) < 15 + unit.gcd(true) or ui.useCDs()))
+        and ((cd.wildSpirits.remains() > 15 or not ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards12t)) or not covenant.nightFae.active
+            or (unit.ttd(units.dyn40) < 15 + unit.gcd(true) or ui.useCDs()))
     then
         if cast.bestialWrath() then ui.debug("Casting Bestial Wrath") return true end
     end
@@ -682,7 +683,7 @@ actionList.Cleave = function()
     end
     -- Bestial Wrath
     -- bestial_wrath
-    if ui.mode.bestialWrath == 1 and cast.able.bestialWrath() and (ui.value("Bestial Wrath") == 2 or (ui.value("Bestial Wrath") == 1 and ui.useCDs())) then
+    if ui.mode.bestialWrath == 1 and cast.able.bestialWrath() and ui.alwaysCdAoENever("Bestial Wrath",3,#enemies.yards4) then
         if cast.bestialWrath() then ui.debug("Casting Bestial Wrath [AOE]") return true end
     end
     -- Resonating Arrow
@@ -693,7 +694,7 @@ actionList.Cleave = function()
     -- Stampede
     -- stampede,if=buff.aspect_of_the_wild.up|target.time_to_die<15
     if ui.checked("Stampede") and talent.stampede and cast.able.stampede()
-        and (buff.aspectOfTheWild.exists() or (unit.ttdGroup(units.dyn40) < 15 and ui.useCDs()))
+        and ((buff.aspectOfTheWild.exists() or not ui.checked("Aspect of the Wild")) or (unit.ttdGroup(units.dyn40) < 15 and ui.useCDs()))
     then
         if cast.stampede() then ui.debug("Casting Stampede [AOE]") return true end
     end

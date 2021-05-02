@@ -14,7 +14,7 @@ br.api.ui = function(self)
         -- {"Always", "|cff008000AOE", "|cffffff00AOE/CD", "|cff0000ffCD", "|cffff0000Never"}
         thisOption = ui.value(thisOption)
         minUnits = minUnits or 3
-        enemyCount = enemyCount or 0
+        enemyCount = enemyCount or #br.getEnemies("player",40,false,true)
         return thisOption == 1
             or (thisOption == 2 and enemyCount >= minUnits)
             or (thisOption == 3 and (ui.useCDs() or enemyCount >= minUnits))
