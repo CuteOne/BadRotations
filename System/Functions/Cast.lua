@@ -693,7 +693,7 @@ function br.createCastFunction(thisUnit,castType,minUnits,effectRng,spellID,inde
 					br.player.ui.debug("Spell: "..spellName.." failed to cast because it is not safe to aoe.")
 				elseif debugReason == "Invalid Unit" then
 					if br.units[thisUnit] == nil then
-						br.player.ui.debug("Spell: "..spellName.." failed to cast because Unit is not in br.units.")
+						br.player.ui.debug("Spell: "..spellName.." failed to cast because Unit is not player, friend, in line of sight, or in br.units.")
 					end
 					if not br.getLineOfSight(thisUnit) then
 						br.player.ui.debug("Spell: "..spellName.." failed to cast because Unit is out line of sight.")
@@ -726,36 +726,30 @@ function br.createCastFunction(thisUnit,castType,minUnits,effectRng,spellID,inde
 		end
 		-- Cast Ground AOE at "Best" Locaton
         if thisUnit == "best" then
-			if not br.player.ui.isMouseDown() then
-				if debug then return true end
-				return br.castGroundAtBestLocation(spellCast,effectRng,minUnits,maxRange,minRange,castType,castTime)
-			end
+			if debug then return true end
+			return br.castGroundAtBestLocation(spellCast,effectRng,minUnits,maxRange,minRange,castType,castTime)
 		end
 		-- Cast Ground AOE at Player/Target Location
 		if thisUnit == "playerGround" or thisUnit == "targetGround" or castType == "groundCC" then
 			local targetUnit
 			targetUnit = thisUnit == "playerGround" and "player" or "target"
 			if castType == "groundCC" then targetUnit = thisUnit end
-			if not br.player.ui.isMouseDown() and (br.getDistance(targetUnit) < maxRange or br._G.IsSpellInRange(spellName,targetUnit) == 1) then
+			if (br.getDistance(targetUnit) < maxRange or br._G.IsSpellInRange(spellName,targetUnit) == 1) then
 				if debug then return true end
 				return br.castGroundAtUnit(spellCast,effectRng,minUnits,maxRange,minRange,castType,targetUnit)
 			end
 		end
 		-- Cast Ground AOE at Provide X/Y Location
 		if thisUnit == "groundLocation" then
-			if not br.player.ui.isMouseDown() then--and (br.getDistance(targetUnit) < maxRange or br._G.IsSpellInRange(spellName,targetUnit) == 1) then
-				if debug then return true end
-				local X = castType
-				local Y = minUnits
-				--local _, _, Z = br._G.ObjectPosition("player")
-				--return br.castAtPosition(X,Y,Z, baseSpellID)
-				return br.castGroundLocation(X,Y,baseSpellID,maxRange,minRange,effectRng)
-			end
+			if debug then return true end
+			local X = castType
+			local Y = minUnits
+			return br.castGroundLocation(X,Y,baseSpellID,maxRange,minRange,effectRng)
 		end
 		if thisUnit == "None" then printReport(true,"No Unit") return false end
 		-- Other Cast Conditions - Require Target
 		if thisUnit ~= nil and thisUnit ~= "None"
-			and (br.GetUnitIsUnit(thisUnit,"player") or br.units[thisUnit] ~= nil or br.getLineOfSight(thisUnit))
+			and (br.GetUnitIsUnit(thisUnit,"player") or br.GetUnitIsFriend(thisUnit,"player") or br.units[thisUnit] ~= nil or br.getLineOfSight(thisUnit))
 		then
 			-- Range Check
 			local inRange = function(minRange, maxRange)
@@ -782,10 +776,8 @@ function br.createCastFunction(thisUnit,castType,minUnits,effectRng,spellID,inde
 						or 0
 					if enemyCount >= minUnits and br.isSafeToAoE(spellID,thisUnit,effectRng,minUnits,castType,enemyCount) then
 						if castType == "ground" then
-							if br.player.ui.isMouseDown() then
-								if debug then return true end
-								return br.castGround(thisUnit,spellCast,maxRange,minRange,effectRng,castTime)
-							end
+							if debug then return true end
+							return br.castGround(thisUnit,spellCast,maxRange,minRange,effectRng,castTime)
 						else
 							return castingSpell(thisUnit,spellID,spellName,icon,castType,printReport,debug)
 						end

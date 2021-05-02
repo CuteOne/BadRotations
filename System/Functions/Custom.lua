@@ -48,19 +48,19 @@ end
 function br.castAtPosition(X,Y,Z, SpellID)
     local i = -100
     local mouselookActive = false
-    -- if IsMouselooking() then
-    --     mouselookActive = true
-    --     MouselookStop()
-    -- end
+    if IsMouselooking() then
+        mouselookActive = true
+        MouselookStop()
+    end
     br._G.CastSpellByName(br._G.GetSpellInfo(SpellID))
     while br._G.IsAoEPending() and i <= 100 do
         br._G.ClickPosition(X,Y,Z)
         Z = i
         i = i + 1
     end
-    -- if mouselookActive then
-    --     MouselookStart()
-    -- end
+    if mouselookActive then
+        MouselookStart()
+    end
     if i >= 100 and br._G.IsAoEPending() then return false end
     return true
 end
