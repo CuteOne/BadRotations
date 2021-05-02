@@ -684,7 +684,7 @@ actionList.Cleave = function()
     end
     -- Bestial Wrath
     -- bestial_wrath
-    if ui.mode.bestialWrath == 1 and cast.able.bestialWrath() and ui.alwaysCdAoENever("Bestial Wrath",3,#enemies.yards4) then
+    if ui.mode.bestialWrath == 1 and cast.able.bestialWrath() and ui.alwaysCdAoENever("Bestial Wrath",3,#enemies.yards40) then
         if cast.bestialWrath() then ui.debug("Casting Bestial Wrath [AOE]") return true end
     end
     -- Resonating Arrow

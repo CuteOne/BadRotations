@@ -135,20 +135,17 @@ br.api.module = function(self)
         end
         if section == nil then
             if slotID ~= nil then
-                local opValue = ui.value("Trinket "..slotID - 12)
-                -- local useTrinket = (opValue == 1 or (opValue == 2 and (ui.useCDs() or ui.useAOE())) or (opValue == 3 and ui.useCDs()))
                 -- For use in rotation loop - pass slotID
                 if slotID == 13 or slotID == 14 then
-                    if use.able.slot(slotID) and ui.alwaysCdAoENever(opValue) then
+                    if use.able.slot(slotID) and ui.alwaysCdAoENever("Trinket "..slotID - 12) then
                         if use.slot(slotID) then ui.debug("Using Trinket "..slotID - 12) return true end
                     end
                 end
             else
                 -- If not used in rotation loop - loop here
                 for slotID = 13, 14 do
-                    local opValue = ui.value("Trinket "..slotID - 12)
                     -- local useTrinket = (opValue == 1 or (opValue == 2 and (ui.useCDs() or ui.useAOE())) or (opValue == 3 and ui.useCDs()))
-                    if use.able.slot(slotID) and ui.alwaysCdAoENever(opValue) then
+                    if use.able.slot(slotID) and ui.alwaysCdAoENever("Trinket "..slotID - 12) then
                         if use.slot(slotID) then ui.debug("Using Trinket "..slotID - 12) return true end
                     end
                 end
