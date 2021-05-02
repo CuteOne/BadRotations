@@ -327,43 +327,18 @@ actionList.Cooldowns = function()
         end
         -- Metamorphosis
         if ui.alwaysCdNever("Metamorphosis") then
-            -- metamorphosis,if=!(talent.demonic.enabled|variable.pooling_for_meta)&cooldown.eye_beam.remains>20&(!covenant.venthyr.enabled|!dot.sinful_brand.ticking)|fight_remains<25
-            if cast.able.metamorphosis() and #enemies.yards8 > 0 and (not (talent.demonic or var.poolForMeta) and cd.eyeBeam.remains() > 20
-                and (not covenant.venthyr.enabled or not debuff.sinfulBrand.exists(units.dyn5) or (unit.isBoss("target") and unit.ttdGroup(5) < 25)))
+            -- metamorphosis,if=!talent.demonic.enabled&cooldown.eye_beam.remains>20&(!covenant.venthyr.enabled|!dot.sinful_brand.ticking)|fight_remains<25
+            if cast.able.metamorphosis() and #enemies.yards8 > 0 and not talent.demonic and cd.eyeBeam.remains() > 20
+                and (not covenant.venthyr.enabled or not debuff.sinfulBrand.exists(units.dyn5)) --or (unit.isBoss("target") and unit.ttdGroup(5) < 25)))
             then
                 if cast.metamorphosis("player") then ui.debug("Casting Metamorphosis") return true end
             end
-            -- metamorphosis,if=talent.demonic.enabled&(cooldown.eye_beam.remains>20&(!variable.blade_dance|cooldown.blade_dance.remains>gcd.max))&(!covenant.venthyr.enabled|!dot.sinful_brand.ticking)
+            -- metamorphosis,if=talent.demonic.enabled&(cooldown.eye_beam.remains>20&(!variable.blade_dance|cooldown.blade_dance.remains>gcd.max))&(!covenant.venthyr.enabled|!dot.sinful_brand.ticking)|fight_remains<25
             if cast.able.metamorphosis() and #enemies.yards8 > 0 and talent.demonic
                 and (cd.eyeBeam.remain() > 20 and (not var.bladeDance or cd.bladeDance.remain() > unit.gcd(true)))
                 and (not covenant.venthyr.enabled or not debuff.sinfulBrand.exists(units.dyn5))
             then
                 if cast.metamorphosis("player") then ui.debug("Casting Metamorphosis [Demonic]") return true end
-            end
-        end
-        -- Covenant Abilities
-        if ui.alwaysCdNever("Covenant Ability") then
-            -- Sinful Brand
-            -- sinful_brand,if=!dot.sinful_brand.ticking
-            if cast.able.sinfulBrand() and not debuff.sinfulBrand.exists(units.dyn5) then
-                if cast.sinfulBrand() then ui.debug("Casting Sinful Brand") return true end
-            end
-            -- The Hunt
-            -- the_hunt,if=!talent.demonic.enabled&!variable.waiting_for_momentum|buff.furious_gaze.up
-            if cast.able.theHunt() and ((not talent.demonic and not var.waitingForMomentum) or buff.furiousGaze.exists()) then
-                if cast.theHunt() then ui.debug("Casting The Hunt") return true end
-            end
-            -- -- Fodder to the Flame
-            -- -- fodder_to_the_flame
-            -- if cast.able.fodderToTheFlame() then
-            --     if cast.fodderToTheFlame() then ui.debug("Casting Fodder to the Flame") return true end
-            -- end
-            -- Elysian Decree
-            -- elysian_decree,if=(active_enemies>desired_targets|raid_event.adds.in>30)
-            if cast.able.elysianDecree() and unit.standingTime() > 2
-                and ((ui.mode.rotation == 1 and #enemies.yards8 >= ui.value("Units To AoE")) or ui.mode.rotation == 2 or ui.useCDs())
-            then
-                if cast.elysianDecree("best",nil,1,8) then ui.debug("Casting Elysian Decree") return true end
             end
         end
         -- Potion
@@ -381,46 +356,38 @@ actionList.Cooldowns = function()
         if buff.metamorphosis.exists() or not ui.alwaysCdNever("Metamorphosis") then
             module.BasicTrinkets()
         end
+        -- Covenant Abilities
+        if ui.alwaysCdNever("Covenant Ability") then
+            -- Sinful Brand
+            -- sinful_brand,if=!dot.sinful_brand.ticking
+            if cast.able.sinfulBrand() and not debuff.sinfulBrand.exists(units.dyn5) then
+                if cast.sinfulBrand() then ui.debug("Casting Sinful Brand") return true end
+            end
+            -- The Hunt
+            -- the_hunt,if=!talent.demonic.enabled&!variable.waiting_for_momentum&!variable.pooling_for_meta|buff.furious_gaze.up
+            if cast.able.theHunt() and ((not talent.demonic and not var.waitingForMomentum and not var.poolForMeta) or buff.furiousGaze.exists()) then
+                if cast.theHunt() then ui.debug("Casting The Hunt") return true end
+            end
+            -- -- Fodder to the Flame
+            -- -- fodder_to_the_flame
+            -- if cast.able.fodderToTheFlame() then
+            --     if cast.fodderToTheFlame() then ui.debug("Casting Fodder to the Flame") return true end
+            -- end
+            -- Elysian Decree
+            -- elysian_decree,if=(active_enemies>desired_targets|raid_event.adds.in>30)
+            if cast.able.elysianDecree() and unit.standingTime() > 2
+                and ((ui.mode.rotation == 1 and #enemies.yards8 >= ui.value("Units To AoE")) or ui.mode.rotation == 2 or ui.useCDs())
+            then
+                if cast.elysianDecree("best",nil,1,8) then ui.debug("Casting Elysian Decree") return true end
+            end
+        end
     end
 end -- End Action List - Cooldowns
-
--- Action List - Essence Break
-actionList.EssenceBreak = function()
-    -- Essence Break
-    -- essence_break,if=fury>=80&(cooldown.blade_dance.ready|!variable.blade_dance)
-    if cast.able.essenceBreak() and fury >= 80 and (cd.bladeDance.ready() or not var.bladeDance) then
-        if cast.essenceBreak() then ui.debug("Casting Essence Break") return true end
-    end
-    if debuff.essenceBreak.exists(units.dyn5) then
-        if var.bladeDance then
-            -- Death Sweep
-            -- death_sweep,if=variable.blade_dance&debuff.essence_break.up
-            if cast.able.deathSweep("player","aoe",1,8) then
-                if cast.deathSweep("player","aoe",1,8) then ui.debug("Casting Death Sweep [Essence Break]") return true end
-            end
-            -- Blade Dance
-            -- blade_dance,if=variable.blade_dance&debuff.essence_break.up
-            if cast.able.bladeDance("player","aoe",1,8) then
-                if cast.bladeDance("player","aoe",1,8) then ui.debug("Casting Blade Dance [Essence Break]") return true end
-            end
-        end
-        -- Annihilation
-        -- annihilation,if=debuff.essence_break.up
-        if cast.able.annihilation() then
-            if cast.annihilation() then ui.debug("Casting Annihilation [Essence Break]") return true end
-        end
-        -- Chaos Strike
-        -- chaos_strike,if=debuff.essence_break.up
-        if cast.able.chaosStrike() then
-            if cast.chaosStrike() then ui.debug("Casting Chaos Strike [Essence Break]") return true end
-        end
-    end
-end -- End Action List - Essence Break
 
 -- Action List - Demonic
 actionList.Demonic = function()
     -- Fel Rush
-    -- fel_rush,if=(talent.unbound_chaos.enabled&buff.unbound_chaos.up)&(charges=2|(raid_event.movement.in>10&raid_event.adds.in>10))
+    -- fel_rush,if=talent.unbound_chaos.enabled&buff.unbound_chaos.up&(charges=2|(raid_event.movement.in>10&raid_event.adds.in>10))
     if cast.able.felRush() and not unit.isExplosive("target") and unit.facing("player","target",10)
         and talent.unboundChaos and buff.unboundChaos.exists()
         and charges.felRush.count() > ui.value("Hold Fel Rush Charge")
@@ -484,6 +451,11 @@ actionList.Demonic = function()
     if cast.able.felblade() and furyDeficit >= 40 and not cast.last.vengefulRetreat() and unit.distance(units.dyn15) < 5 then
         if cast.felblade() then ui.debug("Casting Felblade") return true end
     end
+    -- Essence Break
+    -- essence_break
+    if cast.able.essenceBreak() then
+        if cast.essenceBreak() then ui.debug("Casting Essence Break") return true end
+    end
     -- Chaos Strike
     -- chaos_strike,if=!variable.pooling_for_blade_dance&!variable.pooling_for_eye_beam
     if cast.able.chaosStrike() and not var.poolForBladeDance and not var.poolForEyeBeam then
@@ -505,6 +477,17 @@ actionList.Demonic = function()
     -- demons_bite,target_if=min:debuff.burning_wound.remains,if=runeforge.burning_wound.equipped&debuff.burning_wound.remains<4
     if cast.able.demonsBite(var.lowestBurningWound) and runeforge.burningWound.equiped and debuff.burningWound.remain(var.lowestBurningWound) < 4 then
         if cast.demonsBite(var.lowestBurningWound) then ui.debug("Casting Demon's Bite [Burning Wound]") return true end
+    end
+    -- Fel Rush
+    -- fel_rush,if=!talent.demon_blades.enabled&spell_targets>1&(charges=2|(raid_event.movement.in>10&raid_event.adds.in>10))
+    if cast.able.felRush() and not unit.isExplosive("target") and unit.facing("player","target",10)
+        and not talent.demonBlades and #enemies.yards11r > 1 and charges.felRush.count() > ui.value("Hold Fel Rush Charge")
+    then
+        -- if ui.mode.mover == 1 and unit.distance("target") < 8 then
+        --     cancelRushAnimation()
+        -- elseif not ui.checked("Fel Rush Only In Melee") and (ui.mode.mover == 2 or (unit.distance("target") >= 8 and ui.mode.mover ~= 3)) then
+            if cast.felRush() then ui.debug("Casting Fel Rush [AOE]") return true end
+        -- end
     end
     -- demons_bite
     if cast.able.demonsBite(units.dyn5) and not talent.demonBlades and furyDeficit >= 30 then
@@ -544,9 +527,9 @@ actionList.Normal = function()
         -- end
     end
     -- Fel Rush
-    -- fel_rush,if=(variable.waiting_for_momentum|talent.unbound_chaos.enabled&buff.unbound_chaos.up)&(charges=2|(raid_event.movement.in>10&raid_event.adds.in>10))
+    -- fel_rush,if=(buff.unbound_chaos.up|variable.waiting_for_momentum&(!talent.unbound_chaos.enabled|!cooldown.immolation_aura.ready))&(charges=2|(raid_event.movement.in>10&raid_event.adds.in>10))
     if cast.able.felRush() and not unit.isExplosive("target") and unit.facing("player","target",10)
-        and (var.waitingForMomentum or (talent.unboundChaos and buff.unboundChaos.exists()))
+        and ((buff.unboundChaos.exists() or (var.waitingForMomentum and (not talent.unboundChaos or cd.immolationAura.exists()))))
         and charges.felRush.count() > ui.value("Hold Fel Rush Charge")
     then
         -- if ui.mode.mover == 1 and unit.distance("target") < 8 then
@@ -606,17 +589,22 @@ actionList.Normal = function()
     if cast.able.felblade() and furyDeficit >= 40 and not cast.last.vengefulRetreat() and unit.distance(units.dyn15) < 5 then
         if cast.felblade() then ui.debug("Casting Fel Blade") return true end
     end
+    -- Essence Break
+    -- essence_break
+    if cast.able.essenceBreak() then
+        if cast.essenceBreak() then ui.debug("Casting Essence Break") return true end
+    end
     -- Annihilation
-    -- annihilation,if=(talent.demon_blades.enabled|!variable.waiting_for_momentum|fury.deficit<30|buff.metamorphosis.remains<5)&!variable.pooling_for_blade_dance&!variable.waiting_for_essence_break
+    -- annihilation,if=(talent.demon_blades.enabled|!variable.waiting_for_momentum|fury.deficit<30|buff.metamorphosis.remains<5)&!variable.pooling_for_blade_dance
     if cast.able.annihilation() and (talent.demonBlades or not var.waitingForMomentum or furyDeficit < 30 or buff.metamorphosis.remain() < 5)
-        and not var.poolForBladeDance and not var.waitingForEssenceBreak
+        and not var.poolForBladeDance
     then
         if cast.annihilation() then ui.debug("Casting Annihilation") return true end
     end
     -- Chaos Strike
-    -- chaos_strike,if=(talent.demon_blades.enabled|!variable.waiting_for_momentum|fury.deficit<30)&!variable.pooling_for_meta&!variable.pooling_for_blade_dance&!variable.waiting_for_essence_break
+    -- chaos_strike,if=(talent.demon_blades.enabled|!variable.waiting_for_momentum|fury.deficit<30)&!variable.pooling_for_meta&!variable.pooling_for_blade_dance
     if cast.able.chaosStrike() and (talent.demonBlades or not var.waitingForMomentum or furyDeficit < 30)
-        and not var.poolForMeta and not var.poolForBladeDance and not var.waitingForEssenceBreak
+        and not var.poolForMeta and not var.poolForBladeDance
     then
         if cast.chaosStrike() then ui.debug("Casting Chaos Strike") return true end
     end
@@ -633,6 +621,7 @@ actionList.Normal = function()
     if cast.able.demonsBite(var.lowestBurningWound) and runeforge.burningWound.equiped and debuff.burningWound.remain(units.dyn5) < 4 then
         if cast.demonsBite(var.lowestBurningWound) then ui.debug("Casting Demon's Bite [Burning Wound]") return true end
     end
+    -- Demon's Bite
     -- demons_bite
     if cast.able.demonsBite(units.dyn5) and not talent.demonBlades and furyDeficit >= 30 then
         if cast.demonsBite(units.dyn5) then ui.debug("Casting Demon's Bite") return true end
@@ -808,6 +797,8 @@ local function runRotation()
         var.bladeDance = not unit.isExplosive("target") and (talent.firstBlood or ((buff.metamorphosis.exists() or talent.trailOfRuin or debuff.essenceBreak.exists("target"))
             and #enemies.yards8 >= (3 - var.ruinedTrail)) or (not talent.demonic and #enemies.yards8 >= 4))
     end
+    -- /variable,name=blade_dance,op=reset,if=talent.essence_break.enabled&cooldown.essence_break.ready
+    if talent.essenceBreak and not cd.essenceBreak.exists() then var.bladeDance = false end
     -- Pool for Meta Variable
     -- variable,name=pooling_for_meta,value=!talent.demonic.enabled&cooldown.metamorphosis.remains<6&fury.deficit>30
     var.poolForMeta = ui.checked("Metamorphosis") and ui.useCDs() and not talent.demonic and cd.metamorphosis.remain() < 6 and furyDeficit >= 30
@@ -817,9 +808,6 @@ local function runRotation()
     -- Pool for Eye Beam
     -- variable,name=pooling_for_eye_beam,value=talent.demonic.enabled&!talent.blind_fury.enabled&cooldown.eye_beam.remains<(gcd.max*2)&fury.deficit>20
     var.poolForEyeBeam = talent.demonic and not talent.blindFury and cd.eyeBeam.remain() < (gcd * 2) and furyDeficit >= 20 and not unit.isExplosive("target")
-    -- Waiting for Essence Break
-    -- variable,name=waiting_for_essence_break,value=talent.essence_break.enabled&!variable.pooling_for_blade_dance&!variable.pooling_for_meta&cooldown.essence_break.up
-    var.waitingForEssenceBreak = talent.essenceBreak and not var.poolForBladeDance and not var.poolingForMeta and cd.essenceBreak.ready()
     -- Wait for Momentum
     -- variable,name=waiting_for_momentum,value=talent.momentum.enabled&!buff.momentum.up
     var.waitingForMomentum = talent.momentum and not buff.momentum.exists()
@@ -897,11 +885,6 @@ local function runRotation()
                 -- throw_glaive,if=buff.fel_bombardment.stack=5&(buff.immolation_aura.up|!buff.metamorphosis.up)
                 if ui.checked("Throw Glaive") and cast.able.throwGlaive() and buff.felBombardment.stack() == 5 and (buff.immolationAura.exists() or not buff.metamorphosis.exists()) then
                     if cast.throwGlaive() then ui.debug("Casting Throw Glaive [Fel Bombardment]") return true end
-                end
-                -- Call Action List - Essence Break
-                -- call_action_list,name=essence_break,if=talent.essence_break.enabled&(variable.waiting_for_essence_break|debuff.essence_break.up)
-                if talent.essenceBreak and (var.waitingForEssenceBreak or debuff.essenceBreak.exists(units.dyn5)) then
-                    if actionList.EssenceBreak() then return true end
                 end
                 -- Call Action List - Demonic
                 -- run_action_list,name=demonic,if=talent.demonic.enabled

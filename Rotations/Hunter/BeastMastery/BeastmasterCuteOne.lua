@@ -584,10 +584,11 @@ actionList.St = function()
         if cast.resonatingArrow() then ui.debug("Casting Resonating Arrow [Kyrian]") return true end
     end
     -- Bestial Wrath
-    -- bestial_wrath,if=cooldown.wild_spirits.remains>15|!covenant.night_fae|target.time_to_die<15
+    -- bestial_wrath,if=cooldown.wild_spirits.remains>15|covenant.kyrian&(cooldown.resonating_arrow.remains<5|cooldown.resonating_arrow.remains>20)|target.time_to_die<15|(!covenant.night_fae&!covenant.kyrian)
     if ui.mode.bestialWrath == 1 and ui.alwaysCdAoENever("Bestial Wrath",3,#enemies.yards40) and cast.able.bestialWrath()
-        and ((cd.wildSpirits.remains() > 15 or not ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards12t)) or not covenant.nightFae.active
-            or (unit.ttd(units.dyn40) < 15 + unit.gcd(true) or ui.useCDs()))
+        and ((cd.wildSpirits.remains() > 15 or not ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards12t))
+            or (covenant.kyrian.active and (cd.resonatingArrow.remains() < 5 or cd.resonatingArrow.remains() > 20 or not ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards12t)))
+            or (unit.ttd(units.dyn40) < 15 + unit.gcd(true) or ui.useCDs()) or (not covenant.nightFae.active and not covenant.kyrian.active))
     then
         if cast.bestialWrath() then ui.debug("Casting Bestial Wrath") return true end
     end
@@ -617,8 +618,8 @@ actionList.St = function()
         if cast.cobraShot() then ui.debug("Casting Cobra Shot") return true end
     end
     -- Barbed Shot
-    -- barbed_shot,if=buff.wild_spirits.up
-    if unit.exists(br.petTarget) and cast.able.barbedShot(br.petTarget) and debuff.wildMark.exists(br.petTarget) then
+    -- barbed_shot,if=buff.wild_spirits.up|charges_fractional>1.2&conduit.bloodletting
+    if unit.exists(br.petTarget) and cast.able.barbedShot(br.petTarget) and (debuff.wildMark.exists(br.petTarget) or charges.barbedShot.frac() > 1.2 and conduit.bloodletting.enabled) then
         if cast.barbedShot(br.petTarget) then ui.debug("[Wild Spirits] Casting Barbed Shot on "..unit.name(br.petTarget)) return true end
     end
     -- Arcane Pulse
@@ -739,8 +740,8 @@ actionList.Cleave = function()
         if cast.direBeast() then ui.debug("Casting Dire Beast [AOE]") return true end
     end
     -- Barbed Shot
-    -- barbed_shot,target_if=min:dot.barbed_shot.remains,if=target.time_to_die<9
-    if cast.able.barbedShot(lowestBarbedShot) and unit.ttd(units.dyn40) < 9 then
+    -- barbed_shot,target_if=min:dot.barbed_shot.remains,if=target.time_to_die<9|charges_fractional>1.2&conduit.bloodletting
+    if cast.able.barbedShot(lowestBarbedShot) and (unit.ttd(units.dyn40) < 9 or charges.barbedShot.frac() > 1.2 and conduit.bloodletting.enabled) then
         if cast.barbedShot(lowestBarbedShot) then ui.debug("[AOE 4] Casting Barbed Shot on "..unit.name(lowestBarbedShot)) return true end
     end
     -- Cobra Shot
