@@ -207,30 +207,33 @@ local function runRotation()
     end
 
     local healingValues = {
-        gustOfMist = ((0.1 / 100) + (mastery / 100)) * spellPower * versatility * 1.09 * healingMultiplier,
-        vivify = (141 / 100) * spellPower * versatility * 1.09 * healingMultiplier,
-        vivifyRenewingMistAmount = (104 / 100) * spellPower * versatility * 1.09 * healingMultiplier,
-        envelopingMist = (60 / 100) * spellPower * versatility * 1.09 * healingMultiplier,
-        expelHarm = (120 / 100) * spellPower * versatility * 1.09 * healingMultiplier,
-        lifeCocoon = (60 / 100) * player.maxHealth * versatility * 1.08843,
-        revival = (315 / 100) * spellPower * versatility * 1.09 * healingMultiplier,
-        soothingMist = (55 / 100) * spellPower * versatility * 1.09 * healingMultiplier,
-        essenceFont = (47.2 / 100) * spellPower * versatility * 1.09 * healingMultiplier,
+        gustOfMist = ((0.1 / 100) + (mastery / 100)) * spellPower * versatility * healingMultiplier,
+        vivify = (141 / 100) * spellPower * versatility * healingMultiplier,
+        vivifyRenewingMistAmount = (104 / 100) * spellPower * versatility,
+        envelopingMist = (60 / 100) * spellPower * versatility * healingMultiplier,
+        expelHarm = (120 / 100) * spellPower * versatility * healingMultiplier,
+        lifeCocoon = (60 / 100) * player.maxHealth * versatility,
+        revival = (315 / 100) * spellPower * versatility * healingMultiplier,
+        soothingMist = (55 / 100) * spellPower * versatility * healingMultiplier,
+        essenceFont = (47.2 / 100) * spellPower * versatility * healingMultiplier,
         tigerPalm = (27.027 / 100) * spellPower * versatility * 0.81 * (250 / 100),
         blackoutKick = (84.7 / 100) * spellPower * versatility * 0.77 * (250 / 100),
         risingSunKick = (143.8 / 100) * spellPower * versatility * 1.12 * (250 / 100)
     }
     --print("$$$$")
     --for key, value in pairs(healingValues) do
-        --print('\t', key, value)
+    --print('\t', key, value)
     --end
     local getMissingHP = function(unit)
         if br.GetUnitIsDeadOrGhost(unit) then
             return 0
         end
+        if br.getDistance("player", unit) > 40 then
+            return 0
+        end
         local actualHealth = br._G.UnitHealth(unit) + br._G.UnitGetIncomingHeals(unit) + br._G.UnitGetTotalAbsorbs(unit)
         local missingHealth = br._G.UnitHealthMax(unit) - actualHealth
-        return  missingHealth
+        return missingHealth
     end
     local function countMissingHPAllies(Value, unitTable)
         local lowAllies = 0
@@ -290,7 +293,7 @@ local function runRotation()
     local function AlwaysRotation()
 
         -- CDS
-        if cd.lifeCocoon.ready() and getMissingHP(friends.lowest.unit) >= healingValues.lifeCocoon then
+        if cd.lifeCocoon.ready() and getMissingHP(friends.lowest.unit) >= healingValues.lifeCocoon and unit.inCombat() then
             return cast.lifeCocoon(friends.lowest.unit)
         end
         local revivalLimit = 1
@@ -299,21 +302,21 @@ local function runRotation()
         elseif #friends.all > 5 then
             revivalLimit = 8
         end
-        if cd.revival.ready() and countMissingHPAllies(healingValues.revival, friends.all) >= revivalLimit then
+        if cd.revival.ready() and countMissingHPAllies(healingValues.revival, friends.all) >= revivalLimit and unit.inCombat() then
             return cast.revival()
         end
         -- Self Healing
-        if br.timer:useTimer("healingElixir", 0.5) then
+        if br.timer:useTimer("healingElixir", 0.5) and unit.inCombat() then
             if (charges.healingElixir.count() > 1 and player.hp <= 75 and soothingMistUnit == nil) or (charges.healingElixir.count() > 0 and player.hp <= 45 and soothingMistUnit == nil) then
                 return cast.healingElixir(player.unit)
             end
         end
         if gcd <= 0.1 then
-            if cd.expelHarm.ready() and getMissingHP(player.unit) >= healingValues.expelHarm + healingValues.gustOfMist and soothingMistUnit == nil then
+            if cd.expelHarm.ready() and getMissingHP(player.unit) >= healingValues.expelHarm + healingValues.gustOfMist and soothingMistUnit == nil and unit.inCombat() then
                 return cast.expelHarm(player.unit)
             end
             -- Fortifying Brew
-            if ui.checked(text.autoCDS.fortifyingBrew) and player.hp <= ui.value(text.autoCDS.fortifyingBrew) and cd.fortifyingBrew.ready() then
+            if ui.checked(text.autoCDS.fortifyingBrew) and player.hp <= ui.value(text.autoCDS.fortifyingBrew) and cd.fortifyingBrew.ready() and unit.inCombat() then
                 return cast.fortifyingBrew(player.unit)
             end
             -- Diffuse Magic
@@ -400,7 +403,7 @@ local function runRotation()
             -- Tigers Lust
         end
         -- Extra stuff
-        if br.player.module.BasicHealing() then
+        if br.player.module.BasicHealing() and unit.inCombat() then
             return true
         end
         return false
@@ -648,10 +651,7 @@ local function runRotation()
             end
             return false
         else
-            if DamageRotation.NormalRotation() then
-                return true
-            end
-            return false
+            return DamageRotation.NormalRotation()
         end
         return true
     else
