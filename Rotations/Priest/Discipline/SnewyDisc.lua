@@ -163,7 +163,6 @@ local moving
 local race
 local spell
 local talent
-local ttd
 local ui
 local unit
 local units
@@ -461,57 +460,57 @@ actionList.Damage = function()
         end
     end
     if ui.checked("Purge the Wicked Targets") and talent.purgeTheWicked and purgeTheWickedCount < ui.value("Purge the Wicked Targets") and (cd.penance.remain() > gcdMax or purgeTheWickedCount == 0) then
-        if unit.valid("target") and not debuff.purgeTheWicked.exists("target") and ttd("target") > 6 then
+        if unit.valid("target") and not debuff.purgeTheWicked.exists("target") and unit.ttd() > 6 then
             if cast.purgeTheWicked("target") then return true end
         end
         for i = 1, #enemies.yards40 do
             thisUnit = enemies.yards40[i]
-            if debuff.purgeTheWicked.remain(thisUnit) < 6 and ttd(thisUnit) > 6 and not br._G.UnitIsOtherPlayersPet(thisUnit) then
+            if debuff.purgeTheWicked.remain(thisUnit) < 6 and unit.ttd(thisUnit) > 6 and not br._G.UnitIsOtherPlayersPet(thisUnit) then
                 if cast.purgeTheWicked(thisUnit) then return true end
             end
         end
     end
     if ui.checked("Shadow Word: Pain Targets") and not talent.purgeTheWicked and shadowWordPainCount < ui.value("Shadow Word: Pain Targets") and (cd.penance.remain() > gcdMax or shadowWordPainCount == 0) then
-        if unit.valid("target") and not debuff.shadowWordPain.exists("target") and ttd("target") > 6 then
+        if unit.valid("target") and not debuff.shadowWordPain.exists("target") and unit.ttd() > 6 then
             if cast.shadowWordPain("target") then return true end
         end
         for i = 1, #enemies.yards40 do
             thisUnit = enemies.yards40[i]
-            if debuff.purgeTheWicked.remain(thisUnit) < 4.8 and ttd(thisUnit) > 6 and not br._G.UnitIsOtherPlayersPet(thisUnit) then
+            if debuff.purgeTheWicked.remain(thisUnit) < 4.8 and unit.ttd(thisUnit) > 6 and not br._G.UnitIsOtherPlayersPet(thisUnit) then
                 if cast.shadowWordPain(thisUnit) then return true end
             end
         end
     end
     if ui.checked("Mindbender") and talent.mindbender and power <= ui.value("Mindbender") and atonementsCount >= 3 then
-        if schismUnit ~= nil and ttd(schismUnit) > 9 then
+        if schismUnit ~= nil and unit.ttd(schismUnit) > 9 then
             if cast.mindbender(schismUnit) then return true end
-        elseif ttd(units.dyn40) > 9 and not unit.isExplosive(units.dyn40) then
+        elseif unit.ttd(units.dyn40) > 9 and not unit.isExplosive(units.dyn40) then
             if cast.mindbender(units.dyn40) then return true end
         end
     end
     if ui.checked("Shadowfiend") and not talent.mindbender and power <= ui.value("Shadowfiend") and atonementsCount >= 3 then
-        if schismUnit ~= nil and ttd(schismUnit) > 9 then
+        if schismUnit ~= nil and unit.ttd(schismUnit) > 9 then
             if cast.shadowfiend(schismUnit) then return true end
-        elseif ttd(units.dyn40) > 9 and not unit.isExplosive(units.dyn40) then
+        elseif unit.ttd(units.dyn40) > 9 and not unit.isExplosive(units.dyn40) then
             if cast.shadowfiend(units.dyn40) then return true end
         end
     end
-    if ui.checked("Schism") and talent.schism and not moving and cd.penance.remain() <= gcdMax + 1 and ttd(units.dyn40) > 7 and not unit.isExplosive(units.dyn40) then
+    if ui.checked("Schism") and talent.schism and not moving and cd.penance.remain() <= gcdMax + 1 and unit.ttd(units.dyn40) > 7 and not unit.isExplosive(units.dyn40) then
         if cast.schism(units.dyn40) then return true end
     end
     if ui.checked("Mindgames") and covenant.venthyr.active and not moving then
-        if schismUnit ~= nil and ttd(schismUnit) > 7 then
+        if schismUnit ~= nil and unit.ttd(schismUnit) > 7 then
             if cast.mindgames(schismUnit) then return true end
-        elseif ttd(units.dyn40) > 9 and not unit.isExplosive(units.dyn40) then
+        elseif unit.ttd(units.dyn40) > 9 and not unit.isExplosive(units.dyn40) then
             if cast.mindgames(units.dyn40) then return true end
         end
     end
     if ui.checked("Penance") then
-        if schismUnit ~= nil and ttd(schismUnit) > 2.5 then
+        if schismUnit ~= nil and unit.ttd(schismUnit) > 2.5 then
             if cast.penance(schismUnit) then return true end
-        elseif purgeTheWickedUnit ~= nil and ttd(purgeTheWickedUnit) > 2.5 and unit.facing(purgeTheWickedUnit) then
+        elseif purgeTheWickedUnit ~= nil and unit.ttd(purgeTheWickedUnit) > 2.5 and unit.facing(purgeTheWickedUnit) then
             if cast.penance(purgeTheWickedUnit) then return true end
-        elseif ttd(units.dyn40) > 2.5 then
+        elseif unit.ttd(units.dyn40) > 2.5 then
             if cast.penance(units.dyn40) then return true end
         end
     end
@@ -578,7 +577,6 @@ local function runRotation()
     race = br.player.race
     spell = br.player.spell
     talent = br.player.talent
-    ttd = br.getTTD
     ui = br.player.ui
     unit = br.player.unit
     units = br.player.units
@@ -609,14 +607,14 @@ local function runRotation()
     for i = 1, #enemies.yards40 do
         thisUnit = enemies.yards40[i]
         thisGroupCount = #enemies.get(10, thisUnit)
-        if thisGroupCount > bestAOEGroupCount and ttd(thisUnit) > 4 then
+        if thisGroupCount > bestAOEGroupCount and unit.ttd(thisUnit) > 4 then
             bestAOEGroupCount = thisGroupCount
             bestAOEUnit = thisUnit
         end
-        if debuff.schism.exists(thisUnit) and ttd(thisUnit) > 2 and unit.facing(thisUnit) and not br._G.UnitIsOtherPlayersPet(thisUnit) then
+        if debuff.schism.exists(thisUnit) and unit.ttd(thisUnit) > 2 and unit.facing(thisUnit) and not br._G.UnitIsOtherPlayersPet(thisUnit) then
             schismUnit = thisUnit
         end
-        if debuff.purgeTheWicked.exists(thisUnit) and ttd(thisUnit) > 2 and unit.facing(thisUnit) and not br._G.UnitIsOtherPlayersPet(thisUnit) then
+        if debuff.purgeTheWicked.exists(thisUnit) and unit.ttd(thisUnit) > 2 and unit.facing(thisUnit) and not br._G.UnitIsOtherPlayersPet(thisUnit) then
             purgeTheWickedUnit = thisUnit
         end
     end
