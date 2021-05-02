@@ -220,6 +220,7 @@ local function createOptions()
         br.ui:createSpinner(section, "Grievous Wounds", 2, 0, 10, 1, "Enables/Disables GrievousWound")
         br.ui:createSpinner(section, "Infused Holy Light Grievous", 70, 0, 100, 5, "", "Health Percent to Cast At")
         br.ui:createCheckbox(section, "DBM/BW Precast CDs", "Uses DBM (ONLY DBM) to precast mitigation spells", 1)
+        br.ui:createCheckbox(section, "Pride Heal")
         br.ui:checkSectionState(section)
     end
 
@@ -409,13 +410,13 @@ end
 --can we heal?  to avoid spam
 local function canheal(unit)
     if br.GetUnitIsUnit(unit, "player")
-            or br._G.UnitInRange(unit)
-            and not br.UnitBuffID(unit, 327140)
-            and not br.UnitBuffID(unit, 344916)
-            and (not br.UnitBuffID(unit, 108978) or br.getHP(unit) < ui.value("Critical HP"))
+            or br._G.UnitIsPlayer(unit)
+            and br._G.UnitInRange(unit)
+            and not br.UnitBuffID(unit, 327140) --forgeborne-reveries
+            and not br.UnitBuffID(unit, 344916) -- tuft-of-smoldering-plumage
+            and (not br.UnitBuffID(unit, 108978) or br.getHP(unit) < ui.value("Critical HP")) --mages ...
             and br.getLineOfSight(unit, "player")
             and not br.GetUnitIsDeadOrGhost(unit)
-            and br._G.UnitIsPlayer(unit)
             and br.GetUnitIsFriend(unit, "player") then
         return true
     else
@@ -1877,6 +1878,20 @@ actionList.triage = function()
         end
     end
 
+    if healTarget == "none" and ui.checked("Pride Heal") and br.GetObjectID("target") == 173729 then
+        local prideHealTarget = "player"
+        local prideHealHealth = br._G.UnitHealth("player")
+        for i = 1, #br.friend do
+            if canheal(br.friend[i].unit) and br._G.UnitHealth(br.friend[i].unit) < prideHealHealth then
+                prideHealTarget = br.friend[i].unit
+            end
+        end
+        if br.getHP(prideHealTarget) < 90 then
+            healTarget = prideHealTarget
+            healReason = "PRIDE"
+        end
+    end
+
     if healTarget == "none" and ui.checked("Grievous Wounds") then
         --Grievous Wounds
         BleedStack = 0
@@ -1896,7 +1911,7 @@ actionList.triage = function()
     end
 
     --Raid Stuff
-    if healTarget == "none" and mode.raid == 1 then
+    if healTarget == "none" and mode.raid == 1 and br.player.instance == "raid" then
         --Scan our friends for Debuffs for prio heals
         if inCombat and inRaid then
             for i = 1, #br.friend do
