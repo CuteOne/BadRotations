@@ -197,10 +197,23 @@ local function runRotation()
     if buff.lifeCocoon.remains(friends.lowest.unit) > 2 then
         healingMultiplier = healingMultiplier + 0.5
     end
+    local function isAuraActive (unit, spellID)
+        for i = 1, 40 do
+            local buffName, _, _, _, _, _, _, _, _, buffSpellID = br._G.UnitBuff(unit, i)
+            if buffName == nil then
+                return nil
+            end
+            if buffSpellID == spellID then
+                return true
+            end
+        end
+    end
     local soothingMistUnit
     for i = 1, #friends.all do
         local tempUnit = friends.all[i]
-        if buff.soothingMist.exists(tempUnit.unit) then
+        if isAuraActive(tempUnit.unit, 115175) then
+            --print(isAuraActive("player", 198533))
+            --print("soothingmist unit")
             soothingMistUnit = tempUnit.unit
             break
         end
@@ -231,7 +244,7 @@ local function runRotation()
         if br.getDistance("player", unit) > 40 then
             return 0
         end
-        local actualHealth = br._G.UnitHealth(unit) + br._G.UnitGetIncomingHeals(unit) + br._G.UnitGetTotalAbsorbs(unit)
+        local actualHealth = br._G.UnitHealth(unit) + br._G.UnitGetIncomingHeals(unit)
         local missingHealth = br._G.UnitHealthMax(unit) - actualHealth
         return missingHealth
     end
@@ -265,13 +278,10 @@ local function runRotation()
             local thisUnit = br._G.GetObjectWithIndex(i)
             local ID = br._G.ObjectID(thisUnit)
             if ID == 54569 then
-                transcendence.x, transcendence.y, transcendence.z = br.GetObjectPosition(thisUnit)
+                transcendence.x, transcendence.y, transcendence.z = br._G.ObjectPosition(thisUnit)
             end
             if ID == 60849 then
-                jadeSerpentStatue.x, jadeSerpentStatue.y, jadeSerpentStatue.z = br.GetObjectPosition(thisUnit)
-            end
-            if jadeSerpentStatue.x > 0 and transcendence.x > 0 then
-                break
+                jadeSerpentStatue.x, jadeSerpentStatue.y, jadeSerpentStatue.z = br._G.ObjectPosition(thisUnit)
             end
         end
     end
@@ -374,29 +384,23 @@ local function runRotation()
                 end
             end
             -- Refreshing Jade Wind
-            -- Jade Statue Soothing Mist
-            if cast.timeSinceLast.soothingMist() > 7 and talent.summonJadeSerpentStatue and totemInfo.jadeSerpentStatueDuration > 0 then
-                br._G.C_Timer.After(0.8, function()
-                    br._G.SpellStopCasting()
-                end)
-                return cast.soothingMist(friends.lowest.unit)
-            end
-            if talent.summonJadeSerpentStatue and cd.summonJadeSerpentStatue.ready() and friends.lowest.hp >= 75 then
+            if talent.summonJadeSerpentStatue then
                 local px, py, pz = br._G.ObjectPosition("player")
-                if jadeSerpentStatue.x and jadeSerpentStatue.y and jadeSerpentStatue.z then
-                    local distance = br._G.GetDistanceBetweenPositions(px, py, pz, jadeSerpentStatue.x, jadeSerpentStatue.y, jadeSerpentStatue.z)
+                local distance = br._G.GetDistanceBetweenPositions(px, py, pz, jadeSerpentStatue.x, jadeSerpentStatue.y, jadeSerpentStatue.z)
+                -- Jade Statue Soothing Mist
+                if cast.timeSinceLast.soothingMist() > 7 and soothingMistUnit == nil and distance < 35 and totemInfo.jadeSerpentStatueDuration > 0 then
+                    br._G.C_Timer.After(0.8, function()
+                        br._G.SpellStopCasting()
+                    end)
+                    return cast.soothingMist(friends.lowest.unit)
+                end
+                if cd.summonJadeSerpentStatue.ready() and friends.lowest.hp >= 75 then
                     if distance > 38 or totemInfo.jadeSerpentStatueDuration <= 5 then
                         px = px + math.random(-2, 2)
                         py = py + math.random(-2, 2)
                         if br.castGroundAtLocation({ x = px, y = py, z = pz }, spell.summonJadeSerpentStatue) then
                             return true
                         end
-                    end
-                else
-                    px = px + math.random(-2, 2)
-                    py = py + math.random(-2, 2)
-                    if br.castGroundAtLocation({ x = px, y = py, z = pz }, spell.summonJadeSerpentStatue) then
-                        return true
                     end
                 end
             end
@@ -556,16 +560,13 @@ local function runRotation()
                         return cast.soothingMist(friends.lowest.unit)
                     end
                 else
-                    if buff.envelopingMist.remains(soothingMistUnit) < 2 then
+                    if not buff.renewingMist.exists(soothingMistUnit) and buff.envelopingMist.remains(soothingMistUnit) < 2 then
                         if getMissingHP(soothingMistUnit) >= healingValues.envelopingMist + healingValues.gustOfMist + healingValues.soothingMist + healingValues.vivify + healingValues.gustOfMist then
                             --print("Enveloping Mist AOE Soothing Mist")
                             return cast.envelopingMist(soothingMistUnit)
                         end
                     end
                     if getMissingHP(soothingMistUnit) >= (healingValues.vivify + healingValues.gustOfMist) + healingValues.soothingMist then
-                        if player.mana <= 75 and talent.manaTea then
-                            cast.manaTea(player.unit)
-                        end
                         --print("Vivify AOE Soothing Mist")
                         return cast.vivify(soothingMistUnit)
                     end
@@ -576,19 +577,29 @@ local function runRotation()
 
         if not cast.active.vivify() and soothingMistUnit == nil and getMissingHP(friends.lowest.unit) >= healingValues.soothingMist + healingValues.envelopingMist + healingValues.gustOfMist + healingValues.soothingMist + healingValues.vivify + healingValues.gustOfMist then
             --print("Casting Soothing Mist ST")
+            if player.mana <= 75 and talent.manaTea then
+                cast.manaTea(player.unit)
+            end
             return cast.soothingMist(friends.lowest.unit)
         end
         if soothingMistUnit ~= nil then
+            local temp = healingValues.soothingMist + healingValues.vivify + healingValues.gustOfMist
+            if buff.renewingMist.exists(soothingMistUnit) then
+                temp = healingValues.soothingMist + healingValues.vivify + healingValues.gustOfMist + healingValues.vivifyRenewingMistAmount
+                --if getMissingHP(soothingMistUnit) >= healingValues.soothingMist + healingValues.vivify + healingValues.gustOfMist + healingValues.vivifyRenewingMistAmount then
+                --    --print("Vivify ST Soothing Mist")
+                --    return cast.vivify(soothingMistUnit)
+                --end
+            end
             if buff.envelopingMist.remains(soothingMistUnit) < 2 then
-                if getMissingHP(soothingMistUnit) >= healingValues.envelopingMist + healingValues.gustOfMist + healingValues.soothingMist + healingValues.vivify + healingValues.gustOfMist then
+                if getMissingHP(soothingMistUnit) >= healingValues.envelopingMist + healingValues.gustOfMist + temp then
                     --print("Enveloping Mist ST Soothing Mist")
                     return cast.envelopingMist(soothingMistUnit)
                 end
-            elseif buff.envelopingMist.remains(soothingMistUnit) > 1 then
-                if getMissingHP(soothingMistUnit) >= healingValues.soothingMist + healingValues.vivify + healingValues.gustOfMist then
-                    --print("Vivify ST Soothing Mist")
-                    return cast.vivify(soothingMistUnit)
-                end
+            end
+            if getMissingHP(soothingMistUnit) >= temp then
+                --print("Vivify ST Soothing Mist")
+                return cast.vivify(soothingMistUnit)
             end
         end
         --
