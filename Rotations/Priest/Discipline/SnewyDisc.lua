@@ -102,6 +102,12 @@ local function createOptions()
         br.ui:createSpinnerWithout(section, "Evangelism Targets", 3, 0, 40, 1, "Minimum Targets to use at.")
         br.ui:createSpinnerWithout(section, "Evangelism Atonements", 3, 0, 40, 1, "Minimum Atonements to use at.")
         -- br.ui:createCheckbox(section, "Evangelism Ramp")
+        br.ui:createSpinner(section, "Trinket 1", 70, 0, 100, 1, "Health Percentage to use at.")
+        br.ui:createSpinnerWithout(section, "Trinket 1 Targets", 3, 1, 40, 1, "Minimum Friendly Trinket 1 Targets to use at.")
+        br.ui:createDropdown(section, "Trinket 1 Mode", {"Enemy", "Friend"}, 1, "Use Trinket 1 on enemy or on friend.")
+        br.ui:createSpinner(section, "Trinket 2", 70, 0, 100, 1, "Health Percentage to use at.")
+        br.ui:createSpinnerWithout(section, "Trinket 2 Targets", 3, 1, 40, 1, "Minimum Friendly Trinket 2 Targets to use at.")
+        br.ui:createDropdown(section, "Trinket 2 Mode", {"Enemy", "Friend"}, 1, "Use Trinket 2 on enemy or on friend.")
         br.ui:checkSectionState(section)
     end -- End cooldownOptions
     
@@ -304,6 +310,32 @@ actionList.Cooldown = function()
                 thisUnit = friends[i].unit
                 if unit.hp(thisUnit) <= ui.value("Pain Suppression Party") then
                     cast.painSuppression(thisUnit)
+                end
+            end
+        end
+        if ui.checked("Trinket 1") and br.canTrinket(13) and br.getLowAllies(ui.value("Trinket 1")) >= ui.value("Trinket 1 Targets") then
+            if ui.value("Trinket 1 Mode") == 1 then
+                if schismUnit ~= nil then
+                    br.useItem(13, schismUnit)
+                elseif schismUnit == nil then
+                    br.useItem(13)
+                end
+            elseif ui.value("Trinket 1 Mode") == 2 then
+                if unit.hp(lowestUnit) <= ui.value("Trinket 1") then
+                    br.useItem(13, lowestUnit)
+                end
+            end
+        end
+        if ui.checked("Trinket 2") and br.canTrinket(14) and br.getLowAllies(ui.value("Trinket 2")) >= ui.value("Trinket 2 Targets") then
+            if ui.value("Trinket 2 Mode") == 1 then
+                if schismUnit ~= nil then
+                    br.useItem(14, schismUnit)
+                elseif schismUnit == nil then
+                    br.useItem(14)
+                end
+            elseif ui.value("Trinket 2 Mode") == 2 then
+                if unit.hp(lowestUnit) <= ui.value("Trinket 2") then
+                    br.useItem(14, lowestUnit)
                 end
             end
         end
@@ -608,9 +640,9 @@ local function runRotation()
             if actionList.PreCombat() then return true end
         end
         if actionList.Extra() then return true end
+        if actionList.Dispel() then return true end
         if inCombat then
             if actionList.Defensive() then return true end
-            if actionList.Dispel() then return true end
             if actionList.Interrupt() then return true end
             if actionList.Cooldown() then return true end
             if actionList.Healing() then return true end
