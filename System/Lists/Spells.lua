@@ -1466,7 +1466,7 @@ br.lists.spells = {
                 mendPet                     = 136,
                 nesingwarysTrappingApparatus= 336744,
                 playDead                    = 209997,
-                prowl                       = 24450,                
+                prowl                       = 24450,
                 resonatingArrow             = 308498, -- Covenant
                 spiritWalk                  = 90328,
                 surfaceTrot                 = 126311, -- Water Strider - Water Walking
@@ -1474,7 +1474,7 @@ br.lists.spells = {
                 volley                      = 260243,
             },
             conduits                        = {
-
+                bloodletting                = 341440,
             },
             covenants                       = {
                 deathChakram                = 325028,
@@ -1675,7 +1675,7 @@ br.lists.spells = {
                 ignite                      = 12654,
                 meteorBurn                  = 155158,
                 cauterized                  = 87024,
-               
+
             },
             glyphs                          = {
 
@@ -1859,7 +1859,7 @@ br.lists.spells = {
                 sunKingsBlessings           = 333313,
                 grislyIcicle                = 333393,
                 firestorm                   = 333097,
-                
+
             },
             talents                         = {
                 incantersFlow               = 1463,
