@@ -738,8 +738,8 @@ local function getOutLaksTTD(ttd_time)
     end
     for i = 1, mob_count do
         if br.getTTD(enemies.yards8[i]) < lowTTD
-        and br.GetObjectID(enemies.yards8[i]) ~= 120651
-        and br.GetObjectID(enemies.yards8[i]) ~= 174773
+                and br.GetObjectID(enemies.yards8[i]) ~= 120651
+                and br.GetObjectID(enemies.yards8[i]) ~= 174773
                 and br.isSafeToAttack(enemies.yards8[i]) then
             LowTTDtarget = enemies.yards8[i]
             lowTTD = br.getTTD(LowTTDtarget)
@@ -1167,12 +1167,12 @@ actionList.dps = function()
 
 
         -- Skuler's Wing
-        if (Trinket13 == 184016 or Trinket14  == 184016)
+        if (Trinket13 == 184016 or Trinket14 == 184016)
                 and br.canUseItem(184016) and inCombat and not stealth and unit.distance(dynamic_target_melee) < 8 then
             br.useItem(184016)
         end
         --darkmoon trinket
-        if (Trinket13 == 173087 or Trinket14  == 173087)
+        if (Trinket13 == 173087 or Trinket14 == 173087)
                 and br.canUseItem(173087) and inCombat and not stealth then
             br.useItem(173087)
         end
@@ -1705,12 +1705,12 @@ actionList.Interrupt = function()
                     distance = br.getDistance(interrupt_target)
                     local castStartTime
                     if br._G.UnitCastingInfo(interrupt_target) then
-                        castStartTime = select(4,br._G.UnitCastingInfo(interrupt_target))
+                        castStartTime = select(4, br._G.UnitCastingInfo(interrupt_target))
                     elseif br._G.UnitChannelInfo(interrupt_target) then
-                        castStartTime = select(4,br._G.UnitChannelInfo(interrupt_target))
+                        castStartTime = select(4, br._G.UnitChannelInfo(interrupt_target))
                     end
-                    if br.isCrowdControlCandidates(interrupt_target) and (br._G.GetTime()-(castStartTime/1000)) > 0.1
-                    and not already_stunned(interrupt_target)
+                    if br.isCrowdControlCandidates(interrupt_target) and (br._G.GetTime() - (castStartTime / 1000)) > 0.1
+                            and not already_stunned(interrupt_target)
                             and br.GetUnitExists(interrupt_target) and br.getBuffRemain(interrupt_target, 226510) == 0 and distance <= 20 then
                         if mode.gouge > 1 and mode.gouge ~= 5 and cast.able.gouge() and (distance <= dynamic_range) and br.getFacing(interrupt_target, "player", 45) then
                             if cast.gouge(interrupt_target) then
@@ -1889,7 +1889,7 @@ local function runRotation()
 
     --        br.ui:createDropdown(section, "Draw Range", { "Never", "Blade Flurry", "always" }, 1, "Draw range on screen")
     if inCombat and br.getOptionValue("Draw Range") == 3 or br.getOptionValue("Draw Range") == 2 and buff.bladeFlurry.exists() then
-        local LibDraw = LibStub:NewLibrary("LibDraw-BR", 3)
+        local LibDraw = LibStub("LibDraw-BR")
         local draw_range = talent.acrobaticStrikes and 8 or 5
         local playerX, playerY, playerZ = br.GetObjectPosition("player")
         LibDraw.SetColorRaw(1, 0, 0, 1)
