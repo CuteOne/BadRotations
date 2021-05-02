@@ -2196,11 +2196,12 @@ actionList.heal = function()
             end
         end
         -- Cast
-        if (ui.checked("Flash of Light") or ui.checked("Infused Flash of Light") and healTarget ~= "none")
-                or ((ui.checked("Flash of Light") or ui.checked("Infused Flash of Light")) and mode.raid == 1 and br.getMana("player") >= 75 and (healReason == "BOSS" or healReason == "RAIDHELP"))
+        if (ui.checked("Flash of Light") or ui.checked("Infused Flash of Light")) and
+                (healTarget ~= "none" or mode.raid == 1 and br.player.instance == "raid" and br.getMana("player") >= 75 and (healReason == "BOSS" or healReason == "RAIDHELP"))
         then
             healTargetHealth = round(br.getHP(healTarget), 1)
             --   if healTargetHealth < ui.checked("Infused Flash of Light") then
+
             if canheal(healTarget) then
                 if cast.flashOfLight(healTarget) then
                     br.addonDebug("[" .. healReason .. "] flashOfLight on: " .. br._G.UnitName(healTarget) .. "/" .. healTargetHealth .. "/" .. (ui.value("Infused Flash of Light")))
