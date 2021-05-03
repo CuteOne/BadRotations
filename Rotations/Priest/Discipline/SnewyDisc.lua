@@ -37,8 +37,7 @@ local function createOptions()
     local optionTable
     local function generalOptions()
         local section = br.ui:createSection(br.ui.window.profile, "General")
-        -- br.ui:createDropdown(section, "Prioritization", {"Healing", "Damage"}, 1, "Prioritize healing or damage.")
-        -- br.ui:createSpinner(section, "Maximum Continuous Self Heals", 1, 1, 5, 1, "The maximum number of continuous heals on us before damaging.")
+        br.ui:createSpinner(section, "Pre-Pull Timer", 2, 1, 10, 1, "Desired time to start Pre-Pull.")
         br.ui:createSpinner(section, "Heal Out of Combat", 90, 1, 100, 1, "Health Percentage to heal Out of Combat.")
         br.ui:createCheckbox(section, "Power Word: Fortitude", "Use Power Word: Fortitude on party.")
         br.ui:createSpinner(section, "Power Word: Shield (Body and Soul)", 1, 0, 100, 1, "Use Power Word: Shield (Body and Soul) after past seconds of moving.")
@@ -57,11 +56,11 @@ local function createOptions()
     end -- End generalOptions
     local function healingOptions()
         local section = br.ui:createSection(br.ui.window.profile, "Healing")
+        br.ui:createDropdown(section, "Atonement Ramp Key", br.dropOptions.Toggle, 6, "Key to press to spam atonements on party.")
         br.ui:createSpinnerWithout(section, "Atonement Tank", 95, 0, 100, 1, "Tank Health Percentage to use Power Word: Shield and Power Word: Radiance at.")
         br.ui:createSpinnerWithout(section, "Atonement Party", 90, 0, 100, 1, "Party Health Percentage to use Power Word: Shield and Power Word: Radiance at.")
         br.ui:createSpinner(section, "Maximum Atonements", 3, 1, 40, 1, "Maximum Atonements to use at.")
         br.ui:createSpinner(section, "Maximum Rapture Atonements", 3, 1, 40, 1, "Maximum Atonements during Rapture to use at.")
-        -- br.ui:createDropdown(section, "Atonement Ramp", br.dropOptions.Toggle, 6, "Key to press to spam atonements on party.")
         br.ui:createSpinner(section, "Shadow Mend", 65, 0, 100, 5, "Health Percentage to use at.")
         br.ui:createSpinner(section, "Penance Heal", 60, 0, 100, 5, "Health Percentage to use at.")
         br.ui:createSpinner(section, "Pain Suppression Tank", 30, 0, 100, 5, "Health Percentage to use at.")
@@ -101,7 +100,9 @@ local function createOptions()
         br.ui:createSpinner(section, "Evangelism", 70, 0, 100, 1, "Health Percentage to use at.")
         br.ui:createSpinnerWithout(section, "Evangelism Targets", 3, 0, 40, 1, "Minimum Targets to use at.")
         br.ui:createSpinnerWithout(section, "Evangelism Atonements", 3, 0, 40, 1, "Minimum Atonements to use at.")
-        -- br.ui:createCheckbox(section, "Evangelism Ramp")
+        br.ui:createSpinner(section, "Spirit Shell", 70, 0, 100, 1, "Health Percentage to use at.")
+        br.ui:createSpinnerWithout(section, "Spirit Shell Targets", 3, 0, 40, 1, "Minimum Targets to use at.")
+        br.ui:createSpinnerWithout(section, "Spirit Shell Atonements", 3, 0, 40, 1, "Minimum Atonements to use at.")
         br.ui:createSpinner(section, "Trinket 1", 70, 0, 100, 1, "Health Percentage to use at.")
         br.ui:createSpinnerWithout(section, "Trinket 1 Targets", 3, 1, 40, 1, "Minimum Friendly Trinket 1 Targets to use at.")
         br.ui:createDropdown(section, "Trinket 1 Mode", {"Enemy", "Friend"}, 1, "Use Trinket 1 on enemy or on friend.")
@@ -190,9 +191,16 @@ local actionList = {}
 
 -- Action List - PreCombat
 actionList.PreCombat = function()
-    --if ui.checked("Pre-Pull Timer") and ui.pullTimer() <= ui.value("Pre-Pull Timer") then
-    --    end
-    end -- End Action List - PreCombat
+    if ui.checked("Pre-Pull Timer") and ui.pullTimer() <= ui.value("Pre-Pull Timer") then
+        if unit.valid("target") then
+            if ui.checked("Schism") and talent.schism and not moving then
+                if cast.schism("target") then return true end
+            elseif ui.checked("Smite") and not moving then
+                if cast.smite("target") then return true end
+            end
+        end
+    end
+end -- End Action List - PreCombat
 
 -- Action List - Extra
 actionList.Extra = function()
@@ -212,6 +220,18 @@ actionList.Extra = function()
     if br.IsMovingTime(ui.value("Angelic Feather")) then
         if ui.checked("Angelic Feather") and talent.bodyAndSoul and not buff.angelicFeather.exists("player") then
             if cast.angelicFeather("player") then return true end
+        end
+    end
+    if ui.checked("Atonement Ramp Key") and br.SpecificToggle("Atonement Ramp Key") and not br._G.GetCurrentKeyBoardFocus() then
+        for i = 1, #friends do
+            thisUnit = friends[i].unit
+            if not buff.atonement.exists(thisUnit) then
+                if nonAtonementsCount >= ui.value("Power Word: Radiance Targets") and not moving and charges.powerWordRadiance.count() >= 1 then
+                    if cast.powerWordRadiance(thisUnit) then return true end
+                elseif not debuff.weakenedSoul.exists(thisUnit) and ((not (ui.checked("Evangelism") and talent.evangelism and atonementsCount <= ui.value("Evangelism Atonements"))) or (not (ui.checked("Spirit Shell") and talent.spiritShell and atonementsCount <= ui.value("Spirit Shell Atonements"))) or charges.powerWordRadiance.count() < 1) then
+                    if cast.powerWordShield(thisUnit) then return true end
+                end
+            end
         end
     end
 end -- End Action List Extra
@@ -384,11 +404,6 @@ actionList.Healing = function()
             end
         end
     end
-    if ui.checked("Evangelism") and talent.evangelism and atonementsCount >= ui.value("Evangelism Atonements") and not buff.rapture.exists("player") then
-        if br.getLowAllies(ui.value("Evangelism")) >= ui.value("Evangelism Targets") then
-            if cast.evangelism() then return true end
-        end
-    end
     if ui.checked("Power Word: Radiance") and nonAtonementsCount >= 2 and not cast.last.powerWordRadiance() and charges.powerWordRadiance.count() >= 1 then
         if br.getLowAllies(ui.value("Power Word: Radiance")) >= ui.value("Power Word: Radiance Targets") then
             for i = 1, #friends do
@@ -397,6 +412,16 @@ actionList.Healing = function()
                     if cast.powerWordRadiance(thisUnit) then return true end
                 end
             end
+        end
+    end
+    if ui.checked("Evangelism") and talent.evangelism and atonementsCount >= ui.value("Evangelism Atonements") and not buff.rapture.exists("player") then
+        if br.getLowAllies(ui.value("Evangelism")) >= ui.value("Evangelism Targets") then
+            if cast.evangelism() then return true end
+        end
+    end
+    if ui.checked("Spirit Shell") and talent.spiritShell and atonementsCount >= ui.value("Spirit Shell Atonements") and not buff.rapture.exists("player") then
+        if br.getLowAllies(ui.value("Spirit Shell")) >= ui.value("Spirit Shell Targets") then
+            if cast.spiritShell() then return true end
         end
     end
     if ui.checked("Shadow Covenant") and talent.shadowCovenant then
@@ -631,13 +656,13 @@ local function runRotation()
     elseif (inCombat and var.profileStop) or ui.pause() or unit.mounted() or unit.flying() or unit.taxi() or ui.mode.rotation == 4 or cast.current.penance() then
         return true
     else
-        if actionList.Extra() then return true end
         if actionList.Dispel() then return true end
+        if actionList.Extra() then return true end
         if not inCombat then
+            if actionList.PreCombat() then return true end
             if ui.checked("Heal Out of Combat") then
                 if actionList.Healing() then return true end
             end
-            if actionList.PreCombat() then return true end
         else
             if actionList.Defensive() then return true end
             if actionList.Interrupt() then return true end
