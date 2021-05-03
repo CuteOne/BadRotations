@@ -215,7 +215,7 @@ actionList.Extra = function()
         end
     end
     if br.IsMovingTime(ui.value("Angelic Feather")) then
-        if ui.checked("Angelic Feather") and talent.bodyAndSoul and not buff.angelicFeather.exists("player") then
+        if ui.checked("Angelic Feather") and talent.angelicFeather and not buff.angelicFeather.exists("player") then
             if cast.angelicFeather("player") then return true end
         end
     end
