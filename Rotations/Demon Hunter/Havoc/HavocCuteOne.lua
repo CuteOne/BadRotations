@@ -388,7 +388,7 @@ end -- End Action List - Cooldowns
 actionList.Demonic = function()
     -- Fel Rush
     -- fel_rush,if=talent.unbound_chaos.enabled&buff.unbound_chaos.up&(charges=2|(raid_event.movement.in>10&raid_event.adds.in>10))
-    if cast.able.felRush() and not unit.isExplosive("target") and unit.facing("player","target",10)
+    if cast.able.felRush() and ui.mode.mover ~= 3 and not unit.isExplosive("target") and unit.facing("player","target",10)
         and talent.unboundChaos and buff.unboundChaos.exists()
         and charges.felRush.count() > ui.value("Hold Fel Rush Charge")
     then
@@ -463,7 +463,7 @@ actionList.Demonic = function()
     end
     -- Fel Rush
     -- fel_rush,if=talent.demon_blades.enabled&!cooldown.eye_beam.ready&(charges=2|(raid_event.movement.in>10&raid_event.adds.in>10))
-    if cast.able.felRush() and not unit.isExplosive("target") and unit.facing("player","target",10)
+    if cast.able.felRush() and ui.mode.mover ~= 3 and not unit.isExplosive("target") and unit.facing("player","target",10)
         and talent.demonBlades and cd.eyeBeam.remain() > gcd
         and charges.felRush.count() > ui.value("Hold Fel Rush Charge")
     then
@@ -480,8 +480,8 @@ actionList.Demonic = function()
     end
     -- Fel Rush
     -- fel_rush,if=!talent.demon_blades.enabled&spell_targets>1&(charges=2|(raid_event.movement.in>10&raid_event.adds.in>10))
-    if cast.able.felRush() and not unit.isExplosive("target") and unit.facing("player","target",10)
-        and not talent.demonBlades and #enemies.yards11r > 1 and charges.felRush.count() > ui.value("Hold Fel Rush Charge")
+    if cast.able.felRush() and ui.mode.mover ~= 3 and not unit.isExplosive("target") and unit.facing("player","target",10)
+        and not talent.demonBlades and #enemies.yards23r > 1 and charges.felRush.count() > ui.value("Hold Fel Rush Charge")
     then
         -- if ui.mode.mover == 1 and unit.distance("target") < 8 then
         --     cancelRushAnimation()
@@ -528,7 +528,7 @@ actionList.Normal = function()
     end
     -- Fel Rush
     -- fel_rush,if=(buff.unbound_chaos.up|variable.waiting_for_momentum&(!talent.unbound_chaos.enabled|!cooldown.immolation_aura.ready))&(charges=2|(raid_event.movement.in>10&raid_event.adds.in>10))
-    if cast.able.felRush() and not unit.isExplosive("target") and unit.facing("player","target",10)
+    if cast.able.felRush() and ui.mode.mover ~= 3 and not unit.isExplosive("target") and unit.facing("player","target",10)
         and ((buff.unboundChaos.exists() or (var.waitingForMomentum and (not talent.unboundChaos or cd.immolationAura.exists()))))
         and charges.felRush.count() > ui.value("Hold Fel Rush Charge")
     then
@@ -628,7 +628,7 @@ actionList.Normal = function()
     end
     -- Fel Rush
     -- fel_rush,if=!talent.momentum.enabled&raid_event.movement.in>charges*10&talent.demon_blades.enabled
-    if cast.able.felRush() and not unit.isExplosive("target") and unit.facing("player","target",10) and not talent.momentum
+    if cast.able.felRush() and ui.mode.mover ~= 3 and not unit.isExplosive("target") and unit.facing("player","target",10) and not talent.momentum
         and talent.demonBlades and charges.felRush.count() > ui.value("Hold Fel Rush Charge")
     then
         -- if ui.mode.mover == 1 and unit.distance("target") < 8 then
@@ -769,6 +769,7 @@ local function runRotation()
     enemies.get(40,"player",false,true)
     enemies.get(50)
     enemies.rect.get(10,20,false)
+    enemies.rect.get(3,23,false)
     enemies.rect.get(10,25,false)
 
     if cast.active.eyeBeam("player") and buff.metamorphosis.exists() then
@@ -823,7 +824,7 @@ local function runRotation()
     --     SetHackEnabled("NoKnockback", false)
     -- end
     -- Fel Rush Special
-    if unit.inCombat() and ui.checked("Auto Fel Rush After Retreat") and cast.able.felRush()
+    if unit.inCombat() and ui.mode.mover ~= 3 and ui.checked("Auto Fel Rush After Retreat") and cast.able.felRush()
         and buff.prepared.exists() and not buff.momentum.exists() and charges.felRush.count() > ui.value("Hold Fel Rush Charge")
     then
         -- if ui.mode.mover == 1 and unit.distance("target") < 8 then
