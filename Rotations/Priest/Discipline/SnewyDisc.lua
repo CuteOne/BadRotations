@@ -481,14 +481,14 @@ actionList.Damage = function()
             end
         end
     end
-    if ui.checked("Mindbender") and talent.mindbender and power <= ui.value("Mindbender") and atonementsCount >= 3 then
+    if ui.checked("Mindbender") and talent.mindbender and power <= ui.value("Mindbender") then
         if schismUnit ~= nil and unit.ttd(schismUnit) > 9 then
             if cast.mindbender(schismUnit) then return true end
         elseif unit.ttd(units.dyn40) > 9 and not unit.isExplosive(units.dyn40) then
             if cast.mindbender(units.dyn40) then return true end
         end
     end
-    if ui.checked("Shadowfiend") and not talent.mindbender and power <= ui.value("Shadowfiend") and atonementsCount >= 3 then
+    if ui.checked("Shadowfiend") and not talent.mindbender and power <= ui.value("Shadowfiend") then
         if schismUnit ~= nil and unit.ttd(schismUnit) > 9 then
             if cast.shadowfiend(schismUnit) then return true end
         elseif unit.ttd(units.dyn40) > 9 and not unit.isExplosive(units.dyn40) then
