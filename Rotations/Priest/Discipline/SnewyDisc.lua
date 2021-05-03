@@ -631,15 +631,14 @@ local function runRotation()
     elseif (inCombat and var.profileStop) or ui.pause() or unit.mounted() or unit.flying() or unit.taxi() or ui.mode.rotation == 4 or cast.current.penance() then
         return true
     else
+        if actionList.Extra() then return true end
+        if actionList.Dispel() then return true end
         if not inCombat then
             if ui.checked("Heal Out of Combat") then
                 if actionList.Healing() then return true end
             end
             if actionList.PreCombat() then return true end
-        end
-        if actionList.Extra() then return true end
-        if actionList.Dispel() then return true end
-        if inCombat then
+        else
             if actionList.Defensive() then return true end
             if actionList.Interrupt() then return true end
             if actionList.Cooldown() then return true end
