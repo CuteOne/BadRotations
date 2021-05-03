@@ -100,9 +100,6 @@ local function createOptions()
         br.ui:createSpinner(section, "Evangelism", 70, 0, 100, 1, "Health Percentage to use at.")
         br.ui:createSpinnerWithout(section, "Evangelism Targets", 3, 0, 40, 1, "Minimum Targets to use at.")
         br.ui:createSpinnerWithout(section, "Evangelism Atonements", 3, 0, 40, 1, "Minimum Atonements to use at.")
-        br.ui:createSpinner(section, "Spirit Shell", 70, 0, 100, 1, "Health Percentage to use at.")
-        br.ui:createSpinnerWithout(section, "Spirit Shell Targets", 3, 0, 40, 1, "Minimum Targets to use at.")
-        br.ui:createSpinnerWithout(section, "Spirit Shell Atonements", 3, 0, 40, 1, "Minimum Atonements to use at.")
         br.ui:createSpinner(section, "Trinket 1", 70, 0, 100, 1, "Health Percentage to use at.")
         br.ui:createSpinnerWithout(section, "Trinket 1 Targets", 3, 1, 40, 1, "Minimum Friendly Trinket 1 Targets to use at.")
         br.ui:createDropdown(section, "Trinket 1 Mode", {"Enemy", "Friend"}, 1, "Use Trinket 1 on enemy or on friend.")
@@ -359,10 +356,18 @@ actionList.Cooldown = function()
             end
         end
         if ui.checked("Rapture when Innervated") and innervated then
-            if cast.rapture() then return true end
+            if talent.spiritShell then
+                if cast.spiritShell() then return true end
+            else
+                if cast.rapture() then return true end
+            end
         end
         if ui.checked("Rapture") and br.getLowAllies(ui.value("Rapture")) >= ui.value("Rapture Targets") then
-            if cast.rapture() then return true end
+            if talent.spiritShell then
+                if cast.spiritShell() then return true end
+            else
+                if cast.rapture() then return true end
+            end
         end
         if (race == "Troll" or race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf" or race == "LightforgedDraenei") or (power < 70 and race == "BloodElf") then
             if race == "LightforgedDraenei" then
@@ -376,7 +381,7 @@ end -- End Action List - Cooldown
 
 -- Action List - Healing
 actionList.Healing = function()
-    if buff.rapture.exists("player") then
+    if buff.rapture.exists("player") or buff.spiritShell.exists("player") then
         if ui.checked("Maximum Rapture Atonements") then
             for i = 1, #friends do
                 thisUnit = friends[i].unit
@@ -417,11 +422,6 @@ actionList.Healing = function()
     if ui.checked("Evangelism") and talent.evangelism and atonementsCount >= ui.value("Evangelism Atonements") and not buff.rapture.exists("player") then
         if br.getLowAllies(ui.value("Evangelism")) >= ui.value("Evangelism Targets") then
             if cast.evangelism() then return true end
-        end
-    end
-    if ui.checked("Spirit Shell") and talent.spiritShell and atonementsCount >= ui.value("Spirit Shell Atonements") and not buff.rapture.exists("player") then
-        if br.getLowAllies(ui.value("Spirit Shell")) >= ui.value("Spirit Shell Targets") then
-            if cast.spiritShell() then return true end
         end
     end
     if ui.checked("Shadow Covenant") and talent.shadowCovenant then
