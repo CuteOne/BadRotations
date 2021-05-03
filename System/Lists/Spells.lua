@@ -4042,6 +4042,7 @@ br.lists.spells = {
             },
             conduits                        = {
                 viciousContempt             = 337302,
+                destructiveReverberations   = 339939,
             },
             covenants                       = {
                 ancientAftershock           = 325886,
