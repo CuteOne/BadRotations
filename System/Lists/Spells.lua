@@ -1133,6 +1133,8 @@ br.lists.spells = {
                 killShot                    = 53351,
                 multishot                   = 2643,
             },
+            animas                           = {
+            },
             artifacts                       = {
 
             },
@@ -4091,6 +4093,9 @@ br.lists.spells = {
                 quakingPalm                     = 107079,
                 racial                          = br.getRacial(),
                 shadowmeld                      = 58984,
+            },
+            animas                           = {
+                scrollOfElchaver            = 305006,
             },
             artifacts                           = {
                 artificialDamage                = 226829,
