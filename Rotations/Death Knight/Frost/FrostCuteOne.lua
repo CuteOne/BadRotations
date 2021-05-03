@@ -951,7 +951,9 @@ actionList.PreCombat = function()
         end
         -- Start Attack
         if unit.distance("target") < 5 then
-            unit.startAttack("target")
+            if cast.able.autoAttack("target") then
+                if cast.autoAttack("target") then ui.debug("Casting Auto Attack [Pre-Combat]") return true end
+            end
         end
     end
 end -- End Action List - PreCombat
@@ -1085,12 +1087,14 @@ local function runRotation()
         --- In Combat Rotation ---
         --------------------------
         -- Combat Start
-        if unit.inCombat() and var.profileStop==false and unit.valid(units.dyn5) and unit.exists("target") then
+        if unit.inCombat() and var.profileStop==false and unit.valid("target") and unit.exists("target") then
             var.profileDebug = "Combat Rotation"
             -- Start Attack
             -- auto_attack
-            if unit.distance(units.dyn5) < 5 then
-                unit.startAttack(units.dyn5)
+            if unit.distance("target") < 5 then
+                if cast.able.autoAttack("target") then
+                    if cast.autoAttack("target") then ui.debug("Casting Auto Attack") return true end
+                end
             end
             ---------------------
             --- Main Rotation ---

@@ -69,16 +69,23 @@ local function createOptions()
 
     local function rotationOptions()
         local section
+        local alwaysCdAoENever = {"Always", "|cff008000AOE", "|cffffff00AOE/CD", "|cff0000ffCD", "|cffff0000Never"}
         -- General Options
         section = br.ui:createSection(br.ui.window.profile, "General")
             -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
+            -- Hunter's Mark
+            br.ui:createCheckbox(section,"Hunter's Mark")
             -- Harpoon
             br.ui:createCheckbox(section, "Harpoon - Opener")
             -- Misdirection
             br.ui:createDropdownWithout(section,"Misdirection", {"|cff00FF00Tank","|cffFFFF00Focus","|cffFF0000Pet"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
             -- Opener
-            br.ui:createDropdownWithout(section, "Opener", {"Always", "Cooldown", "Never"}, 1, "|cffFFFFFFSet when to use opener.")
+            br.ui:createDropdownWithout(section, "Opener", alwaysCdAoENever, 1, "|cffFFFFFFSet when to use opener.")
+            -- Tar Trap
+            br.ui:createDropdownWithout(section, "Tar Trap", alwaysCdAoENever, 1, "|cffFFFFFFSet when to use tar trap.")
+            -- Flare
+            br.ui:createDropdownWithout(section, "Flare", alwaysCdAoENever, 1, "|cffFFFFFFSet when to use flare.")
         br.ui:checkSectionState(section)
         -- Pet Options
         br.rotations.support["PetCuteOne"].options()
@@ -95,11 +102,11 @@ local function createOptions()
             -- Covenant
             br.ui:createCheckbox(section,"Covenant Ability")
             -- A Murder of Crows
-            br.ui:createDropdownWithout(section,"A Murder of Crows", {"|cff0000FFAlways", "|cffFFFF00Cooldown", "|cffFF0000Never"}, 1, "|cffFFFFFFSet when to use ability.")
+            br.ui:createDropdownWithout(section,"A Murder of Crows", alwaysCdAoENever, 1, "|cffFFFFFFSet when to use ability.")
             -- Aspect of the Eagle
-            br.ui:createDropdownWithout(section,"Aspect of the Eagle", {"|cff0000FFAlways", "|cffFFFF00Cooldown", "|cffFF0000Never"}, 1, "|cffFFFFFFSet when to use ability.")
+            br.ui:createDropdownWithout(section,"Aspect of the Eagle", alwaysCdAoENever, 1, "|cffFFFFFFSet when to use ability.")
             -- Coordinated Assault
-            br.ui:createDropdownWithout(section,"Coordinated Assault", {"|cff0000FFAlways", "|cffFFFF00Cooldown", "|cffFF0000Never"}, 1, "|cffFFFFFFSet when to use ability.")
+            br.ui:createDropdownWithout(section,"Coordinated Assault", alwaysCdAoENever, 1, "|cffFFFFFFSet when to use ability.")
         br.ui:checkSectionState(section)
         -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
@@ -225,6 +232,10 @@ end
 
 -- Action List - Extra
 actionList.Extra = function()
+    -- Hunter's Mark
+    if ui.checked("Hunter's Mark") and cast.able.huntersMark("target") and not debuff.huntersMark.exists("target") then
+        if cast.huntersMark("target") then ui.debug("Cast Hunter's Mark") return true end
+    end
     -- Dummy Test
     if ui.checked("DPS Testing") then
         if unit.exists("target") then
@@ -383,16 +394,18 @@ actionList.Cooldown = function()
     end
     -- Tar Trap
     -- tar_trap,if=runeforge.nessingwarys_trapping_apparatus.equipped&focus+cast_regen<focus.max|focus+cast_regen<focus.max&runeforge.soulforge_embers.equipped&tar_trap.remains<gcd&cooldown.flare.remains<gcd&(active_enemies>1|active_enemies=1&time_to_die>5*gcd)
-    if cast.able.tarTrap("player","ground",1,8) and (runeforge.nesingwarysTrappingApparatus.equiped and focus + cast.regen.steelTrap() < focusMax
+    if cast.able.tarTrap("best",nil,1,8) and (runeforge.nesingwarysTrappingApparatus.equiped and focus + cast.regen.steelTrap() < focusMax
         or focus + cast.regen.steelTrap() < focusMax and runeforge.soulforgeEmbers.equiped and debuff.tarTrap.remains(units.dyn40) < unit.gcd(true)
         and (#enemies.yards40 > 1 or #enemies.yards40 == 1 and unit.ttd(units.dyn40) > 5 * unit.gcd(true)))
     then
-        if cast.tarTrap("player","ground",1,8) then ui.debug("Casting Tar Trap [CD]") return true end
+        if cast.tarTrap("best",nil,1,8) then ui.debug("Casting Tar Trap [CD]") var.tarred = true return true end
     end
     -- Flare
     -- flare,if=focus+cast_regen<focus.max&tar_trap.up&runeforge.soulforge_embers.equipped&time_to_die>4*gcd
-    if cast.able.flare() and focus + cast.regen.flare() and debuff.tarTrap.exists(units.dyn40) and runeforge.soulforgeEmbers.equiped and unit.ttd(units.dyn40) > 4 * unit.gcd(true) then
-        if cast.flare() then ui.debug("Casting Flare [CD]") return true end
+    if cast.able.flare("groundLocation",br.castPosition.x,br.castPosition.y,8) and var.tarred and focus + cast.regen.flare()
+        and runeforge.soulforgeEmbers.equiped and unit.ttd(units.dyn40) > 4 * unit.gcd(true)
+    then
+        if cast.flare("groundLocation",br.castPosition.x,br.castPosition.y,8) then ui.debug("Casting Flare [CD]") var.tarred = false return true end
     end
     -- Kill Shot
     -- kill_shot,if=active_enemies=1&target.time_to_die<focus%(action.mongoose_bite.cost-cast_regen)*gcd
@@ -413,8 +426,8 @@ actionList.Cooldown = function()
     end
     -- Aspect of the Eagle
     -- aspect_of_the_eagle,if=target.distance>=6
-    if ui.mode.aotE == 1 and ui.alwaysCdNever("Aspect of the Eagle") and cast.able.aspectOfTheEagle()
-        and unit.standingTime() >= 2 and (unit.distance("target") >= 6)
+    if ui.mode.aotE == 1 and ui.alwaysCdAoENever("Aspect of the Eagle",3,#enemies.yards40) and cast.able.aspectOfTheEagle()
+        and unit.standingTime() >= 2 and unit.combatTime() >= 5 and (unit.distance("target") >= 6)
     then
         if cast.aspectOfTheEagle() then ui.debug("Casting Aspect of the Eagle") return true end
     end
@@ -424,7 +437,7 @@ end -- End Action List - Cooldowns
 actionList.ApBoP = function()
     -- Wild Spirits
     -- wild_spirits
-    if ui.checked("Covenant Ability") and cast.able.wildSpirits("best",nil,var.spiritUnits,12) then
+    if ui.checked("Covenant Ability",3,#enemies.yards12t) and cast.able.wildSpirits("best",nil,var.spiritUnits,12) then
         if cast.wildSpirits("best",nil,var.spiritUnits,12) then ui.debug("Casting Wild Spirits [ApBoP]") return true end
     end
     -- Flanking Strike
@@ -434,12 +447,12 @@ actionList.ApBoP = function()
     end
     -- Flayed Shot
     -- flayed_shot
-    if ui.alwaysCdAoENever("Covenant Ability") and cast.able.flayedShot() then
+    if ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards8t) and cast.able.flayedShot() then
         if cast.flayedShot() then ui.debug("Casting Flayed Shot [ApBop]") return true end
     end
     -- Death Chakrams
     -- death_chakram,if=focus+cast_regen<focus.max
-    if ui.alwaysCdNever("Covenany Ability") and cast.able.deathChakram() and focus + cast.regen.deathChakram() < focusMax then
+    if ui.alwaysCdAoENever("Covenany Ability",3,#enemies.yards8t) and cast.able.deathChakram() and focus + cast.regen.deathChakram() < focusMax then
         if cast.deathChakram() then ui.debug("Casting Death Chakram [ApBoP]") return true end
     end
     -- Kill Shot
@@ -509,17 +522,17 @@ actionList.ApBoP = function()
     end
     -- A Murder of Crows
     -- a_murder_of_crows
-    if ui.alwaysCdNever("A Murder of Crows") and cast.able.aMurderOfCrows() then
+    if ui.alwaysCdAoENever("A Murder of Crows",3,#var.eagleEnemies) and cast.able.aMurderOfCrows() then
         if cast.aMurderOfCrows() then ui.debug("Casting A Murder of Crows [ApBoP]") return true end
     end
     -- Resonating Arrow
     -- resonating_arrow
-    if ui.alwaysCdAoENever("Covenant Ability") and cast.able.resonatingArrow("best",nil,1,15) then
+    if ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards12t) and cast.able.resonatingArrow("best",nil,1,15) then
         if cast.resonatingArrow("best",nil,1,15) then ui.debug("Casting Resonating Arrow [ApBoP]") return true end
     end
     -- Coordinated Assault
     -- coordinated_assault
-    if ui.alwaysCdNever("Coordinated Assault") and cast.able.coordinatedAssault() then
+    if ui.alwaysCdAoENever("Coordinated Assault",3,#var.eagleEnemies) and cast.able.coordinatedAssault() and unit.distance("target") < 5 then
         if cast.coordinatedAssault() then ui.debug("Casting Coordinated Assault [ApBoP]") return true end
     end
     -- Mongoose Bite
@@ -545,7 +558,7 @@ end -- End Action List - Alpha Predator / Birds of Prey
 actionList.ApSt = function()
     -- Death Chakrams
     -- death_chakram,if=focus+cast_regen<focus.max
-    if ui.alwaysCdNever("Covenany Ability") and cast.able.deathChakram() and focus + cast.regen.deathChakram() < focusMax then
+    if ui.alwaysCdAoENever("Covenany Ability",3,#enemies.yards8t) and cast.able.deathChakram() and focus + cast.regen.deathChakram() < focusMax then
         if cast.deathChakram() then ui.debug("Casting Death Chakram [ApSt]") return true end
     end
     -- Serpent Sting
@@ -555,12 +568,12 @@ actionList.ApSt = function()
     end
     -- Flayed Shot
     -- flayed_shot
-    if ui.alwaysCdAoENever("Covenant Ability") and cast.able.flayedShot() then
+    if ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards8t) and cast.able.flayedShot() then
         if cast.flayedShot() then ui.debug("Casting Flayed Shot [ApSt]") return true end
     end
     -- Resonating Arrow
     -- resonating_arrow
-    if ui.alwaysCdAoENever("Covenant Ability") and cast.able.resonatingArrow("best",nil,1,15) then
+    if ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards12t) and cast.able.resonatingArrow("best",nil,1,15) then
         if cast.resonatingArrow("best",nil,1,15) then ui.debug("Casting Resonating Arrow [ApSt]") return true end
     end
     -- Wild Spirits
@@ -570,7 +583,7 @@ actionList.ApSt = function()
     end
     -- Coordinated Assault
     -- coordinated_assault
-    if ui.alwaysCdNever("Coordinated Assault") and cast.able.coordinatedAssault() then
+    if ui.alwaysCdAoENever("Coordinated Assault",3,#var.eagleEnemies) and cast.able.coordinatedAssault() and unit.distance("target") < 5 then
         if cast.coordinatedAssault() then ui.debug("Casting Coordinated Assault [ApSt]") return true end
     end
     -- Kill Shot
@@ -585,7 +598,7 @@ actionList.ApSt = function()
     end
     -- A Murder of Crows
     -- a_murder_of_crows
-    if ui.alwaysCdNever("A Murder of Crows") and cast.able.aMurderOfCrows() then
+    if ui.alwaysCdAoENever("A Murder of Crows",3,#var.eagleEnemies) and cast.able.aMurderOfCrows() then
         if cast.aMurderOfCrows() then ui.debug("Casting A Murder of Crows [ApSt]") return true end
     end
     -- Wildfire Bomb
@@ -705,7 +718,7 @@ actionList.BoP = function()
     end
     -- Wild Spirits
     -- wild_spirits
-    if ui.checked("Covenant Ability") and cast.able.wildSpirits("best",nil,var.spiritUnits,12) then
+    if ui.checked("Covenant Ability",3,#enemies.yards12t) and cast.able.wildSpirits("best",nil,var.spiritUnits,12) then
         if cast.wildSpirits("best",nil,var.spiritUnits,12) then ui.debug("Casting Wild Spirits [BoP]") return true end
     end
     -- Flanking Strike
@@ -715,12 +728,12 @@ actionList.BoP = function()
     end
     -- Flayed Shot
     -- flayed_shot
-    if ui.alwaysCdAoENever("Covenant Ability") and cast.able.flayedShot() then
+    if ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards8t) and cast.able.flayedShot() then
         if cast.flayedShot() then ui.debug("Casting Flayed Shot [BoP]") return true end
     end
     -- Death Chakram
     -- death_chakram,if=focus+cast_regen<focus.max
-    if ui.alwaysCdNever("Covenany Ability") and cast.able.deathChakram() and focus + cast.regen.deathChakram() < focusMax then
+    if ui.alwaysCdAoENever("Covenany Ability",3,#enemies.yards8t) and cast.able.deathChakram() and focus + cast.regen.deathChakram() < focusMax then
         if cast.deathChakram() then ui.debug("Casting Death Chakram [BoP]") return true end
     end
     -- Kill Shot
@@ -744,7 +757,7 @@ actionList.BoP = function()
     end
     -- A Murder of Crows
     -- a_murder_of_crows
-    if ui.alwaysCdNever("A Murder of Crows") and cast.able.aMurderOfCrows() then
+    if ui.alwaysCdAoENever("A Murder of Crows",3,#var.eagleEnemies) and cast.able.aMurderOfCrows() then
         if cast.aMurderOfCrows() then ui.debug("Casting A Murder of Crows [BoP]") return true end
     end
     -- Raptor Strike
@@ -777,19 +790,19 @@ actionList.BoP = function()
     end
     -- Serpent Sting
     -- serpent_sting,target_if=min:remains,if=buff.vipers_venom.up&refreshable|dot.serpent_sting.refreshable&!buff.coordinated_assault.up
-    if cast.able.serpentSting(var.lowestSerpentSting) and buff.vipersVenom.exists() and debuff.vipersVenom.refresh(var.lowestSerpentSting)
+    if cast.able.serpentSting(var.lowestSerpentSting) and buff.vipersVenom.exists() and debuff.serpentSting.refresh(var.lowestSerpentSting)
         or debuff.serpentSting.refresh(var.lowestSerpentSting) and not buff.coordinatedAssault.exists()
     then
         if cast.serpentSting(var.lowestSerpentSting) then ui.debug("Casting Serpent Sting [BoP - Refresh]") return true end
     end
     -- Resonating Arrow
     -- resonating_arrow
-    if ui.alwaysCdAoENever("Covenant Ability") and cast.able.resonatingArrow("best",nil,1,15) then
+    if ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards12t) and cast.able.resonatingArrow("best",nil,1,15) then
         if cast.resonatingArrow("best",nil,1,15) then ui.debug("Casting Resonating Arrow [BoP]") return true end
     end
     -- Coordinated Assault
     -- coordinated_assault,if=!buff.coordinated_assault.up
-    if ui.alwaysCdNever("Coordinated Assault") and cast.able.coordinatedAssault() then
+    if ui.alwaysCdAoENever("Coordinated Assault",3,#var.eagleEnemies) and cast.able.coordinatedAssault() and unit.distance("target") < 5 then
         if cast.coordinatedAssault() then ui.debug("Casting Coordinated Assault [BoP]") return true end
     end
     -- Mongoose Bite
@@ -823,12 +836,12 @@ actionList.Cleave = function()
     end
     -- Wild Spirits
     -- wild_spirits
-    if ui.checked("Covenant Ability") and cast.able.wildSpirits("best",nil,var.spiritUnits,12) then
+    if ui.checked("Covenant Ability",3,#enemies.yards12t) and cast.able.wildSpirits("best",nil,var.spiritUnits,12) then
         if cast.wildSpirits("best",nil,var.spiritUnits,12) then ui.debug("Casting Wild Spirits [Cleave]") return true end
     end
     -- Resonating Arrow
     -- resonating_arrow
-    if ui.alwaysCdAoENever("Covenant Ability") and cast.able.resonatingArrow("best",nil,1,15) then
+    if ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards12t) and cast.able.resonatingArrow("best",nil,1,15) then
         if cast.resonatingArrow("best",nil,1,15) then ui.debug("Casting Resonating Arrow [Cleave]") return true end
     end
     -- Wildfire Bomb
@@ -855,12 +868,12 @@ actionList.Cleave = function()
     end
     -- Death Chakram
     -- death_chakram,if=focus+cast_regen<focus.max
-    if ui.alwaysCdNever("Covenany Ability") and cast.able.deathChakram() and focus + cast.regen.deathChakram() < focusMax then
+    if ui.alwaysCdAoENever("Covenany Ability",3,#enemies.yards8t) and cast.able.deathChakram() and focus + cast.regen.deathChakram() < focusMax then
         if cast.deathChakram() then ui.debug("Casting Death Chakram [Cleave]") return true end
     end
     -- Coordinated Assault
     -- coordinated_assault
-    if ui.alwaysCdNever("Coordinated Assault") and cast.able.coordinatedAssault() then
+    if ui.alwaysCdAoENever("Coordinated Assault",3,#var.eagleEnemies) and cast.able.coordinatedAssault() and unit.distance("target") < 5 then
         if cast.coordinatedAssault() then ui.debug("Casting Coordinated Assault [Cleave]") return true end
     end
     -- Butchery
@@ -909,12 +922,12 @@ actionList.Cleave = function()
     end
     -- Flayed Shot
     -- flayed_shot
-    if ui.alwaysCdAoENever("Covenant Ability") and cast.able.flayedShot() then
+    if ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards8t) and cast.able.flayedShot() then
         if cast.flayedShot() then ui.debug("Casting Flayed Shot [Cleave]") return true end
     end
     -- A Murder of Crows
     -- a_murder_of_crows
-    if ui.alwaysCdNever("A Murder of Crows") and cast.able.aMurderOfCrows() then
+    if ui.alwaysCdAoENever("A Murder of Crows",3,#var.eagleEnemies) and cast.able.aMurderOfCrows() then
         if cast.aMurderOfCrows() then ui.debug("Casting A Murder of Crows [Cleave]") return true end
     end
     -- Steel Trap
@@ -960,17 +973,17 @@ end -- End Action List - Cleave
 actionList.St = function()
     -- Flayed Shot
     -- flayed_shot
-    if ui.alwaysCdAoENever("Covenant Ability") and cast.able.flayedShot() then
+    if ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards8t) and cast.able.flayedShot() then
         if cast.flayedShot() then ui.debug("Casting Flayed Shot [St]") return true end
     end
     -- Wild Spirits
     -- wild_spirits
-    if ui.checked("Covenant Ability") and cast.able.wildSpirits("best",nil,var.spiritUnits,12) then
+    if ui.checked("Covenant Ability",3,#enemies.yards12t) and cast.able.wildSpirits("best",nil,var.spiritUnits,12) then
         if cast.wildSpirits("best",nil,var.spiritUnits,12) then ui.debug("Casting Wild Spirits [St]") return true end
     end
     -- Resonating Arrow
     -- resonating_arrow
-    if ui.alwaysCdAoENever("Covenant Ability") and cast.able.resonatingArrow("best",nil,1,15) then
+    if ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards12t) and cast.able.resonatingArrow("best",nil,1,15) then
         if cast.resonatingArrow("best",nil,1,15) then ui.debug("Casting Resonating Arrow [St]") return true end
     end
     -- Serpent Sting
@@ -980,7 +993,7 @@ actionList.St = function()
     end
     -- Death Chakram
     -- death_chakram,if=focus+cast_regen<focus.max
-    if ui.alwaysCdNever("Covenany Ability") and cast.able.deathChakram() and focus + cast.regen.deathChakram() < focusMax then
+    if ui.alwaysCdAoENever("Covenany Ability",3,#enemies.yards8t) and cast.able.deathChakram() and focus + cast.regen.deathChakram() < focusMax then
         if cast.deathChakram() then ui.debug("Casting Death Chakram [St]") return true end
     end
     -- Raptor Strike
@@ -990,7 +1003,7 @@ actionList.St = function()
     end
     -- Coordinated Assault
     -- coordinated_assault
-    if ui.alwaysCdNever("Coordinated Assault") and cast.able.coordinatedAssault() then
+    if ui.alwaysCdAoENever("Coordinated Assault",3,#var.eagleEnemies) and cast.able.coordinatedAssault() and unit.distance("target") < 5 then
         if cast.coordinatedAssault() then ui.debug("Casting Coordinated Assault [St]") return true end
     end
     -- Kill Shot
@@ -1037,7 +1050,7 @@ actionList.St = function()
     end
     -- A Murder of Crows
     -- a_murder_of_crows
-    if ui.alwaysCdNever("A Murder of Crows") and cast.able.aMurderOfCrows() then
+    if ui.alwaysCdAoENever("A Murder of Crows",3,#var.eagleEnemies) and cast.able.aMurderOfCrows() then
         if cast.aMurderOfCrows() then ui.debug("Casting A Murder of Crows [St]") return true end
     end
     -- Mongoose Bite
@@ -1176,9 +1189,10 @@ actionList.PreCombat = function()
         if cast.able.serpentSting("target") and (unit.ttd("target") > 3 or unit.isDummy()) and not debuff.serpentSting.exists("target") then
             if cast.serpentSting("target") then ui.debug("Casting Serpent Sting [Pre-Combat]") return true end
         end
-        -- Start Attack
-        if unit.distance("target") < 5 then
-            unit.startAttack("target")
+        -- Auto Attack
+        -- actions=auto_attack
+        if cast.able.autoAttack("target") then
+            if cast.autoAttack("target") then ui.debug("Casting Auto Attack [Pre-Combat]") return true end
         end
     end
     -- Call Action List - Opener
@@ -1230,6 +1244,7 @@ local function runRotation()
     enemies.get(8,"player",false,true)
     enemies.get(8,"target")
     enemies.get(12)
+    enemies.get(12,"target")
     enemies.get(15)
     -- enemies.get(20,"pet")
     enemies.get(30)
@@ -1261,6 +1276,8 @@ local function runRotation()
     var.lowestSerpentSting                        = debuff.serpentSting.lowest(40,"remain") or var.eagleUnit
     var.maxLatentPoison                           = debuff.latentPoison.max(var.eagleRange,"stack") or var.eagleUnit
     var.spiritUnits                                     = ui.useCDs() and 1 or 3
+
+    if var.tarred == nil then var.tarred = false end
 
     -- if var.eagleUnit == nil then var.eagleUnit = "target" end
     -- variable,name=carve_cdr,op=setif,value=active_enemies,value_else=5,condition=active_enemies<5
@@ -1323,11 +1340,19 @@ local function runRotation()
             --- In Combat - Interrupts ---
             ------------------------------
             if actionList.Interrupt() then return true end
-            -- Start Attack
+            -- Auto Attack
             -- actions=auto_attack
-            if unit.distance(units.dyn5) < 5 then
-                unit.startAttack()
+            if cast.able.autoAttack("target") then
+                if cast.autoAttack("target") then ui.debug("Casting Auto Attack") return true end
             end
+            -- -- Tar Trap
+            -- if ui.alwaysCdAoENever("Tar Trap",3,#enemies.yards40) and cast.able.tarTrap("best",nil,1,8) then
+            --     if cast.tarTrap("best",nil,1,8) then ui.debug("Casting Tar Trap") var.tarred = true return true end
+            -- end
+            -- -- Flare
+            -- if ui.alwaysCdAoENever("Flare",1,#enemies.yards40) and cast.able.flare("groundLocation",br.castPosition.x,br.castPosition.y,8) and var.tarred then--and debuff.tarTrap.exists(units.dyn40) then
+            --     if cast.flare("groundLocation",br.castPosition.x,br.castPosition.y,8) then ui.debug("Casting Flare") var.tarred = false return true end
+            -- end
             -- Cooldowns
             -- call_action_list,name=CDs
             if actionList.Cooldown() then return true end

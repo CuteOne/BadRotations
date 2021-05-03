@@ -85,7 +85,7 @@ local function createOptions()
             -- Feral Spirit
             br.ui:createDropdownWithout(section,"Feral Spirit", alwaysCdNever, 1, "|cffFFFFFFWhen to use Feral Spirit.")
             -- Stormkeeper
-            br.ui:createDropdownWithout(section,"Stormkeeper", alwaysCdNever, 1, "|cffFFFFFFWhen to use Stormkeeper.") 
+            br.ui:createDropdownWithout(section,"Stormkeeper", alwaysCdNever, 1, "|cffFFFFFFWhen to use Stormkeeper.")
             -- Sundering
             br.ui:createDropdownWithout(section,"Sundering", alwaysCdNever, 1, "|cffFFFFFFWhen to use Sundering.")
             -- Covenant Ability
@@ -691,7 +691,7 @@ actionList.Single = function()
     end
     -- Windfury Totem
     -- windfury_totem,if=buff.windfury_totem.remains<30
-    if cast.able.windfuryTotem() and not unit.moving() and buff.windfuryTotem.remains("player","any") < 30 and #enemies.yards8 > 0 and not ui.checked("Windfury Totem Key") 
+    if cast.able.windfuryTotem() and not unit.moving() and buff.windfuryTotem.remains("player","any") < 30 and #enemies.yards8 > 0 and not ui.checked("Windfury Totem Key")
         and (not runeforge.doomWinds.equiped or (runeforge.doomWinds.equiped and unit.ttdGroup() > 6))
     then
         if cast.windfuryTotem() then ui.debug("Casting Windfury Totem [ST]") return true end
@@ -766,7 +766,9 @@ actionList.PreCombat = function()
             end
             -- Start Attack
             if unit.distance("target") < 5 then
-                unit.startAttack("target")
+                if cast.able.autoAttack("target") then
+                    if cast.autoAttack("target") then ui.debug("Casting Auto Attack [Pull]") return true end
+                end
             end
         end
     end -- End No Combat
@@ -828,7 +830,7 @@ local function runRotation()
         end
     end
 
-    
+
     var.healUnit = ui.value("Heal Target") == 1 and unit.lowest(40) or "player"
     var.healHP = unit.hp(var.healUnit)
     var.unitsNeedingHealing = 0
@@ -844,6 +846,8 @@ local function runRotation()
             end
         end
     end
+
+    if var.profileStop == nil then var.profileStop = false end
 
     ---------------------
     --- Begin Profile ---
@@ -883,7 +887,9 @@ local function runRotation()
             end
             -- Start Attack
             if unit.distance("target") <= 5 then
-                unit.startAttack("target")
+                if cast.able.autoAttack("target") then
+                    if cast.autoAttack("target") then ui.debug("Casting Auto Attack") return true end
+                end
             end
             -- Windfury Totem
             -- windfury_totem,if=!runeforge.doom_winds.equipped

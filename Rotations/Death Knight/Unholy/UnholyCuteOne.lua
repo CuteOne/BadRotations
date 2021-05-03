@@ -849,7 +849,9 @@ actionList.PreCombat = function()
             if cast.darkCommand("target") then ui.debug("Casting Dark Command [Pull]") return true end
         end
         -- Start Attack
-        unit.startAttack("target")
+        if cast.able.autoAttack("target") then
+            if cast.autoAttack("target") then ui.debug("Casting Auto Attack [Pull]") return true end
+        end
     end
 end -- End Action List - PreCombat
 
@@ -986,7 +988,9 @@ local function runRotation()
 --------------------------
         if unit.inCombat() and not var.profileStop and unit.exists("target") then
             -- auto_attack
-            unit.startAttack("target")
+            if cast.able.autoAttack("target") then
+                if cast.autoAttack("target") then ui.debug("Casting Auto Attack") return true end
+            end
     ------------------------------
     --- In Combat - Interrupts ---
     ------------------------------

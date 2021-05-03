@@ -206,7 +206,7 @@ local canGlory = function()
     if holyPower >= 3 then
         if #br.friend == 1 then
             if unit.hp("player") <= optionValue then
-                var.thisGlory = "player"
+                var.gloryUnit = "player"
                 return true
             end
         end
@@ -216,7 +216,7 @@ local canGlory = function()
             if thisHP < optionValue then
                 -- Emergency Single
                 if thisHP < 25 then
-                    var.thisGlory = thisUnit
+                    var.gloryUnit = thisUnit
                     return true
                 end
                 -- Group Heal
@@ -230,7 +230,7 @@ local canGlory = function()
                         end
                     end
                 else
-                    var.thisGlory = thisUnit
+                    var.gloryUnit = thisUnit
                     return true
                 end
             end
@@ -324,7 +324,7 @@ actionList.Defensive = function()
         -- Blessing of Protection
         if ui.checked("Blessing of Protection", true) then
             var.protectionUnit = getHealUnitOption("Blessing of Protection Target")
-            if cast.able.blessingOfProtection(var.protectionUnit) and unit.inCombat(var.protectionUnit)
+            if var.protectionUnit ~= nil and cast.able.blessingOfProtection(var.protectionUnit) and unit.inCombat(var.protectionUnit)
                 and unit.role(var.protectionUnit) ~= "TANK" and not debuff.forbearance.exists(var.protectionUnit)
                 and unit.hp(var.protectionUnit) < ui.value("Blessing of Protection") and unit.distance(var.protectionUnit) < 40
             then
@@ -337,7 +337,7 @@ actionList.Defensive = function()
         -- Blessing of Sacrifice
         if ui.checked("Blessing of Sacrifice") then
            var.sacificeUnit = getHealUnitOption("Blessing of Sacrifice")
-            if cast.able.blessingOfSacrifice(var.sacificeUnit) and unit.inCombat(var.sacificeUnit) and unit.distance(var.sacificeUnit) < 40
+            if var.sacrificeUnit ~= nil and cast.able.blessingOfSacrifice(var.sacificeUnit) and unit.inCombat(var.sacificeUnit) and unit.distance(var.sacificeUnit) < 40
                 and unit.hp(var.sacificeUnit) < ui.value("Friendly HP") and unit.hp() >= ui.value("Personal HP Limit")
             then
                 if cast.blessingOfSacrifice(var.sacificeUnit) then
@@ -356,7 +356,7 @@ actionList.Defensive = function()
         -- Cleanse Toxins
         if ui.checked("Cleanse Toxins") then
             var.cleanseUnit = getHealUnitOption("Cleanse Toxin")
-            if cast.able.cleanseToxins(var.cleanseUnit) and cast.dispel.cleanseToxins(var.cleanseUnit) and unit.distance(var.cleanseUnit) < 40 then
+            if var.cleanseUnit ~= nil and cast.able.cleanseToxins(var.cleanseUnit) and cast.dispel.cleanseToxins(var.cleanseUnit) and unit.distance(var.cleanseUnit) < 40 then
                 if cast.cleanseToxins(var.cleanseUnit) then
                     ui.debug("Casting Cleanse Toxins on " .. unit.name(var.cleanseUnit))
                     return true
@@ -384,7 +384,7 @@ actionList.Defensive = function()
         -- Flash of Light
         if ui.checked("Flash of Light") and not (unit.mounted() or unit.flying()) and not cast.current.flashOfLight() then
             var.flashUnit = getHealUnitOption("Flash of Light Target")
-            if cast.able.flashOfLight(var.flashUnit) and unit.distance(var.flashUnit) < 40 then
+            if var.flashUnit ~= nil and cast.able.flashOfLight(var.flashUnit) and unit.distance(var.flashUnit) < 40 then
                 -- Instant Cast
                 if talent.selflessHealer and buff.selflessHealer.stack() == 4 then
                     -- Don't waste instant heal!
@@ -449,7 +449,7 @@ actionList.Defensive = function()
             if redemptionTar == 3 then
                 redemptionUnit = "focus"
             end
-            if cast.able.redemption(redemptionUnit, "dead") then
+            if redemptionUnit ~= nil and cast.able.redemption(redemptionUnit, "dead") then
                 if cast.redemption(redemptionUnit, "dead") then
                     ui.debug("Casting Redemption on " .. unit.name(redemptionUnit))
                     return true
@@ -477,9 +477,9 @@ actionList.Defensive = function()
             end
         end
         -- Word of Glory
-        if ui.checked("Word of Glory") and cast.able.wordOfGlory(var.thisGlory) and canGlory() then
-            if cast.wordOfGlory(var.thisGlory) then
-                ui.debug("Casting Word of Glory on " .. unit.name(var.thisGlory))
+        if var.gloryUnit ~= nil and ui.checked("Word of Glory") and cast.able.wordOfGlory(var.gloryUnit) and canGlory() then
+            if cast.wordOfGlory(var.gloryUnit) then
+                ui.debug("Casting Word of Glory on " .. unit.name(var.gloryUnit))
                 return true
             end
         end
@@ -569,10 +569,12 @@ actionList.Cooldowns = function()
         end
     end
     -- Trinkets
-    module.BasicTrinkets()
+    if #enemies.yards5 > 0 and unit.standingTime() >= 2 then
+        module.BasicTrinkets()
+    end
     -- Avenging Wrath
     -- avenging_wrath,if=(holy_power>=4&time<5|holy_power>=3&(time>5|runeforge.the_magistrates_judgment)|talent.holy_avenger.enabled&cooldown.holy_avenger.remains=0)&(!talent.seraphim.enabled|cooldown.seraphim.remains>0|talent.sanctified_wrath.enabled)
-    if ui.alwaysCdNever("Avenging Wrath") and not talent.crusade and cast.able.avengingWrath()
+    if ui.alwaysCdNever("Avenging Wrath") and not talent.crusade and cast.able.avengingWrath() and unit.distance("target") < 5
         and (holyPower >= 4 and unit.combatTime() < 5 or holyPower >= 3 and (unit.combatTime() > 5 or runeforge.theMagistratesJudgment.equiped) or talent.holyAvenger and not cd.holyAvenger.exists())
         and (not talent.seraphim or cd.seraphim.exists() or not ui.alwaysCdNever("Seraphim") or talent.sanctifiedWrath)
     then
@@ -615,9 +617,9 @@ actionList.Finisher = function()
     if ui.alwaysCdNever("Seraphim") and cast.able.seraphim()
         and (((not talent.crusade and (cd.avengingWrath.remains() > 15 or not ui.alwaysCdNever("Avenging Wrath")))
             or (talent.crusade and (cd.crusade.remains() > 15 or not ui.alwaysCdNever("Crusade"))) or talent.finalReckoning)
-        and (not talent.finalReckoning or cd.finalReckoning.remains() <= unit.gcd(true) * 3 or ui.alwaysCdNever("Final Reckoning"))
+        and (not talent.finalReckoning or cd.finalReckoning.remains() <= unit.gcd(true) * 3 or holyPower == 5 or ui.alwaysCdNever("Final Reckoning"))
         and (not talent.executionSentence or (cd.executionSentence.remains() <= unit.gcd(true) * 3 or talent.finalReckoning or ui.alwaysCdNever("Execution Sentence")))
-        and (not covenant.kyrian.active or cd.divineToll.remain() < 9) or unit.ttdGroup(5) < 15 and unit.ttdGroup(5) > 5)
+        and (not covenant.kyrian.active or cd.divineToll.remain() < 9 or holyPower == 5)) --or unit.ttdGroup(5) < 15 and unit.ttdGroup(5) > 5)
     then
         if cast.seraphim() then ui.debug("Casting Seraphim") return true end
     end
@@ -641,35 +643,13 @@ actionList.Finisher = function()
     end
     -- Divine Storm
     -- divine_storm,if=variable.ds_castable&!buff.vanquishers_hammer.up&((!talent.crusade.enabled|cooldown.crusade.remains>gcd*3)&(!talent.execution_sentence.enabled|cooldown.execution_sentence.remains>gcd*6|cooldown.execution_sentence.remains>gcd*5&holy_power>=4|target.time_to_die<8|!talent.seraphim.enabled&cooldown.execution_sentence.remains>gcd*2)&(!talent.final_reckoning.enabled|cooldown.final_reckoning.remains>gcd*6|cooldown.final_reckoning.remains>gcd*5&holy_power>=4|!talent.seraphim.enabled&cooldown.final_reckoning.remains>gcd*2)&(!talent.seraphim.enabled|cooldown.seraphim.remains%gcd+holy_power>3|talent.final_reckoning.enabled|talent.execution_sentence.enabled|covenant.kyrian)|(talent.holy_avenger.enabled&cooldown.holy_avenger.remains<gcd*3|buff.holy_avenger.up|buff.crusade.up&buff.crusade.stack<10))
-    local theseUnits = (ui.mode.rotation == 2 or buff.empyreanPower.exists()) and 1 or ui.value("Divine Storm Units")
-    if cast.able.divineStorm("player", "aoe", theseUnits, 8) and var.dsCastable and not buff.vanquishersHammer.exists()
-        and (((not talent.crusade or cd.crusade.remains() > unit.gcd(true) * 3 or not ui.alwaysCdNever("Crusade"))
-        and (not talent.executionSentence or cd.executionSentence.remains() > unit.gcd(true) * 6
-            or (cd.executionSentence.remains() > unit.gcd(true) * 5 and holyPower >= 4) or unit.ttdGroup(8) < 8
-            or (not talent.seraphim and cd.executionSentence.remain() > unit.gcd(true) * 2) or not ui.alwaysCdNever("Execution Sentence"))
-        and (not talent.finalReckoning or (cd.finalReckoning.remains() > unit.gcd(true) * 6) or (cd.finalReckoning.remains() > unit.gcd(true) * 5 and holyPower >= 4)
-            or (not talent.seraphim and cd.finalReckoning.remains() > unit.gcd(true) * 2) or not ui.alwaysCdNever("Final Reckoning"))
-        and (not talent.seraphim or cd.seraphim.remains() / unit.gcd(true) + holyPower > 3 or talent.finalReckoning
-            or talent.executionSentence or covenant.kyrian.active or not ui.alwaysCdNever("Seraphim")))
-        or (talent.holyAvenger and cd.holyAvenger.remains() < unit.gcd(true) * 3 or buff.holyAvenger.exists() or (talent.crusade and buff.crusade.exists() and buff.crusade.stack() < 10)))
-        --or buff.empyreanPower.exists())
-    then
-        if cast.divineStorm("player", "aoe", theseUnits, 8) then ui.debug("Casting Divine Storm") return true end
+    if cast.able.divineStorm("player", "aoe", var.theseUnits, 8) and var.dsCastable and not buff.vanquishersHammer.exists() and (var.useFinisher or buff.empyreanPower.exists()) then
+        if cast.divineStorm("player", "aoe", var.theseUnits, 8) then ui.debug("Casting Divine Storm") return true end
     end
     -- Templar's Verdict
     -- templars_verdict,if=(!talent.crusade.enabled|cooldown.crusade.remains>gcd*3)&(!talent.execution_sentence.enabled|cooldown.execution_sentence.remains>gcd*6|cooldown.execution_sentence.remains>gcd*5&holy_power>=4|target.time_to_die<8|!talent.seraphim.enabled&cooldown.execution_sentence.remains>gcd*2)&(!talent.final_reckoning.enabled|cooldown.final_reckoning.remains>gcd*6|cooldown.final_reckoning.remains>gcd*5&holy_power>=4|!talent.seraphim.enabled&cooldown.final_reckoning.remains>gcd*2)&(!talent.seraphim.enabled|cooldown.seraphim.remains%gcd+holy_power>3|talent.final_reckoning.enabled|talent.execution_sentence.enabled|covenant.kyrian)|talent.holy_avenger.enabled&cooldown.holy_avenger.remains<gcd*3|buff.holy_avenger.up|buff.crusade.up&buff.crusade.stack<10
-    if cast.able.templarsVerdict() then
-        if ((not talent.crusade or cd.crusade.remains() > unit.gcd(true) * 3 or not ui.alwaysCdNever("Crusade"))
-            and (not talent.executionSentence or cd.executionSentence.remains() > unit.gcd(true) * 6 or (cd.executionSentence.remains() > unit.gcd(true) * 5 and holyPower >= 4)
-                or unit.ttdGroup(5) < 8 or (not talent.searphim and cd.executionSentence.remains() > unit.gcd() * 2) or not ui.alwaysCdNever("Execution Sentence"))
-            and (not talent.finalReckoning or cd.finalReckoning.remains() > unit.gcd(true) * 6 or (cd.finalReckoning.remains() > unit.gcd(true) * 5 and holyPower >= 4)
-                or (not talent.seraphim and cd.finalReckoning.remains() >= unit.gcd(true) * 2) or not ui.alwaysCdNever("Final Reckoning"))
-            and (not talent.seraphim or cd.seraphim.remains() / unit.gcd(true) + holyPower > 3 or talent.finalReckoning
-                or talent.executionSentence or covenant.kyrian.active or not ui.alwaysCdNever("Seraphim")))
-            or (talent.holyAvenger and cd.holyAvenger.remains() < unit.gcd(true) * 3) or buff.holyAvenger.exists() or (talent.crusade and buff.crusade.exists() and buff.crusade.stack() < 10)
-        then
-            if cast.templarsVerdict() then ui.debug("Casting Templar's Verdict") return true end
-        end
+    if cast.able.templarsVerdict() and var.useFinisher then
+        if cast.templarsVerdict() then ui.debug("Casting Templar's Verdict") return true end
     end
 end -- End Action List - Finisher
 -- Action List - Generator
@@ -744,7 +724,7 @@ actionList.Generator = function()
     end
     -- Call Action List - Finishers
     -- call_action_list,name=finishers,if=holy_power>=3&buff.crusade.up&buff.crusade.stack<10
-    if holyPower >= 3 and buff.crusade.exists() and buff.crusade.stack() < 10 then
+    if holyPower >= 3 and talent.crusade and buff.crusade.exists() and buff.crusade.stack() < 10 then
         if actionList.Finisher() then return true end
     end
     -- Blade of Justice
@@ -778,13 +758,13 @@ actionList.Generator = function()
     -- Call Action List: Finishers
     -- call_action_list,name=finishers,if=(target.health.pct<=20|buff.avenging_wrath.up|buff.crusade.up|buff.empyrean_power.up)
     if (unit.hp(units.dyn5) <= 20 or buff.avengingWrath.exists() or buff.crusade.exists() or buff.empyreanPower.exists() or buff.divinePurpose.exists()) then
-        if actionList.Finisher() then  return end
+        if actionList.Finisher() then return end
     end
     -- Crusader Strike
     -- crusader_strike,if=cooldown.crusader_strike.charges_fractional>=1.75&(holy_power<=2|holy_power<=3&cooldown.blade_of_justice.remains>gcd*2|holy_power=4&cooldown.blade_of_justice.remains>gcd*2&cooldown.judgment.remains>gcd*2)
     if cast.able.crusaderStrike() and charges.crusaderStrike.frac() >= 1.75
-        and (holyPower <= 2 or holyPower <= 3 and cd.bladeOfJustice.remain() > unit.gcd(true) * 2 or holyPower == 4
-        and cd.bladeOfJustice.remain() > unit.gcd(true) * 2 and cd.judgment.remain() > unit.gcd(true) * 2)
+        and (holyPower <= 2 or (holyPower <= 3 and cd.bladeOfJustice.remain() > unit.gcd(true) * 2) or (holyPower == 4
+        and cd.bladeOfJustice.remain() > unit.gcd(true) * 2 and cd.judgment.remain() > unit.gcd(true) * 2))
     then
         if cast.crusaderStrike() then ui.debug("Casting Crusader Strike [Cap Prevention]") return true end
     end
@@ -795,9 +775,7 @@ actionList.Generator = function()
     end
     -- Call Action List: Finishers
     -- call_action_list,name=finishers
-    if actionList.Finisher() then
-        return
-    end
+    if actionList.Finisher() then return end
     -- Consecration
     -- consecration,if=!consecration.up
     if #enemies.yards8 > 0 and cast.able.consecration("player", "aoe", 1, 8) and not br._G.GetTotemInfo(1) and unit.standingTime() >= 2 then
@@ -858,7 +836,9 @@ actionList.PreCombat = function()
             end
             -- Start Attack
             if unit.distance("target") < 5 then
-                unit.startAttack("target")
+                if cast.able.autoAttack("target") then
+                    if cast.autoAttack("target") then ui.debug("Casting Auto Attack [Pre-Pull]") return true end
+                end
             end
         end
     end
@@ -912,19 +892,21 @@ local runRotation = function()
     var.dsCastable = (var.dsUnits or (buff.empyreanPower.exists() and not debuff.judgment.exists(units.dyn8) and not buff.divinePurpose.exists()))
     var.lowestUnit = br.friend[1].unit
     var.resable = unit.player("target") and unit.deadOrGhost("target") and unit.friend("target", "player")
-    var.timeToHPG = cd.crusaderStrike.remain()
+    var.timeToHPG = 99
     if unit.level() >= 46 then
         var.timeToHPG = math.min(cd.crusaderStrike.remain(), cd.bladeOfJustice.remain(), cd.judgment.remain(), cd.hammerOfWrath.remain(), cd.wakeOfAshes.remain())
     end
-    if unit.level() >= 39 then
+    if unit.level() < 46 then
         var.timeToHPG = math.min(cd.crusaderStrike.remain(), cd.bladeOfJustice.remain(), cd.judgment.remain(), cd.wakeOfAshes.remain())
     end
-    if unit.level() >= 19 then
+    if unit.level() < 39 then
         var.timeToHPG = math.min(cd.crusaderStrike.remain(), cd.bladeOfJustice.remain(), cd.judgment.remain())
     end
-    if unit.level() >= 16 then
+    if unit.level() < 19 then
         var.timeToHPG = math.min(cd.crusaderStrike.remain(), cd.judgment.remain())
     end
+    if unit.level() < 16 then var.timeToHPG = cd.crusaderStrike.remain() end
+    if holyPower == 5 then var.timeToHPG = 0 end
     var.turnedEvil = var.turnedEvil or "player"
     if var.profileStop == nil then
         var.profileStop = false
@@ -940,6 +922,25 @@ local runRotation = function()
             if unit.isBoss(thisUnit) then break end
         end
     end
+    var.theseUnits = (ui.mode.rotation == 2 or buff.empyreanPower.exists()) and 1 or ui.value("Divine Storm Units")
+    var.useFinisher = ((not talent.crusade or cd.crusade.remains() > unit.gcd(true) * 3 or not ui.alwaysCdNever("Crusade"))
+        and (not talent.executionSentence or cd.executionSentence.remains() > unit.gcd(true) * 6 or (cd.executionSentence.remains() > unit.gcd(true) * 5 and holyPower >= 4)
+            --or ((#enemies.yards8 == 1 and unit.ttdGroup(5) < 8) or (#enemies.yards8 > 1 and unit.ttdGroup(8) < 8))
+            or (not talent.seraphim and cd.executionSentence.remains() > unit.gcd(true) * 2) or not ui.alwaysCdNever("Execution Sentence"))
+        and (not talent.finalReckoning or cd.finalReckoning.remains() > unit.gcd(true) * 6 or (cd.finalReckoning.remains() > unit.gcd(true) * 5 and holyPower >= 4)
+            or (not talent.seraphim and cd.finalReckoning.remains() > unit.gcd(true) * 2) or not ui.alwaysCdNever("Final Reckoning"))
+        and (not talent.seraphim or (cd.seraphim.remains() / unit.gcd(true)) + holyPower > 3 or talent.finalReckoning
+            or talent.executionSentence or covenant.kyrian.active or not ui.alwaysCdNever("Seraphim")))
+        or (talent.holyAvenger and cd.holyAvenger.remains() < unit.gcd(true) * 3) or buff.holyAvenger.exists() or (talent.crusade and buff.crusade.exists() and buff.crusade.stack() < 10)
+
+    -- MultiUnits
+    var.freedomUnit = getHealUnitOption("Blessing of Freedom") or "player"
+    var.protectionUnit = "player"
+    var.sacificeUnit = "player"
+    var.cleanseUnit = "player"
+    var.flashUnit = "player"
+    var.layUnit = "player"
+    var.gloryUnit = "player"
 
     -- Auras
     if not unit.casting() then
@@ -1010,8 +1011,10 @@ local runRotation = function()
             local startTime = debugprofilestop()
             -- Start Attack
             -- auto_attack
-            if unit.distance(units.dyn5) < 5 then
-                unit.startAttack(units.dyn5)
+            if #enemies.yards5 > 0 and unit.distance("target") < 5 then
+                if cast.able.autoAttack("target") then
+                    if cast.autoAttack("target") then ui.debug("Casting Auto Attack") return true end
+                end
             end
             -- Action List - Interrupts
             -- rebuke

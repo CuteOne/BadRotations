@@ -19,11 +19,13 @@ local paused = false
 local pausekey = false
 local petAppearTimer = br._G.GetTime()
 local petCalled = false
+local petDead = false
 local petRevived = false
 local targetSwitchTimer = br._G.GetTime()
 
 br.rotations.support["PetCuteOne"] = {
     options = function()
+        local alwaysCdAoENever = {"Always", "|cff008000AOE", "|cffffff00AOE/CD", "|cff0000ffCD", "|cffff0000Never"}
         -- Pet Options
         local section = br.ui:createSection(br.ui.window.profile, "Pet")
             -- Pet Target
@@ -32,7 +34,7 @@ br.rotations.support["PetCuteOne"] = {
             br.ui:createCheckbox(section, "Auto Attack/Passive")
             -- Spec Ability
             br.ui:createCheckbox(section, "Master's Call - Cunning","|cffFFFFFFSelect to use. - Cunning Pets Only")
-            br.ui:createDropdownWithout(section,"Primal Rage - Ferocity",{"Always","Cooldowns","Never"}, 1, "|cffFFFFFFSelect when to use - Ferocity Pets Only")
+            br.ui:createDropdownWithout(section,"Primal Rage - Ferocity", alwaysCdAoENever, 1, "|cffFFFFFFSelect when to use - Ferocity Pets Only")
             br.ui:createSpinner(section,"Survival of the Fittest - Tenacity", 20, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast - Tenacity Pets Only")
             -- Attack Ability
             br.ui:createCheckbox(section, "Use Attack Ability","|cffFFFFFFPet will use Bite/Claw/Smack")
@@ -122,6 +124,8 @@ br.rotations.support["PetCuteOne"] = {
         local petMode                                       = getCurrentPetMode()
         local validTarget                                   = unit.exists(br.petTarget) and (unit.valid(br.petTarget) or unit.isDummy()) --or (not unit.exists(br.petTarget) and unit.valid("target")) or unit.isDummy()
 
+        if unit.deadOrGhost("pet") then petDead = true end
+
         -- Units
         units.get(5)
         units.get(40)
@@ -131,10 +135,10 @@ br.rotations.support["PetCuteOne"] = {
         enemies.get(8,"target")
         enemies.get(8,"pet")
         enemies.get(20,"pet")
+        enemies.get(20,"pet",true)
         enemies.get(30)
         enemies.get(30,"pet")
         enemies.get(40)
-        enemies.get(40,"player",true)
         enemies.get(40,"pet",true)
         enemies.get(40,"player",false,true)
         enemies.get(40,"pet")
@@ -176,22 +180,33 @@ br.rotations.support["PetCuteOne"] = {
         if mode.petSummon ~= 6 and not var.haltPetProfile and not ui.pause() and not unit.falling() then
             if petAppearTimer < br._G.GetTime() - 2 then
                 -- Check for Pet
-                if (petCalled or petRevived) and petExists and petActive then petCalled = false; petRevived = false end
+                -- if (petCalled or petRevived) and petExists and petActive then petCalled = false; petRevived = false end
+                if petCalled and petExists and petActive then petCalled = false else petDead = true end
+                if petRevived and petExists and petActive then petRevived = false petDead = false end
                 -- Dismiss Pet
                 if cast.able.dismissPet("player") and petExists and petActive and (callPet == nil or unit.name("pet") ~= callPetName) then
                     if cast.dismissPet("player") then ui.debug("[Pet] Casting Dismiss Pet") petAppearTimer = br._G.GetTime(); return true end
                 end
                 if mode.petSummon <  6 and callPetName ~= "" then
                     -- Call Pet
-                    if ((not br.deadPet and not petExists) or not petActive) and not buff.playDead.exists("pet") and not petCalled then
+                    if (not petExists or not petActive) and not buff.playDead.exists("pet") and not petCalled then
                         if cast["callPet"..mode.petSummon]("player") then ui.debug("[Pet] Casting Call Pet") --[[ui.print("Hey "..callPetName.."...WAKE THE FUCK UP! It's already past noon!...GET YOUR LIFE TOGETHER!")]] petAppearTimer = br._G.GetTime(); petCalled = true; petRevived = false; return true end
                     end
-                    -- Revive Pet
-                    if br.deadPet or (petExists and petHealth == 0) or petCalled == true then
+                    if (not petExists or not petActive) and petDead then
                         if cast.able.revivePet("player") and cast.timeSinceLast.revivePet() > unit.gcd(true) then
                             if cast.revivePet("player") then ui.debug("[Pet] Casting Revive Pet") --[[ui.print("Hey "..callPetName.."...WAKE THE FUCK UP! It's already past noon!...GET YOUR LIFE TOGETHER!")]] petAppearTimer = br._G.GetTime(); petRevived = true; petCalled = false; return true end
                         end
                     end
+                    -- -- Call Pet
+                    -- if ((not br.deadPet and not petExists) or not petActive) and not buff.playDead.exists("pet") and not petCalled then
+                    --     if cast["callPet"..mode.petSummon]("player") then ui.debug("[Pet] Casting Call Pet") --[[ui.print("Hey "..callPetName.."...WAKE THE FUCK UP! It's already past noon!...GET YOUR LIFE TOGETHER!")]] petAppearTimer = br._G.GetTime(); petCalled = true; petRevived = false; return true end
+                    -- end
+                    -- -- Revive Pet
+                    -- if br.deadPet or (petExists and petHealth == 0) or petCalled == true then
+                    --     if cast.able.revivePet("player") and cast.timeSinceLast.revivePet() > unit.gcd(true) then
+                    --         if cast.revivePet("player") then ui.debug("[Pet] Casting Revive Pet") --[[ui.print("Hey "..callPetName.."...WAKE THE FUCK UP! It's already past noon!...GET YOUR LIFE TOGETHER!")]] petAppearTimer = br._G.GetTime(); petRevived = true; petCalled = false; return true end
+                    --     end
+                    -- end
                 end
             end
         end
@@ -202,10 +217,10 @@ br.rotations.support["PetCuteOne"] = {
             if ui.value("Pet Target") == 4 and unit.inCombat() and (petMode == "Defensive" or petMode == "Passive") and not var.haltPetProfile  and petMode ~= "Assist" then
                 ui.debug("[Pet] Pet is now Assisting")
                 br._G.PetAssistMode()
-            elseif (not unit.inCombat() or (unit.inCombat() and ui.value("Pet Target") ~= 4)) and #enemies.yards40pnc > 0 and not var.haltPetProfile  and petMode ~= "Defensive" then
+            elseif (not unit.inCombat() or (unit.inCombat() and ui.value("Pet Target") ~= 4)) and #enemies.yards20pnc > 0 and not var.haltPetProfile  and petMode ~= "Defensive" then
                 ui.debug("[Pet] Pet is now Defending")
                 br._G.PetDefensiveAssistMode()
-            elseif petMode ~= "Passive" and ((not unit.inCombat() and #enemies.yards40pnc == 0) or var.haltPetProfile) then
+            elseif petMode ~= "Passive" and ((not unit.inCombat() and #enemies.yards20pnc == 0) or var.haltPetProfile) then
                 ui.debug("[Pet] Pet is now Passive")
                 br._G.PetPassiveMode()
             end
@@ -241,7 +256,7 @@ br.rotations.support["PetCuteOne"] = {
             if ui.checked("Master's Call - Cunning") and cast.noControl.mastersCall() then
                 if cast.mastersCall() then ui.debug("[Pet] Cast Master's Call") return true end
             end
-            if ui.value("Primal Rage - Ferocity") == 1 or (ui.value("Primal Rage - Ferocity") == 2 and ui.useCDs()) then
+            if ui.alwaysCdAoENever("Primal Rage - Ferocity") then
                 if cast.primalRage() then ui.debug("[Pet] Cast Primal Rage") return true end
             end
             if ui.checked("Survival of the Fittest - Tenacity") and unit.hp("pet") < ui.value("Survival of the Fittest - Tenacity") then
@@ -274,7 +289,7 @@ br.rotations.support["PetCuteOne"] = {
             end
         end
         -- Defense Abilities
-        if ui.checked("Use Defense Ability") and unit.inCombat("pet") and unit.hp("pet") < ui.value("Use Defense Ability") then
+        if ui.checked("Use Defense Ability") and unit.inCombat("pet") and unit.hp("pet") < ui.value("Use Defense Ability") and not buff.playDead.exists("pet") then
             -- Agile Reflexes
             if cast.able.agileReflexes() then
                 if cast.agileReflexes() then ui.debug("[Pet] Cast Agile Reflexes") return true end
@@ -345,7 +360,7 @@ br.rotations.support["PetCuteOne"] = {
             end
         end
         -- Debuff Abilities
-        if ui.checked("Use Debuff Ability") and not var.haltPetProfile  and unit.inCombat("pet")
+        if ui.checked("Use Debuff Ability") and not var.haltPetProfile  and unit.inCombat("pet") and not buff.playDead.exists("pet")
             and validTarget and petDistance < 5 and not br.isTotem(br.petTarget) and debuff.mortalWounds.refresh(br.petTarget)
         then
             -- Acid Bite
@@ -398,7 +413,7 @@ br.rotations.support["PetCuteOne"] = {
             end
         end
         -- Heal Abilities
-        if ui.checked("Use Heal Ability") then
+        if ui.checked("Use Heal Ability") and not buff.playDead.exists("pet") then
             -- Eternal Guardian
             if cast.able.eternalGuardian() and (br.deadPet or (petExists and petHealth == 0)) then
                 if cast.eternalGuardian() then ui.debug("[Pet] Cast Eternal Guardian") return true end
@@ -418,7 +433,7 @@ br.rotations.support["PetCuteOne"] = {
             end
         end
         -- Purge Ability
-        if ui.checked("Use Purge Ability") and unit.inCombat() then
+        if ui.checked("Use Purge Ability") and unit.inCombat() and not buff.playDead.exists("pet") then
             if #enemies.yards5p > 0 then
                 local dispelled = false
                 for i = 1, #enemies.yards5p do
@@ -447,7 +462,7 @@ br.rotations.support["PetCuteOne"] = {
             end
         end
         -- Utility Ability
-        if ui.checked("Use Utility Ability") then
+        if ui.checked("Use Utility Ability") and not buff.playDead.exists("pet") then
             -- Updraft
             if cast.able.updraft() and not buff.updraft.exists() and unit.fallTime() > 2 then
                 if cast.updraft() then ui.debug("[Pet] Cast Updraft") return true end
@@ -458,7 +473,7 @@ br.rotations.support["PetCuteOne"] = {
             end
         end
         -- Auto Growl
-        if ui.checked("Auto Growl") and unit.inCombat() then
+        if ui.checked("Auto Growl") and unit.inCombat() and cast.timeSinceLast.growl() > unit.gcd(true) and not buff.playDead.exists("pet") then
             local _, autoCastEnabled = br._G.GetSpellAutocast(spell.growl)
             if autoCastEnabled then br._G.ToggleSpellAutocast(spell.growl) end
             if not unit.isTankInRange() and not buff.prowl.exists("pet") then
@@ -474,11 +489,15 @@ br.rotations.support["PetCuteOne"] = {
             end
         end
         -- Dash
-        if ui.checked("Dash") and cast.able.dash("player") and validTarget and petDistance > 10 and petDistance < 40 and not ui.pause() and not cast.last.dash() then
+        if ui.checked("Dash") and cast.able.dash("player") and validTarget and petDistance > 10 and petDistance < 40
+            and not ui.pause() and cast.timeSinceLast.dash() > unit.gcd(true) and not buff.playDead.exists("pet")
+        then
             if cast.dash("player") then ui.debug("[Pet] Cast Dash") return true end
         end
         -- Fetch
-        if ui.checked("Fetch") and not unit.inCombat() and not unit.inCombat("pet") and cast.able.fetch("pet") and petExists and not br.deadPet and not cast.last.fetch() then
+        if ui.checked("Fetch") and not unit.inCombat() and not unit.inCombat("pet") and cast.able.fetch("pet")
+            and petExists and not br.deadPet and cast.timeSinceLast.fetch() > unit.gcd(true) and not buff.playDead.exists("pet")
+        then
             local lootCount = getLootableCount() or 0
             if fetching and (fetchCount ~= lootCount or lootCount == 0) then fetching = false end
             for k, _ in pairs(br.lootable) do
@@ -517,12 +536,12 @@ br.rotations.support["PetCuteOne"] = {
         end
         -- Stealth
         if ui.checked("Stealth") and not unit.inCombat("pet") and not unit.inCombat("player") and (not unit.resting() or unit.isDummy())
-            and #enemies.yards40nc > 0 and not fetching and not ui.pause()
+            and #enemies.yards20pnc > 0 and not fetching and not ui.pause() and not buff.playDead.exists("pet")
         then
             if cast.able.spiritWalk("player") and not buff.spiritWalk.exists("pet") and not cd.spiritWalk.exists() then
                 if cast.spiritWalk("player") then ui.debug("[Pet] Cast Spirit Walk") return true end
             end
-            if cast.able.prowl("player") and not buff.prowl.exists("pet") and not cd.prowl.exists() and not cast.last.prowl() then
+            if cast.able.prowl("player") and not buff.prowl.exists("pet") and not cd.prowl.exists() and cast.timeSinceLast.prowl() > unit.gcd(true) then
                 if cast.prowl("player") then ui.debug("[Pet] Cast Prowl") return true end
             end
         end

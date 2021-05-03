@@ -48,19 +48,19 @@ end
 function br.castAtPosition(X,Y,Z, SpellID)
     local i = -100
     local mouselookActive = false
-    -- if IsMouselooking() then
-    --     mouselookActive = true
-    --     MouselookStop()
-    -- end
+    if IsMouselooking() then
+        mouselookActive = true
+        MouselookStop()
+    end
     br._G.CastSpellByName(br._G.GetSpellInfo(SpellID))
     while br._G.IsAoEPending() and i <= 100 do
         br._G.ClickPosition(X,Y,Z)
         Z = i
         i = i + 1
     end
-    -- if mouselookActive then
-    --     MouselookStart()
-    -- end
+    if mouselookActive then
+        MouselookStart()
+    end
     if i >= 100 and br._G.IsAoEPending() then return false end
     return true
 end
@@ -97,7 +97,7 @@ function br.castGroundAtUnit(spellID, radius, minUnits, maxRange, minRange, spel
 
     if br.getUnits(unit,allUnitsInRange, radius - 3) >= minUnits and #br.getEnemies(unit,radius) >= #br.getEnemies(unit,radius,true) then
         local X1,Y1,Z1 = br.GetObjectPosition(unit)
-        if br.castAtPosition(X1,Y1,Z1, spellID) then return true else return false end
+        if br.castAtPosition(X1,Y1,Z1, spellID) then br.castPosition = {x = X1, y = Y1, z = Z1} return true else return false end
     end
 
 
@@ -304,7 +304,7 @@ function br.castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRan
             end
         end
         bestCircle.x, bestCircle.y = (newBestCircleX + math.random() * 2), (newBestCircleY + math.random() * 2)
-        if br.castAtPosition(bestCircle.x,bestCircle.y,bestCircle.z, spellID) then return true else return false end
+        if br.castAtPosition(bestCircle.x,bestCircle.y,bestCircle.z, spellID) then br.castPosition = {x = bestCircleX, y = bestCircleY, z = bestCircleZ} return true else return false end
     end
 end
 

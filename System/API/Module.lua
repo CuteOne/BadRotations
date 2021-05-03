@@ -15,7 +15,7 @@ br.api.module = function(self)
     local var               = {}
     var.getItemInfo         = _G["GetItemInfo"]
     var.getHealPot          = br.getHealthPot
-    
+
     -- Auto Put Keystone into Receptable during mythic+ dungeons. | Kinky BR Module Code example
     module.autoKeystone = function(section)
         if section ~= nil then 
@@ -128,26 +128,24 @@ br.api.module = function(self)
 
     -- Basic Trinkets
     module.BasicTrinkets = function(slotID,section)
+        local alwaysCdAoENever = {"Always", "|cff008000AOE", "|cffffff00AOE/CD", "|cff0000ffCD", "|cffff0000Never"}
         if section ~= nil then
-            br.ui:createDropdownWithout(section, "Trinket 1", {"|cff0000FFAlways","|cff00FF00CD/AOE","|cffFFFF00CD Only","|cffFF0000Never"}, 2, "|cffFFFFFFWhen to use Trinket 1 (Slot 13).")
-            br.ui:createDropdownWithout(section, "Trinket 2", {"|cff0000FFAlways","|cff00FF00CD/AOE","|cffFFFF00CD Only","|cffFF0000Never"}, 2, "|cffFFFFFFWhen to use Trinket 1 (Slot 14).")
+            br.ui:createDropdownWithout(section, "Trinket 1", alwaysCdAoENever, 2, "|cffFFFFFFWhen to use Trinket 1 (Slot 13).")
+            br.ui:createDropdownWithout(section, "Trinket 2", alwaysCdAoENever, 2, "|cffFFFFFFWhen to use Trinket 1 (Slot 14).")
         end
         if section == nil then
             if slotID ~= nil then
-                local opValue = ui.value("Trinket "..slotID - 12)
-                local useTrinket = (opValue == 1 or (opValue == 2 and (ui.useCDs() or ui.useAOE())) or (opValue == 3 and ui.useCDs()))
                 -- For use in rotation loop - pass slotID
                 if slotID == 13 or slotID == 14 then
-                    if use.able.slot(slotID) and useTrinket then
+                    if use.able.slot(slotID) and ui.alwaysCdAoENever("Trinket "..slotID - 12) then
                         if use.slot(slotID) then ui.debug("Using Trinket "..slotID - 12) return true end
                     end
                 end
             else
                 -- If not used in rotation loop - loop here
                 for slotID = 13, 14 do
-                    local opValue = ui.value("Trinket "..slotID - 12)
-                    local useTrinket = (opValue == 1 or (opValue == 2 and (ui.useCDs() or ui.useAOE())) or (opValue == 3 and ui.useCDs()))
-                    if use.able.slot(slotID) and useTrinket then
+                    -- local useTrinket = (opValue == 1 or (opValue == 2 and (ui.useCDs() or ui.useAOE())) or (opValue == 3 and ui.useCDs()))
+                    if use.able.slot(slotID) and ui.alwaysCdAoENever("Trinket "..slotID - 12) then
                         if use.slot(slotID) then ui.debug("Using Trinket "..slotID - 12) return true end
                     end
                 end

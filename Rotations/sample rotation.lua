@@ -146,7 +146,9 @@ actionList.PreCombat = function()
         if unit.valid("target") then -- Abilities below this only used when target is valid
             -- Start Attack
             if unit.distance("target") < 5 then -- Starts attacking if enemy is within 5yrds
-                unit.startAttack("target")
+                if cast.able.autoAttack("target") then
+                    if cast.autoAttack("target") then ui.debug("Casting Auto Attack [Pre-Combat]") return true end
+                end
             end
         end
     end -- End No Combat
@@ -227,7 +229,9 @@ local function runRotation() -- This is the main profile loop, any below this po
             ------------
             -- Start Attack - This will start auto attacking your target if it's within 5yrds and valid
             if unit.distance("target") <= 5 then
-                unit.startAttack("target")
+                if cast.able.autoAttack("target") then
+                    if cast.autoAttack("target") then ui.debug("Casting Auto Attack [Pre-Combat]") return true end
+                end
             end
         end -- End In Combat Rotation
     end -- Pause

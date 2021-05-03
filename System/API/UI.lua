@@ -4,14 +4,21 @@ br.api.ui = function(self)
     local ui = self.ui
     if ui ~= nil and ui.mode == nil then ui.mode = {} end
     ui.alwaysCdNever = function(thisOption)
+        -- Option Dropdown Requires
+        -- {"|cff008000Always", "|cff0000ffCD", "|cffff0000Never"}
         thisOption = ui.value(thisOption)
         return thisOption == 1 or (thisOption == 2 and ui.useCDs())
     end
     ui.alwaysCdAoENever = function(thisOption, minUnits, enemyCount)
+        -- Option Dropdown Requires
+        -- {"Always", "|cff008000AOE", "|cffffff00AOE/CD", "|cff0000ffCD", "|cffff0000Never"}
         thisOption = ui.value(thisOption)
         minUnits = minUnits or 3
-        enemyCount = enemyCount or 0
-        return thisOption == 1 or (thisOption == 2 and ui.useCDs()) or (thisOption == 3 and (ui.useCDs() or enemyCount >= minUnits))
+        enemyCount = enemyCount or #br.getEnemies("player",40,false,true)
+        return thisOption == 1
+            or (thisOption == 2 and enemyCount >= minUnits)
+            or (thisOption == 3 and (ui.useCDs() or enemyCount >= minUnits))
+            or (thisOption == 4 and ui.useCDs())
     end
     if ui.chatOverlay == nil then
         ui.chatOverlay = function(text)

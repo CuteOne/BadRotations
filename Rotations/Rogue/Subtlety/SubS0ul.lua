@@ -388,6 +388,8 @@ local function runRotation()
                 [120651]=true, -- Explosive
                 [168962]=true, -- Sun King's Reborn Phoenix
                 [166969]=true, -- Baroness Frieda
+                [166971]=true, -- Castellan Niklaus
+                [166970]=true, -- Lord Stavros
             }
             if debuff.serratedBoneSpike.exists(thisUnit.unit) then serratedCount = serratedCount + 1 end
             if thisUnit.distance <= 10 then
@@ -737,19 +739,11 @@ local function runRotation()
             if cast.shurikenTornado("player") then return true end
         end
         -- -- actions.cds+=/serrated_bone_spike,cycle_targets=1,if=variable.snd_condition&!dot.serrated_bone_spike_dot.ticking&target.time_to_die>=21|fight_remains<=5&spell_targets.shuriken_storm<3
-        -- if enemies10 < 3 and sndCondition == 1 and not stealthedRogue then
-        --     for i = 1, #enemyTable10 do
-        --         local thisUnit = enemyTable10[i].unit
-        --         if not debuff.serratedBoneSpikeDot.exists(thisUnit) and (ttd(thisUnit) >= 21 or fightRemain <= 5) and cast.able.serratedBoneSpike(thisUnit) then
-        --             if cast.serratedBoneSpike(thisUnit) then return true end
-        --         end
-        --     end
-        -- end
-        if not stealthedRogue and not buff.masterAssassinsMark.exists() and sndCondition == 1 and lastSpell ~= spell.serratedBoneSpike and buff.leadByExample.remain() <= 3 then
+        if not stealth and not buff.masterAssassinsMark.exists() and sndCondition == 1 and lastSpell ~= spell.serratedBoneSpike and buff.leadByExample.remain() <= 3 then
             local spikeCount = serratedCount + 2
             local spikeList = enemies.get(30, "player", false, true)
             if #spikeList > 0 then
-                if comboDeficit >= spikeCount then
+                if (comboDeficit >= spikeCount or (spikeCount > 3 and combo < 2)) then
                     if #spikeList > 1 then
                         table.sort(spikeList, function(x, y)
                             return br.getHP(x) < br.getHP(y)
@@ -763,7 +757,7 @@ local function runRotation()
                             end
                         end
                     end
-                    if #spikeList == 1 and (comboDeficit == 2 or comboDeficit >= spikeCount or (spikeCount > 4 and combo < 2)) then
+                    if #spikeList == 1 and (charges.serratedBoneSpike.frac() >= 2 or fightRemain < 30) then
                         if cast.serratedBoneSpike("target") then
                             return true
                         end
@@ -1016,9 +1010,6 @@ local function runRotation()
                 end
             end
         end
-        -- if charges.serratedBoneSpike.frac() >= 2.75 and cast.able.serratedBoneSpike() and not stealthedRogue then -- or not buff.leadByExample.exists()
-        --     if cast.serratedBoneSpike(enemyTable30.lowestTTDUnit) then return true end
-        -- end
         -- actions.build+=/gloomblade
         if talent.gloomblade then
             if cast.gloomblade("target") then return true end

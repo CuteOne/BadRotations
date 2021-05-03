@@ -707,7 +707,7 @@ br.lists.spells = {
             covenants                       = {
                 loneEmpowerment             = 338142,
                 ravenousFrenzy              = 323546,
-                empowerBond                 = 326647,
+                empowerBond                 = 326446,
             },
             debuffs                         = {
                 stellarFlare                = 202347,
@@ -1051,7 +1051,7 @@ br.lists.spells = {
                 frenziedRegeneration        = 22842,
                 ironfur                     = 192081,
                 kindredEmpowerment          = 327139,
-                kindredSpirits              = 326434,
+                kindredSpiritsBuff          = 326967, --This is buff on ourselves...at least as dps
                 kindredEmpowermentEnergize  = 327022, --/kindred-empowerment  this is when someone else cast it on you
                 loneSpirit                  = 338041,
                 moonkinForm                 = 197625,
@@ -1132,6 +1132,8 @@ br.lists.spells = {
                 killCommand                 = 34026,
                 killShot                    = 53351,
                 multishot                   = 2643,
+            },
+            animas                           = {
             },
             artifacts                       = {
 
@@ -1466,7 +1468,7 @@ br.lists.spells = {
                 mendPet                     = 136,
                 nesingwarysTrappingApparatus= 336744,
                 playDead                    = 209997,
-                prowl                       = 24450,                
+                prowl                       = 24450,
                 resonatingArrow             = 308498, -- Covenant
                 spiritWalk                  = 90328,
                 surfaceTrot                 = 126311, -- Water Strider - Water Walking
@@ -1474,7 +1476,7 @@ br.lists.spells = {
                 volley                      = 260243,
             },
             conduits                        = {
-
+                bloodletting                = 341440,
             },
             covenants                       = {
                 deathChakram                = 325028,
@@ -1675,7 +1677,7 @@ br.lists.spells = {
                 ignite                      = 12654,
                 meteorBurn                  = 155158,
                 cauterized                  = 87024,
-               
+
             },
             glyphs                          = {
 
@@ -1859,7 +1861,7 @@ br.lists.spells = {
                 sunKingsBlessings           = 333313,
                 grislyIcicle                = 333393,
                 firestorm                   = 333097,
-                
+
             },
             talents                         = {
                 incantersFlow               = 1463,
@@ -1885,7 +1887,7 @@ br.lists.spells = {
                 purifyingBrew               = 119582,
                 spearHandStrike             = 116705,
                 spinningCraneKick           = 322729,
-                zenMeditation               = 115176,
+                zenMeditation               = 115176
             },
             artifacts                       = {
 
@@ -1942,10 +1944,14 @@ br.lists.spells = {
                 invokeYulonTheJadeSerpent   = 322118,
                 invokeChiJiTheRedCrane      = 325197,
                 fortifyingBrew              = 243435,
+                zenFocusTea                 = 209584,
+                transcendenceTransfer       = 119996,
             },
             artifacts                       = {
             },
             buffs                           = {
+                weaponsOfOrder              = 310454,
+                fortifyingBrew              = 243435,
                 soothingMist                = 115175,
                 renewingMist                = 119611,
                 envelopingMist              = 124682,
@@ -1974,7 +1980,7 @@ br.lists.spells = {
                 ancientTeachingOfTheMonastery = 347553
             },
             debuffs                         = {
-                mysticTouch                 = 8647,
+                mysticTouch                 = 113746,
             },
             glyphs                          = {
             },
@@ -1992,8 +1998,10 @@ br.lists.spells = {
                 spiritOfTheCrane            = 210802,
                 summonJadeSerpentStatue     = 115313,
                 upwelling                   = 274963,
-
             },
+            runeforges                      = {
+                ancientTeachingsOfTheMonastery             = 337172
+            }
         },
         -- Windwalker
         [269] = {
@@ -2009,12 +2017,16 @@ br.lists.spells = {
                 stormEarthAndFire           = 137639,
                 stormEarthAndFireFixate     = 221771,
                 touchOfKarma                = 122470,
+                grappleWeapon               = 233759,
             },
             artifacts                       = {
 
             },
             buffs                           = {
-                blackoutKick                = 116868,
+                alphaTiger                  = 287504,
+                fortifyingBrew              = 243435,
+                invokersDelight           = 338321,
+                blackoutKick                = 116768,
                 chiEnergy                   = 337571,
                 danceOfChiJi                = 325202,
                 hitCombo                    = 196741,
@@ -2032,6 +2044,7 @@ br.lists.spells = {
                 disable                     = 116095,
                 disableRoot                 = 116706,
                 markOfTheCrane              = 228287,
+                mortalWounds                = 115804,
                 risingFist                  = 242259,
                 skyreachExhaustion          = 337341,
             },
@@ -2057,6 +2070,9 @@ br.lists.spells = {
                 gloryOfTheDawn              = 288634,
                 openPalmStrikes             = 279918,
                 swiftRoundhouse             = 277669,
+            },
+            runeforges                      = {
+                fatalTouch                  = 337296
             }
         },
         -- All
@@ -4069,6 +4085,7 @@ br.lists.spells = {
         Shared = {
             abilities                           = {
                 autoAttack                      = 6603,
+                autoShot                        = 75,
                 giftOfTheNaaru                  = br.getRacial("Draenei"),--select(7, GetSpellInfo(GetSpellInfo(28880))),
                 global                          = 61304,
                 latentArcana                    = 296971,
@@ -4076,6 +4093,9 @@ br.lists.spells = {
                 quakingPalm                     = 107079,
                 racial                          = br.getRacial(),
                 shadowmeld                      = 58984,
+            },
+            animas                           = {
+                scrollOfElchaver            = 305006,
             },
             artifacts                           = {
                 artificialDamage                = 226829,

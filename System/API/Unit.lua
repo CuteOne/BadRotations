@@ -302,13 +302,7 @@ br.api.unit = function(self)
         return GetTime() - standingTimer
     end
     -- Start Attack
-    unit.startAttack = function(thisUnit,autoShoot)
-        if (autoShoot and br._G.IsCurrentSpell(br._G.GetSpellInfo(75))) or br._G.IsCurrentSpell(6603) then return false end
-            if autoShoot then
-                self.ui.debug("Casting Auto Shot")
-            else
-                self.ui.debug("Casting Auto Attack")
-            end
+    unit.startAttack = function()
         return br._G.StartAttack()
     end
     -- Stop Attack

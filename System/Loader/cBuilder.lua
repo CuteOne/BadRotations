@@ -261,6 +261,13 @@ function br.loader:new(spec,specName)
             br.api.conduit(self.conduit,k,v)
         end
 
+        if self.anima == nil then self.anima = {} end
+        if IsInJailersTower() then
+            for k,v in pairs(self.spell.animas) do
+                if self.anima[k] == nil then self.anima[k] = {} end
+                br.api.animas(self.anima[k],v)
+            end
+        end
 
         -- Covenant
         if self.covenant == nil then self.covenant = {} end
@@ -346,7 +353,7 @@ function br.loader:new(spec,specName)
                 br.api.pets(pet,k,v,self)
             end
         end
-        
+
         -- Cycle through Items List
         for k,v in pairs(self.items) do --self.spell.items) do
             if self.charges         == nil then self.charges    = {} end -- Item Charge Functions
@@ -420,6 +427,10 @@ function br.loader:new(spec,specName)
             if br.updatePlayerInfo then getSpellsForSpec(spec); getTalentInfo(); getAzeriteTraitInfo(); getFunctions(); br.updatePlayerInfo = false end
             self.getToggleModes()
             -- Start selected rotation
+            if br.castPosition.x == 0 then
+                X, Y, Z = br.GetObjectPosition("player")
+                br.castPosition = {x = X, y = Y, z = Z}
+            end
             self.startRotation()
         end
     end

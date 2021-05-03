@@ -63,6 +63,7 @@ local function createOptions()
 
     local function rotationOptions()
         local section
+        local alwaysCdAoENever = {"Always", "|cff008000AOE", "|cffffff00AOE/CD", "|cff0000ffCD", "|cffff0000Never"}
         -- General Options
         section = br.ui:createSection(br.ui.window.profile, "General")
             -- APL
@@ -80,7 +81,7 @@ local function createOptions()
             -- Volly Units
             br.ui:createSpinner(section,"Volley Units", 3, 1, 5, 1, "|cffFFFFFFSet minimal number of units to cast Volley on")
             -- Covenant Ability
-            br.ui:createDropdownWithout(section,"Covenant Ability", {"Always", "Cooldown", "Never"}, 1, "|cffFFFFFFSet when to use ability.")
+            br.ui:createDropdownWithout(section,"Covenant Ability", alwaysCdAoENever, 1, "|cffFFFFFFSet when to use ability.")
         br.ui:checkSectionState(section)
         -- Pet Options
         br.rotations.support["PetCuteOne"].options()
@@ -99,19 +100,19 @@ local function createOptions()
             -- Basic Trinkets Module
             br.player.module.BasicTrinkets(nil,section)
             -- A Murder of Crows
-            br.ui:createDropdownWithout(section,"A Murder of Crows", {"Always", "Cooldown", "Never"}, 1, "|cffFFFFFFSet when to use ability.")
+            br.ui:createDropdownWithout(section,"A Murder of Crows", alwaysCdAoENever, 1, "|cffFFFFFFSet when to use ability.")
             -- Barrage
-            br.ui:createDropdownWithout(section,"Barrage", {"Always", "Cooldown", "Never"}, 1, "|cffFFFFFFSet when to use ability.")
+            br.ui:createDropdownWithout(section,"Barrage", alwaysCdAoENever, 1, "|cffFFFFFFSet when to use ability.")
             -- Double Tap
-            br.ui:createDropdownWithout(section,"Double Tap", {"Always", "Cooldown", "Never"}, 1, "|cffFFFFFFSet when to use ability.")
+            br.ui:createDropdownWithout(section,"Double Tap", alwaysCdAoENever, 1, "|cffFFFFFFSet when to use ability.")
             -- Explosive Shot
-            br.ui:createDropdownWithout(section,"Explosive Shot", {"Always", "Cooldown", "Never"}, 1, "|cffFFFFFFSet when to use ability.")
+            br.ui:createDropdownWithout(section,"Explosive Shot", alwaysCdAoENever, 1, "|cffFFFFFFSet when to use ability.")
             -- Rapid Fire
-            br.ui:createDropdownWithout(section,"Rapid Fire", {"Always", "Cooldown", "Never"}, 1, "|cffFFFFFFSet when to use ability.")
+            br.ui:createDropdownWithout(section,"Rapid Fire", alwaysCdAoENever, 1, "|cffFFFFFFSet when to use ability.")
             -- Trueshot
-            br.ui:createDropdownWithout(section,"Trueshot", {"Always", "Cooldown", "Never"}, 1, "|cffFFFFFFSet when to use ability.")
+            br.ui:createDropdownWithout(section,"Trueshot", alwaysCdAoENever, 1, "|cffFFFFFFSet when to use ability.")
             -- volley
-            br.ui:createDropdownWithout(section,"Volley", {"Always", "Cooldown", "Never"}, 1, "|cffFFFFFFSet when to use ability.")
+            br.ui:createDropdownWithout(section,"Volley", alwaysCdAoENever, 1, "|cffFFFFFFSet when to use ability.")
         br.ui:checkSectionState(section)
         -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
@@ -190,11 +191,6 @@ local actionList = {}
 -----------------------
 --- Local Functions ---
 -----------------------
-local function alwaysCdNever(option)
-    if option == "Racial" then br._G.GetSpellInfo(br.player.spell.racial) end
-    local thisOption = ui.value(option)
-    return thisOption == 1 or (thisOption == 2 and ui.useCDs())
-end
 
 -- Multi-Dot HP Limit Set
 local function canDoT(thisUnit)
@@ -394,59 +390,59 @@ actionList.TrickShots = function()
     end
     -- Double Tap
     -- double_tap,if=covenant.kyrian&cooldown.resonating_arrow.remains<gcd|!covenant.kyrian&!covenant.night_fae|covenant.night_fae&(cooldown.wild_spirits.remains<gcd|cooldown.trueshot.remains>55)|target.time_to_die<10
-    if alwaysCdNever("Double Tap") and cast.able.doubleTap() and talent.doubleTap
-        and ((((covenant.kyrian.active and (cd.resonatingArrow.remains() < unit.gcd(true) or not alwaysCdNever("Covenant Ability"))) or not covenant.kyrian.active)
-        and (not covenant.nightFae.active or (covenant.nightFae.active and ((cd.wildSpirits.remain() < unit.gcd(true) or not alwaysCdNever("Covenant Ability")) or cd.trueshot.remains() > 55))))
+    if ui.alwaysCdAoENever("Double Tap",3,#enemies.yards40) and cast.able.doubleTap() and talent.doubleTap
+        and ((((covenant.kyrian.active and (cd.resonatingArrow.remains() < unit.gcd(true) or not ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards12t))) or not covenant.kyrian.active)
+        and (not covenant.nightFae.active or (covenant.nightFae.active and ((cd.wildSpirits.remain() < unit.gcd(true) or not ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards12t)) or cd.trueshot.remains() > 55))))
         or (unit.isBoss("target") and unit.ttd("target") < 10))
     then
         if cast.doubleTap() then ui.debug("Casting Double Tap [Trick Shots]") return true end
     end
     -- Tar Trap
     -- tar_trap,if=runeforge.soulforge_embers&tar_trap.remains<gcd&cooldown.flare.remains<gcd
-    if cast.able.tarTrap(units.dyn40,"ground") and runeforge.soulforgeEmbers.equiped and debuff.tarTrap.remains(units.dyn40) < unit.gcd(true) and cd.flare.remains() < unit.gcd(true) then
-        if cast.tarTrap(units.dyn40,"ground") then ui.debug("Casting Tar Trap [Trick Shots Soulforge Embers]") return true end
+    if cast.able.tarTrap("best",nil,1,8) and runeforge.soulforgeEmbers.equiped and debuff.tarTrap.remains(units.dyn40) < unit.gcd(true) and cd.flare.remains() < unit.gcd(true) then
+        if cast.tarTrap("best",nil,1,8) then ui.debug("Casting Tar Trap [Trick Shots Soulforge Embers]") var.tarred = true return true end
     end
     -- Flare
     -- flare,if=tar_trap.up&runeforge.soulforge_embers
-    if cast.able.flare() and debuff.tarTrap.exists(units.dyn40) and runeforge.soulforgeEmbers.equiped then
-        if cast.flare(units.dyn40) then ui.debug("Casting Flare [Trick Shots Soulforge Embers]") return true end
+    if cast.able.flare("groundLocation",br.castPosition.x,br.castPosition.y,8) and var.tarred and runeforge.soulforgeEmbers.equiped then
+        if cast.flare("groundLocation",br.castPosition.x,br.castPosition.y,8) then ui.debug("Casting Flare [Trick Shots Soulforge Embers]") var.tarred = false return true end
     end
     -- Explosive Shot
     -- explosive_shot
-    if alwaysCdNever("Explosive Shot") and cast.able.explosiveShot(units.dyn40,"aoe",3,8) and talent.explosiveShot and unit.ttd(units.dyn40) > 3 then
+    if ui.alwaysCdAoENever("Explosive Shot",3,#enemies.yards8t) and cast.able.explosiveShot(units.dyn40,"aoe",3,8) and talent.explosiveShot and unit.ttd(units.dyn40) > 3 then
         if cast.explosiveShot(units.dyn40,"aoe",3,8) then ui.debug("Casting Explosive Shot [Trick Shots]") return true end
     end
     -- Wild Spirits
     -- wild_spirits
-    if alwaysCdNever("Covenant Ability") and cast.able.wildSpirits() then
+    if ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards12t) and cast.able.wildSpirits() then
         if cast.wildSpirits() then ui.debug("Casting Wild Spirits [Trick Shots Night Fae]") return true end
     end
     -- Resonating Arrow
     -- resonating_arrow
-    if alwaysCdNever("Covenant Ability") and cast.able.resonatingArrow() then
+    if ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards12t) and cast.able.resonatingArrow() then
         if cast.resonatingArrow() then ui.debug("Casting Resonating Arrow [Trick Shots Kyrian]") return true end
     end
     -- Volley
     -- volley,if=buff.resonating_arrow.up|!covenant.kyrian|talent.lethal_shots
-    if alwaysCdNever("Volley") and cast.able.volley() and ui.mode.volley == 1 and ui.checked("Volley Units") and #enemies.yards8t >= ui.value("Volley Units")
-        and (buff.resonatingArrow.exists() or not covenant.kyrian.active or talent.lethalShots or (covenant.kyrian.active and not alwaysCdNever("Covenant Ability")))
+    if ui.alwaysCdAoENever("Volley",3,#enemies.yards8t) and cast.able.volley() and ui.mode.volley == 1 and ui.checked("Volley Units") and #enemies.yards8t >= ui.value("Volley Units")
+        and (buff.resonatingArrow.exists() or not covenant.kyrian.active or talent.lethalShots or (covenant.kyrian.active and not ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards12t)))
     then
         if cast.volley("best",nil,ui.value("Volley Units"),8) then ui.debug("Casting Volley [Trick Shots]") return true end
     end
     -- Barrage
     -- barrage
-    if alwaysCdNever("Barrage") and cast.able.barrage() and talent.barrage then
+    if ui.alwaysCdAoENever("Barrage",3,#enemies.yards8t) and cast.able.barrage() and talent.barrage then
         if cast.barrage() then ui.debug("Casting Barrage [Trick Shots]") return true end
     end
     -- Trueshot
     -- trueshot
-    if alwaysCdNever("Trueshot") and cast.able.trueshot() then
+    if ui.alwaysCdAoENever("Trueshot",3,#enemies.yards40) and cast.able.trueshot() then
         if cast.trueshot("player") then ui.debug("Casting Trueshot [Trick Shots]") return true end
     end
     -- Rapid Fire
     -- rapid_fire,if=runeforge.surging_shots&(cooldown.resonating_arrow.remains>10|!covenant.kyrian|talent.lethal_shots)&buff.trick_shots.remains>=execute_time
-    if alwaysCdNever("Rapid Fire") and cast.able.rapidFire()
-        and runeforge.surgingShots.equiped and (cd.resonatingArrow.remains() > 10 or not covenant.kyrian.active or talent.lethalShots or (covenant.kyrian.active and not alwaysCdNever("Covenant Ability")))
+    if ui.alwaysCdAoENever("Rapid Fire",3,#enemies.yards8t) and cast.able.rapidFire()
+        and runeforge.surgingShots.equiped and (cd.resonatingArrow.remains() > 10 or not covenant.kyrian.active or talent.lethalShots or (covenant.kyrian.active and not ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards12t)))
         and buff.trickShots.remains() > cast.time.rapidFire() and unit.ttd(units.dyn40) > cast.time.rapidFire()
     then
         if cast.rapidFire() then ui.debug("Casting Rapid Fire [Trick Shots Surging Shots]") return true end
@@ -461,14 +457,14 @@ actionList.TrickShots = function()
     end
     -- Death Chakram
     -- death_chakram,if=focus+cast_regen<focus.max
-    if alwaysCdNever("Covenant Ability") and cast.able.deathChakram() and power.focus.amount() + cast.regen.deathChakram() < power.focus.max() then
+    if ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards8t) and cast.able.deathChakram() and power.focus.amount() + cast.regen.deathChakram() < power.focus.max() then
         if cast.deathChakram() then ui.debug("Casting Death Chakram [Trick Shots Necrolord]") return true end
     end
     -- Rapid Fire
     -- rapid_fire,if=(cooldown.resonating_arrow.remains>10&runeforge.surging_shots|!covenant.kyrian|!runeforge.surging_shots|talent.lethal_shots)&buff.trick_shots.remains>=execute_time
-    if alwaysCdNever("Rapid Fire") and cast.able.rapidFire()
+    if ui.alwaysCdAoENever("Rapid Fire",3,#enemies.yards8t) and cast.able.rapidFire()
         and (cd.resonatingArrow.remains() > 10 and runeforge.surgingShots.equiped or not covenant.kyrian.active
-            or not runeforge.surgingShots.equiped or talent.lethalShots or (covenant.kyrian.active and not alwaysCdNever("Covenant Ability")))
+            or not runeforge.surgingShots.equiped or talent.lethalShots or (covenant.kyrian.active and not ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards12t)))
         and buff.trickShots.remains() >= cast.time.rapidFire() and unit.ttd(units.dyn40) > cast.time.rapidFire()
     then
         if cast.rapidFire() then ui.debug("Casting Rapid Fire [Trick Shots]") return true end
@@ -493,12 +489,12 @@ actionList.TrickShots = function()
     end
     -- A Murder of Crows
     -- a_murder_of_crows
-    if alwaysCdNever("A Murder of Crows") and cast.able.aMurderOfCrows() and talent.aMurderOfCrows then
+    if ui.alwaysCdAoENever("A Murder of Crows",3,#enemies.yards40) and cast.able.aMurderOfCrows() and talent.aMurderOfCrows then
         if cast.aMurderOfCrows() then ui.debug("Casting A Murder of Crows [Trick Shots]") return true end
     end
     -- Flayed Shot
     -- flayed_shot
-    if alwaysCdNever("Covenant Ability") and cast.able.flayedShot() then
+    if ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards40) and cast.able.flayedShot() then
         if cast.flayedShot() then ui.debug("Casting Flayed Shot [Trick Shots Venthhyr]") return true end
     end
     -- Serpent Sting
@@ -537,66 +533,66 @@ actionList.SingleTarget = function()
     end
     -- Double Tap
     -- double_tap,if=covenant.kyrian&cooldown.resonating_arrow.remains<gcd|!covenant.kyrian&!covenant.night_fae|covenant.night_fae&(cooldown.wild_spirits.remains<gcd|cooldown.trueshot.remains>55)|target.time_to_die<15
-    if alwaysCdNever("Double Tap") and cast.able.doubleTap() and talent.doubleTap and (not cast.last.steadyShot() or buff.steadyFocus.exists() or not talent.steadyFocus)
-        and ((((covenant.kyrian.active and (cd.resonatingArrow.remains() < unit.gcd(true) or not alwaysCdNever("Covenant Ability"))) or not covenant.kyrian.active)
-        and (not covenant.nightFae.active or (covenant.nightFae.active and ((cd.wildSpirits.remains() < unit.gcd(true) or not alwaysCdNever("Covenant Ability")) or cd.trueshot.remains() > 55))))
+    if ui.alwaysCdAoENever("Double Tap") and cast.able.doubleTap() and talent.doubleTap and (not cast.last.steadyShot() or buff.steadyFocus.exists() or not talent.steadyFocus)
+        and ((((covenant.kyrian.active and (cd.resonatingArrow.remains() < unit.gcd(true) or not ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards12t))) or not covenant.kyrian.active)
+        and (not covenant.nightFae.active or (covenant.nightFae.active and ((cd.wildSpirits.remains() < unit.gcd(true) or not ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards12t)) or cd.trueshot.remains() > 55))))
         or (unit.isBoss("target") or unit.ttd("target") < 15))
     then
         if cast.doubleTap() then ui.debug("Casting Double Tap") return true end
     end
     -- Flare
     -- flare,if=tar_trap.up&runeforge.soulforge_embers
-    if cast.able.flare() and debuff.tarTrap.exists(units.dyn40) and runeforge.soulforgeEmbers.equiped then
-        if cast.flare(units.dyn40) then ui.debug("Casting Flare [Soulforge Embers]") return true end
+    if cast.able.flare("groundLocation",br.castPosition.x,br.castPosition.y,8) and var.tarred and runeforge.soulforgeEmbers.equiped then
+        if cast.flare("groundLocation",br.castPosition.x,br.castPosition.y,8) then ui.debug("Casting Flare [Soulforge Embers]") var.tarred = false return true end
     end
     -- Tar Trap
     -- tar_trap,if=runeforge.soulforge_embers&tar_trap.remains<gcd&cooldown.flare.remains<gcd
-    if cast.able.tarTrap(units.dyn40,"ground") and runeforge.soulforgeEmbers.equiped
+    if cast.able.tarTrap("best",nil,1,8) and runeforge.soulforgeEmbers.equiped
         and debuff.tarTrap.remains(units.dyn40) < unit.gcd(true) and cd.flare.remains() < unit.gcd(true)
     then
-        if cast.tarTrap(units.dyn40,"ground") then ui.debug("Casting Tar Trap [Soulforge Embers]") return true end
+        if cast.tarTrap("best",nil,1,8) then ui.debug("Casting Tar Trap [Soulforge Embers]") var.tarred = true return true end
     end
     -- Explosive Shot
     -- explosive_shot
-    if alwaysCdNever("Explosive Shot") and cast.able.explosiveShot(units.dyn40,"aoe",3,8) and talent.explosiveShot and unit.ttd(units.dyn40) > 3 then
+    if ui.alwaysCdAoENever("Explosive Shot",3,#enemies.yards8t) and cast.able.explosiveShot(units.dyn40,"aoe",3,8) and talent.explosiveShot and unit.ttd(units.dyn40) > 3 then
         if cast.explosiveShot(units.dyn40,"aoe",3,8) then ui.debug("Casting Explosive Shot") return true end
     end
     -- Wild Spirits
     -- wild_spirits
-    if alwaysCdNever("Covenant Ability") and cast.able.wildSpirits() then
+    if ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards12t) and cast.able.wildSpirits() then
         if cast.wildSpirits() then ui.debug("Casting Wild Spirits [Night Fae]") return true end
     end
     -- Flayed Shot
     -- flayed_shot
-    if alwaysCdNever("Covenant Ability") and cast.able.flayedShot() then
+    if ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards40) and cast.able.flayedShot() then
         if cast.flayedShot() then ui.debug("Casting Flayed Shot [Venthhyr]") return true end
     end
     -- Death Chakram
     -- death_chakram,if=focus+cast_regen<focus.max
-    if alwaysCdNever("Covenant Ability") and cast.able.deathChakram() and power.focus.amount() + cast.regen.deathChakram() < power.focus.max() then
+    if ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards8t) and cast.able.deathChakram() and power.focus.amount() + cast.regen.deathChakram() < power.focus.max() then
         if cast.deathChakram() then ui.debug("Casting Death Chakram [Necrolord]") return true end
     end
     -- A Murder of Crows
     -- a_murder_of_crows
-    if alwaysCdNever("A Murder of Crows") and cast.able.aMurderOfCrows() and talent.aMurderOfCrows then
+    if ui.alwaysCdAoENever("A Murder of Crows",3,#enemies.yards40) and cast.able.aMurderOfCrows() and talent.aMurderOfCrows then
         if cast.aMurderOfCrows() then ui.debug("Casting A Murder of Crows") return true end
     end
     -- Resonating Arrow
     -- resonating_arrow
-    if alwaysCdNever("Covenant Ability") and cast.able.resonatingArrow() then
+    if ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards12t) and cast.able.resonatingArrow() then
         if cast.resonatingArrow() then ui.debug("Casting Resonating Arrow [Kyrian]") return true end
     end
     -- Volley
     -- volley,if=(buff.resonating_arrow.up|!covenant.kyrian|talent.lethal_shots)&(buff.precise_shots.down|!talent.chimaera_shot|active_enemies<2)
-    if alwaysCdNever("Volley") and cast.able.volley() and ui.mode.volley == 1 and ui.checked("Volley Units")
-        and (buff.resonatingArrow.exists() or not covenant.kyrian.active or talent.leathalShots or (covenant.kyrian.active and not alwaysCdNever("Covenant Ability")))
+    if ui.alwaysCdAoENever("Volley",3,#enemies.yards8t) and cast.able.volley() and ui.mode.volley == 1 and ui.checked("Volley Units")
+        and (buff.resonatingArrow.exists() or not covenant.kyrian.active or talent.leathalShots or (covenant.kyrian.active and not ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards12t)))
         and (not buff.preciseShots.exists() or not talent.chimaeraShot or #enemies.yards8t < 2) and (#enemies.yards8t >= ui.value("Volley Units"))
     then
         if cast.volley("best",nil,ui.value("Volley Units"),8) then ui.debug("Casting Volley") return true end
     end
     -- Trueshot
     -- trueshot,if=buff.precise_shots.down|buff.resonating_arrow.up|buff.wild_spirits.up|buff.volley.up&active_enemies>1
-    if alwaysCdNever("Trueshot") and cast.able.trueshot() and (not buff.preciseShots.exists() or debuff.resonatingArrow.exists(units.dyn40)
+    if ui.alwaysCdAoENever("Trueshot",3,#enemies.yards40) and cast.able.trueshot() and (not buff.preciseShots.exists() or debuff.resonatingArrow.exists(units.dyn40)
         or debuff.wildMark.exists(units.dyn40) or buff.volley.exists() and #enemies.yards10t > 1)
     then
         if cast.trueshot("player") then ui.debug("Casting Trueshot [Trick Shots]") return true end
@@ -612,8 +608,8 @@ actionList.SingleTarget = function()
     end
     -- Rapid Fire
     -- rapid_fire,if=(cooldown.resonating_arrow.remains>10|!covenant.kyrian|talent.lethal_shots)&focus+cast_regen<focus.max&(buff.trueshot.down|!runeforge.eagletalons_true_focus)&(buff.double_tap.down|talent.streamline)
-    if alwaysCdNever("Rapid Fire") and cast.able.rapidFire() 
-        and (cd.resonatingArrow.remain() > 10 or not covenant.kyrian.active or talent.lethalShots or (covenant.kyrian.active and not alwaysCdNever("Covenant Ability")))
+    if ui.alwaysCdAoENever("Rapid Fire",3,#enemies.yards8t) and cast.able.rapidFire()
+        and (cd.resonatingArrow.remain() > 10 or not covenant.kyrian.active or talent.lethalShots or (covenant.kyrian.active and not ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards12t)))
         and (power.focus.amount() + power.focus.regen() < power.focus.max()
             and (not buff.trueshot.exists() or not runeforge.eagletalonsTrueFocus.equiped)
             and (not buff.doubleTap.exists() or talent.streamline))
@@ -644,15 +640,16 @@ actionList.SingleTarget = function()
     end
     -- Barrage
     -- barrage,if=active_enemies>1
-    if alwaysCdNever("Barrage") and cast.able.barrage() and talent.barrage
+    if ui.alwaysCdAoENever("Barrage",3,#enemies.yards8t) and cast.able.barrage() and talent.barrage
         and ((ui.mode.rotation == 1 and #enemies.yards10t > 1) or (ui.mode.rotation == 2 and #enemies.yards10t > 0))
     then
         if cast.barrage() then ui.debug("Casting Barrage") return true end
     end
     -- Rapid Fire
     -- rapid_fire,if=(cooldown.resonating_arrow.remains>10&runeforge.surging_shots|!covenant.kyrian|talent.lethal_shots)&focus+cast_regen<focus.max&(buff.double_tap.down|talent.streamline)
-    if alwaysCdNever("Rapid Fire") and cast.able.rapidFire()
-        and (cd.resonatingArrow.remains() > 10 and runeforge.surgingShots.equiped or not covenant.kyrian.active or talent.leathalShots or (covenant.kyrian.active and not alwaysCdNever("Covenant Ability")))
+    if ui.alwaysCdAoENever("Rapid Fire",3,#enemies.yards8t) and cast.able.rapidFire()
+        and (cd.resonatingArrow.remains() > 10 and runeforge.surgingShots.equiped or not covenant.kyrian.active or talent.leathalShots
+            or (covenant.kyrian.active and not ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards12t)))
         and (power.focus.amount() + power.focus.regen() < power.focus.max()
         and (not buff.doubleTap.exists() or talent.streamline))
 		and unit.ttd(units.dyn40) > cast.time.rapidFire()
@@ -698,7 +695,7 @@ actionList.PreCombat = function()
             end
             -- Aimed Shot
             -- aimed_shot,if=active_enemies<3&(!covenant.kyrian&!talent.volley|active_enemies<2)
-            if cast.able.aimedShot() and not unit.moving("player") and #enemies.yards10t < 3
+            if cast.able.aimedShot("target") and not unit.moving("player") and #enemies.yards10t < 3
                 and (#enemies.yards10t < 2 or (not covenant.kyrian.active and not talent.volley))
                 and cast.timeSinceLast.aimedShot() > unit.gcd("true") and not cast.current.aimedShot()
             then
@@ -706,11 +703,12 @@ actionList.PreCombat = function()
             end
             -- Arcane Shot
             -- steady_shot,if=active_enemies>2|(covenant.kyrian|talent.volley)&active_enemies=2
-            if cast.able.arcaneShot() and (#enemies.yards10t > 2 or ((covenant.kyrian.active or talent.volley) and #enemies.yards10t == 2)) then
+            if cast.able.arcaneShot("target") and (#enemies.yards10t > 2 or ((covenant.kyrian.active or talent.volley) and #enemies.yards10t == 2)) then
                 if cast.arcaneShot("target") then ui.debug("Casting Arcane Shot [Pre-Pull]") return true end
             end
-            -- Auto Shot
-            unit.startAttack("target",true)
+            if cast.able.autoShot("target") then
+                if cast.autoShot("target") then ui.debug("Casting Auto Shot [Pre-Pull]") return true end
+            end
         end
     end
 end -- End Action List - Pre-Pull
@@ -751,7 +749,8 @@ local function runRotation()
     enemies.get(8)
     enemies.get(8,"target")
     enemies.get(8,"pet")
-    enemies.get(10, "target")
+    enemies.get(10,"target")
+    enemies.get(12,"target")
     enemies.get(30,"pet")
     enemies.get(40)
     enemies.get(40,"player",true)
@@ -771,7 +770,7 @@ local function runRotation()
         local thisUnit = enemies.yards10t[i]
         local thisHP = unit.hp(thisUnit)
         local serpentStingRemain = debuff.serpentSting.remain(thisUnit) + var.serpentInFlight * 99
-        if not ui.checked("Aimed Shot - Multi-DoT") and ui.mode.rotation < 3 and serpentStingRemain < var.lowestAimedRemain and canDoT(thisUnit) and unit.facing(thisUnit) then
+        if ui.checked("Aimed Shot - Multi-DoT") and ui.mode.rotation < 3 and serpentStingRemain < var.lowestAimedRemain and canDoT(thisUnit) and unit.facing(thisUnit) then
             var.lowestAimedRemain = serpentStingRemain
             var.lowestAimedSerpentSting = thisUnit
         end
@@ -780,6 +779,8 @@ local function runRotation()
             var.lowestHPUnit = thisUnit
         end
     end
+
+    if var.tarred == nil then var.tarred = true end
 
     ---------------------
     --- Begin Profile ---
@@ -823,6 +824,10 @@ local function runRotation()
             ------------------------
             --- In Combat - Main ---
             ------------------------
+            -- Auto Shot
+            if cast.able.autoShot(units.dyn40) then
+                if cast.autoShot(units.dyn40) then ui.debug("Casting Auto Shot") return true end
+            end
             -- Counter Shot
             -- counter_shot,line_cd=30,if=runeforge.sephuzs_proclamation|soulbind.niyas_tools_poison|(conduit.reversal_of_fortune&!runeforge.sephuzs_proclamation)
             -- Basic Trinkets Module
