@@ -631,7 +631,7 @@ local function runRotation()
     inRaid = br.player.instance == "raid"
     lowestUnit = friends[1].unit
     nonAtonementsCount = 0
-    power = br.player.power.mana.amount()
+    power = br.player.power.mana.percent()
     purgeTheWickedUnit = nil
     purgeTheWickedCount = debuff.purgeTheWicked.count()
     schismUnit = nil
