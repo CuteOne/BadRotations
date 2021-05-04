@@ -191,7 +191,7 @@ local thisUnit
 -----------------
 local function ttd(u)
     local ttdSec = unit.ttd(u)
-    if ttdSec < 0 then
+    if ttdSec == nil or ttdSec < 0 then
         return 999
     end
     return ttdSec
