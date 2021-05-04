@@ -10,18 +10,21 @@ local function createToggles()
         [2] = {mode = "Off", value = 3, overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.divineStar}
     };
     br.ui:createToggle(CooldownModes, "Cooldown", 1, 0)
+
     -- Defensive
     local DefensiveModes = {
         [1] = {mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Includes Defensives.", highlight = 1, icon = br.player.spell.powerWordBarrier},
         [2] = {mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.powerWordBarrier}
     };
     br.ui:createToggle(DefensiveModes, "Defensive", 2, 0)
+
     -- Dispel
     local DispelModes = {
         [1] = {mode = "On", value = 1, overlay = "Dispels Enabled", tip = "Includes Dispels.", highlight = 1, icon = br.player.spell.purify},
         [2] = {mode = "Off", value = 2, overlay = "Dispels Disabled", tip = "No Dispels will be used.", highlight = 0, icon = br.player.spell.purify}
     }
     br.ui:createToggle(DispelModes, "Dispel", 3, 0)
+
     -- Interrupt
     local InterruptModes = {
         [1] = {mode = "On", value = 1, overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.psychicScream},
@@ -35,6 +38,7 @@ end -- End createToggles
 ---------------
 local function createOptions()
     local optionTable
+
     local function generalOptions()
         local section = br.ui:createSection(br.ui.window.profile, "General")
         br.ui:createSpinner(section, "Pre-Pull Timer", 2, 1, 10, 1, "Desired time to start Pre-Pull.")
@@ -54,6 +58,7 @@ local function createOptions()
         br.ui:createSpinner(section, "Interrupt At", 85, 0, 95, 5, "|cffFFBB00Cast Percentage to use at.")
         br.ui:checkSectionState(section)
     end -- End generalOptions
+
     local function healingOptions()
         local section = br.ui:createSection(br.ui.window.profile, "Healing")
         br.ui:createDropdown(section, "Atonement Ramp Key", br.dropOptions.Toggle, 6, "Key to press to spam atonements on party.")
@@ -71,7 +76,7 @@ local function createOptions()
         br.ui:createSpinnerWithout(section, "Shadow Covenant Targets", 4, 0, 40, 1, "Minimum Shadow Covenant Targets to use at.")
         br.ui:checkSectionState(section)
     end -- End healingOptions
-    
+
     local function damageOptions()
         local section = br.ui:createSection(br.ui.window.profile, "Damage")
         br.ui:createSpinner(section, "Shadow Word: Pain Targets", 3, 0, 20, 1, "Maximum Shadow Word: Pain Targets to use at.")
@@ -90,7 +95,7 @@ local function createOptions()
         br.ui:createSpinner(section, "Shadowfiend", 80, 0, 100, 1, "Mana Percentage to use at.")
         br.ui:checkSectionState(section)
     end -- End damageOptions
-    
+
     local function cooldownOptions()
         local section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
         br.ui:createCheckbox(section, "Racial", "Use Racial.")
@@ -108,7 +113,7 @@ local function createOptions()
         br.ui:createDropdown(section, "Trinket 2 Mode", {"Enemy", "Friend"}, 1, "Use Trinket 2 on enemy or on friend.")
         br.ui:checkSectionState(section)
     end -- End cooldownOptions
-    
+
     local function defensiveOptions()
         local section = br.ui:createSection(br.ui.window.profile, "Defensive")
         br.ui:createSpinner(section, "Desperate Prayer", 40, 0, 100, 1, "Health Percentage to use at.")
@@ -116,7 +121,7 @@ local function createOptions()
         if br.player.race == "Draenei" then br.ui:createSpinner(section, "Gift of the Naaru", 50, 0, 100, 1, "Health Percentage to use at.") end
         br.ui:checkSectionState(section)
     end -- End defensiveOptions
-    
+
     optionTable = {
         {
             [1] = "General",
@@ -180,6 +185,17 @@ local schismUnit
 local shadowWordPainCount
 local tanks
 local thisUnit
+
+-----------------
+--- Functions ---
+-----------------
+local function ttd(u)
+    local ttdSec = unit.ttd(u)
+    if ttdSec == -1 then
+        return 999
+    end
+    return ttdSec
+end
 
 --------------------
 --- Action Lists ---
@@ -485,57 +501,57 @@ actionList.Damage = function()
         end
     end
     if ui.checked("Purge the Wicked Targets") and talent.purgeTheWicked and purgeTheWickedCount < ui.value("Purge the Wicked Targets") and (cd.penance.remain() > gcdMax or purgeTheWickedCount == 0) then
-        if unit.valid("target") and not debuff.purgeTheWicked.exists("target") and unit.ttd() > 6 then
+        if unit.valid("target") and not debuff.purgeTheWicked.exists("target") and ttd() > 6 then
             if cast.purgeTheWicked("target") then return true end
         end
         for i = 1, #enemies.yards40 do
             thisUnit = enemies.yards40[i]
-            if debuff.purgeTheWicked.remain(thisUnit) < 6 and unit.ttd(thisUnit) > 6 and not br._G.UnitIsOtherPlayersPet(thisUnit) then
+            if debuff.purgeTheWicked.remain(thisUnit) < 6 and ttd(thisUnit) > 6 and not br._G.UnitIsOtherPlayersPet(thisUnit) then
                 if cast.purgeTheWicked(thisUnit) then return true end
             end
         end
     end
     if ui.checked("Shadow Word: Pain Targets") and not talent.purgeTheWicked and shadowWordPainCount < ui.value("Shadow Word: Pain Targets") and (cd.penance.remain() > gcdMax or shadowWordPainCount == 0) then
-        if unit.valid("target") and not debuff.shadowWordPain.exists("target") and unit.ttd() > 6 then
+        if unit.valid("target") and not debuff.shadowWordPain.exists("target") and ttd() > 6 then
             if cast.shadowWordPain("target") then return true end
         end
         for i = 1, #enemies.yards40 do
             thisUnit = enemies.yards40[i]
-            if debuff.purgeTheWicked.remain(thisUnit) < 4.8 and unit.ttd(thisUnit) > 6 and not br._G.UnitIsOtherPlayersPet(thisUnit) then
+            if debuff.purgeTheWicked.remain(thisUnit) < 4.8 and ttd(thisUnit) > 6 and not br._G.UnitIsOtherPlayersPet(thisUnit) then
                 if cast.shadowWordPain(thisUnit) then return true end
             end
         end
     end
     if ui.checked("Mindbender") and talent.mindbender and power <= ui.value("Mindbender") then
-        if schismUnit ~= nil and unit.ttd(schismUnit) > 9 then
+        if schismUnit ~= nil and ttd(schismUnit) > 9 then
             if cast.mindbender(schismUnit) then return true end
-        elseif unit.ttd(units.dyn40) > 9 and not unit.isExplosive(units.dyn40) then
+        elseif ttd(units.dyn40) > 9 and not unit.isExplosive(units.dyn40) then
             if cast.mindbender(units.dyn40) then return true end
         end
     end
     if ui.checked("Shadowfiend") and not talent.mindbender and power <= ui.value("Shadowfiend") then
-        if schismUnit ~= nil and unit.ttd(schismUnit) > 9 then
+        if schismUnit ~= nil and ttd(schismUnit) > 9 then
             if cast.shadowfiend(schismUnit) then return true end
-        elseif unit.ttd(units.dyn40) > 9 and not unit.isExplosive(units.dyn40) then
+        elseif ttd(units.dyn40) > 9 and not unit.isExplosive(units.dyn40) then
             if cast.shadowfiend(units.dyn40) then return true end
         end
     end
-    if ui.checked("Schism") and talent.schism and not moving and cd.penance.remain() <= gcdMax + 1 and unit.ttd(units.dyn40) > 7 and not unit.isExplosive(units.dyn40) then
+    if ui.checked("Schism") and talent.schism and not moving and cd.penance.remain() <= gcdMax + 1 and ttd(units.dyn40) > 7 and not unit.isExplosive(units.dyn40) then
         if cast.schism(units.dyn40) then return true end
     end
     if ui.checked("Mindgames") and covenant.venthyr.active and not moving then
-        if schismUnit ~= nil and unit.ttd(schismUnit) > 7 then
+        if schismUnit ~= nil and ttd(schismUnit) > 7 then
             if cast.mindgames(schismUnit) then return true end
-        elseif unit.ttd(units.dyn40) > 9 and not unit.isExplosive(units.dyn40) then
+        elseif ttd(units.dyn40) > 9 and not unit.isExplosive(units.dyn40) then
             if cast.mindgames(units.dyn40) then return true end
         end
     end
     if ui.checked("Penance") then
-        if schismUnit ~= nil and unit.ttd(schismUnit) > 2.5 then
+        if schismUnit ~= nil and ttd(schismUnit) > 2.5 then
             if cast.penance(schismUnit) then return true end
-        elseif purgeTheWickedUnit ~= nil and unit.ttd(purgeTheWickedUnit) > 2.5 and unit.facing(purgeTheWickedUnit) then
+        elseif purgeTheWickedUnit ~= nil and ttd(purgeTheWickedUnit) > 2.5 and unit.facing(purgeTheWickedUnit) then
             if cast.penance(purgeTheWickedUnit) then return true end
-        elseif unit.ttd(units.dyn40) > 2.5 then
+        elseif ttd(units.dyn40) > 2.5 then
             if cast.penance(units.dyn40) then return true end
         end
     end
@@ -606,6 +622,7 @@ local function runRotation()
     unit = br.player.unit
     units = br.player.units
     var = br.player.variables
+
     -- Other Locals
     atonementsCount = buff.atonement.count()
     bestAOEGroupCount = 0
@@ -620,6 +637,7 @@ local function runRotation()
     schismUnit = nil
     shadowWordPainCount = debuff.shadowWordPain.count()
     tanks = br.getTanksTable()
+
     -- Custom Variables
     units.get(40)
     enemies.get(30)
@@ -632,14 +650,14 @@ local function runRotation()
     for i = 1, #enemies.yards40 do
         thisUnit = enemies.yards40[i]
         thisGroupCount = #enemies.get(10, thisUnit)
-        if thisGroupCount > bestAOEGroupCount and unit.ttd(thisUnit) > 4 then
+        if thisGroupCount > bestAOEGroupCount and ttd(thisUnit) > 4 then
             bestAOEGroupCount = thisGroupCount
             bestAOEUnit = thisUnit
         end
-        if debuff.schism.exists(thisUnit) and unit.ttd(thisUnit) > 2 and unit.facing(thisUnit) and not br._G.UnitIsOtherPlayersPet(thisUnit) then
+        if debuff.schism.exists(thisUnit) and ttd(thisUnit) > 2 and unit.facing(thisUnit) and not br._G.UnitIsOtherPlayersPet(thisUnit) then
             schismUnit = thisUnit
         end
-        if debuff.purgeTheWicked.exists(thisUnit) and unit.ttd(thisUnit) > 2 and unit.facing(thisUnit) and not br._G.UnitIsOtherPlayersPet(thisUnit) then
+        if debuff.purgeTheWicked.exists(thisUnit) and ttd(thisUnit) > 2 and unit.facing(thisUnit) and not br._G.UnitIsOtherPlayersPet(thisUnit) then
             purgeTheWickedUnit = thisUnit
         end
     end
@@ -649,6 +667,7 @@ local function runRotation()
             nonAtonementsCount = nonAtonementsCount + 1
         end
     end
+
     -- Begin Profile
     if var.profileStop == nil then var.profileStop = false end
     if not inCombat and not unit.exists("target") and var.profileStop then
@@ -672,6 +691,7 @@ local function runRotation()
         end
     end
 end -- End runRotation
+
 local id = 256
 if br.rotations[id] == nil then br.rotations[id] = {} end
 br._G.tinsert(br.rotations[id], {
