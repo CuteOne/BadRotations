@@ -1458,6 +1458,9 @@ br.lists.spells = {
                 -- Water Walking
                 surfaceTrot                 = 126311, -- Water Strider - Water Walking
             },
+            animas                          = {
+                soulforgeEmbers             = 331197,
+            },
             artifacts                       = {
 
             },
@@ -2444,6 +2447,7 @@ br.lists.spells = {
                 shadowMend                  = 186263,
                 shiningForce                = 204263,
                 sinsOfTheMany               = 198076,
+                spiritShell                 = 109964,
                 smite                       = 585,
             },
             artifacts                       = {
@@ -2464,6 +2468,7 @@ br.lists.spells = {
                 powerWordShield             = 17,
                 rapture                     = 47536,
                 speedOfThePious             = 197767,
+                spiritShell                 = 109964,
                 symbolOfHope                = 64901,
             },
             debuffs                         = {
@@ -4040,6 +4045,7 @@ br.lists.spells = {
             },
             conduits                        = {
                 viciousContempt             = 337302,
+                destructiveReverberations   = 339939,
             },
             covenants                       = {
                 ancientAftershock           = 325886,

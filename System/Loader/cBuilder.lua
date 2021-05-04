@@ -261,12 +261,11 @@ function br.loader:new(spec,specName)
             br.api.conduit(self.conduit,k,v)
         end
 
+        -- Animas
         if self.anima == nil then self.anima = {} end
-        if IsInJailersTower() then
-            for k,v in pairs(self.spell.animas) do
-                if self.anima[k] == nil then self.anima[k] = {} end
-                br.api.animas(self.anima[k],v)
-            end
+        for k,v in pairs(self.spell.animas) do
+            if self.anima[k] == nil then self.anima[k] = {} end
+            br.api.animas(self.anima[k],v)
         end
 
         -- Covenant
