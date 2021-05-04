@@ -163,6 +163,7 @@ end
 --- Locals ---
 --------------
 -- BR API Locals
+local anima
 local buff
 local cast
 local cd
@@ -523,12 +524,12 @@ actionList.St = function()
     end
     -- Tar Trap
     -- tar_trap,if=runeforge.soulforge_embers&tar_trap.remains<gcd&cooldown.flare.remains<gcd
-    if cast.able.tarTrap("best",nil,1,8) and runeforge.soulforgeEmbers.equiped and debuff.tarTrap.remains(units.dyn40) < unit.gcd(true) and cd.flare.remains() < unit.gcd(true) then
+    if cast.able.tarTrap("best",nil,1,8) and (runeforge.soulforgeEmbers.equiped or anima.soulforgeEmbers.exists()) and cd.flare.remains() < unit.gcd(true) then
         if cast.tarTrap("best",nil,1,8) then ui.debug("Casting Tar Trap [Soulforge Embers]") var.tarred = true return true end
     end
     -- Flare
     -- flare,if=tar_trap.up&runeforge.soulforge_embers
-    if cast.able.flare("groundLocation",br.castPosition.x,br.castPosition.y,8) and var.tarred and runeforge.soulforgeEmbers.equiped then
+    if cast.able.flare("groundLocation",br.castPosition.x,br.castPosition.y,8) and var.tarred and (runeforge.soulforgeEmbers.equiped or anima.soulforgeEmbers.exists()) then
         if cast.flare("groundLocation",br.castPosition.x,br.castPosition.y,8) then ui.debug("Casting Flare [Soulforge Embers]") var.tarred = false return true end
     end
     -- Bloodshed
@@ -626,8 +627,8 @@ actionList.St = function()
     -- arcane_pulse,if=buff.bestial_wrath.down|target.time_to_die<5
     -- Tar Trap
     -- tar_trap,if=runeforge.soulforge_embers|runeforge.nessingwarys_trapping_apparatus
-    if cast.able.tarTrap(units.dyn40,"ground") and (runeforge.soulforgeEmbers.equiped or runeforge.nesingwarysTrappingApparatus.equiped) then
-        if cast.tarTrap(units.dyn40,"ground") then ui.debug("Casting Tar Trap [Soulforge Embers / Nesingwary's Trapping Apparatus]") return true end
+    if cast.able.tarTrap(units.dyn40,"ground") and ((runeforge.soulforgeEmbers.equiped or anima.soulforgeEmbers.exists()) or runeforge.nesingwarysTrappingApparatus.equiped) then
+        if cast.tarTrap(units.dyn40,"ground") then ui.debug("Casting Tar Trap [Soulforge Embers / Nesingwary's Trapping Apparatus]") var.tarred = true return true end
     end
     -- Freezing Trap
     -- freezing_trap,if=runeforge.nessingwarys_trapping_apparatus
@@ -657,12 +658,12 @@ actionList.Cleave = function()
     end
     -- Tar Trap
     -- tar_trap,if=runeforge.soulforge_embers&tar_trap.remains<gcd&cooldown.flare.remains<gcd
-    if cast.able.tarTrap("best",nil,1,8) and runeforge.soulforgeEmbers.equiped and debuff.tarTrap.remains(units.dyn40) < unit.gcd(true) and cd.flare.remains() < unit.gcd(true) then
+    if cast.able.tarTrap("best",nil,1,8) and (runeforge.soulforgeEmbers.equiped or anima.soulforgeEmbers.exists()) and cd.flare.remains() < unit.gcd(true) then
         if cast.tarTrap("best",nil,1,8) then ui.debug("Casting Tar Trap [Soulforge Embers AOE]") var.tarred = true return true end
     end
     -- Flare
     -- flare,if=tar_trap.up&runeforge.soulforge_embers
-    if cast.able.flare("groundLocation",br.castPosition.x,br.castPosition.y,8) and var.tarred and runeforge.soulforgeEmbers.equiped then
+    if cast.able.flare("groundLocation",br.castPosition.x,br.castPosition.y,8) and var.tarred and (runeforge.soulforgeEmbers.equiped or anima.soulforgeEmbers.exists()) then
         if cast.flare("groundLocation",br.castPosition.x,br.castPosition.y,8) then ui.debug("Casting Flare [Soulforge Embers]") var.tarred = false return true end
     end
     -- Death Chakram
@@ -751,8 +752,8 @@ actionList.Cleave = function()
     end
     -- Tar Trap
     -- tar_trap,if=runeforge.soulforge_embers|runeforge.nessingwarys_trapping_apparatus
-    if cast.able.tarTrap(units.dyn40,"ground") and (runeforge.soulforgeEmbers.equiped or runeforge.nesingwarysTrappingApparatus.equiped) then
-        if cast.tarTrap(units.dyn40,"ground") then ui.debug("Casting Tar Trap [AOE Soulforge Embers / Nesingwary's Trapping Apparatus]") return true end
+    if cast.able.tarTrap(units.dyn40,"ground") and ((runeforge.soulforgeEmbers.equiped or anima.soulforgeEmbers.exists()) or runeforge.nesingwarysTrappingApparatus.equiped) then
+        if cast.tarTrap(units.dyn40,"ground") then ui.debug("Casting Tar Trap [AOE Soulforge Embers / Nesingwary's Trapping Apparatus]") var.tarred = true return true end
     end
     -- Freezing Trap
     -- freezing_trap,if=runeforge.nessingwarys_trapping_apparatus
@@ -798,6 +799,7 @@ local function runRotation()
     --- Defines ---
     ---------------
     -- BR API
+    anima                              = br.player.anima
     buff                               = br.player.buff
     cast                               = br.player.cast
     cd                                 = br.player.cd

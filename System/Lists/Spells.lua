@@ -1458,6 +1458,9 @@ br.lists.spells = {
                 -- Water Walking
                 surfaceTrot                 = 126311, -- Water Strider - Water Walking
             },
+            animas                          = {
+                soulforgeEmbers             = 331197,
+            },
             artifacts                       = {
 
             },

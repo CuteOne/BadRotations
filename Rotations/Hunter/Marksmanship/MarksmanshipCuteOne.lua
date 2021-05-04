@@ -168,6 +168,7 @@ end
 --------------
 --- Locals ---
 --------------
+local anima
 local buff
 local cast
 local cd
@@ -399,12 +400,12 @@ actionList.TrickShots = function()
     end
     -- Tar Trap
     -- tar_trap,if=runeforge.soulforge_embers&tar_trap.remains<gcd&cooldown.flare.remains<gcd
-    if cast.able.tarTrap("best",nil,1,8) and runeforge.soulforgeEmbers.equiped and debuff.tarTrap.remains(units.dyn40) < unit.gcd(true) and cd.flare.remains() < unit.gcd(true) then
+    if cast.able.tarTrap("best",nil,1,8) and (runeforge.soulforgeEmbers.equiped or anima.soulforgeEmbers.exists()) and cd.flare.remains() < unit.gcd(true) then
         if cast.tarTrap("best",nil,1,8) then ui.debug("Casting Tar Trap [Trick Shots Soulforge Embers]") var.tarred = true return true end
     end
     -- Flare
     -- flare,if=tar_trap.up&runeforge.soulforge_embers
-    if cast.able.flare("groundLocation",br.castPosition.x,br.castPosition.y,8) and var.tarred and runeforge.soulforgeEmbers.equiped then
+    if cast.able.flare("groundLocation",br.castPosition.x,br.castPosition.y,8) and var.tarred and (runeforge.soulforgeEmbers.equiped or anima.soulforgeEmbers.exists()) then
         if cast.flare("groundLocation",br.castPosition.x,br.castPosition.y,8) then ui.debug("Casting Flare [Trick Shots Soulforge Embers]") var.tarred = false return true end
     end
     -- Explosive Shot
@@ -542,14 +543,12 @@ actionList.SingleTarget = function()
     end
     -- Flare
     -- flare,if=tar_trap.up&runeforge.soulforge_embers
-    if cast.able.flare("groundLocation",br.castPosition.x,br.castPosition.y,8) and var.tarred and runeforge.soulforgeEmbers.equiped then
+    if cast.able.flare("groundLocation",br.castPosition.x,br.castPosition.y,8) and var.tarred and (runeforge.soulforgeEmbers.equiped or anima.soulforgeEmbers.exists()) then
         if cast.flare("groundLocation",br.castPosition.x,br.castPosition.y,8) then ui.debug("Casting Flare [Soulforge Embers]") var.tarred = false return true end
     end
     -- Tar Trap
     -- tar_trap,if=runeforge.soulforge_embers&tar_trap.remains<gcd&cooldown.flare.remains<gcd
-    if cast.able.tarTrap("best",nil,1,8) and runeforge.soulforgeEmbers.equiped
-        and debuff.tarTrap.remains(units.dyn40) < unit.gcd(true) and cd.flare.remains() < unit.gcd(true)
-    then
+    if cast.able.tarTrap("best",nil,1,8) and (runeforge.soulforgeEmbers.equiped or anima.soulforgeEmbers.exists()) and cd.flare.remains() < unit.gcd(true) then
         if cast.tarTrap("best",nil,1,8) then ui.debug("Casting Tar Trap [Soulforge Embers]") var.tarred = true return true end
     end
     -- Explosive Shot
@@ -685,8 +684,8 @@ actionList.PreCombat = function()
         if unit.valid("target") and unit.distance("target") < 40 and not ui.checked("Do Not Auto Engage if OOC") then
             -- Tar Trap
             -- tar_trap,if=runeforge.soulforge_embers
-            if cast.able.tarTrap(units.dyn40,"ground") and runeforge.soulforgeEmbers.equiped then
-                if cast.tarTrap(units.dyn40,"ground") then ui.debug("Casting Tar Trap [Soulforge Embers]") return true end
+            if cast.able.tarTrap(units.dyn40,"ground") and (runeforge.soulforgeEmbers.equiped or anima.soulforgeEmbers.exists()) then
+                if cast.tarTrap(units.dyn40,"ground") then ui.debug("Casting Tar Trap [Soulforge Embers]") var.tarred = true return true end
             end
             -- Double Tap
             -- double_tap,precast_time=10,if=active_enemies>1|!covenant.kyrian&!talent.volley
@@ -727,6 +726,7 @@ local function runRotation()
     ---------------
     --- Defines ---
     ---------------
+    anima                                         = br.player.anima
     buff                                          = br.player.buff
     cast                                          = br.player.cast
     cd                                            = br.player.cd

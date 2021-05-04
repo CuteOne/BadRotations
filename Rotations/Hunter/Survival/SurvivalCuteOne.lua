@@ -159,6 +159,7 @@ end
 --- Locals ---
 --------------
 -- BR API Locals
+local anima
 local buff
 local cast
 local cd
@@ -395,7 +396,7 @@ actionList.Cooldown = function()
     -- Tar Trap
     -- tar_trap,if=runeforge.nessingwarys_trapping_apparatus.equipped&focus+cast_regen<focus.max|focus+cast_regen<focus.max&runeforge.soulforge_embers.equipped&tar_trap.remains<gcd&cooldown.flare.remains<gcd&(active_enemies>1|active_enemies=1&time_to_die>5*gcd)
     if cast.able.tarTrap("best",nil,1,8) and (runeforge.nesingwarysTrappingApparatus.equiped and focus + cast.regen.steelTrap() < focusMax
-        or focus + cast.regen.steelTrap() < focusMax and runeforge.soulforgeEmbers.equiped and debuff.tarTrap.remains(units.dyn40) < unit.gcd(true)
+        or focus + cast.regen.steelTrap() < focusMax and (runeforge.soulforgeEmbers.equiped or anima.soulforgeEmbers.exists()) and debuff.tarTrap.remains(units.dyn40) < unit.gcd(true)
         and (#enemies.yards40 > 1 or #enemies.yards40 == 1 and unit.ttd(units.dyn40) > 5 * unit.gcd(true)))
     then
         if cast.tarTrap("best",nil,1,8) then ui.debug("Casting Tar Trap [CD]") var.tarred = true return true end
@@ -403,7 +404,7 @@ actionList.Cooldown = function()
     -- Flare
     -- flare,if=focus+cast_regen<focus.max&tar_trap.up&runeforge.soulforge_embers.equipped&time_to_die>4*gcd
     if cast.able.flare("groundLocation",br.castPosition.x,br.castPosition.y,8) and var.tarred and focus + cast.regen.flare()
-        and runeforge.soulforgeEmbers.equiped and unit.ttd(units.dyn40) > 4 * unit.gcd(true)
+        and (runeforge.soulforgeEmbers.equiped or anima.soulforgeEmbers.exists()) and unit.ttd(units.dyn40) > 4 * unit.gcd(true)
     then
         if cast.flare("groundLocation",br.castPosition.x,br.castPosition.y,8) then ui.debug("Casting Flare [CD]") var.tarred = false return true end
     end
@@ -1213,6 +1214,7 @@ local function runRotation()
     --- Define Locals ---
     ---------------------
     -- BR API Locals
+    anima                                         = br.player.anima
     buff                                          = br.player.buff
     cast                                          = br.player.cast
     cd                                            = br.player.cd
