@@ -257,7 +257,7 @@ actionList.Dispel = function()
                 end
             elseif ui.value("Purify") == 2 then
                 for i = 1, #friends do
-                    thisUnit = friends[i]
+                    thisUnit = friends[i].unit
                     if br.canDispel(thisUnit, spell.purify) then
                         if cast.purify(thisUnit) then return true end
                     end
