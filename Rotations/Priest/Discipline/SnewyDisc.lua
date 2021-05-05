@@ -328,23 +328,23 @@ end -- End Action List - Defensive
 
 -- Action List - Cooldown
 actionList.Cooldown = function()
+    if ui.checked("Pain Suppression Tank") then
+        for i = 1, #tanks do
+            thisUnit = tanks[i].unit
+            if unit.hp(thisUnit) <= ui.value("Pain Suppression Tank") then
+                cast.painSuppression(thisUnit)
+            end
+        end
+    end
+    if ui.checked("Pain Suppression Party") then
+        for i = 1, #friends do
+            thisUnit = friends[i].unit
+            if unit.hp(thisUnit) <= ui.value("Pain Suppression Party") then
+                cast.painSuppression(thisUnit)
+            end
+        end
+    end
     if ui.useCDs() then
-        if ui.checked("Pain Suppression Tank") then
-            for i = 1, #tanks do
-                thisUnit = tanks[i].unit
-                if unit.hp(thisUnit) <= ui.value("Pain Suppression Tank") then
-                    cast.painSuppression(thisUnit)
-                end
-            end
-        end
-        if ui.checked("Pain Suppression Party") then
-            for i = 1, #friends do
-                thisUnit = friends[i].unit
-                if unit.hp(thisUnit) <= ui.value("Pain Suppression Party") then
-                    cast.painSuppression(thisUnit)
-                end
-            end
-        end
         if ui.checked("Trinket 1") and br.canTrinket(13) and br.getLowAllies(ui.value("Trinket 1")) >= ui.value("Trinket 1 Targets") then
             if ui.value("Trinket 1 Mode") == 1 then
                 if schismUnit ~= nil then
