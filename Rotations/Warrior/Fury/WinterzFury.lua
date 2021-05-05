@@ -121,6 +121,10 @@ local function createOptions()
         br.ui:createSpinner(section, "Ancient Aftershock AoE Units", 3, 1, 10, 1, "Number of units to use NF Ability on")
         -- Aftershock SingleTarget
         br.ui:createCheckbox(section, "Use Aftershock in ST")
+        if br.player.covenant.kyrian.active then
+        -- Spear of Bastion Units
+        br.ui:createSpinner(section, "Spear of Bastion Units", 3, 1, 10, 1, "Number of units to use Spear of Bastion on")
+        end
         -- Dragons Roar
         br.ui:createCheckbox(section, "Dragon Roar")
         -- Bloodrage
@@ -187,43 +191,41 @@ local function runRotation()
 
     local buff                                              = br.player.buff
     local cast                                              = br.player.cast
-    local combatTime                                        = br.getCombatTime()
+    --local combatTime                                        = br.getCombatTime()
     local cd                                                = br.player.cd
     local charges                                           = br.player.charges
-    local hastar                                            = hastar or br.GetObjectExists("target")
-    local debuff                                            = br.player.debuff
+    --local hastar                                            = hastar or br.GetObjectExists("target")
+    --local debuff                                            = br.player.debuff
     local enemies                                           = br.player.enemies
-    local equiped                                           = br.player.equiped
-    local gcd                                               = br.player.gcdMax
+    --local equiped                                           = br.player.equiped
+    --local gcd                                               = br.player.gcdMax
     local gcdMax                                            = br.player.gcdMax
 	local healPot                                           = br.getHealthPot()
-    local heirloomNeck                                      = 122667 or 122668
     local inCombat                                          = br.player.inCombat
-    local item                                              = br.player.items
-    local inRaid                                            = br.player.instance == "raid"
+    --local item                                              = br.player.items
+    --local inRaid                                            = br.player.instance == "raid"
     local level                                             = br.player.level
     local mode                                              = br.player.ui.mode
     local moving                                            = br._G.GetUnitSpeed("player") > 0
     local php                                               = br.player.health
-    local pullTimer                                         = br.DBM:getPulltimer()
+    --local pullTimer                                         = br.DBM:getPulltimer()
     local race                                              = br.player.race
     local rage                                              = br.player.power.rage.amount()
     local runeforge                                         = br.player.runeforge
-    local racial                                            = br.player.getRacial()
+    --local racial                                            = br.player.getRacial()
     local spell                                             = br.player.spell
     local talent                                            = br.player.talent
-    local thp                                               = br.getHP("target")
-    local traits                                            = br.player.traits
+    --local thp                                               = br.getHP("target")
+    --local traits                                            = br.player.traits
     local units                                             = br.player.units
-	local ttd                                               = br.getTTD
-    local use                                               = br.player.use
+	--local ttd                                               = br.getTTD
+    --local use                                               = br.player.use
     local ui                                                = br.player.ui
     local module 										    = br.player.module
     local debug                                             = br.addonDebug
     local massacreTalent                                    = talent.massacre and 1.5 or 0
-    local condemnCDdur                                      = (6 - massacreTalent) - ((6 - massacreTalent) * (GetHaste() / 100))
-
-
+    --local condemnCDdur                                      = (6 - massacreTalent) - ((6 - massacreTalent) * (GetHaste() / 100))
+    local filler                                            = cd.bloodthirst.remain() > (gcdMax / 2) and cd.ragingBlow.remain() > (gcdMax / 2) and true or false
 
     --wipe timers table
     if br.timersTable then
@@ -234,6 +236,7 @@ local function runRotation()
     units.get(8)
     enemies.get(5)
     enemies.get(8)
+    enemies.get(12)
     enemies.get(15)
     enemies.get(20)
     enemies.cone.get(45, 12, false, false)
@@ -248,23 +251,25 @@ local function runRotation()
         br.profileStop = false
     end
 
-    if cd.bloodthirst.remain() > (gcdMax / 2) and cd.ragingBlow.remain() > (gcdMax / 2) then
-        filler = true
-    else
-        filler = false
-    end
     local function extralist()
-        -- Battle Shout
-        if br.isChecked("Battle Shout") and cast.able.battleShout() then
-            for i = 1, #br.friend do
-                local thisUnit = br.friend[i].unit
-                if not br.GetUnitIsDeadOrGhost(thisUnit) and br.getDistance(thisUnit) < 100 and br.getBuffRemain(thisUnit, spell.battleShout) < 60 then
-                    if cast.battleShout() then
-                        return
+      -- Battle Shout Check
+      if br.timer:useTimer("BSTimer", math.random(15,40)) then
+        if br.isChecked("Battle Shout") then
+            if cast.able.battleShout() and not br.player.covenant.nightFae.active or (br.player.covenant.nightFae.active and not shaped) then
+                for i = 1, #br.friend do
+                    local thisUnit = br.friend[i].unit
+                    if not br.GetUnitIsDeadOrGhost(thisUnit)
+                            and br.getDistance(thisUnit) < 100
+                            and br.getBuffRemain(thisUnit, spell.battleShout) < 60
+                    then
+                        if cast.battleShout() then
+                            return true
+                        end
                     end
                 end
             end
         end
+    end
 
         -- Berserker Rage
         if br.isChecked("Berserker Rage") and cast.able.berserkerRage() and br.hasNoControl(spell.berserkerRage) then
@@ -385,7 +390,7 @@ local function runRotation()
                             local thisUnit = enemies.yards20[i]
                             local distance = br.getDistance(thisUnit)
                             for k, v in pairs(Storm_list) do
-                                if (Storm_unitList[br.GetObjectID(thisUnit)] ~= nil or br._G.UnitCastingInfo(thisUnit) == GetSpellInfo(v) or br._G.UnitChannelInfo(thisUnit) == GetSpellInfo(v)) and br.getBuffRemain(thisUnit, 226510) == 0 and distance <= 20 then
+                                if (Storm_unitList[br.GetObjectID(thisUnit)] ~= nil or br._G.UnitCastingInfo(thisUnit) == br._g.GetSpellInfo(v) or br._G.UnitChannelInfo(thisUnit) == br._g.GetSpellInfo(v)) and br.getBuffRemain(thisUnit, 226510) == 0 and distance <= 20 then
                                     if cast.stormBolt(thisUnit) then
                                         return
                                     end
@@ -457,29 +462,29 @@ local function runRotation()
         end
 
         -- condemn MASSACRE test
-        if ((C_Covenants.GetActiveCovenantID()) == 2) then
+        if br.player.covenant.venthyr.active then
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]
                 if ((br.getHP(thisUnit) >80 or buff.suddenDeath.exists("player")) or (talent.massacre and br.getHP(thisUnit) <= 35)) then
-                    if br._G.CastSpellByName(GetSpellInfo(330325)) then debug("Condemn MASSACRE Multitarget")
+                    if br._G.CastSpellByName(br._G.GetSpellInfo(330325), enemies.yards5[i]) then debug("Condemn MASSACRE Multitarget")
                         return
                     end
                 end
             end
         end
         -- condemn NON-massacre
-        if ((C_Covenants.GetActiveCovenantID()) == 2) then
+        if br.player.covenant.venthyr.active then
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]
                 if (br.getHP(thisUnit) >80 or buff.suddenDeath.exists("player")) then
-                    if br._G.CastSpellByName(GetSpellInfo(317485)) then debug("Condemn Non-Massacre Multitarget")
+                    if br._G.CastSpellByName(br._G.GetSpellInfo(317485), enemies.yards5[i]) then debug("Condemn Non-Massacre Multitarget")
                         return
                     end
                 end
             end
         end
         -- EXECUTE MASSACRE
-        if not ((C_Covenants.GetActiveCovenantID()) == 2) then
+        if not br.player.covenant.venthyr.active then
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]
                 if br.getFacing("player",thisUnit) and talent.massacre and br.getHP(thisUnit) <= 35 or buff.suddenDeath.exists("player") and (buff.enrage.exists("player") or rage <= 70) then
@@ -490,7 +495,7 @@ local function runRotation()
             end
         end
         -- Execute non-MASSACRE
-        if not ((C_Covenants.GetActiveCovenantID()) == 2) then
+        if not br.player.covenant.venthyr.active then
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]
                 if br.getFacing("player",thisUnit) and br.getHP(thisUnit) <= 20 and (buff.enrage.exists("player") or rage <= 70) then
@@ -559,20 +564,12 @@ local function runRotation()
                 return
             end
         end
-        if cast.able.execute() and (br.getHP("target") <= 20 or (talent.massacre and br.getHP("target") <= 35) or buff.suddenDeath.exists("player")) and (buff.enrage.exists("player") or rage <= 70) then
-            if cast.execute("target") then
-                return
-            end
-        end
         if charges.ragingBlow.count() == 2 then
             if cast.ragingBlow() then
                 return
             end
         end
         if cast.bloodthirst() then
-            return
-        end
-        if cast.ragingBlow() then
             return
         end
     end
@@ -628,7 +625,7 @@ local function runRotation()
         end
 
                 -- condemn MASSACRE test
-        if ((C_Covenants.GetActiveCovenantID()) == 2) then
+        if br.player.covenant.venthyr.active then
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]
                 if buff.whirlwind.exists("player") and ((br.getHP(thisUnit) >80 or buff.suddenDeath.exists("player")) or (talent.massacre and br.getHP(thisUnit) <= 35)) then
@@ -639,7 +636,7 @@ local function runRotation()
             end
         end
         -- condemn NON-massacre
-        if ((C_Covenants.GetActiveCovenantID()) == 2) then
+        if br.player.covenant.venthyr.active then
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]
                 if buff.whirlwind.exists("player") and (br.getHP(thisUnit) >80 or buff.suddenDeath.exists("player")) then
@@ -652,7 +649,7 @@ local function runRotation()
 
 
         -- EXECUTE MASSACRE
-        if not ((C_Covenants.GetActiveCovenantID()) == 2) then
+        if not br.player.covenant.venthyr.active then
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]
                 if buff.whirlwind.exists("player") and br.getFacing("player",thisUnit) and cast.able.executeMassacre() and talent.massacre and br.getHP(thisUnit) <= 35 or buff.suddenDeath.exists("player") and (buff.enrage.exists("player") or rage <= 70) then
@@ -663,7 +660,7 @@ local function runRotation()
             end
         end
         -- Execute non-MASSACRE
-        if not ((C_Covenants.GetActiveCovenantID()) == 2) then
+        if not br.player.covenant.venthyr.active then
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]
                 if buff.whirlwind.exists("player") and br.getFacing("player",thisUnit) and cast.able.execute() and br.getHP(thisUnit) <= 20 and (buff.enrage.exists("player") or rage <= 70) then
@@ -704,20 +701,6 @@ local function runRotation()
 
     local function cooldownlist()
 
-        -- Bloodrage
-        --if br.isChecked("Bloodrage") and inCombat and IsSpellKnown(329038) and cast.able.bloodrage()then
-        --    if cast.bloodrage("player") then
-        --        return
-        --    end
-        --end
-        --racials
-        --Trinkets
-        --local Trinket13 = br._G.GetInventoryItemID("player", 13)
-        --local Trinket14 = br._G.GetInventoryItemID("player", 14)
-
-       -- if (br._G.GetInventoryItemID("player", 13) == 178825 or br._G.GetInventoryItemID("player", 14) == 178825) and br.canUseItem(178825) and #enemies.yards8 > 0 then
-        --    br.useItem(178825)
-       -- end
         if br.isChecked("Trinkets") and (br.getOptionValue("Trinkets") == 1 or (br.getOptionValue("Trinkets") == 2 and buff.recklessness.exists("player"))) and inCombat and br.canUseItem(13) then
             if br.useItem(13) then debug("Using Trinket 1")
                 return
@@ -735,12 +718,19 @@ local function runRotation()
                 end
             end
         end
+        -- Spear of Bastion
+           if ((buff.enrage.exists() and #enemies.yards12 >= ui.value("Spear of Bastion Units")) or br.isBoss("target")) and not moving and br.player.covenant.kyrian.active then
+                if br.createCastFunction("best", false, br.getValue("Spear of Bastion Units"), 8, spell.spearOfBastion, nil, true) then
+                    br.addonDebug("[COV] Spear of Bastion")
+                    return true
+                end
+            end
     end
     ---------------------
     --- Begin Profile ---
     ---------------------
     -- Profile Stop | Pause
-    if br.pause(true) or (IsMounted() or IsFlying() or br._G.UnitOnTaxi("player") or br._G.UnitInVehicle("player")) or mode.rotation == 4 then
+    if br.pause(true) or (br._G.IsMounted() or br._G.IsFlying() or br._G.UnitOnTaxi("player") or br._G.UnitInVehicle("player")) or mode.rotation == 4 then
         return true
     else
         if extralist() then
@@ -780,7 +770,7 @@ local id = 72
 if br.rotations[id] == nil then
     br.rotations[id] = {}
 end
-tinsert(
+_G.tinsert(
     br.rotations[id],
     {
         name = rotationName,
