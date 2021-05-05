@@ -10,21 +10,21 @@ local function createToggles()
         [2] = {mode = "Off", value = 3, overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.divineStar}
     };
     br.ui:createToggle(CooldownModes, "Cooldown", 1, 0)
-
+    
     -- Defensive
     local DefensiveModes = {
         [1] = {mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Includes Defensives.", highlight = 1, icon = br.player.spell.powerWordBarrier},
         [2] = {mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.powerWordBarrier}
     };
     br.ui:createToggle(DefensiveModes, "Defensive", 2, 0)
-
+    
     -- Dispel
     local DispelModes = {
         [1] = {mode = "On", value = 1, overlay = "Dispels Enabled", tip = "Includes Dispels.", highlight = 1, icon = br.player.spell.purify},
         [2] = {mode = "Off", value = 2, overlay = "Dispels Disabled", tip = "No Dispels will be used.", highlight = 0, icon = br.player.spell.purify}
     }
     br.ui:createToggle(DispelModes, "Dispel", 3, 0)
-
+    
     -- Interrupt
     local InterruptModes = {
         [1] = {mode = "On", value = 1, overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.psychicScream},
@@ -38,7 +38,7 @@ end -- End createToggles
 ---------------
 local function createOptions()
     local optionTable
-
+    
     local function generalOptions()
         local section = br.ui:createSection(br.ui.window.profile, "General")
         br.ui:createSpinner(section, "Pre-Pull Timer", 2, 1, 10, 1, "Desired time to start Pre-Pull.")
@@ -58,12 +58,13 @@ local function createOptions()
         br.ui:createSpinner(section, "Interrupt At", 85, 0, 95, 5, "|cffFFBB00Cast Percentage to use at.")
         br.ui:checkSectionState(section)
     end -- End generalOptions
-
+    
     local function healingOptions()
         local section = br.ui:createSection(br.ui.window.profile, "Healing")
         br.ui:createDropdown(section, "Atonement Ramp Key", br.dropOptions.Toggle, 6, "Key to press to spam atonements on party.")
         br.ui:createSpinnerWithout(section, "Atonement Tank", 95, 0, 100, 1, "Tank Health Percentage to use Power Word: Shield and Power Word: Radiance at.")
         br.ui:createSpinnerWithout(section, "Atonement Party", 90, 0, 100, 1, "Party Health Percentage to use Power Word: Shield and Power Word: Radiance at.")
+        br.ui:createCheckbox(section, "Atonement Ramp DBM", "Use Power Word: Shield to spam atonements based on dbm timers.")
         br.ui:createSpinner(section, "Maximum Atonements", 3, 1, 40, 1, "Maximum Atonements to use at.")
         br.ui:createSpinner(section, "Maximum Rapture Atonements", 3, 1, 40, 1, "Maximum Atonements during Rapture to use at.")
         br.ui:createSpinner(section, "Shadow Mend", 65, 0, 100, 5, "Health Percentage to use at.")
@@ -76,7 +77,7 @@ local function createOptions()
         br.ui:createSpinnerWithout(section, "Shadow Covenant Targets", 4, 0, 40, 1, "Minimum Shadow Covenant Targets to use at.")
         br.ui:checkSectionState(section)
     end -- End healingOptions
-
+    
     local function damageOptions()
         local section = br.ui:createSection(br.ui.window.profile, "Damage")
         br.ui:createSpinner(section, "Shadow Word: Pain Targets", 3, 0, 20, 1, "Maximum Shadow Word: Pain Targets to use at.")
@@ -95,7 +96,7 @@ local function createOptions()
         br.ui:createSpinner(section, "Shadowfiend", 80, 0, 100, 1, "Mana Percentage to use at.")
         br.ui:checkSectionState(section)
     end -- End damageOptions
-
+    
     local function cooldownOptions()
         local section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
         br.ui:createCheckbox(section, "Racial", "Use Racial.")
@@ -113,7 +114,7 @@ local function createOptions()
         br.ui:createDropdown(section, "Trinket 2 Mode", {"Enemy", "Friend"}, 1, "Use Trinket 2 on enemy or on friend.")
         br.ui:checkSectionState(section)
     end -- End cooldownOptions
-
+    
     local function defensiveOptions()
         local section = br.ui:createSection(br.ui.window.profile, "Defensive")
         br.ui:createSpinner(section, "Desperate Prayer", 40, 0, 100, 1, "Health Percentage to use at.")
@@ -121,7 +122,7 @@ local function createOptions()
         if br.player.race == "Draenei" then br.ui:createSpinner(section, "Gift of the Naaru", 50, 0, 100, 1, "Health Percentage to use at.") end
         br.ui:checkSectionState(section)
     end -- End defensiveOptions
-
+    
     optionTable = {
         {
             [1] = "General",
@@ -185,13 +186,77 @@ local schismUnit
 local shadowWordPainCount
 local tanks
 local thisUnit
+local encounterSpellIDs = {
+    {322773}, -- De Other Side | Hakkar the Soulflayer | Blood Barrier
+    {323687}, -- De Other Side | Dealer Xy'exa | Arcane Lightning
+    {326171}, -- De Other Side | Mueh'zala | Shatter Reality
+    {333787}, -- De Other Side | Trash | Rage
+    {319941}, -- Halls of Atonement | Echelon | Stone Shattering Leap
+    {323650}, -- Halls of Atonement | Aleez | Haunting Fixation
+    {323393}, -- Halls of Atonement | Lord Chamberlain | Ritual of Woe
+    {326409}, -- Halls of Atonement | Trash | Thrash
+    {322450}, -- Mists of Tirna Scithe | Tred`ova | Consumption
+    {324909}, -- Mists of Tirna Scithe | Trash | Furious Thrashing
+    {324527}, -- Plaguefall | Globgrog | Plaguestomp
+    {322232}, -- Plaguefall | Margrave Stradama | Infectious Rain
+    {328177}, -- Plaguefall | Trash | Fungistorm
+    {319713}, -- Sanguine Depths | Kryxis the Voracious | Juggernaut Rush
+    {319685}, -- Sanguine Depths | Kryxis the Voracious | Severing Smash
+    {325360}, -- Sanguine Depths | Grand Proctor Beryllia | Rite of Supremacy
+    {322903}, -- Sanguine Depths | General Kaal | Gloom Squall
+    {334625}, -- Spires of Ascension | Devos | Abyssal Detonation
+    {335141}, -- The Necrotic Wake | Trash | Dark Shroud
+    {319626}, -- Theater of Pain | Kul'tharok | Phantasmal Parasite
+    {334945}, -- Castle Nathria | Huntsman Altimore | Vicious Lunge
+    {334860}, -- Castle Nathria | Huntsman Altimore | Crushing Stone
+    {334522}, -- Castle Nathria | Hungering Destroyer | Consume
+    {325361}, -- Castle Nathria | Artificer Xy'mox | Glyph of Destruction
+    {328789}, -- Castle Nathria | Artificer Xy'mox | Annihilate
+    {325877}, -- Castle Nathria | Sun King's Salvation | Ember Blast
+    {325384}, -- Castle Nathria | Lady Inerva Darkvein | Change of Heart
+    {346657}, -- Castle Nathria | The Council of Blood | Prideful Eruption
+    {346681}, -- Castle Nathria | The Council of Blood | Soul Spikes
+    {331209}, -- Castle Nathria | Sludgefist | Hateful Gaze
+    {332687}, -- Castle Nathria | Sludgefist | Colossal Roar
+    {342544}, -- Castle Nathria | Stone Legion Generals | Pulverizing Meteor
+    {326851}, -- Castle Nathria | Sire Denathrius | Blood Price
+    {330627}, -- Castle Nathria | Sire Denathrius | Hand of Destruction
+    {332619}, -- Castle Nathria | Sire Denathrius | Shattering Pain
+}
+local tankEncountSpellIDs = {
+    {322736}, -- De Other Side | Hakkar the Soulflayer | Piercing Barb
+    {327646}, -- De Other Side | Mueh'zala | Soulcrusher
+    {322936}, -- Halls of Atonement | Halkias | Crumbling Slam
+    {329321}, -- Halls of Atonement | Trash | Jagged Swipe
+    {340208}, -- Mists of Tirna Scithe | Trash | Shred Armor
+    {319650}, -- Sanguine Depths | Kryxis the Voracious | Vicious Headbutt
+    {325254}, -- Sanguine Depths | Grand Proctor Beryllia | Iron Spikes
+    {335308}, -- Sanguine Depths | Trash | Crushing Strike
+    {321178}, -- Sanguine Depths | Trash | Slam
+    {320966}, -- Spires of Ascension | Kin-Tara | Overhead Slash
+    {324608}, -- Spires of Ascension | Oryphrion | Charged Stomp
+    {320655}, -- The Necrotic Wake | Blightbone | Crunch
+    {334488}, -- The Necrotic Wake | Surgeon Stitchflesh | Sever Flesh
+    {323515}, -- Theater of Pain | Gorechop | Hateful Strike
+    {320644}, -- Theater of Pain | Xav the Unfallen | Brutal Combo
+    {324079}, -- Theater of Pain | Mordretha | Reaping Scythe
+    {328887}, -- Castle Nathria | Shriekwing | Exsanguinating Bite
+    {334971}, -- Castle Nathria | Huntsman Altimore | Jagged Claws
+    {334797}, -- Castle Nathria | Huntsman Altimore | Rip Soul
+    {326455}, -- Castle Nathria | Sun King's Salvation | Fiery Strike
+    {325440}, -- Castle Nathria | Sun King's Salvation | Vanquishing Strike
+    {341621}, -- Castle Nathria | Lady Inerva Darkvein | Expose Desires
+    {346690}, -- Castle Nathria | The Council of Blood | Duelist's Riposte
+    {346790}, -- Castle Nathria | The Council of Blood | Sintouched Blade
+    {334929}, -- Castle Nathria | Stone Legion Generals | Serrated Swipe
+}
 
 -----------------
 --- Functions ---
 -----------------
 local function ttd(u)
     local ttdSec = unit.ttd(u)
-    if ttdSec == -1 then
+    if ttdSec == nil or ttdSec < 0 then
         return 999
     end
     return ttdSec
@@ -328,23 +393,23 @@ end -- End Action List - Defensive
 
 -- Action List - Cooldown
 actionList.Cooldown = function()
+    if ui.checked("Pain Suppression Tank") then
+        for i = 1, #tanks do
+            thisUnit = tanks[i].unit
+            if unit.hp(thisUnit) <= ui.value("Pain Suppression Tank") then
+                cast.painSuppression(thisUnit)
+            end
+        end
+    end
+    if ui.checked("Pain Suppression Party") then
+        for i = 1, #friends do
+            thisUnit = friends[i].unit
+            if unit.hp(thisUnit) <= ui.value("Pain Suppression Party") then
+                cast.painSuppression(thisUnit)
+            end
+        end
+    end
     if ui.useCDs() then
-        if ui.checked("Pain Suppression Tank") then
-            for i = 1, #tanks do
-                thisUnit = tanks[i].unit
-                if unit.hp(thisUnit) <= ui.value("Pain Suppression Tank") then
-                    cast.painSuppression(thisUnit)
-                end
-            end
-        end
-        if ui.checked("Pain Suppression Party") then
-            for i = 1, #friends do
-                thisUnit = friends[i].unit
-                if unit.hp(thisUnit) <= ui.value("Pain Suppression Party") then
-                    cast.painSuppression(thisUnit)
-                end
-            end
-        end
         if ui.checked("Trinket 1") and br.canTrinket(13) and br.getLowAllies(ui.value("Trinket 1")) >= ui.value("Trinket 1 Targets") then
             if ui.value("Trinket 1 Mode") == 1 then
                 if schismUnit ~= nil then
@@ -397,23 +462,49 @@ end -- End Action List - Cooldown
 
 -- Action List - Healing
 actionList.Healing = function()
+    if ui.checked("Atonement Ramp DBM") then
+        for i = 1, #encounterSpellIDs do
+            if br.DBM:getTimer(nil, encounterSpellIDs[i]) < 5 then
+                for j = 1, #friends do
+                    thisUnit = friends[j].unit
+                    if not buff.atonement.exists(thisUnit) then
+                        if nonAtonementsCount >= ui.value("Power Word: Radiance Targets") and not moving and charges.powerWordRadiance.count() >= 1 then
+                            if cast.powerWordRadiance(thisUnit) then return true end
+                        elseif not debuff.weakenedSoul.exists(thisUnit) and ((not (ui.checked("Evangelism") and talent.evangelism and atonementsCount <= ui.value("Evangelism Atonements"))) or (not (ui.checked("Spirit Shell") and talent.spiritShell and atonementsCount <= ui.value("Spirit Shell Atonements"))) or charges.powerWordRadiance.count() < 1) then
+                            if cast.powerWordShield(thisUnit) then return true end
+                        end
+                    end
+                end
+            end
+        end
+        for i = 1, #tankEncountSpellIDs do
+            if br.DBM:getTimer(nil, tankEncountSpellIDs[i]) < 3 then
+                for j = 1, #tanks do
+                    thisUnit = tanks[j].unit
+                    if not buff.atonement.exists(thisUnit) and not debuff.weakenedSoul.exists(thisUnit) then
+                        if cast.powerWordShield(thisUnit) then return true end
+                    end
+                end
+            end
+        end
+    end
     if buff.rapture.exists("player") or buff.spiritShell.exists("player") then
         if ui.checked("Maximum Rapture Atonements") then
             for i = 1, #friends do
                 thisUnit = friends[i].unit
                 if atonementsCount < ui.value("Maximum Rapture Atonements") or (unit.role(thisUnit) == "TANK") then
-                    if not buff.atonement.exists(thisUnit) or buff.powerWordShield.remain(thisUnit) < 1 then
+                    if (not buff.atonement.exists(thisUnit) and not debuff.weakenedSoul.exists(thisUnit)) or buff.powerWordShield.remain(thisUnit) < 1 then
                         if cast.powerWordShield(thisUnit) then return true end
                     end
                 end
             end
-            if atonementsCount >= ui.value("Maximum Rapture Atonements") and (not buff.atonement.exists(lowestUnit) or buff.powerWordShield.remain(lowestUnit) < 1) then
+            if atonementsCount >= ui.value("Maximum Rapture Atonements") and ((not buff.atonement.exists(lowestUnit) and not debuff.weakenedSoul.exists(lowestUnit)) or buff.powerWordShield.remain(lowestUnit) < 1) then
                 if cast.powerWordShield(lowestUnit) then return true end
             end
         else
             for i = 1, #friends do
                 thisUnit = friends[i].unit
-                if not buff.atonement.exists(thisUnit) then
+                if not buff.atonement.exists(thisUnit) and not debuff.weakenedSoul.exists(thisUnit) then
                     if cast.powerWordShield(thisUnit) then return true end
                 end
             end
@@ -466,13 +557,13 @@ actionList.Healing = function()
     end
     for i = 1, #tanks do
         thisUnit = tanks[i].unit
-        if (unit.hp(thisUnit) <= ui.value("Atonement Tank")) and not buff.atonement.exists(thisUnit) then
+        if (unit.hp(thisUnit) <= ui.value("Atonement Tank")) and not buff.atonement.exists(thisUnit) and not debuff.weakenedSoul.exists(thisUnit) then
             if cast.powerWordShield(thisUnit) then return true end
         end
     end
     for i = 1, #friends do
         thisUnit = friends[i].unit
-        if unit.hp(thisUnit) <= ui.value("Atonement Party") and not buff.atonement.exists(thisUnit) and (atonementsCount < ui.value("Maximum Atonements") or not ui.checked("Maximum Atonements")) then
+        if unit.hp(thisUnit) <= ui.value("Atonement Party") and not buff.atonement.exists(thisUnit) and not debuff.weakenedSoul.exists(thisUnit) and (atonementsCount < ui.value("Maximum Atonements") or not ui.checked("Maximum Atonements")) then
             if cast.powerWordShield(thisUnit) then return true end
         end
     end
@@ -622,7 +713,7 @@ local function runRotation()
     unit = br.player.unit
     units = br.player.units
     var = br.player.variables
-
+    
     -- Other Locals
     atonementsCount = buff.atonement.count()
     bestAOEGroupCount = 0
@@ -631,13 +722,13 @@ local function runRotation()
     inRaid = br.player.instance == "raid"
     lowestUnit = friends[1].unit
     nonAtonementsCount = 0
-    power = br.player.power.mana.amount()
+    power = br.player.power.mana.percent()
     purgeTheWickedUnit = nil
     purgeTheWickedCount = debuff.purgeTheWicked.count()
     schismUnit = nil
     shadowWordPainCount = debuff.shadowWordPain.count()
     tanks = br.getTanksTable()
-
+    
     -- Custom Variables
     units.get(40)
     enemies.get(30)
@@ -667,7 +758,7 @@ local function runRotation()
             nonAtonementsCount = nonAtonementsCount + 1
         end
     end
-
+    
     -- Begin Profile
     if var.profileStop == nil then var.profileStop = false end
     if not inCombat and not unit.exists("target") and var.profileStop then
