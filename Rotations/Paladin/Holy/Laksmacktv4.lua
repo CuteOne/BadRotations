@@ -85,7 +85,7 @@ local function createOptions()
     local optionTable
 
     local function rotationOptions()
-        section = br.ui:createSection(br.ui.window.profile, "General - 2103231638")
+        section = br.ui:createSection(br.ui.window.profile, "General - 210405050931")
         br.ui:createDropdownWithout(section, "DPS Key", br.dropOptions.Toggle, 6, "DPS Override")
         br.ui:createCheckbox(section, "Group CD's with DPS key", "Pop wings and HA with Dps override", 1)
         if br.player.covenant.kyrian.active then
@@ -292,7 +292,7 @@ local profileStop
 local drinking = br.getBuffRemain("player", 192002) ~= 0 or br.getBuffRemain("player", 167152) ~= 0 or br.getBuffRemain("player", 192001) ~= 0 or br.getDebuffRemain("player", 185710) ~= 0 or br.getDebuffRemain("player", 297098) ~= 0 or br.getDebuffRemain("player", 274914) ~= 0
 
 local ttd
-
+local canDPS
 local burst
 local Burststack = 0
 local BleedFriendCount = 0
@@ -357,6 +357,17 @@ local fearList = {
 
 
 -- homemade functions
+
+local function getFriendDebuffExists(spellID)
+    for i = 1, #br.friend do
+        local thisUnit = br.friend[i].unit
+        -- check if unit is valid
+        if br.GetObjectExists(thisUnit) and br.UnitDebuffID(thisUnit, spellID) then
+            return true
+        end
+    end
+    return false
+end
 
 local function round(num, numDecimalPlaces)
     local mult = 10 ^ (numDecimalPlaces or 0)
@@ -426,12 +437,11 @@ end
 
 local function consecration()
     --Consecration
-    if mode.DPS == 1
+    if mode.DPS == 1 and canDPS
             and cast.able.consecration()
             and not br.isMoving("player")
             and not buff.holyAvenger.exists()
             and (cd.holyShock.remain() > gcd * 1.5 and charges.crusaderStrike.count() == 0 or #enemies.yards8 >= 2)
-            and lowest.hp > ui.value("Critical HP")
     then
         for i = 1, #enemies.yards8 do
             if not debuff.consecration.exists(enemies.yards8[i])
@@ -483,12 +493,6 @@ local function isCC(unit)
     end
 end
 local function noDamageCheck(unit)
-    if ui.checked("Dont DPS spotter") and br.GetObjectID(unit) == 135263 then
-        return true
-    end
-    if ui.checked("Shrine - ignore adds last boss") and br.GetObjectID(unit) == 135903 then
-        return true
-    end
     if isCC(unit) then
         return true
     end
@@ -514,7 +518,7 @@ end
 
 local precast_spell_list = {
     --spell_id	, precast_time	,	spell_name,     spell to cast
-    { 214652, 1.5, "Blood Barrier", "devotionAura" }, -- DOS Hakkar
+    { 322759, 1.5, "Blood Barrier", "devotionAura" }, -- DOS Hakkar
     { 320141, 1.5, "Diabolical Dooooooom!", "devotionAura" }, -- DOS Manastorms
     { 320230, 1.5, "Explosive Contrivance", "devotionAura" }, -- DOS Dealer
     { 319733, 1.5, "Stone Call", "devotionAura" }, -- HOA Echelon
@@ -859,10 +863,41 @@ actionList.cleanse = function()
 
     -- Cleanse
     if cd.cleanse.ready() and not cast.last.cleanse() then
+        if getFriendDebuffExists(331399) then
+            -- infectious rain stuff
+            local top_dispel_score = 100
+            local dispel_target = "player"
+            for i = 1, #br.friend do
+                local dispel_score = 0
+                local partyClass = select(2, br._G.UnitClass(br.friend[i].unit))
+                local thisABSHPmax = br.UnitHealthMax(br.friend[i].unit)
+                if br.canDispel(br.friend[i].unit, spell.cleanse) and canheal(br.friend[i].unit)
+                        and br.getDebuffStacks(br.friend[i].unit, 331399) >= 2 then
+                    if partyClass == "PALADIN"
+                            or partyClass == "ROGUE" or partyClass == "HUNTER" or partyClass == "MAGE"
+                            or br.GetUnitIsUnit(br.friend[i].unit, tanks[1].unit) then
+                        dispel_score = dispel_score + 1
+                    end
+                    if br.getHP(br.friend[i].unit) < 30 then
+                        dispel_score = dispel_score - 3
+                    end
+                    dispel_score = dispel_score + (thisABSHPmax / 10000)
+                end
+                if dispel_score < top_dispel_score then
+                    dispel_score = top_dispel_score
+                    dispel_target = br.friend[i].unit
+                end
+            end
+            if cast.cleanse(br.friend[i].unit) then
+                br.addonDebug("[CLEANSE] Target:" .. unit.name(dispel_target) .. " Score: " .. tostring(top_dispel_score))
+                return true
+            end
+        end
+    else
         for i = 1, #br.friend do
-            if br.canDispel(br.friend[i].unit, spell.cleanse) and (canheal(br.friend[i].unit) or br.friend[i].unit == "player")
+            if br.canDispel(br.friend[i].unit, spell.cleanse) and canheal(br.friend[i].unit)
             then
-                if br.player.race == "DarkIronDwarf" and cast.able.racial() and br.friend[i].unit == "player" then
+                if (br.player.race == "DarkIronDwarf" or br.player.race == "Dwarf") and cast.able.racial() and br.friend[i].unit == "player" then
                     if cast.racial("player") then
                         return true
                     end
@@ -892,7 +927,7 @@ actionList.ooc = function()
     --I got nothing else to do
     local standingTime = 0
     if br.DontMoveStartTime then
-        standingTime = GetTime() - br.DontMoveStartTime
+        standingTime = br._G.GetTime() - br.DontMoveStartTime
     end
     if not br.isMoving("Player") and standingTime > ui.value("OOC Holy Heal - Time") and not drinking and br.getMana("player") >= ui.value("OOC Holy Heal - Mana") and br.getHP(lowest.unit) < ui.value("OOC Holy Heal - Health") then
         if cast.holyLight(lowest.unit) then
@@ -992,14 +1027,16 @@ actionList.dps = function()
     end
 
     --using DPS trinkets
-    if ui.checked("Trinket 1") and br.getOptionValue("Trinket 1 Mode") == 4 and inCombat then
-        if br.canUseItem(13) then
-            br.useItem(13)
+    if canDPS then
+        if ui.checked("Trinket 1") and br.getOptionValue("Trinket 1 Mode") == 4 and inCombat then
+            if br.canUseItem(13) then
+                br.useItem(13)
+            end
         end
-    end
-    if ui.checked("Trinket 2") and br.getOptionValue("Trinket 2 Mode") == 4 and inCombat then
-        if br.canUseItem(14) then
-            br.useItem(14)
+        if ui.checked("Trinket 2") and br.getOptionValue("Trinket 2 Mode") == 4 and inCombat then
+            if br.canUseItem(14) then
+                br.useItem(14)
+            end
         end
     end
 end
@@ -1135,7 +1172,8 @@ actionList.Extra = function()
             local precast_time = precast_spell_list[i][2]
             local spell_name = precast_spell_list[i][3]
             local spelltocast = precast_spell_list[i][4]
-            local time_remain = br.DBM:getPulltimer(nil, boss_spell_id)
+            local time_remain = br.DBM:getTimer(boss_spell_id)
+            --    local time_remain = br.DBM:getPulltimer(nil, boss_spell_id)
             --   br._G.print(spelltocast)
             -- Cast things for boss encounter
             if spelltocast == "devotionAura" and time_remain < precast_time then
@@ -1812,7 +1850,7 @@ actionList.generators = function()
     if ui.checked("Use Holy Shock for DPS")
             and mode.DPS == 1
             and br.player.inCombat
-            and lowest.hp > ui.value("DPS Min HP")
+            and canDPS
             and cd.holyShock.ready()
             and holyPower < 5
     then
@@ -1846,11 +1884,12 @@ actionList.generators = function()
     end
 
     --Talent Crusaders Might   - should only be used to get full value out of holy shock proc .. hard coded to 1.5
-    if talent.crusadersMight
-            and br.getFacing("player", units.dyn5)
+    if talent.crusadersMight and br.getFacing("player", units.dyn5)
             and (talent.holyAvenger and buff.holyAvenger.exists() and holyPower < 3 or holyPower < 5)
+            -- and canDPS
             and (charges.crusaderStrike.count() == 2
-            or (charges.crusaderStrike.count() == 1 and cast.last.holyShock() or cd.holyShock.remain() > gcd * 1.5))
+            or (charges.crusaderStrike.count() == 1 and cast.last.holyShock()
+            or cd.holyShock.remain() > gcd * 1.5))
     then
         if cast.crusaderStrike(units.dyn5) then
             br.addonDebug("[GEN]CrusaderStrike on " .. br._G.UnitName(units.dyn5) .. " CD/HS: " .. round(cd.holyShock.remain(), 2))
@@ -1886,7 +1925,7 @@ actionList.triage = function()
                 prideHealTarget = br.friend[i].unit
             end
         end
-        if br.getHP(prideHealTarget) < 90 then
+        if br.getHP(prideHealTarget) < ui.value("DPS Min HP") then
             healTarget = prideHealTarget
             healReason = "PRIDE"
         end
@@ -1973,27 +2012,28 @@ actionList.spenders = function()
     end
 
     -- Word of Glory
-    if ui.checked("Word of Glory")
-            and healTarget == "none"
-            and (holyPower >= 3 or buff.divinePurpose.exists())
-    then
-        -- WOG Heal
-        if lowest.hp <= ui.value("Word of Glory")
-                and lowest.hp > ui.value("Critical HP")
-                and canheal(lowest.unit)
-        then
-            healTarget = lowest.unit
-            healReason = "HEAL"
-        end
-        -- WOG fishing for Wings
+    if ui.checked("Word of Glory") then
         if healTarget == "none"
-                and br.getOptionValue("Fish Spell for Awakening") == 1
-                and talent.awakening
-                and not buff.avengingWrath.exists()
-                and (holyPower == 5 or (buff.divinePurpose.exists() and br.getBuffRemain("player", 223817) < 3 or holyPower == 5))
+                and (holyPower >= 3 or buff.divinePurpose.exists())
         then
-            healTarget = lowest.unit
-            healReason = "FISH"
+            -- WOG Heal
+            if lowest.hp <= ui.value("Word of Glory")
+                    and lowest.hp > ui.value("Critical HP")
+                    and canheal(lowest.unit)
+            then
+                healTarget = lowest.unit
+                healReason = "HEAL"
+            end
+            -- WOG fishing for Wings
+            if healTarget == "none"
+                    and br.getOptionValue("Fish Spell for Awakening") == 1
+                    and talent.awakening
+                    and not buff.avengingWrath.exists()
+                    and (holyPower == 5 or (buff.divinePurpose.exists() and br.getBuffRemain("player", 223817) < 3 or holyPower == 5))
+            then
+                healTarget = lowest.unit
+                healReason = "FISH"
+            end
         end
         -- cast
         if healTarget ~= "none"
@@ -2299,7 +2339,7 @@ local function runRotation()
     holyPowerMax = br.player.power.holyPower.max()
     eating = br.getBuffRemain("player", 192002) ~= 0 or br.getBuffRemain("player", 167152) ~= 0 or br.getBuffRemain("player", 192001) ~= 0 or br.getBuffRemain("player", 308433) ~= 0
 
-
+    canDPS = lowest.hp > ui.value("DPS Min HP") and lowest.hp > ui.value("Critical HP") and true or false
     -- General Locals
     hastar = br.GetObjectExists("target")
     healPot = br.getHealthPot()
@@ -2379,7 +2419,7 @@ local function runRotation()
     --- Begin Profile ---
     ---------------------
     -- Profile Stop | Pause
-    if (not IsMounted() or buff.divineSteed.exists()) then
+    if (not br._G.IsMounted() or buff.divineSteed.exists()) then
         if br.pause() or eating or br.hasBuff(250873) or br.hasBuff(115834) or br.hasBuff(58984) or br.hasBuff(185710) or br.isCastingSpell(212056) then
             return true
         else
@@ -2492,7 +2532,7 @@ local id = 65
 if br.rotations[id] == nil then
     br.rotations[id] = {}
 end
-tinsert(
+br._G.tinsert(
         br.rotations[id],
         {
             name = rotationName,
