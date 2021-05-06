@@ -437,7 +437,7 @@ end
 
 local function consecration()
     --Consecration
-    if mode.DPS == 1 and canDPS
+    if mode.DPS == 1 and (canDPS or br.SpecificToggle("DPS Key"))
             and cast.able.consecration()
             and not br.isMoving("player")
             and not buff.holyAvenger.exists()
