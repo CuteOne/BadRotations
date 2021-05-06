@@ -892,18 +892,18 @@ actionList.cleanse = function()
                 br.addonDebug("[CLEANSE] Target:" .. unit.name(dispel_target) .. " Score: " .. tostring(top_dispel_score))
                 return true
             end
-        end
-    else
-        for i = 1, #br.friend do
-            if br.canDispel(br.friend[i].unit, spell.cleanse) and canheal(br.friend[i].unit)
-            then
-                if (br.player.race == "DarkIronDwarf" or br.player.race == "Dwarf") and cast.able.racial() and br.friend[i].unit == "player" then
-                    if cast.racial("player") then
+        else
+            for i = 1, #br.friend do
+                if br.canDispel(br.friend[i].unit, spell.cleanse) and canheal(br.friend[i].unit)
+                then
+                    if (br.player.race == "DarkIronDwarf" or br.player.race == "Dwarf") and cast.able.racial() and br.friend[i].unit == "player" then
+                        if cast.racial("player") then
+                            return true
+                        end
+                    end
+                    if cast.cleanse(br.friend[i].unit) then
                         return true
                     end
-                end
-                if cast.cleanse(br.friend[i].unit) then
-                    return true
                 end
             end
         end
