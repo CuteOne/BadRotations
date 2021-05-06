@@ -4,6 +4,7 @@
 --- DateTime: 4/22/2021 11:41 PM
 ---
 local LibDraw = LibStub("LibDraw-BR")
+local healingValues = {}
 
 local function createToggles()
     local DamagingModes = {
@@ -37,6 +38,101 @@ local colors = {
     orange = "|cffff8000"
 }
 
+--2284	Sanguine Depths
+--2285	Spires of Ascension
+--2286	The Necrotic Wake
+--2287	Halls of Atonement
+--2289	Plaguefall
+--2290	Mists of Tirna Scithe
+--2291	De Other Side
+--2293	Theater of Pain
+--function bossModPrototype:(text, optionDefault, ...)
+--    return newSpecialWarning(self, "dispel", text, nil, optionDefault, ...)
+--end
+--newSpecialWarning(self, announceType, spellId, stacks, optionDefault, optionName, optionVersion, runSound, hasVoice, difficulty)
+local MonkFlags = {    --Mistweaver Monk
+    ["Healer"] = true,
+    ["Melee"] = true,
+    ["Ranged"] = true,
+    ["ManaUser"] = true,
+    ["SpellCaster"] = true,
+    ["RaidCooldown"] = true, --Revival
+    ["RemovePoison"] = true,
+    ["RemoveDisease"] = true,
+    ["RemoveMagic"] = true,
+    ["RemoveCurse"] = false,
+    ["MagicDispeller"] = false,
+    ["RemoveEnrage"] = false,
+
+}
+
+local mythicListDetox = {
+    [0] = {
+        { spellID = 240443, flag = "RemoveMagic" },
+    },
+
+    [2284] = {
+        { spellID = 328494, flag = "RemoveCurse" },
+        { spellID = 321038, flag = "RemoveMagic" },
+    },
+
+    [2285] = {
+        { spellID = 317936, flag = "MagicDispeller" },
+        { spellID = 317963, flag = "RemoveMagic" },
+        { spellID = 317661, flag = "RemoveMagic" },
+        { spellID = 328331, flag = "RemoveMagic" }
+    },
+
+    [2286] = {
+        { spellID = 320012, flag = "RemoveEnrage" },
+        { spellID = 335141, flag = "MagicDispeller" },
+        { spellID = 338353, flag = "RemoveDisease" },
+        { spellID = 323347, flag = "RemoveMagic", stack = 5 },
+        { spellID = 320788, flag = "RemoveMagic", range = 16 },
+    },
+
+    [2287] = {
+        { spellID = 319603, flag = "RemoveCurse" },
+        { spellID = 322977, flag = "RemoveMagic" }
+    },
+
+    [2289] = {
+        { spellID = 328015, flag = "MagicDispeller" },
+        { spellID = 324652, flag = "RemoveDisease" },
+        { spellID = 325552, flag = "RemovePoison" },
+        { spellID = 319070, flag = "RemoveDisease" },
+        { spellID = 329110, flag = "Healer" },
+        { spellID = 331399, flag = "RemoveDisease", notUseOnTank = true, stack = 3 },
+        { spellID = 322410, flag = "RemoveMagic" },
+        { spellID = 328501, flag = "RemoveDisease" },
+        { spellID = 320512, flag = "RemoveDisease" },
+        { spellID = 327882, flag = "RemoveDisease" },
+        { spellID = 328180, flag = "RemoveMagic" },
+    },
+
+    [2290] = {
+        { spellID = 322557, flag = "RemoveMagic" },
+        { spellID = 324914, flag = "MagicDispeller" },
+        { spellID = 324776, flag = "MagicDispeller" },
+        { spellID = 325224, flag = "RemoveMagic" },
+        { spellID = 326046, flag = "MagicDispeller" }
+        --{ spellID = 323137, false}--Off by default?maybe?
+    },
+
+    [2291] = {
+        { spellID = 333227, flag = "RemoveEnrage" },
+        { spellID = 332666, flag = "MagicDispeller" }
+    },
+
+    [2293] = {
+        { spellID = 341902, flag = "MagicDispeller" },
+        { spellID = 333241, flag = "RemoveEnrage" },
+        { spellID = 319626, flag = "RemoveMagic" },
+        { spellID = 324085, flag = "RemoveEnrage" },
+        { spellID = 320272, flag = "MagicDispeller" }
+    }
+}
+
 local text = {
     keys = {
         damage = "DAMAGE Key",
@@ -53,7 +149,8 @@ local text = {
         update = "Update rate"
     },
     extra = {
-        text = "Extra settings"
+        text = "Extra settings",
+        safeDetox = "Detox Only From List"
     }
 }
 
@@ -86,6 +183,7 @@ local function createOptions()
         br.ui:checkSectionState(section)
 
         section = br.ui:createSection(br.ui.window.profile, text.extra.text)
+        br.ui:createCheckbox(section, text.extra.safeDetox, "Only Detox From Safe List")
         br.player.module.BasicHealing(section)
         br.ui:checkSectionState(section)
 
@@ -110,6 +208,33 @@ local function createOptions()
         end
         y = br.round2(y, 1)
         br.ui:createButton(section, "Print", 10, y, printHealingValues)
+        local function printDispelList()
+            print("-------------------------------")
+            print("Printing Dispel List")
+            for key, value in pairs(mythicListDetox) do
+                --print(select(1,GetSpellLink(116670)))
+                local instanceName = "All"
+                if key > 0 then
+                    instanceName = GetRealZoneText(key)
+                end
+                print(instanceName)
+                for key2, value2 in ipairs(value) do
+                    --print('\t', key2, value2)
+                    print(" ",select(1,GetSpellLink(value2.spellID)))
+                end
+                --print(key, value)
+            end
+            print("-------------------------------")
+        end
+        br.ui:createText(section, "Dispel List")
+        local y = -5
+        for i = 1, #section.children do
+            if section.children[i].type ~= "Spinner" and section.children[i].type ~= "Dropdown" then
+                y = y - section.children[i].frame:GetHeight() * 1.2
+            end
+        end
+        y = br.round2(y, 1)
+        br.ui:createButton(section, "Print", 10, y, printDispelList)
         br.ui:checkSectionState(section)
 
     end
@@ -134,34 +259,19 @@ local function runRotation()
     enemies.get(6)
     enemies.get(8)
     enemies.get(30)
+    enemies.get(40)
     local mysticTouch = {
         lowest = debuff.mysticTouch.lowest(5, "remain"),
         count = debuff.mysticTouch.refreshCount(5),
-        --range40 = br.player.units.get(40)
     }
     if not br.GetObjectExists(mysticTouch.lowest) then
         mysticTouch.lowest = enemies.yards5[1]
     end
-    --local enemies = {
-    --    range5 = br.player.enemies.get(5, "player", false, true),
-    --    range6 = br.player.enemies.get(6, "player", false, true),
-    --    range8 = br.player.enemies.get(8, "player", false, true),
-    --    --range40 = br.player.enemies.get(40)
-    --}
 
     local friends = {
         all = br.friend,
         lowest = br.friend[1]
     }
-    --local friends.lowAllies = {
-    --    essenceFont = br.getLowAlliesInTable(br.player.ui.value(text.heal.essenceFont .. "2"), friends.range30),
-    --    essenceFontOoc = br.getLowAlliesInTable(br.player.ui.value(text.heal.outOfCombat.essenceFont .. "2"), friends.range30),
-    --    revival = br.getLowAlliesInTable(br.player.ui.value(text.heal.revival .. "2"), friends.range40),
-    --    refreshingJadeWind = br.getLowAlliesInTable(br.player.ui.value(text.heal.refreshingJadeWind .. "2"), friends.range10),
-    --    invokeYulonTheJadeSerpent = br.getLowAlliesInTable(br.player.ui.value(text.heal.invokeYulonTheJadeSerpent .. "2"), friends.range40),
-    --    invokeChiJiTheRedCrane = br.getLowAlliesInTable(br.player.ui.value(text.heal.invokeChiJiTheRedCrane .. "2"), friends.range40),
-    --    weaponsOfOrder = br.getLowAlliesInTable(br.player.ui.value(text.heal.weaponsOfOrder .. "2"), friends.range40)
-    --}
     local gcd = br.player.gcd
     local player = {
         hp = br.player.health,
@@ -177,7 +287,6 @@ local function runRotation()
     }
     local spell = br.player.spell
     local talent = br.player.talent
-    --local tanks = br.getTanksTable()
     local totemInfo = {
         jadeSerpentStatueDuration = 0,
         yulonDuration = 0,
@@ -186,23 +295,6 @@ local function runRotation()
     local ui = br.player.ui
     local unit = br.player.unit
     local has = br.player.has
-    --local hasMouse = br.GetObjectExists("mouseover")
-    --
-    --local healingValues = {
-    --    gustOfMist = ui.value(text.input.gustOfMist) * 1000,
-    --    vivify = ui.value(text.input.vivify) * 1000,
-    --    vivifyRenewingMistAmount = 104 * (ui.value(text.input.vivify) * 1000) / 141,
-    --    envelopingMist = ui.value(text.input.envelopingMist) * 1000,
-    --    expelHarm = ui.value(text.input.expelHarm) * 1000,
-    --    lifeCocoon = ui.value(text.input.lifeCocoon) * 1000,
-    --    revival = ui.value(text.input.revival) * 1000,
-    --    soothingMist = ui.value(text.input.soothingMist) * 1000,
-    --    essenceFont = ui.value(text.input.essenceFont) * 1000,
-    --    tigerPalm = (ui.value(text.input.tigerPalm) * 1000) * 2.5,
-    --    blackoutKick = (ui.value(text.input.blackoutKick) * 1000) * 2.5,
-    --    risingSunKick = (ui.value(text.input.risingSunKick) * 1000) * 2.5,
-    --}
-
     local mastery = select(1, GetMasteryEffect("player"))
     local spellPower = GetSpellBonusDamage(4)
     local versatility = 1 + ((GetCombatRatingBonus(CR_VERSATILITY_DAMAGE_DONE) + GetVersatilityBonus(CR_VERSATILITY_DAMAGE_DONE)) / 100)
@@ -232,8 +324,6 @@ local function runRotation()
     for i = 1, #friends.all do
         local tempUnit = friends.all[i]
         if isAuraActive(tempUnit.unit, 115175) then
-            --print(isAuraActive("player", 198533))
-            --print("soothingmist unit")
             soothingMistUnit = tempUnit.unit
             break
         end
@@ -254,10 +344,6 @@ local function runRotation()
         blackoutKick = (84.7 / 100) * spellPower * versatility * 0.77 * (250 / 100),
         risingSunKick = (143.8 / 100) * spellPower * versatility * 1.12 * (250 / 100)
     }
-    --print("$$$$")
-    --for key, value in pairs(healingValues) do
-    --print('\t', key, value)
-    --end
     local getMissingHP = function(unit)
         if br.GetUnitIsDeadOrGhost(unit) then
             return 0
@@ -297,6 +383,63 @@ local function runRotation()
         z = 0
     }
 
+    local function doDetox()
+        local function isValid(debuff, dispelUnit)
+            if not MonkFlags[debuff.flag] then
+                return false
+            end
+            if debuff.stack and br.getDebuffStacks(dispelUnit.unit, debuff.spellID) < debuff.stack then
+                return false
+            end
+            if debuff.range and #br.getAllies(dispelUnit.unit, debuff.range) == 1 then
+                return false
+            end
+            if debuff.notUseOnTank and unit.role(dispelUnit.unit) == "TANK" then
+                return false
+            end
+            return true
+        end
+        if cd.detox.exists() then
+            return false
+        end
+        if friends.lowest.hp <= 45 then
+            return false
+        end
+        if soothingMistUnit ~= nil then
+            return false
+        end
+        if ui.checked(text.extra.safeDetox) then
+            local instanceID = br.getCurrentZoneId()
+            local debuffsIDs = mythicListDetox[instanceID]
+            if not debuffsIDs then
+                return false
+            end
+            for k, v in pairs(mythicListDetox[0]) do
+                debuffsIDs[k] = v
+            end
+            for i = 1, #friends.all do
+                local dispelUnit = friends.all[i]
+                for j = 1, #debuffsIDs do
+                    local debuff = debuffsIDs[j]
+                    if isValid(debuff, dispelUnit) then
+                        if br.UnitDebuffID(dispelUnit.unit, debuff.spellID) and br.getLineOfSight(dispelUnit.unit) and br.getDistance(dispelUnit.unit) <= 40 then
+                            return cast.detox(dispelUnit.unit)
+                        end
+                    end
+                end
+            end
+        else
+            for i = 1, #friends.all do
+                local dispelUnit = friends.all[i]
+                if br.getLineOfSight(dispelUnit.unit) and br.getDistance(dispelUnit.unit) <= 40 then
+                    if br.canDispel(dispelUnit.unit, spell.detox) then
+                        return cast.detox(dispelUnit.unit)
+                    end
+                end
+            end
+        end
+    end
+
     if buff.transcendence.exists() or talent.summonJadeSerpentStatue then
         for i = 1, br._G.GetObjectCount() do
             local thisUnit = br._G.GetObjectWithIndex(i)
@@ -327,7 +470,7 @@ local function runRotation()
     local function AlwaysRotation()
 
         -- CDS
-        if cd.lifeCocoon.ready() and getMissingHP(friends.lowest.unit) >= healingValues.lifeCocoon and unit.inCombat() then
+        if cd.lifeCocoon.ready() and getMissingHP(friends.lowest.unit) >= healingValues.lifeCocoon and unit.inCombat() and friends.lowest.hp <= 30 then
             return cast.lifeCocoon(friends.lowest.unit)
         end
         local revivalLimit = 1
@@ -346,15 +489,39 @@ local function runRotation()
             end
         end
         if gcd <= 0.1 then
-            if cd.expelHarm.ready() and getMissingHP(player.unit) >= healingValues.expelHarm + healingValues.gustOfMist and soothingMistUnit == nil and unit.inCombat() and totemInfo.chiJiDuration == 0 then
-                return cast.expelHarm(player.unit)
+            if not cast.active.vivify() and soothingMistUnit == nil and player.mana >= 35 and not cast.active.essenceFont() and cd.essenceFont.ready() and friends.lowest.hp >= 40 then
+                return cast.essenceFont(player.unit)
+            end
+            if cast.active.essenceFont() then
+                if #friends.all > 5 then
+                    return true
+                elseif gcd <= 0.1 then
+                    br._G.SpellStopCasting()
+                elseif gcd > 0.1 then
+                    return true
+                end
             end
             -- Fortifying Brew
             if ui.checked(text.autoCDS.fortifyingBrew) and player.hp <= ui.value(text.autoCDS.fortifyingBrew) and cd.fortifyingBrew.ready() and unit.inCombat() then
                 return cast.fortifyingBrew(player.unit)
             end
+            if cd.expelHarm.ready() and friends.lowest.hp >= 50 and getMissingHP(player.unit) >= healingValues.expelHarm + healingValues.gustOfMist and soothingMistUnit == nil and unit.inCombat() and totemInfo.chiJiDuration == 0 then
+                return cast.expelHarm(player.unit)
+            end
             -- Diffuse Magic
             -- Dampen Harm
+            -- Explosive Affix
+            if soothingMistUnit == nil then
+                for i = 1, #enemies.yards40 do
+                    local thisUnit = enemies.yards40[i]
+                    if br.GetObjectID(thisUnit) == 120651 then
+                        if unit.distance(thisUnit) <= 5 then
+                            return cast.tigerPalm(thisUnit)
+                        end
+                        return cast.able.cracklingJadeLightning(thisUnit) and cast.cracklingJadeLightning(thisUnit)
+                    end
+                end
+            end
             -- Touch Of Death
             local function ToD(enemy)
                 local function doIT(enemy)
@@ -364,7 +531,7 @@ local function runRotation()
                         return true
                     end
                 end
-                if unit.distance(enemy) <= 5 and unit.facing(player.unit, enemy) then
+                if unit.exists(enemy) and unit.distance(enemy) <= 5 and unit.facing(player.unit, enemy) then
                     if br._G.UnitIsPlayer(enemy) then
                         if unit.hp(enemy) <= 15 then
                             return doIT(enemy)
@@ -388,16 +555,10 @@ local function runRotation()
                 end
             end
             -- Detox
-            if cd.detox.ready() then
-                for i = 1, #friends.all do
-                    local dispelUnit = friends.all[i]
-                    if br.getLineOfSight(dispelUnit.unit) and br.getDistance(dispelUnit.unit) <= 40 then
-                        if br.canDispel(dispelUnit.unit, spell.detox) and friends.lowest.hp >= 60 then
-                            return cast.detox(dispelUnit.unit)
-                        end
-                    end
-                end
+            if doDetox() then
+                return true
             end
+
             -- Renewing Mist
             if charges.renewingMist.exists() and cd.renewingMist.ready() and soothingMistUnit == nil and totemInfo.chiJiDuration == 0 and friends.lowest.hp > 25 then
                 for i = 1, #friends.all do
@@ -451,12 +612,20 @@ local function runRotation()
                     if theUnit == nil then
                         theUnit = friends.lowest.unit
                     end
+                    local gustOfMist = healingValues.gustOfMist
+                    if buff.essenceFont.exists(theUnit.unit) then
+                        gustOfMist = healingValues.gustOfMist * 2
+                    end
+                    local temp = healingValues.envelopingMist + gustOfMist + healingValues.soothingMist + healingValues.vivify + gustOfMist
+                    if cd.thunderFocusTea.ready() and getMissingHP(theUnit.unit) >= temp + healingValues.envelopingMistThunderFocusTea then
+                        cast.thunderFocusTea(player.unit)
+                    end
                     return cast.envelopingMist(theUnit.unit)
                 end
             end
             -- essence font legendary?
             if cd.risingSunKick.ready() then
-                if cd.thunderFocusTea.ready() and unit.distance(mysticTouch.lowest) <= 5 then
+                if cd.thunderFocusTea.ready() and unit.exists(mysticTouch.lowest) and unit.distance(mysticTouch.lowest) <= 5 then
                     cast.thunderFocusTea(player.unit)
                 end
                 return cast.risingSunKick(mysticTouch.lowest)
@@ -510,7 +679,7 @@ local function runRotation()
         end,
         NormalRotation = function()
             if cd.risingSunKick.ready() then
-                if cd.thunderFocusTea.ready() and unit.distance(mysticTouch.lowest) <= 5 then
+                if cd.thunderFocusTea.ready() and unit.exists(mysticTouch.lowest) and unit.distance(mysticTouch.lowest) <= 5 then
                     cast.thunderFocusTea(player.unit)
                 end
                 return cast.risingSunKick(mysticTouch.lowest)
@@ -563,16 +732,6 @@ local function runRotation()
     end
 
     local function HealRotation()
-        if not cast.active.vivify() and soothingMistUnit == nil and player.mana >= 50 and not cast.active.essenceFont() and cd.essenceFont.ready() and friends.lowest.hp >= 70 then
-            return cast.essenceFont(player.unit)
-        end
-        if cast.active.essenceFont() then
-            if #friends.all > 5 then
-                return true
-            elseif gcd <= 0.1 then
-                br._G.SpellStopCasting()
-            end
-        end
         -- AOE
         if not cast.active.vivify() then
             local countUnitsWithRenewingMistUnderHealth = 0
@@ -712,13 +871,6 @@ local function runRotation()
             end
             return false
         elseif runeforge.ancientTeachingsOfTheMonastery.equiped then
-            if cast.active.essenceFont() then
-                if #friends.all > 5 then
-                    return true
-                elseif gcd <= 0.1 then
-                    br._G.SpellStopCasting()
-                end
-            end
             if DamageRotation.AncientTeachingsOfTheMonasteryRotation() then
                 return true
             end
