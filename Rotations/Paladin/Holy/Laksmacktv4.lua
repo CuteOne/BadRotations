@@ -85,7 +85,7 @@ local function createOptions()
     local optionTable
 
     local function rotationOptions()
-        section = br.ui:createSection(br.ui.window.profile, "General - 210405050931")
+        section = br.ui:createSection(br.ui.window.profile, "General - 210405051916")
         br.ui:createDropdownWithout(section, "DPS Key", br.dropOptions.Toggle, 6, "DPS Override")
         br.ui:createCheckbox(section, "Group CD's with DPS key", "Pop wings and HA with Dps override", 1)
         if br.player.covenant.kyrian.active then
@@ -2163,6 +2163,7 @@ actionList.heal = function()
             and not br.isMoving("player")
     then
         -- Infused Holy Light
+
         if buff.infusionOfLight.exists() then
             if ui.checked("Infused Holy Light") and healTarget == "none" then
                 for i = 1, #br.friend do
@@ -2176,7 +2177,7 @@ actionList.heal = function()
                 end
                 if healTarget == "none" and #tanks > 0 then
                     if canheal(tanks[1].unit) and tanks[1].hp <= ui.value("Tank Infused Holy Light HP Limit") then
-                        healTarget = tanks[1].unit.unit
+                        healTarget = tanks[1].unit
                         healReason = "I_HEAL"
                     end
                 end
@@ -2204,6 +2205,7 @@ actionList.heal = function()
             end
         end
         -- Cast
+
         if (ui.checked("Infused Holy Light") or ui.checked("Infused Holy Light Grievous") and healTarget ~= "none")
                 or ((ui.checked("Infused Holy Light") or ui.checked("Holy Light")) and mode.raid == 1 and br.getMana("player") <= 75 and (healReason == "BOSS" or healReason == "RAIDHELP"))
         then
