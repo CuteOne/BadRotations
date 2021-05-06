@@ -82,6 +82,7 @@ local function createOptions()
         local section = br.ui:createSection(br.ui.window.profile, "Damage")
         br.ui:createSpinner(section, "Shadow Word: Pain Targets", 3, 0, 20, 1, "Maximum Shadow Word: Pain Targets to use at.")
         br.ui:createSpinner(section, "Purge the Wicked Targets", 3, 0, 20, 1, "Maximum Purge the Wicked Targets to use at.")
+        br.ui:createCheckbox(section, "Explosive Rotation", "Use Shadow Word: Pain or Purge the Wicked at explosives.")
         br.ui:createCheckbox(section, "Schism", "Use Schism.")
         br.ui:createCheckbox(section, "Mindgames", "Use Mindgames.")
         br.ui:createCheckbox(section, "Penance", "Use Penance.")
@@ -571,6 +572,13 @@ end -- End Action List - Healing
 
 -- Action List - Damage
 actionList.Damage = function()
+    if ui.checked("Explosive Rotation") and unit.isExplosive(units.dyn40) then
+        if talent.purgeTheWicked then
+            if cast.purgeTheWicked(units.dyn40) then return true end
+        else
+            if cast.shadowWordPain(units.dyn40) then return true end
+        end
+    end
     if ui.checked("Mind Sear Prioritize") and not cast.current.mindSear() then
         if bestAOEGroupCount >= ui.value("Mind Sear Prioritize") and unit.hp(lowestUnit) > ui.value("Mind Sear Health") then
             if cast.mindSear(bestAOEUnit) then return true end
