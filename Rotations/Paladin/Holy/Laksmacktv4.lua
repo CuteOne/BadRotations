@@ -870,7 +870,7 @@ actionList.cleanse = function()
             for i = 1, #br.friend do
                 local dispel_score = 0
                 local partyClass = select(2, br._G.UnitClass(br.friend[i].unit))
-                local thisABSHPmax = br.UnitHealthMax(br.friend[i].unit)
+                local thisABSHPmax = br._G.UnitHealthMax(br.friend[i].unit)
                 if br.canDispel(br.friend[i].unit, spell.cleanse) and canheal(br.friend[i].unit)
                         and br.getDebuffStacks(br.friend[i].unit, 331399) >= 2 then
                     if partyClass == "PALADIN"
