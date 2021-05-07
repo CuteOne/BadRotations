@@ -68,7 +68,7 @@ local MonkFlags = {    --Mistweaver Monk
 
 local mythicListDetox = {
     [0] = {
-        { spellID = 240443, flag = "RemoveMagic" },
+        { spellID = 240443, flag = "RemoveMagic", stack = 3, onlyUseOnTankIf = true },
     },
 
     [2284] = {
@@ -220,7 +220,7 @@ local function createOptions()
                 print(instanceName)
                 for key2, value2 in ipairs(value) do
                     --print('\t', key2, value2)
-                    print(" ",select(1,GetSpellLink(value2.spellID)))
+                    print(" ", select(1, GetSpellLink(value2.spellID)))
                 end
                 --print(key, value)
             end
@@ -298,17 +298,160 @@ local function runRotation()
     local mastery = select(1, GetMasteryEffect("player"))
     local spellPower = GetSpellBonusDamage(4)
     local versatility = 1 + ((GetCombatRatingBonus(CR_VERSATILITY_DAMAGE_DONE) + GetVersatilityBonus(CR_VERSATILITY_DAMAGE_DONE)) / 100)
+    transcendence = {
+        x = 0,
+        y = 0,
+        z = 0
+    }
+    local jadeSerpentStatue = {
+        x = 0,
+        y = 0,
+        z = 0
+    }
 
-    local healingMultiplier = 1
-    if buff.envelopingMist.remains(friends.lowest.unit) > 2 then
-        healingMultiplier = healingMultiplier + 0.3
-        if talent.mistWrap then
-            healingMultiplier = healingMultiplier + 0.1
+    healingValues = {
+        gustOfMist = ((0.1 / 100) + (mastery / 100)) * spellPower * versatility,
+        vivify = (141 / 100) * spellPower * versatility,
+        vivifyRenewingMist = (104 / 100) * spellPower * versatility,
+        envelopingMist = (60 / 100) * spellPower * versatility,
+        envelopingBreath = (30 / 100) * spellPower * versatility,
+        envelopingMistThunderFocusTea = (280 / 100) * spellPower * versatility,
+        expelHarm = (120 / 100) * spellPower * versatility,
+        lifeCocoon = (60 / 100) * player.maxHealth * versatility,
+        revival = (315 / 100) * spellPower * versatility,
+        soothingMist = (55 / 100) * spellPower * versatility,
+        essenceFont = (47.2 / 100) * spellPower * versatility,
+        tigerPalm = (27.027 / 100) * spellPower * versatility * 0.81 * (250 / 100),
+        blackoutKick = (84.7 / 100) * spellPower * versatility * 0.77 * (250 / 100),
+        risingSunKick = (143.8 / 100) * spellPower * versatility * 1.12 * (250 / 100)
+    }
+
+    --local function calculateGustOfMistHealing(unit)
+    --    local healing = healingValues.gustOfMist
+    --    if buff.essenceFont.exists(unit) then
+    --        healing = healing + healingValues.gustOfMist
+    --    end
+    --    if buff.envelopingMist.exists(unit) then
+    --        if talent.mistWrap then
+    --            healing = healing * 1.4
+    --        else
+    --            healing = healing * 1.3
+    --        end
+    --    end
+    --    if buff.envelopingBreath.exists(unit) then
+    --        healing = healing * 1.1
+    --    end
+    --    if buff.lifeCocoon.exists(unit) then
+    --        healing = healing * 1.5
+    --    end
+    --    return healing
+    --end
+
+    local function calculateVivifyHealing(unit)
+        local healing = healingValues.vivify + healingValues.gustOfMist
+        if buff.renewingMist.exists(unit) then
+            healing = healing + healingValues.vivifyRenewingMist
         end
+        if buff.essenceFont.exists(unit) then
+            healing = healing + healingValues.gustOfMist
+        end
+        if buff.envelopingMist.exists(unit) then
+            if talent.mistWrap then
+                healing = healing * 1.4
+            else
+                healing = healing * 1.3
+            end
+        end
+        if buff.envelopingBreath.exists(unit) then
+            healing = healing * 1.1
+        end
+        if buff.lifeCocoon.exists(unit) then
+            healing = healing * 1.5
+        end
+        return healing
     end
-    if buff.lifeCocoon.remains(friends.lowest.unit) > 2 then
-        healingMultiplier = healingMultiplier + 0.5
+
+    local function calculateVivifyRenewingMistHealing(unit)
+        local healing = healingValues.vivify
+        if buff.envelopingMist.exists(unit) then
+            if talent.mistWrap then
+                healing = healing * 1.4
+            else
+                healing = healing * 1.3
+            end
+        end
+        if buff.envelopingBreath.exists(unit) then
+            healing = healing * 1.1
+        end
+        if buff.lifeCocoon.exists(unit) then
+            healing = healing * 1.5
+        end
+        return healing
     end
+
+    local function calculateEnvelopingMistHealing(unit)
+        local healing = healingValues.envelopingMist + healingValues.gustOfMist
+        if buff.essenceFont.exists(unit) then
+            healing = healing + healingValues.gustOfMist
+        end
+        if buff.envelopingMist.exists(unit) then
+            if talent.mistWrap then
+                healing = healing * 1.4
+            else
+                healing = healing * 1.3
+            end
+        end
+        if buff.envelopingBreath.exists(unit) then
+            healing = healing * 1.1
+        end
+        if buff.lifeCocoon.exists(unit) then
+            healing = healing * 1.5
+        end
+        if totemInfo.yulonDuration > 0 or totemInfo.chiJiDuration > 0 then
+            healing = healing + healingValues.envelopingBreath
+        end
+        return healing
+    end
+
+    local function calculateExpelHarm(unit)
+        local healing = healingValues.expelHarm + healingValues.gustOfMist
+        if buff.essenceFont.exists(unit) then
+            healing = healing + healingValues.gustOfMist
+        end
+        if buff.envelopingMist.exists(unit) then
+            if talent.mistWrap then
+                healing = healing * 1.4
+            else
+                healing = healing * 1.3
+            end
+        end
+        if buff.envelopingBreath.exists(unit) then
+            healing = healing * 1.1
+        end
+        if buff.lifeCocoon.exists(unit) then
+            healing = healing * 1.5
+        end
+        return healing
+    end
+
+    local function calculateSoothingMistHealing(unit)
+        local healing = healingValues.soothingMist
+        if buff.envelopingMist.exists(unit) then
+            if talent.mistWrap then
+                healing = healing * 1.4
+            else
+                healing = healing * 1.3
+            end
+        end
+        if buff.envelopingBreath.exists(unit) then
+            healing = healing * 1.1
+        end
+        if buff.lifeCocoon.exists(unit) then
+            healing = healing * 1.5
+        end
+        return healing
+    end
+
     local function isAuraActive (unit, spellID)
         for i = 1, 40 do
             local buffName, _, _, _, _, _, _, _, _, buffSpellID = br._G.UnitBuff(unit, i)
@@ -329,22 +472,7 @@ local function runRotation()
         end
     end
 
-    healingValues = {
-        gustOfMist = ((0.1 / 100) + (mastery / 100)) * spellPower * versatility * healingMultiplier,
-        vivify = (141 / 100) * spellPower * versatility * healingMultiplier,
-        vivifyRenewingMistAmount = (104 / 100) * spellPower * versatility,
-        envelopingMist = (60 / 100) * spellPower * versatility * healingMultiplier,
-        envelopingMistThunderFocusTea = (280 / 100) * spellPower * versatility * healingMultiplier,
-        expelHarm = (120 / 100) * spellPower * versatility * healingMultiplier,
-        lifeCocoon = (60 / 100) * player.maxHealth * versatility,
-        revival = (315 / 100) * spellPower * versatility * healingMultiplier,
-        soothingMist = (55 / 100) * spellPower * versatility * healingMultiplier,
-        essenceFont = (47.2 / 100) * spellPower * versatility * healingMultiplier,
-        tigerPalm = (27.027 / 100) * spellPower * versatility * 0.81 * (250 / 100),
-        blackoutKick = (84.7 / 100) * spellPower * versatility * 0.77 * (250 / 100),
-        risingSunKick = (143.8 / 100) * spellPower * versatility * 1.12 * (250 / 100)
-    }
-    local getMissingHP = function(unit)
+    local function getMissingHP(unit)
         if br.GetUnitIsDeadOrGhost(unit) then
             return 0
         end
@@ -358,6 +486,7 @@ local function runRotation()
         local missingHealth = br._G.UnitHealthMax(unit) - actualHealth
         return missingHealth
     end
+
     local function countMissingHPAllies(Value, unitTable)
         local lowAllies = 0
         for i = 1, #unitTable do
@@ -367,21 +496,6 @@ local function runRotation()
         end
         return lowAllies
     end
-    local hasMouse = br.GetObjectExists("mouseover")
-    if hasMouse then
-        br.memberSetup:new("mouseover")
-    end
-
-    transcendence = {
-        x = 0,
-        y = 0,
-        z = 0
-    }
-    local jadeSerpentStatue = {
-        x = 0,
-        y = 0,
-        z = 0
-    }
 
     local function doDetox()
         local function isValid(debuff, dispelUnit)
@@ -469,6 +583,12 @@ local function runRotation()
 
     local function AlwaysRotation()
 
+        --if cd.transcendenceTransfer.remains() >= 24 then
+        --
+        --end
+        --br._G.C_Timer.After(2, function()
+        --    cast.transcendence()
+        --end)
         -- CDS
         if cd.lifeCocoon.ready() and getMissingHP(friends.lowest.unit) >= healingValues.lifeCocoon and unit.inCombat() and friends.lowest.hp <= 30 then
             return cast.lifeCocoon(friends.lowest.unit)
@@ -482,6 +602,15 @@ local function runRotation()
         if cd.revival.ready() and countMissingHPAllies(healingValues.revival * 2, friends.all) >= revivalLimit and unit.inCombat() then
             return cast.revival()
         end
+        if cast.active.essenceFont() then
+            if #friends.all > 5 then
+                return true
+            elseif gcd <= 0.1 then
+                br._G.SpellStopCasting()
+            elseif gcd > 0.1 then
+                return true
+            end
+        end
         -- Self Healing
         if br.timer:useTimer("healingElixir", 0.5) and unit.inCombat() then
             if (charges.healingElixir.count() > 1 and player.hp <= 75 and soothingMistUnit == nil) or (charges.healingElixir.count() > 0 and player.hp <= 45 and soothingMistUnit == nil) then
@@ -489,29 +618,22 @@ local function runRotation()
             end
         end
         if gcd <= 0.1 then
-            if not cast.active.vivify() and soothingMistUnit == nil and player.mana >= 35 and not cast.active.essenceFont() and cd.essenceFont.ready() and friends.lowest.hp >= 40 then
+            if not cast.active.vivify() and soothingMistUnit == nil and player.mana >= 35 and not cast.active.essenceFont() and cd.essenceFont.ready() and friends.lowest.hp >= 40 and buff.essenceFont.remains(friends.lowest.unit) <= 2 then
                 return cast.essenceFont(player.unit)
-            end
-            if cast.active.essenceFont() then
-                if #friends.all > 5 then
-                    return true
-                elseif gcd <= 0.1 then
-                    br._G.SpellStopCasting()
-                elseif gcd > 0.1 then
-                    return true
-                end
             end
             -- Fortifying Brew
             if ui.checked(text.autoCDS.fortifyingBrew) and player.hp <= ui.value(text.autoCDS.fortifyingBrew) and cd.fortifyingBrew.ready() and unit.inCombat() then
                 return cast.fortifyingBrew(player.unit)
             end
-            if cd.expelHarm.ready() and friends.lowest.hp >= 50 and getMissingHP(player.unit) >= healingValues.expelHarm + healingValues.gustOfMist and soothingMistUnit == nil and unit.inCombat() and totemInfo.chiJiDuration == 0 then
-                return cast.expelHarm(player.unit)
+            if friends.lowest.hp >= 50 and br._G.UnitGUID(player.unit) ~= br._G.UnitGUID(friends.lowest.unit) then
+                if cd.expelHarm.ready() and getMissingHP(player.unit) >= calculateExpelHarm(player.unit) and soothingMistUnit == nil and unit.inCombat() and totemInfo.chiJiDuration == 0 then
+                    return cast.expelHarm(player.unit)
+                end
             end
             -- Diffuse Magic
             -- Dampen Harm
             -- Explosive Affix
-            if soothingMistUnit == nil then
+            if soothingMistUnit == nil and friends.lowest.hp >= 50 then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
                     if br.GetObjectID(thisUnit) == 120651 then
@@ -560,7 +682,7 @@ local function runRotation()
             end
 
             -- Renewing Mist
-            if charges.renewingMist.exists() and cd.renewingMist.ready() and soothingMistUnit == nil and totemInfo.chiJiDuration == 0 and friends.lowest.hp > 25 then
+            if charges.renewingMist.exists() and cd.renewingMist.ready() and soothingMistUnit == nil and totemInfo.chiJiDuration == 0 and friends.lowest.hp > 40 then
                 for i = 1, #friends.all do
                     local tempUnit = friends.all[i]
                     if not buff.renewingMist.exists(tempUnit.unit) then
@@ -612,12 +734,11 @@ local function runRotation()
                     if theUnit == nil then
                         theUnit = friends.lowest.unit
                     end
-                    local gustOfMist = healingValues.gustOfMist
-                    if buff.essenceFont.exists(theUnit.unit) then
-                        gustOfMist = healingValues.gustOfMist * 2
-                    end
-                    local temp = healingValues.envelopingMist + gustOfMist + healingValues.soothingMist + healingValues.vivify + gustOfMist
-                    if cd.thunderFocusTea.ready() and getMissingHP(theUnit.unit) >= temp + healingValues.envelopingMistThunderFocusTea then
+                    if cd.thunderFocusTea.ready() and
+                            getMissingHP(theUnit.unit) >=
+                                    calculateEnvelopingMistHealing(theUnit.unit) +
+                                            calculateVivifyHealing(theUnit.unit) +
+                                            healingValues.envelopingMistThunderFocusTea then
                         cast.thunderFocusTea(player.unit)
                     end
                     return cast.envelopingMist(theUnit.unit)
@@ -722,11 +843,7 @@ local function runRotation()
         end
         local usable, _ = IsUsableSpell(spell.transcendenceTransfer)
         if usable and cd.transcendenceTransfer.ready() then
-            cast.transcendenceTransfer(player.unit)
-            br._G.C_Timer.After(2, function()
-                cast.transcendence()
-            end)
-            return true
+            return cast.transcendenceTransfer(player.unit)
         end
         return false
     end
@@ -737,7 +854,7 @@ local function runRotation()
             local countUnitsWithRenewingMistUnderHealth = 0
             for i = 1, #friends.all do
                 local tempUnit = friends.all[i]
-                if buff.renewingMist.exists(tempUnit.unit) and getMissingHP(tempUnit.unit) >= healingValues.vivifyRenewingMistAmount then
+                if buff.renewingMist.exists(tempUnit.unit) and getMissingHP(tempUnit.unit) >= calculateVivifyRenewingMistHealing(tempUnit.unit) then
                     countUnitsWithRenewingMistUnderHealth = countUnitsWithRenewingMistUnderHealth + 1
                 end
             end
@@ -746,11 +863,9 @@ local function runRotation()
             end
             if countUnitsWithRenewingMistUnderHealth >= 2 then
                 if soothingMistUnit == nil then
-                    local gustOfMist = healingValues.gustOfMist
-                    if buff.essenceFont.exists(friends.lowest.unit) then
-                        gustOfMist = healingValues.gustOfMist * 2
-                    end
-                    if getMissingHP(friends.lowest.unit) >= healingValues.vivify * 2 + gustOfMist * 2 + healingValues.soothingMist * 2 then
+                    if getMissingHP(friends.lowest.unit) >=
+                            calculateVivifyHealing(friends.lowest.unit) * 2 +
+                                    calculateSoothingMistHealing(friends.lowest.unit) * 2 then
                         if player.mana <= 75 and talent.manaTea then
                             cast.manaTea(player.unit)
                         end
@@ -758,21 +873,20 @@ local function runRotation()
                         return cast.soothingMist(friends.lowest.unit)
                     end
                 else
-                    local gustOfMist = healingValues.gustOfMist
-                    if buff.essenceFont.exists(soothingMistUnit) then
-                        gustOfMist = healingValues.gustOfMist * 2
-                    end
                     if not buff.renewingMist.exists(soothingMistUnit) and buff.envelopingMist.remains(soothingMistUnit) < 2 then
-                        local temp = healingValues.envelopingMist + gustOfMist + healingValues.soothingMist + healingValues.vivify + gustOfMist
-                        if getMissingHP(soothingMistUnit) >= temp then
+                        local totalHeal = calculateSoothingMistHealing(soothingMistUnit) * 2 +
+                                calculateEnvelopingMistHealing(soothingMistUnit) +
+                                calculateVivifyHealing(soothingMistUnit)
+                        if getMissingHP(soothingMistUnit) >= totalHeal then
                             --print("Enveloping Mist AOE Soothing Mist")
-                            if cd.thunderFocusTea.ready() and getMissingHP(soothingMistUnit) >= temp + healingValues.envelopingMistThunderFocusTea then
+                            if cd.thunderFocusTea.ready() and getMissingHP(soothingMistUnit) >= totalHeal + healingValues.envelopingMistThunderFocusTea then
                                 cast.thunderFocusTea(player.unit)
                             end
                             return cast.envelopingMist(soothingMistUnit)
                         end
                     end
-                    if getMissingHP(soothingMistUnit) >= healingValues.vivify + gustOfMist + healingValues.soothingMist then
+                    if getMissingHP(soothingMistUnit) >= calculateSoothingMistHealing(soothingMistUnit) +
+                            calculateVivifyHealing(soothingMistUnit) then
                         --print("Vivify AOE Soothing Mist")
                         return cast.vivify(soothingMistUnit)
                     end
@@ -781,10 +895,19 @@ local function runRotation()
         end
 
         -- ST
-        if soothingMistUnit ~= nil and soothingMistUnit ~= friends.lowest.unit and (unit.hp(soothingMistUnit) >= 75 or unit.hp(soothingMistUnit) - friends.lowest.hp >= 25) then
+        if soothingMistUnit ~= nil and soothingMistUnit ~= friends.lowest.unit and
+                (unit.hp(soothingMistUnit) >= 75 or unit.hp(soothingMistUnit) - friends.lowest.hp >= 25) then
             br._G.SpellStopCasting()
         end
-        if not cast.active.vivify() and soothingMistUnit == nil and getMissingHP(friends.lowest.unit) >= healingValues.soothingMist + healingValues.envelopingMist + healingValues.gustOfMist + healingValues.soothingMist + healingValues.vivify + healingValues.gustOfMist then
+        --local gustOfMist = healingValues.gustOfMist
+        --if buff.essenceFont.exists(friends.lowest.unit) then
+        --    gustOfMist = healingValues.gustOfMist * 2
+        --end
+        if not cast.active.vivify() and soothingMistUnit == nil and
+                getMissingHP(friends.lowest.unit) >=
+                        calculateSoothingMistHealing(friends.lowest.unit) * 2 +
+                                calculateEnvelopingMistHealing(friends.lowest.unit) +
+                                calculateVivifyHealing(friends.lowest.unit) then
             --print("Casting Soothing Mist ST")
             if player.mana <= 75 and talent.manaTea then
                 cast.manaTea(player.unit)
@@ -792,39 +915,23 @@ local function runRotation()
             return cast.soothingMist(friends.lowest.unit)
         end
         if soothingMistUnit ~= nil then
-            local gustOfMist = healingValues.gustOfMist
-            if buff.essenceFont.exists(soothingMistUnit) then
-                gustOfMist = healingValues.gustOfMist * 2
-            end
-            local temp = healingValues.soothingMist + healingValues.vivify + gustOfMist
-            if buff.renewingMist.exists(soothingMistUnit) then
-                temp = healingValues.soothingMist + healingValues.vivify + gustOfMist + healingValues.vivifyRenewingMistAmount
-            end
             if buff.envelopingMist.remains(soothingMistUnit) < 2 then
-                local temp1 = healingValues.envelopingMist + gustOfMist + temp
-                if getMissingHP(soothingMistUnit) >= temp1 then
+                local totalHeal = calculateSoothingMistHealing(soothingMistUnit) + calculateEnvelopingMistHealing(soothingMistUnit) + calculateVivifyHealing(soothingMistUnit)
+                if getMissingHP(soothingMistUnit) >= totalHeal then
                     --print("Enveloping Mist ST Soothing Mist")
-                    if cd.thunderFocusTea.ready() and getMissingHP(soothingMistUnit) >= temp1 + healingValues.envelopingMistThunderFocusTea then
+                    if cd.thunderFocusTea.ready() and getMissingHP(soothingMistUnit) >= totalHeal + healingValues.envelopingMistThunderFocusTea then
                         cast.thunderFocusTea(player.unit)
                     end
                     return cast.envelopingMist(soothingMistUnit)
                 end
             end
-            if getMissingHP(soothingMistUnit) >= temp then
+            if getMissingHP(soothingMistUnit) >= calculateSoothingMistHealing(soothingMistUnit) + calculateVivifyHealing(soothingMistUnit) then
                 --print("Vivify ST Soothing Mist")
                 return cast.vivify(soothingMistUnit)
             end
         end
-        --
-        local gustOfMist = healingValues.gustOfMist
-        if buff.essenceFont.exists(friends.lowest.unit) then
-            gustOfMist = healingValues.gustOfMist * 2
-        end
-        local temp = healingValues.vivify + gustOfMist
-        if buff.renewingMist.exists(friends.lowest.unit) then
-            temp = healingValues.vivify + gustOfMist + healingValues.vivifyRenewingMistAmount
-        end
-        if soothingMistUnit == nil and not cast.active.vivify() and getMissingHP(friends.lowest.unit) >= temp then
+        if soothingMistUnit == nil and not cast.active.vivify() and
+                getMissingHP(friends.lowest.unit) >= calculateVivifyHealing(friends.lowest.unit) then
             --print("Vivify ST")
             return cast.vivify(friends.lowest.unit)
         end
