@@ -85,7 +85,7 @@ local function createOptions()
     local optionTable
 
     local function rotationOptions()
-        section = br.ui:createSection(br.ui.window.profile, "General - 210405051916")
+        section = br.ui:createSection(br.ui.window.profile, "General - 210405071311")
         br.ui:createDropdownWithout(section, "DPS Key", br.dropOptions.Toggle, 6, "DPS Override")
         br.ui:createCheckbox(section, "Group CD's with DPS key", "Pop wings and HA with Dps override", 1)
         if br.player.covenant.kyrian.active then
@@ -760,7 +760,8 @@ actionList.hammerOfWrathDPS = function()
     --br._G.print(tostring(br.getSpellCD(24275)))
 
     if br.player.inCombat and not cd.holyShock.ready() and ((buff.holyAvenger.exists() and holyPower < 3) or holyPower < 5) then
-        if br._G.IsSpellOverlayed(24275) and br.getFacing("player", "target") and br.getDistance("target", "player") <= 30 then
+        if br._G.IsSpellOverlayed(24275) and br.getFacing("player", "target") and br.getDistance("target", "player") <= 30
+                and not br.isExplosive("target") then
             if cast.hammerOfWrath("target") then
                 br.addonDebug("[DPS] Hammer of Wrath 1")
                 return true
@@ -888,7 +889,7 @@ actionList.cleanse = function()
                     dispel_target = br.friend[i].unit
                 end
             end
-            if cast.cleanse(br.friend[i].unit) then
+            if cast.cleanse(dispel_target) then
                 br.addonDebug("[CLEANSE] Target:" .. unit.name(dispel_target) .. " Score: " .. tostring(top_dispel_score))
                 return true
             end
@@ -911,6 +912,22 @@ actionList.cleanse = function()
 end
 actionList.ooc = function()
     --things to do ooc
+
+
+
+    if ui.checked("Beacon of Light") and br.timer:useTimer("BEACTimer", 5) then
+        if #tanks > 0 then
+            if not buff.beaconOfLight.exists(tanks[1].unit) and not buff.beaconOfFaith.exists(tanks[1].unit) and br._G.UnitInRange(tanks[1].unit) then
+                if cast.beaconOfLight(tanks[1].unit) then
+                    return true
+                end
+            end
+        elseif #tanks == 0 and not buff.beaconOfLight.exists("Player") then
+            if cast.beaconOfLight("Player") then
+                return true
+            end
+        end
+    end
 
     if ui.checked("Auto Drink") and br.getMana("player") <= br.getOptionValue("Auto Drink") and not moving and br.getDebuffStacks("player", 240443) == 0 and br.getDebuffStacks("player", 240443) == 0 then
         --240443 == bursting
@@ -1044,8 +1061,8 @@ end
 actionList.Extra = function()
 
     if br.SpecificToggle("Ashen Hallow Key") and not br._G.GetCurrentKeyBoardFocus() then
-        br._G.CastSpellByName(br._G.GetSpellInfo(spell.avengingWrath))
         br._G.CastSpellByName(br._G.GetSpellInfo(spell.ashenHallow), "cursor")
+        br._G.CastSpellByName(br._G.GetSpellInfo(spell.avengingWrath))
         return
     end
     if br.SpecificToggle("Turn Evil Key") and not br._G.GetCurrentKeyBoardFocus() then
@@ -1578,9 +1595,9 @@ actionList.Cooldown = function()
         end
     end
     -- Light's Judgment
-    if ui.checked("Light's Judgment") and race == "LightforgedDraenei" and br.getSpellCD(255647) == 0 then
+    if ui.checked("Light's Judgment") and br.player.race == "LightforgedDraenei" and br.getSpellCD(255647) == 0 then
         if #enemies.yards40 >= ui.checked("Light's Judgment") then
-            if cast.lightsJudgment(getBiggestUnitCluster(40, 5)) then
+            if cast.lightsJudgment(br.getBiggestUnitCluster(40, 5)) then
                 return true
             end
         end
@@ -2072,26 +2089,24 @@ actionList.heal = function()
     end
 
     if br.isChecked("Beacon of Light") and not talent.beaconOfVirtue then
-        if br.timer:useTimer("Beacon Delay", 3) then
-            -- Beacon Tank, Elseif Self
-            if #tanks > 0 and (lowest.hp > ui.value("Beacon Swap Min HP") or not ui.checked("Beacon Swap Emergency Healing")) then
-                for i = 1, #tanks do
-                    if not buff.beaconOfLight.exists(tanks[i].unit) and not buff.beaconOfFaith.exists(tanks[i].unit) and br._G.UnitInRange(tanks[i].unit) then
-                        if cast.beaconOfLight(tanks[i].unit) then
-                            return true
-                        end
+        -- Beacon Tank, Elseif Self
+        if #tanks > 0 and (lowest.hp > ui.value("Beacon Swap Min HP") or not ui.checked("Beacon Swap Emergency Healing")) then
+            for i = 1, #tanks do
+                if not buff.beaconOfLight.exists(tanks[i].unit) and not buff.beaconOfFaith.exists(tanks[i].unit) and br._G.UnitInRange(tanks[i].unit) then
+                    if cast.beaconOfLight(tanks[i].unit) then
+                        return true
                     end
                 end
-            elseif #tanks == 0 and not buff.beaconOfLight.exists("Player") then
-                if cast.beaconOfLight("Player") then
-                    return true
-                end
             end
-            -- Emergency Beacon Swap
-            if ui.checked("Beacon Swap Emergency Healing") and lowest.hp <= ui.value("Beacon Swap Min HP") and not buff.beaconOfLight.exists(lowest.unit) and not buff.beaconOfFaith.exists(lowest.unit) then
-                if cast.beaconOfLight(lowest.unit) then
-                    return true
-                end
+        elseif #tanks == 0 and not buff.beaconOfLight.exists("Player") then
+            if cast.beaconOfLight("Player") then
+                return true
+            end
+        end
+        -- Emergency Beacon Swap
+        if ui.checked("Beacon Swap Emergency Healing") and lowest.hp <= ui.value("Beacon Swap Min HP") and not buff.beaconOfLight.exists(lowest.unit) and not buff.beaconOfFaith.exists(lowest.unit) then
+            if cast.beaconOfLight(lowest.unit) then
+                return true
             end
         end
     else
@@ -2428,7 +2443,6 @@ local function runRotation()
             if not inCombat then
                 -- out of combat stuff
                 --  Print("Not in Combat")
-
                 if actionList.Extra() then
                     return true
                 end
@@ -2449,14 +2463,17 @@ local function runRotation()
                         return true
                     end
                 end
-                if actionList.generators() then
-                    return true
-                end
-                if actionList.spenders() then
-                    return true
-                end
-                if actionList.heal() then
-                    return true
+                actionList.triage()
+                if healTarget ~= "none" or lowest.hp < 80 then
+                    if actionList.generators() then
+                        return true
+                    end
+                    if actionList.spenders() then
+                        return true
+                    end
+                    if actionList.heal() then
+                        return true
+                    end
                 end
                 if actionList.ooc() then
                     return true
