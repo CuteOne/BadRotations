@@ -328,7 +328,7 @@ local function runRotation()
         local lowestHP
         for i = 1, #enemies.yards30 do
             local thisUnit = enemies.yards30[i]
-            if (not noDotCheck(thisUnit) or br.GetUnitIsUnit(thisUnit, "target")) 
+            if (not noDotCheck(thisUnit) or br.GetUnitIsUnit(thisUnit, "target"))
              and not br.GetUnitIsDeadOrGhost(thisUnit) and br.isSafeToAttack(thisUnit)
              and (mode.rotation ~= 2 or (mode.rotation == 2 and br.GetUnitIsUnit(thisUnit, "target"))) then
                 local enemyUnit = {}
@@ -389,16 +389,16 @@ local function runRotation()
             if thisUnit.distance <= 10 then
                 if fokIgnore [thisUnit.objectID] == nil and not isTotem(thisUnit.unit) then
                     br._G.tinsert(enemyTable10, thisUnit)
-                    if deadlyPoison10 and 
-                        (br.getOptionValue("Lethal Poison") == 1 and not debuff.instantPoison.exists(thisUnit.unit)) or 
-                        (br.getOptionValue("Lethal Poison") == 2 and not debuff.woundPoison.exists(thisUnit.unit)) 
-                        then deadlyPoison10 = false 
+                    if deadlyPoison10 and
+                        (br.getOptionValue("Lethal Poison") == 1 and not debuff.instantPoison.exists(thisUnit.unit)) or
+                        (br.getOptionValue("Lethal Poison") == 2 and not debuff.woundPoison.exists(thisUnit.unit))
+                        then deadlyPoison10 = false
                     end
                 end
                 if thisUnit.distance <= 5 then
                     br._G.tinsert(enemyTable5, thisUnit)
                 end
-                if debuff.garrote.remain(thisUnit.unit) > 0.5 then garroteCount = garroteCount + 1 end 
+                if debuff.garrote.remain(thisUnit.unit) > 0.5 then garroteCount = garroteCount + 1 end
                 if debuff.rupture.remain(thisUnit.unit) > 0.5 then ruptureCount = ruptureCount + 1 end
                 if br.getUnitID(thisUnit) == 175992 and thisUnit.distance <= 5 then br._G.TargetUnit(thisUnit) end
             end
@@ -426,6 +426,10 @@ local function runRotation()
         if (br._G.GetInventoryItemID("player", 13) == 184016 or br._G.GetInventoryItemID("player", 14) == 184016) and br.canUseItem(184016) and #enemyTable10 > 0 then
             br.useItem(184016)
         end
+        -- Dreadfire Vessel
+        if (br._G.GetInventoryItemID("player", 13) == 184030 or br._G.GetInventoryItemID("player", 14) == 184030) and br.canUseItem(184030) and (#enemyTable10 > 1 or debuff.vendetta.exists("target")) then
+            br.useItem(184030)
+        end
     end
 
     -- nil fixes
@@ -448,7 +452,7 @@ local function runRotation()
     local poisonedBleeds = garroteCount + ruptureCount
     --actions+=/variable,name=single_target,value=spell_targets.fan_of_knives<2
     local singleTarget = (enemies10 < 2) or false
-    
+
     -- # Only change rotation if we have priority_rotation set and multiple targets up.
     -- actions+=/variable,name=use_priority_rotation,value=priority_rotation&spell_targets.shuriken_storm>=2
     if mode.focus == 2 and enemies10 >= 2 then priorityRotation = true else priorityRotation = false end
@@ -618,7 +622,7 @@ local function runRotation()
                 end
                 local interruptID, castStartTime
                 if ui.checked("Stuns") and distance < 5 and br.player.cast.timeRemain(interrupt_target) < br.getTTD(interrupt_target)
-                 and noStunList[br.GetObjectID(interrupt_target)] == nil and br.getBuffRemain(interrupt_target, 226510) == 0 
+                 and noStunList[br.GetObjectID(interrupt_target)] == nil and br.getBuffRemain(interrupt_target, 226510) == 0
                  and (not br.isBoss(interrupt_target) or stunList[interruptID] or br.isCrowdControlCandidates(interrupt_target)) then
                     if br._G.UnitCastingInfo(interrupt_target) then
                         castStartTime = select(4,br._G.UnitCastingInfo(interrupt_target))
@@ -758,7 +762,7 @@ local function runRotation()
             end
             --actions.vanish+=/pool_resource,for_next=1,extra_amount=45
             --actions.vanish+=/vanish,if=talent.subterfuge.enabled&cooldown.garrote.up&(dot.garrote.refreshable|debuff.vendetta.up&dot.garrote.pmultiplier<=1)&combo_points.deficit>=(spell_targets.fan_of_knives>?4)&raid_event.adds.in>12
-            if talent.subterfuge and not cd.garrote.exists() and (debuff.garrote.refresh("target") or debuff.vendetta.exists("target") and debuff.garrote.applied("target") <= 1) and 
+            if talent.subterfuge and not cd.garrote.exists() and (debuff.garrote.refresh("target") or debuff.vendetta.exists("target") and debuff.garrote.applied("target") <= 1) and
                 comboDeficit >= (int(enemies10>4)) then
                 if cast.pool.garrote() then return true end
                 if cast.vanish("player") then return true end
@@ -797,7 +801,7 @@ local function runRotation()
         end
         -- # Envenom at 4+ (5+ with DS) CP. Immediately on 2+ targets, with Vendetta, or with TB; otherwise wait for some energy. Also wait if Exsg combo is coming up.
         -- actions.direct=envenom,if=combo_points>=4+talent.deeper_stratagem.enabled&(debuff.vendetta.up|debuff.shiv.up|debuff.flagellation.up|energy.deficit<=25+variable.energy_regen_combined|!variable.single_target)&(!talent.exsanguinate.enabled|cooldown.exsanguinate.remains>2)
-        if combo >= (4 + dSEnabled) and ((debuff.vendetta.exists("target") or not cdUsage or ttd("target") < br.getOptionValue("CDs TTD Limit")) or debuff.shiv.exists("target") or debuff.flagellation.exists("target") or energyDeficit <= (25 + energyRegenCombined) or not singleTarget) 
+        if combo >= (4 + dSEnabled) and ((debuff.vendetta.exists("target") or not cdUsage or ttd("target") < br.getOptionValue("CDs TTD Limit")) or debuff.shiv.exists("target") or debuff.flagellation.exists("target") or energyDeficit <= (25 + energyRegenCombined) or not singleTarget)
          and (not talent.exsanguinate or cd.exsanguinate.remain() > 2 or debuff.rupture.remain("target") > 27 or ttd("target") < 4 or mode.exsang == 2) then
             if cast.envenom("target") then return true end
         end
@@ -816,7 +820,7 @@ local function runRotation()
                         )
                     end
                     for i = 1, #spikeList do
-                        if not debuff.serratedBoneSpikeDot.exists(spikeList[i]) then
+                        if br.isSafeToAttack(spikeList[i]) and (not debuff.serratedBoneSpikeDot.exists(spikeList[i]) or charges.serratedBoneSpike.frac() >= 2.75) then
                             if cast.serratedBoneSpike(spikeList[i]) then
                                 return true
                             end
@@ -942,7 +946,6 @@ local function runRotation()
             end
         end
         --# Crimson Tempest on multiple targets at 4+ CP when running out in 2-3s as long as we have enough regen and aren't setting up for Vendetta
-        --actions.dot+=/crimson_tempest,if=spell_targets>=2&remains<2+(spell_targets>=5)&effective_combo_points>=4
         --actions.dot+=/crimson_tempest,if=spell_targets>=2&remains<2+(spell_targets>=5)&effective_combo_points>=4&energy.regen_combined>20&(!cooldown.vendetta.ready|dot.rupture.ticking)
         if talent.crimsonTempest and ctenemies10 > 1 and not stealthedAll and combo >= 4 and energyRegenCombined > 20 then
             local crimsonTargets
@@ -950,16 +953,16 @@ local function runRotation()
             for i = 1, ctenemies10 do
                 local thisUnit = enemyTable10[i].unit
                 local crimsonRemain = debuff.crimsonTempest.remain(thisUnit)
-                if crimsonRemain < (2+crimsonTargets) and (cd.vendetta.exists() or debuff.rupture.exists(thisUnit)) then
+                if crimsonRemain < (2+crimsonTargets) and (cd.vendetta.exists() or ruptureCount > 0) then
                     if cast.crimsonTempest("player", "aoe", 1, 10) then return true end
                 end
             end
         end
         --# Keep up Rupture at 4+ on all targets (when living long enough and not snapshot)
         --actions.dot+=/rupture,if=!variable.skip_rupture&(effective_combo_points>=4&refreshable|!ticking&(time>10|combo_points>=2))&(pmultiplier<=1|remains<=tick_time&spell_targets.fan_of_knives>=3)&(!exsanguinated|remains<=tick_time*2&spell_targets.fan_of_knives>=3)&target.time_to_die-remains>4
-        if singleTarget and not skipRupture and combo >= 4 and cast.able.rupture("target") and (debuff.rupture.refresh("target") or not debuff.rupture.exists("target")) and 
-         (debuff.rupture.applied("target") <= 1 or (debuff.rupture.remain("target") <= tickTime and enemies10 >= 3)) 
-         and (not debuff.rupture.exsang("target") or (debuff.rupture.remain("target") < (tickTime *2) and enemies10 >= 3)) 
+        if singleTarget and not skipRupture and combo >= 4 and cast.able.rupture("target") and (debuff.rupture.refresh("target") or not debuff.rupture.exists("target")) and
+         (debuff.rupture.applied("target") <= 1 or (debuff.rupture.remain("target") <= tickTime and enemies10 >= 3))
+         and (not debuff.rupture.exsang("target") or (debuff.rupture.remain("target") < (tickTime *2) and enemies10 >= 3))
          and (ttd("target")-debuff.rupture.remain("target")) > 4 and debuff.garrote.exists("target") then
             if cast.rupture("target") then return true end
          end
@@ -970,8 +973,8 @@ local function runRotation()
                 local ruptureRemain = debuff.rupture.remain(thisUnit)
                 if br.GetObjectID(thisUnit) ~= 167999 and debuff.rupture.refresh(thisUnit) and
                  (debuff.rupture.applied(thisUnit) <= 1 or (ruptureRemain <= tickTime and enemies10 >= 3)) and
-                 (not debuff.rupture.exsang(thisUnit) or (ruptureRemain < (tickTime *2) and enemies10 >= 3)) and 
-                 (enemyTable5[i].ttd-ruptureRemain) > (4 + (DSEquipped*9) + (DoomEquipped*6)) and 
+                 (not debuff.rupture.exsang(thisUnit) or (ruptureRemain < (tickTime *2) and enemies10 >= 3)) and
+                 (enemyTable5[i].ttd-ruptureRemain) > (4 + (DSEquipped*9) + (DoomEquipped*6)) and
                  (debuff.garrote.exists(thisUnit) or combatTime > 5) then
                     if cast.rupture(thisUnit) then return true end
                 end
@@ -1015,7 +1018,7 @@ local function runRotation()
             if cast.pool.garrote() then return true end
             if cast.garrote("target") then return true end
         end
-        if cast.able.serratedBoneSpike() and (combatTime < 1.5 and cd.vanish.remain() < 118) then
+        if cast.able.serratedBoneSpike() and (combatTime < 1.5 and cd.vanish.remain() < 118) and not talent.subterfuge then
             if cast.serratedBoneSpike("target") then return true end
         end
         --actions.stealthed+=/mutilate,if=talent.subterfuge.enabled&combo_points<=3
@@ -1059,7 +1062,7 @@ local function runRotation()
                 end
             end
             --tricks
-            if tricksUnit ~= nil and validTarget and targetDistance < 5 and br._G.UnitThreatSituation("player") and br._G.UnitThreatSituation("player") > 0 then 
+            if tricksUnit ~= nil and validTarget and targetDistance < 5 and br._G.UnitThreatSituation("player") and br._G.UnitThreatSituation("player") > 0 then
                 cast.tricksOfTheTrade(tricksUnit)
             end
             -- # Restealth if possible (no vulnerable enemies in combat)
