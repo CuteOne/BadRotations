@@ -389,6 +389,7 @@ function unlock.WowAdUnlock()
 	b.GetPositionBetweenObjects = function(unit1, unit2, DistanceFromPosition1)
 		local X1, Y1, Z1 = b.ObjectPosition(unit1)
 		local X2, Y2, Z2 = b.ObjectPosition(unit2)
+		if not X1 or not X2 then return end
 		local AngleXY, AngleXYZ = b.GetAnglesBetweenPositions(X1, Y1, Z1, X2, Y2, Z2)
 		return b.GetPositionFromPosition(X1, Y1, Z1, DistanceFromPosition1, AngleXY, AngleXYZ)
 	end
