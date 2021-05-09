@@ -22,6 +22,11 @@ local function createToggles()
         [2] = { mode = "Off", value = 2, overlay = "TELEPORT OFF", tip = "Not using TELEPORT", highlight = 0, icon = br.player.spell.transcendenceTransfer }
     };
     br.ui:createToggle(TeleportingModes, "Teleporting", 3, 0)
+    local RaidingModes = {
+        [1] = { mode = "On", value = 1, overlay = "RAID ON", tip = "Using RAID", highlight = 1, icon = br.player.spell.provoke },
+        [2] = { mode = "Off", value = 2, overlay = "RAID OFF", tip = "Not using RAID", highlight = 0, icon = br.player.spell.provoke }
+    };
+    br.ui:createToggle(RaidingModes, "Raiding", 4, 0)
 end
 
 local colors = {
@@ -69,6 +74,7 @@ local MonkFlags = {    --Mistweaver Monk
 local mythicListDetox = {
     [0] = {
         { spellID = 240443, flag = "RemoveMagic", stack = 3, onlyUseOnTankIf = true },
+        { spellID = 145206, flag = "RemoveMagic" }
     },
 
     [2284] = {
@@ -138,6 +144,7 @@ local text = {
         damage = "DAMAGE Key",
         heal = "HEAL Key",
         teleport = "TELEPORT Key",
+        raid = "RAID Key",
     },
     autoCDS = {
         text = "Auto CDS",
@@ -146,7 +153,8 @@ local text = {
     },
     draw = {
         text = "Draw settings",
-        update = "Update rate"
+        update = "Update rate",
+        friends = "Friends"
     },
     extra = {
         text = "Extra settings",
@@ -163,6 +171,7 @@ local function createOptions()
         br.ui:createDropdown(section, text.keys.damage, br.dropOptions.Toggle, 6, "Keep pressing this key to use this rotation", "Select key")
         br.ui:createDropdown(section, text.keys.heal, br.dropOptions.Toggle, 6, "Keep pressing this key to use this rotation", "Select key")
         br.ui:createDropdown(section, text.keys.teleport, br.dropOptions.Toggle, 6, "Keep pressing this key to use this rotation", "Select key")
+        br.ui:createDropdown(section, text.keys.raid, br.dropOptions.Toggle, 6, "Keep pressing this key to use this rotation", "Select key")
         br.ui:checkSectionState(section)
 
         section = br.ui:createSection(br.ui.window.profile, text.autoCDS.text)
@@ -189,6 +198,7 @@ local function createOptions()
 
         section = br.ui:createSection(br.ui.window.profile, text.draw.text)
         br.ui:createSpinner(section, text.draw.update, 0, 0, 1, 0.01, "Set update rate")
+        br.ui:createCheckbox(section, text.draw.friends, "Draw friends positions")
 
         local function printHealingValues()
             print("-------------------------------")
@@ -255,17 +265,17 @@ local function runRotation()
     local debuff = br.player.debuff
     local runeforge = br.player.runeforge
     local enemies = br.player.enemies
-    enemies.get(5)
-    enemies.get(6)
+    --range,unit,checkNoCombat,facing
+    --enemies.get(5)--enemies.yards5
+    enemies.get(5, "player", false, true)--enemies.yards5
     enemies.get(8)
-    enemies.get(30)
     enemies.get(40)
     local mysticTouch = {
         lowest = debuff.mysticTouch.lowest(5, "remain"),
         count = debuff.mysticTouch.refreshCount(5),
     }
     if not br.GetObjectExists(mysticTouch.lowest) then
-        mysticTouch.lowest = enemies.yards5[1]
+        mysticTouch.lowest = enemies.yards5f[1]
     end
 
     local friends = {
@@ -326,28 +336,12 @@ local function runRotation()
         risingSunKick = (143.8 / 100) * spellPower * versatility * 1.12 * (250 / 100)
     }
 
-    --local function calculateGustOfMistHealing(unit)
-    --    local healing = healingValues.gustOfMist
-    --    if buff.essenceFont.exists(unit) then
-    --        healing = healing + healingValues.gustOfMist
-    --    end
-    --    if buff.envelopingMist.exists(unit) then
-    --        if talent.mistWrap then
-    --            healing = healing * 1.4
-    --        else
-    --            healing = healing * 1.3
-    --        end
-    --    end
-    --    if buff.envelopingBreath.exists(unit) then
-    --        healing = healing * 1.1
-    --    end
-    --    if buff.lifeCocoon.exists(unit) then
-    --        healing = healing * 1.5
-    --    end
-    --    return healing
-    --end
+    if buff.prideful.exists(player.unit) then
+        player.mana = 100
+    end
 
-    local function calculateVivifyHealing(unit)
+    local function calculateVivifyHealing(unit, hasEnvelopingMist)
+        hasEnvelopingMist = hasEnvelopingMist or false
         local healing = healingValues.vivify + healingValues.gustOfMist
         if buff.renewingMist.exists(unit) then
             healing = healing + healingValues.vivifyRenewingMist
@@ -355,18 +349,21 @@ local function runRotation()
         if buff.essenceFont.exists(unit) then
             healing = healing + healingValues.gustOfMist
         end
-        if buff.envelopingMist.exists(unit) then
+        if buff.envelopingMist.exists(unit) or hasEnvelopingMist then
             if talent.mistWrap then
                 healing = healing * 1.4
             else
                 healing = healing * 1.3
             end
         end
-        if buff.envelopingBreath.exists(unit) then
+        if buff.envelopingBreath.exists(unit) or (hasEnvelopingMist and (totemInfo.chiJiDuration > 0 or totemInfo.yulonDuration > 0)) then
             healing = healing * 1.1
         end
         if buff.lifeCocoon.exists(unit) then
             healing = healing * 1.5
+        end
+        if buff.prideful.exists(player.unit) then
+            healing = healing * 1.3
         end
         return healing
     end
@@ -385,6 +382,9 @@ local function runRotation()
         end
         if buff.lifeCocoon.exists(unit) then
             healing = healing * 1.5
+        end
+        if buff.prideful.exists(player.unit) then
+            healing = healing * 1.3
         end
         return healing
     end
@@ -410,6 +410,9 @@ local function runRotation()
         if totemInfo.yulonDuration > 0 or totemInfo.chiJiDuration > 0 then
             healing = healing + healingValues.envelopingBreath
         end
+        if buff.prideful.exists(player.unit) then
+            healing = healing * 1.3
+        end
         return healing
     end
 
@@ -431,6 +434,9 @@ local function runRotation()
         if buff.lifeCocoon.exists(unit) then
             healing = healing * 1.5
         end
+        if buff.prideful.exists(player.unit) then
+            healing = healing * 1.3
+        end
         return healing
     end
 
@@ -449,19 +455,20 @@ local function runRotation()
         if buff.lifeCocoon.exists(unit) then
             healing = healing * 1.5
         end
+        if buff.prideful.exists(player.unit) then
+            healing = healing * 1.3
+        end
         return healing
     end
 
     local function isAuraActive (unit, spellID)
         for i = 1, 40 do
-            local buffName, _, _, _, _, _, _, _, _, buffSpellID = br._G.UnitBuff(unit, i)
-            if buffName == nil then
-                return nil
-            end
+            local _, _, _, _, _, _, _, _, _, buffSpellID = br._G.UnitBuff(unit, i, "player")
             if buffSpellID == spellID then
                 return true
             end
         end
+        return false
     end
     local soothingMistUnit
     for i = 1, #friends.all do
@@ -523,16 +530,33 @@ local function runRotation()
             return false
         end
         if ui.checked(text.extra.safeDetox) then
+            local function copyTable(datatable)
+                local tblRes = {}
+                if type(datatable) == "table" then
+                    for k, v in pairs(datatable) do
+                        tblRes[copyTable(k)] = copyTable(v)
+                    end
+                else
+                    tblRes = datatable
+                end
+                return tblRes
+            end
             local instanceID = br.getCurrentZoneId()
-            local debuffsIDs = mythicListDetox[instanceID]
-            if not debuffsIDs then
-                return false
+            local debuffsIDs = mythicListDetox[0]
+            if mythicListDetox[instanceID] then
+                for k, v in pairs(mythicListDetox[instanceID]) do
+                    debuffsIDs[k] = v
+                end
             end
-            for k, v in pairs(mythicListDetox[0]) do
-                debuffsIDs[k] = v
-            end
-            for i = 1, #friends.all do
-                local dispelUnit = friends.all[i]
+            local friendsCopy = copyTable(friends.all)
+            table.sort(
+                    friendsCopy,
+                    function(x, y)
+                        return x.hpmissing < y.hpmissing
+                    end
+            )
+            for i = 1, #friendsCopy do
+                local dispelUnit = friendsCopy[i]
                 for j = 1, #debuffsIDs do
                     local debuff = debuffsIDs[j]
                     if isValid(debuff, dispelUnit) then
@@ -582,25 +606,8 @@ local function runRotation()
     end
 
     local function AlwaysRotation()
-
-        --if cd.transcendenceTransfer.remains() >= 24 then
-        --
-        --end
-        --br._G.C_Timer.After(2, function()
-        --    cast.transcendence()
-        --end)
-        -- CDS
         if cd.lifeCocoon.ready() and getMissingHP(friends.lowest.unit) >= healingValues.lifeCocoon and unit.inCombat() and friends.lowest.hp <= 30 then
             return cast.lifeCocoon(friends.lowest.unit)
-        end
-        local revivalLimit = 1
-        if #friends.all == 5 then
-            revivalLimit = 3
-        elseif #friends.all > 5 then
-            revivalLimit = 8
-        end
-        if cd.revival.ready() and countMissingHPAllies(healingValues.revival * 2, friends.all) >= revivalLimit and unit.inCombat() then
-            return cast.revival()
         end
         if cast.active.essenceFont() then
             if #friends.all > 5 then
@@ -618,6 +625,15 @@ local function runRotation()
             end
         end
         if gcd <= 0.1 then
+            local revivalLimit = 1
+            if #friends.all == 5 then
+                revivalLimit = 3
+            elseif #friends.all > 5 then
+                revivalLimit = 8
+            end
+            if cd.revival.ready() and countMissingHPAllies(healingValues.revival * 2, friends.all) >= revivalLimit and unit.inCombat() then
+                return cast.revival()
+            end
             if not cast.active.vivify() and soothingMistUnit == nil and player.mana >= 35 and not cast.active.essenceFont() and cd.essenceFont.ready() and friends.lowest.hp >= 40 and buff.essenceFont.remains(friends.lowest.unit) <= 2 then
                 return cast.essenceFont(player.unit)
             end
@@ -669,8 +685,8 @@ local function runRotation()
             end
 
             if cd.touchOfDeath.ready() then
-                for i = 1, #enemies.yards5 do
-                    local thisUnit = enemies.yards5[i]
+                for i = 1, #enemies.yards5f do
+                    local thisUnit = enemies.yards5f[i]
                     if ToD(thisUnit) then
                         return true
                     end
@@ -722,83 +738,85 @@ local function runRotation()
 
     local DamageRotation = {
         ChiJiRotation = function()
-            if cd.envelopingMist.ready() then
-                if buff.invokeChiJiTheRedCrane.stack() == 3 or (totemInfo.chiJiDuration == 0 and buff.invokeChiJiTheRedCrane.stack() > 0 and not player.isMoving) then
-                    local theUnit
-                    for i = 1, #friends.all do
-                        local tempUnit = friends.all[i]
-                        if buff.envelopingMist.remains(tempUnit.unit) < 2 and theUnit == nil then
-                            theUnit = tempUnit
+            if gcd <= 0.1 then
+                if cd.envelopingMist.ready() then
+                    if buff.invokeChiJiTheRedCrane.stack() == 3 or (totemInfo.chiJiDuration == 0 and buff.invokeChiJiTheRedCrane.stack() > 0 and not player.isMoving) then
+                        local theUnit
+                        for i = 1, #friends.all do
+                            local tempUnit = friends.all[i]
+                            if buff.envelopingMist.remains(tempUnit.unit) < 2 and theUnit == nil then
+                                theUnit = tempUnit
+                            end
                         end
+                        if theUnit == nil then
+                            theUnit = friends.lowest
+                        end
+                        if cd.thunderFocusTea.ready() and
+                                getMissingHP(theUnit.unit) >=
+                                        calculateEnvelopingMistHealing(theUnit.unit) +
+                                                healingValues.envelopingMistThunderFocusTea then
+                            cast.thunderFocusTea(player.unit)
+                        end
+                        return cast.envelopingMist(theUnit.unit)
                     end
-                    if theUnit == nil then
-                        theUnit = friends.lowest.unit
-                    end
-                    if cd.thunderFocusTea.ready() and
-                            getMissingHP(theUnit.unit) >=
-                                    calculateEnvelopingMistHealing(theUnit.unit) +
-                                            calculateVivifyHealing(theUnit.unit) +
-                                            healingValues.envelopingMistThunderFocusTea then
+                end
+                -- essence font legendary?
+                if cd.risingSunKick.ready() then
+                    if cd.thunderFocusTea.ready() and unit.exists(mysticTouch.lowest) and unit.distance(mysticTouch.lowest) <= 5 then
                         cast.thunderFocusTea(player.unit)
                     end
-                    return cast.envelopingMist(theUnit.unit)
+                    return cast.risingSunKick(mysticTouch.lowest)
+                end
+
+                if cd.blackoutKick.ready() then
+                    if (buff.invokeChiJiTheRedCrane.stack() == 0 and buff.teachingsOfTheMonastery.stack() == 3) or
+                            (buff.invokeChiJiTheRedCrane.stack() == 0 and buff.teachingsOfTheMonastery.stack() == 2) or
+                            (buff.invokeChiJiTheRedCrane.stack() == 1 and buff.teachingsOfTheMonastery.stack() == 1) then
+                        return cast.blackoutKick(mysticTouch.lowest)
+                    end
+                end
+
+                if cd.spinningCraneKick.ready() and not cast.active.spinningCraneKick() and #enemies.yards8 - mysticTouch.count >= 3 then
+                    return cast.spinningCraneKick(player.unit)
+                end
+                if cd.tigerPalm.ready() and buff.teachingsOfTheMonastery.stack() < 3 then
+                    return cast.tigerPalm(mysticTouch.lowest)
+                end
+                if buff.invokeChiJiTheRedCrane.stack() < 3 then
+                    return cast.spinningCraneKick(player.unit)
                 end
             end
-            -- essence font legendary?
-            if cd.risingSunKick.ready() then
-                if cd.thunderFocusTea.ready() and unit.exists(mysticTouch.lowest) and unit.distance(mysticTouch.lowest) <= 5 then
-                    cast.thunderFocusTea(player.unit)
-                end
-                return cast.risingSunKick(mysticTouch.lowest)
-            end
-
-            if cd.blackoutKick.ready() then
-                if (buff.invokeChiJiTheRedCrane.stack() == 0 and buff.teachingsOfTheMonastery.stack() == 3) or
-                        (buff.invokeChiJiTheRedCrane.stack() == 0 and buff.teachingsOfTheMonastery.stack() == 2) or
-                        (buff.invokeChiJiTheRedCrane.stack() == 1 and buff.teachingsOfTheMonastery.stack() == 1) then
-                    return cast.blackoutKick(mysticTouch.lowest)
-                end
-            end
-
-            if cd.spinningCraneKick.ready() and not cast.active.spinningCraneKick() and #enemies.yards5 - mysticTouch.count >= 3 then
-                return cast.spinningCraneKick(player.unit)
-            end
-            if cd.tigerPalm.ready() and buff.teachingsOfTheMonastery.stack() < 3 then
-                return cast.tigerPalm(mysticTouch.lowest)
-            end
-            if buff.invokeChiJiTheRedCrane.stack() < 3 then
-                return cast.spinningCraneKick(player.unit)
-            end
-
             return false
         end,
         AncientTeachingsOfTheMonasteryRotation = function()
-            if (not buff.ancientTeachingOfTheMonastery.exists() or buff.ancientTeachingOfTheMonastery.remains() <= 3) and cd.essenceFont.ready() then
-                return cast.essenceFont(player.unit)
-            end
-            if cd.risingSunKick.ready() and getMissingHP(friends.lowest.unit) >= healingValues.risingSunKick then
-                if cd.thunderFocusTea.ready() then
-                    cast.thunderFocusTea(player.unit)
+            if gcd <= 0.1 then
+                if (not buff.ancientTeachingOfTheMonastery.exists() or buff.ancientTeachingOfTheMonastery.remains() <= 3) and cd.essenceFont.ready() then
+                    return cast.essenceFont(player.unit)
                 end
-                return cast.risingSunKick(mysticTouch.lowest)
-            end
-            if cd.blackoutKick.ready() then
-                if (buff.teachingsOfTheMonastery.stack() == 3 and getMissingHP(friends.lowest.unit) >= healingValues.blackoutKick * 4) or
-                        (buff.teachingsOfTheMonastery.stack() == 2 and getMissingHP(friends.lowest.unit) >= healingValues.blackoutKick * 3) or
-                        (buff.teachingsOfTheMonastery.stack() == 1 and getMissingHP(friends.lowest.unit) >= healingValues.blackoutKick * 2 and not talent.spiritOfTheCrane) or
-                        (buff.teachingsOfTheMonastery.stack() == 0 and getMissingHP(friends.lowest.unit) >= healingValues.blackoutKick * 1 and not talent.spiritOfTheCrane) then
-                    return cast.blackoutKick(mysticTouch.lowest)
+                if cd.risingSunKick.ready() and getMissingHP(friends.lowest.unit) >= healingValues.risingSunKick then
+                    if cd.thunderFocusTea.ready() then
+                        cast.thunderFocusTea(player.unit)
+                    end
+                    return cast.risingSunKick(mysticTouch.lowest)
                 end
-            end
-            if cd.spinningCraneKick.ready() and not cast.active.spinningCraneKick() and #enemies.yards5 - mysticTouch.count >= 3 then
-                return cast.spinningCraneKick(player.unit)
-            end
-            if cd.tigerPalm.ready() then
-                return cast.tigerPalm(mysticTouch.lowest)
+                if cd.blackoutKick.ready() then
+                    if (buff.teachingsOfTheMonastery.stack() == 3 and getMissingHP(friends.lowest.unit) >= healingValues.blackoutKick * 4) or
+                            (buff.teachingsOfTheMonastery.stack() == 2 and getMissingHP(friends.lowest.unit) >= healingValues.blackoutKick * 3) or
+                            (buff.teachingsOfTheMonastery.stack() == 1 and getMissingHP(friends.lowest.unit) >= healingValues.blackoutKick * 2 and not talent.spiritOfTheCrane) or
+                            (buff.teachingsOfTheMonastery.stack() == 0 and getMissingHP(friends.lowest.unit) >= healingValues.blackoutKick * 1 and not talent.spiritOfTheCrane) then
+                        return cast.blackoutKick(mysticTouch.lowest)
+                    end
+                end
+                if cd.spinningCraneKick.ready() and not cast.active.spinningCraneKick() and #enemies.yards8 - mysticTouch.count >= 3 then
+                    return cast.spinningCraneKick(player.unit)
+                end
+                if cd.tigerPalm.ready() then
+                    return cast.tigerPalm(mysticTouch.lowest)
+                end
             end
             return false
         end,
-        NormalRotation = function()
+        NormalRotationBackup = function()
             if cd.risingSunKick.ready() then
                 if cd.thunderFocusTea.ready() and unit.exists(mysticTouch.lowest) and unit.distance(mysticTouch.lowest) <= 5 then
                     cast.thunderFocusTea(player.unit)
@@ -812,7 +830,7 @@ local function runRotation()
                 end
             end
 
-            if #enemies.yards5 < 3 and #enemies.yards5 > 1 then
+            if #enemies.yards5f == 2 then
                 if cd.blackoutKick.ready() then
                     if (not talent.spiritOfTheCrane and buff.teachingsOfTheMonastery.stack() > 0) or (talent.spiritOfTheCrane and buff.teachingsOfTheMonastery.stack() == 3) then
                         return cast.blackoutKick(mysticTouch.lowest)
@@ -823,7 +841,7 @@ local function runRotation()
                 end
             end
 
-            if #enemies.yards5 == 1 then
+            if #enemies.yards5f == 1 then
                 if cd.blackoutKick.ready() then
                     if buff.teachingsOfTheMonastery.stack() == 3 then
                         return cast.blackoutKick(mysticTouch.lowest)
@@ -834,108 +852,216 @@ local function runRotation()
                 end
             end
             return false
+        end,
+        NormalRotation = function()
+            if gcd <= 0.1 then
+                if cd.risingSunKick.ready() then
+                    if cd.thunderFocusTea.ready() and unit.exists(mysticTouch.lowest) and unit.distance(mysticTouch.lowest) <= 5 then
+                        cast.thunderFocusTea(player.unit)
+                    end
+                    return cast.risingSunKick(mysticTouch.lowest)
+                end
+                if cd.spinningCraneKick.ready() and not cast.active.spinningCraneKick() and #enemies.yards8 - mysticTouch.count >= 3 then
+                    return cast.spinningCraneKick(player.unit)
+                end
+                if not talent.spiritOfTheCrane or (talent.spiritOfTheCrane and buff.teachingsOfTheMonastery.stack() == 3) then
+                    if cd.blackoutKick.ready() then
+                        return cast.blackoutKick(mysticTouch.lowest)
+                    end
+                end
+
+                if #enemies.yards8 >= 3 and (not talent.spiritOfTheCrane or (talent.spiritOfTheCrane and player.mana >= 75)) then
+                    if cd.spinningCraneKick.ready() and not cast.active.spinningCraneKick() then
+                        return cast.spinningCraneKick(player.unit)
+                    end
+                else
+                    if cd.tigerPalm.ready() then
+                        return cast.tigerPalm(mysticTouch.lowest)
+                    end
+                end
+            end
+            return false
         end
     }
 
     local function TeleportRotation()
-        if not buff.transcendence.exists() then
-            return cast.transcendence()
-        end
-        local usable, _ = IsUsableSpell(spell.transcendenceTransfer)
-        if usable and cd.transcendenceTransfer.ready() then
-            return cast.transcendenceTransfer(player.unit)
+        if gcd <= 0.1 then
+            if not buff.transcendence.exists() then
+                return cast.transcendence()
+            end
+            local usable, _ = IsUsableSpell(spell.transcendenceTransfer)
+            if usable and cd.transcendenceTransfer.ready() then
+                return cast.transcendenceTransfer(player.unit)
+            end
         end
         return false
     end
 
     local function HealRotation()
-        -- AOE
-        if not cast.active.vivify() then
-            local countUnitsWithRenewingMistUnderHealth = 0
-            for i = 1, #friends.all do
-                local tempUnit = friends.all[i]
-                if buff.renewingMist.exists(tempUnit.unit) and getMissingHP(tempUnit.unit) >= calculateVivifyRenewingMistHealing(tempUnit.unit) then
+        if gcd <= 0.1 then
+            -- AOE
+            if not cast.active.vivify() then
+                local countUnitsWithRenewingMistUnderHealth = 0
+                for i = 1, #friends.all do
+                    local tempUnit = friends.all[i]
+                    if buff.renewingMist.exists(tempUnit.unit) and getMissingHP(tempUnit.unit) >= calculateVivifyRenewingMistHealing(tempUnit.unit) then
+                        countUnitsWithRenewingMistUnderHealth = countUnitsWithRenewingMistUnderHealth + 1
+                    end
+                end
+                if not buff.renewingMist.exists(friends.lowest.unit) then
                     countUnitsWithRenewingMistUnderHealth = countUnitsWithRenewingMistUnderHealth + 1
                 end
-            end
-            if not buff.renewingMist.exists(friends.lowest.unit) then
-                countUnitsWithRenewingMistUnderHealth = countUnitsWithRenewingMistUnderHealth + 1
-            end
-            if countUnitsWithRenewingMistUnderHealth >= 2 then
-                if soothingMistUnit == nil then
-                    if getMissingHP(friends.lowest.unit) >=
-                            calculateVivifyHealing(friends.lowest.unit) * 2 +
-                                    calculateSoothingMistHealing(friends.lowest.unit) * 2 then
-                        if player.mana <= 75 and talent.manaTea then
-                            cast.manaTea(player.unit)
-                        end
-                        --print("Casting Soothing Mist AOE")
-                        return cast.soothingMist(friends.lowest.unit)
-                    end
-                else
-                    if not buff.renewingMist.exists(soothingMistUnit) and buff.envelopingMist.remains(soothingMistUnit) < 2 then
-                        local totalHeal = calculateSoothingMistHealing(soothingMistUnit) * 2 +
-                                calculateEnvelopingMistHealing(soothingMistUnit) +
-                                calculateVivifyHealing(soothingMistUnit)
-                        if getMissingHP(soothingMistUnit) >= totalHeal then
-                            --print("Enveloping Mist AOE Soothing Mist")
-                            if cd.thunderFocusTea.ready() and getMissingHP(soothingMistUnit) >= totalHeal + healingValues.envelopingMistThunderFocusTea then
-                                cast.thunderFocusTea(player.unit)
+                if countUnitsWithRenewingMistUnderHealth >= 2 then
+                    if soothingMistUnit == nil then
+                        if getMissingHP(friends.lowest.unit) >=
+                                calculateVivifyHealing(friends.lowest.unit) * 2 +
+                                        calculateSoothingMistHealing(friends.lowest.unit) * 2 then
+                            if player.mana <= 75 and talent.manaTea then
+                                cast.manaTea(player.unit)
                             end
-                            return cast.envelopingMist(soothingMistUnit)
+                            --print("Casting Soothing Mist AOE")
+                            return cast.soothingMist(friends.lowest.unit)
+                        end
+                    else
+                        if buff.envelopingMist.remains(soothingMistUnit) < 2 then
+                            local totalHeal = calculateSoothingMistHealing(soothingMistUnit) * 2 +
+                                    calculateEnvelopingMistHealing(soothingMistUnit) * 2 +
+                                    calculateVivifyHealing(soothingMistUnit, true)
+                            if getMissingHP(soothingMistUnit) >= totalHeal then
+                                --print("Enveloping Mist AOE Soothing Mist")
+                                if cd.thunderFocusTea.ready() and getMissingHP(soothingMistUnit) >= totalHeal + healingValues.envelopingMistThunderFocusTea then
+                                    cast.thunderFocusTea(player.unit)
+                                end
+                                return cast.envelopingMist(soothingMistUnit)
+                            end
+                        end
+                        if getMissingHP(soothingMistUnit) >= calculateSoothingMistHealing(soothingMistUnit) +
+                                calculateVivifyHealing(soothingMistUnit) then
+                            --print("Vivify AOE Soothing Mist")
+                            return cast.vivify(soothingMistUnit)
                         end
                     end
-                    if getMissingHP(soothingMistUnit) >= calculateSoothingMistHealing(soothingMistUnit) +
-                            calculateVivifyHealing(soothingMistUnit) then
-                        --print("Vivify AOE Soothing Mist")
-                        return cast.vivify(soothingMistUnit)
-                    end
                 end
             end
-        end
 
-        -- ST
-        if soothingMistUnit ~= nil and soothingMistUnit ~= friends.lowest.unit and
-                (unit.hp(soothingMistUnit) >= 75 or unit.hp(soothingMistUnit) - friends.lowest.hp >= 25) then
-            br._G.SpellStopCasting()
-        end
-        --local gustOfMist = healingValues.gustOfMist
-        --if buff.essenceFont.exists(friends.lowest.unit) then
-        --    gustOfMist = healingValues.gustOfMist * 2
-        --end
-        if not cast.active.vivify() and soothingMistUnit == nil and
-                getMissingHP(friends.lowest.unit) >=
-                        calculateSoothingMistHealing(friends.lowest.unit) * 2 +
-                                calculateEnvelopingMistHealing(friends.lowest.unit) +
-                                calculateVivifyHealing(friends.lowest.unit) then
-            --print("Casting Soothing Mist ST")
-            if player.mana <= 75 and talent.manaTea then
-                cast.manaTea(player.unit)
+            -- ST
+            if soothingMistUnit ~= nil and soothingMistUnit ~= friends.lowest.unit and
+                    (unit.hp(soothingMistUnit) >= 75 or unit.hp(soothingMistUnit) - friends.lowest.hp >= 25) then
+                br._G.SpellStopCasting()
             end
-            return cast.soothingMist(friends.lowest.unit)
-        end
-        if soothingMistUnit ~= nil then
-            if buff.envelopingMist.remains(soothingMistUnit) < 2 then
-                local totalHeal = calculateSoothingMistHealing(soothingMistUnit) + calculateEnvelopingMistHealing(soothingMistUnit) + calculateVivifyHealing(soothingMistUnit)
-                if getMissingHP(soothingMistUnit) >= totalHeal then
-                    --print("Enveloping Mist ST Soothing Mist")
-                    if cd.thunderFocusTea.ready() and getMissingHP(soothingMistUnit) >= totalHeal + healingValues.envelopingMistThunderFocusTea then
-                        cast.thunderFocusTea(player.unit)
+            if not cast.active.vivify() and soothingMistUnit == nil and
+                    getMissingHP(friends.lowest.unit) >=
+                            calculateSoothingMistHealing(friends.lowest.unit) * 2 +
+                                    calculateEnvelopingMistHealing(friends.lowest.unit) * 2 +
+                                    calculateVivifyHealing(friends.lowest.unit, true) then
+                if player.mana <= 75 and talent.manaTea then
+                    cast.manaTea(player.unit)
+                end
+                --print("Casting Soothing Mist ST")
+                return cast.soothingMist(friends.lowest.unit)
+            end
+            if soothingMistUnit ~= nil then
+                if buff.envelopingMist.remains(soothingMistUnit) < 2 then
+                    local totalHeal = calculateSoothingMistHealing(soothingMistUnit) + calculateEnvelopingMistHealing(soothingMistUnit) * 2 + calculateVivifyHealing(soothingMistUnit, true)
+                    if getMissingHP(soothingMistUnit) >= totalHeal then
+                        --print("Enveloping Mist ST Soothing Mist")
+                        if cd.thunderFocusTea.ready() and getMissingHP(soothingMistUnit) >= totalHeal + healingValues.envelopingMistThunderFocusTea then
+                            cast.thunderFocusTea(player.unit)
+                        end
+                        return cast.envelopingMist(soothingMistUnit)
                     end
-                    return cast.envelopingMist(soothingMistUnit)
+                end
+                if getMissingHP(soothingMistUnit) >= calculateSoothingMistHealing(soothingMistUnit) + calculateVivifyHealing(soothingMistUnit) then
+                    --print("Vivify ST Soothing Mist")
+                    return cast.vivify(soothingMistUnit)
                 end
             end
-            if getMissingHP(soothingMistUnit) >= calculateSoothingMistHealing(soothingMistUnit) + calculateVivifyHealing(soothingMistUnit) then
-                --print("Vivify ST Soothing Mist")
-                return cast.vivify(soothingMistUnit)
+            if soothingMistUnit == nil and not cast.active.vivify() and
+                    getMissingHP(friends.lowest.unit) >= calculateVivifyHealing(friends.lowest.unit) then
+                --print("Vivify ST")
+                return cast.vivify(friends.lowest.unit)
             end
-        end
-        if soothingMistUnit == nil and not cast.active.vivify() and
-                getMissingHP(friends.lowest.unit) >= calculateVivifyHealing(friends.lowest.unit) then
-            --print("Vivify ST")
-            return cast.vivify(friends.lowest.unit)
         end
         return false
+    end
+
+    local function RaidRotation()
+        if gcd <= 0.1 then
+            if br.player.eID == 2402 or br.player.eID == nil then
+                local target
+                local HealingTrainer = 174269
+                local KaelthasSunstrider = 165759
+                local RippedSoul = 171577
+                local PiercedSoul = 173112
+                local EssenceFont = 165778
+                for i = 1, br._G.GetObjectCount() do
+                    local thisUnit = br._G.GetObjectWithIndex(i)
+                    local ID = br._G.ObjectID(thisUnit)
+                    if ID == HealingTrainer or ID == KaelthasSunstrider or ID == RippedSoul or ID == PiercedSoul or ID == EssenceFont then
+                        target = thisUnit
+                    end
+                end
+                if target then
+                    local targetID = br._G.ObjectID(target)
+                    if br.shadeUp and targetID == KaelthasSunstrider then
+                        return false
+                    end
+                    if cast.active.essenceFont() and buff.essenceFont.remains(target) <= 2 then
+                        return false
+                    end
+                    if isAuraActive(target, 115175) then
+                        soothingMistUnit = target
+                    end
+                    br._G.TargetUnit(target)
+                    if unit.casting(spell.vivify) or unit.casting(spell.envelopingMist) then
+                        br._G.SpellStopCasting()
+                    end
+                    if soothingMistUnit == nil then
+                        if cd.weaponsOfOrder.ready() and (targetID == HealingTrainer or targetID == KaelthasSunstrider) then
+                            return cast.weaponsOfOrder(player.unit)
+                        end
+                        --trinkets
+                        if targetID == HealingTrainer or targetID == KaelthasSunstrider then
+                            br.useItem(13)
+                            br.useItem(14)
+                            if br.canUseItem(171273) and targetID == KaelthasSunstrider then
+                                br.useItem(171273)
+                            end
+                        end
+                        if charges.renewingMist.exists() and cd.renewingMist.ready() and buff.renewingMist.remains(target) <= 2 then
+                            if cd.thunderFocusTea.ready() then
+                                cast.thunderFocusTea(player.unit)
+                            end
+                            return cast.renewingMist(target)
+                        end
+                        if not cast.active.essenceFont() and cd.essenceFont.ready() and buff.essenceFont.remains(target) <= 2 then
+                            return cast.essenceFont(player.unit)
+                        end
+                        if cd.lifeCocoon.ready() and getMissingHP(target) >= healingValues.lifeCocoon and (targetID == HealingTrainer or targetID == KaelthasSunstrider) then
+                            return cast.lifeCocoon(target)
+                        end
+                        if cd.invokeYulonTheJadeSerpent.ready() and (targetID == HealingTrainer or targetID == KaelthasSunstrider) then
+                            return cast.invokeYulonTheJadeSerpent(player.unit)
+                        end
+                        if cd.manaTea.ready() then
+                            return cast.manaTea(player.unit)
+                        end
+                        return cast.soothingMist(target)
+                    else
+                        local envHealing = calculateEnvelopingMistHealing(target) * 2 + calculateVivifyHealing(target, true)
+                        if buff.envelopingMist.remains(target) < 2 and getMissingHP(target) >= envHealing then
+                            if cd.thunderFocusTea.ready() and getMissingHP(target) >= envHealing + healingValues.envelopingMistThunderFocusTea then
+                                cast.thunderFocusTea(player.unit)
+                            end
+                            return cast.envelopingMist(target)
+                        end
+                        if getMissingHP(target) >= calculateVivifyHealing(target) then
+                            return cast.vivify(target)
+                        end
+                    end
+                end
+            end
+        end
     end
 
     local function localToggle(toggleValue, newValue)
@@ -1009,6 +1135,15 @@ local function runRotation()
         --br._G.RunMacroText("/br toggle Teleporting 2")
     end
 
+    if ui.toggle(text.keys.raid) then
+        localToggle("Raiding", "1")
+        --br._G.RunMacroText("/br toggle Teleporting 1")
+        return RaidRotation()
+    else
+        localToggle("Raiding", "2")
+        --br._G.RunMacroText("/br toggle Teleporting 2")
+    end
+
     if ui.checked("Auto Summon Steward") and not unit.inCombat() and not has.phialOfSerenity() and cast.able.summonSteward() then
         return cast.summonSteward()
     end
@@ -1021,6 +1156,8 @@ br._G.CreateFrame("Frame"):SetScript(
             if br.player then
                 if br.player.ui.checked(text.draw.update) and br.timer:useTimer("Draw", br.player.ui.value(text.draw.update)) then
                     LibDraw.clearCanvas()
+                    LibDraw.SetWidth(1)
+                    --transcendence
                     if br.UnitBuffID("player", 101643, "player") ~= nil then
                         local pX, pY, pZ = br._G.ObjectPosition("player")
                         if transcendence and transcendence.x and transcendence.y and transcendence.z then
@@ -1033,12 +1170,28 @@ br._G.CreateFrame("Frame"):SetScript(
                             LibDraw.Line(pX, pY, pZ, transcendence.x, transcendence.y, transcendence.z)
                         end
                     end
-
+                    --target back
                     if br.GetObjectExists("target") then
                         local X1, Y1, Z1 = br._G.ObjectPosition("target")
                         if X1 and Y1 and Z1 then
                             LibDraw.SetColor(235, 64, 52, 100)
                             LibDraw.Arc(X1, Y1, Z1, 5, 160, br._G.ObjectFacing("target") + math.pi)
+                        end
+                    end
+                    --friend
+                    if br.player.ui.checked(text.draw.friends) then
+                        for i = 1, #br.friend do
+                            local tempUnit = br.friend[i]
+                            local x, y, z = br._G.ObjectPosition(tempUnit.unit)
+                            if tempUnit.hp > 75 then
+                                LibDraw.SetColor(101, 235, 52, 100)
+                            elseif tempUnit.hp > 25 then
+                                LibDraw.SetColor(235, 186, 52, 100)
+                            else
+                                LibDraw.SetColor(235, 64, 52, 100)
+                            end
+                            LibDraw.SetWidth(2)
+                            LibDraw.Circle(x, y, z, 1)
                         end
                     end
                 end
