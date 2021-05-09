@@ -1978,7 +1978,7 @@ br.lists.spells = {
                 essenceFont                 = 191840,
                 risingMist                  = 22170,
                 soothingMistJadeStatue      = 198533,
-                envelopingBreath            = 3205209,
+                envelopingBreath            = 325209,
                 invokeChiJiTheRedCrane      = 343820,
                 ancientTeachingOfTheMonastery = 347553
             },
@@ -2109,6 +2109,7 @@ br.lists.spells = {
                 transcendence               = 101643,
                 weaponsOfOrder              = 328908, --310454,
                 weaponsOfOrderWW            = 310454, --311054,
+                prideful                    = 340880,
             },
             conduits                        = {
                 calculatedStrikes           = 336526
