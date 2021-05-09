@@ -104,11 +104,11 @@ function unlock.MBUnlock()
 
     b.GetObjectCount = wmbapi.GetObjectCount
 
-    b.GetNewObjects = function()
-        local added, removed = {}, {}
-        added, removed = select(3, wmbapi.GetObjectCount()), select(4, wmbapi.GetObjectCount())
-        return added, removed
-    end
+    -- b.GetNewObjects = function()
+    --     local added, removed = {}, {}
+    --     added, removed = select(3, wmbapi.GetObjectCount()), select(4, wmbapi.GetObjectCount())
+    --     return added, removed
+    -- end
 
     b.GetNpcCount = wmbapi.GetNpcCount
     b.GetPlayerCount = wmbapi.GetPlayerCount
