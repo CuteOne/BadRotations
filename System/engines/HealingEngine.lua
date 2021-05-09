@@ -168,6 +168,19 @@ if not br.metaTable1 then
 					end
 				end
 			end
+			if br.player.eID == 2407 then
+				local targetBuff = 0
+				local playerBuff = 0
+				if UnitDebuffID(o.unit, 340687) then
+					targetBuff = 1
+				end
+				if UnitDebuffID("player", 340687) then
+					playerBuff = 1
+				end
+				if playerBuff ~= targetBuff then
+					return 250, 250, 250
+				end
+			end
 			if br.player.eID == 2343 then
 				local targetBuff = 0
 				local playerBuff = 0
