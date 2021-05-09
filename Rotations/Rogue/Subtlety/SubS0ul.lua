@@ -751,7 +751,7 @@ local function runRotation()
                         )
                     end
                     for i = 1, #spikeList do
-                        if not debuff.serratedBoneSpikeDot.exists(spikeList[i]) then
+                        if br.isSafeToAttack(spikeList[i]) and (not debuff.serratedBoneSpikeDot.exists(spikeList[i]) or charges.serratedBoneSpike.frac() >= 2.75) then
                             if cast.serratedBoneSpike(spikeList[i]) then
                                 return true
                             end
