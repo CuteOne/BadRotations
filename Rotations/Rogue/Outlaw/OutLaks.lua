@@ -855,7 +855,7 @@ actionList.dps = function()
         dps_key()
     end
 
-    if (stealth or lastSpellCast == spell.vanish) and (ambush_flag or mode.ambush == 1 or runeforge.markOfTheMasterAssassin.equiped) then
+    if (stealth or lastSpellCast == spell.vanish) and (ambush_flag or mode.ambush == 1 or runeforge.markOfTheMasterAssassin.equiped or runeforge.deathlyShadows.equiped) then
         if actionList.Stealth() then
             return true
         end
@@ -998,6 +998,12 @@ actionList.dps = function()
             end
         else
             if not stealth and not should_pool and not cast.last.vanish(1) and not cast.able.ambush(dynamic_target_melee) then
+
+                if cast.able.dispatch(dynamic_target_melee) and buff.deathlyShadows.exists() and not br.isExplosive(dynamic_target_melee) and br.getDistance(dynamic_target_melee) <= dynamic_range and br.getFacing("player", dynamic_target_melee) then
+                    if cast.dispatch(dynamic_target_melee) then
+                          return true
+                    end
+                end
 
                 if mode.ambush == 1 and cast.able.ambush(dynamic_target_melee) then
                     if cast.ambush(dynamic_target_melee) then
