@@ -425,7 +425,7 @@ actionList.TrickShots = function()
     end
     -- Volley
     -- volley,if=buff.resonating_arrow.up|!covenant.kyrian|talent.lethal_shots
-    if ui.alwaysCdAoENever("Volley",3,#enemies.yards8t) and cast.able.volley() and ui.mode.volley == 1 and ui.checked("Volley Units") and #enemies.yards8t >= ui.value("Volley Units")
+    if ui.alwaysCdAoENever("Volley",ui.value("Volley Units"),#enemies.yards8t) and cast.able.volley("best",nil,ui.value("Volley Units"),8) and ui.mode.volley == 1 and ui.checked("Volley Units") and #enemies.yards8t >= ui.value("Volley Units")
         and (buff.resonatingArrow.exists() or not covenant.kyrian.active or talent.lethalShots or (covenant.kyrian.active and not ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards12t)))
     then
         if cast.volley("best",nil,ui.value("Volley Units"),8) then ui.debug("Casting Volley [Trick Shots]") return true end
@@ -472,11 +472,11 @@ actionList.TrickShots = function()
     end
     -- Multishot
     -- multishot,if=buff.trick_shots.down|buff.precise_shots.up&focus>cost+action.aimed_shot.cost&(!talent.chimaera_shot|active_enemies>3)
-    if cast.able.multishot() and (not buff.trickShots.exists() or buff.preciseShots.exists()
+    if cast.able.multishot(units.dyn40,"aoe",1,10) and (not buff.trickShots.exists() or buff.preciseShots.exists()
         and power.focus.amount() > cast.cost.multishot() + cast.cost.aimedShot() and (not talent.chimaeraShot or #enemies.yards10t > 3))
         and #enemies.yards10t > 0
     then
-        if cast.multishot() then ui.debug("Casting Multishot [Trick Shots]") return true end
+        if cast.multishot(units.dyn40,"aoe",1,10) then ui.debug("Casting Multishot [Trick Shots]") return true end
     end
     -- Chimaera Shot
     -- chimaera_shot,if=buff.precise_shots.up&focus>cost+action.aimed_shot.cost&active_enemies<4
@@ -505,8 +505,8 @@ actionList.TrickShots = function()
     end
     -- Multishot
     -- multishot,if=focus>cost+action.aimed_shot.cost
-    if cast.able.multishot() and power.focus.amount() > cast.cost.multishot() + cast.cost.aimedShot() and #enemies.yards10t > 0 then
-        if cast.multishot() then ui.debug("Casting Multishot [Trick Shots]") return true end
+    if cast.able.multishot(units.dyn40,"aoe",1,10) and power.focus.amount() > cast.cost.multishot() + cast.cost.aimedShot() and #enemies.yards10t > 0 then
+        if cast.multishot(units.dyn40,"aoe",1,10) then ui.debug("Casting Multishot [Trick Shots]") return true end
     end
     -- Steady Shot
     -- steady_shot
@@ -583,7 +583,7 @@ actionList.SingleTarget = function()
     end
     -- Volley
     -- volley,if=(buff.resonating_arrow.up|!covenant.kyrian|talent.lethal_shots)&(buff.precise_shots.down|!talent.chimaera_shot|active_enemies<2)
-    if ui.alwaysCdAoENever("Volley",3,#enemies.yards8t) and cast.able.volley() and ui.mode.volley == 1 and ui.checked("Volley Units")
+    if ui.alwaysCdAoENever("Volley",ui.value("Volley Units"),#enemies.yards8t) and cast.able.volley("best",nil,ui.value("Volley Units"),8) and ui.mode.volley == 1 and ui.checked("Volley Units")
         and (buff.resonatingArrow.exists() or not covenant.kyrian.active or talent.leathalShots or (covenant.kyrian.active and not ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards12t)))
         and (not buff.preciseShots.exists() or not talent.chimaeraShot or #enemies.yards8t < 2) and (#enemies.yards8t >= ui.value("Volley Units"))
     then
