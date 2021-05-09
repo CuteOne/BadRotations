@@ -1036,6 +1036,10 @@ br.lists.spells = {
                 wildGrowth                  = 48438,
                 wrath                       = 5176,
             },
+            animas                          = {
+                lycarasBargin               = 329960,
+                lycarasTwig                 = 330666,
+            },
             artifacts                       = {
 
             },
@@ -1054,6 +1058,7 @@ br.lists.spells = {
                 kindredSpiritsBuff          = 326967, --This is buff on ourselves...at least as dps
                 kindredEmpowermentEnergize  = 327022, --/kindred-empowerment  this is when someone else cast it on you
                 loneSpirit                  = 338041,
+                lycarasTwig                 = 330668, -- Anima Power Torghast
                 moonkinForm                 = 197625,
                 prowl                       = 5215,
                 rejuvenation                = 774,
@@ -1086,6 +1091,7 @@ br.lists.spells = {
                 entanglingRoots             = 339,
                 growl                       = 6795,
                 hibernate                   = 2637,
+                lycarasBargin               = 329961,
                 moonfire                    = 8921,
                 rake                        = 155722,
                 rip                         = 1079,

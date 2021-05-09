@@ -181,6 +181,7 @@ end
 --- Locals ---
 --------------
 -- BR API Locals
+local anima
 local buff
 local cast
 local cd
@@ -431,6 +432,24 @@ actionList.Extras = function()
         if ui.alwaysCdNever("Covenant Ability") and var.kindredSpirit ~= nil and cast.able.kindredSpirits(var.kindredSpirit) then
             if (#br.friend > 1 and not buff.kindredSpirits.exists(var.kindredSpirit)) or (#br.friend == 1 and not buff.loneSpirit.exists()) then
                 if cast.kindredSpirits(var.kindredSpirit) then ui.debug("Casting Kindred Spirits on "..unit.name(var.kindredSpirit).." [Kyrian]") return true end
+            end
+        end
+        -- Lycara's Bargin - Torghast Anima Power
+        if anima.lycarasBargin.exists() and debuff.lycarasBargin.stack("player") > 50 then
+            if unit.form() ~= 0 then
+                unit.cancelForm()
+                ui.debug("Cancel Form [Lycara's Bargin]")
+            elseif unit.form() == 0 then
+                if cast.catForm("player") then ui.debug("Casting Cat From [Lycara's Bargin]") return true end
+            end
+        end
+        -- Lycara's Twig - Torghast Anima Power
+        if anima.lycarasTwig.exists() and not buff.lycarasTwig.exists() and not buff.prowl.exists() and not unit.inCombat() and ui.useCDs() and unit.distance("target") < 60 then
+            if unit.form() ~= 0 then
+                unit.cancelForm()
+                ui.debug("Cancel Form [Lycara's Twig]")
+            elseif unit.form() == 0 then
+                if cast.catForm("player") then ui.debug("Casting Cat From [Lycara's Twig]") return true end
             end
         end
     end -- End Shapeshift Form Management
@@ -928,7 +947,7 @@ actionList.Finisher = function()
     if usePrimalWrath() and range.dyn8AOE --and (not var.noDoT or #enemies.yards8 > 1)
         and ((ticksGain.rip > 3 * (#enemies.yards8 + 1) and #enemies.yards8 > 1) or #enemies.yards8 > (3 + var.sabertooth))
     then
-        if cast.primalWrath(nil,"aoe",1,8) then ui.debug("Casting Primal Wrath [Finish]") return true end
+        if cast.primalWrath("player","aoe",1,8) then ui.debug("Casting Primal Wrath [Finish]") return true end
     end
     -- Rip
     -- rip,target_if=refreshable&druid.rip.ticks_gained_on_refresh>variable.rip_ticks&((buff.tigers_fury.up|cooldown.tigers_fury.remains>5)&(buff.bloodtalons.up|!talent.bloodtalons.enabled)&dot.rip.pmultiplier<=persistent_multiplier|!talent.sabertooth.enabled)
@@ -1290,6 +1309,7 @@ local function runRotation()
     --------------
     -- BR API
     if comboPoints == nil then
+        anima           = br.player.anima
         buff            = br.player.buff
         cast            = br.player.cast
         cd              = br.player.cd
