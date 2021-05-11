@@ -195,19 +195,19 @@ f:SetScript(
 		end
 	end
 )
-local petAbilityTooltipID = false
-local orig_SharedPetBattleAbilityTooltip_SetAbility = br.SharedPetBattleAbilityTooltip_SetAbility
-function br.SharedPetBattleAbilityTooltip_SetAbility(self, abilityInfo, additionalText)
-	orig_SharedPetBattleAbilityTooltip_SetAbility(self, abilityInfo, additionalText)
-	petAbilityTooltipID = abilityInfo:GetAbilityID()
-end
-br._G.PetBattlePrimaryAbilityTooltip:HookScript(
-	"OnShow",
-	function(self)
-		local name = self.Name:GetText()
-		self.Name:SetText(name .. " (ID: " .. petAbilityTooltipID .. ")")
-	end
-)
+-- local petAbilityTooltipID = false
+-- local orig_SharedPetBattleAbilityTooltip_SetAbility = br._G.SharedPetBattleAbilityTooltip_SetAbility
+-- function br.SharedPetBattleAbilityTooltip_SetAbility(self, abilityInfo, additionalText)
+-- 	orig_SharedPetBattleAbilityTooltip_SetAbility(self, abilityInfo, additionalText)
+-- 	petAbilityTooltipID = abilityInfo:GetAbilityID()
+-- end
+-- br._G.PetBattlePrimaryAbilityTooltip:HookScript(
+-- 	"OnShow",
+-- 	function(self)
+-- 		local name = self.Name:GetText()
+-- 		self.Name:SetText(name .. " (ID: " .. petAbilityTooltipID .. ")")
+-- 	end
+-- )
 ------------------------------------------------------------------------------------------------------------------------
 -- LibStub
 -- $Id: LibStub.lua 76 2007-09-03 01:50:17Z mikk $
