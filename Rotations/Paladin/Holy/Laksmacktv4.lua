@@ -137,6 +137,9 @@ local function createOptions()
         br.ui:createSpinner(section, "Aura Mastery Targets", 3, 0, 40, 1, "", "Minimum Aura Mastery Targets", true)
         br.ui:createSpinner(section, "Holy Avenger", 60, 0, 100, 5, "", "Health Percent to Cast At")
         br.ui:createSpinner(section, "Holy Avenger Targets", 3, 0, 40, 1, "", "Minimum Holy Avenger Targets", true)
+        br.ui:createSpinner(section, "Avenging Wrath", 60, 0, 100, 5, "", "Health Percent to Cast At")
+        br.ui:createSpinner(section, "Avenging Wrath Targets Targets", 3, 0, 40, 1, "", "Minimum Holy Avenger Targets", true)
+
         -- Seraphim
         br.ui:createSpinner(section, "Seraphim", 0, 0, 20, 2, "|cffFFFFFFEnemy TTD")
 
@@ -1596,7 +1599,7 @@ actionList.Cooldown = function()
     end
     -- Light's Judgment
     if ui.checked("Light's Judgment") and br.player.race == "LightforgedDraenei" and br.getSpellCD(255647) == 0 then
-        if #enemies.yards40 >= ui.checked("Light's Judgment") then
+        if #enemies.yards40 >= ui.value("Light's Judgment") then
             if cast.lightsJudgment(br.getBiggestUnitCluster(40, 5)) then
                 return true
             end
