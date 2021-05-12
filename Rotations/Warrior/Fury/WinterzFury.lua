@@ -719,7 +719,7 @@ local function runRotation()
             end
         end
         -- Spear of Bastion
-           if ((buff.enrage.exists() and #enemies.yards12 >= ui.value("Spear of Bastion Units")) or br.isBoss("target")) and not moving and br.player.covenant.kyrian.active then
+           if ((buff.enrage.exists() and br.isChecked("Spear of Bastion Units") and #enemies.yards12 >= ui.value("Spear of Bastion Units")) or br.isBoss("target")) and not moving and br.player.covenant.kyrian.active then
                 if br.createCastFunction("best", false, br.getValue("Spear of Bastion Units"), 8, spell.spearOfBastion, nil, true) then
                     br.addonDebug("[COV] Spear of Bastion")
                     return true
