@@ -138,7 +138,7 @@ local function createOptions()
         br.ui:createSpinner(section, "Holy Avenger", 60, 0, 100, 5, "", "Health Percent to Cast At")
         br.ui:createSpinner(section, "Holy Avenger Targets", 3, 0, 40, 1, "", "Minimum Holy Avenger Targets", true)
         br.ui:createSpinner(section, "Avenging Wrath", 60, 0, 100, 5, "", "Health Percent to Cast At")
-        br.ui:createSpinner(section, "Avenging Wrath Targets Targets", 3, 0, 40, 1, "", "Minimum Holy Avenger Targets", true)
+        br.ui:createSpinner(section, "Avenging Wrath Targets", 3, 0, 40, 1, "", "Minimum Holy Avenger Targets", true)
 
         -- Seraphim
         br.ui:createSpinner(section, "Seraphim", 0, 0, 20, 2, "|cffFFFFFFEnemy TTD")
@@ -932,7 +932,7 @@ actionList.ooc = function()
         end
     end
 
-    if ui.checked("Auto Drink") and br.getMana("player") <= br.getOptionValue("Auto Drink") and not moving and br.getDebuffStacks("player", 240443) == 0 and br.getDebuffStacks("player", 240443) == 0 then
+    if ui.checked("Auto Drink") and br.getMana("player") <= br.getOptionValue("Auto Drink") and not moving and br.getDebuffStacks("player", 240443) == 0 and br.getDebuffStacks("player", 226510) == 0 then
         --240443 == bursting
         -- 226510 == sanguine
         --drink list
@@ -2480,6 +2480,12 @@ local function runRotation()
                 end
                 if actionList.ooc() then
                     return true
+                end
+                if talent.glimmerOfLight and (mode.glimmer == 1 or mode.glimmer == 3) and cd.holyShock.ready() then
+                    -- and glimmerCount <= 8
+                    if actionList.glimmer() then
+                        return true
+                    end
                 end
             else
                 --Print("In Combat")
