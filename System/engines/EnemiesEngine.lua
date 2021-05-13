@@ -325,7 +325,7 @@ if not br.metaTable2 then
 					-- this delay is extremely important as the unit updates are a major source of FPS loss for BR
 					-- for non-raids, this code will spread out unit updates so that everything gets updated every update
 					-- for raids, only half of units will be updated per BR update
-					local delay = ((math.random() * 0.25)  + 0.75) * br.getUpdateRate()
+					local delay = ((math.random() * 0.25)  + 0.75) * br:getUpdateRate()
 					if IsInRaid() then
 						delay = delay * 2.00
 					end
