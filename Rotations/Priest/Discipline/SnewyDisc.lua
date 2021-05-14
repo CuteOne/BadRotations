@@ -465,7 +465,7 @@ end -- End Action List - Cooldown
 actionList.Healing = function()
     if ui.checked("Atonement Ramp DBM") then
         for i = 1, #encounterSpellIDs do
-            if br.DBM:getTimer(nil, encounterSpellIDs[i]) < 5 then
+            if br.DBM:getTimer(encounterSpellIDs[i]) < 5 then
                 for j = 1, #friends do
                     thisUnit = friends[j].unit
                     if not buff.atonement.exists(thisUnit) then
@@ -479,7 +479,7 @@ actionList.Healing = function()
             end
         end
         for i = 1, #tankEncountSpellIDs do
-            if br.DBM:getTimer(nil, tankEncountSpellIDs[i]) < 3 then
+            if br.DBM:getTimer(tankEncountSpellIDs[i]) < 3 then
                 for j = 1, #tanks do
                     thisUnit = tanks[j].unit
                     if not buff.atonement.exists(thisUnit) and not debuff.weakenedSoul.exists(thisUnit) then
