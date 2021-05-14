@@ -14,15 +14,15 @@ function br.CancelUnitBuffID(unit, spellID, filter)
 	end
 end
 function br.UnitAuraID(unit, spellID, filter)
-	return br.UnitBuffID(unit, spellID, filter)
-	-- local spellName = GetSpellInfo(spellID)
-	-- if UnitAura(unit,spellName) ~= nil then
-	-- 	return UnitAura(unit,spellName)
-	-- elseif UnitAura(unit,spellName,nil,"PLAYER HARMFUL") ~= nil then
-	-- 	return UnitAura(unit,spellName,nil,"PLAYER HARMFUL")
-	-- else
-	-- 	return nil
-	-- end
+	local buff = br.UnitBuffID(unit, spellID, filter)
+	local debuff = br.UnitDebuffID(unit, spellID, filter)
+	if buff then
+		return buff
+	elseif debuff then
+		return debuff
+	else
+		return nil
+	end
 end
 function br.UnitBuffID(unit, spellID, filter)
 	local spellName = _G.GetSpellInfo(spellID)
