@@ -2201,7 +2201,7 @@ actionList.heal = function()
                 end
             end
             --Infused Holy Light Grievous
-            if ui.checked("Infused Holy Light Grievous") and healTarget == "none" then
+            if ui.checked("Infused Holy Light Grievous") and healTarget == "none" and buff.infusionOfLight.exists() then
                 for i = 1, #br.friend do
                     if (br.friend[i].role == "HEALER" or br.friend[i].role == "DAMAGER")
                             and br.getDebuffStacks(br.friend[i].unit, 240559) >= ui.value("Grievous Wounds")
@@ -2216,7 +2216,7 @@ actionList.heal = function()
                     if canheal(tanks[1].unit)
                             and tanks[1].hp <= ui.value("Tank Infused Holy Light HP Limit")
                             and br.getDebuffStacks(tanks[1].unit, 240559) >= ui.value("Grievous Wounds") then
-                        healTarget = br.friend[i].unit
+                        healTarget = tanks[1].unit
                         healReason = "GRIEV"
                     end
                 end
