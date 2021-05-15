@@ -832,7 +832,7 @@ actionList.PreCombat = function()
             ui.debug("Using Battle Potion of Strength")
         end
         -- Army of the Dead
-        if ui.alwaysCdNeer("Army of the Dead") and ui.pullTimer() <= 2 and cast.able.armyOfTheDead("player") then
+        if ui.alwaysCdNever("Army of the Dead") and ui.pullTimer() <= 2 and cast.able.armyOfTheDead("player") then
             if cast.armyOfTheDead("player") then ui.debug("Casting Army of the Dead [Pre-Pull]") return true end
         end
     end

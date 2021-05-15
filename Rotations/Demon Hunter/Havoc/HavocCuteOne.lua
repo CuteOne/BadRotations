@@ -102,6 +102,7 @@ local function createOptions()
             br.player.module.BasicTrinkets(nil,section)
             -- Metamorphosis
             br.ui:createDropdownWithout(section,"Metamorphosis",alwaysCdNever,1,"|cffFFBB00When to use Metamorphosis.")
+            br.ui.createCheckbox(section,"Metamorphosis M+ Pre-pull","Uses Meta during M+ pre-pull, regardless of CD setting.")
             -- Covenant Ability
             br.ui:createDropdownWithout(section,"Covenant Ability",alwaysCdNever,1,"|cffFFBB00When to use Covenant Ability.")
         br.ui:checkSectionState(section)
@@ -431,7 +432,7 @@ actionList.Demonic = function()
     -- Blade Dance
     -- blade_dance,if=variable.blade_dance&!cooldown.metamorphosis.ready&(cooldown.eye_beam.remains>5|(raid_event.adds.in>cooldown&raid_event.adds.in<25))
     if cast.able.bladeDance("player","aoe",1,8) and not unit.isExplosive("target") and #enemies.yards8 > 0 and var.bladeDance
-        and (cd.metamorphosis.remain() > unit.gcd(true) or not ui.useCDs() or not ui.checked("Metamorphosis"))
+        and (cd.metamorphosis.remain() > unit.gcd(true) or not ui.useCDs() or not ui.alwaysCdNever("Metamorphosis"))
         and (cd.eyeBeam.remain() > 5 or not eyebeamTTD() or not cast.safe.eyeBeam("player","rect",1,20) or ui.mode.eyeBeam == 2)
     then
         if cast.bladeDance("player","aoe",1,8) then ui.debug("Casting Blade Dance") return true end
@@ -689,7 +690,7 @@ actionList.PreCombat = function()
                 ui.debug("Castin Eye Beam [Pre-Pull]")
             end
             -- Metamorphosis
-            if ui.checked("Metamorphosis") and cast.able.metamorphosis() then
+            if ui.checked("Metamorphosis M+ Pre-pull") and cast.able.metamorphosis() then
                 if cast.metamorphosis("player") then ui.debug("Casting Metamorphosis [Pre-Pull]") return true end
             end
         end -- End M+ Pre-Pull
@@ -802,7 +803,7 @@ local function runRotation()
     if talent.essenceBreak and not cd.essenceBreak.exists() then var.bladeDance = false end
     -- Pool for Meta Variable
     -- variable,name=pooling_for_meta,value=!talent.demonic.enabled&cooldown.metamorphosis.remains<6&fury.deficit>30
-    var.poolForMeta = ui.checked("Metamorphosis") and ui.useCDs() and not talent.demonic and cd.metamorphosis.remain() < 6 and furyDeficit >= 30
+    var.poolForMeta = ui.alwaysCdNever("Metamorphosis") and ui.useCDs() and not talent.demonic and cd.metamorphosis.remain() < 6 and furyDeficit >= 30
     -- Pool for Blade Dance Variable
     -- variable,name=pooling_for_blade_dance,value=variable.blade_dance&(fury<75-talent.first_blood.enabled*20)
     var.poolForBladeDance = var.bladeDance and fury < 75 - var.flood * 20 and not unit.isExplosive("target")

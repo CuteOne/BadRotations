@@ -85,6 +85,7 @@ function br.castGround(Unit,SpellID,maxDistance,minDistance,radius,castTime)
 end
 --castGroundLocation(123,456,98765,40,0,8)
 function br.castGroundLocation(X,Y,SpellID,maxDistance,minDistance,radius)
+	if X or Y == nil then return false end
 	if radius == nil then radius = maxDistance end
 	if minDistance == nil then minDistance = 0 end
 	local groundDistance = br.getDistance("player",Unit,"dist4")+1
