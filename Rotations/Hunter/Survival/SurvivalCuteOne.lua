@@ -403,8 +403,8 @@ actionList.Cooldown = function()
     end
     -- Flare
     -- flare,if=focus+cast_regen<focus.max&tar_trap.up&runeforge.soulforge_embers.equipped&time_to_die>4*gcd
-    if cast.able.flare("groundLocation",br.castPosition.x,br.castPosition.y,8) and var.tarred and focus + cast.regen.flare()
-        and (runeforge.soulforgeEmbers.equiped or anima.soulforgeEmbers.exists()) and unit.ttd(units.dyn40) > 4 * unit.gcd(true)
+    if cast.able.flare("groundLocation",br.castPosition.x,br.castPosition.y,8) and var.tarred and focus + cast.regen.flare() < focusMax
+        and (runeforge.soulforgeEmbers.equiped or anima.soulforgeEmbers.exists()) --and unit.ttd(units.dyn40) > 4 * unit.gcd(true)
     then
         if cast.flare("groundLocation",br.castPosition.x,br.castPosition.y,8) then ui.debug("Casting Flare [CD]") var.tarred = false return true end
     end
@@ -1279,7 +1279,7 @@ local function runRotation()
     var.maxLatentPoison                           = debuff.latentPoison.max(var.eagleRange,"stack") or var.eagleUnit
     var.spiritUnits                                     = ui.useCDs() and 1 or 3
 
-    if var.tarred == nil then var.tarred = false end
+    if var.tarred == nil or cd.tarTrap.remain() == 0 or not unit.inCombat() then var.tarred = false end
 
     -- if var.eagleUnit == nil then var.eagleUnit = "target" end
     -- variable,name=carve_cdr,op=setif,value=active_enemies,value_else=5,condition=active_enemies<5

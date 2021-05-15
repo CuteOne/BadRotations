@@ -780,7 +780,7 @@ local function runRotation()
         end
     end
 
-    if var.tarred == nil then var.tarred = true end
+    if var.tarred == nil or cd.tarTrap.remain() == 0 or not unit.inCombat() then var.tarred = false end
 
     ---------------------
     --- Begin Profile ---

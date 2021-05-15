@@ -75,32 +75,36 @@ function br.castGround(Unit,SpellID,maxDistance,minDistance,radius,castTime)
 		--local distanceToGround = getGroundDistance(Unit) or 0
 		if groundDistance > maxDistance then X,Y,Z = br._G.GetPositionBetweenObjects(Unit,"player",groundDistance-maxDistance) end
 		br._G.ClickPosition((X + math.random() * 2),(Y + math.random() * 2),Z) --distanceToGround
+        br.castPosition.x = X
+        br.castPosition.y = Y
+        br.castPosition.z = Z
 		if mouselookActive then
 			_G.MouselookStart()
 		end
-		br.castPosition = {x = X, y = Y, z = Z}
 		return true
 	end
 	return false
 end
 --castGroundLocation(123,456,98765,40,0,8)
 function br.castGroundLocation(X,Y,SpellID,maxDistance,minDistance,radius)
-	if X or Y == nil then return false end
+	if X == nil or Y == nil then return false end
 	if radius == nil then radius = maxDistance end
 	if minDistance == nil then minDistance = 0 end
-	local groundDistance = br.getDistance("player",Unit,"dist4")+1
+	--local groundDistance = br.getDistance("player",Unit,"dist4")+1
 	local pX, pY, Z = br.GetObjectPosition("player")
 	local distance = sqrt(((X-pX)^2) + ((Y-pY)^2))
 	local mouselookActive = false
-	if br.getSpellCD(SpellID) == 0 and br.getLineOfSight("player",Unit)
-		and distance < maxDistance and distance >= minDistance
-	then
+
+	if distance < maxDistance and distance >= minDistance then
 		if _G.IsMouselooking() then
 			mouselookActive = true
 			_G.MouselookStop()
 		end
 		br._G.CastSpellByName(_G.GetSpellInfo(SpellID))
 		br._G.ClickPosition((X + math.random() * 2),(Y + math.random() * 2),Z) --distanceToGround
+        br.castPosition.x = X
+        br.castPosition.y = Y
+        br.castPosition.z = Z
 		if mouselookActive then
 			_G.MouselookStart()
 		end
@@ -633,7 +637,6 @@ function br.createCastFunction(thisUnit,castType,minUnits,effectRng,spellID,inde
 			if br._G.IsAoEPending() then
 				local X,Y,Z = br._G.ObjectPosition(thisUnit)
 				br._G.ClickPosition(X,Y,Z)
-				br.castPosition = {x = X, y = Y, z = Z}
 			end
 			-- change main button icon
 			br.mainButton:SetNormalTexture(icon)
@@ -743,9 +746,7 @@ function br.createCastFunction(thisUnit,castType,minUnits,effectRng,spellID,inde
 		-- Cast Ground AOE at Provide X/Y Location
 		if thisUnit == "groundLocation" then
 			if debug then return true end
-			local X = castType
-			local Y = minUnits
-			return br.castGroundLocation(X,Y,baseSpellID,maxRange,minRange,effectRng)
+			return br.castGroundLocation(castType,minUnits,baseSpellID,maxRange,minRange,effectRng)
 		end
 		if thisUnit == "None" then printReport(true,"No Unit") return false end
 		-- Other Cast Conditions - Require Target

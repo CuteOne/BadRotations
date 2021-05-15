@@ -425,11 +425,6 @@ function br.loader:new(spec,specName)
             -- Update Player Info on Init, Talent, and Level Change
             if br.updatePlayerInfo then getSpellsForSpec(spec); getTalentInfo(); getAzeriteTraitInfo(); getFunctions(); br.updatePlayerInfo = false end
             self.getToggleModes()
-            -- Start selected rotation
-            if br.castPosition.x == 0 then
-                X, Y, Z = br.GetObjectPosition("player")
-                br.castPosition = {x = X, y = Y, z = Z}
-            end
             self.startRotation()
         end
     end

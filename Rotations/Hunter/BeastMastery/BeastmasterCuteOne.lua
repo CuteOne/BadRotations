@@ -893,7 +893,7 @@ local function runRotation()
         opener.complete = false
     end
 
-    if br.petTarget == nil then br.petTarget = "player" end
+    if var.tarred == nil or cd.tarTrap.remain() == 0 or not unit.inCombat() then var.tarred = false end
 
     -----------------
     --- Pet Logic ---
