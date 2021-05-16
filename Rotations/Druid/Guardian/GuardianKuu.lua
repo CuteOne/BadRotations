@@ -1212,7 +1212,7 @@ local function runRotation()
                 end
             end
             -- Thrash
-            if cast.thrashBear("player") then
+            if cast.thrashBear() then
                 br.addonDebug("Casting Thrash")
                 return
             end
