@@ -29,7 +29,7 @@ function br.UnitBuffID(unit, spellID, filter)
 	local exactSearch = filter ~= nil and _G.strfind(_G.strupper(filter), "EXACT")
 	if exactSearch then
 		for i = 1, 40 do
-			local buffName, _, _, _, _, _, _, _, _, buffSpellID = br._G.UnitBuff(unit, i)
+			local buffName, _, _, _, _, _, _, _, _, buffSpellID = br._G.UnitBuff(unit, i, "player")
 			if buffName == nil then	return nil end
 			if buffSpellID == spellID then
 				return br._G.UnitBuff(unit, i)
@@ -73,19 +73,7 @@ function br.UnitDebuffID(unit, spellID, filter)
 		return br._G.AuraUtil.FindAuraByName(spellName, unit, "HARMFUL")
 	end
 end
--- 	local spellName = GetSpellInfo(spellID)
---  	local exactSearch = filter ~= nil and strfind(strupper(filter),"EXACT")
---  	local playerSearch = filter ~= nil and strfind(strupper(filter),"PLAYER")
--- 	for i=1,40 do
--- 		local buffName,_,_,_,_,_,buffCaster,_,_,buffSpellID = UnitDebuff(unit,i)
--- 		if buffSpellID == nil then return nil end
--- 		if (exactSearch and buffSpellID == spellID) or (not exactSearch and (buffName == spellName or buffSpellID == spellID)) then
--- 			if (not playerSearch) or (playerSearch and (buffCaster == "player")) then
--- 				if exactSearch or filter == nil then return UnitDebuff(unit,i) else return UnitDebuff(unit,i,filter) end
--- 			end
--- 		end
--- 	end
--- end
+
 local function Dispel(unit,stacks,buffDuration,buffRemain,buffSpellID,buff)
 	if not buff then
 		if buffSpellID == 288388 then
