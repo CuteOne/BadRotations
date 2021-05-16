@@ -45,7 +45,7 @@ function br.ui:createConfigWindow()
             2,
             "Check this to allow dynamic targetting. If unchecked, profile will only attack current target."
         )
-        --br.ui:createCheckbox(section, "Include Range", "Checking this will pick a new target if current target is out of range. (Only valid on Lite mode)")
+        -- br.ui:createCheckbox(section, "Include Range", "Checking this will pick a new target if current target is out of range. (Only valid on Lite mode)")
         br.ui:createCheckbox(section, "Target Dynamic Target", "Check this will target the current dynamic target.")
         br.ui:createCheckbox(section, "Tank Aggro = Player Aggro", "If checked, when tank gets aggro, player will go into combat")
         br.ui:createCheckbox(section, "Hostiles Only", "Checking this will target only units hostile to you.")
@@ -65,7 +65,7 @@ function br.ui:createConfigWindow()
         br.ui:createCheckbox(section, "Avoid Shields", "Check to avoid attacking shielded units.")
         br.ui:createCheckbox(section, "Tank Threat", "Check add more priority to targets you lost aggro on(tank only).")
         br.ui:createCheckbox(section, "Safe Damage Check", "Check to prevent damage to targets you dont want to attack.")
-        --br.ui:createCheckbox(section, "Ignore Big Slime on PF", "Check to not attack Slimy Smorgasbord")
+        -- br.ui:createCheckbox(section, "Ignore Big Slime on PF", "Check to not attack Slimy Smorgasbord")
         br.ui:createSpinnerWithout(
             section,
             "Bursting Stack Limit",
@@ -108,8 +108,8 @@ function br.ui:createConfigWindow()
         -- Healing Engine
         section = br.ui:createSection(br.ui.window.config, "Healing Engine")
         br.ui:createCheckbox(section, "HE Active", "Uncheck to disable Healing Engine.\nCan improves FPS if you dont rely on Healing Engine.")
-        --br.ui:createCheckbox(section, "Handle Sorting in Healing Engine", "Uncheck this to handle sorting at the profile level if dev has made special sorting")
-        --br.ui:createDropdownWithout(section, "Sort Health By", { "Percent HP","Absolute HP"}, 1, "Sort HP by Percent or Absolute")
+        br.ui:createCheckbox(section, "Handle Sorting in Healing Engine", "Uncheck this to handle sorting at the profile level if dev has made special sorting")
+        br.ui:createDropdownWithout(section, "Sort Health By", { "Percent HP","Absolute HP"}, 1, "Sort HP by Percent or Absolute")
         br.ui:createCheckbox(section, "Heal Pets", "Check this to Heal Pets.")
         br.ui:createDropdown(section, "Special Heal", {"Target", "T/M", "T/M/F", "T/F"}, 1, "Check this to Heal Special Whitelisted Units.", "Choose who you want to Heal.")
         br.ui:createCheckbox(section, "Prioritize Special Targets", "Prioritize Special targets(mouseover/target/focus).")
@@ -122,7 +122,7 @@ function br.ui:createConfigWindow()
             nil,
             "|cffFFBB00How much |cffFF0000%HP|cffFFBB00 do we want to add to |cffFFDD00Blacklisted |cffFFBB00units. Use /Blacklist while mouse-overing someone to add it to the black list."
         )
-        br.ui:createSpinner(section, "Prioritize Tank", 5, 0, 100, 1, "Check this to prioritize tanks")
+        br.ui:createSpinner(section, "Prioritize Tank", 5, 0, 100, 1, "Check this to prioritize tanks below value set")
         --br.ui:createSpinner(section, "Prioritize Debuff", 3, 0, 100, 1, "Check this to give debuffed targets more priority")
         br.ui:createCheckbox(
             section,
@@ -131,7 +131,7 @@ function br.ui:createConfigWindow()
         )
         br.ui:createCheckbox(section, "Incoming Heals", "If checked, it will add incoming health from other healers to hp. Check this if you want to prevent overhealing units.")
         br.ui:createSpinner(section, "Overhealing Cancel", 95, nil, nil, nil, "Set Desired Threshold at which you want to prevent your own casts. CURRENTLY NOT IMPLEMENTED!")
-        --br.healingDebug = br.ui:createCheckbox(section, "Healing Debug", "Check to display Healing Engine Debug.")
+        br.healingDebug = br.ui:createCheckbox(section, "Healing Debug", "Check to display Healing Engine Debug.")
         --br.ui:createSpinner(section, "Debug Refresh", 500, 0, 1000, 25, "Set desired Healing Engine Debug Table refresh for rate in ms.")
         br.ui:createSpinner(
             section,

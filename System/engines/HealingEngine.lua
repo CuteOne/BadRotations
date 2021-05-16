@@ -5,6 +5,14 @@ local _, br = ...
 
 -----------------------------------------Bubba's Healing Engine--------------------------------------]]
 local LGIST = _G.LibStub("LibGroupInSpecT-1.1")
+
+local function percent (x, y)
+	return x.hp < y.hp
+end
+
+local function absolute (x, y)
+	return x.hpabs < y.hpabs
+end
 if not br.metaTable1 then
 	-- localizing the commonly used functions while inside loops
 	local getDistance, tinsert, tremove, UnitClass, GetUnitIsUnit = br.getDistance, _G.tinsert, _G.tremove, br._G.UnitClass, br.GetUnitIsUnit
@@ -50,8 +58,19 @@ if not br.metaTable1 then
 	updateHealingTable:SetScript(
 		"OnEvent",
 		function()
-			_G.table.wipe(br.friend)
-			_G.table.wipe(br.memberSetup.cache)
+			-- for i = #br.friend, 1, -1 do
+			-- 	local thisUnit = br.friend[i].unit
+			-- 	if not br.GetUnitIsVisible(thisUnit) then
+			-- 		if br.read.buffTracker[thisUnit] ~= nil then
+			-- 			br.read.buffTracker[thisUnit] = nil
+			-- 		end
+			-- 		if br.read.debuffTracker[thisUnit] ~= nil then
+			-- 			br.read.debuffTracker[thisUnit] = nil
+			-- 		end
+			-- 	end
+			-- end
+			table.wipe(br.friend)
+			table.wipe(br.memberSetup.cache)
 			br.SetupTables()
 		end
 	)
@@ -326,6 +345,7 @@ if not br.metaTable1 then
 		end
 		-- Updating the values of the Unit
 		function o:UpdateUnit()
+			-- br.updateAuras(o.unit)
 			if br.isChecked("Debug Timers") then
 				local startTime
 				local debugprofilestop = _G.debugprofilestop
@@ -370,19 +390,13 @@ if not br.metaTable1 then
 
 				-- Unit HP absolute
 				startTime = debugprofilestop()
-				o.hpabs = UnitHealth(o.unit)
+				o.truehp = UnitHealth(o.unit)
 				br.debug.cpu.healingEngine._G.UnitHealth = debugprofilestop() - startTime
 
 				-- Unit HP missing absolute
 				startTime = debugprofilestop()
 				o.hpmissing = UnitHealthMax(o.unit) - UnitHealth(o.unit)
 				br.debug.cpu.healingEngine.hpMissing = debugprofilestop() - startTime
-
-				-- Unit HP
-				startTime = debugprofilestop()
-				--o.hp = o:CalcHP()
-				--o.absorb = select(3, o:CalcHP())
-				br.debug.cpu.healingEngine.absorb = debugprofilestop() - startTime
 
 				-- Target's target
 				o.target = tostring(o.unit) .. "target"
@@ -404,7 +418,7 @@ if not br.metaTable1 then
 
 				--debug
 				startTime = debugprofilestop()
-				o.hp, _, o.absorb = o:CalcHP()
+				o.hp, o.hpabs, o.absorb = o:CalcHP()
 				br.debug.cpu.healingEngine.absorbANDhp = debugprofilestop() - startTime
 			else
 				-- assign Name of unit
@@ -422,11 +436,11 @@ if not br.metaTable1 then
 				-- Unit's threat situation(1-4)
 				o.threat = br._G.UnitThreatSituation(o.unit)
 				-- Unit HP absolute
-				o.hpabs = UnitHealth(o.unit)
+				o.truehp = UnitHealth(o.unit)
 				-- Unit HP missing absolute
 				o.hpmissing = UnitHealthMax(o.unit) - UnitHealth(o.unit)
 				-- Unit HP and Absorb
-				o.hp, _, o.absorb = o:CalcHP()
+				o.hp, o.hpabs, o.absorb = o:CalcHP()
 				-- Target's target
 				o.target = tostring(o.unit) .. "target"
 				-- Unit Class
@@ -512,48 +526,63 @@ if not br.metaTable1 then
 				br.friend[i]:UpdateUnit()
 			end
 			-- We are sorting by Health first
-			table.sort(
-				br.friend,
-				function(x, y)
-					return x.hp < y.hp
+			if br.getOptionCheck("Handle Sorting in Healing Engine") then
+				if br.getOptionValue("Sort Health By") == 1 then
+					table.sort(br.friend, percent(x, y))
+				elseif br.getOptionValue("Sort Health By") == 2 then
+					table.sort(br.friend, absolute(x, y))
 				end
-			)
-			if br.getOptionCheck("Prioritize Special Targets") == true then
-				if br.GetUnitExists("focus") and br.memberSetup.cache[select(2, br.getGUID("focus"))] then
+				if br.getOptionCheck("Prioritize Tank") then
 					table.sort(
 						br.friend,
 						function(x)
-							if x.unit == "focus" then
-								return true
-							else
-								return false
+							if x.role == "TANK" or x.guidsh == 72218 or x.threat == 3 then
+								if x.hp <= br.getOptionValue("Prioritize Tank") then
+									return true
+								else
+									return false
+								end
 							end
 						end
-					)
+					)				
 				end
-				if br.GetUnitExists("target") and br.memberSetup.cache[select(2, br.getGUID("target"))] then
-					table.sort(
-						br.friend,
-						function(x)
-							if x.unit == "target" then
-								return true
-							else
-								return false
+				if br.getOptionCheck("Prioritize Special Targets") == true then
+					if br.GetUnitExists("focus") and br.memberSetup.cache[select(2, br.getGUID("focus"))] then
+						table.sort(
+							br.friend,
+							function(x)
+								if x.unit == "focus" then
+									return true
+								else
+									return false
+								end
 							end
-						end
-					)
-				end
-				if br.GetUnitExists("mouseover") and br.memberSetup.cache[select(2, br.getGUID("mouseover"))] then
-					table.sort(
-						br.friend,
-						function(x)
-							if x.unit == "mouseover" then
-								return true
-							else
-								return false
+						)
+					end
+					if br.GetUnitExists("target") and br.memberSetup.cache[select(2, br.getGUID("target"))] then
+						table.sort(
+							br.friend,
+							function(x)
+								if x.unit == "target" then
+									return true
+								else
+									return false
+								end
 							end
-						end
-					)
+						)
+					end
+					if br.GetUnitExists("mouseover") and br.memberSetup.cache[select(2, br.getGUID("mouseover"))] then
+						table.sort(
+							br.friend,
+							function(x)
+								if x.unit == "mouseover" then
+									return true
+								else
+									return false
+								end
+							end
+						)
+					end
 				end
 			end
 			if br.pulseNovaDebugTimer == nil or br.pulseNovaDebugTimer <= GetTime() then
