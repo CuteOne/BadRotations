@@ -53,6 +53,26 @@ function br:ObjectManager()
     end
 end
 
+function br.getDebugInfo()
+    local labels = br.debug.labels
+    if labels then
+        if br.isChecked("Enable Debug Info") then
+            labels.updateRate:SetText("Update Rate: "..br:getUpdateRate())
+            if br.target then
+                labels.target:SetText("Current Target: "..UnitName("target"))
+                labels.ttd:SetText("Target's TTD: "..br.getTTD("target"))
+            else
+                labels.target:SetText("Current Target: No Target Found")
+                labels.ttd:SetText("Target's TTD: No Target Found")
+            end
+        else
+            labels.target:SetText("Current Target: No Target Found")
+            labels.ttd:SetText("Target's TTD: No Target Found")
+            labels.updateRate:SetText("Update Rate:")
+        end
+    end
+end
+
 
 local collectGarbage = true
 function br.BadRotationsUpdate(self)
@@ -247,6 +267,8 @@ function br.BadRotationsUpdate(self)
                 br.fishing()
                 -- Profession Helper
                 br.ProfessionHelper()
+                -- Debug Info Window
+                br.getDebugInfo()
                 -- Rotation Log
                 br.ui:toggleDebugWindow()
                 -- Settings Garbage Collection

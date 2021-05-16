@@ -294,19 +294,19 @@ function br.ui:createConfigWindow()
         br.ui:checkSectionState(section)
     end
 
-    -- local function callDebugOptions()
-    --     local section
-    --     br.debug.labels = {}
-    --     local labels = br.debug.labels
-    --     section = br.ui:createSection(br.ui.window.config, "Debug Info")
-    --     br.ui:createCheckbox(section, "Enable Debug Info")
-    --     labels.updateRate = br.ui:createText(section, "")
-    --     -- br.ui:createText(section, "Lowest Unit")
-    --     -- labels.lowest   = br.ui:createText(section, "")
-    --     labels.target     = br.ui:createText(section, "")
-    --     labels.ttd        = br.ui:createText(section, "")
-    --     br.ui:checkSectionState(section)
-    -- end
+    local function callDebugOptions()
+        local section
+        br.debug.labels = {}
+        local labels = br.debug.labels
+        section = br.ui:createSection(br.ui.window.config, "Debug Info")
+        br.ui:createCheckbox(section, "Enable Debug Info")
+        labels.updateRate = br.ui:createText(section, "")
+        -- br.ui:createText(section, "Lowest Unit")
+        -- labels.lowest   = br.ui:createText(section, "")
+        labels.target     = br.ui:createText(section, "")
+        labels.ttd        = br.ui:createText(section, "")
+        br.ui:checkSectionState(section)
+    end
 
     -- Add Page Dropdown
     br.ui:createPagesDropdown(
@@ -344,10 +344,10 @@ function br.ui:createConfigWindow()
                 [1] = "Tracker Engine",
                 [2] = callTrackerEngine
             },
-            -- {
-            --     [1] = "Debug Info",
-            --     [2] = callDebugOptions
-            -- },
+            {
+                [1] = "Debug Info",
+                [2] = callDebugOptions
+            },
         }
     )
 
