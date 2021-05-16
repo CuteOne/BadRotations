@@ -210,6 +210,7 @@ if not br.metaTable2 then
 			o.objectID = br._G.ObjectID(o.unit)
 			o.range = o.range
 			o.debuffs = o.debuffs
+			br.updateAuras(o.unit)
 			if o.distance <= 50 and not br.GetUnitIsDeadOrGhost(o.unit) and not br.isCritter(o.unit) then
 				-- EnemyListCheck
 				if o.enemyRefresh == nil or o.enemyRefresh < GetTime() - 1 then
@@ -352,6 +353,12 @@ if not br.metaTable2 then
 						end
 						if br.pet[thisUnit] ~= nil then
 							br.pet[thisUnit] = nil
+						end
+						if br.read.buffTracker[thisUnit] ~= nil then
+							br.read.buffTracker[thisUnit] = nil
+						end
+						if br.read.debuffTracker[thisUnit] ~= nil then
+							br.read.debuffTracker[thisUnit] = nil
 						end
 						tremove(br.om, i)
 					else

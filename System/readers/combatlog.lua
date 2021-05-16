@@ -5,8 +5,52 @@ br.guid = br._G.UnitGUID("player")
 br.read = {}
 br.read.combatLog = {}
 br.read.debuffTracker = {}
+br.read.buffTracker = {}
 br.read.enraged = {}
 local cl = br.read
+function br.updateAuras(unit)
+    local aura, name, source
+
+    for i = 1, 40 do
+        aura = {br._G.UnitBuff(unit, i)}
+        local id= aura[10]
+        name, source = aura[1], aura[7]
+        if not name then break end
+        if br.read.buffTracker[unit] == nil then
+            br.read.buffTracker[unit] = {}
+        end
+        if br.read.buffTracker[unit][id] == nil then
+            br.read.buffTracker[unit][id] = {
+                data = aura,
+            }
+        end
+        if source and source == "player" then
+            br.read.buffTracker[unit][id]["player"] = {
+                data = aura,
+            }
+        end
+    end
+
+    for i = 1, 40 do
+        aura = {br._G.UnitDebuff(unit, i)}
+        local id = aura[10]
+        name, source = aura[1], aura[7]
+        if not name then break end
+        if br.read.debuffTracker[unit] == nil then
+            br.read.debuffTracker[unit] = {}
+        end
+        if br.read.debuffTracker[unit][id] == nil then
+            br.read.debuffTracker[unit][id] = {
+                data = aura,
+            }
+        end
+        if source and source == "player" then
+            br.read.debuffTracker[unit][id]["player"] = {
+                data = aura,
+            }
+        end
+    end
+end
 -- will update the br.read.enraged list
 function br.read.enrageReader(...)
     if br.getOptionCheck("Enrages Handler") then
@@ -298,25 +342,26 @@ function cl:common(...)
     end
     ---------------------
     --[[Debuff Tracking]]
-    if destination ~= nil and destination ~= "" then
-        if br.unlocked then --EWT then
-            if param == "SPELL_AURA_APPLIED" and spellType == "DEBUFF" then
-                local destination = br._G.GetObjectWithGUID(destination)
-                local source = br._G.GetObjectWithGUID(source)
-                if source ~= nil and br._G.UnitName(source) == br._G.UnitName("player") then
-                    source = "player"
-                end
-                if source == "player" and destination ~= nil then
-                    if br.read.debuffTracker[destination] == nil then
-                        br.read.debuffTracker[destination] = {}
-                    end
-                    if br.read.debuffTracker[destination][spell] == nil then
-                        br.read.debuffTracker[destination][spell] = {}
-                    end
-                    br.read.debuffTracker[destination][spell][1] = source
-                    br.read.debuffTracker[destination][spell][2] = spell
-                    br.read.debuffTracker[destination][spell][3] = destination
-                end
+    if br.unlocked then --EWT then
+        if param == "SPELL_AURA_APPLIED" or param == "SPELL_AURA_APPLIED_DOSE" or param == "SPELL_AURA_REMOVED_DOSE" or param == "SPELL_AURA_REFRESH" or param == "SPELL_AURA_REMOVED" or param == "SPELL_PERIODIC_AURA_REMOVED" then
+            local destination = br._G.GetObjectWithGUID(destination)
+            if destination ~= nil and destination ~= "" then
+                br.updateAuras(destination)
+                -- local source = br._G.GetObjectWithGUID(source)
+                -- if source ~= nil and br._G.UnitName(source) == br._G.UnitName("player") then
+                --     source = "player"
+                -- end
+                -- if source == "player" and destination ~= nil then
+                --     if br.read.debuffTracker[destination] == nil then
+                --         br.read.debuffTracker[destination] = {}
+                --     end
+                --     if br.read.debuffTracker[destination][spell] == nil then
+                --         br.read.debuffTracker[destination][spell] = {}
+                --     end
+                --     br.read.debuffTracker[destination][spell][1] = source
+                --     br.read.debuffTracker[destination][spell][2] = spell
+                --     br.read.debuffTracker[destination][spell][3] = destination
+                -- end
             end
         end
     end
@@ -340,7 +385,7 @@ function cl:common(...)
                     if br.player["spell"].debuffs ~= nil then
                         if param == "SPELL_AURA_REMOVED" then
                             if
-                                not br._G.UnitAffectingCombat("player") or not br._G.UnitExists(thisUnit) or
+                                not br._G.UnitAffectingCombat("player") or not br.GetUnitExists(thisUnit) or
                                     br.GetUnitIsDeadOrGhost(thisUnit)
                              then
                                 if pandemic[thisUnit] ~= nil then

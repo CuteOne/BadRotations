@@ -420,6 +420,11 @@ function br.loader:new(spec,specName)
         if spec == br._G.GetSpecializationInfo(br._G.GetSpecialization()) then
             -- Call baseUpdate()
             if not br._G.UnitAffectingCombat("player") then self.updateOOC() end
+            if br.read then
+                br.read.buffTracker["player"] = {}
+                br.read.debuffTracker["player"] = {}
+            end
+            br.updateAuras("player")
             self.baseUpdate()
             self.getBleeds()
             -- Update Player Info on Init, Talent, and Level Change

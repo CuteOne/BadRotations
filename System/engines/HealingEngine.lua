@@ -58,17 +58,17 @@ if not br.metaTable1 then
 	updateHealingTable:SetScript(
 		"OnEvent",
 		function()
-			-- for i = #br.friend, 1, -1 do
-			-- 	local thisUnit = br.friend[i].unit
-			-- 	if not br.GetUnitIsVisible(thisUnit) then
-			-- 		if br.read.buffTracker[thisUnit] ~= nil then
-			-- 			br.read.buffTracker[thisUnit] = nil
-			-- 		end
-			-- 		if br.read.debuffTracker[thisUnit] ~= nil then
-			-- 			br.read.debuffTracker[thisUnit] = nil
-			-- 		end
-			-- 	end
-			-- end
+			for i = #br.friend, 1, -1 do
+				local thisUnit = br.friend[i].unit
+				if not br.GetUnitIsVisible(thisUnit) then
+					if br.read.buffTracker[thisUnit] ~= nil then
+						br.read.buffTracker[thisUnit] = nil
+					end
+					if br.read.debuffTracker[thisUnit] ~= nil then
+						br.read.debuffTracker[thisUnit] = nil
+					end
+				end
+			end
 			table.wipe(br.friend)
 			table.wipe(br.memberSetup.cache)
 			br.SetupTables()
@@ -345,7 +345,7 @@ if not br.metaTable1 then
 		end
 		-- Updating the values of the Unit
 		function o:UpdateUnit()
-			-- br.updateAuras(o.unit)
+			br.updateAuras(o.unit)
 			if br.isChecked("Debug Timers") then
 				local startTime
 				local debugprofilestop = _G.debugprofilestop
