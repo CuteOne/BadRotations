@@ -696,11 +696,12 @@ function br.createCastFunction(thisUnit,castType,minUnits,effectRng,spellID,inde
 				elseif debugReason == "Not Safe" then
 					br.player.ui.debug("Spell: "..spellName.." failed to cast because it is not safe to aoe.")
 				elseif debugReason == "Invalid Unit" then
-					if br.units[thisUnit] == nil then
-						br.player.ui.debug("Spell: "..spellName.." failed to cast because Unit is not player, friend, in line of sight, or in br.units.")
-					end
-					if not br.getLineOfSight(thisUnit) then
+					if not br._G.UnitIsFriend(thisUnit) and br.units[thisUnit] == nil then
+						br.player.ui.debug("Spell: "..spellName.." failed to cast because Unit is not player, friend, or in br.units.")
+					elseif not br.getLineOfSight(thisUnit) then
 						br.player.ui.debug("Spell: "..spellName.." failed to cast because Unit is out line of sight.")
+					else
+						br.player.ui.debug("Spell: "..spellName.." failed to cast for unknown reason.")
 					end
 				else
 					br._G.print("|cffFF0000Error: |r Failed to cast. - "

@@ -477,10 +477,12 @@ actionList.Defensive = function()
             end
         end
         -- Word of Glory
-        if var.gloryUnit ~= nil and ui.checked("Word of Glory") and cast.able.wordOfGlory(var.gloryUnit) and canGlory() then
-            if cast.wordOfGlory(var.gloryUnit) then
-                ui.debug("Casting Word of Glory on " .. unit.name(var.gloryUnit))
-                return true
+        if ui.checked("Word of Glory") and canGlory() then
+            if var.gloryUnit ~= nil and cast.able.wordOfGlory(var.gloryUnit) then
+                if cast.wordOfGlory(var.gloryUnit) then
+                    ui.debug("Casting Word of Glory on " .. unit.name(var.gloryUnit))
+                    return true
+                end
             end
         end
     end
