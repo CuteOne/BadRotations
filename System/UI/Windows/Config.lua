@@ -41,11 +41,11 @@ function br.ui:createConfigWindow()
         br.ui:createDropdown(
             section,
             "Dynamic Targetting",
-            {"Only In Combat", "Default"},
+            {"Only In Combat", "Default", "Lite"},
             2,
             "Check this to allow dynamic targetting. If unchecked, profile will only attack current target."
         )
-        -- br.ui:createCheckbox(section, "Include Range", "Checking this will pick a new target if current target is out of range. (Only valid on Lite mode)")
+        br.ui:createCheckbox(section, "Include Range", "Checking this will pick a new target if current target is out of range. (Only valid on Lite mode)")
         br.ui:createCheckbox(section, "Target Dynamic Target", "Check this will target the current dynamic target.")
         br.ui:createCheckbox(section, "Tank Aggro = Player Aggro", "If checked, when tank gets aggro, player will go into combat")
         br.ui:createCheckbox(section, "Hostiles Only", "Checking this will target only units hostile to you.")
@@ -65,7 +65,7 @@ function br.ui:createConfigWindow()
         br.ui:createCheckbox(section, "Avoid Shields", "Check to avoid attacking shielded units.")
         br.ui:createCheckbox(section, "Tank Threat", "Check add more priority to targets you lost aggro on(tank only).")
         br.ui:createCheckbox(section, "Safe Damage Check", "Check to prevent damage to targets you dont want to attack.")
-        -- br.ui:createCheckbox(section, "Ignore Big Slime on PF", "Check to not attack Slimy Smorgasbord")
+        br.ui:createCheckbox(section, "Ignore Big Slime on PF", "Check to not attack Slimy Smorgasbord")
         br.ui:createSpinnerWithout(
             section,
             "Bursting Stack Limit",

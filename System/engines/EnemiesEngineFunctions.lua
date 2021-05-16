@@ -190,6 +190,11 @@ function br.isSafeToAttack(unit)
 				end
 			end
 		end
+		if br.getOptionCheck("Ignore Big Slime on PF") then
+			if unitID == 171887 then
+				return false
+			end
+		end
 		-- Debugging
 		br.debug.cpu:updateDebug(startTime,"enemiesEngine.isSafeToAttack")
 	end
@@ -308,12 +313,11 @@ local function compare(a,b)
 	end
 end
 
--- Finds the "best" unit for a given range and optional facing
 local function findBestUnit(range,facing)
 	local tsort = table.sort
-	local startTime = _G.debugprofilestop()
+	local startTime = debugprofilestop()
 	local bestUnitCoef
-	local bestUnit = bestUnit or nil
+	local bestUnit 
 	local enemyList = br.getEnemies("player",range,false,facing)
 	if bestUnit ~= nil and br.enemy[bestUnit] == nil then bestUnit = nil end
 	if bestUnit == nil
@@ -326,15 +330,19 @@ local function findBestUnit(range,facing)
 			for i = 1, #enemyList do
 				local thisUnit = enemyList[i]
 				local unitID = br.GetObjectExists(thisUnit) and br.GetObjectID(thisUnit) or 0
-				if ((unitID == 135360 or unitID == 135358 or unitID == 135359) and br.UnitBuffID(thisUnit,260805)) or (unitID ~= 135360 and unitID ~= 135358 and unitID ~= 135359) then
-					local isCC = br.getOptionCheck("Don't break CCs") and #enemyList > 1 and br.isLongTimeCCed(thisUnit) or false
+				if br.isSafeToAttack(thisUnit,true) and (((unitID == 135360 or unitID == 135358 or unitID == 135359) and br.UnitBuffID(thisUnit,260805)) or (unitID ~= 135360 and unitID ~= 135358 and unitID ~= 135359)) and (unitID ~= 152910 or (unitID == 152910 and br.UnitBuffID(thisUnit, 300551))) then
+					local isCC = br.getOptionCheck("Don't break CCs") and br.isLongTimeCCed(thisUnit) or false
 					local isSafe = (br.getOptionCheck("Safe Damage Check") and br.isSafeToAttack(thisUnit)) or not br.getOptionCheck("Safe Damage Check") or false
 					-- local thisUnit = v.unit
-					-- local distance = br.getDistance(thisUnit)
+					-- local distance = getDistance(thisUnit)
 					-- if distance < range then
-					if not isCC and isSafe then
-						local coeficient = getUnitCoeficient(thisUnit) or 0
-						if br.getOptionCheck("Wise Target") == true and br.getOptionValue("Wise Target") == 4 then -- abs Lowest
+					if not isCC then			
+						local coeficient = getUnitCoeficient(thisUnit) or 0		
+						if br.getOptionCheck("Skull First") and br._G.GetRaidTargetIndex(thisUnit) == 8 and not br.GetUnitIsDeadOrGhost(thisUnit) then
+							bestUnit = thisUnit
+							return bestUnit
+						end
+						if br.getOptionCheck("Wise Target") == true and br.getOptionValue("Wise Target") == 4 then -- abs Lowest	
 							if currHP == nil or br._G.UnitHealth(thisUnit) < currHP then
 								currHP = br._G.UnitHealth(thisUnit)
 								coeficient = coeficient + 100
@@ -345,49 +353,180 @@ local function findBestUnit(range,facing)
 							bestUnit = thisUnit
 						end
 					end
+					-- end
+		--			lastCheckTime = GetTime() + 1
 				end
-	--			lastCheckTime = GetTime() + 1
 			end
 		end
 	end
-	-- Debugging
-	br.debug.cpu:updateDebug(startTime,"enemiesEngine.findBestUnit")
+	if br.isChecked("Debug Timers") then
+		br.debug.cpu.enemiesEngine.bestUnitFinder = debugprofilestop()-startTime or 0
+	end
 	return bestUnit
 end
 
--- Sets Target by attempting to find the best unit else defaults to target
 function br.dynamicTarget(range,facing)
 	if range == nil or range > 100 then return nil end
-	local startTime = _G.debugprofilestop()
-	facing = facing or false
-	local bestUnit = bestUnit or nil
-	local tarDist = br.GetObjectExists("target") and br.getDistance("target") or 99
-	local bestDist
-	if br.isChecked("Dynamic Targetting") then
-		if br.getOptionValue("Dynamic Targetting") == 2 or (br._G.UnitAffectingCombat("player") and br.getOptionValue("Dynamic Targetting") == 1)
-			and (bestUnit == nil or (br.GetUnitIsUnit(bestUnit,"target") and tarDist >= range))
-		then
-			bestUnit = findBestUnit(range,facing)
+	local startTime = debugprofilestop()
+	local facing = facing or false
+	local bestUnit
+	local tarDist = br.GetUnitExists("target") and br.getDistance("target") or 99
+	local defaultRange 
+	if br.rangeOrMelee[GetSpecializationInfo(GetSpecialization())] ~= nil then
+		if br.rangeOrMelee[GetSpecializationInfo(GetSpecialization())] == "ranged" then
+			defaultRange = 40
+		elseif br.rangeOrMelee[GetSpecializationInfo(GetSpecialization())] == "melee" then
+			defaultRange = 8
+		else
+			defaultRange = 40
+		end
+	else
+		defaultRange = 40
+	end
+	if br.isChecked("Forced Burn") then
+		if br.isBurnTarget("target") > 0 and ((br.isExplosive("target") and br.getFacing("player","target")) or not br.isExplosive("target")) and br.getDistance("target") <= range then
+			return
+		end
+		if (br.GetUnitExists("target" ) and br.isBurnTarget("target") == 0) or not br.GetUnitExists("target") then
+			local burnUnit
+			local enemyList = br.getEnemies("player",range,false,facing)
+			local burnDist
+			for i = 1, #enemyList do
+				local currDist = br.getDistance(enemyList[i])
+				if br.isBurnTarget(enemyList[i]) > 0 and (burnDist == nil or currDist < burnDist) then
+					if br.isExplosive(enemyList[i]) and br.getFacing("player",enemyList[i]) then
+						burnDist = currDist
+						burnUnit = enemyList[i]
+					elseif not br.isExplosive(enemyList[i]) then
+						burnDist = currDist
+						burnUnit = enemyList[i]
+					end
+				end
+			end
+			if burnUnit ~= nil then
+				br._G.TargetUnit(burnUnit)
+				return
+			end
 		end
 	end
-	if (not br.isChecked("Dynamic Targetting") or bestUnit == nil) and tarDist < range
-		and (not facing or (facing and br.getFacing("player","target"))) and br.isValidUnit("target")
+	if br.isChecked("Darter Targeter") and br.player.eID == 2333 then
+		local enemyList = br.getEnemies("player",defaultRange,false,true)
+		local darterHP
+		local darterUnit
+		for i = 1, #enemyList do
+			local unitHP = br.getHP(enemyList[i])
+			if br.GetObjectID(enemyList[i]) == 157256 then
+				if darterHP == nil or unitHP < darterHP*0.9 then
+					darterHP = unitHP
+					darterUnit = enemyList[i]
+				end
+			end
+		end
+		if darterUnit ~= nil then
+			br._G.TargetUnit(darterUnit)
+			return
+		end
+	end
+	if (not br.isChecked("Dynamic Targetting") or bestUnit == nil) and br.getDistance("target") < range
+		and br.getFacing("player","target") and not br.GetUnitIsDeadOrGhost("target") and not br.GetUnitIsFriend("target","player")
 	then
 		bestUnit = "target"
 	end
-	bestDist = br.getDistance(bestUnit) or 99
-	if bestDist < range then
-		if ((br.GetUnitIsDeadOrGhost("target") and not br.GetUnitIsFriend("target","player")) or (not br._G.UnitExists("target") and br.hasThreat(bestUnit))
-			or ((br.isChecked("Target Dynamic Target") and br.GetUnitExists("target")) and not br.GetUnitIsUnit(bestUnit,"target")))
-			or (br.getOptionCheck("Forced Burn") and br.isBurnTarget(bestUnit) > 0 and br.GetUnitExists(bestUnit)
-				and ((not facing and not br.isExplosive(bestUnit)) or (facing and br.getFacing("player",bestUnit))))
-			or (br.getOptionCheck("Safe Damage Check") and not br.GetUnitIsUnit(bestUnit,"target") and not br.isSafeToAttack("target"))
-		then
-			br._G.TargetUnit(bestUnit)
+	if br.isChecked("Dynamic Targetting") then
+		local enemyList = br.getEnemies("player",range,false,facing)
+		if br.getOptionValue("Dynamic Targetting") == 2 or (br.player.inCombat and br.getOptionValue("Dynamic Targetting") == 1) 
+			and (bestUnit == nil or (br.GetUnitIsUnit(bestUnit,"target") and tarDist >= range))
+			then
+				bestUnit = findBestUnit(range,facing)
+		elseif br.getOptionValue("Dynamic Targetting") == 3 and br.player.inCombat then
+			if br.getOptionCheck("Skull First") then
+				for i = 1, #enemyList do
+					if br._G.GetRaidTargetIndex(enemyList[i]) == 8 and not br.GetUnitIsDeadOrGhost(enemyList[i]) then
+						bestUnit = enemyList[i]
+					end
+				end
+				if bestUnit == nil then
+					if not br.GetUnitExists("target") or (br.GetUnitIsDeadOrGhost("target") and not br.GetUnitIsFriend("target","player")) or not br.isSafeToAttack("target",true) or
+						(facing and not br.getFacing("player","target")) or (br.getOptionCheck("Don't break CCs") and br.isLongTimeCCed("target")) or (br.getDistance("target") > range and br.isChecked("Include Range")) then
+						bestUnit = findBestUnit(defaultRange,facing)
+					end
+				end
+			elseif br.isChecked("Wise Target") and br.timer:useTimer("wiseTargetDelay", 0.5) then
+				if br.getOptionValue("Wise Target Frequency") == 2 and not (br.GetUnitIsDeadOrGhost("target") and br.GetUnitIsFriend("target")) and tarDist <= range then
+					return
+				end
+				local targetHP
+				local lowDist
+				local highDist
+				for i = 1, #enemyList do
+					local isCC = br.getOptionCheck("Don't break CCs") and br.isLongTimeCCed(enemyList[i]) or false
+					local unitHP = br.getHP(enemyList[i])
+					local absUnitHP = br._G.UnitHealthMax(enemyList[i])
+					local currDist = br.getDistance(enemyList[i])
+					if not isCC and br.isSafeToAttack(enemyList[i],true) and br.lists.shieldUnits[enemyList[i]] == nil then
+						if br.getOptionValue("Wise Target") == 1 then 	   -- Highest	
+							if (targetHP == nil or unitHP*1.10 > targetHP) then
+								targetHP = unitHP
+								bestUnit = enemyList[i]
+							end
+						elseif br.getOptionValue("Wise Target") == 3 then -- abs Highest
+							if (targetHP == nil or absUnitHP*1.10 > targetHP) then
+								targetHP = absUnitHP
+								bestUnit = enemyList[i]
+							end
+						elseif br.getOptionValue("Wise Target") == 4 then -- abs Lowest	
+							if (targetHP == nil or absUnitHP*.9 < targetHP) then
+								targetHP = absUnitHP  
+								bestUnit = enemyList[i]
+							end
+						elseif br.getOptionValue("Wise Target") == 5  then -- Nearest
+							if (lowDist == nil or currDist*0.9 < lowDist*.90) then
+								lowDist = currDist
+								bestUnit = enemyList[i]
+							end
+						elseif br.getOptionValue("Wise Target") == 6  then -- Furthest
+							if (highDist == nil or currDist*1.1 > highDist) then
+								highDist = currDist
+								bestUnit = enemyList[i]
+							end
+						else  										   -- Lowest
+							if (targetHP == nil or unitHP*.9 < targetHP*.90) then
+								targetHP = unitHP
+								bestUnit = enemyList[i]
+							end
+						end
+					end
+				end
+			elseif not br.GetUnitExists("target") or (br.GetUnitIsDeadOrGhost("target") and not br.GetUnitIsFriend("target","player")) or not br.isSafeToAttack("target",true) or
+				(facing and not br.getFacing("player","target")) or (br.getOptionCheck("Don't break CCs") and br.isLongTimeCCed("target")) or (br.getDistance("target") > range and br.isChecked("Include Range")) then
+				bestUnit = findBestUnit(defaultRange,facing)
+			end
+		end
+		if br.timer:useTimer("Unit Delay",0.5) then
+			br.addonDebug("Best Unit: "..tostring(bestUnit),true)
+		end
+		if br.isChecked("Target Dynamic Target") and bestUnit ~= nil and br.player.inCombat then
+			local unitID = br.GetObjectExists("target") and br.GetObjectID("target") or 0
+			if not br.GetUnitExists("target") or (br.GetUnitIsDeadOrGhost("target") and not br.GetUnitIsFriend("target","player")) then
+				br._G.TargetUnit(bestUnit)
+			elseif not br.isSafeToAttack("target",true) then
+				br._G.TargetUnit(bestUnit)
+			elseif (br.isChecked("Wise Target") or br.isChecked("Skull First")) and not br.GetUnitIsUnit("target",bestUnit) then
+				br._G.TargetUnit(bestUnit)
+			elseif ((unitID == 135360 or unitID == 135358 or unitID == 135359) and not br.UnitBuffID("target",260805)) then 
+				br._G.TargetUnit(bestUnit)
+			elseif (facing and not br.getFacing("player","target")) then
+				br._G.TargetUnit(bestUnit)
+			elseif br.getOptionCheck("Don't break CCs") and br.isLongTimeCCed("target") then
+				br._G.TargetUnit(bestUnit)
+			elseif br.getDistance("target") > range and br.isChecked("Include Range") then
+				br._G.TargetUnit(bestUnit)
+			end
 		end
 	end
-	-- Debugging
-	br.debug.cpu:updateDebug(startTime,"enemiesEngine.dynamicTarget")
+	if br.isChecked("Debug Timers") then
+		br.debug.cpu.enemiesEngine.dynamicTarget = debugprofilestop()-startTime or 0
+	end
 	return bestUnit
 end
 
