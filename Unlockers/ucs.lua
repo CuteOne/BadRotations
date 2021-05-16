@@ -68,6 +68,20 @@ function unlock.UCSUnlock()
     b.Draw2DText = Draw2DText
     b.WorldToScreenRaw = WorldToScreenRaw
     b.IsQuestObject = IsQuestObject
+    b.GetOM = function() 
+        if not br.om then br.om = {} end
+		local om = br.om
+        local total = br._G.GetObjectCount(true,"BR") or 0
+        for i = 1,total do
+            local thisUnit = br._G.GetObjectWithIndex(i)
+            if br._G.ObjectIsUnit(thisUnit) then
+                local enemyUnit = br.unitSetup:new(thisUnit)
+                if enemyUnit then
+                    tinsert(om, enemyUnit)
+                end
+            end
+        end
+    end
     br.unlocker = "UCS"
     unlocked = true
     return unlocked

@@ -22,32 +22,8 @@ end
 
 --Update OM
 function br:updateOM()
-	local om = br.om
 	local startTime = br._G.debugprofilestop()
-	
-	if br._G.GetNewObjects then
-		local added, removed = br._G.GetNewObjects()
-		for k, v in pairs(added) do
-			if br._G.ObjectIsUnit(v) then
-				local enemyUnit = br.unitSetup:new(v)
-				if enemyUnit then
-					tinsert(om, enemyUnit)
-				end
-			end
-		end	
-	else
-		local total = br._G.GetObjectCount(true,"BR") or 0
-		for i = 1,total do
-			local thisUnit = br._G.GetObjectWithIndex(i)
-			if br._G.ObjectIsUnit(thisUnit) then
-				local enemyUnit = br.unitSetup:new(thisUnit)
-				if enemyUnit then
-					br._G.tinsert(om, enemyUnit)
-				end
-			end
-		end
-	end	
-	
+	br._G.GetOM()
 	refreshStored = true
 	-- Debugging
     br.debug.cpu:updateDebug(startTime,"enemiesEngine.objects")

@@ -106,7 +106,7 @@ function unlock.MBUnlock()
 
     -- b.GetNewObjects = function()
     --     local added, removed = {}, {}
-    --     added, removed = select(3, wmbapi.GetObjectCount()), select(4, wmbapi.GetObjectCount())
+    --     added, removed = select(3, wmbapi.GetObjectCount())
     --     return added, removed
     -- end
 
@@ -120,6 +120,25 @@ function unlock.MBUnlock()
             return wmbapi.GetObjectWithGUID(GUID)
         else
             return ""
+        end
+    end
+    b.GetOM = function()
+        if not br.om then
+            br.om = {}
+        end
+        for i=1, wmbapi.GetNpcCount("player",60) do
+            local enemyUnit = br.unitSetup:new(wmbapi.GetNpcWithIndex(i))
+            if enemyUnit then
+                tinsert(om, enemyUnit)
+                -- cache some unit data per unit (los, position, health, auras)
+            end
+        end
+        for i=1, wmbapi.GetPlayerCount("player",60) do
+            local enemyUnit = br.unitSetup:new(wmbapi.GetPlayerWithIndex(i))
+            if enemyUnit then
+                tinsert(om, enemyUnit)
+                -- cache some unit data per unit (los, position, health, auras)
+            end
         end
     end
     -- Unit

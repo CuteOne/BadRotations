@@ -286,6 +286,21 @@ function unlock.WowAdUnlock()
 	b.UnitFacing = wa.UnitFacing
 	b.GetObjectCount = wa.GetObjectCount
 	b.GetNewObjects = wa.GetNewObjects
+	b.GetOM = function() 
+		if not br.om then br.om = {} end
+		local om = br.om
+		if br._G.GetNewObjects then
+			local added, removed = br._G.GetNewObjects()
+			for k, v in pairs(added) do
+				if br._G.ObjectIsUnit(v) then
+					local enemyUnit = br.unitSetup:new(v)
+					if enemyUnit then
+						tinsert(om, enemyUnit)
+					end
+				end
+			end
+		end
+	end
 	
 	--------------------------------
 	-- object fields
@@ -369,6 +384,7 @@ function unlock.WowAdUnlock()
 		if Object1 and Object2 then
 			local X1, Y1, Z1 = b.ObjectPosition(Object1)
 			local X2, Y2, Z2 = b.ObjectPosition(Object2)
+			if not X1 or not X2 then return 0, 0 end
 			return math.atan2(Y2 - Y1, X2 - X1) % (math.pi * 2),
 				math.atan((Z1 - Z2) / math.sqrt(math.pow(X1 - X2, 2) + math.pow(Y1 - Y2, 2))) % math.pi
 		else
@@ -396,6 +412,7 @@ function unlock.WowAdUnlock()
 	b.GetDistanceBetweenObjects = function(unit1, unit2)
 		local X1, Y1, Z1 = b.ObjectPosition(unit1)
 		local X2, Y2, Z2 = b.ObjectPosition(unit2)
+		if not X1 or not X2 then return end
 		return math.sqrt((X2-X1)^2 + (Y2-Y1)^2 + (Z2-Z1)^2)
 	end
 	b.ObjectIsFacing = function(obj1, obj2, degrees)

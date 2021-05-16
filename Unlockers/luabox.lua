@@ -431,6 +431,20 @@ function unlock.LBUnlock()
 	b.GetObjectWithGUID = function(...)
 		return ...
 	end
+	b.GetOM = function() 
+        if not br.om then br.om = {} end
+		local om = br.om
+        local total = br._G.GetObjectCount(true,"BR") or 0
+        for i = 1,total do
+            local thisUnit = br._G.GetObjectWithIndex(i)
+            if br._G.ObjectIsUnit(thisUnit) then
+                local enemyUnit = br.unitSetup:new(thisUnit)
+                if enemyUnit then
+                    tinsert(om, enemyUnit)
+                end
+            end
+        end
+    end
 	b.GetMousePosition = function()
 		local cur_x, cur_y = br._G.GetCursorPosition()
 		return cur_x, cur_y
