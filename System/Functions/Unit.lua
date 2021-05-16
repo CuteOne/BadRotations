@@ -1,5 +1,6 @@
 local _, br = ...
 function br.GetObjectExists(Unit)
+	if Unit == "target" then return br.target end
 	if Unit == nil then return false end
 	return br.GetUnitIsVisible(Unit)
 end
@@ -25,6 +26,7 @@ function br.GetUnitIsFriend(Unit, otherUnit)
 	return br._G.UnitIsFriend(Unit,otherUnit)
 end
 function br.GetUnitExists(Unit)
+	if Unit == "target" then return br.target end
 	if Unit == nil then return false end
 	return br._G.UnitExists(Unit)
 end

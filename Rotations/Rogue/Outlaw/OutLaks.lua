@@ -1660,7 +1660,7 @@ actionList.Interrupt = function()
 
             if br.canInterrupt(interrupt_target, br.getOptionValue("Interrupt %")) then
                 distance = br.getDistance(interrupt_target)
-                if not (inInstance and #tanks > 0 and select(3, br._G.UnitClass(tanks[1].unit)) == 1 and br.hasBuff(23920, tanks[1].unit) and br._G.GetUnitIsUnit(select(3, br._G.UnitCastID(interrupt_target)), tanks[1].unit)) then
+                if not (inInstance and #tanks > 0 and select(3, br._G.UnitClass(tanks[1].unit)) == 1 and br.hasBuff(23920, tanks[1].unit) and br.GetUnitIsUnit(select(3, br._G.UnitCastID(interrupt_target)), tanks[1].unit)) then
                     if StunsBlackList[br.GetObjectID(interrupt_target)] == nil and br.player.cast.timeRemain(interrupt_target) < br.getTTD(interrupt_target) then
                         if cd.global.remain() == 0 then
                             if mode.gouge ~= 2 and mode.gouge < 5 and not cd.gouge.exists()

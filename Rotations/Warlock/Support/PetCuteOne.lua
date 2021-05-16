@@ -61,10 +61,10 @@ br.rotations.support["PetCuteOne"] = function()
     local petActive = IsPetActive()
     local petCombat = br._G.UnitAffectingCombat("pet")
     local petDistance = br.getDistance(petTarget,"pet") or 99
-    local petExists = br._G.UnitExists("pet")
+    local petExists = br.GetUnitExists("pet")
     local petHealth = br.getHP("pet")
     local petMode = getCurrentPetMode()
-    local validTarget = br._G.UnitExists(petTarget) and (br.isValidUnit(petTarget) or br.isDummy()) --or (not UnitExists("pettarget") and br.isValidUnit("target")) or br.isDummy()
+    local validTarget = br.GetUnitExists(petTarget) and (br.isValidUnit(petTarget) or br.isDummy()) --or (not UnitExists("pettarget") and br.isValidUnit("target")) or br.isDummy()
 
     -- if IsMounted() or IsFlying() or UnitHasVehicleUI("player") or CanExitVehicle("player") then
     --     waitForPetToAppear = GetTime()

@@ -2330,7 +2330,7 @@ local function runRotation()
                     -- if talent.photosynthesis then
                     --bloom on tanking tank here
                     -- keep it on focus
-                    if br._G.UnitExists("focus") and not br.GetUnitIsDeadOrGhost("focus") and br._G.UnitAffectingCombat("focustarget") and br.hasThreat("focus") and br.getLineOfSight("focus", "player") then
+                    if br.GetUnitExists("focus") and not br.GetUnitIsDeadOrGhost("focus") and br._G.UnitAffectingCombat("focustarget") and br.hasThreat("focus") and br.getLineOfSight("focus", "player") then
                         raid_bloom_target = "focus"
                     end
                     if #br.friend > 1 then
@@ -2367,9 +2367,9 @@ local function runRotation()
                                         break
                                     else
                                         --stick it on the tank that has aggro
-                                        if br._G.UnitExists("boss1target") then
+                                        if br.GetUnitExists("boss1target") then
                                             kill_boss = "boss1target"
-                                        elseif br._G.UnitExists("boss2target") then
+                                        elseif br.GetUnitExists("boss2target") then
                                             kill_boss = "boss2target"
                                         end
                                         if
@@ -2470,7 +2470,7 @@ local function runRotation()
                         end
                         -- keep it on focus
                         if
-                        br._G.UnitExists("focustarget") and not br.GetUnitIsDeadOrGhost("focustarget") and br._G.UnitAffectingCombat("focustarget") and br.hasThreat("focustarget") and
+                        br.GetUnitExists("focustarget") and not br.GetUnitIsDeadOrGhost("focustarget") and br._G.UnitAffectingCombat("focustarget") and br.hasThreat("focustarget") and
                                 br.getLineOfSight("focustarget", "player")
                         then
                             raid_bloom_target = "focustarget"
@@ -2908,7 +2908,7 @@ local function runRotation()
         if not cat and not travel and not bear then
             local tank_unit
 
-            if (#tanks > 0 or br._G.UnitExists("focus")) and (mode.prehot == 1 or mode.prehot == 2) and mode.hEALS == 1 then
+            if (#tanks > 0 or br.GetUnitExists("focus")) and (mode.prehot == 1 or mode.prehot == 2) and mode.hEALS == 1 then
                 if runeforge.theDarkTitansLesson.equiped then
                     if not buff.lifebloom.exists("player") then
                         if cast.lifebloom("player") then
@@ -2918,7 +2918,7 @@ local function runRotation()
                     end
                 end
 
-                if br._G.UnitExists("focus") then
+                if br.GetUnitExists("focus") then
                     tank_unit = "focus"
                 else
                     if tanks[1] ~= nil then

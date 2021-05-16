@@ -1565,7 +1565,7 @@ local function runRotation()
                 return
             end
         end
-    elseif br.pause() or cd.global.remains() > 0 or (br._G.UnitExists("target") and not br._G.UnitCanAttack("target", "player")) or mode.rotation == 4 or br.isCastingSpell(293491) then
+    elseif br.pause() or cd.global.remains() > 0 or (br.GetUnitExists("target") and not br._G.UnitCanAttack("target", "player")) or mode.rotation == 4 or br.isCastingSpell(293491) then
         return
     else
         ---------------------------------

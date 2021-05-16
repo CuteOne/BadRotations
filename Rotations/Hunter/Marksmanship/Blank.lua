@@ -144,7 +144,7 @@ local function runRotation()
 --- Rotations ---
 -----------------
         -- Pause
-        if br.pause() or (br._G.UnitExists("target") and (br.GetUnitIsDeadOrGhost("target") or not br._G.UnitCanAttack("target", "player"))) or mode.rotation == 4 then
+        if br.pause() or (br.GetUnitExists("target") and (br.GetUnitIsDeadOrGhost("target") or not br._G.UnitCanAttack("target", "player"))) or mode.rotation == 4 then
             return true
         else
 ---------------------------------

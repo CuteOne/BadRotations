@@ -1609,9 +1609,9 @@ local function runRotation()
 
 
 local function actionList_PetControl()
-    if br._G.UnitExists("pet")
+    if br.GetUnitExists("pet")
     and not br.GetUnitIsDeadOrGhost("pet") 
-    and not br._G.UnitExists("pettarget")
+    and not br.GetUnitExists("pettarget")
     and hastar
     and inCombat
     and br.timer:useTimer("Pet Attack Delay",math.random(0.5,2))
@@ -1621,7 +1621,7 @@ local function actionList_PetControl()
         br._G.RunMacroText("/petattack")
     end
 
-    if br._G.UnitExists("pet")
+    if br.GetUnitExists("pet")
     and not br.GetUnitIsDeadOrGhost("pet")
     and inCombat
     and hastar and not deadtar 
@@ -1632,9 +1632,9 @@ local function actionList_PetControl()
     end
 
     if not inCombat 
-    and br._G.UnitExists("pet")
+    and br.GetUnitExists("pet")
     and not br.GetUnitIsDeadOrGhost("pet") 
-    and br._G.UnitExists("pettarget")
+    and br.GetUnitExists("pettarget")
     and not hastar
     then    
         ---br._G.PetFollow()   
@@ -1643,35 +1643,35 @@ local function actionList_PetControl()
     end
 
     -- Firebolt Spam
-    if br._G.UnitExists("pettarget")
+    if br.GetUnitExists("pettarget")
     and pet.imp.active()
     and not br.GetUnitIsDeadOrGhost("pet") 
     then
         br._G.CastSpellByName(GetSpellInfo(3110),"pettarget") 
     end
     -- Consuming Shadows Spam
-    if br._G.UnitExists("pettarget")
+    if br.GetUnitExists("pettarget")
     and pet.voidwalker.active()
     and not br.GetUnitIsDeadOrGhost("pet") 
     then
         br._G.CastSpellByName(GetSpellInfo(3716),"pettarget") 
     end
     -- Shadow Bite Spam
-    if br._G.UnitExists("pettarget")
+    if br.GetUnitExists("pettarget")
     and pet.felhunter.active()
     and not br.GetUnitIsDeadOrGhost("pet") 
     then
         br._G.CastSpellByName(GetSpellInfo(54049),"pettarget") 
     end
     -- Whiplash Spam
-    if br._G.UnitExists("pettarget")
+    if br.GetUnitExists("pettarget")
     and pet.succubus.active()
     and not br.GetUnitIsDeadOrGhost("pet") 
     then
         br._G.CastSpellByName(GetSpellInfo(6360),"pettarget") 
     end
     -- Lash of Pain
-    if br._G.UnitExists("pettarget")
+    if br.GetUnitExists("pettarget")
     and pet.succubus.active()
     and not br.GetUnitIsDeadOrGhost("pet") 
     then
@@ -1698,7 +1698,7 @@ local function actionList_SummonPet()
     end
 
     -- If we're casting pet summons 
-    --  if br._G.UnitCastingInfo("Player") == GetSpellInfo() then if br._G.UnitExists("pet") and not br.GetUnitIsDeadOrGhost("pet") then br._G.SpellStopCasting()  return true end  end
+    --  if br._G.UnitCastingInfo("Player") == GetSpellInfo() then if br.GetUnitExists("pet") and not br.GetUnitIsDeadOrGhost("pet") then br._G.SpellStopCasting()  return true end  end
 
     var.summonImp                   = spell.summonImp
     var.summonVoidwalker            = spell.summonVoidwalker

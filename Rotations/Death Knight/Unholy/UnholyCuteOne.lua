@@ -265,7 +265,7 @@ actionList.PetManagement = function()
             ui.debug("Setting Pet to Passive")
         end
         -- Pet Attack / retreat
-        if (not br._G.UnitExists("pettarget") or not validTarget) and (unit.inCombat() or petCombat) then
+        if (not br.GetUnitExists("pettarget") or not validTarget) and (unit.inCombat() or petCombat) then
             if ui.value("Pet Target") == 1 and unit.valid(units.dyn40) then
                 br._G.PetAttack(units.dyn40)
             elseif ui.value("Pet Target") == 2 and validTarget then

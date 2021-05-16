@@ -79,6 +79,7 @@ function br.BadRotationsUpdate(self)
         end
         return false
     elseif br.unlocked and br._G.GetObjectCount() ~= nil then
+        br.target = br._G.UnitExists("target") and br._G.UnitGUID("target") or nil
         br.devMode()
         -- Check BR Out of Date
         br:checkBrOutOfDate()
