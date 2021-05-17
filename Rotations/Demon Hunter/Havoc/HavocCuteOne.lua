@@ -102,7 +102,7 @@ local function createOptions()
             br.player.module.BasicTrinkets(nil,section)
             -- Metamorphosis
             br.ui:createDropdownWithout(section,"Metamorphosis",alwaysCdNever,1,"|cffFFBB00When to use Metamorphosis.")
-            br.ui.createCheckbox(section,"Metamorphosis M+ Pre-pull","Uses Meta during M+ pre-pull, regardless of CD setting.")
+            br.ui:createCheckbox(section,"Metamorphosis M+ Pre-pull","Uses Meta during M+ pre-pull, regardless of CD setting.")
             -- Covenant Ability
             br.ui:createDropdownWithout(section,"Covenant Ability",alwaysCdNever,1,"|cffFFBB00When to use Covenant Ability.")
         br.ui:checkSectionState(section)
