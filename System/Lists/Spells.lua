@@ -2009,7 +2009,8 @@ br.lists.spells = {
                 upwelling                   = 274963,
             },
             runeforges                      = {
-                ancientTeachingsOfTheMonastery             = 337172
+                ancientTeachingsOfTheMonastery = 337172,
+                tearOfMorning                  = 337473,
             }
         },
         -- Windwalker
