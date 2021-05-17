@@ -2,10 +2,7 @@ local _, br = ...
 br.class = select(3, br._G.UnitClass("player"))
 br.guid = br._G.UnitGUID("player")
 -- specific reader location
-br.read = {}
 br.read.combatLog = {}
-br.read.debuffTracker = {}
-br.read.buffTracker = {}
 br.read.enraged = {}
 local cl = br.read
 function br.updateAuras(unit)
