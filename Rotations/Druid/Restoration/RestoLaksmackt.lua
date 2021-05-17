@@ -222,10 +222,6 @@ local function isCC(unit)
     return false
 end
 
-function isExplosive(Unit)
-    return GetObjectID(Unit) == 120651
-end
-
 local timers = {}
 timers._timers = {}
 function timers.time(name, fn)
@@ -1160,11 +1156,11 @@ local function runRotation()
             end
         end
 
-        if br.isChecked("Sunfire Explosives") and timers.time("Explosion_delay", isExplosive(units.dyn45)) > 0.25 then
-            if cast.able.sunfire(units.dyn45) and isExplosive(units.dyn45) then
+        if br.isChecked("Sunfire Explosives") and timers.time("Explosion_delay", br.isExplosive(units.dyn45)) > 0.25 then
+            if cast.able.sunfire(units.dyn45) and br.isExplosive(units.dyn45) then
                 --     Print(tostring(timers.time("Explosion_delay", isExplosive(units.dyn45))))
                 if cast.sunfire(units.dyn45) then
-                    br.addonDebug("killed explosive - at" .. timers.time("Explosion_delay", isExplosive(units.dyn45)))
+                    br.addonDebug("killed explosive - at" .. timers.time("Explosion_delay", br.isExplosive(units.dyn45)))
                     return true
                 end
             end
