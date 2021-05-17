@@ -54,7 +54,7 @@ Please submit any errors as issues here on GitHub or join the BadRotations commu
 Discord channel:
 https://discord.gg/VE7V7Mz
 
-Slack channel:
+Slack channel: (Currently not checked often)
 https://join.slack.com/t/badrotations/shared_invite/enQtODQ2NjkzNDEzOTA0LWQzY2ZjZTBlYzkwNDc4ZGExMzkzZGVkMmNiZWViMGUzNGQxNmVhMTRhNjIzMDQzYjUzNzAyYTdlZTFlZjA2YTg
 
 ## Profile Status
@@ -126,7 +126,6 @@ CuteOne  |   Full   |  9.0  |   100% | :white_check_mark:
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
 Kuukuu  |  Full   | 9.0   |   99%  |  :white_check_mark:
-ADSpirit| Unknown |  8.0  |   100% | :interrobang:
 
 - Moonkin
 
@@ -138,7 +137,8 @@ Laksmackt        |  Full   | 9.0   |   90% | :white_check_mark:
 
 author           | support | patch | status |     raidable?
 :--------------- | :-----: | :---: | -----: | :----------------:
-Laksmackt        |  M+     | 9.0   |   100% | :x:
+Aura             | Inactive| 9.0   |   100% | :x:
+Laksmackt        | Limited | 9.0   |   100% | :x:
 
 - Inital 1-10 Supported - Patch 9.0
 
@@ -154,6 +154,7 @@ CuteOne  |  Full    |  9.0  |   100% | :white_check_mark:
 author   | support  | patch | status |     raidable?
 :------- | :------: | :---: | -----: | :----------------:
 CuteOne  |  Full    |  9.0  |   100% | :white_check_mark:
+Bigsie   | Inactive |  9.0  |   100% | :interrobang:
 
 - Survival
 
@@ -169,19 +170,19 @@ CuteOne  |  Full    |  9.0  |   100% | :white_check_mark:
 
 author |   support   | patch | status |   raidable?
 :----- | :---------: | :---: | -----: | :-----------:
-Kink   |  Full       | 9.0   |   100% | :white_check_mark:
+Kink   |  Inactive   | 9.0   |   ???% | :interrobang:
 
 - Fire
 
 author          | support | patch | status |   raidable?
 :-------------- | :-----: | :---: | -----: | :-----------:
-Kink            |  Full   | 9.0   |   90%  | :interrobang:
+Kink            | Inactive| 9.0   |  ???%  | :interrobang:
 
 - Frost
 
 author | support      | patch | status |   raidable?
 :----- | :---------:  | :---: | -----: | :-----------:
-Kink   |  Full        | 9.0   |   100% | :white_check_mark:
+Kink   |  Inactive    | 9.0   |   ???% | :interrobang:
 
 - Inital 1-10 Supported - Patch 9.0
 
@@ -197,7 +198,7 @@ Panglo |   Full  |  9.0  |    100%| :white_check_mark:
 
 author   | support  | patch | status |     raidable?
 :------- | :------: | :---: | -----: | :----------------:
-Laksmackt| none     | 8.3   |   0% | :interrobang:
+Lylo     | Full     | 9.0   |     ???% | :interrobang:
 
 - Windwalker
 
@@ -213,8 +214,9 @@ CuteOne |  Full   |  9.0  |  100%  | :white_check_mark:
 
 author   | support | patch | status | raidable?
 :-----   | :-----: | :---: | -----: | :-------:
-Laksmackt| M+ |  9.0.5  |   100%  | :x:
+Laksmackt| M+      | 9.0.5 |   100% | :x:
 Panglo   |   Full  |  9.0  |  100%  | :white_check_mark:
+Fengshen |   Full  |  9.0  |  100%  | :white_check_mark:
 
 - Protection
 
@@ -236,19 +238,19 @@ CuteOne |  Full   | 9.0   |   100% | :white_check_mark:
 
 author  |    support    | patch |  status |     raidable?
 :-------| :-----------: | :---: | ------: | :----------------:
-Aura    |     Unknown   | 8.2   |    100% |   :interrobang:
+Aura    |    Inactive   | 8.2   |    ???% |   :interrobang:
 
 - Holy
 
 author     | support | patch | status | raidable?
 :--------- | :-----: | :---: | -----: | :-------:
-Aura       | Unknown | 8.2   |   100% |   :interrobang:
+Aura       | Inactive| 8.2   |   ???% |   :interrobang:
 
 - Shadow
 
 author           |    support    | patch | status | raidable?
 :--------------- | :-----------: | :---: | -----: | :-------:
-Panglo           | Unknown       | 9.0   | ???    | :interrobang:
+Panglo           |   Unknown     | 9.0   | ???    | :interrobang:
 Ralph            |     Full      | 9.0   | ???    | :interrobang:
 
 - Inital 1-10 Supported - Patch 9.0
@@ -281,7 +283,7 @@ S0ul    |  Full   | 9.0.5 |  100%  | :white_check_mark:
 
 author  | support | patch | status |   raidable?
 :------ | :-----: | :---: | -----: | :-----------:
-Aura    | Unknown | 8.0   |   ???  | :interrobang:
+Kuukuu  | None    | 9.0   |   90%  | :interrobang:
 
 - Enhancement
 
@@ -293,7 +295,7 @@ CuteOne |  Full   | 9.0   |   100% | :white_check_mark:
 
 author | support | patch | status |     raidable?
 :----- | :-----: | :---: | -----: | :----------------:
-Kuukuu |  Full   | 9.0   |   99%  |  :white_check_mark:
+Kuukuu |  None   | 9.0   |   99%  |  :white_check_mark:
 Panglo | Unknown | 9.0   | ???    | :interrobang:
 
 - Inital 1-10 Supported - Patch 9.0
@@ -304,19 +306,19 @@ Panglo | Unknown | 9.0   | ???    | :interrobang:
 
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
-Kink    |  Full   | 9.0 |   100% |  :white_check_mark:
+Kink    | Inactive| 9.0 |   100% |  :white_check_mark:
 
 - Demonology
 
 author        | support | patch | status |     raidable?
 :------------ | :-----: | :---: | -----: | :----------------:
-Kink          |  Full   | 9.0   |   100% |  :white_check_mark:
+Kink          | Inactive| 9.0   |   100% |  :white_check_mark:
 
 - Destruction
 
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
-Kink    |  FUll   | 9.0   |   100% | :white_check_mark:
+Kink    | Inactive| 9.0   |   100% | :white_check_mark:
 
 - Inital 1-10 Supported - Patch 9.0
 
@@ -337,8 +339,9 @@ Winters |  Full   | 9.0 |   100% | :interrobang:
 
 - Protection
 
-author  | support | patch | status |     raidable?
-:------ | :-----: | :---: | -----: | :----------------:
-Panglo  |  Full   | 8.0   |   100% | :interrobang:
+author            | support | patch | status |     raidable?
+:------           | :-----: | :---: | -----: | :----------------:
+Panglo            | Unknown | 8.0   |   ???% | :interrobang:
+ToCodeAndProsper  |  Full   | 9.0   |   100% | :interrobang:
 
 - Inital 1-10 Supported - Patch 9.0
