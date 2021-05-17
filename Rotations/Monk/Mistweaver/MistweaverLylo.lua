@@ -1133,7 +1133,7 @@ local function runRotation()
         --br.ResetTip(toggleValue, newValue)
     end
 
-    if br.pause() or br._G.IsMounted() or br._G.IsFlying() or br.getBuffRemain("player", 307195) > 0 then
+    if br.pause(true) or br._G.IsMounted() or br._G.IsFlying() or br.getBuffRemain("player", 307195) > 0 then
         return true
     end
 
