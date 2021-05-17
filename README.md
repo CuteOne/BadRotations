@@ -125,7 +125,7 @@ CuteOne  |   Full   |  9.0  |   100% | :white_check_mark:
 
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
-Kuukuu  |  Full   | 9.0   |   99%  |  :white_check_mark:
+Kuukuu  |  None   | 9.0   |   99%  |  :white_check_mark:
 
 - Moonkin
 
