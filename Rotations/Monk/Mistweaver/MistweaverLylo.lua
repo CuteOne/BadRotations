@@ -531,9 +531,9 @@ local function runRotation()
         local actualHealth = br._G.UnitHealth(unit) + br._G.UnitGetIncomingHeals(unit)
         local missingHealth = br._G.UnitHealthMax(unit) - actualHealth
         if missingHealth <= healingValues.envelopingMist * 3 and buff.envelopingMist.remains(unit) >= 3 then
-            print(missingHealth)
+            --print(missingHealth)
             missingHealth = missingHealth - healingValues.envelopingMist * 3
-            print(missingHealth)
+            --print(missingHealth)
         end
         if missingHealth < 0 then
             missingHealth = 0
@@ -1140,7 +1140,7 @@ local function runRotation()
     if unit.distance(mysticTouch.lowest) <= 5 and ui.toggle(text.keys.damage) or (ui.checked(text.automatic.text) and
             (getMissingHP(friends.lowest.unit) < calculateVivifyHealing(friends.lowest.unit)
                     or (totemInfo.chiJiDuration > 0 or buff.invokeChiJiTheRedCrane.stack() > 0))) then
-        br._G.TargetUnit(mysticTouch.lowest)
+        --br._G.TargetUnit(mysticTouch.lowest)
         --br._G.RunMacroText("/br toggle Damaging 1")
         localToggle("Damaging", "1")
         if AlwaysRotation() then
@@ -1165,7 +1165,7 @@ local function runRotation()
     end
 
     if ui.toggle(text.keys.heal) or (ui.checked(text.automatic.text) and getMissingHP(friends.lowest.unit) >= calculateVivifyHealing(friends.lowest.unit)) then
-        br._G.TargetUnit(friends.lowest.unit)
+        --br._G.TargetUnit(friends.lowest.unit)
         localToggle("Healing", "1")
         --br._G.RunMacroText("/br toggle Healing 1")
         return AlwaysRotation() or HealRotation()
