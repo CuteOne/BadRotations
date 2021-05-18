@@ -295,7 +295,6 @@ function br.ui:createConfigWindow()
     end
 
     local function callDebugOptions()
-        local section
         br.debug.labels = {}
         local labels = br.debug.labels
         section = br.ui:createSection(br.ui.window.config, "Debug Info")

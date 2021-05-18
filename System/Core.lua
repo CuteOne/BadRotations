@@ -55,7 +55,7 @@ end
 
 function br.getDebugInfo()
     local labels = br.debug.labels
-    if labels then
+    if labels and br.data.settings[br.selectedSpec][br.selectedProfile]["currentPage"] == 9 then
         if br.isChecked("Enable Debug Info") then
             labels.updateRate:SetText("Update Rate: "..br:getUpdateRate())
             if br.target then
