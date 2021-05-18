@@ -595,12 +595,12 @@ local function runRotation()
             end
         end
         local friendsCopy = copyTable(friends.all)
-        table.sort(
-                friendsCopy,
-                function(x, y)
-                    return x.hpmissing < y.hpmissing
-                end
-        )
+        --table.sort(
+        --        friendsCopy,
+        --        function(x, y)
+        --            return x.hpmissing < y.hpmissing
+        --        end
+        --)
         for j = 1, #debuffsIDs do
             local debuff = debuffsIDs[j]
             for i = 1, #friendsCopy do
@@ -1137,7 +1137,7 @@ local function runRotation()
         return true
     end
 
-    if ui.toggle(text.keys.damage) or (ui.checked(text.automatic.text) and
+    if unit.distance(mysticTouch.lowest) <= 5 and ui.toggle(text.keys.damage) or (ui.checked(text.automatic.text) and
             (getMissingHP(friends.lowest.unit) < calculateVivifyHealing(friends.lowest.unit)
                     or (totemInfo.chiJiDuration > 0 or buff.invokeChiJiTheRedCrane.stack() > 0))) then
         br._G.TargetUnit(mysticTouch.lowest)
