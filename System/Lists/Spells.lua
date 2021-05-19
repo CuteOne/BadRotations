@@ -1140,6 +1140,7 @@ br.lists.spells = {
                 multishot                   = 2643,
             },
             animas                           = {
+                piercingScope               = 331183,
             },
             artifacts                       = {
 
@@ -3173,6 +3174,11 @@ br.lists.spells = {
             },
             artifacts                       = {
             },
+
+                        conduits                        = {
+                callOfFlame                 = 338303,
+            },
+
             buffs                           = {
                 ascendance                  = 114050,
                 bloodlust                   = 2825,
@@ -3305,6 +3311,7 @@ br.lists.spells = {
                 riptide                     = 61295,
                 spiritLinkTotem             = 98008,
                 spiritwalkersGrace          = 79206,
+                recallCloudburstTotem       = 201764,
             },
             artifacts                       = {
              --   giftOfTheQueen              = 207778,
@@ -4044,6 +4051,32 @@ br.lists.spells = {
                 intervene                   = 3411,
                 whirlwind                   = 1680,
             },
+            animas                          = {
+                bloodstainedWhetstone       = 322036,
+                hurricaneHeart              = 329122,
+                championsDecree             = 322054,
+                periaptOfFuror              = 322049,
+                pleonexianCommand           = 329165,
+                rageMote                    = 322046,
+                weatheredRunestone          = 349916,
+                singingStones               = 329489,
+                singingStonesOfIntimidation = 329484,
+                singingStonesOfUnnerving    = 329488,
+                tarnishedMedallion          = 348483,
+                thunderingRoar              = 322093,
+                zovaalsWarbanner            = 322027,
+                bladedBulwark               = 322026,
+                fanOfLongswords             = 322029,
+                misshapenMirror             = 329268,
+                shriekingFlagon             = 329275,
+                voraciousCullingBlade       = 329213,
+                kyrianWarhelm               = 314290,
+                scratchedKnife              = 322039,
+                signetOfTormentedKings      = 329345,
+                smolderingInertia           = 322032,
+                umbralEarTrumpet           = 329283,
+                warlordsResolve             = 322051,
+            },
             artifacts                       = {
 
             },
@@ -4053,6 +4086,7 @@ br.lists.spells = {
                 spellReflection             = 23920,
                 berserkerRage               = 18499,
                 fujiedasFury                = 207776,
+                smolderingInertia           = 322032,
                 victorious                  = 32216,
             },
             conduits                        = {
@@ -4112,8 +4146,8 @@ br.lists.spells = {
                 racial                          = br.getRacial(),
                 shadowmeld                      = 58984,
             },
-            animas                           = {
-                scrollOfElchaver            = 305006,
+            animas                              = {
+                scrollOfElchaver                = 305006,
             },
             artifacts                           = {
                 artificialDamage                = 226829,

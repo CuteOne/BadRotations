@@ -286,7 +286,7 @@ local actionList = {} -- Table for holding action lists.
 
 
 actionList.heal = function()
-
+    --heal()
 
     if not buff.ghostWolf.exists() and charges.riptide.count() > 0 then
         if buff.riptide.refresh(lowest.unit) then
@@ -353,8 +353,6 @@ actionList.heal = function()
     end
 
 
-
-
     -- Wellspring
     if ui.checked("Wellspring") and talent.wellspring and cd.wellspring.remain() <= gcd and movingCheck then
         if br.healConeAround(ui.value("Wellspring Targets"), ui.value("Wellspring"), 90, 30, 0) then
@@ -376,6 +374,8 @@ actionList.heal = function()
             end
         end
     end
+
+    -- Chain Heal
     if ui.checked("Chain Heal") and cd.chainHeal.ready() and movingCheck then
         if ui.value("Chain Heal Mode") == 1 then
             local chainhealcounter = 0
@@ -391,8 +391,6 @@ actionList.heal = function()
                 end
             end
         elseif ui.value("Chain Heal Mode") == 2 then
-            -- Chain Heal
-
             if talent.unleashLife and talent.highTide then
                 if cast.unleashLife(lowest.unit) then
                     return true
@@ -405,20 +403,17 @@ actionList.heal = function()
                 end
             elseif talent.highTide then
                 if br.chainHealUnits(spell.chainHeal, 15, ui.value("Chain Heal"), ui.value("Chain Heal Targets") + 1) then
-                    br.addonDebug("Casting Chain Heal")
+                    br.addonDebug("[HEAL] Chain Heal - Advanced")
                     return true
                 end
             else
                 if br.chainHealUnits(spell.chainHeal, 15, ui.value("Chain Heal"), ui.value("Chain Heal Targets")) then
-                    br.addonDebug("Casting Chain Heal")
+                    br.addonDebug("[HEAL] Chain Heal - Advanced")
                     return true
                 end
             end
         end
     end
-
-
-
 
     -- Healing Surge
     if movingCheck then
@@ -613,7 +608,7 @@ actionList.extra = function()
     end
 
     if #tanks > 0 then
-        if cast.able.earthShield() then
+        if cd.earthShield.ready() then
             if canheal(tanks[1].unit) and not buff.earthShield.exists(tanks[1].unit) then
                 if cast.earthShield(tanks[1].unit) then
                     br.addonDebug("[Extra]  Earth Shield on: " .. br._G.UnitName(tanks[1].unit))
