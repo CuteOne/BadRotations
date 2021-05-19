@@ -1413,7 +1413,7 @@ actionList.Defensive = function()
                 -- check against list of dbm timers
                 for i = 1, #precast_spell_list do
                     local boss_spell_id = precast_spell_list[i][1]
-                    local time_remain = br.DBM:getPulltimer(nil, boss_spell_id)
+                    local time_remain = br.DBM:getTimer(nil, boss_spell_id)
                     if time_remain < 1 then
                         should_feint = true
                     end
