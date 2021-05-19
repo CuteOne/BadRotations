@@ -11,6 +11,9 @@ br.lists.pets = {
     risenSkulker                = 99541,
     -- Monk
     xuenTheWhiteTiger           = 63508,
+    -- Priest
+    mindbender                  = 62982,
+    shadowfiend                 = 19668,
     -- Warlock
     darkglare                   = 103673,
     demonicTyrant               = 135002,

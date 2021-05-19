@@ -2584,6 +2584,7 @@ br.lists.spells = {
         -- Shadow
         [258] = {
             abilities                       = {
+                damnation                   = 341374,
                 darkAscension               = 280711,
                 dispersion                  = 47585,
                 devouringPlague             = 335467,
@@ -2643,34 +2644,37 @@ br.lists.spells = {
             },
             debuffs                         = {
                 devouringPlague             = 335467,
+                hungeringVoid               = 345218,
                 mindFlay                    = 15407,
                 vampiricTouch               = 34914,
                 weakenedSoul                = 6788,
-
             },
             glyphs                          = {
 
             },
+            runeforges                      = {
+                shadowflamePrism            = 336143,
+            },
             talents                         = {
-                auspiciousSpirits           = 155271,
-                bodyAndSoul                 = 64129,
                 fortressOfTheMind           = 193195,
-                --mania                       = 193173,
-                --masochism                   = 193063,
-                mindBomb                    = 205369,
-                mindbender                  = 200174,
-                misery                      = 238558,
-                --powerInfusion               = 10060,
-                psychicHorror               = 64044,
-                --psychicVoice                = 196704,
-                --reaperOfSouls               = 199853,
+                deathAndMadness             = 321291,
+                unfurlingDarkness           = 341273,
+                bodyAndSoul                 = 64129,
                 sanlayn                     = 199855,
-                searingNightmare            = 341385,
-                shadowCrash                 = 205385,
-                surrenderToMadness          = 319952,
                 twistOfFate                 = 109142,
-                --voidRay                     = 205371,
+                misery                      = 238558,
+                searingNightmare            = 341385,
+                mindBomb                    = 205369,
+                psychicHorror               = 64044,
+                auspiciousSpirits           = 155271,
+                psychicLink                 = 199484,
+                shadowCrash                 = 205385,
+                damnation                   = 341374,
+                mindbender                  = 200174,
                 voidTorrent                 = 263165,
+                ancientMadness              = 341240,
+                hungeringVoid               = 345218,
+                surrenderToMadness          = 319952,
             },
             traits                          = {
                 chorusOfInsanity            = 278661,

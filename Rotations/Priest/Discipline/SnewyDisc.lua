@@ -108,10 +108,10 @@ local function createOptions()
         br.ui:createSpinnerWithout(section, "Evangelism Targets", 3, 0, 40, 1, "Minimum Targets to use at.")
         br.ui:createSpinnerWithout(section, "Evangelism Atonements", 3, 0, 40, 1, "Minimum Atonements to use at.")
         br.ui:createSpinner(section, "Trinket 1", 70, 0, 100, 1, "Health Percentage to use at.")
-        br.ui:createSpinnerWithout(section, "Trinket 1 Targets", 3, 1, 40, 1, "Minimum Friendly Trinket 1 Targets to use at.")
+        br.ui:createSpinnerWithout(section, "Trinket 1 Targets", 3, 1, 40, 1, "Minimum Trinket 1 Targets to use at.")
         br.ui:createDropdown(section, "Trinket 1 Mode", {"Enemy", "Friend"}, 1, "Use Trinket 1 on enemy or on friend.")
         br.ui:createSpinner(section, "Trinket 2", 70, 0, 100, 1, "Health Percentage to use at.")
-        br.ui:createSpinnerWithout(section, "Trinket 2 Targets", 3, 1, 40, 1, "Minimum Friendly Trinket 2 Targets to use at.")
+        br.ui:createSpinnerWithout(section, "Trinket 2 Targets", 3, 1, 40, 1, "Minimum Trinket 2 Targets to use at.")
         br.ui:createDropdown(section, "Trinket 2 Mode", {"Enemy", "Friend"}, 1, "Use Trinket 2 on enemy or on friend.")
         br.ui:checkSectionState(section)
     end -- End cooldownOptions
@@ -174,13 +174,14 @@ local units
 local var
 -- Other Locals
 local atonementsCount
-local bestAOEGroupCount
-local bestAOEUnit
+local hp
 local innervated
 local inRaid
 local lowestUnit
 local nonAtonementsCount
-local power
+local mana
+local mindSearUnit
+local mindSearUnitsCount
 local purgeTheWickedUnit
 local purgeTheWickedCount
 local schismUnit
@@ -354,14 +355,14 @@ actionList.Interrupt = function()
     if ui.useInterrupt() then
         for i = 1, #enemies.yards40 do
             thisUnit = enemies.yards40[i]
-            if br.canInterrupt(thisUnit, ui.value("Interrupt At")) then
-                if ui.checked("Shining Force") and br.getDistance(thisUnit) < 10 then
+            if unit.interruptable(thisUnit, ui.value("Interrupt At")) then
+                if ui.checked("Shining Force") and unit.distance(thisUnit) < 10 then
                     if cast.shiningForce() then return true end
                 end
-                if br.isChecked("Psychic Scream") and br.getDistance(thisUnit) < 8 then
+                if ui.checked("Psychic Scream") and unit.distance(thisUnit) < 8 then
                     if cast.psychicScream() then return true end
                 end
-                if br.isChecked("Quaking Palm") and br.getDistance(thisUnit) < 5 then
+                if ui.checked("Quaking Palm") and unit.distance(thisUnit) < 5 then
                     if cast.quakingPalm(thisUnit) then return true end
                 end
             end
@@ -372,7 +373,7 @@ end -- End Action List - Interrupt
 -- Action List - Defensive
 actionList.Defensive = function()
     if ui.useDefensive() then
-        if ui.checked("Fade") and unit.hp("player") <= ui.value("Fade") then
+        if ui.checked("Fade") and hp <= ui.value("Fade") then
             for i = 1, #enemies.yards30 do
                 thisUnit = enemies.yards30[i]
                 if unit.isTanking(thisUnit) and unit.inCombat(thisUnit) then
@@ -380,14 +381,14 @@ actionList.Defensive = function()
                 end
             end
         end
-        if ui.checked("Healthstone") and unit.hp("player") <= ui.value("Healthstone") and inCombat and (br.hasItem(5512) and br.canUseItem(5512)) then
+        if ui.checked("Healthstone") and hp <= ui.value("Healthstone") and inCombat and (br.hasItem(5512) and br.canUseItem(5512)) then
             br.useItem(5512)
         end
-        if ui.checked("Gift of the Naaru") and unit.hp("player") <= ui.value("Gift of the Naaru") and inCombat and race == "Draenei" then
+        if ui.checked("Gift of the Naaru") and hp <= ui.value("Gift of the Naaru") and inCombat and race == "Draenei" then
             if cast.giftOfTheNaaru() then return true end
         end
-        if ui.checked("Desperate Prayer") and unit.hp("player") <= ui.value("Desperate Prayer") then
-            cast.desperatePrayer()
+        if ui.checked("Desperate Prayer") and hp <= ui.value("Desperate Prayer") then
+            if cast.desperatePrayer() then return true end
         end
     end
 end -- End Action List - Defensive
@@ -398,7 +399,7 @@ actionList.Cooldown = function()
         for i = 1, #tanks do
             thisUnit = tanks[i].unit
             if unit.hp(thisUnit) <= ui.value("Pain Suppression Tank") then
-                cast.painSuppression(thisUnit)
+                if cast.painSuppression(thisUnit) then return end
             end
         end
     end
@@ -406,32 +407,39 @@ actionList.Cooldown = function()
         for i = 1, #friends do
             thisUnit = friends[i].unit
             if unit.hp(thisUnit) <= ui.value("Pain Suppression Party") then
-                cast.painSuppression(thisUnit)
+                if cast.painSuppression(thisUnit) then return end
             end
         end
     end
     if ui.useCDs() then
-        if ui.checked("Trinket 1") and br.canTrinket(13) and br.getLowAllies(ui.value("Trinket 1")) >= ui.value("Trinket 1 Targets") then
-            if ui.value("Trinket 1 Mode") == 1 then
+        if (race == "Troll" or race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf" or race == "LightforgedDraenei") or (mana < 70 and race == "BloodElf") then
+            if race == "LightforgedDraenei" then
+                if cast.racial("target", "ground") then return true end
+            else
+                if cast.racial("player") then return true end
+            end
+        end
+        if ui.checked("Trinket 1") and br.canTrinket(13) then
+            if ui.value("Trinket 1 Mode") == 1 and mindSearUnitsCount >= ui.value("Trinket 1 Targets") then
                 if schismUnit ~= nil then
                     br.useItem(13, schismUnit)
                 elseif schismUnit == nil then
                     br.useItem(13)
                 end
-            elseif ui.value("Trinket 1 Mode") == 2 then
+            elseif ui.value("Trinket 1 Mode") == 2 and br.getLowAllies(ui.value("Trinket 1")) >= ui.value("Trinket 1 Targets") then
                 if unit.hp(lowestUnit) <= ui.value("Trinket 1") then
                     br.useItem(13, lowestUnit)
                 end
             end
         end
-        if ui.checked("Trinket 2") and br.canTrinket(14) and br.getLowAllies(ui.value("Trinket 2")) >= ui.value("Trinket 2 Targets") then
-            if ui.value("Trinket 2 Mode") == 1 then
+        if ui.checked("Trinket 2") and br.canTrinket(14) then
+            if ui.value("Trinket 2 Mode") == 1 and mindSearUnitsCount >= ui.value("Trinket 1 Targets") then
                 if schismUnit ~= nil then
                     br.useItem(14, schismUnit)
                 elseif schismUnit == nil then
                     br.useItem(14)
                 end
-            elseif ui.value("Trinket 2 Mode") == 2 then
+            elseif ui.value("Trinket 2 Mode") == 2 and br.getLowAllies(ui.value("Trinket 2")) >= ui.value("Trinket 2 Targets") then
                 if unit.hp(lowestUnit) <= ui.value("Trinket 2") then
                     br.useItem(14, lowestUnit)
                 end
@@ -449,13 +457,6 @@ actionList.Cooldown = function()
                 if cast.spiritShell() then return true end
             else
                 if cast.rapture() then return true end
-            end
-        end
-        if (race == "Troll" or race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf" or race == "LightforgedDraenei") or (power < 70 and race == "BloodElf") then
-            if race == "LightforgedDraenei" then
-                if cast.racial("target", "ground") then return true end
-            else
-                if cast.racial("player") then return true end
             end
         end
     end
@@ -580,8 +581,8 @@ actionList.Damage = function()
         end
     end
     if ui.checked("Mind Sear Prioritize") and not cast.current.mindSear() then
-        if bestAOEGroupCount >= ui.value("Mind Sear Prioritize") and unit.hp(lowestUnit) > ui.value("Mind Sear Health") then
-            if cast.mindSear(bestAOEUnit) then return true end
+        if mindSearUnitsCount >= ui.value("Mind Sear Prioritize") and unit.hp(lowestUnit) > ui.value("Mind Sear Health") then
+            if cast.mindSear(mindSearUnit) then return true end
         end
     end
     if ui.checked("Power Word: Solace") and talent.powerWordSolace then
@@ -621,14 +622,14 @@ actionList.Damage = function()
             end
         end
     end
-    if ui.checked("Mindbender") and talent.mindbender and power <= ui.value("Mindbender") then
+    if ui.checked("Mindbender") and talent.mindbender and mana <= ui.value("Mindbender") then
         if schismUnit ~= nil and ttd(schismUnit) > 9 then
             if cast.mindbender(schismUnit) then return true end
         elseif ttd(units.dyn40) > 9 and not unit.isExplosive(units.dyn40) then
             if cast.mindbender(units.dyn40) then return true end
         end
     end
-    if ui.checked("Shadowfiend") and not talent.mindbender and power <= ui.value("Shadowfiend") then
+    if ui.checked("Shadowfiend") and not talent.mindbender and mana <= ui.value("Shadowfiend") then
         if schismUnit ~= nil and ttd(schismUnit) > 9 then
             if cast.shadowfiend(schismUnit) then return true end
         elseif ttd(units.dyn40) > 9 and not unit.isExplosive(units.dyn40) then
@@ -655,8 +656,8 @@ actionList.Damage = function()
         end
     end
     if ui.checked("Mind Sear") and not moving and not cast.current.mindSear() then
-        if bestAOEGroupCount >= ui.value("Mind Sear") and unit.hp(lowestUnit) > ui.value("Mind Sear Health") then
-            if cast.mindSear(bestAOEUnit) then return true end
+        if mindSearUnitsCount >= ui.value("Mind Sear") and unit.hp(lowestUnit) > ui.value("Mind Sear Health") then
+            if cast.mindSear(mindSearUnit) then return true end
         end
     end
     if ui.checked("Mind Blast") and not moving then
@@ -722,36 +723,38 @@ local function runRotation()
     units = br.player.units
     var = br.player.variables
     
+    -- Custom Variables
+    units.get(40)
+    enemies.get(30)
+    enemies.get(40)
+
     -- Other Locals
     atonementsCount = buff.atonement.count()
-    bestAOEGroupCount = 0
-    bestAOEUnit = nil
+    hp = unit.hp("player")
     innervated = buff.innervate.exists("player")
     inRaid = br.player.instance == "raid"
     lowestUnit = friends[1].unit
     nonAtonementsCount = 0
-    power = br.player.power.mana.percent()
+    mana = br.player.power.mana.percent()
+    mindSearUnit = nil
+    mindSearUnitsCount = 0
     purgeTheWickedUnit = nil
     purgeTheWickedCount = debuff.purgeTheWicked.count()
     schismUnit = nil
     shadowWordPainCount = debuff.shadowWordPain.count()
     tanks = br.getTanksTable()
-    
-    -- Custom Variables
-    units.get(40)
-    enemies.get(30)
-    enemies.get(40)
+    thisUnit = nil
     if unit.exists("target") then
-        bestAOEGroupCount = #enemies.get(10, "target")
-        bestAOEUnit = "target"
+        mindSearUnitsCount = #enemies.get(10, "target")
+        mindSearUnit = "target"
     end
     local thisGroupCount
     for i = 1, #enemies.yards40 do
         thisUnit = enemies.yards40[i]
         thisGroupCount = #enemies.get(10, thisUnit)
-        if thisGroupCount > bestAOEGroupCount and ttd(thisUnit) > 4 then
-            bestAOEGroupCount = thisGroupCount
-            bestAOEUnit = thisUnit
+        if thisGroupCount > mindSearUnitsCount then
+            mindSearUnitsCount = thisGroupCount
+            mindSearUnit = thisUnit
         end
         if debuff.schism.exists(thisUnit) and ttd(thisUnit) > 2 and unit.facing(thisUnit) and not br._G.UnitIsOtherPlayersPet(thisUnit) then
             schismUnit = thisUnit
