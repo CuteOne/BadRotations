@@ -1061,7 +1061,7 @@ actionList.dps = function()
                                     )
                                 end
                                 for i = 1, #spikeList do
-                                    if br.isSafeToAttack(spikeList[i]) and (unit.hp(spikeList[i]) < 90 or br.getUnitID(thisUnit) ~= 171557) and
+                                    if br.isSafeToAttack(spikeList[i]) and (br.getHP(spikeList[i]) < 90 or br.getUnitID(thisUnit) ~= 171557) and
                                      (not debuff.serratedBoneSpikeDot.exists(spikeList[i]) or charges.serratedBoneSpike.frac() >= 2.75) then
                                         if devtest == 0 then
                                             if cast.serratedBoneSpike(spikeList[i]) then
