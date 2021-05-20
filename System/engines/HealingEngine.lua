@@ -6,13 +6,6 @@ local _, br = ...
 -----------------------------------------Bubba's Healing Engine--------------------------------------]]
 local LGIST = _G.LibStub("LibGroupInSpecT-1.1")
 
-local function percent (x, y)
-	return x.hp < y.hp
-end
-
-local function absolute (x, y)
-	return x.hpabs < y.hpabs
-end
 if not br.metaTable1 then
 	-- localizing the commonly used functions while inside loops
 	local getDistance, tinsert, tremove, UnitClass, GetUnitIsUnit = br.getDistance, _G.tinsert, _G.tremove, br._G.UnitClass, br.GetUnitIsUnit
@@ -528,9 +521,9 @@ if not br.metaTable1 then
 			-- We are sorting by Health first
 			if br.getOptionCheck("Handle Sorting in Healing Engine") then
 				if br.getOptionValue("Sort Health By") == 1 then
-					table.sort(br.friend, percent(x, y))
+					table.sort(br.friend, function(x,y) return x.hp < y.hp end)
 				elseif br.getOptionValue("Sort Health By") == 2 then
-					table.sort(br.friend, absolute(x, y))
+					table.sort(br.friend, function(x,y) return x.hpabs < y.hpabs end)
 				end
 				if br.getOptionCheck("Prioritize Tank") then
 					table.sort(
