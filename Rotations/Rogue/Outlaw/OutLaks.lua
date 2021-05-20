@@ -1061,7 +1061,8 @@ actionList.dps = function()
                                     )
                                 end
                                 for i = 1, #spikeList do
-                                    if br.isSafeToAttack(spikeList[i]) and (not debuff.serratedBoneSpikeDot.exists(spikeList[i]) or charges.serratedBoneSpike.frac() >= 2.75) then
+                                    if br.isSafeToAttack(spikeList[i]) and (br.getHP(spikeList[i]) < 90 or br.getUnitID(thisUnit) ~= 171557) and
+                                     (not debuff.serratedBoneSpikeDot.exists(spikeList[i]) or charges.serratedBoneSpike.frac() >= 2.75) then
                                         if devtest == 0 then
                                             if cast.serratedBoneSpike(spikeList[i]) then
                                                 return true
@@ -1176,6 +1177,10 @@ actionList.dps = function()
         if (Trinket13 == 184016 or Trinket14 == 184016)
                 and br.canUseItem(184016) and inCombat and not stealth and unit.distance(dynamic_target_melee) < 8 then
             br.useItem(184016)
+        end
+        -- Dreadfire Vessel
+        if (Trinket13 == 184030 or Trinket14 == 184030) and br.canUseItem(184030) and inCombat and not stealth and #enemies.yards8 > 1 then
+            br.useItem(184030)
         end
         --darkmoon trinket
         if (Trinket13 == 173087 or Trinket14 == 173087)
