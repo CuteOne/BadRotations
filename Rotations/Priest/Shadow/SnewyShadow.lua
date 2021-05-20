@@ -73,13 +73,13 @@ local function createOptions()
         local section = br.ui:createSection(br.ui.window.profile, "Damage")
         br.ui:createCheckbox(section, "Damnation", "Use Damnation.")
         br.ui:createCheckbox(section, "Devouring Plague", "Use Devouring Plague.")
-        br.ui:createCheckbox(section, "Mindgames", "Use Mindgames.")
         br.ui:createCheckbox(section, "Mind Blast", "Use Mind Blast.")
         br.ui:createCheckbox(section, "Mind Flay", "Use Mind Flay.")
         br.ui:createSpinner(section, "Mind Sear Targets", 3, 1, 50, 1, "Minimum Mind Sear Targets to use at.")
         br.ui:createCheckbox(section, "Searing Nightmare", "Use Searing Nightmare.")
         br.ui:createCheckbox(section, "Shadow Crash", "Use Shadow Crash.")
         br.ui:createCheckbox(section, "Shadow Word: Death", "Use Shadow Word: Death.")
+        br.ui:createCheckbox(section, "Shadow Word: Death Sniping", "Use Shadow Word: Death Sniping.")
         br.ui:createSpinner(section, "Shadow Word: Pain Targets", 3, 0, 20, 1, "Maximum Shadow Word: Pain Targets to use at.")
         br.ui:createCheckbox(section, "Explosive Rotation", "Use Shadow Word: Pain at explosives.")
         br.ui:createSpinner(section, "Vampiric Touch Targets", 3, 0, 20, 1, "Maximum Vampiric Touch Targets to use at.")
@@ -91,10 +91,12 @@ local function createOptions()
     local function cooldownOptions()
         local section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
         br.ui:createCheckbox(section, "Racial", "Use Racial.")
+        br.ui:createCheckbox(section, "Boon of the Ascended", "Use Boon of the Ascended.")
         br.ui:createCheckbox(section, "Power Infusion", "Use Power Infusion.")
         br.ui:createCheckbox(section, "Void Eruption", "Use Void Eruption.")
         br.ui:createCheckbox(section, "Surrender to Madness", "Use Surrender to Madness.")
         br.ui:createCheckbox(section, "Mindbender", "Use Mindbender.")
+        br.ui:createCheckbox(section, "Mindgames", "Use Mindgames.")
         br.ui:createCheckbox(section, "Shadowfiend", "Use Shadowfiend.")
         br.ui:createSpinner(section, "Trinket 1", 70, 0, 100, 1, "Health Percentage to use at.")
         br.ui:createSpinnerWithout(section, "Trinket 1 Targets", 3, 1, 40, 1, "Minimum Trinket 1 Targets to use at.")
@@ -357,7 +359,7 @@ actionList.Cooldown = function()
             end
         end
         if ui.checked("Mindgames") then
-            if covenant.venthyr.active and insanity < 90 and ((allDotsUp and (not cd.voidEruption.exists() or not talent.hungeringVoid)) or buff.voidForm.exists()) and (not talent.hungeringVoid or debuff.hungeringVoid.exists() or not buff.voidForm.exists()) and (not talent.searingNightmare or mindSearUnitsCount < 5) and not moving then
+            if covenant.venthyr.active and insanity < 90 and (allDotsUp or buff.voidForm.exists()) and (not talent.hungeringVoid or debuff.hungeringVoid.exists() or not buff.voidForm.exists()) and (not talent.searingNightmare or mindSearUnitsCount < 5) and not moving then
                 if cast.mindgames('target') then ui.debug("Casting Mindgames on Target [Cooldown]") return true end
             end
         end
@@ -410,23 +412,36 @@ actionList.DamageWhileCasting = function()
             end
         end
         if ui.checked("Mind Blast") then
-            if cd.mindBlast.ready() and (buff.voidForm.exists() and cd.voidBolt.exists() or not buff.voidForm.exists()) then
+            if cd.mindBlast.ready() and ((buff.voidForm.exists() and cd.voidBolt.exists()) or not buff.voidForm.exists()) then
                 if buff.darkThoughts.exists() then
                     if cast.mindBlast(units.dyn40) then ui.debug("Casting Mind Blast [DamageWhileCasting]") return true end
                 end
             end
         end
-        if (buff.voidForm.exists() or buff.dissonantEchoes.exists()) and mfTicks >= 1 and cast.current.mindFlay() and cd.voidBolt.ready() then
-            if cast.cancel.mindFlay() then ui.debug("Cancel Mind Flay [DamageWhileCasting]") return true end
+        if ui.checked("Devouring Plague") and mfTicks >= 1 then
+            if (debuff.devouringPlague.refresh(units.dyn40) or insanity > 75) and (not poolForVoidEruption or insanity >= 85) and (not talent.searingNightmare or (talent.searingNightmare and not searingNightmareCutoff)) then
+                if cast.devouringPlague(units.dyn40) then ui.debug("Casting Devouring Plague [DamageWhileCasting]") return true end
+            end
         end
-        if cast.current.mindFlay() and buff.boonOfTheAscended.exists() and cd.ascendedBlast.ready() then
-            if cast.cancel.mindFlay() then ui.debug("Cancel Mind Flay [DamageWhileCasting]") return true end
+        if ui.checked("Void Bolt") then
+            if (buff.voidForm.exists() or buff.dissonantEchoes.exists()) and mfTicks >= 1 and cast.current.mindFlay() and cd.voidBolt.ready() then
+                if cast.cancel.mindFlay() then ui.debug("Cancel Mind Flay [DamageWhileCasting]") return true end
+            end
         end
-        if cast.current.mindFlay() and mfTicks >= 1 and vampiricTouchRefreshable then
-            if cast.cancel.mindFlay() then ui.debug("Cancel Mind Flay [DamageWhileCasting]") return true end
+        if ui.checked("Boon of the Ascended") then
+            if (cast.current.mindFlay() or cast.current.mindSear()) and buff.boonOfTheAscended.exists() and cd.ascendedBlast.ready() then
+                if cast.current.mindFlay() then
+                    if cast.cancel.mindFlay() then ui.debug("Cancel Mind Flay [DamageWhileCasting]") return true end
+                end
+                if cast.current.mindSear() then
+                    if cast.cancel.mindSear() then ui.debug("Cancel Mind Sear [DamageWhileCasting]") return true end
+                end
+            end
         end
-        if cast.current.mindSear() and buff.boonOfTheAscended.exists() and cd.ascendedBlast.ready() then
-            if cast.cancel.mindSear() then ui.debug("Cancel Mind Sear [DamageWhileCasting]") return true end
+        if ui.checked("Vampiric Touch Targets") then
+            if cast.current.mindFlay() and mfTicks >= 1 and vampiricTouchRefreshable then
+                if cast.cancel.mindFlay() then ui.debug("Cancel Mind Flay [DamageWhileCasting]") return true end
+            end
         end
         if cast.current.mindSear() and msTicks >= 5 and cast.last.searingNightmare() and insanity > 30 then
             if cast.cancel.mindSear() then ui.debug("Cancel Mind Sear [DamageWhileCasting]") return true end
@@ -476,7 +491,7 @@ actionList.Damage = function()
             if cast.mindBlast(units.dyn40) then ui.debug("Casting Mind Blast [Damage]") return true end
         end
     end
-    if ui.checked("Void Bolt") and buff.voidForm.exists() then
+    if ui.checked("Void Bolt") and (buff.voidForm.exists() or buff.dissonantEchoes.exists()) then
         if insanity <= 85 and ((talent.hungeringVoid and talent.searingNightmare and mindSearUnitsCount <= 6) or ((talent.hungeringVoid and not talent.searingNightmare) or mindSearUnitsCount == 1)) then
             if buff.dissonantEchoes.exists() then
                 if cast.devoidBolt(units.dyn40) then ui.debug("Casting Dissonant Echoes Void Bolt [Damage]") return true end
@@ -490,7 +505,7 @@ actionList.Damage = function()
             if cast.devouringPlague(units.dyn40) then ui.debug("Casting Devouring Plague [Damage]") return true end
         end
     end
-    if ui.checked("Void Bolt") and buff.voidForm.exists() then
+    if ui.checked("Void Bolt") and (buff.voidForm.exists() or buff.dissonantEchoes.exists()) then
         if mindSearUnitsCount < 4 and ((insanity <= 85 and talent.searingNightmare) or not talent.searingNightmare) then
             if buff.dissonantEchoes.exists() then
                 if cast.devoidBolt(units.dyn40) then ui.debug("Casting Dissonant Echoes Void Bolt [Damage]") return true end
@@ -499,9 +514,17 @@ actionList.Damage = function()
             end
         end
     end
-    if ui.checked("Shadow Word: Death") then
+    if ui.checked("Shadow Word: Death") and cd.shadowWordDeath.ready() then
         if (unit.hp(units.dyn40) < 20 and mindSearUnitsCount < 4) or (fiendActive and runeforge.shadowflamePrism.equiped) then
             if cast.shadowWordDeath(units.dyn40) then ui.debug("Casting Shadow Word: Death [Damage]") return true end
+        end
+        if ui.checked("Shadow Word: Death Sniping") then
+            for i = 1, #enemies.yards40 do
+                thisUnit = enemies.yards40[i]
+                if (not talent.deathAndMadness and unit.hp(thisUnit) < 20) or (talent.deathAndMadness and unit.hp(thisUnit) and ttd(thisUnit) < 7) then
+                    if cast.shadowWordDeath(thisUnit) then ui.debug("Casting Shadow Word: Death Sniping [Damage]") return true end
+                end
+            end
         end
     end
     if ui.checked("Surrender to Madness") and ui.useCDs() then
@@ -523,7 +546,7 @@ actionList.Damage = function()
             end
         end
     end
-    if ui.checked("Shadow Crash") and talent.shadowCrash and cd.shadowCrash.ready() then
+    if ui.checked("Shadow Crash") and talent.shadowCrash and cd.shadowCrash.ready() and unit.valid(units.dyn40) then
         if ttd(units.dyn40) > 3 and not unit.moving(units.dyn40) then
             if cast.shadowCrash("best", nil, 1, 8) then br._G.SpellStopTargeting()ui.debug("Casting Shadow Crash [Damage]") return true end
         end
@@ -620,7 +643,7 @@ local function runRotation()
     shadowWordPainCount = debuff.shadowWordPain.count()
     thisUnit = nil
     vampiricTouchCount = debuff.vampiricTouch.count()
-    vampiricTouchRefreshable = false
+    vampiricTouchRefreshable = debuff.vampiricTouch.refresh(units.dyn40) and ttd(units.dyn40) > 6
     local exists, totemName, startTime, duration, _ = br._G.GetTotemInfo(1)
     if exists then
         fiendRemain = math.max(duration - (br._G.GetTime() - startTime), 0)
@@ -634,9 +657,6 @@ local function runRotation()
         if thisGroupCount > mindSearUnitsCount then
             mindSearUnitsCount = thisGroupCount
             mindSearUnit = thisUnit
-        end
-        if debuff.vampiricTouch.refresh(thisUnit) and ttd(thisUnit) > 6 then
-            vampiricTouchRefreshable = true
         end
     end
     searingNightmareCutoff = (not buff.voidForm.exists() and mindSearUnitsCount > 2) or (buff.voidForm.exists() and mindSearUnitsCount > 3)
