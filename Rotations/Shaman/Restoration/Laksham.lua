@@ -55,10 +55,10 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "General - 1.0")
+        section = br.ui:createSection(br.ui.window.profile, "General - 1.1")
         br.ui:createDropdownWithout(section, "Ghost Wolf Key", br.dropOptions.Toggle, 6, "|cff0070deSet key to hold down for Ghost Wolf")
-        br.ui:createSpinnerWithout(section, "Minimum Mana for DPS", 50, 0, 100, 5, "Lowest health to allow for DPS")
-        br.ui:createSpinnerWithout(section, "Minimum Health for DPS", 50, 0, 100, 5, "Lowest mana to allow for DPS")
+        br.ui:createSpinnerWithout(section, "Minimum Mana for DPS", 50, 0, 100, 5, "Lowest mana to allow for DPS")
+        br.ui:createSpinnerWithout(section, "Minimum Health for DPS", 50, 0, 100, 5, "Lowest health to allow for DPS")
         br.ui:checkSectionState(section)
 
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -77,10 +77,13 @@ local function createOptions()
         br.ui:createSpinnerWithout(section, "Healing Wave", 75, 0, 100, 5, "Top people off. Default: 75")
         br.ui:createSpinner(section, "Chain Heal", 70, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
         br.ui:createDropdownWithout(section, "Chain Heal Mode", { "Simple", "Advanced" }, 1, "CH modes")
-        br.ui:createSpinnerWithout(section, "Chain Heal Targets", 3, 0, 40, 1, "Minimum Chain Heal Targets")
+        br.ui:createSpinnerWithout(section, "Chain Heal Targets", 3, 0, 20, 1, "Minimum Chain Heal Targets")
         br.ui:createSpinner(section, "Healing Rain", 80, 0, 100, 5, "Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Healing Rain Targets", 2, 0, 40, 1, "Minimum Healing Rain Targets")
         br.ui:checkSectionState(section)
+        section = br.ui:createSection(br.ui.window.profile, "Capacitor Totem")
+        br.ui:createCheckbox(section, "Capacitor Totem - Interrupt")
+        br.ui:createSpinner(section, "Capacitor Totem - AOE", 2, 0, 10, 1, "# mobs to drop totem on")
 
         section = br.ui:createSection(br.ui.window.profile, "M+")
         br.ui:createCheckbox(section, "Grievous Wounds")
@@ -95,7 +98,6 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
         br.ui:createDropdown(section, "Priority Mark", { "|cffffff00Star", "|cffffa500Circle", "|cff800080Diamond", "|cff008000Triangle", "|cffffffffMoon", "|cff0000ffSquare", "|cffff0000Cross", "|cffffffffSkull" }, 8, "Mark to Prioritize")
         br.ui:createSpinner(section, "Interrupt At", 0, 0, 95, 5, "|cffFFBB00Cast Percentage to use at.")
-        br.ui:createCheckbox(section, "Capacitor Totem")
         br.ui:checkSectionState(section)
     end
     optionTable = { {
@@ -272,7 +274,8 @@ local function canheal(unit)
             and (not br.UnitBuffID(unit, 108978) or br.getHP(unit) < ui.value("Critical HP")) --mages ...
             and br.getLineOfSight(unit, "player")
             and not br.GetUnitIsDeadOrGhost(unit)
-            and br.GetUnitIsFriend(unit, "player") then
+            and br.GetUnitIsFriend(unit, "player")
+    then
         return true
     else
         return false
@@ -289,13 +292,13 @@ actionList.heal = function()
     --heal()
 
     if not buff.ghostWolf.exists() and charges.riptide.count() > 0 then
-        if buff.riptide.refresh(lowest.unit) then
+        if canheal(lowest.unit) and buff.riptide.refresh(lowest.unit) then
             if cast.riptide(lowest.unit) then
                 br.addonDebug("[HEAL] Riptide on lowest")
                 return
             end
         end
-        if #tanks > 0 and buff.riptide.refresh(tanks[1].unit) then
+        if #tanks > 0 and canheal(lowest.unit) and buff.riptide.refresh(tanks[1].unit) then
             if cast.riptide(tanks[1].unit) then
                 br.addonDebug("[HEAL] Riptide on Tank")
                 return
@@ -306,7 +309,7 @@ actionList.heal = function()
 
     -- Cloud Burst Totem
 
-    if ui.checked("Cloudburst Totem") and talent.cloudburstTotem
+    if ui.checked("Cloudburst Totem") and talent.cloudburstTotem and unit.inCombat()
             and #tanks > 0 and br.getCombatTime() > 1 and br.getDistance(tanks[1].unit, "player") < 32 then
         if not buff.cloudburstTotem.exists() and cd.cloudburstTotem.remain() <= gcd and #enemies.yards40 > 0 then
             if cast.cloudburstTotem() then
@@ -329,25 +332,15 @@ actionList.heal = function()
         end
     end
 
-
     -- Healing Rain
     if ui.checked("Healing Rain") and not buff.healingRain.exists() and unit.inCombat()
             and movingCheck and #tanks > 0 then
-        local tankTarget = br._G.UnitTarget(tanks[1].unit)
-        local healingRainTargets = 0
-        if tankTarget ~= nil and br.getDistance(tankTarget, "player") < 40 then
-            local meleeFriends = br.getAllies(tankTarget, 10)
-            for j = 1, #meleeFriends do
-                if meleeFriends[j].hp < ui.value("Healing Rain") then
-                    healingRainTargets = healingRainTargets + 1
-                end
-            end
-            if healingRainTargets >= ui.value("Healing Rain Targets") then
-                local rainloc = br.getBestGroundCircleLocation(meleeFriends, 1, 6, 10)
-                if cast.healingRain("groundLocation", rainloc.x, rainloc.y, 10) then
-                    br.addonDebug("[HEAL] Healing rain on group")
-                    return true
-                end
+        --   local healingRainTargets = 0
+        if br.getLowAllies(ui.value("Healing Rain")) >= ui.value("Healing Rain Targets") then
+            local rainloc = br.getBestGroundCircleLocation(br.friend, 3, 6, 10)
+            if cast.healingRain("groundLocation", rainloc.x, rainloc.y, 10) then
+                br.addonDebug("[HEAL] Healing rain on group")
+                return true
             end
         end
     end
@@ -415,9 +408,10 @@ actionList.heal = function()
         end
     end
 
+
     -- Healing Surge
     if movingCheck then
-        if cast.able.healingSurge() then
+        if cd.healingSurge.remain() <= gcd then
             if healTarget == "none" then
                 if lowest.hp <= ui.value("Healing Surge") then
                     healTarget = lowest.unit
@@ -436,7 +430,7 @@ actionList.heal = function()
                 end
             end
         end
-        if cast.able.healingWave() then
+        if cast.able.healingWave(lowest.unit) then
             -- Healing Wave
             if healTarget == "none" then
                 if lowest.hp <= ui.value("Healing Wave") and canheal(lowest.unit) then
@@ -607,13 +601,26 @@ actionList.extra = function()
         end
     end
 
-    if #tanks > 0 then
-        if cd.earthShield.ready() then
-            if canheal(tanks[1].unit) and not buff.earthShield.exists(tanks[1].unit) then
-                if cast.earthShield(tanks[1].unit) then
-                    br.addonDebug("[Extra]  Earth Shield on: " .. br._G.UnitName(tanks[1].unit))
-                    return
-                end
+    if #tanks > 0 and cd.earthShield.ready() then
+        if canheal(tanks[1].unit) and not buff.earthShield.exists(tanks[1].unit) then
+            if cast.earthShield(tanks[1].unit) then
+                br.addonDebug("[Extra]  Earth Shield on: " .. br._G.UnitName(tanks[1].unit))
+                return
+            end
+        end
+    end
+
+    if ui.checked("Capacitor Totem - AOE") and cd.capacitorTotem.ready() then
+        if #enemies.get(8, "player") >= ui.value("Capacitor Totem - AOE") then
+            if cast.capacitorTotem("player") then
+                br.addonDebug("[EXTRA] Capacitor Totem - AOE(player)")
+                return true
+            end
+        end
+        if #tanks > 0 and #enemies.get(8, tanks[1].unit) >= ui.value("Capacitor Totem - AOE") then
+            if cast.capacitorTotem(tanks[1].unit) then
+                br.addonDebug("[EXTRA] Capacitor Totem - AOE(tank)")
+                return true
             end
         end
     end
@@ -736,7 +743,7 @@ end -- End Action List - Defensive
 
 actionList.Interrupt = function()
 
-    if mode.interrupt == 1 or mode.interrupt == 3 and ((cd.capacitorTotem.ready() and ui.checked("Capacitor Totem") and cd.global.remains() == 0) or cd.windShear.ready()) then
+    if mode.interrupt == 1 or mode.interrupt == 3 and ((cd.capacitorTotem.ready() and ui.checked("Capacitor Totem - Interrupt") and cd.global.remains() == 0) or cd.windShear.ready()) then
         local interrupt_target
         local distance
         local priority_target
@@ -772,7 +779,7 @@ actionList.Interrupt = function()
                             return true
                         end
                     end
-                    if cd.capacitorTotem.ready() and ui.checked("Capacitor Totem") and cd.global.remains() == 0 then
+                    if cd.capacitorTotem.ready() and ui.checked("Capacitor Totem - Interrupt") and cd.global.remains() == 0 then
                         if StunsBlackList[br.GetObjectID(interrupt_target)] == nil
                                 and br.player.cast.timeRemain(interrupt_target) < br.getTTD(interrupt_target) then
                             if cast.capacitorTotem(interrupt_target) then
@@ -801,7 +808,9 @@ actionList.Cooldown = function()
         end
     end
 
-    if cd.chainHarvest.ready() and ui.checked("Chain Harvest") and br.player.covenant.venthyr.active and movingCheck then
+    if cd.chainHarvest.ready() and ui.checked("Chain Harvest") and br.player.covenant.venthyr.active and movingCheck
+            and (buff.cloudburstTotem.exists() or not talent.cloudburstTotem or not talent.echoOfTheElements)
+    then
         local chainHarvestTargetsHeal = 0
         local chainHarvestTargetsDPS = 0
         local castTarget
@@ -867,7 +876,7 @@ local function runRotation()
     unit = br.player.unit
     units = br.player.units
     var = br.player.variables
-    --     lowest = br.friend[1]
+    --lowest = br.friend[1]
     lowest = {}
     use = br.player.use
     tanks = br.getTanksTable()
