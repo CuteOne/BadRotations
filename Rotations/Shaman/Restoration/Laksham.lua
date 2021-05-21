@@ -55,7 +55,7 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "General - 1.1")
+        section = br.ui:createSection(br.ui.window.profile, "General - 1.2")
         br.ui:createDropdownWithout(section, "Ghost Wolf Key", br.dropOptions.Toggle, 6, "|cff0070deSet key to hold down for Ghost Wolf")
         br.ui:createSpinnerWithout(section, "Minimum Mana for DPS", 50, 0, 100, 5, "Lowest mana to allow for DPS")
         br.ui:createSpinnerWithout(section, "Minimum Health for DPS", 50, 0, 100, 5, "Lowest health to allow for DPS")
@@ -66,6 +66,10 @@ local function createOptions()
         br.ui:createSpinnerWithout(section, "Chain Harvest Health", 50, 0, 100, 5, "Health threshold to use for Harvest. Default: 50")
         br.ui:createSpinnerWithout(section, "Chain Harvest Targets", 3, 0, 10, 5, "How many hits before using the spell. Default: 3")
         br.ui:createSpinner(section, "Mana Tide Totem", 40, 0, 100, 5, "Drop mana tide totem when mana is under value. Default: 40")
+        br.ui:createSpinner(section, "Healing Tide Totem", 50, 0, 100, 5, "Health threshold to use for Healing Tide. Default: 50")
+        br.ui:createSpinnerWithout(section, "Healing Tide Totem Targets", 3, 0, 10, 5, "How many hits before using the spell. Default: 3")
+        br.ui:createSpinner(section, "Ascendance", 50, 0, 100, 5, "Health threshold to use for Ascendance. Default: 50")
+        br.ui:createSpinnerWithout(section, "Ascendance Targets", 3, 0, 10, 5, "How many hits before using the spell. Default: 3")
         br.ui:checkSectionState(section)
 
         section = br.ui:createSection(br.ui.window.profile, "Heal")
@@ -84,7 +88,7 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Capacitor Totem")
         br.ui:createCheckbox(section, "Capacitor Totem - Interrupt")
         br.ui:createSpinner(section, "Capacitor Totem - AOE", 2, 0, 10, 1, "# mobs to drop totem on")
-
+        br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "M+")
         br.ui:createCheckbox(section, "Grievous Wounds")
         br.ui:createCheckbox(section, "Pride Heal")
@@ -840,6 +844,40 @@ actionList.Cooldown = function()
             end
         end
     end
+
+    if br.useCDs() then
+        local function tideTotemExists()
+            for i = 1, 4 do
+                if br._G.GetTotemInfo(i) ~= nil then
+                    if select(2, br._G.GetTotemInfo(i)) == "Healing Tide Totem" then
+                        return true
+                    end
+                end
+            end
+            return false
+        end
+        -- Healing Tide Totem
+        if ui.checked("Healing Tide Totem") and not buff.ascendance.exists() and cd.healingTideTotem.remain() <= gcd then
+            if
+            br.getLowAllies(ui.value("Healing Tide Totem")) >= ui.value("Healing Tide Totem Targets") or burst == true
+            then
+                if cast.healingTideTotem() then
+                    br.addonDebug("[CD] Healing Tide Totem")
+                    return
+                end
+            end
+        end
+        -- Ascendance
+        if ui.checked("Ascendance") and talent.ascendance and cd.ascendance.remain() <= gcd and not tideTotemExists() then
+            if br.getLowAllies(ui.value("Ascendance")) >= ui.value("Ascendance Targets") or burst == true
+            then
+                if cast.ascendance() then
+                    br.addonDebug("[CD] Ascendance")
+                    return
+                end
+            end
+        end
+    end -- end CD toggle
 end -- End Action List - Cooldowns
 
 
