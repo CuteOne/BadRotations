@@ -126,6 +126,7 @@ function unlock.MBUnlock()
         if not br.om then
             br.om = {}
         end
+        local om = br.om
         for i=1, wmbapi.GetNpcCount("player",60) do
             local enemyUnit = br.unitSetup:new(wmbapi.GetNpcWithIndex(i))
             if enemyUnit then
