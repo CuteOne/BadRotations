@@ -4,34 +4,41 @@ local rotationName = "SnewyShadow"
 --- Toggles ---
 ---------------
 local function createToggles()
+    -- Rotation
+    local RotationModes = {
+        [1] = {mode = "Auto", value = 1, overlay = "Automatic Rotation Enabled", tip = "Automatically cleaves or focus on number of enemies in range.", highlight = 1, icon = br.player.spell.vampiricTouch},
+        [2] = {mode = "Sing", value = 2, overlay = "Single Target Rotation Enabled", tip = "Force single target rotation and does not use any aoe.", highlight = 0, icon = br.player.spell.vampiricTouch},
+    }
+    br.ui:createToggle(RotationModes, "Rotation", 1, 0)
+    
     -- Cooldown
     local CooldownModes = {
         [1] = {mode = "Auto", value = 1, overlay = "Cooldowns Enabled", tip = "Includes Cooldowns.", highlight = 1, icon = br.player.spell.voidEruption},
         [2] = {mode = "On", value = 2, overlay = "Cooldowns Enabled", tip = "Includes Cooldowns.", highlight = 1, icon = br.player.spell.voidEruption},
         [3] = {mode = "Off", value = 3, overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.voidEruption}
     };
-    br.ui:createToggle(CooldownModes, "Cooldown", 1, 0)
+    br.ui:createToggle(CooldownModes, "Cooldown", 2, 0)
     
     -- Defensive
     local DefensiveModes = {
         [1] = {mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Includes Defensives.", highlight = 1, icon = br.player.spell.dispersion},
         [2] = {mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.dispersion}
     };
-    br.ui:createToggle(DefensiveModes, "Defensive", 2, 0)
+    br.ui:createToggle(DefensiveModes, "Defensive", 3, 0)
     
     -- Dispel
     local DispelModes = {
         [1] = {mode = "On", value = 1, overlay = "Dispels Enabled", tip = "Includes Dispels.", highlight = 1, icon = br.player.spell.dispelMagic},
         [2] = {mode = "Off", value = 2, overlay = "Dispels Disabled", tip = "No Dispels will be used.", highlight = 0, icon = br.player.spell.dispelMagic}
     }
-    br.ui:createToggle(DispelModes, "Dispel", 3, 0)
+    br.ui:createToggle(DispelModes, "Dispel", 4, 0)
     
     -- Interrupt
     local InterruptModes = {
         [1] = {mode = "On", value = 1, overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.silence},
         [2] = {mode = "Off", value = 2, overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.silence}
     };
-    br.ui:createToggle(InterruptModes, "Interrupt", 4, 0)
+    br.ui:createToggle(InterruptModes, "Interrupt", 5, 0)
 end -- End createToggles
 
 ---------------
@@ -186,6 +193,10 @@ local shadowWordPainCount
 local thisUnit
 local vampiricTouchCount
 local vampiricTouchRefreshable
+local unitBlacklistIDs = {
+    171557, -- Shade of Barghast
+    169912, -- Enraged Mask
+}
 
 -----------------
 --- Functions ---
@@ -198,6 +209,14 @@ local function ttd(u)
     return ttdSec
 end
 
+local function isBlacklisted(u)
+    if br._G.UnitIsCharmed(u) then return true end
+    for i = 1, #unitBlacklistIDs do
+        if br.GetObjectID(u) == unitBlacklistIDs[i] then return true end
+    end
+    return false
+end
+
 --------------------
 --- Action Lists ---
 --------------------
@@ -207,7 +226,7 @@ local actionList = {}
 actionList.PreCombat = function()
     if ui.checked("Pre-Pull Timer") and ui.pullTimer() <= ui.value("Pre-Pull Timer") then
         if unit.valid("target") then
-            if ui.checked("Vampiric Touch Targets") and not moving then
+            if ui.checked("Vampiric Touch Targets") and ui.pullTimer() <= cast.time.vampiricTouch() and not moving then
                 if cast.vampiricTouch("target") then ui.debug("Casting Vampiric Touch on target [PreCombat]") return true end
             end
         end
@@ -406,7 +425,7 @@ end -- End Action List - Healing
 -- Action List - DamageWhileCasting
 actionList.DamageWhileCasting = function()
     if cast.current.mindFlay() or cast.current.mindSear() then
-        if ui.checked("Searing Nightmare") and talent.searingNightmare then
+        if ui.checked("Searing Nightmare") and talent.searingNightmare and cast.current.mindSear() then
             if (searingNightmareCutoff and not poolForVoidEruption) or (debuff.shadowWordPain.refresh(units.dyn40) and mindSearUnitsCount > 1) then
                 if cast.searingNightmare(units.dyn40) then ui.debug("Casting Searing Nightmare [DamageWhileCasting]") return true end
             end
@@ -419,7 +438,7 @@ actionList.DamageWhileCasting = function()
             end
         end
         if ui.checked("Devouring Plague") and mfTicks >= 1 then
-            if (debuff.devouringPlague.refresh(units.dyn40) or insanity > 75) and (not poolForVoidEruption or insanity >= 85) and (not talent.searingNightmare or (talent.searingNightmare and not searingNightmareCutoff)) then
+            if (debuff.devouringPlague.refresh(units.dyn40) or insanity > 75) and (not poolForVoidEruption or insanity >= 85) and (not talent.searingNightmare or (talent.searingNightmare and not searingNightmareCutoff) or mode.rotation == 2) then
                 if cast.devouringPlague(units.dyn40) then ui.debug("Casting Devouring Plague [DamageWhileCasting]") return true end
             end
         end
@@ -468,7 +487,7 @@ end -- End Action List - PreCdsDamage
 
 -- Action List - Damage
 actionList.Damage = function()
-    if ui.checked("Mind Sear Targets") then
+    if ui.checked("Mind Sear Targets") and mode.rotation == 1 then
         if talent.searingNightmare and mindSearUnitsCount >= ui.value("Mind Sear Targets") and not debuff.shadowWordPain.exists(mindSearUnit) and not cd.shadowfiend.exists() then
             if cast.mindSear(mindSearUnit) then ui.debug("Casting Mind Sear [Damage]") return true end
         end
@@ -492,7 +511,7 @@ actionList.Damage = function()
         end
     end
     if ui.checked("Void Bolt") and (buff.voidForm.exists() or buff.dissonantEchoes.exists()) then
-        if insanity <= 85 and ((talent.hungeringVoid and talent.searingNightmare and mindSearUnitsCount <= 6) or ((talent.hungeringVoid and not talent.searingNightmare) or mindSearUnitsCount == 1)) then
+        if insanity <= 85 and ((talent.hungeringVoid and talent.searingNightmare and mindSearUnitsCount <= 6) or ((talent.hungeringVoid and not talent.searingNightmare) or mindSearUnitsCount == 1 or mode.rotation == 2)) then
             if buff.dissonantEchoes.exists() then
                 if cast.devoidBolt(units.dyn40) then ui.debug("Casting Dissonant Echoes Void Bolt [Damage]") return true end
             else
@@ -501,12 +520,12 @@ actionList.Damage = function()
         end
     end
     if ui.checked("Devouring Plague") then
-        if (debuff.devouringPlague.refresh(units.dyn40) or insanity > 75) and (not poolForVoidEruption or insanity >= 85) and (not talent.searingNightmare or (talent.searingNightmare and not searingNightmareCutoff)) then
+        if (debuff.devouringPlague.refresh(units.dyn40) or insanity > 75) and (not poolForVoidEruption or insanity >= 85) and (not talent.searingNightmare or (talent.searingNightmare and not searingNightmareCutoff) or mode.rotation == 2) then
             if cast.devouringPlague(units.dyn40) then ui.debug("Casting Devouring Plague [Damage]") return true end
         end
     end
     if ui.checked("Void Bolt") and (buff.voidForm.exists() or buff.dissonantEchoes.exists()) then
-        if mindSearUnitsCount < 4 and ((insanity <= 85 and talent.searingNightmare) or not talent.searingNightmare) then
+        if mindSearUnitsCount < 4 and ((insanity <= 85 and talent.searingNightmare) or not talent.searingNightmare or mode.rotation == 2) then
             if buff.dissonantEchoes.exists() then
                 if cast.devoidBolt(units.dyn40) then ui.debug("Casting Dissonant Echoes Void Bolt [Damage]") return true end
             else
@@ -518,7 +537,7 @@ actionList.Damage = function()
         if (unit.hp(units.dyn40) < 20 and mindSearUnitsCount < 4) or (fiendActive and runeforge.shadowflamePrism.equiped) then
             if cast.shadowWordDeath(units.dyn40) then ui.debug("Casting Shadow Word: Death [Damage]") return true end
         end
-        if ui.checked("Shadow Word: Death Sniping") then
+        if ui.checked("Shadow Word: Death Sniping") and mode.rotation == 1 then
             for i = 1, #enemies.yards40 do
                 thisUnit = enemies.yards40[i]
                 if (not talent.deathAndMadness and unit.hp(thisUnit) < 20) or (talent.deathAndMadness and unit.hp(thisUnit) and ttd(thisUnit) < 7) then
@@ -538,7 +557,7 @@ actionList.Damage = function()
         end
     end
     if (ui.checked("Mindbender") or ui.checked("Shadowfiend")) and ui.useCDs() then
-        if debuff.vampiricTouch.exists() and ((talent.searingNightmare and mindSearUnitsCount >= ui.value("Mind Sear Targets")) or debuff.shadowWordPain.exists()) then
+        if debuff.vampiricTouch.exists() and ((talent.searingNightmare and mindSearUnitsCount >= ui.value("Mind Sear Targets")) or debuff.shadowWordPain.exists() or mode.rotation == 2) then
             if ui.checked("Mindbender") and talent.mindbender then
                 if cast.mindbender(units.dyn40) then ui.debug("Casting Mindbender [Damage]") return true end
             elseif ui.checked("Shadowfiend") then
@@ -551,7 +570,7 @@ actionList.Damage = function()
             if cast.shadowCrash("best", nil, 1, 8) then br._G.SpellStopTargeting()ui.debug("Casting Shadow Crash [Damage]") return true end
         end
     end
-    if ui.checked("Mind Sear Targets") and not moving then
+    if ui.checked("Mind Sear Targets") and not moving and mode.rotation == 1 then
         if mindSearUnitsCount >= ui.value("Mind Sear Targets") and buff.darkThoughts.exists() then
             if cast.mindSear(mindSearUnit) then ui.debug("Casting Mind Sear [Damage]") return true end
         end
@@ -575,11 +594,29 @@ actionList.Damage = function()
         if debuff.shadowWordPain.refresh(units.dyn40) and ttd(units.dyn40) > 4 and not talent.misery and talent.psychicLink and mindSearUnitsCount > 2 then
             if cast.shadowWordPain(units.dyn40) then ui.debug("Casting Shadow Word: Pain [Damage]") return true end
         end
-        if debuff.shadowWordPain.refresh(units.dyn40) and ttd(units.dyn40) > 4 and not talent.misery and not (talent.searingNightmare and mindSearUnitsCount >= ui.value("Mind Sear Targets")) and (not talent.psychicLink or (talent.psychicLink and mindSearUnitsCount <= 2)) then
+        if debuff.shadowWordPain.refresh(units.dyn40) and ttd(units.dyn40) > 4 and ((not talent.misery and not (talent.searingNightmare and mindSearUnitsCount >= ui.value("Mind Sear Targets")) and (not talent.psychicLink or (talent.psychicLink and mindSearUnitsCount <= 2))) or mode.rotation == 2) then
             if cast.shadowWordPain(units.dyn40) then ui.debug("Casting Shadow Word: Pain [Damage]") return true end
         end
     end
-    if ui.checked("Mind Sear Targets") and not moving and mindSearUnitsCount >= ui.value("Mind Sear Targets") then
+    if not ui.checked("Mind Sear Targets") or mindSearUnitsCount < ui.value("Mind Sear Targets") or not talent.searingNightmare and mode.rotation == 1 then
+        if ui.checked("Vampiric Touch Targets") and not moving and vampiricTouchCount < ui.value("Vampiric Touch Targets") and not cast.last.vampiricTouch() and not cast.current.vampiricTouch() then
+            for i = 1, #enemies.yards40 do
+                thisUnit = enemies.yards40[i]
+                if (debuff.vampiricTouch.refresh(thisUnit) or (talent.misery and debuff.shadowWordPain.refresh()) or buff.unfurlingDarkness.exists()) and ttd(thisUnit) > 6 and not isBlacklisted(thisUnit) then
+                    if cast.vampiricTouch(thisUnit) then ui.debug("Casting Vampiric Touch [Damage]") return true end
+                end
+            end
+        end
+        if ui.checked("Shadow Word: Pain Targets") and shadowWordPainCount < ui.value("Shadow Word: Pain Targets") then
+            for i = 1, #enemies.yards40 do
+                thisUnit = enemies.yards40[i]
+                if debuff.shadowWordPain.refresh(thisUnit) and not talent.misery and ttd(thisUnit) > 6 and not isBlacklisted(thisUnit) then
+                    if cast.shadowWordPain(thisUnit) then ui.debug("Casting Shadow Word: Pain [Damage]") return true end
+                end
+            end
+        end
+    end
+    if ui.checked("Mind Sear Targets") and not moving and mindSearUnitsCount >= ui.value("Mind Sear Targets") and mode.rotation == 1 then
         if cast.mindSear(mindSearUnit) then ui.debug("Casting Mind Sear [Damage]") return true end
     end
     if ui.checked("Mind Flay") and not moving then
@@ -653,10 +690,12 @@ local function runRotation()
     local thisGroupCount
     for i = 1, #enemies.yards40 do
         thisUnit = enemies.yards40[i]
-        thisGroupCount = #enemies.get(10, thisUnit)
-        if thisGroupCount > mindSearUnitsCount then
-            mindSearUnitsCount = thisGroupCount
-            mindSearUnit = thisUnit
+        if not isBlacklisted(thisUnit) then
+            thisGroupCount = #enemies.get(10, thisUnit)
+            if thisGroupCount > mindSearUnitsCount then
+                mindSearUnitsCount = thisGroupCount
+                mindSearUnit = thisUnit
+            end
         end
     end
     searingNightmareCutoff = (not buff.voidForm.exists() and mindSearUnitsCount > 2) or (buff.voidForm.exists() and mindSearUnitsCount > 3)
