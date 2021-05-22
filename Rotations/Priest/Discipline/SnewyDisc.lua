@@ -273,9 +273,9 @@ local actionList = {}
 actionList.PreCombat = function()
     if ui.checked("Pre-Pull Timer") and ui.pullTimer() <= ui.value("Pre-Pull Timer") then
         if unit.valid("target") then
-            if ui.checked("Schism") and talent.schism and not moving then
+            if ui.checked("Schism") and talent.schism and not moving and ui.pullTimer() <= cast.time.schism() then
                 if cast.schism("target") then return true end
-            elseif ui.checked("Smite") and not moving then
+            elseif ui.checked("Smite") and not moving and ui.pullTimer() <= cast.time.smite() then
                 if cast.smite("target") then return true end
             end
         end
