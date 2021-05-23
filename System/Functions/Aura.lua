@@ -5,11 +5,11 @@ function br.buffQuery(unit, buffID, personal)
 	if br.read.buffTracker[unit] ~= nil and br.read.buffTracker[unit][buffID] ~= nil and (not personal or br.read.buffTracker[unit][buffID]["player"] ~= nil) then
 		local buff 
 		if personal then
-			buff = br.read.buffTracker[unit][buffID]["player"]
+			buff = br.read.buffTracker[unit][buffID]["player"].data
 		else
-			buff = br.read.buffTracker[unit][buffID]
+			buff = br.read.buffTracker[unit][buffID].data
 		end
-		return buff
+		return unpack(buff)
 	end
 	return nil
 end
@@ -19,9 +19,9 @@ function br.debuffQuery(unit, debuffID, personal)
 	if br.read.debuffTracker[unit] ~= nil and br.read.debuffTracker[unit][debuffID] ~= nil and (not personal or br.read.debuffTracker[unit][debuffID]["player"] ~= nil) then
 		local debuff 
 		if personal then
-			debuff = br.read.debuffTracker[unit][debuffID]["player"]
+			debuff = br.read.debuffTracker[unit][debuffID]["player"].data
 		else
-			debuff = br.read.debuffTracker[unit][debuffID]
+			debuff = br.read.debuffTracker[unit][debuffID].data
 		end
 		return unpack(debuff)
 	end
