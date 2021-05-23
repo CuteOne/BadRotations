@@ -925,14 +925,22 @@ local runRotation = function()
         end
     end
     var.theseUnits = (ui.mode.rotation == 2 or buff.empyreanPower.exists()) and 1 or ui.value("Divine Storm Units")
+    -- (!talent.crusade.enabled|cooldown.crusade.remains>gcd*3)
     var.useFinisher = ((not talent.crusade or cd.crusade.remains() > unit.gcd(true) * 3 or not ui.alwaysCdNever("Crusade"))
+        -- &(!talent.execution_sentence.enabled|cooldown.execution_sentence.remains>gcd*6|cooldown.execution_sentence.remains>gcd*5&holy_power>=4
         and (not talent.executionSentence or cd.executionSentence.remains() > unit.gcd(true) * 6 or (cd.executionSentence.remains() > unit.gcd(true) * 5 and holyPower >= 4)
+            -- |target.time_to_die<8|!talent.seraphim.enabled&cooldown.execution_sentence.remains>gcd*2)
             --or ((#enemies.yards8 == 1 and unit.ttdGroup(5) < 8) or (#enemies.yards8 > 1 and unit.ttdGroup(8) < 8))
             or (not talent.seraphim and cd.executionSentence.remains() > unit.gcd(true) * 2) or not ui.alwaysCdNever("Execution Sentence"))
+        -- &(!talent.final_reckoning.enabled|cooldown.final_reckoning.remains>gcd*6|cooldown.final_reckoning.remains>gcd*5&holy_power>=4
         and (not talent.finalReckoning or cd.finalReckoning.remains() > unit.gcd(true) * 6 or (cd.finalReckoning.remains() > unit.gcd(true) * 5 and holyPower >= 4)
+            -- |!talent.seraphim.enabled&cooldown.final_reckoning.remains>gcd*2)
             or (not talent.seraphim and cd.finalReckoning.remains() > unit.gcd(true) * 2) or not ui.alwaysCdNever("Final Reckoning"))
-        and (not talent.seraphim or (cd.seraphim.remains() / unit.gcd(true)) + holyPower > 3 or talent.finalReckoning
+        -- &(!talent.seraphim.enabled|cooldown.seraphim.remains%gcd+holy_power>3|talent.final_reckoning.enabled
+        and (not talent.seraphim or cd.seraphim.remains() / unit.gcd(true) + holyPower > 3 or talent.finalReckoning
+            -- |talent.execution_sentence.enabled|covenant.kyrian)
             or talent.executionSentence or covenant.kyrian.active or not ui.alwaysCdNever("Seraphim")))
+        -- |talent.holy_avenger.enabled&cooldown.holy_avenger.remains<gcd*3|buff.holy_avenger.up|buff.crusade.up&buff.crusade.stack<10
         or (talent.holyAvenger and cd.holyAvenger.remains() < unit.gcd(true) * 3) or buff.holyAvenger.exists() or (talent.crusade and buff.crusade.exists() and buff.crusade.stack() < 10)
 
     -- MultiUnits
