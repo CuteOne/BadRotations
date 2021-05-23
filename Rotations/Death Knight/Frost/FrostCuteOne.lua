@@ -480,11 +480,11 @@ actionList.Cooldowns = function()
         -- Raise Dead
         -- raise_dead,if=buff.pillar_of_frost.up
         if ui.alwaysCdNever("Raise Dead") and cast.able.raiseDead() and (buff.pillarOfFrost.exists()) then
-            if cast.raiseDead() then ui.debug("Casting Raise Dead") return true end
+            if cast.raiseDead() then ui.debug("Casting Raise Dead") var.ghoulTimer = var.getTime + 60 return true end
         end
         -- Sacrificial Pact
         -- sacrificial_pact,if=active_enemies>=2&(pet.ghoul.remains<gcd|target.time_to_die<gcd)
-        if cast.able.sacrificialPact() and #enemies.yards5 >= 2 and (--[[pet.ghoul.remains() < unit.gcd(true) or]] unit.ttd(units.dyn5) < unit.gcd(true)) then
+        if cast.able.sacrificialPact() and #enemies.yards5 >= 2 and (var.ghoulRemain < unit.gcd(true) or (var.ghoulRemain > 0 and unit.ttd(units.dyn5) < unit.gcd(true))) then
             if cast.sacrificialPact() then ui.debug("Casting Sacrificial Pact") return true end
         end
         -- Death and Decay
@@ -1010,12 +1010,14 @@ local function runRotation()
 
     -- Profile Vars
     if var.breathOfSindragosaActive == nil then var.breathOfSindragosaActive = false end
-    if var.breathOfSindragosaActive and not var.breathTimerSet then var.currentBreathTime = var.getTime(); var.breathTimerSet = true end
+    if var.breathOfSindragosaActive and not var.breathTimerSet then var.currentBreathTime = var.getTime; var.breathTimerSet = true end
     if not var.breathOfSindragosaActive then var.breathTimerSet = false end
     if var.currentBreathTime == nil then var.breathTimer = 0 end
-    if var.breathTimerSet then var.breathTimer = br.round2(var.getTime() - var.currentBreathTime,2) end
+    if var.breathTimerSet then var.breathTimer = br.round2(var.getTime - var.currentBreathTime,2) end
     if var.profileDebug == nil or not unit.inCombat() then var.profileDebug = "None" end
     if talent.runicattenuation then var.attenuation = 1 else var.attenuation = 0 end
+    if var.ghoulTimer == nil then var.ghoulTimer = var.getTime end
+    var.ghoulRemain = var.ghoulTimer > var.getTime and var.ghoulTimer - var.getTime or 0
 
     -- Runeforge Detection
     var.fallenCrusader = false
