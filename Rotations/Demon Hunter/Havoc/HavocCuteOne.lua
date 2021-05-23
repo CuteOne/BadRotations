@@ -703,7 +703,7 @@ actionList.PreCombat = function()
                     if cast.throwGlaive("target","aoe") then ui.debug("Casting Throw Glaive [Pre-Pull]") return true end
                 end
                 -- Torment
-                if not unit.dummy("target") and cast.able.torment("target") and (cast.timeSinceLast.throwGlaive() > unit.gcd(true) or not ui.checked("Throw Glaive")) then
+                if not unit.isDummy("target") and cast.able.torment("target") and (cast.timeSinceLast.throwGlaive() > unit.gcd(true) or not ui.checked("Throw Glaive")) then
                     if cast.torment("target") then ui.debug("Casting Torment [Pre-Pull]") return true end
                 end
             end
