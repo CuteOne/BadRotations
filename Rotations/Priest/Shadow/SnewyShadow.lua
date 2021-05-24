@@ -196,6 +196,7 @@ local vampiricTouchRefreshable
 local unitBlacklistIDs = {
     171557, -- Shade of Barghast
     169912, -- Enraged Mask
+    165913, -- Ghastly Parishioner
 }
 
 -----------------
@@ -602,7 +603,7 @@ actionList.Damage = function()
         if ui.checked("Vampiric Touch Targets") and not moving and vampiricTouchCount < ui.value("Vampiric Touch Targets") and not cast.last.vampiricTouch() and not cast.current.vampiricTouch() then
             for i = 1, #enemies.yards40 do
                 thisUnit = enemies.yards40[i]
-                if (debuff.vampiricTouch.refresh(thisUnit) or (talent.misery and debuff.shadowWordPain.refresh()) or buff.unfurlingDarkness.exists()) and ttd(thisUnit) > 6 and not isBlacklisted(thisUnit) then
+                if (debuff.vampiricTouch.refresh(thisUnit) or (talent.misery and debuff.shadowWordPain.refresh()) or buff.unfurlingDarkness.exists()) and ttd(thisUnit) > 6 and not isBlacklisted(thisUnit) and unit.inCombat(thisUnit) then
                     if cast.vampiricTouch(thisUnit) then ui.debug("Casting Vampiric Touch [Damage]") return true end
                 end
             end
@@ -610,7 +611,7 @@ actionList.Damage = function()
         if ui.checked("Shadow Word: Pain Targets") and shadowWordPainCount < ui.value("Shadow Word: Pain Targets") then
             for i = 1, #enemies.yards40 do
                 thisUnit = enemies.yards40[i]
-                if debuff.shadowWordPain.refresh(thisUnit) and not talent.misery and ttd(thisUnit) > 6 and not isBlacklisted(thisUnit) then
+                if debuff.shadowWordPain.refresh(thisUnit) and not talent.misery and ttd(thisUnit) > 6 and not isBlacklisted(thisUnit) and unit.inCombat(thisUnit) then
                     if cast.shadowWordPain(thisUnit) then ui.debug("Casting Shadow Word: Pain [Damage]") return true end
                 end
             end
@@ -687,10 +688,14 @@ local function runRotation()
     else
         fiendRemain = 0
     end
+    if unit.exists("target") then
+        mindSearUnitsCount = #enemies.get(10, "target")
+        mindSearUnit = "target"
+    end
     local thisGroupCount
     for i = 1, #enemies.yards40 do
         thisUnit = enemies.yards40[i]
-        if not isBlacklisted(thisUnit) then
+        if not isBlacklisted(thisUnit) and unit.inCombat(thisUnit) then
             thisGroupCount = #enemies.get(10, thisUnit)
             if thisGroupCount > mindSearUnitsCount then
                 mindSearUnitsCount = thisGroupCount
