@@ -2695,6 +2695,7 @@ br.lists.spells = {
                 desperatePrayer             = 19236,
                 dispelMagic                 = 528,
                 fade                        = 586,
+                faeGuardians                = 327661,
                 flashHeal                   = 2061,
                 leapOfFaith                 = 73325,
                 levitate                    = 1706,
