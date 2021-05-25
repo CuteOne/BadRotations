@@ -1085,7 +1085,7 @@ local function runRotation()
             end
             --# Put SnD up initially for Cut to the Chase, refresh with Envenom if at low duration
             -- actions+=/slice_and_dice,if=!buff.slice_and_dice.up&combo_points>=3
-            if (not buff.sliceAndDice.exists("player") and combatTime < 3 and cd.vanish.remain() < 117) then -- (not buff.sliceAndDice.exists("player") and combo >= 3 and not animachargedCP) or
+            if (not buff.sliceAndDice.exists("player") and combo >= 3 and not animachargedCP) or (not buff.sliceAndDice.exists("player") and combatTime < 3 and cd.vanish.remain() < 117) then
                 if cast.sliceAndDice("player") then return true end
             end
             -- actions+=/call_action_list,name=dot
