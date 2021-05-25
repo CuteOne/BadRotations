@@ -99,6 +99,7 @@ local function createOptions()
         local section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
         br.ui:createCheckbox(section, "Racial", "Use Racial.")
         br.ui:createCheckbox(section, "Boon of the Ascended", "Use Boon of the Ascended.")
+        br.ui:createCheckbox(section, "Fae Guardians", "Use Fae Guardians.")
         br.ui:createCheckbox(section, "Power Infusion", "Use Power Infusion.")
         br.ui:createCheckbox(section, "Void Eruption", "Use Void Eruption.")
         br.ui:createCheckbox(section, "Surrender to Madness", "Use Surrender to Madness.")
@@ -250,7 +251,7 @@ actionList.Extra = function()
         end
     end
     if br.IsMovingTime(ui.value("Power Word: Shield (Body and Soul)")) then
-        if ui.checked("Power Word: Shield (Body and Soul)") and talent.bodyAndSoul and not debuff.weakenedSoul.exists("player") then
+        if ui.checked("Power Word: Shield (Body and Soul)") and talent.bodyAndSoul and not debuff.weakenedSoul.exists("player") and not buff.soulshape.exists() then
             if cast.powerWordShield("player") then ui.debug("Casting Power Word: Shield on Player [Extra]") return true end
         end
     end
@@ -379,8 +380,13 @@ actionList.Cooldown = function()
             end
         end
         if ui.checked("Mindgames") then
-            if covenant.venthyr.active and insanity < 90 and (allDotsUp or buff.voidForm.exists()) and (not talent.hungeringVoid or debuff.hungeringVoid.exists() or not buff.voidForm.exists()) and (not talent.searingNightmare or mindSearUnitsCount < 5) and not moving then
-                if cast.mindgames('target') then ui.debug("Casting Mindgames on Target [Cooldown]") return true end
+            if covenant.venthyr.active and insanity < 90 and (allDotsUp or buff.voidForm.exists()) and (not talent.hungeringVoid or debuff.hungeringVoid.exists(units.dyn40) or not buff.voidForm.exists()) and (not talent.searingNightmare or mindSearUnitsCount < 5) and not moving then
+                if cast.mindgames(units.dyn40) then ui.debug("Casting Mindgames [Cooldown]") return true end
+            end
+        end
+        if ui.checked("Fae Guardians") then
+            if covenant.nightFae.active and dotsUp then
+                if cast.faeGuardians() then ui.debug("Casting Fae Guardians [Cooldown]") return true end
             end
         end
         if (race == "Troll" or race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf" or race == "LightforgedDraenei") or (mana < 70 and race == "BloodElf") then
@@ -480,7 +486,7 @@ actionList.PreCdsDamage = function()
         end
     end
     if ui.checked("Shadow Word: Pain Targets") then
-        if buff.faeGuardians.exists() and not debuff.wrathfulFaerie.exists() and mindSearUnitsCount < 4 and shadowWordPainCount <= ui.value("Shadow Word: Pain Targets") then
+        if buff.faeGuardians.exists() and not debuff.wrathfulFaerie.exists(units.dyn40) and mindSearUnitsCount < 4 and shadowWordPainCount <= ui.value("Shadow Word: Pain Targets") then
             if cast.shadowWordPain(units.dyn40) then ui.debug("Casting Shadow Word: Pain [DamageWhileCasting]") return true end
         end
     end
@@ -504,7 +510,7 @@ actionList.Damage = function()
         end
     end
     if ui.checked("Mind Blast") and not moving then
-        if (charges.mindBlast.count() < 1 and (debuff.hungeringVoid.exists() or not talent.hungeringVoid) or fiendRemain <= cast.time.mindBlast() + gcd) and fiendActive and runeforge.shadowflamePrism.equiped and fiendRemain >= cast.time.mindBlast() then
+        if (charges.mindBlast.count() < 1 and (debuff.hungeringVoid.exists(units.dyn40) or not talent.hungeringVoid) or fiendRemain <= cast.time.mindBlast() + gcd) and fiendActive and runeforge.shadowflamePrism.equiped and fiendRemain >= cast.time.mindBlast() then
             if cast.mindBlast(units.dyn40) then ui.debug("Casting Mind Blast [Damage]") return true end
         end
         if charges.mindBlast.count() < 1 and fiendActive and runeforge.shadowflamePrism.equiped and not cd.voidBolt.exists() then
@@ -553,12 +559,12 @@ actionList.Damage = function()
         end
     end
     if ui.checked("Void Torrent") and not moving then
-        if dotsUp and ttd(units.dyn40) > 3 and (not buff.voidForm.exists() or buff.voidForm.remain() < cd.voidBolt.remain()) and (debuff.vampiricTouch.exists() or not vampiricTouchRefreshable) and not buff.voidForm.exists() and mindSearUnitsCount < 5 then
+        if dotsUp and ttd(units.dyn40) > 3 and (not buff.voidForm.exists() or buff.voidForm.remain() < cd.voidBolt.remain()) and (debuff.vampiricTouch.exists(units.dyn40) or not vampiricTouchRefreshable) and not buff.voidForm.exists() and mindSearUnitsCount < 5 then
             if cast.voidTorrent(units.dyn40) then ui.debug("Casting Void Torrent [Damage]") return true end
         end
     end
     if (ui.checked("Mindbender") or ui.checked("Shadowfiend")) and ui.useCDs() then
-        if debuff.vampiricTouch.exists() and ((talent.searingNightmare and mindSearUnitsCount >= ui.value("Mind Sear Targets")) or debuff.shadowWordPain.exists() or mode.rotation == 2) then
+        if debuff.vampiricTouch.exists() and ((talent.searingNightmare and mindSearUnitsCount >= ui.value("Mind Sear Targets")) or debuff.shadowWordPain.exists(units.dyn40) or mode.rotation == 2) then
             if ui.checked("Mindbender") and talent.mindbender then
                 if cast.mindbender(units.dyn40) then ui.debug("Casting Mindbender [Damage]") return true end
             elseif ui.checked("Shadowfiend") then
@@ -582,7 +588,7 @@ actionList.Damage = function()
         end
     end
     if ui.checked("Mind Blast") and not moving then
-        if dotsUp and mindSearUnitsCount < 4 and (not runeforge.shadowflamePrism.equiped or not cd.shadowfiend.exists() or debuff.vampiricTouch.exists()) then
+        if dotsUp and mindSearUnitsCount < 4 and (not runeforge.shadowflamePrism.equiped or not cd.shadowfiend.exists() or debuff.vampiricTouch.exists(units.dyn40)) then
             if cast.mindBlast(units.dyn40) then ui.debug("Casting Mind Blast [Damage]") return true end
         end
     end
@@ -603,7 +609,7 @@ actionList.Damage = function()
         if ui.checked("Vampiric Touch Targets") and not moving and vampiricTouchCount < ui.value("Vampiric Touch Targets") and not cast.last.vampiricTouch() and not cast.current.vampiricTouch() then
             for i = 1, #enemies.yards40 do
                 thisUnit = enemies.yards40[i]
-                if (debuff.vampiricTouch.refresh(thisUnit) or (talent.misery and debuff.shadowWordPain.refresh()) or buff.unfurlingDarkness.exists()) and ttd(thisUnit) > 6 and not isBlacklisted(thisUnit) and unit.inCombat(thisUnit) and unit.facing(thisUnit) then
+                if (debuff.vampiricTouch.refresh(thisUnit) or (talent.misery and debuff.shadowWordPain.refresh(thisUnit)) or buff.unfurlingDarkness.exists()) and ttd(thisUnit) > 6 and not isBlacklisted(thisUnit) and unit.inCombat(thisUnit) and unit.facing(thisUnit) then
                     if cast.vampiricTouch(thisUnit) then ui.debug("Casting Vampiric Touch [Damage]") return true end
                 end
             end
@@ -664,8 +670,8 @@ local function runRotation()
     enemies.get(40)
     
     -- Other Locals
-    allDotsUp = debuff.shadowWordPain.exists() and debuff.vampiricTouch.exists() and debuff.devouringPlague.exists()
-    dotsUp = debuff.shadowWordPain.exists() and debuff.vampiricTouch.exists()
+    allDotsUp = debuff.shadowWordPain.exists(units.dyn40) and debuff.vampiricTouch.exists(units.dyn40) and debuff.devouringPlague.exists(units.dyn40)
+    dotsUp = debuff.shadowWordPain.exists(units.dyn40) and debuff.vampiricTouch.exists(units.dyn40)
     fiendActive = pet.shadowfiend.exists() or pet.mindbender.exists()
     fiendRemain = 0
     hp = unit.hp("player")
