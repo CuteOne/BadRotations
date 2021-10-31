@@ -524,7 +524,7 @@ end
 function br.hasTank()
 	if #br.friend == 1 then return false end
 	for i = 1, #br.friend do
-		local thisUnit = br.friend[i]
+		local thisUnit = br.friend[i].unit
 		if br._G.UnitGroupRolesAssigned(thisUnit) == "TANK"
 			and br.getDistance(thisUnit) < 40 and br._G.UnitIsPlayer(thisUnit)
 		then
