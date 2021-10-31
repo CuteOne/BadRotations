@@ -81,7 +81,7 @@ function br.BadRotationsUpdate(self)
     elseif br.unlocked and br._G.GetObjectCount() ~= nil then
         br.devMode()
         -- Check BR Out of Date
-        br:checkBrOutOfDate()
+        -- br:checkBrOutOfDate()
         -- Get Current Addon Name
         br:setAddonName()
         -- Load Saved Settings

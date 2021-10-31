@@ -120,11 +120,11 @@ local function ferociousBiteFinish(thisUnit)
 end
 -- Time Moving
 local function timeMoving()
-    if movingTimer == nil then movingTimer = br.G.GetTime() end
+    if movingTimer == nil then movingTimer = br._G.GetTime() end
     if not unit.moving() then
-        movingTimer = br.G.GetTime()
+        movingTimer = br._G.GetTime()
     end
-    return br.G.GetTime() - movingTimer
+    return br._G.GetTime() - movingTimer
 end
 
 --------------------
@@ -134,7 +134,7 @@ end
 actionList.Extra = function()
     -- Auto Shapeshift
     if (not buff.travelForm.exists() and unit.moving() and timeMoving() > ui.value("Shift Wait Time")) or unit.inCombat() then
-        local formValue = ui.mode.form
+        local formValue = ui.mode.forms
         -- Bear Form
         if formValue == 3 and unit.level() >= 8 and cast.able.bearForm() and not buff.bearForm.exists() then
             if cast.bearForm() then ui.debug("Casting Bear Form") return true end
@@ -224,7 +224,6 @@ local function runRotation()
     units                                       = br.player.units
     spell                                       = br.player.spell
     -- General Locals
-    movingTimer                                 = timeMoving()
     profileStop                                 = profileStop or false
     haltProfile                                 = (unit.inCombat() and profileStop) or br.pause() or ui.rotation==4
     -- Units

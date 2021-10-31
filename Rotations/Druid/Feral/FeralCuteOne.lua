@@ -460,7 +460,7 @@ actionList.Extras = function()
         if not buff.burningEssence.exists() then
             -- Fandral's Seed Pouch
             if use.able.fandralsSeedPouch() and equiped.fandralsSeedPouch() then
-                if use.fandralsSeedPouch() then ui.debug("Using Fandrel's Seed Pouch") return true end
+                if use.fandralsSeedPouch() then ui.debug("Using Fandral's Seed Pouch") return true end
             -- Burning Seeds
             elseif use.able.burningSeeds() then
                 if use.burningSeeds() then ui.debug("Using Burning Seeds") return true end
@@ -976,7 +976,7 @@ actionList.Finisher = function()
     end
     -- Ferocious Bite
     -- ferocious_bite,max_energy=1
-    if cast.able.ferociousBite() and var.fbMaxEnergy and range.dyn5 and (debuff.rip.remain(units.dyn5) > unit.gcd(true) or not canDoT(units.dyn5)) then
+    if cast.able.ferociousBite() and var.fbMaxEnergy and range.dyn5 and (debuff.rip.remain(units.dyn5) > unit.gcd(true) or not canDoT(units.dyn5) or unit.level() < 21) then
         if cast.ferociousBite() then
             if buff.apexPredatorsCraving.exists() then
                 ui.debug("Casting Ferocious Bite [Apex Predator's Craving]")

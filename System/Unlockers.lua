@@ -3,7 +3,9 @@ local b = br._G
 function br:loadUnlockerAPI()
     local unlocked = false
     local class = br.class
-    if br._G.lb then
+    if MoveForwardStart("GetLocalPlayer") ~= nil then
+        unlocked = br.unlock.MMBUnlock()
+    elseif br._G.lb then
         unlocked = br.unlock.LBUnlock()
     elseif br._G.EWT then
         unlocked = br.unlock.UCSUnlock()

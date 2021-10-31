@@ -667,10 +667,11 @@ function br.DBM:getBars()
         else
             _G.wipe(br.DBM.Timer)
         end
-
-        for bar in pairs(_G.DBM.Bars.bars) do
-            local number = string.match(bar.id ,"%d+")
-            table.insert(br.DBM.Timer, {id = bar.id,timer = bar.timer,spellid = number})
+        if _G.DBM.Bars ~= nil then
+            for bar in pairs(_G.DBM.Bars.bars) do
+                local number = string.match(bar.id ,"%d+")
+                table.insert(br.DBM.Timer, {id = bar.id,timer = bar.timer,spellid = number})
+            end
         end
     end
 end

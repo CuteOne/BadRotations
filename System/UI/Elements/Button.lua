@@ -326,17 +326,21 @@ br.tableSave = function(tbl, filename)
     local charS, charE = "   ", "\n"
     -- local file,err = io.open( filename, "wb" )
     -- if err then return err end
-    br._G.WriteFile(filename, "", false)
+    -- br._G.WriteFile(filename, "", false)
+    local content = ""
     -- initiate variables for save procedure
     local tables, lookup = {tbl}, {[tbl] = 1}
     -- file:write( "return {"..charE )
-    br._G.WriteFile(filename, "return {" .. charE, true)
+    -- br._G.WriteFile(filename, "return {" .. charE, true)
+    content = content .. "return {" .. charE
 
     for idx, t in ipairs(tables) do
         -- file:write( "-- Table: {"..idx.."}"..charE )
-        br._G.WriteFile(filename, "-- Table: {" .. idx .. "}" .. charE, true)
+        -- br._G.WriteFile(filename, "-- Table: {" .. idx .. "}" .. charE, true)
+        content = content .. "-- Table: {" .. idx .. "}" .. charE
         -- file:write( "{"..charE )
-        br._G.WriteFile(filename, "{" .. charE, true)
+        -- br._G.WriteFile(filename, "{" .. charE, true)
+        content = content .. "{" .. charE
         local thandled = {}
 
         for i, v in ipairs(t) do
@@ -349,15 +353,16 @@ br.tableSave = function(tbl, filename)
                     lookup[v] = #tables
                 end
                 -- file:write( charS.."{"..lookup[v].."},"..charE )
-                br._G.WriteFile(filename, charS .. "{" .. lookup[v] .. "}," .. charE, true)
+                -- br._G.WriteFile(filename, charS .. "{" .. lookup[v] .. "}," .. charE, true)
+                content = content .. charS .. "{" .. lookup[v] .. "}," .. charE
             elseif stype == "string" then
                 -- file:write(  charS..exportstring( v )..","..charE )
-                br._G.WriteFile(filename, charS .. exportstring(v) .. "," .. charE, true)
-            elseif stype == "number" then
+                -- br._G.WriteFile(filename, charS .. exportstring(v) .. "," .. charE, true)
+                content = content .. charS .. exportstring(v) .. "," .. charE
+            elseif stype == "number" or stype == "boolean" then
                 -- file:write(  charS..tostring( v )..","..charE )
-                br._G.WriteFile(filename, charS .. tostring(v) .. "," .. charE, true)
-            elseif stype == "boolean" then
-                br._G.WriteFile(filename, charS .. tostring(v) .. "," .. charE, true)
+                -- br._G.WriteFile(filename, charS .. tostring(v) .. "," .. charE, true)
+                content = content .. charS .. tostring(v) .. "," .. charE
             end
         end
 
@@ -390,25 +395,29 @@ br.tableSave = function(tbl, filename)
                             lookup[v] = #tables
                         end
                         -- file:write( str.."{"..lookup[v].."},"..charE )
-                        br._G.WriteFile(filename, str .. "{" .. lookup[v] .. "}," .. charE, true)
+                        -- br._G.WriteFile(filename, str .. "{" .. lookup[v] .. "}," .. charE, true)
+                        content = content .. str .. "{" .. lookup[v] .. "}," .. charE
                     elseif stype == "string" then
                         -- file:write( str..exportstring( v )..","..charE )
-                        br._G.WriteFile(filename, str .. exportstring(v) .. "," .. charE, true)
-                    elseif stype == "number" then
+                        -- br._G.WriteFile(filename, str .. exportstring(v) .. "," .. charE, true)
+                        content = content .. str .. exportstring(v) .. "," .. charE
+                    elseif stype == "number" or stype == "boolean" then
                         -- file:write( str..tostring( v )..","..charE )
-                        br._G.WriteFile(filename, str .. tostring(v) .. "," .. charE, true)
-                    elseif stype == "boolean" then
-                        br._G.WriteFile(filename, str .. tostring(v) .. "," .. charE, true)
+                        -- br._G.WriteFile(filename, str .. tostring(v) .. "," .. charE, true)
+                        content = content .. str .. tostring(v) .. "," .. charE
                     end
                 end
             end
         end
         -- file:write( "},"..charE )
-        br._G.WriteFile(filename, "}," .. charE, true)
+        -- br._G.WriteFile(filename, "}," .. charE, true)
+        content = content .. "}," .. charE
     end
     -- file:write( "}" )
-    br._G.WriteFile(filename, "}", true)
+    -- br._G.WriteFile(filename, "}", true)
+    content = content .. "}"
     -- file:close()
+    br._G.WriteFile(filename, content, false)
 end
 
 --// The Load Function

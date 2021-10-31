@@ -24,7 +24,7 @@ end
 function br:updateOM()
 	local om = br.om
 	local startTime = br._G.debugprofilestop()
-	
+
 	if br._G.GetNewObjects then
 		local added, removed = br._G.GetNewObjects()
 		for k, v in pairs(added) do
@@ -34,7 +34,7 @@ function br:updateOM()
 					tinsert(om, enemyUnit)
 				end
 			end
-		end	
+		end
 	else
 		local total = br._G.GetObjectCount(true,"BR") or 0
 		for i = 1,total do
@@ -46,8 +46,8 @@ function br:updateOM()
 				end
 			end
 		end
-	end	
-	
+	end
+
 	refreshStored = true
 	-- Debugging
     br.debug.cpu:updateDebug(startTime,"enemiesEngine.objects")

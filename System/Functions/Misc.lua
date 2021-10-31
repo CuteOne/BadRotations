@@ -521,6 +521,19 @@ function br.isTargeting(Unit, MatchUnit)
 	return br._G.UnitTarget(br.GetUnit(Unit)) == br._G.ObjectPointer(MatchUnit)
 end
 
+function br.hasTank()
+	if #br.friend == 1 then return false end
+	for i = 1, #br.friend do
+		local thisUnit = br.friend[i]
+		if br._G.UnitGroupRolesAssigned(thisUnit) == "TANK"
+			and br.getDistance(thisUnit) < 40 and br._G.UnitIsPlayer(thisUnit)
+		then
+			return true
+		end
+	end
+	return false
+end
+
 function br.enemyListCheck(Unit)
 	local targetBuff = 0
 	local playerBuff = 0
@@ -574,7 +587,7 @@ function br.isValidUnit(Unit)
 			(dummy or burnUnit or
 				(not br._G.UnitIsTapDenied(Unit) and br.isSafeToAttack(Unit) and ((hostileOnly and reaction < 4) or (not hostileOnly and reaction < 5) or playerTarget or targeting)))
 	 then
-		return (playerTarget and (not inInstance or (inInstance and #br.friend == 1))) or targeting or burnUnit or br.isInProvingGround() or br.hasThreat(Unit)
+		return (playerTarget and (not inInstance or (inInstance and (#br.friend == 1 or not br.hasTank())))) or targeting or burnUnit or br.isInProvingGround() or br.hasThreat(Unit)
 	end
 	return false
 end

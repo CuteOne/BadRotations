@@ -68,7 +68,7 @@ function br.useItem(itemID,thisUnit)
 			local slotItemID = br._G.GetInventoryItemID("player", itemID)
 			if br._G.GetItemCooldown(slotItemID) == 0 then
 				if not br.itemSpamDelay or br._G.GetTime() > br.itemSpamDelay then
-					-- RunMacroText("/use " .. select(1, GetItemInfo(slotItemID)))
+					-- br._G.RunMacroText("/use " .. select(1, GetItemInfo(slotItemID)))
 					br._G.UseItemByName(select(1,br._G.GetItemInfo(slotItemID)),thisUnit);
 					br.itemSpamDelay = br._G.GetTime() + 1
 					return true
@@ -78,7 +78,7 @@ function br.useItem(itemID,thisUnit)
 	elseif itemID > 19 and (br._G.GetItemCount(itemID) > 0 or br._G.PlayerHasToy(itemID)) then
 		if br._G.GetItemCooldown(itemID) == 0 then
 			if not br.itemSpamDelay or br._G.GetTime() > br.itemSpamDelay then
-				-- RunMacroText("/use " .. select(1, GetItemInfo(itemID)))
+				-- br._G.RunMacroText("/use " .. select(1, GetItemInfo(itemID)))
 				br._G.UseItemByName(select(1,br._G.GetItemInfo(itemID)),thisUnit);
 				br.itemSpamDelay = br._G.GetTime() + 1
 				return true
