@@ -65,7 +65,6 @@ function br.isQuestUnit(Pointer)
 end
 
 local QuestCacheUpdate = function()
-
 	local ignoreQuest = {
 		[56064] = true, -- Assault Black Empire (Vale)
 		[57157] = true, -- Assault Black Empire (Uldum)
@@ -87,20 +86,22 @@ local QuestCacheUpdate = function()
 	local numEntries, numQuests = _G.C_QuestLog.GetNumQuestLogEntries()
 	for questIdx = 1, numEntries do
 		-- local title, level, suggestedGroup, isHeader, isCollapsed, isComplete, frequency, questId, startEvent, displayQuestID, isOnMap, hasLocalPOI, isTask, isStory = GetQuestLogTitle (questId)
-		local title, _, questId = _G.C_QuestLog.GetInfo(questIdx)
-		if (type (questId) == "number" and questId > 0 and ignoreQuest[questId] == nil) then -- and not isComplete
+		local questInfo = _G.C_QuestLog.GetInfo(questIdx)
+		local title = questInfo["title"]
+		local questId = questInfo["questID"]
+		if (type(questId) == "number" and questId > 0 and ignoreQuest[questId] == nil) then -- and not isComplete
 			br.QuestCache[title] = true
 		end
 	end
 
-	local mapId = _G.C_Map.GetBestMapForUnit ("player")
+	local mapId = _G.C_Map.GetBestMapForUnit("player")
 	if (mapId) then
 		local worldQuests = _G.C_TaskQuest.GetQuestsForPlayerByMapID (mapId)
-		if (type (worldQuests) == "table") then
-			for _, questTable in ipairs (worldQuests) do
+		if (type(worldQuests) == "table") then
+			for _, questTable in ipairs(worldQuests) do
 				local x, y, floor, numObjectives, questId, inProgress = questTable.x, questTable.y, questTable.floor, questTable.numObjectives, questTable.questId, questTable.inProgress
-				if (type (questId) == "number" and questId > 0 and ignoreQuest[questId] == nil) then
-					local questName = _G.C_TaskQuest.GetQuestInfoByQuestID (questId)
+				if (type(questId) == "number" and questId > 0 and ignoreQuest[questId] == nil) then
+					local questName = _G.C_TaskQuest.GetQuestInfoByQuestID(questId)
 					if (questName) then
 						br.QuestCache[questName] = true
 					end
@@ -114,7 +115,7 @@ local function FunctionQuestLogUpdate() --private
 	if (br.QuestCacheThrottle and not br.QuestCacheThrottle._cancelled) then
 		br.QuestCacheThrottle:Cancel()
 	end
-	br.QuestCacheThrottle = _G.C_Timer.NewTimer (2, QuestCacheUpdate)
+	br.QuestCacheThrottle = _G.C_Timer.NewTimer(2, QuestCacheUpdate)
 end
 
 function br.isQuestObject(object) --Ty Ssateneth
