@@ -327,7 +327,6 @@ local function runRotation()
     local enemyTable30 = { }
     local enemyTable10 = { }
     local enemyTable5 = { }
-    local deadlyPoison10 = true
     local fightRemain = 0
     local ruptureCount = 0
     local serratedCount = 0
@@ -360,17 +359,31 @@ local function runRotation()
         end
         if #enemyTable30 > 1 then
             for i = 1, #enemyTable30 do
+                local sStormIgnore = {
+                    [120651]=true, -- Explosive
+                    [168962]=true, -- Sun King's Reborn Phoenix
+                    [166969]=true, -- Baroness Frieda
+                    [166971]=true, -- Castellan Niklaus
+                    [166970]=true, -- Lord Stavros
+                }
                 local thisUnit = enemyTable30[i]
                 local hpNorm = (10-1)/(highestHP-lowestHP)*(thisUnit.hpabs-highestHP)+10 -- normalization of HP value, high is good
                 if hpNorm ~= hpNorm or tostring(hpNorm) == tostring(0/0) then hpNorm = 0 end -- NaN check
                 local enemyScore = hpNorm
+                if debuff.serratedBoneSpike.exists(thisUnit.unit) then serratedCount = serratedCount + 1 end
+                if thisUnit.distance <= 10 then
+                    if sStormIgnore[thisUnit.objectID] == nil and not isTotem(thisUnit.unit) then
+                        br._G.tinsert(enemyTable10, thisUnit)
+                    end
+                    if thisUnit.distance <= 5 then
+                        br._G.tinsert(enemyTable5, thisUnit)
+                    end
+                    if debuff.rupture.remain(thisUnit.unit) > 0.5 then ruptureCount = ruptureCount + 1 end
+                end
                 if thisUnit.ttd > 1.5 then enemyScore = enemyScore + 10 end
                 if thisUnit.facing then enemyScore = enemyScore + 30 end
                 if thisUnit.distance <= 5 then enemyScore = enemyScore + 30 end
                 if br.GetUnitIsUnit(thisUnit.unit, "target") then enemyScore = enemyScore + 100 end
-                if br.getUnitID(thisUnit) == 166969 then enemyScore = enemyScore + 500 end
-                if br.getUnitID(thisUnit) == 166970 then enemyScore = enemyScore + 150 end
-                if br.getUnitID(thisUnit) == 166971 then enemyScore = enemyScore + 50 end
                 local raidTarget = br._G.GetRaidTargetIndex(thisUnit.unit)
                 if raidTarget ~= nil then
                     enemyScore = enemyScore + raidTarget * 3
@@ -381,27 +394,6 @@ local function runRotation()
             table.sort(enemyTable30, function(x,y)
                 return x.enemyScore > y.enemyScore
             end)
-        end
-        for i = 1, #enemyTable30 do
-            local thisUnit = enemyTable30[i]
-            local sStormIgnore = {
-                [120651]=true, -- Explosive
-                [168962]=true, -- Sun King's Reborn Phoenix
-                [166969]=true, -- Baroness Frieda
-                [166971]=true, -- Castellan Niklaus
-                [166970]=true, -- Lord Stavros
-            }
-            if debuff.serratedBoneSpike.exists(thisUnit.unit) then serratedCount = serratedCount + 1 end
-            if thisUnit.distance <= 10 then
-                if sStormIgnore[thisUnit.objectID] == nil and not isTotem(thisUnit.unit) then
-                    br._G.tinsert(enemyTable10, thisUnit)
-                end
-                if thisUnit.distance <= 5 then
-                    br._G.tinsert(enemyTable5, thisUnit)
-                end
-                if debuff.rupture.remain(thisUnit.unit) > 0.5 then ruptureCount = ruptureCount + 1 end
-                if br.getUnitID(thisUnit.unit) == 175992 and thisUnit.distance <= 5 then br._G.TargetUnit(thisUnit) end
-            end
         end
         if ui.checked("Auto Target") and inCombat and #enemyTable30 > 0 and ((br.GetUnitExists("target") and br.GetUnitIsDeadOrGhost("target") and not br.GetUnitIsUnit(enemyTable30[1].unit, "target")) or not br.GetUnitExists("target")) then
             br._G.TargetUnit(enemyTable30[1].unit)
