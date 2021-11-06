@@ -400,7 +400,7 @@ local function runRotation()
                     br._G.tinsert(enemyTable5, thisUnit)
                 end
                 if debuff.rupture.remain(thisUnit.unit) > 0.5 then ruptureCount = ruptureCount + 1 end
-                if br.getUnitID(thisUnit) == 175992 and thisUnit.distance <= 5 then br._G.TargetUnit(thisUnit) end
+                if br.getUnitID(thisUnit.unit) == 175992 and thisUnit.distance <= 5 then br._G.TargetUnit(thisUnit) end
             end
         end
         if ui.checked("Auto Target") and inCombat and #enemyTable30 > 0 and ((br.GetUnitExists("target") and br.GetUnitIsDeadOrGhost("target") and not br.GetUnitIsUnit(enemyTable30[1].unit, "target")) or not br.GetUnitExists("target")) then
