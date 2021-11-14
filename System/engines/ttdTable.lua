@@ -52,7 +52,8 @@ function br.TTDRefresh(hpLimit)
 		end
 	end
 	for object, _ in pairs(units) do
-		if br._G.UnitHealth(object) <= 0 then
+		local health = br._G.UnitHealth(object) or 0
+		if health <= 0 then
 			units[object] = nil
 			ttd[object] = nil
 			health[object] = nil
