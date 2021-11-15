@@ -421,7 +421,7 @@ if not br.metaTable1 then
 				br.debug.cpu.healingEngine.absorbANDhp = debugprofilestop() - startTime
 			else
 				-- assign Name of unit
-				o.name = br._G.UnitName(o.unit)
+				o.name = o.unit and br._G.UnitName(o.unit) or "None"
 				-- assign real GUID of unit and Short GUID of unit for the SetupTable
 				o.guid, o.guidsh = o:nGUID()
 				-- assign unit role
