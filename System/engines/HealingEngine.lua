@@ -133,6 +133,8 @@ if not br.metaTable1 then
 			if necroRot == 0 or necroRot == nil then
 				necroRot = 40
 			end
+			-- Bandaid fix?
+			if o.unit == nil then return 0, 0, 0 end
 			-- Darkness phase of Kil'Jaeden. basically blacklists all friends if I have this debuff, since I can't heal.
 			-- but once I have Illidan's Sightless Gaze (241721), I can hea
 			if br.isChecked("Necrotic Rot") and br.getDebuffStacks(o.unit, 209858) > 0 and br.getDebuffStacks(o.unit, 209858) >= necroRot then
