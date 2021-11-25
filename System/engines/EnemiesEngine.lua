@@ -321,7 +321,6 @@ if not br.metaTable2 then
 			local i=1
 			while i <= #br.om do
 				if br.om[i].pulseTime == nil or GetTime() >= br.om[i].pulseTime then
-					
 					-- this delay is extremely important as the unit updates are a major source of FPS loss for BR
 					-- for non-raids, this code will spread out unit updates so that everything gets updated every update
 					-- for raids, only half of units will be updated per BR update
@@ -329,10 +328,14 @@ if not br.metaTable2 then
 					if IsInRaid() then
 						delay = delay * 2.00
 					end
-					
+
 					br.om[i].pulseTime = GetTime() + delay
 					local thisUnit = br.om[i].unit
-					if not br.GetUnitIsVisible(thisUnit) then
+					local unitDist = br.om[i].distance
+					-- local inRange, rangeChecked = br._G.UnitInRange(thisUnit)
+					--local uX, uY, uZ = br._G.ObjectPosition(thisUnit)
+					--local dist = sqrt(((uX-pX)^2) + ((uY-pY)^2) + ((uZ-pZ)^2))
+					if (unitDist ~= nil and unitDist > 50) or not br._G.IsValidObject(thisUnit) or not br.GetUnitIsVisible(thisUnit) then
 						--Delete units no longer in OM
 						br.unitSetup.cache[thisUnit] = nil
 						if br.ttd[thisUnit] ~= nil then
