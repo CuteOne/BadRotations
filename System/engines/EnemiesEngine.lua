@@ -335,7 +335,7 @@ if not br.metaTable2 then
 					-- local inRange, rangeChecked = br._G.UnitInRange(thisUnit)
 					--local uX, uY, uZ = br._G.ObjectPosition(thisUnit)
 					--local dist = sqrt(((uX-pX)^2) + ((uY-pY)^2) + ((uZ-pZ)^2))
-					if (unitDist ~= nil and unitDist > 50) or not br.GetObjectExists(thisUnit) or not br.GetUnitIsVisible(thisUnit) then
+					if (unitDist ~= nil and unitDist > 50) or not br._G.IsValidObject(thisUnit) or not br.GetUnitIsVisible(thisUnit) then
 						--Delete units no longer in OM
 						br.unitSetup.cache[thisUnit] = nil
 						if br.ttd[thisUnit] ~= nil then
