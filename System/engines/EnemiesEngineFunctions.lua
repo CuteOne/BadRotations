@@ -43,6 +43,7 @@ function br:updateOM()
 				local enemyUnit = br.unitSetup:new(thisUnit)
 				if enemyUnit then
 					br._G.tinsert(om, enemyUnit)
+					break
 				end
 			end
 		end
@@ -53,6 +54,13 @@ function br:updateOM()
     br.debug.cpu:updateDebug(startTime,"enemiesEngine.objects")
 end
 
+function br.isInOM(thisUnit)
+	if #br.om == 0 then return false end
+	for i = 1, #br.om do
+		if br.om[i].guid == thisUnit then return true end
+	end
+	return false
+end
 
 -- /dump br.getEnemies("target",10)
 function br.getEnemies(thisUnit,radius,checkNoCombat,facing)

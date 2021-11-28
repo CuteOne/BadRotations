@@ -37,7 +37,7 @@ if not br.metaTable2 then
 		if br.unitSetup.cache[unit] then return false end
 		if br.UnitDebuffID("player",295249) and br._G.UnitIsPlayer(unit) then return false end
 		if br.unitBlacklist[br.GetObjectID(unit)] then return false end
-		if br._G.UnitIsUnit("player", unit) then return false end
+		if unit == nil or br._G.UnitIsUnit("player", unit) or br._G.UnitIsFriend("player", unit) or br._G.UnitIsPlayer(unit) or not br._G.UnitIsVisible(unit) then return false end
 		local o = {}
 		setmetatable(o, br.unitSetup)
 		if unit and type(unit) == "string" then
@@ -331,11 +331,19 @@ if not br.metaTable2 then
 
 					br.om[i].pulseTime = GetTime() + delay
 					local thisUnit = br.om[i].unit
-					local unitDist = br.om[i].distance
+					--local unitDist = br.om[i].distance
 					-- local inRange, rangeChecked = br._G.UnitInRange(thisUnit)
 					--local uX, uY, uZ = br._G.ObjectPosition(thisUnit)
-					--local dist = sqrt(((uX-pX)^2) + ((uY-pY)^2) + ((uZ-pZ)^2))
-					if (unitDist ~= nil and unitDist > 50) or not br._G.IsValidObject(thisUnit) or not br.GetUnitIsVisible(thisUnit) then
+					local dist-- = sqrt(((uX-pX)^2) + ((uY-pY)^2) + ((uZ-pZ)^2))
+					local x1, y1, z1 = pX, pY, pZ
+					local x2, y2, z2 = br._G.ObjectPosition(thisUnit)
+					if x1 == nil  or x2 == nil or y1 == nil or y2 == nil or z1 == nil or z2 == nil then
+						dist = 99
+					else
+						dist = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2)) -
+						((pCR or 0) + (br._G.UnitCombatReach(thisUnit) or 0))
+					end
+					if --[[(unitDist ~= nil and unitDist > 50) or not br._G.IsValidObject(thisUnit) or]] dist > 50 or not br.GetUnitIsVisible(thisUnit) then
 						--Delete units no longer in OM
 						br.unitSetup.cache[thisUnit] = nil
 						if br.ttd[thisUnit] ~= nil then
