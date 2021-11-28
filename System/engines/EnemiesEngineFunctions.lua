@@ -43,7 +43,7 @@ function br:updateOM()
 				local enemyUnit = br.unitSetup:new(thisUnit)
 				if enemyUnit then
 					br._G.tinsert(om, enemyUnit)
-					break
+					-- break
 				end
 			end
 		end
