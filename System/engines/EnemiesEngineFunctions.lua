@@ -39,11 +39,12 @@ function br:updateOM()
 		local total = br._G.GetObjectCount(true,"BR") or 0
 		for i = 1,total do
 			local thisUnit = br._G.GetObjectWithIndex(i)
-			if br._G.ObjectIsUnit(thisUnit) then
-				local enemyUnit = br.unitSetup:new(thisUnit)
-				if enemyUnit then
-					br._G.tinsert(om, enemyUnit)
-					-- break
+			if thisUnit ~= nil and br._G.ObjectIsUnit(thisUnit) then
+				if not br._G.UnitIsUnit("player", thisUnit) and not br._G.UnitIsFriend("player", thisUnit) and not br._G.UnitIsPlayer(thisUnit) and br.omDist(thisUnit) < 50 then
+					local enemyUnit = br.unitSetup:new(thisUnit)
+					if enemyUnit then
+						br._G.tinsert(om, enemyUnit)
+					end
 				end
 			end
 		end
@@ -52,6 +53,19 @@ function br:updateOM()
 	refreshStored = true
 	-- Debugging
     br.debug.cpu:updateDebug(startTime,"enemiesEngine.objects")
+end
+
+function br.omDist(thisUnit)
+	local dist
+	local x1, y1, z1 = br._G.ObjectPosition("player")
+	local x2, y2, z2 = br._G.ObjectPosition(thisUnit)
+	if x1 == nil  or x2 == nil or y1 == nil or y2 == nil or z1 == nil or z2 == nil then
+		dist = 99
+	else
+		dist = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2)) -
+		((br._G.UnitCombatReach("player") or 0) + (br._G.UnitCombatReach(thisUnit) or 0))
+	end
+	return dist
 end
 
 function br.isInOM(thisUnit)
