@@ -3,23 +3,25 @@ local b = br._G
 function br:loadUnlockerAPI()
     local unlocked = false
     local class = br.class
-    if MoveForwardStart("GetLocalPlayer") ~= nil then
-        unlocked = br.unlock.MMBUnlock()
-    elseif br._G.lb then
-        unlocked = br.unlock.LBUnlock()
-    elseif br._G.EWT then
-        unlocked = br.unlock.UCSUnlock()
-    elseif br._G.wmbapi then
-        unlocked = br.unlock.MBUnlock()
-    elseif br._G.UCSLoaded then
-        -- Must be _G.br to load
-        _G.br = br
-    else
-		if br.unlock.WowAdUnlock() then
-			unlocked = true
-		else
-			unlocked = false
-		end
+    if br.unlock.GGUnlock() then
+        unlocked = true
+    elseif br.unlock.MMBUnlock() then
+        unlocked = true
+    -- elseif br._G.lb then
+    --     unlocked = br.unlock.LBUnlock()
+    -- elseif br._G.EWT then
+    --     unlocked = br.unlock.UCSUnlock()
+    -- elseif br._G.wmbapi then
+    --     unlocked = br.unlock.MBUnlock()
+    -- elseif br._G.UCSLoaded then
+    --     -- Must be _G.br to load
+    --     _G.br = br
+    -- else
+	-- 	if br.unlock.WowAdUnlock() then
+	-- 		unlocked = true
+	-- 	else
+	-- 		unlocked = false
+	-- 	end
     end
     -- Set Spell Queue Window
     --if class == 8 or class == 9 then

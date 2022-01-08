@@ -27,7 +27,7 @@ end
 function br.UnitBuffID(unit, spellID, filter)
 	local spellName = _G.GetSpellInfo(spellID)
 	local exactSearch = filter ~= nil and _G.strfind(_G.strupper(filter), "EXACT")
-	if exactSearch then
+	if exactSearch or br.unlocker == "GG" then
 		for i = 1, 40 do
 			local buffName, _, _, _, _, _, _, _, _, buffSpellID = br._G.UnitBuff(unit, i, "player")
 			if buffName == nil then	return nil end
@@ -60,7 +60,7 @@ function br.UnitDebuffID(unit, spellID, filter)
 
 	-- Failsafe if not cached
 	local exactSearch = filter ~= nil and _G.strfind(_G.strupper(filter), "EXACT")
-	if exactSearch then
+	if exactSearch or br.unlocker == "GG" then
 		for i = 1, 40 do
 			local buffName, _, _, _, _, _, _, _, _, buffSpellID = br._G.UnitDebuff(unit, i, "player")
 			if buffName == nil then	return nil end

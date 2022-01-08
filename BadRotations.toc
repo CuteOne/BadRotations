@@ -10,6 +10,7 @@ BadRotations.lua
 #Unlockers\ucs.lua
 #Unlockers\minibot.lua
 #Unlockers\wowadvanced.lua
+Unlockers\gg.lua
 Unlockers\mmb.lua
 bindings.xml
 misc.xml
