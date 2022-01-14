@@ -294,12 +294,12 @@ actionList.Extra = function()
         end
     end
     if br.IsMovingTime(ui.value("Power Word: Shield (Body and Soul)")) then
-        if ui.checked("Power Word: Shield (Body and Soul)") and talent.bodyAndSoul and not debuff.weakenedSoul.exists("player") then
+        if ui.checked("Power Word: Shield (Body and Soul)") and talent.bodyAndSoul and not debuff.weakenedSoul.exists("player") and not buff.soulshape.exists() then
             if cast.powerWordShield("player") then return true end
         end
     end
     if br.IsMovingTime(ui.value("Angelic Feather")) then
-        if ui.checked("Angelic Feather") and talent.angelicFeather and not buff.angelicFeather.exists("player") then
+        if ui.checked("Angelic Feather") and talent.angelicFeather and not buff.angelicFeather.exists("player") and not buff.soulshape.exists() then
             if cast.angelicFeather("player") then return true end
         end
     end

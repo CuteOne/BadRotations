@@ -2572,6 +2572,7 @@ br.lists.spells = {
                 angelicFeather              = 121536,
                 apotheosis                  = 200183,
                 bindingHeal                 = 32546,
+                bodyAndSoul                 = 64129,
                 --bodyAndMind                 = 214121,
                 divineStar                  = 110744,
                 --divinity                    = 197031,
