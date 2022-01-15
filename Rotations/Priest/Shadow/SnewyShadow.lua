@@ -100,6 +100,7 @@ local function createOptions()
         br.ui:createCheckbox(section, "Racial", "Use Racial.")
         br.ui:createCheckbox(section, "Boon of the Ascended", "Use Boon of the Ascended.")
         br.ui:createCheckbox(section, "Fae Guardians", "Use Fae Guardians.")
+        br.ui:createCheckbox(section, "Unholy Nova", "Use Unholy Nova.")
         br.ui:createCheckbox(section, "Power Infusion", "Use Power Infusion.")
         br.ui:createCheckbox(section, "Void Eruption", "Use Void Eruption.")
         br.ui:createCheckbox(section, "Surrender to Madness", "Use Surrender to Madness.")
@@ -382,6 +383,13 @@ actionList.Cooldown = function()
         if ui.checked("Mindgames") then
             if covenant.venthyr.active and insanity < 90 and (allDotsUp or buff.voidForm.exists()) and (not talent.hungeringVoid or debuff.hungeringVoid.exists(units.dyn40) or not buff.voidForm.exists()) and (not talent.searingNightmare or mindSearUnitsCount < 5) and not moving then
                 if cast.mindgames(units.dyn40) then ui.debug("Casting Mindgames [Cooldown]") return true end
+            end
+        end
+        if ui.checked("Unholy Nova") then
+            if covenant.necrolord.active and (allDotsUp or buff.voidForm.exists()) then
+                if ttd(units.dyn40) > 3 and not unit.moving(units.dyn40) then
+                    if cast.unholyNova(units.dyn40) then ui.debug("Casting Unholy Nova [Cooldown]") return true end
+                end
             end
         end
         if ui.checked("Fae Guardians") then

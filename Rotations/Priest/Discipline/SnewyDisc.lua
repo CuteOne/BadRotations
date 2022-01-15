@@ -85,6 +85,7 @@ local function createOptions()
         br.ui:createCheckbox(section, "Explosive Rotation", "Use Shadow Word: Pain or Purge the Wicked at explosives.")
         br.ui:createCheckbox(section, "Schism", "Use Schism.")
         br.ui:createCheckbox(section, "Mindgames", "Use Mindgames.")
+        br.ui:createCheckbox(section, "Unholy Nova", "Use Unholy Nova.")
         br.ui:createCheckbox(section, "Penance", "Use Penance.")
         br.ui:createCheckbox(section, "Power Word: Solace", "Use Power Word: Solace.")
         br.ui:createCheckbox(section, "Mind Blast", "Use Mind Blast.")
@@ -293,12 +294,12 @@ actionList.Extra = function()
         end
     end
     if br.IsMovingTime(ui.value("Power Word: Shield (Body and Soul)")) then
-        if ui.checked("Power Word: Shield (Body and Soul)") and talent.bodyAndSoul and not debuff.weakenedSoul.exists("player") then
+        if ui.checked("Power Word: Shield (Body and Soul)") and talent.bodyAndSoul and not debuff.weakenedSoul.exists("player") and not buff.soulshape.exists() then
             if cast.powerWordShield("player") then return true end
         end
     end
     if br.IsMovingTime(ui.value("Angelic Feather")) then
-        if ui.checked("Angelic Feather") and talent.angelicFeather and not buff.angelicFeather.exists("player") then
+        if ui.checked("Angelic Feather") and talent.angelicFeather and not buff.angelicFeather.exists("player") and not buff.soulshape.exists() then
             if cast.angelicFeather("player") then return true end
         end
     end
@@ -518,11 +519,11 @@ actionList.Healing = function()
             end
         end
     end
-    if ui.checked("Power Word: Radiance") and nonAtonementsCount >= 2 and not cast.last.powerWordRadiance() and charges.powerWordRadiance.count() >= 1 then
+    if ui.checked("Power Word: Radiance") and nonAtonementsCount >= ui.value("Power Word: Radiance Targets") and not cast.last.powerWordRadiance() and charges.powerWordRadiance.count() >= 1 then
         if br.getLowAllies(ui.value("Power Word: Radiance")) >= ui.value("Power Word: Radiance Targets") then
             for i = 1, #friends do
                 thisUnit = friends[i].unit
-                if not buff.atonement.exists(thisUnit) and unit.hp(thisUnit) <= ui.value("Power Word: Radiance") and not moving then
+                if unit.hp(thisUnit) <= ui.value("Power Word: Radiance") and not moving then
                     if cast.powerWordRadiance(thisUnit) then return true end
                 end
             end
@@ -644,6 +645,13 @@ actionList.Damage = function()
             if cast.mindgames(schismUnit) then return true end
         elseif ttd(units.dyn40) > 9 and not unit.isExplosive(units.dyn40) then
             if cast.mindgames(units.dyn40) then return true end
+        end
+    end
+    if ui.checked("Unholy Nova") and covenant.necrolord.active then
+        if schismUnit ~= nil and ttd(schismUnit) > 7 and not unit.moving(schismUnit) then
+            if cast.unholyNova(schismUnit) then return true end
+        elseif ttd(units.dyn40) > 9 and not unit.moving(units.dyn40) and not unit.isExplosive(units.dyn40) then
+            if cast.unholyNova(units.dyn40) then return true end
         end
     end
     if ui.checked("Penance") then
