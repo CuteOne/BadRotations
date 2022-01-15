@@ -60,15 +60,12 @@ local function createOptions()
     
     local function healingOptions()
         local section = br.ui:createSection(br.ui.window.profile, "Healing")
-        br.ui:createSpinner(section, "Apotheosis", 50, 0, 100, 1, "Health Percentage to use Apotheosis at.")
-        br.ui:createSpinner(section, "Apotheosis Targets", 3, 0, 40, 1, "Minimum Apotheosis Units to use at.")
         br.ui:createSpinner(section, "Binding Heal", 70, 0, 100, 1, "Health Percentage to use Binding Heal at.")
         br.ui:createSpinner(section, "Circle of Healing", 75, 0, 100, 1, "Health Percentage to use Circle of Healing at.")
         br.ui:createSpinner(section, "Circle of Healing Targets", 3, 0, 40, 1, "Minimum Circle of Healing Units to use at.")
-        br.ui:createSpinner(section, "Divine Hymn", 50, 0, 100, 1, "Health Percentage to use Divine Hymn at.")
-        br.ui:createSpinner(section, "Divine Hymn Targets", 3, 0, 40, 1, "Minimum Divine Hymn Units to use at.")
         br.ui:createSpinner(section, "Divine Star", 80, 0, 100, 1, "Health Percentage to use Divine Star at.")
         br.ui:createSpinner(section, "Fae Guardians", 80, 0, 100, 1, "Health Percentage to use Fae Guardians at.")
+        br.ui:createSpinner(section, "Flash Concentration", 90, 0, 100, 1, "Health Percentage to use Flash Heal at to maintain Flash Concentration.")
         br.ui:createSpinner(section, "Flash Heal", 60, 0, 100, 1, "Health Percentage to use Flash Heal at.")
         br.ui:createSpinner(section, "Guardian Spirit Tank", 30, 0, 100, 1, "Tank Health Percentage to use Guardian Spirit at.")
         br.ui:createSpinner(section, "Guardian Spirit", 30, 0, 100, 1, "Health Percentage to use Guardian Spirit at.")
@@ -77,8 +74,6 @@ local function createOptions()
         br.ui:createSpinner(section, "Heal", 70, 0, 100, 1, "Health Percentage to use Heal at.")
         br.ui:createSpinner(section, "Holy Word: Sanctify", 80, 0, 100, 1, "Health Percentage to use Holy Word: Sanctify at.")
         br.ui:createSpinner(section, "Holy Word: Sanctify Targets", 3, 0, 40, 1, "Minimum Holy Word: Sanctify Units to use at.")
-        br.ui:createSpinner(section, "Holy Word: Salvation", 60, 0, 100, 1, "Health Percentage to use Holy Word: Salvation at.")
-        br.ui:createSpinner(section, "Holy Word: Salvation Targets", 3, 0, 40, 1, "Minimum Holy Word: Salvation Units to use at.")
         br.ui:createSpinner(section, "Holy Word: Serenity", 50, 0, 100, 1, "Health Percentage to use Holy Word: Serenity at.")
         br.ui:createSpinner(section, "Prayer of Mending", 100, 0, 100, 1, "Health Percentage to use Prayer of Mending at.")
         br.ui:createSpinner(section, "Renew", 85, 0, 100, 1, "Health Percentage to use Renew at.")
@@ -104,6 +99,12 @@ local function createOptions()
     
     local function cooldownOptions()
         local section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
+        br.ui:createSpinner(section, "Apotheosis", 50, 0, 100, 1, "Health Percentage to use Apotheosis at.")
+        br.ui:createSpinner(section, "Apotheosis Targets", 3, 0, 40, 1, "Minimum Apotheosis Units to use at.")
+        br.ui:createSpinner(section, "Divine Hymn", 50, 0, 100, 1, "Health Percentage to use Divine Hymn at.")
+        br.ui:createSpinner(section, "Divine Hymn Targets", 3, 0, 40, 1, "Minimum Divine Hymn Units to use at.")
+        br.ui:createSpinner(section, "Holy Word: Salvation", 60, 0, 100, 1, "Health Percentage to use Holy Word: Salvation at.")
+        br.ui:createSpinner(section, "Holy Word: Salvation Targets", 3, 0, 40, 1, "Minimum Holy Word: Salvation Units to use at.")
         br.ui:createCheckbox(section, "Racial", "Use Racial.")
         br.ui:createSpinner(section, "Trinket 1", 70, 0, 100, 1, "Health Percentage to use at.")
         br.ui:createSpinnerWithout(section, "Trinket 1 Targets", 3, 1, 40, 1, "Minimum Trinket 1 Targets to use at.")
@@ -163,6 +164,7 @@ local inCombat
 local mode
 local moving
 local race
+local runeforge
 local spell
 local talent
 local ui
@@ -368,9 +370,9 @@ end -- End Action List - Cooldown
 
 -- Action List - Healing
 actionList.Healing = function()
-    if ui.checked("Holy Word: Serenity") then
-        if unit.hp(lowestUnit) <= ui.value("Holy Word: Serenity") then
-            if cast.holyWordSerenity(lowestUnit) then return true end
+    if ui.checked("Flash Concentration") and runeforge.flashConcentration.equiped then
+        if unit.hp(lowestUnit) <= ui.value("Flash Concentration") and buff.flashConcentration.remain() < 3 and inCombat then
+            if cast.flashHeal(lowestUnit) then return true end
         end
     end
     if ui.checked("Holy Word: Sanctify") then
@@ -384,6 +386,11 @@ actionList.Healing = function()
             if loc ~= nil then
                 if br.castGroundAtLocation(loc, spell.holyWordSanctify) then return true end
             end
+        end
+    end
+    if ui.checked("Holy Word: Serenity") then
+        if unit.hp(lowestUnit) <= ui.value("Holy Word: Serenity") then
+            if cast.holyWordSerenity(lowestUnit) then return true end
         end
     end
     if ui.checked("Prayer of Mending") and inCombat then
@@ -414,7 +421,7 @@ actionList.Healing = function()
         if br.castWiseAoEHeal(br.friend, spell.prayerOfHealing, 40, ui.value("Prayer of Healing"), ui.value("Prayer of Healing Targets"), 5, false, true) then return true end
     end
     if ui.checked("Divine Star") and talent.divineStar then
-        if unit.hp(lowestUnit) <= ui.value("Divine Star") and unit.facing(lowestUnit) then
+        if unit.hp(lowestUnit) <= ui.value("Divine Star") and unit.facing(lowestUnit) and br.getUnitsInRect(5, 24, false, ui.value("Divine Star")) >= 1 then
             if cast.divineStar() then return true end
         end
     end
@@ -479,7 +486,7 @@ actionList.Damage = function()
         end
     end
     if ui.checked("Divine Star Damage") then
-        if ttd(units.dyn40) > 3 and unit.facing(units.dyn40) and not unit.isExplosive(units.dyn40) then
+        if ttd(units.dyn40) > 3 and unit.facing(units.dyn40) and br.getEnemiesInRect(5, 24) >= 1  and not unit.isExplosive(units.dyn40) then
             if cast.divineStar() then return true end
         end
     end
@@ -530,6 +537,7 @@ local function runRotation()
     mode = br.player.ui.mode
     moving = br.player.moving
     race = br.player.race
+    runeforge = br.player.runeforge
     spell = br.player.spell
     talent = br.player.talent
     ui = br.player.ui

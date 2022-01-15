@@ -2568,6 +2568,9 @@ br.lists.spells = {
             glyphs                          = {
 
             },
+            runeforges                      = {
+                flashConcentration          = 336266,
+            },
             talents                         = {
                 angelicFeather              = 121536,
                 apotheosis                  = 200183,
@@ -2629,6 +2632,7 @@ br.lists.spells = {
                 darkThoughts                = 341207,
                 dispersion                  = 47585,
                 dissonantEchoes             = 343144,
+                flashConcentration          = 336267,
                 harvestedThoughts           = 288343,
                 lingeringInsanity           = 199849,
                 powerWordShield             = 17,
