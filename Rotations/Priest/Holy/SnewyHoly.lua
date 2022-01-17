@@ -65,7 +65,9 @@ local function createOptions()
         br.ui:createSpinner(section, "Circle of Healing Targets", 3, 0, 40, 1, "Minimum Circle of Healing Units to use at.")
         br.ui:createSpinner(section, "Divine Star", 80, 0, 100, 1, "Health Percentage to use Divine Star at.")
         br.ui:createSpinner(section, "Fae Guardians", 80, 0, 100, 1, "Health Percentage to use Fae Guardians at.")
-        br.ui:createSpinner(section, "Flash Concentration", 90, 0, 100, 1, "Health Percentage to use Flash Heal at to maintain Flash Concentration.")
+        br.ui:createSpinner(section, "Fae Guardians Mana", 80, 0, 100, 1, "Mana Percentage to use Fae Guardians at.")
+        br.ui:createCheckbox(section, "Flash Concentration", "Use Flash Heal at to maintain Flash Concentration.")
+        br.ui:createCheckbox(section, "Flash Concentration OoC", "Maintain Flash Concentration out of combat.")
         br.ui:createSpinner(section, "Flash Heal", 60, 0, 100, 1, "Health Percentage to use Flash Heal at.")
         br.ui:createSpinner(section, "Guardian Spirit Tank", 30, 0, 100, 1, "Tank Health Percentage to use Guardian Spirit at.")
         br.ui:createSpinner(section, "Guardian Spirit", 30, 0, 100, 1, "Health Percentage to use Guardian Spirit at.")
@@ -175,7 +177,7 @@ local var
 local bindingHealUnits
 local hp
 local lowestUnit
-local mana
+local mp
 local renewCount
 local sanctifyUnits
 local shadowWordPainCount
@@ -325,7 +327,7 @@ actionList.Cooldown = function()
         end
     end
     if ui.useCDs() then
-        if (race == "Troll" or race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf" or race == "LightforgedDraenei") or (mana < 70 and race == "BloodElf") then
+        if (race == "Troll" or race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf" or race == "LightforgedDraenei") or (mp < 70 and race == "BloodElf") then
             if race == "LightforgedDraenei" then
                 if cast.racial("target", "ground") then return true end
             else
@@ -333,7 +335,7 @@ actionList.Cooldown = function()
             end
         end
         if ui.checked("Trinket 1") and br.canTrinket(13) then
-            if ui.value("Trinket 1 Mode") == 1 and #enemies.yards8 >= ui.value("Trinket 1 Targets") then
+            if ui.value("Trinket 1 Mode") == 1 and #enemies.yards40 >= ui.value("Trinket 1 Targets") then
                 br.useItem(13)
             elseif ui.value("Trinket 1 Mode") == 2 and br.getLowAllies(ui.value("Trinket 1")) >= ui.value("Trinket 1 Targets") then
                 if unit.hp(lowestUnit) <= ui.value("Trinket 1") then
@@ -342,7 +344,7 @@ actionList.Cooldown = function()
             end
         end
         if ui.checked("Trinket 2") and br.canTrinket(14) then
-            if ui.value("Trinket 2 Mode") == 1 and #enemies.yards8 >= ui.value("Trinket 1 Targets") then
+            if ui.value("Trinket 2 Mode") == 1 and #enemies.yards40 >= ui.value("Trinket 1 Targets") then
                 br.useItem(14)
             elseif ui.value("Trinket 2 Mode") == 2 and br.getLowAllies(ui.value("Trinket 2")) >= ui.value("Trinket 2 Targets") then
                 if unit.hp(lowestUnit) <= ui.value("Trinket 2") then
@@ -371,7 +373,7 @@ end -- End Action List - Cooldown
 -- Action List - Healing
 actionList.Healing = function()
     if ui.checked("Flash Concentration") and runeforge.flashConcentration.equiped then
-        if unit.hp(lowestUnit) <= ui.value("Flash Concentration") and buff.flashConcentration.remain() < 3 and inCombat then
+        if buff.flashConcentration.exists() and buff.flashConcentration.remains() <= 5 and (not moving or buff.surgeOfLight.exists()) and (inCombat or ui.checked("Flash Concentration OoC")) then
             if cast.flashHeal(lowestUnit) then return true end
         end
     end
@@ -444,6 +446,9 @@ actionList.Healing = function()
             end
         end
     end
+    if ui.checked("Fae Guardians Mana") and covenant.nightFae.active and mp < ui.value("Fae Guardians Mana") then
+        if cast.faeGuardians() then return true end
+    end
     if ui.checked("Flash Heal") and not moving then
         if unit.hp(lowestUnit) <= ui.value("Flash Heal") then
             if cast.flashHeal(lowestUnit) then return true end
@@ -470,7 +475,7 @@ actionList.Damage = function()
         end
     end
     if ui.checked("Holy Word: Chastise") then
-        if cast.holyWordChastise(units.dyn40) then return true end
+        if cast.holyWordChastise(units.dyn30) then return true end
     end
     if ui.checked("Holy Fire") and not moving then
         if cast.holyFire(units.dyn40) then return true end
@@ -490,7 +495,7 @@ actionList.Damage = function()
             if cast.divineStar() then return true end
         end
     end
-    if ui.checked("Holy Nova") and #enemies.yards8 >= 3 then
+    if ui.checked("Holy Nova") and #enemies.yards12 >= ui.value("Holy Nova") then
         if cast.holyNova() then return true end
     end
     if ui.checked("Shadow Word: Pain Targets") and shadowWordPainCount < ui.value("Shadow Word: Pain Targets") then
@@ -546,17 +551,18 @@ local function runRotation()
     var = br.player.variables
     
     -- Custom Variables
+    units.get(30)
     units.get(40)
     enemies.get(30)
     enemies.get(40)
-    enemies.get(8)
+    enemies.get(12)
     friends.yards40 = br.getAllies("player",40)
 
     -- Other Locals
     bindingHealUnits = {}
     hp = unit.hp("player")
     lowestUnit = friends[1].unit
-    mana = br.player.power.mana.percent()
+    mp = br.player.power.mana.percent()
     renewCount = buff.renew.count()
     sanctifyUnits = {}
     shadowWordPainCount = debuff.shadowWordPain.count()
