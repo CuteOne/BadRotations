@@ -373,7 +373,7 @@ end -- End Action List - Cooldown
 -- Action List - Healing
 actionList.Healing = function()
     if ui.checked("Flash Concentration") and runeforge.flashConcentration.equiped then
-        if buff.flashConcentration.remains() <= 5 and (not moving or buff.surgeOfLight.exists()) and (inCombat or ui.checked("Flash Concentration OoC")) then
+        if buff.flashConcentration.exists() and buff.flashConcentration.remains() <= 5 and (not moving or buff.surgeOfLight.exists()) and (inCombat or ui.checked("Flash Concentration OoC")) then
             if cast.flashHeal(lowestUnit) then return true end
         end
     end
