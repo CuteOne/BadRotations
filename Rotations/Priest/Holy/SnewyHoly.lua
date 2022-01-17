@@ -66,7 +66,8 @@ local function createOptions()
         br.ui:createSpinner(section, "Divine Star", 80, 0, 100, 1, "Health Percentage to use Divine Star at.")
         br.ui:createSpinner(section, "Fae Guardians", 80, 0, 100, 1, "Health Percentage to use Fae Guardians at.")
         br.ui:createSpinner(section, "Fae Guardians Mana", 80, 0, 100, 1, "Mana Percentage to use Fae Guardians at.")
-        br.ui:createSpinner(section, "Flash Concentration", 90, 0, 100, 1, "Health Percentage to use Flash Heal at to maintain Flash Concentration.")
+        br.ui:createCheckbox(section, "Flash Concentration", "Use Flash Heal at to maintain Flash Concentration.")
+        br.ui:createCheckbox(section, "Flash Concentration OoC", "Maintain Flash Concentration out of combat.")
         br.ui:createSpinner(section, "Flash Heal", 60, 0, 100, 1, "Health Percentage to use Flash Heal at.")
         br.ui:createSpinner(section, "Guardian Spirit Tank", 30, 0, 100, 1, "Tank Health Percentage to use Guardian Spirit at.")
         br.ui:createSpinner(section, "Guardian Spirit", 30, 0, 100, 1, "Health Percentage to use Guardian Spirit at.")
@@ -372,7 +373,7 @@ end -- End Action List - Cooldown
 -- Action List - Healing
 actionList.Healing = function()
     if ui.checked("Flash Concentration") and runeforge.flashConcentration.equiped then
-        if unit.hp(lowestUnit) <= ui.value("Flash Concentration") and buff.flashConcentration.remain() <= 5 and not cast.current.flashHeal() and (not moving or buff.surgeOfLight.stack() >= 1) and inCombat then
+        if buff.flashConcentration.remains() <= 5 and (not moving or buff.surgeOfLight.exists()) and (inCombat or ui.checked("Flash Concentration OoC")) then
             if cast.flashHeal(lowestUnit) then return true end
         end
     end

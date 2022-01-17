@@ -2559,7 +2559,7 @@ br.lists.spells = {
                 powerOfTheNaaru             = 196489,
                 prayerOfMending             = 41635,
                 renew                       = 139,
-                surgeOfLight                = 109186,
+                surgeOfLight                = 114255,
                 spiritOfRedemption          = 27827,
             },
             debuffs                         = {
