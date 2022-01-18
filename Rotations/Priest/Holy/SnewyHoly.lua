@@ -110,10 +110,10 @@ local function createOptions()
         br.ui:createCheckbox(section, "Racial", "Use Racial.")
         br.ui:createSpinner(section, "Trinket 1", 70, 0, 100, 1, "Health Percentage to use at.")
         br.ui:createSpinnerWithout(section, "Trinket 1 Targets", 3, 1, 40, 1, "Minimum Trinket 1 Targets to use at.")
-        br.ui:createDropdown(section, "Trinket 1 Mode", {"Enemy", "Friend"}, 1, "Use Trinket 1 on enemy or on friend.")
+        br.ui:createDropdown(section, "Trinket 1 Mode", {"Enemy", "Enemy Ground", "Friend", "Friend Ground"}, 1, "Use Trinket 1 on enemy or on friend.")
         br.ui:createSpinner(section, "Trinket 2", 70, 0, 100, 1, "Health Percentage to use at.")
         br.ui:createSpinnerWithout(section, "Trinket 2 Targets", 3, 1, 40, 1, "Minimum Trinket 2 Targets to use at.")
-        br.ui:createDropdown(section, "Trinket 2 Mode", {"Enemy", "Friend"}, 1, "Use Trinket 2 on enemy or on friend.")
+        br.ui:createDropdown(section, "Trinket 2 Mode", {"Enemy", "Enemy Ground", "Friend", "Friend Ground"}, 1, "Use Trinket 2 on enemy or on friend.")
         br.ui:checkSectionState(section)
     end -- End cooldownOptions
     
@@ -182,6 +182,11 @@ local renewCount
 local sanctifyUnits
 local shadowWordPainCount
 local thisUnit
+local blacklistedUnits = {
+    [165251] = true, -- Illusionary Vulpin
+    [165913] = true, -- Ghastly Parishioner
+    [174175] = true, -- Loyal Stoneborn
+}
 
 -----------------
 --- Functions ---
@@ -192,6 +197,13 @@ local function ttd(u)
         return 999
     end
     return ttdSec
+end
+
+local function notBlacklisted(unit)
+    if blacklistedUnits[br.GetObjectID(unit)] then
+        return true
+    end
+    return false
 end
 
 --------------------
@@ -335,20 +347,44 @@ actionList.Cooldown = function()
             end
         end
         if ui.checked("Trinket 1") and br.canTrinket(13) then
-            if ui.value("Trinket 1 Mode") == 1 and #enemies.yards40 >= ui.value("Trinket 1 Targets") then
-                br.useItem(13)
-            elseif ui.value("Trinket 1 Mode") == 2 and br.getLowAllies(ui.value("Trinket 1")) >= ui.value("Trinket 1 Targets") then
+            if ui.value("Trinket 1 Mode") <= 2 and #enemies.yards40 >= ui.value("Trinket 1 Targets") then
+                if ui.value("Trinket 1 Mode") == 1 then
+                    br.useItem(13)
+                elseif ui.value("Trinket 1 Mode") == 2 then
+                    br.useItem(13)
+                    local X, Y, Z = br.GetObjectPosition("target")
+                    br._G.ClickPosition(X, Y, Z)
+                end
+            elseif ui.value("Trinket 1 Mode") >= 3 and br.getLowAllies(ui.value("Trinket 1")) >= ui.value("Trinket 1 Targets") then
                 if unit.hp(lowestUnit) <= ui.value("Trinket 1") then
-                    br.useItem(13, lowestUnit)
+                    if ui.value("Trinket 1 Mode") == 3 then
+                        br.useItem(13, lowestUnit)
+                    elseif ui.value("Trinket 1 Mode") == 4 then
+                        br.useItem(13)
+                        local X, Y, Z = br.GetObjectPosition(lowestUnit)
+                        br._G.ClickPosition(X, Y, Z)
+                    end
                 end
             end
         end
         if ui.checked("Trinket 2") and br.canTrinket(14) then
-            if ui.value("Trinket 2 Mode") == 1 and #enemies.yards40 >= ui.value("Trinket 1 Targets") then
-                br.useItem(14)
-            elseif ui.value("Trinket 2 Mode") == 2 and br.getLowAllies(ui.value("Trinket 2")) >= ui.value("Trinket 2 Targets") then
+            if ui.value("Trinket 2 Mode") <= 2 and #enemies.yards40 >= ui.value("Trinket 1 Targets") then
+                if ui.value("Trinket 2 Mode") == 1 then
+                    br.useItem(14)
+                elseif ui.value("Trinket 2 Mode") == 2 then
+                    br.useItem(14)
+                    local X, Y, Z = br.GetObjectPosition("target")
+                    br._G.ClickPosition(X, Y, Z)
+                end
+            elseif ui.value("Trinket 2 Mode") >= 3 and br.getLowAllies(ui.value("Trinket 2")) >= ui.value("Trinket 2 Targets") then
                 if unit.hp(lowestUnit) <= ui.value("Trinket 2") then
-                    br.useItem(14, lowestUnit)
+                    if ui.value("Trinket 2 Mode") == 3 then
+                        br.useItem(14, lowestUnit)
+                    elseif ui.value("Trinket 2 Mode") == 4 then
+                        br.useItem(14)
+                        local X, Y, Z = br.GetObjectPosition(lowestUnit)
+                        br._G.ClickPosition(X, Y, Z)
+                    end
                 end
             end
         end
@@ -373,7 +409,7 @@ end -- End Action List - Cooldown
 -- Action List - Healing
 actionList.Healing = function()
     if ui.checked("Flash Concentration") and runeforge.flashConcentration.equiped then
-        if buff.flashConcentration.exists() and buff.flashConcentration.remains() <= 5 and (not moving or buff.surgeOfLight.exists()) and (inCombat or ui.checked("Flash Concentration OoC")) then
+        if buff.flashConcentration.exists() and buff.flashConcentration.remains() <= 5 and not cast.last.flashHeal() and (not moving or buff.surgeOfLight.exists()) and (inCombat or ui.checked("Flash Concentration OoC")) then
             if cast.flashHeal(lowestUnit) then return true end
         end
     end
@@ -449,8 +485,8 @@ actionList.Healing = function()
     if ui.checked("Fae Guardians Mana") and covenant.nightFae.active and mp < ui.value("Fae Guardians Mana") then
         if cast.faeGuardians() then return true end
     end
-    if ui.checked("Flash Heal") and not moving then
-        if unit.hp(lowestUnit) <= ui.value("Flash Heal") then
+    if ui.checked("Flash Heal") and (not moving or buff.surgeOfLight.exists()) then
+        if (unit.hp(lowestUnit) <= ui.value("Flash Heal")) or (buff.surgeOfLight.exists() and unit.hp(lowestUnit) < 100) then
             if cast.flashHeal(lowestUnit) then return true end
         end
     end
@@ -504,7 +540,7 @@ actionList.Damage = function()
         end
         for i = 1, #enemies.yards40 do
             thisUnit = enemies.yards40[i]
-            if debuff.shadowWordPain.remain(thisUnit) < 4.8 and ttd(thisUnit) > 6 and not br._G.UnitIsOtherPlayersPet(thisUnit) then
+            if debuff.shadowWordPain.remain(thisUnit) < 4.8 and ttd(thisUnit) > 6 and not br._G.UnitIsOtherPlayersPet(thisUnit) and notBlacklisted(thisUnit) then
                 if cast.shadowWordPain(thisUnit) then return true end
             end
         end
@@ -518,7 +554,7 @@ actionList.Damage = function()
         end
         for i = 1, #enemies.yards40 do
             thisUnit = enemies.yards40[i]
-            if not br._G.UnitIsOtherPlayersPet(thisUnit) then
+            if not br._G.UnitIsOtherPlayersPet(thisUnit) and notBlacklisted(thisUnit) then
                 if cast.shadowWordPain(thisUnit) then return true end
             end
         end
