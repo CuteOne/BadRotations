@@ -580,9 +580,10 @@ actionList.Defensive = function()
         if ui.checked("Break Crowd Control") and cast.able.catForm() then
             if not cast.noControl.catForm() and var.lastForm ~= 0 then
                 cast.form(var.lastForm)
-                if unit.form() == var.lastForm then
-                    var.lastForm = 0
-                end
+                var.lastForm = 0
+                -- if currentForm == var.lastForm or currentForm == 0 then
+                --     var.lastForm = 0
+                -- end
             elseif cast.noControl.catForm() then
                 if unit.form() == 0 then
                     cast.catForm("player")
@@ -652,37 +653,28 @@ actionList.Defensive = function()
             end
         end
         -- Regrowth
-        if ui.checked("Regrowth") and cast.able.regrowth() and not (unit.mounted() or unit.flying()) and not cast.current.regrowth() then
+        if ui.checked("Regrowth") and cast.able.regrowth("player") and not (unit.mounted() or unit.flying()) and not cast.current.regrowth() then
             local thisHP = unit.hp()
             local thisUnit = "player"
             local lowestUnit = unit.lowest(40)
             local fhp = unit.hp(lowestUnit)
-            if ui.value("Auto Heal") == 1 and unit.distance(lowestUnit) < 40 then thisHP = fhp; thisUnit = lowestUnit end
-            if not unit.inCombat() then
-                -- Don't Break Form
-                if ui.value("Regrowth - OoC") == 2 then
-                    -- Lowest Party/Raid or Player
-                    if (thisHP <= ui.value("Regrowth") and not unit.moving())
-                        and (unit.form() == 0 or buff.predatorySwiftness.exists())
-                    then
-                        if cast.regrowth(thisUnit) then ui.debug("Casting Regrowth [OoC No Break] on "..unit.name(thisUnit)) return true end
-                    end
-                end
+            if ui.value("Auto Heal") == 1 and unit.distance(lowestUnit) < 40 then thisHP = fhp; thisUnit = lowestUnit else thisUnit = "player" end
+            if not unit.inCombat() and thisHP <= ui.value("Regrowth") and (not unit.moving() or buff.predatorySwiftness.exists()) then
                 -- Break Form
-                if ui.value("Regrowth - OoC") == 1 and unit.hp() <= ui.value("Regrowth") and not unit.moving() then
-                    if unit.form() ~= 0 and not buff.predatorySwiftness.exists() then
-                        unit.cancelForm()
-                        ui.debug("Cancel Form [Regrowth - OoC Break]")
-                    elseif unit.form() == 0 or buff.predatorySwiftness.exists() then
-                       if cast.regrowth("player") then ui.debug("Casting Regrowth [OoC Break] on "..unit.name(thisUnit)) return true end
-                    end
+                if ui.value("Regrowth - OoC") == 1 and unit.form() ~= 0 and not buff.predatorySwiftness.exists() and unit.isUnit(thisUnit,"player") then
+                    unit.cancelForm()
+                    ui.debug("Cancel Form [Regrowth - OoC Break]")
+                end
+                -- Lowest Party/Raid or Player
+                if unit.form() == 0 or buff.predatorySwiftness.exists() then
+                    if cast.regrowth(thisUnit) then ui.debug("Casting Regrowth [OoC] on "..unit.name(thisUnit)) return true end
                 end
             elseif unit.inCombat() and (buff.predatorySwiftness.exists() or unit.level() < 49) then
                 -- Always Use Predatory Swiftness when available
                 if ui.value("Regrowth - InC") == 1 or not talent.bloodtalons then
                     -- Lowest Party/Raid or Player
                     if (thisHP <= ui.value("Regrowth") and unit.level() >= 49) or (unit.level() < 49 and thisHP <= ui.value("Regrowth") / 2) then
-                        if unit.form() ~= 0 and not buff.predatorySwiftness.exists() then
+                        if unit.form() ~= 0 and not buff.predatorySwiftness.exists() and unit.isUnit(thisUnit,"player") then
                             unit.cancelForm()
                             ui.debug("Cancel Form [Regrowth - InC Break]")
                         elseif unit.form() == 0 or buff.predatorySwiftness.exists() then
