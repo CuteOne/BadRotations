@@ -327,19 +327,26 @@ actionList.Cooldowns = function()
             if cast.racial() then ui.debug("Casting Racial Ability") return true end
         end
         -- Metamorphosis
-        if ui.alwaysCdNever("Metamorphosis") then
-            -- metamorphosis,if=!talent.demonic.enabled&cooldown.eye_beam.remains>20&(!covenant.venthyr.enabled|!dot.sinful_brand.ticking)|fight_remains<25
-            if cast.able.metamorphosis() and #enemies.yards8 > 0 and not talent.demonic and cd.eyeBeam.remains() > 20
-                and (not covenant.venthyr.enabled or not debuff.sinfulBrand.exists(units.dyn5)) --or (unit.isBoss("target") and unit.ttdGroup(5) < 25)))
-            then
-                if cast.metamorphosis("player") then ui.debug("Casting Metamorphosis") return true end
+        if ui.alwaysCdNever("Metamorphosis") and cast.able.metamorphosis() and #enemies.yards8 > 0 then
+            -- metamorphosis,landing_distance=10,if=!talent.demonic.enabled&covenant.venthyr.enabled&runeforge.agony_gaze&dot.sinful_brand.remains>8&spell_targets.metamorphosis_impact<2&(cooldown.eye_beam.remains>20|fight_remains<25)
+            -- metamorphosis,landing_distance=10,if=talent.demonic.enabled&covenant.venthyr.enabled&runeforge.agony_gaze&dot.sinful_brand.remains>8&spell_targets.metamorphosis_impact<2&(cooldown.eye_beam.remains>20&!variable.blade_dance|cooldown.blade_dance.remains>gcd.max|fight_remains<25)
+            if covenant.venthyr.enabled and runeforge.agonyGaze.equiped and debuff.sinfulBrand.remains(units.dyn5) > 8 and #enemies.yards8 < 2 then
+                if not talent.demonic and cd.eyeBeam.remain() > 20 then
+                    if cast.metamorphosis("player") then ui.debug("Casting Metamorphosis [Venthyr]") return true end
+                end
+                if talent.demonic and (cd.eyeBeam.remain() > 20 and not var.bladeDance or cd.bladeDance.remain() > gcd) then
+                    if cast.metamorphosis("player") then ui.debug("Casting Metamorphosis [Venthyr Demonic") return true end
+                end
             end
-            -- metamorphosis,if=talent.demonic.enabled&(cooldown.eye_beam.remains>20&(!variable.blade_dance|cooldown.blade_dance.remains>gcd.max))&(!covenant.venthyr.enabled|!dot.sinful_brand.ticking)|fight_remains<25
-            if cast.able.metamorphosis() and #enemies.yards8 > 0 and talent.demonic
-                and (cd.eyeBeam.remain() > 20 and (not var.bladeDance or cd.bladeDance.remain() > unit.gcd(true)))
-                and (not covenant.venthyr.enabled or not debuff.sinfulBrand.exists(units.dyn5))
-            then
-                if cast.metamorphosis("player") then ui.debug("Casting Metamorphosis [Demonic]") return true end
+            -- metamorphosis,if=!talent.demonic.enabled&(cooldown.eye_beam.remains>20&(!covenant.venthyr.enabled|dot.sinful_brand.remains<=8|spell_targets.metamorphosis_impact>1)|fight_remains<25)
+            -- metamorphosis,if=talent.demonic.enabled&(cooldown.eye_beam.remains>20&(!variable.blade_dance|cooldown.blade_dance.remains>gcd.max)&(!covenant.venthyr.enabled|dot.sinful_brand.remains<=8|spell_targets.metamorphosis_impact>1)|fight_remains<25)
+            if cd.eyeBeam.remains() > 20 and (not covenant.venthyr.enabled or debuff.sinfulBrand.remains(units.dyn5) <= 8 or #enemies.yards8 > 1) then
+                if not talent.demonic then
+                    if cast.metamorphosis("player") then ui.debug("Casting Metamorphosis") return true end
+                end
+                if talent.demonic and (not var.bladeDance or cd.bladeDance.remain() > gcd) then
+                    if cast.metamorphosis("player") then ui.debug("Casting Metamorphosis [Demonic]") return true end
+                end
             end
         end
         -- Potion
@@ -360,8 +367,11 @@ actionList.Cooldowns = function()
         -- Covenant Abilities
         if ui.alwaysCdNever("Covenant Ability") then
             -- Sinful Brand
-            -- sinful_brand,if=!dot.sinful_brand.ticking
-            if cast.able.sinfulBrand() and not debuff.sinfulBrand.exists(units.dyn5) then
+            -- sinful_brand,if=!dot.sinful_brand.ticking&(!runeforge.agony_gaze|(cooldown.eye_beam.remains<=gcd&fury>=30))&(!cooldown.metamorphosis.up|active_enemies=1)
+            if cast.able.sinfulBrand() and not debuff.sinfulBrand.exists(units.dyn5)
+                and (not runeforge.agonyGaze.equiped or (cd.eyeBeam.remain() <= gcd and fury >= 30))
+                and (not cd.metamorphosis.exists() or #enemies.yards5 == 1)
+            then
                 if cast.sinfulBrand() then ui.debug("Casting Sinful Brand") return true end
             end
             -- The Hunt
@@ -369,11 +379,6 @@ actionList.Cooldowns = function()
             if cast.able.theHunt() and ((not talent.demonic and not var.waitingForMomentum and not var.poolForMeta) or buff.furiousGaze.exists()) then
                 if cast.theHunt() then ui.debug("Casting The Hunt") return true end
             end
-            -- -- Fodder to the Flame
-            -- -- fodder_to_the_flame
-            -- if cast.able.fodderToTheFlame() then
-            --     if cast.fodderToTheFlame() then ui.debug("Casting Fodder to the Flame") return true end
-            -- end
             -- Elysian Decree
             -- elysian_decree,if=(active_enemies>desired_targets|raid_event.adds.in>30)
             if cast.able.elysianDecree() and unit.standingTime() > 2
@@ -387,6 +392,14 @@ end -- End Action List - Cooldowns
 
 -- Action List - Demonic
 actionList.Demonic = function()
+    -- Eye Beam
+    -- eye_beam,if=runeforge.agony_gaze&(active_enemies>desired_targets|raid_event.adds.in>25-talent.cycle_of_hatred*10)&dot.sinful_brand.ticking&dot.sinful_brand.remains<=gcd
+    if ui.mode.eyeBeam == 1 and not unit.isExplosive("target") and cast.able.eyeBeam("player","rect",1,20)
+        and not unit.moving() and #enemies.yards20r > 0 and (eyebeamTTD() or unit.isDummy(units.dyn8))
+        and runeforge.agonyGaze.equiped and debuff.sinfulBrand.exists(units.dyn5) and debuff.sinfulBrand.remain(units.dyn5) <= gcd
+    then
+        if cast.eyeBeam("player","rect",1,20) then ui.debug("Casting Eye Beam [Agony Gaze]") return true end
+    end
     -- Fel Rush
     -- fel_rush,if=talent.unbound_chaos.enabled&buff.unbound_chaos.up&(charges=2|(raid_event.movement.in>10&raid_event.adds.in>10))
     if cast.able.felRush("target") and ui.mode.mover ~= 3 and not unit.isExplosive("target") and unit.facing("player","target",10)
@@ -419,9 +432,9 @@ actionList.Demonic = function()
         if cast.throwGlaive() then ui.debug("Casting Throw Glaive [Serrated Glaive]") return true end
     end
     -- Eye Beam
-    -- eye_beam,if=active_enemies>desired_targets|raid_event.adds.in>25&(!variable.use_eye_beam_fury_condition|spell_targets>1|fury<70)
+    -- eye_beam,if=active_enemies>desired_targets|raid_event.adds.in>25-talent.cycle_of_hatred*10&(!variable.use_eye_beam_fury_condition|spell_targets>1|fury<70)&!variable.waiting_for_agony_gaze
     if ui.mode.eyeBeam == 1 and not unit.isExplosive("target") and cast.able.eyeBeam("player","rect",1,20)
-        and not unit.moving() and #enemies.yards20r > 0 and (eyebeamTTD() or unit.isDummy(units.dyn8))
+        and not unit.moving() and #enemies.yards20r > 0 and (eyebeamTTD() or unit.isDummy(units.dyn8)) and not var.waitingForAgonyGaze
     then
         if (ui.value("Eye Beam Usage") == 1 and (not var.useEyeBeamFuryCondition or #enemies.yards20r >= ui.value("Units To AoE") or fury < 70))
             or (ui.value("Eye Beam Usage") == 2 and (#enemies.yards20r >= ui.value("Units To AoE") or ui.mode.rotation == 2))
@@ -438,8 +451,8 @@ actionList.Demonic = function()
         if cast.bladeDance("player","aoe",1,8) then ui.debug("Casting Blade Dance") return true end
     end
     -- Immolation Aura
-    -- immolation_aura
-    if cast.able.immolationAura() and not unit.isExplosive("target") and #enemies.yards8 > 0 then
+    -- immolation_aura,if=!buff.immolation_aura.up
+    if cast.able.immolationAura() and not unit.isExplosive("target") and #enemies.yards8 > 0 and not buff.immolationAura.exists() then
         if cast.immolationAura("player","aoe",1,8) then ui.debug("Casting Immolation Aura") return true end
     end
     -- Annihilation
@@ -516,6 +529,14 @@ end -- End Action List - Demonic
 
 -- Action List - Normal
 actionList.Normal = function()
+    -- Eye Beam
+    -- eye_beam,if=runeforge.agony_gaze&(active_enemies>desired_targets|raid_event.adds.in>15)&dot.sinful_brand.ticking&dot.sinful_brand.remains<=gcd
+    if ui.mode.eyeBeam == 1 and not unit.isExplosive("target") and cast.able.eyeBeam("player","rect",1,20)
+        and not unit.moving() and #enemies.yards20r > 0 and (eyebeamTTD() or unit.isDummy(units.dyn8))
+        and runeforge.agonyGaze.equiped and debuff.sinfulBrand.exists(units.dyn5) and debuff.sinfulBrand.remain(units.dyn5) <= gcd
+    then
+        if cast.eyeBeam("player","rect",1,20) then ui.debug("Casting Eye Beam [Agony Gaze]") return true end
+    end
     -- Vengeful Retreat
     -- vengeful_retreat,if=talent.momentum.enabled&buff.prepared.down&time>1
     if ui.checked("Vengeful Retreat") and cast.able.vengefulRetreat() and talent.momentum
@@ -552,8 +573,8 @@ actionList.Normal = function()
         if cast.deathSweep("player","aoe",1,8) then ui.debug("Casting Death Sweep") return true end
     end
     -- Immolation Aura
-    -- immolation_aura
-    if cast.able.immolationAura() and not unit.isExplosive("target") and #enemies.yards8 > 0 then
+    -- immolation_aura,if=!buff.immolation_aura.up
+    if cast.able.immolationAura() and not unit.isExplosive("target") and #enemies.yards8 > 0 and not buff.immolationAura.exists() then
         if cast.immolationAura("player","aoe",1,8) then ui.debug("Casting Immolation Aura") return true end
     end
     -- Glaive Tempest
@@ -572,7 +593,7 @@ actionList.Normal = function()
     -- eye_beam,if=!variable.waiting_for_momentum&(active_enemies>desired_targets|raid_event.adds.in>15&(!variable.use_eye_beam_fury_condition|spell_targets>1|fury<70))
     if ui.mode.eyeBeam == 1 and not unit.isExplosive("target") and cast.able.eyeBeam("player","rect",1,20)
         and not unit.moving() and #enemies.yards20r >= 0 and (eyebeamTTD() or unit.isDummy(units.dyn8))
-        and not var.waitingForMomentum
+        and not var.waitingForMomentum and not var.waitingForAgonyGaze
     then
         if (ui.value("Eye Beam Usage") == 1 and (not var.useEyeBeamFuryCondition or #enemies.yards20r >= ui.value("Units To AoE") or fury < 70))
             or (ui.value("Eye Beam Usage") == 2 and (#enemies.yards20r >= ui.value("Units To AoE") or ui.mode.rotation == 2))
@@ -614,6 +635,7 @@ actionList.Normal = function()
     if ui.mode.eyeBeam == 1 and not unit.isExplosive("target") and cast.able.eyeBeam("player","rect",1,20)
         and #enemies.yards20r > 0 and not unit.moving() and talent.blindFury
         and (not talent.momentum or buff.momentum.exists()) and (eyebeamTTD() or unit.isDummy(units.dyn8))
+        and not var.waitingForAgonyGaze
     then
         if cast.eyeBeam("player","rect",1,20) then ui.debug("Casting Eye Beam [Blind Fury]") return true end
     end
@@ -699,8 +721,8 @@ actionList.PreCombat = function()
         if unit.exists("target") and unit.valid("target") and unit.facing("target") and unit.distance("target") < 30 then
             if ui.checked("Auto Engage") and var.solo then
                 -- Throw Glaive
-                if ui.checked("Throw Glaive") and cast.able.throwGlaive("target") and #enemies.yards10tnc == 1 then
-                    if cast.throwGlaive("target","aoe") then ui.debug("Casting Throw Glaive [Pre-Pull]") return true end
+                if ui.checked("Throw Glaive") and cast.able.throwGlaive("target","aoe",1,8) and #enemies.yards10tnc == 1 then
+                    if cast.throwGlaive("target","aoe",1,8) then ui.debug("Casting Throw Glaive [Pre-Pull]") return true end
                 end
                 -- Torment
                 if not unit.isDummy("target") and cast.able.torment("target") and (cast.timeSinceLast.throwGlaive() > unit.gcd(true) or not ui.checked("Throw Glaive")) then
@@ -795,32 +817,45 @@ local function runRotation()
         var.bladeDance = not unit.isExplosive("target") and (not buff.chaosTheory.exists() or (talent.firstBlood and #enemies.yards8 >= (2 - var.ruinedTrail))
             or (not talent.cycleOfHatred and #enemies.yards8 >= (4 - var.ruinedTrail)))
     end
-    -- variable,name=blade_dance,if=runeforge.darkglare_medallion,value=talent.first_blood.enabled|(buff.metamorphosis.up|talent.trail_of_ruin.enabled|debuff.essence_break.up)
-        --&spell_targets.blade_dance1>=(3-talent.trail_of_ruin.enabled)|!talent.demonic.enabled&spell_targets.blade_dance1>=4
+    -- variable,name=blade_dance,if=runeforge.darkglare_medallion,value=talent.first_blood.enabled|(buff.metamorphosis.up|talent.trail_of_ruin.enabled|debuff.essence_break.up)&spell_targets.blade_dance1>=(3-talent.trail_of_ruin.enabled)|!talent.demonic.enabled&spell_targets.blade_dance1>=4
     if runeforge.darkglareMedallion.equiped then
         var.bladeDance = not unit.isExplosive("target") and (talent.firstBlood or ((buff.metamorphosis.exists() or talent.trailOfRuin or debuff.essenceBreak.exists("target"))
             and #enemies.yards8 >= (3 - var.ruinedTrail)) or (not talent.demonic and #enemies.yards8 >= 4))
     end
-    -- /variable,name=blade_dance,op=reset,if=talent.essence_break.enabled&cooldown.essence_break.ready
+    -- variable,name=blade_dance,op=reset,if=talent.essence_break.enabled&cooldown.essence_break.ready
     if talent.essenceBreak and not cd.essenceBreak.exists() then var.bladeDance = false end
+    -- variable,name=blade_dance,if=runeforge.agony_gaze&talent.cycle_of_hatred,value=variable.blade_dance&active_dot.sinful_brand<2
+    if runeforge.agonyGaze.equiped and talent.cycleOfHatred then
+        var.bladeDance = var.bladeDance and debuff.sinfulBrand.count() < 2
+    end
+
     -- Pool for Meta Variable
     -- variable,name=pooling_for_meta,value=!talent.demonic.enabled&cooldown.metamorphosis.remains<6&fury.deficit>30
     var.poolForMeta = ui.alwaysCdNever("Metamorphosis") and ui.useCDs() and not talent.demonic and cd.metamorphosis.remain() < 6 and furyDeficit >= 30
+
     -- Pool for Blade Dance Variable
     -- variable,name=pooling_for_blade_dance,value=variable.blade_dance&(fury<75-talent.first_blood.enabled*20)
     var.poolForBladeDance = var.bladeDance and fury < 75 - var.flood * 20 and not unit.isExplosive("target")
+
     -- Pool for Eye Beam
     -- variable,name=pooling_for_eye_beam,value=talent.demonic.enabled&!talent.blind_fury.enabled&cooldown.eye_beam.remains<(gcd.max*2)&fury.deficit>20
     var.poolForEyeBeam = talent.demonic and not talent.blindFury and cd.eyeBeam.remain() < (gcd * 2) and furyDeficit >= 20 and not unit.isExplosive("target")
+
     -- Wait for Momentum
     -- variable,name=waiting_for_momentum,value=talent.momentum.enabled&!buff.momentum.up
     var.waitingForMomentum = talent.momentum and not buff.momentum.exists()
+
+    -- Wait for Agony Gaze
+    -- variable,name=waiting_for_agony_gaze,if=runeforge.agony_gaze,value=!dot.sinful_brand.ticking&cooldown.sinful_brand.remains<gcd.max*4&(!cooldown.metamorphosis.up|active_enemies=1)&spell_targets.eye_beam<=3
+    var.waitingForAgonyGaze = runeforge.agonyGaze.equiped and not debuff.sinfulBrand.exists(units.dyn5) and cd.sinfulBrand.remain() < gcd * 4 and (not cd.metamorphosis.exists() or #enemies.yards5 == 1) and #enemies.yards20r <= 3
+
     -- Trinket Sync
     -- variable,name=trinket_sync_slot,value=1,if=trinket.1.has_stat.any_dps&(!trinket.2.has_stat.any_dps|trinket.1.cooldown.duration>=trinket.2.cooldown.duration)
     -- variable,name=trinket_sync_slot,value=2,if=trinket.2.has_stat.any_dps&(!trinket.1.has_stat.any_dps|trinket.2.cooldown.duration>trinket.1.cooldown.duration)
+
     -- Use Eye Beam
-    -- variable,name=use_eye_beam_fury_condition,value=talent.blind_fury.enabled&(runeforge.darkglare_medallion|talent.demon_blades.enabled)
-    var.useEyeBeamFuryCondition = talent.blindFury and (runeforge.darkglareMedallion.equiped or talent.demonBlades)
+    -- variable,name=use_eye_beam_fury_condition,value=talent.blind_fury.enabled&(runeforge.darkglare_medallion|talent.demon_blades.enabled&!runeforge.agony_gaze)
+    var.useEyeBeamFuryCondition = talent.blindFury and (runeforge.darkglareMedallion.equiped or talent.demonBlades and not runeforge.agonyGaze.equiped)
 
     -- if ui.mode.mover == 1 and cast.last.vengefulRetreat() then StopFalling(); end
     -- if IsHackEnabled("NoKnockback") then

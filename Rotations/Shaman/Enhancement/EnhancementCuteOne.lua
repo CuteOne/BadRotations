@@ -378,8 +378,8 @@ actionList.AOE = function()
         end
     end
     -- Primodial Wave
-    -- primordial_wave,target_if=min:dot.flame_shock.remains,cycle_targets=1,if=!buff.primordial_wave.up&(!talent.stormkeeper.enabled|buff.stormkeeper.up)
-    if ui.alwaysCdNever("Covenant Ability") and cast.able.primordialWave(var.lowestFlameShock) and not buff.primordialWave.exists() and (not talent.stormkeeper or buff.stormkeeper.exists()) then
+    -- primordial_wave,target_if=min:dot.flame_shock.remains,cycle_targets=1,if=!buff.primordial_wave.up
+    if ui.alwaysCdNever("Covenant Ability") and cast.able.primordialWave(var.lowestFlameShock) and not buff.primordialWave.exists() then
         if cast.primordialWave(var.lowestFlameShock) then ui.debug("Casting Primordial Wave") return true end
     end
     -- Fire Nova
@@ -408,7 +408,6 @@ actionList.AOE = function()
         if cast.crashLightning("player","cone",1,8) then ui.debug("Casting Crash Lightning [AOE Crashing Storm / No Buff]") return true end
     end
     -- Lava Lash
-    -- lava_lash,target_if=min:debuff.lashing_flames.remains,cycle_targets=1,if=talent.lashing_flames.enabled|(runeforge.primal_lava_actuators.equipped&buff.primal_lava_actuators.stack>6)
     -- lava_lash,target_if=min:debuff.lashing_flames.remains,cycle_targets=1,if=talent.lashing_flames.enabled
     if cast.able.lavaLash(var.lowestLashingFlames) and talent.lashingFlames then
         if cast.lavaLash(var.lowestLashingFlames) then ui.debug("Casting Lashing Flames [AOE Lowest Lashing Flames]") return true end
@@ -595,8 +594,8 @@ actionList.Single = function()
         if cast.earthenSpike() then ui.debug("Casting Earthen Spike [ST]") return true end
     end
     -- Fae Transfusion
-    -- fae_transfusion
-    if ui.alwaysCdNever("Covenant Ability") and cast.able.faeTransfusion("player","ground") then
+    -- fae_transfusion,if=!runeforge.seeds_of_rampant_growth.equipped|cooldown.feral_spirit.remains>15
+    if ui.alwaysCdNever("Covenant Ability") and cast.able.faeTransfusion("player","ground") and (not runeforge.seedsOfRampantGrowth.equipped or cd.feralSpirits.remain() > 15) then
         if cast.faeTransfusion("player","ground") then ui.debug("Casting Fae Transfusion [ST]") return true end
     end
     -- Chain Lightning
@@ -610,7 +609,7 @@ actionList.Single = function()
         if cast.elementalBlast() then ui.debug("Casting Elemental Blast [ST]") return true end
     end
     -- Chain Harvest
-    -- chain_harvest,if=buff.maelstrom_weapon.stack>=5
+    -- chain_harvest,if=buff.maelstrom_weapon.stack>=5&raid_event.adds.in>=90
     if ui.alwaysCdNever("Covenant Ability") and (unit.isBoss() or #enemies.yards8 >= ui.value("Chain Harvest Min Units")) and cast.able.chainHarvest() and buff.maelstromWeapon.stack() >= 5 then
         if cast.chainHarvest() then ui.debug("Casting Chain Harvest [ST]") return true end
     end
@@ -618,11 +617,6 @@ actionList.Single = function()
     -- lightning_bolt,if=buff.maelstrom_weapon.stack=10
     if cast.able.lightningBolt() and buff.maelstromWeapon.stack() == 10 then
         if cast.lightningBolt() then ui.debug("Casting Lightning Bolt [ST 10 Maelstrom]") return true end
-    end
-    -- Lava Lash
-    -- lava_lash,if=buff.hot_hand.up|(runeforge.primal_lava_actuators.equipped&buff.primal_lava_actuators.stack>6)
-    if cast.able.lavaLash() and (buff.hotHand.exists() or (runeforge.primalLavaActuators.equiped and buff.primalLavaActuators.stack() > 6)) then
-        if cast.lavaLash() then ui.debug("Casting Lava Lash [ST Hot Hand / Primal Lava Actuators]") return true end
     end
     -- Stormstrike
     -- stormstrike
@@ -680,7 +674,7 @@ actionList.Single = function()
         if buff.maelstromWeapon.stack() >= 5 then
             if cast.lightningBolt() then ui.debug("Casting Lightning Bolt [ST 5+ Maelstrom]") return true end
         end
-        if unit.distance("target") > 5 and not unit.moving() then
+        if ((unit.distance(units.dyn40) > 5 and (not unit.moving(units.dyn40) or not unit.facing(units.dyn40,"player"))) or unit.distance(units.dyn40) > 20) and not unit.moving() then
             if cast.lightningBolt() then ui.debug("Casting Lightning Bolt [ST Out of Range]") return true end
         end
     end
@@ -760,6 +754,7 @@ actionList.PreCombat = function()
             if ui.checked("Lightning Bolt Out of Combat") and cast.able.lightningBolt() and not unit.moving()
                 and unit.distance("target") >= 10 and (not ui.checked("Feral Lunge") or not talent.feralLunge
                     or cd.feralLunge.remain() > unit.gcd(true) or not cast.able.feralLunge())
+                and cast.timeSinceLast.lightningBolt() > cast.time.lightningBolt() + unit.gcd(true)
                 -- and (not ui.checked("Ghost Wolf") or unit.distance("target") <= 20 or not buff.ghostWolf.exists())
             then
                 if cast.lightningBolt("target") then ui.debug("Casting Lightning Bolt [Pull]") return true end

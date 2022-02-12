@@ -199,7 +199,7 @@ local function runRotation()
 
 
     -- Cancel Lightning Bolt in Melee
-    if unit.distance("target") < 5 and cast.current.lightningBolt() then
+    if unit.distance("target") < 5 and cast.current.lightningBolt() and unit.level() > 1 then
         if cast.cancel.lightningBolt() then ui.debug("Canceled Lightning Bolt Cast [Melee Range]") end
     end
 

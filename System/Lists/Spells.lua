@@ -572,9 +572,9 @@ br.lists.spells = {
         -- Initial Demon Hunter 8-10
         [1456] = {
             abilities                       = {
-                chaosStrike                 = 162794,
-                demonsBite                  = 162243,
-                felRush                     = 195072,
+                chaosStrike                 = 344862, --162794,
+                demonsBite                  = 344859, --162243,
+                felRush                     = 344865, --195072,
             },
             buffs                           = {
 
@@ -628,6 +628,7 @@ br.lists.spells = {
                 glyphOfTatteredWings        = 220226,
             },
             runeforges                      = {
+                agonyGaze                   = 355886,
                 burningWound                = 346279,
                 chaosTheory                 = 337551,
                 darkglareMedallion          = 337534,
@@ -719,10 +720,10 @@ br.lists.spells = {
             },
 
             runeforges                      = {
-                timewornDreambinder	        = 339949,
-		        balanceOfAllThings          = 339942,
-                primordialArcanicPulsar     = 338668,
+                balanceOfAllThings          = 339942,
                 lycarasFleetingGlimpse      = 340059,
+                primordialArcanicPulsar     = 338668,
+                timewornDreambinder	        = 339949,
 
             },
             talents                       = {
@@ -809,6 +810,9 @@ br.lists.spells = {
             },
             glyphs                          = {
 
+            },
+            runeforges                      = {
+                draughtOfDeepFocus          = 338658,
             },
             talents                         = {
                 balanceAffinity             = 197488,
@@ -3435,6 +3439,7 @@ br.lists.spells = {
                 elementalEquilibrium        = 336730,
                 primalLavaActuators         = 335895,
                 echoesOfGreatSundering      = 336215,
+                seedsOfRampantGrowth        = 356218,
                 skybreakersFieryDemise      = 336734,
                 spiritwalkersTidalTotem     = 335891,
                 deeptremorStone             = 336739,

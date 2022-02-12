@@ -651,10 +651,10 @@ actionList.Cleave = function()
     end
     -- Multishot
     -- multishot,if=gcd.max-pet.cat.buff.beast_cleave.remains>0.25
-    if cast.able.multishot() and unit.gcd(true) - buff.beastCleave.remain("pet") > 0.25 --buff.beastCleave.remain("pet") < unit.gcd(true) + 0.1
+    if cast.able.multishot(units.dyn40,"aoe",1,8) and unit.gcd(true) - buff.beastCleave.remain("pet") > 0.25 --buff.beastCleave.remain("pet") < unit.gcd(true) + 0.1
          and not unit.isExplosive("target")
     then
-        if cast.multishot() then ui.debug("Casting Multishot [AOE]") return true end
+        if cast.multishot(units.dyn40,"aoe",1,8) then ui.debug("Casting Multishot [AOE]") return true end
     end
     -- Tar Trap
     -- tar_trap,if=runeforge.soulforge_embers&tar_trap.remains<gcd&cooldown.flare.remains<gcd
