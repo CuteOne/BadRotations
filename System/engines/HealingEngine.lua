@@ -386,7 +386,7 @@ if not br.metaTable1 then
 				-- Unit HP absolute
 				startTime = debugprofilestop()
 				o.hpabs = UnitHealth(o.unit)
-				br.debug.cpu.healingEngine._G.UnitHealth = debugprofilestop() - startTime
+				br.debug.cpu.healingEngine.UnitHealth = debugprofilestop() - startTime
 
 				-- Unit HP missing absolute
 				startTime = debugprofilestop()

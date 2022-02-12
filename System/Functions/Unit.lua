@@ -165,12 +165,15 @@ end
 function br.getGUID(unit)
 	local nShortHand, targetGUID = "", ""
 	if br.GetObjectExists(unit) then
-		if br._G.UnitIsPlayer(unit) then
-			targetGUID = br._G.UnitGUID(unit)
-			nShortHand = string.sub(br._G.UnitGUID(unit),-5)
-		else
-			targetGUID = string.match(br._G.UnitGUID(unit),"-(%d+)-%x+$")
-			nShortHand = string.sub(br._G.UnitGUID(unit),-5)
+		local guid = br._G.UnitGUID(unit)
+		if guid ~= nil then
+			if br._G.UnitIsPlayer(unit) then
+				targetGUID = guid
+				nShortHand = string.sub(guid,-5)
+			else
+				targetGUID = string.match(guid,"-(%d+)-%x+$")
+				nShortHand = string.sub(guid,-5)
+			end
 		end
 	end
 	return targetGUID,nShortHand

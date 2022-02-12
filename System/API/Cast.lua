@@ -73,6 +73,11 @@ br.api.cast = function(self,spell,id)
         return br.isCastingSpell(id,thisUnit)
     end
 
+    if cast.auto == nil then cast.auto = {} end
+    cast.auto[spell] = function()
+        return br._G.IsAutoRepeatSpell(br._G.GetSpellInfo(id)) or br._G.IsCurrentSpell(id)
+    end
+
     if cast.cancel == nil then cast.cancel = {} end
     cast.cancel[spell] = function()
         local SpellStopCasting = br._G["SpellStopCasting"]

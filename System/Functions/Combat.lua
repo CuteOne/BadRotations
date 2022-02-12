@@ -230,11 +230,15 @@ function br.hasNoControl(spellID)
 end
 -- if br.hasThreat("target") then
 function br.hasThreat(unit, playerUnit)
+	-- Early Exit
+	if unit == nil then return false end
 	-- Damaged Validation
-	if br.damaged[br._G.ObjectPointer(unit)] ~= nil --[[Print("[Damage Threat] You attacked "..UnitName(unit).." it now hates you.")]] then
+	if br.damaged[br._G.ObjectPointer(unit)] ~= nil then
+		if br.isChecked("Cast Debug") then--and not br.GetUnitExists("target") then
+			br._G.print("[Damage Threat] "..br._G.UnitName(unit).." was attacked, it now hates you.")
+		end
 		return true
 	end
-	local instance = select(2, _G.IsInInstance())
 	if playerUnit == nil then
 		playerUnit = "player"
 	end
@@ -249,48 +253,36 @@ function br.hasThreat(unit, playerUnit)
 	if targetUnit == "None" then
 		targetFriend = false
 	else
-		targetFriend =
-			(br.isTargeting(unit) or br._G.UnitName(targetUnit) == br._G.UnitName("player") or (br.GetUnitExists("pet") and br._G.UnitName(targetUnit) == br._G.UnitName("pet")) or
-			br._G.UnitInParty(targetUnit) or
-			br._G.UnitInRaid(targetUnit))
+		targetFriend = (br.isTargeting(unit) or br._G.UnitName(targetUnit) == br._G.UnitName("player")
+			or (br.GetUnitExists("pet") and br._G.UnitName(targetUnit) == br._G.UnitName("pet"))
+			or br._G.UnitInParty(targetUnit) or br._G.UnitInRaid(targetUnit))
 	end
 
 	local function threatSituation(friendlyUnit, enemyUnit)
+		local friendlyUnit = br._G.UnitGUID(friendlyUnit)
 		if not br._G.UnitIsVisible(friendlyUnit) or not br._G.UnitIsVisible(enemyUnit) then
 			return false
 		end
-		local _, _, threatPct = br._G.UnitDetailedThreatSituation(friendlyUnit, enemyUnit)
-		if threatPct ~= nil then
-			if threatPct > 0 then
-				if br.isChecked("Cast Debug") and not br.GetUnitExists("target") then
-					br._G.print(br._G.UnitName(enemyUnit) .. " is threatening " .. br._G.UnitName(friendlyUnit) .. ".")
-				end
-				return true
-			end
-		end
-		return false
+		local status = br._G.UnitThreatSituation(friendlyUnit, enemyUnit)
+		return status ~= nil
 	end
 
 	-- Valididation Checks
-	-- Print(tostring(unit).." | "..tostring(br.GetUnit(unit)).." | "..tostring(targetUnit).." | "..tostring(targetFriend))
-	if unit == nil --[[or (not br.GetObjectExists(targetUnit) and br.lists.threatBypass[unitID] == nil)]] then
-		return false
-	end
 	-- Print("Unit: "..tostring(UnitName(unit)).." | Player: "..tostring(playerUnit))
 	local playerInCombat = br._G.UnitAffectingCombat("player")
 	local unitInCombat = br._G.UnitAffectingCombat(unit)
 	local unitObject = br._G.ObjectPointer(unit)
+	local instance = select(2, _G.IsInInstance())
 	-- Unit is Targeting Player/Pet/Party/Raid Validation
 	if targetFriend then
-		if br.isChecked("Cast Debug") and not br.GetObjectExists("target") then
-			br._G.print(br._G.UnitName(br.GetUnit(unit)) .. " is targetting " .. br._G.UnitName(targetUnit))
+		if br.isChecked("Cast Debug") then--and not br.GetObjectExists("target") then
+			br._G.print("[Targeting Threat] "..br._G.UnitName(br.GetUnit(unit)) .. " is targeting " .. br._G.UnitName(targetUnit))
 		end
-		-- Print("[Targeting Threat] "..UnitName(br.GetUnit(unit)).." is targetting "..UnitName(targetUnit))
-		return targetFriend
+		return true
 	end
 	-- Boss Adds Validation
 	if br.isBoss(unit) and unitInCombat and (instance == "party" or instance == "raid") then
-		-- Print("[Boss Threat] "..UnitName(unit).." has threat with you.")
+		if br.isChecked("Cast Debug") then br._G.print("[Boss Threat] "..br._G.UnitName(unit).." has threat with you.") end
 		return true
 	-- Threat Bypass Validation
 	-- elseif playerInCombat and br.lists.threatBypass[unitID] ~= nil and #br.getEnemies(unit,20,true) == 0 then
@@ -298,13 +290,14 @@ function br.hasThreat(unit, playerUnit)
 	end
 	-- Open World Mob Pack Validation
 	if instance == "none" and playerInCombat and not br.isCritter(unitObject) and br.enemy[br._G.ObjectPointer("target")] ~= nil and br.enemy[unitObject] == nil and br.getDistance("target", unitObject) < 8 then
-		-- if isChecked("Cast Debug") then Print("[Open World Threat] "..UnitName(unit).." is within "..round2(getDistance("target",unitObject),1).."yrds of your target and is considered a threat.") end
-		-- Print("[Open World Threat] "..UnitName(unit).." is within "..round2(getDistance("target",unitObject),1).."yrds of your target and is considered a threat.")
+		-- if isChecked("Cast Debug") then br._G.print("[Open World Threat] "..br._G.UnitName(unit).." is within "..round2(getDistance("target",unitObject),1).."yrds of your target and is considered a threat.") end
 		return true
 	end
 	-- Player Threat Valdation
 	if threatSituation(playerUnit, unit) then
-		-- Print("[Player Threat] "..UnitName(playerUnit).." have threat with "..UnitName(unit))
+		if br.isChecked("Cast Debug") then--and not br.GetObjectExists("target") then
+			br._G.print("[Player Threat] "..br._G.UnitName(playerUnit).." has threat with "..br._G.UnitName(unit))
+		end
 		return true
 	end
 	-- Party/Raid Threat Validation
@@ -313,7 +306,9 @@ function br.hasThreat(unit, playerUnit)
 			if br.friend[i] then
 				local thisUnit = br.friend[i].unit
 				if threatSituation(thisUnit, unit) then
-					-- Print("[Party/Raid Threat] "..UnitName(thisUnit).." has threat with "..UnitName(unit))
+					if br.isChecked("Cast Debug") then--and not br.GetObjectExists("target") then
+						br._G.print("[Party/Raid Threat] "..br._G.UnitName(thisUnit).." has threat with "..br._G.UnitName(unit))
+					end
 					return true
 				end
 			end

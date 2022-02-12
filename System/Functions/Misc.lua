@@ -192,12 +192,13 @@ function br.getLineOfSight(Unit1, Unit2)
 		local X1, Y1, Z1 = br.GetObjectPosition(Unit1)
 		local X2, Y2, Z2 = br.GetObjectPosition(Unit2)
 		local pX = br.GetObjectPosition("player")
+		-- local flags = bit.bor(0x10, 0x100, 0x1)
 		local trace
 		-- Only calculate if we actually got values
 		if (X1 == nil or X2 == nil or pX == nil) then return false end
 		-- Trace to see if we are in Line of Sight
 		if br.player and br.player.eID and (br.player.eID == 2398 or br.player.eID == 2399) then
-			trace = br._G.TraceLine(X1, Y1, Z1 + 2, X2, Y2, Z2 + 2, 0x100111)
+			trace = br._G.TraceLine(X1, Y1, Z1 + 2--[[.25]], X2, Y2, Z2 + 2--[[.25]], 0x100111)
 		else
 			trace = br._G.TraceLine(X1, Y1, Z1 + 2, X2, Y2, Z2 + 2, 0x10)
 		end
@@ -573,20 +574,18 @@ function br.isValidUnit(Unit)
 	local dummy = br.isDummy(Unit)
 	local burnUnit = br.getOptionCheck("Forced Burn") and br.isBurnTarget(Unit) > 0
 	local isCC = br.getOptionCheck("Don't break CCs") and br.isLongTimeCCed(Unit) or false
-	local mcCheck =
-		(br.isChecked("Attack MC Targets") and (not br.GetUnitIsFriend(Unit, "player") or (br._G.UnitIsCharmed(Unit) and br._G.UnitCanAttack("player", Unit)))) or
-		not br.GetUnitIsFriend(Unit, "player")
+	local mcCheck =	(br.isChecked("Attack MC Targets") and (not br.GetUnitIsFriend(Unit, "player") or (br._G.UnitIsCharmed(Unit) and br._G.UnitCanAttack("player", Unit))))
+		or not br.GetUnitIsFriend(Unit, "player")
 	if playerTarget and br.UnitDebuffID("player", 320102) and br._G.UnitIsPlayer(Unit) then
 		return true
 	end
 	if playerTarget and br.units[br._G.UnitTarget("player")] == nil and not br.enemyListCheck("target") then
 		return false
 	end
-	if
-		not br.pause(true) and Unit ~= nil and (br.units[Unit] ~= nil or Unit == "target" or burnUnit) and mcCheck and not isCC and
-			(dummy or burnUnit or
-				(not br._G.UnitIsTapDenied(Unit) and br.isSafeToAttack(Unit) and ((hostileOnly and reaction < 4) or (not hostileOnly and reaction < 5) or playerTarget or targeting)))
-	 then
+	if not br.pause(true) and Unit ~= nil and (br.units[Unit] ~= nil or Unit == "target" or burnUnit) and mcCheck
+		and not isCC and (dummy or burnUnit or (not br._G.UnitIsTapDenied(Unit) and br.isSafeToAttack(Unit)
+		and ((hostileOnly and reaction < 4) or (not hostileOnly and reaction < 5) or playerTarget or targeting)))
+	then
 		return (playerTarget and (not inInstance or (inInstance and (#br.friend == 1 or not br.hasTank())))) or targeting or burnUnit or br.isInProvingGround() or br.hasThreat(Unit)
 	end
 	return false
