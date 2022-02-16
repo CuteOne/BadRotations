@@ -1545,7 +1545,7 @@ local function runRotation()
     end
 
     var.rakeTicksGainUnit = function(rakeUnit)
-        return not debuff.rake.exist(rakeUnit) and 12 or (var.rakeTicksTotal(rakeUnit) - var.rakeTicksRemain(rakeUnit))
+        return not debuff.rake.exists(rakeUnit) and 12 or (var.rakeTicksTotal(rakeUnit) - var.rakeTicksRemain(rakeUnit))
     end
 
     var.maxRakeTicksGain = 0
