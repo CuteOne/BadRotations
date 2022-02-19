@@ -1,4 +1,3 @@
-local addonName, br = ...
 local rotationName = "Initial"
 
 ---------------
@@ -189,6 +188,7 @@ local function runRotation()
     var.haltProfile                               = (unit.inCombat() and var.profileStop) or unit.mounted() or br.pause() or ui.mode.rotation==4
     -- Units
     units.get(5) -- Makes a variable called, units.dyn5
+    units.get(40)
     -- Enemies
     enemies.get(8)
     enemies.get(15)
