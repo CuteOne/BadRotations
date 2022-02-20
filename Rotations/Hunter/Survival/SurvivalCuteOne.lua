@@ -378,6 +378,8 @@ actionList.Cooldown = function()
                 if cast.racial("player") then ui.debug("Casting Racial") return true end
             end
         end
+        -- Trinkets
+        module.BasicTrinkets()
         -- Muzzle
         -- muzzle
         -- Potion
