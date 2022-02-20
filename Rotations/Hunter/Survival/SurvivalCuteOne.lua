@@ -100,7 +100,7 @@ local function createOptions()
             -- Basic Trinkets Module
             br.player.module.BasicTrinkets(nil,section)
             -- Covenant
-            br.ui:createCheckbox(section,"Covenant Ability")
+            br.ui:createDropdownWithout(section,"Covenant Ability", alwaysCdAoENever, 1, "|cffFFFFFFSet when to use ability.")
             -- A Murder of Crows
             br.ui:createDropdownWithout(section,"A Murder of Crows", alwaysCdAoENever, 1, "|cffFFFFFFSet when to use ability.")
             -- Aspect of the Eagle
@@ -438,7 +438,7 @@ end -- End Action List - Cooldowns
 actionList.ApBoP = function()
     -- Wild Spirits
     -- wild_spirits
-    if ui.checked("Covenant Ability",3,#enemies.yards12t) and cast.able.wildSpirits("best",nil,var.spiritUnits,12) then
+    if ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards12t) and cast.able.wildSpirits("best",nil,var.spiritUnits,12) then
         if cast.wildSpirits("best",nil,var.spiritUnits,12) then ui.debug("Casting Wild Spirits [ApBoP]") return true end
     end
     -- Flanking Strike
@@ -579,7 +579,7 @@ actionList.ApSt = function()
     end
     -- Wild Spirits
     -- wild_spirits
-    if ui.checked("Covenant Ability") and cast.able.wildSpirits("best",nil,var.spiritUnits,12) then
+    if ui.alwaysCdAoENever("Covenant Ability") and cast.able.wildSpirits("best",nil,var.spiritUnits,12) then
         if cast.wildSpirits("best",nil,var.spiritUnits,12) then ui.debug("Casting Wild Spirits [ApSt]") return true end
     end
     -- Coordinated Assault
@@ -719,7 +719,7 @@ actionList.BoP = function()
     end
     -- Wild Spirits
     -- wild_spirits
-    if ui.checked("Covenant Ability",3,#enemies.yards12t) and cast.able.wildSpirits("best",nil,var.spiritUnits,12) then
+    if ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards12t) and cast.able.wildSpirits("best",nil,var.spiritUnits,12) then
         if cast.wildSpirits("best",nil,var.spiritUnits,12) then ui.debug("Casting Wild Spirits [BoP]") return true end
     end
     -- Flanking Strike
@@ -837,7 +837,7 @@ actionList.Cleave = function()
     end
     -- Wild Spirits
     -- wild_spirits
-    if ui.checked("Covenant Ability",3,#enemies.yards12t) and cast.able.wildSpirits("best",nil,var.spiritUnits,12) then
+    if ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards12t) and cast.able.wildSpirits("best",nil,var.spiritUnits,12) then
         if cast.wildSpirits("best",nil,var.spiritUnits,12) then ui.debug("Casting Wild Spirits [Cleave]") return true end
     end
     -- Resonating Arrow
@@ -979,7 +979,7 @@ actionList.St = function()
     end
     -- Wild Spirits
     -- wild_spirits
-    if ui.checked("Covenant Ability",3,#enemies.yards12t) and cast.able.wildSpirits("best",nil,var.spiritUnits,12) then
+    if ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards12t) and cast.able.wildSpirits("best",nil,var.spiritUnits,12) then
         if cast.wildSpirits("best",nil,var.spiritUnits,12) then ui.debug("Casting Wild Spirits [St]") return true end
     end
     -- Resonating Arrow
