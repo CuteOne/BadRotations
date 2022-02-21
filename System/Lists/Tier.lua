@@ -456,5 +456,91 @@ br.lists.tier = {
 			152182, -- legs
 			152179 -- back
 		}
-	}
+	},
+  ["T28"] = {
+    ["DEATHKNIGHT"] = {
+      188868, -- head
+      188864, -- chest
+      188867, -- shoulder
+      188863, -- hands
+      188866, -- legs
+    },
+    ["DEMONHUNTER"] = {
+      188892, -- head
+      188894, -- chest
+      188896, -- shoulder
+      188898, -- hands
+      188893, -- legs
+    },
+    ["DRUID"] = {
+      188847, -- head
+      188849, -- chest
+      188851, -- shoulder
+      188853, -- hands
+      188848, -- legs
+    },
+    ["HUNTER"] = {
+      188859, -- head
+      188858, -- chest
+      188856, -- shoulder
+      188861, -- hands
+      188860, -- legs
+    },
+    ["MAGE"] = {
+      188844, -- head
+      188839, -- chest
+      188843, -- shoulder
+      188845, -- hands
+      188842, -- legs
+    },
+    ["MONK"] = {
+      188910, -- head
+      188912, -- chest
+      188914, -- shoulder
+      188916, -- hands
+      188911, -- legs
+    },
+    ["PALADIN"] = {
+      188933, -- head
+      188929, -- chest
+      188932, -- shoulder
+      188928, -- hands
+      188931, -- legs
+    },
+    ["PRIEST"] = {
+      188880, -- head
+      188875, -- chest
+      188879, -- shoulder
+      188881, -- hands
+      188878, -- legs
+    },
+    ["ROGUE"] = {
+      188901, -- head
+      188903, -- chest
+      188905, -- shoulder
+      188907, -- hands
+      188902, -- legs
+    },
+    ["SHAMAN"] = {
+      188923, -- head
+      188922, -- chest
+      188920, -- shoulder
+      188925, -- hands
+      188924, -- legs
+    },
+    ["WARLOCK"] = {
+      188889, -- head
+      188884, -- chest
+      188888, -- shoulder
+      188890, -- hands
+      188887, -- legs
+    },
+    ["WARRIOR"] = {
+      188942, -- head
+      188938, -- chest
+      188941, -- shoulder
+      188937, -- hands
+      188940, -- legs
+    }
+  }
 }
