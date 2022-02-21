@@ -378,8 +378,6 @@ actionList.Cooldown = function()
                 if cast.racial("player") then ui.debug("Casting Racial") return true end
             end
         end
-        -- Trinkets
-        module.BasicTrinkets()
         -- Muzzle
         -- muzzle
         -- Potion
@@ -1349,6 +1347,8 @@ local function runRotation()
             if cast.able.autoAttack("target") then
                 if cast.autoAttack("target") then ui.debug("Casting Auto Attack") return true end
             end
+            -- Trinkets
+            module.BasicTrinkets()
             -- -- Tar Trap
             -- if ui.alwaysCdAoENever("Tar Trap",3,#enemies.yards40) and cast.able.tarTrap("best",nil,1,8) then
             --     if cast.tarTrap("best",nil,1,8) then ui.debug("Casting Tar Trap") var.tarred = true return true end
