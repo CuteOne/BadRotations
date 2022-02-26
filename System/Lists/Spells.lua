@@ -1286,6 +1286,7 @@ br.lists.spells = {
                 mongooseFury                = 259388,
                 tipOfTheSpear               = 260286,
                 vipersVenom                 = 268552,
+                madBombardier               = 363667, -- Tier 28
             },
             debuffs                         = {
                 bloodseeker                 = 259277,
@@ -1523,6 +1524,7 @@ br.lists.spells = {
                 soulforgeEmbers             = 336745,
                 surgingShots                = 336867,
                 qaplaEredunWarOrder         = 336830,
+                bagOfMunitions              = 356264,
             },
             talents                         = {
                 aMurderOfCrows              = 131894,
