@@ -276,7 +276,7 @@ end
 actionList.Cooldown = function()
     --actions.cds=harpoon,if=talent.terms_of_engagement.enabled&focus<focus.max
     if ui.mode.harpoon == 1 and cast.able.harpoon("target") and talent.termsOfEngagement and focus < focusMax then
-        if cast.harpoon() then return true end
+        if cast.harpoon("target") then return true end
     end
     --actions.cds+=/blood_fury,if=buff.coordinated_assault.up
     --actions.cds+=/ancestral_call,if=buff.coordinated_assault.up
@@ -308,12 +308,12 @@ actionList.Cooldown = function()
         if cast.killShot() then return true end
     end
     --actions.cds+=/mongoose_bite,if=active_enemies=1&target.time_to_die<focus%(variable.mb_rs_cost-cast_regen)*gcd
-    if talent.mongooseBite and cast.able.mongooseBite() and #var.eagleEnemies == 1 and unit.ttd(#var.eagleEnemies) < focus / (cast.cost.mongooseBite() - cast.regen.mongooseBite()) * unit.gcd(true) then
-        if cast.mongooseBite() then return true end
+    if talent.mongooseBite and cast.able.mongooseBite(var.eagleUnit) and #var.eagleEnemies == 1 and unit.ttd(var.eagleUnit) < focus / (cast.cost.mongooseBite() - cast.regen.mongooseBite()) * unit.gcd(true) then
+        if cast.mongooseBite(var.eagleUnit) then return true end
     end
     --actions.cds+=/raptor_strike,if=active_enemies=1&target.time_to_die<focus%(variable.mb_rs_cost-cast_regen)*gcd
-    if not talent.mongooseBite and cast.able.raptorStrike() and #var.eagleEnemies == 1 and unit.ttd(#var.eagleEnemies) < focus / (cast.cost.raptor_strike() - cast.regen.raptorStrike()) * unit.gcd(true) then
-        if cast.raptorStrike() then return true end
+    if not talent.mongooseBite and cast.able.raptorStrike(var.eagleUnit) and #var.eagleEnemies == 1 and unit.ttd(var.eagleUnit) < focus / (cast.cost.raptorStrike() - cast.regen.raptorStrike()) * unit.gcd(true) then
+        if cast.raptorStrike(var.eagleUnit) then return true end
     end
     --actions.cds+=/aspect_of_the_eagle,if=target.distance>=6
     if ui.mode.aotE == 1 and ui.alwaysCdAoENever("Aspect of the Eagle",3,#enemies.yards40) and cast.able.aspectOfTheEagle() and unit.distance("target") >= 6 and unit.standingTime() >= 2 and unit.combatTime() >= 5 then
@@ -408,7 +408,7 @@ actionList.Cleave = function()
         if cast.killCommand(var.lowestBloodseeker) then return true end
     end
     --actions.cleave+=/wildfire_bomb,if=!dot.wildfire_bomb.ticking&!set_bonus.tier28_2pc|charges_fractional>1.3
-    if cast.able.wildfireBomb(units.dyn40,"cone",1,8) and not debuff.wildfireBomb.exists(units.dyn40) and not var.hasTierBonus or charges.wildfireBomb.frac() > 1.3 then
+    if cast.able.wildfireBomb(units.dyn40,"cone",1,8) and (not debuff.wildfireBomb.exists(units.dyn40) and not var.hasTierBonus or charges.wildfireBomb.frac() > 1.3) then
         if cast.wildfireBomb(units.dyn40,"cone",1,8) then return true end
     end
     --actions.cleave+=/butchery,if=(!next_wi_bomb.shrapnel|!talent.wildfire_infusion.enabled)&cooldown.wildfire_bomb.full_recharge_time>spell_targets%2
@@ -455,7 +455,7 @@ actionList.St = function()
         if cast.deathChakram() then return true end
     end
     --actions.st+=/serpent_sting,target_if=min:remains,if=!dot.serpent_sting.ticking&target.time_to_die>7|buff.vipers_venom.up&buff.vipers_venom.remains<gcd
-    if cast.able.serpentSting(var.lowestSerpentSting) and not debuff.serpentSting.exists(var.lowestSerpentSting) and unit.ttd(var.lowestSerpentSting) > 7 or buff.vipersVenom.exists() and buff.vipersVenom.remains() < unit.gcd(true) then
+    if cast.able.serpentSting(var.lowestSerpentSting) and (not debuff.serpentSting.exists(var.lowestSerpentSting) and unit.ttd(var.lowestSerpentSting) > 7 or buff.vipersVenom.exists() and buff.vipersVenom.remains() < unit.gcd(true)) then
         if cast.serpentSting(var.lowestSerpentSting) then return true end
     end
     --actions.st+=/flayed_shot
@@ -485,7 +485,7 @@ actionList.St = function()
         if cast.aMurderOfCrows() then return true end
     end
     --actions.st+=/wildfire_bomb,if=full_recharge_time<2*gcd&set_bonus.tier28_2pc|buff.mad_bombardier.up|!set_bonus.tier28_2pc&(full_recharge_time<gcd|focus+cast_regen<focus.max&(next_wi_bomb.volatile&dot.serpent_sting.ticking&dot.serpent_sting.refreshable|next_wi_bomb.pheromone&!buff.mongoose_fury.up&focus+cast_regen<focus.max-action.kill_command.cast_regen*3)|time_to_die<10)
-    if cast.able.wildfireBomb(units.dyn40,"cone",1,8) and charges.wildfireBomb.timeTillFull() < 2 * unit.gcd(true) and var.hasTierBonus or buff.madBombardier.exists() or not var.hasTierBonus and (charges.wildfireBomb.timeTillFull() < unit.gcd(true) or focus + cast.regen.wildfireBomb() < focusMax and (nextBomb(spell.volatileBomb) and debuff.serpentSting.exists(units.dyn40) and debuff.serpentSting.refresh(units.dyn40) or nextBomb(spell.pheromoneBomb) and not buff.mongooseFury.exists() and focus + cast.regen.wildfireBomb() < focusMax - cast.regen.killCommand() * 3) or unit.ttd(units.dyn40) < 10) then
+    if cast.able.wildfireBomb(units.dyn40,"cone",1,8) and (charges.wildfireBomb.timeTillFull() < 2 * unit.gcd(true) and var.hasTierBonus or buff.madBombardier.exists() or not var.hasTierBonus and (charges.wildfireBomb.timeTillFull() < unit.gcd(true) or focus + cast.regen.wildfireBomb() < focusMax and (nextBomb(spell.volatileBomb) and debuff.serpentSting.exists(units.dyn40) and debuff.serpentSting.refresh(units.dyn40) or nextBomb(spell.pheromoneBomb) and not buff.mongooseFury.exists() and focus + cast.regen.wildfireBomb() < focusMax - cast.regen.killCommand() * 3) or unit.ttd(units.dyn40) < 10)) then
         if cast.wildfireBomb(units.dyn40,"cone",1,8) then return true end
     end
     --actions.st+=/kill_command,target_if=min:bloodseeker.remains,if=set_bonus.tier28_2pc&dot.pheromone_bomb.ticking&!buff.mad_bombardier.up
@@ -497,7 +497,7 @@ actionList.St = function()
         if cast.carve("player","cone",1,8) then return true end
     end
     --TODO (Check) actions.st+=/butchery,if=active_enemies>1&!runeforge.rylakstalkers_confounding_strikes.equipped&cooldown.wildfire_bomb.full_recharge_time>spell_targets&(charges_fractional>2.5|dot.shrapnel_bomb.ticking)
-    if talent.butchery and cast.able.butchery("player","aoe",1,8) and #enemies.yards8 > 1 and not runeforge.rylakstalkersConfoundingStrikes.equiped and charges.wildfireBomb.timeTillFull() > #enemies.yards8 and (charges.butchery.frac() > 2.5 or debuff.shrapnelBomb.exists(units.dyn8)) then
+    if talent.butchery and cast.able.butchery("player","aoe",1,8) and (#enemies.yards8 > 1 and not runeforge.rylakstalkersConfoundingStrikes.equiped and charges.wildfireBomb.timeTillFull() > #enemies.yards8 and (charges.butchery.frac() > 2.5 or debuff.shrapnelBomb.exists(units.dyn8))) then
         if cast.butchery("player","aoe",1,8) then return true end
     end
     --actions.st+=/steel_trap,if=focus+cast_regen<focus.max
@@ -505,7 +505,7 @@ actionList.St = function()
         if cast.steelTrap("player","ground",1,5) then return true end
     end
     --actions.st+=/mongoose_bite,target_if=max:debuff.latent_poison_injection.stack,if=talent.alpha_predator.enabled&(buff.mongoose_fury.up&buff.mongoose_fury.remains<focus%(variable.mb_rs_cost-cast_regen)*gcd&!buff.wild_spirits.remains|buff.mongoose_fury.remains&next_wi_bomb.pheromone)
-    if talent.mongooseBite and cast.able.mongooseBite(var.maxLatentPoison) and talent.alphaPredator and (buff.mongooseFury.exists() and buff.mongooseFury.remains() < focus / (cast.cost.mongooseBite() - cast.regen.mongooseBite()) * unit.gcd(true) and not buff.wildSpirits.exists() or not buff.mongooseFury.exists() and nextBomb(spell.pheromoneBomb)) then
+    if talent.mongooseBite and cast.able.mongooseBite(var.maxLatentPoison) and (talent.alphaPredator and (buff.mongooseFury.exists() and buff.mongooseFury.remains() < focus / (cast.cost.mongooseBite() - cast.regen.mongooseBite()) * unit.gcd(true) and not buff.wildSpirits.exists() or not buff.mongooseFury.exists() and nextBomb(spell.pheromoneBomb))) then
         if cast.mongooseBite(var.maxLatentPoison) then return true end
     end
     --actions.st+=/kill_command,target_if=min:bloodseeker.remains,if=full_recharge_time<gcd&focus+cast_regen<focus.max
@@ -513,7 +513,7 @@ actionList.St = function()
         if cast.killCommand(var.lowestBloodseeker) then return true end
     end
     --actions.st+=/raptor_strike,target_if=max:debuff.latent_poison_injection.stack,if=buff.tip_of_the_spear.stack=3|dot.shrapnel_bomb.ticking
-    if not talent.mongooseBite and cast.able.raptorStrike(var.maxLatentPoison) and buff.tipOfTheSpear.stack() == 3 or debuff.shrapnelBomb.exists(var.maxLatentPoison) then
+    if not talent.mongooseBite and cast.able.raptorStrike(var.maxLatentPoison) and (buff.tipOfTheSpear.stack() == 3 or debuff.shrapnelBomb.exists(var.maxLatentPoison)) then
         if cast.raptorStrike(var.maxLatentPoison) then return true end
     end
     --actions.st+=/mongoose_bite,if=dot.shrapnel_bomb.ticking
@@ -521,7 +521,7 @@ actionList.St = function()
         if cast.mongooseBite("target") then return true end
     end
     --actions.st+=/serpent_sting,target_if=min:remains,if=refreshable&target.time_to_die>7|buff.vipers_venom.up
-    if cast.able.serpentSting(var.lowestSerpentSting) and debuff.serpentSting.refresh(var.lowestSerpentSting) and unit.ttd(var.lowestSerpentSting) > 7 or buff.vipersVenom.exists(var.lowestSerpentSting) then
+    if cast.able.serpentSting(var.lowestSerpentSting) and (debuff.serpentSting.refresh(var.lowestSerpentSting) and unit.ttd(var.lowestSerpentSting) > 7 or buff.vipersVenom.exists()) then
         if cast.serpentSting(var.lowestSerpentSting) then return true end
     end
     --actions.st+=/wildfire_bomb,if=next_wi_bomb.shrapnel&focus>variable.mb_rs_cost*2&dot.serpent_sting.remains>5*gcd
@@ -541,7 +541,7 @@ actionList.St = function()
         if cast.wildfireBomb(units.dyn40,"cone",1,8) then return true end
     end
     --actions.st+=/mongoose_bite,target_if=max:debuff.latent_poison_injection.stack,if=buff.mongoose_fury.up|focus+action.kill_command.cast_regen>focus.max-15|dot.shrapnel_bomb.ticking|buff.wild_spirits.remains
-    if talent.mongooseBite and cast.able.mongooseBite(var.maxLatentPoison) and buff.mongooseFury.exists() or focus + cast.regen.killCommand() > focusMax - 15 or debuff.shrapnelBomb.exists(var.maxLatentPoison) or buff.wildSpirits.exists() then
+    if talent.mongooseBite and cast.able.mongooseBite(var.maxLatentPoison) and (buff.mongooseFury.exists() or focus + cast.regen.killCommand() > focusMax - 15 or debuff.shrapnelBomb.exists(var.maxLatentPoison) or buff.wildSpirits.exists()) then
         if cast.mongooseBite(var.maxLatentPoison) then return true end
     end
     --actions.st+=/raptor_strike,target_if=max:debuff.latent_poison_injection.stack
@@ -549,13 +549,13 @@ actionList.St = function()
         if cast.raptorStrike(var.maxLatentPoison) then return true end
     end
     --actions.st+=/wildfire_bomb,if=(next_wi_bomb.volatile&dot.serpent_sting.ticking|next_wi_bomb.pheromone|next_wi_bomb.shrapnel&focus>50)&!set_bonus.tier28_2pc
-    if cast.able.wildfireBomb(units.dyn40,"cone",1,8) and (nextBomb(spell.volatileBomb) and debuff.serpentSting.exists(units.dyn40) or nextBomb(spell.pheromoneBomb) or nextBomb(spell.shrapnelBomb) and focus > 50) and not var.hasTierBonus then
+    if cast.able.wildfireBomb(units.dyn40,"cone",1,8) and ((nextBomb(spell.volatileBomb) and debuff.serpentSting.exists(units.dyn40) or nextBomb(spell.pheromoneBomb) or nextBomb(spell.shrapnelBomb) and focus > 50) and not var.hasTierBonus) then
         if cast.wildfireBomb(units.dyn40,"cone",1,8) then return true end
     end
     return false
 end
 
---TODO BoP
+--BoP
 actionList.BoP = function()
     --actions.bop=serpent_sting,target_if=min:remains,if=buff.vipers_venom.remains&(buff.vipers_venom.remains<gcd|refreshable)
     if cast.able.serpentSting(var.lowestSerpentSting) and buff.vipersVenom.exists() and (buff.vipersVenom.remains() < unit.gcd(true) or debuff.serpentSting.refresh(var.lowestSerpentSting)) then
@@ -608,7 +608,7 @@ actionList.BoP = function()
         if cast.mongooseBite(var.maxLatentPoison) then return true end
     end
     --actions.bop+=/wildfire_bomb,if=focus+cast_regen<focus.max&!ticking&(full_recharge_time<gcd|!dot.wildfire_bomb.ticking&buff.mongoose_fury.remains>full_recharge_time-1*gcd|!dot.wildfire_bomb.ticking&!buff.mongoose_fury.remains)|time_to_die<18&!dot.wildfire_bomb.ticking
-    if cast.able.wildfireBomb(units.dyn40,"cone",1,8) and focus + cast.regen.wildfireBomb() < focusMax and not debuff.wildfireBomb.exists(units.dyn40) and (charges.wildfireBomb.timeTillFull() < unit.gcd(true) or not debuff.wildfireBomb.exists(units.dyn40) and buff.mongooseFury.remains() > charges.wildfireBomb.timeTillFull() - 1 * unit.gcd(true) or not debuff.wildfireBomb.exists(units.dyn40) and not buff.mongooseFury.exists()) or unit.ttd(units.dyn40) < 18 and not debuff.wildfireBomb.exists(units.dyn40) then
+    if cast.able.wildfireBomb(units.dyn40,"cone",1,8) and (focus + cast.regen.wildfireBomb() < focusMax and not debuff.wildfireBomb.exists(units.dyn40) and (charges.wildfireBomb.timeTillFull() < unit.gcd(true) or not debuff.wildfireBomb.exists(units.dyn40) and buff.mongooseFury.remains() > charges.wildfireBomb.timeTillFull() - 1 * unit.gcd(true) or not debuff.wildfireBomb.exists(units.dyn40) and not buff.mongooseFury.exists()) or unit.ttd(units.dyn40) < 18 and not debuff.wildfireBomb.exists(units.dyn40)) then
         if cast.wildfireBomb(units.dyn40,"cone",1,8) then return true end
     end
     --actions.bop+=/kill_command,target_if=min:bloodseeker.remains,if=focus+cast_regen<focus.max&(!runeforge.nessingwarys_trapping_apparatus|focus<variable.mb_rs_cost)
@@ -624,7 +624,7 @@ actionList.BoP = function()
         if cast.steelTrap("player","ground",1,5) then return true end
     end
     --actions.bop+=/serpent_sting,target_if=min:remains,if=dot.serpent_sting.refreshable&!buff.coordinated_assault.up|talent.alpha_predator&refreshable&!buff.mongoose_fury.up
-    if cast.able.serpentSting(var.lowestSerpentSting) and debuff.serpentSting.refresh(var.lowestSerpentSting) and not buff.coordinatedAssault.exists() or talent.alphaPredator and debuff.serpentSting.refresh(var.lowestSerpentSting) and not buff.mongooseFury.exists() then
+    if cast.able.serpentSting(var.lowestSerpentSting) and (debuff.serpentSting.refresh(var.lowestSerpentSting) and not buff.coordinatedAssault.exists() or talent.alphaPredator and debuff.serpentSting.refresh(var.lowestSerpentSting) and not buff.mongooseFury.exists()) then
         if cast.serpentSting(var.lowestSerpentSting) then return true end
     end
     --actions.bop+=/resonating_arrow
@@ -640,7 +640,7 @@ actionList.BoP = function()
         if cast.coordinatedAssault() then return true end
     end
     --actions.bop+=/mongoose_bite,if=buff.mongoose_fury.up|focus+action.kill_command.cast_regen>focus.max|buff.coordinated_assault.up
-    if talent.mongooseBite and cast.able.mongooseBite(var.eagleUnit) and buff.mongooseFury.exists() or focus + cast.regen.killCommand() > focusMax or buff.coordinatedAssault.exists() then
+    if talent.mongooseBite and cast.able.mongooseBite(var.eagleUnit) and (buff.mongooseFury.exists() or focus + cast.regen.killCommand() > focusMax or buff.coordinatedAssault.exists()) then
         if cast.mongooseBite(var.eagleUnit) then return true end
     end
     --actions.bop+=/raptor_strike,target_if=max:debuff.latent_poison_injection.stack
@@ -683,6 +683,7 @@ actionList.Missdirection = function()
             if cast.misdirection(misdirectUnit) then return true end
         end
     end
+    return false
 end
 
 
@@ -760,7 +761,7 @@ local function runRotation()
     if actionList.Missdirection() then return true end
     --Interrupts
     if actionList.Interrupt() then return true end
-    
+
     --actions=auto_attack
     if cast.able.autoAttack("target") then
         if cast.autoAttack("target") then return true end
