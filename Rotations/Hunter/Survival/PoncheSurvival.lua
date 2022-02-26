@@ -326,7 +326,7 @@ end
 actionList.Nta = function()
     --actions.nta=steel_trap
     if cast.able.steelTrap("player","ground",1,5) then
-        if cast.steelTrap() then return true end
+        if cast.steelTrap("player","ground",1,5) then return true end
     end
     --actions.nta+=/freezing_trap,if=!buff.wild_spirits.remains|buff.wild_spirits.remains&cooldown.kill_command.remains
     --actions.nta+=/tar_trap,if=!buff.wild_spirits.remains|buff.wild_spirits.remains&cooldown.kill_command.remains
@@ -336,7 +336,7 @@ end
 --Cleave
 actionList.Cleave = function()
     --actions.cleave=serpent_sting,target_if=min:remains,if=talent.hydras_bite.enabled&buff.vipers_venom.remains&buff.vipers_venom.remains<gcd
-    if talent.hydrasBite and cast.able.serpentSting(var.lowestSerpentSting) and buff.vipersVenom.exists(var.lowestSerpentSting) and buff.vipersVenom.remains(var.lowestSerpentSting) < unit.gcd(true) then
+    if talent.hydrasBite and cast.able.serpentSting(var.lowestSerpentSting) and buff.vipersVenom.exists() and buff.vipersVenom.remains() < unit.gcd(true) then
         if cast.serpentSting(var.lowestSerpentSting) then return true end
     end
     --actions.cleave+=/wild_spirits,if=!raid_event.adds.exists|raid_event.adds.remains>=10|active_enemies>=raid_event.adds.count*2
@@ -360,7 +360,7 @@ actionList.Cleave = function()
         if cast.deathChakram() then return true end
     end
     --actions.cleave+=/call_action_list,name=nta,if=runeforge.nessingwarys_trapping_apparatus.equipped&focus<variable.mb_rs_cost
-    if runeforge.nessingwarysTrappingApparatus.equiped and focus < cast.cost.mongooseBite() then
+    if runeforge.nesingwarysTrappingApparatus.equiped and focus < cast.cost.mongooseBite() then
         if actionList.Nta() then return true end
     end
     --actions.cleave+=/chakrams
@@ -380,7 +380,7 @@ actionList.Cleave = function()
         if cast.butchery("player","aoe",1,8) then return true end
     end
     --actions.cleave+=/flanking_strike,if=focus+cast_regen<focus.max
-    if ui.mode.harpoon == 1 and cast.able.flankingStrike() and unit.distance("pet",units.dyn15) < 15 and focus + cast.regen.flankingStrike() < focusMax then
+    if ui.mode.harpoon == 1 and talent.flankingStrike and cast.able.flankingStrike() and unit.distance("pet",units.dyn15) < 15 and focus + cast.regen.flankingStrike() < focusMax then
         if cast.flankingStrike() then return true end
     end
     --actions.cleave+=/carve,if=cooldown.wildfire_bomb.full_recharge_time>spell_targets%2
@@ -404,7 +404,7 @@ actionList.Cleave = function()
         if cast.flayedShot() then return true end
     end
     --actions.cleave+=/kill_command,target_if=min:bloodseeker.remains,if=focus+cast_regen<focus.max&full_recharge_time<gcd&(runeforge.nessingwarys_trapping_apparatus.equipped&cooldown.freezing_trap.remains&cooldown.tar_trap.remains|!runeforge.nessingwarys_trapping_apparatus.equipped)
-    if  cast.able.killCommand(var.lowestBloodseeker) and unit.distance("pet", var.lowestBloodseeker) < 50 and focus + cast.regen.killCommand() < focusMax and charges.killCommand.timeTillFull() < unit.gcd(true) and (runeforge.nessingwarysTrappingApparatus.equiped and cd.freezingTrap.remain() > 0 and cd.tarTrap.remain() > 0 or not runeforge.nessingwarysTrappingApparatus.equiped) then
+    if  cast.able.killCommand(var.lowestBloodseeker) and unit.distance("pet", var.lowestBloodseeker) < 50 and focus + cast.regen.killCommand() < focusMax and charges.killCommand.timeTillFull() < unit.gcd(true) and (runeforge.nesingwarysTrappingApparatus.equiped and cd.freezingTrap.remain() > 0 and cd.tarTrap.remain() > 0 or not runeforge.nesingwarysTrappingApparatus.equiped) then
         if cast.killCommand(var.lowestBloodseeker) then return true end
     end
     --actions.cleave+=/wildfire_bomb,if=!dot.wildfire_bomb.ticking&!set_bonus.tier28_2pc|charges_fractional>1.3
@@ -455,7 +455,7 @@ actionList.St = function()
         if cast.deathChakram() then return true end
     end
     --actions.st+=/serpent_sting,target_if=min:remains,if=!dot.serpent_sting.ticking&target.time_to_die>7|buff.vipers_venom.up&buff.vipers_venom.remains<gcd
-    if cast.able.serpentSting(var.lowestSerpentSting) and not debuff.serpentSting.exists(var.lowestSerpentSting) and unit.ttd(var.lowestSerpentSting) > 7 then
+    if cast.able.serpentSting(var.lowestSerpentSting) and not debuff.serpentSting.exists(var.lowestSerpentSting) and unit.ttd(var.lowestSerpentSting) > 7 or buff.vipersVenom.exists() and buff.vipersVenom.remains() < unit.gcd(true) then
         if cast.serpentSting(var.lowestSerpentSting) then return true end
     end
     --actions.st+=/flayed_shot
@@ -477,7 +477,7 @@ actionList.St = function()
     --actions.st+=/kill_shot
     if killShot() then return true end
     --actions.st+=/flanking_strike,if=focus+cast_regen<focus.max
-    if ui.mode.harpoon == 1 and cast.able.flankingStrike() and unit.distance("pet",units.dyn15) < 15 and focus + cast.regen.flankingStrike() < focusMax then
+    if ui.mode.harpoon == 1 and talent.flankingStrike and cast.able.flankingStrike() and unit.distance("pet",units.dyn15) < 15 and focus + cast.regen.flankingStrike() < focusMax then
         if cast.flankingStrike() then return true end
     end
     --actions.st+=/a_murder_of_crows
@@ -558,32 +558,104 @@ end
 --TODO BoP
 actionList.BoP = function()
     --actions.bop=serpent_sting,target_if=min:remains,if=buff.vipers_venom.remains&(buff.vipers_venom.remains<gcd|refreshable)
+    if cast.able.serpentSting(var.lowestSerpentSting) and buff.vipersVenom.exists() and (buff.vipersVenom.remains() < unit.gcd(true) or debuff.serpentSting.refresh(var.lowestSerpentSting)) then
+        if cast.serpentSting(var.lowestSerpentSting) then return true end
+    end
     --actions.bop+=/kill_command,target_if=min:bloodseeker.remains,if=focus+cast_regen<focus.max&buff.nesingwarys_trapping_apparatus.up|focus+cast_regen<focus.max+10&buff.nesingwarys_trapping_apparatus.up&buff.nesingwarys_trapping_apparatus.remains<gcd
+    if cast.able.killCommand(var.lowestBloodseeker) and unit.distance("pet", var.lowestBloodseeker) < 50 and focus + cast.regen.killCommand() < focusMax and buff.nesingwarysTrappingApparatus.exists() or focus + cast.regen.killCommand() < focusMax + 10 and buff.nesingwarysTrappingApparatus.exists() and buff.nesingwarysTrappingApparatus.remains() < unit.gcd(true) then
+        if cast.killCommand(var.lowestBloodseeker) then return true end
+    end
     --actions.bop+=/kill_shot
+    if killShot() then return true end
     --actions.bop+=/wildfire_bomb,if=focus+cast_regen<focus.max&full_recharge_time<gcd|buff.mad_bombardier.up
+    if cast.able.wildfireBomb(units.dyn40,"cone",1,8) and focus + cast.regen.wildfireBomb() < focusMax and charges.wildfireBomb.timeTillFull() < unit.gcd(true) or buff.madBombardier.exists() then
+        if cast.wildfireBomb(units.dyn40,"cone",1,8) then return true end
+    end
     --actions.bop+=/flanking_strike,if=focus+cast_regen<focus.max
+    if ui.mode.harpoon == 1 and talent.flankingStrike and cast.able.flankingStrike() and unit.distance("pet",units.dyn15) < 15 and focus + cast.regen.flankingStrike() < focusMax then
+        if cast.flankingStrike() then return true end
+    end
     --actions.bop+=/flayed_shot
+    if ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards8t) and cast.able.flayedShot() then
+        if cast.flayedShot() then return true end
+    end
     --actions.bop+=/call_action_list,name=nta,if=runeforge.nessingwarys_trapping_apparatus.equipped&focus<variable.mb_rs_cost
+    if runeforge.nesingwarysTrappingApparatus.equiped and focus < cast.cost.mongooseBite() then
+        if actionList.Nta() then return true end
+    end
     --actions.bop+=/death_chakram,if=focus+cast_regen<focus.max
+    if ui.alwaysCdAoENever("Covenany Ability",3,#enemies.yards8t) and cast.able.deathChakram() and focus + cast.regen.deathChakram() < focusMax then
+        if cast.deathChakram() then return true end
+    end
     --actions.bop+=/raptor_strike,target_if=max:debuff.latent_poison_injection.stack,if=buff.coordinated_assault.up&buff.coordinated_assault.remains<1.5*gcd
+    if not talent.mongooseBite and cast.able.raptorStrike(var.maxLatentPoison) and buff.coordinatedAssault.exists() and buff.coordinatedAssault.remains() < 1.5 * unit.gcd(true) then
+        if cast.raptorStrike(var.maxLatentPoison) then return true end
+    end
     --actions.bop+=/mongoose_bite,target_if=max:debuff.latent_poison_injection.stack,if=buff.coordinated_assault.up&buff.coordinated_assault.remains<1.5*gcd
+    if talent.mongooseBite and cast.able.mongooseBite(var.maxLatentPoison) and buff.coordinatedAssault.exists() and buff.coordinatedAssault.remains() < 1.5 * unit.gcd(true) then
+        if cast.mongooseBite(var.maxLatentPoison) then return true end
+    end
     --actions.bop+=/a_murder_of_crows
+    if talent.aMurderOfCrows and ui.alwaysCdAoENever("A Murder of Crows",3,#var.eagleEnemies) and cast.able.aMurderOfCrows() then
+        if cast.aMurderOfCrows() then return true end
+    end
     --actions.bop+=/raptor_strike,target_if=max:debuff.latent_poison_injection.stack,if=buff.tip_of_the_spear.stack=3
+    if not talent.mongooseBite and cast.able.raptorStrike(var.maxLatentPoison) and buff.tipOfTheSpear.stack() == 3 then
+        if cast.raptorStrike(var.maxLatentPoison) then return true end
+    end
     --actions.bop+=/mongoose_bite,target_if=max:debuff.latent_poison_injection.stack,if=talent.alpha_predator.enabled&(buff.mongoose_fury.up&buff.mongoose_fury.remains<focus%(variable.mb_rs_cost-cast_regen)*gcd)
+    if talent.mongooseBite and talent.alphaPredator and cast.able.mongooseBite(var.maxLatentPoison) and (buff.mongooseFury.exists() and buff.mongooseFury.remains() < focus / (cast.cost.mongooseBite() - cast.regen.mongooseBite()) * unit.gcd(true)) then
+        if cast.mongooseBite(var.maxLatentPoison) then return true end
+    end
     --actions.bop+=/wildfire_bomb,if=focus+cast_regen<focus.max&!ticking&(full_recharge_time<gcd|!dot.wildfire_bomb.ticking&buff.mongoose_fury.remains>full_recharge_time-1*gcd|!dot.wildfire_bomb.ticking&!buff.mongoose_fury.remains)|time_to_die<18&!dot.wildfire_bomb.ticking
-    --# If you don't have Nessingwary's Trapping Apparatus, simply cast Kill Command if you won't overcap on Focus from doing so. If you do have Nessingwary's Trapping Apparatus you should cast Kill Command if your focus is below the cost of Mongoose Bite or Raptor Strike
+    if cast.able.wildfireBomb(units.dyn40,"cone",1,8) and focus + cast.regen.wildfireBomb() < focusMax and not debuff.wildfireBomb.exists(units.dyn40) and (charges.wildfireBomb.timeTillFull() < unit.gcd(true) or not debuff.wildfireBomb.exists(units.dyn40) and buff.mongooseFury.remains() > charges.wildfireBomb.timeTillFull() - 1 * unit.gcd(true) or not debuff.wildfireBomb.exists(units.dyn40) and not buff.mongooseFury.exists()) or unit.ttd(units.dyn40) < 18 and not debuff.wildfireBomb.exists(units.dyn40) then
+        if cast.wildfireBomb(units.dyn40,"cone",1,8) then return true end
+    end
     --actions.bop+=/kill_command,target_if=min:bloodseeker.remains,if=focus+cast_regen<focus.max&(!runeforge.nessingwarys_trapping_apparatus|focus<variable.mb_rs_cost)
-    --# With Nessingwary's Trapping Apparatus only Kill Command if your traps are on cooldown, otherwise stop using Kill Command if your current focus amount is enough to sustain the amount of time left for any of your traps to come off cooldown
+    if cast.able.killCommand(var.maxBloodseeker) and focus + cast.regen.killCommand() < focusMax and (not runeforge.nesingwarysTrappingApparatus.equiped or focus < cast.cost.mongooseBite()) then
+        if cast.killCommand(var.maxBloodseeker) then return true end
+    end
     --actions.bop+=/kill_command,target_if=min:bloodseeker.remains,if=focus+cast_regen<focus.max&runeforge.nessingwarys_trapping_apparatus&cooldown.freezing_trap.remains>(focus%(variable.mb_rs_cost-cast_regen)*gcd)&cooldown.tar_trap.remains>(focus%(variable.mb_rs_cost-cast_regen)*gcd)&(!talent.steel_trap|talent.steel_trap&cooldown.steel_trap.remains>(focus%(variable.mb_rs_cost-cast_regen)*gcd))
+    if cast.able.killCommand(var.maxBloodseeker) and focus + cast.regen.killCommand() < focusMax and runeforge.nesingwarysTrappingApparatus.equiped and cd.freezingTrap.remain() > (focus / (cast.cost.mongooseBite() - cast.regen.mongooseBite()) * unit.gcd(true)) and cd.tarTrap.remain() > (focus / (cast.cost.mongooseBite() - cast.regen.mongooseBite()) * unit.gcd(true)) and (not talent.steelTrap or talent.steelTrap and cd.steelTrap.remain() > (focus / (cast.cost.mongooseBite() - cast.regen.mongooseBite()) * unit.gcd(true))) then
+        if cast.killCommand(var.maxBloodseeker) then return true end
+    end
     --actions.bop+=/steel_trap,if=focus+cast_regen<focus.max
+    if cast.able.steelTrap("player","ground",1,5) and focus + cast.regen.steelTrap() < focusMax then
+        if cast.steelTrap("player","ground",1,5) then return true end
+    end
     --actions.bop+=/serpent_sting,target_if=min:remains,if=dot.serpent_sting.refreshable&!buff.coordinated_assault.up|talent.alpha_predator&refreshable&!buff.mongoose_fury.up
+    if cast.able.serpentSting(var.lowestSerpentSting) and debuff.serpentSting.refresh(var.lowestSerpentSting) and not buff.coordinatedAssault.exists() or talent.alphaPredator and debuff.serpentSting.refresh(var.lowestSerpentSting) and not buff.mongooseFury.exists() then
+        if cast.serpentSting(var.lowestSerpentSting) then return true end
+    end
     --actions.bop+=/resonating_arrow
+    if ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards12t) and cast.able.resonatingArrow("best",nil,1,15) then
+        if cast.resonatingArrow("best",nil,1,15) then return true end
+    end
     --actions.bop+=/wild_spirits
+    if ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards12t) and cast.able.wildSpirits("best",nil,var.spiritUnits,12) then
+        if cast.wildSpirits("best",nil,var.spiritUnits,12) then return true end
+    end
     --actions.bop+=/coordinated_assault,if=!buff.coordinated_assault.up
+    if ui.alwaysCdAoENever("Coordinated Assault",3,#var.eagleEnemies) and cast.able.coordinatedAssault() and not buff.coordinatedAssault.exists() and unit.distance("target") < 5 then
+        if cast.coordinatedAssault() then return true end
+    end
     --actions.bop+=/mongoose_bite,if=buff.mongoose_fury.up|focus+action.kill_command.cast_regen>focus.max|buff.coordinated_assault.up
+    if talent.mongooseBite and cast.able.mongooseBite(var.eagleUnit) and buff.mongooseFury.exists() or focus + cast.regen.killCommand() > focusMax or buff.coordinatedAssault.exists() then
+        if cast.mongooseBite(var.eagleUnit) then return true end
+    end
     --actions.bop+=/raptor_strike,target_if=max:debuff.latent_poison_injection.stack
+    if cast.able.raptorStrike(var.maxLatentPoison) then
+        if cast.raptorStrike(var.maxLatentPoison) then return true end
+    end
     --actions.bop+=/wildfire_bomb,if=dot.wildfire_bomb.refreshable
+    if cast.able.wildfireBomb(units.dyn40,"cone",1,8) and debuff.wildfireBomb.refresh(units.dyn40) then
+        if cast.wildfireBomb(units.dyn40,"cone",1,8) then return true end
+    end
     --actions.bop+=/serpent_sting,target_if=min:remains,if=buff.vipers_venom.up
+    if cast.able.serpentSting(var.lowestSerpentSting) and buff.vipersVenom.exists() then
+        if cast.serpentSting(var.lowestSerpentSting) then return true end
+    end
+    return false
 end
 
 actionList.Missdirection = function()
@@ -608,7 +680,7 @@ actionList.Missdirection = function()
         -- Failsafe to Pet, if unable to misdirect to Tank or Focus
         if misdirectUnit == nil then misdirectUnit = "pet" end
         if misdirectUnit and cast.able.misdirection() and unit.exists(misdirectUnit) and unit.distance(misdirectUnit) < 40 and not unit.deadOrGhost(misdirectUnit) then
-            if cast.misdirection(misdirectUnit) then ui.debug("Casting Misdirection on "..unit.name(misdirectUnit)) return true end
+            if cast.misdirection(misdirectUnit) then return true end
         end
     end
 end
@@ -619,10 +691,7 @@ local function runRotation()
     if actionList.PetManagement == nil then
         actionList.PetManagement = br.rotations.support["PetCuteOne"].run
     end
-    ---------------------
-    --- Define Locals ---
-    ---------------------
-    -- BR API Locals
+    --API
     anima                                         = br.player.anima
     buff                                          = br.player.buff
     cast                                          = br.player.cast
@@ -703,11 +772,11 @@ local function runRotation()
     --actions+=/call_action_list,name=cds
     if actionList.Cooldown() then return true end
     --actions+=/call_action_list,name=bop,if=active_enemies<3&talent.birds_of_prey.enabled
-    if talent.birdsOfPrey and ui.mode.rotation == 2 or (ui.mode.rotation == 1 and eagleScout() < 3) then
+    if talent.birdsOfPrey and (ui.mode.rotation == 2 or ui.mode.rotation == 1 and eagleScout() < 3) then
         if actionList.BoP() then return true end
     end
     --actions+=/call_action_list,name=st,if=active_enemies<3&!talent.birds_of_prey.enabled
-    if not talent.birdsOfPrey and (ui.mode.rotation == 1 or eagleScout() < 3) then
+    if not talent.birdsOfPrey and (ui.mode.rotation == 2 or ui.mode.rotation == 1 and eagleScout() < 3) then
         if actionList.St() then return true end
     end
     --actions+=/call_action_list,name=cleave,if=active_enemies>2
