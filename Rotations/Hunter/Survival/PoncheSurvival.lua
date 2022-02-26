@@ -276,7 +276,7 @@ end
 actionList.Cooldown = function()
     --actions.cds=harpoon,if=talent.terms_of_engagement.enabled&focus<focus.max
     if ui.mode.harpoon == 1 and cast.able.harpoon("target") and talent.termsOfEngagement and focus < focusMax then
-        if cast.harpoon() then return true end
+        if cast.harpoon("target") then return true end
     end
     --actions.cds+=/blood_fury,if=buff.coordinated_assault.up
     --actions.cds+=/ancestral_call,if=buff.coordinated_assault.up
@@ -308,12 +308,12 @@ actionList.Cooldown = function()
         if cast.killShot() then return true end
     end
     --actions.cds+=/mongoose_bite,if=active_enemies=1&target.time_to_die<focus%(variable.mb_rs_cost-cast_regen)*gcd
-    if talent.mongooseBite and cast.able.mongooseBite() and #var.eagleEnemies == 1 and unit.ttd(#var.eagleEnemies) < focus / (cast.cost.mongooseBite() - cast.regen.mongooseBite()) * unit.gcd(true) then
-        if cast.mongooseBite() then return true end
+    if talent.mongooseBite and cast.able.mongooseBite(var.eagleUnit) and #var.eagleEnemies == 1 and unit.ttd(var.eagleUnit) < focus / (cast.cost.mongooseBite() - cast.regen.mongooseBite()) * unit.gcd(true) then
+        if cast.mongooseBite(var.eagleUnit) then return true end
     end
     --actions.cds+=/raptor_strike,if=active_enemies=1&target.time_to_die<focus%(variable.mb_rs_cost-cast_regen)*gcd
-    if not talent.mongooseBite and cast.able.raptorStrike() and #var.eagleEnemies == 1 and unit.ttd(#var.eagleEnemies) < focus / (cast.cost.raptor_strike() - cast.regen.raptorStrike()) * unit.gcd(true) then
-        if cast.raptorStrike() then return true end
+    if not talent.mongooseBite and cast.able.raptorStrike(var.eagleUnit) and #var.eagleEnemies == 1 and unit.ttd(var.eagleUnit) < focus / (cast.cost.raptorStrike() - cast.regen.raptorStrike()) * unit.gcd(true) then
+        if cast.raptorStrike(var.eagleUnit) then return true end
     end
     --actions.cds+=/aspect_of_the_eagle,if=target.distance>=6
     if ui.mode.aotE == 1 and ui.alwaysCdAoENever("Aspect of the Eagle",3,#enemies.yards40) and cast.able.aspectOfTheEagle() and unit.distance("target") >= 6 and unit.standingTime() >= 2 and unit.combatTime() >= 5 then
