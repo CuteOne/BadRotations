@@ -187,7 +187,7 @@ end
 local function killShot()
     for i = 1, #enemies.yards40 do
         local thisUnit = enemies.yards40[i]
-        if cast.able.killShot(thisUnit) then
+        if cast.able.killShot(thisUnit) and unit.hp(thisUnit) < 20 then
             if cast.killShot(thisUnit) then return true end
         end
     end
@@ -349,7 +349,7 @@ actionList.Cleave = function()
     end
     --actions.cleave+=/coordinated_assault,if=!raid_event.adds.exists|raid_event.adds.remains>=10|active_enemies>=raid_event.adds.count*2
     if ui.alwaysCdAoENever("Coordinated Assault",3,#var.eagleEnemies) and cast.able.coordinatedAssault() and unit.distance("target") < 5 then
-        if cast.coordinatedAssault("best",nil,var.eagleEnemies,12) then return true end
+        if cast.coordinatedAssault() then return true end
     end
     --actions.cleave+=/wildfire_bomb,if=full_recharge_time<gcd
     if cast.able.wildfireBomb(units.dyn40,"cone",1,8) and charges.wildfireBomb.timeTillFull() < unit.gcd(true) then
@@ -391,8 +391,8 @@ actionList.Cleave = function()
     if cast.able.wildfireBomb(units.dyn40,"cone",1,8) and buff.madBombardier.exists() then
         if cast.wildfireBomb(units.dyn40,"cone",1,8) then return true end
     end
-    --actions.cleave+=/kill_command,target_if=dot.pheromone_bomb.ticking&set_bonus.tier28_2pc debuff.wildfireBomb.exists
-    if cast.able.killCommand(var.pheromoneUnit) and unit.distance("pet", var.pheromoneUnit) < 50 and debuff.wildfireBomb.exists(var.pheromoneUnit) and var.hasTierBonus then
+    --actions.cleave+=/kill_command,target_if=dot.pheromone_bomb.ticking&set_bonus.tier28_2pc
+    if cast.able.killCommand(var.pheromoneUnit) and unit.distance("pet", var.pheromoneUnit) < 50 and debuff.pheromoneBomb.exists(var.pheromoneUnit) and var.hasTierBonus then
         if cast.killCommand(var.pheromoneUnit) then return true end
     end
     --actions.cleave+=/kill_shot,if=buff.flayers_mark.up
@@ -742,7 +742,7 @@ local function runRotation()
     var.lowestSerpentSting                       = debuff.serpentSting.lowest(40,"remain") or var.eagleUnit
     var.maxLatentPoison                          = debuff.latentPoison.max(var.eagleRange,"stack") or var.eagleUnit
     var.spiritUnits                              = ui.useCDs() and 1 or 3
-    var.pheromoneUnit                            = debuff.wildfireBomb.max(40,"remain") or var.eagleUnit
+    var.pheromoneUnit                            = debuff.pheromoneBomb.max(40,"remain") or var.eagleUnit
 
     if var.haltProfile then
         return true
