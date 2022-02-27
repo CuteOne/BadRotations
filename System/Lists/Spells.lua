@@ -1295,6 +1295,7 @@ br.lists.spells = {
                 serpentSting                = 259491,
                 shrapnelBomb                = 270339,
                 wildfireBomb                = 269747,
+                pheromoneBomb               = 270332,
             },
             glyphs                          = {
 
