@@ -517,15 +517,15 @@ actionList.St = function()
         if cast.raptorStrike(var.maxLatentPoison) then return true end
     end
     --actions.st+=/mongoose_bite,if=dot.shrapnel_bomb.ticking
-    if talent.mongooseBite and cast.able.mongooseBite("target") and debuff.shrapnelBomb.exists("target") then
-        if cast.mongooseBite("target") then return true end
+    if talent.mongooseBite and cast.able.mongooseBite(var.eagleUnit) and debuff.shrapnelBomb.exists(var.eagleUnit) then
+        if cast.mongooseBite(var.eagleUnit) then return true end
     end
     --actions.st+=/serpent_sting,target_if=min:remains,if=refreshable&target.time_to_die>7|buff.vipers_venom.up
     if cast.able.serpentSting(var.lowestSerpentSting) and (debuff.serpentSting.refresh(var.lowestSerpentSting) and unit.ttd(var.lowestSerpentSting) > 7 or buff.vipersVenom.exists()) then
         if cast.serpentSting(var.lowestSerpentSting) then return true end
     end
     --actions.st+=/wildfire_bomb,if=next_wi_bomb.shrapnel&focus>variable.mb_rs_cost*2&dot.serpent_sting.remains>5*gcd
-    if cast.able.wildfireBomb(units.dyn40,"cone",1,8) and nextBomb(spell.shrapnelBomb) and focus > cast.cost.mongooseBite() * 2 and debuff.serpentSting.remains("target") > 5 * unit.gcd(true) then
+    if cast.able.wildfireBomb(units.dyn40,"cone",1,8) and nextBomb(spell.shrapnelBomb) and focus > cast.cost.mongooseBite() * 2 and debuff.serpentSting.remains(units.dyn40) > 5 * unit.gcd(true) then
         if cast.wildfireBomb(units.dyn40,"cone",1,8) then return true end
     end
     --actions.st+=/chakrams
