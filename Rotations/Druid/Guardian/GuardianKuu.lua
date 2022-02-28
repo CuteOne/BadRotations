@@ -615,7 +615,7 @@ local function runRotation()
             end
         end
         if
-            ui.checked("Auto Engage On Target") and debuff.moonfire.count() < ui.value("Max Moonfire Targets") and not debuff.moonfire.exists() and solo and
+            ui.checked("Auto Engage On Target") and debuff.moonfireGuardian.count() < ui.value("Max Moonfire Targets") and not debuff.moonfireGuardian.exists() and solo and
                 br.isValidTarget("target") and
                 (br._G.UnitIsEnemy("target", "player"))
          then
@@ -1246,10 +1246,10 @@ local function runRotation()
                 end
             end
             -- Moonfire
-            if debuff.moonfire.count() < ui.value("Max Moonfire Targets") then
+            if debuff.moonfireGuardian.count() < ui.value("Max Moonfire Targets") then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
-                    if not debuff.moonfire.exists(thisUnit) or (debuff.moonfire.remain(thisUnit) <= debuff.moonfire.duration(thisUnit) * 0.3) then
+                    if not debuff.moonfireGuardian.exists(thisUnit) or (debuff.moonfireGuardian.remain(thisUnit) <= debuff.moonfireGuardian.duration(thisUnit) * 0.3) then
                         if cast.moonfire(thisUnit) then
                             br.addonDebug("Casting Moonfire (Refresh)")
                             return
