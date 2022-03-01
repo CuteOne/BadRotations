@@ -12,9 +12,9 @@ local function createToggles()
     br.ui:createToggle(RotationModes,"Rotation",1,0)
     -- Cooldown Button
     local CooldownModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.aspectOfTheEagle },
-        [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.aspectOfTheEagle },
-        [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.aspectOfTheEagle }
+        [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.coordinatedAssault },
+        [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.coordinatedAssault },
+        [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.coordinatedAssault }
     };
     br.ui:createToggle(CooldownModes,"Cooldown",2,0)
     -- Defensive Button
@@ -228,7 +228,7 @@ end
 
 --CCs
 actionList.CCs = function()
-    if not ui.mode.cC == 1 then
+    if not ui.mode.cC == 2 then
         return false
     end
 
@@ -382,12 +382,12 @@ actionList.Cooldown = function()
         if cast.killShot() then return true end
     end
     --actions.cds+=/mongoose_bite,if=active_enemies=1&target.time_to_die<focus%(variable.mb_rs_cost-cast_regen)*gcd
-    if talent.mongooseBite and cast.able.mongooseBite(var.eagleUnit) and #var.eagleEnemies == 1 and unit.ttd(var.eagleUnit) < focus / (cast.cost.mongooseBite() - cast.regen.mongooseBite()) * unit.gcd(true) then
-        if cast.mongooseBite(var.eagleUnit) then return true end
+    if talent.mongooseBite and cast.able.mongooseBite() and #var.eagleEnemies == 1 and unit.ttd("target") < focus / (cast.cost.mongooseBite() - cast.regen.mongooseBite()) * unit.gcd(true) then
+        if cast.mongooseBite() then return true end
     end
     --actions.cds+=/raptor_strike,if=active_enemies=1&target.time_to_die<focus%(variable.mb_rs_cost-cast_regen)*gcd
-    if not talent.mongooseBite and cast.able.raptorStrike(var.eagleUnit) and #var.eagleEnemies == 1 and unit.ttd(var.eagleUnit) < focus / (cast.cost.raptorStrike() - cast.regen.raptorStrike()) * unit.gcd(true) then
-        if cast.raptorStrike(var.eagleUnit) then return true end
+    if not talent.mongooseBite and cast.able.raptorStrike() and #var.eagleEnemies == 1 and unit.ttd("target") < focus / (cast.cost.raptorStrike() - cast.regen.raptorStrike()) * unit.gcd(true) then
+        if cast.raptorStrike() then return true end
     end
     --actions.cds+=/aspect_of_the_eagle,if=target.distance>=6
     if ui.mode.aotE == 1 and ui.alwaysCdAoENever("Aspect of the Eagle",3,#enemies.yards40) and cast.able.aspectOfTheEagle() and unit.distance("target") >= 6 and unit.standingTime() >= 2 and unit.combatTime() >= 5 then
@@ -551,7 +551,7 @@ actionList.St = function()
     --actions.st+=/kill_shot
     if actionList.killShot() then return true end
     --actions.st+=/flanking_strike,if=focus+cast_regen<focus.max
-    if ui.mode.harpoon == 1 and talent.flankingStrike and cast.able.flankingStrike() and unit.distance("pet",units.dyn15) < 15 and focus + cast.regen.flankingStrike() < focusMax then
+    if ui.mode.harpoon == 1 and talent.flankingStrike and cast.able.flankingStrike() and unit.distance("pet", "target") < 15 and focus + cast.regen.flankingStrike() < focusMax then
         if cast.flankingStrike() then return true end
     end
     --actions.st+=/a_murder_of_crows
@@ -591,8 +591,8 @@ actionList.St = function()
         if cast.raptorStrike(var.maxLatentPoison) then return true end
     end
     --actions.st+=/mongoose_bite,if=dot.shrapnel_bomb.ticking
-    if talent.mongooseBite and cast.able.mongooseBite(var.eagleUnit) and debuff.shrapnelBomb.exists(var.eagleUnit) then
-        if cast.mongooseBite(var.eagleUnit) then return true end
+    if talent.mongooseBite and cast.able.mongooseBite() and debuff.shrapnelBomb.exists("target") then
+        if cast.mongooseBite() then return true end
     end
     --actions.st+=/serpent_sting,target_if=min:remains,if=refreshable&target.time_to_die>7|buff.vipers_venom.up
     if cast.able.serpentSting(var.lowestSerpentSting) and (debuff.serpentSting.refresh(var.lowestSerpentSting) and unit.ttd(var.lowestSerpentSting) > 7 or buff.vipersVenom.exists()) then
@@ -714,8 +714,8 @@ actionList.BoP = function()
         if cast.coordinatedAssault() then return true end
     end
     --actions.bop+=/mongoose_bite,if=buff.mongoose_fury.up|focus+action.kill_command.cast_regen>focus.max|buff.coordinated_assault.up
-    if talent.mongooseBite and cast.able.mongooseBite(var.eagleUnit) and (buff.mongooseFury.exists() or focus + cast.regen.killCommand() > focusMax or buff.coordinatedAssault.exists()) then
-        if cast.mongooseBite(var.eagleUnit) then return true end
+    if talent.mongooseBite and cast.able.mongooseBite() and (buff.mongooseFury.exists() or focus + cast.regen.killCommand() > focusMax or buff.coordinatedAssault.exists()) then
+        if cast.mongooseBite() then return true end
     end
     --actions.bop+=/raptor_strike,target_if=max:debuff.latent_poison_injection.stack
     if cast.able.raptorStrike(var.maxLatentPoison) then
@@ -809,14 +809,14 @@ local function runRotation()
     var.hasTierBonus                              = br.TierScan("T28") >= 2
     var.haltProfile                               = unit.mounted() or unit.flying() or ui.pause() or buff.feignDeath.exists() or ui.mode.rotation == 3
     -- Profile Specific Locals
-    var.eagleUnit                                = buff.aspectOfTheEagle.exists() and units.dyn40 or units.dyn5
+    var.singleTarget                             = ui.mode.rotation == 2
     var.eagleRange                               = buff.aspectOfTheEagle.exists() and 40 or 5
     var.eagleEnemies                             = buff.aspectOfTheEagle.exists() and enemies.yards40 or enemies.yards5
-    var.lowestBloodseeker                        = debuff.bloodseeker.lowest(40,"remain") or var.eagleUnit
-    var.lowestSerpentSting                       = debuff.serpentSting.lowest(40,"remain") or var.eagleUnit
-    var.maxLatentPoison                          = debuff.latentPoison.max(var.eagleRange,"stack") or var.eagleUnit
+    var.lowestBloodseeker                        = var.singleTarget and "target" or debuff.bloodseeker.lowest(40,"remain") or "target"
+    var.lowestSerpentSting                       = var.singleTarget and "target" or debuff.serpentSting.lowest(40,"remain") or "target"
+    var.maxLatentPoison                          = var.singleTarget and "target" or debuff.latentPoison.max(var.eagleRange,"stack") or "target"
     var.spiritUnits                              = ui.useCDs() and 1 or 3
-    var.pheromoneUnit                            = debuff.pheromoneBomb.max(40,"remain") or var.eagleUnit
+    var.pheromoneUnit                            = var.singleTarget and "target" or debuff.pheromoneBomb.max(40,"remain") or "target"
 
     if var.haltProfile then
         return true
