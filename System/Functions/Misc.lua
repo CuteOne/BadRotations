@@ -23,6 +23,7 @@ function br.getFallDistance()
 	local zCoord = nil
 	local _, _, position = br.GetObjectPosition("player")
 
+	if position == nil then return 0 end
 	if zCoord == nil then
 		zCoord = position
 	end
