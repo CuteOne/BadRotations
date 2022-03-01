@@ -57,6 +57,12 @@ local function createToggles()
         [2] = { mode = "Off", value = 2 , overlay = "Aspect of the Eagle Disabled", tip = "Aspect of the Eagle Disabled", highlight = 0, icon = br.player.spell.aspectOfTheEagle }
     };
     br.ui:createToggle(aotEModes,"aotE",8,0)
+    -- CC
+    local CCModes = {
+        [1] = { mode = "On", value = 1 , overlay = "CC Enabled", tip = "CC Enabled", highlight = 1, icon = br.player.spell.freezingTrap },
+        [2] = { mode = "Off", value = 2 , overlay = "CC Disabled", tip = "CC Disabled", highlight = 0, icon = br.player.spell.freezingTrap }
+    };
+    br.ui:createToggle(CCModes,"CC",9,0)
 end
 
 --Options
@@ -114,6 +120,18 @@ local function createOptions()
             -- Interrupt Percentage
             br.ui:createSpinner(section, "Interrupt At",  0,  0,  95,  5,  "|cffFFFFFFCast Percent to Cast At")
         br.ui:checkSectionState(section)
+        -- CCs Options
+        section = br.ui:createSection(br.ui.window.profile, "CCs")
+            br.ui:createText(section, "Dungeon boss mechanics")
+            cMistcaller = br.ui:createCheckbox(section, "Mists of Tirna Scithe (Mistcaller - Illusionary Vulpin)", "Cast Freezing Trap on Illusionary Vulpin")
+            cGlobgrog = br.ui:createCheckbox(section,"Plaguefall (Globgrog - Slimy Smorgasbord)", "Cast Freezing Trap on Slimy Smorgasbord")
+            cBlightbone =br.ui:createCheckbox(section,"The Necrotic Wake (Blightbone  - Carrion Worms)", "Cast Binding Shot on Carrion Worms")
+            br.ui:createText(section, "Dungeon trash mechanics")
+            cGorgon = br.ui:createCheckbox(section,"Halls of Atonement (Vicious Gargon, Loyal Beasts)", "Cast Binding Shot on Vicious Gargon with Loyal Beasts")
+            cDefender = br.ui:createCheckbox(section,"Plaguefall (Defender of Many Eyes, Bulwark of Maldraxxus)", "Cast Freezing Trap on Defender of Many Eyes with Bulwark of Maldraxxus")
+            cSlimeclaw = br.ui:createCheckbox(section,"Plaguefall (Rotting Slimeclaw)", "Cast Binding Shot on Rotting Slimeclaw with 20% hp")
+            cRefuse = br.ui:createCheckbox(section,"Theater of Pain (Disgusting Refuse)", "Cast Binding Shot on Disgusting Refuse to avoid jumping around")
+        br.ui:checkSectionState(section)
         -- Toggle Key Options
         section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
             -- Single/Multi Toggle
@@ -136,7 +154,7 @@ local function createOptions()
 end
 
 -- Locals
-local anima
+--local anima
 local buff
 local cast
 local cd
@@ -145,11 +163,12 @@ local debuff
 local enemies
 local focus
 local focusMax
-local focusRegen
-local gcd
-local level
+--local focusRegen
+--local gcd
+--local level
+local maps = br.lists.maps
 local module
-local opener
+--local opener
 local runeforge
 local spell
 local talent
@@ -184,11 +203,66 @@ local function nextBomb(nextBomb)
     return currentBomb == nextBomb
 end
 
-local function killShot()
+local function getMobToCC(id, minHP, spellID)
+    for i = 1, #enemies.yards40 do
+        local thisUnit = enemies.yards40[i]
+        if unit.id(thisUnit) == id and not br.isLongTimeCCed(thisUnit) then
+            if (minHP == nil or minHP <= unit.hp(thisUnit)) and  (spellID == nil or br.getDebuffDuration(thisUnit,spellID,units.player) > 0) then
+                return thisUnit
+            end
+        end
+    end
+    return nil
+end
+
+--Kill Shot
+actionList.killShot = function()
     for i = 1, #enemies.yards40 do
         local thisUnit = enemies.yards40[i]
         if cast.able.killShot(thisUnit) and unit.hp(thisUnit) < 20 then
             if cast.killShot(thisUnit) then return true end
+        end
+    end
+    return false
+end
+
+--CCs
+actionList.CCs = function()
+    if not ui.mode.cC == 1 then
+        return false
+    end
+
+    if br.getCurrentZoneId() == maps.instanceIDs.Plaguefall then
+        if cast.able.freezingTrap() then
+            if cGlobgrog.value then
+                if cast.freezingTrap(getMobToCC(171887, nil, nil), "groundCC") then return true end
+            end
+            if cDefender.value then
+                if cast.freezingTrap(getMobToCC(163862, nil, 336449), "groundCC") then return true end
+            end
+        end
+        if cSlimeclaw.value and talent.bindingShot and cast.able.bindingShot() then
+            if cast.bindingShot(getMobToCC(163892, 25, nil), "groundCC") then return true end
+        end
+    end
+    if br.getCurrentZoneId() == maps.instanceIDs.MistsOfTirnaScithe then
+        if cMistcaller.value and cast.able.freezingTrap() then
+            if cast.freezingTrap(getMobToCC(165251, nil, nil), "groundCC") then return true end
+        end
+    end
+    if br.getCurrentZoneId() == maps.instanceIDs.TheNecroticWake then
+        if cBlightbone.value and talent.bindingShot and cast.able.bindingShot() then
+            if cast.bindingShot(getMobToCC(164702, nil, nil), "groundCC") then return true end
+        end
+    end
+    if br.getCurrentZoneId() == maps.instanceIDs.TheaterOfPain then
+        if cRefuse.value and talent.bindingShot and cast.able.bindingShot() then
+            if cast.bindingShot(getMobToCC(163089, nil, nil), "groundCC") then return true end
+        end
+    end
+    if br.getCurrentZoneId() == maps.instanceIDs.HallsOfAtonement then
+        if cGorgon.value and talent.bindingShot and cast.able.bindingShot() then
+            if cast.bindingShot(getMobToCC(164563, nil, 326450), "groundCC") then return true end
         end
     end
     return false
@@ -432,7 +506,7 @@ actionList.Cleave = function()
         if cast.carve("player","cone",1,8) then return true end
     end
     --actions.cleave+=/kill_shot
-    if killShot() then return true end
+    if actionList.killShot() then return true end
     --actions.cleave+=/serpent_sting,target_if=min:remains,if=refreshable&target.time_to_die>8
     if cast.able.serpentSting(var.lowestSerpentSting) and debuff.serpentSting.refresh(var.lowestSerpentSting) and unit.ttd(var.lowestSerpentSting) > 8 then
         if cast.serpentSting(var.lowestSerpentSting) then return true end
@@ -475,7 +549,7 @@ actionList.St = function()
         if cast.coordinatedAssault() then return true end
     end
     --actions.st+=/kill_shot
-    if killShot() then return true end
+    if actionList.killShot() then return true end
     --actions.st+=/flanking_strike,if=focus+cast_regen<focus.max
     if ui.mode.harpoon == 1 and talent.flankingStrike and cast.able.flankingStrike() and unit.distance("pet",units.dyn15) < 15 and focus + cast.regen.flankingStrike() < focusMax then
         if cast.flankingStrike() then return true end
@@ -517,15 +591,15 @@ actionList.St = function()
         if cast.raptorStrike(var.maxLatentPoison) then return true end
     end
     --actions.st+=/mongoose_bite,if=dot.shrapnel_bomb.ticking
-    if talent.mongooseBite and cast.able.mongooseBite("target") and debuff.shrapnelBomb.exists("target") then
-        if cast.mongooseBite("target") then return true end
+    if talent.mongooseBite and cast.able.mongooseBite(var.eagleUnit) and debuff.shrapnelBomb.exists(var.eagleUnit) then
+        if cast.mongooseBite(var.eagleUnit) then return true end
     end
     --actions.st+=/serpent_sting,target_if=min:remains,if=refreshable&target.time_to_die>7|buff.vipers_venom.up
     if cast.able.serpentSting(var.lowestSerpentSting) and (debuff.serpentSting.refresh(var.lowestSerpentSting) and unit.ttd(var.lowestSerpentSting) > 7 or buff.vipersVenom.exists()) then
         if cast.serpentSting(var.lowestSerpentSting) then return true end
     end
     --actions.st+=/wildfire_bomb,if=next_wi_bomb.shrapnel&focus>variable.mb_rs_cost*2&dot.serpent_sting.remains>5*gcd
-    if cast.able.wildfireBomb(units.dyn40,"cone",1,8) and nextBomb(spell.shrapnelBomb) and focus > cast.cost.mongooseBite() * 2 and debuff.serpentSting.remains("target") > 5 * unit.gcd(true) then
+    if cast.able.wildfireBomb(units.dyn40,"cone",1,8) and nextBomb(spell.shrapnelBomb) and focus > cast.cost.mongooseBite() * 2 and debuff.serpentSting.remains(units.dyn40) > 5 * unit.gcd(true) then
         if cast.wildfireBomb(units.dyn40,"cone",1,8) then return true end
     end
     --actions.st+=/chakrams
@@ -566,7 +640,7 @@ actionList.BoP = function()
         if cast.killCommand(var.lowestBloodseeker) then return true end
     end
     --actions.bop+=/kill_shot
-    if killShot() then return true end
+    if actionList.killShot() then return true end
     --actions.bop+=/wildfire_bomb,if=focus+cast_regen<focus.max&full_recharge_time<gcd|buff.mad_bombardier.up
     if cast.able.wildfireBomb(units.dyn40,"cone",1,8) and focus + cast.regen.wildfireBomb() < focusMax and charges.wildfireBomb.timeTillFull() < unit.gcd(true) or buff.madBombardier.exists() then
         if cast.wildfireBomb(units.dyn40,"cone",1,8) then return true end
@@ -693,7 +767,7 @@ local function runRotation()
         actionList.PetManagement = br.rotations.support["PetCuteOne"].run
     end
     --API
-    anima                                         = br.player.anima
+    --anima                                         = br.player.anima
     buff                                          = br.player.buff
     cast                                          = br.player.cast
     cd                                            = br.player.cd
@@ -702,10 +776,10 @@ local function runRotation()
     enemies                                       = br.player.enemies
     focus                                         = br.player.power.focus.amount()
     focusMax                                      = br.player.power.focus.max()
-    focusRegen                                    = br.player.power.focus.regen()
-    level                                         = br.player.level
+    --focusRegen                                    = br.player.power.focus.regen()
+    --level                                         = br.player.level
     module                                        = br.player.module
-    opener                                        = br.player.opener
+    --opener                                        = br.player.opener
     runeforge                                     = br.player.runeforge
     spell                                         = br.player.spell
     talent                                        = br.player.talent
@@ -759,6 +833,8 @@ local function runRotation()
 
     --Missdirection
     if actionList.Missdirection() then return true end
+    --CCs
+    if actionList.CCs() then return true end
     --Interrupts
     if actionList.Interrupt() then return true end
 

@@ -1286,7 +1286,7 @@ br.lists.spells = {
                 mongooseFury                = 259388,
                 tipOfTheSpear               = 260286,
                 vipersVenom                 = 268552,
-                madBombardier               = 363667, -- Tier 28
+                madBombardier               = 363805, -- Tier 28
             },
             debuffs                         = {
                 bloodseeker                 = 259277,
