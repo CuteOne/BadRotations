@@ -228,7 +228,7 @@ end
 
 --CCs
 actionList.CCs = function()
-    if not ui.mode.cC == 1 then
+    if not ui.mode.cC == 2 then
         return false
     end
 
