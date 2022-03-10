@@ -203,22 +203,53 @@ local function nextBomb(nextBomb)
     return currentBomb == nextBomb
 end
 
-local function getMobToCC(id, minHP, spellID)
-    for i = 1, #enemies.yards40 do
-        local thisUnit = enemies.yards40[i]
-        if unit.id(thisUnit) == id and not br.isLongTimeCCed(thisUnit) then
-            if (minHP == nil or minHP <= unit.hp(thisUnit)) and  (spellID == nil or br.getDebuffDuration(thisUnit,spellID,units.player) > 0) then
-                return thisUnit
-            end
+local function isFreezingTrapActive()
+    for i = 1, #enemies.yards40f do
+        local thisUnit = enemies.yards40f[i]
+        if debuff.freezingTrap.exists(thisUnit, units.player) then
+            return true
         end
     end
-    return nil
+    return false
+end
+
+local function ccMobFinder(id, minHP, spellID)
+    local argumentsTable = {id, minHP, spellID}
+    local arguments = 0
+    local foundMatch
+
+    for _,v in pairs(argumentsTable) do
+        if v ~= nil then arguments = arguments + 1 end
+    end
+
+    for i = 1, #enemies.yards40f do
+        local thisUnit = enemies.yards40f[i]
+        foundMatch = 0
+        if not br.isLongTimeCCed(thisUnit) then
+            if id ~= nil then
+                if unit.id(thisUnit) == id then
+                    foundMatch = foundMatch + 1
+                end
+            end
+            if minHP ~= nil then
+                if minHP <= unit.hp(thisUnit) then
+                    foundMatch = foundMatch + 1
+                end
+            end
+            if spellID ~= nil then
+                if br.getDebuffDuration(thisUnit, spellID,units.player) > 0 then
+                    foundMatch = foundMatch + 1
+                end
+            end
+            if foundMatch == arguments then return thisUnit end
+        end
+    end
 end
 
 --Kill Shot
 actionList.killShot = function()
     for i = 1, #enemies.yards40 do
-        local thisUnit = enemies.yards40[i]
+        thisUnit = enemies.yards40[i]
         if cast.able.killShot(thisUnit) and unit.hp(thisUnit) < 20 then
             if cast.killShot(thisUnit) then return true end
         end
@@ -226,43 +257,44 @@ actionList.killShot = function()
     return false
 end
 
+
 --CCs
 actionList.CCs = function()
-    if not ui.mode.cC == 2 then
+    if ui.mode.cC == 2 then
         return false
     end
 
     if br.getCurrentZoneId() == maps.instanceIDs.Plaguefall then
-        if cast.able.freezingTrap() then
+        if cast.able.freezingTrap() and not isFreezingTrapActive() then
             if cGlobgrog.value then
-                if cast.freezingTrap(getMobToCC(171887, nil, nil), "groundCC") then return true end
+                if cast.freezingTrap(ccMobFinder(171887), "groundCC") then return true end
             end
             if cDefender.value then
-                if cast.freezingTrap(getMobToCC(163862, nil, 336449), "groundCC") then return true end
+                if cast.freezingTrap(ccMobFinder(163862, _, 336449), "groundCC") then return true end
             end
         end
         if cSlimeclaw.value and talent.bindingShot and cast.able.bindingShot() then
-            if cast.bindingShot(getMobToCC(163892, 25, nil), "groundCC") then return true end
+            if cast.bindingShot(ccMobFinder(163892, 25), "groundCC") then return true end
         end
     end
     if br.getCurrentZoneId() == maps.instanceIDs.MistsOfTirnaScithe then
         if cMistcaller.value and cast.able.freezingTrap() then
-            if cast.freezingTrap(getMobToCC(165251, nil, nil), "groundCC") then return true end
+            if cast.freezingTrap(ccMobFinder(165251), "groundCC") then return true end
         end
     end
     if br.getCurrentZoneId() == maps.instanceIDs.TheNecroticWake then
         if cBlightbone.value and talent.bindingShot and cast.able.bindingShot() then
-            if cast.bindingShot(getMobToCC(164702, nil, nil), "groundCC") then return true end
+            if cast.bindingShot(ccMobFinder(164702), "groundCC") then return true end
         end
     end
     if br.getCurrentZoneId() == maps.instanceIDs.TheaterOfPain then
         if cRefuse.value and talent.bindingShot and cast.able.bindingShot() then
-            if cast.bindingShot(getMobToCC(163089, nil, nil), "groundCC") then return true end
+            if cast.bindingShot(ccMobFinder(163089), "groundCC") then return true end
         end
     end
     if br.getCurrentZoneId() == maps.instanceIDs.HallsOfAtonement then
         if cGorgon.value and talent.bindingShot and cast.able.bindingShot() then
-            if cast.bindingShot(getMobToCC(164563, nil, 326450), "groundCC") then return true end
+            if cast.bindingShot(ccMobFinder(164563, _, 326450), "groundCC") then return true end
         end
     end
     return false
