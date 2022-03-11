@@ -204,7 +204,8 @@ br.novaEngineTables.BadDebuffList= {
 	-- Ny'alotha
    -- [316065] = "Corrupted Existence", -- Ra-den
    -- Castle Nathria
-    [329298] = "Hungering Miasma", --Hungering Destroyer
+    	[329298] = "Hungering Miasma", --Hungering Destroyer
+    	[327992] = "Desolation", --Sire 100% healing reduction lasagna
 }
 -- list of special units we want to heal, these npc will go directly into healing engine(Special Heal must be checked)
 br.novaEngineTables.SpecialHealUnitList = {
