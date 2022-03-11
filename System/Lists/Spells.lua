@@ -2167,6 +2167,8 @@ br.lists.spells = {
                 judgment                    = 275773,
                 lightOfDawn                 = 85222,
                 lightOfTheMartyr            = 183998,
+                lightsHammer                = 114158,
+                beaconOfFaith               = 156910,
             },
             artifacts                       = {
 
@@ -2192,6 +2194,7 @@ br.lists.spells = {
                 avengingCrusader            = 216331,
                 symbolOfHope                = 64901,
                 divineSteed                 = 254474,
+                maraadsBreath              = 340459,
             },
             debuffs                         = {
                 judgement                   = 214222,
