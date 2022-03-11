@@ -140,6 +140,9 @@ if not br.metaTable1 then
 			if br.isChecked("Necrotic Rot") and br.getDebuffStacks(o.unit, 209858) > 0 and br.getDebuffStacks(o.unit, 209858) >= necroRot then
 				return 250, 250, 250
 			end
+			if br.UnitBuffID(o.unit, 360618) then
+				return 250, 250, 250
+			end
 			if br.UnitBuffID(o.unit, 295271) then
 				return 250, 250, 250
 			end

@@ -170,6 +170,7 @@ br.novaEngineTables.DoNotDispellList = {
 }
 -- This is where we house the Debuffs that are bad for our users, and should not be healed when they have it
 br.novaEngineTables.BadDebuffList= {
+	[360618] = "Necrosis",
 	[104451] = "Ice Tomb",
 	[76577] = "Smoke Bomb",
 	[121949] = "Parasistic Growth",
