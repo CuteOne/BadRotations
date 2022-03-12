@@ -86,6 +86,8 @@ local function createOptions()
             br.ui:createSpinnerWithout(section,"Multi-DoT Limit", 8, 2, 10, 1, "|cffFFFFFFSet to number of enemies to stop multi-dotting with Rake and Moonfire.")
             -- Primal Wrath Usage
             br.ui:createDropdownWithout(section,"Primal Wrath Usage",{"|cffFFFF00Always","|cff00FF00Refresh Only"})
+            -- Filler Spell
+            br.ui:createDropdownWithout(section,"Filler Spell",{"Shred", "Rake", "Snapshot Rake", "Lunar Inspiration", "Swipe"}, 1, "|cffFFFFFFSet which spell to use as filler.")
         br.ui:checkSectionState(section)
         -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -779,21 +781,25 @@ actionList.Cooldowns = function()
             if cast.feralFrenzy(var.maxTTDUnit) then ui.debug("Casting Feral Frenzy") return true end
         end
         -- Berserk/Incarnation
-        -- berserk,if=combo_points>=3
-        -- incarnation,if=combo_points>=3
-        if ui.checked("Berserk/Incarnation") and ui.useCDs() and range.dyn5 and comboPoints >= 3 then
-            if cast.able.berserk() and not talent.incarnationKingOfTheJungle then
+        -- berserk,if=dot.rip.ticking&(cooldown.convoke_the_spirits.up|cooldown.convoke_the_spirits.remains>32|fight_remains<20)
+        -- incarnation,if=dot.rip.ticking&(cooldown.convoke_the_spirits.up|fight_remains<30)
+        if ui.checked("Berserk/Incarnation") and ui.useCDs() and range.dyn5 and comboPoints >= 3 and debuff.rake.exists(unit.dyn5) then
+            if cast.able.berserk() and not talent.incarnationKingOfTheJungle
+                and (not cd.convokeTheSpirits.exists() or cd.convokeTheSpirits.remain() > 32 or (unit.ttdGroup(5) < 20 and ui.useCDs()))
+            then
                 if cast.berserk() then ui.debug("Casting Berserk") return true end
             end
-            if cast.able.incarnationKingOfTheJungle() and talent.incarnationKingOfTheJungle then
+            if cast.able.incarnationKingOfTheJungle() and talent.incarnationKingOfTheJungle
+                and (not cd.convokeTheSpirits.exists() or (unit.ttdGroup(5) < 20 and ui.useCDs()))
+            then
                 if cast.incarnationKingOfTheJungle() then ui.debug("Casting Incarnation: King of the Jungle") return true end
             end
         end
         -- Tiger's Fury
-        -- tigers_fury,if=energy.deficit>40|buff.bs_inc.up|(talent.predator.enabled&variable.shortest_ttd<3)
+        -- tigers_fury,if=energy.deficit>40|buff.bs_inc.up|(talent.predator.enabled&variable.shortest_ttd<3)|(!dot.rip.ticking&buff.bloodtalons.up)
         if ui.checked("Tiger's Fury") and cast.able.tigersFury() and range.dyn5
             and (energyDeficit > 40 or snipeTF() or (buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists())
-                or (talent.predator and var.lowestTTD < 3))
+                or (talent.predator and var.lowestTTD < 3) or (not debuff.rip.exists(units.dyn5) and buff.bloodtalons.exists()))
         then
             if cast.tigersFury() then ui.debug("Casting Tiger's Fury") return true end
         end
@@ -834,9 +840,10 @@ actionList.Cooldowns = function()
             if cast.ravenousFrenzy() then ui.debug("Casting Ravenous Frenzy [Venthyr]") return true end
         end
         -- Convoke the Spirits
-        -- convoke_the_spirits,if=(dot.rip.remains>4&combo_points<5&(dot.rake.ticking|spell_targets.thrash_cat>1)&energy.deficit>=20)|fight_remains<5
+        -- convoke_the_spirits,if=(dot.rip.remains>4&combo_points<5&(dot.rake.ticking|spell_targets.thrash_cat>1)&energy.deficit>=20&cooldown.bs_inc.remains>10)|fight_remains<5|(buff.bs_inc.up&buff.bs_inc.remains>12)
         if ui.alwaysCdNever("Covenant Ability") and cast.able.convokeTheSpirits() and ((debuff.rip.remain(units.dyn5) > 4
-            and comboPoints < 5 and (debuff.rake.exists(units.dyn5,"EXACT") or #enemies.yards8 > 1) and energyDeficit >= 20 and unit.ttdGroup(5) > 10)) --or (unit.ttdGroup(5) < 5 and unit.isBoss()))
+            and comboPoints < 5 and (debuff.rake.exists(units.dyn5,"EXACT") or #enemies.yards8 > 1) and energyDeficit >= 20 and (cd.berserk.remains() > 10 or cd.incarnationKingOfTheJungle.remains() > 10))
+                or (unit.ttdGroup(5) < 21 and ui.useCDs()) or ((buff.berserk.exists() and buff.berserk.remain() > 12) or (buff.incarnationKingOfTheJungle.exists() and buff.incarnationKingOfTheJungle.remain() > 12)))
         then
             if cast.convokeTheSpirits() then ui.debug("Casting Convoke the Spirits [Night Fae]") return true end
         end
@@ -972,7 +979,7 @@ actionList.Finisher = function()
         if cast.savageRoar() then ui.debug("Casting Savage Roar [Finish]") return true end
     end
     -- Ferocious Bite
-    -- ferocious_bite,max_energy=1
+    -- ferocious_bite,max_energy=1,target_if=max:time_to_die
     if cast.able.ferociousBite() and var.fbMaxEnergy and range.dyn5 and (debuff.rip.remain(units.dyn5) > unit.gcd(true) or not canDoT(units.dyn5) or unit.level() < 21) then
         if cast.ferociousBite() then
             if buff.apexPredatorsCraving.exists() then
@@ -983,8 +990,11 @@ actionList.Finisher = function()
             return true
         end
     end
-    -- ferocious_bite,target_if=max:time_to_die,if=buff.bs_inc.up&talent.soul_of_the_forest.enabled
-    if cast.able.ferociousBite() and (buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists()) and talent.soulOfTheForrest and range.dny5 then
+    -- ferocious_bite,target_if=max:time_to_die,if=buff.bs_inc.up&talent.soul_of_the_forest.enabled|cooldown.convoke_the_spirits.remains<1&covenant.night_fae
+    if cast.able.ferociousBite() and range.dny5
+        and (((buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists()) and talent.soulOfTheForrest)
+            or (cd.convokeTheSpirits.remain() < 1 and covenant.nightFae.active))
+    then
         if cast.ferociousBite() then
             if buff.apexPredatorsCraving.exists() then
                 ui.debug("Casting Ferocious Bite [BS/Inc Soul - Apex Predator's Craving]")
@@ -1096,7 +1106,6 @@ actionList.Bloodtalons = function()
         end
     end
     -- Lunar Inspiration
-    -- lunar_inspiration,target_if=                                                       refreshable&buff.bt_moonfire.down
     -- lunar_inspiration,target_if=max:druid.lunar_inspiration.ticks_gained_on_refresh,if=refreshable&buff.bt_moonfire.down
     if cast.able.moonfireFeral() and talent.lunarInspiration and not btGen.moonfireFeral then
         for i = 1, #enemies.yards40 do
@@ -1215,8 +1224,8 @@ actionList.Setup = function()
     -- call_action_list,name=finisher,if=combo_points>3&(buff.bloodtalons.up|!talent.bloodtalons.enabled)
     if comboPoints > 3 and (buff.bloodtalons.exists() or not talent.bloodtalons) then
         if actionList.Finisher() then return true end
-    else
-        if actionList.Filler() then return true end
+    --else
+    --    if actionList.Filler() then return true end
     end
 end -- End Action List - Setup
 
@@ -1449,7 +1458,7 @@ local function runRotation()
 
     -- Variables
     -- variable,name=filler,value=0
-    filler = 1
+    filler = ui.value("Filler Spell") - 1
     -- variable,name=rip_ticks,value=7
     ripTicks = 7
 
@@ -1666,8 +1675,8 @@ local function runRotation()
                             if cast.primalWrath("player","aoe",1,8) then ui.debug("Casting Primal Wrath [High Tick Gain]") return true end
                         end
                         -- Run Action List - Stealth
-                        -- call_action_list,name=stealth,if=buff.bs_inc.up|buff.sudden_ambush.up
-                        if buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists() or buff.suddenAmbush.exists() then
+                        -- call_action_list,name=stealth,if=buff.bs_inc.up
+                        if buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists() then
                             if actionList.Stealth() then return true end
                         end
                         -- Action List - Bloodtalons
@@ -1689,10 +1698,8 @@ local function runRotation()
                         -- pool_resource,for_next=1
                         -- rake,target_if=max:druid.rake.ticks_gained_on_refresh,if=(refreshable|persistent_multiplier>dot.rake.pmultiplier)&druid.rake.ticks_gained_on_refresh>spell_targets.swipe_cat*2-2
                         if (cast.able.rake() or cast.pool.rake()) and canDoT(var.maxRakeTicksGainUnit)
-                            and debuff.rake.count() < ui.value("Multi-DoT Limit")
-                            and #enemies.yards5f < ui.value("Multi-DoT Limit")
-                            and ((debuff.rake.refresh(var.maxRakeTicksGainUnit,"EXACT") and debuff.rake.remain(var.maxRakeTicksGainUnit,"EXACT") < cd.tigersFury.remain() + unit.gcd(true))
-                                or debuff.rake.calc() > debuff.rake.applied(var.maxRakeTicksGainUnit))
+                            and debuff.rake.count() < ui.value("Multi-DoT Limit") and #enemies.yards5f < ui.value("Multi-DoT Limit")
+                            and (debuff.rake.refresh(var.maxRakeTicksGainUnit,"EXACT") or debuff.rake.calc() > debuff.rake.applied(var.maxRakeTicksGainUnit))
                             and var.rakeTicksGainUnit(var.maxRakeTicksGainUnit) > #enemies.yards8 * 2 - 2
                         then
                             if cast.pool.rake() then return true end
@@ -1746,7 +1753,7 @@ local function runRotation()
                         end
                         -- Shred
                         -- shred,if=buff.clearcasting.up&(buff.sudden_ambush.down&buff.shadowmeld.down|buff.bs_inc.up)
-                        if cast.able.shred() and buff.clearcasting.exists() and (not buff.suddenAmbush.exists() and not buff.shadowmeld.exists() or (buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists())) then
+                        if cast.able.shred() and buff.clearcasting.exists() and ((not buff.suddenAmbush.exists() and not buff.shadowmeld.exists()) or (buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists())) then
                             if cast.shred() then ui.debug("Casting Shred") return true end
                         end
                         -- Call Action List - Filler
