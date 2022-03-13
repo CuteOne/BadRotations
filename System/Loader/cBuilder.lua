@@ -430,6 +430,7 @@ function br.loader:new(spec,specName)
                 getFunctions()
                 br.updatePlayerInfo = false
             end
+            self.getToggleModes()
             self.startRotation()
         end
     end
