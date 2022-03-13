@@ -423,8 +423,13 @@ function br.loader:new(spec,specName)
             self.baseUpdate()
             self.getBleeds()
             -- Update Player Info on Init, Talent, and Level Change
-            if br.updatePlayerInfo then getSpellsForSpec(spec); getTalentInfo(); getAzeriteTraitInfo(); getFunctions(); br.updatePlayerInfo = false end
-            self.getToggleModes()
+            if br.updatePlayerInfo then
+                getSpellsForSpec(spec)
+                getTalentInfo()
+                getAzeriteTraitInfo()
+                getFunctions()
+                br.updatePlayerInfo = false
+            end
             self.startRotation()
         end
     end
@@ -471,7 +476,7 @@ function br.loader:new(spec,specName)
     function self.getToggleModes()
         for k,_ in pairs(br.data.settings[br.selectedSpec].toggles) do
             local toggle = k:sub(1,1):lower()..k:sub(2)
-            br.api.ui(self,self.ui)
+            br.api.ui(self)
             self.ui.mode[toggle] = br.data.settings[br.selectedSpec].toggles[k]
             br.UpdateToggle(k,0.25)
         end

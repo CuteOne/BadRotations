@@ -47,6 +47,9 @@ br.api.items = function(item,k,v,subtable)
             local checkSpell = _G.GetItemInfo(gemID)
             return socketSpell == checkSpell
         end
+        equiped.tier = function(tierLevel)
+            return br.TierScan(tierLevel)
+        end
         if equiped.type == nil then
             equiped.type = function(itemType)
                 local IsEquippedItemType = _G["IsEquippedItemType"]

@@ -28,25 +28,25 @@ function br:Engine()
     end
 end
 -- Object Manager Engine
-function br:ObjectManager()
-    local function ObjectManagerUpdate(self)
-        if br.unlocked then
-            if br.data ~= nil and br.data.settings ~= nil and br.data.settings[br.selectedSpec] ~= nil
-                and br.data.settings[br.selectedSpec].toggles ~= nil
+local function ObjectManagerUpdate(self)
+    if br.unlocked then
+        if br.data ~= nil and br.data.settings ~= nil and br.data.settings[br.selectedSpec] ~= nil
+            and br.data.settings[br.selectedSpec].toggles ~= nil
+        then
+            if br.data.settings[br.selectedSpec].toggles["Power"] ~= nil
+                and br.data.settings[br.selectedSpec].toggles["Power"] == 1
             then
-                if br.data.settings[br.selectedSpec].toggles["Power"] ~= nil
-                    and br.data.settings[br.selectedSpec].toggles["Power"] == 1
-                then
-					-- attempt to update objects every frame
-					-- updates for each object will be spread out randomly
-                    br:updateOM()
-                    br.om:Update()
-                end
+                -- attempt to update objects every frame
+                -- updates for each object will be spread out randomly
+                br:updateOM()
+                br.om:Update()
             end
         end
     end
+end
+
+function br:ObjectManager()
     if br.engines.OM_Engine == nil then
-        -- ObjectManagerUpdate()
         br.engines.OM_Engine = br._G.CreateFrame("Frame", nil, br._G.UIParent)
         br.engines.OM_Engine:SetScript("OnUpdate", ObjectManagerUpdate)
         br.engines.OM_Engine:Show()
@@ -87,11 +87,9 @@ function br.BadRotationsUpdate(self)
         -- Load Saved Settings
         br:loadSavedSettings()
         -- Continue Load
-        if br.data ~= nil and br.data.settings ~= nil and br.data.settings[br.selectedSpec] ~= nil and
-            br.data.settings[br.selectedSpec].toggles ~= nil then
+        if br.data ~= nil and br.data.settings ~= nil and br.data.settings[br.selectedSpec] ~= nil and br.data.settings[br.selectedSpec].toggles ~= nil then
             -- BR Main Toggle Off
-            if br.data.settings[br.selectedSpec].toggles["Power"] ~= nil and
-                br.data.settings[br.selectedSpec].toggles["Power"] ~= 1 then
+            if br.data.settings[br.selectedSpec].toggles["Power"] ~= nil and br.data.settings[br.selectedSpec].toggles["Power"] ~= 1 then
                 -- BR Main Toggle On - Main Cycle
                 -- Clear Queue
                 if br.player ~= nil and br.player.queue ~= nil and #br.player.queue ~= 0 then
@@ -114,9 +112,6 @@ function br.BadRotationsUpdate(self)
                         br.getDebuffRemain("player", 240448) < 0.5 and br.getDebuffRemain("player", 240448) > 0 then
                         br._G.RunMacroText("/stopcasting")
                     end
-                end
-                if br.isCastingSpell(318763) then
-                    return true
                 end
                 -- Blizz br._G.CastSpellByName bug bypass
                 if br.castID then
@@ -144,6 +139,7 @@ function br.BadRotationsUpdate(self)
                     br.player:createToggles()
 
                     br.player:update()
+                    br.player:getToggleModes()
                     if br.player ~= nil and br.rotationChanged then
                         br:saveLastProfileTracker()
                     end
@@ -218,9 +214,9 @@ function br.BadRotationsUpdate(self)
                     end
                 end
                 -- Display Distance on Main Icon
-                local targetDistance = br.getDistance("target") or 0
-                local displayDistance = math.ceil(targetDistance)
                 if br.mainButton ~= nil then
+                    local targetDistance = br.getDistance("target") or 0
+                    local displayDistance = math.ceil(targetDistance)
                     br.mainText:SetText(displayDistance)
                 end
                 -- LoS Line Draw

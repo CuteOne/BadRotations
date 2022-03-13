@@ -86,6 +86,7 @@ function br.cCharacter:new(class)
 	self.traits = {} -- Azerite Traits
 	-- self.units = {} -- Dynamic Units (used for dynamic targeting, if false then target)
 	self.ui = {} -- UI API
+	self.ui.mode = {} -- UI Toggles
 	self.variables = {} -- Custom Profile Variables
 
 	-- Things which get updated for every class in combat
@@ -122,13 +123,9 @@ function br.cCharacter:new(class)
 		-- Get selected rotation
 		self.getRotation()
 		-- Get toggle modes
-		self.getToggleModes()
+		self.getBaseToggleModes()
 		-- Combat state update
 		self.getInCombat()
-		-- Food/Invis Check
-		if br.canRun() ~= true then
-			return false
-		end
 		-- Debugging
 		br.debug.cpu:updateDebug(startTime, "rotation.baseUpdate")
 	end
@@ -163,7 +160,7 @@ function br.cCharacter:new(class)
 
 	-- Updates toggle data
 	-- TODO: here should only happen generic ones like Defensive etc.
-	function self.getToggleModes()
+	function self.getBaseToggleModes()
 		self.ui.mode.rotation = br.data.settings[br.selectedSpec].toggles["Rotation"]
 		self.ui.mode.cooldown = br.data.settings[br.selectedSpec].toggles["Cooldown"]
 		self.ui.mode.defensive = br.data.settings[br.selectedSpec].toggles["Defensive"]

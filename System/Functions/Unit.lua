@@ -295,6 +295,7 @@ function br.isBoss(unit)
 end
 function br.isCritter(Unit) -- From LibBabble
 	if Unit == nil then Unit = "target" end
+	local isCritter = false
 	local unitType = br._G.UnitCreatureType(Unit)
 	local types = {
 		"Critter",
@@ -309,11 +310,13 @@ function br.isCritter(Unit) -- From LibBabble
 		"小動物"
 	}
 	for i = 1, #types do
-		return types[i] == unitType
+		if types[i] == unitType then isCritter = true end
 	end
+	return isCritter
 end
 function br.isDemon(Unit)
 	if Unit == nil then Unit = "target" end
+	local isDemon = false
 	local unitType = br._G.UnitCreatureType(Unit)
 	local types = {
 		"Demon",
@@ -328,14 +331,16 @@ function br.isDemon(Unit)
 		"惡魔"
 	}
 	for i = 1, #types do
-		return types[i] == unitType
+		if types[i] == unitType then isDemon = true end
 	end
+	return isDemon
 end
 function br.isExplosive(Unit)
 	return br.GetObjectID(Unit) == 120651
 end
 function br.isUndead(Unit)
 	if Unit == nil then Unit = "target" end
+	local isUndead = false
 	local unitType = br._G.UnitCreatureType(Unit)
 	local types = {
 		"Undead",
@@ -350,11 +355,13 @@ function br.isUndead(Unit)
 		"不死族",
 	}
 	for i = 1, #types do
-		return types[i] == unitType
+		if types[i] == unitType then isUndead = true end
 	end
+	return isUndead
 end
 function br.isBeast(Unit)
 	if Unit == nil then Unit = "target" end
+	local isBeast = false
 	local unitType = br._G.UnitCreatureType(Unit)
 	local types = {
 		"Beast",
@@ -368,11 +375,13 @@ function br.isBeast(Unit)
 		"野獸"
 	}
 	for i = 1, #types do
-		return types[i] == unitType
+		if types[i] == unitType then isBeast = true end
 	end
+	return isBeast
 end
 function br.isHumanoid(Unit)
 	if Unit == nil then Unit = "target" end
+	local isHumanoid = false
 	local unitType = br._G.UnitCreatureType(Unit)
 	local types = {
 		"Humanoid",
@@ -384,8 +393,9 @@ function br.isHumanoid(Unit)
 		"人型生物",
 	}
 	for i = 1, #types do
-		return types[i] == unitType
+		if types[i] == unitType then isHumanoid = true end
 	end
+	return isHumanoid
 end
 -- Dummy Check
 function br.isDummy(Unit)
