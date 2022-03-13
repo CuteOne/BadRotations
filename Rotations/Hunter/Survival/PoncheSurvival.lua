@@ -265,7 +265,7 @@ actionList.CCs = function()
     end
 
     if br.getCurrentZoneId() == maps.instanceIDs.Plaguefall then
-        if cast.able.freezingTrap() and not isFreezingTrapActive() then
+        if not isFreezingTrapActive() then
             if cGlobgrog.value then
                 if cast.freezingTrap(ccMobFinder(171887), "groundCC") then return true end
             end
@@ -273,30 +273,31 @@ actionList.CCs = function()
                 if cast.freezingTrap(ccMobFinder(163862, _, 336449), "groundCC") then return true end
             end
         end
-        if cSlimeclaw.value and talent.bindingShot and cast.able.bindingShot() then
+        if cSlimeclaw.value then
             if cast.bindingShot(ccMobFinder(163892, 25), "groundCC") then return true end
         end
     end
     if br.getCurrentZoneId() == maps.instanceIDs.MistsOfTirnaScithe then
-        if cMistcaller.value and cast.able.freezingTrap() then
+        if cMistcaller.value and not isFreezingTrapActive() then
             if cast.freezingTrap(ccMobFinder(165251), "groundCC") then return true end
         end
     end
     if br.getCurrentZoneId() == maps.instanceIDs.TheNecroticWake then
-        if cBlightbone.value and talent.bindingShot and cast.able.bindingShot() then
+        if cBlightbone.value then
             if cast.bindingShot(ccMobFinder(164702), "groundCC") then return true end
         end
     end
     if br.getCurrentZoneId() == maps.instanceIDs.TheaterOfPain then
-        if cRefuse.value and talent.bindingShot and cast.able.bindingShot() then
+        if cRefuse.value then
             if cast.bindingShot(ccMobFinder(163089), "groundCC") then return true end
         end
     end
     if br.getCurrentZoneId() == maps.instanceIDs.HallsOfAtonement then
-        if cGorgon.value and talent.bindingShot and cast.able.bindingShot() then
+        if cGorgon.value then
             if cast.bindingShot(ccMobFinder(164563, _, 326450), "groundCC") then return true end
         end
     end
+
     return false
 end
 
@@ -305,6 +306,7 @@ actionList.Defensive = function()
     if not ui.useDefensive() then
         return false
     end
+
     -- Basic Healing Module
     module.BasicHealing()
     -- Aspect of the Turtle
@@ -339,6 +341,7 @@ actionList.Defensive = function()
             end
         end
     end
+
     return false
 end
 
@@ -347,6 +350,7 @@ actionList.Interrupt = function()
     if not ui.useInterrupt() then
         return false
     end
+
     local thisUnit
     -- Muzzle
     if ui.checked("Muzzle") and cast.able.muzzle() then
@@ -375,6 +379,7 @@ actionList.Interrupt = function()
             end
         end
     end
+    
     return false
 end
 
@@ -509,6 +514,10 @@ actionList.Cleave = function()
     if ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards8t) and cast.able.flayedShot() then
         if cast.flayedShot() then return true end
     end
+    --actions.cleave+=/serpent_sting,target_if=min:remains,if=refreshable&!ticking&next_wi_bomb.volatile&target.time_to_die>15&focus+cast_regen>35&active_enemies<=4
+    if cast.able.serpentSting(var.lowestSerpentSting) and debuff.serpentSting.refresh(var.lowestSerpentSting) and not debuff.serpentSting.exists(var.lowestSerpentSting) and nextBomb(spell.volatileBomb) and unit.ttd(var.lowestSerpentSting) > 15 and focus + cast.regen.serpentSting() > 35 and #enemies.yards40 <= 4 then
+        if cast.serpentSting(var.lowestSerpentSting) then return true end
+    end
     --actions.cleave+=/kill_command,target_if=min:bloodseeker.remains,if=focus+cast_regen<focus.max&full_recharge_time<gcd&(runeforge.nessingwarys_trapping_apparatus.equipped&cooldown.freezing_trap.remains&cooldown.tar_trap.remains|!runeforge.nessingwarys_trapping_apparatus.equipped)
     if  cast.able.killCommand(var.lowestBloodseeker) and unit.distance("pet", var.lowestBloodseeker) < 50 and focus + cast.regen.killCommand() < focusMax and charges.killCommand.timeTillFull() < unit.gcd(true) and (runeforge.nesingwarysTrappingApparatus.equiped and cd.freezingTrap.remain() > 0 and cd.tarTrap.remain() > 0 or not runeforge.nesingwarysTrappingApparatus.equiped) then
         if cast.killCommand(var.lowestBloodseeker) then return true end
@@ -551,6 +560,7 @@ actionList.Cleave = function()
     if not talent.mongooseBite and cast.able.raptorStrike(var.maxLatentPoison) then
         if cast.raptorStrike(var.maxLatentPoison) then return true end
     end
+
     return false
 end
 
@@ -658,6 +668,7 @@ actionList.St = function()
     if cast.able.wildfireBomb(units.dyn40,"cone",1,8) and ((nextBomb(spell.volatileBomb) and debuff.serpentSting.exists(units.dyn40) or nextBomb(spell.pheromoneBomb) or nextBomb(spell.shrapnelBomb) and focus > 50) and not var.hasTierBonus) then
         if cast.wildfireBomb(units.dyn40,"cone",1,8) then return true end
     end
+
     return false
 end
 
@@ -761,13 +772,15 @@ actionList.BoP = function()
     if cast.able.serpentSting(var.lowestSerpentSting) and buff.vipersVenom.exists() then
         if cast.serpentSting(var.lowestSerpentSting) then return true end
     end
+
     return false
 end
 
 actionList.Missdirection = function()
-    if not ui.mode.misdirection == 1 then
+    if ui.mode.misdirection == 2 then
         return false
     end
+
     local misdirectUnit = nil
     if unit.valid("target") and unit.distance("target") < 40 and not buff.playDead.exists("pet") then
         -- Misdirect to Tank
@@ -789,6 +802,7 @@ actionList.Missdirection = function()
             if cast.misdirection(misdirectUnit) then return true end
         end
     end
+    
     return false
 end
 
