@@ -122,6 +122,7 @@ function br.loader:new(spec,specName)
         local sharedGlobalSpells = br.lists.spells["Shared"]["Shared"]
         -- Get the new spells
         local function getSpells(spellTable)
+            if self.spell == nil then self.spell = {} end
             -- Look through spell type subtables
             for spellType, spellTypeTable in pairs(spellTable) do
                 -- Create spell type subtable in br.player.spell if not already there.
@@ -202,8 +203,9 @@ function br.loader:new(spec,specName)
     local function getAzeriteTraitInfo()
         -- Search Each Azerite Spell ID
         if self.spell.traits == nil then return end
+        if self.traits == nil then self.traits = {} end
         for k, v in pairs(self.spell.traits) do
-            self.traits[k] = {}
+            if self.traits[k] == nil then self.traits[k] = {} end
             self.traits[k].active = false
             self.traits[k].rank = 0
             -- Search Each Equiped Azerite Item
@@ -275,13 +277,6 @@ function br.loader:new(spec,specName)
         if self.covenant.nightFae == nil then self.covenant.nightFae = {} end
         if self.covenant.necrolord == nil then self.covenant.necrolord = {} end
         if self.covenant.none == nil then self.covenant.none = {} end
-        -- for k,v in pairs(self.spell.covenants) do
-        --     if self.covenant == nil then self.covenant = {} end
-        --     if self.covenant[k] == nil then self.covenant[k] = {} end
-        --     if k ~= nil then
-        --         br.api.covenant(self.covenant,k,v)
-        --     end
-        -- end
         br.api.covenant(self.covenant)
 
         -- Runeforge
@@ -324,6 +319,7 @@ function br.loader:new(spec,specName)
         -- Make Buff Functions from br.api.buffs
         for k,v in pairs(self.spell.buffs) do
             if k ~= "rollTheBones" then
+                if self.buff == nil then self.buff = {} end
                 if self.buff[k] == nil then self.buff[k] = {} end
                 if k == "bloodLust" then v = br.getLustID() end
                 br.api.buffs(self.buff[k],v)
@@ -331,6 +327,7 @@ function br.loader:new(spec,specName)
         end
         -- Make Debuff Functions from br.api.debuffs
         for k,v in pairs(self.spell.debuffs) do
+            if self.debuff == nil then self.debuff = {} end
             if self.debuff[k] == nil then self.debuff[k] = {} end
             br.api.debuffs(self.debuff[k],k,v)
         end
@@ -388,13 +385,12 @@ function br.loader:new(spec,specName)
             br.api.spells(self.charges,spell,id,"charges")
             -- Build Spell Cooldown
             br.api.cd(self,spell,id)
-            --br.api.spells(self.cd,spell,id,"cd")
             -- build Spell Known
             br.api.spells(self.spell,spell,id,"known")
         end
 
-        -- Make Unit Functions from br.api.unit
-        if self.ui == nil then self.ui = {} br.api.unit(self) end
+        -- Make UI Functions from br.api.ui
+        if self.ui == nil then self.ui = {} br.api.ui(self) end
 
         -- Make Action List Functions from br.api.module
         if self.module == nil then self.module = {} br.api.module(self) end
@@ -430,7 +426,6 @@ function br.loader:new(spec,specName)
                 getFunctions()
                 br.updatePlayerInfo = false
             end
-            self.getToggleModes()
             self.startRotation()
         end
     end
@@ -477,7 +472,6 @@ function br.loader:new(spec,specName)
     function self.getToggleModes()
         for k,_ in pairs(br.data.settings[br.selectedSpec].toggles) do
             local toggle = k:sub(1,1):lower()..k:sub(2)
-            br.api.ui(self)
             self.ui.mode[toggle] = br.data.settings[br.selectedSpec].toggles[k]
             br.UpdateToggle(k,0.25)
         end
@@ -526,7 +520,8 @@ function br.loader:new(spec,specName)
         br.ui:createProfileWindow(self.profile)
 
         -- Get the names of all profiles and create rotation dropdown
-        local names = {}
+        if names == nil then names = {} end
+        table.wipe(names)
         for i=1,#br.rotations[spec] do
             local thisName = br.rotations[spec][i].name
             _G.tinsert(names, thisName)

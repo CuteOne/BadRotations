@@ -13,17 +13,17 @@ function br.cCharacter:new(class)
 		Legion = 224001
 	}
 	self.artifact = {} -- Artifact Perk IDs
-	self.buff = {} -- Buffs API
-	self.debuff = {} -- Debuffs API
+	-- self.buff = {} -- Buffs API
+	-- self.debuff = {} -- Debuffs API
 	self.class = select(2, br._G.UnitClass("player")) -- Class
-	self.cd = {} -- Cooldowns
-	self.charges = {} -- Number of charges
+	-- self.cd = {} -- Cooldowns
+	-- self.charges = {} -- Number of charges
 	self.currentPet = "None" -- Current Pet
 	self.dynLastUpdate = 0 -- Timer variable to reduce Dynamic Target updating
 	self.dynTargetTimer = 0.5 -- Timer to reduce Dynamic Target updating (1/X = calls per second)
 	--self.enemies = {} -- Number of Enemies around player (must be overwritten by cCLASS or cSPEC)
 	self.essence = {} -- Azerite Essence
-	self.equiped = {} -- Item Equips
+	-- self.equiped = {} -- Item Equips
 	self.gcd = 1.5 -- Global Cooldown
 	self.gcdMax = 1.5 -- GLobal Max Cooldown
 	self.glyph = {} -- Glyphs
@@ -76,17 +76,12 @@ function br.cCharacter:new(class)
 	self.queue = {} -- Table for Queued Spells
 	self.race = select(2, br._G.UnitRace("player")) -- Race as non-localised name (undead = Scourge) !
 	self.racial = 0 -- Contains racial spell id
-	-- self.recharge       	= {}        					-- Time for current recharge (for spells with charges)
-	-- self.rechargeFull   	= {}
 	self.selectedRotation = 1 -- Default: First avaiable rotation
 	self.rotation = {} -- List of Rotations
-	self.spell = {} -- Spells all classes may have (e.g. Racials, Mass Ressurection)
-	self.talent = {} -- Talents
+	-- self.spell = {} -- Spells all classes may have (e.g. Racials, Mass Ressurection)
+	-- self.talent = {} -- Talents
 	self.timeToMax = 0 -- Time To Max Power
-	self.traits = {} -- Azerite Traits
-	-- self.units = {} -- Dynamic Units (used for dynamic targeting, if false then target)
-	self.ui = {} -- UI API
-	self.ui.mode = {} -- UI Toggles
+	-- self.traits = {} -- Azerite Traits
 	self.variables = {} -- Custom Profile Variables
 
 	-- Things which get updated for every class in combat
