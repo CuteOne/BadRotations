@@ -505,9 +505,13 @@ actionList.Cleave = function()
     if cast.able.killShot("target") and buff.flayersMark.exists() then
         if cast.killShot("target") then return true end
     end
-    --TODO (target_if=max:target.health.pct) actions.cleave+=/flayed_shot,target_if=max:target.health.pct
+    --actions.cleave+=/flayed_shot,target_if=max:target.health.pct
     if ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards8t) and cast.able.flayedShot() then
         if cast.flayedShot() then return true end
+    end
+    --actions.cleave+=/serpent_sting,target_if=min:remains,if=refreshable&!ticking&next_wi_bomb.volatile&target.time_to_die>15&focus+cast_regen>35&active_enemies<=4
+    if cast.able.serpentSting(var.lowestSerpentSting) and debuff.serpentSting.refresh(var.lowestSerpentSting) and not debuff.serpentSting.exists(var.lowestSerpentSting) and nextBomb(spell.volatileBomb) and unit.ttd(var.lowestSerpentSting) > 15 and focus + cast.regen.serpentSting() > 35 and #enemies.yards40 <= 4 then
+        if cast.serpentSting(var.lowestSerpentSting) then return true end
     end
     --actions.cleave+=/kill_command,target_if=min:bloodseeker.remains,if=focus+cast_regen<focus.max&full_recharge_time<gcd&(runeforge.nessingwarys_trapping_apparatus.equipped&cooldown.freezing_trap.remains&cooldown.tar_trap.remains|!runeforge.nessingwarys_trapping_apparatus.equipped)
     if  cast.able.killCommand(var.lowestBloodseeker) and unit.distance("pet", var.lowestBloodseeker) < 50 and focus + cast.regen.killCommand() < focusMax and charges.killCommand.timeTillFull() < unit.gcd(true) and (runeforge.nesingwarysTrappingApparatus.equiped and cd.freezingTrap.remain() > 0 and cd.tarTrap.remain() > 0 or not runeforge.nesingwarysTrappingApparatus.equiped) then
@@ -602,7 +606,7 @@ actionList.St = function()
     if not talent.butchery and cast.able.carve("player","cone",1,8) and #enemies.yards8 > 1 and not runeforge.rylakstalkersConfoundingStrikes.equiped then
         if cast.carve("player","cone",1,8) then return true end
     end
-    --TODO (Check) actions.st+=/butchery,if=active_enemies>1&!runeforge.rylakstalkers_confounding_strikes.equipped&cooldown.wildfire_bomb.full_recharge_time>spell_targets&(charges_fractional>2.5|dot.shrapnel_bomb.ticking)
+    --actions.st+=/butchery,if=active_enemies>1&!runeforge.rylakstalkers_confounding_strikes.equipped&cooldown.wildfire_bomb.full_recharge_time>spell_targets&(charges_fractional>2.5|dot.shrapnel_bomb.ticking)
     if talent.butchery and cast.able.butchery("player","aoe",1,8) and (#enemies.yards8 > 1 and not runeforge.rylakstalkersConfoundingStrikes.equiped and charges.wildfireBomb.timeTillFull() > #enemies.yards8 and (charges.butchery.frac() > 2.5 or debuff.shrapnelBomb.exists(units.dyn8))) then
         if cast.butchery("player","aoe",1,8) then return true end
     end
