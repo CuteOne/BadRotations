@@ -135,11 +135,11 @@ function br.BadRotationsUpdate(self)
                         __index = br.loader
                     })
                     br.ui:closeWindow("profile")
+                    br.player:getToggleModes()
                     br.player:createOptions()
                     br.player:createToggles()
 
                     br.player:update()
-                    br.player:getToggleModes()
                     if br.player ~= nil and br.rotationChanged then
                         br:saveLastProfileTracker()
                     end
