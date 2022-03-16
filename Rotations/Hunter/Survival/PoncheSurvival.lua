@@ -205,7 +205,7 @@ end
 local function isFreezingTrapActive()
     for i = 1, #enemies.yards40f do
         local thisUnit = enemies.yards40f[i]
-        if debuff.freezingTrap.exists(thisUnit, units.player) then
+        if debuff.freezingTrap.exists(thisUnit, "player") then
             return true
         end
     end
@@ -236,7 +236,7 @@ local function ccMobFinder(id, minHP, spellID)
                 end
             end
             if spellID ~= nil then
-                if br.getDebuffDuration(thisUnit, spellID,units.player) > 0 then
+                if br.getDebuffDuration(thisUnit, spellID, "player") > 0 then
                     foundMatch = foundMatch + 1
                 end
             end
