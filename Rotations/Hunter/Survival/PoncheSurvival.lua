@@ -130,7 +130,6 @@ local function createOptions()
             cGorgon = br.ui:createCheckbox(section,"Halls of Atonement (Vicious Gargon, Loyal Beasts)", "Cast Binding Shot on Vicious Gargon with Loyal Beasts")
             cDefender = br.ui:createCheckbox(section,"Plaguefall (Defender of Many Eyes, Bulwark of Maldraxxus)", "Cast Freezing Trap on Defender of Many Eyes with Bulwark of Maldraxxus")
             cSlimeclaw = br.ui:createCheckbox(section,"Plaguefall (Rotting Slimeclaw)", "Cast Binding Shot on Rotting Slimeclaw with 20% hp")
-            cRefuse = br.ui:createCheckbox(section,"Theater of Pain (Disgusting Refuse)", "Cast Binding Shot on Disgusting Refuse to avoid jumping around")
         br.ui:checkSectionState(section)
         -- Toggle Key Options
         section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
@@ -221,9 +220,9 @@ local function ccMobFinder(id, minHP, spellID)
     for _,v in pairs(argumentsTable) do
         if v ~= nil then arguments = arguments + 1 end
     end
-
+    local thisUnit = nil
     for i = 1, #enemies.yards40f do
-        local thisUnit = enemies.yards40f[i]
+        thisUnit = enemies.yards40f[i]
         foundMatch = 0
         if not br.isLongTimeCCed(thisUnit) then
             if id ~= nil then
@@ -244,6 +243,8 @@ local function ccMobFinder(id, minHP, spellID)
             if foundMatch == arguments then return thisUnit end
         end
     end
+
+    return nil
 end
 
 --Kill Shot
@@ -254,6 +255,7 @@ actionList.killShot = function()
             if cast.killShot(thisUnit) then return true end
         end
     end
+
     return false
 end
 
@@ -273,7 +275,7 @@ actionList.CCs = function()
                 if cast.freezingTrap(ccMobFinder(163862, _, 336449), "groundCC") then return true end
             end
         end
-        if cSlimeclaw.value and talent.bindingShot and cast.able.bindingShot() then
+        if cSlimeclaw.value then
             if cast.bindingShot(ccMobFinder(163892, 25), "groundCC") then return true end
         end
     end
@@ -283,20 +285,21 @@ actionList.CCs = function()
         end
     end
     if br.getCurrentZoneId() == maps.instanceIDs.TheNecroticWake then
-        if cBlightbone.value and talent.bindingShot and cast.able.bindingShot() then
+        if cBlightbone.value then
             if cast.bindingShot(ccMobFinder(164702), "groundCC") then return true end
         end
     end
     if br.getCurrentZoneId() == maps.instanceIDs.TheaterOfPain then
-        if cRefuse.value and talent.bindingShot and cast.able.bindingShot() then
+        if cRefuse.value then
             if cast.bindingShot(ccMobFinder(163089), "groundCC") then return true end
         end
     end
     if br.getCurrentZoneId() == maps.instanceIDs.HallsOfAtonement then
-        if cGorgon.value and talent.bindingShot and cast.able.bindingShot() then
+        if cGorgon.value then
             if cast.bindingShot(ccMobFinder(164563, _, 326450), "groundCC") then return true end
         end
     end
+
     return false
 end
 
@@ -305,6 +308,7 @@ actionList.Defensive = function()
     if not ui.useDefensive() then
         return false
     end
+
     -- Basic Healing Module
     module.BasicHealing()
     -- Aspect of the Turtle
@@ -339,6 +343,7 @@ actionList.Defensive = function()
             end
         end
     end
+
     return false
 end
 
@@ -347,6 +352,7 @@ actionList.Interrupt = function()
     if not ui.useInterrupt() then
         return false
     end
+
     local thisUnit
     -- Muzzle
     if ui.checked("Muzzle") and cast.able.muzzle() then
@@ -375,6 +381,7 @@ actionList.Interrupt = function()
             end
         end
     end
+
     return false
 end
 
@@ -555,6 +562,7 @@ actionList.Cleave = function()
     if not talent.mongooseBite and cast.able.raptorStrike(var.maxLatentPoison) then
         if cast.raptorStrike(var.maxLatentPoison) then return true end
     end
+
     return false
 end
 
@@ -662,6 +670,7 @@ actionList.St = function()
     if cast.able.wildfireBomb(units.dyn40,"cone",1,8) and ((nextBomb(spell.volatileBomb) and debuff.serpentSting.exists(units.dyn40) or nextBomb(spell.pheromoneBomb) or nextBomb(spell.shrapnelBomb) and focus > 50) and not var.hasTierBonus) then
         if cast.wildfireBomb(units.dyn40,"cone",1,8) then return true end
     end
+
     return false
 end
 
@@ -765,6 +774,7 @@ actionList.BoP = function()
     if cast.able.serpentSting(var.lowestSerpentSting) and buff.vipersVenom.exists() then
         if cast.serpentSting(var.lowestSerpentSting) then return true end
     end
+
     return false
 end
 
@@ -772,6 +782,7 @@ actionList.Missdirection = function()
     if ui.mode.misdirection == 2 then
         return false
     end
+
     local misdirectUnit = nil
     if unit.valid("target") and unit.distance("target") < 40 and not buff.playDead.exists("pet") then
         -- Misdirect to Tank
@@ -793,6 +804,7 @@ actionList.Missdirection = function()
             if cast.misdirection(misdirectUnit) then return true end
         end
     end
+
     return false
 end
 
@@ -900,8 +912,6 @@ local function runRotation()
     if ui.checked("Racial") and unit.race() == "BloodElf" and cast.able.racial() then
         if cast.racial() then return true end
     end
-
-    return true
 end
 
 -- Init
