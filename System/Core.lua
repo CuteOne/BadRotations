@@ -135,7 +135,6 @@ function br.BadRotationsUpdate(self)
                         __index = br.loader
                     })
                     br.ui:closeWindow("profile")
-                    br.player:getToggleModes()
                     br.player:createOptions()
                     br.player:createToggles()
 
