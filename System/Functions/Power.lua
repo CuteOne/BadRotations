@@ -22,46 +22,38 @@ function br.getMana(Unit)
 end
 -- if br.getPower("target") <= 15 then
 function br.getPower(Unit, index)
-	local value = value
+	local value = br._G.UnitPower(Unit, index)
 	if select(3, br._G.UnitClass("player")) == 11 or select(3, br._G.UnitClass("player")) == 4 then
 		if --[[br.UnitBuffID("player", 106951) or]] br.UnitBuffID("player", 102543) then
 			value = br._G.UnitPower(Unit, index) * 1.2
-		else
-			value = br._G.UnitPower(Unit, index)
 		end
-	else
-		value = br._G.UnitPower(Unit, index) -- 100 * UnitPower(Unit) / UnitPowerMax(Unit)
 	end
-	return br._G.UnitPower(Unit, index)
+	return value
 end
 function br.getPowerMax(Unit, index)
-	local value = value
+	local value = br._G.UnitPowerMax(Unit, index)
 	if select(3, br._G.UnitClass("player")) == 11 or select(3, br._G.UnitClass("player")) == 4 then
 		if --[[br.UnitBuffID("player", 106951) or]] br.UnitBuffID("player", 102543) then
 			value = br._G.UnitPowerMax(Unit, index) * 1.2
-		else
-			value = br._G.UnitPowerMax(Unit, index)
 		end
-	else
-		value = br._G.UnitPowerMax(Unit, index) -- 100 * UnitPower(Unit) / UnitPowerMax(Unit)
 	end
-	return br._G.UnitPowerMax(Unit, index)
+	return value
 end
 function br.getPowerAlt(Unit)
-	local value = value
+	local value = 0
 	local class = select(2, br._G.UnitClass(Unit))
 	local spec = br._G.GetSpecialization()
 	local power = br._G.UnitPower
 	if (class == "DRUID" and spec == 2) or class == "ROGUE" then
-		return power(Unit, 4)
+		value = power(Unit, 4)
 	end
 	if class == "DEATHKNIGHT" then
-		return power(Unit, 5)
+		value = power(Unit, 5)
 	end
 	if class == "WARLOCK" then
-		return power(Unit, 7)
+		value = power(Unit, 7)
 	end
-	return 0
+	return value
 end
 -- Rune Tracking Table
 function br.getRuneInfo()
@@ -79,7 +71,7 @@ function br.getRuneInfo()
 		local CDduration = select(2, br._G.GetRuneCooldown(i))
 		local CDready = select(3, br._G.GetRuneCooldown(i))
 		local CDrune = CDduration - (br._G.GetTime() - CDstart)
-		local CDpercent = CDpercent
+		local CDpercent = 0
 		local runePercent = 0
 		local runeCount = 0
 		local runeCooldown = 0

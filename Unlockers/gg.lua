@@ -275,8 +275,7 @@ function unlock.GGUnlock()
 		if filter ~= nil then
 			if _G.strfind(_G.strupper(filter), "HELPFUL") then
 				for i = 1, 40 do
-					Aura = b.UnitBuff(unit, i, "player")
-					local buffName, _, _, _, _, _, _, _, _, buffSpellID = Aura
+					local buffName, _, _, _, _, _, _, _, _, buffSpellID = b.UnitBuff(unit, i, "player")
 					if buffName == nil then	return nil end
 					-- if buffSpellID == spellID then
 					if buffName == spellName then
@@ -285,8 +284,7 @@ function unlock.GGUnlock()
 				end
 			else
 				for i = 1, 40 do
-					Aura = b.UnitDebuff(unit, i, "player")
-					local buffName, _, _, _, _, _, _, _, _, buffSpellID = Aura
+					local buffName, _, _, _, _, _, _, _, _, buffSpellID = b.UnitDebuff(unit, i, "player")
 					if buffName == nil then	return nil end
 					-- if buffSpellID == spellID then
 					if buffName == spellName then

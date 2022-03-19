@@ -1055,7 +1055,7 @@ function cl:Shaman(...) -- 7
         spellType = br._G.CombatLogGetCurrentEventInfo()
     --------------------
     --[[ Fire Totem ]]
-    if source == br.guid and param == "SPELL_SUMMON" and (spell == _SearingTotem or spell == _MagmaTotem) then
+    if source == br.guid and param == "SPELL_SUMMON" and (spell == br.player.spell.seaingTotem or spell == br.player.spell.magmaTotem) then
         br.activeTotem = destination
         br.activeTotemPosition = br.GetObjectPosition("player")
     end
@@ -1123,7 +1123,7 @@ function cl:Warlock(...) -- 9
         end
 
         -- CLear dot table after each death/individual combat scenarios.
-        if source == br.guid and param == "PLAYER_REGEN_ENABLED" or SubEvent == "PLAYER_REGEN_DISABLED" then
+        if source == br.guid and param == "PLAYER_REGEN_ENABLED" or param == "PLAYER_REGEN_DISABLED" then
         end
 
         if param == "UNIT_DIED" then
@@ -1209,28 +1209,26 @@ function cl:Warlock(...) -- 9
     end
     ---------------------
     --[[ Pet Manager --]]
-    if class == 9 then
-        if source == br.guid and param == "SPELL_CAST_SUCCESS" then
-            if spell == 688 or spell == 112866 then
-                br.petSummoned = 1
-                br.petSummonedTime = br._G.GetTime()
-            end
-            if spell == 697 or spell == 112867 then
-                br.petSummoned = 2
-                br.petSummonedTime = br._G.GetTime()
-            end
-            if spell == 691 or spell == 112869 then
-                br.petSummoned = 3
-                br.petSummonedTime = br._G.GetTime()
-            end
-            if spell == 712 or spell == 112868 then
-                br.petSummoned = 4
-                br.petSummonedTime = br._G.GetTime()
-            end
-            if spell == 30146 or spell == 112870 then
-                br.petSummoned = 5
-                br.petSummonedTime = br._G.GetTime()
-            end
+    if source == br.guid and param == "SPELL_CAST_SUCCESS" then
+        if spell == 688 or spell == 112866 then
+            br.petSummoned = 1
+            br.petSummonedTime = br._G.GetTime()
+        end
+        if spell == 697 or spell == 112867 then
+            br.petSummoned = 2
+            br.petSummonedTime = br._G.GetTime()
+        end
+        if spell == 691 or spell == 112869 then
+            br.petSummoned = 3
+            br.petSummonedTime = br._G.GetTime()
+        end
+        if spell == 712 or spell == 112868 then
+            br.petSummoned = 4
+            br.petSummonedTime = br._G.GetTime()
+        end
+        if spell == 30146 or spell == 112870 then
+            br.petSummoned = 5
+            br.petSummonedTime = br._G.GetTime()
         end
     end
 end

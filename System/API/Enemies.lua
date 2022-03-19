@@ -50,7 +50,7 @@ br.api.enemies = function(self)
     enemies.rect.get = function(width,range,showLines,checkNoCombat,facing)
         local count, table = br.getEnemiesInRect(width,range,showLines,checkNoCombat)
         -- Build enemies.yards variable
-        setVariable(self,unit,range,checkNoCombat,false,"r",table,count)
+        setVariable(self,"player",range,checkNoCombat,false,"r",table,count)
         -- Backwards compatability for old way
         return table, count
     end

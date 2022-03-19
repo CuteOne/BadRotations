@@ -870,8 +870,8 @@ end
 
 function br.bossHPLimit(unit, hp)
 	-- Boss Active/Health Max
-	local bossHPMax = bossHPMax or 0
-	local inBossFight = inBossFight or false
+	local bossHPMax = 0
+	local inBossFight = false
 	local enemyList = br.getEnemies("player", 40)
 	for i = 1, #enemyList do
 		local thisUnit = enemyList[i]

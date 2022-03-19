@@ -509,6 +509,7 @@ function br.loader:new(spec,specName)
     --     end
     -- end
      -- Creates the option/profile window
+    local names
     function self.createOptions()
         -- if br.ui:closeWindow("profile")
         for i = 1, #br.data.settings[br.selectedSpec] do

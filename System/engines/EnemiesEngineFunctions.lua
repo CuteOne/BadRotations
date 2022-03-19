@@ -334,7 +334,7 @@ local function findBestUnit(range,facing)
 	local tsort = table.sort
 	local startTime = _G.debugprofilestop()
 	local bestUnitCoef
-	local bestUnit = bestUnit or nil
+	local bestUnit = nil
 	local enemyList = br.getEnemies("player",range,false,facing)
 	if bestUnit ~= nil and br.enemy[bestUnit] == nil then bestUnit = nil end
 	if bestUnit == nil
@@ -381,7 +381,7 @@ function br.dynamicTarget(range,facing)
 	if range == nil or range > 100 then return nil end
 	local startTime = _G.debugprofilestop()
 	facing = facing or false
-	local bestUnit = bestUnit or nil
+	local bestUnit = nil
 	local tarDist = br.GetObjectExists("target") and br.getDistance("target") or 99
 	local bestDist
 	if br.isChecked("Dynamic Targetting") then

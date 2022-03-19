@@ -1,5 +1,6 @@
 local _, br = ...
 local function getFolderClassName(class)
+	if class == nil then class = "" end
 	local formatClass = class:sub(1, 1):upper() .. class:sub(2):lower()
 	if formatClass == "Deathknight" then
 		formatClass = "Death Knight"
@@ -13,7 +14,8 @@ end
 -- Check Directories
 function br:checkDirectories(folder, class, spec, profile, instance)
 	-- Set Settings Directory
-	local mainDir = br._G.GetWoWDirectory() .. "\\Interface\\AddOns\\" .. br.addonName .. "\\Settings\\"
+	local wowDir = br._G.GetWoWDirectory() or ""
+	local mainDir = wowDir .. "\\Interface\\AddOns\\" .. br.addonName .. "\\Settings\\"
 
 	-- Set Folder to Specified Folder if any
 	if folder == nil then
@@ -94,7 +96,7 @@ function br:checkDirectories(folder, class, spec, profile, instance)
 				br._G.print("Creating Instance Directory "..instanceDir.." failed!")
 				return nil
 			end
-		else 
+		else
 			return instanceDir
 		end
 	else

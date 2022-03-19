@@ -460,7 +460,7 @@ function br.RaidBuff(BuffSlot,myBuffSpellID)
                     for auraIndex=1,#chosenTable do
                         if br.getBuffRemain("raid"..index,chosenTable[auraIndex])>0 then break end
                         if br.getBuffRemain("raid"..index,chosenTable[auraIndex])<=0 then
-                            if br.castSpell("player",spellID,true,false) then return true end
+                            if br.castSpell("player",SpellID,true,false) then return true end
                         end
                     end
                 end

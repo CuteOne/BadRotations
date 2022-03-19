@@ -40,6 +40,7 @@ local function createOptions()
     local optionTable
 
     local function rotationOptions()
+        local section
         -----------------------
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------

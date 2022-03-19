@@ -417,6 +417,7 @@ function br.read.commonReaders()
 		if event == "UNIT_SPELLCAST_START" then
 			local SourceUnit = select(1, ...)
 			local SpellID = select(5, ...)
+			br.spellCastTarget = select(4, ...)
 			if SourceUnit == "player" then
 				local MyClass = br._G.UnitClass("player")
 				-- Hunter
@@ -424,7 +425,7 @@ function br.read.commonReaders()
 					-- Serpent Sting
 					if SpellID == 1978 then
 						br.LastSerpent = br._G.GetTime()
-						br.LastSerpentTarget = spellCastTarget
+						br.LastSerpentTarget = br.spellCastTarget
 					end
 					-- Steady Shot Logic
 					if SpellID == 56641 then
@@ -459,12 +460,13 @@ function br.read.commonReaders()
 		--[[ SpellCast Succeeded --]]
 		if event == "UNIT_SPELLCAST_SUCCEEDED" then
 			local SourceUnit = select(1, ...)
+			br.spellCastTarget = select(4, ...)
 			local SpellID = select(5, ...)
 			if br.botCast == true then
 				br.botCast = false
 			end
-			if sourceName ~= nil then
-				if br.GetUnitIsUnit(sourceName, "player") then
+			if SourceUnit ~= nil then
+				if br.GetUnitIsUnit(SourceUnit, "player") then
 				end
 			end
 			if SourceUnit == "player" then
@@ -493,7 +495,7 @@ function br.read.commonReaders()
 					-- Serpent Sting
 					if SpellID == 1978 then
 						br.LastSerpent = br._G.GetTime()
-						br.LastSerpentTarget = spellCastTarget
+						br.LastSerpentTarget = br.spellCastTarget
 					end
 					-- Steady Shot Logic
 					if SpellID == 56641 then
