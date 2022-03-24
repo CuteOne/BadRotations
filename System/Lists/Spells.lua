@@ -2036,6 +2036,8 @@ br.lists.spells = {
                 stormEarthAndFireFixate     = 221771,
                 touchOfKarma                = 122470,
                 grappleWeapon               = 233759,
+                fallenOrder                 = 326860,
+                flashcraft                  = 324631
             },
             artifacts                       = {
 
@@ -2057,6 +2059,8 @@ br.lists.spells = {
                 touchOfKarma                = 122470,
                 transferThePower            = 195321,
                 whirlingDragonPunch         = 152175,
+                fallenOrder                 = 326860,
+                bonedustBrew                = 325216,
             },
             debuffs                         = {
                 disable                     = 116095,
@@ -2127,7 +2131,9 @@ br.lists.spells = {
                 prideful                    = 340880,
             },
             conduits                        = {
-                calculatedStrikes           = 336526
+                calculatedStrikes           = 336526,
+                coordinatedOffensive        = 336598,
+                pustuleEruption             = 351094
             },
             covenants                       = {
                 bonedustBrew                = 325216,
