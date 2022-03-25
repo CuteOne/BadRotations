@@ -55,16 +55,14 @@ function br:updateOM()
 end
 
 function br.omDist(thisUnit)
-	local dist
 	local x1, y1, z1 = br._G.ObjectPosition("player")
 	local x2, y2, z2 = br._G.ObjectPosition(thisUnit)
 	if x1 == nil  or x2 == nil or y1 == nil or y2 == nil or z1 == nil or z2 == nil then
-		dist = 99
+		return 99
 	else
-		dist = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2)) -
+		return math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2)) -
 		((br._G.UnitCombatReach("player") or 0) + (br._G.UnitCombatReach(thisUnit) or 0))
 	end
-	return dist
 end
 
 function br.isInOM(thisUnit)

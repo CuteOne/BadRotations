@@ -293,27 +293,24 @@ function br.isBoss(unit)
 	end
 	return false
 end
-function br.isCritter(Unit) -- From LibBabble
+
+local critterTypes = {
+	["Critter"] = true,
+	["Kleintier"] = true,
+	["Alma"] = true,
+	["Bestiole"] = true,
+	["Animale"] = true,
+	["Bicho"] = true,
+	["Существо"] = true,
+	["동물"] = true,
+	["小动物"] = true,
+	["小動物"] = true
+}
+function br.isCritter(Unit)
 	if Unit == nil then Unit = "target" end
-	local isCritter = false
-	local unitType = br._G.UnitCreatureType(Unit)
-	local types = {
-		"Critter",
-		"Kleintier",
-		"Alma",
-		"Bestiole",
-		"Animale",
-		"Bicho",
-		"Существо",
-		"동물",
-		"小动物",
-		"小動物"
-	}
-	for i = 1, #types do
-		if types[i] == unitType then isCritter = true end
-	end
-	return isCritter
+	return critterTypes[br._G.UnitCreatureType(Unit)] or false
 end
+
 function br.isDemon(Unit)
 	if Unit == nil then Unit = "target" end
 	local isDemon = false
