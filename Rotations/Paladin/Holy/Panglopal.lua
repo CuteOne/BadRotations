@@ -56,6 +56,17 @@ local function createToggles()
         [2] = {mode = "Off", value = 2, overlay = "Dont use m+ logic", tip = "not m+", highlight = 0, icon = br.player.spell.blessingOfSacrifice},
     }
     CreateButton("Mythic", 1, 1)
+    br.DumpersModes = {
+        [1] = {mode = "WoG", value = 1, overlay = "Dump at 5 HP with WoG", tip = "Dump at 5 HP with WoG", highlight = 1, icon = br.player.spell.wordOfGlory},
+        [2] = {mode = "LoD", value = 2, overlay = "Dump at 5 HP with LoD", tip = "Dump at 5 HP with LoD", highlight = 1, icon = br.player.spell.lightOfDawn},
+        [3] = {mode = "Hold", value = 3, overlay = "Hold HP until needed", tip = "Hold HP until needed", highlight = 0, icon = br.player.spell.absolution},
+    }
+    CreateButton("Dumpers", 2, 1)
+    br.DivineModes = {
+        [1] = {mode = "On", value = 1, overlay = "use Divine Toll", tip = "DT ON", highlight = 1, icon = br.player.spell.divineToll},
+        [2] = {mode = "Off", value = 2, overlay = "Dont use Divine Toll", tip = "DT OFF", highlight = 0, icon = br.player.spell.divineToll},
+    }
+    CreateButton("Divine", 7, 1)
 end
 
 local function createOptions()
@@ -67,6 +78,7 @@ local function createOptions()
         --- GENERAL OPTIONS ---
         ----------------------
         section = br.ui:createSection(br.ui.window.profile, "General - Version 1.1")
+        --br.ui:createCheckbox(section, "hammer timer")
         --br.ui:createDropdown(section,"Spender Prio", {"Wog","Lod"})
         br.ui:createCheckbox(section, "Raid Boss Helper")
         br.ui:createSpinnerWithout(section, "Flash of Light on KT Mana", 75, 0, 100, 5)
@@ -162,6 +174,7 @@ local function createOptions()
         br.ui:createSpinner(section, "Moving LotM", 80, 0, 100, 5, "", "|cffFFFFFFisMoving Health Percent to Cast At")
         br.ui:createSpinner(section, "LoM after FoL", 60, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At")
         br.ui:createSpinner(section, "LotM player HP limit", 50, 0, 100, 5, "", "|cffFFFFFFLight of the Martyr Self HP limit", true)
+        br.ui:createSpinner(section, "LoM Maraads", 90, 0, 100, 5, "", "LotM when you have maraads buff")
         br.ui:checkSectionState(section)
         -------------------------
         ------ AOE HEALING ------
@@ -185,10 +198,8 @@ local function createOptions()
         -- Holy Prism
         br.ui:createSpinner(section, "Holy Prism", 90, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At")
         br.ui:createSpinner(section, "Holy Prism Targets", 3, 0, 5, 1, "", "|cffFFFFFFMinimum Holy Prism Targets", true)
-        --[[-- Light's Hammer
         br.ui:createSpinner(section, "Light's Hammer", 80, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At")
-        br.ui:createSpinner(section, "Light's Hammer Targets", 3, 0, 40, 1, "", "|cffFFFFFFMinimum Light's Hammer Targets", true)
-        br.ui:createDropdown(section, "Light's Hammer Key", br.dropOptions.Toggle, 6, "", "|cffFFFFFFLight's Hammer usage.") ]]
+        br.ui:createSpinnerWithout(section, "Light's Hammer Targets", 3, 0, 40, 1, "", "|cffFFFFFFMinimum Light's Hammer Targets", true)
         br.ui:checkSectionState(section)
         -------------------------
         ---------- DPS ----------
@@ -239,7 +250,7 @@ local function runRotation()
     end
     if setwindow == false then
         br._G.RunMacroText("/console SpellQueueWindow 0")
-        br.player.ui.print("Set SQW")
+        --br.player.ui.print("Set SQW")
         setwindow = true
     end
 
@@ -259,7 +270,7 @@ local function runRotation()
     local cd = br.player.cd
     local debuff = br.player.debuff
     local drinking = br.getBuffRemain("player", 192002) ~= 0 or br.getBuffRemain("player", 167152) ~= 0 or br.getBuffRemain("player", 192001) ~= 0
-    local inInstance = br.player.instance == "party" or br.player.instance == "scenario"
+    local inInstance = br.player.instance == "party" or br.player.instance == "scenario" or br.player.instance == "pvp" or br.player.instance == "arena"
     local inRaid = br.player.instance == "raid"
     local solo = #br.friend == 1
     local OWGroup = br.player.instance == "none" and #br.friend >= 2
@@ -296,15 +307,53 @@ local function runRotation()
         lightOfDawn_distance_coff = 1
     end
 
+    local biggestGroup = 0
+    local bestUnit
+    for i = 1, #br.friend do
+        local thisUnit = br.friend[i].unit
+        local thisGroup = #br.getUnitsToHealAround(thisUnit, 6, ui.value("Light's Hammer"), ui.value("Light's Hammer Targets"))
+        local tankGroup = 0
+        if #tanks > 0 then
+            tankGroup = #br.getUnitsToHealAround(tanks[1].unit, 6, ui.value("Light's Hammer"), ui.value("Light's Hammer Targets"))
+        end
+
+        if thisGroup > biggestGroup then
+            biggestGroup = thisGroup
+            bestUnit = thisUnit
+        end
+        if #tanks > 0 then
+            if tankGroup == biggestGroup then
+                biggestGroup = tankGroup
+                bestUnit = tanks[1].unit
+            end
+        end
+    end
+
+    --[[ if br.timer:useTimer("hammer timer", 3) then
+        ui.print("Biggest Group Number - ".. #br.friend)
+    end ]]
+
     local lowest = {}
     lowest.unit = "player"
-    lowest.hp = 100
+    lowest.hp = php
 
     for i = 1, #br.friend do
         if br.friend[i].hp < lowest.hp and br.getLineOfSight(br.friend[i].unit, "player") and not unit.deadOrGhost(br.friend[i].unit) then
             lowest = br.friend[i]
         end
     end
+    local lowestNP = {}
+    if #br.friend > 1 then
+        lowestNP.unit = br.friend[2].unit
+        lowestNP.hp = 150
+        for i = 1, #br.friend do
+            if not br.GetUnitIsUnit(br.friend[i].unit, "player") and br.friend[i].hp < lowestNP.hp and br.getLineOfSight(br.friend[i].unit, "player") and not unit.deadOrGhost(br.friend[i].unit) then
+                lowestNP = br.friend[i]
+            end
+        end
+    end
+
+
 
     local function ccDoubleCheck(unit)
         if br.getOptionCheck("Don't break CCs") and br.isLongTimeCCed(unit) then
@@ -337,23 +386,74 @@ local function runRotation()
     end
 
     units.get(5)
-    units.get(8)
-    units.get(15)
+    --units.get(8)
+    --units.get(15)
     units.get(30)
-    units.get(40)
+    --units.get(40)
     enemies.get(5)
-    enemies.get(8)
+    --enemies.get(8)
     enemies.get(10)
-    enemies.get(15)
+    --enemies.get(15)
     enemies.get(30)
     enemies.get(40)
-    friends.yards40 = br.getAllies("player", 40)
+    --friends.yards40 = br.getAllies("player", 40)
 
     if br.timersTable then
         wipe(br.timersTable)
     end
 
+    local function pallyFace(spell,target)
+        if ui.checked("Dev Stuff Leave off") and select(4,GetSpellInfo(spell)) == 0 and br.getSpellCD(spell) == 0 then
+            if target == nil then
+                if spell == 35395 then
+                    for i = 1, #enemies.yards5 do
+                        if unit.exists("target") and unit.distance("target") <= 5 and not unit.isUnit("target","player") then
+                            target = "target"
+                        else
+                            target = enemies.yards5[i]
+                        end
+                    end
+                end
+                if spell == 24275 or spell == 275773 or spell == 20473 then
+                    for i = 1, #enemies.yards30 do
+                        if unit.exists("target") and unit.distance("target") <= 30 and not unit.isUnit("target","player") then
+                            target = "target"
+                        else
+                            target = enemies.yards30[i]
+                        end
+                    end
+                end
+            end
+            if unit.valid(target) and br.getLineOfSight("player",target) then
+                --ui.print("Facing target")
+                local curFacing = br._G.ObjectFacing("player")
+                br._G.FaceDirection(target)
+                --ui.print("casting " .. spell)
+                br._G.CastSpellByName(br._G.GetSpellInfo(spell),target)
+                --ui.print("Facing back")
+                br._G.FaceDirection(curFacing)
+            end
+        else
+            if not ui.checked("Dev Stuff Leave off") and br.getSpellCD(spell) == 0 then
+                if target ==  nil then
+                    if spell == 35395 then
+                        target = units.dyn5
+                    end
+                    if spell == 24275 or spell == 275773 or spell == 20473 then
+                        target = units.dyn30
+                    end
+                end
+                if unit.valid(target) and br.getLineOfSight("player",target) then
+                    if unit.facing("player", target) then
+                        br._G.CastSpellByName(br._G.GetSpellInfo(spell),target)
+                    end
+                end
+            end
+        end
+    end
+
     local function bestConeHeal(spell, minUnits, health, angle, rangeInfront, rangeAround)
+        
         if not br.isKnown(spell) or br.getSpellCD(spell) ~= 0 or select(2, br._G.IsUsableSpell(spell)) then
             return false
         end
@@ -405,6 +505,7 @@ local function runRotation()
     end
 
     if ui.checked("Raid Boss Helper") then
+        
         if br.pause(true) then
             return true
         end
@@ -415,18 +516,27 @@ local function runRotation()
                         return true
                     end
                 end 
-                if cast.wordOfGlory("target") then
-                    return true
-                end
-                if holyPower < 3 and not (cast.current.flashOfLight() and buff.holyAvenger.exists("player")) then
+                br._G.CastSpellByName(br._G.GetSpellInfo(85673))
+                if holyPower < 3 and not ((cast.current.flashOfLight() or cast.current.holyLight()) and buff.holyAvenger.exists("player")) then
                     if cast.holyShock("target") then
                         return true
                     end
                 end
+                if br._G.ObjectID("target") == 165759 then
+                    local Trinket13 = _G.GetInventoryItemID("player", 13)
+                    local Trinket14 = _G.GetInventoryItemID("player", 14)
+                    -- Tuft Logic
+                    if (Trinket13 == 184020 or Trinket14 == 184020) then
+                        if br.canUseItem(184020) then
+                            br._G.UseItemByName(184020, "target")
+                            return true
+                        end
+                    end
+                end 
                 if cast.bestowFaith("target") then
                     return true
                 end
-                if not cast.able.wordOfGlory() and mana >= ui.value("Flash of Light on KT Mana") and not (cast.last.flashOfLight() and holyPower >= 2) then
+                if not cast.able.wordOfGlory() and mana >= ui.value("Flash of Light on KT Mana") and not (holyPower > 2) then
                     if cast.flashOfLight("target") then
                         return true
                     end
@@ -442,6 +552,7 @@ local function runRotation()
     end
 
     if unit.inCombat() and ui.checked("Beacon of Virtue") and talent.beaconOfVirtue and cast.able.beaconOfVirtue() and br.getSpellCD(200025) == 0 and not br._G.IsMounted() then
+        
         if br.getLowAllies(ui.value("Beacon of Virtue")) >= ui.value("BoV Targets") then
             if cast.beaconOfVirtue(lowest.unit) then
                 return true
@@ -452,6 +563,7 @@ local function runRotation()
 
     end ]]
     local function hamSammy()
+        
         if holyPower >= 3 then
             if cast.wordOfGlory("mouseover") then
                 return true
@@ -464,7 +576,7 @@ local function runRotation()
             end
         end
 
-        if (not talent.beaconOfVirtue and not buff.beaconOfLight.exists("mouseover")) or (talent.beaconOfVirtue and not buff.beaconOfVirtue.exists("mouseover")) then
+--[[         if (not talent.beaconOfVirtue and not buff.beaconOfLight.exists("mouseover")) or (talent.beaconOfVirtue and not buff.beaconOfVirtue.exists("mouseover")) then
             if talent.beaconOfVirtue and cast.able.beaconOfVirtue() then
                 if cast.beaconOfVirtue("mouseover") then
                     return true
@@ -474,7 +586,7 @@ local function runRotation()
                     return true
                 end
             end
-        end
+        end ]]
 
         if buff.beaconOfLight.exists("mouseover") or buff.beaconOfVirtue.exists("mouseover") then
             if cast.flashOfLight("mouseover") then
@@ -492,65 +604,114 @@ local function runRotation()
             return true
         end
     end
-    local function bigDPS()
-        if holyPower >= 3 then
-            if cast.shieldOfTheRighteous() then
-                return true
-            end
-        end
-        if br.getSpellCD(24275) == 0 then
-            if (unit.hp("target") <= 20 or br._G.IsSpellOverlayed(24275) or wingsup) and unit.facing("player", "target")  then
-                if cast.hammerOfWrath("target") then
-                    return
+    
+    local function spendies()
+        if ui.checked("Word of Glory") and (holyPower >= 3 or buff.divinePurpose.exists()) then
+            --Critical first
+            if php <= ui.value("Critical HP") then
+                if cast.wordOfGlory("player") then
+                    return true
                 end
             end
+            if lowest.hp <= ui.value("Word of Glory") then
+                if cast.wordOfGlory(lowest.unit) then
+                    return true
+                end
+            end
+        end
 
-            for i = 1, #enemies.yards30 do
-                local thisUnit = enemies.yards30[i]
-                if ccDoubleCheck(thisUnit) and (ui.checked("Dev Stuff Leave off") or unit.facing("player", thisUnit)) and holyPower < 5 then
-                    if unit.hp(thisUnit) <= 20 or br._G.IsSpellOverlayed(24275) or wingsup then
-                        ui.debug("Trying to hammer aoe 2")
-                        if br._G.CastSpellByName(br._G.GetSpellInfo(spell.hammerOfWrath),thisUnit) then
-                            return
-                        end
+        if php >= ui.value("LotM player HP limit") and #br.friend > 1 then
+            if not br.GetUnitIsUnit(lowest.unit, "player") and not unit.deadOrGhost(lowest.unit) then
+                if ui.checked("LoM Maraads") and lowest.hp <= ui.value("LoM Maraads") and buff.maraadsBreath.exists("player") then
+                    if cast.lightOfTheMartyr(lowestNP.unit) then
+                        return true
                     end
                 end
             end
         end
 
-        if ui.checked("Consecration") and cast.able.consecration() and #enemies.yards5 >= ui.value("Consecration") and br.getDebuffRemain("target", 204242) == 0 and (not br._G.GetTotemInfo(1) or (br.getDistanceToObject("player", cX, cY, cZ) > 7) or br._G.GetTotemTimeLeft(1) < 2) then
+        if ui.checked("Light of Dawn") and (holyPower >= 3 or buff.divinePurpose.exists()) then
+            local LoDHealth = ui.value("Light of Dawn")
+            local LoDUnits = ui.value("LoD Targets")
+            if bestConeHeal(spell.lightOfDawn, LoDUnits, LoDHealth, 45, lightOfDawn_distance * lightOfDawn_distance_coff, 5) then
+                return true
+            end
+        end
+
+        if holyPower == 5 then
+            if mode.dumpers == 1 then
+                if cast.wordOfGlory(lowest.unit) then
+                    return true
+                end
+            elseif mode.dumpers == 2 then
+                if bestConeHeal(spell.lightOfDawn, 1, 200, 45, lightOfDawn_distance * lightOfDawn_distance_coff, 5) then
+                    return true
+                end
+            end
+        end
+    end
+    local function bigDPS()
+        if buff.avengingWrath.exists("player") and ui.checked("Shield of the Righteous") and br.getLowAllies(ui.value("Light of Dawn")) < ui.value("LoD Targets") and lowest.hp >= ui.value("Word of Glory") and cast.able.shieldOfTheRighteous() and #enemies.yards5 >= ui.value("Shield of the Righteous") and (holyPower >= 3 or buff.divinePurpose.exists()) then
+            if cast.shieldOfTheRighteous(units.dyn5) then
+                return true
+            end
+        end
+        
+        if (unit.hp("target") <= 20 or br._G.IsSpellOverlayed(24275) or wingsup) and unit.facing("player", "target")  then
+            if cast.hammerOfWrath("target") then
+                return
+            end
+        end
+
+        for i = 1, #enemies.yards30 do
+            local thisUnit = enemies.yards30[i]
+            if ccDoubleCheck(thisUnit) and (ui.checked("Dev Stuff Leave off") or unit.facing("player", thisUnit)) and holyPower < 5 then
+                if unit.hp(thisUnit) <= 20 or br._G.IsSpellOverlayed(24275) or wingsup then
+                    ui.debug("Trying to hammer aoe 2")
+                    if pallyFace(spell.hammerOfWrath,thisUnit) then
+                        return
+                    end
+                end
+            end
+        end
+
+        if spendies() then
+            return
+        end
+
+        if ui.checked("Consecration") and br.getSpellCD(26573) == 0 and #enemies.yards5 >= ui.value("Consecration") and br.getDebuffRemain("target", 204242) == 0 and (not br._G.GetTotemInfo(1) or (br.getDistanceToObject("player", cX, cY, cZ) > 7) or br._G.GetTotemTimeLeft(1) < 2) then
             if cast.consecration() then
                 cX, cY, cZ = br._G.ObjectPosition("player")
                 return
             end
         end
 
-        if ui.checked("Divine Toll during DPS Key") and #enemies.yards30 >= ui.value("Divine Toll during DPS Key") and not br.GetUnitIsFriend("target", "player") then
-            if cast.divineToll("target") then
-                return
+        if mode.divine == 1 then
+            if ui.checked("Divine Toll during DPS Key") and br.getSpellCD(304971) == 0 and #enemies.yards30 >= ui.value("Divine Toll during DPS Key") and not br.GetUnitIsFriend("target", "player") then
+                br._G.CastSpellByName(br._G.GetSpellInfo(spell.divineToll),"target")
             end
         end
 
-        if cast.able.holyShock() then
+        if br.getSpellCD(20473) == 0 then
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
                 if ccDoubleCheck(thisUnit) and (ui.checked("Dev Stuff Leave off") or unit.facing("player", thisUnit)) and not debuff.glimmerOfLight.exists(thisUnit, "player") and not unit.deadOrGhost(thisUnit) and br.getLineOfSight(thisUnit, "player") then
-                    if cast.holyShock(thisUnit) then
-                        --Print("Holy Shock 11: on " .. thisUnit)
+                    --ui.print("Holy Shock 11a: on " .. thisUnit)
+                    if pallyFace(spell.holyShock,thisUnit) then
                         return
                     end
                 end
             end
-            if cast.able.holyShock() and (ui.checked("Dev Stuff Leave off") or unit.facing("player", "target")) then
-                if cast.holyShock("target") then
-                    --Print("Holy Shock 12")
+            if br.getSpellCD(20473) == 0 and (ui.checked("Dev Stuff Leave off") or unit.facing("player", "target")) then
+                --ui.print("Holy Shock 12a")
+                if pallyFace(spell.holyShock,"target") then
                     return
                 end
             end
         end
 
-        if ui.checked("Crusader Strike") and (br.getSpellCD(20473) > (gcd) or not ui.checked("Holy Shock Damage")) then
-            if cast.crusaderStrike(units.dyn5) then
+        if ui.checked("Crusader Strike") and (br.getSpellCD(20473) > (gcd) or not ui.checked("Holy Shock Damage")) and (ui.checked("Dev Stuff Leave off") or unit.facing("player", units.dyn5)) then
+            if pallyFace(spell.crusaderStrike) then
                 return true
             end
         end
@@ -565,53 +726,22 @@ local function runRotation()
                 if not br._G.IsAutoRepeatSpell(br._G.GetSpellInfo(6603)) and unit.valid("target") and unit.distance("target") <= 5 then
                     br._G.StartAttack()
                 end
-                -- Light's Hammer
-                if ui.checked("Light's Hammer Damage") and talent.lightsHammer and cast.able.lightsHammer() and not unit.moving("player") then
-                    if cast.lightsHammer("best", false, ui.value("Light's Hammer Damage"), 10) then
-                        return true
-                    end
-                end
                 -- Judgment
                 if not debuff.judgmentOfLight.exists("target") and talent.judgmentOfLight then
                     thisUnit = "target"
                 end
-                if ui.checked("Judgment - DPS") and cast.able.judgment() and unit.facing("player", thisUnit) and br.getLineOfSight(thisUnit, "player") then
-                    if cast.judgment(thisUnit) then
+                if ui.checked("Judgment - DPS") and br.getSpellCD(20473) > (gcd + 0.3) then
+                    if pallyFace(275773,thisUnit) then
                         return true
                     end
                 end
             end
         end
     end
-    local function spendies()
-        if ui.checked("Word of Glory") and (holyPower >= 3 or buff.divinePurpose.exists()) then
-            --Critical first
-            if php <= ui.value("Critical HP") then
-                if cast.wordOfGlory("player") then
-                    return true
-                end
-            end
-            if (lowest.hp <= ui.value("Word of Glory") or (holyPower == holyPowerMax and br.getLowAllies(99) < 2)) then
-                if cast.wordOfGlory(lowest.unit) then
-                    return true
-                end
-            end
-        end
 
-        if ui.checked("Light of Dawn") and (holyPower >= 3 or buff.divinePurpose.exists()) then
-            local LoDHealth = ui.value("Light of Dawn")
-            local LoDUnits = ui.value("LoD Targets")
-            if holyPower == holyPowerMax then
-                LoDHealth = 100
-                LoDUnits = 1
-            end
-            if bestConeHeal(spell.lightOfDawn, LoDUnits, LoDHealth, 45, lightOfDawn_distance * lightOfDawn_distance_coff, 5) then
-                return true
-            end
-        end
-    end
 
     local function defensiveTime()
+        
         if br.useDefensive() then
             module.BasicHealing()
 
@@ -645,6 +775,7 @@ local function runRotation()
      -- end defensive list
 
     local function bellsAndWhistles()
+        
         -- cleanse your friends
         if mode.cleanse == 1 and not cd.cleanse.exists() then
             for i = 1, #br.friend do
@@ -680,12 +811,11 @@ local function runRotation()
     end
 
     local function Beacon() -- 100% credit to Laksmackt
+        
         local beaconOfLightinRaid = nil
         local beaconOfLightTANK = nil
         local beaconOfFaithTANK = nil
         local beaconOfFaithplayer = nil
-        LightCount = 0
-        FaithCount = 0
         for i = 1, #br.friend do
             if br._G.UnitInRange(br.friend[i].unit) then
                 if buff.beaconOfLight.exists(br.friend[i].unit) and br.friend[i].role == "TANK" then
@@ -707,8 +837,6 @@ local function runRotation()
                     end
                     if FaithCount < 1 and (br.friend[i].role == "TANK" or unit.role(br.friend[i].unit) == "TANK") and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) then
                         beaconOfFaithTANK = br.friend[i].unit
-                    elseif FaithCount < 1 and not inRaid and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) then
-                        beaconOfFaithplayer = br.friend[i].unit
                     end
                 end
             end
@@ -724,8 +852,6 @@ local function runRotation()
                     end
                     if FaithCount < 1 and (br.friend[i].role == "TANK" or unit.role(br.friend[i].unit) == "TANK") and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) then
                         beaconOfFaithTANK = br.friend[i].unit
-                    elseif FaithCount < 1 and not inRaid and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) then
-                        beaconOfFaithplayer = br.friend[i].unit
                     end
                 end
             end
@@ -741,8 +867,6 @@ local function runRotation()
                     end
                     if FaithCount < 1 and (br.friend[i].role == "TANK" or unit.role(br.friend[i].unit) == "TANK") and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) then
                         beaconOfFaithTANK = br.friend[i].unit
-                    elseif FaithCount < 1 and not inRaid and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) then
-                        beaconOfFaithplayer = br.friend[i].unit
                     end
                 end
             end
@@ -772,6 +896,7 @@ local function runRotation()
     end
 
     local function Coolies()
+        
         local blessingOfProtectionall = nil
         local blessingOfProtectionTANK = nil
         local blessingOfProtectionHD = nil
@@ -928,32 +1053,33 @@ local function runRotation()
      -- end coolies
 
     local function damageTime()
+        
         if mode.damage == 1 then
-            if ui.checked("Shield of the Righteous") and lowest.hp >= ui.value("Word of Glory") and cast.able.shieldOfTheRighteous() and #enemies.yards5 >= ui.value("Shield of the Righteous") and (holyPower >= 3 or buff.divinePurpose.exists()) then
+            if buff.avengingWrath.exists("player") and ui.checked("Shield of the Righteous") and br.getLowAllies(ui.value("Light of Dawn")) < ui.value("LoD Targets") and lowest.hp >= ui.value("Word of Glory") and cast.able.shieldOfTheRighteous() and #enemies.yards5 >= ui.value("Shield of the Righteous") and (holyPower >= 3 or buff.divinePurpose.exists()) then
                 if cast.shieldOfTheRighteous(units.dyn5) then
                     return true
                 end
             end
-            if ui.checked("Holy Shock Damage") and lowest.hp > ui.value("Holy Shock") and cast.able.holyShock() then
+            if ui.checked("Holy Shock Damage") and lowest.hp > ui.value("Holy Shock") and br.getSpellCD(20473) == 0 then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
                     if ccDoubleCheck(thisUnit) and (ui.checked("Dev Stuff Leave off") or unit.facing("player", thisUnit)) and not debuff.glimmerOfLight.exists(thisUnit, "player") and not unit.deadOrGhost(thisUnit) and br.getLineOfSight(thisUnit, "player") then
-                        if cast.holyShock(thisUnit) then
-                            --Print("Holy Shock 11: on " .. thisUnit)
+                        --ui.print("Holy Shock 11: on " .. thisUnit)
+                        if pallyFace(spell.holyShock,thisUnit) then
                             return
                         end
                     end
                 end
-                if cast.able.holyShock() and (ui.checked("Dev Stuff Leave off") or unit.facing("player", "target")) then
-                    if cast.holyShock("target") then
-                        --Print("Holy Shock 12")
+                if br.getSpellCD(20473) == 0 and (ui.checked("Dev Stuff Leave off") or unit.facing("player", "target")) then
+                    --ui.print("Holy Shock 12")
+                    if pallyFace(spell.holyShock,"target") then
                         return
                     end
                 end
             end
 
             --Consecration
-            if ui.checked("Consecration") and cast.able.consecration() and #enemies.yards5 >= ui.value("Consecration") and br.getDebuffRemain("target", 204242) == 0 and (not br._G.GetTotemInfo(1) or (br.getDistanceToObject("player", cX, cY, cZ) > 7) or br._G.GetTotemTimeLeft(1) < 2) then
+            if ui.checked("Consecration") and br.getSpellCD(26573) == 0 and #enemies.yards5 >= ui.value("Consecration") and br.getDebuffRemain("target", 204242) == 0 and (not br._G.GetTotemInfo(1) or (br.getDistanceToObject("player", cX, cY, cZ) > 7) or br._G.GetTotemTimeLeft(1) < 2) then
                 if cast.consecration() then
                     cX, cY, cZ = br._G.ObjectPosition("player")
                     return
@@ -970,15 +1096,15 @@ local function runRotation()
                     if ccDoubleCheck(thisUnit) and (ui.checked("Dev Stuff Leave off") or unit.facing("player", thisUnit)) and holyPower < 5 then
                         if unit.hp(thisUnit) <= 20 or br._G.IsSpellOverlayed(24275) or wingsup then
                             ui.debug("Trying to hammer aoe 3")
-                            if br._G.CastSpellByName(br._G.GetSpellInfo(spell.hammerOfWrath),thisUnit) then
+                            if pallyFace(spell.hammerOfWrath,thisUnit) then
                                 return
                             end
                         end
                     end
                 end
             end
-            if ui.checked("Crusader Strike") and (br.getSpellCD(20473) > (gcd) or not ui.checked("Holy Shock Damage")) then
-                if cast.crusaderStrike(units.dyn5) then
+            if ui.checked("Crusader Strike") and br.getSpellCD(20473) > (gcd) and (ui.checked("Dev Stuff Leave off") or unit.facing("player", units.dyn5)) then
+                if pallyFace(spell.crusaderStrike) then
                     return true
                 end
             end
@@ -993,19 +1119,13 @@ local function runRotation()
                     if not br._G.IsAutoRepeatSpell(br._G.GetSpellInfo(6603)) and unit.valid("target") and unit.distance("target") <= 5 then
                         br._G.StartAttack()
                     end
-                    -- Light's Hammer
-                    if ui.checked("Light's Hammer Damage") and talent.lightsHammer and cast.able.lightsHammer() and not unit.moving("player") then
-                        if cast.lightsHammer("best", false, ui.value("Light's Hammer Damage"), 10) then
-                            return true
-                        end
-                    end
                     -- Judgment
                     if not debuff.judgmentOfLight.exists("target") and talent.judgmentOfLight then
                         thisUnit = "target"
                     end
-                    if ui.checked("Judgment - DPS") and cast.able.judgment() and unit.facing("player", thisUnit) and br.getLineOfSight(thisUnit, "player") then
-                        if cast.judgment(thisUnit) then
-                            return true
+                    if ui.checked("Judgment - DPS") then
+                        if pallyFace(275773,thisUnit) then
+                            return
                         end
                     end
                 end
@@ -1015,18 +1135,41 @@ local function runRotation()
      -- end of dps
 
     local function healingTime()
+        
         --Divine Toll Implementation
-        if ui.checked("Divine Toll") and cast.able.divineToll() and holyPower <= ui.value("Max Holy Power") and unit.inCombat() then
-            if ui.value("Divine Toll") == 1 and holyPower == 0 then
-                --Print("trying to cast")
-                br._G.CastSpellByName(br._G.GetSpellInfo(spell.divineToll), lowest.unit)
-                return true
-            end
-            if ui.value("Divine Toll") == 2 then
-                if br.getLowAllies(ui.value("Divine Toll Health")) >= ui.value("Divine Toll Units") then
+        if mode.divine == 1 then
+            if ui.checked("Divine Toll") and br.getSpellCD(304971) == 0 and holyPower <= ui.value("Max Holy Power") and unit.inCombat() then
+                if ui.value("Divine Toll") == 1 and holyPower == 0 then
                     --Print("trying to cast")
                     br._G.CastSpellByName(br._G.GetSpellInfo(spell.divineToll), lowest.unit)
                     return true
+                end
+                if ui.value("Divine Toll") == 2 then
+                    if br.getLowAllies(ui.value("Divine Toll Health")) >= ui.value("Divine Toll Units") then
+                        --Print("trying to cast")
+                        br._G.CastSpellByName(br._G.GetSpellInfo(spell.divineToll), lowest.unit)
+                        return true
+                    end
+                end
+            end
+        end
+        --[[ if br.timer:useTimer("hammer timer", 3) then
+            local test1 = ui.checked("Light's Hammer")
+            local test2 = ui.value("Light's Hammer")
+            local test3 = ui.value("Light's Hammer Targets")
+            ui.print("Hammer enabled? - ".. tostring(test1))
+            ui.print("HP Value? = ".. test2)
+            ui.print("Hammer Targets? = ".. test3)
+        end ]]
+
+        if ui.checked("Light's Hammer") and unit.inCombat() and talent.lightsHammer then
+            --ui.print("test1 complete")
+            if biggestGroup >= ui.value("Light's Hammer Targets") then
+                --ui.print("test2 complete")
+                if cast.lightsHammer(bestUnit) then
+                    --ui.print("test4 complete")
+                    br._G.SpellStopTargeting()
+                    return 
                 end
             end
         end
@@ -1042,8 +1185,8 @@ local function runRotation()
                     end
                 end
             end
-            if talent.crusadersMight and lowest.hp > ui.value("Critical HP") and (br.getSpellCD(20473) > (gcd)) then
-                if cast.crusaderStrike(units.dyn5) then
+            if talent.crusadersMight and lowest.hp > ui.value("Critical HP") and (br.getSpellCD(20473) > (gcd)) and (ui.checked("Dev Stuff Leave off") or unit.facing("player", units.dyn5)) then
+                if pallyFace(spell.crusaderStrike) then
                     return true
                 end
             end
@@ -1122,8 +1265,8 @@ local function runRotation()
                     end
                 end
             end
-            if talent.crusadersMight and lowest.hp > ui.value("Critical HP") and (br.getSpellCD(20473) > (gcd)) then
-                if cast.crusaderStrike(units.dyn5) then
+            if talent.crusadersMight and lowest.hp > ui.value("Critical HP") and (br.getSpellCD(20473) > (gcd)) and (ui.checked("Dev Stuff Leave off") or unit.facing("player", units.dyn5)) then
+                if pallyFace(spell.crusaderStrike) then
                     return true
                 end
             end
@@ -1153,14 +1296,14 @@ local function runRotation()
             end
         end
 
-        if ui.checked("Judgment Heal") and talent.judgmentOfLight and (ui.checked("Dev Stuff Leave off") or unit.facing("player", "target")) and unit.inCombat() then
-            if cast.judgment("target") then
+        if ui.checked("Judgment Heal") and talent.judgmentOfLight and (ui.checked("Dev Stuff Leave off") or unit.facing("player", units.dyn30)) and unit.inCombat() and br.getSpellCD(20473) > (gcd + 0.3) then
+            if pallyFace(275773,"target") then
                 return true
             end
         end
 
-        if ui.checked("High Prio Crusader Strike") and talent.crusadersMight and br.getSpellCD(20473) > gcd * 1.5 then
-            if cast.crusaderStrike(units.dyn5) then
+        if ui.checked("High Prio Crusader Strike") and br.getSpellCD(20473) > (gcd/2) and (ui.checked("Dev Stuff Leave off") or unit.facing("player", units.dyn5)) then
+            if pallyFace(spell.crusaderStrike) then
                 return true
             end
         end
@@ -1187,25 +1330,21 @@ local function runRotation()
             end
         end
 
-        if php >= ui.value("LotM player HP limit") then
-            for i = 1, #br.friend do
-                local thisUnit = br.friend[i].unit
-                local thisHP = br.friend[i].hp
-                if not br.GetUnitIsUnit(thisUnit, "player") and not unit.deadOrGhost(thisUnit) then
-                    if ui.checked("Moving LotM") and thisHP <= ui.value("Moving LotM") and unit.moving("player") then
-                        if cast.lightOfTheMartyr(thisUnit) then
-                            return true
-                        end
+        if php >= ui.value("LotM player HP limit") and #br.friend > 1 then
+            if not br.GetUnitIsUnit(lowestNP.unit, "player") and not unit.deadOrGhost(lowestNP.unit) then
+                if ui.checked("Moving LotM") and lowestNP.hp <= ui.value("Moving LotM") and unit.moving("player") then
+                    if cast.lightOfTheMartyr(lowestNP.unit) then
+                        return true
                     end
-                    if ui.checked("LoM after FoL") and thisHP <= ui.value("LoM after FoL") and cast.last.flashOfLight() then
-                        if cast.lightOfTheMartyr(thisUnit) then
-                            return true
-                        end
+                end
+                if ui.checked("LoM after FoL") and lowestNP.hp <= ui.value("LoM after FoL") and cast.last.flashOfLight() then
+                    if cast.lightOfTheMartyr(lowestNP.unit) then
+                        return true
                     end
-                    if ui.checked("Light of the Martyr") and thisHP <= ui.value("Light of the Martyr") then
-                        if cast.lightOfTheMartyr(thisUnit) then
-                            return true
-                        end
+                end
+                if ui.checked("Light of the Martyr") and lowestNP.hp <= ui.value("Light of the Martyr") then
+                    if cast.lightOfTheMartyr(lowestNP.unit) then
+                        return true
                     end
                 end
             end
@@ -1274,8 +1413,8 @@ local function runRotation()
     end -- end healing
 
     local function mPlusGods() -- 99% Feng's massive brain
-
-        if ui.checked("Consecration") and cast.able.consecration() and #enemies.yards5 >= ui.value("Consecration") and br.getDebuffRemain("target", 204242) == 0 and (not br._G.GetTotemInfo(1) or (br.getDistanceToObject("player", cX, cY, cZ) > 7) or br._G.GetTotemTimeLeft(1) < 2) then
+        
+        if ui.checked("Consecration") and br.getSpellCD(26573) == 0 and #enemies.yards5 >= ui.value("Consecration") and br.getDebuffRemain("target", 204242) == 0 and (not br._G.GetTotemInfo(1) or (br.getDistanceToObject("player", cX, cY, cZ) > 7) or br._G.GetTotemTimeLeft(1) < 2) then
             if cast.consecration() then
                 cX, cY, cZ = br._G.ObjectPosition("player")
                 return
@@ -1298,13 +1437,13 @@ local function runRotation()
             end
         end ]]
         
-        if br._G.UnitCastingInfo("boss1") == br._G.GetSpellInfo(320788) and cast.able.blessingOfFreedom() then
+        if br._G.UnitCastingInfo("boss1") == br._G.GetSpellInfo(320788) and br.getSpellCD(1044) == 0 then
             if cast.blessingOfFreedom("boss1target") then
                 return true
             end
         end
 
-        if (br._G.UnitCastingInfo("boss1") == br._G.GetSpellInfo(317231) or br._G.UnitCastingInfo("boss1") == br._G.GetSpellInfo(320729)) and br.getDebuffRemain("player",331606) ~= 0 and cast.able.blessingOfFreedom() then
+        if (br._G.UnitCastingInfo("boss1") == br._G.GetSpellInfo(317231) or br._G.UnitCastingInfo("boss1") == br._G.GetSpellInfo(320729)) and br.getDebuffRemain("player",331606) ~= 0 and br.getSpellCD(1044) == 0 then
             if cast.blessingOfFreedom("player") then return true end
         end
     end
@@ -1346,6 +1485,7 @@ local function runRotation()
         end
     end ]]
     if ui.checked("Automatic Aura replacement") then
+        
         if not buff.devotionAura.exists() and (not br._G.IsMounted() or buff.divineSteed.exists()) then
             if cast.devotionAura("player") then
                 return
@@ -1356,8 +1496,44 @@ local function runRotation()
             end
         end
     end
+    if ui.checked("Advanced Trinket Support") then
+        
+        local Trinket13 = _G.GetInventoryItemID("player", 13)
+        local Trinket14 = _G.GetInventoryItemID("player", 14)
+        -- Tuft Logic
+        local tuftTarget = nil
+        if (Trinket13 == 184020 or Trinket14 == 184020) then
+            if br.canUseItem(184020) then
+                for i = 1, #br.friend do
+                    if br.friend[i].hp < 100 then
+                        if ui.value("Tuft of Smoldering Plumeage Target") == 1 then
+                            if br.friend[i].hp <= tuftTargetHP then
+                                tuftTarget = br.friend[i].unit
+                            end
+                        elseif ui.value("Tuft of Smoldering Plumeage Target") == 2 then
+                            if br.friend[i].hp <= tuftTargetHP and (br.friend[i].role == "TANK" or unit.role(br.friend[i].unit) == "TANK") then
+                                tuftTarget = br.friend[i].unit
+                            end
+                        elseif ui.value("Tuft of Smoldering Plumeage Target") == 3 and php <= tuftTargetHP then
+                            tuftTarget = "player"
+                        elseif ui.value("Tuft of Smoldering Plumeage Target") == 4 then
+                            if unit.role(br.friend[i].unit) == "HEALER" or unit.role(lowestUnit) == "DAMAGER" then
+                                if br.friend[i].hp <= tuftTargetHP then
+                                    tuftTarget = br.friend[i].unit
+                                end
+                            end
+                        end
+                        if tuftTarget ~= nil and br.canUseItem(184020) and not unit.deadOrGhost(tuftTarget) then
+                            br._G.UseItemByName(184020, tuftTarget)
+                            return true
+                        end
+                    end
+                end
+            end
+        end
+    end
     if (not br._G.IsMounted() or buff.divineSteed.exists()) then
-        if br.pause() or drinking or br.isLooting() then
+        if br.pause(true) or drinking or br.isLooting() then
             return true
         else
             if not unit.inCombat() and not br.UnitBuffID("player", 115834) then
@@ -1408,45 +1584,15 @@ local function runRotation()
                             return
                         end
                     end
-                    if ui.checked("Advanced Trinket Support") then
-                        local Trinket13 = _G.GetInventoryItemID("player", 13)
-                        local Trinket14 = _G.GetInventoryItemID("player", 14)
-                        -- Tuft Logic
-                        local tuftTarget = nil
-                        if (Trinket13 == 184020 or Trinket14 == 184020) then
-                            if br.canUseItem(184020) then
-                                for i = 1, #br.friend do
-                                    if br.friend[i].hp < 100 then
-                                        if ui.value("Tuft of Smoldering Plumeage Target") == 1 then
-                                            if br.friend[i].hp <= tuftTargetHP then
-                                                tuftTarget = br.friend[i].unit
-                                            end
-                                        elseif ui.value("Tuft of Smoldering Plumeage Target") == 2 then
-                                            if br.friend[i].hp <= tuftTargetHP and (br.friend[i].role == "TANK" or unit.role(br.friend[i].unit) == "TANK") then
-                                                tuftTarget = br.friend[i].unit
-                                            end
-                                        elseif ui.value("Tuft of Smoldering Plumeage Target") == 3 and php <= tuftTargetHP then
-                                            tuftTarget = "player"
-                                        elseif ui.value("Tuft of Smoldering Plumeage Target") == 4 then
-                                            if unit.role(br.friend[i].unit) == "HEALER" or unit.role(lowestUnit) == "DAMAGER" then
-                                                if br.friend[i].hp <= tuftTargetHP then
-                                                    tuftTarget = br.friend[i].unit
-                                                end
-                                            end
-                                        end
-                                        if tuftTarget ~= nil and br.canUseItem(184020) then
-                                            br._G.UseItemByName(184020, tuftTarget)
-                                            return true
-                                        end
-                                    end
-                                end
+                    if (ui.checked("Blessing of Freedom") and br.getSpellCD(1044) == 0) then
+                        if br._G.UnitCastingInfo("boss1") == br._G.GetSpellInfo(328276) then
+                            if cast.blessingOfFreedom("player") then
+                                return true
                             end
-                        end
-                    end
-                    if (ui.checked("Blessing of Freedom") and cast.able.blessingOfFreedom()) then
+                        end  
                         for i = 1, #br.friend do
                             local thisUnit = br.friend[i].unit
-                            if br.UnitDebuffID(thisUnit, 341746) then
+                            if br.UnitDebuffID(thisUnit, 341746) or br.UnitDebuffID(thisUnit, 342321) or br.UnitDebuffID(thisUnit, 342322) then
                                 if cast.blessingOfFreedom(thisUnit) then
                                     return true
                                 end
@@ -1459,7 +1605,7 @@ local function runRotation()
                         end
                     end
 
-                    if mode.wrath == 1 and buff.avengingWrath.exists("player") and br.player.runeforge.theMadParagon.equiped and br.getSpellCD(24275) == 0 then
+                    if mode.wrath == 1 and buff.avengingWrath.exists("player") and br.getSpellCD(24275) == 0 and holyPower < 5 then
                         if (unit.hp("target") <= 20 or br._G.IsSpellOverlayed(24275) or wingsup) and unit.facing("player", "target") then
                             if cast.hammerOfWrath("target") then
                                 return
@@ -1470,7 +1616,7 @@ local function runRotation()
                             if ccDoubleCheck(thisUnit) and (ui.checked("Dev Stuff Leave off") or unit.facing("player", thisUnit)) and lowest.hp >= ui.value("Critical HP") then
                                 if unit.hp(thisUnit) <= 20 or br._G.IsSpellOverlayed(24275) or wingsup then
                                     ui.debug("Trying to hammer aoe 4")
-                                    if br._G.CastSpellByName(br._G.GetSpellInfo(spell.hammerOfWrath),thisUnit) then
+                                    if pallyFace(spell.hammerOfWrath,thisUnit) then
                                         return
                                     end
                                 end
@@ -1482,7 +1628,7 @@ local function runRotation()
                         return
                     end
 
-                    if mode.wrath == 1 and br.getSpellCD(24275) == 0 then
+                    if mode.wrath == 1 and br.getSpellCD(24275) == 0 and br.getSpellCD(20473) > (gcd + 0.3) then
                         if (unit.hp("target") <= 20 or br._G.IsSpellOverlayed(24275) or wingsup) and unit.facing("player", "target") then
                             if cast.hammerOfWrath("target") then
                                 return
@@ -1493,7 +1639,7 @@ local function runRotation()
                             if ccDoubleCheck(thisUnit) and (ui.checked("Dev Stuff Leave off") or unit.facing("player", thisUnit)) and holyPower <= 5 and lowest.hp >= ui.value("Critical HP") then
                                 if unit.hp(thisUnit) <= 20 or br._G.IsSpellOverlayed(24275) or wingsup then
                                     ui.debug("Trying to hammer aoe 1")
-                                    if br._G.CastSpellByName(br._G.GetSpellInfo(spell.hammerOfWrath),thisUnit) then
+                                    if pallyFace(spell.hammerOfWrath,thisUnit) then
                                         return
                                     end
                                 end
