@@ -27,6 +27,7 @@ function br:Engine()
         br.engines.Pulse_Engine:Show()
     end
 end
+
 -- Object Manager Engine
 local function ObjectManagerUpdate(self)
     if br.unlocked then
@@ -50,6 +51,30 @@ function br:ObjectManager()
         br.engines.OM_Engine = br._G.CreateFrame("Frame", nil, br._G.UIParent)
         br.engines.OM_Engine:SetScript("OnUpdate", ObjectManagerUpdate)
         br.engines.OM_Engine:Show()
+    end
+end
+
+-- Object Tracker
+local function ObjectTrackerUpdate(self)
+    if br.unlocked then
+        if br.data ~= nil and br.data.settings ~= nil and br.data.settings[br.selectedSpec] ~= nil
+            and br.data.settings[br.selectedSpec].toggles ~= nil
+        then
+            if br.data.settings[br.selectedSpec].toggles["Power"] ~= nil
+                and br.data.settings[br.selectedSpec].toggles["Power"] == 1
+            then
+                -- Tracker
+                br.objectTracker()
+            end
+        end
+    end
+end
+
+function br:ObjectTracker()
+    if br.engines.Tracker_Engine == nil then
+        br.engines.Tracker_Engine = br._G.CreateFrame("Frame", nil, br._G.UIParent)
+        br.engines.Tracker_Engine:SetScript("OnUpdate", ObjectTrackerUpdate)
+        br.engines.Tracker_Engine:Show()
     end
 end
 
@@ -235,8 +260,6 @@ function br.BadRotationsUpdate(self)
                 end
                 -- Accept dungeon queues
                 br:AcceptQueues()
-                -- Tracker
-                br.objectTracker()
                 -- Fishing
                 br.fishing()
                 -- Profession Helper

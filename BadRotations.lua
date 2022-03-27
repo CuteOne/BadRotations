@@ -120,6 +120,7 @@ function br.Run()
 		-- Start Engines
 		br:Engine()
 		br:ObjectManager()
+		br:ObjectTracker()
 		-- Complete Loadin
 		br.ChatOverlay("-= BadRotations Loaded =-")
 		br._G.print("Loaded")
@@ -137,7 +138,7 @@ function br.defaultSettings()
 			if br.ui.window.config.frame == nil then
 				br.ui:createConfigWindow()
 			end
-			br.ui:toggleWindow("config")			
+			br.ui:toggleWindow("config")
 			br.ui:closeWindow("config")
 		end
 	)

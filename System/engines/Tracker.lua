@@ -10,7 +10,12 @@ local function trackObject(object, name, objectid, interact)
     local playerDistance = br._G.GetDistanceBetweenPositions(pX, pY, pZ, xOb, yOb, zOb)
     local zDifference = math.floor(zOb - pZ)
     if xOb ~= nil and playerDistance < 200 then
-        LibDraw.Circle(xOb,yOb,zOb, 2)
+        --LibDraw.Circle(xOb, yOb, zOb, 2)
+        if br._G.ObjectIsUnit(object) then
+            LibDraw.Arrow(xOb, yOb, zOb, br._G.UnitFacing(object) + math.pi * 2)
+        else
+            LibDraw.Arrow(xOb, yOb, zOb, br._G.UnitFacing("player") + math.pi * 2)
+        end
         if name == "" or name == "Unknown" then
             name = br._G.ObjectIsUnit(object) and br._G.UnitName(object) or nil
         end
@@ -33,8 +38,8 @@ end
 
 function br.objectTracker()
     -- Track Objects
-    if (br.timer:useTimer("Tracker Lag", 0.07) or
-        (br.isChecked("Quest Tracker") and br.timer:useTimer("Quest Lag", 0.5))) then
+    if --(br.timer:useTimer("Tracker Lag", 0.07) or
+        (br.isChecked("Quest Tracker") --[[and br.timer:useTimer("Quest Lag", 0.5))]]) then
         LibDraw.clearCanvas()
         if br.isChecked("Enable Tracker") then
             -- Custom Tracker
@@ -45,7 +50,7 @@ function br.objectTracker()
                 for i = 1, br._G.GetObjectCount() do
                     local object = br._G.GetObjectWithIndex(i)
                     if object ~= nil then
-                        local name =  br._G.ObjectIsUnit(object) and br._G.UnitName(object) or nil--br._G.ObjectName(object)
+                        local name =  br._G.ObjectIsUnit(object) and br._G.UnitName(object) or br._G.ObjectName(object)
                         local objectid = br._G.ObjectID(object)
                         if object and name and objectid then
                             if br.isChecked("Rare Tracker") and not br.GetUnitIsDeadOrGhost(object) and

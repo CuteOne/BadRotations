@@ -138,47 +138,67 @@ function LibDraw.Array(vectors, x, y, z, rotationX, rotationY, rotationZ)
 end
 
 function LibDraw.Draw2DLine(sx, sy, ex, ey)
-
 	if not WorldToScreen or not sx or not sy or not ex or not ey then return end
 
 	local L = tremove(LibDraw.lines) or false
 	if L == false then
 		L = CreateFrame("Frame", LibDraw.canvas)
-    L.line = L:CreateLine()
+    	L.line = L:CreateLine()
 		L.line:SetDrawLayer(LibDraw.level)
 	end
 	tinsert(LibDraw.lines_used, L)
 
-  L:ClearAllPoints()
+	L:ClearAllPoints()
 
-  if sx > ex and sy > ey or  sx < ex and sy < ey  then
-    L:SetPoint("TOPRIGHT", LibDraw.canvas, "TOPLEFT", sx, sy)
-    L:SetPoint("BOTTOMLEFT", LibDraw.canvas, "TOPLEFT", ex, ey)
-    L.line:SetStartPoint('TOPRIGHT')
-    L.line:SetEndPoint('BOTTOMLEFT')
-  elseif sx < ex and sy > ey then
-    L:SetPoint("TOPLEFT", LibDraw.canvas, "TOPLEFT", sx, sy)
-    L:SetPoint("BOTTOMRIGHT", LibDraw.canvas, "TOPLEFT", ex, ey)
-    L.line:SetStartPoint('TOPLEFT')
-    L.line:SetEndPoint('BOTTOMRIGHT')
-  elseif sx > ex and sy < ey then
-    L:SetPoint("TOPRIGHT", LibDraw.canvas, "TOPLEFT", sx, sy)
-    L:SetPoint("BOTTOMLEFT", LibDraw.canvas, "TOPLEFT", ex, ey)
-    L.line:SetStartPoint('TOPLEFT')
-    L.line:SetEndPoint('BOTTOMRIGHT')
-  else
-    -- wat, I don't like this, not one bit
-    L:SetPoint("TOPLEFT", LibDraw.canvas, "TOPLEFT", sx, sy)
-    L:SetPoint("BOTTOMLEFT", LibDraw.canvas, "TOPLEFT", sx, ey)
-    L.line:SetStartPoint('TOPLEFT')
-    L.line:SetEndPoint('BOTTOMLEFT')
-  end
+	if sx > ex and sy > ey or  sx < ex and sy < ey  then
+		L:SetPoint("TOPRIGHT", LibDraw.canvas, "TOPLEFT", sx, sy)
+		L:SetPoint("BOTTOMLEFT", LibDraw.canvas, "TOPLEFT", ex, ey)
+		L.line:SetStartPoint('TOPRIGHT')
+		L.line:SetEndPoint('BOTTOMLEFT')
+	elseif sx < ex and sy > ey then
+		L:SetPoint("TOPLEFT", LibDraw.canvas, "TOPLEFT", sx, sy)
+		L:SetPoint("BOTTOMRIGHT", LibDraw.canvas, "TOPLEFT", ex, ey)
+		L.line:SetStartPoint('TOPLEFT')
+		L.line:SetEndPoint('BOTTOMRIGHT')
+	elseif sx > ex and sy < ey then
+		L:SetPoint("TOPRIGHT", LibDraw.canvas, "TOPLEFT", sx, sy)
+		L:SetPoint("BOTTOMLEFT", LibDraw.canvas, "TOPLEFT", ex, ey)
+		L.line:SetStartPoint('TOPLEFT')
+		L.line:SetEndPoint('BOTTOMRIGHT')
+	else
+		-- wat, I don't like this, not one bit
+		L:SetPoint("TOPLEFT", LibDraw.canvas, "TOPLEFT", sx, sy)
+		L:SetPoint("BOTTOMLEFT", LibDraw.canvas, "TOPLEFT", sx, ey)
+		L.line:SetStartPoint('TOPLEFT')
+		L.line:SetEndPoint('BOTTOMLEFT')
+	end
 
-  L.line:SetThickness(LibDraw.line.w)
+  	L.line:SetThickness(LibDraw.line.w)
 	L.line:SetColorTexture(LibDraw.line.r, LibDraw.line.g, LibDraw.line.b, LibDraw.line.a)
 
 	L:Show()
+end
 
+local arrow = {
+    {-1, 0, 0,   1,    0, 0},
+    { 1, 0, 0, 0.5,  0.5, 0},
+    { 1, 0, 0, 0.5, -0.5, 0},
+}
+
+function LibDraw.Arrow(x, y, z, direction, multiplier)
+    if not multiplier then multiplier = 1 end
+    local sx, sy, sz, ex, ey, ez, sx, sy, ex, ey
+    for _, vector in ipairs(arrow) do
+        sx, sy, sz = x + vector[1]*multiplier, y + vector[2], z + vector[3]
+        ex, ey, ez = x + vector[4]*multiplier, y + vector[5], z + vector[6]
+
+        sx, sy, sz = LibDraw.rotateZ(x, y, z, sx, sy, sz, direction)
+        ex, ey, ez = LibDraw.rotateZ(x, y, z, ex, ey, ez, direction)
+
+        sx, sy = WorldToScreen(sx, sy, sz)
+        ex, ey = WorldToScreen(ex, ey, ez)
+        LibDraw.Draw2DLine(sx, sy, ex, ey)
+    end
 end
 
 local full_circle = rad(365)
@@ -188,9 +208,14 @@ function LibDraw.Circle(x, y, z, size)
 	local lx, ly, nx, ny, fx, fy = false, false, false, false, false, false
 	for v=0, full_circle, small_circle_step do
 		nx, ny = WorldToScreen( (x+cos(v)*size), (y+sin(v)*size), z )
-		LibDraw.Draw2DLine(lx, ly, nx, ny)
+		if lx and ly then
+			LibDraw.Draw2DLine(lx, ly, nx, ny)
+		else
+			fx, fy = nx, ny
+		end
 		lx, ly = nx, ny
 	end
+	LibDraw.Draw2DLine(fx, fy, lx, ly)
 end
 
 local flags = bit.bor(0x100)
