@@ -9,13 +9,13 @@ local ScannedQuestTextCache = {}
 
 function br.isQuestUnit(Pointer)
 	local guid
-	if not _G.lb then
+	if not _G["lb"] then
 		guid = br._G.UnitGUID(Pointer)
 	else
 		guid = Pointer
 	end
 	--local myName = UnitName("player")
-	questTooltipScanQuest:SetOwner(_G.WorldFrame, 'ANCHOR_NONE')
+	questTooltipScanQuest:SetOwner(_G["WorldFrame"], 'ANCHOR_NONE')
 	questTooltipScanQuest:SetHyperlink('unit:' .. guid)
 	for i = 1, questTooltipScanQuest:NumLines() do
 		ScannedQuestTextCache[i] = _G ["QuestPlateTooltipScanQuestTextLeft" .. i]
@@ -34,7 +34,7 @@ function br.isQuestUnit(Pointer)
 				--check if the unit objective isn't already done
 				local nextLineText = ScannedQuestTextCache [j+1]:GetText()
 				if (nextLineText) then
-					if not nextLineText:match(THREAT_TOOLTIP) then
+					if not nextLineText:match(_G["THREAT_TOOLTIP"]) then
 						local p1, p2 = nextLineText:match ("(%d+)/(%d+)")
 						if (not p1) then
 							-- check for % based quests
@@ -112,7 +112,7 @@ local QuestCacheUpdate = function()
 end
 
 local function FunctionQuestLogUpdate() --private
-	if (br.QuestCacheThrottle and not br.QuestCacheThrottle._cancelled) then
+	if (br.QuestCacheThrottle and not br.QuestCacheThrottle["_cancelled"]) then
 		br.QuestCacheThrottle:Cancel()
 	end
 	br.QuestCacheThrottle = _G.C_Timer.NewTimer(2, QuestCacheUpdate)

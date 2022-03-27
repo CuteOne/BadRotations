@@ -29,8 +29,8 @@ br.api.module = function(self)
                var.autoKeystone:RegisterEvent("ADDON_LOADED")
                var.autoKeystone:SetScript("OnEvent", function(self, event, addon)
 	               if (addon == "Blizzard_ChallengesUI") then
-		               if ChallengesKeystoneFrame then ChallengesKeystoneFrame:HookScript("OnShow", function()
-				            for Bag = 0, NUM_BAG_SLOTS do
+		               if _G["ChallengesKeystoneFrame"] then _G["ChallengesKeystoneFrame"]:HookScript("OnShow", function()
+				            for Bag = 0, _G["NUM_BAG_SLOTS"] do
 				    	        for Slot = 1, GetContainerNumSlots(Bag) do
 					    	        local ID = GetContainerItemID(Bag, Slot)
 						            if (ID and ID == 180653) then return UseContainerItem(Bag, Slot) end
@@ -155,12 +155,12 @@ br.api.module = function(self)
 
     -- Flask Module
     module.FlaskUp = function(buffType,section)
-        local function getFlaskByType()
+        local function getFlaskByType(buff)
             local thisFlask = ""
-            if buffType == "Agility" then thisFlask = "Greater Flask of the Currents" end
-            if buffType == "Intellect" then thisFlask = "Greater Flask of Endless Fathoms" end
-            if buffType == "Stamina" then thisFlask = "Greater Flask of the Vast Horizon" end
-            if buffType == "Strength" then thisFlask = "Greater Flask of the Undertow" end
+            if buff == "Agility" then thisFlask = "Greater Flask of the Currents" end
+            if buff == "Intellect" then thisFlask = "Greater Flask of Endless Fathoms" end
+            if buff == "Stamina" then thisFlask = "Greater Flask of the Vast Horizon" end
+            if buff == "Strength" then thisFlask = "Greater Flask of the Undertow" end
             return thisFlask
         end
         local flaskList

@@ -434,16 +434,17 @@ local function isWithinAngleDifference(unit1, unit2, angle)
 end
 
 -- Cone Logic for Enemies
+local coneUnits = {}
 function br.getEnemiesInCone(angle,length,checkNoCombat, showLines)
 	if angle == nil then angle = 180 end
 	if length == nil then length = 0 end
     local playerX, playerY, playerZ = br.GetObjectPosition("player")
     local facing = br.GetObjectFacing("player")
-    local units = units or {}
 	local unitsCounter = 0
 	local enemiesTable = br.getEnemies("player",length,checkNoCombat,true)
 	local inside = false
 	if showLines then LibDraw.Arc(playerX, playerY, playerZ, length, angle, 0) end
+	table.wipe(coneUnits)
     for i = 1, #enemiesTable do
 		local thisUnit = enemiesTable[i]
 		local radius = br._G.UnitCombatReach(thisUnit)
@@ -471,16 +472,17 @@ function br.getEnemiesInCone(angle,length,checkNoCombat, showLines)
 					LibDraw.Circle(unitX, unitY, playerZ, br._G.UnitBoundingRadius(thisUnit))
 				end
                 unitsCounter = unitsCounter + 1
-				table.insert(units,thisUnit)
+				table.insert(coneUnits,thisUnit)
             end
         end
 	end
 
 	-- br.ChatOverlay(units)
-    return unitsCounter, units
+    return unitsCounter, coneUnits
 end
 
 -- Rectangle Logic for Enemies
+local rectUnits = {}
 function br.getEnemiesInRect(width,length,showLines,checkNoCombat)
 	local px, py, pz = br.GetObjectPosition("player")
 	local function getRect(width,length)
@@ -501,10 +503,9 @@ function br.getEnemiesInRect(width,length,showLines,checkNoCombat)
 	local nlX, nlY, nrX, nrY, frX, frY = getRect(width,length)
 	local enemyCounter = 0
 	local enemiesTable = br.getEnemies("player",length,checkNoCombat,true)
-	local enemiesInRect = enemiesInRect or {}
 	local inside = false
 	if #enemiesTable > 0 then
-		_G.table.wipe(enemiesInRect)
+		_G.table.wipe(rectUnits)
 		for i = 1, #enemiesTable do
 			local thisUnit = enemiesTable[i]
 			local radius = br._G.UnitCombatReach(thisUnit)
@@ -525,12 +526,12 @@ function br.getEnemiesInRect(width,length,showLines,checkNoCombat)
 						LibDraw.Circle(tX, tY, pz, br._G.UnitBoundingRadius(thisUnit))
 					end
 					enemyCounter = enemyCounter + 1
-					table.insert(enemiesInRect,thisUnit)
+					table.insert(rectUnits,thisUnit)
 				end
 			end
 		end
 	end
-	return enemyCounter, enemiesInRect
+	return enemyCounter, rectUnits
 end
 
 -- -- local function intersects(circle, rect)

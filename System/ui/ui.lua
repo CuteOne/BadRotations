@@ -4,6 +4,7 @@ local _, br = ...
 br.ui = {}
 br.spacing = 15
 --
+local Type = "UI"
 local BRFont = "DiesalFontNormal"
 do
     local locale = br._G.GetLocale()

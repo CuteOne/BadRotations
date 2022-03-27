@@ -78,7 +78,7 @@ function br.ui:createDropdown(parent, text, itemlist, default, tooltip, tooltipD
         newDropdown:SetEventListener(
             "OnEnter",
             function(this, event)
-                br._G.GameTooltip:SetOwner(Minimap, "ANCHOR_CURSOR", 50, 50)
+                br._G.GameTooltip:SetOwner(br._G.Minimap, "ANCHOR_CURSOR", 50, 50)
                 br._G.GameTooltip:SetText(tooltip, 214 / 255, 25 / 255, 25 / 255)
                 br._G.GameTooltip:Show()
             end

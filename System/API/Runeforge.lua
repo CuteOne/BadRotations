@@ -234,7 +234,7 @@ br.api.runeforge = function(runeforge,k,v)
                     local powerID = bonusToPowerId[tonumber(bonusID)]
                     if powerID ~= nil then
                         local powerInfo = _G.C_LegendaryCrafting.GetRuneforgePowerInfo(powerID)
-                        if powerInfo.descriptionSpellID == v then
+                        if powerInfo["descriptionSpellID"] == v then
                             runeforge[k].equiped = true
                             break
                         end

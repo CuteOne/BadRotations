@@ -40,13 +40,13 @@ end
 local function GetKeyBindings()
 	local function GetActionbarSlot(slot)
 		local name
-		if _G.Bartender4 then
+		if _G["Bartender4"] then
 			name = "CLICK BT4Button" .. slot .. ":LeftButton"
 			if br._G.GetBindingKey(name) ~= nil then
 				return name
 			end
 		end
-		if _G.Dominos then
+		if _G["Dominos"] then
 			for i = 1, 60 do
 				if _G["DominosActionButton" .. i] and _G["DominosActionButton" .. i]["action"] == slot then
 					name = "CLICK DominosActionButton" .. i .. ":LeftButton"
@@ -57,7 +57,7 @@ local function GetKeyBindings()
 			end
 		end
 		local bonusBar = br._G.GetBonusBarOffset()
-		local slotID = (1 + (NUM_ACTIONBAR_PAGES + bonusBar - 1) * NUM_ACTIONBAR_BUTTONS)
+		local slotID = (1 + (_G["NUM_ACTIONBAR_PAGES"] + bonusBar - 1) * _["NUM_ACTIONBAR_BUTTONS"])
 		if (bonusBar == 0 and slot <= 12) or (bonusBar > 0 and slot >= slotID and slot < (slotID + 12)) then
 			name = "ACTIONBUTTON" .. (((slot - 1)%12) + 1)
 		elseif slot <= 36 then

@@ -7,7 +7,7 @@ function br.ProfessionHelper()
 				for i = 1, #thisTable do
 					local thisItem = thisTable[i]
 					if br._G.GetItemCount(thisItem, false, false) >= 5 or spell == 13262 then
-						for bagID = 0, NUM_BAG_SLOTS do
+						for bagID = 0, _G["NUM_BAG_SLOTS"] do
 							for slotID = 1, br._G.GetContainerNumSlots(bagID) do
 								if br.lootTimer == nil or br.lootTimer <= br._G.GetTime() - lootDelay and not br._G.LootFrame:IsShown() then
 									local _, _, _, _, _, _, itemLink = br._G.GetContainerItemInfo(bagID, slotID);

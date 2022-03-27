@@ -48,6 +48,7 @@ br.api.items = function(item,k,v,subtable)
             return socketSpell == checkSpell
         end
         equiped.tier = function(tierLevel)
+            if type(tierLevel) == "number" then tierLevel = "T"..tierLevel end
             return br.TierScan(tierLevel)
         end
         if equiped.type == nil then

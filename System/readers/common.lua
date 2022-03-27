@@ -241,16 +241,16 @@ function br.read.commonReaders()
 	--     "PARTY_INVITE_REQUEST",
 	--     "LOADING_SCREEN_DISABLED"
 	-- )
-	local function addonReader(...)
-		function _G.DBM:AddMsg(text, prefix)
-			prefix = prefix or (self.localization and self.localization.general.name) or "Deadly Boss Mods"
-			local frame = _G[tostring(_G.DBM.Options.ChatFrame)]
-			br._G.print("!!")
-			frame = frame and frame:IsShown() and frame or DEFAULT_CHAT_FRAME
-			frame:AddMessage(("|cffff7d0a<|r|cffffd200%s|r|cffff7d0a>|r %s"):format(tostring(prefix), tostring(text)), 0.41, 0.8, 0.94)
-		end
-		br._G.print(...)
-	end
+	-- local function addonReader(...)
+	-- 	function _G.DBM:AddMsg(text, prefix)
+	-- 		prefix = prefix or (self.localization and self.localization.general.name) or "Deadly Boss Mods"
+	-- 		local frame = _G[tostring(_G.DBM.Options.ChatFrame)]
+	-- 		br._G.print("!!")
+	-- 		frame = frame and frame:IsShown() and frame or _G["DEFAULT_CHAT_FRAME"]
+	-- 		frame:AddMessage(("|cffff7d0a<|r|cffffd200%s|r|cffff7d0a>|r %s"):format(tostring(prefix), tostring(text)), 0.41, 0.8, 0.94)
+	-- 	end
+	-- 	br._G.print(...)
+	-- end
 	--Frame:SetScript("OnEvent", addonReader)
 	br._G.GameTooltip:HookScript(
 		"OnTooltipSetUnit",
