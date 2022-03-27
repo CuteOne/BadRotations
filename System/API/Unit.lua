@@ -291,6 +291,10 @@ br.api.unit = function(self)
         if thisUnit == nil then thisUnit = "target" end
         return UnitGroupRolesAssigned(thisUnit)
     end
+    -- Solo
+    unit.solo = function()
+        return #br.friend == 1
+    end
     -- Standing Time
     local standingTimer
     unit.standingTime = function()
