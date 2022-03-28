@@ -1031,8 +1031,7 @@ local function runRotation()
 
         bossEncounter = br._G.UnitExists("boss1")
         trashStormEarthFireCondition = false
-        if lowestMoKRemains <= 5 and
-            (markOfTheCraneCount <= 5 or markOfTheCraneCount < #enemies.yards5) then
+        if lowestMoKRemains <= 5 and (markOfTheCraneCount <= 5 or markOfTheCraneCount < #enemies.yards5) then
             target = lowestMoK
         end
     end
@@ -1236,8 +1235,7 @@ local function runRotation()
         if Options.LegSweep:Checked() and cd.legSweep.ready() and
             cast.able.legSweep() then
             local temp = _G.foreach(enemies.yards6, function(index, enemyGUID)
-                if unit.interruptable(enemyGUID, Options.InterruptAt:Value()) and
-                    not isImmune(enemyGUID, spell.legSweep) then
+                if unit.interruptable(enemyGUID, Options.InterruptAt:Value()) and not isImmune(enemyGUID, spell.legSweep) then
                     return cast.legSweep()
                 end
             end)
@@ -1246,8 +1244,7 @@ local function runRotation()
         -- Paralysis
         if Options.Paralysis:Checked() and cd.paralysis.ready() then
             local temp = _G.foreach(enemies.yards20, function(index, enemyGUID)
-                if br._G.UnitChannelInfo(enemyGUID) and
-                    not isImmune(enemyGUID, spell.paralysis) then
+                if br._G.UnitChannelInfo(enemyGUID) and not isImmune(enemyGUID, spell.paralysis) then
                     return cast.paralysis(enemyGUID)
                 end
             end)
