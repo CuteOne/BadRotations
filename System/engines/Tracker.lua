@@ -11,6 +11,11 @@ local function trackObject(object, name, objectid, interact)
     local playerDistance = br._G.GetDistanceBetweenPositions(pX, pY, pZ, xOb, yOb, zOb)
     local zDifference = math.floor(zOb - pZ)
     if xOb ~= nil and playerDistance < 200 then
+        if math.abs(zDifference) > 50 then  -- Set color for all Draws bellow
+            LibDraw.SetColor(255, 0, 0, 100)
+        else
+            LibDraw.SetColor(0, 255, 0, 100)
+        end
         --LibDraw.Circle(xOb, yOb, zOb, 2)
         if br._G.ObjectIsUnit(object) then
             LibDraw.Arrow(xOb, yOb, zOb, br._G.UnitFacing(object) + math.pi * 2)
@@ -19,11 +24,6 @@ local function trackObject(object, name, objectid, interact)
         end
         if name == "" or name == "Unknown" then
             name = br._G.ObjectIsUnit(object) and br._G.UnitName(object) or nil
-        end
-        if math.abs(zDifference) > 50 then
-            LibDraw.SetColor(255, 0, 0, 100)
-        else
-            LibDraw.SetColor(0, 255, 0, 100)
         end
         LibDraw.Text(name .. " " .. objectid .. " ZDiff: " .. zDifference, "GameFontNormal", xOb, yOb, zOb + 3)
         if br.isChecked("Draw Lines to Tracked Objects") then

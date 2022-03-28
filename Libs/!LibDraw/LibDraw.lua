@@ -74,7 +74,9 @@ function LibDraw.Line(sx, sy, sz, ex, ey, ez)
 	local sx, sy = WorldToScreen(sx, sy, sz)
 	local ex, ey = WorldToScreen(ex, ey, ez)
 
-	LibDraw.Draw2DLine(sx, sy, ex, ey)
+	if sx ~= 0 and sy ~= 0 and ex ~= 0 and ey ~= 0 then 
+		LibDraw.Draw2DLine(sx, sy, ex, ey)
+	end
 end
 
 function LibDraw.rotateX(cx, cy, cz, px, py, pz, r)
@@ -133,7 +135,9 @@ function LibDraw.Array(vectors, x, y, z, rotationX, rotationY, rotationZ)
 
 		local sx, sy = WorldToScreen(sx, sy, sz)
 		local ex, ey = WorldToScreen(ex, ey, ez)
-		LibDraw.Draw2DLine(sx, sy, ex, ey)
+		if sx ~= 0 and sy ~= 0 and ex ~= 0 and ey ~= 0 then 		
+			LibDraw.Draw2DLine(sx, sy, ex, ey)
+		end
 	end
 end
 
@@ -197,7 +201,9 @@ function LibDraw.Arrow(x, y, z, direction, multiplier)
 
         sx, sy = WorldToScreen(sx, sy, sz)
         ex, ey = WorldToScreen(ex, ey, ez)
-        LibDraw.Draw2DLine(sx, sy, ex, ey)
+		if sx ~= 0 and sy ~= 0 and ex ~= 0 and ey ~= 0 then 
+			LibDraw.Draw2DLine(sx, sy, ex, ey)
+		end	
     end
 end
 
