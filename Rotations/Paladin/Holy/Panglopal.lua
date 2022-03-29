@@ -291,6 +291,7 @@ local function runRotation()
     local ui = br.player.ui
     local unit  = br.player.unit
     local wingsup = buff.avengingCrusader.exists("player") or buff.avengingWrath.exists("player")
+    local tier = br.TierScan("T28")
 
     if br.timer:useTimer("random_timer", 10) then
         tuftTargetHP = math.random(ui.value("Tuft of Smoldering Plumeage - min"), ui.value("Tuft of Smoldering Plumeage - max"))
@@ -606,8 +607,13 @@ local function runRotation()
     end
     
     local function spendies()
-        if ui.checked("Word of Glory") and (holyPower >= 3 or buff.divinePurpose.exists()) then
+        if ui.checked("Word of Glory") and (holyPower >= 3 or buff.divinePurpose.exists() or (tier >= 2 and not debuff.dawnWillCome.exists("player"))) then
             --Critical first
+            if tier >= 2 and not debuff.dawnWillCome.exists("player") then
+                if cast.wordOfGlory(lowest.unit) then
+                    return true
+                end
+            end
             if php <= ui.value("Critical HP") then
                 if cast.wordOfGlory("player") then
                     return true
