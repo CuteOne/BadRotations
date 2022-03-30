@@ -2208,6 +2208,7 @@ br.lists.spells = {
                 judgmentOfLight             = 196941,
                 glimmerOfLight              = 287280,
                 consecration                = 204242,
+                dawnWillCome                = 364851,
 
             },
             glyphs                          = {
