@@ -16,11 +16,38 @@ local Colors = {
     Warning = "|cff" .. "FFC107"
 }
 
+
+local function reader(...)
+    local timeStamp,
+    param,
+    hideCaster,
+    source,
+    sourceName,
+    sourceFlags,
+    sourceRaidFlags,
+    destination,
+    destName,
+    destFlags,
+    destRaidFlags,
+    theSpell,
+    spellName,
+    _,
+    spellType = br._G.CombatLogGetCurrentEventInfo()
+    if br.GetUnitIsUnit(sourceName, "player") and param == "SPELL_MISSED" and spellType == "IMMUNE" and
+        not br._G.UnitIsPlayer(destination) and (theSpell == br.player.spell.paralysis or theSpell == br.player.spell.legSweep) then
+        br.data.settings[br.selectedSpec][br.selectedProfile]["LyloMWImmuneList"][br.getCurrentZoneId().. ":"..destName .. ":" .. theSpell] = true
+    end
+end
+----------------
 ---------------
 --- Toggles ---
 ---------------
 local Toggles = {}
 local function createToggles()
+    local frame = br._G.CreateFrame("Frame")
+    frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+    frame:SetScript("OnEvent", reader)
+    br.data.settings[br.selectedSpec][br.selectedProfile]["LyloMWImmuneList"] = br.data.settings[br.selectedSpec][br.selectedProfile]["LyloMWImmuneList"] or {}
     --------------------------------------------------------------
     local RotationModes = {
         [1] = {
@@ -327,6 +354,16 @@ local function createOptions()
             Step = 1,
             Tooltip = "Max Health of enemy (in thousands) | 10 = 10k"
         })
+        Options.Revival = AddOption(Page, tostring(Colors.Rare) .. "Revival", {
+            Default = true,
+            Tooltip = "Enable auto usage"
+        })
+        Page = tostring(Colors.Monk) .. "Offensive"
+        AddOption(Page, "General")
+        Options.IgnoreHealthAncientTeachings = AddOption(Page, "- Ancient Teachings - Ignore Missing Health", {
+            Default = true,
+            Tooltip = "Should ignore missing health of friends to dps when using Ancient Teachings"
+        })
         Page = tostring(Colors.Monk) .. "Defensive"
         AddOption(Page, "General")
         Options.Healthstone = AddOption(Page, "- Healthstone", {
@@ -599,160 +636,6 @@ local HealingValues = {
     end,
 }
 
-local FunctionsUtilities = {
-    IsAuraActive = function (theUnit, spellID)
-        for i = 1, 40 do
-            local _, _, _, _, _, _, _, _, _, buffSpellID = br._G.UnitBuff(theUnit, i, "player")
-            if buffSpellID == spellID then
-                return true
-            end
-        end
-        return false
-    end,
-    IsPause = function ()
-        return br.pause(true) or br.player.unit.mounted() or br.player.unit.flying() or br.getBuffRemain("player", 307195) > 0 or Toggles.RotationModes.Off()
-    end,
-    GetMissingHP = function (theUnit)
-        if unit.deadOrGhost(theUnit) then
-            return 0
-        end
-        if unit.distance("player", theUnit) > 40 then
-            return 0
-        end
-        if not unit.exists(theUnit) then
-            return 0
-        end
-        local actualHealth = unit.health(theUnit) + br._G.UnitGetIncomingHeals(theUnit)
-        local missingHealth = unit.healthMax(theUnit) - actualHealth
-        if missingHealth <= healingValues.envelopingMist * 3 and buff.envelopingMist.remains(theUnit) >= 3 then
-            -- print(missingHealth)
-            missingHealth = missingHealth - healingValues.envelopingMist * 3
-            -- print(missingHealth)
-        end
-        if missingHealth < 0 then
-            missingHealth = 0
-        end
-        return missingHealth
-    end,
-    ShouldApplyMysticTouch = function ()
-        return #enemies.yards8 - mysticTouchCount >= 2
-    end,
-    Attack = function (theUnit)
-        if unit.deadOrGhost("target") or unit.distance("target") >= 5 then
-            br._G.ClearTarget()
-        end
-        if theUnit == "target" then theUnit = br._G.UnitGUID(theUnit) end
-        if theUnit == nil then
-            theUnit = enemies.yards5[1]
-        end
-        if br._G.UnitGUID(target) ~= theUnit then
-           br._G.TargetUnit(theUnit)
-           br._G.StartAttack(theUnit)
-        end
-    end
-}
-FunctionsUtilities.CountMissingHPFromAllies = function (value, unitTable)
-    local lowAllies = 0
-    for i = 1, #unitTable do
-        if FunctionsUtilities.GetMissingHP(unitTable[i].unit) >= value then
-            lowAllies = lowAllies + 1
-        end
-    end
-    return lowAllies
-end
-
-local VariablesUtilities = {
-    LoadBadRotation = function ()
-        player              = br.player
-        buff                = player.buff
-        cast                = player.cast
-        cd                  = player.cd
-        charges             = player.charges
-        debuff              = player.debuff
-        enemies             = player.enemies
-        gcd                 = player.gcd
-        spell               = player.spell
-        talent              = player.talent
-        unit                = player.unit
-        runeforge           = player.runeforge
-
-        player.health           = unit.health()
-        player.maxHealth        = unit.healthMax()
-        player.versatility      = 1 + ((GetCombatRatingBonus(CR_VERSATILITY_DAMAGE_DONE) + GetVersatilityBonus(CR_VERSATILITY_DAMAGE_DONE)) / 100)
-        player.mastery          = select(1, GetMasteryEffect("player"))
-        player.spellPower       = GetSpellBonusDamage(4)
-        
-        lowestUnit      = unit.lowest(40)
-
-        friends         = br.friend
-
-        enemies.get(5)--enemies.yards5
-        enemies.get(5, "player", false, true)
-        enemies.get(6)--enemies.yards6
-        enemies.get(8)--enemies.yards8
-        enemies.get(20)--enemies.yards20
-        enemies.get(40)--enemies.yards20
-
-        mysticTouchCount = debuff.mysticTouch.refreshCount(8)
-        mysticTouchUnit = debuff.mysticTouch.lowest(5)
-
-        JadeSerpentStatueDuration = 0
-        YulonDuration = 0
-        ChiJiDuration = 0
-
-        tankUnit = "player"
-        tanks = br.getTanksTable()
-        if #tanks > 0 then
-            tankUnit = tanks[1].unit
-        end
-
-        player.mana         = player.power.mana.percent()
-        if buff.prideful.exists("player") then
-            player.mana = 100
-        end
-    end,
-    LoadTotemEstimateDurations = function ()
-        for index = 1, 4 do
-            local exists, totemName, startTime, duration, _ = GetTotemInfo(index)
-            if exists and totemName ~= nil then
-                local estimateDuration = br.round2(startTime + duration - GetTime())
-                if string.find(totemName, "Jade") then
-                    JadeSerpentStatueDuration = estimateDuration
-                elseif string.find(totemName, "Yu'lon") then
-                    YulonDuration = estimateDuration
-                elseif string.find(totemName, "Chi") then
-                    ChiJiDuration = estimateDuration
-                end
-            end
-        end
-    end,
-    LoadSoothingMistUnit = function ()
-        soothingMistUnit = nil
-        for i = 1, #friends do
-            local tempUnit = friends[i]
-            if FunctionsUtilities.IsAuraActive(tempUnit.unit, 115175) then
-                soothingMistUnit = tempUnit.unit
-                break
-            end
-        end
-    end,
-    LoadHealingVariables = function ()
-        healingValues.gustOfMist = ((0.1 / 100) + (player.mastery / 100)) * player.spellPower * player.versatility
-        healingValues.vivify = (141 / 100) * player.spellPower * player.versatility
-        healingValues.vivifyRenewingMist = (104 / 100) * player.spellPower * player.versatility
-        healingValues.envelopingMist = (60 / 100) * player.spellPower * player.versatility
-        healingValues.envelopingBreath = (30 / 100) * player.spellPower * player.versatility
-        healingValues.envelopingMistThunderFocusTea = (280 / 100) * player.spellPower * player.versatility
-        healingValues.expelHarm = (120 / 100) * player.spellPower * player.versatility
-        healingValues.lifeCocoon = (60 / 100) * player.maxHealth * player.versatility
-        healingValues.revival = (315 / 100) * player.spellPower * player.versatility
-        healingValues.soothingMist = (55 / 100) * player.spellPower * player.versatility
-        healingValues.essenceFont = (47.2 / 100) * player.spellPower * player.versatility
-        healingValues.tigerPalm = (27.027 / 100) * player.spellPower * player.versatility * 0.81 * (250 / 100)
-        healingValues.blackoutKick = (84.7 / 100) * player.spellPower * player.versatility * 0.77 * (250 / 100)
-        healingValues.risingSunKick = (143.8 / 100) * player.spellPower * player.versatility * 1.12 * (250 / 100)
-    end
-}
 
 -- 2284	Sanguine Depths
 -- 2285	Spires of Ascension
@@ -851,21 +734,187 @@ local mythicListDetox = {
     }
 }
 
-local function isValidToDetox(debuff, dispelUnit)
-    if not MonkFlags[debuff.flag] then
+local FunctionsUtilities = {
+    IsValidToDetox = function (theDebuff, dispelUnit)
+        if not MonkFlags[debuff.flag] then
+            return false
+        end
+        if theDebuff.stack and br.getDebuffStacks(dispelUnit.unit, theDebuff.spellID) < theDebuff.stack then
+            return false
+        end
+        if theDebuff.range and #br.getAllies(dispelUnit.unit, theDebuff.range) == 1 then
+            return false
+        end
+        if theDebuff.notUseOnTank and unit.role(dispelUnit.unit) == "TANK" then
+            return false
+        end
+        return true
+    end,
+    IsUnitImmune = function (unitGUID, spellID)
+        return br.data.settings[br.selectedSpec][br.selectedProfile]["LyloMWImmuneList"][br.getCurrentZoneId().. ":" ..br._G.UnitName(unitGUID) .. ":" .. spellID] or false
+    end,
+    IsAuraActive = function (theUnit, spellID)
+        for i = 1, 40 do
+            local _, _, _, _, _, _, _, _, _, buffSpellID = br._G.UnitBuff(theUnit, i, "player")
+            if buffSpellID == spellID then
+                return true
+            end
+        end
         return false
+    end,
+    IsPause = function ()
+        return br.pause(true) or br.player.unit.mounted() or br.player.unit.flying() or br.getBuffRemain("player", 307195) > 0 or Toggles.RotationModes.Off()
+    end,
+    GetMissingHP = function (theUnit)
+        if unit.deadOrGhost(theUnit) then
+            return 0
+        end
+        if unit.distance("player", theUnit) > 40 then
+            return 0
+        end
+        if not unit.exists(theUnit) then
+            return 0
+        end
+        local actualHealth = unit.health(theUnit) + br._G.UnitGetIncomingHeals(theUnit)
+        local missingHealth = unit.healthMax(theUnit) - actualHealth
+        if missingHealth <= healingValues.envelopingMist * 3 and buff.envelopingMist.remains(theUnit) >= 3 then
+            -- print(missingHealth)
+            missingHealth = missingHealth - healingValues.envelopingMist * 3
+            -- print(missingHealth)
+        end
+        if missingHealth < 0 then
+            missingHealth = 0
+        end
+        return missingHealth
+    end,
+    ShouldApplyMysticTouch = function ()
+        return #enemies.yards8 - mysticTouchCount >= 2
+    end,
+    Attack = function (theUnit)
+        if unit.deadOrGhost("target") or unit.distance("target") >= 5 then
+            br._G.ClearTarget()
+        end
+        if theUnit == "target" then theUnit = br._G.UnitGUID(theUnit) end
+        if theUnit == nil then
+            theUnit = enemies.yards5[1]
+        end
+        if br._G.UnitGUID(target) ~= theUnit then
+           br._G.TargetUnit(theUnit)
+           br._G.StartAttack(theUnit)
+        end
     end
-    if debuff.stack and br.getDebuffStacks(dispelUnit.unit, debuff.spellID) < debuff.stack then
-        return false
+}
+FunctionsUtilities.CountMissingHPFromAllies = function (value, unitTable)
+    local lowAllies = 0
+    for i = 1, #unitTable do
+        if FunctionsUtilities.GetMissingHP(unitTable[i].unit) >= value then
+            lowAllies = lowAllies + 1
+        end
     end
-    if debuff.range and #br.getAllies(dispelUnit.unit, debuff.range) == 1 then
-        return false
-    end
-    if debuff.notUseOnTank and unit.role(dispelUnit.unit) == "TANK" then
-        return false
-    end
-    return true
+    return lowAllies
 end
+
+local VariablesUtilities = {
+    LoadBadRotation = function ()
+        player              = br.player
+        buff                = player.buff
+        cast                = player.cast
+        cd                  = player.cd
+        charges             = player.charges
+        debuff              = player.debuff
+        enemies             = player.enemies
+        gcd                 = player.gcd
+        spell               = player.spell
+        talent              = player.talent
+        unit                = player.unit
+        runeforge           = player.runeforge
+
+        player.health           = unit.health()
+        player.maxHealth        = unit.healthMax()
+        player.versatility      = 1 + ((GetCombatRatingBonus(CR_VERSATILITY_DAMAGE_DONE) + GetVersatilityBonus(CR_VERSATILITY_DAMAGE_DONE)) / 100)
+        player.mastery          = select(1, GetMasteryEffect("player"))
+        player.spellPower       = GetSpellBonusDamage(4)
+        
+        lowestUnit      = unit.lowest(40)
+
+        friends         = br.friend
+
+        enemies.get(5)--enemies.yards5
+        enemies.get(5, "player", false, true)
+        enemies.get(6)--enemies.yards6
+        enemies.get(8)--enemies.yards8
+        enemies.get(20)--enemies.yards20
+        enemies.get(40)--enemies.yards20
+
+        mysticTouchCount = debuff.mysticTouch.refreshCount(8)
+        for i = 1, #friends do
+            if friends[i] then
+                if friends[i].class == "Monk" and friends[i].unit ~= "player" then
+                    mysticTouchCount = 99
+                    break;
+                end
+            end
+        end
+        mysticTouchUnit = debuff.mysticTouch.lowest(5)
+
+        JadeSerpentStatueDuration = 0
+        YulonDuration = 0
+        ChiJiDuration = 0
+
+        tankUnit = "player"
+        tanks = br.getTanksTable()
+        if #tanks > 0 then
+            tankUnit = tanks[1].unit
+        end
+
+        player.mana         = player.power.mana.percent()
+        if buff.prideful.exists("player") then
+            player.mana = 100
+        end
+    end,
+    LoadTotemEstimateDurations = function ()
+        for index = 1, 4 do
+            local exists, totemName, startTime, duration, _ = GetTotemInfo(index)
+            if exists and totemName ~= nil then
+                local estimateDuration = br.round2(startTime + duration - GetTime())
+                if string.find(totemName, "Jade") then
+                    JadeSerpentStatueDuration = estimateDuration
+                elseif string.find(totemName, "Yu'lon") then
+                    YulonDuration = estimateDuration
+                elseif string.find(totemName, "Chi") then
+                    ChiJiDuration = estimateDuration
+                end
+            end
+        end
+    end,
+    LoadSoothingMistUnit = function ()
+        soothingMistUnit = nil
+        for i = 1, #friends do
+            local tempUnit = friends[i]
+            if FunctionsUtilities.IsAuraActive(tempUnit.unit, 115175) then
+                soothingMistUnit = tempUnit.unit
+                break
+            end
+        end
+    end,
+    LoadHealingVariables = function ()
+        healingValues.gustOfMist = ((0.1 / 100) + (player.mastery / 100)) * player.spellPower * player.versatility
+        healingValues.vivify = (141 / 100) * player.spellPower * player.versatility
+        healingValues.vivifyRenewingMist = (104 / 100) * player.spellPower * player.versatility
+        healingValues.envelopingMist = (60 / 100) * player.spellPower * player.versatility
+        healingValues.envelopingBreath = (30 / 100) * player.spellPower * player.versatility
+        healingValues.envelopingMistThunderFocusTea = (280 / 100) * player.spellPower * player.versatility
+        healingValues.expelHarm = (120 / 100) * player.spellPower * player.versatility
+        healingValues.lifeCocoon = (60 / 100) * player.maxHealth * player.versatility
+        healingValues.revival = (315 / 100) * player.spellPower * player.versatility
+        healingValues.soothingMist = (55 / 100) * player.spellPower * player.versatility
+        healingValues.essenceFont = (47.2 / 100) * player.spellPower * player.versatility
+        healingValues.tigerPalm = (27.027 / 100) * player.spellPower * player.versatility * 0.81 * (250 / 100)
+        healingValues.blackoutKick = (84.7 / 100) * player.spellPower * player.versatility * 0.77 * (250 / 100)
+        healingValues.risingSunKick = (143.8 / 100) * player.spellPower * player.versatility * 1.12 * (250 / 100)
+    end
+}
+
 
 local ExtraActions = {
     RunDetox = function()
@@ -892,7 +941,7 @@ local ExtraActions = {
             local theDebuff = debuffsIDs[j]
             for i = 1, #friends do
                 local dispelUnit = friends[i]
-                if isValidToDetox(theDebuff, dispelUnit) then
+                if FunctionsUtilities.IsValidToDetox(theDebuff, dispelUnit) then
                     if br.UnitDebuffID(dispelUnit.unit, theDebuff.spellID) and br.getLineOfSight(dispelUnit.unit) and br.getDistance(dispelUnit.unit) <= 40 then
                         return cast.detox(dispelUnit.unit)
                     end
@@ -904,7 +953,7 @@ local ExtraActions = {
         if Toggles.InterruptModes.On() then
             if Options.LegSweep:Checked() and cd.legSweep.ready() and cast.able.legSweep() then
                 local temp = _G.foreach(enemies.yards6, function(index, enemyGUID)
-                    if unit.interruptable(enemyGUID, Options.InterruptAt:Value())  then
+                    if unit.interruptable(enemyGUID, Options.InterruptAt:Value()) and not FunctionsUtilities.IsUnitImmune(enemyGUID, spell.legSweep) then
                         return cast.legSweep("player")
                     end
                 end)
@@ -913,7 +962,7 @@ local ExtraActions = {
             -- Paralysis
             if Options.Paralysis:Checked() and cd.paralysis.ready() then
                 local temp = _G.foreach(enemies.yards20, function(index, enemyGUID)
-                    if br._G.UnitChannelInfo(enemyGUID) then
+                    if br._G.UnitChannelInfo(enemyGUID) and not FunctionsUtilities.IsUnitImmune(enemyGUID, spell.paralysis) then
                         return cast.paralysis(enemyGUID)
                     end
                 end)
@@ -984,7 +1033,7 @@ local ActionList = {
                 revivalLimit = 8
             end
             -- Revival
-            if cd.revival.ready() and FunctionsUtilities.CountMissingHPFromAllies(healingValues.revival * 2, friends) >= revivalLimit and unit.inCombat() then
+            if cd.revival.ready() and Options.Revival:Checked() and FunctionsUtilities.CountMissingHPFromAllies(healingValues.revival * 2, friends) >= revivalLimit and unit.inCombat() then
                 return cast.revival()
             end
             -- Essence font
@@ -1224,7 +1273,7 @@ local ActionList = {
             if (not buff.ancientTeachingOfTheMonastery.exists() or buff.ancientTeachingOfTheMonastery.remains() <= 3) and cd.essenceFont.ready() then
                 return cast.essenceFont("player")
             end
-            if cd.risingSunKick.ready() and FunctionsUtilities.GetMissingHP(lowestUnit) >= healingValues.risingSunKick then
+            if cd.risingSunKick.ready() and (FunctionsUtilities.GetMissingHP(lowestUnit) >= healingValues.risingSunKick or Options.IgnoreHealthAncientTeachings:Checked()) then
                 if cd.thunderFocusTea.ready() then
                     cast.thunderFocusTea("player")
                 end
@@ -1234,11 +1283,12 @@ local ActionList = {
                 if (buff.teachingsOfTheMonastery.stack() == 3 and FunctionsUtilities.GetMissingHP(lowestUnit) >= healingValues.blackoutKick * 4) or
                     (buff.teachingsOfTheMonastery.stack() == 2 and FunctionsUtilities.GetMissingHP(lowestUnit) >= healingValues.blackoutKick * 3) or
                     (buff.teachingsOfTheMonastery.stack() == 1 and FunctionsUtilities.GetMissingHP(lowestUnit) >= healingValues.blackoutKick * 2 and not talent.spiritOfTheCrane) or
-                    (buff.teachingsOfTheMonastery.stack() == 0 and FunctionsUtilities.GetMissingHP(lowestUnit) >= healingValues.blackoutKick * 1 and not talent.spiritOfTheCrane) then
+                    (buff.teachingsOfTheMonastery.stack() == 0 and FunctionsUtilities.GetMissingHP(lowestUnit) >= healingValues.blackoutKick * 1 and not talent.spiritOfTheCrane) or 
+                    Options.IgnoreHealthAncientTeachings:Checked() then
                     return cast.blackoutKick(mysticTouchUnit)
                 end
             end
-            if FunctionsUtilities.GetMissingHP(lowestUnit) >= healingValues.tigerPalm or buff.teachingsOfTheMonastery.stack() < 3 then
+            if (FunctionsUtilities.GetMissingHP(lowestUnit) >= healingValues.tigerPalm or Options.IgnoreHealthAncientTeachings:Checked()) or buff.teachingsOfTheMonastery.stack() < 3 then
                 if cd.tigerPalm.ready() then
                     return cast.tigerPalm(mysticTouchUnit)
                 end
@@ -1292,7 +1342,10 @@ local ActionList = {
 --- ROTATION ---
 ----------------
 local function runRotation()
-
+    if not Options then
+        print("Open Rotation Options")
+        return false
+    end
     if FunctionsUtilities.IsPause() then
         return
     end
