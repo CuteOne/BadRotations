@@ -950,6 +950,9 @@ local ExtraActions = {
         end
     end,
     RunInterrupt = function ()
+        if unit.hp(lowestUnit) <= 40 then
+            return false
+        end
         if Toggles.InterruptModes.On() then
             if Options.LegSweep:Checked() and cd.legSweep.ready() and cast.able.legSweep() then
                 local temp = _G.foreach(enemies.yards6, function(index, enemyGUID)
