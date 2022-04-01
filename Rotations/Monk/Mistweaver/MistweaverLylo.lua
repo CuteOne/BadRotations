@@ -484,6 +484,8 @@ local soothingMistUnit
 local mysticTouchCount
 local mysticTouchUnit
 
+local resistance = 0.85
+
 
 -------------------
 ---- FUNCTIONS ----
@@ -645,9 +647,9 @@ local HealingValues = {
 -- 2290	Mists of Tirna Scithe
 -- 2291	De Other Side
 -- 2293	Theater of Pain
--- function bossModPrototype:(text, optionDefault, ...)
---    return newSpecialWarning(self, "dispel", text, nil, optionDefault, ...)
--- end
+-- NewSpecialWarningDispel(329110, "Healer", nil, 2, 1, 2)
+-- NewSpecialWarningDispel(spellId, optionDefault, ...)
+---- newSpecialWarning(self, "dispel", spellId, nil, optionDefault, ...)
 -- newSpecialWarning(self, announceType, spellId, stacks, optionDefault, optionName, optionVersion, runSound, hasVoice, difficulty)
 local MonkFlags = { -- Mistweaver Monk
     ["Healer"] = true,
@@ -665,43 +667,92 @@ local MonkFlags = { -- Mistweaver Monk
 
 }
 
+
+
 local mythicListDetox = {
     [0] = {
         {spellID = 240443, flag = "RemoveMagic", stack = 3, onlyUseOnTankIf = true},
+    },
+
+    [1148] = {
         {spellID = 145206, flag = "RemoveMagic"}
+    },
+
+    -- Tazavesh
+    [2441] = {
+        -- mod:NewSpecialWarningDispel(349954, "RemoveMagic", nil, nil, 1, 2)
+        {spellID = 349954, flag = "RemoveMagic"},
+        -- mod:NewSpecialWarningDispel(355915, "RemoveMagic", nil, nil, 1, 2)--Interrogation Specialist
+        {spellID = 355915, flag = "RemoveMagic"},
+        -- mod:NewSpecialWarningDispel(355980, "MagicDispeller", nil, nil, 1, 2)--Support Officer
+        {spellID = 355980, flag = "MagicDispeller"},
     },
 
     -- Sanguine Depths
     [2284] = {
+        -- mod:NewSpecialWarningDispel(328494, "RemoveCurse", nil, nil, 1, 2)
         {spellID = 328494, flag = "RemoveCurse"},
-        {spellID = 321038, flag = "RemoveMagic"}
+        -- mod:NewSpecialWarningDispel(321038, "RemoveMagic", nil, nil, 1, 2)
+        {spellID = 321038, flag = "RemoveMagic"},
+        -- 326836-Curse
+        {spellID = 326836, flag = "RemoveCurse"},
+        -- 336277-Curse
+        {spellID = 336277, flag = "RemoveCurse"},
+        -- 328494-Curse
+        {spellID = 328494, flag = "RemoveCurse"},
     },
     -- Spires of Ascension
     [2285] = {
+        -- mod:NewSpecialWarningDispel(317936, "MagicDispeller", nil, nil, 1, 2)
         {spellID = 317936, flag = "MagicDispeller"},
+        -- mod:NewSpecialWarningDispel(317963, "RemoveMagic", nil, nil, 1, 2)
         {spellID = 317963, flag = "RemoveMagic"},
+        -- mod:NewSpecialWarningDispel(317661, "RemoveMagic", nil, nil, 1, 2)
         {spellID = 317661, flag = "RemoveMagic"},
+        -- mod:NewSpecialWarningDispel(328331, "RemoveMagic", nil, nil, 1, 2)
         {spellID = 328331, flag = "RemoveMagic"}
     },
     -- The Necrotic Wake
     [2286] = {
+        -- mod:NewSpecialWarningDispel(320012, "RemoveEnrage", nil, nil, 1, 2)
         {spellID = 320012, flag = "RemoveEnrage"},
+        -- mod:NewSpecialWarningDispel(335141, "MagicDispeller", nil, nil, 1, 2)
         {spellID = 335141, flag = "MagicDispeller"},
+        -- mod:NewSpecialWarningDispel(338353, "RemoveDisease", nil, nil, 1, 2)
         {spellID = 338353, flag = "RemoveDisease"},
+        -- mod:NewSpecialWarningDispel(323347, false, nil, nil, 1, 2)--Opt it for now, since dispel timing is less black and white
         {spellID = 323347, flag = "RemoveMagic", stack = 5},
-        {spellID = 320788, flag = "RemoveMagic", range = 16}
+        {spellID = 320788, flag = "RemoveMagic", range = 16},
+        -- 321821-Disease
+        {spellID = 321821, flag = "RemoveDisease"},
+        -- 324293-Magic
+        {spellID = 324293, flag = "RemoveMagic"},
+        -- 328664-Magic
+        {spellID = 328664, flag = "RemoveMagic"},
+
     },
     -- 	Halls of Atonement
     [2287] = {
-        {spellID = 319603, flag = "RemoveCurse"}, 
-        {spellID = 322977, flag = "RemoveMagic"}
+        -- mod:NewSpecialWarningDispel(319603, "RemoveCurse", nil, nil, 1, 2)
+        {spellID = 319603, flag = "RemoveCurse"},
+        -- mod:NewSpecialWarningDispel(322977, "RemoveMagic", nil, nil, 1, 2)
+        {spellID = 322977, flag = "RemoveMagic"},
+        -- 325701-Magic
+        {spellID = 325701, flag = "RemoveMagic"},
+        -- 325876-Curse
+        {spellID = 325876, flag = "RemoveCurse"}
     },
     -- 	Plaguefall
     [2289] = {
+        -- mod:NewSpecialWarningDispel(328015, "MagicDispeller", nil, nil, 1, 2)
         {spellID = 328015, flag = "MagicDispeller"},
+        -- mod:NewSpecialWarningDispel(324652, "RemoveDisease", nil, nil, 1, 2)
         {spellID = 324652, flag = "RemoveDisease"},
+        -- mod:NewSpecialWarningDispel(325552, "RemovePoison", nil, nil, 1, 2)
         {spellID = 325552, flag = "RemovePoison"},
+        -- mod:NewSpecialWarningDispel(319070, "RemoveDisease", nil, nil, 1, 2)
         {spellID = 319070, flag = "RemoveDisease"},
+        -- mod:NewSpecialWarningDispel(329110, "Healer", nil, 2, 1, 2)
         {spellID = 329110, flag = "Healer"},
         {spellID = 331399, flag = "RemoveDisease", notUseOnTank = true, stack = 3},
         {spellID = 322410, flag = "RemoveMagic"},
@@ -712,37 +763,58 @@ local mythicListDetox = {
     },
     -- Mists of Tirna Scithe
     [2290] = {
+        -- mod:NewSpecialWarningDispel(322557, "RemoveMagic", nil, nil, 1, 2)
         {spellID = 322557, flag = "RemoveMagic"},
+        -- mod:NewSpecialWarningDispel(324914, "MagicDispeller", nil, nil, 1, 2)
         {spellID = 324914, flag = "MagicDispeller"},
+        -- mod:NewSpecialWarningDispel(324776, "MagicDispeller", nil, nil, 1, 2)
         {spellID = 324776, flag = "MagicDispeller"},
+        -- mod:NewSpecialWarningDispel(325224, "RemoveMagic", nil, nil, 1, 2)
         {spellID = 325224, flag = "RemoveMagic"},
-        {spellID = 326046, flag = "MagicDispeller"}
+        -- mod:NewSpecialWarningDispel(326046, "MagicDispeller", nil, nil, 1, 2)
+        {spellID = 326046, flag = "MagicDispeller"},
+        -- mod:NewSpecialWarningDispel(323137, false, nil, 2, 1, 2)--Off by default
         -- { spellID = 323137, false}--Off by default?maybe?
+        -- 321968-Magic
+        {spellID = 321968, flag = "RemoveMagic"},
+        -- 322557-Magic
+        {spellID = 322557, flag = "RemoveMagic"},
+        -- 324859-Magic
+        {spellID = 324859, flag = "RemoveMagic"},
+        -- 326092-Poison
+        {spellID = 326092, flag = "RemovePoison"},
     },
     -- De Other Side
     [2291] = {
+        -- mod:NewSpecialWarningDispel(333227, "RemoveEnrage", nil, nil, 1, 2)
         {spellID = 333227, flag = "RemoveEnrage"},
+        -- mod:NewSpecialWarningDispel(332666, "MagicDispeller", nil, nil, 1, 2)
         {spellID = 332666, flag = "MagicDispeller"}
     },
     -- Theater of Pain
     [2293] = {
+        -- mod:NewSpecialWarningDispel(341902, "MagicDispeller", nil, nil, 1, 2)
         {spellID = 341902, flag = "MagicDispeller"},
+        -- mod:NewSpecialWarningDispel(333241, "RemoveEnrage", nil, nil, 1, 2)
         {spellID = 333241, flag = "RemoveEnrage"},
+        -- mod:NewSpecialWarningDispel(319626, "RemoveMagic", nil, nil, 1, 2)
         {spellID = 319626, flag = "RemoveMagic"},
+        -- mod:NewSpecialWarningDispel(324085, "RemoveEnrage", nil, nil, 1, 2)
         {spellID = 324085, flag = "RemoveEnrage"},
+        -- mod:NewSpecialWarningDispel(320272, "MagicDispeller", nil, nil, 1, 2)
         {spellID = 320272, flag = "MagicDispeller"}
     }
 }
 
 local FunctionsUtilities = {
     IsValidToDetox = function (theDebuff, dispelUnit)
-        if not MonkFlags[debuff.flag] then
+        if not MonkFlags[theDebuff.flag] then
             return false
         end
         if theDebuff.stack and br.getDebuffStacks(dispelUnit.unit, theDebuff.spellID) < theDebuff.stack then
             return false
         end
-        if theDebuff.range and #br.getAllies(dispelUnit.unit, theDebuff.range) == 1 then
+        if theDebuff.range and #br.getAllies(dispelUnit.unit, theDebuff.range) ~= 1 then
             return false
         end
         if theDebuff.notUseOnTank and unit.role(dispelUnit.unit) == "TANK" then
@@ -898,20 +970,35 @@ local VariablesUtilities = {
         end
     end,
     LoadHealingVariables = function ()
-        healingValues.gustOfMist = ((0.1 / 100) + (player.mastery / 100)) * player.spellPower * player.versatility
-        healingValues.vivify = (141 / 100) * player.spellPower * player.versatility
-        healingValues.vivifyRenewingMist = (104 / 100) * player.spellPower * player.versatility
-        healingValues.envelopingMist = (60 / 100) * player.spellPower * player.versatility
-        healingValues.envelopingBreath = (30 / 100) * player.spellPower * player.versatility
-        healingValues.envelopingMistThunderFocusTea = (280 / 100) * player.spellPower * player.versatility
-        healingValues.expelHarm = (120 / 100) * player.spellPower * player.versatility
-        healingValues.lifeCocoon = (60 / 100) * player.maxHealth * player.versatility
-        healingValues.revival = (315 / 100) * player.spellPower * player.versatility
-        healingValues.soothingMist = (55 / 100) * player.spellPower * player.versatility
-        healingValues.essenceFont = (47.2 / 100) * player.spellPower * player.versatility
-        healingValues.tigerPalm = (27.027 / 100) * player.spellPower * player.versatility * 0.81 * (250 / 100)
-        healingValues.blackoutKick = (84.7 / 100) * player.spellPower * player.versatility * 0.77 * (250 / 100)
-        healingValues.risingSunKick = (143.8 / 100) * player.spellPower * player.versatility * 1.12 * (250 / 100)
+-- https://www.wowhead.com/spell=115151/renewing-mist
+
+        -- https://www.wowhead.com/spell=191894
+        healingValues.gustOfMist = (0.001 + (player.mastery / 100)) * player.spellPower * player.versatility
+        -- https://www.wowhead.com/spell=116670
+        healingValues.vivify = 1.41 * player.spellPower * player.versatility
+        healingValues.vivifyRenewingMist = 1.04 * player.spellPower * player.versatility
+        -- https://www.wowhead.com/spell=124682
+        healingValues.envelopingMist = 0.6 * player.spellPower * player.versatility
+        -- https://www.wowhead.com/spell=343655
+        healingValues.envelopingBreath = 0.3 * player.spellPower * player.versatility
+        -- https://www.wowhead.com/spell=116680
+        healingValues.envelopingMistThunderFocusTea = 2.8 * player.spellPower * player.versatility
+        -- https://www.wowhead.com/spell=322101
+        healingValues.expelHarm = 1.2 * player.spellPower * player.versatility
+        -- https://www.wowhead.com/spell=116849
+        healingValues.lifeCocoon = 0.6 * player.maxHealth * player.versatility
+        -- https://www.wowhead.com/spell=115310
+        healingValues.revival = 2.83 * player.spellPower * player.versatility
+        -- https://www.wowhead.com/spell=115175
+        healingValues.soothingMist = 0.55 * player.spellPower * player.versatility
+        -- https://www.wowhead.com/spell=191837
+        healingValues.essenceFont = 0.472 * player.spellPower * player.versatility
+        -- https://www.wowhead.com/spell=100780
+        healingValues.tigerPalm = 0.27027 * player.spellPower * player.versatility * resistance * (250 / 100)
+        -- https://www.wowhead.com/spell=100784
+        healingValues.blackoutKick = 0.77 * player.spellPower * player.versatility * resistance * (250 / 100)
+        -- https://www.wowhead.com/spell=107428
+        healingValues.risingSunKick = 1.90800 * player.spellPower * player.versatility * resistance * (250 / 100)
     end
 }
 
@@ -1023,10 +1110,15 @@ local ActionList = {
             end
         end
         -- Self Healing
-        if br.timer:useTimer("healingElixir", 0.5) and unit.inCombat() then
-            if (charges.healingElixir.count() > 1 and player.health <= 75 and soothingMistUnit == nil) or
-            (charges.healingElixir.count() > 0 and player.health <= 45 and soothingMistUnit == nil) then
+        if talent.healingElixir and br.timer:useTimer("healingElixir", 0.5) and unit.inCombat() then
+            if (charges.healingElixir.count() > 1 and player.health <= 75 and soothingMistUnit == nil) or (charges.healingElixir.count() > 0 and player.health <= 45 and soothingMistUnit == nil) then
                 return cast.healingElixir("player")
+            end
+        end
+        -- Healthstone
+        if Options.Healthstone:Checked() and player.health <= Options.Healthstone:Value() and br.hasItem(5512) then
+            if br.canUseItem(5512) then
+                br.useItem(5512)
             end
         end
         if gcd <= 0.1 then
@@ -1050,14 +1142,14 @@ local ActionList = {
             end
             -- Expel Harm
             if cd.expelHarm.ready() and unit.inCombat() and unit.hp(lowestUnit) >= 50 and FunctionsUtilities.GetMissingHP("player") >= HealingValues.GetExpelHarm("player") and
-            soothingMistUnit == nil and ChiJiDuration == 0 then
+                    soothingMistUnit == nil and ChiJiDuration == 0 then
                 return cast.expelHarm("player")
             end
-            -- Diffuse Magic
+            -- Dampen Harm
             if talent.dampenHarm and Options.DampenHarm:Checked() and player.health <= Options.DampenHarm:Value() and cd.dampenHarm.ready() then
                 return cast.dampenHarm("player")
             end
-            -- Dampen Harm
+            -- Diffuse Magic
             if talent.diffuseMagic and Options.DiffuseMagic:Checked() and player.health <=  Options.DiffuseMagic:Value() and cd.diffuseMagic.ready() then
                 return cast.diffuseMagic("player")
             end
@@ -1094,7 +1186,7 @@ local ActionList = {
                 end
             end
             -- Detox
-            if cast.timeSinceLast.detox() > 6 and soothingMistUnit == nil and ExtraActions.RunDetox() then
+            if cast.timeSinceLast.detox() > 6 and ExtraActions.RunDetox() then
                 return true
             end
 
@@ -1345,6 +1437,7 @@ local ActionList = {
 --- ROTATION ---
 ----------------
 local function runRotation()
+    
     if not Options then
         print("Open Rotation Options")
         return false
@@ -1358,6 +1451,9 @@ local function runRotation()
     VariablesUtilities.LoadSoothingMistUnit()
     VariablesUtilities.LoadHealingVariables()
 
+    if true then
+        return
+    end
     if ExtraActions.Manual() then
         return
     end
