@@ -998,6 +998,7 @@ local VariablesUtilities = {
         -- https://www.wowhead.com/spell=100784
         healingValues.blackoutKick = 0.77 * player.spellPower * player.versatility * resistance * (250 / 100)
         -- https://www.wowhead.com/spell=107428
+        -- 143.8%-12%
         healingValues.risingSunKick = 1.90800 * player.spellPower * player.versatility * resistance * (250 / 100)
     end
 }
@@ -1451,9 +1452,6 @@ local function runRotation()
     VariablesUtilities.LoadSoothingMistUnit()
     VariablesUtilities.LoadHealingVariables()
 
-    if true then
-        return
-    end
     if ExtraActions.Manual() then
         return
     end
