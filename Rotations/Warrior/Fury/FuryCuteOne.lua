@@ -310,7 +310,7 @@ end -- End Action List - Movement
 actionList.AOE = function()
     -- Cancel Buff - Bladestorm
     -- cancel_buff,name=bladestorm,if=spell_targets.whirlwind>1&gcd.remains=0&soulbind.first_strike&buff.first_strike.remains&buff.enrage.remains<gcd
-    if cast.current.bladestorm() and #enemies.yards8 > 1 and unit.gcd() == 0 and buff.firstStrike.remain() > 0 and buff.enrage.remain() < unit.gcd(true) then
+    if cast.current.bladestorm() and ui.useAOE(8,2) and unit.gcd() == 0 and buff.firstStrike.remain() > 0 and buff.enrage.remain() < unit.gcd(true) then
         var.cancelBladestorm = true
         return true
     end
@@ -324,13 +324,13 @@ actionList.AOE = function()
     -- Bladestorm
     -- bladestorm,if=buff.enrage.up&spell_targets.whirlwind>2
     if ui.alwaysCdAoENever("Bladestorm",3,8) and cast.able.bladestorm("player","aoe",3,8)
-        and (buff.enrage.remain() and #enemies.yards8 > 2)
+        and (buff.enrage.remain() and ui.useAOE(8,3))
     then
         if cast.bladestorm("player","aoe",3,8) then ui.debug("Casting Bladestorm [AOE - High Targets]") return true end
     end
     -- Condemn
     -- condemn,if=spell_targets.whirlwind>1&(buff.enrage.up|buff.recklessness.up&runeforge.sinful_surge)&variable.execute_phase
-    if covenant.venthyr.active and ui.alwaysCdAoENever("Covenant",2,8) and #enemies.yards8 > 1 then
+    if covenant.venthyr.active and ui.alwaysCdAoENever("Covenant",2,8) and ui.useAOE(8,2) then
         for i = 1, #enemies.yards5f do
             local thisUnit = enemies.yards5f[i]
             if (var.condemnable(thisUnit) or ((var.condemnable(thisUnit) and buff.enrage.exists()) or (buff.recklessness.exists() and runeforge.sinfulSurge.equiped))) and var.executePhase(thisUnit) then
@@ -344,12 +344,12 @@ actionList.AOE = function()
     end
     -- Siegebreaker
     -- siegebreaker,if=spell_targets.whirlwind>1
-    if ui.alwaysCdAoENever("Siegebreaker",2,8) and cast.able.siegebreaker("player","aoe",2,8) and #enemies.yards8 > 1 then
+    if ui.alwaysCdAoENever("Siegebreaker",2,8) and cast.able.siegebreaker("player","aoe",2,8) and ui.useAOE(8,2) then
         if cast.siegebreaker("player","aoe",2,8) then ui.debug("Casting Siegebreaker [AOE]") return true end
     end
     -- Rampage
     -- rampage,if=spell_targets.whirlwind>1
-    if cast.able.rampage() and #enemies.yards8 > 1 then
+    if cast.able.rampage() and ui.useAOE(8,2) then
         if cast.rampage() then ui.debug("Casting Rampage [AOE]") return true end
     end
     -- Spear of Bastion
@@ -362,7 +362,7 @@ actionList.AOE = function()
     -- Bladestorm
     -- bladestorm,if=buff.enrage.remains>gcd*2.5&spell_targets.whirlwind>1
     if ui.alwaysCdAoENever("Bladestorm",2,8) and cast.able.bladestorm("player","aoe",2,8)
-        and (buff.enrage.remain() > unit.gcd() * 2.5 and #enemies.yards8 > 1)
+        and (buff.enrage.remain() > unit.gcd() * 2.5 and ui.useAOE(8,2))
     then
         if cast.bladestorm("player","aoe",2,8) then ui.debug("Casting Bladestorm [AOE]") return true end
     end
@@ -382,7 +382,7 @@ actionList.SingleTarget = function()
     end
     -- Cancel Bladestorm
     -- cancel_buff,name=bladestorm,if=spell_targets.whirlwind=1&gcd.remains=0&(talent.massacre.enabled|covenant.venthyr.enabled)&variable.execute_phase&(rage>90|!cooldown.condemn.remains)
-    if cast.current.bladestorm() and #enemies.yards8 == 1 and unit.gcd() == 0
+    if cast.current.bladestorm() and ui.useST(8,2) and unit.gcd() == 0
         and (talent.massacre or covenant.venthyr.enabled) and var.executePhase and (rage > 90 or not cd.condemn.exists())
     then
         var.cancelBladestorm = true
@@ -404,7 +404,7 @@ actionList.SingleTarget = function()
     end
     -- Siegebreaker
     -- siegebreaker,if=spell_targets.whirlwind>1|raid_event.adds.in>15
-    if ui.alwaysCdAoENever("Siegebreaker",2,8) and cast.able.siegebreaker("player","aoe",2,8) and (#enemies.yards8 > 1) then
+    if ui.alwaysCdAoENever("Siegebreaker",2,8) and cast.able.siegebreaker("player","aoe",2,8) and (ui.useAOE(8,2)) then
         if cast.siegebreaker("player","aoe",2,8) then ui.debug("Casting Siegebreaker [ST]") return true end
     end
     -- Rampage
@@ -453,7 +453,7 @@ actionList.SingleTarget = function()
     -- Bladestorm
     -- bladestorm,if=buff.enrage.up&(!buff.recklessness.remains|rage<50)&(spell_targets.whirlwind=1&raid_event.adds.in>45|spell_targets.whirlwind=2)
     if ui.alwaysCdAoENever("Bladestorm",1,8) and cast.able.bladestorm("player","aoe",1,8)
-        and (buff.enrage.exists() and (not buff.recklessness.exists() or rage < 50) and (#enemies.yards8 == 1 or #enemies.yards8 == 2))
+        and (buff.enrage.exists() and (not buff.recklessness.exists() or rage < 50) and (ui.useST(8,2) or #enemies.yards8 == 2))
     then
         if cast.bladestorm("player","aoe",1,8) then ui.debug("Casting Bladestorm [ST]") return true end
     end
@@ -483,12 +483,12 @@ actionList.SingleTarget = function()
     end
     -- Dragon Roar
     -- dragon_roar,if=buff.enrage.up&(spell_targets.whirlwind>1|raid_event.adds.in>15)
-    if ui.alwaysCdAoENever("Dragon Roar",1,8) and cast.able.dragonRoar("player","aoe",1,8) and (buff.enrage.exists() and (#enemies.yards8 > 1)) then
+    if ui.alwaysCdAoENever("Dragon Roar",1,8) and cast.able.dragonRoar("player","aoe",1,8) and (buff.enrage.exists() and (ui.useAOE(8,2))) then
         if cast.dragonRoar("player","aoe",1,8) then ui.debug("Casting Dragon Roar [ST]") return true end
     end
     -- Whirlwind
     -- whirlwind,if=buff.merciless_bonegrinder.up&spell_targets.whirlwind>3
-    if cast.able.whirlwind("player","aoe",1,8) and (buff.mercilessBonegrinder.exists() and #enemies.yards8 > 3) then
+    if cast.able.whirlwind("player","aoe",1,8) and (buff.mercilessBonegrinder.exists() and ui.useAOE(8,4)) then
         if cast.whirlwind("player","aoe",1,8) then ui.debug("Casting Whirlwind [ST - Merciless Bonegrinder]") return true end
     end
     -- Onslaught
@@ -698,7 +698,7 @@ local function runRotation()
                 if cast.rampage() then ui.debug("Casting Rampage [Reckless Abandon]") return true end
             end
             -- Recklessness
-            if ui.alwaysCdNever("Recklessness") and cast.able.recklessness() and (#enemies.yards8== 1 or buff.meatCleaver.exists()) then
+            if ui.alwaysCdNever("Recklessness") and cast.able.recklessness() and (ui.useST(8,2) or buff.meatCleaver.exists()) then
                 -- recklessness,if=runeforge.sinful_surge&gcd.remains=0&(variable.execute_phase|(target.time_to_pct_35>40&talent.anger_management|target.time_to_pct_35>70&!talent.anger_management))&(spell_targets.whirlwind=1|buff.meat_cleaver.up)
                 if runeforge.sinfulSurge.equiped and unit.gcd() == 0
                     and (var.executePhase() or ((unit.ttd(units.dyn5,35) > 40 and talent.angerManagement) or (unit.ttd(units.dyn5,35) > 70 and not talent.angerManagement)))
@@ -713,22 +713,24 @@ local function runRotation()
                 end
                 -- recklessness,if=!variable.unique_legendaries&gcd.remains=0&((buff.bloodlust.up|talent.anger_management.enabled|raid_event.adds.in>10)|target.time_to_die>100|variable.execute_phase|target.time_to_die<15&raid_event.adds.in>10)&(spell_targets.whirlwind=1|buff.meat_cleaver.up)
                 if not var.uniqueLegendaries and unit.gcd() == 0
-                    and ((buff.bloodLust.exists() or talent.angerManagement or #enemies.yards8 == 1) or unit.ttd(units.dyn5) > 100 or var.executePhase
-                        or unit.ttd(units.dyn5) < 15 and #enemies.yards8 == 1)
+                    and ((buff.bloodLust.exists() or talent.angerManagement or ui.useST(8,2)) or unit.ttd(units.dyn5) > 100 or var.executePhase
+                        or unit.ttd(units.dyn5) < 15 and ui.useST(8,2))
                 then
                     if cast.recklessness() then ui.debug("Casting Recklessness") return true end
                 end
                 -- recklessness,use_off_gcd=1,if=runeforge.signet_of_tormented_kings.equipped&gcd.remains&prev_gcd.1.rampage&((buff.bloodlust.up|talent.anger_management.enabled|raid_event.adds.in>10)|target.time_to_die>100|variable.execute_phase|target.time_to_die<15&raid_event.adds.in>10)&(spell_targets.whirlwind=1|buff.meat_cleaver.up)
                 if runeforge.signetOfTormentedKings.equiped and unit.gcd() > 0 and cast.last.rampage(1)
-                    and ((buff.bloodLust.exists() or talent.angerManagement or #enemies.yards8 == 1) or unit.ttd(units.dyn5) > 100
-                        or var.executePhase or unit.ttd(units.dyn5) < 15 and #enemies.yards8 == 1)
+                    and ((buff.bloodLust.exists() or talent.angerManagement or ui.useST(8,2)) or unit.ttd(units.dyn5) > 100
+                        or var.executePhase or unit.ttd(units.dyn5) < 15 and ui.useST(8,2))
                 then
                     if cast.recklessness() then ui.debug("Casting Recklessness [Signet of Tormented Kings]") return true end
                 end
             end
             -- Whirlwind
             -- whirlwind,if=spell_targets.whirlwind>1&!buff.meat_cleaver.up|raid_event.adds.in<gcd&!buff.meat_cleaver.up
-            if cast.able.whirlwind("player","aoe",1,8) and talent.meatCleaver and (#enemies.yards8 > 1 and not buff.meatCleaver.exists()) then
+            if cast.able.whirlwind("player","aoe",1,8) and #ui.useAOE(8,2)
+                and ((talent.meatCleaver and not buff.meatCleaver.exists()) or (unit.level() >= 37 and not buff.whirlwind.exists()))
+            then
                 if cast.whirlwind("player","aoe",1,8) then ui.debug("Casting Whirlwind [No Meat Cleaver]") return true end
             end
             -- Trinkets
