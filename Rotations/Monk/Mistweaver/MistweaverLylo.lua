@@ -1040,56 +1040,137 @@ local VariablesUtilities = {
 local ExtraActions = {
     RunMythicPlusUtilities = function()
         local instanceID = br.getCurrentZoneId()
-        -- 2284	Sanguine Depths
+        ----------------------------
+        --- 2284 Sanguine Depths ---
+        ----------------------------
         if instanceID == 2284 then
+            -- 2360	Kryxis the Voracious	Sanguine Depths	2284	9.0.1
+            -- 2361	Executor Tarvold	    Sanguine Depths	2284	9.0.1
+            -- 2362	Grand Proctor Beryllia	Sanguine Depths	2284	9.0.1
+            -- 2363	General Kaal	        Sanguine Depths	2284	9.0.1
 
-            -- 2285	Spires of Ascension
+            -- Trash
+            if talent.diffuseMagic and cd.diffuseMagic.ready() then
+                -- Wrack Soul - 321038
+                -- Anguished Cries - 325885
+                if br.UnitDebuffID("player", 321038) or
+                    br.UnitDebuffID("player", 325885) then
+                    if cast.diffuseMagic("player") then end
+                end
+            end
+
+        --------------------------------
+        --- 2285 Spires of Ascension ---
+        --------------------------------
         elseif instanceID == 2285 then
+            -- 2356	Ventunax	                Spires of Ascension	2285	9.0.1
+            -- 2357	Kin-Tara	                Spires of Ascension	2285	9.0.1
+            -- 2358	Oryphrion	                Spires of Ascension	2285	9.0.1
+            -- 2359	Devos, Paragon of Loyalty	Spires of Ascension	2285	9.0.1
+
+            -- Trash
             if talent.diffuseMagic and cd.diffuseMagic.ready() then
                 -- Burden of Knowledge - 317963
                 -- Insidious Venom - 323636
                 -- Internal Strife - 327648
                 -- Dark Lance - 327481
                 -- Lost Confidence - 322818
+                -- Forced Confession - 328331
                 if br.UnitDebuffID("player", 317963) or
                     br.UnitDebuffID("player", 323636) or
                     br.UnitDebuffID("player", 327648) or
                     br.UnitDebuffID("player", 327481) or
+                    br.UnitDebuffID("player", 328331) or
                     br.UnitDebuffID("player", 322818) then
                     if cast.diffuseMagic("player") then end
                 end
             end
 
-            -- 2286	The Necrotic Wake
+        -------------------------------
+        --- 2286 The Necrotic Wake ---
+        -------------------------------
         elseif instanceID == 2286 then
+            -- 2387	Blightbone	            The Necrotic Wake	2286	9.0.1
+            -- 2388	Amarth, The Harvester	The Necrotic Wake	2286	9.0.1
+            -- 2389	Surgeon Stitchflesh	    The Necrotic Wake	2286	9.0.1
+            -- 2390	Nalthor the Rimebinder	The Necrotic Wake	2286	9.0.1
 
-            -- 2287	Halls of Atonement
+            -- Trash
+
+        -------------------------------
+        --- 2287 Halls of Atonement ---
+        -------------------------------
         elseif instanceID == 2287 then
+            -- 2380	Echelon	                            Halls of Atonement	2287	9.0.1
+            -- 2381	Lord Chamberlain	                Halls of Atonement	2287	9.0.1
+            -- 2401	Halkias, the Sin-Stained Goliath	Halls of Atonement	2287	9.0.1
+            -- 2403	High Adjudicator Aleez	            Halls of Atonement	2287	9.0.1
 
-            -- 2289	Plaguefall
+            -- Trash
+            if talent.diffuseMagic and cd.diffuseMagic.ready() then
+                -- Siphon Life - 325701
+                if br.UnitDebuffID("player", 325701) then
+                    if cast.diffuseMagic("player") then end
+                end
+            end
+
+        -----------------------
+        --- 2289 Plaguefall ---
+        -----------------------
         elseif instanceID == 2289 then
+            -- 2382	Globgrog	        Plaguefall	2289	9.0.1
+            if br.player.eID == 2382 then
+                local SlimySmorgasbord = FunctionsUtilities.FindEnemyById(171887)
+                if SlimySmorgasbord and cd.paralysis.ready() and not br.isCCed(SlimySmorgasbord) then
+                    return cast.paralysis(SlimySmorgasbord)
+                end
+            end
+            -- 2384	Doctor Ickus	    Plaguefall	2289	9.0.1
+            -- 2385	Domina Venomblade	Plaguefall	2289	9.0.1
+            -- 2386	Stradama Margrave	Plaguefall	2289	9.0.1
 
-            -- 2290	Mists of Tirna Scithe
+            -- Trash
+            if talent.diffuseMagic and cd.diffuseMagic.ready() then
+                -- Gripping Infection - 328180
+                -- Withering Filth - 322410
+                if br.UnitDebuffID("player", 328180) or
+                    br.UnitDebuffID("player", 322410) then
+                    if cast.diffuseMagic("player") then end
+                end
+            end
+
+        ----------------------------------
+        --- 2290 Mists of Tirna Scithe ---
+        ----------------------------------
         elseif instanceID == 2290 then
+            -- 2392	Mistcaller	    Mists of Tirna Scithe	2290	9.0.1
+            if br.player.eID == 2392 then
+                local IllusionaryVulpin = FunctionsUtilities.FindEnemyById(165251)
+                if IllusionaryVulpin and cd.paralysis.ready() and not br.isCCed(IllusionaryVulpin) then
+                    return cast.paralysis(IllusionaryVulpin)
+                end
+            end
+            -- 2393	Tred'ova	    Mists of Tirna Scithe	2290	9.0.1
+            -- 2397	Ingra Maloch	Mists of Tirna Scithe	2290	9.0.1
+
+            -- Trash
             if talent.diffuseMagic and cd.diffuseMagic.ready() then
                 --  Anima Injection - 325223
                 if br.UnitDebuffID("player", 325223) then
                     if cast.diffuseMagic("player") then end
                 end
             end
-            -- 2397	Ingra Maloch
-            -- 2392	Mistcaller
-            -- 2393	Tred'ova
-            if br.player.eID == 2397 then
-
-            elseif br.player.eID == 2392 then
-                IllusionaryVulpin = FunctionsUtilities.FindEnemyById(165251)
-                if IllusionaryVulpin and cd.paralysis.ready() and not br.isCCed(IllusionaryVulpin) then
-                    return cast.paralysis(IllusionaryVulpin)
-                end
-            end
-            -- 2291	De Other Side
+            
+        --------------------------
+        --- 2291 De Other Side ---
+        --------------------------
         elseif instanceID == 2291 then
+            -- 2394	The Manastorms	        De Other Side	2291	9.0.1
+            -- 2395	Hakkar, the Soulflayer	De Other Side	2291	9.0.1
+            -- 2396	Mueh'zala	            De Other Side	2291	9.0.1
+            -- 2400	Dealer Xy'exa	        De Other Side	2291	9.0.1
+
+            -- Trash
             if talent.diffuseMagic and cd.diffuseMagic.ready() then
                 -- Shadow Word: Pain - 34942
                 if br.UnitDebuffID("player", 34942) then
@@ -1097,20 +1178,63 @@ local ExtraActions = {
                 end
             end
 
-            -- 2293	Theater of Pain
+        ----------------------------
+        --- 2293 Theater of Pain ---
+        ----------------------------
         elseif instanceID == 2293 then
+            -- 2364	Kul'tharok	                Theater of Pain	2293	9.0.1
+            -- 2365	Gorechop	                Theater of Pain	2293	9.0.1
+            -- 2366	Xav the Unfallen	        Theater of Pain	2293	9.0.1
+            -- 2391	An Affront of Challengers	Theater of Pain	2293	9.0.1
+            -- 2404	Mordretha	                Theater of Pain	2293	9.0.1
+
+            -- Trash
             if talent.diffuseMagic and cd.diffuseMagic.ready() then
                 -- Soul Corruption - 333708
                 -- Phantasmal Parasite - 319626
-                if br.UnitDebuffID("player", 333708) or br.UnitDebuffID("player", 319626) then
+                if br.UnitDebuffID("player", 333708) or
+                    br.UnitDebuffID("player", 319626) then
+                    if cast.diffuseMagic("player") then end
+                end
+            end
+
+        
+        ----------------------------------------
+        --- 2441 Tazavesh, the Veiled Market ---
+        ----------------------------------------
+        elseif instanceID == 2441 then
+            -- 2419	Timecap'n Hooktail	    Tazavesh, the Veiled Market	2441	9.1.0
+            -- 2424	Mailroom Mayhem	        Tazavesh, the Veiled Market	2441	9.1.0
+            -- 2425	Zo'phex the Sentinel	Tazavesh, the Veiled Market	2441	9.1.0
+            -- 2426	Hylbrande	            Tazavesh, the Veiled Market	2441	9.1.0
+            -- 2437	So'azmi	                Tazavesh, the Veiled Market	2441	9.1.0
+            -- 2440	Myza's Oasis	        Tazavesh, the Veiled Market	2441	9.1.0
+            -- 2441	The Grand Menagerie	    Tazavesh, the Veiled Market	2441	9.1.0
+            -- 2442	So'leah	                Tazavesh, the Veiled Market	2441	9.1.0
+
+            -- Trash
+            if talent.diffuseMagic and cd.diffuseMagic.ready() then
+                -- Glyph of Restraint - 355915
+                -- Lockdown - 356943
+                -- Scintillate - 355641
+                -- Purification Protocol - 349954
+                -- Hyperlight Bomb - 357029
+                -- Alchemical Residue - 346844
+                if br.UnitDebuffID("player", 355915) or
+                    br.UnitDebuffID("player", 356943)  or
+                    br.UnitDebuffID("player", 355641)  or
+                    br.UnitDebuffID("player", 349954)  or
+                    br.UnitDebuffID("player", 357029)  or
+                    br.UnitDebuffID("player", 346844) then
                     if cast.diffuseMagic("player") then end
                 end
             end
 
         end
-        
+        ----------------------------
+        ---------- AFIXES ----------
+        ----------------------------
         -- Explosive Affix
-        -- TODO, move this to DG UTILS
         if soothingMistUnit == nil then
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
