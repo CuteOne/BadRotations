@@ -331,16 +331,16 @@ function unlock.GGUnlock()
 	-- object fields
 	--------------------------------
 	b.UnitTarget = function(unit)
-		return b.ObjectDescriptor(unit, 0x9C, FieldType.GUID) --b.ObjectField(unit, 0x1748, 15)
+		return b.ObjectField(unit, 0x9C, FieldType.GUID) --b.ObjectField(unit, 0x1748, 15)
 	end
 	b.UnitCreator = function(unit)
-		return b.ObjectDescriptor(unit, 0x6C, FieldType.GUID) --b.ObjectField(unit, 0x1718, 15)
+		return b.ObjectField(unit, 0x6C, FieldType.GUID) --b.ObjectField(unit, 0x1718, 15)
 	end
 	b.UnitBoundingRadius = function(unit)
-		return b.ObjectDescriptor(unit, 0x19C, FieldType.Float) --b.ObjectField(unit, 0x17DC, 10)
+		return b.ObjectField(unit, 0x19C, FieldType.Float) --b.ObjectField(unit, 0x17DC, 10)
 	end
 	b.UnitCombatReach = function(unit)
-		return b.ObjectDescriptor(unit, 0x1A0, FieldType.Float) --b.ObjectField(unit, 0x17E0, 10)
+		return b.ObjectField(unit, 0x1A0, FieldType.Float) --b.ObjectField(unit, 0x17E0, 10)
 	end
 	--------------------------------
 	-- API conversions
