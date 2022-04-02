@@ -789,7 +789,13 @@ local mythicListDetox = {
         -- mod:NewSpecialWarningDispel(333227, "RemoveEnrage", nil, nil, 1, 2)
         {spellID = 333227, flag = "RemoveEnrage"},
         -- mod:NewSpecialWarningDispel(332666, "MagicDispeller", nil, nil, 1, 2)
-        {spellID = 332666, flag = "MagicDispeller"}
+        {spellID = 332666, flag = "MagicDispeller"},
+        -- 333711
+        {spellID = 333711, flag = "RemoveDisease"},
+        -- 332605-Magic
+        {spellID = 332605, flag = "RemoveMagic"},
+        -- 334505-Magic
+        {spellID = 334505, flag = "RemoveMagic"},
     },
     -- Theater of Pain
     [2293] = {
@@ -807,6 +813,12 @@ local mythicListDetox = {
 }
 
 local FunctionsUtilities = {
+    FindEnemyById = function(id)
+        local enemy = _G.foreach(enemies.yards20, function(index, enemyGUID)
+            if unit.id(enemyGUID) == id then return enemyGUID end
+        end)
+        return enemy or nil
+    end,
     IsValidToDetox = function (theDebuff, dispelUnit)
         if not MonkFlags[theDebuff.flag] then
             return false
@@ -835,7 +847,28 @@ local FunctionsUtilities = {
         return false
     end,
     IsPause = function ()
-        return br.pause(true) or br.player.unit.mounted() or br.player.unit.flying() or br.getBuffRemain("player", 307195) > 0 or Toggles.RotationModes.Off()
+        return br.pause(true) or br.player.unit.mounted() or br.player.unit.flying() or Toggles.RotationModes.Off() or
+        -- Invisible
+        br.hasBuff(250873) or 
+        -- Shroud of Concealment
+        br.hasBuff(115834) or 
+        -- Feast of Gluttonous Hedonism
+        br.hasBuff(308403) or 
+        -- Surprisingly Palatable Feast
+        br.hasBuff(115834) or 
+        -- Spinefin Souffle and Fries
+        br.hasBuff(308400) or 
+        -- Tenebrous Crown Roast Aspic
+        br.hasBuff(308405) or 
+        -- Iridescent Ravioli with Apple Sauce
+        br.hasBuff(308413) or 
+        -- Steak a la Mode
+        br.hasBuff(308426) or 
+        -- Banana Beef Pudding
+        br.hasBuff(308415) or 
+        -- Candied Amberjack Cakes
+        br.hasBuff(308411) or 
+        br.hasBuff(314646)
     end,
     GetMissingHP = function (theUnit)
         if unit.deadOrGhost(theUnit) then
@@ -874,7 +907,7 @@ local FunctionsUtilities = {
            br._G.TargetUnit(theUnit)
            br._G.StartAttack(theUnit)
         end
-    end
+    end,
 }
 FunctionsUtilities.CountMissingHPFromAllies = function (value, unitTable)
     local lowAllies = 0
@@ -1005,6 +1038,95 @@ local VariablesUtilities = {
 
 
 local ExtraActions = {
+    RunMythicPlusUtilities = function()
+        local instanceID = br.getCurrentZoneId()
+        -- 2284	Sanguine Depths
+        if instanceID == 2284 then
+
+            -- 2285	Spires of Ascension
+        elseif instanceID == 2285 then
+            if talent.diffuseMagic and cd.diffuseMagic.ready() then
+                -- Burden of Knowledge - 317963
+                -- Insidious Venom - 323636
+                -- Internal Strife - 327648
+                -- Dark Lance - 327481
+                -- Lost Confidence - 322818
+                if br.UnitDebuffID("player", 317963) or
+                    br.UnitDebuffID("player", 323636) or
+                    br.UnitDebuffID("player", 327648) or
+                    br.UnitDebuffID("player", 327481) or
+                    br.UnitDebuffID("player", 322818) then
+                    if cast.diffuseMagic("player") then end
+                end
+            end
+
+            -- 2286	The Necrotic Wake
+        elseif instanceID == 2286 then
+
+            -- 2287	Halls of Atonement
+        elseif instanceID == 2287 then
+
+            -- 2289	Plaguefall
+        elseif instanceID == 2289 then
+
+            -- 2290	Mists of Tirna Scithe
+        elseif instanceID == 2290 then
+            if talent.diffuseMagic and cd.diffuseMagic.ready() then
+                --  Anima Injection - 325223
+                if br.UnitDebuffID("player", 325223) then
+                    if cast.diffuseMagic("player") then end
+                end
+            end
+            -- 2397	Ingra Maloch
+            -- 2392	Mistcaller
+            -- 2393	Tred'ova
+            if br.player.eID == 2397 then
+
+            elseif br.player.eID == 2392 then
+                IllusionaryVulpin = FunctionsUtilities.FindEnemyById(165251)
+                if IllusionaryVulpin and cd.paralysis.ready() and not br.isCCed(IllusionaryVulpin) then
+                    return cast.paralysis(IllusionaryVulpin)
+                end
+            end
+            -- 2291	De Other Side
+        elseif instanceID == 2291 then
+            if talent.diffuseMagic and cd.diffuseMagic.ready() then
+                -- Shadow Word: Pain - 34942
+                if br.UnitDebuffID("player", 34942) then
+                    if cast.diffuseMagic("player") then end
+                end
+            end
+
+            -- 2293	Theater of Pain
+        elseif instanceID == 2293 then
+            if talent.diffuseMagic and cd.diffuseMagic.ready() then
+                -- Soul Corruption - 333708
+                -- Phantasmal Parasite - 319626
+                if br.UnitDebuffID("player", 333708) or br.UnitDebuffID("player", 319626) then
+                    if cast.diffuseMagic("player") then end
+                end
+            end
+
+        end
+        
+        -- Explosive Affix
+        -- TODO, move this to DG UTILS
+        if soothingMistUnit == nil then
+            for i = 1, #enemies.yards40 do
+                local thisUnit = enemies.yards40[i]
+                if unit.isExplosive(thisUnit) and (unit.hp(lowestUnit) >= 40 or br.getCastTimeRemain(thisUnit) <= 2) then
+                    if unit.distance(thisUnit) <= 5 and cd.tigerPalm.ready() and cast.able.tigerPalm(thisUnit) then
+                        br._G.FaceDirection(thisUnit, true)
+                        return cast.tigerPalm(thisUnit)
+                    end
+                    if not player.isMoving and cd.cracklingJadeLightning.ready() and cast.able.cracklingJadeLightning(thisUnit) then
+                        br._G.FaceDirection(thisUnit, true)
+                        return cast.cracklingJadeLightning(thisUnit)
+                    end
+                end
+            end
+        end
+    end,
     RunDetox = function()
         if Toggles.DetoxModes.Off() then
             return false
@@ -1158,22 +1280,8 @@ local ActionList = {
             if ExtraActions.RunInterrupt() then
                 return
             end
-            -- Explosive Affix
-            -- TODO, move this to DG UTILS
-            if soothingMistUnit == nil then
-                for i = 1, #enemies.yards40 do
-                    local thisUnit = enemies.yards40[i]
-                    if unit.isExplosive(thisUnit) and (unit.hp(lowestUnit) >= 40 or br.getCastTimeRemain(thisUnit) <= 2) then
-                        if unit.distance(thisUnit) <= 5 and cd.tigerPalm.ready() and cast.able.tigerPalm(thisUnit) then
-                            br._G.FaceDirection(thisUnit, true)
-                            return cast.tigerPalm(thisUnit)
-                        end
-                        if not player.isMoving and cd.cracklingJadeLightning.ready() and cast.able.cracklingJadeLightning(thisUnit) then
-                            br._G.FaceDirection(thisUnit, true)
-                            return cast.cracklingJadeLightning(thisUnit)
-                        end
-                    end
-                end
+            if ExtraActions.RunMythicPlusUtilities() then
+                return
             end
 
             if cd.touchOfDeath.ready() and unit.hp(lowestUnit) >= 40 then
@@ -1366,7 +1474,7 @@ local ActionList = {
             if cd.spinningCraneKick.ready() and not cast.active.spinningCraneKick() and #enemies.yards8 - mysticTouchCount >= 3 then
                 return cast.spinningCraneKick("player")
             end
-            if (not buff.ancientTeachingOfTheMonastery.exists() or buff.ancientTeachingOfTheMonastery.remains() <= 3) and cd.essenceFont.ready() then
+            if (not buff.ancientTeachingOfTheMonastery.exists() or buff.ancientTeachingOfTheMonastery.remains() <= 2) and cd.essenceFont.ready() then
                 return cast.essenceFont("player")
             end
             if cd.risingSunKick.ready() and (FunctionsUtilities.GetMissingHP(lowestUnit) >= healingValues.risingSunKick or Options.IgnoreHealthAncientTeachings:Checked()) then
@@ -1379,12 +1487,14 @@ local ActionList = {
                 if (buff.teachingsOfTheMonastery.stack() == 3 and FunctionsUtilities.GetMissingHP(lowestUnit) >= healingValues.blackoutKick * 4) or
                     (buff.teachingsOfTheMonastery.stack() == 2 and FunctionsUtilities.GetMissingHP(lowestUnit) >= healingValues.blackoutKick * 3) or
                     (buff.teachingsOfTheMonastery.stack() == 1 and FunctionsUtilities.GetMissingHP(lowestUnit) >= healingValues.blackoutKick * 2 and not talent.spiritOfTheCrane) or
-                    (buff.teachingsOfTheMonastery.stack() == 0 and FunctionsUtilities.GetMissingHP(lowestUnit) >= healingValues.blackoutKick * 1 and not talent.spiritOfTheCrane) or 
-                    Options.IgnoreHealthAncientTeachings:Checked() then
+                    (buff.teachingsOfTheMonastery.stack() == 0 and FunctionsUtilities.GetMissingHP(lowestUnit) >= healingValues.blackoutKick * 1 and not talent.spiritOfTheCrane) or
+                    (Options.IgnoreHealthAncientTeachings:Checked() and buff.teachingsOfTheMonastery.stack() >= 1) then
                     return cast.blackoutKick(mysticTouchUnit)
                 end
             end
-            if (FunctionsUtilities.GetMissingHP(lowestUnit) >= healingValues.tigerPalm or Options.IgnoreHealthAncientTeachings:Checked()) or buff.teachingsOfTheMonastery.stack() < 3 then
+            if buff.teachingsOfTheMonastery.stack() < 3 and
+                FunctionsUtilities.GetMissingHP(lowestUnit) >= healingValues.tigerPalm
+                or (Options.IgnoreHealthAncientTeachings:Checked() and buff.teachingsOfTheMonastery.stack() <= 2) then
                 if cd.tigerPalm.ready() then
                     return cast.tigerPalm(mysticTouchUnit)
                 end
