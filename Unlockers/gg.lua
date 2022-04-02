@@ -296,6 +296,25 @@ function unlock.GGUnlock()
 		return nil
 	end
 
+	local FieldType =
+	{
+		["Bool"] = 1,
+		["Char"] = 2,
+		["Byte"] = 3,
+		["Short"] = 4,
+		["UShort"] = 5,
+		["Int"] = 6,
+		["UInt"] = 7,
+		["Long"] = 8,
+		["ULong"] = 9,
+		["Float"] = 10,
+		["Double"] = 11,
+		["StringType"] = 12,
+		["IntPtr"] = 13,
+		["UIntPtr"] = 14,
+		["GUID"] = 15,
+	}
+
 	--------------------------------
 	-- API copy/rename/unlock
 	--------------------------------
@@ -312,16 +331,16 @@ function unlock.GGUnlock()
 	-- object fields
 	--------------------------------
 	b.UnitTarget = function(unit)
-		return b.ObjectField(unit, 0x1748, 15)
+		return b.ObjectDescriptor(unit, 0x9C, FieldType.GUID) --b.ObjectField(unit, 0x1748, 15)
 	end
 	b.UnitCreator = function(unit)
-		return b.ObjectField(unit, 0x1718, 15)
+		return b.ObjectDescriptor(unit, 0x6C, FieldType.GUID) --b.ObjectField(unit, 0x1718, 15)
 	end
 	b.UnitBoundingRadius = function(unit)
-		return b.ObjectField(unit, 0x17DC, 10)
+		return b.ObjectDescriptor(unit, 0x19C, FieldType.Float) --b.ObjectField(unit, 0x17DC, 10)
 	end
 	b.UnitCombatReach = function(unit)
-		return b.ObjectField(unit, 0x17E0, 10)
+		return b.ObjectDescriptor(unit, 0x1A0, FieldType.Float) --b.ObjectField(unit, 0x17E0, 10)
 	end
 	--------------------------------
 	-- API conversions
@@ -336,13 +355,14 @@ function unlock.GGUnlock()
 		return ObjType == 5
 	end
 	b.ObjectID = function(object)
-		local guid = b.UnitGUID(object)
-		if guid then
-			local _, _, _, _, _, objectId, _ = strsplit("-", guid);
-			return tonumber(objectId);
-		else
-			return 0
-		end
+		return b.ObjectDescriptor(object, 0x10, FieldType.Int)
+		-- local guid = b.UnitGUID(object)
+		-- if guid then
+		-- 	local _, _, _, _, _, objectId, _ = strsplit("-", guid);
+		-- 	return tonumber(objectId);
+		-- else
+		-- 	return 0
+		-- end
 	end
 	b.TraceLine = function(...)
 		local hit, hitx, hity, hitz = gg.TraceLine(...)
