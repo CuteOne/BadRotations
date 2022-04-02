@@ -38,8 +38,8 @@ LibDraw.callbacks = { }
 if not LibDraw.canvas then
 	LibDraw.canvas = CreateFrame("Frame", WorldFrame)
 	LibDraw.canvas:SetAllPoints(WorldFrame)
-  LibDraw.lines = { }
-  LibDraw.lines_used = { }
+  	LibDraw.lines = { }
+  	LibDraw.lines_used = { }
 	LibDraw.textures = { }
 	LibDraw.textures_used = { }
 	LibDraw.fontstrings = { }
@@ -135,9 +135,9 @@ function LibDraw.Array(vectors, x, y, z, rotationX, rotationY, rotationZ)
 
 		local sx, sy = WorldToScreen(sx, sy, sz)
 		local ex, ey = WorldToScreen(ex, ey, ez)
-		if sx ~= 0 and sy ~= 0 and ex ~= 0 and ey ~= 0 then 		
+		if sx ~= 0 and sy ~= 0 and ex ~= 0 and ey ~= 0 then 
 			LibDraw.Draw2DLine(sx, sy, ex, ey)
-		end
+		end	
 	end
 end
 
@@ -201,9 +201,9 @@ function LibDraw.Arrow(x, y, z, direction, multiplier)
 
         sx, sy = WorldToScreen(sx, sy, sz)
         ex, ey = WorldToScreen(ex, ey, ez)
-		if sx ~= 0 and sy ~= 0 and ex ~= 0 and ey ~= 0 then 
-			LibDraw.Draw2DLine(sx, sy, ex, ey)
-		end	
+	if sx ~= 0 and sy ~= 0 and ex ~= 0 and ey ~= 0 then 
+		LibDraw.Draw2DLine(sx, sy, ex, ey)
+	end	
     end
 end
 
@@ -214,7 +214,7 @@ function LibDraw.Circle(x, y, z, size)
 	local lx, ly, nx, ny, fx, fy = false, false, false, false, false, false
 	for v=0, full_circle, small_circle_step do
 		nx, ny = WorldToScreen( (x+cos(v)*size), (y+sin(v)*size), z )
-		if lx and ly then
+		if nx ~= 0 and ny ~= 0 then
 			LibDraw.Draw2DLine(lx, ly, nx, ny)
 		else
 			fx, fy = nx, ny
@@ -234,7 +234,9 @@ function LibDraw.GroundCircle(x, y, z, size)
 			fx, fy, fz = (x+cos(v)*size), (y+sin(v)*size), z
 		end
 		nx, ny = WorldToScreen( (fx+cos(v)*size), (fy+sin(v)*size), fz )
-		LibDraw.Draw2DLine(lx, ly, nx, ny)
+		if nx ~= 0 and ny ~= 0 then 
+			LibDraw.Draw2DLine(lx, ly, nx, ny)
+		end
 		lx, ly = nx, ny
 	end
 end
@@ -246,7 +248,7 @@ function LibDraw.Arc(x, y, z, size, arc, rotation)
 	local as, ae = -half_arc, half_arc
 	for v = as, ae, ss do
 		nx, ny = WorldToScreen( (x+cos(rotation+rad(v))*size), (y+sin(rotation+rad(v))*size), z )
-		if lx and ly then
+		if nx ~= 0 and ny ~= 0 then
 			LibDraw.Draw2DLine(lx, ly, nx, ny)
 		else
 			fx, fy = nx, ny
@@ -254,8 +256,10 @@ function LibDraw.Arc(x, y, z, size, arc, rotation)
 		lx, ly = nx, ny
 	end
 	local px, py = WorldToScreen(x, y, z)
-	LibDraw.Draw2DLine(px, py, lx, ly)
-	LibDraw.Draw2DLine(px, py, fx, fy)
+	if fx ~= 0 and fy ~= 0 and lx ~= 0 and ly ~= 0 and px ~= 0 and py ~= 0 then
+		LibDraw.Draw2DLine(px, py, lx, ly)
+		LibDraw.Draw2DLine(px, py, fx, fy)
+	end
 end
 
 function LibDraw.Texture(config, x, y, z, alphaA)
@@ -277,7 +281,7 @@ function LibDraw.Texture(config, x, y, z, alphaA)
 	end
 
 	local sx, sy = WorldToScreen(x, y, z)
-	if not sx or not sy then return end
+	if sx == 0 or sy == 0 then return end
 	local w = width * scale
 	local h = height * scale
 	sx = sx - w*0.5
@@ -308,7 +312,7 @@ function LibDraw.Text(text, font, x, y, z)
 
 	local sx, sy = WorldToScreen(x, y, z)
 
-	if sx and sy then
+	if sx ~= 0 and sy ~= 0 then
 
 		local F = tremove(LibDraw.fontstrings) or LibDraw.canvas:CreateFontString(nil, "BACKGROUND")
 

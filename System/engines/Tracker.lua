@@ -11,7 +11,7 @@ local function trackObject(object, name, objectid, interact)
     local playerDistance = br._G.GetDistanceBetweenPositions(pX, pY, pZ, xOb, yOb, zOb)
     local zDifference = math.floor(zOb - pZ)
     if xOb ~= nil and playerDistance < 200 then
-        if math.abs(zDifference) > 50 then  -- Set color for all Draws bellow
+        if math.abs(zDifference) > 50 then
             LibDraw.SetColor(255, 0, 0, 100)
         else
             LibDraw.SetColor(0, 255, 0, 100)

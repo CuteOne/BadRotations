@@ -384,13 +384,13 @@ function unlock.GGUnlock()
 		return stringsplit(files, "|")
 	end
 	b.WorldToScreen = function(...)
-		-- local multiplier = UIParent:GetScale()
-		-- local sX, sY = gg.WorldToScreen(...)
-		-- return sX * multiplier, -sY * multiplier
-		local scale, x, y = UIParent:GetEffectiveScale(), gg.WorldToScreen(...)
-        local sx = GetScreenWidth() * scale
-        local sy = GetScreenHeight() * scale
-        return x * sx, y * sy
+		local multiplier = GetDefaultScale() --UIParent:GetScale()
+		local sX, sY = gg.WorldToScreen(...)
+		return sX * multiplier, sY * multiplier * -1 + _G.WorldFrame:GetTop()
+		-- local scale, x, y = UIParent:GetEffectiveScale(), gg.WorldToScreen(...)
+        -- local sx = GetScreenWidth() * scale
+        -- local sy = GetScreenHeight() * scale
+        -- return x * sx, y * sy
 	end
 	b.FaceDirection = function(arg)
 		if type(arg) == "number" then
