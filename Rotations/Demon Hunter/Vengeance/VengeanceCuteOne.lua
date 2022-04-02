@@ -361,7 +361,7 @@ actionList.FieryBrand = function()
     end
     -- Immolation Aura
     -- immolation_aura,if=dot.fiery_brand.ticking
-    if ui.checked("Immolation Aura") and cast.able.immolationAura() and debuff.fieryBrand.exists(units.dyn5) and #enemies.yards5 > 0 then
+    if ui.checked("Immolation Aura") and cast.able.immolationAura() and not buff.immolationAura.exists() and debuff.fieryBrand.exists(units.dyn5) and #enemies.yards5 > 0 then
         if cast.immolationAura() then ui.debug("Casting Immolation Aura [Fiery Brand]") return true end
     end
 end -- End Action List - PreCombat
@@ -398,7 +398,9 @@ actionList.Normal = function()
     end
     -- Immolation Aura
     -- immolation_aura,if=((variable.brand_build&cooldown.fiery_brand.remains>10)|!variable.brand_build)&fury<=90
-    if ui.checked("Immolation Aura") and cast.able.immolationAura("player") and ((var.brandBuild and cd.fieryBrand.remains() > 10) or not var.brandBuild) and fury <= 90 and #enemies.yards5 > 0 then
+    if ui.checked("Immolation Aura") and cast.able.immolationAura("player") and not buff.immolationAura.exists()
+        and ((var.brandBuild and cd.fieryBrand.remains() > 10) or not var.brandBuild) and fury <= 90 and #enemies.yards5 > 0
+    then
         if cast.immolationAura("player") then ui.debug("Casting Immolation Aura") return true end
     end
     -- Felblade
