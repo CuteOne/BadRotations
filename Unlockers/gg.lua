@@ -355,7 +355,7 @@ function unlock.GGUnlock()
 		return ObjType == 5
 	end
 	b.ObjectID = function(object)
-		return b.ObjectDescriptor(object, 0x10, FieldType.Int)
+		return b.ObjectField(object, 0x10, FieldType.Int)
 		-- local guid = b.UnitGUID(object)
 		-- if guid then
 		-- 	local _, _, _, _, _, objectId, _ = strsplit("-", guid);
