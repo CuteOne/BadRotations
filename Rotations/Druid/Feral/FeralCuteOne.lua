@@ -964,9 +964,9 @@ actionList.Finisher = function()
         for i = 1, #enemies.yards5f do
             local thisUnit = enemies.yards5f[i]
             if canDoT(thisUnit) then
-                if debuff.rip.refresh(thisUnit) and ticksGain.rip > ripTicks
-                    and ((buff.tigersFury.exists() or not debuff.rip.exists(thisUnit)) and (buff.bloodtalons.exists() or not talent.bloodtalons) or not talent.sabertooth)
-                    and (#enemies.yards8 == 1 or not talent.primalWrath) and (debuff.rip.count() == 0 or (debuff.rip.exists(thisUnit) and debuff.rip.count() == 1) or not runeforge.draughtOfDeepFocus or not talent.sabertooth)
+                if debuff.rip.refresh(thisUnit) and ticksGain.rip > ripTicks and ((buff.tigersFury.exists() or not debuff.rip.exists(thisUnit))
+                    and (buff.bloodtalons.exists() or not talent.bloodtalons) or not talent.sabertooth) and (#enemies.yards8 == 1 or not talent.primalWrath)
+                    and (debuff.rip.count() == 0 or (debuff.rip.exists(thisUnit) and debuff.rip.count() == 1) or not runeforge.draughtOfDeepFocus or not talent.sabertooth)
                 then
                     if cast.rip(thisUnit) then ui.debug("Casting Rip [Finish]") return true end
                 end
@@ -980,8 +980,8 @@ actionList.Finisher = function()
     end
     -- Ferocious Bite
     -- ferocious_bite,max_energy=1,target_if=max:time_to_die
-    if cast.able.ferociousBite() and var.fbMaxEnergy and range.dyn5 and (debuff.rip.remain(units.dyn5) > unit.gcd(true) or not canDoT(units.dyn5) or unit.level() < 21) then
-        if cast.ferociousBite() then
+    if cast.able.ferociousBite(var.lowestRipUnit) and var.fbMaxEnergy and range.dyn5 then
+        if cast.ferociousBite(var.lowestRipUnit) then
             if buff.apexPredatorsCraving.exists() then
                 ui.debug("Casting Ferocious Bite [Apex Predator's Craving]")
             else
@@ -991,11 +991,11 @@ actionList.Finisher = function()
         end
     end
     -- ferocious_bite,target_if=max:time_to_die,if=buff.bs_inc.up&talent.soul_of_the_forest.enabled|cooldown.convoke_the_spirits.remains<1&covenant.night_fae
-    if cast.able.ferociousBite() and range.dny5
+    if cast.able.ferociousBite(var.lowestRipUnit) and range.dny5
         and (((buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists()) and talent.soulOfTheForrest)
             or (cd.convokeTheSpirits.remain() < 1 and covenant.nightFae.active))
     then
-        if cast.ferociousBite() then
+        if cast.ferociousBite(var.lowestRipUnit) then
             if buff.apexPredatorsCraving.exists() then
                 ui.debug("Casting Ferocious Bite [BS/Inc Soul - Apex Predator's Craving]")
             else
@@ -1559,15 +1559,25 @@ local function runRotation()
 
     var.maxRakeTicksGain = 0
     var.maxRakeTicksGainUnit = "target"
+    var.lowestRip = 99
+    var.lowestRipUnit = var.lowestTTDUnit
     for i = 1, #enemies.yards5f do
         local thisUnit = enemies.yards5f[i]
+        -- Rake
         local rakeTicksGain = var.rakeTicksGainUnit(thisUnit)
         if rakeTicksGain > var.maxRakeTicksGain then
             var.maxRakeTicksGain = rakeTicksGain
             var.maxRakeTicksGainUnit = thisUnit
         end
+        -- Rip
+        if talent.sabertooth then
+            local ripValue = debuff.rip.remains(thisUnit)
+            if ripValue > unit.gcd(thisUnit) and ripValue < var.lowestRip then
+                var.lowestRip = ripValue
+                var.lowestRipUnit = thisUnit
+            end
+        end
     end
-
 
     ---------------------
     --- Begin Profile ---
@@ -1622,15 +1632,21 @@ local function runRotation()
             ---------------------------
             if ui.value("APL Mode") == 1 then
                 -- Ferocious Bite
-                -- ferocious_bite,target_if=dot.rip.ticking&dot.rip.remains<3&target.time_to_die>10&(talent.sabertooth.enabled)
-                if cast.able.ferociousBite() and range.dyn5 then
-                    for i = 1, #enemies.yards5f do
-                        local thisUnit = enemies.yards5f[i]
+                for i = 1, #enemies.yards5f do
+                    local thisUnit = enemies.yards5f[i]
+                    if cast.able.ferociousBite(thisUnit) and range.dyn5 then
+                        -- execute
                         if ferociousBiteFinish(thisUnit) and not usePrimalWrath() then
                             if ui.value("Ferocious Bite Execute") == 1 and ferociousBiteFinish(thisUnit) then
                                 ui.print("Ferocious Bite Finished! "..unit.name(thisUnit).." with "..br.round2(unit.hp(thisUnit),0).."% health remaining.")
                             end
                             if cast.ferociousBite(thisUnit) then ui.debug("Casting Ferocious Bite on "..unit.name(thisUnit).." [Execute]"); return true end
+                        end
+                        -- ferocious_bite,target_if=dot.rip.ticking&dot.rip.remains<3&target.time_to_die>10&(talent.sabertooth.enabled)
+                        if debuff.rip.exists(thisUnit) and debuff.rip.remains(thisUnit) < 3
+                            and debuff.rip.remains(thisUnit) > unit.gcd(true) and unit.ttd(thisUnit) > 10 and talent.sabertooth
+                        then
+                            if cast.ferociousBite(thisUnit) then ui.debug("Casting Ferocious Bite - Rip Remain: "..br.round2(debuff.rip.remain(thisUnit),1).." [Sabertooth]"); return true end
                         end
                     end
                 end
