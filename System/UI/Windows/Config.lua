@@ -199,7 +199,7 @@ function br.ui:createConfigWindow()
             local loadDir =
                 br:checkDirectories("Profile Settings", br.player.class, br.selectedSpec, br.selectedProfileName, profileSettings[br.getValue("Select Settings")])
             if not loadDir then
-                br._G.print("Load Directory is nil!")                    
+                br._G.print("Load Directory is nil!")
                 return
             end
             if loadDir and br:findFileInFolder("savedSettings.lua", loadDir) then
@@ -233,6 +233,7 @@ function br.ui:createConfigWindow()
         -- Main
         section = br.ui:createSection(br.ui.window.config, "Main Settings")
         br.ui:createCheckbox(section, "Enable Tracker")
+        br.ui:createCheckbox(section, "Display Extra Info")
         br.ui:createCheckbox(section, "Draw Lines to Tracked Objects")
         br.ui:createCheckbox(section, "Auto Interact with Any Tracked Object")
         br.ui:createCheckbox(section, "Rare Tracker", "Track All Rares In Range")
