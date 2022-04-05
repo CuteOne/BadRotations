@@ -64,7 +64,7 @@ function br:checkDirectories(folder, class, spec, profile, instance)
 		profile = br.selectedProfileName
 	end
 	local profileDir = specDir .. profile .. "\\"
-	checkDirectory(profile)
+	checkDirectory(profileDir)
 	if not instance then
 	-- Return Path
 		return profileDir
@@ -153,8 +153,10 @@ function br:saveSettings(folder, class, spec, profile, instance, wipe)
 	br._G.print("Saved Settings for Profile " .. profile)
 end
 
+br.fileList = {}
 function br:findFileInFolder(file, folder)
-	br.fileList = {}
+	if folder == nil or folder == "" then return false end
+	table.wipe(br.fileList)
 	br.fileList = br._G.GetDirectoryFiles(folder .. "*.lua")
 	for i = 1, #br.fileList do
 		if br.fileList[i] == file then
