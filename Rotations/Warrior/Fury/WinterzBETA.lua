@@ -940,6 +940,7 @@ local function runRotation() -- This is the main profile loop, any below this po
     enemies.get(12)
     enemies.get(15)
     enemies.get(20)
+    enemies.get(30)
     enemies.get(40)
     enemies.cone.get(45, 12, false, false)
 
