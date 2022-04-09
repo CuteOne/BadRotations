@@ -359,6 +359,7 @@ actionList.Cooldowns = function()
             end
         end
         -- Trinkets
+        -- use_item,name=cache_of_acquired_treasures,if=buff.acquired_axe.up&(active_enemies=desired_targets&raid_event.adds.in>60|active_enemies>desired_targets|fight_remains<25)
         -- use_items,slots=trinket1,if=variable.trinket_sync_slot=1&(buff.metamorphosis.up|(!talent.demonic.enabled&cooldown.metamorphosis.remains>(fight_remains>?trinket.1.cooldown.duration%2))|fight_remains<=20)|(variable.trinket_sync_slot=2&!trinket.2.cooldown.ready)|!variable.trinket_sync_slot
         -- use_items,slots=trinket2,if=variable.trinket_sync_slot=2&(buff.metamorphosis.up|(!talent.demonic.enabled&cooldown.metamorphosis.remains>(fight_remains>?trinket.2.cooldown.duration%2))|fight_remains<=20)|(variable.trinket_sync_slot=1&!trinket.1.cooldown.ready)|!variable.trinket_sync_slot
         if buff.metamorphosis.exists() or not ui.alwaysCdNever("Metamorphosis") then
@@ -386,6 +387,8 @@ actionList.Cooldowns = function()
             then
                 if cast.elysianDecree("best",nil,1,8) then ui.debug("Casting Elysian Decree") return true end
             end
+            -- Fleshcraft
+            -- fleshcraft,if=soulbind.volatile_solvent&!buff.volatile_solvent_humanoid.up,interrupt_immediate=1,interrupt_global=1,interrupt_if=soulbind.volatile_solvent
         end
     end
 end -- End Action List - Cooldowns
@@ -503,6 +506,7 @@ actionList.Demonic = function()
             if cast.felRush("target") then ui.debug("Casting Fel Rush [AOE]") return true end
         -- end
     end
+    -- Demon's Bite
     -- demons_bite
     if cast.able.demonsBite(units.dyn5) and not talent.demonBlades and furyDeficit >= 30 then
         if cast.demonsBite(units.dyn5) then ui.debug("Casting Demon's Bite") return true end
@@ -590,7 +594,7 @@ actionList.Normal = function()
         if cast.throwGlaive() then ui.debug("Casting Throw Glaive [Serrated Glaive]") return true end
     end
     -- Eye Beam
-    -- eye_beam,if=!variable.waiting_for_momentum&(active_enemies>desired_targets|raid_event.adds.in>15&(!variable.use_eye_beam_fury_condition|spell_targets>1|fury<70))
+    -- eye_beam,if=!variable.waiting_for_momentum&(active_enemies>desired_targets|raid_event.adds.in>15&(!variable.use_eye_beam_fury_condition|spell_targets>1|fury<70)&!variable.waiting_for_agony_gaze)
     if ui.mode.eyeBeam == 1 and not unit.isExplosive("target") and cast.able.eyeBeam("player","rect",1,20)
         and not unit.moving() and #enemies.yards20r >= 0 and (eyebeamTTD() or unit.isDummy(units.dyn8))
         and not var.waitingForMomentum and not var.waitingForAgonyGaze
@@ -631,7 +635,7 @@ actionList.Normal = function()
         if cast.chaosStrike() then ui.debug("Casting Chaos Strike") return true end
     end
     -- Eye Beam
-    -- eye_beam,if=talent.blind_fury.enabled&raid_event.adds.in>cooldown
+    -- eye_beam,if=talent.blind_fury.enabled&raid_event.adds.in>cooldown&!variable.waiting_for_agony_gaze
     if ui.mode.eyeBeam == 1 and not unit.isExplosive("target") and cast.able.eyeBeam("player","rect",1,20)
         and #enemies.yards20r > 0 and not unit.moving() and talent.blindFury
         and (not talent.momentum or buff.momentum.exists()) and (eyebeamTTD() or unit.isDummy(units.dyn8))
@@ -916,10 +920,10 @@ local function runRotation()
                 end
                 -- Pickup Fragments
                 -- pick_up_fragment,if=demon_soul_fragments>0
-                -- pick_up_fragment,if=fury.deficit>=35
-                if furyDeficit >= 35 then
-                    ui.chatOverlay("Low Fury - Pickup Fragments!")
-                end
+                -- pick_up_fragment,mode=nearest,if=(talent.demonic_appetite.enabled&fury.deficit>=35|runeforge.blind_faith&buff.blind_faith.up)&(!cooldown.eye_beam.ready|fury<30)
+                -- if furyDeficit >= 35 then
+                --     ui.chatOverlay("Low Fury - Pickup Fragments!")
+                -- end
                 -- Throw Glaive
                 -- throw_glaive,if=buff.fel_bombardment.stack=5&(buff.immolation_aura.up|!buff.metamorphosis.up)
                 if ui.checked("Throw Glaive") and cast.able.throwGlaive() and buff.felBombardment.stack() == 5 and (buff.immolationAura.exists() or not buff.metamorphosis.exists()) then
