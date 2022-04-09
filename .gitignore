@@ -32,6 +32,6 @@ Rotations/Test
 .vscode/settings.json
 *.simc
 Settings/*
-Unlockers/mmb.lua
+#Unlockers/mmb.lua
 Unlockers/daemonic.lua
 Rotations/Rogue/Outlaw/OutlawRavens\.lua
