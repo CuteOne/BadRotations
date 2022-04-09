@@ -186,16 +186,17 @@ var.profileStop = false
 var.useBasicTrinkets = false
 
 -- Custom Functions
--- local function cancelRushAnimation()
---     if cast.able.felRush() and GetUnitSpeed("player") == 0 then
---         MoveBackwardStart()
---         JumpOrAscendStart()
---         cast.felRush()
---         MoveBackwardStop()
---         AscendStop()
---     end
---     return
--- end
+local function cancelRushAnimation(debugMessage)
+    -- if cast.able.felRush() and GetUnitSpeed("player") == 0 then
+        br._G.MoveBackwardStart()
+        br._G.JumpOrAscendStart()
+        cast.felRush("target")
+        br._G.MoveBackwardStop()
+        br._G.AscendStop()
+        ui.debug(debugMessage)
+    -- end
+    return true
+end
 -- local function cancelRetreatAnimation()
 --     if cast.able.vengefulRetreat() then
 
@@ -409,11 +410,11 @@ actionList.Demonic = function()
         and talent.unboundChaos and buff.unboundChaos.exists()
         and charges.felRush.count() > ui.value("Hold Fel Rush Charge")
     then
-        -- if ui.mode.mover == 1 and unit.distance("target") < 8 then
-        --     cancelRushAnimation()
-        -- elseif not ui.checked("Fel Rush Only In Melee") and (ui.mode.mover == 2 or (unit.distance("target") >= 8 and ui.mode.mover ~= 3)) then
+        if ui.mode.mover == 1 and unit.distance("target") < 8 then
+            cancelRushAnimation("Casting Fel Rush [Unbound Chaos]")
+        elseif not ui.checked("Fel Rush Only In Melee") and (ui.mode.mover == 2 or (unit.distance("target") >= 8 and ui.mode.mover ~= 3)) then
             if cast.felRush("target") then ui.debug("Casting Fel Rush [Unbound Chaos]") return true end
-        -- end
+        end
     end
     -- Death Sweep
     -- death_sweep,if=variable.blade_dance
@@ -484,11 +485,11 @@ actionList.Demonic = function()
         and talent.demonBlades and cd.eyeBeam.remain() > gcd
         and charges.felRush.count() > ui.value("Hold Fel Rush Charge")
     then
-        -- if ui.mode.mover == 1 and unit.distance("target") < 8 then
-        --     cancelRushAnimation()
-        -- elseif not ui.checked("Fel Rush Only In Melee") and (ui.mode.mover == 2 or (unit.distance("target") >= 8 and ui.mode.mover ~= 3)) then
+        if ui.mode.mover == 1 and unit.distance("target") < 8 then
+            cancelRushAnimation("Casting Fel Rush [Demon Blades]")
+        elseif not ui.checked("Fel Rush Only In Melee") and (ui.mode.mover == 2 or (unit.distance("target") >= 8 and ui.mode.mover ~= 3)) then
             if cast.felRush("target") then ui.debug("Casting Fel Rush [Demon Blades]") return true end
-        -- end
+        end
     end
     -- Demon's Bite
     -- demons_bite,target_if=min:debuff.burning_wound.remains,if=runeforge.burning_wound.equipped&debuff.burning_wound.remains<4
@@ -500,11 +501,11 @@ actionList.Demonic = function()
     if cast.able.felRush("target") and ui.mode.mover ~= 3 and not unit.isExplosive("target") and unit.facing("player","target",10)
         and not talent.demonBlades and #enemies.yards23r > 1 and charges.felRush.count() > ui.value("Hold Fel Rush Charge")
     then
-        -- if ui.mode.mover == 1 and unit.distance("target") < 8 then
-        --     cancelRushAnimation()
-        -- elseif not ui.checked("Fel Rush Only In Melee") and (ui.mode.mover == 2 or (unit.distance("target") >= 8 and ui.mode.mover ~= 3)) then
+        if ui.mode.mover == 1 and unit.distance("target") < 8 then
+            cancelRushAnimation("Casting Fel Rush [AOE]")
+        elseif not ui.checked("Fel Rush Only In Melee") and (ui.mode.mover == 2 or (unit.distance("target") >= 8 and ui.mode.mover ~= 3)) then
             if cast.felRush("target") then ui.debug("Casting Fel Rush [AOE]") return true end
-        -- end
+        end
     end
     -- Demon's Bite
     -- demons_bite
@@ -558,11 +559,11 @@ actionList.Normal = function()
         and ((buff.unboundChaos.exists() or (var.waitingForMomentum and (not talent.unboundChaos or cd.immolationAura.exists()))))
         and charges.felRush.count() > ui.value("Hold Fel Rush Charge")
     then
-        -- if ui.mode.mover == 1 and unit.distance("target") < 8 then
-        --     cancelRushAnimation()
-        -- elseif not ui.checked("Fel Rush Only In Melee") and (ui.mode.mover == 2 or (unit.distance("target") >= 8 and ui.mode.mover ~= 3)) then
+        if ui.mode.mover == 1 and unit.distance("target") < 8 then
+            cancelRushAnimation("Casting Fel Rush [Momentum/Unbound Chaos]")
+        elseif not ui.checked("Fel Rush Only In Melee") and (ui.mode.mover == 2 or (unit.distance("target") >= 8 and ui.mode.mover ~= 3)) then
             if cast.felRush("target") then ui.debug("Casting Fel Rush [Momentum/Unbound Chaos]") return true end
-        -- end
+        end
     end
     -- Fel Barrage
     -- fel_barrage,if=active_enemies>desired_targets|raid_event.adds.in>30
@@ -658,11 +659,11 @@ actionList.Normal = function()
     if cast.able.felRush("target") and ui.mode.mover ~= 3 and not unit.isExplosive("target") and unit.facing("player","target",10) and not talent.momentum
         and talent.demonBlades and charges.felRush.count() > ui.value("Hold Fel Rush Charge")
     then
-        -- if ui.mode.mover == 1 and unit.distance("target") < 8 then
-        --     cancelRushAnimation()
-        -- elseif not ui.checked("Fel Rush Only In Melee") and (ui.mode.mover == 2 or (unit.distance("target") >= 8 and ui.mode.mover ~= 3)) then
+        if ui.mode.mover == 1 and unit.distance("target") < 8 then
+            cancelRushAnimation("Casting Fel Rush [Demon Blades]")
+        elseif not ui.checked("Fel Rush Only In Melee") and (ui.mode.mover == 2 or (unit.distance("target") >= 8 and ui.mode.mover ~= 3)) then
             if cast.felRush("target") then ui.debug("Casting Fel Rush [Demon Blades]") return true end
-        -- end
+        end
     end
     -- Felblade
     -- felblade,if=movement.distance|buff.out_of_range.up
@@ -867,13 +868,13 @@ local function runRotation()
     -- end
     -- Fel Rush Special
     if unit.inCombat() and ui.mode.mover ~= 3 and ui.checked("Auto Fel Rush After Retreat") and cast.able.felRush()
-        and buff.prepared.exists() and not buff.momentum.exists() and charges.felRush.count() > ui.value("Hold Fel Rush Charge")
+        and (buff.prepared.exists() or cast.timeSinceLast.vengefulRetreat() < unit.gcd(true) * 2) and not buff.momentum.exists() and charges.felRush.count() > ui.value("Hold Fel Rush Charge")
     then
-        -- if ui.mode.mover == 1 and unit.distance("target") < 8 then
-        --     cancelRushAnimation()
-        -- elseif not ui.checked("Fel Rush Only In Melee") and (ui.mode.mover == 2 or (unit.distance("target") >= 8 and ui.mode.mover ~= 3)) then
+        --[[if ui.mode.mover == 1 and unit.distance("target") < 8 then
+            cancelRushAnimation("Casting Fel Rush [Special]")
+        else]]if not ui.checked("Fel Rush Only In Melee") and (ui.mode.mover == 2 or (unit.distance("target") >= 8 and ui.mode.mover ~= 3)) then
             if cast.felRush() then ui.debug("Casting Fel Rush [Special]") return true end
-        -- end
+        end
     end
 
     ---------------------
