@@ -190,7 +190,7 @@ local function cancelRushAnimation(debugMessage)
     -- if cast.able.felRush() and GetUnitSpeed("player") == 0 then
         br._G.MoveBackwardStart()
         br._G.JumpOrAscendStart()
-        cast.felRush("target")
+        cast.felRush()
         br._G.MoveBackwardStop()
         br._G.AscendStop()
         ui.debug(debugMessage)
@@ -406,14 +406,15 @@ actionList.Demonic = function()
     end
     -- Fel Rush
     -- fel_rush,if=talent.unbound_chaos.enabled&buff.unbound_chaos.up&(charges=2|(raid_event.movement.in>10&raid_event.adds.in>10))
-    if cast.able.felRush("target") and ui.mode.mover ~= 3 and not unit.isExplosive("target") and unit.facing("player","target",10)
+    if cast.able.felRush() and ui.mode.mover ~= 3 and not unit.isExplosive("target") and #enemies.yards23r > 0
         and talent.unboundChaos and buff.unboundChaos.exists()
         and charges.felRush.count() > ui.value("Hold Fel Rush Charge")
     then
         if ui.mode.mover == 1 and unit.distance("target") < 8 then
             cancelRushAnimation("Casting Fel Rush [Unbound Chaos]")
+            return true
         elseif not ui.checked("Fel Rush Only In Melee") and (ui.mode.mover == 2 or (unit.distance("target") >= 8 and ui.mode.mover ~= 3)) then
-            if cast.felRush("target") then ui.debug("Casting Fel Rush [Unbound Chaos]") return true end
+            if cast.felRush() then ui.debug("Casting Fel Rush [Unbound Chaos]") return true end
         end
     end
     -- Death Sweep
@@ -481,14 +482,15 @@ actionList.Demonic = function()
     end
     -- Fel Rush
     -- fel_rush,if=talent.demon_blades.enabled&!cooldown.eye_beam.ready&(charges=2|(raid_event.movement.in>10&raid_event.adds.in>10))
-    if cast.able.felRush("target") and ui.mode.mover ~= 3 and not unit.isExplosive("target") and unit.facing("player","target",10)
+    if cast.able.felRush() and ui.mode.mover ~= 3 and not unit.isExplosive("target") and #enemies.yards23r > 0
         and talent.demonBlades and cd.eyeBeam.remain() > gcd
         and charges.felRush.count() > ui.value("Hold Fel Rush Charge")
     then
         if ui.mode.mover == 1 and unit.distance("target") < 8 then
             cancelRushAnimation("Casting Fel Rush [Demon Blades]")
+            return true
         elseif not ui.checked("Fel Rush Only In Melee") and (ui.mode.mover == 2 or (unit.distance("target") >= 8 and ui.mode.mover ~= 3)) then
-            if cast.felRush("target") then ui.debug("Casting Fel Rush [Demon Blades]") return true end
+            if cast.felRush() then ui.debug("Casting Fel Rush [Demon Blades]") return true end
         end
     end
     -- Demon's Bite
@@ -498,13 +500,14 @@ actionList.Demonic = function()
     end
     -- Fel Rush
     -- fel_rush,if=!talent.demon_blades.enabled&spell_targets>1&(charges=2|(raid_event.movement.in>10&raid_event.adds.in>10))
-    if cast.able.felRush("target") and ui.mode.mover ~= 3 and not unit.isExplosive("target") and unit.facing("player","target",10)
+    if cast.able.felRush() and ui.mode.mover ~= 3 and not unit.isExplosive("target") and #enemies.yards23r > 0
         and not talent.demonBlades and #enemies.yards23r > 1 and charges.felRush.count() > ui.value("Hold Fel Rush Charge")
     then
         if ui.mode.mover == 1 and unit.distance("target") < 8 then
             cancelRushAnimation("Casting Fel Rush [AOE]")
+            return true
         elseif not ui.checked("Fel Rush Only In Melee") and (ui.mode.mover == 2 or (unit.distance("target") >= 8 and ui.mode.mover ~= 3)) then
-            if cast.felRush("target") then ui.debug("Casting Fel Rush [AOE]") return true end
+            if cast.felRush() then ui.debug("Casting Fel Rush [AOE]") return true end
         end
     end
     -- Demon's Bite
@@ -519,11 +522,11 @@ actionList.Demonic = function()
     end
     -- Fel Rush
     -- fel_rush,if=movement.distance>15|(buff.out_of_range.up&!talent.momentum.enabled)
-    if not ui.checked("Fel Rush Only In Melee") and not unit.isExplosive("target") and cast.able.felRush("target")
+    if not ui.checked("Fel Rush Only In Melee") and not unit.isExplosive("target") and cast.able.felRush()
         and ui.mode.mover ~= 3 and charges.felRush.count() > ui.value("Hold Fel Rush Charge")
         and (unit.distance("target") > 15 or (unit.distance("target") > 8 and not talent.momentum))
     then
-        if cast.felRush("target") then ui.debug("Casting Fel Rush [Out of Range]") return true end
+        if cast.felRush() then ui.debug("Casting Fel Rush [Out of Range]") return true end
     end
     -- Throw Glaive
     -- throw_glaive,if=talent.demon_blades.enabled
@@ -555,14 +558,15 @@ actionList.Normal = function()
     end
     -- Fel Rush
     -- fel_rush,if=(buff.unbound_chaos.up|variable.waiting_for_momentum&(!talent.unbound_chaos.enabled|!cooldown.immolation_aura.ready))&(charges=2|(raid_event.movement.in>10&raid_event.adds.in>10))
-    if cast.able.felRush("target") and ui.mode.mover ~= 3 and not unit.isExplosive("target") and unit.facing("player","target",10)
+    if cast.able.felRush() and ui.mode.mover ~= 3 and not unit.isExplosive("target") and #enemies.yards23r > 0
         and ((buff.unboundChaos.exists() or (var.waitingForMomentum and (not talent.unboundChaos or cd.immolationAura.exists()))))
         and charges.felRush.count() > ui.value("Hold Fel Rush Charge")
     then
         if ui.mode.mover == 1 and unit.distance("target") < 8 then
             cancelRushAnimation("Casting Fel Rush [Momentum/Unbound Chaos]")
+            return true
         elseif not ui.checked("Fel Rush Only In Melee") and (ui.mode.mover == 2 or (unit.distance("target") >= 8 and ui.mode.mover ~= 3)) then
-            if cast.felRush("target") then ui.debug("Casting Fel Rush [Momentum/Unbound Chaos]") return true end
+            if cast.felRush() then ui.debug("Casting Fel Rush [Momentum/Unbound Chaos]") return true end
         end
     end
     -- Fel Barrage
@@ -656,13 +660,14 @@ actionList.Normal = function()
     end
     -- Fel Rush
     -- fel_rush,if=!talent.momentum.enabled&raid_event.movement.in>charges*10&talent.demon_blades.enabled
-    if cast.able.felRush("target") and ui.mode.mover ~= 3 and not unit.isExplosive("target") and unit.facing("player","target",10) and not talent.momentum
+    if cast.able.felRush() and ui.mode.mover ~= 3 and not unit.isExplosive("target") and #enemies.yards23r > 0 and not talent.momentum
         and talent.demonBlades and charges.felRush.count() > ui.value("Hold Fel Rush Charge")
     then
         if ui.mode.mover == 1 and unit.distance("target") < 8 then
             cancelRushAnimation("Casting Fel Rush [Demon Blades]")
+            return true
         elseif not ui.checked("Fel Rush Only In Melee") and (ui.mode.mover == 2 or (unit.distance("target") >= 8 and ui.mode.mover ~= 3)) then
-            if cast.felRush("target") then ui.debug("Casting Fel Rush [Demon Blades]") return true end
+            if cast.felRush() then ui.debug("Casting Fel Rush [Demon Blades]") return true end
         end
     end
     -- Felblade
@@ -674,11 +679,11 @@ actionList.Normal = function()
     end
     -- Fel Rush
     -- fel_rush,if=movement.distance>15|(buff.out_of_range.up&!talent.momentum.enabled)
-    if not ui.checked("Fel Rush Only In Melee") and not unit.isExplosive("target") and cast.able.felRush("target")
+    if not ui.checked("Fel Rush Only In Melee") and not unit.isExplosive("target") and cast.able.felRush()
         and ui.mode.mover ~= 3 and charges.felRush.count() > ui.value("Hold Fel Rush Charge")
         and (unit.distance("target") > 15 or (unit.distance("target") > 8 and not talent.momentum))
     then
-        if cast.felRush("target") then ui.debug("Casting Fel Rush [Out of Range]") return true end
+        if cast.felRush() then ui.debug("Casting Fel Rush [Out of Range]") return true end
     end
     -- Throw Glaive
     -- throw_glaive,if=talent.demon_blades.enabled
@@ -798,9 +803,8 @@ local function runRotation()
     enemies.get(40)
     enemies.get(40,"player",false,true)
     enemies.get(50)
-    enemies.rect.get(10,20,false)
+    enemies.rect.get(8,20,false)
     enemies.rect.get(3,23,false)
-    enemies.rect.get(10,25,false)
 
     if cast.active.eyeBeam("player") and buff.metamorphosis.exists() then
         var.metaExtended = true

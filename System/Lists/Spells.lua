@@ -467,7 +467,7 @@ br.lists.spells = {
                 metamorphosis               = 162264,
                 momentum                    = 208628,
                 prepared                    = 203650,
-                unboundChaos                = 234059,
+                unboundChaos                = 347462,--234059,
             },
             conduits                        = {
                 serratedGlaive              = 339230,
