@@ -56,4 +56,7 @@ br.lists.los = {
     [168326] = true, -- Other Side Adds
 	[164407] = true, -- Sludgefist - Castle Nathria
 	[165759] = true, -- Kaelthas
+	[181399] = true, -- Kin'tessa - Lords of Dread
+	[181398] = true, -- Mal'Ganis - Lords of Dread
+	[183138] = true, -- Shadowboi add in Lords of Dread
 }

@@ -2167,6 +2167,7 @@ br.lists.spells = {
                 absolution                  = 212056,
                 auraMastery                 = 31821,
                 beaconOfLight               = 53563,
+                beaconOfVirtue              = 200025,
                 cleanse                     = 4987,
                 divineProtection            = 498,
                 holyLight                   = 82326,
@@ -2202,6 +2203,7 @@ br.lists.spells = {
                 symbolOfHope                = 64901,
                 divineSteed                 = 254474,
                 maraadsBreath              = 340459,
+                untemperedDedication        = 339990,
             },
             debuffs                         = {
                 judgement                   = 214222,
@@ -2237,6 +2239,7 @@ br.lists.spells = {
             runeforges                      = {
                 shadowbreaker               = 337812,
                 shockBarrier                = 337825,
+                maraadsDyingBreath          = 340458,
             }
         },
         -- Protection
