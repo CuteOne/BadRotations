@@ -728,7 +728,7 @@ local function runRotation()
             end
             -- Whirlwind
             -- whirlwind,if=spell_targets.whirlwind>1&!buff.meat_cleaver.up|raid_event.adds.in<gcd&!buff.meat_cleaver.up
-            if cast.able.whirlwind("player","aoe",1,8) and #ui.useAOE(8,2)
+            if cast.able.whirlwind("player","aoe",1,8) and ui.useAOE(8,2)
                 and ((talent.meatCleaver and not buff.meatCleaver.exists()) or (unit.level() >= 37 and not buff.whirlwind.exists()))
             then
                 if cast.whirlwind("player","aoe",1,8) then ui.debug("Casting Whirlwind [No Meat Cleaver]") return true end

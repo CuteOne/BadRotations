@@ -69,7 +69,7 @@ local function createOptions()
             br.ui:createCheckbox(section,"Torment")
 		    -- Consume Magic
             br.ui:createCheckbox(section,"Consume Magic")
-            -- Throw Glaive 
+            -- Throw Glaive
             br.ui:createCheckbox(section,"Throw Glaive")
         br.ui:checkSectionState(section)
         -- Cooldown Options
@@ -226,7 +226,7 @@ actionList.Extras = function()
                             br.addonDebug("[TANKBUST] Fiery Brand")
                             return true
                         end
-                    end                
+                    end
                 end
             end
         end
@@ -248,7 +248,7 @@ actionList.Defensive = function()
             -- end
         end
         -- Metamorphosis
-        -- metamorphosis,if=!(talent.demonic.enabled)&(!covenant.venthyr.enabled|!dot.sinful_brand.ticking)|target.time_to_die<15
+        -- metamorphosis,if=!buff.metamorphosis.up&(!covenant.venthyr.enabled|!dot.sinful_brand.ticking)|target.time_to_die<15
         if ui.checked("Metamorphosis") and unit.inCombat() and cast.able.metamorphosis() and not buff.demonSpikes.exists()
             and not debuff.fieryBrand.exists(units.dyn5) and not buff.metamorphosis.exists() and unit.hp() <= ui.value("Metamorphosis")
             -- and not talent.demonic and (not covenant.venthyr.enabled or debuff.sinfulBrand.exists(units.dyn5))
@@ -517,7 +517,7 @@ local function runRotation()
     enemies.get(30)
 
     -- variable,name=brand_build,value=talent.agonizing_flames.enabled&talent.burning_alive.enabled&talent.charred_flesh.enabled
-    var.brandBuild = talent.agonizingFlames and talent.burningAlive and talent.charredFlesh 
+    var.brandBuild = talent.agonizingFlames and talent.burningAlive and talent.charredFlesh
 
     ---------------------
     --- Begin Profile ---

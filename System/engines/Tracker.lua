@@ -2,7 +2,7 @@ local _, br = ...
 local LibDraw = LibStub("LibDraw-BR")
 local tracking = false
 
-local function trackObject(object, name, objectid, interact)
+local function trackObject(object, name, objectid, objectguid, interact)
     local xOb, yOb, zOb = br._G.ObjectPosition(object)
     local pX, pY, pZ = br._G.ObjectPosition("player")
     if interact == nil then
@@ -25,8 +25,16 @@ local function trackObject(object, name, objectid, interact)
         if name == "" or name == "Unknown" then
             name = br._G.ObjectIsUnit(object) and br._G.UnitName(object) or nil
         end
-        LibDraw.Text(name .. " " .. objectid .. " ZDiff: " .. zDifference, "GameFontNormal", xOb, yOb, zOb + 3)
+		if br.isChecked("Display Extra Info") then
+			name = name .. "  [" .. objectid .. "] " .. "\n" .. objectguid .. "  [ZDiff: " .. zDifference.."]"
+		end		
+		LibDraw.Text(name, "GameFontNormal", xOb, yOb, zOb + 3)
         if br.isChecked("Draw Lines to Tracked Objects") then
+			if math.abs(zDifference) > 50 then
+				LibDraw.SetColor(255, 0, 0, 80)
+			else
+				LibDraw.SetColor(0, 255, 0, 80)
+			end
             LibDraw.Line(pX, pY, pZ, xOb, yOb, zOb)
         end
         if br.isChecked("Auto Interact with Any Tracked Object") and interact and not br.player.inCombat and
@@ -55,18 +63,19 @@ function br.objectTracker()
                     objUnit = br._G.ObjectIsUnit(object)
                     name = objUnit and br._G.UnitName(object) or br._G.ObjectName(object)
                     objectid = br._G.ObjectID(object)
-                    if object and name and objectid then
+                    objectguid = br._G.UnitGUID(object)
+                    if object and name and objectid and objectguid then
                         if br.isChecked("Rare Tracker") and not br.GetUnitIsDeadOrGhost(object) and
                             (br._G.UnitClassification(object) == "rare" or br._G.UnitClassification(object) == "rareelite")
                         then
-                            trackObject(object, name, objectid, false)
+                            trackObject(object, name, objectid, objectguid, false)
                         end
                         if br.isChecked("Custom Tracker") then
                             for k in string.gmatch(tostring(br.getOptionValue("Custom Tracker")), "([^,]+)") do
                                 if string.len(_G.string.trim(k)) >= 3 and
                                     _G.strmatch(_G.strupper(name), _G.strupper(_G.string.trim(k)))
                                 then
-                                    trackObject(object, name, objectid)
+                                    trackObject(object, name, objectid, objectguid)
                                 end
                             end
                         end
@@ -84,15 +93,15 @@ function br.objectTracker()
                                 objUnit and br.isQuestUnit(object) and not br._G.UnitIsTapDenied(object)
                             then
                                 if ignoreList[objectid] ~= nil or (select(2, CanLootUnit(object)) and br.getItemGlow(object)) then
-                                    trackObject(object, name, objectid)
+                                    trackObject(object, name, objectid, objectguid)
                                 else
-                                    trackObject(object, name, objectid, false)
+                                    trackObject(object, name, objectid, objectguid, false)
                                 end
                             end
                             if (br.getOptionValue("Quest Tracker") == 2 or br.getOptionValue("Quest Tracker") == 3)
                                 and not objUnit and br.isQuestObject(object)
                             then
-                                trackObject(object, name, objectid)
+                                trackObject(object, name, objectid, objectguid)
                             end
                         end
                     end
