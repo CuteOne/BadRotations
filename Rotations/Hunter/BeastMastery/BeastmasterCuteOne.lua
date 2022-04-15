@@ -612,11 +612,16 @@ actionList.St = function()
     end
     -- Cobra Shot
     -- cobra_shot,if=(focus-cost+focus.regen*(cooldown.kill_command.remains-1)>action.kill_command.cost|cooldown.kill_command.remains>1+gcd)|(buff.bestial_wrath.up|buff.nesingwarys_trapping_apparatus.up)&!runeforge.qapla_eredun_war_order|target.time_to_die<3
-    if cast.able.cobraShot() and ((power.focus.amount() - cast.cost.cobraShot() + power.focus.regen() * (cd.killCommand.remain() - 1) > cast.cost.killCommand() or cd.killCommand.remain() > 1 + unit.gcd(true))
+    if (cast.able.cobraShot() or cast.able.steadyShot()) and ((power.focus.amount() - cast.cost.cobraShot() + power.focus.regen() * (cd.killCommand.remain() - 1) > cast.cost.killCommand() or cd.killCommand.remain() > 1 + unit.gcd(true))
         or (buff.bestialWrath.exists() or buff.nesingwarysTrappingApparatus.exists()) and not runeforge.qaplaEredunWarOrder.equiped
         or unit.ttd(units.dyn40) < 3 and ui.useCDs())
     then
-        if cast.cobraShot() then ui.debug("Casting Cobra Shot") return true end
+        if cast.able.cobraShot() then
+            if cast.cobraShot() then ui.debug("Casting Cobra Shot") return true end
+        end
+        if cast.able.steadyShot() then
+            if cast.steadyShot() then ui.debug("Casting Steady Shot") return true end
+        end
     end
     -- Barbed Shot
     -- barbed_shot,if=buff.wild_spirits.up|charges_fractional>1.2&conduit.bloodletting
@@ -747,8 +752,13 @@ actionList.Cleave = function()
     end
     -- Cobra Shot
     -- cobra_shot,if=focus.time_to_max<gcd*2
-    if cast.able.cobraShot() and power.focus.ttm() < unit.gcd(true) * 2 then
-        if cast.cobraShot() then ui.debug("Casting Cobra Shot [AOE]") return true end
+    if (cast.able.cobraShot() or cast.able.steadyShot()) and power.focus.ttm() < unit.gcd(true) * 2 then
+        if cast.able.cobraShot() then
+            if cast.cobraShot() then ui.debug("Casting Cobra Shot [AOE]") return true end
+        end
+        if cast.able.steadyShot() then
+            if cast.steadyShot() then ui.debug("Casting Steady Shot [AOE]") return true end
+        end
     end
     -- Tar Trap
     -- tar_trap,if=runeforge.soulforge_embers|runeforge.nessingwarys_trapping_apparatus
@@ -839,7 +849,8 @@ local function runRotation()
     enemies.get(5,"pet")
 
     -- Variables
-    var.haltProfile   = ((unit.inCombat() and var.profileStop) or unit.mounted() or unit.flying() or ui.pause() or buff.feignDeath.exists() or ui.mode.rotation==4)
+    --var.haltProfile = ((unit.inCombat() and var.profileStop) or unit.mounted() or unit.flying() or ui.pause() or buff.feignDeath.exists() or ui.mode.rotation==4)
+    var.haltProfile = (unit.inCombat() and var.profileStop) or (unit.mounted() or unit.flying()) or ui.pause() or buff.feignDeath.exists() or ui.mode.rotation==4
 
     --wipe timers table
     if br._G.timersTable then
@@ -905,10 +916,7 @@ local function runRotation()
     -- Profile Stop | Pause
     if not unit.inCombat() and not unit.exists("target") and var.profileStop then
         var.profileStop = false
-    elseif var.haltProfile then
-        -- if cast.able.playDead() and cast.last.feignDeath() and not buff.playDead.exists("pet") then
-        --     if cast.playDead() then ui.debug("") return true end
-        -- end
+    elseif var.haltProfile and (not unit.isCasting() or ui.pause(true)) then
         unit.stopAttack()
         if unit.isDummy() then unit.clearTarget() end
         return true
