@@ -35,7 +35,7 @@ local function reader(...)
     spellType = br._G.CombatLogGetCurrentEventInfo()
     if br.GetUnitIsUnit(sourceName, "player") and param == "SPELL_MISSED" and spellType == "IMMUNE" and
         not br._G.UnitIsPlayer(destination) and (theSpell == br.player.spell.paralysis or theSpell == br.player.spell.legSweep) then
-        br.data.settings[br.selectedSpec][br.selectedProfile]["LyloMWImmuneList"][br.getCurrentZoneId().. ":"..destName .. ":" .. theSpell] = true
+        br.data.settings[br.selectedSpec][br.selectedProfile]["LyloImmuneList"][br.getCurrentZoneId().. ":"..destName .. ":" .. theSpell] = true
     end
 end
 ----------------
@@ -47,7 +47,7 @@ local function createToggles()
     local frame = br._G.CreateFrame("Frame")
     frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
     frame:SetScript("OnEvent", reader)
-    br.data.settings[br.selectedSpec][br.selectedProfile]["LyloMWImmuneList"] = br.data.settings[br.selectedSpec][br.selectedProfile]["LyloMWImmuneList"] or {}
+    br.data.settings[br.selectedSpec][br.selectedProfile]["LyloImmuneList"] = br.data.settings[br.selectedSpec][br.selectedProfile]["LyloImmuneList"] or {}
     --------------------------------------------------------------
     local RotationModes = {
         [1] = {
@@ -848,7 +848,7 @@ local FunctionsUtilities = {
         return true
     end,
     IsUnitImmune = function (unitGUID, spellID)
-        return br.data.settings[br.selectedSpec][br.selectedProfile]["LyloMWImmuneList"][br.getCurrentZoneId().. ":" ..br._G.UnitName(unitGUID) .. ":" .. spellID] or false
+        return br.data.settings[br.selectedSpec][br.selectedProfile]["LyloImmuneList"][br.getCurrentZoneId().. ":" ..br._G.UnitName(unitGUID) .. ":" .. spellID] or false
     end,
     IsAuraActive = function (theUnit, spellID)
         for i = 1, 40 do
