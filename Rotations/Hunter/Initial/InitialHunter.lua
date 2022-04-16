@@ -163,8 +163,8 @@ actionList.Defensive = function()
             if cast.wingClip() then ui.debug("Casting Wing Clip") return true end
         end
         -- Disengage
-        if ui.checked("Disengage") and cast.able.disengage() and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
-            if cast.disengage() then ui.debug("Casting Disengage") return true end
+        if ui.checked("Disengage") and cast.able.disengage("player") and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
+            if cast.disengage("player") then ui.debug("Casting Disengage") return true end
         end
     end
 end -- End Action List - Defensive
@@ -228,7 +228,7 @@ local function runRotation()
     units                                           = br.player.units
     use                                             = br.player.use
     -- General Locals
-    var.haltProfile                         = (unit.inCombat() and var.profileStop) or unit.mounted() or br.pause() or buff.feignDeath.exists() or ui.mode.rotation==4
+    var.haltProfile                         = (unit.inCombat() and var.profileStop) or unit.mounted() or br.pause() or buff.feignDeath.exists() or ui.mode.rotation==2
     -- Units
     units.get(5)
     units.get(40)
@@ -277,7 +277,7 @@ local function runRotation()
                 if actionList.Interrupt() then return true end
                 ------------
                 --- Main ---
-                ------------              
+                ------------
                 -- Start Attack
                 if not br._G.IsAutoRepeatSpell(br._G.GetSpellInfo(6603)) and unit.exists(units.dyn40) and unit.distance(units.dyn40) < 40 then
                     br._G.StartAttack(units.dyn40)
@@ -288,7 +288,7 @@ local function runRotation()
                     for i = 13, 14 do
                         thisTrinket = i == 13 and "Trinket 1" or "Trinket 2"
                         local opValue = ui.value(thisTrinket)
-                        if (opValue == 1 or (opValue == 2 and ui.useCDs())) and use.able.slot(i) 
+                        if (opValue == 1 or (opValue == 2 and ui.useCDs())) and use.able.slot(i)
                         and (not equiped.touchOfTheVoid(i) or (equiped.touchOfTheVoid(i) and (#enemies.yards8 > 2 or (ui.useCDs() and opValue ~= 3))))
                         then
                             use.slot(i)

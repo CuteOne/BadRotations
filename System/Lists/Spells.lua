@@ -1360,6 +1360,7 @@ br.lists.spells = {
                 trackMechanicals            = 229533,
                 trackUndead                 = 19884,
                 tranquilizingShot           = 19801,
+                wailingArrow                = 355589,
                 wingClip                    = 195645,
                 -- Pet Management
                 beastLore                   = 1462,
@@ -1518,14 +1519,16 @@ br.lists.spells = {
                 freezingTrap                = 187650,
             },
             runeforges                      = {
+                bagOfMunitions              = 356264,
                 eagletalonsTrueFocus        = 336849,
                 nesingwarysTrappingApparatus= 336743,
+                pouchOfRazorFragments       = 356618,
                 rylakstalkersConfoundingStrikes = 336901,
+                secretsOfTheUnblinkingVigil = 336878,
                 serpentstalkersTrickery     = 336870,
                 soulforgeEmbers             = 336745,
                 surgingShots                = 336867,
                 qaplaEredunWarOrder         = 336830,
-                bagOfMunitions              = 356264,
             },
             talents                         = {
                 aMurderOfCrows              = 131894,
