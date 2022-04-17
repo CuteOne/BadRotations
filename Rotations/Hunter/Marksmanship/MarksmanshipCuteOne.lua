@@ -446,8 +446,8 @@ actionList.TrickShots = function()
     end
     -- Volley
     -- volley,if=buff.resonating_arrow.up|!covenant.kyrian
-    if ui.alwaysCdAoENever("Volley",ui.value("Volley Units"),#enemies.yards8t) and cast.able.volley("best",nil,ui.value("Volley Units"),8)
-        and ui.mode.volley == 1 and ui.checked("Volley Units") and #enemies.yards8t >= ui.value("Volley Units")
+    if ui.alwaysCdAoENever("Volley",ui.value("Volley Units"),40) and cast.able.volley("best",nil,ui.value("Volley Units"),8)
+        and ui.mode.volley == 1 and ui.checked("Volley Units") and #enemies.yards40 >= ui.value("Volley Units")
         and (buff.resonatingArrow.exists() or not covenant.kyrian.active or (covenant.kyrian.active and not ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards12t)))
     then
         if cast.volley("best",nil,ui.value("Volley Units"),8) then ui.debug("Casting Volley [Trick Shots]") return true end
@@ -629,10 +629,10 @@ actionList.SingleTarget = function()
     end
     -- Volley
     -- volley,if=buff.resonating_arrow.up|!covenant.kyrian&(buff.precise_shots.down|!talent.chimaera_shot|active_enemies<2)&(!talent.double_tap|!set_bonus.tier28_2pc|set_bonus.tier28_4pc|buff.double_tap.up)
-    if ui.alwaysCdAoENever("Volley",ui.value("Volley Units"),#enemies.yards8t) and cast.able.volley("best",nil,ui.value("Volley Units"),8)
-        and ui.mode.volley == 1 and ui.checked("Volley Units") and (#enemies.yards8t >= ui.value("Volley Units"))
+    if ui.alwaysCdAoENever("Volley",ui.value("Volley Units"),40) and cast.able.volley("best",nil,ui.value("Volley Units"),8)
+        and ui.mode.volley == 1 and ui.checked("Volley Units") and (#enemies.yards40 >= ui.value("Volley Units"))
         and (buff.resonatingArrow.exists() or not covenant.kyrian.active or (covenant.kyrian.active and not ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards12t)))
-        and (not buff.preciseShots.exists() or not talent.chimaeraShot or #enemies.yards8t < 2)
+        and (not buff.preciseShots.exists() or not talent.chimaeraShot or #enemies.yards40 < 2)
         and (not talent.doubleTap or equiped.tier(28) < 2 or equiped.tier(28) >= 4 or buff.doubleTap.exists())
     then
         if cast.volley("best",nil,ui.value("Volley Units"),8) then ui.debug("Casting Volley") return true end

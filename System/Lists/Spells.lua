@@ -1480,6 +1480,7 @@ br.lists.spells = {
             },
             buffs                           = {
                 aspectOfTheTurtle           = 186265,
+                eagletalonsTrueFocus        = 336851,
                 feignDeath                  = 5384,
                 flayersMark                 = 324156, -- Covenant
                 mendPet                     = 136,
