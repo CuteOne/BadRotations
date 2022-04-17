@@ -192,7 +192,7 @@ br.rotations.support["PetCuteOne"] = {
                     if (not petExists or not petActive) and not buff.playDead.exists("pet") and not petCalled then
                         if cast["callPet"..mode.petSummon]("player") then ui.debug("[Pet] Casting Call Pet") --[[ui.print("Hey "..callPetName.."...WAKE THE FUCK UP! It's already past noon!...GET YOUR LIFE TOGETHER!")]] petAppearTimer = br._G.GetTime(); petCalled = true; petRevived = false; return true end
                     end
-                    if (not petExists or not petActive) and petDead then
+                    if (not petExists or not petActive or unit.hp("pet") == 0) and petDead then
                         if cast.able.revivePet("player") and cast.timeSinceLast.revivePet() > unit.gcd(true) then
                             if cast.revivePet("player") then ui.debug("[Pet] Casting Revive Pet") --[[ui.print("Hey "..callPetName.."...WAKE THE FUCK UP! It's already past noon!...GET YOUR LIFE TOGETHER!")]] petAppearTimer = br._G.GetTime(); petRevived = true; petCalled = false; return true end
                         end
@@ -214,13 +214,15 @@ br.rotations.support["PetCuteOne"] = {
         -- Pet Combat Modes
         if ui.checked("Auto Attack/Passive") and petActive and petExists and not cast.last.dismissPet() and targetSwitchTimer < br._G.GetTime() -1 then
             -- Set Pet Modes
-            if ui.value("Pet Target") == 4 and unit.inCombat() and (petMode == "Defensive" or petMode == "Passive") and not var.haltPetProfile  and petMode ~= "Assist" then
+            if ui.value("Pet Target") == 4 and unit.inCombat() and (petMode == "Defensive" or petMode == "Passive") and not var.haltPetProfile and petMode ~= "Assist" then
                 ui.debug("[Pet] Pet is now Assisting")
                 br._G.PetAssistMode()
-            elseif (not unit.inCombat() or unit.valid(br.petTarget) or (unit.inCombat() and ui.value("Pet Target") ~= 4)) and (#enemies.yards20pnc > 0 or unit.valid(br.petTarget)) and not var.haltPetProfile  and petMode ~= "Defensive" then
+            elseif (not unit.inCombat() or unit.valid(br.petTarget) or (unit.inCombat() and ui.value("Pet Target") ~= 4))
+                and (#enemies.yards20pnc > 0 or unit.valid(br.petTarget)) and not var.haltPetProfile  and petMode ~= "Defensive"
+            then
                 ui.debug("[Pet] Pet is now Defending")
                 br._G.PetDefensiveAssistMode()
-            elseif petMode ~= "Passive" and ((not unit.inCombat() and #enemies.yards20pnc == 0) or var.haltPetProfile) then
+            elseif petMode ~= "Passive" and ((not unit.inCombat() and #enemies.yards20pnc == 0 and not unit.valid(br.petTarget)) or var.haltPetProfile) then
                 ui.debug("[Pet] Pet is now Passive")
                 br._G.PetPassiveMode()
             end
@@ -480,16 +482,16 @@ br.rotations.support["PetCuteOne"] = {
                 if ui.value("Misdirection") == 3 and cast.able.misdirection("pet") and #enemies.yards8p > 1 then
                     if cast.misdirection("pet") then ui.debug("[Pet] Cast Misdirection on Pet") return true end
                 end
-                for i = 1, #enemies.yards30p do
-                    local thisUnit = enemies.yards30p[i]
-                    if not var.haltPetProfile and cast.able.growl(thisUnit,"pet") and cd.growl.remains() == 0 and unit.isTanking(thisUnit) and unit.distance(thisUnit,"pet") < 30 then
+                for i = 1, #enemies.yards30 do
+                    local thisUnit = enemies.yards30[i]
+                    if not var.haltPetProfile and cast.able.growl(thisUnit,"pet") and cd.growl.remains() == 0 and unit.isTanking(thisUnit) and unit.distance(thisUnit) < 30 then
                         if cast.growl(thisUnit,"pet") then ui.debug("[Pet] Cast Growl") return true end
                     end
                 end
             end
         end
         -- Dash
-        if ui.checked("Dash") and cast.able.dash("player") and unit.moving("pet") and validTarget and petDistance > 10 and petDistance < 40
+        if ui.checked("Dash") and cast.able.dash("player") and unit.inCombat("pet") and unit.moving("pet") and validTarget and petDistance > 10 and petDistance < 40
             and not ui.pause() and cast.timeSinceLast.dash() > unit.gcd(true) and not buff.playDead.exists("pet")
         then
             if cast.dash("player") then ui.debug("[Pet] Cast Dash") return true end
@@ -541,7 +543,7 @@ br.rotations.support["PetCuteOne"] = {
             if cast.able.spiritWalk("player") and not buff.spiritWalk.exists("pet") and not cd.spiritWalk.exists() then
                 if cast.spiritWalk("player") then ui.debug("[Pet] Cast Spirit Walk") return true end
             end
-            if cast.able.prowl("player") and not buff.prowl.exists("pet") and not cd.prowl.exists() and cast.timeSinceLast.prowl() > unit.gcd(true) then
+            if cast.able.prowl("player") and not buff.prowl.exists("pet") and not cd.prowl.exists() and cast.timeSinceLast.prowl() > unit.gcd(true) * 2 then
                 if cast.prowl("player") then ui.debug("[Pet] Cast Prowl") return true end
             end
         end

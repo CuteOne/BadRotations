@@ -79,7 +79,7 @@ local function createOptions()
             -- Aimed Shot - Multi-DoT
             br.ui:createCheckbox(section, "Aimed Shot - Multi-DoT", "|cffFFFFFF Selecting this will multi-dot with Aimed Shot.")
             -- Volly Units
-            br.ui:createSpinner(section,"Volley Units", 3, 1, 5, 1, "|cffFFFFFFSet minimal number of units to cast Volley on")
+            br.ui:createSpinnerWithout(section,"Volley Units", 3, 1, 5, 1, "|cffFFFFFFSet minimal number of units to cast Volley on")
             -- Covenant Ability
             br.ui:createDropdownWithout(section,"Covenant Ability", alwaysCdAoENever, 1, "|cffFFFFFFSet when to use ability.")
         br.ui:checkSectionState(section)
@@ -245,7 +245,7 @@ actionList.Extras = function()
     -- Misdirection
     if ui.mode.misdirection == 1 then
         local misdirectUnit = nil
-        if unit.valid("target") and unit.distance("target") < 40 and not unit.isCasting("player") and not buff.playDead.exists("pet") then
+        if unit.valid("target") and unit.distance("target") < 50 and not unit.isCasting("player") and not buff.playDead.exists("pet") then
             -- Misdirect to Tank
             if ui.value("Misdirection") == 1 then
                 local tankInRange, tankUnit = unit.isTankInRange()
@@ -261,7 +261,7 @@ actionList.Extras = function()
             end
             -- Failsafe to Pet, if unable to misdirect to Tank or Focus
             if misdirectUnit == nil then misdirectUnit = "pet" end
-            if misdirectUnit and cast.able.misdirection() and unit.exists(misdirectUnit) and unit.distance(misdirectUnit) < 40 and not unit.deadOrGhost(misdirectUnit) then
+            if misdirectUnit and cast.able.misdirection() and unit.exists(misdirectUnit) and unit.distance(misdirectUnit) < 50 and not unit.deadOrGhost(misdirectUnit) then
                 if cast.misdirection(misdirectUnit) then ui.debug("Casting Misdirection on "..unit.name(misdirectUnit)) return true end
             end
         end
@@ -447,7 +447,7 @@ actionList.TrickShots = function()
     -- Volley
     -- volley,if=buff.resonating_arrow.up|!covenant.kyrian
     if ui.alwaysCdAoENever("Volley",ui.value("Volley Units"),40) and cast.able.volley("best",nil,ui.value("Volley Units"),8)
-        and ui.mode.volley == 1 and ui.checked("Volley Units") and #enemies.yards40 >= ui.value("Volley Units")
+        and ui.mode.volley == 1 and #enemies.yards40 >= ui.value("Volley Units")
         and (buff.resonatingArrow.exists() or not covenant.kyrian.active or (covenant.kyrian.active and not ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards12t)))
     then
         if cast.volley("best",nil,ui.value("Volley Units"),8) then ui.debug("Casting Volley [Trick Shots]") return true end
@@ -630,7 +630,7 @@ actionList.SingleTarget = function()
     -- Volley
     -- volley,if=buff.resonating_arrow.up|!covenant.kyrian&(buff.precise_shots.down|!talent.chimaera_shot|active_enemies<2)&(!talent.double_tap|!set_bonus.tier28_2pc|set_bonus.tier28_4pc|buff.double_tap.up)
     if ui.alwaysCdAoENever("Volley",ui.value("Volley Units"),40) and cast.able.volley("best",nil,ui.value("Volley Units"),8)
-        and ui.mode.volley == 1 and ui.checked("Volley Units") and (#enemies.yards40 >= ui.value("Volley Units"))
+        and ui.mode.volley == 1 and (#enemies.yards40 >= ui.value("Volley Units"))
         and (buff.resonatingArrow.exists() or not covenant.kyrian.active or (covenant.kyrian.active and not ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards12t)))
         and (not buff.preciseShots.exists() or not talent.chimaeraShot or #enemies.yards40 < 2)
         and (not talent.doubleTap or equiped.tier(28) < 2 or equiped.tier(28) >= 4 or buff.doubleTap.exists())
@@ -767,7 +767,7 @@ actionList.PreCombat = function()
         -- Summon Pet
         -- summon_pet
         -- if actionList.PetManagement() then ui.debug("") return true end
-        if unit.valid("target") and unit.distance("target") < 40 and not ui.checked("Do Not Auto Engage if OOC") then
+        if unit.valid("target") and unit.distance("target") < 50 and not ui.checked("Do Not Auto Engage if OOC") then
             -- Tar Trap
             -- tar_trap,if=runeforge.soulforge_embers
             if cast.able.tarTrap(units.dyn40,"ground") and (runeforge.soulforgeEmbers.equiped or anima.soulforgeEmbers.exists()) then
@@ -876,7 +876,7 @@ local function runRotation()
     -- Profile Stop | Pause
     if not unit.inCombat() and not unit.exists("target") and var.profileStop then
         var.profileStop = false
-    elseif var.haltProfile and (not unit.isCasting() or ui.pause(true)) then
+    elseif var.haltProfile and (not unit.isCasting() or ui.pause(true) or ui.mode.rotation == 4) then
         unit.stopAttack()
         if unit.isDummy() then unit.clearTarget() end
         return true
@@ -902,7 +902,7 @@ local function runRotation()
         --------------------------
         --- In Combat Rotation ---
         --------------------------
-        if unit.inCombat() and var.profileStop == false and unit.valid(units.dyn40) and unit.distance(units.dyn40) < 40
+        if unit.inCombat() and var.profileStop == false and unit.distance(units.dyn40) < 50--and unit.valid(units.dyn40)
             and not cast.current.barrage() and not cast.current.rapidFire() and not cast.current.aimedShot() and not cast.current.steadyShot()
         then
             ------------------------------

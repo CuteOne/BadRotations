@@ -35,19 +35,20 @@ function br.getDistanceCalc(Unit1,Unit2,option)
     local currentDist = 100
     local meleeSpell = nil
     local playerClass = select(2,br._G.UnitClass("player"))
+    local playerSpec = br._G.GetSpecializationInfo(br._G.GetSpecialization())
     if testSpell[playerClass] ~= nil then
         meleeSpell = testSpell[playerClass]
     elseif playerClass == "DRUID" and br.UnitBuffID("player",768) then
         meleeSpell = testSpell["DRUIDC"]
     elseif playerClass == "DRUID" and br.UnitBuffID("player",5487) then
         meleeSpell = testSpell["DRUIDB"]
-    elseif select(1,br._G.GetSpecializationInfo(br._G.GetSpecialization())) == 255 then
+    elseif playerSpec == 255 then
         meleeSpell = testSpell["SHUNTER"]
-    elseif select(1,br._G.GetSpecializationInfo(br._G.GetSpecialization())) == 263 then
+    elseif playerSpec == 263 then
         meleeSpell = testSpell["SHAMAN"]
-    elseif select(1,br._G.GetSpecializationInfo(br._G.GetSpecialization())) == 577 then
+    elseif playerSpec == 577 then
         meleeSpell = testSpell["DHH"]
-    elseif select(1,br._G.GetSpecializationInfo(br._G.GetSpecialization())) == 581 then
+    elseif playerSpec == 581 then
         meleeSpell = testSpell["DHV"]
     end
     -- If Unit2 is nil we compare player to Unit1
@@ -134,9 +135,9 @@ function br.getDistanceCalc(Unit1,Unit2,option)
             currentDist = 0
         end
         -- Modifier for Mastery: Sniper Training (Hunter - Marksmanship)
-        if currentDist < 100 and br.isKnown(193468) and option ~= "noMod" then
-            currentDist = currentDist - (currentDist * 0.05)
-        end
+        -- if currentDist < 100 and br.isKnown(193468) and option ~= "noMod" and (Unit1 == "player" or Unit2 == "player") then
+        --     currentDist = currentDist - (currentDist * (GetMasteryEffect() / 100))
+        -- end
         if meleeSpell ~= nil then
             if br._G.IsSpellInRange(select(1,br._G.GetSpellInfo(meleeSpell)),Unit2) == 1 then
                 currentDist = 0
