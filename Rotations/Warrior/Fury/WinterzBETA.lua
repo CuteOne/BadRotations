@@ -587,7 +587,11 @@ actionList.ST = function()
             end
         end
         -- Recklessness
-        if not buff.recklessness.exists("player") and (br.getOptionValue("Recklessness") == 1 or (br.getOptionValue("Recklessness") == 2 and br.useCDs())) and br.player.ui.mode.cooldown ~= 3 then
+        if not buff.recklessness.exists("player")
+        and (br.getOptionValue("Recklessness") == 1 or (br.getOptionValue("Recklessness") == 2
+        and br.useCDs()))
+        and br.player.ui.mode.cooldown ~= 3
+        and #enemies.yards5 > 0 then
             if cast.recklessness() then
                 return
             end
@@ -650,7 +654,7 @@ actionList.ST = function()
             end
         end
         -- Spear of Bastion
-        if cast.able.spearOfBastion("best",nil,1, 5) and buff.enrage.exists("player") then
+        if cast.able.spearOfBastion("best",nil,1, 5) and buff.enrage.exists("player") and br.player.ui.mode.cooldown ~= 3 then
             if cast.spearOfBastion("best",nil, 1, 5) then ui.debug("Spear ST")
                 return
             end
@@ -730,13 +734,18 @@ actionList.AOE = function()
         if cast.whirlwind("player","aoe",1,8) then ui.debug("Casting Whirlwind [ST - Merciless Bonegrinder]") return true end
         end
         -- Spear of Bastion
-        if cast.able.spearOfBastion("best",nil,2, 5) then
+        if cast.able.spearOfBastion("best",nil,2, 5) and br.player.ui.mode.cooldown ~= 3 then
             if cast.spearOfBastion("best",nil, 2, 5) then ui.debug("Spear AOE")
                 return
             end
         end
         -- Recklessness
-        if not buff.recklessness.exists() and (cd.spearOfBastion.remain() > 5) and (br.getOptionValue("Recklessness") == 1 or (br.getOptionValue("Recklessness") == 2 and br.useCDs())) and br.player.ui.mode.cooldown ~= 3 and (cd.siegebreaker.remain() > 10 or cd.siegebreaker.remain() < gcdMax) then
+        if not buff.recklessness.exists()
+        and (cd.spearOfBastion.remain() > 5)
+        and (br.getOptionValue("Recklessness") == 1 or (br.getOptionValue("Recklessness") == 2
+        and br.useCDs())) and br.player.ui.mode.cooldown ~= 3
+        and (cd.siegebreaker.remain() > 10 or cd.siegebreaker.remain() < gcdMax)
+        and #enemies.yards5 > 0 then
             if cast.recklessness() then
                 return
             end
@@ -990,11 +999,11 @@ local function runRotation() -- This is the main profile loop, any below this po
                 end
             end
             if ((mode.rotation == 1 and #enemies.yards8 >= 2) or (mode.rotation == 2 and #enemies.yards8 > 0)) and level >= 40 then
-                --print("multi")
+                print("multi")
                 if actionList.AOE() then return end
             end
             if ((mode.rotation == 1 and #enemies.yards8 < 2) or (mode.rotation == 3 and #enemies.yards8 > 0)) then
-                --print("single")
+                print("single")
                 if actionList.ST() then return end
             end
         end -- End In Combat Rotation
