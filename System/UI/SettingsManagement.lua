@@ -79,7 +79,7 @@ end
 
 -- Load Settings
 function br:loadSettings(folder, class, spec, profile, instance)
-	if br.unlocked and not br.data.loadedSettings then
+	if br.unlocked and (not br.data.loadedSettings or br.rotationChanged) then
 		local loadDir = br:checkDirectories(folder, class, spec, profile, instance)
 		if not loadDir then
 			br._G.print("No settings directory found for "..profile.."!")
@@ -188,26 +188,30 @@ function br:loadLastProfileTracker()
 			br.data.tracker[selectedProfile] = {}
 		end
 		local rotationFound = false
-		if br.data.tracker[br.selectedSpec]["RotationDropValue"] then
+		local trackerName = br.data.tracker[br.selectedSpec]["RotationDropValue"]
+		local specSettings = br.data.settings[br.selectedSpec]
+		if trackerName then
 			for i = 1, #br.rotations[specID] do
-				if br.rotations[specID][i].name == br.data.tracker[br.selectedSpec]["RotationDropValue"] then
-					br.data.settings[br.selectedSpec]["RotationDropValue"] = br.data.tracker[br.selectedSpec]["RotationDropValue"]
-					br.data.settings[br.selectedSpec]["RotationDrop"] = i
+				if br.rotations[specID][i].name == trackerName then
+					specSettings["RotationDropValue"] = trackerName
+					specSettings["RotationDrop"] = i
 					rotationFound = true
+					br._G.print("Found Last Used From Tracker: "..trackerName)
 					break
 				end
 			end
 		end
 		if not rotationFound then
-			br.data.settings[br.selectedSpec]["RotationDropValue"] = br.rotations[specID][1].name
-			br.data.settings[br.selectedSpec]["RotationDrop"] = 1
+			br._G.print("No Matching Rotation Found In Tracker, Defaulting to "..br.rotations[specID][1].name)
+			specSettings["RotationDropValue"] = br.rotations[specID][1].name
+			specSettings["RotationDrop"] = 1
 		end
-		br._G.print("Tracker Load - Last Profile: " .. tostring(br.data.settings[selectedProfile]["RotationDrop"]))
-		br._G.print("Tracker Load - Last Profile Name: " .. tostring(br.data.settings[selectedProfile]["RotationDropValue"]))
+		-- br._G.print("Tracker Load - Last Profile: " .. tostring(br.data.settings[selectedProfile]["RotationDrop"]))
+		-- br._G.print("Tracker Load - Last Profile Name: " .. tostring(br.data.settings[selectedProfile]["RotationDropValue"]))
 	else
 		br._G.print("No Tracker found for " .. selectedProfile .. "! Creating Tracker....")
-		br:saveLastProfileTracker()
 	end
+	br:saveLastProfileTracker()
 end
 
 function br:saveLastProfileTracker()
