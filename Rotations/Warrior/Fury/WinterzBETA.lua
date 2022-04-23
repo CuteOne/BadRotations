@@ -989,6 +989,10 @@ local function runRotation() -- This is the main profile loop, any below this po
             --- Interrupts ---
             ------------------
             if actionList.Interrupt() then return true end -- This runs the Interrupt Action List, this generally contains interrupt functions.
+            ------------------
+            --- Cooldowns  ---
+            ------------------
+            if actionList.Cooldown() then return true end -- This runs Cooldown List
             ------------
             --- Main ---
             ------------
@@ -999,11 +1003,11 @@ local function runRotation() -- This is the main profile loop, any below this po
                 end
             end
             if ((mode.rotation == 1 and #enemies.yards8 >= 2) or (mode.rotation == 2 and #enemies.yards8 > 0)) and level >= 40 then
-                print("multi")
+                --print("multi")
                 if actionList.AOE() then return end
             end
             if ((mode.rotation == 1 and #enemies.yards8 < 2) or (mode.rotation == 3 and #enemies.yards8 > 0)) then
-                print("single")
+                --print("single")
                 if actionList.ST() then return end
             end
         end -- End In Combat Rotation
