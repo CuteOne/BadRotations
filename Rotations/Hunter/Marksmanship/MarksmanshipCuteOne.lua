@@ -572,7 +572,7 @@ actionList.SingleTarget = function()
     end
     -- Double Tap
     -- double_tap,if=(covenant.kyrian&(cooldown.resonating_arrow.remains<gcd)|!covenant.kyrian&!covenant.night_fae|covenant.night_fae&(cooldown.wild_spirits.remains<gcd|cooldown.wild_spirits.remains>30)|fight_remains<15)&(!raid_event.adds.exists|raid_event.adds.up&(raid_event.adds.in<10&raid_event.adds.remains<3|raid_event.adds.in>cooldown|active_enemies>1)|!raid_event.adds.up&(raid_event.adds.count=1|raid_event.adds.in>cooldown))
-    if ui.alwaysCdAoENever("Double Tap") and cast.able.doubleTap() and talent.doubleTap and (not cast.last.steadyShot() or buff.steadyFocus.exists() or not talent.steadyFocus)
+    if ui.alwaysCdAoENever("Double Tap") and cast.able.doubleTap() and talent.doubleTap --and (not cast.last.steadyShot() or buff.steadyFocus.exists() or not talent.steadyFocus)
         and ((covenant.kyrian.active and (cd.resonatingArrow.remains() < unit.gcd(true)
             or not ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards12t)) or not covenant.kyrian.active)
         and (not covenant.nightFae.active or (covenant.nightFae.active and (cd.wildSpirits.remains() < unit.gcd(true)
@@ -654,12 +654,12 @@ actionList.SingleTarget = function()
     end
     -- Chimera Shot
     -- chimaera_shot,if=set_bonus.tier28_4pc&buff.trick_shots.down&focused_trickery_count<5&buff.precise_shots.up
-    if cast.able.chimaeraShot() and equiped.tier(28) >= 4 and not buff.trickShots.exists() and var.focusedTrickeyCount < 5 and buff.preciseShots.exists() then
+    if cast.able.chimaeraShot() and equiped.tier(28) >= 4 and not buff.trickShots.exists() and var.focusedTrickeryCount < 5 and buff.preciseShots.exists() then
         if cast.chimaeraShot() then ui.debug("Casting Chimaera Shot [T28 4pc]") return true end
     end
     -- Arcane Shot
     -- arcane_shot,if=set_bonus.tier28_4pc&buff.trick_shots.down&focused_trickery_count<5&buff.precise_shots.up
-    if cast.able.arcaneShot() and equiped.tier(28) >= 4 and not buff.trickShots.exists() and var.focusedTrickeyCount < 5 and buff.preciseShots.exists() then
+    if cast.able.arcaneShot() and equiped.tier(28) >= 4 and not buff.trickShots.exists() and var.focusedTrickeryCount < 5 and buff.preciseShots.exists() then
         if cast.arcaneShot() then ui.debug("Casting Arcane Shot [T28 4pc]") return true end
     end
     -- Trueshot
