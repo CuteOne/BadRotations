@@ -106,6 +106,8 @@ local function createOptions()
             br.ui:createDropdownWithout(section,"Snipe Tiger's Fury", {"|cff00FF00Enabled","|cffFF0000Disabled"}, 1, "|cff15FF00Enable|cffFFFFFF/|cffD60000Disable |cffFFFFFFuse of Tiger's Fury to take adavantage of Predator talent.")
             -- Berserk / Incarnation: King of the Jungle
             br.ui:createCheckbox(section,"Berserk/Incarnation")
+            -- Owlweave
+            br.ui:createDropdownWithout(section,"Owlweave",{"|cff00FF00Always","|cffFFFF00Cooldowns","|cffFF0000Never"}, 3, "|cffFFFFFFSet when to use Owlweaving.")
             -- Trinkets
             br.player.module.BasicTrinkets(nil,section)
         br.ui:checkSectionState(section)
@@ -1229,6 +1231,48 @@ actionList.Setup = function()
     end
 end -- End Action List - Setup
 
+-- Action List - Owlweave
+actionList.Owlweave = function()
+    -- Starsurge
+    -- starsurge,if=buff.heart_of_the_wild.up
+    if cast.able.starsurgeAff() and buff.heartOfTheWild.exists() then
+        if cast.starsurgeAff() then ui.debug("Casting Starsurge [Owlweaving]") return true end
+    end
+    -- Sunfire
+    -- sunfire,line_cd=4*gcd
+    if cast.able.sunfireMoonkin() and buff.moonkinForm.exists() and cast.timeSinceLast.sunfireMoonkin() >= 4 * unit.gcd(true) then
+        if cast.sunfireMoonkin() then ui.debug("Casting Sunfire [Owlweaving]") return true end
+    end
+    -- Moonfire
+    -- moonfire,line_cd=4*gcd,if=buff.moonkin_form.up&spell_targets.thrash_cat<2&!talent.lunar_inspiration.enabled&energy<60&!buff.clearcasting.up
+    if cast.able.moonfire() and buff.moonkinForm.exists() and cast.timeSinceLast.moonfire() >= 4 * unit.gcd(true)
+        and #enemies.yards8 < 2 and not talent.lunarInspiration and energy < 60 and not buff.clearcasting.exists()
+    then
+        if cast.moonfire() then ui.debug("Casting Moonfire [Owlweaving]") return true end
+    end
+    -- Heart of the Wild
+    -- heart_of_the_wild,if=energy<30&dot.rip.remains>4.5&(cooldown.tigers_fury.remains>=6.5|runeforge.cateye_curio)&buff.clearcasting.stack<1&!buff.apex_predators_craving.up&!buff.bloodlust.up&!buff.bs_inc.up&(cooldown.convoke_the_spirits.remains>6.5|!covenant.night_fae)&(!covenant.necrolord|cooldown.adaptive_swarm.remains>=5|dot.adaptive_swarm_damage.remains>7)
+    if cast.able.heartOfTheWild("player") and energy < 30 and debuff.rip.remains(units.dyn5) > 4.5 and (cd.tigersFury.remains() >= 6.5 or runeforge.cateyeCurio.equiped)
+        and buff.clearcasting.stack() < 1 and not buff.apexPredatorsCraving.exists() and not buff.bloodLust.exists() and not buff.berserk.exists()
+        and not buff.incarnationKingOfTheJungle.exists() and (cd.convokeTheSpirits.remains() > 6.5 or not covenant.nightFae.active)
+        and (not covenant.necrolord.active or cd.adaptiveSwarm.remains() >= 5 or debuff.adaptiveSwarm.remains(units.dyn5) > 7)
+    then
+        if cast.heartOfTheWild("player") then ui.debug("Casting Heart of the Wild [Owlweaving]") return true end
+    end
+    -- Moonkin Form
+    -- moonkin_form,if=energy<30&dot.rip.remains>4.5&(cooldown.tigers_fury.remains>=4.5|runeforge.cateye_curio)&buff.clearcasting.stack<1&!buff.apex_predators_craving.up&!buff.bloodlust.up&(!buff.bs_inc.up|covenant.necrolord&talent.savage_roar.enabled&buff.bs_inc.remains>6)&(cooldown.convoke_the_spirits.remains>6.5|!covenant.night_fae)&(!covenant.necrolord|cooldown.adaptive_swarm.remains>=5|dot.adaptive_swarm_damage.remains>7)&target.time_to_die>7
+    if cast.able.moonkinForm() and not buff.moonkinForm.exists() and energy < 30
+        and debuff.rip.remains(units.dyn5) > 4.5 and (cd.tigersFury.remains() >= 4.5 or runeforge.cateyeCurio.equiped)
+        and buff.clearcasting.stack() < 1 and not buff.apexPredatorsCraving.exists() and not buff.bloodLust.exists()
+        and ((not buff.berserk.exists() and not buff.incarnationKingOfTheJungle.exists()) or covenant.necrolord.active and talent.savageRoar()
+            and (buff.berserk.remains() > 6 or buff.incarnationKingOfTheJungle.remains() > 6))
+        and (cd.convokeTheSpirits.remains() > 6.5 or not covenant.nightFae.active)
+        and (not covenant.necrolord.active or cd.adaptiveSwarm.remains() >= 5 or debuff.adaptiveSwarm.remains(units.dyn5) > 7)
+    then
+        if cast.moonkinForm() then ui.debug("Casting Moonkin Form [Owlweaving]") return true end
+    end
+end -- End Action List - Owlweave
+
 -- Action List - PreCombat
 actionList.PreCombat = function()
     if not unit.inCombat() and not (unit.flying() or unit.mounted()) then
@@ -1604,13 +1648,31 @@ local function runRotation()
         --- In Combat Rotation ---
         --------------------------
         -- Cat is 4 fyte!
-        if unit.inCombat() and cast.able.catForm("player") and not buff.catForm.exists()
+        if unit.inCombat() and cast.able.catForm("player") and not buff.catForm.exists() and not buff.moonkinForm.exists()
             and #enemies.yards5f > 0 and not unit.moving() and ui.checked("Auto Shapeshifts")
         then
             if cast.catForm("player") then ui.debug("Casting Cat Form [Combat]"); return true end
-        elseif unit.inCombat() and buff.catForm.exists() and not var.profileStop
+        elseif unit.inCombat() and (buff.catForm.exists() or buff.moonkinForm.exists()) and not var.profileStop
             and not ui.checked("Death Cat Mode") and unit.exists("target") and opener.complete and cd.global.remain() == 0
         then
+            -- Call Action List - Owlweave
+            -- call_action_list,name=owlweave,if=druid.owlweave_cat
+            if ui.alwaysCdNever("Owlweave") then
+                if actionList.Owlweave() then return true end
+            end
+            -- Cat Form - Owlweave
+            if cast.able.catForm("player") and buff.moonkinForm.exists() then
+                if cast.catForm("player") then ui.debug("Casting Cat Form [Cancel Owlweave]"); return true end
+            end
+            -- -- Call Action List - Owlweave
+            -- -- call_action_list,name=owlweave,if=druid.owlweave_cat
+            -- if ui.alwaysCdNever("Owlweave") then
+            --     if actionList.Owlweave() then
+            --         return true
+            --     elseif cast.able.catForm("player") and buff.moonkinForm.exists() then
+            --         if cast.catForm("player") then ui.debug("Casting Cat Form [Cancel Owlweave]"); return true end
+            --     end
+            -- end
             -- Wild Charge
             if ui.checked("Wild Charge")
                 and cast.able.wildCharge("player") and unit.valid("target")
@@ -1646,7 +1708,7 @@ local function runRotation()
                         if debuff.rip.exists(thisUnit) and debuff.rip.remains(thisUnit) < 3
                             and debuff.rip.remains(thisUnit) > unit.gcd(true) and unit.ttd(thisUnit) > 10 and talent.sabertooth
                         then
-                            if cast.ferociousBite(thisUnit) then ui.debug("Casting Ferocious Bite - Rip Remain: "..br.round2(debuff.rip.remain(thisUnit),1).." [Sabertooth]"); return true end
+                            if cast.ferociousBite(thisUnit) then ui.debug("Casting Ferocious Bite [Sabertooth]"); return true end
                         end
                     end
                 end

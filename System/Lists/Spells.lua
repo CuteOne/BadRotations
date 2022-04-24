@@ -812,6 +812,7 @@ br.lists.spells = {
 
             },
             runeforges                      = {
+                cateyeCurio                 = 339144,
                 draughtOfDeepFocus          = 338658,
             },
             talents                         = {
@@ -1057,6 +1058,7 @@ br.lists.spells = {
                 tigerDash                   = 252216,
                 flightForm                  = 165962,
                 frenziedRegeneration        = 22842,
+                heartOfTheWild              = 319454,
                 ironfur                     = 192081,
                 kindredEmpowerment          = 327139,
                 kindredSpiritsBuff          = 326967, --This is buff on ourselves...at least as dps
