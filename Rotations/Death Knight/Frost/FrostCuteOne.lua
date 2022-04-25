@@ -1,5 +1,6 @@
 local rotationName = "CuteOne"
 
+
 ---------------
 --- Toggles ---
 ---------------
@@ -92,7 +93,7 @@ local function createOptions()
             -- Pillar of Frost
             br.ui:createDropdownWithout(section, "Pillar of Frost", alwaysCdNever, 1, "|cffFFFFFFWhen to use Pillar of Frost Ability.")
             -- Raise Dead
-            br.ui:createDropdownWithout(section, "Raise Dead", alwaysCdNever, 2, "|cffFFFFFFWhen to use Raise Dead Ability.")
+            br.ui:createCheckbox(section, "Raise Dead")
         br.ui:checkSectionState(section)
         -------------------------
         --- DEFENSIVE OPTIONS ---
@@ -396,13 +397,9 @@ actionList.Trinkets = function()
     -- use_item,slot=trinket2,if=!variable.specified_trinket&buff.pillar_of_frost.up&(!talent.icecap|talent.icecap&buff.pillar_of_frost.remains>=10)&(!trinket.1.has_cooldown|trinket.1.cooldown.remains|variable.trinket_priority=2)|trinket.2.proc.any_dps.duration>=fight_remains
     -- use_item,slot=trinket1,if=!trinket.1.has_use_buff&(trinket.2.cooldown.remains|!trinket.2.has_use_buff)|cooldown.pillar_of_frost.remains>20
     -- use_item,slot=trinket2,if=!trinket.2.has_use_buff&(trinket.1.cooldown.remains|!trinket.1.has_use_buff)|cooldown.pillar_of_frost.remains>20
-    if unit.distance(units.dyn5) < 5 then
-        -- Trinkets
-        -- use_items,if=cooldown.pillar_of_frost.ready|cooldown.pillar_of_frost.remains>20
-        if (cd.pillarOfFrost.remain() == 0 or cd.pillarOfFrost.remain() > 20) then
-            module.BasicTrinkets()
-        end
-    end
+   if IsSpellInRange("Obliterate", "target") then
+	module.BasicTrinkets()
+   end
 end -- End Action List - Trinkets
 
 -- Action List - Cooldowns
@@ -420,76 +417,101 @@ actionList.Cooldowns = function()
         if ui.alwaysCdNever("Empower Rune Weapon") and cast.able.empowerRuneWeapon() then
             -- empower_rune_weapon,if=talent.obliteration&(cooldown.pillar_of_frost.ready&rune.time_to_5>gcd&runic_power.deficit>=10|buff.pillar_of_frost.up&rune.time_to_5>gcd)|fight_remains<20
             if talent.obliteration and (not cd.pillarOfFrost.exists() and runesTTM(5) > unit.gcd(true)
-                and runicPowerDeficit >= 10 or buff.pillarOfFrost.exists() and runesTTM(5) > unit.gcd(true)) or unit.ttdGroup(5) < 20
+                and IsSpellInRange("Obliterate", "target")
+				and runicPowerDeficit >= 10 or buff.pillarOfFrost.exists() and runesTTM(5) > unit.gcd(true)) or unit.ttdGroup(5) < 20
             then
                 if cast.empowerRuneWeapon() then ui.debug("Casting Empower Rune Weapon [Obliteration]") return true end
             end
             -- empower_rune_weapon,if=talent.breath_of_sindragosa&runic_power.deficit>30&rune.time_to_5>gcd&(buff.breath_of_sindragosa.up|fight_remains<20)
-            if talent.breathOfSindragosa and runicPowerDeficit > 30 and runesTTM(5) > unit.gcd(true) and (var.breathOfSindragosaActive or unit.ttdGroup(5) < 20) then
+            if talent.breathOfSindragosa and runicPowerDeficit > 30 and runesTTM(5) > unit.gcd(true) and (var.breathOfSindragosaActive or unit.ttdGroup(5) < 20) 
+			and IsSpellInRange("Obliterate", "target")
+			then
                 if cast.empowerRuneWeapon() then ui.debug("Casting Empower Rune Weapon [Breath of Sindragosa]") return true end
             end
             -- empower_rune_weapon,if=talent.icecap&rune<3
-            if (talent.icecap or unit.level() < 50) and runes < 3 then
+            if (talent.icecap or unit.level() < 50) and runes < 3 
+			and IsSpellInRange("Obliterate", "target")
+			then
                 if cast.empowerRuneWeapon() then ui.debug("Casting Empower Rune Weapon [Icecap]") return true end
             end
         end
         -- Pillar of Frost
         if ui.alwaysCdNever("Pillar of Frost") and cast.able.pillarOfFrost() then
             -- pillar_of_frost,if=talent.breath_of_sindragosa&(cooldown.breath_of_sindragosa.remains|cooldown.breath_of_sindragosa.ready&runic_power.deficit<50)
-            if talent.breathOfSindragosa and (cd.breathOfSindragosa.exists() or not var.breathOfSindragosaActive and runicPowerDeficit < 50) then
+            if talent.breathOfSindragosa and (cd.breathOfSindragosa.exists() or not var.breathOfSindragosaActive and runicPowerDeficit < 50) 
+			and IsSpellInRange("Obliterate", "target")
+			then
                 if cast.pillarOfFrost() then ui.debug("Casting Pillar of Frost [Breath of Sindragosa]") return true end
             end
             -- pillar_of_frost,if=talent.icecap&!buff.pillar_of_frost.up
-            if (talent.icecap or unit.level() < 50) and not buff.pillarOfFrost.exists() then
+            if (talent.icecap or unit.level() < 50) and not buff.pillarOfFrost.exists() 
+			and IsSpellInRange("Obliterate", "target")
+			then
                 if cast.pillarOfFrost() then ui.debug("Casting Pillar of Frost [Icecap]") return true end
             end
             -- pillar_of_frost,if=talent.obliteration&(talent.gathering_storm&buff.remorseless_winter.up|!talent.gathering_storm)
-            if talent.obliteration and (talent.gatheringStorm and buff.remorselessWinter.exists() or not talent.gatheringStorm) then
+            if talent.obliteration and (talent.gatheringStorm and buff.remorselessWinter.exists() or not talent.gatheringStorm) 
+			and IsSpellInRange("Obliterate", "target")
+			then
                 if cast.pillarOfFrost() then ui.debug("Casting Pillar of Frost [Obliteration]") return true end
             end
         end
         -- Breath of Sindragosa
         -- breath_of_sindragosa,if=buff.pillar_of_frost.up
-        if ui.alwaysCdNever("Breath of Sindragosa") and cast.able.breathOfSindragosa() and buff.pillarOfFrost.exists() then
+        if ui.alwaysCdNever("Breath of Sindragosa") and cast.able.breathOfSindragosa() and buff.pillarOfFrost.exists() 
+		and IsSpellInRange("Obliterate", "target")
+		then
             if cast.breathOfSindragosa(nil,"cone",1,8) then ui.debug("Casting Breath of Sindragosa") return true end
         end
         -- Frostwyrm's Fury
         if ui.alwaysCdNever("Frostwyrm's Fury") and cast.able.frostwyrmsFury("player","cone",1,40) then
             -- frostwyrms_fury,if=buff.pillar_of_frost.remains<gcd&buff.pillar_of_frost.up&!talent.obliteration
-            if (buff.pillarOfFrost.remain() < unit.gcd(true) and buff.pillarOfFrost.exists() and not talent.obliteration) then
+            if (buff.pillarOfFrost.remain() < unit.gcd(true) and buff.pillarOfFrost.exists() and not talent.obliteration) 
+			and IsSpellInRange("Obliterate", "target")
+			then
                 if cast.frostwyrmsFury("player","cone",1,40) then ui.debug("Casting Frostwyrm's Fury") return true end
             end
             -- frostwyrms_fury,if=active_enemies>=2&(buff.pillar_of_frost.up&buff.pillar_of_frost.remains<gcd|raid_event.adds.exists&raid_event.adds.remains<gcd|fight_remains<gcd)
             if (#enemies.yards40r >= ui.value("Frostwyrm's Fury Units")
-                and (buff.pillarOfFrost.exists("player","cone",1,40) and buff.pillarOfFrost.remain() < unit.gcd(true) or unit.ttdGroup(5) < unit.gcd(true)))
+                and IsSpellInRange("Obliterate", "target")
+				and (buff.pillarOfFrost.exists("player","cone",1,40) and buff.pillarOfFrost.remain() < unit.gcd(true) or unit.ttdGroup(5) < unit.gcd(true)))
             then
                 if cast.frostwyrmsFury() then ui.debug("Casting Frostwyrm's Fury [AOE]") return true end
             end
             -- frostwyrms_fury,if=talent.obliteration&!buff.pillar_of_frost.up&((buff.unholy_strength.up|!death_knight.runeforge.fallen_crusader)&(debuff.razorice.stack=5|!death_knight.runeforge.razorice))
-            if (talent.obliteration and not buff.pillarOfFrost.exists() and ((buff.unholyStrength.exists() or not var.fallenCrusader) and (debuff.razorice.stack() == 5 or not var.razorice))) then
+            if (talent.obliteration and not buff.pillarOfFrost.exists() and ((buff.unholyStrength.exists() or not var.fallenCrusader) and (debuff.razorice.stack() == 5 or not var.razorice))) 
+			and IsSpellInRange("Obliterate", "target")
+			then
                 if cast.frostwyrmsFury("player","cone",1,40) then ui.debug("Casting Frostwyrm's Fury [Obliteration]") return true end
             end
         end
         -- Hypothermic Presence
         -- hypothermic_presence,if=talent.breath_of_sindragosa&runic_power.deficit>40&rune>=3&buff.pillar_of_frost.up|!talent.breath_of_sindragosa&runic_power.deficit>=25
         if ui.alwaysCdNever("Hypothermic Presence") and cast.able.hypothermicPresence() and (talent.breathOfSindragosa and runicPowerDeficit > 40
-            and runes >= 3 and buff.pillarOfFrost.exists() or not talent.breathOfSindragosa and runicPowerDeficit >= 25)
+            and IsSpellInRange("Obliterate", "target")
+			and runes >= 3 and buff.pillarOfFrost.exists() or not talent.breathOfSindragosa and runicPowerDeficit >= 25)
         then
             if cast.hypothermicPresence() then ui.debug("Casting Hypothermic Presence") return true end
         end
         -- Raise Dead
         -- raise_dead,if=buff.pillar_of_frost.up
-        if ui.alwaysCdNever("Raise Dead") and cast.able.raiseDead() and (buff.pillarOfFrost.exists()) then
+        if ui.checked("Raise Dead") and cast.able.raiseDead() and (buff.pillarOfFrost.exists()) 
+		and IsSpellInRange("Obliterate", "target")
+		then
             if cast.raiseDead() then ui.debug("Casting Raise Dead") var.ghoulTimer = var.getTime + 60 return true end
         end
         -- Sacrificial Pact
         -- sacrificial_pact,if=active_enemies>=2&(pet.ghoul.remains<gcd|target.time_to_die<gcd)
-        if cast.able.sacrificialPact() and #enemies.yards5 >= 2 and (var.ghoulRemain < unit.gcd(true) or (var.ghoulRemain > 0 and unit.ttd(units.dyn5) < unit.gcd(true))) then
+        if cast.able.sacrificialPact() and #enemies.yards5 >= 2 and ((var.ghoulRemain > 0 and unit.ttd(units.dyn5) < unit.gcd(true))) 
+		and IsSpellInRange("Obliterate", "target")
+		then
             if cast.sacrificialPact() then ui.debug("Casting Sacrificial Pact") return true end
         end
         -- Death and Decay
         -- death_and_decay,if=active_enemies>5|runeforge.phearomones
-        if cast.able.deathAndDecay() and (ui.useAOE(8,5) or runeforge.phearomones.equiped) then
+        if cast.able.deathAndDecay() and (ui.useAOE(8,5) or runeforge.phearomones.equiped) 
+		and IsSpellInRange("Obliterate", "target")
+		then
             if cast.deathAndDecay("player","aoe",5,8) then ui.debug("Casting Death and Decay") return true end
         end
     end -- End Range Check
@@ -523,12 +545,15 @@ actionList.Covenants = function()
     if cast.able.abominationLimb("player","aoe",1,20) then
         -- abomination_limb,if=active_enemies=1&cooldown.pillar_of_frost.remains<3&(!raid_event.adds.exists|raid_event.adds.in>15)&(talent.breath_of_sindragosa&runic_power.deficit<60&cooldown.breath_of_sindragosa.remains<2|!talent.breath_of_sindragosa)
         if ui.useST(20,2) and cd.pillarOfFrost.remains() < 3 and ui.useCDs()
-            and ((talent.breathOfSindragosa and runicPowerDeficit < 60 and cd.breathOfSindragosa.remains() < 2) or not talent.breathOfSindragosa)
+            and IsSpellInRange("Obliterate", "target")
+			and ((talent.breathOfSindragosa and runicPowerDeficit < 60 and cd.breathOfSindragosa.remains() < 2) or not talent.breathOfSindragosa)
         then
             if cast.abominationLimb("player","aoe",1,20) then ui.debug("Casting Abomination Limb") return true end
         end
         -- abomination_limb,if=active_enemies>=2
-        if ui.useAOE(20,2) then
+        if ui.useAOE(20,2) 
+		and IsSpellInRange("Obliterate", "target")
+		then
             if cast.abominationLimb("player","aoe",2,20) then ui.debug("Casting Abomination Limb [AOE]") return true end
         end
     end
@@ -1143,9 +1168,9 @@ local function runRotation()
             -- Action List - Racials
             -- call_action_list,name=racials
             if actionList.Racials() then return true end
-            -- Action List - Trinkets
-            -- call_action_list,name=trinkets
-            -- if actionList.Trinkets() then return true end
+                -- Call Action List - Trinkets
+                -- call_action_list,name=trinkets
+                if actionList.Trinkets() then return true end
             -- Action List - Cooldowns
             -- call_action_list,name=cooldowns
             if actionList.Cooldowns() then return true end
