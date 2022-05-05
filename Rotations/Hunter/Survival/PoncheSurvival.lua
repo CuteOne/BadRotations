@@ -120,18 +120,6 @@ local function createOptions()
             -- Interrupt Percentage
             br.ui:createSpinner(section, "Interrupt At",  0,  0,  95,  5,  "|cffFFFFFFCast Percent to Cast At")
         br.ui:checkSectionState(section)
-        -- CCs Options
-        section = br.ui:createSection(br.ui.window.profile, "CCs")
-            br.ui:createText(section, "Dungeon boss mechanics")
-            cMistcaller = br.ui:createCheckbox(section, "Mists of Tirna Scithe (Mistcaller - Illusionary Vulpin)", "Cast Freezing Trap on Illusionary Vulpin")
-            cGlobgrog = br.ui:createCheckbox(section,"Plaguefall (Globgrog - Slimy Smorgasbord)", "Cast Freezing Trap on Slimy Smorgasbord")
-            cBlightbone =br.ui:createCheckbox(section,"The Necrotic Wake (Blightbone  - Carrion Worms)", "Cast Binding Shot on Carrion Worms")
-            br.ui:createText(section, "Dungeon trash mechanics")
-            cGorgon = br.ui:createCheckbox(section,"Halls of Atonement (Vicious Gargon, Loyal Beasts)", "Cast Binding Shot on Vicious Gargon with Loyal Beasts")
-            cDefender = br.ui:createCheckbox(section,"Plaguefall (Defender of Many Eyes, Bulwark of Maldraxxus)", "Cast Freezing Trap on Defender of Many Eyes with Bulwark of Maldraxxus")
-            cSlimeclaw = br.ui:createCheckbox(section,"Plaguefall (Rotting Slimeclaw)", "Cast Binding Shot on Rotting Slimeclaw with 20% hp")
-            cRefuse = br.ui:createCheckbox(section,"Theater of Pain (Disgusting Refuse)", "Cast Binding Shot on Disgusting Refuse to avoid jumping around")
-        br.ui:checkSectionState(section)
         -- Toggle Key Options
         section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
             -- Single/Multi Toggle
@@ -164,8 +152,8 @@ local enemies
 local focus
 local focusMax
 --local focusRegen
---local gcd
---local level
+local gcd
+local level
 local maps = br.lists.maps
 local module
 --local opener
@@ -178,6 +166,53 @@ local units
 local var
 
 local actionList = {}
+
+local spellsToStun  = {
+    -- Final Bargain (The Necrotic Wake)
+    320822,
+    -- Bone Flay (The Necrotic Wake)
+    321807,
+    -- Throw Flesh (The Necrotic Wake)
+    334747,
+    -- Hand of Thros (Mists Of Tirna Scithe)
+    322569,
+    -- Mistveil Bite (Mists Of Tirna Scithe)
+    324987,
+    -- Forsworn Doctrine (Mists Of Tirna Scithe)
+    317936,
+    -- Insidious Venom (Mists Of Tirna Scithe)
+    317661,
+    -- Loyal Beasts (Halls Of Atonement)
+    326450,
+    -- Siphon Life (Halls Of Atonement)
+    325701,
+    -- Devoted Sacrafice (De Other Side)
+    332329,
+    -- Blade Storm (De Other Side)
+    332671,
+    -- Spinning Up (De Other Side)
+    332156,
+    -- Frightened Cries (De Other Side)
+    334664,
+    -- Fungi Storm (Plaguefall)
+    328177,
+    -- Withering Filth (Plaguefall)
+    321935,
+    -- Crushing Embrace (Plaguefall)
+    328429,
+    -- Bulwark of Maldraxxus (Plaguefall)
+    336451,
+    -- Call Venomfang (Plaguefall)
+    328651,
+    -- Stealthlings (Plaguefall)
+    328400,
+    -- Growing Mistrust (Sanguine Depths)
+    322169,
+    -- Opportunity Strikes (Theater Of Pain)
+    333540,
+    -- Devour Flesh (Theater Of Pain)
+    330586,
+}
 
 --Functions
 local function eagleScout()
@@ -193,6 +228,7 @@ local function nextBomb(nextBomb)
     local _,_,shrapnelBomb = br._G.GetSpellInfo(spell.shrapnelBomb)
     local _,_,volatileBomb = br._G.GetSpellInfo(spell.volatileBomb)
     local _,_,pheromoneBomb = br._G.GetSpellInfo(spell.pheromoneBomb)
+
     if talent.wildfireInfusion and nextBomb ~= nil then
         if currentBomb == shrapnelBomb then return nextBomb == spell.shrapnelBomb end -- spell.volatileBomb
         if currentBomb == volatileBomb then return nextBomb == spell.volatileBomb end -- spell.pheromoneBomb
@@ -200,6 +236,7 @@ local function nextBomb(nextBomb)
     else
         return nextBomb == spell.wildfireBomb
     end
+
     return currentBomb == nextBomb
 end
 
@@ -210,48 +247,35 @@ local function isFreezingTrapActive()
             return true
         end
     end
+    
     return false
 end
 
-local function ccMobFinder(id, minHP, spellID)
-    local argumentsTable = {id, minHP, spellID}
-    local arguments = 0
-    local foundMatch
-
-    for _,v in pairs(argumentsTable) do
-        if v ~= nil then arguments = arguments + 1 end
-    end
-    local thisUnit = nil
+local function getMobToCc(mobID, minHP, spellID)
     for i = 1, #enemies.yards40f do
-        thisUnit = enemies.yards40f[i]
-        foundMatch = 0
-        if not br.isLongTimeCCed(thisUnit) then
-            if id ~= nil then
-                if unit.id(thisUnit) == id then
-                    foundMatch = foundMatch + 1
-                end
-            end
-            if minHP ~= nil then
-                if minHP <= unit.hp(thisUnit) then
-                    foundMatch = foundMatch + 1
-                end
-            end
-            if spellID ~= nil then
-                if br.getDebuffDuration(thisUnit, spellID, "player") > 0 then
-                    foundMatch = foundMatch + 1
-                end
-            end
-            if foundMatch == arguments then return thisUnit end
+        local thisUnit = enemies.yards40f[i]
+        if not br.isLongTimeCCed(thisUnit) and (mobID == nil or unit.id(thisUnit) == mobID) and (minHP == nil or minHP <= unit.hp(thisUnit)) and (spellID == nil or br.getDebuffDuration(thisUnit, spellID, "player") > 0) then
+            return thisUnit
         end
     end
 
-    return nil
+    return nil  
+end
+
+local function IsToStun(enemy)
+    for _, spellId in pairs(spellsToStun) do
+        if unit.isCasting(spellId, enemy) then
+            return true
+        end
+    end
+
+    return false
 end
 
 --Kill Shot
 actionList.killShot = function()
     for i = 1, #enemies.yards40 do
-        thisUnit = enemies.yards40[i]
+        local thisUnit = enemies.yards40[i]
         if cast.able.killShot(thisUnit) and unit.hp(thisUnit) < 20 then
             if cast.killShot(thisUnit) then return true end
         end
@@ -263,40 +287,38 @@ end
 
 --CCs
 actionList.CCs = function()
-    if ui.mode.cC == 2 then
-        return false
-    end
+    if ui.mode.cC == 2 then return false end
 
     if br.getCurrentZoneId() == maps.instanceIDs.Plaguefall then
         if cast.able.freezingTrap() and not isFreezingTrapActive() then
-            if cGlobgrog.value then
-                if cast.freezingTrap(ccMobFinder(171887), "groundCC") then return true end
-            end
-            if cDefender.value then
-                if cast.freezingTrap(ccMobFinder(163862, _, 336449), "groundCC") then return true end
-            end
+            if cast.freezingTrap(getMobToCc(171887), "groundCC") then return true end
+            if cast.freezingTrap(getMobToCc(163862, _, 336449), "groundCC") then return true end
         end
-        if cSlimeclaw.value then
-            if cast.bindingShot(ccMobFinder(163892, 25), "groundCC") then return true end
+        if cast.able.bindingShot() then
+            if cast.bindingShot(getMobToCc(163892, 25), "groundCC") then return true end
         end
     end
+    
     if br.getCurrentZoneId() == maps.instanceIDs.MistsOfTirnaScithe then
-        if cMistcaller.value and cast.able.freezingTrap() then
-            if cast.freezingTrap(ccMobFinder(165251), "groundCC") then return true end
+        if cast.able.freezingTrap() then
+            if cast.freezingTrap(getMobToCc(165251), "groundCC") then return true end
         end
     end
+    
     if br.getCurrentZoneId() == maps.instanceIDs.TheNecroticWake then
-        if cBlightbone.value then
-            if cast.bindingShot(ccMobFinder(164702), "groundCC") then return true end
+        if cast.able.bindingShot() then
+            if cast.bindingShot(getMobToCc(164702), "groundCC") then return true end
         end
     end
+    
     if br.getCurrentZoneId() == maps.instanceIDs.TheaterOfPain then
-        if cRefuse.value then
+        if cast.able.bindingShot() then
             if cast.bindingShot(ccMobFinder(163089), "groundCC") then return true end
         end
     end
+    
     if br.getCurrentZoneId() == maps.instanceIDs.HallsOfAtonement then
-        if cGorgon.value then
+        if cast.able.bindingShot() then
             if cast.bindingShot(ccMobFinder(164563, _, 326450), "groundCC") then return true end
         end
     end
@@ -306,20 +328,21 @@ end
 
 --Defensive
 actionList.Defensive = function()
-    if not ui.useDefensive() then
-        return false
-    end
+    if not ui.useDefensive() then return false end
 
     -- Basic Healing Module
     module.BasicHealing()
+    
     -- Aspect of the Turtle
     if ui.checked("Aspect Of The Turtle") and cast.able.aspectOfTheTurtle() and unit.hp() <= ui.value("Aspect Of The Turtle") and unit.inCombat() then
         if cast.aspectOfTheTurtle("player") then return true end
     end
+    
     -- Exhilaration
     if ui.checked("Exhilaration") and cast.able.exhilaration() and unit.hp() <= ui.value("Exhilaration") then
         if cast.exhilaration("player") then return true end
     end
+    
     -- Feign Death
     if ui.checked("Feign Death") and cast.able.feignDeath() and unit.hp() <= ui.value("Feign Death") and unit.inCombat() then
         if cast.able.playDead() then
@@ -327,10 +350,12 @@ actionList.Defensive = function()
         end
         if cast.feignDeath("player") then return true end
     end
+    
     -- Intimidation
     if ui.checked("Intimidation") and cast.able.intimidation() and unit.hp() <= ui.value("Intimidation") then
         if cast.intimidation(units.dyn5p) then return true end
     end
+
     -- Tranquilizing Shot
     if ui.checked("Tranquilizing Shot") then
         if #enemies.yards40f > 0 then
@@ -350,34 +375,33 @@ end
 
 --Interrupt
 actionList.Interrupt = function()
-    if not ui.useInterrupt() then
-        return false
-    end
+    if not ui.useInterrupt() then return false end
 
-    local thisUnit
     -- Muzzle
     if ui.checked("Muzzle") and cast.able.muzzle() then
         for i=1, #enemies.yards5 do
-            thisUnit = enemies.yards5[i]
+            local thisUnit = enemies.yards5[i]
             if unit.interruptable(thisUnit,ui.value("Interrupt At")) then
                 if cast.muzzle(thisUnit) then return true end
             end
         end
     end
+
     -- Freezing Trap
     if ui.checked("Freezing Trap") and cast.able.freezingTrap() then
         for i = 1, #enemies.yards40 do
-            thisUnit = enemies.yards40[i]
-            if unit.distance(thisUnit) > 8 and cast.timeRemain(thisUnit) > 3 then
-                if cast.freezingTrap(thisUnit,"ground") then return true end
+            local thisUnit = enemies.yards40[i]
+            if IsToStun(thisUnit) and cast.timeRemain(thisUnit) > 1 then
+                if cast.freezingTrap(thisUnit, "ground") then return true end
             end
         end
     end
+
     -- Intimidation
     if ui.checked("Intimidation - Int") and cast.able.intimidation() then
         for i=1, #enemies.yards5 do
-            thisUnit = enemies.yards5[i]
-            if unit.interruptable(thisUnit,ui.value("Interrupt At")) then
+            local thisUnit = enemies.yards5[i]
+            if IsToStun(thisUnit) then
                 if cast.intimidation(thisUnit) then return true end
             end
         end
@@ -389,7 +413,7 @@ end
 --Cooldowns
 actionList.Cooldown = function()
     --actions.cds=harpoon,if=talent.terms_of_engagement.enabled&focus<focus.max
-    if ui.mode.harpoon == 1 and cast.able.harpoon("target") and talent.termsOfEngagement and focus < focusMax then
+    if ui.mode.harpoon == 1 and talent.termsOfEngagement and cast.able.harpoon("target") and focus < focusMax then
         if cast.harpoon("target") then return true end
     end
     --actions.cds+=/blood_fury,if=buff.coordinated_assault.up
@@ -433,17 +457,25 @@ actionList.Cooldown = function()
     if ui.mode.aotE == 1 and ui.alwaysCdAoENever("Aspect of the Eagle",3,#enemies.yards40) and cast.able.aspectOfTheEagle() and unit.distance("target") >= 6 and unit.standingTime() >= 2 and unit.combatTime() >= 5 then
         if cast.aspectOfTheEagle() then return true end
     end
+
     return false
 end
 
 --Nta
 actionList.Nta = function()
     --actions.nta=steel_trap
-    if cast.able.steelTrap("player","ground",1,5) then
-        if cast.steelTrap("player","ground",1,5) then return true end
+    if cast.able.steelTrap("player", "ground",1, 5) then
+        if cast.steelTrap("player", "ground", 1, 5) then return true end
     end
     --actions.nta+=/freezing_trap,if=!buff.wild_spirits.remains|buff.wild_spirits.remains&cooldown.kill_command.remains
+    if cast.able.freezingTrap() and (not buff.wildSpirits.exists() or buff.wildSpirits.exists() and cd.killCommand.remains() > 0) then
+        if cast.freezingTrap("player", "ground", 1, 5) then return true end
+    end
     --actions.nta+=/tar_trap,if=!buff.wild_spirits.remains|buff.wild_spirits.remains&cooldown.kill_command.remains
+    if cast.able.tarTrap() and (not buff.wildSpirits.exists() or buff.wildSpirits.exists() and cd.killCommand.remains() > 0) then
+        if cast.tarTrap("player", "ground", 1, 5) then return true end
+    end
+
     return false
 end
 
@@ -454,23 +486,23 @@ actionList.Cleave = function()
         if cast.serpentSting(var.lowestSerpentSting) then return true end
     end
     --actions.cleave+=/wild_spirits,if=!raid_event.adds.exists|raid_event.adds.remains>=10|active_enemies>=raid_event.adds.count*2
-    if ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards12t) and cast.able.wildSpirits("best",nil,var.spiritUnits,12) then
-        if cast.wildSpirits("best",nil,var.spiritUnits,12) then return true end
+    if ui.alwaysCdAoENever("Covenant Ability", 3, #enemies.yards12t) and cast.able.wildSpirits("best", nil, var.spiritUnits, 12) then
+        if cast.wildSpirits("best", nil, var.spiritUnits, 12) then return true end
     end
     --actions.cleave+=/resonating_arrow,if=!raid_event.adds.exists|raid_event.adds.remains>=8|active_enemies>=raid_event.adds.count*2
-    if ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards12t) and cast.able.resonatingArrow("best",nil,1,15) then
-        if cast.resonatingArrow("best",nil,1,15) then return true end
+    if ui.alwaysCdAoENever("Covenant Ability", 3, #enemies.yards12t) and cast.able.resonatingArrow("best", nil, 1, 15) then
+        if cast.resonatingArrow("best", nil, 1, 15) then return true end
     end
     --actions.cleave+=/coordinated_assault,if=!raid_event.adds.exists|raid_event.adds.remains>=10|active_enemies>=raid_event.adds.count*2
-    if ui.alwaysCdAoENever("Coordinated Assault",3,#var.eagleEnemies) and cast.able.coordinatedAssault() and unit.distance("target") < 5 then
+    if ui.alwaysCdAoENever("Coordinated Assault", 3, #var.eagleEnemies) and cast.able.coordinatedAssault() and unit.distance("target") < 5 then
         if cast.coordinatedAssault() then return true end
     end
     --actions.cleave+=/wildfire_bomb,if=full_recharge_time<gcd
-    if cast.able.wildfireBomb(units.dyn40,"cone",1,8) and charges.wildfireBomb.timeTillFull() < unit.gcd(true) then
-        if cast.wildfireBomb(units.dyn40,"cone",1,8) then return true end
+    if cast.able.wildfireBomb(units.dyn40, "cone", 1, 8) and charges.wildfireBomb.timeTillFull() < unit.gcd(true) then
+        if cast.wildfireBomb(units.dyn40, "cone", 1, 8) then return true end
     end
     --actions.cleave+=/death_chakram,if=(!raid_event.adds.exists|raid_event.adds.remains>5|active_enemies>=raid_event.adds.count*2)|focus+cast_regen<focus.max&!runeforge.bag_of_munitions.equipped
-    if ui.alwaysCdAoENever("Covenany Ability",3,#enemies.yards8t) and cast.able.deathChakram() and focus + cast.regen.deathChakram() < focusMax and not runeforge.bagOfMunitions.equiped then
+    if ui.alwaysCdAoENever("Covenany Ability", 3, #enemies.yards8t) and cast.able.deathChakram() and focus + cast.regen.deathChakram() < focusMax and not runeforge.bagOfMunitions.equiped then
         if cast.deathChakram() then return true end
     end
     --actions.cleave+=/call_action_list,name=nta,if=runeforge.nessingwarys_trapping_apparatus.equipped&focus<variable.mb_rs_cost
@@ -478,32 +510,32 @@ actionList.Cleave = function()
         if actionList.Nta() then return true end
     end
     --actions.cleave+=/chakrams
-    if ui.alwaysCdAoENever("Covenany Ability",3,#enemies.yards8t) and cast.able.deathChakram() then
+    if ui.alwaysCdAoENever("Covenany Ability", 3, #enemies.yards8t) and cast.able.deathChakram() then
         if cast.chakrams() then return true end
     end
     --actions.cleave+=/butchery,if=dot.shrapnel_bomb.ticking&(dot.internal_bleeding.stack<2|dot.shrapnel_bomb.remains<gcd)
-    if talent.butchery and cast.able.butchery("player","aoe",1,8) and debuff.shrapnelBomb.exists("target") and (debuff.internalBleeding.stack() < 2 or debuff.shrapnelBomb.remain("target") < unit.gcd(true)) then
+    if talent.butchery and cast.able.butchery("player","aoe", 1, 8) and debuff.shrapnelBomb.exists("target") and (debuff.internalBleeding.stack() < 2 or debuff.shrapnelBomb.remain("target") < unit.gcd(true)) then
         if cast.butchery("player","aoe",1,8) then return true end
     end
     --actions.cleave+=/carve,if=dot.shrapnel_bomb.ticking&!set_bonus.tier28_2pc
-    if not talent.butchery and cast.able.carve("player","cone",1,8) and debuff.shrapnelBomb.exists("target") and not var.hasTierBonus then
-        if cast.carve("player","cone",1,8) then return true end
+    if not talent.butchery and cast.able.carve("player", "cone", 1, 8) and debuff.shrapnelBomb.exists("target") and not var.hasTierBonus then
+        if cast.carve("player", "cone", 1, 8) then return true end
     end
     --actions.cleave+=/butchery,if=charges_fractional>2.5&cooldown.wildfire_bomb.full_recharge_time>spell_targets%2
-    if talent.butchery and cast.able.butchery("player","aoe",1,8) and charges.butchery.frac() > 2.5 and charges.wildfireBomb.timeTillFull() > #enemies.yards8t / 2 then
-        if cast.butchery("player","aoe",1,8) then return true end
+    if talent.butchery and cast.able.butchery("player", "aoe", 1, 8) and charges.butchery.frac() > 2.5 and charges.wildfireBomb.timeTillFull() > #enemies.yards8t / 2 then
+        if cast.butchery("player", "aoe", 1, 8) then return true end
     end
     --actions.cleave+=/flanking_strike,if=focus+cast_regen<focus.max
-    if ui.mode.harpoon == 1 and talent.flankingStrike and cast.able.flankingStrike() and unit.distance("pet",units.dyn15) < 15 and focus + cast.regen.flankingStrike() < focusMax then
+    if ui.mode.harpoon == 1 and talent.flankingStrike and cast.able.flankingStrike() and unit.distance("pet", units.dyn15) < 15 and focus + cast.regen.flankingStrike() < focusMax then
         if cast.flankingStrike() then return true end
     end
     --actions.cleave+=/carve,if=cooldown.wildfire_bomb.full_recharge_time>spell_targets%2
-    if not talent.butchery and cast.able.carve("player","cone",1,8) and charges.wildfireBomb.timeTillFull() > #enemies.yards8t / 2 then
-        if cast.carve("player","cone",1,8) then return true end
+    if not talent.butchery and cast.able.carve("player", "cone", 1, 8) and charges.wildfireBomb.timeTillFull() > #enemies.yards8t / 2 then
+        if cast.carve("player", "cone", 1, 8) then return true end
     end
     --actions.cleave+=/wildfire_bomb,if=buff.mad_bombardier.up
-    if cast.able.wildfireBomb(units.dyn40,"cone",1,8) and buff.madBombardier.exists() then
-        if cast.wildfireBomb(units.dyn40,"cone",1,8) then return true end
+    if cast.able.wildfireBomb(units.dyn40, "cone", 1, 8) and buff.madBombardier.exists() then
+        if cast.wildfireBomb(units.dyn40, "cone", 1, 8) then return true end
     end
     --actions.cleave+=/kill_command,target_if=dot.pheromone_bomb.ticking&set_bonus.tier28_2pc
     if cast.able.killCommand(var.pheromoneUnit) and unit.distance("pet", var.pheromoneUnit) < 50 and debuff.pheromoneBomb.exists(var.pheromoneUnit) and var.hasTierBonus then
@@ -526,28 +558,28 @@ actionList.Cleave = function()
         if cast.killCommand(var.lowestBloodseeker) then return true end
     end
     --actions.cleave+=/wildfire_bomb,if=!dot.wildfire_bomb.ticking&!set_bonus.tier28_2pc|charges_fractional>1.3
-    if cast.able.wildfireBomb(units.dyn40,"cone",1,8) and (not debuff.wildfireBomb.exists(units.dyn40) and not var.hasTierBonus or charges.wildfireBomb.frac() > 1.3) then
-        if cast.wildfireBomb(units.dyn40,"cone",1,8) then return true end
+    if cast.able.wildfireBomb(units.dyn40, "cone", 1, 8) and (not debuff.wildfireBomb.exists(units.dyn40) and not var.hasTierBonus or charges.wildfireBomb.frac() > 1.3) then
+        if cast.wildfireBomb(units.dyn40, "cone", 1, 8) then return true end
     end
     --actions.cleave+=/butchery,if=(!next_wi_bomb.shrapnel|!talent.wildfire_infusion.enabled)&cooldown.wildfire_bomb.full_recharge_time>spell_targets%2
-    if talent.butchery and cast.able.butchery("player","aoe",1,8) and (not nextBomb(spell.shrapnelBomb) or not talent.wildfireInfusion) and charges.wildfireBomb.timeTillFull() > #enemies.yards8t / 2 then
-        if cast.butchery("player","aoe",1,8) then return true end
+    if talent.butchery and cast.able.butchery("player", "aoe", 1, 8) and (not nextBomb(spell.shrapnelBomb) or not talent.wildfireInfusion) and charges.wildfireBomb.timeTillFull() > #enemies.yards8t / 2 then
+        if cast.butchery("player", "aoe", 1, 8) then return true end
     end
     --actions.cleave+=/a_murder_of_crows
-    if ui.alwaysCdAoENever("A Murder of Crows",3,#var.eagleEnemies) and cast.able.aMurderOfCrows() then
+    if ui.alwaysCdAoENever("A Murder of Crows", 3, #var.eagleEnemies) and cast.able.aMurderOfCrows() then
         if cast.aMurderOfCrows() then return true end
     end
     --actions.cleave+=/steel_trap,if=focus+cast_regen<focus.max
-    if cast.able.steelTrap("player","ground",1,5) and focus + cast.regen.steelTrap() < focusMax then
-        if cast.steelTrap("player","ground",1,5) then return true end
+    if cast.able.steelTrap("player", "ground", 1, 5) and focus + cast.regen.steelTrap() < focusMax then
+        if cast.steelTrap("player", "ground", 1, 5) then return true end
     end
     --actions.cleave+=/serpent_sting,target_if=min:remains,if=refreshable&talent.hydras_bite.enabled&target.time_to_die>8
     if talent.hydrasBite and cast.able.serpentSting(var.lowestSerpentSting) and debuff.serpentSting.refresh(var.lowestSerpentSting) and unit.ttd(var.lowestSerpentSting) > 8 then
         if cast.serpentSting(var.hydraUnit) then return true end
     end
     --actions.cleave+=/carve
-    if not talent.butchery and cast.able.carve("player","cone",1,8) then
-        if cast.carve("player","cone",1,8) then return true end
+    if not talent.butchery and cast.able.carve("player", "cone", 1, 8) then
+        if cast.carve("player", "cone", 1, 8) then return true end
     end
     --actions.cleave+=/kill_shot
     if actionList.killShot() then return true end
@@ -570,7 +602,7 @@ end
 --St
 actionList.St = function()
     --actions.st=death_chakram,if=focus+cast_regen<focus.max&(!raid_event.adds.exists|!raid_event.adds.up&raid_event.adds.duration+raid_event.adds.in<5)|raid_event.adds.up&raid_event.adds.remains>40
-    if ui.alwaysCdAoENever("Covenany Ability",3,#enemies.yards8t) and cast.able.deathChakram() and focus + cast.regen.deathChakram() < focusMax then
+    if ui.alwaysCdAoENever("Covenany Ability", 3, #enemies.yards8t) and cast.able.deathChakram() and focus + cast.regen.deathChakram() < focusMax then
         if cast.deathChakram() then return true end
     end
     --actions.st+=/serpent_sting,target_if=min:remains,if=!dot.serpent_sting.ticking&target.time_to_die>7|buff.vipers_venom.up&buff.vipers_venom.remains<gcd
@@ -578,19 +610,19 @@ actionList.St = function()
         if cast.serpentSting(var.lowestSerpentSting) then return true end
     end
     --actions.st+=/flayed_shot
-    if ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards8t) and cast.able.flayedShot() then
+    if ui.alwaysCdAoENever("Covenant Ability", 3, #enemies.yards8t) and cast.able.flayedShot() then
         if cast.flayedShot() then return true end
     end
     --actions.st+=/resonating_arrow,if=!raid_event.adds.exists|!raid_event.adds.up&(raid_event.adds.duration+raid_event.adds.in<20|raid_event.adds.count=1)|raid_event.adds.up&raid_event.adds.remains>40|time_to_die<10
-    if ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards12t) and cast.able.resonatingArrow("best",nil,1,15) then
-        if cast.resonatingArrow("best",nil,1,15) then return true end
+    if ui.alwaysCdAoENever("Covenant Ability", 3, #enemies.yards12t) and cast.able.resonatingArrow("best", nil, 1, 15) then
+        if cast.resonatingArrow("best", nil, 1, 15) then return true end
     end
     --actions.st+=/wild_spirits,if=!raid_event.adds.exists|!raid_event.adds.up&raid_event.adds.duration+raid_event.adds.in<20|raid_event.adds.up&raid_event.adds.remains>20|time_to_die<20
-    if ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards12t) and cast.able.wildSpirits("best",nil,var.spiritUnits,12) then
-        if cast.wildSpirits("best",nil,var.spiritUnits,12) then return true end
+    if ui.alwaysCdAoENever("Covenant Ability", 3, #enemies.yards12t) and cast.able.wildSpirits("best", nil, var.spiritUnits, 12) then
+        if cast.wildSpirits("best", nil, var.spiritUnits, 12) then return true end
     end
     --actions.st+=/coordinated_assault,if=!raid_event.adds.exists|covenant.night_fae&cooldown.wild_spirits.remains|!covenant.night_fae&(!raid_event.adds.up&raid_event.adds.duration+raid_event.adds.in<30|raid_event.adds.up&raid_event.adds.remains>20|!raid_event.adds.up)|time_to_die<30
-    if ui.alwaysCdAoENever("Coordinated Assault",3,#var.eagleEnemies) and cast.able.coordinatedAssault() then
+    if ui.alwaysCdAoENever("Coordinated Assault", 3, #var.eagleEnemies) and cast.able.coordinatedAssault() then
         if cast.coordinatedAssault() then return true end
     end
     --actions.st+=/kill_shot
@@ -600,28 +632,28 @@ actionList.St = function()
         if cast.flankingStrike() then return true end
     end
     --actions.st+=/a_murder_of_crows
-    if talent.aMurderOfCrows and ui.alwaysCdAoENever("A Murder of Crows",3,#var.eagleEnemies) and cast.able.aMurderOfCrows() then
+    if talent.aMurderOfCrows and ui.alwaysCdAoENever("A Murder of Crows", 3, #var.eagleEnemies) and cast.able.aMurderOfCrows() then
         if cast.aMurderOfCrows() then return true end
     end
     --actions.st+=/wildfire_bomb,if=full_recharge_time<2*gcd&set_bonus.tier28_2pc|buff.mad_bombardier.up|!set_bonus.tier28_2pc&(full_recharge_time<gcd|focus+cast_regen<focus.max&(next_wi_bomb.volatile&dot.serpent_sting.ticking&dot.serpent_sting.refreshable|next_wi_bomb.pheromone&!buff.mongoose_fury.up&focus+cast_regen<focus.max-action.kill_command.cast_regen*3)|time_to_die<10)
-    if cast.able.wildfireBomb(units.dyn40,"cone",1,8) and (charges.wildfireBomb.timeTillFull() < 2 * unit.gcd(true) and var.hasTierBonus or buff.madBombardier.exists() or not var.hasTierBonus and (charges.wildfireBomb.timeTillFull() < unit.gcd(true) or focus + cast.regen.wildfireBomb() < focusMax and (nextBomb(spell.volatileBomb) and debuff.serpentSting.exists(units.dyn40) and debuff.serpentSting.refresh(units.dyn40) or nextBomb(spell.pheromoneBomb) and not buff.mongooseFury.exists() and focus + cast.regen.wildfireBomb() < focusMax - cast.regen.killCommand() * 3) or unit.ttd(units.dyn40) < 10)) then
-        if cast.wildfireBomb(units.dyn40,"cone",1,8) then return true end
+    if cast.able.wildfireBomb(units.dyn40, "cone", 1, 8) and (charges.wildfireBomb.timeTillFull() < 2 * unit.gcd(true) and var.hasTierBonus or buff.madBombardier.exists() or not var.hasTierBonus and (charges.wildfireBomb.timeTillFull() < unit.gcd(true) or focus + cast.regen.wildfireBomb() < focusMax and (nextBomb(spell.volatileBomb) and debuff.serpentSting.exists(units.dyn40) and debuff.serpentSting.refresh(units.dyn40) or nextBomb(spell.pheromoneBomb) and not buff.mongooseFury.exists() and focus + cast.regen.wildfireBomb() < focusMax - cast.regen.killCommand() * 3) or unit.ttd(units.dyn40) < 10)) then
+        if cast.wildfireBomb(units.dyn40, "cone", 1, 8) then return true end
     end
     --actions.st+=/kill_command,target_if=min:bloodseeker.remains,if=set_bonus.tier28_2pc&dot.pheromone_bomb.ticking&!buff.mad_bombardier.up
     if cast.able.killCommand(var.lowestBloodseeker) and unit.distance("pet", var.lowestBloodseeker) < 50 and var.hasTierBonus and debuff.pheromoneBomb.exists(var.lowestBloodseeker) and not buff.madBombardier.exists() then
         if cast.killCommand(var.lowestBloodseeker) then return true end
     end
     --actions.st+=/carve,if=active_enemies>1&!runeforge.rylakstalkers_confounding_strikes.equipped
-    if not talent.butchery and cast.able.carve("player","cone",1,8) and #enemies.yards8 > 1 and not runeforge.rylakstalkersConfoundingStrikes.equiped then
-        if cast.carve("player","cone",1,8) then return true end
+    if not talent.butchery and cast.able.carve("player", "cone", 1, 8) and #enemies.yards8 > 1 and not runeforge.rylakstalkersConfoundingStrikes.equiped then
+        if cast.carve("player", "cone", 1, 8) then return true end
     end
     --actions.st+=/butchery,if=active_enemies>1&!runeforge.rylakstalkers_confounding_strikes.equipped&cooldown.wildfire_bomb.full_recharge_time>spell_targets&(charges_fractional>2.5|dot.shrapnel_bomb.ticking)
-    if talent.butchery and cast.able.butchery("player","aoe",1,8) and (#enemies.yards8 > 1 and not runeforge.rylakstalkersConfoundingStrikes.equiped and charges.wildfireBomb.timeTillFull() > #enemies.yards8 and (charges.butchery.frac() > 2.5 or debuff.shrapnelBomb.exists(units.dyn8))) then
-        if cast.butchery("player","aoe",1,8) then return true end
+    if talent.butchery and cast.able.butchery("player", "aoe", 1, 8) and (#enemies.yards8 > 1 and not runeforge.rylakstalkersConfoundingStrikes.equiped and charges.wildfireBomb.timeTillFull() > #enemies.yards8 and (charges.butchery.frac() > 2.5 or debuff.shrapnelBomb.exists(units.dyn8))) then
+        if cast.butchery("player", "aoe", 1, 8) then return true end
     end
     --actions.st+=/steel_trap,if=focus+cast_regen<focus.max
-    if cast.able.steelTrap("player","ground",1,5) and focus + cast.regen.steelTrap() < focusMax then
-        if cast.steelTrap("player","ground",1,5) then return true end
+    if cast.able.steelTrap("player", "ground", 1, 5) and focus + cast.regen.steelTrap() < focusMax then
+        if cast.steelTrap("player", "ground", 1, 5) then return true end
     end
     --actions.st+=/mongoose_bite,target_if=max:debuff.latent_poison_injection.stack,if=talent.alpha_predator.enabled&(buff.mongoose_fury.up&buff.mongoose_fury.remains<focus%(variable.mb_rs_cost-cast_regen)*gcd&!buff.wild_spirits.remains|buff.mongoose_fury.remains&next_wi_bomb.pheromone)
     if talent.mongooseBite and cast.able.mongooseBite(var.maxLatentPoison) and (talent.alphaPredator and (buff.mongooseFury.exists() and buff.mongooseFury.remains() < focus / (cast.cost.mongooseBite() - cast.regen.mongooseBite()) * unit.gcd(true) and not buff.wildSpirits.exists() or not buff.mongooseFury.exists() and nextBomb(spell.pheromoneBomb))) then
@@ -644,8 +676,8 @@ actionList.St = function()
         if cast.serpentSting(var.lowestSerpentSting) then return true end
     end
     --actions.st+=/wildfire_bomb,if=next_wi_bomb.shrapnel&focus>variable.mb_rs_cost*2&dot.serpent_sting.remains>5*gcd&!set_bonus.tier28_2pc
-    if cast.able.wildfireBomb(units.dyn40,"cone",1,8) and nextBomb(spell.shrapnelBomb) and focus > cast.cost.mongooseBite() * 2 and debuff.serpentSting.remains(units.dyn40) > 5 * unit.gcd(true) and not var.hasTierBonus then
-        if cast.wildfireBomb(units.dyn40,"cone",1,8) then return true end
+    if cast.able.wildfireBomb(units.dyn40,"cone", 1, 8) and nextBomb(spell.shrapnelBomb) and focus > cast.cost.mongooseBite() * 2 and debuff.serpentSting.remains(units.dyn40) > 5 * unit.gcd(true) and not var.hasTierBonus then
+        if cast.wildfireBomb(units.dyn40,"cone", 1, 8) then return true end
     end
     --actions.st+=/chakrams
     if ui.alwaysCdAoENever("Covenany Ability",3,#enemies.yards8t) and cast.able.chakrams() then
@@ -656,8 +688,8 @@ actionList.St = function()
         if cast.killCommand(var.lowestBloodseeker) then return true end
     end
     --actions.st+=/wildfire_bomb,if=runeforge.rylakstalkers_confounding_strikes.equipped
-    if cast.able.wildfireBomb(units.dyn40,"cone",1,8) and runeforge.rylakstalkersConfoundingStrikes.equiped then
-        if cast.wildfireBomb(units.dyn40,"cone",1,8) then return true end
+    if cast.able.wildfireBomb(units.dyn40, "cone", 1, 8) and runeforge.rylakstalkersConfoundingStrikes.equiped then
+        if cast.wildfireBomb(units.dyn40, "cone", 1, 8) then return true end
     end
     --actions.st+=/mongoose_bite,target_if=max:debuff.latent_poison_injection.stack,if=buff.mongoose_fury.up|focus+action.kill_command.cast_regen>focus.max-15|dot.shrapnel_bomb.ticking|buff.wild_spirits.remains
     if talent.mongooseBite and cast.able.mongooseBite(var.maxLatentPoison) and (buff.mongooseFury.exists() or focus + cast.regen.killCommand() > focusMax - 15 or debuff.shrapnelBomb.exists(var.maxLatentPoison) or buff.wildSpirits.exists()) then
@@ -668,8 +700,8 @@ actionList.St = function()
         if cast.raptorStrike(var.maxLatentPoison) then return true end
     end
     --actions.st+=/wildfire_bomb,if=(next_wi_bomb.volatile&dot.serpent_sting.ticking|next_wi_bomb.pheromone|next_wi_bomb.shrapnel&focus>50)&!set_bonus.tier28_2pc
-    if cast.able.wildfireBomb(units.dyn40,"cone",1,8) and ((nextBomb(spell.volatileBomb) and debuff.serpentSting.exists(units.dyn40) or nextBomb(spell.pheromoneBomb) or nextBomb(spell.shrapnelBomb) and focus > 50) and not var.hasTierBonus) then
-        if cast.wildfireBomb(units.dyn40,"cone",1,8) then return true end
+    if cast.able.wildfireBomb(units.dyn40, "cone", 1, 8) and ((nextBomb(spell.volatileBomb) and debuff.serpentSting.exists(units.dyn40) or nextBomb(spell.pheromoneBomb) or nextBomb(spell.shrapnelBomb) and focus > 50) and not var.hasTierBonus) then
+        if cast.wildfireBomb(units.dyn40, "cone", 1, 8) then return true end
     end
 
     return false
@@ -682,21 +714,21 @@ actionList.BoP = function()
         if cast.serpentSting(var.lowestSerpentSting) then return true end
     end
     --actions.bop+=/kill_command,target_if=min:bloodseeker.remains,if=focus+cast_regen<focus.max&buff.nesingwarys_trapping_apparatus.up|focus+cast_regen<focus.max+10&buff.nesingwarys_trapping_apparatus.up&buff.nesingwarys_trapping_apparatus.remains<gcd
-    if cast.able.killCommand(var.lowestBloodseeker) and unit.distance("pet", var.lowestBloodseeker) < 50 and focus + cast.regen.killCommand() < focusMax and buff.nesingwarysTrappingApparatus.exists() or focus + cast.regen.killCommand() < focusMax + 10 and buff.nesingwarysTrappingApparatus.exists() and buff.nesingwarysTrappingApparatus.remains() < unit.gcd(true) then
+    if cast.able.killCommand(var.lowestBloodseeker) and (unit.distance("pet", var.lowestBloodseeker) < 50 and focus + cast.regen.killCommand() < focusMax and buff.nesingwarysTrappingApparatus.exists() or focus + cast.regen.killCommand() < focusMax + 10 and buff.nesingwarysTrappingApparatus.exists() and buff.nesingwarysTrappingApparatus.remains() < unit.gcd(true))then
         if cast.killCommand(var.lowestBloodseeker) then return true end
     end
     --actions.bop+=/kill_shot
     if actionList.killShot() then return true end
     --actions.bop+=/wildfire_bomb,if=focus+cast_regen<focus.max&full_recharge_time<gcd|buff.mad_bombardier.up
-    if cast.able.wildfireBomb(units.dyn40,"cone",1,8) and focus + cast.regen.wildfireBomb() < focusMax and charges.wildfireBomb.timeTillFull() < unit.gcd(true) or buff.madBombardier.exists() then
-        if cast.wildfireBomb(units.dyn40,"cone",1,8) then return true end
+    if cast.able.wildfireBomb(units.dyn40, "cone", 1, 8) and (focus + cast.regen.wildfireBomb() < focusMax and charges.wildfireBomb.timeTillFull() < unit.gcd(true) or buff.madBombardier.exists()) then
+        if cast.wildfireBomb(units.dyn40, "cone", 1, 8) then return true end
     end
     --actions.bop+=/flanking_strike,if=focus+cast_regen<focus.max
-    if ui.mode.harpoon == 1 and talent.flankingStrike and cast.able.flankingStrike() and unit.distance("pet",units.dyn15) < 15 and focus + cast.regen.flankingStrike() < focusMax then
+    if ui.mode.harpoon == 1 and talent.flankingStrike and cast.able.flankingStrike() and focus + cast.regen.flankingStrike() < focusMax then
         if cast.flankingStrike() then return true end
     end
     --actions.bop+=/flayed_shot
-    if ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards8t) and cast.able.flayedShot() then
+    if ui.alwaysCdAoENever("Covenant Ability", 3, #enemies.yards8t) and cast.able.flayedShot() then
         if cast.flayedShot() then return true end
     end
     --actions.bop+=/call_action_list,name=nta,if=runeforge.nessingwarys_trapping_apparatus.equipped&focus<variable.mb_rs_cost
@@ -704,7 +736,7 @@ actionList.BoP = function()
         if actionList.Nta() then return true end
     end
     --actions.bop+=/death_chakram,if=focus+cast_regen<focus.max
-    if ui.alwaysCdAoENever("Covenany Ability",3,#enemies.yards8t) and cast.able.deathChakram() and focus + cast.regen.deathChakram() < focusMax then
+    if ui.alwaysCdAoENever("Covenany Ability", 3, #enemies.yards8t) and cast.able.deathChakram() and focus + cast.regen.deathChakram() < focusMax then
         if cast.deathChakram() then return true end
     end
     --actions.bop+=/raptor_strike,target_if=max:debuff.latent_poison_injection.stack,if=buff.coordinated_assault.up&buff.coordinated_assault.remains<1.5*gcd
@@ -716,7 +748,7 @@ actionList.BoP = function()
         if cast.mongooseBite(var.maxLatentPoison) then return true end
     end
     --actions.bop+=/a_murder_of_crows
-    if talent.aMurderOfCrows and ui.alwaysCdAoENever("A Murder of Crows",3,#var.eagleEnemies) and cast.able.aMurderOfCrows() then
+    if talent.aMurderOfCrows and ui.alwaysCdAoENever("A Murder of Crows", 3, #var.eagleEnemies) and cast.able.aMurderOfCrows() then
         if cast.aMurderOfCrows() then return true end
     end
     --actions.bop+=/raptor_strike,target_if=max:debuff.latent_poison_injection.stack,if=buff.tip_of_the_spear.stack=3
@@ -728,8 +760,8 @@ actionList.BoP = function()
         if cast.mongooseBite(var.maxLatentPoison) then return true end
     end
     --actions.bop+=/wildfire_bomb,if=focus+cast_regen<focus.max&!ticking&(full_recharge_time<gcd|!dot.wildfire_bomb.ticking&buff.mongoose_fury.remains>full_recharge_time-1*gcd|!dot.wildfire_bomb.ticking&!buff.mongoose_fury.remains)|time_to_die<18&!dot.wildfire_bomb.ticking
-    if cast.able.wildfireBomb(units.dyn40,"cone",1,8) and (focus + cast.regen.wildfireBomb() < focusMax and not debuff.wildfireBomb.exists(units.dyn40) and (charges.wildfireBomb.timeTillFull() < unit.gcd(true) or not debuff.wildfireBomb.exists(units.dyn40) and buff.mongooseFury.remains() > charges.wildfireBomb.timeTillFull() - 1 * unit.gcd(true) or not debuff.wildfireBomb.exists(units.dyn40) and not buff.mongooseFury.exists()) or unit.ttd(units.dyn40) < 18 and not debuff.wildfireBomb.exists(units.dyn40)) then
-        if cast.wildfireBomb(units.dyn40,"cone",1,8) then return true end
+    if cast.able.wildfireBomb(units.dyn40, "cone", 1, 8) and (focus + cast.regen.wildfireBomb() < focusMax and not debuff.wildfireBomb.exists(units.dyn40) and (charges.wildfireBomb.timeTillFull() < unit.gcd(true) or not debuff.wildfireBomb.exists(units.dyn40) and buff.mongooseFury.remains() > charges.wildfireBomb.timeTillFull() - 1 * unit.gcd(true) or not debuff.wildfireBomb.exists(units.dyn40) and not buff.mongooseFury.exists()) or unit.ttd(units.dyn40) < 18 and not debuff.wildfireBomb.exists(units.dyn40)) then
+        if cast.wildfireBomb(units.dyn40, "cone", 1, 8) then return true end
     end
     --actions.bop+=/kill_command,target_if=min:bloodseeker.remains,if=focus+cast_regen<focus.max&(!runeforge.nessingwarys_trapping_apparatus|focus<variable.mb_rs_cost)
     if cast.able.killCommand(var.maxBloodseeker) and focus + cast.regen.killCommand() < focusMax and (not runeforge.nesingwarysTrappingApparatus.equiped or focus < cast.cost.mongooseBite()) then
@@ -740,23 +772,23 @@ actionList.BoP = function()
         if cast.killCommand(var.maxBloodseeker) then return true end
     end
     --actions.bop+=/steel_trap,if=focus+cast_regen<focus.max
-    if cast.able.steelTrap("player","ground",1,5) and focus + cast.regen.steelTrap() < focusMax then
-        if cast.steelTrap("player","ground",1,5) then return true end
+    if cast.able.steelTrap("player", "ground", 1, 5) and focus + cast.regen.steelTrap() < focusMax then
+        if cast.steelTrap("player", "ground", 1 ,5) then return true end
     end
     --actions.bop+=/serpent_sting,target_if=min:remains,if=dot.serpent_sting.refreshable&!buff.coordinated_assault.up|talent.alpha_predator&refreshable&!buff.mongoose_fury.up
     if cast.able.serpentSting(var.lowestSerpentSting) and (debuff.serpentSting.refresh(var.lowestSerpentSting) and not buff.coordinatedAssault.exists() or talent.alphaPredator and debuff.serpentSting.refresh(var.lowestSerpentSting) and not buff.mongooseFury.exists()) then
         if cast.serpentSting(var.lowestSerpentSting) then return true end
     end
     --actions.bop+=/resonating_arrow
-    if ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards12t) and cast.able.resonatingArrow("best",nil,1,15) then
-        if cast.resonatingArrow("best",nil,1,15) then return true end
+    if ui.alwaysCdAoENever("Covenant Ability", 3, #enemies.yards12t) and cast.able.resonatingArrow("best", nil, 1, 15) then
+        if cast.resonatingArrow("best", nil, 1, 15) then return true end
     end
     --actions.bop+=/wild_spirits
-    if ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards12t) and cast.able.wildSpirits("best",nil,var.spiritUnits,12) then
-        if cast.wildSpirits("best",nil,var.spiritUnits,12) then return true end
+    if ui.alwaysCdAoENever("Covenant Ability", 3, #enemies.yards12t) and cast.able.wildSpirits("best", nil, var.spiritUnits, 12) then
+        if cast.wildSpirits("best", nil, var.spiritUnits, 12) then return true end
     end
     --actions.bop+=/coordinated_assault,if=!buff.coordinated_assault.up
-    if ui.alwaysCdAoENever("Coordinated Assault",3,#var.eagleEnemies) and cast.able.coordinatedAssault() and not buff.coordinatedAssault.exists() and unit.distance("target") < 5 then
+    if ui.alwaysCdAoENever("Coordinated Assault", 3, #var.eagleEnemies) and cast.able.coordinatedAssault() and not buff.coordinatedAssault.exists() and unit.distance("target") < 5 then
         if cast.coordinatedAssault() then return true end
     end
     --actions.bop+=/mongoose_bite,if=buff.mongoose_fury.up|focus+action.kill_command.cast_regen>focus.max|buff.coordinated_assault.up
@@ -768,8 +800,8 @@ actionList.BoP = function()
         if cast.raptorStrike(var.maxLatentPoison) then return true end
     end
     --actions.bop+=/wildfire_bomb,if=dot.wildfire_bomb.refreshable
-    if cast.able.wildfireBomb(units.dyn40,"cone",1,8) and debuff.wildfireBomb.refresh(units.dyn40) then
-        if cast.wildfireBomb(units.dyn40,"cone",1,8) then return true end
+    if cast.able.wildfireBomb(units.dyn40, "cone", 1, 8) and debuff.wildfireBomb.refresh(units.dyn40) then
+        if cast.wildfireBomb(units.dyn40, "cone", 1, 8) then return true end
     end
     --actions.bop+=/serpent_sting,target_if=min:remains,if=buff.vipers_venom.up
     if cast.able.serpentSting(var.lowestSerpentSting) and buff.vipersVenom.exists() then
@@ -780,9 +812,8 @@ actionList.BoP = function()
 end
 
 actionList.Missdirection = function()
-    if ui.mode.misdirection == 2 then
-        return false
-    end
+    if ui.mode.misdirection == 2 or not cast.able.misdirection() then return false end
+    
 
     local misdirectUnit = nil
     if unit.valid("target") and unit.distance("target") < 40 and not buff.playDead.exists("pet") then
@@ -801,7 +832,7 @@ actionList.Missdirection = function()
         end
         -- Failsafe to Pet, if unable to misdirect to Tank or Focus
         if misdirectUnit == nil then misdirectUnit = "pet" end
-        if misdirectUnit and cast.able.misdirection() and unit.exists(misdirectUnit) and unit.distance(misdirectUnit) < 40 and not unit.deadOrGhost(misdirectUnit) then
+        if misdirectUnit and unit.exists(misdirectUnit) and unit.distance(misdirectUnit) < 40 and not unit.deadOrGhost(misdirectUnit) then
             if cast.misdirection(misdirectUnit) then return true end
         end
     end
@@ -843,17 +874,17 @@ local function runRotation()
     units.get(40)
     -- Enemies
     enemies.get(5)
-    enemies.get(5,"pet")
+    enemies.get(5, "pet")
     enemies.get(8)
-    enemies.get(8,"player",false,true)
-    enemies.get(8,"target")
+    enemies.get(8, "player", false, true)
+    enemies.get(8, "target")
     enemies.get(12)
-    enemies.get(12,"target")
+    enemies.get(12, "target")
     enemies.get(15)
     enemies.get(30)
     enemies.get(40)
-    enemies.get(40,"player",false,true)
-    enemies.rect.get(10,40,false)
+    enemies.get(40, "player", false, true)
+    enemies.rect.get(10, 40, false)
     -- General Locals
     var.hasTierBonus                              = br.TierScan("T28") >= 2
     var.haltProfile                               = unit.mounted() or unit.flying() or ui.pause() or buff.feignDeath.exists() or ui.mode.rotation == 3
@@ -861,15 +892,13 @@ local function runRotation()
     var.singleTarget                             = ui.mode.rotation == 2
     var.eagleRange                               = buff.aspectOfTheEagle.exists() and 40 or 5
     var.eagleEnemies                             = buff.aspectOfTheEagle.exists() and enemies.yards40 or enemies.yards5
-    var.lowestBloodseeker                        = var.singleTarget and "target" or debuff.bloodseeker.lowest(40,"remain") or "target"
-    var.lowestSerpentSting                       = var.singleTarget and "target" or debuff.serpentSting.lowest(40,"remain") or "target"
-    var.maxLatentPoison                          = var.singleTarget and "target" or debuff.latentPoison.max(var.eagleRange,"stack") or "target"
+    var.lowestBloodseeker                        = var.singleTarget and "target" or debuff.bloodseeker.lowest(40, "remain") or "target"
+    var.lowestSerpentSting                       = var.singleTarget and "target" or debuff.serpentSting.lowest(40, "remain") or "target"
+    var.maxLatentPoison                          = var.singleTarget and "target" or debuff.latentPoison.max(var.eagleRange, "stack") or "target"
     var.spiritUnits                              = ui.useCDs() and 1 or 3
-    var.pheromoneUnit                            = var.singleTarget and "target" or debuff.pheromoneBomb.max(40,"remain") or "target"
+    var.pheromoneUnit                            = var.singleTarget and "target" or debuff.pheromoneBomb.max(40, "remain") or "target"
 
-    if var.haltProfile then
-        return true
-    end
+    if var.haltProfile then return true end
 
     --Pet
     if actionList.PetManagement() then return true end
@@ -888,9 +917,8 @@ local function runRotation()
     if actionList.Interrupt() then return true end
 
     --actions=auto_attack
-    if cast.able.autoAttack("target") then
-        if cast.autoAttack("target") then return true end
-    end
+    if cast.able.autoAttack("target") then cast.autoAttack("target") end
+
     --TODO actions+=/use_item,name=jotungeirr_destinys_call,if=!raid_event.adds.exists&(buff.coordinated_assault.up|!cooldown.coordinated_assault.remains|time_to_die<30)|(raid_event.adds.exists&buff.resonating_arrow.up|buff.coordinated_assault.up)
     --actions+=/use_items
     module.BasicTrinkets()
