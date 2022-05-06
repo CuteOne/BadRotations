@@ -3295,6 +3295,7 @@ br.lists.spells = {
                 maelstromWeapon             = 344179,
                 stormkeeper                 = 320137,
                 windfuryTotem               = 327942,
+                stormbringer                = 201845,
             },
             debuffs                         = {
                 doomWinds                   = 335904,
@@ -3438,6 +3439,7 @@ br.lists.spells = {
                 primordialWave              = 327164,
                 spiritwalkersTidalTotem     = 335892,
                 waterWalking                = 546,
+				splinteredElements			= 354648,
             },
             conduits                        = {
                 astralProtection            = 337964,
@@ -3466,7 +3468,8 @@ br.lists.spells = {
                 skybreakersFieryDemise      = 336734,
                 spiritwalkersTidalTotem     = 335891,
                 deeptremorStone             = 336739,
-                windspeakersLavaResurgence  = 336063
+                windspeakersLavaResurgence  = 336063,
+                deeplyRootedElements        = 336738,
             },
             talents                         = {
                 naturesGuardian             = 30884,
