@@ -306,11 +306,11 @@ actionList.CCs = function()
     end
     
     if br.getCurrentZoneId() == maps.instanceIDs.TheaterOfPain then
-        if cast.bindingShot(ccMobFinder(163089), "groundCC") then return true end
+        if cast.bindingShot(getMobToCc(163089), "groundCC") then return true end
     end
     
     if br.getCurrentZoneId() == maps.instanceIDs.HallsOfAtonement then
-        if cast.bindingShot(ccMobFinder(164563, _, 326450), "groundCC") then return true end
+        if cast.bindingShot(getMobToCc(164563, _, 326450), "groundCC") then return true end
     end
 
     return false
