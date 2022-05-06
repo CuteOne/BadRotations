@@ -262,7 +262,7 @@ local function getMobToCc(mobID, minHP, spellID)
     return nil  
 end
 
-local function IsToStun(enemy)
+local function isToStun(enemy)
     for _, spellId in pairs(spellsToStun) do
         if unit.isCasting(spellId, enemy) then
             return true
@@ -312,6 +312,10 @@ actionList.CCs = function()
     if br.getCurrentZoneId() == maps.instanceIDs.HallsOfAtonement then
         if cast.bindingShot(getMobToCc(164563, _, 326450), "groundCC") then return true end
     end
+
+    if cast.bindingShot(getMobToCc(174773), "groundCC") then return true end
+
+    if cast.tarTrap(getMobToCc(174773), "groundCC") then return true end
 
     return false
 end
@@ -371,7 +375,7 @@ actionList.Interrupt = function()
     if ui.checked("Muzzle") and cast.able.muzzle() then
         for i=1, #enemies.yards5 do
             local thisUnit = enemies.yards5[i]
-            if unit.interruptable(thisUnit,ui.value("Interrupt At")) then
+            if unit.interruptable(thisUnit, ui.value("Interrupt At")) then
                 if cast.muzzle(thisUnit) then return true end
             end
         end
@@ -381,7 +385,7 @@ actionList.Interrupt = function()
     if ui.checked("Freezing Trap") then
         for i = 1, #enemies.yards40 do
             local thisUnit = enemies.yards40[i]
-            if IsToStun(thisUnit) then
+            if unit.interruptable(thisUnit, ui.value("Interrupt At")) or isToStun(thisUnit) then
                 if cast.freezingTrap(thisUnit, "ground") then return true end
             end
         end
@@ -391,7 +395,7 @@ actionList.Interrupt = function()
     if ui.checked("Intimidation - Int") then
         for i=1, #enemies.yards5 do
             local thisUnit = enemies.yards5[i]
-            if IsToStun(thisUnit) then
+            if unit.interruptable(thisUnit, ui.value("Interrupt At")) or isToStun(thisUnit) then
                 if cast.intimidation(thisUnit) then return true end
             end
         end
