@@ -292,7 +292,7 @@ actionList.CCs = function()
     if br.getCurrentZoneId() == maps.instanceIDs.Plaguefall then
         if not isFreezingTrapActive() then
             if cast.freezingTrap(getMobToCc(171887), "groundCC") then return true end
-            if cast.freezingTrap(getMobToCc(163862, _, 336449), "groundCC") then return true end
+            if cast.freezingTrap(getMobToCc(163862, nil, 336449), "groundCC") then return true end
         end
         if cast.bindingShot(getMobToCc(163892, 25), "groundCC") then return true end
     end
@@ -310,7 +310,7 @@ actionList.CCs = function()
     end
     
     if br.getCurrentZoneId() == maps.instanceIDs.HallsOfAtonement then
-        if cast.bindingShot(getMobToCc(164563, _, 326450), "groundCC") then return true end
+        if cast.bindingShot(getMobToCc(164563, nil, 326450), "groundCC") then return true end
     end
 
     if cast.bindingShot(getMobToCc(174773), "groundCC") then return true end
@@ -599,8 +599,8 @@ actionList.St = function()
     if ui.alwaysCdAoENever("Covenany Ability", 3, #enemies.yards8t) and cast.able.deathChakram("target") and focus + cast.regen.deathChakram() < focusMax then
         if cast.deathChakram("target") then return true end
     end
-    --actions.st+=/serpent_sting,target_if=min:remains,if=!dot.serpent_sting.ticking&target.time_to_die>7|buff.vipers_venom.up&buff.vipers_venom.remains<gcd
-    if cast.able.serpentSting(var.lowestSerpentSting) and (not debuff.serpentSting.exists(var.lowestSerpentSting) and unit.ttd(var.lowestSerpentSting) > 7 or buff.vipersVenom.exists() and buff.vipersVenom.remains() < unit.gcd(true)) then
+    --actions.st+=/serpent_sting,target_if=min:remains,if=!dot.serpent_sting.ticking&target.time_to_die>7&(!dot.pheromone_bomb.ticking|buff.mad_bombardier.up&next_wi_bomb.pheromone)|buff.vipers_venom.up&buff.vipers_venom.remains<gcd|!set_bonus.tier28_2pc&!dot.serpent_sting.ticking&target.time_to_die>7
+    if cast.able.serpentSting(var.lowestSerpentSting) and (not debuff.serpentSting.exists(var.lowestSerpentSting) and unit.ttd(var.lowestSerpentSting) > 7 and (not debuff.pheromoneBomb.exists(var.lowestSerpentSting) or buff.madBombardier.exists() and nextBomb(spell.pheromoneBomb)) or buff.vipersVenom.exists() and buff.vipersVenom.remains() < unit.gcd(true) or not var.hasTierBonus and not debuff.serpentSting.exists(var.lowestSerpentSting) and unit.ttd(var.lowestSerpentSting) > 7) then
         if cast.serpentSting(var.lowestSerpentSting) then return true end
     end
     --actions.st+=/flayed_shot
@@ -619,8 +619,6 @@ actionList.St = function()
     if ui.alwaysCdAoENever("Coordinated Assault", 3, #var.eagleEnemies) and cast.able.coordinatedAssault() then
         if cast.coordinatedAssault() then return true end
     end
-    --actions.st+=/kill_shot
-    if actionList.killShot() then return true end
     --actions.st+=/flanking_strike,if=focus+cast_regen<focus.max
     if ui.mode.harpoon == 1 and talent.flankingStrike and cast.able.flankingStrike("target") and unit.distance("pet", "target") < 15 and focus + cast.regen.flankingStrike() < focusMax then
         if cast.flankingStrike("target") then return true end
@@ -637,6 +635,8 @@ actionList.St = function()
     if cast.able.killCommand(var.lowestBloodseeker) and unit.distance("pet", var.lowestBloodseeker) < 50 and var.hasTierBonus and debuff.pheromoneBomb.exists(var.lowestBloodseeker) and not buff.madBombardier.exists() then
         if cast.killCommand(var.lowestBloodseeker) then return true end
     end
+    --actions.st+=/kill_shot
+    if actionList.killShot() then return true end
     --actions.st+=/carve,if=active_enemies>1&!runeforge.rylakstalkers_confounding_strikes.equipped
     if not talent.butchery and cast.able.carve("player", "cone", 1, 8) and #enemies.yards8 > 1 and not runeforge.rylakstalkersConfoundingStrikes.equiped then
         if cast.carve("player", "cone", 1, 8) then return true end
