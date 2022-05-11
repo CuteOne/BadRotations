@@ -272,6 +272,79 @@ local function isToStun(enemy)
     return false
 end
 
+local function isPheromoneUp()
+    for i = 1, #enemies.yards40 do
+
+        local thisUnit = enemies.yards40[i]
+        if debuff.pheromoneBomb.exists(thisUnit) then
+            return true
+        end
+    end
+    
+    return false
+end
+
+local function getLowestBloodseeker()
+    local lowestUnit = nil
+
+    for i = 1, #enemies.yards40 do
+        local thisUnit = enemies.yards40[i]
+        if lowestUnit == nil or debuff.bloodseeker.remains(thisUnit, "pet") < debuff.bloodseeker.remains(lowestUnit, "pet") or debuff.bloodseeker.remains(thisUnit, "pet") == debuff.bloodseeker.remains(lowestUnit, "pet") and (unit.distance(lowestUnit) > 12 or unit.health(thisUnit) > unit.health(lowestUnit) and unit.distance(thisUnit) <= 12) then
+            lowestUnit = thisUnit
+        end
+    end
+
+    return lowestUnit
+end
+
+local function getLowestBloodseekerWithPheromone()
+    local lowestUnit = nil
+
+    for i = 1, #enemies.yards40 do
+        local thisUnit = enemies.yards40[i]
+        if debuff.pheromoneBomb.exists(thisUnit) and (lowestUnit == nil or debuff.bloodseeker.remains(thisUnit, "pet") < debuff.bloodseeker.remains(lowestUnit, "pet") or debuff.bloodseeker.remains(thisUnit, "pet") == debuff.bloodseeker.remains(lowestUnit, "pet") and (unit.distance(lowestUnit) > 12 or unit.health(thisUnit) > unit.health(lowestUnit) and unit.distance(thisUnit) <= 12)) then
+            lowestUnit = thisUnit
+        end
+    end
+
+    return lowestUnit
+end
+
+local function getLowestSerpentSting()
+    local lowestUnit = nil
+
+    for i = 1, #enemies.yards40f do
+        local thisUnit = enemies.yards40f[i]
+        if lowestUnit == nil or debuff.serpentSting.remains(thisUnit) < debuff.serpentSting.remains(lowestUnit) and unit.ttd(thisUnit) > 7 then
+            lowestUnit = thisUnit
+        end
+    end
+
+    return lowestUnit
+end
+
+local function getMaxLatentPoison()
+    local maxLatentPoison = nil
+
+    if buff.aspectOfTheEagle.exists() then
+        for i = 1, #enemies.yards40f do
+            local thisUnit = enemies.yards40f[i]
+            if maxLatentPoison == nil or debuff.latentPoison.stack(thisUnit) > debuff.latentPoison.stack(maxLatentPoison) then
+                maxLatentPoison = thisUnit
+            end
+        end
+    else
+        for i = 1, #enemies.yards5f do
+            local thisUnit = enemies.yards5f[i]
+            if maxLatentPoison == nil or debuff.latentPoison.stack(thisUnit) > debuff.latentPoison.stack(maxLatentPoison) then
+                maxLatentPoison = thisUnit
+            end
+        end
+    end
+
+    return maxLatentPoison
+end
+
 --Kill Shot
 actionList.killShot = function()
     for i = 1, #enemies.yards40 do
@@ -283,7 +356,6 @@ actionList.killShot = function()
 
     return false
 end
-
 
 --CCs
 actionList.CCs = function()
@@ -552,11 +624,11 @@ actionList.Cleave = function()
         if cast.killCommand(var.lowestBloodseeker) then return true end
     end
     --actions.cleave+=/wildfire_bomb,if=!dot.wildfire_bomb.ticking&!set_bonus.tier28_2pc|charges_fractional>1.3
-    if cast.able.wildfireBomb(units.dyn40, "cone", 1, 8) and (not debuff.wildfireBomb.exists(units.dyn40) and not var.hasTierBonus or charges.wildfireBomb.frac() > 1.3) then
+    if cast.able.wildfireBomb(units.dyn40, "cone", 1, 8) and (not var.hasTierBonus and not debuff.wildfireBomb.exists(units.dyn40) or charges.wildfireBomb.frac() > 1.3) then
         if cast.wildfireBomb(units.dyn40, "cone", 1, 8) then return true end
     end
     --actions.cleave+=/butchery,if=(!next_wi_bomb.shrapnel|!talent.wildfire_infusion.enabled)&cooldown.wildfire_bomb.full_recharge_time>spell_targets%2
-    if talent.butchery and cast.able.butchery("player", "aoe", 1, 8) and (not nextBomb(spell.shrapnelBomb) or not talent.wildfireInfusion) and charges.wildfireBomb.timeTillFull() > #enemies.yards8t / 2 then
+    if talent.butchery and cast.able.butchery("player", "aoe", 1, 8) and (not talent.wildfireInfusion or not nextBomb(spell.shrapnelBomb)) and charges.wildfireBomb.timeTillFull() > #enemies.yards8t / 2 then
         if cast.butchery("player", "aoe", 1, 8) then return true end
     end
     --actions.cleave+=/a_murder_of_crows
@@ -600,7 +672,7 @@ actionList.St = function()
         if cast.deathChakram("target") then return true end
     end
     --actions.st+=/serpent_sting,target_if=min:remains,if=!dot.serpent_sting.ticking&target.time_to_die>7&(!dot.pheromone_bomb.ticking|buff.mad_bombardier.up&next_wi_bomb.pheromone)|buff.vipers_venom.up&buff.vipers_venom.remains<gcd|!set_bonus.tier28_2pc&!dot.serpent_sting.ticking&target.time_to_die>7
-    if cast.able.serpentSting(var.lowestSerpentSting) and (not debuff.serpentSting.exists(var.lowestSerpentSting) and unit.ttd(var.lowestSerpentSting) > 7 and (not debuff.pheromoneBomb.exists(var.lowestSerpentSting) or buff.madBombardier.exists() and nextBomb(spell.pheromoneBomb)) or buff.vipersVenom.exists() and buff.vipersVenom.remains() < unit.gcd(true) or not var.hasTierBonus and not debuff.serpentSting.exists(var.lowestSerpentSting) and unit.ttd(var.lowestSerpentSting) > 7) then
+    if cast.able.serpentSting(var.lowestSerpentSting) and (not debuff.serpentSting.exists(var.lowestSerpentSting) and unit.ttd(var.lowestSerpentSting) > 7 and (not var.isPheromoneUp or buff.madBombardier.exists() and nextBomb(spell.pheromoneBomb)) or buff.vipersVenom.exists() and buff.vipersVenom.remains() < unit.gcd(true) or not var.hasTierBonus and not debuff.serpentSting.exists(var.lowestSerpentSting) and unit.ttd(var.lowestSerpentSting) > 7) then
         if cast.serpentSting(var.lowestSerpentSting) then return true end
     end
     --actions.st+=/flayed_shot
@@ -627,13 +699,13 @@ actionList.St = function()
     if talent.aMurderOfCrows and ui.alwaysCdAoENever("A Murder of Crows", 3, #var.eagleEnemies) and cast.able.aMurderOfCrows("target") then
         if cast.aMurderOfCrows("target") then return true end
     end
-    --actions.st+=/wildfire_bomb,if=full_recharge_time<2*gcd&set_bonus.tier28_2pc|buff.mad_bombardier.up|!set_bonus.tier28_2pc&(full_recharge_time<gcd|focus+cast_regen<focus.max&(next_wi_bomb.volatile&dot.serpent_sting.ticking&dot.serpent_sting.refreshable|next_wi_bomb.pheromone&!buff.mongoose_fury.up&focus+cast_regen<focus.max-action.kill_command.cast_regen*3)|time_to_die<10)
+    --actions.st+=/wildfire_bomb,if=full_recharge_time<2*gcd&set_bonus.tier28_2pc|buff.mad_bombardier.up|!set_bonus.tier28_2pc&(full_recharge_time<gcd|focus+cast_regen<focus.max&(next_wi_bomb.volatile&dot.serpent_sting.ticking&dot.serpent_sting.refreshable|next_wi_bomb.pheromone&!buff.mongoose_fury.up&focus+cast_regen<focus.max-action.kill_command.cast_regen*3)|time_to_die<10) 
     if cast.able.wildfireBomb(units.dyn40, "cone", 1, 8) and (charges.wildfireBomb.timeTillFull() < 2 * unit.gcd(true) and var.hasTierBonus or buff.madBombardier.exists() or not var.hasTierBonus and (charges.wildfireBomb.timeTillFull() < unit.gcd(true) or focus + cast.regen.wildfireBomb() < focusMax and (nextBomb(spell.volatileBomb) and debuff.serpentSting.exists(units.dyn40) and debuff.serpentSting.refresh(units.dyn40) or nextBomb(spell.pheromoneBomb) and not buff.mongooseFury.exists() and focus + cast.regen.wildfireBomb() < focusMax - cast.regen.killCommand() * 3) or unit.ttd(units.dyn40) < 10)) then
         if cast.wildfireBomb(units.dyn40, "cone", 1, 8) then return true end
     end
     --actions.st+=/kill_command,target_if=min:bloodseeker.remains,if=set_bonus.tier28_2pc&dot.pheromone_bomb.ticking&!buff.mad_bombardier.up
-    if cast.able.killCommand(var.lowestBloodseeker) and unit.distance("pet", var.lowestBloodseeker) < 50 and var.hasTierBonus and debuff.pheromoneBomb.exists(var.lowestBloodseeker) and not buff.madBombardier.exists() then
-        if cast.killCommand(var.lowestBloodseeker) then return true end
+    if cast.able.killCommand(var.pheromoneUnit) and unit.distance("pet", var.pheromoneUnit) < 50 and var.hasTierBonus and debuff.pheromoneBomb.exists(var.pheromoneUnit) and not buff.madBombardier.exists() then
+        if cast.killCommand(var.pheromoneUnit) then return true end
     end
     --actions.st+=/kill_shot
     if actionList.killShot() then return true end
@@ -808,7 +880,6 @@ end
 actionList.Missdirection = function()
     if ui.mode.misdirection == 2 or not cast.able.misdirection() then return false end
     
-
     local misdirectUnit = nil
     if unit.valid("target") and unit.distance("target") < 40 and not buff.playDead.exists("pet") then
         -- Misdirect to Tank
@@ -868,6 +939,7 @@ local function runRotation()
     units.get(40)
     -- Enemies
     enemies.get(5)
+    enemies.get(5, "player", false, true)
     enemies.get(5, "pet")
     enemies.get(8)
     enemies.get(8, "player", false, true)
@@ -881,16 +953,17 @@ local function runRotation()
     enemies.rect.get(10, 40, false)
     -- General Locals
     var.hasTierBonus                              = br.TierScan("T28") >= 2
+    var.isPheromoneUp                             = isPheromoneUp()
     var.haltProfile                               = unit.mounted() or unit.flying() or ui.pause() or buff.feignDeath.exists() or ui.mode.rotation == 3
     -- Profile Specific Locals
     var.singleTarget                             = ui.mode.rotation == 2
     var.eagleRange                               = buff.aspectOfTheEagle.exists() and 40 or 5
     var.eagleEnemies                             = buff.aspectOfTheEagle.exists() and enemies.yards40 or enemies.yards5
-    var.lowestBloodseeker                        = var.singleTarget and "target" or debuff.bloodseeker.lowest(40, "remain") or "target"
-    var.lowestSerpentSting                       = var.singleTarget and "target" or debuff.serpentSting.lowest(40, "remain") or "target"
+    var.lowestBloodseeker                        = var.singleTarget and "target" or debuff.bloodseeker.lowest(40, "remain", "pet") or "target"
+    var.lowestSerpentSting                       = var.singleTarget and "target" or getLowestSerpentSting() or "target"
     var.maxLatentPoison                          = var.singleTarget and "target" or debuff.latentPoison.max(var.eagleRange, "stack") or "target"
     var.spiritUnits                              = ui.useCDs() and 1 or 3
-    var.pheromoneUnit                            = var.singleTarget and "target" or debuff.pheromoneBomb.max(40, "remain") or "target"
+    var.pheromoneUnit                            = var.singleTarget and "target" or getLowestBloodseekerWithPheromone() or "target"
 
     if var.haltProfile then return true end
 
