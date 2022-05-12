@@ -241,8 +241,8 @@ local function nextBomb(nextBomb)
 end
 
 local function isFreezingTrapActive()
-    for i = 1, #enemies.yards40f do
-        local thisUnit = enemies.yards40f[i]
+    for i = 1, #enemies.yards40 do
+        local thisUnit = enemies.yards40[i]
         if debuff.freezingTrap.exists(thisUnit, "player") then
             return true
         end
@@ -252,8 +252,8 @@ local function isFreezingTrapActive()
 end
 
 local function getMobToCc(mobID, minHP, spellID)
-    for i = 1, #enemies.yards40f do
-        local thisUnit = enemies.yards40f[i]
+    for i = 1, #enemies.yards40 do
+        local thisUnit = enemies.yards40[i]
         if not br.isLongTimeCCed(thisUnit) and (mobID == nil or unit.id(thisUnit) == mobID) and (minHP == nil or minHP <= unit.hp(thisUnit)) and (spellID == nil or br.getDebuffDuration(thisUnit, spellID, "player") > 0) then
             return thisUnit
         end
@@ -289,7 +289,7 @@ local function getLowestBloodseeker()
 
     for i = 1, #enemies.yards40 do
         local thisUnit = enemies.yards40[i]
-        if lowestUnit == nil or debuff.bloodseeker.remains(thisUnit, "pet") < debuff.bloodseeker.remains(lowestUnit, "pet") or debuff.bloodseeker.remains(thisUnit, "pet") == debuff.bloodseeker.remains(lowestUnit, "pet") and (unit.distance(lowestUnit) > 12 or unit.health(thisUnit) > unit.health(lowestUnit) and unit.distance(thisUnit) <= 12) then
+        if unit.distance(thisUnit, "pet") < 40 and (lowestUnit == nil or debuff.bloodseeker.remains(thisUnit, "pet") < debuff.bloodseeker.remains(lowestUnit, "pet") or debuff.bloodseeker.remains(thisUnit, "pet") == debuff.bloodseeker.remains(lowestUnit, "pet") and (unit.distance(lowestUnit) > 12 or unit.health(thisUnit) > unit.health(lowestUnit) and unit.distance(thisUnit) <= 12)) then
             lowestUnit = thisUnit
         end
     end
@@ -302,7 +302,7 @@ local function getLowestBloodseekerWithPheromone()
 
     for i = 1, #enemies.yards40 do
         local thisUnit = enemies.yards40[i]
-        if debuff.pheromoneBomb.exists(thisUnit) and (lowestUnit == nil or debuff.bloodseeker.remains(thisUnit, "pet") < debuff.bloodseeker.remains(lowestUnit, "pet") or debuff.bloodseeker.remains(thisUnit, "pet") == debuff.bloodseeker.remains(lowestUnit, "pet") and (unit.distance(lowestUnit) > 12 or unit.health(thisUnit) > unit.health(lowestUnit) and unit.distance(thisUnit) <= 12)) then
+        if unit.distance(thisUnit, "pet") < 40 and (debuff.pheromoneBomb.exists(thisUnit) and (lowestUnit == nil or debuff.bloodseeker.remains(thisUnit, "pet") < debuff.bloodseeker.remains(lowestUnit, "pet") or debuff.bloodseeker.remains(thisUnit, "pet") == debuff.bloodseeker.remains(lowestUnit, "pet") and (unit.distance(lowestUnit) > 12 or unit.health(thisUnit) > unit.health(lowestUnit) and unit.distance(thisUnit) <= 12))) then
             lowestUnit = thisUnit
         end
     end
@@ -935,19 +935,19 @@ local function runRotation()
     -- Units
     units.get(5)
     units.get(15)
-    units.get(30)
+    --units.get(30)
     units.get(40)
     -- Enemies
     enemies.get(5)
     enemies.get(5, "player", false, true)
-    enemies.get(5, "pet")
+    --enemies.get(5, "pet")
     enemies.get(8)
     enemies.get(8, "player", false, true)
     enemies.get(8, "target")
     enemies.get(12)
     enemies.get(12, "target")
     enemies.get(15)
-    enemies.get(30)
+    --enemies.get(30)
     enemies.get(40)
     enemies.get(40, "player", false, true)
     enemies.rect.get(10, 40, false)
@@ -959,7 +959,7 @@ local function runRotation()
     var.singleTarget                             = ui.mode.rotation == 2
     var.eagleRange                               = buff.aspectOfTheEagle.exists() and 40 or 5
     var.eagleEnemies                             = buff.aspectOfTheEagle.exists() and enemies.yards40 or enemies.yards5
-    var.lowestBloodseeker                        = var.singleTarget and "target" or debuff.bloodseeker.lowest(40, "remain", "pet") or "target"
+    var.lowestBloodseeker                        = var.singleTarget and "target" or getLowestBloodseeker() or "target"
     var.lowestSerpentSting                       = var.singleTarget and "target" or getLowestSerpentSting() or "target"
     var.maxLatentPoison                          = var.singleTarget and "target" or debuff.latentPoison.max(var.eagleRange, "stack") or "target"
     var.spiritUnits                              = ui.useCDs() and 1 or 3
