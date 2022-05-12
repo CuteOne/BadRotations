@@ -120,6 +120,20 @@ local function createOptions()
             -- Interrupt Percentage
             br.ui:createSpinner(section, "Interrupt At",  0,  0,  95,  5,  "|cffFFFFFFCast Percent to Cast At")
         br.ui:checkSectionState(section)
+        -- CCs Options
+        section = br.ui:createSection(br.ui.window.profile, "CCs")
+            br.ui:createText(section, "Dungeon boss mechanics")
+            cMistcaller = br.ui:createCheckbox(section, "Mists of Tirna Scithe (Mistcaller - Illusionary Vulpin)", "Cast Freezing Trap on Illusionary Vulpin")
+            cGlobgrog = br.ui:createCheckbox(section,"Plaguefall (Globgrog - Slimy Smorgasbord)", "Cast Freezing Trap on Slimy Smorgasbord")
+            cBlightbone =br.ui:createCheckbox(section,"The Necrotic Wake (Blightbone  - Carrion Worms)", "Cast Binding Shot on Carrion Worms")
+            br.ui:createText(section, "Dungeon trash mechanics")
+            cGorgon = br.ui:createCheckbox(section,"Halls of Atonement (Vicious Gargon, Loyal Beasts)", "Cast Binding Shot on Vicious Gargon with Loyal Beasts")
+            cDefender = br.ui:createCheckbox(section,"Plaguefall (Defender of Many Eyes, Bulwark of Maldraxxus)", "Cast Freezing Trap on Defender of Many Eyes with Bulwark of Maldraxxus")
+            cSlimeclaw = br.ui:createCheckbox(section,"Plaguefall (Rotting Slimeclaw)", "Cast Binding Shot on Rotting Slimeclaw with 20% hp")
+            cRefuse = br.ui:createCheckbox(section,"Theater of Pain (Disgusting Refuse)", "Cast Binding Shot on Disgusting Refuse to avoid jumping around")
+            br.ui:createText(section, "M+ affixs")
+            cSpiteful = br.ui:createCheckbox(section,"Spiteful affix", "Cast Binding Shot & Tar Trap on Spiteful")
+        br.ui:checkSectionState(section)
         -- Toggle Key Options
         section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
             -- Single/Multi Toggle
@@ -363,31 +377,46 @@ actionList.CCs = function()
 
     if br.getCurrentZoneId() == maps.instanceIDs.Plaguefall then
         if not isFreezingTrapActive() then
-            if cast.freezingTrap(getMobToCc(171887), "groundCC") then return true end
-            if cast.freezingTrap(getMobToCc(163862, nil, 336449), "groundCC") then return true end
+            if cGlobgrog.value then
+                if cast.freezingTrap(getMobToCc(171887), "groundCC") then return true end
+            end
+            if cDefender.value then
+                if cast.freezingTrap(getMobToCc(163862, nil, 336449), "groundCC") then return true end
+            end
         end
-        if cast.bindingShot(getMobToCc(163892, 25), "groundCC") then return true end
+        if cSlimeclaw.value then
+            if cast.bindingShot(getMobToCc(163892, 25), "groundCC") then return true end
+        end
     end
     
     if br.getCurrentZoneId() == maps.instanceIDs.MistsOfTirnaScithe then
-        if cast.freezingTrap(getMobToCc(165251), "groundCC") then return true end
+        if cMistcaller.value then
+            if cast.freezingTrap(getMobToCc(165251), "groundCC") then return true end
+        end
     end
     
     if br.getCurrentZoneId() == maps.instanceIDs.TheNecroticWake then
-        if cast.bindingShot(getMobToCc(164702), "groundCC") then return true end
+        if cBlightbone.value then
+            if cast.bindingShot(getMobToCc(164702), "groundCC") then return true end
+        end
     end
     
     if br.getCurrentZoneId() == maps.instanceIDs.TheaterOfPain then
-        if cast.bindingShot(getMobToCc(163089), "groundCC") then return true end
+        if cRefuse.value then
+            if cast.bindingShot(getMobToCc(163089), "groundCC") then return true end
+        end
     end
     
     if br.getCurrentZoneId() == maps.instanceIDs.HallsOfAtonement then
-        if cast.bindingShot(getMobToCc(164563, nil, 326450), "groundCC") then return true end
+        if cGorgon.value then
+            if cast.bindingShot(getMobToCc(164563, nil, 326450), "groundCC") then return true end
+        end
     end
 
-    if cast.bindingShot(getMobToCc(174773), "groundCC") then return true end
-
-    if cast.tarTrap(getMobToCc(174773), "groundCC") then return true end
+    if cSpiteful.value then
+        if cast.bindingShot(getMobToCc(174773), "groundCC") then return true end
+        if cast.tarTrap(getMobToCc(174773), "groundCC") then return true end
+    end
 
     return false
 end
