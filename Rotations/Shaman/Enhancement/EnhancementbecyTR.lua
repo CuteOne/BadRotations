@@ -63,8 +63,8 @@ local function createOptions()
             -- Water Walking
             br.ui:createCheckbox(section,"Water Walking")
             -- Weapon Imbues
-            br.ui:createCheckbox(section,"Windfury Weapon")
-            br.ui:createCheckbox(section,"Flametongue Weapon")
+            br.ui:createCheckbox(section,"Windfury Weapon","",1)
+            br.ui:createCheckbox(section,"Flametongue Weapon","",1)
             -- Manual Windfury totem
             br.ui:createDropdown(section,"Windfury Totem Key", br.dropOptions.Toggle, 6,"|cff0070deSet key to hold down for Windfury Totem")
         br.ui:checkSectionState(section)
@@ -107,7 +107,7 @@ local function createOptions()
             br.ui:createSpinner(section, "Healing Surge",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
             br.ui:createSpinnerWithout(section, "Healing Surge OoC",  90,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
             -- Auto/Insta-Heal
-            br.ui:createDropdownWithout(section, "Heal Target", { "|cffFFDD11LowestHP", "|cffFFDD11Player"},  1,  "|cffFFFFFFSelect Target to Heal")
+            br.ui:createDropdownWithout(section, "Heal Target", { "|cffFFDD11LowestHP", "|cffFFDD11Player"},  2,  "|cffFFFFFFSelect Target to Heal")
             br.ui:createDropdownWithout(section, "Instant Behavior", {"|cff00FF00Always","|cffFFFF00Combat Only","|cffFF0000Never"}, 2, "|cffFFFFFFSelect how to use Instant Heal proc.")
             -- Healing Steam Totem
             br.ui:createSpinner(section, "Healing Stream Totem", 35, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
@@ -117,7 +117,7 @@ local function createOptions()
             br.ui:createSpinner(section, "Capacitor Totem - HP", 30, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
             br.ui:createSpinner(section, "Capacitor Totem - AoE", 5, 0, 10, 1, "|cffFFFFFFNumber of Units in 5 Yards to Cast At")
             -- Purge
-            br.ui:createCheckbox(section,"Purge")
+            br.ui:createCheckbox(section,"Purge","",1)
         br.ui:checkSectionState(section)
         -- Interrupt Options
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
@@ -227,6 +227,19 @@ actionList.Extras = function()
     end
     if ui.checked("Water Walking") and cast.able.waterWalking() and not unit.inCombat() and unit.swimming() and not buff.waterWalking.exists() then
         if cast.waterWalking() then ui.debug("Casting Water Walking") return true end
+    end
+    -- windfury_weapon
+    if ui.checked("Windfury Weapon") and cast.able.windfuryWeapon() and not unit.weaponImbue.exists(5401) then
+        if cast.windfuryWeapon("player") then ui.debug("Casting Windfury Weapon [Main Hand]") return true end
+    end
+    -- Flametongue Weapon
+    -- flametongue_weapon
+    if ui.checked("Flametongue Weapon") and cast.able.flametongueWeapon() and unit.dualWielding() and not unit.weaponImbue.exists(5400,true) then
+        if cast.flametongueWeapon("player") then ui.debug("Casting Flametongue Weapon [Off Hand]") return true end
+    end
+    -- lightning_shield
+    if (ui.value("Shields Up") == 1 or (ui.value("Shields Up") == 2 and not talent.earthShield)) and cast.able.lightningShield() and not buff.lightningShield.exists() then
+        if cast.lightningShield("player") then ui.debug("Casting Lightning Shield") return true end
     end
     br.debug.cpu:updateDebug(startTime,"rotation.profile.extras")
 end -- End Action List - Extras
@@ -371,10 +384,10 @@ actionList.AOE = function()
         if not debuff.flameShock.exists() and cast.able.primordialWave() then
         ui.debug("AOE5-1")
         cast.primordialWave()
-        end
         elseif cast.able.primordialWave(var.lowestFlameShock) then
         ui.debug("AOE5-2")           
         cast.primordialWave(var.lowestFlameShock)
+        end        
     end
     -- actions.aoe+=/windstrike,if=runeforge.deeply_rooted_elements.equipped&buff.crash_lightning.up
     if cast.able.windstrike() and buff.ascendance.exists() and runeforge.deeplyRootedElements.equiped and buff.crashLightning.exists() then
@@ -391,8 +404,8 @@ actionList.AOE = function()
         ui.debug("AOE8-1")
         cast.lavaLash()    
     elseif cast.able.lavaLash(var.lowestLashingFlames) and debuff.flameShock.exists(var.lowestLashingFlames) and (debuff.flameShock.count() < #enemies.yards40f and debuff.flameShock.count() < 6) then
-            ui.debug("AOE8-2")
-            cast.lavaLash(var.lowestLashingFlames)
+        ui.debug("AOE8-2")
+        cast.lavaLash(var.lowestLashingFlames)
     end    
     -- actions.aoe+=/flame_shock,if=!ticking
     if cast.able.flameShock() and not debuff.flameShock.exists(enemies.yards40) then
@@ -418,9 +431,9 @@ actionList.AOE = function()
         cast.frostShock()
     end
     -- actions.aoe+=/fae_transfusion,if=soulbind.grove_invigoration|soulbind.field_of_blossoms|runeforge.seeds_of_rampant_growth.equipped
-    if cast.able.faeTransfusion() and (IsSpellKnown(322721) or IsSpellKnown(319191) or runeforge.seedsOfRampantGrowth.equiped) then
+    if ui.alwaysCdNever("Covenant Ability") and cast.able.faeTransfusion("player","ground") and covenant.nightFae.active and not unit.moving("player") then
         ui.debug("AOE13")
-        cast.faeTransfusion()
+        cast.faeTransfusion("player","ground")
     end
     -- actions.aoe+=/crash_lightning,if=buff.crash_lightning.down&buff.primordial_wave.up&buff.maelstrom_weapon.stack<5
     if #enemies.yards8c > 0 and cast.able.crashLightning("player","cone",1,8) and not buff.crashLightning.exists() and buff.primordialWave.exists() and buff.maelstromWeapon.stack() < 5 then
@@ -533,7 +546,7 @@ actionList.AOE = function()
         end
     end
     -- actions.aoe+=/fae_transfusion
-    if ui.alwaysCdNever("Covenant Ability") and cast.able.faeTransfusion("player","ground") then
+    if ui.alwaysCdNever("Covenant Ability") and cast.able.faeTransfusion("player","ground") and not unit.moving("player") then
         ui.debug("AOE34")
         cast.faeTransfusion("player","ground")
     end
@@ -629,7 +642,7 @@ actionList.Single = function()
         end
     end
     -- actions.single+=/fae_transfusion,if=!runeforge.seeds_of_rampant_growth.equipped|cooldown.feral_spirit.remains>30
-    if ui.alwaysCdNever("Covenant Ability") and cast.able.faeTransfusion("player","ground") and (not runeforge.seedsOfRampantGrowth.equipped or cd.feralSpirits.remain() > 30) then
+    if ui.alwaysCdNever("Covenant Ability") and cast.able.faeTransfusion("player","ground") and (not runeforge.seedsOfRampantGrowth.equipped or cd.feralSpirits.remain() > 30) and not unit.moving("player") then
         cast.faeTransfusion("player","ground")
     end
     -- actions.single+=/stormstrike,if=talent.stormflurry.enabled&buff.stormbringer.up
@@ -928,12 +941,12 @@ local function runRotation()
                 end
                 -- Feral Spirit
                 -- feral_spirit
-                if ui.alwaysCdNever("Feral Spirit") and cast.able.feralSpirit() and unit.ttd("target") > 15 then
+                if ui.alwaysCdNever("Feral Spirit") and cast.able.feralSpirit() then
                     if cast.feralSpirit() then ui.debug("Casting Feral Spirit") return true end
                 end
                 -- Fae Transfusion
                 -- fae_transfusion,if=(talent.ascendance.enabled|runeforge.doom_winds.equipped)&(soulbind.grove_invigoration|soulbind.field_of_blossoms|active_enemies=1)
-                if ui.alwaysCdNever("Covenant Ability") and cast.able.faeTransfusion("player","ground") and (talent.ascendance or runeforge.doomWinds.equiped) and #enemies.yards5 == 1 then
+                if ui.alwaysCdNever("Covenant Ability") and cast.able.faeTransfusion("player","ground") and (talent.ascendance or runeforge.doomWinds.equiped) and (covenant.nightFae.active or #enemies.yards5 == 1) and not unit.moving("player") then
                     if cast.faeTransfusion("player","ground") then ui.debug("Casting Fae Transfusion") return true end
                 end
                 -- Ascendance
