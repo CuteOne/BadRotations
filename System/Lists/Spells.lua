@@ -1494,6 +1494,7 @@ br.lists.spells = {
                 surfaceTrot                 = 126311, -- Water Strider - Water Walking
                 updraft                     = 160007, -- Feathermane/Pterrordax - Slow Fall
                 volley                      = 260243,
+                wildSpirits                 = 328231,
             },
             conduits                        = {
                 bloodletting                = 341440,
