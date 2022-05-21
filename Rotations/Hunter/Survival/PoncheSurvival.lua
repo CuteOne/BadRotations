@@ -122,17 +122,20 @@ local function createOptions()
         br.ui:checkSectionState(section)
         -- CCs Options
         section = br.ui:createSection(br.ui.window.profile, "CCs")
-            br.ui:createText(section, "Dungeon boss mechanics")
-            cMistcaller = br.ui:createCheckbox(section, "Mists of Tirna Scithe (Mistcaller - Illusionary Vulpin)", "Cast Freezing Trap on Illusionary Vulpin")
-            cGlobgrog = br.ui:createCheckbox(section,"Plaguefall (Globgrog - Slimy Smorgasbord)", "Cast Freezing Trap on Slimy Smorgasbord")
-            cBlightbone =br.ui:createCheckbox(section,"The Necrotic Wake (Blightbone  - Carrion Worms)", "Cast Binding Shot on Carrion Worms")
-            br.ui:createText(section, "Dungeon trash mechanics")
-            cGorgon = br.ui:createCheckbox(section,"Halls of Atonement (Vicious Gargon, Loyal Beasts)", "Cast Binding Shot on Vicious Gargon with Loyal Beasts")
-            cDefender = br.ui:createCheckbox(section,"Plaguefall (Defender of Many Eyes, Bulwark of Maldraxxus)", "Cast Freezing Trap on Defender of Many Eyes with Bulwark of Maldraxxus")
-            cSlimeclaw = br.ui:createCheckbox(section,"Plaguefall (Rotting Slimeclaw)", "Cast Binding Shot on Rotting Slimeclaw with 20% hp")
-            cRefuse = br.ui:createCheckbox(section,"Theater of Pain (Disgusting Refuse)", "Cast Binding Shot on Disgusting Refuse to avoid jumping around")
+            br.ui:createText(section, "Mists of Tirna Scithe")
+            br.ui:createCheckbox(section, "Illusionary Vulpin", "Freezing Trap")
+            br.ui:createText(section, "Plaguefall")
+            br.ui:createCheckbox(section,"Slimy Smorgasbord", "Freezing Trap")
+            br.ui:createCheckbox(section,"Defender of Many Eyes", "Freezing Trap on Bulwark of Maldraxxus")
+            br.ui:createCheckbox(section,"Rotting Slimeclaw", "Binding Shot on 20% hp")
+            br.ui:createText(section, "The Necrotic Wake")
+            br.ui:createCheckbox(section,"Carrion Worms", "Binding Shot")
+            br.ui:createText(section, "Halls of Atonement")
+            br.ui:createCheckbox(section,"Vicious Gargon", "Binding Shot on Loyal Beasts")
+            br.ui:createText(section, "Theater of Pain")
+            br.ui:createCheckbox(section,"Disgusting Refuse", "Binding Shot")
             br.ui:createText(section, "M+ affixs")
-            cSpiteful = br.ui:createCheckbox(section,"Spiteful affix", "Cast Binding Shot & Tar Trap on Spiteful")
+            br.ui:createCheckbox(section,"Spiteful", "Binding Shot & Tar Trap")
         br.ui:checkSectionState(section)
         -- Toggle Key Options
         section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
@@ -377,43 +380,43 @@ actionList.CCs = function()
 
     if br.getCurrentZoneId() == maps.instanceIDs.Plaguefall then
         if not isFreezingTrapActive() then
-            if cGlobgrog.value then
+            if ui.checked("Slimy Smorgasbord") then
                 if cast.freezingTrap(getMobToCc(171887), "groundCC") then return true end
             end
-            if cDefender.value then
+            if ui.checked("Defender of Many Eyes") then
                 if cast.freezingTrap(getMobToCc(163862, nil, 336449), "groundCC") then return true end
             end
         end
-        if cSlimeclaw.value then
+        if ui.checked("Rotting Slimeclaw") then
             if cast.bindingShot(getMobToCc(163892, 25), "groundCC") then return true end
         end
     end
     
     if br.getCurrentZoneId() == maps.instanceIDs.MistsOfTirnaScithe then
-        if cMistcaller.value then
+        if ui.checked("Illusionary Vulpin") then
             if cast.freezingTrap(getMobToCc(165251), "groundCC") then return true end
         end
     end
     
     if br.getCurrentZoneId() == maps.instanceIDs.TheNecroticWake then
-        if cBlightbone.value then
+        if ui.checked("Carrion Worms") then
             if cast.bindingShot(getMobToCc(164702), "groundCC") then return true end
         end
     end
     
     if br.getCurrentZoneId() == maps.instanceIDs.TheaterOfPain then
-        if cRefuse.value then
+        if ui.checked("Disgusting Refuse") then
             if cast.bindingShot(getMobToCc(163089), "groundCC") then return true end
         end
     end
     
     if br.getCurrentZoneId() == maps.instanceIDs.HallsOfAtonement then
-        if cGorgon.value then
+        if ui.checked("Vicious Gargon") then
             if cast.bindingShot(getMobToCc(164563, nil, 326450), "groundCC") then return true end
         end
     end
 
-    if cSpiteful.value then
+    if ui.checked("Spiteful") then
         if cast.bindingShot(getMobToCc(174773), "groundCC") then return true end
         if cast.tarTrap(getMobToCc(174773), "groundCC") then return true end
     end
