@@ -772,6 +772,8 @@ actionList.Cooldowns = function()
                 end
             end
         end
+        -- Trinkets
+        module.BasicTrinkets()
         -- Feral Frenzy
         -- feral_frenzy,target_if=max:target.time_to_die,if=combo_points<3&target.time_to_die>7&!cooldown.tigers_fury.up|fight_remains<8&fight_remains>2
         if cast.able.feralFrenzy(var.maxTTDUnit) and comboPoints < 3 and unit.ttd(var.maxTTDUnit) > 7 and not cd.tigersFury.exists() then
@@ -862,8 +864,6 @@ actionList.Cooldowns = function()
                 end
             end
         end
-        -- Trinkets
-        module.BasicTrinkets()
     end -- End useCooldowns check
 end -- End Action List - Cooldowns
 
@@ -1012,7 +1012,7 @@ end -- End Action List - Finisher
 actionList.Filler = function()
     -- Rake
     -- rake,target_if=max:druid.rake.ticks_gained_on_refresh,if=variable.filler=1&dot.rake.pmultiplier<=1.2*persistent_multiplier
-    if cast.able.rake() and filler == 1 and range.dyn5
+    if cast.able.rake(var.maxRakeTicksGainUnit) and filler == 1 and range.dyn5
         and #enemies.yards5f < ui.value("Multi-DoT Limit")
         and debuff.rake.count() < ui.value("Multi-DoT Limit")
     then
@@ -1039,12 +1039,19 @@ actionList.Filler = function()
         if cast.moonfireFeral() then ui.debug("Casting Moonfire [Filler - 3]") return true end
     end
     -- Swipe
-    -- swipe,if=variable.filler=4
-    if cast.able.swipeCat("player","aoe",1,8) and filler == 4 and not talent.brutalSlash
-        and not unit.isExplosive("target") and range.dyn8AOE
+    if cast.able.swipeCat("player","aoe",1,8) and not talent.brutalSlash
+    and not unit.isExplosive("target") and range.dyn8AOE
     then
-        if cast.swipeCat("player","aoe",1,8) then ui.debug("Casting Swipe [Filler - 4]") return true end
+        -- swipe,if=variable.filler=4
+        if filler == 4 then
+            if cast.swipeCat("player","aoe",1,8) then ui.debug("Casting Swipe [Filler - 4]") return true end
+        end
+        -- swipe_cat,if=spell_targets.swipe_cat=1&!buff.clearcasting.up
+        if ui.useAOE(8,2) and not buff.clearcasting.exists() then
+            if cast.swipeCat("player","aoe",1,8) then ui.debug("Casting Swipe [Filler]") return true end
+        end
     end
+
     -- Shred
     -- shred,if=buff.sudden_ambush.down
     if cast.able.shred() and range.dyn5 and not buff.suddenAmbush.exists() then
@@ -1054,8 +1061,14 @@ end -- End Action List - Filler
 
 -- Action List - Stealth
 actionList.Stealth = function()
-    -- Rake
     -- pool_resource,for_next=1
+    -- Swipe
+    -- swipe_cat,if=buff.bs_inc.up&spell_targets.swipe_cat>3&runeforge.frenzyband
+    if (cast.able.swipeCat("player","aoe",3,8) or cast.pool.swipeCat()) and ui.useAOE(8,4) and runeforge.frenzyband.equiped then
+        if cast.pool.swipeCat() then return true end
+        if cast.swipeCat("player","aoe",3,8) then ui.debug("Casting Swiope [Stealth]") return true end
+    end
+    -- Rake
     -- rake,target_if=max:druid.rake.ticks_gained_on_refresh,if=(dot.rake.pmultiplier<1.5|refreshable)&druid.rake.ticks_gained_on_refresh>2|(persistent_multiplier>dot.rake.pmultiplier&buff.bs_inc.up&spell_targets.thrash_cat<3&covenant.necrolord)|buff.bs_inc.remains<1
     if (cast.able.rake() or cast.pool.rake())
         and debuff.rake.count() < ui.value("Multi-DoT Limit")
@@ -1566,7 +1579,7 @@ local function runRotation()
     end
     for i = 1, #enemies.yards8 do
         local thisUnit = enemies.yards8[i]
-        local thisTTD = unit.ttd(thisUnit)
+        local thisTTD = unit.ttd(thisUnit) or 99
         if not unit.isUnit("target",thisUnit) then
             -- Moonfire Feral Ticks to Gain
             ticksGain.moonfireFeral = debuff.moonfireFeral.exists(thisUnit) and (ticksGain.moonfireFeral + (var.moonfireFeralTicksTotal(thisUnit) - var.moonfireFeralTicksRemain(thisUnit))) or ticksGain.moonfireFeral + 8
