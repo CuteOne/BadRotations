@@ -154,6 +154,7 @@ local conduit
 local covenant
 local debuff
 local enemies
+local equiped
 local fury
 local module
 local runeforge
@@ -345,8 +346,8 @@ actionList.Cooldowns = function()
             end
             -- Elysian Decree
             -- elysian_decree
-            if cast.able.elysianDecree() then
-                if cast.elysianDecree() then ui.debug("Casting Elysian Decree") return true end
+            if cast.able.elysianDecree("best",nil,1,8) then
+                if cast.elysianDecree("best",nil,1,8) then ui.debug("Casting Elysian Decree") return true end
             end
         end
     end
@@ -370,7 +371,7 @@ end -- End Action List - PreCombat
 actionList.Normal = function()
     -- Infernal Strike
     -- infernal_strike
-    if ui.mode.mover == 1 and cast.able.infernalStrike() and charges.infernalStrike.count() == 2 and #enemies.yards5 > 0 then
+    if ui.mode.mover == 1 and cast.able.infernalStrike("player","ground",1,6) and charges.infernalStrike.count() == 2 and #enemies.yards5 > 0 then
         if cast.infernalStrike("player","ground",1,6) then ui.debug("Casting Infernal Strike") return true end
     end
     -- Bulk Extraction
@@ -385,8 +386,8 @@ actionList.Normal = function()
     end
     -- Fel Devastation
     -- fel_devastation
-    if ui.alwaysCdNever("Fel Devastation") and cast.able.felDevastation() then
-        if cast.felDevastation() then ui.debug("Casting Fel Devastation") return true end
+    if ui.alwaysCdNever("Fel Devastation") and cast.able.felDevastation("player","cone",1,8) and unit.hp(units.dyn5) > 10 then
+        if cast.felDevastation("player","cone",1,8) then ui.debug("Casting Fel Devastation") return true end
     end
     -- Soul Cleave
     -- soul_cleave,if=((talent.spirit_bomb.enabled&soul_fragments=0)|!talent.spirit_bomb.enabled)&((talent.fracture.enabled&fury>=55)|(!talent.fracture.enabled&fury>=70)|cooldown.fel_devastation.remains>target.time_to_die|(buff.metamorphosis.up&((talent.fracture.enabled&fury>=35)|(!talent.fracture.enabled&fury>=50))))
@@ -399,7 +400,7 @@ actionList.Normal = function()
     -- Immolation Aura
     -- immolation_aura,if=((variable.brand_build&cooldown.fiery_brand.remains>10)|!variable.brand_build)&fury<=90
     if ui.checked("Immolation Aura") and cast.able.immolationAura("player") and not buff.immolationAura.exists()
-        and ((var.brandBuild and cd.fieryBrand.remains() > 10) or not var.brandBuild) and fury <= 90 and #enemies.yards5 > 0
+        and ((var.brandBuild and cd.fieryBrand.remains() > 10) or not var.brandBuild) and (fury <= 90 or equiped.tier(28) >= 4) and #enemies.yards5 > 0
     then
         if cast.immolationAura("player") then ui.debug("Casting Immolation Aura") return true end
     end
@@ -417,7 +418,7 @@ actionList.Normal = function()
     end
     -- Sigil of Flame
     -- sigil_of_flame,if=!(covenant.kyrian.enabled&runeforge.razelikhs_defilement.equipped)
-    if ui.checked("Sigil of Flame") and cast.able.sigilOfFlame() and not unit.moving(units.dyn5) and #enemies.yards5 > 0
+    if ui.checked("Sigil of Flame") and cast.able.sigilOfFlame("best",false,1,8) and not unit.moving(units.dyn5) and #enemies.yards5 > 0
         and not (covenant.kyrian.enabled and runeforge.razelikhsDefilement.equiped)
     then
         if cast.sigilOfFlame("best",false,1,8) then ui.debug("Casting Sigil of Flame") return true end
@@ -497,6 +498,7 @@ local function runRotation()
     covenant                                      = br.player.covenant
     debuff                                        = br.player.debuff
     enemies                                       = br.player.enemies
+    equiped                                       = br.player.equiped
     fury                                          = br.player.power.fury.amount()
     module                                        = br.player.module
     runeforge                                     = br.player.runeforge
