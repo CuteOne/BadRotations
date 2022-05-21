@@ -1362,13 +1362,13 @@ local ActionList = {
         if #enemies.yards8 < 3 or Toggles.RotationModes:Sing() then
             -- actions.st=whirlingDragonPunch,if=raid_event.adds.in>cooldown.whirlingDragonPunch.duration*0.8 or raid_event.adds.up
             if talent.whirlingDragonPunch and FunctionsUtilities.IsSafeToWhirlingDragonPunch() and
-                cd.whirlingDragonPunch.ready() and cd.risingSunKick.exists() and
+                cd.whirlingDragonPunch.ready() and cd.risingSunKick.exists() and #enemies.yards8 >= 1 and 
                 cd.fistsOfFury.exists() then
                 debug("21")
                 return cast.whirlingDragonPunch(player)
             end
             -- actions.st+=/spinningCraneKick,if=combo_strike and buff.danceOfChiJi.up and (raid_event.adds.in>buff.danceOfChiJi.remains-2 or raid_event.adds.up)
-            if FunctionsUtilities.ComboStrike(spell.spinningCraneKick) and buff.danceOfChiJi.exists() then
+            if FunctionsUtilities.ComboStrike(spell.spinningCraneKick) and buff.danceOfChiJi.exists() and #enemies.yards8 >= 1 then
                 debug("22")
                 return cast.spinningCraneKick(player)
             end
@@ -1470,13 +1470,13 @@ local ActionList = {
         if #enemies.yards8 >= 3 or Toggles.RotationModes:Multi() then
             -- actions.aoe=whirlingDragonPunch
             if talent.whirlingDragonPunch and FunctionsUtilities.IsSafeToWhirlingDragonPunch() and
-                cd.whirlingDragonPunch.ready() and cd.risingSunKick.exists() and
+                cd.whirlingDragonPunch.ready() and cd.risingSunKick.exists() and #enemies.yards8 >= 1 and
                 cd.fistsOfFury.exists() then
                 debug("4")
                 return cast.whirlingDragonPunch(player)
             end
             -- actions.aoe+=/spinningCraneKick,if=combo_strike and (buff.danceOfChiJi.up or debuff.bonedustBrew_debuff.up)
-            if FunctionsUtilities.ComboStrike(spell.spinningCraneKick) and
+            if FunctionsUtilities.ComboStrike(spell.spinningCraneKick) and #enemies.yards8 >= 1 and
                 (buff.danceOfChiJi.exists() or
                     (chi >= 2 and buff.bonedustBrew.exists())) then
                 debug("5")
@@ -1537,7 +1537,7 @@ local ActionList = {
             -- (chi>=5 or cooldown.fistsOfFury.remains>6 or cooldown.fistsOfFury.remains>3 and chi>=3
             -- and energyTimeToMax<1 or energyTimeToMax<=(3+3*cooldown.fistsOfFury.remains<5) or buff.stormEarthAndFire.up)
             if FunctionsUtilities.ComboStrike(spell.spinningCraneKick) and cd.bonedustBrew.remains() >
-                2 and
+                2 and #enemies.yards8 >= 1 and 
                 (chi >= 5 or cd.fistsOfFury.remains() > 6 or
                     cd.fistsOfFury.remains() > 3 and chi >= 3 and energyTimeToMax <
                     1 or energyTimeToMax <=
