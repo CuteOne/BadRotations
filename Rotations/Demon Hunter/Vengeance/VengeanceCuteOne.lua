@@ -381,12 +381,12 @@ actionList.Normal = function()
     end
     -- Spirit Bomb
     -- spirit_bomb,if=((buff.metamorphosis.up&talent.fracture.enabled&soul_fragments>=3)|soul_fragments>=4)
-    if cast.able.spiritBomb() and ((buff.metamorphosis.exists() and talent.fracture and buff.soulFragments.stack() >= 3) or buff.soulFragments.stack() >= 4) then
+    if cast.able.spiritBomb() and ((buff.metamorphosis.exists() and talent.fracture and buff.soulFragments.stack() >= 3) or buff.soulFragments.stack() >= 4) and cd.immolationAura.remains() > unit.gcd(true) then
         if cast.spiritBomb() then ui.debug("Casting Spirit Bomb") return true end
     end
     -- Fel Devastation
     -- fel_devastation
-    if ui.alwaysCdNever("Fel Devastation") and cast.able.felDevastation("player","cone",1,8) and unit.hp(units.dyn5) > 10 then
+    if ui.alwaysCdNever("Fel Devastation") and cast.able.felDevastation("player","cone",1,8) and unit.hp(units.dyn5) > 10 and cd.immolationAura.remains() > unit.gcd(true) then
         if cast.felDevastation("player","cone",1,8) then ui.debug("Casting Fel Devastation") return true end
     end
     -- Soul Cleave
