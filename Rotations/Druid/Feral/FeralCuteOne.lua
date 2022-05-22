@@ -280,7 +280,7 @@ end
 -- Multi-Dot HP Limit Set
 local function canDoT(thisUnit)
     local unitHealthMax = unit.healthMax(thisUnit)
-    if var.noDoT or not unit.exists(units.dyn5) then return false end
+    if var.noDoT or not unit.exists(thisUnit) then return false end
     if not unit.isBoss(thisUnit) and unit.facing("player",thisUnit)
         and (multidot or (unit.isUnit(thisUnit,units.dyn5) and not multidot))
         and not unit.charmed(thisUnit)
@@ -787,14 +787,14 @@ actionList.Cooldowns = function()
         -- Berserk/Incarnation
         -- berserk,if=dot.rip.ticking&(cooldown.convoke_the_spirits.up|cooldown.convoke_the_spirits.remains>32|fight_remains<20)
         -- incarnation,if=dot.rip.ticking&(cooldown.convoke_the_spirits.up|fight_remains<30)
-        if ui.checked("Berserk/Incarnation") and ui.useCDs() and range.dyn5 and comboPoints >= 3 and debuff.rake.exists(unit.dyn5) then
+        if ui.checked("Berserk/Incarnation") and ui.useCDs() and range.dyn5 and comboPoints >= 3 and debuff.rip.exists(unit.dyn5) then
             if cast.able.berserk() and not talent.incarnationKingOfTheJungle
-                and (not cd.convokeTheSpirits.exists() or cd.convokeTheSpirits.remain() > 32 or (unit.ttdGroup(5) < 20 and ui.useCDs()))
+                and (not cd.convokeTheSpirits.exists() or cd.convokeTheSpirits.remain() > 32 or (unit.ttdGroup(5) < 20 and ui.useCDs() and not unit.isDummy(units.dyn5)))
             then
                 if cast.berserk() then ui.debug("Casting Berserk") return true end
             end
             if cast.able.incarnationKingOfTheJungle() and talent.incarnationKingOfTheJungle
-                and (not cd.convokeTheSpirits.exists() or (unit.ttdGroup(5) < 20 and ui.useCDs()))
+                and (not cd.convokeTheSpirits.exists() or (unit.ttdGroup(5) < 20 and ui.useCDs() and not unit.isDummy(units.dyn5)))
             then
                 if cast.incarnationKingOfTheJungle() then ui.debug("Casting Incarnation: King of the Jungle") return true end
             end
@@ -845,9 +845,12 @@ actionList.Cooldowns = function()
         end
         -- Convoke the Spirits
         -- convoke_the_spirits,if=(dot.rip.remains>4&combo_points<5&(dot.rake.ticking|spell_targets.thrash_cat>1)&energy.deficit>=20&cooldown.bs_inc.remains>10)|fight_remains<5|(buff.bs_inc.up&buff.bs_inc.remains>12)
-        if ui.alwaysCdNever("Covenant Ability") and cast.able.convokeTheSpirits() and ((debuff.rip.remain(units.dyn5) > 4
-            and comboPoints < 5 and (debuff.rake.exists(units.dyn5,"EXACT") or #enemies.yards8 > 1) and energyDeficit >= 20 and (cd.berserk.remains() > 10 or cd.incarnationKingOfTheJungle.remains() > 10))
-                or (unit.ttdGroup(5) < 21 and ui.useCDs()) or ((buff.berserk.exists() and buff.berserk.remain() > 12) or (buff.incarnationKingOfTheJungle.exists() and buff.incarnationKingOfTheJungle.remain() > 12)))
+        if ui.alwaysCdNever("Covenant Ability") and cast.able.convokeTheSpirits()
+            and ((debuff.rip.remain(units.dyn5) > 4 and comboPoints < 5 and (debuff.rake.exists(units.dyn5,"EXACT") or #enemies.yards8 > 1) and energyDeficit >= 20
+            and (cd.berserk.remains() > 10 or cd.incarnationKingOfTheJungle.remains() > 10))
+                or (unit.ttdGroup(5) < 21 and ui.useCDs() and not unit.isDummy(units.dyn5))
+                or ((buff.berserk.exists() and buff.berserk.remain() > 12)
+                or (buff.incarnationKingOfTheJungle.exists() and buff.incarnationKingOfTheJungle.remain() > 12)))
         then
             if cast.convokeTheSpirits() then ui.debug("Casting Convoke the Spirits [Night Fae]") return true end
         end
@@ -951,21 +954,21 @@ actionList.Finisher = function()
     end
     -- Primal Wrath
     -- primal_wrath,if=(druid.primal_wrath.ticks_gained_on_refresh>3*(spell_targets.primal_wrath+1)&spell_targets.primal_wrath>1)|spell_targets.primal_wrath>(3+1*talent.sabertooth.enabled)
-    if usePrimalWrath() and range.dyn8AOE --and (not var.noDoT or #enemies.yards8 > 1)
+    if usePrimalWrath("player","aoe",1,8) and range.dyn8AOE --and (not var.noDoT or #enemies.yards8 > 1)
         and ((ticksGain.rip > 3 * (#enemies.yards8 + 1) and #enemies.yards8 > 1) or #enemies.yards8 > (3 + var.sabertooth))
     then
         if cast.primalWrath("player","aoe",1,8) then ui.debug("Casting Primal Wrath [Finish]") return true end
     end
     -- Rip
     -- rip,target_if=refreshable&druid.rip.ticks_gained_on_refresh>variable.rip_ticks&((buff.tigers_fury.up|!ticking)&(buff.bloodtalons.up|!talent.bloodtalons.enabled)|!talent.sabertooth.enabled)&(spell_targets.primal_wrath=1|!talent.primal_wrath.enabled)&(active_dot.rip=0|ticking&active_dot.rip=1|!runeforge.draught_of_deep_focus|!talent.sabertooth.enabled)
-    if cast.able.rip() and range.dyn5 and not var.noDoT
+    if range.dyn5 and not var.noDoT
         and #enemies.yards5f < ui.value("Multi-DoT Limit")
         and debuff.rip.count() < ui.value("Multi-DoT Limit")
         and not usePrimalWrath()
     then
         for i = 1, #enemies.yards5f do
             local thisUnit = enemies.yards5f[i]
-            if canDoT(thisUnit) then
+            if cast.able.rip(thisUnit) and canDoT(thisUnit) then
                 if debuff.rip.refresh(thisUnit) and ticksGain.rip > ripTicks and ((buff.tigersFury.exists() or not debuff.rip.exists(thisUnit))
                     and (buff.bloodtalons.exists() or not talent.bloodtalons) or not talent.sabertooth) and (#enemies.yards8 == 1 or not talent.primalWrath)
                     and (debuff.rip.count() == 0 or (debuff.rip.exists(thisUnit) and debuff.rip.count() == 1) or not runeforge.draughtOfDeepFocus or not talent.sabertooth)
@@ -982,10 +985,10 @@ actionList.Finisher = function()
     end
     -- Ferocious Bite
     -- ferocious_bite,max_energy=1,target_if=max:time_to_die
-    if cast.able.ferociousBite(var.lowestRipUnit) and var.fbMaxEnergy and range.dyn5 then
+    if cast.able.ferociousBite(var.lowestRipUnit) and var.fbMaxEnergy and range.dyn5 and (debuff.rip.exists(var.lowestRipUnit) or unit.level("player") < 21) then
         if cast.ferociousBite(var.lowestRipUnit) then
             if buff.apexPredatorsCraving.exists() then
-                ui.debug("Casting Ferocious Bite [Apex Predator's Craving]")
+                ui.debug("Casting Ferocious Bite [Finish - Apex Predator's Craving]")
             else
                 ui.debug("Casting Ferocious Bite [Finish]")
             end
@@ -1568,9 +1571,9 @@ local function runRotation()
     ticksGain.rake = not debuff.rake.exists("target","EXACT") and 5 or (var.rakeTicksTotal("target") - var.rakeTicksRemain("target"))
     ticksGain.moonfireFeral = not debuff.moonfireFeral.exists("target") and 8 or (var.moonfireFeralTicksTotal("target") - var.moonfireFeralTicksRemain("target"))
     var.lowestTTD = 999
-    var.lowestTTDUnit = "target"
+    var.lowestTTDUnit = units.dyn5
     var.maxTTD = 0
-    var.maxTTDUnit = "target"
+    var.maxTTDUnit = units.dyn5
     -- variable,name=best_rip,value=0,if=talent.primal_wrath.enabled
     if talent.primalWrath then
         var.ripTicksGain = 0
@@ -1844,7 +1847,7 @@ local function runRotation()
                         -- Shred
                         -- shred,if=buff.clearcasting.up&(buff.sudden_ambush.down&buff.shadowmeld.down|buff.bs_inc.up)
                         if cast.able.shred() and buff.clearcasting.exists() and ((not buff.suddenAmbush.exists() and not buff.shadowmeld.exists()) or (buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists())) then
-                            if cast.shred() then ui.debug("Casting Shred") return true end
+                            if cast.shred() then ui.debug("Casting Shred [Clearcasting]") return true end
                         end
                         -- Call Action List - Filler
                         -- call_action_list,name=filler
