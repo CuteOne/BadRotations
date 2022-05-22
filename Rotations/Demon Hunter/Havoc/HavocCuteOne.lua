@@ -328,26 +328,14 @@ actionList.Cooldowns = function()
             if cast.racial() then ui.debug("Casting Racial Ability") return true end
         end
         -- Metamorphosis
-        if ui.alwaysCdNever("Metamorphosis") and cast.able.metamorphosis() and #enemies.yards8 > 0 then
-            -- metamorphosis,landing_distance=10,if=!talent.demonic.enabled&covenant.venthyr.enabled&runeforge.agony_gaze&dot.sinful_brand.remains>8&spell_targets.metamorphosis_impact<2&(cooldown.eye_beam.remains>20|fight_remains<25)
-            -- metamorphosis,landing_distance=10,if=talent.demonic.enabled&covenant.venthyr.enabled&runeforge.agony_gaze&dot.sinful_brand.remains>8&spell_targets.metamorphosis_impact<2&(cooldown.eye_beam.remains>20&!variable.blade_dance|cooldown.blade_dance.remains>gcd.max|fight_remains<25)
-            if covenant.venthyr.enabled and runeforge.agonyGaze.equiped and debuff.sinfulBrand.remains(units.dyn5) > 8 and #enemies.yards8 < 2 then
-                if not talent.demonic and cd.eyeBeam.remain() > 20 then
-                    if cast.metamorphosis("player") then ui.debug("Casting Metamorphosis [Venthyr]") return true end
-                end
-                if talent.demonic and (cd.eyeBeam.remain() > 20 and not var.bladeDance or cd.bladeDance.remain() > gcd) then
-                    if cast.metamorphosis("player") then ui.debug("Casting Metamorphosis [Venthyr Demonic") return true end
-                end
+        if ui.alwaysCdNever("Metamorphosis") and cast.able.metamorphosis("player") and #enemies.yards8 > 0 then
+            -- metamorphosis,if=!talent.demonic.enabled&(cooldown.eye_beam.remains>20|fight_remains<25)
+            -- metamorphosis,if=talent.demonic.enabled&(cooldown.eye_beam.remains>20&(!variable.blade_dance|cooldown.blade_dance.remains>gcd.max)|fight_remains<25)
+            if not talent.demonic and cd.eyeBeam.remains() > 20 then
+                if cast.metamorphosis("player") then ui.debug("Casting Metamorphosis") return true end
             end
-            -- metamorphosis,if=!talent.demonic.enabled&(cooldown.eye_beam.remains>20&(!covenant.venthyr.enabled|dot.sinful_brand.remains<=8|spell_targets.metamorphosis_impact>1)|fight_remains<25)
-            -- metamorphosis,if=talent.demonic.enabled&(cooldown.eye_beam.remains>20&(!variable.blade_dance|cooldown.blade_dance.remains>gcd.max)&(!covenant.venthyr.enabled|dot.sinful_brand.remains<=8|spell_targets.metamorphosis_impact>1)|fight_remains<25)
-            if cd.eyeBeam.remains() > 20 and (not covenant.venthyr.enabled or debuff.sinfulBrand.remains(units.dyn5) <= 8 or #enemies.yards8 > 1) then
-                if not talent.demonic then
-                    if cast.metamorphosis("player") then ui.debug("Casting Metamorphosis") return true end
-                end
-                if talent.demonic and (not var.bladeDance or cd.bladeDance.remain() > gcd) then
-                    if cast.metamorphosis("player") then ui.debug("Casting Metamorphosis [Demonic]") return true end
-                end
+            if talent.demonic and cd.eyeBeam.remains() > 20 and (not var.bladeDance or cd.bladeDance.remain() > gcd) then
+                if cast.metamorphosis("player") then ui.debug("Casting Metamorphosis [Demonic]") return true end
             end
         end
         -- Potion
@@ -383,7 +371,7 @@ actionList.Cooldowns = function()
             end
             -- Elysian Decree
             -- elysian_decree,if=(active_enemies>desired_targets|raid_event.adds.in>30)
-            if cast.able.elysianDecree() and unit.standingTime() > 2
+            if cast.able.elysianDecree("best",nil,1,8) and unit.standingTime() > 2
                 and ((ui.mode.rotation == 1 and #enemies.yards8 >= ui.value("Units To AoE")) or ui.mode.rotation == 2 or ui.useCDs())
             then
                 if cast.elysianDecree("best",nil,1,8) then ui.debug("Casting Elysian Decree") return true end
@@ -528,6 +516,8 @@ actionList.Demonic = function()
     then
         if cast.felRush() then ui.debug("Casting Fel Rush [Out of Range]") return true end
     end
+    -- Vengeful Retreat
+    -- vengeful_retreat,if=movement.distance>15
     -- Throw Glaive
     -- throw_glaive,if=talent.demon_blades.enabled
     if ui.checked("Throw Glaive") and cast.able.throwGlaive() and talent.demonBlades then
