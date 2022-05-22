@@ -640,7 +640,6 @@ local function runRotation()
     enemies.get(8,"target")
     enemies.get(8,"player",false,true) -- makes enemies.yards8f
     enemies.get(20)
-    enemies.rect.get(10,20,false)
 
     ------------------------
     --- Custom Variables ---
@@ -746,15 +745,15 @@ local function runRotation()
             if cast.able.sweepingStrikes() and ui.useAOE(8,2) and (cd.bladestorm.remains() > 15 or talent.ravager) then
                 if cast.sweepingStrikes() then ui.debug("Casting Sweeping Strikes") return true end
             end
-            -- Run Action List - HAC
-            -- run_action_list,name=hac,if=raid_event.adds.exists
-            if ui.useAOE(8,3) then
-                if actionList.HAC() then return true end
-            end
             -- Run Action List - Execute
             -- run_action_list,name=execute,if=(talent.massacre.enabled&target.health.pct<35)|target.health.pct<20|(target.health.pct>80&covenant.venthyr)
             if (talent.massacre and unit.hp(units.dyn5) < 35) or unit.hp(units.dyn5) < 20 or (unit.hp() > 80 and covenant.venthyr.active) then
                 if actionList.Execute() then return true end
+            end
+            -- Run Action List - HAC
+            -- run_action_list,name=hac,if=raid_event.adds.exists
+            if ui.useAOE(8,3) then
+                if actionList.HAC() then return true end
             end
             -- Run Action List - Single Target
             -- run_action_list,name=single_target

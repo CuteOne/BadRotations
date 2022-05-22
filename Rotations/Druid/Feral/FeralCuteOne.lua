@@ -1047,11 +1047,10 @@ actionList.Filler = function()
             if cast.swipeCat("player","aoe",1,8) then ui.debug("Casting Swipe [Filler - 4]") return true end
         end
         -- swipe_cat,if=spell_targets.swipe_cat=1&!buff.clearcasting.up
-        if ui.useAOE(8,2) and not buff.clearcasting.exists() then
+        if ui.useAOE(8,1) and not buff.clearcasting.exists() then
             if cast.swipeCat("player","aoe",1,8) then ui.debug("Casting Swipe [Filler]") return true end
         end
     end
-
     -- Shred
     -- shred,if=buff.sudden_ambush.down
     if cast.able.shred() and range.dyn5 and not buff.suddenAmbush.exists() then
