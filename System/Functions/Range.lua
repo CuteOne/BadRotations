@@ -62,6 +62,18 @@ function br.getDistanceCalc(Unit1,Unit2,option)
     if (br.GetUnitIsUnit(Unit1,"player") or (br.GetObjectExists(Unit1) and br.GetUnitIsVisible(Unit1) == true))
         and (br.GetUnitIsUnit(Unit2,"player") or (br.GetObjectExists(Unit2) and br.GetUnitIsVisible(Unit2) == true))
     then
+        -- If melee spell is usable, ignore all other calcs
+        if meleeSpell ~= nil then
+            if Unit2 == "player" then
+                if br._G.IsSpellInRange(select(1,br._G.GetSpellInfo(meleeSpell)),Unit1) == 1 then
+                    return 0
+                end
+            else
+                if br._G.IsSpellInRange(select(1,br._G.GetSpellInfo(meleeSpell)),Unit2) == 1 then
+                    return 0
+                end
+            end
+        end
         local rangeMod = 0
         if br.player ~= nil then
             -- Modifier for Balance Affinity range change (Druid - Not Balance)
@@ -138,11 +150,6 @@ function br.getDistanceCalc(Unit1,Unit2,option)
         -- if currentDist < 100 and br.isKnown(193468) and option ~= "noMod" and (Unit1 == "player" or Unit2 == "player") then
         --     currentDist = currentDist - (currentDist * (GetMasteryEffect() / 100))
         -- end
-        if meleeSpell ~= nil then
-            if br._G.IsSpellInRange(select(1,br._G.GetSpellInfo(meleeSpell)),Unit2) == 1 then
-                currentDist = 0
-            end
-        end
     end
     return currentDist
 end
