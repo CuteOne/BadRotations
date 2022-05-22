@@ -59,12 +59,14 @@ function br.objectTracker()
             local objectid
             for i = 1, br._G.GetObjectCount() do
                 local object = br._G.GetObjectWithIndex(i)
-                if object ~= nil then
+                if object ~= nil and br._G.ObjectExists(object) and br._G.UnitIsVisible(object) then
                     objUnit = br._G.ObjectIsUnit(object)
                     name = objUnit and br._G.UnitName(object) or br._G.ObjectName(object)
                     objectid = br._G.ObjectID(object)
                     objectguid = br._G.UnitGUID(object)
-                    if object and name and objectid and objectguid then
+                    if object and name and objectid and objectguid --and br.isInOM(objectguid)
+                        and (not br._G.ObjectIsUnit(object) or not br.GetUnitIsDeadOrGhost(object))
+                    then
                         if br.isChecked("Rare Tracker") and not br.GetUnitIsDeadOrGhost(object) and
                             (br._G.UnitClassification(object) == "rare" or br._G.UnitClassification(object) == "rareelite")
                         then

@@ -136,14 +136,17 @@ function br.canInterrupt(unit,percentint)
 		if ((br.isChecked("Interrupt Only Whitelist") and (onWhitelist or not (br.player.instance=="party" or br.player.instance=="raid" or br.player.instance == "scenario")))
 			or not br.isChecked("Interrupt Only Whitelist"))
 		then
+			local ttd = br.getTTD(unit) or 0
+			local withinsCastPercent = math.ceil((castTimeRemain/castDuration)*100) <= castPercent
+			local willFinishCast = ttd > castTimeRemain
 			if castType == "spellcast" then
-				if math.ceil((castTimeRemain/castDuration)*100) <= castPercent and interruptable == true and br.getTTD(unit)>castTimeRemain then
+				if withinsCastPercent and interruptable == true and willFinishCast then
 					return true
 				end
 			end
 			if castType == "spellchannel" then
 				--if (GetTime() - castStartTime/1000) > channelDelay and interruptable == true then
-				if (br._G.GetTime() - castStartTime/1000) > (channelDelay-0.2 + math.random() * 0.4) and (math.ceil((castTimeRemain/castDuration)*100) <= castPercent or castPercent == 100) and interruptable == true and (br.getTTD(unit)>castTimeRemain or castPercent == 100) then
+				if (br._G.GetTime() - castStartTime/1000) > (channelDelay-0.2 + math.random() * 0.4) and (withinsCastPercent or castPercent == 100) and interruptable == true and (willFinishCast or castPercent == 100) then
 					return true
 				end
 			end

@@ -167,6 +167,9 @@ function br.BadRotationsUpdate(self)
                     if br.player ~= nil and br.rotationChanged then
                         br:saveLastProfileTracker()
                         br:loadSettings(nil, br.player.class, br.selectedSpec, br.selectedProfileName)
+                        br.ui:closeWindow("profile")
+                        br.player:createOptions()
+                        br.player:createToggles()
                     end
                     collectGarbage = true
                     br.rotationChanged = false

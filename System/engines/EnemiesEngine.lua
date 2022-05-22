@@ -37,7 +37,6 @@ if not br.metaTable2 then
 		if br.unitSetup.cache[unit] then return false end
 		if br.UnitDebuffID("player",295249) and br._G.UnitIsPlayer(unit) then return false end
 		if br.unitBlacklist[br.GetObjectID(unit)] then return false end
-		if unit == nil or br._G.UnitIsUnit("player", unit) or br._G.UnitIsFriend("player", unit) or br._G.UnitIsPlayer(unit) then return false end
 		local o = {}
 		setmetatable(o, br.unitSetup)
 		if unit and type(unit) == "string" then

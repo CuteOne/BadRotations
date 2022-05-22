@@ -332,7 +332,7 @@ br.api.unit = function(self)
     -- Time Till Death
     unit.ttd = function(thisUnit,percent)
         if thisUnit == nil then thisUnit = "target" end
-        return br.getTTD(thisUnit,percent)
+        return br.getTTD(thisUnit,percent) or 0
     end
     -- Time Till Death Group
     unit.ttdGroup = function(range,percent)
@@ -340,7 +340,7 @@ br.api.unit = function(self)
         local enemies = self.enemies.get(range)
         local groupTTD = 0
         for i = 1, #enemies do
-            groupTTD = groupTTD + br.getTTD(enemies[i],percent)
+            groupTTD = groupTTD + unit.ttd(enemies[i],percent)
         end
         return groupTTD
     end

@@ -31,6 +31,8 @@ local function unitExistsInOM(unit)
 	return exists
  end
 
+
+
 --Update OM
 function br:updateOM()
 	local om = br.om
@@ -39,10 +41,10 @@ function br:updateOM()
 	local total = br._G.GetObjectCount(true,"BR") or 0
 	for i = 1,total do
 		local thisUnit = br._G.GetObjectWithIndex(i)
-		if thisUnit ~= nil and br._G.ObjectIsUnit(thisUnit) and not unitExistsInOM(thisUnit) then
-			if not br._G.UnitIsUnit("player", thisUnit) and not br._G.UnitIsFriend("player", thisUnit) and not br._G.UnitIsPlayer(thisUnit) and not br.isCritter(thisUnit) and br.omDist(thisUnit) < 50 then
+		if br._G.IsGuid(thisUnit) and br._G.ObjectExists(thisUnit) and br._G.ObjectIsUnit(thisUnit) --[[and not unitExistsInOM(thisUnit) and br.omDist(thisUnit) < 50]] then
+			if not br._G.UnitIsPlayer(thisUnit) and not br.isCritter(thisUnit) and not br._G.UnitIsUnit("player", thisUnit) and not br._G.UnitIsFriend("player", thisUnit) then
 				local enemyUnit = br.unitSetup:new(thisUnit)
-				if enemyUnit then
+				if enemyUnit and not br.isInOM(enemyUnit) then
 					br._G.tinsert(om, enemyUnit)
 				end
 			end
@@ -52,6 +54,23 @@ function br:updateOM()
 	refreshStored = true
 	-- Debugging
     br.debug.cpu:updateDebug(startTime,"enemiesEngine.objects")
+
+	-- local counter = 0
+	-- local grappleCounter = 0
+	-- for i = 1, br._G.GetObjectCount(), 1 do
+	--    	local guid = br._G.GetObjectWithIndex(i)
+	--    	if IsGuid(guid) and br._G.ObjectExists(guid) and br._G.ObjectIsUnit(guid) and not unitExistsInOM(guid) and br.omDist(guid) < 50
+	--    		and not br._G.UnitIsUnit("player", guid) and not br._G.UnitIsFriend("player", guid) and not br._G.UnitIsPlayer(guid)
+	-- 	then
+	-- 		print(ObjectName(guid).." - "..guid)
+	-- 		counter = counter + 1
+	-- 		if ObjectName(guid) == "Grapple Point" then
+	-- 			grappleCounter = grappleCounter + 1
+	-- 		end
+	--    	end
+	-- end
+
+	-- br._G.print("OM Count: "..counter..", BR OM Count: "..#br.om..", Grapple Count: "..grappleCounter)
 end
 
 function br.omDist(thisUnit)
@@ -68,7 +87,9 @@ end
 function br.isInOM(thisUnit)
 	if #br.om == 0 then return false end
 	for i = 1, #br.om do
-		if br.om[i].guid == thisUnit then return true end
+		local thisX, thisY, thisZ = br._G.ObjectPosition(thisUnit)
+		local omX, omY, omZ = br._G.ObjectPosition(br.om[i].guid)
+		if --[[br.om[i].guid == thisUnit and]] thisX == omX and thisY == omY and thisZ == omZ then return true end
 	end
 	return false
 end
