@@ -150,7 +150,7 @@ br.rotations.support["PetCuteOne"] = {
         if --[[br.petTarget == "player" or]] (unit.exists("pettarget") and not unit.isUnit("pettarget",br.petTarget) and not unit.deadOrGhost(br.petTarget)) then
             -- Dynamic
             if ui.value("Pet Target") == 1 and units.dyn40 ~= nil
-                and (br.petTarget == "player" or (unit.exists("pettarget") and not unit.isUnit(units.dyn40,br.petTarget)))
+                and (br.petTarget == "target" or (unit.exists("pettarget") and not unit.isUnit(units.dyn40,br.petTarget)))
             then
                 br.petTarget = units.dyn40
                 -- if unit.exists(br.petTarget) then ui.debug("[Pet - Target Mode Dynamic] Pet is now targeting - "..unit.name(br.petTarget)) end
@@ -218,18 +218,21 @@ br.rotations.support["PetCuteOne"] = {
                 ui.debug("[Pet] Pet is now Assisting")
                 br._G.PetAssistMode()
             elseif (not unit.inCombat() or unit.valid(br.petTarget) or (unit.inCombat() and ui.value("Pet Target") ~= 4))
-                and (#enemies.yards20pnc > 0 or unit.valid(br.petTarget)) and not var.haltPetProfile  and petMode ~= "Defensive"
+                and (#enemies.yards20pnc > 0 or unit.valid(br.petTarget)) and not var.haltPetProfile and petMode ~= "Defensive"
+                and (petMode ~= "Assist" or not unit.inCombat("player"))
             then
                 ui.debug("[Pet] Pet is now Defending")
                 br._G.PetDefensiveAssistMode()
-            elseif petMode ~= "Passive" and ((not unit.inCombat() and #enemies.yards20pnc == 0 and not unit.valid(br.petTarget)) or var.haltPetProfile) then
+            elseif petMode ~= "Passive" and ((not unit.inCombat() and #enemies.yards20pnc == 0 and not unit.valid(br.petTarget)) or var.haltPetProfile)
+                and (not spell.known.fetch() or getLootableCount() == 0)
+            then
                 ui.debug("[Pet] Pet is now Passive")
                 br._G.PetPassiveMode()
             end
             -- Pet Attack / Retreat
             -- if br.petTarget == nil and unit.valid("target") then br.petTarget = "target" end
             if (br.petTarget ~= "target" or unit.valid(br.petTarget)) and not buff.playDead.exists("pet") and not var.haltPetProfile
-                and (not unit.exists("pettarget") or (unit.exists("pettarget") and not unit.isUnit("pettarget",br.petTarget)))
+                and ((not unit.exists("pettarget") and not unit.isUnit(currentTarget, br.petTarget)) or (unit.exists("pettarget") and not unit.isUnit("pettarget",br.petTarget)))
                 and ((not unit.inCombat() and not unit.inCombat("pet")) or (unit.casting("player") and unit.valid(br.petTarget) and unit.isUnit(br.petTarget,currentTarget))
                     or ((unit.inCombat() or unit.inCombat("pet")) and (currentTarget == nil or not unit.isUnit(br.petTarget,currentTarget))))
                 and unit.distance("target") < 40 and not unit.friend("target")
@@ -497,19 +500,23 @@ br.rotations.support["PetCuteOne"] = {
             if cast.dash("player") then ui.debug("[Pet] Cast Dash") return true end
         end
         -- Fetch
-        if ui.checked("Fetch") and not unit.inCombat() and not unit.inCombat("pet") and cast.able.fetch("pet")
-            and petExists and not br.deadPet and cast.timeSinceLast.fetch() > unit.gcd(true) and not buff.playDead.exists("pet")
+        if ui.checked("Fetch") and not unit.inCombat() and not unit.inCombat("pet") and cast.able.fetch("pet") and not cast.current.fetch("pet")
+            and petExists and not br.deadPet and cast.timeSinceLast.fetch() > unit.gcd(true) * 2 and not buff.playDead.exists("pet")
         then
             local lootCount = getLootableCount() or 0
-            if fetching and (fetchCount ~= lootCount or lootCount == 0) then fetching = false end
-            for k, _ in pairs(br.lootable) do
-                if br.lootable[k] ~= nil then
-                    local thisDistance = unit.distance(k)
-                    if thisDistance > 8 and thisDistance < 40 and not fetching then
-                        cast.fetch("pet")
-                        fetchCount = lootCount
-                        fetching = true
-                        break
+            if fetching and (--[[fetchCount ~= lootCount or]] lootCount == 0) then fetching = false end
+            if not fetching then
+                for k, _ in pairs(br.lootable) do
+                    if br.lootable[k] ~= nil then
+                        local thisDistance = unit.distance(k)
+                        if thisDistance > 8 and thisDistance < 40 then
+                            if cast.fetch("pet") then
+                                fetchCount = lootCount
+                                fetching = true
+                                ui.debug("[Pet] Cast Fetch")
+                                break
+                            end
+                        end
                     end
                 end
             end

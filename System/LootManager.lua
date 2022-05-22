@@ -88,7 +88,6 @@ function br.lootManager:emptySlots()
 end
 
 local looting = false
-local fetching = false
 function br.lootManager:getLoot(lootUnit)
 	-- if we have a unit to loot, check if its time to
 	if br.timer:useTimer("getLoot", br.getOptionValue("Auto Loot")) then
@@ -109,24 +108,11 @@ function br.lootManager:getLoot(lootUnit)
 					end
 				end
 			end
-		elseif
-			br.isChecked("Fetch") and (not br.isInCombat("player") or br.player.enemies.get(40)[1] == nil) and
-				br._G.UnitExists("pet") and
-				not br.deadPet and
-				br.getDistance(lootUnit) > 7 and
-				br.getDistance(lootUnit) < 40
-		 then
-			if not fetching then
-				fetching = true
-				br.lM:debug("Looting " .. br._G.UnitName(lootUnit))
-				br._G.CastSpellByName(br._G.GetSpellInfo(125050))
-			end
 		end
 		if not br.isInCombat("player") and looting then
 			br._G.ClearTarget()
 		end
 		looting = false
-		fetching = false
 		br.lM.lootUnit = nil
 		br.lootable = {}
 		return
