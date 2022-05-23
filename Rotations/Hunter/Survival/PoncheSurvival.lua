@@ -584,11 +584,11 @@ actionList.Cleave = function()
     end
     --actions.cleave+=/wild_spirits,if=!raid_event.adds.exists|raid_event.adds.remains>=10|active_enemies>=raid_event.adds.count*2
     if ui.alwaysCdAoENever("Covenant Ability", 3, #enemies.yards12t) and cast.able.wildSpirits("best", nil, var.spiritUnits, 12) then
-        if cast.wildSpirits("best", nil, var.spiritUnits, 12) then return true end
+        if cast.wildSpirits("best", nil, var.spiritUnits, 12, false, false, enemies.yards12t) then return true end
     end
     --actions.cleave+=/resonating_arrow,if=!raid_event.adds.exists|raid_event.adds.remains>=8|active_enemies>=raid_event.adds.count*2
-    if ui.alwaysCdAoENever("Covenant Ability", 3, #enemies.yards12t) and cast.able.resonatingArrow("best", nil, 1, 15) then
-        if cast.resonatingArrow("best", nil, 1, 15) then return true end
+    if ui.alwaysCdAoENever("Covenant Ability", 3, #enemies.yards12t) and cast.able.resonatingArrow("best", nil, 1, 15, false, false, enemies.yards12t) then
+        if cast.resonatingArrow("best", nil, 1, 15, false, false, enemies.yards12t) then return true end
     end
     --actions.cleave+=/coordinated_assault,if=!raid_event.adds.exists|raid_event.adds.remains>=10|active_enemies>=raid_event.adds.count*2
     if ui.alwaysCdAoENever("Coordinated Assault", 3, #var.eagleEnemies) and cast.able.coordinatedAssault() and unit.distance("target") < 5 then
@@ -711,12 +711,12 @@ actionList.St = function()
         if cast.flayedShot("target") then return true end
     end
     --actions.st+=/resonating_arrow,if=!raid_event.adds.exists|!raid_event.adds.up&(raid_event.adds.duration+raid_event.adds.in<20|raid_event.adds.count=1)|raid_event.adds.up&raid_event.adds.remains>40|time_to_die<10
-    if ui.alwaysCdAoENever("Covenant Ability", 3, #enemies.yards12t) and cast.able.resonatingArrow("best", nil, 1, 15) then
-        if cast.resonatingArrow("best", nil, 1, 15) then return true end
+    if ui.alwaysCdAoENever("Covenant Ability", 3, #enemies.yards12t) and cast.able.resonatingArrow("best", nil, 1, 15, false, false, enemies.yards12t) then
+        if cast.resonatingArrow("best", nil, 1, 15, false, false, enemies.yards12t) then return true end
     end
     --actions.st+=/wild_spirits,if=!raid_event.adds.exists|!raid_event.adds.up&raid_event.adds.duration+raid_event.adds.in<20|raid_event.adds.up&raid_event.adds.remains>20|time_to_die<20
-    if ui.alwaysCdAoENever("Covenant Ability", 3, #enemies.yards12t) and cast.able.wildSpirits("best", nil, var.spiritUnits, 12) then
-        if cast.wildSpirits("best", nil, var.spiritUnits, 12) then return true end
+    if ui.alwaysCdAoENever("Covenant Ability", 3, #enemies.yards12t) and cast.able.wildSpirits("best", nil, var.spiritUnits, 12, false, false, enemies.yards12t) then
+        if cast.wildSpirits("best", nil, var.spiritUnits, 12, false, false, enemies.yards12t) then return true end
     end
     --actions.st+=/coordinated_assault,if=!raid_event.adds.exists|covenant.night_fae&cooldown.wild_spirits.remains|!covenant.night_fae&(!raid_event.adds.up&raid_event.adds.duration+raid_event.adds.in<30|raid_event.adds.up&raid_event.adds.remains>20|!raid_event.adds.up)|time_to_die<30
     if ui.alwaysCdAoENever("Coordinated Assault", 3, #var.eagleEnemies) and cast.able.coordinatedAssault() then
@@ -877,12 +877,12 @@ actionList.BoP = function()
         if cast.serpentSting(var.lowestSerpentSting) then return true end
     end
     --actions.bop+=/resonating_arrow
-    if ui.alwaysCdAoENever("Covenant Ability", 3, #enemies.yards12t) and cast.able.resonatingArrow("best", nil, 1, 15) then
-        if cast.resonatingArrow("best", nil, 1, 15) then return true end
+    if ui.alwaysCdAoENever("Covenant Ability", 3, #enemies.yards12t) and cast.able.resonatingArrow("best", nil, 1, 15, false, false, enemies.yards12t) then
+        if cast.resonatingArrow("best", nil, 1, 15, false, false, enemies.yards12t) then return true end
     end
     --actions.bop+=/wild_spirits
-    if ui.alwaysCdAoENever("Covenant Ability", 3, #enemies.yards12t) and cast.able.wildSpirits("best", nil, var.spiritUnits, 12) then
-        if cast.wildSpirits("best", nil, var.spiritUnits, 12) then return true end
+    if ui.alwaysCdAoENever("Covenant Ability", 3, #enemies.yards12t) and cast.able.wildSpirits("best", nil, var.spiritUnits, 12, false, false, enemies.yards12t) then
+        if cast.wildSpirits("best", nil, var.spiritUnits, 12, false, false, enemies.yards12t) then return true end
     end
     --actions.bop+=/coordinated_assault,if=!buff.coordinated_assault.up
     if ui.alwaysCdAoENever("Coordinated Assault", 3, #var.eagleEnemies) and cast.able.coordinatedAssault() and not buff.coordinatedAssault.exists() and unit.distance("target") < 5 then
@@ -976,7 +976,6 @@ local function runRotation()
     enemies.get(12)
     enemies.get(12, "target")
     enemies.get(15)
-    --enemies.get(30)
     enemies.get(40)
     enemies.get(40, "player", false, true)
     enemies.rect.get(10, 40, false)
