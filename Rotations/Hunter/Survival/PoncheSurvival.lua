@@ -291,9 +291,8 @@ end
 
 local function isPheromoneUp()
     for i = 1, #enemies.yards40 do
-
         local thisUnit = enemies.yards40[i]
-        if debuff.pheromoneBomb.exists(thisUnit) then
+        if debuff.pheromoneBomb.exists(thisUnit, "player") then
             return true
         end
     end
@@ -306,7 +305,7 @@ local function getLowestBloodseeker()
 
     for i = 1, #enemies.yards40 do
         local thisUnit = enemies.yards40[i]
-        if unit.distance(thisUnit, "pet") < 40 and (lowestUnit == nil or debuff.bloodseeker.remains(thisUnit, "pet") < debuff.bloodseeker.remains(lowestUnit, "pet") or debuff.bloodseeker.remains(thisUnit, "pet") == debuff.bloodseeker.remains(lowestUnit, "pet") and (unit.distance(lowestUnit) > 12 or unit.health(thisUnit) > unit.health(lowestUnit) and unit.distance(thisUnit) <= 12)) then
+        if br._G.UnitAffectingCombat(thisUnit) and unit.distance(thisUnit, "pet") < 40 and (lowestUnit == nil or debuff.bloodseeker.remains(thisUnit, "pet") < debuff.bloodseeker.remains(lowestUnit, "pet") or debuff.bloodseeker.remains(thisUnit, "pet") == debuff.bloodseeker.remains(lowestUnit, "pet") and (unit.distance(lowestUnit) > 12 or unit.health(thisUnit) > unit.health(lowestUnit) and unit.distance(thisUnit) <= 12)) then
             lowestUnit = thisUnit
         end
     end
@@ -319,7 +318,7 @@ local function getLowestBloodseekerWithPheromone()
 
     for i = 1, #enemies.yards40 do
         local thisUnit = enemies.yards40[i]
-        if unit.distance(thisUnit, "pet") < 40 and (debuff.pheromoneBomb.exists(thisUnit) and (lowestUnit == nil or debuff.bloodseeker.remains(thisUnit, "pet") < debuff.bloodseeker.remains(lowestUnit, "pet") or debuff.bloodseeker.remains(thisUnit, "pet") == debuff.bloodseeker.remains(lowestUnit, "pet") and (unit.distance(lowestUnit) > 12 or unit.health(thisUnit) > unit.health(lowestUnit) and unit.distance(thisUnit) <= 12))) then
+        if br._G.UnitAffectingCombat(thisUnit) and unit.distance(thisUnit, "pet") < 40 and (debuff.pheromoneBomb.exists(thisUnit, "player") and (lowestUnit == nil or debuff.bloodseeker.remains(thisUnit, "pet") < debuff.bloodseeker.remains(lowestUnit, "pet") or debuff.bloodseeker.remains(thisUnit, "pet") == debuff.bloodseeker.remains(lowestUnit, "pet") and (unit.distance(lowestUnit) > 12 or unit.health(thisUnit) > unit.health(lowestUnit) and unit.distance(thisUnit) <= 12))) then
             lowestUnit = thisUnit
         end
     end
@@ -332,7 +331,7 @@ local function getLowestSerpentSting()
 
     for i = 1, #enemies.yards40f do
         local thisUnit = enemies.yards40f[i]
-        if lowestUnit == nil or debuff.serpentSting.remains(thisUnit) < debuff.serpentSting.remains(lowestUnit) and unit.ttd(thisUnit) > 7 then
+        if br._G.UnitAffectingCombat(thisUnit) and (lowestUnit == nil or debuff.serpentSting.remains(thisUnit, "player") < debuff.serpentSting.remains(lowestUnit, "player") and unit.ttd(thisUnit) > 7) then
             lowestUnit = thisUnit
         end
     end
@@ -346,14 +345,14 @@ local function getMaxLatentPoison()
     if buff.aspectOfTheEagle.exists() then
         for i = 1, #enemies.yards40f do
             local thisUnit = enemies.yards40f[i]
-            if maxLatentPoison == nil or debuff.latentPoison.stack(thisUnit) > debuff.latentPoison.stack(maxLatentPoison) then
+            if br._G.UnitAffectingCombat(thisUnit) and (maxLatentPoison == nil or debuff.latentPoison.stack(thisUnit, "player") > debuff.latentPoison.stack(maxLatentPoison, "player")) then
                 maxLatentPoison = thisUnit
             end
         end
     else
         for i = 1, #enemies.yards5f do
             local thisUnit = enemies.yards5f[i]
-            if maxLatentPoison == nil or debuff.latentPoison.stack(thisUnit) > debuff.latentPoison.stack(maxLatentPoison) then
+            if br._G.UnitAffectingCombat(thisUnit) and (maxLatentPoison == nil or debuff.latentPoison.stack(thisUnit, "player") > debuff.latentPoison.stack(maxLatentPoison, "player")) then
                 maxLatentPoison = thisUnit
             end
         end
@@ -967,12 +966,10 @@ local function runRotation()
     -- Units
     units.get(5)
     units.get(15)
-    --units.get(30)
     units.get(40)
     -- Enemies
     enemies.get(5)
     enemies.get(5, "player", false, true)
-    --enemies.get(5, "pet")
     enemies.get(8)
     enemies.get(8, "player", false, true)
     enemies.get(8, "target")
