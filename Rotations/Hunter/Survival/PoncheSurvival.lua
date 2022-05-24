@@ -75,7 +75,8 @@ local function createOptions()
         -- General Options
         section = br.ui:createSection(br.ui.window.profile, "General")
             -- Misdirection
-            br.ui:createDropdownWithout(section,"Misdirection", {"|cff00FF00Tank","|cffFFFF00Focus","|cffFF0000Pet"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
+            br.ui:createDropdownWithout(section,"Misdirection", {"|cff00FF00Tank","|cffFFFF00Focus","|cffFF0000Pet"}, 1, "|cffFFFFFFAbility target.")
+            br.ui:createSpinnerWithout(section, "Serpent Sting DoT Limit", 0, 0, 10, 1, "|cffFFFFFFUnit Count Limit that DoT will be cast on.")
         br.ui:checkSectionState(section)
         -- Pet Options
         br.rotations.support["PetCuteOne"].options()
@@ -649,7 +650,7 @@ actionList.Cleave = function()
         if cast.flayedShot("target") then return true end
     end
     --actions.cleave+=/serpent_sting,target_if=min:remains,if=refreshable&!ticking&next_wi_bomb.volatile&target.time_to_die>15&focus+cast_regen>35&active_enemies<=4
-    if cast.able.serpentSting(var.lowestSerpentSting) and debuff.serpentSting.refresh(var.lowestSerpentSting) and not debuff.serpentSting.exists(var.lowestSerpentSting) and nextBomb(spell.volatileBomb) and unit.ttd(var.lowestSerpentSting) > 15 and focus + cast.regen.serpentSting() > 35 and #enemies.yards40 <= 4 then
+    if var.canSerpentSting and cast.able.serpentSting(var.lowestSerpentSting) and debuff.serpentSting.refresh(var.lowestSerpentSting) and not debuff.serpentSting.exists(var.lowestSerpentSting) and nextBomb(spell.volatileBomb) and unit.ttd(var.lowestSerpentSting) > 15 and focus + cast.regen.serpentSting() > 35 and #enemies.yards40 <= 4 then
         if cast.serpentSting(var.lowestSerpentSting) then return true end
     end
     --actions.cleave+=/kill_command,target_if=min:bloodseeker.remains,if=focus+cast_regen<focus.max&full_recharge_time<gcd&(runeforge.nessingwarys_trapping_apparatus.equipped&cooldown.freezing_trap.remains&cooldown.tar_trap.remains|!runeforge.nessingwarys_trapping_apparatus.equipped)
@@ -673,7 +674,7 @@ actionList.Cleave = function()
         if cast.steelTrap("player", "ground", 1, 5) then return true end
     end
     --actions.cleave+=/serpent_sting,target_if=min:remains,if=refreshable&talent.hydras_bite.enabled&target.time_to_die>8
-    if talent.hydrasBite and cast.able.serpentSting(var.lowestSerpentSting) and debuff.serpentSting.refresh(var.lowestSerpentSting) and unit.ttd(var.lowestSerpentSting) > 8 then
+    if var.canSerpentSting and talent.hydrasBite and cast.able.serpentSting(var.lowestSerpentSting) and debuff.serpentSting.refresh(var.lowestSerpentSting) and unit.ttd(var.lowestSerpentSting) > 8 then
         if cast.serpentSting(var.hydraUnit) then return true end
     end
     --actions.cleave+=/carve
@@ -683,7 +684,7 @@ actionList.Cleave = function()
     --actions.cleave+=/kill_shot
     if actionList.killShot() then return true end
     --actions.cleave+=/serpent_sting,target_if=min:remains,if=refreshable&target.time_to_die>8
-    if cast.able.serpentSting(var.lowestSerpentSting) and debuff.serpentSting.refresh(var.lowestSerpentSting) and unit.ttd(var.lowestSerpentSting) > 8 then
+    if var.canSerpentSting and cast.able.serpentSting(var.lowestSerpentSting) and debuff.serpentSting.refresh(var.lowestSerpentSting) and unit.ttd(var.lowestSerpentSting) > 8 then
         if cast.serpentSting(var.lowestSerpentSting) then return true end
     end
     --actions.cleave+=/mongoose_bite,target_if=max:debuff.latent_poison_injection.stack
@@ -705,7 +706,7 @@ actionList.St = function()
         if cast.deathChakram("target") then return true end
     end
     --actions.st+=/serpent_sting,target_if=min:remains,if=!dot.serpent_sting.ticking&target.time_to_die>7&(!dot.pheromone_bomb.ticking|buff.mad_bombardier.up&next_wi_bomb.pheromone)|buff.vipers_venom.up&buff.vipers_venom.remains<gcd|!set_bonus.tier28_2pc&!dot.serpent_sting.ticking&target.time_to_die>7
-    if cast.able.serpentSting(var.lowestSerpentSting) and (not debuff.serpentSting.exists(var.lowestSerpentSting) and unit.ttd(var.lowestSerpentSting) > 7 and (not var.isPheromoneUp or buff.madBombardier.exists() and nextBomb(spell.pheromoneBomb)) or buff.vipersVenom.exists() and buff.vipersVenom.remains() < unit.gcd(true) or not var.hasTierBonus and not debuff.serpentSting.exists(var.lowestSerpentSting) and unit.ttd(var.lowestSerpentSting) > 7) then
+    if cast.able.serpentSting(var.lowestSerpentSting) and (var.canSerpentSting and not debuff.serpentSting.exists(var.lowestSerpentSting) and unit.ttd(var.lowestSerpentSting) > 7 and (not var.isPheromoneUp or buff.madBombardier.exists() and nextBomb(spell.pheromoneBomb)) or buff.vipersVenom.exists() and buff.vipersVenom.remains() < unit.gcd(true) or var.canSerpentSting and not var.hasTierBonus and not debuff.serpentSting.exists(var.lowestSerpentSting) and unit.ttd(var.lowestSerpentSting) > 7) then
         if cast.serpentSting(var.lowestSerpentSting) then return true end
     end
     --actions.st+=/flayed_shot
@@ -771,7 +772,7 @@ actionList.St = function()
         if cast.mongooseBite("target") then return true end
     end
     --actions.st+=/serpent_sting,target_if=min:remains,if=refreshable&target.time_to_die>7|buff.vipers_venom.up
-    if cast.able.serpentSting(var.lowestSerpentSting) and (debuff.serpentSting.refresh(var.lowestSerpentSting) and unit.ttd(var.lowestSerpentSting) > 7 or buff.vipersVenom.exists()) then
+    if var.canSerpentSting and cast.able.serpentSting(var.lowestSerpentSting) and (debuff.serpentSting.refresh(var.lowestSerpentSting) and unit.ttd(var.lowestSerpentSting) > 7 or buff.vipersVenom.exists()) then
         if cast.serpentSting(var.lowestSerpentSting) then return true end
     end
     --actions.st+=/wildfire_bomb,if=next_wi_bomb.shrapnel&focus>variable.mb_rs_cost*2&dot.serpent_sting.remains>5*gcd&!set_bonus.tier28_2pc
@@ -809,7 +810,7 @@ end
 --BoP
 actionList.BoP = function()
     --actions.bop=serpent_sting,target_if=min:remains,if=buff.vipers_venom.remains&(buff.vipers_venom.remains<gcd|refreshable)
-    if cast.able.serpentSting(var.lowestSerpentSting) and buff.vipersVenom.exists() and (buff.vipersVenom.remains() < unit.gcd(true) or debuff.serpentSting.refresh(var.lowestSerpentSting)) then
+    if cast.able.serpentSting(var.lowestSerpentSting) and buff.vipersVenom.exists() and (buff.vipersVenom.remains() < unit.gcd(true) or var.canSerpentSting and debuff.serpentSting.refresh(var.lowestSerpentSting)) then
         if cast.serpentSting(var.lowestSerpentSting) then return true end
     end
     --actions.bop+=/kill_command,target_if=min:bloodseeker.remains,if=focus+cast_regen<focus.max&buff.nesingwarys_trapping_apparatus.up|focus+cast_regen<focus.max+10&buff.nesingwarys_trapping_apparatus.up&buff.nesingwarys_trapping_apparatus.remains<gcd
@@ -875,7 +876,7 @@ actionList.BoP = function()
         if cast.steelTrap("player", "ground", 1 ,5) then return true end
     end
     --actions.bop+=/serpent_sting,target_if=min:remains,if=dot.serpent_sting.refreshable&!buff.coordinated_assault.up|talent.alpha_predator&refreshable&!buff.mongoose_fury.up
-    if cast.able.serpentSting(var.lowestSerpentSting) and (debuff.serpentSting.refresh(var.lowestSerpentSting) and not buff.coordinatedAssault.exists() or talent.alphaPredator and debuff.serpentSting.refresh(var.lowestSerpentSting) and not buff.mongooseFury.exists()) then
+    if var.canSerpentSting and cast.able.serpentSting(var.lowestSerpentSting) and (debuff.serpentSting.refresh(var.lowestSerpentSting) and not buff.coordinatedAssault.exists() or talent.alphaPredator and debuff.serpentSting.refresh(var.lowestSerpentSting) and not buff.mongooseFury.exists()) then
         if cast.serpentSting(var.lowestSerpentSting) then return true end
     end
     --actions.bop+=/resonating_arrow
@@ -903,7 +904,7 @@ actionList.BoP = function()
         if cast.wildfireBomb(units.dyn40, "cone", 1, 8) then return true end
     end
     --actions.bop+=/serpent_sting,target_if=min:remains,if=buff.vipers_venom.up
-    if cast.able.serpentSting(var.lowestSerpentSting) and buff.vipersVenom.exists() then
+    if var.canSerpentSting and cast.able.serpentSting(var.lowestSerpentSting) and buff.vipersVenom.exists() then
         if cast.serpentSting(var.lowestSerpentSting) then return true end
     end
 
@@ -993,6 +994,8 @@ local function runRotation()
     var.maxLatentPoison                          = var.singleTarget and "target" or getMaxLatentPoison() or "target"
     var.spiritUnits                              = ui.useCDs() and 1 or 3
     var.pheromoneUnit                            = var.singleTarget and "target" or getLowestBloodseekerWithPheromone() or "target"
+    var.maxSerpentSting                          = ui.value("Serpent Sting DoT Limit")
+    var.canSerpentSting                          = var.maxSerpentSting == 0 or debuff.serpentSting.count() < var.maxSerpentSting
 
     if var.haltProfile then return true end
 
