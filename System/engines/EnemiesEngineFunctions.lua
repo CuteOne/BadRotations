@@ -44,7 +44,7 @@ function br:updateOM()
 		if br._G.IsGuid(thisUnit) and br._G.ObjectExists(thisUnit) and br._G.ObjectIsUnit(thisUnit) --[[and not unitExistsInOM(thisUnit) and br.omDist(thisUnit) < 50]] then
 			if not br._G.UnitIsPlayer(thisUnit) and not br.isCritter(thisUnit) and not br._G.UnitIsUnit("player", thisUnit) and not br._G.UnitIsFriend("player", thisUnit) then
 				local enemyUnit = br.unitSetup:new(thisUnit)
-				if enemyUnit and not br.isInOM(enemyUnit) then
+				if enemyUnit then--and not br.isInOM(enemyUnit) then
 					br._G.tinsert(om, enemyUnit)
 				end
 			end
