@@ -75,14 +75,6 @@ function br.getDistanceCalc(Unit1,Unit2,option)
             end
         end
         local rangeMod = 0
-        if br.player ~= nil then
-            -- Modifier for Balance Affinity range change (Druid - Not Balance)
-            if br.player.talent.balanceAffinity ~= nil then
-                if br.player.talent.balanceAffinity and option ~= "noMod" then
-                    rangeMod = 3
-                end
-            end
-        end
         --See if we already have a position, else get position
         local X1,Y1,Z1,X2,Y2,Z2 = 0,0,0,0,0,0
         -- if not string.find(Unit1,"0x") then Unit1 = br._G.GetObjectWithGUID(br._G.UnitGUID(Unit1)) end
@@ -111,6 +103,15 @@ function br.getDistanceCalc(Unit1,Unit2,option)
           X2,Y2,Z2 = br.GetObjectPosition(Unit2)
         end
         if not X2 then return 999 end
+        -- Melee Range Bypass
+        if br.player ~= nil then
+            -- Modifier for Balance Affinity range change (Druid - Not Balance)
+            if br.player.talent.balanceAffinity ~= nil then
+                if br.player.talent.balanceAffinity and option ~= "noMod" then
+                    rangeMod = 3
+                end
+            end
+        end
         -- Get the distance
         local TargetCombatReach = br._G.UnitCombatReach(Unit2) or 0
         local PlayerCombatReach = br._G.UnitCombatReach(Unit1) or 0
