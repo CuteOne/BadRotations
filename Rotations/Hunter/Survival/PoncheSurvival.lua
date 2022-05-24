@@ -290,6 +290,8 @@ local function isToStun(enemy)
 end
 
 local function isPheromoneUp()
+    if var.singleTarget then return debuff.pheromoneBomb.exists("target", "player") end
+    
     for i = 1, #enemies.yards40 do
         local thisUnit = enemies.yards40[i]
         if debuff.pheromoneBomb.exists(thisUnit, "player") then
@@ -318,7 +320,7 @@ local function getLowestBloodseekerWithPheromone()
 
     for i = 1, #enemies.yards40 do
         local thisUnit = enemies.yards40[i]
-        if br._G.UnitAffectingCombat(thisUnit) and unit.distance(thisUnit, "pet") < 40 and (debuff.pheromoneBomb.exists(thisUnit, "player") and (lowestUnit == nil or debuff.bloodseeker.remains(thisUnit, "pet") < debuff.bloodseeker.remains(lowestUnit, "pet") or debuff.bloodseeker.remains(thisUnit, "pet") == debuff.bloodseeker.remains(lowestUnit, "pet") and (unit.distance(lowestUnit) > 12 or unit.health(thisUnit) > unit.health(lowestUnit) and unit.distance(thisUnit) <= 12))) then
+        if unit.distance(thisUnit, "pet") < 40 and (debuff.pheromoneBomb.exists(thisUnit, "player") and (lowestUnit == nil or debuff.bloodseeker.remains(thisUnit, "pet") < debuff.bloodseeker.remains(lowestUnit, "pet") or debuff.bloodseeker.remains(thisUnit, "pet") == debuff.bloodseeker.remains(lowestUnit, "pet") and (unit.distance(lowestUnit) > 12 or unit.health(thisUnit) > unit.health(lowestUnit) and unit.distance(thisUnit) <= 12))) then
             lowestUnit = thisUnit
         end
     end
@@ -981,15 +983,14 @@ local function runRotation()
     enemies.rect.get(10, 40, false)
     -- General Locals
     var.hasTierBonus                              = br.TierScan("T28") >= 2
-    var.isPheromoneUp                             = isPheromoneUp()
     var.haltProfile                               = unit.mounted() or unit.flying() or ui.pause() or buff.feignDeath.exists() or ui.mode.rotation == 3
     -- Profile Specific Locals
     var.singleTarget                             = ui.mode.rotation == 2
-    var.eagleRange                               = buff.aspectOfTheEagle.exists() and 40 or 5
+    var.isPheromoneUp                            = isPheromoneUp()
     var.eagleEnemies                             = buff.aspectOfTheEagle.exists() and enemies.yards40 or enemies.yards5
     var.lowestBloodseeker                        = var.singleTarget and "target" or getLowestBloodseeker() or "target"
     var.lowestSerpentSting                       = var.singleTarget and "target" or getLowestSerpentSting() or "target"
-    var.maxLatentPoison                          = var.singleTarget and "target" or debuff.latentPoison.max(var.eagleRange, "stack") or "target"
+    var.maxLatentPoison                          = var.singleTarget and "target" or getMaxLatentPoison() or "target"
     var.spiritUnits                              = ui.useCDs() and 1 or 3
     var.pheromoneUnit                            = var.singleTarget and "target" or getLowestBloodseekerWithPheromone() or "target"
 
@@ -1003,6 +1004,7 @@ local function runRotation()
     if not unit.inCombat() or not unit.exists("target") or not unit.valid("target") then
         return true
     end
+    
 
     --Missdirection
     if actionList.Missdirection() then return true end
