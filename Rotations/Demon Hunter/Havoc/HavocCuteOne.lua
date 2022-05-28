@@ -60,6 +60,7 @@ local function createOptions()
     local function rotationOptions()
         local section
         local alwaysCdNever = {"|cff0000FFAlways","|cffFFFFFFCD Only","|cffFF0000Never"}
+        local alwaysCdAoENever = {"Always", "|cff008000AOE", "|cffffff00AOE/CD", "|cff0000ffCD", "|cffff0000Never"}
         -- General Options
         section = br.ui:createSection(br.ui.window.profile, "General")
             -- APL
@@ -101,7 +102,7 @@ local function createOptions()
             -- Basic Trinket Module
             br.player.module.BasicTrinkets(nil,section)
             -- Metamorphosis
-            br.ui:createDropdownWithout(section,"Metamorphosis",alwaysCdNever,1,"|cffFFBB00When to use Metamorphosis.")
+            br.ui:createDropdownWithout(section,"Metamorphosis",alwaysCdAoENever,1,"|cffFFBB00When to use Metamorphosis.")
             br.ui:createCheckbox(section,"Metamorphosis M+ Pre-pull","Uses Meta during M+ pre-pull, regardless of CD setting.")
             -- Covenant Ability
             br.ui:createDropdownWithout(section,"Covenant Ability",alwaysCdNever,1,"|cffFFBB00When to use Covenant Ability.")
@@ -328,7 +329,7 @@ actionList.Cooldowns = function()
             if cast.racial() then ui.debug("Casting Racial Ability") return true end
         end
         -- Metamorphosis
-        if ui.alwaysCdNever("Metamorphosis") and cast.able.metamorphosis("player") and #enemies.yards8 > 0 then
+        if ui.alwaysCdAoENever("Metamorphosis",3,8) and cast.able.metamorphosis("player") and #enemies.yards8 > 0 then
             -- metamorphosis,if=!talent.demonic.enabled&(cooldown.eye_beam.remains>20|fight_remains<25)
             -- metamorphosis,if=talent.demonic.enabled&(cooldown.eye_beam.remains>20&(!variable.blade_dance|cooldown.blade_dance.remains>gcd.max)|fight_remains<25)
             if not talent.demonic and cd.eyeBeam.remains() > 20 then
@@ -351,11 +352,11 @@ actionList.Cooldowns = function()
         -- use_item,name=cache_of_acquired_treasures,if=buff.acquired_axe.up&(active_enemies=desired_targets&raid_event.adds.in>60|active_enemies>desired_targets|fight_remains<25)
         -- use_items,slots=trinket1,if=variable.trinket_sync_slot=1&(buff.metamorphosis.up|(!talent.demonic.enabled&cooldown.metamorphosis.remains>(fight_remains>?trinket.1.cooldown.duration%2))|fight_remains<=20)|(variable.trinket_sync_slot=2&!trinket.2.cooldown.ready)|!variable.trinket_sync_slot
         -- use_items,slots=trinket2,if=variable.trinket_sync_slot=2&(buff.metamorphosis.up|(!talent.demonic.enabled&cooldown.metamorphosis.remains>(fight_remains>?trinket.2.cooldown.duration%2))|fight_remains<=20)|(variable.trinket_sync_slot=1&!trinket.1.cooldown.ready)|!variable.trinket_sync_slot
-        if buff.metamorphosis.exists() or not ui.alwaysCdNever("Metamorphosis") then
+        if buff.metamorphosis.exists() or not ui.alwaysCdAoENever("Metamorphosis",3,8) then
             module.BasicTrinkets()
         end
         -- Covenant Abilities
-        if ui.alwaysCdNever("Covenant Ability") then
+        if ui.alwaysCdAoENever("Covenant Ability",3,8) then
             -- Sinful Brand
             -- sinful_brand,if=!dot.sinful_brand.ticking&(!runeforge.agony_gaze|(cooldown.eye_beam.remains<=gcd&fury>=30))&(!cooldown.metamorphosis.up|active_enemies=1)
             if cast.able.sinfulBrand() and not debuff.sinfulBrand.exists(units.dyn5)
@@ -438,7 +439,7 @@ actionList.Demonic = function()
     -- Blade Dance
     -- blade_dance,if=variable.blade_dance&!cooldown.metamorphosis.ready&(cooldown.eye_beam.remains>5|(raid_event.adds.in>cooldown&raid_event.adds.in<25))
     if cast.able.bladeDance("player","aoe",1,8) and not unit.isExplosive("target") and #enemies.yards8 > 0 and var.bladeDance
-        and (cd.metamorphosis.remain() > unit.gcd(true) or not ui.useCDs() or not ui.alwaysCdNever("Metamorphosis"))
+        and (cd.metamorphosis.remain() > unit.gcd(true) or not ui.useCDs() or not ui.alwaysCdAoENever("Metamorphosis",3,8))
         and (cd.eyeBeam.remain() > 5 or not eyebeamTTD() or not cast.safe.eyeBeam("player","rect",1,20) or ui.mode.eyeBeam == 2)
     then
         if cast.bladeDance("player","aoe",1,8) then ui.debug("Casting Blade Dance") return true end
@@ -830,7 +831,7 @@ local function runRotation()
 
     -- Pool for Meta Variable
     -- variable,name=pooling_for_meta,value=!talent.demonic.enabled&cooldown.metamorphosis.remains<6&fury.deficit>30
-    var.poolForMeta = ui.alwaysCdNever("Metamorphosis") and ui.useCDs() and not talent.demonic and cd.metamorphosis.remain() < 6 and furyDeficit >= 30
+    var.poolForMeta = ui.alwaysCdAoENever("Metamorphosis",3,8) and ui.useCDs() and not talent.demonic and cd.metamorphosis.remain() < 6 and furyDeficit >= 30
 
     -- Pool for Blade Dance Variable
     -- variable,name=pooling_for_blade_dance,value=variable.blade_dance&(fury<75-talent.first_blood.enabled*20)
@@ -846,7 +847,7 @@ local function runRotation()
 
     -- Wait for Agony Gaze
     -- variable,name=waiting_for_agony_gaze,if=runeforge.agony_gaze,value=!dot.sinful_brand.ticking&cooldown.sinful_brand.remains<gcd.max*4&(!cooldown.metamorphosis.up|active_enemies=1)&spell_targets.eye_beam<=3
-    var.waitingForAgonyGaze = runeforge.agonyGaze.equiped and not debuff.sinfulBrand.exists(units.dyn5) and cd.sinfulBrand.remain() < gcd * 4 and (not cd.metamorphosis.exists() or #enemies.yards5 == 1) and #enemies.yards20r <= 3
+    var.waitingForAgonyGaze = runeforge.agonyGaze.equiped and ui.alwaysCdAoENever("Covenant Ability",3,8) and not debuff.sinfulBrand.exists(units.dyn5) and cd.sinfulBrand.remain() < gcd * 4 and (not cd.metamorphosis.exists() or #enemies.yards5 == 1) and #enemies.yards20r <= 3
 
     -- Trinket Sync
     -- variable,name=trinket_sync_slot,value=1,if=trinket.1.has_stat.any_dps&(!trinket.2.has_stat.any_dps|trinket.1.cooldown.duration>=trinket.2.cooldown.duration)
