@@ -415,7 +415,7 @@ actionList.Explosives = function()
     for i = 1, #enemies.yards40f do
         local thisUnit = enemies.yards40f[i]
         local castRemain = cast.timeRemain(thisUnit)
-        if br.GetObjectID(thisUnit) == 120651 and (castRemain <= ui.value("Explosive cast remain") and isNotDelay) or (castRemain < unit.gcd(true) and ui.checked("Ignore delay")) then
+        if br.GetObjectID(thisUnit) == 120651 and (castRemain <= ui.value("Min. cast remain") and isNotDelay) or (castRemain < unit.gcd(true) and ui.checked("Ignore delay")) then
             if cast.able.raptorStrike(thisUnit) and cast.raptorStrike(thisUnit) then
                 lastExplosiveKill = GetTime()
                 return true 
