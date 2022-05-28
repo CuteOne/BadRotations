@@ -124,8 +124,8 @@ local function createOptions()
         -- Explosives Options
         section = br.ui:createSection(br.ui.window.profile, "Explosives Handler")
             br.ui:createCheckbox(section, "Kill explosives", "Will kill explosives.")
-            br.ui:createSpinner(section, "Min. cast remain", 1, 1, 6, 0.1, "Kill explosive if it is about to cast within X seconds.")
-            br.ui:createSpinner(section, "Delay between kill", 2, 0, 10, 0.1, "Delay between each explosive kill.")
+            br.ui:createSpinnerWithout(section, "Min. cast remain", 1, 1, 6, 0.1, "Kill explosive if it is about to cast within X seconds.")
+            br.ui:createSpinnerWithout(section, "Delay between kill", 2, 0, 10, 0.1, "Delay between each explosive kill.")
             br.ui:createCheckbox(section, "Ignore delay", "Will ignore delay if explosive it about to explode.")
         br.ui:checkSectionState(section)
         -- CCs Options
