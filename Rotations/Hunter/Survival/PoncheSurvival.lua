@@ -124,7 +124,7 @@ local function createOptions()
         -- Explosives Options
         section = br.ui:createSection(br.ui.window.profile, "Explosives Handler")
             br.ui:createCheckbox(section, "Kill explosives", "Will kill explosives.")
-            br.ui:createSpinner(section, "Min. cast remain", 1, 0.5, 6, 0.1, "Kill explosive if it is about to cast within X seconds.")
+            br.ui:createSpinner(section, "Min. cast remain", 1, 1, 6, 0.1, "Kill explosive if it is about to cast within X seconds.")
             br.ui:createSpinner(section, "Delay between kill", 2, 0, 10, 0.1, "Delay between each explosive kill.")
             br.ui:createCheckbox(section, "Ignore delay", "Will ignore delay if explosive it about to explode.")
         br.ui:checkSectionState(section)
@@ -176,12 +176,10 @@ local debuff
 local enemies
 local focus
 local focusMax
---local focusRegen
 local gcd
 local level
 local maps = br.lists.maps
 local module
---local opener
 local runeforge
 local spell
 local talent
@@ -411,11 +409,10 @@ actionList.Explosives = function()
     if not ui.checked("Kill explosives") then return false end
 
     local isNotDelay = GetTime() - lastExplosiveKill > ui.value("Delay between kill")
-    --isNotDelay
     for i = 1, #enemies.yards40f do
         local thisUnit = enemies.yards40f[i]
         local castRemain = cast.timeRemain(thisUnit)
-        if br.GetObjectID(thisUnit) == 120651 and (castRemain <= ui.value("Min. cast remain") and isNotDelay) or (castRemain < unit.gcd(true) and ui.checked("Ignore delay")) then
+        if br.GetObjectID(thisUnit) == 120651 and (castRemain <= ui.value("Min. cast remain") and isNotDelay) or (castRemain < 1 and ui.checked("Ignore delay")) then
             if cast.able.raptorStrike(thisUnit) and cast.raptorStrike(thisUnit) then
                 lastExplosiveKill = GetTime()
                 return true 
@@ -1012,7 +1009,6 @@ local function runRotation()
         actionList.PetManagement = br.rotations.support["PetCuteOne"].run
     end
     --API
-    --anima                                         = br.player.anima
     buff                                          = br.player.buff
     cast                                          = br.player.cast
     cd                                            = br.player.cd
@@ -1021,10 +1017,7 @@ local function runRotation()
     enemies                                       = br.player.enemies
     focus                                         = br.player.power.focus.amount()
     focusMax                                      = br.player.power.focus.max()
-    --focusRegen                                    = br.player.power.focus.regen()
-    --level                                         = br.player.level
     module                                        = br.player.module
-    --opener                                        = br.player.opener
     runeforge                                     = br.player.runeforge
     spell                                         = br.player.spell
     talent                                        = br.player.talent
