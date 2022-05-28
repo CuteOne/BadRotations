@@ -324,7 +324,7 @@ local function isPheromoneUp()
     
     for i = 1, #enemies.yards40 do
         local thisUnit = enemies.yards40[i]
-        if debuff.pheromoneBomb.exists(thisUnit, "player") then
+        if br._G.UnitAffectingCombat(thisUnit) and debuff.pheromoneBomb.exists(thisUnit, "player") then
             return true
         end
     end
@@ -350,7 +350,7 @@ local function getLowestBloodseekerWithPheromone()
 
     for i = 1, #enemies.yards40 do
         local thisUnit = enemies.yards40[i]
-        if (br.getGUID(thisUnit) ==  br.getGUID("target") or not isBlackListed(thisUnit)) and unit.distance(thisUnit, "pet") < 40 and (debuff.pheromoneBomb.exists(thisUnit, "player") and (lowestUnit == nil or debuff.bloodseeker.remains(thisUnit, "pet") < debuff.bloodseeker.remains(lowestUnit, "pet") or debuff.bloodseeker.remains(thisUnit, "pet") == debuff.bloodseeker.remains(lowestUnit, "pet") and (unit.distance(lowestUnit) > 12 or unit.health(thisUnit) > unit.health(lowestUnit) and unit.distance(thisUnit) <= 12))) then
+        if (br.getGUID(thisUnit) ==  br.getGUID("target") or not isBlackListed(thisUnit)) and br._G.UnitAffectingCombat(thisUnit) and unit.distance(thisUnit, "pet") < 40 and (debuff.pheromoneBomb.exists(thisUnit, "player") and (lowestUnit == nil or debuff.bloodseeker.remains(thisUnit, "pet") < debuff.bloodseeker.remains(lowestUnit, "pet") or debuff.bloodseeker.remains(thisUnit, "pet") == debuff.bloodseeker.remains(lowestUnit, "pet") and (unit.distance(lowestUnit) > 12 or unit.health(thisUnit) > unit.health(lowestUnit) and unit.distance(thisUnit) <= 12))) then
             lowestUnit = thisUnit
         end
     end
@@ -396,13 +396,16 @@ end
 --Kill Explosives
 actionList.Explosives = function()
     if br.GetObjectID("target") == 120651 then
-        if cast.able.raptorStrike("target") and cast.raptorStrike("target") then
-            lastExplosiveKill = GetTime()
-            return true 
-        end
-        if cast.able.serpentSting("target") and cast.serpentSting("target") then
-            lastExplosiveKill = GetTime()
-            return true 
+        if cast.able.raptorStrike("target") then
+            if cast.raptorStrike("target") then
+                lastExplosiveKill = GetTime()
+                return true 
+            end
+        elseif cast.able.serpentSting("target") then
+            if cast.serpentSting("target") then
+                lastExplosiveKill = GetTime()
+                return true
+            end
         end
     end
 
@@ -412,14 +415,17 @@ actionList.Explosives = function()
     for i = 1, #enemies.yards40f do
         local thisUnit = enemies.yards40f[i]
         local castRemain = cast.timeRemain(thisUnit)
-        if br.GetObjectID(thisUnit) == 120651 and (castRemain <= ui.value("Min. cast remain") and isNotDelay) or (castRemain < 1 and ui.checked("Ignore delay")) then
-            if cast.able.raptorStrike(thisUnit) and cast.raptorStrike(thisUnit) then
-                lastExplosiveKill = GetTime()
-                return true 
-            end
-            if cast.able.serpentSting(thisUnit) and cast.serpentSting(thisUnit) then
-                lastExplosiveKill = GetTime()
-                return true 
+        if br.GetObjectID(thisUnit) == 120651 and ((castRemain <= ui.value("Min. cast remain") and isNotDelay) or (castRemain < 1 and ui.checked("Ignore delay"))) then
+            if cast.able.raptorStrike(thisUnit) then
+                if cast.raptorStrike(thisUnit) then
+                    lastExplosiveKill = GetTime()
+                    return true 
+                end
+            elseif cast.able.serpentSting(thisUnit) then
+                if cast.serpentSting(thisUnit) then
+                    lastExplosiveKill = GetTime()
+                    return true 
+                end
             end
         end
     end
