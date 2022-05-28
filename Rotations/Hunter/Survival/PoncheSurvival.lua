@@ -121,6 +121,13 @@ local function createOptions()
             -- Interrupt Percentage
             br.ui:createSpinner(section, "Interrupt At",  0,  0,  95,  5,  "|cffFFFFFFCast Percent to Cast At")
         br.ui:checkSectionState(section)
+        -- Explosives Options
+        section = br.ui:createSection(br.ui.window.profile, "Explosives Handler")
+            br.ui:createCheckbox(section, "Kill explosives", "Will kill explosives.")
+            br.ui:createSpinner(section, "Min. cast remain", 1, 0.5, 6, 0.1, "Kill explosive if it is about to cast within X seconds.")
+            br.ui:createSpinner(section, "Delay between kill", 2, 0, 10, 0.1, "Delay between each explosive kill.")
+            br.ui:createCheckbox(section, "Ignore delay", "Will ignore delay if explosive it about to explode.")
+        br.ui:checkSectionState(section)
         -- CCs Options
         section = br.ui:createSection(br.ui.window.profile, "CCs")
             br.ui:createText(section, "Mists of Tirna Scithe")
@@ -232,6 +239,19 @@ local spellsToStun  = {
     330586,
 }
 
+local blacklist = {
+    -- Urh Relic
+    185685,
+    -- Wo Relic
+    185683,
+    -- Vy Relic
+    185680,
+    -- Explosives
+    120651
+}
+
+local lastExplosiveKill = 0
+
 --Functions
 local function eagleScout()
     if buff.aspectOfTheEagle.exists() then
@@ -290,6 +310,17 @@ local function isToStun(enemy)
     return false
 end
 
+local function isBlackListed(enemy)
+    local enemyId = br.GetObjectID(enemy)
+    for _, blacklistId in pairs(blacklist) do
+        if enemyId == blacklistId then
+            return true
+        end
+    end
+    
+    return false
+end
+
 local function isPheromoneUp()
     if var.singleTarget then return debuff.pheromoneBomb.exists("target", "player") end
     
@@ -308,7 +339,7 @@ local function getLowestBloodseeker()
 
     for i = 1, #enemies.yards40 do
         local thisUnit = enemies.yards40[i]
-        if br._G.UnitAffectingCombat(thisUnit) and unit.distance(thisUnit, "pet") < 40 and (lowestUnit == nil or debuff.bloodseeker.remains(thisUnit, "pet") < debuff.bloodseeker.remains(lowestUnit, "pet") or debuff.bloodseeker.remains(thisUnit, "pet") == debuff.bloodseeker.remains(lowestUnit, "pet") and (unit.distance(lowestUnit) > 12 or unit.health(thisUnit) > unit.health(lowestUnit) and unit.distance(thisUnit) <= 12)) then
+        if (br.getGUID(thisUnit) ==  br.getGUID("target") or not isBlackListed(thisUnit)) and br._G.UnitAffectingCombat(thisUnit) and unit.distance(thisUnit, "pet") < 40 and (lowestUnit == nil or debuff.bloodseeker.remains(thisUnit, "pet") < debuff.bloodseeker.remains(lowestUnit, "pet") or debuff.bloodseeker.remains(thisUnit, "pet") == debuff.bloodseeker.remains(lowestUnit, "pet") and (unit.distance(lowestUnit) > 12 or unit.health(thisUnit) > unit.health(lowestUnit) and unit.distance(thisUnit) <= 12)) then
             lowestUnit = thisUnit
         end
     end
@@ -321,7 +352,7 @@ local function getLowestBloodseekerWithPheromone()
 
     for i = 1, #enemies.yards40 do
         local thisUnit = enemies.yards40[i]
-        if unit.distance(thisUnit, "pet") < 40 and (debuff.pheromoneBomb.exists(thisUnit, "player") and (lowestUnit == nil or debuff.bloodseeker.remains(thisUnit, "pet") < debuff.bloodseeker.remains(lowestUnit, "pet") or debuff.bloodseeker.remains(thisUnit, "pet") == debuff.bloodseeker.remains(lowestUnit, "pet") and (unit.distance(lowestUnit) > 12 or unit.health(thisUnit) > unit.health(lowestUnit) and unit.distance(thisUnit) <= 12))) then
+        if (br.getGUID(thisUnit) ==  br.getGUID("target") or not isBlackListed(thisUnit)) and unit.distance(thisUnit, "pet") < 40 and (debuff.pheromoneBomb.exists(thisUnit, "player") and (lowestUnit == nil or debuff.bloodseeker.remains(thisUnit, "pet") < debuff.bloodseeker.remains(lowestUnit, "pet") or debuff.bloodseeker.remains(thisUnit, "pet") == debuff.bloodseeker.remains(lowestUnit, "pet") and (unit.distance(lowestUnit) > 12 or unit.health(thisUnit) > unit.health(lowestUnit) and unit.distance(thisUnit) <= 12))) then
             lowestUnit = thisUnit
         end
     end
@@ -334,7 +365,7 @@ local function getLowestSerpentSting()
 
     for i = 1, #enemies.yards40f do
         local thisUnit = enemies.yards40f[i]
-        if br._G.UnitAffectingCombat(thisUnit) and (lowestUnit == nil or debuff.serpentSting.remains(thisUnit, "player") < debuff.serpentSting.remains(lowestUnit, "player") and unit.ttd(thisUnit) > 7) then
+        if (br.getGUID(thisUnit) ==  br.getGUID("target") or not isBlackListed(thisUnit)) and br._G.UnitAffectingCombat(thisUnit) and (lowestUnit == nil or debuff.serpentSting.remains(thisUnit, "player") < debuff.serpentSting.remains(lowestUnit, "player") and unit.ttd(thisUnit) > 7) then
             lowestUnit = thisUnit
         end
     end
@@ -348,14 +379,14 @@ local function getMaxLatentPoison()
     if buff.aspectOfTheEagle.exists() then
         for i = 1, #enemies.yards40f do
             local thisUnit = enemies.yards40f[i]
-            if br._G.UnitAffectingCombat(thisUnit) and (maxLatentPoison == nil or debuff.latentPoison.stack(thisUnit, "player") > debuff.latentPoison.stack(maxLatentPoison, "player")) then
+            if (br.getGUID(thisUnit) ==  br.getGUID("target") or not isBlackListed(thisUnit)) and br._G.UnitAffectingCombat(thisUnit) and (maxLatentPoison == nil or debuff.latentPoison.stack(thisUnit, "player") > debuff.latentPoison.stack(maxLatentPoison, "player")) then
                 maxLatentPoison = thisUnit
             end
         end
     else
         for i = 1, #enemies.yards5f do
             local thisUnit = enemies.yards5f[i]
-            if br._G.UnitAffectingCombat(thisUnit) and (maxLatentPoison == nil or debuff.latentPoison.stack(thisUnit, "player") > debuff.latentPoison.stack(maxLatentPoison, "player")) then
+            if (br.getGUID(thisUnit) ==  br.getGUID("target") or not isBlackListed(thisUnit)) and br._G.UnitAffectingCombat(thisUnit) and (maxLatentPoison == nil or debuff.latentPoison.stack(thisUnit, "player") > debuff.latentPoison.stack(maxLatentPoison, "player")) then
                 maxLatentPoison = thisUnit
             end
         end
@@ -364,10 +395,45 @@ local function getMaxLatentPoison()
     return maxLatentPoison
 end
 
+--Kill Explosives
+actionList.Explosives = function()
+    if br.GetObjectID("target") == 120651 then
+        if cast.able.raptorStrike("target") and cast.raptorStrike("target") then
+            lastExplosiveKill = GetTime()
+            return true 
+        end
+        if cast.able.serpentSting("target") and cast.serpentSting("target") then
+            lastExplosiveKill = GetTime()
+            return true 
+        end
+    end
+
+    if not ui.checked("Kill explosives") then return false end
+
+    local isNotDelay = GetTime() - lastExplosiveKill > ui.value("Delay between kill")
+    --isNotDelay
+    for i = 1, #enemies.yards40f do
+        local thisUnit = enemies.yards40f[i]
+        local castRemain = cast.timeRemain(thisUnit)
+        if br.GetObjectID(thisUnit) == 120651 and (castRemain <= ui.value("Explosive cast remain") and isNotDelay) or (castRemain < unit.gcd(true) and ui.checked("Ignore delay")) then
+            if cast.able.raptorStrike(thisUnit) and cast.raptorStrike(thisUnit) then
+                lastExplosiveKill = GetTime()
+                return true 
+            end
+            if cast.able.serpentSting(thisUnit) and cast.serpentSting(thisUnit) then
+                lastExplosiveKill = GetTime()
+                return true 
+            end
+        end
+    end
+
+    return false
+end
+
 --Kill Shot
 actionList.killShot = function()
-    for i = 1, #enemies.yards40 do
-        local thisUnit = enemies.yards40[i]
+    for i = 1, #enemies.yards40f do
+        local thisUnit = enemies.yards40f[i]
         if cast.able.killShot(thisUnit) and unit.hp(thisUnit) < 20 then
             if cast.killShot(thisUnit) then return true end
         end
@@ -481,7 +547,7 @@ actionList.Interrupt = function()
     if ui.checked("Muzzle") and cast.able.muzzle() then
         for i=1, #enemies.yards5 do
             local thisUnit = enemies.yards5[i]
-            if unit.interruptable(thisUnit, ui.value("Interrupt At")) then
+            if not isBlackListed(thisUnit) and unit.interruptable(thisUnit, ui.value("Interrupt At")) then
                 if cast.muzzle(thisUnit) then return true end
             end
         end
@@ -491,7 +557,7 @@ actionList.Interrupt = function()
     if ui.checked("Freezing Trap") then
         for i = 1, #enemies.yards40 do
             local thisUnit = enemies.yards40[i]
-            if unit.interruptable(thisUnit, ui.value("Interrupt At")) or isToStun(thisUnit) then
+            if not isBlackListed(thisUnit) and unit.interruptable(thisUnit, ui.value("Interrupt At")) and cast.timeRemain(thisUnit) > 3 or isToStun(thisUnit) then
                 if cast.freezingTrap(thisUnit, "ground") then return true end
             end
         end
@@ -501,7 +567,7 @@ actionList.Interrupt = function()
     if ui.checked("Intimidation - Int") then
         for i=1, #enemies.yards5 do
             local thisUnit = enemies.yards5[i]
-            if unit.interruptable(thisUnit, ui.value("Interrupt At")) or isToStun(thisUnit) then
+            if not isBlackListed(thisUnit) and unit.interruptable(thisUnit, ui.value("Interrupt At")) or isToStun(thisUnit) then
                 if cast.intimidation(thisUnit) then return true end
             end
         end
@@ -1009,6 +1075,8 @@ local function runRotation()
     end
     
 
+    --M+ Explosives
+    if actionList.Explosives() then return true end
     --Missdirection
     if actionList.Missdirection() then return true end
     --CCs
