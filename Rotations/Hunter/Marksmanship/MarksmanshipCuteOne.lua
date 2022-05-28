@@ -512,8 +512,8 @@ actionList.TrickShots = function()
     end
     -- Kill Shot
     -- kill_shot,if=buff.dead_eye.down
-    if cast.able.killShot(var.lowestHPUnit) and unit.hp(var.lowestHPUnit) < 20 and not buff.deadEye.exists() then
-        if cast.killShot(var.lowestHPUnit) then ui.debug("Casting Kill Shot [Trick Shots Dead Eye]") return true end
+    if cast.able.killShot(var.lowestHPUnit) and (unit.hp(var.lowestHPUnit) < 20 or buff.flayersMark.exists()) and not buff.deadEye.exists() then
+        if cast.killShot(var.lowestHPUnit) then ui.debug("Casting Kill Shot [Trick Shots]") return true end
     end
     -- A Murder of Crows
     -- a_murder_of_crows
@@ -567,7 +567,7 @@ actionList.SingleTarget = function()
     end
     -- Kill Shot
     -- kill_shot
-    if cast.able.killShot(var.lowestHPUnit) and unit.hp(var.lowestHPUnit) < 20 then
+    if cast.able.killShot(var.lowestHPUnit) and (unit.hp(var.lowestHPUnit) < 20 or buff.flayersMark.exists()) then
         if cast.killShot(var.lowestHPUnit) then ui.debug("Casting Kill Shot") return true end
     end
     -- Double Tap
@@ -791,6 +791,7 @@ actionList.PreCombat = function()
             if cast.able.arcaneShot("target") and (#enemies.yards10t > 2 or ((covenant.kyrian.active or talent.volley) and #enemies.yards10t == 2)) then
                 if cast.arcaneShot("target") then ui.debug("Casting Arcane Shot [Pre-Pull]") return true end
             end
+            -- Auto Shot
             if cast.able.autoShot("target") then
                 if cast.autoShot("target") then ui.debug("Casting Auto Shot [Pre-Pull]") return true end
             end
@@ -928,12 +929,12 @@ local function runRotation()
             if actionList.Cooldowns() then return true end
             -- Call Action List - Single Target
             -- call_action_list,name=st,if=active_enemies<3
-            if ((ui.mode.rotation == 1 and #enemies.yards10t < 3) or (ui.mode.rotation == 3 and #enemies.yards10t > 0) or unit.level() < 32) then
+            if ui.useST(10, 3, "target") or unit.level() < 32 then
                 if actionList.SingleTarget() then return true end
             end
             -- Call Action List - Trick Shots
             -- call_action_list,name=trickshots,if=active_enemies>2
-            if unit.level() >= 32 and ((ui.mode.rotation == 1 and #enemies.yards10t > 2) or (ui.mode.rotation == 2 and #enemies.yards10t > 0)) then
+            if ui.useAOE(10, 3, "target") and unit.level() >= 32 then
                 if actionList.TrickShots() then return true end
             end
         end --End In Combat
