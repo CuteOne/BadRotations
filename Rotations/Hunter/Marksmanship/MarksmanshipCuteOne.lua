@@ -396,6 +396,11 @@ actionList.TrickShots = function()
     if cast.able.killShot(var.lowestHPUnit) and runeforge.pouchOfRazorFragments.equiped and buff.flayersMark.exists() then
         if cast.killShot(var.lowestHPUnit) then ui.debug("Casting Kill Shot [Trick Shots Pouch of Razor Fragments]") return true end
     end
+	-- Kill Shot
+    -- kill_shot,if=buff.flayersMark
+	if buff.flayersMark.exists() and cast.able.killShot() then
+        if cast.killShot() then ui.debug("Casting Kill Shot [Flayer's Mark]") return true end
+    end
     -- Flayed Shot
     -- flayed_shot,if=runeforge.pouch_of_razor_fragments
     if ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards40) and cast.able.flayedShot() and runeforge.pouchOfRazorFragments.equiped then
@@ -515,6 +520,11 @@ actionList.TrickShots = function()
     if cast.able.killShot(var.lowestHPUnit) and unit.hp(var.lowestHPUnit) < 20 and not buff.deadEye.exists() then
         if cast.killShot(var.lowestHPUnit) then ui.debug("Casting Kill Shot [Trick Shots Dead Eye]") return true end
     end
+    -- Kill Shot
+    -- kill_shot,if=buff.flayersMark
+	if buff.flayersMark.exists() and cast.able.killShot() then
+        if cast.killShot() then ui.debug("Casting Kill Shot [Flayer's Mark]") return true end
+    end
     -- A Murder of Crows
     -- a_murder_of_crows
     if ui.alwaysCdAoENever("A Murder of Crows",3,#enemies.yards40) and cast.able.aMurderOfCrows() and talent.aMurderOfCrows then
@@ -570,6 +580,11 @@ actionList.SingleTarget = function()
     if cast.able.killShot(var.lowestHPUnit) and unit.hp(var.lowestHPUnit) < 20 then
         if cast.killShot(var.lowestHPUnit) then ui.debug("Casting Kill Shot") return true end
     end
+	-- Kill Shot
+    -- kill_shot,if=buff.flayersMark
+	if buff.flayersMark.exists() and cast.able.killShot() then
+        if cast.killShot() then ui.debug("Casting Kill Shot [Flayer's Mark]") return true end
+    end
     -- Double Tap
     -- double_tap,if=(covenant.kyrian&(cooldown.resonating_arrow.remains<gcd)|!covenant.kyrian&!covenant.night_fae|covenant.night_fae&(cooldown.wild_spirits.remains<gcd|cooldown.wild_spirits.remains>30)|fight_remains<15)&(!raid_event.adds.exists|raid_event.adds.up&(raid_event.adds.in<10&raid_event.adds.remains<3|raid_event.adds.in>cooldown|active_enemies>1)|!raid_event.adds.up&(raid_event.adds.count=1|raid_event.adds.in>cooldown))
     if ui.alwaysCdAoENever("Double Tap") and cast.able.doubleTap() and talent.doubleTap --and (not cast.last.steadyShot() or buff.steadyFocus.exists() or not talent.steadyFocus)
@@ -597,7 +612,7 @@ actionList.SingleTarget = function()
     end
     -- Wild Spirits
     -- wild_spirits,if=(cooldown.trueshot.remains<gcd|buff.trueshot.up)&(!raid_event.adds.exists|!raid_event.adds.up&(raid_event.adds.duration+raid_event.adds.in<20|raid_event.adds.in>60)|raid_event.adds.up&raid_event.adds.remains>19|active_enemies>1)|fight_remains<20
-    if ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards12t) and cast.able.wildSpirits() and (cd.trueshot.remains() < unit.gcd(true) or buff.trueshote.exists()) then
+    if ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards12t) and cast.able.wildSpirits() and (cd.trueshot.remains() < unit.gcd(true) or buff.trueshot.exists()) then
         if cast.wildSpirits() then ui.debug("Casting Wild Spirits [Night Fae]") return true end
     end
     -- Flayed Shot
