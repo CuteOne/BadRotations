@@ -124,8 +124,8 @@ local function createOptions()
         -- Explosives Options
         section = br.ui:createSection(br.ui.window.profile, "Explosives Handler")
             br.ui:createCheckbox(section, "Kill explosives", "Will kill explosives.")
-            br.ui:createSpinner(section, "Min. cast remain", 1, 0.5, 6, 0.1, "Kill explosive if it is about to cast within X seconds.")
-            br.ui:createSpinner(section, "Delay between kill", 2, 0, 10, 0.1, "Delay between each explosive kill.")
+            br.ui:createSpinnerWithout(section, "Min. cast remain", 1, 1, 6, 0.1, "Kill explosive if it is about to cast within X seconds.")
+            br.ui:createSpinnerWithout(section, "Delay between kill", 2, 0, 10, 0.1, "Delay between each explosive kill.")
             br.ui:createCheckbox(section, "Ignore delay", "Will ignore delay if explosive it about to explode.")
         br.ui:checkSectionState(section)
         -- CCs Options
@@ -176,12 +176,10 @@ local debuff
 local enemies
 local focus
 local focusMax
---local focusRegen
 local gcd
 local level
 local maps = br.lists.maps
 local module
---local opener
 local runeforge
 local spell
 local talent
@@ -326,7 +324,7 @@ local function isPheromoneUp()
     
     for i = 1, #enemies.yards40 do
         local thisUnit = enemies.yards40[i]
-        if debuff.pheromoneBomb.exists(thisUnit, "player") then
+        if br._G.UnitAffectingCombat(thisUnit) and debuff.pheromoneBomb.exists(thisUnit, "player") then
             return true
         end
     end
@@ -352,7 +350,7 @@ local function getLowestBloodseekerWithPheromone()
 
     for i = 1, #enemies.yards40 do
         local thisUnit = enemies.yards40[i]
-        if (br.getGUID(thisUnit) ==  br.getGUID("target") or not isBlackListed(thisUnit)) and unit.distance(thisUnit, "pet") < 40 and (debuff.pheromoneBomb.exists(thisUnit, "player") and (lowestUnit == nil or debuff.bloodseeker.remains(thisUnit, "pet") < debuff.bloodseeker.remains(lowestUnit, "pet") or debuff.bloodseeker.remains(thisUnit, "pet") == debuff.bloodseeker.remains(lowestUnit, "pet") and (unit.distance(lowestUnit) > 12 or unit.health(thisUnit) > unit.health(lowestUnit) and unit.distance(thisUnit) <= 12))) then
+        if (br.getGUID(thisUnit) ==  br.getGUID("target") or not isBlackListed(thisUnit)) and br._G.UnitAffectingCombat(thisUnit) and unit.distance(thisUnit, "pet") < 40 and (debuff.pheromoneBomb.exists(thisUnit, "player") and (lowestUnit == nil or debuff.bloodseeker.remains(thisUnit, "pet") < debuff.bloodseeker.remains(lowestUnit, "pet") or debuff.bloodseeker.remains(thisUnit, "pet") == debuff.bloodseeker.remains(lowestUnit, "pet") and (unit.distance(lowestUnit) > 12 or unit.health(thisUnit) > unit.health(lowestUnit) and unit.distance(thisUnit) <= 12))) then
             lowestUnit = thisUnit
         end
     end
@@ -398,31 +396,36 @@ end
 --Kill Explosives
 actionList.Explosives = function()
     if br.GetObjectID("target") == 120651 then
-        if cast.able.raptorStrike("target") and cast.raptorStrike("target") then
-            lastExplosiveKill = GetTime()
-            return true 
-        end
-        if cast.able.serpentSting("target") and cast.serpentSting("target") then
-            lastExplosiveKill = GetTime()
-            return true 
+        if cast.able.raptorStrike("target") then
+            if cast.raptorStrike("target") then
+                lastExplosiveKill = GetTime()
+                return true 
+            end
+        elseif cast.able.serpentSting("target") then
+            if cast.serpentSting("target") then
+                lastExplosiveKill = GetTime()
+                return true
+            end
         end
     end
 
     if not ui.checked("Kill explosives") then return false end
 
     local isNotDelay = GetTime() - lastExplosiveKill > ui.value("Delay between kill")
-    --isNotDelay
     for i = 1, #enemies.yards40f do
         local thisUnit = enemies.yards40f[i]
         local castRemain = cast.timeRemain(thisUnit)
-        if br.GetObjectID(thisUnit) == 120651 and (castRemain <= ui.value("Min. cast remain") and isNotDelay) or (castRemain < unit.gcd(true) and ui.checked("Ignore delay")) then
-            if cast.able.raptorStrike(thisUnit) and cast.raptorStrike(thisUnit) then
-                lastExplosiveKill = GetTime()
-                return true 
-            end
-            if cast.able.serpentSting(thisUnit) and cast.serpentSting(thisUnit) then
-                lastExplosiveKill = GetTime()
-                return true 
+        if br.GetObjectID(thisUnit) == 120651 and ((castRemain <= ui.value("Min. cast remain") and isNotDelay) or (castRemain < 1 and ui.checked("Ignore delay"))) then
+            if cast.able.raptorStrike(thisUnit) then
+                if cast.raptorStrike(thisUnit) then
+                    lastExplosiveKill = GetTime()
+                    return true 
+                end
+            elseif cast.able.serpentSting(thisUnit) then
+                if cast.serpentSting(thisUnit) then
+                    lastExplosiveKill = GetTime()
+                    return true 
+                end
             end
         end
     end
@@ -1012,7 +1015,6 @@ local function runRotation()
         actionList.PetManagement = br.rotations.support["PetCuteOne"].run
     end
     --API
-    --anima                                         = br.player.anima
     buff                                          = br.player.buff
     cast                                          = br.player.cast
     cd                                            = br.player.cd
@@ -1021,10 +1023,7 @@ local function runRotation()
     enemies                                       = br.player.enemies
     focus                                         = br.player.power.focus.amount()
     focusMax                                      = br.player.power.focus.max()
-    --focusRegen                                    = br.player.power.focus.regen()
-    --level                                         = br.player.level
     module                                        = br.player.module
-    --opener                                        = br.player.opener
     runeforge                                     = br.player.runeforge
     spell                                         = br.player.spell
     talent                                        = br.player.talent
