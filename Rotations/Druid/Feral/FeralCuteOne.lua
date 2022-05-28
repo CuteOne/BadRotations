@@ -344,7 +344,7 @@ end
 -- Primal Wrath Usable
 local function usePrimalWrath()
     if talent.primalWrath and cast.able.primalWrath("player","aoe",1,8)
-        and ((ui.mode.rotation == 1 and #enemies.yards8 > 1) or (ui.mode.rotation == 2 and #enemies.yards8 > 0))
+        and ui.useAOE(8,2)
         and not unit.isExplosive("target")
     then
         if ui.value("Primal Wrath Usage") == 1 and #enemies.yards8 >= 3 then return true end
@@ -954,7 +954,7 @@ actionList.Finisher = function()
     end
     -- Primal Wrath
     -- primal_wrath,if=(druid.primal_wrath.ticks_gained_on_refresh>3*(spell_targets.primal_wrath+1)&spell_targets.primal_wrath>1)|spell_targets.primal_wrath>(3+1*talent.sabertooth.enabled)
-    if usePrimalWrath("player","aoe",1,8) and range.dyn8AOE --and (not var.noDoT or #enemies.yards8 > 1)
+    if usePrimalWrath() and range.dyn8AOE --and (not var.noDoT or #enemies.yards8 > 1)
         and ((ticksGain.rip > 3 * (#enemies.yards8 + 1) and #enemies.yards8 > 1) or #enemies.yards8 > (3 + var.sabertooth))
     then
         if cast.primalWrath("player","aoe",1,8) then ui.debug("Casting Primal Wrath [Finish]") return true end
@@ -1542,63 +1542,81 @@ local function runRotation()
     if not btGen.thrash then btGen.triggers = btGen.triggers + 1 end
 
     -- Group Tracking
+    -- Rake Ticks
     var.rakeTicksTotal = function(thisUnit)
-        return math.floor(debuff.rake.duration(thisUnit,"EXACT") / 3)
+        return not debuff.rake.exists(thisUnit, "EXACT") and 5 or math.floor(debuff.rake.duration(thisUnit,"EXACT") / 3)
     end
     var.rakeTicksRemain = function(thisUnit)
         return math.floor(debuff.rake.remain(thisUnit,"EXACT") / 3)
     end
+    var.rakeTicksGain = function(thisUnit)
+        return var.rakeTicksTotal(thisUnit) - var.rakeTicksRemain(thisUnit)
+    end
+    ticksGain.rake = var.rakeTicksGain(thisUnit)
+
+    -- Rip Ticks
     var.ripTicksTotal = function(thisUnit)
-        return math.floor(debuff.rip.duration(thisUnit) / 2)
+        return not debuff.rip.exists(thisUnit) and 12 or math.floor(debuff.rip.duration(thisUnit) / 2)
     end
     var.ripTicksRemain = function(thisUnit)
         return math.floor(debuff.rip.remain(thisUnit) / 2)
     end
+    var.ripTicksGain = function(thisUnit)
+        return var.ripTicksTotal(thisUnit) - var.ripTicksRemain(thisUnit)
+    end
+    ticksGain.rip = var.ripTicksGain(thisUnit)
+
+    -- Thrash Ticks
     var.thrashCatTicksTotal = function(thisUnit)
-        return math.floor(debuff.thrashCat.duration(thisUnit) / 3)
+        return not debuff.thrashCat.exists(thisUnit) and 5 or math.floor(debuff.thrashCat.duration(thisUnit) / 3)
     end
     var.thrashCatTicksRemain = function(thisUnit)
         return math.floor(debuff.thrashCat.remain(thisUnit) / 3)
     end
+    var.thrashCatTicksGain = function(thisUnit)
+        return var.thrashCatTicksTotal(thisUnit) - var.thrashCatTicksRemain(thisUnit)
+    end
+    ticksGain.thrash = var.thrashCatTicksGain("target")
+
+    -- Moonfire Feral Ticks
     var.moonfireFeralTicksTotal = function(thisUnit)
-        return math.floor(debuff.moonfireFeral.remain(thisUnit) / 2)
+        return not debuff.moonfireFeral.exists(thisUnit) and 8 or math.floor(debuff.moonfireFeral.remain(thisUnit) / 2)
     end
     var.moonfireFeralTicksRemain = function(thisUnit)
         return math.floor(debuff.moonfireFeral.remain(thisUnit) / 2)
     end
-    ticksGain.thrash = not debuff.thrashCat.exists("target") and 5 or (var.thrashCatTicksTotal("target") - var.thrashCatTicksRemain("target"))
-    ticksGain.rip = not debuff.rip.exists("target") and 12 or (var.ripTicksTotal("target") - var.ripTicksRemain("target"))
-    ticksGain.rake = not debuff.rake.exists("target","EXACT") and 5 or (var.rakeTicksTotal("target") - var.rakeTicksRemain("target"))
-    ticksGain.moonfireFeral = not debuff.moonfireFeral.exists("target") and 8 or (var.moonfireFeralTicksTotal("target") - var.moonfireFeralTicksRemain("target"))
+    var.moonfireFeralTicksGain = function(thisUnit)
+        return var.moonfireFeralTicksTotal(thisUnit) - var.moonfireFeralTicksRemain(thisUnit)
+    end
+    ticksGain.moonfireFeral = var.moonfireFeralTicksGain("target")
+
+    -- Total Ticks Gain / Lowest TTD / Max TTD
     var.lowestTTD = 999
     var.lowestTTDUnit = units.dyn5
     var.maxTTD = 0
     var.maxTTDUnit = units.dyn5
-    -- variable,name=best_rip,value=0,if=talent.primal_wrath.enabled
-    if talent.primalWrath then
-        var.ripTicksGain = 0
-        --bestRip = 0
-    end
     for i = 1, #enemies.yards8 do
         local thisUnit = enemies.yards8[i]
         local thisTTD = unit.ttd(thisUnit) or 99
         if not unit.isUnit("target",thisUnit) then
             -- Moonfire Feral Ticks to Gain
-            ticksGain.moonfireFeral = debuff.moonfireFeral.exists(thisUnit) and (ticksGain.moonfireFeral + (var.moonfireFeralTicksTotal(thisUnit) - var.moonfireFeralTicksRemain(thisUnit))) or ticksGain.moonfireFeral + 8
+            ticksGain.moonfireFeral = ticksGain.moonfireFeral + var.moonfireFeralTicksGain(thisUnit)
             -- Thrash Ticks to Gain
-            ticksGain.thrash = debuff.thrashCat.exists(thisUnit) and (ticksGain.thrash + (var.thrashCatTicksTotal(thisUnit) - var.thrashCatTicksRemain(thisUnit))) or ticksGain.thrash + 5
-            -- cycling_variable,name=best_rip,op=max,value=druid.rip.ticks_gained_on_refresh,if=talent.primal_wrath.enabled
+            ticksGain.thrash = ticksGain.thrash + var.thrashCatTicksGain(thisUnit)
+            -- Primal Wrath Ticks to Gain
             if talent.primalWrath then
-                var.ripTicksGain = debuff.rip.exists(thisUnit) and (var.ripTicksGain + (var.ripTicksTotal(thisUnit) - var.ripTicksRemain(thisUnit))) or var.ripTicksGain + 12
+                ticksGain.rip = ticksGain.rip + var.ripTicksGainUnit(thisUnit)
             end
         end
         -- 5 Yards Checks
         if unit.distance(thisUnit) < 5 and unit.facing(thisUnit) then
             if not unit.isUnit("target",thisUnit) then
                 -- Rip Ticks to Gain
-                ticksGain.rip = debuff.rip.exists(thisUnit) and (ticksGain.rip + (var.ripTicksTotal(thisUnit) - var.ripTicksRemain(thisUnit))) or ticksGain.rip + 12
+                if not talent.primalWrath then
+                    ticksGain.rip = ticksGain.rip + var.ripTicksGain(thisUnit)
+                end
                 -- Rake Ticks to Gain
-                ticksGain.rake = debuff.rake.exists(thisUnit,"EXACT") and (ticksGain.rake + (var.rakeTicksTotal(thisUnit) - var.rakeTicksRemain(thisUnit))) or ticksGain.rake + 5
+                ticksGain.rake = ticksGain.rake + var.rakeTicksGain(thisUnit)
             end
             -- variable,name=shortest_ttd,value=target.time_to_die
             -- cycling_variable,name=shortest_ttd,op=min,value=target.time_to_die
@@ -1606,14 +1624,13 @@ local function runRotation()
             if thisTTD > var.maxTTD then var.maxTTD = thisTTD var.maxTTDUnit = thisUnit end
         end
     end
-    --if talent.primalWrath then bestRip = var.ripTicksGain end
 
     var.ripTicksGainUnit = function(ripUnit)
-        return not debuff.rip.exists(ripUnit) and 12 or (var.ripTicksTotal(ripUnit) - var.ripTicksRemain(ripUnit))
+        return var.ripTicksGain(ripUnit)
     end
 
     var.rakeTicksGainUnit = function(rakeUnit)
-        return not debuff.rake.exists(rakeUnit) and 12 or (var.rakeTicksTotal(rakeUnit) - var.rakeTicksRemain(rakeUnit))
+        return var.rakeTicksGain(thisUnit)
     end
 
     var.maxRakeTicksGain = 0
