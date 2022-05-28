@@ -1220,6 +1220,7 @@ br.lists.spells = {
                 trickShots                  = 257622,
                 trueshot                    = 288613,
                 unerringVision              = 274447,
+		flayersMark		    = 324156,
             },
             debuffs                         = {
                 aMurderOfCrows              = 131894,
