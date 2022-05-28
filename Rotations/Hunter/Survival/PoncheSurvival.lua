@@ -130,19 +130,19 @@ local function createOptions()
         br.ui:checkSectionState(section)
         -- CCs Options
         section = br.ui:createSection(br.ui.window.profile, "CCs")
-            br.ui:createText(section, "Mists of Tirna Scithe")
+            br.ui:createText(section, "|cff00FF00Mists of Tirna Scithe")
             br.ui:createCheckbox(section, "Illusionary Vulpin", "Freezing Trap")
-            br.ui:createText(section, "Plaguefall")
+            br.ui:createText(section, "|cff00FF00Plaguefall")
             br.ui:createCheckbox(section,"Slimy Smorgasbord", "Freezing Trap")
             br.ui:createCheckbox(section,"Defender of Many Eyes", "Freezing Trap on Bulwark of Maldraxxus")
             br.ui:createCheckbox(section,"Rotting Slimeclaw", "Binding Shot on 20% hp")
-            br.ui:createText(section, "The Necrotic Wake")
+            br.ui:createText(section, "|cff00FF00The Necrotic Wake")
             br.ui:createCheckbox(section,"Carrion Worms", "Binding Shot")
-            br.ui:createText(section, "Halls of Atonement")
+            br.ui:createText(section, "|cff00FF00Halls of Atonement")
             br.ui:createCheckbox(section,"Vicious Gargon", "Binding Shot on Loyal Beasts")
-            br.ui:createText(section, "Theater of Pain")
+            br.ui:createText(section, "|cff00FF00Theater of Pain")
             br.ui:createCheckbox(section,"Disgusting Refuse", "Binding Shot")
-            br.ui:createText(section, "M+ affixs")
+            br.ui:createText(section, "|cff00FF00M+ affixs")
             br.ui:createCheckbox(section,"Spiteful", "Binding Shot & Tar Trap")
         br.ui:checkSectionState(section)
         -- Toggle Key Options
@@ -548,8 +548,8 @@ actionList.Interrupt = function()
 
     -- Muzzle
     if ui.checked("Muzzle") and cast.able.muzzle() then
-        for i=1, #enemies.yards5 do
-            local thisUnit = enemies.yards5[i]
+        for i=1, #enemies.yards5f do
+            local thisUnit = enemies.yards5f[i]
             if not isBlackListed(thisUnit) and unit.interruptable(thisUnit, ui.value("Interrupt At")) then
                 if cast.muzzle(thisUnit) then return true end
             end
@@ -560,7 +560,7 @@ actionList.Interrupt = function()
     if ui.checked("Freezing Trap") then
         for i = 1, #enemies.yards40 do
             local thisUnit = enemies.yards40[i]
-            if not isBlackListed(thisUnit) and unit.interruptable(thisUnit, ui.value("Interrupt At")) and cast.timeRemain(thisUnit) > 3 or isToStun(thisUnit) then
+            if not isBlackListed(thisUnit) and cast.timeRemain(thisUnit) > 1.5 and (unit.interruptable(thisUnit, ui.value("Interrupt At")) or isToStun(thisUnit)) then
                 if cast.freezingTrap(thisUnit, "ground") then return true end
             end
         end
@@ -570,7 +570,7 @@ actionList.Interrupt = function()
     if ui.checked("Intimidation - Int") then
         for i=1, #enemies.yards5 do
             local thisUnit = enemies.yards5[i]
-            if not isBlackListed(thisUnit) and unit.interruptable(thisUnit, ui.value("Interrupt At")) or isToStun(thisUnit) then
+            if not isBlackListed(thisUnit) and (unit.interruptable(thisUnit, ui.value("Interrupt At")) or isToStun(thisUnit)) then
                 if cast.intimidation(thisUnit) then return true end
             end
         end
