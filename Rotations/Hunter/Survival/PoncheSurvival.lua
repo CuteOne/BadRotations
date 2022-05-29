@@ -235,6 +235,8 @@ local spellsToStun  = {
     333540,
     -- Devour Flesh (Theater Of Pain)
     330586,
+    -- Invigorating Fish Stick (Tazavesh, the Veiled Market)
+    355132,
 }
 
 local blacklist = {
@@ -560,7 +562,7 @@ actionList.Interrupt = function()
     if ui.checked("Freezing Trap") then
         for i = 1, #enemies.yards40 do
             local thisUnit = enemies.yards40[i]
-            if not isBlackListed(thisUnit) and cast.timeRemain(thisUnit) > 1.5 and (unit.interruptable(thisUnit, ui.value("Interrupt At")) or isToStun(thisUnit)) then
+            if not isBlackListed(thisUnit) and cast.timeRemain(thisUnit) > 1 and (unit.interruptable(thisUnit, ui.value("Interrupt At")) or isToStun(thisUnit)) then
                 if cast.freezingTrap(thisUnit, "ground") then return true end
             end
         end
