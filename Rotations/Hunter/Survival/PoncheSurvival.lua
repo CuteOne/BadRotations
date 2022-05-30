@@ -190,7 +190,7 @@ local var
 
 local actionList = {}
 
-local spellsToStun  = {
+local castingList  = {
     -- Final Bargain (The Necrotic Wake)
     320822,
     -- Bone Flay (The Necrotic Wake)
@@ -217,8 +217,6 @@ local spellsToStun  = {
     332156,
     -- Frightened Cries (De Other Side)
     334664,
-    -- Fungi Storm (Plaguefall)
-    328177,
     -- Withering Filth (Plaguefall)
     321935,
     -- Crushing Embrace (Plaguefall)
@@ -239,7 +237,21 @@ local spellsToStun  = {
     355132,
 }
 
-local blacklist = {
+local channelingList = {
+    -- Fungi Storm (Plaguefall)
+    328177,
+    -- Bucking Rampage (Mists Of Tirna Scithe)
+    331743
+}
+
+local kickBlacklist = {
+    -- Fungi Storm (Plaguefall)
+    328177,
+    -- Bucking Rampage (Mists Of Tirna Scithe)
+    331743
+}
+
+local mobBlacklist = {
     -- Urh Relic
     185685,
     -- Wo Relic
@@ -305,9 +317,45 @@ local function getMobToCc(mobID, minHP, spellID)
     return nil  
 end
 
+local function isCasting(unit, spellId)
+    local spellCasting = br._G.UnitCastingInfo(unit)
+    if spellCasting == nil then
+        return false
+    end
+    if spellID == nil then return spellCasting ~= nil end
+    local spellName = br._G.GetSpellInfo(spellID)
+    return tostring(spellCasting) == tostring(spellName)
+end
+
+local function isChannelling(unit, spellId)
+    local spellChannelling = br._G.UnitChannelInfo(unit)
+    if spellChannelling == nil then
+        return false
+    end
+    if spellID == nil then return spellChannelling ~= nil end
+    local spellName = br._G.GetSpellInfo(spellID)
+    return tostring(spellChannelling) == tostring(spellName)
+end
+
+local function isNotToStun(enemy)
+    for _, spellId in pairs(channelingList) do
+        if isCasting(enemy, spellId) then
+            return true
+        end
+    end
+
+    return false
+end
+
 local function isToStun(enemy)
-    for _, spellId in pairs(spellsToStun) do
-        if unit.isCasting(spellId, enemy) then
+    for _, spellId in pairs(castingList) do
+        if isCasting(enemy, spellId) then
+            return true
+        end
+    end
+
+    for _, spellId in pairs(channelingList) do
+        if isChannelling(enemy, spellId) and cast.timeRemain(enemy) > 1 then
             return true
         end
     end
@@ -358,7 +406,7 @@ local function getLowestBloodseeker()
 
     for i = 1, #enemies.yards40 do
         local thisUnit = enemies.yards40[i]
-        if (br.getGUID(thisUnit) ==  br.getGUID("target") or not isIdInList(thisUnit, blacklist)) and br._G.UnitAffectingCombat(thisUnit) and unit.distance(thisUnit, "pet") < 40 and (lowestUnit == nil or debuff.bloodseeker.remains(thisUnit, "pet") < debuff.bloodseeker.remains(lowestUnit, "pet") or debuff.bloodseeker.remains(thisUnit, "pet") == debuff.bloodseeker.remains(lowestUnit, "pet") and (unit.distance(lowestUnit) > 12 or unit.health(thisUnit) > unit.health(lowestUnit) and unit.distance(thisUnit) <= 12)) then
+        if (br.getGUID(thisUnit) ==  br.getGUID("target") or not isIdInList(thisUnit, mobBlacklist)) and br._G.UnitAffectingCombat(thisUnit) and unit.distance(thisUnit, "pet") < 40 and (lowestUnit == nil or debuff.bloodseeker.remains(thisUnit, "pet") < debuff.bloodseeker.remains(lowestUnit, "pet") or debuff.bloodseeker.remains(thisUnit, "pet") == debuff.bloodseeker.remains(lowestUnit, "pet") and (unit.distance(lowestUnit) > 12 or unit.health(thisUnit) > unit.health(lowestUnit) and unit.distance(thisUnit) <= 12)) then
             lowestUnit = thisUnit
         end
     end
@@ -371,7 +419,7 @@ local function getLowestBloodseekerWithPheromone()
 
     for i = 1, #enemies.yards40 do
         local thisUnit = enemies.yards40[i]
-        if (br.getGUID(thisUnit) ==  br.getGUID("target") or not isIdInList(thisUnit, blacklist)) and br._G.UnitAffectingCombat(thisUnit) and unit.distance(thisUnit, "pet") < 40 and (debuff.pheromoneBomb.exists(thisUnit, "player") and (lowestUnit == nil or debuff.bloodseeker.remains(thisUnit, "pet") < debuff.bloodseeker.remains(lowestUnit, "pet") or debuff.bloodseeker.remains(thisUnit, "pet") == debuff.bloodseeker.remains(lowestUnit, "pet") and (unit.distance(lowestUnit) > 12 or unit.health(thisUnit) > unit.health(lowestUnit) and unit.distance(thisUnit) <= 12))) then
+        if (br.getGUID(thisUnit) ==  br.getGUID("target") or not isIdInList(thisUnit, mobBlacklist)) and br._G.UnitAffectingCombat(thisUnit) and unit.distance(thisUnit, "pet") < 40 and (debuff.pheromoneBomb.exists(thisUnit, "player") and (lowestUnit == nil or debuff.bloodseeker.remains(thisUnit, "pet") < debuff.bloodseeker.remains(lowestUnit, "pet") or debuff.bloodseeker.remains(thisUnit, "pet") == debuff.bloodseeker.remains(lowestUnit, "pet") and (unit.distance(lowestUnit) > 12 or unit.health(thisUnit) > unit.health(lowestUnit) and unit.distance(thisUnit) <= 12))) then
             lowestUnit = thisUnit
         end
     end
@@ -384,7 +432,7 @@ local function getLowestSerpentSting()
 
     for i = 1, #enemies.yards40f do
         local thisUnit = enemies.yards40f[i]
-        if (br.getGUID(thisUnit) ==  br.getGUID("target") or not isIdInList(thisUnit, blacklist)) and br._G.UnitAffectingCombat(thisUnit) and (lowestUnit == nil or debuff.serpentSting.remains(thisUnit, "player") < debuff.serpentSting.remains(lowestUnit, "player") and unit.ttd(thisUnit) > 7) then
+        if (br.getGUID(thisUnit) ==  br.getGUID("target") or not isIdInList(thisUnit, mobBlacklist)) and br._G.UnitAffectingCombat(thisUnit) and (lowestUnit == nil or debuff.serpentSting.remains(thisUnit, "player") < debuff.serpentSting.remains(lowestUnit, "player") and unit.ttd(thisUnit) > 7) then
             lowestUnit = thisUnit
         end
     end
@@ -398,14 +446,14 @@ local function getMaxLatentPoison()
     if buff.aspectOfTheEagle.exists() then
         for i = 1, #enemies.yards40f do
             local thisUnit = enemies.yards40f[i]
-            if (br.getGUID(thisUnit) ==  br.getGUID("target") or not isIdInList(thisUnit, blacklist)) and br._G.UnitAffectingCombat(thisUnit) and (maxLatentPoison == nil or debuff.latentPoison.stack(thisUnit, "player") > debuff.latentPoison.stack(maxLatentPoison, "player")) then
+            if (br.getGUID(thisUnit) ==  br.getGUID("target") or not isIdInList(thisUnit, mobBlacklist)) and br._G.UnitAffectingCombat(thisUnit) and (maxLatentPoison == nil or debuff.latentPoison.stack(thisUnit, "player") > debuff.latentPoison.stack(maxLatentPoison, "player")) then
                 maxLatentPoison = thisUnit
             end
         end
     else
         for i = 1, #enemies.yards5f do
             local thisUnit = enemies.yards5f[i]
-            if (br.getGUID(thisUnit) ==  br.getGUID("target") or not isIdInList(thisUnit, blacklist)) and br._G.UnitAffectingCombat(thisUnit) and (maxLatentPoison == nil or debuff.latentPoison.stack(thisUnit, "player") > debuff.latentPoison.stack(maxLatentPoison, "player")) then
+            if (br.getGUID(thisUnit) ==  br.getGUID("target") or not isIdInList(thisUnit, mobBlacklist)) and br._G.UnitAffectingCombat(thisUnit) and (maxLatentPoison == nil or debuff.latentPoison.stack(thisUnit, "player") > debuff.latentPoison.stack(maxLatentPoison, "player")) then
                 maxLatentPoison = thisUnit
             end
         end
@@ -563,7 +611,7 @@ actionList.Interrupt = function()
     if ui.checked("Muzzle") and cast.able.muzzle() then
         for i=1, #enemies.yards5f do
             local thisUnit = enemies.yards5f[i]
-            if not isIdInList(thisUnit, blacklist) and unit.interruptable(thisUnit, ui.value("Interrupt At")) then
+            if not isIdInList(thisUnit, mobBlacklist) and unit.interruptable(thisUnit, ui.value("Interrupt At")) then
                 if cast.muzzle(thisUnit) then return true end
             end
         end
@@ -573,7 +621,7 @@ actionList.Interrupt = function()
     if ui.checked("Freezing Trap") then
         for i = 1, #enemies.yards40 do
             local thisUnit = enemies.yards40[i]
-            if not isIdInList(thisUnit, blacklist) and cast.timeRemain(thisUnit) > 1 and (isToStun(thisUnit) or not keepStun and unit.interruptable(thisUnit, ui.value("Interrupt At"))) then
+            if not isIdInList(thisUnit, mobBlacklist) and not isNotToStun(thisUnit) and cast.timeRemain(thisUnit) > 1 and (isToStun(thisUnit) or not keepStun and unit.interruptable(thisUnit, ui.value("Interrupt At"))) then
                 if cast.freezingTrap(thisUnit, "ground") then return true end
             end
         end
@@ -583,7 +631,7 @@ actionList.Interrupt = function()
     if ui.checked("Intimidation - Int") then
         for i=1, #enemies.yards5 do
             local thisUnit = enemies.yards5[i]
-            if not isIdInList(thisUnit, blacklist) and (isToStun(thisUnit) or not keepStun and unit.interruptable(thisUnit, ui.value("Interrupt At"))) then
+            if not isIdInList(thisUnit, mobBlacklist) and not isNotToStun(thisUnit) and (isToStun(thisUnit) or not keepStun and unit.interruptable(thisUnit, ui.value("Interrupt At"))) then
                 if cast.intimidation(thisUnit) then return true end
             end
         end
