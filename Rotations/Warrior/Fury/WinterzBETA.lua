@@ -602,6 +602,12 @@ actionList.ST = function()
                 return
             end
         end
+        -- Crushing blow
+        if cast.able.crushingBlow() and (equiped.tier(28) >= 2 or charges.crushingBlow.count() == 2) then
+            if cast.crushingBlow() then ui.debug("Casting Crushing Blow [ST - 2 Charges]") 
+                return
+            end
+        end
         -- Siegebreaker
         if br.player.ui.mode.cooldown ~= 3 and (br.getBuffRemain("player", spell.recklessness) > 4.5 or cd.recklessness.remain() > 25 or (br.getOptionValue("Recklessness") == 2 and not br.useCDs())) then
             if cast.siegebreaker() then
@@ -654,7 +660,7 @@ actionList.ST = function()
             end
         end
         -- Spear of Bastion
-        if cast.able.spearOfBastion("best",nil,1, 5) and buff.enrage.exists("player") and br.player.ui.mode.cooldown ~= 3 then
+        if cast.able.spearOfBastion("best",nil,1, 5) and br.isChecked("Spear of Bastion Units") and buff.enrage.exists("player") and br.player.ui.mode.cooldown ~= 3 then
             if cast.spearOfBastion("best",nil, 1, 5) then ui.debug("Spear ST")
                 return
             end
@@ -734,7 +740,7 @@ actionList.AOE = function()
         if cast.whirlwind("player","aoe",1,8) then ui.debug("Casting Whirlwind [ST - Merciless Bonegrinder]") return true end
         end
         -- Spear of Bastion
-        if cast.able.spearOfBastion("best",nil,2, 5) and br.player.ui.mode.cooldown ~= 3 then
+        if cast.able.spearOfBastion("best",nil,2, 5) and br.isChecked("Spear of Bastion Units") and br.player.ui.mode.cooldown ~= 3 then
             if cast.spearOfBastion("best",nil, 2, 5) then ui.debug("Spear AOE")
                 return
             end
@@ -768,6 +774,12 @@ actionList.AOE = function()
         -- Rampage
         if buff.whirlwind.exists("player") and (buff.recklessness.exists("player") or (not buff.enrage.exists("player") or (rage >= 85)) or (buff.frenzy.remain() < 2)) then
             if cast.rampage() then
+                return
+            end
+        end
+        -- Crushing blow
+        if cast.able.crushingBlow() and (equiped.tier(28) >= 2 or charges.crushingBlow.count() == 2) then
+            if cast.crushingBlow() then ui.debug("Casting Crushing Blow [AoE - 2 Charges]")
                 return
             end
         end
@@ -863,12 +875,12 @@ actionList.AOE = function()
 end -- End of AOE List
 -- Action List - Cooldowns
 actionList.Cooldown = function()
-    if br.isChecked("Trinkets") and (br.getOptionValue("Trinkets") == 1 or (br.getOptionValue("Trinkets") == 2 and buff.recklessness.exists("player"))) and inCombat and br.canUseItem(13) then
+    if br.isChecked("Trinkets") and (br.getOptionValue("Trinkets") == 1 or (br.getOptionValue("Trinkets") == 2 and buff.recklessness.remain("player") >3)) and inCombat and br.canUseItem(13) then
         if br.useItem(13) then debug("Using Trinket 1")
             return
         end
     end
-    if br.isChecked("Trinkets") and (br.getOptionValue("Trinkets") == 1 or (br.getOptionValue("Trinkets") == 2 and buff.recklessness.exists("player"))) and inCombat and br.canUseItem(14) then
+    if br.isChecked("Trinkets") and (br.getOptionValue("Trinkets") == 1 or (br.getOptionValue("Trinkets") == 2 and buff.recklessness.remain("player") >3)) and inCombat and br.canUseItem(14) then
         if br.useItem(14) then debug("Using Trinket 2")
             return
         end
