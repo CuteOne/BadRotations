@@ -338,7 +338,7 @@ local function isChannelling(unit, spellId)
 end
 
 local function isNotToStun(enemy)
-    for _, spellId in pairs(channelingList) do
+    for _, spellId in pairs(kickBlacklist) do
         if isCasting(enemy, spellId) then
             return true
         end
