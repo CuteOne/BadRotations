@@ -76,7 +76,8 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "General")
             -- Misdirection
             br.ui:createDropdownWithout(section,"Misdirection", {"|cff00FF00Tank","|cffFFFF00Focus","|cffFF0000Pet"}, 1, "|cffFFFFFFAbility target.")
-            br.ui:createSpinnerWithout(section, "Serpent Sting DoT Limit", 0, 0, 10, 1, "|cffFFFFFFUnit Count Limit that DoT will be cast on.")
+            br.ui:createSpinner(section, "Serpent Sting DoT Limit", 0, 0, 10, 1, "|cffFFFFFFUnit Count Limit that DoT will be cast on.")
+            br.ui:createCheckbox(section, "Marksman's Advantage")
         br.ui:checkSectionState(section)
         -- Pet Options
         br.rotations.support["PetCuteOne"].options()
@@ -176,8 +177,6 @@ local debuff
 local enemies
 local focus
 local focusMax
-local gcd
-local level
 local maps = br.lists.maps
 local module
 local runeforge
@@ -187,6 +186,7 @@ local ui
 local unit
 local units
 local var
+local conduit
 
 local actionList = {}
 
@@ -267,6 +267,136 @@ local keepStunList = {
     178141,
 }
 
+local mmAdvantage = {
+    -- DE OTHERSIDE
+    -- Hakkar
+    166473,
+    -- Dealer Xy'exa
+    164450,
+    -- Shattered Visage
+    168326,
+    -- Millhouse Manastorm
+    164556,
+    -- Millificent Manastorm
+    102616,
+    -- Mueh'zala
+    169769,
+    -- Enraged Spirit
+    168934,
+
+    -- HALLS OF ATONEMENT
+    -- Halkias
+    165408,
+    -- Echelon
+    156827,
+    -- High Adjudicator Aleez
+    165410,
+    -- Lord Chamberlain
+    164218,
+    -- Shard of Halkias
+    164557,
+
+    -- MISTS OF TIRNA SCITHE
+    -- Ingra Maloch
+    164567,
+    -- Droman Oulfarran
+    164804,
+    -- Mistcaller
+    164501,
+    -- Tred'ova
+    164517,
+    -- Drust Boughbreaker
+    164926,
+
+    -- PLAGUEFALL
+    -- Globgrog
+    164255,
+    -- Doctor Ickus
+    164967,
+    -- Domina Venomblade
+    164266,
+    -- Margrave Stradama
+    164267,
+
+    -- SANGUINE DEPTHS
+    -- Kryxis the Voracious
+    162100,
+    -- Executor Tarvold
+    162103,
+    -- Grand Protector Beryllia
+    162102,
+    -- General Kaal
+    165318,
+
+    -- SPIRES OF THE ASCENTION
+    -- Azules
+    163077,
+    -- Ventunax
+    162058,
+    -- Oryphrion
+    162060,
+    -- Devos
+    167410,
+    -- Lakesis
+    168844,
+    -- Klotos
+    168843,
+    -- Astronos
+    168845,
+    -- Forsworn Helion
+    168681,
+
+    -- THE NECROTIC WAKE
+    -- Blightbone
+    166880,
+    -- Amarth
+    163157,
+    -- Surgeon Stitchflesh
+    166882,
+    -- Nalthor the Rimebinder
+    166945,
+    -- Rotspew
+    163620,
+
+    -- THEATER OF PAIN
+    -- Sathel the Accursed
+    164461,
+    -- Paceran the Virulent
+    164463,
+    -- Gorechop
+    162317,
+    -- Xav the Unfallen
+    162329,
+    -- Kul'tharok
+    162309,
+    -- Mordretha
+    165946,
+    -- Shambling Arbalest
+    164510,
+    -- Rancid Gasbag
+    163086,
+    -- Portal Guardian
+    167998,
+    -- Advent Nevermore
+    167533,
+
+    -- M+
+    -- Manifestation of Pride
+     173729,
+}
+
+local mmAdvantageOverride = {
+    -- Shattered Visage
+    168326,
+    -- Millhouse Manastorm
+    164556,
+    -- Millificent Manastorm
+    102616,
+
+    -- Droman Oulfarran
+    164804,
+}
+
 local lastExplosiveKill = 0
 
 --Functions
@@ -293,6 +423,17 @@ local function nextBomb(nextBomb)
     end
 
     return currentBomb == nextBomb
+end
+
+local function isHuntersMarkActive()
+    for i = 1, #enemies.yards40 do
+        local thisUnit = enemies.yards40[i]
+        if debuff.huntersMark.exists(thisUnit, "player") then
+            return true
+        end
+    end
+    
+    return false
 end
 
 local function isFreezingTrapActive()
@@ -486,6 +627,29 @@ actionList.Explosives = function()
                     return true 
                 end
             end
+        end
+    end
+
+    return false
+end
+
+--Marksman's Advantage
+actionList.mmAdvantage = function()
+    if not ui.checked("Marksman's Advantage") or not conduit.marksmansAdvantage.enabled then return false end
+    
+    for i = 1, #enemies.yards40f do
+        local thisUnit = enemies.yards40f[i]
+        if br.getGUID(thisUnit) ==  br.getGUID("target") and not debuff.huntersMark.exists(thisUnit, "player") and br._G.UnitAffectingCombat(thisUnit) and cast.able.huntersMark(thisUnit) and isIdInList(thisUnit, mmAdvantageOverride) then
+            if cast.huntersMark(thisUnit) then return true end
+        end
+    end
+
+    if isHuntersMarkActive() then return false end
+            
+    for i = 1, #enemies.yards40f do
+        local thisUnit = enemies.yards40f[i]
+        if br._G.UnitAffectingCombat(thisUnit) and cast.able.huntersMark(thisUnit) and isIdInList(thisUnit, mmAdvantage) then
+            if cast.huntersMark(thisUnit) then return true end
         end
     end
 
@@ -1080,6 +1244,7 @@ local function runRotation()
     cast                                          = br.player.cast
     cd                                            = br.player.cd
     charges                                       = br.player.charges
+    conduit                                       = br.player.conduit
     debuff                                        = br.player.debuff
     enemies                                       = br.player.enemies
     focus                                         = br.player.power.focus.amount()
@@ -1121,7 +1286,7 @@ local function runRotation()
     var.spiritUnits                              = ui.useCDs() and 1 or 3
     var.pheromoneUnit                            = var.singleTarget and "target" or getLowestBloodseekerWithPheromone() or "target"
     var.maxSerpentSting                          = ui.value("Serpent Sting DoT Limit")
-    var.canSerpentSting                          = var.maxSerpentSting == 0 or debuff.serpentSting.count() < var.maxSerpentSting
+    var.canSerpentSting                          = not ui.checked("Serpent Sting DoT Limit") or debuff.serpentSting.count() < var.maxSerpentSting
 
     if var.haltProfile then return true end
 
@@ -1133,7 +1298,8 @@ local function runRotation()
     if not unit.inCombat() or not unit.exists("target") or not unit.valid("target") then
         return true
     end
-    
+
+    if actionList.mmAdvantage() then return true end
 
     --M+ Explosives
     if actionList.Explosives() then return true end
