@@ -1498,6 +1498,7 @@ br.lists.spells = {
             },
             conduits                        = {
                 bloodletting                = 341440,
+		marksmansAdvantage          = 339264,
             },
             covenants                       = {
                 deathChakram                = 325028,
