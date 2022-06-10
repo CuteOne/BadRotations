@@ -1767,8 +1767,8 @@ local function runRotation()
                             or ((buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists()) and not cd.feralFrenzy.exists())))
                         or (comboPoints == 5 and buff.tigersFury.exists() and buff.tigersFury.remain() < 4 and ticksGain.rip >5))
                     then
-                        for i = 1, #enemies.yards5 do
-                            local thisUnit = enemies.yards5[i]
+                        for i = 1, #enemies.yards5f do
+                            local thisUnit = enemies.yards5f[i]
                             if cast.able.rip(thisUnit) and debuff.rip.refresh(thisUnit) and var.ripTicksGainUnit(thisUnit) > ripTicks then
                                 if cast.rip(thisUnit) then ui.debug("Casting Rip [Necrolord Ticks Gain]") return true end
                             end
