@@ -13,12 +13,17 @@ local function getSnapshotValue(dot)
         -- local SavageRoar        = 1.40
         local TigersFury        = 1.15
         local RakeMultiplier    = 1
+        -- Tigers Fury
+        if self.buff.tigersFury.exists() then multiplier = multiplier*TigersFury end
+        -- moonfire feral
+        if dot == self.spell.debuffs.moonfireFeral then
+            -- return moonfire
+            return multiplier
+        end
         -- Bloodtalons
         if self.buff.bloodtalons.exists() and dot == self.spell.debuffs.rip then multiplier = multiplier*Bloodtalons end
         -- Savage Roar
         -- if self.buff.savageRoar.exists() then multiplier = multiplier*SavageRoar end
-        -- Tigers Fury
-        if self.buff.tigersFury.exists() then multiplier = multiplier*TigersFury end
         -- rip
         if dot == self.spell.debuffs.rip then
             -- -- Versatility
@@ -35,7 +40,6 @@ local function getSnapshotValue(dot)
             -- return rake
             return multiplier*RakeMultiplier
         end
-
     end
     -- Assassination Bleeds
     if _G.GetSpecializationInfo(_G.GetSpecialization()) == 259 then

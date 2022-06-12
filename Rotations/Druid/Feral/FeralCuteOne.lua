@@ -1552,7 +1552,7 @@ local function runRotation()
     var.rakeTicksGain = function(thisUnit)
         return var.rakeTicksTotal(thisUnit) - var.rakeTicksRemain(thisUnit)
     end
-    ticksGain.rake = var.rakeTicksGain(thisUnit)
+    ticksGain.rake = var.rakeTicksGain("target")
 
     -- Rip Ticks
     var.ripTicksTotal = function(thisUnit)
@@ -1564,7 +1564,7 @@ local function runRotation()
     var.ripTicksGain = function(thisUnit)
         return var.ripTicksTotal(thisUnit) - var.ripTicksRemain(thisUnit)
     end
-    ticksGain.rip = var.ripTicksGain(thisUnit)
+    ticksGain.rip = var.ripTicksGain("target")
 
     -- Thrash Ticks
     var.thrashCatTicksTotal = function(thisUnit)
@@ -1630,7 +1630,11 @@ local function runRotation()
     end
 
     var.rakeTicksGainUnit = function(rakeUnit)
-        return var.rakeTicksGain(thisUnit)
+        return var.rakeTicksGain(rakeUnit)
+    end
+
+    var.moonfireFeralTicksGainUnit = function(moonfireFeralUnit)
+        return var.moonfireFeralTicksGain(moonfireFeralUnit)
     end
 
     var.maxRakeTicksGain = 0
@@ -1652,6 +1656,18 @@ local function runRotation()
                 var.lowestRip = ripValue
                 var.lowestRipUnit = thisUnit
             end
+        end
+    end
+
+    var.maxMoonfireFeralTicksGain = 0
+    var.maxMoonfireFeralTicksGainUnit = "target"
+    for i = 1, #enemies.yards40 do
+        local thisUnit = enemies.yards40[i]
+        -- Moonfire
+        local moonfireFeralTicksGain = var.moonfireFeralTicksGainUnit(thisUnit)
+        if moonfireFeralTicksGain > var.maxMoonfireFeralTicksGain then
+            var.maxMoonfireFeralTicksGain = moonfireFeralTicksGain
+            var.maxMoonfireFeralTicksGainUnit = thisUnit
         end
     end
 
@@ -1821,13 +1837,12 @@ local function runRotation()
                         end
                         -- Lunar Inspiration
                         -- lunar_inspiration,target_if=max:druid.lunar_inspiration.ticks_gained_on_refresh,if=(refreshable|persistent_multiplier>dot.lunar_inspiration.pmultiplier)&druid.lunar_inspiration.ticks_gained_on_refresh>spell_targets.swipe_cat*2-2
-                        if cast.able.moonfireFeral() and talent.lunarInspiration then
-                            for i = 1, #enemies.yards40 do
-                                local thisUnit = enemies.yards40[i]
-                                if canDoT(thisUnit) and ticksGain.moonfireFeral > #enemies.yards8 * 2 - 2 then --debuff.moonfireFeral.refresh(thisUnit) then
-                                    if cast.moonfireFeral(thisUnit) then ui.debug("Casting Moonfire") return true end
-                                end
-                            end
+                        if talent.lunarInspiration and cast.able.moonfireFeral(var.maxMoonfireFeralTicksGainUnit) and canDoT(var.maxMoonfireFeralTicksGainUnit)
+                            and debuff.moonfireFeral.count() < ui.value("Multi-DoT Limit") and #enemies.yards40 < ui.value("Multi-DoT Limit")
+                            and (debuff.moonfireFeral.refresh(var.maxMoonfireFeralTicksGainUnit) or debuff.moonfireFeral.calc() > debuff.moonfireFeral.applied(var.maxMoonfireFeralTicksGainUnit))
+                            and var.moonfireFeralTicksGainUnit(var.maxMoonfireFeralTicksGainUnit) > #enemies.yards8 * 2 - 2
+                        then
+                            if cast.moonfireFeral(var.maxMoonfireFeralTicksGainUnit) then ui.debug("Casting Moonfire") return true end
                         end
                         -- Thrash
                         -- pool_resource,for_next=1
