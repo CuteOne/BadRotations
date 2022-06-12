@@ -892,7 +892,7 @@ actionList.Cleave = function()
         if cast.coordinatedAssault() then return true end
     end
     --actions.cleave+=/wildfire_bomb,if=full_recharge_time<gcd|buff.mad_bombardier.up|target.time_to_die<5
-    if cast.able.wildfireBomb(units.dyn40, "cone", 1, 8) and (charges.wildfireBomb.timeTillFull() < unit.gcd(true) or buff.madBombardier.exists() or unit.ttd("target") < 5) then
+    if cast.able.wildfireBomb(units.dyn40, "cone", 1, 8) and (charges.wildfireBomb.timeTillFull() < unit.gcd(true) or buff.madBombardier.exists()) then
         if cast.wildfireBomb(units.dyn40, "cone", 1, 8) then return true end
     end
     --actions.cleave+=/carve,if=cooldown.wildfire_bomb.charges_fractional<1
