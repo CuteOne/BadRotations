@@ -891,9 +891,13 @@ actionList.Cleave = function()
     if ui.alwaysCdAoENever("Coordinated Assault", 3, #var.eagleEnemies) and cast.able.coordinatedAssault() and unit.distance("target") < 5 then
         if cast.coordinatedAssault() then return true end
     end
-    --actions.cleave+=/wildfire_bomb,if=full_recharge_time<gcd
-    if cast.able.wildfireBomb(units.dyn40, "cone", 1, 8) and charges.wildfireBomb.timeTillFull() < unit.gcd(true) then
+    --actions.cleave+=/wildfire_bomb,if=full_recharge_time<gcd|buff.mad_bombardier.up|target.time_to_die<5
+    if cast.able.wildfireBomb(units.dyn40, "cone", 1, 8) and (charges.wildfireBomb.timeTillFull() < unit.gcd(true) or buff.madBombardier.exists() or unit.ttd("target") < 5) then
         if cast.wildfireBomb(units.dyn40, "cone", 1, 8) then return true end
+    end
+    --actions.cleave+=/carve,if=cooldown.wildfire_bomb.charges_fractional<1
+    if cast.able.carve() and charges.wildfireBomb.frac() < 1 then
+        if cast.carve() then return true end
     end
     --actions.cleave+=/death_chakram,if=(!raid_event.adds.exists|raid_event.adds.remains>5|active_enemies>=raid_event.adds.count*2)|focus+cast_regen<focus.max&!runeforge.bag_of_munitions.equipped
     if ui.alwaysCdAoENever("Covenany Ability", 3, #enemies.yards8t) and cast.able.deathChakram("target") and focus + cast.regen.deathChakram() < focusMax and not runeforge.bagOfMunitions.equiped then
@@ -923,13 +927,9 @@ actionList.Cleave = function()
     if ui.mode.harpoon == 1 and talent.flankingStrike and cast.able.flankingStrike("target") and unit.distance("pet", units.dyn15) < 15 and focus + cast.regen.flankingStrike() < focusMax then
         if cast.flankingStrike("target") then return true end
     end
-    --actions.cleave+=/carve,if=cooldown.wildfire_bomb.full_recharge_time>spell_targets%2
-    if not talent.butchery and cast.able.carve("player", "cone", 1, 8) and charges.wildfireBomb.timeTillFull() > #enemies.yards8t / 2 then
-        if cast.carve("player", "cone", 1, 8) then return true end
-    end
-    --actions.cleave+=/wildfire_bomb,if=buff.mad_bombardier.up
-    if cast.able.wildfireBomb(units.dyn40, "cone", 1, 8) and buff.madBombardier.exists() then
-        if cast.wildfireBomb(units.dyn40, "cone", 1, 8) then return true end
+    --actions.cleave+=/kill_command,target_if=dot.pheromone_bomb.ticking&set_bonus.tier28_2pc&!buff.mad_bombardier.up
+    if cast.able.killCommand(var.pheromoneUnit) and debuff.pheromoneBomb.exists(var.pheromoneUnit) and var.hasTierBonus and not buff.madBombardier.exists() then
+        if cast.killCommand(var.pheromoneUnit) then return true end
     end
     --actions.cleave+=/kill_command,target_if=dot.pheromone_bomb.ticking&set_bonus.tier28_2pc
     if cast.able.killCommand(var.pheromoneUnit) and unit.distance("pet", var.pheromoneUnit) < 50 and debuff.pheromoneBomb.exists(var.pheromoneUnit) and var.hasTierBonus then
@@ -943,21 +943,21 @@ actionList.Cleave = function()
     if ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards8t) and cast.able.flayedShot("target") then
         if cast.flayedShot("target") then return true end
     end
-    --actions.cleave+=/serpent_sting,target_if=min:remains,if=refreshable&!ticking&next_wi_bomb.volatile&target.time_to_die>15&focus+cast_regen>35&active_enemies<=4
-    if var.canSerpentSting and cast.able.serpentSting(var.lowestSerpentSting) and debuff.serpentSting.refresh(var.lowestSerpentSting) and not debuff.serpentSting.exists(var.lowestSerpentSting) and nextBomb(spell.volatileBomb) and unit.ttd(var.lowestSerpentSting) > 15 and focus + cast.regen.serpentSting() > 35 and #enemies.yards40 <= 4 then
-        if cast.serpentSting(var.lowestSerpentSting) then return true end
-    end
-    --actions.cleave+=/kill_command,target_if=min:bloodseeker.remains,if=focus+cast_regen<focus.max&full_recharge_time<gcd&(runeforge.nessingwarys_trapping_apparatus.equipped&cooldown.freezing_trap.remains&cooldown.tar_trap.remains|!runeforge.nessingwarys_trapping_apparatus.equipped)
-    if  cast.able.killCommand(var.lowestBloodseeker) and unit.distance("pet", var.lowestBloodseeker) < 50 and focus + cast.regen.killCommand() < focusMax and charges.killCommand.timeTillFull() < unit.gcd(true) and (runeforge.nesingwarysTrappingApparatus.equiped and cd.freezingTrap.remain() > 0 and cd.tarTrap.remain() > 0 or not runeforge.nesingwarysTrappingApparatus.equiped) then
-        if cast.killCommand(var.lowestBloodseeker) then return true end
-    end
-    --actions.cleave+=/wildfire_bomb,if=!dot.wildfire_bomb.ticking&!set_bonus.tier28_2pc|charges_fractional>1.3
-    if cast.able.wildfireBomb(units.dyn40, "cone", 1, 8) and (not var.hasTierBonus and not debuff.wildfireBomb.exists(units.dyn40) or charges.wildfireBomb.frac() > 1.3) then
+    --actions.cleave+=/wildfire_bomb,if=!dot.wildfire_bomb.ticking&!set_bonus.tier28_2pc|raid_event.adds.exists&(charges_fractional>1.2&active_enemies>4|charges_fractional>1.4&active_enemies>3|charges_fractional>1.6)|!raid_event.adds.exists&charges_fractional>1.5
+    if cast.able.wildfireBomb(units.dyn40, "cone", 1, 8) and (not debuff.wildfireBomb.exists(units.dyn40) and not var.hasTierBonus or charges.wildfireBomb.frac() > 1.5) then
         if cast.wildfireBomb(units.dyn40, "cone", 1, 8) then return true end
     end
     --actions.cleave+=/butchery,if=(!next_wi_bomb.shrapnel|!talent.wildfire_infusion.enabled)&cooldown.wildfire_bomb.full_recharge_time>spell_targets%2
     if talent.butchery and cast.able.butchery("player", "aoe", 1, 8) and (not talent.wildfireInfusion or not nextBomb(spell.shrapnelBomb)) and charges.wildfireBomb.timeTillFull() > #enemies.yards8t / 2 then
         if cast.butchery("player", "aoe", 1, 8) then return true end
+    end
+    --actions.cleave+=/carve,if=cooldown.wildfire_bomb.full_recharge_time>spell_targets%2
+    if cast.able.carve("player", "cone", 1, 8) and charges.wildfireBomb.timeTillFull() > #enemies.yards8t / 2 then
+        if cast.carve("player", "cone", 1, 8) then return true end
+    end
+    --actions.cleave+=/kill_command,target_if=min:bloodseeker.remains,if=focus+cast_regen<focus.max&full_recharge_time<gcd&(runeforge.nessingwarys_trapping_apparatus.equipped&cooldown.freezing_trap.remains&cooldown.tar_trap.remains|!runeforge.nessingwarys_trapping_apparatus.equipped)
+    if cast.able.killCommand(var.lowestBloodseeker) and unit.distance("pet", var.lowestBloodseeker) < 50 and focus + cast.regen.killCommand() < focusMax and charges.killCommand.timeTillFull() < unit.gcd(true) and (runeforge.nesingwarysTrappingApparatus.equiped and cd.freezingTrap.remain() > 0 and cd.tarTrap.remain() > 0 or not runeforge.nesingwarysTrappingApparatus.equiped) then
+        if cast.killCommand(var.lowestBloodseeker) then return true end
     end
     --actions.cleave+=/a_murder_of_crows
     if ui.alwaysCdAoENever("A Murder of Crows", 3, #var.eagleEnemies) and cast.able.aMurderOfCrows() then
@@ -974,6 +974,10 @@ actionList.Cleave = function()
     --actions.cleave+=/carve
     if not talent.butchery and cast.able.carve("player", "cone", 1, 8) then
         if cast.carve("player", "cone", 1, 8) then return true end
+    end
+    --actions.cleave+=/kill_command,target_if=min:bloodseeker.remains,if=focus+cast_regen<focus.max&(runeforge.nessingwarys_trapping_apparatus.equipped&cooldown.freezing_trap.remains&cooldown.tar_trap.remains|!runeforge.nessingwarys_trapping_apparatus.equipped)
+    if cast.able.killCommand(var.lowestBloodseeker) and unit.distance("pet", var.lowestBloodseeker) < 50 and focus + cast.regen.killCommand() < focusMax and (runeforge.nesingwarysTrappingApparatus.equiped and cd.freezingTrap.remain() > 0 and cd.tarTrap.remain() > 0 or not runeforge.nesingwarysTrappingApparatus.equiped) then
+        if cast.killCommand(var.lowestBloodseeker) then return true end
     end
     --actions.cleave+=/kill_shot
     if actionList.killShot() then return true end
