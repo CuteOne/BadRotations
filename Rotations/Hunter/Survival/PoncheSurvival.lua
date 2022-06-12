@@ -928,7 +928,7 @@ actionList.Cleave = function()
         if cast.flankingStrike("target") then return true end
     end
     --actions.cleave+=/kill_command,target_if=dot.pheromone_bomb.ticking&set_bonus.tier28_2pc&!buff.mad_bombardier.up
-    if cast.able.killCommand(var.pheromoneUnit) and debuff.pheromoneBomb.exists(var.pheromoneUnit) and var.hasTierBonus and not buff.madBombardier.exists() then
+    if cast.able.killCommand(var.pheromoneUnit) and unit.distance("pet", var.pheromoneUnit) < 50 and debuff.pheromoneBomb.exists(var.pheromoneUnit) and var.hasTierBonus and not buff.madBombardier.exists() then
         if cast.killCommand(var.pheromoneUnit) then return true end
     end
     --actions.cleave+=/kill_command,target_if=dot.pheromone_bomb.ticking&set_bonus.tier28_2pc
