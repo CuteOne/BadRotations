@@ -1499,7 +1499,7 @@ local function runRotation()
         end
     end
 
-    var.fbMaxEnergy = energy >= 50 or buff.apexPredatorsCraving.exists() --or (energy >= 25 and var.clearcasting)
+    var.fbMaxEnergy = energy >= 50 or buff.apexPredatorsCraving.exists() or (energy >= 25 and (buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists()))
 
     var.bsInc = (buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists()) and 1 or 0
 
