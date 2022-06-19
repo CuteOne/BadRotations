@@ -6,13 +6,7 @@
 
 
 BadRotations.lua
-#Unlockers\luabox.lua
-#Unlockers\ucs.lua
-#Unlockers\minibot.lua
-#Unlockers\wowadvanced.lua
 Unlockers\daemonic.lua
-Unlockers\gg.lua
-Unlockers\mmb.lua
 bindings.xml
 misc.xml
 
@@ -98,7 +92,7 @@ System\Engines\HealingEngineCollections.lua
 System\Engines\HealingEngineFrame.lua
 System\Engines\HealingEngineFunctions.lua
 #System\Engines\InterruptsFrame.lua -- Unused
-System\Engines\Interrupts.lua 
+System\Engines\Interrupts.lua
 System\Engines\ttdTable.lua
 System\Engines\QuestTracker.lua
 System\Engines\Tracker.lua
@@ -155,16 +149,6 @@ System\Loader\cCharacter.lua
 System\Loader\cBuilder.lua
 
 ## Misc
-
-## PokeRotation ----------------------------------------------
-
-System\Misc\PokeRotation\PokeAbilities.lua
-System\Misc\PokeRotation\PokeCollections.lua
-System\Misc\PokeRotation\PokeData.lua
-System\Misc\PokeRotation\PokeEngine.lua
-System\Misc\PokeRotation\PokeSwapper.lua
-System\Misc\PokeRotation\PokeUI.lua
-System\Misc\PokeRotation\PokeUnitInfo.lua
 
 ## ProfessionHelper -----------------------------------------
 

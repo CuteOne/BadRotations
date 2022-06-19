@@ -55,6 +55,7 @@ function br.pulseNovaDebug()
 	local DiesalGUI = _G.LibStub("DiesalGUI-1.0")
 	function br.ui:createBar(parent, option, unit, tooltip, tooltipSpin)
 		local value, text, statusMin, statusMax = option.name, option.status, option.statusMin, option.statusMax
+---@diagnostic disable-next-line: undefined-field
 		local newHPBar = DiesalGUI:Create("Bar")
 		parent = parent
 		--print(newHPBar)
@@ -115,14 +116,18 @@ function br.pulseNovaDebug()
 			newHPBar:SetEventListener(
 				"OnEnter",
 				function(this, event)
+---@diagnostic disable-next-line: undefined-field
 					_G.GameTooltip:SetOwner(_G.Minimap, "ANCHOR_CURSOR", 50, 50)
+---@diagnostic disable-next-line: undefined-field
 					_G.GameTooltip:SetText(tooltip, 214 / 255, 25 / 255, 25 / 255)
+---@diagnostic disable-next-line: undefined-field
 					_G.GameTooltip:Show()
 				end
 			)
 			newHPBar:SetEventListener(
 				"OnLeave",
 				function(this, event)
+---@diagnostic disable-next-line: undefined-field
 					_G.GameTooltip:Hide()
 				end
 			)
@@ -156,6 +161,7 @@ function br.pulseNovaDebug()
 			_G[parent .. value .. "Nova"]:SetScript(
 				"OnEnter",
 				function(self)
+---@diagnostic disable-next-line: undefined-field
 					_G.GameTooltip:SetOwner(self, "BOTTOMLEFT", 225, 5)
 					local thisUnit = br.friend[value]
 					if thisUnit then
@@ -165,6 +171,7 @@ function br.pulseNovaDebug()
 								color = "|cff" .. br.classColors[i].hex
 							end
 						end
+---@diagnostic disable-next-line: undefined-field
 						_G.GameTooltip:SetText(
 							color .. "Name: " .. thisUnit.name .. "\n|cffFF1100Health: " .. math.floor(thisUnit.hp) .. "\n|cff11A7DFRole: " .. thisUnit.role,
 							nil,
@@ -173,6 +180,7 @@ function br.pulseNovaDebug()
 							nil,
 							true
 						)
+---@diagnostic disable-next-line: undefined-field
 						_G.GameTooltip:Show()
 					end
 				end
@@ -181,6 +189,7 @@ function br.pulseNovaDebug()
 			_G[parent .. value .. "Nova"]:SetScript(
 				"OnLeave",
 				function(self)
+---@diagnostic disable-next-line: undefined-field
 					_G.GameTooltip:Hide()
 				end
 			)
@@ -238,13 +247,14 @@ function br.pulseNovaDebug()
 		for i = 1, 5 do
 			local thisOption = {name = i, status = 100, statusMin = 0, statusMax = 100, unit = "thisUnit"}
 			-- br.ui.window.healing:AddMessage(thisOption)
-			br.createNovaStatusBar("healing", thisOption, 10, -i * 25, 180, 20, false)
+			br.createNovaStatusBar("healing", thisOption, 10, -i * 25, 180, 20)
 			--br.ui:createBar("healing", thisOption, thisOption.unit, tooltip, tooltipSpin)
 		end
 		-- end
 		-- i will gather frames informations via thisDebugRow = br.friendDebug[i]
 		for i = 1, novaUnits do
 			local thisUnit = br.friend[i]
+			local thisDebugRow
 			local color = "|cffFFFFFF"
 			local class
 			if thisUnit.class == "Death Knight" then

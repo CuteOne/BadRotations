@@ -253,12 +253,13 @@ if not br.metaTable1 then
 			local debugTimerStartTime = GetTime()
 			for i = 1, 40 do
 				local _, _, count, _, _, _, _, _, _, SpellID = br._G.UnitAura(o.unit, i, "HELPFUL|HARMFUL")
-				if
-					br.novaEngineTables.SpecificHPDebuffs[SpellID] ~= nil and
-						(br.novaEngineTables.SpecificHPDebuffs[SpellID].stacks == nil or (count and count >= br.novaEngineTables.SpecificHPDebuffs[SpellID].stacks))
-				 then
-					PercentWithIncoming = PercentWithIncoming - br.novaEngineTables.SpecificHPDebuffs[SpellID].value
-					break
+				local debuffID = br.novaEngineTables.SpecificHPDebuffs[SpellID]
+				for i = 1, #debuffID do
+					local debuffData = debuffID[i]
+					if debuffData ~= nil and (debuffData.stacks == nil or (count and count >= debuffData.stacks)) then
+						PercentWithIncoming = PercentWithIncoming - debuffData.value
+						break
+					end
 				end
 			end
 			local elapsedDebugTime = GetTime() - debugTimerStartTime
@@ -305,6 +306,7 @@ if not br.metaTable1 then
 				if br.novaEngineTables.roleTable[br._G.UnitName(o.unit)] ~= nil then
 					return br.novaEngineTables.roleTable[br._G.UnitName(o.unit)].role
 				else
+---@diagnostic disable-next-line: undefined-field
 					local info = LGIST:GetCachedInfo(br.getGUID(o.unit))
 					if info and info.spec_role then
 						return info.spec_role

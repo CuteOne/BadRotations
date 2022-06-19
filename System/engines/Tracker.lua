@@ -12,14 +12,18 @@ local function trackObject(object, name, objectid, objectguid, interact)
     local zDifference = math.floor(zOb - pZ)
     if xOb ~= nil and playerDistance < 200 then
         if math.abs(zDifference) > 50 then
+---@diagnostic disable-next-line: undefined-field
             LibDraw.SetColor(255, 0, 0, 100)
         else
+---@diagnostic disable-next-line: undefined-field
             LibDraw.SetColor(0, 255, 0, 100)
         end
         --LibDraw.Circle(xOb, yOb, zOb, 2)
         if br._G.ObjectIsUnit(object) then
+---@diagnostic disable-next-line: undefined-field
             LibDraw.Arrow(xOb, yOb, zOb, br._G.UnitFacing(object) + math.pi * 2)
         else
+---@diagnostic disable-next-line: undefined-field
             LibDraw.Arrow(xOb, yOb, zOb, br._G.UnitFacing("player") + math.pi * 2)
         end
         if name == "" or name == "Unknown" then
@@ -28,13 +32,17 @@ local function trackObject(object, name, objectid, objectguid, interact)
 		if br.isChecked("Display Extra Info") then
 			name = name .. "  [" .. objectid .. "] " .. "\n" .. objectguid .. "  [ZDiff: " .. zDifference.."]"
 		end
+---@diagnostic disable-next-line: undefined-field
 		LibDraw.Text(name, "GameFontNormal", xOb, yOb, zOb + 3)
         if br.isChecked("Draw Lines to Tracked Objects") then
 			if math.abs(zDifference) > 50 then
+---@diagnostic disable-next-line: undefined-field
 				LibDraw.SetColor(255, 0, 0, 80)
 			else
+---@diagnostic disable-next-line: undefined-field
 				LibDraw.SetColor(0, 255, 0, 80)
 			end
+---@diagnostic disable-next-line: undefined-field
             LibDraw.Line(pX, pY, pZ, xOb, yOb, zOb)
         end
         if br.isChecked("Auto Interact with Any Tracked Object") and interact and not br.player.inCombat and
@@ -46,8 +54,14 @@ local function trackObject(object, name, objectid, objectguid, interact)
     end
 end
 
+_G.string.trim = function(string)
+    local from = string:match"^%s*()"
+   return from > #string and "" or string:match(".*%S", from)
+end
+
 function br.objectTracker()
     if br.isChecked("Enable Tracker") then
+---@diagnostic disable-next-line: undefined-field
         LibDraw:clearCanvas()
         -- Custom Tracker
         if (br.isChecked("Custom Tracker") and br.getOptionValue("Custom Tracker") ~= "" and
@@ -57,17 +71,18 @@ function br.objectTracker()
             local objUnit
             local name
             local objectid
+            local objectguid
             for i = 1, br._G.GetObjectCount() do
                 local object = br._G.GetObjectWithIndex(i)
                 if object ~= nil and br._G.ObjectExists(object)
-                    and ((br._G.ObjectIsUnit(object) and br._G.UnitIsVisible(object)) or not br._G.ObjectIsUnit(object))
+                    and ((br._G.ObjectIsUnit(object) and br._G.UnitIsVisible(object) and not br.GetUnitIsDeadOrGhost(object)) or not br._G.ObjectIsUnit(object))
                 then
                     objUnit = br._G.ObjectIsUnit(object)
                     name = objUnit and br._G.UnitName(object) or br._G.ObjectName(object)
                     objectid = br._G.ObjectID(object)
                     objectguid = br._G.UnitGUID(object)
                     if object and name and objectid and objectguid then
-                        if br.isChecked("Rare Tracker") and not br.GetUnitIsDeadOrGhost(object) and
+                        if br.isChecked("Rare Tracker") and
                             (br._G.UnitClassification(object) == "rare" or br._G.UnitClassification(object) == "rareelite")
                         then
                             trackObject(object, name, objectid, objectguid, false)
@@ -111,6 +126,7 @@ function br.objectTracker()
             end
         end
     elseif tracking then
+---@diagnostic disable-next-line: undefined-field
         LibDraw:clearCanvas()
         tracking = false
     end

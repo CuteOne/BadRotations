@@ -227,68 +227,68 @@ br.novaEngineTables.SpecificHPDebuffs = {
 	--[123456, value = 20, stacks = 1 }, -- Exemple.
 	--[123456, value = -100, stacks = 3 }, -- Exemple
 	-- Twin Ogrons
-	[158241] = {value = 20 }, -- http://www.wowhead.com/spell=158241/blaze
-	[155569] = {value = 20 }, -- http://www.wowhead.com/spell=155569/injured
-	[163374] = {value = 20 }, -- http://www.wowhead.com/spell=163374/arcane-volatility
+	[158241] = {{value = 20 }}, -- http://www.wowhead.com/spell=158241/blaze
+	[155569] = {{value = 20 }}, -- http://www.wowhead.com/spell=155569/injured
+	[163374] = {{value = 20 }}, -- http://www.wowhead.com/spell=163374/arcane-volatility
 	-- Imperator
-	[157763] = {value = 20 }, -- http://www.wowhead.com/spell=157763/fixate
-	[156225] = {value = 40 , stacks = 8 }, --http://www.wowhead.com/spell=156225/branded
-	[156225] = {value = 35 , stacks = 7 }, --http://www.wowhead.com/spell=156225/branded
-	[156225] = {value = 30 , stacks = 6 }, --http://www.wowhead.com/spell=156225/branded
-	[156225] = {value = 25 , stacks = 5 }, --http://www.wowhead.com/spell=156225/branded
-	[156225] = {value = 20 , stacks = 4 }, --http://www.wowhead.com/spell=156225/branded
-	[156225] = {value = 15 , stacks = 3 }, --http://www.wowhead.com/spell=156225/branded
-	[156225] = {value = 10 , stacks = 2 }, --http://www.wowhead.com/spell=156225/branded
-	[156225] = {value = 5 , stacks = 1 }, --http://www.wowhead.com/spell=156225/branded
+	[157763] = {{value = 20 }}, -- http://www.wowhead.com/spell=157763/fixate
+	[156225] = {{value = 40 , stacks = 8 }, --http://www.wowhead.com/spell=156225/branded
+				{value = 35 , stacks = 7 }, --http://www.wowhead.com/spell=156225/branded
+				{value = 30 , stacks = 6 }, --http://www.wowhead.com/spell=156225/branded
+				{value = 25 , stacks = 5 }, --http://www.wowhead.com/spell=156225/branded
+				{value = 20 , stacks = 4 }, --http://www.wowhead.com/spell=156225/branded
+				{value = 15 , stacks = 3 }, --http://www.wowhead.com/spell=156225/branded
+				{value = 10 , stacks = 2 }, --http://www.wowhead.com/spell=156225/branded
+				{value = 5 , stacks = 1 }}, --http://www.wowhead.com/spell=156225/branded
 	--Kargath
-	[159113] = {value = 20 }, --http://www.wowhead.com/spell=159113/impale
-	[159386] = {value = 20 }, --http://www.wowhead.com/spell=159386/iron-bomb
-	[159413] = {value = 30 }, --http://www.wowhead.com/spell=159413/mauling-brew
+	[159113] = {{value = 20 }}, --http://www.wowhead.com/spell=159113/impale
+	[159386] = {{value = 20 }}, --http://www.wowhead.com/spell=159386/iron-bomb
+	[159413] = {{value = 30 }}, --http://www.wowhead.com/spell=159413/mauling-brew
 	--Brackenspore
-	[163241] = {value = 40 , stacks = 4 }, --http://www.wowhead.com/spell=163241/rot
-	[163241] = {value = 30 , stacks = 3 }, --http://www.wowhead.com/spell=163241/rot
-	[163241] = {value = 20 , stacks = 2 }, --http://www.wowhead.com/spell=163241/rot
-	[163241] = {value = 20 ,stacks = 1 }, --http://www.wowhead.com/spell=163241/rot
+	[163241] = {{value = 40 , stacks = 4 }, --http://www.wowhead.com/spell=163241/rot
+				{value = 30 , stacks = 3 }, --http://www.wowhead.com/spell=163241/rot
+				{value = 20 , stacks = 2 }, --http://www.wowhead.com/spell=163241/rot
+				{value = 20 ,stacks = 1 }}, --http://www.wowhead.com/spell=163241/rot
 	-- Gruul
-	[155506] = {value = 30 }, --http://www.wowhead.com/spell=155506/petrified
-	[173192] = {value = 30 }, --http://www.wowhead.com/spell=173192/cave-in
-	[145263] = {value = 20 }, -- Proving Grounds Healer Debuff.
+	[155506] = {{value = 30 }}, --http://www.wowhead.com/spell=155506/petrified
+	[173192] = {{value = 30 }}, --http://www.wowhead.com/spell=173192/cave-in
+	[145263] = {{value = 20 }}, -- Proving Grounds Healer Debuff.
 	-- Blast Furnace
-	[155196] = {value = 30 }, --http://www.wowhead.com/spell=155196/fixate
-	[155242] = {value = 30 }, --http://www.wowhead.com/spell=155242/heat
-	[156934] = {value = 15 }, --http://www.wowhead.com/spell=156934/rupture
-	[176121] = {value = 15 }, --http://www.wowhead.com/spell=176121/volatile-fire
+	[155196] = {{value = 30 }}, --http://www.wowhead.com/spell=155196/fixate
+	[155242] = {{value = 30 }}, --http://www.wowhead.com/spell=155242/heat
+	[156934] = {{value = 15 }}, --http://www.wowhead.com/spell=156934/rupture
+	[176121] = {{value = 15 }}, --http://www.wowhead.com/spell=176121/volatile-fire
 	--Flame Bender
-	[155277] = {value = 30 }, --http://www.wowhead.com/spell=155277/blazing-radiance
+	[155277] = {{value = 30 }}, --http://www.wowhead.com/spell=155277/blazing-radiance
 	--BeastMaster
-	[162283] = {value = 30 }, --http://www.wowhead.com/spell=162283/rend-and-tear
+	[162283] = {{value = 30 }}, --http://www.wowhead.com/spell=162283/rend-and-tear
 	-- Iron Maidens
-	[158078] = {value = 30 }, --http://www.wowhead.com/spell=158078/blood-ritual
-	[156112] = {value = 30 }, --http://www.wowhead.com/spell=156112/convulsive-shadows
-	[158315] = {value = 15 }, --http://www.wowhead.com/spell=158315/dark-hunt
+	[158078] = {{value = 30 }}, --http://www.wowhead.com/spell=158078/blood-ritual
+	[156112] = {{value = 30 }}, --http://www.wowhead.com/spell=156112/convulsive-shadows
+	[158315] = {{value = 15 }}, --http://www.wowhead.com/spell=158315/dark-hunt
 	--Trains
-	[165195] = {value = 30 }, --http://www.wowhead.com/spell=165195/prototype-pulse-grenade
+	[165195] = {{value = 30 }}, --http://www.wowhead.com/spell=165195/prototype-pulse-grenade
 	-- Tyrant Velhari
-	[180116] = {value = 30 }, --http://www.wowhead.com/spell=180166/touch-of-harm
+	[180116] = {{value = 30 }}, --http://www.wowhead.com/spell=180166/touch-of-harm
 	-- Chronomatic Anomaly (M)
-	[206609] = {value = 30 }, --http://www.wowhead.com/spell=206609/time-release
+	[206609] = {{value = 30 }}, --http://www.wowhead.com/spell=206609/time-release
 	-- Gul'dan
-	[221891] = {value = 30 }, --http://www.wowhead.com/spell=221891/soul-siphon
+	[221891] = {{value = 30 }}, --http://www.wowhead.com/spell=221891/soul-siphon
 	-- Sisters of the Moon (ToS)
-	[233263] = {value = 30 }, --http://www.wowhead.com/spell=233263/embrace-of-the-eclipse
+	[233263] = {{value = 30 }}, --http://www.wowhead.com/spell=233263/embrace-of-the-eclipse
 	-- Fallen Avater (ToS)
-	[240728] = {value = -100, stacks = 8 }, --http://www.wowhead.com/spell=240728/tainted-essence
+	[240728] = {{value = -100, stacks = 8 }}, --http://www.wowhead.com/spell=240728/tainted-essence
 	-- Rastakhan (BoD)
-	[284781] = {value = 50}, --https://www.wowhead.com/spell=284781/grievous-axe
-	[286779] = {value = 30}, --https://www.wowhead.com/spell=286779/focused-demise
+	[284781] = {{value = 50}}, --https://www.wowhead.com/spell=284781/grievous-axe
+	[286779] = {{value = 30}}, --https://www.wowhead.com/spell=286779/focused-demise
 
-	[260741] = {value = 30}, --https://www.wowhead.com/spell=260741/jagged-nettles
+	[260741] = {{value = 30}}, --https://www.wowhead.com/spell=260741/jagged-nettles
 	-- King's Rest
-	[266231] = {value = 30}, --https://www.wowhead.com/spell=266231/severing-axe
-	[265773] = {value = 30}, --https://www.wowhead.com/spell=265773/spit-gold
+	[266231] = {{value = 30}}, --https://www.wowhead.com/spell=266231/severing-axe
+	[265773] = {{value = 30}}, --https://www.wowhead.com/spell=265773/spit-gold
 	-- Ra-Den (Ny'alotha)
-	[306184] = {value = 30}, --https://www.wowhead.com/spell=306184/unleashed-void
-	[316065] = {value = -70}, --https://www.wowhead.com/spell=316065/corrupted-existence
+	[306184] = {{value = 30}}, --https://www.wowhead.com/spell=306184/unleashed-void
+	[316065] = {{value = -70}}, --https://www.wowhead.com/spell=316065/corrupted-existence
 
 
 }

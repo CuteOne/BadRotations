@@ -4,13 +4,6 @@ function br:loadUnlockerAPI()
     local unlocked = false
     --local class = br.class
     if br.unlock["DaemonicUnlock"] ~= nil and br.unlock.DaemonicUnlock() then
-        --print("DM Unlocked")
-        unlocked = true
-    elseif br.unlock["GGUnlock"] ~= nil and br.unlock.GGUnlock() then
-        --print("GG Unlocked")
-        unlocked = true
-    elseif br.unlock["MMBUnlock"] ~= nil and br.unlock.MMBUnlock() then
-        --print("MMB Unlocked")
         unlocked = true
     end
     -- Set Spell Queue Window

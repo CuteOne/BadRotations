@@ -136,10 +136,9 @@ function br.canRegainControl(spellID, controlEvent)
 	local class = select(3, br._G.UnitClass("player"))
 	-- Warrior
 	if class == 1 then
-		if
-			spellID == 18499 and -- Fear, Sap and Incapacitate
-				(controlEvent == "FEAR" or controlEvent == "ROOT" or controlEvent == "SNARE" or controlEvent == "STUN")
-		 then
+		if spellID == 18499 and -- Fear, Sap and Incapacitate
+			(controlEvent == "FEAR" or controlEvent == "ROOT" or controlEvent == "SNARE" or controlEvent == "STUN")
+		then
 			return true
 		end
 	end
@@ -163,31 +162,27 @@ function br.canRegainControl(spellID, controlEvent)
 	end
 	-- Death Knight
 	if class == 6 then
-		if
-			spellID == 49039 and --Lichborne
-				(controlEvent == "CHARM" or controlEvent == "FEAR" or controlEvent == "SLEEP")
-		 then
+		if spellID == 49039 and --Lichborne
+			(controlEvent == "CHARM" or controlEvent == "FEAR" or controlEvent == "SLEEP")
+		then
 			return true
 		end
-		if
-			spellID == 108201 and --Desecrated Ground
-				(controlEvent == "ROOT" or controlEvent == "SNARE")
-		 then
+		if spellID == 108201 and --Desecrated Ground
+			(controlEvent == "ROOT" or controlEvent == "SNARE")
+		then
 			return true
 		end
 	end
 	-- Shaman
 	if class == 7 then
-		if
-			spellID == 58875 and -- Spirit Walk
-				(controlEvent == "ROOT" or controlEvent == "SNARE")
-		 then
+		if spellID == 58875 and -- Spirit Walk
+			(controlEvent == "ROOT" or controlEvent == "SNARE")
+		then
 			return true
 		end
-		if
-			spellID == 108273 and --Windwalk Totem
-				(controlEvent == "ROOT" or controlEvent == "SNARE")
-		 then
+		if spellID == 108273 and --Windwalk Totem
+			(controlEvent == "ROOT" or controlEvent == "SNARE")
+		then
 			return true
 		end
 	end
@@ -220,9 +215,7 @@ function br.hasNoControl(spellID)
 			event = _G.C_LossOfControl.GetActiveLossOfControlData(i)
 			if event then
 				-- Print("Event LocType: "..tostring(event.locType).." - LockoutSchool "..tostring(event.lockoutSchool))
-				if br.canRegainControl(spellID, event.locType) then
-					return true
-				end
+				return br.canRegainControl(spellID, event.locType)
 			end
 		end
 	end

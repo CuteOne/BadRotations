@@ -192,10 +192,12 @@ function br.isCrowdControlCandidates(Unit)
 	-- cycle list of candidates
 	local crowdControlUnit = br.lists.ccUnits[unitID]
 	if crowdControlUnit then
-		-- is in the list of candidates
-		if crowdControlUnit.spell == nil or br.isCasting(crowdControlUnit.spell,Unit) or br.UnitBuffID(Unit,crowdControlUnit.spell)
-		then -- doesnt have more requirements or requirements are met
-			return true
+		for i = 1, #crowdControlUnit do
+			local thisUnit = crowdControlUnit[i]
+			-- is in the list of candidates
+			if thisUnit.spell == nill or br.isCasting(thisUnit.spell,Unit) or br.UnitBuffID(thisUnit.buff) then -- doesnt have more requirements or requirements are met
+				return true
+			end
 		end
 	end
 	return false
@@ -464,6 +466,7 @@ function br.getEnemiesInCone(angle,length,checkNoCombat, showLines)
 	local unitsCounter = 0
 	local enemiesTable = br.getEnemies("player",length,checkNoCombat,true)
 	local inside = false
+---@diagnostic disable-next-line: undefined-field
 	if showLines then LibDraw.Arc(playerX, playerY, playerZ, length, angle, 0) end
 	table.wipe(coneUnits)
     for i = 1, #enemiesTable do
@@ -490,6 +493,7 @@ function br.getEnemiesInCone(angle,length,checkNoCombat, showLines)
             if inside then
 			-- if isWithinAngleDifference("player", thisUnit, angle) then
 				if showLines then
+---@diagnostic disable-next-line: undefined-field
 					LibDraw.Circle(unitX, unitY, playerZ, br._G.UnitBoundingRadius(thisUnit))
 				end
                 unitsCounter = unitsCounter + 1
@@ -544,6 +548,7 @@ function br.getEnemiesInRect(width,length,showLines,checkNoCombat)
 				end
 				if inside then
 					if showLines then
+---@diagnostic disable-next-line: undefined-field
 						LibDraw.Circle(tX, tY, pz, br._G.UnitBoundingRadius(thisUnit))
 					end
 					enemyCounter = enemyCounter + 1
