@@ -254,14 +254,16 @@ if not br.metaTable1 then
 			for i = 1, 40 do
 				local _, _, count, _, _, _, _, _, _, SpellID = br._G.UnitAura(o.unit, i, "HELPFUL|HARMFUL")
 				local debuffID = br.novaEngineTables.SpecificHPDebuffs[SpellID]
-				for i = 1, #debuffID do
-					local debuffData = debuffID[i]
-					if debuffData ~= nil and (debuffData.stacks == nil or (count and count >= debuffData.stacks)) then
-						PercentWithIncoming = PercentWithIncoming - debuffData.value
-						break
-					end
-				end
-			end
+				if debuffID ~= nil then
+				  for i = 1, #debuffID do
+					  local debuffData = debuffID[i]
+					  if debuffData ~= nil and (debuffData.stacks == nil or (count and count >= debuffData.stacks)) then
+						  PercentWithIncoming = PercentWithIncoming - debuffData.value
+						  break
+					  end
+				  end
+			  end
+      end
 			local elapsedDebugTime = GetTime() - debugTimerStartTime
 			if elapsedDebugTime > 0.5 then
 				br._G.print("WARNING: Debuff Scan took a long time: " .. elapsedDebugTime .. " Seconds")
