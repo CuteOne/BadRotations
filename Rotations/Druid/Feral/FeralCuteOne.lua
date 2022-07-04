@@ -1813,10 +1813,11 @@ local function runRotation()
                             and var.rakeTicksGainUnit(var.maxRakeTicksGainUnit) > #enemies.yards8 * 2 - 2
                         then
                             if cast.pool.rake() then return true end
-                            if cast.rake(var.maxRakeTicksGainUnit) then
-                                if debuff.rake.refresh(var.maxRakeTicksGainUnit,"EXACT") then ui.debug("Casting Rake [Refresh]") end
-                                if debuff.rake.calc() > debuff.rake.applied(var.maxRakeTicksGainUnit) then ui.debug("Casting Rake [More Powerful]") end
-                                return true
+                            if debuff.rake.refresh(var.maxRakeTicksGainUnit,"EXACT") then
+                                if cast.rake(var.maxRakeTicksGainUnit) then ui.debug("Casting Rake [Refresh]") return true end
+                            end
+                            if debuff.rake.calc() > debuff.rake.applied(var.maxRakeTicksGainUnit) then
+                                if cast.rake(var.maxRakeTicksGainUnit) then ui.debug("Casting Rake [More Powerful]") return true end
                             end
                         end
                         -- Lunar Inspiration
