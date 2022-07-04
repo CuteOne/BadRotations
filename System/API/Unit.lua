@@ -137,6 +137,11 @@ br.api.unit = function(self)
     unit.gcd = function(max)
         return br.getGlobalCD(max)
     end
+    -- GUID
+    unit.guid = function(thisUnit)
+        local UnitGUID = br._G["UnitGUID"]
+        return UnitGUID(thisUnit)
+    end
     -- Health
     unit.health = function(thisUnit)
         if thisUnit == nil then thisUnit = "player" end

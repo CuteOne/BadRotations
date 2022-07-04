@@ -757,7 +757,7 @@ function br.createCastFunction(thisUnit,castType,minUnits,effectRng,spellID,inde
 			-- Range Check
 			local inRange = function(minRange, maxRange)
 				local distance = castType == "pet" and br.getDistance(thisUnit,"pet") or br.getDistance(thisUnit)
-				return distance >= minRange and distance < maxRange
+				return br._G.IsSpellInRange(spellName, thisUnit) == 1 or (distance >= minRange and distance < maxRange-1)
 			end
 			if br._G.IsSpellInRange(spellName,thisUnit) == 1 or inRange(minRange,maxRange) then
 				-- Dead Friend

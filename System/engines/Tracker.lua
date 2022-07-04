@@ -82,10 +82,13 @@ function br.objectTracker()
                     objectid = br._G.ObjectID(object)
                     objectguid = br._G.UnitGUID(object)
                     if object and name and objectid and objectguid then
-                        if br.isChecked("Rare Tracker") and
-                            (br._G.UnitClassification(object) == "rare" or br._G.UnitClassification(object) == "rareelite")
-                        then
-                            trackObject(object, name, objectid, objectguid, false)
+                        if br.isChecked("Rare Tracker") then
+                            if br._G.UnitClassification(object) == "rare" then
+                                trackObject(object, "(r) "..name, objectid, objectguid, false)
+                            end
+                            if br._G.UnitClassification(object) == "rareelite" then
+                                trackObject(object, "(r*) "..name, objectid, objectguid, false)
+                            end
                         end
                         if br.isChecked("Custom Tracker") then
                             for k in string.gmatch(tostring(br.getOptionValue("Custom Tracker")), "([^,]+)") do

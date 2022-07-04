@@ -958,11 +958,15 @@ function cl:Rogue(...)
         spellType = br._G.CombatLogGetCurrentEventInfo()
     --------------------------------------
     --[[ Pick Pocket Success Recorder ]]
-    if br.canPickpocket == nil then
-        br.canPickpocket = true
+    if br.unpickable == nil then br.unpickable = false end
+    if br.pickPocketUnit == nil then br.pickPocketUnit = br._G.UnitGUID("player") end
+    if br.pickPocketing == nil then br.pickPocketing = false end
+    if param == "SPELL_CAST_START" and spell == 921 then
+        br.pickPocketing = true
     end
     if param == "SPELL_CAST_SUCCESS" and spell == 921 then
-        br.canPickpocket = false
+        br.unpickable = true
+        br.pickPocketing = false
     end
     --[[ Bleed Recorder --]]
     if br._G.GetSpecialization() == 1 then

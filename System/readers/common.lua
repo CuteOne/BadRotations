@@ -146,10 +146,11 @@ function br.read.commonReaders()
 	--[[ UI Error Messages --]]
 	Frame = br._G.CreateFrame("Frame")
 	Frame:RegisterEvent("UI_ERROR_MESSAGE")
-	local function UiErrorMessages(self, event, ...)
-		br.lastError = ...
+	local function UiErrorMessages(self, event, errorType, message)
+		br.lastError = GetGameMessageInfo(errorType)
 		br.lastErrorTime = br._G.GetTime()
-		local param = (...)
+		local param = br.lastError
+		--br._G.print("|cffFF0000UI Error: " .. errorType .. " - " .. param)
 		if param == "ERR_PET_SPELL_DEAD" then
 			br.data.settings[br.selectedSpec]["Pet Dead"] = true
 			br.data.settings[br.selectedSpec]["Pet Whistle"] = false
@@ -176,14 +177,20 @@ function br.read.commonReaders()
 		if param == "SPELL_FAILED_TARGET_NO_WEAPONS" then
 			br.isDisarmed = true
 		end
-		if param == "SPELL_FAILED_TARGET_NO_POCKETS" then
-			br.canPickpocket = false
+		if param == "ERR_SPELL_FAILED_S" and br.pickPocketing then --"SPELL_FAILED_TARGET_NO_POCKETS"
+			br._G.print("|cffFF0000NO POCKETS")
+			br.unpickable = true
+			br.pickPocketing = false
 		end
 		if param == "ERR_ALREADY_PICKPOCKETED" then
-			br.canPickpocket = false
+			br._G.print("|cffFF0000ALREADY PICKPOCKETED")
+			br.unpickable = true
+			br.pickPocketing = false
 		end
-		if param == "ERR_NO_LOOT" then
-			br.canPickpocket = false
+		if errorType == "ERR_NO_LOOT" and br.pickPocketing then
+			br._G.print("|cffFF0000NO LOOT")
+			br.unpickable = true
+			br.pickPocketing = false
 		end
 	end
 	Frame:SetScript("OnEvent", UiErrorMessages)

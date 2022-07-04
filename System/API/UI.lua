@@ -69,6 +69,11 @@ br.api.ui = function(self)
             return br.PullTimerRemain()
         end
     end
+    if ui.timer == nil then
+        ui.timer = function(timerName, interval)
+            return br.timer:useTimer(timerName, interval)
+        end
+    end
     if ui.toggle == nil then
         ui.toggle = function(thisToggle)
             return not br._G.GetCurrentKeyBoardFocus() and br.SpecificToggle(thisToggle) or false
