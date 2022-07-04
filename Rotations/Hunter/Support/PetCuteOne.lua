@@ -234,7 +234,7 @@ br.rotations.support["PetCuteOne"] = {
             if (br.petTarget ~= "target" or unit.valid(br.petTarget)) and not buff.playDead.exists("pet") and not var.haltPetProfile
                 and ((not unit.exists("pettarget") and not unit.isUnit(currentTarget, br.petTarget)) or (unit.exists("pettarget") and not unit.isUnit("pettarget",br.petTarget)))
                 and ((not unit.inCombat() and not unit.inCombat("pet")) or (unit.casting("player") and unit.valid(br.petTarget) and unit.isUnit(br.petTarget,currentTarget))
-                    or ((unit.inCombat() or unit.inCombat("pet")) and (currentTarget == nil or not unit.isUnit(br.petTarget,currentTarget))))
+                    or ((unit.inCombat() or unit.inCombat("pet") or (unit.valid("target") and unit.casting("player"))) and (currentTarget == nil or not unit.isUnit(br.petTarget,currentTarget))))
                 and unit.distance("target") < 40 and not unit.friend("target")
             then
                 ui.debug("[Pet] Pet is now attacking "..tostring(unit.name(br.petTarget)))

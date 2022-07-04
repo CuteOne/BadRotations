@@ -784,16 +784,16 @@ actionList.PreCombat = function()
                 and (#enemies.yards10t < 2 or (not covenant.kyrian.active and not talent.volley))
                 and cast.timeSinceLast.aimedShot() > unit.gcd("true") and not cast.current.aimedShot()
             then
-                if cast.aimedShot("target") then ui.debug("Casting Aimed Shot [Pre-Pull]") return true end
+                if cast.aimedShot("target") then br._G.PetAttack() ui.debug("Casting Aimed Shot [Pre-Pull]") return true end
             end
             -- Arcane Shot
             -- steady_shot,if=active_enemies>2|(covenant.kyrian|talent.volley)&active_enemies=2
             if cast.able.arcaneShot("target") and (#enemies.yards10t > 2 or ((covenant.kyrian.active or talent.volley) and #enemies.yards10t == 2)) then
-                if cast.arcaneShot("target") then ui.debug("Casting Arcane Shot [Pre-Pull]") return true end
+                if cast.arcaneShot("target") then br._G.PetAttack() ui.debug("Casting Arcane Shot [Pre-Pull]") return true end
             end
             -- Auto Shot
             if cast.able.autoShot("target") then
-                if cast.autoShot("target") then ui.debug("Casting Auto Shot [Pre-Pull]") return true end
+                if cast.autoShot("target") then br._G.PetAttack() ui.debug("Casting Auto Shot [Pre-Pull]") return true end
             end
         end
     end
