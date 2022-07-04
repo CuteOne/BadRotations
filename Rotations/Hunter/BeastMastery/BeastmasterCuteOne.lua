@@ -513,8 +513,8 @@ end -- End Action List - Opener
 -- Action List - Single Target
 actionList.St = function()
     -- Aspect of the Wild
-    -- aspect_of_the_wild
-    if ui.checked("Aspect of the Wild") and ui.useCDs() and cast.able.aspectOfTheWild() then
+    -- aspect_of_the_wild,if=(!covenant.night_fae|cooldown.wild_spirits.remains>20)&(!raid_event.adds.exists|!raid_event.adds.up&(raid_event.adds.duration+raid_event.adds.in<20|(raid_event.adds.count=1&covenant.kyrian))|raid_event.adds.up&raid_event.adds.remains>19)
+    if ui.checked("Aspect of the Wild") and ui.useCDs() and cast.able.aspectOfTheWild() and (not covenant.nightFae.active or cd.wildSpirits.remains() > 20) then
         if cast.aspectOfTheWild() then ui.debug("Casting Aspect of the Wild") return true end
     end
     -- Barbed Shot
@@ -655,8 +655,8 @@ actionList.Cleave = function()
         if cast.barbedShot(lowestBarbedShot) then ui.debug("[AOE 1] Casting Barbed Shot on "..unit.name(lowestBarbedShot)) return true end
     end
     -- Multishot
-    -- multishot,if=gcd.max-pet.cat.buff.beast_cleave.remains>0.25
-    if cast.able.multishot(units.dyn40,"aoe",1,8) and unit.gcd(true) - buff.beastCleave.remain("pet") > 0.25 --buff.beastCleave.remain("pet") < unit.gcd(true) + 0.1
+    -- multishot,if=gcd.max-pet.cat.buff.beast_cleave.remains>0.25|buff.killing_frenzy.up&pet.main.buff.beast_cleave.remains<2
+    if cast.able.multishot(units.dyn40,"aoe",1,8) and (unit.gcd(true) - buff.beastCleave.remain("pet") > 0.25 or (buff.killingFrenzy.exists() and buff.beastCleave.remains() < 2))
          and not unit.isExplosive("target")
     then
         if cast.multishot(units.dyn40,"aoe",1,8) then ui.debug("Casting Multishot [AOE]") return true end
