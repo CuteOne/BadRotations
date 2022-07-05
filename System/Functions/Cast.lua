@@ -570,6 +570,7 @@ function br.isUnitCasting(unit)
 	end
 end
 
+local castTimers
 function br.createCastFunction(thisUnit,castType,minUnits,effectRng,spellID,index,predict,predictPad,enemies,debug)
     -- Invalid Spell ID Check
 	if br._G.GetSpellInfo(spellID) == nil then br._G.print("Invalid Spell ID: "..spellID.." for key: "..index) end
@@ -579,6 +580,8 @@ function br.createCastFunction(thisUnit,castType,minUnits,effectRng,spellID,inde
 	local baseSpellName = br._G.GetSpellInfo(baseSpellID)
 	local spellName,_,icon,castTime,minRange,maxRange = br._G.GetSpellInfo(spellID)
 	local spellType = br.getSpellType(baseSpellName)
+	if castTimers == nil then castTimers = {} end
+	if castTimers[spellID] == nil then castTimers[spellID] = br._G.GetTime() end
 	if maxRange == 0 then _,_,_,_,minRange,maxRange = br._G.GetSpellInfo(baseSpellID) end
 	-- Quaking helper - M+ Affix
 	if br.getOptionCheck("Quaking Helper") then
@@ -638,6 +641,8 @@ function br.createCastFunction(thisUnit,castType,minUnits,effectRng,spellID,inde
 				local X,Y,Z = br._G.ObjectPosition(thisUnit)
 				br._G.ClickPosition(X,Y,Z)
 			end
+			-- add to cast timer
+			castTimers[spellID] = br._G.GetTime() + 1
 			-- change main button icon
 			br.mainButton:SetNormalTexture(icon)
 			-- Update Last Cast
@@ -668,7 +673,8 @@ function br.createCastFunction(thisUnit,castType,minUnits,effectRng,spellID,inde
 	end
 	-- Base Spell Availablility Check
 	if (baseSpellID == spellID or overrideSpellID == spellID) and br._G.IsUsableSpell(spellID) and not select(2,br._G.IsUsableSpell(spellID)) -- Usability Checks
-	 	and br.getSpellCD(spellID) <= br:getUpdateRate() and (br.getSpellCD(61304) <= 0 or select(2,br._G.GetSpellBaseCooldown(spellID)) <= 0
+		and castTimers[spellID] < br._G.GetTime() and br.getSpellCD(spellID) <= br:getUpdateRate()
+		and (br.getSpellCD(61304) <= 0 or select(2,br._G.GetSpellBaseCooldown(spellID)) <= 0
 		 	or (br.getCastTime(spellID) > 0 and br.getCastTimeRemain("player") <= br:getUpdateRate())) -- Cooldown Checks
 		and (br.isKnown(spellID) or castType == "known" or spellID == br.player.spell.condemn or spellID == br.player.spell.condemnMassacre) -- Known/Current Checks
 	 	and hasTalent(spellID) and hasEssence() and not br.isIncapacitated(spellID) and queensCourtCastCheck(spellID)
