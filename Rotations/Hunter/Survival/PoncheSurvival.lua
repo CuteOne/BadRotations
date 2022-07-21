@@ -397,6 +397,104 @@ local mmAdvantageOverride = {
     164804,
 }
 
+local StunsBlackList = {
+    -- DeOtherSide
+    [171333] = "Atal'ai Devoted",
+    [168942] = "Death Speaker",
+    [167964] = "4.RF-4.RF",
+    [166608] = "Mueh'zala",
+    [169905] = "Risen Warlord",
+    [168934] = "Enraged Spirit",
+    [164558] = "Hakkar the Soulflayer",
+    [164556] = "Millhouse Manastorm",
+    [171343] = "Bladebeak Matriarch",
+    [167962] = "Defunct Dental Drill",
+    [164555] = "Millificent Manastorm",
+    [171184] = "Mythresh, Sky's Talons",
+    [164450] = "Dealer Xy'exa",
+    [170572] = "Atal'ai Hoodoo Hexxer",
+
+    -- Halls of Atonement
+    [164557] = "Shard of Halkias",
+    [167876] = "Inquisitor Sigar",
+    [165408] = "Halkias",
+    [164218] = "Lord Chamberlain",
+    [174175] = "Loyal Stoneborn",
+    [167612] = "Stoneborn Reaver",
+    [167607] = "Stoneborn Slasher",
+    [164185] = "Echelon",
+    [165410] = "High Adjudicator Aleez",
+
+    --Mists of Tirna Scithe
+    [164929] = "Tirnenn Villager",
+    [167111] = "Spinemaw Staghorn",
+    [164926] = "Drust Boughbreaker",
+    [164517] = "Tred'ova",
+    [173720] = "Mistveil Gorgegullet",
+    [164567] = "Ingra Maloch",
+    [173655] = "Mistveil Matriarch",
+    [164804] = "Droman Oulfarran",
+    [173714] = "Mistveil Nightblossom",
+    [164501] = "Mistcaller",
+
+    -- Plaguefall
+    [164967] = "Doctor Ickus",
+    [168155] = "Plaguebound",
+    [168153] = "Plagueroc",
+    [163882] = "Decaying Flesh Giant",
+    [163915] = "Hatchling Nest",
+    [164255] = "Globgrog",
+    [163894] = "Blighted Spinebreaker",
+    [164266] = "Domina Venomblade",
+    [169159] = "Unstable Canister",
+    [169861] = "Ickor Bileflesh",
+    [168396] = "Plaguebelcher",
+    [168886] = "Virulax Blightweaver",
+    [164267] = "Margrave Stradama",
+
+    -- Sanguine Depths
+    [162100] = "Kryxis the Voracious",
+    [171799] = "Depths Warden",
+    [162103] = "Executor Tarvold",
+    [162038] = "Regal Mistdancer",
+    [162057] = "Chamber Sentinel",
+    [162099] = "General Kaal",
+    [162040] = "Grand Overseer",
+    [162047] = "Insatiable Brute",
+    [162102] = "Grand Proctor Beryllia",
+    [171376] = "Head Custodian Javlin",
+
+    -- Spires of Ascension
+    [163077] = "Azules",
+    [162059] = "Kin-Tara",
+    [162058] = "Ventunax",
+    [162061] = "Devos",
+    [162060] = "Oryphrion",
+    [168681] = "Forsworn Helion",
+    [168844] = "Lakesis",
+    [168843] = "Klotos",
+    [168845] = "Astronos",
+    [168318] = "Forsworn Goliath",
+    [163520] = "Forsworn Squad-Leader",
+
+    -- The Necrotic Wake
+    [164414] = "Reanimated Mage",
+    [163157] = "Amarth",
+    [162691] = "Blightbone",
+    [166945] = "Nalthor the Rimebinder",
+    [166882] = "Surgeon Stitchflesh",
+
+    -- Tazavesh
+    [175546] = "Timecap'n Hooktail",
+    [177269] = "So'leah",
+    [175616] = "Zo'phex",
+    [176564] = "Zo'gron",
+    [176555] = "Achillite",
+    [176705] = "Venza Goldfuse",
+    [175806] = "So'azmi",
+    [175663] = "Hylbrande",
+}
+
 local lastExplosiveKill = 0
 
 --Functions
@@ -785,7 +883,7 @@ actionList.Interrupt = function()
     if ui.checked("Freezing Trap") then
         for i = 1, #enemies.yards40 do
             local thisUnit = enemies.yards40[i]
-            if not isIdInList(thisUnit, mobBlacklist) and not isNotToStun(thisUnit) and cast.timeRemain(thisUnit) > 1 and (isToStun(thisUnit) or not keepStun and unit.interruptable(thisUnit, ui.value("Interrupt At"))) then
+            if not isIdInList(thisUnit, mobBlacklist) and (StunsBlackList[br.GetObjectID(thisUnit)] == nil) and not isNotToStun(thisUnit) and cast.timeRemain(thisUnit) > 1 and (isToStun(thisUnit) or not keepStun and unit.interruptable(thisUnit, ui.value("Interrupt At"))) then
                 if cast.freezingTrap(thisUnit, "ground") then return true end
             end
         end
@@ -795,7 +893,7 @@ actionList.Interrupt = function()
     if ui.checked("Intimidation - Int") then
         for i=1, #enemies.yards5 do
             local thisUnit = enemies.yards5[i]
-            if not isIdInList(thisUnit, mobBlacklist) and not isNotToStun(thisUnit) and (isToStun(thisUnit) or not keepStun and unit.interruptable(thisUnit, ui.value("Interrupt At"))) then
+            if not isIdInList(thisUnit, mobBlacklist) and (StunsBlackList[br.GetObjectID(thisUnit)] == nil) and not isNotToStun(thisUnit) and (isToStun(thisUnit) or not keepStun and unit.interruptable(thisUnit, ui.value("Interrupt At"))) then
                 if cast.intimidation(thisUnit) then return true end
             end
         end
