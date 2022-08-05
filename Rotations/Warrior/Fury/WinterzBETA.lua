@@ -1,4 +1,18 @@
-local rotationName = "WinterzBETA" -- Change to name of profile listed in options drop down
+-------------------------------------------------------
+-- Author = Winterz
+-- Patch = 9.2.5
+--    Patch should be the latest patch you've updated the rotation for (i.e., 9.2.5)
+-- Coverage = 80%
+--    Coverage should be your estimated percent coverage for class mechanics (i.e., 100%)
+-- Status = Full
+--    Status should be one of: Full, Limited, Sporadic, Inactive, Unknown
+-- Readiness = Raid
+--    Readiness should be one of: Raid, NoRaid, Basic, Development, Untested
+-------------------------------------------------------
+-- Required: Fill above fields to populate README.md --
+-------------------------------------------------------
+
+local rotationName = "WinterzFury" -- Change to name of profile listed in options drop down
 --
 --
 --
