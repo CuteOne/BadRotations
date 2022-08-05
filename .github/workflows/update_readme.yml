@@ -1,0 +1,33 @@
+name: Update README
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v4
+        id: python3
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+      
+      - name: pip install dependencies
+        run: pip install -r "$GITHUB_WORKSPACE/.github/requirements.txt"
+      
+      - name: Run Python README updater
+        run: ${{ steps.python3.outputs.python-path }} "$GITHUB_WORKSPACE/.github/update_readme.py" "$GITHUB_WORKSPACE"
+
+      - name: Commit changes
+        run: |
+          git diff
+          git config --global user.email "actions@users.noreply.github.com"
+          git config --global user.name "README Bot"
+          git add README.md
+          git commit -m "Updated README.md from rotation metadata" || exit 0
+          git push
