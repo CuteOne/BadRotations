@@ -76,3 +76,279 @@ Raidable means if its good to raid with.
 - BH - has BossHelper support, features things like using specific spell based on current boss etc.
 
 <!-- rotations -->
+### Death Knight
+
+- Blood
+
+|rotation |author | patch |coverage|status |  readiness  |last updated|
+|---------|-------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|PangloBDK|Pangloo|Unknown|Unknown |Unknown|:interrobang:|  03/23/2021|
+
+- Frost
+
+|rotation|   author    | patch |coverage|status |  readiness  |last updated|
+|--------|-------------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|CuteOne |ph34rt3hcute1|Unknown|Unknown |Unknown|:interrobang:|  05/23/2021|
+
+- Unholy
+
+|rotation|author | patch |coverage|status |  readiness  |last updated|
+|--------|-------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|CuteOne |CuteOne|Unknown|Unknown |Unknown|:interrobang:|  05/15/2021|
+
+
+### Demon Hunter
+
+- Havoc
+
+|rotation|   author    | patch |coverage|status |  readiness  |last updated|
+|--------|-------------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|CuteOne |ph34rt3hcute1|Unknown|Unknown |Unknown|:interrobang:|  05/28/2022|
+
+- Vengeance
+
+|rotation|   author    | patch |coverage|status |  readiness  |last updated|
+|--------|-------------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|CuteOne |ph34rt3hcute1|Unknown|Unknown |Unknown|:interrobang:|  05/21/2022|
+
+
+### Druid
+
+- Balance
+
+|rotation | author  | patch |coverage|status |  readiness  |last updated|
+|---------|---------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|BoaT     |Laksmackt|Unknown|Unknown |Unknown|:interrobang:|  05/01/2021|
+|Laksmackt|Laksmack |Unknown|Unknown |Unknown|:interrobang:|  04/04/2021|
+
+- Feral
+
+|rotation|   author    | patch |coverage|status |  readiness  |last updated|
+|--------|-------------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|CuteOne |ph34rt3hcute1|Unknown|Unknown |Unknown|:interrobang:|  07/04/2022|
+
+- Guardian
+
+|rotation|   author    | patch |coverage|status |  readiness  |last updated|
+|--------|-------------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|Kuu     |Kuukuu       |Unknown|Unknown |Unknown|:interrobang:|  02/28/2022|
+|CuteOne |ph34rt3hcute1|Unknown|Unknown |Unknown|:interrobang:|  02/10/2021|
+
+- Restoration
+
+|rotation | author  | patch |coverage|status |  readiness  |last updated|
+|---------|---------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|Laksmackt|Laksmackt|Unknown|Unknown |Unknown|:interrobang:|  05/17/2021|
+|Aura     |Aura     |Unknown|Unknown |Unknown|:interrobang:|  03/14/2021|
+
+
+### Hunter
+
+- BeastMastery
+
+|rotation|author| patch |coverage|status |  readiness  |last updated|
+|--------|------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|CuteOne |Fiskee|Unknown|Unknown |Unknown|:interrobang:|  07/04/2022|
+
+- Marksmanship
+
+|rotation|   author    | patch |coverage|status |  readiness  |last updated|
+|--------|-------------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|CuteOne |ph34rt3hcute1|Unknown|Unknown |Unknown|:interrobang:|  07/04/2022|
+|Bigsie  |Bigsie       |Unknown|Unknown |Unknown|:interrobang:|  05/01/2021|
+
+- Survival
+
+|rotation|   author    | patch |coverage|status |  readiness  |last updated|
+|--------|-------------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|Ponche  |aqwerty420   |Unknown|Unknown |Unknown|:interrobang:|  07/21/2022|
+|CuteOne |ph34rt3hcute1|Unknown|Unknown |Unknown|:interrobang:|  02/21/2022|
+
+
+### Mage
+
+- Arcane
+
+|  rotation   |   author   | patch |coverage|status |  readiness  |last updated|
+|-------------|------------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|KinkyArcaneSL|Jim T. Kinks|Unknown|Unknown |Unknown|:interrobang:|  03/09/2021|
+
+- Fire
+
+| rotation |author| patch |coverage|status |  readiness  |last updated|
+|----------|------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|KinkyFuego|Kuukuu|Unknown|Unknown |Unknown|:interrobang:|  04/08/2021|
+
+- Frost
+
+|rotation|   author   | patch |coverage|status |  readiness  |last updated|
+|--------|------------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|Kink    |Jim T. Kinks|Unknown|Unknown |Unknown|:interrobang:|  03/17/2021|
+
+
+### Monk
+
+- Brewmaster
+
+|rotation |author | patch |coverage|status |  readiness  |last updated|
+|---------|-------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|Panglo2.0|Pangloo|Unknown|Unknown |Unknown|:interrobang:|  03/30/2021|
+
+- Mistweaver
+
+|rotation|author | patch |coverage|status |  readiness  |last updated|
+|--------|-------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|LyLo-v2 |LyLoLoq|Unknown|Unknown |Unknown|:interrobang:|  04/16/2022|
+
+- Windwalker
+
+|rotation|   author    | patch |coverage|status |  readiness  |last updated|
+|--------|-------------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|LyLo-v2 |LyLoLoq      |Unknown|Unknown |Unknown|:interrobang:|  05/21/2022|
+|CuteOne |ph34rt3hcute1|Unknown|Unknown |Unknown|:interrobang:|  04/21/2021|
+
+
+### Paladin
+
+- Holy
+
+|  rotation  | author  | patch |coverage|status |  readiness  |last updated|
+|------------|---------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|Panglopal   |Pangloo  |Unknown|Unknown |Unknown|:interrobang:|  04/12/2022|
+|Laks M+     |Laksmackt|Unknown|Unknown |Unknown|:interrobang:|  05/14/2021|
+|FengshenHoly|Fengshen |Unknown|Unknown |Unknown|:interrobang:|  04/26/2021|
+
+- Protection
+
+|rotation|author| patch |coverage|status |  readiness  |last updated|
+|--------|------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|Feng    |Helix |Unknown|Unknown |Unknown|:interrobang:|  04/26/2021|
+
+- Retribution
+
+|rotation|   author    | patch |coverage|status |  readiness  |last updated|
+|--------|-------------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|CuteOne |ph34rt3hcute1|Unknown|Unknown |Unknown|:interrobang:|  05/23/2021|
+
+
+### Priest
+
+- Discipline
+
+|rotation |author | patch |coverage|status |  readiness  |last updated|
+|---------|-------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|SnewyDisc|Snewy  |Unknown|Unknown |Unknown|:interrobang:|  01/14/2022|
+|PangDisc |Pangloo|Unknown|Unknown |Unknown|:interrobang:|  03/27/2021|
+
+- Holy
+
+|rotation | author | patch |coverage|status |  readiness  |last updated|
+|---------|--------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|SnewyHoly|snewygit|Unknown|Unknown |Unknown|:interrobang:|  01/18/2022|
+|HolyAura |Aura    |Unknown|Unknown |Unknown|:interrobang:|  04/26/2021|
+
+- Shadow
+
+| rotation  |    author    | patch |coverage|status |  readiness  |last updated|
+|-----------|--------------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|SnewyShadow|Snewy         |Unknown|Unknown |Unknown|:interrobang:|  01/11/2022|
+|RalphShadow|jeremytyler662|Unknown|Unknown |Unknown|:interrobang:|  04/27/2021|
+|MonkaGiga  |Panglo        |Unknown|Unknown |Unknown|:interrobang:|  02/27/2021|
+
+
+### Rogue
+
+- Assassination
+
+|    rotation    |   author    | patch |coverage|status |  readiness  |last updated|
+|----------------|-------------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|AssaS0ul - 9.0.5|221357       |Unknown|Unknown |Unknown|:interrobang:|  11/06/2021|
+|CuteOne         |ph34rt3hcute1|Unknown|Unknown |Unknown|:interrobang:|  02/22/2021|
+
+- Outlaw
+
+|rotation| author  | patch |coverage|status |  readiness  |last updated|
+|--------|---------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|OutLaks |Laksmackt|Unknown|Unknown |Unknown|:interrobang:|  05/20/2021|
+
+- Subtlety
+
+|   rotation    |    author    | patch |coverage|status |  readiness  |last updated|
+|---------------|--------------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|CuteOne        |ph34rt3hcute1 |Unknown|Unknown |Unknown|:interrobang:|  07/05/2022|
+|SubS0ul - 9.0.5|Jakub Kulewicz|Unknown|Unknown |Unknown|:interrobang:|  11/06/2021|
+
+
+### Shaman
+
+- Elemental
+
+|rotation|author| patch |coverage|status |  readiness  |last updated|
+|--------|------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|Kuu     |Kuukuu|Unknown|Unknown |Unknown|:interrobang:|  03/14/2021|
+
+- Enhancement
+
+|rotation|   author    | patch |coverage|status |  readiness  |last updated|
+|--------|-------------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|becyTR  |Kuukuukatchu |Unknown|Unknown |Unknown|:interrobang:|  05/19/2022|
+|CuteOne |ph34rt3hcute1|Unknown|Unknown |Unknown|:interrobang:|  02/12/2022|
+
+- Restoration
+
+|  rotation   | author  | patch |coverage|status |  readiness  |last updated|
+|-------------|---------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|Laksham_resto|Laksmackt|Unknown|Unknown |Unknown|:interrobang:|  05/21/2021|
+|Kuu M+       |Kuukuu   |Unknown|Unknown |Unknown|:interrobang:|  03/04/2021|
+|Kuu Raid     |Kuukuu   |Unknown|Unknown |Unknown|:interrobang:|  03/04/2021|
+|Resto Shamlo |Pangloo  |Unknown|Unknown |Unknown|:interrobang:|  02/27/2021|
+
+
+### Warlock
+
+- Affliction
+
+|   rotation   |   author   | patch |coverage|status |  readiness  |last updated|
+|--------------|------------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|KinkAffliction|Jim T. Kinks|Unknown|Unknown |Unknown|:interrobang:|  03/17/2021|
+|Kinkold       |Jim T. Kinks|Unknown|Unknown |Unknown|:interrobang:|  02/27/2021|
+
+- Demonology
+
+| rotation  |   author   | patch |coverage|status |  readiness  |last updated|
+|-----------|------------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|KinkySpirit|Jim T. Kinks|Unknown|Unknown |Unknown|:interrobang:|  04/06/2021|
+
+- Destruction
+
+|   rotation    |   author    | patch |coverage|status |  readiness  |last updated|
+|---------------|-------------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|KinkDestruction|Jim T. Kinks |Unknown|Unknown |Unknown|:interrobang:|  03/28/2021|
+|CuteOne        |ph34rt3hcute1|Unknown|Unknown |Unknown|:interrobang:|  02/22/2021|
+
+
+### Warrior
+
+- Arms
+
+| rotation  |   author    | patch |coverage|status |  readiness  |last updated|
+|-----------|-------------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|CuteOne    |ph34rt3hcute1|Unknown|Unknown |Unknown|:interrobang:|  05/22/2022|
+|WinterzArms|Hassliebe    |Unknown|Unknown |Unknown|:interrobang:|  03/06/2021|
+
+- Fury
+
+| rotation  |   author    | patch |coverage|status |  readiness  |last updated|
+|-----------|-------------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|WinterzBETA|Hassliebe    |Unknown|Unknown |Unknown|:interrobang:|  05/30/2022|
+|CuteOne    |ph34rt3hcute1|Unknown|Unknown |Unknown|:interrobang:|  04/06/2022|
+|WinterzFury|Hassliebe    |Unknown|Unknown |Unknown|:interrobang:|  05/12/2021|
+
+- Protection
+
+|   rotation   |   author    | patch |coverage|status |  readiness  |last updated|
+|--------------|-------------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|CuteOne       |ph34rt3hcute1|Unknown|Unknown |Unknown|:interrobang:|  07/04/2022|
+|Doparrior_Prot|Airwavez     |Unknown|Unknown |Unknown|:interrobang:|  04/23/2021|
+|Panglo2       |Panglo       |Unknown|Unknown |Unknown|:interrobang:|  03/06/2021|
+
