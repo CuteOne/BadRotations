@@ -75,273 +75,280 @@ Raidable means if its good to raid with.
 - :interrobang: - currently unknown or in development; give feedback :D
 - BH - has BossHelper support, features things like using specific spell based on current boss etc.
 
+<!-- rotations -->
 ### Death Knight
 
 - Blood
 
-author  | support | patch | status |     raidable?
-:------ | :-----: | :---: | -----: | :----------------:
-Panglo  | Unknown |  8.3  |   100% | :interrobang:
+|rotation |author | patch |coverage|status |  readiness  |last updated|
+|---------|-------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|PangloBDK|Pangloo|Unknown|Unknown |Unknown|:interrobang:|  03/23/2021|
 
 - Frost
 
-author  | support | patch | status |   raidable?
-:------ | :-----: | :---: | -----: | :-----------:
-CuteOne |  Full   |  9.0  |   100% | :white_check_mark:
+|rotation|   author    | patch |coverage|status |  readiness  |last updated|
+|--------|-------------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|CuteOne |ph34rt3hcute1|Unknown|Unknown |Unknown|:interrobang:|  05/23/2021|
 
 - Unholy
 
-author   | support | patch | status | raidable?
-:------- | :-----: | :---: | -----: | :-------:
-CuteOne  |  Full   |  9.0  |   100% | :white_check_mark:
+|rotation|author | patch |coverage|status |  readiness  |last updated|
+|--------|-------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|CuteOne |CuteOne|Unknown|Unknown |Unknown|:interrobang:|  05/15/2021|
 
-- Inital 8-10 Supported - Patch 9.0
 
 ### Demon Hunter
 
 - Havoc
 
-author  | support | patch | status |     raidable?
-:------ | :-----: | :--:  | -----: | :----------------:
-CuteOne |  Full   |  9.0  |   100% | :white_check_mark:
+|rotation|   author    | patch |coverage|status |  readiness  |last updated|
+|--------|-------------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|CuteOne |ph34rt3hcute1|Unknown|Unknown |Unknown|:interrobang:|  05/28/2022|
 
 - Vengeance
 
-author  | support  | patch | status |     raidable?
-:------ | :------: | :---: | -----: | :----------------:
-CuteOne |   Full   |  9.0  |   99%  | :white_check_mark:
+|rotation|   author    | patch |coverage|status |  readiness  |last updated|
+|--------|-------------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|CuteOne |ph34rt3hcute1|Unknown|Unknown |Unknown|:interrobang:|  05/21/2022|
 
-- Inital 1-10 Supported - Patch 9.0
 
 ### Druid
 
+- Balance
+
+|rotation | author  | patch |coverage|status |  readiness  |last updated|
+|---------|---------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|BoaT     |Laksmackt|Unknown|Unknown |Unknown|:interrobang:|  05/01/2021|
+|Laksmackt|Laksmack |Unknown|Unknown |Unknown|:interrobang:|  04/04/2021|
+
 - Feral
 
-author   | support  | patch | status |     raidable?
-:------- | :------: | :---: | -----: | :----------------:
-CuteOne  |   Full   |  9.0  |   100% | :white_check_mark:
+|rotation|   author    | patch |coverage|status |  readiness  |last updated|
+|--------|-------------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|CuteOne |ph34rt3hcute1|Unknown|Unknown |Unknown|:interrobang:|  07/04/2022|
 
 - Guardian
 
-author  | support | patch | status |     raidable?
-:------ | :-----: | :---: | -----: | :----------------:
-Kuukuu  |  None   | 9.0   |   99%  |  :white_check_mark:
-
-- Moonkin
-
-author           | support | patch | status |     raidable?
-:--------------- | :-----: | :---: | -----: | :----------------:
-Laksmackt        |  Full   | 9.0   |   90% | :white_check_mark:
+|rotation|   author    | patch |coverage|status |  readiness  |last updated|
+|--------|-------------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|Kuu     |Kuukuu       |Unknown|Unknown |Unknown|:interrobang:|  02/28/2022|
+|CuteOne |ph34rt3hcute1|Unknown|Unknown |Unknown|:interrobang:|  02/10/2021|
 
 - Restoration
 
-author           | support | patch | status |     raidable?
-:--------------- | :-----: | :---: | -----: | :----------------:
-Aura             | Inactive| 9.0   |   100% | :x:
-Laksmackt        | Limited | 9.0   |   100% | :x:
+|rotation | author  | patch |coverage|status |  readiness  |last updated|
+|---------|---------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|Laksmackt|Laksmackt|Unknown|Unknown |Unknown|:interrobang:|  05/17/2021|
+|Aura     |Aura     |Unknown|Unknown |Unknown|:interrobang:|  03/14/2021|
 
-- Inital 1-10 Supported - Patch 9.0
 
 ### Hunter
-- Beastmaster
 
-author   | support  | patch | status |     raidable?
-:------- | :------: | :---: | -----: | :----------------:
-CuteOne  |  Full    |  9.0  |   100% | :white_check_mark:
+- BeastMastery
+
+|rotation|author| patch |coverage|status |  readiness  |last updated|
+|--------|------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|CuteOne |Fiskee|Unknown|Unknown |Unknown|:interrobang:|  07/04/2022|
 
 - Marksmanship
 
-author   | support  | patch | status |     raidable?
-:------- | :------: | :---: | -----: | :----------------:
-CuteOne  |  Full    |  9.0  |   100% | :white_check_mark:
-Bigsie   | Inactive |  9.0  |   100% | :interrobang:
+|rotation|   author    | patch |coverage|status |  readiness  |last updated|
+|--------|-------------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|CuteOne |ph34rt3hcute1|Unknown|Unknown |Unknown|:interrobang:|  07/04/2022|
+|Bigsie  |Bigsie       |Unknown|Unknown |Unknown|:interrobang:|  05/01/2021|
 
 - Survival
 
-author   | support  | patch | status |   raidable?
-:------- | :------: | :---: | -----: | :-----------:
-CuteOne  |  Full    |  9.0  |   100% | :white_check_mark:
+|rotation|   author    | patch |coverage|status |  readiness  |last updated|
+|--------|-------------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|Ponche  |aqwerty420   |Unknown|Unknown |Unknown|:interrobang:|  07/21/2022|
+|CuteOne |ph34rt3hcute1|Unknown|Unknown |Unknown|:interrobang:|  02/21/2022|
 
-- Inital 1-10 Supported - Patch 9.0
 
 ### Mage
 
 - Arcane
 
-author |   support   | patch | status |   raidable?
-:----- | :---------: | :---: | -----: | :-----------:
-Kink   |  Inactive   | 9.0   |   ???% | :interrobang:
+|  rotation   |   author   | patch |coverage|status |  readiness  |last updated|
+|-------------|------------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|KinkyArcaneSL|Jim T. Kinks|Unknown|Unknown |Unknown|:interrobang:|  03/09/2021|
 
 - Fire
 
-author          | support | patch | status |   raidable?
-:-------------- | :-----: | :---: | -----: | :-----------:
-Kink            | Inactive| 9.0   |  ???%  | :interrobang:
+| rotation |author| patch |coverage|status |  readiness  |last updated|
+|----------|------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|KinkyFuego|Kuukuu|Unknown|Unknown |Unknown|:interrobang:|  04/08/2021|
 
 - Frost
 
-author | support      | patch | status |   raidable?
-:----- | :---------:  | :---: | -----: | :-----------:
-Kink   |  Inactive    | 9.0   |   ???% | :interrobang:
+|rotation|   author   | patch |coverage|status |  readiness  |last updated|
+|--------|------------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|Kink    |Jim T. Kinks|Unknown|Unknown |Unknown|:interrobang:|  03/17/2021|
 
-- Inital 1-10 Supported - Patch 9.0
 
 ### Monk
 
 - Brewmaster
 
-author | support | patch | status |     raidable?
-:----- | :-----: | :---: | -----: | :----------------:
-Panglo |   Full  |  9.0  |    100%| :white_check_mark:
+|rotation |author | patch |coverage|status |  readiness  |last updated|
+|---------|-------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|Panglo2.0|Pangloo|Unknown|Unknown |Unknown|:interrobang:|  03/30/2021|
 
 - Mistweaver
 
-author   | support  | patch | status |     raidable?
-:------- | :------: | :---: | -----: | :----------------:
-Lylo     | Full     | 9.0   |     ???% | :interrobang:
+|rotation|author | patch |coverage|status |  readiness  |last updated|
+|--------|-------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|LyLo-v2 |LyLoLoq|Unknown|Unknown |Unknown|:interrobang:|  04/16/2022|
 
 - Windwalker
 
-author  | support | patch | status |     raidable?
-:------ | :-----: | :---: | -----: | :----------------:
-CuteOne |  Full   |  9.0  |  100%  | :white_check_mark:
+|rotation|   author    | patch |coverage|status |  readiness  |last updated|
+|--------|-------------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|LyLo-v2 |LyLoLoq      |Unknown|Unknown |Unknown|:interrobang:|  05/21/2022|
+|CuteOne |ph34rt3hcute1|Unknown|Unknown |Unknown|:interrobang:|  04/21/2021|
 
-- Inital 1-10 Supported - Patch 9.0
 
 ### Paladin
 
 - Holy
 
-author   | support | patch | status | raidable?
-:-----   | :-----: | :---: | -----: | :-------:
-Laksmackt| M+      | 9.0.5 |   100% | :x:
-Panglo   |   Full  |  9.0  |  100%  | :white_check_mark:
-Fengshen |   Full  |  9.0  |  100%  | :white_check_mark:
+|  rotation  | author  | patch |coverage|status |  readiness  |last updated|
+|------------|---------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|Panglopal   |Pangloo  |Unknown|Unknown |Unknown|:interrobang:|  04/12/2022|
+|Laks M+     |Laksmackt|Unknown|Unknown |Unknown|:interrobang:|  05/14/2021|
+|FengshenHoly|Fengshen |Unknown|Unknown |Unknown|:interrobang:|  04/26/2021|
 
 - Protection
 
-author  | support  | patch | status |   raidable?
-:-----  | :------: | :---: | -----: | :-----------:
-Fengshen|   Full   | 9.0   |   99%  | :white_check_mark:
+|rotation|author| patch |coverage|status |  readiness  |last updated|
+|--------|------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|Feng    |Helix |Unknown|Unknown |Unknown|:interrobang:|  04/26/2021|
 
 - Retribution
 
-author  | support | patch | status |     raidable?
-:------ | :-----: | :---: | -----: | :----------------:
-CuteOne |  Full   | 9.0   |   100% | :white_check_mark:
+|rotation|   author    | patch |coverage|status |  readiness  |last updated|
+|--------|-------------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|CuteOne |ph34rt3hcute1|Unknown|Unknown |Unknown|:interrobang:|  05/23/2021|
 
-- Inital 1-10 Supported - Patch 9.0
 
 ### Priest
 
 - Discipline
 
-author  |    support    | patch |  status |     raidable?
-:-------| :-----------: | :---: | ------: | :----------------:
-Aura    |    Inactive   | 8.2   |    ???% |   :interrobang:
+|rotation |author | patch |coverage|status |  readiness  |last updated|
+|---------|-------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|SnewyDisc|Snewy  |Unknown|Unknown |Unknown|:interrobang:|  01/14/2022|
+|PangDisc |Pangloo|Unknown|Unknown |Unknown|:interrobang:|  03/27/2021|
 
 - Holy
 
-author     | support | patch | status | raidable?
-:--------- | :-----: | :---: | -----: | :-------:
-Aura       | Inactive| 8.2   |   ???% |   :interrobang:
+|rotation | author | patch |coverage|status |  readiness  |last updated|
+|---------|--------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|SnewyHoly|snewygit|Unknown|Unknown |Unknown|:interrobang:|  01/18/2022|
+|HolyAura |Aura    |Unknown|Unknown |Unknown|:interrobang:|  04/26/2021|
 
 - Shadow
 
-author           |    support    | patch | status | raidable?
-:--------------- | :-----------: | :---: | -----: | :-------:
-Panglo           |   Unknown     | 9.0   | ???    | :interrobang:
-Ralph            |     Full      | 9.0   | ???    | :interrobang:
+| rotation  |    author    | patch |coverage|status |  readiness  |last updated|
+|-----------|--------------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|SnewyShadow|Snewy         |Unknown|Unknown |Unknown|:interrobang:|  01/11/2022|
+|RalphShadow|jeremytyler662|Unknown|Unknown |Unknown|:interrobang:|  04/27/2021|
+|MonkaGiga  |Panglo        |Unknown|Unknown |Unknown|:interrobang:|  02/27/2021|
 
-- Inital 1-10 Supported - Patch 9.0
 
 ### Rogue
 
 - Assassination
 
-author  | support | patch | status |     raidable?
-:------ | :-----: | :---: | -----: | :----------------:
-S0ul    | Testing | 9.0.5 |  69%   | :white_check_mark:
+|    rotation    |   author    | patch |coverage|status |  readiness  |last updated|
+|----------------|-------------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|AssaS0ul - 9.0.5|221357       |Unknown|Unknown |Unknown|:interrobang:|  11/06/2021|
+|CuteOne         |ph34rt3hcute1|Unknown|Unknown |Unknown|:interrobang:|  02/22/2021|
 
 - Outlaw
 
-author  | support | patch | status |     raidable?
-:------ | :-----: | :---: | -----: | :----------------:
-Laks    |  Full   | 9.0.5   |  100%  | :x:
+|rotation| author  | patch |coverage|status |  readiness  |last updated|
+|--------|---------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|OutLaks |Laksmackt|Unknown|Unknown |Unknown|:interrobang:|  05/20/2021|
 
 - Subtlety
 
-author  | support | patch | status |     raidable?
-:------ | :-----: | :---: | -----: | :----------------:
-S0ul    |  Full   | 9.0.5 |  100%  | :white_check_mark:
+|   rotation    |    author    | patch |coverage|status |  readiness  |last updated|
+|---------------|--------------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|CuteOne        |ph34rt3hcute1 |Unknown|Unknown |Unknown|:interrobang:|  07/05/2022|
+|SubS0ul - 9.0.5|Jakub Kulewicz|Unknown|Unknown |Unknown|:interrobang:|  11/06/2021|
 
-- Inital 1-10 Supported - Patch 9.0
 
 ### Shaman
 
 - Elemental
 
-author  | support | patch | status |   raidable?
-:------ | :-----: | :---: | -----: | :-----------:
-Kuukuu  | None    | 9.0   |   90%  | :interrobang:
+|rotation|author| patch |coverage|status |  readiness  |last updated|
+|--------|------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|Kuu     |Kuukuu|Unknown|Unknown |Unknown|:interrobang:|  03/14/2021|
 
 - Enhancement
 
-author  | support | patch | status |     raidable?
-:------ | :-----: | :---: | -----: | :----------------:
-CuteOne |  Full   | 9.0   |   100% | :white_check_mark:
+|rotation|   author    | patch |coverage|status |  readiness  |last updated|
+|--------|-------------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|becyTR  |Kuukuukatchu |Unknown|Unknown |Unknown|:interrobang:|  05/19/2022|
+|CuteOne |ph34rt3hcute1|Unknown|Unknown |Unknown|:interrobang:|  02/12/2022|
 
 - Restoration
 
-author | support | patch | status |     raidable?
-:----- | :-----: | :---: | -----: | :----------------:
-Kuukuu |  None   | 9.0   |   99%  |  :white_check_mark:
-Panglo | Unknown | 9.0   | ???    | :interrobang:
+|  rotation   | author  | patch |coverage|status |  readiness  |last updated|
+|-------------|---------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|Laksham_resto|Laksmackt|Unknown|Unknown |Unknown|:interrobang:|  05/21/2021|
+|Kuu M+       |Kuukuu   |Unknown|Unknown |Unknown|:interrobang:|  03/04/2021|
+|Kuu Raid     |Kuukuu   |Unknown|Unknown |Unknown|:interrobang:|  03/04/2021|
+|Resto Shamlo |Pangloo  |Unknown|Unknown |Unknown|:interrobang:|  02/27/2021|
 
-- Inital 1-10 Supported - Patch 9.0
 
 ### Warlock
 
 - Affliction
 
-author  | support | patch | status |     raidable?
-:------ | :-----: | :---: | -----: | :----------------:
-Kink    | Inactive| 9.0 |   100% |  :white_check_mark:
+|   rotation   |   author   | patch |coverage|status |  readiness  |last updated|
+|--------------|------------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|KinkAffliction|Jim T. Kinks|Unknown|Unknown |Unknown|:interrobang:|  03/17/2021|
+|Kinkold       |Jim T. Kinks|Unknown|Unknown |Unknown|:interrobang:|  02/27/2021|
 
 - Demonology
 
-author        | support | patch | status |     raidable?
-:------------ | :-----: | :---: | -----: | :----------------:
-Kink          | Inactive| 9.0   |   100% |  :white_check_mark:
+| rotation  |   author   | patch |coverage|status |  readiness  |last updated|
+|-----------|------------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|KinkySpirit|Jim T. Kinks|Unknown|Unknown |Unknown|:interrobang:|  04/06/2021|
 
 - Destruction
 
-author  | support | patch | status |     raidable?
-:------ | :-----: | :---: | -----: | :----------------:
-Kink    | Inactive| 9.0   |   100% | :white_check_mark:
+|   rotation    |   author    | patch |coverage|status |  readiness  |last updated|
+|---------------|-------------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|KinkDestruction|Jim T. Kinks |Unknown|Unknown |Unknown|:interrobang:|  03/28/2021|
+|CuteOne        |ph34rt3hcute1|Unknown|Unknown |Unknown|:interrobang:|  02/22/2021|
 
-- Inital 1-10 Supported - Patch 9.0
 
 ### Warrior
 
 - Arms
 
-author  | support | patch | status |     raidable?
-:------ | :-----: | :---: | -----: | :----------------:
-Winterz |  Full   | 9.0 |   100% | :interrobang:
+| rotation  |   author    | patch |coverage|status |  readiness  |last updated|
+|-----------|-------------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|CuteOne    |ph34rt3hcute1|Unknown|Unknown |Unknown|:interrobang:|  05/22/2022|
+|WinterzArms|Hassliebe    |Unknown|Unknown |Unknown|:interrobang:|  03/06/2021|
 
 - Fury
 
-author  | support | patch | status |     raidable?
-:------ | :-----: | :---: | -----: | :----------------:
-Winters |  Full   | 9.0 |   100% | :interrobang:
-
+| rotation  |   author    | patch |coverage|status |  readiness  |last updated|
+|-----------|-------------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|WinterzBETA|Hassliebe    |Unknown|Unknown |Unknown|:interrobang:|  05/30/2022|
+|CuteOne    |ph34rt3hcute1|Unknown|Unknown |Unknown|:interrobang:|  04/06/2022|
+|WinterzFury|Hassliebe    |Unknown|Unknown |Unknown|:interrobang:|  05/12/2021|
 
 - Protection
 
-author            | support | patch | status |     raidable?
-:------           | :-----: | :---: | -----: | :----------------:
-Panglo            | Unknown | 8.0   |   ???% | :interrobang:
-ToCodeAndProsper  |  Full   | 9.0   |   100% | :interrobang:
+|   rotation   |   author    | patch |coverage|status |  readiness  |last updated|
+|--------------|-------------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|CuteOne       |ph34rt3hcute1|Unknown|Unknown |Unknown|:interrobang:|  07/04/2022|
+|Doparrior_Prot|Airwavez     |Unknown|Unknown |Unknown|:interrobang:|  04/23/2021|
+|Panglo2       |Panglo       |Unknown|Unknown |Unknown|:interrobang:|  03/06/2021|
 
-- Inital 1-10 Supported - Patch 9.0
