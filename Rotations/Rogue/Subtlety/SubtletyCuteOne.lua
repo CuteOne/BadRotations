@@ -622,18 +622,22 @@ actionList.Finish = function()
     -- rupture,cycle_targets=1,if=!variable.skip_rupture&!variable.use_priority_rotation&spell_targets.shuriken_storm>=2&target.time_to_die>=(5+(2*combo_points))&refreshable
     for i = 1, #enemies.yards5 do
         local thisUnit = enemies.yards5[i]
-        if cast.able.rupture(thisUnit) and (not var.skipRupture and not var.usePriorityRotation and ui.useAOE(10,2) and unit.ttd(units.dyn5) >= (5 + (2 * comboPoints)) and debuff.rupture.refresh(thisUnit)) then
+        if cast.able.rupture(thisUnit) and (not var.skipRupture and not var.usePriorityRotation and ui.useAOE(10,2)
+            and unit.ttd(thisUnit) >= (5 + (2 * comboPoints)) and debuff.rupture.refresh(thisUnit))
+        then
             if cast.rupture(thisUnit) then ui.debug("Casting Rupture [Finish - Cycle]") return true end
         end
     end
     -- rupture,if=!variable.skip_rupture&remains<cooldown.symbols_of_death.remains+10&cooldown.symbols_of_death.remains<=5&target.time_to_die-remains>cooldown.symbols_of_death.remains+5
-    if cast.able.rupture() and (not var.skipRupture and debuff.rupture.remain(units.dyn5) < cd.symbolsOfDeath.remain() + 10 and cd.symbolsOfDeath.remain() <= 5 and unit.ttd(units.dyn5) - debuff.rupture.remain(units.dyn5) > cd.symbolsOfDeath.remain() + 5) then
+    if cast.able.rupture() and (not var.skipRupture and debuff.rupture.remain(units.dyn5) < cd.symbolsOfDeath.remain() + 10
+        and cd.symbolsOfDeath.remain() <= 5 and unit.ttd(units.dyn5) - debuff.rupture.remain(units.dyn5) > cd.symbolsOfDeath.remain() + 5)
+    then
         if cast.rupture() then ui.debug("Casting Rupture [Finish]") return true end
     end
     -- Black Powder
     -- black_powder,if=!variable.use_priority_rotation&spell_targets>=3
-    if cast.able.blackPowder("player","aoe",1,8) and (not var.usePriorityRotation and ui.useAOE(10,3)) then
-        if cast.blackPowder("player","aoe",1,8) then ui.debug("Casting Black Powder [Finish]") return true end
+    if cast.able.blackPowder("player","aoe",1,10) and (not var.usePriorityRotation and ui.useAOE(10,3)) then
+        if cast.blackPowder("player","aoe",1,10) then ui.debug("Casting Black Powder [Finish]") return true end
     end
     -- Eviscerate
     -- eviscerate
@@ -651,7 +655,8 @@ actionList.Build = function()
     end
     -- Shuriken Storm
     -- shuriken_storm,if=spell_targets>=2&(!covenant.necrolord|cooldown.serrated_bone_spike.max_charges-charges_fractional>=0.25|spell_targets.shuriken_storm>4)&(buff.perforated_veins.stack<=4|spell_targets.shuriken_storm>4&!variable.use_priority_rotation)
-    if cast.able.shurikenStorm("player","aoe",1,8) and (ui.useAOE(10,2) and (not covenant.necrolord.active or charges.serratedBoneSpike.timeTillFull(true) >= 0.25 or ui.useAOE(10,5))
+    if cast.able.shurikenStorm("player","aoe",1,8) and (ui.useAOE(10,2)
+        and (not covenant.necrolord.active or charges.serratedBoneSpike.timeTillFull(true) >= 0.25 or ui.useAOE(10,5))
         and (buff.perforatedVeins.stack() <= 4 or ui.useAOE(10,5) and not var.usePriorityRotation))
     then
         if cast.shurikenStorm("player","aoe",1,8) then ui.debug("Casting Shuriken Storm [Build]") return true end
