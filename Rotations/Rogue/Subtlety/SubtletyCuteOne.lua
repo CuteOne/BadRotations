@@ -577,10 +577,10 @@ actionList.Stealthed = function()
     end
     -- Shuriken Storm
     -- shuriken_storm,if=spell_targets>=3+(buff.the_rotten.up|runeforge.akaaris_soul_fragment|set_bonus.tier28_2pc&talent.shadow_focus.enabled)&(buff.symbols_of_death_autocrit.up|!buff.premeditation.up|spell_targets>=5)
-    if cast.able.shurikenStorm() and (ui.useAOE(10,3 + var.shurikenStormNumeric)
+    if cast.able.shurikenStorm("player","aoe",1,8) and (ui.useAOE(10,3 + var.shurikenStormNumeric)
         and (buff.symbolsOfDeathCrit.exists() or not buff.premeditation.exists() or ui.useAOE(10,5)))
     then
-        if cast.shurikenStorm() then ui.debug("Casting Shuriken Storm [Stealth]") return true end
+        if cast.shurikenStorm("player","aoe",1,8) then ui.debug("Casting Shuriken Storm [Stealth]") return true end
     end
     -- Shadowstrike
     -- shadowstrike,if=debuff.find_weakness.remains<=1|cooldown.symbols_of_death.remains<18&debuff.find_weakness.remains<cooldown.symbols_of_death.remains
@@ -639,8 +639,8 @@ actionList.Finish = function()
     end
     -- Black Powder
     -- black_powder,if=!variable.use_priority_rotation&spell_targets>=3
-    if cast.able.blackPowder() and (not var.usePriorityRotation and ui.useAOE(10,3)) then
-        if cast.blackPowder() then ui.debug("Casting Black Powder [Finish]") return true end
+    if cast.able.blackPowder("player","aoe",1,8) and (not var.usePriorityRotation and ui.useAOE(10,3)) then
+        if cast.blackPowder("player","aoe",1,8) then ui.debug("Casting Black Powder [Finish]") return true end
     end
     -- Eviscerate
     -- eviscerate
@@ -658,10 +658,10 @@ actionList.Build = function()
     end
     -- Shuriken Storm
     -- shuriken_storm,if=spell_targets>=2&(!covenant.necrolord|cooldown.serrated_bone_spike.max_charges-charges_fractional>=0.25|spell_targets.shuriken_storm>4)&(buff.perforated_veins.stack<=4|spell_targets.shuriken_storm>4&!variable.use_priority_rotation)
-    if cast.able.shurikenStorm() and (ui.useAOE(10,2) and (not covenant.necrolord.active or charges.serratedBoneSpike.timeTillFull(true) >= 0.25 or ui.useAOE(10,5))
+    if cast.able.shurikenStorm("player","aoe",1,8) and (ui.useAOE(10,2) and (not covenant.necrolord.active or charges.serratedBoneSpike.timeTillFull(true) >= 0.25 or ui.useAOE(10,5))
         and (buff.perforatedVeins.stack() <= 4 or ui.useAOE(10,5) and not var.usePriorityRotation))
     then
-        if cast.shurikenStorm() then ui.debug("Casting Shuriken Storm [Build]") return true end
+        if cast.shurikenStorm("player","aoe",1,8) then ui.debug("Casting Shuriken Storm [Build]") return true end
     end
     -- Serrated Bone Spike
     -- serrated_bone_spike,if=buff.perforated_veins.stack<=2&(cooldown.serrated_bone_spike.max_charges-charges_fractional<=0.25|soulbind.lead_by_example.enabled&!buff.lead_by_example.up|soulbind.kevins_oozeling.enabled&!debuff.kevins_wrath.up)
