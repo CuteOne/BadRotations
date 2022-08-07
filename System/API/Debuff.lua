@@ -7,7 +7,7 @@ if br.api == nil then br.api = {} end
 local function getSnapshotValue(dot)
     local self = br.player
     -- Feral Bleeds
-    if _G.GetSpecializationInfo(_G.GetSpecialization()) == 103 then
+    if br._G.GetSpecializationInfo(br._G.GetSpecialization()) == 103 then
         local multiplier        = 1.00
         local Bloodtalons       = 1.30
         -- local SavageRoar        = 1.40
@@ -42,7 +42,7 @@ local function getSnapshotValue(dot)
         end
     end
     -- Assassination Bleeds
-    if _G.GetSpecializationInfo(_G.GetSpecialization()) == 259 then
+    if br._G.GetSpecializationInfo(br._G.GetSpecialization()) == 259 then
         local multiplier = 1
         if self.buff.stealth.exists() and self.talent.nightstalker and (dot == self.spell.debuffs.rupture or dot == self.spell.debuffs.garrote) then multiplier = 1.5 end
         if (self.buff.stealth.exists() or self.buff.vanish.exists()
@@ -57,7 +57,7 @@ local function getSnapshotValue(dot)
 end
 
 br.api.debuffs = function(debuff,k,v)
-    local spec = _G.GetSpecializationInfo(_G.GetSpecialization())
+    local spec = br._G.GetSpecializationInfo(br._G.GetSpecialization())
     debuff.exists = function(thisUnit,sourceUnit)
         if thisUnit == nil then thisUnit = 'target' end
         if sourceUnit == nil then sourceUnit = 'player' end

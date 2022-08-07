@@ -31,7 +31,7 @@ function br.read.enrageReader(...)
             if br.lists.dispell[spell] ~= nil then
                 -- find unit in engine, if its not there, dont add it.
                 if destination ~= nil then
-                    _G.tinsert(
+                    br._G.tinsert(
                         br.read.enraged,
                         1,
                         {guid = destination, spellType = br.lists.dispell[spell], buffID = spell}
@@ -45,7 +45,7 @@ function br.read.enrageReader(...)
             if #targets > 0 then
                 for i = #targets, 1, -1 do
                     if targets[i].guid == destination and targets[i].buffID == spell then
-                        _G.tremove(br.read.enraged, i)
+                        br._G.tremove(br.read.enraged, i)
                     end
                 end
             end
@@ -241,20 +241,20 @@ function cl:common(...)
                         br.queueDest = destination
                     end
                     if br.player ~= nil and #br.player.queue == 0 and notOnCD then
-                        _G.tinsert(br.player.queue, {id = spell, name = spellName, target = br.queueDest})
+                        br._G.tinsert(br.player.queue, {id = spell, name = spellName, target = br.queueDest})
                         if not br.isChecked("Mute Queue") then
                             br._G.print("Added |cFFFF0000" .. spellName .. "|r to the queue.")
                         end
                     elseif br.player ~= nil and #br.player.queue ~= 0 then
                         for i = 1, #br.player.queue do
                             if spell == br.player.queue[i].id then
-                                _G.tremove(br.player.queue, i)
+                                br._G.tremove(br.player.queue, i)
                                 if not br.isChecked("Mute Queue") then
                                     br._G.print("Removed |cFFFF0000" .. spellName .. "|r  from the queue.")
                                 end
                                 break
                             elseif notOnCD then
-                                _G.tinsert(br.player.queue, {id = spell, name = spellName, target = br.queueDest})
+                                br._G.tinsert(br.player.queue, {id = spell, name = spellName, target = br.queueDest})
                                 if not br.isChecked("Mute Queue") then
                                     br._G.print("Added |cFFFF0000" .. spellName .. "|r to the queue.")
                                 end
@@ -282,7 +282,7 @@ function cl:common(...)
                     if br.player ~= nil and br.player.queue ~= nil and #br.player.queue ~= 0 then
                         for i = 1, #br.player.queue do
                             if spell == br.player.queue[i].id then
-                                _G.tremove(br.player.queue, i)
+                                br._G.tremove(br.player.queue, i)
                                 if not br.isChecked("Mute Queue") then
                                     br._G.print(
                                         "Cast Success! - Removed |cFFFF0000" .. spellName .. "|r from the queue."

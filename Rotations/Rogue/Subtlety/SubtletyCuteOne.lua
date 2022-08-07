@@ -184,28 +184,22 @@ end
 --- Locals ---
 --------------
 -- BR API Locals
-local anima
 local buff
 local cast
 local cd
 local charges
-local comboPoints
 local conduit
 local covenant
 local debuff
 local enemies
-local energy, energyRegen, energyDeficit
 local equiped
 local module
-local opener
 local power
 local race
 local runeforge
-local spell
 local talent
 local unit
 local units
-local use
 local ui
 local var = {}
 
@@ -216,7 +210,6 @@ local energy
 local energyRegen
 local energyDeficit
 local energyTTM
-local multidot
 var.profileStop = false
 
 -- Variables
@@ -230,7 +223,7 @@ var.pickPocketUnit = "player"
 var.isPicked = function(thisUnit)   --  Pick Pocket Testing
     if thisUnit == nil then thisUnit = "target" end
     if (br.unpickable or unit.level() < 24
-        or ui.mode.pickPocket == 3 or unit.isDummy(thisUnit) or (br._G.LootFrame:IsShown() and GetNumLootItems() == 0))
+        or ui.mode.pickPocket == 3 or unit.isDummy(thisUnit) or (br._G.LootFrame:IsShown() and br._G.GetNumLootItems() == 0))
     then
         var.pickPocketUnit = thisUnit
         return true
@@ -270,8 +263,8 @@ actionList.Extras = function()
     if ui.checked("DPS Testing") then
         if unit.exists("target") then
             if unit.combatTime() >= (tonumber(ui.value("DPS Testing"))*60) and unit.isDummy("target") then
-                StopAttack()
-                ClearTarget()
+                unit.stopAttack()
+                unit.clearTarget()
                 ui.chatOverlay(tonumber(ui.value("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
                 var.profileStop = true
             end
@@ -459,7 +452,7 @@ actionList.Cooldowns = function()
         end
         -- Fleshcraft
         -- fleshcraft,if=(soulbind.pustule_eruption|soulbind.volatile_solvent)&energy.deficit>=30&!stealthed.all&buff.symbols_of_death.down
-        if ui.alwaysCdAoENever("Covenant",3,5) and cast.able.fleshcraft() and ((soulbind.pustuleEruption.active or soulbind.volatileSolvent.active) and energyDeficit >= 30 and not var.stealthAll and not buff.symbolsOfDeath.exists()) then
+        if ui.alwaysCdAoENever("Covenant",3,5) and cast.able.fleshcraft() and ((conduit.pustuleEruption.active or conduit.volatileSolvent.active) and energyDeficit >= 30 and not var.stealthAll and not buff.symbolsOfDeath.exists()) then
             if cast.fleshcraft() then ui.debug("Casting Fleshcraft [Cooldowns]") return true end
         end
         -- Potion
@@ -801,7 +794,6 @@ local function runRotation()
     --------------
     -- BR API
     if comboPoints == nil then
-        anima           = br.player.anima
         buff            = br.player.buff
         cast            = br.player.cast
         cd              = br.player.cd
@@ -812,16 +804,13 @@ local function runRotation()
         enemies         = br.player.enemies
         equiped         = br.player.equiped
         module          = br.player.module
-        opener          = br.player.opener
         race            = br.player.race
         runeforge       = br.player.runeforge
         power           = br.player.power
-        spell           = br.player.spell
         talent          = br.player.talent
         ui              = br.player.ui
         unit            = br.player.unit
         units           = br.player.units
-        use             = br.player.use
     end
     comboPoints         = power.comboPoints.amount()
     comboPointsDeficit  = power.comboPoints.deficit()
@@ -829,8 +818,7 @@ local function runRotation()
     energyRegen         = power.energy.regen()
     energyDeficit       = power.energy.deficit()
     energyTTM           = power.energy.ttm()
-    multidot            = ui.mode.cleave == 1 and ui.mode.rotation < 3
-    var.getTime         = br._G.GetTime()
+    var.getTime         = ui.time()
 
     -- Get Best Unit for Range
     -- units.get(range, aoe)
@@ -1035,7 +1023,7 @@ local function runRotation()
 end -- runRotation
 local id = 261
 if br.rotations[id] == nil then br.rotations[id] = {} end
-tinsert(br.rotations[id],{
+br._G.tinsert(br.rotations[id],{
     name = rotationName,
     toggles = createToggles,
     options = createOptions,

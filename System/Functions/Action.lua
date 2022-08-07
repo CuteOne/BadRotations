@@ -1,6 +1,6 @@
 local _, br = ...
 function br.canFly()
-	return _G.IsOutdoors() and _G.IsFlyableArea()
+	return br._G.IsOutdoors() and br._G.IsFlyableArea()
 end
 
 -- if canHeal("target") then
@@ -21,8 +21,8 @@ function br.canRun()
 	if br.getOptionCheck("Pause") ~= 1 then
 		if br.isAlive("player") then
 			if
-				_G.SpellIsTargeting() or --or UnitInVehicle("Player")
-					(_G.IsMounted() and not br.UnitBuffID("player", 164222) and not br.UnitBuffID("player", 165803) and not br.UnitBuffID("player", 157059) and not br.UnitBuffID("player", 157060)) or
+				br._G.SpellIsTargeting() or --or UnitInVehicle("Player")
+					(br._G.IsMounted() and not br.UnitBuffID("player", 164222) and not br.UnitBuffID("player", 165803) and not br.UnitBuffID("player", 157059) and not br.UnitBuffID("player", 157060)) or
 					br.UnitBuffID("player", 11392) ~= nil or
 					br.UnitBuffID("player", 80169) ~= nil or
 					br.UnitBuffID("player", 87959) ~= nil or

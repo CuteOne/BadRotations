@@ -15,9 +15,9 @@ function br.TogglesFrame()
 	br.buttonWidth = br.data.settings["buttonSize"]
 	br.buttonHeight = br.data.settings["buttonSize"]
 	if not br.mainButton then
-		br.mainButton = _G.CreateFrame("Button", "MyButtonBR", br._G.UIParent, "SecureHandlerClickTemplate")
+		br.mainButton = br._G.CreateFrame("Button", "MyButtonBR", br._G.UIParent, "SecureHandlerClickTemplate")
 	end
-	local mainButtonFrame = _G.CreateFrame("Frame", nil, br.mainButton)
+	local mainButtonFrame = br._G.CreateFrame("Frame", nil, br.mainButton)
 	br.mainButton:SetWidth(br.buttonWidth)
 	br.mainButton:SetHeight(br.buttonHeight)
 	br.mainButton:RegisterForClicks("AnyUp")
@@ -58,7 +58,7 @@ function br.TogglesFrame()
 					br.data.settings[br.selectedSpec]["Start/Stop BadRotationsCheck"] = 0
 					br.ChatOverlay("|cFFFF0000-= BadRotations Off =-")
 				end
-				_G.GameTooltip:SetText(
+				br._G.GameTooltip:SetText(
 					"|cff00FF00Enable |cffFF0000BadRotations \n|cffFFDD11Hold Left Alt and scroll mouse to adjust size.",
 					225 / 255,
 					225 / 255,
@@ -72,7 +72,7 @@ function br.TogglesFrame()
 					br.data.settings[br.selectedSpec]["Start/Stop BadRotationsCheck"] = 1
 					br.ChatOverlay("|cFF00FF00-= BadRotations On =-")
 				end
-				_G.GameTooltip:SetText(
+				br._G.GameTooltip:SetText(
 					"|cffFF0000Disable BadRotations \n|cffFFDD11Hold Left Alt and scroll mouse to adjust size.",
 					225 / 255,
 					225 / 255,
@@ -86,29 +86,29 @@ function br.TogglesFrame()
 	br.mainButton:SetScript(
 		"OnEnter",
 		function()
-			_G.GameTooltip:SetOwner(br.mainButton, 0, 0)
+			br._G.GameTooltip:SetOwner(br.mainButton, 0, 0)
 			if br.data.settings[br.selectedSpec].toggles["Power"] == 1 then
-				_G.GameTooltip:SetText(
+				br._G.GameTooltip:SetText(
 					"|cffFF0000Disable BadRotations \n|cffFFDD11Hold Left Alt and scroll mouse to adjust size.",
 					225 / 255,
 					225 / 255,
 					225 / 255
 				)
 			else
-				_G.GameTooltip:SetText(
+				br._G.GameTooltip:SetText(
 					"|cff00FF00Enable |cffFF0000BadRotations \n|cffFFDD11Hold Left Alt and scroll mouse to adjust size.",
 					225 / 255,
 					225 / 255,
 					225 / 255
 				)
 			end
-			_G.GameTooltip:Show()
+			br._G.GameTooltip:Show()
 		end
 	)
 	br.mainButton:SetScript(
 		"OnLeave",
 		function()
-			_G.GameTooltip:Hide()
+			br._G.GameTooltip:Hide()
 		end
 	)
 	br.mainButton:SetScript(
@@ -123,7 +123,7 @@ function br.TogglesFrame()
 	br.mainButton:SetScript(
 		"OnMouseWheel",
 		function(_,delta)
-			if _G.IsLeftAltKeyDown() then
+			if br._G.IsLeftAltKeyDown() then
 				local Go = false
 				if delta < 0 and br.data.settings["buttonSize"] > 1 then
 					Go = true

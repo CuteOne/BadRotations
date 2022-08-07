@@ -25,8 +25,8 @@ function br.UnitAuraID(unit, spellID, filter)
 	end
 end
 function br.UnitBuffID(unit, spellID, filter)
-	local spellName = _G.GetSpellInfo(spellID)
-	local exactSearch = filter ~= nil and _G.strfind(_G.strupper(filter), "EXACT")
+	local spellName = br._G.GetSpellInfo(spellID)
+	local exactSearch = filter ~= nil and br._G.strfind(br._G.strupper(filter), "EXACT")
 	if exactSearch or br.unlocker == "GG" then
 		for i = 1, 40 do
 			local buffName, _, _, _, _, _, _, _, _, buffSpellID = br._G.UnitBuff(unit, i, "player")
@@ -36,14 +36,14 @@ function br.UnitBuffID(unit, spellID, filter)
 			end
 		end
 	else
-		if filter ~= nil and _G.strfind(_G.strupper(filter), "PLAYER") then return br._G.AuraUtil.FindAuraByName(spellName, unit, "HELPFUL|PLAYER") end
+		if filter ~= nil and br._G.strfind(br._G.strupper(filter), "PLAYER") then return br._G.AuraUtil.FindAuraByName(spellName, unit, "HELPFUL|PLAYER") end
 		return br._G.AuraUtil.FindAuraByName(spellName, unit, "HELPFUL")
 	end
 end
 
 function br.UnitDebuffID(unit, spellID, filter)
 	local thisUnit = br._G.ObjectPointer(unit)
-	local spellName = _G.GetSpellInfo(spellID)
+	local spellName = br._G.GetSpellInfo(spellID)
 	-- Check Cache
 	if br.isChecked("Cache Debuffs") then
 		if br.enemy[thisUnit] ~= nil then
@@ -59,7 +59,7 @@ function br.UnitDebuffID(unit, spellID, filter)
 	end
 
 	-- Failsafe if not cached
-	local exactSearch = filter ~= nil and _G.strfind(_G.strupper(filter), "EXACT")
+	local exactSearch = filter ~= nil and br._G.strfind(br._G.strupper(filter), "EXACT")
 	if exactSearch or br.unlocker == "GG" then
 		for i = 1, 40 do
 			local buffName, _, _, _, _, _, _, _, _, buffSpellID = br._G.UnitDebuff(unit, i, "player")
@@ -69,7 +69,7 @@ function br.UnitDebuffID(unit, spellID, filter)
 			end
 		end
 	else
-		if filter ~= nil and _G.strfind(_G.strupper(filter), "PLAYER") then return br._G.AuraUtil.FindAuraByName(spellName, unit, "HARMFUL|PLAYER")	end
+		if filter ~= nil and br._G.strfind(br._G.strupper(filter), "PLAYER") then return br._G.AuraUtil.FindAuraByName(spellName, unit, "HARMFUL|PLAYER")	end
 		return br._G.AuraUtil.FindAuraByName(spellName, unit, "HARMFUL")
 	end
 end
@@ -77,7 +77,7 @@ end
 local function Dispel(unit,stacks,buffDuration,buffRemain,buffSpellID,buff)
 	if not buff then
 		if buffSpellID == 288388 then
-			if stacks >= br.getOptionValue("Reaping") or not _G.UnitAffectingCombat("player") then
+			if stacks >= br.getOptionValue("Reaping") or not br._G.UnitAffectingCombat("player") then
 				return true
 			else
 				return false
@@ -203,7 +203,7 @@ function br.canDispel(Unit, spellID)
 	end
 	if br.player.race == "BloodElf" then --Blood Elf
 		-- Arcane Torrent
-		if spellID == select(7, _G.GetSpellInfo(69179)) then typesList = {"Magic"} end
+		if spellID == select(7, br._G.GetSpellInfo(69179)) then typesList = {"Magic"} end
 	end
 	if br.hasItem(177278) and spellID == 177278 then typesList = {"Disease", "Poison", "Curse", } end -- Phail of Serenity
 	local function ValidType(debuffType)
@@ -225,7 +225,7 @@ function br.canDispel(Unit, spellID)
 		if br.GetUnitIsFriend("player", Unit) then
 			while br._G.UnitDebuff(Unit, i) do
 				local _, _, stacks, debuffType, debuffDuration, debuffExpire, _, _, _, debuffid = br._G.UnitDebuff(Unit, i)
-				local debuffRemain = debuffExpire - _G.GetTime()
+				local debuffRemain = debuffExpire - br._G.GetTime()
 				local dispelUnitObj
 				if (debuffType and ValidType(debuffType)) then
 					if debuffid == 284663 then
@@ -261,7 +261,7 @@ function br.canDispel(Unit, spellID)
 		else
 			while br._G.UnitBuff(Unit, i) do
 				local _, _, stacks, buffType, buffDuration, buffExpire, _, _, _, buffid = br._G.UnitBuff(Unit, i)
-				local buffRemain = buffExpire - _G.GetTime()
+				local buffRemain = buffExpire - br._G.GetTime()
 				local dispelUnitObj
 				if (buffType and ValidType(buffType)) and not br._G.UnitIsPlayer(Unit) then
 					if Dispel(Unit,stacks,buffDuration,buffRemain,buffid,true) ~= nil then
@@ -298,7 +298,7 @@ end
 function br.getAuraRemain(Unit, AuraID, Source)
 	local remain = select(6, br.UnitAuraID(Unit, AuraID, Source))
 	if remain ~= nil then
-		remain = remain - _G.GetTime()
+		remain = remain - br._G.GetTime()
 		return remain
 	end
 	-- if UnitAuraID(Unit,AuraID,Source) ~= nil then
@@ -331,7 +331,7 @@ end
 function br.getDebuffRemain(Unit, DebuffID, Source)
 	local remain = select(6, br.UnitDebuffID(Unit, DebuffID, Source))
 	if remain ~= nil then
-		remain = remain - _G.GetTime()
+		remain = remain - br._G.GetTime()
 		-- Print(GetSpellInfo(DebuffID)..": "..remain)
 		return remain
 	end
@@ -442,7 +442,7 @@ end
 function br.getBuffRemain(Unit, BuffID, Source)
 	local remain = select(6, br.UnitBuffID(Unit, BuffID, Source))
 	if remain ~= nil then
-		remain = remain - _G.GetTime()
+		remain = remain - br._G.GetTime()
 		return remain
 	end
 	-- if br.UnitBuffID(Unit,BuffID,Source) ~= nil then
@@ -480,7 +480,7 @@ end
 function br.getBuffReact(Unit, BuffID, Source)
 	local _, _, _, _, duration, expire = br.UnitBuffID(Unit, BuffID, Source)
 	if duration ~= nil then
-		return (_G.GetTime() - (expire - duration)) > 0.5
+		return (br._G.GetTime() - (expire - duration)) > 0.5
 	end
 	return false
 end
@@ -609,8 +609,6 @@ function br.hasBloodLustRemain()
 		return br.getBuffRemain("player", 146555)
 	elseif br.UnitBuffID("player", 32182) then
 		return br.getBuffRemain("player", 32182)
-	elseif br.UnitBuffID("player", 90355) then
-		return br.getBuffRemain("player", 90355)
 	elseif br.UnitBuffID("player", 80353) then
 		return br.getBuffRemain("player", 80353)
 	else
@@ -626,10 +624,10 @@ function br.isBuffed(UnitID, SpellID, TimeLeft, Filter)
 		SpellID = {SpellID}
 	end
 	for i = 1, #SpellID do
-		local spell, rank = _G.GetSpellInfo(SpellID[i])
+		local spell, rank = br._G.GetSpellInfo(SpellID[i])
 		if spell then
 			local buff = select(6, br._G.UnitBuff(UnitID, spell, rank, Filter))
-			if buff and (buff == 0 or buff - _G.GetTime() > TimeLeft) then
+			if buff and (buff == 0 or buff - br._G.GetTime() > TimeLeft) then
 				return true
 			end
 		end
@@ -644,10 +642,10 @@ function br.isDeBuffed(UnitID, DebuffID, TimeLeft, Filter)
 		DebuffID = {DebuffID}
 	end
 	for i = 1, #DebuffID do
-		local spell, rank = _G.GetSpellInfo(DebuffID[i])
+		local spell, rank = br._G.GetSpellInfo(DebuffID[i])
 		if spell then
 			local debuff = select(6, br._G.UnitDebuff(UnitID, spell, rank, Filter))
-			if debuff and (debuff == 0 or debuff - _G.GetTime() > TimeLeft) then
+			if debuff and (debuff == 0 or debuff - br._G.GetTime() > TimeLeft) then
 				return true
 			end
 		end

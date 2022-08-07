@@ -2,7 +2,7 @@ local _, br = ...
 ----------------------------------------------------------------------------------------------------
 -- Variables
 ----------------------------------------------------------------------------------------------------
-local cdnUrl = "https://cdn.badrotations.org/"
+-- local cdnUrl = "https://cdn.badrotations.org/"
 local apiUrl = "https://www.badrotations.org/"
 
 br.updater = {}

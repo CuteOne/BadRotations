@@ -28,7 +28,7 @@ function br.read.commonReaders()
 	local function MerchantShow(self, event, ...)
 		if br.getOptionCheck("Accept Queues") == true then
 			if event == "LFG_PROPOSAL_SHOW" then
-				br.readyToAccept = _G.GetTime()
+				br.readyToAccept = br._G.GetTime()
 			end
 		end
 	end
@@ -138,7 +138,7 @@ function br.read.commonReaders()
 			br.Thrash_sDamage = {}
 			br.petAttacking = false
 			br.lastCastTable.line_cd = {}
-			_G.wipe(br.read.debuffTracker)
+			br._G.wipe(br.read.debuffTracker)
 		end
 	end
 	Frame:SetScript("OnEvent", LeavingCombat)
@@ -147,7 +147,7 @@ function br.read.commonReaders()
 	Frame = br._G.CreateFrame("Frame")
 	Frame:RegisterEvent("UI_ERROR_MESSAGE")
 	local function UiErrorMessages(self, event, errorType, message)
-		br.lastError = GetGameMessageInfo(errorType)
+		br.lastError = br._G.GetGameMessageInfo(errorType)
 		br.lastErrorTime = br._G.GetTime()
 		local param = br.lastError
 		--br._G.print("|cffFF0000UI Error: " .. errorType .. " - " .. param)
@@ -249,11 +249,11 @@ function br.read.commonReaders()
 	--     "LOADING_SCREEN_DISABLED"
 	-- )
 	-- local function addonReader(...)
-	-- 	function _G.DBM:AddMsg(text, prefix)
+	-- 	function br._G.DBM:AddMsg(text, prefix)
 	-- 		prefix = prefix or (self.localization and self.localization.general.name) or "Deadly Boss Mods"
-	-- 		local frame = _G[tostring(_G.DBM.Options.ChatFrame)]
+	-- 		local frame = br._G[tostring(_G.DBM.Options.ChatFrame)]
 	-- 		br._G.print("!!")
-	-- 		frame = frame and frame:IsShown() and frame or _G["DEFAULT_CHAT_FRAME"]
+	-- 		frame = frame and frame:IsShown() and frame or br._G["DEFAULT_CHAT_FRAME"]
 	-- 		frame:AddMessage(("|cffff7d0a<|r|cffffd200%s|r|cffff7d0a>|r %s"):format(tostring(prefix), tostring(text)), 0.41, 0.8, 0.94)
 	-- 	end
 	-- 	br._G.print(...)
@@ -370,7 +370,7 @@ function br.read.commonReaders()
 			local SpellName = select(2, ...)
 			br.spellCastTarget = select(4, ...)
 			--Print("UNIT_SPELLCAST_SENT spellCastTarget = "..spellCastTarget)
-			local MyClass = select(2, br._G.UnitClass("player"))
+			-- local MyClass = select(2, br._G.UnitClass("player"))
 			if SourceUnit == "player" then
 				-- Blizz br._G.CastSpellByName bug bypass
 				if SpellName == "Metamorphosis" then
@@ -381,14 +381,14 @@ function br.read.commonReaders()
 
 		if event == "UNIT_SPELLCAST_INTERRUPTED" then
 			local SourceUnit = select(1, ...)
-			local SpellID = select(5, ...)
+			-- local SpellID = select(5, ...)
 			if SourceUnit == "player" then
 				local MyClass = select(2, br._G.UnitClass("player"))
 				if MyClass == "MAGE" then -- Mage
 				end
 			-- if MyClass == "MONK" then -- Monk
-			-- 	local br = _G["br"]
-			-- 	local spec = _G["GetSpecialization"]
+			-- 	local br = br._G["br"]
+			-- 	local spec = br._G["GetSpecialization"]
 			-- 	if br.player ~= nil and spec() == 3 and br.player.spell.fistsOfFury ~= nil then
 			-- 		local cd 	= br.player.cd
 			-- 		local spell = br.player.spell
@@ -455,7 +455,7 @@ function br.read.commonReaders()
 		end
 		if event == "UNIT_SPELLCAST_STOP" then
 			local SourceUnit = select(1, ...)
-			local SpellID = select(5, ...)
+			-- local SpellID = select(5, ...)
 			if SourceUnit == "player" then
 				local MyClass = br._G.UnitClass("player")
 				if MyClass == "Mage" then -- Mage
@@ -483,7 +483,7 @@ function br.read.commonReaders()
 					if #br.player.queue ~= 0 then
 						for i = 1, #br.player.queue do
 							if br._G.GetSpellInfo(spell) == br._G.GetSpellInfo(br.player.queue[i].id) then
-								_G.tremove(br.player.queue, i)
+								br._G.tremove(br.player.queue, i)
 								if br._G.IsAoEPending() then
 									br._G.SpellStopTargeting()
 								end
@@ -603,7 +603,7 @@ function br.read.commonReaders()
 		end
 		if event == "UNIT_SPELLCAST_CHANNEL_UPDATE" then
 			local SourceUnit = select(1, ...)
-			local SpellID = select(5, ...)
+			-- local SpellID = select(5, ...)
 			if SourceUnit == "player" then
 			--Print("Channel Update")
 			end

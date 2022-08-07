@@ -53,7 +53,7 @@ br.api.ui = function(self)
     end
     if ui.pause == nil then
         ui.pause = function(ignoreChannel)
-            --local pause = _G["pause"]
+            --local pause = br._G["pause"]
             if ignoreChannel == nil then ignoreChannel = false end
             return br.pause(ignoreChannel)
         end
@@ -65,8 +65,13 @@ br.api.ui = function(self)
     end
     if ui.pullTimer == nil then
         ui.pullTimer = function()
-            --local PullTimerRemain = _G["PullTimerRemain"]
+            --local PullTimerRemain = br._G["PullTimerRemain"]
             return br.PullTimerRemain()
+        end
+    end
+    if ui.time == nil then
+        ui.time = function()
+            return br._G.GetTime()
         end
     end
     if ui.timer == nil then
@@ -95,7 +100,7 @@ br.api.ui = function(self)
     end
     if ui.useCDs == nil then
         ui.useCDs = function()
-            local hasBloodLust = _G["hasBloodLust"]
+            local hasBloodLust = br._G["hasBloodLust"]
             return (ui.mode.cooldown == 1 and br.isBoss())
                 or ui.mode.cooldown == 2
                 or (ui.mode.cooldown == 4 and hasBloodLust())
@@ -121,7 +126,7 @@ br.api.ui = function(self)
     end
     if ui.print == nil then
         ui.print = function(text)
-            local Print = _G["Print"]
+            local Print = br._G["Print"]
             return Print(text)
         end
     end

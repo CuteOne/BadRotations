@@ -116,11 +116,11 @@ local function updateRate()
 end
 
 local function forewardDisengage() -- from Stinky Twitch
-	local s, d, e = br._G.GetSpellCooldown(781)
+	local s = br._G.GetSpellCooldown(781)
 	if s == 0 then
-		br._G.FaceDirection(_G.mod(br._G.ObjectFacing("player") + math.pi, math.pi * 2), true)
+		br._G.FaceDirection(br._G.mod(br._G.ObjectFacing("player") + math.pi, math.pi * 2), true)
 		br._G.CastSpellByID(781)
-		C_Timer.After(0.05, function() br._G.FaceDirection(_G.mod(br._G.ObjectFacing("player") + math.pi, math.pi * 2), true) end )
+		br.C_Timer.After(0.05, function() br._G.FaceDirection(br._G.mod(br._G.ObjectFacing("player") + math.pi, math.pi * 2), true) end )
 	end
 end
 

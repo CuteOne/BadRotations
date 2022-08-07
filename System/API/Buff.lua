@@ -9,7 +9,7 @@ br.api.buffs = function(buff,v)
         if thisUnit == nil then thisUnit = 'player' end
         if sourceUnit == nil then sourceUnit = 'player' end
         if br.UnitBuffID(thisUnit,v,sourceUnit) ~= nil then
-            br._G.RunMacroText("/cancelaura ".._G.GetSpellInfo(v))
+            br._G.RunMacroText("/cancelaura "..br._G.GetSpellInfo(v))
             -- CancelUnitBuff(thisUnit,v,sourceUnit)
         end
     end

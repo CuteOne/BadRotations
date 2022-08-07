@@ -1,9 +1,9 @@
 local _, br = ...
 function br.castInterrupt(SpellID,Percent,Unit)
-	Percent = _G.Math.min(Percent + math.random(-6.5, 6.5), 99)
+	Percent = br._G.Math.min(Percent + math.random(-6, 6), 99)
 	if Unit == nil then Unit = "target" end
 	if br.GetObjectExists(Unit) then
-		local castName, _, _, castStartTime, castEndTime, _, _, castInterruptable = br._G.UnitCastingInfo(Unit)
+		local _, _, _, castStartTime, castEndTime, _, _, castInterruptable = br._G.UnitCastingInfo(Unit)
 		local channelName, _, _, channelStartTime, channelEndTime, _, channelInterruptable = br._G.UnitChannelInfo(Unit)
 		-- first make sure we will be able to cast the spellID
 		if br.canCast(SpellID,false,false) == true then
@@ -16,7 +16,7 @@ function br.castInterrupt(SpellID,Percent,Unit)
 			if channelName ~= nil then
 				--target is channeling a spell that is interruptable
 				--load the channel variables into the cast variables to make logic a little easier.
-				castName = channelName
+				_ = channelName
 				castStartTime = channelStartTime
 				castEndTime = channelEndTime
 				castInterruptable = channelInterruptable
@@ -35,7 +35,7 @@ function br.castInterrupt(SpellID,Percent,Unit)
 				--target is casting something that is interruptable.
 				--the following 2 variables are named logically... value is in seconds.
 				local timeSinceStart = (br._G.GetTime() * 1000 - castStartTime) / 1000
-				local timeLeft = ((br._G.GetTime() * 1000 - castEndTime) * -1) / 1000
+				-- local timeLeft = ((br._G.GetTime() * 1000 - castEndTime) * -1) / 1000
 				local castTime = castEndTime - castStartTime
 				local currentPercent = timeSinceStart / castTime * 100000
 				--interrupt percentage check
@@ -210,7 +210,7 @@ function br.getSpellCD(SpellID)
 	else
 		local Start, CD = br._G.GetSpellCooldown(SpellID)
 		local MyCD = Start + CD - br._G.GetTime()
-		MyCD = MyCD -- getLatency()
+		MyCD = MyCD or 0 -- getLatency()
 		if MyCD < 0 then MyCD = 0 end
 		return MyCD
 	end
@@ -229,8 +229,8 @@ function br.getGlobalCD(max)
 end
 function br.getSpellType(spellName)
 	if spellName == nil then return "Invalid" end
-	local helpful = _G.IsHelpfulSpell(spellName) or false
-	local harmful = _G.IsHarmfulSpell(spellName) or false
+	local helpful = br._G.IsHelpfulSpell(spellName) or false
+	local harmful = br._G.IsHarmfulSpell(spellName) or false
 	if helpful and not harmful then return "Helpful" end
     if harmful and not helpful then return "Harmful" end
     if helpful and harmful then return "Both" end

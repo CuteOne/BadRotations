@@ -25,39 +25,39 @@ local function createToggles()
         [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.mutilate },
         [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.crimsonVial}
     };
-    CreateButton("Rotation",1,0)
+    br._G.CreateButton("Rotation",1,0)
 -- Cooldown Button
     CooldownModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.vendetta },
         [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.vendetta },
         [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.vendetta }
     };
-    CreateButton("Cooldown",2,0)
+    br._G.CreateButton("Cooldown",2,0)
 -- Defensive Button
     DefensiveModes = {
         [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.evasion },
         [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.evasion }
     };
-    CreateButton("Defensive",3,0)
+    br._G.CreateButton("Defensive",3,0)
 -- Interrupt Button
     InterruptModes = {
         [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.kick },
         [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.kick }
     };
-    CreateButton("Interrupt",4,0)
+    br._G.CreateButton("Interrupt",4,0)
 -- Cleave Button
     CleaveModes = {
         [1] = { mode = "On", value = 1 , overlay = "Cleaving Enabled", tip = "Rotation will cleave targets.", highlight = 1, icon = br.player.spell.fanOfKnives },
         [2] = { mode = "Off", value = 2 , overlay = "Cleaving Disabled", tip = "Rotation will not cleave targets", highlight = 0, icon = br.player.spell.mutilate }
     };
-    CreateButton("Cleave",5,0)
+    br._G.CreateButton("Cleave",5,0)
 -- Pick Pocket Button
     PickerModes = {
       [1] = { mode = "Auto", value = 2 , overlay = "Auto Pick Pocket Enabled", tip = "Profile will attempt to Pick Pocket prior to combat.", highlight = 1, icon = br.player.spell.pickPocket},
       [2] = { mode = "Only", value = 1 , overlay = "Only Pick Pocket Enabled", tip = "Profile will attempt to Sap and only Pick Pocket, no combat.", highlight = 0, icon = br.player.spell.pickPocket},
       [3] = { mode = "Off", value = 3, overlay = "Pick Pocket Disabled", tip = "Profile will not use Pick Pocket.", highlight = 0, icon = br.player.spell.pickPocket}
     };
-    CreateButton("Picker",6,0)
+    br._G.CreateButton("Picker",6,0)
 end
 
 ---------------
@@ -179,13 +179,13 @@ local function runRotation()
 ---------------
 --- Toggles ---
 ---------------
-        UpdateToggle("Rotation",0.25)
-        UpdateToggle("Cooldown",0.25)
-        UpdateToggle("Defensive",0.25)
-        UpdateToggle("Interrupt",0.25)
-        UpdateToggle("Cleave",0.25)
+        br._G.UpdateToggle("Rotation",0.25)
+        br._G.UpdateToggle("Cooldown",0.25)
+        br._G.UpdateToggle("Defensive",0.25)
+        br._G.UpdateToggle("Interrupt",0.25)
+        br._G.UpdateToggle("Cleave",0.25)
         br.player.ui.mode.cleave = br.data.settings[br.selectedSpec].toggles["Cleave"]
-        UpdateToggle("Picker",0.25)
+        br._G.UpdateToggle("Picker",0.25)
         br.player.ui.mode.pickPocket = br.data.settings[br.selectedSpec].toggles["Picker"]
 
 --------------

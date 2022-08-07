@@ -1,7 +1,6 @@
 local _, br = ...
 br.loader = {}
 local class = select(2,br._G.UnitClass('player'))
-local level = br._G.UnitLevel('player')
 local function getFolderClassName(class)
     local formatClass = class:sub(1,1):upper()..class:sub(2):lower()
     if formatClass == "Deathknight" then formatClass = "Death Knight" end
@@ -21,17 +20,17 @@ local function settingsDirectory()
 end
 
 local function errorhandler(err)
-    return _G.geterrorhandler()(err)
+    return br._G.geterrorhandler()(err)
 end
 
 local function loadFile(profile,file,support)
     local custom_env = setmetatable({br = br}, {__index=_G})
-    local func, errorMessage = _G.loadstring(profile, file);
+    local func, errorMessage = br._G.loadstring(profile, file);
     if not func then
         print("Error: "..file.. " Cannot Load.  Please inform devs!")
         errorhandler(errorMessage)
     end
-    _G.setfenv(func, custom_env)
+    br._G.setfenv(func, custom_env)
     local success, xerrorMessage = xpcall(func, errorhandler);
     if not success then
         print('Error: '..file..' Cannot Run.  Please inform devs!')
@@ -42,20 +41,22 @@ end
 -- Load Rotation Files
 function br.loader.loadProfiles()
     -- Search each Profile in the Spec Folder
-    _G.wipe(br.rotations)
+    br._G.wipe(br.rotations)
     local specID = br._G.GetSpecializationInfo(br._G.GetSpecialization())
     local folderSpec = getFolderSpecName(class,specID)
     local path = rotationsDirectory() .. getFolderClassName(class) .. '\\' .. folderSpec .. '\\'
     local profiles = br._G.GetDirectoryFiles(path .. '*.lua')
-    local profileName = ""
+    -- local profileName = ""
     for _, file in pairs(profiles) do
+        -- br._G.print("Path: "..path..", File: "..file)
         local profile = br._G.ReadFile(path..file)
+        -- br._G.print("Profile: "..tostring(profile))
         local start = string.find(profile,"local id = ",1,true) or 0
         local profileID = 0
         if folderSpec == "Initial" then
-            profileID = tonumber(string.sub(profile,start+10,start+14))
+            profileID = math.floor(tonumber(string.sub(profile,start+10,start+14)) or 0)
         else
-            profileID = tonumber(string.sub(profile,start+10,start+13))
+            profileID = math.floor(tonumber(string.sub(profile,start+10,start+13)) or 0)
         end
         if profileID == specID then
             loadFile(profile,file,false)
@@ -80,7 +81,7 @@ function br.loadSupport(thisFile) -- Loads support rotation file from Class Fold
     if thisFile == nil then return end
     if br.rotations.support == nil then br.rotations.support = {} end
     if br.rotations.support[thisFile] then
-        _G.wipe(br.rotations.support[thisFile])
+        br._G.wipe(br.rotations.support[thisFile])
     end
     local file = thisFile..".lua"
     local profile = br._G.ReadFile(rotationsDirectory()..getFolderClassName(class)..'\\Support\\'..file)
@@ -89,9 +90,9 @@ end
 
 -- Generate Profile API
 function br.loader:new(spec,specName)
-    local loadStart = _G.debugprofilestop()
+    local loadStart = br._G.debugprofilestop()
     local self = br.cCharacter:new(tostring(select(1,br._G.UnitClass("player"))))
-    local player = "player" -- if someone forgets ""
+    -- local player = "player" -- if someone forgets ""
     if specName == nil then specName = "Initial" end
     -- Print("Spec: "..spec.." | Spec Name: "..specName)
     -- if not br.loaded then
@@ -526,7 +527,7 @@ function br.loader:new(spec,specName)
         table.wipe(names)
         for i=1,#br.rotations[spec] do
             local thisName = br.rotations[spec][i].name
-            _G.tinsert(names, thisName)
+            br._G.tinsert(names, thisName)
         end
 
         br.ui:createRotationDropdown(br.ui.window.profile.parent, names)

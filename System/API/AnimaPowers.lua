@@ -6,9 +6,9 @@ local function getAnimaInfo(animaID)
     table.wipe(mawBuff)
     mawBuff.exists = false
     mawBuff.count = 0
-    if IsInJailersTower() then
+    if br._G.IsInJailersTower() then
         for i=1, MAW_BUFF_MAX_DISPLAY do
-            local _, icon, count, _, _, _, _, _, _, spellID = UnitAura("player", i, "MAW");
+            local _, icon, count, _, _, _, _, _, _, spellID = br._G.UnitAura("player", i, "MAW");
             if icon then
                 if count == 0 then
                     count = 1;

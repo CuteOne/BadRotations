@@ -12,7 +12,7 @@ function br.bossHelper()
     end
     if br.player ~= nil and br.player.ui ~= nil then
         -- Automatic catch the pig
-        if br.player.ui.checked("Freehold - Pig Catcher") and select(8, _G.GetInstanceInfo()) == 1754 then
+        if br.player.ui.checked("Freehold - Pig Catcher") and select(8, br._G.GetInstanceInfo()) == 1754 then
             clickHelper(130099)
         end
         -- Automatic bomb catcher

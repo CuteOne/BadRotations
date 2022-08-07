@@ -3,7 +3,7 @@ local _, br = ...
 --Modified to enemies engine by fisker
 if not br.metaTable2 then
 	-- localizing the commonly used functions while inside loops
-	local tinsert,tremove,GetTime = _G.tinsert,_G.tremove,_G.GetTime
+	local tinsert,tremove,GetTime = br._G.tinsert,br._G.tremove,br._G.GetTime
 	local pX, pY, pZ, pCR, autoLoot
 	br.om = {} -- This is our main Table that the world will see
 	br.ttd = {} -- Time to die table
@@ -32,19 +32,19 @@ if not br.metaTable2 then
 	}
 
 	function br.unitSetup:new(unit)
-		local startTime = _G.debugprofilestop()
+		local startTime = br._G.debugprofilestop()
 		-- Seeing if we have already cached this unit before
 		if br.unitSetup.cache[unit] then return false end
 		if br.UnitDebuffID("player",295249) and br._G.UnitIsPlayer(unit) then return false end
 		if br.unitBlacklist[br.GetObjectID(unit)] then return false end
 		local o = {}
 		setmetatable(o, br.unitSetup)
-		if unit and type(unit) == "string" then
+		if unit and (type(unit) == "string" or (br.unlocker == "NN" and type(unit) == "number")) then
 			o.unit = unit
 		end
 		--Function time to die
 		function o:unitTtd(targetPercentage)
-			local startTime = _G.debugprofilestop()
+			local startTime = br._G.debugprofilestop()
 			if targetPercentage == nil then targetPercentage = 0 end
 			local value
 			if o.hp == 0 then return -1 end
@@ -138,11 +138,12 @@ if not br.metaTable2 then
 					timestamp = GetTime(),
 				}
 			end
+			-- br._G.print("Adding "..thisUnit.unit.." to table")
 			rawset(table, o.unit, thisUnit)
 		end
 		--Debuffs
 		function o:UpdateDebuffs(debuffList,unit)
-			local startTime = _G.debugprofilestop()
+			local startTime = br._G.debugprofilestop()
 			if not br.isChecked("Cache Debuffs") then
 				debuffList = {}
 				return debuffList
@@ -160,7 +161,7 @@ if not br.metaTable2 then
 					if debuffList[buffCaster][buffName] == nil then
 						-- Print("Adding player debuff")
 						debuffList[buffCaster][buffName] = function(buffName, unit)
-							return br._G.AuraUtil.FindAuraByName(_G.GetSpellInfo(buffName), buffUnit, "HARMFUL|PLAYER")
+							return br._G.AuraUtil.FindAuraByName(br._G.GetSpellInfo(buffName), buffUnit, "HARMFUL|PLAYER")
 						end
 						if debuffList[buffCaster][buffName] ~= nil then br.read.debuffTracker[unit][buffName] = nil end
 					end
@@ -198,7 +199,8 @@ if not br.metaTable2 then
 		end
 		-- Updating the values of the Unit
 		function o:UpdateUnit()
-			local startTime = _G.debugprofilestop()
+			-- br._G.print("Updating "..o.unit)
+			local startTime = br._G.debugprofilestop()
 			o.posX, o.posY, o.posZ = br._G.ObjectPosition(o.unit)
 			o.name = br._G.UnitName(o.unit)
 			o.guid = br._G.UnitGUID(o.unit)
@@ -207,8 +209,8 @@ if not br.metaTable2 then
 			o.hpmax = br._G.UnitHealthMax(o.unit)
 			o.hp = o.hpabs / o.hpmax * 100
 			o.objectID = br._G.ObjectID(o.unit)
-			o.range = o.range
-			o.debuffs = o.debuffs
+			o.range = o.range or 0
+			o.debuffs = o.debuffs or {}
 			if o.distance <= 50 and not br.GetUnitIsDeadOrGhost(o.unit) and not br.isCritter(o.unit) then
 				-- EnemyListCheck
 				if o.enemyRefresh == nil or o.enemyRefresh < GetTime() - 1 then
@@ -268,8 +270,8 @@ if not br.metaTable2 then
 			end
 			-- Check for loots
 			if autoLoot and br.lootable[o.unit] == nil and br.GetUnitIsDeadOrGhost(o.unit) then
-				local hasLoot, canLoot = _G.CanLootUnit(o.guid)
-				if hasLoot then --and (canLoot or br.isKnown(125050)) then
+				local hasLoot = br._G.CanLootUnit(o.guid)
+				if hasLoot then
 					o:AddUnit(br.lootable)
 				end
 			end
@@ -296,7 +298,7 @@ if not br.metaTable2 then
 	end
 	-- Setting up the tables on either Wipe or Initial Setup
 	function br.SetupEnemyTables() -- Creating the cache (we use this to check if some1 is already in the table)
-		local startTime = _G.debugprofilestop()
+		local startTime = br._G.debugprofilestop()
 		setmetatable(br.om, br.metaTable2) -- Set the metaTable of Main to Meta
 		function br.om:Update()
 			br.omTableTimer = GetTime()
@@ -324,12 +326,15 @@ if not br.metaTable2 then
 					-- for non-raids, this code will spread out unit updates so that everything gets updated every update
 					-- for raids, only half of units will be updated per BR update
 					local delay = ((math.random() * 0.25)  + 0.75) * br:getUpdateRate()
-					if IsInRaid() then
+					if br._G.IsInRaid() then
 						delay = delay * 2.00
 					end
 
 					br.om[i].pulseTime = GetTime() + delay
 					local thisUnit = br.om[i].unit
+					-- setfenv(1, C_Timer.Nn)
+					-- br._G.print(tostring(br._G.UnitName(thisUnit)).." is Visible: "..tostring(br.GetUnitIsVisible(thisUnit)))
+					-- br._G.print(tostring(br._G.UnitName(thisUnit)).." = "..tostring(UnitName(thisUnit)))
 					if not br.GetUnitIsVisible(thisUnit) then
 						--Delete units no longer in OM
 						br.unitSetup.cache[thisUnit] = nil
@@ -364,7 +369,7 @@ if not br.metaTable2 then
 			-- clean our loots
 			if autoLoot then
 				for k, _ in pairs(br.lootable) do
-					if not _G.CanLootUnit(br.lootable[k].guid) or not br.GetObjectExists(br.lootable[k].unit) then
+					if not br._G.CanLootUnit(br.lootable[k].guid) or not br.GetObjectExists(br.lootable[k].unit) then
 						br.lootable[k] = nil
 					end
 				end

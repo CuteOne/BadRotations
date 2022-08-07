@@ -75,7 +75,6 @@ local cd
 local enemies
 local furyDeficit
 local has
-local item
 local module
 local ui
 local unit
@@ -137,7 +136,6 @@ local function runRotation()
     enemies                                       = br.player.enemies
     furyDeficit                                   = br.player.power.fury.deficit()
     has                                           = br.player.has
-    item                                          = br.player.items
     module                                        = br.player.module
     ui                                            = br.player.ui
     unit                                          = br.player.unit

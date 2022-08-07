@@ -175,7 +175,6 @@ local conduit
 local covenant
 local debuff
 local enemies
-local equiped
 local module
 local race
 local rage
@@ -377,7 +376,9 @@ actionList.Execute = function()
     end
     -- Mortal Strike
     -- mortal_strike,if=dot.deep_wounds.remains<=gcd|runeforge.enduring_blow|buff.overpower.stack=2&debuff.exploiter.stack=2|buff.battlelord.up
-    if cast.able.mortalStrike() and (debuff.deepWounds.remains() < unit.gcd(true) or runeforge.enduringBlow.equiped or (buff.overpower.stack() == 2 and debuff.exploiter.stack() == 2) or buff.battlelord.exists()) then
+    if cast.able.mortalStrike() and (debuff.deepWounds.remains() < unit.gcd(true) or runeforge.enduringBlow.equiped
+        or (buff.overpower.stack() == 2 and debuff.exploiter.stack() == 2) or buff.battlelord.exists())
+    then
         if cast.mortalStrike() then ui.debug("Casting Mortal Strike [Execute]") return true end
     end
     -- Skullsplitter
@@ -387,7 +388,9 @@ actionList.Execute = function()
     end
     -- Bladestorm
     -- bladestorm,if=buff.deadly_calm.down&(rage<20|!runeforge.sinful_surge&rage<50)
-    if ui.alwaysCdAoENever("Bladestorm",1,8) and cast.able.bladestorm("player","aoe",1,8) and not buff.deadlyCalm.exists() and (rage < 20 or (not runeforge.sinfulSurge.equiped and rage < 50)) then
+    if ui.alwaysCdAoENever("Bladestorm",3,8) and cast.able.bladestorm("player","aoe",1,8) and not buff.deadlyCalm.exists()
+        and (rage < 20 or (not runeforge.sinfulSurge.equiped and rage < 50))
+    then
         if cast.bladestorm("player","aoe",1,8) then ui.debug("Casting Bladestorm [Execute]") return true end
     end
     -- Overpower
@@ -436,7 +439,7 @@ actionList.HAC = function()
     end
     -- Bladestorm
     -- bladestorm
-    if ui.alwaysCdAoENever("Bladestorm",1,8) and cast.able.bladestorm("player","aoe",1,8) then
+    if ui.alwaysCdAoENever("Bladestorm",3,8) and cast.able.bladestorm("player","aoe",1,8) then
         if cast.bladestorm("player","aoe",1,8) then ui.debug("Casting Bladestorm [HAC]") return true end
     end
     -- Ravager
@@ -540,7 +543,7 @@ actionList.Single = function()
     end
     -- Bladestorm
     -- bladestorm,if=buff.deadly_calm.down&rage<30
-    if ui.alwaysCdAoENever("Bladestorm",1,8) and cast.able.bladestorm("player","aoe",1,8) and not buff.deadlyCalm.exists() and rage < 30 then
+    if ui.alwaysCdAoENever("Bladestorm",3,8) and cast.able.bladestorm("player","aoe",1,8) and not buff.deadlyCalm.exists() and rage < 30 then
         if cast.bladestorm("player","aoe",1,8) then ui.debug("Casting Bladestorm [ST]") return true end
     end
     -- Deadly Calm
@@ -604,7 +607,9 @@ actionList.PreCombat = function()
                 if cast.charge("target") then ui.debug("Casting Charge") return true end
             end
             -- Taunt
-            if ui.checked("Solo Taunt") and cast.able.taunt("target") and unit.solo() and (not cast.able.charge("target") or unit.distance("target") < 8) and unit.distance("target") < 25 then
+            if ui.checked("Solo Taunt") and cast.able.taunt("target") and unit.solo()
+                and (not cast.able.charge("target") or unit.distance("target") < 8) and unit.distance("target") < 25
+            then
                 if cast.taunt("target") then ui.debug("Casting Taunt") return true end
             end
             -- Start Attack
@@ -633,7 +638,6 @@ local function runRotation()
     covenant    = br.player.covenant
     debuff      = br.player.debuff
     enemies     = br.player.enemies
-    equiped     = br.player.equiped
     module      = br.player.module
     race        = br.player.race
     rage        = br.player.power.rage.amount()

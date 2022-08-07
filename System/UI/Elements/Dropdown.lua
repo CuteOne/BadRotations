@@ -119,7 +119,7 @@ function br.ui:createProfileDropdown(parent)
     Y = DiesalTools.Round(Y)
 
     local profiles = br.fetch(br.selectedSpec .. "_" .. "profiles", {{key = "default", text = "Default"}})
-    local selectedProfile = br.fetch(br.selectedSpec .. "_" .. "profile", "default")
+    -- local selectedProfile = br.fetch(br.selectedSpec .. "_" .. "profile", "default")
     local profile_drop = DiesalGUI:Create("Dropdown")
     parent:AddChild(profile_drop)
     profile_drop:SetParent(parent.content)

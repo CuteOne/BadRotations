@@ -168,7 +168,7 @@ function br.lootManager:lootCount()
 	for k, _ in pairs(br.lootable) do
 		if br.lootable[k] ~= nil then
 			local thisUnit = br.lootable[k].unit
-			local hasLoot, canLoot = br._G.CanLootUnit(br.lootable[k].guid)
+			local hasLoot = br._G.CanLootUnit(br.lootable[k].guid)
 			if br.GetObjectExists(thisUnit) and hasLoot then
 				lootCount = lootCount + 1
 				br.lM.lootUnit = br.lootable[k].unit

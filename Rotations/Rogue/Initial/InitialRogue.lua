@@ -89,19 +89,14 @@ end
 -- BR API Locals
 local buff
 local cast
-local cd
 local combo
-local debuff
 local enemies
 local energy
-local has
 local mode
 local ui
-local pet
 local spell
 local unit
 local units
-local use
 -- General Locals
 local haltProfile
 local profileStop
@@ -221,23 +216,18 @@ local function runRotation()
     -- BR API Locals
     buff                                          = br.player.buff
     cast                                          = br.player.cast
-    cd                                            = br.player.cd
     combo                                         = br.player.power.comboPoints.amount()
-    debuff                                        = br.player.debuff
     enemies                                       = br.player.enemies
     energy                                        = br.player.power.energy.amount()
-    has                                           = br.player.has
     mode                                          = br.player.ui.mode
     ui                                            = br.player.ui
-    pet                                           = br.player.pet
     spell                                         = br.player.spell
     ui                                            = br.player.ui
     unit                                          = br.player.unit
     units                                         = br.player.units
-    use                                           = br.player.use
     -- General Locals
     profileStop                                   = profileStop or false
-    haltProfile                                   = (unit.inCombat() and profileStop) or IsMounted() or br.pause() or mode.rotation==4
+    haltProfile                                   = (unit.inCombat() and profileStop) or unit.mounted() or br.pause() or mode.rotation==4
     -- Units
     units.get(5) -- Makes a variable called, units.dyn5
     units.get(40) -- Makes a variable called, units.dyn40
@@ -249,7 +239,7 @@ local function runRotation()
     finishHim = eviscerateFinish(units.dyn5)
 
     -- Pause Timer
-    if br.pauseTime == nil then br.pauseTime = GetTime() end
+    if br.pauseTime == nil then br.pauseTime = ui.time() end
 
     ---------------------
     --- Begin Profile ---
@@ -258,7 +248,7 @@ local function runRotation()
     if not unit.inCombat() and not unit.exists("target") and profileStop then
         profileStop = false
     elseif haltProfile then
-        br.pauseTime = GetTime()
+        br.pauseTime = ui.time()
         return true
     else
         ---------------------------------
@@ -318,7 +308,7 @@ local function runRotation()
 end -- End runRotation
 local id = 1453 -- Change to the spec id profile is for.
 if br.rotations[id] == nil then br.rotations[id] = {} end
-tinsert(br.rotations[id],{
+br._G.tinsert(br.rotations[id],{
     name = rotationName,
     toggles = createToggles,
     options = createOptions,

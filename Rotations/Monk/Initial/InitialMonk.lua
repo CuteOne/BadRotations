@@ -102,17 +102,15 @@ end
 local cast
 local cd
 local enemies
-local equiped
 local module
 local ui
 local unit
 local units
-local use
 -- Profile Specific Locals
 local actionList = {}
 local var = {}
 var.getFacingDistance = br["getFacingDistance"]
-var.getItemInfo = _G["GetItemInfo"]
+var.getItemInfo = br._G["GetItemInfo"]
 var.haltProfile = false
 var.profileStop = false
 var.specificToggle = br["SpecificToggle"]
@@ -186,7 +184,7 @@ actionList.PreCombat = function()
                 if cast.cracklingJadeLightning() then ui.debug("Casting Crackling Jade Lightning [Pull]") return true end
             end
             -- Start Attack
-            if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
+            if not br._G.IsAutoRepeatSpell(br._G.GetSpellInfo(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
                 br._G.StartAttack(units.dyn5)
             end
         end
@@ -204,12 +202,10 @@ local function runRotation()
     cast                                            = br.player.cast
     cd                                              = br.player.cd
     enemies                                         = br.player.enemies
-    equiped                                         = br.player.equiped
     module                                          = br.player.module
     ui                                              = br.player.ui
     unit                                            = br.player.unit
     units                                           = br.player.units
-    use                                             = br.player.use
     -- General Locals
     var.getHealPot                                  = br["getHealthPot"]()
     var.haltProfile                                 = (unit.inCombat() and var.profileStop) or unit.mounted() or br.pause() or ui.mode.rotation==4
@@ -267,9 +263,9 @@ local function runRotation()
                 and not unit.moving() and unit.distance("target") > ui.value("Cancel CJL Range")
                 then
                     if cast.cracklingJadeLightning() then ui.debug("Casting Crackling Jade Lightning [Pre-Pull]") return true end
-                end                
+                end
                 -- Start Attack
-                if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
+                if not br._G.IsAutoRepeatSpell(br._G.GetSpellInfo(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
                     br._G.StartAttack(units.dyn5)
                 end
                 -- Trinket - Non-Specific
@@ -279,7 +275,7 @@ local function runRotation()
                     -- for i = 13, 14 do
                     --     thisTrinket = i == 13 and "Trinket 1" or "Trinket 2"
                     --     local opValue = ui.value(thisTrinket)
-                    --     if (opValue == 1 or (opValue == 2 and ui.useCDs())) and use.able.slot(i) 
+                    --     if (opValue == 1 or (opValue == 2 and ui.useCDs())) and use.able.slot(i)
                     --     and (not equiped.touchOfTheVoid(i) or (equiped.touchOfTheVoid(i) and (#enemies.yards8 > 2 or (ui.useCDs() and opValue ~= 3))))
                     --     then
                     --         use.slot(i)
@@ -310,7 +306,7 @@ local function runRotation()
 end -- End runRotation
 local id = 1450
 if br.rotations[id] == nil then br.rotations[id] = {} end
-tinsert(br.rotations[id],{
+br._G.tinsert(br.rotations[id],{
     name = rotationName,
     toggles = createToggles,
     options = createOptions,

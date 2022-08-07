@@ -1,6 +1,28 @@
 local _, br = ...
-local LibDraw = LibStub("LibDraw-BR")
+local LibDraw = br._G.LibStub("LibDraw-BR")
 local tracking = false
+local interactTime
+
+
+local function getCastTime(unit)
+	if br._G.UnitCastingInfo(unit) ~= nil then
+		return select(5,br._G.UnitCastingInfo(unit))/1000 - br._G.GetTime()
+	elseif br._G.UnitChannelInfo(unit) ~= nil then
+		return select(5,br._G.UnitChannelInfo(unit))/1000 - br._G.GetTime()
+	else
+		return 0
+	end
+end
+local function isInteracting(unit)
+    local time = br._G.GetTime()
+    if interactTime == nil then interactTime = 0 end
+    local castTime = getCastTime(unit)
+    if castTime > 0 and interactTime == 0 then
+        interactTime = time + castTime + 1
+    end
+    if castTime == 0 and interactTime < time then interactTime = 0 end
+    return interactTime > time
+end
 
 local function trackObject(object, name, objectid, objectguid, interact)
     local xOb, yOb, zOb = br._G.ObjectPosition(object)
@@ -45,9 +67,12 @@ local function trackObject(object, name, objectid, objectguid, interact)
 ---@diagnostic disable-next-line: undefined-field
             LibDraw.Line(pX, pY, pZ, xOb, yOb, zOb)
         end
-        if br.isChecked("Auto Interact with Any Tracked Object") and interact and not br.player.inCombat and
-            playerDistance <= 7 and not br.isUnitCasting("player") and not br.isMoving("player") and
-            br.timer:useTimer("Interact Delay", 1.5) then
+        local hasLoot = br._G.CanLootUnit(objectguid)
+        local interacting = isInteracting("player")
+        if br.isChecked("Auto Interact with Any Tracked Object") and interact and not br.player.inCombat
+            and playerDistance <= 7 and not br.isUnitCasting("player") and not br.isMoving("player")
+            and (not interacting or hasLoot)--and br.timer:useTimer("Interact Delay", 1.5)
+        then
             br._G.ObjectInteract(object)
         end
         tracking = true
@@ -93,13 +118,13 @@ function br.objectTracker()
                         if br.isChecked("Custom Tracker") then
                             for k in string.gmatch(tostring(br.getOptionValue("Custom Tracker")), "([^,]+)") do
                                 if string.len(_G.string.trim(k)) >= 3 and
-                                    _G.strmatch(_G.strupper(name), _G.strupper(_G.string.trim(k)))
+                                    br._G.strmatch(br._G.strupper(name), br._G.strupper(_G.string.trim(k)))
                                 then
                                     trackObject(object, name, objectid, objectguid)
                                 end
                             end
                         end
-                        if br.isChecked("Quest Tracker") and not br.isInCombat("player") and not _G.IsInInstance() then
+                        if br.isChecked("Quest Tracker") and not br.isInCombat("player") and not br._G.IsInInstance() then
                             local ignoreList = {
                                 [36756] = true, -- Dead Soldier (Azshara)
                                 [36922] = true, -- Wounded Soldier (Azshara)
@@ -112,7 +137,7 @@ function br.objectTracker()
                             if (br.getOptionValue("Quest Tracker") == 1 or br.getOptionValue("Quest Tracker") == 3) and
                                 objUnit and br.isQuestUnit(object) and not br._G.UnitIsTapDenied(object)
                             then
-                                if ignoreList[objectid] ~= nil or (select(2, CanLootUnit(object)) and br.getItemGlow(object)) then
+                                if ignoreList[objectid] ~= nil or (select(2, br._G.CanLootUnit(object)) and br.getItemGlow(object)) then
                                     trackObject(object, name, objectid, objectguid)
                                 else
                                     trackObject(object, name, objectid, objectguid, false)

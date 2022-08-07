@@ -1,16 +1,16 @@
 local _, br = ...
 if br.api == nil then br.api = {} end
 br.api.conduit = function(conduit,k,v)
-    local soulbindID = _G.C_Soulbinds.GetActiveSoulbindID()
-    local soulbindData = _G.C_Soulbinds.GetSoulbindData(soulbindID)
+    local soulbindID = br._G.C_Soulbinds.GetActiveSoulbindID()
+    local soulbindData = br._G.C_Soulbinds.GetSoulbindData(soulbindID)
     for _, node in pairs(soulbindData.tree.nodes) do
-        local conduitID = _G.C_Soulbinds.GetInstalledConduitID(node.ID)
+        local conduitID = br._G.C_Soulbinds.GetInstalledConduitID(node.ID)
         if conduitID > 0 then
-            local collectionData = _G.C_Soulbinds.GetConduitCollectionData(conduitID)
+            local collectionData = br._G.C_Soulbinds.GetConduitCollectionData(conduitID)
             if collectionData.conduitID > 0 then
-                local spellID = _G.C_Soulbinds.GetConduitSpellID(collectionData.conduitID, collectionData.conduitRank)
+                local spellID = br._G.C_Soulbinds.GetConduitSpellID(collectionData.conduitID, collectionData.conduitRank)
                 if spellID == v then
-                    local spellName, _, spellIcon = _G.GetSpellInfo(spellID)
+                    local spellName, _, spellIcon = br._G.GetSpellInfo(spellID)
                     conduit[k] = {
                         state = node.state,
                         icon = spellIcon,
@@ -26,7 +26,7 @@ br.api.conduit = function(conduit,k,v)
         end
     end
     if conduit[k].name == nil then
-        local spellName, _, spellIcon, _, _, _, spellID = _G.GetSpellInfo(v)
+        local spellName, _, spellIcon, _, _, _, spellID = br._G.GetSpellInfo(v)
         conduit[k] = {
             state = 0,
             icon = spellIcon,

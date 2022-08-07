@@ -5,7 +5,6 @@ br.api.module = function(self)
     -- Local reference to actionList
     local buff              = self.buff
     local cast              = self.cast
-    local cd                = self.cd
     local module            = self.module
     local has               = self.has
     local item              = self.items
@@ -13,27 +12,27 @@ br.api.module = function(self)
     local unit              = self.unit
     local use               = self.use
     local var               = {}
-    var.getItemInfo         = _G["GetItemInfo"]
+    var.getItemInfo         = br._G["GetItemInfo"]
     var.getHealPot          = br.getHealthPot
 
     -- Auto Put Keystone into Receptable during mythic+ dungeons. | Kinky BR Module Code example
     module.autoKeystone = function(section)
-        if section ~= nil then 
-            -- Auto Keystone 
+        if section ~= nil then
+            -- Auto Keystone
             br.ui:createCheckbox(section, "Auto Mythic+ Keystone","|cffFFFFFFCheck to Auto click keystones if you're at a Font of Power")
            -- br.ui:createSpinner(section, "Minimum Keystone to Auto Use", 2, 2, 30, 1, "|cffFFFFFFMinimum keystone number of the key before submitting it. ")
         end
         if section == nil then
             if ui.checked("Auto Mythic+ Keystone") then
-               var.autoKeystone = CreateFrame("Frame")
+               var.autoKeystone = br._G.CreateFrame("Frame")
                var.autoKeystone:RegisterEvent("ADDON_LOADED")
                var.autoKeystone:SetScript("OnEvent", function(self, event, addon)
 	               if (addon == "Blizzard_ChallengesUI") then
-		               if _G["ChallengesKeystoneFrame"] then _G["ChallengesKeystoneFrame"]:HookScript("OnShow", function()
-				            for Bag = 0, _G["NUM_BAG_SLOTS"] do
-				    	        for Slot = 1, GetContainerNumSlots(Bag) do
-					    	        local ID = GetContainerItemID(Bag, Slot)
-						            if (ID and ID == 180653) then return UseContainerItem(Bag, Slot) end
+		               if br._G["ChallengesKeystoneFrame"] then br._G["ChallengesKeystoneFrame"]:HookScript("OnShow", function()
+				            for Bag = 0, br._G["NUM_BAG_SLOTS"] do
+				    	        for Slot = 1, br._G.GetContainerNumSlots(Bag) do
+					    	        local ID = br._G.GetContainerItemID(Bag, Slot)
+						            if (ID and ID == 180653) then return br._G.UseContainerItem(Bag, Slot) end
 					           end
 				            end
 			            end)
@@ -41,7 +40,7 @@ br.api.module = function(self)
 		                end
 	                 end
                 end)
-            end 
+            end
         end
     end
 

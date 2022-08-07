@@ -16,7 +16,7 @@ local ignoreList = {
 local function addSpell(spellID)
     for _, v in pairs(br.player.spell.abilities) do
         if v == spellID then
-            _G.tinsert(tracker, 1, spellID)
+            br._G.tinsert(tracker, 1, spellID)
             if #tracker == 10 then
                 tracker[10] = nil
             end
@@ -28,7 +28,7 @@ end
 local function addCastTime(spellID)
     for _, v in pairs(br.player.spell.abilities) do
         if v == spellID then
-            castTime[v] = _G.GetTime()
+            castTime[v] = br._G.GetTime()
         end
     end
 end
@@ -50,7 +50,7 @@ local function eventTracker(_, event, ...)
             end
         elseif event == "UNIT_SPELLCAST_STOP" then
             if waitForSuccess == spellID then
-                _G.tremove(tracker,1)
+                br._G.tremove(tracker,1)
                 waitForSuccess = nil
                 br.lastCast = tracker[1]
             end

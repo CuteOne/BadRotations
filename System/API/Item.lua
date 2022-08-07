@@ -7,18 +7,18 @@ br.api.items = function(item,k,v,subtable)
         local cd = item
         cd[k].exists = function(itemID)
             if itemID == nil then itemID = v end
-            return _G.GetItemCooldown(itemID) > 0
+            return br._G.GetItemCooldown(itemID) > 0
         end
         cd[k].remain = function(itemID)
             if itemID == nil then itemID = v end
-            if _G.GetItemCooldown(itemID) ~= 0 then
-                return (_G.GetItemCooldown(itemID) + select(2, _G.GetItemCooldown(itemID)) - _G.GetTime())
+            if br._G.GetItemCooldown(itemID) ~= 0 then
+                return (br._G.GetItemCooldown(itemID) + select(2,br._G.GetItemCooldown(itemID)) - br._G.GetTime())
             end
             return 0
         end
         cd[k].duration = function(itemID)
             if itemID == nil then itemID = v end
-            return _G.GetSpellBaseCooldown(select(2,_G.GetItemSpell(itemID))) / 1000
+            return br._G.GetSpellBaseCooldown(select(2,br._G.GetItemSpell(itemID))) / 1000
         end
     end
     if subtable == "charges" then
@@ -43,8 +43,8 @@ br.api.items = function(item,k,v,subtable)
             end
         end
         equiped.socket[k] = function(gemID)
-            local socketSpell = _G.GetItemSpell(v)
-            local checkSpell = _G.GetItemInfo(gemID)
+            local socketSpell = br._G.GetItemSpell(v)
+            local checkSpell = br._G.GetItemInfo(gemID)
             return socketSpell == checkSpell
         end
         equiped.tier = function(tierLevel)
@@ -53,7 +53,7 @@ br.api.items = function(item,k,v,subtable)
         end
         if equiped.type == nil then
             equiped.type = function(itemType)
-                local IsEquippedItemType = _G["IsEquippedItemType"]
+                local IsEquippedItemType = br._G["IsEquippedItemType"]
                 if itemType == nil then return false end
                 return IsEquippedItemType(itemType)
             end

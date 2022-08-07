@@ -31,7 +31,7 @@ function br.getTanksTable()
 	for i = 1, #br.friend do
 		if br.friend[i] then
 			if br.friend[i].role == "TANK" then
-				_G.tinsert(tanksTable, br.friend[i])
+				br._G.tinsert(tanksTable, br.friend[i])
 			end
 		end
 	end
@@ -59,7 +59,7 @@ function br.castWiseAoEHeal(unitTable,spell,radius,health,minCount,maxCount,faci
 		if bestCandidate ~= nil and #bestCandidate >= minCount and br.getLineOfSight("player",bestCandidate[0].unit) and br.getDistance("player",bestCandidate[0].unit) <= 40 then
 			-- here we would like instead to cast on unit
 			if br.castSpell(bestCandidate[0].unit,spell,facingCheck,movementCheck) then
-				if br._G.IsAoEPending() then _G.SpellStopTargeting() br.addonDebug("Canceling Spell", true) end
+				if br._G.IsAoEPending() then br._G.SpellStopTargeting() br.addonDebug("Canceling Spell", true) end
 				return true
 			end
 		end
@@ -106,12 +106,12 @@ function br.getUnitsToHealAround(UnitID,radius,health,count)
 		if thisUnit.hp <= health and br.getNovaDistance(unit,thisUnit) < radius then
 			-- if its first item in table, insert
 			if #lowHealthCandidates == 0 then
-				_G.tinsert(lowHealthCandidates, 1, {hp = thisUnit.hp,x = thisUnit.x,y = thisUnit.y,z = thisUnit.z,name = thisUnit.name,guid = thisUnit.guid})
+				br._G.tinsert(lowHealthCandidates, 1, {hp = thisUnit.hp,x = thisUnit.x,y = thisUnit.y,z = thisUnit.z,name = thisUnit.name,guid = thisUnit.guid})
 				-- else compare and place our item at the right position in our table
 			else
 				-- scan from last to first and if higher just break out
 				local lowHealthUnitsCount = #lowHealthCandidates
-				local placedInTable = false
+				-- local placedInTable = false
 				local bestPosition = 0
 				if lowHealthUnitsCount > 0 then
 					for j = lowHealthUnitsCount,1,-1 do
@@ -123,12 +123,12 @@ function br.getUnitsToHealAround(UnitID,radius,health,count)
 					end
 				end
 				if bestPosition ~= 0 then
-					_G.tinsert(lowHealthCandidates, bestPosition, {hp = thisUnit.hp,x = thisUnit.x,y = thisUnit.y,z = thisUnit.z,name = thisUnit.name,guid = thisUnit.guid})
+					br._G.tinsert(lowHealthCandidates, bestPosition, {hp = thisUnit.hp,x = thisUnit.x,y = thisUnit.y,z = thisUnit.z,name = thisUnit.name,guid = thisUnit.guid})
 				elseif lowHealthUnitsCount < count then
-					_G.tinsert(lowHealthCandidates, lowHealthUnitsCount+1, {hp = thisUnit.hp,x = thisUnit.x,y = thisUnit.y,z = thisUnit.z,name = thisUnit.name,guid = thisUnit.guid})
+					br._G.tinsert(lowHealthCandidates, lowHealthUnitsCount+1, {hp = thisUnit.hp,x = thisUnit.x,y = thisUnit.y,z = thisUnit.z,name = thisUnit.name,guid = thisUnit.guid})
 				end
 				if #lowHealthCandidates > count then
-					_G.tremove(lowHealthCandidates[lowHealthUnitsCount])
+					br._G.tremove(lowHealthCandidates[lowHealthUnitsCount])
 				end
 			end
 		end
@@ -153,7 +153,7 @@ local function chainJumps(unit,hp,range)
 			end
 			if unitFound == false then
 				currentJump = newUnit
-				_G.tinsert(totalUnits, #totalUnits+1, {guid = newUnit.guid})
+				br._G.tinsert(totalUnits, #totalUnits+1, {guid = newUnit.guid})
 				return
 			end
 		end
@@ -169,7 +169,7 @@ function br.chainHealUnits(spell,range,hp,count)
 		if thisUnit.hp <= hp then
 			startUnit = thisUnit.unit
 			currentJump = thisUnit
-			_G.tinsert(totalUnits, #totalUnits+1, {guid = thisUnit.guid})
+			br._G.tinsert(totalUnits, #totalUnits+1, {guid = thisUnit.guid})
 			while #totalUnits < count and jumpFound do
 				chainJumps(currentJump,hp,range)
 			end
@@ -207,7 +207,7 @@ function br.getAllies(Unit,Radius)
 	for i=1,#br.friend do
 		if not br.GetUnitIsDeadOrGhost(br.friend[i].unit) then
 			if br.getDistance(Unit,br.friend[i].unit) <= Radius then
-				_G.tinsert(alliesTable,br.friend[i])
+				br._G.tinsert(alliesTable,br.friend[i])
 			end
 		end
 	end
@@ -219,7 +219,7 @@ function br.getAlliesInLocation(myX,myY,myZ,Radius)
 	for i=1,#br.friend do
 		if not br.GetUnitIsDeadOrGhost(br.friend[i].unit) then
 			if br.getDistanceToObject(br.friend[i].unit,myX,myY,myZ) <= Radius then
-				_G.tinsert(alliesTable,br.friend[i].unit)
+				br._G.tinsert(alliesTable,br.friend[i].unit)
 			end
 		end
 	end
@@ -243,10 +243,10 @@ end
 
 function br.inLoSHealer()
 	local function drawHealers(healer)
-		local LibDraw 					= _G.LibStub("LibDraw-BR")
-		local facing 					= br.GetObjectFacing("player")
+		local LibDraw 					= br._G.LibStub("LibDraw-BR")
+		-- local facing 					= br.GetObjectFacing("player")
 		local playerX, playerY, playerZ = br.GetObjectPosition("player")
-		local locateX, locateY, locateZ = br.GetObjectPosition(healer)
+		-- local locateX, locateY, locateZ = br.GetObjectPosition(healer)
 		local healerX, healerY, healerZ = br.GetObjectPosition(healer)
 		if br.getLineOfSight("player",healer) then
 			LibDraw.SetColor(0, 255, 0)
@@ -279,7 +279,7 @@ function br.isInside(x,y,ax,ay,bx,by,dx,dy)
 end
 
 function br.getUnitsInRect(width,length, showLines, hp)
-	local LibDraw = _G.LibStub("LibDraw-BR")
+	local LibDraw = br._G.LibStub("LibDraw-BR")
 	local playerX, playerY, playerZ = br.GetObjectPosition("player")
 	local facing = br.GetObjectFacing("player")
 	-- Near Left
@@ -548,17 +548,17 @@ end
 -- <param name="SpellID">ID of spell to ground cast</param>
 -- <returns>Returns if successfully tried to cast</returns>
 function br.castGroundAtLocation(loc, SpellID)
-    br._G.CastSpellByName(_G.GetSpellInfo(SpellID))
+    br._G.CastSpellByName(br._G.GetSpellInfo(SpellID))
     --local mouselookup = IsMouseButtonDown(2)
 	--MouselookStop()
 	local px,py,pz = br._G.ObjectPosition("player")
 	loc.z = select(3,br._G.TraceLine(loc.x, loc.y, loc.z+5, loc.x, loc.y, loc.z-5, 0x110)) -- Raytrace correct z, Terrain and WMO hit
 	if loc.z ~= nil and br._G.TraceLine(px, py, pz+2, loc.x, loc.y, loc.z+1, 0x100010) == nil and br._G.TraceLine(loc.x, loc.y, loc.z+4, loc.x, loc.y, loc.z, 0x1) == nil then -- Check z and LoS, ignore terrain and m2 colissions and check no m2 on hook location
-		if _G.SpellIsTargeting() then
+		if br._G.SpellIsTargeting() then
 			br._G.ClickPosition(loc.x,loc.y,loc.z)
 		end
 		--if mouselookup then MouselookStart() end
-		if _G.SpellIsTargeting() then br._G.SpellStopTargeting() br.addonDebug("Canceling Spell", true) end
+		if br._G.SpellIsTargeting() then br._G.SpellStopTargeting() br.addonDebug("Canceling Spell", true) end
 		return true
 	end
 end
@@ -574,7 +574,7 @@ function br.getBestGroundCircleLocation(unitTable,minTargets,maxHealTargets,radi
 	if unitTable == nil then print("getBestGround: unitTable is nil") end
 	if minTargets == nil then print("getBestGround: minTargets is nil") end
 	if #unitTable < minTargets then return nil end
-	local startTime = _G.debugprofilestop()
+	-- local startTime = br._G.debugprofilestop()
 	local points = {}          -- table of points (x,y,z positions)
 	local X1,Y1,Z1 = 0,0,0
 	for i=1,#unitTable do
@@ -591,14 +591,14 @@ function br.getBestGroundCircleLocation(unitTable,minTargets,maxHealTargets,radi
 		p.x = X1
 		p.y = Y1
 		p.z = Z1
-		_G.tinsert(points,p)
+		br._G.tinsert(points,p)
 	end
     -- first, eliminate solo outliers
     -- any unit that is more than 'radius*2' distance from every other unit can be excluded
     local pointsInRange = {}
     for i=1,#points do
 		if br.GetDistanceToClosestNeighbor(points[i],points) <= 2 * radius then
-			_G.tinsert(pointsInRange,points[i])
+			br._G.tinsert(pointsInRange,points[i])
 		end
     end
     if #pointsInRange < minTargets then return nil end

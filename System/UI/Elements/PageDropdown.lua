@@ -14,7 +14,7 @@ function br.ui:createPagesDropdown(window, menuPages)
     -- window.pages = { {[1] = PAGE_NAME, [2] = PAGE_FUNCTION}, { ....} }
     local pageNames = {}
     for i = 1, #window.pages do
-        _G.tinsert(pageNames, window.pages[i][1])
+        br._G.tinsert(pageNames, window.pages[i][1])
     end
     newDropdown:SetList(pageNames)
 

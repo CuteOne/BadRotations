@@ -191,7 +191,7 @@ br.api.cast = function(self,spell,id)
     -- br.player.cast.opener("rip","RIP1",opener.count) -- Attempts to cast special opener condition spell
     if cast.opener == nil then
         cast.opener = function(thisSpell,thisTracker,thisCount)
-            local castOpener = _G["castOpener"]
+            local castOpener = br._G["castOpener"]
             return castOpener(thisSpell,thisTracker,thisCount)
         end
     end
@@ -279,7 +279,7 @@ br.api.cast = function(self,spell,id)
     -- br.player.cast.timeSinceLast.spell() - Returns the time since the last cast of this spell occured.
     if cast.timeSinceLast == nil then cast.timeSinceLast = {} end
     cast.timeSinceLast[spell] = function()
-        if br.lastCastTable.castTime[id] == nil then br.lastCastTable.castTime[id] = _G.GetTime() end
-        return _G.GetTime() - br.lastCastTable.castTime[id]
+        if br.lastCastTable.castTime[id] == nil then br.lastCastTable.castTime[id] = br._G.GetTime() end
+        return br._G.GetTime() - br.lastCastTable.castTime[id]
     end
 end

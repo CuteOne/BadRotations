@@ -1,7 +1,4 @@
 local DiesalGUI = _G.LibStub("DiesalGUI-1.0")
-local DiesalStyle = _G.LibStub("DiesalStyle-1.0")
-local DiesalTools = _G.LibStub("DiesalTools-1.0")
-local SharedMedia = _G.LibStub("LibSharedMedia-3.0")
 local _, br = ...
 br.ui.window = {}
 

@@ -4,19 +4,19 @@ local _, br = ...
 
 
 -----------------------------------------Bubba's Healing Engine--------------------------------------]]
-local LGIST = _G.LibStub("LibGroupInSpecT-1.1")
+local LGIST = br._G.LibStub("LibGroupInSpecT-1.1")
 if not br.metaTable1 then
 	-- localizing the commonly used functions while inside loops
-	local getDistance, tinsert, tremove, UnitClass, GetUnitIsUnit = br.getDistance, _G.tinsert, _G.tremove, br._G.UnitClass, br.GetUnitIsUnit
+	local getDistance, tinsert, tremove, UnitClass, GetUnitIsUnit = br.getDistance, br._G.tinsert, br._G.tremove, br._G.UnitClass, br.GetUnitIsUnit
 	local UnitHealth, UnitHealthMax = br._G.UnitHealth, br._G.UnitHealthMax
-	local GetTime, UnitDebuffID = _G.GetTime, br.UnitDebuffID
+	local GetTime, UnitDebuffID = br._G.GetTime, br.UnitDebuffID
 	br.friend = {} -- This is our main Table that the world will see
 	br.memberSetup = {} -- This is one of our MetaTables that will be the default user/contructor
 	br.memberSetup.cache = {} -- This is for the cache Table to check against
 	br.metaTable1 = {} -- This will be the MetaTable attached to our Main Table that the world will see
 	br.metaTable1.__call = function(_) -- (_, forceRetable, excludePets, onlyInRange) [Not Implemented]
-		local group = _G.IsInRaid() and "raid" or "party" -- Determining if the UnitID will be raid or party based
-		local groupSize = _G.IsInRaid() and _G.GetNumGroupMembers() or _G.GetNumGroupMembers() - 1 -- If in raid, we check the entire raid. If in party, we remove one from max to account for the player.
+		local group = br._G.IsInRaid() and "raid" or "party" -- Determining if the UnitID will be raid or party based
+		local groupSize = br._G.IsInRaid() and br._G.GetNumGroupMembers() or br._G.GetNumGroupMembers() - 1 -- If in raid, we check the entire raid. If in party, we remove one from max to account for the player.
 		if group == "party" then
 			tinsert(br.friend, br.memberSetup:new("player"))
 		end -- We are creating a new User for player if in a Group
@@ -45,7 +45,7 @@ if not br.metaTable1 then
 		class = "NONE"
 	}
 	-- If ever somebody enters or leaves the raid, wipe the entire Table
-	local updateHealingTable = _G.CreateFrame("frame", nil)
+	local updateHealingTable = br._G.CreateFrame("frame", nil)
 	updateHealingTable:RegisterEvent("GROUP_ROSTER_UPDATE")
 	updateHealingTable:SetScript(
 		"OnEvent",
@@ -157,7 +157,7 @@ if not br.metaTable1 then
 					return 250, 250, 250
 				end
 			end
-			if select(9, _G.GetInstanceInfo()) == 1676 and UnitDebuffID("player", 236555) and not UnitDebuffID("player", 241721) then
+			if select(9, br._G.GetInstanceInfo()) == 1676 and UnitDebuffID("player", 236555) and not UnitDebuffID("player", 241721) then
 				return 250, 250, 250
 			end
 			if br.player.eID == 2331 then
@@ -205,11 +205,11 @@ if not br.metaTable1 then
 			end
 			-- Place Dead players at the end of the list
 			if o.hcRefresh == nil or o.hcRefresh < GetTime() - 1 then
-				local startTime = _G.debugprofilestop()
+				local startTime = br._G.debugprofilestop()
 				if br.HealCheck(o.unit) ~= true or UnitHealth(o.unit) == 0 then
 					return 250, 250, 250
 				end
-				br.debug.cpu.healingEngine.HealCheck = _G.debugprofilestop() - startTime
+				br.debug.cpu.healingEngine.HealCheck = br._G.debugprofilestop() - startTime
 				o.hcRefresh = GetTime()
 			end
 			-- incoming heals
@@ -334,8 +334,8 @@ if not br.metaTable1 then
 		-- Group Number of Player: getUnitGroupNumber(1)
 		function o:getUnitGroupNumber()
 			-- check if in raid
-			if _G.IsInRaid() and br._G.UnitInRaid(o.unit) ~= nil then
-				return select(3, _G.GetRaidRosterInfo(br._G.UnitInRaid(o.unit)))
+			if br._G.IsInRaid() and br._G.UnitInRaid(o.unit) ~= nil then
+				return select(3, br._G.GetRaidRosterInfo(br._G.UnitInRaid(o.unit)))
 			end
 			return 0
 		end
@@ -350,7 +350,7 @@ if not br.metaTable1 then
 		function o:UpdateUnit()
 			if br.isChecked("Debug Timers") then
 				local startTime
-				local debugprofilestop = _G.debugprofilestop
+				local debugprofilestop = br._G.debugprofilestop
 
 				-- assign Name of unit
 				startTime = debugprofilestop()

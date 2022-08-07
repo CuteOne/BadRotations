@@ -20,7 +20,7 @@ function br.TTDRefresh(hpLimit)
 	for k, _ in pairs(br.enemy) do
 		local object = br.enemy[k].unit
 		if not units[object] then
-			units[object] = _G.GetTime()
+			units[object] = br._G.GetTime()
 			health[object] = br._G.UnitHealth(object)
 			dps[object] = 0
 			if ttd[object] == nil then
@@ -32,7 +32,7 @@ function br.TTDRefresh(hpLimit)
 				local currentHP = br._G.UnitHealth(object)
 				local maxHP = health[object]
 				local diff = maxHP - currentHP
-				local dura = _G.GetTime() - units[object]
+				local dura = br._G.GetTime() - units[object]
 				local _dps = diff / dura
 				local death
 				local adjustment = maxHP * (hpLimit / 100)

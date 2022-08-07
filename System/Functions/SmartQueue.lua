@@ -40,15 +40,15 @@ end
 local function GetKeyBindings()
 	local function GetActionbarSlot(slot)
 		local name
-		if _G["Bartender4"] then
+		if br._G["Bartender4"] then
 			name = "CLICK BT4Button" .. slot .. ":LeftButton"
 			if br._G.GetBindingKey(name) ~= nil then
 				return name
 			end
 		end
-		if _G["Dominos"] then
+		if br._G["Dominos"] then
 			for i = 1, 60 do
-				if _G["DominosActionButton" .. i] and _G["DominosActionButton" .. i]["action"] == slot then
+				if br._G["DominosActionButton" .. i] and br._G["DominosActionButton" .. i]["action"] == slot then
 					name = "CLICK DominosActionButton" .. i .. ":LeftButton"
 					if br._G.GetBindingKey(name) ~= nil then
 						return name
@@ -57,7 +57,7 @@ local function GetKeyBindings()
 			end
 		end
 		local bonusBar = br._G.GetBonusBarOffset()
-		local slotID = (1 + (_G["NUM_ACTIONBAR_PAGES"] + bonusBar - 1) * _G["NUM_ACTIONBAR_BUTTONS"])
+		local slotID = (1 + (br._G["NUM_ACTIONBAR_PAGES"] + bonusBar - 1) * br._G["NUM_ACTIONBAR_BUTTONS"])
 		if (bonusBar == 0 and slot <= 12) or (bonusBar > 0 and slot >= slotID and slot < (slotID + 12)) then
 			name = "ACTIONBUTTON" .. (((slot - 1)%12) + 1)
 		elseif slot <= 36 then
@@ -76,7 +76,7 @@ local function GetKeyBindings()
 		for _, v in pairs(br.player.spell.abilities) do
 			local slot = br._G.C_ActionBar.FindSpellActionButtons(v)
 			if slot ~= nil then
-				local _, id, _ = GetActionInfo(slot[1])
+				local _, id, _ = br._G.GetActionInfo(slot[1])
 				if v == id then
 					for _, y in pairs(slot) do
 						local key, key2 = br._G.GetBindingKey(GetActionbarSlot(y))

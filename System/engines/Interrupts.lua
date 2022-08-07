@@ -7,8 +7,8 @@ function br.shouldStopCasting(Spell)
 		local Boss1Cast,Boss1CastEnd,PlayerCastEnd,StopCasting
 		local MySpellCastTime
 		-- Set Spell Cast Time
-		if _G.GetSpellInfo(Spell) ~= nil then
-			MySpellCastTime = (_G.GetTime()*1000) + select(4,_G.GetSpellInfo(Spell))
+		if br._G.GetSpellInfo(Spell) ~= nil then
+			MySpellCastTime = (br._G.GetTime()*1000) + select(4,br._G.GetSpellInfo(Spell))
 		else
 			return false
 		end
@@ -54,7 +54,7 @@ function br.shouldStopCasting(Spell)
 			return true
 		end
 		for j = 1,#ShouldStop do
-			if Boss1Cast == select(1,_G.GetSpellInfo(ShouldStop[j])) then
+			if Boss1Cast == select(1,br._G.GetSpellInfo(ShouldStop[j])) then
 				br.SetStopTime = Boss1CastEnd
 				if PlayerCastEnd ~= nil then
 					if Boss1CastEnd < PlayerCastEnd then
@@ -67,8 +67,8 @@ function br.shouldStopCasting(Spell)
 	end
 end
 function br.betterStopCasting(Spell)
-	local spellCastLengt = select(4,_G.GetSpellInfo(Spell)) or 0
-	local MySpellCastTime = (_G.GetTime()*1000) + spellCastLengt
+	local spellCastLengt = select(4,br._G.GetSpellInfo(Spell)) or 0
+	local MySpellCastTime = (br._G.GetTime()*1000) + spellCastLengt
 	if br.shouldStopTime and br.shouldStopTime <= MySpellCastTime and not br.canContinue() then
 		return true
 	end

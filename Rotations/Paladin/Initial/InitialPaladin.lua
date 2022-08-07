@@ -96,8 +96,6 @@ local cd
 local debuff
 local enemies
 local equiped
-local has
-local item
 local module
 local ui
 local unit
@@ -106,15 +104,15 @@ local use
 -- Profile Specific Locals
 local actionList        = {}
 local var               = {}
-var.getFacingDistance   = _G["getFacingDistance"]
-var.getItemInfo         = _G["GetItemInfo"]
+var.getFacingDistance   = br._G["getFacingDistance"]
+var.getItemInfo         = br._G["GetItemInfo"]
 var.haltProfile         = false
-var.loadSupport         = _G["loadSupport"]
+var.loadSupport         = br._G["loadSupport"]
 var.profileStop         = false
 var.range5              = false
 var.range30             = false
 var.range40             = false
-var.specificToggle      = _G["SpecificToggle"]
+var.specificToggle      = br._G["SpecificToggle"]
 
 --------------------
 --- Action Lists ---
@@ -217,7 +215,7 @@ actionList.PreCombat = function()
                 if cast.judgment("target") then ui.debug("Casting Judgment [Pull]") return true end
             end
             -- Start Attack
-            if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
+            if not br._G.IsAutoRepeatSpell(br._G.GetSpellInfo(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
                 br._G.StartAttack(units.dyn5)
             end
         end
@@ -239,8 +237,6 @@ local function runRotation()
     debuff                                          = br.player.debuff
     enemies                                         = br.player.enemies
     equiped                                         = br.player.equiped
-    has                                             = br.player.has
-    item                                            = br.player.items
     module                                          = br.player.module
     ui                                              = br.player.ui
     unit                                            = br.player.unit
@@ -303,7 +299,7 @@ local function runRotation()
                 ------------
                 if var.range5 then
                     -- Start Attack
-                    if not IsAutoRepeatSpell(GetSpellInfo(6603)) then
+                    if not br._G.IsAutoRepeatSpell(br._G.GetSpellInfo(6603)) then
                         br._G.StartAttack(units.dyn5)
                     end
                     -- Trinket - Non-Specific
@@ -342,7 +338,7 @@ local function runRotation()
 end -- End runRotation
 local id = 1451
 if br.rotations[id] == nil then br.rotations[id] = {} end
-tinsert(br.rotations[id],{
+br._G.tinsert(br.rotations[id],{
     name = rotationName,
     toggles = createToggles,
     options = createOptions,

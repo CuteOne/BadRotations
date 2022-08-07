@@ -130,7 +130,7 @@ function br.getDistanceCalc(Unit1,Unit2,option)
         local dist2 = dist + 0.03 * ((13 - dist) / 0.13)
         local dist3 = dist + 0.05 * ((8 - dist) / 0.15) + 1
         local dist4 = dist + (PlayerCombatReach + TargetCombatReach)
-        local meleeRange = _G.max(6, PlayerCombatReach + TargetCombatReach + MeleeCombatReachConstant + IfSourceAndTargetAreRunning)
+        local meleeRange = br._G.max(6, PlayerCombatReach + TargetCombatReach + MeleeCombatReachConstant + IfSourceAndTargetAreRunning)
         if option == "dist" then return dist end
         if option == "dist2" then return dist2 end
         if option == "dist3" then return dist3 end
@@ -155,7 +155,7 @@ function br.getDistanceCalc(Unit1,Unit2,option)
     return currentDist
 end
 function br.isInRange(spellID,unit)
-	return _G.LibStub("SpellRange-1.0").IsSpellInRange(spellID,unit)
+	return br._G.LibStub("SpellRange-1.0").IsSpellInRange(spellID,unit)
 end
 function br.getDistanceToObject(Unit1,X2,Y2,Z2)
 	if Unit1 == nil then
@@ -173,8 +173,8 @@ function br.getFacingDistance()
     if br.GetUnitIsVisible("player") and br.GetUnitIsVisible("target") then
         --local targetDistance = getRealDistance("target")
         local targetDistance = br.getDistance("target")
-        local Y1,X1,Z1 = br.GetObjectPosition("player");
-        local Y2,X2,Z2 = br.GetObjectPosition("target");
+        local Y1,X1 = br.GetObjectPosition("player");
+        local Y2,X2 = br.GetObjectPosition("target");
         local angle1 = br.GetObjectFacing("player")
         local angle2
         local deltaY = Y2 - Y1

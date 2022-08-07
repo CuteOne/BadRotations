@@ -167,16 +167,11 @@ end
 local buff
 local cast
 local cd
-local charges
-local conduit
 local covenant
-local debuff
 local enemies
-local equiped
 local module
 local race
 local rage
-local rageDeficit
 local runeforge
 local talent
 local ui
@@ -431,16 +426,11 @@ local function runRotation() -- This is the main profile loop, any below this po
     buff        = br.player.buff
     cast        = br.player.cast
     cd          = br.player.cd
-    charges     = br.player.charges
-    conduit     = br.player.conduit
     covenant    = br.player.covenant
-    debuff      = br.player.debuff
     enemies     = br.player.enemies
-    equiped     = br.player.equiped
     module      = br.player.module
     race        = br.player.race
     rage        = br.player.power.rage.amount()
-    rageDeficit = br.player.power.rage.deficit()
     runeforge   = br.player.runeforge
     talent      = br.player.talent
     ui          = br.player.ui
@@ -627,7 +617,7 @@ end -- End runRotation
 local id = 73 -- Change to the spec id profile is for. Spec ID can be found at: https://wowpedia.fandom.com/wiki/SpecializationID
 -- DO NOT EDIT ANYTHING BELOW THIS LINE, WILL BREAK PROFILE --
 if br.rotations[id] == nil then br.rotations[id] = {} end
-tinsert(br.rotations[id],{
+br._G.tinsert(br.rotations[id],{
     name = rotationName,
     toggles = createToggles,
     options = createOptions,

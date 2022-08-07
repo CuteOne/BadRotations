@@ -197,7 +197,6 @@ local ui
 local var
 -- General Locals
 local actionList = {}
-local minCount
 -- Profile Specific Locals
 local lowestBarbedShot
 
@@ -881,7 +880,6 @@ local function runRotation()
     if var.profileStop == nil or (not unit.inCombat() and not unit.exists("target") and var.profileStop == true) then
         var.profileStop = false
     end
-    minCount = ui.useCDs() and 1 or 3
 
     var.lowestHPUnit = "target"
     var.lowestHP = 100

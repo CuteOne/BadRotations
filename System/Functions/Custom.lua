@@ -48,9 +48,9 @@ end
 function br.castAtPosition(X,Y,Z, SpellID)
     local i = -100
     local mouselookActive = false
-    if IsMouselooking() then
+    if br._G.IsMouselooking() then
         mouselookActive = true
-        MouselookStop()
+        br._G.MouselookStop()
     end
     br._G.CastSpellByName(br._G.GetSpellInfo(SpellID))
     while br._G.IsAoEPending() and i <= 100 do
@@ -62,7 +62,7 @@ function br.castAtPosition(X,Y,Z, SpellID)
         i = i + 1
     end
     if mouselookActive then
-        MouselookStart()
+        br._G.MouselookStart()
     end
     if i >= 100 and br._G.IsAoEPending() then return false end
     return true
@@ -92,7 +92,7 @@ end
 
 
 function br.castGroundAtUnit(spellID, radius, minUnits, maxRange, minRange, spellType, unit)
-    local spellName = br._G.GetSpellInfo(spellID)
+    -- local spellName = br._G.GetSpellInfo(spellID)
     if radius == nil then radius = maxRange end
     if minRange == nil then minRange = 0 end
     local allUnitsInRange = {}
@@ -164,7 +164,7 @@ function br.castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRan
         else
             uX, uY = br.GetFuturePostion(unit, castTime)
         end
-        local rUnit = br._G.UnitBoundingRadius(unit)
+        -- local rUnit = br._G.UnitBoundingRadius(unit)
         return sqrt(((uX-cx)^2) + ((uY-cy)^2))
     end
 
@@ -206,7 +206,7 @@ function br.castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRan
                     temp.ysc = temp.yiii - sqrt(calc)*((temp.xii-temp.xi)/temp.q)
                     --
                     temp.z = tZ
-                    _G.tinsert(testCircles, temp)
+                    br._G.tinsert(testCircles, temp)
                 else
                     temp.xi = tX;
                     temp.yi = tY;
@@ -233,20 +233,20 @@ function br.castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRan
             if spellType == "heal" then
                 if unitInCircle(allUnitsInRange[j].unit,thisCircle.xfc,thisCircle.yfc, radius, castTime) then
                     temp1 = temp1 + 1
-                    _G.tinsert(temp1Units,allUnitsInRange[j])
+                    br._G.tinsert(temp1Units,allUnitsInRange[j])
                 end
                 if unitInCircle(allUnitsInRange[j].unit,thisCircle.xsc,thisCircle.ysc, radius, castTime) then
                     temp2 = temp2 + 1
-                    _G.tinsert(temp2Units,allUnitsInRange[j])
+                    br._G.tinsert(temp2Units,allUnitsInRange[j])
                 end
             else
                 if unitInCircle(allUnitsInRange[j],thisCircle.xfc,thisCircle.yfc, radius, castTime) then
                     temp1 = temp1 + 1
-                    _G.tinsert(temp1Units,allUnitsInRange[j])
+                    br._G.tinsert(temp1Units,allUnitsInRange[j])
                 end
                 if unitInCircle(allUnitsInRange[j],thisCircle.xsc,thisCircle.ysc, radius, castTime) then
                     temp2 = temp2 + 1
-                    _G.tinsert(temp2Units,allUnitsInRange[j])
+                    br._G.tinsert(temp2Units,allUnitsInRange[j])
                 end
             end
         end
@@ -256,21 +256,21 @@ function br.castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRan
             bestCircle.z = thisCircle.z
             bestCircle.nro = temp1
             bestCircle.units = {}
-            for p = 1, #temp1Units do _G.tinsert(bestCircle.units,temp1Units[p]) end
+            for p = 1, #temp1Units do br._G.tinsert(bestCircle.units,temp1Units[p]) end
         elseif temp2 > temp1  and temp2 > bestCircle.nro then
             bestCircle.x = thisCircle.xsc
             bestCircle.y = thisCircle.ysc
             bestCircle.z = thisCircle.z
             bestCircle.nro = temp2
             bestCircle.units = {}
-            for p = 1, #temp2Units do _G.tinsert(bestCircle.units,temp2Units[p]) end
+            for p = 1, #temp2Units do br._G.tinsert(bestCircle.units,temp2Units[p]) end
         elseif temp2 == temp1 and temp2 > bestCircle.nro then
             bestCircle.x = thisCircle.xsc
             bestCircle.y = thisCircle.ysc
             bestCircle.z = thisCircle.z
             bestCircle.nro = temp2
             bestCircle.units = {}
-            for p = 1, #temp2Units do _G.tinsert(bestCircle.units,temp2Units[p]) end
+            for p = 1, #temp2Units do br._G.tinsert(bestCircle.units,temp2Units[p]) end
         end
     end
     --print(#bestCircle.units)
@@ -454,9 +454,9 @@ function br.RaidBuff(BuffSlot,myBuffSpellID)
             return false
         else
             for index=1,br._G.GetNumGroupMembers() do
-                local name, _, subgroup, _, _, _, zone, online, isDead, _, _ = br._G.GetRaidRosterInfo(index)
+                local _, _, _, _, _, _, _, online, isDead, _, _ = br._G.GetRaidRosterInfo(index)
                 if online and not isDead and 1==br._G.IsSpellInRange(select(1,br._G.GetSpellInfo(SpellID)), "raid"..index) then
-                    local playerBuffed=false
+                    -- local playerBuffed=false
                     for auraIndex=1,#chosenTable do
                         if br.getBuffRemain("raid"..index,chosenTable[auraIndex])>0 then break end
                         if br.getBuffRemain("raid"..index,chosenTable[auraIndex])<=0 then
@@ -518,7 +518,7 @@ function br.getBiggestUnitCluster(maxRange,radius,minCount)
 
     local enemiesInRange = minCount or 0
     local theReturnUnit
-    local foundCluster = false
+    -- local foundCluster = false
 
     for k, _ in pairs(br.enemy) do
         local thisUnit = br.enemy[k].unit
@@ -528,7 +528,7 @@ function br.getBiggestUnitCluster(maxRange,radius,minCount)
                 local enemyCount = br.getNumEnemies(thisUnit,radius)
                 if enemyCount >= enemiesInRange then
                     theReturnUnit = thisUnit
-                    foundCluster = true
+                    -- foundCluster = true
                     enemiesInRange = enemyCount
                 end
             end
@@ -611,7 +611,7 @@ end
 --- Returns if specified trinket is equipped in either slot
 -- if isTrinketEquipped(124518) then trinket = "Libram of Vindication" end
 function br.isTrinketEquipped(trinket)
-    if (_G.GetInventoryItemID("player", 13) == trinket or _G.GetInventoryItemID("player", 14) == trinket) then
+    if (br._G.GetInventoryItemID("player", 13) == trinket or br._G.GetInventoryItemID("player", 14) == trinket) then
         return true
     else
         return false
@@ -661,14 +661,14 @@ br.DBM = {}
 
 --- Return: All current DBM Timer
 function br.DBM:getBars()
-    if _G.DBM then
+    if br._G.DBM then
         if not br.DBM.Timer then
             br.DBM.Timer = {}
         else
-            _G.wipe(br.DBM.Timer)
+            br._G.wipe(br.DBM.Timer)
         end
-        if _G.DBM.Bars ~= nil then
-            for bar in pairs(_G.DBM.Bars.bars) do
+        if br._G.DBM.Bars ~= nil then
+            for bar in pairs(br._G.DBM.Bars.bars) do
                 local number = string.match(bar.id ,"%d+")
                 table.insert(br.DBM.Timer, {id = bar.id,timer = bar.timer,spellid = number})
             end
@@ -881,9 +881,9 @@ function br.GetFuturePostion(unit, castTime)
                 if unitTargetDist < distance then distance = unitTargetDist end
             end
             -- calculate angle based on target position/future position
-            angle = _G.rad(_G.atan2(tY - y, tX - x))
+            angle = br._G.rad(br._G.atan2(tY - y, tX - x))
             if angle < 0 then
-                angle = _G.rad(360 + _G.atan2(tY - y, tX - x))
+                angle = br._G.rad(360 + br._G.atan2(tY - y, tX - x))
             end
         end
         x = x + cos(angle) * distance
@@ -921,7 +921,7 @@ function br.BWInit()
     local callback = BigWigs.callback
     BigWigs.BigwigsCallback = function(event, ...)
         if event == "BigWigs_StartBar" then
-            local module, spellId, msg, duration, icon = ...
+            local _, spellId, _, duration, icon = ...
             local clone = false
             if spellId == nil then
                 if tostring(icon) == "134062" then
@@ -945,7 +945,7 @@ function br.BWInit()
                 local timer = {}
                 timer.id = spellId
                 timer.exptime = br._G.GetTime() + duration
-                _G.tinsert(br.DBM.Timer, timer)
+                br._G.tinsert(br.DBM.Timer, timer)
                 clone = false
             end
         elseif (event == "BigWigs_StopBars"
@@ -961,12 +961,12 @@ function br.BWInit()
             -- print("lalala")
         end
     end
-    if _G.BigWigsLoader then
+    if br._G.BigWigsLoader then
         BigWigs.callback = {}
-        _G.BigWigsLoader.RegisterMessage(callback, "BigWigs_StartBar", BigWigs.BigwigsCallback);
-        _G.BigWigsLoader.RegisterMessage(callback, "BigWigs_StopBars", BigWigs.BigwigsCallback);
-        _G.BigWigsLoader.RegisterMessage(callback, "BigWigs_OnBossDisable", BigWigs.BigwigsCallback);
-        _G.BigWigsLoader.RegisterMessage(callback, "BigWigs_OnPluginDisable", BigWigs.BigwigsCallback);
+        br._G.BigWigsLoader.RegisterMessage(callback, "BigWigs_StartBar", BigWigs.BigwigsCallback);
+        br._G.BigWigsLoader.RegisterMessage(callback, "BigWigs_StopBars", BigWigs.BigwigsCallback);
+        br._G.BigWigsLoader.RegisterMessage(callback, "BigWigs_OnBossDisable", BigWigs.BigwigsCallback);
+        br._G.BigWigsLoader.RegisterMessage(callback, "BigWigs_OnPluginDisable", BigWigs.BigwigsCallback);
     end
 end
 

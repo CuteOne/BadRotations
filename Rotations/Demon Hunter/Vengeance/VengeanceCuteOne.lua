@@ -164,7 +164,6 @@ local buff
 local cast
 local cd
 local charges
-local conduit
 local covenant
 local debuff
 local enemies
@@ -228,8 +227,8 @@ actionList.Extras = function()
     if ui.mode.tankbuster == 1 and unit.inCombat() then
         for i = 1, #enemies.yards30 do
             local thisUnit = enemies.yards30[i]
-            if br._G.UnitThreatSituation("player", thisUnit) == 3 and UnitCastingInfo("target") then
-                if br.lists.tankBuster[select(9, UnitCastingInfo("target"))] ~= nil then
+            if br._G.UnitThreatSituation("player", thisUnit) == 3 and br._G.UnitCastingInfo("target") then
+                if br.lists.tankBuster[select(9, br._G.UnitCastingInfo("target"))] ~= nil then
                     if cd.demonSpikes.ready() and not debuff.fieryBrand.exists(thisUnit) then
                         if cast.demonSpikes() then
                             br.addonDebug("[TANKBUST] Demon Spike")
@@ -405,7 +404,7 @@ actionList.Normal = function()
     end
     -- Soul Cleave
     -- soul_cleave,if=((talent.spirit_bomb.enabled&soul_fragments=0)|!talent.spirit_bomb.enabled)&((talent.fracture.enabled&fury>=55)|(!talent.fracture.enabled&fury>=70)|cooldown.fel_devastation.remains>target.time_to_die|(buff.metamorphosis.up&((talent.fracture.enabled&fury>=35)|(!talent.fracture.enabled&fury>=50))))
-    if cast.able.soulCleave() and ((talent.spiritBomb and buff.soulFragments.stack() == 0) or not talent.spiritBomb)
+    if cast.able.soulCleave() and ((talent.spiritBomb and (buff.soulFragments.stack() == 0 or fury >= 90)) or not talent.spiritBomb)
         and ((talent.fracture and fury >= 55) or (not talent.fracture and fury >= 70) or cd.felDevastation.remains() > unit.ttd(units.dyn5)
             or (buff.metamorphosis.exists() and ((talent.fracture and fury >= 35) or (not talent.fracture and fury >= 50))))
     then
@@ -509,7 +508,6 @@ local function runRotation()
     cast                                          = br.player.cast
     cd                                            = br.player.cd
     charges                                       = br.player.charges
-    conduit                                       = br.player.conduit
     covenant                                      = br.player.covenant
     debuff                                        = br.player.debuff
     enemies                                       = br.player.enemies

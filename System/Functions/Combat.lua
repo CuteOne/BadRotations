@@ -60,7 +60,7 @@ function br.getCombatTime()
 		combatTime = 0
 	end
 	if br._G.UnitAffectingCombat("player") == true then
-		combatTime = (_G.GetTime() - combatStarted)
+		combatTime = (br._G.GetTime() - combatStarted)
 	else
 		combatTime = 0
 	end
@@ -71,10 +71,10 @@ function br.getOoCTime()
 	local combatStarted = br.data.settings[br.selectedSpec]["Combat Started"]
 	local combatTime
 	if combatStarted ~= nil then
-		return _G.GetTime()
+		return br._G.GetTime()
 	end
 	if br._G.UnitAffectingCombat("player") == false then
-		combatTime = (_G.GetTime() - combatStarted)
+		combatTime = (br._G.GetTime() - combatStarted)
 	else
 		combatTime = 0
 	end
@@ -107,10 +107,10 @@ end
 
 function br.isIncapacitated(spellID)
 	local event
-	local eventIndex = _G.C_LossOfControl.GetActiveLossOfControlDataCount()
+	local eventIndex = br._G.C_LossOfControl.GetActiveLossOfControlDataCount()
 	if eventIndex > 0 then
 		for i = 0, eventIndex do
-			event = _G.C_LossOfControl.GetActiveLossOfControlData(i)
+			event = br._G.C_LossOfControl.GetActiveLossOfControlData(i)
 			if event then
 				if not br.canRegainControl(spellID, event.locType) and (event.locType ~= "DISARM" and event.locType ~= "ROOT" or event.locType == "SNARE") then
 					-- (event.locType == "NONE"
@@ -209,10 +209,10 @@ end
 -- if hasNoControl(12345) == true then
 function br.hasNoControl(spellID)
 	local event
-	local eventIndex = _G.C_LossOfControl.GetActiveLossOfControlDataCount()
+	local eventIndex = br._G.C_LossOfControl.GetActiveLossOfControlDataCount()
 	if eventIndex > 0 then
 		for i = 0, eventIndex do
-			event = _G.C_LossOfControl.GetActiveLossOfControlData(i)
+			event = br._G.C_LossOfControl.GetActiveLossOfControlData(i)
 			if event then
 				-- Print("Event LocType: "..tostring(event.locType).." - LockoutSchool "..tostring(event.lockoutSchool))
 				return br.canRegainControl(spellID, event.locType)
@@ -265,7 +265,7 @@ function br.hasThreat(unit, playerUnit)
 	local playerInCombat = br._G.UnitAffectingCombat("player")
 	local unitInCombat = br._G.UnitAffectingCombat(unit)
 	local unitObject = br._G.ObjectPointer(unit)
-	local instance = select(2, _G.IsInInstance())
+	local instance = select(2, br._G.IsInInstance())
 	-- Unit is Targeting Player/Pet/Party/Raid Validation
 	if targetFriend then
 		if br.isChecked("Cast Debug") then--and not br.GetObjectExists("target") then

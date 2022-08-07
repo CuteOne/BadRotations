@@ -285,15 +285,15 @@ br.api.runeforge = function(runeforge,k,v)
 
     for i = 1, #itemLeggoSlots do
         local thisSlot = itemLeggoSlots[i]
-        if _G.GetInventoryItemID("player",thisSlot) ~= nil then
+        if br._G.GetInventoryItemID("player",thisSlot) ~= nil then
             -- From: https://wow.gamepedia.com/ItemLocationMixin
-            local item = _G.ItemLocation:CreateFromEquipmentSlot(thisSlot)
+            local item = br._G.ItemLocation:CreateFromEquipmentSlot(thisSlot)
             if item:IsValid() then
-                if _G.C_LegendaryCrafting.IsRuneforgeLegendary(item) then
-                    local bonusID = select(15,_G.strsplit(":", _G.GetInventoryItemLink("player",thisSlot)))
+                if br._G.C_LegendaryCrafting.IsRuneforgeLegendary(item) then
+                    local bonusID = select(15,br._G.strsplit(":", br._G.GetInventoryItemLink("player",thisSlot)))
                     local powerID = bonusToPowerId[tonumber(bonusID)]
                     if powerID ~= nil then
-                        local powerInfo = _G.C_LegendaryCrafting.GetRuneforgePowerInfo(powerID)
+                        local powerInfo = br._G.C_LegendaryCrafting.GetRuneforgePowerInfo(powerID)
                         if powerInfo["descriptionSpellID"] == v then
                             runeforge[k].equiped = true
                             break

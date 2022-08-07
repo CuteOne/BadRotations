@@ -95,9 +95,9 @@ function br.UnitIsTappedByPlayer(mob)
 	end
 end
 function br.getSpellUnit(spellCast,aoe,minRange,maxRange,spellType)
-	local spellName = _G.GetSpellInfo(spellCast)
+	local spellName = br._G.GetSpellInfo(spellCast)
 	if aoe == nil then aoe = false end
-	local hasRange = _G.SpellHasRange(spellName) and true or false
+	local hasRange = br._G.SpellHasRange(spellName) and true or false
 	local facing = not aoe
 	local unit = br.dynamicTarget(maxRange,facing) or (not hasRange and "player")
 	if not unit then return "None" end
@@ -240,7 +240,7 @@ function br.getBossID(BossUnitID)
 end
 function br.getUnitID(Unit)
 	if br.GetObjectExists(Unit) and br.GetUnitIsVisible(Unit) then
-		local id = select(6,_G.strsplit("-", br._G.UnitGUID(Unit) or ""))
+		local id = select(6,br._G.strsplit("-", br._G.UnitGUID(Unit) or ""))
 		return tonumber(id)
 	end
 	return 0
@@ -257,15 +257,15 @@ function br.isAlive(Unit)
 	end
 end
 function br.isInstanceBoss(unit)
-	if _G.IsInInstance() then
-		local _, _, encountersTotal = _G.GetInstanceLockTimeRemaining();
+	if br._G.IsInInstance() then
+		local _, _, encountersTotal = br._G.GetInstanceLockTimeRemaining();
 		for i=1,encountersTotal do
 			if unit == "player" then
-				local bossList = _G.GetInstanceLockTimeRemainingEncounter(i)
+				local bossList = br._G.GetInstanceLockTimeRemainingEncounter(i)
 				br._G.print(bossList)
 			end
 			if br.GetObjectExists(unit) then
-				local bossName = _G.GetInstanceLockTimeRemainingEncounter(i)
+				local bossName = br._G.GetInstanceLockTimeRemainingEncounter(i)
 				local targetName = br._G.UnitName(unit)
 				-- Print("Target: "..targetName.." | Boss: "..bossName.." | Match: "..tostring(targetName == bossName))
 				if targetName == bossName then return true end
@@ -285,7 +285,7 @@ function br.isBoss(unit)
 		local class = br._G.UnitClassification(unit)
 		local healthMax = br._G.UnitHealthMax(unit)
 		local pHealthMax = br._G.UnitHealthMax("player")
-		local instance = select(2,_G.IsInInstance())
+		local instance = select(2,br._G.IsInInstance())
 		return br.isInstanceBoss(unit) or br.isDummy(unit)
 			or (not br.isChecked("Boss Detection Only In Instance") and not br._G.UnitIsTrivial(unit) and instance ~= "party"
 				and ((class == "rare" and healthMax > 4 * pHealthMax) or class == "rareelite" or class == "worldboss"

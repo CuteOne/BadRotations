@@ -177,7 +177,6 @@ local cast
 local cd
 local charges
 local conduit
-local covenant
 local debuff
 local enemies
 local equiped
@@ -765,7 +764,6 @@ local function runRotation()
     cd                                              = br.player.cd
     charges                                         = br.player.charges
     conduit                                         = br.player.conduit
-    covenant                                        = br.player.covenant
     debuff                                          = br.player.debuff
     enemies                                         = br.player.enemies
     equiped                                         = br.player.equiped

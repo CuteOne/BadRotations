@@ -24,13 +24,13 @@ if br.api == nil then br.api = {} end
     -- pain
 br.api.power = function(power,v)
     local isDKRunes = select(2,br._G.UnitClass("player")) == "DEATHKNIGHT" and v == 5
-    local isDestruction = _G.GetSpecializationInfo(_G.GetSpecialization()) == 267 and v == 7
+    local isDestruction = br._G.GetSpecializationInfo(br._G.GetSpecialization()) == 267 and v == 7
     -- br.player.power.spell.amount() - Returns current amount of the specified power
     power.amount = function()
         if isDKRunes then
             local runeCount = 0
             for i = 1, 6 do
-                runeCount = runeCount + _G.GetRuneCount(i)
+                runeCount = runeCount + br._G.GetRuneCount(i)
             end
             return runeCount
         else
@@ -47,14 +47,14 @@ br.api.power = function(power,v)
         if isDKRunes then
             local runeCount = 0
             for i = 1, 6 do
-                runeCount = runeCount + _G.GetRuneCount(i)
+                runeCount = runeCount + br._G.GetRuneCount(i)
             end
             return runeCount + math.max(br.runeCDPercent(1),br.runeCDPercent(2),br.runeCDPercent(3),br.runeCDPercent(4),br.runeCDPercent(5),br.runeCDPercent(6))
         end
         -- Destruction Warlocks
         if isDestruction then
-            local shardPower = br._G.UnitPower("player", _G.Enum.PowerType.SoulShards, true)
-            local shardModifier = _G.UnitPowerDisplayMod(_G.Enum.PowerType.SoulShards)
+            local shardPower = br._G.UnitPower("player", br._G.Enum.PowerType.SoulShards, true)
+            local shardModifier = br._G.UnitPowerDisplayMod(br._G.Enum.PowerType.SoulShards)
             local fragmentCount = (shardModifier ~= 0) and (shardPower / shardModifier) or 0
             return (shardPower + fragmentCount)/10
         end

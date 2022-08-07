@@ -14,7 +14,6 @@ local units
 local var
 local currentTarget
 local fetching = false
-local fetchCount = 0
 local paused = false
 local pausekey = false
 local petAppearTimer = br._G.GetTime()
@@ -511,7 +510,6 @@ br.rotations.support["PetCuteOne"] = {
                         local thisDistance = unit.distance(k)
                         if thisDistance > 8 and thisDistance < 40 then
                             if cast.fetch("pet") then
-                                fetchCount = lootCount
                                 fetching = true
                                 ui.debug("[Pet] Cast Fetch")
                                 break

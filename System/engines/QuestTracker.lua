@@ -1,24 +1,24 @@
 local _, br = ...
-local LibDraw = _G.LibStub("LibDraw-BR")
+-- local LibDraw = br._G.LibStub("LibDraw-BR")
 br.QuestCache = {}
 
 --Quest stuff
 --local questPlateTooltip = CreateFrame('GameTooltip', 'QuestPlateTooltip', nil, 'GameTooltipTemplate')
-local questTooltipScanQuest = _G.CreateFrame ("GameTooltip", "QuestPlateTooltipScanQuest", nil, "GameTooltipTemplate")
+local questTooltipScanQuest = br._G.CreateFrame ("GameTooltip", "QuestPlateTooltipScanQuest", nil, "GameTooltipTemplate")
 local ScannedQuestTextCache = {}
 
 function br.isQuestUnit(Pointer)
 	local guid
-	if not _G["lb"] then
+	if not br._G["lb"] then
 		guid = br._G.UnitGUID(Pointer)
 	else
 		guid = Pointer
 	end
 	--local myName = UnitName("player")
-	questTooltipScanQuest:SetOwner(_G["WorldFrame"], 'ANCHOR_NONE')
+	questTooltipScanQuest:SetOwner(br._G["WorldFrame"], 'ANCHOR_NONE')
 	questTooltipScanQuest:SetHyperlink('unit:' .. guid)
 	for i = 1, questTooltipScanQuest:NumLines() do
-		ScannedQuestTextCache[i] = _G ["QuestPlateTooltipScanQuestTextLeft" .. i]
+		ScannedQuestTextCache[i] = br._G ["QuestPlateTooltipScanQuestTextLeft" .. i]
 	end
 
 	local isQuestUnit = false
@@ -28,13 +28,13 @@ function br.isQuestUnit(Pointer)
 		if (br.QuestCache[text]) then
 			--unit belongs to a quest
 			isQuestUnit = true
-			local amount1, amount2 = nil, nil
+			-- local amount1, amount2 = nil, nil
 			local j = i
 			while (ScannedQuestTextCache[j+1]) do
 				--check if the unit objective isn't already done
 				local nextLineText = ScannedQuestTextCache [j+1]:GetText()
 				if (nextLineText) then
-					if not nextLineText:match(_G["THREAT_TOOLTIP"]) then
+					if not nextLineText:match(br._G["THREAT_TOOLTIP"]) then
 						local p1, p2 = nextLineText:match ("(%d+)/(%d+)")
 						if (not p1) then
 							-- check for % based quests
@@ -47,7 +47,7 @@ function br.isQuestUnit(Pointer)
 						if (p1 and p2 and not (p1 == p2)) or (p1 and not p2 and not (p1 == "100")) then
 							-- quest not completed
 							atLeastOneQuestUnfinished = true
-							amount1, amount2 = p1, p2
+							-- amount1, amount2 = p1, p2
 						end
 					else
 						j = 99 --safely break here, as we saw threat% -> quest text is done
@@ -74,19 +74,19 @@ local QuestCacheUpdate = function()
 		[57728] = true, --- Assault: The Endless Swarm
 	}
 	--clear the quest cache
-	_G.wipe(br.QuestCache)
+	br._G.wipe(br.QuestCache)
 
 	--do not update if is inside an instance
-	local isInInstance = _G.IsInInstance()
+	local isInInstance = br._G.IsInInstance()
 	if (isInInstance) then
 		return
 	end
 
 	--update the quest cache
-	local numEntries, numQuests = _G.C_QuestLog.GetNumQuestLogEntries()
+	local numEntries = br._G.C_QuestLog.GetNumQuestLogEntries()
 	for questIdx = 1, numEntries do
 		-- local title, level, suggestedGroup, isHeader, isCollapsed, isComplete, frequency, questId, startEvent, displayQuestID, isOnMap, hasLocalPOI, isTask, isStory = GetQuestLogTitle (questId)
-		local questInfo = _G.C_QuestLog.GetInfo(questIdx)
+		local questInfo = br._G.C_QuestLog.GetInfo(questIdx)
 		local title = questInfo["title"]
 		local questId = questInfo["questID"]
 		if (type(questId) == "number" and questId > 0 and ignoreQuest[questId] == nil) then -- and not isComplete
@@ -94,14 +94,14 @@ local QuestCacheUpdate = function()
 		end
 	end
 
-	local mapId = _G.C_Map.GetBestMapForUnit("player")
+	local mapId = br._G.C_Map.GetBestMapForUnit("player")
 	if (mapId) then
-		local worldQuests = _G.C_TaskQuest.GetQuestsForPlayerByMapID (mapId)
+		local worldQuests = br._G.C_TaskQuest.GetQuestsForPlayerByMapID (mapId)
 		if (type(worldQuests) == "table") then
 			for _, questTable in ipairs(worldQuests) do
-				local x, y, floor, numObjectives, questId, inProgress = questTable.x, questTable.y, questTable.floor, questTable.numObjectives, questTable.questId, questTable.inProgress
+				local questId = questTable.questId
 				if (type(questId) == "number" and questId > 0 and ignoreQuest[questId] == nil) then
-					local questName = _G.C_TaskQuest.GetQuestInfoByQuestID(questId)
+					local questName = br._G.C_TaskQuest.GetQuestInfoByQuestID(questId)
 					if (questName) then
 						br.QuestCache[questName] = true
 					end
@@ -115,15 +115,11 @@ local function FunctionQuestLogUpdate() --private
 	if (br.QuestCacheThrottle and not br.QuestCacheThrottle["_cancelled"]) then
 		br.QuestCacheThrottle:Cancel()
 	end
-	br.QuestCacheThrottle = _G.C_Timer.NewTimer(2, QuestCacheUpdate)
+	br.QuestCacheThrottle = br._G.C_Timer.NewTimer(2, QuestCacheUpdate)
 end
 
 function br.isQuestObject(object) --Ty Ssateneth
 	local objectID = br._G.ObjectID(object)
-	local questObj = 0
-	-- if objectID ~= nil and br._G.GetItemInfo(objectID) ~= nil then
-	-- 	questObj = select(12, br._G.GetItemInfo(objectID))
-	-- end
 	local ignoreObjects = {
 		[327571] = true,
 	}
@@ -183,6 +179,7 @@ local function QuestEventHandler(_, event, ...)
     if br._G.GetObjectWithGUID then
         local func = eventFunctions [event]
         if (func) then
+---@diagnostic disable-next-line: redundant-parameter
             func (event, ...)
         else
             br._G.print("no registered function for event " .. (event or "unknown event"))
@@ -190,7 +187,7 @@ local function QuestEventHandler(_, event, ...)
     end
 end
 
-local f = _G.CreateFrame("Frame", "QuestFrame", _G.UIParent)
+local f = br._G.CreateFrame("Frame", "QuestFrame", br._G.UIParent)
 		f:RegisterEvent ("QUEST_ACCEPTED")
 		f:RegisterEvent ("QUEST_REMOVED")
 		f:RegisterEvent ("QUEST_ACCEPT_CONFIRM")

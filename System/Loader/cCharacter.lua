@@ -87,7 +87,7 @@ function br.cCharacter:new(class)
 	-- Things which get updated for every class in combat
 	-- All classes call the baseUpdate()
 	function self.baseUpdate()
-		local startTime = _G.debugprofilestop()
+		local startTime = br._G.debugprofilestop()
 		-- Pause
 		-- TODO
 		-- Get Character Info
@@ -213,7 +213,7 @@ function br.cCharacter:new(class)
 
 	-- Start the rotation or return if pause
 	function self.startRotation()
-		local startTime = _G.debugprofilestop()
+		local startTime = br._G.debugprofilestop()
 		-- dont check if player is casting to allow off-cd usage and cast while other spell is casting
 		-- if pause(true) then return end
 
@@ -370,8 +370,8 @@ function br.cCharacter:new(class)
 									local potionEffect = potionList[y].effect
 									local potionType = potionList[y].ptype
 									-- if self.potion[potionType] == nil then self.potion[potionType] = {} end
-									if _G.strmatch(itemEffect, potionEffect) ~= nil then
-										_G.tinsert(self.potion[potionType], itemInfo)
+									if br._G.strmatch(itemEffect, potionEffect) ~= nil then
+										br._G.tinsert(self.potion[potionType], itemInfo)
 										table.sort(
 											self.potion[potionType],
 											function(x, y)
@@ -391,8 +391,8 @@ function br.cCharacter:new(class)
 								for y = 1, #flaskList do
 									local flasktype = flaskList[y].type
 									local flaskID = flaskList[y].id
-									if _G.strmatch(itemInfo.itemID, flaskID) ~= nil then
-										_G.tinsert(self.flask[flasktype], itemInfo)
+									if br._G.strmatch(itemInfo.itemID, flaskID) ~= nil then
+										br._G.tinsert(self.flask[flasktype], itemInfo)
 										table.sort(
 											self.flask[flasktype],
 											function(x, y)

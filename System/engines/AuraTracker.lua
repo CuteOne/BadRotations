@@ -36,7 +36,7 @@ function tracker.add(guid, name, spellId, time) --Check if exists and creates if
     end
 	if not unit.auras[spellId] then
 		unit.auras[spellId] = {
-			spellName = _G.GetSpellInfo(spellId), --GetSpellName(spellId),
+			spellName = br._G.GetSpellInfo(spellId), --GetSpellName(spellId),
 			id = spellId,
 			duration = br.getAuraDuration(br.objectID, spellId),
 			remain = br.getAuraRemain(br.objectID, spellId),
@@ -108,7 +108,7 @@ function tracker.onUpdate()
 	if tracker.units ~= nil then
 		for k, _ in pairs(tracker.units) do
 			local unit = tracker.units[k]
-			local name = unit.name
+			-- local name = unit.name
 			local auras = unit.auras
 			if br.GetObjectExists(unit.guid) then
                 br.objectID = br._G.GetObjectWithGUID(unit.guid)
@@ -149,36 +149,32 @@ function tracker.query(guid, spellId)
 end
 
 function tracker.handleEvent(...) --Adjust handleEvent to CombatLogEventUnfiltered
-	local timeStamp, event, hideCaster, sourceGUID, sourceName, sourceFlags,
-	      sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags = ...
+	local timeStamp, event, _, _, _, _,
+	      _, destGUID, destName, _, _ = ...
 
 	-- add aura
 	if event == "SPELL_AURA_APPLIED" or event == "SPELL_AURA_REFRESH" or event == "SPELL_PERIODIC_AURA_APPLIED" then
-		local spellId, spellName, spellSchool = select(12, ...)
-		local auraType, amount = select(15, ...)
+		local spellId, _, _ = select(12, ...)
 		tracker.add(destGUID, destName, spellId, timeStamp)
-		-- tracker.duration(destGUID, spellId, destName)
-		-- tracker.remain(destGUID, spellId, destName)
 	-- remove aura
 	elseif event == "SPELL_AURA_REMOVED" or event == "SPELL_PERIODIC_AURA_REMOVED" then
-		local spellId, spellName, spellSchool = select(12, ...)
-		local auraType, amount = select(15, ...)
-		tracker.remove(destGUID, spellId, timeStamp)
+		local spellId, _, _ = select(12, ...)
+		tracker.remove(destGUID, spellId)
 	elseif event == "SPELL_AURA_APPLIED_DOSE" or event == "SPELL_PERIODIC_AURA_APPLIED_DOSE"
 		or event == "SPELL_AURA_REMOVED_DOSE" or event == "SPELL_PERIODIC_AURA_REMOVED_DOSE"  then
-		local spellId, spellName, spellSchool = select(12, ...)
-		local auraType, amount = select(15, ...)
+		local spellId, _, _ = select(12, ...)
+		local _, amount = select(15, ...)
 		tracker.stack(destGUID, spellId, amount)
 
 	-- aura damage
 	elseif event == "SPELL_PERIODIC_DAMAGE" then
-		local spellId, spellName, spellSchool = select(12, ...)
-		local amount, overkill, school, resisted, blocked, absorbed, critical = select(15, ...)
+		local spellId, _, _ = select(12, ...)
+		local amount, _, _, _, _, _, critical = select(15, ...)
 		tracker.update('damage', destGUID, spellId, amount, critical, destName)
 
 	elseif event == "SPELL_PERIODIC_HEAL" then
-		local spellId, spellName, spellSchool = select(12, ...)
-		local amount, overkill, school, resisted, blocked, absorbed, critical = select(15, ...)
+		local spellId, _, _ = select(12, ...)
+		local amount, _, _, _, _, _, critical = select(15, ...)
 		tracker.update('heal', destGUID, spellId, amount, critical, destName)
 	end
 end

@@ -63,15 +63,11 @@ end
 -- BR API Locals
 local cast
 local cd
-local debuff
-local has
 local mode
 local ui
-local pet
 local spell
 local unit
 local units
-local use
 -- General Locals
 local haltProfile
 local profileStop
@@ -106,26 +102,22 @@ local function runRotation()
     -- BR API Locals
     cast                                          = br.player.cast
     cd                                            = br.player.cd
-    debuff                                        = br.player.debuff
-    has                                           = br.player.has
     mode                                          = br.player.ui.mode
     ui                                            = br.player.ui
-    pet                                           = br.player.pet
     spell                                         = br.player.spell
     ui                                            = br.player.ui
     unit                                          = br.player.unit
     units                                         = br.player.units
-    use                                           = br.player.use
     -- General Locals
     profileStop                                   = profileStop or false
-    haltProfile                                   = (unit.inCombat() and profileStop) or IsMounted() or br.pause() or mode.rotation==4
+    haltProfile                                   = (unit.inCombat() and profileStop) or unit.mounted() or br.pause() or mode.rotation==4
     -- Units
     units.get(5) -- Makes a variable called, units.dyn5
     units.get(40) -- Makes a variable called, units.dyn40
     units.get(40,true)
 
     -- Pause Timer
-    if br.pauseTime == nil then br.pauseTime = GetTime() end
+    if br.pauseTime == nil then br.pauseTime = ui.time() end
 
     ---------------------
     --- Begin Profile ---
@@ -134,7 +126,7 @@ local function runRotation()
     if not unit.inCombat() and not unit.exists("target") and profileStop then
         profileStop = false
     elseif haltProfile then
-        br.pauseTime = GetTime()
+        br.pauseTime = ui.time()
         return true
     else
         ---------------------------------
@@ -164,8 +156,8 @@ local function runRotation()
                     end
                 end
                 -- actions=auto_attack
-                if not IsAutoRepeatSpell(GetSpellInfo(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
-                    br._G.StartAttack(units.dyn5)
+                if not cast.auto.autoAttack() and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
+                    if cast.autoAttack() then ui.debug("Casting Auto Attack") return true end
                 end
                 -- Execute
                 if unit.hp("target") < 20 and spell.known.execute() and cast.able.execute and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
@@ -199,7 +191,7 @@ local function runRotation()
 end -- End runRotation
 local id = 1446 -- Change to the spec id profile is for.
 if br.rotations[id] == nil then br.rotations[id] = {} end
-tinsert(br.rotations[id],{
+br._G.tinsert(br.rotations[id],{
     name = rotationName,
     toggles = createToggles,
     options = createOptions,

@@ -9,13 +9,13 @@ function br.ui:createToggle(table,name,col,row)
 end
 -- when we find a match, we reset tooltip
 function br.ResetTip(toggleValue, thisValue)
-	_G.GameTooltip:SetOwner(br["button" .. toggleValue], br.mainButton, 0, 0)
-	_G.GameTooltip:SetText(br[toggleValue .. "Modes"][thisValue].tip, 225 / 255, 225 / 255, 225 / 255, nil, true)
-	_G.GameTooltip:Show()
+	br._G.GameTooltip:SetOwner(br["button" .. toggleValue], br.mainButton, 0, 0)
+	br._G.GameTooltip:SetText(br[toggleValue .. "Modes"][thisValue].tip, 225 / 255, 225 / 255, 225 / 255, nil, true)
+	br._G.GameTooltip:Show()
 end
 
 function br.GarbageButtons()
-	if br.buttonsTable and not _G.UnitAffectingCombat("player") then
+	if br.buttonsTable and not br._G.UnitAffectingCombat("player") then
 		for i = 1, #br.buttonsTable do
 			local Name = br.buttonsTable[i].name
 			br["button" .. Name]:Hide()
@@ -203,7 +203,7 @@ function br.changeButton(toggleValue, newValue)
 	br["text" .. toggleValue]:SetText(br[toggleValue .. "Modes"][newValue].mode)
 	-- define icon
 	if type(br[toggleValue .. "Modes"][newValue].icon) == "number" then
-		Icon = select(3, _G.GetSpellInfo(br[toggleValue .. "Modes"][newValue].icon))
+		Icon = select(3, br._G.GetSpellInfo(br[toggleValue .. "Modes"][newValue].icon))
 	else
 		Icon = br[toggleValue .. "Modes"][newValue].icon
 	end
@@ -259,9 +259,9 @@ function br.CreateButton(Name, x, y)
 			br.data.settings[br.selectedSpec].toggles[Name] = 1
 		end
 		if br.buttonsTable then
-			_G.tinsert(br.buttonsTable, {name = Name, bx = x, by = y})
+			br._G.tinsert(br.buttonsTable, {name = Name, bx = x, by = y})
 		end
-		br["button" .. Name] = _G.CreateFrame("Button", "MyButtonBR", br.mainButton, "SecureHandlerClickTemplate")
+		br["button" .. Name] = br._G.CreateFrame("Button", "MyButtonBR", br.mainButton, "SecureHandlerClickTemplate")
 		br["button" .. Name]:SetWidth(br.data.settings["buttonSize"])
 		br["button" .. Name]:SetHeight(br.data.settings["buttonSize"])
 		br["button" .. Name]:SetPoint(
@@ -274,7 +274,7 @@ function br.CreateButton(Name, x, y)
 			br[Name .. "Modes"][br.data.settings[br.selectedSpec].toggles[Name]].icon ~= nil and
 				type(br[Name .. "Modes"][br.data.settings[br.selectedSpec].toggles[Name]].icon) == "number"
 		 then
-			Icon = select(3, _G.GetSpellInfo(br[Name .. "Modes"][br.data.settings[br.selectedSpec].toggles[Name]].icon))
+			Icon = select(3, br._G.GetSpellInfo(br[Name .. "Modes"][br.data.settings[br.selectedSpec].toggles[Name]].icon))
 		else
 			Icon = br[Name .. "Modes"][br.data.settings[br.selectedSpec].toggles[Name]].icon
 		end
@@ -286,7 +286,7 @@ function br.CreateButton(Name, x, y)
 		br["text" .. Name]:SetTextHeight(br.data.settings["buttonSize"] / 3)
 		br["text" .. Name]:SetPoint("CENTER", 3, -(br.data.settings["buttonSize"] / 8))
 		br["text" .. Name]:SetTextColor(1, 1, 1, 1)
-		br["frame" .. Name] = _G.CreateFrame("Frame", nil, br["button" .. Name])
+		br["frame" .. Name] = br._G.CreateFrame("Frame", nil, br["button" .. Name])
 		br["frame" .. Name]:SetWidth(br.data.settings["buttonSize"] * 1.67)
 		br["frame" .. Name]:SetHeight(br.data.settings["buttonSize"] * 1.67)
 		br["frame" .. Name]:SetPoint("CENTER")
@@ -300,7 +300,7 @@ function br.CreateButton(Name, x, y)
 			br._G.print("No table found for " .. Name)
 			br[Name .. "Modes"] = tostring(Name)
 		else
-			br[Name .. "Modes"] = br[Name .. "Modes"]
+			br[Name .. "Modes"] = br[Name .. "Modes"] or ""
 		end
 		local modeValue
 		if br.data.settings[br.selectedSpec].toggles[tostring(Name)] == nil then
@@ -337,8 +337,8 @@ function br.CreateButton(Name, x, y)
 		br["button" .. Name]:SetScript(
 			"OnEnter",
 			function()
-				_G.GameTooltip:SetOwner(br["button" .. Name], _G.UIParent, 0, 0)
-				_G.GameTooltip:SetText(
+				br._G.GameTooltip:SetOwner(br["button" .. Name], br._G.UIParent, 0, 0)
+				br._G.GameTooltip:SetText(
 					br[Name .. "Modes"][br.data.settings[br.selectedSpec].toggles[Name]].tip,
 					225 / 255,
 					225 / 255,
@@ -346,13 +346,13 @@ function br.CreateButton(Name, x, y)
 					nil,
 					true
 				)
-				_G.GameTooltip:Show()
+				br._G.GameTooltip:Show()
 			end
 		)
 		br["button" .. Name]:SetScript(
 			"OnLeave",
 			function()
-				_G.GameTooltip:Hide()
+				br._G.GameTooltip:Hide()
 			end
 		)
 		br["text" .. Name]:SetText(br[Name .. "Modes"][modeValue].mode)

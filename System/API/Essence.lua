@@ -6,9 +6,9 @@ br.api.essences = function(essence,k,v)
     essence.major = false
     essence.minor = false
     essence.rank = 0
-    local milestoneTable = _G.C_AzeriteEssence.GetMilestones()
-    local GetSpellInfo = _G["GetSpellInfo"]
-    local C_AzeriteEssence = _G["C_AzeriteEssence"]
+    local milestoneTable = br._G.C_AzeriteEssence.GetMilestones()
+    local GetSpellInfo = br._G["GetSpellInfo"]
+    local C_AzeriteEssence = br._G["C_AzeriteEssence"]
     local essenceIdName = GetSpellInfo(GetSpellInfo(v)) or "None"
     local essenceIcon = select(3,GetSpellInfo(v)) or 0
     if milestoneTable then

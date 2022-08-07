@@ -1,13 +1,13 @@
 local _, br = ...
 function br.pulseNovaDebug()
 	-- if br.getOptionCheck("Healing Debug") ~= true then
-	-- 	-- if healingDebug--[[Started]] and _G["healingDebugFrame"]:IsShown() == true then
+	-- 	-- if healingDebug--[[Started]] and br._G["healingDebugFrame"]:IsShown() == true then
 	-- 	-- 	_G["healingDebugFrame"]:Hide()
 	-- 	-- end
 	-- 	if not br.ui.window['healing']['parent'] then br.ui:createHealingWindow() end
 	-- 	br.ui:showWindow("healing")
 	-- else
-	-- 	-- if healingDebug--[[Started]] and _G["healingDebugFrame"]:IsShown() ~= true then
+	-- 	-- if healingDebug--[[Started]] and br._G["healingDebugFrame"]:IsShown() ~= true then
 	-- 	-- 	_G["healingDebugFrame"]:Show()
 	-- 	-- end
 	-- 	if not br.ui.window['healing']['parent'] then br.ui:createHealingWindow() end
@@ -52,12 +52,12 @@ function br.pulseNovaDebug()
 	-- 	_G["healingDebugFrame"]:SetHeight((novaUnits+1)*23)
 	-- end
 
-	local DiesalGUI = _G.LibStub("DiesalGUI-1.0")
+	local DiesalGUI = br._G.LibStub("DiesalGUI-1.0")
 	function br.ui:createBar(parent, option, unit, tooltip, tooltipSpin)
 		local value, text, statusMin, statusMax = option.name, option.status, option.statusMin, option.statusMax
 ---@diagnostic disable-next-line: undefined-field
 		local newHPBar = DiesalGUI:Create("Bar")
-		parent = parent
+		parent = parent or {}
 		--print(newHPBar)
 
 		-- Create Checkbox for Spinner
@@ -117,18 +117,18 @@ function br.pulseNovaDebug()
 				"OnEnter",
 				function(this, event)
 ---@diagnostic disable-next-line: undefined-field
-					_G.GameTooltip:SetOwner(_G.Minimap, "ANCHOR_CURSOR", 50, 50)
+					br._G.GameTooltip:SetOwner(br._G.Minimap, "ANCHOR_CURSOR", 50, 50)
 ---@diagnostic disable-next-line: undefined-field
-					_G.GameTooltip:SetText(tooltip, 214 / 255, 25 / 255, 25 / 255)
+					br._G.GameTooltip:SetText(tooltip, 214 / 255, 25 / 255, 25 / 255)
 ---@diagnostic disable-next-line: undefined-field
-					_G.GameTooltip:Show()
+					br._G.GameTooltip:Show()
 				end
 			)
 			newHPBar:SetEventListener(
 				"OnLeave",
 				function(this, event)
 ---@diagnostic disable-next-line: undefined-field
-					_G.GameTooltip:Hide()
+					br._G.GameTooltip:Hide()
 				end
 			)
 		end
@@ -144,9 +144,9 @@ function br.pulseNovaDebug()
 		local value, status, statusMin, statusMax = option.name, option.status, option.statusMin, option.statusMax
 		width = width or 180
 		height = height or 22
-		if _G[parent .. value .. "Nova"] == nil then
+		if br._G[parent .. value .. "Nova"] == nil then
 			local scale = 1 --br.data.settings.optionsFrame.scale or 1
-			_G[parent .. value .. "Nova"] = _G.CreateFrame("StatusBar", _G[parent .. value .. "Nova"], _G.UIParent, "BackdropTemplate")
+			_G[parent .. value .. "Nova"] = br._G.CreateFrame("StatusBar", br._G[parent .. value .. "Nova"], br._G.UIParent, "BackdropTemplate")
 			_G[parent .. value .. "Nova"]:SetWidth(width * scale)
 			_G[parent .. value .. "Nova"]:SetHeight(height * scale)
 			_G[parent .. value .. "Nova"]:SetPoint("TOPLEFT", x * scale, (y - 2) * scale)
@@ -162,7 +162,7 @@ function br.pulseNovaDebug()
 				"OnEnter",
 				function(self)
 ---@diagnostic disable-next-line: undefined-field
-					_G.GameTooltip:SetOwner(self, "BOTTOMLEFT", 225, 5)
+					br._G.GameTooltip:SetOwner(self, "BOTTOMLEFT", 225, 5)
 					local thisUnit = br.friend[value]
 					if thisUnit then
 						local color = "|cffFFFFFF"
@@ -172,7 +172,7 @@ function br.pulseNovaDebug()
 							end
 						end
 ---@diagnostic disable-next-line: undefined-field
-						_G.GameTooltip:SetText(
+						br._G.GameTooltip:SetText(
 							color .. "Name: " .. thisUnit.name .. "\n|cffFF1100Health: " .. math.floor(thisUnit.hp) .. "\n|cff11A7DFRole: " .. thisUnit.role,
 							nil,
 							nil,
@@ -181,7 +181,7 @@ function br.pulseNovaDebug()
 							true
 						)
 ---@diagnostic disable-next-line: undefined-field
-						_G.GameTooltip:Show()
+						br._G.GameTooltip:Show()
 					end
 				end
 			)
@@ -190,7 +190,7 @@ function br.pulseNovaDebug()
 				"OnLeave",
 				function(self)
 ---@diagnostic disable-next-line: undefined-field
-					_G.GameTooltip:Hide()
+					br._G.GameTooltip:Hide()
 				end
 			)
 			-- leave event
@@ -205,7 +205,7 @@ function br.pulseNovaDebug()
 				end
 			)
 			-- text
-			_G[parent .. value .. "NovaText"] = _G[parent .. value .. "Nova"]:CreateFontString(_G[parent .. value .. "NovaText"], "ARTWORK")
+			_G[parent .. value .. "NovaText"] = br._G[parent .. value .. "Nova"]:CreateFontString(_G[parent .. value .. "NovaText"], "ARTWORK")
 			_G[parent .. value .. "NovaText"]:SetWidth(width * scale)
 			_G[parent .. value .. "NovaText"]:SetHeight(height * scale)
 			_G[parent .. value .. "NovaText"]:SetPoint("CENTER", 0, -2)
@@ -255,7 +255,7 @@ function br.pulseNovaDebug()
 		for i = 1, novaUnits do
 			local thisUnit = br.friend[i]
 			local thisDebugRow
-			local color = "|cffFFFFFF"
+			-- local color = "|cffFFFFFF"
 			local class
 			if thisUnit.class == "Death Knight" then
 				thisUnit.class = "Deathknight"

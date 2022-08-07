@@ -252,7 +252,7 @@ local function runRotation()
 end -- End runRotation
 local id = 1444
 if br.rotations[id] == nil then br.rotations[id] = {} end
-tinsert(br.rotations[id],{
+br._G.tinsert(br.rotations[id],{
     name = rotationName,
     toggles = createToggles,
     options = createOptions,

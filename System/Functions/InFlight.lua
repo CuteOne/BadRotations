@@ -37,7 +37,7 @@ function InFlight.Hit(spellID, destinationGUID, sourceGUID)
 end
 
 function InFlight.Check(spellID, destination)
-    if InFlight.Tracker[spellID] and InFlight.Tracker[spellID].HitTime > _G.GetTime() and (not destination or not InFlight.Tracker[spellID].Target or br.GetUnitIsUnit(InFlight.Tracker[spellID].Target, destination)) then
+    if InFlight.Tracker[spellID] and InFlight.Tracker[spellID].HitTime > br._G.GetTime() and (not destination or not InFlight.Tracker[spellID].Target or br.GetUnitIsUnit(InFlight.Tracker[spellID].Target, destination)) then
         return true
     end
     return false
@@ -45,7 +45,7 @@ end
 
 function InFlight.Remain(spellID, destination)
     if InFlight.Check(spellID, destination) then
-        return InFlight.Tracker[spellID].HitTime - _G.GetTime()
+        return InFlight.Tracker[spellID].HitTime - br._G.GetTime()
     end
     return 0
 end
@@ -54,8 +54,8 @@ function InFlight.Add(spellID, destinationGUID, sourceGUID)
     if InFlight.Tracker[spellID] == nil then
         InFlight.Tracker[spellID] = {}
     end
-    InFlight.Tracker[spellID].CastTime = _G.GetTime()
-    InFlight.Tracker[spellID].HitTime = _G.GetTime() + InFlight.Hit(spellID, destinationGUID, sourceGUID)
+    InFlight.Tracker[spellID].CastTime = br._G.GetTime()
+    InFlight.Tracker[spellID].HitTime = br._G.GetTime() + InFlight.Hit(spellID, destinationGUID, sourceGUID)
     if destinationGUID == nil then
         return
     end

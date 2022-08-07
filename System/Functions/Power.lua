@@ -135,11 +135,11 @@ end
 function br.getRunePercent(Type)
 	Type = string.lower(Type)
 	local runePercent = 0
-	local runeCooldown = 0
+	-- local runeCooldown = 0
 	for i = 1, 6 do
 		if runeTable[i].Type == Type then --and runeTable[i].Cooldown > runeCooldown then
 			runePercent = runeTable[i].Percent
-			runeCooldown = runeTable[i].Cooldown
+			-- runeCooldown = runeTable[i].Cooldown
 		end
 	end
 	if br.getRuneCount(Type) == 2 then
@@ -203,7 +203,7 @@ function br.getCastRegen(spellId)
 	local castTime = br.getCastTime(spellId) or 0
 	local gcd = br.getSpellCD(61304)
 	if gcd == 0 then
-		gcd = _G.max(1, 1.5 / (1 + br._G.UnitSpellHaste("player") / 100))
+		gcd = br._G.max(1, 1.5 / (1 + br._G.UnitSpellHaste("player") / 100))
 	end
 	local castSeconds = (castTime > gcd) and castTime or gcd
 	power = power + regenRate * castSeconds

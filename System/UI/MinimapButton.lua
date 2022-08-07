@@ -1,7 +1,7 @@
 local _, br = ...
 -- Minimap Button
 function br:MinimapButton()
-	local dragMode = nil --"free", nil
+	-- local dragMode = nil --"free", nil
 	local function moveButton(self)
 		local centerX, centerY = br._G.Minimap:GetCenter()
 		local x, y = br._G.GetCursorPosition()
