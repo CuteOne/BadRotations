@@ -103,13 +103,13 @@ Raidable means if its good to raid with.
 
 |rotation|author |patch|coverage|status|    readiness     |last updated|
 |--------|-------|:---:|:------:|:----:|:----------------:|-----------:|
-|CuteOne |CuteOne|9.2.5|  100%  | Full |:white_check_mark:|  08/05/2022|
+|CuteOne |CuteOne|9.2.5|  100%  | Full |:white_check_mark:|  08/07/2022|
 
 - Vengeance
 
 |rotation|author |patch|coverage|status |    readiness     |last updated|
 |--------|-------|:---:|:------:|:-----:|:----------------:|-----------:|
-|CuteOne |CuteOne|9.2.5|  100%  |Limited|:white_check_mark:|  08/05/2022|
+|CuteOne |CuteOne|9.2.5|  100%  |Limited|:white_check_mark:|  08/07/2022|
 
 
 ### Druid
@@ -129,10 +129,10 @@ Raidable means if its good to raid with.
 
 - Guardian
 
-|rotation|   author    | patch |coverage|status |  readiness  |last updated|
-|--------|-------------|:-----:|:------:|:-----:|:-----------:|-----------:|
-|Kuu     |Kuukuu       |Unknown|Unknown |Unknown|:interrobang:|  02/28/2022|
-|CuteOne |ph34rt3hcute1|Unknown|Unknown |Unknown|:interrobang:|  02/10/2021|
+|rotation|author | patch |coverage| status |    readiness     |last updated|
+|--------|-------|:-----:|:------:|:------:|:----------------:|-----------:|
+|CuteOne |CuteOne|Unknown|  90%   |Inactive|:heavy_check_mark:|  08/07/2022|
+|Kuu     |Kuukuu |Unknown|Unknown |Unknown |  :interrobang:   |  02/28/2022|
 
 - Restoration
 
@@ -148,7 +148,7 @@ Raidable means if its good to raid with.
 
 |rotation|author |patch|coverage|status |    readiness     |last updated|
 |--------|-------|:---:|:------:|:-----:|:----------------:|-----------:|
-|CuteOne |CuteOne|9.2.5|  100%  |Limited|:white_check_mark:|  08/05/2022|
+|CuteOne |CuteOne|9.2.5|  100%  |Limited|:white_check_mark:|  08/07/2022|
 
 - Marksmanship
 
@@ -262,7 +262,7 @@ Raidable means if its good to raid with.
 
 |    rotation    |author | patch |coverage| status |    readiness     |last updated|
 |----------------|-------|:-----:|:------:|:------:|:----------------:|-----------:|
-|CuteOne         |CuteOne|Unknown|  90%   |Inactive|:heavy_check_mark:|  08/05/2022|
+|CuteOne         |CuteOne|Unknown|  90%   |Inactive|:heavy_check_mark:|  08/07/2022|
 |AssaS0ul - 9.0.5|221357 |Unknown|Unknown |Unknown |  :interrobang:   |  11/06/2021|
 
 - Outlaw
@@ -333,7 +333,7 @@ Raidable means if its good to raid with.
 
 | rotation  | author  | patch |coverage|status |    readiness     |last updated|
 |-----------|---------|:-----:|:------:|:-----:|:----------------:|-----------:|
-|CuteOne    |CuteOne  | 9.2.5 |  100%  |Limited|:heavy_check_mark:|  08/05/2022|
+|CuteOne    |CuteOne  | 9.2.5 |  100%  |Limited|:heavy_check_mark:|  08/07/2022|
 |WinterzArms|Hassliebe|Unknown|Unknown |Unknown|  :interrobang:   |  03/06/2021|
 
 - Fury
@@ -348,7 +348,7 @@ Raidable means if its good to raid with.
 
 |   rotation   | author | patch |coverage|status |    readiness     |last updated|
 |--------------|--------|:-----:|:------:|:-----:|:----------------:|-----------:|
-|CuteOne       |CuteOne | 9.2.5 |  100%  |Limited|:heavy_check_mark:|  08/05/2022|
+|CuteOne       |CuteOne | 9.2.5 |  100%  |Limited|:heavy_check_mark:|  08/07/2022|
 |Doparrior_Prot|Airwavez|Unknown|Unknown |Unknown|  :interrobang:   |  04/23/2021|
 |Panglo2       |Panglo  |Unknown|Unknown |Unknown|  :interrobang:   |  03/06/2021|
 
