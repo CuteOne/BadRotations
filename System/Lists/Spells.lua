@@ -3175,12 +3175,13 @@ br.lists.spells = {
               --  blindingPowder              = 256165,   commented it out as it created errors
             },
             runeforges                      = {
-                theRotten                   = 340091,
-                markOfTheMasterAssassin     = 340076,
+                deathlyShadows              = 340092,
                 essenceOfBloodfang          = 340079,
                 invigoratingShadowdust      = 340080,
+                markOfTheMasterAssassin     = 340076,
+                obedience                   = 354703,
                 tinyToxicBlade              = 340078,
-                deathlyShadows              = 340092,
+                theRotten                   = 340091,
             },
         },
     },
