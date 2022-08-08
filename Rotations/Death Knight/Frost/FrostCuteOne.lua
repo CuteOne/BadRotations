@@ -889,7 +889,7 @@ actionList.Standard = function()
             if cast.frostStrike() then ui.debug("Casting Frost Strike [Gathering Storm]") return true end
         end
         -- frost_strike,if=conduit.eradicating_blow&buff.eradicating_blow.stack=2|conduit.unleashed_frenzy&buff.unleashed_frenzy.remains<3&buff.unleashed_frenzy.up
-        if (conduit.eradicatingBlow and buff.eradicatingBlow.exists()) or (conduit.unleashedFrenzy.enabled and buff.unleashedFrenzy.remains() < 3 and buff.unleashedFury.exists()) then
+        if (conduit.eradicatingBlow and buff.eradicatingBlow.exists()) or (conduit.unleashedFrenzy.enabled and buff.unleashedFrenzy.remains() < 3 and buff.unleashedFrenzy.exists()) then
             if cast.frostStrike() then ui.debug("Casting Frost Strike [Unleashed Frenzy / Eradicating Blow]") return true end
         end
     end
