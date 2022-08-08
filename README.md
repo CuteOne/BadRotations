@@ -88,7 +88,7 @@ Raidable means if its good to raid with.
 
 |rotation|author | patch |coverage| status |    readiness     |last updated|
 |--------|-------|:-----:|:------:|:------:|:----------------:|-----------:|
-|CuteOne |CuteOne|Unknown|  90%   |Sporadic|:heavy_check_mark:|  08/05/2022|
+|CuteOne |CuteOne|Unknown|  90%   |Sporadic|:heavy_check_mark:|  08/08/2022|
 
 - Unholy
 
