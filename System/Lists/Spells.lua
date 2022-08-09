@@ -4298,6 +4298,7 @@ br.lists.spells = {
                 mightyBash                      = 5211,
                 defiledGround                   = 314565,
                 vileCorruption                  = 314392,
+                timeToFeed                      = 162415, -- Oshir Iron Docks
                 cascadingTerror                 = 314478,
             },
             essences                            = {
