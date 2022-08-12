@@ -11,29 +11,18 @@ import re
 FIELDS = {
     "Rotation": {
         "regex": re.compile(r"local rotationName\s*=\s*\"(.+)\""),
-        "default": lambda _, file: file.rstrip(".lua")
+        "default": lambda _, file: file.rstrip(".lua"),
     },
     "Author": {
         "regex": re.compile(r"-- Author =(.+)"),
-        "default": lambda repo, file: get_first_committer(repo, file)
+        "default": lambda repo, file: get_first_committer(repo, file),
     },
-    "Patch": {
-        "regex": re.compile(r"-- Patch =(.+)"),
-        "default": "Unknown"
-    },
-    "Coverage": {
-        "regex": re.compile(r"-- Coverage =(.+)"),
-        "default": "Unknown"
-    },
-    "Status": {
-        "regex": re.compile(r"-- Status =(.+)"),
-        "default": "Unknown"
-    },
-    "Readiness": {
-        "regex": re.compile(r"-- Readiness =(.+)"),
-        "default": "Untested"
-    },
+    "Patch": {"regex": re.compile(r"-- Patch =(.+)"), "default": "Unknown"},
+    "Coverage": {"regex": re.compile(r"-- Coverage =(.+)"), "default": "Unknown"},
+    "Status": {"regex": re.compile(r"-- Status =(.+)"), "default": "Unknown"},
+    "Readiness": {"regex": re.compile(r"-- Readiness =(.+)"), "default": "Untested"},
 }
+IN_FILTER = re.compile(r"[\[\]<>]+", re.UNICODE)
 ORDERED_CLASSES = (
     "Death Knight",
     "Demon Hunter",
@@ -79,11 +68,20 @@ def filter_filepath(path: PosixPath) -> bool:
         and (not path.match("_*.lua"))
     )
 
+
+def filter_input(in_str: str, max_len: int) -> str:
+    filtered_str = IN_FILTER.sub("", in_str)
+    return filtered_str[: min(max_len, len(filtered_str))]
+
+
 def get_first_committer(repo: Repo, filepath: PosixPath) -> str:
     # Can't use max-parents=0 trick because many "initial" commits were merge requests
     return list(repo.iter_commits(paths=filepath))[-1].author.name
 
-def build_rotation_entry(repo: Repo, repo_dir: PosixPath, rotation: PosixPath) -> Dict[str, str]:
+
+def build_rotation_entry(
+    repo: Repo, repo_dir: PosixPath, rotation: PosixPath
+) -> Dict[str, str]:
     script = rotation.read_text()
     result = {}
 
@@ -123,12 +121,12 @@ def build_spec_table(info_list: List[Dict[str, str]]) -> List[str]:
         date = datetime.fromtimestamp(x["Updated"]).strftime("%m/%d/%Y")
         table.append(
             [
-                x["Rotation"],
-                x["Author"],
-                x["Patch"],
-                x["Coverage"],
-                x["Status"],
-                x["Readiness"],
+                filter_input(x["Rotation"], max_len=32),
+                filter_input(x["Author"], max_len=32),
+                filter_input(x["Patch"], max_len=16),
+                filter_input(x["Coverage"], max_len=32),
+                filter_input(x["Status"], max_len=32),
+                filter_input(x["Readiness"], max_len=32),
                 date,
             ]
         )
@@ -177,7 +175,9 @@ def main(repo_dir: str) -> None:
     for rotation in rotations:
         wow_class, wow_spec = rotation.relative_to(rotations_dir).parts[:2]
         try:
-            entries[wow_class][wow_spec].append(build_rotation_entry(repo, repo_dir, rotation))
+            entries[wow_class][wow_spec].append(
+                build_rotation_entry(repo, repo_dir, rotation)
+            )
         except:
             # Continue if a rotation fails to parse
             pass
