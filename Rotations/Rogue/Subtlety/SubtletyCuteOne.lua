@@ -869,10 +869,10 @@ local function runRotation()
     var.sndCondition = buff.sliceAndDice.exists() or ui.useAOE(10,6)
     -- variable,name=is_next_cp_animacharged,if=covenant.kyrian,value=combo_points=1&buff.echoing_reprimand_2.up|combo_points=2&buff.echoing_reprimand_3.up|combo_points=3&buff.echoing_reprimand_4.up|combo_points=4&buff.echoing_reprimand_5.up
     var.isNextCpAnimaCharged = covenant.kyrian.active
-        and ((comboPoints == 1 and buff.echoindReprimand.stack() == 2)
-        or (comboPoints == 2 and buff.echoindReprimand.stack() == 3)
-        or (comboPoints == 3 and buff.echoindReprimand.stack() == 4)
-        or (comboPoints == 4 and buff.echoindReprimand.stack() == 5))
+        and ((comboPoints == 1 and buff.echoingReprimand.stack() == 2)
+        or (comboPoints == 2 and buff.echoingReprimand.stack() == 3)
+        or (comboPoints == 3 and buff.echoingReprimand.stack() == 4)
+        or (comboPoints == 4 and buff.echoingReprimand.stack() == 5))
     -- variable,name=effective_combo_points,value=effective_combo_points
     var.effectiveComboPoints = var.effectiveComboPoints or 0
     -- variable,name=effective_combo_points,if=covenant.kyrian&effective_combo_points>combo_points&combo_points.deficit>2&time_to_sht.4.plus<0.5&!variable.is_next_cp_animacharged,value=combo_points
