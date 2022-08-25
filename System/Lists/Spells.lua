@@ -3130,6 +3130,7 @@ br.lists.spells = {
                 tricksOfTheTrade            = 57934,
                 vanish                      = 1858,
                 woundPoison                 = 8679,
+                echoingReprimand            = 323558,
             },
             conduits                        = {
                 lashingScars                = 341310,
