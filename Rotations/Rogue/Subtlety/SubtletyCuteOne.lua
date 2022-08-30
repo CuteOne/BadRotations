@@ -605,7 +605,7 @@ actionList.Finish = function()
         if cast.sliceAndDice() then ui.debug("Casting Slice and Dice [Finish]") return true end
     end
     -- slice_and_dice,if=variable.premed_snd_condition&cooldown.shadow_dance.charges_fractional<1.75&buff.slice_and_dice.remains<cooldown.symbols_of_death.remains&(cooldown.shadow_dance.ready&buff.symbols_of_death.remains-buff.shadow_dance.remains<1.2)
-    if cast.able.sliceAndDice() and (var.premedSndCondition and charges.shadowDance.frac() < 1.75 and buff.sliceAndDice.remain() < cd.symbolsOfDeath.remains() and (not cd.shadowDance.exists() and buff.symbolsOfDeath.remain() - buff.shadowDance.remain() < 1.2)) then
+    if cast.able.sliceAndDice() and (var.premedSndCondition and charges.shadowDance.frac() < 1.75 and buff.sliceAndDice.remain() < cd.symbolsOfDeath.remain() and (not cd.shadowDance.exists() and buff.symbolsOfDeath.remain() - buff.shadowDance.remain() < 1.2)) then
         if cast.sliceAndDice() then ui.debug("Casting Slice and Dice [Finish - Premed]") return true end
     end
     -- Rupture
@@ -859,7 +859,7 @@ local function runRotation()
     if ui.useAOE(10,4) then var.manyTargets = 1 else var.manyTargets = 0 end
     if buff.shadowBlades.exists() then var.shadowed = 1 else var.shadowed = 0 end
     if covenant.necrolord.active then var.necro = 1 else var.necro = 0 end
-    if covenant.kyrian.active and equiped.tier(28) >= 2 and cd.symbolsOfDeath.Remain() >=8 then var.kyrian2T28Symbols = 1 else var.kyrian2T28Symbols = 0 end
+    if covenant.kyrian.active and equiped.tier(28) >= 2 and cd.symbolsOfDeath.remain() >=8 then var.kyrian2T28Symbols = 1 else var.kyrian2T28Symbols = 0 end
     if unit.combatTime() < 10 then var.combatStart = 1 else var.combatStart = 0 end
     if (buff.theRotten.exists() or runeforge.akaarisSoulFragment.equiped or (equiped.tier(28) >= 2 and talent.shadowFocus)) then var.shurikenStormNumeric = 1 else var.shurikenStormNumeric = 0 end
 
@@ -891,7 +891,7 @@ local function runRotation()
     -- variable,name=shd_threshold,value=cooldown.shadow_dance.charges_fractional>=(1.75-0.75*(covenant.kyrian&set_bonus.tier28_2pc&cooldown.symbols_of_death.remains>=8))
     var.shdThreshold = charges.shadowDance.frac() >= (1.75 - 0.75 * var.kyrian2T28Symbols)
     -- variable,name=shd_threshold,if=runeforge.the_rotten,value=cooldown.shadow_dance.charges_fractional>=1.75|cooldown.symbols_of_death.remains>=16
-    var.shdThreshold = runeforge.theRotten.equiped and (charges.shadowDance.frac() >= 1.75 or cd.symbolsOfDeath.remains() >= 16)
+    var.shdThreshold = runeforge.theRotten.equiped and (charges.shadowDance.frac() >= 1.75 or cd.symbolsOfDeath.remain() >= 16)
     -- Shd Combo Points
     -- variable,name=shd_combo_points,value=combo_points.deficit>=2+buff.shadow_blades.up
     var.shdComboPoints = comboPointsDeficit >= 2 + var.shadowed
