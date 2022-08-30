@@ -276,7 +276,7 @@ Raidable means if its good to raid with.
 
 |   rotation    |    author    | patch |coverage|status |    readiness     |last updated|
 |---------------|--------------|:-----:|:------:|:-----:|:----------------:|-----------:|
-|CuteOne        |CuteOne       | 9.2.5 |  100%  |Limited|:heavy_check_mark:|  08/25/2022|
+|CuteOne        |CuteOne       | 9.2.5 |  100%  |Limited|:heavy_check_mark:|  08/30/2022|
 |SubS0ul - 9.0.5|Jakub Kulewicz|Unknown|Unknown |Unknown|  :interrobang:   |  11/06/2021|
 
 
