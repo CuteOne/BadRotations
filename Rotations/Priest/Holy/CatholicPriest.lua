@@ -14,11 +14,16 @@
 
 local rotationName = "CatholicPriest"
 
-local IsSwimming, IsFlying, GetInstanceInfo, tinsert, GetCurrentKeyBoardFocus,GetSpellInfo, GetItemCooldown, GetSpellCooldown, IsMounted = 
+local IsSwimming, IsFlying, GetInstanceInfo, tinsert, GetCurrentKeyBoardFocus,GetSpellInfo, GetItemCooldown, GetSpellCooldown, IsMounted =
 _G.IsSwimming, _G.IsFlying, _G.GetInstanceInfo, _G.tinsert, _G.GetCurrentKeyBoardFocus, _G.GetSpellInfo, _G.GetItemCooldown, _G.GetSpellCooldown, _G.IsMounted
 
 --Edit of HolyLedecky Profile. Thanks.
 --Editedit of Auras Edit of HolyLedeckys Profile. Also C&P alot from Fengs profile. Thanks a bunch
+
+
+--------
+-- Nightfae
+-- Kyrian
 
 ---------------
 --- Toggles ---
@@ -57,6 +62,13 @@ local function createToggles()
 		[2] = { mode = "Off", value = 2 , overlay = "DPS Disabled", tip = "DPS Disabled", highlight = 0, icon = br.player.spell.renew }
 	};
 	br.ui:createToggle(DPSModes,"DPS",5,0)
+	-- PI Button
+	local PIModes = {
+		[1] = {	mode = "On", value = 1,	overlay = "Auto PI ON",	tip = "Auto PI ON",	highlight = 1,	icon = br.player.spell.powerInfusion},
+		[2] = {	mode = "Off", value = 2, overlay = "Auto PI OFF", tip = "Auto PI OFF", highlight = 0, icon = br.player.spell.powerInfusion}
+	};
+	br.ui:createToggle(PIModes,"PI", 6, 0)
+
 end
 
 --------------
@@ -86,7 +98,7 @@ local colorLegendary    = "|cffff8000"
 ---------------
 local StunsBlackList="167876|169861|168318|165824|165919|171799|168942|167612|169893|167536|173044|167731|165137|167538|168886|170572"
 local StunSpellList="326450|328177|331718|331743|334708|333145|321807|334748|327130|327240|330532|328400|330423|294171|164737|330586|329224|328429|295001|296355|295001|295985|330471|329753|296748|334542|242391|322169|324609"
-local HWCPrioList = "164702|164362|170488|165905|165251|165556"
+local HWCPrioList = "164702|164362|170488|165905|165251|165556|355640|347721"
 
 ---------------
 --- OPTIONS ---
@@ -98,92 +110,72 @@ local function createOptions()
 
 		-- General Options
 		section = br.ui:createSection(br.ui.window.profile, "General - Version 1.02")
-		-- Dummy DPS Test
-		br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
-		-- OOC Healing
 		br.ui:createCheckbox(section,"OOC Healing","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFout of combat healing|cffFFBB00.")
-		--Resurrection
         br.ui:createCheckbox(section, "Resurrection")
         br.ui:createDropdownWithout(section, "Resurrection - Target", {"|cff00FF00Target", "|cffFF0000Mouseover", "|cffFFBB00Auto"}, 1, "|cffFFFFFFTarget to cast on")
-		-- Auto Buff Fortitude
 		br.ui:createCheckbox(section,"Power Word: Fortitude", "Check to auto buff Fortitude on party.")
-		-- Trinkets
 		br.ui:createSpinner(section, "Trinket 1", 70, 0, 100, 5, "Health Percent to Cast At")
 		br.ui:createSpinnerWithout(section, "Min Trinket 1 Targets", 3, 1, 40, 1, "", "Minimum Trinket 1 Targets(This includes you)", true)
 		br.ui:createDropdownWithout(section, "Trinket 1 Mode", { "|cffFFFFFFNormal", "|cffFFFFFFTarget", "|cffFFFFFFGround" }, 1, "", "")
 		br.ui:createSpinner(section, "Trinket 2", 70, 0, 100, 5, "Health Percent to Cast At")
 		br.ui:createSpinnerWithout(section, "Min Trinket 2 Targets", 3, 1, 40, 1, "", "Minimum Trinket 2 Targets(This includes you)", true)
 		br.ui:createDropdownWithout(section, "Trinket 2 Mode", { "|cffFFFFFFNormal", "|cffFFFFFFTarget", "|cffFFFFFFGround" }, 1, "", "")
-		-- Racial
 		br.ui:createCheckbox(section,"Arcane Torrent","Uses Blood Elf Arcane Torrent for Mana")
 		br.ui:createSpinnerWithout(section, "Arcane Torrent Mana",  50,  0,  100,  1,  "Mana Percent to Cast At")
-		--  Mana Potion Channeled
 		br.ui:createSpinner(section, "Mana Potion Channeled",  50,  0,  100,  1,  "Mana Percent to Cast At")
-		-- Angelic Feather
 		br.ui:createSpinner(section, "Angelic Feather",  2,  0,  100,  1,  "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAngelic Feather usage|cffFFBB00.")
-		-- Bursting Stack
 		br.ui:createSpinnerWithout(section, "Bursting", 1, 1, 10, 1, "", "|cffFFFFFFWhen Bursting stacks are above this amount, CDs will be triggered.")
 		br.ui:checkSectionState(section)
 
 		-- Dispel and Purify Settings
 		section = br.ui:createSection(br.ui.window.profile, colorwarlock.."Dispel and Purify Options")
-		-- Dispel Magic
 		br.ui:createCheckbox(section,"Dispel Magic","Will dispel enemy's buffs.")
-		-- Mass Dispel Hotkey
 		br.ui:createDropdown(section,"Mass Dispel Hotkey", br.dropOptions.Toggle, 6, "Hold down the set hotkey and Mass Dispel will be casted at mouse cursor on next GCD.")
-		-- Purify
 		br.ui:createCheckbox(section,"Purify","Enable use of Purify for removing Magic or Disease debuff.")
-		-- Mass Dispel as Purify Alternative
 		br.ui:createCheckbox(section,"Mass Dispel Alternative","Use Mass Dispel as an alternative to Purify if it is on cooldown.")
 		br.ui:checkSectionState(section)
 
-		section = br.ui:createSection(br.ui.window.profile, colormage.. "HWC Interrupts/Stuns")
+		-- Covenants
+		section = br.ui:createSection(br.ui.window.profile, colordk.. "Covenants")
+		br.ui:createCheckbox(section,"Fae Guardians","Use NF Covenant")
+		br.ui:createDropdownWithout(section, "Fae Guardians Mode", { "|cffFFFFFFDR", "|cffFFFFFFCDR", }, 1, "", "")
+		br.ui:checkSectionState(section)
+
 		-- Holy Word: Chastise
+		section = br.ui:createSection(br.ui.window.profile, colormage.. "HWC Interrupts/Stuns")
 		br.ui:createCheckbox(section, "Holy Word: Chastise", "Uses HW:C for Interrupts and Stuns in the corresponding Lists")
 		br.ui:createCheckbox(section, "Use HW:Chastise for DPS")
 		br.ui:checkSectionState(section)
 
+
 		-- Cooldown Options
 		section = br.ui:createSection(br.ui.window.profile, colorLegendary.."Cooldowns")
-		--Holy Word: Salvation
 		br.ui:createSpinner(section, "Holy Word: Salvation",  60,  0,  100,  5,  "Health Percent to Cast At")
 		br.ui:createSpinnerWithout(section, "Holy Word: Salvation Targets",  6,  0,  40,  1,  "Minimum Targets below Health Percent before casting.")
-		-- Divine Hymn
 		br.ui:createSpinner(section, "Divine Hymn",  50,  0,  100,  5,  "Health Percent to Cast At")
 		br.ui:createSpinnerWithout(section, "Divine Hymn Targets",  3,  0,  40,  1,  "Minimum Divine Hymn Targets")
-		-- Apotheosis
 		br.ui:createSpinner(section, "Apotheosis",  50,  0,  100,  5,  "Health Percent to Cast At")
 		br.ui:createSpinnerWithout(section, "Apotheosis Targets",  3,  0,  40,  1,  "Minimum Apotheosis Targets")
-		-- Guardian Spirit
 		br.ui:createSpinner(section, "Guardian Spirit",  30,  0,  100,  5,  "Health Percent to Cast At")
-		-- Guardian Spirit Tank Only
 		br.ui:createCheckbox(section,"Guardian Spirit Tank Only")
-		-- Leap of Faith
+		br.ui:createCheckbox(section,"Use PI automatically")
 		br.ui:createSpinner(section, "Leap of Faith",  20,  0,  100,  5,  "Health Percent to Cast At")
 		br.ui:checkSectionState(section)
 
 		-- Defensive Options
 		section = br.ui:createSection(br.ui.window.profile, colorwarrior.."Defensive")
 		br.player.module.BasicHealing(section)
-		-- Desperate Prayer
 		br.ui:createSpinner(section, "Desperate Prayer",  80,  0,  100,  5,  "|cffFFBB00Health Percentage to use at")
-		--Fade
 		br.ui:createSpinner(section, "Fade",  95,  0,  100,  1,  "|cffFFFFFFHealth Percent to Cast At. Default: 95")
 		br.ui:checkSectionState(section)
 
 		-- Healing Options
 		section = br.ui:createSection(br.ui.window.profile, colorGreen.."Healing Options")
-		-- Prayer of Mending
 		br.ui:createSpinner(section, "Prayer of Mending",  100,  0,  100,  1,  "Health Percent to Cast At")
-		-- Heal
-		br.ui:createSpinner(section, "Heal",  70,  0,  100,  5,  "Health Percent to Cast At")
-		-- Flash Heal
+		br.ui:createSpinner(section, "Heal",  80,  0,  100,  5,  "Health Percent to Cast At")
 		br.ui:createSpinner(section, "Flash Heal",  60,  0,  100,  5,  "Health Percent to Cast At")
-		-- Flash Heal Surge of Light
 		br.ui:createSpinner(section, "Flash Heal Surge of Light",  80,  0,  100,  5,  "Health Percent to Cast At")
-		-- Flash Heal Emergency
 		br.ui:createSpinner(section, "Flash Heal Emergency",  40,  0,  100,  5,  "Overrides most settings to prioritize casting Flash Heal")
-		-- Flash Heal Emergency Tanks Only
 		br.ui:createCheckbox(section,"Tanks Only","Will only use Flash Heal Emergency on Tanks only.")
 		br.ui:checkSectionState(section)
 
@@ -198,6 +190,7 @@ local function createOptions()
 		--Apotheosis Mode
 		section = br.ui:createSection(br.ui.window.profile, colorLegendary.."Apotheosis Settings")
 		br.ui:createCheckbox(section, "Apotheosis Mode","Will Priotize use of Flash Heal, PoH to get Holy Words off CDs")
+		br.ui:createSpinner(section, "Apotheosis Heal",  85,  0,  100,  1,  "Use Flash Heal while Apotheosis is active.")
 		br.ui:createSpinner(section, "Apotheosis Flash Heal",  85,  0,  100,  1,  "Use Flash Heal while Apotheosis is active.")
 		br.ui:createSpinnerWithout(section, "Apotheosis Serenity CD",  30,  0,  60,  1,  "Use Flash Heal only if Serenity CD is above this.")
 		br.ui:createSpinner(section, "Apotheosis Prayer of Healing",  90,  0,  100,  1,  "Use PoH while Apotheosis is active.")
@@ -205,36 +198,42 @@ local function createOptions()
 		br.ui:createSpinnerWithout(section, "Apotheosis PoH CD",  30,  0,  60,  1,  "Use PoH only if Sanctify CD is above this.")
 		br.ui:checkSectionState(section)
 
+		-- Holy Word settings
 		section = br.ui:createSection(br.ui.window.profile, colorshaman.."Holy Word Settings")
-		-- Holy Word: Serenity
-		br.ui:createSpinner(section, "Holy Word: Serenity",  50,  0,  100,  5,  "Health Percent to Cast At")
-		-- Holy Word: Sanctify
+		br.ui:createSpinner(section, "Holy Word: Serenity",  75,  0,  100,  5,  "Health Percent to Cast At")
 		br.ui:createSpinner(section, "Holy Word: Sanctify",  80,  0,  100,  5,  "Health Percent to Cast At")
 		br.ui:createSpinnerWithout(section, "Holy Word: Sanctify Targets",  3,  0,  40,  1,  "Minimum Holy Word: Sanctify Targets")
-		--br.ui:createCheckbox(section,"Use Old HW Sanctify","Uses the old method of HW Sanctify. Causes no freezes, but less effective than the current method.")
-		-- Holy Word: Sanctify Hot Key
 		br.ui:createDropdown(section, "Holy Word: Sanctify HK", br.dropOptions.Toggle, 10, colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." Holy Word: Sanctify Hot Key Usage.")
 		br.ui:checkSectionState(section)
+
+		-- Aoe Healing
 		section = br.ui:createSection(br.ui.window.profile, colordh.."AOE Healing")
-		-- Prayer of Healing
 		br.ui:createSpinner(section, "Prayer of Healing",  70,  0,  100,  5,  "Health Percent to Cast At")
 		br.ui:createSpinnerWithout(section, "Prayer of Healing Targets",  3,  0,  40,  1,  "Minimum Prayer of Healing Targets")
-		-- Circle of Healing
 		br.ui:createSpinner(section, "Circle of Healing",  75,  0,  100,  5,  "Health Percent to Cast At")
         	br.ui:createSpinnerWithout(section, "Circle of Healing Targets",  3,  0,  40,  1,  "Minimum Circle of Healing Targets")
-		-- Divine Star
 		br.ui:createSpinner(section, "Divine Star",  80,  0,  100,  5,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."Divine Star usage.", colorWhite.."Health Percent to Cast At")
 		br.ui:createSpinnerWithout(section, "Min Divine Star Targets",  3,  1,  40,  1,  colorBlue.."Minimum Divine Star Targets "..colorGold.."(This includes you)")
-		-- Halo
 		br.ui:createSpinner(section, "Halo",  70,  0,  100,  5,  "Health Percent to Cast At")
 		br.ui:createSpinnerWithout(section, "Halo Targets",  3,  0,  40,  1,  "Minimum Halo Targets")
 		br.ui:checkSectionState(section)
+
+
 		-- Player Emergency Healing
 		section = br.ui:createSection(br.ui.window.profile, colorRed.."Self-Heal Emergency")
 		br.ui:createSpinner(section, "Serenity On Me",  25,  0,  100,  5,  "Will prioritize using Serenity on myself once CD is up or when it is available if my HP drops below this")
 		br.ui:createSpinner(section, "Flash Heal On Me",  25,  0,  100,  5,  "Will spam Flash Heal when my HP is below this.")
 		br.ui:checkSectionState(section)
 
+		-- DPS
+		section = br.ui:createSection(br.ui.window.profile, colorLegendary.."DPS")
+		br.ui:createCheckbox(section, "Smite")
+		br.ui:createCheckbox(section, "Holy Fire")
+		br.ui:createCheckbox(section, "SW:P")
+		br.ui:createCheckbox(section, "Divine Star DPS")
+		br.ui:checkSectionState(section)
+
+		-- Lists
 		section = br.ui:createSection(br.ui.window.profile,  "Lists")
 		br.ui:createScrollingEditBoxWithout(section,"Stuns Blacklist Units", StunsBlackList, "List of units to blacklist when HW:C", 240, 50)
 		br.ui:createScrollingEditBoxWithout(section,"Stun Spells", StunSpellList, "List of spells to stun with auto stun function", 240, 50)
@@ -242,10 +241,76 @@ local function createOptions()
 		br.ui:checkSectionState(section)
 
 	end
+
+	local function PI_Spells()
+
+        section = br.ui:createSection(br.ui.window.profile, colorwarrior.."Warrior")
+		br.ui:createCheckbox(section, "PI Recklessness")
+		br.ui:checkSectionState(section)
+
+		section = br.ui:createSection(br.ui.window.profile, colorpala.."Paladin")
+		br.ui:createCheckbox(section, "PI Wings")
+        br.ui:checkSectionState(section)
+
+		section = br.ui:createSection(br.ui.window.profile, colorhunter.."Hunter")
+		br.ui:createCheckbox(section, "PI Trueshot")
+		br.ui:createCheckbox(section, "PI Coordinated Assault")
+		br.ui:createCheckbox(section, "PI Aspect of the Wild")
+        br.ui:checkSectionState(section)
+
+		section = br.ui:createSection(br.ui.window.profile, colorrogue.."Rogue")
+		br.ui:createCheckbox(section, "PI Adrenaline Rush")
+		br.ui:createCheckbox(section, "PI Shadow Blades")
+        br.ui:checkSectionState(section)
+
+		section = br.ui:createSection(br.ui.window.profile, colorpriest.."Priest")
+		br.ui:createCheckbox(section, "SOON")
+        br.ui:checkSectionState(section)
+
+		section = br.ui:createSection(br.ui.window.profile, colordk.."Deathknight")
+		br.ui:createCheckbox(section, "SOON")
+        br.ui:checkSectionState(section)
+
+		section = br.ui:createSection(br.ui.window.profile, colorshaman.."Shaman")
+		br.ui:createCheckbox(section, "PI Stormkeeper")
+		br.ui:createCheckbox(section, "PI Feral Spirits")
+        br.ui:checkSectionState(section)
+
+		section = br.ui:createSection(br.ui.window.profile, colormage.."Mage")
+		br.ui:createCheckbox(section, "PI Combustion")
+		br.ui:createCheckbox(section, "PI Icy Veins")
+		br.ui:createCheckbox(section, "PI Arcane Power")
+        br.ui:checkSectionState(section)
+
+		section = br.ui:createSection(br.ui.window.profile, colorwarlock.."Warlock")
+		br.ui:createCheckbox(section, "PI Infernal")
+        br.ui:checkSectionState(section)
+
+		section = br.ui:createSection(br.ui.window.profile, colormonk.."Monk")
+		br.ui:createCheckbox(section, "SOON")
+        br.ui:checkSectionState(section)
+
+		section = br.ui:createSection(br.ui.window.profile, colordrood.."Druid")
+		br.ui:createCheckbox(section, "SOON")
+        br.ui:checkSectionState(section)
+
+		section = br.ui:createSection(br.ui.window.profile, colordh.."Demon Hunter")
+		br.ui:createCheckbox(section, "PI Meta")
+        br.ui:checkSectionState(section)
+
+    end
+
 	optionTable = {{
 		[1] = "Rotation Options",
 		[2] = rotationOptions,
-	}}
+	},
+
+	{
+		[1] = "\124cffff6060PI Spells\124r",
+		[2] = PI_Spells,
+	}
+
+}
 	return optionTable
 end
 
@@ -289,6 +354,10 @@ local function runRotation()
 		local ttm                                           = br.player.power.mana.ttm()
 		local units                                         = br.player.units
 		local ui            								= br.player.ui
+		local var 											= {}
+		local covenant 										= br.player.covenant
+		local thisUnit
+		local runeforge                                     = br.player.runeforge
 
 		local lowest                                        = {}    --Lowest Unit
 		lowest.hp                                           = br.friend[1].hp
@@ -301,6 +370,8 @@ local function runRotation()
 		local averageHealth                                 = 0
 		local tanks = br.getTanksTable()
 		local burst = nil
+
+		-- Variables
 
 		units.get(5)
 		units.get(8,true)
@@ -358,7 +429,98 @@ local function runRotation()
 		--------------------
 		--- Action Lists ---
 		--------------------
+		-- Action List Covenants
+		local function actionList_Covenants()
+			if br.isChecked("Fae Guardians") and cd.faeGuardians.ready() and covenant.nightFae.active then
+				for i = 1, #br.friend do
+					thisUnit = br.friend[i].unit
+						local PITarget = select(2, br._G.UnitClass(thisUnit))
+						if not br.GetUnitIsUnit("player", thisUnit) then
+							br.addonDebug("Buff Unit is : " .. tostring(thisUnit) .. " Class =" .. PITarget)
+							if
+									-- MAGE
+									PITarget == "MAGE"
+									and (br.UnitBuffID(thisUnit, 190319) -- Combustion
+									or br.UnitBuffID(thisUnit, 12472) -- Icy Veins
+									or br.UnitBuffID(thisUnit, 12042)) -- Arcane Power
+									-- DRUID
+									or PITarget == "DRUID"
+									and (br.UnitBuffID(thisUnit, 194223) -- Celestial Alignment
+									or br.UnitBuffID(thisUnit, 102560)) -- Incarnation: Chosen of Elune
+									-- WARRIOR
+									or PITarget == "WARRIOR" and br.UnitBuffID(thisUnit, 316828) -- recklessness
+									-- WARLOCK
+									or PITarget == "WARLOCK" and br.UnitBuffID(thisUnit, 266087) -- Infernal // Rainy Thingy
+									-- PRIEST
+									or PITarget == "PRIEST" and br.UnitBuffID(thisUnit, 21562) -- Bullshit for now
+									-- ROGUE
+									or PITarget == "ROGUE" and br.UnitBuffID(thisUnit, 121471) -- Shadow Blades
+									-- PALARIN
+									or PITarget == "PALADIN" and br.UnitBuffID(thisUnit, 31884) -- Wings
+									-- HUNTER
+									or PITarget == "HUNTER" and (br.UnitBuffID(thisUnit, 288613) -- Trueshot
+									or br.UnitBuffID(thisUnit, 266779) -- Coordinated Assault
+									or br.UnitBuffID(thisUnit, 193530)) -- Aspect of the Wild
+									-- SHAMAN
+									or PITarget == "SHAMAN" and (br.UnitBuffID(thisUnit, 191634) -- Stormkeeper
+									or br.UnitBuffID(thisUnit, 51533)) -- Feral Spirits
+									-- DEMONHUNTER
+									or PITarget == "DEMONHUNTER" and br.UnitBuffID(thisUnit, 191427) -- meta
+									--or PITarget == "DEATHKNIGHT" and (br.UnitBuffID(thisUnit, 275699) or br.UnitBuffID(thisUnit, 63560) or br.UnitBuffID(thisUnit, 42650))
+							then
+								if cast.powerInfusion(thisUnit) then return true end
+							end
+						end
+				end
+			end
+		end
 
+		-- Action List PI
+		local function actionList_PI()
+				if cd.powerInfusion.ready() and mode.pI == 1 then   --br.player.ui.mode.AutoPI == 1  // br.isChecked("Use PI automatically")
+					for i = 1, #br.friend do
+						thisUnit = br.friend[i].unit
+							local PITarget = select(2, br._G.UnitClass(thisUnit))
+							if not br.GetUnitIsUnit("player", thisUnit) then
+								br.addonDebug("Buff Unit is : " .. tostring(thisUnit) .. " Class =" .. PITarget)
+							if
+									-- MAGE
+									PITarget == "MAGE" and (br.isChecked("PI Combustion") and br.UnitBuffID(thisUnit, 190319)) -- Combustion
+									or (br.isChecked("PI Icy Veins") and br.UnitBuffID(thisUnit, 12472)) -- Icy Veins
+									or (br.isChecked("PI Arcane Power") and br.UnitBuffID(thisUnit, 12042)) -- Arcane Power
+									-- DRUID
+									or PITarget == "DRUID"
+									and (br.UnitBuffID(thisUnit, 194223) -- Celestial Alignment
+									or br.UnitBuffID(thisUnit, 102560)) -- Incarnation: Chosen of Elune
+									-- WARRIOR
+									or PITarget == "WARRIOR" and (br.isChecked("PI Recklessness") and br.UnitBuffID(thisUnit, 316828)) -- recklessness
+									-- WARLOCK
+									or PITarget == "WARLOCK" and (br.isChecked("PI Infernal") and br.UnitBuffID(thisUnit, 266087)) -- Infernal // Rainy Thingy
+									-- PRIEST
+									or PITarget == "PRIEST" and br.UnitBuffID(thisUnit, 316828) -- Bullshit for now
+									-- ROGUE
+									or PITarget == "ROGUE" and (br.isChecked("PI Shadow Blades") and br.UnitBuffID(thisUnit, 121471)) -- Shadow Blades
+									or (br.isChecked("PI Adrenaline Rush") and br.UnitBuffID(thisUnit, 13750)) -- Adrenaline RUsh
+									-- PALARIN
+									or PITarget == "PALADIN" and (br.isChecked("PI Wings") and br.UnitBuffID(thisUnit, 31884)) -- Wings
+									-- HUNTER
+									or PITarget == "HUNTER" and (br.isChecked("PI Trueshot") and br.UnitBuffID(thisUnit, 288613)) -- Trueshot
+									or (br.isChecked("PI Coordinated Assault") and br.UnitBuffID(thisUnit, 266779)) -- Coordinated Assault
+									or (br.isChecked("PI Aspect of the Wild") and br.UnitBuffID(thisUnit, 193530)) -- Aspect of the Wild
+									-- SHAMAN
+									or PITarget == "SHAMAN" and (br.isChecked("PI Stormkeeper") and br.UnitBuffID(thisUnit, 191634)) -- Stormkeeper
+									or (br.isChecked("PI Feral Spirits") and br.UnitBuffID(thisUnit, 51533)) -- Feral Spirits
+									-- DEMONHUNTER
+									or PITarget == "DEMONHUNTER" and (br.isChecked("PI Meta") and br.getBuffRemain(thisUnit,191427) >10 and br.UnitBuffID(thisUnit, 191427)) -- meta
+									--or PITarget == "DEATHKNIGHT" and (br.UnitBuffID(thisUnit, 275699) or br.UnitBuffID(thisUnit, 63560) or br.UnitBuffID(thisUnit, 42650))
+							then
+								if cast.powerInfusion(thisUnit) then return true end
+							end
+							end
+					end
+				end
+		end
+		-- Action List - Holy Word Chastise
 		local function actionList_HWC()
 
 			if cd.holyWordChastise.ready() then
@@ -391,7 +553,7 @@ local function runRotation()
 				end
 			end
 
-		end
+		end -- End Action List Holy Word Chastise
 		-- Action List - Extras
 		local function actionList_Extras()
 
@@ -437,13 +599,31 @@ local function runRotation()
 				br.addonDebug("Casting Mass Dispel")
 				return
 			end
-			if br.isChecked("Power Word: Fortitude") and br.timer:useTimer("PW:F Delay", math.random(120,300)) then
-                for i = 1, #br.friend do
-                    if not buff.powerWordFortitude.exists(br.friend[i].unit,"any") and br.getDistance("player", br.friend[i].unit) < 40 and not br.GetUnitIsDeadOrGhost(br.friend[i].unit) and br._G.UnitIsPlayer(br.friend[i].unit) then
-                        if cast.powerWordFortitude() then br.addonDebug("Casting Power Word: Fortitude") return end
-                    end
-                end
-			end
+		    -- Battle Shout Check
+			if br.timer:useTimer("PWFTimer", math.random(15,40)) then
+				if br.isChecked("Power Word: Fortitude") then
+					if cast.able.powerWordFortitude() then
+						for i = 1, #br.friend do
+							local thisUnit = br.friend[i].unit
+							if not br.GetUnitIsDeadOrGhost(thisUnit)
+									and br.getDistance(thisUnit) < 40
+									and br.getBuffRemain(thisUnit, spell.powerWordFortitude) < 60
+							then
+								if cast.powerWordFortitude() then
+									return true
+								end
+							end
+						end
+					end
+				end
+			  end
+			--if br.isChecked("Power Word: Fortitude") then
+            --    for i = 1, #br.friend do
+            --       if not buff.powerWordFortitude.exists(br.friend[i].unit,"any") and br.getDistance("player", br.friend[i].unit) < 40 and not br.GetUnitIsDeadOrGhost(br.friend[i].unit) and br._G.UnitIsPlayer(br.friend[i].unit) then
+            --            if cast.powerWordFortitude() then br.addonDebug("Casting Power Word: Fortitude") return end
+            --        end
+            --    end
+			--end
 		end -- End Action List - Extras
 		-- Action List - Pre-Combat
 		local function actionList_OOCHealing()
@@ -451,7 +631,7 @@ local function runRotation()
 			if br.isChecked("Renew on Tanks")  then
 				for i = 1, #br.friend do
 					if br.friend[i].hp <= br.getValue("Renew on Tanks") and not buff.renew.exists(br.friend[i].unit) and br._G.UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
-						if cast.renew(br.friend[i].unit) then br.addonDebug("Casting Renew") return end
+						if cast.renew(br.friend[i].unit) then br.addonDebug("Casting Renew OOC") return end
 					end
 				end
 			end
@@ -459,37 +639,47 @@ local function runRotation()
 			if br.isChecked("Renew") and renewCount < br.getOptionValue("Renew Limit") then
 				for i = 1, #br.friend do
 					if br.friend[i].hp <= br.getValue("Renew") and not buff.renew.exists(br.friend[i].unit) then
-						if cast.renew(br.friend[i].unit) then br.addonDebug("Casting Renew") return end
+						if cast.renew(br.friend[i].unit) then br.addonDebug("Casting Renew OOC") return end
+					end
+				end
+			end
+
+			-- Prayer of Mending
+			if br.isChecked("Prayer of Mending") then
+				for i = 1, #br.friend do
+					if br.friend[i].hp <= br.getValue("Prayer of Mending") and not buff.prayerOfMending.exists(br.friend[i].unit) then
+						if cast.prayerOfMending(br.friend[i].unit) then br.addonDebug("Casting Prayer of Mending OOC") return end
 					end
 				end
 			end
 			-- Heal
 			if br.isChecked("Heal") then
 				if lowest.hp <= br.getValue("Heal") and not moving then
-					if cast.heal(lowest.unit) then br.addonDebug("Casting Heal") return end
+					if cast.heal(lowest.unit) then br.addonDebug("Casting Heal OOC") return end
 				end
 			end
 			-- Flash Heal
 			if br.isChecked("Flash Heal") and br.getDebuffRemain("player",240447) == 0 and not moving then
 				if lowest.hp <= br.getValue("Flash Heal") then
-					if cast.flashHeal(lowest.unit) then br.addonDebug("Casting Flash Heal") return end
+					if cast.flashHeal(lowest.unit) then br.addonDebug("Casting Flash Heal OOC") return end
 				end
 			end
 			-- Flash Heal Surge of Light
 			if br.isChecked("Flash Heal Surge of Light") and talent.surgeOfLight and buff.surgeOfLight.exists() then
 				if lowest.hp <= br.getValue("Flash Heal Surge of Light") then
-					if cast.flashHeal(lowest.unit) then br.addonDebug("Casting Flash Heal (Surge of Light)") return end
+					if cast.flashHeal(lowest.unit) then br.addonDebug("Casting Flash Heal (Surge of Light) OOC") return end
 				end
 			end
 			-- Renew While Moving
 			if br.isChecked("Renew while moving") and moving  then
 				for i = 1, #br.friend do
 					if br.friend[i].hp <= br.getValue("Renew while moving") and not buff.renew.exists(br.friend[i].unit) then
-						if cast.renew(br.friend[i].unit) then br.addonDebug("Casting Renew") return end
+						if cast.renew(br.friend[i].unit) then br.addonDebug("Casting Renew OOC") return end
 					end
 				end
 			end
 		end  -- End Action List - Pre-Combat
+		-- Action List Defensive
 		local function actionList_Defensive()
 			if br.useDefensive() then
 				--Fade
@@ -511,6 +701,7 @@ local function runRotation()
 				end
 			end -- End Defensive Toggle
 		end -- End Action List - Defensive
+		-- Action List Cooldowns
 		local function actionList_Cooldowns()
 			if br.useCDs() then
 				--Salvation
@@ -527,7 +718,7 @@ local function runRotation()
 				end
 				-- Apotheosis
 				if br.isChecked("Apotheosis") then
-					if br.getLowAllies(br.getValue("Apotheosis")) >= br.getValue("Apotheosis Targets") or burst == true then
+					if GetSpellCooldown(2050) > 1 and br.getLowAllies(br.getValue("Apotheosis")) >= br.getValue("Apotheosis Targets") or burst == true then
 						if cast.apotheosis() then br.addonDebug("Casting Apothesis") return end
 					end
 				end
@@ -667,27 +858,32 @@ local function runRotation()
 			end
 			-- Serenity On Me Emergency
 			if br.isChecked("Serenity On Me") and php <= br.getOptionValue("Serenity On Me") then
-				if cast.holyWordSerenity("player") then br.addonDebug("Casting Holy Word: Serenity") return end
+				if cast.holyWordSerenity("player") then br.addonDebug("Casting Holy Word: Serenity emergency") return end
 			end
 			-- Holy Word: Serenity
 			if br.isChecked("Holy Word: Serenity") then
 				if lowest.hp <= br.getValue("Holy Word: Serenity") then
-					if cast.holyWordSerenity(lowest.unit) then br.addonDebug("Casting Holy Word: Serenity") return end
+					if cast.holyWordSerenity(lowest.unit) then br.addonDebug("Casting Holy Word: Serenity emergency") return end
 				end
 			end
 
 			-- Flash Heal On Me
-			if br.isChecked("Flash Heal On Me") and inCombat and not moving and php <= br.getValue("Flash Heal On Me") then
-				if cast.flashHeal("player") then br.addonDebug("Casting Flash Heal") return end
+			if br.isChecked("Flash Heal On Me") and (not buff.flashConcentration.exists("player") or buff.flashConcentration.remain() < 4 or buff.flashConcentration.stack() < 5) and inCombat and not moving and php <= br.getValue("Flash Heal On Me") then
+				if cast.flashHeal("player") then br.addonDebug("Casting Flash Heal self emergency") return end
 			end
 			--Apotheosis Mode
 			if br.isChecked("Apotheosis Mode") and br.getBuffRemain("player",200183) > 0 then
 				for i = 1, #br.friend do
-					if br.isChecked("Apotheosis Flash Heal") and br.friend[i].hp <= br.getValue("Apotheosis Flash Heal") and GetSpellCooldown(2050) > br.getValue("Apotheosis Serenity CD") and not moving then
-						if cast.flashHeal(br.friend[i].unit) then br.addonDebug("Casting Flash Heal") return end
+					if br.isChecked("Apotheosis Heal") and br.getDebuffRemain("player",240447) == 0 and not moving and buff.flashConcentration.stack() == 5 and GetSpellCooldown(2050) > br.getValue("Apotheosis Serenity CD") then
+						if lowest.hp <= br.getValue("Apotheosis Heal") then
+							if cast.heal(lowest.unit) then br.addonDebug("Casting 5-FC APO Heal") return end
+						end
+					end
+					if br.isChecked("Apotheosis Flash Heal") and br.friend[i].hp <= br.getValue("Apotheosis Flash Heal")and (not buff.flashConcentration.exists("player") or buff.flashConcentration.remain() < 4 or buff.flashConcentration.stack() < 5) and GetSpellCooldown(2050) > br.getValue("Apotheosis Serenity CD") and not moving then
+						if cast.flashHeal(br.friend[i].unit) then br.addonDebug("Casting Flash Heal apo emergency") return end
 					end
 					if br.isChecked("Apotheosis Prayer of Healing") and br.getLowAllies(br.getValue("Apotheosis Prayer of Healing")) >= br.getValue("Apotheosis PoH Targets") and GetSpellCooldown(34861) > br.getValue("Apotheosis Sanctify CD") and not moving then
-						if cast.prayerOfHealing(lowest.unit) then br.addonDebug("Casting Prayer of Healing") return end
+						if cast.prayerOfHealing(lowest.unit) then br.addonDebug("Casting Prayer of Healing apo emergency") return end
 					end
 				end
 			end
@@ -695,15 +891,16 @@ local function runRotation()
 			if br.isChecked("Flash Heal Emergency") and br.getDebuffRemain("player",240447) == 0 and not moving then
 				for i = 1, #br.friend do
 					if br.isChecked("Tanks Only") then
-						if br.friend[i].hp <= br.getValue("Flash Heal Emergency") and br._G.UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
-							if cast.flashHeal(br.friend[i].unit) then br.addonDebug("Casting Flash Heal") return end
+						if br.friend[i].hp <= br.getValue("Flash Heal Emergency") and (not buff.flashConcentration.exists("player") or buff.flashConcentration.remain() < 4 or buff.flashConcentration.stack() < 5) and br._G.UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+							if cast.flashHeal(br.friend[i].unit) then br.addonDebug("Casting Flash Heal emergency") return end
 						end
-					elseif br.friend[i].hp <= br.getValue("Flash Heal Emergency") then
-						if cast.flashHeal(br.friend[i].unit) then br.addonDebug("Casting Flash Heal") return end
+					elseif br.friend[i].hp <= br.getValue("Flash Heal Emergency") and (not buff.flashConcentration.exists("player") or buff.flashConcentration.remain() < 4 or buff.flashConcentration.stack() < 5) then
+						if cast.flashHeal(br.friend[i].unit) then br.addonDebug("Casting Flash Heal emergency") return end
 					end
 				end
 			end
 		end -- EndAction List Emergency
+		-- Action List Spirit of Redemption
 		local function actionList_SoR()
 			--Guardian Spirit
 			if br.isChecked("Guardian Spirit") then
@@ -715,6 +912,19 @@ local function runRotation()
 					end
 				end
 			end
+			if br.isChecked("Prayer of Mending") then
+				for i = 1, #br.friend do
+					if br.friend[i].hp <= br.getValue("Prayer of Mending") and not buff.prayerOfMending.exists(br.friend[i].unit) then
+						if cast.prayerOfMending(br.friend[i].unit) then br.addonDebug("Casting Prayer of Mending") return end
+					end
+				end
+			end
+			--Healqw
+			if br.isChecked("Heal") and br.getDebuffRemain("player",240447) == 0 and not moving and buff.flashConcentration.stack() == 5 then
+				if lowest.hp <= br.getValue("Heal") then
+					if cast.heal(lowest.unit) then br.addonDebug("Casting 5-FC Prio Angel Heal") return end
+				end
+			end
 			-- Prayer of Healing
 			if br.getLowAllies(br.getOptionValue("Prayer of Healing")) >= 4 then
 				if br.castWiseAoEHeal(br.friend,spell.prayerOfHealing,40,br.getValue("Prayer of Healing"),4,5,false,true) then br.addonDebug("Casting Prayer of Healing") return end
@@ -724,14 +934,14 @@ local function runRotation()
 				if cast.holyWordSerenity(lowest.unit) then br.addonDebug("Casting Holy Word: Serenity") return end
 			end
 			-- Flash Heal
-			if cast.flashHeal(lowest.unit) then br.addonDebug("Casting Flash Heal") return end
-		end
+			if cast.flashHeal(lowest.unit) then br.addonDebug("Casting Flash Heal sor") return end
+		end -- End Action List SoR
 		-- AOE Healing
 		local function actionList_AOEHealing()
 			-- Holy Word: Serenity
 			if br.isChecked("Holy Word: Serenity") then
 				if lowest.hp <= br.getValue("Holy Word: Serenity") then
-					if cast.holyWordSerenity(lowest.unit) then br.addonDebug("Casting Holy Word: Serenity") return end
+					if cast.holyWordSerenity(lowest.unit) then br.addonDebug("Casting Holy Word: Serenity AOE") return end
 				end
 			end
 			-- Holy Word: Sanctify JR Locals
@@ -752,16 +962,16 @@ local function runRotation()
 						if br.castWiseAoEHeal(br.friend,spell.holyWordSanctify,10,br.getValue("Holy Word: Sanctify"),br.getValue("Holy Word: Sanctify Targets"),6,false,false) then br.addonDebug("Casting Holy Word: Sanctify") return end
 					end
 					if loc ~= nil then
-						if br.castGroundAtLocation(loc, spell.holyWordSanctify) then br.addonDebug("Casting Holy Word: Sanctify") return end
+						if br.castGroundAtLocation(loc, spell.holyWordSanctify) then br.addonDebug("Casting Holy Word: Sanctify AOE") return end
 					end
 				end
 			--end
 
 			-- Prayer of Mending
-			if br.isChecked("Prayer of Mending") and br.getDebuffRemain("player",240447) == 0 and not moving  then
+			if br.isChecked("Prayer of Mending") then
 				for i = 1, #br.friend do
 					if br.friend[i].hp <= br.getValue("Prayer of Mending") and not buff.prayerOfMending.exists(br.friend[i].unit) then
-						if cast.prayerOfMending(br.friend[i].unit) then br.addonDebug("Casting Prayer of Mending") return end
+						if cast.prayerOfMending(br.friend[i].unit) then br.addonDebug("Casting Prayer of Mending AOE") return end
 					end
 				end
 			end
@@ -769,7 +979,7 @@ local function runRotation()
 			if br.isChecked("Renew on Tanks") then
 				for i = 1, #br.friend do
 					if br.friend[i].hp <= br.getValue("Renew on Tanks") and not buff.renew.exists(br.friend[i].unit) and br._G.UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
-						if cast.renew(br.friend[i].unit) then br.addonDebug("Casting Renew") return end
+						if cast.renew(br.friend[i].unit) then br.addonDebug("Casting Renew AOE") return end
 					end
 				end
 			end
@@ -784,7 +994,7 @@ local function runRotation()
 				if br.getLowAllies(br.getValue("Circle of Healing")) >= br.getValue("Circle of Healing Targets") then
 					if cast.circleOfHealing() then br.addonDebug("Casting Circle Of Healing") return end
 				end
-			end	
+			end
 			--Halo
 			if br.isChecked("Halo") and talent.halo and not moving then
 				if br.getLowAllies(br.getValue("Halo")) >= br.getValue("Halo Targets") then
@@ -833,24 +1043,46 @@ local function runRotation()
 					end
 				end
 			end
+			-- Holy Word: Serenity
+			if br.isChecked("Holy Word: Serenity") then
+				if lowest.hp <= br.getValue("Holy Word: Serenity") then
+					if cast.holyWordSerenity(lowest.unit) then br.addonDebug("Casting Holy Word: Serenity") return end
+				end
+			end
+			-- Heal
+			if br.isChecked("Heal") and br.getDebuffRemain("player",240447) == 0 and not moving and buff.flashConcentration.stack() == 5 then
+				if lowest.hp <= br.getValue("Heal") then
+					if cast.heal(lowest.unit) then br.addonDebug("Casting 5-FC Prio Heal") return end
+				end
+			end
 			-- Flash Heal
 			if br.isChecked("Flash Heal") and br.getDebuffRemain("player",240447) == 0 and not moving then
 				if lowest.hp <= br.getValue("Flash Heal") then
-					if cast.flashHeal(lowest.unit) then br.addonDebug("Casting Flash Heal") return end
+					if cast.flashHeal(lowest.unit) then br.addonDebug("Casting Flash Heal singletarget") return end
 				end
 			end
 			-- Flash Heal Surge of Light
 			if br.isChecked("Flash Heal Surge of Light") and talent.surgeOfLight and buff.surgeOfLight.remain() > 1.5 then
 				if lowest.hp <= br.getValue("Flash Heal Surge of Light") then
-					if cast.flashHeal(lowest.unit) then br.addonDebug("Casting Flash Heal (Surge of Light)") return end
+					if cast.flashHeal(lowest.unit) then br.addonDebug("Casting Flash Heal (Surge of Light) single target") return end
 				end
 			end
 			-- Heal
 			if br.isChecked("Heal") and br.getDebuffRemain("player",240447) == 0 and not moving then
 				if lowest.hp <= br.getValue("Heal") then
-					if cast.heal(lowest.unit) then br.addonDebug("Casting Heal") return end
+					if cast.heal(lowest.unit) then br.addonDebug("Casting Low Prio Heal") return end
 				end
 			end
+
+			-- Prayer of Mending
+			if br.isChecked("Prayer of Mending") then
+				for i = 1, #br.friend do
+					if br.friend[i].hp <= br.getValue("Prayer of Mending") and not buff.prayerOfMending.exists(br.friend[i].unit) then
+						if cast.prayerOfMending(br.friend[i].unit) then br.addonDebug("Casting Prayer of Mending") return end
+					end
+				end
+			end
+
 			-- Dispel Magic
 			if br.isChecked("Dispel Magic") then
 				for i = 1, #enemies.yards40 do
@@ -889,18 +1121,29 @@ local function runRotation()
 			if br.isChecked("Use HW:Chastise for DPS") then
 				if cast.holyWordChastise() then br.addonDebug("Casting Holy Word: Chastise for DPS") return end
 			end
+			-- SW:P
+			if br.isChecked("SW:P") then
+				for i = 1, #enemies.yards40 do
+					local thisUnit = enemies.yards40[i]
+						if cd.shadowWordPain.ready() and not debuff.shadowWordPain.exists(thisUnit) or debuff.shadowWordPain.remain(thisUnit) < 4 then
+							if cast.shadowWordPain(thisUnit) then br.addonDebug("SW:P") return end
+						end
+				end
+			end
 			-- Holy Fire
-			if cast.holyFire() then br.addonDebug("Casting Holy Fire") return end
+			if br.isChecked("Holy Fire") then
+				if cast.holyFire() then br.addonDebug("Casting Holy Fire") return end
+			end
 			-- Divine Star
-			if br.getEnemiesInRect(5,24) >= br.getOptionValue("Min Divine Star Targets") then
+			if br.getEnemiesInRect(5,24) >= br.getOptionValue("Min Divine Star Targets") and br.isChecked("Divine Star DPS") then
 				if cast.divineStar() then br.addonDebug("Casting Divine Star") return end
 			end
 			-- Smite
-			if #enemies.yards8 < 3 and br.getDebuffRemain("player",240447) == 0 and not moving then
+			if #enemies.yards8 < 8 and br.getDebuffRemain("player",240447) == 0 and not moving and br.isChecked("Smite") then
 				if cast.smite() then br.addonDebug("Casting Smite") return end
 			end
 			-- Holy Nova
-			if #enemies.yards8 >= 3 and level > 25 then
+			if #enemies.yards8 >= 8 and level > 25 then
 				if cast.holyNova() then br.addonDebug("Casting Holy Nova") return end
 			end
 		end
@@ -919,11 +1162,18 @@ local function runRotation()
 			--- Out Of Combat - Rotations ---
 			---------------------------------
 			if not inCombat and not IsMounted() then
+				-- maintain FC stacks
+				if runeforge.flashConcentration.equiped and not buff.flashConcentration.exists("player") or buff.flashConcentration.remain() < 4 or buff.flashConcentration.stack() < 5 then
+					if cast.flashHeal(lowest.unit) then br.addonDebug("Casting Flash Heal maintain FC") return end
+				end
 				actionList_Extras()
+				actionList_PI()
 				actionList_Dispel()
 				if br.isChecked("OOC Healing") then
 					actionList_OOCHealing()
 				end
+				-- maintain FC stacks
+
 			end -- End Out of Combat Rotation
 			-----------------------------
 			--- In Combat - Rotations ---
@@ -932,8 +1182,16 @@ local function runRotation()
 				if buff.spiritOfRedemption.exists() then
 					br.addonDebug("SoR Detected")
 					actionList_SoR()
+					-- maintain FC stacks
+					if runeforge.flashConcentration.equiped and not buff.flashConcentration.exists("player") or buff.flashConcentration.remain() < 4 or buff.flashConcentration.stack() < 5 then
+						if cast.flashHeal(lowest.unit) then br.addonDebug("Casting Flash Heal maintain FC") return end
+					end
 				end
 				if not buff.spiritOfRedemption.exists() then
+					-- maintain FC stacks
+					if runeforge.flashConcentration.equiped and not buff.flashConcentration.exists("player") or buff.flashConcentration.remain() < 4 or buff.flashConcentration.stack() < 5 then
+						if cast.flashHeal(lowest.unit) then br.addonDebug("Casting Flash Heal maintain FC") return end
+					end
 					actionList_HWC()
 					actionList_Defensive()
 					actionList_Cooldowns()
@@ -941,7 +1199,9 @@ local function runRotation()
 					actionList_Emergency()
 					actionList_AOEHealing()
 					actionList_SingleTarget()
-					if br.player.ui.mode.dPS == 1 then
+					actionList_PI()
+					--actionList_Covenants()
+					if br.player.ui.mode.dPS == 1 and (runeforge.flashConcentration.equiped and buff.flashConcentration.remain() > 6) then
 						actionList_DPS()
 					end
 				end
