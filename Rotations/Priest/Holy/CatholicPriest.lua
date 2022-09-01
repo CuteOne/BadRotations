@@ -291,7 +291,8 @@ local function createOptions()
         br.ui:checkSectionState(section)
 
 		section = br.ui:createSection(br.ui.window.profile, colordrood.."Druid")
-		br.ui:createCheckbox(section, "SOON")
+		br.ui:createCheckbox(section, "PI Celestial Alignment")
+		br.ui:createCheckbox(section, "PI Incarnation")
         br.ui:checkSectionState(section)
 
 		section = br.ui:createSection(br.ui.window.profile, colordh.."Demon Hunter")
@@ -468,7 +469,7 @@ local function runRotation()
 									or PITarget == "DEMONHUNTER" and br.UnitBuffID(thisUnit, 191427) -- meta
 									--or PITarget == "DEATHKNIGHT" and (br.UnitBuffID(thisUnit, 275699) or br.UnitBuffID(thisUnit, 63560) or br.UnitBuffID(thisUnit, 42650))
 							then
-								if cast.powerInfusion(thisUnit) then return true end
+								if cast.faeGuardians(thisUnit) then return true end
 							end
 						end
 				end
@@ -490,8 +491,8 @@ local function runRotation()
 									or (br.isChecked("PI Arcane Power") and br.UnitBuffID(thisUnit, 12042)) -- Arcane Power
 									-- DRUID
 									or PITarget == "DRUID"
-									and (br.UnitBuffID(thisUnit, 194223) -- Celestial Alignment
-									or br.UnitBuffID(thisUnit, 102560)) -- Incarnation: Chosen of Elune
+									and (br.isChecked("PI Celestial Alignment") and br.UnitBuffID(thisUnit, 194223)) -- Celestial Alignment
+									or (br.isChecked("PI Incarnation") and br.UnitBuffID(thisUnit, 102560)) -- Incarnation: Chosen of Elune
 									-- WARRIOR
 									or PITarget == "WARRIOR" and (br.isChecked("PI Recklessness") and br.UnitBuffID(thisUnit, 316828)) -- recklessness
 									-- WARLOCK
