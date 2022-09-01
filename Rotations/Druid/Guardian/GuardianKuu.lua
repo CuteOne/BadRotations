@@ -985,9 +985,8 @@ local function runRotation()
                     root_range = 30
                 end
 
-                for i = 1, br._G.GetObjectCount() do
-                    local object = br._G.GetObjectWithIndex(i)
-                    local ID = br._G.ObjectID(object)
+                for i = 1, #br.omUnits do
+                    local ID = br._G.ObjectID(br.omUnits[i])
                     if
                         root_UnitList[ID] ~= nil and br.getBuffRemain(object, 226510) == 0 and br.getHP(object) > 90 and not br.isLongTimeCCed(object) and
                             (br.getBuffRemain(object, 102359) < 2 or br.getBuffRemain(object, 339) < 2)

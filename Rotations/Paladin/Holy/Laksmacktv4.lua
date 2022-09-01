@@ -1218,8 +1218,8 @@ actionList.Extra = function()
     end
 
     if inCombat and mode.stuns == 1 and (talent.blindingLight and cd.blindingLight.ready() or cd.hammerOfJustice.ready()) then
-        for i = 1, br._G.GetObjectCount() do
-            local object = br._G.GetObjectWithIndex(i)
+        for i = 1, #br.omUnits do
+            local object = br.omUnits[i]
             local ID = br._G.ObjectID(object)
             local unitStun = stunList[ID]
 
@@ -1291,8 +1291,8 @@ actionList.Extra = function()
     --dungeon specific stuff
     -- Plaguefall   (13228)
     if cd.blessingOfFreedom.ready() and select(8, GetInstanceInfo()) == 13228 then
-        for i = 1, br._G.GetObjectCount() do
-            local object = br._G.GetObjectWithIndex(i)
+        for i = 1, #br.omUnits do
+            local object = br.omUnits[i]
             local ID = br._G.ObjectID(object)
             if someone_casting and ID == 168878 and getDistance(object) <= 40 then
                 for j = 1, #tanks do
@@ -1308,8 +1308,8 @@ actionList.Extra = function()
 
     --Sanguine Depths  (2284)
     if (cd.blessingOfFreedom.ready() or cd.divineShield.ready()) and select(8, GetInstanceInfo()) == 2284 then
-        for i = 1, br._G.GetObjectCount() do
-            local object = br._G.GetObjectWithIndex(i)
+        for i = 1, #br.omUnits do
+            local object = br.omUnits[i]
             local ID = br._G.ObjectID(object)
             if someone_casting and ID == 162040 and getDistance(object) <= 40 then
                 if br._G.UnitCastingInfo("target") == br._G.GetSpellInfo(326827) and cd.blessingOfFreedom.ready() then
@@ -1363,8 +1363,8 @@ actionList.Defensive = function()
                 end
             end
             if cd.blessingOfProtection.ready() and AssFlag then
-                for i = 1, br._G.GetObjectCount() do
-                    local object = br._G.GetObjectWithIndex(i)
+                for i = 1, #br.omUnits do
+                    local object = br.omUnits[i]
                     local ID = br._G.ObjectID(object)
                     if ID == 51229 then
                         if object ~= nil then
@@ -1986,8 +1986,8 @@ actionList.triage = function()
                     end
                 end
             end
-            for i = 1, br._G.GetObjectCount() do
-                local thisUnit = br._G.GetObjectWithIndex(i)
+            for i = 1, #br.omUnits do
+                local thisUnit = br.omUnits[i]
 
                 if br.GetObjectID(thisUnit) == 165759
                         or br.GetObjectID(thisUnit) == 171577

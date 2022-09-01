@@ -293,9 +293,9 @@ local function runRotation()
             end
             if mode.taunt == 3 then
                 if br.unlocked then --EWT ~= nil then
-                    for i = 1, br._G.GetObjectCount() do
-                        local ID = br._G.ObjectID(br._G.GetObjectWithIndex(i))
-                        local object = br._G.GetObjectWithIndex(i)
+                    for i = 1, #br.omUnits do
+                        local object = br.omUnits[i]
+                        local ID = br._G.ObjectID(object)
                         if ID == 61146 then
                                 for j = 1, #enemies.yards30 do
                                 local thisUnit = enemies.yards30[i]

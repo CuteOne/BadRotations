@@ -536,8 +536,8 @@ local function runRotation()
                 end
             end
             if br.isChecked("Corruption Radar On") then
-                for i = 1, GetObjectCountBR() do
-                    local object = GetObjectWithIndex(i)
+                for i = 1, #br.omUnits do
+                    local object = br.omUnits[i]
                     local ID = br._G.ObjectID(object)
                     if br.isChecked("Use Storm Bolt on TFTB") then
                         if ID == 161895 then

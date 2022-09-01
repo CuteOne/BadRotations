@@ -35,8 +35,8 @@ function PokeEngine()
       if startWaiting ~= nil and startWaiting <= GetTime() - 2 then
         if br.GetUnitExists("target") == false then
 
-          for i = 1, GetObjectCountBR() do
-            local thisPet = GetObjectIndex(i)
+          for i = 1, #br.omUnits do
+            local thisPet = br.omUnits[i]
             if br.GetObjectExists(thisPet) and br.GetUnitIsVisible(thisPet) and
               br.getDistance("player",thisPet) < br.getValue("Auto Clicker Range") then
 

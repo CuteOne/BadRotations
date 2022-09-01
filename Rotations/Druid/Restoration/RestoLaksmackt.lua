@@ -222,6 +222,22 @@ local function isCC(unit)
     return false
 end
 
+local function getOutLaksTTDMAX()
+    local highTTD = 0
+    local mob_count = #enemies.yards45
+    if mob_count > 6 then
+        mob_count = 6
+    end
+    if #enemies.yards45 > 0 then
+        for i = 1, mob_count do
+            if br.getTTD(enemies.yards45[i]) > highTTD and br.getTTD(enemies.yards45[i]) < 999 and not br.isExplosive(enemies.yards45[i]) and br.isSafeToAttack(enemies.yards45[i]) then
+                highTTD = br.getTTD(enemies.yards45[i])
+            end
+        end
+    end
+    return tonumber(highTTD)
+end
+
 local timers = {}
 timers._timers = {}
 function timers.time(name, fn)
@@ -962,7 +978,7 @@ local function runRotation()
         --covenant here
         if br.useCDs()
                 and (covenant.nightFae.active and cast.able.convokeTheSpirits() or (covenant.venthyr.active and cast.able.ravenousFrenzy()))
-                and (getOptionValue("Covenant Ability") == 1 or getOptionValue("Covenant Ability") == 3)
+                and (br.getOptionValue("Covenant Ability") == 1 or br.getOptionValue("Covenant Ability") == 3)
                 and getOutLaksTTDMAX() > 20
                 and (buff.heartOfTheWild.exists() or cd.heartOfTheWild.remains() > 30 or not talent.heartOfTheWild or not isChecked("Heart of the Wild")) then
             if covenant.nightFae.active then
@@ -2211,8 +2227,8 @@ local function runRotation()
                 end
 
                 if lowest.hp > 45 then
-                    for i = 1, br._G.GetObjectCount() do
-                        local object = br._G.GetObjectWithIndex(i)
+                    for i = 1, #br.omUnits do
+                        local object = br.omUnits[i]
                         local ID = br._G.ObjectID(object)
                         if
                         root_UnitList[ID] ~= nil and br.getBuffRemain(object, 226510) == 0 and br.getHP(object) > 90 and not isCC(object) and not already_stunned(object) and
@@ -3069,8 +3085,8 @@ local function runRotation()
                 elseif br.isChecked("Sugar Crusted Fish Feast") and br.hasItem(126936) then
                     local x1, y1, z1 = br._G.ObjectPosition("player")
                     br.addonDebug("scaninning -  fish thingy")
-                    for i = 1, br._G.GetObjectCount() do
-                        local object = br._G.GetObjectWithIndex(i)
+                    for i = 1, #br.omUnits do
+                        local object = br.omUnits[i]
                         local ID = br._G.ObjectID(object)
                         local x2, y2, z2 = br._G.ObjectPosition(object)
                         local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))

@@ -164,7 +164,6 @@ function br.TogglesFrame()
 			br.data.settings[br.selectedSpec].toggles = {}
 		end
 		if br.data.settings[br.selectedSpec].toggles["Power"] == 0 then
-			br.data.settings[br.selectedSpec].toggles["Power"] = 0
 			br.mainText:SetText("Off")
 			mainButtonFrame.texture:SetTexture(br.genericIconOff)
 		else

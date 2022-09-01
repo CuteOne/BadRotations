@@ -170,8 +170,8 @@ if not br.metaTable1 then
 			if br.player.eID == 2331 then
 				local time_remain = br.DBM:getPulltimer(nil, 313213)
 				if time_remain < br.getOptionValue("Decaying Strike Timer") then
-					for i = 1, br._G.GetObjectCount() do
-						local thisUnit = br._G.GetObjectWithIndex(i)
+					for i = 1, #br.omUnits do
+						local thisUnit = br.omUnits[i]
 						if br.GetObjectID(thisUnit) == 156866 and br._G.UnitTarget(thisUnit) ~= nil then
 							if br._G.UnitTarget(thisUnit) == o.unit then
 								return 250, 250, 250

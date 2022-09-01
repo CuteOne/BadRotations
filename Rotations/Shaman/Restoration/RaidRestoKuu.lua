@@ -408,8 +408,8 @@ local function runRotation()
         local function bossEncounterHelper()
             -- Raid Boss
             if ui.checked("Raid Boss Helper") and br.player.eID and (br.player.eID == 2127 or br.player.eID == 2418 or br.player.eID == 2402) then
-                for i = 1, br._G.GetObjectCount() do
-                    local thisUnit = br._G.GetObjectWithIndex(i)
+                for i = 1, #br.omUnits do
+                    local thisUnit = br.omUnits[i]
                     local objectID = br.GetObjectID(thisUnit)
                     if br.player.eID == nil then
                         if objectID == 165759 then

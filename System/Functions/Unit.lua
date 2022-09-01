@@ -67,13 +67,7 @@ function br.GetObjectIndex(Index)
         return 0
     end
 end
--- function GetObjectCountBR()
--- 	if EWT then
---     	return GetObjectCountBR()
---     else
---     	return 0
---     end
--- end
+
 function br.GetObjectID(Unit)
 	if br.unlocked and br.GetObjectExists(Unit) then
 		return br._G.ObjectID(Unit)

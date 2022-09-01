@@ -794,8 +794,8 @@ local function runRotation()
 		end
 	-- Temple of Sethraliss
 		if inCombat and br.isChecked("Temple of Sethraliss") and br.player.eID and br.player.eID == 2127 then
-			for i = 1, br._G.GetObjectCount() do
-				local thisUnit = br._G.GetObjectWithIndex(i)
+			for i = 1, #br.omUnits do
+				local thisUnit = br.omUnits[i]
 				if br.GetObjectID(thisUnit) == 133392 then
 					local sethObject = thisUnit
 					if br.getHP(sethObject) < 100 and br.getBuffRemain(sethObject,274148) == 0 then

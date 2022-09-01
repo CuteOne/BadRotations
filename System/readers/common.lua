@@ -255,7 +255,7 @@ function br.read.commonReaders()
 	br._G.GameTooltip:HookScript(
 		"OnTooltipSetUnit",
 		function(self)
-			if br.unlocked --[[EWT]] and br._G.GetObjectCount() ~= nil then
+			if br.unlocked --[[EWT]] and br.omUnits ~= nil then
 				local _, lunit = self:GetUnit()
 				if not br._G.UnitIsVisible(lunit) then
 					return

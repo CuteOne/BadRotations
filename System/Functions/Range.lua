@@ -193,11 +193,10 @@ function br.getTotemDistance(Unit1)
   end
 
   if br.GetUnitIsVisible(Unit1) then
-    -- local objectCount = GetObjectCountBR() or 0
     local X2, Y2, Z2
-    for i = 1,br._G.GetObjectCount() do
-      if br.GetUnitIsUnit(br._G.UnitCreator(br._G.GetObjectWithIndex(i)), "Player") and (br._G.UnitName(br._G.GetObjectWithIndex(i)) == "Searing Totem" or br._G.UnitName(br._G.GetObjectWithIndex(i)) == "Magma Totem") then
-        X2,Y2,Z2 = br.GetObjectPosition(br._G.GetObjectWithIndex(i))
+    for i = 1,#br.omUnits do
+      if br.GetUnitIsUnit(br._G.UnitCreator(br.omUnits[i]), "Player") and (br._G.UnitName(br.omUnits[i]) == "Searing Totem" or br._G.UnitName(br.omUnits[i]) == "Magma Totem") then
+        X2,Y2,Z2 = br.GetObjectPosition(br.omUnits[i])
       end
     end
     local X1,Y1,Z1 = br.GetObjectPosition(Unit1)

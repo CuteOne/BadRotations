@@ -1,6 +1,7 @@
 local _, br = ...
 br.engines = {}
 
+
 function br:getUpdateRate()
     local updateRate = 0.1
 
@@ -27,49 +28,67 @@ function br:Engine()
         br.engines.Pulse_Engine:Show()
     end
 end
+
+local function getObjects() 
+    local objects = {}
+    for i = 1,br._G.GetObjectCount() do
+        objects[i] = br._G.GetObjectWithIndex(i)
+    end
+    return objects
+end
+
 -- Object Manager Engine
-function br:ObjectManager()
-    local function ObjectManagerUpdate(self)
-        if br.unlocked then
-            if br.data ~= nil and br.data.settings ~= nil and br.data.settings[br.selectedSpec] ~= nil
-                and br.data.settings[br.selectedSpec].toggles ~= nil
+local function ObjectManagerUpdate(self)
+    if br.unlocked then
+        br.omUnits = getObjects()
+        if br.data ~= nil and br.data.settings ~= nil and br.data.settings[br.selectedSpec] ~= nil
+            and br.data.settings[br.selectedSpec].toggles ~= nil
+        then
+            if br.data.settings[br.selectedSpec].toggles["Power"] ~= nil
+                and br.data.settings[br.selectedSpec].toggles["Power"] == 1
             then
-                if br.data.settings[br.selectedSpec].toggles["Power"] ~= nil
-                    and br.data.settings[br.selectedSpec].toggles["Power"] == 1
-                then
-					-- attempt to update objects every frame
-					-- updates for each object will be spread out randomly
+                if br.timer:useTimer("OMUpdate", br:getUpdateRate()) then
+                -- attempt to update objects every frame
+                -- updates for each object will be spread out randomly
                     br:updateOM()
+                -- br._G.GetObjectCount()
                     br.om:Update()
                 end
             end
         end
     end
+end
+
+function br:ObjectManager()
     if br.engines.OM_Engine == nil then
-        -- ObjectManagerUpdate()
         br.engines.OM_Engine = br._G.CreateFrame("Frame", nil, br._G.UIParent)
         br.engines.OM_Engine:SetScript("OnUpdate", ObjectManagerUpdate)
         br.engines.OM_Engine:Show()
     end
+    return objects
 end
 
-function br.getDebugInfo()
-    local labels = br.debug.labels
-    if labels and br.data.settings[br.selectedSpec][br.selectedProfile]["currentPage"] == 9 then
-        if br.isChecked("Enable Debug Info") then
-            labels.updateRate:SetText("Update Rate: "..br:getUpdateRate())
-            if br.target then
-                labels.target:SetText("Current Target: "..UnitName("target"))
-                labels.ttd:SetText("Target's TTD: "..br.getTTD("target"))
-            else
-                labels.target:SetText("Current Target: No Target Found")
-                labels.ttd:SetText("Target's TTD: No Target Found")
+-- Object Tracker
+local function ObjectTrackerUpdate(self)
+    if br.unlocked then
+        if br.data ~= nil and br.data.settings ~= nil and br.data.settings[br.selectedSpec] ~= nil
+            and br.data.settings[br.selectedSpec].toggles ~= nil
+        then
+            if br.data.settings[br.selectedSpec].toggles["Power"] ~= nil
+                and br.data.settings[br.selectedSpec].toggles["Power"] == 1
+            then
+                -- Tracker
+                br.objectTracker()
             end
-        else
-            labels.target:SetText("Current Target: No Target Found")
-            labels.ttd:SetText("Target's TTD: No Target Found")
-            labels.updateRate:SetText("Update Rate:")
         end
+    end
+end
+
+function br:ObjectTracker()
+    if br.engines.Tracker_Engine == nil then
+        br.engines.Tracker_Engine = br._G.CreateFrame("Frame", nil, br._G.UIParent)
+        br.engines.Tracker_Engine:SetScript("OnUpdate", ObjectTrackerUpdate)
+        br.engines.Tracker_Engine:Show()
     end
 end
 
@@ -98,8 +117,7 @@ function br.BadRotationsUpdate(self)
                 "|cffFFFFFFCannot Start... |cffFF1100BR |cffFFFFFFcan not complete loading. Please check requirements.")
         end
         return false
-    elseif br.unlocked and br._G.GetObjectCount() ~= nil then
-        br.target = br._G.UnitExists("target") and br._G.UnitGUID("target") or nil
+    elseif br.unlocked and br.omUnits ~= nil then
         br.devMode()
         -- Check BR Out of Date
         br:checkBrOutOfDate()
@@ -163,7 +181,7 @@ function br.BadRotationsUpdate(self)
                     br.ui:closeWindow("profile")
                     br.player:createOptions()
                     br.player:createToggles()
-
+                    
                     br.player:update()
                     if br.player ~= nil and br.rotationChanged then
                         br:saveLastProfileTracker()

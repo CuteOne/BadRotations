@@ -579,8 +579,8 @@ local function runRotation()
     end
 
     if buff.transcendence.exists() or talent.summonJadeSerpentStatue then
-        for i = 1, br._G.GetObjectCount() do
-            local thisUnit = br._G.GetObjectWithIndex(i)
+        for i = 1, #br.omUnits do
+            local thisUnit = br.omUnits[i]
             local ID = br._G.ObjectID(thisUnit)
             if ID == 54569 then
                 transcendence.x, transcendence.y, transcendence.z = br._G.ObjectPosition(thisUnit)
@@ -994,8 +994,8 @@ local function runRotation()
                 local RippedSoul = 171577
                 local PiercedSoul = 173112
                 local EssenceFont = 165778
-                for i = 1, br._G.GetObjectCount() do
-                    local thisUnit = br._G.GetObjectWithIndex(i)
+                for i = 1, #br.omUnits do
+                    local thisUnit = br.omUnits[i]
                     local ID = br._G.ObjectID(thisUnit)
                     if ID == HealingTrainer or ID == KaelthasSunstrider or ID == RippedSoul or ID == PiercedSoul or ID == EssenceFont then
                         target = thisUnit

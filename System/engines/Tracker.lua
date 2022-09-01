@@ -31,25 +31,41 @@ local function trackObject(object, name, objectid, interact)
     end
 end
 
+_G.string.trim = function(string)
+    local from = string:match"^%s*()"
+   return from > #string and "" or string:match(".*%S", from)
+end
+
 function br.objectTracker()
-    -- Track Objects
-    if (br.timer:useTimer("Tracker Lag", 0.07) or
-        (br.isChecked("Quest Tracker") and br.timer:useTimer("Quest Lag", 0.5))) then
-        LibDraw.clearCanvas()
-        if br.isChecked("Enable Tracker") then
-            -- Custom Tracker
-            if (br.isChecked("Custom Tracker") and br.getOptionValue("Custom Tracker") ~= "" and
-                string.len(br.getOptionValue("Custom Tracker")) >= 3) or br.isChecked("Rare Tracker") or
-                br.isChecked("Quest Tracker") then
-                for i = 1, br._G.GetObjectCount() do
-                    local object = br._G.GetObjectWithIndex(i)
-                    local name = br._G.ObjectName(object)
-                    local objectid = br._G.ObjectID(object)
-                    if object and name and objectid then
-                        if br.isChecked("Rare Tracker") and not br.GetUnitIsDeadOrGhost(object) and
-                            (br._G.UnitClassification(object) == "rare" or br._G.UnitClassification(object) ==
-                                "rareelite") then
-                            trackObject(object, name, objectid, false)
+    if br.isChecked("Enable Tracker") then
+---@diagnostic disable-next-line: undefined-field
+        LibDraw:clearCanvas()
+        -- Custom Tracker
+        if (br.isChecked("Custom Tracker") and br.getOptionValue("Custom Tracker") ~= "" and
+            string.len(br.getOptionValue("Custom Tracker")) >= 3) or br.isChecked("Rare Tracker") or
+            br.isChecked("Quest Tracker")
+        then
+            local objUnit
+            local name
+            local objectid
+            local objectguid
+            for i = 1, #br.omUnits do
+                local object = br.omUnits[i]
+                if object ~= nil and br._G.ObjectExists(object)
+                    and ((br._G.ObjectIsUnit(object) and br._G.UnitIsVisible(object) and not br.GetUnitIsDeadOrGhost(object)) or not br._G.ObjectIsUnit(object))
+                then
+                    objUnit = br._G.ObjectIsUnit(object)
+                    name = objUnit and br._G.UnitName(object) or br._G.ObjectName(object)
+                    objectid = br._G.ObjectID(object)
+                    objectguid = br._G.UnitGUID(object)
+                    if object and name and objectid and objectguid then
+                        if br.isChecked("Rare Tracker") then
+                            if br._G.UnitClassification(object) == "rare" then
+                                trackObject(object, "(r) "..name, objectid, objectguid, false)
+                            end
+                            if br._G.UnitClassification(object) == "rareelite" then
+                                trackObject(object, "(r*) "..name, objectid, objectguid, false)
+                            end
                         end
                         if br.isChecked("Custom Tracker") then
                              for k in string.gmatch(tostring(br.getOptionValue("Custom Tracker")), "([^,]+)") do

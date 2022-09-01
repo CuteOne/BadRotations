@@ -728,8 +728,8 @@ actionList.Interrupt = function()
         end
 
         if (root == "Mass Entanglement" and cast.able.massEntanglement()) or cast.able.entanglingRoots() then
-            for i = 1, br._G.GetObjectCount() do
-                local object = br._G.GetObjectWithIndex(i)
+            for i = 1, #br.omUnits do
+                local object = br.omUnits[i]
                 local ID = br._G.ObjectID(object)
                 if
                 root_UnitList[ID] ~= nil and br.getBuffRemain(object, 226510) == 0 and br.getHP(object) > 90 and not br.isLongTimeCCed(object) and

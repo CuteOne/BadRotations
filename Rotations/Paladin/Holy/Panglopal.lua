@@ -1282,8 +1282,8 @@ local function runRotation()
             end
         end
         --Spiteful
-        for i = 1, br._G.GetObjectCount() do
-            local object = br._G.GetObjectWithIndex(i)
+        for i = 1, #br.omUnits do
+            local object = br.omUnits[i]
             local ID = br._G.ObjectID(object)
             if ID == 174773 and br.GetUnitIsUnit("player", br._G.UnitTarget(object)) and unit.distance(object) <= 10 and cast.able.hammerOfJustice() then
                 if cast.hammerOfJustice(object) then

@@ -751,8 +751,8 @@ local function runRotation()
 			br.isChecked("Raid Boss Helper") and lowest.hp > br.getOptionValue("Raid Boss Helper") and br.player.eID and
 				(br.player.eID == 2127 or br.player.eID == 2418 or br.player.eID == 2402)
 		 then
-			for i = 1, br._G.GetObjectCount() do
-				local thisUnit = br._G.GetObjectWithIndex(i)
+			for i = 1, #br.omUnits do
+				local thisUnit = br.omUnits[i]
 				local ID = br.GetObjectID(thisUnit)
 				if ID == 133392 or ID == 171577 or ID == 173112 or ID == 165759 or ID == 165778 then
 					local healObject = thisUnit

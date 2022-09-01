@@ -790,8 +790,8 @@ local function runRotation()
             --instance logic
             if inInstance and inCombat then
                 if br.isChecked("Temple of Seth heal logic") and br.player.eID and br.player.eID == 2127 then
-                    for i = 1, GetObjectCountBR() do
-                        local sethObject = GetObjectWithIndex(i)
+                    for i = 1, #br.omUnits do
+                        local sethObject = br.omUnits[i]
                         if br.GetObjectID(sethObject) == 133392 then
                             if br.getHP(sethObject) < 100 and br.getBuffRemain(sethObject, 274148) == 0 then
                                 healUnit = sethObject
@@ -1370,8 +1370,8 @@ local function runRotation()
 
     local function Defensive()
 
-        for i = 1, GetObjectCount() do
-            local object = GetObjectWithIndex(i)
+        for i = 1, #br.omUnits do
+            local object = br.omUnits[i]
             local ID = br._G.ObjectID(object)
 
             local stun = 115078

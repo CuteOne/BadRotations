@@ -116,8 +116,8 @@ function br.carapaceMath(Unit1, Unit2)
 			LibDraw.Line(pX,pY,pZ,tX,tY,tZ)
 		end ]]
 		br.tentCache = {}
-		for i = 1, br._G.GetObjectCount() do
-			local object = br._G.GetObjectWithIndex(i)
+		for i = 1, #br.omUnits do
+			local object = br.omUnits[i]
 			local objectid = br._G.ObjectID(object)
 			if objectid == 157485 then
 				-- tentExists = true
