@@ -97,8 +97,8 @@ local colorLegendary    = "|cffff8000"
 --- LISTS   ---
 ---------------
 local StunsBlackList="167876|169861|168318|165824|165919|171799|168942|167612|169893|167536|173044|167731|165137|167538|168886|170572"
-local StunSpellList="326450|328177|331718|331743|334708|333145|321807|334748|327130|327240|330532|328400|330423|294171|164737|330586|329224|328429|295001|296355|295001|295985|330471|329753|296748|334542|242391|322169|324609"
-local HWCPrioList = "164702|164362|170488|165905|165251|165556|355640|347721"
+local StunSpellList="326450|328177|331718|331743|334708|333145|321807|334748|327130|327240|330532|328400|330423|294171|164737|330586|329224|328429|295001|296355|295001|295985|330471|329753|296748|334542|242391|322169|324609|355640|347721"
+local HWCPrioList = "164702|164362|170488|165905|165251|165556|163966|160943|176031|190174"
 
 ---------------
 --- OPTIONS ---
@@ -359,6 +359,7 @@ local function runRotation()
 		local covenant 										= br.player.covenant
 		local thisUnit
 		local runeforge                                     = br.player.runeforge
+		local equiped                                       = br.player.equiped
 
 		local lowest                                        = {}    --Lowest Unit
 		lowest.hp                                           = br.friend[1].hp
@@ -1057,7 +1058,7 @@ local function runRotation()
 				end
 			end
 			-- Flash Heal
-			if br.isChecked("Flash Heal") and br.getDebuffRemain("player",240447) == 0 and not moving then
+			if br.isChecked("Flash Heal") and br.getDebuffRemain("player",240447) == 0 and not moving and cast.able.flashHeal() then
 				if lowest.hp <= br.getValue("Flash Heal") then
 					if cast.flashHeal(lowest.unit) then br.addonDebug("Casting Flash Heal singletarget") return end
 				end
@@ -1132,7 +1133,7 @@ local function runRotation()
 				end
 			end
 			-- Holy Fire
-			if br.isChecked("Holy Fire") then
+			if br.isChecked("Holy Fire") and cast.able.holyFire() then
 				if cast.holyFire() then br.addonDebug("Casting Holy Fire") return end
 			end
 			-- Divine Star
@@ -1140,7 +1141,7 @@ local function runRotation()
 				if cast.divineStar() then br.addonDebug("Casting Divine Star") return end
 			end
 			-- Smite
-			if #enemies.yards8 < 8 and br.getDebuffRemain("player",240447) == 0 and not moving and br.isChecked("Smite") then
+			if #enemies.yards8 < 8 and br.getDebuffRemain("player",240447) == 0 and not moving and br.isChecked("Smite") and cast.able.smite() then
 				if cast.smite() then br.addonDebug("Casting Smite") return end
 			end
 			-- Holy Nova
@@ -1164,8 +1165,8 @@ local function runRotation()
 			---------------------------------
 			if not inCombat and not IsMounted() then
 				-- maintain FC stacks
-				if runeforge.flashConcentration.equiped and not buff.flashConcentration.exists("player") or buff.flashConcentration.remain() < 4 or buff.flashConcentration.stack() < 5 then
-					if cast.flashHeal(lowest.unit) then br.addonDebug("Casting Flash Heal maintain FC") return end
+				if runeforge.flashConcentration.equiped and (not buff.flashConcentration.exists("player") or buff.flashConcentration.remain() < 5 or buff.flashConcentration.stack() < 5) then
+					if cast.flashHeal(lowest.unit) then br.addonDebug("Casting Flash Heal maintain FC ooc") return end
 				end
 				actionList_Extras()
 				actionList_PI()
@@ -1184,13 +1185,13 @@ local function runRotation()
 					br.addonDebug("SoR Detected")
 					actionList_SoR()
 					-- maintain FC stacks
-					if runeforge.flashConcentration.equiped and not buff.flashConcentration.exists("player") or buff.flashConcentration.remain() < 4 or buff.flashConcentration.stack() < 5 then
+					if runeforge.flashConcentration.equiped and (cast.able.flashHeal() and not buff.flashConcentration.exists("player") or buff.flashConcentration.remain() < 5 or buff.flashConcentration.stack() < 5) then
 						if cast.flashHeal(lowest.unit) then br.addonDebug("Casting Flash Heal maintain FC") return end
 					end
 				end
 				if not buff.spiritOfRedemption.exists() then
 					-- maintain FC stacks
-					if runeforge.flashConcentration.equiped and not buff.flashConcentration.exists("player") or buff.flashConcentration.remain() < 4 or buff.flashConcentration.stack() < 5 then
+					if runeforge.flashConcentration.equiped and (cast.able.flashHeal() and not buff.flashConcentration.exists("player") or buff.flashConcentration.remain() < 5 or buff.flashConcentration.stack() < 5) then
 						if cast.flashHeal(lowest.unit) then br.addonDebug("Casting Flash Heal maintain FC") return end
 					end
 					actionList_HWC()
