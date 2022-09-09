@@ -24,8 +24,8 @@ function br.getUnitCount(ID,maxRange,tapped)
         local thisUnit = br.enemy[k].unit
         local thisUnitID = br.enemy[k].id
         if thisUnitID == ID then
-            if br.getDistance(thisUnit) < maxRange then
-                if (tapped == true and br._G.UnitIsTappedByPlayer(thisUnit)) or tapped == nil or tapped == false then
+            if (tapped == true and br._G.UnitIsTappedByPlayer(thisUnit)) or tapped == nil or tapped == false then
+                if br.getDistance(thisUnit) < maxRange then
                     counter = counter + 1
                 end
             end

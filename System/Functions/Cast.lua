@@ -54,34 +54,35 @@ end
 function br.castGround(Unit,SpellID,maxDistance,minDistance,radius,castTime)
 	if radius == nil then radius = maxDistance end
 	if minDistance == nil then minDistance = 0 end
-	local groundDistance = br.getDistance("player",Unit,"dist4")+1
-	local distance = br.getDistance("player",Unit)
 	local mouselookActive = false
 	if br.GetUnitExists(Unit) and br.getSpellCD(SpellID) == 0 and br.getLineOfSight("player",Unit)
-		and distance < maxDistance and distance >= minDistance
-		and #br.getEnemies(Unit,radius) >= #br.getEnemies(Unit,radius,true)
-	then
-		if _G.IsMouselooking() then
-			mouselookActive = true
-			_G.MouselookStop()
+	and #br.getEnemies(Unit,radius) >= #br.getEnemies(Unit,radius,true) then
+		local distance = br.getDistance("player",Unit)
+		if distance < maxDistance and distance >= minDistance
+		then
+			if br._G.IsMouselooking() then
+				mouselookActive = true
+				br._G.MouselookStop()
+			end
+			br._G.CastSpellByName(br._G.GetSpellInfo(SpellID))
+			local X,Y,Z
+			if castTime == nil or castTime == 0 then
+				X,Y,Z = br.GetObjectPosition(Unit)
+			else
+				X,Y,Z = br.GetFuturePostion(Unit, castTime)
+			end
+			local groundDistance = br.getDistance("player",Unit,"dist4")+1
+			--local distanceToGround = getGroundDistance(Unit) or 0
+			if groundDistance > maxDistance then X,Y,Z = br._G.GetPositionBetweenObjects(Unit,"player",groundDistance-maxDistance) end
+			br._G.ClickPosition((X + math.random() * 2),(Y + math.random() * 2),Z) --distanceToGround
+			br.castPosition.x = X
+			br.castPosition.y = Y
+			br.castPosition.z = Z
+			if mouselookActive then
+				br._G.MouselookStart()
+			end
+			return true
 		end
-		br._G.CastSpellByName(_G.GetSpellInfo(SpellID))
-		local X,Y,Z
-		if castTime == nil or castTime == 0 then
-			X,Y,Z = br.GetObjectPosition(Unit)
-		else
-			X,Y,Z = br.GetFuturePostion(Unit, castTime)
-		end
-		--local distanceToGround = getGroundDistance(Unit) or 0
-		if groundDistance > maxDistance then X,Y,Z = br._G.GetPositionBetweenObjects(Unit,"player",groundDistance-maxDistance) end
-		br._G.ClickPosition((X + math.random() * 2),(Y + math.random() * 2),Z) --distanceToGround
-        br.castPosition.x = X
-        br.castPosition.y = Y
-        br.castPosition.z = Z
-		if mouselookActive then
-			_G.MouselookStart()
-		end
-		return true
 	end
 	return false
 end
@@ -739,7 +740,7 @@ function br.createCastFunction(thisUnit,castType,minUnits,effectRng,spellID,inde
 			local targetUnit
 			targetUnit = thisUnit == "playerGround" and "player" or "target"
 			if castType == "groundCC" then targetUnit = thisUnit end
-			if (br.getDistance(targetUnit) < maxRange or br._G.IsSpellInRange(spellName,targetUnit) == 1) then
+			if (br._G.IsSpellInRange(spellName,targetUnit) == 1 or br.getDistance(targetUnit) < maxRange) then
 				if debug then return true end
 				return br.castGroundAtUnit(spellCast,effectRng,minUnits,maxRange,minRange,castType,targetUnit)
 			end

@@ -162,10 +162,8 @@ end
 
 function br.getFacingDistance()
     if br.GetUnitIsVisible("player") and br.GetUnitIsVisible("target") then
-        --local targetDistance = getRealDistance("target")
-        local targetDistance = br.getDistance("target")
-        local Y1,X1,Z1 = br.GetObjectPosition("player");
-        local Y2,X2,Z2 = br.GetObjectPosition("target");
+        local Y1,X1 = br.GetObjectPosition("player");
+        local Y2,X2 = br.GetObjectPosition("target");
         local angle1 = br.GetObjectFacing("player")
         local angle2
         local deltaY = Y2 - Y1
@@ -176,7 +174,7 @@ function br.getFacingDistance()
         elseif deltaX <0 then
             angle2 = deg(atan(deltaY/deltaX)+(math.pi/2))
         end
-        local Dist = br.round2(math.tan(abs(angle2 - angle1)*math.pi/180)*targetDistance*10000)/10000
+        local Dist = br.round2(math.tan(abs(angle2 - angle1)*math.pi/180)*br.getDistance("target")*10000)/10000
         if br._G.ObjectIsFacing("player","target") then
             return Dist
         else

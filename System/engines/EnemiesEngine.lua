@@ -217,7 +217,7 @@ if not br.metaTable2 then
 					o.enemyListCheck = br.enemyListCheck(o.unit)
 					o.enemyRefresh = GetTime()
 					if o.enemyListCheck == true then
-						o.range = br.getDistanceCalc(o.unit)
+						o.range = o.distance
 						if br.units[o.unit] == nil then
 							o:AddUnit(br.units)
 						end

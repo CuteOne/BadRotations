@@ -609,8 +609,7 @@ function br.getBestGroundCircleLocation(unitTable,minTargets,maxHealTargets,radi
 	X1,Y1,Z1 = br.GetObjectPosition("player")
 	local X2,Y2,Z2 = center.x,center.y,center.z
 	local LoS = br._G.TraceLine(X1, Y1, Z1 + 2, X2, Y2, Z2 + 2, 0x10) == nil
-	local distance = br.getDistanceToObject("player",X2,Y2,Z2) <= 40
-    if (numInside >= #points - 1) and (numInside >= minTargets) and LoS and distance then return center end
+    if (numInside >= #points - 1) and (numInside >= minTargets) and LoS and br.getDistanceToObject("player",X2,Y2,Z2) <= 40 then return center end
 
     -- start with taking #pointsInRange, #pointsInRange-1 at a time
     -- then take #pointsInRange, #pointsInRange-2 at a time

@@ -438,10 +438,10 @@ function br.getDebuffMinMax(spell, range, debuffType, returnType, source)
 	local maxUnit = "target"
 	for k, _ in pairs(br.enemy) do
 		local thisUnit = br.enemy[k].unit
-		local distance = br.getDistance(thisUnit,source)
 		local thisDebuff = br.player.debuff[spell][debuffType](thisUnit)
-		if br.getFacing("player",thisUnit) and distance <= range and thisDebuff >= 0
+		if br.getFacing("player",thisUnit) and thisDebuff >= 0
 			and ((returnType == "min" and thisDebuff < thisMin) or (returnType == "max" and thisDebuff > thisMax))
+			and br.getDistance(thisUnit,source) <= range 
 		then
 			if returnType == "min" then
 				lowestUnit = thisUnit
@@ -465,9 +465,8 @@ function br.getDebuffMinMaxButForPetsThisTime(spell, range, debuffType, returnTy
 	local lowestUnit = "target"
 	for k, _ in pairs(br.enemy) do
 		local thisUnit = br.enemy[k].unit
-		local distance = br.getDistance(thisUnit,"pet")
 		local thisDebuff = br.player.debuff[spell][debuffType](thisUnit)
-		if br.getFacing("player",thisUnit) and distance <= range and thisDebuff >= 0 and thisDebuff < thisMin then
+		if br.getFacing("player",thisUnit) and thisDebuff >= 0 and thisDebuff < thisMin and br.getDistance(thisUnit,"pet") <= range then
 			if returnType == "min" or returnType == nil then
 				lowestUnit = thisUnit
 				thisMin = thisDebuff

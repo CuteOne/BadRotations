@@ -71,13 +71,12 @@ function br.getEnemies(thisUnit,radius,checkNoCombat,facing)
 
 	for _, v in pairs(enemyTable) do
 		thisEnemy = v.unit
-		distance =  br.getDistance(thisUnit,thisEnemy)
-		if distance < radius and (not facing or br.getFacing("player",thisEnemy)) then
-			_G.tinsert(enemiesTable,thisEnemy)
+		if (not facing or br.getFacing("player",thisEnemy)) and br.getDistance(thisUnit,thisEnemy) < radius then
+			br._G.tinsert(enemiesTable,thisEnemy)
 		end
     end
-	if #enemiesTable == 0 and br.getDistance("target","player") < radius and br.isValidUnit("target") and (not facing or br.getFacing("player","target")) then
-		_G.tinsert(enemiesTable,"target")
+	if #enemiesTable == 0 and br.isValidUnit("target") and (not facing or br.getFacing("player","target")) and br.getDistance("target","player") < radius then
+		br._G.tinsert(enemiesTable,"target")
 	end
     ---
 	if #enemiesTable > 0 and thisUnit ~= nil then
@@ -214,9 +213,9 @@ local function getUnitCoeficient(unit)
 	local startTime = _G.debugprofilestop()
 	local coef = 0
 	-- if distance == nil then distance = br.getDistance("player",unit) end
-	local distance = br.getDistance("player",unit)
 	-- check if unit is valid
 	if br.GetObjectExists(unit) then
+		local distance = br.getDistance("player",unit)
 		-- if unit is out of range, bad prio(0)
 		if distance < 50 then
 			local unitHP = br.getHP(unit)

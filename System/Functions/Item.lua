@@ -94,9 +94,9 @@ function br.useItemGround(Unit, itemID, maxDistance, minDistance, radius)
 	if minDistance == nil then
 		minDistance = 0
 	end
-	if br.GetUnitExists(Unit) and br.getLineOfSight("player", Unit) and br.getDistance("player", Unit) < maxDistance and
-		br.getDistance("player", Unit) >= minDistance and
-		#br.getEnemies(Unit, radius) >= #br.getEnemies(Unit, radius, true)
+	if br.GetUnitExists(Unit) and br.getLineOfSight("player", Unit) and
+		#br.getEnemies(Unit, radius) >= #br.getEnemies(Unit, radius, true) and br.getDistance("player", Unit) < maxDistance and
+		br.getDistance("player", Unit) >= minDistance
 	 then
 		br.useItem(itemID)
 		local X, Y, Z = br.GetObjectPosition(Unit)

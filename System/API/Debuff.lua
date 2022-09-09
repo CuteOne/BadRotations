@@ -109,9 +109,8 @@ br.api.debuffs = function(debuff,k,v)
         for l, _ in pairs(br.enemy) do
             local thisUnit = br.enemy[l].unit
             if range == nil then range = 40 end
-            local distance = br.getDistance(thisUnit,"player")
             -- check if unit is valid
-            if br.GetObjectExists(thisUnit) and distance <= range then
+            if br.GetObjectExists(thisUnit) and  br.getDistance(thisUnit,"player") <= range then
                 -- increase counter for each occurences
                 if not debuff.refresh(thisUnit,"player") then
                     counter = counter + 1
