@@ -244,7 +244,7 @@ Raidable means if its good to raid with.
 
 |   rotation   | author | patch |coverage|status |    readiness     |last updated|
 |--------------|--------|:-----:|:------:|:-----:|:----------------:|-----------:|
-|CatholicPriest|Winterz | 9.2.5 |  80%   |Limited|:heavy_check_mark:|  09/05/2022|
+|CatholicPriest|Winterz | 9.2.5 |  80%   |Limited|:heavy_check_mark:|  09/18/2022|
 |SnewyHoly     |snewygit|Unknown|Unknown |Unknown|  :interrobang:   |  01/18/2022|
 |HolyAura      |Aura    |Unknown|Unknown |Unknown|  :interrobang:   |  04/26/2021|
 
