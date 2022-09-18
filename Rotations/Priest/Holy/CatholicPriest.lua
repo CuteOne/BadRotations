@@ -1244,7 +1244,7 @@ local function runRotation()
 			---------------------------------
 			if not inCombat and not IsMounted() then
 				-- maintain FC stacks   327710 benevolent fairy
-				if runeforge.flashConcentration.equiped and not moving and (not buff.flashConcentration.exists("player") or buff.flashConcentration.remain() < 5 or buff.flashConcentration.stack() < 5) then
+				if runeforge.flashConcentration.equiped and not moving and not cast.current.flashHeal() and (not buff.flashConcentration.exists("player") or buff.flashConcentration.remain() < 5 or buff.flashConcentration.stack() < 5) then
 					if cd.faeGuardians.remains() > 1 then
 						for i = 1, #br.friend do
 							thisUnit = br.friend[i].unit
@@ -1277,7 +1277,7 @@ local function runRotation()
 					br.addonDebug("SoR Detected")
 					actionList_SoR()
 					-- maintain FC stacks
-					if runeforge.flashConcentration.equiped and not moving and (not buff.flashConcentration.exists("player") or buff.flashConcentration.remain() < 5 or buff.flashConcentration.stack() < 5) then
+					if runeforge.flashConcentration.equiped and not moving and not cast.current.flashHeal() and (not buff.flashConcentration.exists("player") or buff.flashConcentration.remain() < 5 or buff.flashConcentration.stack() < 5) then
 						if cd.faeGuardians.remains() > 1 then
 							for i = 1, #br.friend do
 								thisUnit = br.friend[i].unit
@@ -1295,7 +1295,7 @@ local function runRotation()
 				end
 				if not buff.spiritOfRedemption.exists() then
 					-- maintain FC stacks
-					if runeforge.flashConcentration.equiped and not moving and (not buff.flashConcentration.exists("player") or buff.flashConcentration.remain() < 5 or buff.flashConcentration.stack() < 5) then
+					if runeforge.flashConcentration.equiped and not moving and not cast.current.flashHeal() and (not buff.flashConcentration.exists("player") or buff.flashConcentration.remain() < 5 or buff.flashConcentration.stack() < 5) then
 						if cd.faeGuardians.remains() > 1 then
 							for i = 1, #br.friend do
 								thisUnit = br.friend[i].unit
