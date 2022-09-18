@@ -68,6 +68,12 @@ local function createToggles()
 		[2] = {	mode = "Off", value = 2, overlay = "Auto PI OFF", tip = "Auto PI OFF", highlight = 0, icon = br.player.spell.powerInfusion}
 	};
 	br.ui:createToggle(PIModes,"PI", 6, 0)
+		-- PI Button
+	local FGModes = {
+		[1] = {	mode = "On", value = 1,	overlay = "Auto faeGuardians ON",	tip = "Auto faeGuardians ON",	highlight = 1,	icon = br.player.spell.faeGuardians},
+		[2] = {	mode = "Off", value = 2, overlay = "Auto faeGuardians OFF", tip = "Auto faeGuardians OFF", highlight = 0, icon = br.player.spell.faeGuardians}
+	};
+	br.ui:createToggle(FGModes,"FG", 7, 0)
 
 end
 
@@ -158,7 +164,6 @@ local function createOptions()
 		br.ui:createSpinnerWithout(section, "Apotheosis Targets",  3,  0,  40,  1,  "Minimum Apotheosis Targets")
 		br.ui:createSpinner(section, "Guardian Spirit",  30,  0,  100,  5,  "Health Percent to Cast At")
 		br.ui:createCheckbox(section,"Guardian Spirit Tank Only")
-		br.ui:createCheckbox(section,"Use PI automatically")
 		br.ui:createSpinner(section, "Leap of Faith",  20,  0,  100,  5,  "Health Percent to Cast At")
 		br.ui:checkSectionState(section)
 
@@ -284,6 +289,7 @@ local function createOptions()
 
 		section = br.ui:createSection(br.ui.window.profile, colorwarlock.."Warlock")
 		br.ui:createCheckbox(section, "PI Infernal")
+		br.ui:createCheckbox(section, "PI Tyrant")
         br.ui:checkSectionState(section)
 
 		section = br.ui:createSection(br.ui.window.profile, colormonk.."Monk")
@@ -301,6 +307,66 @@ local function createOptions()
 
     end
 
+	local function FG_Spells()
+
+        section = br.ui:createSection(br.ui.window.profile, colorwarrior.."Warrior")
+		br.ui:createCheckbox(section, "FG Recklessness")
+		br.ui:checkSectionState(section)
+
+		section = br.ui:createSection(br.ui.window.profile, colorpala.."Paladin")
+		br.ui:createCheckbox(section, "FG Wings")
+        br.ui:checkSectionState(section)
+
+		section = br.ui:createSection(br.ui.window.profile, colorhunter.."Hunter")
+		br.ui:createCheckbox(section, "FG Trueshot")
+		br.ui:createCheckbox(section, "FG Coordinated Assault")
+		br.ui:createCheckbox(section, "FG Aspect of the Wild")
+        br.ui:checkSectionState(section)
+
+		section = br.ui:createSection(br.ui.window.profile, colorrogue.."Rogue")
+		br.ui:createCheckbox(section, "FG Adrenaline Rush")
+		br.ui:createCheckbox(section, "FG Shadow Blades")
+        br.ui:checkSectionState(section)
+
+		section = br.ui:createSection(br.ui.window.profile, colorpriest.."Priest")
+		br.ui:createCheckbox(section, "SOON")
+        br.ui:checkSectionState(section)
+
+		section = br.ui:createSection(br.ui.window.profile, colordk.."Deathknight")
+		br.ui:createCheckbox(section, "SOON")
+        br.ui:checkSectionState(section)
+
+		section = br.ui:createSection(br.ui.window.profile, colorshaman.."Shaman")
+		br.ui:createCheckbox(section, "FG Stormkeeper")
+		br.ui:createCheckbox(section, "FG Feral Spirits")
+        br.ui:checkSectionState(section)
+
+		section = br.ui:createSection(br.ui.window.profile, colormage.."Mage")
+		br.ui:createCheckbox(section, "FG Combustion")
+		br.ui:createCheckbox(section, "FG Icy Veins")
+		br.ui:createCheckbox(section, "FG Arcane Power")
+        br.ui:checkSectionState(section)
+
+		section = br.ui:createSection(br.ui.window.profile, colorwarlock.."Warlock")
+		br.ui:createCheckbox(section, "FG Infernal")
+		br.ui:createCheckbox(section, "FG Tyrant")
+        br.ui:checkSectionState(section)
+
+		section = br.ui:createSection(br.ui.window.profile, colormonk.."Monk")
+		br.ui:createCheckbox(section, "SOON")
+        br.ui:checkSectionState(section)
+
+		section = br.ui:createSection(br.ui.window.profile, colordrood.."Druid")
+		br.ui:createCheckbox(section, "FG Celestial Alignment")
+		br.ui:createCheckbox(section, "FG Incarnation")
+        br.ui:checkSectionState(section)
+
+		section = br.ui:createSection(br.ui.window.profile, colordh.."Demon Hunter")
+		br.ui:createCheckbox(section, "FG Meta")
+        br.ui:checkSectionState(section)
+
+    end
+
 	optionTable = {{
 		[1] = "Rotation Options",
 		[2] = rotationOptions,
@@ -309,6 +375,11 @@ local function createOptions()
 	{
 		[1] = "\124cffff6060PI Spells\124r",
 		[2] = PI_Spells,
+	},
+
+	{
+		[1] = "\124cff0000fFFG Spells\124r",
+		[2] = FG_Spells,
 	}
 
 }
@@ -433,46 +504,53 @@ local function runRotation()
 		--------------------
 		-- Action List Covenants
 		local function actionList_Covenants()
-			if br.isChecked("Fae Guardians") and cd.faeGuardians.ready() and covenant.nightFae.active then
+			if cd.faeGuardians.ready() and mode.fG == 1 then   --br.player.ui.mode.AutoPI == 1  // br.isChecked("Use PI automatically")
+			--	for i = 1, #tanks do
+			--		local fGtank = tanks[i].unit
+			--		local fGtankClass = br._G.UnitGroupRolesAssigned(fGtank)
+			--		br.addonDebug("Tank Unit is : " .. tostring(fGtank) .. " Class =" .. fGtankClass) -- br._G.UnitGroupRolesAssigned(br.friend[i].unit) == "TANK"
+
 				for i = 1, #br.friend do
 					thisUnit = br.friend[i].unit
-						local PITarget = select(2, br._G.UnitClass(thisUnit))
+						local FGTarget = select(2, br._G.UnitClass(thisUnit))
 						if not br.GetUnitIsUnit("player", thisUnit) then
-							br.addonDebug("Buff Unit is : " .. tostring(thisUnit) .. " Class =" .. PITarget)
-							if
-									-- MAGE
-									PITarget == "MAGE"
-									and (br.UnitBuffID(thisUnit, 190319) -- Combustion
-									or br.UnitBuffID(thisUnit, 12472) -- Icy Veins
-									or br.UnitBuffID(thisUnit, 12042)) -- Arcane Power
-									-- DRUID
-									or PITarget == "DRUID"
-									and (br.UnitBuffID(thisUnit, 194223) -- Celestial Alignment
-									or br.UnitBuffID(thisUnit, 102560)) -- Incarnation: Chosen of Elune
-									-- WARRIOR
-									or PITarget == "WARRIOR" and br.UnitBuffID(thisUnit, 316828) -- recklessness
-									-- WARLOCK
-									or PITarget == "WARLOCK" and br.UnitBuffID(thisUnit, 266087) -- Infernal // Rainy Thingy
-									-- PRIEST
-									or PITarget == "PRIEST" and br.UnitBuffID(thisUnit, 21562) -- Bullshit for now
-									-- ROGUE
-									or PITarget == "ROGUE" and br.UnitBuffID(thisUnit, 121471) -- Shadow Blades
-									-- PALARIN
-									or PITarget == "PALADIN" and br.UnitBuffID(thisUnit, 31884) -- Wings
-									-- HUNTER
-									or PITarget == "HUNTER" and (br.UnitBuffID(thisUnit, 288613) -- Trueshot
-									or br.UnitBuffID(thisUnit, 266779) -- Coordinated Assault
-									or br.UnitBuffID(thisUnit, 193530)) -- Aspect of the Wild
-									-- SHAMAN
-									or PITarget == "SHAMAN" and (br.UnitBuffID(thisUnit, 191634) -- Stormkeeper
-									or br.UnitBuffID(thisUnit, 51533)) -- Feral Spirits
-									-- DEMONHUNTER
-									or PITarget == "DEMONHUNTER" and br.UnitBuffID(thisUnit, 191427) -- meta
-									--or PITarget == "DEATHKNIGHT" and (br.UnitBuffID(thisUnit, 275699) or br.UnitBuffID(thisUnit, 63560) or br.UnitBuffID(thisUnit, 42650))
-							then
-								if cast.faeGuardians(thisUnit) then return true end
-							end
+							br.addonDebug("FG Buff Unit is : " .. tostring(thisUnit) .. " Class =" .. FGTarget)
+						if
+								-- MAGE
+								FGTarget == "MAGE" and (br.isChecked("FG Combustion") and br.UnitBuffID(thisUnit, 190319)) -- Combustion
+								or (br.isChecked("FG Icy Veins") and br.UnitBuffID(thisUnit, 12472)) -- Icy Veins
+								or (br.isChecked("FG Arcane Power") and br.UnitBuffID(thisUnit, 12042)) -- Arcane Power
+								-- DRUID
+								or FGTarget == "DRUID"
+								and (br.isChecked("FG Celestial Alignment") and br.UnitBuffID(thisUnit, 194223)) -- Celestial Alignment
+								or (br.isChecked("FG Incarnation") and br.UnitBuffID(thisUnit, 102560)) -- Incarnation: Chosen of Elune
+								-- WARRIOR
+								or FGTarget == "WARRIOR" and (br.isChecked("FG Recklessness") and br.UnitBuffID(thisUnit, 316828)) -- recklessness
+								-- WARLOCK
+								or FGTarget == "WARLOCK" and (br.isChecked("FG Infernal") and br.UnitBuffID(thisUnit, 266087)) -- Infernal // Rainy Thingy    // 265273 Tyrant
+								or (br.isChecked("FG Tyrant") and br.UnitBuffID(thisUnit, 265273)) -- Tyrant with demonic buff
+								-- PRIEST
+								or FGTarget == "PRIEST" and br.UnitBuffID(thisUnit, 316828) -- Bullshit for now
+								-- ROGUE
+								or FGTarget == "ROGUE" and (br.isChecked("FG Shadow Blades") and br.UnitBuffID(thisUnit, 121471)) -- Shadow Blades
+								or (br.isChecked("FG Adrenaline Rush") and br.UnitBuffID(thisUnit, 13750)) -- Adrenaline RUsh
+								-- PALARIN
+								or FGTarget == "PALADIN" and (br.isChecked("FG Wings") and br.UnitBuffID(thisUnit, 31884)) -- Wings
+								-- HUNTER
+								or FGTarget == "HUNTER" and (br.isChecked("FG Trueshot") and br.UnitBuffID(thisUnit, 288613)) -- Trueshot
+								or (br.isChecked("FG Coordinated Assault") and br.UnitBuffID(thisUnit, 266779)) -- Coordinated Assault
+								or (br.isChecked("FG Aspect of the Wild") and br.UnitBuffID(thisUnit, 193530)) -- Aspect of the Wild
+								-- SHAMAN
+								or FGTarget == "SHAMAN" and (br.isChecked("FG Stormkeeper") and br.UnitBuffID(thisUnit, 191634)) -- Stormkeeper
+								or (br.isChecked("FG Feral Spirits") and br.UnitBuffID(thisUnit, 51533)) -- Feral Spirits
+								-- DEMONHUNTER
+								or FGTarget == "DEMONHUNTER" and (br.isChecked("FG Meta") and br.getBuffRemain(thisUnit,191427) >10 and br.UnitBuffID(thisUnit, 191427)) -- meta
+								--or PITarget == "DEATHKNIGHT" and (br.UnitBuffID(thisUnit, 275699) or br.UnitBuffID(thisUnit, 63560) or br.UnitBuffID(thisUnit, 42650))
+						then
+							if cast.faeGuardians(thisUnit) then return true end
 						end
+						--if cast.flashHeal(FGTarget) then return true end
+					end
 				end
 			end
 		end
@@ -484,7 +562,7 @@ local function runRotation()
 						thisUnit = br.friend[i].unit
 							local PITarget = select(2, br._G.UnitClass(thisUnit))
 							if not br.GetUnitIsUnit("player", thisUnit) then
-								br.addonDebug("Buff Unit is : " .. tostring(thisUnit) .. " Class =" .. PITarget)
+								br.addonDebug("PI Buff Unit is : " .. tostring(thisUnit) .. " Class =" .. PITarget)
 							if
 									-- MAGE
 									PITarget == "MAGE" and (br.isChecked("PI Combustion") and br.UnitBuffID(thisUnit, 190319)) -- Combustion
@@ -498,6 +576,7 @@ local function runRotation()
 									or PITarget == "WARRIOR" and (br.isChecked("PI Recklessness") and br.UnitBuffID(thisUnit, 316828)) -- recklessness
 									-- WARLOCK
 									or PITarget == "WARLOCK" and (br.isChecked("PI Infernal") and br.UnitBuffID(thisUnit, 266087)) -- Infernal // Rainy Thingy
+									or (br.isChecked("PI Tyrant") and br.UnitBuffID(thisUnit, 265273)) -- Tyrant with demonic buff
 									-- PRIEST
 									or PITarget == "PRIEST" and br.UnitBuffID(thisUnit, 316828) -- Bullshit for now
 									-- ROGUE
@@ -1164,10 +1243,23 @@ local function runRotation()
 			--- Out Of Combat - Rotations ---
 			---------------------------------
 			if not inCombat and not IsMounted() then
-				-- maintain FC stacks
-				if runeforge.flashConcentration.equiped and (not buff.flashConcentration.exists("player") or buff.flashConcentration.remain() < 5 or buff.flashConcentration.stack() < 5) then
-					if cast.flashHeal(lowest.unit) then br.addonDebug("Casting Flash Heal maintain FC ooc") return end
+				-- maintain FC stacks   327710 benevolent fairy
+				if runeforge.flashConcentration.equiped and not moving and (not buff.flashConcentration.exists("player") or buff.flashConcentration.remain() < 5 or buff.flashConcentration.stack() < 5) then
+					if cd.faeGuardians.remains() > 1 then
+						for i = 1, #br.friend do
+							thisUnit = br.friend[i].unit
+							local FaeFHTarget = select(2, br._G.UnitClass(thisUnit))
+							if br.getBuffRemain(thisUnit,327710) >1 and not br.GetUnitIsUnit("player", thisUnit) then
+								br.addonDebug("Fae Buff Unit is : " .. tostring(thisUnit) .. " Class =" .. FaeFHTarget)
+								if cast.flashHeal(thisUnit) then br.addonDebug("Casting FlashHeal on CDR Fae Unit OOC") return
+								end
+							end
+						end
+					end
+					if cd.faeGuardians.remains() < 1 or br.getBuffRemain(thisUnit,327710) <1 then
+					cast.flashHeal(lowest.unit) br.addonDebug("Casting Flash Heal maintain FC OOC") return end
 				end
+				actionList_Covenants()
 				actionList_Extras()
 				actionList_PI()
 				actionList_Dispel()
@@ -1185,14 +1277,38 @@ local function runRotation()
 					br.addonDebug("SoR Detected")
 					actionList_SoR()
 					-- maintain FC stacks
-					if runeforge.flashConcentration.equiped and (cast.able.flashHeal() and not buff.flashConcentration.exists("player") or buff.flashConcentration.remain() < 5 or buff.flashConcentration.stack() < 5) then
-						if cast.flashHeal(lowest.unit) then br.addonDebug("Casting Flash Heal maintain FC") return end
+					if runeforge.flashConcentration.equiped and not moving and (not buff.flashConcentration.exists("player") or buff.flashConcentration.remain() < 5 or buff.flashConcentration.stack() < 5) then
+						if cd.faeGuardians.remains() > 1 then
+							for i = 1, #br.friend do
+								thisUnit = br.friend[i].unit
+								local FaeFHTarget = select(2, br._G.UnitClass(thisUnit))
+								if br.getBuffRemain(thisUnit,327710) >1 and not br.GetUnitIsUnit("player", thisUnit) then
+									br.addonDebug("Fae Buff Unit is : " .. tostring(thisUnit) .. " Class =" .. FaeFHTarget)
+									if cast.flashHeal(thisUnit) then br.addonDebug("Casting FlashHeal on CDR Fae Unit SoR") return
+									end
+								end
+							end
+						end
+						if cd.faeGuardians.remains() < 1 or br.getBuffRemain(thisUnit,327710) <1 then
+						cast.flashHeal(lowest.unit) br.addonDebug("Casting Flash Heal maintain FC SoR") return end
 					end
 				end
 				if not buff.spiritOfRedemption.exists() then
 					-- maintain FC stacks
-					if runeforge.flashConcentration.equiped and (cast.able.flashHeal() and not buff.flashConcentration.exists("player") or buff.flashConcentration.remain() < 5 or buff.flashConcentration.stack() < 5) then
-						if cast.flashHeal(lowest.unit) then br.addonDebug("Casting Flash Heal maintain FC") return end
+					if runeforge.flashConcentration.equiped and not moving and (not buff.flashConcentration.exists("player") or buff.flashConcentration.remain() < 5 or buff.flashConcentration.stack() < 5) then
+						if cd.faeGuardians.remains() > 1 then
+							for i = 1, #br.friend do
+								thisUnit = br.friend[i].unit
+								local FaeFHTarget = select(2, br._G.UnitClass(thisUnit))
+								if br.getBuffRemain(thisUnit,327710) >1 and not br.GetUnitIsUnit("player", thisUnit) then
+									br.addonDebug("Fae Buff Unit is : " .. tostring(thisUnit) .. " Class =" .. FaeFHTarget)
+									if cast.flashHeal(thisUnit) then br.addonDebug("Casting FlashHeal on CDR Fae Unit iC") return
+									end
+								end
+							end
+						end
+						if cd.faeGuardians.remains() < 1 or br.getBuffRemain(thisUnit,327710) <1 then
+						cast.flashHeal(lowest.unit) br.addonDebug("Casting Flash Heal maintain FC iC") return end
 					end
 					actionList_HWC()
 					actionList_Defensive()
@@ -1202,7 +1318,7 @@ local function runRotation()
 					actionList_AOEHealing()
 					actionList_SingleTarget()
 					actionList_PI()
-					--actionList_Covenants()
+					actionList_Covenants()
 					if br.player.ui.mode.dPS == 1 and (runeforge.flashConcentration.equiped and buff.flashConcentration.remain() > 6) then
 						actionList_DPS()
 					end
