@@ -300,8 +300,8 @@ Raidable means if its good to raid with.
 |  rotation   | author  | patch |coverage|status |  readiness  |last updated|
 |-------------|---------|:-----:|:------:|:-----:|:-----------:|-----------:|
 |Laksham_resto|Laksmackt|Unknown|Unknown |Unknown|:interrobang:|  05/21/2021|
-|Kuu M+       |Kuukuu   |Unknown|Unknown |Unknown|:interrobang:|  03/04/2021|
 |Kuu Raid     |Kuukuu   |Unknown|Unknown |Unknown|:interrobang:|  03/04/2021|
+|Kuu M+       |Kuukuu   |Unknown|Unknown |Unknown|:interrobang:|  03/04/2021|
 |Resto Shamlo |Pangloo  |Unknown|Unknown |Unknown|:interrobang:|  02/27/2021|
 
 
@@ -334,7 +334,7 @@ Raidable means if its good to raid with.
 
 | rotation  | author  | patch |coverage|status |    readiness     |last updated|
 |-----------|---------|:-----:|:------:|:-----:|:----------------:|-----------:|
-|CuteOne    |CuteOne  | 9.2.5 |  100%  |Limited|:heavy_check_mark:|  08/07/2022|
+|CuteOne    |CuteOne  | 9.2.5 |  100%  |Limited|:heavy_check_mark:|  10/05/2022|
 |WinterzArms|Hassliebe|Unknown|Unknown |Unknown|  :interrobang:   |  03/06/2021|
 
 - Fury
