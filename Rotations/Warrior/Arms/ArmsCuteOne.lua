@@ -245,7 +245,7 @@ actionList.Defensive = function()
         end
         -- Die By The Sword
         if ui.checked("Die By The Sword") and cast.able.dieByTheSword() and useDefensive("Die By The Sword") then
-            if cast.dieByTheSword() then debug("Casting Die By The Sword") return end
+            if cast.dieByTheSword() then ui.debug("Casting Die By The Sword") return end
         end
         -- Ignore Pain
         if ui.checked("Ignore Pain") and cast.able.ignorePain() and useDefensive("Ignore Pain") and rage >= 40 then
