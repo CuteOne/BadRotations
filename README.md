@@ -149,7 +149,6 @@ Raidable means if its good to raid with.
 |rotation|author |patch|coverage|status |    readiness     |last updated|
 |--------|-------|:---:|:------:|:-----:|:----------------:|-----------:|
 |CuteOne |CuteOne|9.2.5|  100%  |Limited|:white_check_mark:|  08/07/2022|
-|Arhelay |Arhelay|9.2.5|  95%  	|Limited|:white_check_mark:|  10/17/2022|
 
 - Marksmanship
 
