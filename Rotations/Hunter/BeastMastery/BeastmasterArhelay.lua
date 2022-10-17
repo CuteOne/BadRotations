@@ -1,5 +1,5 @@
 -------------------------------------------------------
--- Author = CuteOne
+-- Author = Arhelay
 -- Patch = 9.2.5
 --    Patch should be the latest patch you've updated the rotation for (i.e., 9.2.5)
 -- Coverage = 95%
