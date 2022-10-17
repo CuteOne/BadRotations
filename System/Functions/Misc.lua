@@ -612,6 +612,8 @@ function br.SpecificToggle(toggle)
 		return br._G.GetKeyState(0x05)
 	elseif br.getOptionValue(toggle) == 9 then
 		return br._G.GetKeyState(0x06)
+	elseif br.getOptionValue(toggle) == 10 then
+		return br._G.GetKeyState(0xC0)			
 	end
 end
 
