@@ -6,7 +6,7 @@ function br.castInterrupt(SpellID,Percent,Unit)
 		local _, _, _, castStartTime, castEndTime, _, _, castInterruptable = br._G.UnitCastingInfo(Unit)
 		local channelName, _, _, channelStartTime, channelEndTime, _, channelInterruptable = br._G.UnitChannelInfo(Unit)
 		-- first make sure we will be able to cast the spellID
-		if br.canCast(SpellID,false,false) == true then
+		if br.canCast(SpellID,false,false, Unit) == true then
 			-- make sure we cover melee range
 			local allowedDistance = select(6,br._G.GetSpellInfo(SpellID))
 			if allowedDistance < 5 then
