@@ -675,7 +675,7 @@ function br.createCastFunction(thisUnit,castType,minUnits,effectRng,spellID,inde
 	end
 	-- Base Spell Availablility Check
 	if (baseSpellID == spellID or overrideSpellID == spellID)
-		and (br._G.UnitIsUnit(thisUnit, "target") and br._G.IsUsableSpell(spellID) or true) and not select(2,br._G.IsUsableSpell(spellID)) -- Usability Checks
+		and ((thisUnit ~= nil and br._G.UnitIsUnit(thisUnit, "target") and br._G.IsUsableSpell(spellID)) or true) and not select(2,br._G.IsUsableSpell(spellID)) -- Usability Checks
 		and castTimers[spellID] < br._G.GetTime() and br.getSpellCD(spellID) <= br:getUpdateRate()
 		and (br.getSpellCD(61304) <= 0 or select(2,br._G.GetSpellBaseCooldown(spellID)) <= 0
 		 	or (br.getCastTime(spellID) > 0 and br.getCastTimeRemain("player") <= br:getUpdateRate())) -- Cooldown Checks
