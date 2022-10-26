@@ -186,8 +186,9 @@ local methods = {
 		local headerHeight 	= settings.header and settings.headerHeight or 0
 		local footerHeight 	= settings.footer and settings.footerHeight or 0
 
-		frame:SetMinResize(settings.minWidth,settings.minHeight)
-		frame:SetMaxResize(settings.maxWidth,settings.maxHeight)
+		-- frame:SetMinResize(settings.minWidth,settings.minHeight)
+		-- frame:SetMaxResize(settings.maxWidth,settings.maxHeight)
+		frame:SetResizeBounds(settings.minWidth,settings.minHeight,settings.maxWidth,settings.maxHeight)
 
 		self:UpdatePosition()
 		self:UpdateSizers()
