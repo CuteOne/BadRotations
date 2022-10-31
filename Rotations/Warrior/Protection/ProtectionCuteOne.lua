@@ -552,7 +552,7 @@ local function runRotation() -- This is the main profile loop, any below this po
             end
             -- Revenge
             -- revenge,if=buff.revenge.up&(target.health.pct>20|spell_targets.thunder_clap>3)&cooldown.shield_slam.remains
-            if cast.able.revenge("player","cone",1,8) and (buff.revenge.exists() and (unit.hp(units.dyn5) > 20 or ui.useAOE(8,4) > 3) and cd.shieldSlam.remain()) then
+            if cast.able.revenge("player","cone",1,8) and (buff.revenge.exists() and (unit.hp(units.dyn5) > 20 or ui.useAOE(8,4)) and cd.shieldSlam.remain()) then
                 if cast.revenge("player","cone",1,8) then ui.debug("Casting Revenge") return true end
             end
             -- Ignore Pain
