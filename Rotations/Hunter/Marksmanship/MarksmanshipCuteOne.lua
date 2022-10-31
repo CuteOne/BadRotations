@@ -885,6 +885,7 @@ local function runRotation()
     end
     if var.tarred == nil or cd.tarTrap.remain() == 0 or not unit.inCombat() then var.tarred = false end
 
+    --     ui.chatOverlay("Is Target: "..tostring(unit.isUnit(var.lowestHPUnit,"target")).." - Name: "..tostring(unit.name(var.lowestHPUnit)))
     ---------------------
     --- Begin Profile ---
     ---------------------

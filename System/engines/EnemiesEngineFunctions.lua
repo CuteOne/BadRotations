@@ -495,7 +495,6 @@ function br.getEnemiesInCone(angle,length,checkNoCombat, showLines)
             if inside then
 			-- if isWithinAngleDifference("player", thisUnit, angle) then
 				if showLines then
----@diagnostic disable-next-line: undefined-field
 					LibDraw.Circle(unitX, unitY, playerZ, br._G.UnitBoundingRadius(thisUnit))
 				end
                 unitsCounter = unitsCounter + 1

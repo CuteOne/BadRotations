@@ -34,18 +34,14 @@ local function trackObject(object, name, objectid, objectguid, interact)
     local zDifference = math.floor(zOb - pZ)
     if xOb ~= nil and playerDistance < 200 then
         if math.abs(zDifference) > 50 then
----@diagnostic disable-next-line: undefined-field
             LibDraw.SetColor(255, 0, 0, 100)
         else
----@diagnostic disable-next-line: undefined-field
             LibDraw.SetColor(0, 255, 0, 100)
         end
-        --LibDraw.Circle(xOb, yOb, zOb, 2)
+        LibDraw.Circle(xOb, yOb, zOb, 2)
         if br._G.ObjectIsUnit(object) then
----@diagnostic disable-next-line: undefined-field
             LibDraw.Arrow(xOb, yOb, zOb, br._G.UnitFacing(object) + math.pi * 2)
         else
----@diagnostic disable-next-line: undefined-field
             LibDraw.Arrow(xOb, yOb, zOb, br._G.UnitFacing("player") + math.pi * 2)
         end
         if name == "" or name == "Unknown" then
@@ -54,24 +50,20 @@ local function trackObject(object, name, objectid, objectguid, interact)
 		if br.isChecked("Display Extra Info") then
 			name = name .. "  [" .. objectid .. "] " .. "\n" .. objectguid .. "  [ZDiff: " .. zDifference.."]"
 		end
----@diagnostic disable-next-line: undefined-field
 		LibDraw.Text(name, "GameFontNormal", xOb, yOb, zOb + 3)
         if br.isChecked("Draw Lines to Tracked Objects") then
 			if math.abs(zDifference) > 50 then
----@diagnostic disable-next-line: undefined-field
 				LibDraw.SetColor(255, 0, 0, 80)
 			else
----@diagnostic disable-next-line: undefined-field
 				LibDraw.SetColor(0, 255, 0, 80)
 			end
----@diagnostic disable-next-line: undefined-field
             LibDraw.Line(pX, pY, pZ, xOb, yOb, zOb)
         end
-        local hasLoot = br._G.CanLootUnit(objectguid)
-        local interacting = isInteracting("player")
+        -- local hasLoot = br._G.CanLootUnit(objectguid)
+        -- local interacting = isInteracting("player")
         if br.isChecked("Auto Interact with Any Tracked Object") and interact and not br.player.inCombat
             and playerDistance <= 7 and not br.isUnitCasting("player") and not br.isMoving("player")
-            and (not interacting or hasLoot)--and br.timer:useTimer("Interact Delay", 1.5)
+            and (not isInteracting("player") or br._G.CanLootUnit(objectguid))--and br.timer:useTimer("Interact Delay", 1.5)
         then
             br._G.ObjectInteract(object)
         end
@@ -86,7 +78,6 @@ end
 
 function br.objectTracker()
     if br.isChecked("Enable Tracker") then
----@diagnostic disable-next-line: undefined-field
         LibDraw:clearCanvas()
         -- Custom Tracker
         if (br.isChecked("Custom Tracker") and br.getOptionValue("Custom Tracker") ~= "" and
@@ -154,7 +145,6 @@ function br.objectTracker()
             end
         end
     elseif tracking then
----@diagnostic disable-next-line: undefined-field
         LibDraw:clearCanvas()
         tracking = false
     end

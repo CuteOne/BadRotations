@@ -175,10 +175,11 @@ function br.loader:new(spec,specName)
         if spec > 1400 then return end
         for k,v in pairs(self.spell.talents) do
             talentFound = false
-            for r = 1, 7 do --search each talent row
-                for c = 1, 3 do -- search each talent column
+            for r = 1, 7 do --search each talent row, MAX_TALENT_TIERS
+                for c = 1, 3 do -- search each talent column, MAX_TALENT_COLUMNS
                     local _,_,_,selected,_,talentID = br._G.GetTalentInfo(r,c,br.activeSpecGroup)
                     if v == talentID then
+                        -- br._G.print("Found talent: |r"..k.." ("..v..")")
                         talentFound = true
                         -- Add All Matches to Talent List for Boolean Checks
                         self.talent[k] = selected

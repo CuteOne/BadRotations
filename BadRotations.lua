@@ -66,17 +66,17 @@ br.druid = {}
 local nameSet = false
 function br.setAddonName()
 	if not nameSet then
-		for i = 1, br._G.GetNumAddOns() do
-			local name, title = br._G.GetAddOnInfo(i)
-			if title == "|cffa330c9BadRotations" then
-				br.addonName = name
-				if br.addonName ~= "BadRotations" then
-					br._G.print("Currently known as " .. tostring(br.addonName))
-				end
+		-- for i = 1, br._G.GetNumAddOns() do
+			-- local name, title = br._G.GetAddOnInfo(i)
+			-- if title == "|cffa330c9BadRotations" then
+				-- br.addonName = name
+				-- if br.addonName ~= "BadRotations" then
+				-- 	br._G.print("Currently known as " .. tostring(br.addonName))
+				-- end
 				nameSet = true
-				break
-			end
-		end
+				-- break
+			-- end
+		-- end
 	end
 end
 
@@ -186,6 +186,42 @@ function br.loadSavedSettings()
 		br.initializeSettings = false
 	end
 end
+function br.load()
+	-- Update Selected Spec
+	br.selectedSpecID, br.selectedSpec = br._G.GetSpecializationInfo(br._G.GetSpecialization())
+	if br.selectedSpec == "" then
+		br.selectedSpec = "Initial"
+	end
+	br.activeSpecGroup = br._G.GetActiveSpecGroup(false)
+	if br.data == nil then
+		br.data = {}
+	end
+	if br.data.tracker == nil then
+		br.data.tracker = {}
+	end
+	if br.data.settings == nil then
+		br.data.settings = {}
+	end
+	if br.data.ui == nil then
+		br.data.ui = {}
+	end
+	if br.data.settings[br.selectedSpec] == nil then
+		br.data.settings[br.selectedSpec] = {}
+	end
+	if not br.unlocked then
+		br.initializeSettings = true
+		print(br.classColor .. "[BadRotations] |cffFFFFFFPlease wait for settings to load!")
+	end
+	br.equipHasChanged = true
+	if not br.loadedIn then
+		if br.damaged == nil then
+			br.damaged = {}
+		end
+		br.bagsUpdated = true
+		br:Run()
+	end
+	br.timeOfLastLoadingScreen = br._G.GetTime()
+end
 local frame = br._G.CreateFrame("FRAME")
 frame:RegisterEvent("PLAYER_LOGOUT")
 frame:RegisterEvent("PLAYER_ENTERING_WORLD")
@@ -216,40 +252,7 @@ function frame:OnEvent(event)
 		end
 	end
 	if event == "PLAYER_ENTERING_WORLD" then
-		-- Update Selected Spec
-		br.selectedSpecID, br.selectedSpec = br._G.GetSpecializationInfo(br._G.GetSpecialization())
-		if br.selectedSpec == "" then
-			br.selectedSpec = "Initial"
-		end
-		br.activeSpecGroup = br._G.GetActiveSpecGroup(false)
-		if br.data == nil then
-			br.data = {}
-		end
-		if br.data.tracker == nil then
-			br.data.tracker = {}
-		end
-		if br.data.settings == nil then
-			br.data.settings = {}
-		end
-		if br.data.ui == nil then
-			br.data.ui = {}
-		end
-		if br.data.settings[br.selectedSpec] == nil then
-			br.data.settings[br.selectedSpec] = {}
-		end
-		if not br.unlocked then
-			br.initializeSettings = true
-			print(br.classColor .. "[BadRotations] |cffFFFFFFPlease wait for settings to load!")
-		end
-		br.equipHasChanged = true
-		if not br.loadedIn then
-			if br.damaged == nil then
-				br.damaged = {}
-			end
-			br.bagsUpdated = true
-			br:Run()
-		end
-		br.timeOfLastLoadingScreen = br._G.GetTime()
+		br.load()
 	end
 end
 frame:SetScript("OnEvent", frame.OnEvent)

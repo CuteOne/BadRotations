@@ -74,7 +74,7 @@ function LibDraw.Line(sx, sy, sz, ex, ey, ez)
 	local sx, sy = WorldToScreen(sx, sy, sz)
 	local ex, ey = WorldToScreen(ex, ey, ez)
 
-	if sx ~= 0 and sy ~= 0 and ex ~= 0 and ey ~= 0 then 
+	if sx ~= 0 and sy ~= 0 and ex ~= 0 and ey ~= 0 then
 		LibDraw.Draw2DLine(sx, sy, ex, ey)
 	end
 end
@@ -135,9 +135,9 @@ function LibDraw.Array(vectors, x, y, z, rotationX, rotationY, rotationZ)
 
 		local sx, sy = WorldToScreen(sx, sy, sz)
 		local ex, ey = WorldToScreen(ex, ey, ez)
-		if sx ~= 0 and sy ~= 0 and ex ~= 0 and ey ~= 0 then 
+		if sx ~= 0 and sy ~= 0 and ex ~= 0 and ey ~= 0 then
 			LibDraw.Draw2DLine(sx, sy, ex, ey)
-		end	
+		end
 	end
 end
 
@@ -201,14 +201,14 @@ function LibDraw.Arrow(x, y, z, direction, multiplier)
 
         sx, sy = WorldToScreen(sx, sy, sz)
         ex, ey = WorldToScreen(ex, ey, ez)
-	if sx ~= 0 and sy ~= 0 and ex ~= 0 and ey ~= 0 then 
+	if sx ~= 0 and sy ~= 0 and ex ~= 0 and ey ~= 0 then
 		LibDraw.Draw2DLine(sx, sy, ex, ey)
-	end	
+	end
     end
 end
 
 local full_circle = rad(365)
-local small_circle_step = rad(3)
+local small_circle_step = rad(15)
 
 function LibDraw.Circle(x, y, z, size)
 	local lx, ly, nx, ny, fx, fy = false, false, false, false, false, false
@@ -234,7 +234,7 @@ function LibDraw.GroundCircle(x, y, z, size)
 			fx, fy, fz = (x+cos(v)*size), (y+sin(v)*size), z
 		end
 		nx, ny = WorldToScreen( (fx+cos(v)*size), (fy+sin(v)*size), fz )
-		if nx ~= 0 and ny ~= 0 then 
+		if nx ~= 0 and ny ~= 0 then
 			LibDraw.Draw2DLine(lx, ly, nx, ny)
 		end
 		lx, ly = nx, ny

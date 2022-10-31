@@ -113,7 +113,6 @@ function br.isIncapacitated(spellID)
 			event = br._G.C_LossOfControl.GetActiveLossOfControlData(i)
 			if event then
 				if not br.canRegainControl(spellID, event.locType) and (event.locType ~= "DISARM" and event.locType ~= "ROOT" or event.locType == "SNARE") then
-					-- (event.locType == "NONE"
 					-- 	or event.locType == ""CHARM""
 					-- 	or event.locType == "DISORIENT"
 					-- 	or event.locType == "FEAR"
