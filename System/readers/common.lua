@@ -336,10 +336,6 @@ function br.read.commonReaders()
 		if event == "AZERITE_ESSENCE_ACTIVATED" then
 			br.updatePlayerInfo = true
 		end
-		-- Warlock Soul Shards
-		if event == "UNIT_POWER_UPDATE" and select(2, ...) == "SOUL_SHARDS" then
-			br.shards = br._G.WarlockPowerBar_UnitPower("player")
-		end
 		if event == "PLAYER_EQUIPMENT_CHANGED" then
 			br.equipHasChanged = true
 		end
