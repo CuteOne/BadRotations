@@ -52,7 +52,8 @@ br.classColors = {
 	[9] = {class = "Warlock", B = 0.79, G = 0.51, R = 0.58, hex = "9482c9"},
 	[10] = {class = "Monk", B = 0.59, G = 1, R = 0, hex = "00ff96"},
 	[11] = {class = "Druid", B = 0.04, G = 0.49, R = 1, hex = "ff7d0a"},
-	[12] = {class = "Demonhunter", B = 0.79, G = 0.19, R = 0.64, hex = "a330c9"}
+	[12] = {class = "Demonhunter", B = 0.79, G = 0.19, R = 0.64, hex = "a330c9"},
+	[13] = {class = "Evoker", B = 0.50, G = 0.58, R = 0.20, hex = "33937f"}
 }
 br.classColor = tostring("|cff" .. br.classColors[select(3, br._G.UnitClass("player"))].hex)
 br.qualityColors = {
@@ -192,7 +193,6 @@ function br.load()
 	if br.selectedSpec == "" then
 		br.selectedSpec = "Initial"
 	end
-	br.activeSpecGroup = br._G.GetActiveSpecGroup(false)
 	if br.data == nil then
 		br.data = {}
 	end

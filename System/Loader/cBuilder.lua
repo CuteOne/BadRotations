@@ -167,32 +167,52 @@ function br.loader:new(spec,specName)
     self.visions = br.lists.visions
     self.pets  = br.lists.pets
 
+    -- Get All talents - Thx wildstar
+    local function getAllTalents()
+        local talents = {}
+        local configId = br._G.C_ClassTalents.GetActiveConfigID()
+        if not configId then return talents end
+        local configInfo = br._G.C_Traits.GetConfigInfo(configId)
+        for _, treeId in pairs(configInfo.treeIDs) do
+          local nodes = br._G.C_Traits.GetTreeNodes(treeId)
+            for _, nodeId in pairs(nodes) do
+                local node = br._G.C_Traits.GetNodeInfo(configId, nodeId)
+                local activeid = (node.activeRank > 0 or node.ranksPurchased > 0) and (node.activeEntry and node.activeEntry.entryID or node.entryIDs[1])
+                for _, entryID in pairs(node.entryIDs) do
+                    local entryInfo = br._G.C_Traits.GetEntryInfo(configId,entryID)
+                    local definitionInfo = br._G.C_Traits.GetDefinitionInfo(entryInfo.definitionID)
+                    talents[definitionInfo.spellID] = (entryID == activeid)
+                end
+            end
+        end
+        return talents
+    end
+
     -- Update Talent Info
     local function getTalentInfo()
         local talentFound
-        br.activeSpecGroup = br._G.GetActiveSpecGroup()
         if self.talent == nil then self.talent = {} end
-        if spec > 1400 then return end
+        if spec > 1500 then return end
+        local talents = getAllTalents()
         for k,v in pairs(self.spell.talents) do
             talentFound = false
-            for r = 1, 7 do --search each talent row, MAX_TALENT_TIERS
-                for c = 1, 3 do -- search each talent column, MAX_TALENT_COLUMNS
-                    local _,_,_,selected,_,talentID = br._G.GetTalentInfo(r,c,br.activeSpecGroup)
-                    if v == talentID then
-                        -- br._G.print("Found talent: |r"..k.." ("..v..")")
-                        talentFound = true
-                        -- Add All Matches to Talent List for Boolean Checks
-                        self.talent[k] = selected
-                        -- Add All Active Ability Matches to Ability/Spell List for Use Checks
-                        if not br._G.IsPassiveSpell(v) then
-                            self.spell['abilities'][k] = v
-                            self.spell[k] = v
-                        end
-                        break;
+            if br._G.IsPlayerSpell(v) then -- only works for known spells
+                talentFound = true
+                self.talent[k] = true
+                if not br._G.IsPassiveSpell(v) then
+                    self.spell['abilities'][k] = v
+                    self.spell[k] = v
+                end
+            end
+            if not talentFound then
+                if talents[v] ~= nil then
+                    talentFound = true
+                    self.talent[k] = talents[v]
+                    if not br._G.IsPassiveSpell(v) then
+                        self.spell['abilities'][k] = v
+                        self.spell[k] = v
                     end
                 end
-                -- If we found the talent, then stop looking for it.
-                if talentFound then break end
             end
             -- No matching talent for listed talent id, report to
             if not talentFound then

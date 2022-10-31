@@ -21,6 +21,11 @@ br.lists.spec = {
 		Restoration = 105,
 		Initial = 1447,
 	},
+	EVOKER = {
+		Devastation = 1467,
+		Preservation = 1468,
+		Initial = 1465,
+	},
 	HUNTER = {
 		BeastMastery = 253,
 		Marksmanship = 254,

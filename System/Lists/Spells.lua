@@ -1130,6 +1130,110 @@ br.lists.spells = {
             },
         },
     },
+    EVOKER = {
+        -- Devastation
+        [1467] = {
+            abilities                       = {
+
+            },
+            artifacts                       = {
+
+            },
+            buffs                           = {
+
+            },
+            conduits                        = {
+
+            },
+            covenants                       = {
+
+            },
+            debuffs                         = {
+
+            },
+            glyphs                          = {
+
+            },
+            runeforges                      = {
+
+            },
+            talents                         = {
+
+            },
+            traits                          = {
+
+            },
+        },
+        -- Preservasion
+        [1468] = {
+            abilities                       = {
+
+            },
+            artifacts                       = {
+
+            },
+            buffs                           = {
+
+            },
+            conduits                        = {
+
+            },
+            covenants                       = {
+
+            },
+            debuffs                         = {
+
+            },
+            glyphs                          = {
+
+            },
+            runeforges                      = {
+
+            },
+            talents                         = {
+
+            },
+            traits                          = {
+
+            },
+        },
+        -- All
+        Shared = {
+            abilities                       = {
+
+            },
+            animas                          = {
+
+            },
+            artifacts                       = {
+
+            },
+            buffs                           = {
+
+            },
+            conduits                        = {
+
+            },
+            covenants                       = {
+
+            },
+            debuffs                         = {
+
+            },
+            glyphs                          = {
+
+            },
+            runeforges                      = {
+
+            },
+            talents                         = {
+
+            },
+            traits                          = {
+
+            },
+        },
+    },
     HUNTER = {
         -- BeastMastery
         [253] = {
@@ -3185,7 +3289,7 @@ br.lists.spells = {
             },
         },
     },
- SHAMAN = {
+    SHAMAN = {
         -- Elemental
         [262] = {
             abilities                       = {

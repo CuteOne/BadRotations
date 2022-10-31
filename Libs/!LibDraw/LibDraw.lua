@@ -74,9 +74,7 @@ function LibDraw.Line(sx, sy, sz, ex, ey, ez)
 	local sx, sy = WorldToScreen(sx, sy, sz)
 	local ex, ey = WorldToScreen(ex, ey, ez)
 
-	if sx ~= 0 and sy ~= 0 and ex ~= 0 and ey ~= 0 then
-		LibDraw.Draw2DLine(sx, sy, ex, ey)
-	end
+	LibDraw.Draw2DLine(sx, sy, ex, ey)
 end
 
 function LibDraw.rotateX(cx, cy, cz, px, py, pz, r)
@@ -135,14 +133,13 @@ function LibDraw.Array(vectors, x, y, z, rotationX, rotationY, rotationZ)
 
 		local sx, sy = WorldToScreen(sx, sy, sz)
 		local ex, ey = WorldToScreen(ex, ey, ez)
-		if sx ~= 0 and sy ~= 0 and ex ~= 0 and ey ~= 0 then
-			LibDraw.Draw2DLine(sx, sy, ex, ey)
-		end
+		LibDraw.Draw2DLine(sx, sy, ex, ey)
 	end
 end
 
 function LibDraw.Draw2DLine(sx, sy, ex, ey)
 	if not WorldToScreen or not sx or not sy or not ex or not ey then return end
+	if sx == 0 or ex == 0 then return end
 
 	local L = tremove(LibDraw.lines) or false
 	if L == false then
@@ -201,9 +198,7 @@ function LibDraw.Arrow(x, y, z, direction, multiplier)
 
         sx, sy = WorldToScreen(sx, sy, sz)
         ex, ey = WorldToScreen(ex, ey, ez)
-	if sx ~= 0 and sy ~= 0 and ex ~= 0 and ey ~= 0 then
 		LibDraw.Draw2DLine(sx, sy, ex, ey)
-	end
     end
 end
 
@@ -256,10 +251,8 @@ function LibDraw.Arc(x, y, z, size, arc, rotation)
 		lx, ly = nx, ny
 	end
 	local px, py = WorldToScreen(x, y, z)
-	if fx ~= 0 and fy ~= 0 and lx ~= 0 and ly ~= 0 and px ~= 0 and py ~= 0 then
-		LibDraw.Draw2DLine(px, py, lx, ly)
-		LibDraw.Draw2DLine(px, py, fx, fy)
-	end
+	LibDraw.Draw2DLine(px, py, lx, ly)
+	LibDraw.Draw2DLine(px, py, fx, fy)
 end
 
 function LibDraw.Texture(config, x, y, z, alphaA)

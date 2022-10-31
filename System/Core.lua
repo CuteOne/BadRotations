@@ -225,7 +225,6 @@ function br.BadRotationsUpdate(self)
                     br.selectedSpecID = br._G.GetSpecializationInfo(br._G.GetSpecialization())
                     br.loader.loadProfiles()
                     br.loadLastProfileTracker()
-                    br.activeSpecGroup = br._G.GetActiveSpecGroup()
                     br.data.loadedSettings = false
                     -- Load Default Settings
                     br:defaultSettings()
