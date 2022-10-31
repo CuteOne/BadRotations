@@ -350,7 +350,7 @@ Raidable means if its good to raid with.
 
 |   rotation   | author | patch |coverage|status |    readiness     |last updated|
 |--------------|--------|:-----:|:------:|:-----:|:----------------:|-----------:|
-|CuteOne       |CuteOne | 9.2.5 |  100%  |Limited|:heavy_check_mark:|  08/07/2022|
+|CuteOne       |CuteOne | 9.2.5 |  100%  |Limited|:heavy_check_mark:|  10/31/2022|
 |Doparrior_Prot|Airwavez|Unknown|Unknown |Unknown|  :interrobang:   |  04/23/2021|
 |Panglo2       |Panglo  |Unknown|Unknown |Unknown|  :interrobang:   |  03/06/2021|
 
