@@ -1,8 +1,8 @@
 -------------------------------------------------------
 -- Author = Winterz
--- Patch = 9.2.5
+-- Patch = 1.0
 --    Patch should be the latest patch you've updated the rotation for (i.e., 9.2.5)
--- Coverage = 80%
+-- Coverage = 70%
 --    Coverage should be your estimated percent coverage for class mechanics (i.e., 100%)
 -- Status = Full
 --    Status should be one of: Full, Limited, Sporadic, Inactive, Unknown
