@@ -4032,11 +4032,9 @@ br.lists.spells = {
         -- Fury
         [72] = {
             abilities                       = {
-                bladestorm                  = 46924,
                 bloodbath                   = 335096,
                 bloodthirst                 = 23881,
                 crushingBlow                = 335098,
-                dragonRoar                  = 118000,
                 deathWish                   = 199261,
                 enragedRegeneration         = 184364,
                 execute                     = 5308,
@@ -4046,14 +4044,12 @@ br.lists.spells = {
                 ragingBlow                  = 85288,
                 rampage                     = 184367,
                 recklessness                = 1719,
-                siegebreaker                = 280772,
                 whirlwind                   = 190411,
             },
             artifacts                       = {
 
             },
             buffs                           = {
-                bladestorm                  = 46924,
 				enragedRegeneration         = 184364,
                 deathWish                   = 199261,
                 enrage                      = 184362,
@@ -4072,7 +4068,6 @@ br.lists.spells = {
 				condemnMassacre				= 330325,
             },
             debuffs                         = {
-                siegebreaker                = 280773,
             },
             glyphs                          = {
 
@@ -4086,18 +4081,13 @@ br.lists.spells = {
                 massacre                    = 206315,
                 frenzy                      = 335077,
                 onslaught                   = 315720,
-                furiousCharge               = 202224,
                 boundingStride              = 202163,
                 warpaint                    = 208154,
-                seethe                      = 335091,
                 frothingBerserker           = 215571,
-                cruelty                     = 335070,
+                cruelty                     = 392931,
                 meatCleaver                 = 280392,
-                dragonRoar                  = 118000,
-                bladestorm                  = 46924,
                 angerManagement             = 152278,
                 recklessAbandon             = 202751,
-                siegebreaker                = 280772,
             },
             traits                          = {
                 coldSteelHotBlood           = 288080
