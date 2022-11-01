@@ -1,6 +1,6 @@
 -------------------------------------------------------
 -- Author = Winterz
--- Patch = 1.0
+-- Patch = 10.0
 --    Patch should be the latest patch you've updated the rotation for (i.e., 9.2.5)
 -- Coverage = 70%
 --    Coverage should be your estimated percent coverage for class mechanics (i.e., 100%)
@@ -136,11 +136,12 @@ local function createOptions()
         br.ui:createSpinner(section, "Spear of Bastion Units", 3, 1, 10, 1, "Number of units to use Spear of Bastion on")
         end
         -- Dragons Roar
-        br.ui:createCheckbox(section, "Dragon Roar")
+        br.ui:createSpinner(section, "Odyns Fury Units", 3, 1, 10, 1, "Number of units to use Odyns Fury on")
         -- Bloodrage
         -- br.ui:createCheckbox(section, "Bloodrage")
         -- Recklessness
         br.ui:createDropdownWithout(section, "Recklessness", {"Always", "Cooldown"}, 1, "Desired usage of spell.")
+        br.ui:createCheckbox(section, "Avatar")
         br.ui:checkSectionState(section)
         -------------------------
         --- DEFENSIVE OPTIONS ---
@@ -575,9 +576,15 @@ actionList.ST = function()
         if not buff.recklessness.exists("player")
         and (br.getOptionValue("Recklessness") == 1 or (br.getOptionValue("Recklessness") == 2
         and br.useCDs()))
-        and br.player.ui.mode.cooldown ~= 3
+        and mode.cooldown ~= 3
         and #enemies.yards5 > 0 then
             if cast.recklessness() then
+                return
+            end
+        end
+        -- Avatar
+        if cast.able.avatar() and not buff.avatar.exists("player") and br.isChecked("Avatar") and mode.cooldown ~= 3 and #enemies.yards5 > 0 then
+            if cast.avatar() then ui.debug("Casting Avatar")
                 return
             end
         end
@@ -589,7 +596,7 @@ actionList.ST = function()
         end
         -- Crushing blow
         if cast.able.crushingBlow() and (equiped.tier(28) >= 2 or charges.crushingBlow.count() == 2) then
-            if cast.crushingBlow() then ui.debug("Casting Crushing Blow [ST - 2 Charges]") 
+            if cast.crushingBlow() then ui.debug("Casting Crushing Blow [ST - 2 Charges]")
                 return
             end
         end
@@ -639,7 +646,7 @@ actionList.ST = function()
             end
         end
         -- Spear of Bastion
-        if cast.able.spearOfBastion("best",nil,1, 5) and br.isChecked("Spear of Bastion Units") and buff.enrage.exists("player") and br.player.ui.mode.cooldown ~= 3 then
+        if cast.able.spearOfBastion("best",nil,1, 5) and br.isChecked("Spear of Bastion Units") and buff.enrage.exists("player") and mode.cooldown ~= 3 then
             if cast.spearOfBastion("best",nil, 1, 5) then ui.debug("Spear ST")
                 return
             end
@@ -705,7 +712,7 @@ actionList.AOE = function()
         if cast.whirlwind("player","aoe",1,8) then ui.debug("Casting Whirlwind [ST - Merciless Bonegrinder]") return true end
         end
         -- Spear of Bastion
-        if cast.able.spearOfBastion("best",nil,2, 5) and br.isChecked("Spear of Bastion Units") and br.player.ui.mode.cooldown ~= 3 then
+        if cast.able.spearOfBastion("best",nil,2, 5) and br.isChecked("Spear of Bastion Units") and mode.cooldown ~= 3 then
             if cast.spearOfBastion("best",nil, 2, 5) then ui.debug("Spear AOE")
                 return
             end
@@ -714,9 +721,21 @@ actionList.AOE = function()
         if not buff.recklessness.exists()
         and (cd.spearOfBastion.remain() > 5)
         and (br.getOptionValue("Recklessness") == 1 or (br.getOptionValue("Recklessness") == 2
-        and br.useCDs())) and br.player.ui.mode.cooldown ~= 3
+        and br.useCDs())) and mode.cooldown ~= 3
         and #enemies.yards5 > 0 then
             if cast.recklessness() then
+                return
+            end
+        end
+        -- Avatar
+        if cast.able.avatar() and not buff.avatar.exists("player") and br.isChecked("Avatar") and mode.cooldown ~= 3 and #enemies.yards5 > 0 then
+            if cast.avatar() then ui.debug("Casting Avatar")
+                return
+            end
+        end
+        -- Odyns Fury
+        if buff.enrage.exists("player") and br.isChecked("Odyns Fury Units") and #enemies.yards12 >= br.getOptionValue("Odyns Fury Units") and mode.cooldown ~= 3 then
+            if cast.odynsFury() then
                 return
             end
         end
@@ -829,7 +848,7 @@ actionList.Cooldown = function()
             return
         end
     end
-    if br.isChecked("Racials") and br.player.ui.mode.cooldown ~= 4 and buff.recklessness.exists("player") then
+    if br.isChecked("Racials") and mode.cooldown ~= 4 and buff.recklessness.exists("player") then
         if race == "Orc" or race == "Troll" or race == "LightforgedDraenei" or race=="MagharOrc" then
             if cast.racial("player") then
                 return
