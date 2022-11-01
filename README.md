@@ -340,11 +340,10 @@ Raidable means if its good to raid with.
 
 - Fury
 
-| rotation  | author  | patch |coverage|status |    readiness     |last updated|
-|-----------|---------|:-----:|:------:|:-----:|:----------------:|-----------:|
-|WinterzFury|Winterz  | 9.2.5 |  80%   | Full  |:white_check_mark:|  08/05/2022|
-|CuteOne    |CuteOne  | 9.2.5 |  100%  |Limited|:heavy_check_mark:|  08/05/2022|
-|WinterzFury|Hassliebe|Unknown|Unknown |Unknown|  :interrobang:   |  05/12/2021|
+| rotation  |author |patch|coverage|status |    readiness     |last updated|
+|-----------|-------|:---:|:------:|:-----:|:----------------:|-----------:|
+|WinterzFury|Winterz|9.2.5|  80%   | Full  |:white_check_mark:|  08/05/2022|
+|CuteOne    |CuteOne|9.2.5|  100%  |Limited|:heavy_check_mark:|  08/05/2022|
 
 - Protection
 
