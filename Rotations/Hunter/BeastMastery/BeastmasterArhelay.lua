@@ -30,31 +30,31 @@ local function createToggles()
         [2] = { mode = "Park", value = 2 , overlay = "Drop the anchor", tip = "Rotation stopped", highlight = 0, icon = br.player.spell.feignDeath },
     };
     br.ui:createToggle(HandbrakeModes,"Handbrake",2,0)
-    -- Cooldown Button
-    local CooldownModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.aspectOfTheWild },
-        [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.aspectOfTheWild },
-        [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.aspectOfTheWild }
-    };
-    br.ui:createToggle(CooldownModes,"Cooldown",3,0)
+    ---- Cooldown Button
+    --local CooldownModes = {
+        --[1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.aspectOfTheWild },
+        --[2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.aspectOfTheWild },
+        --[3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.aspectOfTheWild }
+    --};
+    --br.ui:createToggle(CooldownModes,"Cooldown",3,0)
     -- BW Button
     local BestialWrathModes = {
         [1] = { mode = "On", value = 1 , overlay = "Will use BW", tip = "Will use BW according to rotation", highlight = 1, icon = br.player.spell.bestialWrath },
         [2] = { mode = "Off", value = 2 , overlay = "Will hold BW", tip = "Will hold BW until toggled again", highlight = 0, icon = br.player.spell.bestialWrath }
     };
-    br.ui:createToggle(BestialWrathModes,"BestialWrath",4,0)
+    br.ui:createToggle(BestialWrathModes,"BestialWrath",3,0)
     -- Interrupt Button
     local InterruptModes = {
         [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.counterShot },
         [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.counterShot }
     };
-    br.ui:createToggle(InterruptModes,"Interrupt",5,0)
+    br.ui:createToggle(InterruptModes,"Interrupt",4,0)
     -- MD Button
     local MisdirectionModes = {
         [1] = { mode = "On", value = 1 , overlay = "Misdirection Enabled", tip = "Misdirection Enabled", highlight = 1, icon = br.player.spell.misdirection },
         [2] = { mode = "Off", value = 2 , overlay = "Misdirection Disabled", tip = "Misdirection Disabled", highlight = 0, icon = br.player.spell.misdirection }
     };
-    br.ui:createToggle(MisdirectionModes,"Misdirection",6,0)
+    br.ui:createToggle(MisdirectionModes,"Misdirection",5,0)
     --Pet summon
     local PetSummonModes = {
         [1] = { mode = "1", value = 1 , overlay = "Summon Pet 1", tip = "Summon Pet 1", highlight = 1, icon = br.player.spell.callPet1 },
@@ -64,7 +64,7 @@ local function createToggles()
         [5] = { mode = "5", value = 5 , overlay = "Summon Pet 5", tip = "Summon Pet 5", highlight = 1, icon = br.player.spell.callPet5 },
         [6] = { mode = "None", value = 6 , overlay = "No pet", tip = "Dont Summon any Pet", highlight = 0, icon = br.player.spell.callPet }
     };
-    br.ui:createToggle(PetSummonModes,"PetSummon",7,0)
+    br.ui:createToggle(PetSummonModes,"PetSummon",6,0)
 end
 
 ---------------
@@ -107,11 +107,11 @@ local function createOptions()
             -- Racial
             br.ui:createCheckbox(section,"Racial")
             -- Trinkets
-            br.player.module.BasicTrinkets(nil,section)
+            --br.player.module.BasicTrinkets(nil,section)
             -- Bestial Wrath
-            br.ui:createDropdownWithout(section,"Bestial Wrath", alwaysCdAoENever, 2, "|cffFFFFFFSelect Bestial Wrath Usage.")
+            br.ui:createCheckbox(section,"Bestial Wrath")
             -- Stampede
-            br.ui:createCheckbox(section,"Stampede")
+            --br.ui:createCheckbox(section,"Stampede")
             -- A Murder of Crows / Barrage
             --br.ui:createCheckbox(section,"A Murder Of Crows / Barrage")
         br.ui:checkSectionState(section)
@@ -555,7 +555,7 @@ actionList.St = function()
 	
     -- Bestial Wrath 
 	-- bestial_wrath
-    if ui.mode.bestialWrath == 1 and cast.able.bestialWrath()
+    if ui.checked("Bestial Wrath") and cast.able.bestialWrath()
             --and ((unit.ttd(units.dyn40) < 15 + unit.gcd(true)) and not unit.isDummy())
     then
         if cast.bestialWrath() then ui.debug("[ST] Bestial Wrath") return true end
@@ -628,7 +628,7 @@ actionList.Cleave = function()
 	
     -- Bestial Wrath
     -- bestial_wrath
-    if ui.mode.bestialWrath == 1 and cast.able.bestialWrath() then
+    if ui.checked("Bestial Wrath") and cast.able.bestialWrath() then
         if cast.bestialWrath() then ui.debug("[AOE] Bestial Wrath") return true end
     end
 	
