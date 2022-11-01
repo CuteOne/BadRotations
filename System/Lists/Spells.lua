@@ -4056,6 +4056,7 @@ br.lists.spells = {
             buffs                           = {
 				enragedRegeneration         = 184364,
                 deathWish                   = 199261,
+                avatar                      = 107574,
                 enrage                      = 184362,
                 frenzy                      = 335082,
                 meatCleaver                 = 85739,
@@ -4078,6 +4079,7 @@ br.lists.spells = {
             },
             talents                         = {
                 warMachine                  = 346002,
+                annihilator                 = 383916,
                 suddenDeath                 = 280721,
                 freshMeat                   = 215568,
                 impendingVictory            = 202168,
