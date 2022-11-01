@@ -4032,7 +4032,9 @@ br.lists.spells = {
         -- Fury
         [72] = {
             abilities                       = {
+                avatar                      = 107574,
                 bloodbath                   = 335096,
+                ravager                     = 228920,
                 bloodthirst                 = 23881,
                 crushingBlow                = 335098,
                 deathWish                   = 199261,
@@ -4044,6 +4046,8 @@ br.lists.spells = {
                 ragingBlow                  = 85288,
                 rampage                     = 184367,
                 recklessness                = 1719,
+                thunderousRoar              = 384318,
+                odynsFury                   = 385059,
                 whirlwind                   = 190411,
             },
             artifacts                       = {
