@@ -1,12 +1,11 @@
 -------------------------------------------------------
 -- Author = Arhelay
--- Patch = 9.2.5
---    Patch should be the latest patch you've updated the rotation for (i.e., 9.2.5)
--- Coverage = 95%
+-- Patch = 10.0 should be the latest patch you've updated the rotation for (i.e., 9.2.5)
+-- Coverage = 69%
 --    Coverage should be your estimated percent coverage for class mechanics (i.e., 100%)
 -- Status = Limited
 --    Status should be one of: Full, Limited, Sporadic, Inactive, Unknown
--- Readiness = Raid
+-- Readiness = NoRaid
 --    Readiness should be one of: Raid, NoRaid, Basic, Development, Untested
 -------------------------------------------------------
 -- Required: Fill above fields to populate README.md --
@@ -22,8 +21,6 @@ local function createToggles()
     local RotationModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.cobraShot },
         [2] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.killCommand },
-        --[2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.multishot },
-        --[4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.exhilaration}
     };
     br.ui:createToggle(RotationModes,"Rotation",1,0)
 
@@ -33,43 +30,31 @@ local function createToggles()
         [2] = { mode = "Park", value = 2 , overlay = "Drop the anchor", tip = "Rotation stopped", highlight = 0, icon = br.player.spell.feignDeath },
     };
     br.ui:createToggle(HandbrakeModes,"Handbrake",2,0)
-    -- Cooldown Button
-    local CooldownModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.aspectOfTheWild },
-        [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.aspectOfTheWild },
-        [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.aspectOfTheWild }
-    };
-    br.ui:createToggle(CooldownModes,"Cooldown",3,0)
+    ---- Cooldown Button
+    --local CooldownModes = {
+        --[1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.aspectOfTheWild },
+        --[2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.aspectOfTheWild },
+        --[3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.aspectOfTheWild }
+    --};
+    --br.ui:createToggle(CooldownModes,"Cooldown",3,0)
     -- BW Button
     local BestialWrathModes = {
         [1] = { mode = "On", value = 1 , overlay = "Will use BW", tip = "Will use BW according to rotation", highlight = 1, icon = br.player.spell.bestialWrath },
         [2] = { mode = "Off", value = 2 , overlay = "Will hold BW", tip = "Will hold BW until toggled again", highlight = 0, icon = br.player.spell.bestialWrath }
     };
-    br.ui:createToggle(BestialWrathModes,"BestialWrath",4,0)
-    -- Defensive Button
-    --local DefensiveModes = {
-        --[1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.aspectOfTheTurtle },
-        --[2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.aspectOfTheTurtle }
-    --};
-   --br.ui:createToggle(DefensiveModes,"Defensive",4,0)
+    br.ui:createToggle(BestialWrathModes,"BestialWrath",3,0)
     -- Interrupt Button
     local InterruptModes = {
         [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.counterShot },
         [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.counterShot }
     };
-    br.ui:createToggle(InterruptModes,"Interrupt",5,0)
+    br.ui:createToggle(InterruptModes,"Interrupt",4,0)
     -- MD Button
     local MisdirectionModes = {
         [1] = { mode = "On", value = 1 , overlay = "Misdirection Enabled", tip = "Misdirection Enabled", highlight = 1, icon = br.player.spell.misdirection },
         [2] = { mode = "Off", value = 2 , overlay = "Misdirection Disabled", tip = "Misdirection Disabled", highlight = 0, icon = br.player.spell.misdirection }
     };
-    br.ui:createToggle(MisdirectionModes,"Misdirection",6,0)
-    -- Murder of crows
-    --local MurderOfCrowsModes = {
-        --[1] = { mode = "On", value = 1 , overlay = "Always use MoC", tip = "Will Use Murder of Crows At All Times", highlight = 1, icon = br.player.spell.aMurderOfCrows },
-        --[2] = { mode = "CD", value = 2 , overlay = "Use MoC only on Cooldowns", tip = "Will Use Murder of Crows Only on Cooldowns", highlight = 0, icon = br.player.spell.aMurderOfCrows }
-    --};
-    --br.ui:createToggle(MurderOfCrowsModes,"MurderOfCrows",7,0)
+    br.ui:createToggle(MisdirectionModes,"Misdirection",5,0)
     --Pet summon
     local PetSummonModes = {
         [1] = { mode = "1", value = 1 , overlay = "Summon Pet 1", tip = "Summon Pet 1", highlight = 1, icon = br.player.spell.callPet1 },
@@ -79,7 +64,7 @@ local function createToggles()
         [5] = { mode = "5", value = 5 , overlay = "Summon Pet 5", tip = "Summon Pet 5", highlight = 1, icon = br.player.spell.callPet5 },
         [6] = { mode = "None", value = 6 , overlay = "No pet", tip = "Dont Summon any Pet", highlight = 0, icon = br.player.spell.callPet }
     };
-    br.ui:createToggle(PetSummonModes,"PetSummon",7,0)
+    br.ui:createToggle(PetSummonModes,"PetSummon",6,0)
 end
 
 ---------------
@@ -95,7 +80,7 @@ local function createOptions()
         -- General Options
         section = br.ui:createSection(br.ui.window.profile, "General")
             -- Target Lock
-            br.ui:createCheckbox(section, "Enemy Target Lock", "In Combat, Locks targetting to enemies to avoid shenanigans", 1)
+            --br.ui:createCheckbox(section, "Enemy Target Lock", "In Combat, Locks targetting to enemies to avoid shenanigans", 1)
             -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  5,  1,  60,  1,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
 			-- OOC check
@@ -107,7 +92,7 @@ local function createOptions()
             -- Misdirection
             br.ui:createDropdownWithout(section,"Misdirection", {"|cff00FF00Tank","|cffFFFF00Focus","|cffFF0000Pet"}, 1, "|cffFFFFFFSelect target to Misdirect to.")
             -- Covenant Ability
-            br.ui:createDropdownWithout(section,"Covenant Ability", alwaysCdAoENever, 1, "|cffFFFFFFSet when to use ability.")
+            -- br.ui:createDropdownWithout(section,"Covenant Ability", alwaysCdAoENever, 1, "|cffFFFFFFSet when to use ability.")
             -- Opener
             -- br.ui:createCheckbox(section, "Opener")
         br.ui:checkSectionState(section)
@@ -122,17 +107,13 @@ local function createOptions()
             -- Racial
             br.ui:createCheckbox(section,"Racial")
             -- Trinkets
-            br.player.module.BasicTrinkets(nil,section)
+            --br.player.module.BasicTrinkets(nil,section)
             -- Bestial Wrath
-            br.ui:createDropdownWithout(section,"Bestial Wrath", alwaysCdAoENever, 2, "|cffFFFFFFSelect Bestial Wrath Usage.")
-            -- Aspect of the Wild
-            br.ui:createCheckbox(section,"Aspect of the Wild")
+            br.ui:createCheckbox(section,"Bestial Wrath")
             -- Stampede
-            br.ui:createCheckbox(section,"Stampede")
+            --br.ui:createCheckbox(section,"Stampede")
             -- A Murder of Crows / Barrage
-            br.ui:createCheckbox(section,"A Murder Of Crows / Barrage")
-            -- Spitting Cobra
-            br.ui:createCheckbox(section,"Spitting Cobra")
+            --br.ui:createCheckbox(section,"A Murder Of Crows / Barrage")
         br.ui:checkSectionState(section)
         -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
@@ -211,7 +192,6 @@ local var
 local actionList = {}
 -- Profile Specific Locals
 local lowestBarbedShot
-local KFR
 local NoOOC
 
 -----------------
@@ -347,10 +327,10 @@ actionList.Cooldowns = function()
             end
             -- berserking,if=buff.aspect_of_the_wild.up&(target.time_to_die>cooldown.berserking.duration+duration|(target.health.pct<35|!talent.killer_instinct.enabled))|target.time_to_die<13
             -- blood_fury,if=buff.aspect_of_the_wild.up&(target.time_to_die>cooldown.blood_fury.duration+duration|(target.health.pct<35|!talent.killer_instinct.enabled))|target.time_to_die<16
-            if (unit.race() == "Troll" or unit.race() == "Orc") and ((buff.aspectOfTheWild.exists() or not ui.checked("Aspect of the Wild"))
+            if (unit.race() == "Troll" or unit.race() == "Orc") and ((buff.aspectOfTheWild.exists()))
                 and (unit.ttd(units.dyn40) > cd.racial.remain() + buff.racial.remain()
                     or (unit.hp(units.dyn40) < 35 or not talent.killerInstinct))
-                    or (unit.isBoss(units.dyn40) and ((unit.race() == "Troll" and unit.ttd(units.dyn40) < 13) or (unit.race() == "Orc" and unit.ttd(units.dyn40) < 16))))
+                    or (unit.isBoss(units.dyn40) and ((unit.race() == "Troll" and unit.ttd(units.dyn40) < 13) or (unit.race() == "Orc" and unit.ttd(units.dyn40) < 16)))
             then
                 if cast.racial() then ui.debug("Casting Racial") return true end
             end
@@ -363,7 +343,6 @@ actionList.Cooldowns = function()
     -- Potion
     -- potion,if=buff.aspect_of_the_wild.up|target.time_to_die<26
 end -- End Action List - Cooldowns
-
 -- Action List - Opener
 actionList.Opener = function()
     -- Start Attack
@@ -539,265 +518,138 @@ end -- End Action List - Opener
 
 -- Action List - Single Target
 actionList.St = function()
-    -- Aspect of the Wild
-    -- aspect_of_the_wild,if=(!covenant.night_fae|cooldown.wild_spirits.remains>20)&(!raid_event.adds.exists|!raid_event.adds.up&(raid_event.adds.duration+raid_event.adds.in<20|(raid_event.adds.count=1&covenant.kyrian))|raid_event.adds.up&raid_event.adds.remains>19)
-    if ui.checked("Aspect of the Wild") and ui.useCDs() and cast.able.aspectOfTheWild() and (not covenant.nightFae.active or cd.wildSpirits.remains() > 20) then
-        if cast.aspectOfTheWild() then ui.debug("Casting Aspect of the Wild") return true end
-    end
+
     -- Barbed Shot
-    -- barbed_shot,if=pet.main.buff.frenzy.up&pet.main.buff.frenzy.remains<gcd
-    if unit.exists(br.petTarget) and cast.able.barbedShot(br.petTarget) and buff.frenzy.exists("pet") and buff.frenzy.remain("pet") <= unit.gcd(true) + 0.1 then
-        if cast.barbedShot(br.petTarget) then ui.debug("[ST 1] Casting Barbed Shot on "..unit.name(br.petTarget)) return true end
+    -- barbed_shot
+    if (cast.able.barbedShot(lowestBarbedShot) and buff.frenzy.exists("pet") and buff.frenzy.remain("pet") <= unit.gcd(true) + 0.15)
+		or ((cd.bestialWrath.remains() < 12 * charges.barbedShot.frac() + unit.gcd(true)) and talent.scentOfBlood)
+			then
+        if cast.barbedShot(lowestBarbedShot) then ui.debug("[ST] Barbed Shot low frenzy on "..unit.name(lowestBarbedShot)) return true end
+    end	
+		
+    -- Kill Command
+    -- kill_command
+    if charges.killCommand.timeTillFull() < unit.gcd(true) then
+        if cast.killCommand() then ui.debug("[ST] Kill Command cap on "..unit.name(br.petTarget)) return true end
     end
-    -- Tar Trap
-    -- tar_trap,if=runeforge.soulforge_embers&tar_trap.remains<gcd&cooldown.flare.remains<gcd
-    if cast.able.tarTrap("best",nil,1,8) and (runeforge.soulforgeEmbers.equiped or anima.soulforgeEmbers.exists()) and cd.flare.remains() < unit.gcd(true) then
-        if cast.tarTrap("best",nil,1,8) then ui.debug("Casting Tar Trap [Soulforge Embers]") var.tarred = true return true end
-    end
-    -- Flare
-    -- flare,if=tar_trap.up&runeforge.soulforge_embers
-    if cast.able.flare("groundLocation",br.castPosition.x,br.castPosition.y,8) and var.tarred and (runeforge.soulforgeEmbers.equiped or anima.soulforgeEmbers.exists()) then
-        if cast.flare("groundLocation",br.castPosition.x,br.castPosition.y,8) then ui.debug("Casting Flare [Soulforge Embers]") var.tarred = false return true end
-    end
-    -- Bloodshed
-    -- bloodshed
-    if cast.able.bloodshed() then
-        if cast.bloodshed() then ui.debug("Casting Bloodshed") return true end
-    end
-    -- Wild Spirits
-    -- wild_spirits
-    if ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards12t) and cast.able.wildSpirits() then
-        if cast.wildSpirits() then ui.debug("Casting Wild Spirits [Night Fae]") return true end
-    end
+	
+	-- Barbed Shot
+    -- barbed_shot
+    if unit.exists(br.petTarget) and cast.able.barbedShot(br.petTarget)
+        and (charges.barbedShot.frac() > 1.4)
+    then
+        if cast.barbedShot(br.petTarget) then ui.debug("[ST] Barbed Shot frac > 1.4 on "..unit.name(br.petTarget)) return true end
+    end	
+	
+	-- Kill Shot
+    -- kill_shot
+	if (cast.able.killShot() and buff.flayersMark.exists()) then
+		if cast.killShot() then ui.debug("[ST] Killshot Venthyr") return true end
+	end	
+	
     -- Flayed Shot
     -- flayed_shot
-    if ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards40) and cast.able.flayedShot() then
-        if cast.flayedShot() then ui.debug("Casting Flayed Shot [Venthhyr]") return true end
+    if cast.able.flayedShot() then
+        if cast.flayedShot() then ui.debug("[ST] Flayed Shot [Venthyr]") return true end
     end
+	
+    -- Bestial Wrath 
+	-- bestial_wrath
+    if ui.checked("Bestial Wrath") and cast.able.bestialWrath()
+            --and ((unit.ttd(units.dyn40) < 15 + unit.gcd(true)) and not unit.isDummy())
+    then
+        if cast.bestialWrath() then ui.debug("[ST] Bestial Wrath") return true end
+    end
+	
     -- Kill Shot
     -- kill_shot
-	if cast.able.killShot() then
-		if cast.killShot() then ui.debug("Killshot ST") return true end
-	end	
-    -- Barbed Shot
-    -- barbed_shot,if=(cooldown.wild_spirits.remains>full_recharge_time|!covenant.night_fae)&(cooldown.bestial_wrath.remains<12*charges_fractional+gcd&talent.scent_of_blood|full_recharge_time<gcd&cooldown.bestial_wrath.remains)|target.time_to_die<9
-    if unit.exists(br.petTarget) and cast.able.barbedShot(br.petTarget)
-        and ((cd.wildSpirits.remains() > charges.barbedShot.timeTillFull() or not covenant.nightFae.active or not ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards12t))
-        and ((cd.bestialWrath.remains() < 12 * charges.barbedShot.frac() + unit.gcd(true) and talent.scentOfBlood)
-            or (charges.barbedShot.timeTillFull() < unit.gcd(true) and (cd.bestialWrath.remains() > 0 or ui.mode.bestialWrath == 2 or not ui.alwaysCdAoENever("Bestial Wrath",3,#enemies.yards40)))
-            or (unit.ttd(br.petTarget) < 9 and ui.useCDs())))
-    then
-        if cast.barbedShot(br.petTarget) then ui.debug("[ST 2] Casting Barbed Shot on "..unit.name(br.petTarget)) return true end
+    if cast.able.killShot(var.lowestHPUnit) and unit.hp(var.lowestHPUnit) < 20 then
+        if cast.killShot(var.lowestHPUnit) then ui.debug("[ST] Kill shot on "..tostring(unit.name(var.lowestHPUnit))) return true end
     end
-    -- Death Chakram
-    -- death_chakram,if=focus+cast_regen<focus.max
-    if ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards8t) and cast.able.deathChakram() and power.focus.amount() + cast.regen.deathChakram() < power.focus.max() then
-        if cast.deathChakram() then ui.debug("Casting Death Chakram [Necrolord]") return true end
-    end
-    -- Stampede
-    -- stampede,if=buff.aspect_of_the_wild.up|target.time_to_die<15
-    if ui.checked("Stampede") and talent.stampede and cast.able.stampede()
-        and ((buff.aspectOfTheWild.exists() or not ui.checked("Aspect of the Wild")) or (unit.ttd(units.dyn40) < 15 and ui.useCDs()))
-    then
-        if cast.stampede() then ui.debug("Casting Stampede") return true end
-    end
-    -- A Murder of Crows
-    -- a_murder_of_crows
-    if ui.checked("A Murder Of Crows / Barrage") and ui.mode.murderOfCrows == 1 and cast.able.aMurderOfCrows() then
-        if cast.aMurderOfCrows() then ui.debug("Casting A Murder of Crows") return true end
-    end
-    -- Resonating Arrow
-    -- resonating_arrow,if=buff.bestial_wrath.up|target.time_to_die<10
-    if ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards12t) and cast.able.resonatingArrow() and (buff.bestialWrath.exists() or (unit.ttd(units.dyn40) < 10 and ui.useCDs())) then
-        if cast.resonatingArrow() then ui.debug("Casting Resonating Arrow [Kyrian]") return true end
-    end
-    -- Bestial Wrath
-    -- bestial_wrath,if=cooldown.wild_spirits.remains>15|covenant.kyrian&(cooldown.resonating_arrow.remains<5|cooldown.resonating_arrow.remains>20)|target.time_to_die<15|(!covenant.night_fae&!covenant.kyrian)
-    if ui.mode.bestialWrath == 1 and ui.alwaysCdAoENever("Bestial Wrath",3,#enemies.yards40) and cast.able.bestialWrath()
-        and ((cd.wildSpirits.remains() > 15 or not ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards12t))
-            or (covenant.kyrian.active and (cd.resonatingArrow.remains() < 5 or cd.resonatingArrow.remains() > 20 or not ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards12t)))
-            or (unit.ttd(units.dyn40) < 15 + unit.gcd(true) or ui.useCDs()) or (not covenant.nightFae.active and not covenant.kyrian.active))
-    then
-        if cast.bestialWrath() then ui.debug("Casting Bestial Wrath") return true end
-    end
-    -- Chimaera Shot
-    -- chimaera_shot
-    if cast.able.chimaeraShot() then
-        if cast.chimaeraShot() then ui.debug("Casting Chimaera Shot") return true end
-    end
+	
     -- Kill Command
     -- kill_command
     if cast.able.killCommand() then
-        if cast.killCommand() then ui.debug("[ST] Casting Kill Command on "..unit.name(br.petTarget)) return true end
-    end
-    -- Racial - Bag of Tricks
-    -- bag_of_tricks,if=buff.bestial_wrath.down|target.time_to_die<5
-    -- Dire Beast
-    -- dire_beast
-    if cast.able.direBeast() then
-        if cast.direBeast() then ui.debug("Casting Dire Beast") return true end
-    end
+        if cast.killCommand() then ui.debug("[ST] Kill Command on "..unit.name(br.petTarget)) return true end
+    end	
+	
     -- Cobra Shot
-    -- cobra_shot,if=(focus-cost+focus.regen*(cooldown.kill_command.remains-1)>action.kill_command.cost|cooldown.kill_command.remains>1+gcd)|(buff.bestial_wrath.up|buff.nesingwarys_trapping_apparatus.up)&!runeforge.qapla_eredun_war_order|target.time_to_die<3
-    if cast.able.cobraShot() and ((power.focus.amount() - cast.cost.cobraShot() + power.focus.regen() * (cd.killCommand.remain() - KFR) > cast.cost.killCommand() or cd.killCommand.remain() > KFR + unit.gcd(true))
-        or (buff.bestialWrath.exists() or buff.nesingwarysTrappingApparatus.exists()) and not runeforge.qaplaEredunWarOrder.equiped
-        or unit.ttd(units.dyn40) < 3 and ui.useCDs())
-    then
-        if cast.able.cobraShot() then
-            if cast.cobraShot() then ui.debug("Casting Cobra Shot") return true end
+    -- cobra_shot,if=focus.time_to_max<gcd*2
+    if cast.able.cobraShot() and power.focus.ttm() < unit.gcd(true) * 2 then
+            if cast.cobraShot() then ui.debug("[ST] Cobra shot on") return true end
         end
-    end
-    -- Barbed Shot
-    -- barbed_shot,if=buff.wild_spirits.up|charges_fractional>1.2&conduit.bloodletting
-    if unit.exists(br.petTarget) and cast.able.barbedShot(br.petTarget) and (debuff.wildMark.exists(br.petTarget) or charges.barbedShot.frac() > 1.2 and conduit.bloodletting.enabled) then
-        if cast.barbedShot(br.petTarget) then ui.debug("[Wild Spirits] Casting Barbed Shot on "..unit.name(br.petTarget)) return true end
-    end
-    -- Arcane Pulse
-    -- arcane_pulse,if=buff.bestial_wrath.down|target.time_to_die<5
-    -- Tar Trap
-    -- tar_trap,if=runeforge.soulforge_embers|runeforge.nessingwarys_trapping_apparatus
-    if cast.able.tarTrap(units.dyn40,"ground") and ((runeforge.soulforgeEmbers.equiped or anima.soulforgeEmbers.exists()) or runeforge.nesingwarysTrappingApparatus.equiped) then
-        if cast.tarTrap(units.dyn40,"ground") then ui.debug("Casting Tar Trap [Soulforge Embers / Nesingwary's Trapping Apparatus]") var.tarred = true return true end
-    end
-    -- Freezing Trap
-    -- freezing_trap,if=runeforge.nessingwarys_trapping_apparatus
-    if cast.able.freezingTrap(units.dyn40,"ground") and runeforge.nesingwarysTrappingApparatus.equiped then
-        if cast.freezingTrap(units.dyn40,"ground") then ui.debug("Casting Freezing Trap [Nesingwary's Trapping Apparatus]") return true end
-    end
+
 end -- End Action List - Single Target
 
 -- Action List - Cleave
 actionList.Cleave = function()
-    -- Aspect of the Wild
-    -- aspect_of_the_wild
-    if ui.checked("Aspect of the Wild") and not buff.aspectOfTheWild.exists() and ui.useCDs() and cast.able.aspectOfTheWild() then
-        if cast.aspectOfTheWild() then ui.debug("Casting Aspect of the Wild [AOE]") return true end
-    end
+
     -- Barbed Shot
-    -- barbed_shot,target_if=min:dot.barbed_shot.remains,if=pet.main.buff.frenzy.up&pet.main.buff.frenzy.remains<=gcd
-    if cast.able.barbedShot(lowestBarbedShot) and buff.frenzy.exists("pet") and buff.frenzy.remain("pet") <= unit.gcd(true) + 0.1 then
-        if cast.barbedShot(lowestBarbedShot) then ui.debug("[AOE 1] Casting Barbed Shot on "..unit.name(lowestBarbedShot)) return true end
+    -- barbed_shot
+    if (cast.able.barbedShot(lowestBarbedShot) and buff.frenzy.exists("pet") and buff.frenzy.remain("pet") <= unit.gcd(true) + 0.15)
+		or ((cd.bestialWrath.remains() < 12 * charges.barbedShot.frac() + unit.gcd(true)) and talent.scentOfBlood)
+			then
+        if cast.barbedShot(lowestBarbedShot) then ui.debug("[AOE] Barbed Shot low frenzy on "..unit.name(lowestBarbedShot)) return true end
     end
+	
     -- Multishot
-    -- multishot,if=gcd.max-pet.cat.buff.beast_cleave.remains>0.25|buff.killing_frenzy.up&pet.main.buff.beast_cleave.remains<2
-    if cast.able.multishot(units.dyn40,"aoe",1,8) and (unit.gcd(true) - buff.beastCleave.remain("pet") > 0.25 or (buff.killingFrenzy.exists() and buff.beastCleave.remains() < 2))
+    -- multishot
+    if cast.able.multishot(units.dyn40,"aoe",1,8) and (unit.gcd(true) - buff.beastCleave.remain("pet") > 0.25)
          and not unit.isExplosive("target")
     then
-        if cast.multishot(units.dyn40,"aoe",1,8) then ui.debug("Casting Multishot [AOE]") return true end
+        if cast.multishot(units.dyn40,"aoe",1,8) then ui.debug("[AOE] Multishot") return true end
     end
-    -- Tar Trap
-    -- tar_trap,if=runeforge.soulforge_embers&tar_trap.remains<gcd&cooldown.flare.remains<gcd
-    if cast.able.tarTrap("best",nil,1,8) and (runeforge.soulforgeEmbers.equiped or anima.soulforgeEmbers.exists()) and cd.flare.remains() < unit.gcd(true) then
-        if cast.tarTrap("best",nil,1,8) then ui.debug("Casting Tar Trap [Soulforge Embers AOE]") var.tarred = true return true end
-    end
-    -- Flare
-    -- flare,if=tar_trap.up&runeforge.soulforge_embers
-    if cast.able.flare("groundLocation",br.castPosition.x,br.castPosition.y,8) and var.tarred and (runeforge.soulforgeEmbers.equiped or anima.soulforgeEmbers.exists()) then
-        if cast.flare("groundLocation",br.castPosition.x,br.castPosition.y,8) then ui.debug("Casting Flare [Soulforge Embers]") var.tarred = false return true end
-    end
-    -- Death Chakram
-    -- death_chakram,if=focus+cast_regen<focus.max
-    if ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards8t) and cast.able.deathChakram() and power.focus.amount() + cast.regen.deathChakram() < power.focus.max() then
-        if cast.deathChakram() then ui.debug("Casting Death Chakram [AOE Necrolord]") return true end
-    end
-    -- Wild Spirits
-    -- wild_spirits
-    if ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards12t) and cast.able.wildSpirits() then
-        if cast.wildSpirits() then ui.debug("Casting Wild Spirits [AOE Night Fae]") return true end
-    end
+	
     -- Barbed Shot
-    -- barbed_shot,target_if=min:dot.barbed_shot.remains,if=full_recharge_time<gcd&cooldown.bestial_wrath.remains|cooldown.bestial_wrath.remains<12+gcd&talent.scent_of_blood
-    if cast.able.barbedShot(lowestBarbedShot) and (charges.barbedShot.timeTillFull() < unit.gcd(true)
-        and cd.bestialWrath.remain() > unit.gcd(true) or cd.bestialWrath.remains() < 12 + unit.gcd(true) and talent.scentOfBlood)
+    -- barbed_shot
+    if cast.able.barbedShot(lowestBarbedShot) and (charges.barbedShot.frac() > 1.4) and cd.bestialWrath.remain() > unit.gcd(true) 
+		or (cd.bestialWrath.remains() < 12 + unit.gcd(true) and talent.scentOfBlood)
     then
-        if cast.barbedShot(lowestBarbedShot) then ui.debug("[AOE 2] Casting Barbed Shot on "..unit.name(lowestBarbedShot)) return true end
-    end
-    -- Bestial Wrath
-    -- bestial_wrath
-    if ui.mode.bestialWrath == 1 and cast.able.bestialWrath() and ui.alwaysCdAoENever("Bestial Wrath",3,#enemies.yards40) then
-        if cast.bestialWrath() then ui.debug("Casting Bestial Wrath [AOE]") return true end
-    end
-    -- Resonating Arrow
-    -- resonating_arrow
-    if ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards12t) and cast.able.resonatingArrow() then
-        if cast.resonatingArrow() then ui.debug("Casting Resonating Arrow [Kyrian]") return true end
-    end
-    -- Stampede
-    -- stampede,if=buff.aspect_of_the_wild.up|target.time_to_die<15
-    if ui.checked("Stampede") and talent.stampede and cast.able.stampede()
-        and ((buff.aspectOfTheWild.exists() or not ui.checked("Aspect of the Wild")) or (unit.ttdGroup(units.dyn40) < 15 and ui.useCDs()))
-    then
-        if cast.stampede() then ui.debug("Casting Stampede [AOE]") return true end
-    end
+        if cast.barbedShot(lowestBarbedShot) then ui.debug("[AOE] Barbed shot cap "..unit.name(lowestBarbedShot)) return true end
+    end	
+	
+    -- Kill Command
+    -- kill_command
+    if talent.killCleave and cast.able.killCommand() and buff.beastCleave.exists("pet") then
+        if cast.killCommand() then ui.debug("[AOE] Kill Cleave on "..unit.name(br.petTarget)) return true end
+    end		
+	
+	-- Kill Shot
+    -- kill_shot
+	if (cast.able.killShot() and buff.flayersMark.exists()) then
+		if cast.killShot() then ui.debug("[AOE] Killshot Venthyr") return true end
+	end	
+	
     -- Flayed Shot
     -- flayed_shot
-    if ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards8t) and cast.able.flayedShot() then
-        if cast.flayedShot() then ui.debug("Casting Flayed Shot [AOE Venthhyr]") return true end
+    if cast.able.flayedShot() then
+        if cast.flayedShot() then ui.debug("[AOE] Flayed Shot [Venthyr]") return true end
+    end	
+	
+    -- Bestial Wrath
+    -- bestial_wrath
+    if ui.checked("Bestial Wrath") and cast.able.bestialWrath() then
+        if cast.bestialWrath() then ui.debug("[AOE] Bestial Wrath") return true end
     end
+	
     -- Kill Shot
     -- kill_shot
     if cast.able.killShot(var.lowestHPUnit) and unit.hp(var.lowestHPUnit) < 20 then
-        if cast.killShot(var.lowestHPUnit) then ui.debug("Casting Kill Shot [AOE] - on unit: "..tostring(unit.name(var.lowestHPUnit))) return true end
+        if cast.killShot(var.lowestHPUnit) then ui.debug("[AOE] Kill Shot on "..tostring(unit.name(var.lowestHPUnit))) return true end
     end
-	-- for i = 1, #enemies.yards40f do
-	-- local thisUnit = enemies.yards40f[i]
-	-- if UnitHealth(thisUnit) / UnitHealthMax(thisUnit) < 0.2 then
-	-- 	CastSpellByName("Убийственный выстрел", thisUnit)
-	-- 	--ui.debug("AOE - Casting Kill Shot on "..tostring(UnitName(thisUnit)).." - Is target: "..tostring(UnitIsUnit(thisUnit,"target")))
-	-- end
-	-- end
-    -- Chimaera Shot
-    -- chimaera_shot
-    if cast.able.chimaeraShot() then
-        if cast.chimaeraShot() then ui.debug("Casting Chimaera Shot [AOE]") return true end
-    end
-    -- Bloodshed
-    -- bloodshed
-    if cast.able.bloodshed() then
-        if cast.bloodshed() then ui.debug("Casting Bloodshed [AOE]") return true end
-    end
-    -- A Murder of Crows
-    -- a_murder_of_crows
-    if ui.checked("A Murder Of Crows / Barrage") and ui.mode.murderOfCrows == 1 and cast.able.aMurderOfCrows() then
-        if cast.aMurderOfCrows() then ui.debug("Casting A Murder of Crows [AOE]") return true end
-    end
-    -- Barrage
-    -- barrage,if=pet.main.buff.frenzy.remains>execute_time
-    if ui.checked("A Murder Of Crows / Barrage") and cast.able.barrage() and buff.frenzy.remain("pet") > cast.time.barrage() then
-        if cast.barrage() then ui.debug("Casting Barrage [AOE]") return true end
-    end
+
     -- Kill Command
     -- kill_command,if=focus>cost+action.multishot.cost
     if unit.exists(br.petTarget) and cast.able.killCommand(br.petTarget) and power.focus.amount() > cast.cost.killCommand() + cast.cost.multishot() then
         if cast.killCommand(br.petTarget) then ui.debug("[AOE] Casting Kill Command on "..unit.name(br.petTarget)) return true end
     end
-    -- Dire Beast
-    -- dire_beast
-    if cast.able.direBeast() then
-        if cast.direBeast() then ui.debug("Casting Dire Beast [AOE]") return true end
-    end
-    -- Barbed Shot
-    -- barbed_shot,target_if=min:dot.barbed_shot.remains,if=target.time_to_die<9|charges_fractional>1.2&conduit.bloodletting
-    if cast.able.barbedShot(lowestBarbedShot) and (unit.ttd(units.dyn40) < 9 or charges.barbedShot.frac() > 1.2 and conduit.bloodletting.enabled) then
-        if cast.barbedShot(lowestBarbedShot) then ui.debug("[AOE 4] Casting Barbed Shot on "..unit.name(lowestBarbedShot)) return true end
-    end
+	
     -- Cobra Shot
     -- cobra_shot,if=focus.time_to_max<gcd*2
     if cast.able.cobraShot() and power.focus.ttm() < unit.gcd(true) * 2 then
-        if cast.able.cobraShot() then
-            if cast.cobraShot() then ui.debug("Casting Cobra Shot [AOE]") return true end
+            if cast.cobraShot() then ui.debug("[AOE] Cobra shot on") return true end
         end
-    end
-    -- Tar Trap
-    -- tar_trap,if=runeforge.soulforge_embers|runeforge.nessingwarys_trapping_apparatus
-    if cast.able.tarTrap(units.dyn40,"ground") and ((runeforge.soulforgeEmbers.equiped or anima.soulforgeEmbers.exists()) or runeforge.nesingwarysTrappingApparatus.equiped) then
-        if cast.tarTrap(units.dyn40,"ground") then ui.debug("Casting Tar Trap [AOE Soulforge Embers / Nesingwary's Trapping Apparatus]") var.tarred = true return true end
-    end
-    -- Freezing Trap
-    -- freezing_trap,if=runeforge.nessingwarys_trapping_apparatus
-    if cast.able.freezingTrap(units.dyn40,"ground") and runeforge.nesingwarysTrappingApparatus.equiped then
-        if cast.freezingTrap(units.dyn40,"ground") then ui.debug("Casting Freezing Trap [AOE Nesingwary's Trapping Apparatus]") return true end
-    end
+
 end -- End Action List - Cleave
 
 -- Action List - PreCombat
@@ -858,7 +710,6 @@ local function runRotation()
     unit                               = br.player.unit
     units                              = br.player.units
     var                                = br.player.variables
-	KFR                                = buff.killingFrenzy.exists() and 1.6 or 1
 
 
     -- Global Functions
@@ -993,7 +844,8 @@ local function runRotation()
             -- Auto Shot
             -- auto_shot
             if cast.able.autoShot(units.dyn40) then
-                if cast.autoShot(units.dyn40) then ui.debug("Casting Auto Shot") return true end
+                -- if cast.autoShot(units.dyn40) then ui.debug("Casting Auto Shot") return true end			
+                if cast.autoShot(units.dyn40) then return true end
             end
             -- Counter Shot
             -- counter_shot,line_cd=30,if=runeforge.sephuzs_proclamation|soulbind.niyas_tools_poison|(conduit.reversal_of_fortune&!runeforge.sephuzs_proclamation)

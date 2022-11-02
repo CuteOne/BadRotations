@@ -33,7 +33,7 @@ br.rotations.support["PetCuteOne"] = {
             br.ui:createCheckbox(section, "Auto Attack/Passive")
             -- Spec Ability
             br.ui:createCheckbox(section, "Master's Call - Cunning","|cffFFFFFFSelect to use. - Cunning Pets Only")
-            br.ui:createDropdownWithout(section,"Primal Rage - Ferocity", alwaysCdAoENever, 1, "|cffFFFFFFSelect when to use - Ferocity Pets Only")
+            --br.ui:createDropdownWithout(section,"Primal Rage - Ferocity", alwaysCdAoENever, 1, "|cffFFFFFFSelect when to use - Ferocity Pets Only")
             br.ui:createSpinner(section,"Survival of the Fittest - Tenacity", 20, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast - Tenacity Pets Only")
             -- Attack Ability
             br.ui:createCheckbox(section, "Use Attack Ability","|cffFFFFFFPet will use Bite/Claw/Smack")
