@@ -146,10 +146,10 @@ Raidable means if its good to raid with.
 
 - BeastMastery
 
-|rotation|author |     patch      |coverage|status |    readiness     |last updated|
-|--------|-------|:--------------:|:------:|:-----:|:----------------:|-----------:|
-|Arhelay |Arhelay|10.0 should be t|  69%   |Limited|       :x:        |  11/01/2022|
-|CuteOne |CuteOne|     9.2.5      |  100%  |Limited|:white_check_mark:|  08/07/2022|
+|rotation|author |patch|coverage|status |    readiness     |last updated|
+|--------|-------|:---:|:------:|:-----:|:----------------:|-----------:|
+|Arhelay |Arhelay|10.0 |  69%   |Limited|       :x:        |  11/02/2022|
+|CuteOne |CuteOne|9.2.5|  100%  |Limited|:white_check_mark:|  08/07/2022|
 
 - Marksmanship
 
