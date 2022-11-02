@@ -1,6 +1,7 @@
 -------------------------------------------------------
 -- Author = Arhelay
--- Patch = 10.0 should be the latest patch you've updated the rotation for (i.e., 9.2.5)
+-- Patch = 10.0 
+--	  Patch should be the latest patch you've updated the rotation for (i.e., 9.2.5)
 -- Coverage = 69%
 --    Coverage should be your estimated percent coverage for class mechanics (i.e., 100%)
 -- Status = Limited
