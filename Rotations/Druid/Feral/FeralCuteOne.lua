@@ -780,23 +780,19 @@ actionList.Cooldowns = function()
         if ui.checked("Berserk/Incarnation") and ui.useCDs() and range.dyn5 then
             -- Berserk
             -- berserk
-            if cast.able.berserk() and not talent.incarnationAvatarOfAshamane
-                and (unit.ttdGroup(5) < 20 and ui.useCDs() and not unit.isDummy(units.dyn5))
-            then
+            if cast.able.berserk() and not talent.incarnationAvatarOfAshamane then
                 if cast.berserk() then ui.debug("Casting Berserk") return true end
             end
             -- Incarnation - King of the Jungle
             -- incarnation
-            if cast.able.incarnationAvatarOfAshamane() and talent.incarnationAvatarOfAshamane
-                and (unit.ttdGroup(5) < 20 and ui.useCDs() and not unit.isDummy(units.dyn5))
-            then
+            if cast.able.incarnationAvatarOfAshamane() and talent.incarnationAvatarOfAshamane then
                 if cast.incarnationAvatarOfAshamane() then ui.debug("Casting Incarnation: King of the Jungle") return true end
             end
         end
         -- Convoke the Spirits
         -- convoke_the_spirits,if=buff.tigers_fury.up&combo_points<3|fight_remains<5
         if ui.alwaysCdNever("Covenant Ability") and cast.able.convokeTheSpirits()
-            and (buff.tigersFury.exists() or (unit.ttdGroup(5) < 5 and ui.useCDs() and not unit.isDummy(units.dyn5)))
+            and ((buff.tigersFury.exists() and comboPoints < 3) or (unit.ttdGroup(5) < 5 and ui.useCDs() and not unit.isDummy(units.dyn5)))
         then
             if cast.convokeTheSpirits() then ui.debug("Casting Convoke the Spirits [Night Fae]") return true end
         end
