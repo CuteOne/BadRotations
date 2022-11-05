@@ -34,7 +34,7 @@ local function getSnapshotValue(dot)
         -- rake
         if dot == self.spell.debuffs.rake then
             -- Incarnation/Prowl/Sudden Ambush
-            if self.buff.berserk.exists() or self.buff.incarnationKingOfTheJungle.exists() or self.buff.prowl.exists() or self.buff.shadowmeld.exists() or self.buff.suddenAmbush.exists() then
+            if self.buff.berserk.exists() or self.buff.incarnationAvatarOfAshamane.exists() or self.buff.prowl.exists() or self.buff.shadowmeld.exists() or self.buff.suddenAmbush.exists() then
                 RakeMultiplier = 1.6
             end
             -- return rake
