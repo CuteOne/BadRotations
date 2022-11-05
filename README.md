@@ -123,9 +123,9 @@ Raidable means if its good to raid with.
 
 - Feral
 
-|rotation|author |patch|coverage|status|    readiness     |last updated|
-|--------|-------|:---:|:------:|:----:|:----------------:|-----------:|
-|CuteOne |CuteOne|9.2.5|  100%  | Full |:white_check_mark:|  08/05/2022|
+|rotation|author |patch|coverage|status|  readiness  |last updated|
+|--------|-------|:---:|:------:|:----:|:-----------:|-----------:|
+|CuteOne |CuteOne|10.0 |  75%   | Full |:interrobang:|  11/05/2022|
 
 - Guardian
 

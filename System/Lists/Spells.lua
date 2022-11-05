@@ -760,20 +760,8 @@ br.lists.spells = {
         [103] = {
             abilities                       = {
                 berserk                     = 106951,
-                incapacitatingRoar          = 99, -- Guardian Affinity
-                maim                        = 22570,
                 moonfireFeral               = 155625,
-                moonkinForm                 = 197625, -- Balance Affinity
-                removeCorruption            = 2782,
-                skullBash                   = 106839,
-                stampedingRoar              = 77764,
-                survivalInstincts           = 61336,
-                swipe                       = 213764,
-                thrashBear                  = 106832,
-                tigersFury                  = 5217,
-                typhoon                     = 132469, -- Balance Affinity
-                ursolsVortex                = 102793, -- Restoration Affinity
-                wildCharge                  = 49376,
+                swipeCat                    = 106785,
             },
             artifacts                       = {
 
@@ -786,7 +774,7 @@ br.lists.spells = {
                 clearcasting                = 135700,
                 elunesGuidance              = 202060,
                 fieryRedMaimers             = 236757,
-                incarnationKingOfTheJungle  = 102543,
+                incarnationAvatarOfAshamane = 102543,
                 ironJaws                    = 276021,
                 jungleStalker               = 252071,
                 predatorySwiftness          = 69369,
@@ -816,22 +804,15 @@ br.lists.spells = {
                 draughtOfDeepFocus          = 338658,
             },
             talents                         = {
-                balanceAffinity             = 197488,
-                bloodtalons                 = 319439,
-                brutalSlash                 = 202028,
-                feralFrenzy                 = 274837,
-                guardianAffinity            = 217615,
-                incarnationKingOfTheJungle  = 102543,
                 lunarInspiration            = 155580,
                 momentOfClarity             = 236068,
                 predator                    = 202021,
+
                 primalWrath                 = 285381,
                 renewal                     = 108238,
                 restorationAffinity         = 197492,
                 sabertooth                  = 202031,
-                savageRoar                  = 52610,
-                scentOfBlood                = 285564,
-                soulOfTheForest             = 158476,
+
             },
             traits                          = {
                 bloodMist                   = 279524,
@@ -1004,41 +985,24 @@ br.lists.spells = {
                 entanglingRoots             = 339,
                 ferociousBite               = 22568,
                 flap                        = 164862,
-                frenziedRegeneration        = 22842,
+                flightForm                  = 165962,
                 growl                       = 6795,
-                hibernate                   = 2637,
-                ironfur                     = 192081,
-                lunarStrikeAff              = 197628,
                 mangle                      = 33917,
+                markOfTheWild               = 1126,
                 moonfire                    = 8921,
-                moonkinForm                 = 24858,
                 mountForm                   = 210053,
-                naturesControl              = 175682, -- It's still in the spellbook, for some reason.
                 prowl                       = 5215,
-                rake                        = 1822,
                 rebirth                     = 20484,
                 regrowth                    = 8936,
-                rejuvenation                = 774,
                 revive                      = 50769,
-                rip                         = 1079,
-                shadowmeld                  = 58984,
                 shred                       = 5221,
-                solarWrathMoonkin           = 197629,
-                soothe                      = 2908,
-                stampedingRoar              = 106898,
-                stampedingRoarCat           = 77764,
-                starsurgeAff                = 197626,
-                sunfireMoonkin              = 197630,
-                swiftmend                   = 18562,
-                swipeBear                   = 213771,
-                swipeCat                    = 106785,
+                sunfire                     = 164815,
                 teleportMoonglade           = 18960,
                 thrashBear                  = 77758,
                 thrashCat                   = 106830,
+                trackBeasts                 = 210065,
+                trackHumanoids              = 5225,
                 travelForm                  = 783,
-                treantForm                  = 114282,
-                ursolsVortex                = 102793,
-                wildGrowth                  = 48438,
                 wrath                       = 5176,
             },
             animas                          = {
@@ -1119,10 +1083,11 @@ br.lists.spells = {
                 frenzyband                  = 340053,
             },
             talents                         = {
+
                 massEntanglement            = 102359,
                 heartOfTheWild              = 319454,
                 mightyBash                  = 5211,
-                tigerDash                   = 252216,
+
                 wildCharge                  = 102401,
             },
             traits                          = {
