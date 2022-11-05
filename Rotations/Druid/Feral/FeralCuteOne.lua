@@ -79,9 +79,6 @@ local function createOptions()
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
             -- Ferocious Bite Execute
             br.ui:createDropdownWithout(section, "Ferocious Bite Execute",{"|cffFFFF00Enabled Notify","|cff00FF00Enabled","|cffFF0000Disabled"}, 2,"Options for using Ferocious Bite when the damage from it will kill the unit.")
-            -- Opener
-            br.ui:createCheckbox(section, "Opener")
-            br.ui:createDropdownWithout(section, "Brutal Slash in Opener", {"|cff00FF00Enabled","|cffFF0000Disabled"}, 1, "|cff15FF00Enable|cffFFFFFF/|cffD60000Disable |cffFFFFFFuse of Brutal Slash in Opener")
             -- Pre-Pull Timer
             br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
 	        -- Berserk/Tiger's Fury Pre-Pull
@@ -224,7 +221,6 @@ local var = {}
 -- General Locals
 local btGen = {}
 local multidot
-local opener
 local race
 local range
 local ticksGain = {}
@@ -1169,20 +1165,16 @@ actionList.PreCombat = function()
             end
         end -- End Pre-Pull
         -- Pull
-        if unit.valid("target") and opener.complete and unit.exists("target") and unit.distance("target") < 5 then
+        if unit.valid("target") and unit.exists("target") and unit.distance("target") < 5 then
             -- Auto Attack
             -- auto_attack,if=!buff.prowl.up&!buff.shadowmeld.up
             if not (buff.prowl.exists() or buff.shadowmeld.exists()) then
                 if cast.able.autoAttack("target") then
                     if cast.autoAttack("target") then ui.debug("Casting Auto Attack [Pre-Pull]") return true end
                 end
-            else
-                if actionList.BuilderCycle() then return true end
             end
         end
     end -- End No Combat
-    -- Opener
-    -- if actionList.Opener() then return true end
 end -- End Action List - PreCombat
 
 ----------------
@@ -1205,7 +1197,6 @@ local function runRotation()
         enemies         = br.player.enemies
         equiped         = br.player.equiped
         module          = br.player.module
-        opener          = br.player.opener
         race            = br.player.race
         power           = br.player.power
         spell           = br.player.spell
@@ -1458,7 +1449,7 @@ local function runRotation()
             and #enemies.yards5f > 0 and not unit.moving() and ui.checked("Auto Shapeshifts")
         then
             if cast.catForm("player") then ui.debug("Casting Cat Form [Combat]"); return true end
-        elseif unit.inCombat() and (buff.catForm.exists() or buff.moonkinForm.exists()) and not var.profileStop
+        elseif (unit.inCombat() or (not unit.inCombat() and unit.valid("target"))) and (buff.catForm.exists() or buff.moonkinForm.exists()) and not var.profileStop
             and not ui.checked("Death Cat Mode") and unit.exists("target") and cd.global.remain() == 0
         then
             -- Wild Charge
