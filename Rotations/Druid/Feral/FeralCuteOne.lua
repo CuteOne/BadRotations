@@ -910,7 +910,7 @@ actionList.Bloodtalons = function()
     end
     -- Lunar Inspiration
     -- lunar_inspiration,if=refreshable&buff.bt_moonfire.down
-    if cast.able.moonfireFeral(units.dyn40AOE) and debuff.moonfireFeral.refresh(units.dyn40AOE) and not btGen.moonfireFeral then
+    if talent.lunarInspiration and cast.able.moonfireFeral(units.dyn40AOE) and debuff.moonfireFeral.refresh(units.dyn40AOE) and not btGen.moonfireFeral then
         if (multidot or (unit.isUnit(units.dyn40AOE,"target") and not multidot)) then
             if cast.moonfireFeral(units.dyn40AOE) then
                 ui.debug("Casting Moonfire [BT - Refresh]")
@@ -1006,7 +1006,7 @@ actionList.BuilderCycle = function()
     end
     -- Moonfire
     -- moonfire_cat,target_if=refreshable
-    if cast.able.moonfireFeral(units.dyn40AOE) and (debuff.moonfire.refresh(units.dyn40AOE)) then
+    if talent.lunarInspiration and cast.able.moonfireFeral(units.dyn40AOE) and (debuff.moonfire.refresh(units.dyn40AOE)) then
         if cast.moonfireFeral(units.dyn40AOE) then ui.debug("Casting Moonfire [Builder Cycle]") return true end
     end
     -- Thrash
@@ -1284,7 +1284,7 @@ local function runRotation()
     -- variable,name=swipe_v_shred,value=2
     var.swipeVShred = 2
     -- variable,name=pw_v_fb,op=setif,value=0,condition=talent.tear_open_wounds.enabled&talent.rip_and_tear.enabled,value_else=4
-    var.pwVFb = talent.tearOpenWounds and talent.ripAndTear and 4 or 0
+    var.pwVFb = talent.tearOpenWounds and talent.ripAndTear and 0 or 4
 
     -- Bloodtalons - Reset
     if btGen.timer - var.getTime <= 0 or buff.bloodtalons.exists() or not unit.inCombat() then
