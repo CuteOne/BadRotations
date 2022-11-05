@@ -1118,7 +1118,7 @@ local function runRotation()
         
     if spellQueueReady() then
         -- actions.nether_portal_building=nether_portal,if=so
-        if not moving and shards >= 5 and (not talent.powerSiphon or buff.demonicCore.exists()) then
+        if not moving and not buff.demonicCore.exists() then
             if cast.netherPortal("target") then ui.debug("[Action:PortalBuilding] Nether Portal")
                 return true
             end
@@ -1197,7 +1197,7 @@ local function runRotation()
             end
         end
         -- actions.nether_portal_active+=/call_action_list,name=build_a_shard,if=soul_shard=1&(cooldown.call_dreadstalkers.remains<action.shadow_bolt.cast_time|(talent.bilescourge_bombers.enabled&cooldown.bilescourge_bombers.remains<action.shadow_bolt.cast_time))
-        if shards == 1 and (cd.callDreadstalkers.remain() < cast.time.shadowBolt() or (talent.bilescourgeBombers and cd.bilescourgeBombers.remain() < cast.time.shadowBolt())) then
+        if shards == 1 and (cd.callDreadstalkers.remain() < cast.time.shadowBolt() or (cast.able.bilescourgeBombers() and cd.bilescourgeBombers.remain() < cast.time.shadowBolt())) then
             if actionList_BuildAShard() then 
                 return true
             end
@@ -1339,7 +1339,7 @@ local function runRotation()
             end
         end
         -- actions.implosion+=/doom,cycle_targets=1,max_cycle_targets=7,if=refreshable
-        if talent.doom and debuff.doom.count() < br.getOptionValue("Multi-Dot Limit") then
+        if cast.able.doom() and debuff.doom.count() < br.getOptionValue("Multi-Dot Limit") then
             for i = 1, #enemyTable40 do
                 local thisUnit = enemyTable40[i].unit
                 if debuff.doom.refresh(thisUnit) then
@@ -1478,7 +1478,8 @@ local function runRotation()
             end
         end
         -- actions+=/call_action_list,name=nether_portal,if=talent.nether_portal.enabled&spell_targets.implosion<=2
-        if talent.netherPortal and br.useCDs() and (#enemies.yards8t <= 2 or mode.rotation == 3) then
+        
+        if incombat and not buff.demonicCore.exists() then
             if actionList_NetherPortal() then
                 return true
             end
@@ -1925,7 +1926,7 @@ end
                     end
                 end
             end -- End Pre-Pull
-            if br.isValidUnit("target") and br.getDistance("target") < 40 then
+            if br.isValidUnit("target") and br.getDistance("target") < 40 and inCombat then
                 -- actions.precombat+=/demonbolt (we use SB if no buff)
                 if buff.demonicCore.exists() then 
                     if cast.demonbolt("target") then return true end 
@@ -1953,13 +1954,6 @@ end
         end
         return true
     else
-        if br.isChecked("Auto Engage") and solo and not inCombat then 
-            if not moving and hastar and br._G.UnitCanAttack("target", "player") and not br.GetUnitIsDeadOrGhost("target") and br.getLineOfSight("player","target") then
-                if br.timer:useTimer("target", math.random(0.2,1.5)) then
-                    if cast.shadowBolt("target") then br.addonDebug("Casting Shadow Bolt (Pull Spell)") return end
-                end
-            end
-        end
         -----------------------
         --- Extras Rotation ---
         -----------------------
@@ -1972,6 +1966,11 @@ end
         end
 
         if inCombat then
+            if buff.demonicCore.exists() then
+                if cast.demonbolt("target") then ui.debug("aDemonbolt")
+                    return true
+                end
+            end
             -------------------
             --- Pet Control ---
             -------------------

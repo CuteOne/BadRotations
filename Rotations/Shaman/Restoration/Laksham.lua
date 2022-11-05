@@ -359,19 +359,6 @@ actionList.heal = function()
             end
         end
     end
-    -- Surge of Earth
-    if ui.checked("Surge of Earth") and talent.surgeOfEarth then
-        for i = 1, #tanks do
-            local unitsAroundTank = br.getAllies(tanks[i].unit, 8)
-            if #unitsAroundTank > 0 and br.getLowAlliesInTable(ui.value("Surge of Earth"), unitsAroundTank) >= 3 and buff.earthShield.stacks(tanks[i].unit) >= 3 then
-                if cast.surgeOfEarth() then
-                    br.addonDebug("Casting Surge Of Earth")
-                    return true
-                end
-            end
-        end
-    end
-
     -- Chain Heal
     if ui.checked("Chain Heal") and cd.chainHeal.ready() and movingCheck then
         if ui.value("Chain Heal Mode") == 1 then
@@ -517,19 +504,11 @@ actionList.heal = function()
         end
     end
     -- Healing Stream Totem
-    if ui.checked("Healing Stream Totem") and not talent.cloudburstTotem and movingCheck and not buff.swirlingCurrents.exists() then
-        if lowest.hp <= ui.value("Healing Stream Totem") then
-            if not talent.echoOfTheElements then
-                if cast.healingStreamTotem(lowest.unit) then
-                    br.addonDebug("Casting Healing Stream Totem")
-                    return true
-                end
-            elseif talent.echoOfTheElements and (not br.shaman.HSTime or br._G.GetTime() - br.shaman.HSTime > 15) then
-                if cast.healingStreamTotem(lowest.unit) then
-                    br.addonDebug("Casting Healing Stream Totem")
-                    br.shaman.HSTime = br._G.GetTime()
-                    return true
-                end
+    if not talent.cloudburstTotem and movingCheck and not buff.swirlingCurrents.exists() then
+        if lowest.hp <= 95 then
+            if cast.healingStreamTotem(lowest.unit) then
+                br.addonDebug("Casting Healing Stream Totem")
+                return true
             end
         end
     end
@@ -813,7 +792,7 @@ actionList.Cooldown = function()
     end
 
     if cd.chainHarvest.ready() and ui.checked("Chain Harvest") and br.player.covenant.venthyr.active and movingCheck
-            and (buff.cloudburstTotem.exists() or not talent.cloudburstTotem or not talent.echoOfTheElements)
+            and (buff.cloudburstTotem.exists() or not talent.cloudburstTotem)
     then
         local chainHarvestTargetsHeal = 0
         local chainHarvestTargetsDPS = 0
@@ -855,6 +834,13 @@ actionList.Cooldown = function()
                 end
             end
             return false
+        end
+
+        if not moving and cd.spiritLinkTotem.remain() <= gcd then
+            if br.castWiseAoEHeal(br.friend, spell.spiritLinkTotem, 12, 80 , 3 , 40, false, true) then
+                br.addonDebug("Casting Spirit Link Totem")
+                return
+            end
         end
         -- Healing Tide Totem
         if ui.checked("Healing Tide Totem") and not buff.ascendance.exists() and cd.healingTideTotem.remain() <= gcd then
