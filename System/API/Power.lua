@@ -22,9 +22,11 @@ if br.api == nil then br.api = {} end
     -- arcaneCharges
     -- fury
     -- pain
+    -- essence
 br.api.power = function(power,v)
     local isDKRunes = select(2,br._G.UnitClass("player")) == "DEATHKNIGHT" and v == 5
     local isDestruction = br._G.GetSpecializationInfo(br._G.GetSpecialization()) == 267 and v == 7
+    local isEvoker = (br._G.GetSpecializationInfo(br._G.GetSpecialization()) == 1467 or br._G.GetSpecializationInfo(br._G.GetSpecialization()) == 1468) and v == 22
     -- br.player.power.spell.amount() - Returns current amount of the specified power
     power.amount = function()
         if isDKRunes then
@@ -58,6 +60,14 @@ br.api.power = function(power,v)
             local fragmentCount = (shardModifier ~= 0) and (shardPower / shardModifier) or 0
             return (shardPower + fragmentCount)/10
         end
+        -- Evokers
+        if isEvoker then
+            local essence = br._G.UnitPower("player", br._G.Enum.PowerType.Essence, true)
+            local essenceModifier = br._G.UnitPowerDisplayMod(br._G.Enum.PowerType.Essence)
+            local fragmentCount = (essenceModifier ~= 0) and (essence / essenceModifier) or 0
+            return (essence + fragmentCount)/10
+        end
+
         return br.getPower("player",v)
     end
     -- br.player.power.spell.max() - Returns maximum amount of the specified power

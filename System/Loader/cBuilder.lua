@@ -332,6 +332,7 @@ function br.loader:new(spec,specName)
             arcaneCharges   = 16, --SPELL_POWER_ARCANE_CHARGES, --16,
             fury            = 17, --SPELL_POWER_FURY, --17,
             pain            = 18, --SPELL_POWER_PAIN, --18,
+            essence         = 22
         }
         for k, v in pairs(self.power.list) do
             if not self.power[k] then self.power[k] = {} end
