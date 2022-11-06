@@ -1,21 +1,53 @@
 local _, br = ...
 -- Minimap Button
 function br:MinimapButton()
-	-- local dragMode = nil --"free", nil
+	-- Handle different shaped minimaps
+	local minimap_shape_quads = {
+		["ROUND"] = {true,true,true,true},
+		["SQUARE"] = {false,false,false,false},
+		["CORNER-TOPLEFT"] = {false,false,false,true},
+		["CORNER-TOPRIGHT"] = {false, false, true, false},
+		["CORNER-BOTTOMLEFT"] = {false, true, false, false},
+		["CORNER-BOTTOMRIGHT"] = {true, false, false, false},
+		["SIDE-LEFT"] = {false, true, false, true},
+		["SIDE-RIGHT"] = {true,false,true,false},
+		["SIDE-TOP"] = {false,false,true,true},
+		["SIDE-BOTTOM"] = {true,true,false,false},
+		["TRICORNER-TOPLEFT"] = {false,true,true,true},
+		["TRICORNER-TOPRIGHT"] = {true,false,true,true},
+		["TRICORNER-BOTTOMLEFT"] = {true,true,false,true},
+		["TRICORNER-BOTTOMRIGHT"] = {true,true,true,false},
+	}
+
+	local function update_position(self, position)
+		local angle = math.rad(position or 225)
+		local x, y, q = math.cos(angle), math.sin(angle), 1
+		if x < 0 then q = q + 1 end
+		if y > 0 then q = q + 2 end
+		local shape = br._G.GetMinimapShape and br._G.GetMinimapShape() or "ROUND"
+		local quad_table = minimap_shape_quads[shape]
+		local w = (br._G.Minimap:GetWidth() / 2) + 5
+		local h = (br._G.Minimap:GetHeight() / 2) + 5
+		if quad_table[q] then
+			x, y = x * w, y * h
+		else
+			local radiusw = math.sqrt(2*(w)^2)-10
+			local radiush = math.sqrt(2*(h)^2)-10
+			x = math.max(-w, math.min(x*radiusw, w))
+			y = math.max(-h, math.min(y*radiush, h))
+		end
+		br.data.settings.minimapButton.pos.x = x
+		br.data.settings.minimapButton.pos.y = y
+		self:ClearAllPoints()
+		self:SetPoint("CENTER", br._G.Minimap, "CENTER", x, y)
+	end
+	-- local dragMode = nil -- "free", nil
 	local function moveButton(self)
 		local centerX, centerY = br._G.Minimap:GetCenter()
 		local x, y = br._G.GetCursorPosition()
-		x, y = x / self:GetEffectiveScale() - centerX, y / self:GetEffectiveScale() - centerY
-		centerX, centerY = math.abs(x), math.abs(y)
-		centerX, centerY =
-			(centerX / math.sqrt(centerX ^ 2 + centerY ^ 2)) * 76,
-			(centerY / math.sqrt(centerX ^ 2 + centerY ^ 2)) * 76
-		centerX = x < 0 and -centerX or centerX
-		centerY = y < 0 and -centerY or centerY
-		br.data.settings.minimapButton.pos.x = centerX
-		br.data.settings.minimapButton.pos.y = centerY
-		self:ClearAllPoints()
-		self:SetPoint("CENTER", centerX, centerY)
+		x, y = x / self:GetEffectiveScale(), y / self:GetEffectiveScale()
+		local pos = math.deg(math.atan2(y - centerY, x - centerX)) % 360
+		update_position(self, pos)
 	end
 	br.BadRotationsButton = br._G.CreateFrame("Button", "BadRotationsButton", br._G.Minimap)
 	br.BadRotationsButton:SetHeight(25)
