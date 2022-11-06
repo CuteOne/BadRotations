@@ -202,8 +202,6 @@ local cast
 local cd
 local charges
 local comboPoints
-local conduit
-local covenant
 local debuff
 local enemies
 local energy, energyDeficit
@@ -226,13 +224,10 @@ local range
 local ticksGain = {}
 
 -- Variables
-var.bsInc = 0
-var.clearcasting = 0
 var.fbMaxEnergy = false
 var.friendsInRange = false
 var.getTime = br._G.GetTime()
 var.htTimer = var.getTime
-var.incarnation = 0
 var.lastForm = 0
 var.lastRune = var.getTime
 var.leftCombat = var.getTime
@@ -240,7 +235,6 @@ var.lootDelay = 0
 var.minCount = 3
 var.noDoT = false
 var.profileStop = false
-var.sabertooth = 0
 var.unit5ID = 0
 
 
@@ -782,7 +776,7 @@ actionList.Cooldowns = function()
             -- Incarnation - King of the Jungle
             -- incarnation
             if cast.able.incarnationAvatarOfAshamane() and talent.incarnationAvatarOfAshamane then
-                if cast.incarnationAvatarOfAshamane() then ui.debug("Casting Incarnation: King of the Jungle") return true end
+                if cast.incarnationAvatarOfAshamane() then ui.debug("Casting Incarnation: Avatar of Ashamane") return true end
             end
         end
         -- Convoke the Spirits
@@ -832,25 +826,23 @@ end -- End Action List - Cooldowns
 
 -- Action List - Berserk Builders
 actionList.BerserkBuilders = function()
-    if talent.berserk then
-        -- Rake
-        -- rake,target_if=refreshable
-        for i = 1, #enemies.yards5f do
-            local thisUnit = enemies.yards5f[i]
-            if cast.able.rake(thisUnit) and range.dyn5 and canDoT(thisUnit) and debuff.rake.refresh(thisUnit) then
-                if cast.rake(thisUnit) then ui.debug("Casting Rake [Berserk Builders]") return true end
-            end
+    -- Rake
+    -- rake,target_if=refreshable
+    for i = 1, #enemies.yards5f do
+        local thisUnit = enemies.yards5f[i]
+        if cast.able.rake(thisUnit) and range.dyn5 and canDoT(thisUnit) and debuff.rake.refresh(thisUnit) then
+            if cast.rake(thisUnit) then ui.debug("Casting Rake [Berserk Builders]") return true end
         end
-        -- Swipe
-        -- swipe_cat,if=spell_targets.swipe_cat>variable.swipe_v_shred
-        if cast.able.swipeCat("player","aoe",1,8) and (#enemies.yards8 > var.swipeVShred) then
-            if cast.swipeCat("player","aoe",1,8) then ui.debug("Casting Swipe [Berserk Builders]") return true end
-        end
-        -- Shred
-        -- shred
-        if cast.able.shred() then
-            if cast.shred() then ui.debug("Casting Shred [Berserk Builders]") return true end
-        end
+    end
+    -- Swipe
+    -- swipe_cat,if=spell_targets.swipe_cat>variable.swipe_v_shred
+    if cast.able.swipeCat("player","aoe",1,8) and (#enemies.yards8 > var.swipeVShred) then
+        if cast.swipeCat("player","aoe",1,8) then ui.debug("Casting Swipe [Berserk Builders]") return true end
+    end
+    -- Shred
+    -- shred
+    if cast.able.shred() then
+        if cast.shred() then ui.debug("Casting Shred [Berserk Builders]") return true end
     end
 end
 
@@ -883,15 +875,15 @@ actionList.Finisher = function()
     end
     -- Ferocious Bite
     -- ferocious_bite,max_energy=1,target_if=max:time_to_die
-    if cast.able.ferociousBite() and var.fbMaxEnergy and range.dyn5 then
-        if cast.pool.ferociousBite() then return true end
-        if cast.ferociousBite() then ui.debug("Casting Ferocious Bite [Finish]") return true end
+    if cast.able.ferociousBite(var.maxTTDUnit) and var.fbMaxEnergy and range.dyn5 then
+        -- if cast.pool.ferociousBite() then return true end
+        if cast.ferociousBite(var.maxTTDUnit) then ui.debug("Casting Ferocious Bite [Finish]") return true end
     end
     -- ferocious_bite,if=(buff.bs_inc.up&talent.soul_of_the_forest.enabled)
     if cast.able.ferociousBite() and range.dny5
         and ((buff.berserk.exists() or buff.incarnationAvatarOfAshamane.exists()) and talent.soulOfTheForest)
     then
-        if cast.ferociousBite(var.lowestRipUnit) then ui.debug("Casting Ferocious Bite [Finish - BS/Inc Soul]") return true end
+        if cast.ferociousBite() then ui.debug("Casting Ferocious Bite [Finish - BS/Inc Soul]") return true end
     end
 end -- End Action List - Finisher
 
@@ -1110,63 +1102,6 @@ actionList.PreCombat = function()
             if cast.wildCharge("target") then ui.debug("Wild Charge on "..unit.name("target")) return true end
         end
         if ui.checked("Pre-Pull Timer") and ui.pullTimer() <= ui.value("Pre-Pull Timer") then
-            -- Regrowth
-            -- regrowth,if=talent.bloodtalons.enabled
-            if cast.able.regrowth("player") and talent.bloodtalons and not buff.bloodtalons.exists()
-                and var.htTimer < var.getTime - 1 and not buff.prowl.exists()
-                and not cast.current.regrowth()
-            then
-                if unit.form() ~= 0 then
-                    -- CancelShapeshiftForm()
-                    unit.cancelForm()
-                    ui.debug("Cancel Form [Pre-pull]")
-                elseif unit.form() == 0 then
-                    if cast.regrowth("player") then ui.debug("Casting Regrowth [Pre-pull]"); var.htTimer = var.getTime; return true end
-                end
-            end
-            -- Azshara's Font of Power
-            -- use_item,name=azsharas_font_of_power
-            if (use.able.slot(13) or use.able.slot(14)) then
-                local opValue = ui.value("Trinkets")
-                if (opValue == 1 or (opValue == 2 and ui.useCDs())) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
-                    for i = 13, 14 do
-                        if use.able.slot(i) then
-                            if equiped.azsharasFontOfPower(i) then
-                                use.slot(i)
-                                ui.debug("Using Azshara's Font of Power [Pre-pull - Slot "..i.."]")
-                            end
-                        end
-                    end
-                end
-            end
-            -- Prowl
-            if cast.able.prowl("player") and buff.bloodtalons.exists()
-                and ui.mode.prowl == 1 and not buff.prowl.exists()
-                and (buff.latentArcana.remain() > 25
-                    or not (equiped.azsharasFontOfPower(13) and equiped.azsharasFontOfPower(14))
-                    or (equiped.azsharasFontOfPower(13) and not use.able.azsharasFontOfPower(13))
-                    or (equiped.azsharasFontOfPower(14) and not use.able.azsharasFontOfPower(14)))
-            then
-                if cast.prowl("player") then ui.debug("Casting Prowl [Pre-pull]"); return true end
-            end
-            -- if buff.prowl.exists() then
-            --     -- Pre-pot
-            --     -- potion,name=old_war
-            --     if ui.value("Potion") ~= 5 and ui.pullTimer() <= 1 and (unit.instance("raid") or unit.instance("party")) then
-            --         if ui.value("Potion") == 1 and use.able.potionOfFocusedResolve() then
-            --             use.potionOfFocusedResolve()
-            --             ui.debug("Using Potion of Focused Resolve [Pre-Pull]");
-            --         end
-            --     end
-            -- end -- End Prowl
-            -- Berserk/Tiger's Fury Pre-Pull
-            if ui.checked("Berserk/Tiger's Fury Pre-Pull") and ui.pullTimer() <= 1 and (unit.instance("raid") or unit.instance("party")) and unit.distance("target") < 8 then
-                if cast.able.berserk() and cast.able.tigersFury() then
-                    cast.berserk()
-                    cast.tigersFury()
-                    ui.debug("Casting Berserk and Tiger's Fury [Pre-Pull]")
-                end
-            end
         end -- End Pre-Pull
         -- Pull
         if unit.valid("target") and unit.exists("target") and unit.distance("target") < 5 then
@@ -1195,8 +1130,6 @@ local function runRotation()
         cast            = br.player.cast
         cd              = br.player.cd
         charges         = br.player.charges
-        conduit         = br.player.conduit
-        covenant        = br.player.covenant
         debuff          = br.player.debuff
         enemies         = br.player.enemies
         equiped         = br.player.equiped
@@ -1247,27 +1180,6 @@ local function runRotation()
     var.unit5ID = br.GetObjectID(units.dyn5) or 0
     var.noDoT = var.unit5ID == 153758 or var.unit5ID == 156857 or var.unit5ID == 156849 or var.unit5ID == 156865 or var.unit5ID == 156869
 
-    -- Sabertooth
-    var.sabertooth = talent.sabertooth and 1 or 0
-
-    -- Clearcasting
-    var.clearcasting = buff.clearcasting.exists() and 1 or 0
-
-    -- Incarnation: King of the Jungle
-    var.incarnation = buff.incarnationAvatarOfAshamane.exists() and 1 or 0
-
-    -- Brutal Slash
-    var.brutal = talent.brutalSlash and 1 or 0
-
-    -- Lunar Inspiration
-    var.lunar = talent.lunarInspiration and 1 or 0
-
-    -- Taste For Blood
-    var.tastyBlood = conduit.tasteForBlood.enabled and 1 or 0
-
-    -- Necrolord
-    var.necro = covenant.necrolord.active and 1 or 0
-
     -- Friends In Range
     var.solo = #br.friend < 2
     var.friendsInRange = false
@@ -1281,8 +1193,6 @@ local function runRotation()
     end
 
     var.fbMaxEnergy = energy >= 50 or buff.apexPredatorsCraving.exists() or (energy >= 25 and (buff.berserk.exists() or buff.incarnationAvatarOfAshamane.exists()))
-
-    var.bsInc = (buff.berserk.exists() or buff.incarnationAvatarOfAshamane.exists()) and 1 or 0
 
     -- Variables
     -- variable,name=swipe_v_shred,value=2
@@ -1487,19 +1397,20 @@ local function runRotation()
                             end
                             if cast.ferociousBite(thisUnit) then ui.debug("Casting Ferocious Bite on "..unit.name(thisUnit).." [Execute]"); return true end
                         end
-                        -- ferocious_bite,target_if=dot.rip.ticking&dot.rip.remains<3&target.time_to_die>10&(talent.sabertooth.enabled)
-                        if debuff.rip.exists(thisUnit) and debuff.rip.remains(thisUnit) < 3
-                            and debuff.rip.remains(thisUnit) > unit.gcd(true) and unit.ttd(thisUnit) > 10 and talent.sabertooth
-                        then
-                            if cast.ferociousBite(thisUnit) then ui.debug("Casting Ferocious Bite [Sabertooth]"); return true end
-                        end
                     end
                 end
                 -- Call Action List - Interrupts
                 if actionList.Interrupts() then return true end
+                -- Prowl
+                -- prowl
+                if cast.able.prowl("player") and buff.catForm.exists() and autoProwl()
+                    and ui.mode.prowl == 1 and not buff.prowl.exists() and not unit.resting()
+                then
+                    if cast.prowl("player") then ui.debug("Casting Prowl") return true end
+                end
                 -- Tiger's Fury
                 -- tigers_fury,if=energy.deficit>40|buff.bs_inc.up
-                if cast.able.tigersFury() and (energyDeficit > 40 or var.bsInc == 1) then
+                if cast.able.tigersFury() and (energyDeficit > 40 or buff.berserk.exists() or buff.incarnationAvatarOfAshamane.exists()) then
                     if cast.tigersFury() then ui.debug("Casting Tiger's Fury") return true end
                 end
                 -- Call Action List - Cooldowns
@@ -1517,7 +1428,7 @@ local function runRotation()
                 end
                 -- Run Action List - Finisher
                 -- call_action_list,name=finisher,if=combo_points=5
-                if comboPoints == 5 then
+                if comboPoints >= 5 then
                     if actionList.Finisher() then return true end
                 end
                 -- Action List - Bloodtalons
@@ -1527,7 +1438,7 @@ local function runRotation()
                 end
                 -- Action List - Berserk Builders
                 -- call_action_list,name=berserk_builders,if=combo_points<5&(buff.bs_inc.up|buff.shadowmeld.up|buff.prowl.up)
-                if comboPoints < 5 and (var.bsInc == 1 or buff.shadowmeld.exists() or buff.prowl.exists()) then
+                if comboPoints < 5 and (buff.berserk.exists() or buff.incarnationAvatarOfAshamane.exists() or buff.shadowmeld.exists() or buff.prowl.exists()) then
                     if actionList.BerserkBuilders() then return true end
                 end
                 -- Action List - Builder Cycle
@@ -1537,7 +1448,7 @@ local function runRotation()
                 end
                 -- Call Action List - Owlweave
                 -- call_action_list,name=owlweaving,if=buff.bs_inc.down&energy<80
-                if ui.alwaysCdNever("Owlweave") and var.bsInc == 1 and energy < 80 then
+                if ui.alwaysCdNever("Owlweave") and not buff.berserk.exists() and not buff.incarnationAvatarOfAshamane.exists() and energy < 80 then
                     if actionList.Owlweave() then return true end
                 end
                 -- Cat Form - Owlweave
