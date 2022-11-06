@@ -328,6 +328,7 @@ function br.read.commonReaders()
 	superReaderFrame:RegisterUnitEvent("PLAYER_EQUIPMENT_CHANGED")
 	superReaderFrame:RegisterUnitEvent("PLAYER_LEVEL_UP")
 	superReaderFrame:RegisterUnitEvent("PLAYER_TALENT_UPDATE")
+	superReaderFrame:RegisterUnitEvent("TRAIT_CONFIG_UPDATED")
 	superReaderFrame:RegisterUnitEvent("UI_ERROR_MESSAGE")
 	superReaderFrame:RegisterEvent("LOADING_SCREEN_ENABLED")
 	superReaderFrame:RegisterEvent("LOADING_SCREEN_DISABLED")
@@ -356,7 +357,7 @@ function br.read.commonReaders()
 		-- if event == "PLAYER_TALENT_UPDATE" and select(2, GetSpecializationInfo(GetSpecialization())) == br.selectedSpec then
 		-- 	br.rotationChanged = true
 		-- end
-		if event == "PLAYER_TALENT_UPDATE" or event == "PLAYER_LEVEL_UP" or event == "PLAYER_EQUIPMENT_CHANGED" or event == "AZERITE_EMPOWERED_ITEM_SELECTION_UPDATED" then
+		if event == "PLAYER_TALENT_UPDATE" or event == "PLAYER_LEVEL_UP" or event == "PLAYER_EQUIPMENT_CHANGED" or event == "AZERITE_EMPOWERED_ITEM_SELECTION_UPDATED" or event == "TRAIT_CONFIG_UPDATED" then
 			br.updatePlayerInfo = true
 		end
 		-------------------------------------------------
