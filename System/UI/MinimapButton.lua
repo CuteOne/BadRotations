@@ -12,6 +12,8 @@ function br:MinimapButton()
 			(centerY / math.sqrt(centerX ^ 2 + centerY ^ 2)) * 76
 		centerX = x < 0 and -centerX or centerX
 		centerY = y < 0 and -centerY or centerY
+		br.data.settings.minimapButton.pos.x = centerX
+		br.data.settings.minimapButton.pos.y = centerY
 		self:ClearAllPoints()
 		self:SetPoint("CENTER", centerX, centerY)
 	end
@@ -19,7 +21,15 @@ function br:MinimapButton()
 	br.BadRotationsButton:SetHeight(25)
 	br.BadRotationsButton:SetWidth(25)
 	br.BadRotationsButton:SetFrameStrata("MEDIUM")
-	br.BadRotationsButton:SetPoint("CENTER", 75.70, -6.63)
+	local x, y
+	if not br.data.settings.minimapButton then
+		x = 75.70
+		y = -6.63
+	else
+		x = br.data.settings.minimapButton.pos.x or 75.70
+		y = br.data.settings.minimapButton.pos.y or -6.63
+	end
+	br.BadRotationsButton:SetPoint("CENTER", x, y)
 	br.BadRotationsButton:SetMovable(true)
 	br.BadRotationsButton:SetUserPlaced(true)
 	br.BadRotationsButton:SetNormalTexture("Interface\\HelpFrame\\HotIssueIcon.blp")

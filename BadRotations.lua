@@ -169,6 +169,15 @@ function br.defaultSettings()
 		br.data.settings.fontsize = 16
 		br.data.settings.wiped = true
 	end
+	-- Define Minimap Button if no settings exist
+	if (br.data.settings and br.data.settings.minimapButton == nil) then
+		br.data.settings.minimapButton = {
+			pos = {
+				x = 75.70,
+				y = -6.63
+			}
+		}
+	end
 end
 -- Load Saved Settings
 function br.loadSavedSettings()
@@ -184,6 +193,8 @@ function br.loadSavedSettings()
 		br.defaultSettings()
 		-- Build the Toggles
 		br.TogglesFrame()
+		-- Restore Minimap Button Position
+		br.BadRotationsButton:SetPoint("CENTER", br.data.settings.minimapButton.pos.x, br.data.settings.minimapButton.pos.y)
 		br.initializeSettings = false
 	end
 end
