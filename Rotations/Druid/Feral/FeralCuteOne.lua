@@ -1009,7 +1009,7 @@ actionList.BuilderCycle = function()
     -- pool_resource,for_next=1
     -- thrash_cat,target_if=refreshable
     if cast.able.thrashCat("player","aoe",3,8) and (debuff.thrashCat.refresh(units.dyn8AOE)) then
-        if cast.pool.thrashCat("player","aoe",3,8) then return true end
+        if cast.pool.thrashCat() then return true end
         if cast.thrashCat("player","aoe",3,8) then ui.debug("Casting Thrash [Builder Cycle]") return true end
     end
     -- Brutal Slash
@@ -1198,7 +1198,7 @@ local function runRotation()
     -- variable,name=swipe_v_shred,value=2
     var.swipeVShred = 2
     -- variable,name=pw_v_fb,op=setif,value=0,condition=talent.tear_open_wounds.enabled&talent.rip_and_tear.enabled,value_else=4
-    var.pwVFb = talent.tearOpenWounds and talent.ripAndTear and 0 or 4
+    var.pwVFb = (talent.tearOpenWounds and talent.ripAndTear) and 0 or 4
 
     -- Bloodtalons - Reset
     if btGen.timer - var.getTime <= 0 or buff.bloodtalons.exists() or not unit.inCombat() then
