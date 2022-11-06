@@ -111,13 +111,25 @@ function br.TogglesFrame()
 			br._G.GameTooltip:Hide()
 		end
 	)
+	-- br.mainButton:SetScript(
+	-- 	"OnReceiveDrag",
+	-- 	function(frame)
+	-- 		local self = frame.obj
+	-- 		print("Dragging Togglebar!")
+	-- 		local _, _, anchor, x, y = self:GetPoint(1)
+	-- 		br.data.settings.mainButton.pos.x = x
+	-- 		br.data.settings.mainButton.pos.y = y
+	-- 		br.data.settings.mainButton.pos.anchor = anchor
+	-- 	end
+	-- )
 	br.mainButton:SetScript(
-		"OnReceiveDrag",
+		"OnDragStop",
 		function()
 			local _, _, anchor, x, y = br.mainButton:GetPoint(1)
 			br.data.settings.mainButton.pos.x = x
 			br.data.settings.mainButton.pos.y = y
 			br.data.settings.mainButton.pos.anchor = anchor
+			br.mainButton:StopMovingOrSizing()
 		end
 	)
 	br.mainButton:SetScript(
