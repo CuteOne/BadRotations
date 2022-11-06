@@ -787,10 +787,14 @@ actionList.Cooldowns = function()
         end
         -- Convoke the Spirits
         -- convoke_the_spirits,if=buff.tigers_fury.up&combo_points<3|fight_remains<5
-        if ui.alwaysCdNever("Covenant Ability") and cast.able.convokeTheSpirits()
+        if ui.alwaysCdNever("Covenant Ability") and ((not talent.convokeTheSpiritsFeral and cast.able.convokeTheSpirits()) or (talent.convokeTheSpiritsFeral and cast.able.convokeTheSpiritsFeral())) 
             and ((buff.tigersFury.exists() and comboPoints < 3) or (unit.ttdGroup(5) < 5 and ui.useCDs() and not unit.isDummy(units.dyn5)))
         then
-            if cast.convokeTheSpirits() then ui.debug("Casting Convoke the Spirits [Night Fae]") return true end
+            if talent.convokeTheSpiritsFeral then
+                if cast.convokeTheSpiritsFeral() then ui.debug("Casting Convoke the Spirits [Talent]") return true end
+            else
+                if cast.convokeTheSpirits() then ui.debug("Casting Convoke the Spirits [Night Fae]") return true end
+            end
         end
         -- Racial: Berserking (Troll)
         -- berserking
