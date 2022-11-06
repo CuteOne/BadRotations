@@ -837,6 +837,7 @@ br.lists.spells = {
                 brutalSlash                 = 202028,
                 carnivorousInstinct         = 390902,
                 catsCuriosity               = 386318,
+                convokeTheSpiritsFeral      = 391528,
                 doubleClawedRake            = 391700,
                 dreadfulBleeding            = 391045,
                 feralFrenzy                 = 274837,
