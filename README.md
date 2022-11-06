@@ -125,7 +125,7 @@ Raidable means if its good to raid with.
 
 |rotation|author |patch|coverage|status|  readiness  |last updated|
 |--------|-------|:---:|:------:|:----:|:-----------:|-----------:|
-|CuteOne |CuteOne|10.0 |  75%   | Full |:interrobang:|  11/05/2022|
+|CuteOne |CuteOne|10.0 |  75%   | Full |:interrobang:|  11/06/2022|
 
 - Guardian
 
