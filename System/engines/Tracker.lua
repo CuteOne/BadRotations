@@ -28,6 +28,7 @@ local lx, ly, lz
 local function trackObject(object, isUnit, name, objectid, objectguid, interact)
     local xOb, yOb, zOb = br._G.ObjectPosition(object)
     local pX, pY, pZ = br._G.ObjectPosition("player")
+    if zOb == nil then zOb = pZ end
     if interact == nil then
         interact = true
     end
