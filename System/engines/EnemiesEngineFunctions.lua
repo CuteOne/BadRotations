@@ -37,7 +37,12 @@ local function unitExistsInOM(unit)
 function br:updateOM()
 	local om = br.om
 	local startTime = br._G.debugprofilestop()
+	wipe(br.tracking)
 
+	local objUnit
+	local name
+	local objectid
+	local objectguid
 	local total = br._G.GetObjectCount(true,"BR") or 0
 	for i = 1,total do
 		local thisUnit = br._G.GetObjectWithIndex(i)
@@ -47,6 +52,17 @@ function br:updateOM()
 				if enemyUnit then--and not br.isInOM(enemyUnit) then
 					br._G.tinsert(om, enemyUnit)
 				end
+			end
+		end
+		if br.isChecked("Enable Tracker") and thisUnit ~= nil and br._G.ObjectExists(thisUnit)
+			and ((br._G.ObjectIsUnit(thisUnit) and br._G.UnitIsVisible(thisUnit) and not br.GetUnitIsDeadOrGhost(thisUnit)) or not br._G.ObjectIsUnit(thisUnit))
+		then
+			objUnit = br._G.ObjectIsUnit(thisUnit)
+			name = objUnit and br._G.UnitName(thisUnit) or br._G.ObjectName(thisUnit)
+			objectid = br._G.ObjectID(thisUnit)
+			objectguid = br._G.UnitGUID(thisUnit)
+			if thisUnit and name and objectid and objectguid then
+				br._G.tinsert(br.tracking, {object = thisUnit, unit = objUnit, name = name, id = objectid, guid = objectguid})
 			end
 		end
 	end
