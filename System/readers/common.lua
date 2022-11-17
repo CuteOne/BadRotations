@@ -259,8 +259,7 @@ function br.read.commonReaders()
 	-- 	br._G.print(...)
 	-- end
 	--Frame:SetScript("OnEvent", addonReader)
-	br._G.GameTooltip:HookScript(
-		"OnTooltipSetUnit",
+	TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Unit,
 		function(self)
 			if br.unlocked --[[EWT]] and br._G.GetObjectCount() ~= nil then
 				local _, lunit = self:GetUnit()
