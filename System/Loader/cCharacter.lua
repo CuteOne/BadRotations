@@ -332,7 +332,7 @@ function br.cCharacter:new(class)
 
 	function self.getConsumables()
 		for i = 0, 4 do --Let's look at each bag
-			local numBagSlots = br._G.GetContainerNumSlots(i)
+			local numBagSlots = C_Container.GetContainerNumSlots(i)
 			if numBagSlots > 0 then
 				for x = 1, numBagSlots do --Let's look at each bag slot
 					local itemID = br._G.GetContainerItemID(i, x)
