@@ -335,7 +335,7 @@ function br.cCharacter:new(class)
 			local numBagSlots = C_Container.GetContainerNumSlots(i)
 			if numBagSlots > 0 then
 				for x = 1, numBagSlots do --Let's look at each bag slot
-					local itemID = br._G.GetContainerItemID(i, x)
+					local itemID = C_Container.GetContainerItemID(i, x)
 					if itemID ~= nil then -- Is there and item in the slot?
 						local itemEffect = select(1, br._G.GetItemSpell(itemID))
 						if itemEffect ~= nil then --Does the item provide a use effect?
