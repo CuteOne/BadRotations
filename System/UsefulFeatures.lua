@@ -126,8 +126,7 @@ br._G.GameTooltip:HookScript(
 	end
 )
 -- NPCs
-br._G.GameTooltip:HookScript(
-	"OnTooltipSetUnit",
+TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Unit,
 	function(self)
 		if br._G.C_PetBattles.IsInBattle() then
 			return
