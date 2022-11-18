@@ -291,7 +291,7 @@ end
 function br.hasEmptySlots()
 	local openSlots = 0
 	for i = 0, 4 do --Let's look at each bag
-		local numBagSlots = br._G.GetContainerNumSlots(i)
+		local numBagSlots = C_Container.GetContainerNumSlots(i)
 		if numBagSlots > 0 then -- Only look for slots if bag present
 			openSlots = openSlots + select(1, br._G.GetContainerNumFreeSlots(i))
 		end

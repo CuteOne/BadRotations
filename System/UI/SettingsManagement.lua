@@ -77,6 +77,21 @@ function br:checkDirectories(folder, class, spec, profile, instance)
 	return nil
 end
 
+function br.deepcopy(orig)
+	local orig_type = type(orig)
+	local copy
+	if orig_type == "table" then
+		copy = {}
+		for orig_key, orig_value in next, orig, nil do
+			copy[br.deepcopy(orig_key)] = br.deepcopy(orig_value)
+		end
+		setmetatable(copy, br.deepcopy(getmetatable(orig)))
+	else -- number, string, boolean, etc
+		copy = orig
+	end
+	return copy
+end
+
 -- Load Settings
 function br:loadSettings(folder, class, spec, profile, instance)
 	if br.unlocked and (not br.data.loadedSettings or br.rotationChanged) then

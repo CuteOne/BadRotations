@@ -48,10 +48,10 @@ function br.hasItem(itemID)
 	end
 	local itemFound = false
 	for i = 0, 4 do --Let's look at each bag
-		local numBagSlots = br._G.GetContainerNumSlots(i)
+		local numBagSlots = C_Container.GetContainerNumSlots(i)
 		if numBagSlots > 0 then -- Only look for slots if bag present
 			for x = 1, numBagSlots do --Let's look at each bag slot
-				local bagItemID = br._G.GetContainerItemID(i, x)
+				local bagItemID = C_Container.GetContainerItemID(i, x)
 				if tostring(bagItemID) == tostring(itemID) then
 					itemFound = true
 				end
