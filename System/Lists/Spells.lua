@@ -4181,7 +4181,7 @@ br.lists.spells = {
                 cruelty                     = 392931,
                 meatCleaver                 = 280392,
                 angerManagement             = 152278,
-                recklessAbandon             = 202751,
+                recklessAbandon             = 396749,
             },
             traits                          = {
                 coldSteelHotBlood           = 288080
