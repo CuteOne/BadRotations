@@ -30,8 +30,8 @@ br.api.module = function(self)
 	               if (addon == "Blizzard_ChallengesUI") then
 		               if br._G["ChallengesKeystoneFrame"] then br._G["ChallengesKeystoneFrame"]:HookScript("OnShow", function()
 				            for Bag = 0, br._G["NUM_BAG_SLOTS"] do
-				    	        for Slot = 1, C_Container.GetContainerNumSlots(Bag) do
-					    	        local ID = C_Container.GetContainerItemID(Bag, Slot)
+				    	        for Slot = 1, br._G.GetContainerNumSlots(Bag) do
+					    	        local ID = br._G.GetContainerItemID(Bag, Slot)
 						            if (ID and ID == 180653) then return br._G.UseContainerItem(Bag, Slot) end
 					           end
 				            end
