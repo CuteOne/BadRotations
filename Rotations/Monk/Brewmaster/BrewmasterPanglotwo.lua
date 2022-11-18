@@ -460,7 +460,9 @@ local function runRotation()
         -- Print("Single")
         -- Keg Smash
         if cast.kegSmash(units.dyn5) then return end
-        -- Black Out Strike
+        -- Rising Sun Kick
+		if cast.risingSunKick(units.dyn5) then return end
+        -- Blackout Kick
         if cast.blackoutKick(units.dyn5) then return end
         -- Breath of Fire
         if debuff.kegSmash.exists(units.dyn5) then
@@ -501,7 +503,9 @@ local function runRotation()
         if not (cd.kegSmash.remain() < gcd or cd.breathOfFire.remain() < gcd) then
             if cast.chiBurst(units.dyn5) then return end
         end
-        -- Black Out Strike
+        -- Rising Sun Kick
+		if cast.risingSunKick(units.dyn5) then return end
+        -- Blackout Kick
         if cast.blackoutKick(units.dyn5) then return end
          -- Chi Wave
         if not (cd.kegSmash.remain() < gcd or cd.breathOfFire.remain() < gcd) then
