@@ -977,7 +977,7 @@ local function runRotation() -- This is the main profile loop, any below this po
                     if cast.autoAttack("target") then ui.debug("Casting Auto Attack [Pre-Combat]") return true end
                 end
             end
-            if ((mode.rotation == 1 and #enemies.yards8 >= 2) or (mode.rotation == 2 and #enemies.yards8 > 0)) and level >= 40 then
+            if ((mode.rotation == 1 and #enemies.yards8 >= 2) or (mode.rotation == 2 and #enemies.yards8 > 0)) then
                 --print("multi")
                 if actionList.AOE() then return end
             end
