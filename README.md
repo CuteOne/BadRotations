@@ -342,7 +342,7 @@ Raidable means if its good to raid with.
 
 | rotation  |author |patch|coverage|status |    readiness     |last updated|
 |-----------|-------|:---:|:------:|:-----:|:----------------:|-----------:|
-|WinterzDF  |Winterz|10.0 |  70%   | Full  |:white_check_mark:|  11/01/2022|
+|WinterzDF  |Winterz|10.0 |  70%   | Full  |:white_check_mark:|  11/20/2022|
 |WinterzFury|Winterz|9.2.5|  80%   | Full  |:white_check_mark:|  08/05/2022|
 |CuteOne    |CuteOne|9.2.5|  100%  |Limited|:heavy_check_mark:|  08/05/2022|
 
