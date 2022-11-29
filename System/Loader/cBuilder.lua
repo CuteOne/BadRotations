@@ -192,7 +192,7 @@ function br.loader:new(spec,specName)
     local function getTalentInfo()
         local talentFound
         if self.talent == nil then self.talent = {} end
-        if spec > 1500 then return end
+        if spec > 1400 and spec ~= 1467 and spec ~= 1468 then return end
         local talents = getAllTalents()
         for k,v in pairs(self.spell.talents) do
             talentFound = false
