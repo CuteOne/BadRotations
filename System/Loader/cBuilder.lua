@@ -181,7 +181,9 @@ function br.loader:new(spec,specName)
                 for _, entryID in pairs(node.entryIDs) do
                     local entryInfo = br._G.C_Traits.GetEntryInfo(configId,entryID)
                     local definitionInfo = br._G.C_Traits.GetDefinitionInfo(entryInfo.definitionID)
-                    talents[definitionInfo.spellID] = (entryID == activeid)
+                    if definitionInfo.spellID ~= nil then
+                        talents[definitionInfo.spellID] = entryID == activeid
+                    end
                 end
             end
         end
