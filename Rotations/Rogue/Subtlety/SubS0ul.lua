@@ -1,3 +1,17 @@
+------------------------------------------------------
+-- Author = CuteOne
+-- Patch = 10.0.2
+--    Patch should be the latest patch you've updated the rotation for (i.e., 9.2.5)
+-- Coverage = 88,(8)%
+--    Coverage should be your estimated percent coverage for class mechanics (i.e., 100%)
+-- Status = Full
+--    Status should be one of: Full, Limited, Sporadic, Inactive, Unknown
+-- Readiness = Development
+--    Readiness should be one of: Raid, NoRaid, Basic, Development, Untested
+-------------------------------------------------------
+-- Required: Fill above fields to populate README.md --
+-------------------------------------------------------
+
 local rotationName = "SubS0ul - 9.0.5"
 local dotBlacklist = "168962|175992|171557|175992"
 local stunSpellList = "332329|332671|326450|328177|336451|331718|331743|334708|333145|326450|332671|321807|334748|327130|327240|330532|328475|330423|328177|336451|294171|330586|328429"
