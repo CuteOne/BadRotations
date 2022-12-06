@@ -275,10 +275,10 @@ Raidable means if its good to raid with.
 
 - Subtlety
 
-|   rotation    |    author    | patch |coverage|status |    readiness     |last updated|
-|---------------|--------------|:-----:|:------:|:-----:|:----------------:|-----------:|
-|SubS0ul - 9.0.5|Jakub Kulewicz|Unknown|Unknown |Unknown|  :interrobang:   |  12/06/2022|
-|CuteOne        |CuteOne       | 9.2.5 |  100%  |Limited|:heavy_check_mark:|  08/30/2022|
+|   rotation    |author |patch |coverage|status |    readiness     |last updated|
+|---------------|-------|:----:|:------:|:-----:|:----------------:|-----------:|
+|SubS0ul - 9.0.5|CuteOne|10.0.2|88,(8)% | Full  |  :interrobang:   |  12/06/2022|
+|CuteOne        |CuteOne|9.2.5 |  100%  |Limited|:heavy_check_mark:|  08/30/2022|
 
 
 ### Shaman
