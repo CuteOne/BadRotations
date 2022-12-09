@@ -1296,6 +1296,12 @@ br.lists.spells = {
         -- All
         Shared = {
             abilities                       = {
+                azureStrike                 = 362969,
+                blessingOfTheBronze         = 364342,
+                disintegrate                = 356995,
+                fireBreath                  = 357208,
+                furyOfTheAspects            = 390386,
+                livingFlame                 = 361469,
 
             },
             animas                          = {
