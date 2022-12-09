@@ -1,4 +1,4 @@
-local rotationName = "None" -- Change to name of profile listed in options drop down
+local rotationName = "InitialEvoker" -- Change to name of profile listed in options drop down
 
 ---------------
 --- Toggles ---
@@ -6,10 +6,10 @@ local rotationName = "None" -- Change to name of profile listed in options drop 
 local function createToggles() -- Define custom toggles
 -- Rotation Button
     local RotationModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range.", highlight = 0, icon = br.player.spell.whirlwind },
-        [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.bladestorm },
-        [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.furiousSlash },
-        [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.enragedRegeneration}
+        [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range.", highlight = 1, icon = br.player.spell.furyOfTheAspects },
+        [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 1, icon = br.player.spell.azureStrike },
+        [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 1, icon = br.player.spell.livingFlame },
+        [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.blessingOfTheBronze}
     };
     br.ui:createToggle(RotationModes,"Rotation",1,0)
 -- Cooldown Button
@@ -93,16 +93,9 @@ end
 --- ROTATION ---
 ----------------
 local function runRotation()
-    if br.timer:useTimer("debugFury", 0.1) then --change "debugFury" to "debugSpec" (IE: debugFire)
+    if br.timer:useTimer("debugEvoker", 0.1) then --change "debugFury" to "debugSpec" (IE: debugFire)
         --Print("Running: "..rotationName)
 
----------------
---- Toggles --- -- List toggles here in order to update when pressed
----------------
-        br.UpdateToggle("Rotation",0.25)
-        br.UpdateToggle("Cooldown",0.25)
-        br.UpdateToggle("Defensive",0.25)
-        br.UpdateToggle("Interrupt",0.25)
 --------------
 --- Locals ---
 --------------
@@ -133,9 +126,14 @@ local function runRotation()
         local talent                                        = br.player.talent
         local ttm                                           = br.player.timeToMax
         local units                                         = br.player.units
+        local ui                                            = br.player.ui
+        local unit                                            = br.player.unit
+        local use                                             = br.player.use
         
         if br.leftCombat == nil then br.leftCombat = br._G.GetTime() end
         if br.profileStop == nil then br.profileStop = false end
+
+        units.get(25)
 
 --------------------
 --- Action Lists ---
@@ -152,19 +150,30 @@ local function runRotation()
 --- Out Of Combat - Rotations ---
 ---------------------------------
             if not inCombat and br.GetObjectExists("target") and not br.GetUnitIsDeadOrGhost("target") and br._G.UnitCanAttack("target", "player") then
-                print("No up to date rotation found for this spec.")
+                if unit.exists(units.dyn25) and unit.distance(units.dyn25) <= 25 then
+                    if cast.livingFlame() then ui.debug("Casting Living Flame") return true end
+                end
 
             end -- End Out of Combat Rotation
 -----------------------------
 --- In Combat - Rotations --- 
 -----------------------------
             if inCombat then
-                print("No up to date rotation found for this spec.")
+                if unit.valid("target") and cd.global.remain() == 0 then
+                    if unit.exists(units.dyn25) and unit.distance(units.dyn25) <= 25 then
+                        if br.getEssence("player") >= 3 then
+                            if cast.disintegrate() then ui.debug("Casting Disintegrate") return true end
+                        end
+                        if cast.livingFlame() then ui.debug("Casting Living Flame") return true end
+                        if cast.azureStrike() then ui.debug("Casting Azure Strike") return true end 
+                    end
+                end
+                
             end -- End In Combat Rotation
         end -- Pause
     end -- End Timer
 end -- End runRotation 
-local id = 0 --Change to the spec id profile is for.
+local id = 1465 --Change to the spec id profile is for.
 if br.rotations[id] == nil then br.rotations[id] = {} end
 br._G.tinsert(br.rotations[id],{
     name = rotationName,
