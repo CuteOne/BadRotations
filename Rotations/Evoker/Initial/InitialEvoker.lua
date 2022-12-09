@@ -4,33 +4,110 @@ local rotationName = "InitialEvoker" -- Change to name of profile listed in opti
 --- Toggles ---
 ---------------
 local function createToggles() -- Define custom toggles
--- Rotation Button
+    -- Rotation Button
     local RotationModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range.", highlight = 1, icon = br.player.spell.furyOfTheAspects },
-        [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 1, icon = br.player.spell.azureStrike },
-        [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 1, icon = br.player.spell.livingFlame },
-        [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.blessingOfTheBronze}
+        [1] = {
+            mode = "Auto",
+            value = 1,
+            overlay = "Automatic Rotation",
+            tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range.",
+            highlight = 1,
+            icon = br.player.spell.furyOfTheAspects
+        },
+        [2] = {
+            mode = "Mult",
+            value = 2,
+            overlay = "Multiple Target Rotation",
+            tip = "Multiple target rotation used.",
+            highlight = 1,
+            icon = br.player.spell.azureStrike
+        },
+        [3] = {
+            mode = "Sing",
+            value = 3,
+            overlay = "Single Target Rotation",
+            tip = "Single target rotation used.",
+            highlight = 1,
+            icon = br.player.spell.livingFlame
+        },
+        [4] = {
+            mode = "Off",
+            value = 4,
+            overlay = "DPS Rotation Disabled",
+            tip = "Disable DPS Rotation",
+            highlight = 0,
+            icon = br.player.spell.blessingOfTheBronze
+        }
     };
-    br.ui:createToggle(RotationModes,"Rotation",1,0)
--- Cooldown Button
+    br.ui:createToggle(RotationModes, "Rotation", 1, 0)
+    -- Cooldown Button
     local CooldownModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.battleCry },
-        [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.battleCry },
-        [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.battleCry }
+        [1] = {
+            mode = "Auto",
+            value = 1,
+            overlay = "Cooldowns Automated",
+            tip = "Automatic Cooldowns - Boss Detection.",
+            highlight = 1,
+            icon = br.player.spell.battleCry
+        },
+        [2] = {
+            mode = "On",
+            value = 2,
+            overlay = "Cooldowns Enabled",
+            tip = "Cooldowns used regardless of target.",
+            highlight = 0,
+            icon = br.player.spell.battleCry
+        },
+        [3] = {
+            mode = "Off",
+            value = 3,
+            overlay = "Cooldowns Disabled",
+            tip = "No Cooldowns will be used.",
+            highlight = 0,
+            icon = br.player.spell.battleCry
+        }
     };
-    br.ui:createToggle(CooldownModes,"Cooldown",2,0)
--- Defensive Button
+    br.ui:createToggle(CooldownModes, "Cooldown", 2, 0)
+    -- Defensive Button
     local DefensiveModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.enragedRegeneration },
-        [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.enragedRegeneration }
+        [1] = {
+            mode = "On",
+            value = 1,
+            overlay = "Defensive Enabled",
+            tip = "Includes Defensive Cooldowns.",
+            highlight = 1,
+            icon = br.player.spell.enragedRegeneration
+        },
+        [2] = {
+            mode = "Off",
+            value = 2,
+            overlay = "Defensive Disabled",
+            tip = "No Defensives will be used.",
+            highlight = 0,
+            icon = br.player.spell.enragedRegeneration
+        }
     };
-    br.ui:createToggle(DefensiveModes,"Defensive",3,0)
--- Interrupt Button
+    br.ui:createToggle(DefensiveModes, "Defensive", 3, 0)
+    -- Interrupt Button
     local InterruptModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.pummel },
-        [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.pummel }
+        [1] = {
+            mode = "On",
+            value = 1,
+            overlay = "Interrupts Enabled",
+            tip = "Includes Basic Interrupts.",
+            highlight = 1,
+            icon = br.player.spell.pummel
+        },
+        [2] = {
+            mode = "Off",
+            value = 2,
+            overlay = "Interrupts Disabled",
+            tip = "No Interrupts will be used.",
+            highlight = 0,
+            icon = br.player.spell.pummel
+        }
     };
-    br.ui:createToggle(InterruptModes,"Interrupt",4,0)
+    br.ui:createToggle(InterruptModes, "Interrupt", 4, 0)
 end
 
 ---------------
@@ -44,13 +121,13 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
-        section = br.ui:createSection(br.ui.window.profile,  "General")
+        section = br.ui:createSection(br.ui.window.profile, "General")
 
         br.ui:checkSectionState(section)
         ------------------------
         --- COOLDOWN OPTIONS --- -- Define Cooldown Options
         ------------------------
-        section = br.ui:createSection(br.ui.window.profile,  "Cooldowns")
+        section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
 
         br.ui:checkSectionState(section)
         -------------------------
@@ -58,33 +135,35 @@ local function createOptions()
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
 
+        br.ui:createSpinner(section, "Living Flame Heal", 45, 0, 99, 5, "Use Living Flame to Heal below this threshold")
+
         br.ui:checkSectionState(section)
         -------------------------
         --- INTERRUPT OPTIONS --- -- Define Interrupt Options
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
-            -- Interrupt Percentage
-            br.ui:createSpinner(section,  "InterruptAt",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")    
+        -- Interrupt Percentage
+        br.ui:createSpinner(section, "InterruptAt", 0, 0, 95, 5, "|cffFFBB00Cast Percentage to use at.")
         br.ui:checkSectionState(section)
         ----------------------
         --- TOGGLE OPTIONS --- -- Degine Toggle Options
         ----------------------
-        section = br.ui:createSection(br.ui.window.profile,  "Toggle Keys")
-            -- Single/Multi Toggle
-            br.ui:createDropdown(section,  "Rotation Mode", br.dropOptions.Toggle,  4)
-            --Cooldown Key Toggle
-            br.ui:createDropdown(section,  "Cooldown Mode", br.dropOptions.Toggle,  3)
-            --Defensive Key Toggle
-            br.ui:createDropdown(section,  "Defensive Mode", br.dropOptions.Toggle,  6)
-            -- Interrupts Key Toggle
-            br.ui:createDropdown(section,  "Interrupt Mode", br.dropOptions.Toggle,  6)
-            -- Pause Toggle
-            br.ui:createDropdown(section,  "Pause Mode", br.dropOptions.Toggle,  6)   
+        section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
+        -- Single/Multi Toggle
+        br.ui:createDropdown(section, "Rotation Mode", br.dropOptions.Toggle, 4)
+        -- Cooldown Key Toggle
+        br.ui:createDropdown(section, "Cooldown Mode", br.dropOptions.Toggle, 3)
+        -- Defensive Key Toggle
+        br.ui:createDropdown(section, "Defensive Mode", br.dropOptions.Toggle, 6)
+        -- Interrupts Key Toggle
+        br.ui:createDropdown(section, "Interrupt Mode", br.dropOptions.Toggle, 6)
+        -- Pause Toggle
+        br.ui:createDropdown(section, "Pause Mode", br.dropOptions.Toggle, 6)
         br.ui:checkSectionState(section)
     end
     optionTable = {{
         [1] = "Rotation Options",
-        [2] = rotationOptions,
+        [2] = rotationOptions
     }}
     return optionTable
 end
@@ -93,91 +172,122 @@ end
 --- ROTATION ---
 ----------------
 local function runRotation()
-    if br.timer:useTimer("debugEvoker", 0.1) then --change "debugFury" to "debugSpec" (IE: debugFire)
-        --Print("Running: "..rotationName)
+    if br.timer:useTimer("debugEvoker", 0.1) then -- change "debugFury" to "debugSpec" (IE: debugFire)
+        -- Print("Running: "..rotationName)
 
---------------
---- Locals ---
---------------
-        local artifact                                      = br.player.artifact
-        local buff                                          = br.player.buff
-        local cast                                          = br.player.cast
-        local combatTime                                    = br.getCombatTime()
-        local cd                                            = br.player.cd
-        local charges                                       = br.player.charges
-        local debuff                                        = br.player.debuff
-        local enemies                                       = br.player.enemies
-        local falling, swimming, flying, moving             = br.getFallTime(), br._G.IsSwimming(), br._G.IsFlying(), br._G.GetUnitSpeed("player")>0
-        local gcd                                           = br.player.gcd
-        local healPot                                       = br.getHealthPot()
-        local inCombat                                      = br.player.inCombat
-        local inInstance                                    = br.player.instance=="party"
-        local inRaid                                        = br.player.instance=="raid"
-        local level                                         = br.player.level
-        local lowestHP                                      = br.friend[1].unit
-        local mode                                          = br.player.ui.mode
-        local perk                                          = br.player.perk        
-        local php                                           = br.player.health
-        local power, powmax, powgen                         = br.player.power, br.player.powerMax, br.player.powerRegen
-        local pullTimer                                     = br.DBM:getPulltimer()
-        local race                                          = br.player.race
-        local racial                                        = br.player.getRacial()
-        local spell                                         = br.player.spell
-        local talent                                        = br.player.talent
-        local ttm                                           = br.player.timeToMax
-        local units                                         = br.player.units
-        local ui                                            = br.player.ui
-        local unit                                            = br.player.unit
-        local use                                             = br.player.use
-        
-        if br.leftCombat == nil then br.leftCombat = br._G.GetTime() end
-        if br.profileStop == nil then br.profileStop = false end
+        --------------
+        --- Locals ---
+        --------------
+        local artifact = br.player.artifact
+        local buff = br.player.buff
+        local cast = br.player.cast
+        local combatTime = br.getCombatTime()
+        local cd = br.player.cd
+        local charges = br.player.charges
+        local debuff = br.player.debuff
+        local enemies = br.player.enemies
+        local falling, swimming, flying, moving = br.getFallTime(), br._G.IsSwimming(), br._G.IsFlying(),
+            br._G.GetUnitSpeed("player") > 0
+        local gcd = br.player.gcd
+        local healPot = br.getHealthPot()
+        local inCombat = br.player.inCombat
+        local inInstance = br.player.instance == "party"
+        local inRaid = br.player.instance == "raid"
+        local level = br.player.level
+        local lowestHP = br.friend[1].unit
+        local mode = br.player.ui.mode
+        local perk = br.player.perk
+        local php = br.player.health
+        local power, powmax, powgen = br.player.power, br.player.powerMax, br.player.powerRegen
+        local pullTimer = br.DBM:getPulltimer()
+        local race = br.player.race
+        local racial = br.player.getRacial()
+        local spell = br.player.spell
+        local talent = br.player.talent
+        local ttm = br.player.timeToMax
+        local units = br.player.units
+        local ui = br.player.ui
+        local unit = br.player.unit
+        local use = br.player.use
+
+        if br.leftCombat == nil then
+            br.leftCombat = br._G.GetTime()
+        end
+        if br.profileStop == nil then
+            br.profileStop = false
+        end
 
         units.get(25)
 
---------------------
---- Action Lists ---
---------------------
+        --------------------
+        --- Action Lists ---
+        --------------------
 
------------------
---- Rotations ---
------------------
+        -----------------
+        --- Rotations ---
+        -----------------
         -- Pause
-        if br.pause() or (br.GetUnitExists("target") and (br.GetUnitIsDeadOrGhost("target") or not br._G.UnitCanAttack("target", "player"))) or mode.rotation == 4 then
+        if br.pause() or
+            (br.GetUnitExists("target") and
+                (br.GetUnitIsDeadOrGhost("target") or not br._G.UnitCanAttack("target", "player"))) or mode.rotation ==
+            4 then
             return true
         else
----------------------------------
---- Out Of Combat - Rotations ---
----------------------------------
-            if not inCombat and br.GetObjectExists("target") and not br.GetUnitIsDeadOrGhost("target") and br._G.UnitCanAttack("target", "player") then
+            ---------------------------------
+            --- Out Of Combat - Rotations ---
+            ---------------------------------
+            if not inCombat and br.GetObjectExists("target") and not br.GetUnitIsDeadOrGhost("target") and
+                br._G.UnitCanAttack("target", "player") then
                 if unit.exists(units.dyn25) and unit.distance(units.dyn25) <= 25 then
-                    if cast.livingFlame() then ui.debug("Casting Living Flame") return true end
+                    if cast.livingFlame() then
+                        ui.debug("Casting Living Flame")
+                        return true
+                    end
                 end
 
             end -- End Out of Combat Rotation
------------------------------
---- In Combat - Rotations --- 
------------------------------
+            -----------------------------
+            --- In Combat - Rotations --- 
+            -----------------------------
             if inCombat then
-                if unit.valid("target") and cd.global.remain() == 0 then
-                    if unit.exists(units.dyn25) and unit.distance(units.dyn25) <= 25 then
-                        if br.getEssence("player") >= 3 then
-                            if cast.disintegrate() then ui.debug("Casting Disintegrate") return true end
-                        end
-                        if cast.livingFlame() then ui.debug("Casting Living Flame") return true end
-                        if cast.azureStrike() then ui.debug("Casting Azure Strike") return true end 
+                if php <= br.getOptionValue("Living Flame Heal") and not moving then
+                    if cast.livingFlame("player") then
+                        ui.debug("Casting Living Flame (Heal)")
+                        return true
                     end
                 end
-                
+                if unit.valid("target") and cd.global.remain() == 0 then
+                    if unit.exists(units.dyn25) and unit.distance(units.dyn25) <= 25 then
+                        if br.getEssence("player") >= 3 and not moving then
+                            if cast.disintegrate() then
+                                ui.debug("Casting Disintegrate")
+                                return true
+                            end
+                        end
+                        if not moving then
+                            if cast.livingFlame()  then
+                                ui.debug("Casting Living Flame")
+                                return true
+                            end
+                        end
+                        if cast.azureStrike() then
+                            ui.debug("Casting Azure Strike")
+                            return true
+                        end
+                    end
+                end
+
             end -- End In Combat Rotation
         end -- Pause
     end -- End Timer
 end -- End runRotation 
-local id = 1465 --Change to the spec id profile is for.
-if br.rotations[id] == nil then br.rotations[id] = {} end
-br._G.tinsert(br.rotations[id],{
+local id = 1465 -- Change to the spec id profile is for.
+if br.rotations[id] == nil then
+    br.rotations[id] = {}
+end
+br._G.tinsert(br.rotations[id], {
     name = rotationName,
     toggles = createToggles,
     options = createOptions,
-    run = runRotation,
+    run = runRotation
 })
