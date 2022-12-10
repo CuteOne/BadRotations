@@ -154,6 +154,10 @@ function br.TierScan(thisTier)
 	thisTier = string.upper(thisTier)
 	local sets = br.lists.tier
 	local tierList = sets[thisTier][myClass]
+	if not tierList then
+		br._G.print("No tier info found for this class! Please let devs know!")
+		return {}
+	end
 	if #tierList > 0 then
 		for i = 1, #tierList do
 			if br._G.IsEquippedItem(tierList[i]) then

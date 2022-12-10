@@ -1296,6 +1296,12 @@ br.lists.spells = {
         -- All
         Shared = {
             abilities                       = {
+                azureStrike                 = 362969,
+                blessingOfTheBronze         = 364342,
+                disintegrate                = 356995,
+                fireBreath                  = 357208,
+                furyOfTheAspects            = 390386,
+                livingFlame                 = 361469,
 
             },
             animas                          = {
@@ -2109,7 +2115,6 @@ br.lists.spells = {
                 invokeNiuzao                = 132578,
                 kegSmash                    = 121253,
                 purifyingBrew               = 119582,
-                spearHandStrike             = 116705,
                 spinningCraneKick           = 322729,
                 zenMeditation               = 115176
             },
@@ -2223,6 +2228,8 @@ br.lists.spells = {
                 spiritOfTheCrane            = 210802,
                 summonJadeSerpentStatue     = 115313,
                 upwelling                   = 274963,
+				faelineStomp				= 388193,
+				zenPulse					= 124081,
             },
             runeforges                      = {
                 ancientTeachingsOfTheMonastery = 337172,
@@ -2239,7 +2246,6 @@ br.lists.spells = {
                 fortifyingBrew              = 243435,
                 invokeXuenTheWhiteTiger     = 123904,
                 risingSunKick               = 107428,
-                spearHandStrike             = 116705,
                 stormEarthAndFire           = 137639,
                 stormEarthAndFireFixate     = 221771,
                 touchOfKarma                = 122470,
@@ -2364,6 +2370,7 @@ br.lists.spells = {
                 ringOfPeace                 = 116844,
                 tigerTailSweep              = 264348,
                 tigersLust                  = 116841,
+				spearHandStrike				= 116705,
             },
         },
     },

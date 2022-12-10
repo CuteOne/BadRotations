@@ -197,9 +197,10 @@ Raidable means if its good to raid with.
 
 - Mistweaver
 
-|rotation|author | patch |coverage|status |  readiness  |last updated|
-|--------|-------|:-----:|:------:|:-----:|:-----------:|-----------:|
-|LyLo-v2 |LyLoLoq|Unknown|Unknown |Unknown|:interrobang:|  04/16/2022|
+| rotation |  author  | patch |coverage|status |  readiness  |last updated|
+|----------|----------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|Sinweaving|GR.TwoStep|Unknown|Unknown |Unknown|:interrobang:|  12/08/2022|
+|LyLo-v2   |LyLoLoq   |Unknown|Unknown |Unknown|:interrobang:|  04/16/2022|
 
 - Windwalker
 
@@ -275,10 +276,10 @@ Raidable means if its good to raid with.
 
 - Subtlety
 
-|   rotation    |    author    | patch |coverage|status |    readiness     |last updated|
-|---------------|--------------|:-----:|:------:|:-----:|:----------------:|-----------:|
-|SubS0ul - 9.0.5|Jakub Kulewicz|Unknown|Unknown |Unknown|  :interrobang:   |  12/06/2022|
-|CuteOne        |CuteOne       | 9.2.5 |  100%  |Limited|:heavy_check_mark:|  08/30/2022|
+|   rotation    |author |patch |coverage|status |    readiness     |last updated|
+|---------------|-------|:----:|:------:|:-----:|:----------------:|-----------:|
+|SubS0ul - 9.0.5|CuteOne|10.0.2|88,(8)% | Full  |  :interrobang:   |  12/06/2022|
+|CuteOne        |CuteOne|9.2.5 |  100%  |Limited|:heavy_check_mark:|  08/30/2022|
 
 
 ### Shaman

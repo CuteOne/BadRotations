@@ -19,6 +19,7 @@ br.lists.tier = {
 			115539 -- head
 		},
 		["DEMONHUNTER"] = {},
+		["EVOKER"] = {},
 		["HUNTER"] = {
 			115545, -- head
 			115546, -- legs
@@ -99,6 +100,7 @@ br.lists.tier = {
 			124344 -- shoulder
 		},
 		["DEMONHUNTER"] = {},
+		["EVOKER"] = {},
 		["HUNTER"] = {
 			124284, -- chest
 			124292, -- hands
@@ -188,6 +190,7 @@ br.lists.tier = {
 			138333, -- legs
 			138366 -- back
 		},
+		["EVOKER"] = {},
 		["HUNTER"] = {
 			138342, -- head
 			138339, -- chest
@@ -286,6 +289,7 @@ br.lists.tier = {
 			147137, -- legs
 			147134 -- back
 		},
+		["EVOKER"] = {},
 		["HUNTER"] = {
 			147142, -- head
 			147139, -- chest
@@ -384,6 +388,7 @@ br.lists.tier = {
 			152128, -- legs
 			152125 -- back
 		},
+		["EVOKER"] = {},
 		["HUNTER"] = {
 			152133, -- head
 			152130, -- chest
@@ -479,6 +484,7 @@ br.lists.tier = {
       188853, -- hands
       188848, -- legs
     },
+	["EVOKER"] = {},
     ["HUNTER"] = {
       188859, -- head
       188858, -- chest
@@ -542,5 +548,6 @@ br.lists.tier = {
       188937, -- hands
       188940, -- legs
     }
+
   }
 }

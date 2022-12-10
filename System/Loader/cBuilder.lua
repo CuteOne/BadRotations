@@ -53,11 +53,7 @@ function br.loader.loadProfiles()
         -- br._G.print("Profile: "..tostring(profile))
         local start = string.find(profile,"local id = ",1,true) or 0
         local profileID = 0
-        if folderSpec == "Initial" then
-            profileID = math.floor(tonumber(string.sub(profile,start+10,start+14)) or 0)
-        else
-            profileID = math.floor(tonumber(string.sub(profile,start+10,start+13)) or 0)
-        end
+        profileID = math.floor(tonumber(string.sub(profile,start+10,start+14)) or 0)
         if profileID == specID then
             loadFile(profile,file,false)
             -- -- Get Rotation Name from File
@@ -96,18 +92,18 @@ function br.loader:new(spec,specName)
     if specName == nil then specName = "Initial" end
     -- Print("Spec: "..spec.." | Spec Name: "..specName)
     -- if not br.loaded then
-    --     -- Print("Loader - Loading Profiles")
-    --     br.loader.loadProfiles()
-    --     br.loaded = true
-    -- end
-
-    self.profile = specName
-
-    -- Mandatory !
-    if br.rotations[spec] == nil then
-        br.loader.loadProfiles()
-        br.rotationChanged = true
-    end
+        --     -- Print("Loader - Loading Profiles")
+        --     br.loader.loadProfiles()
+        --     br.loaded = true
+        -- end
+        
+        self.profile = specName
+        
+        -- Mandatory !
+        if br.rotations[spec] == nil then
+            br.loader.loadProfiles()
+            br.rotationChanged = true
+        end
     if br.rotations[spec][br.selectedProfile] then
         self.rotation = br.rotations[spec][br.selectedProfile]
     else
