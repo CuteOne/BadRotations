@@ -1,5 +1,5 @@
 ------------------------------------------------------
--- Author = CuteOne
+-- Author = S0ul
 -- Patch = 10.0.2
 --    Patch should be the latest patch you've updated the rotation for (i.e., 9.2.5)
 -- Coverage = 88,(8)%
