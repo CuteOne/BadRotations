@@ -1230,13 +1230,16 @@ br.lists.spells = {
         -- Devastation
         [1467] = {
             abilities                       = {
+                pyre                        = 357221,
+                eternitySurge               = 382411,
 
             },
             artifacts                       = {
 
             },
             buffs                           = {
-
+                essenceBurst                = 359618,
+                dragonrage                  = 375087,
             },
             conduits                        = {
 
@@ -1254,6 +1257,12 @@ br.lists.spells = {
 
             },
             talents                         = {
+                burnout                     = 375801,
+                dragonrage                  = 375087,
+                eternitySurge               = 359073,
+                shatteringStar              = 370452,
+
+
 
             },
             traits                          = {
@@ -1299,9 +1308,12 @@ br.lists.spells = {
                 azureStrike                 = 362969,
                 blessingOfTheBronze         = 364342,
                 disintegrate                = 356995,
-                fireBreath                  = 357208,
+                emeraldBlossom              = 355913,
+                fireBreath                  = 382266,
                 furyOfTheAspects            = 390386,
                 livingFlame                 = 361469,
+                quell                       = 351338,
+                returnEvoker                = 361227,
 
             },
             animas                          = {
