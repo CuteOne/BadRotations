@@ -43,6 +43,7 @@ function br.loader.loadProfiles()
     -- Search each Profile in the Spec Folder
     br._G.wipe(br.rotations)
     local specID = br._G.GetSpecializationInfo(br._G.GetSpecialization())
+    local IDLength = math.floor(math.log10(specID)+1)
     local folderSpec = getFolderSpecName(class,specID)
     local path = rotationsDirectory() .. getFolderClassName(class) .. '\\' .. folderSpec .. '\\'
     local profiles = br._G.GetDirectoryFiles(path .. '*.lua')
@@ -52,8 +53,8 @@ function br.loader.loadProfiles()
         local profile = br._G.ReadFile(path..file)
         -- br._G.print("Profile: "..tostring(profile))
         local start = string.find(profile,"local id = ",1,true) or 0
-        local profileID = 0
-        profileID = math.floor(tonumber(string.sub(profile,start+10,start+14)) or 0)
+        local stringEnd = start + IDLength + 10
+        local profileID = math.floor(tonumber(string.sub(profile,start+10,stringEnd)) or 0)
         if profileID == specID then
             loadFile(profile,file,false)
             -- -- Get Rotation Name from File

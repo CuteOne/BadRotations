@@ -205,6 +205,7 @@ function br:loadLastProfileTracker()
 		local rotationFound = false
 		local trackerName = br.data.tracker[br.selectedSpec]["RotationDropValue"]
 		local specSettings = br.data.settings[br.selectedSpec]
+		if not br.rotations[specID] then print("No rotations found for specID ".. specID) return end
 		if trackerName then
 			for i = 1, #br.rotations[specID] do
 				if br.rotations[specID][i].name == trackerName then

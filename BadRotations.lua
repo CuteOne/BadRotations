@@ -187,8 +187,10 @@ function br.loadSavedSettings()
 		br:loadLastProfileTracker()
 		if br.data.settings[br.selectedSpec]["RotationDropValue"] then
 			br:loadSettings(nil, nil, nil, br.data.settings[br.selectedSpec]["RotationDropValue"])
-		else
+		elseif br.rotations[br.selectedSpec] then
 			br:loadSettings(nil, nil, nil, br.rotations[br.selectedSpec][1].name)
+		else
+			if not br.rotations[br.selectedSpec] then return end
 		end
 		br.defaultSettings()
 		-- Build the Toggles
