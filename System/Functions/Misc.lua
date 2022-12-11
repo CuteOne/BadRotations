@@ -729,17 +729,20 @@ function br.pause(skipCastingCheck)
 			or (br._G.UnitInVehicle("player") and not br.isChecked("Bypass Vehicle Check")
 				and (not br._G.UnitExists("target") or (br._G.UnitExists("target") and not br._G.UnitCanAttack("player", "target"))))
 			and not (br.UnitBuffID("player", 190784) or br.UnitBuffID("player", 164222) or br.UnitBuffID("player", 165803) or br.UnitBuffID("player", 157059)))
-		or br._G.SpellIsTargeting() or (br._G.UnitCastingInfo("player") and not skipCastingCheck) or (br._G.UnitChannelInfo("player") and not skipCastingCheck)
+		or br._G.SpellIsTargeting() or (br._G.UnitCastingInfo("player") and not skipCastingCheck)
+		or (br._G.UnitChannelInfo("player") and not skipCastingCheck)
 		or br._G.UnitIsDeadOrGhost("player") or eating or br.UnitDebuffID("player", 252753) or -- Potion of Replenishment (BFA Mana channel) Apparently a debuff
 		br.UnitBuffID("player", 114018)
 	 then
-		if (br._G.UnitCastingInfo("player") and not skipCastingCheck) then
+		if br.empowerID ~= nil and br.empowerID > 0 then
+			return false
+		elseif (br._G.UnitCastingInfo("player") and not skipCastingCheck) then
 			local _, _, _, _, endTime = br._G.UnitCastingInfo("player")
 			local finish = endTime / 1000 - br._G.GetTime()
 			if finish > 0.1 then
 				return true
 			end
-		elseif (br._G.UnitChannelInfo("player") and not skipCastingCheck and br.botSpell ~= br.empowerID) then
+		elseif (br._G.UnitChannelInfo("player") and not skipCastingCheck) then
 			return true
 		else
 			br.ChatOverlay("Profile Paused")

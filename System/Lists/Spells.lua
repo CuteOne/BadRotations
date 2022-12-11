@@ -1227,11 +1227,18 @@ br.lists.spells = {
         },
     },
     EVOKER = {
+        -- Initial Evoker
+        [1465] = {
+            abilities                       = {
+                fireBreath                  = 357208,
+            },
+        },
         -- Devastation
         [1467] = {
             abilities                       = {
-                pyre                        = 357221,
                 eternitySurge               = 382411,
+                fireBreath                  = 382266,
+                pyre                        = 357221,
 
             },
             artifacts                       = {
@@ -1307,9 +1314,9 @@ br.lists.spells = {
             abilities                       = {
                 azureStrike                 = 362969,
                 blessingOfTheBronze         = 364342,
+                deepBreath                  = 357210,
                 disintegrate                = 356995,
                 emeraldBlossom              = 355913,
-                fireBreath                  = 357208,
                 furyOfTheAspects            = 390386,
                 hover                       = 358267,
                 livingFlame                 = 361469,

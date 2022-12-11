@@ -197,6 +197,7 @@ local cd
 local enemies
 local module
 local power
+local spell
 local ui
 local unit
 local units
@@ -342,12 +343,17 @@ local function runRotation()
     enemies         = br.player.enemies
     module          = br.player.module
     power           = br.player.power
+    spell           = br.player.spell
     ui              = br.player.ui
     unit            = br.player.unit
     units           = br.player.units
     var             = br.player.variables
     -- General Locals
     essence = power.essence.amount()
+    if var.fireBreathStage == nil or br.empowerID ~= spell.fireBreath then var.fireBreathStage = 0 end
+    if cast.empowered.fireBreath() > 0 then
+        var.fireBreathStage = cast.empowered.fireBreath()
+    end
     var.moveCast = (not unit.moving() or buff.hover.exists())
     var.profileStop = false
     var.haltProfile = (unit.inCombat() and var.profileStop) or unit.mounted() or br.pause() or ui.mode.rotation == 4
@@ -386,7 +392,7 @@ local function runRotation()
         --- In Combat - Rotations ---
         -----------------------------
         -- Check for combat
-        if unit.valid("target") and cd.global.remain() == 0 then
+        if unit.valid("target") and (cd.global.remain() == 0 or var.fireBreathStage > 0) then
             if unit.exists(units.dyn40) and unit.distance(units.dyn40) < 40 then
                 -----------------
                 --- Interrupt ---
@@ -395,9 +401,16 @@ local function runRotation()
                 ------------
                 --- Main ---
                 ------------
+                -- Cooldowns
+                if actionList.Cooldowns() then return true end
                 -- Fire Breath
-                if cast.able.fireBreath("player") and var.moveCast and (cast.empowered.fireBreath() == 0 or cast.empowered.fireBreath() >= ui.value("Fire Breath")) then
-                    if cast.fireBreath("player") then ui.debug("Casting Fire Breath - Empowered") return true end
+                if cast.able.fireBreath("player") and var.moveCast then
+                    if var.fireBreathStage == 0 then
+                        if cast.fireBreath("player") then ui.debug("Casting Fire Breath") return true end
+                    end
+                    if var.fireBreathStage >= ui.value("Fire Breath Stage") then
+                        if cast.fireBreath("player") then ui.debug("Casting Fire Breath - Empowered Stage "..var.fireBreathStage) return true end
+                    end
                 end
                 -- Disintegrate
                 if cast.able.disintegrate() and essence >= 3 and var.moveCast then
