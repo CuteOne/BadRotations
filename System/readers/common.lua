@@ -318,6 +318,9 @@ function br.read.commonReaders()
 	superReaderFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP")
 	superReaderFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START")
 	superReaderFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_UPDATE")
+	superReaderFrame:RegisterEvent("UNIT_SPELLCAST_EMPOWER_START")
+	superReaderFrame:RegisterEvent("UNIT_SPELLCAST_EMPOWER_STOP")
+	superReaderFrame:RegisterEvent("UNIT_SPELLCAST_EMPOWER_UPDATE")
 	superReaderFrame:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
 	superReaderFrame:RegisterEvent("UNIT_POWER_UPDATE")
 	superReaderFrame:RegisterEvent("ENCOUNTER_START")
@@ -583,7 +586,7 @@ function br.read.commonReaders()
 		end
 		if event == "UNIT_SPELLCAST_CHANNEL_START" then
 			local SourceUnit = select(1, ...)
-			local SpellID = select(5, ...)
+			local SpellID = select(3, ...)
 			if SourceUnit == "player" then
 				--Print("Channel Start")
 				br.lastStarted = SpellID
@@ -591,7 +594,7 @@ function br.read.commonReaders()
 		end
 		if event == "UNIT_SPELLCAST_CHANNEL_STOP" then
 			local SourceUnit = select(1, ...)
-			local SpellID = select(5, ...)
+			local SpellID = select(3, ...)
 			if SourceUnit == "player" then
 				--Print("Channel STOP")
 				br.lastFinished = SpellID
@@ -599,7 +602,30 @@ function br.read.commonReaders()
 		end
 		if event == "UNIT_SPELLCAST_CHANNEL_UPDATE" then
 			local SourceUnit = select(1, ...)
-			-- local SpellID = select(5, ...)
+			-- local SpellID = select(3, ...)
+			if SourceUnit == "player" then
+			--Print("Channel Update")
+			end
+		end
+		if event == "UNIT_SPELLCAST_EMPOWER_START" then
+			local SourceUnit = select(1, ...)
+			local SpellID = select(3, ...)
+			if SourceUnit == "player" then
+				--Print("Channel Start")
+				br.empowerID = SpellID
+			end
+		end
+		if event == "UNIT_SPELLCAST_EMPOWER_STOP" then
+			local SourceUnit = select(1, ...)
+			local SpellID = select(3, ...)
+			if SourceUnit == "player" then
+				--Print("Channel STOP")
+				br.empowerID = 0
+			end
+		end
+		if event == "UNIT_SPELLCAST_EMPOWER_UPDATE" then
+			local SourceUnit = select(1, ...)
+			-- local SpellID = select(3, ...)
 			if SourceUnit == "player" then
 			--Print("Channel Update")
 			end

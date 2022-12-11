@@ -91,6 +91,8 @@ function br.read.combatLog()
             cl:Druid(...)
         elseif class == 12 then -- Demon Hunter
             cl:DemonHunter(...)
+        elseif class == 13 then -- Evoker
+            cl:Evoker(...)
         end
     end
     -- add event to the reader
@@ -666,6 +668,26 @@ function cl:Druid(...)
             end
         end
     end
+end
+function cl:Evoker(...)
+    local timeStamp,
+        param,
+        hideCaster,
+        source,
+        sourceName,
+        sourceFlags,
+        sourceRaidFlags,
+        destination,
+        destName,
+        destFlags,
+        destRaidFlags,
+        spell,
+        spellName,
+        _,
+        spellType = br._G.CombatLogGetCurrentEventInfo()
+        -- if br.GetUnitIsUnit(sourceName, "player") then
+        --     print("Param: "..tostring(param)..", Spell: "..tostring(spell)..", SpellName: "..tostring(spellName))
+        -- end
 end
 function cl:Hunter(...)
     local timeStamp,

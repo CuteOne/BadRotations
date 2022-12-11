@@ -60,6 +60,9 @@ function br.getPowerAlt(Unit)
 	if class == "WARLOCK" then
 		value = power(Unit, 7)
 	end
+	if class == "EVOKER" then
+		value = power(Unit, 19)
+	end
 	return value
 end
 -- Rune Tracking Table

@@ -202,6 +202,22 @@ function br.getFullRechargeTime(spellID)
     end
     return 0
 end
+function br.getEmpoweredRank(spellID)
+	local rank = 0
+	if br.empowerID and spellID == br.empowerID then
+		local _, _, _, start, _, _, _, _, _, numStages = br._G.UnitChannelInfo("player")
+		local timeStage = 0
+		if start and start > 0 then
+			for i = 1, numStages, 1 do
+				timeStage = timeStage + br._G.GetUnitEmpowerStageDuration("player", i - 1) / 1000
+				if i == timeStage or i == numStages then
+					rank = math.floor((br._G.GetTime() - (start/1000))+1)
+				end
+			end
+		end
+	end
+	return rank
+end
 -- if br.getSpellCD(12345) <= 0.4 then
 function br.getSpellCD(SpellID)
 	if SpellID == nil then return false end

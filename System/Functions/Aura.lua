@@ -588,6 +588,7 @@ function br.hasBloodLust()
 	if br.UnitBuffID("player", 90355) or -- Ancient Hysteria
 		br.UnitBuffID("player", 2825) or -- Bloodlust
 		br.UnitBuffID("player", 146555) or -- Drums of Rage
+		br.UnitBuffID("player", 390386) or -- Fury of the Aspects
 		br.UnitBuffID("player", 32182) or -- Heroism
 		br.UnitBuffID("player", 90355) or -- Netherwinds
 		br.UnitBuffID("player", 80353) or -- Timewarp
@@ -607,6 +608,8 @@ function br.hasBloodLustRemain()
 		return br.getBuffRemain("player", 2825)
 	elseif br.UnitBuffID("player", 146555) then
 		return br.getBuffRemain("player", 146555)
+	elseif br.UnitBuffID("player", 390386) then
+		return br.getBuffRemain("player", 390386)
 	elseif br.UnitBuffID("player", 32182) then
 		return br.getBuffRemain("player", 32182)
 	elseif br.UnitBuffID("player", 80353) then

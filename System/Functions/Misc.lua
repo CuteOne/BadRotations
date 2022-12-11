@@ -192,7 +192,7 @@ function br.getLineOfSight(Unit1, Unit2)
 		local X1, Y1, Z1 = br.GetObjectPosition(Unit1)
 		local X2, Y2, Z2 = br.GetObjectPosition(Unit2)
 		local pX = br.GetObjectPosition("player")
-		-- local flags = bit.bor(0x10, 0x100, 0x1)
+		local flags = bit.bor(0x10, 0x100)
 		local trace
 		-- Only calculate if we actually got values
 		if (X1 == nil or X2 == nil or pX == nil) then return false end
@@ -200,9 +200,12 @@ function br.getLineOfSight(Unit1, Unit2)
 		if br.player and br.player.eID and (br.player.eID == 2398 or br.player.eID == 2399) then
 			trace = br._G.TraceLine(X1, Y1, Z1 + 2--[[.25]], X2, Y2, Z2 + 2--[[.25]], 0x100111)
 		else
-			trace = br._G.TraceLine(X1, Y1, Z1 + 2, X2, Y2, Z2 + 2, 0x10)
+			trace = br._G.TraceLine(X1, Y1, Z1 + 2.25, X2, Y2, Z2 + 2.25, flags)
+			-- if (br._G.UnitIsUnit(Unit2,"target")) then
+			-- 	br._G.print("Target Is LoS: "..tostring(trace))
+			-- end
 		end
-		if trace == nil then
+		if trace == nil or trace == false then
 			--Print("Past Traceline")
 			if br.player and br.player.eID and br.player.eID == 2141 then
 				if pX < -108 and X2 < -108 then
@@ -228,8 +231,8 @@ function br.getLineOfSight(Unit1, Unit2)
 				return true
 			end
 		else
-			--Print("Really Skipped it all")
-			return false
+			-- br._G.print("Really Skipped it all")
+			return true
 		end
 	else
 		return false
@@ -736,7 +739,7 @@ function br.pause(skipCastingCheck)
 			if finish > 0.1 then
 				return true
 			end
-		elseif (br._G.UnitChannelInfo("player") and not skipCastingCheck) then
+		elseif (br._G.UnitChannelInfo("player") and not skipCastingCheck and br.botSpell ~= br.empowerID) then
 			return true
 		else
 			br.ChatOverlay("Profile Paused")
@@ -768,10 +771,10 @@ function br.isChecked(Value)
 			return false
 		end
 
-		if
-			br.data.settings[br.selectedSpec] and
-				(br.data.settings[br.selectedSpec][br.selectedProfile][Value .. "Check"] == 1 or br.data.settings[br.selectedSpec][br.selectedProfile][Value .. "Check"] == true)
-		 then
+		if br.data.settings[br.selectedSpec]
+			and (br.data.settings[br.selectedSpec][br.selectedProfile][Value .. "Check"] == 1
+				or br.data.settings[br.selectedSpec][br.selectedProfile][Value .. "Check"] == true)
+		then
 			return true
 		end
 	end
@@ -779,10 +782,10 @@ function br.isChecked(Value)
 end
 -- if isSelected("Stormlash Totem") then
 function br.isSelected(Value)
-	if
-		br.data.settings ~= nil and
-			(br.data.settings[br.selectedSpec].toggles["Cooldowns"] == 3 or
-				(br.isChecked(Value) and (br.getValue(Value) == 3 or (br.getValue(Value) == 2 and br.data.settings[br.selectedSpec].toggles["Cooldowns"] == 2))))
+	if br.data.settings ~= nil
+		and (br.data.settings[br.selectedSpec].toggles["Cooldowns"] == 3
+			or (br.isChecked(Value) and (br.getValue(Value) == 3
+				or (br.getValue(Value) == 2 and br.data.settings[br.selectedSpec].toggles["Cooldowns"] == 2))))
 	 then
 		return true
 	end
