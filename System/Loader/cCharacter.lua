@@ -170,7 +170,7 @@ function br.cCharacter:new(class)
 	-- Starts auto attack when in melee range and facing enemy
 	function self.startMeleeAttack()
 		if self.inCombat and (br.isInMelee() and br.getFacing("player", "target") == true) then
-			br._G.StartAttack()
+			br._G.StartAttack('target')
 		end
 	end
 
@@ -190,10 +190,10 @@ function br.cCharacter:new(class)
 
 	-- Returns if in combat
 	function self.getInCombat()
-		if
-		br._G.UnitAffectingCombat("player") or self.ignoreCombat or (br.isChecked("Tank Aggro = Player Aggro") and self.tankAggro()) or
-				(br._G.GetNumGroupMembers() > 1 and (br._G.UnitAffectingCombat("player") or br._G.UnitAffectingCombat("target")))
-		 then
+		if br._G.UnitAffectingCombat("player") or self.ignoreCombat or
+			(br.isChecked("Tank Aggro = Player Aggro") and self.tankAggro()) or
+			(br._G.GetNumGroupMembers() > 1 and (br._G.UnitAffectingCombat("player") or br._G.UnitAffectingCombat("target")))
+		then
 			self.inCombat = true
 		else
 			self.inCombat = false
@@ -328,6 +328,7 @@ function br.cCharacter:new(class)
 
 		return highestStat
 	end
+
 	self.primaryStat = self.getPrimaryStat()
 
 	function self.getConsumables()
@@ -351,20 +352,20 @@ function br.cCharacter:new(class)
 							}
 							if itemInfo.itemType == "Potion" and self.level >= itemInfo.minLevel then -- Is the item a Potion and am I level to use it?
 								local potionList = {
-									{ptype = "action", effect = "Action"},
-									{ptype = "agility", effect = "Agility"},
-									{ptype = "armor", effect = "Armor"},
-									{ptype = "breathing", effect = "Underwater"},
-									{ptype = "health", effect = "Healing"},
-									{ptype = "intellect", effect = "Intellect"},
-									{ptype = "invis", effect = "Invisibility"},
-									{ptype = "mana", effect = "Mana"},
-									{ptype = "rage", effect = "Rage"},
-									{ptype = "rejuve", effect = "Rejuvenation"},
-									{ptype = "speed", effect = "Swiftness"},
-									{ptype = "strength", effect = "Strength"},
-									{ptype = "versatility", effect = "Versatility"},
-									{ptype = "waterwalk", effect = "Water Walking"}
+									{ ptype = "action", effect = "Action" },
+									{ ptype = "agility", effect = "Agility" },
+									{ ptype = "armor", effect = "Armor" },
+									{ ptype = "breathing", effect = "Underwater" },
+									{ ptype = "health", effect = "Healing" },
+									{ ptype = "intellect", effect = "Intellect" },
+									{ ptype = "invis", effect = "Invisibility" },
+									{ ptype = "mana", effect = "Mana" },
+									{ ptype = "rage", effect = "Rage" },
+									{ ptype = "rejuve", effect = "Rejuvenation" },
+									{ ptype = "speed", effect = "Swiftness" },
+									{ ptype = "strength", effect = "Strength" },
+									{ ptype = "versatility", effect = "Versatility" },
+									{ ptype = "waterwalk", effect = "Water Walking" }
 								}
 								for y = 1, #potionList do --Look for and add to right potion table
 									local potionEffect = potionList[y].effect
@@ -383,10 +384,10 @@ function br.cCharacter:new(class)
 							end
 							if itemInfo.itemType == "Flask" and self.level >= itemInfo.minLevel then -- Is the item a Flask and am I level to use it?
 								local flaskList = {
-									{id = 152638, type = "agility"},
-									{id = 152639, type = "intellect"},
-									{id = 152640, type = "stamina"},
-									{id = 152641, type = "strength"}
+									{ id = 152638, type = "agility" },
+									{ id = 152639, type = "intellect" },
+									{ id = 152640, type = "stamina" },
+									{ id = 152641, type = "strength" }
 								}
 								for y = 1, #flaskList do
 									local flasktype = flaskList[y].type
@@ -401,7 +402,7 @@ function br.cCharacter:new(class)
 										)
 									end
 								end
-							--TODO
+								--TODO
 							end
 						end
 					end

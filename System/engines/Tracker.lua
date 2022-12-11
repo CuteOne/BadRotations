@@ -5,14 +5,15 @@ local interactTime
 
 
 local function getCastTime(unit)
-	if br._G.UnitCastingInfo(unit) ~= nil then
-		return select(5,br._G.UnitCastingInfo(unit))/1000 - br._G.GetTime()
-	elseif br._G.UnitChannelInfo(unit) ~= nil then
-		return select(5,br._G.UnitChannelInfo(unit))/1000 - br._G.GetTime()
-	else
-		return 0
-	end
+    if br._G.UnitCastingInfo(unit) ~= nil then
+        return select(5, br._G.UnitCastingInfo(unit)) / 1000 - br._G.GetTime()
+    elseif br._G.UnitChannelInfo(unit) ~= nil then
+        return select(5, br._G.UnitChannelInfo(unit)) / 1000 - br._G.GetTime()
+    else
+        return 0
+    end
 end
+
 local function isInteracting(unit)
     local time = br._G.GetTime()
     if interactTime == nil then interactTime = 0 end
@@ -34,7 +35,7 @@ local function trackObject(object, isUnit, name, objectid, objectguid, interact)
     end
     -- local playerDistance = br._G.GetDistanceBetweenPositions(pX, pY, pZ, xOb, yOb, zOb)
     local zDifference = math.floor(zOb - pZ)
-    if xOb ~= nil and (lx == nil or lx ~= xOb or ly ~= yOb or lz ~= zOb) then--and playerDistance < 200 then
+    if xOb ~= nil and (lx == nil or lx ~= xOb or ly ~= yOb or lz ~= zOb) then --and playerDistance < 200 then
         if math.abs(zDifference) > 50 then
             LibDraw.SetColor(255, 0, 0, 100)
         else
@@ -49,23 +50,24 @@ local function trackObject(object, isUnit, name, objectid, objectguid, interact)
         -- if name == "" or name == "Unknown" then
         --     name = isUnit and br._G.UnitName(object) or nil
         -- end
-		if br.isChecked("Display Extra Info") then
-			name = name .. "  [" .. objectid .. "] " .. "\n" .. objectguid .. "  [ZDiff: " .. zDifference.."]"
-		end
-		LibDraw.Text(name, "GameFontNormal", xOb, yOb, zOb + 3)
+        if br.isChecked("Display Extra Info") then
+            name = name .. "  [" .. objectid .. "] " .. "\n" .. objectguid .. "  [ZDiff: " .. zDifference .. "]"
+        end
+        LibDraw.Text(name, "GameFontNormal", xOb, yOb, zOb + 3)
         if br.isChecked("Draw Lines to Tracked Objects") then
-			if math.abs(zDifference) > 50 then
-				LibDraw.SetColor(255, 0, 0, 80)
-			else
-				LibDraw.SetColor(0, 255, 0, 80)
-			end
+            if math.abs(zDifference) > 50 then
+                LibDraw.SetColor(255, 0, 0, 80)
+            else
+                LibDraw.SetColor(0, 255, 0, 80)
+            end
             LibDraw.Line(pX, pY, pZ, xOb, yOb, zOb)
         end
         -- local hasLoot = br._G.CanLootUnit(objectguid)
         -- local interacting = isInteracting("player")
         if br.isChecked("Auto Interact with Any Tracked Object") and interact and not br.player.inCombat
-            and --[[playerDistance]]br._G.GetDistanceBetweenPositions(pX, pY, pZ, xOb, yOb, zOb) <= 7 and not br.isUnitCasting("player") and not br.isMoving("player")
-            and (not isInteracting("player") or br._G.CanLootUnit(objectguid))--and br.timer:useTimer("Interact Delay", 1.5)
+            and --[[playerDistance]] br._G.GetDistanceBetweenPositions(pX, pY, pZ, xOb, yOb, zOb) <= 7 and
+            not br.isUnitCasting("player") and not br.isMoving("player")
+            and (not isInteracting("player") or br._G.CanLootUnit(objectguid)) --and br.timer:useTimer("Interact Delay", 1.5)
         then
             br._G.ObjectInteract(object)
         end
@@ -75,8 +77,8 @@ local function trackObject(object, isUnit, name, objectid, objectguid, interact)
 end
 
 _G.string.trim = function(string)
-    local from = string:match"^%s*()"
-   return from > #string and "" or string:match(".*%S", from)
+    local from = string:match "^%s*()"
+    return from > #string and "" or string:match(".*%S", from)
 end
 
 br.tracking = {}
@@ -106,12 +108,12 @@ function br.objectTracker()
                 if object and name and objectid and objectguid then
                     if br.isChecked("Rare Tracker") and not track then
                         if br._G.UnitClassification(object) == "rare" then
-                            name = "(r) "..name
+                            name = "(r) " .. name
                             track = true
                             interact = false
                         end
                         if br._G.UnitClassification(object) == "rareelite" then
-                            name = "(r*) "..name
+                            name = "(r*) " .. name
                             track = true
                             interact = false
                         end
@@ -136,9 +138,12 @@ function br.objectTracker()
                             [156079] = true -- Blood Font
                         }
                         if (br.getOptionValue("Quest Tracker") == 1 or br.getOptionValue("Quest Tracker") == 3) and
+                            object ~= nil and
                             objUnit and br.isQuestUnit(object) and not br._G.UnitIsTapDenied(object)
                         then
-                            if ignoreList[objectid] ~= nil or (select(2, br._G.CanLootUnit(object)) and br.getItemGlow(object)) then
+
+                            if object and ObjectExists(object) and ignoreList[objectid] ~= nil or
+                                (select(2, CanLootUnit(UnitGUID(object))) and br.getItemGlow(object)) then
                                 track = true
                             else
                                 interact = false

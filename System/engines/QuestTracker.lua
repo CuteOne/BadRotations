@@ -4,7 +4,7 @@ br.QuestCache = {}
 
 --Quest stuff
 --local questPlateTooltip = CreateFrame('GameTooltip', 'QuestPlateTooltip', nil, 'GameTooltipTemplate')
-local questTooltipScanQuest = br._G.CreateFrame ("GameTooltip", "QuestPlateTooltipScanQuest", nil, "GameTooltipTemplate")
+local questTooltipScanQuest = br._G.CreateFrame("GameTooltip", "QuestPlateTooltipScanQuest", nil, "GameTooltipTemplate")
 local ScannedQuestTextCache = {}
 
 function br.isQuestUnit(Pointer)
@@ -15,12 +15,13 @@ function br.isQuestUnit(Pointer)
 		guid = Pointer
 	end
 	--local myName = UnitName("player")
-	questTooltipScanQuest:SetOwner(br._G["WorldFrame"], 'ANCHOR_NONE')
-	questTooltipScanQuest:SetHyperlink('unit:' .. guid)
-	for i = 1, questTooltipScanQuest:NumLines() do
-		ScannedQuestTextCache[i] = br._G ["QuestPlateTooltipScanQuestTextLeft" .. i]
+	if guid then
+		questTooltipScanQuest:SetOwner(br._G["WorldFrame"], 'ANCHOR_NONE')
+		questTooltipScanQuest:SetHyperlink('unit:' .. guid)
+		for i = 1, questTooltipScanQuest:NumLines() do
+			ScannedQuestTextCache[i] = br._G["QuestPlateTooltipScanQuestTextLeft" .. i]
+		end
 	end
-
 	local isQuestUnit = false
 	local atLeastOneQuestUnfinished = false
 	for i = 1, #ScannedQuestTextCache do
@@ -30,18 +31,18 @@ function br.isQuestUnit(Pointer)
 			isQuestUnit = true
 			-- local amount1, amount2 = nil, nil
 			local j = i
-			while (ScannedQuestTextCache[j+1]) do
+			while (ScannedQuestTextCache[j + 1]) do
 				--check if the unit objective isn't already done
-				local nextLineText = ScannedQuestTextCache [j+1]:GetText()
+				local nextLineText = ScannedQuestTextCache[j + 1]:GetText()
 				if (nextLineText) then
 					if not nextLineText:match(br._G["THREAT_TOOLTIP"]) then
-						local p1, p2 = nextLineText:match ("(%d+)/(%d+)")
+						local p1, p2 = nextLineText:match("(%d+)/(%d+)")
 						if (not p1) then
 							-- check for % based quests
-							p1 = nextLineText:match ("(%d+%%)")
+							p1 = nextLineText:match("(%d+%%)")
 							if p1 then
 								-- remove the % sign for consistency
-								p1 = string.gsub(p1,"%%", '')
+								p1 = string.gsub(p1, "%%", '')
 							end
 						end
 						if (p1 and p2 and not (p1 == p2)) or (p1 and not p2 and not (p1 == "100")) then
@@ -57,7 +58,8 @@ function br.isQuestUnit(Pointer)
 			end
 		end
 	end
-	if isQuestUnit and atLeastOneQuestUnfinished and (not br.GetUnitIsDeadOrGhost(Pointer) or br.GetUnitIsFriend("player", Pointer)) then
+	if isQuestUnit and atLeastOneQuestUnfinished and
+		(not br.GetUnitIsDeadOrGhost(Pointer) or br.GetUnitIsFriend("player", Pointer)) then
 		return true
 	else
 		return false
@@ -96,7 +98,7 @@ local QuestCacheUpdate = function()
 
 	local mapId = br._G.C_Map.GetBestMapForUnit("player")
 	if (mapId) then
-		local worldQuests = br._G.C_TaskQuest.GetQuestsForPlayerByMapID (mapId)
+		local worldQuests = br._G.C_TaskQuest.GetQuestsForPlayerByMapID(mapId)
 		if (type(worldQuests) == "table") then
 			for _, questTable in ipairs(worldQuests) do
 				local questId = questTable.questId
@@ -126,17 +128,24 @@ function br.isQuestObject(object) --Ty Ssateneth
 	if ignoreObjects[objectID] ~= nil then
 		return false
 	end
-    if objectID == 325958 or objectID == 325962 or objectID == 325963 or objectID == 325959 or objectID == 335703 or objectID == 152692 or objectID == 163757 or objectID == 290542 or objectID == 113768 or objectID == 113771 or objectID == 113769 or objectID == 113770 or objectID == 153290 or
-        objectID == 322413 or objectID == 326395 or objectID == 326399 or objectID == 326418 or objectID == 326413 or objectID == 327577 or objectID == 327576 or objectID == 327578 or objectID == 325799 or
-        objectID == 326417 or objectID == 326411 or objectID == 326412 or objectID == 326413 or objectID == 326414 or objectID == 326415 or objectID == 326416 or objectID == 326417 or objectID == 326418 or objectID == 326419 or objectID == 326420 or objectID == 326403 or objectID == 326408 or objectID == 326407 or -- nasjatar chests
-        objectID == 325662 or objectID == 325659 or objectID == 325660 or objectID == 325661 or objectID == 325663 or objectID == 325664 or objectID == 325665 or objectID == 325666 or objectID == 325667 or objectID == 325668 or -- mechagon chests
-        objectID == 151166 -- algan units
-    then return true end
-    local glow = br.getItemGlow(object) --or select(2, CanLootUnit(object)) or questObj == 12
-    if glow then
-        return true
-    end
-    return false
+	if objectID == 325958 or objectID == 325962 or objectID == 325963 or objectID == 325959 or objectID == 335703 or
+		objectID == 152692 or objectID == 163757 or objectID == 290542 or objectID == 113768 or objectID == 113771 or
+		objectID == 113769 or objectID == 113770 or objectID == 153290 or
+		objectID == 322413 or objectID == 326395 or objectID == 326399 or objectID == 326418 or objectID == 326413 or
+		objectID == 327577 or objectID == 327576 or objectID == 327578 or objectID == 325799 or
+		objectID == 326417 or objectID == 326411 or objectID == 326412 or objectID == 326413 or objectID == 326414 or
+		objectID == 326415 or objectID == 326416 or objectID == 326417 or objectID == 326418 or objectID == 326419 or
+		objectID == 326420 or objectID == 326403 or objectID == 326408 or objectID == 326407 or -- nasjatar chests
+		objectID == 325662 or objectID == 325659 or objectID == 325660 or objectID == 325661 or objectID == 325663 or
+		objectID == 325664 or objectID == 325665 or objectID == 325666 or objectID == 325667 or objectID == 325668 or
+		-- mechagon chests
+		objectID == 151166 -- algan units
+	then return true end
+	local glow = br.getItemGlow(object) --or select(2, CanLootUnit(object)) or questObj == 12
+	if glow then
+		return true
+	end
+	return false
 end
 
 local eventFunctions = {
@@ -176,26 +185,26 @@ local eventFunctions = {
 }
 
 local function QuestEventHandler(_, event, ...)
-    if br._G.GetObjectWithGUID then
-        local func = eventFunctions [event]
-        if (func) then
----@diagnostic disable-next-line: redundant-parameter
-            func (event, ...)
-        else
-            br._G.print("no registered function for event " .. (event or "unknown event"))
-        end
-    end
+	if br._G.GetObjectWithGUID then
+		local func = eventFunctions[event]
+		if (func) then
+			---@diagnostic disable-next-line: redundant-parameter
+			func(event, ...)
+		else
+			br._G.print("no registered function for event " .. (event or "unknown event"))
+		end
+	end
 end
 
 local f = br._G.CreateFrame("Frame", "QuestFrame", br._G.UIParent)
-		f:RegisterEvent ("QUEST_ACCEPTED")
-		f:RegisterEvent ("QUEST_REMOVED")
-		f:RegisterEvent ("QUEST_ACCEPT_CONFIRM")
-		f:RegisterEvent ("QUEST_COMPLETE")
-		f:RegisterEvent ("QUEST_POI_UPDATE")
-		f:RegisterEvent ("QUEST_DETAIL")
-		f:RegisterEvent ("QUEST_FINISHED")
-		f:RegisterEvent ("QUEST_GREETING")
-		f:RegisterEvent ("QUEST_LOG_UPDATE")
-		f:RegisterEvent ("UNIT_QUEST_LOG_CHANGED")
-f:SetScript ("OnEvent", QuestEventHandler)
+f:RegisterEvent("QUEST_ACCEPTED")
+f:RegisterEvent("QUEST_REMOVED")
+f:RegisterEvent("QUEST_ACCEPT_CONFIRM")
+f:RegisterEvent("QUEST_COMPLETE")
+f:RegisterEvent("QUEST_POI_UPDATE")
+f:RegisterEvent("QUEST_DETAIL")
+f:RegisterEvent("QUEST_FINISHED")
+f:RegisterEvent("QUEST_GREETING")
+f:RegisterEvent("QUEST_LOG_UPDATE")
+f:RegisterEvent("UNIT_QUEST_LOG_CHANGED")
+f:SetScript("OnEvent", QuestEventHandler)

@@ -46,10 +46,11 @@ function br:updateOM()
 	local total = br._G.GetObjectCount(true,"BR") or 0
 	for i = 1,total do
 		local thisUnit = br._G.GetObjectWithIndex(i)
+		-- br._G.print(thisUnit.." - Is Unit: "..tostring(br._G.ObjectIsUnit(thisUnit)).." - Name: "..tostring(br._G.UnitName(thisUnit)))
 		if --[[br._G.IsGuid(thisUnit) and]] br._G.ObjectExists(thisUnit) and br._G.ObjectIsUnit(thisUnit) --[[and not unitExistsInOM(thisUnit) and br.omDist(thisUnit) < 50]] then
 			if not br._G.UnitIsPlayer(thisUnit) and not br.isCritter(thisUnit) and not br._G.UnitIsUnit("player", thisUnit) and not br._G.UnitIsFriend("player", thisUnit) then
 				local enemyUnit = br.unitSetup:new(thisUnit)
-				if enemyUnit then--and not br.isInOM(enemyUnit) then
+				if enemyUnit then --and (enemyUnit.range < 40 or br._G.UnitIsUnit(thisUnit, "target")) then--and not br.isInOM(enemyUnit) then
 					br._G.tinsert(om, enemyUnit)
 				end
 			end
@@ -62,7 +63,19 @@ function br:updateOM()
 			objectid = br._G.ObjectID(thisUnit)
 			objectguid = br._G.UnitGUID(thisUnit)
 			if thisUnit and name and objectid and objectguid then
-				br._G.tinsert(br.tracking, {object = thisUnit, unit = objUnit, name = name, id = objectid, guid = objectguid})
+				local trackerFound = false
+				if #br.tracking > 0 then
+					for i = 1, #br.tracking do
+						local thisTracker = br.tracking[i]
+						if thisTracker.object == thisUnit then
+							trackerFound = true
+							return
+						end
+					end
+				end
+				if not trackerFound then
+					br._G.tinsert(br.tracking, {object = thisUnit, unit = objUnit, name = name, id = objectid, guid = objectguid})
+				end
 			end
 		end
 	end
@@ -178,7 +191,7 @@ end
 function br.isBurnTarget(unit)
 	local coef = 0
 	-- check if unit is valid
-	if br.getOptionCheck("Forced Burn") then
+	if br.getOptionCheck("Forced Burn") and br._G.UnitExists(unit) then
 		local unitID = br.GetObjectID(unit)
 		local burnUnit = br.lists.burnUnits[unitID]
 		local unitTime = br.units[unit] ~= nil and br.units[unit].timestamp or br._G.GetTime() - 1
