@@ -142,8 +142,8 @@ function br.objectTracker()
                             objUnit and br.isQuestUnit(object) and not br._G.UnitIsTapDenied(object)
                         then
 
-                            if object and br.GetObjectExists(object) and ignoreList[objectid] ~= nil or
-                                (select(2, CanLootUnit(UnitGUID(object))) and br.getItemGlow(object)) then
+                            if object and br.GetObjectExists(object) and (ignoreList[objectid] ~= nil or
+                                (select(2, br._G.CanLootUnit(br._G.UnitGUID(object))) and br.getItemGlow(object))) then
                                 track = true
                             else
                                 interact = false
