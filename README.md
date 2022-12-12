@@ -142,6 +142,21 @@ Raidable means if its good to raid with.
 |Aura     |Aura     |Unknown|Unknown |Unknown|:interrobang:|  03/14/2021|
 
 
+### Evoker
+
+- Devastation
+
+|rotation|author |patch|coverage|status  |    readiness     |last updated|
+|--------|-------|:---:|:------:|:------:|:----------------:|-----------:|
+|Kuukuu  |Kuukuu |10.0 |  30%   |Sporadic|:interrobang:     |  12/09/2022|
+|CuteOne |CuteOne|10.0 |  100%  |Limited |:white_check_mark:|  12/11/2022|
+
+- Preservation
+
+|rotation|author | patch |coverage|status |    readiness     |last updated|
+|--------|-------|:-----:|:------:|:-----:|:----------------:|-----------:|
+
+
 ### Hunter
 
 - BeastMastery
