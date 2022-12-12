@@ -1238,7 +1238,8 @@ br.lists.spells = {
             abilities                       = {
                 eternitySurge               = 382411,
                 fireBreath                  = 382266,
-                pyre                        = 357221,
+                pyre                        = 357211,
+                shatteringStar              = 370452,
 
             },
             artifacts                       = {

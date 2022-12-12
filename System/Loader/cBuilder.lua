@@ -198,7 +198,7 @@ function br.loader:new(spec,specName)
             if br._G.IsPlayerSpell(v) then -- only works for known spells
                 talentFound = true
                 self.talent[k] = true
-                if not br._G.IsPassiveSpell(v) then
+                if not br._G.IsPassiveSpell(v) and self.spell['abilities'][k] == nil then
                     self.spell['abilities'][k] = v
                     self.spell[k] = v
                 end
@@ -207,7 +207,7 @@ function br.loader:new(spec,specName)
                 if talents[v] ~= nil then
                     talentFound = true
                     self.talent[k] = talents[v]
-                    if not br._G.IsPassiveSpell(v) then
+                    if not br._G.IsPassiveSpell(v) and self.spell['abilities'][k] == nil then
                         self.spell['abilities'][k] = v
                         self.spell[k] = v
                     end
