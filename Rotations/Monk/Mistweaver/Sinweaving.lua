@@ -1,5 +1,5 @@
 local rotationName = "Sinweaving"
-local version = "1.0.0"
+local version = "1.0.1"
 
 --[[
 Discord @ Sinweaver
@@ -48,6 +48,8 @@ local text = {
         envelopingBreath            = colors.red.."5P | " ..colors.green.."Enveloping Breath",
         envelopingMist              = colors.red.."5P | " ..colors.green.."Enveloping Mist",
         essenceFont                 = colors.red.."5P | " ..colors.green.."Essence Font",
+		faelineStomp				= colors.red.."5P | " ..colors.green.."Faeline Stomp",
+		zenPulse					= colors.red.."5P | " ..colors.green.."Zen Pulse",
         soothingMist                = {
             soothingMist            = colors.red.."5P | " ..colors.aqua.."Soothing Mist",
             vivify                  = colors.red.."5P | " ..colors.aqua.."Vivify",
@@ -129,6 +131,8 @@ local text2 = {
         envelopingBreath2            = colors.red.."20P | " ..colors.green.."Enveloping Breath",
         envelopingMist2              = colors.red.."20P | " ..colors.green.."Enveloping Mist",
         essenceFont2                 = colors.red.."20P | " ..colors.green.."Essence Font",
+		faelineStomp2				 = colors.red.."20P | " ..colors.green.."Faeline Stomp",
+		zenPulse2					 = colors.red.."20P | " ..colors.green.."Zen Pulse",
         soothingMist2                = {
             soothingMist2            = colors.red.."20P | " ..colors.aqua.."Soothing Mist",
             vivify2                  = colors.red.."20P | " ..colors.aqua.."Vivify",
@@ -193,8 +197,8 @@ local text2 = {
 
 local function createToggles()
     local Content = {
-        [1] = { mode = "5P", value = 1 , overlay = "5 Players Mode", tip = "Dungeon Settings", highlight = 1, icon = 464609},
-        [2] = { mode = "20P", value = 2 , overlay = "20 Players Mode", tip = "Raid Settings", highlight = 1, icon = 464607}
+        [1] = { mode = "5P", value = 1 , overlay = "5 Players Mode", tip = "Dungeon Settings", highlight = 1, icon = 388031},
+        [2] = { mode = "20P", value = 2 , overlay = "20 Players Mode", tip = "Raid Settings", highlight = 1, icon = 388615}
     }
     br.ui:createToggle(Content,"Content",1,0)
     local CooldownModes = {
@@ -309,12 +313,10 @@ local function createOptions()
         br.ui:createDoubleSpinner(section, text.heal.envelopingBreath,
                 { number = 2, min = 1, max = 40, step = 1, tooltip = "Amount of friends under health to cast spell" },
                 { number = 70, min = 1, max = 100, step = 5, tooltip = "Health of friends to cast spell" }, false)
-        br.ui:createText(section, "5P | Out of Combat - Options")
-        br.ui:createDoubleSpinner(section, text.heal.outOfCombat.essenceFont,
+		br.ui:createDoubleSpinner(section, text.heal.faelineStomp,
                 { number = 2, min = 1, max = 40, step = 1, tooltip = "Amount of friends under health to cast spell" },
-                { number = 90, min = 1, max = 100, step = 5, tooltip = "Health of friends to cast spell" }, false)
-        br.ui:createSpinner(section, text.heal.outOfCombat.renewingMist,    100, 1, 100, 1, "Enable auto usage of this spell", "Health of unit to cast spell")
-        br.ui:createSpinner(section, text.heal.outOfCombat.vivify, 90, 1, 100, 1, "Enable auto usage of this spell", "Health of unit to cast spell")
+                { number = 95, min = 1, max = 100, step = 5, tooltip = "Health of friends to cast spell" }, false)
+		br.ui:createSpinner(section, text.heal.zenPulse, 90, 1, 100, 1, "Enable auto usage of this spell", "Health of unit to cast spell")
         br.ui:checkSectionState(section)
 
 
@@ -393,12 +395,10 @@ local function createOptions()
         br.ui:createDoubleSpinner(section, text2.heal2.envelopingBreath2,
                 { number = 3, min = 1, max = 40, step = 1, tooltip = "Amount of friends under health to cast spell" },
                 { number = 70, min = 1, max = 100, step = 5, tooltip = "Health of friends to cast spell" }, false)
-        br.ui:createText(section, "20P | Out of Combat - Options")
-        br.ui:createDoubleSpinner(section, text2.heal2.outOfCombat2.essenceFont2,
+		br.ui:createDoubleSpinner(section, text2.heal2.faelineStomp2,
                 { number = 2, min = 1, max = 40, step = 1, tooltip = "Amount of friends under health to cast spell" },
-                { number = 90, min = 1, max = 100, step = 5, tooltip = "Health of friends to cast spell" }, false)
-        br.ui:createSpinner(section, text2.heal2.outOfCombat2.renewingMist2,    95, 1, 100, 1, "Enable auto usage of this spell", "Health of unit to cast spell")
-        br.ui:createSpinner(section, text2.heal2.outOfCombat2.vivify2, 90, 1, 100, 1, "Enable auto usage of this spell", "Health of unit to cast spell")
+                { number = 95, min = 1, max = 100, step = 5, tooltip = "Health of friends to cast spell" }, false)
+		br.ui:createSpinner(section, text2.heal2.zenPulse2, 90, 1, 100, 1, "Enable auto usage of this spell", "Health of unit to cast spell")
         br.ui:checkSectionState(section)
 
 
@@ -638,7 +638,51 @@ local actionList = {
             debugMessage("Renewing Mist End")
 		end
     end,
-
+	
+	faelineStompRotation = function()
+		if br.player.ui.mode.content == 1 then
+			debugMessage("Faeline Stomp Init")
+			if ui.checked(text.heal.faelineStomp) and cd.faelineStomp.ready() and talent.faelineStomp then
+				local lowAlliesTargetsfaelineStomp = br.getUnitsInRect(7 , 40, false, ui.value(text.heal.faelineStomp.."2"))
+				if lowAlliesTargetsfaelineStomp >= ui.value(text.heal.faelineStomp.."1") then
+					if cast.faelineStomp(player.unit) then ui.debug("[SUCCESS]: "..text.heal.faelineStomp) return true else ui.debug("[FAIL]: "..text.heal.faelineStomp) return false end
+				end
+			end
+			debugMessage("Faeline Stomp End")
+		elseif br.player.ui.mode.content == 2 then
+			debugMessage("Faeline Stomp Init")
+			if ui.checked(text2.heal2.faelineStomp2) and cd.faelineStomp.ready() and talent.faelineStomp then
+				local lowAlliesTargetsfaelineStomp2 = br.getUnitsInRect(7 , 40, false, ui.value(text2.heal2.faelineStomp2.."2"))
+				if lowAlliesTargetsfaelineStomp2 >= ui.value(text2.heal2.faelineStomp2.."1") then
+					if cast.faelineStomp(player.unit) then ui.debug("[SUCCESS]: "..text2.heal2.faelineStomp2) return true else ui.debug("[FAIL]: "..text2.heal2.faelineStomp2) return false end
+				end
+			end
+			debugMessage("Faeline Stomp End")
+		end
+    end,
+	
+	zenPulseRotation = function()
+		if br.player.ui.mode.content == 1 then
+			debugMessage("Zen Pulse Init")
+			if ui.checked(text.heal.zenPulse) and cd.zenPulse.ready() and talent.zenPulse then
+				local lowAlliesTargetszenPulse = br.getUnitsInRect(7 , 40, false, ui.value(text.heal.zenPulse.."2"))
+				if lowAlliesTargetszenPulse >= ui.value(text.heal.zenPulse.."1") then
+					if cast.zenPulse(friends.lowest.unit) then ui.debug("[SUCCESS]: "..text.heal.zenPulse) return true else ui.debug("[FAIL]: "..text.heal.zenPulse) return false end
+				end
+			end
+			debugMessage("Zen Pulse End")
+		elseif br.player.ui.mode.content == 2 then
+			debugMessage("Zen Pulse Init")
+			if ui.checked(text.heal.zenPulse2) and cd.zenPulse.ready() and talent.zenPulse then
+				local lowAlliesTargetszenPulse2 = br.getUnitsInRect(7 , 40, false, ui.value(text2.heal2.zenPulse2.."2"))
+				if lowAlliesTargetszenPulse2 >= ui.value(text2.heal2.zenPulse2.."1") then
+					if cast.zenPulse(friends.lowest.unit) then ui.debug("[SUCCESS]: "..text2.heal2.zenPulse2) return true else ui.debug("[FAIL]: "..text2.heal2.zenPulse2) return false end
+				end
+			end
+			debugMessage("Zen Pulse End")
+		end
+    end,
+	
     soothingMistRotation = function()
 		if br.player.ui.mode.content == 1 then
             -- Cancel Soothing Mist
@@ -865,7 +909,11 @@ local actionList = {
             debugMessage("Enveloping Mist End")
             -- Vivify
             debugMessage("Vivify Init")
-            if ui.checked(text.heal.vivify) and cd.vivify.ready() and not player.isMoving then
+			if ui.checked(text.heal.vivify) and cd.vivify.ready() and buff.vivaciousVivification.exists(player.unit) then
+                if friends.lowest.hp <= ui.value(text.heal.vivify) then
+                    if cast.vivify(friends.lowest.unit) then ui.debug("[SUCCESS]: "..text.heal.vivify) return true else ui.debug("[FAIL]: "..text.heal.vivify) return false end
+                end
+            elseif ui.checked(text.heal.vivify) and cd.vivify.ready() and not player.isMoving then
                 if friends.lowest.hp <= ui.value(text.heal.vivify) then
                     if cast.vivify(friends.lowest.unit) then ui.debug("[SUCCESS]: "..text.heal.vivify) return true else ui.debug("[FAIL]: "..text.heal.vivify) return false end
                 end
@@ -888,108 +936,16 @@ local actionList = {
             debugMessage("Enveloping Mist End")
             -- Vivify
             debugMessage("Vivify Init")
-            if ui.checked(text2.heal2.vivify2) and cd.vivify.ready() and not player.isMoving then
+			if ui.checked(text2.heal2.vivify2) and cd.vivify.ready() and buff.vivaciousVivification.exists(player.unit)then
+                if friends.lowest.hp <= ui.value(text2.heal2.vivify2) then
+                    if cast.vivify(friends.lowest.unit) then ui.debug("[SUCCESS]: "..text2.heal2.vivify2) return true else ui.debug("[FAIL]: "..text2.heal2.vivify2) return false end
+                end
+            elseif ui.checked(text2.heal2.vivify2) and cd.vivify.ready() and not player.isMoving then
                 if friends.lowest.hp <= ui.value(text2.heal2.vivify2) then
                     if cast.vivify(friends.lowest.unit) then ui.debug("[SUCCESS]: "..text2.heal2.vivify2) return true else ui.debug("[FAIL]: "..text2.heal2.vivify2) return false end
                 end
             end
             debugMessage("Vivify End")
-		end
-    end,
-
-    outOfCombatRotation = function()
-		if br.player.ui.mode.content == 1 then
-            if cast.active.essenceFont() then
-                return nil
-            end
-            -- Renewing Mist
-            if ui.checked(text.heal.outOfCombat.renewingMist) and charges.renewingMist.exists() and cd.renewingMist.ready() then
-                local renewingMistUnit
-
-                for i = 1, #tanks do
-                    local tempUnit = tanks[i]
-                    if not buff.renewingMist.exists(tempUnit.unit) and tempUnit.hp <= ui.value(text.heal.outOfCombat.renewingMist) and renewingMistUnit == nil then
-                        renewingMistUnit = tempUnit
-                    end
-                end
-
-                if renewingMistUnit == nil then
-                    for i = 1, #friends.range40 do
-                        local tempUnit = friends.range40[i]
-                        if not buff.renewingMist.exists(tempUnit.unit) and tempUnit.hp <= ui.value(text.heal.outOfCombat.renewingMist) and renewingMistUnit == nil then
-                            renewingMistUnit = tempUnit
-                        end
-                    end
-                end
-
-                if renewingMistUnit == nil then
-                    if not buff.renewingMist.exists(player.unit) and player.hp <= ui.value(text.heal.outOfCombat.renewingMist) then
-                        renewingMistUnit = player
-                    end
-                end
-
-                if renewingMistUnit ~= nil then
-                    if cast.renewingMist(renewingMistUnit.unit) then ui.debug("[SUCCESS]: "..text.heal.outOfCombat.renewingMist) return true else ui.debug("[FAIL]: "..text.heal.outOfCombat.renewingMist) return false end
-                end
-            end
-            -- Essence Font
-            if ui.checked(text.heal.outOfCombat.essenceFont) and cd.essenceFont.ready() then
-                if friends.lowAllies.essenceFontOoc >= ui.value(text.heal.outOfCombat.essenceFont.."1") then
-                    if cast.essenceFont(player.unit) then ui.debug("[SUCCESS]: "..text.heal.outOfCombat.essenceFont) return true else ui.debug("[FAIL]: "..text.heal.outOfCombat.essenceFont) return false end
-                end
-            end
-            -- Vivify
-            if ui.checked(text.heal.outOfCombat.vivify) and cd.vivify.ready() and not player.isMoving then
-                if friends.lowest.hp <= ui.value(text.heal.outOfCombat.vivify) then
-                    if cast.vivify(friends.lowest.unit) then ui.debug("[SUCCESS]: "..text.heal.outOfCombat.vivify) return true else ui.debug("[FAIL]: "..text.heal.outOfCombat.vivify) return false end
-                end
-            end
-		elseif br.player.ui.mode.content == 2 then
-            if cast.active.essenceFont() then
-                return nil
-            end
-            -- Renewing Mist
-            if ui.checked(text2.heal2.outOfCombat2.renewingMist2) and charges.renewingMist.exists() and cd.renewingMist.ready() then
-                local renewingMistUnit
-
-                for i = 1, #tanks do
-                    local tempUnit = tanks[i]
-                    if not buff.renewingMist.exists(tempUnit.unit) and tempUnit.hp <= ui.value(text2.heal2.outOfCombat2.renewingMist2) and renewingMistUnit == nil then
-                        renewingMistUnit = tempUnit
-                    end
-                end
-
-                if renewingMistUnit == nil then
-                    for i = 1, #friends.range40 do
-                        local tempUnit = friends.range40[i]
-                        if not buff.renewingMist.exists(tempUnit.unit) and tempUnit.hp <= ui.value(text2.heal2.outOfCombat2.renewingMist2) and renewingMistUnit == nil then
-                            renewingMistUnit = tempUnit
-                        end
-                    end
-                end
-
-                if renewingMistUnit == nil then
-                    if not buff.renewingMist.exists(player.unit) and player.hp <= ui.value(text2.heal2.outOfCombat2.renewingMist2) then
-                        renewingMistUnit = player
-                    end
-                end
-
-                if renewingMistUnit ~= nil then
-                    if cast.renewingMist(renewingMistUnit.unit) then ui.debug("[SUCCESS]: "..text2.heal2.outOfCombat2.renewingMist2) return true else ui.debug("[FAIL]: "..text2.heal2.outOfCombat2.renewingMist2) return false end
-                end
-            end
-            -- Essence Font
-            if ui.checked(text2.heal2.outOfCombat2.essenceFont2) and cd.essenceFont.ready() then
-                if friends.lowAllies.essenceFontOoc >= ui.value(text2.heal2.outOfCombat2.essenceFont2.."1") then
-                    if cast.essenceFont(player.unit) then ui.debug("[SUCCESS]: "..text2.heal2.outOfCombat2.essenceFont2) return true else ui.debug("[FAIL]: "..text2.heal2.outOfCombat2.essenceFont2) return false end
-                end
-            end
-            -- Vivify
-            if ui.checked(text2.heal2.outOfCombat2.vivify2) and cd.vivify.ready() and not player.isMoving then
-                if friends.lowest.hp <= ui.value(text2.heal2.outOfCombat2.vivify2) then
-                    if cast.vivify(friends.lowest.unit) then ui.debug("[SUCCESS]: "..text2.heal2.outOfCombat2.vivify2) return true else ui.debug("[FAIL]: "..text2.heal2.outOfCombat2.vivify2) return false end
-                end
-            end
 		end
     end,
 
@@ -1737,6 +1693,20 @@ local function runRotation()
         if current ~= nil then
             return true
         end
+		
+		debugMessage("  Healing Faeline Stomp Rotation Init")
+        current = actionList.healing.faelineStompRotation()
+        debugMessage("  Healing Faeline Stomp Rotation End")
+        if current ~= nil then
+            return true
+        end
+		
+		debugMessage("  Healing Zen Pulse Rotation Init")
+        current = actionList.healing.zenPulseRotation()
+        debugMessage("  Healing en Pulse Rotation End")
+        if current ~= nil then
+            return true
+        end
 
         debugMessage("  Healing Soothing Mist Rotation Init")
         current = actionList.healing.soothingMistRotation()
@@ -1785,13 +1755,6 @@ local function runRotation()
                     return true
                 end
             end
-        end
-    else
-        debugMessage("  Healing OoC Init")
-        current = actionList.healing.outOfCombatRotation()
-        debugMessage("  Healing OoC End")
-        if current ~= nil then
-            return true
         end
     end
 

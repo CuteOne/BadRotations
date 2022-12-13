@@ -2231,6 +2231,7 @@ br.lists.spells = {
                 invokeChiJiTheRedCrane      = 343820,
                 ancientTeachingOfTheMonastery = 347553,
                 fallenOrder                 = 326860,
+				vivaciousVivification		= 392883,
             },
             debuffs                         = {
                 mysticTouch                 = 113746,
@@ -2253,6 +2254,7 @@ br.lists.spells = {
                 upwelling                   = 274963,
 				faelineStomp				= 388193,
 				zenPulse					= 124081,
+				ancienTeachings				= 388023,
             },
             runeforges                      = {
                 ancientTeachingsOfTheMonastery = 337172,
@@ -2362,6 +2364,7 @@ br.lists.spells = {
                 weaponsOfOrder              = 328908, --310454,
                 weaponsOfOrderWW            = 310454, --311054,
                 prideful                    = 340880,
+				vivaciousVivification		= 392883,
             },
             conduits                        = {
                 calculatedStrikes           = 336526,
