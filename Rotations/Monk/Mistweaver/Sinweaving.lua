@@ -667,7 +667,7 @@ local actionList = {
 			if ui.checked(text.heal.zenPulse) and cd.zenPulse.ready() and talent.zenPulse then
 				local lowAlliesTargetszenPulse = br.getUnitsInRect(7 , 40, false, ui.value(text.heal.zenPulse.."2"))
 				if lowAlliesTargetszenPulse >= ui.value(text.heal.zenPulse.."1") then
-					if cast.zenPulse(player.unit) then ui.debug("[SUCCESS]: "..text.heal.zenPulse) return true else ui.debug("[FAIL]: "..text.heal.zenPulse) return false end
+					if cast.zenPulse(friends.lowest.unit) then ui.debug("[SUCCESS]: "..text.heal.zenPulse) return true else ui.debug("[FAIL]: "..text.heal.zenPulse) return false end
 				end
 			end
 			debugMessage("Zen Pulse End")
@@ -676,7 +676,7 @@ local actionList = {
 			if ui.checked(text.heal.zenPulse2) and cd.zenPulse.ready() and talent.zenPulse then
 				local lowAlliesTargetszenPulse2 = br.getUnitsInRect(7 , 40, false, ui.value(text2.heal2.zenPulse2.."2"))
 				if lowAlliesTargetszenPulse2 >= ui.value(text2.heal2.zenPulse2.."1") then
-					if cast.zenPulse(player.unit) then ui.debug("[SUCCESS]: "..text2.heal2.zenPulse2) return true else ui.debug("[FAIL]: "..text2.heal2.zenPulse2) return false end
+					if cast.zenPulse(friends.lowest.unit) then ui.debug("[SUCCESS]: "..text2.heal2.zenPulse2) return true else ui.debug("[FAIL]: "..text2.heal2.zenPulse2) return false end
 				end
 			end
 			debugMessage("Zen Pulse End")
@@ -909,7 +909,11 @@ local actionList = {
             debugMessage("Enveloping Mist End")
             -- Vivify
             debugMessage("Vivify Init")
-            if ui.checked(text.heal.vivify) and cd.vivify.ready() and (buff.vivaciousVivification.exists(player.unit) or not player.isMoving) then
+			if ui.checked(text.heal.vivify) and cd.vivify.ready() and buff.vivaciousVivification.exists(player.unit) then
+                if friends.lowest.hp <= ui.value(text.heal.vivify) then
+                    if cast.vivify(friends.lowest.unit) then ui.debug("[SUCCESS]: "..text.heal.vivify) return true else ui.debug("[FAIL]: "..text.heal.vivify) return false end
+                end
+            elseif ui.checked(text.heal.vivify) and cd.vivify.ready() and not player.isMoving then
                 if friends.lowest.hp <= ui.value(text.heal.vivify) then
                     if cast.vivify(friends.lowest.unit) then ui.debug("[SUCCESS]: "..text.heal.vivify) return true else ui.debug("[FAIL]: "..text.heal.vivify) return false end
                 end
@@ -932,108 +936,16 @@ local actionList = {
             debugMessage("Enveloping Mist End")
             -- Vivify
             debugMessage("Vivify Init")
-            if ui.checked(text2.heal2.vivify2) and cd.vivify.ready() and (buff.vivaciousVivification.exists(player.unit) or not player.isMoving) then
+			if ui.checked(text2.heal2.vivify2) and cd.vivify.ready() and buff.vivaciousVivification.exists(player.unit)then
+                if friends.lowest.hp <= ui.value(text2.heal2.vivify2) then
+                    if cast.vivify(friends.lowest.unit) then ui.debug("[SUCCESS]: "..text2.heal2.vivify2) return true else ui.debug("[FAIL]: "..text2.heal2.vivify2) return false end
+                end
+            elseif ui.checked(text2.heal2.vivify2) and cd.vivify.ready() and not player.isMoving then
                 if friends.lowest.hp <= ui.value(text2.heal2.vivify2) then
                     if cast.vivify(friends.lowest.unit) then ui.debug("[SUCCESS]: "..text2.heal2.vivify2) return true else ui.debug("[FAIL]: "..text2.heal2.vivify2) return false end
                 end
             end
             debugMessage("Vivify End")
-		end
-    end,
-
-    outOfCombatRotation = function()
-		if br.player.ui.mode.content == 1 then
-            if cast.active.essenceFont() then
-                return nil
-            end
-            -- Renewing Mist
-            if ui.checked(text.heal.outOfCombat.renewingMist) and charges.renewingMist.exists() and cd.renewingMist.ready() then
-                local renewingMistUnit
-
-                for i = 1, #tanks do
-                    local tempUnit = tanks[i]
-                    if not buff.renewingMist.exists(tempUnit.unit) and tempUnit.hp <= ui.value(text.heal.outOfCombat.renewingMist) and renewingMistUnit == nil then
-                        renewingMistUnit = tempUnit
-                    end
-                end
-
-                if renewingMistUnit == nil then
-                    for i = 1, #friends.range40 do
-                        local tempUnit = friends.range40[i]
-                        if not buff.renewingMist.exists(tempUnit.unit) and tempUnit.hp <= ui.value(text.heal.outOfCombat.renewingMist) and renewingMistUnit == nil then
-                            renewingMistUnit = tempUnit
-                        end
-                    end
-                end
-
-                if renewingMistUnit == nil then
-                    if not buff.renewingMist.exists(player.unit) and player.hp <= ui.value(text.heal.outOfCombat.renewingMist) then
-                        renewingMistUnit = player
-                    end
-                end
-
-                if renewingMistUnit ~= nil then
-                    if cast.renewingMist(renewingMistUnit.unit) then ui.debug("[SUCCESS]: "..text.heal.outOfCombat.renewingMist) return true else ui.debug("[FAIL]: "..text.heal.outOfCombat.renewingMist) return false end
-                end
-            end
-            -- Essence Font
-            if ui.checked(text.heal.outOfCombat.essenceFont) and cd.essenceFont.ready() then
-                if friends.lowAllies.essenceFontOoc >= ui.value(text.heal.outOfCombat.essenceFont.."1") then
-                    if cast.essenceFont(player.unit) then ui.debug("[SUCCESS]: "..text.heal.outOfCombat.essenceFont) return true else ui.debug("[FAIL]: "..text.heal.outOfCombat.essenceFont) return false end
-                end
-            end
-            -- Vivify
-            if ui.checked(text.heal.outOfCombat.vivify) and cd.vivify.ready() and not player.isMoving then
-                if friends.lowest.hp <= ui.value(text.heal.outOfCombat.vivify) then
-                    if cast.vivify(friends.lowest.unit) then ui.debug("[SUCCESS]: "..text.heal.outOfCombat.vivify) return true else ui.debug("[FAIL]: "..text.heal.outOfCombat.vivify) return false end
-                end
-            end
-		elseif br.player.ui.mode.content == 2 then
-            if cast.active.essenceFont() then
-                return nil
-            end
-            -- Renewing Mist
-            if ui.checked(text2.heal2.outOfCombat2.renewingMist2) and charges.renewingMist.exists() and cd.renewingMist.ready() then
-                local renewingMistUnit
-
-                for i = 1, #tanks do
-                    local tempUnit = tanks[i]
-                    if not buff.renewingMist.exists(tempUnit.unit) and tempUnit.hp <= ui.value(text2.heal2.outOfCombat2.renewingMist2) and renewingMistUnit == nil then
-                        renewingMistUnit = tempUnit
-                    end
-                end
-
-                if renewingMistUnit == nil then
-                    for i = 1, #friends.range40 do
-                        local tempUnit = friends.range40[i]
-                        if not buff.renewingMist.exists(tempUnit.unit) and tempUnit.hp <= ui.value(text2.heal2.outOfCombat2.renewingMist2) and renewingMistUnit == nil then
-                            renewingMistUnit = tempUnit
-                        end
-                    end
-                end
-
-                if renewingMistUnit == nil then
-                    if not buff.renewingMist.exists(player.unit) and player.hp <= ui.value(text2.heal2.outOfCombat2.renewingMist2) then
-                        renewingMistUnit = player
-                    end
-                end
-
-                if renewingMistUnit ~= nil then
-                    if cast.renewingMist(renewingMistUnit.unit) then ui.debug("[SUCCESS]: "..text2.heal2.outOfCombat2.renewingMist2) return true else ui.debug("[FAIL]: "..text2.heal2.outOfCombat2.renewingMist2) return false end
-                end
-            end
-            -- Essence Font
-            if ui.checked(text2.heal2.outOfCombat2.essenceFont2) and cd.essenceFont.ready() then
-                if friends.lowAllies.essenceFontOoc >= ui.value(text2.heal2.outOfCombat2.essenceFont2.."1") then
-                    if cast.essenceFont(player.unit) then ui.debug("[SUCCESS]: "..text2.heal2.outOfCombat2.essenceFont2) return true else ui.debug("[FAIL]: "..text2.heal2.outOfCombat2.essenceFont2) return false end
-                end
-            end
-            -- Vivify
-            if ui.checked(text2.heal2.outOfCombat2.vivify2) and cd.vivify.ready() and not player.isMoving then
-                if friends.lowest.hp <= ui.value(text2.heal2.outOfCombat2.vivify2) then
-                    if cast.vivify(friends.lowest.unit) then ui.debug("[SUCCESS]: "..text2.heal2.outOfCombat2.vivify2) return true else ui.debug("[FAIL]: "..text2.heal2.outOfCombat2.vivify2) return false end
-                end
-            end
 		end
     end,
 
@@ -1843,13 +1755,6 @@ local function runRotation()
                     return true
                 end
             end
-        end
-    else
-        debugMessage("  Healing OoC Init")
-        current = actionList.healing.outOfCombatRotation()
-        debugMessage("  Healing OoC End")
-        if current ~= nil then
-            return true
         end
     end
 
