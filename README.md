@@ -199,7 +199,7 @@ Raidable means if its good to raid with.
 
 | rotation |  author  | patch |coverage|status |  readiness  |last updated|
 |----------|----------|:-----:|:------:|:-----:|:-----------:|-----------:|
-|Sinweaving|GR.TwoStep|Unknown|Unknown |Unknown|:interrobang:|  12/08/2022|
+|Sinweaving|GR.TwoStep|Unknown|Unknown |Unknown|:interrobang:|  12/13/2022|
 |LyLo-v2   |LyLoLoq   |Unknown|Unknown |Unknown|:interrobang:|  04/16/2022|
 
 - Windwalker
