@@ -146,10 +146,10 @@ Raidable means if its good to raid with.
 
 - Devastation
 
-|   rotation   |     author     | patch |coverage| status |  readiness  |last updated|
-|--------------|----------------|:-----:|:------:|:------:|:-----------:|-----------:|
-|CuteOne       |Ashley (CuteOne)|Unknown|Unknown |Unknown |:interrobang:|  12/12/2022|
-|Devastated Kuu|Kuukuu          | 10.0  |  25%   |Sporadic|:interrobang:|  12/10/2022|
+|   rotation   |author |patch|coverage| status |    readiness     |last updated|
+|--------------|-------|:---:|:------:|:------:|:----------------:|-----------:|
+|CuteOne       |CuteOne|10.0 |  90%   |  Full  |:heavy_check_mark:|  12/20/2022|
+|Devastated Kuu|Kuukuu |10.0 |  25%   |Sporadic|  :interrobang:   |  12/10/2022|
 
 
 ### Hunter
