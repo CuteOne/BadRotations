@@ -734,7 +734,7 @@ function br.pause(skipCastingCheck)
 		or br._G.UnitIsDeadOrGhost("player") or eating or br.UnitDebuffID("player", 252753) or -- Potion of Replenishment (BFA Mana channel) Apparently a debuff
 		br.UnitBuffID("player", 114018)
 	 then
-		if br.empowerID ~= nil and br.empowerID > 0 then
+		if br.empowerID ~= nil and br.empowerID > 0 and not (pausekey and br._G.GetCurrentKeyBoardFocus() == nil and br.isChecked("Pause Mode")) then
 			return false
 		elseif (br._G.UnitCastingInfo("player") and not skipCastingCheck) then
 			local _, _, _, _, endTime = br._G.UnitCastingInfo("player")

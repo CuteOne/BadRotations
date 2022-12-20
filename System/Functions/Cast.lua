@@ -787,7 +787,7 @@ function br.createCastFunction(thisUnit,castType,minUnits,effectRng,spellID,inde
 						or (castType == "cone" and br.getEnemiesInCone(180,effectRng))
 						or (castType == "rect" and br.getEnemiesInRect(effectRng,maxRange))
 						or 0
-					if enemyCount >= minUnits and br.isSafeToAoE(spellID,thisUnit,effectRng,minUnits,castType,enemyCount) then
+					if enemyCount >= minUnits and (br.isSafeToAoE(spellID,thisUnit,effectRng,minUnits,castType,enemyCount) or br.isDummy("target")) then
 						if castType == "ground" then
 							if debug then return true end
 							return br.castGround(thisUnit,spellCast,maxRange,minRange,effectRng,castTime)
@@ -795,6 +795,8 @@ function br.createCastFunction(thisUnit,castType,minUnits,effectRng,spellID,inde
 							return castingSpell(thisUnit,spellID,spellName,icon,castType,printReport,debug)
 						end
 					else
+						if castType == "cone" then return printReport(false,"Below Min Units Cone",enemyCount) end
+						if castType == "rect" then return printReport(false,"Below Min Units Rect",enemyCount) end
 						return printReport(false,"Below Min Units",enemyCount)
 					end
 				end

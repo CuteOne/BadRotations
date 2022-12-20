@@ -33,6 +33,8 @@ br.lists.items = {
     fandralsSeedPouch               = 122304,
     luffaWrappings                  = 137056,
     theWildshapersClutch            = 137094,
+    -- Evoker: Devastation
+    kharnalexTheFirstLight          = 195519,
 	-- Mage: Shares
 	manaGem                         = 36799,
     -- Monk: Shared

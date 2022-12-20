@@ -1238,16 +1238,20 @@ br.lists.spells = {
             abilities                       = {
                 eternitySurge               = 382411,
                 fireBreath                  = 382266,
-                pyre                        = 357211,
-                shatteringStar              = 370452,
+                -- pyre                        = 357211,
+                -- shatteringStar              = 370452,
 
             },
             artifacts                       = {
 
             },
             buffs                           = {
-                essenceBurst                = 359618,
+                burnout                     = 375802,
+                chargedBlast                = 370454,
                 dragonrage                  = 375087,
+                essenceBurst                = 359618,
+                leapingFlames               = 370901,
+                snapFire                    = 370818,
             },
             conduits                        = {
 
@@ -1265,13 +1269,21 @@ br.lists.spells = {
 
             },
             talents                         = {
+                animosity                   = 375797,
                 burnout                     = 375801,
                 dragonrage                  = 375087,
+                essenceAttunement           = 375722,
                 eternitySurge               = 359073,
+                eternitysSpan               = 375757,
+                everburningFlame            = 370819,
+                eyeOfInfinity               = 369375,
+                feedTheFlames               = 369846,
+                firestorm                   = 368847,
+                fontOfMagic                 = 375783,
+                pyre                        = 357211,
                 shatteringStar              = 370452,
-
-
-
+                snapFire                    = 370783,
+                volatility                  = 369089,
             },
             traits                          = {
 
@@ -1335,6 +1347,7 @@ br.lists.spells = {
             buffs                           = {
                 blessingOfTheBronze         = 364342,
                 hover                       = 358267,
+                tipTheScales                = 370553,
             },
             conduits                        = {
 
@@ -1343,7 +1356,8 @@ br.lists.spells = {
 
             },
             debuffs                         = {
-
+                fireBreath                  = 357209,
+                shatteringStar              = 370452,
             },
             glyphs                          = {
 
@@ -1352,7 +1366,11 @@ br.lists.spells = {
 
             },
             talents                         = {
-
+                blastFurnace                = 375510,
+                obsidianScales              = 363916,
+                quell                       = 351338,
+                tipTheScales                = 370553,
+                verdantEmbrace              = 360995,
             },
             traits                          = {
 

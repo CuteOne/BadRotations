@@ -202,21 +202,26 @@ function br.getFullRechargeTime(spellID)
     end
     return 0
 end
+local maxStage = 0
 function br.getEmpoweredRank(spellID)
 	local stage = 0
 	if br.empowerID and spellID == br.empowerID then
 		local _, _, _, startTime, _, _, _, _, _, totalStages = br._G.UnitChannelInfo("player")
 		if totalStages and totalStages > 0 then
+			maxStage = totalStages
 			startTime = startTime / 1000 -- Doing this here so we don't divide by 1000 every loop index
 			local currentTime = br._G.GetTime() -- If you really want to get time each loop, go for it. But the time difference will be miniscule for a single frame loop
 			local stageDuration = 0
 			for i = 1, totalStages do
-				stageDuration = stageDuration + br._G.GetUnitEmpowerStageDuration("player", i - 1) / 1000
+				stageDuration = stageDuration + br._G.GetUnitEmpowerStageDuration("player", i-1) / 1000
 				if startTime + stageDuration > currentTime then
-					break -- Break early so we don't keep checking, we haven't hit this stage yet
+				 	break -- Break early so we don't keep checking, we haven't hit this stage yet
 				end
 				stage = i
 			end
+		end
+		if totalStages == nil then
+			stage = maxStage
 		end
 	end
     return stage

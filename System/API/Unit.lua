@@ -300,6 +300,10 @@ br.api.unit = function(self)
     unit.solo = function()
         return #br.friend == 1
     end
+    -- Spell Haste
+    unit.spellHaste = function()
+        return br._G.GetRangedHaste()
+    end
     -- Standing Time
     local standingTimer
     unit.standingTime = function()

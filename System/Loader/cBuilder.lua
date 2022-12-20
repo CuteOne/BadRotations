@@ -28,12 +28,14 @@ local function loadFile(profile,file,support)
     local func, errorMessage = br._G.loadstring(profile, file);
     if not func then
         print("Error: "..file.. " Cannot Load.  Please inform devs!")
+        print("Load Error Message: "..tostring(errorMessage))
         errorhandler(errorMessage)
     end
     br._G.setfenv(func, custom_env)
     local success, xerrorMessage = xpcall(func, errorhandler);
     if not success then
         print('Error: '..file..' Cannot Run.  Please inform devs!')
+        print("Run Error Message: "..tostring(xerrorMessage))
         errorhandler(xerrorMessage)
     end
 end
@@ -179,7 +181,9 @@ function br.loader:new(spec,specName)
                     local entryInfo = br._G.C_Traits.GetEntryInfo(configId,entryID)
                     local definitionInfo = br._G.C_Traits.GetDefinitionInfo(entryInfo.definitionID)
                     if definitionInfo.spellID ~= nil then
-                        talents[definitionInfo.spellID] = entryID == activeid
+                        if talents[definitionInfo.spellID] == nil then talents[definitionInfo.spellID] = {} end
+                        talents[definitionInfo.spellID].active = entryID == activeid
+                        talents[definitionInfo.spellID].rank = node.activeRank
                     end
                 end
             end
@@ -189,66 +193,78 @@ function br.loader:new(spec,specName)
 
     -- Update Talent Info
     local function getTalentInfo()
-        local talentFound
-        if self.talent == nil then self.talent = {} end
+        -- local talentFound
+        -- if self.talent == nil then self.talent = {} end
+        -- if self.talent.rank == nil then self.talent.rank = {} end
         if spec > 1400 and spec ~= 1467 and spec ~= 1468 then return end
-        local talents = getAllTalents()
-        for k,v in pairs(self.spell.talents) do
-            talentFound = false
-            if br._G.IsPlayerSpell(v) then -- only works for known spells
-                talentFound = true
-                self.talent[k] = true
-                if not br._G.IsPassiveSpell(v) and self.spell['abilities'][k] == nil then
-                    self.spell['abilities'][k] = v
-                    self.spell[k] = v
-                end
-            end
-            if not talentFound then
-                if talents[v] ~= nil then
-                    talentFound = true
-                    self.talent[k] = talents[v]
-                    if not br._G.IsPassiveSpell(v) and self.spell['abilities'][k] == nil then
-                        self.spell['abilities'][k] = v
-                        self.spell[k] = v
-                    end
-                end
-            end
-            -- No matching talent for listed talent id, report to
-            if not talentFound then
-                br._G.print("|cffff0000No talent found for: |r"..k.." ("..v..") |cffff0000in the talent spell list, please notify profile developer to remove from the list.")
-            end
-        end
+        return getAllTalents()
+        -- local talents = getAllTalents()
+        -- local currentTalent = talents[v]
+        -- for k,v in pairs(self.spell.talents) do
+        --     talentFound = false
+        --     if br._G.IsPlayerSpell(v) then -- only works for known spells
+        --         talentFound = true
+        --         self.talent[k] = currentTalent.active
+        --         self.talent.rank[k] = currentTalent.rank
+        --         if not br._G.IsPassiveSpell(v) and self.spell['abilities'][k] == nil then
+        --             self.spell['abilities'][k] = v
+        --             self.spell[k] = v
+        --         end
+        --     end
+        --     if not talentFound then
+        --         if talents[v] ~= nil then
+        --             talentFound = true
+        --             self.talent[k] = currentTalent.active
+        --             self.talent.active[k] = currentTalent.rank
+        --             if not br._G.IsPassiveSpell(v) and self.spell['abilities'][k] == nil then
+        --                 self.spell['abilities'][k] = v
+        --                 self.spell[k] = v
+        --             end
+        --         end
+        --     end
+        --     -- No matching talent for listed talent id, report to
+        --     if not talentFound then
+        --         br._G.print("|cffff0000No talent found for: |r"..k.." ("..v..") |cffff0000in the talent spell list, please notify profile developer to remove from the list.")
+        --     end
+        -- end
     end
 
     --Update Azerite Traits
-    local function getAzeriteTraitInfo()
-        -- Search Each Azerite Spell ID
-        if self.spell.traits == nil then return end
-        if self.traits == nil then self.traits = {} end
-        for k, v in pairs(self.spell.traits) do
-            if self.traits[k] == nil then self.traits[k] = {} end
-            self.traits[k].active = false
-            self.traits[k].rank = 0
-            -- Search Each Equiped Azerite Item
-            for _, itemLocation in br._G.AzeriteUtil.EnumerateEquipedAzeriteEmpoweredItems() do
-                local tierInfo = br._G.C_AzeriteEmpoweredItem.GetAllTierInfo(itemLocation)
-                -- Search Each Level Of The Azerite Item
-                for _, info in next, tierInfo do
-                    -- Search Each Power On Level
-                    for _, powerID in next, info.azeritePowerIDs do
-                        local isSelected = br._G.C_AzeriteEmpoweredItem.IsPowerSelected(itemLocation, powerID)
-                        local powerInfo = br._G.C_AzeriteEmpoweredItem.GetPowerInfo(powerID)
-                        if powerInfo.spellID == v and isSelected then
-                            self.traits[k].active = true
-                            self.traits[k].rank = self.traits[k].rank + 1
-                        end
-                    end
-                end
-            end
-        end
-    end
+    -- local function getAzeriteTraitInfo()
+    --     -- Search Each Azerite Spell ID
+    --     if self.spell.traits == nil then return end
+    --     if self.traits == nil then self.traits = {} end
+    --     for k, v in pairs(self.spell.traits) do
+    --         if self.traits[k] == nil then self.traits[k] = {} end
+    --         self.traits[k].active = false
+    --         self.traits[k].rank = 0
+    --         -- Search Each Equiped Azerite Item
+    --         for _, itemLocation in br._G.AzeriteUtil.EnumerateEquipedAzeriteEmpoweredItems() do
+    --             local tierInfo = br._G.C_AzeriteEmpoweredItem.GetAllTierInfo(itemLocation)
+    --             -- Search Each Level Of The Azerite Item
+    --             for _, info in next, tierInfo do
+    --                 -- Search Each Power On Level
+    --                 for _, powerID in next, info.azeritePowerIDs do
+    --                     local isSelected = br._G.C_AzeriteEmpoweredItem.IsPowerSelected(itemLocation, powerID)
+    --                     local powerInfo = br._G.C_AzeriteEmpoweredItem.GetPowerInfo(powerID)
+    --                     if powerInfo.spellID == v and isSelected then
+    --                         self.traits[k].active = true
+    --                         self.traits[k].rank = self.traits[k].rank + 1
+    --                     end
+    --                 end
+    --             end
+    --         end
+    --     end
+    -- end
 
     local function getFunctions()
+        -- Build Talent Info
+        local allTalents = getTalentInfo()
+        if self.talent == nil then self.talent = {} end
+        for k,v in pairs(self.spell.talents) do
+            br.api.talent(self.talent,k,v,allTalents,self.spell)
+        end
+
         if not self.spell.abilities then return end
         -- Build Artifact Info
         for k,v in pairs(self.spell.artifacts) do
@@ -264,31 +280,31 @@ function br.loader:new(spec,specName)
         end
 
         -- Get Azerite Essence Info
-        for k,v in pairs(self.spell.essences) do
-            local heartEssence = self.spell.essences['heartEssence']
-            if v ~= heartEssence then
-                if not self.essence[k] then self.essence[k] = {} end
-                local essence = self.essence[k]
-                if not br._G.IsPassiveSpell(v) then
-                    self.spell['abilities'][k] = select(7,br._G.GetSpellInfo(br._G.GetSpellInfo(v))) or v--heartEssence
-                    self.spell[k] = select(7,br._G.GetSpellInfo(br._G.GetSpellInfo(v))) or v--heartEssence
-                end
-                br.api.essences(essence,k,v)
-            end
-        end
+        -- for k,v in pairs(self.spell.essences) do
+        --     local heartEssence = self.spell.essences['heartEssence']
+        --     if v ~= heartEssence then
+        --         if not self.essence[k] then self.essence[k] = {} end
+        --         local essence = self.essence[k]
+        --         if not br._G.IsPassiveSpell(v) then
+        --             self.spell['abilities'][k] = select(7,br._G.GetSpellInfo(br._G.GetSpellInfo(v))) or v--heartEssence
+        --             self.spell[k] = select(7,br._G.GetSpellInfo(br._G.GetSpellInfo(v))) or v--heartEssence
+        --         end
+        --         br.api.essences(essence,k,v)
+        --     end
+        -- end
 
         -- Conduits
         if self.conduit == nil then self.conduit = {} end
         for k,v in pairs(self.spell.conduits) do
             if self.conduit[k] == nil then self.conduit[k] = {} end
-            br.api.conduit(self.conduit,k,v)
+            -- br.api.conduit(self.conduit,k,v)
         end
 
         -- Animas
         if self.anima == nil then self.anima = {} end
         for k,v in pairs(self.spell.animas) do
             if self.anima[k] == nil then self.anima[k] = {} end
-            br.api.animas(self.anima[k],v)
+            -- br.api.animas(self.anima[k],v)
         end
 
         -- Covenant
@@ -298,14 +314,14 @@ function br.loader:new(spec,specName)
         if self.covenant.nightFae == nil then self.covenant.nightFae = {} end
         if self.covenant.necrolord == nil then self.covenant.necrolord = {} end
         if self.covenant.none == nil then self.covenant.none = {} end
-        br.api.covenant(self.covenant)
+        -- br.api.covenant(self.covenant)
 
         -- Runeforge
         if self.runeforge == nil then self.runeforge = {} end
         if self.spell.runeforges ~= nil then
             for k,v in pairs(self.spell.runeforges) do
                 if self.runeforge[k] == nil then self.runeforge[k] = {} end
-                br.api.runeforge(self.runeforge,k,v)
+                -- br.api.runeforge(self.runeforge,k,v)
             end
         end
 
@@ -419,7 +435,7 @@ function br.loader:new(spec,specName)
     end
 
     if spec == br._G.GetSpecializationInfo(br._G.GetSpecialization()) and (self.talent == nil or self.cast == nil) then
-        getSpellsForSpec(spec); getTalentInfo(); getAzeriteTraitInfo(); getFunctions(); br.updatePlayerInfo = false
+        getSpellsForSpec(spec); --[[getTalentInfo(); getAzeriteTraitInfo();]] getFunctions(); br.updatePlayerInfo = false
     end
     ------------------
     --- OOC UPDATE ---
@@ -443,8 +459,8 @@ function br.loader:new(spec,specName)
             -- Update Player Info on Init, Talent, and Level Change
             if br.updatePlayerInfo then
                 getSpellsForSpec(spec)
-                getTalentInfo()
-                getAzeriteTraitInfo()
+                -- getTalentInfo()
+                -- getAzeriteTraitInfo()
                 getFunctions()
                 br.updatePlayerInfo = false
             end
