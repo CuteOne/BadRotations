@@ -700,12 +700,12 @@ local function runRotation()
     essence = power.essence.amount()
     essenceMax = power.essence.max()
     -- Fire Breath Stage
-    if var.fireBreathStage == nil or br.empowerID ~= spell.fireBreath then var.fireBreathStage = 0; custom.initFireBreath = false end
+    if var.fireBreathStage == nil or br.empowerID ~= spell.fireBreath then var.fireBreathStage = 0; end
     if cast.empowered.fireBreath() > 0 then
         var.fireBreathStage = cast.empowered.fireBreath()
     end
     -- Eternity Surge Stage
-    if var.eternitySurgeStage == nil or br.empowerID ~= spell.eternitySurge then var.eternitySurgeStage = 0; custom.initEternitySurge = false end
+    if var.eternitySurgeStage == nil or br.empowerID ~= spell.eternitySurge then var.eternitySurgeStage = 0; end
     if cast.empowered.eternitySurge() > 0 then
         var.eternitySurgeStage = cast.empowered.eternitySurge()
     end
@@ -748,6 +748,8 @@ local function runRotation()
     var.nextDragonrage = math.max(var.dragonrage, (cd.eternitySurge.remains() - 2 * unit.gcd(true)), (cd.fireBreath.remains() - unit.gcd(true)))
     -- variable,name=r1_cast_time,value=1.3*spell_haste
     var.r1CastTime = 1.3 * var.spellHaste
+
+    ui.chatOverlay(tostring(custom.initFireBreath))
 
     ---------------------
     --- Begin Profile ---
