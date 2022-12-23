@@ -7,14 +7,14 @@ function br._G.SlashCmdList.Greys(msg, editbox)
 end
 function br.SellGreys()
 	for bag = 0, 4 do
-		for slot = 1, C_Container.GetContainerNumSlots(bag) do
-			local item = br._G.GetContainerItemLink(bag, slot)
+		for slot = 1, br._G.C_Container.GetContainerNumSlots(bag) do
+			local item = br._G.C_Container.GetContainerItemLink(bag, slot)
 			if item then
 				-- Is it grey quality item?
 				if string.find(item, br.qualityColors.grey) ~= nil then
-					local greyPrice = select(11, br._G.GetItemInfo(item)) * select(2, br._G.GetContainerItemInfo(bag, slot))
+					local greyPrice = select(11, br._G.GetItemInfo(item)) * select(2, br._G.C_Container.GetContainerItemInfo(bag, slot))
 					if greyPrice > 0 then
-						br._G.PickupContainerItem(bag, slot)
+						br._G.C_Container.PickupContainerItem(bag, slot)
 						br._G.PickupMerchantItem()
 					end
 				end
@@ -34,12 +34,12 @@ end
 function br.DumpGreys(Num)
 	local greyTable = {}
 	for bag = 0, 4 do
-		for slot = 1, C_Container.GetContainerNumSlots(bag) do
-			local item = br._G.GetContainerItemLink(bag, slot)
+		for slot = 1, br._G.C_Container.GetContainerNumSlots(bag) do
+			local item = br._G.C_Container.GetContainerItemLink(bag, slot)
 			if item then
 				-- Is it grey quality item?
 				if string.find(item, br.qualityColors.grey) ~= nil then
-					local greyPrice = select(11, br._G.GetItemInfo(item)) * select(2, br._G.GetContainerItemInfo(bag, slot))
+					local greyPrice = select(11, br._G.GetItemInfo(item)) * select(2, br._G.C_Container.GetContainerItemInfo(bag, slot))
 					if greyPrice > 0 then
 						br._G.tinsert(greyTable, {Bag = bag, Slot = slot, Price = greyPrice, Item = item})
 					end
@@ -57,7 +57,7 @@ function br.DumpGreys(Num)
 	)
 	for i = 1, Num do
 		if greyTable[i] ~= nil then
-			br._G.PickupContainerItem(greyTable[i].Bag, greyTable[i].Slot)
+			br._G.C_Container.PickupContainerItem(greyTable[i].Bag, greyTable[i].Slot)
 			br._G.DeleteCursorItem()
 			br._G.print("|cffFF0000Removed Grey Item:" .. greyTable[i].Item)
 		end
@@ -79,9 +79,9 @@ end
 function br.lootManager:emptySlots()
 	local openSlots = 0
 	for i = 0, 4 do --Let's look at each bag
-		local numBagSlots = C_Container.GetContainerNumSlots(i)
+		local numBagSlots = br._G.C_Container.GetContainerNumSlots(i)
 		if numBagSlots > 0 then -- Only look for slots if bag present
-			openSlots = openSlots + select(1, C_Container.GetContainerNumFreeSlots(i))
+			openSlots = openSlots + select(1, br._G.C_Container.GetContainerNumFreeSlots(i))
 		end
 	end
 	return openSlots
