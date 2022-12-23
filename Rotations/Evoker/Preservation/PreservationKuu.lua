@@ -345,7 +345,6 @@ local function runRotation()
     lowest.unit = "player"
     lowest.hp = 100
     for i = 1, #br.friend do
-        print(lowest.hp)
         if br.friend[i].hp < lowest.hp then
             lowest = br.friend[i]
         end
