@@ -368,11 +368,16 @@ function br.unlock:NNUnlock()
 	b.GetWoWDirectory = function()
 		return ""
 	end
+	local om = {}
 	b.GetObjectCount = function()
+		om = Objects()
 		return #Objects()
 	end
 	b.GetObjectWithIndex = function(index)
-		return ObjectByIndex(index)
+		return om[index]--ObjectByIndex(index)
+	end
+	b.ObjectType = function(...)
+		return ObjectType(...)
 	end
 	b.ObjectIsUnit = function(...)
 		local ObjType = ObjectType(...)
