@@ -2,7 +2,7 @@
 -- Author = CuteOne
 -- Patch = 10.0
 --    Patch should be the latest patch you've updated the rotation for (i.e., 9.2.5)
--- Coverage = 90%
+-- Coverage = 95%
 --    Coverage should be your estimated percent coverage for class mechanics (i.e., 100%)
 -- Status = Full
 --    Status should be one of: Full, Limited, Sporadic, Inactive, Unknown
@@ -140,6 +140,14 @@ local function createOptions()
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
             -- Blessing of the Bronze
             br.ui:createCheckbox(section, "Blessing of the Bronze")
+            -- Source of Magic
+            br.ui:createCheckbox(section, "Source of Magic on Focus", "|cffFFFFFFWill cast Source of Magic Ability on Focus.")
+            -- Stage Limiter
+            br.ui:createCheckbox(section, "Empower Stage Limiter", "|cffFFFFFFEnable to set maximum stages to Empower to.")
+            br.ui:createSpinnerWithout(section, "Fire Breath Stage Limit", 4, 1, 4, 1, "")
+            br.ui:createSpinnerWithout(section, "Eternity Surge Stage Limit", 4, 1, 4, 1, "")
+            -- Visage
+            br.ui:createCheckbox(section, "Maintain Visage", "|cffFFFFFFWill use Visage Ability whenever possible.")
         br.ui:checkSectionState(section)
         ------------------------
         --- COOLDOWN OPTIONS --- -- Define Cooldown Options
@@ -161,10 +169,17 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
             -- Basic Healing Module
             br.player.module.BasicHealing(section)
+            -- Cauterizing Flame
+            br.ui:createCheckbox(section,"Cauterizing Flame")
+            br.ui:createDropdownWithout(section, "Cauterizing Flame - Target", {"|cff00FF00Player","|cffFFFF00Target","|cffFF0000Mouseover"}, 1, "|cffFFFFFFTarget to cast on")
             -- Emerald Blossom
             br.ui:createSpinner(section, "Emerald Blossom", 35, 0, 99, 5, "Use Emerald Blossom to Heal below this threshold")
+            -- Expunge
+            br.ui:createCheckbox(section,"Expunge")
+            br.ui:createDropdownWithout(section, "Expunge - Target", {"|cff00FF00Player","|cffFFFF00Target","|cffFF0000Mouseover"}, 1, "|cffFFFFFFTarget to cast on")
             -- Living Flame
             br.ui:createSpinner(section, "Living Flame Heal", 45, 0, 99, 5, "Use Living Flame to Heal below this threshold")
+            br.ui:createSpinnerWithout(section, "Living Flame OoC", 80, 0, 99, 5, "Use Living Flame to Heal Out of Combat below this threshold")
             -- Obsidian Scales
             br.ui:createSpinner(section, "Obsidian Scales", 50, 0, 99, 5, "|cffFFFFFFHealth Percent to Cast At")
             -- Return
@@ -234,10 +249,17 @@ local essence
 local essenceMax
 -- Profile Specific Locals - Any custom to profile locals
 local actionList = {}
-
+local custom = {}
 -----------------
 --- Functions --- -- List all profile specific custom functions here
 -----------------
+custom.stageLimit = function(empowerSpell, requestedStage)
+    if ui.checked("Empower Stage Limiter") then
+        if empowerSpell == "FB" then return ui.value("Fire Breath Stage Limit") end
+        if empowerSpell == "ES" then return ui.value("Eternity Surge Stage Limit") end
+    end
+    return requestedStage
+end
 
 --------------------
 --- Action Lists ---
@@ -264,6 +286,18 @@ actionList.Extra = function()
             end
         end
     end
+    -- Source of Magic
+    if ui.checked("Source of Magic on Focus") and cast.able.sourceOfMagic("focus")
+        and unit.exists("focus") and unit.friend("focus") and not buff.sourceOfMagic.exists("focus")
+    then
+        if cast.sourceOfMagic("focus") then ui.debug("Casting Source of Magic on "..tostring(unit.name("focus"))) return true end
+    end
+    -- Visage
+    if ui.checked("Maintain Visage") and cast.able.visage() and not unit.inCombat() and spell.info.choosenIdentity.texture() ~= 136116
+        and not buff.visage.exists() and not buff.soar.exists() and not buff.hover.exists()
+    then
+        if cast.visage() then ui.debug("Casting Visage - Surely noone will tell you're a Dractyr.") return true end
+    end
 end -- End Action List - Extra
 
 -- Action List - Defensive
@@ -273,16 +307,53 @@ actionList.Defensive = function()
         local thisUnit
         -- Basic Healing Module
         module.BasicHealing()
+        -- Cauterizing Flame
+        if ui.checked("Cauterizing Flame") then
+            opValue = ui.value("Cauterizing Flame - Target")
+            if opValue == 1 then
+                thisUnit = "player"
+            elseif opValue == 2 then
+                thisUnit = "target"
+            elseif opValue == 3 then
+                thisUnit = "mouseover"
+            end
+            if cast.able.cauterizingFlame(thisUnit) and (unit.friend(thisUnit) or unit.player(thisUnit))
+                and cast.dispel.cauterizingFlame(thisUnit)
+            then
+                if cast.cauterizingFlame(thisUnit) then ui.debug("Casting Cauterizing Flame on "..unit.name(thisUnit)) return true end
+            end
+        end
         -- Emerald Blossom
         if ui.checked("Emerald Blossom") and cast.able.emeraldBlossom("player") and unit.hp() <= ui.value("Emerald Blossom") then
             if cast.emeraldBlossom("player") then ui.debug("Casting Emerald Blossom") return true end
         end
+        -- Expunge
+        if ui.checked("Expunge") then
+            opValue = ui.value("Expunge - Target")
+            if opValue == 1 then
+                thisUnit = "player"
+            elseif opValue == 2 then
+                thisUnit = "target"
+            elseif opValue == 3 then
+                thisUnit = "mouseover"
+            end
+            if cast.able.expunge(thisUnit) and (unit.friend(thisUnit) or unit.player(thisUnit))
+                and cast.dispel.expunge(thisUnit)
+            then
+                if cast.expunge(thisUnit) then ui.debug("Casting Expunge on "..unit.name(thisUnit)) return true end
+            end
+        end
         -- Living Flame
-        if ui.checked("Living Flame Heal") and not unit.moving() then
+        if ui.checked("Living Flame Heal") and var.moveCast then
             thisUnit = unit.friend("target") and "target" or "player"
             if cast.able.livingFlame(thisUnit) and unit.hp(thisUnit) <= ui.value("Living Flame Heal") and cast.timeSinceLast.livingFlame() > cast.time.livingFlame() + unit.gcd(true) then
                 if cast.livingFlame(thisUnit) then ui.debug("Casting Living Flame on " .. unit.name(thisUnit)) return true end
             end
+        end
+        if ui.checked("Living Flame OoC") and cast.able.livingFlame("player") and var.moveCast
+            and not unit.inCombat() and unit.hp() <= ui.value("Living Flame OoC")
+        then
+            if cast.livingFlame("player") then ui.debug("Casting Living Flame [OoC]") return true end
         end
         -- Obsidian Scales
         if ui.checked("Obsidian Scales") and cast.able.obsidianScales("player") and unit.hp() <= ui.value("Obsidian Scales") then
@@ -328,19 +399,19 @@ actionList.Interrupts = function()
     if ui.useInterrupt() then
         local thisUnit
         -- Quell
-        if ui.checked("Quell") and cast.able.quell() then
+        if ui.checked("Quell") then
             for i=1, #enemies.yards25 do
                 thisUnit = enemies.yards25[i]
-                if unit.interruptable(thisUnit,ui.value("Interrupt At")) then
+                if cast.able.quell(thisUnit) and unit.interruptable(thisUnit,ui.value("Interrupt At")) then
                     if cast.quell(thisUnit) then ui.debug("Casting Quell on "..unit.name(thisUnit)) return true end
                 end
             end
         end
         -- Tail Swipe
-        if ui.checked("Tail Swipe") and cast.able.tailSwipe() then
+        if ui.checked("Tail Swipe") then
             for i=1, #enemies.yards8 do
                 thisUnit = enemies.yards8[i]
-                if unit.interruptable(thisUnit,ui.value("Interrupt At")) then
+                if cast.able.tailSwipe(thisUnit) and unit.interruptable(thisUnit,ui.value("Interrupt At")) then
                     if cast.tailSwipe(thisUnit) then ui.debug("Casting Tail Swipe on "..unit.name(thisUnit)) return true end
                 end
             end
@@ -381,19 +452,19 @@ actionList.AoE = function()
     -- fire_breath,empower_to=1,if=cooldown.dragonrage.remains>10&spell_targets.pyre>=7
     if cast.able.fireBreath("player","rect",1,25) and not unit.moving() and not cast.current.fireBreath() then
         if (cd.dragonrage.remains() > 10 or not ui.alwaysCdAoENever("Dragonrage",1,25)) and #enemies.yards8t >= 7 then
-            if cast.fireBreath("player","rect",1,25) then var.stageFireBreath = 1 ui.debug("Empowering Fire Breath to Stage "..var.stageFireBreath.." [7+ AOE]") return true end
+            if cast.fireBreath("player","rect",1,25) then var.stageFireBreath = custom.stageLimit("FB",1) ui.debug("Empowering Fire Breath to Stage "..var.stageFireBreath.." [7+ AOE]") return true end
         end
         -- fire_breath,empower_to=2,if=cooldown.dragonrage.remains>10&spell_targets.pyre>=6
         if (cd.dragonrage.remains() > 10 or not ui.alwaysCdAoENever("Dragonrage",1,25)) and #enemies.yards8t >= 6 then
-            if cast.fireBreath("player","rect",1,25) then var.stageFireBreath = 2 ui.debug("Empowering Fire Breath to Stage "..var.stageFireBreath.." [6+ AOE]") return true end
+            if cast.fireBreath("player","rect",1,25) then var.stageFireBreath = custom.stageLimit("FB",2) ui.debug("Empowering Fire Breath to Stage "..var.stageFireBreath.." [6+ AOE]") return true end
         end
         -- fire_breath,empower_to=3,if=cooldown.dragonrage.remains>10&spell_targets.pyre>=4
         if (cd.dragonrage.remains() > 10 or not ui.alwaysCdAoENever("Dragonrage",1,25)) and #enemies.yards8t >= 4 then
-            if cast.fireBreath("player","rect",1,25) then var.stageFireBreath = 3 ui.debug("Empowering Fire Breath to Stage "..var.stageFireBreath.." [4+ AOE]") return true end
+            if cast.fireBreath("player","rect",1,25) then var.stageFireBreath = custom.stageLimit("FB",3) ui.debug("Empowering Fire Breath to Stage "..var.stageFireBreath.." [4+ AOE]") return true end
         end
         -- fire_breath,empower_to=2,if=cooldown.dragonrage.remains>10
         if (cd.dragonrage.remains() > 10 or not ui.alwaysCdAoENever("Dragonrage",1,25)) then
-            if cast.fireBreath("player","rect",1,25) then var.stageFireBreath = 2 ui.debug("Empowering Fire Breath to Stage "..var.stageFireBreath.." [AOE]") return true end
+            if cast.fireBreath("player","rect",1,25) then var.stageFireBreath = custom.stageLimit("FB",2) ui.debug("Empowering Fire Breath to Stage "..var.stageFireBreath.." [AOE]") return true end
         end
     end
     -- Call Action List - ES
@@ -475,27 +546,27 @@ end -- End Action List - AOE
 -- Action List - ES
 actionList.ES = function()
     -- Eternity Surge
-    if cast.able.eternitySurge(units.dyn25) and not unit.moving() and not cast.current.eternitySurge() then
+    if cast.able.eternitySurge(units.dyn25,"aoe",1,12) and not unit.moving() and not cast.current.eternitySurge() then
         -- eternity_surge,empower_to=1,if=spell_targets.pyre<=1+talent.eternitys_span|buff.dragonrage.remains<1.75*spell_haste&buff.dragonrage.remains>=1*spell_haste
         if #enemies.yards8t <= 1 + var.eternitySpan or buff.dragonrage.remains() < 1.75 * var.spellHaste
             and buff.dragonrage.remains() >= 1 * var.spellHaste
         then
-            if cast.eternitySurge(units.dyn25) then var.stageEternitySurge = 1 ui.debug("Empowering Eternity Surge to Stage "..var.stageEternitySurge.." [ES]") return true end
+            if cast.eternitySurge(units.dyn25,"aoe",1,12) then var.stageEternitySurge = custom.stageLimit("ES",1) ui.debug("Empowering Eternity Surge to Stage "..var.stageEternitySurge.." [ES]") return true end
         end
         -- eternity_surge,empower_to=2,if=spell_targets.pyre<=2+2*talent.eternitys_span|buff.dragonrage.remains<2.5*spell_haste&buff.dragonrage.remains>=1.75*spell_haste
         if #enemies.yards8t <= 2 + 2 * var.eternitySpan or buff.dragonrage.remains() < 2.5 * var.spellHaste
             and buff.dragonrage.remains() >= 1.75 * var.spellHaste
         then
-            if cast.eternitySurge(units.dyn25) then var.stageEternitySurge = 2 ui.debug("Empowering Eternity Surge to Stage "..var.stageEternitySurge.." [ES]") return true end
+            if cast.eternitySurge(units.dyn25,"aoe",1,12) then var.stageEternitySurge = custom.stageLimit("ES",2) ui.debug("Empowering Eternity Surge to Stage "..var.stageEternitySurge.." [ES]") return true end
         end
         -- eternity_surge,empower_to=3,if=spell_targets.pyre<=3+3*talent.eternitys_span|!talent.font_of_magic|buff.dragonrage.remains<=3.25*spell_haste&buff.dragonrage.remains>=2.5*spell_haste
         if #enemies.yards8t <= 3 + 3 * var.eternitySpan or not talent.fontOfMagic or (buff.dragonrage.remains() <= 3.25 * var.spellHaste
             and buff.dragonrage.remains() >= 2.5 * var.spellHaste)
         then
-            if cast.eternitySurge(units.dyn25) then var.stageEternitySurge = 3 ui.debug("Empowering Eternity Surge to Stage "..var.stageEternitySurge.." [ES]") return true end
+            if cast.eternitySurge(units.dyn25,"aoe",1,12) then var.stageEternitySurge = custom.stageLimit("ES",3) ui.debug("Empowering Eternity Surge to Stage "..var.stageEternitySurge.." [ES]") return true end
         end
         -- eternity_surge,empower_to=4
-        if cast.eternitySurge(units.dyn25) then var.stageEternitySurge = 4 ui.debug("Empowering Eternity Surge to Stage "..var.stageEternitySurge.." [ES]") return true end
+        if cast.eternitySurge(units.dyn25,"aoe",1,12) then var.stageEternitySurge = custom.stageLimit("ES",4) ui.debug("Empowering Eternity Surge to Stage "..var.stageEternitySurge.." [ES]") return true end
     end
 end -- End Action List - ES
 
@@ -508,22 +579,22 @@ actionList.FB = function()
             or buff.dragonrage.remains() < 1.75 * var.spellHaste and buff.dragonrage.remains() >= 1 * var.spellHaste or #enemies.yards25f <= 2
         then
             -- if custom.castFireBreath(1,"FB") then return true end
-            if cast.fireBreath("player","rect",1,25) then var.stageFireBreath = 1 ui.debug("Empowering Fire Breath to Stage "..var.stageFireBreath.." [FB]") return true end
+            if cast.fireBreath("player","rect",1,25) then var.stageFireBreath = custom.stageLimit("FB",1) ui.debug("Empowering Fire Breath to Stage "..var.stageFireBreath.." [FB]") return true end
         end
         -- fire_breath,empower_to=2,if=(14+2*talent.blast_furnace.rank)+dot.fire_breath_damage.remains<(20+2*talent.blast_furnace.rank)*1.3|buff.dragonrage.remains<2.5*spell_haste&buff.dragonrage.remains>=1.75*spell_haste
         if (14 + 2 * talent.rank.blastFurnace) + debuff.fireBreath.remains(units.dyn25) < (20 + 2 * talent.rank.blastFurnace) * 1.3
         or buff.dragonrage.remains() < 2.5 * var.spellHaste and buff.dragonrage.remains() >= 1.75 * var.spellHaste
         then
-            if cast.fireBreath("player","rect",1,25) then var.stageFireBreath = 2 ui.debug("Empowering Fire Breath to Stage "..var.stageFireBreath.." [FB]") return true end
+            if cast.fireBreath("player","rect",1,25) then var.stageFireBreath = custom.stageLimit("FB",2) ui.debug("Empowering Fire Breath to Stage "..var.stageFireBreath.." [FB]") return true end
         end
         -- fire_breath,empower_to=3,if=(8+2*talent.blast_furnace.rank)+dot.fire_breath_damage.remains<(20+2*talent.blast_furnace.rank)*1.3|!talent.font_of_magic|buff.dragonrage.remains<=3.25*spell_haste&buff.dragonrage.remains>=2.5*spell_haste
         if (8 + 2 * talent.rank.blastFurnace) + debuff.fireBreath.remains(units.dyn25) < (20 + 2 * talent.rank.blastFurnace) * 1.3 or not talent.fontOfMagic
         or buff.dragonrage.remains() < 3.25 * var.spellHaste and buff.dragonrage.remains() >= 2.5 * var.spellHaste
         then
-            if cast.fireBreath("player","rect",1,25) then var.stageFireBreath = 3 ui.debug("Empowering Fire Breath to Stage "..var.stageFireBreath.." [FB]") return true end
+            if cast.fireBreath("player","rect",1,25) then var.stageFireBreath = custom.stageLimit("FB",3) ui.debug("Empowering Fire Breath to Stage "..var.stageFireBreath.." [FB]") return true end
         end
         -- fire_breath,empower_to=4
-        if cast.fireBreath("player","rect",1,25) then var.stageFireBreath = 4 ui.debug("Empowering Fire Breath to Stage "..var.stageFireBreath.." [FB]") return true end
+        if cast.fireBreath("player","rect",1,25) then var.stageFireBreath = custom.stageLimit("FB",4) ui.debug("Empowering Fire Breath to Stage "..var.stageFireBreath.." [FB]") return true end
     end
 end -- End Action List - FB
 
@@ -557,14 +628,27 @@ actionList.ST = function()
     if talent.animosity and buff.dragonrage.exists() and buff.dragonrage.remains() < unit.gcd(true) + var.r1CastTime * var.tipTheScales
         and buff.dragonrage.remains() - cd.fireBreath.remains() >= var.r1CastTime * var.tipTheScales
     then
-        if cd.fireBreath.exists() then return true end
+        if cd.fireBreath.exists() then
+            if not var.pauseForFbCd then
+                var.pauseForFbCd = true
+                ui.debug("Pausing for Fire Breath Cooldown [Animosity Dragonrage ST]")
+            end
+            return true end
     end
+    if var.pauseForFbCd then var.pauseForFbCd = false end
     -- wait,sec=cooldown.eternity_surge.remains,if=talent.animosity&buff.dragonrage.up&buff.dragonrage.remains<gcd.max+variable.r1_cast_time&buff.dragonrage.remains-cooldown.eternity_surge.remains>variable.r1_cast_time*buff.tip_the_scales.down
     if talent.animosity and buff.dragonrage.exists() and buff.dragonrage.remains() < unit.gcd(true) + var.r1CastTime
         and buff.dragonrage.remains() - cd.eternitySurge.remains() > var.r1CastTime * var.tipTheScales
     then
-        if cd.eternitySurge.exists() then return true end
+        if cd.eternitySurge.exists() then
+            if not var.pauseForEsCd then
+                var.pauseForEsCd = true
+                ui.debug("Pausing for Fire Breath Cooldown [Animosity Dragonrage ST]")
+            end
+            return true
+        end
     end
+    if var.pauseForEsCd then var.pauseForEsCd = false end
     -- Shattering Star
     -- shattering_star,if=!buff.dragonrage.up|buff.essence_burst.stack==buff.essence_burst.max_stack|talent.eye_of_infinity
     if cast.able.shatteringStar(units.dyn25) and var.moveCast and (not buff.dragonrage.exists() or buff.essenceBurst.stack() == var.essenceBurstMaxStacks or talent.eyeOfInfinity) then
@@ -629,6 +713,10 @@ actionList.ST = function()
     if cast.able.livingFlame(units.dyn25) and var.moveCast and cast.timeSinceLast.livingFlame() > cast.time.livingFlame() + unit.gcd(true) then
         if cast.livingFlame(units.dyn25) then ui.debug("Casting Living Flame [ST]") return true end
     end
+    -- Azure Strike
+    if cast.able.azureStrike(units.dyn25) and not var.moveCast then
+        if cast.azureStrike(units.dyn25) then ui.debug("Casting Azure Strike [Moving - ST]") return true end
+    end
 end -- End Action List - ST
 
 -- Action List - Pre-Combat
@@ -675,18 +763,23 @@ local function runRotation()
     -- General Locals
     essence = power.essence.amount()
     essenceMax = power.essence.max()
+
     -- Fire Breath Stage
     if var.stageFireBreath == nil then var.stageFireBreath = 0 end
     if var.fireBreathStage == nil or br.empowerID ~= spell.fireBreath then var.fireBreathStage = 0; end
     if cast.empowered.fireBreath() > 0 then
         var.fireBreathStage = cast.empowered.fireBreath()
     end
+
+    if var.pauseForFbCd == nil then var.pauseForFbCd = false end
     -- Eternity Surge Stage
     if var.stageEternitySurge == nil then var.stageEternitySurge = 0 end
     if var.eternitySurgeStage == nil or br.empowerID ~= spell.eternitySurge then var.eternitySurgeStage = 0; end
     if cast.empowered.eternitySurge() > 0 then
         var.eternitySurgeStage = cast.empowered.eternitySurge()
     end
+    if var.pauseForEsCd == nil then var.pauseForEsCd = false end
+
     var.moveCast = (not unit.moving() or buff.hover.exists())
     var.profileStop = false
     var.haltProfile = (unit.inCombat() and var.profileStop) or unit.mounted() or br.pause() or ui.mode.rotation == 4
@@ -769,7 +862,7 @@ local function runRotation()
         --- In Combat - Rotations ---
         -----------------------------
         -- Check for combat
-        if unit.inCombat() or (not unit.inCombat() and unit.valid("target")) and (cd.global.remain() == 0 or var.fireBreathStage > 0 or var.eternitySurgeStage > 0) then
+        if (unit.inCombat() or (not unit.inCombat() and unit.valid("target"))) and (cd.global.remain() == 0 or var.fireBreathStage > 0 or var.eternitySurgeStage > 0) then
             if unit.exists(units.dyn40) and unit.distance(units.dyn40) < 40 then
                 -----------------
                 --- Interrupt ---

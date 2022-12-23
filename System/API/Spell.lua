@@ -39,4 +39,10 @@ br.api.spells = function(spells,k,v,subtable)
             return br.getFullRechargeTime(v)
         end
     end
+    if spells.info == nil then spells.info = {} end
+    local info = spells.info
+    if info[k] == nil then info[k] = {} end
+    info[k].texture = function()
+        return br._G.GetSpellTexture(v)
+    end
 end

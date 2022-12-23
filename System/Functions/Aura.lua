@@ -201,6 +201,12 @@ function br.canDispel(Unit, spellID)
 		-- Consume Magic
 		if spellID == 278326 then typesList = {"Magic"}	end
 	end
+	if ClassNum == 13 then -- Evoker
+		-- Expunge
+		if spellID == 365585 then typesList = {"Poison"} end
+		-- Cauterizing Flame
+		if spellID == 374251 then typesList = {"Bleed", "Poison", "Curse", "Disease"} end
+	end
 	if br.player.race == "BloodElf" then --Blood Elf
 		-- Arcane Torrent
 		if spellID == select(7, br._G.GetSpellInfo(69179)) then typesList = {"Magic"} end

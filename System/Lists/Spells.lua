@@ -1327,6 +1327,7 @@ br.lists.spells = {
             abilities                       = {
                 azureStrike                 = 362969,
                 blessingOfTheBronze         = 364342,
+                choosenIdentity             = 360022,
                 deepBreath                  = 357210,
                 disintegrate                = 356995,
                 emeraldBlossom              = 355913,
@@ -1337,6 +1338,7 @@ br.lists.spells = {
                 returnEvoker                = 361227,
                 tailSwipe                   = 368970,
                 wingBuffet                  = 357214,
+                visage                      = 351239,
             },
             animas                          = {
 
@@ -1347,7 +1349,10 @@ br.lists.spells = {
             buffs                           = {
                 blessingOfTheBronze         = 364342,
                 hover                       = 358267,
+                soar                        = 381322,
+                sourceOfMagic               = 372581,
                 tipTheScales                = 370553,
+                visage                      = 372014,
             },
             conduits                        = {
 
@@ -1367,8 +1372,11 @@ br.lists.spells = {
             },
             talents                         = {
                 blastFurnace                = 375510,
+                cauterizingFlame            = 374251,
+                expunge                     = 365585,
                 obsidianScales              = 363916,
                 quell                       = 351338,
+                sourceOfMagic               = 369459,
                 tipTheScales                = 370553,
                 verdantEmbrace              = 360995,
             },
