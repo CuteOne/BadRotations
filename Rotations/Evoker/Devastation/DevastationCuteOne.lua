@@ -182,6 +182,8 @@ local function createOptions()
             br.ui:createSpinnerWithout(section, "Living Flame OoC", 80, 0, 99, 5, "Use Living Flame to Heal Out of Combat below this threshold")
             -- Obsidian Scales
             br.ui:createSpinner(section, "Obsidian Scales", 50, 0, 99, 5, "|cffFFFFFFHealth Percent to Cast At")
+            -- Renewing Blaze
+            br.ui:createSpinner(section, "Renewing Blaze", 40, 0, 99, 5, "|cffFFFFFFHealth Percent to Cast At")
             -- Return
             br.ui:createCheckbox(section,"Return")
             br.ui:createDropdownWithout(section, "Return - Target", {"|cff00FF00Target","|cffFF0000Mouseover"}, 1, "|cffFFFFFFTarget to cast on")
@@ -346,18 +348,22 @@ actionList.Defensive = function()
         -- Living Flame
         if ui.checked("Living Flame Heal") and var.moveCast then
             thisUnit = unit.friend("target") and "target" or "player"
-            if cast.able.livingFlame(thisUnit) and unit.hp(thisUnit) <= ui.value("Living Flame Heal") and cast.timeSinceLast.livingFlame() > cast.time.livingFlame() + unit.gcd(true) then
+            if cast.able.livingFlame(thisUnit) and unit.hp(thisUnit) <= ui.value("Living Flame Heal")
+                and cast.timeSinceLast.livingFlame() > cast.time.livingFlame() + unit.gcd(true)
+            then
                 if cast.livingFlame(thisUnit) then ui.debug("Casting Living Flame on " .. unit.name(thisUnit)) return true end
             end
-        end
-        if ui.checked("Living Flame OoC") and cast.able.livingFlame("player") and var.moveCast
-            and not unit.inCombat() and unit.hp() <= ui.value("Living Flame OoC")
-        then
-            if cast.livingFlame("player") then ui.debug("Casting Living Flame [OoC]") return true end
+            if cast.able.livingFlame("player") and not unit.inCombat() and unit.hp() <= ui.value("Living Flame OoC") then
+                if cast.livingFlame("player") then ui.debug("Casting Living Flame [OoC]") return true end
+            end
         end
         -- Obsidian Scales
         if ui.checked("Obsidian Scales") and cast.able.obsidianScales("player") and unit.hp() <= ui.value("Obsidian Scales") then
             if cast.obsidianScales("player") then ui.debug("Casting Obsidian Scales") return true end
+        end
+        -- Renewing Blaze
+        if ui.checked("Renewing Blaze") and cast.able.renewingBlaze("player") and unit.hp() <= ui.value("Renewing Blaze") then
+            if cast.renewingBlaze("player") then ui.debug("Casting Renewing Blaze") return true end
         end
         -- Return
         if ui.checked("Return") and not unit.inCombat() and not unit.moving() then
@@ -484,8 +490,8 @@ actionList.AoE = function()
     end
     -- Firestorm
     -- firestorm
-    if cast.able.firestorm("best",nil,1,8) and var.moveCast then
-        if cast.firestorm("best",nil,1,8) then ui.debug("Casting Firestorm [AOE]") return true end
+    if cast.able.firestorm("best",nil,3,8) and var.moveCast then
+        if cast.firestorm("best",nil,3,8) then ui.debug("Casting Firestorm [AOE]") return true end
     end
     -- Shattering Star
     -- shattering_star
@@ -506,8 +512,8 @@ actionList.AoE = function()
     end
     -- Living Flame
     -- living_flame,if=buff.burnout.up&buff.leaping_flames.up&!buff.essence_burst.up
-    if cast.able.livingFlame(units.dyn25) and var.moveCast and buff.burnout.exists() and buff.leapingFlames.exists() and not buff.essenceBurst.exists()
-        and cast.timeSinceLast.livingFlame() > cast.time.livingFlame() + unit.gcd(true)
+    if cast.able.livingFlame(units.dyn25) and buff.burnout.exists()
+        and buff.leapingFlames.exists() and not buff.essenceBurst.exists()
     then
         if cast.livingFlame(units.dyn25) then ui.debug("Casting Living Flame [Leaping Burnout - AOE]") return true end
     end
@@ -532,9 +538,7 @@ actionList.AoE = function()
     end
     -- Living Flame
     -- living_flame,if=talent.snapfire&buff.burnout.up
-    if cast.able.livingFlame(units.dyn25) and var.moveCast and talent.snapfire and buff.burnout.exists()
-        and cast.timeSinceLast.livingFlame() > cast.time.livingFlame() + unit.gcd(true)
-    then
+    if cast.able.livingFlame(units.dyn25) and talent.snapfire and buff.burnout.exists() then
         if cast.livingFlame(units.dyn52) then ui.debug("Casting Living Flame [Snapfire - AOE]") return true end
     end
     -- azure_strike
@@ -609,7 +613,7 @@ actionList.ST = function()
     -- tip_the_scales,if=buff.dragonrage.up&(buff.dragonrage.remains<variable.r1_cast_time&(buff.dragonrage.remains>cooldown.fire_breath.remains|buff.dragonrage.remains>cooldown.eternity_surge.remains)|talent.feed_the_flames&!cooldown.fire_breath.up)
     if ui.alwaysCdAoENever("Tip the Scales") and cast.able.tipTheScales("player") and buff.dragonrage.exists()
         and (buff.dragonrage.remains() < var.r1CastTime and (buff.dragonrage.remains() > cd.fireBreath.remains()
-            or buff.dragonrage.remains() > cd.eternitySurge.remains()) or talent.feedTheFlames and not cd.fireBreath.exists())
+            or buff.dragonrage.remains() > cd.eternitySurge.remains()) or (talent.feedTheFlames and cd.fireBreath.exists()))
     then
         if cast.tipTheScales("player") then ui.debug("Casting Tip the Scales [ST]") return true end
     end
@@ -656,27 +660,29 @@ actionList.ST = function()
     end
     -- Living Flame
     -- living_flame,if=buff.dragonrage.up&buff.dragonrage.remains<(buff.essence_burst.max_stack-buff.essence_burst.stack)*gcd.max&buff.burnout.up
-    if cast.able.livingFlame(units.dyn25) and var.moveCast and buff.dragonrage.exists() and buff.dragonrage.remains() < (var.essenceBurstMaxStacks - buff.essenceBurst.stack()) * unit.gcd(true)
-        and buff.burnout.exists() and cast.timeSinceLast.livingFlame() > cast.time.livingFlame() + unit.gcd(true)
+    if cast.able.livingFlame(units.dyn25) and buff.dragonrage.exists() and buff.burnout.exists()
+        and buff.dragonrage.remains() < (var.essenceBurstMaxStacks - buff.essenceBurst.stack()) * unit.gcd(true)
     then
         if cast.livingFlame(units.dyn25) then ui.debug("Casting Living Flame [Dragonrage Burnout - ST]") return true end
     end
     -- Azure Strike
     -- azure_strike,if=buff.dragonrage.up&buff.dragonrage.remains<(buff.essence_burst.max_stack-buff.essence_burst.stack)*gcd.max
-    if cast.able.azureStrike(units.dyn25) and buff.dragonrage.exists() and buff.dragonrage.remains() < (var.essenceBurstMaxStacks - buff.essenceBurst.stack()) * unit.gcd(true) then
+    if cast.able.azureStrike(units.dyn25) and buff.dragonrage.exists()
+        and buff.dragonrage.remains() < (var.essenceBurstMaxStacks - buff.essenceBurst.stack()) * unit.gcd(true)
+    then
         if cast.azureStrike(units.dyn25) then ui.debug("Casting Azure Strike [Dragonrage Essence Burst - ST]") return true end
     end
     -- Firestorm
     -- firestorm,if=!buff.dragonrage.up&debuff.shattering_star_debuff.down|buff.snapfire.up
-    if cast.able.firestorm("best",nil,1,8) and (var.moveCast or buff.snapFire.exists()) and ((not buff.dragonrage.exists() and not debuff.shatteringStar.exists(units.dyn25)) or buff.snapFire.exists())
-        and (var.moveCast or buff.snapFire.exists())
+    if cast.able.firestorm("best",nil,1,8) and ((not buff.dragonrage.exists()
+        and not debuff.shatteringStar.exists(units.dyn25) and var.moveCast) or buff.snapFire.exists())
     then
         if cast.firestorm("best",nil,1,8) then ui.debug("Casting Firestorm [ST]") return true end
     end
     -- Living Flame
     -- living_flame,if=buff.burnout.up&buff.essence_burst.stack<buff.essence_burst.max_stack&essence<essence.max-1
-    if cast.able.livingFlame(units.dyn25) and var.moveCast and buff.burnout.exists() and buff.essenceBurst.stack() < 1
-        and essence < essenceMax - var.essenceBurstMaxStacks and cast.timeSinceLast.livingFlame() > cast.time.livingFlame() + unit.gcd(true)
+    if cast.able.livingFlame(units.dyn25) and buff.burnout.exists() and buff.essenceBurst.stack() < 1
+        and essence < essenceMax - var.essenceBurstMaxStacks
     then
         if cast.livingFlame(units.dyn25) then ui.debug("Casting Living Flame [Burnout - ST]") return true end
     end
@@ -862,7 +868,7 @@ local function runRotation()
         --- In Combat - Rotations ---
         -----------------------------
         -- Check for combat
-        if (unit.inCombat() or (not unit.inCombat() and unit.valid("target"))) and (cd.global.remain() == 0 or var.fireBreathStage > 0 or var.eternitySurgeStage > 0) then
+        if --[[(]]unit.inCombat() --[[or (not unit.inCombat() and unit.valid("target")))]] and (cd.global.remain() == 0 or var.fireBreathStage > 0 or var.eternitySurgeStage > 0) then
             if unit.exists(units.dyn40) and unit.distance(units.dyn40) < 40 then
                 -----------------
                 --- Interrupt ---

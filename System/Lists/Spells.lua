@@ -1335,6 +1335,7 @@ br.lists.spells = {
                 hover                       = 358267,
                 livingFlame                 = 361469,
                 quell                       = 351338,
+                renewingBlaze               = 374348,
                 returnEvoker                = 361227,
                 tailSwipe                   = 368970,
                 wingBuffet                  = 357214,
