@@ -238,9 +238,10 @@ Raidable means if its good to raid with.
 
 - Protection
 
-|rotation|author| patch |coverage|status |  readiness  |last updated|
-|--------|------|:-----:|:------:|:-----:|:-----------:|-----------:|
-|Feng    |Helix |Unknown|Unknown |Unknown|:interrobang:|  04/26/2021|
+|rotation |author| patch |coverage|status |  readiness  |last updated|
+|---------|------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|RodecProt|Rodec |10.0.2 |  90%   | Full  |:interrobang:|  12/26/2022|
+|Feng     |Helix |Unknown|Unknown |Unknown|:interrobang:|  04/26/2021|
 
 - Retribution
 
