@@ -980,7 +980,7 @@ local function runRotation()
 		end
 		-- Blessed Hammer
 		if mode.blessedHammer == 1 then
-			if cd.blessedHammer.ready() and talent.blessedHammer and charges.blessedHammer.frac() == 3 and holyPower < 5 then
+			if cd.blessedHammer.ready() and talent.blessedHammer and charges.blessedHammer.frac() == 3 and holyPower < 5 and (inInstance or inRaid)  then
 				if cast.blessedHammer() then return true end
 			end
 		end
