@@ -978,9 +978,6 @@ local function runRotation()
 				end
 			end
 		end
-		if talent.bastionOfLight then
-			if cast.bastionOfLight() then return true end
-		end
 		-- Blessed Hammer
 		if mode.blessedHammer == 1 then
 			if cd.blessedHammer.ready() and talent.blessedHammer and charges.blessedHammer.frac() == 3 and holyPower < 5 then
