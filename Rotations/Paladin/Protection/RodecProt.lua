@@ -639,59 +639,59 @@ local function runRotation()
 					end
 				end
 			end
-			-- Intersession
-			if br.isChecked("Intersession") and not moving then
+			-- Intercession
+			if br.isChecked("Intercession") and holyPower <= 3 then
 				if
-					br.getOptionValue("Intersession") == 1 and -- Target
+					br.getOptionValue("Intercession") == 1 and -- Target
 						br._G.UnitIsPlayer("target") and
 						br.GetUnitIsDeadOrGhost("target") and
 						br.GetUnitIsFriend("target", "player")
 				 then
-					if cast.intersession("target", "dead") then
-						br.addonDebug("Casting Intersession")
+					if cast.intercession("target", "dead") then
+						br.addonDebug("Casting Intercession")
 						return true
 					end
 				end
 				if
-					br.getOptionValue("Intersession") == 2 and -- Mouseover
+					br.getOptionValue("Intercession") == 2 and -- Mouseover
 						br._G.UnitIsPlayer("mouseover") and
 						br.GetUnitIsDeadOrGhost("mouseover") and
 						br.GetUnitIsFriend("mouseover", "player")
 				 then
-					if cast.intersession("mouseover", "dead") then
-						br.addonDebug("Casting Intersession")
+					if cast.intercession("mouseover", "dead") then
+						br.addonDebug("Casting Intercession")
 						return true
 					end
 				end
-				if br.getOptionValue("Intersession") == 3 then -- Tank
+				if br.getOptionValue("Intercession") == 3 then -- Tank
 					for i = 1, #tanks do
 						if
 							br._G.UnitIsPlayer(tanks[i].unit) and br.GetUnitIsDeadOrGhost(tanks[i].unit) and
 								br.GetUnitIsFriend(tanks[i].unit, "player") and
 								br.getDistance(tanks[i].unit) <= 40
 						 then
-							if cast.intersession(tanks[i].unit, "dead") then
-								br.addonDebug("Casting Intersession")
+							if cast.intercession(tanks[i].unit, "dead") then
+								br.addonDebug("Casting Intercession")
 								return true
 							end
 						end
 					end
 				end
-				if br.getOptionValue("Intersession") == 4 then -- Healer
+				if br.getOptionValue("Intercession") == 4 then -- Healer
 					for i = 1, #br.friend do
 						if
 							br._G.UnitIsPlayer(br.friend[i].unit) and br.GetUnitIsDeadOrGhost(br.friend[i].unit) and
 								br.GetUnitIsFriend(br.friend[i].unit, "player") and
 								(br._G.UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" or br.friend[i].role == "HEALER")
 						 then
-							if cast.intersession(br.friend[i].unit, "dead") then
-								br.addonDebug("Casting Intersession")
+							if cast.intercession(br.friend[i].unit, "dead") then
+								br.addonDebug("Casting Intercession")
 								return true
 							end
 						end
 					end
 				end
-				if br.getOptionValue("Intersession") == 5 then -- Tank/Healer
+				if br.getOptionValue("Intercession") == 5 then -- Tank/Healer
 					for i = 1, #br.friend do
 						if
 							br._G.UnitIsPlayer(br.friend[i].unit) and br.GetUnitIsDeadOrGhost(br.friend[i].unit) and
@@ -700,21 +700,21 @@ local function runRotation()
 									br.friend[i].role == "TANK" or
 									br._G.UnitGroupRolesAssigned(br.friend[i].unit) == "TANK")
 						 then
-							if cast.intersession(br.friend[i].unit, "dead") then
-								br.addonDebug("Casting Intersession")
+							if cast.intercession(br.friend[i].unit, "dead") then
+								br.addonDebug("Casting Intercession")
 								return true
 							end
 						end
 					end
 				end
-				if br.getOptionValue("Intersession") == 6 then -- Any
+				if br.getOptionValue("Intercession") == 6 then -- Any
 					for i = 1, #br.friend do
 						if
 							br._G.UnitIsPlayer(br.friend[i].unit) and br.GetUnitIsDeadOrGhost(br.friend[i].unit) and
 								br.GetUnitIsFriend(br.friend[i].unit, "player")
 						 then
-							if cast.intersession(br.friend[i].unit, "dead") then
-								br.addonDebug("Casting Intersession")
+							if cast.intercession(br.friend[i].unit, "dead") then
+								br.addonDebug("Casting Intercession")
 								return true
 							end
 						end
