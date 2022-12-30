@@ -240,7 +240,7 @@ Raidable means if its good to raid with.
 
 |rotation |author| patch |coverage|status |  readiness  |last updated|
 |---------|------|:-----:|:------:|:-----:|:-----------:|-----------:|
-|RodecProt|Rodec |10.0.2 |  90%   | Full  |:interrobang:|  12/29/2022|
+|RodecProt|Rodec |10.0.2 |  90%   | Full  |:interrobang:|  12/30/2022|
 |Feng     |Helix |Unknown|Unknown |Unknown|:interrobang:|  04/26/2021|
 
 - Retribution
