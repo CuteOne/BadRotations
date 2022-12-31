@@ -1289,15 +1289,21 @@ br.lists.spells = {
 
             },
         },
-        -- Preservasion
+        -- Preservation
         [1468] = {
             abilities                       = {
+                echo                        = 364343,
+                naturalize                  = 360823,
+                reversion                   = 366155,
+                rewind                      = 363534,
 
             },
             artifacts                       = {
 
             },
             buffs                           = {
+                echo                        = 364343,
+                essenceBurst                = 369297,
 
             },
             conduits                        = {
@@ -1316,6 +1322,8 @@ br.lists.spells = {
 
             },
             talents                         = {
+                dreamBreath                 = 355936,
+                spiritbloom                 = 367226,
 
             },
             traits                          = {
