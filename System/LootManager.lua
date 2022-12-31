@@ -12,7 +12,8 @@ function br.SellGreys()
 			if item then
 				-- Is it grey quality item?
 				if string.find(item, br.qualityColors.grey) ~= nil then
-					local greyPrice = select(11, br._G.GetItemInfo(item)) * select(2, br._G.C_Container.GetContainerItemInfo(bag, slot))
+					local containerItemInfo = br._G.C_Container.GetContainerItemInfo(bag, slot)
+					local greyPrice = select(11, br._G.GetItemInfo(item)) * containerItemInfo.stackCount
 					if greyPrice > 0 then
 						br._G.C_Container.PickupContainerItem(bag, slot)
 						br._G.PickupMerchantItem()
@@ -39,7 +40,8 @@ function br.DumpGreys(Num)
 			if item then
 				-- Is it grey quality item?
 				if string.find(item, br.qualityColors.grey) ~= nil then
-					local greyPrice = select(11, br._G.GetItemInfo(item)) * select(2, br._G.C_Container.GetContainerItemInfo(bag, slot))
+					local containerItemInfo = br._G.C_Container.GetContainerItemInfo(bag, slot)
+					local greyPrice = select(11, br._G.GetItemInfo(item)) * containerItemInfo.stackCount
 					if greyPrice > 0 then
 						br._G.tinsert(greyTable, {Bag = bag, Slot = slot, Price = greyPrice, Item = item})
 					end
