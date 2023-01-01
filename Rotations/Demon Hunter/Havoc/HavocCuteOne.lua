@@ -136,6 +136,9 @@ local function createOptions()
             br.ui:createSpinner(section, "Chaos Nova - AoE", 3, 1, 10, 1, "|cffFFBB00Number of Targets to use at.")
             -- Consume Magic
             br.ui:createCheckbox(section, "Consume Magic")
+            -- Sigil of Misery
+            br.ui:createSpinner(section, "Sigil of Misery - HP",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
+            br.ui:createSpinner(section, "Sigil of Misery - AoE", 3, 0, 10, 1, "|cffFFFFFFNumber of Units in 8 Yards to Cast At")
         br.ui:checkSectionState(section)
         -- Interrupt Options
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
@@ -145,6 +148,8 @@ local function createOptions()
             br.ui:createCheckbox(section, "Disrupt")
             -- Fel Eruption
             br.ui:createCheckbox(section, "Fel Eruption")
+            -- Sigil of Misery
+            br.ui:createCheckbox(section, "Sigil of Misery")
             -- Interrupt Percentage
             br.ui:createSpinnerWithout(section, "Interrupt At",  0,  0,  95,  5,  "|cffFFFFFFCast Percent to Cast At")
         br.ui:checkSectionState(section)
@@ -290,6 +295,7 @@ actionList.Defensive = function()
         then
             if cast.chaosNova() then ui.debug("Casting Chaos Nova [AoE]") return true end
         end
+        -- Consume Magic
 		if ui.checked("Consume Magic") then
             for i=1, #enemies.yards30 do
                 local thisUnit = enemies.yards30[i]
@@ -299,6 +305,17 @@ actionList.Defensive = function()
                     if cast.consumeMagic(thisUnit) then ui.debug("Casting Consume Magic") return true end
                 end
             end
+        end
+        -- Sigil of Misery
+        if ui.checked("Sigil of Misery - HP") and cast.able.sigilOfMisery()
+            and unit.hp() <= ui.value("Sigil of Misery - HP") and unit.inCombat() and #enemies.yards8 > 0
+        then
+            if cast.sigilOfMisery("player","ground") then ui.debug("Casting Sigil of Misery [HP]") return true end
+        end
+        if ui.checked("Sigil of Misery - AoE") and cast.able.sigilOfMisery()
+            and #enemies.yards8 >= ui.value("Sigil of Misery - AoE") and unit.inCombat()
+        then
+            if cast.sigilOfMisery("best",false,ui.value("Sigil of Misery - AoE"),8) then ui.debug("Casting Sigil of Misery [AOE]") return true end
         end
     end -- End Defensive Toggle
 end -- End Action List - Defensive
@@ -331,6 +348,15 @@ actionList.Interrupts = function()
                 if br.canInterrupt(thisUnit,ui.value("InterruptAt")) and cast.able.chaosNova(thisUnit) then
                     if cast.chaosNova(thisUnit) then ui.debug("Casting Chaos Nova [Int]") return true end
                 end
+            end
+        end
+        -- Sigil of Misery
+        for i=1, #enemies.yards30 do
+            local thisUnit = enemies.yards30[i]
+            if ui.checked("Sigil of Misery") and cast.able.sigilOfMisery(thisUnit)
+                and cd.disrupt.remain() > 0 and cd.sigilOfSilence.remain() > 0 and cd.sigilOfSilence.remain() < 45
+            then
+                if cast.sigilOfMisery(thisUnit,"ground",1,8) then ui.debug("Casting Sigil of Misery [Interrupt]") return true end
             end
         end
     end -- End useInterrupts check
