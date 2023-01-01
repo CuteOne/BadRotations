@@ -1237,7 +1237,6 @@ br.lists.spells = {
         [1467] = {
             abilities                       = {
                 eternitySurge               = 382411,
-                fireBreath                  = 382266,
                 -- pyre                        = 357211,
                 -- shatteringStar              = 370452,
 
@@ -1304,6 +1303,7 @@ br.lists.spells = {
             buffs                           = {
                 echo                        = 364343,
                 essenceBurst                = 369297,
+                reversion                   = 366155,
 
             },
             conduits                        = {
@@ -1339,6 +1339,7 @@ br.lists.spells = {
                 deepBreath                  = 357210,
                 disintegrate                = 356995,
                 emeraldBlossom              = 355913,
+                fireBreath                  = 382266,
                 furyOfTheAspects            = 390386,
                 hover                       = 358267,
                 livingFlame                 = 361469,

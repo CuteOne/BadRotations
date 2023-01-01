@@ -147,7 +147,7 @@ local function createOptions()
     local function rotationOptions()
         local section
         -- General Options
-        section = br.ui:createSection(br.ui.window.profile, "General - Version 0.0.1")
+        section = br.ui:createSection(br.ui.window.profile, "General - Version 0.0.2")
         br.ui:createCheckbox(section, "OOC Healing",
             "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFout of combat healing|cffFFBB00.", 1)
         -- Pre-Pull Timer
@@ -442,7 +442,7 @@ local function runRotation()
             end
             if br.getOptionValue("Return") == 2 and br._G.UnitIsPlayer("mouseover") and
                 br.GetUnitIsDeadOrGhost("mouseover") and br.GetUnitIsFriend("mouseover", "player") then
-                if cast.Return("mouseover", "dead") then
+                if cast.returnEvoker("mouseover", "dead") then
                     br.addonDebug("Casting Return")
                     return true
                 end
@@ -738,21 +738,21 @@ local function runRotation()
         -- Reversion
         if br.isChecked("Reversion") and charges.reversion.count() > 0 then
             if br.getOptionValue("Reversion Target") == 1 then
-                if php <= br.getValue("Reversion") then
+                if php <= br.getValue("Reversion") and not buff.reversion.exists("player") then
                     if cast.reversion("player") then
                         br.addonDebug("Casting Reversion")
                         return true
                     end
                 end
             elseif br.getOptionValue("Reversion Target") == 2 then
-                if br.getHP("target") <= br.getValue("Reversion") then
+                if br.getHP("target") <= br.getValue("Reversion") and not buff.reversion.exists("target") then
                     if cast.reversion("target") then
                         br.addonDebug("Casting Reversion")
                         return true
                     end
                 end
             elseif br.getOptionValue("Reversion Target") == 3 then
-                if br.getHP("mouseover") <= br.getValue("Reversion") then
+                if br.getHP("mouseover") <= br.getValue("Reversion") and not buff.reversion.exists("mouseover") then
                     if cast.reversion("mouseover") then
                         br.addonDebug("Casting Reversion")
                         return true
@@ -760,7 +760,7 @@ local function runRotation()
                 end
             elseif br.getOptionValue("Reversion Target") == 4 then
                 for i = 1, #tanks do
-                    if tanks[i].hp <= br.getValue("Reversion") and br.getDistance(tanks[i].unit) <= 40 then
+                    if tanks[i].hp <= br.getValue("Reversion") and br.getDistance(tanks[i].unit) <= 40 and not buff.reversion.exists(tanks[i].unit) then
                         if cast.reversion(tanks[i].unit) then
                             br.addonDebug("Casting Reversion")
                             return true
@@ -770,7 +770,7 @@ local function runRotation()
             elseif br.getOptionValue("Reversion Target") == 5 then
                 for i = 1, #br.friend do
                     if br.friend[i].hp <= br.getValue("Reversion") and br._G.UnitGroupRolesAssigned(br.friend[i].unit) ==
-                        "HEALER" then
+                        "HEALER" and not buff.reversion.exists(br.friend[i].unit) then
                         if cast.reversion(br.friend[i].unit) then
                             br.addonDebug("Casting Reversion")
                             return true
@@ -781,7 +781,7 @@ local function runRotation()
                 for i = 1, #br.friend do
                     if br.friend[i].hp <= br.getValue("Reversion") and
                         (br._G.UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" or br.friend[i].role == "HEALER" or
-                            br.friend[i].role == "TANK" or br._G.UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") then
+                            br.friend[i].role == "TANK" or br._G.UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and not buff.reversion.exists(br.friend[i].unit) then
                         if cast.reversion(br.friend[i].unit) then
                             br.addonDebug("Casting Reversion")
                             return true
@@ -789,7 +789,7 @@ local function runRotation()
                     end
                 end
             elseif br.getOptionValue("Reversion Target") == 7 then
-                if lowest.hp <= br.getValue("Reversion") then
+                if lowest.hp <= br.getValue("Reversion") and not buff.reversion.exists(lowest.unit) then
                     if cast.reversion(lowest.unit) then
                         br.addonDebug("Casting Reversion")
                         return true
@@ -841,6 +841,13 @@ local function runRotation()
 
     -- Action List - DPS
     local function actionList_DPS() 
+        if cd.fireBreath.remain() <= gcdMax and not moving and br.getEnemiesInCone(45,25) > 0 then
+            if cast.fireBreath() then
+                br.addonDebug("Casting Fire Breath")
+                empoweredLevel = 1
+                return true
+            end
+        end
         if (br.getEssence("player") >= 3 or buff.essenceBurst.exists("player")) and not moving then
             if cast.disintegrate() then
                 br.addonDebug("Casting Disintegrate")
@@ -853,9 +860,11 @@ local function runRotation()
                 return true
             end
         end
-        if cast.azureStrike() then
-            br.addonDebug("Casting Azure Strike")
-            return true
+        if moving then 
+            if cast.azureStrike() then
+                br.addonDebug("Casting Azure Strike")
+                return true
+            end
         end
     end -- End Action List - DPS
 
