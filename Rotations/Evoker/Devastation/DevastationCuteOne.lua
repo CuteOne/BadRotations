@@ -263,6 +263,20 @@ custom.stageLimit = function(empowerSpell, requestedStage)
     return requestedStage
 end
 
+
+custom.getDeepBreathLocation = function(minUnits)
+    for i = 21, 50 do
+        local enemies = #br.player.enemies.rect.get(6,i,false)
+        if enemies > 0 then
+            local playerX, playerY, playerZ = br.GetObjectPosition("player")
+            local playerFacing = br.GetObjectFacing("player")
+            local x = playerX + (i * math.cos(playerFacing))
+            local y = playerY + (i * math.sin(playerFacing))
+            return x, y, playerZ
+        end
+    end
+end
+
 --------------------
 --- Action Lists ---
 --------------------
@@ -456,21 +470,21 @@ actionList.AoE = function()
     end
     -- Fire Breath
     -- fire_breath,empower_to=1,if=cooldown.dragonrage.remains>10&spell_targets.pyre>=7
-    if cast.able.fireBreath("player","rect",1,25) and not unit.moving() and not cast.current.fireBreath() then
+    if cast.able.fireBreath("player","cone",1,25) and not unit.moving() and not cast.current.fireBreath() then
         if (cd.dragonrage.remains() > 10 or not ui.alwaysCdAoENever("Dragonrage",1,25)) and #enemies.yards8t >= 7 then
-            if cast.fireBreath("player","rect",1,25) then var.stageFireBreath = custom.stageLimit("FB",1) ui.debug("Empowering Fire Breath to Stage "..var.stageFireBreath.." [7+ AOE]") return true end
+            if cast.fireBreath("player","cone",1,25) then var.stageFireBreath = custom.stageLimit("FB",1) ui.debug("Empowering Fire Breath to Stage "..var.stageFireBreath.." [7+ AOE]") return true end
         end
         -- fire_breath,empower_to=2,if=cooldown.dragonrage.remains>10&spell_targets.pyre>=6
         if (cd.dragonrage.remains() > 10 or not ui.alwaysCdAoENever("Dragonrage",1,25)) and #enemies.yards8t >= 6 then
-            if cast.fireBreath("player","rect",1,25) then var.stageFireBreath = custom.stageLimit("FB",2) ui.debug("Empowering Fire Breath to Stage "..var.stageFireBreath.." [6+ AOE]") return true end
+            if cast.fireBreath("player","cone",1,25) then var.stageFireBreath = custom.stageLimit("FB",2) ui.debug("Empowering Fire Breath to Stage "..var.stageFireBreath.." [6+ AOE]") return true end
         end
         -- fire_breath,empower_to=3,if=cooldown.dragonrage.remains>10&spell_targets.pyre>=4
         if (cd.dragonrage.remains() > 10 or not ui.alwaysCdAoENever("Dragonrage",1,25)) and #enemies.yards8t >= 4 then
-            if cast.fireBreath("player","rect",1,25) then var.stageFireBreath = custom.stageLimit("FB",3) ui.debug("Empowering Fire Breath to Stage "..var.stageFireBreath.." [4+ AOE]") return true end
+            if cast.fireBreath("player","cone",1,25) then var.stageFireBreath = custom.stageLimit("FB",3) ui.debug("Empowering Fire Breath to Stage "..var.stageFireBreath.." [4+ AOE]") return true end
         end
         -- fire_breath,empower_to=2,if=cooldown.dragonrage.remains>10
         if (cd.dragonrage.remains() > 10 or not ui.alwaysCdAoENever("Dragonrage",1,25)) then
-            if cast.fireBreath("player","rect",1,25) then var.stageFireBreath = custom.stageLimit("FB",2) ui.debug("Empowering Fire Breath to Stage "..var.stageFireBreath.." [AOE]") return true end
+            if cast.fireBreath("player","cone",1,25) then var.stageFireBreath = custom.stageLimit("FB",2) ui.debug("Empowering Fire Breath to Stage "..var.stageFireBreath.." [AOE]") return true end
         end
     end
     -- Call Action List - ES
@@ -485,8 +499,10 @@ actionList.AoE = function()
     end
     -- Deep Breath
     -- deep_breath,if=!buff.dragonrage.up
-    if ui.alwaysCdAoENever("Deep Breath",1,40) and cast.able.deepBreath("best","rect",1,6) and not buff.dragonrage.exists() then
-        if cast.deepBreath("best","rect",1,6) then ui.debug("Casting Deep Breath [AOE]") return true end
+    if ui.alwaysCdAoENever("Deep Breath",1,50) and cast.able.deepBreath("groundLocation",var.deepBreathX,var.deepBreathY,6)
+        and #enemies.yards50r > 0 and not buff.dragonrage.exists()
+    then
+        if cast.deepBreath("groundLocation",var.deepBreathX,var.deepBreathY,6) then ui.debug("Casting Deep Breath [AOE]") return true end
     end
     -- Firestorm
     -- firestorm
@@ -507,8 +523,8 @@ actionList.AoE = function()
     end
     -- Pyre
     -- pyre,if=talent.volatility
-    if cast.able.pyre(units.dyn25,"AOE",1,8) and talent.volatility then
-        if cast.pyre(units.dyn25,"AOE",1,8) then ui.debug("Casting Pyre [Volatility - AOE]") return true end
+    if cast.able.pyre(units.dyn25,"aoe",1,8) and talent.volatility then
+        if cast.pyre(units.dyn25,"aoe",1,8) then ui.debug("Casting Pyre [Volatility - AOE]") return true end
     end
     -- Living Flame
     -- living_flame,if=buff.burnout.up&buff.leaping_flames.up&!buff.essence_burst.up
@@ -520,12 +536,12 @@ actionList.AoE = function()
     -- Pyre
     -- pyre,if=cooldown.dragonrage.remains>=10&spell_targets.pyre>=4
     -- pyre,if=cooldown.dragonrage.remains>=10&spell_targets.pyre=3&buff.charged_blast.stack>=10
-    if cast.able.pyre(units.dyn25,"AOE",1,8) and var.moveCast and (cd.dragonrage.remains() >= 10 or not ui.alwaysCdAoENever("Dragonrage",1,25)) then
+    if cast.able.pyre(units.dyn25,"aoe",1,8) and var.moveCast and (cd.dragonrage.remains() >= 10 or not ui.alwaysCdAoENever("Dragonrage",1,25)) then
         if #enemies.yards8t >= 4 then
-            if cast.pyre(units.dyn25,"AOE",1,8) then ui.debug("Casting Pyre [4+ Targets - AOE]") return true end
+            if cast.pyre(units.dyn25,"aoe",1,8) then ui.debug("Casting Pyre [4+ Targets - AOE]") return true end
         end
         if #enemies.yards8t == 3 and buff.chargedBlast.stack() >= 10 then
-            if cast.pyre(units.dyn25,"AOE",1,8) then ui.debug("Casting Pyre [3 Targets - AOE]") return true end
+            if cast.pyre(units.dyn25,"aoe",1,8) then ui.debug("Casting Pyre [3 Targets - AOE]") return true end
         end
     end
     -- Disintegrate
@@ -541,6 +557,7 @@ actionList.AoE = function()
     if cast.able.livingFlame(units.dyn25) and talent.snapfire and buff.burnout.exists() then
         if cast.livingFlame(units.dyn52) then ui.debug("Casting Living Flame [Snapfire - AOE]") return true end
     end
+    -- Azure Strike
     -- azure_strike
     if cast.able.azureStrike(units.dyn25) then
         if cast.azureStrike(units.dyn25) then ui.debug("Casting Azure Strike [AOE]") return true end
@@ -577,28 +594,27 @@ end -- End Action List - ES
 -- Action List - FB
 actionList.FB = function()
     -- Fire Breath
-    if cast.able.fireBreath("player","rect",1,25) and not cast.current.fireBreath() then
+    if cast.able.fireBreath("player","cone",1,25) and not cast.current.fireBreath() then
         -- fire_breath,empower_to=1,if=(20+2*talent.blast_furnace.rank)+dot.fire_breath_damage.remains<(20+2*talent.blast_furnace.rank)*1.3|buff.dragonrage.remains<1.75*spell_haste&buff.dragonrage.remains>=1*spell_haste|active_enemies<=2
         if (20 + 2 * talent.rank.blastFurnace) + debuff.fireBreath.remains(units.dyn25) < (20 + 2 * talent.rank.blastFurnace) * 1.3
             or buff.dragonrage.remains() < 1.75 * var.spellHaste and buff.dragonrage.remains() >= 1 * var.spellHaste or #enemies.yards25f <= 2
         then
-            -- if custom.castFireBreath(1,"FB") then return true end
-            if cast.fireBreath("player","rect",1,25) then var.stageFireBreath = custom.stageLimit("FB",1) ui.debug("Empowering Fire Breath to Stage "..var.stageFireBreath.." [FB]") return true end
+            if cast.fireBreath("player","cone",1,25) then var.stageFireBreath = custom.stageLimit("FB",1) ui.debug("Empowering Fire Breath to Stage "..var.stageFireBreath.." [FB]") return true end
         end
         -- fire_breath,empower_to=2,if=(14+2*talent.blast_furnace.rank)+dot.fire_breath_damage.remains<(20+2*talent.blast_furnace.rank)*1.3|buff.dragonrage.remains<2.5*spell_haste&buff.dragonrage.remains>=1.75*spell_haste
         if (14 + 2 * talent.rank.blastFurnace) + debuff.fireBreath.remains(units.dyn25) < (20 + 2 * talent.rank.blastFurnace) * 1.3
         or buff.dragonrage.remains() < 2.5 * var.spellHaste and buff.dragonrage.remains() >= 1.75 * var.spellHaste
         then
-            if cast.fireBreath("player","rect",1,25) then var.stageFireBreath = custom.stageLimit("FB",2) ui.debug("Empowering Fire Breath to Stage "..var.stageFireBreath.." [FB]") return true end
+            if cast.fireBreath("player","cone",1,25) then var.stageFireBreath = custom.stageLimit("FB",2) ui.debug("Empowering Fire Breath to Stage "..var.stageFireBreath.." [FB]") return true end
         end
         -- fire_breath,empower_to=3,if=(8+2*talent.blast_furnace.rank)+dot.fire_breath_damage.remains<(20+2*talent.blast_furnace.rank)*1.3|!talent.font_of_magic|buff.dragonrage.remains<=3.25*spell_haste&buff.dragonrage.remains>=2.5*spell_haste
         if (8 + 2 * talent.rank.blastFurnace) + debuff.fireBreath.remains(units.dyn25) < (20 + 2 * talent.rank.blastFurnace) * 1.3 or not talent.fontOfMagic
         or buff.dragonrage.remains() < 3.25 * var.spellHaste and buff.dragonrage.remains() >= 2.5 * var.spellHaste
         then
-            if cast.fireBreath("player","rect",1,25) then var.stageFireBreath = custom.stageLimit("FB",3) ui.debug("Empowering Fire Breath to Stage "..var.stageFireBreath.." [FB]") return true end
+            if cast.fireBreath("player","cone",1,25) then var.stageFireBreath = custom.stageLimit("FB",3) ui.debug("Empowering Fire Breath to Stage "..var.stageFireBreath.." [FB]") return true end
         end
         -- fire_breath,empower_to=4
-        if cast.fireBreath("player","rect",1,25) then var.stageFireBreath = custom.stageLimit("FB",4) ui.debug("Empowering Fire Breath to Stage "..var.stageFireBreath.." [FB]") return true end
+        if cast.fireBreath("player","cone",1,25) then var.stageFireBreath = custom.stageLimit("FB",4) ui.debug("Empowering Fire Breath to Stage "..var.stageFireBreath.." [FB]") return true end
     end
 end -- End Action List - FB
 
@@ -703,8 +719,8 @@ actionList.ST = function()
     end
     -- Deep Breath
     -- deep_breath,if=!buff.dragonrage.up&spell_targets.deep_breath>1
-    if ui.alwaysCdAoENever("Deep Breath",2,40) and cast.able.deepBreath("best","rect",2,6) and not buff.dragonrage.exists() and #enemies.yards40r > 1 then
-        if cast.deepBreath("best","rect",2,6) then ui.debug("Casting Deep Breath [ST]") return true end
+    if ui.alwaysCdAoENever("Deep Breath",2,50) and cast.able.deepBreath("groundLocation",var.deepBreathX,var.deepBreathY,6) and not buff.dragonrage.exists() and #enemies.yards50r > 1 then
+        if cast.deepBreath("groundLocation",var.deepBreathX,var.deepBreathY,6) then ui.debug("Casting Deep Breath [ST]") return true end
     end
     -- Item - Kharnalex The First Light
     -- use_item,name=kharnalex_the_first_light,if=!buff.dragonrage.up&debuff.shattering_star_debuff.down
@@ -770,14 +786,17 @@ local function runRotation()
     essence = power.essence.amount()
     essenceMax = power.essence.max()
 
+    -- Deep Breath Cast Location
+    var.deepBreathX, var.deepBreathY, var.deepBreathZ = custom.getDeepBreathLocation(2)
+
     -- Fire Breath Stage
     if var.stageFireBreath == nil then var.stageFireBreath = 0 end
     if var.fireBreathStage == nil or br.empowerID ~= spell.fireBreath then var.fireBreathStage = 0; end
     if cast.empowered.fireBreath() > 0 then
         var.fireBreathStage = cast.empowered.fireBreath()
     end
-
     if var.pauseForFbCd == nil then var.pauseForFbCd = false end
+
     -- Eternity Surge Stage
     if var.stageEternitySurge == nil then var.stageEternitySurge = 0 end
     if var.eternitySurgeStage == nil or br.empowerID ~= spell.eternitySurge then var.eternitySurgeStage = 0; end
@@ -799,7 +818,7 @@ local function runRotation()
     enemies.get(25)
     enemies.get(25,"player",false,true)
     enemies.rect.get(8,15,false)
-    enemies.rect.get(6,40,false)
+    enemies.rect.get(6,50,false)
 
     -- Cancel if casting with no enemies
     if #enemies.yards25f == 0 then
