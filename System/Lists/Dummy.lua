@@ -169,5 +169,17 @@ br.lists.dummies = {
 	[154586] = "Stalward Phalanx", 			  -- Elysian Hold
 	[154564] = "Valiant's Humility", 		  -- Elysian Hold
 	[154567] = "Purity's Cleansing", 		  -- Elysian Hold
-	[160325] = "Humility's Obedience" 		  -- Elysian Hold
+	[160325] = "Humility's Obedience", 		  -- Elysian Hold
+-- Dragonflight
+	[194648] = "Training Dummy", 			  -- Valdrakken
+	[194645] = "Training Dummy", 			  -- Valdrakken (Healing)
+	[194649] = "Normal Tank Dummy",			  -- Valdrakken
+	[198594] = "Cleave Training Dummy",	      -- Valdrakken
+	[197833] = "PvP Training Dummy",		  -- Valdrakken
+	[197834] = "PvP Training Dummy", 		  -- Valdrakken (Healing)
+	[194646] = "Cleave Training Dummy",	      -- Valdrakken (Healing)
+	[194643] = "Dungeoneer's Training Dummy", -- Valdrakken
+	[194644] = "Dungeoneer's Training Dummy", -- Valdrakken (Tanking)
+	[189632] = "Animated Duelist", 			  -- Valdrakken (Raider's Training Dummy)
+	[189617] = "Boulderfist", 			      -- Valdrakken (Raider's Tanking Dummy)
 }

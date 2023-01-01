@@ -236,6 +236,8 @@ end
 function br.hasThreat(unit, playerUnit)
 	-- Early Exit
 	if unit == nil then return false end
+	-- Dummy Validation
+	if br.isDummy(unit) and br.getDistance("target", unit) < 8 then return true end
 	-- Damaged Validation
 	if br.damaged[br._G.ObjectPointer(unit)] ~= nil then
 		if br.isChecked("Cast Debug") then--and not br.GetUnitExists("target") then

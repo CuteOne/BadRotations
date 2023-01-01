@@ -585,7 +585,7 @@ function br.isValidUnit(Unit)
 	if playerTarget and br.units[br._G.UnitTarget("player")] == nil and not br.enemyListCheck("target") then
 		return false
 	end
-	if not br.pause(true) and Unit ~= nil and (br.units[Unit] ~= nil or Unit == "target" or burnUnit) and mcCheck
+	if not br.pause(true) and Unit ~= nil and (br.units[Unit] ~= nil or Unit == "target" or burnUnit or dummy) and mcCheck
 		and not isCC and (dummy or burnUnit or (not br._G.UnitIsTapDenied(Unit) and br.isSafeToAttack(Unit)
 		and ((hostileOnly and reaction < 4) or (not hostileOnly and reaction < 5) or playerTarget or targeting)))
 	then
