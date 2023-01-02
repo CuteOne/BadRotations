@@ -527,7 +527,7 @@ local function runRotation()
 
     -- Blade Dance Variable
     -- variable,name=blade_dance,value=talent.first_blood|talent.trail_of_ruin|talent.chaos_theory&buff.chaos_theory.down|spell_targets.blade_dance1>1
-    var.bladeDance = talent.firstBlood or talent.trailOfRuin or (talent.chaosTheory and not buff.chaosTheory.exists()) or #enemies.yarsd8 >= 1
+    var.bladeDance = talent.firstBlood or talent.trailOfRuin or (talent.chaosTheory and not buff.chaosTheory.exists()) or #enemies.yards8 >= 1
 
     -- Pool for Blade Dance Variable
     -- variable,name=pooling_for_blade_dance,value=variable.blade_dance&fury<(75-talent.demon_blades*20)&cooldown.blade_dance.remains<gcd.max
