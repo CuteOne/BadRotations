@@ -449,7 +449,9 @@ actionList.PreCombat = function()
             -- Start Attack
             -- auto_attack
             if unit.distance("target") < 5 then
-                br._G.StartAttack()
+                if cast.able.autoAttack("target") then
+                    if cast.autoAttack("target") then ui.debug("Casting Auto Attack [Pre-Pull]") return true end
+                end
             end
         end
     end -- End No Combat
@@ -545,16 +547,16 @@ local function runRotation()
     -- if IsHackEnabled("NoKnockback") then
     --     SetHackEnabled("NoKnockback", false)
     -- end
-    -- Fel Rush Special
-    if unit.inCombat() and ui.mode.mover ~= 3 and ui.checked("Auto Fel Rush After Retreat") and cast.able.felRush()
-        and (buff.prepared.exists() or cast.timeSinceLast.vengefulRetreat() < unit.gcd(true) * 2) and not buff.momentum.exists() and charges.felRush.count() > ui.value("Hold Fel Rush Charge")
-    then
-        --[[if ui.mode.mover == 1 and unit.distance("target") < 8 then
-            cancelRushAnimation("Casting Fel Rush [Special]")
-        else]]if not ui.checked("Fel Rush Only In Melee") and (ui.mode.mover == 2 or (unit.distance("target") >= 8 and ui.mode.mover ~= 3)) then
-            if cast.felRush() then ui.debug("Casting Fel Rush [Special]") return true end
-        end
-    end
+    -- -- Fel Rush Special
+    -- if unit.inCombat() and ui.mode.mover ~= 3 and ui.checked("Auto Fel Rush After Retreat") and cast.able.felRush()
+    --     and (buff.prepared.exists() or cast.timeSinceLast.vengefulRetreat() < unit.gcd(true) * 2) and not buff.momentum.exists() and charges.felRush.count() > ui.value("Hold Fel Rush Charge")
+    -- then
+    --     --[[if ui.mode.mover == 1 and unit.distance("target") < 8 then
+    --         cancelRushAnimation("Casting Fel Rush [Special]")
+    --     else]]if not ui.checked("Fel Rush Only In Melee") and (ui.mode.mover == 2 or (unit.distance("target") >= 8 and ui.mode.mover ~= 3)) then
+    --         if cast.felRush() then ui.debug("Casting Fel Rush [Special]") return true end
+    --     end
+    -- end
 
     ---------------------
     --- Begin Profile ---
@@ -591,7 +593,9 @@ local function runRotation()
             if ui.value("APL Mode") == 1 then
                 -- Start Attack
                 if unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
-                    br._G.StartAttack()
+                    if cast.able.autoAttack("target") then
+                        if cast.autoAttack("target") then ui.debug("Casting Auto Attack") return true end
+                    end
                 end
                 -- Cooldowns
                 -- call_action_list,name=cooldown,if=gcd.remains=0
@@ -636,7 +640,8 @@ local function runRotation()
                     if ui.mode.mover == 1 and unit.distance("target") < 8 then
                         cancelRushAnimation("Casting Fel Rush [Momentum/Unbound Chaos]")
                         return true
-                    elseif not ui.checked("Fel Rush Only In Melee") and (ui.mode.mover == 2 or (unit.distance("target") >= 8 and ui.mode.mover ~= 3)) then
+                    end
+                    if ui.mode.mover ~= 3 and (unit.distance("target") < 8 or (not ui.checked("Fel Rush Only In Melee") and unit.distance("target") >= 8)) then
                         if cast.felRush() then ui.debug("Casting Fel Rush [Momentum/Unbound Chaos]") return true end
                     end
                 end
@@ -738,7 +743,8 @@ local function runRotation()
                     if ui.mode.mover == 1 and unit.distance("target") < 8 then
                         cancelRushAnimation("Casting Fel Rush [Demon Blades]")
                         return true
-                    elseif not ui.checked("Fel Rush Only In Melee") and (ui.mode.mover == 2 or (unit.distance("target") >= 8 and ui.mode.mover ~= 3)) then
+                    end
+                    if ui.mode.mover ~= 3 and (unit.distance("target") < 8 or (not ui.checked("Fel Rush Only In Melee") and unit.distance("target") >= 8)) then
                         if cast.felRush() then ui.debug("Casting Fel Rush [Demon Blades]") return true end
                     end
                 end
@@ -756,7 +762,8 @@ local function runRotation()
                     if ui.mode.mover == 1 and unit.distance("target") < 8 then
                         cancelRushAnimation("Casting Fel Rush [AOE]")
                         return true
-                    elseif not ui.checked("Fel Rush Only In Melee") and (ui.mode.mover == 2 or (unit.distance("target") >= 8 and ui.mode.mover ~= 3)) then
+                    end
+                    if ui.mode.mover ~= 3 and (unit.distance("target") < 8 or (not ui.checked("Fel Rush Only In Melee") and unit.distance("target") >= 8)) then
                         if cast.felRush() then ui.debug("Casting Fel Rush [AOE]") return true end
                     end
                 end
