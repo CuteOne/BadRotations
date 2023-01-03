@@ -2,7 +2,7 @@
 -- Author = Kuukuu
 -- Patch = 10.0
 --    Patch should be the latest patch you've updated the rotation for (i.e., 9.2.5)
--- Coverage = 30%
+-- Coverage = 35%
 --    Coverage should be your estimated percent coverage for class mechanics (i.e., 100%)
 -- Status = Sporadic
 --    Status should be one of: Full, Limited, Sporadic, Inactive, Unknown
@@ -147,7 +147,7 @@ local function createOptions()
     local function rotationOptions()
         local section
         -- General Options
-        section = br.ui:createSection(br.ui.window.profile, "General - Version 0.0.2")
+        section = br.ui:createSection(br.ui.window.profile, "General - Version 0.0.3")
         br.ui:createCheckbox(section, "OOC Healing",
             "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFout of combat healing|cffFFBB00.", 1)
         -- Pre-Pull Timer
@@ -160,17 +160,24 @@ local function createOptions()
             "|cffFFFFFFWhen Bursting stacks are above this amount, CDs will be triggered.")
         br.ui:createDropdown(section, "DPS Key", br.dropOptions.Toggle, 6,
             "Set a key for using DPS")
+        -- br.ui:createDropdown(section, "Deep Breath Key", br.dropOptions.Toggle, 6,
+        --     "Set a key for using Deep Breath")
         -- DPS Save mana
         br.ui:createSpinnerWithout(section, "DPS Save mana", 40, 0, 100, 5, "|cffFFFFFFMana Percent to Stop DPS")
         -- Return
         br.ui:createDropdown(section, "Return",
-            {"|cffFFFF00Selected Target", "|cffFF0000Mouseover Target", "|cffFFBB00Auto"}, 1,
-            "|ccfFFFFFFTarget to Cast On")
-
+        {"|cffFFFF00Selected Target", "|cffFF0000Mouseover Target", "|cffFFBB00Auto"}, 1,
+        "|ccfFFFFFFTarget to Cast On")
+        
         br.ui:createCheckbox(section, "Pig Catcher", "Catch the freehold Pig in the ring of booty")
         br.ui:checkSectionState(section)
         -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
+        -- Emerald Communion
+        br.ui:createDropdown(section, "Emerald Communion Key", br.dropOptions.Toggle, 6,
+        "Set a key for using Emerald Communion")
+        -- Time Dilation
+        br.ui:createSpinner(section, "Time Dilation", 50, 0, 100, 5, "Health Percent to Cast At")
         --  Mana Potion
         br.ui:createSpinner(section, "Mana Potion", 50, 0, 100, 1, "Mana Percent to Cast At")
         -- Racial
@@ -178,14 +185,14 @@ local function createOptions()
         -- Trinkets
         br.ui:createSpinner(section, "Trinket 1", 70, 0, 100, 5, "Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Min Trinket 1 Targets", 3, 1, 40, 1, "",
-            "Minimum Trinket 1 Targets(This includes you)", true)
+        "Minimum Trinket 1 Targets(This includes you)", true)
         br.ui:createDropdownWithout(section, "Trinket 1 Mode",
-            {"|cffFFFFFFNormal", "|cffFFFFFFTarget", "|cffFFFFFFGround"}, 1, "", "")
+        {"|cffFFFFFFNormal", "|cffFFFFFFTarget", "|cffFFFFFFGround"}, 1, "", "")
         br.ui:createSpinner(section, "Trinket 2", 70, 0, 100, 5, "Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Min Trinket 2 Targets", 3, 1, 40, 1, "",
-            "Minimum Trinket 2 Targets(This includes you)", true)
+        "Minimum Trinket 2 Targets(This includes you)", true)
         br.ui:createDropdownWithout(section, "Trinket 2 Mode",
-            {"|cffFFFFFFNormal", "|cffFFFFFFTarget", "|cffFFFFFFGround"}, 1, "", "")
+        {"|cffFFFFFFNormal", "|cffFFFFFFTarget", "|cffFFFFFFGround"}, 1, "", "")
         -- Dream Flight
         br.ui:createSpinner(section, "Dream Flight", 60, 0, 100, 5, "Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Dream Flight Targets", 3, 0, 40, 1, "Minimum Dream Flight Targets")
@@ -194,19 +201,13 @@ local function createOptions()
         br.ui:createSpinnerWithout(section, "Rewind Targets", 3, 0, 40, 1, "Minimum Rewind Targets")
         br.ui:createCheckbox(section, "Tip the Scales")
         br.ui:checkSectionState(section)
-        -- -- Covenant Options
-        -- section = br.ui:createSection(br.ui.window.profile, "Covenant Options")
-        -- br.ui:createDropdown(section, "Convoke Spirits", {"DPS", "HEAL", "BOTH", "Manual"}, 3, "How to use Convoke Spirits")
-        -- br.ui:createSpinnerWithout(section, "Convoke Heal", 40, 0, 100, 5, "Health Percent to Cast At")
-        -- br.ui:createSpinnerWithout(section, "Convoke Heal Targets", 1, 0, 40, 1, "Minimum Convoke Targets")
-        -- br.ui:createCheckbox(section, "Ravenous Frenzy")
-        -- br.ui:createSpinner(section, "Adaptive Swarm", 2, 0, 10, 1, "Max Swarm Targets")
-        -- br.ui:checkSectionState(section)
         -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
         -- Healthstone
         -- Basic Healing Module
         br.player.module.BasicHealing(section)
+        -- Obsidian Scales
+        br.ui:createSpinner(section, "Obsidian Scales", 50, 0, 100, 5, "Health Percent to Cast At")
         br.ui:checkSectionState(section)
         -- Interrupts Options
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
@@ -326,7 +327,7 @@ local function runRotation()
     enemies.get(8, "target")
     enemies.get(25)
     enemies.get(40)
-    friends.yards40 = br.getAllies("player", 40)
+    friends.yards30 = br.getAllies("player", 30)
 
     if inInstance and select(3, br._G.GetInstanceInfo()) == 8 then
         for i = 1, #tanks do
@@ -349,8 +350,8 @@ local function runRotation()
             lowest = br.friend[i]
         end
     end
-
-    local empoweredLevel = 0
+    br.evoker = br.evoker or {}
+    br.evoker.empoweredLevel = br.evoker.empoweredLevel or 0
 
     -- local function BossEncounterCase()
     -- 	-- Temple of Sethraliss
@@ -498,20 +499,6 @@ local function runRotation()
                         br.addonDebug("Casting Obsidian Scales")
                         return true
                     end
-                end
-            end
-            -- Healthstone
-            if br.isChecked("Healthstone") and php <= br.getOptionValue("Healthstone") and
-                (br.hasHealthPot() or br.hasItem(5512) or br.hasItem(166799)) then
-                if br.canUseItem(5512) then
-                    br.addonDebug("Using Healthstone")
-                    br.useItem(5512)
-                elseif br.canUseItem(healPot) then
-                    br.addonDebug("Using Health Pot")
-                    br.useItem(healPot)
-                elseif br.hasItem(166799) and br.canUseItem(166799) then
-                    br.addonDebug("Using Emerald of Vigor")
-                    br.useItem(166799)
                 end
             end
         end -- End Defensive Toggle
@@ -663,16 +650,31 @@ local function runRotation()
                     end
                 end
             end
+            -- Time Dilation
+            if br.isChecked("Time Dilation") then
+                if lowest.hp <= br.getValue("Time Dilation") then
+                    if cast.timeDilation(lowest.unit) then
+                        br.addonDebug("Casting Time Dilation")
+                        return true
+                    end
+                end
+            end
         end -- End useCooldowns check
     end -- End Action List - Cooldowns
 
     local function actionList_Decurse()
         -- Naturalize
         if mode.decurse == 1 then
-            for i = 1, #friends.yards40 do
+            for i = 1, #friends.yards30 do
                 if br.canDispel(br.friend[i].unit, spell.naturalize) then
                     if cast.naturalize(br.friend[i].unit) then
                         br.addonDebug("Casting Naturalize")
+                        return true
+                    end
+                end
+                if br.canDispel(br.friend[i].unit, spell.cauterizingFlame) and cd.naturalize.remains() > 0 then
+                    if cast.cauterizingFlame(br.friend[i].unit) then
+                        br.addonDebug("Casting Cauterizing Flame")
                         return true
                     end
                 end
@@ -709,7 +711,7 @@ local function runRotation()
             if br.healConeAround(br.getValue("Dream Breath Targets"), br.getValue("Dream Breath"), 90, 30, 0) then
                 if cast.dreamBreath() then
                     br.addonDebug("Casting Dream Breath")
-                    empoweredLevel = 1
+                    br.evoker.empoweredLevel = 1
                     return true
                 end
             end
@@ -723,7 +725,7 @@ local function runRotation()
                     if #lowHealthCandidates >= br.getValue("Spiritbloom Targets") then
                         if cast.spiritbloom(br.friend[i].unit) then
                             br.addonDebug("Casting Spiritbloom")
-                            empoweredLevel = 4
+                            br.evoker.empoweredLevel = 4
                             return true
                         end
                     end
@@ -824,7 +826,7 @@ local function runRotation()
                     if #lowHealthCandidates >= br.getValue("Spiritbloom Targets") then
                         if cast.spiritbloom(br.friend[i].unit) then
                             br.addonDebug("Casting Spiritbloom")
-                            empoweredLevel = 4
+                            br.evoker.empoweredLevel = 4
                             return true
                         end
                     end
@@ -844,7 +846,7 @@ local function runRotation()
         if cd.fireBreath.remain() <= gcdMax and not moving and br.getEnemiesInCone(45,25) > 0 then
             if cast.fireBreath() then
                 br.addonDebug("Casting Fire Breath")
-                empoweredLevel = 1
+                br.evoker.empoweredLevel = 1
                 return true
             end
         end
@@ -895,17 +897,24 @@ local function runRotation()
     --- Rotations ---
     -----------------
     -- Pause
+    -- if not br._G.GetCurrentKeyBoardFocus() and br.isChecked("Deep Breath Key") and br.SpecificToggle("Deep Breath Key") then
+    --     print("Should cast DB")
+    --     br._G.CastSpellByName("Deep Breath")
+    --     local x,y = GetCursorPosition()
+    --     print(x,y, br.player.posZ)
+    --     br._G.ClickPosition(br.player.posX, br.player.posY + 100,br.player.posZ)
+    -- end
     if br.pause(true) or stealthed or drinking or cd.global.remains() > 0 then
         return true
     else
-        if moving and empoweredLevel ~= 0 then
-            empoweredLevel = 0;
+        if moving and br.evoker.empoweredLevel ~= 0 then
+            br.evoker.empoweredLevel = 0;
         end
         local channel = UnitChannelInfo("player")
         if channel then
-            if getEmpowerStage("player") >= empoweredLevel then
+            if getEmpowerStage("player") >= br.evoker.empoweredLevel then
                 br._G.CastSpellByName(channel)
-                empoweredLevel = 0;
+                br.evoker.empoweredLevel = 0;
             end
         end
         ---------------------------------
@@ -935,39 +944,44 @@ local function runRotation()
         -----------------------------
         if inCombat then
             if not channel then
-                if br.SpecificToggle("DPS Key") and not br._G.GetCurrentKeyBoardFocus() and br.isChecked("DPS Key") then
+                if not br._G.GetCurrentKeyBoardFocus() and br.isChecked("Emerald Communion Key") and br.SpecificToggle("Emerald Communion Key") then
+                    if cast.emeraldCommunion() then
+                        br.addonDebug("Casting Emerald Communion")
+                        return true
+                    end
+                end
+                if not br._G.GetCurrentKeyBoardFocus() and br.isChecked("DPS Key") and br.SpecificToggle("DPS Key") then
                     if actionList_DPS() then
                         return true
                     end
-                else
-                    if actionList_Defensive() then
-                        return true
+                end
+                if actionList_Defensive() then
+                    return true
+                end
+                if actionList_Cooldowns() then
+                    return true
+                end
+                if actionList_Interrupts() then
+                    return true
+                end
+                if actionList_Decurse() then
+                    return true
+                end
+                if actionList_AOEHealing() then
+                    return true
+                end
+                if actionList_SingleTarget() then
+                    return true
+                end
+                if not br.isChecked("DPS Key") and mode.dPS == 2 then
+                    if not br.GetUnitExists("target") or
+                        (br.GetUnitIsDeadOrGhost("target") and not br.GetUnitIsFriend("target")) and #enemies.yards40 ~=
+                        0 and br.getOptionValue("Target Dynamic Target") then
+                        br._G.TargetUnit(enemies.yards40[1])
                     end
-                    if actionList_Cooldowns() then
-                        return true
-                    end
-                    if actionList_Interrupts() then
-                        return true
-                    end
-                    if actionList_Decurse() then
-                        return true
-                    end
-                    if actionList_AOEHealing() then
-                        return true
-                    end
-                    if actionList_SingleTarget() then
-                        return true
-                    end
-                    if not br.isChecked("DPS Key") and mode.dPS == 2 then
-                        if not br.GetUnitExists("target") or
-                            (br.GetUnitIsDeadOrGhost("target") and not br.GetUnitIsFriend("target")) and #enemies.yards40 ~=
-                            0 and br.getOptionValue("Target Dynamic Target") then
-                            br._G.TargetUnit(enemies.yards40[1])
-                        end
-                        if br.GetUnitExists("target") and not br.GetUnitIsFriend("target") then
-                            if actionList_DPS() then
-                                return true
-                            end
+                    if br.GetUnitExists("target") and not br.GetUnitIsFriend("target") then
+                        if actionList_DPS() then
+                            return true
                         end
                     end
                 end

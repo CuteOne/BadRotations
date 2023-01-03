@@ -1385,7 +1385,9 @@ br.lists.spells = {
             },
             talents                         = {
                 dreamBreath                 = 355936,
+                emeraldCommunion            = 370960,
                 spiritbloom                 = 367226,
+                timeDilation                = 357170,
 
             },
             traits                          = {
