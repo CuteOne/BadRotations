@@ -2550,6 +2550,7 @@ br.lists.spells = {
 
             },
             buffs                           = {
+                sealOfClarity               = 384810,
                 auraMastery                 = 31821,
                 avengingWrath               = 31884,
                 avengingWrathCrit           = 294027,
@@ -2596,8 +2597,9 @@ br.lists.spells = {
                 judgmentOfLight             = 183778,
                 lightsHammer                = 114158,
                 ruleOfLaw                   = 214202,
-                sanctifiedWrath             = 53376,
+                --sanctifiedWrath             = 53376,
                 savedByTheLight             = 157047,
+                divineToll                  = 375576,
             },
             traits                          = {
                 breakingDawn                = 278594,
@@ -2834,6 +2836,7 @@ br.lists.spells = {
                 repentance                  = 20066,
                 seraphim                    = 152262,
                 unbreakableSpirit           = 114154,
+                rebuke                      = 96231,
             },
             runeforges                      = {
                 finalVerdict                = 337247,
