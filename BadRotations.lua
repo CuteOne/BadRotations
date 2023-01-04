@@ -63,6 +63,7 @@ br.qualityColors = {
 	grey = "9d9d9d"
 }
 br.druid = {}
+br.evoker = {}
 
 local nameSet = false
 function br.setAddonName()

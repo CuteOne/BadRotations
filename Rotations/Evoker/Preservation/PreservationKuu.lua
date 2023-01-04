@@ -12,6 +12,7 @@
 -- Required: Fill above fields to populate README.md --
 -------------------------------------------------------
 local rotationName = "Preserved Kuu"
+local br = ...
 
 ---------------
 --- Toggles ---
@@ -160,8 +161,8 @@ local function createOptions()
             "|cffFFFFFFWhen Bursting stacks are above this amount, CDs will be triggered.")
         br.ui:createDropdown(section, "DPS Key", br.dropOptions.Toggle, 6,
             "Set a key for using DPS")
-        -- br.ui:createDropdown(section, "Deep Breath Key", br.dropOptions.Toggle, 6,
-        --     "Set a key for using Deep Breath")
+        br.ui:createDropdown(section, "Deep Breath Key", br.dropOptions.Toggle, 6,
+            "Set a key for using Deep Breath")
         -- DPS Save mana
         br.ui:createSpinnerWithout(section, "DPS Save mana", 40, 0, 100, 5, "|cffFFFFFFMana Percent to Stop DPS")
         -- Return
@@ -219,6 +220,9 @@ local function createOptions()
         br.ui:checkSectionState(section)
         -- Healing Options
         section = br.ui:createSection(br.ui.window.profile, "Healing")
+        br.ui:createSpinner(section, "Temporal Anomaly", 70, 0, 100, 5, "Health Percent to Cast At")
+        br.ui:createSpinnerWithout(section, "Temporal Anomaly Targets", 3, 1, 40, 1, "",
+        "Minimum Temporal Anomaly Targets(This includes you)", true)
         br.ui:createSpinner(section, "Emerald Blossom", 50, 0, 100, 5, "Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Emerald Blossom Targets", 3, 0, 40, 1, "Minimum Emerald Blossom Targets")
         br.ui:createSpinner(section, "Verdant Embrace", 50, 0, 100, 5, "Health Percent to Cast At")
@@ -799,6 +803,13 @@ local function runRotation()
                 end
             end
         end
+        -- Temporal Anomaly
+        if br.isChecked("Temporal Anomaly") and not moving and br.getUnitsInRect(10,24,false, br.getValue("Temporal Anomaly")) >= br.getValue("Temporal Anomaly Targets") then
+            if cast.temporalAnomaly() then
+                br.addonDebug("Casting Temporal Anomaly")
+                return true
+            end
+        end
         -- Echo
         if br.isChecked("Echo") and not moving then
             for i = 1, #br.friend do
@@ -897,13 +908,6 @@ local function runRotation()
     --- Rotations ---
     -----------------
     -- Pause
-    -- if not br._G.GetCurrentKeyBoardFocus() and br.isChecked("Deep Breath Key") and br.SpecificToggle("Deep Breath Key") then
-    --     print("Should cast DB")
-    --     br._G.CastSpellByName("Deep Breath")
-    --     local x,y = GetCursorPosition()
-    --     print(x,y, br.player.posZ)
-    --     br._G.ClickPosition(br.player.posX, br.player.posY + 100,br.player.posZ)
-    -- end
     if br.pause(true) or stealthed or drinking or cd.global.remains() > 0 then
         return true
     else
@@ -944,11 +948,22 @@ local function runRotation()
         -----------------------------
         if inCombat then
             if not channel then
+                if not br._G.GetCurrentKeyBoardFocus() and br.isChecked("Dream Flight Key") and br.SpecificToggle("Dream Flight Key") then
+                    br._G.CastSpellByName("Dream Flight")
+                    CameraOrSelectOrMoveStart()
+                    CameraOrSelectOrMoveStop()
+                end
                 if not br._G.GetCurrentKeyBoardFocus() and br.isChecked("Emerald Communion Key") and br.SpecificToggle("Emerald Communion Key") then
+                    
                     if cast.emeraldCommunion() then
                         br.addonDebug("Casting Emerald Communion")
                         return true
                     end
+                end
+                if not br._G.GetCurrentKeyBoardFocus() and br.isChecked("Deep Breath Key") and br.SpecificToggle("Deep Breath Key") then
+                    br._G.CastSpellByName("Deep Breath")
+                    CameraOrSelectOrMoveStart()
+                    CameraOrSelectOrMoveStop()
                 end
                 if not br._G.GetCurrentKeyBoardFocus() and br.isChecked("DPS Key") and br.SpecificToggle("DPS Key") then
                     if actionList_DPS() then

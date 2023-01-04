@@ -1388,6 +1388,7 @@ br.lists.spells = {
                 emeraldCommunion            = 370960,
                 spiritbloom                 = 367226,
                 timeDilation                = 357170,
+                temporalAnomaly             = 373861,
 
             },
             traits                          = {
