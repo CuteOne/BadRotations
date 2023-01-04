@@ -206,6 +206,8 @@ function br.canDispel(Unit, spellID)
 		if spellID == 365585 then typesList = {"Poison"} end
 		-- Cauterizing Flame
 		if spellID == 374251 then typesList = {"Bleed", "Poison", "Curse", "Disease"} end
+		-- Naturalize
+		if spellID == 360823 then typesList = {"Magic", "Poison"} end
 	end
 	if br.player.race == "BloodElf" then --Blood Elf
 		-- Arcane Torrent
