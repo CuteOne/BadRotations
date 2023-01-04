@@ -232,6 +232,7 @@ Raidable means if its good to raid with.
 
 |  rotation  | author  | patch |coverage|status |  readiness  |last updated|
 |------------|---------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|Nessaj m+   |Nessaj911|10.0.2 |  90%   | Full  |:interrobang:|  01/04/2023|
 |Panglopal   |Pangloo  |Unknown|Unknown |Unknown|:interrobang:|  04/12/2022|
 |Laks M+     |Laksmackt|Unknown|Unknown |Unknown|:interrobang:|  05/14/2021|
 |FengshenHoly|Fengshen |Unknown|Unknown |Unknown|:interrobang:|  04/26/2021|
