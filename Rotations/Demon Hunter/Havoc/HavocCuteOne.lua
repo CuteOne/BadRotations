@@ -504,6 +504,7 @@ local function runRotation()
     enemies.get(8,"player",false,true) -- makes enemies.yards8f
     enemies.get(8,"target") -- makes enemies.yards8t
     enemies.get(10)
+    enemies.get(10,"target")
     enemies.get(10,"target",true)
     enemies.get(20)
     enemies.get(30)
