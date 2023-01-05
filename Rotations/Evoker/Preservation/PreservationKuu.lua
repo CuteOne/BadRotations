@@ -12,7 +12,7 @@
 -- Required: Fill above fields to populate README.md --
 -------------------------------------------------------
 local rotationName = "Preserved Kuu"
-local br = ...
+
 
 ---------------
 --- Toggles ---
@@ -148,7 +148,7 @@ local function createOptions()
     local function rotationOptions()
         local section
         -- General Options
-        section = br.ui:createSection(br.ui.window.profile, "General - Version 0.0.3")
+        section = br.ui:createSection(br.ui.window.profile, "General - Version 0.0.4")
         br.ui:createCheckbox(section, "OOC Healing",
             "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFout of combat healing|cffFFBB00.", 1)
         -- Pre-Pull Timer
