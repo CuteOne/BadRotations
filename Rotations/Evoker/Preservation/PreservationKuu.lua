@@ -13,7 +13,6 @@
 -------------------------------------------------------
 local rotationName = "Preserved Kuu"
 
-
 ---------------
 --- Toggles ---
 ---------------
@@ -919,8 +918,8 @@ local function runRotation()
 
     local empSpells = {
         [382266] = "fireBreath",
-        [355936] = "dreamBreath",
-        [367226] = "spiritbloom",
+        [382614] = "dreamBreath",
+        [382731] = "spiritbloom",
     }
 
     local function getEmpowerStage(unit)
