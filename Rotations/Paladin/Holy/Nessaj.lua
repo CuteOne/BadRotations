@@ -95,6 +95,7 @@ local function createOptions()
         br.ui:createDropdownWithout(section, "DPS Key", br.dropOptions.Toggle, 6, "DPS Override")
         br.ui:createCheckbox(section, "Group CD's with DPS key", "Pop wings and HA with Dps override", 1)
         br.ui:createSpinner(section, "Divine Toll during DPS Key", 3, 1, 5, 1, "Use Divine Toll at >= x units")
+        br.ui:createCheckbox(section, "Blessing of the Seasons", "Use all blessing on player", 1)
 
         -- Healing
         br.ui:checkSectionState(section)
@@ -115,7 +116,6 @@ local function createOptions()
         br.ui:createSpinner(section, "Light of Dawn", 90, 0, 100, 5, "", "Health Percent to Cast At")
         br.ui:createSpinner(section, "LoD Targets", 4, 0, 40, 1, "", "Minimum LoD Targets", true)
         -- Lights Hammer
-        br.ui:createSpinner(section, "Light's Hammer", 80, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Light's Hammer Targets", 3, 0, 40, 1, "", "|cffFFFFFFMinimum Light's Hammer Targets", true)
         -- FoL
         br.ui:createSpinner(section, "Infused Flash of Light", 65, 0, 100, 5, "", "Health Percent to Cast At")
@@ -288,7 +288,7 @@ local hastar
 local healPot
 local profileStop
 -- NEED FIX ID drinking
-local drinking = br.getBuffRemain("player", 192002) ~= 0 or br.getBuffRemain("player", 167152) ~= 0 or br.getBuffRemain("player", 192001) ~= 0 or br.getDebuffRemain("player", 185710) ~= 0 or br.getDebuffRemain("player", 297098) ~= 0 or br.getDebuffRemain("player", 274914) ~= 0
+local drinking = br.getBuffRemain("player", 396162) ~= 0 or br.getBuffRemain("player", 167152) ~= 0 or br.getBuffRemain("player", 192001) ~= 0 or br.getDebuffRemain("player", 185710) ~= 0 or br.getDebuffRemain("player", 297098) ~= 0 or br.getDebuffRemain("player", 274914) ~= 0
 -- NEED FIX ID drinking
 local ttd
 local canDPS
@@ -393,7 +393,7 @@ end
 local function consecration()
     if mode.DPS == 1 and (canDPS or br.SpecificToggle("DPS Key"))
             and cast.able.consecration()
-            and not br.isMoving("player") -- нужна привазка ко времени что бы избежать лужы на ходу мимо мобов
+            and not br.isMoving("player")
             and not buff.holyAvenger.exists()
             and (cd.holyShock.remain() > gcd * 1.5 and charges.crusaderStrike.count() == 0 or #enemies.yards8 >= 2)
     then
@@ -447,25 +447,11 @@ end
 local function noDamageCheck(unit)
     if isCC(unit) then
         return true
+    end 
+    if br.hasBuff(113309, unit) then
+         --2nd boss shield jade temple
+        return true
     end
-    -- old stuff need some change buff ID 
-    --if br.hasBuff(263246, unit) then
-        -- shields on first boss in temple
-        --return true
-    --end
-    --if br.hasBuff(260189, unit) then
-        -- shields on last boss in MOTHERLODE
-       -- return true
-    --end
-    --if br.hasBuff(261264, unit) or br.hasBuff(261265, unit) or br.hasBuff(261266, unit) then
-        -- shields on witches in wm
-        --return true
-    --end
-    --if br.GetObjectID(thisUnit) == 128652 then
-        --https://www.wowhead.com/npc=128652/viqgoth
-       -- return true
-    --end
-
     return false --catchall
 end
 
@@ -751,8 +737,12 @@ actionList.ooc = function()
                     return true
                 end
             end
+        elseif buff.beaconOfLight.exists(tanks[1].unit) and not buff.beaconOfFaith.exists("Player") then
+            if cast.beaconOfFaith("Player") then
+                return true
+            end
         elseif #tanks == 0 and not buff.beaconOfLight.exists("Player") then
-            if cast.beaconOfLight("Player") then
+            if cast.beaconOfFaith("Player") then
                 return true
             end
         end
@@ -791,7 +781,7 @@ actionList.dps = function()
 
     --Auto attack
     if not br._G.IsAutoRepeatSpell(br._G.GetSpellInfo(6603)) and #enemies.yards8 >= 1 then
-        br._G.StartAttack()
+        br._G.StartAttack(units.dyn5)
     end
 
     if br.isChecked("Divine Toll during DPS Key") and br.SpecificToggle("DPS Key") and not br._G.GetCurrentKeyBoardFocus() and #enemies.yards30 >= br.getValue("Divine Toll during DPS Key") then
@@ -952,7 +942,7 @@ actionList.Extra = function()
             end
 
             -- Debuff
-            local BoFDebuff = { 319941, 330810, 326827, 324608, 292942, 329326, 295929, 292910, 334926, 329905, 341746, 324859, 328180 } -- need change debuff ID
+            local BoFDebuff = { 207278, 387150, 388777 } 
             for k, v in pairs(BoFDebuff) do
                 if br.getDebuffRemain("player", v) ~= 0 then
                     if cast.blessingOfFreedom("player") then
@@ -971,7 +961,7 @@ actionList.Extra = function()
     end
     
     -- Blessing of Protection
-    if ui.checked("Blessing of Protection") and cd.blessingOfProtection.ready() and inCombat and br.GetObjectID("target") ~= 173729 then
+    if ui.checked("Blessing of Protection") and cd.blessingOfProtection.ready() and inCombat then
         for i = 1, #br.friend do
             if br.friend[i].hp <= ui.value("Blessing of Protection")
                     --old stuff need changes ID
@@ -1079,10 +1069,8 @@ actionList.Defensive = function()
         if ui.checked("Pot/Stoned") and php <= ui.value("Pot/Stoned") and (br.hasHealthPot() or br.hasItem(5512) or br.hasItem(156634)) then
             if br.canUseItem(5512) then
                 br.useItem(5512)
-            elseif br.canUseItem(193380) then
+            elseif br.canUseItem(191380) then
                 br.useItem(191380)
-            elseif br.canUseItem(171267) then
-                br.useItem(171267)
             end
         end
 
@@ -1253,7 +1241,7 @@ actionList.Cooldown = function()
     end
 
     -- Lay on Hands        --LoH / LayonHands
-    if ui.checked("Lay on Hands") and cd.layOnHands.ready() and not debuff.forbearance.exists(lowest.unit) and not br.UnitBuffID(lowest.unit, 344916) and canheal(lowest.unit) then
+    if ui.checked("Lay on Hands") and cd.layOnHands.ready() and not debuff.forbearance.exists(lowest.unit) and canheal(lowest.unit) then
         if timers.time("LoH Timer", lowest.hp <= ui.value("Lay on Hands")) > 0.8 then
             if cast.layOnHands(lowest.unit) then
                 return true
@@ -1264,13 +1252,13 @@ actionList.Cooldown = function()
     -- Divine Toll(some questions about choosing a target???)
     if br.isChecked("Divine Toll") and cast.able.divineToll() and (holyPower <= br.getValue("Max Holy Power") or br.getDebuffStacks(lowest.unit, 240443) >= 4) then
         if br.getOptionValue("Divine Toll") == 1 and holyPower == 0 then
-            if cast.divineToll("player") then
+            if cast.divineToll(lowest.unit) then
                 return true
             end
         end
         if br.getOptionValue("Divine Toll") == 2 then
             if br.getLowAllies(br.getValue("Divine Toll Health")) >= br.getValue("Divine Toll Units") then
-                if cast.divineToll("player") then
+                if cast.divineToll(lowest.unit) then
                     return true
                 end
             end
@@ -1443,6 +1431,28 @@ end
 --HOLYPOWER GENERATORS
 actionList.generators = function()
 
+    -- Blessing of the Seasons
+if talent.blessingOfSummer and ui.checked("Blessing of the Seasons") then
+    if cast.able.blessingOfSummer() then
+        if cast.blessingOfSummer("player") then
+            br.addonDebug("Blessing of Summer")
+            return true
+        elseif cast.able.blessingOfAutumn() then
+            if cast.blessingOfAutumn("player") then
+                br.addonDebug("Blessing of Autumn")
+            end
+        elseif cast.able.blessingOfWinter() then
+            if cast.blessingOfWinter("player") then
+                br.addonDebug("Blessing of Winter")
+            end
+        elseif cast.able.blessingOfSpring() then
+            if cast.blessingOfSpring("player") then
+                br.addonDebug("Blessing of Spring")
+            end
+        end
+    end
+end
+
     --Holyshock
     if cd.holyShock.ready() then
         if healTarget == "none" and mode.glimmer == 3 and #tanks > 0 and talent.glimmerOfLight then
@@ -1558,6 +1568,8 @@ actionList.triage = function()
         end
     end
 
+    --[[
+   --OLD M+ AFIX CODE--    
     if healTarget == "none" and ui.checked("Pride Heal") and br.GetObjectID("target") == 173729 then
         local prideHealTarget = "player"
         local prideHealHealth = br._G.UnitHealth("player")
@@ -1570,7 +1582,7 @@ actionList.triage = function()
             healTarget = prideHealTarget
             healReason = "PRIDE"
         end
-    end
+    end]] 
 
     if healTarget == "none" and ui.checked("Grievous Wounds") then
         --Grievous Wounds
@@ -1619,7 +1631,7 @@ actionList.spenders = function()
     -- Word of Glory
     if ui.checked("Word of Glory") then
         if healTarget == "none"
-                and (holyPower >= 3 or buff.divinePurpose.exists()) or (holyPower >=2 and buff.sealOfClarity.exists()) -- sealOfClarity test
+                and (holyPower >= 3 or buff.divinePurpose.exists())
         then
             -- WOG Heal
             if lowest.hp <= ui.value("Word of Glory")
@@ -1643,7 +1655,7 @@ actionList.spenders = function()
         -- cast
         if healTarget ~= "none"
                 and canheal(healTarget)
-                and (holyPower >= 3 or buff.divinePurpose.exists()) or (holyPower == 2 and buff.sealOfClarity.exists())
+                and (holyPower >= 3 or buff.divinePurpose.exists())
         then
             if cast.wordOfGlory(healTarget) then
                 br.addonDebug("[" .. healReason .. "] WOG : " .. br._G.UnitName(healTarget) .. "/" .. healTargetHealth)
@@ -2115,7 +2127,7 @@ local function runRotation()
                         if actionList.generators() then
                             return true
                         end
-                        if (holyPower >= 3 and not cd.holyShock.ready()) or buff.divinePurpose.exists() or holyPower == 5 then
+                        if (holyPower >= 3 and not cd.holyShock.ready()) or buff.divinePurpose.exists() or holyPower == 5 then --need add seal of clarity check
                             if actionList.spenders() then
                                 return true
                             end
