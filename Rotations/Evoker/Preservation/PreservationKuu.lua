@@ -31,7 +31,7 @@ local function createToggles()
         },
         [2] = {
             mode = "On",
-            value = 1,
+            value = 2,
             overlay = "Cooldowns Enabled",
             tip = "Cooldowns used regardless of target",
             highlight = 0,
@@ -127,6 +127,44 @@ local function createToggles()
         }
     }
     CreateButton("DPS", 5, 0)
+    br.FireBreathModes = {
+        [1] = {
+            mode = "On",
+            value = 1,
+            overlay = "Enable Fire Breath",
+            tip = "Disable Fire Breath",
+            highlight = 1,
+            icon = br.player.spell.fireBreath
+        },
+        [2] = {
+            mode = "Off",
+            value = 2,
+            overlay = "Disable Fire Breath",
+            tip = "Disable Fire Breath",
+            highlight = 0,
+            icon = br.player.spell.fireBreath
+        },
+    }
+    CreateButton("FireBreath", 3, 1)
+    br.DisintegrateModes = {
+        [1] = {
+            mode = "On",
+            value = 1,
+            overlay = "Enable Disintegrate",
+            tip = "Disable Disintegrate",
+            highlight = 1,
+            icon = br.player.spell.disintegrate
+        },
+        [2] = {
+            mode = "Off",
+            value = 2,
+            overlay = "Disable Disintegrate",
+            tip = "Disable Disintegrate",
+            highlight = 0,
+            icon = br.player.spell.disintegrate
+        },
+    }
+    CreateButton("Disintegrate", 4, 1)
 end
 
 --------------
@@ -177,8 +215,6 @@ local function createOptions()
         -- Emerald Communion
         br.ui:createDropdown(section, "Emerald Communion Key", br.dropOptions.Toggle, 6,
         "Set a key for using Emerald Communion")
-        -- Time Dilation
-        br.ui:createSpinner(section, "Time Dilation", 50, 0, 100, 5, "Health Percent to Cast At")
         --  Mana Potion
         br.ui:createSpinner(section, "Mana Potion", 50, 0, 100, 1, "Mana Percent to Cast At")
         -- Racial
@@ -220,6 +256,23 @@ local function createOptions()
         br.ui:checkSectionState(section)
         -- Healing Options
         section = br.ui:createSection(br.ui.window.profile, "Healing")
+        -- Time Dilation
+        br.ui:createSpinner(section, "Time Dilation", 50, 0, 100, 5, "Health Percent to Cast At")
+		br.ui:createDropdownWithout(
+			section,
+			"Time Dilation Target",
+			{
+				"|cffFFFFFFPlayer",
+				"|cffFFFFFFTarget",
+				"|cffFFFFFFMouseover",
+				"|cffFFFFFFTank",
+				"|cffFFFFFFHealer",
+				"|cffFFFFFFHealer/Tank",
+				"|cffFFFFFFAny"
+			},
+			7,
+			"|cffFFFFFFcast Dilation Target"
+		)
         br.ui:createSpinner(section, "Temporal Anomaly", 70, 0, 100, 5, "Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Temporal Anomaly Targets", 3, 1, 40, 1, "",
         "Minimum Temporal Anomaly Targets(This includes you)", true)
@@ -297,7 +350,8 @@ local function runRotation()
     local enemies = br.player.enemies
     local friends = friends or {}
     local falling, swimming, flying = br.getFallTime(), br._G.IsSwimming(), br._G.IsFlying()
-    local moving = br.isMoving("player") ~= false or br.player.moving
+    local moving = (br.isMoving("player") ~= false or br.player.moving) and not buff.hover.exists("player")
+    local empMoving = br.isMoving("player") ~= false or br.player.moving
     local gcdMax = br.player.gcdMax
     local healPot = br.getHealthPot()
     local inCombat = br.isInCombat("player")
@@ -356,83 +410,6 @@ local function runRotation()
     end
     br.evoker = br.evoker or {}
     br.evoker.empoweredLevel = br.evoker.empoweredLevel or 0
-
-    -- local function BossEncounterCase()
-    -- 	-- Temple of Sethraliss
-    -- 	if
-    -- 		br.isChecked("Raid Boss Helper") and lowest.hp > br.getOptionValue("Raid Boss Helper") and br.player.eID and
-    -- 			(br.player.eID == 2127 or br.player.eID == 2418 or br.player.eID == 2402)
-    -- 	 then
-    -- 		for i = 1, br._G.GetObjectCount() do
-    -- 			local thisUnit = br._G.GetObjectWithIndex(i)
-    -- 			local ID = br.GetObjectID(thisUnit)
-    -- 			if ID == 133392 or ID == 171577 or ID == 173112 or ID == 165759 or ID == 165778 then
-    -- 				local healObject = thisUnit
-    -- 				if
-    -- 					br.getHP(healObject) < 100 and
-    -- 						((ID == 133392 and br.getBuffRemain(healObject, 274148) == 0) or ID == 171577 or ID == 173112 or
-    -- 							((ID == 165759 or ID == 165778) and not br.shadeUp))
-    -- 				 then
-    -- 					if talent.germination and not buff.rejuvenationGermination.exists(healObject) then
-    -- 						clearform()
-    -- 						br._G.CastSpellByName(br._G.GetSpellInfo(774), healObject)
-    -- 						return true
-    -- 					end
-    -- 					if not buff.rejuvenation.exists(healObject) then
-    -- 						clearform()
-    -- 						br._G.CastSpellByName(br._G.GetSpellInfo(774), healObject)
-    -- 						return true
-    -- 					end
-    -- 					if buff.rejuvenation.exists(healObject) then
-    -- 						clearform()
-    -- 						br._G.CastSpellByName(br._G.GetSpellInfo(8936), healObject)
-    -- 						return true
-    -- 					end
-    -- 				end
-    -- 			end
-    -- 		end
-    -- 	end
-    -- 	if inInstance then
-    -- 		for i = 1, #br.friend do
-    -- 			-- Jagged Nettles and Dessication logic
-    -- 			if br.getDebuffRemain(br.friend[i].unit, 260741) ~= 0 or br.getDebuffRemain(br.friend[i].unit, 267626) ~= 0 then
-    -- 				if br.getSpellCD(18562) == 0 and count_hots(br.friend[i].unit) > 0 then
-    -- 					clearform()
-    -- 					if cast.swiftmend(br.friend[i].unit) then
-    -- 						br.addonDebug("Casting Swiftmend (Jagged Nettles)")
-    -- 						return true
-    -- 					end
-    -- 				end
-    -- 				if br.getSpellCD(18562) > gcdMax then
-    -- 					if not moonkin then
-    -- 						clearform()
-    -- 					end
-    -- 					if cast.regrowth(br.friend[i].unit) then
-    -- 						br.addonDebug("Casting Regrowth")
-    -- 						return true
-    -- 					end
-    -- 				end
-    -- 			end
-    -- 			-- Devour
-    -- 			if br.getDebuffRemain(br.friend[i].unit, 255421) ~= 0 and br.friend[i].hp <= 90 then
-    -- 				if br.getSpellCD(102342) == 0 then
-    -- 					clearform()
-    -- 					if cast.ironbark(br.friend[i].unit) then
-    -- 						br.addonDebug("Casting Ironbark")
-    -- 						return true
-    -- 					end
-    -- 				end
-    -- 				if not moonkin then
-    -- 					clearform()
-    -- 				end
-    -- 				if cast.regrowth(br.friend[i].unit) then
-    -- 					br.addonDebug("Casting Regrowth")
-    -- 					return true
-    -- 				end
-    -- 			end
-    -- 		end
-    -- 	end
-    -- end
 
     -- Action List - Extras
     local function actionList_Extras()
@@ -656,10 +633,63 @@ local function runRotation()
             end
             -- Time Dilation
             if br.isChecked("Time Dilation") then
-                if lowest.hp <= br.getValue("Time Dilation") then
-                    if cast.timeDilation(lowest.unit) then
-                        br.addonDebug("Casting Time Dilation")
-                        return true
+                if br.getOptionValue("Time Dilation Target") == 1 then
+                    if php <= br.getValue("Time Dilation") and not buff.timeDilation.exists("player") then
+                        if cast.timeDilation("player") then
+                            br.addonDebug("Casting Time Dilation")
+                            return true
+                        end
+                    end
+                elseif br.getOptionValue("Time Dilation Target") == 2 then
+                    if br.getHP("target") <= br.getValue("Time Dilation") and not buff.timeDilation.exists("target") then
+                        if cast.timeDilation("target") then
+                            br.addonDebug("Casting Time Dilation")
+                            return true
+                        end
+                    end
+                elseif br.getOptionValue("Time Dilation Target") == 3 then
+                    if br.getHP("mouseover") <= br.getValue("Time Dilation") and not buff.timeDilation.exists("mouseover") then
+                        if cast.timeDilation("mouseover") then
+                            br.addonDebug("Casting Time Dilation")
+                            return true
+                        end
+                    end
+                elseif br.getOptionValue("Time Dilation Target") == 4 then
+                    for i = 1, #tanks do
+                        if tanks[i].hp <= br.getValue("Time Dilation") and br.getDistance(tanks[i].unit) <= 40 and not buff.timeDilation.exists(tanks[i].unit) then
+                            if cast.timeDilation(tanks[i].unit) then
+                                br.addonDebug("Casting Time Dilation")
+                                return true
+                            end
+                        end
+                    end
+                elseif br.getOptionValue("Time Dilation Target") == 5 then
+                    for i = 1, #br.friend do
+                        if br.friend[i].hp <= br.getValue("Time Dilation") and br._G.UnitGroupRolesAssigned(br.friend[i].unit) ==
+                            "HEALER" and not buff.timeDilation.exists(br.friend[i].unit) then
+                            if cast.timeDilation(br.friend[i].unit) then
+                                br.addonDebug("Casting Time Dilation")
+                                return true
+                            end
+                        end
+                    end
+                elseif br.getOptionValue("Time Dilation Target") == 6 then
+                    for i = 1, #br.friend do
+                        if br.friend[i].hp <= br.getValue("Time Dilation") and
+                            (br._G.UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" or br.friend[i].role == "HEALER" or
+                                br.friend[i].role == "TANK" or br._G.UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and not buff.timeDilation.exists(br.friend[i].unit) then
+                            if cast.timeDilation(br.friend[i].unit) then
+                                br.addonDebug("Casting Time Dilation")
+                                return true
+                            end
+                        end
+                    end
+                elseif br.getOptionValue("Time Dilation Target") == 7 then
+                    if lowest.hp <= br.getValue("Time Dilation") and not buff.timeDilation.exists(lowest.unit) then
+                        if cast.timeDilation(lowest.unit) then
+                            br.addonDebug("Casting Time Dilation")
+                            return true
+                        end
                     end
                 end
             end
@@ -711,7 +741,7 @@ local function runRotation()
             end
         end
         -- Dream Breath
-        if br.isChecked("Dream Breath") and talent.dreamBreath and not moving then
+        if br.isChecked("Dream Breath") and talent.dreamBreath and not empMoving then
             if br.healConeAround(br.getValue("Dream Breath Targets"), br.getValue("Dream Breath"), 90, 30, 0) then
                 if cast.dreamBreath() then
                     br.addonDebug("Casting Dream Breath")
@@ -721,7 +751,7 @@ local function runRotation()
             end
         end
         -- Spiritbloom
-        if br.isChecked("Spiritbloom") and talent.spiritBloom and not moving then
+        if br.isChecked("Spiritbloom") and talent.spiritBloom and not empMoving then
             for i = 1, #br.friend do
                 if br._G.UnitInRange(br.friend[i].unit) or br._G.UnitIsUnit(br.friend[i].unit, "player") then
                     local lowHealthCandidates = br.getUnitsToHealAround(br.friend[i].unit, 30,
@@ -829,7 +859,7 @@ local function runRotation()
             end
         end
          -- Spiritbloom
-         if br.isChecked("Spiritbloom") and not moving then
+         if br.isChecked("Spiritbloom") and not empMoving then
             for i = 1, #br.friend do
                 if br._G.UnitInRange(br.friend[i].unit) or br._G.UnitIsUnit(br.friend[i].unit, "player") then
                     local lowHealthCandidates = br.getUnitsToHealAround(br.friend[i].unit, 30,
@@ -854,14 +884,14 @@ local function runRotation()
 
     -- Action List - DPS
     local function actionList_DPS() 
-        if cd.fireBreath.remain() <= gcdMax and not moving and br.getEnemiesInCone(45,25) > 0 then
+        if mode.firebreath == 1 and cd.fireBreath.remain() <= gcdMax and not empMoving and br.getEnemiesInCone(45,25) > 0 then
             if cast.fireBreath() then
                 br.addonDebug("Casting Fire Breath")
                 br.evoker.empoweredLevel = 1
                 return true
             end
         end
-        if (br.getEssence("player") >= 3 or buff.essenceBurst.exists("player")) and not moving then
+        if ((br.getEssence("player") >= 3 and mode.disintegrate == 1) or buff.essenceBurst.exists("player")) and not moving then
             if cast.disintegrate() then
                 br.addonDebug("Casting Disintegrate")
                 return true
@@ -886,6 +916,12 @@ local function runRotation()
         br._G.print("Detecting Healing Engine is not turned on.  Please activate Healing Engine to use this profile.")
         return true
     end
+
+    local empSpells = {
+        [382266] = "fireBreath",
+        [355936] = "dreamBreath",
+        [367226] = "spiritbloom",
+    }
 
     local function getEmpowerStage(unit)
         local stage = 0
@@ -914,8 +950,8 @@ local function runRotation()
         if moving and br.evoker.empoweredLevel ~= 0 then
             br.evoker.empoweredLevel = 0;
         end
-        local channel = UnitChannelInfo("player")
-        if channel then
+        local channel,_,_,_,_,_,_,id = UnitChannelInfo("player")
+        if channel and empSpells[id] and not empMoving then
             if getEmpowerStage("player") >= br.evoker.empoweredLevel then
                 br._G.CastSpellByName(channel)
                 br.evoker.empoweredLevel = 0;

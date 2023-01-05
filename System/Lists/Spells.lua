@@ -1366,6 +1366,7 @@ br.lists.spells = {
                 echo                        = 364343,
                 essenceBurst                = 369297,
                 reversion                   = 366155,
+                timeDilation                = 357170,
 
             },
             conduits                        = {
