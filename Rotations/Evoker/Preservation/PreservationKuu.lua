@@ -2,7 +2,7 @@
 -- Author = Kuukuu
 -- Patch = 10.0
 --    Patch should be the latest patch you've updated the rotation for (i.e., 9.2.5)
--- Coverage = 35%
+-- Coverage = 37%
 --    Coverage should be your estimated percent coverage for class mechanics (i.e., 100%)
 -- Status = Sporadic
 --    Status should be one of: Full, Limited, Sporadic, Inactive, Unknown
@@ -186,7 +186,7 @@ local function createOptions()
     local function rotationOptions()
         local section
         -- General Options
-        section = br.ui:createSection(br.ui.window.profile, "General - Version 0.0.4")
+        section = br.ui:createSection(br.ui.window.profile, "General - Version 0.0.5")
         br.ui:createCheckbox(section, "OOC Healing",
             "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFout of combat healing|cffFFBB00.", 1)
         -- Pre-Pull Timer
@@ -884,7 +884,7 @@ local function runRotation()
 
     -- Action List - DPS
     local function actionList_DPS() 
-        if mode.firebreath == 1 and cd.fireBreath.remain() <= gcdMax and not empMoving and br.getEnemiesInCone(45,25) > 0 then
+        if mode.fireBreath == 1 and not empMoving and cd.fireBreath.remain() <= gcdMax and br.getEnemiesInCone(45,25) > 0 then
             if cast.fireBreath() then
                 br.addonDebug("Casting Fire Breath")
                 br.evoker.empoweredLevel = 1
