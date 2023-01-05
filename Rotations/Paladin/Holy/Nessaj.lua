@@ -737,12 +737,13 @@ actionList.ooc = function()
                     return true
                 end
             end
-        elseif buff.beaconOfLight.exists(tanks[1].unit) and not buff.beaconOfFaith.exists("Player") then
+         if buff.beaconOfLight.exists(tanks[1].unit) and not buff.beaconOfFaith.exists("Player") then
             if cast.beaconOfFaith("Player") then
                 return true
             end
+        end
         elseif #tanks == 0 and not buff.beaconOfLight.exists("Player") then
-            if cast.beaconOfFaith("Player") then
+            if cast.beaconOfLight("Player") then
                 return true
             end
         end
