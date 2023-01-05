@@ -155,7 +155,7 @@ Raidable means if its good to raid with.
 
 |  rotation   |author|patch|coverage| status |  readiness  |last updated|
 |-------------|------|:---:|:------:|:------:|:-----------:|-----------:|
-|Preserved Kuu|Kuukuu|10.0 |  35%   |Sporadic|:interrobang:|  01/05/2023|
+|Preserved Kuu|Kuukuu|10.0 |  37%   |Sporadic|:interrobang:|  01/05/2023|
 
 
 ### Hunter
