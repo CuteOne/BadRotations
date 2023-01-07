@@ -246,9 +246,9 @@ Raidable means if its good to raid with.
 
 - Retribution
 
-|rotation|author | patch |coverage| status |    readiness     |last updated|
-|--------|-------|:-----:|:------:|:------:|:----------------:|-----------:|
-|CuteOne |CuteOne|Unknown|  90%   |Inactive|:white_check_mark:|  01/07/2023|
+|rotation|author |patch|coverage| status |    readiness     |last updated|
+|--------|-------|:---:|:------:|:------:|:----------------:|-----------:|
+|CuteOne |CuteOne|10.0 |  90%   |Sporadic|:heavy_check_mark:|  01/07/2023|
 
 
 ### Priest
