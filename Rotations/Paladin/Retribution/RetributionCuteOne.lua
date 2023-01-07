@@ -1,12 +1,12 @@
 -------------------------------------------------------
 -- Author = CuteOne
--- Patch = Unknown
+-- Patch = 10.0
 --    Patch should be the latest patch you've updated the rotation for (i.e., 9.2.5)
 -- Coverage = 90%
 --    Coverage should be your estimated percent coverage for class mechanics (i.e., 100%)
--- Status = Inactive
+-- Status = Sporadic
 --    Status should be one of: Full, Limited, Sporadic, Inactive, Unknown
--- Readiness = Raid
+-- Readiness = Basic
 --    Readiness should be one of: Raid, NoRaid, Basic, Development, Untested
 -------------------------------------------------------
 -- Required: Fill above fields to populate README.md --
