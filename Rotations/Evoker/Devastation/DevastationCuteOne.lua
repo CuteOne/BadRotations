@@ -267,7 +267,7 @@ end
 custom.getDeepBreathLocation = function(minUnits)
     for i = 21, 50 do
         local enemies = #br.player.enemies.rect.get(6,i,false)
-        if enemies > 0 then
+        if enemies >= minUnits then
             local playerX, playerY, playerZ = br.GetObjectPosition("player")
             local playerFacing = br.GetObjectFacing("player")
             local x = playerX + (i * math.cos(playerFacing))
