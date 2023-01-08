@@ -146,10 +146,11 @@ Raidable means if its good to raid with.
 
 - Devastation
 
-|   rotation   |author |patch|coverage| status |    readiness     |last updated|
-|--------------|-------|:---:|:------:|:------:|:----------------:|-----------:|
-|CuteOne       |CuteOne|10.0 |  95%   |  Full  |:heavy_check_mark:|  01/08/2023|
-|Devastated Kuu|Kuukuu |10.0 |  25%   |Sporadic|  :interrobang:   |  12/10/2022|
+|   rotation   |          author          |patch|coverage| status |    readiness     |last updated|
+|--------------|--------------------------|:---:|:------:|:------:|:----------------:|-----------:|
+|CuteOne       |CuteOne                   |10.0 |  95%   |  Full  |:heavy_check_mark:|  01/08/2023|
+|DiscoInferno  |CuteOne edit by DiscoBooty|10.0 |  95%   |  Full  |:heavy_check_mark:|  01/08/2023|
+|Devastated Kuu|Kuukuu                    |10.0 |  25%   |Sporadic|  :interrobang:   |  12/10/2022|
 
 - Preservation
 
