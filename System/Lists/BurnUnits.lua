@@ -31,7 +31,16 @@ br.lists.burnUnits = {
     [195723] = { coef = 100, name = "Teera", id = 195723 },
     [193462] = { coef = 100, name = "Batak", id = 193462 },
     [190294] = { coef = 100, name = "Nokhud Stormcaster", id = 190294 },
-    --Shadowlands dungeons
+    --Temple of the Jade Serpent
+    [200126] = { coef = 100, name = "Fallen Waterspeaker", id = 200126 },
+    [59555] = { coef = 100, name = "Haunting Sha", id = 59555 },
+    [200131] = { coef = 100, name = "Sha-Touched Guardian", id = 200131 },
+    [200137] = { coef = 100, name = "Depraved Mistweaver", id = 200137 },
+    [59546] = { coef = 100, name = "The Talking Fish", id = 59546 },
+    [59553] = { coef = 100, name = "The Songbird Queen", id = 59553 },
+    [59552] = { coef = 100, name = "The Crybaby Hozen", id = 59552 },
+    [57109] = { coef = 100, name = "Minion of Doubt", id = 57109 },
+    [56792] = { coef = 100, name = "Figment of Doubt", id = 56792 },
     -- m+ stuff
     [343502] = { coef = 50, name = "Inspiring - M+ Affix", id = 343502 },
     [173729] = { coef = 150, name = "Manifestation of Pride", id = 173729 },
