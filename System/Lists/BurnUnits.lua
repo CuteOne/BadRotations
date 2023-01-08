@@ -41,6 +41,14 @@ br.lists.burnUnits = {
     [59552] = { coef = 100, name = "The Crybaby Hozen", id = 59552 },
     [57109] = { coef = 100, name = "Minion of Doubt", id = 57109 },
     [56792] = { coef = 100, name = "Figment of Doubt", id = 56792 },
+    --Halls of Valor
+    [95842] = { coef = 100, name = "Valarjar Thundercaller", id = 95842 },
+    [95834] = { coef = 100, name = "Valarjar Mystic", id = 95834 },
+    [97197] = { coef = 100, name = "Valarjar Purifier", id = 97197 },
+    [96664] = { coef = 100, name = "Valarjar Runecarver", id = 96664 },
+    [96611] = { coef = 100, name = "Angerhoof Bull", id = 96611 },
+    [101637] = { coef = 150, name = "Valarjar Aspirant", id = 101637 },
+    [102019] = { coef = 100, name = "Stormforged Obliterator", id = 102019 },
     -- m+ stuff
     [343502] = { coef = 50, name = "Inspiring - M+ Affix", id = 343502 },
     [173729] = { coef = 150, name = "Manifestation of Pride", id = 173729 },
