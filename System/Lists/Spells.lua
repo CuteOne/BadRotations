@@ -573,7 +573,6 @@ br.lists.spells = {
 
             },
             talents                         = {
-                meteoricStrikes             = 389724,
                 agonizingFlames             = 207548,
                 bulkExtraction              = 320341,
                 burningAlive                = 207739,
@@ -586,9 +585,11 @@ br.lists.spells = {
                 fracture                    = 263642,
                 infernalArmor               = 320331,
                 lastResort                  = 209258,
+                meteoricStrikes             = 389724,
                 quickenedSigils             = 209281,
                 ruinousBulwark              = 326853,
                 sigilOfChains               = 202138,
+                sigilOfSilence              = 202137,
                 soulBarrier                 = 263648,
                 soulRending                 = 204909,
                 spiritBomb                  = 247454,
@@ -696,7 +697,6 @@ br.lists.spells = {
                 rushOfChaos                 = 320421,
                 shatteredRestoration        = 389824,
                 sigilOfMisery               = 207684,
-                sigilOfSilence              = 202137,
                 soulSigils                  = 395446,
                 swallowedAnger              = 320313,
                 theHunt                     = 370965,

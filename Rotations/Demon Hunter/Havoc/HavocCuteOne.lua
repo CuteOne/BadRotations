@@ -353,9 +353,7 @@ actionList.Interrupts = function()
         -- Sigil of Misery
         for i=1, #enemies.yards30 do
             local thisUnit = enemies.yards30[i]
-            if ui.checked("Sigil of Misery") and cast.able.sigilOfMisery(thisUnit)
-                and cd.disrupt.remain() > 0 and cd.sigilOfSilence.remain() > 0 and cd.sigilOfSilence.remain() < 45
-            then
+            if ui.checked("Sigil of Misery") and cast.able.sigilOfMisery(thisUnit) and cd.disrupt.remain() > 0 then
                 if cast.sigilOfMisery(thisUnit,"ground",1,8) then ui.debug("Casting Sigil of Misery [Interrupt]") return true end
             end
         end
