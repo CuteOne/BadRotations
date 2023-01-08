@@ -851,7 +851,6 @@ br.lists.spells = {
         -- Feral
         [103] = {
             abilities                       = {
-                berserk                     = 106951,
                 moonfireFeral               = 155625,
                 swipeCat                    = 106785,
             },
@@ -859,6 +858,8 @@ br.lists.spells = {
 
             },
             buffs                           = {
+                adaptiveSwarmDamage         = 391889,
+                adaptiveSwarmHeal           = 391891,
                 apexPredator                = 255984,
                 apexPredatorsCraving        = 339140,
                 berserk                     = 106951,
@@ -870,6 +871,7 @@ br.lists.spells = {
                 ironJaws                    = 276021,
                 jungleStalker               = 252071,
                 predatorySwiftness          = 69369,
+                sabertooth                  = 391722,
                 savageRoar                  = 52610,
                 scentOfBlood                = 285646,
                 survivalInstincts           = 61336,
@@ -896,6 +898,7 @@ br.lists.spells = {
                 draughtOfDeepFocus          = 338658,
             },
             talents                         = {
+                adaptiveSwarm               = 391888,
                 apexPredatorsCraving        = 391881,
                 ashamanesGuidance           = 391548,
                 berserk                     = 106951,
