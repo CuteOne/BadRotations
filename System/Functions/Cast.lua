@@ -95,14 +95,17 @@ function br.castGroundLocation(X,Y,SpellID,maxDistance,minDistance,radius)
 	local pX, pY, Z = br.GetObjectPosition("player")
 	local distance = br._G.sqrt(((X-pX)^2) + ((Y-pY)^2))
 	local mouselookActive = false
-
 	if distance < maxDistance and distance >= minDistance then
 		if br._G.IsMouselooking() then
 			mouselookActive = true
 			br._G.MouselookStop()
 		end
+		-- br._G.print("Casting Spell")
 		br._G.CastSpellByName(br._G.GetSpellInfo(SpellID))
-		br._G.ClickPosition((X + math.random() * 2),(Y + math.random() * 2),Z) --distanceToGround
+		if br._G.IsAoEPending() then
+			-- br._G.print("Clicking Position")
+			br._G.ClickPosition((X + math.random() * 2),(Y + math.random() * 2),Z) --distanceToGround
+		end
         br.castPosition.x = X
         br.castPosition.y = Y
         br.castPosition.z = Z

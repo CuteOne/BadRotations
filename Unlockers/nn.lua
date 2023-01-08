@@ -333,7 +333,7 @@ function br.unlock:NNUnlock()
 	end
 
 	b.CastSpellByName = function(spellName, unit)
-		if unit == nil then unit = "player" end --b.print("No unit provided to CastSpellByName") end
+		if unit == nil then return CastSpellByName(spellName) end --b.print("No unit provided to CastSpellByName") end
 		return BRCastSpellByName(spellName, unit)
 	end
 
