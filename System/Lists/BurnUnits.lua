@@ -10,6 +10,27 @@ br.lists.burnUnits = {
     [174335] = { coef = 100, name = "Stone Legion Skirmisher", id = 174335 },
     [173162] = { coef = 200, name = "Lord Evershade", id = 173162 },
     [173163] = { coef = 200, name = "Baron Duskhollow", id = 173163 },
+    --Dragonflight dungeons
+    --The Nokhud Offensive
+    [192800] = { coef = 100, name = "Nokhud Lancemaster", id = 192800 },
+    [191847] = { coef = 100, name = "Nokhud Plainstomper", id = 191847 },
+    [192796] = { coef = 100, name = "Nokhud Hornsounder", id = 192796 },
+    [194317] = { coef = 100, name = "Stormcaller Boroo", id = 194317 },
+    [194896] = { coef = 100, name = "Primal Stormshield", id = 194896 },
+    [194315] = { coef = 100, name = "Stormcaller Solongo", id = 194315 },
+    [194894] = { coef = 100, name = "Primalist Stormspeaker", id = 194894 },
+    [194316] = { coef = 100, name = "Stormcaller Zarii", id = 194316 },
+    [195929] = { coef = 100, name = "Soulharvester Tumen", id = 195929 },
+    [195851] = { coef = 100, name = "Ukhel Deathspeaker", id = 195851 },
+    [195877] = { coef = 100, name = "Risen Mystic", id = 195877 },
+    [195842] = { coef = 100, name = "Ukhel Corruptor", id = 195842 },
+    [195930] = { coef = 100, name = "Soulharvester Mandakh", id = 195930 },
+    [195851] = { coef = 100, name = "Ukhel Deathspeaker", id = 195851 },
+    [195927] = { coef = 100, name = "Soulharvester Galtmaa", id = 195927 },
+    [195842] = { coef = 100, name = "Ukhel Corruptor", id = 195842 },
+    [195723] = { coef = 100, name = "Teera", id = 195723 },
+    [193462] = { coef = 100, name = "Batak", id = 193462 },
+    [190294] = { coef = 100, name = "Nokhud Stormcaster", id = 190294 },
     --Shadowlands dungeons
     -- m+ stuff
     [343502] = { coef = 50, name = "Inspiring - M+ Affix", id = 343502 },
