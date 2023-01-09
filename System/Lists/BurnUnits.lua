@@ -4,6 +4,10 @@ if br.lists == nil then
 end
 -- burnUnits = List of UnitID/Names we should have highest prio on.
 br.lists.burnUnits = {
+    --Vault of the Incarnates
+    [199353] = { coef = 100, name = "Batak", id = 199353 },
+    [192934] = { coef = 100, name = "Volatile Infuser", id = 192934 },
+    [187638] = { coef = 100, name = "Flamescale Tarasek", id = 187638 },
     --Castle Narthia
     [175992] = { coef = 150, name = "Dutiful Attendant", id = 175992 }, -- gives immunity to boss
     [172858] = { coef = 200, name = "Stone Legion Goliath", id = 172858 },
@@ -11,6 +15,16 @@ br.lists.burnUnits = {
     [173162] = { coef = 200, name = "Lord Evershade", id = 173162 },
     [173163] = { coef = 200, name = "Baron Duskhollow", id = 173163 },
     --Dragonflight dungeons
+    --Algeth'ar Academy
+    [196045] = { coef = 100, name = "Corrupted Manafiend", id = 196045 },
+    [196576] = { coef = 100, name = "Spellbound Scepter", id = 196576 },
+    [196202] = { coef = 100, name = "Spectral Invoker", id = 196202 },
+    [196203] = { coef = 100, name = "Ethereal Restorer", id = 196203 },
+    [197398] = { coef = 100, name = "Hungry Lasher", id = 197398 },
+    [196548] = { coef = 100, name = "Ancient Branch", id = 196548 },
+    [192333] = { coef = 100, name = "Alpha Eagle", id = 192333 },
+    [196576] = { coef = 100, name = "Spellbound Scepter", id = 196576 },
+    [196044] = { coef = 150, name = "Unruly Textbook", id = 196044 },
     --The Nokhud Offensive
     [192800] = { coef = 100, name = "Nokhud Lancemaster", id = 192800 },
     [191847] = { coef = 100, name = "Nokhud Plainstomper", id = 191847 },
