@@ -833,7 +833,7 @@ actionList.BerserkBuilders = function()
     -- Moonfire Feral
     -- moonfire_cat,target_if=refreshable
     for i = 1, #enemies.yards40 do
-        local thisUnit = #enemies.yards40[i]
+        local thisUnit = enemies.yards40[i]
         if cast.able.moonfireFeral(thisUnit) and debuff.moonfireFeral.refresh(thisUnit) then
             if cast.moonfireFeral(thisUnit) then ui.debug("Casting Moonfire [Berserk Builders]") return true end
         end
