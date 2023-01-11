@@ -413,7 +413,7 @@ local function runRotation()
     -- Action List - Extras
     local function actionList_Extras()
         -- Return
-        if br.isChecked("Return") and not inCombat and not br.isMoving("player") and br.timer:useTimer("Resurrect", 4) then
+        if br.isChecked("Return") and not inCombat and not br.isMoving("player") then
             if br.getOptionValue("Return") == 1 and br._G.UnitIsPlayer("target") and br.GetUnitIsDeadOrGhost("target") and
                 br.GetUnitIsFriend("target", "player") then
                 if cast.returnEvoker("target", "dead") then
@@ -428,7 +428,7 @@ local function runRotation()
                     return true
                 end
             end
-            if br.getOptionValue("Return") == 3 then
+            if br.getOptionValue("Return") == 3  and br.timer:useTimer("Resurrect", 3) then
                 local deadPlayers = {}
                 for i = 1, #br.friend do
                     if br._G.UnitIsPlayer(br.friend[i].unit) and br.GetUnitIsDeadOrGhost(br.friend[i].unit) then
@@ -833,7 +833,7 @@ local function runRotation()
             end
         end
         -- Temporal Anomaly
-        if br.isChecked("Temporal Anomaly") and not moving and br.getUnitsInRect(10,24,false, br.getValue("Temporal Anomaly")) >= br.getValue("Temporal Anomaly Targets") then
+        if br.isChecked("Temporal Anomaly") and inCombat and not moving and br.getUnitsInRect(10,24,false, br.getValue("Temporal Anomaly")) >= br.getValue("Temporal Anomaly Targets") then
             if cast.temporalAnomaly() then
                 br.addonDebug("Casting Temporal Anomaly")
                 return true
@@ -917,9 +917,9 @@ local function runRotation()
     end
 
     local empSpells = {
-        [382266] = "fireBreath",
-        [382614] = "dreamBreath",
-        [382731] = "spiritbloom",
+        [357208] = "fireBreath",
+        [355936] = "dreamBreath",
+        [367226] = "spiritbloom",
     }
 
     local function getEmpowerStage(unit)
