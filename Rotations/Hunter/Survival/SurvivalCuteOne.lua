@@ -371,9 +371,9 @@ actionList.Cooldown = function()
     if ui.useCDs() and unit.distance(var.eagleUnit) < var.eagleRange then
         -- Harpoon
         -- harpoon,if=talent.terms_of_engagement.enabled&focus<focus.max
-        --if cast.able.harpoon() and talent.termsOfEngagement and focus < focusMax then
-        --    if cast.harpoon() then ui.debug("Casting Harpoon [CD]") return true end
-        --end
+        if cast.able.harpoon() and talent.termsOfEngagement and focus < focusMax and ui.mode.harpoon == 1 then
+            if cast.harpoon() then ui.debug("Casting Harpoon [CD]") return true end
+        end
         -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
         if ui.checked("Racial") then
             -- blood_fury,if=cooldown.coordinated_assault.remains>30
