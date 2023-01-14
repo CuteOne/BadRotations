@@ -99,6 +99,8 @@ local function createOptions()
             br.ui:createDropdownWithout(section,"Primal Wrath Usage",{"|cffFFFF00Always","|cff00FF00Refresh Only"})
             -- Filler Spell
             br.ui:createDropdownWithout(section,"Filler Spell",{"Shred", "Rake", "Snapshot Rake", "Lunar Inspiration", "Swipe"}, 1, "|cffFFFFFFSet which spell to use as filler.")
+            -- Mark of the Wild
+            br.ui:createDropdown(section, "Mark of the Wild",{"|cffFFFFFFPlayer", "|cffFFFFFFTarget", "|cffFFFFFFMouseover", "|cffFFFFFFFocus", "|cffFFFFFFGroup"}, 1, "|cffFFFFFFSet how to use Mark of the Wild")
         br.ui:checkSectionState(section)
         -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -116,7 +118,6 @@ local function createOptions()
             br.ui:createDropdownWithout(section,"Convoke The Spirits",{"|cff00FF00Always","|cffFFFF00Cooldowns","|cffFF0000Never"}, 2, "|cffFFFFFFSet when to use Convoke The Spirits")
             -- Tiger's Fury
             br.ui:createCheckbox(section,"Tiger's Fury")
-            br.ui:createDropdownWithout(section,"Snipe Tiger's Fury", {"|cff00FF00Enabled","|cffFF0000Disabled"}, 1, "|cff15FF00Enable|cffFFFFFF/|cffD60000Disable |cffFFFFFFuse of Tiger's Fury to take adavantage of Predator talent.")
             -- Berserk / Incarnation: King of the Jungle
             br.ui:createDropdownWithout(section,"Berserk/Incarnation",{"|cff00FF00Always","|cffFFFF00Cooldowns","|cffFF0000Never"}, 2, "|cffFFFFFFSet when to use Berserk/Incarnation")
             -- Owlweave
@@ -198,7 +199,6 @@ end
 --- Locals ---
 --------------
 -- BR API Locals
-local anima
 local buff
 local cast
 local cd
@@ -294,29 +294,6 @@ local function canDoT(thisUnit)
     end
     return unitHealthMax > maxHealth / 10
 end
--- TF Predator Snipe
-local function snipeTF()
-    if ui.value("Snipe Tiger's Fury") == 1 and talent.predator and not cd.tigersFury.exists()
-        and (#enemies.yards40 == 1 and unit.ttd(units.dyn40) > power.energy.ttm()) or #enemies.yards40 > 1
-    then
-        local lowestUnit = units.dyn5
-        local lowestHP = 100
-        for i = 1, #enemies.yards40 do
-            local thisUnit = enemies.yards40[i]
-            local thisHP = unit.hp(thisUnit)
-            if thisHP < lowestHP then
-                lowestHP = thisHP
-                lowestUnit = thisUnit
-            end
-        end
-        local timeTillDeath = 99
-        local longestBleed = math.max(debuff.rake.remain(lowestUnit,"EXACT"), debuff.rip.remain(lowestUnit),
-            debuff.thrashCat.remain(lowestUnit), debuff.feralFrenzy.remain(lowestUnit))
-        if unit.ttd(lowestUnit) > 0 then timeTillDeath = unit.ttd(lowestUnit) end
-        if lowestUnit ~= nil and timeTillDeath < longestBleed then return true end
-    end
-    return false
-end
 -- Ferocious Bite Finish
 local function ferociousBiteFinish(thisUnit)
     local GetSpellDescription = br._G["GetSpellDescription"]
@@ -378,6 +355,36 @@ local function findKindredSpirit()
         end
     end
     return kindredSpirit
+end
+
+local getMarkUnitOption = function(option)
+    local thisTar = ui.value(option)
+    local thisUnit
+    if thisTar == 1 then
+        thisUnit = "player"
+    end
+    if thisTar == 2 then
+        thisUnit = "target"
+    end
+    if thisTar == 3 then
+        thisUnit = "mouseover"
+    end
+    if thisTar == 4 then
+        thisUnit = "focus"
+    end
+    if thisTar == 5 then
+        thisUnit = "player"
+        if #br.friend > 1 then
+            for i = 1, #br.friend do
+                local nextUnit = br.friend[i].unit
+                if buff.markOfTheWild.refresh(nextUnit) and unit.distance(var.markUnit) < 40 then
+                    thisUnit = nextUnit
+                    break
+                end
+            end
+        end
+    end
+    return thisUnit
 end
 
 --------------------
@@ -498,6 +505,13 @@ actionList.Extras = function()
             end
         end -- End 20yrd Enemy Scan
     end -- End Death Cat Mode
+    -- Mark of the Wild
+    if ui.checked("Mark of the Wild") then
+        var.markUnit = getMarkUnitOption("Mark of the Wild")
+        if cast.able.markOfTheWild(var.markUnit) and buff.markOfTheWild.refresh(var.markUnit) and unit.distance(var.markUnit) < 40 then
+            if cast.markOfTheWild(var.markUnit) then ui.debug("Casting Mark of the Wild") return true end
+        end
+    end
     -- Dummy Test
     if ui.checked("DPS Testing") then
         if unit.exists("target") then
@@ -822,19 +836,19 @@ actionList.BerserkBuilders = function()
     end
     -- Swipe
     -- swipe_cat,if=spell_targets.swipe_cat>1
-    if cast.able.swipeCat("player","aoe",1,8) and (#enemies.yards8 > 1) then
+    if cast.able.swipeCat("player","aoe",1,8) and not talent.brutalSlash and (#enemies.yards8 > 1) then
         if cast.swipeCat("player","aoe",1,8) then ui.debug("Casting Swipe [Berserk Builders]") return true end
     end
     -- Brutal Slash
     -- brutal_slash,if=active_bt_triggers=2&buff.bt_brutal_slash.down
-    if cast.able.brutalSlash("player","aoe",1,8) and btGen.triggers == 2 and not btGen.brutalSlash then
+    if cast.able.brutalSlash("player","aoe",1,8) and talent.brutalSlash and btGen.triggers == 2 and not btGen.brutalSlash then
         if cast.brutalSlash("player","aoe",1,8) then ui.debug("Casting Brutal Slash [Berserk Builders]") return true end
     end
     -- Moonfire Feral
     -- moonfire_cat,target_if=refreshable
     for i = 1, #enemies.yards40 do
         local thisUnit = enemies.yards40[i]
-        if cast.able.moonfireFeral(thisUnit) and debuff.moonfireFeral.refresh(thisUnit) then
+        if cast.able.moonfireFeral(thisUnit) and talent.lunarInspiration and debuff.moonfireFeral.refresh(thisUnit) then
             if cast.moonfireFeral(thisUnit) then ui.debug("Casting Moonfire [Berserk Builders]") return true end
         end
     end
@@ -877,7 +891,6 @@ actionList.Finisher = function()
     if cast.able.ferociousBite() and var.fbMaxEnergy and range.dyn5
         and (not var.bsInc or (var.bsInc and not talent.soulOfTheForest))
     then
-        -- if cast.pool.ferociousBite() then return true end
         if cast.ferociousBite() then ui.debug("Casting Ferocious Bite - Max Energy [Finish]") return true end
     end
     -- ferocious_bite,if=(buff.bs_inc.up&talent.soul_of_the_forest.enabled)
@@ -917,7 +930,7 @@ actionList.Bloodtalons = function()
     end
     -- Brutal Slash
     -- brutal_slash,if=buff.bt_brutal_slash.down
-    if cast.able.brutalSlash("player","aoe",1,8) and not btGen.brutalSlash then
+    if cast.able.brutalSlash("player","aoe",1,8) and talent.brutalSlash and not btGen.brutalSlash then
         if cast.brutalSlash("player","aoe",1,8) then
             ui.debug("Casting Brutal Slash [BT]")
             btGen.brutalSlash = true
@@ -1065,6 +1078,7 @@ actionList.AoE = function()
     -- pool_resource,for_next=1
     -- primal_wrath,if=combo_points=5
     if cast.able.primalWrath("player","aoe",1,8) and comboPoints == 5 then
+        if cast.pool.primalWrath() then return true end
         if cast.primalWrath("player","aoe",1,8) then ui.debug("Casting Primal Wrath [AoE]") return true end
     end
     -- Ferocious Bite
@@ -1084,6 +1098,7 @@ actionList.AoE = function()
         for i = 1, #enemies.yards8 do
             local thisUnit = enemies.yards8[i]
             if debuff.thrashCat.refresh(thisUnit) then
+                if cast.pool.thrashCat() then return true end
                 if cast.thrashCat("player","aoe",1,8) then ui.debug("Casting Thrash - Refresh [AoE]") return true end
             end
         end
@@ -1096,7 +1111,8 @@ actionList.AoE = function()
     -- Rake
     -- pool_resource,for_next=1
     -- rake,target_if=max:dot.rake.ticks_gained_on_refresh.pmult,if=((dot.rake.ticks_gained_on_refresh.pmult*(1+talent.doubleclawed_rake.enabled))>(spell_targets.swipe_cat*0.216+3.32))
-    if cast.able.rake(var.maxRakeTicksGainUnit) and ((var.rakeTicksGain * (1 + var.doubleClawedRake)) > (#enemies.yards8 * 0.216 + 3.32)) then
+    if cast.able.rake(var.maxRakeTicksGainUnit) and ((var.rakeTicksGain(var.maxRakeTicksGainUnit) * (1 + var.doubleClawedRake)) > (#enemies.yards8 * 0.216 + 3.32)) then
+        if cast.pool.rake() then return true end
         if cast.rake(var.maxRakeTicksGainUnit) then ui.debug("Casting Rake [AoE]") return true end
     end
     -- Lunar Inspiration
@@ -1199,7 +1215,6 @@ local function runRotation()
     --------------
     -- BR API
     if comboPoints == nil then
-        anima           = br.player.anima
         buff            = br.player.buff
         cast            = br.player.cast
         cd              = br.player.cd

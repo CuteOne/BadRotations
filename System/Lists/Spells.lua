@@ -1184,6 +1184,7 @@ br.lists.spells = {
                 kindredEmpowermentEnergize  = 327022, --/kindred-empowerment  this is when someone else cast it on you
                 loneSpirit                  = 338041,
                 lycarasTwig                 = 330668, -- Anima Power Torghast
+                markOfTheWild               = 1126,
                 moonkinForm                 = 197625,
                 prowl                       = 5215,
                 rejuvenation                = 774,
