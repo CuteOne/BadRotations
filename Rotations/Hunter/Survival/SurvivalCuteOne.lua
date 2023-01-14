@@ -371,9 +371,9 @@ actionList.Cooldown = function()
     if ui.useCDs() and unit.distance(var.eagleUnit) < var.eagleRange then
         -- Harpoon
         -- harpoon,if=talent.terms_of_engagement.enabled&focus<focus.max
-        if cast.able.harpoon() and talent.termsOfEngagement and focus < focusMax then
-            if cast.harpoon() then ui.debug("Casting Harpoon [CD]") return true end
-        end
+        --if cast.able.harpoon() and talent.termsOfEngagement and focus < focusMax then
+        --    if cast.harpoon() then ui.debug("Casting Harpoon [CD]") return true end
+        --end
         -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
         if ui.checked("Racial") then
             -- blood_fury,if=cooldown.coordinated_assault.remains>30
@@ -409,25 +409,35 @@ actionList.Cooldown = function()
     end
     -- Tar Trap
     -- tar_trap,if=runeforge.nessingwarys_trapping_apparatus.equipped&focus+cast_regen<focus.max|focus+cast_regen<focus.max&runeforge.soulforge_embers.equipped&tar_trap.remains<gcd&cooldown.flare.remains<gcd&(active_enemies>1|active_enemies=1&time_to_die>5*gcd)
-    if cast.able.tarTrap("best",nil,1,8) and (runeforge.nesingwarysTrappingApparatus.equiped and focus + cast.regen.steelTrap() < focusMax
-        or focus + cast.regen.steelTrap() < focusMax and (runeforge.soulforgeEmbers.equiped or anima.soulforgeEmbers.exists()) and debuff.tarTrap.remains(units.dyn40) < unit.gcd(true)
-        and (#enemies.yards40 > 1 or #enemies.yards40 == 1 and unit.ttd(units.dyn40) > 5 * unit.gcd(true)))
-    then
-        if cast.tarTrap("best",nil,1,8) then ui.debug("Casting Tar Trap [CD]") var.tarred = true return true end
-    end
+    --if cast.able.tarTrap("best",nil,1,8) and (runeforge.nesingwarysTrappingApparatus.equiped and focus + cast.regen.steelTrap() < focusMax
+    --    or focus + cast.regen.steelTrap() < focusMax and debuff.tarTrap.remains(units.dyn40) < unit.gcd(true)
+    --    and (#enemies.yards40 > 1 or #enemies.yards40 == 1 and unit.ttd(units.dyn40) > 5 * unit.gcd(true)))
+    --then
+    --    if cast.tarTrap("best",nil,1,8) then ui.debug("Casting Tar Trap [CD]") var.tarred = true return true end
+    --end
     -- Flare
     -- flare,if=focus+cast_regen<focus.max&tar_trap.up&runeforge.soulforge_embers.equipped&time_to_die>4*gcd
-    if cast.able.flare("groundLocation",br.castPosition.x,br.castPosition.y,8) and var.tarred and focus + cast.regen.flare() < focusMax
-        and (runeforge.soulforgeEmbers.equiped or anima.soulforgeEmbers.exists()) --and unit.ttd(units.dyn40) > 4 * unit.gcd(true)
-    then
-        if cast.flare("groundLocation",br.castPosition.x,br.castPosition.y,8) then ui.debug("Casting Flare [CD]") var.tarred = false return true end
-    end
+    --if cast.able.flare("groundLocation",br.castPosition.x,br.castPosition.y,8) and var.tarred and focus + cast.regen.flare() < focusMax
+    --    and (runeforge.soulforgeEmbers.equiped or anima.soulforgeEmbers.exists()) --and unit.ttd(units.dyn40) > 4 * unit.gcd(true)
+    --then
+    --    if cast.flare("groundLocation",br.castPosition.x,br.castPosition.y,8) then ui.debug("Casting Flare [CD]") var.tarred = false return true end
+    --end
     -- Kill Shot
     -- kill_shot,if=active_enemies=1&target.time_to_die<focus%(action.mongoose_bite.cost-cast_regen)*gcd
-    if cast.able.killShot("target") and (unit.hp("target") < 20 or buff.flayersMark.exists()) and #enemies.yards40 == 1
+    if cast.able.killShot("target") and (unit.hp("target") < 20 or buff.coordinatedAssault.exists()) and #enemies.yards40 == 1
         and unit.ttd(units.dyn40) < focus / (cast.cost.mongooseBite() - cast.regen.killShot()) * unit.gcd(true)
     then
         if cast.killShot("target") then ui.debug("Casting Kill Shot [CD]") return true end
+    end
+    -- Death Chakram
+    -- deathChakram
+    if talent.deathChakram and cast.able.deathChakram("target") and #enemies.yards40 > 0 then
+        if cast.deathChakram("target") then ui.debug("casting Death Chakram [CD]") return true end
+    end
+    -- Explosive Shot
+    -- explosiveShot
+    if talent.explosiveShot and cast.able.explosiveShot("target") and #enemies.yards40 > 0 then
+        if cast.explosiveShot("target") then ui.debug("Casting Explosive SHot [CD]") return true end
     end
     -- Mongoose Bite
     -- mongoose_bite,if=active_enemies=1&target.time_to_die<focus%(action.mongoose_bite.cost-cast_regen)*gcd
@@ -472,7 +482,7 @@ actionList.ApBoP = function()
     end
     -- Kill Shot
     -- kill_shot
-    if cast.able.killShot("target") and (unit.hp("target") < 20 or buff.flayersMark.exists()) then
+    if cast.able.killShot("target") and (unit.hp("target") < 20 or buff.coordinatedAssault.exists()) then
         if cast.killShot("target") then ui.debug("Casting Kill Shot [ApBoP]") return true end
     end
     -- Mongoose Bite
@@ -603,7 +613,7 @@ actionList.ApSt = function()
     end
     -- Kill Shot
     -- kill_shot
-    if cast.able.killShot("target") and (unit.hp("target") < 20 or buff.flayersMark.exists()) then
+    if cast.able.killShot("target") and (unit.hp("target") < 20 or buff.coordinatedAssault.exists()) then
         if cast.killShot("target") then ui.debug("Casting Kill Shot [ApSt]") return true end
     end
     -- Flanking Strike
@@ -677,9 +687,9 @@ actionList.ApSt = function()
         if cast.wildfireBomb(units.dyn40,"cone",1,8) then ui.debug("Casting Wildfire Bomb [ApSt - Next Bomb Shrapnel") return true end
     end
     -- Chakrams
-    -- chakrams
-    if cast.able.chakrams("player","rect",1,40) and #enemies.yards40r > 0 then
-        if cast.chakrams("player","rect",1,40) then ui.debug("Casting Chakrams [ApSt]") return true end
+    -- deathChakram
+    if cast.able.deathChakram("target","rect",1,40) and #units.dyn40 > 0 then
+        if cast.deathChakram("target","rect",1,40) then ui.debug("Casting Chakrams [ApSt]") return true end
     end
     -- Kill Command
     -- kill_command,target_if=min:bloodseeker.remains,if=focus+cast_regen<focus.max
@@ -753,7 +763,7 @@ actionList.BoP = function()
     end
     -- Kill Shot
     -- kill_shot
-    if cast.able.killShot("target") and (unit.hp("target") < 20 or buff.flayersMark.exists()) then
+    if cast.able.killShot("target") and (unit.hp("target") < 20 or buff.coordinatedAssault.exists()) then
         if cast.killShot("target") then ui.debug("Casting Kill Shot [BoP]") return true end
     end
     -- Raptor Strike
@@ -849,25 +859,30 @@ actionList.Cleave = function()
     if cast.able.serpentSting(var.lowestSerpentSting) and talent.hydrasBite and buff.vipersVenom.exists() and buff.vipersVenom.remains() < unit.gcd(true) then
         if cast.serpentString(var.lowestSerpentSting) then ui.debug("Casting Serpent Sting [Cleave - Low Viper's Venom]") return true end
     end
-    -- Wild Spirits
-    -- wild_spirits
-    if ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards12t) and cast.able.wildSpirits("best",nil,var.spiritUnits,12) then
-        if cast.wildSpirits("best",nil,var.spiritUnits,12) then ui.debug("Casting Wild Spirits [Cleave]") return true end
-    end
-    -- Resonating Arrow
-    -- resonating_arrow
-    if ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards12t) and cast.able.resonatingArrow("best",nil,1,15) then
-        if cast.resonatingArrow("best",nil,1,15) then ui.debug("Casting Resonating Arrow [Cleave]") return true end
-    end
     -- Wildfire Bomb
     -- wildfire_bomb,if=full_recharge_time<gcd
     if cast.able.wildfireBomb(units.dyn40,"cone",1,8) and charges.wildfireBomb.timeTillFull() < unit.gcd(true) then
         if cast.wildfireBomb(units.dyn40,"cone",1,8) then ui.debug("Casting Wildfire Bomb [Cleave - Max Charges]") return true end
     end
     -- Chakrams
-    -- chakrams
-    if cast.able.chakrams("player","rect",1,40) and #enemies.yards40r > 0 then
-        if cast.chakrams("player","rect",1,40) then ui.debug("Casting Chakrams [Cleave]") return true end
+    -- deathChakram
+    if talent.deathChakram and cast.able.deathChakram("target") and #enemies.yards40 > 0 then
+        if cast.deathChakram("target") then ui.debug("casting Death Chakram [Cleave]") return true end
+    end
+    -- Coordinated Assault
+    -- coordinated_assault
+    if ui.alwaysCdAoENever("Coordinated Assault",3,#var.eagleEnemies) and cast.able.coordinatedAssault() and unit.distance("target") < 5 then
+        if cast.coordinatedAssault() then ui.debug("Casting Coordinated Assault [Cleave]") return true end
+    end
+    -- Kill Shot
+    -- kill_shot
+    if cast.able.killShot("target") and (unit.hp("target") < 20 or buff.coordinatedAssault.exists()) then
+        if cast.killShot("target") then ui.debug("Casting Kill Shot [Cleave]") return true end
+    end
+    -- Explosive Shot
+    -- explosiveShot
+    if talent.explosiveShot and cast.able.explosiveShot("target") and #enemies.yards40 > 0 then
+        if cast.explosiveShot("target") then ui.debug("Casting Explosive SHot [Cleave]") return true end
     end
     -- Butchery
     -- butchery,if=dot.shrapnel_bomb.ticking&(dot.internal_bleeding.stack<2|dot.shrapnel_bomb.remains<gcd)
@@ -885,11 +900,6 @@ actionList.Cleave = function()
     -- death_chakram,if=focus+cast_regen<focus.max
     if ui.alwaysCdAoENever("Covenany Ability",3,#enemies.yards8t) and cast.able.deathChakram() and focus + cast.regen.deathChakram() < focusMax then
         if cast.deathChakram() then ui.debug("Casting Death Chakram [Cleave]") return true end
-    end
-    -- Coordinated Assault
-    -- coordinated_assault
-    if ui.alwaysCdAoENever("Coordinated Assault",3,#var.eagleEnemies) and cast.able.coordinatedAssault() and unit.distance("target") < 5 then
-        if cast.coordinatedAssault() then ui.debug("Casting Coordinated Assault [Cleave]") return true end
     end
     -- Butchery
     -- butchery,if=charges_fractional>2.5&cooldown.wildfire_bomb.full_recharge_time>spell_targets%2
@@ -932,7 +942,7 @@ actionList.Cleave = function()
     end
     -- Kill Shot
     -- kill_shot
-    if cast.able.killShot("target") and (unit.hp("target") < 20 or buff.flayersMark.exists()) then
+    if cast.able.killShot("target") and (unit.hp("target") < 20 or buff.coordinatedAssault.exists()) then
         if cast.killShot("target") then ui.debug("Casting Kill Shot [Cleave]") return true end
     end
     -- Flayed Shot
@@ -1023,7 +1033,7 @@ actionList.St = function()
     end
     -- Kill Shot
     -- kill_shot
-    if cast.able.killShot("target") and (unit.hp("target") < 20 or buff.flayersMark.exists()) then
+    if cast.able.killShot("target") and (unit.hp("target") < 20 or buff.coordinatedAssault.exists()) then
         if cast.killShot("target") then ui.debug("Casting Kill Shot [St]") return true end
     end
     -- Wildfire Bomb
@@ -1086,9 +1096,9 @@ actionList.St = function()
         if cast.wildfireBomb(units.dyn40,"cone",1,8) then ui.debug("Casting Wildfire Bomb [St - Shrapnel Bomb / Rylakstalker's]") return true end
     end
     -- Chakrams
-    -- chakrams
-    if cast.able.chakrams("player","rect",1,40) and #enemies.yards40r > 0 then
-        if cast.chakrams("player","rect",1,40) then ui.debug("Casting Chakrams [St]") return true end
+    -- deathChakram
+    if cast.able.deathChakram("target","rect",1,40) and #enemies.yards40r > 0 then
+        if cast.deathChakram("target","rect",1,40) then ui.debug("Casting deathChakram [St]") return true end
     end
     -- Mongoose Bite
     -- mongoose_bite,target_if=max:debuff.latent_poison_injection.stack,if=buff.mongoose_fury.up|focus+action.kill_command.cast_regen>focus.max-15|dot.shrapnel_bomb.ticking
@@ -1364,9 +1374,9 @@ local function runRotation()
             -- Trinkets
             module.BasicTrinkets()
             -- -- Tar Trap
-            -- if ui.alwaysCdAoENever("Tar Trap",3,#enemies.yards40) and cast.able.tarTrap("best",nil,1,8) then
-            --     if cast.tarTrap("best",nil,1,8) then ui.debug("Casting Tar Trap") var.tarred = true return true end
-            -- end
+             if ui.alwaysCdAoENever("Tar Trap",3,#enemies.yards40) and cast.able.tarTrap("best",nil,1,8) then
+                 if cast.tarTrap("best",nil,1,8) then ui.debug("Casting Tar Trap") var.tarred = true return true end
+             end
             -- -- Flare
             -- if ui.alwaysCdAoENever("Flare",1,#enemies.yards40) and cast.able.flare("groundLocation",br.castPosition.x,br.castPosition.y,8) and var.tarred then--and debuff.tarTrap.exists(units.dyn40) then
             --     if cast.flare("groundLocation",br.castPosition.x,br.castPosition.y,8) then ui.debug("Casting Flare") var.tarred = false return true end
@@ -1392,14 +1402,14 @@ local function runRotation()
                 end
                 -- Call Action List - Single Target
                 -- call_action_list,name=st,if=active_enemies<3&!talent.alpha_predator.enabled&!talent.wildfire_infusion.enabled
-                if not talent.alphaPredator and not talent.wildfireInfusion then
+                if #enemies.yards8f < 2 then
                     if actionList.St() then return true end
                 end
             end
             -- Call Action List - Cleave
             -- call_action_list,name=cleave,if=active_enemies>1&!talent.birds_of_prey.enabled|active_enemies>2
             if ((ui.mode.rotation == 1 and (((eagleScout() > 1 or #enemies.yards8f > 1) and not talent.birdsOfPrey)
-                    or (eagleScout() > 2 or #enemies.yards8f > 2)))
+                    or (eagleScout() > 2 or #enemies.yards8f >= 2)))
                 or (ui.mode.rotation == 2 and eagleScout() > 0)) and level >= 23
             then
                 if actionList.Cleave() then return true end
