@@ -179,7 +179,7 @@ Raidable means if its good to raid with.
 
 |rotation|  author  | patch |coverage| status |    readiness     |last updated|
 |--------|----------|:-----:|:------:|:------:|:----------------:|-----------:|
-|CuteOne |CuteOne   |Unknown|  90%   |Inactive|:heavy_check_mark:|  08/05/2022|
+|CuteOne |CuteOne   |Unknown|  90%   |Inactive|:heavy_check_mark:|  01/14/2023|
 |Ponche  |aqwerty420|Unknown|Unknown |Unknown |  :interrobang:   |  07/21/2022|
 
 
@@ -321,8 +321,8 @@ Raidable means if its good to raid with.
 |  rotation   | author  | patch |coverage|status |  readiness  |last updated|
 |-------------|---------|:-----:|:------:|:-----:|:-----------:|-----------:|
 |Laksham_resto|Laksmackt|Unknown|Unknown |Unknown|:interrobang:|  05/21/2021|
-|Kuu Raid     |Kuukuu   |Unknown|Unknown |Unknown|:interrobang:|  03/04/2021|
 |Kuu M+       |Kuukuu   |Unknown|Unknown |Unknown|:interrobang:|  03/04/2021|
+|Kuu Raid     |Kuukuu   |Unknown|Unknown |Unknown|:interrobang:|  03/04/2021|
 |Resto Shamlo |Pangloo  |Unknown|Unknown |Unknown|:interrobang:|  02/27/2021|
 
 
