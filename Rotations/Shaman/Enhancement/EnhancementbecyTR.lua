@@ -461,7 +461,7 @@ actionList.AOE = function()
         cast.fireNova("player","aoe",1,8)
     end
     -- actions.aoe+=/crash_lightning,if=talent.crashing_storm.enabled|buff.crash_lightning.down
-    if #enemies.yards8c > 0 and cast.able.crashLightning("player","cone",1,8) and (talent.crashingStorm or not buff.crashLightning.exists()) then
+    if #enemies.yards8c > 0 and cast.able.crashLightning("player","cone",1,8) and not buff.crashLightning.exists() then
         ui.debug("AOE19")
         cast.crashLightning("player","cone",1,8) 
     end

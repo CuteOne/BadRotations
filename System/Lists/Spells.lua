@@ -3631,7 +3631,6 @@ br.lists.spells = {
                 powerOfTheMaelstrom         = 191877,
                 resonanceTotem              = 202192,
                 spiritwalkersGrace          = 79206,
-                stormKeeper                 = 191634,
                 stormTotem                  = 210652,
                 surgeOfPower                = 285514,
                 tailwindTotem               = 210659,
@@ -3662,7 +3661,6 @@ br.lists.spells = {
                 primalElementalist          = 117013,
                 staticDischarge             = 342243,
                 stormElemental              = 192249,
-                stormKeeper                 = 191634,
                 surgeOfPower                = 262303,
                 unlimitedPower              = 260895,
 
@@ -3696,7 +3694,6 @@ br.lists.spells = {
                 hailstorm                   = 334196,
                 hotHand                     = 215785,
                 maelstromWeapon             = 344179,
-                stormkeeper                 = 320137,
                 windfuryTotem               = 327942,
                 stormbringer                = 201845,
             },
@@ -3709,9 +3706,7 @@ br.lists.spells = {
             },
             talents                         = {
                 ascendance                  = 114051,
-                crashingStorm               = 192246,
 		        earthShield                 = 974,
-                earthenSpike                = 188089,
                 elementalAssault            = 210853,
                 elementalBlast              = 117014,
                 elementalSpirits            = 262624,
@@ -3723,7 +3718,6 @@ br.lists.spells = {
                 iceStrike                   = 342240,
                 lashingFlames               = 334046,
                 stormflurry                 = 344357,
-                stormkeeper                 = 320137,
                 sundering                   = 197214,
             },
             traits                          = {
