@@ -313,8 +313,8 @@ Raidable means if its good to raid with.
 
 |rotation|   author   | patch |coverage|status |    readiness     |last updated|
 |--------|------------|:-----:|:------:|:-----:|:----------------:|-----------:|
-|CuteOne |CuteOne     | 9.1.5 |  100%  |Limited|:white_check_mark:|  08/05/2022|
-|becyTR  |Kuukuukatchu|Unknown|Unknown |Unknown|  :interrobang:   |  05/19/2022|
+|becyTR  |Kuukuukatchu|Unknown|Unknown |Unknown|  :interrobang:   |  01/16/2023|
+|CuteOne |CuteOne     |10.0.0 |  100%  |Limited|:white_check_mark:|  01/16/2023|
 
 - Restoration
 
