@@ -2428,6 +2428,7 @@ br.lists.spells = {
                 rushingJadeWind             = 116847,
                 serenity                    = 152173,
                 spiritualFocus              = 280197,
+                strikeOfTheWindlord         = 392983,
                 whirlingDragonPunch         = 152175,
             },
             traits                          = {
