@@ -141,7 +141,9 @@ actionList.Extras = function()
         if cast.instantPoison() then ui.debug("Casting Instant Poison") return true end
     end
     -- Stealth
-    if ui.checked("Always Stealth") and cast.able.stealth() and not unit.casting() and cast.timeSinceLast.stealth() > unit.gcd(true) then
+    if ui.checked("Always Stealth") and cast.able.stealth() and not buff.stealth.exists()
+        and not unit.casting() and cast.timeSinceLast.stealth() > unit.gcd(true)
+    then
         if cast.stealth() then ui.debug("Casting Stealth") return true end
     end
     -- Sprint
