@@ -2,7 +2,7 @@
 -- Author = Kuukuu
 -- Patch = 10.0
 --    Patch should be the latest patch you've updated the rotation for (i.e., 9.2.5)
--- Coverage = 37%
+-- Coverage = 75%
 --    Coverage should be your estimated percent coverage for class mechanics (i.e., 100%)
 -- Status = Sporadic
 --    Status should be one of: Full, Limited, Sporadic, Inactive, Unknown
@@ -142,7 +142,7 @@ local function createToggles()
             tip = "Disable Fire Breath",
             highlight = 0,
             icon = br.player.spell.fireBreath
-        },
+        }
     }
     CreateButton("FireBreath", 3, 1)
     br.DisintegrateModes = {
@@ -161,9 +161,28 @@ local function createToggles()
             tip = "Disable Disintegrate",
             highlight = 0,
             icon = br.player.spell.disintegrate
-        },
+        }
     }
     CreateButton("Disintegrate", 4, 1)
+    br.VerdantModes = {
+        [1] = {
+            mode = "Auto",
+            value = 1,
+            overlay = "Auto Usage of Verdant Embrace",
+            tip = "Auto Usage of Verdant Embrace",
+            highlight = 1,
+            icon = br.player.spell.verdantEmbrace
+        },
+        [2] = {
+            mode = "Key",
+            value = 2,
+            overlay = "Use Verdant with Key Press",
+            tip = "Use Verdant with Key Press",
+            highlight = 0,
+            icon = br.player.spell.verdantEmbrace
+        }
+    }
+    CreateButton("Verdant", 2, 1)
 end
 
 --------------
@@ -185,57 +204,69 @@ local function createOptions()
     local function rotationOptions()
         local section
         -- General Options
-        section = br.ui:createSection(br.ui.window.profile, "General - Version 0.0.5")
+        section = br.ui:createSection(br.ui.window.profile, "General - Version 0.2.0")
+        -- Visage Form
+        br.ui:createCheckbox(section, "Visage Form")
+        -- OOC Healing
         br.ui:createCheckbox(section, "OOC Healing",
             "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFout of combat healing|cffFFBB00.", 1)
         -- Pre-Pull Timer
-        br.ui:createSpinner(section, "Pre-Pull Timer", 5, 0, 20, 1,
-            "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
-        br.ui:createSpinner(section, "Raid Boss Helper", 70, 0, 100, 5,
-            "Minimum party member health to focus on healing raid bosses")
+        -- br.ui:createSpinner(section, "Pre-Pull Timer", 5, 0, 20, 1,
+        --     "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
+        -- br.ui:createSpinner(section, "Raid Boss Helper", 70, 0, 100, 5,
+        --     "Minimum party member health to focus on healing raid bosses")
         -- Bursting Stack
-        br.ui:createSpinnerWithout(section, "Bursting", 1, 1, 10, 1, "",
-            "|cffFFFFFFWhen Bursting stacks are above this amount, CDs will be triggered.")
-        br.ui:createDropdown(section, "DPS Key", br.dropOptions.Toggle, 6,
-            "Set a key for using DPS")
-        br.ui:createDropdown(section, "Deep Breath Key", br.dropOptions.Toggle, 6,
-            "Set a key for using Deep Breath")
+        -- br.ui:createSpinnerWithout(section, "Bursting", 1, 1, 10, 1, "",
+        --     "|cffFFFFFFWhen Bursting stacks are above this amount, CDs will be triggered.")
+
         -- DPS Save mana
         br.ui:createSpinnerWithout(section, "DPS Save mana", 40, 0, 100, 5, "|cffFFFFFFMana Percent to Stop DPS")
         -- Return
         br.ui:createDropdown(section, "Return",
-        {"|cffFFFF00Selected Target", "|cffFF0000Mouseover Target", "|cffFFBB00Auto"}, 1,
-        "|ccfFFFFFFTarget to Cast On")
-        
-        br.ui:createCheckbox(section, "Pig Catcher", "Catch the freehold Pig in the ring of booty")
+            {"|cffFFFF00Selected Target", "|cffFF0000Mouseover Target", "|cffFFBB00Auto"}, 1,
+            "|ccfFFFFFFTarget to Cast On")
+
+        -- br.ui:createCheckbox(section, "Pig Catcher", "Catch the freehold Pig in the ring of booty")
+        br.ui:checkSectionState(section)
+        -- Keys 
+        section = br.ui:createSection(br.ui.window.profile, "Keys")
+        -- DPS
+        br.ui:createDropdown(section, "DPS Key", br.dropOptions.Toggle, 6, "Set a key for using DPS")
+        -- Deep Breath
+        br.ui:createDropdownWithout(section, "Deep Breath Key", br.dropOptions.Toggle, 6,
+            "Set a key for using Deep Breath")
+        -- Emerald Communion
+        br.ui:createDropdownWithout(section, "Emerald Communion Key", br.dropOptions.Toggle, 6,
+            "Set a key for using Emerald Communion")
+        -- Dream Flight
+        br.ui:createDropdownWithout(section, "Dream Flight Key", br.dropOptions.Toggle, 6,
+            "Set a key for using Dream Flight")
+        -- Verdant Embrace
+        br.ui:createDropdownWithout(section, "Verdant Embrace Key", br.dropOptions.Toggle, 6,
+            "Set a key for using Verdant Embrace")
         br.ui:checkSectionState(section)
         -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
-        -- Emerald Communion
-        br.ui:createDropdown(section, "Emerald Communion Key", br.dropOptions.Toggle, 6,
-        "Set a key for using Emerald Communion")
         --  Mana Potion
         br.ui:createSpinner(section, "Mana Potion", 50, 0, 100, 1, "Mana Percent to Cast At")
-        -- Racial
-        br.ui:createCheckbox(section, "Racial")
         -- Trinkets
         br.ui:createSpinner(section, "Trinket 1", 70, 0, 100, 5, "Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Min Trinket 1 Targets", 3, 1, 40, 1, "",
-        "Minimum Trinket 1 Targets(This includes you)", true)
+            "Minimum Trinket 1 Targets(This includes you)", true)
         br.ui:createDropdownWithout(section, "Trinket 1 Mode",
-        {"|cffFFFFFFNormal", "|cffFFFFFFTarget", "|cffFFFFFFGround"}, 1, "", "")
+            {"|cffFFFFFFNormal", "|cffFFFFFFTarget", "|cffFFFFFFGround"}, 1, "", "")
         br.ui:createSpinner(section, "Trinket 2", 70, 0, 100, 5, "Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Min Trinket 2 Targets", 3, 1, 40, 1, "",
-        "Minimum Trinket 2 Targets(This includes you)", true)
+            "Minimum Trinket 2 Targets(This includes you)", true)
         br.ui:createDropdownWithout(section, "Trinket 2 Mode",
-        {"|cffFFFFFFNormal", "|cffFFFFFFTarget", "|cffFFFFFFGround"}, 1, "", "")
+            {"|cffFFFFFFNormal", "|cffFFFFFFTarget", "|cffFFFFFFGround"}, 1, "", "")
         -- Dream Flight
         br.ui:createSpinner(section, "Dream Flight", 60, 0, 100, 5, "Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Dream Flight Targets", 3, 0, 40, 1, "Minimum Dream Flight Targets")
         -- Rewind
         br.ui:createSpinner(section, "Rewind", 50, 0, 100, 5, "Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Rewind Targets", 3, 0, 40, 1, "Minimum Rewind Targets")
-        br.ui:createCheckbox(section, "Tip the Scales")
+        br.ui:createSpinner(section, "Tip the Scales", 50, 0, 100, 5, "Health Percent to Cast At")
         br.ui:checkSectionState(section)
         -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
@@ -257,24 +288,12 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Healing")
         -- Time Dilation
         br.ui:createSpinner(section, "Time Dilation", 50, 0, 100, 5, "Health Percent to Cast At")
-		br.ui:createDropdownWithout(
-			section,
-			"Time Dilation Target",
-			{
-				"|cffFFFFFFPlayer",
-				"|cffFFFFFFTarget",
-				"|cffFFFFFFMouseover",
-				"|cffFFFFFFTank",
-				"|cffFFFFFFHealer",
-				"|cffFFFFFFHealer/Tank",
-				"|cffFFFFFFAny"
-			},
-			7,
-			"|cffFFFFFFcast Dilation Target"
-		)
+        br.ui:createDropdownWithout(section, "Time Dilation Target",
+            {"|cffFFFFFFPlayer", "|cffFFFFFFTarget", "|cffFFFFFFMouseover", "|cffFFFFFFTank", "|cffFFFFFFHealer",
+             "|cffFFFFFFHealer/Tank", "|cffFFFFFFAny"}, 7, "|cffFFFFFFcast Dilation Target")
         br.ui:createSpinner(section, "Temporal Anomaly", 70, 0, 100, 5, "Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Temporal Anomaly Targets", 3, 1, 40, 1, "",
-        "Minimum Temporal Anomaly Targets(This includes you)", true)
+            "Minimum Temporal Anomaly Targets(This includes you)", true)
         br.ui:createSpinner(section, "Emerald Blossom", 50, 0, 100, 5, "Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Emerald Blossom Targets", 3, 0, 40, 1, "Minimum Emerald Blossom Targets")
         br.ui:createSpinner(section, "Verdant Embrace", 50, 0, 100, 5, "Health Percent to Cast At")
@@ -283,21 +302,9 @@ local function createOptions()
         br.ui:createSpinner(section, "Spiritbloom", 50, 0, 100, 5, "Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Spiritbloom Targets", 3, 0, 40, 1, "Minimum Spiritbloom Targets")
         br.ui:createSpinner(section, "Reversion", 30, 0, 100, 5, "Health Percent to Cast At")
-		br.ui:createDropdownWithout(
-			section,
-			"Reversion Target",
-			{
-				"|cffFFFFFFPlayer",
-				"|cffFFFFFFTarget",
-				"|cffFFFFFFMouseover",
-				"|cffFFFFFFTank",
-				"|cffFFFFFFHealer",
-				"|cffFFFFFFHealer/Tank",
-				"|cffFFFFFFAny"
-			},
-			7,
-			"|cffFFFFFFcast Reversion Target"
-		)
+        br.ui:createDropdownWithout(section, "Reversion Target",
+            {"|cffFFFFFFPlayer", "|cffFFFFFFTarget", "|cffFFFFFFMouseover", "|cffFFFFFFTank", "|cffFFFFFFHealer",
+             "|cffFFFFFFHealer/Tank", "|cffFFFFFFAny"}, 7, "|cffFFFFFFcast Reversion Target")
         br.ui:createSpinner(section, "Echo", 50, 0, 100, 5, "Health Percent to Cast At")
         br.ui:createSpinner(section, "Living Flame", 30, 0, 100, 5, "|cffFFBB00Health Percentage to use at")
         br.ui:checkSectionState(section)
@@ -349,8 +356,8 @@ local function runRotation()
     local enemies = br.player.enemies
     local friends = friends or {}
     local falling, swimming, flying = br.getFallTime(), br._G.IsSwimming(), br._G.IsFlying()
-    local moving = (br.isMoving("player") ~= false or br.player.moving) and not buff.hover.exists("player")
     local empMoving = br.isMoving("player") ~= false or br.player.moving
+    local moving = empMoving and not buff.hover.exists("player")
     local gcdMax = br.player.gcdMax
     local healPot = br.getHealthPot()
     local inCombat = br.isInCombat("player")
@@ -428,7 +435,7 @@ local function runRotation()
                     return true
                 end
             end
-            if br.getOptionValue("Return") == 3  and br.timer:useTimer("Resurrect", 3) then
+            if br.getOptionValue("Return") == 3 and br.timer:useTimer("Resurrect", 3) then
                 local deadPlayers = {}
                 for i = 1, #br.friend do
                     if br._G.UnitIsPlayer(br.friend[i].unit) and br.GetUnitIsDeadOrGhost(br.friend[i].unit) then
@@ -446,6 +453,13 @@ local function runRotation()
                         return true
                     end
                 end
+            end
+        end
+        -- Visage Form
+        if br.isChecked("Visage Form") and not buff.visage.exists() then
+            if cast.visage() then
+                br.addonDebug("Casting Visage Form")
+                return true
             end
         end
     end -- End Action List - Extras
@@ -504,6 +518,37 @@ local function runRotation()
 
     local function actionList_Cooldowns()
         if br.useCDs() then
+            -- Tip the Scales
+            if br.isChecked("Tip the Scales") then
+                if talent.dreamBreath and not empMoving and cd.dreamBreath.remains() <= gcdMax then
+                    if br.healConeAround(br.getValue("Dream Breath Targets"), br.getValue("Tip the Scales"), 90, 30, 0) then
+                        if cast.tipTheScales() then
+                            if cast.dreamBreath() then
+                                br.addonDebug("Casting Dream Breath (Tip The Scales)")
+                                br.evoker.empoweredLevel = 1
+                                return true
+                            end
+                        end
+                    end
+                elseif talent.spiritBloom and not empMoving and cd.spiritBloom.remains() <= gcdMax then
+                    for i = 1, #br.friend do
+                        if br._G.UnitInRange(br.friend[i].unit) or br._G.UnitIsUnit(br.friend[i].unit, "player") then
+                            local lowHealthCandidates = br.getUnitsToHealAround(br.friend[i].unit, 30,
+                                br.getValue("Tip the Scales"), #br.friend)
+                            if #lowHealthCandidates >= br.getValue("Spiritbloom Targets") then
+                                if cast.tipTheScales() then
+                                    if cast.spiritbloom(br.friend[i].unit) then
+                                        br.addonDebug("Casting Spiritbloom (Tip The Scales)")
+                                        br.evoker.empoweredLevel = 4
+                                        return true
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+
+            end
             -- Trinkets
             if br.isChecked("Trinket 1") and br.canTrinket(13) and not br.hasEquiped(165569, 13) and
                 not br.hasEquiped(160649, 13) and not br.hasEquiped(158320, 13) then
@@ -614,15 +659,14 @@ local function runRotation()
             end
             -- Dream Flight
             if br.isChecked("Dream Flight") and talent.dreamFlight and not moving then
-                if br.getLowAllies(br.getValue("Dream Flight")) >= br.getValue("Dream Flight Targets") or burst == true then
-                    if cast.dreamFlight() then
-                        br.addonDebug("Casting Dream Flight")
-                        return true
-                    end
+                if br.getUnitsInRect(10, 24, false, br.getValue("Dream Flight")) >= br.getValue("Dream Flight Targets") then
+                    br._G.CastSpellByName("Dream Flight")
+                    CameraOrSelectOrMoveStart()
+                    CameraOrSelectOrMoveStop()
                 end
             end
             -- Rewind
-            if br.isChecked("Rewind") then
+            if br.isChecked("Rewind") and not cast.last.rewind() then
                 if br.getLowAllies(br.getValue("Rewind")) >= br.getValue("Rewind Targets") or burst == true then
                     if cast.rewind() then
                         br.addonDebug("Casting Rewind")
@@ -647,7 +691,8 @@ local function runRotation()
                         end
                     end
                 elseif br.getOptionValue("Time Dilation Target") == 3 then
-                    if br.getHP("mouseover") <= br.getValue("Time Dilation") and not buff.timeDilation.exists("mouseover") then
+                    if br.getHP("mouseover") <= br.getValue("Time Dilation") and
+                        not buff.timeDilation.exists("mouseover") then
                         if cast.timeDilation("mouseover") then
                             br.addonDebug("Casting Time Dilation")
                             return true
@@ -655,7 +700,8 @@ local function runRotation()
                     end
                 elseif br.getOptionValue("Time Dilation Target") == 4 then
                     for i = 1, #tanks do
-                        if tanks[i].hp <= br.getValue("Time Dilation") and br.getDistance(tanks[i].unit) <= 40 and not buff.timeDilation.exists(tanks[i].unit) then
+                        if tanks[i].hp <= br.getValue("Time Dilation") and br.getDistance(tanks[i].unit) <= 40 and
+                            not buff.timeDilation.exists(tanks[i].unit) then
                             if cast.timeDilation(tanks[i].unit) then
                                 br.addonDebug("Casting Time Dilation")
                                 return true
@@ -664,8 +710,9 @@ local function runRotation()
                     end
                 elseif br.getOptionValue("Time Dilation Target") == 5 then
                     for i = 1, #br.friend do
-                        if br.friend[i].hp <= br.getValue("Time Dilation") and br._G.UnitGroupRolesAssigned(br.friend[i].unit) ==
-                            "HEALER" and not buff.timeDilation.exists(br.friend[i].unit) then
+                        if br.friend[i].hp <= br.getValue("Time Dilation") and
+                            br._G.UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" and
+                            not buff.timeDilation.exists(br.friend[i].unit) then
                             if cast.timeDilation(br.friend[i].unit) then
                                 br.addonDebug("Casting Time Dilation")
                                 return true
@@ -675,8 +722,10 @@ local function runRotation()
                 elseif br.getOptionValue("Time Dilation Target") == 6 then
                     for i = 1, #br.friend do
                         if br.friend[i].hp <= br.getValue("Time Dilation") and
-                            (br._G.UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" or br.friend[i].role == "HEALER" or
-                                br.friend[i].role == "TANK" or br._G.UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and not buff.timeDilation.exists(br.friend[i].unit) then
+                            (br._G.UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" or br.friend[i].role ==
+                                "HEALER" or br.friend[i].role == "TANK" or
+                                br._G.UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and
+                            not buff.timeDilation.exists(br.friend[i].unit) then
                             if cast.timeDilation(br.friend[i].unit) then
                                 br.addonDebug("Casting Time Dilation")
                                 return true
@@ -733,7 +782,7 @@ local function runRotation()
             end
         end
         -- Verdant Embrace
-        if br.isChecked("Verdant Embrace") and lowest.hp <= br.getValue("Verdant Embrace" ) then
+        if br.isChecked("Verdant Embrace") and mode.verdant == 1 and lowest.hp <= br.getValue("Verdant Embrace") then
             if cast.verdantEmbrace(lowest.unit) then
                 br.addonDebug("Casting Verdant Embrace")
                 return true
@@ -764,7 +813,7 @@ local function runRotation()
                     end
                 end
             end
-        end  
+        end
 
     end
 
@@ -795,7 +844,8 @@ local function runRotation()
                 end
             elseif br.getOptionValue("Reversion Target") == 4 then
                 for i = 1, #tanks do
-                    if tanks[i].hp <= br.getValue("Reversion") and br.getDistance(tanks[i].unit) <= 40 and not buff.reversion.exists(tanks[i].unit) then
+                    if tanks[i].hp <= br.getValue("Reversion") and br.getDistance(tanks[i].unit) <= 40 and
+                        not buff.reversion.exists(tanks[i].unit) then
                         if cast.reversion(tanks[i].unit) then
                             br.addonDebug("Casting Reversion")
                             return true
@@ -816,7 +866,8 @@ local function runRotation()
                 for i = 1, #br.friend do
                     if br.friend[i].hp <= br.getValue("Reversion") and
                         (br._G.UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" or br.friend[i].role == "HEALER" or
-                            br.friend[i].role == "TANK" or br._G.UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and not buff.reversion.exists(br.friend[i].unit) then
+                            br.friend[i].role == "TANK" or br._G.UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and
+                        not buff.reversion.exists(br.friend[i].unit) then
                         if cast.reversion(br.friend[i].unit) then
                             br.addonDebug("Casting Reversion")
                             return true
@@ -833,7 +884,8 @@ local function runRotation()
             end
         end
         -- Temporal Anomaly
-        if br.isChecked("Temporal Anomaly") and inCombat and not moving and br.getUnitsInRect(10,24,false, br.getValue("Temporal Anomaly")) >= br.getValue("Temporal Anomaly Targets") then
+        if br.isChecked("Temporal Anomaly") and inCombat and not moving and
+            br.getUnitsInRect(10, 24, false, br.getValue("Temporal Anomaly")) >= br.getValue("Temporal Anomaly Targets") then
             if cast.temporalAnomaly() then
                 br.addonDebug("Casting Temporal Anomaly")
                 return true
@@ -851,18 +903,18 @@ local function runRotation()
             end
         end
         -- Verdant Embrace
-        if br.isChecked("Verdant Embrace") and lowest.hp <= br.getValue("Verdant Embrace" ) then
+        if br.isChecked("Verdant Embrace") and mode.verdant == 1 and lowest.hp <= br.getValue("Verdant Embrace") then
             if cast.verdantEmbrace(lowest.unit) then
                 br.addonDebug("Casting Verdant Embrace")
                 return true
             end
         end
-         -- Spiritbloom
-         if br.isChecked("Spiritbloom") and not empMoving then
+        -- Spiritbloom
+        if br.isChecked("Spiritbloom") and not empMoving then
             for i = 1, #br.friend do
                 if br._G.UnitInRange(br.friend[i].unit) or br._G.UnitIsUnit(br.friend[i].unit, "player") then
                     local lowHealthCandidates = br.getUnitsToHealAround(br.friend[i].unit, 30,
-                    br.getValue("Spiritbloom"), #br.friend)
+                        br.getValue("Spiritbloom"), #br.friend)
                     if #lowHealthCandidates >= br.getValue("Spiritbloom Targets") then
                         if cast.spiritbloom(br.friend[i].unit) then
                             br.addonDebug("Casting Spiritbloom")
@@ -872,7 +924,7 @@ local function runRotation()
                     end
                 end
             end
-        end  
+        end
         if br.isChecked("Living Flame") and lowest.hp <= br.getValue("Living Flame") and not moving then
             if cast.livingFlame(lowest.unit) then
                 br.addonDebug("Casting Living Flame")
@@ -882,15 +934,17 @@ local function runRotation()
     end
 
     -- Action List - DPS
-    local function actionList_DPS() 
-        if mode.fireBreath == 1 and not empMoving and cd.fireBreath.remain() <= gcdMax and br.getEnemiesInCone(45,25) > 0 then
+    local function actionList_DPS()
+        if mode.fireBreath == 1 and not empMoving and cd.fireBreath.remain() <= gcdMax and br.getEnemiesInCone(45, 25) >
+            0 then
             if cast.fireBreath() then
                 br.addonDebug("Casting Fire Breath")
                 br.evoker.empoweredLevel = 1
                 return true
             end
         end
-        if ((br.getEssence("player") >= 3 and mode.disintegrate == 1) or buff.essenceBurst.exists("player")) and not moving then
+        if ((br.getEssence("player") >= 3 and mode.disintegrate == 1) or buff.essenceBurst.exists("player")) and
+            not moving then
             if cast.disintegrate() then
                 br.addonDebug("Casting Disintegrate")
                 return true
@@ -902,7 +956,7 @@ local function runRotation()
                 return true
             end
         end
-        if moving then 
+        if moving then
             if cast.azureStrike() then
                 br.addonDebug("Casting Azure Strike")
                 return true
@@ -919,7 +973,7 @@ local function runRotation()
     local empSpells = {
         [357208] = "fireBreath",
         [355936] = "dreamBreath",
-        [367226] = "spiritbloom",
+        [367226] = "spiritbloom"
     }
 
     local function getEmpowerStage(unit)
@@ -949,7 +1003,7 @@ local function runRotation()
         if moving and br.evoker.empoweredLevel ~= 0 then
             br.evoker.empoweredLevel = 0;
         end
-        local channel,_,_,_,_,_,_,id = UnitChannelInfo("player")
+        local channel, _, _, _, _, _, _, id = UnitChannelInfo("player")
         if channel and empSpells[id] and not empMoving then
             if getEmpowerStage("player") >= br.evoker.empoweredLevel then
                 br._G.CastSpellByName(channel)
@@ -983,19 +1037,26 @@ local function runRotation()
         -----------------------------
         if inCombat then
             if not channel then
-                if not br._G.GetCurrentKeyBoardFocus() and br.isChecked("Dream Flight Key") and br.SpecificToggle("Dream Flight Key") then
+                if mode.verdant == 2 and not br._G.GetCurrentKeyBoardFocus() and
+                    br.SpecificToggle("Verdant Embrace Key") and lowest.hp <= br.getValue("Verdant Embrace") then
+                    if cast.verdantEmbrace(lowest.unit) then
+                        br.addonDebug("Casting Verdant Embrace (Key)")
+                        return true
+                    end
+                end
+                if not br._G.GetCurrentKeyBoardFocus() and br.SpecificToggle("Dream Flight Key") then
                     br._G.CastSpellByName("Dream Flight")
                     CameraOrSelectOrMoveStart()
                     CameraOrSelectOrMoveStop()
                 end
-                if not br._G.GetCurrentKeyBoardFocus() and br.isChecked("Emerald Communion Key") and br.SpecificToggle("Emerald Communion Key") then
-                    
+                if not br._G.GetCurrentKeyBoardFocus() and br.SpecificToggle("Emerald Communion Key") then
+
                     if cast.emeraldCommunion() then
                         br.addonDebug("Casting Emerald Communion")
                         return true
                     end
                 end
-                if not br._G.GetCurrentKeyBoardFocus() and br.isChecked("Deep Breath Key") and br.SpecificToggle("Deep Breath Key") then
+                if not br._G.GetCurrentKeyBoardFocus() and br.SpecificToggle("Deep Breath Key") then
                     br._G.CastSpellByName("Deep Breath")
                     CameraOrSelectOrMoveStart()
                     CameraOrSelectOrMoveStop()
@@ -1023,7 +1084,7 @@ local function runRotation()
                 if actionList_SingleTarget() then
                     return true
                 end
-                if not br.isChecked("DPS Key") and mode.dPS == 2 then
+                if not br.isChecked("DPS Key") and mode.dPS == 2 and mana > br.getOptionValue("DPS Save Mana") then
                     if not br.GetUnitExists("target") or
                         (br.GetUnitIsDeadOrGhost("target") and not br.GetUnitIsFriend("target")) and #enemies.yards40 ~=
                         0 and br.getOptionValue("Target Dynamic Target") then
