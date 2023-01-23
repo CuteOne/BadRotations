@@ -23,7 +23,6 @@ br.lists.burnUnits = {
     [197398] = { coef = 100, name = "Hungry Lasher", id = 197398 },
     [196548] = { coef = 100, name = "Ancient Branch", id = 196548 },
     [192333] = { coef = 100, name = "Alpha Eagle", id = 192333 },
-    [196576] = { coef = 100, name = "Spellbound Scepter", id = 196576 },
     [196044] = { coef = 150, name = "Unruly Textbook", id = 196044 },
     --The Nokhud Offensive
     [192800] = { coef = 100, name = "Nokhud Lancemaster", id = 192800 },
@@ -37,9 +36,7 @@ br.lists.burnUnits = {
     [195929] = { coef = 100, name = "Soulharvester Tumen", id = 195929 },
     [195851] = { coef = 100, name = "Ukhel Deathspeaker", id = 195851 },
     [195877] = { coef = 100, name = "Risen Mystic", id = 195877 },
-    [195842] = { coef = 100, name = "Ukhel Corruptor", id = 195842 },
     [195930] = { coef = 100, name = "Soulharvester Mandakh", id = 195930 },
-    [195851] = { coef = 100, name = "Ukhel Deathspeaker", id = 195851 },
     [195927] = { coef = 100, name = "Soulharvester Galtmaa", id = 195927 },
     [195842] = { coef = 100, name = "Ukhel Corruptor", id = 195842 },
     [195723] = { coef = 100, name = "Teera", id = 195723 },
