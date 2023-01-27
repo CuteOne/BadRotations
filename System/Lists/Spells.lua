@@ -851,6 +851,8 @@ br.lists.spells = {
         -- Feral
         [103] = {
             abilities                       = {
+		adaptiveSwarmDamage 	    = 391889, -- Not Castable but needed for In-Flight
+		adaptiveSwarmHeal           = 391891, -- Not Castable but needed for In-Flight
                 moonfireFeral               = 155625,
             },
             artifacts                       = {
