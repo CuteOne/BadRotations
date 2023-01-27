@@ -702,7 +702,7 @@ local function runRotation()
                 end
                 -- Throw Glaive
                 -- throw_glaive,if=talent.serrated_glaive&cooldown.eye_beam.remains<4&!debuff.serrated_glaive.up&!debuff.essence_break.up
-                if ui.checked("Throw Glaive") and cast.able.throwGlaive() and talent.serratedGlaive and cd.eyeBeeam.remains() < 4 and debuff.essenceBreak.count() == 0 then
+                if ui.checked("Throw Glaive") and cast.able.throwGlaive() and talent.serratedGlaive and cd.eyeBeam.remains() < 4 and debuff.essenceBreak.count() == 0 then
                     if cast.throwGlaive() then ui.debug("Casting Throw Glaive [Serrated Glaive]") return true end
                 end
                 -- Immolation Aura
