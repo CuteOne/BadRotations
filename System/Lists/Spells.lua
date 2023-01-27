@@ -888,6 +888,7 @@ br.lists.spells = {
             },
             debuffs                         = {
                 adaptiveSwarmDamage         = 391889,
+                adaptiveSwarmHeal           = 391891,
                 feralFrenzy                 = 274838,
                 moonfireFeral               = 155625,
                 rakeStun                    = 163505,
