@@ -885,6 +885,7 @@ br.lists.spells = {
                 loneEmpowerment             = 338142,
             },
             debuffs                         = {
+                adaptiveSwarmDamage         = 391889,
                 feralFrenzy                 = 274838,
                 moonfireFeral               = 155625,
                 rakeStun                    = 163505,
