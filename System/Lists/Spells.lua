@@ -446,17 +446,10 @@ br.lists.spells = {
                 annihilation                = 201427,
                 bladeDance                  = 188499,
                 blur                        = 198589,
-                -- chaosNova                   = 179057,
                 chaosStrike                 = 162794,
-                -- darkness                    = 196718,
                 deathSweep                  = 210152,
                 demonsBite                  = 162243,
-                -- eyeBeam                     = 198013,
                 felRush                     = 195072,
-                -- metamorphosis               = 191427,
-                -- netherwalk                  = 196555,
-                -- throwGlaive                 = 185123,
-                -- vengefulRetreat             = 198793,
             },
             artifacts                       = {
 

@@ -848,7 +848,9 @@ actionList.BerserkBuilders = function()
     -- moonfire_cat,target_if=refreshable
     for i = 1, #enemies.yards40 do
         local thisUnit = enemies.yards40[i]
-        if cast.able.moonfireFeral(thisUnit) and talent.lunarInspiration and debuff.moonfireFeral.refresh(thisUnit) then
+        if cast.able.moonfireFeral(thisUnit) and talent.lunarInspiration and debuff.moonfireFeral.refresh(thisUnit)
+            and not (buff.prowl.exists() or buff.shadowmeld.exists())
+        then
             if cast.moonfireFeral(thisUnit) then ui.debug("Casting Moonfire [Berserk Builders]") return true end
         end
     end
@@ -863,8 +865,8 @@ end -- End Action List - Berserk Builders
 actionList.Finisher = function()
     -- Primal Wrath
     -- primal_wrath,if=spell_targets.primal_wrath>2
-    if cast.able.primalWrath("player","aoe",1,8) and range.dyn8AOE and #enemies.yards8 > 2 then
-        if cast.primalWrath("player","aoe",1,8) then ui.debug("Casting Primal Wrath - AoE [Finish]") return true end
+    if cast.able.primalWrath("player","aoe",3,8) and range.dyn8AOE and #enemies.yards8 > 2 then
+        if cast.primalWrath("player","aoe",3,8) then ui.debug("Casting Primal Wrath - AoE [Finish]") return true end
     end
     -- primal_wrath,target_if=refreshable,if=spell_targets.primal_wrath>1
     for i = 1, #enemies.yards8 do
@@ -918,7 +920,9 @@ actionList.Bloodtalons = function()
     end
     -- Lunar Inspiration
     -- lunar_inspiration,if=refreshable&buff.bt_moonfire.down
-    if talent.lunarInspiration and cast.able.moonfireFeral(units.dyn40AOE) and debuff.moonfireFeral.refresh(units.dyn40AOE) and not btGen.moonfireFeral then
+    if talent.lunarInspiration and cast.able.moonfireFeral(units.dyn40AOE) and debuff.moonfireFeral.refresh(units.dyn40AOE)
+        and not btGen.moonfireFeral and not (buff.prowl.exists() or buff.shadowmeld.exists())
+    then
         if (multidot or (unit.isUnit(units.dyn40AOE,"target") and not multidot)) then
             if cast.moonfireFeral(units.dyn40AOE) then
                 ui.debug("Casting Moonfire [BT - Refresh]")
@@ -1021,20 +1025,22 @@ actionList.Builder = function()
     end
     -- Moonfire
     -- moonfire_cat,target_if=refreshable
-    if talent.lunarInspiration and cast.able.moonfireFeral(units.dyn40AOE) and (debuff.moonfire.refresh(units.dyn40AOE)) then
+    if talent.lunarInspiration and cast.able.moonfireFeral(units.dyn40AOE) and debuff.moonfire.refresh(units.dyn40AOE)
+        and not (buff.prowl.exists() or buff.shadowmeld.exists())
+    then
         if cast.moonfireFeral(units.dyn40AOE) then ui.debug("Casting Moonfire [Builder]") return true end
     end
     -- Thrash
     -- pool_resource,for_next=1
     -- thrash_cat,target_if=refreshable
-    if cast.able.thrashCat("player","aoe",3,8) and (debuff.thrashCat.refresh(units.dyn8AOE)) then
+    if cast.able.thrashCat("player","aoe",1,8) and (debuff.thrashCat.refresh(units.dyn8AOE)) then
         if cast.pool.thrashCat() then return true end
-        if cast.thrashCat("player","aoe",3,8) then ui.debug("Casting Thrash [Builder]") return true end
+        if cast.thrashCat("player","aoe",1,8) then ui.debug("Casting Thrash [Builder]") return true end
     end
     -- Brutal Slash
     -- brutal_slash
-    if cast.able.brutalSlash("player","aoe",3,8) and talent.brutalSlash then
-        if cast.brutalSlash("player","aoe",3,8) then ui.debug("Casting Thrash [Builder]") return true end
+    if cast.able.brutalSlash("player","aoe",ui.value("Brutal Slash Targets"),8) and talent.brutalSlash then
+        if cast.brutalSlash("player","aoe",ui.value("Brutal Slash Targets"),8) then ui.debug("Casting Thrash [Builder]") return true end
     end
     -- Swipe
     -- swipe_cat,if=spell_targets.swipe_cat>1
@@ -1052,8 +1058,8 @@ end -- End Action List - Builder
 actionList.Clearcasting = function()
     -- Thrash
     -- thrash_cat,target_if=refreshable
-    if cast.able.thrashCat("player","aoe",3,8) and (debuff.thrashCat.refresh(units.dyn8AOE)) then
-        if cast.thrashCat("player","aoe",3,8) then ui.debug("Casting Thrash [Clearcasting]") return true end
+    if cast.able.thrashCat("player","aoe",1,8) and (debuff.thrashCat.refresh(units.dyn8AOE)) then
+        if cast.thrashCat("player","aoe",1,8) then ui.debug("Casting Thrash [Clearcasting]") return true end
     end
     -- Swipe
     -- swipe_cat,if=spell_targets.swipe_cat>1
@@ -1062,8 +1068,8 @@ actionList.Clearcasting = function()
     end
     -- Brutal Slash
     -- brutal_slash,if=spell_targets.brutal_slash>5&talent.moment_of_clarity.enabled
-    if cast.able.brutalSlash("player","aoe",3,8) and talent.brutalSlash and #enemies.yards8 > 5 and talent.momentOfClarity then
-        if cast.brutalSlash("player","aoe",3,8) then ui.debug("Casting Brutal Slash [Clearcasting]") return true end
+    if cast.able.brutalSlash("player","aoe",1,8) and talent.brutalSlash and #enemies.yards8 > 5 and talent.momentOfClarity then
+        if cast.brutalSlash("player","aoe",1,8) then ui.debug("Casting Brutal Slash [Clearcasting]") return true end
     end
     -- Shred
     -- shred
@@ -1105,8 +1111,8 @@ actionList.AoE = function()
     end
     -- Brutal Slash
     -- brutal_slash
-    if cast.able.brutalSlash("player","aoe",1,8) and talent.brutalSlash then
-        if cast.brutalSlash("player","aoe",1,8) then ui.debug("Casting Brutal Slash [AoE]") return true end
+    if cast.able.brutalSlash("player","aoe",ui.value("Brutal Slash Targets"),8) and talent.brutalSlash then
+        if cast.brutalSlash("player","aoe",ui.value("Brutal Slash Targets"),8) then ui.debug("Casting Brutal Slash [AoE]") return true end
     end
     -- Rake
     -- pool_resource,for_next=1
@@ -1117,7 +1123,7 @@ actionList.AoE = function()
     end
     -- Lunar Inspiration
     -- lunar_inspiration,target_if=max:((ticks_gained_on_refresh+1)-(spell_targets.swipe_cat*2.492))
-    if cast.able.moonfireFeral(var.maxMoonfireFeralTicksGainUnit) and talent.lunarInspiration then
+    if cast.able.moonfireFeral(var.maxMoonfireFeralTicksGainUnit) and talent.lunarInspiration and not (buff.prowl.exists() or buff.shadowmeld.exists()) then
         if cast.moonfireFeral(var.maxMoonfireFeralTicksGainUnit) then ui.debug("Casting Moonfire [AOE]") return true end
     end
     -- Swipe
