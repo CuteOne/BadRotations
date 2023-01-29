@@ -844,8 +844,8 @@ br.lists.spells = {
         -- Feral
         [103] = {
             abilities                       = {
-		adaptiveSwarmDamage 	    = 391889, -- Not Castable but needed for In-Flight
-		adaptiveSwarmHeal           = 391891, -- Not Castable but needed for In-Flight
+                adaptiveSwarmDamage 	    = 391889, -- Not Castable but needed for In-Flight
+                adaptiveSwarmHeal           = 391891, -- Not Castable but needed for In-Flight
                 moonfireFeral               = 155625,
             },
             artifacts                       = {
@@ -1147,9 +1147,9 @@ br.lists.spells = {
                 revive                      = 50769,
                 shred                       = 5221,
                 sunfire                     = 164815,
-		swipe			    = 213764,
-		swipeBear 	 	    = 213771,
-		swipeCat		    = 106785,
+                swipe			            = 213764,
+                swipeBear 	 	            = 213771,
+                swipeCat		            = 106785,
                 teleportMoonglade           = 18960,
                 thrashBear                  = 77758,
                 thrashCat                   = 106830,

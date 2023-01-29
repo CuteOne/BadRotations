@@ -896,7 +896,7 @@ actionList.Finisher = function()
         if cast.ferociousBite() then ui.debug("Casting Ferocious Bite - Max Energy [Finish]") return true end
     end
     -- ferocious_bite,if=(buff.bs_inc.up&talent.soul_of_the_forest.enabled)
-    if cast.able.ferociousBite() and range.dny5 and (var.bsInc and talent.soulOfTheForest) then
+    if cast.able.ferociousBite() and range.dyn5 and (var.bsInc and talent.soulOfTheForest) then
         if cast.ferociousBite() then ui.debug("Casting Ferocious Bite [Finish]") return true end
     end
 end -- End Action List - Finisher
@@ -1040,7 +1040,7 @@ actionList.Builder = function()
     -- Brutal Slash
     -- brutal_slash
     if cast.able.brutalSlash("player","aoe",ui.value("Brutal Slash Targets"),8) and talent.brutalSlash then
-        if cast.brutalSlash("player","aoe",ui.value("Brutal Slash Targets"),8) then ui.debug("Casting Thrash [Builder]") return true end
+        if cast.brutalSlash("player","aoe",ui.value("Brutal Slash Targets"),8) then ui.debug("Casting Brutal Slash [Builder]") return true end
     end
     -- Swipe
     -- swipe_cat,if=spell_targets.swipe_cat>1
@@ -1582,7 +1582,7 @@ local function runRotation()
                 end
                 -- Action List - Builder
                 -- call_action_list,name=builder,if=combo_points<5
-                if comboPoints < 5 then
+                if comboPoints < 5 and not var.bsInc then
                     if actionList.Builder() then return true end
                 end
                 -- -- Call Action List - Owlweave
