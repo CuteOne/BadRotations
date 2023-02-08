@@ -1516,6 +1516,7 @@ br.lists.spells = {
                 stomp                       = 199530,
                 thrillOfTheHunt             = 257944,
 				killCleave					= 378207,
+				wailingArrow                = 392060,
             },
             traits                          = {
                 danceOfDeath                = 274441,
