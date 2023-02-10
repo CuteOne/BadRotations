@@ -313,12 +313,12 @@ function br.unlock:NNUnlock()
 	-- b.GetObjectWithIndex = ObjectByIndex
 	b.ObjectPosition = ObjectPosition
 	b.UnitMovementFlags = UnitMovementFlag
-	--b.GetWoWDirectory = GetWowDirectory
+	-- b.GetWoWDirectory = GetWowDirectory
 	b.ObjectFacing = ObjectFacing
 	b.ObjectExists = ObjectExists
 	b.GetCameraPosition = GetCameraPosition
 	b.UnitFacing = ObjectFacing
-	b.ObjectPointer = ObjectPointer
+	-- b.ObjectPointer = ObjectPointer
 	-- b.TraceLine = TraceLine
 
 	b.GetMousePosition = b.GetCursorPosition
@@ -333,8 +333,12 @@ function br.unlock:NNUnlock()
 	end
 
 	b.CastSpellByName = function(spellName, unit)
-		if unit == nil then b.print("No unit provided to CastSpellByName") end
+		if unit == nil then return CastSpellByName(spellName) end --b.print("No unit provided to CastSpellByName") end
 		return BRCastSpellByName(spellName, unit)
+	end
+
+	b.ObjectPointer = function(unit)
+		return type(unit) == "number" and unit or ObjectPointer(unit)
 	end
 
 	b.ObjectID = function(unit)

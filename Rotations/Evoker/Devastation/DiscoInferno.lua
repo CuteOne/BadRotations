@@ -1,5 +1,5 @@
 -------------------------------------------------------
--- Author = CuteOne
+-- Author = CuteOne edit by DiscoBooty
 -- Patch = 10.0
 --    Patch should be the latest patch you've updated the rotation for (i.e., 9.2.5)
 -- Coverage = 95%
@@ -12,7 +12,7 @@
 -- Required: Fill above fields to populate README.md --
 -------------------------------------------------------
 
-local rotationName = "CuteOne" -- Change to name of profile listed in options drop down
+local rotationName = "DiscoInferno" -- Change to name of profile listed in options drop down
 
 ---------------
 --- Toggles ---
@@ -201,6 +201,8 @@ local function createOptions()
             br.ui:createCheckbox(section, "Quell")
             -- Tail Swipe
             br.ui:createCheckbox(section, "Tail Swipe")
+            -- Wing Buffet
+            br.ui:createCheckbox(section, "Wing Buffet")
             -- Interrupt Percentage
             br.ui:createSpinnerWithout(section, "InterruptAt", 0, 0, 95, 5, "|cffFFBB00Cast Percentage to use at.")
         br.ui:checkSectionState(section)
@@ -267,7 +269,7 @@ end
 custom.getDeepBreathLocation = function(minUnits)
     for i = 21, 50 do
         local enemies = #br.player.enemies.rect.get(6,i,false)
-        if enemies >= minUnits then
+        if enemies > 0 then
             local playerX, playerY, playerZ = br.GetObjectPosition("player")
             local playerFacing = br.GetObjectFacing("player")
             local x = playerX + (i * math.cos(playerFacing))
@@ -436,6 +438,15 @@ actionList.Interrupts = function()
                 end
             end
         end
+        -- Wing Buffet
+        if ui.checked("Wing Buffet") then
+            for i=1, #enemies.yards8 do
+                thisUnit = enemies.yards8[i]
+                if cast.able.wingBuffet(thisUnit) and unit.interruptable(thisUnit,ui.value("Interrupt At")) then
+                    if cast.wingBuffet(thisUnit) then ui.debug("Casting Wing Buffet on "..unit.name(thisUnit)) return true end
+                end
+            end
+        end
     end -- End useInterrupts check
 end -- End Action List - Interrupts
 
@@ -506,8 +517,8 @@ actionList.AoE = function()
     end
     -- Firestorm
     -- firestorm
-    if cast.able.firestorm("best",nil,3,8) and var.moveCast then
-        if cast.firestorm("best",nil,3,8) then ui.debug("Casting Firestorm [AOE]") return true end
+    if cast.able.firestorm("target",nil,3,8) and var.moveCast then
+        if cast.firestorm("target",nil,3,8) then ui.debug("Casting Firestorm [AOE]") return true end
     end
     -- Shattering Star
     -- shattering_star
@@ -534,23 +545,18 @@ actionList.AoE = function()
         if cast.livingFlame(units.dyn25) then ui.debug("Casting Living Flame [Leaping Burnout - AOE]") return true end
     end
     -- Pyre
-    -- pyre,if=cooldown.dragonrage.remains>=10&spell_targets.pyre>=4
+    -- pyre,if=cooldown.dragonrage.remains>=10&spell_targets.pyre>=3
     -- pyre,if=cooldown.dragonrage.remains>=10&spell_targets.pyre=3&buff.charged_blast.stack>=10
     if cast.able.pyre(units.dyn25,"aoe",1,8) and var.moveCast and (cd.dragonrage.remains() >= 10 or not ui.alwaysCdAoENever("Dragonrage",1,25)) then
-        if #enemies.yards8t >= 4 then
-            if cast.pyre(units.dyn25,"aoe",1,8) then ui.debug("Casting Pyre [4+ Targets - AOE]") return true end
+        if #enemies.yards8t >= 3 then
+            if cast.pyre(units.dyn25,"aoe",1,8) then ui.debug("Casting Pyre [3+ Targets - AOE]") return true end
         end
-        if #enemies.yards8t == 3 and buff.chargedBlast.stack() >= 10 then
-            if cast.pyre(units.dyn25,"aoe",1,8) then ui.debug("Casting Pyre [3 Targets - AOE]") return true end
+        if #enemies.yards8t == 3 and buff.chargedBlast.stack() >= 15 then
+            if cast.pyre(units.dyn25,"aoe",1,8) then ui.debug("Casting Pyre [3 Targets - Charged Blast]") return true end
         end
-    end
-    -- Disintegrate
-    -- disintegrate,chain=1,if=!talent.shattering_star|cooldown.shattering_star.remains>5|essence>essence.max-1|buff.essence_burst.stack==buff.essence_burst.max_stack
-    if cast.able.disintegrate() and var.moveCast and cast.timeSinceLast.disintegrate() > cast.time.disintegrate() + unit.gcd(true)
-        and (not talent.shatteringStar or cd.shatteringStar.remains() > 5
-            or essence > essenceMax - 1 or buff.essenceBurst.stack() == var.essenceBurstMaxStacks)
-    then
-        if cast.disintegrate() then ui.debug("Casting Disintegrate [AOE]") return true end
+        if #enemies.yards8t == 3 and buff.essenceBurst.stack() >= 10 then
+            if cast.pyre(units.dyn25,"aoe",1,8) then ui.debug("Casting Pyre [3 Targets - Essence Burst]") return true end
+        end
     end
     -- Living Flame
     -- living_flame,if=talent.snapfire&buff.burnout.up
@@ -681,7 +687,7 @@ actionList.ST = function()
     then
         if cast.livingFlame(units.dyn25) then ui.debug("Casting Living Flame [Dragonrage Burnout - ST]") return true end
     end
-    -- Azure Strike
+    -- Azure Striken
     -- azure_strike,if=buff.dragonrage.up&buff.dragonrage.remains<(buff.essence_burst.max_stack-buff.essence_burst.stack)*gcd.max
     if cast.able.azureStrike(units.dyn25) and buff.dragonrage.exists()
         and buff.dragonrage.remains() < (var.essenceBurstMaxStacks - buff.essenceBurst.stack()) * unit.gcd(true)
@@ -690,10 +696,10 @@ actionList.ST = function()
     end
     -- Firestorm
     -- firestorm,if=!buff.dragonrage.up&debuff.shattering_star_debuff.down|buff.snapfire.up
-    if cast.able.firestorm("best",nil,1,8) and ((not buff.dragonrage.exists()
+    if cast.able.firestorm("target",nil,1,8) and ((not buff.dragonrage.exists()
         and not debuff.shatteringStar.exists(units.dyn25) and var.moveCast) or buff.snapFire.exists())
     then
-        if cast.firestorm("best",nil,1,8) then ui.debug("Casting Firestorm [ST]") return true end
+        if cast.firestorm("target",nil,1,8) then ui.debug("Casting Firestorm [ST]") return true end
     end
     -- Living Flame
     -- living_flame,if=buff.burnout.up&buff.essence_burst.stack<buff.essence_burst.max_stack&essence<essence.max-1
@@ -747,8 +753,8 @@ actionList.PreCombat = function()
         if unit.valid("target") then
             -- Firestorm
             -- firestorm,if=talent.firestorm
-            if cast.able.firestorm("best",nil,1,8) and talent.firestorm and var.moveCast then
-                if cast.firestorm("best",nil,1,8) then ui.debug("Casting Firestorm [Pre-Combat]") return true end
+            if cast.able.firestorm("target",nil,1,8) and talent.firestorm and var.moveCast then
+                if cast.firestorm("target",nil,1,8) then ui.debug("Casting Firestorm [Pre-Combat]") return true end
             end
             -- Living Flame
             -- living_flame,if=!talent.firestorm

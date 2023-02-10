@@ -103,7 +103,7 @@ Raidable means if its good to raid with.
 
 |rotation|author |patch|coverage|status|    readiness     |last updated|
 |--------|-------|:---:|:------:|:----:|:----------------:|-----------:|
-|CuteOne |CuteOne|10.0 |  100%  | Full |:white_check_mark:|  01/04/2023|
+|CuteOne |CuteOne|10.0 |  100%  | Full |:white_check_mark:|  01/28/2023|
 
 - Vengeance
 
@@ -125,7 +125,7 @@ Raidable means if its good to raid with.
 
 |rotation|author |patch|coverage|status|  readiness  |last updated|
 |--------|-------|:---:|:------:|:----:|:-----------:|-----------:|
-|CuteOne |CuteOne|10.0 |  75%   | Full |:interrobang:|  11/06/2022|
+|CuteOne |CuteOne|10.0 |  75%   | Full |:interrobang:|  01/29/2023|
 
 - Guardian
 
@@ -146,26 +146,28 @@ Raidable means if its good to raid with.
 
 - Devastation
 
-|   rotation   |author |patch|coverage| status |    readiness     |last updated|
-|--------------|-------|:---:|:------:|:------:|:----------------:|-----------:|
-|CuteOne       |CuteOne|10.0 |  95%   |  Full  |:heavy_check_mark:|  01/01/2023|
-|Devastated Kuu|Kuukuu |10.0 |  25%   |Sporadic|  :interrobang:   |  12/10/2022|
+|   rotation   |          author          |patch|coverage| status |    readiness     |last updated|
+|--------------|--------------------------|:---:|:------:|:------:|:----------------:|-----------:|
+|CuteOne       |CuteOne                   |10.0 |  95%   |  Full  |:heavy_check_mark:|  01/08/2023|
+|DiscoInferno  |CuteOne edit by DiscoBooty|10.0 |  95%   |  Full  |:heavy_check_mark:|  01/08/2023|
+|Devastated Kuu|Kuukuu                    |10.0 |  25%   |Sporadic|  :interrobang:   |  12/10/2022|
 
 - Preservation
 
 |  rotation   |author|patch|coverage| status |  readiness  |last updated|
 |-------------|------|:---:|:------:|:------:|:-----------:|-----------:|
-|Preserved Kuu|Kuukuu|10.0 |  37%   |Sporadic|:interrobang:|  01/05/2023|
+|Preserved Kuu|Kuukuu|10.0 |  75%   |Sporadic|:interrobang:|  01/22/2023|
 
 
 ### Hunter
 
 - BeastMastery
 
-|rotation|author |patch|coverage|status |    readiness     |last updated|
-|--------|-------|:---:|:------:|:-----:|:----------------:|-----------:|
-|Arhelay |Arhelay|10.0 |  69%   |Limited|       :x:        |  11/02/2022|
-|CuteOne |CuteOne|9.2.5|  100%  |Limited|:white_check_mark:|  08/07/2022|
+|   rotation    |author |patch|coverage|status |    readiness     |last updated|
+|---------------|-------|:---:|:------:|:-----:|:----------------:|-----------:|
+|TESTArhelayTEST|Arhelay|10.0 |  69%   |Limited|       :x:        |  02/08/2023|
+|Arhelay        |Arhelay|10.0 |  69%   |Limited|       :x:        |  11/02/2022|
+|CuteOne        |CuteOne|9.2.5|  100%  |Limited|:white_check_mark:|  08/07/2022|
 
 - Marksmanship
 
@@ -178,7 +180,7 @@ Raidable means if its good to raid with.
 
 |rotation|  author  | patch |coverage| status |    readiness     |last updated|
 |--------|----------|:-----:|:------:|:------:|:----------------:|-----------:|
-|CuteOne |CuteOne   |Unknown|  90%   |Inactive|:heavy_check_mark:|  08/05/2022|
+|CuteOne |CuteOne   |Unknown|  90%   |Inactive|:heavy_check_mark:|  01/14/2023|
 |Ponche  |aqwerty420|Unknown|Unknown |Unknown |  :interrobang:   |  07/21/2022|
 
 
@@ -246,9 +248,9 @@ Raidable means if its good to raid with.
 
 - Retribution
 
-|rotation|author | patch |coverage| status |    readiness     |last updated|
-|--------|-------|:-----:|:------:|:------:|:----------------:|-----------:|
-|CuteOne |CuteOne|Unknown|  90%   |Inactive|:white_check_mark:|  08/05/2022|
+|rotation|author |patch|coverage| status |    readiness     |last updated|
+|--------|-------|:---:|:------:|:------:|:----------------:|-----------:|
+|CuteOne |CuteOne|10.0 |  90%   |Sporadic|:heavy_check_mark:|  01/07/2023|
 
 
 ### Priest
@@ -312,16 +314,16 @@ Raidable means if its good to raid with.
 
 |rotation|   author   | patch |coverage|status |    readiness     |last updated|
 |--------|------------|:-----:|:------:|:-----:|:----------------:|-----------:|
-|CuteOne |CuteOne     | 9.1.5 |  100%  |Limited|:white_check_mark:|  08/05/2022|
-|becyTR  |Kuukuukatchu|Unknown|Unknown |Unknown|  :interrobang:   |  05/19/2022|
+|becyTR  |Kuukuukatchu|Unknown|Unknown |Unknown|  :interrobang:   |  01/16/2023|
+|CuteOne |CuteOne     |10.0.0 |  100%  |Limited|:white_check_mark:|  01/16/2023|
 
 - Restoration
 
 |  rotation   | author  | patch |coverage|status |  readiness  |last updated|
 |-------------|---------|:-----:|:------:|:-----:|:-----------:|-----------:|
 |Laksham_resto|Laksmackt|Unknown|Unknown |Unknown|:interrobang:|  05/21/2021|
-|Kuu Raid     |Kuukuu   |Unknown|Unknown |Unknown|:interrobang:|  03/04/2021|
 |Kuu M+       |Kuukuu   |Unknown|Unknown |Unknown|:interrobang:|  03/04/2021|
+|Kuu Raid     |Kuukuu   |Unknown|Unknown |Unknown|:interrobang:|  03/04/2021|
 |Resto Shamlo |Pangloo  |Unknown|Unknown |Unknown|:interrobang:|  02/27/2021|
 
 

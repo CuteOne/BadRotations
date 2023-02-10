@@ -153,6 +153,7 @@ function br.TierScan(thisTier)
 	local myClass = select(2, br._G.UnitClass("player"))
 	thisTier = string.upper(thisTier)
 	local sets = br.lists.tier
+	if sets[thisTier] == nil or sets[thisTier][myClass] == nil then return 0 end
 	local tierList = sets[thisTier][myClass]
 	if not tierList then
 		br._G.print("No tier info found for this class! Please let devs know!")

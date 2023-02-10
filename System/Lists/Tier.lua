@@ -548,5 +548,98 @@ br.lists.tier = {
 		188937, -- hands
 		188940, -- legs
 		}
+	},
+	["T29"] = {
+		["DEATHKNIGHT"] = {
+			200408, -- head
+			200405, -- chest
+			200410, -- shoulder
+			200407, -- hands
+			200409, -- legs
+		},
+		["DEMONHUNTER"] = {
+			200345, -- head
+			200342, -- chest
+			200347, -- shoulder
+			200344, -- hands
+			200346, -- legs
+		},
+		["DRUID"] = {
+			200354, -- head
+			200351, -- chest
+			200356, -- shoulder
+			200353, -- hands
+			200355, -- legs
+		},
+		["EVOKER"] = {
+			200381, -- head
+			200378, -- chest
+			200383, -- shoulder
+			200380, -- hands
+			200382, -- legs
+		},
+		["HUNTER"] = {
+			200390, -- head
+			200387, -- chest
+			200392, -- shoulder
+			200389, -- hands
+			200391, -- legs
+		},
+		["MAGE"] = {
+			200318, -- head
+			200315, -- chest
+			200320, -- shoulder
+			200317, -- hands
+			200319, -- legs
+		},
+		["MONK"] = {
+			200363, -- head
+			200360, -- chest
+			200365, -- shoulder
+			200362, -- hands
+			200364, -- legs
+		},
+		["PALADIN"] = {
+			200417, -- head
+			200414, -- chest
+			200419, -- shoulder
+			200416, -- hands
+			200418, -- legs
+		},
+		["PRIEST"] = {
+			200327, -- head
+			200324, -- chest
+			200329, -- shoulder
+			200326, -- hands
+			200328, -- legs
+		},
+		["ROGUE"] = {
+			200372, -- head
+			200369, -- chest
+			200374, -- shoulder
+			200371, -- hands
+			200373, -- legs
+		},
+		["SHAMAN"] = {
+			200399, -- head
+			200396, -- chest
+			200401, -- shoulder
+			200398, -- hands
+			200400, -- legs
+		},
+		["WARLOCK"] = {
+			200336, -- head
+			200333, -- chest
+			200338, -- shoulder
+			200335, -- hands
+			200337, -- legs
+		},
+		["WARRIOR"] = {
+			200426, -- head
+			200423, -- chest
+			200428, -- shoulder
+			200425, -- hands
+			200427, -- legs
+		}
 	}
 }

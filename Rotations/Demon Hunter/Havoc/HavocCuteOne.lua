@@ -353,9 +353,7 @@ actionList.Interrupts = function()
         -- Sigil of Misery
         for i=1, #enemies.yards30 do
             local thisUnit = enemies.yards30[i]
-            if ui.checked("Sigil of Misery") and cast.able.sigilOfMisery(thisUnit)
-                and cd.disrupt.remain() > 0 and cd.sigilOfSilence.remain() > 0 and cd.sigilOfSilence.remain() < 45
-            then
+            if ui.checked("Sigil of Misery") and cast.able.sigilOfMisery(thisUnit) and cd.disrupt.remain() > 0 then
                 if cast.sigilOfMisery(thisUnit,"ground",1,8) then ui.debug("Casting Sigil of Misery [Interrupt]") return true end
             end
         end
@@ -609,6 +607,11 @@ local function runRotation()
                 -- if furyDeficit >= 35 then
                 --     ui.chatOverlay("Low Fury - Pickup Fragments!")
                 -- end
+                -- Annihilation
+                -- annihilation,if=buff.inner_demon.up&cooldown.metamorphosis.remains<=gcd*3
+                if cast.able.annihilation() and buff.innerDemon.exists() and cd.metamorphosis.remains() <= unit.gcd() * 3 then
+                    if cast.annihilation() then ui.debug("Casting Annihilation [Inner Demon]") return true end
+                end
                 -- Vengeful Retreat
                 if ui.checked("Vengeful Retreat") and cast.able.vengefulRetreat() and ui.mode.mover ~= 3 then
                     -- vengeful_retreat,use_off_gcd=1,if=talent.initiative&talent.essence_break&time>1&(cooldown.essence_break.remains>15|cooldown.essence_break.remains<gcd.max&(!talent.demonic|buff.metamorphosis.up|cooldown.eye_beam.remains>15+(10*talent.cycle_of_hatred)))
@@ -704,13 +707,27 @@ local function runRotation()
                 end
                 -- Throw Glaive
                 -- throw_glaive,if=talent.serrated_glaive&cooldown.eye_beam.remains<4&!debuff.serrated_glaive.up&!debuff.essence_break.up
-                if ui.checked("Throw Glaive") and cast.able.throwGlaive() and talent.serratedGlaive and cd.eyeBeeam.remains() < 4 and debuff.essenceBreak.count() == 0 then
+                if ui.checked("Throw Glaive") and cast.able.throwGlaive() and talent.serratedGlaive and cd.eyeBeam.remains() < 4 and debuff.essenceBreak.count() == 0 then
                     if cast.throwGlaive() then ui.debug("Casting Throw Glaive [Serrated Glaive]") return true end
                 end
                 -- Immolation Aura
                 -- immolation_aura,if=!buff.immolation_aura.up&(!talent.ragefire|active_enemies>desired_targets|raid_event.adds.in>15)
                 if cast.able.immolationAura() and not unit.isExplosive("target") and #enemies.yards8 > 0 and not buff.immolationAura.exists() then
                     if cast.immolationAura("player","aoe",1,8) then ui.debug("Casting Immolation Aura") return true end
+                end
+                -- Fel Rush
+                -- fel_rush,if=talent.isolated_prey&active_enemies=1&fury.deficit>=35
+                if cast.able.felRush() and not unit.isExplosive("target") and #enemies.yards23r == 1
+                    and talent.isolatedPrey and furyDeficit >= 35
+                    and charges.felRush.count() > ui.value("Hold Fel Rush Charge")
+                then
+                    if ui.mode.mover == 1 and unit.distance("target") < 8 then
+                        cancelRushAnimation("Casting Fel Rush [Isolated Prey]")
+                        return true
+                    end
+                    if ui.mode.mover ~= 3 and (unit.distance("target") < 8 or (not ui.checked("Fel Rush Only In Melee") and unit.distance("target") >= 8)) then
+                        if cast.felRush() then ui.debug("Casting Fel Rush [Isolated Prey]") return true end
+                    end
                 end
                 -- Felblade
                 -- felblade,if=fury.deficit>=40
