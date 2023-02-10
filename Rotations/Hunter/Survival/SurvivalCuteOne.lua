@@ -429,16 +429,6 @@ actionList.Cooldown = function()
     then
         if cast.killShot("target") then ui.debug("Casting Kill Shot [CD]") return true end
     end
-    -- Death Chakram
-    -- deathChakram
-    if talent.deathChakram and cast.able.deathChakram("target") and #enemies.yards40 > 0 then
-        if cast.deathChakram("target") then ui.debug("casting Death Chakram [CD]") return true end
-    end
-    -- Explosive Shot
-    -- explosiveShot
-    if talent.explosiveShot and cast.able.explosiveShot("target") and #enemies.yards40 > 0 then
-        if cast.explosiveShot("target") then ui.debug("Casting Explosive SHot [CD]") return true end
-    end
     -- Mongoose Bite
     -- mongoose_bite,if=active_enemies=1&target.time_to_die<focus%(action.mongoose_bite.cost-cast_regen)*gcd
     if talent.mongooseBite and cast.able.mongooseBite(var.eagleUnit) and #var.eagleEnemies == 1 and unit.ttd(var.eagleUnit) < focus / (cast.cost.mongooseBite() - cast.regen.mongooseBite()) * unit.gcd(true) then
@@ -864,7 +854,7 @@ actionList.Cleave = function()
     if cast.able.wildfireBomb(units.dyn40,"cone",1,8) and charges.wildfireBomb.timeTillFull() < unit.gcd(true) then
         if cast.wildfireBomb(units.dyn40,"cone",1,8) then ui.debug("Casting Wildfire Bomb [Cleave - Max Charges]") return true end
     end
-    -- Chakrams
+    -- Death Chakram
     -- deathChakram
     if talent.deathChakram and cast.able.deathChakram("target") and #enemies.yards40 > 0 then
         if cast.deathChakram("target") then ui.debug("casting Death Chakram [Cleave]") return true end
@@ -887,9 +877,14 @@ actionList.Cleave = function()
     -- Butchery
     -- butchery,if=dot.shrapnel_bomb.ticking&(dot.internal_bleeding.stack<2|dot.shrapnel_bomb.remains<gcd)
     if talent.butchery and cast.able.butchery("player","aoe",1,8) and debuff.shrapnelBomb.exists("target")
-        and (debuff.internalBleeding.stack() < 2 or debuff.shrapnelBomb.remains("target") < unit.gcd(true))
+        and (debuff.internalBleeding.stack() < 3 or debuff.shrapnelBomb.remains("target") < unit.gcd(true))
     then
         if cast.butchery("player","aoe",1,8) then ui.debug("Casting Butchery [Cleave - Shrapnel Bomb]") return true end
+    end
+     -- Fury of the eagle
+    -- furyOfTheEagle
+    if talent.furyOfTheEagle and cast.able.furyOfTheEagle("player","aoe",1,8) then
+        if cast.furyOfTheEagle("player","aoe",1,8) then ui.debug("Casting Fury Of The Eagle [cleave]") return true end
     end
     -- Carve
     -- carve,if=dot.shrapnel_bomb.ticking
@@ -979,9 +974,9 @@ actionList.Cleave = function()
     end
     -- Serpent Sting
     -- serpent_sting,target_if=min:remains,if=refreshable
-    if cast.able.serpentSting(var.lowestSerpentSting) and debuff.serpentSting.refresh(var.lowestSerpentSting) then
-        if cast.serpentSting(var.lowestSerpentSting) then ui.debug("Casting Serpent Sting [Cleave]") return true end
-    end
+    --if cast.able.serpentSting(var.lowestSerpentSting) and debuff.serpentSting.refresh(var.lowestSerpentSting) then
+    --    if cast.serpentSting(var.lowestSerpentSting) then ui.debug("Casting Serpent Sting [Cleave]") return true end
+    --end
     -- Mongoose Bite
     -- mongoose_bite,target_if=max:debuff.latent_poison_injection.stack
     if talent.mongooseBite and cast.able.mongooseBite(var.maxLatentPoison) then
@@ -1013,12 +1008,12 @@ actionList.St = function()
     end
     -- Serpent Sting
     -- serpent_sting,target_if=min:remains,if=buff.vipers_venom.up&buff.vipers_venom.remains<gcd|!ticking
-    if cast.able.serpentSting(var.lowestSerpentSting) and buff.vipersVenom.exists() and buff.vipersVenom.remains() < unit.gcd(true) or not debuff.serpentSting.exists(var.lowestSerpentSting) then
-        if cast.serpentSting(var.lowestSerpentSting) then ui.debug("Casting Serpent Sting [St - Vipers Venom Expire Soon / No Serpent Sting]") return true end
-    end
+    --if cast.able.serpentSting(var.lowestSerpentSting) and buff.vipersVenom.exists() and buff.vipersVenom.remains() < unit.gcd(true) or not debuff.serpentSting.exists(var.lowestSerpentSting) then
+    --    if cast.serpentSting(var.lowestSerpentSting) then ui.debug("Casting Serpent Sting [St - Vipers Venom Expire Soon / No Serpent Sting]") return true end
+    --end
     -- Death Chakram
     -- death_chakram,if=focus+cast_regen<focus.max
-    if ui.alwaysCdAoENever("Covenany Ability",3,#enemies.yards8t) and cast.able.deathChakram() and focus + cast.regen.deathChakram() < focusMax then
+    if ui.alwaysCdAoENever("Covenany Ability",3,#enemies.yards8t) and talent.deathChakram and cast.able.deathChakram() and focus + cast.regen.deathChakram() < focusMax then
         if cast.deathChakram() then ui.debug("Casting Death Chakram [St]") return true end
     end
     -- Raptor Strike
@@ -1095,10 +1090,10 @@ actionList.St = function()
     then
         if cast.wildfireBomb(units.dyn40,"cone",1,8) then ui.debug("Casting Wildfire Bomb [St - Shrapnel Bomb / Rylakstalker's]") return true end
     end
-    -- Chakrams
+    -- Death Chakram
     -- deathChakram
-    if cast.able.deathChakram("target","rect",1,40) and #enemies.yards40r > 0 then
-        if cast.deathChakram("target","rect",1,40) then ui.debug("Casting deathChakram [St]") return true end
+    if talent.deathChakram and cast.able.deathChakram("target") and #enemies.yards40 > 0 then
+        if cast.deathChakram("target") then ui.debug("casting Death Chakram [St]") return true end
     end
     -- Mongoose Bite
     -- mongoose_bite,target_if=max:debuff.latent_poison_injection.stack,if=buff.mongoose_fury.up|focus+action.kill_command.cast_regen>focus.max-15|dot.shrapnel_bomb.ticking
@@ -1152,14 +1147,14 @@ actionList.Opener = function()
                 opener.count = opener.count + 1
                 return
             -- Serpent Sting
-            elseif opener.CA1 and not opener.SS1 then
-                if level < 12 or debuff.serpentSting.exists("target") then
-                    cast.openerFail("serpentSting","SS1",opener.count)
-                elseif cast.able.serpentSting() then
-                    cast.opener("serpentSting","SS1",opener.count)
-                end
-                opener.count = opener.count + 1
-                return
+            --elseif opener.CA1 and not opener.SS1 then
+            --    if level < 12 or debuff.serpentSting.exists("target") then
+            --        cast.openerFail("serpentSting","SS1",opener.count)
+            --    elseif cast.able.serpentSting() then
+            --        cast.opener("serpentSting","SS1",opener.count)
+            --    end
+            --    opener.count = opener.count + 1
+            --    return
             -- Wildfire Bomb
             elseif opener.SS1 and not opener.WB1 then
                 if level < 20 or charges.wildfireBomb.count() == 0 then

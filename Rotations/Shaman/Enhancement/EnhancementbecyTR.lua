@@ -561,10 +561,10 @@ actionList.AOE = function()
         cast.chainLightning()
     end
     -- actions.aoe+=/earthen_spike
-    if cast.able.earthenSpike() then
-        ui.debug("AOE37")
-        cast.earthenSpike()
-    end
+    --if cast.able.earthenSpike() then
+    --    ui.debug("AOE37")
+    --    cast.earthenSpike()
+    --end
     -- actions.aoe+=/earth_elemental
     
     -- actions.aoe+=/windfury_totem,if=buff.windfury_totem.remains<30
@@ -629,9 +629,9 @@ actionList.Single = function()
         cast.frostShock()
     end
     -- actions.single+=/earthen_spike
-    if cast.able.earthenSpike() then
-        cast.earthenSpike()
-    end
+    --if cast.able.earthenSpike() then
+    --    cast.earthenSpike()
+    --end
     -- actions.single+=/lava_lash,if=dot.flame_shock.refreshable
     if cast.able.lavaLash() then
         for i = 1, #enemies.yards8 do
