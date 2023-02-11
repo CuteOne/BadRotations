@@ -1640,6 +1640,7 @@ br.lists.spells = {
                 bloodseeker                 = 260248,
                 butchery                    = 212436,
                 flankingStrike              = 269751,
+                furyOfTheEagle              = 203415,
                 guerrillaTactics            = 264332,
                 hydrasBite                  = 260241,
                 mongooseBite                = 259387,
