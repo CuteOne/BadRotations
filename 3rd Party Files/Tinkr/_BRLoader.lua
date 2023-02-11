@@ -1,11 +1,9 @@
-local NoName = ...
-local read   = NoName.Utils.Storage.read
-local write  = NoName.Utils.Storage.write
-local JSON   = NoName.Utils.JSON
-local AceGUI = NoName.Utils.AceGUI
-local toc = ReadFile('/scripts/BadRotations/BadRotations.toc')
+local Tinkr = ...
+local File = Tinkr.Util.File
+local toc = File:Read('/scripts/BadRotations/BadRotations.toc')
 local br = {}
 br.files = {}
+br.libs = {}
 
 -- Resource Files (Image/Font)
 br.files[#br.files+1] = {file = 'BadRotations/Libs/!LibDraw/Media/LineTemplate.tga', load = true}
@@ -55,6 +53,7 @@ for line in toc:gmatch("([^\n]*)\n?") do
         thisLine = thisLine:gsub(" ","")
         thisLine = thisLine:gsub(".lua","")
         thisLine = 'BadRotations/'..thisLine
+
         br.files[#br.files+1] = {
             file = thisLine,
             load = true
@@ -87,24 +86,27 @@ for line in toc:gmatch("([^\n]*)\n?") do
 end
 
 -- Unlocker Lua Files
-br.files[#br.files+1] = {file = 'BadRotations/Unlockers/tinkr', load = false}
-br.files[#br.files+1] = {file = 'BadRotations/Unlockers/nn', load = true}
-br.files[#br.files+1] = {file = 'BadRotations/Unlockers/daemonic', load = false}
+br.files[#br.files+1] = {file = 'BadRotations/Unlockers/tinkr', load = true}
+-- br.files[#br.files+1] = {file = 'BadRotations/Unlockers/nn', load = false}
+-- br.files[#br.files+1] = {file = 'BadRotations/Unlockers/daemonic', load = false}
 
 -- Load Files into WoW
 for i = 1, #br.files do
     local file = br.files[i].file
     local load = br.files[i].load
-	if load then
+    if load then
         -- print("Loading File: /scripts/"..file)
-		NoName:Require('/scripts/'..file, br)
-    -- else
-    --     print("Did not load File: /scripts/"..file)
-	end
+        -- if file == "BadRotations/Libs/DiesalGUI-1.0/DiesalGUI-1.0" then
+        --     print("Loading File: /scripts/"..file)
+        -- end
+        Tinkr:require('/scripts/'..file, br)
+    else
+        print("Did not load File: /scripts/"..file)
+    end
 end
 
 -- Call BR Load Function
 if UnitExists('player') then
-    print "[Nn] Loading BR"
+    print "[Tinkr] Loading BR"
     br.load()
 end

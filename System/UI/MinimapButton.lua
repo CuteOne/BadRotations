@@ -99,6 +99,9 @@ function br:MinimapButton()
 			end
 			if button == "LeftButton" then
 				if br._G.IsShiftKeyDown() and not br._G.IsAltKeyDown() and not br._G.UnitAffectingCombat("player") then
+					if br.data.settings[br.selectedSpec].toggles == nil then
+						br.data.settings[br.selectedSpec].toggles = {}
+					end
 					if br.data.settings[br.selectedSpec].toggles["Main"] == 1 then
 						br.data.settings[br.selectedSpec].toggles["Main"] = 0
 						br.mainButton:Hide()

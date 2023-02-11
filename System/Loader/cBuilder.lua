@@ -1,5 +1,6 @@
 local _, br = ...
 br.loader = {}
+local sep = IsMacClient() and "/" or "\\"
 local class = select(2,br._G.UnitClass('player'))
 local function getFolderClassName(class)
     local formatClass = class:sub(1,1):upper()..class:sub(2):lower()
@@ -12,11 +13,12 @@ local function getFolderSpecName(class,specID)
         if v == specID then return tostring(k) end
     end
 end
-local function rotationsDirectory()
-    return br._G.GetWoWDirectory() .. '\\Interface\\AddOns\\' .. br.addonName .. '\\Rotations\\'
-end
-local function settingsDirectory()
-    return br._G.GetWoWDirectory() .. '\\Interface\\AddOns\\' .. br.addonName .. '\\Settings\\'
+local function getFilesLocation()
+    local wowDir = br._G.GetWoWDirectory() or ""
+    if wowDir:match('_retail_') then
+        return  wowDir .. sep .. 'Interface' .. sep .. 'AddOns' .. sep .. br.addonName
+    end
+    return wowDir .. sep .. br.addonName
 end
 
 local function errorhandler(err)
@@ -47,32 +49,23 @@ function br.loader.loadProfiles()
     local specID = br._G.GetSpecializationInfo(br._G.GetSpecialization())
     local IDLength = math.floor(math.log10(specID)+1)
     local folderSpec = getFolderSpecName(class,specID)
-    local path = rotationsDirectory() .. getFolderClassName(class) .. '\\' .. folderSpec .. '\\'
+    local path = getFilesLocation() .. sep .. 'Rotations' .. sep .. getFolderClassName(class) .. sep .. folderSpec .. sep
+    -- br._G.print("Path: "..tostring(path))
     local profiles = br._G.GetDirectoryFiles(path .. '*.lua')
-    -- local profileName = ""
-    for _, file in pairs(profiles) do
+    -- br._G.print("Profiles: "..tostring(#profiles))
+    for k, file in pairs(profiles) do
         -- br._G.print("Path: "..path..", File: "..file)
-        local profile = br._G.ReadFile(path..file)
+        local profile = br._G.ReadFile(path..file) or ""
         -- br._G.print("Profile: "..tostring(profile))
         local start = string.find(profile,"local id = ",1,true) or 0
         local stringEnd = start + IDLength + 10
         local profileID = math.floor(tonumber(string.sub(profile,start+10,stringEnd)) or 0)
+        -- br._G.print("ProfileID: "..tostring(profileID)..", SpecID: "..tostring(specID))
         if profileID == specID then
+            -- br._G.print("Loading Profile")
             loadFile(profile,file,false)
-            -- -- Get Rotation Name from File
-            -- start = string.find(profile,"local rotationName = ",1,true) or 0
-            -- local endString = string.find(profile,"\n",1,true) or 0
-            -- profileName = tostring(string.sub(profile,start+20,endString))
-            -- endString = string.find(profile,"\" -",1,true) or 0
-            -- if endString > 0 then profileName = tostring(string.sub(profile,start+20,endString)) end
-            -- Print("Profile: "..profileName)
         end
     end
-    -- path = settingsDirectory() .. getFolderClassName(class) .. '\\' .. folderSpec .. '\\' .. profileName .. '\\'
-    -- local settings = GetDirectoryFiles(path .. '*.lua')
-    -- for _, file in pairs(settings) do
-    --     Print("File: "..tostring(file).." | Profile: "..profileName)
-    -- end
 end
 
 -- Load Support Files - Specified in Rotation File
@@ -83,7 +76,7 @@ function br.loadSupport(thisFile) -- Loads support rotation file from Class Fold
         br._G.wipe(br.rotations.support[thisFile])
     end
     local file = thisFile..".lua"
-    local profile = br._G.ReadFile(rotationsDirectory()..getFolderClassName(class)..'\\Support\\'..file)
+    local profile = br._G.ReadFile(getFilesLocation()..sep..'Rotations'..sep..getFolderClassName(class)..sep..'Support'..sep..file)
     loadFile(profile,file,true)
 end
 
@@ -93,24 +86,24 @@ function br.loader:new(spec,specName)
     local self = br.cCharacter:new(tostring(select(1,br._G.UnitClass("player"))))
     -- local player = "player" -- if someone forgets ""
     if specName == nil then specName = "Initial" end
-    -- Print("Spec: "..spec.." | Spec Name: "..specName)
-    -- if not br.loaded then
-        --     -- Print("Loader - Loading Profiles")
-        --     br.loader.loadProfiles()
-        --     br.loaded = true
-        -- end
-        
-        self.profile = specName
-        
-        -- Mandatory !
-        if br.rotations[spec] == nil then
-            br.loader.loadProfiles()
-            br.rotationChanged = true
-        end
-    if br.rotations[spec][br.selectedProfile] then
+
+    self.profile = specName
+
+    -- Mandatory !
+    if br.rotations[spec] == nil then
+        br.loader.loadProfiles()
+        br.rotationChanged = true
+    end
+
+    if br.selectedProfile ~= nil then
+        br._G.print("Selecting Previous Rotation: "..br.rotations[spec][br.selectedProfile].name)
         self.rotation = br.rotations[spec][br.selectedProfile]
-    else
+    elseif br.rotations[spec] ~= nil then
+        br._G.print("No Previously Selected Rotation, Defaulting To: "..br.rotations[spec][1].name)
         self.rotation = br.rotations[spec][1]
+    else
+        br._G.print("No Rotations Found!")
+        return
     end
 
 

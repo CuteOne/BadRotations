@@ -125,7 +125,7 @@ function br.Run()
 		br:ObjectTracker()
 		-- Complete Loadin
 		br.ChatOverlay("-= BadRotations Loaded =-")
-		br._G.print("Loaded")
+		br._G.print("Initialization Complete, Finding Previous Settings.")
 		br.loadedIn = true
 	end
 end
@@ -224,7 +224,7 @@ function br.load()
 	end
 	if not br.unlocked then
 		br.initializeSettings = true
-		print(br.classColor .. "[BadRotations] |cffFFFFFFPlease wait for settings to load!")
+		print(br.classColor .. "[BadRotations] |cffFFFFFFInitializing Please Wait...")
 	end
 	br.equipHasChanged = true
 	if not br.loadedIn then

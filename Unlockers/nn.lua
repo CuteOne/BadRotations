@@ -370,7 +370,7 @@ function br.unlock:NNUnlock()
 	-- API conversions
 	--------------------------------
 	b.GetWoWDirectory = function()
-		return ""
+		return "\\scripts"
 	end
 	local om = {}
 	b.GetObjectCount = function()
@@ -397,14 +397,11 @@ function br.unlock:NNUnlock()
 		local str = ...
 		if str == nil then return "" end
 		local filter = str:gsub(str:match("*.lua"), "*")
-		if filter:match("\\Interface\\AddOns\\") ~= nil then
-			filter = filter:gsub(filter:match("\\Interface\\AddOns\\"), "..\\")
-		end
 		-- print("Filter: "..filter)
-		local path = filter:gsub(filter:match("..\\BadRotations"), "\\scripts\\BadRotations")
-		local files = ListFiles(path) --ListFiles(path)
+		local files = ListFiles(filter)
 		local returnFiles = ""
 		for i = 1, #files do
+			-- print("File: "..files[i])
 			if files[i]:match(".lua") then
 				if returnFiles == "" then
 					returnFiles = files[i]
@@ -416,20 +413,20 @@ function br.unlock:NNUnlock()
 		return stringsplit(returnFiles, "|")
 	end
 	b.ReadFile = function(...)
-		local path = fixPath(...)
+		local path = ...--fixPath(...)
 		return ReadFile(path)
 	end
 	b.WriteFile = function(...)
 		local file, data, append = ...
-		local path = fixPath(file)
+		local path = file --fixPath(file)
 		return WriteFile(path, data, append)
 	end
 	b.CreateDirectory = function(...)
-		local path = fixPath(...)
+		local path = ... --fixPath(...)
 		return CreateDirectory(path)
 	end
 	b.DirectoryExists = function(...)
-		local path = fixPath(...)
+		local path = ... --fixPath(...)
 		return DirectoryExists(path)
 	end
 	b.WorldToScreen = function(...)
