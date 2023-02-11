@@ -180,7 +180,7 @@ Raidable means if its good to raid with.
 
 |rotation|  author  | patch |coverage| status |    readiness     |last updated|
 |--------|----------|:-----:|:------:|:------:|:----------------:|-----------:|
-|CuteOne |CuteOne   |Unknown|  90%   |Inactive|:heavy_check_mark:|  01/14/2023|
+|CuteOne |CuteOne   |Unknown|  90%   |Inactive|:heavy_check_mark:|  02/10/2023|
 |Ponche  |aqwerty420|Unknown|Unknown |Unknown |  :interrobang:   |  07/21/2022|
 
 
@@ -314,7 +314,7 @@ Raidable means if its good to raid with.
 
 |rotation|   author   | patch |coverage|status |    readiness     |last updated|
 |--------|------------|:-----:|:------:|:-----:|:----------------:|-----------:|
-|becyTR  |Kuukuukatchu|Unknown|Unknown |Unknown|  :interrobang:   |  01/16/2023|
+|becyTR  |Kuukuukatchu|Unknown|Unknown |Unknown|  :interrobang:   |  02/10/2023|
 |CuteOne |CuteOne     |10.0.0 |  100%  |Limited|:white_check_mark:|  01/16/2023|
 
 - Restoration
