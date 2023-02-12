@@ -5,7 +5,8 @@ function br._G.print(msg)
 	if msg == nil then
 		return
 	end
-	print(br.classColor .. "[BadRotations] |cffFFFFFF" .. msg)
+	local color = br.classColor or ""
+	print(color .. "[BadRotations] |cffFFFFFF" .. msg)
 end
 br.commandHelp = {"|cffFF0000Slash Commands"}
 function br.SlashCommandHelp(cmd, msg)

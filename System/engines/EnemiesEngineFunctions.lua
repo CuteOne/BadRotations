@@ -540,6 +540,7 @@ end
 local rectUnits = {}
 function br.getEnemiesInRect(width,length,showLines,checkNoCombat)
 	local px, py, pz = br.GetObjectPosition("player")
+	if px == nil or py == nil or pz == nil then return {} end
 	local function getRect(width,length)
 		local facing = br.GetObjectFacing("player") or 0
 		local halfWidth = width/2

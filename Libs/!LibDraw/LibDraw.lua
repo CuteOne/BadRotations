@@ -1,13 +1,16 @@
 -- LubDraw by docbrown on fh-wow.com
 local _, br = ...
---local LibDraw
+local LibDraw
 local sin, cos, atan, atan2, sqrt, rad = math.sin, math.cos, math.atan, math.atan2, math.sqrt, math.rad
 local tinsert, tremove = tinsert, tremove
 
 
 local function WorldToScreen (wX, wY, wZ)
 	if wZ == nil then wZ = select(3,br.GetObjectPosition("player")) end
-	local sX, sY = br._G.WorldToScreen(wX, wY, wZ);
+	for k,v in pairs(br._G) do
+		br._G.print("K: "..tostring(k)..", V: "..tostring(v))
+	end
+	local sX, sY = br._G.WorldToScreen(wX, wY, wZ)
 	if sX and sY and br.unlocker ~= "WA" and br.unlocker ~= "LuaBox" then
 		return sX, -(WorldFrame:GetTop() - sY);
 	else
