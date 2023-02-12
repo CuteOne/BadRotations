@@ -5,6 +5,8 @@ function br:loadUnlockerAPI()
     --local class = br.class
     if br.unlock["NNUnlock"] ~= nil and br.unlock.NNUnlock() then
         unlocked = true
+    elseif br.unlock["TinkrUnlock"] ~= nil and br.unlock.TinkrUnlock() then
+        unlocked = true
     elseif br.unlock["DaemonicUnlock"] ~= nil and br.unlock.DaemonicUnlock() then
         unlocked = true
     end
