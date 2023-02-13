@@ -164,7 +164,7 @@ local unlockList =
 	-- "UnitInRange",
 	"UnitIsAFK",
 	"UnitIsCharmed",
-	"UnitIsConnected",
+	-- "UnitIsConnected",
 	"UnitIsCorpse",
 	"UnitIsDead",
 	-- "UnitIsDeadOrGhost",
@@ -494,6 +494,9 @@ function unlock.TinkrUnlock()
 	end
 	b.UnitInRange = function(...)
 		return UnitInRange(ObjectUnit(...))
+	end
+	b.UnitIsConnected = function(...)
+		return UnitIsConnected(ObjectUnit(...))
 	end
 	b.UnitIsDeadOrGhost = function(...)
 		return UnitIsDeadOrGhost(ObjectUnit(...))
