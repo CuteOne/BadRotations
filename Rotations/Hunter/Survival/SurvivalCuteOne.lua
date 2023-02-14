@@ -619,7 +619,7 @@ actionList.ApSt = function()
     -- Wildfire Bomb
     -- wildfire_bomb,if=full_recharge_time<gcd|focus+cast_regen<focus.max&(next_wi_bomb.volatile&dot.serpent_sting.ticking&dot.serpent_sting.refreshable|next_wi_bomb.pheromone&!buff.mongoose_fury.up&focus+cast_regen<focus.max-action.kill_command.cast_regen*3)|time_to_die<10
     if cast.able.wildfireBomb(units.dyn40,"cone",1,8) and (charges.wildfireBomb.timeTillFull() < unit.gcd(true) or focus + cast.regen.wildfireBomb() < focusMax
-        and (nextBomb(spell.volatileBomb) and debuff.serpentSting.exists(units.dyn40) and debuff.Sting.refresh(units.dyn40) or nextBomb(spell.pheromoneBomb)
+        and (nextBomb(spell.volatileBomb) and debuff.serpentSting.exists(units.dyn40) and debuff.serpentSting.refresh(units.dyn40) or nextBomb(spell.pheromoneBomb)
         and not buff.mongooseFury.exists() and focus + cast.regen.wildfireBomb() < focusMax - cast.regen.killCommand() * 3) or unit.ttd(units.dyn40) < 10)
     then
         if cast.wildfireBomb(units.dyn40,"cone",1,8) then ui.debug("Casting Wildfire Bomb [ApSt - Max Charges]") return true end
