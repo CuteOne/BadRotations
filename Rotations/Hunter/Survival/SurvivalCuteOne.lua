@@ -578,9 +578,9 @@ actionList.ApSt = function()
     end
     -- Serpent Sting
     -- serpent_sting,target_if=min:remains,if=!dot.serpent_sting.ticking&target.time_to_die>7
-    if cast.able.serpentSting(var.lowestSerpentSting) and not debuff.serpentSting.exists(var.lowestSerpentSting) and unit.ttd(var.lowestSerpentSting) > 7 then
-        if cast.serpentSting(var.lowestSerpentSting) then ui.debug("Casting Serpent Sting [ApSt]") return true end
-    end
+    --if cast.able.serpentSting(var.lowestSerpentSting) and not debuff.serpentSting.exists(var.lowestSerpentSting) and unit.ttd(var.lowestSerpentSting) > 7 then
+    --    if cast.serpentSting(var.lowestSerpentSting) then ui.debug("Casting Serpent Sting [ApSt]") return true end
+    --end
     -- Flayed Shot
     -- flayed_shot
     if ui.alwaysCdAoENever("Covenant Ability",3,#enemies.yards8t) and cast.able.flayedShot() then
@@ -619,7 +619,7 @@ actionList.ApSt = function()
     -- Wildfire Bomb
     -- wildfire_bomb,if=full_recharge_time<gcd|focus+cast_regen<focus.max&(next_wi_bomb.volatile&dot.serpent_sting.ticking&dot.serpent_sting.refreshable|next_wi_bomb.pheromone&!buff.mongoose_fury.up&focus+cast_regen<focus.max-action.kill_command.cast_regen*3)|time_to_die<10
     if cast.able.wildfireBomb(units.dyn40,"cone",1,8) and (charges.wildfireBomb.timeTillFull() < unit.gcd(true) or focus + cast.regen.wildfireBomb() < focusMax
-        and (nextBomb(spell.volatileBomb) and debuff.serpentSting.exists(units.dyn40) and debuff.serpentSting.refresh(units.dyn40) or nextBomb(spell.pheromoneBomb)
+        and (nextBomb(spell.volatileBomb) and debuff.serpentSting.exists(units.dyn40) and debuff.Sting.refresh(units.dyn40) or nextBomb(spell.pheromoneBomb)
         and not buff.mongooseFury.exists() and focus + cast.regen.wildfireBomb() < focusMax - cast.regen.killCommand() * 3) or unit.ttd(units.dyn40) < 10)
     then
         if cast.wildfireBomb(units.dyn40,"cone",1,8) then ui.debug("Casting Wildfire Bomb [ApSt - Max Charges]") return true end
@@ -668,9 +668,9 @@ actionList.ApSt = function()
     end
     -- Serpent Sting
     -- serpent_sting,target_if=min:remains,if=refreshable&target.time_to_die>7
-    if cast.able.serpentSting(var.lowestSerpentSting) and debuff.serpentSting.refresh(var.lowestSerpentSting) and unit.ttd(var.lowestSerpentSting) > 7 then
-        if cast.serpentSting(var.lowestSerpentSting) then ui.debug("Casting Serpent Sting [ApSt]") return true end
-    end
+    --if cast.able.serpentSting(var.lowestSerpentSting) and debuff.serpentSting.refresh(var.lowestSerpentSting) and unit.ttd(var.lowestSerpentSting) > 7 then
+    --    if cast.serpentSting(var.lowestSerpentSting) then ui.debug("Casting Serpent Sting [ApSt]") return true end
+    --end
     -- Wildfire Bomb
     -- wildfire_bomb,if=next_wi_bomb.shrapnel&focus>action.mongoose_bite.cost*2&dot.serpent_sting.remains>5*gcd
     if cast.able.wildfireBomb(units.dyn40,"cone",1,8) and nextBomb(spell.shrapnelBomb) and focus > cast.cost.mongooseBite() * 2 and debuff.serpentSting.remains(units.dyn40) > 5 * unit.gcd(true) then
@@ -1113,6 +1113,11 @@ actionList.St = function()
         or nextBomb(spell.pheromoneBomb) or nextBomb(spell.shrapnelBomb))
     then
         if cast.wildfireBomb(units.dyn40,"cone",1,8) then ui.debug("Casting Wildfire Bomb [St]") return true end
+    end
+    -- Explosive Shot
+    -- explosiveShot
+    if talent.explosiveShot and cast.able.explosiveShot("target") and #enemies.yards40 > 0 then
+        if cast.explosiveShot("target") then ui.debug("Casting Explosive SHot [Cleave]") return true end
     end
 end -- End Action List - Single Target
 

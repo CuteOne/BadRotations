@@ -2579,6 +2579,7 @@ br.lists.spells = {
                 symbolOfHope                = 64901,
                 divineSteed                 = 254474,
                 maraadsBreath               = 340459,
+                unendingLight               = 394709,
                 untemperedDedication        = 339990,
             },
             debuffs                         = {
@@ -2599,6 +2600,7 @@ br.lists.spells = {
                 beaconOfVirtue              = 200025,
                 bestowFaith                 = 223306,
                 blessingOfSummer            = 388007,
+                breakingDawn                = 387879,
                 crusadersMight              = 196926,
                 glimmerOfLight              = 325966,
                 holyPrism                   = 114165,
@@ -2610,7 +2612,6 @@ br.lists.spells = {
                 divineToll                  = 375576,
             },
             traits                          = {
-                breakingDawn                = 278594,
                 graceoftheJusticar          = 278593,
                 indomitableJustice          = 275496,
             },
