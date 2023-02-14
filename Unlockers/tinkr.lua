@@ -426,6 +426,9 @@ function unlock.TinkrUnlock()
 	------------------------------------------
 	--- API - Unit Function Object Handler ---
 	------------------------------------------
+	b.CastSpellByName = function(spell, unit)
+		return Eval("CastSpellByName(\""..spell.."\", \""..ObjectUnit(unit).."\")", "")
+	end
 	b.GetUnitSpeed = function(...)
 		return GetUnitSpeed(ObjectUnit(...))
 	end

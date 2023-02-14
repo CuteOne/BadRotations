@@ -1,9 +1,9 @@
 local Tinkr = ...
+if (...).name ~= "Tinkr" or Tinkr.Util == nil then return end
 local File = Tinkr.Util.File
 local toc = File:Read('/scripts/BadRotations/BadRotations.toc')
 local br = {}
 br.files = {}
-br.libs = {}
 
 -- Resource Files (Image/Font)
 br.files[#br.files+1] = {file = 'BadRotations/Libs/!LibDraw/Media/LineTemplate.tga', load = true}
