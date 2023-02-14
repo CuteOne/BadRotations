@@ -180,7 +180,7 @@ Raidable means if its good to raid with.
 
 |rotation|  author  | patch |coverage| status |    readiness     |last updated|
 |--------|----------|:-----:|:------:|:------:|:----------------:|-----------:|
-|CuteOne |CuteOne   |Unknown|  90%   |Inactive|:heavy_check_mark:|  02/10/2023|
+|CuteOne |CuteOne   |Unknown|  90%   |Inactive|:heavy_check_mark:|  02/14/2023|
 |Ponche  |aqwerty420|Unknown|Unknown |Unknown |  :interrobang:   |  07/21/2022|
 
 
@@ -234,7 +234,7 @@ Raidable means if its good to raid with.
 
 |  rotation  | author  | patch |coverage|status |  readiness  |last updated|
 |------------|---------|:-----:|:------:|:-----:|:-----------:|-----------:|
-|Nessaj m+   |Nessaj911|10.0.2 |  90%   | Full  |:interrobang:|  01/05/2023|
+|Nessaj m+   |Nessaj911|10.0.2 |  90%   | Full  |:interrobang:|  02/14/2023|
 |Panglopal   |Pangloo  |Unknown|Unknown |Unknown|:interrobang:|  04/12/2022|
 |Laks M+     |Laksmackt|Unknown|Unknown |Unknown|:interrobang:|  05/14/2021|
 |FengshenHoly|Fengshen |Unknown|Unknown |Unknown|:interrobang:|  04/26/2021|
