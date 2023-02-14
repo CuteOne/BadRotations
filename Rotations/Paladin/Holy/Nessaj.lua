@@ -2020,7 +2020,7 @@ local function runRotation()
     if br.timersTable then
         wipe(br.timersTable)
     end
-    if br.player.runeforge.shadowbreaker.equiped then
+    if talent.breakingDawn then
         lightOfDawn_distance = 40
     else
         lightOfDawn_distance = 15
