@@ -207,7 +207,7 @@ local unlockList =
 	"UseAction",
 	"UseContainerItem",
 	"UseInventoryItem",
-	"UseItemByName",
+	-- "UseItemByName",
 	"UseToy",
 	"UseToyByName"
 }
@@ -422,6 +422,9 @@ function unlock.TinkrUnlock()
 	end
 	b.RunMacroText = function(text)
 		return Eval("RunMacroText(\""..text.."\")", "")
+	end
+	b.UseItemByName = function(text)
+		return Eval("UseItemByName(\""..text.."\")", "")
 	end
 	------------------------------------------
 	--- API - Unit Function Object Handler ---
