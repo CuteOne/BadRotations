@@ -152,7 +152,7 @@ local unlockList =
 	-- "UnitDebuff",
 	"UnitDetailedThreatSituation",
 	-- "UnitExists",
-	"UnitGetIncomingHeals",
+	-- "UnitGetIncomingHeals",
 	"UnitGetTotalHealAbsorbs",
 	"UnitGroupRolesAssigned",
 	-- "UnitGUID",
@@ -473,6 +473,9 @@ function unlock.TinkrUnlock()
 	end
 	b.UnitExists = function(...)
 		return UnitExists(ObjectUnit(...))
+	end
+	b.UnitGetIncomingHeals = function(unit1, unit2)
+		return UnitGetIncomingHeals(ObjectUnit(unit1), ObjectUnit(unit2))
 	end
 	b.UnitGUID = function(...)
 		return UnitGUID(ObjectUnit(...))
