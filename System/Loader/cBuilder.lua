@@ -95,7 +95,7 @@ function br.loader:new(spec,specName)
         br.rotationChanged = true
     end
 
-    if br.selectedProfile ~= nil then
+    if br.selectedProfile ~= nil and br.rotations[spec][br.selectedProfile] then
         br._G.print("Selecting Previous Rotation: "..br.rotations[spec][br.selectedProfile].name)
         self.rotation = br.rotations[spec][br.selectedProfile]
     elseif br.rotations[spec] ~= nil then
