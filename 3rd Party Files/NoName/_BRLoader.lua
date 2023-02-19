@@ -1,5 +1,5 @@
 local NoName = ...
-if (...).name ~= "NoName" or NoName.Utils == nil then return end
+if --[[(...).name ~= "NoName" or]] NoName.Utils == nil then return end
 local read   = NoName.Utils.Storage.read
 local write  = NoName.Utils.Storage.write
 local JSON   = NoName.Utils.JSON
