@@ -120,7 +120,7 @@ local unlockList =
 	"TargetLastTarget",
 	"TargetNearestEnemy",
 	"TargetNearestFriend",
-	"TargetUnit",
+	-- "TargetUnit",
 	"ToggleAutoRun",
 	"ToggleGameMenu",
 	"ToggleRun",
@@ -163,7 +163,7 @@ local unlockList =
 	-- "UnitInRaid",
 	-- "UnitInRange",
 	"UnitIsAFK",
-	"UnitIsCharmed",
+	-- "UnitIsCharmed",
 	-- "UnitIsConnected",
 	"UnitIsCorpse",
 	"UnitIsDead",
@@ -277,7 +277,7 @@ function unlock.TinkrUnlock()
 	end
 	b.GetMapId = GetMapID
 	------------------------- Object --------------------------
-	b.ObjectPointer = Object
+	b.ObjectPointer = ObjectGUID
 	b.ObjectExists = function(...) return Object(...) ~= nil end
 	b.ObjectIsVisible = function(...) return Object(...) ~= nil end
 	b.ObjectPosition = ObjectPosition
@@ -345,9 +345,11 @@ function unlock.TinkrUnlock()
 		return #Objects()
 	end
 	b.GetObjectWithIndex = function(index)
-		return om[index]
+		return tostring(om[index])
 	end
-	b.GetObjectWithGUID = Object
+	b.GetObjectWithGUID = function(...)
+		return ...
+	end
 	------------------------- Unit ------------------
 	b.UnitCreator = ObjectCreator
 	b.UnitMovementFlags = ObjectMovementFlag
@@ -426,6 +428,13 @@ function unlock.TinkrUnlock()
 	b.UseItemByName = function(text)
 		return Eval("UseItemByName(\""..text.."\")", "")
 	end
+	b.TargetUnit = function(unit)
+		if Object(unit) then
+			return TargetUnit(Object(unit):unit())
+		else
+			return
+		end
+	end
 	------------------------------------------
 	--- API - Unit Function Object Handler ---
 	------------------------------------------
@@ -481,7 +490,7 @@ function unlock.TinkrUnlock()
 		return UnitGetIncomingHeals(ObjectUnit(unit1), ObjectUnit(unit2))
 	end
 	b.UnitGUID = function(...)
-		return UnitGUID(ObjectUnit(...))
+		return ObjectGUID(...)--UnitGUID(ObjectUnit(...))
 	end
 	b.UnitHealth = function(...)
 		return UnitHealth(ObjectUnit(...))
@@ -503,6 +512,9 @@ function unlock.TinkrUnlock()
 	end
 	b.UnitInRange = function(...)
 		return UnitInRange(ObjectUnit(...))
+	end
+	b.UnitIsCharmed = function(...)
+		return UnitIsCharmed(ObjectUnit(...))
 	end
 	b.UnitIsConnected = function(...)
 		return UnitIsConnected(ObjectUnit(...))
@@ -546,8 +558,11 @@ function unlock.TinkrUnlock()
 	b.UnitStat = function(unit, statIndex)
 		return UnitStat(ObjectUnit(unit), statIndex)
 	end
-	b.UnitThreatSituation = function(...)
-		return UnitThreatSituation(ObjectUnit(...))
+	b.UnitIsTapDenied = function(...)
+		return UnitIsTapDenied(ObjectUnit(...))
+	end
+	b.UnitThreatSituation = function(unit1, unit2)
+		return UnitThreatSituation(ObjectUnit(unit1), ObjectUnit(unit2))
 	end
 	b.UnitIsTrivial = function(...)
 		return UnitIsTrivial(ObjectUnit(...))

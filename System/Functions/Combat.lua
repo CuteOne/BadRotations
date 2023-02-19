@@ -296,7 +296,7 @@ function br.hasThreat(unit, playerUnit)
 	end
 	-- Open World Mob Pack Validation
 	if instance == "none" and playerInCombat and not br.isCritter(unitObject) and br.enemy[br._G.ObjectPointer("target")] ~= nil and br.enemy[unitObject] == nil and br.getDistance("target", unitObject) < 8 then
-		-- if isChecked("Cast Debug") then br._G.print("[Open World Threat] "..br._G.UnitName(unit).." is within "..round2(getDistance("target",unitObject),1).."yrds of your target and is considered a threat.") end
+		-- if br.isChecked("Cast Debug") then br._G.print("[Open World Threat] "..br._G.UnitName(unit).." is within "..round2(getDistance("target",unitObject),1).."yrds of your target and is considered a threat.") end
 		return true
 	end
 	-- Player Threat Valdation

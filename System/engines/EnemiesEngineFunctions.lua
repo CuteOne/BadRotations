@@ -447,14 +447,18 @@ function br.dynamicTarget(range,facing)
 		bestUnit = "target"
 	end
 	bestDist = br.getDistance(bestUnit) or 99
-	if bestDist < range then
-		if ((br.GetUnitIsDeadOrGhost("target") and not br.GetUnitIsFriend("target","player")) or (not br._G.UnitExists("target") and br.hasThreat(bestUnit))
-			or ((br.isChecked("Target Dynamic Target") and br.GetUnitExists("target")) and not br.GetUnitIsUnit(bestUnit,"target")))
+	if bestDist < range and not br.GetUnitIsUnit(bestUnit,"target") then
+		if ((br.GetUnitIsDeadOrGhost("target") and not br.GetUnitIsFriend("target","player")) or (not br.GetUnitExists("target") and br.hasThreat(bestUnit))
+			or ((br.isChecked("Target Dynamic Target") and br.GetUnitExists("target"))))
 			or (br.getOptionCheck("Forced Burn") and br.isBurnTarget(bestUnit) > 0 and br.GetUnitExists(bestUnit)
 				and ((not facing and not br.isExplosive(bestUnit)) or (facing and br.getFacing("player",bestUnit))))
-			or (br.getOptionCheck("Safe Damage Check") and not br.GetUnitIsUnit(bestUnit,"target") and not br.isSafeToAttack("target"))
+			or (br.getOptionCheck("Safe Damage Check") and not br.isSafeToAttack("target"))
 		then
-			br._G.TargetUnit(bestUnit)
+			-- if br.isChecked("Target Dynamic Target") then br._G.print("Attempting to target: "..tostring(br._G.UnitName(bestUnit))) end
+			if br._G.UnitName(bestUnit) ~= "Unknown" then
+				-- br._G.print("Targeting: "..br._G.UnitName(bestUnit)..", Your Target? "..tostring(br.GetUnitIsUnit(bestUnit,"target")))
+				br._G.TargetUnit(bestUnit)
+			end
 		end
 	end
 	-- Debugging
