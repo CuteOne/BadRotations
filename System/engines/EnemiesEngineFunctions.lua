@@ -454,11 +454,7 @@ function br.dynamicTarget(range,facing)
 				and ((not facing and not br.isExplosive(bestUnit)) or (facing and br.getFacing("player",bestUnit))))
 			or (br.getOptionCheck("Safe Damage Check") and not br.isSafeToAttack("target"))
 		then
-			-- if br.isChecked("Target Dynamic Target") then br._G.print("Attempting to target: "..tostring(br._G.UnitName(bestUnit))) end
-			if br._G.UnitName(bestUnit) ~= "Unknown" then
-				-- br._G.print("Targeting: "..br._G.UnitName(bestUnit)..", Your Target? "..tostring(br.GetUnitIsUnit(bestUnit,"target")))
-				br._G.TargetUnit(bestUnit)
-			end
+			br._G.TargetUnit(bestUnit)
 		end
 	end
 	-- Debugging
