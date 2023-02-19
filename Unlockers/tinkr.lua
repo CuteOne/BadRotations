@@ -51,7 +51,7 @@ local unlockList =
 	"GuildPromote",
 	"GuildUninvite",
 	"InitiateTrade",
-	"InteractUnit",
+	-- "InteractUnit",
 	"IsItemInRange",
 	-- "IsSpellInRange",
 	"JoinBattlefield",
@@ -431,6 +431,13 @@ function unlock.TinkrUnlock()
 	b.TargetUnit = function(unit)
 		if Object(unit) then
 			return TargetUnit(Object(unit):unit())
+		else
+			return
+		end
+	end
+	b.InteractUnit = function(unit)
+		if Object(unit) then
+			return InteractUnit(Object(unit):unit())
 		else
 			return
 		end
