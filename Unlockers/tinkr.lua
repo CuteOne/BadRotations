@@ -40,7 +40,7 @@ local unlockList =
 	"GetDefaultLanguage",
 	"GetPartyAssignment",
 	"GetPlayerInfoByGUID",
-	"GetRaidTargetIndex",
+	-- "GetRaidTargetIndex",
 	"GetReadyCheckStatus",
 	"GetUnitName",
 	-- "GetUnitSpeed",
@@ -447,6 +447,9 @@ function unlock.TinkrUnlock()
 	------------------------------------------
 	b.CastSpellByName = function(spell, unit)
 		return Eval("CastSpellByName(\""..spell.."\", \""..ObjectUnit(unit).."\")", "")
+	end
+	b.GetRaidTargetIndex = function(...)
+		return GetRaidTargetIndex(ObjectUnit(...))
 	end
 	b.GetUnitSpeed = function(...)
 		return GetUnitSpeed(ObjectUnit(...))
