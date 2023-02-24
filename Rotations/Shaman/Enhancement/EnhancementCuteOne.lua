@@ -990,9 +990,9 @@ local function runRotation()
                 if cast.windfuryTotem() then ui.debug("Casting Windfury Totem") return true end
             end
             -- manual windury totem
-            if ui.toggle("Windfury Totem Key") and ui.checked("Windfury Totem Key") then
+            if talent.windfuryTotem and ui.toggle("Windfury Totem Key") and ui.checked("Windfury Totem Key") then
                 if cast.windfuryTotem() then ui.debug("Casting Windfury Totem") return true end
-            elseif buff.windfuryTotem.exists() or unit.level() < 49 or unit.ttdGroup() < 6 then
+            elseif not talent.windfuryTotem or buff.windfuryTotem.exists() or unit.ttdGroup() < 6 then
                 -- Basic Trinkets Module
                 if #enemies.yards8f > 0 then
                     module.BasicTrinkets()
