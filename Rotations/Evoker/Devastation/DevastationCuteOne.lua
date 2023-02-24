@@ -724,7 +724,7 @@ actionList.ST = function()
     end
     -- Item - Kharnalex The First Light
     -- use_item,name=kharnalex_the_first_light,if=!buff.dragonrage.up&debuff.shattering_star_debuff.down
-    if equiped.kharnalexTheFirstLight() and use.able.kharnalexTheFirstLight(units.dyn25)
+    if equiped.kharnalexTheFirstLight() and use.able.kharnalexTheFirstLight()
         and not buff.dragonrage.exists() and not debuff.shatteringStar.exists(units.dyn25)
         and var.moveCast
     then
