@@ -309,7 +309,7 @@ actionList.Defensive = function()
                         if buff.maelstromWeapon.stack() >= 5 then
                             if cast.healingSurge(var.healUnit) then ui.debug("Casting Healing Surge [IC Instant] on "..unit.name(var.healUnit)) return true end
                         else
-                            if cast.healingSurge(var.healUnitUnit) then ui.debug("Casting Healing Surge [IC Long] on "..unit.name(var.healUnit)) return true end
+                            if cast.healingSurge(var.healUnit) then ui.debug("Casting Healing Surge [IC Long] on "..unit.name(var.healUnit)) return true end
                         end
                     end
                 end
