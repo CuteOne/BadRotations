@@ -25,27 +25,30 @@ local function isInteracting(unit)
     return interactTime > time
 end
 
-local lx, ly, lz
 local function trackObject(object, isUnit, name, objectid, objectguid, interact)
+    if not br._G.ObjectExists(object) then return end
     local xOb, yOb, zOb = br._G.ObjectPosition(object)
     local pX, pY, pZ = br._G.ObjectPosition("player")
     if zOb == nil then zOb = pZ end
+    if zOb == nil then return end
     if interact == nil then
         interact = true
     end
     -- local playerDistance = br._G.GetDistanceBetweenPositions(pX, pY, pZ, xOb, yOb, zOb)
     local zDifference = math.floor(zOb - pZ)
-    if xOb ~= nil and (lx == nil or lx ~= xOb or ly ~= yOb or lz ~= zOb) then --and playerDistance < 200 then
+    if xOb ~= nil then --and playerDistance < 200 then
         if math.abs(zDifference) > 50 then
             LibDraw.SetColor(255, 0, 0, 100)
         else
             LibDraw.SetColor(0, 255, 0, 100)
         end
-        LibDraw.Circle(xOb, yOb, zOb, 2)
+        local Cr = br._G.UnitCombatReach(object)
+        if not Cr or Cr == 0 then Cr = 1.5 end
+        LibDraw.Circle(xOb, yOb, zOb, Cr)
         if isUnit then
-            LibDraw.Arrow(xOb, yOb, zOb, br._G.UnitFacing(object) + math.pi * 2)
+            LibDraw.Arrow(xOb, yOb, zOb, br._G.UnitFacing(object) + math.pi * 2, Cr / 2)
         else
-            LibDraw.Arrow(xOb, yOb, zOb, br._G.UnitFacing("player") + math.pi * 2)
+            LibDraw.Arrow(xOb, yOb, zOb, br._G.UnitFacing("player") + math.pi * 2, Cr / 2)
         end
         -- if name == "" or name == "Unknown" then
         --     name = isUnit and br._G.UnitName(object) or nil
@@ -73,7 +76,6 @@ local function trackObject(object, isUnit, name, objectid, objectguid, interact)
         end
         tracking = true
     end
-    lx, ly, lz = xOb, yOb, zOb
 end
 
 _G.string.trim = function(string)

@@ -11,6 +11,9 @@ local function WorldToScreen (wX, wY, wZ)
 	-- 	br._G.print("K: "..tostring(k)..", V: "..tostring(v))
 	-- end
 	local sX, sY = br._G.WorldToScreen(wX, wY, wZ)
+	if not sX or sX == 0 then
+		return false, false
+	end
 	if sX and sY and br.unlocker ~= "WA" and br.unlocker ~= "LuaBox" then
 		return sX, -(WorldFrame:GetTop() - sY);
 	else
@@ -72,8 +75,6 @@ function LibDraw.SetWidth(w)
 end
 
 function LibDraw.Line(sx, sy, sz, ex, ey, ez)
-	if not WorldToScreen then return end
-
 	local sx, sy = WorldToScreen(sx, sy, sz)
 	local ex, ey = WorldToScreen(ex, ey, ez)
 
@@ -141,8 +142,7 @@ function LibDraw.Array(vectors, x, y, z, rotationX, rotationY, rotationZ)
 end
 
 function LibDraw.Draw2DLine(sx, sy, ex, ey)
-	if not WorldToScreen or not sx or not sy or not ex or not ey then return end
-	if sx == 0 or ex == 0 then return end
+	if not sx or not sy or not ex or not ey then return end
 
 	local L = tremove(LibDraw.lines) or false
 	if L == false then
@@ -190,11 +190,11 @@ local arrow = {
 }
 
 function LibDraw.Arrow(x, y, z, direction, multiplier)
-    if not multiplier then multiplier = 1 end
+    if not multiplier or multiplier == 0 then multiplier = 1 end
     local sx, sy, sz, ex, ey, ez, sx, sy, ex, ey
     for _, vector in ipairs(arrow) do
-        sx, sy, sz = x + vector[1]*multiplier, y + vector[2], z + vector[3]
-        ex, ey, ez = x + vector[4]*multiplier, y + vector[5], z + vector[6]
+        sx, sy, sz = x + vector[1]*multiplier, y + vector[2]*multiplier, z + vector[3]
+        ex, ey, ez = x + vector[4]*multiplier, y + vector[5]*multiplier, z + vector[6]
 
         sx, sy, sz = LibDraw.rotateZ(x, y, z, sx, sy, sz, direction)
         ex, ey, ez = LibDraw.rotateZ(x, y, z, ex, ey, ez, direction)
@@ -209,10 +209,11 @@ local full_circle = rad(365)
 local small_circle_step = rad(15)
 
 function LibDraw.Circle(x, y, z, size)
+	if not size or size == 0 then return end
 	local lx, ly, nx, ny, fx, fy = false, false, false, false, false, false
 	for v=0, full_circle, small_circle_step do
 		nx, ny = WorldToScreen( (x+cos(v)*size), (y+sin(v)*size), z )
-		if nx ~= 0 and ny ~= 0 then
+		if nx and ny then
 			LibDraw.Draw2DLine(lx, ly, nx, ny)
 		else
 			fx, fy = nx, ny
@@ -232,7 +233,7 @@ function LibDraw.GroundCircle(x, y, z, size)
 			fx, fy, fz = (x+cos(v)*size), (y+sin(v)*size), z
 		end
 		nx, ny = WorldToScreen( (fx+cos(v)*size), (fy+sin(v)*size), fz )
-		if nx ~= 0 and ny ~= 0 then
+		if nx and ny then
 			LibDraw.Draw2DLine(lx, ly, nx, ny)
 		end
 		lx, ly = nx, ny
@@ -246,7 +247,7 @@ function LibDraw.Arc(x, y, z, size, arc, rotation)
 	local as, ae = -half_arc, half_arc
 	for v = as, ae, ss do
 		nx, ny = WorldToScreen( (x+cos(rotation+rad(v))*size), (y+sin(rotation+rad(v))*size), z )
-		if nx ~= 0 and ny ~= 0 then
+		if nx and ny then
 			LibDraw.Draw2DLine(lx, ly, nx, ny)
 		else
 			fx, fy = nx, ny
@@ -264,7 +265,7 @@ function LibDraw.Texture(config, x, y, z, alphaA)
 	local left, right, top, bottom, scale =  config.left, config.right, config.top, config.bottom, config.scale
 	local alpha = config.alpha or alphaA
 
-	if not WorldToScreen or not texture or not width or not height or not x or not y or not z then return end
+	if not texture or not width or not height or not x or not y or not z then return end
 	if not left or not right or not top or not bottom then
 		left = 0
 		right = 1
@@ -277,7 +278,7 @@ function LibDraw.Texture(config, x, y, z, alphaA)
 	end
 
 	local sx, sy = WorldToScreen(x, y, z)
-	if sx == 0 or sy == 0 then return end
+	if not sx or not sy then return end
 	local w = width * scale
 	local h = height * scale
 	sx = sx - w*0.5
@@ -308,7 +309,7 @@ function LibDraw.Text(text, font, x, y, z)
 
 	local sx, sy = WorldToScreen(x, y, z)
 
-	if sx ~= 0 and sy ~= 0 then
+	if sx and sy then
 
 		local F = tremove(LibDraw.fontstrings) or LibDraw.canvas:CreateFontString(nil, "BACKGROUND")
 
