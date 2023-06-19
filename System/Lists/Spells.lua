@@ -3407,7 +3407,6 @@ br.lists.spells = {
                 shurikenToss                = 114014,
                 symbolsOfDeath              = 212283,
                 sinisterStrike              = 1752,
-                blackPowder                 = 319175,
                 coldBlood                   = 213981,
             },
             artifacts                       = {
@@ -3442,6 +3441,7 @@ br.lists.spells = {
             },
             talents                         = {
                 alacrity                    = 193539,
+                blackPowder                 = 319175,
                 darkShadow                  = 245687,
                 gloomblade                  = 200758,
                 masterOfShadows             = 196976,

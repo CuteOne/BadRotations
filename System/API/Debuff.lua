@@ -100,7 +100,8 @@ br.api.debuffs = function(debuff,k,v)
     debuff.refresh = function(thisUnit,sourceUnit)
         if thisUnit == nil then thisUnit = 'target' end
         if sourceUnit == nil then sourceUnit = 'player' end
-        return debuff.remain(thisUnit,sourceUnit) <= debuff.pandemic(thisUnit,sourceUnit) * 0.3
+        local remain = debuff.remain(thisUnit,sourceUnit)
+        return remain == 0 or remain <= (debuff.pandemic(thisUnit,sourceUnit) * 0.3) - 0.5
     end
     debuff.count = function()
         return tonumber(br.getDebuffCount(v))
