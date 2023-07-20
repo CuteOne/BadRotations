@@ -78,6 +78,21 @@ function br:ObjectTracker()
     end
 end
 
+local function updateRotationOnSpecChange()
+    br.ui:closeWindow("all")
+    br:saveSettings(nil, nil, br.selectedSpec, br.selectedProfileName)
+    -- Update Selected Spec/Profile
+    br.selectedSpec = select(2, br._G.GetSpecializationInfo(br._G.GetSpecialization()))
+    br.selectedSpecID = br._G.GetSpecializationInfo(br._G.GetSpecialization())
+    br.loader.loadProfiles()
+    br.loadLastProfileTracker()
+    br.data.loadedSettings = false
+    -- Load Default Settings
+    br:defaultSettings()
+    br.rotationChanged = true
+    br._G.wipe(br.commandHelp)
+    br:slashHelpList()
+end
 
 local collectGarbage = true
 function br.BadRotationsUpdate(self)
@@ -217,21 +232,7 @@ function br.BadRotationsUpdate(self)
                 -- Close windows and swap br.selectedSpec on Spec Change
                 local thisSpec = select(2, br._G.GetSpecializationInfo(br._G.GetSpecialization()))
                 if thisSpec ~= "" and thisSpec ~= br.selectedSpec then
-                    -- Closing the windows will save the position
-                    br.ui:closeWindow("all")
-                    br:saveSettings(nil, nil, br.selectedSpec, br.selectedProfileName)
-                    -- Update Selected Spec/Profile
-                    br.selectedSpec = select(2, br._G.GetSpecializationInfo(br._G.GetSpecialization()))
-                    br.selectedSpecID = br._G.GetSpecializationInfo(br._G.GetSpecialization())
-                    br.loader.loadProfiles()
-                    br.loadLastProfileTracker()
-                    br.activeSpecGroup = br._G.GetActiveSpecGroup()
-                    br.data.loadedSettings = false
-                    -- Load Default Settings
-                    br:defaultSettings()
-                    br.rotationChanged = true
-                    br._G.wipe(br.commandHelp)
-                    br:slashHelpList()
+                    updateRotationOnSpecChange()
                 end
                 -- Show Main Button
                 if br.data.settings ~= nil and br.data.settings[br.selectedSpec].toggles["Main"] ~= 1 and
@@ -292,6 +293,8 @@ function br.BadRotationsUpdate(self)
                     collectGarbage = false
                 end
             end -- End Update Check
+        else
+            updateRotationOnSpecChange()
         end -- End Settings Loaded Check
     end -- End Unlock Check
     br.debug.cpu:updateDebug(startTime, "pulse")

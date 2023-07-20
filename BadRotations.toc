@@ -2,10 +2,32 @@
 ## Title: |cffa330c9BadRotations
 ## Notes: |cffa330c9By CuteOne.
 ## Author: CuteOne
-## Version: 1.35.1
+## Version: 1.36.0
 
+## Libs
+
+##@no-lib-strip@
+
+Libs\LibStub\LibStub.lua
+Libs\!LibDraw\LibDraw.lua
+Libs\CallbackHandler-1.0\CallbackHandler-1.0.lua
+Libs\LibGroupInSpecT-1.1\LibGroupInSpecT-1.1.lua
+Libs\LibSharedMedia-3.0\LibSharedMedia-3.0.lua
+
+Libs\DiesalTools-1.0\DiesalTools-1.0.lua
+Libs\DiesalStyle-1.0\DiesalStyle-1.0.lua
+Libs\DiesalGUI-1.0\DiesalGUI-1.0.xml
+Libs\DiesalMenu-1.0\DiesalMenu-1.0.xml
+
+Libs\DiesalLibs.lua
+
+#@end-no-lib-strip@
 
 BadRotations.lua
+System\UI\UI.lua
+System\UI\MinimapButton.lua
+System\Readers\combatlog.lua
+System\Readers\common.lua
 Unlockers\daemonic.lua
 bindings.xml
 misc.xml
@@ -62,26 +84,8 @@ System\Lists\TankBusters.lua
 
 ## Readers
 
-System\Readers\combatlog.lua
-System\Readers\common.lua
-
-## Libs
-
-#@no-lib-strip@
-Libs\LibStub\LibStub.lua
-Libs\CallbackHandler-1.0\CallbackHandler-1.0.lua
-Libs\LibSharedMedia-3.0\LibSharedMedia-3.0.lua
-
-Libs\DiesalTools-1.0\DiesalTools-1.0.lua
-Libs\DiesalStyle-1.0\DiesalStyle-1.0.lua
-Libs\DiesalGUI-1.0\DiesalGUI-1.0.xml
-Libs\DiesalMenu-1.0\DiesalMenu-1.0.xml
-
-Libs\DiesalLibs.lua
-
-Libs\!LibDraw\LibDraw.lua
-Libs\LibGroupInSpecT-1.1\LibGroupInSpecT-1.1.lua
-#@end-no-lib-strip@
+# System\Readers\combatlog.lua
+# System\Readers\common.lua
 
 ## Engines
 
@@ -101,8 +105,8 @@ System\Engines\Tracker.lua
 
 System\UI\SettingsManagement.lua
 System\UI\ChatOverlay.lua
-System\UI\MinimapButton.lua
-System\UI\UI.lua
+#System\UI\MinimapButton.lua
+#System\UI\UI.lua
 System\UI\Toggles\ToggleFunctions.lua
 System\UI\Toggles\Toggles.lua
 System\UI\Elements\Arrow.lua
@@ -138,6 +142,7 @@ System\API\Pet.lua
 System\API\Power.lua
 System\API\Runeforge.lua
 System\API\Spell.lua
+System\API\Talent.lua
 System\API\UI.lua
 System\API\Unit.lua
 System\API\Units.lua
@@ -161,3 +166,161 @@ System\Misc\Zu\BossManager.lua
 exports.lua
 ## Updater --------------------------------------------
 System\Updater.lua
+
+## Old TOC Layout
+# BadRotations.lua
+# Unlockers\daemonic.lua
+# bindings.xml
+# misc.xml
+
+# ## System
+
+# System\Unlockers.lua
+# System\Core.lua
+# System\Debugging.lua
+# System\LootManager.lua
+# System\UsefulFeatures.lua
+# System\SlashCommands.lua
+
+# ## Functions
+
+# System\Functions\Action.lua
+# System\Functions\Aura.lua
+# System\Functions\Cast.lua
+# System\Functions\Combat.lua
+# System\Functions\Custom.lua
+# System\Functions\InFlight.lua
+# System\Functions\Item.lua
+# System\Functions\LastCast.lua
+# System\Functions\Misc.lua
+# System\Functions\Power.lua
+# System\Functions\Range.lua
+# System\Functions\Spell.lua
+# System\Functions\Unit.lua
+# System\Functions\SmartQueue.lua
+
+# ## Lists
+
+# System\Lists\AoEDamage.lua
+# System\Lists\BurnUnits.lua
+# System\Lists\CCUnits.lua
+# System\Lists\Defensives.lua
+# System\Lists\Dispels.lua
+# System\Lists\Dummy.lua
+# System\Lists\HorrificVision.lua
+# System\Lists\InterruptWhitelist.lua
+# System\Lists\Items.lua
+# System\Lists\LineOfSight.lua
+# System\Lists\LongCC.lua
+# System\Lists\Maps.lua
+# System\Lists\NoTouchUnits.lua
+# System\Lists\Pets.lua
+# System\Lists\ShieldUnits.lua
+# System\Lists\Specs.lua
+# System\Lists\Spells.lua
+# System\Lists\Range.lua
+# System\Lists\ThreatBypass.lua
+# System\Lists\Tier.lua
+# System\Lists\TankBusters.lua
+
+# ## Readers
+
+# System\Readers\combatlog.lua
+# System\Readers\common.lua
+
+# ## Libs
+
+# #@no-lib-strip@
+# Libs\LibStub\LibStub.lua
+# Libs\CallbackHandler-1.0\CallbackHandler-1.0.lua
+# Libs\LibSharedMedia-3.0\LibSharedMedia-3.0.lua
+
+# Libs\DiesalTools-1.0\DiesalTools-1.0.lua
+# Libs\DiesalStyle-1.0\DiesalStyle-1.0.lua
+# Libs\DiesalGUI-1.0\DiesalGUI-1.0.xml
+# Libs\DiesalMenu-1.0\DiesalMenu-1.0.xml
+
+# Libs\DiesalLibs.lua
+
+# Libs\!LibDraw\LibDraw.lua
+# Libs\LibGroupInSpecT-1.1\LibGroupInSpecT-1.1.lua
+# #@end-no-lib-strip@
+
+# ## Engines
+
+# System\Engines\EnemiesEngine.lua
+# System\Engines\EnemiesEngineFunctions.lua
+# System\Engines\HealingEngine.lua
+# System\Engines\HealingEngineCollections.lua
+# System\Engines\HealingEngineFrame.lua
+# System\Engines\HealingEngineFunctions.lua
+# #System\Engines\InterruptsFrame.lua -- Unused
+# System\Engines\Interrupts.lua
+# System\Engines\ttdTable.lua
+# System\Engines\QuestTracker.lua
+# System\Engines\Tracker.lua
+
+# ## BadRotations UI
+
+# System\UI\SettingsManagement.lua
+# System\UI\ChatOverlay.lua
+# System\UI\MinimapButton.lua
+# System\UI\UI.lua
+# System\UI\Toggles\ToggleFunctions.lua
+# System\UI\Toggles\Toggles.lua
+# System\UI\Elements\Arrow.lua
+# System\UI\Elements\Button.lua
+# System\UI\Elements\Checkbox.lua
+# System\UI\Elements\Dropdown.lua
+# System\UI\Elements\PageDropdown.lua
+# System\UI\Elements\RotationDropdown.lua
+# System\UI\Elements\ScrollingEditBox.lua
+# System\UI\Elements\Section.lua
+# System\UI\Elements\Spinner.lua
+# System\UI\Elements\Text.lua
+# System\UI\Elements\Window.lua
+# System\UI\Windows\Config.lua
+# System\UI\Windows\Debug.lua
+# System\UI\Windows\Healing.lua
+# System\UI\Windows\Help.lua
+# System\UI\Windows\Profile.lua
+
+# ## API
+
+# System\API\Buff.lua
+# System\API\Cast.lua
+# System\API\CD.lua
+# System\API\Conduit.lua
+# System\API\Covenant.lua
+# System\API\Debuff.lua
+# System\API\Enemies.lua
+# System\API\Essence.lua
+# System\API\Item.lua
+# System\API\Module.lua
+# System\API\Pet.lua
+# System\API\Power.lua
+# System\API\Runeforge.lua
+# System\API\Spell.lua
+# System\API\UI.lua
+# System\API\Unit.lua
+# System\API\Units.lua
+# System\API\AnimaPowers.lua
+
+# ## Loader
+
+# System\Loader\cCharacter.lua
+# System\Loader\cBuilder.lua
+
+# ## Misc
+
+# ## ProfessionHelper -----------------------------------------
+
+# System\Misc\ProfessionHelper\ProfessionHelper.lua
+
+# ## Zu BossManager -------------------------------------
+
+# System\Misc\Zu\BossManager.lua
+
+# exports.lua
+# ## Updater --------------------------------------------
+# System\Updater.lua

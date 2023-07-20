@@ -157,7 +157,7 @@ end
 function br.isInRange(spellID,unit)
 	return br._G.LibStub("SpellRange-1.0").IsSpellInRange(spellID,unit)
 end
-function br.getDistanceToObject(Unit1,X2,Y2,Z2)
+function br.getDistanceToLocation(Unit1,X2,Y2,Z2)
 	if Unit1 == nil then
 		Unit1 = "player"
 	end

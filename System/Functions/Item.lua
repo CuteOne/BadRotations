@@ -48,10 +48,10 @@ function br.hasItem(itemID)
 	end
 	local itemFound = false
 	for i = 0, 4 do --Let's look at each bag
-		local numBagSlots = br._G.GetContainerNumSlots(i)
+		local numBagSlots = C_Container.GetContainerNumSlots(i)
 		if numBagSlots > 0 then -- Only look for slots if bag present
 			for x = 1, numBagSlots do --Let's look at each bag slot
-				local bagItemID = br._G.GetContainerItemID(i, x)
+				local bagItemID = C_Container.GetContainerItemID(i, x)
 				if tostring(bagItemID) == tostring(itemID) then
 					itemFound = true
 				end
@@ -153,7 +153,12 @@ function br.TierScan(thisTier)
 	local myClass = select(2, br._G.UnitClass("player"))
 	thisTier = string.upper(thisTier)
 	local sets = br.lists.tier
+	if sets[thisTier] == nil or sets[thisTier][myClass] == nil then return 0 end
 	local tierList = sets[thisTier][myClass]
+	if not tierList then
+		br._G.print("No tier info found for this class! Please let devs know!")
+		return {}
+	end
 	if #tierList > 0 then
 		for i = 1, #tierList do
 			if br._G.IsEquippedItem(tierList[i]) then

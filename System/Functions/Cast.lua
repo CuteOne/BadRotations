@@ -1,9 +1,10 @@
 local _, br = ...
 -- if canCast(12345,true)
-function br.canCast(SpellID,KnownSkip,MovementCheck)
+function br.canCast(SpellID,KnownSkip,MovementCheck, thisUnit)
+	if thisUnit == nil then thisUnit = "target" end
 	local myCooldown = br.getSpellCD(SpellID) or 0
 	-- local lagTolerance = br.getValue("Lag Tolerance") or 0
-	if (KnownSkip == true or br.isKnown(SpellID)) and br._G.IsUsableSpell(SpellID) and myCooldown < 0.1
+	if (KnownSkip == true or br.isKnown(SpellID)) and (br._G.UnitIsUnit(thisUnit, "target") and br._G.IsUsableSpell(SpellID) or true) and myCooldown < 0.1
 		and (MovementCheck == false or myCooldown == 0 or br.isMoving("player") ~= true or br.UnitBuffID("player",79206) ~= nil) then
 		return true
 	end
@@ -94,14 +95,17 @@ function br.castGroundLocation(X,Y,SpellID,maxDistance,minDistance,radius)
 	local pX, pY, Z = br.GetObjectPosition("player")
 	local distance = br._G.sqrt(((X-pX)^2) + ((Y-pY)^2))
 	local mouselookActive = false
-
 	if distance < maxDistance and distance >= minDistance then
 		if br._G.IsMouselooking() then
 			mouselookActive = true
 			br._G.MouselookStop()
 		end
+		-- br._G.print("Casting Spell")
 		br._G.CastSpellByName(br._G.GetSpellInfo(SpellID))
-		br._G.ClickPosition((X + math.random() * 2),(Y + math.random() * 2),Z) --distanceToGround
+		if br._G.IsAoEPending() then
+			-- br._G.print("Clicking Position")
+			br._G.ClickPosition((X + math.random() * 2),(Y + math.random() * 2),Z) --distanceToGround
+		end
         br.castPosition.x = X
         br.castPosition.y = Y
         br.castPosition.z = Z
@@ -636,9 +640,8 @@ function br.createCastFunction(thisUnit,castType,minUnits,effectRng,spellID,inde
 			br.botSpell = spellID -- Used by old Queue Cast
 			-- Condemn Patch (Blizz is an small indie developer!)
 			if spellID == br.player.spell.condemn or spellID == br.player.spell.condemnMassacre then spellName = br._G.GetSpellInfo(br.player.spell.execute) end
-			-- br._G.print("Should cast "..spellName.." on "..thisUnit)
+			-- br._G.print("Spell: "..tostring(spellName).." - UnitName: "..tostring(br._G.UnitName(thisUnit)).." - Unit: "..tostring(thisUnit))
 			br._G.CastSpellByName(spellName,thisUnit)
-			-- Unlock('CastSpellByName',spellName, thisUnit)
 			if br._G.IsAoEPending() then
 				local X,Y,Z = br._G.ObjectPosition(thisUnit)
 				br._G.ClickPosition(X,Y,Z)
@@ -674,14 +677,16 @@ function br.createCastFunction(thisUnit,castType,minUnits,effectRng,spellID,inde
 		return queensCourtEncounter == nil or (queensCourtEncounter ~= nil and br.lastCastTable.tracker[1] ~= spellID)
 	end
 	-- Base Spell Availablility Check
-	if (baseSpellID == spellID or overrideSpellID == spellID) and br._G.IsUsableSpell(spellID) and not select(2,br._G.IsUsableSpell(spellID)) -- Usability Checks
-		and castTimers[spellID] < br._G.GetTime() and br.getSpellCD(spellID) <= br:getUpdateRate()
+	if ((baseSpellID == spellID or overrideSpellID == spellID) and (br.empowerID == nil or br.empowerID == 0)
+		and ((thisUnit ~= nil and br._G.UnitIsUnit(thisUnit, "target") and br._G.IsUsableSpell(spellID)) or true) and not select(2,br._G.IsUsableSpell(spellID)) -- Usability Checks
+		and (castTimers[spellID] < br._G.GetTime()) and br.getSpellCD(spellID) <= br:getUpdateRate()
 		and (br.getSpellCD(61304) <= 0 or select(2,br._G.GetSpellBaseCooldown(spellID)) <= 0
-		 	or (br.getCastTime(spellID) > 0 and br.getCastTimeRemain("player") <= br:getUpdateRate())) -- Cooldown Checks
+			or (br.getCastTime(spellID) > 0 and br.getCastTimeRemain("player") <= br:getUpdateRate())) -- Cooldown Checks
 		and (br.isKnown(spellID) or castType == "known" or spellID == br.player.spell.condemn or spellID == br.player.spell.condemnMassacre) -- Known/Current Checks
-	 	and hasTalent(spellID) and hasEssence() and not br.isIncapacitated(spellID) and queensCourtCastCheck(spellID)
-		 	and not (br._G.IsAutoRepeatSpell(br._G.GetSpellInfo(spellID)) or (spellID == 6603 and br._G.IsCurrentSpell(spellID))) and not br.hasNoControl(spellID) -- Talent/Essence/Incapacitated/Special Checks
-	 	and (thisUnit == nil or castType ~= "dead" or (thisUnit ~= nil and castType == "dead" and br._G.UnitIsDeadOrGhost(thisUnit))) -- Dead Check
+		and hasTalent(spellID) and hasEssence() and not br.isIncapacitated(spellID) and queensCourtCastCheck(spellID)
+		and (not (br._G.IsAutoRepeatSpell(br._G.GetSpellInfo(spellID)) or (spellID == 6603 and br._G.IsCurrentSpell(spellID)))) and not br.hasNoControl(spellID) -- Talent/Essence/Incapacitated/Special Checks
+		and (thisUnit == nil or castType ~= "dead" or (thisUnit ~= nil and castType == "dead" and br._G.UnitIsDeadOrGhost(thisUnit)))) -- Dead Check
+		or spellID == br.empowerID
 	then
 		if castType == "known" then castType = "norm" end
 		local function printReport(debugOnly,debugReason,thisCount)
@@ -767,7 +772,7 @@ function br.createCastFunction(thisUnit,castType,minUnits,effectRng,spellID,inde
 				local distance = castType == "pet" and br.getDistance(thisUnit,"pet") or br.getDistance(thisUnit)
 				return br._G.IsSpellInRange(spellName, thisUnit) == 1 or (distance >= minRange and distance < maxRange-1)
 			end
-			if br._G.IsSpellInRange(spellName,thisUnit) == 1 or inRange(minRange,maxRange) then
+			if --[[br._G.IsSpellInRange(spellName,thisUnit) == 1 or]] inRange(minRange,maxRange) then
 				-- Dead Friend
 				if castType == "dead" then
 					if br._G.UnitIsPlayer(thisUnit) and br.GetUnitIsDeadOrGhost(thisUnit) and br.GetUnitIsFriend(thisUnit,"player") then
@@ -785,7 +790,7 @@ function br.createCastFunction(thisUnit,castType,minUnits,effectRng,spellID,inde
 						or (castType == "cone" and br.getEnemiesInCone(180,effectRng))
 						or (castType == "rect" and br.getEnemiesInRect(effectRng,maxRange))
 						or 0
-					if enemyCount >= minUnits and br.isSafeToAoE(spellID,thisUnit,effectRng,minUnits,castType,enemyCount) then
+					if enemyCount >= minUnits and (br.isSafeToAoE(spellID,thisUnit,effectRng,minUnits,castType,enemyCount) or br.isDummy("target")) then
 						if castType == "ground" then
 							if debug then return true end
 							return br.castGround(thisUnit,spellCast,maxRange,minRange,effectRng,castTime)
@@ -793,6 +798,8 @@ function br.createCastFunction(thisUnit,castType,minUnits,effectRng,spellID,inde
 							return castingSpell(thisUnit,spellID,spellName,icon,castType,printReport,debug)
 						end
 					else
+						if castType == "cone" then return printReport(false,"Below Min Units Cone",enemyCount) end
+						if castType == "rect" then return printReport(false,"Below Min Units Rect",enemyCount) end
 						return printReport(false,"Below Min Units",enemyCount)
 					end
 				end
@@ -802,7 +809,7 @@ function br.createCastFunction(thisUnit,castType,minUnits,effectRng,spellID,inde
 				then
 					-- Failsafe, incase we were unable to retrieve enemies counts
 					local enemyFacingCount = enemies or #br.getEnemies("player",maxRange,false,true) or 0
-					if (minUnits == 1 and br._G.IsSpellInRange(spellName,thisUnit) == 1) or (enemyFacingCount >= minUnits) or spellType == "Helpful" or spellType == "Unknown" then
+					if (minUnits == 1 --[[and br._G.IsSpellInRange(spellName, thisUnit) == 1]]) or (enemyFacingCount >= minUnits) or spellType == "Helpful" or spellType == "Unknown" then
 						return castingSpell(thisUnit,spellID,spellName,icon,castType,printReport,debug)
 					else
 						return printReport(false,"Below Min Units Facing",enemyFacingCount)

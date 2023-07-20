@@ -46,6 +46,25 @@ function br.ui:createSection(parent, sectionName, tooltip)
     end
 
     newSection:ApplySettings()
+
+    newSection["UpdateHeight"] = function(self)
+        local settings, children = self.settings, self.children
+        local contentHeight = 0
+        self.content:SetPoint("TOPLEFT", self.frame, 0, settings.button and -settings.buttonHeight or 0)
+
+        if settings.expanded then
+            contentHeight = settings.contentPadding[3] + settings.contentPadding[4]
+            for _, child in ipairs(children) do
+                if child.type ~= "Spinner" and child.type ~= "Dropdown" then
+                    contentHeight = contentHeight + child.frame:GetHeight() * 1.2
+                end
+            end
+        end
+        self.content:SetHeight(contentHeight)
+        self:SetHeight((settings.button and settings.buttonHeight or 0) + contentHeight)
+        self:FireEvent("OnHeightChange", contentHeight)
+    end
+
     newSection:UpdateHeight()
 
     parent:AddChild(newSection)
@@ -57,29 +76,10 @@ end
 function br.ui:checkSectionState(section)
     local state = br.data.settings[br.selectedSpec][br.selectedProfile][section.settings.sectionName .. "Section"]
 
-    --Override UpdateHeight()
-    local function UpdateHeight(self)
-        local settings, children = self.settings, self.children
-        local contentHeight = 0
-        self.content:SetPoint("TOPLEFT", self.frame, 0, settings.button and -settings.buttonHeight or 0)
-
-        if settings.expanded then
-            contentHeight = settings.contentPadding[3] + settings.contentPadding[4]
-            for i = 1, #children do
-                --                Print("children[i].type: "..children[i].type)
-                if children[i].type ~= "Spinner" and children[i].type ~= "Dropdown" then
-                    contentHeight = contentHeight + children[i].frame:GetHeight() * 1.2
-                end
-            end
-        end
-        self.content:SetHeight(contentHeight)
-        self:SetHeight((settings.button and settings.buttonHeight or 0) + contentHeight)
-        self:FireEvent("OnHeightChange", contentHeight)
-    end
-
+   
     if state then
         section:Expand()
-        UpdateHeight(section)
+        section:UpdateHeight(section)
     else
         section:Collapse()
     end

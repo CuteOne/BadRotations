@@ -112,19 +112,11 @@ function br.isIncapacitated(spellID)
 		for i = 0, eventIndex do
 			event = br._G.C_LossOfControl.GetActiveLossOfControlData(i)
 			if event then
-				if not br.canRegainControl(spellID, event.locType) and (event.locType ~= "DISARM" and event.locType ~= "ROOT" or event.locType == "SNARE") then
-					-- (event.locType == "NONE"
-					-- 	or event.locType == ""CHARM""
-					-- 	or event.locType == "DISORIENT"
-					-- 	or event.locType == "FEAR"
-					-- 	or event.locType == "GRIP"
-					-- 	or event.locType == "HORROR"
-					-- 	or event.locType == "INCAPACITATE"
-					-- 	or event.locType == "ROOT"
-					-- 	or event.locType == "SLEEP"
-					-- 	or event.locType == "SNARE"
-					-- 	or event.locType == "STUN")
-					-- 	and not canRegainControl(spellID,event.locType)
+				local eventType = event.locType
+				-- br._G.print("Incapacitated: "..tostring(event.locType).." - Can Regain Control: "..tostring(br.canRegainControl(spellID, event.locType)))
+				if not br.canRegainControl(spellID, eventType)
+					and ( eventType ~= "ROOT" and eventType ~= "SNARE")
+				then
 					return true
 				end
 			end
@@ -137,7 +129,8 @@ function br.canRegainControl(spellID, controlEvent)
 	-- Warrior
 	if class == 1 then
 		if spellID == 18499 and -- Fear, Sap and Incapacitate
-			(controlEvent == "FEAR" or controlEvent == "ROOT" or controlEvent == "SNARE" or controlEvent == "STUN")
+			(controlEvent == "FEAR" or controlEvent == "FEAR_MECHANIC" or controlEvent == "ROOT"
+				or controlEvent == "SNARE" or controlEvent == "STUN" or controlEvent == "STUN_MECHANIC")
 		then
 			return true
 		end
@@ -159,11 +152,14 @@ function br.canRegainControl(spellID, controlEvent)
 	end
 	-- Priest
 	if class == 5 then
+		if controlEvent == "ROOT" or controlEvent == "SNARE" then
+			return true
+		end
 	end
 	-- Death Knight
 	if class == 6 then
 		if spellID == 49039 and --Lichborne
-			(controlEvent == "CHARM" or controlEvent == "FEAR" or controlEvent == "SLEEP")
+			(controlEvent == "CHARM" or controlEvent == "FEAR" or controlEvent == "FEAR_MECHANIC" or controlEvent == "SLEEP")
 		then
 			return true
 		end
@@ -188,9 +184,15 @@ function br.canRegainControl(spellID, controlEvent)
 	end
 	-- Mage
 	if class == 8 then
+		if controlEvent == "ROOT" or controlEvent == "SNARE" then
+			return true
+		end
 	end
 	-- Warlock
 	if class == 9 then
+		if controlEvent == "ROOT" or controlEvent == "SNARE" then
+			return true
+		end
 	end
 	-- Monk
 	if class == 10 then
@@ -200,9 +202,18 @@ function br.canRegainControl(spellID, controlEvent)
 	end
 	-- Druid
 	if class == 11 then
-		if tostring(controlEvent) == "ROOT" or controlEvent == "SNARE" then
+		if controlEvent == "ROOT" or controlEvent == "SNARE" then
 			return true
 		end
+	end
+	-- DemonHunter
+	if class == 12 then
+		if controlEvent == "ROOT" or controlEvent == "SNARE" then
+			return true
+		end
+	end
+	-- Evoker
+	if class == 13 then
 	end
 	return false
 end
@@ -214,7 +225,7 @@ function br.hasNoControl(spellID)
 		for i = 0, eventIndex do
 			event = br._G.C_LossOfControl.GetActiveLossOfControlData(i)
 			if event then
-				-- Print("Event LocType: "..tostring(event.locType).." - LockoutSchool "..tostring(event.lockoutSchool))
+				-- br._G.print("Has No Control: "..tostring(event.locType).." - Can Regain Control: "..tostring(br.canRegainControl(spellID, event.locType)))
 				return br.canRegainControl(spellID, event.locType)
 			end
 		end
@@ -225,6 +236,8 @@ end
 function br.hasThreat(unit, playerUnit)
 	-- Early Exit
 	if unit == nil then return false end
+	-- Dummy Validation
+	if br.isDummy(unit) and br.getDistance("target", unit) < 8 then return true end
 	-- Damaged Validation
 	if br.damaged[br._G.ObjectPointer(unit)] ~= nil then
 		if br.isChecked("Cast Debug") then--and not br.GetUnitExists("target") then
@@ -283,7 +296,7 @@ function br.hasThreat(unit, playerUnit)
 	end
 	-- Open World Mob Pack Validation
 	if instance == "none" and playerInCombat and not br.isCritter(unitObject) and br.enemy[br._G.ObjectPointer("target")] ~= nil and br.enemy[unitObject] == nil and br.getDistance("target", unitObject) < 8 then
-		-- if isChecked("Cast Debug") then br._G.print("[Open World Threat] "..br._G.UnitName(unit).." is within "..round2(getDistance("target",unitObject),1).."yrds of your target and is considered a threat.") end
+		-- if br.isChecked("Cast Debug") then br._G.print("[Open World Threat] "..br._G.UnitName(unit).." is within "..round2(getDistance("target",unitObject),1).."yrds of your target and is considered a threat.") end
 		return true
 	end
 	-- Player Threat Valdation

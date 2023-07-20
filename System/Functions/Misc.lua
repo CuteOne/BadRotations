@@ -192,7 +192,7 @@ function br.getLineOfSight(Unit1, Unit2)
 		local X1, Y1, Z1 = br.GetObjectPosition(Unit1)
 		local X2, Y2, Z2 = br.GetObjectPosition(Unit2)
 		local pX = br.GetObjectPosition("player")
-		-- local flags = bit.bor(0x10, 0x100, 0x1)
+		local flags = bit.bor(0x10, 0x100)
 		local trace
 		-- Only calculate if we actually got values
 		if (X1 == nil or X2 == nil or pX == nil) then return false end
@@ -200,9 +200,12 @@ function br.getLineOfSight(Unit1, Unit2)
 		if br.player and br.player.eID and (br.player.eID == 2398 or br.player.eID == 2399) then
 			trace = br._G.TraceLine(X1, Y1, Z1 + 2--[[.25]], X2, Y2, Z2 + 2--[[.25]], 0x100111)
 		else
-			trace = br._G.TraceLine(X1, Y1, Z1 + 2, X2, Y2, Z2 + 2, 0x10)
+			trace = br._G.TraceLine(X1, Y1, Z1 + 2.25, X2, Y2, Z2 + 2.25, flags)
+			-- if (br._G.UnitIsUnit(Unit2,"target")) then
+			-- 	br._G.print("Target Is LoS: "..tostring(trace))
+			-- end
 		end
-		if trace == nil then
+		if trace == nil or trace == false then
 			--Print("Past Traceline")
 			if br.player and br.player.eID and br.player.eID == 2141 then
 				if pX < -108 and X2 < -108 then
@@ -228,8 +231,8 @@ function br.getLineOfSight(Unit1, Unit2)
 				return true
 			end
 		else
-			--Print("Really Skipped it all")
-			return false
+			-- br._G.print("Really Skipped it all")
+			return true
 		end
 	else
 		return false
@@ -291,9 +294,9 @@ end
 function br.hasEmptySlots()
 	local openSlots = 0
 	for i = 0, 4 do --Let's look at each bag
-		local numBagSlots = br._G.GetContainerNumSlots(i)
+		local numBagSlots = C_Container.GetContainerNumSlots(i)
 		if numBagSlots > 0 then -- Only look for slots if bag present
-			openSlots = openSlots + select(1, br._G.GetContainerNumFreeSlots(i))
+			openSlots = openSlots + select(1, C_Container.GetContainerNumFreeSlots(i))
 		end
 	end
 	if openSlots > 0 then
@@ -582,7 +585,7 @@ function br.isValidUnit(Unit)
 	if playerTarget and br.units[br._G.UnitTarget("player")] == nil and not br.enemyListCheck("target") then
 		return false
 	end
-	if not br.pause(true) and Unit ~= nil and (br.units[Unit] ~= nil or Unit == "target" or burnUnit) and mcCheck
+	if not br.pause(true) and Unit ~= nil and (br.units[Unit] ~= nil or Unit == "target" or burnUnit or dummy) and mcCheck
 		and not isCC and (dummy or burnUnit or (not br._G.UnitIsTapDenied(Unit) and br.isSafeToAttack(Unit)
 		and ((hostileOnly and reaction < 4) or (not hostileOnly and reaction < 5) or playerTarget or targeting)))
 	then
@@ -612,6 +615,8 @@ function br.SpecificToggle(toggle)
 		return br._G.GetKeyState(0x05)
 	elseif br.getOptionValue(toggle) == 9 then
 		return br._G.GetKeyState(0x06)
+	elseif br.getOptionValue(toggle) == 10 then
+		return br._G.GetKeyState(0xC0)			
 	end
 end
 
@@ -653,7 +658,7 @@ function br.pause(skipCastingCheck)
 	local eating = false
 	local pausekey
 	for i = 1, #food do
-		if br.UnitBuffID(i) then
+		if br.UnitBuffID("player",i) then
 			eating = true
 			break
 		end
@@ -724,11 +729,14 @@ function br.pause(skipCastingCheck)
 			or (br._G.UnitInVehicle("player") and not br.isChecked("Bypass Vehicle Check")
 				and (not br._G.UnitExists("target") or (br._G.UnitExists("target") and not br._G.UnitCanAttack("player", "target"))))
 			and not (br.UnitBuffID("player", 190784) or br.UnitBuffID("player", 164222) or br.UnitBuffID("player", 165803) or br.UnitBuffID("player", 157059)))
-		or br._G.SpellIsTargeting() or (br._G.UnitCastingInfo("player") and not skipCastingCheck) or (br._G.UnitChannelInfo("player") and not skipCastingCheck)
+		or br._G.SpellIsTargeting() or (br._G.UnitCastingInfo("player") and not skipCastingCheck)
+		or (br._G.UnitChannelInfo("player") and not skipCastingCheck)
 		or br._G.UnitIsDeadOrGhost("player") or eating or br.UnitDebuffID("player", 252753) or -- Potion of Replenishment (BFA Mana channel) Apparently a debuff
 		br.UnitBuffID("player", 114018)
 	 then
-		if (br._G.UnitCastingInfo("player") and not skipCastingCheck) then
+		if br.empowerID ~= nil and br.empowerID > 0 and not (pausekey and br._G.GetCurrentKeyBoardFocus() == nil and br.isChecked("Pause Mode")) then
+			return false
+		elseif (br._G.UnitCastingInfo("player") and not skipCastingCheck) then
 			local _, _, _, _, endTime = br._G.UnitCastingInfo("player")
 			local finish = endTime / 1000 - br._G.GetTime()
 			if finish > 0.1 then
@@ -766,10 +774,10 @@ function br.isChecked(Value)
 			return false
 		end
 
-		if
-			br.data.settings[br.selectedSpec] and
-				(br.data.settings[br.selectedSpec][br.selectedProfile][Value .. "Check"] == 1 or br.data.settings[br.selectedSpec][br.selectedProfile][Value .. "Check"] == true)
-		 then
+		if br.data.settings[br.selectedSpec]
+			and (br.data.settings[br.selectedSpec][br.selectedProfile][Value .. "Check"] == 1
+				or br.data.settings[br.selectedSpec][br.selectedProfile][Value .. "Check"] == true)
+		then
 			return true
 		end
 	end
@@ -777,10 +785,10 @@ function br.isChecked(Value)
 end
 -- if isSelected("Stormlash Totem") then
 function br.isSelected(Value)
-	if
-		br.data.settings ~= nil and
-			(br.data.settings[br.selectedSpec].toggles["Cooldowns"] == 3 or
-				(br.isChecked(Value) and (br.getValue(Value) == 3 or (br.getValue(Value) == 2 and br.data.settings[br.selectedSpec].toggles["Cooldowns"] == 2))))
+	if br.data.settings ~= nil
+		and (br.data.settings[br.selectedSpec].toggles["Cooldowns"] == 3
+			or (br.isChecked(Value) and (br.getValue(Value) == 3
+				or (br.getValue(Value) == 2 and br.data.settings[br.selectedSpec].toggles["Cooldowns"] == 2))))
 	 then
 		return true
 	end

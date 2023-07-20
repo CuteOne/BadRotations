@@ -3,7 +3,11 @@ local b = br._G
 function br:loadUnlockerAPI()
     local unlocked = false
     --local class = br.class
-    if br.unlock["DaemonicUnlock"] ~= nil and br.unlock.DaemonicUnlock() then
+    if br.unlock["NNUnlock"] ~= nil and br.unlock.NNUnlock() then
+        unlocked = true
+    elseif br.unlock["TinkrUnlock"] ~= nil and br.unlock.TinkrUnlock() then
+        unlocked = true
+    elseif br.unlock["DaemonicUnlock"] ~= nil and br.unlock.DaemonicUnlock() then
         unlocked = true
     end
     -- Set Spell Queue Window
@@ -28,13 +32,13 @@ function br:checkBrOutOfDate()
     if (not brUpdateTimer or (b.GetTime() - brUpdateTimer) > 300) and br.player ~= nil then --and EasyWoWToolbox ~= nil then
         local startTime = b.debugprofilestop()
         -- Request Current Version from GitHub
-        if _G["EasyWoWToolbox"] ~= nil then -- EWT
+        if br._G["EasyWoWToolbox"] ~= nil then -- EWT
             --SendHTTPRequest('https://raw.githubusercontent.com/CuteOne/BadRotations/master/BadRotations.toc', nil, function(body) brcurrVersion =(string.match(body, "(%d+%p%d+%p%d+)")) end)
 
             -- Check for commit updates from System/Updater.lua, which relies on EWT
             br.updater:CheckOutdated()
             brUpdateTimer = b.GetTime()
-        elseif _G["wmbapi"] ~= nil then -- MB
+        elseif br._G["wmbapi"] ~= nil then -- MB
             local info = {
                 Url = "https://raw.githubusercontent.com/CuteOne/BadRotations/master/BadRotations.toc",
                 Method = "GET"
@@ -42,7 +46,7 @@ function br:checkBrOutOfDate()
             if not br.locVersionRequest then
                 br.locVersionRequest = b.SendHTTPRequest(info)
             else
-                br.locVersionStatus, br.locVersionResponce = _G["wmbapi"].ReceiveHttpResponse(br.locVersionRequest)
+                br.locVersionStatus, br.locVersionResponce = br._G["wmbapi"].ReceiveHttpResponse(br.locVersionRequest)
                 if br.locVersionResponce then
                     brcurrVersion = string.match(br.locVersionResponce.Body, "(%d+%p%d+%p%d+)")
                 end

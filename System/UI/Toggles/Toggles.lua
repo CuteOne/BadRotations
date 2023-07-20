@@ -111,13 +111,25 @@ function br.TogglesFrame()
 			br._G.GameTooltip:Hide()
 		end
 	)
+	-- br.mainButton:SetScript(
+	-- 	"OnReceiveDrag",
+	-- 	function(frame)
+	-- 		local self = frame.obj
+	-- 		print("Dragging Togglebar!")
+	-- 		local _, _, anchor, x, y = self:GetPoint(1)
+	-- 		br.data.settings.mainButton.pos.x = x
+	-- 		br.data.settings.mainButton.pos.y = y
+	-- 		br.data.settings.mainButton.pos.anchor = anchor
+	-- 	end
+	-- )
 	br.mainButton:SetScript(
-		"OnReceiveDrag",
+		"OnDragStop",
 		function()
 			local _, _, anchor, x, y = br.mainButton:GetPoint(1)
 			br.data.settings.mainButton.pos.x = x
 			br.data.settings.mainButton.pos.y = y
 			br.data.settings.mainButton.pos.anchor = anchor
+			br.mainButton:StopMovingOrSizing()
 		end
 	)
 	br.mainButton:SetScript(
@@ -148,11 +160,11 @@ function br.TogglesFrame()
 	mainButtonFrame:SetWidth(br.data.settings["buttonSize"] * 1.67)
 	mainButtonFrame:SetHeight(br.data.settings["buttonSize"] * 1.67)
 	mainButtonFrame:SetPoint("CENTER")
-	mainButtonFrame.texture = mainButtonFrame:CreateTexture(br.mainButton, "OVERLAY")
+	mainButtonFrame.texture = mainButtonFrame:CreateTexture(nil, "OVERLAY")
 	mainButtonFrame.texture:SetAllPoints()
 	mainButtonFrame.texture:SetWidth(br.data.settings["buttonSize"] * 1.67)
 	mainButtonFrame.texture:SetHeight(br.data.settings["buttonSize"] * 1.67)
-	mainButtonFrame.texture:SetAlpha(100)
+	mainButtonFrame.texture:SetAlpha(1)
 	mainButtonFrame.texture:SetTexture(br.genericIconOn)
 	br.mainText = br.mainButton:CreateFontString(nil, "OVERLAY")
 	br.mainText:SetFont(br.data.settings.font, br.data.settings.fontsize, "THICKOUTLINE")

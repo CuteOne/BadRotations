@@ -1,12 +1,12 @@
 -------------------------------------------------------
 -- Author = CuteOne
--- Patch = 9.2.5
+-- Patch = 10.0
 --    Patch should be the latest patch you've updated the rotation for (i.e., 9.2.5)
--- Coverage = 100%
+-- Coverage = 75%
 --    Coverage should be your estimated percent coverage for class mechanics (i.e., 100%)
 -- Status = Full
 --    Status should be one of: Full, Limited, Sporadic, Inactive, Unknown
--- Readiness = Raid
+-- Readiness = Development
 --    Readiness should be one of: Raid, NoRaid, Basic, Development, Untested
 -------------------------------------------------------
 -- Required: Fill above fields to populate README.md --
@@ -19,8 +19,8 @@ local rotationName = "CuteOne"
 local function createToggles()
     -- Rotation Button
     local RotationModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.swipeCat },
-        [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.swipeCat },
+        [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.swipe },
+        [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.swipe },
         [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.shred },
         [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.regrowth}
     };
@@ -34,8 +34,8 @@ local function createToggles()
     br.ui:createToggle(CooldownModes,"Cooldown",2,0)
     -- Defensive Button
     local DefensiveModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.survivalInstincts },
-        [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.survivalInstincts }
+        [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.barkskin },
+        [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.barkskin }
     };
     br.ui:createToggle(DefensiveModes,"Defensive",3,0)
     -- Interrupt Button
@@ -79,9 +79,6 @@ local function createOptions()
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
             -- Ferocious Bite Execute
             br.ui:createDropdownWithout(section, "Ferocious Bite Execute",{"|cffFFFF00Enabled Notify","|cff00FF00Enabled","|cffFF0000Disabled"}, 2,"Options for using Ferocious Bite when the damage from it will kill the unit.")
-            -- Opener
-            br.ui:createCheckbox(section, "Opener")
-            br.ui:createDropdownWithout(section, "Brutal Slash in Opener", {"|cff00FF00Enabled","|cffFF0000Disabled"}, 1, "|cff15FF00Enable|cffFFFFFF/|cffD60000Disable |cffFFFFFFuse of Brutal Slash in Opener")
             -- Pre-Pull Timer
             br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
 	        -- Berserk/Tiger's Fury Pre-Pull
@@ -102,6 +99,8 @@ local function createOptions()
             br.ui:createDropdownWithout(section,"Primal Wrath Usage",{"|cffFFFF00Always","|cff00FF00Refresh Only"})
             -- Filler Spell
             br.ui:createDropdownWithout(section,"Filler Spell",{"Shred", "Rake", "Snapshot Rake", "Lunar Inspiration", "Swipe"}, 1, "|cffFFFFFFSet which spell to use as filler.")
+            -- Mark of the Wild
+            br.ui:createDropdown(section, "Mark of the Wild",{"|cffFFFFFFPlayer", "|cffFFFFFFTarget", "|cffFFFFFFMouseover", "|cffFFFFFFFocus", "|cffFFFFFFGroup"}, 1, "|cffFFFFFFSet how to use Mark of the Wild")
         br.ui:checkSectionState(section)
         -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -113,15 +112,16 @@ local function createOptions()
             br.player.module.FlaskUp("Agility",section)
             -- Racial
             br.ui:createCheckbox(section,"Racial")
-            -- Covenant Ability
-            br.ui:createDropdownWithout(section,"Covenant Ability",{"|cff00FF00Always","|cffFFFF00Cooldowns","|cffFF0000Never"}, 2, "|cffFFFFFFSet when to use Covenant Ability")
+            -- Adaptive Swarm
+            br.ui:createDropdownWithout(section,"Adaptive Swarm",{"|cff00FF00Always","|cffFFFF00Cooldowns","|cffFF0000Never"}, 2, "|cffFFFFFFSet when to use Adaptive Swarm")
+            -- Convoke The Spirits
+            br.ui:createDropdownWithout(section,"Convoke The Spirits",{"|cff00FF00Always","|cffFFFF00Cooldowns","|cffFF0000Never"}, 2, "|cffFFFFFFSet when to use Convoke The Spirits")
             -- Tiger's Fury
             br.ui:createCheckbox(section,"Tiger's Fury")
-            br.ui:createDropdownWithout(section,"Snipe Tiger's Fury", {"|cff00FF00Enabled","|cffFF0000Disabled"}, 1, "|cff15FF00Enable|cffFFFFFF/|cffD60000Disable |cffFFFFFFuse of Tiger's Fury to take adavantage of Predator talent.")
             -- Berserk / Incarnation: King of the Jungle
-            br.ui:createCheckbox(section,"Berserk/Incarnation")
+            br.ui:createDropdownWithout(section,"Berserk/Incarnation",{"|cff00FF00Always","|cffFFFF00Cooldowns","|cffFF0000Never"}, 2, "|cffFFFFFFSet when to use Berserk/Incarnation")
             -- Owlweave
-            br.ui:createDropdownWithout(section,"Owlweave",{"|cff00FF00Always","|cffFFFF00Cooldowns","|cffFF0000Never"}, 3, "|cffFFFFFFSet when to use Owlweaving.")
+            -- br.ui:createDropdownWithout(section,"Owlweave",{"|cff00FF00Always","|cffFFFF00Cooldowns","|cffFF0000Never"}, 3, "|cffFFFFFFSet when to use Owlweaving.")
             -- Trinkets
             br.player.module.BasicTrinkets(nil,section)
         br.ui:checkSectionState(section)
@@ -199,21 +199,17 @@ end
 --- Locals ---
 --------------
 -- BR API Locals
-local anima
 local buff
 local cast
 local cd
 local charges
 local comboPoints
-local conduit
-local covenant
 local debuff
 local enemies
-local energy, energyRegen, energyDeficit
+local energy, energyDeficit
 local equiped
 local module
 local power
-local runeforge
 local spell
 local talent
 local unit
@@ -225,19 +221,15 @@ local var = {}
 -- General Locals
 local btGen = {}
 local multidot
-local opener
 local race
 local range
 local ticksGain = {}
 
 -- Variables
-var.bsInc = 0
-var.clearcasting = 0
 var.fbMaxEnergy = false
 var.friendsInRange = false
 var.getTime = br._G.GetTime()
 var.htTimer = var.getTime
-var.incarnation = 0
 var.lastForm = 0
 var.lastRune = var.getTime
 var.leftCombat = var.getTime
@@ -245,7 +237,6 @@ var.lootDelay = 0
 var.minCount = 3
 var.noDoT = false
 var.profileStop = false
-var.sabertooth = 0
 var.unit5ID = 0
 
 
@@ -264,14 +255,6 @@ btGen.triggers = 0
 ticksGain.rake = 5
 ticksGain.rip = 12
 ticksGain.thrash = 5
-
--- variable,name=4cp_bite,value=0
-local cp4Bite = 0
--- variable,name=filler,value=0
-local filler = 0
--- variable,name=rip_ticks,value=7
-local ripTicks = 7
---local bestRip = 0
 
 -----------------
 --- Functions ---
@@ -310,29 +293,6 @@ local function canDoT(thisUnit)
         end
     end
     return unitHealthMax > maxHealth / 10
-end
--- TF Predator Snipe
-local function snipeTF()
-    if ui.value("Snipe Tiger's Fury") == 1 and talent.predator and not cd.tigersFury.exists()
-        and (#enemies.yards40 == 1 and unit.ttd(units.dyn40) > power.energy.ttm()) or #enemies.yards40 > 1
-    then
-        local lowestUnit = units.dyn5
-        local lowestHP = 100
-        for i = 1, #enemies.yards40 do
-            local thisUnit = enemies.yards40[i]
-            local thisHP = unit.hp(thisUnit)
-            if thisHP < lowestHP then
-                lowestHP = thisHP
-                lowestUnit = thisUnit
-            end
-        end
-        local timeTillDeath = 99
-        local longestBleed = math.max(debuff.rake.remain(lowestUnit,"EXACT"), debuff.rip.remain(lowestUnit),
-            debuff.thrashCat.remain(lowestUnit), debuff.feralFrenzy.remain(lowestUnit))
-        if unit.ttd(lowestUnit) > 0 then timeTillDeath = unit.ttd(lowestUnit) end
-        if lowestUnit ~= nil and timeTillDeath < longestBleed then return true end
-    end
-    return false
 end
 -- Ferocious Bite Finish
 local function ferociousBiteFinish(thisUnit)
@@ -397,6 +357,36 @@ local function findKindredSpirit()
     return kindredSpirit
 end
 
+local getMarkUnitOption = function(option)
+    local thisTar = ui.value(option)
+    local thisUnit
+    if thisTar == 1 then
+        thisUnit = "player"
+    end
+    if thisTar == 2 then
+        thisUnit = "target"
+    end
+    if thisTar == 3 then
+        thisUnit = "mouseover"
+    end
+    if thisTar == 4 then
+        thisUnit = "focus"
+    end
+    if thisTar == 5 then
+        thisUnit = "player"
+        if #br.friend > 1 then
+            for i = 1, #br.friend do
+                local nextUnit = br.friend[i].unit
+                if buff.markOfTheWild.refresh(nextUnit) and unit.distance(var.markUnit) < 40 then
+                    thisUnit = nextUnit
+                    break
+                end
+            end
+        end
+    end
+    return thisUnit
+end
+
 --------------------
 --- Action Lists ---
 --------------------
@@ -453,24 +443,24 @@ actionList.Extras = function()
                 if cast.kindredSpirits(var.kindredSpirit) then ui.debug("Casting Kindred Spirits on "..unit.name(var.kindredSpirit).." [Kyrian]") return true end
             end
         end
-        -- Lycara's Bargin - Torghast Anima Power
-        if anima.lycarasBargin.exists() and debuff.lycarasBargin.stack("player") > 50 then
-            if unit.form() ~= 0 then
-                unit.cancelForm()
-                ui.debug("Cancel Form [Lycara's Bargin]")
-            elseif unit.form() == 0 then
-                if cast.catForm("player") then ui.debug("Casting Cat From [Lycara's Bargin]") return true end
-            end
-        end
-        -- Lycara's Twig - Torghast Anima Power
-        if anima.lycarasTwig.exists() and not buff.lycarasTwig.exists() and not buff.prowl.exists() and not unit.inCombat() and ui.useCDs() and unit.distance("target") < 60 then
-            if unit.form() ~= 0 then
-                unit.cancelForm()
-                ui.debug("Cancel Form [Lycara's Twig]")
-            elseif unit.form() == 0 then
-                if cast.catForm("player") then ui.debug("Casting Cat From [Lycara's Twig]") return true end
-            end
-        end
+        -- -- Lycara's Bargin - Torghast Anima Power
+        -- if anima.lycarasBargin.exists() and debuff.lycarasBargin.stack("player") > 50 then
+        --     if unit.form() ~= 0 then
+        --         unit.cancelForm()
+        --         ui.debug("Cancel Form [Lycara's Bargin]")
+        --     elseif unit.form() == 0 then
+        --         if cast.catForm("player") then ui.debug("Casting Cat From [Lycara's Bargin]") return true end
+        --     end
+        -- end
+        -- -- Lycara's Twig - Torghast Anima Power
+        -- if anima.lycarasTwig.exists() and not buff.lycarasTwig.exists() and not buff.prowl.exists() and not unit.inCombat() and ui.useCDs() and unit.distance("target") < 60 then
+        --     if unit.form() ~= 0 then
+        --         unit.cancelForm()
+        --         ui.debug("Cancel Form [Lycara's Twig]")
+        --     elseif unit.form() == 0 then
+        --         if cast.catForm("player") then ui.debug("Casting Cat From [Lycara's Twig]") return true end
+        --     end
+        -- end
     end -- End Shapeshift Form Management
     -- Perma Fire Cat
     if ui.checked("Perma Fire Cat") and (use.able.fandralsSeedPouch() or use.able.burningSeeds())
@@ -510,11 +500,18 @@ actionList.Extras = function()
                     var.swipeSoon = var.getTime;
                 end
                 if var.swipeSoon ~= nil and var.swipeSoon < var.getTime - 1 then
-                    if cast.swipeCat(units.dyn8AOE,"aoe",1,8) then ui.debug("Casting Swipe [Death Cat Mode]") ; var.swipeSoon = nil; return true end
+                    if cast.swipeCat("player","aoe",1,8) then ui.debug("Casting Swipe [Death Cat Mode]") ; var.swipeSoon = nil; return true end
                 end
             end
         end -- End 20yrd Enemy Scan
     end -- End Death Cat Mode
+    -- Mark of the Wild
+    if ui.checked("Mark of the Wild") then
+        var.markUnit = getMarkUnitOption("Mark of the Wild")
+        if cast.able.markOfTheWild(var.markUnit) and buff.markOfTheWild.refresh(var.markUnit) and unit.distance(var.markUnit) < 40 then
+            if cast.markOfTheWild(var.markUnit) then ui.debug("Casting Mark of the Wild") return true end
+        end
+    end
     -- Dummy Test
     if ui.checked("DPS Testing") then
         if unit.exists("target") then
@@ -772,362 +769,156 @@ end -- End Action List - Interrupts
 -- Action List - Cooldowns
 actionList.Cooldowns = function()
     if unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
-        -- Adaptive Swarm
-        -- adaptive_swarm,target_if=((!dot.adaptive_swarm_damage.ticking|dot.adaptive_swarm_damage.remains<2)&(dot.adaptive_swarm_damage.stack<3|!dot.adaptive_swarm_heal.stack>1)&!action.adaptive_swarm_heal.in_flight&!action.adaptive_swarm_damage.in_flight&!action.adaptive_swarm.in_flight)&target.time_to_die>5|active_enemies>2&!dot.adaptive_swarm_damage.ticking&energy<35&target.time_to_die>5
-        if ui.alwaysCdNever("Covenant Ability") then
-            for i = 1, #enemies.yards40 do
-                local thisUnit = enemies.yards40[i]
-                if ((not debuff.adaptiveSwarm.exists(thisUnit) or debuff.adaptiveSwarm.remains(thisUnit) < 2)
-                    and (debuff.adaptiveSwarm.stack(thisUnit) < 3 or not buff.adaptiveSwarmHeal.stack() > 1)
-                        and cast.inFlight.adaptiveSwarmHeal() and not cast.inFlight.adaptiveSwarm(thisUnit))
-                    and unit.ttd(thisUnit) > 5 or #enemies.yards40 > 2 and not debuff.adaptiveSwarm.exists(thisUnit) and energy < 35 and unit.ttd(thisUnit) > 5
-                then
-                    if cast.adaptiveSwarm(thisUnit) then ui.debug("Casting Adaptive Swarm [Necrolord]") return true end
+        if ui.alwaysCdNever("Berserk/Incarnation") and ui.useCDs() and range.dyn5 then
+            -- Incarnation - Avatar of Ashamane
+            -- incarnation
+            if cast.able.incarnationAvatarOfAshamane() and talent.incarnationAvatarOfAshamane then
+                if cast.incarnationAvatarOfAshamane() then ui.debug("Casting Incarnation: Avatar of Ashamane [Cooldowns]") return true end
+            end
+            -- Berserk
+            -- berserk,if=!talent.convoke_the_spirits.enabled|talent.convoke_the_spirits.enabled&!(fight_remains<cooldown.convoke_the_spirits.remains)|talent.convoke_the_spirits.enabled&cooldown.convoke_the_spirits.remains<10|talent.convoke_the_spirits.enabled&fight_remains>120&cooldown.convoke_the_spirits.remains>25
+            if cast.able.berserk() and (not talent.incarnationAvatarOfAshamane
+                or (talent.convokeTheSpiritsFeral and (not (unit.ttdGroup(5) < cd.convokeTheSpiritsFeral)
+                or cd.convokeTheSpiritsFeral.remains() < 10 or (unit.ttdGroup(5) > 120 and cd.convokeTheSpiritsFeral.remains() > 25))))
+            then
+                if cast.berserk() then ui.debug("Casting Berserk [Cooldowns]") return true end
+            end
+        end
+        -- Potion
+        -- potion,if=buff.bs_inc.up|fight_remains<cooldown.bs_inc.remains|fight_remains<35
+        if ui.value("Potion") ~= 2 and unit.isBoss("target") then
+            if ((unit.instance("raid") or (unit.instance("party") and unit.ttd(units.dyn5) > 45)) and (buff.berserk.exists() and buff.berserk.remain() > 18
+                or buff.incarnationAvatarOfAshamane.exists() and buff.incarnationAvatarOfAshamane.remain() > 28))
+            then
+                if ui.value("Potion") == 1 and use.able.potionOfSpectralAgility() then
+                    use.potionOfSpectralAgility()
+                    ui.debug("Using Potion of Spectral Agility [Cooldowns]");
                 end
             end
         end
-        -- Trinkets
-        module.BasicTrinkets()
-        -- Feral Frenzy
-        -- feral_frenzy,target_if=max:target.time_to_die,if=combo_points<3&target.time_to_die>7&!cooldown.tigers_fury.up|fight_remains<8&fight_remains>2
-        if cast.able.feralFrenzy(var.maxTTDUnit) and comboPoints < 3 and unit.ttd(var.maxTTDUnit) > 7 and not cd.tigersFury.exists() then
-            -- Tiger's Fury
-            -- tigers_fury,sync=feral_frenzy,if=cooldown.bs_inc.up
-            if ui.checked("Tiger's Fury") and cast.able.tigersFury() and (not cd.berserk.exists() or not cd.incarnationKingOfTheJungle.exists()) then
-                if cast.tigersFury() then ui.debug("Casting Tiger's Fury") end
-            end
-            if cast.feralFrenzy(var.maxTTDUnit) then ui.debug("Casting Feral Frenzy") return true end
-        end
-        -- Berserk/Incarnation
-        -- berserk,if=dot.rip.ticking&(cooldown.convoke_the_spirits.up|cooldown.convoke_the_spirits.remains>32|fight_remains<20)
-        -- incarnation,if=dot.rip.ticking&(cooldown.convoke_the_spirits.up|fight_remains<30)
-        if ui.checked("Berserk/Incarnation") and ui.useCDs() and range.dyn5 and comboPoints >= 3 and debuff.rip.exists(unit.dyn5) then
-            if cast.able.berserk() and not talent.incarnationKingOfTheJungle
-                and (not cd.convokeTheSpirits.exists() or cd.convokeTheSpirits.remain() > 32 or (unit.ttdGroup(5) < 20 and ui.useCDs() and not unit.isDummy(units.dyn5)))
-            then
-                if cast.berserk() then ui.debug("Casting Berserk") return true end
-            end
-            if cast.able.incarnationKingOfTheJungle() and talent.incarnationKingOfTheJungle
-                and (not cd.convokeTheSpirits.exists() or (unit.ttdGroup(5) < 20 and ui.useCDs() and not unit.isDummy(units.dyn5)))
-            then
-                if cast.incarnationKingOfTheJungle() then ui.debug("Casting Incarnation: King of the Jungle") return true end
-            end
-        end
-        -- Tiger's Fury
-        -- tigers_fury,if=energy.deficit>40|buff.bs_inc.up|(talent.predator.enabled&variable.shortest_ttd<3)|(!dot.rip.ticking&buff.bloodtalons.up)
-        if ui.checked("Tiger's Fury") and cast.able.tigersFury() and range.dyn5
-            and (energyDeficit > 40 or snipeTF() or (buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists())
-                or (talent.predator and var.lowestTTD < 3) or (not debuff.rip.exists(units.dyn5) and buff.bloodtalons.exists()))
+        -- Convoke the Spirits
+        -- convoke_the_spirits,if=dot.rip.duration>5&(buff.tigers_fury.up&combo_points<4&cooldown.bs_inc.remains>20|fight_remains<5)
+        if ui.alwaysCdNever("Convoke The Spirits") and ((not talent.convokeTheSpiritsFeral and cast.able.convokeTheSpirits()) or (talent.convokeTheSpiritsFeral and cast.able.convokeTheSpiritsFeral())) 
+            and debuff.rip.remain(units.dyn5) > 5 and ((buff.tigersFury.exists() and comboPoints < 4 and var.bsIncRemain > 20)
+            or (unit.ttdGroup(5) < 5 and ui.useCDs() and not unit.isDummy(units.dyn5)))
         then
-            if cast.tigersFury() then ui.debug("Casting Tiger's Fury") return true end
+            if cast.convokeTheSpiritsFeral() then ui.debug("Casting Convoke the Spirits [Cooldowns]") return true end
+        end
+        -- Racial: Berserking (Troll)
+        -- berserking,if=buff.bs_inc.up|fight_remains<15
+        if ui.checked("Racial") and race == "Troll" and cast.able.racial() and ui.useCDs() and var.bsInc then
+            if cast.racial() then ui.debug("Casting Berserking [Cooldowns]") return true end
         end
         -- Shadowmeld
         -- shadowmeld,if=buff.tigers_fury.up&buff.bs_inc.down&combo_points<4&buff.sudden_ambush.down&dot.rake.pmultiplier<1.6&energy>40&druid.rake.ticks_gained_on_refresh>spell_targets.swipe_cat*2-2&target.time_to_die>5
         if ui.checked("Racial") and race == "NightElf" and cast.able.racial() and ui.useCDs() and not unit.moving()
             and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 and not var.solo and var.friendsInRange
         then
-            if buff.tigersFury.exists() and not buff.berserk.exists() and not buff.incarnationKingOfTheJungle.exists()
+            if buff.tigersFury.exists() and not var.bsInc
                 and not buff.prowl.exists() and comboPoints < 4 and not buff.suddenAmbush.exists() and debuff.rake.applied(units.dyn5) < 1.6 and energy > 40
                 and var.rakeTicksGainUnit(var.maxRakeTicksGainUnit) > (#enemies.yards8 * 2) - 2 and unit.ttd(units.dyn5) > 5
             then
-                if cast.racial() then ui.debug("Casting Shadowmeld") return true end
+                if cast.racial() then ui.debug("Casting Shadowmeld [Cooldowns]") return true end
             end
         end
-        -- Racial: Berserking (Troll)
-        -- berserking,if=buff.tigers_fury.up|buff.bs_inc.up
-        if ui.checked("Racial") and race == "Troll" and cast.able.racial() and ui.useCDs()
-            and (buff.tigersFury.exists() or buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists())
-        then
-            if cast.racial() then ui.debug("Casting Berserking") return true end
-        end
-        -- Potion
-        -- potion,if=buff.bs_inc.up|fight_remains<cooldown.bs_inc.remains|fight_remains<25
-        if ui.value("Potion") ~= 2 and unit.isBoss("target") then
-            if ((unit.instance("raid") or (unit.instance("party") and unit.ttd(units.dyn5) > 45)) and (buff.berserk.exists() and buff.berserk.remain() > 18
-                or buff.incarnationKingOfTheJungle.exists() and buff.incarnationKingOfTheJungle.remain() > 28))
-            then
-                if ui.value("Potion") == 1 and use.able.potionOfSpectralAgility() then
-                    use.potionOfSpectralAgility()
-                    ui.debug("Using Potion of Spectral Agility");
-                end
-            end
-        end
-        -- Ravenous Frenzy
-        -- ravenous_frenzy,if=buff.bs_inc.up|fight_remains<21
-        if ui.alwaysCdNever("Covenant Ability") and cast.able.ravenousFrenzy() and (buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists() or (unit.ttdGroup(5) < 21 and ui.useCDs())) then
-            if cast.ravenousFrenzy() then ui.debug("Casting Ravenous Frenzy [Venthyr]") return true end
-        end
-        -- Convoke the Spirits
-        -- convoke_the_spirits,if=(dot.rip.remains>4&combo_points<5&(dot.rake.ticking|spell_targets.thrash_cat>1)&energy.deficit>=20&cooldown.bs_inc.remains>10)|fight_remains<5|(buff.bs_inc.up&buff.bs_inc.remains>12)
-        if ui.alwaysCdNever("Covenant Ability") and cast.able.convokeTheSpirits()
-            and ((debuff.rip.remain(units.dyn5) > 4 and comboPoints < 5 and (debuff.rake.exists(units.dyn5,"EXACT") or #enemies.yards8 > 1) and energyDeficit >= 20
-            and (cd.berserk.remains() > 10 or cd.incarnationKingOfTheJungle.remains() > 10))
-                or (unit.ttdGroup(5) < 21 and ui.useCDs() and not unit.isDummy(units.dyn5))
-                or ((buff.berserk.exists() and buff.berserk.remain() > 12)
-                or (buff.incarnationKingOfTheJungle.exists() and buff.incarnationKingOfTheJungle.remain() > 12)))
-        then
-            if cast.convokeTheSpirits() then ui.debug("Casting Convoke the Spirits [Night Fae]") return true end
-        end
-        -- Kindred Spirits
-        -- kindred_spirits,if=buff.tigers_fury.up|(conduit.deep_allegiance.enabled)
-        if ui.alwaysCdNever("Covenant Ability") and cast.able.kindredSpirits() then
-            if ((var.kindredSpirit ~= nil and buff.kindredSpirits.exists(var.kindredSpirit)) or buff.loneSpirit.exists())
-                and (buff.tigersFury.exists() or conduit.deepAllegiance.enabled)
-            then
-                if #br.friend == 1 then
-                    if cast.loneEmpowerment() then ui.debug("Casting Lone Empowerment [Kyrian]") return true end
-                else
-                    if cast.empowerBond("player") then ui.debug("Casting Empower Bond [Kyrian]") return true end
-                end
-            end
-        end
+        -- Trinkets
+        -- use_item,name=manic_grieftorch,if=energy.deficit>40
+        -- use_items
+        module.BasicTrinkets()
     end -- End useCooldowns check
 end -- End Action List - Cooldowns
 
--- Action List - Opener
-actionList.Opener = function()
-    -- Wild Charge
-    if ui.checked("Wild Charge") and cast.able.wildCharge("target") and unit.valid("target")
-        and unit.distance("target") >= 8 and unit.distance("target") < 30
-    then
-        if cast.wildCharge("target") then ui.debug("Casting Wild Charge on "..unit.name("target").." [Opener]") return true end
-    end
-    -- Start Attack
-    -- auto_attack
-    if ui.checked("Opener") and unit.isBoss("target") and not opener.complete then
-        if unit.valid("target") and unit.exists("target") and unit.distance("target") < 5
-            and unit.facing("player","target") and unit.gcd() == 0
-        then
-            -- Begin
-            if not opener.OPN1 then
-                ui.print("Starting Opener")
-                opener.count = opener.count + 1
-                opener.OPN1 = true
-            -- Tiger's Fury
-            -- tigers_fury
-            elseif opener.OPN1 and not opener.TF1 then
-                if cd.tigersFury.remain() > unit.gcd() then
-                    cast.openerFail("tigersFury","TF1",opener.count)
-                elseif cast.able.tigersFury() then
-                    cast.opener("tigersFury","TF1",opener.count)
-                end
-                opener.count = opener.count + 1
-                return
-            -- Rake
-            -- rake,if=!ticking|buff.prowl.up
-            elseif opener.TF1 and not opener.RK1 then
-                if debuff.rake.exists("target","EXACT") then
-                    cast.openerFail("rake","RK1",opener.count)
-                elseif cast.able.rake() then
-                    cast.opener("rake","RK1",opener.count)
-                end
-                opener.count = opener.count + 1
-                return
-            -- Moonfire
-            -- moonfire_cat,if=!ticking
-            elseif opener.RK1 and not opener.MF1 then
-                if not talent.lunarInspiration or debuff.moonfireFeral.exists("target") then
-                    cast.openerFail("moonfireFeral","MF1",opener.count)
-                elseif cast.able.moonfireFeral() then
-                    cast.opener("moonfireFeral","MF1",opener.count)
-                end
-                opener.count = opener.count + 1
-                return
-            -- Rip
-            -- rip,if=!ticking
-            elseif opener.MF1 and not opener.RIP1 then
-                if debuff.rip.exists("target") or comboPoints == 0 then
-                    cast.openerFail("rip","RIP1",opener.count)
-                elseif cast.able.rip() then
-                    if usePrimalWrath() then
-                        cast.opener("primalWrath","RIP1",opener.count)
-                    else
-                        cast.opener("rip","RIP1",opener.count)
-                    end
-                end
-                opener.count = opener.count + 1
-                return
-            -- Finish (rip exists)
-            elseif opener.RIP1 and (debuff.rip.exists("target") or comboPoints == 0) then
-                ui.print("Opener Complete")
-                opener.count = 0
-                opener.complete = true
-            end
+-- Action List - Berserk Builders
+actionList.BerserkBuilders = function()
+    -- Rake
+    -- rake,target_if=refreshable
+    for i = 1, #enemies.yards5f do
+        local thisUnit = enemies.yards5f[i]
+        if cast.able.rake(thisUnit) and range.dyn5 and canDoT(thisUnit) and debuff.rake.refresh(thisUnit) then
+            if cast.rake(thisUnit) then ui.debug("Casting Rake [Berserk Builders]") return true end
         end
-    elseif (unit.exists("target") and not unit.isBoss("target")) or not ui.checked("Opener") then
-        opener.complete = true
     end
-end -- End Action List - Opener
+    -- Swipe
+    -- swipe_cat,if=spell_targets.swipe_cat>1
+    if cast.able.swipeCat("player","aoe",1,8) and not talent.brutalSlash and (#enemies.yards8 > 1) then
+        if cast.swipeCat("player","aoe",1,8) then ui.debug("Casting Swipe [Berserk Builders]") return true end
+    end
+    -- Shred
+    -- shred,if=active_bt_triggers=2&buff.bt_shred.down
+    if cast.able.shred() and btGen.triggers == 2 and not btGen.shred then
+        if cast.shred() then ui.debug("Casting Shred [Berserk Builders - 2 Triggers]") return true end
+    end
+    -- Brutal Slash
+    -- brutal_slash,if=active_bt_triggers=2&buff.bt_brutal_slash.down
+    if cast.able.brutalSlash("player","aoe",1,8) and talent.brutalSlash and btGen.triggers == 2 and not btGen.brutalSlash then
+        if cast.brutalSlash("player","aoe",1,8) then ui.debug("Casting Brutal Slash [Berserk Builders]") return true end
+    end
+    -- Moonfire Feral
+    -- moonfire_cat,target_if=refreshable
+    for i = 1, #enemies.yards40 do
+        local thisUnit = enemies.yards40[i]
+        if cast.able.moonfireFeral(thisUnit) and talent.lunarInspiration and debuff.moonfireFeral.refresh(thisUnit)
+            and not (buff.prowl.exists() or buff.shadowmeld.exists())
+        then
+            if cast.moonfireFeral(thisUnit) then ui.debug("Casting Moonfire [Berserk Builders]") return true end
+        end
+    end
+    -- Shred
+    -- shred
+    if cast.able.shred() then
+        if cast.shred() then ui.debug("Casting Shred [Berserk Builders]") return true end
+    end
+end -- End Action List - Berserk Builders
 
 -- Action List - Finisher
 actionList.Finisher = function()
-    -- Savage Roar
-    -- savage_roar,if=buff.savage_roar.remains<3
-    if cast.able.savageRoar() and buff.savageRoar.remains() < 3 then
-        if cast.savageRoar("player") then ui.debug("Casting Savage Roar [Finish - Low Remain]") return true end
-    end
     -- Primal Wrath
-    -- primal_wrath,if=(druid.primal_wrath.ticks_gained_on_refresh>3*(spell_targets.primal_wrath+1)&spell_targets.primal_wrath>1)|spell_targets.primal_wrath>(3+1*talent.sabertooth.enabled)
-    if usePrimalWrath() and range.dyn8AOE --and (not var.noDoT or #enemies.yards8 > 1)
-        and ((ticksGain.rip > 3 * (#enemies.yards8 + 1) and #enemies.yards8 > 1) or #enemies.yards8 > (3 + var.sabertooth))
-    then
-        if cast.primalWrath("player","aoe",1,8) then ui.debug("Casting Primal Wrath [Finish]") return true end
+    -- primal_wrath,if=spell_targets.primal_wrath>2
+    if cast.able.primalWrath("player","aoe",3,8) and range.dyn8AOE and #enemies.yards8 > 2 then
+        if cast.primalWrath("player","aoe",3,8) then ui.debug("Casting Primal Wrath - AoE [Finish]") return true end
+    end
+    -- primal_wrath,target_if=refreshable,if=spell_targets.primal_wrath>1
+    for i = 1, #enemies.yards8 do
+        local thisUnit = enemies.yards8[i]
+        if cast.able.primalWrath(thisUnit) and debuff.rip.refresh(thisUnit) and (#enemies.yards8 > 1) then
+            if cast.primalWrath("player","aoe",2,8) then ui.debug("Casting Primal Wrath - Refresh [Finish]") return true end
+        end
     end
     -- Rip
-    -- rip,target_if=refreshable&druid.rip.ticks_gained_on_refresh>variable.rip_ticks&((buff.tigers_fury.up|!ticking)&(buff.bloodtalons.up|!talent.bloodtalons.enabled)|!talent.sabertooth.enabled)&(spell_targets.primal_wrath=1|!talent.primal_wrath.enabled)&(active_dot.rip=0|ticking&active_dot.rip=1|!runeforge.draught_of_deep_focus|!talent.sabertooth.enabled)
+    -- rip,target_if=refreshable
     if range.dyn5 and not var.noDoT
-        and #enemies.yards5f < ui.value("Multi-DoT Limit")
+        -- and #enemies.yards5f < ui.value("Multi-DoT Limit")
         and debuff.rip.count() < ui.value("Multi-DoT Limit")
-        and not usePrimalWrath()
     then
         for i = 1, #enemies.yards5f do
             local thisUnit = enemies.yards5f[i]
-            if cast.able.rip(thisUnit) and canDoT(thisUnit) then
-                if debuff.rip.refresh(thisUnit) and ticksGain.rip > ripTicks and ((buff.tigersFury.exists() or not debuff.rip.exists(thisUnit))
-                    and (buff.bloodtalons.exists() or not talent.bloodtalons) or not talent.sabertooth) and (#enemies.yards8 == 1 or not talent.primalWrath)
-                    and (debuff.rip.count() == 0 or (debuff.rip.exists(thisUnit) and debuff.rip.count() == 1) or not runeforge.draughtOfDeepFocus or not talent.sabertooth)
-                then
-                    if cast.rip(thisUnit) then ui.debug("Casting Rip [Finish]") return true end
-                end
+            if cast.able.rip(thisUnit) and canDoT(thisUnit) and debuff.rip.refresh(thisUnit) then
+                if cast.rip(thisUnit) then ui.debug("Casting Rip [Finish]") return true end
             end
         end
-    end
-    -- Savage Roar
-    -- savage_roar,if=buff.savage_roar.remains<(combo_points+1)*6*0.3
-    if cast.able.savageRoar() and buff.savageRoar.remains() < (comboPoints + 1) * 6 * 0.3 then
-        if cast.savageRoar() then ui.debug("Casting Savage Roar [Finish]") return true end
     end
     -- Ferocious Bite
-    -- ferocious_bite,max_energy=1,target_if=max:time_to_die
-    if cast.able.ferociousBite(var.lowestRipUnit) and var.fbMaxEnergy and range.dyn5 then
-        if cast.ferociousBite(var.lowestRipUnit) then
-            if buff.apexPredatorsCraving.exists() then
-                ui.debug("Casting Ferocious Bite [Finish - Apex Predator's Craving]")
-            else
-                ui.debug("Casting Ferocious Bite [Finish]")
-            end
-            return true
-        end
-    end
-    -- ferocious_bite,target_if=max:time_to_die,if=buff.bs_inc.up&talent.soul_of_the_forest.enabled|cooldown.convoke_the_spirits.remains<1&covenant.night_fae
-    if cast.able.ferociousBite(var.lowestRipUnit) and range.dny5
-        and (((buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists()) and talent.soulOfTheForrest)
-            or (cd.convokeTheSpirits.remain() < 1 and covenant.nightFae.active))
+    -- ferocious_bite,max_energy=1,if=!buff.bs_inc.up|(buff.bs_inc.up&!talent.soul_of_the_forest.enabled)
+    if cast.able.ferociousBite() and var.fbMaxEnergy and range.dyn5
+        and (not var.bsInc or (var.bsInc and not talent.soulOfTheForest))
     then
-        if cast.ferociousBite(var.lowestRipUnit) then
-            if buff.apexPredatorsCraving.exists() then
-                ui.debug("Casting Ferocious Bite [BS/Inc Soul - Apex Predator's Craving]")
-            else
-                ui.debug("Casting Ferocious Bite [BS/Inc Soul]")
-            end
-            return true
-        end
+        if cast.ferociousBite() then ui.debug("Casting Ferocious Bite - Max Energy [Finish]") return true end
+    end
+    -- ferocious_bite,if=(buff.bs_inc.up&talent.soul_of_the_forest.enabled)
+    if cast.able.ferociousBite() and range.dyn5 and (var.bsInc and talent.soulOfTheForest) then
+        if cast.ferociousBite() then ui.debug("Casting Ferocious Bite [Finish]") return true end
     end
 end -- End Action List - Finisher
-
--- Action List - Filler
-actionList.Filler = function()
-    -- Rake
-    -- rake,target_if=max:druid.rake.ticks_gained_on_refresh,if=variable.filler=1&dot.rake.pmultiplier<=1.2*persistent_multiplier
-    if cast.able.rake(var.maxRakeTicksGainUnit) and filler == 1 and range.dyn5
-        and #enemies.yards5f < ui.value("Multi-DoT Limit")
-        and debuff.rake.count() < ui.value("Multi-DoT Limit")
-    then
-        if canDoT(var.maxRakeTicksGainUnit) and debuff.rake.applied(var.maxRakeTicksGainUnit) <= 1.2 * debuff.rake.calc() then
-            if cast.rake(var.maxRakeTicksGainUnit) then ui.debug("Casting Rake [Filler - 1]") return true end
-        end
-    end
-    -- Rake
-    -- rake,if=variable.filler=2
-    if cast.able.rake() and filler == 2 and canDoT(units.dyn5)
-        and range.dyn5 and debuff.rake.refresh(units.dyn5,"EXACT")
-        and debuff.rake.count() < ui.value("Multi-DoT Limit")
-        and #enemies.yards5f < ui.value("Multi-DoT Limit")
-    then
-        if cast.rake() then ui.debug("Casting Rake [Filler - 2]") return true end
-    end
-    -- Lunar Inspiration
-    -- lunar_inspiration,if=variable.filler=3
-    if cast.able.moonfireFeral() and talent.lunarInspiration and debuff.moonfire.refresh(units.dyn40)
-        and not var.noDoT and range.dyn40
-        and canDoT(units.dyn40) and debuff.moonfireFeral.count() < ui.value("Multi-DoT Limit")
-        and #enemies.yards40 < ui.value("Multi-DoT Limit") and filler == 3
-    then
-        if cast.moonfireFeral() then ui.debug("Casting Moonfire [Filler - 3]") return true end
-    end
-    -- Swipe
-    if cast.able.swipeCat("player","aoe",1,8) and not talent.brutalSlash
-    and not unit.isExplosive("target") and range.dyn8AOE
-    then
-        -- swipe,if=variable.filler=4
-        if filler == 4 then
-            if cast.swipeCat("player","aoe",1,8) then ui.debug("Casting Swipe [Filler - 4]") return true end
-        end
-        -- swipe_cat,if=spell_targets.swipe_cat=1&!buff.clearcasting.up
-        if ui.useAOE(8,1) and not buff.clearcasting.exists() then
-            if cast.swipeCat("player","aoe",1,8) then ui.debug("Casting Swipe [Filler]") return true end
-        end
-    end
-    -- Shred
-    -- shred,if=buff.sudden_ambush.down
-    if cast.able.shred() and range.dyn5 and not buff.suddenAmbush.exists() then
-        if cast.shred() then ui.debug("Casting Shred [Filler]") return true end
-    end
-end -- End Action List - Filler
-
--- Action List - Stealth
-actionList.Stealth = function()
-    -- pool_resource,for_next=1
-    -- Swipe
-    -- swipe_cat,if=buff.bs_inc.up&spell_targets.swipe_cat>3&runeforge.frenzyband
-    if (cast.able.swipeCat("player","aoe",3,8) or cast.pool.swipeCat()) and ui.useAOE(8,4) and runeforge.frenzyband.equiped then
-        if cast.pool.swipeCat() then return true end
-        if cast.swipeCat("player","aoe",3,8) then ui.debug("Casting Swiope [Stealth]") return true end
-    end
-    -- Rake
-    -- rake,target_if=max:druid.rake.ticks_gained_on_refresh,if=(dot.rake.pmultiplier<1.5|refreshable)&druid.rake.ticks_gained_on_refresh>2|(persistent_multiplier>dot.rake.pmultiplier&buff.bs_inc.up&spell_targets.thrash_cat<3&covenant.necrolord)|buff.bs_inc.remains<1
-    if (cast.able.rake() or cast.pool.rake())
-        and debuff.rake.count() < ui.value("Multi-DoT Limit")
-        and #enemies.yards5f < ui.value("Multi-DoT Limit")
-    then
-        if --[[canDoT(thisUnit) and]] (debuff.rake.applied(var.maxRakeTicksGainUnit) < 1.5 or debuff.rake.refresh(var.maxRakeTicksGainUnit,"EXACT")) and var.rakeTicksGainUnit(var.maxRakeTicksGainUnit) > 2
-            or (debuff.rake.calc() > debuff.rake.applied(var.maxRakeTicksGainUnit) and (buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists() and #enemies.yards8 < 3 and covenant.necrolord.active)
-            or ((buff.berserk.exists() and buff.berserk.remain() < 1) or (buff.incarnationKingOfTheJungle.exists() and buff.incarnationKingOfTheJungle.remain() < 1)))
-        then
-            if cast.pool.rake() then return true end
-            if cast.rake(thisUnit) then ui.debug("Casting Rake [Stealth]") return true end
-        end
-    end
-    -- Moonfire
-    -- lunar_inspiration,if=spell_targets.thrash_cat<3&refreshable&druid.lunar_inspiration.ticks_gained_on_refresh>5&(combo_points=4|dot.lunar_inspiration.remains<5|!dot.lunar_inspiration.ticking)
-    if cast.able.moonfireFeral() and talent.lunarInspiration and #enemies.yards8 < 3 and debuff.moonfireFeral.refresh(units.dyn40)
-        and ticksGain.moonfireFeral > 5 and (comboPoints == 4 or debuff.moonfireFeral.remain() < 5)
-    then
-        if cast.moonfireFeral() then ui.debug("Casting Moonfire [Stealth]") return true end
-    end
-    -- Brutal Slash
-    -- brutal_slash,if=spell_targets.brutal_slash>2
-    if cast.able.brutalSlash("player","aoe",3,8) and talent.brutalSlash and #enemies.yards8 > 2 then
-        if cast.brutalSlash("player","aoe",3,8) then ui.debug("Casting Brutal Slash [Stealth]") return true end
-    end
-    -- Shred
-    -- pool_resource,for_next=1
-    -- shred,if=combo_points<4&spell_targets.thrash_cat<5
-    if (cast.able.shred() or cast.pool.shred()) and comboPoints < 4 and #enemies.yards8 < 5 then
-        if cast.pool.shred() then return true end
-        if cast.shred() then ui.debug("Casting Shred [Stealth]") return true end
-    end
-end -- End Action List - Stealth
 
 -- Action List - Bloodtalons
 actionList.Bloodtalons = function()
     -- Rake
-    -- rake,target_if=max:druid.rake.ticks_gained_on_refresh,if=(!ticking|(1.2*persistent_multiplier>=dot.rake.pmultiplier)|(active_bt_triggers=2&refreshable))&buff.bt_rake.down
-    if cast.able.rake()
+    -- rake,target_if=max:druid.rake.ticks_gained_on_refresh,if=(refreshable|1.4*persistent_multiplier>dot.rake.pmultiplier)&buff.bt_rake.down
+    if cast.able.rake(var.maxRakeTicksGainUnit)
         and debuff.rake.count() < ui.value("Multi-DoT Limit")
         and #enemies.yards5f < ui.value("Multi-DoT Limit")
-        and (not debuff.rake.exists(var.maxRakeTicksGainUnit) or (1.2 * debuff.rake.calc() >= debuff.rake.applied(var.maxRakeTicksGainUnit))
-            or (btGen.triggers == 2 and debuff.rake.refresh(var.maxRakeTicksGainUnit))) and not btGen.rake
+        and (debuff.rake.refresh(var.maxRakeTicksGainUnit) or 1.4 * debuff.rake.calc() >= debuff.rake.applied(var.maxRakeTicksGainUnit))
+        and not btGen.rake
     then
         if cast.rake(var.maxRakeTicksGainUnit) then
             ui.debug("Casting Rake [BT - Ticks Gain]")
@@ -1136,31 +927,48 @@ actionList.Bloodtalons = function()
             return true
         end
     end
+    -- Shred
+    -- shred,if=buff.bt_shred.down&buff.clearcasting.up&spell_targets.swipe_cat=1
+    if cast.able.shred() and not btGen.shred and buff.clearcasting.exists() and #enemies.yards8 == 1 then
+        if cast.shred() then
+            ui.debug("Casting Shred [BT - Clearcasting]")
+            btGen.shred = true
+            if btGen.timer - var.getTime <= 0 then btGen.timer = var.getTime + 4 end
+            return true
+        end
+    end
     -- Lunar Inspiration
-    -- lunar_inspiration,target_if=max:druid.lunar_inspiration.ticks_gained_on_refresh,if=refreshable&buff.bt_moonfire.down
-    if cast.able.moonfireFeral() and talent.lunarInspiration and not btGen.moonfireFeral then
-        for i = 1, #enemies.yards40 do
-            local thisUnit = enemies.yards40[i]
-            if (multidot or (unit.isUnit(thisUnit,units.dyn5) and not multidot)) then
-                if debuff.moonfireFeral.refresh(thisUnit) then
-                    if cast.moonfireFeral(thisUnit) then
-                        ui.debug("Casting Moonfire [BT]")
-                        btGen.moonfireFeral = true
-                        if btGen.timer - var.getTime <= 0 then btGen.timer = var.getTime + 4 end
-                        return true
-                    end
-                end
+    -- lunar_inspiration,if=refreshable&buff.bt_moonfire.down
+    if talent.lunarInspiration and cast.able.moonfireFeral(units.dyn40AOE) and debuff.moonfireFeral.refresh(units.dyn40AOE)
+        and not btGen.moonfireFeral and not (buff.prowl.exists() or buff.shadowmeld.exists())
+    then
+        if (multidot or (unit.isUnit(units.dyn40AOE,"target") and not multidot)) then
+            if cast.moonfireFeral(units.dyn40AOE) then
+                ui.debug("Casting Moonfire [BT - Refresh]")
+                btGen.moonfireFeral = true
+                if btGen.timer - var.getTime <= 0 then btGen.timer = var.getTime + 4 end
+                return true
             end
         end
     end
+    -- Shred
+    -- shred,if=buff.bt_shred.down
+    if cast.able.shred() and not btGen.shred then
+        if cast.shred() then
+            ui.debug("Casting Shred [BT]")
+            btGen.shred = true
+            if btGen.timer - var.getTime <= 0 then btGen.timer = var.getTime + 4 end
+            return true
+        end
+    end
     -- Thrash
-    -- thrash_cat,target_if=refreshable&buff.bt_thrash.down&druid.thrash_cat.ticks_gained_on_refresh>(4+spell_targets.thrash_cat*4)%(1+mastery_value)-conduit.taste_for_blood.enabled
+    -- thrash_cat,target_if=refreshable&buff.bt_thrash.down
     if cast.able.thrashCat("player","aoe",1,8) and not btGen.thrash then
         for i = 1, #enemies.yards8 do
             local thisUnit = enemies.yards8[i]
-            if debuff.thrashCat.refresh(thisUnit) and ticksGain.thrash > (4 + #enemies.yards8 * 4) / (1 + br._G.GetMastery()) - var.tastyBlood then
+            if debuff.thrashCat.refresh(thisUnit) then
                 if cast.thrashCat("player","aoe",1,8) then
-                    ui.debug("Casting Thrash [BT - Ticks Gain]")
+                    ui.debug("Casting Thrash - Refresh [BT]")
                     btGen.thrash = true
                     if btGen.timer - var.getTime <= 0 then btGen.timer = var.getTime + 4 end
                     return true
@@ -1170,7 +978,7 @@ actionList.Bloodtalons = function()
     end
     -- Brutal Slash
     -- brutal_slash,if=buff.bt_brutal_slash.down
-    if cast.able.brutalSlash("player","aoe",1,8) and not btGen.brutalSlash then
+    if cast.able.brutalSlash("player","aoe",1,8) and talent.brutalSlash and not btGen.brutalSlash then
         if cast.brutalSlash("player","aoe",1,8) then
             ui.debug("Casting Brutal Slash [BT]")
             btGen.brutalSlash = true
@@ -1179,21 +987,11 @@ actionList.Bloodtalons = function()
         end
     end
     -- Swipe
-    -- swipe_cat,if=buff.bt_swipe.down&spell_targets.swipe_cat>1
-    if cast.able.swipeCat("player","aoe",1,8) and not talent.brutalSlash and not btGen.swipe and (#enemies.yards8 > 1) then
+    -- swipe_cat,if=spell_targets.swipe_cat>1&buff.bt_swipe.down
+    if cast.able.swipeCat("player","aoe",1,8) and not talent.brutalSlash and #enemies.yards8 > 1 and not btGen.swipe then
         if cast.swipeCat("player","aoe",1,8) then
-            ui.debug("Casting Swipe [BT - Multi]")
+            ui.debug("Casting Swipe [BT - AoE]")
             btGen.swipe = true
-            if btGen.timer - var.getTime <= 0 then btGen.timer = var.getTime + 4 end
-            return true
-        end
-    end
-    -- Shred
-    -- shred,if=buff.bt_shred.down
-    if cast.able.shred() and not btGen.shred then
-        if cast.shred() then
-            ui.debug("Casting Shred [BT]")
-            btGen.shred = true
             if btGen.timer - var.getTime <= 0 then btGen.timer = var.getTime + 4 end
             return true
         end
@@ -1212,93 +1010,292 @@ actionList.Bloodtalons = function()
     -- thrash_cat,if=buff.bt_thrash.down
     if cast.able.thrashCat("player","aoe",1,8) and not btGen.thrash then
         if cast.thrashCat("player","aoe",1,8) then
-            ui.debug("Casting Thrash [BT - No Buff]")
+            ui.debug("Casting Thrash [BT]")
             btGen.thrash = true
+            if btGen.timer - var.getTime <= 0 then btGen.timer = var.getTime + 4 end
+            return true
+        end
+    end
+    -- Rake
+    -- rake,if=buff.bt_rake.down&combo_points>4
+    if cast.able.rake() and (not btGen.rake and comboPoints > 4) then
+        if cast.rake() then
+            ui.debug("Casting Rake [BT]")
+            btGen.rake = true
             if btGen.timer - var.getTime <= 0 then btGen.timer = var.getTime + 4 end
             return true
         end
     end
 end -- End Action List - Bloodtalons
 
--- Action List - Setup
-actionList.Setup = function()
+-- Action List - Bloodtalons AOE
+actionList.BloodtalonsAoE = function()
+    -- Rake
+    -- rake,target_if=max:druid.rake.ticks_gained_on_refresh,if=(refreshable|1.4*persistent_multiplier>dot.rake.pmultiplier)&buff.bt_rake.down
+    if cast.able.rake(var.maxRakeTicksGainUnit)
+        and debuff.rake.count() < ui.value("Multi-DoT Limit")
+        -- and #enemies.yards5f < ui.value("Multi-DoT Limit")
+        and (debuff.rake.refresh(var.maxRakeTicksGainUnit) or 1.4 * debuff.rake.calc() >= debuff.rake.applied(var.maxRakeTicksGainUnit))
+        and not btGen.rake
+    then
+        if cast.rake(var.maxRakeTicksGainUnit) then
+            ui.debug("Casting Rake [BT AOE - Ticks Gain]")
+            btGen.rake = true
+            if btGen.timer - var.getTime <= 0 then btGen.timer = var.getTime + 4 end
+            return true
+        end
+    end
     -- Lunar Inspiration
-    -- lunar_inspiration,if=covenant.necrolord&spell_targets.thrash_cat<4&combo_points<5&!ticking&!buff.bs_inc.up
-    if cast.able.moonfireFeral() and talent.lunarInspiration and covenant.necrolord.active and #enemies.yards8 < 4 and comboPoints < 5
-        and not debuff.moonfire.exists(units.dyn40) and not (buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists())
+    -- lunar_inspiration,if=refreshable&buff.bt_moonfire.down
+    if talent.lunarInspiration and cast.able.moonfireFeral(units.dyn40AOE) and debuff.moonfireFeral.refresh(units.dyn40AOE)
+        and not btGen.moonfireFeral and not (buff.prowl.exists() or buff.shadowmeld.exists())
     then
-        if cast.moonfireFeral() then ui.debug("Casting Moonfire [Setup]") return true end
+        if (multidot or (unit.isUnit(units.dyn40AOE,"target") and not multidot)) then
+            if cast.moonfireFeral(units.dyn40AOE) then
+                ui.debug("Casting Moonfire [BT AOE - Refresh]")
+                btGen.moonfireFeral = true
+                if btGen.timer - var.getTime <= 0 then btGen.timer = var.getTime + 4 end
+                return true
+            end
+        end
     end
-    -- Savage Roar
+    -- Shred
+    -- shred,if=buff.bt_shred.down&buff.clearcasting.up&spell_targets.swipe_cat=1
+    if cast.able.shred() and not btGen.shred and buff.clearcasting.exists() and #enemies.yards8 == 1 then
+        if cast.shred() then
+            ui.debug("Casting Shred [BT AOE - Clearcasting]")
+            btGen.shred = true
+            if btGen.timer - var.getTime <= 0 then btGen.timer = var.getTime + 4 end
+            return true
+        end
+    end
+    -- Brutal Slash
+    -- brutal_slash,if=buff.bt_brutal_slash.down
+    if cast.able.brutalSlash("player","aoe",1,8) and talent.brutalSlash and not btGen.brutalSlash then
+        if cast.brutalSlash("player","aoe",1,8) then
+            ui.debug("Casting Brutal Slash [BT AOE]")
+            btGen.brutalSlash = true
+            if btGen.timer - var.getTime <= 0 then btGen.timer = var.getTime + 4 end
+            return true
+        end
+    end
+    -- Thrash
+    -- thrash_cat,target_if=refreshable&buff.bt_thrash.down
+    if cast.able.thrashCat("player","aoe",1,8) and not btGen.thrash then
+        for i = 1, #enemies.yards8 do
+            local thisUnit = enemies.yards8[i]
+            if debuff.thrashCat.refresh(thisUnit) then
+                if cast.thrashCat("player","aoe",1,8) then
+                    ui.debug("Casting Thrash - Refresh [BT AOE]")
+                    btGen.thrash = true
+                    if btGen.timer - var.getTime <= 0 then btGen.timer = var.getTime + 4 end
+                    return true
+                end
+            end
+        end
+    end
+    -- Swipe
+    -- swipe_cat,if=spell_targets.swipe_cat>1&buff.bt_swipe.down
+    if cast.able.swipeCat("player","aoe",1,8) and not talent.brutalSlash and #enemies.yards8 > 1 and not btGen.swipe then
+        if cast.swipeCat("player","aoe",1,8) then
+            ui.debug("Casting Swipe [BT - AoE]")
+            btGen.swipe = true
+            if btGen.timer - var.getTime <= 0 then btGen.timer = var.getTime + 4 end
+            return true
+        end
+    end
+    -- Shred
+    -- shred,if=buff.bt_shred.down
+    if cast.able.shred() and not btGen.shred then
+        if cast.shred() then
+            ui.debug("Casting Shred [BT AOE]")
+            btGen.shred = true
+            if btGen.timer - var.getTime <= 0 then btGen.timer = var.getTime + 4 end
+            return true
+        end
+    end
+    -- Swipe
+    -- swipe_cat,if=buff.bt_swipe.down
+    if cast.able.swipeCat("player","aoe",1,8) and not talent.brutalSlash and not btGen.swipe then
+        if cast.swipeCat("player","aoe",1,8) then
+            ui.debug("Casting Swipe [BT - AOE]")
+            btGen.swipe = true
+            if btGen.timer - var.getTime <= 0 then btGen.timer = var.getTime + 4 end
+            return true
+        end
+    end
+    -- Thrash
+    -- thrash_cat,if=buff.bt_thrash.down
+    if cast.able.thrashCat("player","aoe",1,8) and not btGen.thrash then
+        if cast.thrashCat("player","aoe",1,8) then
+            ui.debug("Casting Thrash [BT - AOE]")
+            btGen.thrash = true
+            if btGen.timer - var.getTime <= 0 then btGen.timer = var.getTime + 4 end
+            return true
+        end
+    end
+    -- Rake
+    -- rake,if=buff.bt_rake.down&combo_points>4
+    if cast.able.rake() and (not btGen.rake and comboPoints > 4) then
+        if cast.rake() then
+            ui.debug("Casting Rake [BT - AOE]")
+            btGen.rake = true
+            if btGen.timer - var.getTime <= 0 then btGen.timer = var.getTime + 4 end
+            return true
+        end
+    end
+end
+
+-- Action List - Builder
+actionList.Builder = function()
+    -- Run Action List - Clearcasting
+    -- run_action_list,name=clearcasting,if=buff.clearcasting.react
+    if buff.clearcasting.exists() then
+        if actionList.Clearcasting() then return true end
+    end
+    -- Rake
+    -- rake,target_if=max:ticks_gained_on_refresh,if=refreshable|(buff.sudden_ambush.up&persistent_multiplier>dot.rake.pmultiplier&dot.rake.duration>6)
+    if cast.able.rake(var.maxRakeTicksGainUnit) and (debuff.rake.refresh(var.maxRakeTicksGainUnit)
+        or (buff.suddenAmbush.exists() and debuff.rake.calc() > debuff.rake.applied(var.maxRakeTicksGainUnit) and debuff.rake.duration(var.maxRakeTicksGainUnit) > 6))
+    then
+        if cast.rake(var.maxRakeTicksGainUnit) then ui.debug("Casting Rake - Sudden Refresh [Builder]") return true end
+    end
+    -- Moonfire
+    -- moonfire_cat,target_if=refreshable
+    if talent.lunarInspiration and cast.able.moonfireFeral(units.dyn40AOE) and debuff.moonfire.refresh(units.dyn40AOE)
+        and not (buff.prowl.exists() or buff.shadowmeld.exists())
+    then
+        if cast.moonfireFeral(units.dyn40AOE) then ui.debug("Casting Moonfire [Builder]") return true end
+    end
+    -- Thrash
     -- pool_resource,for_next=1
-    -- savage_roar,if=talent.feral_frenzy.enabled&cooldown.feral_frenzy.up&!buff.savage_roar.up&combo_points>1&dot.rake.ticking&(dot.lunar_inspiration.ticking|!talent.lunar_inspiration.enabled)
-    if (cast.able.savageRoar() or cast.pool.savageRoar()) and talent.feralFrenzy and not cd.feralFrenzy.exists() and not buff.savageRoar.exists()
-        and comboPoints > 1 and debuff.rake.exists(units.dyn5) and (debuff.moonfireFeral.exists(units.dyn40) or not talent.lunarInspiration)
-    then
-        if cast.pool.savageRoar() then return true end
-        if cast.savageRoar() then ui.debug("Casting Savage Roar [Setup]") return true end
+    -- thrash_cat,target_if=refreshable
+    if cast.able.thrashCat("player","aoe",1,8) and (debuff.thrashCat.refresh(units.dyn8AOE)) then
+        if cast.pool.thrashCat() then return true end
+        if cast.thrashCat("player","aoe",1,8) then ui.debug("Casting Thrash [Builder]") return true end
     end
-    -- Pool Resources
-    -- pool_resource,if=talent.bloodtalons.enabled&buff.bloodtalons.down&(energy+3.5*energy.regen+(40*buff.clearcasting.up))<(115-23*buff.incarnation_king_of_the_jungle.up)&active_bt_triggers=0
-    if talent.bloodtalons and not buff.bloodtalons.exists() and (energy + 3.5 * energyRegen + (40 * var.clearcasting)) < (115 - 23 * var.bsInc) and btGen.triggers == 0 then
-        return true
+    -- Brutal Slash
+    -- brutal_slash
+    if cast.able.brutalSlash("player","aoe",ui.value("Brutal Slash Targets"),8) and talent.brutalSlash then
+        if cast.brutalSlash("player","aoe",ui.value("Brutal Slash Targets"),8) then ui.debug("Casting Brutal Slash [Builder]") return true end
     end
-    -- Call Action List - Bloodtalons
-    -- call_action_list,name=bloodtalons,if=talent.bloodtalons.enabled&buff.bloodtalons.down&(combo_points<5|spell_targets.thrash_cat=1)
-    if talent.bloodtalons and not buff.bloodtalons.exists() and (comboPoints < 5 or #enemies.yards8 == 1) then
-        if actionList.Bloodtalons() then return true end
+    -- Swipe
+    -- swipe_cat,if=spell_targets.swipe_cat>1
+    if cast.able.swipeCat("player","aoe",1,8) and not talent.brutalSlash and (#enemies.yards8 > 1) then
+        if cast.swipeCat("player","aoe",1,8) then ui.debug("Casting Swipe [Builder]") return true end
     end
-    -- Call Action List - Cooldowns
-    -- call_action_list,name=cooldown
-    if actionList.Cooldowns() then return true end
-    -- Call Action List - Finisher
-    -- call_action_list,name=finisher,if=combo_points>3&(buff.bloodtalons.up|!talent.bloodtalons.enabled)
-    if comboPoints > 3 and (buff.bloodtalons.exists() or not talent.bloodtalons) then
-        if actionList.Finisher() then return true end
-    --else
-    --    if actionList.Filler() then return true end
+    -- Shred
+    -- shred
+    if cast.able.shred() then
+        if cast.shred() then ui.debug("Casting Shred [Builder]") return true end
     end
-end -- End Action List - Setup
+end -- End Action List - Builder
+
+-- Action List - Clearcasting
+actionList.Clearcasting = function()
+    -- Thrash
+    -- thrash_cat,target_if=refreshable
+    if cast.able.thrashCat("player","aoe",1,8) and (debuff.thrashCat.refresh(units.dyn8AOE)) then
+        if cast.thrashCat("player","aoe",1,8) then ui.debug("Casting Thrash [Clearcasting]") return true end
+    end
+    -- Swipe
+    -- swipe_cat,if=spell_targets.swipe_cat>1
+    if cast.able.swipeCat("player","aoe",1,8) and not talent.brutalSlash and (#enemies.yards8 > 1) then
+        if cast.swipeCat("player","aoe",1,8) then ui.debug("Casting Swipe [Clearcasting]") return true end
+    end
+    -- Brutal Slash
+    -- brutal_slash,if=spell_targets.brutal_slash>2&talent.moment_of_clarity.enabled
+    if cast.able.brutalSlash("player","aoe",1,8) and talent.brutalSlash and #enemies.yards8 > 2 and talent.momentOfClarity then
+        if cast.brutalSlash("player","aoe",1,8) then ui.debug("Casting Brutal Slash [Clearcasting]") return true end
+    end
+    -- Shred
+    -- shred
+    if cast.able.shred() then
+        if cast.shred() then ui.debug("Casting Shred [Clearcasting]") return true end
+    end
+end -- End Action List - Clearcasting
+
+-- Action List - AoE
+actionList.AoE = function()
+    -- Primal Wrath
+    -- pool_resource,for_next=1
+    -- primal_wrath,if=combo_points>3
+    if cast.able.primalWrath("player","aoe",1,8) and comboPoints > 3 then
+        if cast.pool.primalWrath() then return true end
+        if cast.primalWrath("player","aoe",1,8) then ui.debug("Casting Primal Wrath [AoE]") return true end
+    end
+    -- Ferocious Bite
+    -- ferocious_bite,if=buff.apex_predators_craving.up&(!buff.sabertooth.up|(!buff.bloodtalons.stack=1))
+    if cast.able.ferociousBite() and buff.apexPredatorsCraving.exists() and (not buff.sabertooth.exists() or not buff.bloodtalons.stack() == 1) then
+        if cast.ferociousBite() then ui.debug("Casting Ferocious Bite [AoE]") return true end
+    end
+    -- Run Action List - Bloodtalons
+    -- run_action_list,name=bloodtalons_aoe,if=variable.need_bt&active_bt_triggers>=1
+    if var.needBT and btGen.triggers >= 1 then
+        if actionList.BloodtalonsAoE() then return true end
+    end
+    -- Thrash
+    -- pool_resource,for_next=1
+    -- thrash_cat,target_if=refreshable
+    if cast.able.thrashCat("player","aoe",1,8) then
+        for i = 1, #enemies.yards8 do
+            local thisUnit = enemies.yards8[i]
+            if debuff.thrashCat.refresh(thisUnit) then
+                if cast.pool.thrashCat() then return true end
+                if cast.thrashCat("player","aoe",1,8) then ui.debug("Casting Thrash - Refresh [AoE]") return true end
+            end
+        end
+    end
+    -- Brutal Slash
+    -- brutal_slash
+    if cast.able.brutalSlash("player","aoe",ui.value("Brutal Slash Targets"),8) and talent.brutalSlash then
+        if cast.brutalSlash("player","aoe",ui.value("Brutal Slash Targets"),8) then ui.debug("Casting Brutal Slash [AoE]") return true end
+    end
+    -- Rake
+    -- pool_resource,for_next=1
+    -- rake,target_if=max:dot.rake.ticks_gained_on_refresh.pmult,if=((dot.rake.ticks_gained_on_refresh.pmult*(1+talent.doubleclawed_rake.enabled))>(spell_targets.swipe_cat*0.216+3.32))
+    if cast.able.rake(var.maxRakeTicksGainUnit) and ((var.rakeTicksGain(var.maxRakeTicksGainUnit) * (1 + var.doubleClawedRake)) > (#enemies.yards8 * 0.216 + 3.32)) then
+        if cast.pool.rake() then return true end
+        if cast.rake(var.maxRakeTicksGainUnit) then ui.debug("Casting Rake [AoE]") return true end
+    end
+    -- Lunar Inspiration
+    -- lunar_inspiration,target_if=max:((ticks_gained_on_refresh+1)-(spell_targets.swipe_cat*2.492))
+    if cast.able.moonfireFeral(var.maxMoonfireFeralTicksGainUnit) and talent.lunarInspiration and not (buff.prowl.exists() or buff.shadowmeld.exists()) then
+        if cast.moonfireFeral(var.maxMoonfireFeralTicksGainUnit) then ui.debug("Casting Moonfire [AOE]") return true end
+    end
+    -- Swipe
+    -- swipe_cat
+    if cast.able.swipeCat("player","aoe",1,8) and not talent.brutalSlash then
+        if cast.swipeCat("player","aoe",1,8) then ui.debug("Casting Swipe [AoE]") return true end
+    end
+    -- Shred
+    -- shred,if=action.shred.damage>action.thrash_cat.damage
+    if cast.able.shred() and #enemies.yards8 < 3 then
+        if cast.shred() then ui.debug("Casting Shred [AoE]") return true end
+    end
+    -- Thrash
+    -- thrash_cat
+    if cast.able.thrashCat("player","aoe",1,8) then
+        if cast.thrashCat("player","aoe",1,8) then ui.debug("Casting Thrash [AoE]") return true end
+    end
+end -- End Action List - AoE
 
 -- Action List - Owlweave
 actionList.Owlweave = function()
-    -- Starsurge
-    -- starsurge,if=buff.heart_of_the_wild.up
-    if cast.able.starsurgeAff() and buff.heartOfTheWild.exists() then
-        if cast.starsurgeAff() then ui.debug("Casting Starsurge [Owlweaving]") return true end
-    end
+    -- -- Moonfire
+    -- -- moonfire,line_cd=4*gcd
+    -- if cast.able.moonfire() and buff.moonkinForm.exists() and cast.timeSinceLast.moonfire() >= 4 * unit.gcd(true) then
+    --     if cast.moonfire() then ui.debug("Casting Moonfire [Owlweaving]") return true end
+    -- end
+    -- -- Starsurge
+    -- -- starsurge
+    -- if cast.able.starsurge() then
+    --     if cast.starsurge() then ui.debug("Casting Starsurge [Owlweaving]") return true end
+    -- end
     -- Sunfire
     -- sunfire,line_cd=4*gcd
-    if cast.able.sunfireMoonkin() and buff.moonkinForm.exists() and cast.timeSinceLast.sunfireMoonkin() >= 4 * unit.gcd(true) then
-        if cast.sunfireMoonkin() then ui.debug("Casting Sunfire [Owlweaving]") return true end
-    end
-    -- Moonfire
-    -- moonfire,line_cd=4*gcd,if=buff.moonkin_form.up&spell_targets.thrash_cat<2&!talent.lunar_inspiration.enabled&energy<60&!buff.clearcasting.up
-    if cast.able.moonfire() and buff.moonkinForm.exists() and cast.timeSinceLast.moonfire() >= 4 * unit.gcd(true)
-        and #enemies.yards8 < 2 and not talent.lunarInspiration and energy < 60 and not buff.clearcasting.exists()
-    then
-        if cast.moonfire() then ui.debug("Casting Moonfire [Owlweaving]") return true end
-    end
-    -- Heart of the Wild
-    -- heart_of_the_wild,if=energy<30&dot.rip.remains>4.5&(cooldown.tigers_fury.remains>=6.5|runeforge.cateye_curio)&buff.clearcasting.stack<1&!buff.apex_predators_craving.up&!buff.bloodlust.up&!buff.bs_inc.up&(cooldown.convoke_the_spirits.remains>6.5|!covenant.night_fae)&(!covenant.necrolord|cooldown.adaptive_swarm.remains>=5|dot.adaptive_swarm_damage.remains>7)
-    if cast.able.heartOfTheWild("player") and energy < 30 and debuff.rip.remains(units.dyn5) > 4.5 and (cd.tigersFury.remains() >= 6.5 or runeforge.cateyeCurio.equiped)
-        and buff.clearcasting.stack() < 1 and not buff.apexPredatorsCraving.exists() and not buff.bloodLust.exists() and not buff.berserk.exists()
-        and not buff.incarnationKingOfTheJungle.exists() and (cd.convokeTheSpirits.remains() > 6.5 or not covenant.nightFae.active)
-        and (not covenant.necrolord.active or cd.adaptiveSwarm.remains() >= 5 or debuff.adaptiveSwarm.remains(units.dyn5) > 7)
-    then
-        if cast.heartOfTheWild("player") then ui.debug("Casting Heart of the Wild [Owlweaving]") return true end
-    end
-    -- Moonkin Form
-    -- moonkin_form,if=energy<30&dot.rip.remains>4.5&(cooldown.tigers_fury.remains>=4.5|runeforge.cateye_curio)&buff.clearcasting.stack<1&!buff.apex_predators_craving.up&!buff.bloodlust.up&(!buff.bs_inc.up|covenant.necrolord&talent.savage_roar.enabled&buff.bs_inc.remains>6)&(cooldown.convoke_the_spirits.remains>6.5|!covenant.night_fae)&(!covenant.necrolord|cooldown.adaptive_swarm.remains>=5|dot.adaptive_swarm_damage.remains>7)&target.time_to_die>7
-    if cast.able.moonkinForm() and not buff.moonkinForm.exists() and energy < 30
-        and debuff.rip.remains(units.dyn5) > 4.5 and (cd.tigersFury.remains() >= 4.5 or runeforge.cateyeCurio.equiped)
-        and buff.clearcasting.stack() < 1 and not buff.apexPredatorsCraving.exists() and not buff.bloodLust.exists()
-        and ((not buff.berserk.exists() and not buff.incarnationKingOfTheJungle.exists()) or covenant.necrolord.active and talent.savageRoar()
-            and (buff.berserk.remains() > 6 or buff.incarnationKingOfTheJungle.remains() > 6))
-        and (cd.convokeTheSpirits.remains() > 6.5 or not covenant.nightFae.active)
-        and (not covenant.necrolord.active or cd.adaptiveSwarm.remains() >= 5 or debuff.adaptiveSwarm.remains(units.dyn5) > 7)
-    then
-        if cast.moonkinForm() then ui.debug("Casting Moonkin Form [Owlweaving]") return true end
+    if cast.able.sunfire() and cast.timeSinceLast.sunfire() >= 4 * unit.gcd(true) then
+        if cast.sunfire() then ui.debug("Casting Sunfire [Owlweaving]") return true end
     end
 end -- End Action List - Owlweave
 
@@ -1323,6 +1320,7 @@ actionList.PreCombat = function()
                 and ui.mode.prowl == 1
                 and not buff.prowl.exists()
                 and not unit.resting()
+                and not var.bsInc
                 -- and var.getTime - var.leftCombat > lootDelay
             then
                 if cast.prowl("player") then ui.debug("Casting Prowl [Auto]") return true end
@@ -1333,82 +1331,23 @@ actionList.PreCombat = function()
             if cast.wildCharge("target") then ui.debug("Wild Charge on "..unit.name("target")) return true end
         end
         if ui.checked("Pre-Pull Timer") and ui.pullTimer() <= ui.value("Pre-Pull Timer") then
-            -- Regrowth
-            -- regrowth,if=talent.bloodtalons.enabled
-            if cast.able.regrowth("player") and talent.bloodtalons and not buff.bloodtalons.exists()
-                and var.htTimer < var.getTime - 1 and not buff.prowl.exists()
-                and not cast.current.regrowth()
-            then
-                if unit.form() ~= 0 then
-                    -- CancelShapeshiftForm()
-                    unit.cancelForm()
-                    ui.debug("Cancel Form [Pre-pull]")
-                elseif unit.form() == 0 then
-                    if cast.regrowth("player") then ui.debug("Casting Regrowth [Pre-pull]"); var.htTimer = var.getTime; return true end
-                end
-            end
-            -- Azshara's Font of Power
-            -- use_item,name=azsharas_font_of_power
-            if (use.able.slot(13) or use.able.slot(14)) then
-                local opValue = ui.value("Trinkets")
-                if (opValue == 1 or (opValue == 2 and ui.useCDs())) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
-                    for i = 13, 14 do
-                        if use.able.slot(i) then
-                            if equiped.azsharasFontOfPower(i) then
-                                use.slot(i)
-                                ui.debug("Using Azshara's Font of Power [Pre-pull - Slot "..i.."]")
-                            end
-                        end
-                    end
-                end
-            end
-            -- Prowl
-            if cast.able.prowl("player") and buff.bloodtalons.exists()
-                and ui.mode.prowl == 1 and not buff.prowl.exists()
-                and (buff.latentArcana.remain() > 25
-                    or not (equiped.azsharasFontOfPower(13) and equiped.azsharasFontOfPower(14))
-                    or (equiped.azsharasFontOfPower(13) and not use.able.azsharasFontOfPower(13))
-                    or (equiped.azsharasFontOfPower(14) and not use.able.azsharasFontOfPower(14)))
-            then
-                if cast.prowl("player") then ui.debug("Casting Prowl [Pre-pull]"); return true end
-            end
-            -- if buff.prowl.exists() then
-            --     -- Pre-pot
-            --     -- potion,name=old_war
-            --     if ui.value("Potion") ~= 5 and ui.pullTimer() <= 1 and (unit.instance("raid") or unit.instance("party")) then
-            --         if ui.value("Potion") == 1 and use.able.potionOfFocusedResolve() then
-            --             use.potionOfFocusedResolve()
-            --             ui.debug("Using Potion of Focused Resolve [Pre-Pull]");
-            --         end
-            --     end
-            -- end -- End Prowl
-            -- Berserk/Tiger's Fury Pre-Pull
-            if ui.checked("Berserk/Tiger's Fury Pre-Pull") and ui.pullTimer() <= 1 and (unit.instance("raid") or unit.instance("party")) and unit.distance("target") < 8 then
-                if cast.able.berserk() and cast.able.tigersFury() then
-                    cast.berserk()
-                    cast.tigersFury()
-                    ui.debug("Casting Berserk and Tiger's Fury [Pre-Pull]")
-                end
-            end
         end -- End Pre-Pull
         -- Pull
-        if unit.valid("target") and opener.complete and unit.exists("target") and unit.distance("target") < 5 then
-            -- Run Action List - Stealth
-            -- run_action_list,name=(buff.prowl.exists() or buff.shadowmeld.exists()),if=buff.berserk_cat.up|buff.incarnation.up|buff.shadowmeld.up|buff.sudden_ambush.up|buff.prowl.up
-            if buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists() or buff.shadowmeld.exists() or buff.suddenAmbush.exists() or buff.prowl.exists() then
-                if actionList.Stealth() then return true end
+        if unit.valid("target") and unit.exists("target") and unit.distance("target") < 5 then
+            -- Rake (Stealth)
+            -- rake,if=buff.prowl.up|buff.shadowmeld.up
+            if cast.able.rake("target") and (buff.prowl.exists() or buff.shadowmeld.exists()) then
+                if cast.rake("target") then ui.debug("Casting Rake [Pre-Combat]") return true end
             end
             -- Auto Attack
             -- auto_attack,if=!buff.prowl.up&!buff.shadowmeld.up
             if not (buff.prowl.exists() or buff.shadowmeld.exists()) then
                 if cast.able.autoAttack("target") then
-                    if cast.autoAttack("target") then ui.debug("Casting Auto Attack [Pre-Pull]") return true end
+                    if cast.autoAttack("target") then ui.debug("Casting Auto Attack [Pre-Combat]") return true end
                 end
             end
         end
     end -- End No Combat
-    -- Opener
-    -- if actionList.Opener() then return true end
 end -- End Action List - PreCombat
 
 ----------------
@@ -1420,20 +1359,15 @@ local function runRotation()
     --------------
     -- BR API
     if comboPoints == nil then
-        anima           = br.player.anima
         buff            = br.player.buff
         cast            = br.player.cast
         cd              = br.player.cd
         charges         = br.player.charges
-        conduit         = br.player.conduit
-        covenant        = br.player.covenant
         debuff          = br.player.debuff
         enemies         = br.player.enemies
         equiped         = br.player.equiped
         module          = br.player.module
-        opener          = br.player.opener
         race            = br.player.race
-        runeforge       = br.player.runeforge
         power           = br.player.power
         spell           = br.player.spell
         talent          = br.player.talent
@@ -1444,7 +1378,6 @@ local function runRotation()
     end
     comboPoints         = power.comboPoints.amount()
     energy              = power.energy.amount()
-    energyRegen         = power.energy.regen()
     energyDeficit       = power.energy.deficit()
     multidot            = ui.mode.cleave == 1 and ui.mode.rotation < 3
     var.getTime         = br._G.GetTime()
@@ -1479,27 +1412,12 @@ local function runRotation()
     end
     var.unit5ID = br.GetObjectID(units.dyn5) or 0
     var.noDoT = var.unit5ID == 153758 or var.unit5ID == 156857 or var.unit5ID == 156849 or var.unit5ID == 156865 or var.unit5ID == 156869
-
-    -- Sabertooth
-    var.sabertooth = talent.sabertooth and 1 or 0
-
-    -- Clearcasting
-    var.clearcasting = buff.clearcasting.exists() and 1 or 0
-
-    -- Incarnation: King of the Jungle
-    var.incarnation = buff.incarnationKingOfTheJungle.exists() and 1 or 0
-
-    -- Brutal Slash
-    var.brutal = talent.brutalSlash and 1 or 0
-
-    -- Lunar Inspiration
-    var.lunar = talent.lunarInspiration and 1 or 0
-
-    -- Taste For Blood
-    var.tastyBlood = conduit.tasteForBlood.enabled and 1 or 0
-
-    -- Necrolord
-    var.necro = covenant.necrolord.active and 1 or 0
+    -- buff.bs_inc.up
+    var.bsInc = buff.berserk.exists() or buff.incarnationAvatarOfAshamane.exists()
+    var.bsIncRemain = 0
+    if buff.berserk.exists() then var.bsIncRemain = buff.berserk.remain() end
+    if buff.incarnationAvatarOfAshamane.exists() then var.bsIncRemain = buff.incarnationAvatarOfAshamane.remain() end
+    var.doubleClawedRake = talent.doubleClawedRake and 1 or 0
 
     -- Friends In Range
     var.solo = #br.friend < 2
@@ -1513,27 +1431,11 @@ local function runRotation()
         end
     end
 
-    var.fbMaxEnergy = energy >= 50 or buff.apexPredatorsCraving.exists() or (energy >= 25 and (buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists()))
-
-    var.bsInc = (buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists()) and 1 or 0
-
-    -- Opener Reset
-    if (not unit.inCombat() and not unit.exists("target")) or opener.complete == nil then
-        opener.count = 0
-        opener.OPN1 = false
-        opener.TF1 = false
-        opener.RK1 = false
-        opener.MF1 = false
-        opener.RIP1 = false
-        opener.complete = false
-    end
-    if not opener.complete then opener.complete = true end
+    var.fbMaxEnergy = energy >= 50 or buff.apexPredatorsCraving.exists() or (energy >= 25 and (buff.berserk.exists() or buff.incarnationAvatarOfAshamane.exists()))
 
     -- Variables
-    -- variable,name=filler,value=0
-    filler = ui.value("Filler Spell") - 1
-    -- variable,name=rip_ticks,value=7
-    ripTicks = 7
+    -- variable,name=need_bt,value=talent.bloodtalons.enabled&buff.bloodtalons.down
+    var.needBT = talent.bloodtalons and not buff.bloodtalons.exists() or false
 
     -- Bloodtalons - Reset
     if btGen.timer - var.getTime <= 0 or buff.bloodtalons.exists() or not unit.inCombat() then
@@ -1609,22 +1511,23 @@ local function runRotation()
     var.lowestTTDUnit = units.dyn5
     var.maxTTD = 0
     var.maxTTDUnit = units.dyn5
-    for i = 1, #enemies.yards8 do
-        local thisUnit = enemies.yards8[i]
+    for i = 1, #enemies.yards40 do
+        local thisUnit = enemies.yards40[i]
         local thisTTD = unit.ttd(thisUnit) or 99
         if not unit.isUnit("target",thisUnit) then
             -- Moonfire Feral Ticks to Gain
             ticksGain.moonfireFeral = ticksGain.moonfireFeral + var.moonfireFeralTicksGain(thisUnit)
-            -- Thrash Ticks to Gain
-            ticksGain.thrash = ticksGain.thrash + var.thrashCatTicksGain(thisUnit)
-            -- Primal Wrath Ticks to Gain
-            if talent.primalWrath then
-                ticksGain.rip = ticksGain.rip + var.ripTicksGainUnit(thisUnit)
+            -- 8 Yards Checks
+            if unit.distance(thisUnit) < 8 then
+                -- Thrash Ticks to Gain
+                ticksGain.thrash = ticksGain.thrash + var.thrashCatTicksGain(thisUnit)
+                -- Primal Wrath Ticks to Gain
+                if talent.primalWrath then
+                    ticksGain.rip = ticksGain.rip + var.ripTicksGainUnit(thisUnit)
+                end
             end
-        end
-        -- 5 Yards Checks
-        if unit.distance(thisUnit) < 5 and unit.facing(thisUnit) then
-            if not unit.isUnit("target",thisUnit) then
+            -- 5 Yards Checks
+            if unit.distance(thisUnit) < 5 and unit.facing(thisUnit) then
                 -- Rip Ticks to Gain
                 if not talent.primalWrath then
                     ticksGain.rip = ticksGain.rip + var.ripTicksGain(thisUnit)
@@ -1644,7 +1547,11 @@ local function runRotation()
     end
 
     var.rakeTicksGainUnit = function(rakeUnit)
-        return var.rakeTicksGain(thisUnit)
+        return var.rakeTicksGain(rakeUnit)
+    end
+
+    var.moonfireFeralTicksGainUnit = function(moonfireFeralUnit)
+        return var.moonfireFeralTicksGain(moonfireFeralUnit)
     end
 
     var.maxRakeTicksGain = 0
@@ -1666,6 +1573,18 @@ local function runRotation()
                 var.lowestRip = ripValue
                 var.lowestRipUnit = thisUnit
             end
+        end
+    end
+    var.maxMoonfireFeralTicksGain = 0
+    var.maxMoonfireFeralTicksGainUnit = "target"
+    for i = 1, #enemies.yards40 do
+        local thisUnit = enemies.yards40[i]
+        -- MoonFire Feral
+        local moonfireFeralTicksGain = var.moonfireFeralTicksGainUnit(thisUnit)
+        -- max:((ticks_gained_on_refresh+1)-(spell_targets.swipe_cat*2.492))
+        if moonfireFeralTicksGain > ((var.maxMoonfireFeralTicksGain + 1) - (#enemies.yards8 * 2.492)) then
+            var.maxMoonfireFeralTicksGain = moonfireFeralTicksGain
+            var.maxMoonfireFeralTicksGainUnit = thisUnit
         end
     end
 
@@ -1698,27 +1617,9 @@ local function runRotation()
             and #enemies.yards5f > 0 and not unit.moving() and ui.checked("Auto Shapeshifts")
         then
             if cast.catForm("player") then ui.debug("Casting Cat Form [Combat]"); return true end
-        elseif unit.inCombat() and (buff.catForm.exists() or buff.moonkinForm.exists()) and not var.profileStop
-            and not ui.checked("Death Cat Mode") and unit.exists("target") and opener.complete and cd.global.remain() == 0
+        elseif (unit.inCombat() or (not unit.inCombat() and unit.valid("target"))) and (buff.catForm.exists() or buff.moonkinForm.exists()) and not var.profileStop
+            and not ui.checked("Death Cat Mode") and unit.exists("target") and cd.global.remain() == 0
         then
-            -- Call Action List - Owlweave
-            -- call_action_list,name=owlweave,if=druid.owlweave_cat
-            if ui.alwaysCdNever("Owlweave") then
-                if actionList.Owlweave() then return true end
-            end
-            -- Cat Form - Owlweave
-            if cast.able.catForm("player") and buff.moonkinForm.exists() then
-                if cast.catForm("player") then ui.debug("Casting Cat Form [Cancel Owlweave]"); return true end
-            end
-            -- -- Call Action List - Owlweave
-            -- -- call_action_list,name=owlweave,if=druid.owlweave_cat
-            -- if ui.alwaysCdNever("Owlweave") then
-            --     if actionList.Owlweave() then
-            --         return true
-            --     elseif cast.able.catForm("player") and buff.moonkinForm.exists() then
-            --         if cast.catForm("player") then ui.debug("Casting Cat Form [Cancel Owlweave]"); return true end
-            --     end
-            -- end
             -- Wild Charge
             if ui.checked("Wild Charge")
                 and cast.able.wildCharge("player") and unit.valid("target")
@@ -1728,17 +1629,10 @@ local function runRotation()
             -------------------------
             --- In Combat - Begin ---
             -------------------------
-            -- Auto Attack
-            -- auto_attack,if=!buff.prowl.up&!buff.shadowmeld.up
-            if range.dyn5 and not (buff.prowl.exists() or buff.shadowmeld.exists()) then
-                if cast.able.autoAttack("target") then
-                    if cast.autoAttack("target") then ui.debug("Casting Auto Attack") return true end
-                end
-            end
             ---------------------------
             --- SimulationCraft APL ---
             ---------------------------
-            if ui.value("APL Mode") == 1 then
+            if ui.value("APL Mode") == 1 and unit.inCombat() then
                 -- Ferocious Bite
                 for i = 1, #enemies.yards5f do
                     local thisUnit = enemies.yards5f[i]
@@ -1750,142 +1644,98 @@ local function runRotation()
                             end
                             if cast.ferociousBite(thisUnit) then ui.debug("Casting Ferocious Bite on "..unit.name(thisUnit).." [Execute]"); return true end
                         end
-                        -- ferocious_bite,target_if=dot.rip.ticking&dot.rip.remains<3&target.time_to_die>10&(talent.sabertooth.enabled)
-                        if debuff.rip.exists(thisUnit) and debuff.rip.remains(thisUnit) < 3
-                            and debuff.rip.remains(thisUnit) > unit.gcd(true) and unit.ttd(thisUnit) > 10 and talent.sabertooth
+                    end
+                end
+                -- Call Action List - Interrupts
+                if actionList.Interrupts() then return true end
+                -- Prowl
+                -- prowl,if=buff.bs_inc.down
+                if cast.able.prowl("player") and buff.catForm.exists() and autoProwl()
+                    and ui.mode.prowl == 1 and not buff.prowl.exists() and not unit.resting()
+                    and not var.bsInc
+                then
+                    if cast.prowl("player") then ui.debug("Casting Prowl") return true end
+                end
+                -- Invoke External Buff
+                -- invoke_external_buff,name=power_infusion,if=buff.bs_inc.up|fight_remains<cooldown.bs_inc.remains
+                -- Tiger's Fury
+                -- tigers_fury,if=energy.deficit>40|buff.bs_inc.up
+                if cast.able.tigersFury() and (energyDeficit > 40 or var.bsInc) then
+                    if cast.tigersFury() then ui.debug("Casting Tiger's Fury") return true end
+                end
+                -- Rake
+                -- rake,if=buff.prowl.up|buff.shadowmeld.up
+                if cast.able.rake(units.dyn5) and (buff.prowl.exists() or buff.shadowmeld.exists()) then
+                    if cast.rake(units.dyn5) then ui.debug("Casting Rake") return true end
+                end
+                -- Auto Attack
+                -- auto_attack,if=!buff.prowl.up&!buff.shadowmeld.up
+                -- if range.dyn5 then
+                if cast.able.autoAttack(units.dyn5) and not (buff.prowl.exists() or buff.shadowmeld.exists()) then
+                    if cast.autoAttack(units.dyn5) then ui.debug("Casting Auto Attack") return true end
+                end
+                -- end
+                -- Call Action List - Cooldowns
+                -- call_action_list,name=cooldown
+                if actionList.Cooldowns() then return true end
+                -- Adaptive Swarm
+                -- adaptive_swarm,target_if=((!dot.adaptive_swarm_damage.ticking|dot.adaptive_swarm_damage.remains<2)&(dot.adaptive_swarm_damage.stack<3|!dot.adaptive_swarm_heal.stack>1)&!action.adaptive_swarm_heal.in_flight&!action.adaptive_swarm_damage.in_flight&!action.adaptive_swarm.in_flight)&target.time_to_die>5|active_enemies>2&!dot.adaptive_swarm_damage.ticking&energy<35&target.time_to_die>5
+                if ui.alwaysCdNever("Adaptive Swarm") then
+                    for i = 1, #enemies.yards40 do
+                        local thisUnit = enemies.yards40[i]
+                        if cast.able.adaptiveSwarm(thisUnit) and (((debuff.adaptiveSwarmDamage.exists(thisUnit) or debuff.adaptiveSwarmDamage.remain() < 2)
+                            and (debuff.adaptiveSwarmDamage.stack() < 3 or not debuff.adaptiveSwarmHeal.stack() > 1)
+                            and not cast.inFlight.adaptiveSwarmHeal() and not cast.inFlight.adaptiveSwarmDamage(thisUnit)) and unit.ttd(thisUnit) > 5 or #enemies.yards40 > 2
+                            and not debuff.adaptiveSwarmDamage.exists(thisUnit) and energy < 35 and unit.ttd(thisUnit) > 5)
                         then
-                            if cast.ferociousBite(thisUnit) then ui.debug("Casting Ferocious Bite [Sabertooth]"); return true end
+                            if cast.adaptiveSwarm(thisUnit) then ui.debug("Casting Adaptive Swarm") return true end
                         end
                     end
                 end
-                -- Call Action List - Stealth
-                -- run_action_list,name=stealth,if=buff.shadowmeld.up|buff.prowl.up
-                if buff.shadowmeld.exists() or buff.prowl.exists() then
-                    if actionList.Stealth() then return true end
-                else
-                    -- Call Action List - Interrupts
-                    if actionList.Interrupts() then return true end
-                    -- Call Actiion List - Setup
-                    -- call_action_list,name=setup,if=!dot.rip.ticking
-                    if not debuff.rip.exists(units.dyn5) then
-                        if actionList.Setup() then return true end
-                    end
-                    -- Call Action List - Cooldowns
-                    -- call_action_list,name=cooldown
-                    if actionList.Cooldowns() then return true end
-                    -- Rip
-                    -- rip,if=covenant.necrolord&(!talent.bloodtalons.enabled|buff.bloodtalons.up)&spell_targets.thrash_cat=1&(combo_points>2&refreshable&druid.rip.ticks_gained_on_refresh>variable.rip_ticks&(!buff.bs_inc.up|cooldown.bs_inc.up|(buff.bs_inc.up&cooldown.feral_frenzy.up))|combo_points=5&buff.tigers_fury.up&buff.tigers_fury.remains<4&druid.rip.ticks_gained_on_refresh>5)
-                    if covenant.necrolord.active and (not talent.bloodtalons or buff.bloodtalons.exists()) and #enemies.yards8 == 1
-                        and ((comboPoints > 2 and debuff.rip.refresh(units.dyn5) and ticksGain.rip > ripTicks
-                        and (not (buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists()) or (cd.berserk.exists() or cd.incarnationKingOfTheJungle.exists())
-                            or ((buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists()) and not cd.feralFrenzy.exists())))
-                        or (comboPoints == 5 and buff.tigersFury.exists() and buff.tigersFury.remain() < 4 and ticksGain.rip >5))
-                    then
-                        for i = 1, #enemies.yards5f do
-                            local thisUnit = enemies.yards5f[i]
-                            if cast.able.rip(thisUnit) and debuff.rip.refresh(thisUnit) and var.ripTicksGainUnit(thisUnit) > ripTicks then
-                                if cast.rip(thisUnit) then ui.debug("Casting Rip [Necrolord Ticks Gain]") return true end
-                            end
-                        end
-                    end
-                    -- Run Action List - Finisher
-                    -- run_action_list,name=finisher,if=combo_points>=(5-variable.4cp_bite)
-                    if comboPoints >= (5 - cp4Bite) then
-                        if actionList.Finisher() then return true end
-                    else
-                        -- Primal Wrath
-                        -- primal_wrath,if=druid.primal_wrath.ticks_gained_on_refresh>=20&combo_points>=2,line_cd=5
-                        if usePrimalWrath() and ticksGain.rip >= 20 and comboPoints >= 2 and cast.timeSinceLast.primalWrath() >= 5 then
-                            if cast.primalWrath("player","aoe",1,8) then ui.debug("Casting Primal Wrath [High Tick Gain]") return true end
-                        end
-                        -- Run Action List - Stealth
-                        -- call_action_list,name=stealth,if=buff.bs_inc.up
-                        if buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists() then
-                            if actionList.Stealth() then return true end
-                        end
-                        -- Action List - Bloodtalons
-                        -- pool_resource,if=talent.bloodtalons.enabled&buff.bloodtalons.down&(energy+3.5*energy.regen+(40*buff.clearcasting.up))<(115-23*buff.incarnation_king_of_the_jungle.up)&active_bt_triggers=0
-                        if talent.bloodtalons and not buff.bloodtalons.exists() and (energy + 3.5 * energyRegen + (40 * var.clearcasting)) < (115 - 23 * var.incarnation) and btGen.stack == 0 then
-                            -- ui.debug("Pooling for Bloodtalons")
-                            return true
-                        end
-                        -- run_action_list,name=bloodtalons,if=talent.bloodtalons.enabled&buff.bloodtalons.down
-                        if talent.bloodtalons and not buff.bloodtalons.exists() then
-                            if actionList.Bloodtalons() then return true end
-                        end
-                        -- Ferocious Bite
-                        -- ferocious_bite,target_if=max:target.time_to_die,if=buff.apex_predators_craving.up
-                        if cast.able.ferociousBite() and range.dyn5 and buff.apexPredatorsCraving.exists() then
-                            if cast.ferociousBite(var.maxTTDUnit) then ui.debug("Casting Ferocious Bite on "..unit.name(var.maxTTDUnit).." [Apex Predator's Craving]"); return true end
-                        end
-                        -- Rake
-                        -- pool_resource,for_next=1
-                        -- rake,target_if=max:druid.rake.ticks_gained_on_refresh,if=(refreshable|persistent_multiplier>dot.rake.pmultiplier)&druid.rake.ticks_gained_on_refresh>spell_targets.swipe_cat*2-2
-                        if (cast.able.rake() or cast.pool.rake()) and canDoT(var.maxRakeTicksGainUnit)
-                            and debuff.rake.count() < ui.value("Multi-DoT Limit") and #enemies.yards5f < ui.value("Multi-DoT Limit")
-                            and (debuff.rake.refresh(var.maxRakeTicksGainUnit,"EXACT") or debuff.rake.calc() > debuff.rake.applied(var.maxRakeTicksGainUnit))
-                            and var.rakeTicksGainUnit(var.maxRakeTicksGainUnit) > #enemies.yards8 * 2 - 2
-                        then
-                            if cast.pool.rake() then return true end
-                            if debuff.rake.refresh(var.maxRakeTicksGainUnit,"EXACT") then
-                                if cast.rake(var.maxRakeTicksGainUnit) then ui.debug("Casting Rake [Refresh]") return true end
-                            end
-                            if debuff.rake.calc() > debuff.rake.applied(var.maxRakeTicksGainUnit) then
-                                if cast.rake(var.maxRakeTicksGainUnit) then ui.debug("Casting Rake [More Powerful]") return true end
-                            end
-                        end
-                        -- Lunar Inspiration
-                        -- lunar_inspiration,target_if=max:druid.lunar_inspiration.ticks_gained_on_refresh,if=(refreshable|persistent_multiplier>dot.lunar_inspiration.pmultiplier)&druid.lunar_inspiration.ticks_gained_on_refresh>spell_targets.swipe_cat*2-2
-                        if cast.able.moonfireFeral() and talent.lunarInspiration then
-                            for i = 1, #enemies.yards40 do
-                                local thisUnit = enemies.yards40[i]
-                                if canDoT(thisUnit) and ticksGain.moonfireFeral > #enemies.yards8 * 2 - 2 then --debuff.moonfireFeral.refresh(thisUnit) then
-                                    if cast.moonfireFeral(thisUnit) then ui.debug("Casting Moonfire") return true end
-                                end
-                            end
-                        end
-                        -- Thrash
-                        -- pool_resource,for_next=1
-                        -- thrash_cat,target_if=refreshable&druid.thrash_cat.ticks_gained_on_refresh>(4+spell_targets.thrash_cat*4)%(1+mastery_value)-conduit.taste_for_blood.enabled-covenant.necrolord&(!buff.bs_inc.up|spell_targets.thrash_cat>1)
-                        if cast.able.thrashCat("player","aoe",1,8) then
-                            for i = 1, #enemies.yards8 do
-                                local thisUnit = enemies.yards8[i]
-                                if debuff.thrashCat.refresh(thisUnit) and ticksGain.thrash > (4 + #enemies.yards8 * 4) / (1 + br._G.GetMastery()) - var.tastyBlood - var.necro
-                                    and ((not buff.berserk.exists() and not buff.incarnationKingOfTheJungle.exists()) or #enemies.yards8 > 1)
-                                then
-                                    if cast.thrashCat("player","aoe",1,8) then ui.debug("Casting Thrash [Ticks Gain]") return true end
-                                end
-                            end
-                        end
-                        -- Brutal Slash
-                        -- pool_resource,for_next=1
-                        -- brutal_slash,if=(raid_event.adds.in>(1+max_charges-charges_fractional)*recharge_time)&(spell_targets.brutal_slash*action.brutal_slash.damage%action.brutal_slash.cost)>(action.shred.damage%action.shred.cost)
-                        if cast.able.brutalSlash("player","aoe",ui.value("Brutal Slash Targets"),8) and talent.brutalSlash and range.dyn8AOE
-                            and ((charges.brutalSlash.timeTillFull() < unit.gcd(true) and ui.useST(8,ui.value("Brutal Slash Targets")))
-                            or ui.useAOE(8,ui.value("Brutal Slash Targets")))
-                        then
-                            if cast.brutalSlash("player","aoe",ui.value("Brutal Slash Targets"),8) then ui.debug("Casting Brutal Slash") return true end
-                        end
-                        -- Swipe
-                        -- swipe_cat,if=spell_targets.swipe_cat>1+buff.bs_inc.up*2
-                        if cast.able.swipeCat("player","aoe",1,8) and not talent.brutalSlash and #enemies.yards8 > 1 + (var.bsInc * 2) then
-                            if cast.swipeCat("player","aoe",1,8) then ui.debug("Casting Swipe") return true end
-                        end
-                        -- Thrash
-                        -- thrash_cat,if=spell_targets.thrash_cat>3
-                        if cast.able.thrashCat("player","aoe",1,8) and range.dyn8AOE and #enemies.yards8 >= 3 then
-                            if cast.thrashCat("player","aoe",1,8) then ui.debug("Casting Thrash") return true end
-                        end
-                        -- Shred
-                        -- shred,if=buff.clearcasting.up&(buff.sudden_ambush.down&buff.shadowmeld.down|buff.bs_inc.up)
-                        if cast.able.shred() and buff.clearcasting.exists() and ((not buff.suddenAmbush.exists() and not buff.shadowmeld.exists()) or (buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists())) then
-                            if cast.shred() then ui.debug("Casting Shred [Clearcasting]") return true end
-                        end
-                        -- Call Action List - Filler
-                        -- call_action_list,name=filler
-                        if actionList.Filler() then return true end
-                    end
+                -- Feral Frenzy
+                -- feral_frenzy,if=combo_points<2|combo_points=2&buff.bs_inc.up
+                if cast.able.feralFrenzy() and (comboPoints < 2 or (comboPoints == 2 and var.bsInc)) then
+                    if cast.feralFrenzy() then ui.debug("Casting Feral Frenzy") return true end
                 end
+                -- Run Action List - AoE
+                -- run_action_list,name=aoe,if=spell_targets.swipe_cat>1&talent.primal_wrath.enabled
+                if ui.useAOE(8,2) and talent.primalWrath then
+                    if actionList.AoE() then return true end
+                end
+                -- Ferocious Bite
+                -- ferocious_bite,if=buff.apex_predators_craving.up
+                if cast.able.ferociousBite() and range.dyn5 and buff.apexPredatorsCraving.exists() then
+                    if cast.ferociousBite() then ui.debug("Casting Ferocious Bite - Apex Predator's Craving"); return true end
+                end
+                -- Action List - Bloodtalons
+                -- call_action_list,name=bloodtalons,if=variable.need_bt&!buff.bs_inc.up
+                if var.needBT and not var.bsInc then
+                    if actionList.Bloodtalons() then return true end
+                end
+                -- Run Action List - Finisher
+                -- call_action_list,name=finisher,if=(combo_points>3&talent.lions_strength.enabled)|combo_points=5&!talent.lions_strength.enabled
+                if (comboPoints > 3 and talent.lionsStrength) or comboPoints >= 5 then
+                    if actionList.Finisher() then return true end
+                end
+                -- Action List - Berserk Builders
+                -- call_action_list,name=berserk_builders,if=combo_points<5&buff.bs_inc.up
+                if comboPoints < 5 and var.bsInc then
+                    if actionList.BerserkBuilders() then return true end
+                end
+                -- Action List - Builder
+                -- call_action_list,name=builder,if=combo_points<5
+                if comboPoints < 5 and not var.bsInc then
+                    if actionList.Builder() then return true end
+                end
+                -- -- Call Action List - Owlweave
+                -- -- call_action_list,name=owlweaving,if=buff.bs_inc.down&energy<80
+                -- if ui.alwaysCdNever("Owlweave") and not var.bsInc and energy < 80 then
+                --     if actionList.Owlweave() then return true end
+                -- end
+                -- -- Cat Form - Owlweave
+                -- if cast.able.catForm("player") and buff.moonkinForm.exists() then
+                --     if cast.catForm("player") then ui.debug("Casting Cat Form [Cancel Owlweave]"); return true end
+                -- end
             end -- End SimC APL
         end --End In Combat
     end --End Rotation Logic

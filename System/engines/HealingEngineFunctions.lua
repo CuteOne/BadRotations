@@ -218,7 +218,7 @@ function br.getAlliesInLocation(myX,myY,myZ,Radius)
 	local alliesTable = {}
 	for i=1,#br.friend do
 		if not br.GetUnitIsDeadOrGhost(br.friend[i].unit) then
-			if br.getDistanceToObject(br.friend[i].unit,myX,myY,myZ) <= Radius then
+			if br.getDistanceToLocation(br.friend[i].unit,myX,myY,myZ) <= Radius then
 				br._G.tinsert(alliesTable,br.friend[i].unit)
 			end
 		end
@@ -609,7 +609,7 @@ function br.getBestGroundCircleLocation(unitTable,minTargets,maxHealTargets,radi
 	X1,Y1,Z1 = br.GetObjectPosition("player")
 	local X2,Y2,Z2 = center.x,center.y,center.z
 	local LoS = br._G.TraceLine(X1, Y1, Z1 + 2, X2, Y2, Z2 + 2, 0x10) == nil
-	local distance = br.getDistanceToObject("player",X2,Y2,Z2) <= 40
+	local distance = br.getDistanceToLocation("player",X2,Y2,Z2) <= 40
     if (numInside >= #points - 1) and (numInside >= minTargets) and LoS and distance then return center end
 
     -- start with taking #pointsInRange, #pointsInRange-1 at a time
@@ -633,7 +633,7 @@ function br.getBestGroundCircleLocation(unitTable,minTargets,maxHealTargets,radi
 			if c == nil then return nil end
 			local tx,ty,tz = c.x,c.y,c.z
 			local LoS = br._G.TraceLine(X1, Y1, Z1 + 2, tx, ty, tz + 2, 0x10) == nil
-			local tdistance = br.getDistanceToObject("player",tx,ty,tz) <= 40
+			local tdistance = br.getDistanceToLocation("player",tx,ty,tz) <= 40
 			if LoS and tdistance then
 				-- how many of the points are inside the circle?
 				local n = br.GetNumPointsInCircle(c,radius,allCombinations[i])

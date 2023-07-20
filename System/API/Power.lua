@@ -22,6 +22,7 @@ if br.api == nil then br.api = {} end
     -- arcaneCharges
     -- fury
     -- pain
+    -- essence
 br.api.power = function(power,v)
     local isDKRunes = select(2,br._G.UnitClass("player")) == "DEATHKNIGHT" and v == 5
     local isDestruction = br._G.GetSpecializationInfo(br._G.GetSpecialization()) == 267 and v == 7

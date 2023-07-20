@@ -115,6 +115,13 @@ br.api.cast = function(self,spell,id)
         return br.isCastingSpell(id,thisUnit)
     end
 
+    -- br.player.cast.current.id() - Returns the spell id of the current (or previously) cast spell by the API
+    if cast.current.id == nil then
+        cast.current.id = function()
+            return br.botSpell
+        end
+    end
+
     -- br.player.cast.dispel.spell() - Returns if the spell if capable of dispelling the target.
     --[[Args:
         thisUnit - Acceptable parameters listed below
@@ -126,6 +133,12 @@ br.api.cast = function(self,spell,id)
     cast.dispel[spell] = function(thisUnit)
         if thisUnit == nil then thisUnit = "target" end
         return br.canDispel(thisUnit,id) or false
+    end
+
+    -- br.player.cast.empowered.spell() - Returns current empowered rank of the spell or 0 if not empowered
+    if cast.empowered == nil then cast.empowered = {} end
+    cast.empowered[spell] = function()
+        return br.getEmpoweredRank(id)
     end
 
     -- br.player.cast.form(formIndex) - Casts the form corresponding to the provided formIndex number

@@ -34,7 +34,7 @@ local function getSnapshotValue(dot)
         -- rake
         if dot == self.spell.debuffs.rake then
             -- Incarnation/Prowl/Sudden Ambush
-            if self.buff.berserk.exists() or self.buff.incarnationKingOfTheJungle.exists() or self.buff.prowl.exists() or self.buff.shadowmeld.exists() or self.buff.suddenAmbush.exists() then
+            if self.buff.berserk.exists() or self.buff.incarnationAvatarOfAshamane.exists() or self.buff.prowl.exists() or self.buff.shadowmeld.exists() or self.buff.suddenAmbush.exists() then
                 RakeMultiplier = 1.6
             end
             -- return rake
@@ -100,7 +100,8 @@ br.api.debuffs = function(debuff,k,v)
     debuff.refresh = function(thisUnit,sourceUnit)
         if thisUnit == nil then thisUnit = 'target' end
         if sourceUnit == nil then sourceUnit = 'player' end
-        return debuff.remain(thisUnit,sourceUnit) <= debuff.pandemic(thisUnit,sourceUnit) * 0.3
+        local remain = debuff.remain(thisUnit,sourceUnit)
+        return remain == 0 or remain <= (debuff.pandemic(thisUnit,sourceUnit) * 0.3) - 0.5
     end
     debuff.count = function()
         return tonumber(br.getDebuffCount(v))

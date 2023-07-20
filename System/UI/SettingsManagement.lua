@@ -1,4 +1,7 @@
 local _, br = ...
+
+local sep = IsMacClient() and "/" or "\\"
+
 local function getFolderClassName(class)
 	if class == nil then class = "" end
 	local formatClass = class:sub(1, 1):upper() .. class:sub(2):lower()
@@ -26,13 +29,18 @@ end
 function br:checkDirectories(folder, class, spec, profile, instance)
 	-- Set Settings Directory
 	local wowDir = br._G.GetWoWDirectory() or ""
-	local mainDir = wowDir .. "\\Interface\\AddOns\\" .. br.addonName .. "\\Settings\\"
+	local mainDir = ""
+	if wowDir:match('_retail_') then
+		mainDir = wowDir .. sep .. "Interface" .. sep .. "AddOns" .. sep .. br.addonName .. sep .. "Settings" .. sep
+	else
+		mainDir = wowDir .. sep .. br.addonName .. sep .. "Settings" .. sep
+	end
 
 	-- Set Folder to Specified Folder if any
 	if folder == nil then
 		folder = ""
 	else
-		folder = folder .. "\\"
+		folder = folder .. sep
 	end
 	local settingsDir = mainDir .. folder
 	checkDirectory(settingsDir)
@@ -41,7 +49,7 @@ function br:checkDirectories(folder, class, spec, profile, instance)
 	if class == nil then
 		class = select(2, br._G.UnitClass("player"))
 	end
-	local classDir = settingsDir .. getFolderClassName(class) .. "\\"
+	local classDir = settingsDir .. getFolderClassName(class) .. sep
 	checkDirectory(classDir)
 
 	-- Return Spec Directory if Profile is Tracker
@@ -56,25 +64,40 @@ function br:checkDirectories(folder, class, spec, profile, instance)
 	if spec == nil then
 		spec = "Initial"
 	end
-	local specDir = classDir .. spec .. "\\"
+	local specDir = classDir .. spec .. sep
 	checkDirectory(specDir)
 
 	-- Set the Profile Directory
 	if profile == nil then
 		profile = br.selectedProfileName
 	end
-	local profileDir = specDir .. profile .. "\\"
+	local profileDir = specDir .. profile .. sep
 	checkDirectory(profileDir)
 	if not instance then
-	-- Return Path
+		-- Return Path
 		return profileDir
 	elseif instance then
-		local instanceDir = profileDir .. instance .. "\\"
+		local instanceDir = profileDir .. instance .. sep
 		checkDirectory(instanceDir)
 		return instanceDir
 	end
 	br._G.print("Unknown Error Creating Directories")
 	return nil
+end
+
+function br.deepcopy(orig)
+	local orig_type = type(orig)
+	local copy
+	if orig_type == "table" then
+		copy = {}
+		for orig_key, orig_value in next, orig, nil do
+			copy[br.deepcopy(orig_key)] = br.deepcopy(orig_value)
+		end
+		setmetatable(copy, br.deepcopy(getmetatable(orig)))
+	else -- number, string, boolean, etc
+		copy = orig
+	end
+	return copy
 end
 
 -- Load Settings
@@ -115,7 +138,11 @@ function br:loadSettings(folder, class, spec, profile, instance)
 			br._G.print("Loaded Settings for Profile " .. tostring(profile))
 		end
 		if not fileFound then
-			br._G.print("No File Called 'savedSettings.lua' Found In " .. loadDir)
+			if br.selectedProfileName ~= "None" then
+				br._G.print("No File Called 'savedSettings.lua' Found In " .. loadDir)
+			else
+				br._G.print("No pre-existing settings to load.")
+			end
 		end
 		if spec == nil then
 			spec = br.selectedSpec
@@ -190,9 +217,11 @@ function br:loadLastProfileTracker()
 		local rotationFound = false
 		local trackerName = br.data.tracker[br.selectedSpec]["RotationDropValue"]
 		local specSettings = br.data.settings[br.selectedSpec]
+		if not br.rotations[specID] then print("No rotations found for specID ".. specID) return end
 		if trackerName then
 			for i = 1, #br.rotations[specID] do
 				if br.rotations[specID][i].name == trackerName then
+					br.selectedProfileName = trackerName
 					specSettings["RotationDropValue"] = trackerName
 					specSettings["RotationDrop"] = i
 					rotationFound = true
@@ -236,9 +265,14 @@ function br:saveLastProfileTracker()
 					br.data.tracker[br.selectedSpec]["RotationDropValue"] = br.rotations[specID][1].name
 					br.data.tracker[br.selectedSpec]["RotationDrop"] = 1
 				end
-			else
+			elseif br.rotations and br.rotations[specID] and br.rotations[specID][1] and br.rotations[specID][1].name ~= nil then
 				br.data.settings[br.selectedSpec]["RotationDropValue"] = br.rotations[specID][1].name
 				br.data.tracker[br.selectedSpec]["RotationDropValue"] = br.rotations[specID][1].name
+				br.data.settings[br.selectedSpec]["RotationDrop"] = 1
+				br.data.tracker[br.selectedSpec]["RotationDrop"] = 1
+			else
+				br.data.settings[br.selectedSpec]["RotationDropValue"] = ""
+				br.data.tracker[br.selectedSpec]["RotationDropValue"] = ""
 				br.data.settings[br.selectedSpec]["RotationDrop"] = 1
 				br.data.tracker[br.selectedSpec]["RotationDrop"] = 1
 			end

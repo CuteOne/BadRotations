@@ -40,6 +40,8 @@ local function createOptions()
         -----------------------
         section = br.ui:createSection(br.ui.window.profile,  "General")
             br.ui:createSpinnerWithout(section, "Shift Wait Time", 2, 0, 5, 1, "|cffFFFFFFTime in seconds the profile will wait while moving to shift. Combat is instant!")
+            -- Mark of the Wild
+            br.ui:createDropdown(section, "Mark of the Wild",{"|cffFFFFFFPlayer", "|cffFFFFFFTarget", "|cffFFFFFFMouseover", "|cffFFFFFFFocus", "|cffFFFFFFGroup"}, 1, "|cffFFFFFFSet how to use Mark of the Wild")
         br.ui:checkSectionState(section)
         -------------------------
         --- DEFENSIVE OPTIONS ---
@@ -85,6 +87,7 @@ local ui
 local unit
 local units
 local spell
+local var = {}
 -- General Locals - Common Non-BR API Locals used in profiles
 local haltProfile
 local profileStop
@@ -127,27 +130,70 @@ local function timeMoving()
     return br._G.GetTime() - movingTimer
 end
 
+local getMarkUnitOption = function(option)
+    local thisTar = ui.value(option)
+    local thisUnit
+    if thisTar == 1 then
+        thisUnit = "player"
+    end
+    if thisTar == 2 then
+        thisUnit = "target"
+    end
+    if thisTar == 3 then
+        thisUnit = "mouseover"
+    end
+    if thisTar == 4 then
+        thisUnit = "focus"
+    end
+    if thisTar == 5 then
+        thisUnit = "player"
+        if #br.friend > 1 then
+            for i = 1, #br.friend do
+                local nextUnit = br.friend[i].unit
+                if buff.markOfTheWild.refresh(nextUnit) and unit.distance(var.markUnit) < 40 then
+                    thisUnit = nextUnit
+                    break
+                end
+            end
+        end
+    end
+    return thisUnit
+end
+
 --------------------
 --- Action Lists ---
 --------------------
 -- Action List - Extra
 actionList.Extra = function()
     -- Auto Shapeshift
-    if (not buff.travelForm.exists() and unit.moving() and timeMoving() > ui.value("Shift Wait Time")) or unit.inCombat() then
+    if (not buff.travelForm.exists() and unit.moving() and timeMoving() > ui.value("Shift Wait Time")) or unit.inCombat()
+        or (unit.exists("target") and (unit.id("target") == 164577 or unit.id("target") == 166906) and unit.canAttack("player","target"))
+    then
         local formValue = ui.mode.forms
         -- Bear Form
         if formValue == 3 and unit.level() >= 8 and cast.able.bearForm() and not buff.bearForm.exists() then
             if cast.bearForm() then ui.debug("Casting Bear Form") return true end
         end
         -- Caster Form
-        if formValue == 1 and (buff.bearForm.exists() or buff.catForm.exists()) then
+        if (formValue == 1 or (unit.exists("target") and (unit.id("target") == 164577 or unit.id("target") == 166906) and unit.canAttack("player","target")))
+            and (buff.bearForm.exists() or buff.catForm.exists())
+        then
             br._G.RunMacroText("/CancelForm")
             ui.debug("Casting Caster Form")
             return true
         end
         --Cat Form
-        if (formValue == 2 or (formValue == 3 and unit.level() < 8)) and unit.level() >= 5 and cast.able.catForm() and not buff.catForm.exists() then
+        if (formValue == 2 or (formValue == 3 and unit.level() < 8)) and unit.level() >= 5 and cast.able.catForm() and not buff.catForm.exists()
+            and ((unit.id("target") ~= 164577 and unit.id("target") ~= 166906) or not unit.canAttack("player","target"))
+        then
             if cast.catForm() then ui.debug("Casting Cat Form") return true end
+        end
+        -- Mark of the Wild
+        if ui.checked("Mark of the Wild") then
+            var.markUnit = getMarkUnitOption("Mark of the Wild")
+            if cast.able.markOfTheWild(var.markUnit) and buff.markOfTheWild.refresh(var.markUnit) and unit.distance(var.markUnit) < 40 then
+                if cast.markOfTheWild(var.markUnit) then ui.debug("Casting Mark of the Wild") return true end
+            end
         end
     end
 end -- End Action List - Extra
@@ -185,7 +231,7 @@ actionList.PreCombat = function()
         if unit.valid("target") then
             local thisDistance = unit.distance("target") or 99
             if not unit.moving() and not (buff.catForm.exists() or buff.bearForm.exists()) and thisDistance < 40 then
-                if cast.able.wrath("target") and (unit.level() < 2 or not cast.last.wrath() or not unit.inCombat()) then
+                if cast.able.wrath("target") and (unit.level() < 2 or not cast.last.wrath() or cast.timeSinceLast.wrath() > unit.gcd(true) + 0.5) then
                     if cast.wrath("target") then ui.debug("Casting Wrath [Pre-Pull]") return true end
                 end
             end
@@ -225,7 +271,7 @@ local function runRotation()
     spell                                       = br.player.spell
     -- General Locals
     profileStop                                 = profileStop or false
-    haltProfile                                 = (unit.inCombat() and profileStop) or br.pause() or ui.rotation==4
+    haltProfile                                 = (unit.inCombat() and profileStop) or br.pause() or ui.rotation==4 or unit.id("target") == 156716
     -- Units
     units.get(5) -- Makes a variable called, units.dyn5
     units.get(40) -- Makes a variable called, units.dyn40
@@ -308,7 +354,7 @@ local function runRotation()
                     if cast.moonfire() then ui.debug("Casting Moonfire") return true end
                 end
                 -- Wrath
-                if not unit.moving() and cast.able.wrath() and (unit.level() < 2 or not cast.last.wrath() or not debuff.moonfire.refresh(units.dyn40)) then
+                if not unit.moving() and cast.able.wrath() and (unit.level() < 2 or (not cast.last.wrath() and cast.timeSinceLast.wrath() > unit.gcd(true) + 0.5) or not debuff.moonfire.refresh(units.dyn40)) then
                     if cast.wrath() then ui.debug("Casting Wrath") return true end
                 end
             end

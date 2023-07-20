@@ -20,6 +20,13 @@ end
 function br.getMana(Unit)
 	return 100 * br._G.UnitPower(Unit, 0) / br._G.UnitPowerMax(Unit, 0)
 end
+function br.getEssence(Unit)
+	return br._G.UnitPower(Unit, 19)
+end
+function br.getEssenceMax(Unit)
+	return br._G.UnitPowerMax(Unit, 19)
+end
+
 -- if br.getPower("target") <= 15 then
 function br.getPower(Unit, index)
 	local value = br._G.UnitPower(Unit, index)
@@ -52,6 +59,9 @@ function br.getPowerAlt(Unit)
 	end
 	if class == "WARLOCK" then
 		value = power(Unit, 7)
+	end
+	if class == "EVOKER" then
+		value = power(Unit, 19)
 	end
 	return value
 end

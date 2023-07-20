@@ -74,8 +74,8 @@ local function onSetHyperlink(self, link)
 		addLine(self, id, types.item)
 	end
 end
-hooksecurefunc(br._G.ItemRefTooltip, "SetHyperlink", onSetHyperlink)
-hooksecurefunc(br._G.GameTooltip, "SetHyperlink", onSetHyperlink)
+hooksecurefunc(ItemRefTooltip, "SetHyperlink", onSetHyperlink)
+hooksecurefunc(GameTooltip, "SetHyperlink", onSetHyperlink)
 -- Spells
 hooksecurefunc(
 	br._G.GameTooltip,
@@ -116,8 +116,7 @@ hooksecurefunc(
 		end
 	end
 )
-br._G.GameTooltip:HookScript(
-	"OnTooltipSetSpell",
+TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Spell,
 	function(self)
 		local id = select(3, self:GetSpell())
 		if id then
@@ -126,8 +125,7 @@ br._G.GameTooltip:HookScript(
 	end
 )
 -- NPCs
-br._G.GameTooltip:HookScript(
-	"OnTooltipSetUnit",
+TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Unit,
 	function(self)
 		if br._G.C_PetBattles.IsInBattle() then
 			return
@@ -146,20 +144,17 @@ br._G.GameTooltip:HookScript(
 )
 -- Items
 local function attachItemTooltip(self)
-	local link = select(2, self:GetItem())
-	if link then
-		local id = select(3, strfind(link, "^|%x+|Hitem:(%-?%d+):(%d+):(%d+).*"))
-		if id then
-			addLine(self, id, types.item)
+	if (self == GameTooltip or self == ItemRefTooltip) then
+		local link = select(2, self:GetItem())
+		if link then
+			local id = select(3, strfind(link, "^|%x+|Hitem:(%-?%d+):(%d+):(%d+).*"))
+			if id then
+				addLine(self, id, types.item)
+			end
 		end
 	end
 end
-br._G.GameTooltip:HookScript("OnTooltipSetItem", attachItemTooltip)
-br._G.ItemRefTooltip:HookScript("OnTooltipSetItem", attachItemTooltip)
-br._G.ItemRefShoppingTooltip1:HookScript("OnTooltipSetItem", attachItemTooltip)
-br._G.ItemRefShoppingTooltip2:HookScript("OnTooltipSetItem", attachItemTooltip)
-br._G.ShoppingTooltip1:HookScript("OnTooltipSetItem", attachItemTooltip)
-br._G.ShoppingTooltip2:HookScript("OnTooltipSetItem", attachItemTooltip)
+TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Item,attachItemTooltip)
 -- Glyphs -- Commented out due to Legion
 -- hooksecurefunc(GameTooltip, "SetGlyph", function(self, ...)
 -- 	local id = select(4, GetGlyphSocketInfo(...))
@@ -169,32 +164,32 @@ br._G.ShoppingTooltip2:HookScript("OnTooltipSetItem", attachItemTooltip)
 -- 	if id then addLine(self, id, types.glyph) end
 -- end)
 -- Achievement Frame Tooltips
-local f = br._G.CreateFrame("frame")
-f:RegisterEvent("ADDON_LOADED")
-f:SetScript(
-	"OnEvent",
-	function(_, _, what)
-		if what == "Blizzard_AchievementUI" then
-			for _, button in ipairs(br._G.AchievementFrameAchievementsContainer.buttons) do
-				button:HookScript(
-					"OnEnter",
-					function()
-						br._G.GameTooltip:SetOwner(button, "ANCHOR_NONE")
-						br._G.GameTooltip:SetPoint("TOPLEFT", button, "TOPRIGHT", 0, 0)
-						addLine(br._G.GameTooltip, button.id, types.achievement, true)
-						br._G.GameTooltip:Show()
-					end
-				)
-				button:HookScript(
-					"OnLeave",
-					function()
-						br._G.GameTooltip:Hide()
-					end
-				)
-			end
-		end
-	end
-)
+-- local f = br._G.CreateFrame("frame")
+-- f:RegisterEvent("ADDON_LOADED")
+-- f:SetScript(
+-- 	"OnEvent",
+-- 	function(_, _, what)
+-- 		if what == "Blizzard_AchievementUI" then
+-- 			for _, button in ipairs(br._G.AchievementFrameAchievements.ScrollBox.ScrollTarget:GetChildren()) do
+-- 				button:HookScript(
+-- 					"OnEnter",
+-- 					function()
+-- 						br._G.GameTooltip:SetOwner(button, "ANCHOR_NONE")
+-- 						br._G.GameTooltip:SetPoint("TOPLEFT", button, "TOPRIGHT", 0, 0)
+-- 						addLine(br._G.GameTooltip, button.id, types.achievement, true)
+-- 						br._G.GameTooltip:Show()
+-- 					end
+-- 				)
+-- 				button:HookScript(
+-- 					"OnLeave",
+-- 					function()
+-- 						br._G.GameTooltip:Hide()
+-- 					end
+-- 				)
+-- 			end
+-- 		end
+-- 	end
+-- )
 -- local petAbilityTooltipID = false
 -- local orig_SharedPetBattleAbilityTooltip_SetAbility = br._G.SharedPetBattleAbilityTooltip_SetAbility
 -- function br.SharedPetBattleAbilityTooltip_SetAbility(self, abilityInfo, additionalText)

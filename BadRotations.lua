@@ -52,7 +52,8 @@ br.classColors = {
 	[9] = {class = "Warlock", B = 0.79, G = 0.51, R = 0.58, hex = "9482c9"},
 	[10] = {class = "Monk", B = 0.59, G = 1, R = 0, hex = "00ff96"},
 	[11] = {class = "Druid", B = 0.04, G = 0.49, R = 1, hex = "ff7d0a"},
-	[12] = {class = "Demonhunter", B = 0.79, G = 0.19, R = 0.64, hex = "a330c9"}
+	[12] = {class = "Demonhunter", B = 0.79, G = 0.19, R = 0.64, hex = "a330c9"},
+	[13] = {class = "Evoker", B = 0.50, G = 0.58, R = 0.20, hex = "33937f"}
 }
 br.classColor = tostring("|cff" .. br.classColors[select(3, br._G.UnitClass("player"))].hex)
 br.qualityColors = {
@@ -62,21 +63,22 @@ br.qualityColors = {
 	grey = "9d9d9d"
 }
 br.druid = {}
+br.evoker = {}
 
 local nameSet = false
 function br.setAddonName()
 	if not nameSet then
-		for i = 1, br._G.GetNumAddOns() do
-			local name, title = br._G.GetAddOnInfo(i)
-			if title == "|cffa330c9BadRotations" then
-				br.addonName = name
-				if br.addonName ~= "BadRotations" then
-					br._G.print("Currently known as " .. tostring(br.addonName))
-				end
+		-- for i = 1, br._G.GetNumAddOns() do
+			-- local name, title = br._G.GetAddOnInfo(i)
+			-- if title == "|cffa330c9BadRotations" then
+				-- br.addonName = name
+				-- if br.addonName ~= "BadRotations" then
+				-- 	br._G.print("Currently known as " .. tostring(br.addonName))
+				-- end
 				nameSet = true
-				break
-			end
-		end
+				-- break
+			-- end
+		-- end
 	end
 end
 
@@ -123,7 +125,7 @@ function br.Run()
 		br:ObjectTracker()
 		-- Complete Loadin
 		br.ChatOverlay("-= BadRotations Loaded =-")
-		br._G.print("Loaded")
+		br._G.print("Initialization Complete, Finding Previous Settings.")
 		br.loadedIn = true
 	end
 end
@@ -168,6 +170,15 @@ function br.defaultSettings()
 		br.data.settings.fontsize = 16
 		br.data.settings.wiped = true
 	end
+	-- Define Minimap Button if no settings exist
+	if (br.data.settings and br.data.settings.minimapButton == nil) then
+		br.data.settings.minimapButton = {
+			pos = {
+				x = 75.70,
+				y = -6.63
+			}
+		}
+	end
 end
 -- Load Saved Settings
 function br.loadSavedSettings()
@@ -177,14 +188,53 @@ function br.loadSavedSettings()
 		br:loadLastProfileTracker()
 		if br.data.settings[br.selectedSpec]["RotationDropValue"] then
 			br:loadSettings(nil, nil, nil, br.data.settings[br.selectedSpec]["RotationDropValue"])
-		else
+		elseif br.rotations[br.selectedSpec] then
 			br:loadSettings(nil, nil, nil, br.rotations[br.selectedSpec][1].name)
+		else
+			if not br.rotations[br.selectedSpec] then return end
 		end
 		br.defaultSettings()
 		-- Build the Toggles
 		br.TogglesFrame()
+		-- Restore Minimap Button Position
+		br.BadRotationsButton:SetPoint("CENTER", br.data.settings.minimapButton.pos.x, br.data.settings.minimapButton.pos.y)
 		br.initializeSettings = false
 	end
+end
+function br.load()
+	-- Update Selected Spec
+	br.selectedSpecID, br.selectedSpec = br._G.GetSpecializationInfo(br._G.GetSpecialization())
+	if br.selectedSpec == "" then
+		br.selectedSpec = "Initial"
+	end
+	if br.data == nil then
+		br.data = {}
+	end
+	if br.data.tracker == nil then
+		br.data.tracker = {}
+	end
+	if br.data.settings == nil then
+		br.data.settings = {}
+	end
+	if br.data.ui == nil then
+		br.data.ui = {}
+	end
+	if br.data.settings[br.selectedSpec] == nil then
+		br.data.settings[br.selectedSpec] = {}
+	end
+	if not br.unlocked then
+		br.initializeSettings = true
+		print(br.classColor .. "[BadRotations] |cffFFFFFFInitializing Please Wait...")
+	end
+	br.equipHasChanged = true
+	if not br.loadedIn then
+		if br.damaged == nil then
+			br.damaged = {}
+		end
+		br.bagsUpdated = true
+		br:Run()
+	end
+	br.timeOfLastLoadingScreen = br._G.GetTime()
 end
 local frame = br._G.CreateFrame("FRAME")
 frame:RegisterEvent("PLAYER_LOGOUT")
@@ -216,40 +266,7 @@ function frame:OnEvent(event)
 		end
 	end
 	if event == "PLAYER_ENTERING_WORLD" then
-		-- Update Selected Spec
-		br.selectedSpecID, br.selectedSpec = br._G.GetSpecializationInfo(br._G.GetSpecialization())
-		if br.selectedSpec == "" then
-			br.selectedSpec = "Initial"
-		end
-		br.activeSpecGroup = br._G.GetActiveSpecGroup(false)
-		if br.data == nil then
-			br.data = {}
-		end
-		if br.data.tracker == nil then
-			br.data.tracker = {}
-		end
-		if br.data.settings == nil then
-			br.data.settings = {}
-		end
-		if br.data.ui == nil then
-			br.data.ui = {}
-		end
-		if br.data.settings[br.selectedSpec] == nil then
-			br.data.settings[br.selectedSpec] = {}
-		end
-		if not br.unlocked then
-			br.initializeSettings = true
-			print(br.classColor .. "[BadRotations] |cffFFFFFFPlease wait for settings to load!")
-		end
-		br.equipHasChanged = true
-		if not br.loadedIn then
-			if br.damaged == nil then
-				br.damaged = {}
-			end
-			br.bagsUpdated = true
-			br:Run()
-		end
-		br.timeOfLastLoadingScreen = br._G.GetTime()
+		br.load()
 	end
 end
 frame:SetScript("OnEvent", frame.OnEvent)

@@ -27,7 +27,7 @@ end
 function br.UnitBuffID(unit, spellID, filter)
 	local spellName = br._G.GetSpellInfo(spellID)
 	local exactSearch = filter ~= nil and br._G.strfind(br._G.strupper(filter), "EXACT")
-	if exactSearch or br.unlocker == "GG" then
+	if exactSearch then
 		for i = 1, 40 do
 			local buffName, _, _, _, _, _, _, _, _, buffSpellID = br._G.UnitBuff(unit, i, "player")
 			if buffName == nil then	return nil end
@@ -60,7 +60,7 @@ function br.UnitDebuffID(unit, spellID, filter)
 
 	-- Failsafe if not cached
 	local exactSearch = filter ~= nil and br._G.strfind(br._G.strupper(filter), "EXACT")
-	if exactSearch or br.unlocker == "GG" then
+	if exactSearch then
 		for i = 1, 40 do
 			local buffName, _, _, _, _, _, _, _, _, buffSpellID = br._G.UnitDebuff(unit, i, "player")
 			if buffName == nil then	return nil end
@@ -200,6 +200,14 @@ function br.canDispel(Unit, spellID)
 	if ClassNum == 12 then --Demon Hunter
 		-- Consume Magic
 		if spellID == 278326 then typesList = {"Magic"}	end
+	end
+	if ClassNum == 13 then -- Evoker
+		-- Expunge
+		if spellID == 365585 then typesList = {"Poison"} end
+		-- Cauterizing Flame
+		if spellID == 374251 then typesList = {"Bleed", "Poison", "Curse", "Disease"} end
+		-- Naturalize
+		if spellID == 360823 then typesList = {"Magic", "Poison"} end
 	end
 	if br.player.race == "BloodElf" then --Blood Elf
 		-- Arcane Torrent
@@ -588,6 +596,7 @@ function br.hasBloodLust()
 	if br.UnitBuffID("player", 90355) or -- Ancient Hysteria
 		br.UnitBuffID("player", 2825) or -- Bloodlust
 		br.UnitBuffID("player", 146555) or -- Drums of Rage
+		br.UnitBuffID("player", 390386) or -- Fury of the Aspects
 		br.UnitBuffID("player", 32182) or -- Heroism
 		br.UnitBuffID("player", 90355) or -- Netherwinds
 		br.UnitBuffID("player", 80353) or -- Timewarp
@@ -607,6 +616,8 @@ function br.hasBloodLustRemain()
 		return br.getBuffRemain("player", 2825)
 	elseif br.UnitBuffID("player", 146555) then
 		return br.getBuffRemain("player", 146555)
+	elseif br.UnitBuffID("player", 390386) then
+		return br.getBuffRemain("player", 390386)
 	elseif br.UnitBuffID("player", 32182) then
 		return br.getBuffRemain("player", 32182)
 	elseif br.UnitBuffID("player", 80353) then

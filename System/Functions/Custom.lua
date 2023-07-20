@@ -52,7 +52,7 @@ function br.castAtPosition(X,Y,Z, SpellID)
         mouselookActive = true
         br._G.MouselookStop()
     end
-    br._G.CastSpellByName(br._G.GetSpellInfo(SpellID))
+    br._G.CastSpellByName(br._G.GetSpellInfo(SpellID),"player")
     while br._G.IsAoEPending() and i <= 100 do
         br._G.ClickPosition(X,Y,Z)
         br.castPosition.x = X
@@ -225,52 +225,56 @@ function br.castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRan
     --for every circle in testCircles, get units inside this circle, and return the circle with most units inside
     for i=1, #testCircles do
         local thisCircle = testCircles[i]
-        local temp1 = 0
-        local temp2 = 0
-        local temp1Units = { }
-        local temp2Units = { }
-        for j=1, #allUnitsInRange do
-            if spellType == "heal" then
-                if unitInCircle(allUnitsInRange[j].unit,thisCircle.xfc,thisCircle.yfc, radius, castTime) then
-                    temp1 = temp1 + 1
-                    br._G.tinsert(temp1Units,allUnitsInRange[j])
-                end
-                if unitInCircle(allUnitsInRange[j].unit,thisCircle.xsc,thisCircle.ysc, radius, castTime) then
-                    temp2 = temp2 + 1
-                    br._G.tinsert(temp2Units,allUnitsInRange[j])
-                end
-            else
-                if unitInCircle(allUnitsInRange[j],thisCircle.xfc,thisCircle.yfc, radius, castTime) then
-                    temp1 = temp1 + 1
-                    br._G.tinsert(temp1Units,allUnitsInRange[j])
-                end
-                if unitInCircle(allUnitsInRange[j],thisCircle.xsc,thisCircle.ysc, radius, castTime) then
-                    temp2 = temp2 + 1
-                    br._G.tinsert(temp2Units,allUnitsInRange[j])
+        if br.getDistanceToLocation("player",thisCircle.xfc,thisCircle.yfc,thisCircle.z) > minRange
+            or br.getDistanceToLocation("player",thisCircle.xsc,thisCircle.ysc,thisCircle.z) > minRange
+        then
+            local temp1 = 0
+            local temp2 = 0
+            local temp1Units = { }
+            local temp2Units = { }
+            for j=1, #allUnitsInRange do
+                if spellType == "heal" then
+                    if unitInCircle(allUnitsInRange[j].unit,thisCircle.xfc,thisCircle.yfc, radius, castTime) then
+                        temp1 = temp1 + 1
+                        br._G.tinsert(temp1Units,allUnitsInRange[j])
+                    end
+                    if unitInCircle(allUnitsInRange[j].unit,thisCircle.xsc,thisCircle.ysc, radius, castTime) then
+                        temp2 = temp2 + 1
+                        br._G.tinsert(temp2Units,allUnitsInRange[j])
+                    end
+                else
+                    if unitInCircle(allUnitsInRange[j],thisCircle.xfc,thisCircle.yfc, radius, castTime) then
+                        temp1 = temp1 + 1
+                        br._G.tinsert(temp1Units,allUnitsInRange[j])
+                    end
+                    if unitInCircle(allUnitsInRange[j],thisCircle.xsc,thisCircle.ysc, radius, castTime) then
+                        temp2 = temp2 + 1
+                        br._G.tinsert(temp2Units,allUnitsInRange[j])
+                    end
                 end
             end
-        end
-        if temp1 > temp2 and temp1 > bestCircle.nro then
-            bestCircle.x = thisCircle.xfc
-            bestCircle.y = thisCircle.yfc
-            bestCircle.z = thisCircle.z
-            bestCircle.nro = temp1
-            bestCircle.units = {}
-            for p = 1, #temp1Units do br._G.tinsert(bestCircle.units,temp1Units[p]) end
-        elseif temp2 > temp1  and temp2 > bestCircle.nro then
-            bestCircle.x = thisCircle.xsc
-            bestCircle.y = thisCircle.ysc
-            bestCircle.z = thisCircle.z
-            bestCircle.nro = temp2
-            bestCircle.units = {}
-            for p = 1, #temp2Units do br._G.tinsert(bestCircle.units,temp2Units[p]) end
-        elseif temp2 == temp1 and temp2 > bestCircle.nro then
-            bestCircle.x = thisCircle.xsc
-            bestCircle.y = thisCircle.ysc
-            bestCircle.z = thisCircle.z
-            bestCircle.nro = temp2
-            bestCircle.units = {}
-            for p = 1, #temp2Units do br._G.tinsert(bestCircle.units,temp2Units[p]) end
+            if temp1 > temp2 and temp1 > bestCircle.nro then
+                bestCircle.x = thisCircle.xfc
+                bestCircle.y = thisCircle.yfc
+                bestCircle.z = thisCircle.z
+                bestCircle.nro = temp1
+                bestCircle.units = {}
+                for p = 1, #temp1Units do br._G.tinsert(bestCircle.units,temp1Units[p]) end
+            elseif temp2 > temp1  and temp2 > bestCircle.nro then
+                bestCircle.x = thisCircle.xsc
+                bestCircle.y = thisCircle.ysc
+                bestCircle.z = thisCircle.z
+                bestCircle.nro = temp2
+                bestCircle.units = {}
+                for p = 1, #temp2Units do br._G.tinsert(bestCircle.units,temp2Units[p]) end
+            elseif temp2 == temp1 and temp2 > bestCircle.nro then
+                bestCircle.x = thisCircle.xsc
+                bestCircle.y = thisCircle.ysc
+                bestCircle.z = thisCircle.z
+                bestCircle.nro = temp2
+                bestCircle.units = {}
+                for p = 1, #temp2Units do br._G.tinsert(bestCircle.units,temp2Units[p]) end
+            end
         end
     end
     --print(#bestCircle.units)
@@ -285,7 +289,7 @@ function br.castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRan
     -- end
 
     --check with minUnits
-    if minUnits == 1 and bestCircle.nro == 0 and br.GetUnitExists("target") then
+    if minUnits == 1 and bestCircle.nro == 0 and br.GetUnitExists("target") and br.getDistance("player","target") > minRange then
         if br.castGround("target",spellID,maxRange,minRange,radius,castTime) then return true else return false end
     end
     if bestCircle.nro < minUnits then return false end

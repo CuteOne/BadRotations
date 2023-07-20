@@ -37,15 +37,44 @@ local function unitExistsInOM(unit)
 function br:updateOM()
 	local om = br.om
 	local startTime = br._G.debugprofilestop()
+	wipe(br.tracking)
 
+	local objUnit
+	local name
+	local objectid
+	local objectguid
 	local total = br._G.GetObjectCount(true,"BR") or 0
 	for i = 1,total do
 		local thisUnit = br._G.GetObjectWithIndex(i)
+		-- br._G.print(thisUnit.." - Is Unit: "..tostring(br._G.ObjectIsUnit(thisUnit)).." - Name: "..tostring(br._G.UnitName(thisUnit)))
 		if --[[br._G.IsGuid(thisUnit) and]] br._G.ObjectExists(thisUnit) and br._G.ObjectIsUnit(thisUnit) --[[and not unitExistsInOM(thisUnit) and br.omDist(thisUnit) < 50]] then
 			if not br._G.UnitIsPlayer(thisUnit) and not br.isCritter(thisUnit) and not br._G.UnitIsUnit("player", thisUnit) and not br._G.UnitIsFriend("player", thisUnit) then
 				local enemyUnit = br.unitSetup:new(thisUnit)
-				if enemyUnit then--and not br.isInOM(enemyUnit) then
+				if enemyUnit then --and (enemyUnit.range < 40 or br._G.UnitIsUnit(thisUnit, "target")) then--and not br.isInOM(enemyUnit) then
 					br._G.tinsert(om, enemyUnit)
+				end
+			end
+		end
+		if br.isChecked("Enable Tracker") and thisUnit ~= nil and br._G.ObjectExists(thisUnit)
+			and ((br._G.ObjectIsUnit(thisUnit) and br._G.UnitIsVisible(thisUnit) and not br.GetUnitIsDeadOrGhost(thisUnit)) or not br._G.ObjectIsUnit(thisUnit))
+		then
+			objUnit = br._G.ObjectIsUnit(thisUnit)
+			name = objUnit and br._G.UnitName(thisUnit) or br._G.ObjectName(thisUnit)
+			objectid = br._G.ObjectID(thisUnit)
+			objectguid = br._G.UnitGUID(thisUnit)
+			if thisUnit and name and objectid and objectguid then
+				local trackerFound = false
+				if #br.tracking > 0 then
+					for i = 1, #br.tracking do
+						local thisTracker = br.tracking[i]
+						if thisTracker.object == thisUnit then
+							trackerFound = true
+							return
+						end
+					end
+				end
+				if not trackerFound then
+					br._G.tinsert(br.tracking, {object = thisUnit, unit = objUnit, name = name, id = objectid, guid = objectguid})
 				end
 			end
 		end
@@ -162,7 +191,7 @@ end
 function br.isBurnTarget(unit)
 	local coef = 0
 	-- check if unit is valid
-	if br.getOptionCheck("Forced Burn") then
+	if br.getOptionCheck("Forced Burn") and br._G.UnitExists(unit) then
 		local unitID = br.GetObjectID(unit)
 		local burnUnit = br.lists.burnUnits[unitID]
 		local unitTime = br.units[unit] ~= nil and br.units[unit].timestamp or br._G.GetTime() - 1
@@ -418,12 +447,12 @@ function br.dynamicTarget(range,facing)
 		bestUnit = "target"
 	end
 	bestDist = br.getDistance(bestUnit) or 99
-	if bestDist < range then
-		if ((br.GetUnitIsDeadOrGhost("target") and not br.GetUnitIsFriend("target","player")) or (not br._G.UnitExists("target") and br.hasThreat(bestUnit))
-			or ((br.isChecked("Target Dynamic Target") and br.GetUnitExists("target")) and not br.GetUnitIsUnit(bestUnit,"target")))
+	if bestDist < range and not br.GetUnitIsUnit(bestUnit,"target") then
+		if ((br.GetUnitIsDeadOrGhost("target") and not br.GetUnitIsFriend("target","player")) or (not br.GetUnitExists("target") and br.hasThreat(bestUnit))
+			or ((br.isChecked("Target Dynamic Target") and br.GetUnitExists("target"))))
 			or (br.getOptionCheck("Forced Burn") and br.isBurnTarget(bestUnit) > 0 and br.GetUnitExists(bestUnit)
 				and ((not facing and not br.isExplosive(bestUnit)) or (facing and br.getFacing("player",bestUnit))))
-			or (br.getOptionCheck("Safe Damage Check") and not br.GetUnitIsUnit(bestUnit,"target") and not br.isSafeToAttack("target"))
+			or (br.getOptionCheck("Safe Damage Check") and not br.isSafeToAttack("target"))
 		then
 			br._G.TargetUnit(bestUnit)
 		end
@@ -495,7 +524,6 @@ function br.getEnemiesInCone(angle,length,checkNoCombat, showLines)
             if inside then
 			-- if isWithinAngleDifference("player", thisUnit, angle) then
 				if showLines then
----@diagnostic disable-next-line: undefined-field
 					LibDraw.Circle(unitX, unitY, playerZ, br._G.UnitBoundingRadius(thisUnit))
 				end
                 unitsCounter = unitsCounter + 1
@@ -512,6 +540,7 @@ end
 local rectUnits = {}
 function br.getEnemiesInRect(width,length,showLines,checkNoCombat)
 	local px, py, pz = br.GetObjectPosition("player")
+	if px == nil or py == nil or pz == nil then return {} end
 	local function getRect(width,length)
 		local facing = br.GetObjectFacing("player") or 0
 		local halfWidth = width/2

@@ -5,7 +5,7 @@ local function onUpdate(self)
 		if self:GetAlpha() == 0 then
 			self:Hide()
 		else
-			self:SetAlpha(self:GetAlpha() - 0.02)
+			self:SetAlpha(math.max(0.02, self:GetAlpha()) - 0.02)
 		end
 	end
 end

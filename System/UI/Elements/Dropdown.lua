@@ -65,6 +65,26 @@ function br.ui:createDropdown(parent, text, itemlist, default, tooltip, tooltipD
     ------------------
     ------Events------
     ------------------
+    -- Event: OnClick
+    local main_window = parent.content
+    if main_window:GetParent() ~= UIParent then
+        repeat
+            main_window = main_window:GetParent()
+        until main_window:GetParent() == nil or main_window:GetParent() == UIParent
+    end
+
+    local strata = newDropdown.dropdown:GetFrameStrata()
+    newDropdown:SetEventListener("OnClick", function(self, event, ...)
+        if self.dropdown:IsShown() then
+            strata = self.dropdown:GetFrameStrata()
+            self.dropdown:SetParent(main_window)
+            self.dropdown:SetFrameStrata("HIGH")
+        else
+            self.dropdown:SetParent(self.frame)
+            self.dropdown:SetFrameStrata(strata)
+        end
+    end)
+    
     -- Event: OnValueChange
     newDropdown:SetEventListener(
         "OnValueChanged",

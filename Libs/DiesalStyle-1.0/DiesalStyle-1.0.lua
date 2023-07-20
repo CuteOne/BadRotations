@@ -30,7 +30,9 @@ local Colors = DiesalStyle.Colors
 local Formatters = DiesalStyle.Formatters
 -- ~~| Locals |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 local OUTLINES = {'_LEFT','_RIGHT','_TOP','_BOTTOM'}
-local MEDIA_PATH = AddonName == 'DiesalLibs' and string.format("Interface\\AddOns\\%s\\%s\\Media\\",AddonName,MAJOR) or string.format("Interface\\AddOns\\%s\\Libs\\%s\\Media\\",AddonName,MAJOR)
+local MEDIA_PATH = type(AddonName) == 'table' and string.format("Interface\\AddOns\\Media\\")
+  or AddonName == 'DiesalLibs' and string.format("Interface\\AddOns\\%s\\%s\\Media\\",AddonName,MAJOR)
+  or string.format("Interface\\AddOns\\%s\\Libs\\%s\\Media\\",AddonName,MAJOR)
 local DEFAULT_COLOR = 'FFFFFF'
 local DEFAULT_GRADIENT_ORIENTATION = 'horizontal'
 local DEFAULT_LAYER = 'ARTWORK'
@@ -116,13 +118,22 @@ local function formatAlpha(alpha)
   return type(alpha) == 'number' and {alpha,alpha} or alpha
 end
 
+local function CreateColor(r,g,b,a)
+  return {
+    r = r or 0,
+    g = g or 0,
+    b = b or 0,
+    a = a or 1,
+  }
+end
+
 -- error handling
 local function setColor(texture, r, g, b, a)
   local status, err = pcall( texture.SetColorTexture, texture, r, g, b, a )
   if not status then errorhandler('error in "'..(texture.style.name or 'texture')..'" '..texture.style.mode..' or alpha setting',r, g, b, a) end
 end
 local function setGradient(texture, orientation, r1, g1, b1, a1, r2, g2, b2, a2)
-  local status, err = pcall( texture.SetGradientAlpha, texture, orientation, r1, g1, b1, a1, r2, g2, b2, a2 )
+  local status, err = pcall( texture.SetGradient, texture, orientation, CreateColor(r1, g1, b1, a1), CreateColor(r2, g2, b2, a2) )
   if not status then errorhandler('error in "'..(texture.style.name or 'texture')..'" '..texture.style.mode..' or alpha setting.') end
 end
 -- ~~| Media |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -496,9 +507,9 @@ do -- | Add LibSharedMedia |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 end
 do -- | Set Fonts |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   CreateFont("DiesalFontNormal")
-  DiesalFontNormal:SetFont( getMedia('font','calibrib'),11 )
+  DiesalFontNormal:SetFont( getMedia('font','calibrib'),11, '' )
   CreateFont("DiesalFontPixel")
-  DiesalFontPixel:SetFont( getMedia('font','Standard0755'), 8 )
+  DiesalFontPixel:SetFont( getMedia('font','Standard0755'), 8, '' )
   CreateFont("DiesalFontPixelOutLine")
   DiesalFontPixelOutLine:SetFont( getMedia('font','Standard0755'), 8, "OUTLINE, MONOCHROME" )
   DiesalFontPixelOutLine:SetSpacing(2)
@@ -611,7 +622,7 @@ function DiesalStyle:StyleTexture(texture,style)
     -- set mode
     texture.style.mode = 'image'
     -- clear any old settings
-    texture:SetGradientAlpha('HORIZONTAL',1,1,1,1,1,1,1,1) -- clear gradient
+    setGradient(texture,'HORIZONTAL',1,1,1,1,1,1,1,1) -- clear gradient
     texture:SetColorTexture(1,1,1,1) -- clear color
     -- apply settings
     texture:SetTexCoord(texture.style.image.coords[1],texture.style.image.coords[2],texture.style.image.coords[3],texture.style.image.coords[4])
@@ -636,7 +647,7 @@ function DiesalStyle:StyleTexture(texture,style)
     texture.style.mode = 'color'
     -- clear any old settings
     texture:SetTexture() -- clear image
-    texture:SetGradientAlpha('HORIZONTAL',1,1,1,1,1,1,1,1) -- clear gradient
+    setGradient(texture,'HORIZONTAL',1,1,1,1,1,1,1,1) -- clear gradient
     -- apply settings
     local r,g,b = GetBlizzColorValues(texture.style.color)
     setColor(texture, r, g, b, texture.style.alpha[1])
@@ -645,7 +656,7 @@ function DiesalStyle:StyleTexture(texture,style)
     texture.style.mode = 'none!'
     -- clear the texture
     texture:SetTexture() -- clear image
-    texture:SetGradientAlpha('HORIZONTAL',0,0,0,0,0,0,0,0) -- clear gradient
+    setGradient(texture,'HORIZONTAL',0,0,0,0,0,0,0,0) -- clear gradient
     texture:SetColorTexture(0,0,0,0) -- clear color
   end
 end
@@ -734,8 +745,8 @@ function DiesalStyle:StyleOutline(leftTexture,rightTexture,topTexture,bottomText
 
     if texture.style.gradient.orientation == 'HORIZONTAL' then
       -- clear settings
-      leftTexture:SetGradientAlpha('HORIZONTAL',1,1,1,1,1,1,1,1)
-      rightTexture:SetGradientAlpha('HORIZONTAL',1,1,1,1,1,1,1,1)
+      setGradient(leftTexture,'HORIZONTAL',1,1,1,1,1,1,1,1)
+      setGradient(rightTexture,'HORIZONTAL',1,1,1,1,1,1,1,1)
       topTexture:SetColorTexture(1,1,1,1) -- clear color
       bottomTexture:SetColorTexture(1,1,1,1) -- clear color
 
@@ -752,8 +763,8 @@ function DiesalStyle:StyleOutline(leftTexture,rightTexture,topTexture,bottomText
       -- clear settings
       leftTexture:SetColorTexture(1,1,1,1) -- clear color
       rightTexture:SetColorTexture(1,1,1,1) -- clear color
-      topTexture:SetGradientAlpha('HORIZONTAL',1,1,1,1,1,1,1,1)
-      bottomTexture:SetGradientAlpha('HORIZONTAL',1,1,1,1,1,1,1,1)
+      setGradient(topTexture,'HORIZONTAL',1,1,1,1,1,1,1,1)
+      setGradient(bottomTexture,'HORIZONTAL',1,1,1,1,1,1,1,1)
 
       -- aply settings
       r1,g1,b1 = GetBlizzColorValues(texture.style.gradient.color[2])
@@ -772,10 +783,10 @@ function DiesalStyle:StyleOutline(leftTexture,rightTexture,topTexture,bottomText
     -- set mode
     texture.style.mode = 'color'
     -- clear any old settings
-    leftTexture:SetGradientAlpha('HORIZONTAL',1,1,1,1,1,1,1,1)
-    rightTexture:SetGradientAlpha('HORIZONTAL',1,1,1,1,1,1,1,1)
-    topTexture:SetGradientAlpha('HORIZONTAL',1,1,1,1,1,1,1,1)
-    bottomTexture:SetGradientAlpha('HORIZONTAL',1,1,1,1,1,1,1,1)
+    setGradient(leftTexture,'HORIZONTAL',1,1,1,1,1,1,1,1)
+    setGradient(rightTexture,'HORIZONTAL',1,1,1,1,1,1,1,1)
+    setGradient(topTexture,'HORIZONTAL',1,1,1,1,1,1,1,1)
+    setGradient(bottomTexture,'HORIZONTAL',1,1,1,1,1,1,1,1)
     -- apply settings
     local r,g,b = GetBlizzColorValues(texture.style.color)
 
@@ -788,16 +799,16 @@ function DiesalStyle:StyleOutline(leftTexture,rightTexture,topTexture,bottomText
     texture.style.mode = 'none!'
     -- clear the texture
     leftTexture:SetTexture() -- clear image
-    leftTexture:SetGradientAlpha('HORIZONTAL',0,0,0,0,0,0,0,0) -- clear gradient
+    setGradient(leftTexture,'HORIZONTAL',0,0,0,0,0,0,0,0) -- clear gradient
     leftTexture:SetColorTexture(0,0,0,0) -- clear color
     rightTexture:SetTexture() -- clear image
-    rightTexture:SetGradientAlpha('HORIZONTAL',0,0,0,0,0,0,0,0) -- clear gradient
+    setGradient(rightTexture,'HORIZONTAL',0,0,0,0,0,0,0,0) -- clear gradient
     rightTexture:SetColorTexture(0,0,0,0) -- clear color
     topTexture:SetTexture() -- clear image
-    topTexture:SetGradientAlpha('HORIZONTAL',0,0,0,0,0,0,0,0) -- clear gradient
+    setGradient(topTexture,'HORIZONTAL',0,0,0,0,0,0,0,0) -- clear gradient
     topTexture:SetColorTexture(0,0,0,0) -- clear color
     bottomTexture:SetTexture() -- clear image
-    bottomTexture:SetGradientAlpha('HORIZONTAL',0,0,0,0,0,0,0,0) -- clear gradient
+    setGradient(bottomTexture,'HORIZONTAL',0,0,0,0,0,0,0,0) -- clear gradient
     bottomTexture:SetColorTexture(0,0,0,0) -- clear color
   end
 end

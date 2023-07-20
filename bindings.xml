@@ -1,6 +1,6 @@
  <Bindings>
 
-    <Binding name="Start/Stop Toggle" description="Hold to use toggle rotation on/off" runOnUp="true" category="BadRotations">
+    <!-- <Binding name="Start/Stop Toggle" description="Hold to use toggle rotation on/off" runOnUp="true" category="BadRotations">
             if keystate == "down" then test.updateButton(); end
     </Binding>
     <Binding name="Rotation Toggle" description="Hold to use toggle rotation mode" runOnUp="true" category="BadRotations">
@@ -35,5 +35,5 @@
     </Binding>
     <Binding name="Rotation Function 5" description="Custom functions in rotation" runOnUp="true" category="BadRotations">
             if keystate == "down" then rotationFunction5 = true; else rotationFunction5 = false; end
-    </Binding>
+    </Binding> -->
  </Bindings>

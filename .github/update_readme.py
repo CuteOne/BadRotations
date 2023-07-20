@@ -27,6 +27,7 @@ ORDERED_CLASSES = (
     "Death Knight",
     "Demon Hunter",
     "Druid",
+    "Evoker",
     "Hunter",
     "Mage",
     "Monk",

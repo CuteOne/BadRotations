@@ -103,7 +103,7 @@ Raidable means if its good to raid with.
 
 |rotation|author |patch|coverage|status|    readiness     |last updated|
 |--------|-------|:---:|:------:|:----:|:----------------:|-----------:|
-|CuteOne |CuteOne|9.2.5|  100%  | Full |:white_check_mark:|  08/07/2022|
+|CuteOne |CuteOne|10.0 |  100%  | Full |:white_check_mark:|  01/28/2023|
 
 - Vengeance
 
@@ -123,9 +123,9 @@ Raidable means if its good to raid with.
 
 - Feral
 
-|rotation|author |patch|coverage|status|    readiness     |last updated|
-|--------|-------|:---:|:------:|:----:|:----------------:|-----------:|
-|CuteOne |CuteOne|9.2.5|  100%  | Full |:white_check_mark:|  08/05/2022|
+|rotation|author |patch|coverage|status|  readiness  |last updated|
+|--------|-------|:---:|:------:|:----:|:-----------:|-----------:|
+|CuteOne |CuteOne|10.0 |  75%   | Full |:interrobang:|  02/19/2023|
 
 - Guardian
 
@@ -142,26 +142,45 @@ Raidable means if its good to raid with.
 |Aura     |Aura     |Unknown|Unknown |Unknown|:interrobang:|  03/14/2021|
 
 
+### Evoker
+
+- Devastation
+
+|   rotation   |          author          |patch|coverage| status |    readiness     |last updated|
+|--------------|--------------------------|:---:|:------:|:------:|:----------------:|-----------:|
+|CuteOne       |CuteOne                   |10.0 |  95%   |  Full  |:heavy_check_mark:|  02/24/2023|
+|DiscoInferno  |CuteOne edit by DiscoBooty|10.0 |  95%   |  Full  |:heavy_check_mark:|  01/08/2023|
+|Devastated Kuu|Kuukuu                    |10.0 |  25%   |Sporadic|  :interrobang:   |  12/10/2022|
+
+- Preservation
+
+|  rotation   |author|patch|coverage| status |  readiness  |last updated|
+|-------------|------|:---:|:------:|:------:|:-----------:|-----------:|
+|Preserved Kuu|Kuukuu|10.0 |  75%   |Sporadic|:interrobang:|  01/22/2023|
+
+
 ### Hunter
 
 - BeastMastery
 
-|rotation|author |patch|coverage|status |    readiness     |last updated|
-|--------|-------|:---:|:------:|:-----:|:----------------:|-----------:|
-|CuteOne |CuteOne|9.2.5|  100%  |Limited|:white_check_mark:|  08/07/2022|
+|   rotation    |author |patch|coverage|status |    readiness     |last updated|
+|---------------|-------|:---:|:------:|:-----:|:----------------:|-----------:|
+|TESTArhelayTEST|Arhelay|10.0 |  69%   |Limited|       :x:        |  02/08/2023|
+|Arhelay        |Arhelay|10.0 |  69%   |Limited|       :x:        |  11/02/2022|
+|CuteOne        |CuteOne|9.2.5|  100%  |Limited|:white_check_mark:|  08/07/2022|
 
 - Marksmanship
 
 |rotation|author | patch |coverage|status |    readiness     |last updated|
 |--------|-------|:-----:|:------:|:-----:|:----------------:|-----------:|
-|CuteOne |CuteOne| 9.2.5 |  100%  |Limited|:white_check_mark:|  08/05/2022|
+|CuteOne |CuteOne| 9.2.5 |  100%  |Limited|:white_check_mark:|  10/31/2022|
 |Bigsie  |Bigsie |Unknown|Unknown |Unknown|  :interrobang:   |  05/01/2021|
 
 - Survival
 
 |rotation|  author  | patch |coverage| status |    readiness     |last updated|
 |--------|----------|:-----:|:------:|:------:|:----------------:|-----------:|
-|CuteOne |CuteOne   |Unknown|  90%   |Inactive|:heavy_check_mark:|  08/05/2022|
+|CuteOne |CuteOne   |Unknown|  90%   |Inactive|:heavy_check_mark:|  02/14/2023|
 |Ponche  |aqwerty420|Unknown|Unknown |Unknown |  :interrobang:   |  07/21/2022|
 
 
@@ -196,9 +215,10 @@ Raidable means if its good to raid with.
 
 - Mistweaver
 
-|rotation|author | patch |coverage|status |  readiness  |last updated|
-|--------|-------|:-----:|:------:|:-----:|:-----------:|-----------:|
-|LyLo-v2 |LyLoLoq|Unknown|Unknown |Unknown|:interrobang:|  04/16/2022|
+| rotation |  author  | patch |coverage|status |  readiness  |last updated|
+|----------|----------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|Sinweaving|GR.TwoStep|Unknown|Unknown |Unknown|:interrobang:|  12/13/2022|
+|LyLo-v2   |LyLoLoq   |Unknown|Unknown |Unknown|:interrobang:|  04/16/2022|
 
 - Windwalker
 
@@ -214,21 +234,23 @@ Raidable means if its good to raid with.
 
 |  rotation  | author  | patch |coverage|status |  readiness  |last updated|
 |------------|---------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|Nessaj m+   |Nessaj911|10.0.2 |  90%   | Full  |:interrobang:|  02/14/2023|
 |Panglopal   |Pangloo  |Unknown|Unknown |Unknown|:interrobang:|  04/12/2022|
 |Laks M+     |Laksmackt|Unknown|Unknown |Unknown|:interrobang:|  05/14/2021|
 |FengshenHoly|Fengshen |Unknown|Unknown |Unknown|:interrobang:|  04/26/2021|
 
 - Protection
 
-|rotation|author| patch |coverage|status |  readiness  |last updated|
-|--------|------|:-----:|:------:|:-----:|:-----------:|-----------:|
-|Feng    |Helix |Unknown|Unknown |Unknown|:interrobang:|  04/26/2021|
+|rotation |author| patch |coverage|status |  readiness  |last updated|
+|---------|------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|RodecProt|Rodec |10.0.2 |  90%   | Full  |:interrobang:|  12/30/2022|
+|Feng     |Helix |Unknown|Unknown |Unknown|:interrobang:|  04/26/2021|
 
 - Retribution
 
-|rotation|author | patch |coverage| status |    readiness     |last updated|
-|--------|-------|:-----:|:------:|:------:|:----------------:|-----------:|
-|CuteOne |CuteOne|Unknown|  90%   |Inactive|:white_check_mark:|  08/05/2022|
+|rotation|author |patch|coverage| status |    readiness     |last updated|
+|--------|-------|:---:|:------:|:------:|:----------------:|-----------:|
+|CuteOne |CuteOne|10.0 |  90%   |Sporadic|:heavy_check_mark:|  01/07/2023|
 
 
 ### Priest
@@ -242,10 +264,11 @@ Raidable means if its good to raid with.
 
 - Holy
 
-|rotation | author | patch |coverage|status |  readiness  |last updated|
-|---------|--------|:-----:|:------:|:-----:|:-----------:|-----------:|
-|SnewyHoly|snewygit|Unknown|Unknown |Unknown|:interrobang:|  01/18/2022|
-|HolyAura |Aura    |Unknown|Unknown |Unknown|:interrobang:|  04/26/2021|
+|   rotation   | author | patch |coverage|status |    readiness     |last updated|
+|--------------|--------|:-----:|:------:|:-----:|:----------------:|-----------:|
+|CatholicPriest|Winterz | 9.2.5 |  80%   |Limited|:heavy_check_mark:|  09/18/2022|
+|SnewyHoly     |snewygit|Unknown|Unknown |Unknown|  :interrobang:   |  01/18/2022|
+|HolyAura      |Aura    |Unknown|Unknown |Unknown|  :interrobang:   |  04/26/2021|
 
 - Shadow
 
@@ -273,10 +296,10 @@ Raidable means if its good to raid with.
 
 - Subtlety
 
-|   rotation    |    author    | patch |coverage|status |    readiness     |last updated|
-|---------------|--------------|:-----:|:------:|:-----:|:----------------:|-----------:|
-|CuteOne        |CuteOne       | 9.2.5 |  100%  |Limited|:heavy_check_mark:|  08/07/2022|
-|SubS0ul - 9.0.5|Jakub Kulewicz|Unknown|Unknown |Unknown|  :interrobang:   |  11/06/2021|
+|rotation|author |patch |coverage|status |    readiness     |last updated|
+|--------|-------|:----:|:------:|:-----:|:----------------:|-----------:|
+|SubS0ul |S0ul   |10.0.2|88,(8)% | Full  |  :interrobang:   |  12/10/2022|
+|CuteOne |CuteOne|9.2.5 |  100%  |Limited|:heavy_check_mark:|  08/30/2022|
 
 
 ### Shaman
@@ -291,8 +314,8 @@ Raidable means if its good to raid with.
 
 |rotation|   author   | patch |coverage|status |    readiness     |last updated|
 |--------|------------|:-----:|:------:|:-----:|:----------------:|-----------:|
-|CuteOne |CuteOne     | 9.1.5 |  100%  |Limited|:white_check_mark:|  08/05/2022|
-|becyTR  |Kuukuukatchu|Unknown|Unknown |Unknown|  :interrobang:   |  05/19/2022|
+|CuteOne |CuteOne     |10.0.0 |  100%  |Limited|:white_check_mark:|  03/21/2023|
+|becyTR  |Kuukuukatchu|Unknown|Unknown |Unknown|  :interrobang:   |  02/10/2023|
 
 - Restoration
 
@@ -333,22 +356,22 @@ Raidable means if its good to raid with.
 
 | rotation  | author  | patch |coverage|status |    readiness     |last updated|
 |-----------|---------|:-----:|:------:|:-----:|:----------------:|-----------:|
-|CuteOne    |CuteOne  | 9.2.5 |  100%  |Limited|:heavy_check_mark:|  08/07/2022|
+|CuteOne    |CuteOne  | 9.2.5 |  100%  |Limited|:heavy_check_mark:|  10/05/2022|
 |WinterzArms|Hassliebe|Unknown|Unknown |Unknown|  :interrobang:   |  03/06/2021|
 
 - Fury
 
-| rotation  | author  | patch |coverage|status |    readiness     |last updated|
-|-----------|---------|:-----:|:------:|:-----:|:----------------:|-----------:|
-|WinterzFury|Winterz  | 9.2.5 |  80%   | Full  |:white_check_mark:|  08/05/2022|
-|CuteOne    |CuteOne  | 9.2.5 |  100%  |Limited|:heavy_check_mark:|  08/05/2022|
-|WinterzFury|Hassliebe|Unknown|Unknown |Unknown|  :interrobang:   |  05/12/2021|
+| rotation  |author |patch|coverage|status |    readiness     |last updated|
+|-----------|-------|:---:|:------:|:-----:|:----------------:|-----------:|
+|WinterzDF  |Winterz|10.0 |  70%   | Full  |:white_check_mark:|  11/20/2022|
+|WinterzFury|Winterz|9.2.5|  80%   | Full  |:white_check_mark:|  08/05/2022|
+|CuteOne    |CuteOne|9.2.5|  100%  |Limited|:heavy_check_mark:|  08/05/2022|
 
 - Protection
 
 |   rotation   | author | patch |coverage|status |    readiness     |last updated|
 |--------------|--------|:-----:|:------:|:-----:|:----------------:|-----------:|
-|CuteOne       |CuteOne | 9.2.5 |  100%  |Limited|:heavy_check_mark:|  08/07/2022|
+|CuteOne       |CuteOne | 9.2.5 |  100%  |Limited|:heavy_check_mark:|  10/31/2022|
 |Doparrior_Prot|Airwavez|Unknown|Unknown |Unknown|  :interrobang:   |  04/23/2021|
 |Panglo2       |Panglo  |Unknown|Unknown |Unknown|  :interrobang:   |  03/06/2021|
 

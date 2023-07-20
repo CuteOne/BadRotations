@@ -259,8 +259,7 @@ function br.read.commonReaders()
 	-- 	br._G.print(...)
 	-- end
 	--Frame:SetScript("OnEvent", addonReader)
-	br._G.GameTooltip:HookScript(
-		"OnTooltipSetUnit",
+	TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Unit,
 		function(self)
 			if br.unlocked --[[EWT]] and br._G.GetObjectCount() ~= nil then
 				local _, lunit = self:GetUnit()
@@ -319,6 +318,9 @@ function br.read.commonReaders()
 	superReaderFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP")
 	superReaderFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START")
 	superReaderFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_UPDATE")
+	superReaderFrame:RegisterEvent("UNIT_SPELLCAST_EMPOWER_START")
+	superReaderFrame:RegisterEvent("UNIT_SPELLCAST_EMPOWER_STOP")
+	superReaderFrame:RegisterEvent("UNIT_SPELLCAST_EMPOWER_UPDATE")
 	superReaderFrame:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
 	superReaderFrame:RegisterEvent("UNIT_POWER_UPDATE")
 	superReaderFrame:RegisterEvent("ENCOUNTER_START")
@@ -328,6 +330,7 @@ function br.read.commonReaders()
 	superReaderFrame:RegisterUnitEvent("PLAYER_EQUIPMENT_CHANGED")
 	superReaderFrame:RegisterUnitEvent("PLAYER_LEVEL_UP")
 	superReaderFrame:RegisterUnitEvent("PLAYER_TALENT_UPDATE")
+	superReaderFrame:RegisterUnitEvent("TRAIT_CONFIG_UPDATED")
 	superReaderFrame:RegisterUnitEvent("UI_ERROR_MESSAGE")
 	superReaderFrame:RegisterEvent("LOADING_SCREEN_ENABLED")
 	superReaderFrame:RegisterEvent("LOADING_SCREEN_DISABLED")
@@ -335,10 +338,6 @@ function br.read.commonReaders()
 		-- Azerite Essence
 		if event == "AZERITE_ESSENCE_ACTIVATED" then
 			br.updatePlayerInfo = true
-		end
-		-- Warlock Soul Shards
-		if event == "UNIT_POWER_UPDATE" and select(2, ...) == "SOUL_SHARDS" then
-			br.shards = br._G.WarlockPowerBar_UnitPower("player")
 		end
 		if event == "PLAYER_EQUIPMENT_CHANGED" then
 			br.equipHasChanged = true
@@ -360,7 +359,7 @@ function br.read.commonReaders()
 		-- if event == "PLAYER_TALENT_UPDATE" and select(2, GetSpecializationInfo(GetSpecialization())) == br.selectedSpec then
 		-- 	br.rotationChanged = true
 		-- end
-		if event == "PLAYER_TALENT_UPDATE" or event == "PLAYER_LEVEL_UP" or event == "PLAYER_EQUIPMENT_CHANGED" or event == "AZERITE_EMPOWERED_ITEM_SELECTION_UPDATED" then
+		if event == "PLAYER_TALENT_UPDATE" or event == "PLAYER_LEVEL_UP" or event == "PLAYER_EQUIPMENT_CHANGED" or event == "AZERITE_EMPOWERED_ITEM_SELECTION_UPDATED" or event == "TRAIT_CONFIG_UPDATED" then
 			br.updatePlayerInfo = true
 		end
 		-------------------------------------------------
@@ -587,7 +586,7 @@ function br.read.commonReaders()
 		end
 		if event == "UNIT_SPELLCAST_CHANNEL_START" then
 			local SourceUnit = select(1, ...)
-			local SpellID = select(5, ...)
+			local SpellID = select(3, ...)
 			if SourceUnit == "player" then
 				--Print("Channel Start")
 				br.lastStarted = SpellID
@@ -595,7 +594,7 @@ function br.read.commonReaders()
 		end
 		if event == "UNIT_SPELLCAST_CHANNEL_STOP" then
 			local SourceUnit = select(1, ...)
-			local SpellID = select(5, ...)
+			local SpellID = select(3, ...)
 			if SourceUnit == "player" then
 				--Print("Channel STOP")
 				br.lastFinished = SpellID
@@ -603,7 +602,30 @@ function br.read.commonReaders()
 		end
 		if event == "UNIT_SPELLCAST_CHANNEL_UPDATE" then
 			local SourceUnit = select(1, ...)
-			-- local SpellID = select(5, ...)
+			-- local SpellID = select(3, ...)
+			if SourceUnit == "player" then
+			--Print("Channel Update")
+			end
+		end
+		if event == "UNIT_SPELLCAST_EMPOWER_START" then
+			local SourceUnit = select(1, ...)
+			local SpellID = select(3, ...)
+			if SourceUnit == "player" then
+				--Print("Channel Start")
+				br.empowerID = SpellID
+			end
+		end
+		if event == "UNIT_SPELLCAST_EMPOWER_STOP" then
+			local SourceUnit = select(1, ...)
+			local SpellID = select(3, ...)
+			if SourceUnit == "player" then
+				--Print("Channel STOP")
+				br.empowerID = 0
+			end
+		end
+		if event == "UNIT_SPELLCAST_EMPOWER_UPDATE" then
+			local SourceUnit = select(1, ...)
+			-- local SpellID = select(3, ...)
 			if SourceUnit == "player" then
 			--Print("Channel Update")
 			end
