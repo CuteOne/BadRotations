@@ -1,0 +1,26 @@
+name: Generate Docs
+
+on:
+  push:
+    branches:
+    - main
+
+jobs:
+  build:
+    name: Build and publish documentation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "16"
+      - run: npm i -g moonwave@latest
+      - name: Publish
+        run: |
+          git diff
+          git remote set-url origin https://git:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
+          git config --global user.email "actions@users.noreply.github.com"
+          git config --global user.name "Docs Bot"
+          moonwave build --publish
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

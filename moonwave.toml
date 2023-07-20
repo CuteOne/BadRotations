@@ -1,0 +1,37 @@
+title = "BadRotations"
+gitRepoUrl = "https://github.com/CuteOne/BadRotations"
+
+gitSourceBranch = "master"
+changelog = false
+
+[docusaurus]
+onBrokenLinks = "throw"
+onBrokenMarkdownLinks = "warn"
+favicon = "favicon.ico"
+
+organizationName = "BadRotations Developers"
+projectName = "BadRotations"
+url = "https://github.com"
+baseUrl = "/CuteOne/BadRotations"
+tagline = "bbbbad"
+
+[footer]
+style = "dark"
+copyright = "Copyright © 2023 BadRotations"
+
+[[navbar.items]]
+href = "https://discord.gg/VE7V7Mz"
+label = "Discord"
+position = "right"
+
+# [[classOrder]]
+# section = "Meta"
+# classes = ["br", "br.api"]
+
+# [[classOrder]]
+# section = "Casting"
+# classes = ["br.api.cast"]
+
+# [[classOrder]]
+# section = "Units"
+# classes = ["unit"]
