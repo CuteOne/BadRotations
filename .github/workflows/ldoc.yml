@@ -24,7 +24,7 @@ jobs:
         sudo luarocks install ldoc
 
     - name: Generate Documentation
-      run: ldoc -d docs System --exclude "3rd Party Files" --exclude "Libs" --exclude "Rotations" --exclude "Settings" --exclude "Unlockers"
+      run: ldoc .
 
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
