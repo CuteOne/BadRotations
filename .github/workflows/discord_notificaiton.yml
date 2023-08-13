@@ -13,13 +13,15 @@ on:
       - 'Rotations/sample rotation.lua'
 
 jobs:
-  notify:
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
-
-    - name: Send notification to Discord
-      uses: Mist3r-Robot/classic-discord-webhook@v1
-      with:
-        webhook: ${{ secrets.DISCORD_WEBHOOK_URL }}
+    Discord_notification:
+        runs-on: ubuntu-latest
+        steps:
+        - name: Checkout repository
+          uses: actions/checkout@v3
+        - name: Run Discord Webhook
+          uses: Mist3r-Robot/classic-discord-webhook@main
+          with:
+            id: ${{ secrets.DISCORD_WEBHOOK_ID }}
+            token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
+            # threadId is optional and only if you want to post in a specific thread
+            # threadId: ${{ secrets.DISCORD_WEBHOOK_THREAD_ID }}
