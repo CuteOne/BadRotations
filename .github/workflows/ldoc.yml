@@ -3,7 +3,7 @@ name: Generate LDoc Documentation
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   build:
