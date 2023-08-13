@@ -7,6 +7,7 @@ if br.api == nil then br.api = {} end
 -- @section Buff
 
 --- V is the spellID passed from the builder which cycles all the collected buff spells from the spell list for the spec.
+-- @param buff table The br.player.buff table.
 -- @param v number The spell ID.
 -- @usage spell in the examples represent the name in the buffs list (Spec, Shared Class, Shared Global Lists) defined in System/List/Spells.lua
 

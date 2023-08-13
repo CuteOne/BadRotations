@@ -1,3 +1,4 @@
+module('br.player.cd')
 local _, br = ...
 if br.api == nil then br.api = {} end
 
@@ -19,7 +20,7 @@ br.api.cd = function(self,spell,id)
     ----------------
     --- CD API ---
     ----------------
-    
+
     -- cd.spell.exists() - returns if spell is on cooldown or not
     cd[spell].exists = function()
         local level = br._G.UnitLevel("player")
