@@ -27,7 +27,7 @@ jobs:
       run: rm -rf ./docs
 
     - name: Generate Documentation
-      run: ldoc -d ./docs
+      run: ldoc -d ./docs .
 
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
