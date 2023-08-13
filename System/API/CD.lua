@@ -1,4 +1,3 @@
---module('br.player.cd')
 local _, br = ...
 if br.api == nil then br.api = {} end
 
