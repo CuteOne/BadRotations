@@ -1,3 +1,4 @@
+module('br.player.cast API')
 local _, br = ...
 if br.api == nil then br.api = {} end
 

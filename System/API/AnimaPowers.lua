@@ -1,3 +1,4 @@
+module('br.player.anima API')
 local _, br = ...
 if br.api == nil then br.api = {} end
 
