@@ -16,7 +16,7 @@ br.api.cast = function(self,spell,id)
     -- @section CastAPIFunctions
 
     ---
-    -- @function br.player.cast(spell)
+    -- @function br.player.cast.functionForSpell
     -- @description Creates a function that can be used to cast a spell based on various parameters. The function name is dynamically generated based on the spell name.
     -- For example, for a spell named "thisSpell", the function would be `cast.thisSpell()`.
     -- @tparam string thisUnit The target unit for the spell. Can be standard WoW units, dynamic units, or special parameters like "best", "playerGround", etc.
@@ -52,7 +52,7 @@ br.api.cast = function(self,spell,id)
     end
 
     ---
-    -- @function br.player.cast.able(spell)
+    -- @function br.player.cast.able.functionForSpell
     -- @description Checks if a spell can be cast based on various parameters and returns True/False.
     -- @tparam string thisUnit The target unit for the spell. Can be standard WoW units, dynamic units, or special parameters.
     -- @tparam string castType Defines the type of AoE or special cast conditions.
@@ -86,7 +86,7 @@ br.api.cast = function(self,spell,id)
     end
 
     ---
-    -- @function br.player.cast.active(spell)
+    -- @function br.player.cast.active.functionForSpell
     -- @description Returns if the spell is the one currently being cast.
     -- @tparam string thisUnit The unit to check if it's casting the spell. Can be standard WoW units or dynamic units.
     -- @return True/False
@@ -97,7 +97,7 @@ br.api.cast = function(self,spell,id)
     end
 
     ---
-    -- @function br.player.cast.auto(spell)
+    -- @function br.player.cast.auto.functionForSpell
     -- @description Checks if the spell is set to auto-repeat or if it's the current spell being cast.
     -- @return True/False
     if cast.auto == nil then cast.auto = {} end
@@ -106,7 +106,7 @@ br.api.cast = function(self,spell,id)
     end
 
     ---
-    -- @function br.player.cast.cancel(spell)
+    -- @function br.player.cast.cancel.functionForSpell
     -- @description Cancels the current spell being cast if it matches the specified spell.
     -- @return True/False
     if cast.cancel == nil then cast.cancel = {} end
@@ -120,7 +120,7 @@ br.api.cast = function(self,spell,id)
     end
 
     ---
-    -- @function br.player.cast.cost(spell)
+    -- @function br.player.cast.cost.functionForSpell
     -- @description Returns the cost of the spell.
     -- @tparam boolean altPower Set to "true" to return alternate power cost.
     -- @return The cost of the spell.
@@ -135,7 +135,7 @@ br.api.cast = function(self,spell,id)
     end
 
     ---
-    -- @function br.player.cast.current(spell)
+    -- @function br.player.cast.current.functionForSpell
     -- @description Returns if the spell is the currently cast spell for the target (Alternate to br.player.cast.active.spell()).
     -- @tparam string thisUnit Acceptable parameters: nil (defaults to "player"), standard WoW units, or dynamic units.
     -- @return True/False
@@ -156,7 +156,7 @@ br.api.cast = function(self,spell,id)
     end
 
     ---
-    -- @function br.player.cast.dispel(spell)
+    -- @function br.player.cast.dispel.functionForSpell
     -- @description Returns if the spell if capable of dispelling the target.
     -- @tparam string thisUnit Acceptable parameters: nil (defaults to "target"), standard WoW units, or dynamic units.
     -- @return True/False
@@ -167,7 +167,7 @@ br.api.cast = function(self,spell,id)
     end
 
     ---
-    -- @function br.player.cast.empowered(spell)
+    -- @function br.player.cast.empowered.functionForSpell
     -- @description Returns current empowered rank of the spell or 0 if not empowered.
     -- @return The current empowered rank of the spell.
     if cast.empowered == nil then cast.empowered = {} end
@@ -189,7 +189,7 @@ br.api.cast = function(self,spell,id)
     end
 
     ---
-    -- @function br.player.cast.inFlight(spell)
+    -- @function br.player.cast.inFlight.functionForSpell
     -- @description Returns if the spell is currently in flight to the target.
     -- @tparam string thisUnit Acceptable parameters: nil (defaults to "target"), standard WoW units, or dynamic units.
     -- @return True/False
@@ -200,7 +200,7 @@ br.api.cast = function(self,spell,id)
     end
 
     ---
-    -- @function br.player.cast.inFlightRemain(spell)
+    -- @function br.player.cast.inFlightRemain.functionForSpell
     -- @description Returns time remaining on a spell in flight to the target.
     -- @tparam string thisUnit The target unit to check for the spell in flight.
     -- @return Time remaining on the spell in flight.
@@ -210,7 +210,7 @@ br.api.cast = function(self,spell,id)
     end
 
     ---
-    -- @function br.player.cast.last(spell)
+    -- @function br.player.cast.last.functionForSpell
     -- @description Returns if the spell was the last one cast or not.
     -- @tparam number index Number of last cast spell up to 10 previous spells, default value is 1 if not provided.
     -- @return True/False
@@ -222,7 +222,7 @@ br.api.cast = function(self,spell,id)
     end
 
     ---
-    -- @function br.player.cast.last.time(spell)
+    -- @function br.player.cast.last.time.functionForSpell
     -- @description Returns the GetTime() value the last cast of this spell occurred.
     -- @return The last time the spell was cast.
     if cast.last.time == nil then cast.last.time = {} end
@@ -232,7 +232,7 @@ br.api.cast = function(self,spell,id)
     end
 
     ---
-    -- @function br.player.cast.noControl(spell)
+    -- @function br.player.cast.noControl.functionForSpell
     -- @description Returns true if the spell can free you of a "no control" effect.
     -- @tparam string thisUnit The target unit to check for the "no control" effect. Defaults to "player" if not provided.
     -- @return True/False
@@ -272,7 +272,7 @@ br.api.cast = function(self,spell,id)
     end
 
     ---
-    -- @function br.player.cast.pool(spell)
+    -- @function br.player.cast.pool.functionForSpell
     -- @description Returns true if specified power requirements are not met.
     -- @tparam boolean altPower Set to "true" to return alternate power cost. Defaults to false if not provided.
     -- @tparam number specificAmt Set to specified power amount. Defaults to 0 if not provided.
@@ -290,7 +290,7 @@ br.api.cast = function(self,spell,id)
     end
 
     ---
-    -- @function br.player.cast.range(spell)
+    -- @function br.player.cast.range.functionForSpell
     -- @description Returns the spell's range, if it has one.
     -- @return The spell's range.
     if cast.range == nil then cast.range = {} end
@@ -299,7 +299,7 @@ br.api.cast = function(self,spell,id)
     end
 
     ---
-    -- @function br.player.cast.regen(spell)
+    -- @function br.player.cast.regen.functionForSpell
     -- @description Returns the amount of power spell will generate when cast.
     -- @return The amount of power spell will generate.
     if cast.regen == nil then cast.regen = {} end
@@ -308,7 +308,7 @@ br.api.cast = function(self,spell,id)
     end
 
     ---
-    -- @function br.player.cast.safe(spell)
+    -- @function br.player.cast.safe.functionForSpell
     -- @description Return if safe to cast specified aoe spell on unit given the aoe dimensions.
     -- @tparam string thisUnit The target unit to check for safety. Defaults to "target" if not provided.
     -- @tparam string aoeType The type of AoE to check for safety. Can be "rect", "cone", "ground", or "aoe".
@@ -321,7 +321,7 @@ br.api.cast = function(self,spell,id)
     end
 
     ---
-    -- @function br.player.cast.time(spell)
+    -- @function br.player.cast.time.functionForSpell
     -- @description Return cast time of player's spell. If the spell has no cast time, it returns the global cooldown.
     -- @return The cast time of the spell.
     if cast.time == nil then cast.time = {} end
@@ -342,7 +342,7 @@ br.api.cast = function(self,spell,id)
     end
 
     ---
-    -- @function br.player.cast.timeSinceLast(spell)
+    -- @function br.player.cast.timeSinceLast.functionForSpell
     -- @description Returns the time since the last cast of this spell occurred.
     -- @return The time since the last cast of this spell occurred.
     if cast.timeSinceLast == nil then cast.timeSinceLast = {} end
