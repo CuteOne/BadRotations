@@ -1,3 +1,4 @@
+-- [[ Global Variables and Tables Initialization ]] --
 -- define br global that will hold the bot global background features
 local _, br = ...
 br._G = setmetatable({}, {__index = _G})
@@ -39,6 +40,7 @@ br.settingsDir = "\\"
 br.settingsFile = "None.lua"
 br.unlocker = "None"
 
+-- [[ Class Colors Definition ]] --
 -- The colors Duke, the colors!
 br.classColors = {
 	[1] = {class = "Warrior", B = 0.43, G = 0.61, R = 0.78, hex = "c79c6e"},
@@ -66,36 +68,13 @@ br.druid = {}
 br.evoker = {}
 
 local nameSet = false
+-- [[ Functions Definition ]] --
 function br.setAddonName()
 	if not nameSet then
-		-- for i = 1, br._G.GetNumAddOns() do
-			-- local name, title = br._G.GetAddOnInfo(i)
-			-- if title == "|cffa330c9BadRotations" then
-				-- br.addonName = name
-				-- if br.addonName ~= "BadRotations" then
-				-- 	br._G.print("Currently known as " .. tostring(br.addonName))
-				-- end
-				nameSet = true
-				-- break
-			-- end
-		-- end
+		nameSet = true
 	end
 end
 
--- -- Cache all non-nil return values from GetSpellInfo in a table to improve performance
--- local spellcache =
--- 	setmetatable(
--- 	{},
--- 	{
--- 		__index = function(t, v)
--- 			local a = {_G.GetSpellInfo(v)}
--- 			if _G.GetSpellInfo(v) then
--- 				t[v] = a
--- 			end
--- 			return a
--- 		end
--- 	}
--- )
 -- Custom Print
 function br.debugPrint(message)
 	if br.data.settings[br.selectedSpec].toggles["isDebugging"] == true then
@@ -236,6 +215,8 @@ function br.load()
 	end
 	br.timeOfLastLoadingScreen = br._G.GetTime()
 end
+
+-- [[ Event Listeners ]] --
 local frame = br._G.CreateFrame("FRAME")
 frame:RegisterEvent("PLAYER_LOGOUT")
 frame:RegisterEvent("PLAYER_ENTERING_WORLD")
