@@ -251,3 +251,5 @@ function frame:OnEvent(event)
 	end
 end
 frame:SetScript("OnEvent", frame.OnEvent)
+
+-- Testing New Discord Notification
