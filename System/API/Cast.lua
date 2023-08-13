@@ -1,7 +1,7 @@
 local _, br = ...
 if br.api == nil then br.api = {} end
 
----
+--- br.player.cast API
 -- @module CastAPI
 -- @description This API provides functions to retrieve information about spell casts.
 -- The 'cast' table is located at br.player.cast. Use this in your profile to access the functions.
