@@ -1,4 +1,4 @@
-module('br.player.anima API')
+module('br.player.anima')
 local _, br = ...
 if br.api == nil then br.api = {} end
 

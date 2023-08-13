@@ -1,4 +1,4 @@
-module('br.player.buff API')
+module('br.player.buff')
 local _, br = ...
 if br.api == nil then br.api = {} end
 
