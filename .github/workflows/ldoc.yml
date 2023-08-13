@@ -23,14 +23,11 @@ jobs:
         sudo apt-get install luarocks
         sudo luarocks install ldoc
 
-    - name: Clean docs directory
-      run: rm -rf ./docs
-
     - name: Generate Documentation
-      run: ldoc -d ./docs .
+      run: ldoc .
 
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./docs
+        publish_dir: ./
