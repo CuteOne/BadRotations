@@ -1,9 +1,5 @@
 project = "BadRotations"
 description = "Lua-based combat rotation script for World of Warcraft"
-files = {
-    "System/*",
-    "System/API/*"
-}
 exclude_files = {
     "3rd Party Files/*",
     "Libs/*",
