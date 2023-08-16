@@ -29,14 +29,14 @@ jobs:
     - name: Setup dependencies
       run: luarocks install ldoc
 
-    - name: Copy custom ldoc.css
-      run: cp .github/assets/css/ldoc.css ./docs/
-
-    - name: Copy fontawesome-all.min.css
-      run: cp .github/assets/css/fontawesome-all.min.css ./docs/
-
     - name: Build docs
       run: ldoc .
+
+    - name: Copy custom ldoc.css
+      run: cp .github/assets/css/ldoc.css ./
+
+    - name: Copy fontawesome-all.min.css
+      run: cp .github/assets/css/fontawesome-all.min.css ./
 
     - name: Deploy to GitHub Pages
       uses: JamesIves/github-pages-deploy-action@4.1.5
