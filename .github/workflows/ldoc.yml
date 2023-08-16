@@ -33,7 +33,7 @@ jobs:
       run: luarocks install ldoc
 
     - name: Build docs
-      run: ldoc --template ../custom_templates/ldoc/custom_template.ldoc .
+      run: ldoc --template .github/custom_templates/ldoc/custom_template.ldoc .
 
     - name: Append Dynamic Documentation to LDoc Output
       run: cat DOCS.md >> ./docs/index.html  # Adjust the path if LDoc outputs to a different file
