@@ -49,7 +49,7 @@ br.api.cast = function(self,spell,id)
     end
 
     --- Attempts to cast a spell by its ID based on various parameters.
-    -- @name br.player.cast.id
+    -- @function br.player.cast.id
     -- @tparam number spellID The ID of the spell to cast.
     -- @tparam string thisUnit The target unit for the spell. Can be standard WoW units, dynamic units, or special parameters.
     -- @tparam string castType Defines the type of AoE or special cast conditions.
@@ -66,6 +66,7 @@ br.api.cast = function(self,spell,id)
 
     --- Checks if a spell can be cast based on various parameters and returns True/False.
     -- The function name is dynamically generated based on the spell name.
+    -- @function br.player.cast.able.spell
     -- @tparam string thisUnit The target unit for the spell. Can be standard WoW units, dynamic units, or special parameters.
     -- @tparam string castType Defines the type of AoE or special cast conditions.
     -- @tparam number minUnits Minimum number of units needed to be hit by AoE spell.
