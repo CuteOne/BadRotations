@@ -30,10 +30,10 @@ br.api.cast = function(self,spell,id)
     if cast.timeRemain == nil then cast.timeRemain = {} end
     if cast.timeSinceLast == nil then cast.timeSinceLast = {} end
 
-    -- @xfunction br.player.cast.spell
+    --[[-- @xfunction br.player.cast.spell
     -- @xdescription Creates a function that can be used to cast a spell based on various parameters. The function name is dynamically generated based on the spell name.
     -- For example, for a spell named "thisSpell", the function would be `cast.thisSpell()`.
-    --[[-- @xtparam string thisUnit The target unit for the spell. Can be standard WoW units, dynamic units, or special parameters like "best", "playerGround", etc.
+    -- @xtparam string thisUnit The target unit for the spell. Can be standard WoW units, dynamic units, or special parameters like "best", "playerGround", etc.
     -- @xtparam string castType Defines the type of AoE or special cast conditions.
     -- @xtparam number minUnits Minimum number of units needed to be hit by AoE spell.
     -- @xtparam number effectRng The AoE's effect range.
@@ -47,8 +47,7 @@ br.api.cast = function(self,spell,id)
         return br.createCastFunction(thisUnit,castType,minUnits,effectRng,id,spell,predict,predictPad,enemies)
     end
 
-    --[[
-    --
+    ---
     -- @function br.player.cast.id
     -- @description Attempts to cast a spell by its ID based on various parameters.
     -- @tparam number spellID The ID of the spell to cast.
@@ -59,7 +58,7 @@ br.api.cast = function(self,spell,id)
     -- @tparam boolean predict If true, will attempt to predict enemy movements for ground location AoE spells.
     -- @tparam boolean predictPad Pads the prediction cast time. 'predict' must be true.
     -- @tparam table enemies A table of enemy units that the spell should be cast on.
-    -- @return True/False]]
+    -- @return True/False
     cast.id = function(spellID,thisUnit,castType,minUnits,effectRng,predict,predictPad,enemies)
         return br.createCastFunction(thisUnit,castType,minUnits,effectRng,spellID,spell,predict,predictPad,enemies)
     end
