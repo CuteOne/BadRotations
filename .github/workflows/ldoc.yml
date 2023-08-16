@@ -32,11 +32,11 @@ jobs:
     - name: Setup dependencies
       run: luarocks install ldoc
 
-    - name: Print current directory
-      run: pwd
+    - name: Change to repository root
+      run: cd $GITHUB_WORKSPACE
 
-    - name: List template directory contents
-      run: ls -al .github/custom_templates
+    - name: Build docs
+      run: ldoc .
 
     - name: Build docs
       run: ldoc --template .github/custom_templates/ldoc/custom_template.ldoc .
