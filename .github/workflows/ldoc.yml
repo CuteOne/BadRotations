@@ -35,11 +35,8 @@ jobs:
     - name: Build docs
       run: ldoc -l .github/custom_templates .
 
-    - name: Append Dynamic Documentation to LDoc Output
-      run: cat DOCS.md >> ./docs/index.html  # Adjust the path if LDoc outputs to a different file
-
     - name: List contents of docs directory
-      run: ls -al ./docs
+      run: ls -al ./docs && cat ./docs/index.html
 
     - name: Deploy to GitHub Pages
       uses: JamesIves/github-pages-deploy-action@4.1.5

@@ -43,13 +43,12 @@ br.api.cast = function(self,spell,id)
     -- @tparam boolean predict If true, will attempt to predict enemy movements for ground location AoE spells.
     -- @tparam boolean predictPad Pads the prediction cast time. 'predict' must be true.
     -- @tparam table enemies A table of enemy units that the spell should be cast on.
-    -- @return True/False
+    -- @return boolean True/False
     cast[spell] = function(thisUnit,castType,minUnits,effectRng,predict,predictPad,enemies)
         return br.createCastFunction(thisUnit,castType,minUnits,effectRng,id,spell,predict,predictPad,enemies)
     end
 
-    ---
-    -- Attempts to cast a spell by its ID based on various parameters.
+    --- Attempts to cast a spell by its ID based on various parameters.
     -- @name br.player.cast.id
     -- @tparam number spellID The ID of the spell to cast.
     -- @tparam string thisUnit The target unit for the spell. Can be standard WoW units, dynamic units, or special parameters.
@@ -65,16 +64,16 @@ br.api.cast = function(self,spell,id)
     end
 
 
-    --[[-- @xfunction br.player.cast.able.spell
-    -- @xdescription Checks if a spell can be cast based on various parameters and returns True/False.
-    -- @xtparam string thisUnit The target unit for the spell. Can be standard WoW units, dynamic units, or special parameters.
-    -- @xtparam string castType Defines the type of AoE or special cast conditions.
-    -- @xtparam number minUnits Minimum number of units needed to be hit by AoE spell.
-    -- @xtparam number effectRng The AoE's effect range.
-    -- @xtparam boolean predict If true, will attempt to predict enemy movements for ground location AoE spells.
-    -- @xtparam boolean predictPad Pads the prediction cast time. 'predict' must be true.
-    -- @xtparam table enemies A table of enemy units that the spell should be cast on.
-    -- @xreturn True/False]]
+    --- Checks if a spell can be cast based on various parameters and returns True/False.
+    -- The function name is dynamically generated based on the spell name.
+    -- @tparam string thisUnit The target unit for the spell. Can be standard WoW units, dynamic units, or special parameters.
+    -- @tparam string castType Defines the type of AoE or special cast conditions.
+    -- @tparam number minUnits Minimum number of units needed to be hit by AoE spell.
+    -- @tparam number effectRng The AoE's effect range.
+    -- @tparam boolean predict If true, will attempt to predict enemy movements for ground location AoE spells.
+    -- @tparam boolean predictPad Pads the prediction cast time. 'predict' must be true.
+    -- @tparam table enemies A table of enemy units that the spell should be cast on.
+    -- @return boolean True/False
     cast.able[spell] = function(thisUnit,castType,minUnits,effectRng,predict,predictPad,enemies)
         return br.createCastFunction(thisUnit,castType,minUnits,effectRng,id,spell,predict,predictPad,enemies,true)
     end
