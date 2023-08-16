@@ -38,6 +38,9 @@ jobs:
     - name: Append Dynamic Documentation to LDoc Output
       run: cat DOCS.md >> ./docs/index.html  # Adjust the path if LDoc outputs to a different file
 
+    - name: List contents of docs directory
+      run: ls -al ./docs
+
     - name: Deploy
       if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
       uses: peaceiris/actions-gh-pages@v3
