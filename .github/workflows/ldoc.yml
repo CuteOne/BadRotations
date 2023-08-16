@@ -13,6 +13,14 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
+    - name: Setup Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+
+    - name: Generate Dynamic Documentation
+      run: python .github/generate_dynamic_docs.py
+
     - name: Setup Lua
       uses: leafo/gh-actions-lua@v8
       with:
@@ -26,6 +34,9 @@ jobs:
 
     - name: Build docs
       run: ldoc .
+
+    - name: Append Dynamic Documentation to LDoc Output
+      run: cat DOCS.md >> ./docs/index.html  # Adjust the path if LDoc outputs to a different file
 
     - name: Deploy
       if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}

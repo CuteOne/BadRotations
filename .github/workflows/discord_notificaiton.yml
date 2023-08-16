@@ -11,6 +11,7 @@ on:
       - 'LICENSE'
       - 'Rotations/Old/**'
       - 'Rotations/sample rotation.lua'
+      - 'System/API/**' # Temp Ignore API Folder
 
 jobs:
     Discord_notification:
