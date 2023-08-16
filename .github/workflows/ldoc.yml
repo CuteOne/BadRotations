@@ -18,9 +18,6 @@ jobs:
       with:
         python-version: '3.x'
 
-    - name: Generate Dynamic Documentation
-      run: python .github/generate_dynamic_docs.py
-
     - name: Setup Lua
       uses: leafo/gh-actions-lua@v8
       with:
