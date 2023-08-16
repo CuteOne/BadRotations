@@ -3,7 +3,7 @@ local _, br = ...
 if br.api == nil then br.api = {} end
 
 --- Buff is the table located at br.player.buff.
--- These functions are accessible via `br.player.buff.spell.functionName()`.
+-- These functions are accessible via `local buff = br.player.buff`
 -- @section Buff
 
 --- V is the spellID passed from the builder which cycles all the collected buff spells from the spell list for the spec.

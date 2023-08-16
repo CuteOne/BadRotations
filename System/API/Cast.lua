@@ -2,6 +2,10 @@ module('br.player.cast')
 local _, br = ...
 if br.api == nil then br.api = {} end
 
+--- Cast is the table located at br.player.cast.
+-- These functions are accessible via `local cast = br.player.cast`
+-- @section Cast
+
 ---
 -- @description This API provides functions to retrieve information about spell casts.
 -- The 'cast' table is located at br.player.cast. Use this in your profile to access the functions.
@@ -32,9 +36,6 @@ br.api.cast = function(self,spell,id)
     if cast.timeRemain == nil then cast.timeRemain = {} end
     if cast.timeSinceLast == nil then cast.timeSinceLast = {} end
 
-    ---
-    -- @section CastAPIFunctions
-
     -- @xfunction br.player.cast.spell
     -- @xdescription Creates a function that can be used to cast a spell based on various parameters. The function name is dynamically generated based on the spell name.
     -- For example, for a spell named "thisSpell", the function would be `cast.thisSpell()`.
@@ -52,7 +53,8 @@ br.api.cast = function(self,spell,id)
         return br.createCastFunction(thisUnit,castType,minUnits,effectRng,id,spell,predict,predictPad,enemies)
     end
 
-    --[[---
+    --[[
+    --
     -- @function br.player.cast.id
     -- @description Attempts to cast a spell by its ID based on various parameters.
     -- @tparam number spellID The ID of the spell to cast.
@@ -82,7 +84,8 @@ br.api.cast = function(self,spell,id)
         return br.createCastFunction(thisUnit,castType,minUnits,effectRng,id,spell,predict,predictPad,enemies,true)
     end
 
-    --[[---
+    --[[
+    --
     -- @function br.player.cast.able.id
     -- @description Checks if a spell by its ID can be cast based on various parameters and returns True/False.
     -- @tparam number spellID The ID of the spell to check.
@@ -148,7 +151,8 @@ br.api.cast = function(self,spell,id)
         return br.isCastingSpell(id,thisUnit)
     end
 
-    --[[---
+    --[[
+    --
     -- @function br.player.cast.current.id
     -- @description Returns the spell id of the current (or previously) cast spell by the API.
     -- @return The current spell id]]
@@ -172,7 +176,8 @@ br.api.cast = function(self,spell,id)
         return br.getEmpoweredRank(id)
     end
 
-    --[[---
+    --[[
+    --
     -- @function br.player.cast.form
     -- @description Casts the form corresponding to the provided formIndex number.
     -- @tparam number formIndex Index of the form to be casted. If not provided, defaults to 0.
@@ -228,7 +233,8 @@ br.api.cast = function(self,spell,id)
         return hasNoControl(id,thisUnit)
     end
 
-    --[[---
+    --[[
+    --
     -- @function br.player.cast.opener
     -- @description Attempts to cast special opener condition spell.
     -- @tparam number thisSpell The spell to be cast as the opener.
@@ -240,7 +246,8 @@ br.api.cast = function(self,spell,id)
         return castOpener(thisSpell,thisTracker,thisCount)
     end
 
-    --[[---
+    --[[
+    --
     -- @function br.player.cast.openerFail
     -- @description Resets cast special opener condition if failed to cast.
     -- @tparam number thisSpell The spell that failed to cast.
@@ -301,7 +308,8 @@ br.api.cast = function(self,spell,id)
         return castTime > 0 and castTime or br.getGlobalCD(true)
     end
 
-    --[[---
+    --[[
+    --
     -- @function br.player.cast.timeRemain
     -- @description Return cast time remaining on player's cast or supplied target.
     -- @tparam string thisUnit The unit to check cast time remaining. Defaults to "player" if not provided.
