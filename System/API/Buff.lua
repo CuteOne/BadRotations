@@ -1,5 +1,5 @@
 ---
--- @description Buff is the table located at br.player.buff
+-- Buff is the table located at br.player.buff
 -- These functions are accessible via `local buff = br.player.buff`
 -- `spell` in the usage examples represent the name in the buffs list (Spec, Shared Class, Shared Global Lists) defined in System/List/Spells.lua
 -- @module br.player.buff

@@ -1,5 +1,5 @@
 ---
--- @Anima is the table located at br.player.anima
+-- Anima is the table located at br.player.anima
 -- These functions are accessible via `local anima = br.player.anima`
 -- `spell` in the usage examples represent the name in the animas list (Spec, Shared Class, Shared Global Lists) defined in System/List/Spells.lua
 -- @module br.player.anima
