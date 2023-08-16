@@ -2,11 +2,11 @@ module('br.player.cast')
 local _, br = ...
 if br.api == nil then br.api = {} end
 
---- Cast is the table located at br.player.cast.
+-- Cast is the table located at br.player.cast.
 -- These functions are accessible via `local cast = br.player.cast`
 -- @section Cast
 
----
+--
 -- @description This API provides functions to retrieve information about spell casts.
 -- The 'cast' table is located at br.player.cast. Use this in your profile to access the functions.
 -- 'id' is the spellID passed from the builder, which cycles through all the collected ability spells from the spell list for the spec.
