@@ -30,7 +30,7 @@ jobs:
       run: luarocks install ldoc
 
     - name: Build docs
-      run: ldoc -l .github/custom_templates .
+      run: ldoc .
 
     - name: List contents of docs directory
       run: ls -al ./docs && cat ./docs/index.html

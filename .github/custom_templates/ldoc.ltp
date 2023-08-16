@@ -9,11 +9,11 @@
 </head>
 <body>
     <header>
-        <h1>$(title)</h1>
+        <h1>$(project)</h1>
     </header>
 
     <main>
-        $(body)
+        $(content)
     </main>
 
     <footer>
