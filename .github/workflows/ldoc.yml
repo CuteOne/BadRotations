@@ -32,14 +32,8 @@ jobs:
     - name: Setup dependencies
       run: luarocks install ldoc
 
-    - name: Change to repository root
-      run: cd $GITHUB_WORKSPACE
-
     - name: Build docs
-      run: ldoc .
-
-    - name: Build docs
-      run: ldoc --template .github/custom_templates/ldoc/custom_template.ldoc .
+      run: ldoc -l .github/custom_templates .
 
     - name: Append Dynamic Documentation to LDoc Output
       run: cat DOCS.md >> ./docs/index.html  # Adjust the path if LDoc outputs to a different file
