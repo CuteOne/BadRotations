@@ -2,14 +2,13 @@ module('br.player.buff')
 local _, br = ...
 if br.api == nil then br.api = {} end
 
---- Buff is the table located at br.player.buff.
+---
+-- @description Buff is the table located at br.player.buff
 -- These functions are accessible via `local buff = br.player.buff`
--- @section Buff
+-- `spell` in the examples represent the name in the buffs list (Spec, Shared Class, Shared Global Lists) defined in System/List/Spells.lua
 
---- V is the spellID passed from the builder which cycles all the collected buff spells from the spell list for the spec.
--- @param buff table The br.player.buff table.
--- @param v number The spell ID.
--- @usage spell in the examples represent the name in the buffs list (Spec, Shared Class, Shared Global Lists) defined in System/List/Spells.lua
+---
+-- @section Buff
 
 br.api.buffs = function(buff,v)
 

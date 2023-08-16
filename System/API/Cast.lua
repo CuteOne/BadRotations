@@ -2,15 +2,13 @@ module('br.player.cast')
 local _, br = ...
 if br.api == nil then br.api = {} end
 
--- Cast is the table located at br.player.cast.
+---
+-- @description Cast is the table located at br.player.cast.
 -- These functions are accessible via `local cast = br.player.cast`
--- @section Cast
+-- `spell` in the examples represent the name in the buffs list (Spec, Shared Class, Shared Global Lists) defined in System/List/Spells.lua
 
---
--- @description This API provides functions to retrieve information about spell casts.
--- The 'cast' table is located at br.player.cast. Use this in your profile to access the functions.
--- 'id' is the spellID passed from the builder, which cycles through all the collected ability spells from the spell list for the spec.
--- 'spell' in the examples represents the name in the ability list (Spec, Shared Class, Shared Global Lists) defined in System/List/Spells.lua.
+---
+-- @section Cast
 
 br.api.cast = function(self,spell,id)
     if self.cast == nil then self.cast = {} end
