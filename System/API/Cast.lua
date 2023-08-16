@@ -47,9 +47,10 @@ br.api.cast = function(self,spell,id)
         return br.createCastFunction(thisUnit,castType,minUnits,effectRng,id,spell,predict,predictPad,enemies)
     end
 
-    ---
+    --- Cast a spell by ID
     -- @name br.player.cast.id
-    --[[ @description Attempts to cast a spell by its ID based on various parameters.
+    --
+    -- @description Attempts to cast a spell by its ID based on various parameters.
     -- @tparam number spellID The ID of the spell to cast.
     -- @tparam string thisUnit The target unit for the spell. Can be standard WoW units, dynamic units, or special parameters.
     -- @tparam string castType Defines the type of AoE or special cast conditions.
@@ -58,10 +59,11 @@ br.api.cast = function(self,spell,id)
     -- @tparam boolean predict If true, will attempt to predict enemy movements for ground location AoE spells.
     -- @tparam boolean predictPad Pads the prediction cast time. 'predict' must be true.
     -- @tparam table enemies A table of enemy units that the spell should be cast on.
-    -- @return boolean True/False]]
+    -- @return boolean True/False
     cast.id = function(spellID,thisUnit,castType,minUnits,effectRng,predict,predictPad,enemies)
         return br.createCastFunction(thisUnit,castType,minUnits,effectRng,spellID,spell,predict,predictPad,enemies)
     end
+
 
     --[[-- @xfunction br.player.cast.able.spell
     -- @xdescription Checks if a spell can be cast based on various parameters and returns True/False.

@@ -12,8 +12,7 @@ br.api.buffs = function(buff,v)
     --- Cancel a buff.
     -- @tparam[opt="player"] string thisUnit The unit to check.
     -- @tparam[opt="player"] string sourceUnit The source of the buff.
-    -- @usage local buff = br.player.buff
-    -- buff.spell.cancel("player")  -- Cancels the buff from the player.
+    -- @usage buff.spell.cancel("player")  -- Cancels the buff from the player.
     buff.cancel = function(thisUnit,sourceUnit)
         if thisUnit == nil then thisUnit = 'player' end
         if sourceUnit == nil then sourceUnit = 'player' end
@@ -24,7 +23,7 @@ br.api.buffs = function(buff,v)
 
     --- Get the count of a buff.
     -- @treturn number The count of the buff.
-    -- @usage local count = br.player.buff.spell.count()  -- Gets the count of the buff.
+    -- @usage buff.spell.count()  -- Gets the count of the buff.
     buff.count = function()
         return tonumber(br.getBuffCount(v))
     end
@@ -33,8 +32,7 @@ br.api.buffs = function(buff,v)
     -- @tparam[opt="player"] string thisUnit The unit to check.
     -- @tparam[opt="player"] string sourceUnit The source of the buff.
     -- @treturn number The duration of the buff in seconds.
-    -- @usage local duration = br.player.buff
-    -- buff.spell.duration("player")  -- Gets the duration of the buff on the player.
+    -- @usage buff.spell.duration("player")  -- Gets the duration of the buff on the player.
     buff.duration = function(thisUnit,sourceUnit)
         if thisUnit == nil then thisUnit = 'player' end
         if sourceUnit == nil then sourceUnit = 'player' end
@@ -45,8 +43,7 @@ br.api.buffs = function(buff,v)
     -- @tparam[opt="player"] string thisUnit The unit to check.
     -- @tparam[opt="player"] string sourceUnit The source of the buff.
     -- @treturn boolean True if the buff exists, false otherwise.
-    -- @usage local exists = br.player.buff
-    -- buff.spell.exists("player")  -- Checks if the buff exists on the player.
+    -- @usage buff.spell.exists("player")  -- Checks if the buff exists on the player.
     buff.exists = function(thisUnit,sourceUnit)
         if thisUnit == nil then thisUnit = 'player' end
         if sourceUnit == nil then sourceUnit = 'player' end
@@ -57,8 +54,7 @@ br.api.buffs = function(buff,v)
     -- @tparam[opt="player"] string thisUnit The unit to check.
     -- @tparam[opt="player"] string sourceUnit The source of the buff.
     -- @treturn boolean True if the buff has a reaction delay, false otherwise.
-    -- @usage local react = br.player.buff
-    -- buff.spell.react("player")  -- Checks the reaction delay of the buff on the player.
+    -- @usage buff.spell.react("player")  -- Checks the reaction delay of the buff on the player.
     buff.react = function(thisUnit, sourceUnit)
         thisUnit = thisUnit or "player"
         sourceUnit = sourceUnit or "player"
@@ -69,8 +65,7 @@ br.api.buffs = function(buff,v)
     -- @tparam[opt="player"] string thisUnit The unit to check.
     -- @tparam[opt="player"] string sourceUnit The source of the buff.
     -- @treturn number The remaining time of the buff in seconds.
-    -- @usage local remain = br.player.buff
-    -- buff.spell.remain("player")  -- Gets the remaining time of the buff on the player.
+    -- @usage buff.spell.remain("player")  -- Gets the remaining time of the buff on the player.
     buff.remain = function(thisUnit,sourceUnit)
         if thisUnit == nil then thisUnit = 'player' end
         if sourceUnit == nil then sourceUnit = 'player' end
@@ -81,8 +76,7 @@ br.api.buffs = function(buff,v)
     -- @tparam[opt="player"] string thisUnit The unit to check.
     -- @tparam[opt="player"] string sourceUnit The source of the buff.
     -- @treturn number The remaining time of the buff in seconds.
-    -- @usage local remain = br.player.buff
-    -- buff.spell.remain("player")  -- Gets the remaining time of the buff on the player.
+    -- @usage buff.spell.remain("player")  -- Gets the remaining time of the buff on the player.
     buff.remains = function(thisUnit,sourceUnit)
         if thisUnit == nil then thisUnit = 'player' end
         if sourceUnit == nil then sourceUnit = 'player' end
@@ -93,8 +87,7 @@ br.api.buffs = function(buff,v)
     -- @tparam[opt="player"] string thisUnit The unit to check.
     -- @tparam[opt="player"] string sourceUnit The source of the buff.
     -- @treturn boolean True if the buff should be refreshed, false otherwise.
-    -- @usage local shouldRefresh = br.player.buff
-    -- buff.spell.refresh("player")  -- Checks if the buff on the player should be refreshed.
+    -- @usage buff.spell.refresh("player")  -- Checks if the buff on the player should be refreshed.
     buff.refresh = function(thisUnit,sourceUnit)
         return buff.remain(thisUnit,sourceUnit) <= buff.duration(thisUnit,sourceUnit) * 0.3
     end
@@ -103,8 +96,7 @@ br.api.buffs = function(buff,v)
     -- @tparam[opt="player"] string thisUnit The unit to check.
     -- @tparam[opt="player"] string sourceUnit The source of the buff.
     -- @treturn number The stack count of the buff.
-    -- @usage local stacks = br.player.buff
-    -- buff.spell.stack("player")  -- Gets the stack count of the buff on the player.
+    -- @usage buff.spell.stack("player")  -- Gets the stack count of the buff on the player.
     buff.stack = function(thisUnit,sourceUnit)
         if thisUnit == nil then thisUnit = 'player' end
         if sourceUnit == nil then sourceUnit = 'player' end
