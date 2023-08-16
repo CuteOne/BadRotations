@@ -1,202 +1,22 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <title>Reference</title>
-    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <link rel="stylesheet" href="ldoc.css" type="text/css" />
+    <link rel="stylesheet" href="../assets/css/main.css" />
+    <noscript><link rel="stylesheet" href="../assets/css/noscript.css" /></noscript>
+    <title>BadRotations API Documentation</title>
 </head>
 <body>
+    <header>
+        <h1>BadRotations API Documentation</h1>
+    </header>
 
-<div id="container">
+    <main>
 
-<div id="product">
-	<div id="product_logo"></div>
-	<div id="product_name"><big><b></b></big></div>
-	<div id="product_description"></div>
-</div> <!-- id="product" -->
+    </main>
 
-
-<div id="main">
-
-
-<!-- Menu -->
-
-<div id="navigation">
-<br/>
-<h1>BadRotations</h1>
-
-
-<ul>
-  <li><a href="../index.html">Index</a></li>
-</ul>
-
-<h2>Contents</h2>
-<ul>
-<li><a href="#Functions">Functions</a></li>
-</ul>
-
-
-<h2>Modules</h2>
-<ul class="nowrap">
-  <li><a href="../modules/br.player.anima.html">br.player.anima</a></li>
-  <li><a href="../modules/br.player.buff.html">br.player.buff</a></li>
-  <li><strong>br.player.cast</strong></li>
-</ul>
-
-</div>
-
-<div id="content">
-
-<h1>Module <code>br.player.cast</code></h1>
-<p>Cast is the table located at br.player.cast.</p>
-<p>
- These functions are accessible via `local cast = br.player.cast`
- `spell` in the usage examples represent the name in the buffs list (Spec, Shared Class, Shared Global Lists) defined in System/List/Spells.lua</p>
-
-
-<h2><a href="#Functions">Functions</a></h2>
-<table class="function_list">
-	<tr>
-	<td class="name" nowrap><a href="#br.player.cast.spell">br.player.cast.spell (thisUnit, castType, minUnits, effectRng, id, spell, predict, predictPad, enemies)</a></td>
-	<td class="summary">Creates a function that can be used to cast a spell based on various parameters.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#br.player.cast.id">br.player.cast.id (spellID, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)</a></td>
-	<td class="summary">Attempts to cast a spell by its ID based on various parameters.</td>
-	</tr>
-</table>
-
-<br/>
-<br/>
-
-
-    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
-
-    <dl class="function">
-    <dt>
-    <a name = "br.player.cast.spell"></a>
-    <strong>br.player.cast.spell (thisUnit, castType, minUnits, effectRng, id, spell, predict, predictPad, enemies)</strong>
-    </dt>
-    <dd>
-    Creates a function that can be used to cast a spell based on various parameters.
- The function name is dynamically generated based on the spell name.
- For example, for a spell named "thisSpell", the function would be `cast.thisSpell()`.
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">thisUnit</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-         The target unit for the spell. Can be standard WoW units, dynamic units, or special parameters like "best", "playerGround", etc.
-        </li>
-        <li><span class="parameter">castType</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-         Defines the type of AoE or special cast conditions.
-        </li>
-        <li><span class="parameter">minUnits</span>
-            <span class="types"><span class="type">number</span></span>
-         Minimum number of units needed to be hit by AoE spell.
-        </li>
-        <li><span class="parameter">effectRng</span>
-            <span class="types"><span class="type">number</span></span>
-         The AoE's effect range.
-        </li>
-        <li><span class="parameter">id</span>
-            <span class="types"><span class="type">number</span></span>
-         The spell ID to cast.
-        </li>
-        <li><span class="parameter">spell</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-         The spell name to cast. This parameter is ignored if id is provided.
-        </li>
-        <li><span class="parameter">predict</span>
-            <span class="types"><span class="type">boolean</span></span>
-         If true, will attempt to predict enemy movements for ground location AoE spells.
-        </li>
-        <li><span class="parameter">predictPad</span>
-            <span class="types"><span class="type">boolean</span></span>
-         Pads the prediction cast time. 'predict' must be true.
-        </li>
-        <li><span class="parameter">enemies</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
-         A table of enemy units that the spell should be cast on.
-        </li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-
-        True/False
-    </ol>
-
-
-
-
-</dd>
-    <dt>
-    <a name = "br.player.cast.id"></a>
-    <strong>br.player.cast.id (spellID, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)</strong>
-    </dt>
-    <dd>
-    Attempts to cast a spell by its ID based on various parameters.
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">spellID</span>
-            <span class="types"><span class="type">number</span></span>
-         The ID of the spell to cast.
-        </li>
-        <li><span class="parameter">thisUnit</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-         The target unit for the spell. Can be standard WoW units, dynamic units, or special parameters.
-        </li>
-        <li><span class="parameter">castType</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-         Defines the type of AoE or special cast conditions.
-        </li>
-        <li><span class="parameter">minUnits</span>
-            <span class="types"><span class="type">number</span></span>
-         Minimum number of units needed to be hit by AoE spell.
-        </li>
-        <li><span class="parameter">effectRng</span>
-            <span class="types"><span class="type">number</span></span>
-         The AoE's effect range.
-        </li>
-        <li><span class="parameter">predict</span>
-            <span class="types"><span class="type">boolean</span></span>
-         If true, will attempt to predict enemy movements for ground location AoE spells.
-        </li>
-        <li><span class="parameter">predictPad</span>
-            <span class="types"><span class="type">boolean</span></span>
-         Pads the prediction cast time. 'predict' must be true.
-        </li>
-        <li><span class="parameter">enemies</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
-         A table of enemy units that the spell should be cast on.
-        </li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-
-        boolean True/False
-    </ol>
-
-
-
-
-</dd>
-</dl>
-
-
-</div> <!-- id="content" -->
-</div> <!-- id="main" -->
-<div id="about">
-<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
-<i style="float:right;">Last updated 2023-08-16 19:55:20 </i>
-</div> <!-- id="about" -->
-</div> <!-- id="container" -->
-</body>
+    <footer>
+        <!-- Footer content -->
+    </footer>
 </html>
