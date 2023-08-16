@@ -36,7 +36,7 @@ br.api.cast = function(self,spell,id)
     if cast.timeRemain == nil then cast.timeRemain = {} end
     if cast.timeSinceLast == nil then cast.timeSinceLast = {} end
 
-    -- @xfunction br.player.cast.spell
+    --[[-- @xfunction br.player.cast.spell
     -- @xdescription Creates a function that can be used to cast a spell based on various parameters. The function name is dynamically generated based on the spell name.
     -- For example, for a spell named "thisSpell", the function would be `cast.thisSpell()`.
     -- @xtparam string thisUnit The target unit for the spell. Can be standard WoW units, dynamic units, or special parameters like "best", "playerGround", etc.
@@ -48,7 +48,7 @@ br.api.cast = function(self,spell,id)
     -- @xtparam boolean predict If true, will attempt to predict enemy movements for ground location AoE spells.
     -- @xtparam boolean predictPad Pads the prediction cast time. 'predict' must be true.
     -- @xtparam table enemies A table of enemy units that the spell should be cast on.
-    -- @xreturn True/False
+    -- @xreturn True/False]]
     cast[spell] = function(thisUnit,castType,minUnits,effectRng,predict,predictPad,enemies)
         return br.createCastFunction(thisUnit,castType,minUnits,effectRng,id,spell,predict,predictPad,enemies)
     end
