@@ -57,7 +57,6 @@ br.api.cast = function(self,spell,id)
     -- @tparam number effectRng The AoE's effect range.
     -- @tparam boolean predict If true, will attempt to predict enemy movements for ground location AoE spells.
     -- @tparam boolean predictPad Pads the prediction cast time. 'predict' must be true.
-    -- @tparam table enemies
     -- @return boolean True/False
     cast.id = function(spellID,thisUnit,castType,minUnits,effectRng,predict,predictPad,enemies)
         return br.createCastFunction(thisUnit,castType,minUnits,effectRng,spellID,spell,predict,predictPad,enemies)
