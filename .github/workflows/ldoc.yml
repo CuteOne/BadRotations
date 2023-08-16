@@ -33,7 +33,7 @@ jobs:
       run: ldoc .
 
     - name: Copy custom ldoc.css
-      run: cp .github/assets/css/ldoc.css ./
+      run: cat .github/assets/css/custom.css >> ./ldoc.css
 
     - name: Copy fontawesome-all.min.css
       run: cp .github/assets/css/fontawesome-all.min.css ./
