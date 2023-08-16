@@ -48,7 +48,6 @@ br.api.cast = function(self,spell,id)
     end
 
     ---
-    -- @function br.player.cast.id
     -- @description Attempts to cast a spell by its ID based on various parameters.
     -- @tparam number spellID The ID of the spell to cast.
     -- @tparam string thisUnit The target unit for the spell. Can be standard WoW units, dynamic units, or special parameters.
