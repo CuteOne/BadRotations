@@ -1,4 +1,5 @@
 name: Generate LDoc Documentation
+template: ../custom_templates/ldoc/custom_template.ldoc
 
 on:
   push:
