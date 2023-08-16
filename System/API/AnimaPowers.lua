@@ -1,4 +1,8 @@
-module('br.player.anima')
+---
+-- @Anima is the table located at br.player.anima
+-- These functions are accessible via `local anima = br.player.anima`
+-- `spell` in the usage examples represent the name in the animas list (Spec, Shared Class, Shared Global Lists) defined in System/List/Spells.lua
+-- @module br.player.anima
 local _, br = ...
 if br.api == nil then br.api = {} end
 
@@ -26,10 +30,6 @@ local function getAnimaInfo(animaID)
     return mawBuff
 end
 
---- Anima Powers functions.
--- These functions are accessible via `br.player.animas.spell.functionName()`.
--- @tparam table anima The anima power table.
--- @tparam number v The ID of the anima power.
 br.api.animas = function(anima,v)
     --- Check if a specific anima power exists.
     -- @treturn boolean True if the anima power exists, false otherwise.

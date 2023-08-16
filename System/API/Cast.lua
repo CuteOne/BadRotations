@@ -1,14 +1,10 @@
-module('br.player.cast')
+---
+-- Cast is the table located at br.player.cast.
+-- These functions are accessible via `local cast = br.player.cast`
+-- `spell` in the usage examples represent the name in the buffs list (Spec, Shared Class, Shared Global Lists) defined in System/List/Spells.lua
+-- @module br.player.cast
 local _, br = ...
 if br.api == nil then br.api = {} end
-
----
--- @description Cast is the table located at br.player.cast.
--- These functions are accessible via `local cast = br.player.cast`
--- `spell` in the examples represent the name in the buffs list (Spec, Shared Class, Shared Global Lists) defined in System/List/Spells.lua
-
----
--- @section Cast
 
 br.api.cast = function(self,spell,id)
     if self.cast == nil then self.cast = {} end
@@ -34,10 +30,10 @@ br.api.cast = function(self,spell,id)
     if cast.timeRemain == nil then cast.timeRemain = {} end
     if cast.timeSinceLast == nil then cast.timeSinceLast = {} end
 
-    --[[-- @xfunction br.player.cast.spell
+    -- @xfunction br.player.cast.spell
     -- @xdescription Creates a function that can be used to cast a spell based on various parameters. The function name is dynamically generated based on the spell name.
     -- For example, for a spell named "thisSpell", the function would be `cast.thisSpell()`.
-    -- @xtparam string thisUnit The target unit for the spell. Can be standard WoW units, dynamic units, or special parameters like "best", "playerGround", etc.
+    --[[-- @xtparam string thisUnit The target unit for the spell. Can be standard WoW units, dynamic units, or special parameters like "best", "playerGround", etc.
     -- @xtparam string castType Defines the type of AoE or special cast conditions.
     -- @xtparam number minUnits Minimum number of units needed to be hit by AoE spell.
     -- @xtparam number effectRng The AoE's effect range.
