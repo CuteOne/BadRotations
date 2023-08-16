@@ -41,9 +41,9 @@ jobs:
     - name: List contents of docs directory
       run: ls -al ./docs
 
-    - name: Deploy
-      if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
-      uses: peaceiris/actions-gh-pages@v3
+    - name: Deploy to GitHub Pages
+      uses: JamesIves/github-pages-deploy-action@4.1.5
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./docs
+        branch: gh-pages
+        folder: docs
+        token: ${{ secrets.GITHUB_TOKEN }}
