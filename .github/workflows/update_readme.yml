@@ -3,6 +3,8 @@ on:
   workflow_dispatch:
   push:
     branches: [ "master" ]
+    paths:
+      - 'Rotations/**'
 
 jobs:
   build:
@@ -16,10 +18,10 @@ jobs:
         with:
           python-version: '3.10'
           cache: 'pip'
-      
+
       - name: pip install dependencies
         run: pip install -r "$GITHUB_WORKSPACE/.github/requirements.txt"
-      
+
       - name: Run Python README updater
         run: ${{ steps.python3.outputs.python-path }} "$GITHUB_WORKSPACE/.github/update_readme.py" "$GITHUB_WORKSPACE"
 
