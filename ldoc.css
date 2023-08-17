@@ -79,19 +79,19 @@ p {
 }
 
 #content h3 {
-    font-size: 1.1em !important; /* Slightly smaller than h2 */
+    font-size: 0.9em !important; /* Slightly smaller than h2 */
 }
 
 #content dt {
-    font-size: 1em !important; /* Slightly smaller than h3 */
+    font-size: 0.8em !important; /* Slightly smaller than h3 */
 }
 
 #content ul, #content ol {
-    font-size: 0.9em !important; /* Slightly smaller than dt */
+    font-size: 0.7em !important; /* Slightly smaller than dt */
 }
 
 #content dd {
-    font-size: 1.1em !important; /* Same as h3 */
+    font-size: 0.8em !important; /* Same as h3 */
 }
 
 /* Tables */
