@@ -126,3 +126,9 @@ dd {
     margin-left: 20px;  /* Indentation for the values */
     margin-bottom: 10px;  /* Space between each value */
 }
+
+/* Adjusting space between h3 and its subsequent list */
+h3 + ul, h3 + ol {
+    margin-top: 5px;  /* Reduce space between h3 and the list */
+}
+
