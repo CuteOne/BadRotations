@@ -115,3 +115,14 @@ tr:hover {
     border-top: 1px solid #30363d;
     padding-top: 10px;
 }
+
+/* Subsections in Functions */
+dt {
+    margin-top: 20px;  /* Increase space above the subsection title */
+    margin-bottom: 5px;  /* Reduce space below the subsection title */
+}
+
+dd {
+    margin-left: 20px;  /* Indentation for the values */
+    margin-bottom: 10px;  /* Space between each value */
+}
