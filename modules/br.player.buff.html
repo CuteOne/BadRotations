@@ -75,7 +75,7 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#br.player.spell.react">br.player.spell.react ([thisUnit="player"[, sourceUnit="player"]])</a></td>
-	<td class="summary">Check the reaction delay of a buff.</td>
+	<td class="summary">Check if a buff can be reacted to.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#br.player.spell.remain">br.player.spell.remain ([thisUnit="player"[, sourceUnit="player"]])</a></td>
@@ -129,7 +129,7 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">buff.spell.<span class="function-name">cancel</span>(<span class="string">"player"</span>)  <span class="comment">-- Cancels the buff from the player.</span></pre>
+        <pre class="example">buff.spell.<span class="function-name">cancel</span>(<span class="string">"player"</span>)</pre>
     </ul>
 
 </dd>
@@ -146,14 +146,14 @@
     <ol>
 
            <span class="types"><span class="type">number</span></span>
-        The count of the buff.
+
     </ol>
 
 
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">buff.spell.<span class="function-name">count</span>()  <span class="comment">-- Gets the count of the buff.</span></pre>
+        <pre class="example">buff.spell.<span class="function-name">count</span>()</pre>
     </ul>
 
 </dd>
@@ -183,14 +183,14 @@
     <ol>
 
            <span class="types"><span class="type">number</span></span>
-        The duration of the buff in seconds.
+
     </ol>
 
 
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">buff.spell.<span class="function-name">duration</span>(<span class="string">"player"</span>)  <span class="comment">-- Gets the duration of the buff on the player.</span></pre>
+        <pre class="example">buff.spell.<span class="function-name">duration</span>(<span class="string">"player"</span>)</pre>
     </ul>
 
 </dd>
@@ -219,15 +219,15 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><span class="type">boolean</span></span>
-        True if the buff exists, false otherwise.
+           <span class="types"><span class="type">bool</span></span>
+
     </ol>
 
 
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">buff.spell.<span class="function-name">exists</span>(<span class="string">"player"</span>)  <span class="comment">-- Checks if the buff exists on the player.</span></pre>
+        <pre class="example">buff.spell.<span class="function-name">exists</span>(<span class="string">"player"</span>)</pre>
     </ul>
 
 </dd>
@@ -236,7 +236,7 @@
     <strong>br.player.spell.react ([thisUnit="player"[, sourceUnit="player"]])</strong>
     </dt>
     <dd>
-    Check the reaction delay of a buff.
+    Check if a buff can be reacted to.
 
 
     <h3>Parameters:</h3>
@@ -256,15 +256,15 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><span class="type">boolean</span></span>
-        True if the buff has a reaction delay, false otherwise.
+           <span class="types"><span class="type">bool</span></span>
+
     </ol>
 
 
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">buff.spell.<span class="function-name">react</span>(<span class="string">"player"</span>)  <span class="comment">-- Checks the reaction delay of the buff on the player.</span></pre>
+        <pre class="example">buff.spell.<span class="function-name">react</span>(<span class="string">"player"</span>)</pre>
     </ul>
 
 </dd>
@@ -294,14 +294,14 @@
     <ol>
 
            <span class="types"><span class="type">number</span></span>
-        The remaining time of the buff in seconds.
+
     </ol>
 
 
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">buff.spell.<span class="function-name">remain</span>(<span class="string">"player"</span>)  <span class="comment">-- Gets the remaining time of the buff on the player.</span></pre>
+        <pre class="example">buff.spell.<span class="function-name">remain</span>(<span class="string">"player"</span>)</pre>
     </ul>
 
 </dd>
@@ -310,7 +310,7 @@
     <strong>br.player.spell.remains ([thisUnit="player"[, sourceUnit="player"]])</strong>
     </dt>
     <dd>
-    Get the remaining time of a buff.  (Duplicate of buff.remain)
+    Get the remaining time of a buff.  (Duplicate of br.player.buff.spell.remain)
 
 
     <h3>Parameters:</h3>
@@ -331,14 +331,14 @@
     <ol>
 
            <span class="types"><span class="type">number</span></span>
-        The remaining time of the buff in seconds.
+
     </ol>
 
 
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">buff.spell.<span class="function-name">remain</span>(<span class="string">"player"</span>)  <span class="comment">-- Gets the remaining time of the buff on the player.</span></pre>
+        <pre class="example">buff.spell.<span class="function-name">remain</span>(<span class="string">"player"</span>)</pre>
     </ul>
 
 </dd>
@@ -367,15 +367,15 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><span class="type">boolean</span></span>
-        True if the buff should be refreshed, false otherwise.
+           <span class="types"><span class="type">bool</span></span>
+
     </ol>
 
 
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">buff.spell.<span class="function-name">refresh</span>(<span class="string">"player"</span>)  <span class="comment">-- Checks if the buff on the player should be refreshed.</span></pre>
+        <pre class="example">buff.spell.<span class="function-name">refresh</span>(<span class="string">"player"</span>)</pre>
     </ul>
 
 </dd>
@@ -405,14 +405,14 @@
     <ol>
 
            <span class="types"><span class="type">number</span></span>
-        The stack count of the buff.
+
     </ol>
 
 
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">buff.spell.<span class="function-name">stack</span>(<span class="string">"player"</span>)  <span class="comment">-- Gets the stack count of the buff on the player.</span></pre>
+        <pre class="example">buff.spell.<span class="function-name">stack</span>(<span class="string">"player"</span>)</pre>
     </ul>
 
 </dd>
@@ -423,7 +423,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
-<i style="float:right;">Last updated 2023-08-17 15:10:45 </i>
+<i style="float:right;">Last updated 2023-08-17 15:28:40 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

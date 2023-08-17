@@ -128,7 +128,12 @@ dd {
 }
 
 /* Adjusting space between h3 and its subsequent list */
+h3 {
+    margin-bottom: 5px !important; /* Reduce space below h3 */
+}
+
 h3 + ul, h3 + ol {
-    margin-top: 5px;  /* Reduce space between h3 and the list */
+    padding-top: 0 !important; /* Remove padding from the top of the list */
+    margin-top: 0 !important; /* Remove margin from the top of the list */
 }
 
