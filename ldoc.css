@@ -110,3 +110,25 @@ pre code {
     border: none;
     padding: 0;
 }
+
+/* Flexbox layout for the main container */
+#container {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+}
+
+/* Navigation styling */
+#navigation {
+    flex: 0 0 240px; /* This gives the navigation a fixed width of 240px */
+    overflow-y: auto; /* Scrollable if content exceeds the height */
+    padding-right: 20px; /* Some spacing between navigation and content */
+    border-right: 1px solid #30363d; /* A border to separate navigation from content */
+}
+
+/* Content styling */
+#content {
+    flex: 1; /* This allows the content to take up the remaining space */
+    padding-left: 20px; /* Some spacing between content and navigation */
+    max-width: 100%; /* Ensures content doesn't overflow its container */
+}
