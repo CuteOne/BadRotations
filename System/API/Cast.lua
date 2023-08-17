@@ -42,7 +42,7 @@ br.api.cast = function(self,spell,id)
     -- @string spell The spell name to cast. This parameter is ignored if id is provided.
     -- @bool predict If true, will attempt to predict enemy movements for ground location AoE spells.
     -- @bool predictPad Pads the prediction cast time. 'predict' must be true.
-    -- @table enemies A table of enemy units that the spell should be cast on.
+    -- @tab enemies A table of enemy units that the spell should be cast on.
     -- @treturn bool True/False
     cast[spell] = function(thisUnit,castType,minUnits,effectRng,predict,predictPad,enemies)
         return br.createCastFunction(thisUnit,castType,minUnits,effectRng,id,spell,predict,predictPad,enemies)
