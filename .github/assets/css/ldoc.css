@@ -28,8 +28,13 @@ p {
 /* Container */
 #container {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     padding: 20px;
+}
+
+#main {
+    display: flex;
+    flex-direction: row;
 }
 
 /* Navigation */
