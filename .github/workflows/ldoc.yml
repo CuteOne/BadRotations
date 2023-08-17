@@ -35,12 +35,6 @@ jobs:
     - name: Copy custom ldoc.css
       run: cp .github/assets/css/ldoc.css ./docs/
 
-    - name: Copy fontawesome-all.min.css
-      run: cp .github/assets/css/fontawesome-all.min.css ./docs/
-
-    - name: List contents of docs directory
-      run: ls -al ./docs/
-
     - name: Deploy to GitHub Pages
       uses: JamesIves/github-pages-deploy-action@4.1.5
       with:
