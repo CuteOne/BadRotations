@@ -39,7 +39,6 @@ p {
 
 /* Navigation */
 #navigation {
-    flex: 1;
     background-color: #21252b;
     padding: 20px;
     border-right: 1px solid #30363d;
@@ -68,7 +67,7 @@ p {
 
 /* Content */
 #content {
-    flex: 3;
+    flex-grow: 1;
     padding: 20px;
 }
 
@@ -83,11 +82,11 @@ p {
 }
 
 #content dt {
-    font-size: 0.8em !important; /* Slightly smaller than h3 */
+    font-size: 1.1em !important;
 }
 
 #content ul, #content ol {
-    font-size: 0.8em !important; /* Same as dt */
+    font-size: 0.9em !important;
 }
 
 #content dd {
