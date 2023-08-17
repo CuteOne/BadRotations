@@ -1,10 +1,13 @@
+/* Reset some default margins for consistency */
+body, h1, h2, h3, p {
+    margin: 0;
+    padding: 0;
+}
+
 body {
-    font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji;
+    font-family: Arial, sans-serif;
     background-color: #0d1117;
     color: #c9d1d9;
-    line-height: 1.5;
-    margin: 0;
-    padding: 20px;
 }
 
 a {
@@ -16,109 +19,23 @@ a:hover {
     text-decoration: underline;
 }
 
-header {
-    background-color: #161b22;
-    padding: 10px 20px;
-    border-radius: 6px;
-    margin-bottom: 20px;
-}
-
-h1, h2, h3, h4, h5, h6 {
-    color: #c9d1d9;
-    margin-top: 24px;
-    margin-bottom: 16px;
-    font-weight: 600;
-    line-height: 1.25;
-}
-
-h1 {
-    font-size: 2em;
-}
-
-h2 {
-    font-size: 1.5em;
-}
-
-h3 {
-    font-size: 1.25em;
-}
-
-h4 {
-    font-size: 1em;
-}
-
-h5 {
-    font-size: .875em;
-}
-
-h6 {
-    font-size: .85em;
-    color: #8b949e;
-}
-
-p, ul, ol, table {
-    margin-top: 0;
-    margin-bottom: 16px;
-}
-
-ul, ol {
-    padding-left: 2em;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-    border-spacing: 0;
-}
-
-table th, table td {
-    padding: 6px 13px;
-    border: 1px solid #30363d;
-}
-
-table th {
-    background-color: #161b22;
-    font-weight: 600;
-}
-
-footer {
-    margin-top: 40px;
-    color: #8b949e;
-    font-size: .85em;
-}
-
-code {
-    font-family: SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace;
-    font-size: 85%;
-    background-color: #0d1117;
-    border: 1px solid #30363d;
-    border-radius: 6px;
-    padding: .2em .4em;
-    color: #58a6ff;
-}
-
-pre {
-    background-color: #0d1117;
-    border: 1px solid #30363d;
-    border-radius: 6px;
-    padding: 16px;
-    overflow: auto;
-}
-
-pre code {
-    background-color: transparent;
-    border: none;
-    padding: 0;
-}
-
-/* Flexbox layout for the main container */
 #container {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+#main {
     display: flex;
     flex-direction: row;
     align-items: flex-start;
+    justify-content: space-between;
 }
 
-/* Navigation styling */
 #navigation {
     flex: 0 0 240px; /* This gives the navigation a fixed width of 240px */
     overflow-y: auto; /* Scrollable if content exceeds the height */
@@ -126,9 +43,39 @@ pre code {
     border-right: 1px solid #30363d; /* A border to separate navigation from content */
 }
 
-/* Content styling */
 #content {
     flex: 1; /* This allows the content to take up the remaining space */
     padding-left: 20px; /* Some spacing between content and navigation */
     max-width: 100%; /* Ensures content doesn't overflow its container */
+}
+
+#about {
+    margin-top: 20px;
+    font-size: 0.8em;
+    color: #8b949e;
+}
+
+#product {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+#product_logo {
+    width: 50px;
+    height: 50px;
+    background-color: #30363d;
+    border-radius: 50%;
+    margin-right: 20px;
+}
+
+#product_name {
+    flex: 1;
+}
+
+#product_description {
+    flex: 2;
+    font-size: 0.9em;
+    color: #8b949e;
 }
