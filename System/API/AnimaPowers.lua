@@ -32,7 +32,7 @@ end
 
 br.api.animas = function(anima,v)
     --- Check if a specific anima power exists.
-    -- @treturn boolean True if the anima power exists, false otherwise.
+    -- @treturn bool True if the anima power exists, false otherwise.
     -- @usage anima.spell.exists() -- Checks if the anima power exists, replace spell with name of spell to check.
     anima.exists = function()
         local thisAnima = getAnimaInfo(v)
