@@ -73,8 +73,25 @@ p {
 }
 
 #content h2 {
+    font-size: 1.2em; /* Assuming h2 is at a comfortable size already, we won't change it */
     border-bottom: 2px solid #30363d;
     padding-bottom: 10px;
+}
+
+#content h3 {
+    font-size: 1.1em !important; /* Slightly smaller than h2 */
+}
+
+#content dt {
+    font-size: 1em !important; /* Slightly smaller than h3 */
+}
+
+#content ul, #content ol {
+    font-size: 0.9em !important; /* Slightly smaller than dt */
+}
+
+#content dd {
+    font-size: 1.1em !important; /* Same as h3 */
 }
 
 /* Tables */
@@ -136,4 +153,3 @@ h3 + ul, h3 + ol {
     padding-top: 0 !important; /* Remove padding from the top of the list */
     margin-top: 0 !important; /* Remove margin from the top of the list */
 }
-
