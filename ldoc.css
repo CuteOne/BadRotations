@@ -79,7 +79,7 @@ p {
 }
 
 #content h3 {
-    font-size: 0.9em !important; /* Slightly smaller than h2 */
+    font-size: 1.0em !important; /* Slightly smaller than h2 */
 }
 
 #content dt {
@@ -87,11 +87,11 @@ p {
 }
 
 #content ul, #content ol {
-    font-size: 0.7em !important; /* Slightly smaller than dt */
+    font-size: 0.8em !important; /* Same as dt */
 }
 
 #content dd {
-    font-size: 0.8em !important; /* Same as h3 */
+    font-size: 1.0em !important; /* Same as h3 */
 }
 
 /* Tables */
