@@ -42,7 +42,7 @@ p {
     background-color: #21252b;
     padding: 20px;
     border-right: 1px solid #30363d;
-    min-width: 250px;
+    /*min-width: 150px;*/
 }
 
 #navigation h1 {
