@@ -322,8 +322,8 @@ Raidable means if its good to raid with.
 |  rotation   | author  | patch |coverage|status |  readiness  |last updated|
 |-------------|---------|:-----:|:------:|:-----:|:-----------:|-----------:|
 |Laksham_resto|Laksmackt|Unknown|Unknown |Unknown|:interrobang:|  05/21/2021|
-|Kuu M+       |Kuukuu   |Unknown|Unknown |Unknown|:interrobang:|  03/04/2021|
 |Kuu Raid     |Kuukuu   |Unknown|Unknown |Unknown|:interrobang:|  03/04/2021|
+|Kuu M+       |Kuukuu   |Unknown|Unknown |Unknown|:interrobang:|  03/04/2021|
 |Resto Shamlo |Pangloo  |Unknown|Unknown |Unknown|:interrobang:|  02/27/2021|
 
 
