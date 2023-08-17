@@ -59,15 +59,111 @@
 <table class="function_list">
 	<tr>
 	<td class="name" nowrap><a href="#br.player.cast.spell">br.player.cast.spell (thisUnit, castType, minUnits, effectRng, id, spell, predict, predictPad, enemies)</a></td>
-	<td class="summary">Creates a function that can be used to cast a spell based on various parameters.</td>
+	<td class="summary">Cast a spell based on various parameters.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#br.player.cast.id">br.player.cast.id (spellID, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)</a></td>
-	<td class="summary">Attempts to cast a spell by its ID based on various parameters.</td>
+	<td class="summary">Cast a spell by its ID based on various parameters.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#br.player.cast.able.spell">br.player.cast.able.spell (thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)</a></td>
-	<td class="summary">Checks if a spell can be cast based on various parameters and returns True/False.</td>
+	<td class="summary">Checks if a spell can be cast based on various parameters.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#br.player.cast.able.id">br.player.cast.able.id (spellID, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)</a></td>
+	<td class="summary">Checks if a spell can be cast by its ID based on various parameters.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#br.player.cast.active.spell">br.player.cast.active.spell (thisUnit)</a></td>
+	<td class="summary">Checks if the spell is the one currently being cast.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#br.player.cast.auto.spell">br.player.cast.auto.spell ()</a></td>
+	<td class="summary">Checks if the spell is set to auto-repeat or if it's the current spell being cast.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#br.player.cast.cancel.spell">br.player.cast.cancel.spell ()</a></td>
+	<td class="summary">Cancels the current spell being cast if it matches the specified spell.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#br.player.cast.cost.spell">br.player.cast.cost.spell (altPower)</a></td>
+	<td class="summary">Gets the cost of the spell.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#br.player.cast.current.spell">br.player.cast.current.spell (thisUnit)</a></td>
+	<td class="summary">Gets the currently cast spell for the target (Alternate to br.player.cast.active.spell()).</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#br.player.cast.current.id">br.player.cast.current.id ()</a></td>
+	<td class="summary">Gets the spell id of the current (or previously) cast spell by the API.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#br.player.cast.dispel.spell">br.player.cast.dispel.spell (thisUnit)</a></td>
+	<td class="summary">Checks if the spell is capable of dispelling the target.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#br.player.cast.empowered.spell">br.player.cast.empowered.spell ()</a></td>
+	<td class="summary">Gets current empowered rank of the spell or 0 if not empowered.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#br.player.cast.form">br.player.cast.form (formIndex)</a></td>
+	<td class="summary">Casts the form corresponding to the provided formIndex number.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#br.player.cast.inFlight.spell">br.player.cast.inFlight.spell (thisUnit)</a></td>
+	<td class="summary">Checks if the spell is currently in flight to the target.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#br.player.cast.inFlightRemain.spell">br.player.cast.inFlightRemain.spell (thisUnit)</a></td>
+	<td class="summary">Gets time remaining on a spell in flight to the target.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#br.player.cast.last.spell">br.player.cast.last.spell (index)</a></td>
+	<td class="summary">Checks if the spell was the last one cast or not.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#br.player.cast.last.time.spell">br.player.cast.last.time.spell ()</a></td>
+	<td class="summary">Gets the GetTime() value the last cast of this spell occurred.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#br.player.cast.noControl.spell">br.player.cast.noControl.spell (thisUnit)</a></td>
+	<td class="summary">Checks if the spell can free you of a "no control" effect.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#br.player.cast.opener">br.player.cast.opener (thisSpell, thisTracker, thisCount)</a></td>
+	<td class="summary">Casts special opener condition spell.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#br.player.cast.openerFail">br.player.cast.openerFail (thisSpell, thisTracker, thisCount)</a></td>
+	<td class="summary">Resets cast special opener condition if failed to cast.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#br.player.cast.pool.spell">br.player.cast.pool.spell (specificAmt, multiplier)</a></td>
+	<td class="summary">Checks if specified power requirements are not met.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#br.player.cast.range.spell">br.player.cast.range.spell ()</a></td>
+	<td class="summary">Gets the spell's range, if it has one.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#br.player.cast.regen.spell">br.player.cast.regen.spell ()</a></td>
+	<td class="summary">Gets the amount of power spell will generate when cast.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#br.player.cast.safe.spell">br.player.cast.safe.spell (thisUnit, aoeType, minUnits, effectRng)</a></td>
+	<td class="summary">Checks if safe to cast specified aoe spell on unit given the aoe dimensions.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#br.player.cast.time.spell">br.player.cast.time.spell ()</a></td>
+	<td class="summary">Gets the cast time of player's spell.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#br.player.cast.timeRemain">br.player.cast.timeRemain (thisUnit)</a></td>
+	<td class="summary">Gets the cast time remaining on player's cast or supplied target.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#br.player.cast.timeSinceLast.spell">br.player.cast.timeSinceLast.spell ()</a></td>
+	<td class="summary">Gets the time since the last cast of this spell occurred.</td>
 	</tr>
 </table>
 
@@ -83,7 +179,7 @@
     <strong>br.player.cast.spell (thisUnit, castType, minUnits, effectRng, id, spell, predict, predictPad, enemies)</strong>
     </dt>
     <dd>
-    Creates a function that can be used to cast a spell based on various parameters.
+    Cast a spell based on various parameters.
  The function name is dynamically generated based on the spell name.
  For example, for a spell named "thisSpell", the function would be `cast.thisSpell()`.
 
@@ -131,8 +227,8 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><span class="type">bool</span></span>
-        True/False
+           <span class="types"><span class="type">boolean</span></span>
+
     </ol>
 
 
@@ -144,7 +240,7 @@
     <strong>br.player.cast.id (spellID, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)</strong>
     </dt>
     <dd>
-    Attempts to cast a spell by its ID based on various parameters.
+    Cast a spell by its ID based on various parameters.
 
 
     <h3>Parameters:</h3>
@@ -186,8 +282,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><span class="type">boolean</span></span>
-        True/False
+        boolean
     </ol>
 
 
@@ -199,7 +294,7 @@
     <strong>br.player.cast.able.spell (thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)</strong>
     </dt>
     <dd>
-    Checks if a spell can be cast based on various parameters and returns True/False.
+    Checks if a spell can be cast based on various parameters.
  The function name is dynamically generated based on the spell name.
 
 
@@ -238,8 +333,628 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><span class="type">boolean</span></span>
-        True/False
+        boolean
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "br.player.cast.able.id"></a>
+    <strong>br.player.cast.able.id (spellID, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)</strong>
+    </dt>
+    <dd>
+    Checks if a spell can be cast by its ID based on various parameters.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">spellID</span>
+            <span class="types"><span class="type">number</span></span>
+         The ID of the spell to check.
+        </li>
+        <li><span class="parameter">thisUnit</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         The target unit for the spell. Can be standard WoW units, dynamic units, or special parameters.
+        </li>
+        <li><span class="parameter">castType</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         Defines the type of AoE or special cast conditions.
+        </li>
+        <li><span class="parameter">minUnits</span>
+            <span class="types"><span class="type">number</span></span>
+         Minimum number of units needed to be hit by AoE spell.
+        </li>
+        <li><span class="parameter">effectRng</span>
+            <span class="types"><span class="type">number</span></span>
+         The AoE's effect range.
+        </li>
+        <li><span class="parameter">predict</span>
+            <span class="types"><span class="type">boolean</span></span>
+         If true, will attempt to predict enemy movements for ground location AoE spells.
+        </li>
+        <li><span class="parameter">predictPad</span>
+            <span class="types"><span class="type">boolean</span></span>
+         Pads the prediction cast time. 'predict' must be true.
+        </li>
+        <li><span class="parameter">enemies</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         A table of enemy units that the spell should be cast on.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "br.player.cast.active.spell"></a>
+    <strong>br.player.cast.active.spell (thisUnit)</strong>
+    </dt>
+    <dd>
+    Checks if the spell is the one currently being cast.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         The unit to check if it's casting the spell. Can be standard WoW units or dynamic units.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "br.player.cast.auto.spell"></a>
+    <strong>br.player.cast.auto.spell ()</strong>
+    </dt>
+    <dd>
+    Checks if the spell is set to auto-repeat or if it's the current spell being cast.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "br.player.cast.cancel.spell"></a>
+    <strong>br.player.cast.cancel.spell ()</strong>
+    </dt>
+    <dd>
+    Cancels the current spell being cast if it matches the specified spell.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "br.player.cast.cost.spell"></a>
+    <strong>br.player.cast.cost.spell (altPower)</strong>
+    </dt>
+    <dd>
+    Gets the cost of the spell.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">altPower</span>
+            <span class="types"><span class="type">boolean</span></span>
+         Set to "true" to return alternate power cost.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "br.player.cast.current.spell"></a>
+    <strong>br.player.cast.current.spell (thisUnit)</strong>
+    </dt>
+    <dd>
+    Gets the currently cast spell for the target (Alternate to br.player.cast.active.spell()).
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         Acceptable parameters: nil (defaults to "player"), standard WoW units, or dynamic units.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "br.player.cast.current.id"></a>
+    <strong>br.player.cast.current.id ()</strong>
+    </dt>
+    <dd>
+    Gets the spell id of the current (or previously) cast spell by the API.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "br.player.cast.dispel.spell"></a>
+    <strong>br.player.cast.dispel.spell (thisUnit)</strong>
+    </dt>
+    <dd>
+    Checks if the spell is capable of dispelling the target.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         Acceptable parameters: nil (defaults to "target"), standard WoW units, or dynamic units.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "br.player.cast.empowered.spell"></a>
+    <strong>br.player.cast.empowered.spell ()</strong>
+    </dt>
+    <dd>
+    Gets current empowered rank of the spell or 0 if not empowered.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "br.player.cast.form"></a>
+    <strong>br.player.cast.form (formIndex)</strong>
+    </dt>
+    <dd>
+    Casts the form corresponding to the provided formIndex number.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">formIndex</span>
+            <span class="types"><span class="type">number</span></span>
+         Index of the form to be casted. If not provided, defaults to 0.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        nil
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "br.player.cast.inFlight.spell"></a>
+    <strong>br.player.cast.inFlight.spell (thisUnit)</strong>
+    </dt>
+    <dd>
+    Checks if the spell is currently in flight to the target.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         Acceptable parameters: nil (defaults to "target"), standard WoW units, or dynamic units.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "br.player.cast.inFlightRemain.spell"></a>
+    <strong>br.player.cast.inFlightRemain.spell (thisUnit)</strong>
+    </dt>
+    <dd>
+    Gets time remaining on a spell in flight to the target.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         The target unit to check for the spell in flight.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "br.player.cast.last.spell"></a>
+    <strong>br.player.cast.last.spell (index)</strong>
+    </dt>
+    <dd>
+    Checks if the spell was the last one cast or not.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">index</span>
+            <span class="types"><span class="type">number</span></span>
+         Number of last cast spell up to 10 previous spells, default value is 1 if not provided.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "br.player.cast.last.time.spell"></a>
+    <strong>br.player.cast.last.time.spell ()</strong>
+    </dt>
+    <dd>
+    Gets the GetTime() value the last cast of this spell occurred.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "br.player.cast.noControl.spell"></a>
+    <strong>br.player.cast.noControl.spell (thisUnit)</strong>
+    </dt>
+    <dd>
+    Checks if the spell can free you of a "no control" effect.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         The target unit to check for the "no control" effect. Defaults to "player" if not provided.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "br.player.cast.opener"></a>
+    <strong>br.player.cast.opener (thisSpell, thisTracker, thisCount)</strong>
+    </dt>
+    <dd>
+    Casts special opener condition spell.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisSpell</span>
+            <span class="types"><span class="type">number</span></span>
+         The spell to be cast as the opener.
+        </li>
+        <li><span class="parameter">thisTracker</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         The tracker for the opener.
+        </li>
+        <li><span class="parameter">thisCount</span>
+            <span class="types"><span class="type">number</span></span>
+         The count for the opener.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "br.player.cast.openerFail"></a>
+    <strong>br.player.cast.openerFail (thisSpell, thisTracker, thisCount)</strong>
+    </dt>
+    <dd>
+    Resets cast special opener condition if failed to cast.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisSpell</span>
+            <span class="types"><span class="type">number</span></span>
+         The spell that failed to cast.
+        </li>
+        <li><span class="parameter">thisTracker</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         The tracker for the opener.
+        </li>
+        <li><span class="parameter">thisCount</span>
+            <span class="types"><span class="type">number</span></span>
+         The count for the opener.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "br.player.cast.pool.spell"></a>
+    <strong>br.player.cast.pool.spell (specificAmt, multiplier)</strong>
+    </dt>
+    <dd>
+    Checks if specified power requirements are not met.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">specificAmt</span>
+            <span class="types"><span class="type">number</span></span>
+         Set to specified power amount. Defaults to 0 if not provided.
+        </li>
+        <li><span class="parameter">multiplier</span>
+            <span class="types"><span class="type">number</span></span>
+         Set to specified power multiplier. Defaults to 1 if not provided.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "br.player.cast.range.spell"></a>
+    <strong>br.player.cast.range.spell ()</strong>
+    </dt>
+    <dd>
+    Gets the spell's range, if it has one.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "br.player.cast.regen.spell"></a>
+    <strong>br.player.cast.regen.spell ()</strong>
+    </dt>
+    <dd>
+    Gets the amount of power spell will generate when cast.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "br.player.cast.safe.spell"></a>
+    <strong>br.player.cast.safe.spell (thisUnit, aoeType, minUnits, effectRng)</strong>
+    </dt>
+    <dd>
+    Checks if safe to cast specified aoe spell on unit given the aoe dimensions.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         The target unit to check for safety. Defaults to "target" if not provided.
+        </li>
+        <li><span class="parameter">aoeType</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         The type of AoE to check for safety. Can be "rect", "cone", "ground", or "aoe".
+        </li>
+        <li><span class="parameter">minUnits</span>
+            <span class="types"><span class="type">number</span></span>
+         Specify minimal number of units needed to be hit by AoE spell before it will use.
+        </li>
+        <li><span class="parameter">effectRng</span>
+            <span class="types"><span class="type">number</span></span>
+         Specify the AoE's effect range to determine units hit by it.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "br.player.cast.time.spell"></a>
+    <strong>br.player.cast.time.spell ()</strong>
+    </dt>
+    <dd>
+    Gets the cast time of player's spell.  If the spell has no cast time, it returns the global cooldown.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "br.player.cast.timeRemain"></a>
+    <strong>br.player.cast.timeRemain (thisUnit)</strong>
+    </dt>
+    <dd>
+    Gets the cast time remaining on player's cast or supplied target.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         The unit to check cast time remaining. Defaults to "player" if not provided.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "br.player.cast.timeSinceLast.spell"></a>
+    <strong>br.player.cast.timeSinceLast.spell ()</strong>
+    </dt>
+    <dd>
+    Gets the time since the last cast of this spell occurred.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number
     </ol>
 
 
@@ -253,7 +968,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
-<i style="float:right;">Last updated 2023-08-17 19:15:32 </i>
+<i style="float:right;">Last updated 2023-08-17 20:53:54 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
