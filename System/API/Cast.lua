@@ -30,7 +30,7 @@ br.api.cast = function(self,spell,id)
     if cast.timeRemain == nil then cast.timeRemain = {} end
     if cast.timeSinceLast == nil then cast.timeSinceLast = {} end
 
-    --- Creates a function that can be used to cast a spell based on various parameters.
+    --- Cast a spell based on various parameters.
     -- The function name is dynamically generated based on the spell name.
     -- For example, for a spell named "thisSpell", the function would be `cast.thisSpell()`.
     -- @function br.player.cast.spell
@@ -43,78 +43,76 @@ br.api.cast = function(self,spell,id)
     -- @bool predict If true, will attempt to predict enemy movements for ground location AoE spells.
     -- @bool predictPad Pads the prediction cast time. 'predict' must be true.
     -- @tab enemies A table of enemy units that the spell should be cast on.
-    -- @treturn bool True/False
+    -- @treturn boolean
     cast[spell] = function(thisUnit,castType,minUnits,effectRng,predict,predictPad,enemies)
         return br.createCastFunction(thisUnit,castType,minUnits,effectRng,id,spell,predict,predictPad,enemies)
     end
 
-    --- Attempts to cast a spell by its ID based on various parameters.
+    --- Cast a spell by its ID based on various parameters.
     -- @function br.player.cast.id
-    -- @tparam number spellID The ID of the spell to cast.
-    -- @tparam string thisUnit The target unit for the spell. Can be standard WoW units, dynamic units, or special parameters.
-    -- @tparam string castType Defines the type of AoE or special cast conditions.
-    -- @tparam number minUnits Minimum number of units needed to be hit by AoE spell.
-    -- @tparam number effectRng The AoE's effect range.
-    -- @tparam boolean predict If true, will attempt to predict enemy movements for ground location AoE spells.
-    -- @tparam boolean predictPad Pads the prediction cast time. 'predict' must be true.
-    -- @tparam table enemies A table of enemy units that the spell should be cast on.
-    -- @treturn boolean True/False
+    -- @number spellID The ID of the spell to cast.
+    -- @string thisUnit The target unit for the spell. Can be standard WoW units, dynamic units, or special parameters.
+    -- @string castType Defines the type of AoE or special cast conditions.
+    -- @number minUnits Minimum number of units needed to be hit by AoE spell.
+    -- @number effectRng The AoE's effect range.
+    -- @bool predict If true, will attempt to predict enemy movements for ground location AoE spells.
+    -- @bool predictPad Pads the prediction cast time. 'predict' must be true.
+    -- @tab enemies A table of enemy units that the spell should be cast on.
+    -- @return boolean
     cast.id = function(spellID,thisUnit,castType,minUnits,effectRng,predict,predictPad,enemies)
         return br.createCastFunction(thisUnit,castType,minUnits,effectRng,spellID,spell,predict,predictPad,enemies)
     end
 
 
-    --- Checks if a spell can be cast based on various parameters and returns True/False.
+    --- Checks if a spell can be cast based on various parameters.
     -- The function name is dynamically generated based on the spell name.
     -- @function br.player.cast.able.spell
-    -- @tparam string thisUnit The target unit for the spell. Can be standard WoW units, dynamic units, or special parameters.
-    -- @tparam string castType Defines the type of AoE or special cast conditions.
-    -- @tparam number minUnits Minimum number of units needed to be hit by AoE spell.
-    -- @tparam number effectRng The AoE's effect range.
-    -- @tparam boolean predict If true, will attempt to predict enemy movements for ground location AoE spells.
-    -- @tparam boolean predictPad Pads the prediction cast time. 'predict' must be true.
-    -- @tparam table enemies A table of enemy units that the spell should be cast on.
-    -- @treturn boolean True/False
+    -- @string thisUnit The target unit for the spell. Can be standard WoW units, dynamic units, or special parameters.
+    -- @string castType Defines the type of AoE or special cast conditions.
+    -- @number minUnits Minimum number of units needed to be hit by AoE spell.
+    -- @number effectRng The AoE's effect range.
+    -- @bool predict If true, will attempt to predict enemy movements for ground location AoE spells.
+    -- @bool predictPad Pads the prediction cast time. 'predict' must be true.
+    -- @tab enemies A table of enemy units that the spell should be cast on.
+    -- @return boolean
     cast.able[spell] = function(thisUnit,castType,minUnits,effectRng,predict,predictPad,enemies)
         return br.createCastFunction(thisUnit,castType,minUnits,effectRng,id,spell,predict,predictPad,enemies,true)
     end
 
-    --[[
-    --
+    --- Checks if a spell can be cast by its ID based on various parameters.
     -- @function br.player.cast.able.id
-    -- @description Checks if a spell by its ID can be cast based on various parameters and returns True/False.
-    -- @tparam number spellID The ID of the spell to check.
-    -- @tparam string thisUnit The target unit for the spell. Can be standard WoW units, dynamic units, or special parameters.
-    -- @tparam string castType Defines the type of AoE or special cast conditions.
-    -- @tparam number minUnits Minimum number of units needed to be hit by AoE spell.
-    -- @tparam number effectRng The AoE's effect range.
-    -- @tparam boolean predict If true, will attempt to predict enemy movements for ground location AoE spells.
-    -- @tparam boolean predictPad Pads the prediction cast time. 'predict' must be true.
-    -- @tparam table enemies A table of enemy units that the spell should be cast on.
-    -- @return True/False]]
+    -- @number spellID The ID of the spell to check.
+    -- @string thisUnit The target unit for the spell. Can be standard WoW units, dynamic units, or special parameters.
+    -- @string castType Defines the type of AoE or special cast conditions.
+    -- @number minUnits Minimum number of units needed to be hit by AoE spell.
+    -- @number effectRng The AoE's effect range.
+    -- @bool predict If true, will attempt to predict enemy movements for ground location AoE spells.
+    -- @bool predictPad Pads the prediction cast time. 'predict' must be true.
+    -- @tab enemies A table of enemy units that the spell should be cast on.
+    -- @return boolean
     cast.able.id = function(spellID,thisUnit,castType,minUnits,effectRng,predict,predictPad,enemies)
         return br.createCastFunction(thisUnit,castType,minUnits,effectRng,spellID,spell,predict,predictPad,enemies,true)
     end
 
-    --[[-- @xfunction br.player.cast.active.spell
-    -- @xdescription Returns if the spell is the one currently being cast.
-    -- @xtparam string thisUnit The unit to check if it's casting the spell. Can be standard WoW units or dynamic units.
-    -- @xreturn True/False]]
+    --- Checks if the spell is the one currently being cast.
+    -- @function br.player.cast.active.spell
+    -- @string thisUnit The unit to check if it's casting the spell. Can be standard WoW units or dynamic units.
+    -- @return boolean
     cast.active[spell] = function(thisUnit)
         if thisUnit == nil then thisUnit = "player" end
         return br.isCastingSpell(id,thisUnit)
     end
 
-    --[[-- @xfunction br.player.cast.auto.spell
-    -- @xdescription Checks if the spell is set to auto-repeat or if it's the current spell being cast.
-    -- @xreturn True/False]]
+    --- Checks if the spell is set to auto-repeat or if it's the current spell being cast.
+    -- @function br.player.cast.auto.spell
+    -- @return boolean
     cast.auto[spell] = function()
         return br._G.IsAutoRepeatSpell(br._G.GetSpellInfo(id)) or br._G.IsCurrentSpell(id)
     end
 
-    --[[-- @xfunction br.player.cast.cancel.spell
-    -- @xdescription Cancels the current spell being cast if it matches the specified spell.
-    -- @xreturn True/False]]
+    --- Cancels the current spell being cast if it matches the specified spell.
+    -- @function br.player.cast.cancel.spell
+    -- @return boolean
     cast.cancel[spell] = function()
         local SpellStopCasting = br._G["SpellStopCasting"]
         if self.cast.current[spell]() then
@@ -124,10 +122,10 @@ br.api.cast = function(self,spell,id)
         return false
     end
 
-    --[[-- @xfunction br.player.cast.cost.spell
-    -- @xdescription Returns the cost of the spell.
-    -- @xtparam boolean altPower Set to "true" to return alternate power cost.
-    -- @xreturn The cost of the spell.]]
+    --- Gets the cost of the spell.
+    -- @function br.player.cast.cost.spell
+    -- @bool altPower Set to "true" to return alternate power cost.
+    -- @return number
     cast.cost[spell] = function(altPower)
         if altPower == nil then altPower = false end
         if altPower then
@@ -137,129 +135,121 @@ br.api.cast = function(self,spell,id)
         end
     end
 
-    --[[-- @xfunction br.player.cast.current.spell
-    -- @xdescription Returns if the spell is the currently cast spell for the target (Alternate to br.player.cast.active.spell()).
-    -- @xtparam string thisUnit Acceptable parameters: nil (defaults to "player"), standard WoW units, or dynamic units.
-    -- @xreturn True/False]]
+    --- Gets the currently cast spell for the target (Alternate to br.player.cast.active.spell()).
+    -- @function br.player.cast.current.spell
+    -- @string thisUnit Acceptable parameters: nil (defaults to "player"), standard WoW units, or dynamic units.
+    -- @return boolean
     cast.current[spell] = function(thisUnit)
         if thisUnit == nil then thisUnit = "player" end
         return br.isCastingSpell(id,thisUnit)
     end
 
-    --[[
-    --
+    --- Gets the spell id of the current (or previously) cast spell by the API.
     -- @function br.player.cast.current.id
-    -- @description Returns the spell id of the current (or previously) cast spell by the API.
-    -- @return The current spell id]]
+    -- @return number
     cast.current.id = function()
         return br.botSpell
     end
 
-    --[[-- @xfunction br.player.cast.dispel.spell
-    -- @xdescription Returns if the spell if capable of dispelling the target.
-    -- @xtparam string thisUnit Acceptable parameters: nil (defaults to "target"), standard WoW units, or dynamic units.
-    -- @xreturn True/False]]
+    --- Checks if the spell is capable of dispelling the target.
+    -- @function br.player.cast.dispel.spell
+    -- @string thisUnit Acceptable parameters: nil (defaults to "target"), standard WoW units, or dynamic units.
+    -- @return boolean
     cast.dispel[spell] = function(thisUnit)
         if thisUnit == nil then thisUnit = "target" end
         return br.canDispel(thisUnit,id) or false
     end
 
-    --[[-- @xfunction br.player.cast.empowered.spell
-    -- @xdescription Returns current empowered rank of the spell or 0 if not empowered.
-    -- @xreturn The current empowered rank of the spell.]]
+    --- Gets current empowered rank of the spell or 0 if not empowered.
+    -- @function br.player.cast.empowered.spell
+    -- @return number
     cast.empowered[spell] = function()
         return br.getEmpoweredRank(id)
     end
 
-    --[[
-    --
+    --- Casts the form corresponding to the provided formIndex number.
     -- @function br.player.cast.form
-    -- @description Casts the form corresponding to the provided formIndex number.
-    -- @tparam number formIndex Index of the form to be casted. If not provided, defaults to 0.
-    -- @return True/False]]
+    -- @number formIndex Index of the form to be casted. If not provided, defaults to 0.
+    -- @return nil
     cast.form = function(formIndex)
         local CastShapeshiftForm = br._G["CastShapeshiftForm"]
         if formIndex == nil then formIndex = 0 end
         return CastShapeshiftForm(formIndex)
     end
 
-    --[[-- @xfunction br.player.cast.inFlight.spell
-    -- @xdescription Returns if the spell is currently in flight to the target.
-    -- @xtparam string thisUnit Acceptable parameters: nil (defaults to "target"), standard WoW units, or dynamic units.
-    -- @xreturn True/False]]
+    --- Checks if the spell is currently in flight to the target.
+    -- @function br.player.cast.inFlight.spell
+    -- @string thisUnit Acceptable parameters: nil (defaults to "target"), standard WoW units, or dynamic units.
+    -- @return boolean
     cast.inFlight[spell] = function(thisUnit)
         if thisUnit == nil then thisUnit = "target" end
         return br.InFlight.Check(id, thisUnit)
     end
 
-    --[[-- @xfunction br.player.cast.inFlightRemain.spell
-    -- @xdescription Returns time remaining on a spell in flight to the target.
-    -- @xtparam string thisUnit The target unit to check for the spell in flight.
-    -- @xreturn Time remaining on the spell in flight.]]
+    --- Gets time remaining on a spell in flight to the target.
+    -- @function br.player.cast.inFlightRemain.spell
+    -- @string thisUnit The target unit to check for the spell in flight.
+    -- @return number
     cast.inFlightRemain[spell] = function(thisUnit)
         return br.InFlight.Remain(id, thisUnit)
     end
 
-    --[[-- @xfunction br.player.cast.last.spell
-    -- @xdescription Returns if the spell was the last one cast or not.
-    -- @xtparam number index Number of last cast spell up to 10 previous spells, default value is 1 if not provided.
-    -- @xreturn True/False]]
+    --- Checks if the spell was the last one cast or not.
+    -- @function br.player.cast.last.spell
+    -- @number index Number of last cast spell up to 10 previous spells, default value is 1 if not provided.
+    -- @return boolean
     cast.last[spell] = function(index)
         local tracker = br.lastCastTable.tracker
         index = index or 1
         return tracker[index] and tracker[index] == id
     end
 
-    --[[-- @xfunction br.player.cast.last.time.spell
-    -- @xdescription Returns the GetTime() value the last cast of this spell occurred.
-    -- @xreturn The last time the spell was cast.]]
+    --- Gets the GetTime() value the last cast of this spell occurred.
+    -- @function br.player.cast.last.time.spell
+    -- @return number
     cast.last.time[spell] = function()
         if br.lastCastTable.castTime[id] == nil then br.lastCastTable.castTime[id] = br._G.GetTime() end
         return br.lastCastTable.castTime[id]
     end
 
-    --[[-- @xfunction br.player.cast.noControl.spell
-    -- @xdescription Returns true if the spell can free you of a "no control" effect.
-    -- @xtparam string thisUnit The target unit to check for the "no control" effect. Defaults to "player" if not provided.
-    -- @xreturn True/False]]
+    --- Checks if the spell can free you of a "no control" effect.
+    -- @function br.player.cast.noControl.spell
+    -- @string thisUnit The target unit to check for the "no control" effect. Defaults to "player" if not provided.
+    -- @return boolean
     cast.noControl[spell] = function(thisUnit)
         local hasNoControl = br["hasNoControl"]
         if thisUnit == nil then thisUnit = "player" end
         return hasNoControl(id,thisUnit)
     end
 
-    --[[
-    --
+    --- Casts special opener condition spell.
     -- @function br.player.cast.opener
-    -- @description Attempts to cast special opener condition spell.
-    -- @tparam number thisSpell The spell to be cast as the opener.
-    -- @tparam string thisTracker The tracker for the opener.
-    -- @tparam number thisCount The count for the opener.
-    -- @return True/False]]
+    -- @number thisSpell The spell to be cast as the opener.
+    -- @string thisTracker The tracker for the opener.
+    -- @number thisCount The count for the opener.
+    -- @return boolean
     cast.opener = function(thisSpell,thisTracker,thisCount)
         local castOpener = br._G["castOpener"]
         return castOpener(thisSpell,thisTracker,thisCount)
     end
 
-    --[[
-    --
+    --- Resets cast special opener condition if failed to cast.
     -- @function br.player.cast.openerFail
-    -- @description Resets cast special opener condition if failed to cast.
-    -- @tparam number thisSpell The spell that failed to cast.
-    -- @tparam string thisTracker The tracker for the opener.
-    -- @tparam number thisCount The count for the opener.
-    -- @return True/False]]
+    -- @number thisSpell The spell that failed to cast.
+    -- @string thisTracker The tracker for the opener.
+    -- @number thisCount The count for the opener.
+    -- @return boolean
     cast.openerFail = function(thisSpell,thisTracker,thisCount)
         local castOpenerFail = br.castOpenerFail
         return castOpenerFail(thisSpell,thisTracker,thisCount)
     end
 
-    --[[-- @xfunction br.player.cast.pool.spell
-    -- @xdescription Returns true if specified power requirements are not met.
-    -- @xtparam boolean altPower Set to "true" to return alternate power cost. Defaults to false if not provided.
-    -- @xtparam number specificAmt Set to specified power amount. Defaults to 0 if not provided.
-    -- @xtparam number multiplier Set to specified power multiplier. Defaults to 1 if not provided.
-    -- @xreturn True/False]]
+    --- Checks if specified power requirements are not met.
+    -- @function br.player.cast.pool.spell
+    -- @boolean altPower Set to "true" to return alternate power cost. Defaults to false if not provided.
+    -- @number specificAmt Set to specified power amount. Defaults to 0 if not provided.
+    -- @number multiplier Set to specified power multiplier. Defaults to 1 if not provided.
+    -- @return boolean
     cast.pool[spell] = function(altPower, specificAmt, multiplier)
         local powerType = select(2, br._G.UnitPowerType("player")):lower()
         local power = br.player.power
@@ -270,53 +260,51 @@ br.api.cast = function(self,spell,id)
             power[powerType].amount() < specificAmt
     end
 
-    --[[-- @xfunction br.player.cast.range.spell
-    -- @xdescription Returns the spell's range, if it has one.
-    -- @xreturn The spell's range.]]
+    --- Gets the spell's range, if it has one.
+    -- @function br.player.cast.range.spell
+    -- @return number
     cast.range[spell] = function()
         return br.getSpellRange(id)
     end
 
-    --[[-- @xfunction br.player.cast.regen.spell
-    -- @xdescription Returns the amount of power spell will generate when cast.
-    -- @xreturn The amount of power spell will generate.]]
+    --- Gets the amount of power spell will generate when cast.
+    -- @function br.player.cast.regen.spell
+    -- @return number
     cast.regen[spell] = function()
         return br.getCastingRegen(id)
     end
 
-    --[[-- @xfunction br.player.cast.safe.spell
-    -- @xdescription Return if safe to cast specified aoe spell on unit given the aoe dimensions.
-    -- @xtparam string thisUnit The target unit to check for safety. Defaults to "target" if not provided.
-    -- @xtparam string aoeType The type of AoE to check for safety. Can be "rect", "cone", "ground", or "aoe".
-    -- @xtparam number minUnits Specify minimal number of units needed to be hit by AoE spell before it will use.
-    -- @xtparam number effectRng Specify the AoE's effect range to determine units hit by it.
-    -- @xreturn True/False]]
+    --- Checks if safe to cast specified aoe spell on unit given the aoe dimensions.
+    -- @function br.player.cast.safe.spell
+    -- @string thisUnit The target unit to check for safety. Defaults to "target" if not provided.
+    -- @string aoeType The type of AoE to check for safety. Can be "rect", "cone", "ground", or "aoe".
+    -- @number minUnits Specify minimal number of units needed to be hit by AoE spell before it will use.
+    -- @number effectRng Specify the AoE's effect range to determine units hit by it.
+    -- @return boolean
     cast.safe[spell] = function(thisUnit,aoeType,minUnits,effectRng)
         return br.isSafeToAoE(id,thisUnit,effectRng,minUnits,aoeType)
     end
 
-    --[[-- @xfunction br.player.cast.time.spell
-    -- @xdescription Return cast time of player's spell. If the spell has no cast time, it returns the global cooldown.
-    -- @xreturn The cast time of the spell.]]
+    --- Gets the cast time of player's spell. If the spell has no cast time, it returns the global cooldown.
+    -- @function br.player.cast.time.spell
+    -- @return number
     cast.time[spell] = function()
         local castTime = br.getCastTime(id)
         return castTime > 0 and castTime or br.getGlobalCD(true)
     end
 
-    --[[
-    --
+    --- Gets the cast time remaining on player's cast or supplied target.
     -- @function br.player.cast.timeRemain
-    -- @description Return cast time remaining on player's cast or supplied target.
     -- @tparam string thisUnit The unit to check cast time remaining. Defaults to "player" if not provided.
-    -- @return The cast time remaining.]]
+    -- @return number
     cast.timeRemain = function(thisUnit)
         if thisUnit == nil then thisUnit = "player" end
         return br.getCastTimeRemain(thisUnit)
     end
 
-    --[[-- @xfunction br.player.cast.timeSinceLast.spell
-    -- @xdescription Returns the time since the last cast of this spell occurred.
-    -- @xreturn The time since the last cast of this spell occurred.]]
+    --- Gets the time since the last cast of this spell occurred.
+    -- @function br.player.cast.timeSinceLast.spell
+    -- @return number
     cast.timeSinceLast[spell] = function()
         if br.lastCastTable.castTime[id] == nil then br.lastCastTable.castTime[id] = br._G.GetTime() end
         return br._G.GetTime() - br.lastCastTable.castTime[id]
