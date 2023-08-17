@@ -34,16 +34,16 @@ br.api.cast = function(self,spell,id)
     -- The function name is dynamically generated based on the spell name.
     -- For example, for a spell named "thisSpell", the function would be `cast.thisSpell()`.
     -- @function br.player.cast.spell
-    -- @tparam string thisUnit The target unit for the spell. Can be standard WoW units, dynamic units, or special parameters like "best", "playerGround", etc.
-    -- @tparam string castType Defines the type of AoE or special cast conditions.
-    -- @tparam number minUnits Minimum number of units needed to be hit by AoE spell.
-    -- @tparam number effectRng The AoE's effect range.
-    -- @tparam number id The spell ID to cast.
-    -- @tparam string spell The spell name to cast. This parameter is ignored if id is provided.
-    -- @tparam boolean predict If true, will attempt to predict enemy movements for ground location AoE spells.
-    -- @tparam boolean predictPad Pads the prediction cast time. 'predict' must be true.
-    -- @tparam table enemies A table of enemy units that the spell should be cast on.
-    -- @return boolean True/False
+    -- @string thisUnit The target unit for the spell. Can be standard WoW units, dynamic units, or special parameters like "best", "playerGround", etc.
+    -- @string castType Defines the type of AoE or special cast conditions.
+    -- @number minUnits Minimum number of units needed to be hit by AoE spell.
+    -- @number effectRng The AoE's effect range.
+    -- @number id The spell ID to cast.
+    -- @string spell The spell name to cast. This parameter is ignored if id is provided.
+    -- @bool predict If true, will attempt to predict enemy movements for ground location AoE spells.
+    -- @bool predictPad Pads the prediction cast time. 'predict' must be true.
+    -- @table enemies A table of enemy units that the spell should be cast on.
+    -- @return bool True/False
     cast[spell] = function(thisUnit,castType,minUnits,effectRng,predict,predictPad,enemies)
         return br.createCastFunction(thisUnit,castType,minUnits,effectRng,id,spell,predict,predictPad,enemies)
     end
