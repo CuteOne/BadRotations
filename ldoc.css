@@ -1,13 +1,9 @@
-/* Reset some default margins for consistency */
-body, h1, h2, h3, p {
-    margin: 0;
-    padding: 0;
-}
-
+/* General Styles */
 body {
-    font-family: Arial, sans-serif;
-    background-color: #0d1117;
-    color: #c9d1d9;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    background-color: #181a1f;
+    color: #e1e4e8;
 }
 
 a {
@@ -19,63 +15,91 @@ a:hover {
     text-decoration: underline;
 }
 
-#container {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-}
-
-#main {
-    display: flex;
-    flex-direction: row;
-    align-items: flex-start;
-    justify-content: space-between;
-}
-
-#navigation {
-    flex: 0 0 240px; /* This gives the navigation a fixed width of 240px */
-    overflow-y: auto; /* Scrollable if content exceeds the height */
-    padding-right: 20px; /* Some spacing between navigation and content */
-    border-right: 1px solid #30363d; /* A border to separate navigation from content */
-}
-
-#content {
-    flex: 1; /* This allows the content to take up the remaining space */
-    padding-left: 20px; /* Some spacing between content and navigation */
-    max-width: 100%; /* Ensures content doesn't overflow its container */
-}
-
-#about {
-    margin-top: 20px;
-    font-size: 0.8em;
-    color: #8b949e;
-}
-
-#product {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+h1, h2, h3, h4 {
     margin-bottom: 20px;
 }
 
-#product_logo {
-    width: 50px;
-    height: 50px;
-    background-color: #30363d;
-    border-radius: 50%;
-    margin-right: 20px;
+p {
+    margin-bottom: 20px;
 }
 
-#product_name {
-    flex: 1;
+/* Container */
+#container {
+    padding: 20px;
 }
 
-#product_description {
-    flex: 2;
-    font-size: 0.9em;
+/* Navigation */
+#navigation {
+    background-color: #21252b;
+    padding: 20px;
+    border-right: 1px solid #30363d;
+}
+
+#navigation h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+#navigation h2 {
+    font-size: 20px;
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
+#navigation ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+#navigation ul li {
+    margin-bottom: 10px;
+}
+
+/* Content */
+#content {
+    padding: 20px;
+}
+
+#content h2 {
+    border-bottom: 2px solid #30363d;
+    padding-bottom: 10px;
+}
+
+/* Tables */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+table, th, td {
+    border: 1px solid #30363d;
+}
+
+th, td {
+    padding: 10px;
+    text-align: left;
+}
+
+th {
+    background-color: #24292e;
+    color: #ffffff;
+}
+
+td {
+    background-color: #2d333b;
+    color: #e1e4e8;
+}
+
+tr:hover {
+    background-color: #3a3f46;
+}
+
+/* About */
+#about {
+    font-size: 0.8em;
     color: #8b949e;
+    margin-top: 20px;
+    border-top: 1px solid #30363d;
+    padding-top: 10px;
 }
