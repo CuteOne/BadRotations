@@ -4,6 +4,8 @@ body {
     line-height: 1.6;
     background-color: #181a1f;
     color: #e1e4e8;
+    margin: 0;
+    padding: 0;
 }
 
 a {
@@ -25,14 +27,18 @@ p {
 
 /* Container */
 #container {
+    display: flex;
+    flex-direction: row;
     padding: 20px;
 }
 
 /* Navigation */
 #navigation {
+    flex: 1;
     background-color: #21252b;
     padding: 20px;
     border-right: 1px solid #30363d;
+    min-width: 250px;
 }
 
 #navigation h1 {
@@ -57,6 +63,7 @@ p {
 
 /* Content */
 #content {
+    flex: 3;
     padding: 20px;
 }
 
