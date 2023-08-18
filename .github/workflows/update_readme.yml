@@ -20,10 +20,10 @@ jobs:
           cache: 'pip'
 
       - name: pip install dependencies
-        run: pip install -r "$GITHUB_WORKSPACE/.github/requirements.txt"
+        run: pip install -r "$GITHUB_WORKSPACE/.github/scripts/requirements.txt"
 
       - name: Run Python README updater
-        run: ${{ steps.python3.outputs.python-path }} "$GITHUB_WORKSPACE/.github/update_readme.py" "$GITHUB_WORKSPACE"
+        run: ${{ steps.python3.outputs.python-path }} "$GITHUB_WORKSPACE/.github/scripts/update_readme.py" "$GITHUB_WORKSPACE"
 
       - name: Commit changes
         run: |

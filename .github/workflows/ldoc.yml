@@ -32,6 +32,9 @@ jobs:
     - name: Build docs
       run: ldoc .
 
+    - name: Post-process LDoc HTML files
+      run: python .github/scripts/post_process.py
+
     - name: Copy custom ldoc.css
       run: cp .github/assets/css/ldoc.css ./docs/
 
