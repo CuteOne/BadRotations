@@ -1,395 +1,313 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
 <html>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
 <head>
-    <title>Reference</title>
-    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+<title>Reference</title>
+<link href="../ldoc.css" rel="stylesheet" type="text/css"/>
 </head>
 <body>
-
 <div id="container">
-
 <div id="product">
-	<div id="product_logo"></div>
-	<div id="product_name"><big><b></b></big></div>
-	<div id="product_description"></div>
+<div id="product_logo"></div>
+<div id="product_name"><big><b></b></big></div>
+<div id="product_description"></div>
 </div> <!-- id="product" -->
-
-
 <div id="main">
-
-
 <!-- Menu -->
-
 <div id="navigation">
 <br/>
 <h1>BadRotations</h1>
-
-
 <ul>
-  <li><a href="../index.html">Index</a></li>
+<li><a href="../index.html">Index</a></li>
 </ul>
-
 <h2>Contents</h2>
 <ul>
 <li><a href="#Functions">Functions</a></li>
 </ul>
-
-
 <h2>Modules</h2>
 <ul class="nowrap">
-  <li><a href="../modules/br.player.anima.html">br.player.anima</a></li>
-  <li><strong>br.player.buff</strong></li>
-  <li><a href="../modules/br.player.cd.html">br.player.cd</a></li>
-  <li><a href="../modules/br.player.cast.html">br.player.cast</a></li>
-  <li><a href="../modules/br.player.conduit.html">br.player.conduit</a></li>
+<li><a href="../modules/br.player.anima.html">br.player.anima</a></li>
+<li><strong>br.player.buff</strong></li>
+<li><a href="../modules/br.player.cd.html">br.player.cd</a></li>
+<li><a href="../modules/br.player.cast.html">br.player.cast</a></li>
+<li><a href="../modules/br.player.conduit.html">br.player.conduit</a></li>
 </ul>
-
 </div>
-
 <div id="content">
-
 <h1>Module <code>br.player.buff</code></h1>
 <p>These functions help in retrieving information about buffs.</p>
 <p>
  Buff functions are stored in br.player.buff and can be utilized by `local buff = br.player.buff` in your profile.
  `spell` in the function represent the name in the buffs list (Spec, Shared Class, Shared Global Lists) defined in System/List/Spells.lua</p>
-
-
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
-	<tr>
-	<td class="name" nowrap><a href="#buff.spell.cancel">buff.spell.cancel ([thisUnit="player"[, sourceUnit="player"]])</a></td>
-	<td class="summary">Cancel a buff.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#buff.spell.count">buff.spell.count ()</a></td>
-	<td class="summary">Get the count of a buff.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#buff.spell.duration">buff.spell.duration ([thisUnit="player"[, sourceUnit="player"]])</a></td>
-	<td class="summary">Get the duration of a buff.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#buff.spell.exists">buff.spell.exists ([thisUnit="player"[, sourceUnit="player"]])</a></td>
-	<td class="summary">Check if a buff exists.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#buff.spell.react">buff.spell.react ([thisUnit="player"[, sourceUnit="player"]])</a></td>
-	<td class="summary">Check if a buff can be reacted to.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#buff.spell.remain">buff.spell.remain ([thisUnit="player"[, sourceUnit="player"]])</a></td>
-	<td class="summary">Get the remaining time of a buff.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#buff.spell.remains">buff.spell.remains ([thisUnit="player"[, sourceUnit="player"]])</a></td>
-	<td class="summary">Get the remaining time of a buff.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#buff.spell.refresh">buff.spell.refresh ([thisUnit="player"[, sourceUnit="player"]])</a></td>
-	<td class="summary">Check if a buff should be refreshed.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#buff.spell.stack">buff.spell.stack ([thisUnit="player"[, sourceUnit="player"]])</a></td>
-	<td class="summary">Get the stack count of a buff.</td>
-	</tr>
+<tr>
+<td class="name" nowrap=""><a href="#buff.spell.cancel">buff.spell.cancel ([thisUnit="player"[, sourceUnit="player"]])</a></td>
+<td class="summary">Cancel a buff.</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#buff.spell.count">buff.spell.count ()</a></td>
+<td class="summary">Get the count of a buff.</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#buff.spell.duration">buff.spell.duration ([thisUnit="player"[, sourceUnit="player"]])</a></td>
+<td class="summary">Get the duration of a buff.</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#buff.spell.exists">buff.spell.exists ([thisUnit="player"[, sourceUnit="player"]])</a></td>
+<td class="summary">Check if a buff exists.</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#buff.spell.react">buff.spell.react ([thisUnit="player"[, sourceUnit="player"]])</a></td>
+<td class="summary">Check if a buff can be reacted to.</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#buff.spell.remain">buff.spell.remain ([thisUnit="player"[, sourceUnit="player"]])</a></td>
+<td class="summary">Get the remaining time of a buff.</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#buff.spell.remains">buff.spell.remains ([thisUnit="player"[, sourceUnit="player"]])</a></td>
+<td class="summary">Get the remaining time of a buff.</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#buff.spell.refresh">buff.spell.refresh ([thisUnit="player"[, sourceUnit="player"]])</a></td>
+<td class="summary">Check if a buff should be refreshed.</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#buff.spell.stack">buff.spell.stack ([thisUnit="player"[, sourceUnit="player"]])</a></td>
+<td class="summary">Get the stack count of a buff.</td>
+</tr>
 </table>
-
 <br/>
 <br/>
-
-
-    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
-
-    <dl class="function">
-    <dt>
-    <a name = "buff.spell.cancel"></a>
-    <strong>buff.spell.cancel ([thisUnit="player"[, sourceUnit="player"]])</strong>
-    </dt>
-    <dd>
+<h2 class="section-header"><a name="Functions"></a>Functions</h2>
+<dl class="function">
+<dt>
+<a name="buff.spell.cancel"></a>
+<strong>buff.spell.cancel ([thisUnit="player"[, sourceUnit="player"]])</strong>
+</dt>
+<dd>
     Cancel a buff.
 
 
     <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">thisUnit</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+<ul>
+<li><span class="parameter">thisUnit</span>
+<span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          The unit to check.
          (<em>default</em> "player")
         </li>
-        <li><span class="parameter">sourceUnit</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+<li><span class="parameter">sourceUnit</span>
+<span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          The source of the buff.
          (<em>default</em> "player")
         </li>
-    </ul>
-
-
-
-
-
+</ul>
 </dd>
-    <dt>
-    <a name = "buff.spell.count"></a>
-    <strong>buff.spell.count ()</strong>
-    </dt>
-    <dd>
+<dt>
+<a name="buff.spell.count"></a>
+<strong>buff.spell.count ()</strong>
+</dt>
+<dd>
     Get the count of a buff.
 
 
 
     <h3>Returns:</h3>
-    <ol>
-
-           <span class="types"><span class="type">number</span></span>
-
-    </ol>
-
-
-
-
+<ol>
+<span class="types"><span class="type">number</span></span>
+</ol>
 </dd>
-    <dt>
-    <a name = "buff.spell.duration"></a>
-    <strong>buff.spell.duration ([thisUnit="player"[, sourceUnit="player"]])</strong>
-    </dt>
-    <dd>
+<dt>
+<a name="buff.spell.duration"></a>
+<strong>buff.spell.duration ([thisUnit="player"[, sourceUnit="player"]])</strong>
+</dt>
+<dd>
     Get the duration of a buff.
 
 
     <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">thisUnit</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+<ul>
+<li><span class="parameter">thisUnit</span>
+<span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          The unit to check.
          (<em>default</em> "player")
         </li>
-        <li><span class="parameter">sourceUnit</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+<li><span class="parameter">sourceUnit</span>
+<span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          The source of the buff.
          (<em>default</em> "player")
         </li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-
-           <span class="types"><span class="type">number</span></span>
-
-    </ol>
-
-
-
-
+</ul>
+<h3>Returns:</h3>
+<ol>
+<span class="types"><span class="type">number</span></span>
+</ol>
 </dd>
-    <dt>
-    <a name = "buff.spell.exists"></a>
-    <strong>buff.spell.exists ([thisUnit="player"[, sourceUnit="player"]])</strong>
-    </dt>
-    <dd>
+<dt>
+<a name="buff.spell.exists"></a>
+<strong>buff.spell.exists ([thisUnit="player"[, sourceUnit="player"]])</strong>
+</dt>
+<dd>
     Check if a buff exists.
 
 
     <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">thisUnit</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+<ul>
+<li><span class="parameter">thisUnit</span>
+<span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          The unit to check.
          (<em>default</em> "player")
         </li>
-        <li><span class="parameter">sourceUnit</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+<li><span class="parameter">sourceUnit</span>
+<span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          The source of the buff.
          (<em>default</em> "player")
         </li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-
-           <span class="types"><span class="type">bool</span></span>
-
-    </ol>
-
-
-
-
+</ul>
+<h3>Returns:</h3>
+<ol>
+<span class="types"><span class="type">bool</span></span>
+</ol>
 </dd>
-    <dt>
-    <a name = "buff.spell.react"></a>
-    <strong>buff.spell.react ([thisUnit="player"[, sourceUnit="player"]])</strong>
-    </dt>
-    <dd>
+<dt>
+<a name="buff.spell.react"></a>
+<strong>buff.spell.react ([thisUnit="player"[, sourceUnit="player"]])</strong>
+</dt>
+<dd>
     Check if a buff can be reacted to.
 
 
     <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">thisUnit</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+<ul>
+<li><span class="parameter">thisUnit</span>
+<span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          The unit to check.
          (<em>default</em> "player")
         </li>
-        <li><span class="parameter">sourceUnit</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+<li><span class="parameter">sourceUnit</span>
+<span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          The source of the buff.
          (<em>default</em> "player")
         </li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-
-           <span class="types"><span class="type">bool</span></span>
-
-    </ol>
-
-
-
-
+</ul>
+<h3>Returns:</h3>
+<ol>
+<span class="types"><span class="type">bool</span></span>
+</ol>
 </dd>
-    <dt>
-    <a name = "buff.spell.remain"></a>
-    <strong>buff.spell.remain ([thisUnit="player"[, sourceUnit="player"]])</strong>
-    </dt>
-    <dd>
+<dt>
+<a name="buff.spell.remain"></a>
+<strong>buff.spell.remain ([thisUnit="player"[, sourceUnit="player"]])</strong>
+</dt>
+<dd>
     Get the remaining time of a buff.
 
 
     <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">thisUnit</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+<ul>
+<li><span class="parameter">thisUnit</span>
+<span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          The unit to check.
          (<em>default</em> "player")
         </li>
-        <li><span class="parameter">sourceUnit</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+<li><span class="parameter">sourceUnit</span>
+<span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          The source of the buff.
          (<em>default</em> "player")
         </li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-
-           <span class="types"><span class="type">number</span></span>
-
-    </ol>
-
-
-
-
+</ul>
+<h3>Returns:</h3>
+<ol>
+<span class="types"><span class="type">number</span></span>
+</ol>
 </dd>
-    <dt>
-    <a name = "buff.spell.remains"></a>
-    <strong>buff.spell.remains ([thisUnit="player"[, sourceUnit="player"]])</strong>
-    </dt>
-    <dd>
+<dt>
+<a name="buff.spell.remains"></a>
+<strong>buff.spell.remains ([thisUnit="player"[, sourceUnit="player"]])</strong>
+</dt>
+<dd>
     Get the remaining time of a buff.  (Duplicate of br.player.buff.spell.remain)
 
 
     <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">thisUnit</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+<ul>
+<li><span class="parameter">thisUnit</span>
+<span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          The unit to check.
          (<em>default</em> "player")
         </li>
-        <li><span class="parameter">sourceUnit</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+<li><span class="parameter">sourceUnit</span>
+<span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          The source of the buff.
          (<em>default</em> "player")
         </li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-
-           <span class="types"><span class="type">number</span></span>
-
-    </ol>
-
-
-
-
+</ul>
+<h3>Returns:</h3>
+<ol>
+<span class="types"><span class="type">number</span></span>
+</ol>
 </dd>
-    <dt>
-    <a name = "buff.spell.refresh"></a>
-    <strong>buff.spell.refresh ([thisUnit="player"[, sourceUnit="player"]])</strong>
-    </dt>
-    <dd>
+<dt>
+<a name="buff.spell.refresh"></a>
+<strong>buff.spell.refresh ([thisUnit="player"[, sourceUnit="player"]])</strong>
+</dt>
+<dd>
     Check if a buff should be refreshed.
 
 
     <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">thisUnit</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+<ul>
+<li><span class="parameter">thisUnit</span>
+<span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          The unit to check.
          (<em>default</em> "player")
         </li>
-        <li><span class="parameter">sourceUnit</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+<li><span class="parameter">sourceUnit</span>
+<span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          The source of the buff.
          (<em>default</em> "player")
         </li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-
-           <span class="types"><span class="type">bool</span></span>
-
-    </ol>
-
-
-
-
+</ul>
+<h3>Returns:</h3>
+<ol>
+<span class="types"><span class="type">bool</span></span>
+</ol>
 </dd>
-    <dt>
-    <a name = "buff.spell.stack"></a>
-    <strong>buff.spell.stack ([thisUnit="player"[, sourceUnit="player"]])</strong>
-    </dt>
-    <dd>
+<dt>
+<a name="buff.spell.stack"></a>
+<strong>buff.spell.stack ([thisUnit="player"[, sourceUnit="player"]])</strong>
+</dt>
+<dd>
     Get the stack count of a buff.
 
 
     <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">thisUnit</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+<ul>
+<li><span class="parameter">thisUnit</span>
+<span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          The unit to check.
          (<em>default</em> "player")
         </li>
-        <li><span class="parameter">sourceUnit</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+<li><span class="parameter">sourceUnit</span>
+<span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          The source of the buff.
          (<em>default</em> "player")
         </li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-
-           <span class="types"><span class="type">number</span></span>
-
-    </ol>
-
-
-
-
+</ul>
+<h3>Returns:</h3>
+<ol>
+<span class="types"><span class="type">number</span></span>
+</ol>
 </dd>
 </dl>
-
-
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
-<i style="float:right;">Last updated 2023-08-18 16:37:33 </i>
+<i style="float:right;">Last updated 2023-08-18 16:42:15 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
