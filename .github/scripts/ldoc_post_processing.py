@@ -1,36 +1,32 @@
 import os
 import re
+from bs4 import BeautifulSoup
 
 # Directory containing the generated LDoc HTML files
-doc_dir = './docs'
+DOCS_DIR = './docs/'
 
-def extract_modules_from_file(filepath):
-    """Extract module names from an HTML file."""
-    with open(filepath, 'r', encoding='utf-8') as file:
-        content = file.read()
-        # Regular expression to match module names
-        module_pattern = r'<h2>(\w+)</h2>'
-        return re.findall(module_pattern, content)
+# Iterate over all HTML files in the directory
+for filename in os.listdir(DOCS_DIR):
+    if filename.endswith('.html'):
+        filepath = os.path.join(DOCS_DIR, filename)
+        print(f"Processing {filepath}...")  # Debug print
 
-def process_file(filepath, modules):
-    """Process an HTML file to append module names where needed."""
-    with open(filepath, 'r', encoding='utf-8') as file:
-        content = file.read()
+        with open(filepath, 'r', encoding='utf-8') as file:
+            soup = BeautifulSoup(file, 'html.parser')
 
-        # For each module, find occurrences where the module prefix is missing and add it
-        for module in modules:
-            content = re.sub(r'(?<!\b' + module + r'\.)\b' + module + r'\b', module + '.' + module, content)
+            # Find all h2 tags (module names)
+            for h2_tag in soup.find_all('h2'):
+                module_name = h2_tag.text.strip()
+                print(f"Found module: {module_name}")  # Debug print
 
-        # Save the modified content back to the file
+                # For each subsequent dt tag (function or type name), prepend the module name if not already present
+                for dt_tag in h2_tag.find_all_next('dt'):
+                    if not dt_tag.text.startswith(module_name + '.'):
+                        dt_tag.string = module_name + '.' + dt_tag.text
+                        print(f"Updated to: {dt_tag.string}")  # Debug print
+
+        # Write the modified HTML back to the file
         with open(filepath, 'w', encoding='utf-8') as file:
-            file.write(content)
+            file.write(str(soup))
 
-# Traverse the documentation directory and process each HTML file
-for root, dirs, files in os.walk(doc_dir):
-    for file in files:
-        if file.endswith('.html'):
-            filepath = os.path.join(root, file)
-            modules = extract_modules_from_file(filepath)
-            process_file(filepath, modules)
-
-print("Post-processing completed!")
+print("Processing complete.")
