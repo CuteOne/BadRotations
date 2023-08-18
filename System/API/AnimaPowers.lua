@@ -1,5 +1,5 @@
 ---
--- These functions help in retrieving information about anima powers gained in Torghast.
+-- These functions help in retrieving information about anima powers gained in Torghast. *Shadowlands*
 -- Anima functions are stored in br.player.anima and can be utilized by `local anima = br.player.anima` in your profile.
 -- `spell` in the function represent the name in the animas list (Spec, Shared Class, Shared Global Lists) defined in System/List/Spells.lua
 -- @module br.player.anima
