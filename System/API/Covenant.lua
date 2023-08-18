@@ -13,6 +13,7 @@ if br.api == nil then br.api = {} end
 -- @field necrolord.active A boolean indicating if Necrolord is the active covenant.
 -- @field none.active A boolean indicating if there is no active covenant.
 
+---
 br.api.covenant = function(covenant)
     local activeID = br._G.C_Covenants.GetActiveCovenantID()
     if br._G.C_Covenants.GetActiveCovenantID() ~= nil then
