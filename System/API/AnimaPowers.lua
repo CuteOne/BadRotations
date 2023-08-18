@@ -32,16 +32,16 @@ end
 
 br.api.animas = function(anima,v)
     --- Check if a specific anima power exists.
+    -- @function br.player.anima.spell.exists
     -- @treturn bool True if the anima power exists, false otherwise.
-    -- @usage anima.spell.exists() -- Checks if the anima power exists, replace spell with name of spell to check.
     anima.exists = function()
         local thisAnima = getAnimaInfo(v)
         return thisAnima.exists
     end
 
     --- Get the rank of a specific anima power.
+    -- @function br.player.anima.spell.rank
     -- @treturn number The rank of the anima power.
-    -- @usage anima.spell.rank() -- Gets the rank of the anima power, replace spell with name of spell to check.
     anima.rank = function()
         local thisAnima = getAnimaInfo(v)
         return thisAnima.count

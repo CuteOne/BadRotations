@@ -1,58 +1,68 @@
+---
+-- These calls help in retrieving information about spell cooldowns.
+-- CD is the table located at br.player.cd
+-- These functions are accessible via `local cd = br.player.cd`
+-- `spell` in the usage examples represent the name in the buffs list (Spec, Shared Class, Shared Global Lists) defined in System/List/Spells.lua
+-- @module br.player.cd
 local _, br = ...
 if br.api == nil then br.api = {} end
-
-----------------------
---- ABOUT THIS API ---
-----------------------
-
--- These calls help in retrieving information about spell cooldowns.
--- cd is the table located at br.player.cd, call this in profile to use.
--- id is the spellID passed from the builder which cycles all the collected ability spells from the spell list for the spec
--- spell in the examples represent the name in the ability list (Spec, Shared Class, Shared Global Lists) defined in System/List/Spells.lua
 
 br.api.cd = function(self,spell,id)
     if self.cd == nil then self.cd = {} end
     if self.cd[spell] == nil then self.cd[spell] = {} end
     local cd = self.cd
 
-
-    ----------------
-    --- CD API ---
-    ----------------
-
-    -- cd.spell.exists() - returns if spell is on cooldown or not
+    --- Checks if spell is on cooldown or not.
+    -- @function br.player.cd.spell.exists
+    -- @treturn boolean
     cd[spell].exists = function()
         local level = br._G.UnitLevel("player")
         local spellLevel = br._G.GetSpellLevelLearned(id)
         local spellCD = level >= spellLevel and br.getSpellCD(id) or 99
         return spellCD > 0
     end
-    -- cd.spell.remain() - return the time remaining on spell cooldown or 0 if not
+
+    --- Gets the time remaining on spell cooldown or 0 if not.
+    -- @function br.player.cd.spell.remain
+    -- @treturn number
     cd[spell].remain = function()
         local level = br._G.UnitLevel("player")
         local spellLevel = br._G.GetSpellLevelLearned(id)
         local spellCD = level >= spellLevel and br.getSpellCD(id) or 99
         return spellCD
     end
-    -- cd.spell.remains() - return the time remaining on spell cooldown or 0 if not (alternate to cd.spell.remain() incase of typo)
+
+    --- Gets the time remaining on spell cooldown or 0 if not (alternate to cd.spell.remain() incase of typo).
+    -- @function br.player.cd.spell.remains
+    -- @treturn number
     cd[spell].remains = function()
         local level = br._G.UnitLevel("player")
         local spellLevel = br._G.GetSpellLevelLearned(id)
         local spellCD = level >= spellLevel and br.getSpellCD(id) or 99
         return spellCD
     end
-    -- cd.spell.duration() - returns the total time of the spell cooldown
+
+    --- Gets the total time of the spell cooldown
+    -- @function br.player.cd.spell.duration
+    -- @treturn number
     cd[spell].duration = function()
         local _, CD = br._G.GetSpellCooldown(id)
         return CD
     end
-    -- cd.spell.ready() - returns if the spell is not on cooldown or is (opposite of cd.spell.exists())
+
+    --- Checks if the spell is not on cooldown or is (opposite of cd.spell.exists()).
+    -- @function br.player.cd.spell.ready
+    -- @treturn boolean
     cd[spell].ready = function()
         local level = br._G.UnitLevel("player")
         local spellLevel = br._G.GetSpellLevelLearned(id)
         local spellCD = level >= spellLevel and br.getSpellCD(id) or 99
         return spellCD == 0
     end
+
+    --- Gets the duration of the spells Global Cooldown.
+    -- @function br.player.cd.spell.prevgcd
+    -- @treturn number
     cd[spell].prevgcd = function()
         return select(2, br._G.GetSpellBaseCooldown(id))
     end
