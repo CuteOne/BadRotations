@@ -34,7 +34,6 @@ br.api.cast = function(self,spell,id)
     -- The function name is dynamically generated based on the spell name.
     -- For example, for a spell named "thisSpell", the function would be `cast.thisSpell()`.
     -- @name cast.spell
-    -- @function cast.spell
     -- @string thisUnit The target unit for the spell. Can be standard WoW units, dynamic units, or special parameters like "best", "playerGround", etc.
     -- @string castType Defines the type of AoE or special cast conditions.
     -- @number minUnits Minimum number of units needed to be hit by AoE spell.
@@ -51,7 +50,6 @@ br.api.cast = function(self,spell,id)
 
     --- Cast a spell by its ID based on various parameters.
     -- @name cast.id
-    -- @function cast.id
     -- @number spellID The ID of the spell to cast.
     -- @string thisUnit The target unit for the spell. Can be standard WoW units, dynamic units, or special parameters.
     -- @string castType Defines the type of AoE or special cast conditions.
@@ -171,7 +169,6 @@ br.api.cast = function(self,spell,id)
 
     --- Casts the form corresponding to the provided formIndex number.
     -- @name cast.form
-    -- @function cast.form
     -- @number formIndex Index of the form to be casted. If not provided, defaults to 0.
     -- @return nil
     cast.form = function(formIndex)
@@ -227,7 +224,6 @@ br.api.cast = function(self,spell,id)
 
     --- Casts special opener condition spell.
     -- @name cast.opener
-    -- @function cast.opener
     -- @number thisSpell The spell to be cast as the opener.
     -- @string thisTracker The tracker for the opener.
     -- @number thisCount The count for the opener.
@@ -239,7 +235,6 @@ br.api.cast = function(self,spell,id)
 
     --- Resets cast special opener condition if failed to cast.
     -- @name cast.openerFail
-    -- @function cast.openerFail
     -- @number thisSpell The spell that failed to cast.
     -- @string thisTracker The tracker for the opener.
     -- @number thisCount The count for the opener.
@@ -300,7 +295,6 @@ br.api.cast = function(self,spell,id)
 
     --- Gets the cast time remaining on player's cast or supplied target.
     -- @name cast.timeRemain
-    -- @function cast.timeRemain
     -- @tparam string thisUnit The unit to check cast time remaining. Defaults to "player" if not provided.
     -- @return number
     cast.timeRemain = function(thisUnit)
