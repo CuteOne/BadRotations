@@ -18,6 +18,9 @@ jobs:
       with:
         python-version: '3.x'
 
+    - name: Install Python dependencies
+      run: pip install beautifulsoup4
+
     - name: Setup Lua
       uses: leafo/gh-actions-lua@v8
       with:
