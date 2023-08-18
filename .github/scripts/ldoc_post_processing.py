@@ -32,19 +32,19 @@ def process_directory(directory):
                 # Find all function names and prepend the module name if not already present
                 for dt in soup.find_all('dt'):
                     function_name = dt.string
-                    if function_name and not function_name.startswith(module_name + '.'):
+                    if function_name and not function_name.startswith(module_name + '.') and not function_name.startswith('br.player.'):
                         print(f"Updating function name: {function_name} to {module_name}.{function_name}")
                         dt.string = module_name + '.' + function_name
 
                 # Also update the <strong> tags within <dt> and <td class="name" nowrap>
                 for strong_tag in soup.find_all('strong'):
-                    if strong_tag.string and not strong_tag.string.startswith(module_name + '.'):
+                    if strong_tag.string and not strong_tag.string.startswith(module_name + '.') and not strong_tag.string.startswith('br.player.'):
                         print(f"Updating strong tag text: {strong_tag.string} to {module_name}.{strong_tag.string}")
                         strong_tag.string = module_name + '.' + strong_tag.string
 
                 for td_tag in soup.find_all('td', class_='name'):
                     a_tag = td_tag.find('a', href=True)
-                    if a_tag and a_tag.string and not a_tag.string.startswith(module_name + '.'):
+                    if a_tag and a_tag.string and not a_tag.string.startswith(module_name + '.') and not a_tag.string.startswith('br.player.'):
                         print(f"Updating a tag text: {a_tag.string} to {module_name}.{a_tag.string}")
                         a_tag.string = module_name + '.' + a_tag.string
 
