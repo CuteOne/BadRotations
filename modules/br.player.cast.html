@@ -50,120 +50,120 @@
 <div id="content">
 
 <h1>Module <code>br.player.cast</code></h1>
-<p>Cast is the table located at br.player.cast.</p>
+<p>These functions help in casting spells and retrieving information about casts.</p>
 <p>
- These functions are accessible via `local cast = br.player.cast`
- `spell` in the usage examples represent the name in the buffs list (Spec, Shared Class, Shared Global Lists) defined in System/List/Spells.lua</p>
+ Cast functions are stored in br.player.cast and can be utilized by `local cast = br.player.cast` in your profile.
+ `spell` in the function represent the name in the actions list (Spec, Shared Class, Shared Global Lists) defined in System/List/Spells.lua</p>
 
 
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#br.player.cast.spell">br.player.cast.spell (thisUnit, castType, minUnits, effectRng, id, spell, predict, predictPad, enemies)</a></td>
+	<td class="name" nowrap><a href="#spell">spell (thisUnit, castType, minUnits, effectRng, id, spell, predict, predictPad, enemies)</a></td>
 	<td class="summary">Cast a spell based on various parameters.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#br.player.cast.id">br.player.cast.id (spellID, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)</a></td>
+	<td class="name" nowrap><a href="#id">id (spellID, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)</a></td>
 	<td class="summary">Cast a spell by its ID based on various parameters.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#br.player.cast.able.spell">br.player.cast.able.spell (thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)</a></td>
+	<td class="name" nowrap><a href="#cast.able.spell">cast.able.spell (thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)</a></td>
 	<td class="summary">Checks if a spell can be cast based on various parameters.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#br.player.cast.able.id">br.player.cast.able.id (spellID, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)</a></td>
+	<td class="name" nowrap><a href="#cast.able.id">cast.able.id (spellID, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)</a></td>
 	<td class="summary">Checks if a spell can be cast by its ID based on various parameters.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#br.player.cast.active.spell">br.player.cast.active.spell (thisUnit)</a></td>
+	<td class="name" nowrap><a href="#cast.active.spell">cast.active.spell (thisUnit)</a></td>
 	<td class="summary">Checks if the spell is the one currently being cast.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#br.player.cast.auto.spell">br.player.cast.auto.spell ()</a></td>
+	<td class="name" nowrap><a href="#cast.auto.spell">cast.auto.spell ()</a></td>
 	<td class="summary">Checks if the spell is set to auto-repeat or if it's the current spell being cast.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#br.player.cast.cancel.spell">br.player.cast.cancel.spell ()</a></td>
+	<td class="name" nowrap><a href="#cast.cancel.spell">cast.cancel.spell ()</a></td>
 	<td class="summary">Cancels the current spell being cast if it matches the specified spell.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#br.player.cast.cost.spell">br.player.cast.cost.spell (altPower)</a></td>
+	<td class="name" nowrap><a href="#cast.cost.spell">cast.cost.spell (altPower)</a></td>
 	<td class="summary">Gets the cost of the spell.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#br.player.cast.current.spell">br.player.cast.current.spell (thisUnit)</a></td>
+	<td class="name" nowrap><a href="#cast.current.spell">cast.current.spell (thisUnit)</a></td>
 	<td class="summary">Gets the currently cast spell for the target (Alternate to br.player.cast.active.spell()).</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#br.player.cast.current.id">br.player.cast.current.id ()</a></td>
+	<td class="name" nowrap><a href="#cast.current.id">cast.current.id ()</a></td>
 	<td class="summary">Gets the spell id of the current (or previously) cast spell by the API.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#br.player.cast.dispel.spell">br.player.cast.dispel.spell (thisUnit)</a></td>
+	<td class="name" nowrap><a href="#cast.dispel.spell">cast.dispel.spell (thisUnit)</a></td>
 	<td class="summary">Checks if the spell is capable of dispelling the target.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#br.player.cast.empowered.spell">br.player.cast.empowered.spell ()</a></td>
+	<td class="name" nowrap><a href="#cast.empowered.spell">cast.empowered.spell ()</a></td>
 	<td class="summary">Gets current empowered rank of the spell or 0 if not empowered.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#br.player.cast.form">br.player.cast.form (formIndex)</a></td>
+	<td class="name" nowrap><a href="#form">form (formIndex)</a></td>
 	<td class="summary">Casts the form corresponding to the provided formIndex number.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#br.player.cast.inFlight.spell">br.player.cast.inFlight.spell (thisUnit)</a></td>
+	<td class="name" nowrap><a href="#cast.inFlight.spell">cast.inFlight.spell (thisUnit)</a></td>
 	<td class="summary">Checks if the spell is currently in flight to the target.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#br.player.cast.inFlightRemain.spell">br.player.cast.inFlightRemain.spell (thisUnit)</a></td>
+	<td class="name" nowrap><a href="#cast.inFlightRemain.spell">cast.inFlightRemain.spell (thisUnit)</a></td>
 	<td class="summary">Gets time remaining on a spell in flight to the target.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#br.player.cast.last.spell">br.player.cast.last.spell (index)</a></td>
+	<td class="name" nowrap><a href="#cast.last.spell">cast.last.spell (index)</a></td>
 	<td class="summary">Checks if the spell was the last one cast or not.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#br.player.cast.last.time.spell">br.player.cast.last.time.spell ()</a></td>
+	<td class="name" nowrap><a href="#cast.last.time.spell">cast.last.time.spell ()</a></td>
 	<td class="summary">Gets the GetTime() value the last cast of this spell occurred.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#br.player.cast.noControl.spell">br.player.cast.noControl.spell (thisUnit)</a></td>
+	<td class="name" nowrap><a href="#cast.noControl.spell">cast.noControl.spell (thisUnit)</a></td>
 	<td class="summary">Checks if the spell can free you of a "no control" effect.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#br.player.cast.opener">br.player.cast.opener (thisSpell, thisTracker, thisCount)</a></td>
+	<td class="name" nowrap><a href="#opener">opener (thisSpell, thisTracker, thisCount)</a></td>
 	<td class="summary">Casts special opener condition spell.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#br.player.cast.openerFail">br.player.cast.openerFail (thisSpell, thisTracker, thisCount)</a></td>
+	<td class="name" nowrap><a href="#openerFail">openerFail (thisSpell, thisTracker, thisCount)</a></td>
 	<td class="summary">Resets cast special opener condition if failed to cast.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#br.player.cast.pool.spell">br.player.cast.pool.spell (specificAmt, multiplier)</a></td>
+	<td class="name" nowrap><a href="#cast.pool.spell">cast.pool.spell (specificAmt, multiplier)</a></td>
 	<td class="summary">Checks if specified power requirements are not met.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#br.player.cast.range.spell">br.player.cast.range.spell ()</a></td>
+	<td class="name" nowrap><a href="#cast.range.spell">cast.range.spell ()</a></td>
 	<td class="summary">Gets the spell's range, if it has one.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#br.player.cast.regen.spell">br.player.cast.regen.spell ()</a></td>
+	<td class="name" nowrap><a href="#cast.regen.spell">cast.regen.spell ()</a></td>
 	<td class="summary">Gets the amount of power spell will generate when cast.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#br.player.cast.safe.spell">br.player.cast.safe.spell (thisUnit, aoeType, minUnits, effectRng)</a></td>
+	<td class="name" nowrap><a href="#cast.safe.spell">cast.safe.spell (thisUnit, aoeType, minUnits, effectRng)</a></td>
 	<td class="summary">Checks if safe to cast specified aoe spell on unit given the aoe dimensions.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#br.player.cast.time.spell">br.player.cast.time.spell ()</a></td>
+	<td class="name" nowrap><a href="#cast.time.spell">cast.time.spell ()</a></td>
 	<td class="summary">Gets the cast time of player's spell.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#br.player.cast.timeRemain">br.player.cast.timeRemain (thisUnit)</a></td>
+	<td class="name" nowrap><a href="#timeRemain">timeRemain (thisUnit)</a></td>
 	<td class="summary">Gets the cast time remaining on player's cast or supplied target.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#br.player.cast.timeSinceLast.spell">br.player.cast.timeSinceLast.spell ()</a></td>
+	<td class="name" nowrap><a href="#cast.timeSinceLast.spell">cast.timeSinceLast.spell ()</a></td>
 	<td class="summary">Gets the time since the last cast of this spell occurred.</td>
 	</tr>
 </table>
@@ -176,8 +176,8 @@
 
     <dl class="function">
     <dt>
-    <a name = "br.player.cast.spell"></a>
-    <strong>br.player.cast.spell (thisUnit, castType, minUnits, effectRng, id, spell, predict, predictPad, enemies)</strong>
+    <a name = "spell"></a>
+    <strong>spell (thisUnit, castType, minUnits, effectRng, id, spell, predict, predictPad, enemies)</strong>
     </dt>
     <dd>
     Cast a spell based on various parameters.
@@ -237,8 +237,8 @@
 
 </dd>
     <dt>
-    <a name = "br.player.cast.id"></a>
-    <strong>br.player.cast.id (spellID, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)</strong>
+    <a name = "id"></a>
+    <strong>id (spellID, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)</strong>
     </dt>
     <dd>
     Cast a spell by its ID based on various parameters.
@@ -291,8 +291,8 @@
 
 </dd>
     <dt>
-    <a name = "br.player.cast.able.spell"></a>
-    <strong>br.player.cast.able.spell (thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)</strong>
+    <a name = "cast.able.spell"></a>
+    <strong>cast.able.spell (thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)</strong>
     </dt>
     <dd>
     Checks if a spell can be cast based on various parameters.
@@ -342,8 +342,8 @@
 
 </dd>
     <dt>
-    <a name = "br.player.cast.able.id"></a>
-    <strong>br.player.cast.able.id (spellID, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)</strong>
+    <a name = "cast.able.id"></a>
+    <strong>cast.able.id (spellID, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)</strong>
     </dt>
     <dd>
     Checks if a spell can be cast by its ID based on various parameters.
@@ -396,8 +396,8 @@
 
 </dd>
     <dt>
-    <a name = "br.player.cast.active.spell"></a>
-    <strong>br.player.cast.active.spell (thisUnit)</strong>
+    <a name = "cast.active.spell"></a>
+    <strong>cast.active.spell (thisUnit)</strong>
     </dt>
     <dd>
     Checks if the spell is the one currently being cast.
@@ -422,8 +422,8 @@
 
 </dd>
     <dt>
-    <a name = "br.player.cast.auto.spell"></a>
-    <strong>br.player.cast.auto.spell ()</strong>
+    <a name = "cast.auto.spell"></a>
+    <strong>cast.auto.spell ()</strong>
     </dt>
     <dd>
     Checks if the spell is set to auto-repeat or if it's the current spell being cast.
@@ -441,8 +441,8 @@
 
 </dd>
     <dt>
-    <a name = "br.player.cast.cancel.spell"></a>
-    <strong>br.player.cast.cancel.spell ()</strong>
+    <a name = "cast.cancel.spell"></a>
+    <strong>cast.cancel.spell ()</strong>
     </dt>
     <dd>
     Cancels the current spell being cast if it matches the specified spell.
@@ -460,8 +460,8 @@
 
 </dd>
     <dt>
-    <a name = "br.player.cast.cost.spell"></a>
-    <strong>br.player.cast.cost.spell (altPower)</strong>
+    <a name = "cast.cost.spell"></a>
+    <strong>cast.cost.spell (altPower)</strong>
     </dt>
     <dd>
     Gets the cost of the spell.
@@ -486,8 +486,8 @@
 
 </dd>
     <dt>
-    <a name = "br.player.cast.current.spell"></a>
-    <strong>br.player.cast.current.spell (thisUnit)</strong>
+    <a name = "cast.current.spell"></a>
+    <strong>cast.current.spell (thisUnit)</strong>
     </dt>
     <dd>
     Gets the currently cast spell for the target (Alternate to br.player.cast.active.spell()).
@@ -512,8 +512,8 @@
 
 </dd>
     <dt>
-    <a name = "br.player.cast.current.id"></a>
-    <strong>br.player.cast.current.id ()</strong>
+    <a name = "cast.current.id"></a>
+    <strong>cast.current.id ()</strong>
     </dt>
     <dd>
     Gets the spell id of the current (or previously) cast spell by the API.
@@ -531,8 +531,8 @@
 
 </dd>
     <dt>
-    <a name = "br.player.cast.dispel.spell"></a>
-    <strong>br.player.cast.dispel.spell (thisUnit)</strong>
+    <a name = "cast.dispel.spell"></a>
+    <strong>cast.dispel.spell (thisUnit)</strong>
     </dt>
     <dd>
     Checks if the spell is capable of dispelling the target.
@@ -557,8 +557,8 @@
 
 </dd>
     <dt>
-    <a name = "br.player.cast.empowered.spell"></a>
-    <strong>br.player.cast.empowered.spell ()</strong>
+    <a name = "cast.empowered.spell"></a>
+    <strong>cast.empowered.spell ()</strong>
     </dt>
     <dd>
     Gets current empowered rank of the spell or 0 if not empowered.
@@ -576,8 +576,8 @@
 
 </dd>
     <dt>
-    <a name = "br.player.cast.form"></a>
-    <strong>br.player.cast.form (formIndex)</strong>
+    <a name = "form"></a>
+    <strong>form (formIndex)</strong>
     </dt>
     <dd>
     Casts the form corresponding to the provided formIndex number.
@@ -602,8 +602,8 @@
 
 </dd>
     <dt>
-    <a name = "br.player.cast.inFlight.spell"></a>
-    <strong>br.player.cast.inFlight.spell (thisUnit)</strong>
+    <a name = "cast.inFlight.spell"></a>
+    <strong>cast.inFlight.spell (thisUnit)</strong>
     </dt>
     <dd>
     Checks if the spell is currently in flight to the target.
@@ -628,8 +628,8 @@
 
 </dd>
     <dt>
-    <a name = "br.player.cast.inFlightRemain.spell"></a>
-    <strong>br.player.cast.inFlightRemain.spell (thisUnit)</strong>
+    <a name = "cast.inFlightRemain.spell"></a>
+    <strong>cast.inFlightRemain.spell (thisUnit)</strong>
     </dt>
     <dd>
     Gets time remaining on a spell in flight to the target.
@@ -654,8 +654,8 @@
 
 </dd>
     <dt>
-    <a name = "br.player.cast.last.spell"></a>
-    <strong>br.player.cast.last.spell (index)</strong>
+    <a name = "cast.last.spell"></a>
+    <strong>cast.last.spell (index)</strong>
     </dt>
     <dd>
     Checks if the spell was the last one cast or not.
@@ -680,8 +680,8 @@
 
 </dd>
     <dt>
-    <a name = "br.player.cast.last.time.spell"></a>
-    <strong>br.player.cast.last.time.spell ()</strong>
+    <a name = "cast.last.time.spell"></a>
+    <strong>cast.last.time.spell ()</strong>
     </dt>
     <dd>
     Gets the GetTime() value the last cast of this spell occurred.
@@ -699,8 +699,8 @@
 
 </dd>
     <dt>
-    <a name = "br.player.cast.noControl.spell"></a>
-    <strong>br.player.cast.noControl.spell (thisUnit)</strong>
+    <a name = "cast.noControl.spell"></a>
+    <strong>cast.noControl.spell (thisUnit)</strong>
     </dt>
     <dd>
     Checks if the spell can free you of a "no control" effect.
@@ -725,8 +725,8 @@
 
 </dd>
     <dt>
-    <a name = "br.player.cast.opener"></a>
-    <strong>br.player.cast.opener (thisSpell, thisTracker, thisCount)</strong>
+    <a name = "opener"></a>
+    <strong>opener (thisSpell, thisTracker, thisCount)</strong>
     </dt>
     <dd>
     Casts special opener condition spell.
@@ -759,8 +759,8 @@
 
 </dd>
     <dt>
-    <a name = "br.player.cast.openerFail"></a>
-    <strong>br.player.cast.openerFail (thisSpell, thisTracker, thisCount)</strong>
+    <a name = "openerFail"></a>
+    <strong>openerFail (thisSpell, thisTracker, thisCount)</strong>
     </dt>
     <dd>
     Resets cast special opener condition if failed to cast.
@@ -793,8 +793,8 @@
 
 </dd>
     <dt>
-    <a name = "br.player.cast.pool.spell"></a>
-    <strong>br.player.cast.pool.spell (specificAmt, multiplier)</strong>
+    <a name = "cast.pool.spell"></a>
+    <strong>cast.pool.spell (specificAmt, multiplier)</strong>
     </dt>
     <dd>
     Checks if specified power requirements are not met.
@@ -823,8 +823,8 @@
 
 </dd>
     <dt>
-    <a name = "br.player.cast.range.spell"></a>
-    <strong>br.player.cast.range.spell ()</strong>
+    <a name = "cast.range.spell"></a>
+    <strong>cast.range.spell ()</strong>
     </dt>
     <dd>
     Gets the spell's range, if it has one.
@@ -842,8 +842,8 @@
 
 </dd>
     <dt>
-    <a name = "br.player.cast.regen.spell"></a>
-    <strong>br.player.cast.regen.spell ()</strong>
+    <a name = "cast.regen.spell"></a>
+    <strong>cast.regen.spell ()</strong>
     </dt>
     <dd>
     Gets the amount of power spell will generate when cast.
@@ -861,8 +861,8 @@
 
 </dd>
     <dt>
-    <a name = "br.player.cast.safe.spell"></a>
-    <strong>br.player.cast.safe.spell (thisUnit, aoeType, minUnits, effectRng)</strong>
+    <a name = "cast.safe.spell"></a>
+    <strong>cast.safe.spell (thisUnit, aoeType, minUnits, effectRng)</strong>
     </dt>
     <dd>
     Checks if safe to cast specified aoe spell on unit given the aoe dimensions.
@@ -899,8 +899,8 @@
 
 </dd>
     <dt>
-    <a name = "br.player.cast.time.spell"></a>
-    <strong>br.player.cast.time.spell ()</strong>
+    <a name = "cast.time.spell"></a>
+    <strong>cast.time.spell ()</strong>
     </dt>
     <dd>
     Gets the cast time of player's spell.  If the spell has no cast time, it returns the global cooldown.
@@ -918,8 +918,8 @@
 
 </dd>
     <dt>
-    <a name = "br.player.cast.timeRemain"></a>
-    <strong>br.player.cast.timeRemain (thisUnit)</strong>
+    <a name = "timeRemain"></a>
+    <strong>timeRemain (thisUnit)</strong>
     </dt>
     <dd>
     Gets the cast time remaining on player's cast or supplied target.
@@ -944,8 +944,8 @@
 
 </dd>
     <dt>
-    <a name = "br.player.cast.timeSinceLast.spell"></a>
-    <strong>br.player.cast.timeSinceLast.spell ()</strong>
+    <a name = "cast.timeSinceLast.spell"></a>
+    <strong>cast.timeSinceLast.spell ()</strong>
     </dt>
     <dd>
     Gets the time since the last cast of this spell occurred.
@@ -969,7 +969,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
-<i style="float:right;">Last updated 2023-08-18 13:31:25 </i>
+<i style="float:right;">Last updated 2023-08-18 13:43:53 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
