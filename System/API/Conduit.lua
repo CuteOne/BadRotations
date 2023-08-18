@@ -35,7 +35,6 @@ br.api.conduit = function(conduit,spell,id)
         local spellName, _, spellIcon, _, _, _, spellID = br._G.GetSpellInfo(id)
 
         --- Gets information about a specific conduit.
-        -- @function conduit.spell
         -- @field state The current state of the conduit. Default is `0`.
         -- @field icon The icon associated with the conduit, represented by the spell icon.
         -- @field row The row in which the conduit is located. Default is `0`.
@@ -44,7 +43,7 @@ br.api.conduit = function(conduit,spell,id)
         -- @field rank The rank of the conduit. Currently set to default `0`.
         -- @field id The unique identifier for the spell associated with the conduit.
         -- @field enabled A boolean indicating whether the conduit is enabled. Default is `false`.
-        -- @treturn table
+        -- @table conduit.spell
         conduit[spell] = {
             state = 0,
             icon = spellIcon,
