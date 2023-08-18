@@ -1,6 +1,6 @@
 ---
 -- These functions help in retrieving information about conduit powers *Shadowlands*.
--- Conduit functions are stored in br.player.conduit and can be utilized by `local conduit = br.player.conduit` in your profile.
+-- Conduit data is stored in br.player.conduit and can be utilized by `local conduit = br.player.conduit` in your profile.
 -- `spell` in the table represent the name in the conduit list (Spec, Shared Class, Shared Global Lists) defined in System/List/Spells.lua
 -- @module br.player.conduit
 local _, br = ...
