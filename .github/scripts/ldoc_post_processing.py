@@ -20,7 +20,7 @@ def process_directory(directory):
                 h1_tag = soup.find('h1')
                 code_tag = h1_tag.find('code') if h1_tag else None
                 if code_tag and "br.player." in code_tag.text:
-                    module_name = code_tag.text.split('.')[-1]
+                    module_name = code_tag.text.split('br.player.')[-1]
                     print(f"Extracted module name: {module_name}")
 
                     # [Rest of the script remains unchanged]
