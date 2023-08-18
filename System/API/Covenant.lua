@@ -5,8 +5,7 @@
 local _, br = ...
 if br.api == nil then br.api = {} end
 
---- Checks if you are a part of the specified covenant or not.
--- @type covenant
+--- @type covenant
 -- @field kyrian.active A boolean indicating if Kyrian is the active covenant.
 -- @field venthyr.active A boolean indicating if Venthyr is the active covenant.
 -- @field nightFae.active A boolean indicating if Night Fae is the active covenant.
