@@ -41,6 +41,7 @@
 <ul class="nowrap">
   <li><a href="../modules/br.player.anima.html">br.player.anima</a></li>
   <li><strong>br.player.buff</strong></li>
+  <li><a href="../modules/br.player.cd.html">br.player.cd</a></li>
   <li><a href="../modules/br.player.cast.html">br.player.cast</a></li>
 </ul>
 
@@ -58,39 +59,39 @@
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#br.player.spell.cancel">br.player.spell.cancel ([thisUnit="player"[, sourceUnit="player"]])</a></td>
+	<td class="name" nowrap><a href="#br.player.buff.spell.cancel">br.player.buff.spell.cancel ([thisUnit="player"[, sourceUnit="player"]])</a></td>
 	<td class="summary">Cancel a buff.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#br.player.spell.count">br.player.spell.count ()</a></td>
+	<td class="name" nowrap><a href="#br.player.buff.spell.count">br.player.buff.spell.count ()</a></td>
 	<td class="summary">Get the count of a buff.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#br.player.spell.duration">br.player.spell.duration ([thisUnit="player"[, sourceUnit="player"]])</a></td>
+	<td class="name" nowrap><a href="#br.player.buff.spell.duration">br.player.buff.spell.duration ([thisUnit="player"[, sourceUnit="player"]])</a></td>
 	<td class="summary">Get the duration of a buff.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#br.player.spell.exists">br.player.spell.exists ([thisUnit="player"[, sourceUnit="player"]])</a></td>
+	<td class="name" nowrap><a href="#br.player.buff.spell.exists">br.player.buff.spell.exists ([thisUnit="player"[, sourceUnit="player"]])</a></td>
 	<td class="summary">Check if a buff exists.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#br.player.spell.react">br.player.spell.react ([thisUnit="player"[, sourceUnit="player"]])</a></td>
+	<td class="name" nowrap><a href="#br.player.buff.spell.react">br.player.buff.spell.react ([thisUnit="player"[, sourceUnit="player"]])</a></td>
 	<td class="summary">Check if a buff can be reacted to.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#br.player.spell.remain">br.player.spell.remain ([thisUnit="player"[, sourceUnit="player"]])</a></td>
+	<td class="name" nowrap><a href="#br.player.buff.spell.remain">br.player.buff.spell.remain ([thisUnit="player"[, sourceUnit="player"]])</a></td>
 	<td class="summary">Get the remaining time of a buff.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#br.player.spell.remains">br.player.spell.remains ([thisUnit="player"[, sourceUnit="player"]])</a></td>
+	<td class="name" nowrap><a href="#br.player.buff.spell.remains">br.player.buff.spell.remains ([thisUnit="player"[, sourceUnit="player"]])</a></td>
 	<td class="summary">Get the remaining time of a buff.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#br.player.spell.refresh">br.player.spell.refresh ([thisUnit="player"[, sourceUnit="player"]])</a></td>
+	<td class="name" nowrap><a href="#br.player.buff.spell.refresh">br.player.buff.spell.refresh ([thisUnit="player"[, sourceUnit="player"]])</a></td>
 	<td class="summary">Check if a buff should be refreshed.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#br.player.spell.stack">br.player.spell.stack ([thisUnit="player"[, sourceUnit="player"]])</a></td>
+	<td class="name" nowrap><a href="#br.player.buff.spell.stack">br.player.buff.spell.stack ([thisUnit="player"[, sourceUnit="player"]])</a></td>
 	<td class="summary">Get the stack count of a buff.</td>
 	</tr>
 </table>
@@ -103,8 +104,8 @@
 
     <dl class="function">
     <dt>
-    <a name = "br.player.spell.cancel"></a>
-    <strong>br.player.spell.cancel ([thisUnit="player"[, sourceUnit="player"]])</strong>
+    <a name = "br.player.buff.spell.cancel"></a>
+    <strong>br.player.buff.spell.cancel ([thisUnit="player"[, sourceUnit="player"]])</strong>
     </dt>
     <dd>
     Cancel a buff.
@@ -127,15 +128,11 @@
 
 
 
-    <h3>Usage:</h3>
-    <ul>
-        <pre class="example">buff.spell.<span class="function-name">cancel</span>(<span class="string">"player"</span>)</pre>
-    </ul>
 
 </dd>
     <dt>
-    <a name = "br.player.spell.count"></a>
-    <strong>br.player.spell.count ()</strong>
+    <a name = "br.player.buff.spell.count"></a>
+    <strong>br.player.buff.spell.count ()</strong>
     </dt>
     <dd>
     Get the count of a buff.
@@ -151,15 +148,11 @@
 
 
 
-    <h3>Usage:</h3>
-    <ul>
-        <pre class="example">buff.spell.<span class="function-name">count</span>()</pre>
-    </ul>
 
 </dd>
     <dt>
-    <a name = "br.player.spell.duration"></a>
-    <strong>br.player.spell.duration ([thisUnit="player"[, sourceUnit="player"]])</strong>
+    <a name = "br.player.buff.spell.duration"></a>
+    <strong>br.player.buff.spell.duration ([thisUnit="player"[, sourceUnit="player"]])</strong>
     </dt>
     <dd>
     Get the duration of a buff.
@@ -188,15 +181,11 @@
 
 
 
-    <h3>Usage:</h3>
-    <ul>
-        <pre class="example">buff.spell.<span class="function-name">duration</span>(<span class="string">"player"</span>)</pre>
-    </ul>
 
 </dd>
     <dt>
-    <a name = "br.player.spell.exists"></a>
-    <strong>br.player.spell.exists ([thisUnit="player"[, sourceUnit="player"]])</strong>
+    <a name = "br.player.buff.spell.exists"></a>
+    <strong>br.player.buff.spell.exists ([thisUnit="player"[, sourceUnit="player"]])</strong>
     </dt>
     <dd>
     Check if a buff exists.
@@ -225,15 +214,11 @@
 
 
 
-    <h3>Usage:</h3>
-    <ul>
-        <pre class="example">buff.spell.<span class="function-name">exists</span>(<span class="string">"player"</span>)</pre>
-    </ul>
 
 </dd>
     <dt>
-    <a name = "br.player.spell.react"></a>
-    <strong>br.player.spell.react ([thisUnit="player"[, sourceUnit="player"]])</strong>
+    <a name = "br.player.buff.spell.react"></a>
+    <strong>br.player.buff.spell.react ([thisUnit="player"[, sourceUnit="player"]])</strong>
     </dt>
     <dd>
     Check if a buff can be reacted to.
@@ -262,15 +247,11 @@
 
 
 
-    <h3>Usage:</h3>
-    <ul>
-        <pre class="example">buff.spell.<span class="function-name">react</span>(<span class="string">"player"</span>)</pre>
-    </ul>
 
 </dd>
     <dt>
-    <a name = "br.player.spell.remain"></a>
-    <strong>br.player.spell.remain ([thisUnit="player"[, sourceUnit="player"]])</strong>
+    <a name = "br.player.buff.spell.remain"></a>
+    <strong>br.player.buff.spell.remain ([thisUnit="player"[, sourceUnit="player"]])</strong>
     </dt>
     <dd>
     Get the remaining time of a buff.
@@ -299,15 +280,11 @@
 
 
 
-    <h3>Usage:</h3>
-    <ul>
-        <pre class="example">buff.spell.<span class="function-name">remain</span>(<span class="string">"player"</span>)</pre>
-    </ul>
 
 </dd>
     <dt>
-    <a name = "br.player.spell.remains"></a>
-    <strong>br.player.spell.remains ([thisUnit="player"[, sourceUnit="player"]])</strong>
+    <a name = "br.player.buff.spell.remains"></a>
+    <strong>br.player.buff.spell.remains ([thisUnit="player"[, sourceUnit="player"]])</strong>
     </dt>
     <dd>
     Get the remaining time of a buff.  (Duplicate of br.player.buff.spell.remain)
@@ -336,15 +313,11 @@
 
 
 
-    <h3>Usage:</h3>
-    <ul>
-        <pre class="example">buff.spell.<span class="function-name">remain</span>(<span class="string">"player"</span>)</pre>
-    </ul>
 
 </dd>
     <dt>
-    <a name = "br.player.spell.refresh"></a>
-    <strong>br.player.spell.refresh ([thisUnit="player"[, sourceUnit="player"]])</strong>
+    <a name = "br.player.buff.spell.refresh"></a>
+    <strong>br.player.buff.spell.refresh ([thisUnit="player"[, sourceUnit="player"]])</strong>
     </dt>
     <dd>
     Check if a buff should be refreshed.
@@ -373,15 +346,11 @@
 
 
 
-    <h3>Usage:</h3>
-    <ul>
-        <pre class="example">buff.spell.<span class="function-name">refresh</span>(<span class="string">"player"</span>)</pre>
-    </ul>
 
 </dd>
     <dt>
-    <a name = "br.player.spell.stack"></a>
-    <strong>br.player.spell.stack ([thisUnit="player"[, sourceUnit="player"]])</strong>
+    <a name = "br.player.buff.spell.stack"></a>
+    <strong>br.player.buff.spell.stack ([thisUnit="player"[, sourceUnit="player"]])</strong>
     </dt>
     <dd>
     Get the stack count of a buff.
@@ -410,10 +379,6 @@
 
 
 
-    <h3>Usage:</h3>
-    <ul>
-        <pre class="example">buff.spell.<span class="function-name">stack</span>(<span class="string">"player"</span>)</pre>
-    </ul>
 
 </dd>
 </dl>
@@ -423,7 +388,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
-<i style="float:right;">Last updated 2023-08-17 20:53:54 </i>
+<i style="float:right;">Last updated 2023-08-18 13:31:25 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

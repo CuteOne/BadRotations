@@ -1,0 +1,226 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>BadRotations</h1>
+
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/br.player.anima.html">br.player.anima</a></li>
+  <li><a href="../modules/br.player.buff.html">br.player.buff</a></li>
+  <li><strong>br.player.cd</strong></li>
+  <li><a href="../modules/br.player.cast.html">br.player.cast</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>br.player.cd</code></h1>
+<p>These calls help in retrieving information about spell cooldowns.</p>
+<p>
+ CD is the table located at br.player.cd
+ These functions are accessible via `local cd = br.player.cd`
+ `spell` in the usage examples represent the name in the buffs list (Spec, Shared Class, Shared Global Lists) defined in System/List/Spells.lua</p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#br.player.cd.spell.exists">br.player.cd.spell.exists ()</a></td>
+	<td class="summary">Checks if spell is on cooldown or not.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#br.player.cd.spell.remain">br.player.cd.spell.remain ()</a></td>
+	<td class="summary">Gets the time remaining on spell cooldown or 0 if not.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#br.player.cd.spell.remains">br.player.cd.spell.remains ()</a></td>
+	<td class="summary">Gets the time remaining on spell cooldown or 0 if not (alternate to cd.spell.remain() incase of typo).</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#br.player.cd.spell.duration">br.player.cd.spell.duration ()</a></td>
+	<td class="summary">Gets the total time of the spell cooldown</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#br.player.cd.spell.ready">br.player.cd.spell.ready ()</a></td>
+	<td class="summary">Checks if the spell is not on cooldown or is (opposite of cd.spell.exists()).</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#br.player.cd.spell.prevgcd">br.player.cd.spell.prevgcd ()</a></td>
+	<td class="summary">Gets the duration of the spells Global Cooldown.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "br.player.cd.spell.exists"></a>
+    <strong>br.player.cd.spell.exists ()</strong>
+    </dt>
+    <dd>
+    Checks if spell is on cooldown or not.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">boolean</span></span>
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "br.player.cd.spell.remain"></a>
+    <strong>br.player.cd.spell.remain ()</strong>
+    </dt>
+    <dd>
+    Gets the time remaining on spell cooldown or 0 if not.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "br.player.cd.spell.remains"></a>
+    <strong>br.player.cd.spell.remains ()</strong>
+    </dt>
+    <dd>
+    Gets the time remaining on spell cooldown or 0 if not (alternate to cd.spell.remain() incase of typo).
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "br.player.cd.spell.duration"></a>
+    <strong>br.player.cd.spell.duration ()</strong>
+    </dt>
+    <dd>
+    Gets the total time of the spell cooldown
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "br.player.cd.spell.ready"></a>
+    <strong>br.player.cd.spell.ready ()</strong>
+    </dt>
+    <dd>
+    Checks if the spell is not on cooldown or is (opposite of cd.spell.exists()).
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">boolean</span></span>
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "br.player.cd.spell.prevgcd"></a>
+    <strong>br.player.cd.spell.prevgcd ()</strong>
+    </dt>
+    <dd>
+    Gets the duration of the spells Global Cooldown.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2023-08-18 13:31:25 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>
