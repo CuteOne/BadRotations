@@ -22,12 +22,40 @@ def process_directory(directory):
                     module_name = h1_tag.text.split()[-1].split('.')[-1]
                     print(f"Extracted module name: {module_name}")
 
-                    # Find all function names and prepend the module name if not already present
+                    # Update function names inside <dt>
                     for dt in soup.find_all('dt'):
-                        function_name = dt.string
-                        if function_name and not function_name.startswith(module_name + '.'):
-                            print(f"Updating function name: {function_name} to {module_name}.{function_name}")
-                            dt.string = module_name + '.' + function_name
+                        # Update function names inside <strong> tag within <dt>
+                        strong_tag = dt.find('strong')
+                        if strong_tag:
+                            function_name = strong_tag.string
+                            if function_name and not (module_name + '.' in function_name):
+                                print(f"Updating function name in <strong> tag: {function_name} to {module_name}.{function_name}")
+                                strong_tag.string.replace_with(module_name + '.' + function_name)
+
+                        # Update function names inside <a> tag within <dt>
+                        a_tag = dt.find('a')
+                        if a_tag:
+                            function_name = a_tag.string
+                            if function_name and not (module_name + '.' in function_name):
+                                print(f"Updating function name in <a> tag: {function_name} to {module_name}.{function_name}")
+                                a_tag.string.replace_with(module_name + '.' + function_name)
+
+                    # Update function names inside <td class="name" nowrap>
+                    for td in soup.find_all('td', class_='name', nowrap=True):
+                        # Update function names inside <a href> tag within <td>
+                        a_tag = td.find('a')
+                        if a_tag:
+                            function_name = a_tag.string
+                            if function_name and not (module_name + '.' in function_name):
+                                print(f"Updating function name in <a href> tag: {function_name} to {module_name}.{function_name}")
+                                a_tag.string.replace_with(module_name + '.' + function_name)
+                                # Update the href attribute as well
+                                a_tag['href'] = a_tag['href'].replace(function_name, module_name + '.' + function_name)
+
+                        # Update the corresponding text inside <td>
+                        if td.string and not (module_name + '.' in td.string):
+                            print(f"Updating function name in <td> text: {td.string} to {module_name}.{td.string}")
+                            td.string.replace_with(module_name + '.' + td.string)
 
                     # Save the changes back to the file
                     with open(filepath, 'w', encoding='utf-8') as file:
