@@ -1,5 +1,5 @@
 ---
--- These functions help in retrieving information about conduit powers. *Shadowlands*
+-- These functions help in retrieving information about conduit powers *Shadowlands*.
 -- Conduit functions are stored in br.player.conduit and can be utilized by `local conduit = br.player.conduit` in your profile.
 -- `spell` in the table represent the name in the conduit list (Spec, Shared Class, Shared Global Lists) defined in System/List/Spells.lua
 -- @module br.player.conduit
@@ -35,7 +35,7 @@ br.api.conduit = function(conduit,spell,id)
         local spellName, _, spellIcon, _, _, _, spellID = br._G.GetSpellInfo(id)
 
         --- Gets information about a specific conduit.
-        -- @table br.player.conduit.spell
+        -- @table conduit.spell
         -- @field state The current state of the conduit. Default is `0`.
         -- @field icon The icon associated with the conduit, represented by the spell icon.
         -- @field row The row in which the conduit is located. Default is `0`.

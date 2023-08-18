@@ -9,7 +9,7 @@ if br.api == nil then br.api = {} end
 br.api.buffs = function(buff,v)
 
     --- Cancel a buff.
-    -- @function br.player.buff.spell.cancel
+    -- @function buff.spell.cancel
     -- @string[opt="player"] thisUnit The unit to check.
     -- @string[opt="player"] sourceUnit The source of the buff.
     buff.cancel = function(thisUnit,sourceUnit)
@@ -21,14 +21,14 @@ br.api.buffs = function(buff,v)
     end
 
     --- Get the count of a buff.
-    -- @function br.player.buff.spell.count
+    -- @function buff.spell.count
     -- @treturn number
     buff.count = function()
         return tonumber(br.getBuffCount(v))
     end
 
     --- Get the duration of a buff.
-    -- @function br.player.buff.spell.duration
+    -- @function buff.spell.duration
     -- @string[opt="player"] thisUnit The unit to check.
     -- @string[opt="player"] sourceUnit The source of the buff.
     -- @treturn number
@@ -39,7 +39,7 @@ br.api.buffs = function(buff,v)
     end
 
     --- Check if a buff exists.
-    -- @function br.player.buff.spell.exists
+    -- @function buff.spell.exists
     -- @string[opt="player"] thisUnit The unit to check.
     -- @string[opt="player"] sourceUnit The source of the buff.
     -- @treturn bool
@@ -50,7 +50,7 @@ br.api.buffs = function(buff,v)
     end
 
     --- Check if a buff can be reacted to.
-    -- @function br.player.buff.spell.react
+    -- @function buff.spell.react
     -- @string[opt="player"] thisUnit The unit to check.
     -- @string[opt="player"] sourceUnit The source of the buff.
     -- @treturn bool
@@ -61,7 +61,7 @@ br.api.buffs = function(buff,v)
     end
 
     --- Get the remaining time of a buff.
-    -- @function br.player.buff.spell.remain
+    -- @function buff.spell.remain
     -- @string[opt="player"] thisUnit The unit to check.
     -- @string[opt="player"] sourceUnit The source of the buff.
     -- @treturn number
@@ -72,7 +72,7 @@ br.api.buffs = function(buff,v)
     end
 
     --- Get the remaining time of a buff. (Duplicate of br.player.buff.spell.remain)
-    -- @function br.player.buff.spell.remains
+    -- @function buff.spell.remains
     -- @string[opt="player"] thisUnit The unit to check.
     -- @string[opt="player"] sourceUnit The source of the buff.
     -- @treturn number
@@ -83,7 +83,7 @@ br.api.buffs = function(buff,v)
     end
 
     --- Check if a buff should be refreshed.
-    -- @function br.player.buff.spell.refresh
+    -- @function buff.spell.refresh
     -- @string[opt="player"] thisUnit The unit to check.
     -- @string[opt="player"] sourceUnit The source of the buff.
     -- @treturn bool
@@ -92,7 +92,7 @@ br.api.buffs = function(buff,v)
     end
 
     --- Get the stack count of a buff.
-    -- @function br.player.buff.spell.stack
+    -- @function buff.spell.stack
     -- @string[opt="player"] thisUnit The unit to check.
     -- @string[opt="player"] sourceUnit The source of the buff.
     -- @treturn number
