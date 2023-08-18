@@ -6,14 +6,13 @@ local _, br = ...
 if br.api == nil then br.api = {} end
 
 --- Checks if you are a part of the specified covenant or not.
--- @table covenant
+-- @type covenant
 -- @field kyrian.active A boolean indicating if Kyrian is the active covenant.
 -- @field venthyr.active A boolean indicating if Venthyr is the active covenant.
 -- @field nightFae.active A boolean indicating if Night Fae is the active covenant.
 -- @field necrolord.active A boolean indicating if Necrolord is the active covenant.
 -- @field none.active A boolean indicating if there is no active covenant.
 
----
 br.api.covenant = function(covenant)
     local activeID = br._G.C_Covenants.GetActiveCovenantID()
     if br._G.C_Covenants.GetActiveCovenantID() ~= nil then
