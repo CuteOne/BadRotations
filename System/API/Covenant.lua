@@ -1,5 +1,5 @@
 ---
--- These functions help in retrieving information about covenants *Shadowlands*.
+-- This table provides information about covenants *Shadowlands*.
 -- Covenant data is stored in br.player.covenant and can be utilized by `local covenant = br.player.covenant` in your profile.
 -- @module br.player.covenant
 local _, br = ...
