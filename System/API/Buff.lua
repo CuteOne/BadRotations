@@ -1,11 +1,10 @@
 ---
--- Buff is the table located at br.player.buff
--- These functions are accessible via `local buff = br.player.buff`
--- `spell` in the usage examples represent the name in the buffs list (Spec, Shared Class, Shared Global Lists) defined in System/List/Spells.lua
+-- These functions help in retrieving information about buffs.
+-- Buff functions are stored in br.player.buff and can be utilized by `local buff = br.player.buff` in your profile.
+-- `spell` in the function represent the name in the buffs list (Spec, Shared Class, Shared Global Lists) defined in System/List/Spells.lua
 -- @module br.player.buff
 local _, br = ...
 if br.api == nil then br.api = {} end
-
 
 br.api.buffs = function(buff,v)
 

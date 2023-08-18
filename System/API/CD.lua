@@ -1,8 +1,7 @@
 ---
 -- These calls help in retrieving information about spell cooldowns.
--- CD is the table located at br.player.cd
--- These functions are accessible via `local cd = br.player.cd`
--- `spell` in the usage examples represent the name in the buffs list (Spec, Shared Class, Shared Global Lists) defined in System/List/Spells.lua
+-- CD functions are stored in br.player.cd and can be utilized by `local cd = br.player.cd` in your profile.
+-- `spell` in the function represent the name in the actions list (Spec, Shared Class, Shared Global Lists) defined in System/List/Spells.lua
 -- @module br.player.cd
 local _, br = ...
 if br.api == nil then br.api = {} end
