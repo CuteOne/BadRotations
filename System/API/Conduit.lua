@@ -36,7 +36,6 @@ br.api.conduit = function(conduit,spell,id)
 
         --- Gets information about a specific conduit.
         -- @name conduit.spell
-        -- @table conduit.spell
         -- @field state The current state of the conduit. Default is `0`.
         -- @field icon The icon associated with the conduit, represented by the spell icon.
         -- @field row The row in which the conduit is located. Default is `0`.
