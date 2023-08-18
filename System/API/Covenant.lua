@@ -5,12 +5,17 @@
 -- `br.player.covenant` has checks to determine if you are a part of the specified covenant or not:
 --
 -- * `br.player.covenant.kyrian.active` - Indicates if Kyrian is the active covenant.
+--
 -- * `br.player.covenant.venthyr.active` - Indicates if Venthyr is the active covenant.
+--
 -- * `br.player.covenant.nightFae.active` - Indicates if Night Fae is the active covenant.
+--
 -- * `br.player.covenant.necrolord.active` - Indicates if Necrolord is the active covenant.
+--
 -- * `br.player.covenant.none.active` - Indicates if there are no active covenants.
 --
 -- @module br.player.covenant
+
 
 local _, br = ...
 if br.api == nil then br.api = {} end
