@@ -8,6 +8,12 @@ DOCS_DIR = './docs'
 def process_directory(directory):
     for filename in os.listdir(directory):
         filepath = os.path.join(directory, filename)
+
+        # Skip processing for the br.player.item.html file
+        if filename == 'br.player.item.html':
+            print(f"Ignoring {filepath}...")
+            continue
+
         if os.path.isdir(filepath):
             process_directory(filepath)
         elif filename.endswith('.html'):
