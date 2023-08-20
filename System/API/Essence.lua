@@ -1,3 +1,24 @@
+---
+-- This table provides information about essences *Shadowlands*.
+-- Essence data is stored in `br.player.essence` and can be utilized by `local essence = br.player.essence` in your profile.
+--
+-- `br.player.essence` has the following checks:
+--
+-- * `br.player.essence.active` - Indicates if the essence is active.
+--
+-- * `br.player.essence.major` - Indicates if the essence is a major essence.
+--
+-- * `br.player.essence.minor` - Indicates if the essence is a minor essence.
+--
+-- * `br.player.essence.rank` - Indicates the rank of the essence.
+--
+-- * `br.player.essence.key` - Indicates the key of the essence.
+--
+-- * `br.player.essence.id` - Indicates the id of the essence.
+--
+-- * `br.player.essence.spellID` - Indicates the spellID of the essence.
+--
+-- @module br.player.covenant
 local _, br = ...
 if br.api == nil then br.api = {} end
 br.api.essences = function(essence,k,v)
