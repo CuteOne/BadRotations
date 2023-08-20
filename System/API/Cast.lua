@@ -170,7 +170,6 @@ br.api.cast = function(self,spell,id)
     --- Casts the form corresponding to the provided formIndex number.
     -- @function cast.form
     -- @number formIndex Index of the form to be casted. If not provided, defaults to 0.
-    -- @treturn nil
     cast.form = function(formIndex)
         local CastShapeshiftForm = br._G["CastShapeshiftForm"]
         if formIndex == nil then formIndex = 0 end

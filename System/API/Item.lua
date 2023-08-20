@@ -10,10 +10,9 @@ if br.api == nil then br.api = {} end
 br.api.items = function(item,k,v,subtable)
     if item[k] == nil then item[k] = {} end
 
-    --- ### Item Cooldown Functions
-
     if subtable == "cd" then
         local cd = item
+        --- ### Item Cooldown Functions
 
         --- Checks if item is on cooldown or not.
         -- @function cd.item.exists
@@ -46,10 +45,9 @@ br.api.items = function(item,k,v,subtable)
         end
     end
 
-    --- ### Item Charges Functions
-
     if subtable == "charges" then
         local charges = item
+        --- ### Item Charges Functions
 
         --- Checks if item has charges or not.
         -- @function charges.item.exists
@@ -66,10 +64,9 @@ br.api.items = function(item,k,v,subtable)
         end
     end
 
-    --- ### Item Equiped Functions
-
     if subtable == "equiped" then
         local equiped = item
+        --- ### Item Equiped Functions
 
         --- Checks if item is equiped or not.
         -- @function equiped.item.exists
@@ -115,10 +112,9 @@ br.api.items = function(item,k,v,subtable)
         end
     end
 
-    --- ### Item Has Functions
-
     if subtable == "has" then
         local has = item
+        --- ### Item Has Functions
 
         --- Checks if item is in your bags or not.
         -- Note: `item` here refers to the name in the item list defined in System/List/Items.lua
@@ -141,10 +137,9 @@ br.api.items = function(item,k,v,subtable)
         end
     end
 
-    --- ### Item Use Functions
-
     if subtable == "use" then
         local use = item
+        --- ### Item Use Functions
 
         --- Uses the item.
         -- @function use.item
