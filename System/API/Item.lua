@@ -10,7 +10,7 @@ if br.api == nil then br.api = {} end
 br.api.items = function(item,k,v,subtable)
     if item[k] == nil then item[k] = {} end
 
-    --- @section Item Cooldown Functions
+    --- ### Item Cooldown Functions
 
     if subtable == "cd" then
         local cd = item
@@ -46,7 +46,7 @@ br.api.items = function(item,k,v,subtable)
         end
     end
 
-    --- @section Item Charges Functions
+    --- ### Item Charges Functions
 
     if subtable == "charges" then
         local charges = item
@@ -66,7 +66,7 @@ br.api.items = function(item,k,v,subtable)
         end
     end
 
-    --- @section Item Equiped Functions
+    --- ### Item Equiped Functions
 
     if subtable == "equiped" then
         local equiped = item
@@ -115,7 +115,7 @@ br.api.items = function(item,k,v,subtable)
         end
     end
 
-    --- @section Item Has Functions
+    --- ### Item Has Functions
 
     if subtable == "has" then
         local has = item
@@ -141,7 +141,7 @@ br.api.items = function(item,k,v,subtable)
         end
     end
 
-    --- @section Item Use Functions
+    --- ### Item Use Functions
 
     if subtable == "use" then
         local use = item
