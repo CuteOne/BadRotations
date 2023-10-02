@@ -1,7 +1,8 @@
 ---
--- These functions help in retrieving information about spell cooldowns.
+-- These functions help in retrieving information about spell and item cooldowns.
 -- CD functions are stored in br.player.cd and can be utilized by `local cd = br.player.cd` in your profile.
--- `spell` in the function represent the name in the actions list (Spec, Shared Class, Shared Global Lists) defined in System/List/Spells.lua
+-- For spell CDs, `spell` in the function represent the name in the actions list (Spec, Shared Class, Shared Global Lists) defined in System/List/Spells.lua
+-- For item CDs, `item` in the function represent the name in the item list defined in System/List/Items.lua
 -- @module br.player.cd
 local _, br = ...
 if br.api == nil then br.api = {} end
@@ -64,5 +65,40 @@ br.api.cd = function(self,spell,id)
     -- @treturn number
     cd[spell].prevgcd = function()
         return select(2, br._G.GetSpellBaseCooldown(id))
+    end
+end
+
+br.api.itemCD = function(self,item,id)
+    if self[item] == nil then self[item] = {} end
+    local cd = self
+
+    --- Checks if item is on cooldown or not.
+    -- @function cd.item.exists
+    -- @number[opt] itemID The ID of the item to check.
+    -- @treturn boolean
+    cd[item].exists = function(itemID)
+        if itemID == nil then itemID = id end
+        return br._G.GetItemCooldown(itemID) > 0
+    end
+
+    --- Gets the time remaining on item cooldown or 0 if not.
+    -- @function cd.item.remain
+    -- @number[opt] itemID The ID of the item to check.
+    -- @treturn number
+    cd[item].remain = function(itemID)
+        if itemID == nil then itemID = id end
+        if br._G.GetItemCooldown(itemID) ~= 0 then
+            return (br._G.GetItemCooldown(itemID) + select(2,br._G.GetItemCooldown(itemID)) - br._G.GetTime())
+        end
+        return 0
+    end
+
+    --- Gets the total cooldown time of the item in seconds.
+    -- @function cd.item.duration
+    -- @number[opt] itemID The ID of the item to check.
+    -- @treturn number
+    cd[item].duration = function(itemID)
+        if itemID == nil then itemID = id end
+        return br._G.GetSpellBaseCooldown(select(2,br._G.GetItemSpell(itemID))) / 1000
     end
 end

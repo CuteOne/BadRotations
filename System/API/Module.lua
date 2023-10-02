@@ -1,4 +1,8 @@
-
+---
+-- These functions helpful functions for commonly used features in all profiles.
+-- Module functions are stored in br.player.module and can be utilized by `local module = br.player.module` in your profile.
+-- Additionally module functions also have custom options you can add to your Profile Options by calling the function in the Profile Options and passing the section param.
+-- @module br.player.module
 local _, br = ...
 if br.api == nil then br.api = {} end
 br.api.module = function(self)
@@ -15,7 +19,9 @@ br.api.module = function(self)
     var.getItemInfo         = br._G["GetItemInfo"]
     var.getHealPot          = br.getHealthPot
 
-    -- Auto Put Keystone into Receptable during mythic+ dungeons. | Kinky BR Module Code example
+    --- Auto Put Keystone into Receptable during mythic+ dungeons. | Kinky BR Module Code example
+    -- @function module.autoKeystone
+    -- @bool[opt] section If set will generate the options for this module in the Profile Options. Otherwise, will run the module.
     module.autoKeystone = function(section)
         if section ~= nil then
             -- Auto Keystone
@@ -44,7 +50,9 @@ br.api.module = function(self)
         end
     end
 
-    -- Basic Healing Module
+    --- Basic Healing Module - Uses healthstones, potions, and racial healing abilities.
+    -- @function module.BasicHealing
+    -- @bool[opt] section If set will generate the options for this module in the Profile Options. Otherwise, will run the module.
     module.BasicHealing = function(section)
         -- Options - Call, module.BasicHealing(section), in your options to load these
         if section ~= nil then
@@ -125,7 +133,10 @@ br.api.module = function(self)
         end
     end
 
-    -- Basic Trinkets
+    --- Basic Trinkets - Uses trinkets based on options set in the Profile Options.
+    -- @function module.BasicTrinkets
+    -- @number[opt] slotID If set will use the trinket in the specified slot. Otherwise, will loop through all trinkets.
+    -- @bool[opt] section If set will generate the options for this module in the Profile Options. Otherwise, will run the module.
     module.BasicTrinkets = function(slotID,section)
         local alwaysCdAoENever = {"Always", "|cff008000AOE", "|cffffff00AOE/CD", "|cff0000ffCD", "|cffff0000Never"}
         if section ~= nil then
@@ -152,7 +163,10 @@ br.api.module = function(self)
         end
     end
 
-    -- Flask Module
+    --- Flask Module - Attempts to use the flask specified in the Profile Options.
+    -- @function module.Flask
+    -- @string buffType The type of flask to use. (e.g. "Agility", "Intellect", "Stamina", "Strength")
+    -- @bool[opt] section If set will generate the options for this module in the Profile Options. Otherwise, will run the module.
     module.FlaskUp = function(buffType,section)
         local function getFlaskByType(buff)
             local thisFlask = ""

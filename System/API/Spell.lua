@@ -14,30 +14,30 @@ br.api.spells = function(spells,k,v,subtable)
         end
     end
     if subtable == "charges" then
-        if spells[k] == nil then spells[k] = {} end
-        local charges = spells[k]
-        charges.exists = function()
-            return br.getCharges(v) >= 1
-        end
-        charges.count = function()
-            return br.getCharges(v)
-        end
-        charges.frac = function()
-            return br.getChargesFrac(v)
-        end
-        charges.max = function()
-            return br.getChargesFrac(v,true)
-        end
-        charges.recharge = function(chargeMax)
-            if chargeMax then
-                return br.getRecharge(v,true)
-            else
-                return br.getRecharge(v)
-            end
-        end
-        charges.timeTillFull = function()
-            return br.getFullRechargeTime(v)
-        end
+        -- if spells[k] == nil then spells[k] = {} end
+        -- local charges = spells[k]
+        -- charges.exists = function()
+        --     return br.getCharges(v) >= 1
+        -- end
+        -- charges.count = function()
+        --     return br.getCharges(v)
+        -- end
+        -- charges.frac = function()
+        --     return br.getChargesFrac(v)
+        -- end
+        -- charges.max = function()
+        --     return br.getChargesFrac(v,true)
+        -- end
+        -- charges.recharge = function(chargeMax)
+        --     if chargeMax then
+        --         return br.getRecharge(v,true)
+        --     else
+        --         return br.getRecharge(v)
+        --     end
+        -- end
+        -- charges.timeTillFull = function()
+        --     return br.getFullRechargeTime(v)
+        -- end
     end
     if spells.info == nil then spells.info = {} end
     local info = spells.info

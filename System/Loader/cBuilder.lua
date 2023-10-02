@@ -159,7 +159,7 @@ function br.loader:new(spec,specName)
     self.visions = br.lists.visions
     self.pets  = br.lists.pets
 
-    -- Get All talents - Thx wildstar
+    -- Get All talents
     local function getAllTalents()
         local talents = {}
         local configId = br._G.C_ClassTalents.GetActiveConfigID()
@@ -382,25 +382,25 @@ function br.loader:new(spec,specName)
         end
 
         -- Cycle through Items List
-        for k,v in pairs(self.items) do --self.spell.items) do
-            if self.charges         == nil then self.charges    = {} end -- Item Charge Functions
-            if self.charges[k]      == nil then self.charges[k] = {} end -- Item Charge Subtables
-            if self.cd              == nil then self.cd         = {} end -- Item Cooldown Functions
-            if self.equiped         == nil then self.equiped    = {} end -- Use Item Debugging
+        for item,id in pairs(self.items) do --self.spell.items) do
+            if self.charges         == nil then self.charges        = {} end -- Item Charge Functions
+            if self.charges[item]   == nil then self.charges[item]  = {} end -- Item Charge Subtables
+            if self.cd              == nil then self.cd             = {} end -- Item Cooldown Functions
+            if self.equiped         == nil then self.equiped        = {} end -- Use Item Debugging
             if self.equiped.socket  == nil then self.equiped.socket = {} end -- Item Socket Info
-            if self.has             == nil then self.has        = {} end -- Item In Bags
-            if self.use             == nil then self.use        = {} end -- Use Item Functions
-            if self.use.able        == nil then self.use.able   = {} end -- Useable Item Check Functions
+            if self.has             == nil then self.has            = {} end -- Item In Bags
+            if self.use             == nil then self.use            = {} end -- Use Item Functions
+            if self.use.able        == nil then self.use.able       = {} end -- Useable Item Check Functions
 
-            br.api.items(self.cd,k,v,"cd")
+            br.api.itemCD(self.cd,item,id,"cd")
 
-            br.api.items(self.charges,k,v,"charges")
+            br.api.itemCharges(self.charges,item,id)
 
-            br.api.items(self.equiped,k,v,"equiped")
+            br.api.equiped(self.equiped,item,id)
 
-            br.api.items(self.has,k,v,"has")
+            br.api.has(self.has,item,id)
 
-            br.api.items(self.use,k,v,"use")
+            br.api.use(self.use,item,id)
 
             br.getHeirloomNeck()
         end
@@ -409,15 +409,16 @@ function br.loader:new(spec,specName)
         for spell,id in pairs(self.spell.abilities) do
             if self.charges             == nil then self.charges            = {} end    -- Spell Charge Functions
             if self.cd                  == nil then self.cd                 = {} end    -- Spell Cooldown Functions
+            if self.known               == nil then self.known              = {} end    -- Spell Known Functions
 
             -- Build Cast Funcitons
             br.api.cast(self,spell,id)
             -- Build Spell Charges
-            br.api.spells(self.charges,spell,id,"charges")
+            br.api.charges(self.charges,spell,id)
             -- Build Spell Cooldown
             br.api.cd(self,spell,id)
             -- build Spell Known
-            br.api.spells(self.spell,spell,id,"known")
+            br.api.known(self.known,spell,id)
         end
 
         -- Make UI Functions from br.api.ui
