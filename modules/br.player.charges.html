@@ -1,0 +1,223 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<head>
+<title>Reference</title>
+<link href="../ldoc.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div id="container">
+<div id="product">
+<div id="product_logo"></div>
+<div id="product_name"><big><b></b></big></div>
+<div id="product_description"></div>
+</div> <!-- id="product" -->
+<div id="main">
+<!-- Menu -->
+<div id="navigation">
+<br/>
+<h1>BadRotations</h1>
+<ul>
+<li><a href="../index.html">Index</a></li>
+</ul>
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+<li><a href="../modules/br.player.anima.html">br.player.anima</a></li>
+<li><a href="../modules/br.player.buff.html">br.player.buff</a></li>
+<li><a href="../modules/br.player.cd.html">br.player.cd</a></li>
+<li><a href="../modules/br.player.cast.html">br.player.cast</a></li>
+<li><strong>br.player.charges</strong></li>
+<li><a href="../modules/br.player.conduit.html">br.player.conduit</a></li>
+<li><a href="../modules/br.player.covenant.html">br.player.covenant</a></li>
+<li><a href="../modules/br.player.debuff.html">br.player.debuff</a></li>
+<li><a href="../modules/br.player.enemies.html">br.player.enemies</a></li>
+<li><a href="../modules/br.player.equiped.html">br.player.equiped</a></li>
+<li><a href="../modules/br.player.covenant.html">br.player.covenant</a></li>
+<li><a href="../modules/br.player.has.html">br.player.has</a></li>
+<li><a href="../modules/br.player.item.html">br.player.item</a></li>
+<li><a href="../modules/br.player.known.html">br.player.known</a></li>
+<li><a href="../modules/br.player.module.html">br.player.module</a></li>
+<li><a href="../modules/br.player.use.html">br.player.use</a></li>
+</ul>
+</div>
+<div id="content">
+<h1>Module <code>br.player.charges</code></h1>
+<p>These functions help in retrieving information about spell and item charges.</p>
+<p>
+ Charge functions are stored in br.player.charges and can be utilized by `local charges = br.player.charges` in your profile.
+ For spell charges, `spell` in the function represent the name in the actions list (Spec, Shared Class, Shared Global Lists) defined in System/List/Spells.lua
+ For item charges, `item` in the function represent the name in the item list defined in System/List/Items.lua</p>
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+<tr>
+<td class="name" nowrap=""><a href="#charges.spell.exists">charges.spell.exists ()</a></td>
+<td class="summary">Checks if spell has charges or not.</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#charges.spell.count">charges.spell.count ()</a></td>
+<td class="summary">Gets the number of charges remaining on spell.</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#charges.spell.frac">charges.spell.frac ()</a></td>
+<td class="summary">Gets the number of charges remaining on spell as a fraction.</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#charges.spell.max">charges.spell.max ()</a></td>
+<td class="summary">Gets the maximum number of charges the spell can have.</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#charges.spell.remain">charges.spell.remain ([chargeMax])</a></td>
+<td class="summary">Gets the time remaining on until next charge is available.</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#charges.spell.timeTillFull">charges.spell.timeTillFull ()</a></td>
+<td class="summary">Gets the total time remaining until all charges are available.</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#charges.item.exists">charges.item.exists ()</a></td>
+<td class="summary">Checks if item has charges or not.</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#charges.item.count">charges.item.count ()</a></td>
+<td class="summary">Gets the number of charges remaining on item.</td>
+</tr>
+</table>
+<br/>
+<br/>
+<h2 class="section-header"><a name="Functions"></a>Functions</h2>
+<dl class="function">
+<dt>
+<a name="charges.spell.exists"></a>
+<strong>charges.spell.exists ()</strong>
+</dt>
+<dd>
+    Checks if spell has charges or not.
+
+
+
+    <h3>Returns:</h3>
+<ol>
+<span class="types"><span class="type">boolean</span></span>
+</ol>
+</dd>
+<dt>
+<a name="charges.spell.count"></a>
+<strong>charges.spell.count ()</strong>
+</dt>
+<dd>
+    Gets the number of charges remaining on spell.
+
+
+
+    <h3>Returns:</h3>
+<ol>
+<span class="types"><span class="type">number</span></span>
+</ol>
+</dd>
+<dt>
+<a name="charges.spell.frac"></a>
+<strong>charges.spell.frac ()</strong>
+</dt>
+<dd>
+    Gets the number of charges remaining on spell as a fraction.  (e.g. 1.5 charges remaining)
+
+
+
+    <h3>Returns:</h3>
+<ol>
+<span class="types"><span class="type">number</span></span>
+</ol>
+</dd>
+<dt>
+<a name="charges.spell.max"></a>
+<strong>charges.spell.max ()</strong>
+</dt>
+<dd>
+    Gets the maximum number of charges the spell can have.
+
+
+
+    <h3>Returns:</h3>
+<ol>
+<span class="types"><span class="type">number</span></span>
+</ol>
+</dd>
+<dt>
+<a name="charges.spell.remain"></a>
+<strong>charges.spell.remain ([chargeMax])</strong>
+</dt>
+<dd>
+    Gets the time remaining on until next charge is available.
+
+
+    <h3>Parameters:</h3>
+<ul>
+<li><span class="parameter">chargeMax</span>
+<span class="types"><span class="type">boolean</span></span>
+         If true, returns the time remaining until all charges are available.
+         (<em>optional</em>)
+        </li>
+</ul>
+<h3>Returns:</h3>
+<ol>
+<span class="types"><span class="type">number</span></span>
+</ol>
+</dd>
+<dt>
+<a name="charges.spell.timeTillFull"></a>
+<strong>charges.spell.timeTillFull ()</strong>
+</dt>
+<dd>
+    Gets the total time remaining until all charges are available.
+
+
+
+    <h3>Returns:</h3>
+<ol>
+<span class="types"><span class="type">number</span></span>
+</ol>
+</dd>
+<dt>
+<a name="charges.item.exists"></a>
+<strong>charges.item.exists ()</strong>
+</dt>
+<dd>
+    Checks if item has charges or not.
+
+
+
+    <h3>Returns:</h3>
+<ol>
+<span class="types"><span class="type">boolean</span></span>
+</ol>
+</dd>
+<dt>
+<a name="charges.item.count"></a>
+<strong>charges.item.count ()</strong>
+</dt>
+<dd>
+    Gets the number of charges remaining on item.
+
+
+
+    <h3>Returns:</h3>
+<ol>
+<span class="types"><span class="type">number</span></span>
+</ol>
+</dd>
+</dl>
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2023-10-02 16:16:50 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

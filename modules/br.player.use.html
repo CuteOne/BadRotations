@@ -1,0 +1,235 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<head>
+<title>Reference</title>
+<link href="../ldoc.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div id="container">
+<div id="product">
+<div id="product_logo"></div>
+<div id="product_name"><big><b></b></big></div>
+<div id="product_description"></div>
+</div> <!-- id="product" -->
+<div id="main">
+<!-- Menu -->
+<div id="navigation">
+<br/>
+<h1>BadRotations</h1>
+<ul>
+<li><a href="../index.html">Index</a></li>
+</ul>
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+<li><a href="../modules/br.player.anima.html">br.player.anima</a></li>
+<li><a href="../modules/br.player.buff.html">br.player.buff</a></li>
+<li><a href="../modules/br.player.cd.html">br.player.cd</a></li>
+<li><a href="../modules/br.player.cast.html">br.player.cast</a></li>
+<li><a href="../modules/br.player.charges.html">br.player.charges</a></li>
+<li><a href="../modules/br.player.conduit.html">br.player.conduit</a></li>
+<li><a href="../modules/br.player.covenant.html">br.player.covenant</a></li>
+<li><a href="../modules/br.player.debuff.html">br.player.debuff</a></li>
+<li><a href="../modules/br.player.enemies.html">br.player.enemies</a></li>
+<li><a href="../modules/br.player.equiped.html">br.player.equiped</a></li>
+<li><a href="../modules/br.player.covenant.html">br.player.covenant</a></li>
+<li><a href="../modules/br.player.has.html">br.player.has</a></li>
+<li><a href="../modules/br.player.item.html">br.player.item</a></li>
+<li><a href="../modules/br.player.known.html">br.player.known</a></li>
+<li><a href="../modules/br.player.module.html">br.player.module</a></li>
+<li><strong>br.player.use</strong></li>
+</ul>
+</div>
+<div id="content">
+<h1>Module <code>br.player.use</code></h1>
+<p>These functions help in retrieving information if you can use an item or not.</p>
+<p>
+ Use functions are stored in br.player.use and can be utilized by `local use = br.player.use` in your profile.
+ For item use, `item` in the function represent the name in the items list defined in System/List/Items.lua</p>
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+<tr>
+<td class="name" nowrap=""><a href="#item">use.item ([slotID[, thisUnit="target"]])</a></td>
+<td class="summary">Uses the item.</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#item">use.item (itemID[, thisUnit="target"])</a></td>
+<td class="summary">Uses the item.</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#slot">use.slot (slotID[, thisUnit="target"])</a></td>
+<td class="summary">Uses the item in the specified equipment slot.</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#use.able.item">use.able.item ([slotID])</a></td>
+<td class="summary">Checks if item is usable or not.</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#use.able.item">use.able.item (itemID)</a></td>
+<td class="summary">Checks if item is usable or not.</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#use.able.slot">use.able.slot (slotID)</a></td>
+<td class="summary">Checks if item in the specified equipment slot is usable or not.</td>
+</tr>
+</table>
+<br/>
+<br/>
+<h2 class="section-header"><a name="Functions"></a>Functions</h2>
+<dl class="function">
+<dt>
+<a name="item"></a>
+<strong>use.item ([slotID[, thisUnit="target"]])</strong>
+</dt>
+<dd>
+    Uses the item.
+
+
+    <h3>Parameters:</h3>
+<ul>
+<li><span class="parameter">slotID</span>
+<span class="types"><span class="type">number</span></span>
+         The equipment slot number to use the item from.
+         (<em>optional</em>)
+        </li>
+<li><span class="parameter">thisUnit</span>
+<span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         The unit to use the item on.
+         (<em>default</em> "target")
+        </li>
+</ul>
+<h3>Returns:</h3>
+<ol>
+<span class="types"><span class="type">boolean</span></span>
+</ol>
+</dd>
+<dt>
+<a name="item"></a>
+<strong>use.item (itemID[, thisUnit="target"])</strong>
+</dt>
+<dd>
+    Uses the item.
+ Note: `item` here is literally item, you pass the itemID to specify the item
+
+
+    <h3>Parameters:</h3>
+<ul>
+<li><span class="parameter">itemID</span>
+<span class="types"><span class="type">number</span></span>
+         The ID of the item to use.
+        </li>
+<li><span class="parameter">thisUnit</span>
+<span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         The unit to use the item on.
+         (<em>default</em> "target")
+        </li>
+</ul>
+<h3>Returns:</h3>
+<ol>
+<span class="types"><span class="type">boolean</span></span>
+</ol>
+</dd>
+<dt>
+<a name="slot"></a>
+<strong>use.slot (slotID[, thisUnit="target"])</strong>
+</dt>
+<dd>
+    Uses the item in the specified equipment slot.
+
+
+    <h3>Parameters:</h3>
+<ul>
+<li><span class="parameter">slotID</span>
+<span class="types"><span class="type">number</span></span>
+         The ID of the equipment slot to use the item from.
+        </li>
+<li><span class="parameter">thisUnit</span>
+<span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         The unit to use the item on.
+         (<em>default</em> "target")
+        </li>
+</ul>
+<h3>Returns:</h3>
+<ol>
+<span class="types"><span class="type">boolean</span></span>
+</ol>
+</dd>
+<dt>
+<a name="use.able.item"></a>
+<strong>use.able.item ([slotID])</strong>
+</dt>
+<dd>
+    Checks if item is usable or not.
+ Note: `item` here refers to the name in the item list defined in System/List/Items.lua
+
+
+    <h3>Parameters:</h3>
+<ul>
+<li><span class="parameter">slotID</span>
+<span class="types"><span class="type">number</span></span>
+         The ID of the equipment slot to check.
+         (<em>optional</em>)
+        </li>
+</ul>
+<h3>Returns:</h3>
+<ol>
+<span class="types"><span class="type">boolean</span></span>
+</ol>
+</dd>
+<dt>
+<a name="use.able.item"></a>
+<strong>use.able.item (itemID)</strong>
+</dt>
+<dd>
+    Checks if item is usable or not.
+ Note: `item` here is literally item, you pass the itemID to specify the item
+
+
+    <h3>Parameters:</h3>
+<ul>
+<li><span class="parameter">itemID</span>
+<span class="types"><span class="type">number</span></span>
+         The ID of the item check.
+        </li>
+</ul>
+<h3>Returns:</h3>
+<ol>
+<span class="types"><span class="type">boolean</span></span>
+</ol>
+</dd>
+<dt>
+<a name="use.able.slot"></a>
+<strong>use.able.slot (slotID)</strong>
+</dt>
+<dd>
+    Checks if item in the specified equipment slot is usable or not.
+
+
+    <h3>Parameters:</h3>
+<ul>
+<li><span class="parameter">slotID</span>
+<span class="types"><span class="type">number</span></span>
+         The ID of the equipment slot to check.
+        </li>
+</ul>
+<h3>Returns:</h3>
+<ol>
+<span class="types"><span class="type">boolean</span></span>
+</ol>
+</dd>
+</dl>
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2023-10-02 16:16:50 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

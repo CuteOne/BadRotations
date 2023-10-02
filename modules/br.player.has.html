@@ -24,7 +24,7 @@
 </ul>
 <h2>Contents</h2>
 <ul>
-<li><a href="#Tables">Tables</a></li>
+<li><a href="#Functions">Functions</a></li>
 </ul>
 <h2>Modules</h2>
 <ul class="nowrap">
@@ -33,13 +33,13 @@
 <li><a href="../modules/br.player.cd.html">br.player.cd</a></li>
 <li><a href="../modules/br.player.cast.html">br.player.cast</a></li>
 <li><a href="../modules/br.player.charges.html">br.player.charges</a></li>
-<li><strong>br.player.conduit</strong></li>
+<li><a href="../modules/br.player.conduit.html">br.player.conduit</a></li>
 <li><a href="../modules/br.player.covenant.html">br.player.covenant</a></li>
 <li><a href="../modules/br.player.debuff.html">br.player.debuff</a></li>
 <li><a href="../modules/br.player.enemies.html">br.player.enemies</a></li>
 <li><a href="../modules/br.player.equiped.html">br.player.equiped</a></li>
 <li><a href="../modules/br.player.covenant.html">br.player.covenant</a></li>
-<li><a href="../modules/br.player.has.html">br.player.has</a></li>
+<li><strong>br.player.has</strong></li>
 <li><a href="../modules/br.player.item.html">br.player.item</a></li>
 <li><a href="../modules/br.player.known.html">br.player.known</a></li>
 <li><a href="../modules/br.player.module.html">br.player.module</a></li>
@@ -47,57 +47,61 @@
 </ul>
 </div>
 <div id="content">
-<h1>Module <code>br.player.conduit</code></h1>
-<p>This table provides information about conduit powers *Shadowlands*.</p>
+<h1>Module <code>br.player.has</code></h1>
+<p>These functions help in retrieving information if you have an item or not.</p>
 <p>
- Conduit data is stored in br.player.conduit and can be utilized by `local conduit = br.player.conduit` in your profile.
- `spell` in the table represent the name in the conduit list (Spec, Shared Class, Shared Global Lists) defined in System/List/Spells.lua</p>
-<h2><a href="#Tables">Tables</a></h2>
+ Has functions are stored in br.player.has and can be utilized by `local has = br.player.has` in your profile.
+ For item has, `item` in the function represent the name in the items list defined in System/List/Items.lua</p>
+<h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 <tr>
-<td class="name" nowrap=""><a href="#spell">conduit.spell</a></td>
-<td class="summary">Gets information about a specific conduit.</td>
+<td class="name" nowrap=""><a href="#item">has.item ()</a></td>
+<td class="summary">Checks if item is in your bags or not.</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#item">has.item (itemID)</a></td>
+<td class="summary">Checks if the specified `itemID` is in your bags or not.</td>
 </tr>
 </table>
 <br/>
 <br/>
-<h2 class="section-header"><a name="Tables"></a>Tables</h2>
+<h2 class="section-header"><a name="Functions"></a>Functions</h2>
 <dl class="function">
 <dt>
-<a name="spell"></a>
-<strong>conduit.spell</strong>
+<a name="item"></a>
+<strong>has.item ()</strong>
 </dt>
 <dd>
-    Gets information about a specific conduit.
+    Checks if item is in your bags or not.
+ Note: `item` here refers to the name in the item list defined in System/List/Items.lua
 
 
-    <h3>Fields:</h3>
+
+    <h3>Returns:</h3>
+<ol>
+<span class="types"><span class="type">boolean</span></span>
+</ol>
+</dd>
+<dt>
+<a name="item"></a>
+<strong>has.item (itemID)</strong>
+</dt>
+<dd>
+    Checks if the specified `itemID` is in your bags or not.
+ Note: `item` here is literally item, you pass the itemID to specify the item
+
+
+    <h3>Parameters:</h3>
 <ul>
-<li><span class="parameter">state</span>
-         The current state of the conduit. Default is `0`.
-        </li>
-<li><span class="parameter">icon</span>
-         The icon associated with the conduit, represented by the spell icon.
-        </li>
-<li><span class="parameter">row</span>
-         The row in which the conduit is located. Default is `0`.
-        </li>
-<li><span class="parameter">conduitID</span>
-         The unique identifier for the conduit. Default is `0`.
-        </li>
-<li><span class="parameter">name</span>
-         The name of the conduit, represented by the spell name.
-        </li>
-<li><span class="parameter">rank</span>
-         The rank of the conduit. Currently set to default `0`.
-        </li>
-<li><span class="parameter">id</span>
-         The unique identifier for the spell associated with the conduit.
-        </li>
-<li><span class="parameter">enabled</span>
-         A boolean indicating whether the conduit is enabled. Default is `false`.
+<li><span class="parameter">itemID</span>
+<span class="types"><span class="type">number</span></span>
+         The ID of the item to check for.
         </li>
 </ul>
+<h3>Returns:</h3>
+<ol>
+<span class="types"><span class="type">boolean</span></span>
+</ol>
 </dd>
 </dl>
 </div> <!-- id="content" -->
