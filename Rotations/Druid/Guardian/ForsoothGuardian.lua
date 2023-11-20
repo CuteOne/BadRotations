@@ -81,12 +81,14 @@ local cd
 local comboPoints
 local debuff
 local enemies
+local rage
 local energy
 local module
 local ui
 local unit
 local units
 local spell
+local talent
 local var = {}
 -- General Locals - Common Non-BR API Locals used in profiles
 local haltProfile
@@ -200,54 +202,175 @@ end -- End Action List - Extra
 
 -- Action List - Defensive
 actionList.Defensive = function()
-    if ui.useDefensive() then
-        -- Basic Healing Module
-        module.BasicHealing()
-        -- Regrowth
-        if ui.checked("Regrowth") and cast.able.regrowth() and not cast.current.regrowth() and not unit.moving() then
-            if unit.friend("target") and unit.hp("target") <= ui.value("Regrowth") and br._G.UnitIsPlayer("target") then
-                if buff.catForm.exists() or buff.bearForm.exists() then
-                    -- CancelShapeshiftForm()
-                    br._G.RunMacroText("/CancelForm")
-                else
-                    if cast.regrowth("target") then ui.debug("Casting Regrowth on "..unit.name("target")) return true end
-                end
-            end
-            if not unit.friend("target") and unit.hp() <= ui.value("Regrowth") then
-                if buff.catForm.exists() or buff.bearForm.exists() then
-                    -- CancelShapeshiftForm()
-                    br._G.RunMacroText("/CancelForm")
-                else
-                    if cast.regrowth("player") then ui.debug("Casting Regrowth on "..unit.name("player")) return true end
-                end
-            end
-        end
+    if br.player.health <= 70 and cast.able.barkskin() then
+        cast.barkskin()
+    end
+    if br.player.health <= 60 and cast.able.survivalInstincts() then
+        cast.survivalInstincts()
+    end
+    if br.player.health < 50 and cast.able.frenziedRegeneration() then
+        cast.frenziedRegeneration()
     end
 end -- End Action List - Defensive
 
+-- Action List - Interrupt
+actionList.Interrupt = function()
+    for i=1, #enemies.yards10 do
+        local thisUnit = enemies.yards10[i]
+        
+        if br.player.talent.skullBash and cast.able.skullBash() and unit.interruptable(thisUnit,70) then
+            cast.skullBash(thisUnit)
+        end
+        if br.player.talent.incapacitatingRoar and cast.able.incapacitatingRoar() and unit.interruptable(thisUnit,70) then
+            cast.incapacitatingRoar()
+        end
+    end
+end -- End Action List - Interrupt
+
 -- Action List - Pre-Combat
 actionList.PreCombat = function()
+    --actions.precombat+=/variable,name=If_build,value=1,value_else=0,if=talent.thorns_of_iron.enabled&talent.reinforced_fur.enabled
+    if talent.thornsOfIron and talent.reinforcedFur then
+        var.If_build = 1
+    else
+        var.If_build = 0
+    end
     if not unit.inCombat() then
         if unit.valid("target") then
-            local thisDistance = unit.distance("target") or 99
-            if not unit.moving() and not (buff.catForm.exists() or buff.bearForm.exists()) and thisDistance < 40 then
-                if cast.able.wrath("target") and (unit.level() < 2 or not cast.last.wrath() or cast.timeSinceLast.wrath() > unit.gcd(true) + 0.5) then
-                    if cast.wrath("target") then ui.debug("Casting Wrath [Pre-Pull]") return true end
-                end
-            end
-            if thisDistance < 5 then
-                -- Shred
-                if cast.able.shred() and buff.catForm.exists() then
-                    if cast.shred() then ui.debug("Casting Shred [Pre-Pull]") return true end
-                end
-                -- Auto Attack
-                if not br._G.IsAutoRepeatSpell(br._G.GetSpellInfo(6603)) then
-                    br._G.StartAttack(units.dyn5)
-                end
+            -- Auto Attack
+            if not br._G.IsAutoRepeatSpell(br._G.GetSpellInfo(6603)) then
+                br._G.StartAttack(units.dyn5)
             end
         end
     end
 end -- End Action List - PreCombat
+
+actionList.bear = function()
+    -- actions.bear=bear_form,if=!buff.bear_form.up
+    if not buff.bearForm.exists() then
+        cast.bearForm()
+    end
+    -- actions.bear+=/heart_of_the_Wild,if=talent.heart_of_the_wild.enabled
+    if br.isBoss() and unit.ttd() > 45 and cast.able.heartOfTheWild() then
+        cast.heartOfTheWild()
+    end
+    -- actions.bear+=/moonfire,cycle_targets=1,if=(((!ticking&time_to_die>12)|(refreshable&time_to_die>12))&active_enemies<7&talent.fury_of_nature.enabled)|(((!ticking&time_to_die>12)|(refreshable&time_to_die>12))&active_enemies<4&!talent.fury_of_nature.enabled)
+    for i = 1, #enemies.yards40 do
+        local thisUnit = enemies.yards40[i]
+        if unit.InCombat(thisUnit) and (((not debuff.moonfire.exists(thisUnit) and unit.ttd(thisUnit) > 12) or (debuff.moonfire.refresh(thisUnit) and unit.ttd(thisUnit) > 12)) and #enemies.yards40 < 7 and talent.furyOfNature) or (((not debuff.moonfire.exists(thisUnit) and unit.ttd(thisUnit) > 12) or (debuff.moonfire.refresh(thisUnit) and unit.ttd(thisUnit) > 12)) and #enemies.yards40 < 4 and not talent.furyOfNature) then
+            cast.moonfire(thisUnit)
+        end
+    end
+    -- actions.bear+=/thrash_bear,target_if=refreshable|(dot.thrash_bear.stack<5&talent.flashing_claws.rank=2|dot.thrash_bear.stack<4&talent.flashing_claws.rank=1|dot.thrash_bear.stack<3&!talent.flashing_claws.enabled)
+    if cast.able.thrashBear() and debuff.thrashBear.refresh() or (debuff.thrashBear.stack() < 5 and talent.rank.flashingClaws == 2 or debuff.thrashBear.stack() < 4 and talent.rank.flashingClaws == 1 or debuff.thrashBear.stack() < 3 and not talent.flashingClaws) then
+        cast.thrashBear()
+    end
+    -- actions.bear+=/bristling_fur,if=!cooldown.pause_action.remains
+    if cast.able.bristlingFur() and unit.ttd() > 8 then
+        cast.bristlingFur()
+    end
+    -- actions.bear+=/barkskin,if=buff.bear_form.up
+    if cast.able.barkskin() then
+        cast.barkskin()
+    end
+    -- actions.bear+=/convoke_the_spirits
+    if br.isBoss() and unit.ttd() > 4 and cast.able.convokeTheSpirits() then
+        cast.convokeTheSpirits()
+    end
+    -- actions.bear+=/berserk_bear
+    if cast.able.berserkPersistence() and br.isBoss() and unit.ttd() > 15 then
+        cast.berserkPersistence()
+    end
+    -- actions.bear+=/incarnation
+    if cast.able.incarnationGuardianOfUrsoc() and br.isBoss() and unit.ttd() > 30 then
+        cast.incarnationGuardianOfUrsoc()
+    end
+    -- actions.bear+=/lunar_beam
+    if cast.able.lunarBeam() and br.isBoss() and unit.ttd() > 8 then
+        cast.lunarBeam()
+    end
+    -- actions.bear+=/rage_of_the_sleeper,if=buff.incarnation_guardian_of_ursoc.down&cooldown.incarnation_guardian_of_ursoc.remains>60|buff.incarnation_guardian_of_ursoc.up|(talent.convoke_the_spirits.enabled)
+    if cast.able.rageOfTheSleeper() and br.isBoss() and unit.ttd() > 10 and not buff.incarnationGuardianOfUrsoc.exists() and cd.incarnationGuardianOfUrsoc.remains() > 60 or buff.incarnationGuardianOfUrsoc.exists() or (talent.convokeTheSpirits) then
+        cast.rageOfTheSleeper()
+    end
+    -- actions.bear+=/berserking,if=(buff.berserk_bear.up|buff.incarnation_guardian_of_ursoc.up)
+    -- actions.bear+=/maul,if=(buff.rage_of_the_sleeper.up&buff.tooth_and_claw.stack>0&active_enemies<=6&!talent.raze.enabled&variable.If_build=0)|(buff.rage_of_the_sleeper.up&buff.tooth_and_claw.stack>0&active_enemies=1&talent.raze.enabled&variable.If_build=0)
+    if cast.able.maul() and (buff.rageOfTheSleeper.exists() and buff.toothAndClaw.stack() > 0 and #enemies.yards5 <= 6 and not talent.raze and var.If_build == 0) or (buff.rageOfTheSleeper.exists() and buff.toothAndClaw.stack() > 0 and #enemies.yards05 == 1 and talent.raze and var.If_build == 0) then
+        cast.maul()
+    end
+    -- actions.bear+=/raze,if=buff.rage_of_the_sleeper.up&buff.tooth_and_claw.stack>0&variable.If_build=0&active_enemies>1
+    if cast.able.raze() and buff.rageOfTheSleeper.exists() and buff.toothAndClaw.stack() > 0 and var.If_build == 0 and #enemies.yards > 1 then
+        cast.raze()
+    end
+    -- actions.bear+=/maul,if=(((buff.incarnation.up|buff.berserk_bear.up)&active_enemies<=5&!talent.raze.enabled&(buff.tooth_and_claw.stack>=1))&variable.If_build=0)|(((buff.incarnation.up|buff.berserk_bear.up)&active_enemies=1&talent.raze.enabled&(buff.tooth_and_claw.stack>=1))&variable.If_build=0)
+    if cast.able.maul() and (((buff.incarnationGuardianOfUrsoc.exists() or buff.berserkPersistence.exists()) and #enemies.yards5 <= 5 and not talent.raze and (buff.toothAndClaw.stack() >= 1)) and var.If_build == 0) or (((buff.incarnationGuardianOfUrsoc.exists() or buff.berserkPersistence.exists()) and #enemies.yards5 == 1 and talent.raze and (buff.toothAndClaw.stack() >= 1)) and var.If_build == 0) then
+        cast.maul()
+    end
+    -- actions.bear+=/raze,if=(buff.incarnation.up|buff.berserk_bear.up)&(variable.If_build=0)&active_enemies>1
+    if cast.able.raze() and (buff.incarnationGuardianOfUrsoc.exists() or buff.berserkPersistence.exists()) and (var.If_build == 0) and #enemies.yards5 > 1 then
+        cast.raze()
+    end
+    -- actions.bear+=/ironfur,target_if=!debuff.tooth_and_claw_debuff.up,if=!buff.ironfur.up&rage>50&!cooldown.pause_action.remains&variable.If_build=0&!buff.rage_of_the_sleeper.up|rage>90&variable.If_build=0&!buff.rage_of_the_sleeper.up
+    if cast.able.ironfur() and not debuff.toothAndClaw.exists() and not buff.ironfur.exists() and rage > 50 and var.If_build == 0 and not buff.rageOfTheSleeper.exists() or rage > 90 and var.If_build == 0 and not buff.rageOfTheSleeper.exists() then
+        cast.ironfur()
+    end
+    -- actions.bear+=/ironfur,if=rage>90&variable.If_build=1|(buff.incarnation.up|buff.berserk_bear.up)&rage>20&variable.If_build=1
+    if cast.able.ironfur() and rage > 90 and var.If_build == 1 or (buff.incarnationGuardianOfUrsoc.exists() or buff.berserkPersistence.exists()) and rage > 20 and var.If_build == 1 then
+        cast.ironfur()
+    end
+    -- actions.bear+=/raze,if=(buff.tooth_and_claw.up)&active_enemies>1
+    if cast.able.raze() and (buff.toothAndClaw.exists()) and #enemies.yards5 > 1 then
+        cast.raze()
+    end
+    -- actions.bear+=/raze,if=(variable.If_build=0)&active_enemies>1
+    if cast.able.raze() and (var.If_build == 0) and #enemies.yards5 > 1 then
+        cast.raze()
+    end
+    -- actions.bear+=/mangle,if=buff.gore.up&active_enemies<11|buff.vicious_cycle_mangle.stack=3
+    if cast.able.mangle() and buff.gore.exists() and #enemies.yards5 < 11 or buff.viciousCycleMangle.stack() == 3 then
+        cast.mangle()
+    end
+    -- actions.bear+=/maul,if=(buff.tooth_and_claw.up&active_enemies<=5&!talent.raze.enabled)|(buff.tooth_and_claw.up&active_enemies=1&talent.raze.enabled)
+    if cast.able.maul() and (buff.toothAndClaw.exists() and #enemies.yards5 <= 5 and not talent.raze) or (buff.toothAndClaw.exists() and #enemies.yards5 == 1 and talent.raze) then
+        cast.maul()
+    end
+    -- actions.bear+=/maul,if=(active_enemies<=5&!talent.raze.enabled&variable.If_build=0)|(active_enemies=1&talent.raze.enabled&variable.If_build=0)
+    if cast.able.maul() and (#enemies.yards5 <= 5 and not talent.raze and var.If_build == 0) or (#enemies.yards5 == 1 and talent.raze and var.If_build == 0) then
+        cast.maul()
+    end
+    -- actions.bear+=/thrash_bear,target_if=active_enemies>=5
+    if cast.able.thrashBear() and #enemies.yards5 >= 5 then
+        cast.thrashBear()
+    end
+    -- actions.bear+=/swipe,if=buff.incarnation_guardian_of_ursoc.down&buff.berserk_bear.down&active_enemies>=11
+    if cast.able.swipe() and not buff.incarnationGuardianOfUrsoc.exists() and not buff.berserkPersistence.exists() and #enemies.yards5 >= 11 then
+        cast.swipe()
+    end
+    -- actions.bear+=/mangle,if=(buff.incarnation.up&active_enemies<=4)|(buff.incarnation.up&talent.soul_of_the_forest.enabled&active_enemies<=5)|((rage<90)&active_enemies<11)|((rage<85)&active_enemies<11&talent.soul_of_the_forest.enabled)
+    if cast.able.mangle() and (buff.incarnationGuardianOfUrsoc.exists() and #enemies.yards5 <= 4) or (buff.incarnationGuardianOfUrsoc.exists() and talent.soulOfTheForest and #enemies.yards5 <= 5) or (( rage < 90) and #enemies.yards5 <11) or ((rage < 85) and #enemies.yards5 < 11 and talent.soulOfTheForest) then
+        cast.mangle()
+    end
+    -- actions.bear+=/thrash_bear,if=active_enemies>1
+    if cast.able.thrashBear() and #enemies.yards5 > 1 then
+        cast.thrashBear()
+    end
+    -- actions.bear+=/pulverize,target_if=dot.thrash_bear.stack>2
+    if cast.able.pulverize() and debuff.thrashBear.stack() > 2 then
+        cast.pulverize()
+    end
+    -- actions.bear+=/thrash_bear
+    if cast.able.thrashBear() then
+        cast.thrashBear()
+    end
+    -- actions.bear+=/moonfire,if=buff.galactic_guardian.up
+    if cast.able.moonfire() and buff.galacticGuardian.exists() then
+        cast.moonfire()
+    end
+    -- actions.bear+=/swipe_bear
+    if cast.able.swipeBear() then
+        cast.swipeBear()
+    end
+end
 
 ----------------
 --- ROTATION ---
@@ -269,6 +392,8 @@ local function runRotation()
     unit                                        = br.player.unit
     units                                       = br.player.units
     spell                                       = br.player.spell
+    rage = br.player.power.rage.amount()
+    talent = br.player.talent
     -- General Locals
     profileStop                                 = profileStop or false
     haltProfile                                 = (unit.inCombat() and profileStop) or br.pause() or ui.rotation==4 or unit.id("target") == 156716
@@ -277,6 +402,7 @@ local function runRotation()
     units.get(40) -- Makes a variable called, units.dyn40
     -- Enemies
     enemies.get(5) -- Makes a varaible called, enemies.yards5
+    enemies.get(10)
     enemies.get(40) -- Makes a varaible called, enemies.yards40
 
     -- Profile Specific Locals
@@ -317,52 +443,26 @@ local function runRotation()
             ------------------------
             --- In Combat - Main ---
             ------------------------
-            -- Melee in melee range
+            -- Melee in melee range--
             if unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
                 -- Start Attack
                 if not br._G.IsAutoRepeatSpell(br._G.GetSpellInfo(6603)) then
                     br._G.StartAttack(units.dyn5)
                 end
+                ---------------
+                --- Interrupt ---
+                -----------------
+                if actionList.Interrupt() then return true end
                 -- Bear Form
                 if buff.bearForm.exists() then
-                    -- Mangle
-                    if cast.able.mangle(units.dyn5) then
-                        if cast.mangle(units.dyn5) then ui.debug("Casting Mangle") return true end
-                    end
-                end
-                -- Cat Form
-                if buff.catForm.exists() then
-                    local finish = ferociousBiteFinish()
-                    -- Ferocious Bite
-                    if cast.able.ferociousBite() and ((comboPoints == 5 and fbMaxEnergy) or finish) then
-                        if finish then
-                            if cast.ferociousBite() then ui.debug("Casting Ferocious Bite [Finish]") return true end
-                        else
-                            if cast.ferociousBite() then ui.debug("Casting Ferocious Bite") return true end
-                        end
-                    end
-                    -- Shred
-                    if cast.able.shred() and (comboPoints < 5 or unit.level() < 7) then
-                        if cast.shred() then ui.debug("Casting Shred") return true end
-                    end
-                end
-            end
-            -- Caster Form
-            if not (buff.catForm.exists() or buff.bearForm.exists() or buff.travelForm.exists()) then
-                -- Moonfire
-                if cast.able.moonfire() and (unit.level() < 5 or not buff.catForm.exists()) and debuff.moonfire.refresh(units.dyn40) then
-                    if cast.moonfire() then ui.debug("Casting Moonfire") return true end
-                end
-                -- Wrath
-                if not unit.moving() and cast.able.wrath() and (unit.level() < 2 or (not cast.last.wrath() and cast.timeSinceLast.wrath() > unit.gcd(true) + 0.5) or not debuff.moonfire.refresh(units.dyn40)) then
-                    if cast.wrath() then ui.debug("Casting Wrath") return true end
+                    actionList.bear()
                 end
             end
         end -- End In Combat Rotation
     end -- Pause
     return true
 end -- End runRotation
-local id = 1447 -- Change to the spec id profile is for.
+local id = 104 -- Change to the spec id profile is for.
 if br.rotations[id] == nil then br.rotations[id] = {} end
 br._G.tinsert(br.rotations[id],{
     name = rotationName,

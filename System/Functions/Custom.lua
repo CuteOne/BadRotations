@@ -46,14 +46,16 @@ end
 
 --cast spell on position x,y,z
 function br.castAtPosition(X,Y,Z, SpellID)
+    local ui = br.player.ui
     local i = -100
     local mouselookActive = false
     if br._G.IsMouselooking() then
         mouselookActive = true
         br._G.MouselookStop()
     end
-    br._G.CastSpellByName(br._G.GetSpellInfo(SpellID),"player")
+    br._G.CastSpellByName(br._G.GetSpellInfo(SpellID))
     while br._G.IsAoEPending() and i <= 100 do
+        ui.debug("Clicking at position x:"..X.." y:"..Y.." z:"..Z.." !")
         br._G.ClickPosition(X,Y,Z)
         br.castPosition.x = X
         br.castPosition.y = Y
@@ -64,7 +66,8 @@ function br.castAtPosition(X,Y,Z, SpellID)
     if mouselookActive then
         br._G.MouselookStart()
     end
-    if i >= 100 and br._G.IsAoEPending() then return false end
+    if i >= 100 and br._G.IsAoEPending() then ui.debug("I exceeded 100") return false end
+    ui.debug("Spell casted fine")
     return true
 end
 
@@ -107,6 +110,7 @@ function br.castGroundAtUnit(spellID, radius, minUnits, maxRange, minRange, spel
 end
 
 function br.castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange, spellType, castTime)
+    local ui = br.player.ui
     if radius == nil then radius = maxRange end
     if maxRange == nil then maxRange = radius end
     -- return table with combination of every 2 units
@@ -290,6 +294,7 @@ function br.castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRan
 
     --check with minUnits
     if minUnits == 1 and bestCircle.nro == 0 and br.GetUnitExists("target") and br.getDistance("player","target") > minRange then
+        ui.debug("Casting at ground")
         if br.castGround("target",spellID,maxRange,minRange,radius,castTime) then return true else return false end
     end
     if bestCircle.nro < minUnits then return false end

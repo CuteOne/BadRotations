@@ -189,7 +189,7 @@ function br.loader:new(spec,specName)
         -- local talentFound
         -- if self.talent == nil then self.talent = {} end
         -- if self.talent.rank == nil then self.talent.rank = {} end
-        if spec > 1400 and spec ~= 1467 and spec ~= 1468 then return end
+        if spec > 1400 and spec ~= 1467 and spec ~= 1468 and spec ~= 1473 then return end
         return getAllTalents()
         -- local talents = getAllTalents()
         -- local currentTalent = talents[v]
