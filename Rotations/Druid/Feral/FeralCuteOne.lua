@@ -387,7 +387,7 @@ end
 local useTrinket = function(trinket)
     for slotID = 13, 14 do
         -- local useTrinket = (opValue == 1 or (opValue == 2 and (ui.useCDs() or ui.useAOE())) or (opValue == 3 and ui.useCDs()))
-        if use.able.slot(slotID) and ui.alwaysCdAoENever("Trinket "..slotID - 12) and equiped[trinket](slotID) == trinket then
+        if use.able.slot(slotID) and ui.alwaysCdAoENever("Trinket "..slotID - 12) and equiped[trinket](slotID) then
             return true
         end
     end
@@ -1421,7 +1421,7 @@ local function runRotation()
         unit            = br.player.unit
         units           = br.player.units
         use             = br.player.use
-        var             = br.player.var
+        var             = br.player.variables
 
         lists           = br.lists
 

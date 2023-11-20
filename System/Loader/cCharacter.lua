@@ -83,7 +83,7 @@ function br.cCharacter:new(class)
 	-- self.talent = {} -- Talents
 	self.timeToMax = 0 -- Time To Max Power
 	-- self.traits = {} -- Azerite Traits
-	self.var = {} -- Custom Profile Variables
+	self.variables = {} -- Custom Profile Variables
 
 	-- Things which get updated for every class in combat
 	-- All classes call the baseUpdate()
