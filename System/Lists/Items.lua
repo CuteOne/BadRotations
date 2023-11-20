@@ -187,4 +187,6 @@ br.lists.items = {
     heavenlyDrum                    = 180062,
     kyrianBell                      = 179982,
     unearthlyChime                  = 180063,
+    spoilsOfNeltharus = 193773,
+    neltharionsCallToDominance = 204202
 }

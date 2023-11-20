@@ -1,0 +1,17 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\Rotations",
+    "\\Rotations\\Druid",
+    "\\Rotations\\Druid\\Guardian",
+    "\\Rotations\\Paladin",
+    "\\Rotations\\Paladin\\Protection",
+    "\\Rotations\\Shaman",
+    "\\Rotations\\Shaman\\Restoration",
+    "\\System",
+    "\\System\\engines",
+    "\\System\\Lists"
+  ],
+  "SelectedNode": "\\Rotations\\Druid\\Guardian\\GuardianKuu.lua",
+  "PreviewInSolutionExplorer": false
+}

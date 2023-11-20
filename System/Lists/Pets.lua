@@ -27,6 +27,7 @@ br.lists.pets = {
     voidwalker                  = 58960,
     wildImp                     = 55659,
     wrathguard                  = 58965,
+    blasphemy = 185584,
     -- Essence Pet
     guardianOfAzeroth           = 152396,
 }
