@@ -209,7 +209,7 @@ local debuff
 local enemies
 local energy
 local equiped
-local lists
+local items
 local module
 local race
 local spell
@@ -219,39 +219,6 @@ local unit
 local units
 local use
 local var
-
--- General Variables - Init
-local initVar = {}
-initVar.friendsInRange = false
-initVar.getTime = br._G.GetTime()
-initVar.htTimer = initVar.getTime
-initVar.lastForm = 0
-initVar.lastRune = initVar.getTime
-initVar.leftCombat = initVar.getTime
-initVar.lootDelay = 0
-initVar.minCount = 3
-initVar.noDoT = false
-initVar.profileStop = false
-initVar.unit5ID = 0
-
-
--- Bloodtalons - Init
-initVar.btGen = initVar.btGen or {}
-initVar.btGen.brutalSlash = false
-initVar.btGen.moonfireFeral = false
-initVar.btGen.rake = false
-initVar.btGen.shred = false
-initVar.btGen.swipe = false
-initVar.btGen.thrash = false
-initVar.btGen.stack = 2
-initVar.btGen.timer = initVar.getTime
-initVar.btGen.triggers = 0
-
--- Ticks Gain - Init
-initVar.ticksGain = initVar.ticksGain or {}
-initVar.ticksGain.rake = 5
-initVar.ticksGain.rip = 12
-initVar.ticksGain.thrash = 5
 
 -----------------
 --- Functions ---
@@ -1175,12 +1142,12 @@ actionList.Cooldown = function()
     if var.range.dyn5 then
         -- Use Item - Algethar Puzzle Box
         -- use_item,name=algethar_puzzle_box,if=fight_remains<35|(!variable.align_3minutes)
-        if useTrinket(lists.items.algetharPuzzleBox) and use.able.algetharPuzzleBox() and ((unit.ttdGroup(40)<35 or (not var.align3Minutes))) then
+        if useTrinket(items.algetharPuzzleBox) and use.able.algetharPuzzleBox() and ((unit.ttdGroup(40)<35 or (not var.align3Minutes))) then
             if use.algetharPuzzleBox() then ui.debug("Using Algethar Puzzle Box [Cooldown]") return true end
         end
         -- Use Item - Algethar Puzzle Box
         -- use_item,name=algethar_puzzle_box,if=variable.align_3minutes&(cooldown.bs_inc.remains<3&(!variable.lastZerk|!variable.lastConvoke|(variable.lastConvoke&cooldown.convoke_the_spirits.remains<13)))
-        if useTrinket(lists.items.algetharPuzzleBox) and use.able.algetharPuzzleBox() and ((var.align3Minutes and (buff.bsInc.remains()<3 and (not var.lastZerk or not var.lastConvoke
+        if useTrinket(items.algetharPuzzleBox) and use.able.algetharPuzzleBox() and ((var.align3Minutes and (buff.bsInc.remains()<3 and (not var.lastZerk or not var.lastConvoke
             or (var.lastConvoke and cd.convokeTheSpirits.remains()<13)))))
         then
             if use.algetharPuzzleBox() then ui.debug("Using Algethar Puzzle Box [Cooldown - Align 3 Min]") return true end
@@ -1234,21 +1201,21 @@ actionList.Cooldown = function()
         end
         -- Use Item - Ashes Of The Embersoul
         -- use_item,name=ashes_of_the_embersoul,if=((buff.smoldering_frenzy.up&(!talent.convoke_the_spirits.enabled|cooldown.convoke_the_spirits.remains<10))|!set_bonus.tier31_4pc&(cooldown.convoke_the_spirits.remains=0|!talent.convoke_the_spirits.enabled&buff.bs_inc.up))
-        if useTrinket(lists.items.ashesOfTheEmbersoul) and use.able.ashesOfTheEmbersoul() and ((((buff.smolderingFrenzy.exists() and (not talent.convokeTheSpirits or cd.convokeTheSpirits.remains()<10))
+        if useTrinket(items.ashesOfTheEmbersoul) and use.able.ashesOfTheEmbersoul() and ((((buff.smolderingFrenzy.exists() and (not talent.convokeTheSpirits or cd.convokeTheSpirits.remains()<10))
             or not equiped.tier(31,4) and (cd.convokeTheSpirits.remains()==0 or not talent.convokeTheSpirits and buff.bsInc.exists()))))
         then
             if use.ashesOfTheEmbersoul() then ui.debug("Using Ashes Of The Embersoul [Cooldown]") return true end
         end
         -- Use Item - Witherbarks Branch
         -- use_item,name=witherbarks_branch,if=(!talent.convoke_the_spirits.enabled|action.feral_frenzy.ready|!set_bonus.tier31_4pc)&!(trinket.1.is.ashes_of_the_embersoul&trinket.1.cooldown.remains<20|trinket.2.is.ashes_of_the_embersoul&trinket.2.cooldown.remains<20)
-        if useTrinket(lists.items.witherbarksBranch) and use.able.witherbarksBranch() and (((not talent.convokeTheSpirits or cast.able.feralFrenzy() or not equiped.tier(31,4))
+        if useTrinket(items.witherbarksBranch) and use.able.witherbarksBranch() and (((not talent.convokeTheSpirits or cast.able.feralFrenzy() or not equiped.tier(31,4))
             and not (equiped.ashesOfTheEmbersoul(13) and cd.slot.remains(13)<20 or equiped.ashesOfTheEmbersoul(14) and cd.slot.remains(14)<20)))
         then
             if use.witherbarksBranch() then ui.debug("Using Witherbarks Branch [Cooldown]") return true end
         end
         -- Use Item - Mirror Of Fractured Tomorrows
         -- use_item,name=mirror_of_fractured_tomorrows,if=(!variable.align_3minutes|buff.bs_inc.up&buff.bs_inc.remains>15|variable.lastConvoke&!variable.lastZerk&cooldown.convoke_the_spirits.remains<1)&(target.time_to_die<fight_remains&target.time_to_die>16|target.time_to_die=fight_remains)
-        if useTrinket(lists.items.mirrorOfFracturedTomorrows) and use.able.mirrorOfFracturedTomorrows() and (((not var.align3Minutes or buff.bsInc.exists() and buff.bsInc.remains()>15
+        if useTrinket(items.mirrorOfFracturedTomorrows) and use.able.mirrorOfFracturedTomorrows() and (((not var.align3Minutes or buff.bsInc.exists() and buff.bsInc.remains()>15
             or var.lastConvoke and not var.lastZerk and cd.convokeTheSpirits.remains()<1) and (unit.ttd(units.dyn5)<unit.ttdGroup(40)
             and unit.ttd(units.dyn5)>16 or unit.ttd(units.dyn5)==unit.ttdGroup(40))))
         then
@@ -1272,12 +1239,12 @@ actionList.Cooldown = function()
         end
         -- Use Item - Manic Grieftorch
         -- use_item,name=manic_grieftorch,target_if=max:target.time_to_die,if=energy.deficit>40
-        if useTrinket(lists.items.manicGrieftorch) and use.able.manicGrieftorch(var.maxTTDUnit) and energy.deficit()>40 then
+        if useTrinket(items.manicGrieftorch) and use.able.manicGrieftorch(var.maxTTDUnit) and energy.deficit()>40 then
             if use.manicGrieftorch(var.maxTTDUnit) then ui.debug("Using Manic Grieftorch [Cooldown]") return true end
         end
         -- Use Item - Mydas Talisman
         -- use_item,name=mydas_talisman,if=!equipped.ashes_of_the_embersoul&!equipped.witherbarks_branch|((trinket.2.is.witherbarks_branch|trinket.2.is.ashes_of_the_embersoul)&trinket.2.cooldown.remains>20)|((trinket.1.is.witherbarks_branch|trinket.1.is.ashes_of_the_embersoul)&trinket.1.cooldown.remains>20)
-        if useTrinket(lists.items.mydasTalisman) and use.able.mydasTalisman() and ((not equiped.ashesOfTheEmbersoul() and not equiped.witherbarksBranch()
+        if useTrinket(items.mydasTalisman) and use.able.mydasTalisman() and ((not equiped.ashesOfTheEmbersoul() and not equiped.witherbarksBranch()
             or ((equiped.witherbarksBranch(14) or equiped.ashesOfTheEmbersoul(14)) and cd.slot.remains(14)>20)
             or ((equiped.witherbarksBranch(13) or equiped.ashesOfTheEmbersoul(13)) and cd.slot.remains(13)>20)))
         then
@@ -1285,7 +1252,7 @@ actionList.Cooldown = function()
         end
         -- Use Item - Bandolier Of Twisted Blades
         -- use_item,name=bandolier_of_twisted_blades,if=!equipped.ashes_of_the_embersoul&!equipped.witherbarks_branch|((trinket.2.is.witherbarks_branch|trinket.2.is.ashes_of_the_embersoul)&trinket.2.cooldown.remains>20)|((trinket.1.is.witherbarks_branch|trinket.1.is.ashes_of_the_embersoul)&trinket.1.cooldown.remains>20)
-        if useTrinket(lists.items.bandolierOfTwistedBlades) and use.able.bandolierOfTwistedBlades() and ((not equiped.ashesOfTheEmbersoul() and not equiped.witherbarksBranch()
+        if useTrinket(items.bandolierOfTwistedBlades) and use.able.bandolierOfTwistedBlades() and ((not equiped.ashesOfTheEmbersoul() and not equiped.witherbarksBranch()
             or ((equiped.witherbarksBranch(14) or equiped.ashesOfTheEmbersoul(14)) and cd.slot.remains(14)>20)
             or ((equiped.witherbarksBranch(13) or equiped.ashesOfTheEmbersoul(13)) and cd.slot.remains(13)>20)))
         then
@@ -1293,7 +1260,7 @@ actionList.Cooldown = function()
         end
         -- Use Item - Fyrakks Tainted Rageheart
         -- use_item,name=fyrakks_tainted_rageheart,if=!equipped.ashes_of_the_embersoul&!equipped.witherbarks_branch|((trinket.2.is.witherbarks_branch|trinket.2.is.ashes_of_the_embersoul)&trinket.2.cooldown.remains>20)|((trinket.1.is.witherbarks_branch|trinket.1.is.ashes_of_the_embersoul)&trinket.1.cooldown.remains>20)
-        if useTrinket(lists.items.fyrakksTaintedRageheart) and use.able.fyrakksTaintedRageheart() and ((not equiped.ashesOfTheEmbersoul() and not equiped.witherbarksBranch()
+        if useTrinket(items.fyrakksTaintedRageheart) and use.able.fyrakksTaintedRageheart() and ((not equiped.ashesOfTheEmbersoul() and not equiped.witherbarksBranch()
             or ((equiped.witherbarksBranch(14) or equiped.ashesOfTheEmbersoul(14)) and cd.slot.remains(14)>20)
             or ((equiped.witherbarksBranch(13) or equiped.ashesOfTheEmbersoul(13)) and cd.slot.remains(13)>20)))
         then
@@ -1394,16 +1361,8 @@ local function runRotation()
     --------------
     -- Initialize
     if not br.player.initialized then
-        -- Add Inital Variables to br.player.variables
-        for key, value in pairs(initVar) do
-            br.player.variables[key] = value
-        end
-        -- Add Inital ActionList to br.player.actionList
-        for key, value in pairs(actionList) do
-            br.player.actionList[key] = value
-        end
         -- BR API
-        actionList      = br.player.actionList
+        br.player.actionList = actionList
         buff            = br.player.buff
         cast            = br.player.cast
         cd              = br.player.cd
@@ -1413,6 +1372,7 @@ local function runRotation()
         enemies         = br.player.enemies
         energy          = br.player.power.energy
         equiped         = br.player.equiped
+        items           = br.player.items
         module          = br.player.module
         race            = br.player.race
         spell           = br.player.spell
@@ -1423,7 +1383,36 @@ local function runRotation()
         use             = br.player.use
         var             = br.player.variables
 
-        lists           = br.lists
+        -- General Variables - Init
+        var.friendsInRange = false
+        var.getTime = ui.time()
+        var.htTimer = var.getTime
+        var.lastForm = 0
+        var.lastRune = var.getTime
+        var.leftCombat = var.getTime
+        var.lootDelay = 0
+        var.minCount = 3
+        var.noDoT = false
+        var.profileStop = false
+        var.unit5ID = 0
+
+        -- Bloodtalons - Init
+        var.btGen = var.btGen or {}
+        var.btGen.brutalSlash = false
+        var.btGen.moonfireFeral = false
+        var.btGen.rake = false
+        var.btGen.shred = false
+        var.btGen.swipe = false
+        var.btGen.thrash = false
+        var.btGen.stack = 2
+        var.btGen.timer = var.getTime
+        var.btGen.triggers = 0
+
+        -- Ticks Gain - Init
+        var.ticksGain = var.ticksGain or {}
+        var.ticksGain.rake = 5
+        var.ticksGain.rip = 12
+        var.ticksGain.thrash = 5
 
         br.player.initialized = true
     end

@@ -127,8 +127,8 @@ function br.loader:new(spec,specName)
                 for spellRef, spellID in pairs(spellTypeTable) do
                     -- If spellType is items then add to br.player.spell.items
                     if spellType == 'items' then
-                        self.spell.items = self.spell.items or {}
-                        self.spell.items[spellRef] = spellID
+                        self.items = self.items or {}
+                        self.items[spellRef] = spellID
                     else
                         -- Assign spell to br.player.spell for the spell type
                         self.spell[spellType][spellRef] = spellID
