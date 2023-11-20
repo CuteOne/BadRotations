@@ -1394,9 +1394,9 @@ local function runRotation()
     --------------
     -- Initialize
     if not br.player.initialized then
-        -- Add Inital Variables to br.player.var
+        -- Add Inital Variables to br.player.variables
         for key, value in pairs(initVar) do
-            br.player.var[key] = value
+            br.player.variables[key] = value
         end
         -- Add Inital ActionList to br.player.actionList
         for key, value in pairs(actionList) do
