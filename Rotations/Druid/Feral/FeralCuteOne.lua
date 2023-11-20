@@ -950,15 +950,15 @@ actionList.Berserk = function()
     if cast.able.ferociousBite(var.maxTTDUnit) and comboPoints()==5 and debuff.rip.remains(var.maxTTDUnit)>8 and var.zerkBiteweave and #enemies.yards8>1 then
         if cast.ferociousBite(var.maxTTDUnit) then ui.debug("Casting Ferocious Bite [Berserk]") return true end
     end
-    -- Action List - Actionlist.Finisher
+    -- Call Action List - Finisher
     -- call_action_list,name=finisher,if=combo_points=5&!(buff.overflowing_power.stack<=1&active_bt_triggers=2&buff.bloodtalons.stack<=1&set_bonus.tier30_4pc)
     if comboPoints()==5 and not (buff.overflowingPower.count()<=1 and var.btGen.triggers==2 and buff.bloodtalons.count()<=1 and equiped.tier(30,4)) then
-        if actionList.Actionlist.Finisher() then return true end
+        if actionList.Finisher() then return true end
     end
-    -- Action List - Actionlist.Aoe Builder
+    -- Call Action List - Aoe Builder
     -- run_action_list,name=aoe_builder,if=spell_targets.swipe_cat>1
     if #enemies.yards8>1 then
-        if actionList.Actionlist.AoeBuilder() then return true end
+        if actionList.AoeBuilder() then return true end
     end
     -- Prowl
     -- prowl,if=!(buff.bt_rake.up&active_bt_triggers=2)&(action.rake.ready&gcd.remains=0&!buff.sudden_ambush.up&(dot.rake.refreshable|dot.rake.pmultiplier<1.4)&!buff.shadowmeld.up)
