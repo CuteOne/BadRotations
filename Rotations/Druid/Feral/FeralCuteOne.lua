@@ -460,7 +460,7 @@ actionList.Extras = function()
                 if cast.tigersFury() then ui.debug("Casting Tiger's Fury [Death Cat Mode]") return true end
             end
             -- Savage Roar - Use Combo Points
-            if cast.able.savageRoar() and comboPoints >= 5 then
+            if cast.able.savageRoar() and comboPoints() >= 5 then
                 if cast.savageRoar() then ui.debug("Casting Savage Roar [Death Cat Mode]") return true end
             end
             -- Shred - Single
@@ -730,7 +730,7 @@ actionList.Interrupts = function()
             for i=1, #enemies.yards5f do
                 thisUnit = enemies.yards5f[i]
                 if unit.interruptable(thisUnit,ui.value("Interrupt At"))
-                    and comboPoints > 0 and not buff.fieryRedMaimers.exists()
+                    and comboPoints() > 0 and not buff.fieryRedMaimers.exists()
                 then
                     if cast.maim(thisUnit) then ui.debug("Casting Maim on "..unit.name(thisUnit)) return true end
                 end
