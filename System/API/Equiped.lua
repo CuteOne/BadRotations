@@ -23,6 +23,23 @@ br.api.equiped = function(self,item,id)
         end
     end
 
+    --- This function checks if the specified itemID is equipped or not.
+    -- It can also check a specific slotID.
+    -- If no slotID is provided, it checks all slots for that item.
+    -- @param itemID the ID of the item you want to check if it's equipped
+    -- @param slotID optional parameter. If specified, it represents the ID
+    -- of the slot you want to check for the existence of the given item.
+    -- @return boolean value indicating whether the item with specific ID is equipped in the specified slot (if provided)
+    -- @usage equipes.item(12345) -- will return true if item with ID 12345 is equipped anywhere
+    -- @usage equipes.item(12345, 1) -- will return true if item with ID 12345 is equipped in slot 1
+    equiped.item = function(itemID,slotID)
+        if slotID == nil then
+            return br.hasEquiped(itemID)
+        else
+            return br.hasEquiped(itemID,slotID)
+        end
+    end
+
     --- Checks if the specified `gemID` is equiped in the item's socket or not.
     -- @function equiped.item.socket
     -- @number gemID The ID of the gem to check for.

@@ -387,7 +387,7 @@ end
 local useTrinket = function(trinket)
     for slotID = 13, 14 do
         -- local useTrinket = (opValue == 1 or (opValue == 2 and (ui.useCDs() or ui.useAOE())) or (opValue == 3 and ui.useCDs()))
-        if use.able.slot(slotID) and ui.alwaysCdAoENever("Trinket "..slotID - 12) and equiped[trinket](slotID) then
+        if use.able.slot(slotID) and ui.alwaysCdAoENever("Trinket "..slotID - 12) and equiped.item(trinket,slotID) then
             return true
         end
     end
@@ -886,7 +886,7 @@ actionList.AoeBuilder = function()
     end
     -- Swipe Cat
     -- swipe_cat,if=spell_targets.swipe_cat>4&!(variable.need_bt&buff.bt_swipe.up)
-    if cast.able.swipeCat("player","aoe",1,8) and #enemies.yards0>4 and not (var.needBt and var.btGen.swipe) then
+    if cast.able.swipeCat("player","aoe",1,8) and #enemies.yards8>4 and not (var.needBt and var.btGen.swipe) then
         if cast.swipeCat("player","aoe",1,8) then ui.debug("Casting Swipe Cat [Aoe Builder - High Target Count]") return true end
     end
     -- Moonfire Cat
@@ -1203,7 +1203,7 @@ actionList.Cooldown = function()
             end
             -- Berserk
             -- berserk,target_if=max:target.time_to_die,if=!variable.align_cds&!(!talent.frantic_momentum.enabled&equipped.witherbarks_branch&spell_targets.swipe_cat=1)&((!variable.lastZerk)|(variable.lastZerk&!variable.lastConvoke)|(variable.lastConvoke&(cooldown.convoke_the_spirits.remains<10&(!set_bonus.tier31_2pc|set_bonus.tier31_2pc&buff.smoldering_frenzy.up))))&((target.time_to_die<fight_remains&target.time_to_die>18)|target.time_to_die=fight_remains)
-            if cast.able.berserk() and ((not var.alignCds and not (not talent.franticMomentum and equiped.witherbarksBranch() and #enemies.yards0==1)
+            if cast.able.berserk() and ((not var.alignCds and not (not talent.franticMomentum and equiped.witherbarksBranch() and #enemies.yards8==1)
                 and ((not var.lastZerk) or (var.lastZerk and not var.lastConvoke) or (var.lastConvoke and (cd.convokeTheSpirits.remains()<10
                 and (not equiped.tier(31,2) or equiped.tier(31,2) and buff.smolderingFrenzy.exists())))) and ((unit.ttd(var.maxTTDUnit)<unit.ttdGroup(40)
                 and unit.ttd(var.maxTTDUnit)>18) or unit.ttd(var.maxTTDUnit)==unit.ttdGroup(40))))
@@ -1213,7 +1213,7 @@ actionList.Cooldown = function()
             -- Berserk
             -- berserk,if=fight_remains<23|(time+118)%%120<30&!talent.frantic_momentum.enabled&(equipped.witherbarks_branch|equipped.ashes_of_the_embersoul)&spell_targets.swipe_cat=1
             if cast.able.berserk() and ((unit.ttdGroup(40)<23 or (unit.combatTime()+118)%120<30 and not talent.franticMomentum
-                and (equiped.witherbarksBranch() or equiped.ashesOfTheEmbersoul()) and #enemies.yards0==1))
+                and (equiped.witherbarksBranch() or equiped.ashesOfTheEmbersoul()) and #enemies.yards8==1))
             then
                 if cast.berserk() then ui.debug("Casting Berserk [Cooldown - Condition 3]") return true end
             end
@@ -1258,7 +1258,7 @@ actionList.Cooldown = function()
         -- convoke_the_spirits,target_if=max:target.time_to_die,if=fight_remains<5|(buff.smoldering_frenzy.up|!set_bonus.tier31_4pc)&(dot.rip.remains>4-talent.ashamanes_guidance&buff.tigers_fury.up&combo_points<2)&(debuff.dire_fixation.up|!talent.dire_fixation.enabled|spell_targets.swipe_cat>1)&((target.time_to_die<fight_remains&target.time_to_die>5-talent.ashamanes_guidance.enabled)|target.time_to_die=fight_remains)
         if ui.alwaysCdNever("Convoke The Spirits") and cast.able.convokeTheSpirits() and ((unit.ttdGroup(40)<5 or (buff.smolderingFrenzy.exists() or not equiped.tier(31,4))
             and (debuff.rip.remains(var.maxTTDUnit)>4-talent.ashamanesGuidance and buff.tigersFury.exists() and comboPoints()<2)
-            and (debuff.direFixation.exists(var.maxTTDUnit) or not talent.direFixation or #enemies.yards0>1)
+            and (debuff.direFixation.exists(var.maxTTDUnit) or not talent.direFixation or #enemies.yards8>1)
             and ((unit.ttd(var.maxTTDUnit)<unit.ttdGroup(40) and unit.ttd(var.maxTTDUnit)>5-talent.ashamanesGuidance) or unit.ttd(var.maxTTDUnit)==unit.ttdGroup(40))))
         then
             if cast.convokeTheSpirits() then ui.debug("Casting Convoke The Spirits [Cooldown]") return true end
@@ -1792,7 +1792,7 @@ local function runRotation()
                     local thisUnit = enemies.yards40[i]
                     if cast.able.adaptiveSwarm(thisUnit) and ((((not debuff.adaptiveSwarmDamage.exists(thisUnit) or debuff.adaptiveSwarmDamage.remains(thisUnit)<2)
                         and debuff.adaptiveSwarmDamage.count(thisUnit)<3 and not cast.inFlight.adaptiveSwarmDamage() and not cast.inFlight.adaptiveSwarm()
-                        and unit.ttd(thisUnit)>5) and (not talent.unbridledSwarm or #enemies.yards0==1)))
+                        and unit.ttd(thisUnit)>5) and (not talent.unbridledSwarm or #enemies.yards8==1)))
                     then
                         if cast.adaptiveSwarm(thisUnit) then ui.debug("Casting Adaptive Swarm") return true end
                     end
