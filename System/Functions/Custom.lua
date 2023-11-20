@@ -18,24 +18,24 @@ function br.unitLookup(Unit,returnType)
     end
 end
 
-function br.getUnitCount(ID,maxRange,tapped)
+function br.getUnitCount(ID, maxRange, tapped)
     local counter = 0
-    for k, _ in pairs(br.enemy) do
-        local thisUnit = br.enemy[k].unit
-        local thisUnitID = br.enemy[k].id
-        if thisUnitID == ID then
-            if br.getDistance(thisUnit) < maxRange then
-                if (tapped == true and br._G.UnitIsTappedByPlayer(thisUnit)) or tapped == nil or tapped == false then
-                    counter = counter + 1
-                end
+    for _, enemy in pairs(br.enemy) do
+        local thisUnit = enemy.unit
+        if enemy.id == ID and br.getDistance(thisUnit) < maxRange then
+            local unitTapped = not br._G.UnitIsTapDenied(thisUnit)
+            if (tapped == true and unitTapped) or not tapped then
+                counter = counter + 1
             end
         end
     end
     return counter
 end
 
+
 function br.isCCed(Unit)
-    local CCTable = {84868, 3355, 19386, 118, 28272, 28271, 61305, 61721, 161372, 61780, 161355, 126819, 161354, 115078, 20066, 9484, 6770, 1776, 51514, 107079, 10326, 8122, 154359, 2094, 5246, 5782, 5484, 6358, 115268, 339};
+    local CCTable = {84868, 3355, 19386, 118, 28272, 28271, 61305, 61721, 161372, 61780, 161355, 126819, 161354, 115078,
+        20066, 9484, 6770, 1776, 51514, 107079, 10326, 8122, 154359, 2094, 5246, 5782, 5484, 6358, 115268, 339};
     for i=1, #CCTable do
         if br.UnitDebuffID(Unit,CCTable[i]) then
             return true
@@ -53,8 +53,8 @@ function br.castAtPosition(X,Y,Z, SpellID)
         br._G.MouselookStop()
     end
     br._G.CastSpellByName(br._G.GetSpellInfo(SpellID),"player")
-    while br._G.IsAoEPending() and i <= 100 do
-        br._G.ClickPosition(X,Y,Z)
+    while br._G["IsAoEPending"]() and i <= 100 do
+        br._G["ClickPosition"](X,Y,Z)
         br.castPosition.x = X
         br.castPosition.y = Y
         br.castPosition.z = Z
@@ -64,7 +64,7 @@ function br.castAtPosition(X,Y,Z, SpellID)
     if mouselookActive then
         br._G.MouselookStart()
     end
-    if i >= 100 and br._G.IsAoEPending() then return false end
+    if i >= 100 and br._G["IsAoEPending"]() then return false end
     return true
 end
 
@@ -90,25 +90,33 @@ function br.isNotBlacklisted(checkUnit)
     return true
 end
 
-
 function br.castGroundAtUnit(spellID, radius, minUnits, maxRange, minRange, spellType, unit)
-    -- local spellName = br._G.GetSpellInfo(spellID)
-    if radius == nil then radius = maxRange end
-    if minRange == nil then minRange = 0 end
-    local allUnitsInRange = {}
-    if spellType == "heal" then allUnitsInRange = br.getAllies("player",40) else allUnitsInRange = br.getEnemies("player",maxRange,true) end
+    local _, _, _, _, spellMinRange, spellMaxRange = br._G.GetSpellInfo(spellID)
+    minRange = minRange or spellMinRange or 0
+    maxRange = maxRange or spellMaxRange or 5
+    radius   = radius or maxRange
 
-    if br.getUnits(unit,allUnitsInRange, radius - 3) >= minUnits and #br.getEnemies(unit,radius) >= #br.getEnemies(unit,radius,true) then
-        local X1,Y1,Z1 = br.GetObjectPosition(unit)
-        if br.castAtPosition(X1,Y1,Z1, spellID) then return true else return false end
+    local allUnitsInRange
+    if spellType == "heal" then
+        allUnitsInRange = br.getAllies("player",40)
+    else
+        allUnitsInRange = br.getEnemies("player",maxRange,true) - br.getEnemies("player",minRange,true)
     end
 
+    local enemiesInRadius   = #br.getEnemies(unit,radius)
+    local visibleEnemiesInRadius = #br.getEnemies(unit,radius,true)
 
+    if br.getUnits(unit,allUnitsInRange, radius - 3) >= minUnits and enemiesInRadius >= visibleEnemiesInRadius then
+        local X1,Y1,Z1 = br.GetObjectPosition(unit)
+        return br.castAtPosition(X1,Y1,Z1, spellID)
+    end
 end
 
 function br.castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange, spellType, castTime)
-    if radius == nil then radius = maxRange end
-    if maxRange == nil then maxRange = radius end
+    local _, _, _, _, spellMinRange, spellMaxRange = br._G.GetSpellInfo(spellID)
+    minRange = minRange or spellMinRange or 0
+    maxRange = maxRange or spellMaxRange or 5
+    radius   = radius or maxRange
     -- return table with combination of every 2 units
     local function getAllCombinationsOfASet(arr, r)
         if(r > #arr) then
@@ -145,20 +153,20 @@ function br.castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRan
     end
 
     --check if unit is inside of a circle
-    local function unitInCircle(unit, cx, cy, radius, castTime)
-        local uX, uY = 0, 0
+    local function unitInCircle(unit, cx, cy)
+        local uX, uY
         if castTime == nil or castTime == 0 then
           uX, uY = br.GetObjectPosition(unit)
         else
           uX, uY = br.GetFuturePostion(unit, castTime)
         end
-        local rUnit = br._G.UnitBoundingRadius(unit)
+        local rUnit = br._G["UnitBoundingRadius"](unit)
         return math.abs((uX - cx) * (uX - cx) + (uY - cy) * (uY - cy)) <= (rUnit + radius) * (rUnit + radius);
     end
 
     --distance from center to unit
-    local function unitDistanceCenter(unit, cx, cy, castTime)
-        local uX, uY = 0, 0
+    local function unitDistanceCenter(unit, cx, cy)
+        local uX, uY
         if castTime == nil or castTime == 0 then
             uX, uY = br.GetObjectPosition(unit)
         else
@@ -169,111 +177,73 @@ function br.castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRan
     end
 
     if minRange == nil then minRange = 0 end
-    local allUnitsInRange = {}
-    if spellType == "heal" then allUnitsInRange = br.getAllies("player",maxRange) else allUnitsInRange = br.getEnemies("player",maxRange,false) end
+    local allUnitsInRange
+    if spellType == "heal" then
+        allUnitsInRange = br.getAllies("player",maxRange)
+    else
+        allUnitsInRange = br.getEnemies("player",maxRange,false)
+    end
 
     local testCircles = {}
-    --for every combination of units make 2 circles, and put in testCircles
     if #allUnitsInRange >= 2 then
         local combs = getAllCombinationsOfASet(allUnitsInRange, 2)
         for _, val in pairs(combs) do
             local temp = {}
-            for j, combination in pairs(val) do
-                local tX, tY, tZ = 0,0,0
-                if castTime == nil or castTime == 0 then
-                  tX, tY, tZ = br.GetObjectPosition(combination)
-                else
-                  tX, tY, tZ = br.GetFuturePostion(combination, castTime)
-                end
-                if(j==#val) and temp.xi ~= nil then
-                    temp.xii = tX;
-                    temp.yii = tY;
-                    temp.zii = tZ;
-                    --distance
-                    temp.q = sqrt((temp.xii-temp.xi)^2 + (temp.yii-temp.yi)^2)
-                    --check to calculation. if result < 0 math.sqrt will give error
-                    local calc = ((radius^2)-((temp.q/2)^2))
-                    if calc <=0 then break end
-                    --x3
-                    temp.xiii = (temp.xi+temp.xii)/2
-                    --y3
-                    temp.yiii = (temp.yi+temp.yii)/2
-                    --first circle
-                    temp.xfc = temp.xiii + sqrt(calc)*((temp.yi-temp.yii)/temp.q)
-                    temp.yfc = temp.yiii + sqrt(calc)*((temp.xii-temp.xi)/temp.q)
-                    --second circle
-                    temp.xsc = temp.xiii - sqrt(calc)*((temp.yi-temp.yii)/temp.q)
-                    temp.ysc = temp.yiii - sqrt(calc)*((temp.xii-temp.xi)/temp.q)
-                    --
-                    temp.z = tZ
-                    br._G.tinsert(testCircles, temp)
-                else
-                    temp.xi = tX;
-                    temp.yi = tY;
-                    temp.zi = tZ;
-                end
+            local tX1, tY1, tZ1 = (castTime == nil or castTime == 0) and br.GetObjectPosition(val[1]) or 0,0,0
+                or br.GetFuturePostion(val[1], castTime)
+            local tX2, tY2, tZ2 = (castTime == nil or castTime == 0) and br.GetObjectPosition(val[2]) or 0,0,0
+                or br.GetFuturePostion(val[2], castTime)
+
+            --distance
+            local q = sqrt((tX2-tX1)^2 + (tY2-tY1)^2)
+            --check to calculation. if result < 0 math.sqrt will give error
+            local calc = ((radius^2)-((q/2)^2))
+
+            if calc > 0 then
+                --x3, y3
+                local x3 = (tX1+tX2)/2
+                local y3 = (tY1+tY2)/2
+                local sqrt_calc = sqrt(calc)
+
+                temp.xfc = x3 + sqrt_calc*((tY1-tY2)/q)
+                temp.yfc = y3 + sqrt_calc*((tX2-tX1)/q)
+
+                temp.xsc = x3 - sqrt_calc*((tY1-tY2)/q)
+                temp.ysc = y3 - sqrt_calc*((tX2-tX1)/q)
+                temp.z = tZ2
+
+                br._G.tinsert(testCircles, temp)
             end
         end
     end
 
-    local bestCircle = {}
-    bestCircle.x = 0
-    bestCircle.y = 0
-    bestCircle.z = 0
-    bestCircle.q = 0
-    bestCircle.nro = 0
-    --for every circle in testCircles, get units inside this circle, and return the circle with most units inside
+    local bestCircle = {x = 0, y = 0, z = 0, q = 0, nro = 0}
     for i=1, #testCircles do
         local thisCircle = testCircles[i]
         if br.getDistanceToLocation("player",thisCircle.xfc,thisCircle.yfc,thisCircle.z) > minRange
             or br.getDistanceToLocation("player",thisCircle.xsc,thisCircle.ysc,thisCircle.z) > minRange
         then
-            local temp1 = 0
-            local temp2 = 0
-            local temp1Units = { }
-            local temp2Units = { }
+            local tempData = { {count=0, units={}, x=thisCircle.xfc, y=thisCircle.yfc},
+                            {count=0, units={}, x=thisCircle.xsc, y=thisCircle.ysc} }
             for j=1, #allUnitsInRange do
-                if spellType == "heal" then
-                    if unitInCircle(allUnitsInRange[j].unit,thisCircle.xfc,thisCircle.yfc, radius, castTime) then
-                        temp1 = temp1 + 1
-                        br._G.tinsert(temp1Units,allUnitsInRange[j])
-                    end
-                    if unitInCircle(allUnitsInRange[j].unit,thisCircle.xsc,thisCircle.ysc, radius, castTime) then
-                        temp2 = temp2 + 1
-                        br._G.tinsert(temp2Units,allUnitsInRange[j])
-                    end
-                else
-                    if unitInCircle(allUnitsInRange[j],thisCircle.xfc,thisCircle.yfc, radius, castTime) then
-                        temp1 = temp1 + 1
-                        br._G.tinsert(temp1Units,allUnitsInRange[j])
-                    end
-                    if unitInCircle(allUnitsInRange[j],thisCircle.xsc,thisCircle.ysc, radius, castTime) then
-                        temp2 = temp2 + 1
-                        br._G.tinsert(temp2Units,allUnitsInRange[j])
+                local unitSource = spellType == "heal" and allUnitsInRange[j].unit or allUnitsInRange[j]
+                for _,temp in ipairs(tempData) do
+                    if unitInCircle(unitSource,temp.x,temp.y) then
+                        temp.count = temp.count + 1
+                        br._G.tinsert(temp.units, allUnitsInRange[j])
                     end
                 end
             end
-            if temp1 > temp2 and temp1 > bestCircle.nro then
-                bestCircle.x = thisCircle.xfc
-                bestCircle.y = thisCircle.yfc
-                bestCircle.z = thisCircle.z
-                bestCircle.nro = temp1
-                bestCircle.units = {}
-                for p = 1, #temp1Units do br._G.tinsert(bestCircle.units,temp1Units[p]) end
-            elseif temp2 > temp1  and temp2 > bestCircle.nro then
-                bestCircle.x = thisCircle.xsc
-                bestCircle.y = thisCircle.ysc
-                bestCircle.z = thisCircle.z
-                bestCircle.nro = temp2
-                bestCircle.units = {}
-                for p = 1, #temp2Units do br._G.tinsert(bestCircle.units,temp2Units[p]) end
-            elseif temp2 == temp1 and temp2 > bestCircle.nro then
-                bestCircle.x = thisCircle.xsc
-                bestCircle.y = thisCircle.ysc
-                bestCircle.z = thisCircle.z
-                bestCircle.nro = temp2
-                bestCircle.units = {}
-                for p = 1, #temp2Units do br._G.tinsert(bestCircle.units,temp2Units[p]) end
+            for _,temp in ipairs(tempData) do
+                if temp.count > bestCircle.nro then
+                    bestCircle.x = temp.x
+                    bestCircle.y = temp.y
+                    bestCircle.z = thisCircle.z
+                    bestCircle.nro = temp.count
+                    bestCircle.units = {}
+
+                    for p = 1, #temp.units do br._G.tinsert(bestCircle.units,temp.units[p]) end
+                end
             end
         end
     end
@@ -302,7 +272,7 @@ function br.castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRan
             for y = bestCircle.y - radius, bestCircle.y + radius do
                 local totalDistance = 0
                 for i = 1, #bestCircle.units do
-                    totalDistance = totalDistance + unitDistanceCenter(bestCircle.units[i], x, y, castTime)
+                    totalDistance = totalDistance + unitDistanceCenter(bestCircle.units[i], x, y)
                 end
                 if totalDistance < shortestDistance then
                     shortestDistance = totalDistance
@@ -651,7 +621,7 @@ function br.cancelBuff(spellID)
         buff = select(10,br._G.UnitBuff("player", i))
         if buff ~= nil then
             if buff == spellID then
-                br._G.CancelUnitBuff("player", i)
+                br._G.CancelUnitBuff("player", i,"")
                 return true
             end
         end
@@ -686,7 +656,7 @@ end
 -- specificID can be set if Pulltimer is NOT "Pull in"
 function br.DBM:getPulltimer(time, specificID)
     if br.DBM.Timer then
-        if br._G.IsAddOnLoaded('DBM-Core') then
+        if br._G.C_AddOns.IsAddOnLoaded('DBM-Core') then
             local specificID = specificID or "Pull in"
             local hasPullTimer = false
             local isBelowTime = false
@@ -718,7 +688,7 @@ function br.DBM:getPulltimer(time, specificID)
                     end
                 end
             end
-        elseif br._G.IsAddOnLoaded("BigWigs") then
+        elseif br._G.C_AddOns.IsAddOnLoaded("BigWigs") then
             local hasTimer = false
             local isBelowTime = false
             local currentTimer = 0
@@ -749,7 +719,7 @@ function br.DBM:getPulltimer(time, specificID)
     end
             -- if a time is given return true if timer and below given time
             -- else return time
-        
+
     return 999 -- return number to avoid conflicts but to high so it should never trigger
 end
 -- function br.DBM:getPulltimer(time, specificID)
@@ -801,7 +771,7 @@ end
 -- 2 - br.DBM:getTimer(spellID, time) -> return (boolean) TRUE if spellid is below given time else FALSE
     function br.DBM:getTimer(spellID, time)
         if br.DBM.Timer then
-            if br._G.IsAddOnLoaded('DBM-Core') then
+            if br._G.C_AddOns.IsAddOnLoaded('DBM-Core') then
                 local hasTimer = false
                 local isBelowTime = false
                 local currentTimer = 0
@@ -827,7 +797,7 @@ end
                         end
                     end
                 end
-            elseif br._G.IsAddOnLoaded("BigWigs") then
+            elseif br._G.C_AddOns.IsAddOnLoaded("BigWigs") then
                 local hasTimer = false
                 local isBelowTime = false
                 local currentTimer = 0
@@ -857,7 +827,7 @@ end
         end
             -- if a time is given return true if timer and below given time
             -- else return time
-        
+
         return 999 -- return number to avoid conflicts but to high so it should never trigger
     end
 
@@ -991,3 +961,4 @@ end
 function br.getCurrentZoneId()
     return select(8, br._G.GetInstanceInfo())
 end
+

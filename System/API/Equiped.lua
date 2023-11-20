@@ -37,9 +37,9 @@ br.api.equiped = function(self,item,id)
     -- @function equiped.tier
     -- @param tierLevel string|number The tier level to check for. (e.g. "T20" or 20)
     -- @treturn number
-    equiped.tier = function(tierLevel)
+    equiped.tier = function(tierLevel,numEquiped)
         if type(tierLevel) == "number" then tierLevel = "T"..tierLevel end
-        return br.TierScan(tierLevel)
+        return br.TierScan(tierLevel) >= numEquiped
     end
 
     if equiped.type == nil then

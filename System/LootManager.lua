@@ -52,8 +52,12 @@ function br.DumpGreys(Num)
 	table.sort(
 		greyTable,
 		function(x, y)
-			if x.Price and y.Price then
+			if x.Price and y.Price then -- If both 'x' and 'y' have Prices, it compares them as before
 				return x.Price < y.Price
+			elseif x.Price then -- If only 'x' has a Price, it assumes 'x' is more expensive and goes after 'y'
+				return false
+			else -- if neither 'x' nor 'y' has a Price, or only 'y' has a Price, it assumes 'x' is cheaper and goes before 'y'
+				return true
 			end
 		end
 	)
@@ -201,3 +205,4 @@ function br.autoLoot()
 		end
 	end
 end
+

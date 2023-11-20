@@ -4,6 +4,7 @@
 -- `spell` in the function represent the name in the actions list (Spec, Shared Class, Shared Global Lists) defined in System/List/Spells.lua
 -- @module br.player.cast
 local _, br = ...
+
 if br.api == nil then br.api = {} end
 
 br.api.cast = function(self,spell,id)
@@ -213,12 +214,10 @@ br.api.cast = function(self,spell,id)
 
     --- Checks if the spell can free you of a "no control" effect.
     -- @function cast.noControl.spell
-    -- @string thisUnit The target unit to check for the "no control" effect. Defaults to "player" if not provided.
     -- @treturn boolean
-    cast.noControl[spell] = function(thisUnit)
-        local hasNoControl = br["hasNoControl"]
-        if thisUnit == nil then thisUnit = "player" end
-        return hasNoControl(id,thisUnit)
+    cast.noControl[spell] = function()
+        local hasNoControl = br.hasNoControl
+        return hasNoControl(id)
     end
 
     --- Casts special opener condition spell.
@@ -255,8 +254,8 @@ br.api.cast = function(self,spell,id)
         specificAmt = specificAmt or 0
         multiplier = multiplier or 1
         if altPower == nil then altPower = false end
-        return power[powerType].amount() < cast.cost[spell](altPower) * multiplier or
-            power[powerType].amount() < specificAmt
+        return power[powerType]() < cast.cost[spell](altPower) * multiplier or
+            power[powerType]() < specificAmt
     end
 
     --- Gets the spell's range, if it has one.
@@ -307,5 +306,17 @@ br.api.cast = function(self,spell,id)
     cast.timeSinceLast[spell] = function()
         if br.lastCastTable.castTime[id] == nil then br.lastCastTable.castTime[id] = br._G.GetTime() end
         return br._G.GetTime() - br.lastCastTable.castTime[id]
+    end
+
+    --- Checks if the provided condition is true else it waits for 0.1sec.
+    -- @function cast.wait
+    -- @param condition The condition to check.
+    -- @treturn boolean
+    cast.wait = function(condition, callback)
+        if condition then
+            br._G.C_Timer.After(0.1, callback)
+        else
+            return true
+        end
     end
 end

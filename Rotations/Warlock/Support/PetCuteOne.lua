@@ -25,7 +25,7 @@ br.rotations.support["PetCuteOne"] = function()
     local spell                                         = br.player.spell
     local units                                         = br.player.units
     -- General Locals
-    local profileStop                                   = profileStop or false
+    local profileStop                                   = false
     local haltProfile                                   = (inCombat and profileStop) or (IsMounted() or IsFlying()) or br.pause(true) or mode.rotation==4
     -- Units
     units.get(5)
@@ -43,19 +43,19 @@ br.rotations.support["PetCuteOne"] = function()
     enemies.get(40,"player",false,true)
     enemies.yards40r = br.getEnemiesInRect(10,40,false) or 0
 
-    -- local petTarget
-    -- if petTarget == nil or not UnitExists(petTarget) or not br.isValidUnit(petTarget) then
-    --     if br.getOptionValue("Pet Target") == 1 and br.isValidUnit(units.dyn40) then
-    --         petTarget = units.dyn40
-    --     elseif br.getOptionValue("Pet Target") == 2 and br.isValidUnit("target") then
-    --         petTarget = "target"
-    --     elseif br.getOptionValue("Pet Target") == 3 then
-    --         for i=1, #enemies.yards40 do
-    --             local thisUnit = enemies.yards40[i]
-    --             if (br.isValidUnit(thisUnit) or br.isDummy()) then petTarget = thisUnit break end
-    --         end
-    --     end
-    -- end
+    local petTarget
+    if petTarget == nil or not UnitExists(petTarget) or not br.isValidUnit(petTarget) then
+        if br.getOptionValue("Pet Target") == 1 and br.isValidUnit(units.dyn40) then
+            petTarget = units.dyn40
+        elseif br.getOptionValue("Pet Target") == 2 and br.isValidUnit("target") then
+            petTarget = "target"
+        elseif br.getOptionValue("Pet Target") == 3 then
+            for i=1, #enemies.yards40 do
+                local thisUnit = enemies.yards40[i]
+                if (br.isValidUnit(thisUnit) or br.isDummy()) then petTarget = thisUnit break end
+            end
+        end
+    end
 
     local friendUnit = br.friend[1].unit
     local petActive = IsPetActive()

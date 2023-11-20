@@ -1,5 +1,7 @@
+---@diagnostic disable: inject-field
 local _, br = ...
 if br.api == nil then br.api = {} end
+
 br.api.ui = function(self)
     local ui = self.ui
     if ui ~= nil and ui.mode == nil then ui.mode = {} end
@@ -128,6 +130,11 @@ br.api.ui = function(self)
         ui.print = function(text)
             local Print = br._G["Print"]
             return Print(text)
+        end
+    end
+    if ui.wait == nil then
+        ui.wait = function(check, time)
+            return br.wait(check, time)
         end
     end
 end

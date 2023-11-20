@@ -5,7 +5,7 @@ function br.CancelUnitBuffID(unit, spellID, filter)
 		local _, _, _, _, _, _, _, _, _, buffSpellID = br._G.UnitBuff(unit, i)
 		if buffSpellID ~= nil then
 			if buffSpellID == spellID then
-				br._G.CancelUnitBuff(unit, i)
+				br._G.CancelUnitBuff(unit, i,filter)
 				return true
 			end
 		else
@@ -36,18 +36,20 @@ function br.UnitBuffID(unit, spellID, filter)
 			end
 		end
 	else
-		if filter ~= nil and br._G.strfind(br._G.strupper(filter), "PLAYER") then return br._G.AuraUtil.FindAuraByName(spellName, unit, "HELPFUL|PLAYER") end
+		if filter ~= nil and br._G.strfind(br._G.strupper(filter), "PLAYER") then
+			return br._G.AuraUtil.FindAuraByName(spellName, unit, "HELPFUL|PLAYER")
+		end
 		return br._G.AuraUtil.FindAuraByName(spellName, unit, "HELPFUL")
 	end
 end
 
 function br.UnitDebuffID(unit, spellID, filter)
-	local thisUnit = br._G.ObjectPointer(unit)
+	local thisUnit = br._G["ObjectPointer"](unit)
 	local spellName = br._G.GetSpellInfo(spellID)
 	-- Check Cache
 	if br.isChecked("Cache Debuffs") then
 		if br.enemy[thisUnit] ~= nil then
-			if filter == nil then filter = "player" else filter = br._G.ObjectPointer(filter) end
+			if filter == nil then filter = "player" else filter = br._G["ObjectPointer"](filter) end
 			if br.enemy[thisUnit].debuffs[filter] ~= nil then
 				if br.enemy[thisUnit].debuffs[filter][spellID] ~= nil then
 					return br.enemy[thisUnit].debuffs[filter][spellID](spellID,thisUnit)
@@ -69,7 +71,9 @@ function br.UnitDebuffID(unit, spellID, filter)
 			end
 		end
 	else
-		if filter ~= nil and br._G.strfind(br._G.strupper(filter), "PLAYER") then return br._G.AuraUtil.FindAuraByName(spellName, unit, "HARMFUL|PLAYER")	end
+		if filter ~= nil and br._G.strfind(br._G.strupper(filter), "PLAYER") then
+			return br._G.AuraUtil.FindAuraByName(spellName, unit, "HARMFUL|PLAYER")
+		end
 		return br._G.AuraUtil.FindAuraByName(spellName, unit, "HARMFUL")
 	end
 end
@@ -88,17 +92,23 @@ local function Dispel(unit,stacks,buffDuration,buffRemain,buffSpellID,buff)
 			else
 				return false
 			end
-		elseif buffSpellID == 303657 and br.isChecked("Arcane Burst") and buffDuration - buffRemain > (br.getValue("Dispel delay") - 0.3 + math.random() * 0.6) then
+		elseif buffSpellID == 303657 and br.isChecked("Arcane Burst")
+			and buffDuration - buffRemain > (br.getValue("Dispel delay") - 0.3 + math.random() * 0.6)
+		then
 			return true
 		elseif br.novaEngineTables.DispelID[buffSpellID] ~= nil then
 			if (stacks >= br.novaEngineTables.DispelID[buffSpellID].stacks or br.isChecked("Ignore Stack Count"))
 			then
-				if br.novaEngineTables.DispelID[buffSpellID].stacks ~= 0 and br.novaEngineTables.DispelID[buffSpellID].range == nil then
+				if br.novaEngineTables.DispelID[buffSpellID].stacks ~= 0
+					and br.novaEngineTables.DispelID[buffSpellID].range == nil
+				then
 					return true
 				else
 					if buffDuration - buffRemain > (br.getValue("Dispel delay") - 0.3 + math.random() * 0.6) then -- Dispel Delay then
 						if br.novaEngineTables.DispelID[buffSpellID].range ~= nil then
-							if not br.isChecked("Ignore Range Check") and #br.getAllies(unit,br.novaEngineTables.DispelID[buffSpellID].range) > 1 then
+							if not br.isChecked("Ignore Range Check")
+								and #br.getAllies(unit,br.novaEngineTables.DispelID[buffSpellID].range) > 1
+							then
 								return false
 							end
 							return true
@@ -234,33 +244,29 @@ function br.canDispel(Unit, spellID)
 			while br._G.UnitDebuff(Unit, i) do
 				local _, _, stacks, debuffType, debuffDuration, debuffExpire, _, _, _, debuffid = br._G.UnitDebuff(Unit, i)
 				local debuffRemain = debuffExpire - br._G.GetTime()
-				local dispelUnitObj
 				if (debuffType and ValidType(debuffType)) then
-					if debuffid == 284663 then
-						if br.GetHP(Unit) < br.getOptionValue("Bwonsamdi's Wrath HP") then
-							HasValidDispel = true
-							break
-						elseif br._G.UnitGroupRolesAssigned(Unit) == "TANK" and (debuffDuration - debuffRemain) > (br.getValue("Dispel delay") - 0.3 + math.random() * 0.6) then
-							HasValidDispel = true
-							break
-						end
+					local delay = br.getValue("Dispel delay") - 0.3 + math.random() * 0.6
+					if debuffid == 284663 and (br.GetHP(Unit) < br.getOptionValue("Bwonsamdi's Wrath HP")
+						or (br._G.UnitGroupRolesAssigned(Unit) == "TANK" and (debuffDuration - debuffRemain) > delay)) then
+						HasValidDispel = true
+						break
 					end
+					local dispelUnitObj
 					for j = 1, #br.friend do
 						local thisUnit = br.friend[j].unit
 						if Unit == thisUnit then
-							if Dispel(thisUnit,stacks,debuffDuration,debuffRemain,debuffid) ~= nil then
-								dispelUnitObj = Dispel(thisUnit,stacks,debuffDuration,debuffRemain,debuffid)
+							dispelUnitObj = Dispel(thisUnit,stacks,debuffDuration,debuffRemain,debuffid)
+							if dispelUnitObj ~= nil then
+								break
 							end
 						end
 					end
-					if dispelUnitObj == nil and not br.isChecked("Dispel Only Whitelist") then
-						if (debuffDuration - debuffRemain) > (br.getValue("Dispel delay") - 0.3 + math.random() * 0.6) then
-							HasValidDispel = true
-							break
-						end
+					if dispelUnitObj == nil and not br.isChecked("Dispel Only Whitelist")
+						and (debuffDuration - debuffRemain) > delay then
+						HasValidDispel = true
+						break
 					elseif dispelUnitObj == true then
 						HasValidDispel = true
-						dispelUnitObj = nil
 						break
 					end
 				end
@@ -270,11 +276,8 @@ function br.canDispel(Unit, spellID)
 			while br._G.UnitBuff(Unit, i) do
 				local _, _, stacks, buffType, buffDuration, buffExpire, _, _, _, buffid = br._G.UnitBuff(Unit, i)
 				local buffRemain = buffExpire - br._G.GetTime()
-				local dispelUnitObj
 				if (buffType and ValidType(buffType)) and not br._G.UnitIsPlayer(Unit) then
-					if Dispel(Unit,stacks,buffDuration,buffRemain,buffid,true) ~= nil then
-						dispelUnitObj = Dispel(Unit,stacks,buffDuration,buffRemain,buffid,true)
-					end
+					local dispelUnitObj = Dispel(Unit,stacks,buffDuration,buffRemain,buffid,true)
 					if dispelUnitObj == nil and not br.isChecked("Purge Only Whitelist") then
 						if (buffDuration - buffRemain) > (br.getValue("Dispel delay") - 0.3 + math.random() * 0.6) then
 							HasValidDispel = true
@@ -282,7 +285,6 @@ function br.canDispel(Unit, spellID)
 						end
 					elseif dispelUnitObj == true then
 						HasValidDispel = true
-						dispelUnitObj = nil
 						break
 					end
 				end
@@ -635,10 +637,10 @@ function br.isBuffed(UnitID, SpellID, TimeLeft, Filter)
 		SpellID = {SpellID}
 	end
 	for i = 1, #SpellID do
-		local spell, rank = br._G.GetSpellInfo(SpellID[i])
-		if spell then
-			local buff = select(6, br._G.UnitBuff(UnitID, spell, rank, Filter))
-			if buff and (buff == 0 or buff - br._G.GetTime() > TimeLeft) then
+		local buff, _, _, _, _, _, buffID = br._G.GetSpellInfo(SpellID[i])
+		if buff then
+			local expire = select(6, br._G.UnitBuff(UnitID, buffID, Filter))
+			if expire and (expire == 0 or expire - br._G.GetTime() > TimeLeft) then
 				return true
 			end
 		end
@@ -653,12 +655,13 @@ function br.isDeBuffed(UnitID, DebuffID, TimeLeft, Filter)
 		DebuffID = {DebuffID}
 	end
 	for i = 1, #DebuffID do
-		local spell, rank = br._G.GetSpellInfo(DebuffID[i])
-		if spell then
-			local debuff = select(6, br._G.UnitDebuff(UnitID, spell, rank, Filter))
-			if debuff and (debuff == 0 or debuff - br._G.GetTime() > TimeLeft) then
+		local debuff, _, _, _, _, _, debuffID = br._G.GetSpellInfo(DebuffID[i])
+		if debuff then
+			local expire = select(6, br._G.UnitDebuff(UnitID, debuffID, Filter))
+			if expire and (expire == 0 or expire - br._G.GetTime() > TimeLeft) then
 				return true
 			end
 		end
 	end
 end
+

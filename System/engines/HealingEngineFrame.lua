@@ -146,6 +146,7 @@ function br.pulseNovaDebug()
 		height = height or 22
 		if br._G[parent .. value .. "Nova"] == nil then
 			local scale = 1 --br.data.settings.optionsFrame.scale or 1
+			local currentValue = _G[parent .. value .. "Nova"]:GetValue()
 			_G[parent .. value .. "Nova"] = br._G.CreateFrame("StatusBar", br._G[parent .. value .. "Nova"], br._G.UIParent, "BackdropTemplate")
 			_G[parent .. value .. "Nova"]:SetWidth(width * scale)
 			_G[parent .. value .. "Nova"]:SetHeight(height * scale)
@@ -309,3 +310,4 @@ end
 -- elseif br.ui.window['debug']['parent'] and br.data.settings[br.selectedSpec]["debug"].active == true then
 -- 	br.ui:closeWindow("debug")
 -- end
+

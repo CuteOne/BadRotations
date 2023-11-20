@@ -326,7 +326,7 @@ function cl:common(...)
     --[[Pandemic]]
     if source == br._G.UnitGUID("player") then
         if destination ~= nil and destination ~= "" then
-            local thisUnit = thisUnit
+            local thisUnit = "target"
             if br.unlocked then --EWT then
                 local destination = br._G.GetObjectWithGUID(destination)
                 if br.GetObjectExists(destination) then
@@ -595,7 +595,7 @@ function cl:Druid(...)
     if br._G.GetSpecialization() == 2 then
         if source == br._G.UnitGUID("player") then
             if destination ~= nil and destination ~= "" then
-                local thisUnit = thisUnit
+                local thisUnit = "target"
                 if br.unlocked then --EWT then
                     local destination = br._G.GetObjectWithGUID(destination)
                     if br.GetObjectExists(destination) then
@@ -994,7 +994,7 @@ function cl:Rogue(...)
     if br._G.GetSpecialization() == 1 then
         if source == br._G.UnitGUID("player") then
             if destination ~= nil and destination ~= "" then
-                local thisUnit = thisUnit
+                local thisUnit = "target"
                 if br.unlocked then --EWT then
                     local destination = br._G.GetObjectWithGUID(destination)
                     if br.GetObjectExists(destination) then

@@ -218,36 +218,42 @@ end
 
 -- [[ Event Listeners ]] --
 local frame = br._G.CreateFrame("FRAME")
+
+-- Registering events
 frame:RegisterEvent("PLAYER_LOGOUT")
 frame:RegisterEvent("PLAYER_ENTERING_WORLD")
 frame:RegisterEvent("LOADING_SCREEN_ENABLED")
 frame:RegisterEvent("LOADING_SCREEN_DISABLED")
-function frame:OnEvent(event)
-	if event == "LOADING_SCREEN_ENABLED" then
-		br.disablePulse = true
-	end
-	if event == "LOADING_SCREEN_DISABLED" then
-		br.disablePulse = false
-	end
-	if event == "PLAYER_LOGOUT" then
-		if br.unlocked then
-			-- Return queue window to previous setting
-			if br._G.C_CVar.GetCVar("SpellQueueWindow") == "0" then
-				br._G.RunMacroText("/console SpellQueueWindow " .. br.prevQueueWindow)
-			end
-			br.ui:saveWindowPosition()
-			if br.getOptionCheck("Reset Options") then
-				-- Reset Settings
-				br:saveSettings(nil, nil, br.selectedSpec, br.selectedProfileName, true)
-			else
-				-- Save Settings
-				br:saveSettings(nil, nil, br.selectedSpec, br.selectedProfileName)
-			end
-			br.saveLastProfileTracker()
-		end
-	end
-	if event == "PLAYER_ENTERING_WORLD" then
-		br.load()
-	end
+
+-- Separate OnEvent function
+local function OnEvent(self, event)
+    if event == "LOADING_SCREEN_ENABLED" then
+        br.disablePulse = true
+    end
+    if event == "LOADING_SCREEN_DISABLED" then
+        br.disablePulse = false
+    end
+    if event == "PLAYER_LOGOUT" then
+        if br.unlocked then
+            -- Return queue window to previous setting
+            if br._G.C_CVar.GetCVar("SpellQueueWindow") == "0" then
+                br._G.RunMacroText("/console SpellQueueWindow " .. br.prevQueueWindow)
+            end
+            br.ui:saveWindowPosition()
+            if br.getOptionCheck("Reset Options") then
+                -- Reset Settings
+                br:saveSettings(nil, nil, br.selectedSpec, br.selectedProfileName, true)
+            else
+                -- Save Settings
+                br:saveSettings(nil, nil, br.selectedSpec, br.selectedProfileName)
+            end
+            br.saveLastProfileTracker()
+        end
+    end
+    if event == "PLAYER_ENTERING_WORLD" then
+        br.load()
+    end
 end
-frame:SetScript("OnEvent", frame.OnEvent)
+
+-- Setting the OnEvent script handler
+frame:SetScript("OnEvent", OnEvent)

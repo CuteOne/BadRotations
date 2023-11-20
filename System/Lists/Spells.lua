@@ -846,16 +846,13 @@ br.lists.spells = {
             abilities                       = {
                 adaptiveSwarmDamage 	    = 391889, -- Not Castable but needed for In-Flight
                 adaptiveSwarmHeal           = 391891, -- Not Castable but needed for In-Flight
-                moonfireFeral               = 155625,
-            },
-            artifacts                       = {
-
+                moonfireCat                 = 155625,
             },
             buffs                           = {
                 adaptiveSwarmDamage         = 391889,
                 adaptiveSwarmHeal           = 391891,
                 apexPredator                = 255984,
-                apexPredatorsCraving        = 339140,
+                apexPredatorsCraving        = 391882,--339140,
                 berserk                     = 106951,
                 bloodtalons                 = 145152,
                 clearcasting                = 135700,
@@ -864,34 +861,39 @@ br.lists.spells = {
                 incarnationAvatarOfAshamane = 102543,
                 ironJaws                    = 276021,
                 jungleStalker               = 252071,
+                overflowingPower            = 405189,
+                predatorRevealed            = 408468,
                 predatorySwiftness          = 69369,
                 sabertooth                  = 391722,
                 savageRoar                  = 52610,
                 scentOfBlood                = 285646,
+                smolderingFrenzy            = 422751,
+                stampedingRoar              = 77764,
+                suddenAmbush                = 391974,
                 survivalInstincts           = 61336,
                 tigersFury                  = 5217,
-                stampedingRoar              = 77764,
-            },
-            conduits                        = {
-
-            },
-            covenants                       = {
-                empowerBond                 = 326446,
-                loneEmpowerment             = 338142,
             },
             debuffs                         = {
                 adaptiveSwarmDamage         = 391889,
                 adaptiveSwarmHeal           = 391891,
+                direFixation                = 417713,
                 feralFrenzy                 = 274838,
-                moonfireFeral               = 155625,
+                moonfireCat                 = 155625,
+                primalWrath                 = 1079,
                 rakeStun                    = 163505,
+                thrashCat                   = 405233,
             },
-            glyphs                          = {
-
-            },
-            runeforges                      = {
-                cateyeCurio                 = 339144,
-                draughtOfDeepFocus          = 338658,
+            items                           = {
+                algetharPuzzleBox           = 193701,
+                ashesOfTheEmbersoul         = 207167,
+                augmentation                = 201325, -- Generic, place item id of desired augmentation
+                bandolierOfTwistedBlades    = 207165,
+                fyrakksTaintedRageheart     = 207164,
+                manicGrieftorch             = 194308,
+                mirrorOfFracturedTomorrows  = 207581,
+                mydasTalisman               = 158319,
+                potion                      = 191383, -- Generic, place item id of desired potion
+                witherbarksBranch           = 109999,
             },
             talents                         = {
                 adaptiveSwarm               = 391888,
@@ -903,8 +905,9 @@ br.lists.spells = {
                 bloodtalons                 = 319439,
                 brutalSlash                 = 202028,
                 carnivorousInstinct         = 390902,
-                catsCuriosity               = 386318,
-                convokeTheSpiritsFeral      = 391528,
+                -- catsCuriosity               = 386318,
+                convokeTheSpirits           = 391528,
+                direFixation                = 417710,
                 doubleClawedRake            = 391700,
                 dreadfulBleeding            = 391045,
                 feralFrenzy                 = 274837,
@@ -932,19 +935,14 @@ br.lists.spells = {
                 survivalInstincts           = 61336,
                 tasteForBlood               = 384665,
                 tearOpenWounds              = 391785,
+                thrashingClaws              = 405300,
                 tigersFury                  = 5217,
                 tigersTenacity              = 391872,
                 tirelessEnergy              = 383352,
+                unbridledSwarm              = 391951,
                 veinripper                  = 391978,
                 wildSlashes                 = 390864,
             },
-            traits                          = {
-                bloodMist                   = 279524,
-                jungleFury                  = 274424,
-                ironJaws                    = 276021,
-                twistedClaws                = 275906,
-                wildFleshrending            = 279527,
-            }
         },
         -- Guardian
         [104] = {
@@ -1184,6 +1182,7 @@ br.lists.spells = {
                 lycarasTwig                 = 330668, -- Anima Power Torghast
                 markOfTheWild               = 1126,
                 moonkinForm                 = 197625,
+                onethsPerception            = 339800,
                 prowl                       = 5215,
                 rejuvenation                = 774,
                 regrowth                    = 8936,
@@ -1196,7 +1195,6 @@ br.lists.spells = {
                 travelForm                  = 783,
                 treantForm                  = 114282,
                 wildGrowth                  = 48438,
-                onethsPerception            = 339800,
             },
             conduits                        = {
                 deepAllegiance              = 341378,
@@ -1205,7 +1203,7 @@ br.lists.spells = {
             covenants                       = {
                 adaptiveSwarm               = 325727,
                 adaptiveSwarmHeal           = 325748,
-                convokeTheSpirits           = 323764,
+                convokeTheSpiritsCovenant   = 323764,
                 kindredSpirits              = 326434,
                 ravenousFrenzy              = 323546,
             },
@@ -4768,3 +4766,4 @@ br.lists.spells = {
         },
     },
 }
+

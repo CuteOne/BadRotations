@@ -5,6 +5,7 @@
 -- For item CDs, `item` in the function represent the name in the item list defined in System/List/Items.lua
 -- @module br.player.cd
 local _, br = ...
+
 if br.api == nil then br.api = {} end
 
 br.api.cd = function(self,spell,id)
@@ -100,5 +101,18 @@ br.api.itemCD = function(self,item,id)
     cd[item].duration = function(itemID)
         if itemID == nil then itemID = id end
         return br._G.GetSpellBaseCooldown(select(2,br._G.GetItemSpell(itemID))) / 1000
+    end
+
+    --- Gets the time remaining on the equipment slot item cooldown or 0 if not.
+    -- @function cd.slot.remain
+    -- @number[opt] slotID The ID of the equipment slot to check.
+    -- @treturn number
+    cd.slot = cd.slot or {}
+    cd.slot.remain = function(slotID)
+        if slotID == nil then slotID = id end
+        if br._G.GetInventoryItemCooldown("player", slotID) ~= 0 then
+            return (br._G.GetInventoryItemCooldown("player", slotID) + select(2,br._G.GetInventoryItemCooldown("player", slotID)) - br._G.GetTime())
+        end
+        return 0
     end
 end

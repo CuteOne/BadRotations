@@ -40,16 +40,18 @@ function br.GetObjectFacing(Unit)
     if br.unlocked and br.GetObjectExists(Unit) then
         return br._G.ObjectFacing(Unit)
     else
-        return false
+        return 0
     end
 end
 function br.GetObjectPosition(Unit)
+	local x,y,z = 0,0,0
     if br.unlocked then --EWT then
 		if Unit == nil then return br._G.ObjectPosition("player") end
-		if br.GetObjectExists(Unit) then return br._G.ObjectPosition(Unit) end
-    else
-        return 0, 0, 0
-    end
+		if br.GetObjectExists(Unit) then
+			x, y, z = br._G.ObjectPosition(Unit)
+    	end
+	end
+	return x,y,z
 end
 function br.GetObjectType(Unit)
     if br.unlocked and br.GetObjectExists(Unit) then
@@ -427,3 +429,4 @@ function br.isTankInRange()
 	end
 	return false
 end
+

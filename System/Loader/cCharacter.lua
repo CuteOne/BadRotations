@@ -5,6 +5,7 @@ br.cCharacter = {}
 -- Creates new character with given class
 function br.cCharacter:new(class)
 	local self = {}
+	self.actionList = {} -- Action Lists
 	self.augmentRune = {
 		-- Contains the different buff IDs for Augment Runes
 		Agility = 270058,
@@ -82,7 +83,7 @@ function br.cCharacter:new(class)
 	-- self.talent = {} -- Talents
 	self.timeToMax = 0 -- Time To Max Power
 	-- self.traits = {} -- Azerite Traits
-	self.variables = {} -- Custom Profile Variables
+	self.var = {} -- Custom Profile Variables
 
 	-- Things which get updated for every class in combat
 	-- All classes call the baseUpdate()
@@ -139,7 +140,7 @@ function br.cCharacter:new(class)
 		else
 			self.petId = 0
 		end
-		self.posX, self.posY, self.posZ = br.GetObjectPosition("player")
+		self.posX, self.posY, self.posZ = br._G.ObjectPosition("player")
 	end
 
 	-- Updates things Out of Combat like Talents, Gear, etc.
@@ -414,3 +415,4 @@ function br.cCharacter:new(class)
 	-- Return
 	return self
 end
+

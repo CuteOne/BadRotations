@@ -23,18 +23,18 @@ end
 local function unitExistsInOM(unit)
 	local exists = false
 	for index, value in pairs(br.om) do
-	   if type(value) == "table" and value.unit and value.unit == unit then
-		  exists = true
-		  break;
-	   end
+	if type(value) == "table" and value.unit and value.unit == unit then
+		exists = true
+		break;
+	end
 	end
 	return exists
- end
+end
 
 
 
 --Update OM
-function br:updateOM()
+function br.updateOM()
 	local om = br.om
 	local startTime = br._G.debugprofilestop()
 	wipe(br.tracking)
@@ -82,7 +82,7 @@ function br:updateOM()
 
 	refreshStored = true
 	-- Debugging
-    br.debug.cpu:updateDebug(startTime,"enemiesEngine.objects")
+	br.debug.cpu:updateDebug(startTime,"enemiesEngine.objects")
 
 	-- local counter = 0
 	-- local grappleCounter = 0
@@ -125,14 +125,14 @@ end
 
 -- /dump br.getEnemies("target",10)
 function br.getEnemies(thisUnit,radius,checkNoCombat,facing)
-    local startTime = br._G.debugprofilestop()
+	local startTime = br._G.debugprofilestop()
 	radius = tonumber(radius) or 0
 	local enemyTable = checkNoCombat and br.units or br.enemy
 	local enemiesTable = {}
 	local thisEnemy, distance
 	if checkNoCombat == nil then checkNoCombat = false end
 	if facing == nil then facing = false end
-    if refreshStored == true then
+	if refreshStored == true then
 		for k,_ in pairs(br.storedTables) do br.storedTables[k] = nil end
 		refreshStored = false
 	end
@@ -155,11 +155,11 @@ function br.getEnemies(thisUnit,radius,checkNoCombat,facing)
 		if distance < radius and (not facing or br.getFacing("player",thisEnemy)) then
 			br._G.tinsert(enemiesTable,thisEnemy)
 		end
-    end
+	end
 	if #enemiesTable == 0 and br.getDistance("target","player") < radius and br.isValidUnit("target") and (not facing or br.getFacing("player","target")) then
 		br._G.tinsert(enemiesTable,"target")
 	end
-    ---
+	---
 	if #enemiesTable > 0 and thisUnit ~= nil then
 		if br.storedTables[checkNoCombat] == nil then br.storedTables[checkNoCombat] = {} end
 		if br.storedTables[checkNoCombat][thisUnit] == nil then br.storedTables[checkNoCombat][thisUnit] = {} end
@@ -169,7 +169,7 @@ function br.getEnemies(thisUnit,radius,checkNoCombat,facing)
 	end
 	-- Debugging
 	br.debug.cpu:updateDebug(startTime,"enemiesEngine.getEnemies")
-    return enemiesTable
+	return enemiesTable
 end
 
 -- function to see if our unit is a blacklisted unit
@@ -454,7 +454,9 @@ function br.dynamicTarget(range,facing)
 				and ((not facing and not br.isExplosive(bestUnit)) or (facing and br.getFacing("player",bestUnit))))
 			or (br.getOptionCheck("Safe Damage Check") and not br.isSafeToAttack("target"))
 		then
-			br._G.TargetUnit(bestUnit)
+			if bestUnit ~= nil then
+				br._G.TargetUnit(bestUnit)
+			end
 		end
 	end
 	-- Debugging
@@ -492,18 +494,18 @@ local coneUnits = {}
 function br.getEnemiesInCone(angle,length,checkNoCombat, showLines)
 	if angle == nil then angle = 180 end
 	if length == nil then length = 0 end
-    local playerX, playerY, playerZ = br.GetObjectPosition("player")
-    local facing = br.GetObjectFacing("player")
+	local playerX, playerY, playerZ = br.GetObjectPosition("player")
+	local facing = br.GetObjectFacing("player")
 	local unitsCounter = 0
 	local enemiesTable = br.getEnemies("player",length,checkNoCombat,true)
 	local inside = false
 ---@diagnostic disable-next-line: undefined-field
 	if showLines then LibDraw.Arc(playerX, playerY, playerZ, length, angle, 0) end
 	table.wipe(coneUnits)
-    for i = 1, #enemiesTable do
+	for i = 1, #enemiesTable do
 		local thisUnit = enemiesTable[i]
 		local radius = br._G.UnitCombatReach(thisUnit)
-        local unitX, unitY, unitZ = br._G.GetPositionBetweenObjects(thisUnit, "player", radius)
+		local unitX, unitY, unitZ = br._G.GetPositionBetweenObjects(thisUnit, "player", radius)
 		if playerX and unitX and playerY and unitY then
 			for j = radius, 0, -0.1 do
 				inside = false
@@ -521,19 +523,19 @@ function br.getEnemiesInCone(angle,length,checkNoCombat, showLines)
 					break
 				end
 			end
-            if inside then
+			if inside then
 			-- if isWithinAngleDifference("player", thisUnit, angle) then
 				if showLines then
 					LibDraw.Circle(unitX, unitY, playerZ, br._G.UnitBoundingRadius(thisUnit))
 				end
-                unitsCounter = unitsCounter + 1
+				unitsCounter = unitsCounter + 1
 				table.insert(coneUnits,thisUnit)
-            end
-        end
+			end
+		end
 	end
 
 	-- br.ChatOverlay(units)
-    return unitsCounter, coneUnits
+	return unitsCounter, coneUnits
 end
 
 -- Rectangle Logic for Enemies
@@ -622,25 +624,25 @@ end
 
 -- Percentage of enemies that are not in execute HP range
 function br.getNonExecuteEnemiesPercent(executeHP)
-    local executeCount = 0
-    local nonexecuteCount = 0
-    local nonexecutePercent = 0
+	local executeCount = 0
+	local nonexecuteCount = 0
+	local nonexecutePercent = 0
 
 	for k, _ in pairs(br.enemy) do
 		local thisUnit = br.enemy[k]
-        if br.GetObjectExists(thisUnit.unit) then
-            if br.getHP(thisUnit) < executeHP then
-                executeCount = executeCount + 1
-            else
-                nonexecuteCount = nonexecuteCount + 1
-            end
-        end
-    end
-    local divisor = executeCount + nonexecuteCount
-    if divisor > 0 then
-        nonexecutePercent = nonexecuteCount / divisor
-    end
-    return nonexecutePercent
+		if br.GetObjectExists(thisUnit.unit) then
+			if br.getHP(thisUnit) < executeHP then
+				executeCount = executeCount + 1
+			else
+				nonexecuteCount = nonexecuteCount + 1
+			end
+		end
+	end
+	local divisor = executeCount + nonexecuteCount
+	if divisor > 0 then
+		nonexecutePercent = nonexecuteCount / divisor
+	end
+	return nonexecutePercent
 end
 
 -- Tracks AoE Damage
@@ -663,3 +665,4 @@ function br.AoEDamageTracker()
 	end
 	return -1
 end
+

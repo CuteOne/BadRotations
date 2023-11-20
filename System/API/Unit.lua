@@ -1,3 +1,4 @@
+---@diagnostic disable: inject-field
 local _, br = ...
 if br.api == nil then br.api = {} end
 ----------------------
@@ -254,7 +255,7 @@ br.api.unit = function(self)
     unit.movingTime = function()
         local GetTime = br._G["GetTime"]
         if movingTimer == nil then movingTimer = GetTime() end
-        if not self.unit.moving() then
+        if not unit.moving() then
             movingTimer = GetTime()
         end
         return GetTime() - movingTimer
@@ -309,7 +310,7 @@ br.api.unit = function(self)
     unit.standingTime = function()
         local GetTime = br._G["GetTime"]
         if standingTimer == nil then standingTimer = GetTime() end
-        if self.unit.moving() then
+        if unit.moving() then
             standingTimer = GetTime()
         end
         return GetTime() - standingTimer
@@ -363,7 +364,7 @@ br.api.unit = function(self)
         return br.isValidUnit(thisUnit)
     end
     -- Weapon Imbue Fuctions
-    if unit.weaponImbue == nil then unit.weaponImbue = {} end
+    self.unit.weaponImbue = self.unit.weaponImbue or {}
     -- Weapon Imbue Exists
     unit.weaponImbue.exists = function(imbueId,offHand)
         local GetWeaponEnchantInfo = br._G["GetWeaponEnchantInfo"]

@@ -1,4 +1,5 @@
 local _, br = ...
+
 function br.read.commonReaders()
 	---------------
 	--[[ Readers ]]
@@ -366,64 +367,30 @@ function br.read.commonReaders()
 		--[[ SpellCast Sents (used to define target) --]]
 		if event == "UNIT_SPELLCAST_SENT" then
 			local SourceUnit = select(1, ...)
-			local SpellName = select(2, ...)
-			br.spellCastTarget = select(4, ...)
+			local SpellID = select(4, ...)
+			br.spellCastTarget = select(2, ...)
 			--Print("UNIT_SPELLCAST_SENT spellCastTarget = "..spellCastTarget)
 			-- local MyClass = select(2, br._G.UnitClass("player"))
 			if SourceUnit == "player" then
-				-- Blizz br._G.CastSpellByName bug bypass
-				if SpellName == "Metamorphosis" then
-					br._G.CastSpellByID(191427, "player")
-				end
+
 			end
 		end
 
 		if event == "UNIT_SPELLCAST_INTERRUPTED" then
 			local SourceUnit = select(1, ...)
-			-- local SpellID = select(5, ...)
+			-- local SpellID = select(3, ...)
 			if SourceUnit == "player" then
 				local MyClass = select(2, br._G.UnitClass("player"))
 				if MyClass == "MAGE" then -- Mage
 				end
-			-- if MyClass == "MONK" then -- Monk
-			-- 	local br = br._G["br"]
-			-- 	local spec = br._G["GetSpecialization"]
-			-- 	if br.player ~= nil and spec() == 3 and br.player.spell.fistsOfFury ~= nil then
-			-- 		local cd 	= br.player.cd
-			-- 		local spell = br.player.spell
-			-- 		local unit 	= br.player.unit
-			-- 		local var 	= br.player.variables
-			-- 		local comboSpells = {
-			-- 			[spell.blackoutKick]              = true,
-			-- 			[spell.chiBurst]                  = true,
-			-- 			[spell.chiWave]                   = true,
-			-- 			[spell.cracklingJadeLightning]    = true,
-			-- 			[spell.fistsOfFury]               = true,
-			-- 			[spell.fistOfTheWhiteTiger]       = true,
-			-- 			[spell.flyingSerpentKick]         = true,
-			-- 			[spell.risingSunKick]             = true,
-			-- 			[spell.rushingJadeWind]           = true,
-			-- 			[spell.spinningCraneKick]         = true,
-			-- 			[spell.tigerPalm]                 = true,
-			-- 			[spell.touchOfDeath]              = true,
-			-- 			[spell.whirlingDragonPunch]       = true,
-			-- 		}
-			-- 		if var.prevCombo == nil or not unit.inCombat() then var.prevCombo = 6603 end
-			-- 		if var.lastCombo == nil or not unit.inCombat() then var.lastCombo = 6603 end
-			-- 		if comboSpells[spell] and not (cd[spell].remain() > unit.gcd("true")) and unit.inCombat() then
-			-- 			var.lastCombo = var.prevCombo
-			-- 			var.prevCombo = 6603
-			-- 		end
-			-- 	end
-			-- end
 			end
 		end
 		-----------------------------
 		--[[ SpellCast Succeeded --]]
 		if event == "UNIT_SPELLCAST_START" then
 			local SourceUnit = select(1, ...)
-			local SpellID = select(5, ...)
-			br.spellCastTarget = select(4, ...)
+			local SpellID = select(3, ...)
+			br.spellCastTarget = select(2, ...)
 			if SourceUnit == "player" then
 				local MyClass = br._G.UnitClass("player")
 				-- Hunter
@@ -454,7 +421,7 @@ function br.read.commonReaders()
 		end
 		if event == "UNIT_SPELLCAST_STOP" then
 			local SourceUnit = select(1, ...)
-			-- local SpellID = select(5, ...)
+			-- local SpellID = select(3, ...)
 			if SourceUnit == "player" then
 				local MyClass = br._G.UnitClass("player")
 				if MyClass == "Mage" then -- Mage
@@ -466,28 +433,23 @@ function br.read.commonReaders()
 		--[[ SpellCast Succeeded --]]
 		if event == "UNIT_SPELLCAST_SUCCEEDED" then
 			local SourceUnit = select(1, ...)
-			br.spellCastTarget = select(4, ...)
-			local SpellID = select(5, ...)
+			local SpellID = select(3, ...)
 			if br.botCast == true then
 				br.botCast = false
 			end
-			if SourceUnit ~= nil then
-				if br.GetUnitIsUnit(SourceUnit, "player") then
-				end
-			end
 			if SourceUnit == "player" then
-				br.lastSucceeded = spell -- Used for lastCast tracking
+				br.lastSucceeded = SpellID -- Used for lastCast tracking
 				-- Queue Casting
 				if br.player ~= nil then
 					if #br.player.queue ~= 0 then
 						for i = 1, #br.player.queue do
-							if br._G.GetSpellInfo(spell) == br._G.GetSpellInfo(br.player.queue[i].id) then
+							if br._G.GetSpellInfo(SpellID) == br._G.GetSpellInfo(br.player.queue[i].id) then
 								br._G.tremove(br.player.queue, i)
 								if br._G.IsAoEPending() then
 									br._G.SpellStopTargeting()
 								end
 								if not br.isChecked("Mute Queue") then
-									br._G.print("Cast Success! - Removed |cFFFF0000" .. br._G.GetSpellInfo(spell) .. "|r from the queue.")
+									br._G.print("Cast Success! - Removed |cFFFF0000" .. br._G.GetSpellInfo(SpellID) .. "|r from the queue.")
 								end
 								break
 							end
@@ -501,7 +463,6 @@ function br.read.commonReaders()
 					-- Serpent Sting
 					if SpellID == 1978 then
 						br.LastSerpent = br._G.GetTime()
-						br.LastSerpentTarget = br.spellCastTarget
 					end
 					-- Steady Shot Logic
 					if SpellID == 56641 then
@@ -526,7 +487,7 @@ function br.read.commonReaders()
 		--[[ SpellCast Failed --]]
 		if event == "UNIT_SPELLCAST_FAILED" then
 			local SourceUnit = select(1, ...)
-			local SpellID = select(5, ...)
+			local SpellID = select(3, ...)
 			local MyClass = br._G.UnitClass("player")
 			if SourceUnit == "player" and br.isKnown(SpellID) then
 				-- Kill Command
@@ -540,47 +501,6 @@ function br.read.commonReaders()
 			end
 			if SourceUnit == "player" then
 				if MyClass == "Mage" then -- Mage
-				end
-			end
-		end
-		-----------------------------
-		--[[ Spell Failed Immune --]]
-		if event == "SPELL_FAILED_IMMUNE" then
-			local SourceUnit = select(1, ...)
-			local SpellID = select(5, ...)
-			br.isDisarmed = false
-			if SourceUnit == "player" and br.isKnown(SpellID) then
-				-- Disarm - Warrior
-				if SpellID == 676 then
-					br.isDisarmed = true
-				end
-				-- Clench - Hunter (Scorpid Pet)
-				if SpellID == 50541 then
-					br.isDisarmed = true
-				end
-				-- Dismantle - Rogue
-				if SpellID == 51722 then
-					br.isDisarmed = true
-				end
-				-- Psychic Horror - Priest
-				if SpellID == 64058 then
-					br.isDisarmed = true
-				end
-				-- Snatch - Hunter (Bird of Prey Pet)
-				if SpellID == 91644 then
-					br.isDisarmed = true
-				end
-				-- Grapple Weapon - Monk
-				if SpellID == 117368 then
-					br.isDisarmed = true
-				end
-				-- Disarm - Warlock (Voidreaver/Voidlord Pet)
-				if SpellID == 118093 then
-					br.isDisarmed = true
-				end
-				-- Ring of Peace - Monk
-				if SpellID == 137461 or SpellID == 140023 then
-					br.isDisarmed = true
 				end
 			end
 		end
