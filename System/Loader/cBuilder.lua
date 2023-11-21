@@ -174,14 +174,16 @@ function br.loader:new(spec,specName)
             local nodes = br._G.C_Traits.GetTreeNodes(treeId)
             for _, nodeId in pairs(nodes) do
                 local node = br._G.C_Traits.GetNodeInfo(configId, nodeId)
+                local activeid = (node.activeRank > 0 or node.ranksPurchased > 0) and node.activeEntry and node.activeEntry.entryID or node.entryIDs[1]
                 for _, entryID in pairs(node.entryIDs) do
                     local entryInfo = br._G.C_Traits.GetEntryInfo(configId,entryID)
                     local definitionInfo = br._G.C_Traits.GetDefinitionInfo(entryInfo.definitionID)
                     if definitionInfo.spellID ~= nil then
-                        local rank = node.activeRank
+                        local rank = node.activeRank or 0
+                        local isActive = activeid == entryID and rank > 0
                         talents[definitionInfo.spellID] = talents[definitionInfo.spellID] or {}
-                        talents[definitionInfo.spellID].active = rank > 0
-                        talents[definitionInfo.spellID].rank = rank
+                        talents[definitionInfo.spellID].active = isActive
+                        talents[definitionInfo.spellID].rank = isActive and rank or 0
                     end
                 end
             end
