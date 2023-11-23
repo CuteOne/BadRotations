@@ -320,7 +320,7 @@ if not br.metaTable1 then
 		end
 		-- sets actual position of unit in engine, shouldnt refresh more than once/sec
 		function o:GetPosition()
-			if br.GetUnitIsVisible(o.unit) then
+			if br.GetUnitIsVisible(o.unit) and br.getLineOfSight("player",o.unit) then
 				o.refresh = GetTime()
 				local x, y, z = br.GetObjectPosition(o.unit)
 				x = math.ceil(x * 100) / 100
