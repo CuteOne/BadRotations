@@ -66,6 +66,15 @@ local function getSnapshotValue(dot)
     return 0
 end
 
+-- Local table needed to facilitates debuff.ticksGainedOnRefresh
+local baseTickTimes = {
+    rake = 3,
+    rip = 2,
+    moonfire = 2,
+    moonfireFeral = 2,
+    thrashCat = 3,
+}
+
 br.api.debuffs = function(debuff,k,v)
     local spec = br._G.GetSpecializationInfo(br._G.GetSpecialization())
 
@@ -263,5 +272,29 @@ br.api.debuffs = function(debuff,k,v)
     -- @treturn number
     debuff.applied = function(thisUnit)
         return (spec == 103 or spec == 259) and debuff.bleed[thisUnit] or 0
+    end
+
+    debuff.ticksGainedOnRefresh = function(thisUnit)
+        local name, _, _, _, duration, expirationTime = br.UnitDebuffID(thisUnit, v, nil, "PLAYER")
+        local haste = br._G.UnitSpellHaste("player")
+        local hasteMultiplier = 1 + (haste / 100)
+        local baseTickTime = baseTickTimes[v] or 3
+        local hastedTickTime = baseTickTime / hasteMultiplier
+
+        if name then
+            local remainingDuration = expirationTime - br._G.GetTime()
+            local remainingTicks = math.floor(remainingDuration / hastedTickTime)
+
+            -- Calculate the additional ticks (pandemic mechanic)
+            local pandemicThreshold = duration * 0.3
+            local extraDuration = math.min(remainingDuration, pandemicThreshold)
+            local totalDuration = duration + extraDuration
+            local totalTicks = math.floor(totalDuration / hastedTickTime)
+
+            return totalTicks - remainingTicks -- The additional ticks gained by refreshing
+        else
+            -- Duration amount here shouldn't matter, since no DoT exists
+            return math.floor(99 / hastedTickTime) -- Return the max possible ticks for a fresh DoT
+        end
     end
 end
