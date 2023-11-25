@@ -805,7 +805,7 @@ end -- End Action List - PreCombat
 actionList.AoeBuilder = function()
     -- Brutal Slash
     -- brutal_slash,target_if=min:target.time_to_die,if=(cooldown.brutal_slash.full_recharge_time<4|target.time_to_die<5)&!((variable.need_bt|buff.bs_inc.up)&buff.bt_brutal_slash.up)
-    if cast.able.brutalSlash("player","aoe",ui.value("Brutal Slash Targets"),8) and (((charges.brutalSlash.timeTillFull()<4 or unit.ttd(var.lowestTTD)<5)
+    if talent.brutalSlash and cast.able.brutalSlash("player","aoe",ui.value("Brutal Slash Targets"),8) and (((charges.brutalSlash.timeTillFull()<4 or unit.ttd(var.minTTDUnit)<5)
         and not ((var.needBt or buff.bsInc.exists()) and var.btGen.brutalSlash)))
     then
         if cast.brutalSlash("player","aoe",ui.value("Brutal Slash Targets"),8) then ui.debug("Casting Brutal Slash [Aoe Builder - Max Charges]") return true end
@@ -820,14 +820,14 @@ actionList.AoeBuilder = function()
     -- Prowl
     -- prowl,target_if=max:dot.rake.pmultiplier<1.6|dot.rake.refreshable,if=(dot.rake.pmultiplier<1.6|dot.rake.refreshable)&!(variable.need_bt&buff.bt_rake.up)
     if cast.able.prowl("player") and buff.catForm.exists() and autoProwl() and ui.mode.prowl == 1 and not buff.prowl.exists()
-        and (((debuff.rake.pmultiplier(var.maxRakePanUnit)<1.6 or debuff.rake.refresh(var.maxRakePanUnit)) and not (var.needBt and var.btGen.rake)))
+        and (((debuff.rake.pmultiplier(var.maxProwlRakeRefreshUnit)<1.6 or debuff.rake.refresh(var.maxProwlRakeRefreshUnit)) and not (var.needBt and var.btGen.rake)))
     then
         if cast.prowl("player") then ui.debug("Casting Prowl [Aoe Builder]") return true end
     end
     -- Shadowmeld
     -- shadowmeld,target_if=max:(dot.rake.pmultiplier<1.6|dot.rake.refreshable),if=(dot.rake.pmultiplier<1.6|dot.rake.refreshable)&!(variable.need_bt&buff.bt_rake.up)
     if ui.checked("Racial") and race == "NightElf" and cast.able.racial() and ui.useCDs() and not unit.moving()
-        and var.range.dyn5 and not var.solo and var.friendsInRange
+        and unit.distance(units.dyn5) < 5 and not var.solo and var.friendsInRange
     then
         if (((debuff.rake.pmultiplier(var.maxRakePanUnit)<1.6 or debuff.rake.refresh(var.maxRakePanUnit)) and not (var.needBt and var.btGen.rake))) then
             if cast.racial() then ui.debug("Casting Shadowmeld [Aoe Builder]") return true end
@@ -835,11 +835,11 @@ actionList.AoeBuilder = function()
     end
     -- Rake
     -- rake,target_if=max:(dot.rake.pmultiplier<1.6|dot.rake.refreshable)*druid.rake.ticks_gained_on_refresh,if=(buff.sudden_ambush.up&persistent_multiplier>dot.rake.pmultiplier|dot.rake.refreshable)&!(variable.need_bt&buff.bt_rake.up)
-    if cast.able.rake(var.maxRakePanTicksGainUnit) and (((buff.suddenAmbush.exists()
-        and debuff.rake.applied(var.maxRakePanTicksGainUnit)>debuff.rake.pmultiplier(var.maxRakePanTicksGainUnit)
-            or debuff.rake.refresh(var.maxRakePanTicksGainUnit)) and not (var.needBt and var.btGen.rake)))
+    if cast.able.rake(var.maxRakeRefreshTicksGainUnit) and (((buff.suddenAmbush.exists()
+        and debuff.rake.applied(var.maxRakeRefreshTicksGainUnit)>debuff.rake.pmultiplier(var.maxRakeRefreshTicksGainUnit)
+            or debuff.rake.refresh(var.maxRakeRefreshTicksGainUnit)) and not (var.needBt and var.btGen.rake)))
     then
-        if cast.rake(var.maxRakePanTicksGainUnit) then ui.debug("Casting Rake [Aoe Builder - Sudden Ambush]") return true end
+        if cast.rake(var.maxRakeRefreshTicksGainUnit) then ui.debug("Casting Rake [Aoe Builder - Sudden Ambush]") return true end
     end
     -- Thrash Cat
     -- thrash_cat,if=refreshable&!talent.thrashing_claws
@@ -848,22 +848,24 @@ actionList.AoeBuilder = function()
     end
     -- Brutal Slash
     -- brutal_slash,if=!(variable.need_bt&buff.bt_brutal_slash.up)
-    if cast.able.brutalSlash("player","aoe",ui.value("Brutal Slash Targets"),8) and not (var.needBt and buff.btBrutalSlash.exists()) then
+    if talent.brutalSlash and cast.able.brutalSlash("player","aoe",ui.value("Brutal Slash Targets"),8) and not (var.needBt and buff.btBrutalSlash.exists()) then
         if cast.brutalSlash("player","aoe",ui.value("Brutal Slash Targets"),8) then ui.debug("Casting Brutal Slash [Aoe Builder]") return true end
     end
     -- Swipe Cat
     -- swipe_cat,if=spell_targets.swipe_cat>4&!(variable.need_bt&buff.bt_swipe.up)
-    if cast.able.swipeCat("player","aoe",1,8) and #enemies.yards8>4 and not (var.needBt and var.btGen.swipe) then
+    if not talent.brutalSlash and cast.able.swipeCat("player","aoe",1,8) and #enemies.yards8>4 and not (var.needBt and var.btGen.swipe) then
         if cast.swipeCat("player","aoe",1,8) then ui.debug("Casting Swipe Cat [Aoe Builder - High Target Count]") return true end
     end
     -- Moonfire Cat
     -- moonfire_cat,target_if=max:(3*refreshable)+dot.adaptive_swarm_damage.ticking,if=dot.moonfire.refreshable&!(variable.need_bt&buff.bt_moonfire.up)
-    if talent.lunarInspiration and cast.able.moonfireCat(var.moonfireRefreshUnit) and debuff.moonfireCat.refresh(var.moonfireRefreshUnit) and not (var.needBt and var.btGen.moonfireFeral) then
-        if cast.moonfireCat(var.moonfireRefreshUnit) then ui.debug("Casting Moonfire Cat [Aoe Builder]") return true end
+    if talent.lunarInspiration and cast.able.moonfireCat(var.maxMoonfireRefreshAdaptiveUnit) and debuff.moonfireCat.refresh(var.maxMoonfireRefreshAdaptiveUnit)
+        and not (var.needBt and var.btGen.moonfireFeral)
+    then
+        if cast.moonfireCat(var.maxMoonfireRefreshAdaptiveUnit) then ui.debug("Casting Moonfire Cat [Aoe Builder]") return true end
     end
     -- Swipe Cat
     -- swipe_cat,if=!(variable.need_bt&buff.bt_swipe.up)
-    if cast.able.swipeCat("player","aoe",1,8) and not (var.needBt and var.btGen.swipe) then
+    if not talent.brutalSlash and cast.able.swipeCat("player","aoe",1,8) and not (var.needBt and var.btGen.swipe) then
         if cast.swipeCat("player","aoe",1,8) then ui.debug("Casting Swipe Cat [Aoe Builder]") return true end
     end
     -- Shred
@@ -900,8 +902,8 @@ actionList.AoeBuilder = function()
     end
     -- Rake
     -- rake,target_if=max:((dot.rake.pmultiplier<=persistent_multiplier)*25)+druid.rake.ticks_gained_on_refresh,if=variable.need_bt&buff.bt_rake.down
-    if cast.able.rake(var.maxRakePanTicksGain25Unit) and var.needBt and not var.btGen.rake then
-        if cast.rake(var.maxRakePanTicksGain25Unit) then
+    if cast.able.rake(var.maxRakeRefresh25Unit) and var.needBt and not var.btGen.rake then
+        if cast.rake(var.maxRakeRefresh25Unit) then
             ui.debug("Casting Rake [Aoe Builder - Bloodtalons Build]")
             var.btGen.rake = true
             if var.btGen.timer - var.getTime <= 0 then var.btGen.timer = var.getTime + 4 end
@@ -938,7 +940,7 @@ actionList.Berserk = function()
     -- Shadowmeld
     -- shadowmeld,if=!(buff.bt_rake.up&active_bt_triggers=2)&action.rake.ready&!buff.sudden_ambush.up&(dot.rake.refreshable|dot.rake.pmultiplier<1.4)&!buff.prowl.up
     if ui.checked("Racial") and race == "NightElf" and cast.able.racial() and ui.useCDs() and not unit.moving()
-        and var.range.dyn5 and not var.solo and var.friendsInRange
+        and unit.distance(units.dyn5) < 5 and not var.solo and var.friendsInRange
     then
         if ((not (var.btGen.rake and var.btGen.triggers==2) and cast.able.rake() and not buff.suddenAmbush.exists()
             and (debuff.rake.refresh(units.dyn5) or debuff.rake.pmultiplier(units.dyn5)<1.4) and not buff.prowl.exists()))
@@ -970,7 +972,7 @@ actionList.Berserk = function()
     end
     -- Brutal Slash
     -- brutal_slash,if=active_bt_triggers=2&buff.bt_brutal_slash.down
-    if cast.able.brutalSlash("player","aoe",ui.value("Brutal Slash Targets"),8) and var.btGen.triggers==2 and not var.btGen.brutalSlash then
+    if talent.brutalSlash and cast.able.brutalSlash("player","aoe",ui.value("Brutal Slash Targets"),8) and var.btGen.triggers==2 and not var.btGen.brutalSlash then
         if cast.brutalSlash("player","aoe",ui.value("Brutal Slash Targets"),8) then
             ui.debug("Casting Brutal Slash [Berserk - Bloodtalons Build]")
             var.btGen.brutalSlash = true
@@ -1005,7 +1007,7 @@ actionList.Berserk = function()
     end
     -- Brutal Slash
     -- brutal_slash,if=cooldown.brutal_slash.charges>1&(!talent.dire_fixation.enabled|debuff.dire_fixation.up)
-    if cast.able.brutalSlash("player","aoe",ui.value("Brutal Slash Targets"),8)
+    if talent.brutalSlash and cast.able.brutalSlash("player","aoe",ui.value("Brutal Slash Targets"),8)
         and ((charges.brutalSlash.count()>1 and (not talent.direFixation or debuff.direFixation.exists(units.dyn8AOE))))
     then
         if cast.brutalSlash("player","aoe",ui.value("Brutal Slash Targets"),8) then ui.debug("Casting Brutal Slash [Berserk]") return true end
@@ -1033,7 +1035,9 @@ actionList.Builder = function()
     end
     -- Brutal Slash
     -- brutal_slash,if=cooldown.brutal_slash.full_recharge_time<4&!(variable.need_bt&buff.bt_brutal_slash.up)
-    if cast.able.brutalSlash("player","aoe",ui.value("Brutal Slash Targets"),8) and charges.brutalSlash.timeTillFull()<4 and not (var.needBt and var.btGen.brutalSlash) then
+    if talent.brutalSlash and cast.able.brutalSlash("player","aoe",ui.value("Brutal Slash Targets"),8)
+        and charges.brutalSlash.timeTillFull()<4 and not (var.needBt and var.btGen.brutalSlash)
+    then
         if cast.brutalSlash("player","aoe",ui.value("Brutal Slash Targets"),8) then ui.debug("Casting Brutal Slash [Builder - Max Charges Soon]") return true end
     end
     -- Pool Resource
@@ -1047,7 +1051,7 @@ actionList.Builder = function()
     -- Shadowmeld
     -- shadowmeld,if=action.rake.ready&!buff.sudden_ambush.up&(dot.rake.refreshable|dot.rake.pmultiplier<1.4)&!(variable.need_bt&buff.bt_rake.up)&!buff.prowl.up
     if ui.checked("Racial") and race == "NightElf" and cast.able.racial() and ui.useCDs() and not unit.moving()
-        and var.range.dyn5 and not var.solo and var.friendsInRange
+        and unit.distance(units.dyn5) < 5 and not var.solo and var.friendsInRange
     then
         if ((cast.able.rake() and not buff.suddenAmbush.exists() and (debuff.rake.refresh(units.dyn5) or debuff.rake.pmultiplier(units.dyn5)<1.4)
             and not (var.needBt and var.btGen.rake) and not buff.prowl.exists()))
@@ -1082,12 +1086,14 @@ actionList.Builder = function()
     end
     -- Brutal Slash
     -- brutal_slash,if=!(variable.need_bt&buff.bt_brutal_slash.up)
-    if cast.able.brutalSlash("player","aoe",ui.value("Brutal Slash Targets"),8) and not (var.needBt and var.btGen.brutalSlash) then
+    if talent.brutalSlash and cast.able.brutalSlash("player","aoe",ui.value("Brutal Slash Targets"),8) and not (var.needBt and var.btGen.brutalSlash) then
         if cast.brutalSlash("player","aoe",ui.value("Brutal Slash Targets"),8) then ui.debug("Casting Brutal Slash [Builder]") return true end
     end
     -- Swipe Cat
     -- swipe_cat,if=spell_targets.swipe_cat>1|(talent.wild_slashes.enabled&(debuff.dire_fixation.up|!talent.dire_fixation.enabled))
-    if cast.able.swipeCat("player","aoe",1,8) and ((#enemies.yards8>1 or (talent.wildSlashes and (debuff.direFixation.exists(units.dyn8) or not talent.direFixation)))) then
+    if not talent.brutalSlash and cast.able.swipeCat("player","aoe",1,8) and ((#enemies.yards8>1 or (talent.wildSlashes
+        and (debuff.direFixation.exists(units.dyn8) or not talent.direFixation))))
+    then
         if cast.swipeCat("player","aoe",1,8) then ui.debug("Casting Swipe Cat [Builder]") return true end
     end
     -- Shred
@@ -1107,7 +1113,7 @@ actionList.Builder = function()
     end
     -- Swipe Cat
     -- swipe_cat,if=variable.need_bt&buff.bt_swipe.down
-    if cast.able.swipeCat() and var.needBt and not var.btGen.swipe then
+    if not talent.brutalSlash and cast.able.swipeCat() and var.needBt and not var.btGen.swipe then
         if cast.swipeCat() then
             ui.debug("Casting Swipe Cat [Builder - Bloodtalons Build]")
             var.btGen.swipe = true
@@ -1139,7 +1145,7 @@ end -- End Action List - Builder
 
 -- Action List - Cooldown
 actionList.Cooldown = function()
-    if var.range.dyn5 then
+    if unit.distance(units.dyn5) < 5 then
         -- Use Item - Algethar Puzzle Box
         -- use_item,name=algethar_puzzle_box,if=fight_remains<35|(!variable.align_3minutes)
         if useTrinket(items.algetharPuzzleBox) and use.able.algetharPuzzleBox() and ((unit.ttdGroup(40)<35 or (not var.align3Minutes))) then
@@ -1422,8 +1428,6 @@ local function runRotation()
     units.get(40)
     units.get(8,true)
     units.get(5)
-    var.range = var.range or {}
-    var.range.dyn5 = unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5
 
     -- Get List of Enemies for Range
     -- enemies.get(range, from unit, no combat, variable)
@@ -1496,178 +1500,267 @@ local function runRotation()
     if not var.btGen.swipe and not talent.brutalSlash then var.btGen.triggers = var.btGen.triggers + 1 end
     if not var.btGen.thrash then var.btGen.triggers = var.btGen.triggers + 1 end
 
-    -- Group Tracking
-    -- Rake Ticks
-    var.rakeTicksTotal = function(thisUnit)
-        return not debuff.rake.exists(thisUnit, "EXACT") and 5 or math.floor(debuff.rake.duration(thisUnit,"EXACT") / 3)
-    end
-    var.rakeTicksRemain = function(thisUnit)
-        return math.floor(debuff.rake.remain(thisUnit,"EXACT") / 3)
-    end
-    var.rakeTicksGain = function(thisUnit)
-        return var.rakeTicksTotal(thisUnit) - var.rakeTicksRemain(thisUnit)
-    end
-    var.ticksGain.rake = var.rakeTicksGain(units.dyn5)
+    -- -- Group Tracking
+    -- -- Rake Ticks
+    -- var.rakeTicksTotal = function(thisUnit)
+    --     return not debuff.rake.exists(thisUnit, "EXACT") and 5 or math.floor(debuff.rake.duration(thisUnit,"EXACT") / 3)
+    -- end
+    -- var.rakeTicksRemain = function(thisUnit)
+    --     return math.floor(debuff.rake.remain(thisUnit,"EXACT") / 3)
+    -- end
+    -- var.rakeTicksGain = function(thisUnit)
+    --     return var.rakeTicksTotal(thisUnit) - var.rakeTicksRemain(thisUnit)
+    -- end
+    -- var.ticksGain.rake = var.rakeTicksGain(units.dyn5)
 
-    -- Rip Ticks
-    var.ripTicksTotal = function(thisUnit)
-        return not debuff.rip.exists(thisUnit) and 12 or math.floor(debuff.rip.duration(thisUnit) / 2)
-    end
-    var.ripTicksRemain = function(thisUnit)
-        return math.floor(debuff.rip.remain(thisUnit) / 2)
-    end
-    var.ripTicksGain = function(thisUnit)
-        return var.ripTicksTotal(thisUnit) - var.ripTicksRemain(thisUnit)
-    end
-    var.ticksGain.rip = var.ripTicksGain(units.dyn5)
+    -- -- Rip Ticks
+    -- var.ripTicksTotal = function(thisUnit)
+    --     return not debuff.rip.exists(thisUnit) and 12 or math.floor(debuff.rip.duration(thisUnit) / 2)
+    -- end
+    -- var.ripTicksRemain = function(thisUnit)
+    --     return math.floor(debuff.rip.remain(thisUnit) / 2)
+    -- end
+    -- var.ripTicksGain = function(thisUnit)
+    --     return var.ripTicksTotal(thisUnit) - var.ripTicksRemain(thisUnit)
+    -- end
+    -- var.ticksGain.rip = var.ripTicksGain(units.dyn5)
 
-    -- Thrash Ticks
-    var.thrashCatTicksTotal = function(thisUnit)
-        return not debuff.thrashCat.exists(thisUnit) and 5 or math.floor(debuff.thrashCat.duration(thisUnit) / 3)
-    end
-    var.thrashCatTicksRemain = function(thisUnit)
-        return math.floor(debuff.thrashCat.remain(thisUnit) / 3)
-    end
-    var.thrashCatTicksGain = function(thisUnit)
-        return var.thrashCatTicksTotal(thisUnit) - var.thrashCatTicksRemain(thisUnit)
-    end
-    var.ticksGain.thrash = var.thrashCatTicksGain("target")
+    -- -- Thrash Ticks
+    -- var.thrashCatTicksTotal = function(thisUnit)
+    --     return not debuff.thrashCat.exists(thisUnit) and 5 or math.floor(debuff.thrashCat.duration(thisUnit) / 3)
+    -- end
+    -- var.thrashCatTicksRemain = function(thisUnit)
+    --     return math.floor(debuff.thrashCat.remain(thisUnit) / 3)
+    -- end
+    -- var.thrashCatTicksGain = function(thisUnit)
+    --     return var.thrashCatTicksTotal(thisUnit) - var.thrashCatTicksRemain(thisUnit)
+    -- end
+    -- var.ticksGain.thrash = var.thrashCatTicksGain("target")
 
-    -- Moonfire Cat Ticks
-    var.moonfireFeralTicksTotal = function(thisUnit)
-        return not debuff.moonfireCat.exists(thisUnit) and 8 or math.floor(debuff.moonfireCat.remain(thisUnit) / 2)
-    end
-    var.moonfireFeralTicksRemain = function(thisUnit)
-        return math.floor(debuff.moonfireCat.remain(thisUnit) / 2)
-    end
-    var.moonfireFeralTicksGain = function(thisUnit)
-        return var.moonfireFeralTicksTotal(thisUnit) - var.moonfireFeralTicksRemain(thisUnit)
-    end
-    var.ticksGain.moonfireFeral = var.moonfireFeralTicksGain("target")
+    -- -- Moonfire Cat Ticks
+    -- var.moonfireFeralTicksTotal = function(thisUnit)
+    --     return not debuff.moonfireCat.exists(thisUnit) and 8 or math.floor(debuff.moonfireCat.remain(thisUnit) / 2)
+    -- end
+    -- var.moonfireFeralTicksRemain = function(thisUnit)
+    --     return math.floor(debuff.moonfireCat.remain(thisUnit) / 2)
+    -- end
+    -- var.moonfireFeralTicksGain = function(thisUnit)
+    --     return var.moonfireFeralTicksTotal(thisUnit) - var.moonfireFeralTicksRemain(thisUnit)
+    -- end
+    -- var.ticksGain.moonfireFeral = var.moonfireFeralTicksGain("target")
 
-    -- Total Ticks Gain / Min TTD / Max TTD
-    var.maxTTD = 0
-    var.maxTTDUnit = units.dyn5
-    var.maxRakePan = 0
-    var.maxRakePanUnit = units.dyn5
-    var.maxRakePanTicksGain = 0
-    var.maxRakePanTicksGainUnit = units.dyn5
-    var.maxRakePanTicksGain25 = 0
-    var.maxRakePanTicksGain25Unit = units.dyn5
-    var.minTTD = 999
-    var.minTTDUnit = units.dyn5
-    var.adaptiveSwarm = units.dyn5
-    for i = 1, #enemies.yards40 do
-        local thisUnit = enemies.yards40[i]
-        local thisTTD = unit.ttd(thisUnit) or 99
-        if not unit.isUnit("target",thisUnit) then
-            -- Adaptive Swarm Effectiveness - target_if=max:(1+dot.adaptive_swarm_damage.stack)*dot.adaptive_swarm_damage.stack<3*time_to_die
-            if (1 + debuff.adaptiveSwarmDamage.stack(thisUnit)) * debuff.adaptiveSwarmDamage.stack(thisUnit) < 3 * thisTTD then
-                var.adaptiveSwarmUnit = thisUnit
-            end
-            -- Moonfire Cat Ticks to Gain
-            if var.ticksGain.moonfireFeral + var.moonfireFeralTicksGain(thisUnit) > var.ticksGain.moonfireFeral then
-                var.ticksGain.moonfireFeral = var.ticksGain.moonfireFeral + var.moonfireFeralTicksGain(thisUnit)
-            end
-            -- 8 Yards Checks
-            if unit.distance(thisUnit) < 8 then
-                -- Thrash Ticks to Gain
-                var.ticksGain.thrash = var.ticksGain.thrash + var.thrashCatTicksGain(thisUnit)
-                -- Primal Wrath Ticks to Gain
-                if talent.primalWrath then
-                    var.ticksGain.rip = var.ticksGain.rip + var.ripTicksGainUnit(thisUnit)
-                end
-            end
-            -- 5 Yards Checks
-            if unit.distance(thisUnit) < 5 and unit.facing(thisUnit) then
-                -- Rip Ticks to Gain
-                if not talent.primalWrath then
-                    var.ticksGain.rip = var.ticksGain.rip + var.ripTicksGain(thisUnit)
-                end
-                -- Rake Ticks to Gain
-                var.ticksGain.rake = var.ticksGain.rake + var.rakeTicksGain(thisUnit)
-                -- Max Rake Pandemic - max:dot.rake.pmultiplier<1.6|dot.rake.refreshable
-                if (debuff.rake.pmultiplier(thisUnit) < 1.6 or debuff.rake.refresh(thisUnit)) and var.rakeTicksGain(thisUnit) > var.maxRakePan then
-                    var.maxRakePan = var.rakeTicksGain(thisUnit)
-                    var.maxRakePanUnit = thisUnit
-                end
-                -- Max Rake Pandemic Ticks to Gain - max:(dot.rake.pmultiplier<1.6|dot.rake.refreshable)*druid.rake.ticks_gained_on_refresh
-                local rakeRefreshPan = 0
-                if debuff.rake.pmultiplier(thisUnit) < 1.6 or debuff.rake.refresh(thisUnit) then
-                    rakeRefreshPan = 1
-                end
-                if rakeRefreshPan * var.rakeTicksGain(thisUnit) > var.maxRakePanTicksGain then
-                    var.maxRakePanTicksGain = rakeRefreshPan * var.rakeTicksGain(thisUnit)
-                    var.maxRakePanTicksGainUnit = thisUnit
-                end
-                -- max:((dot.rake.pmultiplier<=persistent_multiplier)*25)+druid.rake.ticks_gained_on_refresh
-                local rakeRefreshPan25 = 0
-                if debuff.rake.pmultiplier(thisUnit) < 1.6 or debuff.rake.refresh(thisUnit) then
-                    rakeRefreshPan25 = var.rakeTicksGain(thisUnit)
-                end
-                if rakeRefreshPan25 * 25 + var.rakeTicksGain(thisUnit) > var.maxRakePanTicksGain then
-                    var.maxRakePanTicksGain25 = rakeRefreshPan25 * 25 + var.rakeTicksGain(thisUnit)
-                    var.maxRakePanTicksGain25Unit = thisUnit
-                end
-            end
-            if thisTTD < var.minTTD then var.minTTD = thisTTD var.minTTDUnit = thisUnit end
-            if thisTTD > var.maxTTD then var.maxTTD = thisTTD var.maxTTDUnit = thisUnit end
+    -- -- Total Ticks Gain / Min TTD / Max TTD
+    -- var.maxTTD = 0
+    -- var.maxTTDUnit = units.dyn5
+    -- var.maxRakePan = 0
+    -- var.maxRakePanUnit = units.dyn5
+    -- var.maxRakePanTicksGain = 0
+    -- var.maxRakePanTicksGainUnit = units.dyn5
+    -- var.maxRakePanTicksGain25 = 0
+    -- var.maxRakePanTicksGain25Unit = units.dyn5
+    -- var.minTTD = 999
+    -- var.minTTDUnit = units.dyn5
+    -- var.adaptiveSwarm = units.dyn5
+    -- for i = 1, #enemies.yards40 do
+    --     local thisUnit = enemies.yards40[i]
+    --     local thisTTD = unit.ttd(thisUnit) or 99
+    --     if not unit.isUnit("target",thisUnit) then
+    --         -- Adaptive Swarm Effectiveness - target_if=max:(1+dot.adaptive_swarm_damage.stack)*dot.adaptive_swarm_damage.stack<3*time_to_die
+    --         if (1 + debuff.adaptiveSwarmDamage.stack(thisUnit)) * debuff.adaptiveSwarmDamage.stack(thisUnit) < 3 * thisTTD then
+    --             var.adaptiveSwarmUnit = thisUnit
+    --         end
+    --         -- Moonfire Cat Ticks to Gain
+    --         if var.ticksGain.moonfireFeral + var.moonfireFeralTicksGain(thisUnit) > var.ticksGain.moonfireFeral then
+    --             var.ticksGain.moonfireFeral = var.ticksGain.moonfireFeral + var.moonfireFeralTicksGain(thisUnit)
+    --         end
+    --         -- 8 Yards Checks
+    --         if unit.distance(thisUnit) < 8 then
+    --             -- Thrash Ticks to Gain
+    --             var.ticksGain.thrash = var.ticksGain.thrash + var.thrashCatTicksGain(thisUnit)
+    --             -- Primal Wrath Ticks to Gain
+    --             if talent.primalWrath then
+    --                 var.ticksGain.rip = var.ticksGain.rip + var.ripTicksGainUnit(thisUnit)
+    --             end
+    --         end
+    --         -- 5 Yards Checks
+    --         if unit.distance(thisUnit) < 5 and unit.facing(thisUnit) then
+    --             -- Rip Ticks to Gain
+    --             if not talent.primalWrath then
+    --                 var.ticksGain.rip = var.ticksGain.rip + var.ripTicksGain(thisUnit)
+    --             end
+    --             -- Rake Ticks to Gain
+    --             var.ticksGain.rake = var.ticksGain.rake + var.rakeTicksGain(thisUnit)
+    --             -- Max Rake Pandemic - max:dot.rake.pmultiplier<1.6|dot.rake.refreshable
+    --             if (debuff.rake.pmultiplier(thisUnit) < 1.6 or debuff.rake.refresh(thisUnit)) and var.rakeTicksGain(thisUnit) > var.maxRakePan then
+    --                 var.maxRakePan = var.rakeTicksGain(thisUnit)
+    --                 var.maxRakePanUnit = thisUnit
+    --             end
+    --             -- Max Rake Pandemic Ticks to Gain - max:(dot.rake.pmultiplier<1.6|dot.rake.refreshable)*druid.rake.ticks_gained_on_refresh
+    --             local rakeRefreshPan = 0
+    --             if debuff.rake.pmultiplier(thisUnit) < 1.6 or debuff.rake.refresh(thisUnit) then
+    --                 rakeRefreshPan = 1
+    --             end
+    --             if rakeRefreshPan * var.rakeTicksGain(thisUnit) > var.maxRakePanTicksGain then
+    --                 var.maxRakePanTicksGain = rakeRefreshPan * var.rakeTicksGain(thisUnit)
+    --                 var.maxRakePanTicksGainUnit = thisUnit
+    --             end
+    --             -- max:((dot.rake.pmultiplier<=persistent_multiplier)*25)+druid.rake.ticks_gained_on_refresh
+    --             local rakeRefreshPan25 = 0
+    --             if debuff.rake.pmultiplier(thisUnit) < 1.6 or debuff.rake.refresh(thisUnit) then
+    --                 rakeRefreshPan25 = var.rakeTicksGain(thisUnit)
+    --             end
+    --             if rakeRefreshPan25 * 25 + var.rakeTicksGain(thisUnit) > var.maxRakePanTicksGain then
+    --                 var.maxRakePanTicksGain25 = rakeRefreshPan25 * 25 + var.rakeTicksGain(thisUnit)
+    --                 var.maxRakePanTicksGain25Unit = thisUnit
+    --             end
+    --         end
+    --         if thisTTD < var.minTTD then var.minTTD = thisTTD var.minTTDUnit = thisUnit end
+    --         if thisTTD > var.maxTTD then var.maxTTD = thisTTD var.maxTTDUnit = thisUnit end
+    --     end
+    -- end
+
+    -- var.ripTicksGainUnit = function(ripUnit)
+    --     return var.ripTicksGain(ripUnit)
+    -- end
+
+    -- var.rakeTicksGainUnit = function(rakeUnit)
+    --     return var.rakeTicksGain(rakeUnit)
+    -- end
+
+    -- var.moonfireFeralTicksGainUnit = function(moonfireFeralUnit)
+    --     return var.moonfireFeralTicksGain(moonfireFeralUnit)
+    -- end
+
+    -- var.maxRakeTicksGain = 0
+    -- var.maxRakeTicksGainUnit = "target"
+    -- var.lowestRip = 99
+    -- var.lowestRipUnit = var.lowestTTDUnit
+    -- for i = 1, #enemies.yards5f do
+    --     local thisUnit = enemies.yards5f[i]
+    --     -- Rake
+    --     local rakeTicksGain = var.rakeTicksGainUnit(thisUnit)
+    --     if rakeTicksGain > var.maxRakeTicksGain then
+    --         var.maxRakeTicksGain = rakeTicksGain
+    --         var.maxRakeTicksGainUnit = thisUnit
+    --     end
+    --     -- Rip
+    --     if talent.sabertooth then
+    --         local ripValue = debuff.rip.remains(thisUnit)
+    --         if ripValue > unit.gcd(thisUnit) and ripValue < var.lowestRip then
+    --             var.lowestRip = ripValue
+    --             var.lowestRipUnit = thisUnit
+    --         end
+    --     end
+    -- end
+    -- var.maxMoonfireFeralTicksGain = 0
+    -- var.maxMoonfireFeralTicksGainUnit = "target"
+    -- var.moonfireRefresh = 0
+    -- var.moonfireRefreshUnit = "target"
+    -- for i = 1, #enemies.yards40 do
+    --     local thisUnit = enemies.yards40[i]
+    --     -- Moonfire Cat
+    --     local moonfireFeralTicksGain = var.moonfireFeralTicksGainUnit(thisUnit)
+    --     -- max:((ticks_gained_on_refresh+1)-(spell_targets.swipe_cat*2.492))
+    --     if moonfireFeralTicksGain > ((var.maxMoonfireFeralTicksGain + 1) - (#enemies.yards8 * 2.492)) then
+    --         var.maxMoonfireFeralTicksGain = moonfireFeralTicksGain
+    --         var.maxMoonfireFeralTicksGainUnit = thisUnit
+    --     end
+    --     -- max:(3*refreshable)+dot.adaptive_swarm_damage.ticking
+    --     if talent.lunarInspiration then
+    --         local moonfireRefresh = 3 * (debuff.moonfireCat.refresh(thisUnit) and 1 or 0) + (debuff.adaptiveSwarmDamage.exists(thisUnit) and 1 or 0)
+    --         if moonfireRefresh > var.moonfireRefresh then
+    --             var.moonfireRefresh = moonfireRefresh
+    --             var.moonfireRefreshUnit = thisUnit
+    --         end
+    --     end
+    -- end
+
+    -- target_if=min:target.time_to_die
+    var.minTTD=99999
+    var.minTTDUnit="target"
+    for i=1,#enemies.yards5f do
+        local thisUnit=enemies.yards5f[i]
+        local thisCondition=unit.ttd(thisUnit)
+        if thisCondition<var.minTTD then
+            var.minTTD=thisCondition
+            var.minTTDUnit=thisUnit
         end
     end
 
-    var.ripTicksGainUnit = function(ripUnit)
-        return var.ripTicksGain(ripUnit)
-    end
-
-    var.rakeTicksGainUnit = function(rakeUnit)
-        return var.rakeTicksGain(rakeUnit)
-    end
-
-    var.moonfireFeralTicksGainUnit = function(moonfireFeralUnit)
-        return var.moonfireFeralTicksGain(moonfireFeralUnit)
-    end
-
-    var.maxRakeTicksGain = 0
-    var.maxRakeTicksGainUnit = "target"
-    var.lowestRip = 99
-    var.lowestRipUnit = var.lowestTTDUnit
-    for i = 1, #enemies.yards5f do
-        local thisUnit = enemies.yards5f[i]
-        -- Rake
-        local rakeTicksGain = var.rakeTicksGainUnit(thisUnit)
-        if rakeTicksGain > var.maxRakeTicksGain then
-            var.maxRakeTicksGain = rakeTicksGain
-            var.maxRakeTicksGainUnit = thisUnit
-        end
-        -- Rip
-        if talent.sabertooth then
-            local ripValue = debuff.rip.remains(thisUnit)
-            if ripValue > unit.gcd(thisUnit) and ripValue < var.lowestRip then
-                var.lowestRip = ripValue
-                var.lowestRipUnit = thisUnit
-            end
+    -- target_if=max:(1+dot.adaptive_swarm_damage.stack)*dot.adaptive_swarm_damage.stack<3*time_to_die
+    var.maxAdaptiveSwarm=0
+    var.maxAdaptiveSwarmUnit="target"
+    for i=1,#enemies.yards40 do
+        local thisUnit=enemies.yards40[i]
+        local toNumeric = debuff.adaptiveSwarmDamage.count(thisUnit)<3 and 1 or 0
+        local thisCondition=(1+debuff.adaptiveSwarmDamage.count(thisUnit))*toNumeric*unit.ttd(thisUnit)
+        if thisCondition>var.maxAdaptiveSwarm then
+            var.maxAdaptiveSwarm=thisCondition
+            var.maxAdaptiveSwarmUnit=thisUnit
         end
     end
-    var.maxMoonfireFeralTicksGain = 0
-    var.maxMoonfireFeralTicksGainUnit = "target"
-    var.moonfireRefresh = 0
-    var.moonfireRefreshUnit = "target"
-    for i = 1, #enemies.yards40 do
-        local thisUnit = enemies.yards40[i]
-        -- Moonfire Cat
-        local moonfireFeralTicksGain = var.moonfireFeralTicksGainUnit(thisUnit)
-        -- max:((ticks_gained_on_refresh+1)-(spell_targets.swipe_cat*2.492))
-        if moonfireFeralTicksGain > ((var.maxMoonfireFeralTicksGain + 1) - (#enemies.yards8 * 2.492)) then
-            var.maxMoonfireFeralTicksGain = moonfireFeralTicksGain
-            var.maxMoonfireFeralTicksGainUnit = thisUnit
+
+    -- target_if=max:dot.rake.pmultiplier<1.6|dot.rake.refreshable
+    var.maxProwlRakeRefresh=0
+    var.maxProwlRakeRefreshUnit="target"
+    for i=1,#enemies.yards5f do
+        local thisUnit=enemies.yards5f[i]
+        local thisCondition=(debuff.rake.pmultiplier(thisUnit)<1.6 or debuff.rake.refresh(thisUnit))
+        if thisCondition and unit.ttd(thisUnit)>var.maxProwlRakeRefresh then
+            var.maxProwlRakeRefresh=unit.ttd(thisUnit)
+            var.maxProwlRakeRefreshUnit=thisUnit
         end
-        -- max:(3*refreshable)+dot.adaptive_swarm_damage.ticking
-        if talent.lunarInspiration then
-            local moonfireRefresh = 3 * (debuff.moonfireCat.refresh(thisUnit) and 1 or 0) + (debuff.adaptiveSwarmDamage.exists(thisUnit) and 1 or 0)
-            if moonfireRefresh > var.moonfireRefresh then
-                var.moonfireRefresh = moonfireRefresh
-                var.moonfireRefreshUnit = thisUnit
-            end
+    end
+
+    -- target_if=max:(dot.rake.pmultiplier<1.6|dot.rake.refreshable)*druid.rake.ticks_gained_on_refresh
+    var.maxRakeRefreshTicksGain=0
+    var.maxRakeRefreshTicksGainUnit="target"
+    for i=1,#enemies.yards5f do
+        local thisUnit=enemies.yards5f[i]
+        local toNumeric = (debuff.rake.pmultiplier(thisUnit)<1.6 or debuff.rake.refresh(thisUnit)) and 1 or 0
+        local thisCondition=(toNumeric*debuff.rake.ticksGainedOnRefresh(thisUnit))
+        if thisCondition>var.maxRakeRefreshTicksGain then
+            var.maxRakeRefreshTicksGain=thisCondition
+            var.maxRakeRefreshTicksGainUnit=thisUnit
+        end
+    end
+
+    -- target_if=max:(3*refreshable)+dot.adaptive_swarm_damage.ticking
+    var.maxMoonfireRefreshAdaptive=0
+    var.maxMoonfireRefreshAdaptiveUnit="target"
+    for i=1,#enemies.yards40 do
+        local thisUnit=enemies.yards40[i]
+        local toNumeric = (debuff.moonfireCat.refresh(thisUnit) and 1 or 0)
+        local toNumeric2 = (debuff.adaptiveSwarmDamage.exists(thisUnit) and 1 or 0)
+        local thisCondition=(3*toNumeric)+toNumeric2
+        if thisCondition>var.maxMoonfireRefreshAdaptive then
+            var.maxMoonfireRefreshAdaptive=thisCondition
+            var.maxMoonfireRefreshAdaptiveUnit=thisUnit
+        end
+    end
+
+    -- target_if=max:dot.moonfire.ticks_gained_on_refresh
+    var.maxMoonfireFeralTicksGain=0
+    var.maxMoonfireFeralTicksGainUnit="target"
+    for i=1,#enemies.yards40 do
+        local thisUnit=enemies.yards40[i]
+        local thisCondition=debuff.moonfire.ticksGainedOnRefresh(thisUnit)
+        if thisCondition>var.maxMoonfireFeralTicksGain then
+            var.maxMoonfireFeralTicksGain=thisCondition
+            var.maxMoonfireFeralTicksGainUnit=thisUnit
+        end
+    end
+
+    -- target_if=max:((dot.rake.pmultiplier<=persistent_multiplier)*25)+druid.rake.ticks_gained_on_refresh
+    var.maxRakeRefresh25=0
+    var.maxRakeRefresh25Unit="target"
+    for i=1,#enemies.yards5f do
+        local thisUnit=enemies.yards5f[i]
+        local toNumeric = (debuff.rake.pmultiplier(thisUnit)<=debuff.rake.applied(thisUnit)) and 1 or 0
+        local thisCondition=(toNumeric*25)+debuff.rake.ticksGainedOnRefresh(thisUnit)
+        if thisCondition>var.maxRakeRefresh25 then
+            var.maxRakeRefresh25=thisCondition
+            var.maxRakeRefresh25Unit=thisUnit
         end
     end
 
@@ -1719,7 +1812,7 @@ local function runRotation()
                 -- Ferocious Bite
                 for i = 1, #enemies.yards5f do
                     local thisUnit = enemies.yards5f[i]
-                    if cast.able.ferociousBite(thisUnit) and var.range.dyn5 then
+                    if cast.able.ferociousBite(thisUnit) and unit.distance(units.dyn5) < 5 then
                         -- execute
                         if ferociousBiteFinish(thisUnit) and not usePrimalWrath() then
                             if ui.value("Ferocious Bite Execute") == 1 and ferociousBiteFinish(thisUnit) then
@@ -1788,8 +1881,10 @@ local function runRotation()
                 end
                 -- Adaptive Swarm
                 -- adaptive_swarm,target_if=max:(1+dot.adaptive_swarm_damage.stack)*dot.adaptive_swarm_damage.stack<3*time_to_die,if=dot.adaptive_swarm_damage.stack<3&talent.unbridled_swarm.enabled&spell_targets.swipe_cat>1
-                if cast.able.adaptiveSwarm(var.adaptiveSwarmUnit) and debuff.adaptiveSwarmDamage.count(var.adaptiveSwarmUnit)<3 and talent.unbridledSwarm and #enemies.yards40>1 then
-                    if cast.adaptiveSwarm(var.adaptiveSwarmUnit) then ui.debug("Casting Adaptive Swarm - Unbridled Swarm") return true end
+                if cast.able.adaptiveSwarm(var.maxAdaptiveSwarmUnit) and debuff.adaptiveSwarmDamage.count(var.maxAdaptiveSwarmUnit)<3
+                    and talent.unbridledSwarm and #enemies.yards40>1
+                then
+                    if cast.adaptiveSwarm(var.maxAdaptiveSwarmUnit) then ui.debug("Casting Adaptive Swarm - Unbridled Swarm") return true end
                 end
                 -- Call Action List - Cooldown
                 -- call_action_list,name=cooldown,if=(time>3|!talent.dire_fixation.enabled|debuff.dire_fixation.up&combo_points<4|spell_targets.swipe_cat>1)&!(spell_targets=1&talent.convoke_the_spirits.enabled)
