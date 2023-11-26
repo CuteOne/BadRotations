@@ -103,16 +103,38 @@ br.api.itemCD = function(self,item,id)
         return br._G.GetSpellBaseCooldown(select(2,br._G.GetItemSpell(itemID))) / 1000
     end
 
+    cd.slot = cd.slot or {}
+
+    --- This function gets the base cooldown of a given item spell
+    -- from an inventory slot, specific to the player character in game.
+    -- @usage cd.slot.duration() or cd.slot.duration(slotID)
+    -- @tparam[opt=id] number slotID The ID of the inventory slot. If not provided, the default is 'id'.
+    -- @treturn number The base cooldown of the item spell divided by 1000.
+    -- This division is done to convert the time from milliseconds to seconds.
+    -- @within cd.slot
+    cd.slot.duration = function(slotID)
+        if slotID == nil then slotID = id end
+        local _, duration = br._G.GetInventoryItemCooldown("player", slotID)
+        return duration
+    end
+
     --- Gets the time remaining on the equipment slot item cooldown or 0 if not.
     -- @function cd.slot.remain
     -- @number[opt] slotID The ID of the equipment slot to check.
     -- @treturn number
-    cd.slot = cd.slot or {}
     cd.slot.remain = function(slotID)
         if slotID == nil then slotID = id end
-        if br._G.GetInventoryItemCooldown("player", slotID) ~= 0 then
-            return (br._G.GetInventoryItemCooldown("player", slotID) + select(2,br._G.GetInventoryItemCooldown("player", slotID)) - br._G.GetTime())
+        local start, duration, enable = br._G.GetInventoryItemCooldown("player", slotID)
+        if enable == 0 or duration == 0 then
+            return 0 -- No cooldown is active, or the item has no cooldown
+        else
+            local currentTime = br._G.GetTime()
+            local endTime = start + duration
+            local timeRemaining = endTime - currentTime
+            if timeRemaining < 0 then
+                timeRemaining = 0 -- To avoid negative values if checked right as cooldown ends
+            end
+            return timeRemaining
         end
-        return 0
     end
 end

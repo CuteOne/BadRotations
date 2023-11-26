@@ -38,6 +38,11 @@ br.api.ui = function(self)
             return br.addonDebug(text)
         end
     end
+    if ui.delay == nil then
+        ui.delay = function(delayName, delayTime)
+            return br.timer:useTimer(delayName, delayTime)
+        end
+    end
     if ui.fullBags == nil then
         ui.fullBags = function()
             return br.lootManager:emptySlots() == 0
