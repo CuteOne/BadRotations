@@ -171,23 +171,25 @@ function br.BadRotationsUpdate(self)
                     -- Load Profile
                     -- br.loaded = false
                     br.player = br.loader:new(playerSpec, br.selectedSpec)
-                    setmetatable(br.player, {
-                        __index = br.loader
-                    })
-                    br.ui:closeWindow("profile")
-                    br.player:createOptions()
-                    br.player:createToggles()
-
-                    br.player:update()
-                    if br.player ~= nil and br.rotationChanged then
-                        br:saveLastProfileTracker()
-                        br:loadSettings(nil, br.player.class, br.selectedSpec, br.selectedProfileName)
+                    if br.player ~= nil then
+                        setmetatable(br.player, {
+                            __index = br.loader
+                        })
                         br.ui:closeWindow("profile")
                         br.player:createOptions()
                         br.player:createToggles()
+
+                        br.player:update()
+                        if br.rotationChanged then
+                            br:saveLastProfileTracker()
+                            br:loadSettings(nil, br.player.class, br.selectedSpec, br.selectedProfileName)
+                            br.ui:closeWindow("profile")
+                            br.player:createOptions()
+                            br.player:createToggles()
+                        end
+                        collectGarbage = true
+                        br.rotationChanged = false
                     end
-                    collectGarbage = true
-                    br.rotationChanged = false
                 end
                 -- Queue Casting
                 if (br.isChecked("Queue Casting") or (br.player ~= nil and br.player.queue ~= 0)) and
@@ -293,7 +295,7 @@ function br.BadRotationsUpdate(self)
                     collectGarbage = false
                 end
             end -- End Update Check
-        else
+        elseif br.player ~= nil then
             updateRotationOnSpecChange()
         end -- End Settings Loaded Check
     end -- End Unlock Check

@@ -170,7 +170,7 @@ function br.loadSavedSettings()
 		elseif br.rotations[br.selectedSpec] then
 			br:loadSettings(nil, nil, nil, br.rotations[br.selectedSpec][1].name)
 		else
-			if not br.rotations[br.selectedSpec] then return end
+			if not br.rotations[br.selectedSpec] then br.initializeSettings = false return end
 		end
 		br.defaultSettings()
 		-- Build the Toggles

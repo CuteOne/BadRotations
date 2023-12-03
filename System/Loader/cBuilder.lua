@@ -51,7 +51,7 @@ function br.loader.loadProfiles()
     local folderSpec = getFolderSpecName(class,specID)
     local path = getFilesLocation() .. sep .. 'Rotations' .. sep .. getFolderClassName(class) .. sep .. folderSpec .. sep
     -- br._G.print("Path: "..tostring(path))
-    local profiles = br._G.GetDirectoryFiles(path .. '*.lua')
+    local profiles = br._G.GetDirectoryFiles(path)
     -- br._G.print("Profiles: "..tostring(#profiles))
     for k, file in pairs(profiles) do
         -- br._G.print("Path: "..path..", File: "..file)
@@ -81,6 +81,7 @@ function br.loadSupport(thisFile) -- Loads support rotation file from Class Fold
 end
 
 -- Generate Profile API
+local loadRotations = false
 function br.loader:new(spec,specName)
     local loadStart = br._G.debugprofilestop()
     local self = br.cCharacter:new(tostring(select(1,br._G.UnitClass("player"))))
@@ -95,15 +96,19 @@ function br.loader:new(spec,specName)
         br.rotationChanged = true
     end
 
-    if br.selectedProfile ~= nil and br.rotations[spec][br.selectedProfile] then
-        br._G.print("Selecting Previous Rotation: "..br.rotations[spec][br.selectedProfile].name)
-        self.rotation = br.rotations[spec][br.selectedProfile]
-    elseif br.rotations[spec] ~= nil then
-        br._G.print("No Previously Selected Rotation, Defaulting To: "..br.rotations[spec][1].name)
-        self.rotation = br.rotations[spec][1]
-    else
-        br._G.print("No Rotations Found!")
-        return
+    if not loadRotations then
+        if br.selectedProfile ~= nil and br.rotations[spec] ~= nil and br.rotations[spec][br.selectedProfile] then
+            br._G.print("Selecting Previous Rotation: "..br.rotations[spec][br.selectedProfile].name)
+            self.rotation = br.rotations[spec][br.selectedProfile]
+            loadRotations = true
+        elseif br.rotations[spec] ~= nil then
+            br._G.print("No Previously Selected Rotation, Defaulting To: "..br.rotations[spec][1].name)
+            self.rotation = br.rotations[spec][1]
+            loadRotations = true
+        else
+            if not loadRotations then br._G.print("No Rotations Found!") self.rotation = {} end
+            return
+        end
     end
 
     self.items = br.lists.items
