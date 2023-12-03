@@ -193,9 +193,69 @@ function br.loader:new(spec,specName)
 
     -- Update Talent Info
     local function getTalentInfo()
-        if spec > 1400 and spec ~= 1467 and spec ~= 1468 then return end
+        -- local talentFound
+        -- if self.talent == nil then self.talent = {} end
+        -- if self.talent.rank == nil then self.talent.rank = {} end
+        if spec > 1400 and spec ~= 1467 and spec ~= 1468 and spec ~= 1473 then return end
         return getAllTalents()
+        -- local talents = getAllTalents()
+        -- local currentTalent = talents[v]
+        -- for k,v in pairs(self.spell.talents) do
+        --     talentFound = false
+        --     if br._G.IsPlayerSpell(v) then -- only works for known spells
+        --         talentFound = true
+        --         self.talent[k] = currentTalent.active
+        --         self.talent.rank[k] = currentTalent.rank
+        --         if not br._G.IsPassiveSpell(v) and self.spell['abilities'][k] == nil then
+        --             self.spell['abilities'][k] = v
+        --             self.spell[k] = v
+        --         end
+        --     end
+        --     if not talentFound then
+        --         if talents[v] ~= nil then
+        --             talentFound = true
+        --             self.talent[k] = currentTalent.active
+        --             self.talent.active[k] = currentTalent.rank
+        --             if not br._G.IsPassiveSpell(v) and self.spell['abilities'][k] == nil then
+        --                 self.spell['abilities'][k] = v
+        --                 self.spell[k] = v
+        --             end
+        --         end
+        --     end
+        --     -- No matching talent for listed talent id, report to
+        --     if not talentFound then
+        --         br._G.print("|cffff0000No talent found for: |r"..k.." ("..v..") |cffff0000in the talent spell list, please notify profile developer to remove from the list.")
+        --     end
+        -- end
     end
+
+    --Update Azerite Traits
+    -- local function getAzeriteTraitInfo()
+    --     -- Search Each Azerite Spell ID
+    --     if self.spell.traits == nil then return end
+    --     if self.traits == nil then self.traits = {} end
+    --     for k, v in pairs(self.spell.traits) do
+    --         if self.traits[k] == nil then self.traits[k] = {} end
+    --         self.traits[k].active = false
+    --         self.traits[k].rank = 0
+    --         -- Search Each Equiped Azerite Item
+    --         for _, itemLocation in br._G.AzeriteUtil.EnumerateEquipedAzeriteEmpoweredItems() do
+    --             local tierInfo = br._G.C_AzeriteEmpoweredItem.GetAllTierInfo(itemLocation)
+    --             -- Search Each Level Of The Azerite Item
+    --             for _, info in next, tierInfo do
+    --                 -- Search Each Power On Level
+    --                 for _, powerID in next, info.azeritePowerIDs do
+    --                     local isSelected = br._G.C_AzeriteEmpoweredItem.IsPowerSelected(itemLocation, powerID)
+    --                     local powerInfo = br._G.C_AzeriteEmpoweredItem.GetPowerInfo(powerID)
+    --                     if powerInfo.spellID == v and isSelected then
+    --                         self.traits[k].active = true
+    --                         self.traits[k].rank = self.traits[k].rank + 1
+    --                     end
+    --                 end
+    --             end
+    --         end
+    --     end
+    -- end
 
     local function getFunctions()
         -- Build Talent Info

@@ -218,7 +218,8 @@ br.novaEngineTables.SpecialHealUnitList = {
 	[171577] = "Ripped Soul",
 	[173112] = "Pierced Soul",
 	[165759] = "Kael'thas Sunstrider",
-	[165778] = "Essence Font"
+	[165778] = "Essence Font",
+	[204773] = "Afflicted Soul"
 };
 -- set dot that need to be healed to max(needs to be topped) to very low values so that engine will prioritize them
 -- the value used here will be substract from current health, we could use negative values to add back health instead

@@ -142,10 +142,10 @@ br.lists.items = {
     shroudOfResolve                 = 169223,
     ----------- SL items below -----------
     --Trinkets
-    -- Inscrutable Quantum Device
+    -- Inscrutable Quantum Device 
     inscrutableQuantumDevice        = 179350,
     -- Instructor's Divine Bell
-    instructorsDivineBell           = 184842,
+    instructorsDivineBell           = 184842, 
     -- Bottled Flayed Wing Toxin
     bottledFlayedWingToxin          = 178742,
     dreadfireVessel                 = 184030,
@@ -155,14 +155,14 @@ br.lists.items = {
     everchillBrambles               = 182452,
     -- Flame of Battle
     flameOfBattle                   = 181501,
-    -- Gladiator's Insignia of Alacrity
+    -- Gladiator's Insignia of Alacrity 
     gladiatorsBadge                 = 175921,
-    -- Gladiator's Badge of Ferocity
+    -- Gladiator's Badge of Ferocity 
     gladiatorsBadgeAlacrity         = 175921,
     -- Glyph of Assimilation
     glyphOfAssimilation             = 184021,
     -- Macabre Sheet Music
-    macabreSheetMusic               = 184024,
+    macabreSheetMusic               = 184024, 
     -- Sunblood Amethyst
     sunbloodAmethyst                = 178826,
     -- Soulletting Ruby
@@ -170,7 +170,7 @@ br.lists.items = {
     -- Soul Ignitor
     soulIgnitor                     = 184019,
     -- Tuft of Smoldering Plumage
-    tuftOfSmolderingPlumage         = 184020,
+    tuftOfSmolderingPlumage         = 184020, 
     -- Wakener's Frond
     wakenersFrond                   = 181457,
     -- Wrath Stone
@@ -187,11 +187,6 @@ br.lists.items = {
     heavenlyDrum                    = 180062,
     kyrianBell                      = 179982,
     unearthlyChime                  = 180063,
-    --- Dragonflight Items Below ---
-    algetharPuzzleBox               = 193701,
-    ashesOfTheEmbersoul             = 207167,
-    elementalPotionOfUltimatePower  = 191383,
-    mirrorOfFracturedTomorrows      = 207581,
-    witherbarksBranch               = 109999,
+    spoilsOfNeltharus = 193773,
+    neltharionsCallToDominance = 204202
 }
-
