@@ -68,9 +68,6 @@ local function createOptions()
         local section
         -- General Options
         section = br.ui:createSection(br.ui.window.profile, "General")
-            -- br.ui:createCheckbox(section, "Garbage")
-            -- APL
-            br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFFFFFSimC"}, 1, "|cffFFFFFFSet APL Mode to use.")
             -- Death Cat
             br.ui:createCheckbox(section,"Death Cat Mode","|cff15FF00Enable|cffFFFFFF/|cffD60000Disable |cffFFFFFFthis mode when running through low level content where you 1 hit kill mobs.")
             -- Fire Cat
@@ -81,9 +78,7 @@ local function createOptions()
             br.ui:createDropdownWithout(section, "Ferocious Bite Execute",{"|cffFFFF00Enabled Notify","|cff00FF00Enabled","|cffFF0000Disabled"}, 2,"Options for using Ferocious Bite when the damage from it will kill the unit.")
             -- Pre-Pull Timer
             br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
-	        -- Berserk/Tiger's Fury Pre-Pull
-            br.ui:createCheckbox(section, "Berserk/Tiger's Fury Pre-Pull")
-            -- Travel Shapeshifts
+            -- Auto Shapeshifts
             br.ui:createCheckbox(section,"Auto Shapeshifts","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Shapeshifting to best form for situation.|cffFFBB00.")
             -- Fall Timer
             br.ui:createSpinnerWithout(section,"Fall Timer", 2, 1, 5, 0.25, "|cffFFFFFFSet to desired time to wait until shifting to buff.flightForm.exists() form when falling (in secs).")
@@ -93,14 +88,21 @@ local function createOptions()
             br.ui:createCheckbox(section,"Wild Charge","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Charge usage.|cffFFBB00.")
             -- Brutal Slash Targets
             br.ui:createSpinnerWithout(section,"Brutal Slash Targets", 3, 1, 10, 1, "|cffFFFFFFSet to desired targets to use Brutal Slash on. Min: 1 / Max: 10 / Interval: 1")
-            -- Multi-DoT Limit
-            br.ui:createSpinnerWithout(section,"Multi-DoT Limit", 8, 2, 10, 1, "|cffFFFFFFSet to number of enemies to stop multi-dotting with Rake and Moonfire.")
             -- Primal Wrath Usage
             br.ui:createDropdownWithout(section,"Primal Wrath Usage",{"|cffFFFF00Always","|cff00FF00Refresh Only"})
-            -- Filler Spell
-            br.ui:createDropdownWithout(section,"Filler Spell",{"Shred", "Rake", "Snapshot Rake", "Lunar Inspiration", "Swipe"}, 1, "|cffFFFFFFSet which spell to use as filler.")
             -- Mark of the Wild
             br.ui:createDropdown(section, "Mark of the Wild",{"|cffFFFFFFPlayer", "|cffFFFFFFTarget", "|cffFFFFFFMouseover", "|cffFFFFFFFocus", "|cffFFFFFFGroup"}, 1, "|cffFFFFFFSet how to use Mark of the Wild")
+        br.ui:checkSectionState(section)
+        -- SimC Specific Options
+        section = br.ui:createSection(br.ui.window.profile, "SimC")
+            -- Zerk Biteweave
+            br.ui:createCheckbox(section,"Zerk Biteweave","|cffFFFFFFSends bites and maintains pw during berserk regardless of talents.")
+            -- Regrowth-SimC
+            br.ui:createCheckbox(section,"Regrowth-SimC","|cffFFFFFFSends regrowth and renewal casts. |cffD60000THIS IS A DPS LOSS EVEN WITHOUT TOXIC THORN")
+            -- Easy Swipe
+            br.ui:createCheckbox(section,"Easy Swipe","|cffFFFFFFAvoids using shred in AoE situations. |cffD60000THIS IS A DPS LOSS")
+            -- Force Align 2min
+            br.ui:createCheckbox(section,"Force Align 2min","|cffFFFFFFForces Berserk and Incarnation to align every 2 minutes.")
         br.ui:checkSectionState(section)
         -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -120,8 +122,6 @@ local function createOptions()
             br.ui:createCheckbox(section,"Tiger's Fury")
             -- Berserk / Incarnation: King of the Jungle
             br.ui:createDropdownWithout(section,"Berserk/Incarnation",{"|cff00FF00Always","|cffFFFF00Cooldowns","|cffFF0000Never"}, 2, "|cffFFFFFFSet when to use Berserk/Incarnation")
-            -- Owlweave
-            -- br.ui:createDropdownWithout(section,"Owlweave",{"|cff00FF00Always","|cffFFFF00Cooldowns","|cffFF0000Never"}, 3, "|cffFFFFFFSet when to use Owlweaving.")
             -- Trinkets
             br.player.module.BasicTrinkets(nil,section)
         br.ui:checkSectionState(section)
@@ -705,7 +705,7 @@ end -- End Action List - Defensive
 
 -- Action List - Interrupts
 actionList.Interrupts = function()
-    if ui.useInterrupt() then
+    if ui.useInterrupt() and ui.delay("Interrupts",unit.gcd(true)) then
         local thisUnit
         -- Skull Bash
         if ui.checked("Skull Bash") and cast.able.skullBash() then
@@ -800,6 +800,168 @@ actionList.PreCombat = function()
         end
     end -- End No Combat
 end -- End Action List - PreCombat
+
+-- Action List - Combat
+actionList.Combat = function()
+    -- Cat is 4 fyte!
+    if unit.inCombat() and cast.able.catForm("player") and not buff.catForm.exists() and not buff.moonkinForm.exists()
+        and #enemies.yards5f > 0 and not unit.moving() and ui.checked("Auto Shapeshifts")
+    then
+        if cast.catForm("player") then ui.debug("Casting Cat Form [Combat]"); return true end
+    elseif (unit.inCombat() or (not unit.inCombat() and unit.valid("target"))) and (buff.catForm.exists() or buff.moonkinForm.exists()) and not var.profileStop
+        and not ui.checked("Death Cat Mode") and unit.exists("target") and cd.global.remain() == 0
+    then
+        -- Wild Charge
+        if ui.checked("Wild Charge")
+            and cast.able.wildCharge("player") and unit.valid("target")
+        then
+            if cast.wildCharge("target") then ui.debug("Casting Wild Charge on "..unit.name("target").." [Out of Melee]"); return true end
+        end
+        -- Ferocious Bite
+        for i = 1, #enemies.yards5f do
+            local thisUnit = enemies.yards5f[i]
+            if cast.able.ferociousBite(thisUnit) and unit.distance(units.dyn5) < 5 then
+                -- execute
+                if ferociousBiteFinish(thisUnit) and not usePrimalWrath() then
+                    if ui.value("Ferocious Bite Execute") == 1 and ferociousBiteFinish(thisUnit) then
+                        ui.print("Ferocious Bite Finished! "..unit.name(thisUnit).." with "..br.round2(unit.hp(thisUnit),0).."% health remaining.")
+                    end
+                    if cast.ferociousBite(thisUnit) then ui.debug("Casting Ferocious Bite on "..unit.name(thisUnit).." [Execute]"); return true end
+                end
+            end
+        end
+        -- Call Action List - Interrupts
+        if actionList.Interrupts() then return true end
+        -- Prowl
+        -- prowl,if=buff.bs_inc.down
+        if cast.able.prowl("player") and buff.catForm.exists() and autoProwl()
+            and ui.mode.prowl == 1 and not buff.prowl.exists() and not unit.resting()
+            and not buff.bsInc.exists()
+        then
+            if cast.prowl("player") then ui.debug("Casting Prowl") return true end
+        end
+        -- Call Action List - Variables
+        -- call_action_list,name=variables
+        if actionList.Variables() then return true end
+        -- Tigers Fury
+        -- tigers_fury,target_if=min:target.time_to_die,if=!set_bonus.tier31_4pc&talent.convoke_the_spirits.enabled|!buff.tigers_fury.up|energy.deficit>65|set_bonus.tier31_2pc&action.feral_frenzy.ready|target.time_to_die<15&talent.predator.enabled
+        if cast.able.tigersFury() and ((not equiped.tier(31,4) and talent.convokeTheSpirits
+            or not buff.tigersFury.exists() or energy.deficit()>65 or equiped.tier(31,2)
+            and cast.able.feralFrenzy() or unit.ttd(var.minTTDUnit)<15 and talent.predator))
+        then
+            if cast.tigersFury() then ui.debug("Casting Tigers Fury") return true end
+        end
+        -- Rake
+        -- rake,target_if=persistent_multiplier>dot.rake.pmultiplier,if=buff.prowl.up|buff.shadowmeld.up
+        for i = 1, #enemies.yards5f do
+            local thisUnit = enemies.yards5f[i]
+            if cast.able.rake(thisUnit) and ((debuff.rake.applied(thisUnit)>debuff.rake.pmultiplier(thisUnit)
+                and (buff.prowl.exists() or buff.shadowmeld.exists())))
+            then
+                if cast.rake(thisUnit) then ui.debug("Casting Rake") return true end
+            end
+        end
+        -- Auto Attack
+        -- auto_attack,if=!buff.prowl.up&!buff.shadowmeld.up
+        if cast.able.autoAttack(units.dyn5) and not buff.prowl.exists() and not buff.shadowmeld.exists() then
+            if cast.autoAttack(units.dyn5) then ui.debug("Casting Auto Attack") return true end
+        end
+        -- Natures Vigil
+        -- natures_vigil,if=spell_targets.swipe_cat>0
+        if cast.able.naturesVigil() and #enemies.yards8>0 then
+            if cast.naturesVigil() then ui.debug("Casting Natures Vigil") return true end
+        end
+        -- Renewal
+        -- renewal,if=variable.regrowth
+        if cast.able.renewal() and var.regrowth then
+            if cast.renewal() then ui.debug("Casting Renewal") return true end
+        end
+        -- Adaptive Swarm
+        -- adaptive_swarm,target_if=(!dot.adaptive_swarm_damage.ticking|dot.adaptive_swarm_damage.remains<2)&dot.adaptive_swarm_damage.stack<3&!action.adaptive_swarm_damage.in_flight&!action.adaptive_swarm.in_flight&target.time_to_die>5,if=!talent.unbridled_swarm.enabled|spell_targets.swipe_cat=1
+        for i = 1, #enemies.yards40 do
+            local thisUnit = enemies.yards40[i]
+            if cast.able.adaptiveSwarm(thisUnit) and ((((not debuff.adaptiveSwarmDamage.exists(thisUnit) or debuff.adaptiveSwarmDamage.remains(thisUnit)<2)
+                and debuff.adaptiveSwarmDamage.count(thisUnit)<3 and not cast.inFlight.adaptiveSwarmDamage() and not cast.inFlight.adaptiveSwarm()
+                and unit.ttd(thisUnit)>5) and (not talent.unbridledSwarm or #enemies.yards8==1)))
+            then
+                if cast.adaptiveSwarm(thisUnit) then ui.debug("Casting Adaptive Swarm") return true end
+            end
+        end
+        -- Adaptive Swarm
+        -- adaptive_swarm,target_if=max:(1+dot.adaptive_swarm_damage.stack)*dot.adaptive_swarm_damage.stack<3*time_to_die,if=dot.adaptive_swarm_damage.stack<3&talent.unbridled_swarm.enabled&spell_targets.swipe_cat>1
+        if cast.able.adaptiveSwarm(var.maxAdaptiveSwarmUnit) and debuff.adaptiveSwarmDamage.count(var.maxAdaptiveSwarmUnit)<3
+            and talent.unbridledSwarm and #enemies.yards40>1
+        then
+            if cast.adaptiveSwarm(var.maxAdaptiveSwarmUnit) then ui.debug("Casting Adaptive Swarm - Unbridled Swarm") return true end
+        end
+        -- Call Action List - Cooldown
+        -- call_action_list,name=cooldown,if=(time>3|!talent.dire_fixation.enabled|debuff.dire_fixation.up&combo_points<4|spell_targets.swipe_cat>1)&!(spell_targets=1&talent.convoke_the_spirits.enabled)
+        if ((unit.combatTime()>3 or not talent.direFixation or debuff.direFixation.exists(units.dyn5) and comboPoints()<4 or #enemies.yards8>1)
+            and not (#enemies.yards8==1 and talent.convokeTheSpirits))
+        then
+            if actionList.Cooldown() then return true end
+        end
+        -- Call Action List - Cooldown
+        -- call_action_list,name=cooldown,if=dot.rip.ticking
+        if debuff.rip.exists(units.dyn5) then
+            if actionList.Cooldown() then return true end
+        end
+        -- Feral Frenzy
+        -- feral_frenzy,target_if=max:target.time_to_die,if=((combo_points<3|time<10&combo_points<4)&(!talent.dire_fixation.enabled|debuff.dire_fixation.up|spell_targets.swipe_cat>1)&(target.time_to_die<fight_remains&target.time_to_die>6|target.time_to_die=fight_remains))&!(spell_targets=1&talent.convoke_the_spirits.enabled)
+        if cast.able.feralFrenzy() and ((((comboPoints()<3 or unit.combatTime()<10 and comboPoints()<4)
+            and (not talent.direFixation or debuff.direFixation.exists(var.maxTTDUnit) or #enemies.yards8>1)
+            and (unit.ttd(var.maxTTDUnit)<unit.ttdGroup(40) and unit.ttd(var.maxTTDUnit)>6 or unit.ttd(var.maxTTDUnit)==unit.ttdGroup(40)))
+            and not (#enemies.yards5f==1 and talent.convokeTheSpirits)))
+        then
+            if cast.feralFrenzy() then ui.debug("Casting Feral Frenzy - AOE") return true end
+        end
+        -- Feral Frenzy
+        -- feral_frenzy,if=combo_points<3&debuff.dire_fixation.up&dot.rip.ticking&(spell_targets=1&talent.convoke_the_spirits.enabled)
+        if cast.able.feralFrenzy() and comboPoints()<3 and debuff.direFixation.exists(units.dyn5)
+            and debuff.rip.exists(units.dyn5) and (#enemies.yards5f==1 and talent.convokeTheSpirits)
+        then
+            if cast.feralFrenzy() then ui.debug("Casting Feral Frenzy") return true end
+        end
+        -- Ferocious Bite
+        -- ferocious_bite,target_if=max:target.time_to_die,if=buff.apex_predators_craving.up&(spell_targets.swipe_cat=1|!talent.primal_wrath.enabled|!buff.sabertooth.up)&!(variable.need_bt&active_bt_triggers=2)
+        if cast.able.ferociousBite(var.maxTTDUnit) and ((buff.apexPredatorsCraving.exists() and (#enemies.yards8==1 or not talent.primalWrath or not buff.sabertooth.exists())
+            and not (var.needBt and var.btGen.triggers==2)))
+        then
+            if cast.ferociousBite(var.maxTTDUnit) then ui.debug("Casting Ferocious Bite") return true end
+        end
+        -- Call Action List - Berserk
+        -- run_action_list,name=berserk,if=buff.bs_inc.up
+        if buff.bsInc.exists() then
+            if actionList.Berserk() then return true end
+        end
+        -- Wait
+        -- wait,sec=combo_points=5,if=combo_points=4&buff.predator_revealed.react&energy.deficit>40&spell_targets.swipe_cat=1
+        if comboPoints()==4 and buff.predatorRevealed.exists() and energy.deficit()>40 and #enemies.yards8==1 then
+            local waitFor = comboPoints()==5
+            if cast.wait(waitFor, function() return true end) then ui.debug("Waiting for Sec=Combo Points=5") return false end
+        end
+        -- Action List - Finisher
+        -- call_action_list,name=finisher,if=combo_points>=4
+        if comboPoints()>=4 then
+            if actionList.Finisher() then return true end
+        end
+        -- Action List - Aoe Builder
+        -- call_action_list,name=aoe_builder,if=spell_targets.swipe_cat>1&combo_points<4
+        if #enemies.yards8>1 and comboPoints()<4 then
+            if actionList.AoeBuilder() then return true end
+        end
+        -- Action List - Builder
+        -- call_action_list,name=builder,if=!buff.bs_inc.up&spell_targets.swipe_cat=1&combo_points<4
+        if not buff.bsInc.exists() and #enemies.yards8==1 and comboPoints()<4 then
+            if actionList.Builder() then return true end
+        end
+        -- Regrowth
+        -- regrowth,if=energy<25&buff.predatory_swiftness.up&!buff.clearcasting.up&variable.regrowth
+        if cast.able.regrowth() and energy()<25 and buff.predatorySwiftness.exists() and not buff.clearcasting.exists() and var.regrowth then
+            if cast.regrowth() then ui.debug("Casting Regrowth") return true end
+        end
+    end
+end -- End Action List - Combat
 
 -- Action List - AoEBuilder
 actionList.AoeBuilder = function()
@@ -1133,8 +1295,8 @@ actionList.Builder = function()
     end
     -- Thrash Cat
     -- thrash_cat,if=variable.need_bt&buff.bt_thrash.down
-    if cast.able.thrashCat() and var.needBt and not var.btGen.thrash then
-        if cast.thrashCat() then
+    if cast.able.thrashCat("player","aoe",1,8) and var.needBt and not var.btGen.thrash then
+        if cast.thrashCat("player","aoe",1,8) then
             ui.debug("Casting Thrash Cat [Builder - Bloodtalons Build]")
             var.btGen.thrash = true
             if var.btGen.timer - var.getTime <= 0 then var.btGen.timer = var.getTime + 4 end
@@ -1230,16 +1392,16 @@ actionList.Cooldown = function()
         -- Convoke The Spirits
         -- convoke_the_spirits,target_if=max:target.time_to_die,if=fight_remains<5|(buff.smoldering_frenzy.up|!set_bonus.tier31_4pc)&(dot.rip.remains>4-talent.ashamanes_guidance&buff.tigers_fury.up&combo_points<2)&(debuff.dire_fixation.up|!talent.dire_fixation.enabled|spell_targets.swipe_cat>1)&((target.time_to_die<fight_remains&target.time_to_die>5-talent.ashamanes_guidance.enabled)|target.time_to_die=fight_remains)
         if ui.alwaysCdNever("Convoke The Spirits") and cast.able.convokeTheSpirits() and ((unit.ttdGroup(40)<5 or (buff.smolderingFrenzy.exists() or not equiped.tier(31,4))
-            and (debuff.rip.remains(var.maxTTDUnit)>4-talent.ashamanesGuidance and buff.tigersFury.exists() and comboPoints()<2)
+            and (debuff.rip.remains(var.maxTTDUnit)>4-var.ashamanesGuidance and buff.tigersFury.exists() and comboPoints()<2)
             and (debuff.direFixation.exists(var.maxTTDUnit) or not talent.direFixation or #enemies.yards8>1)
-            and ((unit.ttd(var.maxTTDUnit)<unit.ttdGroup(40) and unit.ttd(var.maxTTDUnit)>5-talent.ashamanesGuidance) or unit.ttd(var.maxTTDUnit)==unit.ttdGroup(40))))
+            and ((unit.ttd(var.maxTTDUnit)<unit.ttdGroup(40) and unit.ttd(var.maxTTDUnit)>5-var.ashamanesGuidance) or unit.ttd(var.maxTTDUnit)==unit.ttdGroup(40))))
         then
             if cast.convokeTheSpirits() then ui.debug("Casting Convoke The Spirits [Cooldown]") return true end
         end
         -- Convoke The Spirits
         -- convoke_the_spirits,if=buff.smoldering_frenzy.up&buff.smoldering_frenzy.remains<5.1-talent.ashamanes_guidance
         if ui.alwaysCdNever("Convoke The Spirits") and cast.able.convokeTheSpirits() and buff.smolderingFrenzy.exists()
-            and buff.smolderingFrenzy.remains()<5.1-talent.ashamanesGuidance
+            and buff.smolderingFrenzy.remains()<5.1-var.ashamanesGuidance
         then
             if cast.convokeTheSpirits() then ui.debug("Casting Convoke The Spirits [Cooldown - Smoldering Frenzy]") return true end
         end
@@ -1340,16 +1502,16 @@ actionList.Variables = function()
         or (not talent.berserkHeartOfTheLion and unit.ttdGroup(40)<(180+buff.bsInc.remains()))))
     -- Variable - Zerk Biteweave
     -- variable,name=zerk_biteweave,op=reset
-    var.zerkBiteweave = false
+    var.zerkBiteweave = ui.checked("Zerke Biteweave")
     -- Variable - Regrowth
     -- variable,name=regrowth,op=reset
-    var.regrowth = false
+    var.regrowth = ui.checked("Regrowth-SimC")
     -- Variable - Easy Swipe
     -- variable,name=easy_swipe,op=reset
-    var.easySwipe = false
+    var.easySwipe = ui.checked("Easy Swipe")
     -- Variable - Force Align 2Min
     -- variable,name=force_align_2min,op=reset
-    var.forceAlign2Min = false
+    var.forceAlign2Min = ui.checked("Force Align 2 Min")
     -- Variable - Align Cds
     -- variable,name=align_cds,value=(variable.force_align_2min|equipped.witherbarks_branch|equipped.ashes_of_the_embersoul|(time+fight_remains>150&time+fight_remains<200|time+fight_remains>270&time+fight_remains<295|time+fight_remains>395&time+fight_remains<400|time+fight_remains>490&time+fight_remains<495))&talent.convoke_the_spirits.enabled&fight_style.patchwerk&spell_targets.swipe_cat=1&set_bonus.tier31_2pc
     var.alignCds = ((var.forceAlign2Min or equiped.witherbarksBranch() or equiped.ashesOfTheEmbersoul() or (unit.combatTime()+unit.ttdGroup(40)>150
@@ -1401,6 +1563,7 @@ local function runRotation()
         var.noDoT = false
         var.profileStop = false
         var.unit5ID = 0
+        var.ashamanesGuidance = talent.ashamanesGuidance and 1 or 0
 
         -- Bloodtalons - Init
         var.btGen = var.btGen or {}
@@ -1499,181 +1662,6 @@ local function runRotation()
     if not var.btGen.shred then var.btGen.triggers = var.btGen.triggers + 1 end
     if not var.btGen.swipe and not talent.brutalSlash then var.btGen.triggers = var.btGen.triggers + 1 end
     if not var.btGen.thrash then var.btGen.triggers = var.btGen.triggers + 1 end
-
-    -- -- Group Tracking
-    -- -- Rake Ticks
-    -- var.rakeTicksTotal = function(thisUnit)
-    --     return not debuff.rake.exists(thisUnit, "EXACT") and 5 or math.floor(debuff.rake.duration(thisUnit,"EXACT") / 3)
-    -- end
-    -- var.rakeTicksRemain = function(thisUnit)
-    --     return math.floor(debuff.rake.remain(thisUnit,"EXACT") / 3)
-    -- end
-    -- var.rakeTicksGain = function(thisUnit)
-    --     return var.rakeTicksTotal(thisUnit) - var.rakeTicksRemain(thisUnit)
-    -- end
-    -- var.ticksGain.rake = var.rakeTicksGain(units.dyn5)
-
-    -- -- Rip Ticks
-    -- var.ripTicksTotal = function(thisUnit)
-    --     return not debuff.rip.exists(thisUnit) and 12 or math.floor(debuff.rip.duration(thisUnit) / 2)
-    -- end
-    -- var.ripTicksRemain = function(thisUnit)
-    --     return math.floor(debuff.rip.remain(thisUnit) / 2)
-    -- end
-    -- var.ripTicksGain = function(thisUnit)
-    --     return var.ripTicksTotal(thisUnit) - var.ripTicksRemain(thisUnit)
-    -- end
-    -- var.ticksGain.rip = var.ripTicksGain(units.dyn5)
-
-    -- -- Thrash Ticks
-    -- var.thrashCatTicksTotal = function(thisUnit)
-    --     return not debuff.thrashCat.exists(thisUnit) and 5 or math.floor(debuff.thrashCat.duration(thisUnit) / 3)
-    -- end
-    -- var.thrashCatTicksRemain = function(thisUnit)
-    --     return math.floor(debuff.thrashCat.remain(thisUnit) / 3)
-    -- end
-    -- var.thrashCatTicksGain = function(thisUnit)
-    --     return var.thrashCatTicksTotal(thisUnit) - var.thrashCatTicksRemain(thisUnit)
-    -- end
-    -- var.ticksGain.thrash = var.thrashCatTicksGain("target")
-
-    -- -- Moonfire Cat Ticks
-    -- var.moonfireFeralTicksTotal = function(thisUnit)
-    --     return not debuff.moonfireCat.exists(thisUnit) and 8 or math.floor(debuff.moonfireCat.remain(thisUnit) / 2)
-    -- end
-    -- var.moonfireFeralTicksRemain = function(thisUnit)
-    --     return math.floor(debuff.moonfireCat.remain(thisUnit) / 2)
-    -- end
-    -- var.moonfireFeralTicksGain = function(thisUnit)
-    --     return var.moonfireFeralTicksTotal(thisUnit) - var.moonfireFeralTicksRemain(thisUnit)
-    -- end
-    -- var.ticksGain.moonfireFeral = var.moonfireFeralTicksGain("target")
-
-    -- -- Total Ticks Gain / Min TTD / Max TTD
-    -- var.maxTTD = 0
-    -- var.maxTTDUnit = units.dyn5
-    -- var.maxRakePan = 0
-    -- var.maxRakePanUnit = units.dyn5
-    -- var.maxRakePanTicksGain = 0
-    -- var.maxRakePanTicksGainUnit = units.dyn5
-    -- var.maxRakePanTicksGain25 = 0
-    -- var.maxRakePanTicksGain25Unit = units.dyn5
-    -- var.minTTD = 999
-    -- var.minTTDUnit = units.dyn5
-    -- var.adaptiveSwarm = units.dyn5
-    -- for i = 1, #enemies.yards40 do
-    --     local thisUnit = enemies.yards40[i]
-    --     local thisTTD = unit.ttd(thisUnit) or 99
-    --     if not unit.isUnit("target",thisUnit) then
-    --         -- Adaptive Swarm Effectiveness - target_if=max:(1+dot.adaptive_swarm_damage.stack)*dot.adaptive_swarm_damage.stack<3*time_to_die
-    --         if (1 + debuff.adaptiveSwarmDamage.stack(thisUnit)) * debuff.adaptiveSwarmDamage.stack(thisUnit) < 3 * thisTTD then
-    --             var.adaptiveSwarmUnit = thisUnit
-    --         end
-    --         -- Moonfire Cat Ticks to Gain
-    --         if var.ticksGain.moonfireFeral + var.moonfireFeralTicksGain(thisUnit) > var.ticksGain.moonfireFeral then
-    --             var.ticksGain.moonfireFeral = var.ticksGain.moonfireFeral + var.moonfireFeralTicksGain(thisUnit)
-    --         end
-    --         -- 8 Yards Checks
-    --         if unit.distance(thisUnit) < 8 then
-    --             -- Thrash Ticks to Gain
-    --             var.ticksGain.thrash = var.ticksGain.thrash + var.thrashCatTicksGain(thisUnit)
-    --             -- Primal Wrath Ticks to Gain
-    --             if talent.primalWrath then
-    --                 var.ticksGain.rip = var.ticksGain.rip + var.ripTicksGainUnit(thisUnit)
-    --             end
-    --         end
-    --         -- 5 Yards Checks
-    --         if unit.distance(thisUnit) < 5 and unit.facing(thisUnit) then
-    --             -- Rip Ticks to Gain
-    --             if not talent.primalWrath then
-    --                 var.ticksGain.rip = var.ticksGain.rip + var.ripTicksGain(thisUnit)
-    --             end
-    --             -- Rake Ticks to Gain
-    --             var.ticksGain.rake = var.ticksGain.rake + var.rakeTicksGain(thisUnit)
-    --             -- Max Rake Pandemic - max:dot.rake.pmultiplier<1.6|dot.rake.refreshable
-    --             if (debuff.rake.pmultiplier(thisUnit) < 1.6 or debuff.rake.refresh(thisUnit)) and var.rakeTicksGain(thisUnit) > var.maxRakePan then
-    --                 var.maxRakePan = var.rakeTicksGain(thisUnit)
-    --                 var.maxRakePanUnit = thisUnit
-    --             end
-    --             -- Max Rake Pandemic Ticks to Gain - max:(dot.rake.pmultiplier<1.6|dot.rake.refreshable)*druid.rake.ticks_gained_on_refresh
-    --             local rakeRefreshPan = 0
-    --             if debuff.rake.pmultiplier(thisUnit) < 1.6 or debuff.rake.refresh(thisUnit) then
-    --                 rakeRefreshPan = 1
-    --             end
-    --             if rakeRefreshPan * var.rakeTicksGain(thisUnit) > var.maxRakePanTicksGain then
-    --                 var.maxRakePanTicksGain = rakeRefreshPan * var.rakeTicksGain(thisUnit)
-    --                 var.maxRakePanTicksGainUnit = thisUnit
-    --             end
-    --             -- max:((dot.rake.pmultiplier<=persistent_multiplier)*25)+druid.rake.ticks_gained_on_refresh
-    --             local rakeRefreshPan25 = 0
-    --             if debuff.rake.pmultiplier(thisUnit) < 1.6 or debuff.rake.refresh(thisUnit) then
-    --                 rakeRefreshPan25 = var.rakeTicksGain(thisUnit)
-    --             end
-    --             if rakeRefreshPan25 * 25 + var.rakeTicksGain(thisUnit) > var.maxRakePanTicksGain then
-    --                 var.maxRakePanTicksGain25 = rakeRefreshPan25 * 25 + var.rakeTicksGain(thisUnit)
-    --                 var.maxRakePanTicksGain25Unit = thisUnit
-    --             end
-    --         end
-    --         if thisTTD < var.minTTD then var.minTTD = thisTTD var.minTTDUnit = thisUnit end
-    --         if thisTTD > var.maxTTD then var.maxTTD = thisTTD var.maxTTDUnit = thisUnit end
-    --     end
-    -- end
-
-    -- var.ripTicksGainUnit = function(ripUnit)
-    --     return var.ripTicksGain(ripUnit)
-    -- end
-
-    -- var.rakeTicksGainUnit = function(rakeUnit)
-    --     return var.rakeTicksGain(rakeUnit)
-    -- end
-
-    -- var.moonfireFeralTicksGainUnit = function(moonfireFeralUnit)
-    --     return var.moonfireFeralTicksGain(moonfireFeralUnit)
-    -- end
-
-    -- var.maxRakeTicksGain = 0
-    -- var.maxRakeTicksGainUnit = "target"
-    -- var.lowestRip = 99
-    -- var.lowestRipUnit = var.lowestTTDUnit
-    -- for i = 1, #enemies.yards5f do
-    --     local thisUnit = enemies.yards5f[i]
-    --     -- Rake
-    --     local rakeTicksGain = var.rakeTicksGainUnit(thisUnit)
-    --     if rakeTicksGain > var.maxRakeTicksGain then
-    --         var.maxRakeTicksGain = rakeTicksGain
-    --         var.maxRakeTicksGainUnit = thisUnit
-    --     end
-    --     -- Rip
-    --     if talent.sabertooth then
-    --         local ripValue = debuff.rip.remains(thisUnit)
-    --         if ripValue > unit.gcd(thisUnit) and ripValue < var.lowestRip then
-    --             var.lowestRip = ripValue
-    --             var.lowestRipUnit = thisUnit
-    --         end
-    --     end
-    -- end
-    -- var.maxMoonfireFeralTicksGain = 0
-    -- var.maxMoonfireFeralTicksGainUnit = "target"
-    -- var.moonfireRefresh = 0
-    -- var.moonfireRefreshUnit = "target"
-    -- for i = 1, #enemies.yards40 do
-    --     local thisUnit = enemies.yards40[i]
-    --     -- Moonfire Cat
-    --     local moonfireFeralTicksGain = var.moonfireFeralTicksGainUnit(thisUnit)
-    --     -- max:((ticks_gained_on_refresh+1)-(spell_targets.swipe_cat*2.492))
-    --     if moonfireFeralTicksGain > ((var.maxMoonfireFeralTicksGain + 1) - (#enemies.yards8 * 2.492)) then
-    --         var.maxMoonfireFeralTicksGain = moonfireFeralTicksGain
-    --         var.maxMoonfireFeralTicksGainUnit = thisUnit
-    --     end
-    --     -- max:(3*refreshable)+dot.adaptive_swarm_damage.ticking
-    --     if talent.lunarInspiration then
-    --         local moonfireRefresh = 3 * (debuff.moonfireCat.refresh(thisUnit) and 1 or 0) + (debuff.adaptiveSwarmDamage.exists(thisUnit) and 1 or 0)
-    --         if moonfireRefresh > var.moonfireRefresh then
-    --             var.moonfireRefresh = moonfireRefresh
-    --             var.moonfireRefreshUnit = thisUnit
-    --         end
-    --     end
-    -- end
 
     -- target_if=min:target.time_to_die
     var.minTTD=99999
@@ -1788,172 +1776,7 @@ local function runRotation()
         --------------------------
         --- In Combat Rotation ---
         --------------------------
-        -- Cat is 4 fyte!
-        if unit.inCombat() and cast.able.catForm("player") and not buff.catForm.exists() and not buff.moonkinForm.exists()
-            and #enemies.yards5f > 0 and not unit.moving() and ui.checked("Auto Shapeshifts")
-        then
-            if cast.catForm("player") then ui.debug("Casting Cat Form [Combat]"); return true end
-        elseif (unit.inCombat() or (not unit.inCombat() and unit.valid("target"))) and (buff.catForm.exists() or buff.moonkinForm.exists()) and not var.profileStop
-            and not ui.checked("Death Cat Mode") and unit.exists("target") and cd.global.remain() == 0
-        then
-            -- Wild Charge
-            if ui.checked("Wild Charge")
-                and cast.able.wildCharge("player") and unit.valid("target")
-            then
-                if cast.wildCharge("target") then ui.debug("Casting Wild Charge on "..unit.name("target").." [Out of Melee]"); return true end
-            end
-            -------------------------
-            --- In Combat - Begin ---
-            -------------------------
-            ---------------------------
-            --- SimulationCraft APL ---
-            ---------------------------
-            if ui.value("APL Mode") == 1 and unit.inCombat() then
-                -- Ferocious Bite
-                for i = 1, #enemies.yards5f do
-                    local thisUnit = enemies.yards5f[i]
-                    if cast.able.ferociousBite(thisUnit) and unit.distance(units.dyn5) < 5 then
-                        -- execute
-                        if ferociousBiteFinish(thisUnit) and not usePrimalWrath() then
-                            if ui.value("Ferocious Bite Execute") == 1 and ferociousBiteFinish(thisUnit) then
-                                ui.print("Ferocious Bite Finished! "..unit.name(thisUnit).." with "..br.round2(unit.hp(thisUnit),0).."% health remaining.")
-                            end
-                            if cast.ferociousBite(thisUnit) then ui.debug("Casting Ferocious Bite on "..unit.name(thisUnit).." [Execute]"); return true end
-                        end
-                    end
-                end
-                -- Call Action List - Interrupts
-                if actionList.Interrupts() then return true end
-                -- Prowl
-                -- prowl,if=buff.bs_inc.down
-                if cast.able.prowl("player") and buff.catForm.exists() and autoProwl()
-                    and ui.mode.prowl == 1 and not buff.prowl.exists() and not unit.resting()
-                    and not buff.bsInc.exists()
-                then
-                    if cast.prowl("player") then ui.debug("Casting Prowl") return true end
-                end
-                -- Call Action List - Variables
-                -- call_action_list,name=variables
-                if actionList.Variables() then return true end
-                -- Tigers Fury
-                -- tigers_fury,target_if=min:target.time_to_die,if=!set_bonus.tier31_4pc&talent.convoke_the_spirits.enabled|!buff.tigers_fury.up|energy.deficit>65|set_bonus.tier31_2pc&action.feral_frenzy.ready|target.time_to_die<15&talent.predator.enabled
-                if cast.able.tigersFury() and ((not equiped.tier(31,4) and talent.convokeTheSpirits
-                    or not buff.tigersFury.exists() or energy.deficit()>65 or equiped.tier(31,2)
-                    and cast.able.feralFrenzy() or unit.ttd(var.minTTDUnit)<15 and talent.predator))
-                then
-                    if cast.tigersFury() then ui.debug("Casting Tigers Fury") return true end
-                end
-                -- Rake
-                -- rake,target_if=persistent_multiplier>dot.rake.pmultiplier,if=buff.prowl.up|buff.shadowmeld.up
-                for i = 1, #enemies.yards5f do
-                    local thisUnit = enemies.yards5f[i]
-                    if cast.able.rake(thisUnit) and ((debuff.rake.applied(thisUnit)>debuff.rake.pmultiplier(thisUnit)
-                        and (buff.prowl.exists() or buff.shadowmeld.exists())))
-                    then
-                        if cast.rake(thisUnit) then ui.debug("Casting Rake") return true end
-                    end
-                end
-                -- Auto Attack
-                -- auto_attack,if=!buff.prowl.up&!buff.shadowmeld.up
-                if cast.able.autoAttack(units.dyn5) and not buff.prowl.exists() and not buff.shadowmeld.exists() then
-                    if cast.autoAttack(units.dyn5) then ui.debug("Casting Auto Attack") return true end
-                end
-                -- Natures Vigil
-                -- natures_vigil,if=spell_targets.swipe_cat>0
-                if cast.able.naturesVigil() and #enemies.yards8>0 then
-                    if cast.naturesVigil() then ui.debug("Casting Natures Vigil") return true end
-                end
-                -- Renewal
-                -- renewal,if=variable.regrowth
-                if cast.able.renewal() and var.regrowth then
-                    if cast.renewal() then ui.debug("Casting Renewal") return true end
-                end
-                -- Adaptive Swarm
-                -- adaptive_swarm,target_if=(!dot.adaptive_swarm_damage.ticking|dot.adaptive_swarm_damage.remains<2)&dot.adaptive_swarm_damage.stack<3&!action.adaptive_swarm_damage.in_flight&!action.adaptive_swarm.in_flight&target.time_to_die>5,if=!talent.unbridled_swarm.enabled|spell_targets.swipe_cat=1
-                for i = 1, #enemies.yards40 do
-                    local thisUnit = enemies.yards40[i]
-                    if cast.able.adaptiveSwarm(thisUnit) and ((((not debuff.adaptiveSwarmDamage.exists(thisUnit) or debuff.adaptiveSwarmDamage.remains(thisUnit)<2)
-                        and debuff.adaptiveSwarmDamage.count(thisUnit)<3 and not cast.inFlight.adaptiveSwarmDamage() and not cast.inFlight.adaptiveSwarm()
-                        and unit.ttd(thisUnit)>5) and (not talent.unbridledSwarm or #enemies.yards8==1)))
-                    then
-                        if cast.adaptiveSwarm(thisUnit) then ui.debug("Casting Adaptive Swarm") return true end
-                    end
-                end
-                -- Adaptive Swarm
-                -- adaptive_swarm,target_if=max:(1+dot.adaptive_swarm_damage.stack)*dot.adaptive_swarm_damage.stack<3*time_to_die,if=dot.adaptive_swarm_damage.stack<3&talent.unbridled_swarm.enabled&spell_targets.swipe_cat>1
-                if cast.able.adaptiveSwarm(var.maxAdaptiveSwarmUnit) and debuff.adaptiveSwarmDamage.count(var.maxAdaptiveSwarmUnit)<3
-                    and talent.unbridledSwarm and #enemies.yards40>1
-                then
-                    if cast.adaptiveSwarm(var.maxAdaptiveSwarmUnit) then ui.debug("Casting Adaptive Swarm - Unbridled Swarm") return true end
-                end
-                -- Call Action List - Cooldown
-                -- call_action_list,name=cooldown,if=(time>3|!talent.dire_fixation.enabled|debuff.dire_fixation.up&combo_points<4|spell_targets.swipe_cat>1)&!(spell_targets=1&talent.convoke_the_spirits.enabled)
-                if ((unit.combatTime()>3 or not talent.direFixation or debuff.direFixation.exists(units.dyn5) and comboPoints()<4 or #enemies.yards8>1)
-                    and not (#enemies.yards8==1 and talent.convokeTheSpirits))
-                then
-                    if actionList.Cooldown() then return true end
-                end
-                -- Call Action List - Cooldown
-                -- call_action_list,name=cooldown,if=dot.rip.ticking
-                if debuff.rip.exists(units.dyn5) then
-                    if actionList.Cooldown() then return true end
-                end
-                -- Feral Frenzy
-                -- feral_frenzy,target_if=max:target.time_to_die,if=((combo_points<3|time<10&combo_points<4)&(!talent.dire_fixation.enabled|debuff.dire_fixation.up|spell_targets.swipe_cat>1)&(target.time_to_die<fight_remains&target.time_to_die>6|target.time_to_die=fight_remains))&!(spell_targets=1&talent.convoke_the_spirits.enabled)
-                if cast.able.feralFrenzy() and ((((comboPoints()<3 or unit.combatTime()<10 and comboPoints()<4)
-                    and (not talent.direFixation or debuff.direFixation.exists(var.maxTTDUnit) or #enemies.yards8>1)
-                    and (unit.ttd(var.maxTTDUnit)<unit.ttdGroup(40) and unit.ttd(var.maxTTDUnit)>6 or unit.ttd(var.maxTTDUnit)==unit.ttdGroup(40)))
-                    and not (#enemies.yards5f==1 and talent.convokeTheSpirits)))
-                then
-                    if cast.feralFrenzy() then ui.debug("Casting Feral Frenzy - AOE") return true end
-                end
-                -- Feral Frenzy
-                -- feral_frenzy,if=combo_points<3&debuff.dire_fixation.up&dot.rip.ticking&(spell_targets=1&talent.convoke_the_spirits.enabled)
-                if cast.able.feralFrenzy() and comboPoints()<3 and debuff.direFixation.exists(units.dyn5)
-                    and debuff.rip.exists(units.dyn5) and (#enemies.yards5f==1 and talent.convokeTheSpirits)
-                then
-                    if cast.feralFrenzy() then ui.debug("Casting Feral Frenzy") return true end
-                end
-                -- Ferocious Bite
-                -- ferocious_bite,target_if=max:target.time_to_die,if=buff.apex_predators_craving.up&(spell_targets.swipe_cat=1|!talent.primal_wrath.enabled|!buff.sabertooth.up)&!(variable.need_bt&active_bt_triggers=2)
-                if cast.able.ferociousBite(var.maxTTDUnit) and ((buff.apexPredatorsCraving.exists() and (#enemies.yards8==1 or not talent.primalWrath or not buff.sabertooth.exists())
-                    and not (var.needBt and var.btGen.triggers==2)))
-                then
-                    if cast.ferociousBite(var.maxTTDUnit) then ui.debug("Casting Ferocious Bite") return true end
-                end
-                -- Call Action List - Berserk
-                -- run_action_list,name=berserk,if=buff.bs_inc.up
-                if buff.bsInc.exists() then
-                    if actionList.Berserk() then return true end
-                end
-                -- Wait
-                -- wait,sec=combo_points=5,if=combo_points=4&buff.predator_revealed.react&energy.deficit>40&spell_targets.swipe_cat=1
-                if comboPoints()==4 and buff.predatorRevealed.exists() and energy.deficit()>40 and #enemies.yards8==1 then
-                    local waitFor = comboPoints()==5
-                    if cast.wait(waitFor, function() return true end) then ui.debug("Waiting for Sec=Combo Points=5") return false end
-                end
-                -- Action List - Finisher
-                -- call_action_list,name=finisher,if=combo_points>=4
-                if comboPoints()>=4 then
-                    if actionList.Finisher() then return true end
-                end
-                -- Action List - Aoe Builder
-                -- call_action_list,name=aoe_builder,if=spell_targets.swipe_cat>1&combo_points<4
-                if #enemies.yards8>1 and comboPoints()<4 then
-                    if actionList.AoeBuilder() then return true end
-                end
-                -- Action List - Builder
-                -- call_action_list,name=builder,if=!buff.bs_inc.up&spell_targets.swipe_cat=1&combo_points<4
-                if not buff.bsInc.exists() and #enemies.yards8==1 and comboPoints()<4 then
-                    if actionList.Builder() then return true end
-                end
-                -- Regrowth
-                -- regrowth,if=energy<25&buff.predatory_swiftness.up&!buff.clearcasting.up&variable.regrowth
-                if cast.able.regrowth() and energy()<25 and buff.predatorySwiftness.exists() and not buff.clearcasting.exists() and var.regrowth then
-                    if cast.regrowth() then ui.debug("Casting Regrowth") return true end
-                end
-            end -- End SimC APL
-        end --End In Combat
+        if actionList.Combat() then return true end
     end --End Rotation Logic
 end -- End runRotation
 
