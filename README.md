@@ -81,6 +81,12 @@ Raidable means if its good to raid with.
 
 ### Demon Hunter
 
+- Havoc
+
+|rotation|author |patch|coverage|status|  readiness  |last updated|
+|--------|-------|:---:|:------:|:----:|:-----------:|-----------:|
+|CuteOne |CuteOne|10.0 |  100%  | Full |:interrobang:|  12/10/2023|
+
 
 ### Druid
 
@@ -88,7 +94,7 @@ Raidable means if its good to raid with.
 
 |rotation|author |patch|coverage|status|  readiness  |last updated|
 |--------|-------|:---:|:------:|:----:|:-----------:|-----------:|
-|CuteOne |CuteOne|10.0 |  75%   | Full |:interrobang:|  12/05/2023|
+|CuteOne |CuteOne|10.0 |  100%  | Full |:interrobang:|  12/10/2023|
 
 
 ### Evoker
