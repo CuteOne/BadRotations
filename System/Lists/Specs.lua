@@ -22,6 +22,7 @@ br.lists.spec = {
 		Initial = 1447,
 	},
 	EVOKER = {
+		Augmentation = 1473,
 		Devastation = 1467,
 		Preservation = 1468,
 		Initial = 1465,

@@ -157,7 +157,7 @@ function br.TierScan(thisTier)
 	local tierList = sets[thisTier][myClass]
 	if not tierList then
 		br._G.print("No tier info found for this class! Please let devs know!")
-		return {}
+		return 0
 	end
 	if #tierList > 0 then
 		for i = 1, #tierList do

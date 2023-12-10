@@ -198,8 +198,11 @@ function br.loader:new(spec,specName)
 
     -- Update Talent Info
     local function getTalentInfo()
-        if spec > 1400 and spec ~= 1467 and spec ~= 1468 then return end
-        return getAllTalents()
+        for specName, specID in pairs(br.lists.spec[class]) do
+            if specID == spec and specName ~= "Initial" then
+                return getAllTalents()
+            end
+        end
     end
 
     local function getFunctions()
@@ -465,7 +468,7 @@ function br.loader:new(spec,specName)
     -- Create the toggle defined within rotation files
     function self.createToggles()
         br.GarbageButtons()
-        if self.rotation ~= nil then
+        if self.rotation ~= nil and self.rotation.toggles ~= nil then
             self.rotation.toggles()
         else
             return
@@ -536,9 +539,9 @@ function br.loader:new(spec,specName)
         -- end
         --
         -- -- Only add profile pages if they are found
-        -- if profileTable then
+        if self.rotation.options ~= nil then
             br.insertTableIntoTable(optionTable, self.rotation.options())
-        -- end
+        end
 
         -- Create pages dropdown
         br.ui:createPagesDropdown(br.ui.window.profile, optionTable)

@@ -218,7 +218,7 @@ function br.cCharacter:new(class)
 		-- dont check if player is casting to allow off-cd usage and cast while other spell is casting
 		-- if pause(true) then return end
 
-		if self.rotation ~= nil then
+		if self.rotation ~= nil and self.rotation.run ~= nil then
 			self.rotation.run()
 		else
 			return

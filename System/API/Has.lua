@@ -53,7 +53,7 @@ br.api.has = function(self,item,id)
         }
 
         local function hasDPSStats(itemLink, matchStat)
-            local stats = br._G.GetItemStats(itemLink)
+            local stats = br._G.GetItemStats(itemLink) or {}
 
             -- Define the stats that contribute to DPS.
             local dpsStats = {"ITEM_MOD_AGILITY_SHORT", "ITEM_MOD_STRENGTH_SHORT", "ITEM_MOD_INTELLECT_SHORT",

@@ -311,6 +311,7 @@ function br.read.commonReaders()
 	superReaderFrame:RegisterEvent("PLAYER_STARTED_MOVING")
 	superReaderFrame:RegisterEvent("PLAYER_STOPPED_MOVING")
 	superReaderFrame:RegisterEvent("PLAYER_TOTEM_UPDATE")
+	superReaderFrame:RegisterEvent("UNIT_AURA")
 	superReaderFrame:RegisterEvent("UNIT_SPELLCAST_START")
 	superReaderFrame:RegisterEvent("UNIT_SPELLCAST_SENT")
 	superReaderFrame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
@@ -336,6 +337,17 @@ function br.read.commonReaders()
 	superReaderFrame:RegisterEvent("LOADING_SCREEN_ENABLED")
 	superReaderFrame:RegisterEvent("LOADING_SCREEN_DISABLED")
 	local function SuperReader(self, event, ...)
+		-- Aura Max Stacks
+		if event == "UNIT_AURA" then
+			local unitTarget, updateInfo = ...
+			if updateInfo and updateInfo.addedAuras then
+				for _, aura in ipairs(updateInfo.addedAuras) do
+					br.auraMaxStacks = br.auraMaxStacks or {}
+					br.auraMaxStacks[aura.spellId] = br.auraMaxStacks[aura.spellId] or {}
+					br.auraMaxStacks[aura.spellId][unitTarget] = aura.maxCharges or 0
+				end
+			end
+		end
 		-- Azerite Essence
 		if event == "AZERITE_ESSENCE_ACTIVATED" then
 			br.updatePlayerInfo = true

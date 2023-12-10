@@ -101,4 +101,10 @@ br.api.buffs = function(buff,v)
         if sourceUnit == nil then sourceUnit = 'player' end
         return br.getBuffStacks(thisUnit,v,sourceUnit)
     end
+
+    buff.stackMax = function(thisUnit,sourceUnit)
+        if thisUnit == nil then thisUnit = 'player' end
+        if sourceUnit == nil then sourceUnit = 'player' end
+        return br.auraMaxStacks[v] and (br.auraMaxStacks[v][thisUnit] or 0) or 0
+    end
 end
