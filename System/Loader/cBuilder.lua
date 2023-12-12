@@ -169,26 +169,45 @@ function br.loader:new(spec,specName)
         end
     end
 
-    -- Get All talents
+    -- Get Active Talents
+    local function getActiveTalents(node, configId)
+        local activeTalents = {}
+        for _, entryID in pairs(node.entryIDsWithCommittedRanks) do
+            local entryInfo = br._G.C_Traits.GetEntryInfo(configId,entryID)
+            if entryInfo and entryInfo.definitionID then
+                local definitionInfo = br._G.C_Traits.GetDefinitionInfo(entryInfo.definitionID)
+                if definitionInfo.spellID ~= nil then
+                    activeTalents[definitionInfo.spellID] = activeTalents[definitionInfo.spellID] or {}
+                    activeTalents[definitionInfo.spellID].active = true
+                    activeTalents[definitionInfo.spellID].rank = node.activeRank or 0
+                end
+            end
+        end
+        return activeTalents
+    end
+
+    -- Get All Talents
     local function getAllTalents()
         local talents = {}
         local configId = br._G.C_ClassTalents.GetActiveConfigID()
         if not configId then return talents end
         local configInfo = br._G.C_Traits.GetConfigInfo(configId)
+        if not configInfo then return talents end
         for _, treeId in pairs(configInfo.treeIDs) do
             local nodes = br._G.C_Traits.GetTreeNodes(treeId)
             for _, nodeId in pairs(nodes) do
                 local node = br._G.C_Traits.GetNodeInfo(configId, nodeId)
-                local activeid = (node.activeRank > 0 or node.ranksPurchased > 0) and node.activeEntry and node.activeEntry.entryID or node.entryIDs[1]
+                local activeTalents = getActiveTalents(node, configId)
                 for _, entryID in pairs(node.entryIDs) do
                     local entryInfo = br._G.C_Traits.GetEntryInfo(configId,entryID)
-                    local definitionInfo = br._G.C_Traits.GetDefinitionInfo(entryInfo.definitionID)
-                    if definitionInfo.spellID ~= nil then
-                        local rank = node.activeRank or 0
-                        local isActive = activeid == entryID and rank > 0
-                        talents[definitionInfo.spellID] = talents[definitionInfo.spellID] or {}
-                        talents[definitionInfo.spellID].active = isActive
-                        talents[definitionInfo.spellID].rank = isActive and rank or 0
+                    if entryInfo and entryInfo.definitionID then
+                        local definitionInfo = br._G.C_Traits.GetDefinitionInfo(entryInfo.definitionID)
+                        local talentID = definitionInfo.spellID
+                        if talentID ~= nil then
+                            talents[talentID] = talents[talentID] or {}
+                            talents[talentID].active = activeTalents[talentID] and true or false
+                            talents[talentID].rank = node.activeRank or 0
+                        end
                     end
                 end
             end
