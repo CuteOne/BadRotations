@@ -113,44 +113,45 @@ function br.castGroundAtUnit(spellID, radius, minUnits, maxRange, minRange, spel
 end
 
 function br.castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange, spellType, castTime)
+    -- print("castGroundAtBestLocation")
     local _, _, _, _, spellMinRange, spellMaxRange = br._G.GetSpellInfo(spellID)
     minRange = minRange or spellMinRange or 0
     maxRange = maxRange or spellMaxRange or 5
     radius   = radius or maxRange
-    -- return table with combination of every 2 units
+    -- return table with combinations of every r units from arr
+    -- Return table with combinations of every r units
     local function getAllCombinationsOfASet(arr, r)
-        if(r > #arr) then
+        if r <= 0 or r > #arr then
             return {}
         end
-        if(r == 0) then
-            return {}
-        end
-        if(r == 1) then
-            local return_table = {}
-            for i=1,#arr do
-                table.insert(return_table, {arr[i]})
+
+        local resultTable = {}
+        local n = #arr
+
+        local function generateCombinations(start, r, currentCombination)
+            if r == 0 then
+                table.insert(resultTable, currentCombination)
+                return
             end
-            return return_table
-        else
-            local return_table = {}
-            local arr_new = {}
-            for i=2,#arr do
-                table.insert(arr_new, arr[i])
-            end
-            for _, val in pairs(getAllCombinationsOfASet(arr_new, r-1)) do
-                local curr_result = {}
-                table.insert(curr_result, arr[1]);
-                for _,curr_val in pairs(val) do
-                    table.insert(curr_result, curr_val)
+
+            for i = start, n do
+                local newCombination = {}
+                for _, v in ipairs(currentCombination) do
+                    table.insert(newCombination, v)
                 end
-                table.insert(return_table, curr_result)
+                table.insert(newCombination, arr[i])
+
+                generateCombinations(i + 1, r - 1, newCombination)
             end
-            for _, val in pairs(getAllCombinationsOfASet(arr_new, r)) do
-                table.insert(return_table, val)
-            end
-            return return_table
         end
+
+        generateCombinations(1, r, {})
+
+        return resultTable
     end
+
+
+
 
     --check if unit is inside of a circle
     local function unitInCircle(unit, cx, cy)
@@ -160,8 +161,11 @@ function br.castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRan
         else
           uX, uY = br.GetFuturePostion(unit, castTime)
         end
-        local rUnit = br._G["UnitBoundingRadius"](unit)
-        return math.abs((uX - cx) * (uX - cx) + (uY - cy) * (uY - cy)) <= (rUnit + radius) * (rUnit + radius);
+        local rUnit = br._G.UnitBoundingRadius(unit)
+        local distanceSquared = (uX - cx)^2 + (uY - cy)^2
+        local circleRadiusSquared = (rUnit + radius)^2
+
+        return distanceSquared <= circleRadiusSquared
     end
 
     --distance from center to unit
@@ -182,34 +186,44 @@ function br.castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRan
         allUnitsInRange = br.getAllies("player",maxRange)
     else
         allUnitsInRange = br.getEnemies("player",maxRange,false)
+        -- print count of enemies in range
+        -- print("Enemies in Range: "..#allUnitsInRange)
     end
 
+    -- print("First Check")
+
     local testCircles = {}
+
     if #allUnitsInRange >= 2 then
         local combs = getAllCombinationsOfASet(allUnitsInRange, 2)
+
         for _, val in pairs(combs) do
             local temp = {}
-            local tX1, tY1, tZ1 = (castTime == nil or castTime == 0) and br.GetObjectPosition(val[1]) or 0,0,0
-                or br.GetFuturePostion(val[1], castTime)
-            local tX2, tY2, tZ2 = (castTime == nil or castTime == 0) and br.GetObjectPosition(val[2]) or 0,0,0
-                or br.GetFuturePostion(val[2], castTime)
+            local t1, t2 = val[1], val[2]
 
-            --distance
-            local q = sqrt((tX2-tX1)^2 + (tY2-tY1)^2)
-            --check to calculation. if result < 0 math.sqrt will give error
-            local calc = ((radius^2)-((q/2)^2))
+            local tX1, tY1, tZ1 = br.GetFuturePosition(t1, castTime)
+            local tX2, tY2, tZ2 = br.GetFuturePosition(t2, castTime)
+
+            -- Calculate distance
+            local q = math.sqrt((tX2 - tX1)^2 + (tY2 - tY1)^2)
+
+            -- Check if calculation result is valid
+            local calc = radius^2 - (q/2)^2
 
             if calc > 0 then
-                --x3, y3
-                local x3 = (tX1+tX2)/2
-                local y3 = (tY1+tY2)/2
-                local sqrt_calc = sqrt(calc)
+                -- Calculate circle centers
+                local x3 = (tX1 + tX2) / 2
+                local y3 = (tY1 + tY2) / 2
+                local sqrt_calc = math.sqrt(calc)
 
-                temp.xfc = x3 + sqrt_calc*((tY1-tY2)/q)
-                temp.yfc = y3 + sqrt_calc*((tX2-tX1)/q)
+                -- First circle center
+                temp.xfc = x3 + sqrt_calc * ((tY1 - tY2) / q)
+                temp.yfc = y3 + sqrt_calc * ((tX2 - tX1) / q)
 
-                temp.xsc = x3 - sqrt_calc*((tY1-tY2)/q)
-                temp.ysc = y3 - sqrt_calc*((tX2-tX1)/q)
+                -- Second circle center
+                temp.xsc = x3 - sqrt_calc * ((tY1 - tY2) / q)
+                temp.ysc = y3 - sqrt_calc * ((tX2 - tX1) / q)
+
                 temp.z = tZ2
 
                 br._G.tinsert(testCircles, temp)
@@ -217,36 +231,48 @@ function br.castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRan
         end
     end
 
+
+    -- print("Second Check")
     local bestCircle = {x = 0, y = 0, z = 0, q = 0, nro = 0}
-    for i=1, #testCircles do
+
+    for i = 1, #testCircles do
         local thisCircle = testCircles[i]
-        if br.getDistanceToLocation("player",thisCircle.xfc,thisCircle.yfc,thisCircle.z) > minRange
-            or br.getDistanceToLocation("player",thisCircle.xsc,thisCircle.ysc,thisCircle.z) > minRange
-        then
-            local tempData = { {count=0, units={}, x=thisCircle.xfc, y=thisCircle.yfc},
-                            {count=0, units={}, x=thisCircle.xsc, y=thisCircle.ysc} }
-            for j=1, #allUnitsInRange do
+
+        local distanceToFirst = br.getDistanceToLocation("player", thisCircle.xfc, thisCircle.yfc, thisCircle.z)
+        local distanceToSecond = br.getDistanceToLocation("player", thisCircle.xsc, thisCircle.ysc, thisCircle.z)
+
+        if distanceToFirst > minRange or distanceToSecond > minRange then
+            local tempData = {
+                {count = 0, units = {}, x = thisCircle.xfc, y = thisCircle.yfc},
+                {count = 0, units = {}, x = thisCircle.xsc, y = thisCircle.ysc}
+            }
+
+            for j = 1, #allUnitsInRange do
                 local unitSource = spellType == "heal" and allUnitsInRange[j].unit or allUnitsInRange[j]
-                for _,temp in ipairs(tempData) do
-                    if unitInCircle(unitSource,temp.x,temp.y) then
+
+                for _, temp in ipairs(tempData) do
+                    if unitInCircle(unitSource, temp.x, temp.y) then
                         temp.count = temp.count + 1
                         br._G.tinsert(temp.units, allUnitsInRange[j])
                     end
                 end
             end
-            for _,temp in ipairs(tempData) do
+
+            for _, temp in ipairs(tempData) do
                 if temp.count > bestCircle.nro then
-                    bestCircle.x = temp.x
-                    bestCircle.y = temp.y
-                    bestCircle.z = thisCircle.z
+                    bestCircle.x, bestCircle.y, bestCircle.z = temp.x, temp.y, thisCircle.z
                     bestCircle.nro = temp.count
                     bestCircle.units = {}
 
-                    for p = 1, #temp.units do br._G.tinsert(bestCircle.units,temp.units[p]) end
+                    for p = 1, #temp.units do
+                        br._G.tinsert(bestCircle.units, temp.units[p])
+                    end
                 end
             end
         end
     end
+
+
     --print(#bestCircle.units)
 
     -- check if units of the best circle is equal of circle of unit, if it is, then cast on this unit
@@ -258,11 +284,19 @@ function br.castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRan
     --     end
     -- end
 
+    -- print("Third Check")
     --check with minUnits
     if minUnits == 1 and bestCircle.nro == 0 and br.GetUnitExists("target") and br.getDistance("player","target") > minRange then
         if br.castGround("target",spellID,maxRange,minRange,radius,castTime) then return true else return false end
     end
+
+    -- print("Fourth Check")
+    --check with minUnits
+    -- print(minUnits)
+    -- print(bestCircle.nro)
     if bestCircle.nro < minUnits then return false end
+
+    -- print("Fifth Check")
 
     if bestCircle.x ~= 0 and bestCircle.y ~= 0 and bestCircle.z ~= 0 then
         --Calculate x/y position with shortest dist to units
@@ -281,6 +315,7 @@ function br.castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRan
             end
         end
         bestCircle.x, bestCircle.y = (newBestCircleX + math.random() * 2), (newBestCircleY + math.random() * 2)
+        -- print(bestCircle.x, bestCircle.y)
         if br.castAtPosition(bestCircle.x,bestCircle.y,bestCircle.z, spellID) then return true else return false end
     end
 end
@@ -832,40 +867,58 @@ end
     end
 
 -- Future position
-function br.GetFuturePostion(unit, castTime)
-    local distance = br._G.GetUnitSpeed(unit) * castTime
+function br.GetFuturePosition(unit, castTime)
+    local function getUnitPosition(target)
+        return br.GetObjectPosition(target)
+    end
+
+    local function getUnitSpeed(target)
+        return br._G.GetUnitSpeed(target)
+    end
+
+    local function calculateNewPosition(x, y, angle, distance)
+        local newX = x + cos(angle) * distance
+        local newY = y + sin(angle) * distance
+        return newX, newY
+    end
+
+    local function calculateAngle(x1, y1, x2, y2)
+        return br._G.rad(br._G.atan2(y2 - y1, x2 - x1))
+    end
+
+    local distance = getUnitSpeed(unit) * castTime
     if distance > 0 then
-        local x,y,z = br.GetObjectPosition(unit)
+        local x, y, z = getUnitPosition(unit)
         local angle = br.GetObjectFacing(unit)
-        --If Unit have a target, let's make sure they don't collide
+
         local unitTarget = br._G.UnitTarget(unit)
-        local unitTargetDist = 0
-        if unitTarget ~= nil then
-            local tX, tY, tZ = br.GetObjectPosition(unitTarget)
-            --Lets get predicted position of unit target aswell
-            if br._G.GetUnitSpeed(unitTarget) > 0 then
-                local tDistance = br._G.GetUnitSpeed(unitTarget) * castTime
+        if unitTarget then
+            local tX, tY, tZ = getUnitPosition(unitTarget)
+            local unitTargetSpeed = getUnitSpeed(unitTarget)
+
+            if unitTargetSpeed > 0 then
+                local tDistance = unitTargetSpeed * castTime
                 local tAngle = br.GetObjectFacing(unitTarget)
-                tX = tX + cos(tAngle) * tDistance
-                tY = tY + sin(tAngle) * tDistance
-                unitTargetDist = sqrt(((tX-x)^2) + ((tY-y)^2) + ((tZ-z)^2)) - ((br._G.UnitCombatReach(unit) or 0) + (br._G.UnitCombatReach(unitTarget) or 0))
-                if unitTargetDist < distance then distance = unitTargetDist end
-            else
-                unitTargetDist = br.getDistance(unitTarget, unit, "dist")
-                if unitTargetDist < distance then distance = unitTargetDist end
-            end
-            -- calculate angle based on target position/future position
-            angle = br._G.rad(br._G.atan2(tY - y, tX - x))
-            if angle < 0 then
-                angle = br._G.rad(360 + br._G.atan2(tY - y, tX - x))
+
+                tX, tY = calculateNewPosition(tX, tY, tAngle, tDistance)
+
+                local unitTargetDist = br.getDistance(unitTarget, unit, "dist") - ((br._G.UnitCombatReach(unit) or 0) + (br._G.UnitCombatReach(unitTarget) or 0))
+                if unitTargetDist < distance then
+                    distance = unitTargetDist
+                end
+
+                angle = calculateAngle(x, y, tX, tY)
             end
         end
-        x = x + cos(angle) * distance
-        y = y + sin(angle) * distance
+
+        x, y = calculateNewPosition(x, y, angle, distance)
+
         return x, y, z
     end
+
     return br.GetObjectPosition(unit)
 end
+
 
 function br.PullTimerRemain(returnBool)
     if returnBool == nil then returnBool = false end
