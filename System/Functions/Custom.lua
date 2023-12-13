@@ -113,7 +113,7 @@ function br.castGroundAtUnit(spellID, radius, minUnits, maxRange, minRange, spel
 end
 
 function br.castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange, spellType, castTime)
-    -- print("castGroundAtBestLocation")
+
     local _, _, _, _, spellMinRange, spellMaxRange = br._G.GetSpellInfo(spellID)
     minRange = minRange or spellMinRange or 0
     maxRange = maxRange or spellMaxRange or 5
@@ -186,11 +186,8 @@ function br.castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRan
         allUnitsInRange = br.getAllies("player",maxRange)
     else
         allUnitsInRange = br.getEnemies("player",maxRange,false)
-        -- print count of enemies in range
-        -- print("Enemies in Range: "..#allUnitsInRange)
     end
 
-    -- print("First Check")
 
     local testCircles = {}
 
@@ -232,7 +229,6 @@ function br.castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRan
     end
 
 
-    -- print("Second Check")
     local bestCircle = {x = 0, y = 0, z = 0, q = 0, nro = 0}
 
     for i = 1, #testCircles do
@@ -272,31 +268,11 @@ function br.castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRan
         end
     end
 
-
-    --print(#bestCircle.units)
-
-    -- check if units of the best circle is equal of circle of unit, if it is, then cast on this unit
-    -- for i=1,#allUnitsInRange do
-    --     local thisUnit = allUnitsInRange[i]
-    --     nmro = getUnits(thisUnit,allUnitsInRange, radius - 3)
-    --     if nmro >= bestCircle.nro and nmro >= minUnits then
-    --         if castGround(thisUnit,spellID,maxRange,minRange,radius,castTime) then return true else return false end
-    --     end
-    -- end
-
-    -- print("Third Check")
     --check with minUnits
     if minUnits == 1 and bestCircle.nro == 0 and br.GetUnitExists("target") and br.getDistance("player","target") > minRange then
         if br.castGround("target",spellID,maxRange,minRange,radius,castTime) then return true else return false end
     end
-
-    -- print("Fourth Check")
-    --check with minUnits
-    -- print(minUnits)
-    -- print(bestCircle.nro)
     if bestCircle.nro < minUnits then return false end
-
-    -- print("Fifth Check")
 
     if bestCircle.x ~= 0 and bestCircle.y ~= 0 and bestCircle.z ~= 0 then
         --Calculate x/y position with shortest dist to units
@@ -315,7 +291,6 @@ function br.castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRan
             end
         end
         bestCircle.x, bestCircle.y = (newBestCircleX + math.random() * 2), (newBestCircleY + math.random() * 2)
-        -- print(bestCircle.x, bestCircle.y)
         if br.castAtPosition(bestCircle.x,bestCircle.y,bestCircle.z, spellID) then return true else return false end
     end
 end
@@ -757,49 +732,6 @@ function br.DBM:getPulltimer(time, specificID)
 
     return 999 -- return number to avoid conflicts but to high so it should never trigger
 end
--- function br.DBM:getPulltimer(time, specificID)
---     if br.DBM.Timer then
---         specificID = specificID or "Pull in"
---         local hasPulltimer = false
---         local isBelowTime = false
---         local pullTimer = 0
---         for i = 1, #br.DBM.Timer do
---             -- Check if a Pulltimer is present
---             --Print("get pull timer id="..br.DBM.Timer[i].id)
---             --Print("time="..br.DBM.Timer[i].timer)
-
---             --if br.DBM.Timer[i].id == specificID then
---             is_find , _ = string.find(br.DBM.Timer[i].id , tostring(specificID))
---             if is_find ~= nil then
---                 hasPulltimer = true
---                 pullTimer = br.DBM.Timer[i].timer
-
---                 -- if a time is given set var to true
---                 if time then
---                     if pullTimer <= time then
---                         isBelowTime = true
---                     end
---                 end
---             end
---         end
-
---         -- if a time is given return true if pulltimer and below given time
---         -- else return time
---         if time ~= nil then
---             if hasPulltimer and isBelowTime then
---                 return true
---             else
---                 return false
---             end
---         else
---             if hasPulltimer then
---                 return pullTimer
---             end
---         end
---     end
---     return 999 -- return number to avoid conflicts but to high so it should never trigger
--- end
-
 
 --- Usage:
 -- 1 - br.DBM:getTimer(spellID) -> return (number) the count of given spell ID timer
@@ -985,7 +917,6 @@ function br.BWInit()
                 end
             end
         else
-            -- print("lalala")
         end
     end
     if br._G.BigWigsLoader then
