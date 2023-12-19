@@ -554,7 +554,7 @@ function br.enemyListCheck(Unit)
 	local distance = br.getDistance(Unit, "player")
 	local mcCheck = (br.isChecked("Attack MC Targets") and (not br.GetUnitIsFriend(Unit, "player") or br._G.UnitIsCharmed(Unit))) or not br.GetUnitIsFriend(Unit, "player")
 	local inPhase = not phaseReason or phaseReason == 2 or phaseReason == 3
-	if br.UnitDebuffID("player", 320102) and br._G.UnitIsPlayer(Unit) then
+	if (br.UnitDebuffID("player", 320102) or br.UnitDebuffID(Unit, 424495)) and br._G.UnitIsPlayer(Unit) then
 		return true
 	end
 	return br.GetObjectExists(Unit) and not br.GetUnitIsDeadOrGhost(Unit) and inPhase and br._G.UnitCanAttack("player", Unit) and br._G.UnitHealth(Unit) > 0 and distance < 50 and
@@ -579,7 +579,7 @@ function br.isValidUnit(Unit)
 	local isCC = br.getOptionCheck("Don't break CCs") and br.isLongTimeCCed(Unit) or false
 	local mcCheck =	(br.isChecked("Attack MC Targets") and (not br.GetUnitIsFriend(Unit, "player") or (br._G.UnitIsCharmed(Unit) and br._G.UnitCanAttack("player", Unit))))
 		or not br.GetUnitIsFriend(Unit, "player")
-	if playerTarget and br.UnitDebuffID("player", 320102) and br._G.UnitIsPlayer(Unit) then
+	if playerTarget and (br.UnitDebuffID("player", 320102) or br.UnitDebuffID(Unit, 424495)) and br._G.UnitIsPlayer(Unit) then
 		return true
 	end
 	if playerTarget and br.units[br._G.UnitTarget("player")] == nil and not br.enemyListCheck("target") then
