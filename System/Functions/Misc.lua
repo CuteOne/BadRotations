@@ -658,7 +658,7 @@ function br.pause(skipCastingCheck)
 	local eating = false
 	local pausekey
 	for i = 1, #food do
-		if br.UnitBuffID("player",i) then
+		if br.UnitBuffID("player",food[i]) then
 			eating = true
 			break
 		end

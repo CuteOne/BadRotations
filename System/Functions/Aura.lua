@@ -1,4 +1,17 @@
 local _, br = ...
+function br.AuraData(unit, index, filter)
+	local auraData = br._G.C_UnitAuras.GetAuraDataByIndex(unit, index, filter)
+	if not auraData then return nil end
+	return AuraUtil.UnpackAuraData(auraData)
+end
+-- Overwrite UnitBuff
+function br.UnitBuff(unit, index, filter)
+	return br.AuraData(unit, index, filter)
+end
+-- Overwrite UnitDebuff
+function br.UnitDebuff(unit, index, filter)
+	return br.AuraData(unit, index, filter)
+end
 function br.CancelUnitBuffID(unit, spellID, filter)
 	-- local spellName = GetSpellInfo(spellID)
 	for i = 1, 40 do
@@ -29,10 +42,10 @@ function br.UnitBuffID(unit, spellID, filter)
 	local exactSearch = filter ~= nil and br._G.strfind(br._G.strupper(filter), "EXACT")
 	if exactSearch then
 		for i = 1, 40 do
-			local buffName, _, _, _, _, _, _, _, _, buffSpellID = br._G.UnitBuff(unit, i, "player")
+			local buffName, _, _, _, _, _, _, _, _, buffSpellID = br.UnitBuff(unit, i, "player")
 			if buffName == nil then	return nil end
 			if buffSpellID == spellID then
-				return br._G.UnitBuff(unit, i)
+				return br.UnitBuff(unit, i)
 			end
 		end
 	else

@@ -106,9 +106,9 @@ function br.getDistanceCalc(Unit1,Unit2,option)
         -- Melee Range Bypass
         if br.player ~= nil then
             -- Modifier for Balance Affinity range change (Druid - Not Balance)
-            if br.player.talent.balanceAffinity ~= nil then
-                if br.player.talent.balanceAffinity and option ~= "noMod" then
-                    rangeMod = 3
+            if br.player.talent.astralInfluence ~= nil then
+                if br.player.talent.astralInfluence and option ~= "noMod" then
+                    rangeMod = br.player.talent.rank.astralInfluence == 1 and 1 or 3
                 end
             end
         end
@@ -136,17 +136,20 @@ function br.getDistanceCalc(Unit1,Unit2,option)
         if option == "dist3" then return dist3 end
         if option == "dist4" then return dist4 end
         if option == "meleeRange" then return meleeRange end
-        if dist > 13 then
-            currentDist = dist
-        elseif dist2 > 8 and dist3 > 8 then
-            currentDist = dist2
-        elseif dist3 > 5 and dist4 > 5 then
-            currentDist = dist3
-        elseif dist4 > meleeRange then -- Thanks Ssateneth
-            currentDist = dist4
-        else
-            currentDist = 0
-        end
+        -- if (br._G.UnitIsUnit("target",Unit1) or br._G.UnitIsUnit("target",Unit2)) then
+        --     br._G.print("Dist: "..tostring(br.round2(dist,0)))
+        -- end
+        -- if dist > 13 then
+            currentDist = br._G.max(0,dist)
+        -- elseif dist2 > 8 and dist3 > 8 then
+        --     currentDist = dist2
+        -- elseif dist3 > 5 and dist4 > 5 then
+        --     currentDist = dist3
+        -- elseif dist4 > meleeRange then -- Thanks Ssateneth
+        --     currentDist = dist4
+        -- else
+        --     currentDist = 0
+        -- end
         -- Modifier for Mastery: Sniper Training (Hunter - Marksmanship)
         -- if currentDist < 100 and br.isKnown(193468) and option ~= "noMod" and (Unit1 == "player" or Unit2 == "player") then
         --     currentDist = currentDist - (currentDist * (GetMasteryEffect() / 100))

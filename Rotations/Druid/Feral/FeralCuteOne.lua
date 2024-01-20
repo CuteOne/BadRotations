@@ -1,6 +1,6 @@
 -------------------------------------------------------
 -- Author = CuteOne
--- Patch = 10.0
+-- Patch = 10.2
 --    Patch should be the latest patch you've updated the rotation for (i.e., 9.2.5)
 -- Coverage = 100%
 --    Coverage should be your estimated percent coverage for class mechanics (i.e., 100%)
@@ -755,7 +755,7 @@ actionList.PreCombat = function()
             end
             -- Heart of the Wild
             -- heart_of_the_wild
-            if cast.able.heartOfTheWild() then
+            if cast.able.heartOfTheWild() and unit.valid("target") and unit.exists("target") and unit.distance("target") < 5 then
                 if cast.heartOfTheWild() then ui.debug("Casting Heart Of The Wild [Precombat]") return true end
             end
             -- Use Item - Algethar Puzzle Box
@@ -845,7 +845,7 @@ actionList.Combat = function()
         if actionList.Variables() then return true end
         -- Tigers Fury
         -- tigers_fury,target_if=min:target.time_to_die,if=!set_bonus.tier31_4pc&talent.convoke_the_spirits.enabled|!buff.tigers_fury.up|energy.deficit>65|set_bonus.tier31_2pc&action.feral_frenzy.ready|target.time_to_die<15&talent.predator.enabled
-        if cast.able.tigersFury() and ((not equiped.tier(31,4) and talent.convokeTheSpirits
+        if cast.able.tigersFury() and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 and ((not equiped.tier(31,4) and talent.convokeTheSpirits
             or not buff.tigersFury.exists() or energy.deficit()>65 or equiped.tier(31,2)
             and cast.able.feralFrenzy() or unit.ttd(var.minTTDUnit)<15 and talent.predator))
         then
@@ -863,7 +863,7 @@ actionList.Combat = function()
         end
         -- Auto Attack
         -- auto_attack,if=!buff.prowl.up&!buff.shadowmeld.up
-        if cast.able.autoAttack(units.dyn5) and not buff.prowl.exists() and not buff.shadowmeld.exists() then
+        if cast.able.autoAttack(units.dyn5) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 and not buff.prowl.exists() and not buff.shadowmeld.exists() then
             if cast.autoAttack(units.dyn5) then ui.debug("Casting Auto Attack") return true end
         end
         -- Natures Vigil
