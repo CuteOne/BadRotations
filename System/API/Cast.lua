@@ -39,8 +39,6 @@ br.api.cast = function(self,spell,id)
     -- @string castType Defines the type of AoE or special cast conditions.
     -- @number minUnits Minimum number of units needed to be hit by AoE spell.
     -- @number effectRng The AoE's effect range.
-    -- @number id The spell ID to cast.
-    -- @string spell The spell name to cast. This parameter is ignored if id is provided.
     -- @bool predict If true, will attempt to predict enemy movements for ground location AoE spells.
     -- @bool predictPad Pads the prediction cast time. 'predict' must be true.
     -- @tab enemies A table of enemy units that the spell should be cast on.

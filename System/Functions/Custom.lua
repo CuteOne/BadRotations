@@ -98,9 +98,20 @@ function br.castGroundAtUnit(spellID, radius, minUnits, maxRange, minRange, spel
 
     local allUnitsInRange
     if spellType == "heal" then
-        allUnitsInRange = #br.getAllies("player",40)
+        allUnitsInRange = br.getAllies("player",40)
     else
-        allUnitsInRange = #br.getEnemies("player",maxRange,true) - #br.getEnemies("player",minRange,true)
+        allUnitsInRange = {}
+        local maxEnemies = br.getEnemies("player",maxRange,true)
+        local minEnemies = br.getEnemies("player",minRange,true)
+        for _, maxUnit in pairs(maxEnemies) do
+            local minUnitInMaxEnemies = false
+            for _, minUnit in pairs(minEnemies) do
+                if minUnit == maxUnit then minUnitInMaxEnemies = true return end
+            end
+            if not minUnitInMaxEnemies then
+                table.insert(allUnitsInRange, maxUnit)
+            end
+        end
     end
 
     local enemiesInRadius   = #br.getEnemies(unit,radius)
