@@ -397,6 +397,7 @@ br.lists.spells = {
                 runeStrike                  = 316239,
                 runeforging                 = 53428,
                 sacrificialPact             = 327574,
+                soulReaper                  = 343294,                
             },
             artifacts                       = {
 
@@ -439,7 +440,6 @@ br.lists.spells = {
             talents                         = {
                 deathPact                   = 48743,
                 wraithWalk                  = 212552,
-                soulReaper                  = 343294,
             },
         },
     },
