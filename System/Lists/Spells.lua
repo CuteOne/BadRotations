@@ -173,6 +173,7 @@ br.lists.spells = {
                 marrowrend                  = 195182,
                 runeTap                     = 194679,
                 vampiricBlood               = 55233,
+                empowerRuneWeapon           = 47568,
             },
             artifacts                       = {
                 allConsumingRot             = 192464,
