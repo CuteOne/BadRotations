@@ -78,6 +78,12 @@ Raidable means if its good to raid with.
 <!-- rotations -->
 ### Death Knight
 
+- Blood
+
+|rotation|   author   |patch |coverage|status |  readiness  |last updated|
+|--------|------------|:----:|:------:|:-----:|:-----------:|-----------:|
+|BrewBK  |BrewingCoder|10.2.5|  50%   |Limited|:interrobang:|  02/15/2024|
+
 
 ### Demon Hunter
 
