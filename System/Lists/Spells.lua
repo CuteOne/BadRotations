@@ -341,7 +341,6 @@ br.lists.spells = {
             },
             debuffs                         = {
                 festeringWound              = 194310,
-                soulReaper                  = 343294,
                 unholyBlight                = 115994,
                 virulentPlague              = 191587,
             },
@@ -362,7 +361,6 @@ br.lists.spells = {
                 infectedClaws               = 207272,
                 pestilence                  = 277234,
                 pestilentPustules           = 194917,
-                soulReaper                  = 343294,
                 spellEater                  = 207321,
                 summonGargoyle              = 49206,
                 unholyAssault               = 207289,
@@ -399,6 +397,7 @@ br.lists.spells = {
                 runeStrike                  = 316239,
                 runeforging                 = 53428,
                 sacrificialPact             = 327574,
+                soulReaper                  = 343294,                
             },
             artifacts                       = {
 
@@ -427,6 +426,7 @@ br.lists.spells = {
                 frostBreath                 = 190780,
                 frostFever                  = 55095,
                 razorice                    = 51714,
+                soulReaper                  = 343294,
             },
             glyphs                          = {
 
