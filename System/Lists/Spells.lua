@@ -173,6 +173,7 @@ br.lists.spells = {
                 marrowrend                  = 195182,
                 runeTap                     = 194679,
                 vampiricBlood               = 55233,
+                empowerRuneWeapon           = 47568,
             },
             artifacts                       = {
                 allConsumingRot             = 192464,
@@ -200,9 +201,10 @@ br.lists.spells = {
                 dancingRuneWeapon           = 81256,
                 runeTap                     = 194679,
                 hemostasis                  = 273947,
-                ossuary			    = 219786,
+                ossuary			            = 219786,
                 tombstone                   = 219809,
                 vampiricBlood               = 55233,
+                empowerRuneWeapon           = 47568,
             },
             debuffs                         = {
                 asphyxiate                  = 221562,
@@ -315,6 +317,7 @@ br.lists.spells = {
                 huddle                      = 47484,
                 hook                        = 212468,
                 leap                        = 47482,
+                empowerRuneWeapon           = 47568,
             },
             artifacts                       = {
 
@@ -331,6 +334,7 @@ br.lists.spells = {
                 runicCorruption             = 51460,
                 unholyAssault               = 207289,
 		        unholyBlight 		        = 115989,
+                empowerRuneWeapon           = 47568,
             },
             conduits                        = {
                 convocationOfTheDead        = 338553,
