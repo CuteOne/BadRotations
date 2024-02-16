@@ -530,9 +530,11 @@ function br.loader:new(spec,specName)
         -- Get the names of all profiles and create rotation dropdown
         if names == nil then names = {} end
         table.wipe(names)
-        for i=1,#br.rotations[spec] do
-            local thisName = br.rotations[spec][i].name
-            br._G.tinsert(names, thisName)
+        if #br.rotations[spec] > 0 then
+            for i=1,#br.rotations[spec] do
+                local thisName = br.rotations[spec][i].name
+                br._G.tinsert(names, thisName)
+            end
         end
 
         br.ui:createRotationDropdown(br.ui.window.profile.parent, names)
