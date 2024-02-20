@@ -2456,6 +2456,7 @@ br.lists.spells = {
                 whirlingDragonPunch         = 152175,
                 fallenOrder                 = 326860,
                 bonedustBrew                = 325216,
+                teachingsOfTheMonastery     = 202090,
             },
             debuffs                         = {
                 disable                     = 116095,
