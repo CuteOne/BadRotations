@@ -803,7 +803,6 @@ function cl:Monk(...)
             [myspell.expelHarm] = true,
             [myspell.faelineStomp] = true,
             [myspell.fistsOfFury] = true,
-            [myspell.fistOfTheWhiteTiger] = true,
             [myspell.flyingSerpentKick] = true,
             [myspell.risingSunKick] = true,
             [myspell.rushingJadeWind] = true,
