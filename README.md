@@ -82,7 +82,7 @@ Raidable means if its good to raid with.
 
 |rotation|   author   |patch |coverage|status |  readiness  |last updated|
 |--------|------------|:----:|:------:|:-----:|:-----------:|-----------:|
-|BrewBK  |BrewingCoder|10.2.5|  50%   |Limited|:interrobang:|  02/15/2024|
+|BrewBK  |BrewingCoder|10.2.5|  98%   |Limited|:interrobang:|  02/21/2024|
 
 
 ### Demon Hunter
