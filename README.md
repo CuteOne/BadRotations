@@ -120,6 +120,12 @@ Raidable means if its good to raid with.
 
 ### Monk
 
+- WindWalker
+
+|   rotation   |   author   |patch |coverage|status |  readiness  |last updated|
+|--------------|------------|:----:|:------:|:-----:|:-----------:|-----------:|
+|BrewWindWalker|BrewingCoder|10.2.5|  30%   |Limited|:interrobang:|  02/21/2024|
+
 
 ### Paladin
 
