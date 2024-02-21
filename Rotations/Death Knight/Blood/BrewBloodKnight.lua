@@ -1,7 +1,7 @@
 -------------------------------------------------------
 -- Author = BrewingCoder
 -- Patch = 10.2.5
--- Coverage = 50%
+-- Coverage = 98%
 -- Status = Limited
 -- Readiness = Development
 -------------------------------------------------------
@@ -66,6 +66,13 @@ local function createOptions()
                     
         br.ui:checkSectionState(section)
 
+        section = br.ui:createSection(br.ui.window.profile,"Taunting")
+            br.ui:createCheckbox(section,"Only Taunt in Instance or Raid")
+            br.ui:createSpinner(section,"Taunt Range",30,10,30,10,"|cffFFFFFFSet Range to Taunt")
+            br.ui:createCheckbox(section,"Use Dark Command")
+            br.ui:createCheckbox(section,"Use Death Grip to Taunt")
+        br.ui:checkSectionState(section)
+
         section = br.ui:createSection(br.ui.window.profile, "Auto Pull more units during combat")
             br.ui:createCheckbox(section, "Only pull trivial enemies")
             br.ui:createCheckbox(section, "Use Death Grip")
@@ -127,7 +134,10 @@ local function createOptions()
         --- DEFENSIVE OPTIONS --- -- Define Defensive Options
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
-
+            br.ui:createCheckbox(section,"Use Anti-Magic Shell")
+            br.ui:createCheckbox(section,"Use Vampiric Blood")
+            br.ui:createCheckbox(section,"Use Icebound Fortitude")
+            br.ui:createCheckbox(section,"Use Lichborne")
         br.ui:checkSectionState(section)
         -------------------------
         --- INTERRUPT OPTIONS --- -- Define Interrupt Options
@@ -135,6 +145,7 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
             -- Mind Freeze
             br.ui:createCheckbox(section,"Mind Freeze")
+            br.ui:createCheckbox(section,"Use Death Grip as Interrupt")
             -- Interrupt Percentage
             br.ui:createSpinner(section,  "Interrupt At",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")
         br.ui:checkSectionState(section)
@@ -187,8 +198,40 @@ local runicPower
 --- Action Lists --- -- All Action List functions from SimC (or other rotation logic) here, some common ones provided
 --------------------
 local actionList = {} -- Table for holding action lists.
+
 -- Action List - Extra
 actionList.Extra = function()
+    if ui.checked("Use Dark Command") then
+        if ui.checked("Only Taunt in Instance or Raid") and not (var.inRaid or var.inInstance) then return false end
+        local enemiesList = nil
+        if ui.value("Taunt Range") == 30 then enemiesList = enemies.yards30 end
+        if ui.value("Taunt Range") == 20 then enemiesList = enemies.yards20 end
+        if ui.value("Taunt Range") == 10 then enemiesList = enemies.yards10 end
+        if enemiesList ~= nil then
+            for i=1,#enemiesList do
+                local thisUnit = enemiesList[i]
+                if not unit.isTanking(thisUnit) and unit.threat(thisUnit) and not unit.isExplosive(thisUnit) and cast.able.darkCommand(thisUnit) then
+                    if cast.darkCommand(thisUnit) then ui.debug("Casting Dark Command [Not Tanking]") return true end
+                end
+            end
+        end
+    end
+
+    if ui.checked("Use Death Grip to Taunt") then
+        if ui.checked("Only Taunt in Instance or Raid") and not (var.inRaid or var.inInstance) then return false end
+        local enemiesList = nil
+        if ui.value("Taunt Range") == 30 then enemiesList = enemies.yards30 end
+        if ui.value("Taunt Range") == 20 then enemiesList = enemies.yards20 end
+        if ui.value("Taunt Range") == 10 then enemiesList = enemies.yards10 end
+        if enemiesList ~= nil then
+            for i=1,#enemiesList do
+                local thisUnit = enemiesList[i]
+                if not unit.isTanking(thisUnit) and unit.threat(thisUnit) and not unit.isExplosive(thisUnit) and cast.able.deathGrip(thisUnit) then
+                    if cast.deathGrip(thisUnit) then ui.debug("Casting Death Grip [Not Tanking]") return true end
+                end
+            end
+        end
+    end
 end -- End Action List - Extra
 
 
@@ -196,7 +239,7 @@ actionList.CombatPull = function ()
     if ui.mode.autopull==1 and unit.inCombat then
 
         local validTargets = nil
-        if cast.able.deathsCaress and ui.checked("Use Deaths Caress to pull") then
+        if cast.able.deathsCaress("target") and ui.checked("Use Deaths Caress to pull") then
             if ui.checked("DC only pull from FRONT") then
                 if ui.value("Deaths Caress Range") == 10 then validTargets = enemies.yards10f;end
                 if ui.value("Deaths Caress Range") == 20 then validTargets = enemies.yards20f;end
@@ -220,7 +263,7 @@ actionList.CombatPull = function ()
         
         validTargets = nil
 
-        if cast.able.deathGrip and ui.checked("Use Death Grip") then
+        if cast.able.deathGrip("target") and ui.checked("Use Death Grip") then
             
             if ui.checked("DG only pull from FRONT") then
                 if ui.value("Death Grip Range") == 10 then validTargets = enemies.yards10f;end
@@ -257,7 +300,7 @@ end -- End Action List - Defensive
 actionList.Interrupt = function()
     if ui.useInterrupt() and ui.delay("Interrupts",unit.gcd(true)) then
         local thisUnit
-        if ui.checked("Mind Freeze") and cast.able.mindFreeze() then
+        if ui.checked("Mind Freeze") and cast.able.mindFreeze("target") then
             for i=1, #enemies.yards5f do
                 thisUnit = enemies.yards5f[i]
                 if unit.interruptable(thisUnit,ui.value("Interrupt At")) then
@@ -265,7 +308,16 @@ actionList.Interrupt = function()
                 end
             end
         end
+        if ui.checked("Use Death Grip as Interrupt") and cast.able.deathGrip("target") then
+            for i=1, #enemies.yards5f do
+                thisUnit = enemies.yards5f[i]
+                if unit.interruptable(thisUnit,ui.value("Interrupt At")) then
+                    if cast.deathGrip(thisUnit) then ui.debug("Casting Death Grip Interrupt on "..unit.name(thisUnit)) return true end
+                end
+            end
+        end
     end
+    
 end -- End Action List - Interrupt
 
 -- Action List - Cooldowns
@@ -325,6 +377,7 @@ local function runRotation() -- This is the main profile loop, any below this po
     debuff                                        = br.player.debuff
     runes                                         = br.player.power.runes()
     runicPower                                    = br.player.power.runicPower()
+    var.inRaid                                    = br.player.instance=="raid"
 
     -- Explanations on the Units and Enemies functions can be found in System/API/Units.lua and System/API/Enemies.lua
     -------------
@@ -435,14 +488,14 @@ local function runRotation() -- This is the main profile loop, any below this po
                 ui.checked("Use Tombstone") and
                 buff.boneShield.stack("player") > ui.value("Minimum Boneshield Stack") and
                 ((buff.deathAndDecay.exists() and ui.checked("Only in D&D")) or (not ui.checked("Only in D&D")))and
-                cast.able.tombstone then
+                cast.able.tombstone() then
                     if cast.tombstone() then ui.debug("Casting Tombstone") return true; end
             end
 
             -- Maintain Blood Plague via Deaths Caress
             if ui.checked("Maintain Deaths Caress") and
                 not debuff.bloodPlague.exists("target") and
-                cast.able.deathsCaress() and
+                cast.able.deathsCaress("target") and
                 runes > 0 then
                     if cast.deathsCaress("target") then ui.debug("Cating Death's Caress"); return true end
             end
@@ -457,7 +510,7 @@ local function runRotation() -- This is the main profile loop, any below this po
                 local priority_health = (br.getHPLossPercent("player",5) >= ui.value("Prioritize For Damage"))
                 if ui.checked("Use Death Strike") and
                      (priority_power or priority_health) and
-                    cast.able.deathStrike() then
+                    cast.able.deathStrike("target") then
                         if priority_health then ui.debug("DS PRIORITY: Health") end
                         if priority_power then  ui.debug("DS PRIORITY:  Runic Power") end
                         if cast.deathStrike("target") then return true; end
@@ -465,7 +518,7 @@ local function runRotation() -- This is the main profile loop, any below this po
 
                 --Soul Reaper, see if we can catch target at right health
                 if ui.checked("Use Soul Reaper") and
-                    cast.able.soulReaper() then
+                    cast.able.soulReaper("target") then
                     if ui.checked("Use only at Pct Health") then
                         if br.getHP("target") <= ui.value("Health of Target Pct") then
                             if cast.soulReaper("target") then
@@ -495,28 +548,28 @@ local function runRotation() -- This is the main profile loop, any below this po
                         return true
                     end
                 end
-                if ui.checked("Blood Boil") and cast.able.bloodBoil then
+                if ui.checked("Blood Boil") and cast.able.bloodBoil() then
                     if cast.bloodBoil() then
                         ui.debug("Casting Blood Boil")
                         return true;
                     end
                 end
                 
-                if cast.able.deathStrike() and buff.ossuary.exists() and runicPower >= 35 then
+                if cast.able.deathStrike("target") and buff.ossuary.exists() and runicPower >= 35 then
                     if cast.deathStrike("target") then
                         ui.debug("Casting Death Strike")
                         return true;
                     end
                 end
                 
-                if cast.able.heartStrike() and runes >= 1 then
+                if cast.able.heartStrike("target") and runes >= 1 then
                     if cast.heartStrike("target") then
                         ui.debug("Casting Heart Strike")
                         return true;
                     end
                 end
 
-                if (runes < 3 and charges.bloodTap.count() > 1) or (runes < 1 and charges.bloodTap.count()==1)  then
+                if (runes < 3 and charges.bloodTap.count() > 1) or (runes < 1 and charges.bloodTap.count()==1) and cast.able.bloodTap()  then
                     ui.debug("casting Blood Tap")
                     if cast.bloodTap() then
                         ui.debug("Casting Blood Tap")
