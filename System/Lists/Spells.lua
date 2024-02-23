@@ -2432,7 +2432,9 @@ br.lists.spells = {
                 touchOfKarma                = 122470,
                 grappleWeapon               = 233759,
                 fallenOrder                 = 326860,
-                flashcraft                  = 324631
+                flashcraft                  = 324631,
+                jadefireStomp               = 388193,
+                summonWhiteTigerStatue      = 388686,
             },
             artifacts                       = {
 
@@ -2457,6 +2459,7 @@ br.lists.spells = {
                 fallenOrder                 = 326860,
                 bonedustBrew                = 325216,
                 teachingsOfTheMonastery     = 202090,
+                jadefireStomp               = 388193,
             },
             debuffs                         = {
                 disable                     = 116095,
@@ -2480,6 +2483,8 @@ br.lists.spells = {
                 spiritualFocus              = 280197,
                 strikeOfTheWindlord         = 392983,
                 whirlingDragonPunch         = 152175,
+                skyreach                    = 392991,
+                skytouch                    = 405044,
             },
             traits                          = {
                 gloryOfTheDawn              = 288634,
@@ -2519,6 +2524,7 @@ br.lists.spells = {
                 weaponsOfOrderWW            = 310454, --311054,
                 prideful                    = 340880,
 				vivaciousVivification		= 392883,
+                powerStrikes                = 129914,       --bonus chi proc buff
             },
             conduits                        = {
                 calculatedStrikes           = 336526,
@@ -2554,11 +2560,9 @@ br.lists.spells = {
                 fastFeet                    = 388809,
                 fatalTouch                  = 394123,
                 ferocityOfXuen              = 388674,
-                fortifyingBrew              = 388917,
                 generousPour                = 389575,
                 graceOfTheCrane             = 388811,
                 hastyProvocation            = 328670,
-                improvedDetox               = 388874,
                 improvedParalysis           = 344359,
                 improvedRoll                = 328669,
                 improvedTouchOfDeath        = 322113,

@@ -16,6 +16,10 @@ function br.getHeirloomNeck()
     return 0
 end
 br.lists.items = {
+    -- Dragon Isle Food buffs
+    thousandboneTongueslicer        = 197786,
+    deviouslyDeviledEggs            = 204072,
+    
     -- Death Knight: Frost
     consortsColdCore                = 144293,
     koltirasNewfoundWill            = 132366,
