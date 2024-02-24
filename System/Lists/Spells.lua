@@ -2307,6 +2307,8 @@ br.lists.spells = {
                 purifiedChi                 = 325092,
                 rushingJadeWind             = 116847,
                 zenMeditation               = 115176,
+                celestialBrew               = 322507,
+                invokeNiuzao                = 132578,
             },
             debuffs                         = {
                 breathOfFire                = 146222,
@@ -2331,7 +2333,6 @@ br.lists.spells = {
                 lightBrewing                = 325093,
                 rushingJadeWind             = 116847,
                 specialDelivery             = 196730,
-                spitfire                    = 242580,
                 summonBlackOxStatue         = 115315,
             },
         },
@@ -2388,6 +2389,7 @@ br.lists.spells = {
                 ancientTeachingOfTheMonastery = 347553,
                 fallenOrder                 = 326860,
 				vivaciousVivification		= 392883,
+                rushingJadeWind             = 116847,
             },
             debuffs                         = {
                 mysticTouch                 = 113746,
@@ -2460,6 +2462,7 @@ br.lists.spells = {
                 bonedustBrew                = 325216,
                 teachingsOfTheMonastery     = 202090,
                 jadefireStomp               = 388193,
+
             },
             debuffs                         = {
                 disable                     = 116095,
