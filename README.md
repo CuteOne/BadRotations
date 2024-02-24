@@ -120,6 +120,12 @@ Raidable means if its good to raid with.
 
 ### Monk
 
+- BrewMaster
+
+|   rotation   |   author   |patch |coverage|        status        |  readiness  |last updated|
+|--------------|------------|:----:|:------:|:--------------------:|:-----------:|-----------:|
+|BrewBrewMaster|BrewingCoder|10.2.5|  90%   |Limited,Hardcoded Vals|:interrobang:|  02/24/2024|
+
 - WindWalker
 
 |   rotation   |   author   |patch |coverage|status |  readiness  |last updated|
