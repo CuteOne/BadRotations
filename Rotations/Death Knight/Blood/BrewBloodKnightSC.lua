@@ -1,11 +1,11 @@
 -------------------------------------------------------
 -- Author = BrewingCoder
 -- Patch = 10.2.5
--- Coverage = 98%
+-- Coverage = 90%
 -- Status = Limited
 -- Readiness = Development
 -------------------------------------------------------
-local rotationName = "BrewBKSC" 
+local rotationName = "BrewBloodKnight-SimC" 
 
 ---------------
 --- Toggles ---
@@ -412,12 +412,10 @@ local function runRotation() -- This is the main profile loop, any below this po
                 if cast.raiseDead() then ui.debug("B: Raise Dead") return true; end;
             end
 
-            if buff.dancingRuneWeapon.exists() then
-                --ui.debug("Can Use Potion: " .. tostring(use.isOneOfUsable(br.lists.items.elementalPotionOfPowerQualities)))
+            if buff.dancingRuneWeapon.exists() and (var.inRaid or var.inInstance) then
                 if use.isOneOfUsable(br.lists.items.elementalPotionOfPowerQualities) then
                   if use.bestItem(br.lists.items.elementalPotionOfPowerQualities)   then ui.debug("9: POT") return true; end;
                 end
-                --if use.bestItem(br.list.items.elementPotionOfPowerQualities) then ui.debug("Using best Elemental Potion of Power") return true end
             end
 
             --icebound_fortitude,if=!(buff.dancing_rune_weapon.up|buff.vampiric_blood.up)&(target.cooldown.pause_action.remains>=8|target.cooldown.pause_action.duration>0)
