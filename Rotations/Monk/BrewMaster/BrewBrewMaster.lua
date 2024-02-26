@@ -230,7 +230,16 @@ local function runRotation() -- This is the main profile loop, any below this po
     --- Enemies ---
     ---------------
     enemies.get(5) -- Makes a varaible called, enemies.yards5
+    enemies.get(8)
+    enemies.get(10)
+    enemies.get(20)
+    enemies.get(30)
     enemies.get(40) -- Makes a varaible called, enemies.yards40
+    enemies.get(5,"player",false,true) -- makes enemies.yards5f
+    enemies.get(10,"player",false, true)
+    enemies.get(20,"player",false,true)
+    enemies.get(30,"player",false,true)
+    enemies.get(40,"player",false,true)
 
     ------------------------
     --- Custom Variables ---
@@ -282,61 +291,71 @@ local function runRotation() -- This is the main profile loop, any below this po
 
             --Melee Range Attacks
             if unit.distance("target") <= 5 then
-                
+                if buff.hitScheme.exists() and buff.hitScheme.stack("player") >= 3 and cast.able.kegSmash("target") then
+                    if cast.kegSmash("target") then ui.debug("Proc Hit Scheme: Keg Smash") return true; end;
+                end
                 if cast.able.celestialBrew() and not buff.celestialBrew.exists("player") then
                     if cast.celestialBrew("player") then ui.debug("Celestial Brew") return true; end;
                 end
-                if cast.able.blackoutKick("target") then
-                    if cast.blackoutKick("target") then ui.debug("Blackout Kick") return true; end;
-                end
-                if cast.able.kegSmash("target") then
-                    if cast.kegSmash("target") then ui.debug("Keg Smash!") return true; end;
+
+                --Make sure shuffle is being maintained
+                -- +5 sec for Keg Smash, 3 sec for Blackout kick, max 15 sec.
+                if (not buff.shuffle.exists() or (buff.shuffle.remains() <= 3)) then
+                    if cast.able.kegSmash("target") then
+                        if cast.kegSmash("target") then ui.debug("SHUFFLE +5: Keg Smash") return true; end;
+                    elseif cast.able.blackoutKick("target") then 
+                        if cast.blackoutKick("target") then ui.debug("SHUFFLE +3: Blackout Kick") return true; end;
+                    else
+                        if cast.able.spinningCraneKick() then
+                            if cast.spinningCraneKick() then ui.debug("SHUFFLE PUSH: Spinning Crane Kick") return true; end;
+                        end
+                    end
                 end
 
                 if cast.able.breathOfFire("target") then
                     if cast.breathOfFire("target") then ui.debug("Breath of Fire") return true; end;
                 end
-
                 if cast.able.weaponsOfOrder("target") then
                     if cast.weaponsOfOrder("target") then ui.debug("WOE") return true; end;
                 end
-
                 if cast.able.risingSunKick("target") then
                     if cast.risingSunKick("target") then ui.debug("Rising Sun Kick") return true; end;
                 end
-                
                 if cast.able.touchOfDeath("target") then
                     if cast.touchOfDeath("target") then ui.debug("Touch of Death") return true; end;
                 end
-
-                if cast.able.spinningCraneKick() then
-                    if cast.spinningCraneKick() then ui.debug("Spinning Crane Kick") return true; end;
-                end
-
                 if cast.able.summonWhiteTigerStatue("target") then
                     if cast.summonWhiteTigerStatue("target") then ui.debug("White Target Statue") return true; end;
                 end
-
-                if cast.able.bonedustBrew("target") then
-                    if cast.bonedustBrew("target") then ui.debug("Bone Dust Brew") return true; end;
+                if cast.able.bonedustBrew("playerGround") then
+                    if cast.bonedustBrew("playerGround") then ui.debug("Bone Dust Brew") return true; end;
                 end
-
                 if buff.rushingJadeWind.exists("player") and cast.able.explodingKeg("target") then
-                    if cast.explodingKeg("target") then ui.debug("Exploding Key") return true; end;
+                    if cast.explodingKeg("target") then ui.debug("Exploding Keg") return true; end;
                 end
-
-                if cast.able.tigerPalm("target") then
-                    if cast.tigerPalm("target") then ui.debug("tiger Palm") return true; end;
-                end
-
+                -- We need to ocassionally cast a damage spell; but the tigerPalm vs Spinning Crane kick options
+                -- Would depend on # of enemies as well as if we need to collect globes.  Not sure we can get the 
+                -- # of globes on the ground nearby.
+                -- if (ui.mode.rotation == 1 or ui.mode.rotation==2) and 
+                --         #enemies.yards8 >= 3 and 
+                --         buff.counterStrike.exists() and 
+                --         cast.able.spinningCraneKick() then
+                --     if cast.spinningCraneKick() then ui.debug("PROC: Spinning Crane Kick") return true; end;
+                -- elseif ui.mode.rotation == 3 and buff.counterStrike.exists() and cast.able.tigerPalm("target") then
+                --     if cast.tigerPalm("target") then ui.debug("PROC: Tiger Palm") return true; end;
+                -- end
+                -- if buff.counterStrike.exists() and cast.able.tigerPalm("target") and not cast.last.tigerPalm(2)  then
+                --     if cast.tigerPalm("target") then ui.debug("Proc Counterstrike, Tiger Palm") return true; end;
+                -- end
+                -- if buff.counterStrike.exists() and cast.able.spinningCraneKick() then
+                --     if cast.spinningCraneKick() then ui.debug("Spinning Crane Kick") return true; end;
+                -- end
+                -- if cast.able.tigerPalm("target") then
+                --     if cast.tigerPalm("target") then ui.debug("tiger Palm") return true; end;
+                -- end
                 if cast.able.tigersLust("player") then
                     if cast.tigersLust("player") then ui.debug("tiger's Lust") return true; end;
                 end
-
-
-
-
-
 
                 if cast.able.autoAttack("target") then
                     if cast.autoAttack("target") then ui.debug("Casting Auto Attack [Pre-Combat]") return true end
