@@ -42,6 +42,42 @@ br.api.use = function(self,item,id)
             end
         end
     end
+    
+    if use.bestItem == nil then
+        --- Uses the best possible item in a list of items.
+        -- in the items.lua usage precedence will be the order the items appear in the array from first to last.
+        -- typically for using higher quality items first, such as gold items over silver, etc.
+        -- example, howlingRuneQualities = {194820,194819,194817} would attempt to use 194820 (gold qual) first, then 194819 (silver qaul) second, etc.
+        -- @function use.bestItem()
+        -- @array itemIDs The array of variable quality items.
+        -- @string[opt="target"] thisUnit The unit to use the item on.
+        -- @treturn boolean
+        use.bestItem = function(itemIDs,thisUnit)
+            if itemIDs == nil then return false end
+            if thisUnit == nil then thisUnit = "player" end
+            for i=1,#itemIDs do
+               if br.canUseItem(itemIDs[i])  then
+                    return br.useItem(itemIDs[i],thisUnit)
+               end
+            end
+        end
+    end
+
+    if use.isOneOfUsable == nil then
+        --- iterates through a list of items and returns true if they are usable
+        -- typically for using higher quality items first, such as gold items over silver, etc.
+        -- example, howlingRuneQualities = {194820,194819,194817} would attempt to use 194820 (gold qual) first, then 194819 (silver qaul) second, etc.
+        -- @function use.isOneOfUsable()
+        -- @array itemIDs The array of variable quality items.
+        -- @treturn boolean
+        use.isOneOfUsable = function(itemIDs)
+            if itemIDs == nil then return false end
+            for i=1, #itemIDs do
+                if br.canUseItem(itemIDs[i]) then return true end
+            end
+            return false
+        end
+    end
 
     if use.slot == nil then
         --- Uses the item in the specified equipment slot.

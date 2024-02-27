@@ -197,5 +197,15 @@ br.lists.items = {
     elementalPotionOfUltimatePower  = 191383,
     mirrorOfFracturedTomorrows      = 207581,
     witherbarksBranch               = 109999,
+
+    --Dragonflight variable quality items
+    --Gold, Silver, Copper
+    elementalPotionOfPowerQualities = {191389,191388,191387},
+    howlingRuneQualities = {194820,194819,194817},
+    --Fleeting first in order, i.e. Gold Fleeting, gold regular, silver fleeting, silver regular, etc.
+    phialOfGlacialFuryQualities={204660,191335,204659,191334,204658,191333},
+    
+
+
 }
 

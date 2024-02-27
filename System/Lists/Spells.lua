@@ -204,7 +204,10 @@ br.lists.spells = {
                 ossuary			            = 219786,
                 tombstone                   = 219809,
                 vampiricBlood               = 55233,
+                vampiricStrength            = 408356,
                 empowerRuneWeapon           = 47568,
+                coagulopathy                = 391477,
+                icyTalons                   = 194878,
             },
             debuffs                         = {
                 asphyxiate                  = 221562,
@@ -232,6 +235,10 @@ br.lists.spells = {
                 voracious                   = 273953,
                 wraithWalk                  = 212552,
                 willOfTheNecropolis         = 206967,
+                unholyGround                = 374265,
+                sanguineGround              = 391458,
+                shatteringBone              = 377640,
+                insatiableBlade             = 377637,
             },
         },
         -- Frost
@@ -440,6 +447,7 @@ br.lists.spells = {
             talents                         = {
                 deathPact                   = 48743,
                 wraithWalk                  = 212552,
+                sacrificialPact             = 327574,
             },
         },
     },
@@ -2309,6 +2317,9 @@ br.lists.spells = {
                 zenMeditation               = 115176,
                 celestialBrew               = 322507,
                 invokeNiuzao                = 132578,
+                counterStrike               = 383800,
+                hitScheme                   = 383696,
+                shuffle                     = 322120,
             },
             debuffs                         = {
                 breathOfFire                = 146222,
