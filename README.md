@@ -80,9 +80,10 @@ Raidable means if its good to raid with.
 
 - Blood
 
-|rotation|   author   |patch |coverage|status |  readiness  |last updated|
-|--------|------------|:----:|:------:|:-----:|:-----------:|-----------:|
-|BrewBK  |BrewingCoder|10.2.5|  98%   |Limited|:interrobang:|  02/21/2024|
+|      rotation      |   author   |patch |coverage|status |  readiness  |last updated|
+|--------------------|------------|:----:|:------:|:-----:|:-----------:|-----------:|
+|BrewBloodKnight-SimC|BrewingCoder|10.2.5|  90%   |Limited|:interrobang:|  02/26/2024|
+|BrewBK              |BrewingCoder|10.2.5|  98%   |Limited|:interrobang:|  02/21/2024|
 
 
 ### Demon Hunter
@@ -124,7 +125,7 @@ Raidable means if its good to raid with.
 
 |   rotation   |   author   |patch |coverage|        status        |  readiness  |last updated|
 |--------------|------------|:----:|:------:|:--------------------:|:-----------:|-----------:|
-|BrewBrewMaster|BrewingCoder|10.2.5|  90%   |Limited,Hardcoded Vals|:interrobang:|  02/24/2024|
+|BrewBrewMaster|BrewingCoder|10.2.5|  90%   |Limited,Hardcoded Vals|:interrobang:|  02/26/2024|
 
 - WindWalker
 
