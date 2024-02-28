@@ -167,6 +167,52 @@ br.api.module = function(self)
     -- @function module.Flask
     -- @string buffType The type of flask to use. (e.g. "Agility", "Intellect", "Stamina", "Strength")
     -- @bool[opt] section If set will generate the options for this module in the Profile Options. Otherwise, will run the module.
+    module.VariableCombatPotion = function(section)
+        local potList = {"Elem Pot of Ultimate Power","Elem Pot of Power"}
+        if section ~= nil then
+            br.ui:createDropdownWithout(section,"Use Best Qual Potion",potList,1,"|cffFFFFFFSet Combat Potion To Use.")
+        end
+
+        local function cancelBuffs()
+            if buff.elementalPotionOfUltimatePower.exists() then buff.elementalPotionOfUltimatePower.cancel() end
+            if buff.elementalPotionOfPower.exists() then buff.elementalPotionOfPower.cancel() end
+        end
+
+        if section == nil then
+            local opValue = ui.value("Use Best Qual Potion")
+            if opValue == 1 and not buff.elementalPotionOfUltimatePower.exists() and use.isOneOfUsable(br.lists.items.elementalPotionOfUltimatePowerQualities) then
+                    cancelBuffs()
+                    if use.bestItem(br.lists.items.elementalPotionOfUltimatePowerQualities) then ui.debug("Using Best Pot: Elemental Potion of Ultimate Power") return true; end
+            end
+            if opValue == 2 and not buff.elementalPotionOfPower.exists() and use.isOneOfUsable(br.lists.items.elementalPotionOfPowerQualities) then
+                    cancelBuffs()
+                    if use.bestItem(br.lists.items.elementalPotionOfPowerQualities) then ui.debug("Using Best Pot: Elemental Potion of Power") return true; end
+            end
+        end
+    end
+    module.VariablePhial = function(section)
+        local phialList = {"Iced Phial of Corrupting Rage","Phial of Glacial Fury"}
+        if section ~= nil then
+            br.ui:createDropdownWithout(section,"Use Best Qual Phial",phialList,1,"|cffFFFFFFSet Phial Potion To Use.")
+        end
+        local function cancelBuffs()
+            if buff.icedPhialOfCorruptingRage.exists() then buff.icedPhialOfCorruptingRage.cancel() end;
+            if buff.phialOfGlacialFury.exists() then buff.phialOfGlacialFury.cancel() end;
+        end
+        if section == nil then
+            local opValue = ui.value("Use Best Qual Phial")
+            if opValue == 1 and not buff.icedPhialOfCorruptingRage.exists() and use.isOneOfUsable(br.lists.items.icedPhialOfCorruptingRageQualities) then
+                    cancelBuffs()
+                    if use.bestItem(br.lists.items.icedPhialOfCorruptingRageQualities) then ui.debug("Using Best Phial: Iced Phial of Corrupting Rage") return true; end
+
+            end
+            if opValue == 2 and not buff.phialOfGlacialFury.exists() and use.isOneOfUsable(br.lists.items.phialOfGlacialFuryQualities) then
+                    cancelBuffs()
+                    if use.bestItem(br.lists.items.phialOfGlacialFuryQualities) then ui.debug("Using Best Phial: Phial of Glacial Fury") return true; end
+            end
+        end
+    end
+
     module.FlaskUp = function(buffType,section)
         local function getFlaskByType(buff)
             local thisFlask = ""

@@ -197,13 +197,18 @@ br.lists.items = {
     elementalPotionOfUltimatePower  = 191383,
     mirrorOfFracturedTomorrows      = 207581,
     witherbarksBranch               = 109999,
+    integratedPrimalFire            = 200868,
+    lifeflameAmpoule                = 198451,
 
     --Dragonflight variable quality items
     --Gold, Silver, Copper
-    elementalPotionOfPowerQualities = {191389,191388,191387},
-    howlingRuneQualities = {194820,194819,194817},
     --Fleeting first in order, i.e. Gold Fleeting, gold regular, silver fleeting, silver regular, etc.
+    elementalPotionOfUltimatePowerQualities = {191914,191383,191913,191382,191912,191381},
+    elementalPotionOfPowerQualities = {191907,191389,191906,191388,191905,191387},
+    howlingRuneQualities = {194820,194819,194817},
     phialOfGlacialFuryQualities={204660,191335,204659,191334,204658,191333},
+    icedPhialOfCorruptingRageQualities={204654,191329,204653,191328,204652,191327},
+
     
 
 
