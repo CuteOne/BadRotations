@@ -337,11 +337,13 @@ br.lists.spells = {
                 huddle                      = 91838,
                 necrosis                    = 207346,
                 soulReaper                  = 215711,
-                suddenDoom                  = 81340, --49530,
+                suddenDoom                  = 49530,
                 runicCorruption             = 51460,
                 unholyAssault               = 207289,
 		        unholyBlight 		        = 115989,
                 empowerRuneWeapon           = 47568,
+                commanderOfTheDead          = 390259,
+                summonGargoyle              =61777;
             },
             conduits                        = {
                 convocationOfTheDead        = 338553,
@@ -350,6 +352,9 @@ br.lists.spells = {
                 festeringWound              = 194310,
                 unholyBlight                = 115994,
                 virulentPlague              = 191587,
+                rottenTouch                 = 390275,
+                deathRot                    = 377537,
+                
             },
             glyphs                          = {
 
@@ -357,7 +362,6 @@ br.lists.spells = {
             talents                         = {
                 allWillServe                = 194916,
                 armyOfTheDamned             = 276837,
-                asphyxiate                  = 108194,
                 burstingSores               = 207264,
                 clawingShadows              = 207311,
                 deathsReach                 = 276079,
@@ -367,13 +371,18 @@ br.lists.spells = {
                 harbingerOfDoom             = 276023,
                 infectedClaws               = 207272,
                 pestilence                  = 277234,
-                pestilentPustules           = 194917,
-                spellEater                  = 207321,
                 summonGargoyle              = 49206,
                 unholyAssault               = 207289,
                 unholyBlight                = 115989,
                 unholyPact                  = 319230,
-                wraithWalk                  = 212552
+                wraithWalk                  = 212552,
+                commanderOfTheDead          = 390259,
+                deathRot                    = 377537,
+                improvedDeathCoil           = 377580,
+                coilOfDevastation           = 390270,
+                festermight                 = 377590,
+                rottenTouch                 = 390275,
+                vileContagion               = 390279,
             },
             traits                          = {
                 magusOfTheDead              = 288417,
@@ -4796,6 +4805,10 @@ br.lists.spells = {
                 soulshape                       = 310143,
                 soulIgnition                    = 345251,
                 spectralFlaskOfPower            = 307185,
+                elementalPotionOfPower          = 371024,
+                elementalPotionOfUltimatePower  = 371028,
+                phialOfGlacialFury              = 373257,
+                icedPhialOfCorruptingRage       = 374000,
             },
             conduits                            = {
 
