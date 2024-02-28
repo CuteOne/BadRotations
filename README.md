@@ -85,6 +85,12 @@ Raidable means if its good to raid with.
 |BrewBloodKnight-SimC|BrewingCoder|10.2.5|  90%   |Limited|:interrobang:|  02/26/2024|
 |BrewBK              |BrewingCoder|10.2.5|  98%   |Limited|:interrobang:|  02/21/2024|
 
+- Unholy
+
+|  rotation  |   author   |patch |coverage|status |  readiness  |last updated|
+|------------|------------|:----:|:------:|:-----:|:-----------:|-----------:|
+|BrewUnholyDK|BrewingCoder|10.2.5|  90%   |Limited|:interrobang:|  02/28/2024|
+
 
 ### Demon Hunter
 
