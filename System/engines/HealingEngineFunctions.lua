@@ -552,13 +552,18 @@ function br.castGroundAtLocation(loc, SpellID)
     --local mouselookup = IsMouseButtonDown(2)
 	--MouselookStop()
 	local px,py,pz = br._G.ObjectPosition("player")
-	loc.z = select(3,br._G.TraceLine(loc.x, loc.y, loc.z+5, loc.x, loc.y, loc.z-5, 0x110)) -- Raytrace correct z, Terrain and WMO hit
-	if loc.z ~= nil and br._G.TraceLine(px, py, pz+2, loc.x, loc.y, loc.z+1, 0x100010) == nil and br._G.TraceLine(loc.x, loc.y, loc.z+4, loc.x, loc.y, loc.z, 0x1) == nil then -- Check z and LoS, ignore terrain and m2 colissions and check no m2 on hook location
+	local hit1x,hit1y,hit1z = br._G.TraceLine(loc.x, loc.y, loc.z+5, loc.x, loc.y, loc.z-5, 0x110) -- Raytrace correct z, Terrain and WMO hit
+	if hit1z ~= nil and 
+		br._G.TraceLine(px, py, pz+2, loc.x, loc.y, loc.z+1, 0x100010) == nil and 
+		br._G.TraceLine(loc.x, loc.y, loc.z+4, loc.x, loc.y, loc.z, 0x1) == nil then -- Check z and LoS, ignore terrain and m2 colissions and check no m2 on hook location
 		if br._G.SpellIsTargeting() then
-			br._G.ClickPosition(loc.x,loc.y,loc.z)
+			br._G.ClickPosition(loc.x,loc.y,hit1z)
 		end
 		--if mouselookup then MouselookStart() end
-		if br._G.SpellIsTargeting() then br._G.SpellStopTargeting() br.addonDebug("Canceling Spell", true) end
+		if br._G.SpellIsTargeting() then 
+			br._G.SpellStopTargeting() 
+			br.addonDebug("Canceling Spell", true) 
+		end
 		return true
 	end
 end
