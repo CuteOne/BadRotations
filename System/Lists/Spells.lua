@@ -2354,16 +2354,16 @@ br.lists.spells = {
                 rushingJadeWind             = 116847,
                 specialDelivery             = 196730,
                 summonBlackOxStatue         = 115315,
+                detox                       = 218164,
             },
         },
         -- Mistweaver
         [270] = {
             abilities                       = {
-                detox                       = 115450,
+                
                 envelopingMist              = 124682,
                 essenceFont                 = 191837,
                 invokeYulon                 = 322118,
-                lifeCocoon                  = 116849,
                 reawaken                    = 212051,
                 renewingMist                = 115151,
                 revival                     = 115310,
@@ -2375,6 +2375,8 @@ br.lists.spells = {
                 fortifyingBrew              = 243435,
                 zenFocusTea                 = 209584,
                 transcendenceTransfer       = 119996,
+                sheilunsGift                = 399491,
+                detox                       = 115450,
             },
             artifacts                       = {
             },
@@ -2382,7 +2384,7 @@ br.lists.spells = {
                 weaponsOfOrder              = 310454,
                 fortifyingBrew              = 243435,
                 soothingMist                = 115175,
-                renewingMist                = 119611,
+                renewingMist                = 115151,
                 envelopingMist              = 124682,
                 thunderFocusTea             = 116680,
                 lifeCyclesEnvelopingMist    = 197919,
@@ -2410,6 +2412,7 @@ br.lists.spells = {
                 fallenOrder                 = 326860,
 				vivaciousVivification		= 392883,
                 rushingJadeWind             = 116847,
+                ancientTeachings			= 388023,
             },
             debuffs                         = {
                 mysticTouch                 = 113746,
@@ -2419,20 +2422,22 @@ br.lists.spells = {
             talents                         = {
                 diffuseMagic                = 122783,
                 focusedThunder              = 197895,
-                healingElixir               = 122281,
                 invokeChiJiTheRedCrane      = 325197,
                 lifecycles                  = 197915,
-                manaTea                     = 197908,
                 mistWrap                    = 197900,
                 refreshingJadeWind          = 196725,
                 risingMist                  = 274909,
                 songOfChiJi                 = 198898,
-                spiritOfTheCrane            = 210802,
                 summonJadeSerpentStatue     = 115313,
                 upwelling                   = 274963,
 				faelineStomp				= 388193,
 				zenPulse					= 124081,
 				ancienTeachings				= 388023,
+                invokeYulonTheJadeSerpent   = 322118,
+                lifeCocoon                  = 116849,
+                sheilunsGift                = 399491,
+                spearHandStrike             = 116705,
+
             },
             runeforges                      = {
                 ancientTeachingsOfTheMonastery = 337172,
@@ -2508,6 +2513,7 @@ br.lists.spells = {
                 whirlingDragonPunch         = 152175,
                 skyreach                    = 392991,
                 skytouch                    = 405044,
+                detox                       = 218164,
             },
             traits                          = {
                 gloryOfTheDawn              = 288634,
@@ -2575,7 +2581,7 @@ br.lists.spells = {
                 chiWave                     = 115098,
                 closeToHeart                = 389574,
                 dampenHarm                  = 122278,
-                detox                       = 218164,
+              
                 disable                     = 116095,
                 elusiveMists                = 388681,
                 escapeFromReality           = 394110,
