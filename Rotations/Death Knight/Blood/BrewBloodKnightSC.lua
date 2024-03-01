@@ -63,9 +63,9 @@ local function createOptions()
                     br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
                     br.ui:createCheckbox(section, "Auto Engage")
                     br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
-                    
         br.ui:checkSectionState(section)
 
+        
                 ------------------------
         --- COOLDOWN OPTIONS --- -- Define Cooldown Options
         ------------------------
@@ -139,16 +139,21 @@ local runicPowerMax
 --------------------
 --- Action Lists --- -- All Action List functions from SimC (or other rotation logic) here, some common ones provided
 --------------------
-local actionList = {} -- Table for holding action lists.
+local actionList = {
+     healing = {
+        CDs = function()
+        end
+    }
+} 
 
 -- Action List - Extra
 actionList.Extra = function()
-    if ui.checked("Use Dark Command") then
-        if ui.checked("Only Taunt in Instance or Raid") and not (var.inRaid or var.inInstance) then return false end
-        local enemiesList = nil
-        if ui.value("Taunt Range") == 30 then enemiesList = enemies.yards30 end
-        if ui.value("Taunt Range") == 20 then enemiesList = enemies.yards20 end
-        if ui.value("Taunt Range") == 10 then enemiesList = enemies.yards10 end
+
+        --if ui.checked("Only Taunt in Instance or Raid") and not (var.inRaid or var.inInstance) then return false end
+        local enemiesList = enemies.yards20
+        --if ui.value("Taunt Range") == 30 then enemiesList = enemies.yards30 end
+        --if ui.value("Taunt Range") == 20 then enemiesList = enemies.yards20 end
+        --if ui.value("Taunt Range") == 10 then enemiesList = enemies.yards10 end
         if enemiesList ~= nil then
             for i=1,#enemiesList do
                 local thisUnit = enemiesList[i]
@@ -157,14 +162,12 @@ actionList.Extra = function()
                 end
             end
         end
-    end
 
-    if ui.checked("Use Death Grip to Taunt") then
-        if ui.checked("Only Taunt in Instance or Raid") and not (var.inRaid or var.inInstance) then return false end
-        local enemiesList = nil
-        if ui.value("Taunt Range") == 30 then enemiesList = enemies.yards30 end
-        if ui.value("Taunt Range") == 20 then enemiesList = enemies.yards20 end
-        if ui.value("Taunt Range") == 10 then enemiesList = enemies.yards10 end
+
+    
+       
+        
+        enemiesList = enemies.yards20
         if enemiesList ~= nil then
             for i=1,#enemiesList do
                 local thisUnit = enemiesList[i]
@@ -173,7 +176,7 @@ actionList.Extra = function()
                 end
             end
         end
-    end
+ 
 end -- End Action List - Extra
 
 
