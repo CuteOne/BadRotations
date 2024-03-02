@@ -1,9 +1,9 @@
 -------------------------------------------------------
 -- Author = BrewingCoder/SinWeaver/Lylo
 -- Patch = 10.2.5
--- Coverage = 90%
--- Status = Limited
--- Readiness = Development
+-- Coverage = 100%
+-- Status = Full
+-- Readiness = Raid
 -------------------------------------------------------
 local rotationName = "BrewMistWeaver" -- Change to name of profile listed in options drop down
 
@@ -39,6 +39,7 @@ local text = {
         envelopingMist              = colors.red.."5P | " ..colors.green.."Enveloping Mist",
         essenceFont                 = colors.red.."5P | " ..colors.green.."Essence Font",
 		faelineStomp				= colors.red.."5P | " ..colors.green.."Faeline Stomp",
+        sheilunsGift                = colors.red.."5P | " ..colors.green.."sheilun's Gift",
 		zenPulse					= colors.red.."5P | " ..colors.green.."Zen Pulse",
         soothingMist                = {
             soothingMist            = colors.red.."5P | " ..colors.aqua.."Soothing Mist",
@@ -122,6 +123,7 @@ local text2 = {
             essenceFont2                 = colors.red.."20P | " ..colors.green.."Essence Font",
             faelineStomp2				 = colors.red.."20P | " ..colors.green.."Faeline Stomp",
             zenPulse2					 = colors.red.."20P | " ..colors.green.."Zen Pulse",
+            sheilunsGift2                = colors.red.."20P | " ..colors.green.."sheilun's Gift",
             soothingMist2                = {
                 soothingMist2            = colors.red.."20P | " ..colors.aqua.."Soothing Mist",
                 vivify2                  = colors.red.."20P | " ..colors.aqua.."Vivify",
@@ -221,6 +223,12 @@ local function createToggles()
             [2] = { mode = "Off", value = 2, overlay = "Detox Disabled", tip = "Detox Disabled", highlight = 0, icon = br.player.spell.detox }
         }
         br.ui:createToggle(DetoxModes,"Detox", 6, 0)
+        local ObjDebugModes = {
+            [1] = { mode="On", value = 1, overlay = "Obj Debug Enabled", tip="Object Debug Enabled",highlight=1, icon=br.player.spell.dampenHarm},
+            [2] = { mode="Off", value = 2, overlay = "Obj Debug Disabled", tip="Object Debug Disabled",highlight=0, icon=br.player.spell.dampenHarm},
+        }
+        br.ui:createToggle(ObjDebugModes,"ObjDebug",7,0)
+        
 end
 
 local labels = {
@@ -286,6 +294,11 @@ local function createOptions()
                 { number = 70, min = 1, max = 100, step = 5, tooltip = "Health of friends to cast spell" }, false)
         br.ui:createSpinner(section, text.heal.soothingMist.expelHarm, 75, 1, 100, 1, "Enable auto usage of this spell", "Health of unit to cast spell")
         br.ui:createText(section, "5P | Other - Options")
+        
+        br.ui:createDoubleSpinner(section, text.heal.sheilunsGift,
+                {number = 2,min = 1,max = 10,step = 1,tooltip = "Enable casting sheilun's gift when [x] number of mists exist"},
+                {number = 85,min = 1,max = 100,step = 5,tooltip ="Health of friend to cast spell"},false)
+
         br.ui:createSpinner(section, text.heal.renewingMist, 100, 1, 100, 1, "Enable auto usage of this spell", "Health of unit to cast spell")
         br.ui:createSpinner(section, text.heal.vivify, 80, 1, 100, 1, "Enable auto usage of this spell", "Health of unit to cast spell")
         br.ui:createSpinner(section, text.heal.envelopingMist, 70, 1, 100, 1, "Enable auto usage of this spell", "Health of unit to cast spell")
@@ -367,6 +380,10 @@ local function createOptions()
                 { number = 70, min = 1, max = 100, step = 5, tooltip = "Health of friends to cast spell" }, false)
         br.ui:createSpinner(section, text2.heal2.soothingMist2.expelHarm2, 75, 1, 100, 1, "Enable auto usage of this spell", "Health of unit to cast spell")
         br.ui:createText(section, "20P | Other - Options")
+        -- br.ui:createDoubleSpinner(section, text2.heal.sheilunsGift2,
+        -- {number = 2,min = 1,max = 10,step = 1,tooltip = "Enable casting sheilun's gift when [x] number of mists exist"},
+        -- {number = 85,min = 1,max = 100,step = 5,tooltip ="Health of friend to cast spell"},false)
+
         br.ui:createSpinner(section, text2.heal2.renewingMist2, 94, 1, 100, 1, "Enable auto usage of this spell", "Health of unit to cast spell")
         br.ui:createSpinner(section, text2.heal2.vivify2, 80, 1, 100, 1, "Enable auto usage of this spell", "Health of unit to cast spell")
         br.ui:createSpinner(section, text2.heal2.envelopingMist2, 70, 1, 100, 1, "Enable auto usage of this spell", "Health of unit to cast spell")
@@ -444,24 +461,45 @@ local debugMessage = function(message)
     print(colors.red.. date() .. colors.white .. ": ".. message)
 end
 
-local buildPartyMessage = function(thisFriend)
-    return "[" .. thisFriend.name .. "][" .. math.floor(getHP(thisFriend.unit)+0.5) .. "%]"
-end
-
-local getHPDefecit = function(Unit)
-	if Unit==nil then Unit="player" end
-	if br.GetObjectExists(Unit) then
-		return (br._G.UnitHealthMax(Unit) - br._G.UnitHealth(Unit) + br._G.UnitGetIncomingHeals(Unit,"player"))
-	end
-end
-
 local getRealHP = function(param)
     if param ~= nil then
+        if br._G.UnitIsVisible(param) then
         return 100*(br._G.UnitHealth(param)+br._G.UnitGetIncomingHeals(param,"player"))/br._G.UnitHealthMax(param)
+        end
     else
         return 100
     end        
 end
+
+local function formatHPColor(inHp)
+    if inHp > 85 then return colors.green .. math.floor(inHp+0.5)  .. "%" .. colors.white end
+    if inHp > 65 then return colors.yellow .. math.floor(inHp+0.5) .. "%" .. colors.white end
+    if inHp > 45 then return colors.orange .. math.floor(inHp+0.5) .. "%" .. colors.white end
+    return colors.red .. math.floor(inHp+0.5) .. "%" .. colors.white 
+
+end
+
+local buildSingleActionMessage = function(thisFriend, spellName)
+    return "[SUCCESS]: " .. spellName .. colors.white .. " [" .. thisFriend.name .. "][" .. formatHPColor(getRealHP(thisFriend.unit)) .. "] "
+end
+local buildAOEActionMessage = function(numUnitsTriggered, spellName)
+    local numUnits = 0
+    if (type(numUnitsTriggered)) == "table" then
+        numUnits = #numUnitsTriggered
+    end
+    return "[SUCCESS]: " .. spellName .. colors.white .. " Trigger Count[" .. numUnits .. "] " 
+end
+
+local getHPDefecit = function(Unit)
+	if Unit==nil then Unit="player" end
+	if br.GetObjectExists(Unit) and br._G.UnitIsVisible(Unit) then
+		return (br._G.UnitHealthMax(Unit) - br._G.UnitHealth(Unit) + br._G.UnitGetIncomingHeals(Unit,"player"))
+    else
+        return 0        
+	end
+end
+
+
 
 
 
@@ -529,15 +567,12 @@ local actionList = {
     healing = {
         CDs = function()
             -- Life Cocoon
-            --local trueHP = 
-            --debugMessage("CD: Mode[".. br.player.ui.mode.content .. "] " .. tostring(ui.checked(text.heal.lifeCocoon)))
 			if br.player.ui.mode.content == 1 then
                 if ui.checked(text.heal.lifeCocoon) and cd.lifeCocoon.ready() then
                     local lifeCocoonMode = ui.value(text.heal.lifeCocoonMode)
-                    --debugMessage("Lowest Friend of " ..#friends ..": " .. friends.lowest.name .. " Health: " ..friends.lowest.hp)
                     if friends.lowest.role == "TANK" or (lifeCocoonMode == 3 and friends.lowest.role == "HEALER") or lifeCocoonMode == 1 then
                         if friends.lowest.hp <= ui.value(text.heal.lifeCocoon) and cast.able.lifeCocoon(friends.lowest.unit) then
-                            if cast.lifeCocoon(friends.lowest.unit) then ui.debug("[SUCCESS]: " .. friends.lowest.name .. ":" ..text.heal.lifeCocoon) return true else ui.debug("[FAIL]: "..text.heal.lifeCocoon) return false end
+                            if cast.lifeCocoon(friends.lowest.unit) then ui.debug(buildSingleActionMessage(friends.lowest,text.heal.lifeCocoon)) return true end
                         end
                     end
                 end
@@ -546,7 +581,7 @@ local actionList = {
                     local lifeCocoonMode = ui.value(text2.heal2.lifeCocoonMode2)
                     if friends.lowest.role == "TANK" or (lifeCocoonMode == 3 and friends.lowest.role == "HEALER") or lifeCocoonMode == 1 then
                         if friends.lowest.hp <= ui.value(text2.heal2.lifeCocoon2) and cast.able.lifeCocoon(friends.lowest.unit) then
-                            if cast.lifeCocoon(friends.lowest.unit) then ui.debug("[SUCCESS]: " .. friends.lowest.name .. ":" ..text2.heal2.lifeCocoon2) return true else ui.debug("[FAIL]: "..text2.heal2.lifeCocoon2) return false end
+                            if cast.lifeCocoon(friends.lowest.unit) then ui.debug(buildSingleActionMessage(friends.lowest,text.heal.lifeCocoon)) return true end
                         end
                     end
                 end
@@ -555,13 +590,13 @@ local actionList = {
 			if br.player.ui.mode.content == 1 then
                 if ui.checked(text.heal.revival) and cd.revival.ready() then
                     if friends.lowAllies.revival >= ui.value(text.heal.revival.."1") then
-                        if cast.revival(player.unit) then ui.debug("[SUCCESS]: " .. friends.lowest.name .. ":" ..text.heal.revival) return true else ui.debug("[FAIL]: "..text.heal.revival) return false end
+                        if cast.revival(player.unit) then ui.debug(buildAOEActionMessage(friends.lowAllies.revival,text.heal.revival)) return true end
                     end
                 end
                 elseif br.player.ui.mode.content == 2 then
                 if ui.checked(text2.heal2.revival2) and cd.revival.ready() then
                     if friends.lowAllies.revival >= ui.value(text2.heal2.revival2.."1") then
-                        if cast.revival(player.unit) then ui.debug("[SUCCESS]: " .. friends.lowest.name .. ":" ..text2.heal2.revival2) return true else ui.debug("[FAIL]: "..text2.heal2.revival2) return false end
+                        if cast.revival(player.unit) then ui.debug(buildAOEActionMessage(friends.lowAllies.revival,text2.heal2.revival2)) return true end
                     end
                 end
             end
@@ -569,31 +604,50 @@ local actionList = {
             if br.player.ui.mode.content == 1 then	
                 if ui.checked(text.heal.invokeYulonTheJadeSerpent) and cd.invokeYulonTheJadeSerpent.ready() then
                     if not talent.invokeChiJiTheRedCrane and friends.lowAllies.invokeYulonTheJadeSerpent >= ui.value(text.heal.invokeYulonTheJadeSerpent.."1") then
-                        if cast.invokeYulonTheJadeSerpent(player.unit) then ui.debug("[SUCCESS]: " .. friends.lowest.name .. ":" ..text.heal.invokeYulonTheJadeSerpent) return true else ui.debug("[FAIL]: "..text.heal.invokeYulonTheJadeSerpent) return false end
+                        if cast.invokeYulonTheJadeSerpent() then ui.debug(buildAOEActionMessage(friends.lowAllies.invokeYulonTheJadeSerpent,text.heal.invokeYulonTheJadeSerpent)) return true end
                     end
                 end
-                elseif br.player.ui.mode.content == 2 then
+            elseif br.player.ui.mode.content == 2 then
                if ui.checked(text2.heal2.invokeYulonTheJadeSerpent2) and cd.invokeYulonTheJadeSerpent.ready() then
                     if not talent.invokeChiJiTheRedCrane and friends.lowAllies.invokeYulonTheJadeSerpent >= ui.value(text2.heal2.invokeYulonTheJadeSerpent2.."1") then
-                        if cast.invokeYulonTheJadeSerpent(player.unit) then ui.debug("[SUCCESS]: " .. friends.lowest.name .. ":" ..text2.heal2.invokeYulonTheJadeSerpent2) return true else ui.debug("[FAIL]: "..text2.heal2.invokeYulonTheJadeSerpent2) return false end
+                        if cast.invokeYulonTheJadeSerpent() then ui.debug(buildAOEActionMessage(friends.lowAllies.invokeYulonTheJadeSerpent,text.heal.invokeYulonTheJadeSerpent)) return true end
                     end
                 end
             end
-
             --Chi-Ji
             if br.player.ui.mode.content == 1 then	
                 if ui.checked(text.heal.invokeChiJiTheRedCrane) and cd.invokeChiJiTheRedCrane.ready() then
-                    if talent.invokeChiJiTheRedCrane and friends.lowAllies.invokeChiJiTheRedCrane >= ui.value(text.heal.invokeChiJiTheRedCrane.."1") then
-                        if cast.invokeChiJiTheRedCrane(player.unit) then ui.debug("[SUCCESS]: " .. friends.lowest.name .. ":" ..text.heal.invokeChiJiTheRedCrane) return true else ui.debug("[FAIL]: "..text.heal.invokeChiJiTheRedCrane) return false end
+                    if talent.invokeChiJiTheRedCrane and 
+                        friends.lowAllies.invokeChiJiTheRedCrane >= ui.value(text.heal.invokeChiJiTheRedCrane.."1") and
+                        cast.able.invokeChiJiTheRedCrane(player.unit) then
+                        if cast.invokeChiJiTheRedCrane(player.unit) then ui.debug(buildAOEActionMessage(friends.lowAllies.invokeChiJiTheRedCrane,text.heal.invokeChiJiTheRedCrane)) return true end
                     end
                 end
                 elseif br.player.ui.mode.content == 2 then	
                 if ui.checked(text2.heal2.invokeChiJiTheRedCrane2) and cd.invokeChiJiTheRedCrane.ready() then
-                    if talent.invokeChiJiTheRedCrane and friends.lowAllies.invokeChiJiTheRedCrane >= ui.value(text2.heal2.invokeChiJiTheRedCrane2.."1") then
-                        if cast.invokeChiJiTheRedCrane(player.unit) then ui.debug("[SUCCESS]: " .. friends.lowest.name .. ":" ..text2.heal2.invokeChiJiTheRedCrane2) return true else ui.debug("[FAIL]: "..text2.heal2.invokeChiJiTheRedCrane2) return false end
+                    if talent.invokeChiJiTheRedCrane and 
+                        friends.lowAllies.invokeChiJiTheRedCrane >= ui.value(text2.heal2.invokeChiJiTheRedCrane2.."1") and
+                        cast.able.invokeChiJiTheRedCrane(player.unit) then
+                        if cast.invokeChiJiTheRedCrane(player.unit) then ui.debug(buildAOEActionMessage(friends.lowAllies.invokeChiJiTheRedCrane2,text2.heal2.invokeChiJiTheRedCrane2)) return true end
                     end
                 end
             end
+            --Sheilun's Gift
+            if br.player.ui.mode.content == 1 then
+                if ui.checked(text.heal.sheilunsGift) then
+                    if var.MistBallsInWorld >= ui.value(text.heal.sheilunsGift .. "1") then
+                        if (friends.lowest.hp <= ui.value(text.heal.sheilunsGift .. "2")) then
+                            if cast.able.sheilunsGift(friends.lowest.unit) then
+                                if cast.sheilunsGift(friends.lowest.unit) then
+                                    ui.debug(buildSingleActionMessage(friends.lowest,text.heal.sheilunsGift)) 
+                                    return true; 
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+            return false
         end,
         renewingMist = function()
             if br.player.ui.mode.content == 1 then
@@ -626,47 +680,43 @@ local actionList = {
                     end
                     end
                     if renewingMistUnit ~= nil then
-                    if cast.renewingMist(renewingMistUnit.unit) then ui.debug("[SUCCESS]: "..text.heal.renewingMist) return true else ui.debug("[FAIL]: "..text.heal.renewingMist) return false end
+                        if cast.able.renewingMist(renewingMistUnit.unit) then
+                            if cast.renewingMist(renewingMistUnit.unit) then ui.debug(buildSingleActionMessage(renewingMistUnit,text.heal.renewingMist)) return true  end
+                        end
                     end
                 end
 		    elseif br.player.ui.mode.content == 2 then
-    		    if cast.active.essenceFont() then
-                return nil
-                end
-                if cast.active.soothingMist() and friends.lowest.hp <= 60 then
-                return nil
-                end
+    		    if cast.active.essenceFont() then return nil; end
+                if cast.active.soothingMist() and friends.lowest.hp <= 60 then return nil; end
+                
                 -- Renewing Mist
                 if ui.checked(text2.heal2.renewingMist2) and charges.renewingMist.exists() and cd.renewingMist.ready() then
-                local renewingMistUnit
-
-                for i = 1, #tanks do
-                    local tempUnit = tanks[i]
-                    if not buff.renewingMist.exists(tempUnit.unit) and tempUnit.hp <= ui.value(text2.heal2.renewingMist2) and renewingMistUnit == nil then
-                        renewingMistUnit = tempUnit
-                    end
-                end
-
-                if renewingMistUnit == nil then
-                    for i = 1, #friends.range40 do
-                        local tempUnit = friends.range40[i]
+                    local renewingMistUnit
+                    for i = 1, #tanks do
+                        local tempUnit = tanks[i]
                         if not buff.renewingMist.exists(tempUnit.unit) and tempUnit.hp <= ui.value(text2.heal2.renewingMist2) and renewingMistUnit == nil then
                             renewingMistUnit = tempUnit
                         end
                     end
-                end
-
-                if renewingMistUnit == nil then
-                    if not buff.renewingMist.exists(player.unit) and player.hp <= ui.value(text2.heal2.renewingMist2) then
-                        renewingMistUnit = player
+                    if renewingMistUnit == nil then
+                        for i = 1, #friends.range40 do
+                            local tempUnit = friends.range40[i]
+                            if not buff.renewingMist.exists(tempUnit.unit) and tempUnit.hp <= ui.value(text2.heal2.renewingMist2) and renewingMistUnit == nil then
+                                renewingMistUnit = tempUnit
+                            end
+                        end
+                    end
+                    if renewingMistUnit == nil then
+                        if not buff.renewingMist.exists(player.unit) and player.hp <= ui.value(text2.heal2.renewingMist2) then
+                            renewingMistUnit = player
+                        end
+                    end
+                    if renewingMistUnit ~= nil and cast.able.renewingMist(renewingMistUnit.unit) then
+                        if cast.renewingMist(renewingMistUnit.unit) then ui.debug(buildSingleActionMessage(renewingMistUnit,text2.heal2.renewingMist2)) return false end
                     end
                 end
-
-                if renewingMistUnit ~= nil then
-                    if cast.renewingMist(renewingMistUnit.unit) then ui.debug("[SUCCESS]: "..text2.heal2.renewingMist2) return true else ui.debug("[FAIL]: "..text2.heal2.renewingMist2) return false end
-                end
-                end
-		    end            
+		    end    
+            return false        
         end,
         thunderFocusTeaRotation = function()
             if br.player.ui.mode.content == 1 then
@@ -752,6 +802,7 @@ local actionList = {
                     end
                 end
             end
+            return false
         end,
         vivifyAoE = function()
             if br.player.ui.mode.content == 1 then
@@ -768,8 +819,9 @@ local actionList = {
                                 countUnitsWithRenewingMistUnderHealth = countUnitsWithRenewingMistUnderHealth + 1
                             end
                         end
-                        if countUnitsWithRenewingMistUnderHealth >= ui.value(text.heal.soothingMist.vivifyAoE.."1") then
-                            if cast.vivify(friends.lowest.unit) then ui.debug("[SUCCESS]: "..text.heal.soothingMist.vivifyAoE) return true else ui.debug("[FAIL]: "..text.heal.soothingMist.vivifyAoE) return false end
+                        if countUnitsWithRenewingMistUnderHealth >= ui.value(text.heal.soothingMist.vivifyAoE.."1") and 
+                            cast.able.vivify(friends.lowest.unit) then
+                                if cast.vivify(friends.lowest.unit) then ui.debug(buildSingleActionMessage(friends.lowest,text.heal.soothingMist.vivifyAoE)) return true end
                         end
                     end
                 end
@@ -787,145 +839,153 @@ local actionList = {
                                 countUnitsWithRenewingMistUnderHealth = countUnitsWithRenewingMistUnderHealth + 1
                             end
                         end
-                        if countUnitsWithRenewingMistUnderHealth >= ui.value(text2.heal2.soothingMist2.vivifyAoE2.."1") then
-                            if cast.vivify(friends.lowest.unit) then ui.debug("[SUCCESS]: "..text2.heal2.soothingMist2.vivifyAoE2) return true else ui.debug("[FAIL]: "..text2.heal2.soothingMist2.vivifyAoE2) return false end
+                        if countUnitsWithRenewingMistUnderHealth >= ui.value(text2.heal2.soothingMist2.vivifyAoE2.."1") and
+                            cast.able.vivify(friends.lowest.unit) then
+                                if cast.vivify(friends.lowest.unit) then ui.debug(buildSingleActionMessage(friends.lowest,text2.heal2.soothingMist2.vivifyAoE2)) return true end
                         end
                     end
                 end
             end
+            return false
         end,
         AoERotation = function()
             if br.player.ui.mode.content == 1 then
                 -- Chi Burst
                  if ui.checked(text.heal.chiBurst) and cd.chiBurst.ready() and talent.chiBurst and not player.isMoving then
                     local lowAlliesTargetsChiBurst = br.getUnitsInRect(7 , 40, false, ui.value(text.heal.chiBurst.."2"))
-                    if lowAlliesTargetsChiBurst >= ui.value(text.heal.chiBurst.."1") then
-                        if cast.chiBurst(player.unit) then ui.debug("[SUCCESS]: "..text.heal.chiBurst) return true else ui.debug("[FAIL]: "..text.heal.chiBurst) return false end
+                    if lowAlliesTargetsChiBurst >= ui.value(text.heal.chiBurst.."1") and cast.able.chiBurst(player.unit) then
+                        if cast.chiBurst() then ui.debug("[SUCCESS]: "..text.heal.chiBurst) return true end
                     end
                 end
                  -- Essence Font
                 if ui.checked(text.heal.essenceFont) and cd.essenceFont.ready() then
-                    if friends.lowAllies.essenceFont >= ui.value(text.heal.essenceFont.."1") then
-                        if cast.essenceFont(player.unit) then ui.debug("[SUCCESS]: "..text.heal.essenceFont) return true else ui.debug("[FAIL]: "..text.heal.essenceFont) return false end
+                    if friends.lowAllies.essenceFont >= ui.value(text.heal.essenceFont.."1") and cast.able.essenceFont() then
+                        if cast.essenceFont() then ui.debug("[SUCCESS]: "..text.heal.essenceFont) return true end
                     end
                 end
-                -- Enveloping Breath
+                -- Enveloping Mist
                 if ui.checked(text.heal.envelopingBreath) and cd.envelopingMist.ready() and not player.isMoving then
                     if totemInfo.yulonDuration > cast.time.envelopingMist() + br.getLatency() or totemInfo.chiJiDuration > cast.time.envelopingMist() + br.getLatency() then
                         local lowHealthAroundUnit = br.getUnitsToHealAround(friends.lowest.unit, 7.5, ui.value(text.heal.envelopingBreath.."2"), 6)
-                        if #lowHealthAroundUnit >= ui.value(text.heal.envelopingBreath.."1") then
-                            if cast.envelopingMist(friends.lowest.unit) then ui.debug("[SUCCESS]: "..text.heal.envelopingBreath) return true else ui.debug("[FAIL]: "..text.heal.envelopingBreath) return false end
+                        if #lowHealthAroundUnit >= ui.value(text.heal.envelopingBreath.."1") and cast.able.envelopingMist(friends.lowest.unit) then
+                            if cast.envelopingMist(friends.lowest.unit) then ui.debug(buildSingleActionMessage(friends.lowest,text.heal.envelopingBreath)) return true end
                         end
                     end
                 end
                 -- Refreshing Jade Wind
                 if ui.checked(text.heal.refreshingJadeWind) and cd.refreshingJadeWind.ready() and talent.refreshingJadeWind then
-                    if friends.lowAllies.refreshingJadeWind >= ui.value(text.heal.refreshingJadeWind.."1") then
-                        if cast.refreshingJadeWind(player.unit) then ui.debug("[SUCCESS]: "..text.heal.refreshingJadeWind) return true else ui.debug("[FAIL]: "..text.heal.refreshingJadeWind) return false end
+                    if friends.lowAllies.refreshingJadeWind >= ui.value(text.heal.refreshingJadeWind.."1") and cast.able.refreshingJadeWind() then
+                        if cast.refreshingJadeWind() then ui.debug("[SUCCESS]: "..text.heal.refreshingJadeWind) return true end
                     end
                 end
             elseif br.player.ui.mode.content == 2 then
                 -- Chi Burst
                 if ui.checked(text2.heal2.chiBurst2) and cd.chiBurst.ready() and talent.chiBurst and not player.isMoving then
                     local lowAlliesTargetsChiBurst = br.getUnitsInRect(7 , 40, false, ui.value(text2.heal2.chiBurst2.."2"))
-                    if lowAlliesTargetsChiBurst >= ui.value(text2.heal2.chiBurst2.."1") then
-                        if cast.chiBurst(player.unit) then ui.debug("[SUCCESS]: "..text2.heal2.chiBurst2) return true else ui.debug("[FAIL]: "..text2.heal2.chiBurst2) return false end
+                    if lowAlliesTargetsChiBurst >= ui.value(text2.heal2.chiBurst2.."1") and cast.able.chiBurst() then
+                        if cast.chiBurst() then ui.debug("[SUCCESS]: "..text2.heal2.chiBurst2) return true end
                     end
                 end
                 -- Essence Font
                 if ui.checked(text2.heal2.essenceFont2) and cd.essenceFont.ready() then
-                    if friends.lowAllies.essenceFont >= ui.value(text2.heal2.essenceFont2.."1") then
-                        if cast.essenceFont(player.unit) then ui.debug("[SUCCESS]: "..text2.heal2.essenceFont2) return true else ui.debug("[FAIL]: "..text2.heal2.essenceFont2) return false end
+                    if friends.lowAllies.essenceFont >= ui.value(text2.heal2.essenceFont2.."1") and cast.able.essenceFont() then
+                        if cast.essenceFont() then ui.debug("[SUCCESS]: "..text2.heal2.essenceFont2) return true end
                     end
                 end
                 -- Enveloping Breath
                 if ui.checked(text2.heal2.envelopingBreath2) and cd.envelopingMist.ready() and not player.isMoving then
                     if totemInfo.yulonDuration > cast.time.envelopingMist() + br.getLatency() or totemInfo.chiJiDuration > cast.time.envelopingMist() + br.getLatency() then
                         local lowHealthAroundUnit = br.getUnitsToHealAround(friends.lowest.unit, 7.5, ui.value(text2.heal2.envelopingBreath2.."2"), 6)
-                        if #lowHealthAroundUnit >= ui.value(text2.heal2.envelopingBreath2.."1") then
-                            if cast.envelopingMist(friends.lowest.unit) then ui.debug("[SUCCESS]: "..text2.heal2.envelopingBreath2) return true else ui.debug("[FAIL]: "..text2.heal2.envelopingBreath2) return false end
+                        if #lowHealthAroundUnit >= ui.value(text2.heal2.envelopingBreath2.."1") and cast.able.envelopingMist(friends.lowest.unit)  and 
+                            cast.able.envelopingMist(friends.lowest.unit) then
+                            if cast.envelopingMist(friends.lowest.unit) then ui.debug(buildSingleActionMessage(friends.lowest,text2.heal2.envelopingBreath2)) return true end
                         end
                     end
                 end
                 -- Refreshing Jade Wind
                 if ui.checked(text2.heal2.refreshingJadeWind2) and cd.refreshingJadeWind.ready() and talent.refreshingJadeWind then
-                    if friends.lowAllies.refreshingJadeWind >= ui.value(text2.heal2.refreshingJadeWind2.."1") then
-                        if cast.refreshingJadeWind(player.unit) then ui.debug("[SUCCESS]: "..text2.heal2.refreshingJadeWind2) return true else ui.debug("[FAIL]: "..text2.heal2.refreshingJadeWind2) return false end
+                    if friends.lowAllies.refreshingJadeWind >= ui.value(text2.heal2.refreshingJadeWind2.."1") and cast.able.refreshingJadeWind() then
+                        if cast.refreshingJadeWind(player.unit) then ui.debug("[SUCCESS]: "..text2.heal2.refreshingJadeWind2) return true else end
                     end
                 end
             end
+            return false
         end,
         faelineStompRotation = function()
             if br.player.ui.mode.content == 1 then
                 if ui.checked(text.heal.faelineStomp) and cd.faelineStomp.ready() and talent.faelineStomp then
                     local lowAlliesTargetsfaelineStomp = br.getUnitsInRect(7 , 40, false, ui.value(text.heal.faelineStomp.."2"))
-                    if lowAlliesTargetsfaelineStomp >= ui.value(text.heal.faelineStomp.."1") then
-                        if cast.faelineStomp(player.unit) then ui.debug("[SUCCESS]: "..text.heal.faelineStomp) return true else ui.debug("[FAIL]: "..text.heal.faelineStomp) return false end
+                    if lowAlliesTargetsfaelineStomp >= ui.value(text.heal.faelineStomp.."1") and cast.able.faelineStomp() then
+                        if cast.faelineStomp() then ui.debug("[SUCCESS]: "..text.heal.faelineStomp) return true end
                     end
                 end
             elseif br.player.ui.mode.content == 2 then
                 if ui.checked(text2.heal2.faelineStomp2) and cd.faelineStomp.ready() and talent.faelineStomp then
                     local lowAlliesTargetsfaelineStomp2 = br.getUnitsInRect(7 , 40, false, ui.value(text2.heal2.faelineStomp2.."2"))
-                    if lowAlliesTargetsfaelineStomp2 >= ui.value(text2.heal2.faelineStomp2.."1") then
-                        if cast.faelineStomp(player.unit) then ui.debug("[SUCCESS]: "..text2.heal2.faelineStomp2) return true else ui.debug("[FAIL]: "..text2.heal2.faelineStomp2) return false end
+                    if lowAlliesTargetsfaelineStomp2 >= ui.value(text2.heal2.faelineStomp2.."1") and cast.able.faelineStomp() then
+                        if cast.faelineStomp(player.unit) then ui.debug("[SUCCESS]: "..text2.heal2.faelineStomp2) return true end
                     end
                 end
             end
+            return false
         end,
         zenPulseRotation = function()
             if br.player.ui.mode.content == 1 then
                 if ui.checked(text.heal.zenPulse) and cd.zenPulse.ready() and talent.zenPulse then
                     local lowAlliesTargetszenPulse = br.getUnitsInRect(7 , 40, false, ui.value(text.heal.zenPulse.."2"))
-                    if lowAlliesTargetszenPulse >= ui.value(text.heal.zenPulse.."1") then
-                        if cast.zenPulse(friends.lowest.unit) then ui.debug("[SUCCESS]: "..text.heal.zenPulse) return true else ui.debug("[FAIL]: "..text.heal.zenPulse) return false end
+                    if lowAlliesTargetszenPulse >= ui.value(text.heal.zenPulse.."1") and cast.able.zenPulse(friends.lowest.unit) then
+                        if cast.zenPulse(friends.lowest.unit) then ui.debug(buildSingleActionMessage(friends.lowest,text.heal.zenPulse)) return true else end
                     end
                 end
             elseif br.player.ui.mode.content == 2 then
                 if ui.checked(text.heal.zenPulse2) and cd.zenPulse.ready() and talent.zenPulse then
                     local lowAlliesTargetszenPulse2 = br.getUnitsInRect(7 , 40, false, ui.value(text2.heal2.zenPulse2.."2"))
-                    if lowAlliesTargetszenPulse2 >= ui.value(text2.heal2.zenPulse2.."1") then
-                        if cast.zenPulse(friends.lowest.unit) then ui.debug("[SUCCESS]: "..text2.heal2.zenPulse2) return true else ui.debug("[FAIL]: "..text2.heal2.zenPulse2) return false end
+                    if lowAlliesTargetszenPulse2 >= ui.value(text2.heal2.zenPulse2.."1") and cast.able.zenPulse(friends.lowest.unit) then
+                        if cast.zenPulse(friends.lowest.unit) then ui.debug(buildSingleActionMessage(friends.lowest,text2.heal2.zenPulse2)) return true end
                     end
                 end
             end
+            return false
         end,
         soothingMistRotation = function()
             if br.player.ui.mode.content == 1 then
                 -- Cancel Soothing Mist
                 if cast.active.soothingMist() then
-                    if getRealHP(lastSoothingMist.unit) - friends.lowest.hp >= 20 or getRealHP(lastSoothingMist.unit) >= ui.value(text.heal.soothingMist.soothingMist)+5 then
-                        if cast.cancel.soothingMist() then ui.debug("[SUCCESS]: Cancel - "..text.heal.soothingMist.soothingMist) return true else ui.debug("[FAIL]: Cancel - "..text.heal.soothingMist.soothingMist) return false end
+                    if (getRealHP(lastSoothingMist.unit) - friends.lowest.hp >= 20 or getRealHP(lastSoothingMist.unit) >= ui.value(text.heal.soothingMist.soothingMist)+5) then
+                        if cast.cancel.soothingMist() then ui.debug("[SUCCESS]: Cancel - "..text.heal.soothingMist.soothingMist) return true end
                     end
                 end
                 -- Soothing Mist
                 if ui.checked(text.heal.soothingMist.soothingMist) and cd.soothingMist.ready() and not cast.active.soothingMist() and not player.isMoving then
-                    if friends.lowest.hp <= ui.value(text.heal.soothingMist.soothingMist) then
+                    if friends.lowest.hp <= ui.value(text.heal.soothingMist.soothingMist)  and cast.able.soothingMist(friends.lowest.unit) then
                         if cast.soothingMist(friends.lowest.unit) then
                             lastSoothingMist = {
                                 hp = friends.lowest.hp,
                                 unit = friends.lowest.unit
                             }
-                            ui.debug("[SUCCESS]: "..text.heal.soothingMist.soothingMist) return true else ui.debug("[FAIL]: "..text.heal.soothingMist.soothingMist) return false end
+                            ui.debug(buildSingleActionMessage(friends.lowest,text.heal.soothingMist.soothingMist)) return true  end
                     end
                 end
                 -- Instant casts
                 if cast.active.soothingMist() and friends.lowest.unit == lastSoothingMist.unit then
                     -- Enveloping Mist
                     if ui.checked(text.heal.soothingMist.envelopingMist) and cd.envelopingMist.ready() then
-                        if friends.lowest.hp <= ui.value(text.heal.soothingMist.envelopingMist) and buff.envelopingMist.remains(friends.lowest.unit) < 2 then
-                            if cast.envelopingMist(friends.lowest.unit) then ui.debug("[SUCCESS]: "..text.heal.soothingMist.envelopingMist) return true else ui.debug("[FAIL]: "..text.heal.soothingMist.envelopingMist) return false end
+                        if friends.lowest.hp <= ui.value(text.heal.soothingMist.envelopingMist) and 
+                        buff.envelopingMist.remains(friends.lowest.unit) < 2 and
+                        cast.able.envelopingMist(friends.lowest.unit) then
+                            if cast.envelopingMist(friends.lowest.unit) then ui.debug(buildSingleActionMessage(friends.lowest,text.heal.soothingMist.envelopingMist)) return true end
                         end
                     end
                     -- Expel Harm
                     if ui.checked(text.heal.soothingMist.expelHarm) and cd.expelHarm.ready() then
-                        if friends.lowest.hp <= ui.value(text.heal.soothingMist.expelHarm) then
-                            if cast.expelHarm(friends.lowest.unit) then ui.debug("[SUCCESS]: "..text.heal.soothingMist.expelHarm) return true else ui.debug("[FAIL]: "..text.heal.soothingMist.expelHarm) return false end
+                        if friends.lowest.hp <= ui.value(text.heal.soothingMist.expelHarm) and cast.able.expelHarm(friends.lowest.unit) then
+                            if cast.expelHarm(friends.lowest.unit) then ui.debug(buildSingleActionMessage(friends.lowest,text.heal.soothingMist.expelHarm)) return true end
                         end
                     end
                     -- Vivify
                     if ui.checked(text.heal.soothingMist.vivify) and cd.vivify.ready() then
-                        if friends.lowest.hp <= ui.value(text.heal.soothingMist.vivify) then
-                            if cast.vivify(friends.lowest.unit) then ui.debug("[SUCCESS]: "..text.heal.soothingMist.vivify) return true else ui.debug("[FAIL]: "..text.heal.soothingMist.vivify) return false end
+                        if friends.lowest.hp <= ui.value(text.heal.soothingMist.vivify) and cast.able.vivify(friends.lowest.unit) then
+                            if cast.vivify(friends.lowest.unit) then ui.debug(buildSingleActionMessage(friends.lowest,text.heal.soothingMist.vivify)) return true end
                         end
                     end
                 end
@@ -936,38 +996,40 @@ local actionList = {
                         -- Cancel Soothing Mist
                 if cast.active.soothingMist() then --and lastSoothingMist.unit ~= friends.lowest.unit then
                     if getRealHP(lastSoothingMist.unit) - friends.lowest.hp >= 20 or getRealHP(lastSoothingMist.unit) >= ui.value(text2.heal2.soothingMist2.soothingMist2)+5 then
-                        if cast.cancel.soothingMist() then ui.debug("[SUCCESS]: Cancel - "..text2.heal2.soothingMist2.soothingMist2) return true else ui.debug("[FAIL]: Cancel - "..text2.heal2.soothingMist2.soothingMist2) return false end
+                        if cast.cancel.soothingMist() then ui.debug("[SUCCESS]: Cancel - "..text2.heal2.soothingMist2.soothingMist2) return true end
                     end
                 end
                 -- Soothing Mist
                 if ui.checked(text2.heal2.soothingMist2.soothingMist2) and cd.soothingMist.ready() and not cast.active.soothingMist() and not player.isMoving then
-                    if friends.lowest.hp <= ui.value(text2.heal2.soothingMist2.soothingMist2) then
+                    if friends.lowest.hp <= ui.value(text2.heal2.soothingMist2.soothingMist2) and cast.able.soothingMist(friends.lowest.unit) then
                         if cast.soothingMist(friends.lowest.unit) then
                             lastSoothingMist = {
                                 hp = friends.lowest.hp,
                                 unit = friends.lowest.unit
                             }
-                            ui.debug("[SUCCESS]: "..text2.heal2.soothingMist2.soothingMist2) return true else ui.debug("[FAIL]: "..text2.heal2.soothingMist2.soothingMist2) return false end
+                            ui.debug(buildSingleActionMessage(friends.lowest,text2.heal2.soothingMist2.soothingMist2)) return true end
                     end
                 end
                 -- Instant casts
                 if cast.active.soothingMist() and friends.lowest.unit == lastSoothingMist.unit then
                     -- Enveloping Mist
                     if ui.checked(text2.heal2.soothingMist2.envelopingMist2) and cd.envelopingMist.ready() then
-                        if friends.lowest.hp <= ui.value(text2.heal2.soothingMist2.envelopingMist2) and buff.envelopingMist.remains(friends.lowest.unit) < 2 then
-                            if cast.envelopingMist(friends.lowest.unit) then ui.debug("[SUCCESS]: "..text2.heal2.soothingMist2.envelopingMist2) return true else ui.debug("[FAIL]: "..text2.heal2.soothingMist2.envelopingMist2) return false end
+                        if friends.lowest.hp <= ui.value(text2.heal2.soothingMist2.envelopingMist2) and 
+                            buff.envelopingMist.remains(friends.lowest.unit) < 2  and
+                            cast.able.envelopingMist(friends.lowest.unit) then
+                            if cast.envelopingMist(friends.lowest.unit) then ui.debug(buildSingleActionMessage(friends.lowest,text2.heal2.soothingMist2.envelopingMist2)) return true end
                         end
                     end
                     -- Expel Harm
                     if ui.checked(text.heal.soothingMist.expelHarm) and cd.expelHarm.ready() then
-                        if friends.lowest.hp <= ui.value(text2.heal2.soothingMist2.expelHarm2) then
-                            if cast.expelHarm(friends.lowest.unit) then ui.debug("[SUCCESS]: "..text2.heal2.soothingMist2.expelHarm2) return true else ui.debug("[FAIL]: "..text2.heal2.soothingMist2.expelHarm2) return false end
+                        if friends.lowest.hp <= ui.value(text2.heal2.soothingMist2.expelHarm2) and cast.able.expelHarm(friends.lowest.unit) then
+                            if cast.expelHarm(friends.lowest.unit) then ui.debug(buildSingleActionMessage(friends.lowest,text2.heal2.soothingMist2.expelHarm2)) return true end
                         end
                     end
                     -- Vivify
                     if ui.checked(text.heal.soothingMist.vivify) and cd.vivify.ready() then
-                        if friends.lowest.hp <= ui.value(text2.heal2.soothingMist2.vivify2) then
-                            if cast.vivify(friends.lowest.unit) then ui.debug("[SUCCESS]: "..text2.heal2.soothingMist2.vivify2) return true else ui.debug("[FAIL]: "..text2.heal2.soothingMist2.vivify2) return false end
+                        if friends.lowest.hp <= ui.value(text2.heal2.soothingMist2.vivify2) and cast.able.vivify(friends.lowest.unit) then
+                            if cast.vivify(friends.lowest.unit) then ui.debug(buildSingleActionMessage(friends.lowest,text2.heal2.soothingMist2.vivify2)) return true end
                         end
                     end
                 end
@@ -975,51 +1037,57 @@ local actionList = {
                     return false
                 end
             end
+            return false
         end,
         singleTargetRotation = function()
             if br.player.ui.mode.content == 2 then
                 -- Chi Wave
                 if ui.checked(text.heal.chiWave) and cd.chiWave.ready() and talent.chiWave and dynamic.range40 ~= nil then
-                    if cast.chiWave(player.unit,"aoe") then ui.debug("[SUCCESS]: "..text.heal.chiWave) return true else ui.debug("[FAIL]: "..text.heal.chiWave) return false end
+                    if cast.able.chiWave() then
+                        if cast.chiWave() then ui.debug(buildAOEActionMessage(dynamic.range40,text.heal.chiWave)) return true end
+                    end                        
                 end
                 -- Enveloping Mist
                 if ui.checked(text.heal.envelopingMist) and cd.envelopingMist.ready() and not player.isMoving then
-                    if friends.lowest.hp <= ui.value(text.heal.envelopingMist) then
-                        if cast.envelopingMist(friends.lowest.unit) then ui.debug("[SUCCESS]: "..text.heal.envelopingMist) return true else ui.debug("[FAIL]: "..text.heal.envelopingMist) return false end
+                    if friends.lowest.hp <= ui.value(text.heal.envelopingMist) and cast.able.envelopingMist(friends.lowest.unit) then
+                        if cast.envelopingMist(friends.lowest.unit) then ui.debug(buildSingleActionMessage(friends.lowest,text.heal.envelopingMist)) return true end
                     end
                 end
                 -- Vivify
                 if ui.checked(text.heal.vivify) and cd.vivify.ready() and buff.vivaciousVivification.exists(player.unit) then
-                    if friends.lowest.hp <= ui.value(text.heal.vivify) then
-                        if cast.vivify(friends.lowest.unit) then ui.debug("[SUCCESS]: "..text.heal.vivify) return true else ui.debug("[FAIL]: "..text.heal.vivify) return false end
+                    if friends.lowest.hp <= ui.value(text.heal.vivify) and cast.able.vivify(friends.lowest.unit) then
+                        if cast.vivify(friends.lowest.unit) then ui.debug(buildSingleActionMessage(friends.lowest,text.heal.vivify)) return true end
                     end
                 elseif ui.checked(text.heal.vivify) and cd.vivify.ready() and not player.isMoving then
-                    if friends.lowest.hp <= ui.value(text.heal.vivify) then
-                        if cast.vivify(friends.lowest.unit) then ui.debug("[SUCCESS]: "..text.heal.vivify) return true else ui.debug("[FAIL]: "..text.heal.vivify) return false end
+                    if friends.lowest.hp <= ui.value(text.heal.vivify) and cast.able.vivify(friends.lowest.unit) then
+                        if cast.vivify(friends.lowest.unit) then ui.debug(buildSingleActionMessage(friends.lowest,text.heal.vivify)) return true end
                     end
                 end
             elseif br.player.ui.mode.content == 1 then
                 -- Chi Wave
                 if ui.checked(text2.heal2.chiWave2) and cd.chiWave.ready() and talent.chiWave and dynamic.range40 ~= nil then
-                    if cast.chiWave(player.unit,"aoe") then ui.debug("[SUCCESS]: "..text2.heal2.chiWave2) return true else ui.debug("[FAIL]: "..text2.heal2.chiWave2) return false end
+                    if cast.able.chiWave() then
+                        if cast.chiWave() then ui.debug(buildAOEActionMessage(dynamic.range40,text2.heal2.chiWave2)) return true end
+                    end                        
                 end
                 -- Enveloping Mist
                 if ui.checked(text2.heal2.envelopingMist2) and cd.envelopingMist.ready() and not player.isMoving then
-                    if friends.lowest.hp <= ui.value(text2.heal2.envelopingMist2) then
-                        if cast.envelopingMist(friends.lowest.unit) then ui.debug("[SUCCESS]: "..text2.heal2.envelopingMist2) return true else ui.debug("[FAIL]: "..text2.heal2.envelopingMist2) return false end
+                    if friends.lowest.hp <= ui.value(text2.heal2.envelopingMist2) and cast.able.envelopingMist(friends.lowest.unit) then
+                        if cast.envelopingMist(friends.lowest.unit) then ui.debug(buildSingleActionMessage(friends.lowest,text2.heal2.envelopingMist2)) return true end
                     end
                 end
                 -- Vivify
                 if ui.checked(text2.heal2.vivify2) and cd.vivify.ready() and buff.vivaciousVivification.exists(player.unit)then
-                    if friends.lowest.hp <= ui.value(text2.heal2.vivify2) then
-                        if cast.vivify(friends.lowest.unit) then ui.debug("[SUCCESS]: "..text2.heal2.vivify2) return true else ui.debug("[FAIL]: "..text2.heal2.vivify2) return false end
+                    if friends.lowest.hp <= ui.value(text2.heal2.vivify2) and cast.able.vivify(friends.lowest.unit) then
+                        if cast.vivify(friends.lowest.unit) then ui.debug(buildSingleActionMessage(friends.lowest,text2.heal2.vivify2)) return true end
                     end
                 elseif ui.checked(text2.heal2.vivify2) and cd.vivify.ready() and not player.isMoving then
-                    if friends.lowest.hp <= ui.value(text2.heal2.vivify2) then
-                        if cast.vivify(friends.lowest.unit) then ui.debug("[SUCCESS]: "..text2.heal2.vivify2) return true else ui.debug("[FAIL]: "..text2.heal2.vivify2) return false end
+                    if friends.lowest.hp <= ui.value(text2.heal2.vivify2) and cast.able.vivify(friends.lowest.unit) then
+                        if cast.vivify(friends.lowest.unit) then ui.debug(buildSingleActionMessage(friends.lowest,text2.heal2.vivify2)) return true end
                     end
                 end
             end
+            return false
         end,
     },
     utility = function()
@@ -1029,52 +1097,49 @@ local actionList = {
                 for i = 1, #friends.range40 do
                     local tempUnit = friends.range40[i]
                     if cast.noControl.tigersLust(tempUnit.unit) then
-                        if cast.tigersLust(tempUnit.unit) then ui.debug("[SUCCESS]: "..text.utility.tigersLust) return true else ui.debug("[FAIL]: "..text.utility.tigersLust) return false end
+                        if cast.tigersLust(tempUnit.unit) then ui.debug(buildSingleActionMessage(tempUnit,text.utility.tigersLust)) return true end
                     end
                 end
             end
             -- Mana Tea
-            if ui.checked(text.utility.manaTea) and talent.manaTea and cd.manaTea.ready() then
-                if player.mana <= ui.value(text.utility.manaTea) then
-                    if cast.manaTea(player.unit) then ui.debug("[SUCCESS]: "..text.utility.manaTea) return true else ui.debug("[FAIL]: "..text.utility.manaTea) return false end
+            if ui.checked(text.utility.manaTea) and cd.manaTea.ready() then
+                if (player.mana <= ui.value(text.utility.manaTea) or (buff.manaTea.count() > 18 and player.mana <= 80)) and cast.able.manaTea() then
+                    if cast.manaTea() then ui.debug("[SUCCESS]: "..text.utility.manaTea) return true end
                 end
             end
             -- Mana Tea Yulon
             if ui.checked(text.utility.manaTeaWithYulon) and talent.manaTea and cd.manaTea.ready() and totemInfo.yulonDuration >= 5 then
-                if cast.manaTea(player.unit) then ui.debug("[SUCCESS]: "..text.utility.manaTeaWithYulon) return true else ui.debug("[FAIL]: "..text.utility.manaTeaWithYulon) return false end
+                if cast.manaTea(player.unit) then ui.debug("[SUCCESS]: "..text.utility.manaTeaWithYulon) return true end
             end
             -- Summon Jade Serpent Statue
-            if ui.checked(text.utility.summonJadeSerpentStatue) and talent.summonJadeSerpentStatue and cd.summonJadeSerpentStatue.ready() then
-                local tx,ty,tz = br.GetObjectPosition(player.unit)
-                -- print("unit location: ",tx,ty,tz)
-                -- print("jade position: ",summonJadeSerpentStatuePosition.x,summonJadeSerpentStatuePosition.y,summonJadeSerpentStatuePosition.z)
-                local results = sqrt(
-                    ((tx-summonJadeSerpentStatuePosition.x)^2) +
-                    ((ty-summonJadeSerpentStatuePosition.y)^2) +
-                    ((tz-summonJadeSerpentStatuePosition.z)^2)
-                )
-                local distanceToStatue = results --br.getDistanceToLocation(player.unit, summonJadeSerpentStatuePosition.x, summonJadeSerpentStatuePosition.y, summonJadeSerpentStatuePosition.z)
-                -- debugMessage("DistanceToStatue: " .. distanceToStatue)
-                if distanceToStatue > 40 or totemInfo.jadeSerpentStatueDuration <= 5 then
-                    local aroundUnit
-                    if ui.value(text.utility.summonJadeSerpentStatue) == 1 and #br.friend > 1 then
-                        aroundUnit = tanks[1].unit
-                    else
-                        aroundUnit = player.unit
-                    end
-                    local px, py, pz = br.GetObjectPosition(aroundUnit)
-                    if cast.able.summonJadeSerpentStatue(aroundUnit) then
-                        if cast.summonJadeSerpentStatue(aroundUnit) then
-                            summonJadeSerpentStatuePosition = {
-                                        x = px,
-                                        y = py,
-                                        z = pz
-                                    }
-                                    br.addonDebug(colors.yellow .. "[?]:5P | Jade Serpent Statue - distance to statue: " .. distanceToStatue .. ", old totem duration: " .. totemInfo.jadeSerpentStatueDuration)
-                                    return true
+            if ui.checked(text.utility.summonJadeSerpentStatue) and 
+            talent.summonJadeSerpentStatue and 
+            cd.summonJadeSerpentStatue.ready() and unit.inCombat("player") and not player.isMoving then
+                local aroundUnit
+                    if tanks[1] ~= nil and br._G.UnitIsVisible(tanks[1].unit) then 
+                        if ui.value(text.utility.summonJadeSerpentStatue) == 1 and #br.friend > 1 then
+                            aroundUnit = tanks[1].unit
+                        else
+                            aroundUnit = player.unit
+                        end
+                        local tx,ty,tz = br.GetObjectPosition(aroundUnit)
+                        local results = sqrt(
+                            ((tx-summonJadeSerpentStatuePosition.x)^2) +
+                            ((ty-summonJadeSerpentStatuePosition.y)^2) +
+                            ((tz-summonJadeSerpentStatuePosition.z)^2)
+                        )
+                        local distanceToStatue = results 
+                        --TODO switch back to API call
+                        --br.getDistanceToLocation(player.unit, summonJadeSerpentStatuePosition.x, summonJadeSerpentStatuePosition.y, summonJadeSerpentStatuePosition.z)
+                        if distanceToStatue > 40 or totemInfo.jadeSerpentStatueDuration <= 5 then
+                            tx = tx + math.random(-2, 2)
+                            ty = ty + math.random(-2, 2)                    
+                            if br.castGroundAtLocation({x = tx, y = ty, z = tz}, spell.summonJadeSerpentStatue) then
+                                br.addonDebug(colors.yellow .. "[?]:5P | Jade Serpent Statue - distance to statue: " .. distanceToStatue .. ", old totem duration: " .. totemInfo.jadeSerpentStatueDuration)
+                                return true
+                            end
                         end
                     end
-                end
             end
             -- Arcane Torrent
             if ui.checked(text.utility.arcaneTorrent) and player.race == "BloodElf" and br.getSpellCD(129597) == 0 then
@@ -1088,8 +1153,11 @@ local actionList = {
             if ui.mode.detox == 1 and cd.detox.ready() then
                 for i = 1, #br.friend do
                     if br.canDispel(br.friend[i].unit, spell.detox) and (br.getLineOfSight(br.friend[i].unit) and br.getDistance(br.friend[i].unit) <= 40 or br.friend[i].unit == "player") then
-                        if cast.detox(br.friend[i].unit) then
-                            return true
+                        if cast.able.detox(br.friend[i].unit) then
+                            if cast.detox(br.friend[i].unit) then
+                                    ui.debug(buildSingleActionMessage(br.friend[i]," DETOX"))
+                                return true
+                            end                                
                         end
                     end
                 end
@@ -1114,25 +1182,27 @@ local actionList = {
             if ui.checked(text2.utility2.manaTeaWithYulon2) and talent.manaTea and cd.manaTea.ready() and totemInfo.yulonDuration >= 5 then
                 if cast.manaTea(player.unit) then ui.debug("[SUCCESS]: "..text2.utility2.manaTeaWithYulon2) return true else ui.debug("[FAIL]: "..text2.utility2.manaTeaWithYulon2) return false end
             end
-            -- Summon Jade Serpent Statue
+            --Summon Jade Serpent Statue
             if ui.checked(text2.utility2.summonJadeSerpentStatue2) and talent.summonJadeSerpentStatue and cd.summonJadeSerpentStatue.ready() then
-                local distanceToStatue = br.getDistanceToObject(player.unit, summonJadeSerpentStatuePosition.x, summonJadeSerpentStatuePosition.y, summonJadeSerpentStatuePosition.z)
+                local aroundUnit
+                if ui.value(text2.utility2.summonJadeSerpentStatue2) == 1 and #br.friend > 1 then
+                    aroundUnit = tanks[1].unit
+                else
+                    aroundUnit = player.unit
+                end
+                local tx,ty,tz = br.GetObjectPosition(aroundUnit)
+                local results = sqrt(
+                    ((tx-summonJadeSerpentStatuePosition.x)^2) +
+                    ((ty-summonJadeSerpentStatuePosition.y)^2) +
+                    ((tz-summonJadeSerpentStatuePosition.z)^2)
+                )
+                local distanceToStatue = results 
+                --TODO switch back to API call
+                --br.getDistanceToLocation(player.unit, summonJadeSerpentStatuePosition.x, summonJadeSerpentStatuePosition.y, summonJadeSerpentStatuePosition.z)
                 if distanceToStatue > 40 or totemInfo.jadeSerpentStatueDuration <= 5 then
-                    local aroundUnit
-                    if ui.value(text2.utility2.summonJadeSerpentStatue2) == 1 and #br.friend > 1 then
-                        aroundUnit = tanks[1].unit
-                    else
-                        aroundUnit = player.unit
-                    end
-                    local px, py, pz = br.GetObjectPosition(aroundUnit)
-                    px = px + math.random(-2, 2)
-                    py = py + math.random(-2, 2)
-                    if br.castGroundAtLocation({x = px, y = py, z = pz}, spell.summonJadeSerpentStatue) then
-                        summonJadeSerpentStatuePosition = {
-                            x = px,
-                            y = py,
-                            z = pz
-                        }
+                    tx = tx + math.random(-2, 2)
+                    ty = ty + math.random(-2, 2)                    
+                    if br.castGroundAtLocation({x = tx, y = ty, z = tz}, spell.summonJadeSerpentStatue) then
                         br.addonDebug(colors.yellow .. "[?]:20P | Jade Serpent Statue - distance to statue: " .. distanceToStatue .. ", old totem duration: " .. totemInfo.jadeSerpentStatueDuration)
                         return true
                     end
@@ -1157,6 +1227,7 @@ local actionList = {
                 end
             end
         end
+        return false
     end,
     selfDefense = function()
         if br.player.ui.mode.content == 1 then
@@ -1198,16 +1269,16 @@ local actionList = {
                                 if cast.spearHandStrike(thisUnit) then ui.debug("[SUCCESS - INTERRUPT]:5P | Spear Hand Strike") return true else ui.debug("[FAIL - INTERRUPT]:5P | Spear Hand Strike") return false end
                             end
                         end                            
-                        -- Paralysis
-                        if talent.paralysis then
-                            if cd.paralysis.ready() and distance < 20 then
-                                if cast.paralysis(thisUnit) then ui.debug("[SUCCESS - INTERRUPT]:5P | Paralysis") return true else ui.debug("[FAIL - INTERRUPT]:5P | Paralysis") return false end
-                            end
-                        end                            
-                        -- Ring of Peace
-                        if talent.ringOfPeace and cd.ringOfPeace.ready() and ui.checked(text.utility.ringOfPeace) then
-                            if cast.ringOfPeace(thisUnit, "ground") then ui.debug("[SUCCESS - INTERRUPT]:5P | Ring Of Peace") return true else ui.debug("[FAIL - INTERRUPT]:5P | Ring Of Peace") return false end
-                        end
+                        -- -- Paralysis
+                        -- if talent.paralysis then
+                        --     if cd.paralysis.ready() and distance < 20 then
+                        --         if cast.paralysis(thisUnit) then ui.debug("[SUCCESS - INTERRUPT]:5P | Paralysis") return true else ui.debug("[FAIL - INTERRUPT]:5P | Paralysis") return false end
+                        --     end
+                        -- end                            
+                        -- -- Ring of Peace
+                        -- if talent.ringOfPeace and cd.ringOfPeace.ready() and ui.checked(text.utility.ringOfPeace) then
+                        --     if cast.ringOfPeace(thisUnit, "ground") then ui.debug("[SUCCESS - INTERRUPT]:5P | Ring Of Peace") return true else ui.debug("[FAIL - INTERRUPT]:5P | Ring Of Peace") return false end
+                        -- end
                         -- Leg Sweep
                         if cd.legSweep.ready() and ui.checked(text.selfDefense.legSweep) then
                             if cast.able.legSweep(thisUnit) then
@@ -1261,7 +1332,7 @@ local actionList = {
                             if cast.spearHandStrike(thisUnit) then ui.debug("[SUCCESS - INTERRUPT]:20P | Spear Hand Strike") return true else ui.debug("[FAIL - INTERRUPT]:20P | Spear Hand Strike") return false end
                         end
                         -- Paralysis
-                        if cd.paralysis.ready() and distance < 20 then
+                        if cd.paralysis.ready() and distance < 20  and cast.able.paralysis(thisUnit) then
                             if cast.paralysis(thisUnit) then ui.debug("[SUCCESS - INTERRUPT]:20P | Paralysis") return true else ui.debug("[FAIL - INTERRUPT]:20P | Paralysis") return false end
                         end
                         -- Ring of Peace
@@ -1269,8 +1340,8 @@ local actionList = {
                             if cast.ringOfPeace(thisUnit, "ground") then ui.debug("[SUCCESS - INTERRUPT]:20P | Ring Of Peace") return true else ui.debug("[FAIL - INTERRUPT]:20P | Ring Of Peace") return false end
                         end
                         -- Leg Sweep
-                        if cd.legSweep.ready() and ui.checked(text2.selfDefense2.legSweep2) then
-                            if cast.legSweep(thisUnit, "ground") then ui.debug("[SUCCESS - INTERRUPT]:20P | Leg Sweep") return true else ui.debug("[FAIL - INTERRUPT]:20P | Leg Sweep") return false end
+                        if cast.able.legSweep() and ui.checked(text2.selfDefense2.legSweep2) then
+                            if cast.legSweep() then ui.debug("[SUCCESS - INTERRUPT]:20P | Leg Sweep") return true else ui.debug("[FAIL - INTERRUPT]:20P | Leg Sweep") return false end
                         end
                     end
                 end
@@ -1282,6 +1353,7 @@ local actionList = {
                 end
             end
         end
+        return false
     end,
     damage = {
         CDs = function()
@@ -1293,8 +1365,8 @@ local actionList = {
                     local thisUnit = enemies.range5[i]
                     if br._G.ObjectIsFacing(player.unit, thisUnit) then
                         if touchOfDeathMode == 1 or (touchOfDeathMode == 2 and br.isBoss(thisUnit)) then
-                            if unit.health(player.unit) > unit.health(thisUnit) or (br.isBoss(thisUnit) and unit.hp(thisUnit) <= 15) then
-                                if cast.touchOfDeath(thisUnit) then ui.debug("[SUCCESS]: "..text.damage.touchOfDeath) return true else ui.debug("[FAIL]: "..text.damage.touchOfDeath) return false end
+                            if cast.able.touchOfDeath(thisUnit) then
+                                if cast.touchOfDeath(thisUnit) then ui.debug("[SUCCESS]: "..text.damage.touchOfDeath) return true end
                             end
                         end
                     end
@@ -1307,7 +1379,7 @@ local actionList = {
                     local thisUnit = enemies.range5[i]
                     if br._G.ObjectIsFacing(player.unit, thisUnit) then
                         if touchOfDeathMode == 1 or (touchOfDeathMode == 2 and br.isBoss(thisUnit)) then
-                            if unit.health(player.unit) > unit.health(thisUnit) or (br.isBoss(thisUnit) and unit.hp(thisUnit) <= 15) then
+                            if unit.health(player.unit) > unit.health(thisUnit) or (br.isBoss(thisUnit) and unit.hp(thisUnit) <= 15) and cast.able.touchofDeath(thisUnit) then
                                 if cast.touchOfDeath(thisUnit) then ui.debug("[SUCCESS]: "..text2.damage2.touchOfDeath2) return true else ui.debug("[FAIL]: "..text2.damage2.touchOfDeath2) return false end
                             end
                         end
@@ -1321,22 +1393,22 @@ local actionList = {
 		if br.player.ui.mode.content == 1 then
             if #enemies.range8 >= 3 then
                 -- Rising Sun Kick
-                if cd.risingSunKick.ready() and br._G.ObjectIsFacing(player.unit, dynamic.range5) then
-                    if cast.risingSunKick(dynamic.range5) then ui.debug("[SUCCESS]:5P | Rising Sun Kick AoE") return true else ui.debug("[FAIL]:5P | Rising Sun Kick AoE") return false end
+                if cast.able.risingSunKick("target") and br._G.ObjectIsFacing(player.unit, dynamic.range5) then
+                    if cast.risingSunKick("target") then ui.debug("[SUCCESS]:5P | Rising Sun Kick AoE") return true else ui.debug("[FAIL]:5P | Rising Sun Kick AoE") return false end
                 end
                 -- Spinning Crane Kick
-                if cd.spinningCraneKick.ready() and not cast.active.spinningCraneKick() then
-                    if cast.spinningCraneKick(player.unit) then ui.debug("[SUCCESS]:5P | Spinning Crane Kick AoE") return true else ui.debug("[FAIL]:5P | Spinning Crane Kick AoE") return false end
+                if cast.able.spinningCraneKick() and not cast.active.spinningCraneKick() then
+                    if cast.spinningCraneKick() then ui.debug("[SUCCESS]:5P | Spinning Crane Kick AoE") return true else ui.debug("[FAIL]:5P | Spinning Crane Kick AoE") return false end
                 end
             end
 		elseif br.player.ui.mode.content == 2 then
 		        if #enemies.range8 >= 3 then
                 -- Rising Sun Kick
-                if cd.risingSunKick.ready() and br._G.ObjectIsFacing(player.unit, dynamic.range5) then
+                if cast.able.risingSunKick() and br._G.ObjectIsFacing(player.unit, dynamic.range5) then
                     if cast.risingSunKick(dynamic.range5) then ui.debug("[SUCCESS]:20P | Rising Sun Kick AoE") return true else ui.debug("[FAIL]:20P | Rising Sun Kick AoE") return false end
                 end
                 -- Spinning Crane Kick
-                if cd.spinningCraneKick.ready() and not cast.active.spinningCraneKick() then
+                if cast.able.spinningCraneKick() and not cast.active.spinningCraneKick() then
                     if cast.spinningCraneKick(player.unit) then ui.debug("[SUCCESS]:20P | Spinning Crane Kick AoE") return true else ui.debug("[FAIL]:20P | Spinning Crane Kick AoE") return false end
                 end
             end
@@ -1493,11 +1565,14 @@ end
 
 
 local getTotemInfo = function()
-    for index=1,4 do
+    for index=1,5 do
         local exists, totemName, startTime, duration, icon = GetTotemInfo(index)
         if exists then
             local estimateDuration = br.round2(startTime + duration - GetTime())
-            if icon == 620831 then totemInfo.jadeSerpentStatueDuration = estimateDuration end
+            if icon == 620831 then 
+                totemInfo.jadeSerpentStatueDuration = estimateDuration 
+                var.jadeSerpentStatueName = totemName
+            end
             if icon == 574571 then totemInfo.yulonDuration = estimateDuration end
             if icon == 877514 then totemInfo.chiJiDuration = estimateDuration end
         end
@@ -1527,10 +1602,10 @@ local function runRotation()
         br.friend[i].hpDefecit = getHPDefecit(br.friend[i].unit)
         br.friend[i].hp = getRealHP(br.friend[i].unit)
     end
-    table.sort(br.friend,function(f1,f2) 
-        if f1 == nil then return false end
-        if f2 == nil then return true end
-        return f1.hpDefecit > f2.hpDefecit end)
+     table.sort(br.friend,function(f1,f2) 
+         if f1 == nil then return false end
+         if f2 == nil then return true end
+         return f1.hpDefecit > f2.hpDefecit end)
     friends             = {
         lowest          = br.friend[1],
         range10         = br.getAllies("player", 10),
@@ -1577,14 +1652,48 @@ local function runRotation()
     }
     ui                  = br.player.ui
     unit                = br.player.unit
-
+    var                 = br.player.variables
     ui.mode.thunderFocusTea = br.data.settings[br.selectedSpec].toggles["ThunderFocusTea"]
     ui.mode.dps = br.data.settings[br.selectedSpec].toggles["DPS"]
+    ui.mode.ObjDebug = br.data.settings[br.selectedSpec].toggles["ObjDebug"]
+    --local spell, rank, displayName, icon, startTime, endTime, isTradeSkill, castID, interrupt = UnitCastingInfo("player")
+    --print("casting: ",spell,displayName)
+    --local currentCharges, maxCharges, cooldownStart, cooldownDuration, chargeModRate = GetSpellCharges(spell)
+    --local charges, maxCharges, chargeStart, chargeDuration = GetActionCharges(2)
+    --print("getcharges Info: ",charges,maxCharges)
+    --print(buff.sheilunsGift.count())
+    --print("CT: ", unit.combatTime())
+    --local current
+    var.MistBallsInWorld = 0
+    var.jadeSerpentStatueName = ""
+    
+        for i=1,br._G.GetObjectCount() do
+            local name = br._G.ObjectName(br._G.GetObjectWithIndex(i))
+            local creator = br._G.UnitCreator(br._G.GetObjectWithIndex(i))
+            if creator == br._G.UnitGUID("player") and br._G.ObjectType(br._G.GetObjectWithIndex(i)) ==11 then
+                var.MistBallsInWorld = var.MistBallsInWorld +1
+            end
+            if creator == br._G.UnitGUID("player") and 
+                br._G.ObjectType(br._G.GetObjectWithIndex(i)) == 5 and 
+                name == "Jade Serpent Statue" then
+                local x,y,z = br._G.ObjectPosition(br._G.GetObjectWithIndex(i))
+                summonJadeSerpentStatuePosition.x=x
+                summonJadeSerpentStatuePosition.y=y
+                summonJadeSerpentStatuePosition.z=z
+            -- elseif creator == br._G.UnitGUID("player") then
+            --     print(name)
+            end
+        end
+    
 
-    local current
     getTotemInfo()
     if br.pause(true) or player.isMounted or player.isFlying or player.isDrinking then return true; end
     if actionList.Extra() then return true; end
+
+    --don't interrupt certain channelings
+    if br.isCastingSpell(spell.manaTea) and player.mana <= 90 then return true end;
+        
+    
 
 
     if player.inCombat then
