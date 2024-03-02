@@ -2377,6 +2377,7 @@ br.lists.spells = {
                 transcendenceTransfer       = 119996,
                 sheilunsGift                = 399491,
                 detox                       = 115450,
+                manaTea                     =115294,
             },
             artifacts                       = {
             },
@@ -2401,7 +2402,6 @@ br.lists.spells = {
                 dempenHarm                  = 122278,
                 innervate                   = 29166,
                 symbolOfHope                = 64901,
-                manaTea                     = 197908,
                 wayOfTheCrane               = 216113,
                 essenceFont                 = 191840,
                 risingMist                  = 22170,
@@ -2413,6 +2413,8 @@ br.lists.spells = {
 				vivaciousVivification		= 392883,
                 rushingJadeWind             = 116847,
                 ancientTeachings			= 388023,
+                sheilunsGift                = 399491,
+                manaTea                     = 115867,
             },
             debuffs                         = {
                 mysticTouch                 = 113746,
@@ -2437,6 +2439,7 @@ br.lists.spells = {
                 lifeCocoon                  = 116849,
                 sheilunsGift                = 399491,
                 spearHandStrike             = 116705,
+                --manaTea                     = 197908,
 
             },
             runeforges                      = {
