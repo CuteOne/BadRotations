@@ -137,7 +137,7 @@ Raidable means if its good to raid with.
 
 |   rotation   |          author           |patch |coverage|status|    readiness     |last updated|
 |--------------|---------------------------|:----:|:------:|:----:|:----------------:|-----------:|
-|BrewMistWeaver|BrewingCoder/SinWeaver/Lylo|10.2.5|  100%  | Full |:white_check_mark:|  03/02/2024|
+|BrewMistWeaver|BrewingCoder/SinWeaver/Lylo|10.2.5|  100%  | Full |:white_check_mark:|  03/03/2024|
 
 - WindWalker
 
