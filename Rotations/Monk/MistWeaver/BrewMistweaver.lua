@@ -223,11 +223,11 @@ local function createToggles()
             [2] = { mode = "Off", value = 2, overlay = "Detox Disabled", tip = "Detox Disabled", highlight = 0, icon = br.player.spell.detox }
         }
         br.ui:createToggle(DetoxModes,"Detox", 6, 0)
-        local ObjDebugModes = {
-            [1] = { mode="On", value = 1, overlay = "Obj Debug Enabled", tip="Object Debug Enabled",highlight=1, icon=br.player.spell.dampenHarm},
-            [2] = { mode="Off", value = 2, overlay = "Obj Debug Disabled", tip="Object Debug Disabled",highlight=0, icon=br.player.spell.dampenHarm},
+        local RollModes = {
+            [1] = { mode="On", value = 1, overlay = "Auto Roll Enabed", tip="Auto Roll enabled",highlight=1, icon=br.player.spell.roll},
+            [2] = { mode="Off", value = 2, overlay = "Auto Roll Disabled", tip="Auto Roll Disabled",highlight=0, icon=br.player.spell.roll},
         }
-        br.ui:createToggle(ObjDebugModes,"ObjDebug",7,0)
+        br.ui:createToggle(RollModes,"RollMode",7,0)
         
 end
 
@@ -1040,7 +1040,7 @@ local actionList = {
             return false
         end,
         singleTargetRotation = function()
-            if br.player.ui.mode.content == 2 then
+            if br.player.ui.mode.content == 1 then
                 -- Chi Wave
                 if ui.checked(text.heal.chiWave) and cd.chiWave.ready() and talent.chiWave and dynamic.range40 ~= nil then
                     if cast.able.chiWave() then
@@ -1063,7 +1063,7 @@ local actionList = {
                         if cast.vivify(friends.lowest.unit) then ui.debug(buildSingleActionMessage(friends.lowest,text.heal.vivify)) return true end
                     end
                 end
-            elseif br.player.ui.mode.content == 1 then
+            elseif br.player.ui.mode.content == 2 then
                 -- Chi Wave
                 if ui.checked(text2.heal2.chiWave2) and cd.chiWave.ready() and talent.chiWave and dynamic.range40 ~= nil then
                     if cast.able.chiWave() then
@@ -1167,15 +1167,15 @@ local actionList = {
             if ui.checked(text2.utility2.tigersLust2) and talent.tigersLust and cd.tigersLust.ready()  then
                 for i = 1, #friends.range40 do
                     local tempUnit = friends.range40[i]
-                    if cast.noControl.tigersLust(tempUnit.unit) then
-                        if cast.tigersLust(tempUnit.unit) then ui.debug("[SUCCESS]: "..text2.utility2.tigersLust2) return true else ui.debug("[FAIL]: "..text2.utility2.tigersLust2) return false end
+                    if cast.noControl.tigersLust(tempUnit.unit) and cast.able.tigersLust(tempUnit.unit) then
+                        if cast.tigersLust(tempUnit.unit) then ui.debug("[SUCCESS]: "..text2.utility2.tigersLust2) return true end
                     end
                 end
             end
             -- Mana Tea
             if ui.checked(text2.utility2.manaTea2) and talent.manaTea and cd.manaTea.ready() then
                 if player.mana <= ui.value(text2.utility2.manaTea2) then
-                    if cast.manaTea(player.unit) then ui.debug("[SUCCESS]: "..text2.utility2.manaTea2) return true else ui.debug("[FAIL]: "..text2.utility2.manaTea2) return false end
+                    if cast.manaTea(player.unit) then ui.debug("[SUCCESS]: "..text2.utility2.manaTea2) return true else end
                 end
             end
             -- Mana Tea Yulon
@@ -1228,6 +1228,21 @@ local actionList = {
             end
         end
         return false
+    end,
+    ancientTeachingsRotation = function ()
+        if #enemies.range5f >= 1 then
+            if cast.able.blackoutKick() then
+                if cast.blackoutKick() then ui.debug("[SUCCESS]:5P | Blackout Kick [ANCIENT]") return true else end
+            end
+            if cast.able.risingSunKick() then
+                if cast.risingSunKick() then ui.debug("[SUCCESS]:5P | Rising Sun Kick [ANCIENT") return true  end
+            end
+            -- Tiger Palm
+            if cast.able.tigerPalm() then
+                if cast.tigerPalm() then ui.debug("[SUCCESS]:5P | Tiger Palm [ANCIENT") return true  end
+            end
+        end
+        
     end,
     selfDefense = function()
         if br.player.ui.mode.content == 1 then
@@ -1394,41 +1409,42 @@ local actionList = {
             if #enemies.range8 >= 3 then
                 -- Rising Sun Kick
                 if cast.able.risingSunKick("target") and br._G.ObjectIsFacing(player.unit, dynamic.range5) then
-                    if cast.risingSunKick("target") then ui.debug("[SUCCESS]:5P | Rising Sun Kick AoE") return true else ui.debug("[FAIL]:5P | Rising Sun Kick AoE") return false end
+                    if cast.risingSunKick("target") then ui.debug("[SUCCESS]:5P | Rising Sun Kick AoE") return true end
                 end
                 -- Spinning Crane Kick
                 if cast.able.spinningCraneKick() and not cast.active.spinningCraneKick() then
-                    if cast.spinningCraneKick() then ui.debug("[SUCCESS]:5P | Spinning Crane Kick AoE") return true else ui.debug("[FAIL]:5P | Spinning Crane Kick AoE") return false end
+                    if cast.spinningCraneKick() then ui.debug("[SUCCESS]:5P | Spinning Crane Kick AoE") return true end
                 end
             end
 		elseif br.player.ui.mode.content == 2 then
 		        if #enemies.range8 >= 3 then
                 -- Rising Sun Kick
                 if cast.able.risingSunKick() and br._G.ObjectIsFacing(player.unit, dynamic.range5) then
-                    if cast.risingSunKick(dynamic.range5) then ui.debug("[SUCCESS]:20P | Rising Sun Kick AoE") return true else ui.debug("[FAIL]:20P | Rising Sun Kick AoE") return false end
+                    if cast.risingSunKick(dynamic.range5) then ui.debug("[SUCCESS]:20P | Rising Sun Kick AoE") return true end
                 end
                 -- Spinning Crane Kick
                 if cast.able.spinningCraneKick() and not cast.active.spinningCraneKick() then
-                    if cast.spinningCraneKick(player.unit) then ui.debug("[SUCCESS]:20P | Spinning Crane Kick AoE") return true else ui.debug("[FAIL]:20P | Spinning Crane Kick AoE") return false end
+                    if cast.spinningCraneKick(player.unit) then ui.debug("[SUCCESS]:20P | Spinning Crane Kick AoE") return true end
                 end
             end
 		end
         end,
+       
 
         singleTargetRotation = function()
 		if br.player.ui.mode.content == 1 then
             if dynamic.range5 ~= nil and br._G.ObjectIsFacing(player.unit, dynamic.range5) then
-                -- Rising Sun Kick
-                if cd.risingSunKick.ready() then
-                    if cast.risingSunKick(dynamic.range5) then ui.debug("[SUCCESS]:5P | Rising Sun Kick ST") return true else ui.debug("[FAIL]:5P | Rising Sun Kick ST") return false end
-                end
                 -- Blackout Kick
-                if cd.blackoutKick.ready() and buff.teachingsOfTheMonastery.stack() == 3 then
-                    if cast.blackoutKick(dynamic.range5) then ui.debug("[SUCCESS]:5P | Blackout Kick ST") return true else ui.debug("[FAIL]:5P | Blackout Kick ST") return false end
+                -- if cd.blackoutKick.ready() and buff.teachingsOfTheMonastery.stack() == 3 and cast.able.blackoutKick(dynamic.range5) then
+                --     if cast.blackoutKick(dynamic.range5) then ui.debug("[SUCCESS]:5P | Blackout Kick ST [TOM]") return true else  end
+                -- end
+                -- Rising Sun Kick
+                if cast.able.risingSunKick(dynamic.range5) then
+                    if cast.risingSunKick(dynamic.range5) then ui.debug("[SUCCESS]:5P | Rising Sun Kick ST") return true  end
                 end
                 -- Tiger Palm
-                if cd.tigerPalm.ready() then
-                    if cast.tigerPalm(dynamic.range5) then ui.debug("[SUCCESS]:5P | Tiger Palm ST") return true else ui.debug("[FAIL]:5P | Tiger Palm ST") return false end
+                if cast.able.tigerPalm(dynamic.range5) then
+                    if cast.tigerPalm(dynamic.range5) then ui.debug("[SUCCESS]:5P | Tiger Palm ST") return true  end
                 end
             end
 		elseif br.player.ui.mode.content == 2 then
@@ -1591,6 +1607,7 @@ local function runRotation()
     }
     enemies             = {
         range5          = br.player.enemies.get(5),
+        range5f         = br.player.enemies.get(5,"player",false,true), 
         range6          = br.player.enemies.get(6),
         range8          = br.player.enemies.get(8),
         range40         = br.player.enemies.get(40)
@@ -1655,7 +1672,7 @@ local function runRotation()
     var                 = br.player.variables
     ui.mode.thunderFocusTea = br.data.settings[br.selectedSpec].toggles["ThunderFocusTea"]
     ui.mode.dps = br.data.settings[br.selectedSpec].toggles["DPS"]
-    ui.mode.ObjDebug = br.data.settings[br.selectedSpec].toggles["ObjDebug"]
+    ui.mode.RollMode = br.data.settings[br.selectedSpec].toggles["RollMode"]
     --local spell, rank, displayName, icon, startTime, endTime, isTradeSkill, castID, interrupt = UnitCastingInfo("player")
     --print("casting: ",spell,displayName)
     --local currentCharges, maxCharges, cooldownStart, cooldownDuration, chargeModRate = GetSpellCharges(spell)
@@ -1692,6 +1709,10 @@ local function runRotation()
 
     --don't interrupt certain channelings
     if br.isCastingSpell(spell.manaTea) and player.mana <= 90 then return true end;
+
+    if ui.mode.RollMode ==1 and  br.isMoving("player") and cast.able.roll() then
+        if cast.roll() then return true; end
+    end
         
     
 
@@ -1711,6 +1732,19 @@ local function runRotation()
         if actionList.healing.AoERotation() then return true; end;
         if actionList.selfDefense() then return true; end;
         if actionList.utility() then return true; end;
+
+        if buff.teachingsOfTheMonastery.stack("player") >= 4 then
+            if cast.able.blackoutKick() then
+                if cast.blackoutKick() then ui.debug("TOM! Casting blackout kick") return true; end;
+            end
+        end
+
+        --take advantage of procs if we're in DPS Mode
+        if ui.mode.dps == 1 or ui.mode.dps == 3 then
+            if buff.ancientTeachings.exists("player") and actionList.ancientTeachingsRotation() then return true end;
+        end
+
+
         if actionList.healing.faelineStompRotation() then return true; end;
         if actionList.healing.zenPulseRotation() then return true; end;
         if actionList.healing.soothingMistRotation() then return true; end;
@@ -1722,7 +1756,7 @@ local function runRotation()
             end
             if ui.mode.dps == 1 or ui.mode.dps == 3 then
                 if actionList.damage.singleTargetRotation() then return true; end;
-                if actionList.damage.rangedDamage() then return true; end;
+                --if actionList.damage.rangedDamage() then return true; end;
             end
         end
         if cast.able.autoAttack("target") and unit.distance("target") <= 5 then
