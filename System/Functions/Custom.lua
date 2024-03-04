@@ -661,6 +661,21 @@ function br.mergeIdTables(idTable)
     return idTable
 end
 
+-- takes a given time duration and returns a string representing the hours, minutes, and seconds
+-- examply br.formattedTime(time,format))
+-- format 1 = short time: HH:MM:SS
+-- format 2 = long time:  2hrs 24m 15s
+function br.formattedTime(inTime,format)
+    if format == nil then format = 1 end
+    inTime = inTime / 1000
+    local hours = math.floor(inTime / 3600)
+    local remains = inTime % 3600
+    local minutes = math.floor(remains / 60)
+    remains = math.floor(remains % 60)
+    return tostring(hours..":"..minutes .. ":".. remains)
+    
+end
+
 --- Checks if a table contains given value
 -- local myTable = {"hello", "world"}
 -- inTable(myTable, "hello") == true

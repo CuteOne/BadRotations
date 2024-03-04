@@ -167,10 +167,10 @@ br.api.module = function(self)
     -- @function module.Flask
     -- @string buffType The type of flask to use. (e.g. "Agility", "Intellect", "Stamina", "Strength")
     -- @bool[opt] section If set will generate the options for this module in the Profile Options. Otherwise, will run the module.
-    module.VariableCombatPotion = function(section)
+    module.CombatPotionUp = function(section)
         local potList = {"Elem Pot of Ultimate Power","Elem Pot of Power"}
         if section ~= nil then
-            br.ui:createDropdownWithout(section,"Use Best Qual Potion",potList,1,"|cffFFFFFFSet Combat Potion To Use.")
+            br.ui:createDropdownWithout(section,"Combat Potion",potList,1,"|cffFFFFFFSelect Combat Potion, uses best quality.")
         end
 
         local function cancelBuffs()
@@ -190,14 +190,15 @@ br.api.module = function(self)
             end
         end
     end
-    module.VariablePhial = function(section)
-        local phialList = {"Iced Phial of Corrupting Rage","Phial of Glacial Fury"}
+    module.PhialUp = function(section)
+        local phialList = {"Iced Phial of Corrupting Rage","Phial of Glacial Fury","Phial of Tepid Versatility"}
         if section ~= nil then
-            br.ui:createDropdownWithout(section,"Use Best Qual Phial",phialList,1,"|cffFFFFFFSet Phial Potion To Use.")
+            br.ui:createDropdown(section,"Use DF Phial",phialList,1,"|cffFFFFFFSet DF Phial To Use, Selects Best Quality.")
         end
         local function cancelBuffs()
             if buff.icedPhialOfCorruptingRage.exists() then buff.icedPhialOfCorruptingRage.cancel() end;
             if buff.phialOfGlacialFury.exists() then buff.phialOfGlacialFury.cancel() end;
+            if buff.phialOfTepidVersatility.exists() then buff.phialOfTepidVersatility.cancel() end;
         end
         if section == nil then
             local opValue = ui.value("Use Best Qual Phial")
@@ -209,6 +210,32 @@ br.api.module = function(self)
             if opValue == 2 and not buff.phialOfGlacialFury.exists() and use.isOneOfUsable(br.lists.items.phialOfGlacialFuryQualities) then
                     cancelBuffs()
                     if use.bestItem(br.lists.items.phialOfGlacialFuryQualities) then ui.debug("Using Best Phial: Phial of Glacial Fury") return true; end
+            end
+            if opValue == 3 and not buff.phialOfTepidVersatility.exists() and use.isOneOfUsable(br.lists.items.phialOfTepidVersatilityQualities) then
+                    cancelBuffs()
+                    if use.bestItem(br.lists.items.phialOfTepidVersatilityQualities) then ui.debug("Using Best Phial: Phial of Tepid Versatility") return true; end;
+            end
+        end
+    end
+    module.ImbueUp = function(section)
+        local runeList = {"Buzzing Rune","Chirping Rune","Howling Rune","Hissing Rune"}
+        if section ~= nil then
+            br.ui:createDropdown(section,"Weapon Imbuement",runeList,1,"Imbuement Rune to use, selects best grade available")
+        else
+            if ui.checked("Weapon Imbuement") then
+                local selValue = ui.value("Weapon Imbuement")
+                local auras = {}
+                if selValue == 1 then auras = br.lists.spells.Shared.Shared.itemEnchantments.buzzingRune end
+                if selValue == 2 then auras = br.lists.spells.Shared.Shared.itemEnchantments.chirpingRune end
+                if selValue == 3 then auras = br.lists.spells.Shared.Shared.itemEnchantments.howlingRune end
+                if selValue == 4 then auras = br.lists.spells.Shared.Shared.itemEnchantments.hissingRune end
+                if not unit.weaponImbue.exists(auras) then
+                    print("Need Imbument")
+                    if selValue == 1 then return use.bestItem(br.lists.items.buzzingRuneQualities) end
+                    if selValue == 2 then return use.bestItem(br.lists.items.chirpingRuneQualities) end
+                    if selValue == 3 then return use.bestItem(br.lists.items.howlingRuneQualities) end
+                    if selValue == 4 then return use.bestItem(br.lists.items.hissingRuneQualities) end
+                end
             end
         end
     end
