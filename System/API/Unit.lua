@@ -376,7 +376,6 @@ br.api.unit = function(self)
                 if (offHand and hasOff) and offId==imbueId[i] then return true end
                 if (not offHand and hasMain) and mainId==imbueId[i] then return true end
             end
-            print("returning false")
             return false
         end
         if imbueId == nil then

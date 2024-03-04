@@ -230,7 +230,6 @@ br.api.module = function(self)
                 if selValue == 3 then auras = br.lists.spells.Shared.Shared.itemEnchantments.howlingRune end
                 if selValue == 4 then auras = br.lists.spells.Shared.Shared.itemEnchantments.hissingRune end
                 if not unit.weaponImbue.exists(auras) then
-                    print("Need Imbument")
                     if selValue == 1 then return use.bestItem(br.lists.items.buzzingRuneQualities) end
                     if selValue == 2 then return use.bestItem(br.lists.items.chirpingRuneQualities) end
                     if selValue == 3 then return use.bestItem(br.lists.items.howlingRuneQualities) end
