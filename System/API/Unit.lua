@@ -365,11 +365,20 @@ br.api.unit = function(self)
     end
     -- Weapon Imbue Fuctions
     self.unit.weaponImbue = self.unit.weaponImbue or {}
+    
     -- Weapon Imbue Exists
     unit.weaponImbue.exists = function(imbueId,offHand)
         local GetWeaponEnchantInfo = br._G["GetWeaponEnchantInfo"]
         local hasMain, _, _, mainId, hasOff, _, _, offId = GetWeaponEnchantInfo()
         if offHand == nil then offHand = false end
+        if type(imbueId) == "table" then
+            for i=1,#imbueId do
+                if (offHand and hasOff) and offId==imbueId[i] then return true end
+                if (not offHand and hasMain) and mainId==imbueId[i] then return true end
+            end
+            print("returning false")
+            return false
+        end
         if imbueId == nil then
             if offHand then imbueId = offId else imbueId = mainId end
         end

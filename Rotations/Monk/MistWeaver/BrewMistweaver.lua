@@ -101,6 +101,9 @@ local text = {
         chiJiDpsThreshold                           = colors.red.."5P | " ..colors.red.."Chi-Ji DPS Threshold",
         cracklingJadeLightning                      = colors.red.."5P | " ..colors.red.."Crackling Jade Lightning",
         touchOfDeath                                = colors.red.."5P | " ..colors.red.."Touch of Death",
+    },
+    consumables = {
+        consumeOnlyInDungeon    = colors.green.."Use Consumables only in Dungeon/Raid",
     }
 }
 local text2 = {
@@ -435,10 +438,21 @@ local function createOptions()
         br.ui:createDropdown(section, text2.damage2.touchOfDeath2,       {colors.blue .. "Always", colors.green .. "Bosses", colors.red .. "Never"}, 2, "Enable auto usage of this spell.", "Select")
         br.ui:checkSectionState(section)
     end
+    local function consumables()
+        local section = br.ui:createSection(br.ui.window.profile,"Consumables")
+            br.ui:createCheckbox(section, text.options.consumeOnlyInDungeon)
+            br.player.module.ImbueUp(section)
+            br.player.module.PhialUp(section)
+        br.ui:checkSectionState(section)
+    end
     optionTable = {
         {
             [1] = "Welcome",
             [2] = welcome,
+        },
+        {
+            [1] = "Consumables",
+            [2] = consumables
         },
         {
             [1] = "Dungeon Settings",

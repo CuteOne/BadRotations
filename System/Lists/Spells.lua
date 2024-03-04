@@ -4817,7 +4817,18 @@ br.lists.spells = {
                 elementalPotionOfPower          = 371024,
                 elementalPotionOfUltimatePower  = 371028,
                 phialOfGlacialFury              = 373257,
+                phialOfTepidVersatility         = 371172,
                 icedPhialOfCorruptingRage       = 374000,
+
+            },
+            --TODO Add to API
+            itemEnchantments = {
+                --Dragonflight weapon Imbue's from inscription enchantments
+                --Quality of aura should always be GOLD,SILVER,COPPER
+                buzzingRune                     = {6514, 6513, 6512},
+                chirpingRune                    = {6695, 6694, 6515},
+                howlingRune                     = {6518, 6517, 6516},
+                hissingRune                     = {6839, 6837, 6838},
             },
             conduits                            = {
 
