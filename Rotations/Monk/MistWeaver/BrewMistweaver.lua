@@ -475,10 +475,10 @@ local debugMessage = function(message)
     print(colors.red.. date() .. colors.white .. ": ".. message)
 end
 
-local getRealHP = function(param)
-    if param ~= nil then
-        if br._G.UnitIsVisible(param) then
-        return 100*(br._G.UnitHealth(param)+br._G.UnitGetIncomingHeals(param,"player"))/br._G.UnitHealthMax(param)
+local getRealHP = function(Unit)
+    if Unit ~= nil then
+        if br.GetObjectExists(Unit) and br.GetUnitIsVisible(Unit) and not br.GetUnitIsDeadOrGhost(Unit) then
+        return 100*(br._G.UnitHealth(Unit)+br._G.UnitGetIncomingHeals(Unit,"player"))/br._G.UnitHealthMax(Unit)
         end
     else
         return 100
@@ -490,12 +490,12 @@ local function formatHPColor(inHp)
     if inHp > 65 then return colors.yellow .. math.floor(inHp+0.5) .. "%" .. colors.white end
     if inHp > 45 then return colors.orange .. math.floor(inHp+0.5) .. "%" .. colors.white end
     return colors.red .. math.floor(inHp+0.5) .. "%" .. colors.white 
-
 end
 
 local buildSingleActionMessage = function(thisFriend, spellName)
     return "[SUCCESS]: " .. spellName .. colors.white .. " [" .. thisFriend.name .. "][" .. formatHPColor(getRealHP(thisFriend.unit)) .. "] "
 end
+
 local buildAOEActionMessage = function(numUnitsTriggered, spellName)
     local numUnits = 0
     if (type(numUnitsTriggered)) == "table" then
@@ -506,8 +506,8 @@ end
 
 local getHPDefecit = function(Unit)
 	if Unit==nil then Unit="player" end
-	if br.GetObjectExists(Unit) and br._G.UnitIsVisible(Unit) then
-		return (br._G.UnitHealthMax(Unit) - br._G.UnitHealth(Unit) + br._G.UnitGetIncomingHeals(Unit,"player"))
+	if br.GetObjectExists(Unit) and br.GetUnitIsVisible(Unit) and not br.GetUnitIsDeadOrGhost(Unit) then
+		return ( (br._G.UnitHealthMax(Unit) - br._G.UnitHealth(Unit)) + br._G.UnitGetIncomingHeals(Unit,"player"))
     else
         return 0        
 	end
@@ -1130,7 +1130,7 @@ local actionList = {
             talent.summonJadeSerpentStatue and 
             cd.summonJadeSerpentStatue.ready() and unit.inCombat("player") and not player.isMoving then
                 local aroundUnit
-                    if tanks[1] ~= nil and br._G.UnitIsVisible(tanks[1].unit) then 
+                    if tanks[1] ~= nil then 
                         if ui.value(text.utility.summonJadeSerpentStatue) == 1 and #br.friend > 1 then
                             aroundUnit = tanks[1].unit
                         else
@@ -1698,38 +1698,35 @@ local function runRotation()
     ui.mode.thunderFocusTea = br.data.settings[br.selectedSpec].toggles["ThunderFocusTea"]
     ui.mode.dps = br.data.settings[br.selectedSpec].toggles["DPS"]
     ui.mode.RollMode = br.data.settings[br.selectedSpec].toggles["RollMode"]
-    --local spell, rank, displayName, icon, startTime, endTime, isTradeSkill, castID, interrupt = UnitCastingInfo("player")
-    --print("casting: ",spell,displayName)
-    --local currentCharges, maxCharges, cooldownStart, cooldownDuration, chargeModRate = GetSpellCharges(spell)
-    --local charges, maxCharges, chargeStart, chargeDuration = GetActionCharges(2)
-    --print("getcharges Info: ",charges,maxCharges)
-    --print(buff.sheilunsGift.count())
-    --print("CT: ", unit.combatTime())
-    --local current
     var.MistBallsInWorld = 0
     var.jadeSerpentStatueName = ""
-    
-        for i=1,br._G.GetObjectCount() do
-            local name = br._G.ObjectName(br._G.GetObjectWithIndex(i))
-            local creator = br._G.UnitCreator(br._G.GetObjectWithIndex(i))
-            if creator == br._G.UnitGUID("player") and br._G.ObjectType(br._G.GetObjectWithIndex(i)) ==11 then
-                var.MistBallsInWorld = var.MistBallsInWorld +1
-            end
-            if creator == br._G.UnitGUID("player") and 
-                br._G.ObjectType(br._G.GetObjectWithIndex(i)) == 5 and 
-                name == "Jade Serpent Statue" then
-                local x,y,z = br._G.ObjectPosition(br._G.GetObjectWithIndex(i))
-                summonJadeSerpentStatuePosition.x=x
-                summonJadeSerpentStatuePosition.y=y
-                summonJadeSerpentStatuePosition.z=z
-            -- elseif creator == br._G.UnitGUID("player") then
-            --     print(name)
-            end
-        end
-    
-
     getTotemInfo()
     if br.pause(true) or player.isMounted or player.isFlying or player.isDrinking then return true; end
+
+    if  (br.player.ui.mode.content == 1 and  ui.checked(text.utility.summonJadeSerpentStatue)) or
+        (br.player.ui.mode.content == 2 and  ui.checked(text2.utility2.summonJadeSerpentStatue2)) then
+        for i=1,br._G.GetObjectCount() do
+            local objFound = br._G.GetObjectWithIndex(i)
+            if objFound ~= nil then
+                local name = br._G.ObjectName(objFound)
+                local creator = br._G.UnitCreator(objFound)
+                local objType = br._G.ObjectType(objFound)
+                if creator ~= nil and creator == br._G.UnitGUID("player") and objType == 11 then
+                    var.MistBallsInWorld = var.MistBallsInWorld +1
+                end
+                if creator == br._G.UnitGUID("player") and objType == 5 and
+                    name == "Jade Serpent Statue" then
+                    local x,y,z = br._G.ObjectPosition(objFound)
+                    if x ~= nil then
+                        summonJadeSerpentStatuePosition.x=x
+                        summonJadeSerpentStatuePosition.y=y
+                        summonJadeSerpentStatuePosition.z=z
+                    end                        
+                end
+            end
+        end
+    end
+
     if actionList.Extra() then return true; end
 
     --don't interrupt certain channelings
