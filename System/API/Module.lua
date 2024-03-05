@@ -201,7 +201,7 @@ br.api.module = function(self)
             if buff.phialOfTepidVersatility.exists() then buff.phialOfTepidVersatility.cancel() end;
         end
         if section == nil then
-            local opValue = ui.value("Use Best Qual Phial")
+            local opValue = ui.value("Use DF Phial")
             if opValue == 1 and not buff.icedPhialOfCorruptingRage.exists() and use.isOneOfUsable(br.lists.items.icedPhialOfCorruptingRageQualities) then
                     cancelBuffs()
                     if use.bestItem(br.lists.items.icedPhialOfCorruptingRageQualities) then ui.debug("Using Best Phial: Iced Phial of Corrupting Rage") return true; end
@@ -211,9 +211,13 @@ br.api.module = function(self)
                     cancelBuffs()
                     if use.bestItem(br.lists.items.phialOfGlacialFuryQualities) then ui.debug("Using Best Phial: Phial of Glacial Fury") return true; end
             end
-            if opValue == 3 and not buff.phialOfTepidVersatility.exists() and use.isOneOfUsable(br.lists.items.phialOfTepidVersatilityQualities) then
-                    cancelBuffs()
-                    if use.bestItem(br.lists.items.phialOfTepidVersatilityQualities) then ui.debug("Using Best Phial: Phial of Tepid Versatility") return true; end;
+            if opValue == 3 then 
+                if not buff.phialOfTepidVersatility.exists() then 
+                    if use.isOneOfUsable(br.lists.items.phialOfTepidVersatilityQualities) then
+                        cancelBuffs()
+                        if use.bestItem(br.lists.items.phialOfTepidVersatilityQualities) then ui.debug("Using Best Phial: Phial of Tepid Versatility") return true; end;
+                    end
+                end
             end
         end
     end

@@ -49,6 +49,15 @@ br.api.buffs = function(buff,v)
         return br.UnitBuffID(thisUnit,v,sourceUnit) ~= nil
     end
 
+    --- Check if a buff does NOT exists -- added for readablity into SIMC converted rotations
+    -- @function buff.spell.down
+    -- @string[opt="player"] thisUnit The unit to check.
+    -- @string[opt="player"] sourceUnit The source of the buff.
+    -- @treturn bool
+    buff.down = function(thisUnit,sourceUnit)
+        return not buff.exists(thisUnit,sourceUnit)
+    end
+
     --- Check if a buff can be reacted to.
     -- @function buff.spell.react
     -- @string[opt="player"] thisUnit The unit to check.
