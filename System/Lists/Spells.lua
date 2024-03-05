@@ -2329,12 +2329,18 @@ br.lists.spells = {
                 counterStrike               = 383800,
                 hitScheme                   = 383696,
                 shuffle                     = 322120,
+                invokeNiuzaoTheBlackOx      = 132578,
+                weaponsOfOrder              = 387184,
+                charredPassions             = 386965,
+                bonedustBrew                = 386276,
             },
             debuffs                         = {
                 breathOfFire                = 146222,
                 moderateStagger             = 124274,
                 heavyStagger                = 124273,
                 kegSmash                    = 121253,
+                weaponsOfOrder              = 387184,
+                bonedustBrew                = 386276,
 
             },
             glyphs                          = {
@@ -2355,6 +2361,13 @@ br.lists.spells = {
                 specialDelivery             = 196730,
                 summonBlackOxStatue         = 115315,
                 detox                       = 218164,
+                improvedPurifyingBrew       = 343743,
+                invokeNiuzaoTheBlackOx      = 132578,
+                improvedInvokeNiuzaoTheBlackOx = 322740,
+                weaponsOfOrder              = 387184,
+                charredPassions             = 386965,
+                pressTheAdvantage           = 418359,
+                bonedustBrew                = 386276,
             },
         },
         -- Mistweaver

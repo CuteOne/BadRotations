@@ -440,7 +440,7 @@ local function createOptions()
     end
     local function consumables()
         local section = br.ui:createSection(br.ui.window.profile,"Consumables")
-            br.ui:createCheckbox(section, text.options.consumeOnlyInDungeon)
+            br.ui:createCheckbox(section, text.consumables.consumeOnlyInDungeon)
             br.player.module.ImbueUp(section)
             br.player.module.PhialUp(section)
         br.ui:checkSectionState(section)
@@ -1588,6 +1588,15 @@ local actionList = {
 
 
 actionList.Extra = function()
+    if (ui.checked(text.consumables.consumeOnlyInDungeon) and (br.player.instance=="raid" or br.player.instance=="party")) or 
+    not ui.checked(text.consumables.consumeOnlyInDungeon) then
+        if module.ImbueUp() then return true end
+    end
+    if (ui.checked(text.consumables.consumeOnlyInDungeon) and (br.player.instance=="raid" or br.player.instance=="party")) or 
+    not ui.checked(text.consumables.consumeOnlyInDungeon) then
+        if module.PhialUp() then return true end
+    end
+
     if br.player.module.BasicHealing() then return true; end
 end
 
@@ -1615,6 +1624,8 @@ local function runRotation()
     cast                = br.player.cast
     cd                  = br.player.cd
     charges             = br.player.charges
+    module              = br.player.module
+
     dynamic       = {
         range5          = br.player.units.get(5),
         range40         = br.player.units.get(40)
