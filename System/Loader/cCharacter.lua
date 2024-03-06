@@ -351,7 +351,7 @@ function br.cCharacter:new(class)
 								itemEffect = itemEffect,
 								itemCount = br._G.GetItemCount(itemID)
 							}
-							if itemInfo.itemType == "Potion" and self.level >= itemInfo.minLevel then -- Is the item a Potion and am I level to use it?
+							if itemInfo.itemType == "Potions" and self.level >= itemInfo.minLevel then -- Is the item a Potion and am I level to use it?
 								local potionList = {
 									{ ptype = "action", effect = "Action" },
 									{ ptype = "agility", effect = "Agility" },

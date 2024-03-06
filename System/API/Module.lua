@@ -50,10 +50,48 @@ br.api.module = function(self)
         end
     end
 
+    
+
     --- Basic Healing Module - Uses healthstones, potions, and racial healing abilities.
     -- @function module.BasicHealing
     -- @bool[opt] section If set will generate the options for this module in the Profile Options. Otherwise, will run the module.
     module.BasicHealing = function(section)
+
+       local function BestHealingPotion()
+            local Consumables = {}
+            for i = 0,4 do
+                local numBagSlots = C_Container.GetContainerNumSlots(i)
+                if numBagSlots > 0 then
+                    for x = 1, numBagSlots do
+                        local itemID = C_Container.GetContainerItemID(i,x)
+                        local spellName, spellID = GetItemSpell(itemID)
+                        local itemCount = br._G.GetItemCount(itemID)
+    
+                        if spellName ~= nil then
+                            local itemName, _, _, itemLevel, itemMinLevel, itemType, itemSubType,_, _, _, _, _, _, _,_, _, _ = GetItemInfo(itemID)
+                            if itemType == "Consumable" and itemSubType == "Potions" then
+                                if string.find(itemName,"Heal",0,true) then
+                                    table.insert(Consumables,#Consumables+1,{
+                                        itemID=itemID,
+                                        spellId=spellID,
+                                        itemName=itemName,
+                                        itemLevel=itemLevel,
+                                        itemMinLevel=itemMinLevel,
+                                        itemCount=itemCount
+                                    })
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+            table.sort(Consumables, function(v1,v2) return v1.itemLevel > v2.itemLevel end)
+            for i=1,#Consumables do
+                if br.canUseItem(Consumables[i].itemID) then return Consumables[i].itemID end
+            end
+            return nil
+        end
+
         -- Options - Call, module.BasicHealing(section), in your options to load these
         if section ~= nil then
             -- Gift of the Naaru
@@ -75,6 +113,11 @@ br.api.module = function(self)
         if section == nil then
             -- Health Potion / Stones
             if ui.checked("Healthstone/Potion") and unit.inCombat() and unit.hp() <= ui.value("Healthstone/Potion") then
+                --Health Pot should be first since it's the greatest heal; healthstones second
+                local healPot = BestHealingPotion()
+                if healPot ~= nil and has.item(healPot) and br.canUseItem(healPot) then
+                    if use.item(healPot) then ui.debug("using Healing Potion") return true end
+                end
                 -- Lock Candy
                 if use.able.healthstone() and has.healthstone() then
                     if use.healthstone() then ui.debug("Using Healthstone") return true end
@@ -82,13 +125,6 @@ br.api.module = function(self)
                 --Legion Healthstone
                 if use.able.legionHealthstone() and has.legionHealthstone() then
                     if use.legionHealthstone() then ui.debug("Using Legion Healthstone") return true end
-                end
-                -- Health Potion (Grabs the Highest usable from bags)
-                local healPot = var.getHealPot()
-                if use.able.item(healPot) and has.item(healPot) then
-                    use.item(healPot)
-                    ui.debug("Using "..var.getItemInfo(healPot))
-                    return true
                 end
             end
             -- Heirloom Neck
@@ -168,7 +204,7 @@ br.api.module = function(self)
     -- @string buffType The type of flask to use. (e.g. "Agility", "Intellect", "Stamina", "Strength")
     -- @bool[opt] section If set will generate the options for this module in the Profile Options. Otherwise, will run the module.
     module.CombatPotionUp = function(section)
-        local potList = {"Elem Pot of Ultimate Power","Elem Pot of Power"}
+        local potList = {"Pot Ultimate Power","Pot of Power"}
         if section ~= nil then
             br.ui:createDropdownWithout(section,"Combat Potion",potList,1,"|cffFFFFFFSelect Combat Potion, uses best quality.")
         end
