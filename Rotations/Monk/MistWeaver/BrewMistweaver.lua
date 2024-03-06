@@ -649,7 +649,7 @@ local actionList = {
             --Sheilun's Gift
             if br.player.ui.mode.content == 1 then
                 if ui.checked(text.heal.sheilunsGift) then
-                    if var.MistBallsInWorld >= ui.value(text.heal.sheilunsGift .. "1") then
+                    if charges.sheilunsGift.spellCount() >= ui.value(text.heal.sheilunsGift .. "1") then
                         if (friends.lowest.hp <= ui.value(text.heal.sheilunsGift .. "2")) then
                             if cast.able.sheilunsGift(friends.lowest.unit) then
                                 if cast.sheilunsGift(friends.lowest.unit) then
@@ -1698,7 +1698,6 @@ local function runRotation()
     ui.mode.thunderFocusTea = br.data.settings[br.selectedSpec].toggles["ThunderFocusTea"]
     ui.mode.dps = br.data.settings[br.selectedSpec].toggles["DPS"]
     ui.mode.RollMode = br.data.settings[br.selectedSpec].toggles["RollMode"]
-    var.MistBallsInWorld = 0
     var.jadeSerpentStatueName = ""
     getTotemInfo()
     if br.pause(true) or player.isMounted or player.isFlying or player.isDrinking then return true; end
@@ -1711,9 +1710,6 @@ local function runRotation()
                 local name = br._G.ObjectName(objFound)
                 local creator = br._G.UnitCreator(objFound)
                 local objType = br._G.ObjectType(objFound)
-                if creator ~= nil and creator == br._G.UnitGUID("player") and objType == 11 then
-                    var.MistBallsInWorld = var.MistBallsInWorld +1
-                end
                 if creator == br._G.UnitGUID("player") and objType == 5 and
                     name == "Jade Serpent Statue" then
                     local x,y,z = br._G.ObjectPosition(objFound)
@@ -1726,6 +1722,8 @@ local function runRotation()
             end
         end
     end
+
+    print("Sheilun count: ",charges.sheilunsGift.spellCount())
 
     if actionList.Extra() then return true; end
 
