@@ -7,6 +7,12 @@
 -------------------------------------------------------
 local rotationName = "BrewUnholyDK" 
 
+local text = {
+    options = {
+        onlyUseConsumablesInRaid = "Only Use Consumables in Dungeon or Raid"
+    },
+}
+
 ---------------
 --- Toggles ---
 ---------------
@@ -70,9 +76,7 @@ local function createOptions()
         --- COOLDOWN OPTIONS --- -- Define Cooldown Options
         ------------------------
         section = br.ui:createSection(br.ui.window.profile,  "Cooldowns")
-            br.player.module.FlaskUp("Strength",section)
-            br.ui:createCheckbox(section,"Augment Rune")
-            br.ui:createCheckbox(section,"Potion")
+           
         br.ui:checkSectionState(section)
         -------------------------
         --- DEFENSIVE OPTIONS --- -- Define Defensive Options
@@ -81,8 +85,10 @@ local function createOptions()
         br.ui:checkSectionState(section)
 
         section = br.ui:createSection(br.ui.window.profile,"Potions,Phials,and Runes")
-            br.player.module.VariablePhial(section)
-            br.player.module.VariableCombatPotion(section)
+            br.ui:createCheckbox(section,text.options.onlyUseConsumablesInRaid)
+            br.player.module.PhialUp(section)
+            br.player.module.ImbueUp(section)
+            br.player.module.CombatPotionUp(section)
         br.ui:checkSectionState(section)
         -------------------------
         --- INTERRUPT OPTIONS --- -- Define Interrupt Options
@@ -170,7 +176,8 @@ end -- End Action List - Extra
 
 actionList.Defensive = function()
     if(var.inParty or var.inRaid) then
-        module.VariablePhial()
+        if module.ImbueUp() then return true end
+        if module.PhialUp() then return true end
     end
 end -- End Action List - Defensive
 
@@ -279,18 +286,23 @@ end
 actionList.HighPrioActions = function()
     
     --antimagic_shell,if=runic_power.deficit>40&(pet.gargoyle.active|!talent.summon_gargoyle|cooldown.summon_gargoyle.remains>cooldown.antimagic_shell.duration)
-    if cast.able.antiMagicShell() and not (var.inRaid or var.inParty) and (
+    if cast.able.antiMagicShell() and (
         var.runicPowerDeficit > 40 and (var.hasGargoyle or not talent.summonGargoyle or cd.summonGargoyle.remains() > cd.antiMagicShell.duration())
     ) then
-        if cast.antiMagicShell() then ui.debug("e: AntiMagic Shell") return true; end;
+        if cast.antiMagicShell() then ui.debug("HPA.01: AntiMagic Shell") return true; end;
     end
 
-    --TODO
-    --potion,if=(30>=pet.gargoyle.remains&pet.gargoyle.active)|(!talent.summon_gargoyle|cooldown.summon_gargoyle.remains>60|cooldown.summon_gargoyle.ready)&(buff.dark_transformation.up&30>=buff.dark_transformation.remains|pet.army_ghoul.active&pet.army_ghoul.remains<=30|pet.apoc_ghoul.active&pet.apoc_ghoul.remains<=30)|fight_remains<=30
-    if(var.GargoyleTTL >= 30 and var.hasGargoyle) or (not talent.summonGargoyle or cd.summonGargoyle.remains()>60 or cd.summonGargoyle.ready()) and (buff.darkTransformation.exists() and buff.darkTransformation.remains() <= 30 ) or unit.ttd("target") <= 30 then
-        print("NEED POT")
-        if (var.inParty or var.inRaid) then
-            if module.VariableCombatPotion() then return true; end;
+    --potion,if=(30>=pet.gargoyle.remains&pet.gargoyle.active)|(!talent.summon_gargoyle|cooldown.summon_gargoyle.remains>60|cooldown.summon_gargoyle.ready)
+    --&(buff.dark_transformation.up&30>=buff.dark_transformation.remains|pet.army_ghoul.active&pet.army_ghoul.remains<=30|pet.apoc_ghoul.active
+    --&pet.apoc_ghoul.remains<=30)|fight_remains<=30
+    if(
+        var.GargoyleTTL >= 30 and 
+        var.hasGargoyle) or 
+        (not talent.summonGargoyle or cd.summonGargoyle.remains()>60 or cd.summonGargoyle.ready()) and 
+        (buff.darkTransformation.exists() and buff.darkTransformation.remains() <= 30 ) or 
+        unit.ttd("target") <= 30 then
+        if (ui.checked(text.options.onlyUseConsumablesInRaid) and (var.inParty or var.inRaid)) or not (ui.checked(text.options.onlyUseConsumablesInRaid)) then
+            if module.VariableCombatPotion() then ui.debug("HPA.02: Combat Potion") return true; end;
         end            
     end
 
@@ -298,7 +310,7 @@ actionList.HighPrioActions = function()
     if cast.able.armyOfTheDead() and (
         talent.summonGargoyle and cd.summonGargoyle.remains() < 2 or not talent.summonGargoyle or unit.ttd("target") < 35
     ) then
-        if cast.armyOfTheDead() then ui.debug("g:Army of the Dead") return true; end;
+        if cast.armyOfTheDead() then ui.debug("HPA.03: Army of the Dead") return true; end;
     end
 
     --death_coil,if=(active_enemies<=3|!talent.epidemic)&(pet.gargoyle.active&talent.commander_of_the_dead&buff.commander_of_the_dead.up&cooldown.apocalypse.remains<5&buff.commander_of_the_dead.remains>27|debuff.death_rot.up&debuff.death_rot.remains<gcd)
@@ -306,14 +318,14 @@ actionList.HighPrioActions = function()
         (#enemies.yards5  <= 3 or not talent.epidemic) and 
         (var.hasGargoyle and talent.commanderOfTheDead and buff.commanderOfTheDead.exists() and cd.apocalypse.remains() < 5 and buff.commanderOfTheDead.remains() > 27 or debuff.deathRot.exists("target") and debuff.deathRot.remains("target") < unit.gcd())
     ) then
-        if cast.deathCoil("target") then ui.debug("h:Death Coil") return true end;
+        if cast.deathCoil("target") then ui.debug("HPA.04: Death Coil") return true end;
     end
 
     --epidemic,if=active_enemies>=4&(talent.commander_of_the_dead&buff.commander_of_the_dead.up&cooldown.apocalypse.remains<5|debuff.death_rot.up&debuff.death_rot.remains<gcd)
     if cast.able.epidemic() and (
         #enemies.yards30 >= 4 and (talent.commanderOfTheDead and buff.commanderOfTheDead.exists() and cd.apocalypse.remains() < 5 or debuff.deathRot.exists("target") and debuff.deathRot.remains("target") < unit.gcd())
     ) then
-        if cast.epidemic() then ui.debug("Epidemic") return true; end;
+        if cast.epidemic() then ui.debug("HPA.05: Epidemic") return true; end;
     end
 
     --actions.high_prio_actions+=/wound_spender,if=(cooldown.apocalypse.remains>variable.apoc_timing+3|active_enemies>=3)&talent.plaguebringer&
@@ -322,11 +334,11 @@ actionList.HighPrioActions = function()
     (talent.superstrain or talent.unholyBlight) and buff.plaguebringer.remains() > unit.gcd() then
         if talent.clawingShadows then
             if cast.able.clawingShadows("target") then
-                if cast.clawingShadows("target") then ui.debug("wound spender: Clawing Shadows") return true; end;
+                if cast.clawingShadows("target") then ui.debug("HPA.06: Clawing Shadows") return true; end;
             end
         else
             if cast.able.scourgeStrike("target") then
-                if cast.scourgeString("target") then ui.debug("wound spender: Scourge Strike") return true; end;
+                if cast.scourgeString("target") then ui.debug("HPA.06: Scourge Strike") return true; end;
             end
         end
     end
@@ -335,7 +347,7 @@ actionList.HighPrioActions = function()
     if talent.unholyBlight and cast.able.unholyBlight() and (
         var.st_planning and (( not talent.apocalypse or cd.apocalypse.remains()) and talent.morbidity or not talent.morbidity) or var.adds_remain or unit.ttd("target") < 21
     ) then
-        if cast.unholyBlight() then ui.debug("Unholy Blight") return true; end;
+        if cast.unholyBlight() then ui.debug("HPA.07: Unholy Blight") return true; end;
     end
 
 
@@ -347,7 +359,7 @@ actionList.HighPrioActions = function()
         (not talent.unholyBlight or 
             (talent.unholyBlight and cd.unholyBlight.remains >15%((boolNumeric(talent.superstrain)*3)+(boolNumeric(talent.plaguebringer)*2)+(boolNumeric(talent.ebonFever*2))))        )
     ) then
-        if cast.outbreak("target") then ui.debug("i:outbreak") return true; end;
+        if cast.outbreak("target") then ui.debug("HPA.08 Outbreak") return true; end;
     end
 
 
@@ -360,7 +372,7 @@ actionList.GargSetup = function()
         if cast.able.apocalypse("target") and (
             debuff.festeringWound.stack("target") >= 4 and (buff.commanderOfTheDead.exists() and var.GargoyleTTL<23 or not talent.commanderOfTheDead)
         ) then
-            if cast.apocalypse("target") then ui.debug("X:apocalypse") return true; end;
+            if cast.apocalypse("target") then ui.debug("GARGSETUP.01: apocalypse") return true; end;
         end
 
         --army_of_the_dead,if=talent.commander_of_the_dead&(cooldown.dark_transformation.remains<3|buff.commander_of_the_dead.up)|
@@ -371,35 +383,35 @@ actionList.GargSetup = function()
                 not talent.commanderOfTheDead and talent.unholyAssault and cd.unholyAssault.remains()<10 or 
                 (not talent.unholyAssault and not talent.commanderOfTheDead)
         ) then
-            if cast.armyOfTheDead() then ui.debug("Army of the Dead") return true; end;
+            if cast.armyOfTheDead() then ui.debug("GARGSETUP.02: Army of the Dead") return true; end;
         end
 
         --soul_reaper,if=active_enemies=1&target.time_to_pct_35<5&target.time_to_die>5
         if cast.able.soulReaper("target") and (
             #enemies.yards5==1 and br.getHP("target") <= 35 and unit.ttd("target") > 5
         ) then
-            if cast.soulReaper("target") then ui.debug("Soul Reaper") return true; end;
+            if cast.soulReaper("target") then ui.debug("GARGSETUP.03: Soul Reaper") return true; end;
         end
 
         --summon_gargoyle,use_off_gcd=1,if=buff.commander_of_the_dead.up|!talent.commander_of_the_dead&runic_power>=40
         if cast.able.summonGargoyle("target") and (
             buff.commanderOfTheDead.exists or not talent.commanderOfTheDead and runicPower >= 40
         ) then
-            if cast.summonGargoyle("target") then ui.debug("Y:Summon Gargoyle") return true; end;
+            if cast.summonGargoyle("target") then ui.debug("GARGSETUP.04: Summon Gargoyle") return true; end;
         end
 
         --empower_rune_weapon,if=pet.gargoyle.active&pet.gargoyle.remains<=23
         if cast.able.empowerRuneWeapon() and (
             var.hasGargoyle and var.GargoyleTTL <= 23
         ) then
-            if cast.empowerRuneWeapon() then ui.debug("Z:Empower Rune Weapon") return true; end;
+            if cast.empowerRuneWeapon() then ui.debug("GARGSETUP.05: Empower Rune Weapon") return true; end;
         end
 
         --unholy_assault,if=pet.gargoyle.active&pet.gargoyle.remains<=23
         if cast.able.unholyAssault("target")  and (
             var.hasGargoyle and var.GargoyleTTL <= 23
         ) then
-            if cast.unholyAssault("target") then ui.debug("a: Unholy Assault") return true; end;
+            if cast.unholyAssault("target") then ui.debug("GARGSETUP.06: Unholy Assault") return true; end;
         end
 
         --TODO this is where we need to hit up our Phial
@@ -409,7 +421,7 @@ actionList.GargSetup = function()
         if cast.able.darkTransformation() and (
             (talent.commanderOfTheDead and runicPower > 40) or not talent.commanderOfTheDead
         ) then
-            if cast.darkTransformation() then ui.debug("b: Dark Transformation") return true; end;
+            if cast.darkTransformation() then ui.debug("GARGSETUP.07: Dark Transformation") return true; end;
         end
 
         --any_dnd,if=!death_and_decay.ticking&debuff.festering_wound.stack>0
@@ -417,13 +429,13 @@ actionList.GargSetup = function()
             if cast.able.defile("target") and unit.distance("target") <= 10 and (
             not buff.defile.exists("player") and debuff.festeringWound.stack("target") > 0
             ) then
-                if cast.defile("target") then ui.debug("c: Defile") return true; end;
+                if cast.defile("target") then ui.debug("GARGSETUP.08: Defile") return true; end;
             end
         else
             if cast.able.deathAndDecay("target") and unit.distance("target") <= 10 and not unit.moving("target") (
             not buff.deathAndDecay.exists("player") and debuff.festeringWound.stack("target") > 0
             ) then
-                if cast.deathAndDecay("target") then ui.debug("c: Death and Decay") return true; end;
+                if cast.deathAndDecay("target") then ui.debug("GARGSETUP.09: Death and Decay") return true; end;
             end
         end
         
@@ -432,12 +444,12 @@ actionList.GargSetup = function()
         if cast.able.festeringStrike("target") and (
             debuff.festeringWound.stack("target") == 0 or (not talent.apocalypse or runicPower < 40 and not var.hasGargoyle)
         ) then
-            if cast.festeringStrike("target") then ui.debug("d: Festering Strike") return true; end;
+            if cast.festeringStrike("target") then ui.debug("GARGSETUP.10: Festering Strike") return true; end;
         end
 
         --death_coil,if=rune<=1
         if cast.able.deathCoil("target") and (runes <= 1) then
-            if cast.deathCoil("target") then ui.debug("Death Coil") return true; end;
+            if cast.deathCoil("target") then ui.debug("GARGSETUP.11 Coil") return true; end;
         end
         var.gargSetup=9999
         print("Gargolyle setup complete")
@@ -454,55 +466,55 @@ actionList.St = function()
 
     --death_coil,if=!variable.epidemic_priority&(!variable.pooling_runic_power&variable.spend_rp|fight_remains<10)
     if cast.able.deathCoil("target") and (
-        not var.epidemic_priority==1 and (not var.pooling_runic_power==1 and var.spend_rp==1 or unit.ttd("target")<10)
+        not var.epidemic_priority and (not var.pooling_runic_power and var.spend_rp or unit.ttd("target")<10)
     ) then
-        if cast.deathCoil("target") then ui.debug("j: Death Coil") return true; end;
+        if cast.deathCoil("target") then ui.debug("ST.01: Death Coil") return true; end;
     end
 
     --actions.st+=/epidemic,if=variable.epidemic_priority&(!variable.pooling_runic_power&variable.spend_rp|fight_remains<10)
-    if cast.able.epidemic("target") and (var.epidemic_priority==1 and (not var.pooling_runic_power==1 and var.spend_rp==1 or unit.ttd("target")<10)) then
-        if cast.epidemic("target") then ui.debug("ST: epidemic") return true; end;
+    if cast.able.epidemic("target") and (var.epidemic_priority and (not var.pooling_runic_power and var.spend_rp or unit.ttd("target")<10)) then
+        if cast.epidemic("target") then ui.debug("ST.02: epidemic") return true; end;
     end
 
     --any_dnd,if=!death_and_decay.ticking&(active_enemies>=2|talent.unholy_ground&(pet.apoc_ghoul.active&pet.apoc_ghoul.remains>=13|pet.gargoyle.active&pet.gargoyle.remains>8|pet.army_ghoul.active&pet.army_ghoul.remains>8|!variable.pop_wounds&debuff.festering_wound.stack>=4)|talent.defile&(pet.gargoyle.active|pet.apoc_ghoul.active|pet.army_ghoul.active|buff.dark_transformation.up))&(death_knight.fwounded_targets=active_enemies|active_enemies=1)
     if cast.able.deathAndDecay("target") and not unit.moving("target") and (
         true--not buff.deathAndDecay.exists() and (#enemies.yards5 >= 2 or talent.unholyGround and (var.hasGargoyle or var.GargoyleTTL > 8 or cast.last.armyOfTheDead(30) or not var.pop_wounds==1 and debuff.festeringWound.stack("target")>=4) or talent.defile and (var.hasGargoyle or cast.last.armyOfTheDead(30) or buff.darkTransformation.exist()))
     ) then
-        if cast.deathAndDecay("target") then ui.debug("k:ST Death and Decay") return true; end;
+        if cast.deathAndDecay("target") then ui.debug("ST.03: Death and Decay") return true; end;
     end
 
     --wound_spender,target_if=max:debuff.festering_wound.stack,if=variable.pop_wounds|active_enemies>=2&death_and_decay.ticking
-    if (var.pop_wounds==1 or #enemies.yards5f >=2 and buff.deathAndDecay.exists("target")) then
+    if (var.pop_wounds or #enemies.yards5f >=2 and buff.deathAndDecay.exists("target")) then
              if talent.clawingShadows then
                 if cast.able.clawingShadows(var.maxFesteringWounds) then
-                    if cast.clawingShadows(var.maxFesteringWounds) then ui.debug("wound spender: max festering wound [CLAW SHADOW]") return true; end;
+                    if cast.clawingShadows(var.maxFesteringWounds) then ui.debug("ST.04: max festering wound [CLAW SHADOW]") return true; end;
                 end
             else
                 if cast.able.scourgeStrike(var.maxFesteringWounds) then
-                    if cast.clawingShadows(var.maxFesteringWounds) then ui.debug("wound spender: max festering wound [SCOURGE STRIKE]") return true; end;
+                    if cast.clawingShadows(var.maxFesteringWounds) then ui.debug("ST.04: max festering wound [SCOURGE STRIKE]") return true; end;
                 end
             end
     end
 
     --festering_strike,target_if=min:debuff.festering_wound.stack,if=!variable.pop_wounds&debuff.festering_wound.stack<4
-    if (not var.pop_wounds==1 and debuff.festeringWound.stack(var.minFesteringWounds) < 4) and cast.able.festeringStrike(var.minFesteringWounds) then
-        if cast.festeringStrike(var.minFesteringWounds) then ui.debug("Min Festering Wounds") return true; end;
+    if (not var.pop_wounds and debuff.festeringWound.stack(var.minFesteringWounds) < 4) and cast.able.festeringStrike(var.minFesteringWounds) then
+        if cast.festeringStrike(var.minFesteringWounds) then ui.debug("ST.05: Min Festering Wounds") return true; end;
     end
 
     --death_coil
     if cast.able.deathCoil("target") then
-        if cast.deathCoil("target") then ui.debug("n:Death Coil") return true; end;
+        if cast.deathCoil("target") then ui.debug("ST.06: Death Coil") return true; end;
     end
 
     --wound_spender,target_if=max:debuff.festering_wound.stack,if=!variable.pop_wounds&debuff.festering_wound.stack>=4
-    if (not var.pop_wounds==1 and debuff.festeringWound.stack(var.maxFesteringWounds) >=4) then
+    if (not var.pop_wounds and debuff.festeringWound.stack(var.maxFesteringWounds) >=4) then
         if talent.clawingShadows then
             if cast.able.clawingShadows(var.maxFesteringWounds) then
-                if cast.clawingShadows(var.maxFesteringWounds) then ui.debug("ST:2nd wound_spender, clawing shadows") return true; end;
+                if cast.clawingShadows(var.maxFesteringWounds) then ui.debug("ST.07: clawing shadows") return true; end;
             end
         else
             if cast.able.scourgeStrike(var.maxFesteringWounds) then
-                if cast.scourgeString(var.maxFesteringWounds) then ui.debug("ST:2nd wound spender, scourge strike") return true; end;
+                if cast.scourgeString(var.maxFesteringWounds) then ui.debug("ST.07: scourge strike") return true; end;
             end
         end
     end
@@ -511,30 +523,30 @@ end
 actionList.SingleTargetStandard = function()
     if #enemies.yards5f == 1  then
         if br.getHP("target") <= 35 and unit.ttd("target") > 5 and not debuff.exists.soulReaper("target") and cast.able.soulReaper("target") then
-            if cast.soulReaper("target") then ui.debug("ST:OPEN:Soul Reaper") return true; end;
+            if cast.soulReaper("target") then ui.debug("STS.01: Soul Reaper") return true; end;
         end
         if talent.outbreak and  
         (not debuff.virulentPlague.exists("target") or debuff.virulentPlague.remains("target") < unit.gcd(false)) 
         and cast.able.outbreak("target") then
-            if cast.outbreak("target")     then ui.debug("ST:OPEN:outbreak") return true; end;
+            if cast.outbreak("target")     then ui.debug("STS.02: outbreak") return true; end;
         end
         if talent.unholyBlight and
         (not debuff.virulentPlague.exists("target") or debuff.virulentPlague.remains("target") < unit.gcd(false)) 
         and cast.able.unholyBlight("target") then
-            if cast.unholyBlight("target") then ui.debug("ST:OPEN:unholy Blight") return true; end;
+            if cast.unholyBlight("target") then ui.debug("STS.03: unholy Blight") return true; end;
         end
         if buff.suddenDoom.exists("target") or debuff.deathRot.remains("target") < unit.gcd(false) or runicPower >= 80 then
             if cast.able.deathCoil("target") then
-                if cast.deathCoil("target") then ui.debug("ST:OPEN:Death Coil") return true; end;
+                if cast.deathCoil("target") then ui.debug("STS.04 Death Coil") return true; end;
             end
         end
         if debuff.festeringWound.stack("target") == 0 or (cd.apocalypse.remains() <= (unit.gcd()*2) and debuff.festeringWound.stack("target") < 4) then
             if cast.able.festeringStrike("target") then 
-                if cast.festeringStrike("target") then ui.debug("ST:OPEN:Festering Strike") return true; end;
+                if cast.festeringStrike("target") then ui.debug("STS.05: Festering Strike") return true; end;
             end
         end
         if debuff.festeringWound.stack("target") >= 1 and cast.able.clawingShadows("target") then
-            if cast.clawingShadows("target") then ui.debug("ST:OPEN:Clawing Shadows") return true; end;
+            if cast.clawingShadows("target") then ui.debug("STS.06 Clawing Shadows") return true; end;
         end
     end
     return false;
@@ -542,39 +554,39 @@ end
 actionList.GargoyleActive = function()
     
     if br.getHP("target") <= 35 and not debuff.exists.soulReaper("target") and cast.able.soulReaper("target") then
-        if cast.soulReaper("target") then ui.debug("GARG:Soul Reaper") return true; end;
+        if cast.soulReaper("target") then ui.debug("GARG.01: Soul Reaper") return true; end;
     end
     if cast.able.deathCoil("target") and (runicPower >= 30 or buff.suddenDoom.exists()) then
-        if cast.deathCoil("target") then ui.debug("GARG:DeathCoil") return true; end;
+        if cast.deathCoil("target") then ui.debug("GARG.02: DeathCoil") return true; end;
     end
     if talent.outbreak and  
     (not debuff.virulentPlague.exists("target") or debuff.virulentPlague.remains("target") < unit.gcd(false)) 
     and cast.able.outbreak("target") then
-        if cast.outbreak("target")     then ui.debug("GARG:outbreak") return true; end;
+        if cast.outbreak("target")     then ui.debug("GARG.03: outbreak") return true; end;
     end
     if talent.unholyBlight and
     (not debuff.virulentPlague.exists("target") or debuff.virulentPlague.remains("target") < unit.gcd(false)) 
     and cast.able.unholyBlight("target") then
-        if cast.unholyBlight("target") then ui.debug("GARG:unholy Blight") return true; end;
+        if cast.unholyBlight("target") then ui.debug("GARG.04: unholy Blight") return true; end;
     end
     if debuff.festeringWound.stack("target") == 0  then
         if cast.able.festeringStrike("target") then 
-            if cast.festeringStrike("target") then ui.debug("GARG:Festering Strike") return true; end;
+            if cast.festeringStrike("target") then ui.debug("GARG.05: Festering Strike") return true; end;
         end
     end
     if debuff.festeringWound.stack("target") >= 2 and cast.able.clawingShadows("target") then
-        if cast.clawingShadows("target") then ui.debug(":GARG clawing Shadows") return true; end;
+        if cast.clawingShadows("target") then ui.debug("GARG.06: clawing Shadows") return true; end;
     end
 end
 actionList.CoolDownTwo = function()
     if cast.able.armyOfTheDead() then
-        if cast.armyOfTheDead() then ui.debug("CD2:Army of the dead") return true; end;
+        if cast.armyOfTheDead() then ui.debug("CD2.1: Army of the dead") return true; end;
     end
     if cast.able.darkTransformation() then
-        if cast.darkTransformation() then ui.debug("CD2:Dark Transformation") return true; end;
+        if cast.darkTransformation() then ui.debug("CD2.2: Dark Transformation") return true; end;
     end
     if cast.able.summonGargoyle("target")  and not (cd.armyOfTheDead.remains()< 2 ) then
-        if cast.summonGargoyle("target") then ui.debug("CD2:Summon Gargoyle") return true; end;
+        if cast.summonGargoyle("target") then ui.debug("CD2.3: Summon Gargoyle") return true; end;
     end
 end
 
@@ -692,6 +704,8 @@ local function runRotation() -- This is the main profile loop, any below this po
     end
     table.sort(var.runeCooldowns)
 
+    --Simulation Craft Variables
+
     --actions.variables=variable,name=epidemic_priority,op=setif,value=1,value_else=0,
     --condition=talent.improved_death_coil&!talent.coil_of_devastation&active_enemies>=3|talent.coil_of_devastation&active_enemies>=4|
     --!talent.improved_death_coil&active_enemies>=2
@@ -700,27 +714,28 @@ local function runRotation() -- This is the main profile loop, any below this po
         talent.coilOfDevastation and #enemies.yards5f >= 4 or
         not talent.improvedDeathCoil and #enemies.yards5f >= 2
     ) then
-        var.epidemic_priority = 1
+        var.epidemic_priority=true
     else
-        var.epidemic_priority=0
+        var.epidemic_priority=false
     end
 
     --actions.variables+=/variable,name=garg_setup_complete,op=setif,value=1,value_else=0,condition=
     --active_enemies>=3|cooldown.summon_gargoyle.remains>1&(cooldown.apocalypse.remains>1|!talent.apocalypse)|!talent.summon_gargoyle|time>20
     if (
         #enemies.yards5 >= 3 or cd.summonGargoyle.remains() > 1 and (cd.apocalypse.remains() > 1 or not talent.apocalypse) or
-        not talent.summonGargoyle
+        not talent.summonGargoyle or unit.combatTime() > 20
     ) then
-        var.garg_setup_complete=1
+        var.garg_setup_complete=true
     else
-        var.garg_setup_complete=2        
+        var.garg_setup_complete=false        
     end
 
-    --actions.variables+=/variable,name=apoc_timing,op=setif,value=7,value_else=2,condition=cooldown.apocalypse.remains<10&debuff.festering_wound.stack<=4&cooldown.unholy_assault.remains>10
+    --actions.variables+=/variable,name=apoc_timing,op=setif,value=7,value_else=2,condition= 
+    --cooldown.apocalypse.remains<10&debuff.festering_wound.stack<=4&cooldown.unholy_assault.remains>10
     if (
         cd.apocalypse.remains() < 10 and debuff.festeringWound.stack("target") <= 4 and cd.unholyAssault.remains() > 10
     ) then
-        var.apoc_timing = 7
+        var.apoc_timing=7
     else
         var.apoc_timing=2
     end
@@ -728,24 +743,23 @@ local function runRotation() -- This is the main profile loop, any below this po
     --actions.variables+=/variable,name=festermight_tracker,op=setif,value=debuff.festering_wound.stack>=1,
     --value_else=debuff.festering_wound.stack>=(3-talent.infected_claws),condition=
     --!pet.gargoyle.active&talent.festermight&buff.festermight.up&(buff.festermight.remains%(5*gcd.max))>=1
-    
+    var.festermight_tracker = debuff.festeringWound.stack("target") >= 1
     if not var.hasGargoyle and talent.festermight and buff.festermight.exists() and (buff.festermight.remains()%(5*unit.gcd(false))>=1) then
-        var.festermight_tracker = debuff.festeringWound.stack("target") > 1
-    else
         var.festermight_tracker = debuff.festeringWound.stack("target") >=(3-boolNumeric(talent.infectedClaws))
     end
 
     --actions.variables+=/variable,name=st_planning,op=setif,value=1,value_else=0,condition=active_enemies=1&(!raid_event.adds.exists|raid_event.adds.in>15)
     if (#enemies.yards5==1 and (var.inRaid and #enemies.yards40 > 15) ) then
-        var.st_planning = 1
+        var.st_planning = true
     else
-        var.st_planning = 0
+        var.st_planning = false
     end
 
     --actions.variables+=/variable,name=pop_wounds,op=setif,value=1,
     --value_else=0,
     --condition=(cooldown.apocalypse.remains>variable.apoc_timing|!talent.apocalypse)&
-    --(variable.festermight_tracker|debuff.festering_wound.stack>=1&cooldown.unholy_assault.remains<20&talent.unholy_assault&variable.st_planning|debuff.rotten_touch.up&debuff.festering_wound.stack>=1|debuff.festering_wound.stack>4|set_bonus.tier31_4pc&
+    --(variable.festermight_tracker|debuff.festering_wound.stack>=1&cooldown.unholy_assault.remains<20&talent.unholy_assault&variable.st_planning-
+    --|debuff.rotten_touch.up&debuff.festering_wound.stack>=1|debuff.festering_wound.stack>4|set_bonus.tier31_4pc&
     --(pet.apoc_magus.active|pet.army_magus.active)&
     --debuff.festering_wound.stack>=1)|fight_remains<5&debuff.festering_wound.stack>=1
     
@@ -754,19 +768,20 @@ local function runRotation() -- This is the main profile loop, any below this po
         cd.unholyAssault.remains()<20 and talent.unholyAssault and var.st_planning or 
         debuff.rottenTouch.exists("target") and debuff.festeringWound.stack("target") >=1) or unit.ttd("target")<5 or debuff.festeringWound.stack("target")>4
     then
-        var.pop_wounds = 1
+        var.pop_wounds = true
     else
-        var.pop_wounds = 0
+        var.pop_wounds = false
     end
 
     --actions.variables+=/variable,name=pooling_runic_power,op=setif,value=1,value_else=0,
     --condition=talent.vile_contagion&cooldown.vile_contagion.remains<3&runic_power<60&!variable.st_planning
     
     if(talent.vileContagion and cd.vileContagion.remains() <3 and runicPower < 60 and not var.st_planning) then
-        var.pooling_runic_power = 1
+        var.pooling_runic_power = true
     else
-        var.pooling_runic_power = 0
+        var.pooling_runic_power = false
     end
+
     --actions.variables+=/variable,name=adds_remain,op=setif,value=1,value_else=0,condition=active_enemies>=2&(!raid_event.adds.exists|raid_event.adds.exists&raid_event.adds.remains>6)
     --TODO figure out how to get encounter adds from BW/DBM
     var.adds_remain=1
@@ -783,9 +798,9 @@ local function runRotation() -- This is the main profile loop, any below this po
     runes<3 or var.hasGargoyle or cd.apocalypse.remains() <10) and
     (debuff.festeringWound.stack("target")>3 or (var.pop_wounds==0 and debuff.festeringWound.stack("target")>=4))
      then
-        var.spend_rp = 1
+        var.spend_rp = true
      else
-        var.spend_rp = 0
+        var.spend_rp = false
     end
 
     
