@@ -1723,8 +1723,6 @@ local function runRotation()
         end
     end
 
-    print("Sheilun count: ",charges.sheilunsGift.spellCount())
-
     if actionList.Extra() then return true; end
 
     --don't interrupt certain channelings
