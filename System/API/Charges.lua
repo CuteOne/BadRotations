@@ -25,6 +25,10 @@ br.api.charges = function(self,spell,id)
         return br.getCharges(id)
     end
 
+    charges.spellCount = function()
+        return br._G.GetSpellCount(id)
+    end
+
     --- Gets the number of charges remaining on spell as a fraction. (e.g. 1.5 charges remaining)
     -- @function charges.spell.frac
     -- @treturn number
