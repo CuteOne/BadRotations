@@ -1,17 +1,53 @@
 -------------------------------------------------------
 -- Author = BrewingCoder
 -- Patch = 10.2.5
--- Coverage = 90%
--- Status = Limited
--- Readiness = Development
+-- Coverage = 100%
+-- Status = Full
+-- Readiness = Dungeon
 -------------------------------------------------------
 local rotationName = "BrewBloodKnight-SimC" 
 
----------------
---- Toggles ---
----------------
-local function createToggles() -- Define custom toggles, these are the buttons from the toggle bar
-    -- Rotation Button
+
+local colors = {
+    blue    = "|cff4285F4",
+    red     = "|cffDB4437",
+    yellow  = "|cffF4B400",
+    green   = "|cff0F9D58",
+    white   = "|cffFFFFFF",
+    purple  = "|cff9B30FF",
+    aqua    = "|cff89E2C7",
+    blue2   = "|cffb8d0ff",
+    green2  = "|cff469a81",
+    blue3   = "|cff6c84ef",
+    orange  = "|cffff8000"
+}
+
+local text = {
+    options = {
+        onlyUseConsumablesInRaid = "Only Use Consumables in Dungeon or Raid",
+        useCDRaiseDead = "Use Raise Dead",
+        useCDDancingRuneWeapon = "Use Dancing Rune Weapon",
+        useCombatPotWhenCDsActive = "Use CombatPotion When CDs Active",
+        onlyUseCombatPotOnBoss = "Use CombatPotion only with Boss",
+        AoeLoadAmount = "Number of Units to enter AOE Mode",
+    },
+    taunt ={
+        onlyTauntInInstances        = colors.orange .. "Only Taunt in Raid/Dungeon",
+        UseDarkCommandTaunt         = colors.orange .. "Use Dark Command To Taunt",
+        UseDeathGripTaunt           = colors.orange .. "Use Death Grip To Taunt",
+        UseDeathsCaressTaunt        = colors.orange .. "Use Death's Caress",
+        TauntRange                  = colors.orange .. "Range To Taunt",
+    },
+    cooldowns = {
+        DancingRuneWeapon           = colors.purple .."Dancing Rune Weapon",
+        RaiseDead                   = colors.purple .."Raise Dead",
+        EmpowerRuneWeapon           = colors.purple .."Empower Rune Weapon",
+        useRacial                   = colors.purple .."Use Racial",
+        useCombatPotion             = colors.purple .."Use Combat Potion"
+    },
+}
+
+local function createToggles()
     local RotationModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range.", highlight = 1, icon = br.player.spell.darkCommand },
         [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.heartStrike },
@@ -21,26 +57,21 @@ local function createToggles() -- Define custom toggles, these are the buttons f
     br.ui:createToggle(RotationModes,"Rotation",1,0)
 
     local AutoPullModes = {
-        [1] = { mode = "On", value =1, overlay = "Auto Pull Enabled", tip = "Auto Pull Enemies", highlight = 1, icon = br.player.spell.deathGrip},
-        [2] = { mode = "Off", value = 2, overlay = "Auto Pull Disabled", tip = "Do Not AutoPull Enemies", highlight=0, icon=br.player.spell.deathGrip}
+        [1] = { mode = "On", value =1, overlay = "Auto Pull/Taunt Enabled", tip = "Auto Pull/Taunt Enemies", highlight = 1, icon = br.player.spell.deathGrip},
+        [2] = { mode = "Off", value = 2, overlay = "Auto Pull/Taunt Disabled", tip = "Do Not AutoPull/Taunt Enemies", highlight=0, icon=br.player.spell.deathGrip}
     };
     br.ui:createToggle(AutoPullModes,"Autopull",2,0)
-
-    
-    -- Cooldown Button
     local CooldownModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.antiMagicShell },
-        [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.deathsAdvance},
-        [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.antiMagicShell }
+        [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss/AOE Load Detection.", highlight = 1, icon = br.player.spell.raiseDead },
+        [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.raiseDead},
+        [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.raiseDead }
     };
     br.ui:createToggle(CooldownModes,"Cooldown",3,0)
-    -- Defensive Button
     local DefensiveModes = {
         [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.lichborne },
         [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.lichborne }
     };
     br.ui:createToggle(DefensiveModes,"Defensive",4,0)
-    -- Interrupt Button
     local InterruptModes = {
         [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.mindFreeze },
         [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.mindFreeze }
@@ -48,37 +79,48 @@ local function createToggles() -- Define custom toggles, these are the buttons f
     br.ui:createToggle(InterruptModes,"Interrupt",5,0)
 end
 
----------------
---- OPTIONS ---
----------------
 local function createOptions()
     local optionTable
 
     local function rotationOptions()
         local section
-        -----------------------
-        --- GENERAL OPTIONS --- -- Define General Options
-        -----------------------
         section = br.ui:createSection(br.ui.window.profile,  "General")
                     br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
-                    br.ui:createCheckbox(section, "Auto Engage")
                     br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
+                    br.ui:createSpinnerWithout(section,text.options.AoeLoadAmount,4,2,40,1,"|cffFFFFFFSet Number of Enemies required to go into AOE Mode (triggers CDs)")                    
         br.ui:checkSectionState(section)
-
-        
-                ------------------------
-        --- COOLDOWN OPTIONS --- -- Define Cooldown Options
-        ------------------------
-        section = br.ui:createSection(br.ui.window.profile,  "Cooldowns")
-            br.player.module.FlaskUp("Strength",section)
-            br.ui:createCheckbox(section,"Augment Rune")
-            br.ui:createCheckbox(section,"Potion")
+        section = br.ui:createSection(br.ui.window.profile,  colors.purple .. "Cooldowns")
+                    br.ui:createText(section,colors.purple .. "CDs will be used based on CD toggle and AOE settings")
+                    br.ui:createText(section,colors.purple .. "Typically you want this on Auto to use CDs only on Boss or if")
+                    br.ui:createText(section,colors.purple .. "your # of targets meet or exceed those in the AOE value above")
+                    br.ui:createText(section,colors.purple .. "")
+                    br.ui:createCheckbox(section,text.cooldowns.DancingRuneWeapon)
+                    br.ui:createCheckbox(section,text.cooldowns.RaiseDead)
+                    br.ui:createCheckbox(section,text.cooldowns.EmpowerRuneWeapon)
+                    br.ui:createCheckbox(section,text.cooldowns.useRacial)
+                    br.ui:createCheckbox(section,text.cooldowns.useCombatPotion)
+        br.ui:checkSectionState(section)
+        section = br.ui:createSection(br.ui.window.profile, colors.orange .. "Keeping Aggro")
+                    br.ui:createCheckbox(section,text.taunt.onlyTauntInInstances)
+                    br.ui:createSpinnerWithout(section,text.taunt.TauntRange,10,10,30,5,colors.blue .. "Range to Gain Threat")
+                    br.ui:createCheckbox(section,text.taunt.UseDarkCommandTaunt)
+                    br.ui:createCheckbox(section,text.taunt.UseDeathGripTaunt)
+                    br.ui:createCheckbox(section,text.taunt.UseDeathsCaressTaunt)
         br.ui:checkSectionState(section)
         -------------------------
         --- DEFENSIVE OPTIONS --- -- Define Defensive Options
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
         br.ui:checkSectionState(section)
+
+        section = br.ui:createSection(br.ui.window.profile,"Potions,Phials,and Runes")
+            br.ui:createCheckbox(section,text.options.onlyUseConsumablesInRaid)
+            br.player.module.PhialUp(section)
+            br.player.module.ImbueUp(section)
+            br.player.module.CombatPotionUp(section)
+            br.ui:createCheckbox(section,text.options.onlyUseCombatPotOnBoss)
+            br.player.module.BasicHealing(section)
+            br.ui:checkSectionState(section)
         -------------------------
         --- INTERRUPT OPTIONS --- -- Define Interrupt Options
         -------------------------
@@ -112,10 +154,6 @@ local function createOptions()
     return optionTable
 end
 
---------------
---- Locals ---
---------------
--- BR API Locals - Many of these are located from System/API, this is a sample of commonly used ones but no all inclusive
 local buff
 local cast
 local cd
@@ -135,7 +173,15 @@ local runicPower
 local runicPowerMax
 
 -- Any variables/functions made should have a local here to prevent possible conflicts with other things.
-
+local function inRangeOfBoss(bossname,distance)
+    for i=1, #enemies.yards40 do
+        local thisUnit = enemies.yards40[i]
+        if UnitName(thisUnit) == bossname then
+            if unit.distance(thisUnit) <= distance then return true end;
+        end
+    end
+    return false
+end
 --------------------
 --- Action Lists --- -- All Action List functions from SimC (or other rotation logic) here, some common ones provided
 --------------------
@@ -146,148 +192,199 @@ local actionList = {
     }
 } 
 
--- Action List - Extra
-actionList.Extra = function()
-
-        --if ui.checked("Only Taunt in Instance or Raid") and not (var.inRaid or var.inInstance) then return false end
-        local enemiesList = enemies.yards20
-        --if ui.value("Taunt Range") == 30 then enemiesList = enemies.yards30 end
-        --if ui.value("Taunt Range") == 20 then enemiesList = enemies.yards20 end
-        --if ui.value("Taunt Range") == 10 then enemiesList = enemies.yards10 end
-        if enemiesList ~= nil then
-            for i=1,#enemiesList do
-                local thisUnit = enemiesList[i]
-                if not unit.isTanking(thisUnit) and unit.threat(thisUnit) and not unit.isExplosive(thisUnit) and cast.able.darkCommand(thisUnit) then
-                    if cast.darkCommand(thisUnit) then ui.debug("Casting Dark Command [Not Tanking]") return true end
+actionList.Aggro = function()
+    if ui.mode.AutoPull ~=1 then return false end
+    if (ui.checked(text.taunt.onlyTauntInInstances) and (var.inInstance or var.inRaid)) or not ui.checked(text.taunt.onlyTauntInInstances) then
+        local theseUnits = enemies.yards8
+        if ui.value(text.taunt.TauntRange) == 10 then theseUnits = enemies.yards10 end
+        if ui.value(text.taunt.TauntRange) == 15 then theseUnits = enemies.yards15 end
+        if ui.value(text.taunt.TauntRange) == 20 then theseUnits = enemies.yards20 end
+        if ui.value(text.taunt.TauntRange) == 25 then theseUnits = enemies.yards25 end
+        if ui.value(text.taunt.TauntRange) == 30 then theseUnits = enemies.yards30 end
+        for i=1,#theseUnits do
+            local UnitName =  br._G.UnitName(theseUnits[i])
+            if not unit.isTanking(theseUnits[i]) and not (br.getCreatureType(theseUnits[i]) == "totem") and not(string.find(UnitName,"Totem",0,true)) then
+                if ui.checked(text.taunt.UseDarkCommandTaunt) and cast.able.darkCommand(theseUnits[i]) then
+                    if cast.darkCommand(theseUnits[i]) then ui.debug(colors.orange .. "Dark Command on " ..colors.red .. UnitName) return true; end
+                end
+                if ui.checked(text.taunt.UseDeathGripTaunt) and cast.able.deathGrip(theseUnits[i]) and unit.distance(theseUnits[i]) > 8 then
+                    if cast.deathGrip(theseUnits[i]) then ui.debug(colors.orange .. "Death Grip on " .. colors.red .. UnitName) return true; end
+                end
+                if ui.checked(text.taunt.UseDeathsCaressTaunt) and cast.able.deathsCaress(theseUnits[i]) then
+                    if cast.deathsCaress(theseUnits[i]) then ui.debug(colors.orange .. "Death's Caress on " .. colors.red .. UnitName) return true; end
                 end
             end
         end
-
-
-    
-       
-        
-        enemiesList = enemies.yards20
-        if enemiesList ~= nil then
-            for i=1,#enemiesList do
-                local thisUnit = enemiesList[i]
-                if not unit.isTanking(thisUnit) and unit.threat(thisUnit) and not unit.isExplosive(thisUnit) and cast.able.deathGrip(thisUnit) then
-                    if cast.deathGrip(thisUnit) then ui.debug("Casting Death Grip [Not Tanking]") return true end
-                end
-            end
-        end
- 
-end -- End Action List - Extra
-
-
-actionList.CombatPull = function ()
-    if ui.mode.autopull==1 and unit.inCombat then
-
-        local validTargets = nil
-        if cast.able.deathsCaress("target") and ui.checked("Use Deaths Caress to pull") then
-            if ui.checked("DC only pull from FRONT") then
-                if ui.value("Deaths Caress Range") == 10 then validTargets = enemies.yards10f;end
-                if ui.value("Deaths Caress Range") == 20 then validTargets = enemies.yards20f;end
-                if ui.value("Deaths Caress Range") == 30 then validTargets = enemies.yards30f;end
-            else
-                if ui.value("Deaths Caress Range") == 10 then validTargets = enemies.yards10;end
-                if ui.value("Deaths Caress Range") == 20 then validTargets = enemies.yards20;end
-                if ui.value("Deaths Caress Range") == 30 then validTargets = enemies.yards30;end
-            end
-            if validTargets ~= nil and #validTargets > 0 then
-                for i=1, #validTargets do
-                    if not unit.isBoss(validTargets[i]) and  (not unit.inCombat(validTargets[i]) or not unit.threat(validTargets[i])) then
-                            if cast.deathsCaress(validTargets[i]) then
-                                ui.debug("Pulling target with Death's Caress: " .. validTargets[i])
-                                return true
-                            end
-                    end
-                end
-            end
-        end
-        
-        validTargets = nil
-
-        if cast.able.deathGrip("target") and ui.checked("Use Death Grip") then
-            
-            if ui.checked("DG only pull from FRONT") then
-                if ui.value("Death Grip Range") == 10 then validTargets = enemies.yards10f;end
-                if ui.value("Death Grip Range") == 20 then validTargets = enemies.yards20f;end
-                if ui.value("Death Grip Range") == 30 then validTargets = enemies.yards30f;end
-                if ui.value("Death Grip Range") == 40 then validTargets = enemies.yards40f;end
-            else
-                if ui.value("Death Grip Range") == 10 then validTargets = enemies.yards10;end
-                if ui.value("Death Grip Range") == 20 then validTargets = enemies.yards20;end
-                if ui.value("Death Grip Range") == 30 then validTargets = enemies.yards30;end
-                if ui.value("Death Grip Range") == 40 then validTargets = enemies.yards40;end
-            end
-            if validTargets ~= nil and #validTargets > 0 then
-                for i=1, #validTargets do
-                    if not unit.isBoss(validTargets[i]) and  (not unit.inCombat(validTargets[i]) or not unit.threat(validTargets[i])) then
-                            if cast.deathGrip(validTargets[i]) then
-                                ui.debug("Pulling target with Death Grip: " .. validTargets[i])
-                                return true
-                            end
-                    end
-                end
-            end
-        end
+        return false
     end
 end
 
--- Action List - Defensive
+actionList.Extra = function()
+
+        --if ui.checked("Only Taunt in Instance or Raid") and not (var.inRaid or var.inInstance) then return false end
+        --local enemiesList = enemies.yards20
+        --if ui.value("Taunt Range") == 30 then enemiesList = enemies.yards30 end
+        --if ui.value("Taunt Range") == 20 then enemiesList = enemies.yards20 end
+        --if ui.value("Taunt Range") == 10 then enemiesList = enemies.yards10 end
+        -- if enemiesList ~= nil then
+        --     for i=1,#enemiesList do
+        --         local thisUnit = enemiesList[i]
+        --         if not unit.isTanking(thisUnit) and unit.threat(thisUnit) and not unit.isExplosive(thisUnit) and cast.able.darkCommand(thisUnit) then
+        --             if cast.darkCommand(thisUnit) then ui.debug("Casting Dark Command [Not Tanking]") return true end
+        --         end
+        --     end
+        -- end
+        -- enemiesList = enemies.yards20
+        -- if enemiesList ~= nil then
+        --     for i=1,#enemiesList do
+        --         local thisUnit = enemiesList[i]
+        --         if not unit.isTanking(thisUnit) and unit.threat(thisUnit) and not unit.isExplosive(thisUnit) and cast.able.deathGrip(thisUnit) then
+        --             if cast.deathGrip(thisUnit) then ui.debug("Casting Death Grip [Not Tanking]") return true end
+        --         end
+        --     end
+        -- end
+ 
+end 
+
+actionList.InstanceActions = function()
+
+    local function reactDeathsAdvance()
+        if cast.able.deathsAdvance() then
+            if cast.deathsAdvance() then ui.debug(colors.yellow .. "BOSS REACTION: " .. colors.green2 .. "Death's Advance") return true; end
+        end
+    end
+    local function reactLichborne()
+        if cast.able.lichborne() then
+            if cast.lichborne() then ui.debug(colors.yellow .. "BOSS REACTION: " .. colors.green2 .. "Lichborne") return true; end
+        end
+    end
+    local function reactAntiMagicShell()
+        if cast.able.antiMagicShell() then
+            if cast.antiMagicShell() then ui.debug(colors.yellow .. "BOSS REACTION: " .. colors.green2 .. "Anti Magic Shell") return true; end
+        end
+    end
+    local function reactIceboundFortitude()
+        if cast.able.iceboundFortitude() then
+            if cast.iceboundFortitude() then ui.debug(colors.yellow .. "BOSS REACTION: " .. colors.green2 .. "Icebound Fortitude") return true; end
+        end
+    end
+
+    local instanceID = br.getCurrentZoneId()
+    --2516	The Nokhud Offensive
+    if instanceID == 2516 then
+        --Granyth 
+        if br.DBM:getTimer(388283) < 3 then return reactIceboundFortitude()  end --Eruption
+        if br.DBM:getTimer(385916) < 3 then return reactDeathsAdvance() end 
+        --Tempest 
+        if br.DBM:getTimer(384316) < 3 then return reactAntiMagicShell() end
+        --Maruuk
+        if br.DBM:getTimer(386063) < 3 then return reactLichborne() end    --386063 Frightful roar, pop Lichborne
+        if br.DBM:getTimer(382836) < 3 then return reactIceboundFortitude() end 
+        --Teera
+        if br.DBM:getTimer(386547) < 3 or br.DBM:getTimer(384808) < 3 then return reactDeathsAdvance() end
+        --Balakar
+        -- Iron Spear knocks back, try deathsAdvance
+        if (br.DBM:getTimer(376634) < 3 or br.DBM:getTimer(376683) < 3 or br.DBM:getTimer(375943) < 3 ) then return reactDeathsAdvance() end
+    --2451	Uldaman: Legacy of Tyr
+    elseif instanceID == 2451 then
+        --Dwarves, not much we can do as they really only have physical attacks
+        --heavy arrow has a knockback, so hitup DA
+        if br.DBM:getTimer(369573) < 3 then return reactDeathsAdvance() end
+        --Bromach Thundering Smal
+        if br.DBM:getTimer(369703) < 3 then return reactAntiMagicShell() end
+        --Talondras Crushing Stomp
+        if br.DBM:getTimer(372701) < 3 then return reactDeathsAdvance() end
+        --Talondras: Resonating Orb, do we need to call this?
+        if br.DBM.getTimer(372623) < 3 then return reactAntiMagicShell() end
+        --Emberon Searing Clap
+        if br.DBM.getTimer(369061) < 3 then return reactAntiMagicShell() end
+        --Deios Wing Buffet
+        if br.DBM.getTimer(376049) < 3 then return reactDeathsAdvance() end
+        --Sand Breath
+        if br.DBM.getTimer(375727) < 3 then return reactAntiMagicShell() end
+        
+
+
+
+
+
+
+
+    end
+end
+
 actionList.Defensive = function()
+end 
 
-
-end -- End Action List - Defensive
-
--- Action List - Interrrupt
 actionList.Interrupt = function()
     if ui.useInterrupt() and ui.delay("Interrupts",unit.gcd()) then
         local thisUnit
-        if ui.checked("Mind Freeze") and cast.able.mindFreeze("target") then
-            for i=1, #enemies.yards5f do
-                thisUnit = enemies.yards5f[i]
-                if unit.interruptable(thisUnit,ui.value("Interrupt At")) then
+        for i=1, #enemies.yards15 do
+            thisUnit = enemies.yards15[i]
+            if unit.interruptable(thisUnit,ui.value("Interrupt At")) then
+                if ui.checked("Mind Freeze") and cast.able.mindFreeze(thisUnit) then
                     if cast.mindFreeze(thisUnit) then ui.debug("Casting Mind Freeze on "..unit.name(thisUnit)) return true end
                 end
-            end
-        end
-        if ui.checked("Use Death Grip as Interrupt") and cast.able.deathGrip("target") then
-            for i=1, #enemies.yards5f do
-                thisUnit = enemies.yards5f[i]
-                if unit.interruptable(thisUnit,ui.value("Interrupt At")) then
+                if ui.checked("Use Death Grip as Interrupt") and cast.able.deathGrip(thisUnit) then
                     if cast.deathGrip(thisUnit) then ui.debug("Casting Death Grip Interrupt on "..unit.name(thisUnit)) return true end
                 end
             end
         end
     end
-    
-end -- End Action List - Interrupt
+end 
 
--- Action List - Cooldowns
 actionList.Cooldown = function()
+    if 
+        (ui.mode.CoolDowns == 1 and unit.isBoss("target")) or 
+        (ui.mode.Rotation == 1 and #enemies.yards8 > ui.value(text.options.AoeLoadAmount)) or
+        ui.mode.CoolDowns == 2 then
+            if ui.checked(text.cooldowns.RaiseDead) and cast.able.raiseDead() then
+                if cast.raiseDead() then ui.debug( colors.purple .. "CD: Raise Dead") return true; end;
+            end
+            
+            --dancing_rune_weapon,if=!buff.dancing_rune_weapon.up
+            if ui.checked(text.cooldowns.DancingRuneWeapon) then
+                if not buff.dancingRuneWeapon.exists() and cast.able.dancingRuneWeapon() then
+                    if cast.dancingRuneWeapon() then ui.debug(colors.purple .. "CD:Dancing Rune Weapon") return true; end;
+                end
+            end
 
-end -- End Action List - Cooldowns
+            --empower_rune_weapon,if=rune<6&runic_power.deficit>5
+            if ui.checked(text.cooldowns.EmpowerRuneWeapon) then
+                if runes < 6 and (runicPowerMax - runicPower) > 5 and cast.able.empowerRuneWeapon() then
+                    if cast.empowerRuneWeapon() then ui.debug(colors.purple .. "CD:Empower Rune Weapon") return true; end;
+                end
+            end
+
+            if ui.checked(text.cooldowns.useCombatPotion) and 
+                ( (ui.checked(text.options.onlyUseCombatPotOnBoss) and unit.isBoss("target")) or not ui.checked(text.options.onlyUseCombatPotOnBoss)) then
+                if buff.dancingRuneWeapon.exists() and var.hasGhoul and unit.ttdGroup(10) > 30 then
+                    if module.CombatPotionUp() then ui.debug(colors.purple .. "CD: Using Combat Potion") return true; end
+                end
+            end
+
+            if ui.checked(text.cooldowns.useRacial) then
+                if cast.able.racial() then
+                    if cast.racial() then ui.debug(colors.purple .. "CD: Racial") return true; end;
+                end
+            end
+    end
+end 
 
 -- Action List - Pre-Combat
 actionList.PreCombat = function()
     if not unit.inCombat() and not (unit.flying() or unit.mounted() or unit.taxi()) then -- Only run when not in combat and not flying/mounted/taxi
-        module.FlaskUp("Strength")
-        -- if  not buff.augmentation.exists() then
-        --     if use.bestItem(br.list.items.howlingRuneQualities) then ui.debug("Applying best Howling Rune") return true end
-        -- end
-
+        if (ui.checked(text.options.onlyUseConsumablesInRaid) and (var.inRaid or var.inInstance)) or not(ui.checked(text.options.onlyUseConsumablesInRaid)) then
+            module.ImbueUp()
+            module.PhialUp()
+        end
         if ui.checked("Pre-Pull Timer") and ui.pullTimer() <= ui.value("Pre-Pull Timer") then
             -- Logic based on pull timers (IE: DBM/BigWigs)
         end -- End Pre-Pull
-        
     end -- End No Combat
 end -- End Action List - PreCombat
 
-----------------
---- ROTATION ---
-----------------
+
 local function runeTimeUntil(rCount)
     if rCount <= var.runeCount then return 0 end
         local delta = rCount - var.runeCount
@@ -303,11 +400,8 @@ local function boolNumeric(value)
 end
 
 
-local function runRotation() -- This is the main profile loop, any below this point is ran every cycle, everything above is ran only once during initialization.
-    ---------------------
-    --- Define Locals ---
-    ---------------------
-    -- BR API Locals - These are the same as the locals above just defined for use.
+local function runRotation() 
+
     buff                                          = br.player.buff
     cast                                          = br.player.cast
     cd                                            = br.player.cd
@@ -326,12 +420,22 @@ local function runRotation() -- This is the main profile loop, any below this po
     runicPower                                    = br.player.power.runicPower()
     runicPowerMax                                 = UnitPowerMax("player",6)
     var.inRaid                                    = br.player.instance=="raid"
-    units.get(5) -- Makes a variable called, units.dyn5
+    var.inInstance                                = br.player.instance=="party"
+
+    ui.mode.AutoPull        = br.data.settings[br.selectedSpec].toggles["Autopull"]
+    ui.mode.CoolDowns       = br.data.settings[br.selectedSpec].toggles["Cooldown"]
+    ui.mode.Rotation        = br.data.settings[br.selectedSpec].toggles["Rotation"]
+
+    units.get(5) 
     units.get(40) -- Makes a variable called, units.dyn40
     enemies.get(5) -- Makes a varaible called, enemies.yards5
+    enemies.get(8)
     enemies.get(10)
+    enemies.get(15)
     enemies.get(20)
+    enemies.get(25)
     enemies.get(30)
+    enemies.get(35)
     enemies.get(40) -- Makes a varaible called, enemies.yards40
     enemies.get(5,"player",false,true) -- makes enemies.yards5f
     enemies.get(10,"player",false, true)
@@ -409,17 +513,12 @@ local function runRotation() -- This is the main profile loop, any below this po
         if actionList.PreCombat() then return true end  -- This runs the Pre-Combat Action List and anything in it will run in or out of combat, this generally includes functions that prepare for or start combat.
          if unit.inCombat() and unit.valid("target") and not var.profileStop then -- Everything below this line only run if you are in combat and the selected target is validated and not triggered to stop.
             if actionList.Interrupt() then return true end
-            if actionList.CombatPull() then return true end
+            if actionList.InstanceActions() then return true end
+            if actionList.Aggro() then return true end
+            if actionList.Cooldown() then return true end
+            --if actionList.CombatPull() then return true end
 
-            if cast.able.raiseDead() then
-                if cast.raiseDead() then ui.debug("B: Raise Dead") return true; end;
-            end
-
-            if buff.dancingRuneWeapon.exists() and (var.inRaid or var.inInstance) then
-                if use.isOneOfUsable(br.lists.items.elementalPotionOfPowerQualities) then
-                  if use.bestItem(br.lists.items.elementalPotionOfPowerQualities)   then ui.debug("9: POT") return true; end;
-                end
-            end
+            
 
             --icebound_fortitude,if=!(buff.dancing_rune_weapon.up|buff.vampiric_blood.up)&(target.cooldown.pause_action.remains>=8|target.cooldown.pause_action.duration>0)
             if cast.able.iceboundFortitude() and (
@@ -440,7 +539,7 @@ local function runRotation() -- This is the main profile loop, any below this po
             end
 
             --death_and_decay,if=!death_and_decay.ticking&(talent.unholy_ground|talent.sanguine_ground|spell_targets.death_and_decay>3|buff.crimson_scourge.up)
-            if not buff.deathAndDecay.exists("player") and 
+            if not buff.deathAndDecay.exists("player") and not unit.moving("player") and 
                 (talent.unholyGround or 
                 talent.sanguineGround or 
                 buff.crimsonScourge.exists() or 
@@ -466,13 +565,7 @@ local function runRotation() -- This is the main profile loop, any below this po
             if not buff.dancingRuneWeapon.exists() and cast.able.blooddrinker("target") then
                 if cast.blooddrinker("target") then ui.debug("Blooddrinker channel") return true; end
             end
-            
-            --call_action_list,name=racials
-            if cast.able.racial() then
-                if cast.racial() then ui.debug("H: Racial") return true; end;
-            end
-
-
+         
             --sacrificial_pact,if=!buff.dancing_rune_weapon.up&(pet.ghoul.remains<2|target.time_to_die<gcd)
             if talent.sacrificialPact and 
                 not buff.dancingRuneWeapon.exists("player")  and 
@@ -491,19 +584,13 @@ local function runRotation() -- This is the main profile loop, any below this po
                 if cast.gorefiendsGrasp("target") then ui.debug("GoreFiends Grasp") return true; end;
             end
 
-            --empower_rune_weapon,if=rune<6&runic_power.deficit>5
-            if runes < 6 and (runicPowerMax - runicPower) > 5 and cast.able.empowerRuneWeapon() then
-                if cast.empowerRuneWeapon() then ui.debug("J:Empower Rune Weapon") return true; end;
-            end
+           
 
             if cast.able.abominationLimb() then
                 if cast.abominationLimb() then ui.debug("Abomination Limb") return true; end;
             end
 
-            --dancing_rune_weapon,if=!buff.dancing_rune_weapon.up
-            if not buff.dancingRuneWeapon.exists() and cast.able.dancingRuneWeapon() then
-                if cast.dancingRuneWeapon() then ui.debug("K:Dancing Rune Weapon") return true; end;
-            end
+           
 
             --DRW sub Routine
             if buff.dancingRuneWeapon.exists() then
@@ -515,7 +602,7 @@ local function runRotation() -- This is the main profile loop, any below this po
                 --tombstone,if=buff.bone_shield.stack>5&rune>=2&runic_power.deficit>=30&!talent.shattering_bone|(talent.shattering_bone.enabled&death_and_decay.ticking)
                 if buff.boneShield.stack("player") > 5 and 
                     runes >= 2 and 
-                    (runicPowerMax - runicPower) >= 30 
+                    var.runicPowerDeficit >= 30
                     and not talent.shatteringBone or (talent.shatteringBone and buff.deathAndDecay.exists()) and
                     cast.able.tombstone() then
                         if cast.tombstone() then ui.debug("N:tombstone") return true; end;
@@ -549,7 +636,7 @@ local function runRotation() -- This is the main profile loop, any below this po
                 end
 
                 --death_and_decay,if=!death_and_decay.ticking&(talent.sanguine_ground|talent.unholy_ground)
-                if cast.able.deathAndDecay("playerGround") and not buff.deathAndDecay.exists() and (talent.sanguineGround or talent.unholyGround) then
+                if cast.able.deathAndDecay("playerGround") and not buff.deathAndDecay.exists() and (talent.sanguineGround or talent.unholyGround) and not unit.moving("player") then
                     if cast.deathAndDecay("playerGround") then ui.debug("Death and Decay") return true; end;
                 end
 

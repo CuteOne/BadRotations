@@ -1009,7 +1009,7 @@ function br.BWInit()
     local callback = BigWigs.callback
     BigWigs.BigwigsCallback = function(event, ...)
         if event == "BigWigs_StartBar" then
-            local _, spellId, _, duration, icon = ...
+            local _, spellId, message, duration, icon = ...
             local clone = false
             if spellId == nil then
                 if tostring(icon) == "134062" then
