@@ -212,6 +212,7 @@ br.lists.items = {
     phialOfGlacialFuryQualities={204660,191335,204659,191334,204658,191333},
     icedPhialOfCorruptingRageQualities={204654,191329,204653,191328,204652,191327},
     phialOfTepidVersatilityQualities = {204666,191341,204665,191340,204664,191339},
+    dreamwalkersHealingPotion = {207023,207022,207021}
 
     
 

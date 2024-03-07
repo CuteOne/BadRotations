@@ -206,22 +206,15 @@ br.api.module = function(self)
     module.CombatPotionUp = function(section)
         local potList = {"Pot Ultimate Power","Pot of Power"}
         if section ~= nil then
-            br.ui:createDropdownWithout(section,"Combat Potion",potList,1,"|cffFFFFFFSelect Combat Potion, uses best quality.")
+            br.ui:createDropdown(section,"Use Combat Potion",potList,1,"|cffFFFFFFSelect Combat Potion, uses best quality.")
         end
-
-        local function cancelBuffs()
-            if buff.elementalPotionOfUltimatePower.exists() then buff.elementalPotionOfUltimatePower.cancel() end
-            if buff.elementalPotionOfPower.exists() then buff.elementalPotionOfPower.cancel() end
-        end
-
         if section == nil then
-            local opValue = ui.value("Use Best Qual Potion")
-            if opValue == 1 and not buff.elementalPotionOfUltimatePower.exists() and use.isOneOfUsable(br.lists.items.elementalPotionOfUltimatePowerQualities) then
-                    cancelBuffs()
+            if not ui.checked("Use Combat Potion") then return false end
+            local opValue = ui.value("Use Combat Potion")
+            if opValue == 1 and use.isOneOfUsable(br.lists.items.elementalPotionOfUltimatePowerQualities) then
                     if use.bestItem(br.lists.items.elementalPotionOfUltimatePowerQualities) then ui.debug("Using Best Pot: Elemental Potion of Ultimate Power") return true; end
             end
-            if opValue == 2 and not buff.elementalPotionOfPower.exists() and use.isOneOfUsable(br.lists.items.elementalPotionOfPowerQualities) then
-                    cancelBuffs()
+            if opValue == 2 and use.isOneOfUsable(br.lists.items.elementalPotionOfPowerQualities) then
                     if use.bestItem(br.lists.items.elementalPotionOfPowerQualities) then ui.debug("Using Best Pot: Elemental Potion of Power") return true; end
             end
         end
