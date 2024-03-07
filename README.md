@@ -82,7 +82,7 @@ Raidable means if its good to raid with.
 
 |      rotation      |   author   |patch |coverage|status |  readiness  |last updated|
 |--------------------|------------|:----:|:------:|:-----:|:-----------:|-----------:|
-|BrewBloodKnight-SimC|BrewingCoder|10.2.5|  90%   |Limited|:interrobang:|  03/01/2024|
+|BrewBloodKnight-SimC|BrewingCoder|10.2.5|  100%  | Full  |:interrobang:|  03/07/2024|
 |BrewBK              |BrewingCoder|10.2.5|  98%   |Limited|:interrobang:|  02/21/2024|
 
 - Unholy
