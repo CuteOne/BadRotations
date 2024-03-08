@@ -3,9 +3,11 @@
 -- Patch = 10.2.5
 -- Coverage = 100%
 -- Status = Full
--- Readiness = BH
+-- Readiness = Raid
 -------------------------------------------------------
 local rotationName = "BrewBloodKnight-SimC" 
+
+local LastMessageTime = 0
 
 
 local colors = {
@@ -172,15 +174,59 @@ local runes
 local runicPower
 local runicPowerMax
 
--- Any variables/functions made should have a local here to prevent possible conflicts with other things.
-local function inRangeOfBoss(bossname,distance)
-    for i=1, #enemies.yards40 do
-        local thisUnit = enemies.yards40[i]
-        if UnitName(thisUnit) == bossname then
-            if unit.distance(thisUnit) <= distance then return true end;
-        end
+local function round(number, digit_position) 
+    local precision = math.pow(10, digit_position)
+    number = number + (precision / 2); -- this causes value #.5 and up to round up
+                                       -- and #.4 and lower to round down.
+  
+    return math.floor(number / precision) * precision
+  end
+
+local function printStats(message)  
+    local drwString
+    local empowerString
+    local ghoulString
+    local RuneString
+    local RPString
+    local RPDString
+
+     drwString = colors.white .. "[" .. (buff.dancingRuneWeapon.exists() and colors.green or colors.red) .."DRW" ..colors.white .. "]"
+     empowerString =colors.white .. "[" .. (buff.empowerRuneWeapon.exists() and colors.green or colors.red) .. "ERW" ..colors.white .. "]"
+     ghoulString =""
+    if var.hasGhoul then
+        ghoulString =colors.white .. "[" .. colors.green .. "Ghoul:" ..math.floor(var.ghoulTTL) .. colors.white .. "]" .. colors.white
+    else
+        ghoulString =colors.white .. "[" .. colors.red .. "Ghoul" .. colors.white .. "]" .. colors.white
     end
-    return false
+     RuneString = colors.white .. "[R:" .. runes .. "]".. colors.white
+     RPString = colors.white .. "[RP:" .. runicPower .. "]".. colors.white
+     RPDString = colors.white .. "[RPD:" .. var.runicPowerDeficit .. "]".. colors.white
+     local lastTime = ui.time() - var.lastCast 
+    print(colors.red.. date("%T") ..colors.aqua .."[+" .. round(lastTime,-2) .. "]" ..colors.white .. drwString .. empowerString .. ghoulString ..colors.white.. RuneString ..RPString..RPDString..colors.white .. " : ".. message)
+end
+
+local debugMessage = function(message)
+    printStats(message)
+    var.lastCast = ui.time()
+end
+
+local function checkTiming(message)
+    if (ui.time() - var.lastCast > 2 and #enemies.yards5f >= 1) or var.DoTiming ~= nil then
+        printStats("TIMING:" .. message)
+    end
+end
+
+local function runeTimeUntil(rCount)
+    if rCount <= var.runeCount then return 0 end
+        local delta = rCount - var.runeCount
+        local maxTime = 0
+        for i=1,delta do
+            maxTime = math.max(maxTime,var.runeCooldowns[i])
+        end
+        return maxTime
+end
+local function boolNumeric(value)
+    return value and 1 or 0
 end
 --------------------
 --- Action Lists --- -- All Action List functions from SimC (or other rotation logic) here, some common ones provided
@@ -205,13 +251,13 @@ actionList.Aggro = function()
             local UnitName =  br._G.UnitName(theseUnits[i])
             if not unit.isTanking(theseUnits[i]) and not (br.getCreatureType(theseUnits[i]) == "totem") and not(string.find(UnitName,"Totem",0,true)) then
                 if ui.checked(text.taunt.UseDarkCommandTaunt) and cast.able.darkCommand(theseUnits[i]) then
-                    if cast.darkCommand(theseUnits[i]) then ui.debug(colors.orange .. "Dark Command on " ..colors.red .. UnitName) return true; end
+                    if cast.darkCommand(theseUnits[i]) then debugMessage(colors.orange .. "Dark Command on " ..colors.red .. UnitName) return true; end
                 end
                 if ui.checked(text.taunt.UseDeathGripTaunt) and cast.able.deathGrip(theseUnits[i]) and unit.distance(theseUnits[i]) > 8 then
-                    if cast.deathGrip(theseUnits[i]) then ui.debug(colors.orange .. "Death Grip on " .. colors.red .. UnitName) return true; end
+                    if cast.deathGrip(theseUnits[i]) then debugMessage(colors.orange .. "Death Grip on " .. colors.red .. UnitName) return true; end
                 end
                 if ui.checked(text.taunt.UseDeathsCaressTaunt) and cast.able.deathsCaress(theseUnits[i]) then
-                    if cast.deathsCaress(theseUnits[i]) then ui.debug(colors.orange .. "Death's Caress on " .. colors.red .. UnitName) return true; end
+                    if cast.deathsCaress(theseUnits[i]) then debugMessage(colors.orange .. "Death's Caress on " .. colors.red .. UnitName) return true; end
                 end
             end
         end
@@ -230,7 +276,7 @@ actionList.Extra = function()
         --     for i=1,#enemiesList do
         --         local thisUnit = enemiesList[i]
         --         if not unit.isTanking(thisUnit) and unit.threat(thisUnit) and not unit.isExplosive(thisUnit) and cast.able.darkCommand(thisUnit) then
-        --             if cast.darkCommand(thisUnit) then ui.debug("Casting Dark Command [Not Tanking]") return true end
+        --             if cast.darkCommand(thisUnit) then debugMessage("Casting Dark Command [Not Tanking]") return true end
         --         end
         --     end
         -- end
@@ -239,7 +285,7 @@ actionList.Extra = function()
         --     for i=1,#enemiesList do
         --         local thisUnit = enemiesList[i]
         --         if not unit.isTanking(thisUnit) and unit.threat(thisUnit) and not unit.isExplosive(thisUnit) and cast.able.deathGrip(thisUnit) then
-        --             if cast.deathGrip(thisUnit) then ui.debug("Casting Death Grip [Not Tanking]") return true end
+        --             if cast.deathGrip(thisUnit) then debugMessage("Casting Death Grip [Not Tanking]") return true end
         --         end
         --     end
         -- end
@@ -250,22 +296,22 @@ actionList.InstanceActions = function()
 
     local function reactDeathsAdvance()
         if cast.able.deathsAdvance() then
-            if cast.deathsAdvance() then ui.debug(colors.yellow .. "BOSS REACTION: " .. colors.green2 .. "Death's Advance") return true; end
+            if cast.deathsAdvance() then debugMessage(colors.yellow .. "BOSS REACTION: " .. colors.green2 .. "Death's Advance") return true; end
         end
     end
     local function reactLichborne()
         if cast.able.lichborne() then
-            if cast.lichborne() then ui.debug(colors.yellow .. "BOSS REACTION: " .. colors.green2 .. "Lichborne") return true; end
+            if cast.lichborne() then debugMessage(colors.yellow .. "BOSS REACTION: " .. colors.green2 .. "Lichborne") return true; end
         end
     end
     local function reactAntiMagicShell()
         if cast.able.antiMagicShell() then
-            if cast.antiMagicShell() then ui.debug(colors.yellow .. "BOSS REACTION: " .. colors.green2 .. "Anti Magic Shell") return true; end
+            if cast.antiMagicShell() then debugMessage(colors.yellow .. "BOSS REACTION: " .. colors.green2 .. "Anti Magic Shell") return true; end
         end
     end
     local function reactIceboundFortitude()
         if cast.able.iceboundFortitude() then
-            if cast.iceboundFortitude() then ui.debug(colors.yellow .. "BOSS REACTION: " .. colors.green2 .. "Icebound Fortitude") return true; end
+            if cast.iceboundFortitude() then debugMessage(colors.yellow .. "BOSS REACTION: " .. colors.green2 .. "Icebound Fortitude") return true; end
         end
     end
 
@@ -323,10 +369,10 @@ actionList.Interrupt = function()
             thisUnit = enemies.yards15[i]
             if unit.interruptable(thisUnit,ui.value("Interrupt At")) then
                 if ui.checked("Mind Freeze") and cast.able.mindFreeze(thisUnit) then
-                    if cast.mindFreeze(thisUnit) then ui.debug("Casting Mind Freeze on "..unit.name(thisUnit)) return true end
+                    if cast.mindFreeze(thisUnit) then debugMessage("Casting Mind Freeze on "..unit.name(thisUnit)) return true end
                 end
                 if ui.checked("Use Death Grip as Interrupt") and cast.able.deathGrip(thisUnit) then
-                    if cast.deathGrip(thisUnit) then ui.debug("Casting Death Grip Interrupt on "..unit.name(thisUnit)) return true end
+                    if cast.deathGrip(thisUnit) then debugMessage("Casting Death Grip Interrupt on "..unit.name(thisUnit)) return true end
                 end
             end
         end
@@ -339,36 +385,37 @@ actionList.Cooldown = function()
         (ui.mode.Rotation == 1 and #enemies.yards8 > ui.value(text.options.AoeLoadAmount)) or
         ui.mode.CoolDowns == 2 then
             if ui.checked(text.cooldowns.RaiseDead) and cast.able.raiseDead() then
-                if cast.raiseDead() then ui.debug( colors.purple .. "CD: Raise Dead") return true; end;
+                if cast.raiseDead() then debugMessage( colors.purple .. "CD: Raise Dead") return true; end;
             end
             
             --dancing_rune_weapon,if=!buff.dancing_rune_weapon.up
             if ui.checked(text.cooldowns.DancingRuneWeapon) then
                 if not buff.dancingRuneWeapon.exists() and cast.able.dancingRuneWeapon() then
-                    if cast.dancingRuneWeapon() then ui.debug(colors.purple .. "CD:Dancing Rune Weapon") return true; end;
+                    if cast.dancingRuneWeapon() then debugMessage(colors.purple .. "CD:Dancing Rune Weapon") return true; end;
                 end
             end
 
             --empower_rune_weapon,if=rune<6&runic_power.deficit>5
             if ui.checked(text.cooldowns.EmpowerRuneWeapon) then
                 if runes < 6 and (runicPowerMax - runicPower) > 5 and cast.able.empowerRuneWeapon() then
-                    if cast.empowerRuneWeapon() then ui.debug(colors.purple .. "CD:Empower Rune Weapon") return true; end;
+                    if cast.empowerRuneWeapon() then debugMessage(colors.purple .. "CD:Empower Rune Weapon") return true; end;
                 end
             end
 
             if ui.checked(text.cooldowns.useCombatPotion) and 
                 ( (ui.checked(text.options.onlyUseCombatPotOnBoss) and unit.isBoss("target")) or not ui.checked(text.options.onlyUseCombatPotOnBoss)) then
                 if buff.dancingRuneWeapon.exists() and var.hasGhoul and unit.ttdGroup(10) > 30 then
-                    if module.CombatPotionUp() then ui.debug(colors.purple .. "CD: Using Combat Potion") return true; end
+                    if module.CombatPotionUp() then debugMessage(colors.purple .. "CD: Using Combat Potion") return true; end
                 end
             end
 
             if ui.checked(text.cooldowns.useRacial) then
                 if cast.able.racial() then
-                    if cast.racial() then ui.debug(colors.purple .. "CD: Racial") return true; end;
+                    if cast.racial() then debugMessage(colors.purple .. "CD: Racial") return true; end;
                 end
             end
     end
+    return false
 end 
 
 -- Action List - Pre-Combat
@@ -384,20 +431,91 @@ actionList.PreCombat = function()
     end -- End No Combat
 end -- End Action List - PreCombat
 
+actionList.DRWActive = function()
+        
+                --blood_boil,if=!dot.blood_plague.ticking
+                if not debuff.bloodPlague.exists("target") and cast.able.bloodBoil() then
+                    if cast.bloodBoil("target") then debugMessage("DRW:blood boil") return true; end;
+                end
+                --tombstone,if=buff.bone_shield.stack>5&rune>=2&runic_power.deficit>=30&!talent.shattering_bone|(talent.shattering_bone.enabled&death_and_decay.ticking)
+                if buff.boneShield.stack("player") > 5 and 
+                    runes >= 2 and 
+                    var.runicPowerDeficit >= 30
+                    and not talent.shatteringBone or (talent.shatteringBone and buff.deathAndDecay.exists()) and
+                    cast.able.tombstone() then
+                        if cast.tombstone() then debugMessage("DRW:N:tombstone") return true; end;
+                end
 
-local function runeTimeUntil(rCount)
-    if rCount <= var.runeCount then return 0 end
-        local delta = rCount - var.runeCount
-        local maxTime = 0
-        for i=1,delta do
-            maxTime = math.max(maxTime,var.runeCooldowns[i])
-        end
-        return maxTime
+                --death_strike,if=buff.coagulopathy.remains<=gcd|buff.icy_talons.remains<=gcd
+                if cast.able.deathStrike("target") and (buff.coagulopathy.remains() <= unit.gcd() or buff.icyTalons.remains() <= unit.gcd()) then
+                    if cast.deathStrike("target") then debugMessage("DRW:Death Strike") return true; end;
+                end
+
+                --marrowrend,if=(buff.bone_shield.remains<=4|buff.bone_shield.stack<variable.bone_shield_refresh_value)&runic_power.deficit>20
+                if cast.able.marrowrend("target") and 
+                (buff.boneShield.remains() <=4 or buff.boneShield.stack() < var.boneShieldRefreshValue) and 
+                var.runicPowerDeficit > 20 then
+                    if cast.marrowrend("target") then debugMessage("DRW:O:Marrowrend") return true; end;
+                end
+
+                --soul_reaper,if=active_enemies=1&target.time_to_pct_35<5&target.time_to_die>(dot.soul_reaper.remains+5)
+                if cast.able.soulReaper("target") and #enemies.yards5==1 and unit.ttd("target",35)<5 and
+                    unit.ttd("target") > (debuff.soulReaper.remains("target")+5)
+                 then
+                    if cast.soulReaper("target") then debugMessage("DRW:P:Soul Reaper") return true; end;
+                end
+
+                --soul_reaper,target_if=min:dot.soul_reaper.remains,if=target.time_to_pct_35<5&active_enemies>=2&target.time_to_die>(dot.soul_reaper.remains+5)
+                --TODO Needs Help
+                if cast.able.soulReaper() then
+                    for i=1, #enemies.yards5f do
+                        if br.getHP(enemies.yards5f[i]) <= 35 then
+                            if cast.soulReaper(enemies.yards5f[i]) then debugMessage("DRW:Soul Repear") return true; end;
+                        end
+                    end
+                end
+
+                --death_and_decay,if=!death_and_decay.ticking&(talent.sanguine_ground|talent.unholy_ground)
+                if cast.able.deathAndDecay("playerGround") and not buff.deathAndDecay.exists() and (talent.sanguineGround or talent.unholyGround) and not unit.moving("player") then
+                    if cast.deathAndDecay("playerGround") then debugMessage("DRW:Death and Decay") return true; end;
+                end
+
+                --blood_boil,if=spell_targets.blood_boil>2&charges_fractional>=1.1
+                --TODO Fractional Charges
+                if cast.able.bloodBoil() and (
+                    #enemies.yards10 > 2 and
+                    charges.bloodBoil.frac() >= 1.1   
+                ) then
+                    if cast.bloodBoil() then debugMessage("DRW:Blood Boil") return true; end;
+                end
+
+                --death_strike,if=runic_power.deficit<=variable.heart_strike_rp_drw|runic_power>=variable.death_strike_dump_amount
+                if cast.able.deathStrike("target") and (var.runicPowerDeficit <= var.heartStrikeRpDrw or runicPower >= var.deathStrikeDumpAmount) then
+                    if cast.deathStrike("target") then debugMessage("DRW:Q:death strike") return true; end;
+                end
+
+                if cast.able.consumption("target") then 
+                    if cast.consumption("target") then debugMessage("DRW:Consumption") return true; end;
+                end
+
+                --blood_boil,if=charges_fractional>=1.1&buff.hemostasis.stack<5
+                --TODO fractional charges
+                if cast.able.bloodBoil() and (
+                    charges.bloodBoil.frac() >= 1.1 and
+                    buff.hemostasis.stack() < 5) then
+                    if cast.bloodBoil() then debugMessage("DRW:R:Blood boil") return true; end;
+                end
+
+                --heart_strike,if=rune.time_to_2<gcd|runic_power.deficit>=variable.heart_strike_rp_drw
+                --debugMessage("Heart Strike Check: TT2:" .. runeTimeUntil(2) .. " GCD:" .. unit.gcd() .. " Power Def:" .. var.runicPowerDeficit .. "HeartStrikeRP:" .. var.heartStrikeRp)
+                if cast.able.heartStrike("target") and (runeTimeUntil(2) < unit.gcd() or var.runicPowerDeficit >= var.heartStrikeRpDrw) then
+                    if cast.heartStrike("target") then debugMessage("DRW:S:Heart Strike") return true; end;
+                end
+                return false
 end
 
-local function boolNumeric(value)
-    return value and 1 or 0
-end
+
+
 
 
 local function runRotation() 
@@ -421,6 +539,8 @@ local function runRotation()
     runicPowerMax                                 = UnitPowerMax("player",6)
     var.inRaid                                    = br.player.instance=="raid"
     var.inInstance                                = br.player.instance=="party"
+
+    if var.lastCast == nil then var.lastCast=ui.time() end
 
     ui.mode.AutoPull        = br.data.settings[br.selectedSpec].toggles["Autopull"]
     ui.mode.CoolDowns       = br.data.settings[br.selectedSpec].toggles["Cooldown"]
@@ -446,15 +566,19 @@ local function runRotation()
     ------------------------
     --- Custom Variables ---
     ------------------------
-    --actions+=/variable,name=bone_shield_refresh_value,value=4,op=setif,condition=!talent.deaths_caress.enabled|talent.consumption.enabled|talent.blooddrinker.enabled,value_else=5
-    var.boneShieldRefreshValue = 4
+
+    --variable,name=bone_shield_refresh_value,value=4,op=setif,condition=!talent.deaths_caress.enabled|talent.consumption.enabled|talent.blooddrinker.enabled,value_else=5
     if not talent.deathsCaress or talent.consumption or talent.blooddrinker then
-        var.boneShieldRefreshValue = 5
+        var.boneShieldRefreshValue = 4
+    else
+        var.boneShieldRefreshValue = 5        
     end
+
      --variable,name=heart_strike_rp_drw,value=(25+spell_targets.heart_strike*talent.heartbreaker.enabled*2)
-     var.heartStrikeRpDrw = (25 + #enemies.yards5f * boolNumeric(talent.heartbreaker) * 2)
+     var.heartStrikeRpDrw = (35 + (#enemies.yards5f * talent.rank.heartbreaker))
+    
      ----variable,name=heart_strike_rp,value=(10+spell_targets.heart_strike*talent.heartbreaker.enabled*2)
-     var.heartStrikeRp = (10 + #enemies.yards5f * boolNumeric(talent.heartbreaker) * 2)
+     var.heartStrikeRp = (20 + (#enemies.yards5f * talent.rank.heartbreaker))
      var.runicPowerDeficit = runicPowerMax - runicPower
      var.deathStrikeDumpAmount = 65
 
@@ -516,167 +640,115 @@ local function runRotation()
             if actionList.InstanceActions() then return true end
             if actionList.Aggro() then return true end
             if actionList.Cooldown() then return true end
-            --if actionList.CombatPull() then return true end
+ 
 
             
 
-            --icebound_fortitude,if=!(buff.dancing_rune_weapon.up|buff.vampiric_blood.up)&(target.cooldown.pause_action.remains>=8|target.cooldown.pause_action.duration>0)
+            --icebound_fortitude,if=!(buff.dancing_rune_weapon.up|buff.vampiric_blood.up)
+            --&(target.cooldown.pause_action.remains>=8|target.cooldown.pause_action.duration>0)
+
             if cast.able.iceboundFortitude() and (
                 not (buff.dancingRuneWeapon.exists() or buff.vampiricBlood.exists()) 
             ) then
-                if cast.iceboundFortitude() then ui.debug("C:Icebound fortitude") return true; end;
+                if cast.iceboundFortitude() then debugMessage("C:Icebound fortitude") return true; end;
             end
 
             --vampiric_blood,if=!buff.vampiric_blood.up&!buff.vampiric_strength.up
-            --TODO look into SC's second vampiric blood 
+
             if cast.able.vampiricBlood() and (not buff.vampiricBlood.exists() and not buff.vampiricStrength.exists()) then
-                if cast.vampiricBlood() then ui.debug("D:Vampiric Blood") return true; end;
+                if cast.vampiricBlood() then debugMessage("D:Vampiric Blood") return true; end;
+            end
+            --=/vampiric_blood,if=!(buff.dancing_rune_weapon.up|buff.icebound_fortitude.up|buff.vampiric_blood.up|buff.vampiric_strength.up)&(target.cooldown.pause_action.remains>=13|target.cooldown.pause_action.duration>0)
+            if cast.able.vampiricBlood() and (
+                not(buff.dancingRuneWeapon.exists() or buff.iceboundFortitude.exists(0 or buff.vampiricBlood.exists() or buff.vampiricStrength.exists()))
+            ) then
+                if cast.vampiricBlood() then debugMessage("D1:Vampiric Blood") return true; end;
             end
 
             --deaths_caress,if=!buff.bone_shield.up
+
             if not buff.boneShield.exists() and cast.able.deathsCaress("target") then
-                if cast.deathsCaress("target") then ui.debug("E:Deaths Caress") return true; end;
+                if cast.deathsCaress("target") then debugMessage("E:Deaths Caress") return true; end;
             end
 
             --death_and_decay,if=!death_and_decay.ticking&(talent.unholy_ground|talent.sanguine_ground|spell_targets.death_and_decay>3|buff.crimson_scourge.up)
+ 
             if not buff.deathAndDecay.exists("player") and not unit.moving("player") and 
-                (talent.unholyGround or 
-                talent.sanguineGround or 
-                buff.crimsonScourge.exists() or 
-                #enemies.yards10 > 3) and
                  cast.able.deathAndDecay("playerGround") then
-                    if cast.deathAndDecay("playerGround") then ui.debug("F:Death and Decay") return true; end;
+                    if cast.deathAndDecay("playerGround") then debugMessage("F:Death and Decay") return true; end;
             end
 
             --death_strike,if=buff.coagulopathy.remains<=gcd|buff.icy_talons.remains<=gcd
             --|runic_power>=variable.death_strike_dump_amount|runic_power.deficit<=variable.heart_strike_rp|target.time_to_die<10
-            if (
-                (buff.coagulopathy.remains() <= unit.gcd() or
-                buff.icyTalons.remains() <= unit.gcd() or
-                runicPower >= var.deathStrikeDumpAmount or
-                var.runicPowerDeficit <= var.heartStrikeRp or
-                unit.ttd("target") < 10) and
-                cast.able.deathStrike("target")
-            ) then
-                if cast.deathStrike("target") then ui.debug("G:Death Strike") return true; end;
+
+            if cast.able.deathStrike("target") and
+                (
+                    buff.coagulopathy.remains() <= unit.gcd() or
+                    buff.icyTalons.remains() <= unit.gcd() or
+                    runicPower >= var.deathStrikeDumpAmount or
+                    var.runicPowerDeficit <= var.heartStrikeRp or
+                    unit.ttd("target") < 10
+                ) then
+                    if cast.deathStrike("target") then debugMessage("G:Death Strike") return true; end;
             end
 
             --	blooddrinker,if=!buff.dancing_rune_weapon.up
+     
             if not buff.dancingRuneWeapon.exists() and cast.able.blooddrinker("target") then
-                if cast.blooddrinker("target") then ui.debug("Blooddrinker channel") return true; end
+                if cast.blooddrinker("target") then debugMessage("Blooddrinker channel") return true; end
             end
          
             --sacrificial_pact,if=!buff.dancing_rune_weapon.up&(pet.ghoul.remains<2|target.time_to_die<gcd)
+           
             if talent.sacrificialPact and 
                 not buff.dancingRuneWeapon.exists("player")  and 
                 (var.hasGhoul and var.ghoulTTL < 2 or unit.ttd("target") < unit.gcd() ) and 
                 cast.able.sacrificialPact()  then
-                    if cast.sacrificialPact() then ui.debug("Sacrificial Pact") return true; end;
+                    if cast.sacrificialPact() then debugMessage("Sacrificial Pact") return true; end;
             end
 
+          
             --blood_tap,if=(rune<=2&rune.time_to_4>gcd&charges_fractional>=1.8)|rune.time_to_3>gcd
-            if (runes <= 2 and runeTimeUntil(4) > unit.gcd() and charges.bloodTap.timeTillFull() <= (unit.gcd() * 0.2) ) or runeTimeUntil(3) > unit.gcd() and cast.able.bloodTap() then
-                if cast.bloodTap() then ui.debug("I:Blood Tap") return true; end;
+            if (runes <= 2 and runeTimeUntil(4) > unit.gcd() and charges.bloodTap.frac() >= 1.8 ) or runeTimeUntil(3) > unit.gcd() then
+                if cast.able.bloodTap() then
+                    if cast.bloodTap() then debugMessage("I:Blood Tap") return true; end;
+                end
             end
 
+           
             --gorefiends_grasp,if=talent.tightening_grasp.enabled
             if talent.tighteningGrasp and cast.able.gorefiendsGrasp("target") then
-                if cast.gorefiendsGrasp("target") then ui.debug("GoreFiends Grasp") return true; end;
+                if cast.gorefiendsGrasp("target") then debugMessage("GoreFiends Grasp") return true; end;
             end
 
-           
-
+          
             if cast.able.abominationLimb() then
-                if cast.abominationLimb() then ui.debug("Abomination Limb") return true; end;
+                if cast.abominationLimb() then debugMessage("Abomination Limb") return true; end;
             end
 
-           
-
-            --DRW sub Routine
+             --DRW sub Routine
             if buff.dancingRuneWeapon.exists() then
-                
-                --blood_boil,if=!dot.blood_plague.ticking
-                if not debuff.bloodPlague.exists("target") and cast.able.bloodBoil() then
-                    if cast.bloodBoil("target") then ui.debug("blood boil") return true; end;
-                end
-                --tombstone,if=buff.bone_shield.stack>5&rune>=2&runic_power.deficit>=30&!talent.shattering_bone|(talent.shattering_bone.enabled&death_and_decay.ticking)
-                if buff.boneShield.stack("player") > 5 and 
-                    runes >= 2 and 
-                    var.runicPowerDeficit >= 30
-                    and not talent.shatteringBone or (talent.shatteringBone and buff.deathAndDecay.exists()) and
-                    cast.able.tombstone() then
-                        if cast.tombstone() then ui.debug("N:tombstone") return true; end;
-                end
-
-                --death_strike,if=buff.coagulopathy.remains<=gcd|buff.icy_talons.remains<=gcd
-                if cast.able.deathStrike("target") and (buff.coagulopathy.remains() <= unit.gcd() or buff.icyTalons.remains() <= unit.gcd()) then
-                    if cast.deathStrike("target") then ui.debug("Death Strike") return true; end;
-                end
-
-                --marrowrend,if=(buff.bone_shield.remains<=4|buff.bone_shield.stack<variable.bone_shield_refresh_value)&runic_power.deficit>20
-                if cast.able.marrowrend("target") and 
-                (buff.boneShield.remains() <=4 or buff.boneShield.stack("player") < var.boneShieldRefreshValue) and 
-                (var.runicPowerDeficit) > 20 then
-                    if cast.marrowrend("target") then ui.debug("O:Marrowrend") return true; end;
-                end
-
-                --soul_reaper,if=active_enemies=1&target.time_to_pct_35<5&target.time_to_die>(dot.soul_reaper.remains+5)
-                if cast.able.soulReaper("target") and #enemies.yards5==1 and br.getHP("target") <= 35 then
-                    if cast.soulReaper("target") then ui.debug("P:Soul Reapoer") return true; end;
-                end
-
-                --soul_reaper,target_if=min:dot.soul_reaper.remains,if=target.time_to_pct_35<5&active_enemies>=2&target.time_to_die>(dot.soul_reaper.remains+5)
-                --TODO Needs Help
-                if cast.able.soulReaper() then
-                    for i=1, #enemies.yards5f do
-                        if br.getHP(enemies.yards5f[i]) <= 35 then
-                            if cast.soulReaper(enemies.yards5f[i]) then ui.debug("Soul Repear") return true; end;
-                        end
-                    end
-                end
-
-                --death_and_decay,if=!death_and_decay.ticking&(talent.sanguine_ground|talent.unholy_ground)
-                if cast.able.deathAndDecay("playerGround") and not buff.deathAndDecay.exists() and (talent.sanguineGround or talent.unholyGround) and not unit.moving("player") then
-                    if cast.deathAndDecay("playerGround") then ui.debug("Death and Decay") return true; end;
-                end
-
-                --blood_boil,if=spell_targets.blood_boil>2&charges_fractional>=1.1
-                --TODO Fractional Charges
-                if cast.able.bloodBoil() and #enemies.yards10 > 2 then
-                    if cast.bloodBoil() then ui.debug("Blood Boil") return true; end;
-                end
-
-                --death_strike,if=runic_power.deficit<=variable.heart_strike_rp_drw|runic_power>=variable.death_strike_dump_amount
-                if cast.able.deathStrike("target") and (var.runicPowerDeficit <= var.heartStrikeRpDrw or runicPower >= var.deathStrikeDumpAmount) then
-                    if cast.deathStrike("target") then ui.debug("Q:death strike") return true; end;
-                end
-
-                if cast.able.consumption("target") then 
-                    if cast.consumption("target") then ui.debug("Consumption") return true; end;
-                end
-
-                --blood_boil,if=charges_fractional>=1.1&buff.hemostasis.stack<5
-                --TODO fractional charges
-                if cast.able.bloodBoil() and buff.hemostasis.stack() < 5 then
-                    if cast.bloodBoil() then ui.debug("R:Blood boil") return true; end;
-                end
-
-                --heart_strike,if=rune.time_to_2<gcd|runic_power.deficit>=variable.heart_strike_rp_drw
-                --ui.debug("Heart Strike Check: TT2:" .. runeTimeUntil(2) .. " GCD:" .. unit.gcd() .. " Power Def:" .. var.runicPowerDeficit .. "HeartStrikeRP:" .. var.heartStrikeRp)
-                if cast.able.heartStrike("target") and (runeTimeUntil(2) < unit.gcd() or var.runicPowerDeficit >= var.heartStrikeRpDrw) then
-                    if cast.heartStrike("target") then ui.debug("S:Heart Strike") return true; end;
-                end
+                if actionList.DRWActive() then return true end
             end
+  
+
+            --Add Death Strike to build RP 
+            if cast.able.heartStrike("target") and runes > 4 and var.runicPowerDeficit >= var.heartStrikeRp then
+                if cast.heartStrike("target") then debugMessage("Special Heart Strike") return true end
+            end
+
             --tombstone,if=buff.bone_shield.stack>5&rune>=2&runic_power.deficit>=30&!talent.shattering_bone|(talent.shattering_bone.enabled&death_and_decay.ticking)
             --&cooldown.dancing_rune_weapon.remains>=25
+        
             if cast.able.tombstone() and (
                 buff.boneShield.stack() > 5 and runes >= 2 and var.runicPowerDeficit >= 30 and 
                 (not talent.shatteringBone or (talent.shatteringBone and buff.deathAndDecay.exists())) and
                 cd.dancingRuneWeapon.remains() >= 25) then
-                    if cast.tombstone() then ui.debug("Tombstone") return true; end;
+                    if cast.tombstone() then debugMessage("Tombstone") return true; end;
             end
             
             --death_strike,if=buff.coagulopathy.remains<=gcd|buff.icy_talons.remains<=gcd|runic_power>=variable.death_strike_dump_amount|runic_power.deficit<=variable.heart_strike_rp|target.time_to_die<10
+          
             if cast.able.deathStrike("target") and (
                 buff.coagulopathy.remains() <= unit.gcd() or
                 buff.icyTalons.remains() <= unit.gcd() or
@@ -684,81 +756,94 @@ local function runRotation()
                 var.runicPowerDeficit <= var.heartStrikeRp or
                 unit.ttd("target") < 10
             ) then
-                if cast.deathStrike("target") then ui.debug("Death Strike") return true; end;
+                if cast.deathStrike("target") then debugMessage("Death Strike") return true; end;
             end
 
             --deaths_caress,if=(buff.bone_shield.remains<=4|(buff.bone_shield.stack<variable.bone_shield_refresh_value+1))&runic_power.deficit>10&
             --!(talent.insatiable_blade&cooldown.dancing_rune_weapon.remains<buff.bone_shield.remains)&
             --!talent.consumption.enabled&!talent.blooddrinker.enabled&rune.time_to_3>gcd
+           
             if cast.able.deathsCaress("target") and (
                 (buff.boneShield.remains() <= 4 or (buff.boneShield.stack() < var.boneShieldRefreshValue+1)) and 
                 var.runicPowerDeficit > 10 and
                 not (talent.insatiableBlade and cd.dancingRuneWeapon.remains() < buff.boneShield.remains()) and
                 not talent.cosumption and not talent.blooddrinker and runeTimeUntil(3) > unit.gcd()
                 ) then
-                    if cast.deathsCaress("target") then ui.debug("T:deaths Caress") return true; end;
+                    if cast.deathsCaress("target") then debugMessage("T:deaths Caress") return true; end;
             end
 
             --marrowrend,if=(buff.bone_shield.remains<=4|buff.bone_shield.stack<variable.bone_shield_refresh_value)&
             --runic_power.deficit>20&!(talent.insatiable_blade&cooldown.dancing_rune_weapon.remains<buff.bone_shield.remains)
+            
             if cast.able.marrowrend("target") and (
                 (buff.boneShield.remains() <= 4 or buff.boneShield.stack() < var.boneShieldRefreshValue) and
                 var.runicPowerDeficit >20 and 
                 not (talent.insatiableBlade and cd.dancingRuneWeapon.remains() < buff.boneShield.remains()) 
             ) then
-                if cast.marrowrend("target") then ui.debug("U: Marrowrend") return true; end;
+                if cast.marrowrend("target") then debugMessage("U: Marrowrend") return true; end;
             end
 
             --consumption
             if cast.able.consumption() then
-                if cast.consumption() then ui.debug("Consumption") return true; end;
+                if cast.consumption() then debugMessage("Consumption") return true; end;
             end
 
             --soul_reaper,if=active_enemies=1&target.time_to_pct_35<5&target.time_to_die>(dot.soul_reaper.remains+5)
             --soul_reaper,target_if=min:dot.soul_reaper.remains,if=target.time_to_pct_35<5&active_enemies>=2&target.time_to_die>(dot.soul_reaper.remains+5)
             -- Look for target to hit with soul reaper
+            
             for i=1,#enemies.yards5f do
                 local thisUnit = enemies.yards5f[i]
-                if br.getHP(thisUnit) <= 35 and unit.ttd(thisUnit) > (debuff.soulReaper.remains()+5) then
+                if unit.ttd(thisUnit,35) < 5 and unit.ttd(thisUnit) > (debuff.soulReaper.remains()+5) then
                     if cast.able.soulReaper(thisUnit) then
-                        if cast.soulReaper(thisUnit) then ui.debug("V: SoulReaper") return true; end;
+                        if cast.soulReaper(thisUnit) then debugMessage("V: SoulReaper") return true; end;
                     end
                 end
             end
 
             --bonestorm,if=runic_power>=100
+            
             if cast.able.bonestorm() and runicPower >= 100 then
-                if cast.bonestorm() then ui.debug("bonestorm") return true; end;
+                if cast.bonestorm() then debugMessage("bonestorm") return true; end;
             end
 
             --blood_boil,if=charges_fractional>=1.8&(buff.hemostasis.stack<=(5-spell_targets.blood_boil)|spell_targets.blood_boil>2)
+            
             if cast.able.bloodBoil() and (
-                charges.bloodBoil.count() > 1 and (buff.hemostasis.stack() <= (5-#enemies.yards10) or #enemies.yards10 > 2)
+                charges.bloodBoil.frac() > 1.8 and (buff.hemostasis.stack() <= (5-#enemies.yards10) or #enemies.yards10 > 2)
             ) then
-                if cast.bloodBoil() then ui.debug("W:Blood Boil") return true; end;
+                if cast.bloodBoil() then debugMessage("W:Blood Boil") return true; end;
             end
 
             --heart_strike,if=rune.time_to_4<gcd
+            
             if cast.able.heartStrike("target") and runeTimeUntil(4) < unit.gcd() then
-                if cast.heartStrike("target") then ui.debug("X: Heart Strike") return true; end;
+                if cast.heartStrike("target") then debugMessage("X: Heart Strike") return true; end;
             end
 
             --blood_boil,if=charges_fractional>=1.1
-            if cast.able.bloodBoil() and charges.bloodBoil.count() > 1 then
-                if cast.bloodBoil() then ui.debug("Y: Blood Boil") return true; end;
+            
+            if cast.able.bloodBoil() then
+                if cast.bloodBoil() then 
+                    var.doTiming = true;
+                    debugMessage("Y: Blood Boil") 
+                    return true; end;
             end
 
             --heart_strike,if=(rune>1&(rune.time_to_3<gcd|buff.bone_shield.stack>7))
+            
             if cast.able.heartStrike("target") and (
-                runes > 1 and (runeTimeUntil(3) < unit.gcd() or buff.boneShield.stack() > 7)
+                runes > 1 --and (runeTimeUntil(3) < unit.gcd() or buff.boneShield.stack() > 7)
             ) then
-                if cast.heartStrike("target") then ui.debug("Z: Heart Strike") return true; end;
+                if cast.heartStrike("target") then debugMessage("Z: Heart Strike") return true; end
             end
-
-            if cast.able.autoAttack("target") and unit.distance("target") <= 5 then
-                if cast.autoAttack("target") then ui.debug("EOR: Auto Attack") return true end
+            if cast.able.autoAttack("target") then
+                if cast.autoAttack("target") then debugMessage("8: Auto Attack") return true end
             end
-
+            checkTiming("EOR")
+            -- if var.lastCast -ui.time() >= 2 then
+            --         debugMessage(colors.red "No viable Action, Waiting")
+            -- end                
         end -- End In Combat Rotation
     end -- Pause
 end -- End runRotation

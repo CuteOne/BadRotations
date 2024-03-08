@@ -239,6 +239,7 @@ br.lists.spells = {
                 sanguineGround              = 391458,
                 shatteringBone              = 377640,
                 insatiableBlade             = 377637,
+                heartbreaker                =221536,
             },
         },
         -- Frost
