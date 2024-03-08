@@ -104,8 +104,6 @@ local function createOptions()
             br.player.module.PhialUp(section)
             br.player.module.ImbueUp(section)
             br.player.module.CombatPotionUp(section)
-            --useCombatPotWhenCDsActive = "Use CombatPotion When CDs Active",
-            --onlyUseCombatPotOnBoss = "Use CombatPotion only with Boss"
             br.ui:createCheckbox(section,text.options.useCombatPotWhenCDsActive)
             br.ui:createCheckbox(section,text.options.onlyUseCombatPotOnBoss)
             br.player.module.BasicHealing(section)
@@ -1005,7 +1003,8 @@ local function runRotation() -- This is the main profile loop, any below this po
          if unit.inCombat() and unit.valid("target") and not var.profileStop then
             
             if actionList.Interrupt() then return true end
-            if ((var.inParty or var.inRaid) and unit.isBoss("target") and ui.checked(text.options.onlyUseGargAODonBoss)) or not ui.checked(text.options.onlyUseGargAODonBoss) then
+            if ((var.inParty or var.inRaid) and unit.isBoss("target") and ui.checked(text.options.onlyUseGargAODonBoss)) or 
+                not ui.checked(text.options.onlyUseGargAODonBoss) or unit.isDummy("target") then
                 if actionList.HighPrioActions() then return true end
                 if not var.garg_setup_complete then
                     if actionList.GargSetup() then return true end

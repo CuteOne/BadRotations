@@ -3,7 +3,7 @@
 -- Patch = 10.2.5
 -- Coverage = 100%
 -- Status = Full
--- Readiness = Dungeon
+-- Readiness = BH
 -------------------------------------------------------
 local rotationName = "BrewBloodKnight-SimC" 
 
