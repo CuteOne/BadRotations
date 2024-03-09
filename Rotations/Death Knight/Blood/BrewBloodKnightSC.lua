@@ -32,6 +32,7 @@ local text = {
         useCombatPotWhenCDsActive = "Use CombatPotion When CDs Active",
         onlyUseCombatPotOnBoss = "Use CombatPotion only with Boss",
         AoeLoadAmount = "Number of Units to enter AOE Mode",
+        LichborneNoControl = "Cast lichborne on loss of control"
     },
     taunt ={
         onlyTauntInInstances        = colors.orange .. "Only Taunt in Raid/Dungeon",
@@ -79,6 +80,11 @@ local function createToggles()
         [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.mindFreeze }
     };
     br.ui:createToggle(InterruptModes,"Interrupt",5,0)
+    local DebugModes = {
+        [1] = { mode = "ON", value = 1 , overlay = "Debugs On", tip = "Debug Messages On", highlight = 1, icon =200733 },
+        [2] = { mode = "OFF", value = 0 , overlay = "Debugs Off", tip = "Debug Messages Off", highlight = 0, icon =200733 },
+    }
+    br.ui:createToggle(DebugModes,"Debugs",6,0)
 end
 
 local function createOptions()
@@ -113,6 +119,7 @@ local function createOptions()
         --- DEFENSIVE OPTIONS --- -- Define Defensive Options
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
+            br.ui:createCheckbox(section,text.options.LichborneNoControl)
         br.ui:checkSectionState(section)
 
         section = br.ui:createSection(br.ui.window.profile,"Potions,Phials,and Runes")
@@ -206,14 +213,16 @@ local function printStats(message)
 end
 
 local debugMessage = function(message)
-    printStats(message)
+    if ui.mode.Debug == 1 then printStats(message) end
     var.lastCast = ui.time()
 end
 
 local function checkTiming(message)
-    if (ui.time() - var.lastCast > 2 and #enemies.yards5f >= 1) or var.DoTiming ~= nil then
-        printStats("TIMING:" .. message)
-    end
+    if ui.mode.Debug == 1 then
+        if (ui.time() - var.lastCast > 2 and #enemies.yards5f >= 1) or var.DoTiming ~= nil then
+            printStats("TIMING:" .. message)
+        end
+    end        
 end
 
 local function runeTimeUntil(rCount)
@@ -377,6 +386,9 @@ actionList.Interrupt = function()
             end
         end
     end
+    if ui.checked(text.options.LichborneNoControl) and br.isIncapacitated(br.player.spell.lichborne)  and cast.able.lichborne() then
+        if cast.lichborne() then debugMessage("Lichborne to regain control") return true end
+    end
 end 
 
 actionList.Cooldown = function()
@@ -405,7 +417,9 @@ actionList.Cooldown = function()
             if ui.checked(text.cooldowns.useCombatPotion) and 
                 ( (ui.checked(text.options.onlyUseCombatPotOnBoss) and unit.isBoss("target")) or not ui.checked(text.options.onlyUseCombatPotOnBoss)) then
                 if buff.dancingRuneWeapon.exists() and var.hasGhoul and unit.ttdGroup(10) > 30 then
-                    if module.CombatPotionUp() then debugMessage(colors.purple .. "CD: Using Combat Potion") return true; end
+                    if(ui.checked(text.options.onlyUseConsumablesInRaid) and (var.inInstance or var.inRaid)) or not ui.checked(text.options.onlyUseConsumablesInRaid) then
+                        if module.CombatPotionUp() then debugMessage(colors.purple .. "CD: Using Combat Potion") return true; end    
+                    end
                 end
             end
 
@@ -545,6 +559,7 @@ local function runRotation()
     ui.mode.AutoPull        = br.data.settings[br.selectedSpec].toggles["Autopull"]
     ui.mode.CoolDowns       = br.data.settings[br.selectedSpec].toggles["Cooldown"]
     ui.mode.Rotation        = br.data.settings[br.selectedSpec].toggles["Rotation"]
+    ui.mode.Debug           = br.data.settings[br.selectedSpec].toggles["Debugs"]
 
     units.get(5) 
     units.get(40) -- Makes a variable called, units.dyn40
