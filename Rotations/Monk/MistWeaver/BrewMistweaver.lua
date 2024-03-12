@@ -104,6 +104,7 @@ local text = {
     },
     consumables = {
         consumeOnlyInDungeon    = colors.green.."Use Consumables only in Dungeon/Raid",
+        onlyUseCombatPotOnBoss = colors.green.."Only use combat Potions on Boss",
     }
 }
 local text2 = {
@@ -443,6 +444,9 @@ local function createOptions()
             br.ui:createCheckbox(section, text.consumables.consumeOnlyInDungeon)
             br.player.module.ImbueUp(section)
             br.player.module.PhialUp(section)
+            br.player.module.CombatPotionUp(section)
+            br.ui:createCheckbox(section,text.consumables.onlyUseCombatPotOnBoss)
+            br.player.module.BasicHealing(section)
         br.ui:checkSectionState(section)
     end
     optionTable = {

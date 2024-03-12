@@ -2504,6 +2504,7 @@ br.lists.spells = {
                 bonedustBrew                = 325216,
                 teachingsOfTheMonastery     = 202090,
                 jadefireStomp               = 388193,
+                
 
             },
             debuffs                         = {
@@ -2531,6 +2532,10 @@ br.lists.spells = {
                 skyreach                    = 392991,
                 skytouch                    = 405044,
                 detox                       = 218164,
+                jadeFireHarmony             = 391412,
+                bonedustBrew                = 386276,
+                stormEarthAndFire           = 137639,
+            
             },
             traits                          = {
                 gloryOfTheDawn              = 288634,
@@ -2571,6 +2576,9 @@ br.lists.spells = {
                 prideful                    = 340880,
 				vivaciousVivification		= 392883,
                 powerStrikes                = 129914,       --bonus chi proc buff
+                hitCombo                    = 196741,
+                kicksOfFlowingMomentum      = 394944,
+                blackoutReinforcement       = 424454,
             },
             conduits                        = {
                 calculatedStrikes           = 336526,
@@ -4833,6 +4841,7 @@ br.lists.spells = {
                 phialOfGlacialFury              = 373257,
                 phialOfTepidVersatility         = 371172,
                 icedPhialOfCorruptingRage       = 374000,
+                domineeringArrogance            = 411661,
 
             },
             --TODO Add to API

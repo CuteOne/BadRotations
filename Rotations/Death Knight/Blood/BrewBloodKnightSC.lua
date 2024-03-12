@@ -234,9 +234,8 @@ local function runeTimeUntil(rCount)
         end
         return maxTime
 end
-local function boolNumeric(value)
-    return value and 1 or 0
-end
+
+
 --------------------
 --- Action Lists --- -- All Action List functions from SimC (or other rotation logic) here, some common ones provided
 --------------------
