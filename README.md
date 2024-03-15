@@ -88,7 +88,7 @@ Raidable means if its good to raid with.
 
 |  rotation  |   author   |patch |coverage|status |  readiness  |last updated|
 |------------|------------|:----:|:------:|:-----:|:-----------:|-----------:|
-|BrewUnholyDK|BrewingCoder|10.2.5|  90%   |Limited|:interrobang:|  03/08/2024|
+|BrewUnholyDK|BrewingCoder|10.2.5|  90%   |Limited|:interrobang:|  03/15/2024|
 
 
 ### Demon Hunter
@@ -130,7 +130,7 @@ Raidable means if its good to raid with.
 
 |   rotation   |   author   |patch |coverage|        status        |  readiness  |last updated|
 |--------------|------------|:----:|:------:|:--------------------:|:-----------:|-----------:|
-|BrewBrewMaster|BrewingCoder|10.2.5|  90%   |Limited,Hardcoded Vals|:interrobang:|  02/26/2024|
+|BrewBrewMaster|BrewingCoder|10.2.5|  90%   |Limited,Hardcoded Vals|:interrobang:|  03/15/2024|
 
 - MistWeaver
 
