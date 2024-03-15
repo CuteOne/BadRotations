@@ -485,7 +485,7 @@ actionList.GargSetup = function()
                 if cast.defile("target") then ui.debug("GARGSETUP.08: Defile") return true; end;
             end
         else
-            if cast.able.deathAndDecay("target") and unit.distance("target") <= 10 and not unit.moving("target") (
+            if cast.able.deathAndDecay("target") and unit.distance("target") <= 10 and not unit.moving() (
             not buff.deathAndDecay.exists("player") and debuff.festeringWound.stack("target") > 0
             ) then
                 if cast.deathAndDecay("target") then ui.debug("GARGSETUP.09: Death and Decay") return true; end;
@@ -517,7 +517,7 @@ actionList.St = function()
     end
 
     --any_dnd,if=!death_and_decay.ticking&(active_enemies>=2|talent.unholy_ground&(pet.apoc_ghoul.active&pet.apoc_ghoul.remains>=13|pet.gargoyle.active&pet.gargoyle.remains>8|pet.army_ghoul.active&pet.army_ghoul.remains>8|!variable.pop_wounds&debuff.festering_wound.stack>=4)|talent.defile&(pet.gargoyle.active|pet.apoc_ghoul.active|pet.army_ghoul.active|buff.dark_transformation.up))&(death_knight.fwounded_targets=active_enemies|active_enemies=1)
-    if cast.able.deathAndDecay("target") and not unit.moving("target") and (
+    if cast.able.deathAndDecay("target") and not unit.moving() and (
         true--not buff.deathAndDecay.exists() and (#enemies.yards5 >= 2 or talent.unholyGround and (var.hasGargoyle or var.GargoyleTTL > 8 or cast.last.armyOfTheDead(30) or not var.pop_wounds==1 and debuff.festeringWound.stack("target")>=4) or talent.defile and (var.hasGargoyle or cast.last.armyOfTheDead(30) or buff.darkTransformation.exist()))
     ) then
         if cast.deathAndDecay("target") then ui.debug("ST.03: Death and Decay") return true; end;
@@ -711,7 +711,7 @@ end
 actionList.AOESetup = function()
     --actions.aoe_setup=any_dnd,if=(!talent.bursting_sores|death_knight.fwounded_targets=active_enemies|death_knight.fwounded_targets>=8|raid_event.adds.exists&raid_event.adds.remains<=11&raid_event.adds.remains>5)
     --basically going to cast DnD regardless, just check and see if we are standing in it or not
-    if not buff.deathAndDecay.exists() and cast.able.deathAndDecay("playerGround") then
+    if not buff.deathAndDecay.exists() and cast.able.deathAndDecay("playerGround") and not unit.moving("player") then
         if cast.deathAndDecay("playerGround") then ui.debug("AOESetup: DnD") return true; end
     end
     --actions.aoe_setup+=/festering_strike,target_if=min:debuff.festering_wound.stack,if=death_knight.fwounded_targets<active_enemies&talent.bursting_sores
