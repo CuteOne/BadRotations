@@ -441,7 +441,19 @@ actionList.PreCombat = function()
         if ui.checked("Pre-Pull Timer") and ui.pullTimer() <= ui.value("Pre-Pull Timer") then
             -- Logic based on pull timers (IE: DBM/BigWigs)
         end -- End Pre-Pull
+        if unit.valid("target") then
+            if unit.distance("target") > 5 and cast.able.deathGrip("target") and ui.mode.AutoPull == 1 and br.getLineOfSight("target","player") then
+                if cast.deathGrip("target") then debugMessage("PreCombat: Pull Death Grip") return true end;
+            end
+            if unit.distance("target") <= 5 and cast.able.runeStrike("target") then
+                if cast.runeStrike("target") then debugMessage("PreCombat: Rune Strike") return true; end
+            end
+            if unit.distance("target") <= 5 and cast.able.autoAttack("target") then
+                if cast.autoAttack("target") then debugMessage("PreCombat: autoAttack") return true; end
+            end
+        end            
     end -- End No Combat
+    
 end -- End Action List - PreCombat
 
 actionList.DRWActive = function()
@@ -851,10 +863,13 @@ local function runRotation()
             ) then
                 if cast.heartStrike("target") then debugMessage("Z: Heart Strike") return true; end
             end
+            if cast.able.runeStrike("target") then
+                if cast.runeStrike("target") then debugMessage("EOR: Rune Strike") return true; end
+            end
             if cast.able.autoAttack("target") then
                 if cast.autoAttack("target") then debugMessage("8: Auto Attack") return true end
             end
-            checkTiming("EOR")
+            --checkTiming("EOR")
             -- if var.lastCast -ui.time() >= 2 then
             --         debugMessage(colors.red "No viable Action, Waiting")
             -- end                
