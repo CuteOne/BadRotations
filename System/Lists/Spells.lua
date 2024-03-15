@@ -2477,7 +2477,6 @@ br.lists.spells = {
                 grappleWeapon               = 233759,
                 fallenOrder                 = 326860,
                 flashcraft                  = 324631,
-                jadefireStomp               = 388193,
                 summonWhiteTigerStatue      = 388686,
             },
             artifacts                       = {
@@ -2503,9 +2502,6 @@ br.lists.spells = {
                 fallenOrder                 = 326860,
                 bonedustBrew                = 325216,
                 teachingsOfTheMonastery     = 202090,
-                jadefireStomp               = 388193,
-                
-
             },
             debuffs                         = {
                 disable                     = 116095,
@@ -2514,6 +2510,7 @@ br.lists.spells = {
                 mortalWounds                = 115804,
                 risingFist                  = 242259,
                 skyreachExhaustion          = 337341,
+                jadefireBrand               = 395414,
             },
             glyphs                          = {
                 glyphOfRisingTigerKick      = 125151,
@@ -2532,9 +2529,10 @@ br.lists.spells = {
                 skyreach                    = 392991,
                 skytouch                    = 405044,
                 detox                       = 218164,
-                jadeFireHarmony             = 391412,
+                jadefireHarmony             = 391412,
                 bonedustBrew                = 386276,
                 stormEarthAndFire           = 137639,
+                jadefireStomp               = 388193,
             
             },
             traits                          = {
@@ -2606,7 +2604,6 @@ br.lists.spells = {
                 chiWave                     = 115098,
                 closeToHeart                = 389574,
                 dampenHarm                  = 122278,
-              
                 disable                     = 116095,
                 elusiveMists                = 388681,
                 escapeFromReality           = 394110,
