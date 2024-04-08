@@ -120,6 +120,12 @@ Raidable means if its good to raid with.
 
 ### Hunter
 
+- BeastMastery
+
+|   rotation    |   author   |patch |coverage|status |  readiness  |last updated|
+|---------------|------------|:----:|:------:|:-----:|:-----------:|-----------:|
+|BrewBeastMaster|BrewingCoder|10.2.6|  75%   |Limited|:interrobang:|  04/08/2024|
+
 
 ### Mage
 
