@@ -165,6 +165,12 @@ Raidable means if its good to raid with.
 
 ### Warlock
 
+- Destruction
+
+| rotation |   author   | patch |coverage|status |  readiness  |last updated|
+|----------|------------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|BrewDestro|BrewingCoder|Unknown|Unknown |Unknown|:interrobang:|  04/23/2024|
+
 
 ### Warrior
 
