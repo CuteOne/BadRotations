@@ -1,5 +1,12 @@
-local rotationName = "BrewDestro"
-local LastMessageTime = 0
+-------------------------------------------------------
+-- Author = BrewingCoder
+-- Patch = 10.2.6
+-- Coverage = 50%
+-- Status = Development
+-- Readiness = Development
+-------------------------------------------------------
+local rotationName = "BrewDemon"
+
 local colors = {
     blue    = "|cff4285F4",
     red     = "|cffDB4437",
@@ -31,10 +38,29 @@ local function createToggles()
     local PetSummonModes = {
         [1] = { mode = "1", value = 1 , overlay = "Imp", tip = "Summon Imp", highlight = 1, icon = br.player.spell.summonImp },
         [2] = { mode = "2", value = 2 ,overlay = "Voidwalker", tip = "Summon Voidwalker", highlight = 1, icon = br.player.spell.summonVoidwalker },
-        [3] = { mode = "None", value = 3 , overlay = "No pet", tip = "Dont Summon any Pet", highlight = 0, icon = br.player.spell.fear }
-    };
+        [3] = { mode = "3", value = 3 , overlay = "Felhunter", tip = "Summon Felhunter", highlight = 1, icon = br.player.spell.summonFelhunter },
+        [4] = { mode = "4", value = 4 , overlay = "Sayaad", tip = "Summon Sayaad", highlight = 1, icon = br.player.spell.summonSuccubus },
+        [5] = { mode = "5", value = 5 , overlay = "Felguard", tip = "Summon Felguard", highlight = 1, icon = br.player.spell.summonFelguard},
+        [6] = { mode = "6", value = 6 , overlay = "None", tip = "Do Not Summon", highlight = 0, icon = br.player.spell.fear}
+    }
     br.ui:createToggle(PetSummonModes,"PetSummon",3,0)
 end
+
+local function PetId()
+    if br._G.UnitExists("pet") then
+        return tonumber(br._G.UnitGUID("pet"):match("-(%d+)-%x+$",10))
+    else
+        return nil
+    end
+end
+
+local pets = {
+    imp = 416,
+    voidwalker = 1860,
+    felhunter = 417,
+    succubus = 1863,
+    felguard = 17252    
+}
 
 
 local function createOptions()
@@ -85,7 +111,6 @@ local function createOptions()
     return optionTable
 end
 
-
 local cast
 local cd
 local debuff
@@ -104,38 +129,14 @@ local equiped
 local enemies
 local talent
 local actionList = {}
+local activePet
 
 local function round(number, digit_position) 
     local precision = math.pow(10, digit_position)
     number = number + (precision / 2); -- this causes value #.5 and up to round up
     return math.floor(number / precision) * precision
-  end
-  local function printStats(message)  
-    local drwString
-    local empowerString
-    local ghoulString
-    local RuneString
-    local RPString
-    local RPDString
+end
 
-     drwString = colors.white .. "[" .. (buff.dancingRuneWeapon.exists() and colors.green or colors.red) .."DRW" ..colors.white .. "]"
-     empowerString =colors.white .. "[" .. (buff.empowerRuneWeapon.exists() and colors.green or colors.red) .. "ERW" ..colors.white .. "]"
-     ghoulString =""
-    if var.hasGhoul then
-        ghoulString =colors.white .. "[" .. colors.green .. "Ghoul:" ..math.floor(var.ghoulTTL) .. colors.white .. "]" .. colors.white
-    else
-        ghoulString =colors.white .. "[" .. colors.red .. "Ghoul" .. colors.white .. "]" .. colors.white
-    end
-     RuneString = colors.white .. "[R:" .. runes .. "]".. colors.white
-     RPString = colors.white .. "[RP:" .. runicPower .. "]".. colors.white
-     RPDString = colors.white .. "[RPD:" .. var.runicPowerDeficit .. "]".. colors.white
-     local lastTime = ui.time() - var.lastCast 
-    print(colors.red.. date("%T") ..colors.aqua .."[+" .. round(lastTime,-2) .. "]" ..colors.white .. drwString .. empowerString .. ghoulString ..colors.white.. RuneString ..RPString..RPDString..colors.white .. " : ".. message)
-end
-local debugMessage = function(message)
-    if ui.mode.Debug == 1 then printStats(message) end
-    var.lastCast = ui.time()
-end
 local function boolNumeric(value)
     if value then return 1 end
     return 0
@@ -163,86 +164,7 @@ actionList.Defensive = function()
         if cast.unendingResolve() then ui.debug("Casting Unending Resolve") return true end
     end
 
-end -- End Action List - Defensive
-
-actionList.Variable = function()
-    --variable,name=tyrant_timings,op=set,value=120+time,if=((buff.nether_portal.up&buff.nether_portal.remains<3&talent.nether_portal)
-    --|fight_remains<20|pet.demonic_tyrant.active&fight_remains<100|fight_remains<25|    
-    --(pet.demonic_tyrant.active|!talent.summon_demonic_tyrant&buff.dreadstalkers.up))&variable.tyrant_sync<=0
-    if (
-        (buff.netherPortal.exists() and buff.netherPortal.remain() < 3 and talent.netherPortal) or 
-        unit.ttdGroup(40)<20 or var.demonicTyrant or unit.ttdGroup(40)<100 or unit.ttdGroup(40)<25 or
-        (var.demonicTyrant or not talent.summonDemonicTyrant and buff.dreadstalkers.exists())) and var.tyrant_sync <= 0 then
-            var.tyrant_timings = 120 + unit.combatTime()
-    end
-
-    --actions.variables+=/variable,name=tyrant_sync,value=(variable.tyrant_timings-time)
-    var.tyrant_sync = var.tyrant_timings - unit.combatTime()
-
-    --actions.variables+=/variable,name=tyrant_cd,op=setif,value=variable.tyrant_sync,
-    --value_else=cooldown.summon_demonic_tyrant.remains,
-    --condition=((((fight_remains+time)%%120<=85&(fight_remains+time)%%120>=25)|time>=210))&variable.tyrant_sync>0&!talent.grand_warlocks_design
-    if (
-        ((unit.ttdGroup(40) + unit.combatTime()) % 120 <= 85 and (unit.ttdGroup(40) + unit.combatTime()) % 120 >= 25 or unit.combatTime() >= 210) and 
-        var.tyrant_sync > 0 and not talent.grandWarlocksDesign
-    ) then
-        var.tyrant_cd = var.tyrant_sync
-    else
-        var.tyrant_cd = cd.summonDemonicTyrant.remains()
-    end
-
-    --actions.variables+=/variable,name=pet_expire,op=set,
-    --value=(buff.dreadstalkers.remains>?buff.vilefiend.remains)-gcd*0.5,
-    --if=buff.vilefiend.up&buff.dreadstalkers.up
-    if buff.vilefiend.exists() and buff.dreadstalkers.exists() then
-        var.pet_expire = (buff.dreadstalkers.remains() > buff.vilefiend.remain()) - unit.gcd()*0.5
-    end
-
-    --actions.variables+=/variable,name=pet_expire,op=set,
-    --value=(buff.dreadstalkers.remains>?buff.grimoire_felguard.remains)-gcd*0.5,
-    --if=!talent.summon_vilefiend&talent.grimoire_felguard&buff.dreadstalkers.up
-    if not talent.summonVilefiend and talent.grimoireFelguard and buff.dreadstalkers.exists() then
-        var.pet_expire = (buff.dreadstalkers.remains() > buff.grimoireFelguard.remain()) - unit.gcd()*0.5
-    end
-
-    --actions.variables+=/variable,name=pet_expire,op=set,
-    --value=(buff.dreadstalkers.remains)-gcd*0.5,
-    --if=!talent.summon_vilefiend&(!talent.grimoire_felguard|!set_bonus.tier30_2pc)&buff.dreadstalkers.up
-    if not talent.summonVilefiend and (not talent.grimoireFelguard or not equiped.tier(30,2)) and buff.dreadstalkers.exists() then
-        var.pet_expire = buff.dreadstalkers.remains() - unit.gcd()*0.5
-    end
-
-    --actions.variables+=/variable,name=pet_expire,op=set,value=0,if=!buff.vilefiend.up&talent.summon_vilefiend|!buff.dreadstalkers.up
-    if not buff.vilefiend.exists() and talent.summonVilefiend or not buff.dreadstalkers.exists() then
-        var.pet_expire = 0
-    end
-
-    --actions.variables+=/variable,name=np,op=set,value=(!talent.nether_portal|cooldown.nether_portal.remains>30|buff.nether_portal.up)
-    var.np = (not talent.netherPortal or cd.netherPortal.remains() > 30 or buff.netherPortal.exists())
-
-    --actions.variables+=/variable,name=impl,op=set,value=buff.tyrant.down,if=active_enemies>1+(talent.sacrificed_souls.enabled)
-    if #enemies.yards40 > 1 + boolNumeric(talent.sacrificedSouls) then
-        var.impl = not buff.tyrant.exists()
-    end
-
-    --actions.variables+=/variable,name=impl,op=set,value=buff.tyrant.remains<6,
-    --if=active_enemies>2+(talent.sacrificed_souls.enabled)&active_enemies<5+(talent.sacrificed_souls.enabled)
-    if #enemies.yards40 > 2 + boolNumeric(talent.sacrificedSouls) and #enemies.yards40 < 5 + boolNumeric(talent.sacrificedSouls) then
-        var.impl = buff.tyrant.remain() < 6
-    end
-
-    --actions.variables+=/variable,name=impl,op=set,value=buff.tyrant.remains<8,if=active_enemies>4+(talent.sacrificed_souls.enabled)
-    if #enemies.yards40 > 4 + boolNumeric(talent.sacrificedSouls) then
-        var.impl = buff.tyrant.remain() < 8
-    end
-
-    --actions.variables+=/variable,name=pool_cores_for_tyrant,op=set,
-    --value=cooldown.summon_demonic_tyrant.remains<20&variable.tyrant_cd<20&(buff.demonic_core.stack<=2|!buff.demonic_core.up)
-    --&cooldown.summon_vilefiend.remains<gcd.max*5&cooldown.call_dreadstalkers.remains<gcd.max*5
-    var.pool_cores_for_tyrant = cd.summonDemonicTyrant.remains() < 20 and var.tyrant_cd < 20 and (buff.demonicCore.stack() <= 2 or not buff.demonicCore.exists()) 
-    and cd.summonVilefiend.remains() < unit.gcd(true)*5 and cd.callDreadstalkers.remains() < unit.gcd(true)*5
-
-end
+end 
 
 actionList.Extra = function()
     if cast.able.createHealthstone() and not has.healthstone() and not ui.fullBags() then
@@ -256,29 +178,32 @@ actionList.Interrupt = function()
     -- end
 end
 
-
-
-
-
 actionList.PreCombat = function()
-    if not unit.moving() and unit.level() >= 3 and GetTime() - br.pauseTime > 0.5
-        and br.timer:useTimer("summonPet", 1)
-    then
-        if (mode.petSummon == 1 or (mode.petSummon == 2 and not spell.known.summonVoidwalker())) and not UnitExists("pet") then
+    if not unit.moving() and unit.level() >= 3 
+        and br._G.GetTime() - br.pauseTime > 0.5 
+        and br.timer:useTimer("summonPet", 1) then
+        if mode.petSummon == 1 and activePet ~= pets.imp and cast.able.summonImp() and not cast.last.summonImp() then
             if cast.summonImp("player") then return true end
         end
-        if mode.petSummon == 2 and spell.known.summonVoidwalker() and not UnitExists("pet") then
+        if mode.petSummon == 2 and activePet ~= pets.voidwalker and cast.able.summonVoidwalker() and not cast.last.summonVoidwalker(1) then
             if cast.summonVoidwalker("player") then return true end
         end
-        if mode.petSummon == 3 and (UnitExists("pet")) then
-            PetDismiss()
+        if mode.petSummon == 3 and activePet ~= pets.felhunter and cast.able.summonFelhunter() and not cast.last.summonFelguard(1) then
+            if cast.summonFelhunter("player") then return true end
+        end
+        if mode.petSummon == 4 and activePet ~= pets.succubus and cast.able.summonSuccubus() and not cast.last.summonSuccubus(1) then
+            if cast.summonSuccubus("player") then return true end
+        end
+        if mode.petSummon == 5 and activePet ~= pets.felguard and cast.able.summonFelguard() and not cast.last.summonFelguard(1) then
+            if cast.summonFelguard("player") then return true end
         end
     end
+    
     -- if unit.inCombat() and unit.valid("target") and not var.profileStop then 
     if not unit.inCombat() and  unit.valid("target") and unit.distance("target") <= 40 then
         br._G.PetAttack()
     end
-end -- End Action List - PreCombat
+end
 
 actionList.CoolDown = function()
     if  cast.able.callDreadstalkers() then
@@ -310,14 +235,15 @@ local function runRotation()
     enemies                                       = br.player.enemies
     var.inRaid                                    = br.player.instance=="raid"
     var.inInstance                                = br.player.instance=="party"
+    activePet                                     = PetId()
 
     var.demonicTyrant = false
     var.demonicTyrantRemains = 0
 
     -- Units
     units.get(5) 
-    units.get(40) -- Makes a variable called, units.dyn40
-    enemies.get(5) -- Makes a varaible called, enemies.yards5
+    units.get(40) 
+    enemies.get(5) 
     enemies.get(8)
     enemies.get(10)
     enemies.get(15)
@@ -325,15 +251,15 @@ local function runRotation()
     enemies.get(25)
     enemies.get(30)
     enemies.get(35)
-    enemies.get(40) -- Makes a varaible called, enemies.yards40
-    enemies.get(5,"player",false,true) -- makes enemies.yards5f
+    enemies.get(40) 
+    enemies.get(5,"player",false,true) 
     enemies.get(10,"player",false, true)
     enemies.get(20,"player",false,true)
     enemies.get(30,"player",false,true)
     enemies.get(40,"player",false,true)
 
     -- Pause Timer
-    if br.pauseTime == nil then br.pauseTime = GetTime() end
+    if br.pauseTime == nil then br.pauseTime = br._G.GetTime() end
 
     if not unit.inCombat() and not unit.exists("target") and var.profileStop then 
         var.profileStop = false
@@ -346,20 +272,6 @@ local function runRotation()
         if unit.inCombat() and unit.valid("target") and not var.profileStop then
             if actionList.Interrupt() then return true end
             if actionList.CoolDown() then return true end
-            
-
-
-
-                
-                -- if cast.able.corruption() and not debuff.corruption.exists("target") and not cast.last.corruption() then
-                --     if cast.corruption("target") then ui.debug("Corruption") return true end
-                -- end
-                -- if cast.able.curseOfWeakness() and not debuff.curseOfWeakness.exists("target") and not cast.last.curseOfWeakness() then
-                --     if cast.curseOfWeakness() then ui.debug("Casting Curse of Weakness") return true end
-                -- end
-                if power<5 and cast.able.soulStrike("target") then
-                    if cast.soulStrike("target") then ui.debug("Casting Soul Strike") return true end
-                end
                 if cast.able.demonbolt() and buff.demonicCore.exists() then
                     if cast.demonbolt("target") then ui.debug("Casting Demonbolt") return true end
                 end
