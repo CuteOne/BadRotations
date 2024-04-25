@@ -1,3 +1,4 @@
+---@diagnostic disable: inject-field
 ---
 -- These functions helpful functions for commonly used features in all profiles.
 -- Module functions are stored in br.player.module and can be utilized by `local module = br.player.module` in your profile.
@@ -50,7 +51,7 @@ br.api.module = function(self)
         end
     end
 
-    
+
 
     --- Basic Healing Module - Uses healthstones, potions, and racial healing abilities.
     -- @function module.BasicHealing
@@ -66,9 +67,9 @@ br.api.module = function(self)
                         local itemID = C_Container.GetContainerItemID(i,x)
                         local spellName, spellID = GetItemSpell(itemID)
                         local itemCount = br._G.GetItemCount(itemID)
-    
+
                         if spellName ~= nil then
-                            local itemName, _, _, itemLevel, itemMinLevel, itemType, itemSubType,_, _, _, _, _, _, _,_, _, _ = GetItemInfo(itemID)
+                            local itemName, _, _, itemLevel, itemMinLevel, itemType, itemSubType,_, _, _, _, _, _, _,_, _, _ = C_Item.GetItemInfo(itemID)
                             if itemType == "Consumable" and itemSubType == "Potions" then
                                 if string.find(itemName,"Heal",0,true) then
                                     table.insert(Consumables,#Consumables+1,{
@@ -240,8 +241,8 @@ br.api.module = function(self)
                     cancelBuffs()
                     if use.bestItem(br.lists.items.phialOfGlacialFuryQualities) then ui.debug("Using Best Phial: Phial of Glacial Fury") return true; end
             end
-            if opValue == 3 then 
-                if not buff.phialOfTepidVersatility.exists() then 
+            if opValue == 3 then
+                if not buff.phialOfTepidVersatility.exists() then
                     if use.isOneOfUsable(br.lists.items.phialOfTepidVersatilityQualities) then
                         cancelBuffs()
                         if use.bestItem(br.lists.items.phialOfTepidVersatilityQualities) then ui.debug("Using Best Phial: Phial of Tepid Versatility") return true; end;
