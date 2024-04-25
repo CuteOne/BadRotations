@@ -15,40 +15,51 @@
 #         with:
 #             path-to-files: '**/*.lua'
 
-name: Lint
+# name: Lint
 
-on: [push, pull_request, workflow_dispatch]
+# on: [push, pull_request, workflow_dispatch]
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+# concurrency:
+#   group: ${{ github.workflow }}-${{ github.ref }}
+#   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
+# jobs:
+#   lua-check:
+#     name: Lua Check
+#     runs-on: ubuntu-latest
+#     permissions:
+#       contents: read
+#       issues: read
+#       checks: write
+#       pull-requests: write
+#     if: (github.actor != 'dependabot[bot]')
+
+#     steps:
+#     - name: Checkout source code
+#       uses: actions/checkout@v4
+
+#     # Optional step to run on only changed files
+#     - name: Get changed files
+#       id: changed-files
+#       uses: tj-actions/changed-files@v44
+#       with:
+#         files: |
+#           **.lua
+
+#     - name: Lua Check
+#       if: steps.changed-files.outputs.any_changed == 'true'
+#       uses: Kong/public-shared-actions/code-check-actions/lua-lint@main
+#       with:
+#         additional_args: '--no-default-config --config ../../.luacheckrc'
+#         files: ${{ steps.changed-files.outputs.all_changed_files }}
+
+name: Luacheck
+on: [push, pull_request]
 jobs:
-  lua-check:
-    name: Lua Check
+  sile:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      issues: read
-      checks: write
-      pull-requests: write
-    if: (github.actor != 'dependabot[bot]')
-
     steps:
-    - name: Checkout source code
-      uses: actions/checkout@v4
-
-    # Optional step to run on only changed files
-    - name: Get changed files
-      id: changed-files
-      uses: tj-actions/changed-files@v44
-      with:
-        files: |
-          **.lua
-
-    - name: Lua Check
-      if: steps.changed-files.outputs.any_changed == 'true'
-      uses: Kong/public-shared-actions/code-check-actions/lua-lint@main
-      with:
-        additional_args: '--no-default-config --config ../../.luacheckrc'
-        files: ${{ steps.changed-files.outputs.all_changed_files }}
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Luacheck linter
+        uses: lunarmodules/luacheck@v1
