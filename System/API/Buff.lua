@@ -42,7 +42,7 @@ br.api.buffs = function(buff,v)
     -- @function buff.spell.exists
     -- @string[opt="player"] thisUnit The unit to check.
     -- @string[opt="player"] sourceUnit The source of the buff.
-    -- @treturn bool
+    -- @treturn boolean
     buff.exists = function(thisUnit,sourceUnit)
         if thisUnit == nil then thisUnit = 'player' end
         if sourceUnit == nil then sourceUnit = 'player' end
@@ -53,7 +53,7 @@ br.api.buffs = function(buff,v)
     -- @function buff.spell.down
     -- @string[opt="player"] thisUnit The unit to check.
     -- @string[opt="player"] sourceUnit The source of the buff.
-    -- @treturn bool
+    -- @treturn boolean
     buff.down = function(thisUnit,sourceUnit)
         return not buff.exists(thisUnit,sourceUnit)
     end
@@ -62,7 +62,7 @@ br.api.buffs = function(buff,v)
     -- @function buff.spell.react
     -- @string[opt="player"] thisUnit The unit to check.
     -- @string[opt="player"] sourceUnit The source of the buff.
-    -- @treturn bool
+    -- @treturn boolean
     buff.react = function(thisUnit, sourceUnit)
         thisUnit = thisUnit or "player"
         sourceUnit = sourceUnit or "player"
@@ -95,7 +95,7 @@ br.api.buffs = function(buff,v)
     -- @function buff.spell.refresh
     -- @string[opt="player"] thisUnit The unit to check.
     -- @string[opt="player"] sourceUnit The source of the buff.
-    -- @treturn bool
+    -- @treturn boolean
     buff.refresh = function(thisUnit,sourceUnit)
         return buff.remain(thisUnit,sourceUnit) <= buff.duration(thisUnit,sourceUnit) * 0.3
     end
@@ -111,6 +111,11 @@ br.api.buffs = function(buff,v)
         return br.getBuffStacks(thisUnit,v,sourceUnit)
     end
 
+    --- Get the maximum stack count of a buff.
+    -- @function buff.spell.stackMax
+    -- @string[opt="player"] thisUnit The unit to check.
+    -- @string[opt="player"] sourceUnit The source of the buff.
+    -- @treturn number
     buff.stackMax = function(thisUnit,sourceUnit)
         if thisUnit == nil then thisUnit = 'player' end
         if sourceUnit == nil then sourceUnit = 'player' end
