@@ -167,9 +167,9 @@ Raidable means if its good to raid with.
 
 - Demonology
 
-| rotation |   author   | patch |coverage|status |  readiness  |last updated|
-|----------|------------|:-----:|:------:|:-----:|:-----------:|-----------:|
-|BrewDestro|BrewingCoder|Unknown|Unknown |Unknown|:interrobang:|  04/23/2024|
+|rotation |   author   |patch |coverage|  status   |  readiness  |last updated|
+|---------|------------|:----:|:------:|:---------:|:-----------:|-----------:|
+|BrewDemon|BrewingCoder|10.2.6|  50%   |Development|:interrobang:|  04/25/2024|
 
 - Destruction
 
