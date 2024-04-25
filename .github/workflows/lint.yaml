@@ -1,19 +1,19 @@
-# name: Lint
-# on: [push, pull_request]
+name: Lint
+on: [push, pull_request]
 
-# jobs:
-#   lint:
-#     name: Lint
-#     runs-on: ubuntu-latest
-#     steps:
-#       - name: checkout
-#         uses: actions/checkout@v4
-#         with:
-#           repository: 'ps-wow/action-test-repo'
-#       - name: wow-lint
-#         uses: davidcraig/action-wow-lint@v1.0.1
-#         with:
-#             path-to-files: '**/*.lua'
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+        with:
+          repository: 'CuteOne/BadRotations'
+      - name: wow-lint
+        uses: davidcraig/action-wow-lint@v1.0.1
+        with:
+            path-to-files: '**/*.lua'
 
 # name: Lint
 
@@ -53,13 +53,13 @@
 #         additional_args: '--no-default-config --config ../../.luacheckrc'
 #         files: ${{ steps.changed-files.outputs.all_changed_files }}
 
-name: Luacheck
-on: [push, pull_request]
-jobs:
-  sile:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Luacheck linter
-        uses: lunarmodules/luacheck@v1
+# name: Luacheck
+# on: [push, pull_request]
+# jobs:
+#   sile:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout
+#         uses: actions/checkout@v4
+#       - name: Luacheck linter
+#         uses: lunarmodules/luacheck@v1
