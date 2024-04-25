@@ -6,6 +6,7 @@ on:
       - '.github/**'
       - '.gitignore'
       - '.gitattributes'
+      - '.luacheckrc'
       - 'config.ld'
       - 'README.md'
       - 'LICENSE'
