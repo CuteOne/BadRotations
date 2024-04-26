@@ -159,16 +159,10 @@ local function runRotation()
     buff                                          = br.player.buff
     cast                                          = br.player.cast
     cd                                            = br.player.cd
-    debuff                                        = br.player.debuff
-    has                                           = br.player.has
     mode                                          = br.player.ui.mode
-    ui                                            = br.player.ui
-    pet                                           = br.player.pet
-    spell                                         = br.player.spell
     ui                                            = br.player.ui
     unit                                          = br.player.unit
     units                                         = br.player.units
-    use                                           = br.player.use
     -- General Locals
     profileStop                                   = profileStop or false
     haltProfile                                   = (unit.inCombat() and profileStop) or br._G.IsMounted() or br.pause() or mode.rotation==4
