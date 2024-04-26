@@ -50,13 +50,13 @@
 #       if: steps.changed-files.outputs.any_changed == 'true'
 #       uses: Kong/public-shared-actions/code-check-actions/lua-lint@main
 #       with:
-#         additional_args: '--no-default-config --config ../../.luacheckrc'
+#         additional_args: '--no-default-config --config .luacheckrc'
 #         files: ${{ steps.changed-files.outputs.all_changed_files }}
 
 name: Luacheck
 on: [push, pull_request]
 jobs:
-  sile:
+  lua-lint:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

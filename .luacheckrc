@@ -2,6 +2,7 @@ std = "lua51"
 max_line_length = false
 exclude_files = {
 	"**/Libs",
+	"**/Unlockers",
 }
 only = {
 	"011", -- syntax
@@ -12,7 +13,7 @@ ignore = {
 	"1/[A-Z][A-Z][A-Z0-9_]+", -- three letter+ constants
 }
 globals = {
-	"GrindBot",
+	"br",
 	"C_Timer",
 	"C_Map",
 	"C_ChatInfo",
