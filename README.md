@@ -169,7 +169,7 @@ Raidable means if its good to raid with.
 
 |rotation |   author   |patch |coverage|  status   |  readiness  |last updated|
 |---------|------------|:----:|:------:|:---------:|:-----------:|-----------:|
-|BrewDemon|BrewingCoder|10.2.6|  50%   |Development|:interrobang:|  04/25/2024|
+|BrewDemon|BrewingCoder|10.2.6|  50%   |Development|:interrobang:|  04/26/2024|
 
 - Destruction
 
