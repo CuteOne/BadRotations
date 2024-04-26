@@ -40,18 +40,49 @@ jobs:
           echo "$file was changed"
         done
 
-    - name: Lua Check
-      if: steps.changed-files.outputs.any_changed == 'true'
-      uses: Kong/public-shared-actions/code-check-actions/lua-lint@main
-      with:
-        # additional_args: '--no-default-config --config .luacheckrc'
-        files: ${{ steps.changed-files.outputs.all_changed_files }}
+    # - name: Lua Check
+    #   if: steps.changed-files.outputs.any_changed == 'true'
+    #   uses: Kong/public-shared-actions/code-check-actions/lua-lint@main
+    #   with:
+    #     # additional_args: '--no-default-config --config .luacheckrc'
+    #     files: ${{ steps.changed-files.outputs.all_changed_files }}
 
-    - name: Publish Test Report
-      uses: mikepenz/action-junit-report@v4
+    - name: Run Luacheck for static analysis
+      if: steps.changed-files.outputs.any_changed == 'true'
+      uses: lunarmodules/luacheck@ababb6d403d634eb74d2c541035e9ede966e710d
+      continue-on-error: true
       with:
-        report_paths: "luacheck_${{github.sha}}.xml"
-        fail_on_failure: 1
+        args: "--codes --ranges --formatter JUnit -q ${{ steps.changed-files.outputs.all_changed_files }} > luacheck_${{github.sha}}.xml"
+
+    - name: Upload results to workflow
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: luacheck_results.zip
+        path: |
+            luacheck_${{github.sha}}.xml
+        if-no-files-found: warn
+
+#     - name: Print Luacheck results
+#       shell: bash
+#       run: |
+#         cat luacheck_${{github.sha}}.xml
+
+    # when using the regular GITHUB_TOKEN, the check-run created by this step will be assigned to a
+    # random workflow in the GH UI. to prevent this, we can force the check-run to be created in a separate
+    # check-suite, which is created automatically if we use the credentials of a GitHub App
+    # Ref: https://github.com/EnricoMi/publish-unit-test-result-action/issues/181
+    # Publishing: https://github.com/EnricoMi/publish-unit-test-result-action#publishing-test-results
+    - name: Luacheck Report
+      uses: EnricoMi/publish-unit-test-result-action@v2
+      if: always() && github.actor != 'dependabot[bot]'
+      with:
+        files: |
+            luacheck_${{github.sha}}.xml
+        check_name: Luacheck Report
+        comment_mode: always
+        action_fail: true
+        fail_on: 'test failures' # Explicitly don't fail reporting check based on test results
 
 # name: Luacheck
 # on: [push, pull_request]
