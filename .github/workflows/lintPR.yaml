@@ -16,7 +16,7 @@ jobs:
       contents: read
       issues: read
       checks: write
-      pull-requests: read
+      pull-requests: write
     if: (github.actor != 'dependabot[bot]')
 
     steps:
