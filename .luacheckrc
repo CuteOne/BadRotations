@@ -13,10 +13,13 @@ ignore = {
 	"1/[A-Z][A-Z][A-Z0-9_]+", -- three letter+ constants
 	"211", -- unused local variables
 	"212", -- unused arguments
+	"213", -- unused loop variable
 	"542", -- empty if branches
 }
 globals = {
 	"br",
+	"TooltipDataProcessor",
+	"Enum",
 	"C_Timer",
 	"C_Map",
 	"C_ChatInfo",
