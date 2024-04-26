@@ -20,8 +20,8 @@ jobs:
     steps:
     - name: Checkout source code
       uses: actions/checkout@v4
-      with:
-        fetch-depth: 2  # OR "2" -> To retrieve the preceding commit.
+      #with:
+      #  fetch-depth: 0  # OR "2" -> To retrieve the preceding commit.
 
     # Optional step to run on only changed files
     - name: Get changed files
