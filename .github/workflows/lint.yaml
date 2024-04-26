@@ -1,16 +1,65 @@
-name: Lint
-on: [push]
+# name: Lint
+# on: [push, pull_request]
 
+# jobs:
+#   lint:
+#     name: Lint
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: checkout
+#         uses: actions/checkout@v4
+#         with:
+#           repository: 'CuteOne/BadRotations'
+#       - name: wow-lint
+#         uses: davidcraig/action-wow-lint@v1.0.1
+#         with:
+#             path-to-files: '**/*.lua'
+
+# name: Lint
+
+# on: [push, pull_request, workflow_dispatch]
+
+# concurrency:
+#   group: ${{ github.workflow }}-${{ github.ref }}
+#   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+# jobs:
+#   lua-check:
+#     name: Lua Check
+#     runs-on: ubuntu-latest
+#     permissions:
+#       contents: read
+#       issues: read
+#       checks: write
+#       pull-requests: write
+#     if: (github.actor != 'dependabot[bot]')
+
+#     steps:
+#     - name: Checkout source code
+#       uses: actions/checkout@v4
+
+#     # Optional step to run on only changed files
+#     - name: Get changed files
+#       id: changed-files
+#       uses: tj-actions/changed-files@v44
+#       with:
+#         files: |
+#           **.lua
+
+#     - name: Lua Check
+#       if: steps.changed-files.outputs.any_changed == 'true'
+#       uses: Kong/public-shared-actions/code-check-actions/lua-lint@main
+#       with:
+#         additional_args: '--no-default-config --config ../../.luacheckrc'
+#         files: ${{ steps.changed-files.outputs.all_changed_files }}
+
+name: Luacheck
+on: [push, pull_request]
 jobs:
-  lint:
-    name: Lint
+  sile:
     runs-on: ubuntu-latest
     steps:
-      - name: checkout
+      - name: Checkout
         uses: actions/checkout@v4
-        with:
-          repository: 'ps-wow/action-test-repo'
-      - name: wow-lint
-        uses: davidcraig/action-wow-lint@v1.0.1
-        with:
-            path-to-files: '**/*.lua'
+      - name: Luacheck linter
+        uses: lunarmodules/luacheck@v1
