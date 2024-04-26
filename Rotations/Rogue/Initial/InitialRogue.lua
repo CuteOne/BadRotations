@@ -113,7 +113,7 @@ local function eviscerateFinish(thisUnit)
     local GetSpellDescription = br._G["GetSpellDescription"]
     local desc = GetSpellDescription(spell.eviscerate)
     local damage = 0
-    local finishHim = false
+    finishHim = false
     if ui.value("Eviscerate Execute") ~= 3 and combo > 0 and not unit.isDummy(thisUnit) then
         local comboStart = desc:find(" "..combo.." ",1,true)
         if comboStart ~= nil then

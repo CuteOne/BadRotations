@@ -82,17 +82,10 @@ end
 local buff
 local cast
 local cd
-local debuff
-local has
 local mode
-local power
-local talent
 local ui
-local pet
-local spell
 local unit
 local units
-local use
 -- General Locals
 local haltProfile
 local profileStop

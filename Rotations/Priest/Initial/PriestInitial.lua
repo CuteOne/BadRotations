@@ -31,6 +31,7 @@ local function createOptions()
         -----------------------
         section = br.ui:createSection(br.ui.window.profile,  "General")
 
+        br.ui:checkSectionState(section)
         -------------------------
         --- DEFENSIVE OPTIONS ---
         -------------------------
@@ -68,14 +69,10 @@ local buff
 local cast
 local cd
 local debuff
-local has
 local mode
 local ui
-local pet
-local spell
 local unit
 local units
-local use
 -- General Locals
 local haltProfile
 local profileStop
@@ -216,4 +213,4 @@ tinsert(br.rotations[id],{
     toggles = createToggles,
     options = createOptions,
     run = runRotation,
-}) 
+})

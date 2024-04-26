@@ -177,8 +177,8 @@ actionList.Interrupt = function()
             if br.canInterrupt(thisUnit,ui.value("Interrupt At")) then
                 -- Freezing Trap
                 if ui.hecked("Freezing Trap") and cast.able.freezingTrap() then
-                    for i = 1, #enemies.yards40 do
-                        thisUnit = enemies.yards40[i]
+                    for j = 1, #enemies.yards40 do
+                        thisUnit = enemies.yards40[j]
                         if unit.distance(thisUnit) > 8 and cast.timeRemain(thisUnit) > 3 then
                             if cast.freezingTrap(thisUnit,"ground") then return true end
                         end
