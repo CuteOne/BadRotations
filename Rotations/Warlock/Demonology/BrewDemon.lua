@@ -223,6 +223,10 @@ actionList.CoolDown = function()
     if cast.able.powerSiphon("target") then
         if cast.powerSiphon("target") then ui.debug("Casting Power Siphon") return true end
     end
+
+    if cast.able.grimoireFelguard() then
+        if cast.grimoireFelguard() then ui.debug("Casting Grimoire Felguard") return true end
+    end
 end
 
 local function runRotation()
