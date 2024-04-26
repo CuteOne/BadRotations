@@ -11,6 +11,8 @@ exclude_files = {
 ignore = {
 	"11/SLASH_.*", -- slash handlers
 	"1/[A-Z][A-Z][A-Z0-9_]+", -- three letter+ constants
+	"211", -- unused local variable
+	"542", -- empty if branches
 }
 globals = {
 	"br",
