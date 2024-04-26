@@ -1,27 +1,10 @@
-# name: Lint
-# on: [push, pull_request]
-
-# jobs:
-#   lint:
-#     name: Lint
-#     runs-on: ubuntu-latest
-#     steps:
-#       - name: checkout
-#         uses: actions/checkout@v4
-#         with:
-#           repository: 'CuteOne/BadRotations'
-#       - name: wow-lint
-#         uses: davidcraig/action-wow-lint@v1.0.1
-#         with:
-#             path-to-files: '**/*.lua'
-
 name: Lint
 
-on: [push, pull_request, workflow_dispatch]
+on: [push, workflow_dispatch, pull_request]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  #cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   lua-check:
