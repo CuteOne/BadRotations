@@ -24,7 +24,6 @@ jobs:
       uses: actions/checkout@v4
       with:
         repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
-        #fetch-depth: 0  # OR "2" -> To retrieve the preceding commit.
 
     # Optional step to run on only changed files
     - name: Get changed files
@@ -42,11 +41,11 @@ jobs:
         done
 
     - name: Lua Check
-      #if: steps.changed-files.outputs.any_changed == 'true'
+      if: steps.changed-files.outputs.any_changed == 'true'
       uses: Kong/public-shared-actions/code-check-actions/lua-lint@main
-      #with:
+      with:
         # additional_args: '--no-default-config --config .luacheckrc'
-        #files: ${{ steps.changed-files.outputs.all_changed_files }}
+        files: ${{ steps.changed-files.outputs.all_changed_files }}
 
 # name: Luacheck
 # on: [push, pull_request]
