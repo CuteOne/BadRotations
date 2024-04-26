@@ -131,6 +131,8 @@ local talent
 local actionList = {}
 local activePet
 
+local function badFunction
+
 
 local function round(number, digit_position) 
     local precision = math.pow(10, digit_position)
