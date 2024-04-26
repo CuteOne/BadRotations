@@ -52,7 +52,7 @@ local function PetId()
     else
         return nil
     end
-
+end
 
 local pets = {
     imp = 416,
@@ -131,6 +131,7 @@ local talent
 local actionList = {}
 local activePet
 
+
 local function round(number, digit_position) 
     local precision = math.pow(10, digit_position)
     number = number + (precision / 2); -- this causes value #.5 and up to round up
@@ -201,7 +202,9 @@ actionList.PreCombat = function()
     
     -- if unit.inCombat() and unit.valid("target") and not var.profileStop then 
     if not unit.inCombat() and  unit.valid("target") and unit.distance("target") <= 40 then
-        br._G.PetAttack()
+        if cast.able.curseOfExhaustion("target") and not debuff.curseOfExhaustion.exists("target") then
+            if cast.curseOfExhaustion("target") then ui.debug("Casting Curse of Exhaustion") return true end
+        end
     end
 end
 
@@ -212,6 +215,14 @@ actionList.CoolDown = function()
     if power == 5 and cast.able.handOfGuldan() then
         if cast.handOfGuldan("target") then ui.debug("Casting Hand of Guldan") return true end
     end    
+
+    if activePet == pets.felguard and cast.able.demonicStrength() then
+        if cast.demonicStrength("pet") then ui.debug("Casting Demonic Strength") return true end
+    end
+
+    if cast.able.powerSiphon("target") then
+        if cast.powerSiphon("target") then ui.debug("Casting Power Siphon") return true end
+    end
 end
 
 local function runRotation()
@@ -258,6 +269,14 @@ local function runRotation()
     enemies.get(30,"player",false,true)
     enemies.get(40,"player",false,true)
 
+    var.UnitNeedsCurse = nil
+    for i=1,#enemies.yards40f do
+        if not debuff.curseOfExhaustion.exists(enemies.yards40f[i]) and br._G.UnitAffectingCombat(enemies.yards40f[i]) then
+            var.UnitNeedsCurse = enemies.yards40f[i]
+        end
+    end
+
+
     -- Pause Timer
     if br.pauseTime == nil then br.pauseTime = br._G.GetTime() end
 
@@ -272,6 +291,16 @@ local function runRotation()
         if unit.inCombat() and unit.valid("target") and not var.profileStop then
             if actionList.Interrupt() then return true end
             if actionList.CoolDown() then return true end
+
+            --Exhaustion
+            if var.UnitNeedsCurse ~= nil and cast.able.curseOfExhaustion(var.UnitNeedsCurse) then 
+                if cast.curseOfExhaustion(var.UnitNeedsCurse) then ui.debug("Casting Curse of Exhaustion") return true end
+            end
+            if cast.able.curseOfExhaustion("target") and (not debuff.curseOfExhaustion.exists("target") or debuff.curseOfExhaustion.remains("target") < 2) then
+                if cast.curseOfExhaustion("target") then ui.debug("Casting Curse of Exhaustion") return true end
+            end
+
+
                 if cast.able.demonbolt() and buff.demonicCore.exists() then
                     if cast.demonbolt("target") then ui.debug("Casting Demonbolt") return true end
                 end
