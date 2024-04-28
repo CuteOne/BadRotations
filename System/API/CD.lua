@@ -13,6 +13,7 @@ br.api.cd = function(self,spell,id)
     -- if self.cd[spell] == nil then self.cd[spell] = {} end
     local cd = self.cd
 
+    --- Spell Cooldown Functions
     cd[spell] = cd[spell] or {}
 
     --- Checks if spell is on cooldown or not.
@@ -75,6 +76,7 @@ br.api.itemCD = function(self,item,id)
     --if self[item] == nil then self[item] = {} end
     local cd = self
 
+    --- Item Cooldown Functions
     cd[item] = cd[item] or {}
 
     --- Checks if item is on cooldown or not.
@@ -107,6 +109,7 @@ br.api.itemCD = function(self,item,id)
         return br._G.GetSpellBaseCooldown(select(2,br._G.GetItemSpell(itemID))) / 1000
     end
 
+    --- Equipment Slot Cooldown Functions
     cd.slot = cd.slot or {}
 
     --- This function gets the base cooldown of a given item spell
