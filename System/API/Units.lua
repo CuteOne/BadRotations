@@ -1,9 +1,8 @@
 local _, br = ...
 if br.api == nil then br.api = {} end
 br.api.units = function(self)
-    local units = self.units
+    local units --= self.units
     -- Gets a unit within a specified range in front or around the player.
----@diagnostic disable-next-line: inject-field
     units.get = function(range,aoe)
         local dynString = "dyn"..range
         aoe = aoe or false

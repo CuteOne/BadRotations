@@ -1,3 +1,16 @@
+---
+-- These calls help in retrieving information about talent based checks.
+-- talent is the table located at br.player.talent, call this in profile to use.
+-- name in the examples represent the name in the talent list (Spec, Shared Class, Shared Global Lists) defined in System/List/Spells.lua
+--
+-- `br.player.talent` has the following checks:
+--
+-- * `br.player.talent.name` - Indicates if the talent is active.
+--
+-- * `br.player.talent.rank.name` - Returns the rank of the specified talent.
+--
+-- @module br.player.talent
+
 local _, br = ...
 if br.api == nil then br.api = {} end
 ----------------------

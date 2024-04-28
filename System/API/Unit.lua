@@ -1,4 +1,4 @@
----@diagnostic disable: inject-field
+
 local _, br = ...
 if br.api == nil then br.api = {} end
 ----------------------
@@ -10,7 +10,7 @@ if br.api == nil then br.api = {} end
 
 br.api.unit = function(self)
     -- Local reference to unit
-    local unit = self.unit
+    local unit --= self.unit
 
     ----------------
     --- Unit API ---
@@ -365,7 +365,7 @@ br.api.unit = function(self)
     end
     -- Weapon Imbue Fuctions
     self.unit.weaponImbue = self.unit.weaponImbue or {}
-    
+
     -- Weapon Imbue Exists
     unit.weaponImbue.exists = function(imbueId,offHand)
         local GetWeaponEnchantInfo = br._G["GetWeaponEnchantInfo"]
