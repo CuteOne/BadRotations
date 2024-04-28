@@ -3,6 +3,7 @@
 -- CD functions are stored in br.player.cd and can be utilized by `local cd = br.player.cd` in your profile.
 -- For spell CDs, `spell` in the function represent the name in the actions list (Spec, Shared Class, Shared Global Lists) defined in System/List/Spells.lua
 -- For item CDs, `item` in the function represent the name in the item list defined in System/List/Items.lua
+-- For slot CDs, `slot` in the function represents equipement slots, pass the ID matching the equipement slot id you wish to check.
 -- @module br.player.cd
 local _, br = ...
 
