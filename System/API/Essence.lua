@@ -18,7 +18,7 @@
 --
 -- * `br.player.essence.spellID` - Indicates the spellID of the essence.
 --
--- @module br.player.covenant
+-- @module br.player.essence
 local _, br = ...
 if br.api == nil then br.api = {} end
 br.api.essences = function(essence,k,v)

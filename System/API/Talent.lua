@@ -5,9 +5,9 @@
 --
 -- `br.player.talent` has the following checks:
 --
--- * `br.player.talent.name` - Indicates if the talent is active.
+-- br.player.talent.name - Indicates if the talent is active.
 --
--- * `br.player.talent.rank.name` - Returns the rank of the specified talent.
+-- br.player.talent.rank.name - Returns the rank of the specified talent.
 --
 -- @module br.player.talent
 
