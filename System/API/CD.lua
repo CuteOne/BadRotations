@@ -83,8 +83,7 @@ br.api.itemCD = function(self,item,id)
     --if self[item] == nil then self[item] = {} end
     local cd = self
 
-    --- Item Cooldown Functions - [item] denotes placeholder for name of item listed in System/Lists/Items.lua
-    -- @section cd[item]
+    -- @section cd[item] - Item Cooldown Functions - [item] denotes placeholder for name of item listed in System/Lists/Items.lua
     cd[item] = cd[item] or {}
 
     --- Checks if item is on cooldown or not.
