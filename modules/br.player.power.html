@@ -1,0 +1,226 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<head>
+<title>Reference</title>
+<link href="../ldoc.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div id="container">
+<div id="product">
+<div id="product_logo"></div>
+<div id="product_name"><big><b></b></big></div>
+<div id="product_description"></div>
+</div> <!-- id="product" -->
+<div id="main">
+<!-- Menu -->
+<div id="navigation">
+<br/>
+<h1>BadRotations</h1>
+<ul>
+<li><a href="../index.html">Index</a></li>
+</ul>
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+<li><a href="../modules/br.player.anima.html">br.player.anima</a></li>
+<li><a href="../modules/br.player.buff.html">br.player.buff</a></li>
+<li><a href="../modules/br.player.cd.html">br.player.cd</a></li>
+<li><a href="../modules/br.player.cast.html">br.player.cast</a></li>
+<li><a href="../modules/br.player.charges.html">br.player.charges</a></li>
+<li><a href="../modules/br.player.conduit.html">br.player.conduit</a></li>
+<li><a href="../modules/br.player.covenant.html">br.player.covenant</a></li>
+<li><a href="../modules/br.player.debuff.html">br.player.debuff</a></li>
+<li><a href="../modules/br.player.enemies.html">br.player.enemies</a></li>
+<li><a href="../modules/br.player.equiped.html">br.player.equiped</a></li>
+<li><a href="../modules/br.player.covenant.html">br.player.covenant</a></li>
+<li><a href="../modules/br.player.has.html">br.player.has</a></li>
+<li><a href="../modules/br.player.known.html">br.player.known</a></li>
+<li><a href="../modules/br.player.module.html">br.player.module</a></li>
+<li><strong>br.player.power</strong></li>
+<li><a href="../modules/Unit.html">Unit</a></li>
+<li><a href="../modules/br.player.use.html">br.player.use</a></li>
+</ul>
+</div>
+<div id="content">
+<h1>Module <code>br.player.power</code></h1>
+<p>These functions helpful functions for commonly used features in all profiles.</p>
+<p>
+ Power functions are stored in br.player.power and can be utilized by `local power = br.player.power` in your profile.
+ power is the table located at br.player.power
+ powerType is the name of the power passed from the builder which cycles all the collected power from the power list
+ powerIndex is the powerID passed from the builder which cycles all the collected power from the power list
+ Power List - powerIndex = powerType
+ 0 = mana
+ 1 = rage
+ 2 = focus
+ 3 = energy
+ 4 = comboPoints
+ 5 = runes
+ 6 = runicPower
+ 7 = soulShards
+ 8 = astralPower
+ 9 = holyPower
+ 10 = altPower
+ 11 = maelstrom
+ 12 = chi
+ 13 = insanity
+ 16 = arcaneCharges
+ 17 = fury
+ 18 = pain
+ 19 = essence</p>
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+<tr>
+<td class="name" nowrap=""><a href="#power.powerType.deficit">power.powerType.deficit ()</a></td>
+<td class="summary">Gets the amount of specified power until max is reached</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#power.powerType.frac">power.powerType.frac ()</a></td>
+<td class="summary">Gets the fractional counts of their available runes - Used by DKs</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#power.spell.max">power.spell.max ()</a></td>
+<td class="summary">Gets the maximum aount of the specified power</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#power.spell.percent">power.spell.percent ()</a></td>
+<td class="summary">Gets the current amount of specified power as a percentage</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#power.spell.regen">power.spell.regen ()</a></td>
+<td class="summary">Gets the current rate of regeneration for the specified power</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#power.spell.ttm">power.spell.ttm ()</a></td>
+<td class="summary">Gets the time in seconds until the specified power is maxed</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#powerType">power.powerType ()</a></td>
+<td class="summary">Gets the current amount of the specified power.</td>
+</tr>
+</table>
+<br/>
+<br/>
+<h2 class="section-header"><a name="Functions"></a>Functions</h2>
+<dl class="function">
+<dt>
+<a name="power.powerType.deficit"></a>
+<strong>power.powerType.deficit ()</strong>
+</dt>
+<dd>
+    Gets the amount of specified power until max is reached
+
+
+
+    <h3>Returns:</h3>
+<ol>
+
+        number
+    </ol>
+</dd>
+<dt>
+<a name="power.powerType.frac"></a>
+<strong>power.powerType.frac ()</strong>
+</dt>
+<dd>
+    Gets the fractional counts of their available runes - Used by DKs
+
+
+
+    <h3>Returns:</h3>
+<ol>
+
+        number
+    </ol>
+</dd>
+<dt>
+<a name="power.spell.max"></a>
+<strong>power.spell.max ()</strong>
+</dt>
+<dd>
+    Gets the maximum aount of the specified power
+
+
+
+    <h3>Returns:</h3>
+<ol>
+
+        number
+    </ol>
+</dd>
+<dt>
+<a name="power.spell.percent"></a>
+<strong>power.spell.percent ()</strong>
+</dt>
+<dd>
+    Gets the current amount of specified power as a percentage
+
+
+
+    <h3>Returns:</h3>
+<ol>
+
+        number
+    </ol>
+</dd>
+<dt>
+<a name="power.spell.regen"></a>
+<strong>power.spell.regen ()</strong>
+</dt>
+<dd>
+    Gets the current rate of regeneration for the specified power
+
+
+
+    <h3>Returns:</h3>
+<ol>
+
+        number
+    </ol>
+</dd>
+<dt>
+<a name="power.spell.ttm"></a>
+<strong>power.spell.ttm ()</strong>
+</dt>
+<dd>
+    Gets the time in seconds until the specified power is maxed
+
+
+
+    <h3>Returns:</h3>
+<ol>
+
+        number
+    </ol>
+</dd>
+<dt>
+<a name="powerType"></a>
+<strong>power.powerType ()</strong>
+</dt>
+<dd>
+    Gets the current amount of the specified power.
+
+
+
+    <h3>Returns:</h3>
+<ol>
+
+        number
+    </ol>
+</dd>
+</dl>
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2024-04-28 19:36:38 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>
