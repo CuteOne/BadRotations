@@ -18,7 +18,7 @@ br.api.cd = function(self,spell,id)
     --- Checks if spell is on cooldown or not.
     -- @function cd.spell.exists
     -- @return boolean
-    -- @within cd[spell]
+    -- @within cd[spell] - Spell Cooldown Functions - [spell] denotes placeholder for name of spell listed in System/Lists/Spells.lua
     cd[spell].exists = function()
         local level = br._G.UnitLevel("player")
         local spellLevel = br._G.GetSpellLevelLearned(id)
@@ -29,7 +29,7 @@ br.api.cd = function(self,spell,id)
     --- Gets the time remaining on spell cooldown or 0 if not.
     -- @function cd.spell.remain
     -- @return number
-    -- @within cd[spell]
+    -- @within cd[spell] - Spell Cooldown Functions - [spell] denotes placeholder for name of spell listed in System/Lists/Spells.lua
     cd[spell].remain = function()
         local level = br._G.UnitLevel("player")
         local spellLevel = br._G.GetSpellLevelLearned(id)
@@ -40,7 +40,7 @@ br.api.cd = function(self,spell,id)
     --- Gets the time remaining on spell cooldown or 0 if not (alternate to cd.spell.remain() incase of typo).
     -- @function cd.spell.remains
     -- @return number
-    -- @within cd[spell]
+    -- @within cd[spell] - Spell Cooldown Functions - [spell] denotes placeholder for name of spell listed in System/Lists/Spells.lua
     cd[spell].remains = function()
         local level = br._G.UnitLevel("player")
         local spellLevel = br._G.GetSpellLevelLearned(id)
@@ -51,7 +51,7 @@ br.api.cd = function(self,spell,id)
     --- Gets the total time of the spell cooldown
     -- @function cd.spell.duration
     -- @return number
-    -- @within cd[spell]
+    -- @within cd[spell] - Spell Cooldown Functions - [spell] denotes placeholder for name of spell listed in System/Lists/Spells.lua
     cd[spell].duration = function()
         local _, CD = br._G.GetSpellCooldown(id)
         return CD
@@ -60,7 +60,7 @@ br.api.cd = function(self,spell,id)
     --- Checks if the spell is not on cooldown or is (opposite of cd.spell.exists()).
     -- @function cd.spell.ready
     -- @return boolean
-    -- @within cd[spell]
+    -- @within cd[spell] - Spell Cooldown Functions - [spell] denotes placeholder for name of spell listed in System/Lists/Spells.lua
     cd[spell].ready = function()
         local level = br._G.UnitLevel("player")
         local spellLevel = br._G.GetSpellLevelLearned(id)
@@ -71,7 +71,7 @@ br.api.cd = function(self,spell,id)
     --- Gets the duration of the spells Global Cooldown.
     -- @function cd.spell.prevgcd
     -- @return number
-    -- @within cd[spell]
+    -- @within cd[spell] - Spell Cooldown Functions - [spell] denotes placeholder for name of spell listed in System/Lists/Spells.lua
     cd[spell].prevgcd = function()
         return select(2, br._G.GetSpellBaseCooldown(id))
     end
