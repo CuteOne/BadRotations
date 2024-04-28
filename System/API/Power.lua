@@ -4,25 +4,25 @@
 -- power is the table located at br.player.power
 -- powerType is the name of the power passed from the builder which cycles all the collected power from the power list
 -- powerIndex is the powerID passed from the builder which cycles all the collected power from the power list
--- Power List - powerIndex = powerType
-    -- 0 = mana
-    -- 1 = rage
-    -- 2 = focus
-    -- 3 = energy
-    -- 4 = comboPoints
-    -- 5 = runes
-    -- 6 = runicPower
-    -- 7 = soulShards
-    -- 8 = astralPower
-    -- 9 = holyPower
-    -- 10 = altPower
-    -- 11 = maelstrom
-    -- 12 = chi
-    -- 13 = insanity
-    -- 16 = arcaneCharges
-    -- 17 = fury
-    -- 18 = pain
-    -- 19 = essence
+-- @table Power List - powerIndex = powerType
+    -- @field 0 = mana
+    -- @field 1 = rage
+    -- @field 2 = focus
+    -- @field 3 = energy
+    -- @field 4 = comboPoints
+    -- @field 5 = runes
+    -- @field 6 = runicPower
+    -- @field 7 = soulShards
+    -- @field 8 = astralPower
+    -- @field 9 = holyPower
+    -- @field 10 = altPower
+    -- @field 11 = maelstrom
+    -- @field 12 = chi
+    -- @field 13 = insanity
+    -- @field 16 = arcaneCharges
+    -- @field 17 = fury
+    -- @field 18 = pain
+    -- @field 19 = essence
 -- @module br.player.power
 local _, br = ...
 if br.api == nil then br.api = {} end
