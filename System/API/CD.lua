@@ -9,12 +9,11 @@ local _, br = ...
 if br.api == nil then br.api = {} end
 
 br.api.cd = function(self,spell,id)
-    if self.cd == nil then self.cd = {} end
-    -- if self.cd[spell] == nil then self.cd[spell] = {} end
+    self.cd = self.cd or {}
     local cd = self.cd
 
     --- Spell Cooldown Functions - [spell] denotes placeholder for name of spell listed in System/Lists/Spells.lua
-    -- @section cd[spell]
+    -- @submodule cd[spell]
     cd[spell] = cd[spell] or {}
 
     --- Checks if spell is on cooldown or not.
