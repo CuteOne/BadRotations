@@ -1,5 +1,5 @@
 ---
--- These functions helpful functions for commonly used features in all profiles.
+-- These functions help in retrieving information about or manipulating UI elements.
 -- UI functions are stored in br.player.ui and can be utilized by `local ui = br.player.ui` in your profile.
 -- @module br.player.ui
 local _, br = ...

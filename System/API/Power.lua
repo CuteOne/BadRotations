@@ -1,5 +1,5 @@
 ---
--- These functions helpful functions for commonly used features in all profiles.
+-- These functions help in retrieving information about player power.
 -- Power functions are stored in br.player.power and can be utilized by `local power = br.player.power` in your profile.
 -- power is the table located at br.player.power
 -- powerType is the name of the power passed from the builder which cycles all the collected power from the power list
