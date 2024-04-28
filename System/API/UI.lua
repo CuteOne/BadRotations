@@ -1,9 +1,8 @@
----@diagnostic disable: inject-field
 local _, br = ...
 if br.api == nil then br.api = {} end
 
 br.api.ui = function(self)
-    local ui = self.ui
+    local ui --= self.ui
     if ui ~= nil and ui.mode == nil then ui.mode = {} end
     ui.alwaysCdNever = function(thisOption)
         -- Option Dropdown Requires
