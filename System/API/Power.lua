@@ -8,8 +8,8 @@
 local _, br = ...
 if br.api == nil then br.api = {} end
 
---- Reference for powerType variable.
--- @table Power List - powerIndex = powerType
+--- Reference for powerIndex and powerType variables.
+-- @table powerList
 -- @field 0 = mana
 -- @field 1 = rage
 -- @field 2 = focus
