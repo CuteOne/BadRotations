@@ -83,6 +83,7 @@ br.api.itemCD = function(self,item,id)
     local cd = self
 
     --- Item Cooldown Functions - [item] denotes placeholder for name of item listed in System/Lists/Items.lua
+    -- @section cd[item]
     cd[item] = cd[item] or {}
 
     --- Checks if item is on cooldown or not.
@@ -113,6 +114,7 @@ br.api.itemCD = function(self,item,id)
     end
 
     --- Equipment Slot Cooldown Functions
+    -- @section cd.slot
     cd.slot = cd.slot or {}
 
     --- This function gets the base cooldown of a given item spell from an inventory slot, specific to the player character in game.
