@@ -7,8 +7,9 @@ if br.api == nil then br.api = {} end
 br.api.units = function(self)
     local units --= self.units
 
-    --- Gets the "best" unit within a specified range in front or around the player. Creates varaible units.dyn whith the range number and if its looking for AOE or not.
-    -- IE: units.get(5,false) makes units.dyn5, units.get(8,true) makes units.dyn8AOE
+    --- Gets the "best" unit within a specified range in front or around the player.
+    -- /nCall once per profile rotation and use the variable it creates in br.player.units
+    -- /nIE: units.get(5,false) makes units.dyn5, units.get(8,true) makes units.dyn8AOE
     -- @function units.get
     -- @number range - Distance in yards to look for the "best" unit
     -- @boolean[opt=false] aoe - If true, looks for best unit anywhere in range, otherwise only units you are facing will be considered.
