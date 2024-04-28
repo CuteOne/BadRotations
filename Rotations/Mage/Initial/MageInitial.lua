@@ -31,6 +31,7 @@ local function createOptions()
         -----------------------
         section = br.ui:createSection(br.ui.window.profile,  "General")
 
+        br.ui:checkSectionState(section)
         -------------------------
         --- DEFENSIVE OPTIONS ---
         -------------------------
@@ -183,4 +184,4 @@ br._G.tinsert(br.rotations[id],{
     toggles = createToggles,
     options = createOptions,
     run = runRotation,
-}) 
+})
