@@ -82,7 +82,6 @@ jobs:
         check_name: Luacheck Report
         comment_mode: always
         action_fail: true
-        fail_on: 'errors'
 
 # name: Luacheck
 # on: [push, pull_request]
