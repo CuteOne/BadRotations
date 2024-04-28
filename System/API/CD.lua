@@ -122,8 +122,8 @@ br.api.itemCD = function(self,item,id)
 
     --- This function gets the base cooldown of a given item spell from an inventory slot, specific to the player character in game.
     -- @usage cd.slot.duration() or cd.slot.duration(slotID)
-    -- @param[opt] number slotID The ID of the inventory slot.
-    -- @return number The base cooldown of the item spell divided by 1000.
+    -- @param[opt] slotID - The ID of the inventory slot.
+    -- @return number - The base cooldown of the item spell divided by 1000.
     -- This division is done to convert the time from milliseconds to seconds.
     -- @within cd.slot
     cd.slot.duration = function(slotID)
@@ -134,7 +134,7 @@ br.api.itemCD = function(self,item,id)
 
     --- Gets the time remaining on the equipment slot item cooldown or 0 if not.
     -- @function cd.slot.remain
-    -- @param[opt] numberslotID The ID of the equipment slot to check.
+    -- @param[opt] slotID - The ID of the equipment slot to check.
     -- @return number
     -- @within cd.slot
     cd.slot.remain = function(slotID)
