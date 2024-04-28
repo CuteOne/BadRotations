@@ -94,26 +94,26 @@
 <h2><a href="#cd_item_">cd[item]</a></h2>
 <table class="function_list">
 <tr>
-<td class="name" nowrap=""><a href="#cd.item.exists">cd.item.exists ([itemID])</a></td>
+<td class="name" nowrap=""><a href="#cd.item.exists">cd.item.exists ()</a></td>
 <td class="summary">Checks if item is on cooldown or not.</td>
 </tr>
 <tr>
-<td class="name" nowrap=""><a href="#cd.item.remain">cd.item.remain ([itemID])</a></td>
+<td class="name" nowrap=""><a href="#cd.item.remain">cd.item.remain ()</a></td>
 <td class="summary">Gets the time remaining on item cooldown or 0 if not.</td>
 </tr>
 <tr>
-<td class="name" nowrap=""><a href="#cd.item.duration">cd.item.duration ([itemID])</a></td>
+<td class="name" nowrap=""><a href="#cd.item.duration">cd.item.duration ()</a></td>
 <td class="summary">Gets the total cooldown time of the item in seconds.</td>
 </tr>
 </table>
 <h2><a href="#cd_slot">cd.slot</a></h2>
 <table class="function_list">
 <tr>
-<td class="name" nowrap=""><a href="#cd.slot.duration">cd.slot.duration ([slotID])</a></td>
+<td class="name" nowrap=""><a href="#cd.slot.duration">cd.slot.duration (slotID)</a></td>
 <td class="summary">This function gets the base cooldown of a given item spell from an inventory slot, specific to the player character in game.</td>
 </tr>
 <tr>
-<td class="name" nowrap=""><a href="#cd.slot.remain">cd.slot.remain ([slotID])</a></td>
+<td class="name" nowrap=""><a href="#cd.slot.remain">cd.slot.remain (slotID)</a></td>
 <td class="summary">Gets the time remaining on the equipment slot item cooldown or 0 if not.</td>
 </tr>
 </table>
@@ -149,8 +149,9 @@
 
     <h3>Returns:</h3>
 <ol>
-<span class="types"><span class="type">boolean</span></span>
-</ol>
+
+        boolean
+    </ol>
 </dd>
 <dt>
 <a name="cd.spell.remain"></a>
@@ -163,8 +164,9 @@
 
     <h3>Returns:</h3>
 <ol>
-<span class="types"><span class="type">number</span></span>
-</ol>
+
+        number
+    </ol>
 </dd>
 <dt>
 <a name="cd.spell.remains"></a>
@@ -177,8 +179,9 @@
 
     <h3>Returns:</h3>
 <ol>
-<span class="types"><span class="type">number</span></span>
-</ol>
+
+        number
+    </ol>
 </dd>
 <dt>
 <a name="cd.spell.duration"></a>
@@ -191,8 +194,9 @@
 
     <h3>Returns:</h3>
 <ol>
-<span class="types"><span class="type">number</span></span>
-</ol>
+
+        number
+    </ol>
 </dd>
 <dt>
 <a name="cd.spell.ready"></a>
@@ -205,8 +209,9 @@
 
     <h3>Returns:</h3>
 <ol>
-<span class="types"><span class="type">boolean</span></span>
-</ol>
+
+        boolean
+    </ol>
 </dd>
 <dt>
 <a name="cd.spell.prevgcd"></a>
@@ -219,81 +224,64 @@
 
     <h3>Returns:</h3>
 <ol>
-<span class="types"><span class="type">number</span></span>
-</ol>
+
+        number
+    </ol>
 </dd>
 </dl>
 <h2 class="section-header"><a name="cd_item_"></a>cd[item]</h2>
 <dl class="function">
 <dt>
 <a name="cd.item.exists"></a>
-<strong>cd.item.exists ([itemID])</strong>
+<strong>cd.item.exists ()</strong>
 </dt>
 <dd>
     Checks if item is on cooldown or not.
 
 
-    <h3>Parameters:</h3>
-<ul>
-<li><span class="parameter">itemID</span>
-<span class="types"><span class="type">number</span></span>
-         The ID of the item to check.
-         (<em>optional</em>)
-        </li>
-</ul>
-<h3>Returns:</h3>
+
+    <h3>Returns:</h3>
 <ol>
-<span class="types"><span class="type">boolean</span></span>
-</ol>
+
+        boolean
+    </ol>
 </dd>
 <dt>
 <a name="cd.item.remain"></a>
-<strong>cd.item.remain ([itemID])</strong>
+<strong>cd.item.remain ()</strong>
 </dt>
 <dd>
     Gets the time remaining on item cooldown or 0 if not.
 
 
-    <h3>Parameters:</h3>
-<ul>
-<li><span class="parameter">itemID</span>
-<span class="types"><span class="type">number</span></span>
-         The ID of the item to check.
-         (<em>optional</em>)
-        </li>
-</ul>
-<h3>Returns:</h3>
+
+    <h3>Returns:</h3>
 <ol>
-<span class="types"><span class="type">number</span></span>
-</ol>
+
+        number
+    </ol>
 </dd>
 <dt>
 <a name="cd.item.duration"></a>
-<strong>cd.item.duration ([itemID])</strong>
+<strong>cd.item.duration ()</strong>
 </dt>
 <dd>
     Gets the total cooldown time of the item in seconds.
 
 
-    <h3>Parameters:</h3>
-<ul>
-<li><span class="parameter">itemID</span>
-<span class="types"><span class="type">number</span></span>
-         The ID of the item to check.
-         (<em>optional</em>)
-        </li>
-</ul>
-<h3>Returns:</h3>
+
+    <h3>Returns:</h3>
 <ol>
-<span class="types"><span class="type">number</span></span>
-</ol>
+
+        number
+    </ol>
 </dd>
 </dl>
 <h2 class="section-header"><a name="cd_slot"></a>cd.slot</h2>
 <dl class="function">
 <dt>
 <a name="cd.slot.duration"></a>
-<strong>cd.slot.duration ([slotID])</strong>
+<strong>cd.slot.duration (slotID)</strong>
 </dt>
 <dd>
     This function gets the base cooldown of a given item spell from an inventory slot, specific to the player character in game.
@@ -303,7 +291,6 @@
 <ul>
 <li><span class="parameter">slotID</span>
          - The ID of the inventory slot.
-         (<em>optional</em>)
         </li>
 </ul>
 <h3>Returns:</h3>
@@ -312,14 +299,10 @@
         number - The base cooldown of the item spell divided by 1000.
  This division is done to convert the time from milliseconds to seconds.
     </ol>
-<h3>Usage:</h3>
-<ul>
-<pre class="example">cd.slot.<span class="function-name">duration</span>() <span class="keyword">or</span> cd.slot.<span class="function-name">duration</span>(slotID)</pre>
-</ul>
 </dd>
 <dt>
 <a name="cd.slot.remain"></a>
-<strong>cd.slot.remain ([slotID])</strong>
+<strong>cd.slot.remain (slotID)</strong>
 </dt>
 <dd>
     Gets the time remaining on the equipment slot item cooldown or 0 if not.
@@ -329,7 +312,6 @@
 <ul>
 <li><span class="parameter">slotID</span>
          - The ID of the equipment slot to check.
-         (<em>optional</em>)
         </li>
 </ul>
 <h3>Returns:</h3>
@@ -343,7 +325,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
-<i style="float:right;">Last updated 2024-04-28 18:31:46 </i>
+<i style="float:right;">Last updated 2024-04-28 18:40:21 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
