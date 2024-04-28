@@ -81,13 +81,16 @@ br.api.itemCD = function(self,item,id)
     --if self[item] == nil then self[item] = {} end
     local cd = self
 
+    --- Otem Cooldown Functions
+    -- [item] denotes placeholder for name of item listed in System/Lists/Items.lua
+    -- @section cd[item]
     cd[item] = cd[item] or {}
 
     --- Checks if item is on cooldown or not.
     -- @function cd.item.exists
     -- @number[opt] itemID The ID of the item to check.
     -- @treturn boolean
-    -- @within cd.item
+    -- @within cd[item]
     cd[item].exists = function(itemID)
         if itemID == nil then itemID = id end
         return br._G.GetItemCooldown(itemID) > 0
@@ -97,7 +100,7 @@ br.api.itemCD = function(self,item,id)
     -- @function cd.item.remain
     -- @number[opt] itemID The ID of the item to check.
     -- @treturn number
-    -- @within cd.item
+    -- @within cd[item]
     cd[item].remain = function(itemID)
         if itemID == nil then itemID = id end
         if br._G.GetItemCooldown(itemID) ~= 0 then
@@ -110,7 +113,7 @@ br.api.itemCD = function(self,item,id)
     -- @function cd.item.duration
     -- @number[opt] itemID The ID of the item to check.
     -- @treturn number
-    -- @within cd.item
+    -- @within cd[item]
     cd[item].duration = function(itemID)
         if itemID == nil then itemID = id end
         return br._G.GetSpellBaseCooldown(select(2,br._G.GetItemSpell(itemID))) / 1000
