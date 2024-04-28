@@ -243,6 +243,7 @@ local File
 function unlock.TinkrUnlock()
 	if not tinkrUnlocked then
         if Unlocker and Unlocker.name == "Tinkr" then
+			br._G.print("Tinkr Unlocker Detected")
             tinkrUnlocked = true
 			File = Unlocker.Util.File
         else
@@ -285,6 +286,7 @@ function unlock.TinkrUnlock()
 	b.ObjectGUID = ObjectGUID
 	b.ObjectName = ObjectName
 	b.ObjectID = ObjectId
+	b.ObjectType = ObjectType
 	b.ObjectRawType = GameObjectType
 	b.ObjectIsUnit = function(...)
 		local ObjType = ObjectType(...)
