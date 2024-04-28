@@ -18,6 +18,7 @@ br.api.cd = function(self,spell,id)
     --- Checks if spell is on cooldown or not.
     -- @function cd.spell.exists
     -- @treturn boolean
+    -- @within cd.spell
     cd[spell].exists = function()
         local level = br._G.UnitLevel("player")
         local spellLevel = br._G.GetSpellLevelLearned(id)
@@ -28,6 +29,7 @@ br.api.cd = function(self,spell,id)
     --- Gets the time remaining on spell cooldown or 0 if not.
     -- @function cd.spell.remain
     -- @treturn number
+    -- @within cd.spell
     cd[spell].remain = function()
         local level = br._G.UnitLevel("player")
         local spellLevel = br._G.GetSpellLevelLearned(id)
@@ -38,6 +40,7 @@ br.api.cd = function(self,spell,id)
     --- Gets the time remaining on spell cooldown or 0 if not (alternate to cd.spell.remain() incase of typo).
     -- @function cd.spell.remains
     -- @treturn number
+    -- @within cd.spell
     cd[spell].remains = function()
         local level = br._G.UnitLevel("player")
         local spellLevel = br._G.GetSpellLevelLearned(id)
@@ -48,6 +51,7 @@ br.api.cd = function(self,spell,id)
     --- Gets the total time of the spell cooldown
     -- @function cd.spell.duration
     -- @treturn number
+    -- @within cd.spell
     cd[spell].duration = function()
         local _, CD = br._G.GetSpellCooldown(id)
         return CD
@@ -56,6 +60,7 @@ br.api.cd = function(self,spell,id)
     --- Checks if the spell is not on cooldown or is (opposite of cd.spell.exists()).
     -- @function cd.spell.ready
     -- @treturn boolean
+    -- @within cd.spell
     cd[spell].ready = function()
         local level = br._G.UnitLevel("player")
         local spellLevel = br._G.GetSpellLevelLearned(id)
@@ -66,6 +71,7 @@ br.api.cd = function(self,spell,id)
     --- Gets the duration of the spells Global Cooldown.
     -- @function cd.spell.prevgcd
     -- @treturn number
+    -- @within cd.spell
     cd[spell].prevgcd = function()
         return select(2, br._G.GetSpellBaseCooldown(id))
     end
@@ -76,12 +82,12 @@ br.api.itemCD = function(self,item,id)
     local cd = self
 
     cd[item] = cd[item] or {}
-    cd.slot = cd.slot or {}
 
     --- Checks if item is on cooldown or not.
     -- @function cd.item.exists
     -- @number[opt] itemID The ID of the item to check.
     -- @treturn boolean
+    -- @within cd.item
     cd[item].exists = function(itemID)
         if itemID == nil then itemID = id end
         return br._G.GetItemCooldown(itemID) > 0
@@ -91,6 +97,7 @@ br.api.itemCD = function(self,item,id)
     -- @function cd.item.remain
     -- @number[opt] itemID The ID of the item to check.
     -- @treturn number
+    -- @within cd.item
     cd[item].remain = function(itemID)
         if itemID == nil then itemID = id end
         if br._G.GetItemCooldown(itemID) ~= 0 then
@@ -103,12 +110,13 @@ br.api.itemCD = function(self,item,id)
     -- @function cd.item.duration
     -- @number[opt] itemID The ID of the item to check.
     -- @treturn number
+    -- @within cd.item
     cd[item].duration = function(itemID)
         if itemID == nil then itemID = id end
         return br._G.GetSpellBaseCooldown(select(2,br._G.GetItemSpell(itemID))) / 1000
     end
 
-    -- cd.slot = cd.slot or {}
+    cd.slot = cd.slot or {}
 
     --- This function gets the base cooldown of a given item spell
     -- from an inventory slot, specific to the player character in game.
