@@ -13,7 +13,6 @@ br.api.cd = function(self,spell,id)
     local cd = self.cd
 
     --- Spell Cooldown Functions - [spell] denotes placeholder for name of spell listed in System/Lists/Spells.lua
-    -- @section br.player.cd[spell]
     cd[spell] = cd[spell] or {}
 
     --- Checks if spell is on cooldown or not.
@@ -82,7 +81,7 @@ br.api.itemCD = function(self,item,id)
     --if self[item] == nil then self[item] = {} end
     local cd = self
 
-    -- @section cd[item] - Item Cooldown Functions - [item] denotes placeholder for name of item listed in System/Lists/Items.lua
+    --- Item Cooldown Functions - [item] denotes placeholder for name of item listed in System/Lists/Items.lua
     cd[item] = cd[item] or {}
 
     --- Checks if item is on cooldown or not.
@@ -119,14 +118,12 @@ br.api.itemCD = function(self,item,id)
     end
 
     --- Equipment Slot Cooldown Functions
-    -- @section cd.slot
     cd.slot = cd.slot or {}
 
-    --- This function gets the base cooldown of a given item spell
-    -- from an inventory slot, specific to the player character in game.
+    --- This function gets the base cooldown of a given item spell from an inventory slot, specific to the player character in game.
     -- @usage cd.slot.duration() or cd.slot.duration(slotID)
-    -- @tparam[opt=id] number slotID The ID of the inventory slot. If not provided, the default is 'id'.
-    -- @treturn number The base cooldown of the item spell divided by 1000.
+    -- @param[opt] number slotID The ID of the inventory slot.
+    -- @return number The base cooldown of the item spell divided by 1000.
     -- This division is done to convert the time from milliseconds to seconds.
     -- @within cd.slot
     cd.slot.duration = function(slotID)
@@ -137,8 +134,8 @@ br.api.itemCD = function(self,item,id)
 
     --- Gets the time remaining on the equipment slot item cooldown or 0 if not.
     -- @function cd.slot.remain
-    -- @number[opt] slotID The ID of the equipment slot to check.
-    -- @treturn number
+    -- @param[opt] numberslotID The ID of the equipment slot to check.
+    -- @return number
     -- @within cd.slot
     cd.slot.remain = function(slotID)
         if slotID == nil then slotID = id end
