@@ -8,6 +8,7 @@
 local _, br = ...
 if br.api == nil then br.api = {} end
 
+--- Reference for powerType variable.
 -- @table Power List - powerIndex = powerType
 -- @field 0 = mana
 -- @field 1 = rage
@@ -62,14 +63,14 @@ br.api.power = function(power,powerType,powerIndex)
     end
 
     --- Gets the maximum aount of the specified power
-    -- @function power.spell.max
+    -- @function power.powerType.max
     -- @return number
     power[powerType].max = function()
         return br.getPowerMax("player",powerIndex)
     end
 
     --- Gets the current amount of specified power as a percentage
-    -- @function power.spell.percent
+    -- @function power.powerType.percent
     -- @return number
     power[powerType].percent = function()
         if br.getPowerMax("player",powerIndex) == 0 then
@@ -80,14 +81,14 @@ br.api.power = function(power,powerType,powerIndex)
     end
 
     --- Gets the current rate of regeneration for the specified power
-    -- @function power.spell.regen
+    -- @function power.powerType.regen
     -- @return number
     power[powerType].regen = function()
         return br.getRegen("player")
     end
 
     --- Gets the time in seconds until the specified power is maxed
-    -- @function power.spell.ttm
+    -- @function power.powerType.ttm
     -- @return number
     power[powerType].ttm = function(amount)
         if isDKRunes then
