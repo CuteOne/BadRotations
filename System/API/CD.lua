@@ -13,7 +13,7 @@ br.api.cd = function(self,spell,id)
     local cd = self.cd
 
     --- Spell Cooldown Functions - [spell] denotes placeholder for name of spell listed in System/Lists/Spells.lua
-    -- @submodule cd[spell]
+    -- @section br.player.cd[spell]
     cd[spell] = cd[spell] or {}
 
     --- Checks if spell is on cooldown or not.
