@@ -1,0 +1,538 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<head>
+<title>Reference</title>
+<link href="../ldoc.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div id="container">
+<div id="product">
+<div id="product_logo"></div>
+<div id="product_name"><big><b></b></big></div>
+<div id="product_description"></div>
+</div> <!-- id="product" -->
+<div id="main">
+<!-- Menu -->
+<div id="navigation">
+<br/>
+<h1>BadRotations</h1>
+<ul>
+<li><a href="../index.html">Index</a></li>
+</ul>
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+<li><a href="../modules/br.player.anima.html">br.player.anima</a></li>
+<li><a href="../modules/br.player.buff.html">br.player.buff</a></li>
+<li><a href="../modules/br.player.cd.html">br.player.cd</a></li>
+<li><a href="../modules/br.player.cast.html">br.player.cast</a></li>
+<li><a href="../modules/br.player.charges.html">br.player.charges</a></li>
+<li><a href="../modules/br.player.conduit.html">br.player.conduit</a></li>
+<li><a href="../modules/br.player.covenant.html">br.player.covenant</a></li>
+<li><a href="../modules/br.player.debuff.html">br.player.debuff</a></li>
+<li><a href="../modules/br.player.enemies.html">br.player.enemies</a></li>
+<li><a href="../modules/br.player.equiped.html">br.player.equiped</a></li>
+<li><a href="../modules/br.player.essence.html">br.player.essence</a></li>
+<li><a href="../modules/br.player.has.html">br.player.has</a></li>
+<li><a href="../modules/br.player.known.html">br.player.known</a></li>
+<li><a href="../modules/br.player.module.html">br.player.module</a></li>
+<li><a href="../modules/br.player.power.html">br.player.power</a></li>
+<li><a href="../modules/br.player.talent.html">br.player.talent</a></li>
+<li><strong>br.player.ui</strong></li>
+<li><a href="../modules/br.player.use.html">br.player.use</a></li>
+</ul>
+</div>
+<div id="content">
+<h1>Module <code>br.player.ui</code></h1>
+<p>These functions helpful functions for commonly used features in all profiles.</p>
+<p>
+ UI functions are stored in br.player.ui and can be utilized by `local ui = br.player.ui` in your profile.</p>
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+<tr>
+<td class="name" nowrap=""><a href="#alwaysCdNever">ui.alwaysCdNever (thisOption)</a></td>
+<td class="summary">Checks if the passed option is set to "Always, CD, or Never"</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#alwaysCdAoENever">ui.alwaysCdAoENever (thisOption[, minUnits=3[, enemyCount]])</a></td>
+<td class="summary">Checks if the passed option is set to "Always, AOE/CD, CD, or Never"</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#chatOverlay">ui.chatOverlay (text)</a></td>
+<td class="summary">Displays the passed text as an overlay on the chat windows</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#checked">ui.checked (thisOption)</a></td>
+<td class="summary">Checks if the passed option is enabled</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#debug">ui.debug (text)</a></td>
+<td class="summary">Displays the text as a debug message in chat (if Addon Debug Messages option is enabled)</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#delay">ui.delay (delayName, delayTime)</a></td>
+<td class="summary">Returns false unless the specified delay time has passed since it was last true</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#fullBags">ui.fullBags ()</a></td>
+<td class="summary">Checks if your bags are full</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#isMouseDown">ui.isMouseDown ([mouseButton])</a></td>
+<td class="summary">Checks if the mouse button specified is down, or any if none are specified</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#pause">ui.pause ()</a></td>
+<td class="summary">Returns true if special conditions are met to pause</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#print">ui.print (msg)</a></td>
+<td class="summary">Shows the specified message in chat.</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#pullTimer">ui.pullTimer ()</a></td>
+<td class="summary">Returns the time remaining on the pull timer (DBM/BigWigs)</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#time">ui.time ()</a></td>
+<td class="summary">Returns the time, value of GetTime</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#timer">ui.timer (timerName, interval)</a></td>
+<td class="summary">Returns false unless the specified interval has passed since it was last true</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#toggle">ui.toggle (thisToggle)</a></td>
+<td class="summary">Checks if the specified toggle from the toggle options is pressed</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#useAOE">ui.useAOE ([range=8[, minCount=3[, useTarget="player"]]])</a></td>
+<td class="summary">Checks if the specified parameters are valid for AOE, based on Rotation toggle setting.</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#useCDs">ui.useCDs ()</a></td>
+<td class="summary">Check if Cooldowns should be used or not based on CD toggle setting.</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#useDefensive">ui.useDefensive ()</a></td>
+<td class="summary">Check if Defensives should be used or not based on Defensive toggle setting.</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#useInterrupt">ui.useInterrupt ()</a></td>
+<td class="summary">Check if Interrupts should be used or not based on Interrupt toggle setting.</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#useST">ui.useST ([range=8[, minCount=3[, useTarget="player"]]])</a></td>
+<td class="summary">Checks if the specified parameters are valid for Single Target, based on Rotation toggle setting.</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#value">ui.value (thisOption)</a></td>
+<td class="summary">Returns the value of the specified option.</td>
+</tr>
+</table>
+<br/>
+<br/>
+<h2 class="section-header"><a name="Functions"></a>Functions</h2>
+<dl class="function">
+<dt>
+<a name="alwaysCdNever"></a>
+<strong>ui.alwaysCdNever (thisOption)</strong>
+</dt>
+<dd>
+    Checks if the passed option is set to "Always, CD, or Never"
+
+
+    <h3>Parameters:</h3>
+<ul>
+<li><span class="parameter">thisOption</span>
+<span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         - Name of the option from the defined profile options.
+        </li>
+</ul>
+</dd>
+<dt>
+<a name="alwaysCdAoENever"></a>
+<strong>ui.alwaysCdAoENever (thisOption[, minUnits=3[, enemyCount]])</strong>
+</dt>
+<dd>
+    Checks if the passed option is set to "Always, AOE/CD, CD, or Never"
+
+
+    <h3>Parameters:</h3>
+<ul>
+<li><span class="parameter">thisOption</span>
+<span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         - Name of the option from the defined profile options.
+        </li>
+<li><span class="parameter">minUnits</span>
+<span class="types"><span class="type">number</span></span>
+         - Minimum Number of units to cound for AOE checks.
+         (<em>default</em> 3)
+        </li>
+<li><span class="parameter">enemyCount</span>
+<span class="types"><span class="type">number</span></span>
+         - Number of enemies for a given range, default is the number of enemies in 40yrds.
+         (<em>optional</em>)
+        </li>
+</ul>
+</dd>
+<dt>
+<a name="chatOverlay"></a>
+<strong>ui.chatOverlay (text)</strong>
+</dt>
+<dd>
+    Displays the passed text as an overlay on the chat windows
+
+
+    <h3>Parameters:</h3>
+<ul>
+<li><span class="parameter">text</span>
+<span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         - The text to display.
+        </li>
+</ul>
+</dd>
+<dt>
+<a name="checked"></a>
+<strong>ui.checked (thisOption)</strong>
+</dt>
+<dd>
+    Checks if the passed option is enabled
+
+
+    <h3>Parameters:</h3>
+<ul>
+<li><span class="parameter">thisOption</span>
+<span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         - Name of the option from the defined profile options.
+        </li>
+</ul>
+<h3>Returns:</h3>
+<ol>
+
+        boolean
+    </ol>
+</dd>
+<dt>
+<a name="debug"></a>
+<strong>ui.debug (text)</strong>
+</dt>
+<dd>
+    Displays the text as a debug message in chat (if Addon Debug Messages option is enabled)
+
+
+    <h3>Parameters:</h3>
+<ul>
+<li><span class="parameter">text</span>
+<span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         - The message to show in chat.
+        </li>
+</ul>
+</dd>
+<dt>
+<a name="delay"></a>
+<strong>ui.delay (delayName, delayTime)</strong>
+</dt>
+<dd>
+    Returns false unless the specified delay time has passed since it was last true
+
+
+    <h3>Parameters:</h3>
+<ul>
+<li><span class="parameter">delayName</span>
+<span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         - The name of the delay check, should be unique.
+        </li>
+<li><span class="parameter">delayTime</span>
+<span class="types"><span class="type">number</span></span>
+         - The length of time to wait until true, in seconds.
+        </li>
+</ul>
+<h3>Returns:</h3>
+<ol>
+
+        boolean
+    </ol>
+</dd>
+<dt>
+<a name="fullBags"></a>
+<strong>ui.fullBags ()</strong>
+</dt>
+<dd>
+    Checks if your bags are full
+
+
+
+    <h3>Returns:</h3>
+<ol>
+
+        boolean
+    </ol>
+</dd>
+<dt>
+<a name="isMouseDown"></a>
+<strong>ui.isMouseDown ([mouseButton])</strong>
+</dt>
+<dd>
+    Checks if the mouse button specified is down, or any if none are specified
+
+
+    <h3>Parameters:</h3>
+<ul>
+<li><span class="parameter">mouseButton</span>
+<span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         - Name of the mouse button.
+         (<em>optional</em>)
+        </li>
+</ul>
+<h3>Returns:</h3>
+<ol>
+
+        boolean
+    </ol>
+</dd>
+<dt>
+<a name="pause"></a>
+<strong>ui.pause ()</strong>
+</dt>
+<dd>
+    Returns true if special conditions are met to pause
+
+
+
+    <h3>Returns:</h3>
+<ol>
+
+        boolean
+    </ol>
+<h3>See also:</h3>
+<ul>
+</ul>
+</dd>
+<dt>
+<a name="print"></a>
+<strong>ui.print (msg)</strong>
+</dt>
+<dd>
+    Shows the specified message in chat.
+
+
+    <h3>Parameters:</h3>
+<ul>
+<li><span class="parameter">msg</span>
+<span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         - The message to show in chat.
+        </li>
+</ul>
+</dd>
+<dt>
+<a name="pullTimer"></a>
+<strong>ui.pullTimer ()</strong>
+</dt>
+<dd>
+    Returns the time remaining on the pull timer (DBM/BigWigs)
+
+
+
+    <h3>Returns:</h3>
+<ol>
+
+        number
+    </ol>
+</dd>
+<dt>
+<a name="time"></a>
+<strong>ui.time ()</strong>
+</dt>
+<dd>
+    Returns the time, value of GetTime
+
+
+
+
+
+
+
+</dd>
+<dt>
+<a name="timer"></a>
+<strong>ui.timer (timerName, interval)</strong>
+</dt>
+<dd>
+    Returns false unless the specified interval has passed since it was last true
+
+
+    <h3>Parameters:</h3>
+<ul>
+<li><span class="parameter">timerName</span>
+<span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         - The name of the timer check, should be unique.
+        </li>
+<li><span class="parameter">interval</span>
+<span class="types"><span class="type">number</span></span>
+         - The length of time to wait until true, in seconds.
+        </li>
+</ul>
+<h3>Returns:</h3>
+<ol>
+
+        boolean
+    </ol>
+</dd>
+<dt>
+<a name="toggle"></a>
+<strong>ui.toggle (thisToggle)</strong>
+</dt>
+<dd>
+    Checks if the specified toggle from the toggle options is pressed
+
+
+    <h3>Parameters:</h3>
+<ul>
+<li><span class="parameter">thisToggle</span>
+<span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         - Name of the toggle to check.
+        </li>
+</ul>
+<h3>Returns:</h3>
+<ol>
+
+        boolean
+    </ol>
+</dd>
+<dt>
+<a name="useAOE"></a>
+<strong>ui.useAOE ([range=8[, minCount=3[, useTarget="player"]]])</strong>
+</dt>
+<dd>
+    Checks if the specified parameters are valid for AOE, based on Rotation toggle setting.
+
+
+    <h3>Parameters:</h3>
+<ul>
+<li><span class="parameter">range</span>
+<span class="types"><span class="type">number</span></span>
+         - The range of the AOE damage in yards.
+         (<em>default</em> 8)
+        </li>
+<li><span class="parameter">minCount</span>
+<span class="types"><span class="type">number</span></span>
+         - The minimum number of units to be in range before true
+         (<em>default</em> 3)
+        </li>
+<li><span class="parameter">useTarget</span>
+<span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         - the reference unit to check range and units against.
+         (<em>default</em> "player")
+        </li>
+</ul>
+</dd>
+<dt>
+<a name="useCDs"></a>
+<strong>ui.useCDs ()</strong>
+</dt>
+<dd>
+    Check if Cooldowns should be used or not based on CD toggle setting.
+
+
+
+    <h3>Returns:</h3>
+<ol>
+
+        boolean
+    </ol>
+</dd>
+<dt>
+<a name="useDefensive"></a>
+<strong>ui.useDefensive ()</strong>
+</dt>
+<dd>
+    Check if Defensives should be used or not based on Defensive toggle setting.
+
+
+
+    <h3>Returns:</h3>
+<ol>
+
+        boolean
+    </ol>
+</dd>
+<dt>
+<a name="useInterrupt"></a>
+<strong>ui.useInterrupt ()</strong>
+</dt>
+<dd>
+    Check if Interrupts should be used or not based on Interrupt toggle setting.
+
+
+
+    <h3>Returns:</h3>
+<ol>
+
+        boolean
+    </ol>
+</dd>
+<dt>
+<a name="useST"></a>
+<strong>ui.useST ([range=8[, minCount=3[, useTarget="player"]]])</strong>
+</dt>
+<dd>
+    Checks if the specified parameters are valid for Single Target, based on Rotation toggle setting.
+
+
+    <h3>Parameters:</h3>
+<ul>
+<li><span class="parameter">range</span>
+<span class="types"><span class="type">number</span></span>
+         - The range of the AOE damage in yards.
+         (<em>default</em> 8)
+        </li>
+<li><span class="parameter">minCount</span>
+<span class="types"><span class="type">number</span></span>
+         - The minimum number of units to be in range before true
+         (<em>default</em> 3)
+        </li>
+<li><span class="parameter">useTarget</span>
+<span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         - the reference unit to check range and units against.
+         (<em>default</em> "player")
+        </li>
+</ul>
+</dd>
+<dt>
+<a name="value"></a>
+<strong>ui.value (thisOption)</strong>
+</dt>
+<dd>
+    Returns the value of the specified option.
+
+
+    <h3>Parameters:</h3>
+<ul>
+<li><span class="parameter">thisOption</span>
+<span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         - The name of the option specified in the options section
+        </li>
+</ul>
+<h3>Returns:</h3>
+<ol>
+
+        number
+    </ol>
+</dd>
+</dl>
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2024-04-28 20:59:01 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>
