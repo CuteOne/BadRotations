@@ -5,17 +5,17 @@ exclude_files = {
 	"**/Libs",
 	"**/Unlockers",
 }
--- only = {
--- 	"011", -- syntax
--- 	"1", -- globals
--- }
+only = {
+	"011", -- syntax
+	"1", -- globals
+}
 ignore = {
 	"11/SLASH_.*", -- slash handlers
 	"1/[A-Z][A-Z][A-Z0-9_]+", -- three letter+ constants
-	"211", -- unused local variables
-	"212", -- unused arguments
-	"213", -- unused loop variable
-	"542", -- empty if branches
+	-- "211", -- unused local variables
+	-- "212", -- unused arguments
+	-- "213", -- unused loop variable
+	-- "542", -- empty if branches
 }
 globals = {
 	"br",
