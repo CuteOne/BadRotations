@@ -12,7 +12,7 @@ br.api.equiped = function(self,item,id)
     local equiped = self
 
     --- Checks if item is equiped or not.
-    -- @function equiped.item.exists
+    -- @function equiped.item
     -- @number[opt] slotID The equipment slot number to check.
     -- @treturn boolean
     equiped[item] = function(slotID)
@@ -27,8 +27,7 @@ br.api.equiped = function(self,item,id)
     -- It can also check a specific slotID.
     -- If no slotID is provided, it checks all slots for that item.
     -- @param itemID the ID of the item you want to check if it's equipped
-    -- @param slotID optional parameter. If specified, it represents the ID
-    -- of the slot you want to check for the existence of the given item.
+    -- @param slotID optional parameter. If specified, it represents the ID of the slot you want to check for the existence of the given item.
     -- @return boolean value indicating whether the item with specific ID is equipped in the specified slot (if provided)
     -- @usage equipes.item(12345) -- will return true if item with ID 12345 is equipped anywhere
     -- @usage equipes.item(12345, 1) -- will return true if item with ID 12345 is equipped in slot 1

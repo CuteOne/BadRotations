@@ -1,4 +1,3 @@
----@diagnostic disable: inject-field
 ---
 -- These functions helpful functions for commonly used features in all profiles.
 -- Module functions are stored in br.player.module and can be utilized by `local module = br.player.module` in your profile.
@@ -10,7 +9,7 @@ br.api.module = function(self)
     -- Local reference to actionList
     local buff              = self.buff
     local cast              = self.cast
-    local module            = self.module
+    local module            --= self.module
     local has               = self.has
     local item              = self.items
     local ui                = self.ui
@@ -200,9 +199,8 @@ br.api.module = function(self)
         end
     end
 
-    --- Flask Module - Attempts to use the flask specified in the Profile Options.
-    -- @function module.Flask
-    -- @string buffType The type of flask to use. (e.g. "Agility", "Intellect", "Stamina", "Strength")
+    --- CombatPotionUp Module - Attempts to use the combat potion specified in the Profile Options.
+    -- @function module.CombatPotionUp
     -- @bool[opt] section If set will generate the options for this module in the Profile Options. Otherwise, will run the module.
     module.CombatPotionUp = function(section)
         local potList = {"Pot Ultimate Power","Pot of Power"}
@@ -220,6 +218,10 @@ br.api.module = function(self)
             end
         end
     end
+
+    --- PhialUp Module - Attmpts to use the phial specified in the Profile Options
+    -- @function module.PhailUp
+    -- @bool[opt] section If set will generate the options for this module in the Profile Options. Otherwise, will run the module.
     module.PhialUp = function(section)
         local phialList = {"Iced Phial of Corrupting Rage","Phial of Glacial Fury","Phial of Tepid Versatility"}
         if section ~= nil then
@@ -251,6 +253,10 @@ br.api.module = function(self)
             end
         end
     end
+
+    --- ImbueUp Module - Attmpts to use the weapon imbuement specified in the Profile Options
+    -- @function module.ImbueUp
+    -- @bool[opt] section If set will generate the options for this module in the Profile Options. Otherwise, will run the module.
     module.ImbueUp = function(section)
         local runeList = {"Buzzing Rune","Chirping Rune","Howling Rune","Hissing Rune"}
         if section ~= nil then
@@ -273,6 +279,10 @@ br.api.module = function(self)
         end
     end
 
+    --- FlaskUp Module - Attempts to use the flask specified in the Profile Options.
+    -- @function module.FlaskUp
+    -- @string buffType The type of flask to use. (e.g. "Agility", "Intellect", "Stamina", "Strength")
+    -- @bool[opt] section If set will generate the options for this module in the Profile Options. Otherwise, will run the module.
     module.FlaskUp = function(buffType,section)
         local function getFlaskByType(buff)
             local thisFlask = ""

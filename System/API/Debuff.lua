@@ -274,6 +274,10 @@ br.api.debuffs = function(debuff,k,v)
         return (spec == 103 or spec == 259) and debuff.bleed[thisUnit] or 0
     end
 
+    --- Gets the number of debuff ticks that will be gained by reapplying the debuff to the specified unit.
+    -- @function debuff.spell.ticksGainedOnRefresh
+    -- string[opt="target"] thisUnit The unit to check the ticks gained by reapplying the debuff on.
+    -- @treturn number
     debuff.ticksGainedOnRefresh = function(thisUnit)
         local name, _, _, _, duration, expirationTime = br.UnitDebuffID(thisUnit, v, nil, "PLAYER")
         local haste = br._G.UnitSpellHaste("player")
