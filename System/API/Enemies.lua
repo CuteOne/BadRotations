@@ -47,8 +47,7 @@ local function setVariable(self,unit,range,checkNoCombat,facing,type,table,count
     if count > 0 then br.insertTableIntoTable(self.enemies[insertTable],table) end
 end
 br.api.enemies = function(self)
-    ---@class self.enemies
-    local enemies --= self.enemies
+    local enemies = self.enemies
     if enemies.cone == nil then enemies.cone = {} end
     if enemies.rect == nil then enemies.rect = {} end
 

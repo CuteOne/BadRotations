@@ -10,7 +10,7 @@ if br.api == nil then br.api = {} end
 
 br.api.unit = function(self)
     -- Local reference to unit
-    local unit --= self.unit
+    local unit = self.unit
 
     ----------------
     --- Unit API ---

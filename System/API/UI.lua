@@ -6,7 +6,7 @@ local _, br = ...
 if br.api == nil then br.api = {} end
 
 br.api.ui = function(self)
-    local ui --= self.ui
+    local ui = self.ui
     if ui ~= nil and ui.mode == nil then ui.mode = {} end
 
     --- Checks if the passed option is set to "Always, CD, or Never"

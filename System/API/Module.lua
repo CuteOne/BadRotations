@@ -9,7 +9,7 @@ br.api.module = function(self)
     -- Local reference to actionList
     local buff              = self.buff
     local cast              = self.cast
-    local module            --= self.module
+    local module            = self.module
     local has               = self.has
     local item              = self.items
     local ui                = self.ui

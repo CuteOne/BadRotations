@@ -5,7 +5,7 @@
 local _, br = ...
 if br.api == nil then br.api = {} end
 br.api.units = function(self)
-    local units --= self.units
+    local units = self.units
 
     --- Gets the "best" unit within a specified range in front or around the player.
     -- Call once per profile rotation and use the variable it creates in br.player.units
