@@ -178,8 +178,8 @@ local function runRotation()
     cd                                            = br.player.cd
     enemies                                       = br.player.enemies
     module                                        = br.player.module
-    runes                                         = br.player.power.runes.amount()
-    runicPower                                    = br.player.power.runicPower.amount()
+    runes                                         = br.player.power.runes()
+    runicPower                                    = br.player.power.runicPower()
     ui                                            = br.player.ui
     unit                                          = br.player.unit
     units                                         = br.player.units

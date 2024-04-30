@@ -1,0 +1,54 @@
+name: Lint
+
+on: [push]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  lua-check:
+    name: Lua Check
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: read
+      checks: write
+      pull-requests: read
+    if: (github.actor != 'dependabot[bot]')
+
+    steps:
+    - name: Checkout source code
+      uses: actions/checkout@v4
+
+    # Optional step to run on only changed files
+    - name: Get changed files
+      id: changed-files
+      uses: tj-actions/changed-files@v44
+      with:
+        files: |
+          **.lua
+
+    - name: List changed files
+      run: |
+        for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+          echo "$file was changed"
+        done
+
+    - name: Lua Check
+      if: steps.changed-files.outputs.any_changed == 'true'
+      uses: Kong/public-shared-actions/code-check-actions/lua-lint@main
+      with:
+        # additional_args: '--no-default-config --config .luacheckrc'
+        files: ${{ steps.changed-files.outputs.all_changed_files }}
+
+# name: Luacheck
+# on: [push, pull_request]
+# jobs:
+#   lua-lint:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout
+#         uses: actions/checkout@v4
+#       - name: Luacheck linter
+#         uses: lunarmodules/luacheck@v1

@@ -1,8 +1,8 @@
----
--- These functions help in retrieving information about items.
--- Item functions are stored in br.player.item and can be utilized by `local item = br.player.item` in your profile.
--- `item` in the function represent the name in the item list defined in System/List/Items.lua
--- @module br.player.item
+-- ---
+-- -- These functions help in retrieving information about items.
+-- -- Item functions are stored in br.player.item and can be utilized by `local item = br.player.item` in your profile.
+-- -- `item` in the function represent the name in the item list defined in System/List/Items.lua
+-- -- @module br.player.item
 
 local _, br = ...
 if br.api == nil then br.api = {} end

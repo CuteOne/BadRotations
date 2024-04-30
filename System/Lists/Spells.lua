@@ -4137,7 +4137,7 @@ br.lists.spells = {
         -- Demonology
         [266] = {
             abilities                       = {
-		axeToss                     = 89766,
+		        axeToss                     = 89766,
                 bilescourgeBombers          = 267211,
                 callDreadstalkers           = 104316,
                 commandDemon                = 119898,
@@ -4358,7 +4358,7 @@ br.lists.spells = {
                 summonFelImp                = 688,
                 summonImp                   = 688,
                 summonInfernal              = 1122,
-                summonSuccubus              = 712,
+                summonSuccubus              = 366222,
                 summonVoidwalker            = 697,
                 summonWrathguard            = 112870,
                 unendingBreath              = 5697,

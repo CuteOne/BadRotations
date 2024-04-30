@@ -34,7 +34,7 @@ local function setVariable(self,unit,range,checkNoCombat,facing,type,table,count
     -- Build enemies.yards variable
     local insertTable = "yards"..range..type -- Ex: enemies.yards8 (returns all enemies around player in 8yrds), Adds Table Type (r for Rect, c for Cone, blank for Normal)
     if unit ~= "player" then
-        -- letter tag on end based on type of unit passed, if target or enemy unit then "t" otherwise first letter of what is passed in: f - "focus", p - "pet", m - "mouseover", etc 
+        -- letter tag on end based on type of unit passed, if target or enemy unit then "t" otherwise first letter of what is passed in: f - "focus", p - "pet", m - "mouseover", etc
         if br.units[unit] ~= nil then
             insertTable = insertTable.."t" -- Ex: enemies.yards8t (returns all enemies around target in 8yrds)
         else
