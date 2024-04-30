@@ -14,6 +14,9 @@ function br.canUseItem(itemID)
 	end
 	if itemID <= 19 then
 		local slotItemID = br._G.GetInventoryItemID("player", itemID)
+		if slotItemID == nil or slotItemID==0 then
+			return false
+		end
 		if br._G.GetItemSpell(slotItemID) ~= nil then
 			if br._G.GetItemCooldown(slotItemID) == 0 and br._G.IsUsableItem(slotItemID) then
 				return true
