@@ -180,3 +180,9 @@ Raidable means if its good to raid with.
 
 ### Warrior
 
+- Fury
+
+|    rotation    |   author   |patch |coverage|status |  readiness  |last updated|
+|----------------|------------|:----:|:------:|:-----:|:-----------:|-----------:|
+|BrewFuryLeveling|BrewingCoder|10.2.6|  20%   |Limited|:interrobang:|  05/01/2024|
+
