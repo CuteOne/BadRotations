@@ -151,39 +151,42 @@ local function runRotation()
                 --- In Combat - Interrupts ---
                 ------------------------------
                 -- Start Attack
-                if mode.mover == 1 and spell.known.charge() then
-                    if cast.able.charge("target") and br.getDistance("player", "target") >= 8 and br.getDistance("player", "target") <= 25 then
+                if mode.mover == 1 and cast.able.charge("target") then
+                    if br.getDistance("player", "target") >= 8 and br.getDistance("player", "target") <= 25 then
                         if cast.charge("target") then ui.debug("Casting Charge") return true end
                     end
                 end
-                -- actions=auto_attack
-                if not cast.auto.autoAttack() and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
-                    if cast.autoAttack() then ui.debug("Casting Auto Attack") return true end
-                end
-                -- Execute
-                if unit.hp("target") < 20 and spell.known.execute() and cast.able.execute and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
-                    if cast.execute() then ui.debug("Casting Execute") return true end
-                end
-                -- Victory Rush
-                if spell.known.victoryRush() and cast.able.victoryRush and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
-                    if cast.victoryRush() then ui.debug("Casting Victory Rush") return true end
-                end
-                -- Shield Slam
-                if spell.known.shieldSlam() and cast.able.shieldSlam and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
-                    if cast.shieldSlam() then ui.debug("Casting Shield Slam") return true end
-                end
-                -- WhirlWind
-                if spell.known.whirlwind() and cast.able.whirlwind() and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
-                    if cast.whirlwind() then ui.debug("Casting Whirlwind") return true end
-                end
-                -- Slam
-                if spell.known.slam() and cast.able.slam() and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
-                    if cast.slam() then ui.debug("Casting Slam") return true end
-                end
-                --Pummel Interrupt
-                if br.canInterrupt() then
-                    if spell.known.pummel() and cast.able.pummel() and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
-                        if cast.pummel() then ui.debug("Casting Pummel") return true end
+
+                if unit.distance("target") <= 6 then
+                    
+                    if unit.hp("target") < 20 and cast.able.execute() then
+                        if cast.execute() then ui.debug("Casting Execute") return true end
+                    end
+                    -- actions=auto_attack
+                    if not cast.auto.autoAttack() and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
+                        if cast.autoAttack() then ui.debug("Casting Auto Attack") return true end
+                    end
+                    -- Victory Rush
+                    if  cast.able.victoryRush()  then
+                        if cast.victoryRush() then ui.debug("Casting Victory Rush") return true end
+                    end
+                    -- Shield Slam
+                    if cast.able.shieldSlam()  then
+                        if cast.shieldSlam() then ui.debug("Casting Shield Slam") return true end
+                    end
+                    -- WhirlWind
+                    if cast.able.whirlwind() then
+                        if cast.whirlwind() then ui.debug("Casting Whirlwind") return true end
+                    end
+                    -- Slam
+                    if  cast.able.slam() then
+                        if cast.slam() then ui.debug("Casting Slam") return true end
+                    end
+                    --Pummel Interrupt
+                    if br.canInterrupt() then
+                        if  cast.able.pummel() then
+                            if cast.pummel() then ui.debug("Casting Pummel") return true end
+                        end
                     end
                 end
             end -- End In Combat Rotation
