@@ -82,7 +82,7 @@ local actionList = {}
 actionList.Defensive = function()
     --Shield Block
     if unit.hp() < 70 then
-        if spell.known.shieldBlock() and cast.able.shieldBlock and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
+        if cast.able.shieldBlock() and unit.exists("target") and unit.distance("target") < 5 then
             if cast.shieldBlock() then ui.debug("Casting Shield Block") return true end
         end
     end
@@ -183,11 +183,11 @@ local function runRotation()
                         if cast.slam() then ui.debug("Casting Slam") return true end
                     end
                     --Pummel Interrupt
-                    if br.canInterrupt() then
-                        if  cast.able.pummel() then
-                            if cast.pummel() then ui.debug("Casting Pummel") return true end
-                        end
-                    end
+                    -- if br.canInterrupt() then
+                    --     if  cast.able.pummel() then
+                    --         if cast.pummel() then ui.debug("Casting Pummel") return true end
+                    --     end
+                    --end
                 end
             end -- End In Combat Rotation
         end
