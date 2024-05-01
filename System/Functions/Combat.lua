@@ -256,7 +256,7 @@ function br.hasThreat(unit, playerUnit)
 	else
 		targetUnit = "None"
 	end
-	if targetUnit == "None" then
+	if not targetUnit or targetUnit == "None" then
 		targetFriend = false
 	else
 		targetFriend = (br.isTargeting(unit) or br._G.UnitName(targetUnit) == br._G.UnitName("player")

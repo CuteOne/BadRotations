@@ -395,7 +395,9 @@ function br.unlock:NNUnlock()
 	end
 	b.GetDirectoryFiles = function(...)
 		local str = ...
-		if str == nil then return "" end
+		if str == nil or str == "*" then return "" end
+		-- print("str: "..tostring(str))
+		str = str.."*.lua"--:match("*.lua") or str
 		local filter = str:gsub(str:match("*.lua"), "*")
 		-- print("Filter: "..filter)
 		local files = ListFiles(filter)

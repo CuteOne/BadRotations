@@ -1,9 +1,9 @@
-local NoName = ...
-if --[[(...).name ~= "NoName" or]] NoName.Utils == nil then return end
-local read   = NoName.Utils.Storage.read
-local write  = NoName.Utils.Storage.write
-local JSON   = NoName.Utils.JSON
-local AceGUI = NoName.Utils.AceGUI
+local Nn = ...
+-- if --[[(...).name ~= "Nn" or]] Nn == nil then return end
+-- local read   = Nn.Utils.Storage.read
+-- local write  = Nn.Utils.Storage.write
+-- local JSON   = Nn.Utils.JSON
+-- local AceGUI = Nn.Utils.AceGUI
 local toc = ReadFile('/scripts/BadRotations/BadRotations.toc')
 local br = {}
 br.files = {}
@@ -98,7 +98,8 @@ for i = 1, #br.files do
     local load = br.files[i].load
 	if load then
         -- print("Loading File: /scripts/"..file)
-		NoName:Require('/scripts/'..file, br)
+		-- Nn:Require('/scripts/'..file, br)
+        Nn:Require('/scripts/'..file, br)
     -- else
     --     print("Did not load File: /scripts/"..file)
 	end
