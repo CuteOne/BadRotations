@@ -30,7 +30,7 @@ local Colors = DiesalStyle.Colors
 local Formatters = DiesalStyle.Formatters
 -- ~~| Locals |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 local OUTLINES = {'_LEFT','_RIGHT','_TOP','_BOTTOM'}
-local MEDIA_PATH = type(AddonName) == 'table' and string.format("Interface\\AddOns\\Media\\")
+local MEDIA_PATH = type(AddonName) ~= 'string' and string.format("Interface\\AddOns\\Media\\")
   or AddonName == 'DiesalLibs' and string.format("Interface\\AddOns\\%s\\%s\\Media\\",AddonName,MAJOR)
   or string.format("Interface\\AddOns\\%s\\Libs\\%s\\Media\\",AddonName,MAJOR)
 local DEFAULT_COLOR = 'FFFFFF'
