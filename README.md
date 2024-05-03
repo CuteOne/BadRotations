@@ -146,9 +146,10 @@ Raidable means if its good to raid with.
 
 - WindWalker
 
-|   rotation   |   author   |patch |coverage|status |  readiness  |last updated|
-|--------------|------------|:----:|:------:|:-----:|:-----------:|-----------:|
-|BrewWindWalker|BrewingCoder|10.2.5|  95%   |Limited|:interrobang:|  04/30/2024|
+|   rotation   |   author   | patch |coverage|status |  readiness  |last updated|
+|--------------|------------|:-----:|:------:|:-----:|:-----------:|-----------:|
+|BrewWWPVE     |BrewingCoder|Unknown|Unknown |Unknown|:interrobang:|  05/03/2024|
+|BrewWindWalker|BrewingCoder|10.2.5 |  95%   |Limited|:interrobang:|  04/30/2024|
 
 
 ### Paladin
