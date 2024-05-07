@@ -1,48 +1,78 @@
+---
+-- These functions help in retrieving information about spells.
+-- Spell functions are stored in br.player.spell and can be utilized by `local spell = br.player.spell in your profile.
+-- `k` in the function represent the name in the actions list (Spec, Shared Class, Shared Global Lists) defined in System/List/Spells.lua
+-- @module br.player.spell
 local _, br = ...
 if br.api == nil then br.api = {} end
--- cd is the table located at br.player.cd
--- charges is the table located at br.player.charges
--- cast is the table located at br.player.cast
--- v is the spellID passed from the builder which cycles all the collected ability spells from the spell list for the spec
--- spell in the examples represent the name in the ability list (Spec, Shared Class, Shared Global Lists) defined in System/List/Spells.lua
-br.api.spells = function(spells,k,v,subtable)
-    if subtable == "known" then
-        if spells.known == nil then spells.known = {} end
-        local known = spells.known
-        known[k] = function()
-            return br.isKnown(v)
-        end
+
+br.api.spells = function(self, k, v)
+    self.spell = self.spell or {}
+    local spell = self.spell
+
+    -- Spell Functions - [k] denotes placeholder for name of spell listed in System/Lists/Spells.lua
+    -- @section spell[k]
+    spell[k] = spell[k] or {}
+
+    --- Returns the spell's cast time.
+    -- @function spell.k.castTime
+    -- @return number
+    spell[k].castTime = function()
+        local _, _, _, castTime = GetSpellInfo(v)
+        return castTime or 0
     end
-    if subtable == "charges" then
-        -- if spells[k] == nil then spells[k] = {} end
-        -- local charges = spells[k]
-        -- charges.exists = function()
-        --     return br.getCharges(v) >= 1
-        -- end
-        -- charges.count = function()
-        --     return br.getCharges(v)
-        -- end
-        -- charges.frac = function()
-        --     return br.getChargesFrac(v)
-        -- end
-        -- charges.max = function()
-        --     return br.getChargesFrac(v,true)
-        -- end
-        -- charges.recharge = function(chargeMax)
-        --     if chargeMax then
-        --         return br.getRecharge(v,true)
-        --     else
-        --         return br.getRecharge(v)
-        --     end
-        -- end
-        -- charges.timeTillFull = function()
-        --     return br.getFullRechargeTime(v)
-        -- end
+
+    --- Returns the spell's ID.
+    -- @function spell.k.id
+    -- @return number
+    spell[k].id = function()
+        local _, _, _, _, _, _, spellID = GetSpellInfo(v)
+        return spellID or 0
     end
-    if spells.info == nil then spells.info = {} end
-    local info = spells.info
-    if info[k] == nil then info[k] = {} end
-    info[k].texture = function()
+
+    --- Checks if the spell is known.
+    -- @function spell.k.known
+    -- @return boolean
+    spell[k].known = function()
+        return br.isKnown(v)
+    end
+
+    --- Returns the spell's max range.
+    -- @function spell.k.maxRange
+    -- @return number
+    spell[k].maxRange = function()
+        local _, _, _, _, _, maxRange = GetSpellInfo(v)
+        return maxRange or 0
+    end
+
+    --- Returns the spell's min range.
+    -- @function spell.k.minRange
+    -- @return number
+    spell[k].minRange = function()
+        local _, _, _, _, minRange = GetSpellInfo(v)
+        return minRange or 0
+    end
+
+    --- Returns the spell's name (localized).
+    -- @function spell.k.name
+    -- @return string
+    spell[k].name = function()
+        local name = GetSpellInfo(v)
+        return name or ""
+    end
+
+    --- Returns the spell's rank.
+    -- @function spell.k.rank
+    -- @return number
+    spell[k].rank = function()
+        local _, rank = GetSpellInfo(v)
+        return rank or 0
+    end
+
+    --- Returns the spell's icon texture.
+    -- @function spell.k.texture
+    -- @return number
+    spell[k].texture = function()
         return br._G.GetSpellTexture(v)
     end
 end

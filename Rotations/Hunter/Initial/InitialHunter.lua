@@ -7,32 +7,32 @@ br.loadSupport("PetCuteOne")
 local function createToggles()
     -- Rotation Button
     local RotationModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Rotation Enabled", tip = "Enables Rotation", highlight = 1, icon = br.player.spell.steadyShot},
-        [2] = { mode = "Off", value = 2 , overlay = "Rotation Disabled", tip = "Disables Rotation", highlight = 0, icon = br.player.spell.steadyShot}
+        [1] = { mode = "On", value = 1, overlay = "Rotation Enabled", tip = "Enables Rotation", highlight = 1, icon = br.player.spell.steadyShot },
+        [2] = { mode = "Off", value = 2, overlay = "Rotation Disabled", tip = "Disables Rotation", highlight = 0, icon = br.player.spell.steadyShot }
     };
-    br.ui:createToggle(RotationModes,"Rotation",1,0)
+    br.ui:createToggle(RotationModes, "Rotation", 1, 0)
     -- Defensive Button
     local DefensiveModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Enables Defensive", highlight = 1, icon = br.player.spell.exhilaration},
-        [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "Disables Defensive", highlight = 0, icon = br.player.spell.exhilaration}
+        [1] = { mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Enables Defensive", highlight = 1, icon = br.player.spell.exhilaration },
+        [2] = { mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "Disables Defensive", highlight = 0, icon = br.player.spell.exhilaration }
     };
-    br.ui:createToggle(DefensiveModes,"Defensive",2,0)
+    br.ui:createToggle(DefensiveModes, "Defensive", 2, 0)
     -- Interrupt Button
     local InterruptModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Interrupt Enabled", tip = "Enables Interrupt", highlight = 1, icon = br.player.spell.freezingTrap},
-        [2] = { mode = "Off", value = 2 , overlay = "Interrupt Disabled", tip = "Disables Interrupt", highlight = 0, icon = br.player.spell.freezingTrap}
+        [1] = { mode = "On", value = 1, overlay = "Interrupt Enabled", tip = "Enables Interrupt", highlight = 1, icon = br.player.spell.freezingTrap },
+        [2] = { mode = "Off", value = 2, overlay = "Interrupt Disabled", tip = "Disables Interrupt", highlight = 0, icon = br.player.spell.freezingTrap }
     };
-    br.ui:createToggle(InterruptModes,"Interrupt",3,0)
+    br.ui:createToggle(InterruptModes, "Interrupt", 3, 0)
     -- Pet summon
     local PetSummonModes = {
-        [1] = { mode = "1", value = 1 , overlay = "Summon Pet 1", tip = "Summon Pet 1", highlight = 1, icon = br.player.spell.callPet1 },
-        [2] = { mode = "2", value = 2 , overlay = "Summon Pet 2", tip = "Summon Pet 2", highlight = 1, icon = br.player.spell.callPet2 },
-        [3] = { mode = "3", value = 3 , overlay = "Summon Pet 3", tip = "Summon Pet 3", highlight = 1, icon = br.player.spell.callPet3 },
-        [4] = { mode = "4", value = 4 , overlay = "Summon Pet 4", tip = "Summon Pet 4", highlight = 1, icon = br.player.spell.callPet4 },
-        [5] = { mode = "5", value = 5 , overlay = "Summon Pet 5", tip = "Summon Pet 5", highlight = 1, icon = br.player.spell.callPet5 },
-        [6] = { mode = "None", value = 6 , overlay = "No pet", tip = "Dont Summon any Pet", highlight = 0, icon = br.player.spell.callPet }
+        [1] = { mode = "1", value = 1, overlay = "Summon Pet 1", tip = "Summon Pet 1", highlight = 1, icon = br.player.spell.callPet1 },
+        [2] = { mode = "2", value = 2, overlay = "Summon Pet 2", tip = "Summon Pet 2", highlight = 1, icon = br.player.spell.callPet2 },
+        [3] = { mode = "3", value = 3, overlay = "Summon Pet 3", tip = "Summon Pet 3", highlight = 1, icon = br.player.spell.callPet3 },
+        [4] = { mode = "4", value = 4, overlay = "Summon Pet 4", tip = "Summon Pet 4", highlight = 1, icon = br.player.spell.callPet4 },
+        [5] = { mode = "5", value = 5, overlay = "Summon Pet 5", tip = "Summon Pet 5", highlight = 1, icon = br.player.spell.callPet5 },
+        [6] = { mode = "None", value = 6, overlay = "No pet", tip = "Dont Summon any Pet", highlight = 0, icon = br.player.spell.callPet }
     };
-    br.ui:createToggle(PetSummonModes,"PetSummon",4,0)
+    br.ui:createToggle(PetSummonModes, "PetSummon", 4, 0)
 end
 
 ---------------
@@ -45,10 +45,14 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS ---
         -----------------------
-        section = br.ui:createSection(br.ui.window.profile,  "General")
-            -- Trinkets
-            br.ui:createDropdownWithout(section,"Trinket 1", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Trinket 1.")
-            br.ui:createDropdownWithout(section,"Trinket 2", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Trinket 2.")
+        section = br.ui:createSection(br.ui.window.profile, "General")
+        -- Hunter's Mark
+        br.ui:createCheckbox(section, "Hunter's Mark")
+        -- Trinkets
+        br.ui:createDropdownWithout(section, "Trinket 1",
+            { "|cff00FF00Everything", "|cffFFFF00Cooldowns", "|cffFF0000Never" }, 1, "|cffFFFFFFWhen to use Trinket 1.")
+        br.ui:createDropdownWithout(section, "Trinket 2",
+            { "|cff00FF00Everything", "|cffFFFF00Cooldowns", "|cffFF0000Never" }, 1, "|cffFFFFFFWhen to use Trinket 2.")
         br.ui:checkSectionState(section)
         -------------------
         --- PET OPTIONS ---
@@ -58,46 +62,46 @@ local function createOptions()
         --- DEFENSIVE OPTIONS ---
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
-            -- Basic Healing Module
-            br.player.module.BasicHealing(section)
-            -- Aspect of the Turtle
-            br.ui:createSpinner(section, "Aspect of the Turtle", 25, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-            -- Disengage
-            br.ui:createCheckbox(section, "Disengage")
-            -- Exhilaration
-            br.ui:createSpinner(section, "Exhilaration", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-            -- Feign Death
-            br.ui:createSpinner(section, "Feign Death", 30, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-            -- Wing Clip
-            br.ui:createCheckbox(section, "Wing Clip")
+        -- Basic Healing Module
+        br.player.module.BasicHealing(section)
+        -- Aspect of the Turtle
+        br.ui:createSpinner(section, "Aspect of the Turtle", 25, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
+        -- Disengage
+        br.ui:createCheckbox(section, "Disengage")
+        -- Exhilaration
+        br.ui:createSpinner(section, "Exhilaration", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
+        -- Feign Death
+        br.ui:createSpinner(section, "Feign Death", 30, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
+        -- Wing Clip
+        br.ui:createCheckbox(section, "Wing Clip")
         br.ui:checkSectionState(section)
         -------------------------
         --- INTERRUPT OPTIONS ---
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
-            -- Freezing Trap
-            br.ui:createCheckbox(section, "Freezing Trap")
-            -- Interrupt Percentage
-            br.ui:createSpinnerWithout(section,  "Interrupt At",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")
+        -- Freezing Trap
+        br.ui:createCheckbox(section, "Freezing Trap")
+        -- Interrupt Percentage
+        br.ui:createSpinnerWithout(section, "Interrupt At", 0, 0, 95, 5, "|cffFFBB00Cast Percentage to use at.")
         br.ui:checkSectionState(section)
         ----------------------
         --- TOGGLE OPTIONS ---
         ----------------------
-        section = br.ui:createSection(br.ui.window.profile,  "Toggle Keys")
-            -- Single/Multi Toggle
-            br.ui:createDropdownWithout(section,  "Rotation Mode", br.dropOptions.Toggle,  4)
-            --Defensive Key Toggle
-            br.ui:createDropdownWithout(section,  "Defensive Mode", br.dropOptions.Toggle,  6)
-            -- Interrupts Key Toggle
-            br.ui:createDropdownWithout(section,  "Interrupt Mode", br.dropOptions.Toggle,  6)
-            -- Pause Toggle
-            br.ui:createDropdown(section,  "Pause Mode", br.dropOptions.Toggle,  6)
+        section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
+        -- Single/Multi Toggle
+        br.ui:createDropdownWithout(section, "Rotation Mode", br.dropOptions.Toggle, 4)
+        --Defensive Key Toggle
+        br.ui:createDropdownWithout(section, "Defensive Mode", br.dropOptions.Toggle, 6)
+        -- Interrupts Key Toggle
+        br.ui:createDropdownWithout(section, "Interrupt Mode", br.dropOptions.Toggle, 6)
+        -- Pause Toggle
+        br.ui:createDropdown(section, "Pause Mode", br.dropOptions.Toggle, 6)
         br.ui:checkSectionState(section)
     end
-    optionTable = {{
+    optionTable = { {
         [1] = "Rotation Options",
         [2] = rotationOptions,
-    }}
+    } }
     return optionTable
 end
 
@@ -132,8 +136,11 @@ var.specificToggle = br._G["SpecificToggle"]
 -- Action List - Extra
 actionList.Extra = function()
     -- Hunter's Mark
-    if ui.checked("Hunter's Mark") and cast.able.huntersMark() and not debuff.huntersMark.exists(units.dyn40) then
-        if cast.huntersMark() then ui.debug("Cast Hunter's Mark") return true end
+    if ui.checked("Hunter's Mark") and cast.able.huntersMark(units.dyn40) and not debuff.huntersMark.exists(units.dyn40) then
+        if cast.huntersMark(units.dyn40) then
+            ui.debug("Cast Hunter's Mark")
+            return true
+        end
     end
 end -- End Action List- Extra
 
@@ -146,25 +153,42 @@ actionList.Defensive = function()
         if ui.checked("Aspect of the Turtle") and cast.able.aspectOfTheTurtle()
             and unit.inCombat() and unit.hp() < ui.value("Apect of the Turtle")
         then
-            if cast.aspectOfTheTurtle() then ui.debug("Casting Aspect of the Turtle") return true end
+            if cast.aspectOfTheTurtle() then
+                ui.debug("Casting Aspect of the Turtle")
+                return true
+            end
         end
         -- Exhilaration
         if ui.checked("Exhilaration") and cast.able.exhilaration() and unit.hp() < ui.value("Exhilaration") then
-            if cast.exhilaration() then ui.debug("Casting Exhilaration") return true end
+            if cast.exhilaration() then
+                ui.debug("Casting Exhilaration")
+                return true
+            end
         end
         -- Feign Death
         if ui.checked("Feign Death") and cast.able.feignDeath()
             and unit.inCombat() and unit.hp() < ui.value("Feign Death")
         then
-            if cast.feignDeath() then ui.debug("Casting Feign Death - Shh! Maybe they won't notice.") return true end
+            if cast.feignDeath() then
+                ui.debug("Casting Feign Death - Shh! Maybe they won't notice.")
+                return true
+            end
         end
         -- Wing Clip
-        if ui.checked("Wing Clip") and cast.able.wingClip() and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
-            if cast.wingClip() then ui.debug("Casting Wing Clip") return true end
+        if ui.checked("Wing Clip") and cast.able.wingClip() and unit.exists(units.dyn5)
+            and unit.ttd(units.dyn5) > 2 and unit.distance(units.dyn5) < 5 then
+            if cast.wingClip() then
+                ui.debug("Casting Wing Clip")
+                return true
+            end
         end
         -- Disengage
-        if ui.checked("Disengage") and cast.able.disengage("player") and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
-            if cast.disengage("player") then ui.debug("Casting Disengage") return true end
+        if ui.checked("Disengage") and cast.able.disengage("player") and unit.exists(units.dyn5)
+            and unit.ttd(units.dyn5) > 2 and unit.distance(units.dyn5) < 5 then
+            if cast.disengage("player") then
+                ui.debug("Casting Disengage")
+                return true
+            end
         end
     end
 end -- End Action List - Defensive
@@ -172,22 +196,22 @@ end -- End Action List - Defensive
 -- Action List - Interrupt
 actionList.Interrupt = function()
     if ui.useInterrupt() then
-        for i=1, #enemies.yards5 do
+        for i = 1, #enemies.yards5 do
             local thisUnit = enemies.yards5[i]
-            if br.canInterrupt(thisUnit,ui.value("Interrupt At")) then
+            if br.canInterrupt(thisUnit, ui.value("Interrupt At")) then
                 -- Freezing Trap
                 if ui.hecked("Freezing Trap") and cast.able.freezingTrap() then
                     for j = 1, #enemies.yards40 do
                         thisUnit = enemies.yards40[j]
                         if unit.distance(thisUnit) > 8 and cast.timeRemain(thisUnit) > 3 then
-                            if cast.freezingTrap(thisUnit,"ground") then return true end
+                            if cast.freezingTrap(thisUnit, "ground") then return true end
                         end
                     end
                 end
             end
         end
     end -- End Interrupt Check
-end -- End Action List - Interrupt
+end     -- End Action List - Interrupt
 
 -- Action List - Pre-Combat
 actionList.PreCombat = function()
@@ -216,19 +240,20 @@ local function runRotation()
     --- Define Locals ---
     ---------------------
     -- BR API Locals
-    buff                                            = br.player.buff
-    cast                                            = br.player.cast
-    cd                                              = br.player.cd
-    debuff                                          = br.player.debuff
-    enemies                                         = br.player.enemies
-    equiped                                         = br.player.equiped
-    module                                          = br.player.module
-    ui                                              = br.player.ui
-    unit                                            = br.player.unit
-    units                                           = br.player.units
-    use                                             = br.player.use
+    buff            = br.player.buff
+    cast            = br.player.cast
+    cd              = br.player.cd
+    debuff          = br.player.debuff
+    enemies         = br.player.enemies
+    equiped         = br.player.equiped
+    module          = br.player.module
+    ui              = br.player.ui
+    unit            = br.player.unit
+    units           = br.player.units
+    use             = br.player.use
     -- General Locals
-    var.haltProfile                         = (unit.inCombat() and var.profileStop) or unit.mounted() or br.pause() or buff.feignDeath.exists() or ui.mode.rotation==2
+    var.haltProfile = (unit.inCombat() and var.profileStop) or unit.mounted() or br.pause() or buff.feignDeath.exists() or
+        ui.mode.rotation == 2
     -- Units
     units.get(5)
     units.get(40)
@@ -283,35 +308,41 @@ local function runRotation()
                     br._G.StartAttack(units.dyn40)
                 end
                 -- Trinket - Non-Specific
-                if unit.exists(units.dyn40) and unit.distance(units.dyn40) < 40  then
+                if unit.exists(units.dyn40) and unit.distance(units.dyn40) < 40 then
                     local thisTrinket
                     for i = 13, 14 do
                         thisTrinket = i == 13 and "Trinket 1" or "Trinket 2"
                         local opValue = ui.value(thisTrinket)
                         if (opValue == 1 or (opValue == 2 and ui.useCDs())) and use.able.slot(i)
-                        and (not equiped.touchOfTheVoid(i) or (equiped.touchOfTheVoid(i) and (#enemies.yards8 > 2 or (ui.useCDs() and opValue ~= 3))))
+                            and (not equiped.touchOfTheVoid(i) or (equiped.touchOfTheVoid(i) and (#enemies.yards8 > 2 or (ui.useCDs() and opValue ~= 3))))
                         then
                             use.slot(i)
-                            ui.debug("Using Trinket in Slot "..i)
+                            ui.debug("Using Trinket in Slot " .. i)
                             return
                         end
                     end
                 end
                 -- Arcane Shot
                 if cast.able.arcaneShot() then
-                    if cast.arcaneShot() then ui.debug("Casting Arcane Shot") return true end
+                    if cast.arcaneShot() then
+                        ui.debug("Casting Arcane Shot")
+                        return true
+                    end
                 end
                 -- Steady Shot
                 if cast.able.steadyShot() then
-                    if cast.steadyShot() then ui.debug("Casting Steady Shot") return true end
+                    if cast.steadyShot() then
+                        ui.debug("Casting Steady Shot")
+                        return true
+                    end
                 end
             end -- End In Combat Rotation
         end
-    end -- Pause
-end -- End runRotation
+    end         -- Pause
+end             -- End runRotation
 local id = 1448
 if br.rotations[id] == nil then br.rotations[id] = {} end
-br._G.tinsert(br.rotations[id],{
+br._G.tinsert(br.rotations[id], {
     name = rotationName,
     toggles = createToggles,
     options = createOptions,

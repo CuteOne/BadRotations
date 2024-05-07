@@ -191,7 +191,7 @@ actionList.Extra = function()
         -- Mark of the Wild
         if ui.checked("Mark of the Wild") then
             var.markUnit = getMarkUnitOption("Mark of the Wild")
-            if cast.able.markOfTheWild(var.markUnit) and buff.markOfTheWild.refresh(var.markUnit) and unit.distance(var.markUnit) < 40 then
+            if cast.able.markOfTheWild(var.markUnit) and buff.markOfTheWild.refresh(var.markUnit) and not unit.resting() and unit.distance(var.markUnit) < 40 then
                 if cast.markOfTheWild(var.markUnit) then ui.debug("Casting Mark of the Wild") return true end
             end
         end
@@ -260,10 +260,10 @@ local function runRotation()
     buff                                        = br.player.buff
     cast                                        = br.player.cast
     cd                                          = br.player.cd
-    comboPoints                                 = br.player.power.comboPoints.amount()
+    comboPoints                                 = br.player.power.comboPoints()
     debuff                                      = br.player.debuff
     enemies                                     = br.player.enemies
-    energy                                      = br.player.power.energy.amount()
+    energy                                      = br.player.power.energy()
     module                                      = br.player.module
     ui                                          = br.player.ui
     unit                                        = br.player.unit
@@ -271,10 +271,10 @@ local function runRotation()
     spell                                       = br.player.spell
     -- General Locals
     profileStop                                 = profileStop or false
-    haltProfile                                 = (unit.inCombat() and profileStop) or br.pause() or ui.rotation==4 or unit.id("target") == 156716
+    haltProfile                                 = (unit.inCombat() and profileStop) or br.pause() or ui.mode.rotation==4 or unit.id("target") == 156716
     -- Units
     units.get(5) -- Makes a variable called, units.dyn5
-    units.get(40) -- Makes a variable called, units.dyn40
+    units.get(40,true) -- Makes a variable called, units.dyn40AOE
     -- Enemies
     enemies.get(5) -- Makes a varaible called, enemies.yards5
     enemies.get(40) -- Makes a varaible called, enemies.yards40
@@ -350,11 +350,11 @@ local function runRotation()
             -- Caster Form
             if not (buff.catForm.exists() or buff.bearForm.exists() or buff.travelForm.exists()) then
                 -- Moonfire
-                if cast.able.moonfire() and (unit.level() < 5 or not buff.catForm.exists()) and debuff.moonfire.refresh(units.dyn40) then
-                    if cast.moonfire() then ui.debug("Casting Moonfire") return true end
+                if cast.able.moonfire(units.dyn40AOE) and (unit.level() < 5 or not buff.catForm.exists()) and debuff.moonfire.refresh(units.dyn40AOE) then
+                    if cast.moonfire(units.dyn40AOE) then ui.debug("Casting Moonfire") return true end
                 end
                 -- Wrath
-                if not unit.moving() and cast.able.wrath() and (unit.level() < 2 or (not cast.last.wrath() and cast.timeSinceLast.wrath() > unit.gcd(true) + 0.5) or not debuff.moonfire.refresh(units.dyn40)) then
+                if not unit.moving() and cast.able.wrath() and (unit.level() < 2 or (not cast.last.wrath() and cast.timeSinceLast.wrath() > unit.gcd(true) + 0.5) or not debuff.moonfire.refresh(units.dyn40AOE)) then
                     if cast.wrath() then ui.debug("Casting Wrath") return true end
                 end
             end
