@@ -19,7 +19,6 @@ br.lists.items = {
     -- Dragon Isle Food buffs
     thousandboneTongueslicer        = 197786,
     deviouslyDeviledEggs            = 204072,
-    
     -- Death Knight: Frost
     consortsColdCore                = 144293,
     koltirasNewfoundWill            = 132366,
@@ -132,6 +131,7 @@ br.lists.items = {
     rotcrustedVoodooDoll            = 159624,
     shiverVenomRelic                = 168905,
     specterOfBetrayal               = 151190,
+    tidesagesWarscroll              = 166766,
     tidestormCodex                  = 165576,
     umbralMoonglaives               = 147012,
     vialOfCeaselessToxins           = 147011,
@@ -195,10 +195,12 @@ br.lists.items = {
     algetharPuzzleBox               = 193701,
     ashesOfTheEmbersoul             = 207167,
     elementalPotionOfUltimatePower  = 191383,
-    mirrorOfFracturedTomorrows      = 207581,
-    witherbarksBranch               = 109999,
     integratedPrimalFire            = 200868,
+    irideusFragment                 = 193743,
     lifeflameAmpoule                = 198451,
+    mirrorOfFracturedTomorrows      = 207581,
+    verdantGladiatorsBadgeOfFerocity= 209343,
+    witherbarksBranch               = 109999,
 
     --Dragonflight variable quality items
     --Gold, Silver, Copper
@@ -214,7 +216,7 @@ br.lists.items = {
     phialOfTepidVersatilityQualities = {204666,191341,204665,191340,204664,191339},
     dreamwalkersHealingPotion = {207023,207022,207021}
 
-    
+
 
 
 }

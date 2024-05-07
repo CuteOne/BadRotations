@@ -46,10 +46,11 @@ local function setVariable(self,unit,range,checkNoCombat,facing,type,table,count
     if self.enemies[insertTable] == nil then self.enemies[insertTable] = {} else br._G.wipe(self.enemies[insertTable]) end
     if count > 0 then br.insertTableIntoTable(self.enemies[insertTable],table) end
 end
+
 br.api.enemies = function(self)
     local enemies = self.enemies
-    if enemies.cone == nil then enemies.cone = {} end
-    if enemies.rect == nil then enemies.rect = {} end
+    enemies.cone = enemies.cone or {}
+    enemies.rect = enemies.rect or {}
 
     --- Returns a table of all enemies around unit for given range, combat situation, and facing
     -- @function enemies.get

@@ -63,22 +63,24 @@ br.api.module = function(self)
                 local numBagSlots = C_Container.GetContainerNumSlots(i)
                 if numBagSlots > 0 then
                     for x = 1, numBagSlots do
-                        local itemID = C_Container.GetContainerItemID(i,x)
-                        local spellName, spellID = GetItemSpell(itemID)
-                        local itemCount = br._G.GetItemCount(itemID)
+                        local itemInfo = C_Container.GetContainerItemInfo(i,x)
+                        if itemInfo ~= nil then
+                            local spellName, spellID = C_Item.GetItemSpell(itemInfo.itemID)
+                            local itemCount = C_Item.GetItemCount(itemInfo.itemID)
 
-                        if spellName ~= nil then
-                            local itemName, _, _, itemLevel, itemMinLevel, itemType, itemSubType,_, _, _, _, _, _, _,_, _, _ = C_Item.GetItemInfo(itemID)
-                            if itemType == "Consumable" and itemSubType == "Potions" then
-                                if string.find(itemName,"Heal",0,true) then
-                                    table.insert(Consumables,#Consumables+1,{
-                                        itemID=itemID,
-                                        spellId=spellID,
-                                        itemName=itemName,
-                                        itemLevel=itemLevel,
-                                        itemMinLevel=itemMinLevel,
-                                        itemCount=itemCount
-                                    })
+                            if spellName ~= nil then
+                                local itemName, _, _, itemLevel, itemMinLevel, itemType, itemSubType,_, _, _, _, _, _, _,_, _, _ = C_Item.GetItemInfo(itemInfo.itemID)
+                                if itemType == "Consumable" and itemSubType == "Potions" then
+                                    if string.find(itemName,"Heal",0,true) then
+                                        table.insert(Consumables,#Consumables+1,{
+                                            itemID=itemInfo.itemID,
+                                            spellId=spellID,
+                                            itemName=itemInfo.itemName,
+                                            itemLevel=itemLevel,
+                                            itemMinLevel=itemMinLevel,
+                                            itemCount=itemCount
+                                        })
+                                    end
                                 end
                             end
                         end

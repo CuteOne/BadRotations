@@ -1,9 +1,9 @@
-local _, br = ...
-local LibDraw = br._G.LibStub("LibDraw-BR")
-br.enemy	= {}
-br.lootable = {}
-br.units 	= {}
-br.objects  = {}
+local _, br     = ...
+local LibDraw   = br._G.LibStub("LibDraw-BR")
+br.enemy        = {}
+br.lootable     = {}
+br.units        = {}
+br.objects      = {}
 br.storedTables = {}
 local refreshStored
 
@@ -23,10 +23,10 @@ end
 local function unitExistsInOM(unit)
 	local exists = false
 	for index, value in pairs(br.om) do
-	if type(value) == "table" and value.unit and value.unit == unit then
-		exists = true
-		break;
-	end
+		if type(value) == "table" and value.unit and value.unit == unit then
+			exists = true
+			break;
+		end
 	end
 	return exists
 end
@@ -43,8 +43,8 @@ function br.updateOM()
 	local name
 	local objectid
 	local objectguid
-	local total = br._G.GetObjectCount(true,"BR") or 0
-	for i = 1,total do
+	local total = br._G.GetObjectCount(true, "BR") or 0
+	for i = 1, total do
 		local thisUnit = br._G.GetObjectWithIndex(i)
 		-- br._G.print(thisUnit.." - Is Unit: "..tostring(br._G.ObjectIsUnit(thisUnit)).." - Name: "..tostring(br._G.UnitName(thisUnit)))
 		if --[[br._G.IsGuid(thisUnit) and]] br._G.ObjectExists(thisUnit) and br._G.ObjectIsUnit(thisUnit) --[[and not unitExistsInOM(thisUnit) and br.omDist(thisUnit) < 50]] then
@@ -74,7 +74,8 @@ function br.updateOM()
 					end
 				end
 				if not trackerFound then
-					br._G.tinsert(br.tracking, {object = thisUnit, unit = objUnit, name = name, id = objectid, guid = objectguid})
+					br._G.tinsert(br.tracking,
+						{ object = thisUnit, unit = objUnit, name = name, id = objectid, guid = objectguid })
 				end
 			end
 		end
@@ -82,7 +83,7 @@ function br.updateOM()
 
 	refreshStored = true
 	-- Debugging
-	br.debug.cpu:updateDebug(startTime,"enemiesEngine.objects")
+	br.debug.cpu:updateDebug(startTime, "enemiesEngine.objects")
 
 	-- local counter = 0
 	-- local grappleCounter = 0
@@ -105,11 +106,11 @@ end
 function br.omDist(thisUnit)
 	local x1, y1, z1 = br._G.ObjectPosition("player")
 	local x2, y2, z2 = br._G.ObjectPosition(thisUnit)
-	if x1 == nil  or x2 == nil or y1 == nil or y2 == nil or z1 == nil or z2 == nil then
+	if x1 == nil or x2 == nil or y1 == nil or y2 == nil or z1 == nil or z2 == nil then
 		return 99
 	else
 		return math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2)) -
-		((br._G.UnitCombatReach("player") or 0) + (br._G.UnitCombatReach(thisUnit) or 0))
+			((br._G.UnitCombatReach("player") or 0) + (br._G.UnitCombatReach(thisUnit) or 0))
 	end
 end
 
@@ -124,7 +125,7 @@ function br.isInOM(thisUnit)
 end
 
 -- /dump br.getEnemies("target",10)
-function br.getEnemies(thisUnit,radius,checkNoCombat,facing)
+function br.getEnemies(thisUnit, radius, checkNoCombat, facing)
 	local startTime = br._G.debugprofilestop()
 	radius = tonumber(radius) or 0
 	local enemyTable = checkNoCombat and br.units or br.enemy
@@ -133,7 +134,7 @@ function br.getEnemies(thisUnit,radius,checkNoCombat,facing)
 	if checkNoCombat == nil then checkNoCombat = false end
 	if facing == nil then facing = false end
 	if refreshStored == true then
-		for k,_ in pairs(br.storedTables) do br.storedTables[k] = nil end
+		for k, _ in pairs(br.storedTables) do br.storedTables[k] = nil end
 		refreshStored = false
 	end
 	if br.storedTables[checkNoCombat] ~= nil then
@@ -151,13 +152,13 @@ function br.getEnemies(thisUnit,radius,checkNoCombat,facing)
 
 	for _, v in pairs(enemyTable) do
 		thisEnemy = v.unit
-		distance =  br.getDistance(thisUnit,thisEnemy)
-		if distance < radius and (not facing or br.getFacing("player",thisEnemy)) then
-			br._G.tinsert(enemiesTable,thisEnemy)
+		distance = br.getDistance(thisUnit, thisEnemy)
+		if distance < radius and (not facing or br.getFacing("player", thisEnemy)) then
+			br._G.tinsert(enemiesTable, thisEnemy)
 		end
 	end
-	if #enemiesTable == 0 and br.getDistance("target","player") < radius and br.isValidUnit("target") and (not facing or br.getFacing("player","target")) then
-		br._G.tinsert(enemiesTable,"target")
+	if #enemiesTable == 0 and br.getDistance("target", "player") < radius and br.isValidUnit("target") and (not facing or br.getFacing("player", "target")) then
+		br._G.tinsert(enemiesTable, "target")
 	end
 	---
 	if #enemiesTable > 0 and thisUnit ~= nil then
@@ -168,7 +169,7 @@ function br.getEnemies(thisUnit,radius,checkNoCombat,facing)
 		--print("Made Table Unit: "..UnitName(thisUnit).." Radius: "..radius.." CombatCheck: "..tostring(checkNoCombat))
 	end
 	-- Debugging
-	br.debug.cpu:updateDebug(startTime,"enemiesEngine.getEnemies")
+	br.debug.cpu:updateDebug(startTime, "enemiesEngine.getEnemies")
 	return enemiesTable
 end
 
@@ -191,16 +192,16 @@ end
 function br.isBurnTarget(unit)
 	local coef = 0
 	-- check if unit is valid
-	if br.getOptionCheck("Forced Burn") and br._G.UnitExists(unit) then
+	if br.getOptionCheck("Forced Burn") and br._G.UnitExists(unit) and br.hasThreat(unit) then
 		local unitID = br.GetObjectID(unit)
 		local burnUnit = br.lists.burnUnits[unitID]
 		local unitTime = br.units[unit] ~= nil and br.units[unit].timestamp or br._G.GetTime() - 1
 		-- if unit have selected debuff
-		if burnUnit and (burnUnit.cast == nil or not br.isCasting(burnUnit.cast,unitID)) and (br._G.GetTime() - unitTime) > 0.25 then
-			if burnUnit.buff and br.UnitBuffID(unit,burnUnit.buff) then
+		if burnUnit and burnUnit.isValidUnit and (burnUnit.cast == nil or not br.isCasting(burnUnit.cast, unitID)) and (br._G.GetTime() - unitTime) > 0.25 then
+			if burnUnit.buff and br.UnitBuffID(unit, burnUnit.buff) then
 				coef = burnUnit.coef
 			end
-			if not burnUnit.buff and (br._G.UnitName(unit) == burnUnit.name or burnUnit or burnUnit.id == unitID) then
+			if not burnUnit.buff and (br._G.UnitName(unit) == burnUnit.name or --[[burnUnit or]] burnUnit.id == unitID) then
 				--if not UnitIsUnit("target",unit) then TargetUnit(unit) end
 				coef = burnUnit.coef
 			end
@@ -224,7 +225,7 @@ function br.isCrowdControlCandidates(Unit)
 		for i = 1, #crowdControlUnit do
 			local thisUnit = crowdControlUnit[i]
 			-- is in the list of candidates
-			if thisUnit.spell == nil or br.isCasting(thisUnit.spell,Unit) or br.UnitBuffID(thisUnit.buff) then -- doesnt have more requirements or requirements are met
+			if thisUnit.spell == nil or br.isCasting(thisUnit.spell, Unit) or br.UnitBuffID(thisUnit.buff) then -- doesnt have more requirements or requirements are met
 				return true
 			end
 		end
@@ -245,9 +246,9 @@ function br.isSafeToAttack(unit)
 				if noTouch.buff > 0 then
 					local unitTTD = br.getTTD(unit) or 0
 					-- Not Safe with Buff/Debuff
-					if br.UnitBuffID(unit,noTouch.buff) or br.UnitDebuffID(unit,noTouch.buff)
+					if br.UnitBuffID(unit, noTouch.buff) or br.UnitDebuffID(unit, noTouch.buff)
 						-- Bursting M+ Affix
-						or (unitTTD <= br.getDebuffRemain("player",240443) + (br.getGlobalCD(true) * 2)
+						or (unitTTD <= br.getDebuffRemain("player", 240443) + (br.getGlobalCD(true) * 2)
 							and br.getDebuffStacks("player", 240443) >= br.getOptionValue("Bursting Stack Limit"))
 					then
 						return false
@@ -255,14 +256,14 @@ function br.isSafeToAttack(unit)
 				else
 					-- Not Safe without Buff/Debuff
 					local posBuff = -(noTouch.buff)
-					if not br.UnitBuffID(unit,posBuff) or not br.UnitDebuffID(unit,posBuff) then
+					if not br.UnitBuffID(unit, posBuff) or not br.UnitDebuffID(unit, posBuff) then
 						return false
 					end
 				end
 			end
 		end
 		-- Debugging
-		br.debug.cpu:updateDebug(startTime,"enemiesEngine.isSafeToAttack")
+		br.debug.cpu:updateDebug(startTime, "enemiesEngine.isSafeToAttack")
 	end
 	-- if all went fine return true
 	return true
@@ -276,9 +277,9 @@ local function isShieldedTarget(unit)
 		local unitID = br.GetObjectID(unit)
 		local shieldedUnit = br.lists.shieldUnits[unitID]
 		-- if unit have selected debuff
-		if shieldedUnit and shieldedUnit.buff and br.UnitBuffID(unit,shieldedUnit.buff) then
+		if shieldedUnit and shieldedUnit.buff and br.UnitBuffID(unit, shieldedUnit.buff) then
 			-- if it's a frontal buff, see if we are in front of it
-			if shieldedUnit.frontal ~= true or br.getFacing(unit,"player") then
+			if shieldedUnit.frontal ~= true or br.getFacing(unit, "player") then
 				coef = shieldedUnit.coef
 			end
 		end
@@ -291,7 +292,7 @@ local function getUnitCoeficient(unit)
 	local startTime = br._G.debugprofilestop()
 	local coef = 0
 	-- if distance == nil then distance = br.getDistance("player",unit) end
-	local distance = br.getDistance("player",unit)
+	local distance = br.getDistance("player", unit)
 	-- check if unit is valid
 	if br.GetObjectExists(unit) then
 		-- if unit is out of range, bad prio(0)
@@ -299,7 +300,7 @@ local function getUnitCoeficient(unit)
 			local unitHP = br.getHP(unit)
 			-- if wise target checked, we look for best target by looking to the lowest or highest hp, otherwise we look for target
 			if br.getOptionCheck("Wise Target") == true then
-				if br.getOptionValue("Wise Target") == 1 then 	   -- Highest
+				if br.getOptionValue("Wise Target") == 1 then -- Highest
 					-- if highest is selected
 					coef = unitHP
 				elseif br.getOptionValue("Wise Target") == 3 then -- abs Highest
@@ -308,15 +309,15 @@ local function getUnitCoeficient(unit)
 					coef = 100 - distance
 				elseif br.getOptionValue("Wise Target") == 6 then -- Furthest
 					coef = distance
-				else 										   -- Lowest
+				else                                  -- Lowest
 					-- if lowest is selected
 					coef = 100 - unitHP
 				end
 			end
 			-- Distance Coef add for multiple burn units (Will prioritize closest first)
-			coef = coef + ((50 - distance)/100)
+			coef = coef + ((50 - distance) / 100)
 			-- if its our actual target we give it a bonus
-			if br.GetUnitIsUnit("target",unit) == true and not br.GetUnitIsDeadOrGhost(unit) then
+			if br.GetUnitIsUnit("target", unit) == true and not br.GetUnitIsDeadOrGhost(unit) then
 				coef = coef + 50
 			end
 			-- raid target management
@@ -326,7 +327,7 @@ local function getUnitCoeficient(unit)
 			end
 			-- if threat is checked, add 100 points of prio if we lost aggro on that target
 			if br.getOptionCheck("Tank Threat") then
-				local threat = br._G.UnitThreatSituation("player",unit) or -1
+				local threat = br._G.UnitThreatSituation("player", unit) or -1
 				if select(6, br._G.GetSpecializationInfo(br._G.GetSpecialization())) == "TANK" and threat < 3 and unitHP > 10 then
 					coef = coef + 100 - threat
 				end
@@ -336,14 +337,14 @@ local function getUnitCoeficient(unit)
 			end
 			-- if user checked burn target then we add the value otherwise will be 0
 			if br.getOptionCheck("Forced Burn") then
-				coef = coef + br.isBurnTarget(unit) + ((50 - distance)/100)
+				coef = coef + br.isBurnTarget(unit) + ((50 - distance) / 100)
 			end
 			-- if user checked avoid shielded, we add the % this shield remove to coef
 			if br.getOptionCheck("Avoid Shields") then
 				coef = coef + isShieldedTarget(unit)
 			end
 			-- Outlaw - Blind Shot 10% dmg increase all sources
-			if select(2,br._G.UnitClass('player')) == "ROGUE" and br._G.GetSpecializationInfo(br._G.GetSpecialization()) == 260 then
+			if select(2, br._G.UnitClass('player')) == "ROGUE" and br._G.GetSpecializationInfo(br._G.GetSpecialization()) == 260 then
 				-- Between the eyes
 				if br.getDebuffRemain(unit, 315341) > 0 then
 					coef = coef + 75
@@ -367,39 +368,41 @@ local function getUnitCoeficient(unit)
 		end
 	end
 	-- Debugging
-	br.debug.cpu:updateDebug(startTime,"enemiesEngine.unitCoef")
+	br.debug.cpu:updateDebug(startTime, "enemiesEngine.unitCoef")
 	return coef
 end
 
-local function compare(a,b)
+local function compare(a, b)
 	if br._G.UnitHealth(a) == br._G.UnitHealth(b) then
 		return br.getDistance(a) < br.getDistance(b)
 	else
-		return  br._G.UnitHealth(a) < br._G.UnitHealth(b)
+		return br._G.UnitHealth(a) < br._G.UnitHealth(b)
 	end
 end
 
 -- Finds the "best" unit for a given range and optional facing
-local function findBestUnit(range,facing)
+local function findBestUnit(range, facing)
 	local tsort = table.sort
 	local startTime = br._G.debugprofilestop()
 	local bestUnitCoef
 	local bestUnit = nil
-	local enemyList = br.getEnemies("player",range,false,facing)
+	local enemyList = br.getEnemies("player", range, false, facing)
 	if bestUnit ~= nil and br.enemy[bestUnit] == nil then bestUnit = nil end
 	if bestUnit == nil
---		or GetTime() > lastCheckTime
-		then
+	--		or GetTime() > lastCheckTime
+	then
 		-- for k, v in pairs(enemyList) do
 		if #enemyList > 0 then
 			local currHP
-			tsort(enemyList,compare)
+			tsort(enemyList, compare)
 			for i = 1, #enemyList do
 				local thisUnit = enemyList[i]
 				local unitID = br.GetObjectExists(thisUnit) and br.GetObjectID(thisUnit) or 0
-				if ((unitID == 135360 or unitID == 135358 or unitID == 135359) and br.UnitBuffID(thisUnit,260805)) or (unitID ~= 135360 and unitID ~= 135358 and unitID ~= 135359) then
-					local isCC = br.getOptionCheck("Don't break CCs") and #enemyList > 1 and br.isLongTimeCCed(thisUnit) or false
-					local isSafe = (br.getOptionCheck("Safe Damage Check") and br.isSafeToAttack(thisUnit)) or not br.getOptionCheck("Safe Damage Check") or false
+				if ((unitID == 135360 or unitID == 135358 or unitID == 135359) and br.UnitBuffID(thisUnit, 260805)) or (unitID ~= 135360 and unitID ~= 135358 and unitID ~= 135359) then
+					local isCC = br.getOptionCheck("Don't break CCs") and #enemyList > 1 and br.isLongTimeCCed(thisUnit) or
+						false
+					local isSafe = (br.getOptionCheck("Safe Damage Check") and br.isSafeToAttack(thisUnit)) or
+						not br.getOptionCheck("Safe Damage Check") or false
 					-- local thisUnit = v.unit
 					-- local distance = br.getDistance(thisUnit)
 					-- if distance < range then
@@ -417,17 +420,17 @@ local function findBestUnit(range,facing)
 						end
 					end
 				end
-	--			lastCheckTime = GetTime() + 1
+				--			lastCheckTime = GetTime() + 1
 			end
 		end
 	end
 	-- Debugging
-	br.debug.cpu:updateDebug(startTime,"enemiesEngine.findBestUnit")
+	br.debug.cpu:updateDebug(startTime, "enemiesEngine.findBestUnit")
 	return bestUnit
 end
 
 -- Sets Target by attempting to find the best unit else defaults to target
-function br.dynamicTarget(range,facing)
+function br.dynamicTarget(range, facing)
 	if range == nil or range > 100 then return nil end
 	local startTime = br._G.debugprofilestop()
 	facing = facing or false
@@ -436,22 +439,22 @@ function br.dynamicTarget(range,facing)
 	local bestDist
 	if br.isChecked("Dynamic Targetting") then
 		if br.getOptionValue("Dynamic Targetting") == 2 or (br._G.UnitAffectingCombat("player") and br.getOptionValue("Dynamic Targetting") == 1)
-			and (bestUnit == nil or (br.GetUnitIsUnit(bestUnit,"target") and tarDist >= range))
+			and (bestUnit == nil or (br.GetUnitIsUnit(bestUnit, "target") and tarDist >= range))
 		then
-			bestUnit = findBestUnit(range,facing)
+			bestUnit = findBestUnit(range, facing)
 		end
 	end
 	if (not br.isChecked("Dynamic Targetting") or bestUnit == nil) and tarDist < range
-		and (not facing or (facing and br.getFacing("player","target"))) and br.isValidUnit("target")
+		and (not facing or (facing and br.getFacing("player", "target"))) and br.isValidUnit("target")
 	then
 		bestUnit = "target"
 	end
 	bestDist = br.getDistance(bestUnit) or 99
-	if bestDist < range and not br.GetUnitIsUnit(bestUnit,"target") then
-		if ((br.GetUnitIsDeadOrGhost("target") and not br.GetUnitIsFriend("target","player")) or (not br.GetUnitExists("target") and br.hasThreat(bestUnit))
-			or ((br.isChecked("Target Dynamic Target") and br.GetUnitExists("target"))))
+	if bestDist < range and not br.GetUnitIsUnit(bestUnit, "target") then
+		if ((br.GetUnitIsDeadOrGhost("target") and not br.GetUnitIsFriend("target", "player")) or (not br.GetUnitExists("target") and br.hasThreat(bestUnit))
+				or ((br.isChecked("Target Dynamic Target") and br.GetUnitExists("target"))))
 			or (br.getOptionCheck("Forced Burn") and br.isBurnTarget(bestUnit) > 0 and br.GetUnitExists(bestUnit)
-				and ((not facing and not br.isExplosive(bestUnit)) or (facing and br.getFacing("player",bestUnit))))
+				and ((not facing and not br.isExplosive(bestUnit)) or (facing and br.getFacing("player", bestUnit))))
 			or (br.getOptionCheck("Safe Damage Check") and not br.isSafeToAttack("target"))
 		then
 			if bestUnit ~= nil then
@@ -460,7 +463,7 @@ function br.dynamicTarget(range,facing)
 		end
 	end
 	-- Debugging
-	br.debug.cpu:updateDebug(startTime,"enemiesEngine.dynamicTarget")
+	br.debug.cpu:updateDebug(startTime, "enemiesEngine.dynamicTarget")
 	return bestUnit
 end
 
@@ -476,30 +479,30 @@ local function angleDifference(unit1, unit2)
 		return (ax * bx) + (ay * by)
 	end
 	local vectorProduct = dotProduct(vectorAX, vectorAY, vectorBX, vectorBX)
----@diagnostic disable-next-line: deprecated
+	---@diagnostic disable-next-line: deprecated
 	local magnitudeA = math.pow(dotProduct(vectorAX, vectorAY, vectorAX, vectorAY), 0.5)
----@diagnostic disable-next-line: deprecated
+	---@diagnostic disable-next-line: deprecated
 	local magnitudeB = math.pow(dotProduct(vectorBX, vectorBY, vectorBX, vectorBY), 0.5)
 	local angle = math.acos((vectorProduct / magnitudeB) / magnitudeA)
 	local finalAngle = (angle * 57.2958) % 360
 	if (finalAngle - 180) >= 0 then return 360 - finalAngle else return finalAngle end
 end
 local function isWithinAngleDifference(unit1, unit2, angle)
-	local angleDiff = angleDifference(unit1,unit2)
+	local angleDiff = angleDifference(unit1, unit2)
 	return angleDiff <= angle
 end
 
 -- Cone Logic for Enemies
 local coneUnits = {}
-function br.getEnemiesInCone(angle,length,checkNoCombat, showLines)
+function br.getEnemiesInCone(angle, length, checkNoCombat, showLines)
 	if angle == nil then angle = 180 end
 	if length == nil then length = 0 end
 	local playerX, playerY, playerZ = br.GetObjectPosition("player")
 	local facing = br.GetObjectFacing("player")
 	local unitsCounter = 0
-	local enemiesTable = br.getEnemies("player",length,checkNoCombat,true)
+	local enemiesTable = br.getEnemies("player", length, checkNoCombat, true)
 	local inside = false
----@diagnostic disable-next-line: undefined-field
+	---@diagnostic disable-next-line: undefined-field
 	if showLines then LibDraw.Arc(playerX, playerY, playerZ, length, angle, 0) end
 	table.wipe(coneUnits)
 	for i = 1, #enemiesTable do
@@ -514,22 +517,22 @@ function br.getEnemiesInCone(angle,length,checkNoCombat, showLines)
 				else
 					unitX, unitY = br.GetObjectPosition(thisUnit)
 				end
-				local angleToUnit = br.getAngles(playerX,playerY,playerZ,unitX,unitY,unitZ)
+				local angleToUnit = br.getAngles(playerX, playerY, playerZ, unitX, unitY, unitZ)
 				local angleDifference = facing > angleToUnit and facing - angleToUnit or angleToUnit - facing
-				local shortestAngle = angleDifference < math.pi and angleDifference or math.pi*2 - angleDifference
-				local finalAngle = shortestAngle/math.pi*180
-				if finalAngle < angle/2 then
+				local shortestAngle = angleDifference < math.pi and angleDifference or math.pi * 2 - angleDifference
+				local finalAngle = shortestAngle / math.pi * 180
+				if finalAngle < angle / 2 then
 					inside = true
 					break
 				end
 			end
 			if inside then
-			-- if isWithinAngleDifference("player", thisUnit, angle) then
+				-- if isWithinAngleDifference("player", thisUnit, angle) then
 				if showLines then
 					LibDraw.Circle(unitX, unitY, playerZ, br._G.UnitBoundingRadius(thisUnit))
 				end
 				unitsCounter = unitsCounter + 1
-				table.insert(coneUnits,thisUnit)
+				table.insert(coneUnits, thisUnit)
 			end
 		end
 	end
@@ -540,12 +543,12 @@ end
 
 -- Rectangle Logic for Enemies
 local rectUnits = {}
-function br.getEnemiesInRect(width,length,showLines,checkNoCombat)
+function br.getEnemiesInRect(width, length, showLines, checkNoCombat)
 	local px, py, pz = br.GetObjectPosition("player")
 	if px == nil or py == nil or pz == nil then return {} end
-	local function getRect(width,length)
+	local function getRect(width, length)
 		local facing = br.GetObjectFacing("player") or 0
-		local halfWidth = width/2
+		local halfWidth = width / 2
 		-- Near Left
 		local nlX, nlY, _ = br._G.GetPositionFromPosition(px, py, pz, halfWidth, facing + math.rad(90), 0)
 		-- Near Right
@@ -558,9 +561,9 @@ function br.getEnemiesInRect(width,length,showLines,checkNoCombat)
 		return nlX, nlY, nrX, nrY, frX, frY
 	end
 	checkNoCombat = checkNoCombat or false
-	local nlX, nlY, nrX, nrY, frX, frY = getRect(width,length)
+	local nlX, nlY, nrX, nrY, frX, frY = getRect(width, length)
 	local enemyCounter = 0
-	local enemiesTable = br.getEnemies("player",length,checkNoCombat,true)
+	local enemiesTable = br.getEnemies("player", length, checkNoCombat, true)
 	local inside = false
 	if #enemiesTable > 0 then
 		_G.table.wipe(rectUnits)
@@ -577,15 +580,18 @@ function br.getEnemiesInRect(width,length,showLines,checkNoCombat)
 					else
 						pX, pY = br.GetObjectPosition(thisUnit)
 					end
-					if br.isInside(pX,pY,nlX,nlY,nrX,nrY,frX,frY) then inside = true break end
+					if br.isInside(pX, pY, nlX, nlY, nrX, nrY, frX, frY) then
+						inside = true
+						break
+					end
 				end
 				if inside then
 					if showLines then
----@diagnostic disable-next-line: undefined-field
+						---@diagnostic disable-next-line: undefined-field
 						LibDraw.Circle(tX, tY, pz, br._G.UnitBoundingRadius(thisUnit))
 					end
 					enemyCounter = enemyCounter + 1
-					table.insert(rectUnits,thisUnit)
+					table.insert(rectUnits, thisUnit)
 				end
 			end
 		end
@@ -665,4 +671,3 @@ function br.AoEDamageTracker()
 	end
 	return -1
 end
-

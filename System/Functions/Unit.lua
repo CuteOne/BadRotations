@@ -306,7 +306,10 @@ local critterTypes = {
 	["Существо"] = true,
 	["동물"] = true,
 	["小动物"] = true,
-	["小動物"] = true
+	["小動物"] = true,
+	["Wild Pet"] = true,
+	["Ungezähmtes Tier"] = true,
+	["Mascotte sauvage"] = true
 }
 function br.isCritter(Unit)
 	if Unit == nil then Unit = "target" end

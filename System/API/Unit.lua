@@ -81,6 +81,10 @@ br.api.unit = function(self)
     end
     -- Distance
     unit.distance = function(thisUnit,otherUnit)
+        if not otherUnit then
+            otherUnit = thisUnit
+            thisUnit = "player"
+        end
         return br.getDistance(thisUnit,otherUnit)
     end
     -- Dual Wielding
