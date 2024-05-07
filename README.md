@@ -166,6 +166,12 @@ Raidable means if its good to raid with.
 
 ### Warlock
 
+- Affliction
+
+|   rotation   |   author   |patch |coverage|  status   |  readiness  |last updated|
+|--------------|------------|:----:|:------:|:---------:|:-----------:|-----------:|
+|BrewAffliction|BrewingCoder|10.2.6|  50%   |Development|:interrobang:|  05/07/2024|
+
 - Demonology
 
 |rotation |   author   |patch |coverage|  status   |  readiness  |last updated|
