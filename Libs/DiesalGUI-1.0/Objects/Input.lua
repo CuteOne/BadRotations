@@ -14,34 +14,34 @@ local Version = 1
 -- | Stylesheets |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 local Stylesheet = {
 	['frame-background'] = {
-		type			= 'texture',
-		layer			= 'BACKGROUND',
-		color			= '000000',
-    alpha     = .6,
+		type  = 'texture',
+		layer = 'BACKGROUND',
+		color = '000000',
+		alpha = .6,
 	},
 	['editBox-outline'] = {
-    type  = 'outline',
-    layer = 'BORDER',
-    color = 'FFFFFF',
-    alpha = .02,
-    position = 1,
+		type     = 'outline',
+		layer    = 'BORDER',
+		color    = 'FFFFFF',
+		alpha    = .02,
+		position = 1,
 	},
 	['editBox-inline'] = {
-    type	= 'outline',
-		layer	= 'BORDER',
-		color	= '000000',
-    alpha = .7,
+		type = 'outline',
+		layer = 'BORDER',
+		color = '000000',
+		alpha = .7,
 	},
 	['editBox-hover'] = {
-		type			= 'texture',
-		layer			= 'HIGHLIGHT',
-		color			= 'ffffff',
-		alpha 		= .05,
-		position		= -1,
+		type     = 'texture',
+		layer    = 'HIGHLIGHT',
+		color    = 'ffffff',
+		alpha    = .05,
+		position = -1,
 	},
 	['editBox-font'] = {
-		type			= 'Font',
-    color			= Colors.UI_TEXT,
+		type  = 'Font',
+		color = Colors.UI_TEXT,
 	},
 }
 
@@ -56,36 +56,36 @@ local methods = {
 
 	end,
 	['ApplySettings'] = function(self)
-		self:SetWidth( self.settings.width)
-		self:SetHeight( self.settings.height)
+		self:SetWidth(self.settings.width)
+		self:SetHeight(self.settings.height)
 	end,
 	['GetText'] = function(self)
 		return self.editBox:GetText()
 	end,
-	['SetText'] = function(self,txt)
+	['SetText'] = function(self, txt)
 		self.editBox:SetText(txt)
 	end,
-	['SetTextColor'] = function(self,color,alpha)
+	['SetTextColor'] = function(self, color, alpha)
 		alpha = alpha or 1
-		color = {DiesalTools.GetColor(color)}
-		self.editBox:SetTextColor(color[1],color[2],color[3],alpha)
+		color = { DiesalTools.GetColor(color) }
+		self.editBox:SetTextColor(color[1], color[2], color[3], alpha)
 	end,
 }
 -- | Constructor |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 local function Constructor()
-	local self 		= DiesalGUI:CreateObjectBase(Type)
-	local frame		= CreateFrame('Frame',nil,UIParent)
-	self.frame		= frame
+	local self    = DiesalGUI:CreateObjectBase(Type)
+	local frame   = CreateFrame('Frame', nil, UIParent)
+	self.frame    = frame
 	self.defaults = {
-		height 			= 16,
-		width 			= 50,
-		mouse				= true,
+		height = 16,
+		width  = 50,
+		mouse  = true,
 	}
 	-- ~~ Events ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	-- OnAcquire, OnRelease, OnHeightSet, OnWidthSet
 	-- OnEnter, OnLeave, OnEnterPressed, OnValueChanged
 	-- ~~ Construct ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	frame:SetScript("OnHide",function(this)
+	frame:SetScript("OnHide", function(this)
 		self:FireEvent("OnHide")
 	end)
 
@@ -93,32 +93,32 @@ local function Constructor()
 	editBox:SetAllPoints()
 	editBox:SetAutoFocus(false)
 	editBox:SetJustifyH("LEFT")
-	editBox:SetJustifyV("CENTER")
-	editBox:SetTextInsets(3,0,2,0)
-	editBox:SetScript('OnEnterPressed',  function(this,...)
-		self:FireEvent("OnEnterPressed",...)
+	editBox:SetJustifyV("MIDDLE")
+	editBox:SetTextInsets(3, 0, 2, 0)
+	editBox:SetScript('OnEnterPressed', function(this, ...)
+		self:FireEvent("OnEnterPressed", ...)
 		DiesalGUI:ClearFocus()
 	end)
-	editBox:HookScript('OnEscapePressed', function(this,...)
-		self:FireEvent("OnEscapePressed",...)
+	editBox:HookScript('OnEscapePressed', function(this, ...)
+		self:FireEvent("OnEscapePressed", ...)
 	end)
-	editBox:HookScript('OnEditFocusLost', function(this,...)
-		self:FireEvent("OnEditFocusLost",...)
+	editBox:HookScript('OnEditFocusLost', function(this, ...)
+		self:FireEvent("OnEditFocusLost", ...)
 	end)
-	editBox:HookScript('OnEditFocusGained', function(this,...)
-		self:FireEvent("OnEditFocusGained",...)
+	editBox:HookScript('OnEditFocusGained', function(this, ...)
+		self:FireEvent("OnEditFocusGained", ...)
 	end)
-	editBox:SetScript("OnEnter",function(this,...)
-		self:FireEvent("OnEnter",...)
+	editBox:SetScript("OnEnter", function(this, ...)
+		self:FireEvent("OnEnter", ...)
 	end)
-	editBox:SetScript("OnLeave", function(this,...)
-		self:FireEvent("OnLeave",...)
+	editBox:SetScript("OnLeave", function(this, ...)
+		self:FireEvent("OnLeave", ...)
 	end)
 
 	-- ~~ Methods ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	for method, func in pairs(methods) do	self[method] = func	end
+	for method, func in pairs(methods) do self[method] = func end
 	-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	return self
 end
 
-DiesalGUI:RegisterObjectConstructor(Type,Constructor,Version)
+DiesalGUI:RegisterObjectConstructor(Type, Constructor, Version)
