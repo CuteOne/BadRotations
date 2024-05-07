@@ -26,8 +26,8 @@ function br.getDistance(Unit1,Unit2,option)
         if (br.units[br._G.ObjectPointer(Unit1)] ~= nil and Unit2 == "player") then
             return br.units[br._G.ObjectPointer(Unit1)].range
         end
-        -- local thisUnit = Unit1 == "player" and br.units[br._G.ObjectPointer(Unit2)] or br.units[br._G.ObjectPointer(Unit1)]
-        -- if thisUnit ~= nil then return thisUnit.range end
+        local thisUnit = Unit1 == "player" and br.units[br._G.ObjectPointer(Unit2)] or br.units[br._G.ObjectPointer(Unit1)]
+        if thisUnit ~= nil then return thisUnit.range end
     end
     return br.getDistanceCalc(Unit1,Unit2,option)
 end
@@ -139,17 +139,17 @@ function br.getDistanceCalc(Unit1,Unit2,option)
         -- if (br._G.UnitIsUnit("target",Unit1) or br._G.UnitIsUnit("target",Unit2)) then
         --     br._G.print("Dist: "..tostring(br.round2(dist,0)))
         -- end
-        -- if dist > 13 then
+        if dist > 13 then
             currentDist = br._G.max(0,dist)
-        -- elseif dist2 > 8 and dist3 > 8 then
-        --     currentDist = dist2
-        -- elseif dist3 > 5 and dist4 > 5 then
-        --     currentDist = dist3
-        -- elseif dist4 > meleeRange then -- Thanks Ssateneth
-        --     currentDist = dist4
-        -- else
-        --     currentDist = 0
-        -- end
+        elseif dist2 > 8 and dist3 > 8 then
+            currentDist = dist2
+        elseif dist3 > 5 and dist4 > 5 then
+            currentDist = dist3
+        elseif dist4 > meleeRange then -- Thanks Ssateneth
+            currentDist = dist4
+        else
+            currentDist = 0
+        end
         -- Modifier for Mastery: Sniper Training (Hunter - Marksmanship)
         -- if currentDist < 100 and br.isKnown(193468) and option ~= "noMod" and (Unit1 == "player" or Unit2 == "player") then
         --     currentDist = currentDist - (currentDist * (GetMasteryEffect() / 100))

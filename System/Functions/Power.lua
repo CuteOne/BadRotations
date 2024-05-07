@@ -3,26 +3,33 @@ local runeTable = {}
 function br.getChi(Unit)
 	return br._G.UnitPower(Unit, 12)
 end
+
 function br.getChiMax(Unit)
 	return br._G.UnitPowerMax(Unit, 12)
 end
+
 -- if getCombo() >= 1 then
 function br.getCombo()
 	return br._G.UnitPower("player", 4) --GetComboPoints("player") - Legion Change
 end
+
 function br.getEmber(Unit)
 	return br._G.UnitPower(Unit, 14)
 end
+
 function br.getEmberMax(Unit)
 	return br._G.UnitPowerMax(Unit, 14)
 end
+
 -- if getMana("target") <= 15 then
 function br.getMana(Unit)
 	return 100 * br._G.UnitPower(Unit, 0) / br._G.UnitPowerMax(Unit, 0)
 end
+
 function br.getEssence(Unit)
 	return br._G.UnitPower(Unit, 19)
 end
+
 function br.getEssenceMax(Unit)
 	return br._G.UnitPowerMax(Unit, 19)
 end
@@ -31,21 +38,25 @@ end
 function br.getPower(Unit, index)
 	local value = br._G.UnitPower(Unit, index)
 	if select(3, br._G.UnitClass("player")) == 11 or select(3, br._G.UnitClass("player")) == 4 then
-		if --[[br.UnitBuffID("player", 106951) or]] br.UnitBuffID("player", 102543) then
-			value = br._G.UnitPower(Unit, index) * 1.2
+		-- Druid: Incarnation affects all energy values report as having 20% more
+		if br.UnitBuffID("player", 102543) then
+			value = value * 1.2
 		end
 	end
 	return value
 end
+
 function br.getPowerMax(Unit, index)
 	local value = br._G.UnitPowerMax(Unit, index)
 	if select(3, br._G.UnitClass("player")) == 11 or select(3, br._G.UnitClass("player")) == 4 then
-		if --[[br.UnitBuffID("player", 106951) or]] br.UnitBuffID("player", 102543) then
-			value = br._G.UnitPowerMax(Unit, index) * 1.2
+		-- Druid: Incarnation affects all energy values report as having 20% more
+		if br.UnitBuffID("player", 102543) then
+			value = value * 1.2
 		end
 	end
 	return value
 end
+
 function br.getPowerAlt(Unit)
 	local value = 0
 	local class = select(2, br._G.UnitClass(Unit))
@@ -65,6 +76,7 @@ function br.getPowerAlt(Unit)
 	end
 	return value
 end
+
 -- Rune Tracking Table
 function br.getRuneInfo()
 	local bCount = 0
@@ -107,29 +119,58 @@ function br.getRuneInfo()
 			dPercent = runePercent
 			dCount = runeCount
 			dCooldown = runeCooldown
-			runeTable[#runeTable + 1] = {Type = "death", Index = i, Count = dCount, Percent = dPercent, Cooldown = dCooldown}
+			runeTable[#runeTable + 1] = {
+				Type = "death",
+				Index = i,
+				Count = dCount,
+				Percent = dPercent,
+				Cooldown =
+					dCooldown
+			}
 		end
 		if br._G.GetRuneType(i) == 1 then
 			bPercent = runePercent
 			bCount = runeCount
 			bCooldown = runeCooldown
-			runeTable[#runeTable + 1] = {Type = "blood", Index = i, Count = bCount, Percent = bPercent, Cooldown = bCooldown}
+			runeTable[#runeTable + 1] = {
+				Type = "blood",
+				Index = i,
+				Count = bCount,
+				Percent = bPercent,
+				Cooldown =
+					bCooldown
+			}
 		end
 		if br._G.GetRuneType(i) == 2 then
 			uPercent = runePercent
 			uCount = runeCount
 			uCooldown = runeCooldown
-			runeTable[#runeTable + 1] = {Type = "unholy", Index = i, Count = uCount, Percent = uPercent, Cooldown = uCooldown}
+			runeTable[#runeTable + 1] = {
+				Type = "unholy",
+				Index = i,
+				Count = uCount,
+				Percent = uPercent,
+				Cooldown =
+					uCooldown
+			}
 		end
 		if br._G.GetRuneType(i) == 3 then
 			fPercent = runePercent
 			fCount = runeCount
 			fCooldown = runeCooldown
-			runeTable[#runeTable + 1] = {Type = "frost", Index = i, Count = fCount, Percent = fPercent, Cooldown = fCooldown}
+			runeTable[#runeTable + 1] = {
+				Type = "frost",
+				Index = i,
+				Count = fCount,
+				Percent = fPercent,
+				Cooldown =
+					fCooldown
+			}
 		end
 	end
 	return runeTable
 end
+
 -- Get Count of Specific Rune Time
 function br.getRuneCount(Type)
 	Type = string.lower(Type)
@@ -141,6 +182,7 @@ function br.getRuneCount(Type)
 	end
 	return runeCount
 end
+
 -- Get Colldown Percent Remaining of Specific Runes
 function br.getRunePercent(Type)
 	Type = string.lower(Type)
@@ -160,20 +202,25 @@ function br.getRunePercent(Type)
 		return runePercent
 	end
 end
+
 function br.runeCDPercent(runeIndex)
 	if br._G.GetRuneCount(runeIndex) == 0 then
-		return (br._G.GetTime() - select(1, br._G.GetRuneCooldown(runeIndex))) / select(2, br._G.GetRuneCooldown(runeIndex))
+		return (br._G.GetTime() - select(1, br._G.GetRuneCooldown(runeIndex))) /
+			select(2, br._G.GetRuneCooldown(runeIndex))
 	else
 		return 0
 	end
 end
+
 function br.runeRecharge(runeIndex)
 	if not select(3, br._G.GetRuneCooldown(runeIndex)) then
-		return select(2, br._G.GetRuneCooldown(runeIndex)) - (br._G.GetTime() - select(1, br._G.GetRuneCooldown(runeIndex)))
+		return select(2, br._G.GetRuneCooldown(runeIndex)) -
+			(br._G.GetTime() - select(1, br._G.GetRuneCooldown(runeIndex)))
 	else
 		return 0
 	end
 end
+
 function br.runeTimeTill(runeIndex)
 	local runeCDs = {}
 	local runeCount = 0
@@ -191,8 +238,9 @@ function br.runeTimeTill(runeIndex)
 	end
 	return timeTill
 end
+
 -- if getTimeToMax("player") < 3 then
-function br.getTimeToMax(Unit,Limit)
+function br.getTimeToMax(Unit, Limit)
 	local timeTill = 999
 	local max = Limit or br._G.UnitPowerMax(Unit)
 	local curr = br._G.UnitPower(Unit)
@@ -204,6 +252,7 @@ function br.getTimeToMax(Unit,Limit)
 	timeTill = (curr2 > max) and 0 or (max - curr2) * (1.0 / regen)
 	return timeTill
 end
+
 -- /dump getCastRegen(185358)
 function br.getCastRegen(spellId)
 	local regenRate = br._G.GetPowerRegen("player")
@@ -220,10 +269,12 @@ function br.getCastRegen(spellId)
 
 	return power
 end
+
 -- if br.getRegen("player") > 15 then
 function br.getRegen(Unit)
 	return select(2, br._G.GetPowerRegen(Unit))
 end
+
 function br.getSpellCost(spell)
 	local t = br._G.GetSpellPowerCost(br._G.GetSpellInfo(spell))
 	if not t then

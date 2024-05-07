@@ -78,7 +78,7 @@ local function trackObject(object, isUnit, name, objectid, objectguid, interact)
     end
 end
 
-_G.string.trim = function(string)
+br._G.string.trim = function(string)
     local from = string:match "^%s*()"
     return from > #string and "" or string:match(".*%S", from)
 end
@@ -122,8 +122,8 @@ function br.objectTracker()
                     end
                     if br.isChecked("Custom Tracker") and not track then
                         for k in string.gmatch(tostring(br.getOptionValue("Custom Tracker")), "([^,]+)") do
-                            if string.len(_G.string.trim(k)) >= 3 and
-                                br._G.strmatch(br._G.strupper(name), br._G.strupper(_G.string.trim(k)))
+                            if string.len(br._G.string.trim(k)) >= 3 and
+                                br._G.strmatch(br._G.strupper(name), br._G.strupper(br._G.string.trim(k)))
                             then
                                 track = true
                             end
