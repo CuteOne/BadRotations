@@ -284,18 +284,18 @@ br.lists.spells = {
 
             },
             talents                         = {
-                asphyxiate                  = 108194,
+               
                 avalanche                   = 207142,
                 blindingSleet               = 207167,
                 breathOfSindragosa          = 152279,
                 coldHeart                   = 281208,
                 deathsReach                 = 276079,
                 frostscythe                 = 207230,
-                frozenPulse                 = 194909,
+               
                 gatheringStorm              = 194912,
                 glacialAdvance              = 194913,
                 hornOfWinter                = 57330,
-                hypothermicPresence         = 321995,
+                
                 icecap                      = 207126,
                 icyTalons                   = 194878,
                 inexorableAssault           = 253593,

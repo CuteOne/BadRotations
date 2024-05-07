@@ -130,6 +130,7 @@ local enemies
 local talent
 local actionList = {}
 local activePet
+local dynamic
 
 
 local function round(number, digit_position) 
@@ -273,12 +274,52 @@ local function runRotation()
     enemies.get(30,"player",false,true)
     enemies.get(40,"player",false,true)
 
+    dynamic       = {
+        range5          = br.player.units.get(5),
+        range40         = br.player.units.get(40)
+    }
+
     var.UnitNeedsCurse = nil
     for i=1,#enemies.yards40f do
         if not debuff.curseOfExhaustion.exists(enemies.yards40f[i]) and br._G.UnitAffectingCombat(enemies.yards40f[i]) then
             var.UnitNeedsCurse = enemies.yards40f[i]
         end
     end
+
+    var.impCount = 0
+    var.wildImpCount = 0
+    var.BossImpCount = 0
+    for i=1,br._G.GetObjectCount() do
+        local objFound = br._G.GetObjectWithIndex(i)
+        if objFound ~= nil then
+        local creator = br._G.UnitCreator(objFound)
+        local objType = br._G.ObjectType(objFound)
+        local objName = br._G.ObjectName(objFound)
+            if objName == "Wild Imp" then
+                var.impCount = var.impCount + 1
+                var.wildImpCount = var.wildImpCount + 1
+            end
+            if objName =="Imp Gang Boss" then
+                var.ImpCount = var.ImpCount + 1
+                var.BossImpCount = var.BossImpCount + 1
+            end
+        end
+    end
+
+    --Simulationcraft Variables
+    --actions.precombat+=/variable,name=tyrant_prep_start,op=set,value=12
+    var.tyrant_prep_start = 12
+    --actions.precombat+=/variable,name=next_tyrant,op=set,value=14+talent.grimoire_felguard+talent.summon_vilefiend
+    var.next_tyrant = 14 + boolNumeric(talent.grimoireFelguard) + boolNumeric(talent.summonVilefiend)
+    --actions.precombat+=/variable,name=shadow_timings,default=0,op=reset
+    var.shadow_timings = 0
+    --actions.precombat+=/variable,name=tyrant_timings,value=0
+    var.tyrant_timings = 0
+    --actions.precombat+=/variable,name=shadow_timings,op=set,value=0,if=cooldown.invoke_power_infusion_0.duration!=120
+    if cd.invokePowerInfusion.duration ~= 120 then
+        var.shadow_timings = 0
+    end
+ 
 
 
     -- Pause Timer

@@ -215,8 +215,8 @@ actionList.PreCombat = function()
                 if cast.judgment("target") then ui.debug("Casting Judgment [Pull]") return true end
             end
             -- Start Attack
-            if not br._G.IsAutoRepeatSpell(br._G.GetSpellInfo(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
-                br._G.StartAttack(units.dyn5)
+            if not br._G.IsAutoRepeatSpell(br._G.GetSpellInfo(6603)) and unit.exists("target") and unit.distance("target") < 5 then
+                br._G.StartAttack("target")
             end
         end
     end
@@ -297,10 +297,21 @@ local function runRotation()
                 ------------
                 --- Main ---
                 ------------
-                if var.range5 then
+                if br.unlocker == "Tinkr" and unit.distance("target") > 5  then
+                    return br._G.MoveToRaw(br._G.ObjectRawPosition("target"))
+                end
+                    
+                if unit.distance("target") <= 5 then
                     -- Start Attack
-                    if not br._G.IsAutoRepeatSpell(br._G.GetSpellInfo(6603)) then
-                        br._G.StartAttack(units.dyn5)
+                    if unit.distance("target") <= 5 then
+                        if cast.able.autoAttack("target") then
+                            if cast.autoAttack("target") then 
+                                ui.debug("Casting Auto Attack [Pre-Combat]") 
+                                return true 
+                            else
+                                ui.debug("Failed to Auto Attack")                        
+                            end
+                        end
                     end
                     -- Trinket - Non-Specific
                     local thisTrinket
@@ -331,6 +342,9 @@ local function runRotation()
                 -- Crusader Strike
                 if cast.able.crusaderStrike() and var.range5 then
                     if cast.crusaderStrike() then ui.debug("Casting Crusader Strike") return true end
+                end
+                if not br._G.IsAutoRepeatSpell(br._G.GetSpellInfo(6603)) then
+                    br._G.StartAttack("target")
                 end
             end -- End In Combat Rotation
         end
