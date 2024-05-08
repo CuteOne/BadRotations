@@ -4,6 +4,10 @@ local Nn = ...
 -- local write  = Nn.Utils.Storage.write
 -- local JSON   = Nn.Utils.JSON
 -- local AceGUI = Nn.Utils.AceGUI
+
+--Only load BR if in retail 10.2.7 (UI Update); Classic/Cata Not Supported.
+if select(4,GetBuildInfo()) < 100207 then return end
+
 local toc = ReadFile('/scripts/BadRotations/BadRotations.toc')
 local br = {}
 br.files = {}
@@ -97,11 +101,7 @@ for i = 1, #br.files do
     local file = br.files[i].file
     local load = br.files[i].load
 	if load then
-        -- print("Loading File: /scripts/"..file)
-		-- Nn:Require('/scripts/'..file, br)
         Nn:Require('/scripts/'..file, br)
-    -- else
-    --     print("Did not load File: /scripts/"..file)
 	end
 end
 
