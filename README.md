@@ -84,6 +84,12 @@ Raidable means if its good to raid with.
 |--------------------|------------|:----:|:------:|:----:|:----------------:|-----------:|
 |BrewBloodKnight-SimC|BrewingCoder|10.2.5|  100%  | Full |:white_check_mark:|  03/15/2024|
 
+- Frost
+
+| rotation  |   author   |patch |coverage|  status   |  readiness  |last updated|
+|-----------|------------|:----:|:------:|:---------:|:-----------:|-----------:|
+|BrewDKFrost|BrewingCoder|10.2.6|   0%   |Development|:interrobang:|  05/07/2024|
+
 - Unholy
 
 |  rotation  |   author   |patch |coverage|status |  readiness  |last updated|
@@ -148,8 +154,8 @@ Raidable means if its good to raid with.
 
 |   rotation   |   author   | patch |coverage|status |  readiness  |last updated|
 |--------------|------------|:-----:|:------:|:-----:|:-----------:|-----------:|
-|BrewWWPVE     |BrewingCoder|Unknown|Unknown |Unknown|:interrobang:|  05/03/2024|
-|BrewWindWalker|BrewingCoder|10.2.5 |  95%   |Limited|:interrobang:|  04/30/2024|
+|BrewWWPVE     |BrewingCoder|Unknown|Unknown |Unknown|:interrobang:|  05/07/2024|
+|BrewWindWalker|BrewingCoder|10.2.5 |  95%   |Limited|:interrobang:|  05/07/2024|
 
 
 ### Paladin
@@ -176,7 +182,7 @@ Raidable means if its good to raid with.
 
 |rotation |   author   |patch |coverage|  status   |  readiness  |last updated|
 |---------|------------|:----:|:------:|:---------:|:-----------:|-----------:|
-|BrewDemon|BrewingCoder|10.2.6|  50%   |Development|:interrobang:|  04/26/2024|
+|BrewDemon|BrewingCoder|10.2.6|  50%   |Development|:interrobang:|  05/07/2024|
 
 - Destruction
 
