@@ -5,7 +5,7 @@
 -- Status = Limited
 -- Readiness = PVE Leveling
 -------------------------------------------------------
-local rotationName = "BrewFuryLeveling" 
+local rotationName = "BrewFuryLeveling"
 
 local colors = {
     blue    = "|cff4285F4",
@@ -37,32 +37,32 @@ local text = {
         useSpellReflection = colors.orange .. "Use Spell Reflection if can't interrupt",
         usePummel = colors.orange .. "Use Pummel as interrupt",
         beserkerRage = colors.orange .. "Use Beserker Rage",
-        
+
     }
 }
 
-local function createToggles() 
+local function createToggles()
     local RotationModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range.", highlight = 1, icon = br.player.spell.whirlwind },
-        [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.bladestorm },
-        [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.ragingBlow },
-        [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.enragedRegeneration}
+        [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range.", highlight = 1, icon = br.player.spells.whirlwind },
+        [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spells.bladestorm },
+        [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spells.ragingBlow },
+        [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spells.enragedRegeneration}
     };
     br.ui:createToggle(RotationModes,"Rotation",1,0)
     local CooldownModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.recklessness },
-        [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.recklessness },
-        [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.recklessness }
+        [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spells.recklessness },
+        [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spells.recklessness },
+        [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spells.recklessness }
     };
     br.ui:createToggle(CooldownModes,"Cooldown",2,0)
     local DefensiveModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.enragedRegeneration },
-        [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.enragedRegeneration }
+        [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spells.enragedRegeneration },
+        [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spells.enragedRegeneration }
     };
     br.ui:createToggle(DefensiveModes,"Defensive",3,0)
     local InterruptModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.pummel },
-        [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.pummel }
+        [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spells.pummel },
+        [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spells.pummel }
     };
     br.ui:createToggle(InterruptModes,"Interrupt",4,0)
     local DebugModes = {
@@ -71,13 +71,13 @@ local function createToggles()
     }
     br.ui:createToggle(DebugModes,"Debugs",5,0)
     local HeroicLeap = {
-        [1] = { mode = "ON", value = 1 , overlay = "Heroic Leap On", tip = "Heroic Leap On", highlight = 1, icon=br.player.spell.heroicLeap },
-        [2] = { mode = "OFF", value = 0 , overlay = "Heroic Leap Off", tip = "Heroic Leap Off", highlight = 0, icon=br.player.spell.heroicLeap },
+        [1] = { mode = "ON", value = 1 , overlay = "Heroic Leap On", tip = "Heroic Leap On", highlight = 1, icon=br.player.spells.heroicLeap },
+        [2] = { mode = "OFF", value = 0 , overlay = "Heroic Leap Off", tip = "Heroic Leap Off", highlight = 0, icon=br.player.spells.heroicLeap },
     }
     br.ui:createToggle(HeroicLeap,"HeroicLeap",4,1)
     local Charge = {
-        [1] = { mode = "ON", value = 1 , overlay = "Charge On", tip = "Charge On", highlight = 1, icon=br.player.spell.charge },
-        [2] = { mode = "OFF", value = 0 , overlay = "Charge Off", tip = "Charge Off", highlight = 0, icon=br.player.spell.charge },
+        [1] = { mode = "ON", value = 1 , overlay = "Charge On", tip = "Charge On", highlight = 1, icon=br.player.spells.charge },
+        [2] = { mode = "OFF", value = 0 , overlay = "Charge Off", tip = "Charge Off", highlight = 0, icon=br.player.spells.charge },
     }
     br.ui:createToggle(Charge,"Charge",3,1)
 end
@@ -141,18 +141,18 @@ local var
 local rage
 
 -- Any variables/functions made should have a local here to prevent possible conflicts with other things.
-local function round(number, digit_position) 
+local function round(number, digit_position)
     local precision = math.pow(10, digit_position)
     number = number + (precision / 2); -- this causes value #.5 and up to round up
                                        -- and #.4 and lower to round down.
-  
+
     return math.floor(number / precision) * precision
   end
 
-local function printStats(message)  
+local function printStats(message)
     local rageString
      rageString = colors.red .. "[" .. tostring(br._G.UnitPower("player")) .. "]"
-     local lastTime = ui.time() - var.lastCast 
+     local lastTime = ui.time() - var.lastCast
     br._G.print(colors.red.. date("%T") ..colors.aqua .."[+" .. string.format("%f2",round(lastTime,-2)) .. "] "  .. string.format("%f",unit.gcd())..colors.white .. rageString .. " : ".. message)
 end
 
@@ -180,7 +180,7 @@ actionList.Defensive = function()
     --     local name,_,_,startTime,endTime,_,_,notInterruptable,spellId = br._G.UnitCastingInfo(enemies.yards5[i])
     --     if name ~= nil then
     --         if notInterruptable or (not notInterruptable and )
-    --     end 
+    --     end
     -- end
 
 end -- End Action List - Defensive
@@ -192,11 +192,11 @@ actionList.Interrupt = function()
             for i=1, #enemies.yards5f do
                 thisUnit = enemies.yards5f[i]
                 if unit.interruptable(thisUnit,ui.value("Interrupt At"))  and cast.able.pummel(thisUnit) then
-                    if cast.pummel(thisUnit) then 
-                        debugMessage("Interrupt: pummel "..unit.name(thisUnit)) 
-                        return true 
+                    if cast.pummel(thisUnit) then
+                        debugMessage("Interrupt: pummel "..unit.name(thisUnit))
+                        return true
                     else
-                        debugMessage("Failed to Interrupt: pummel "..unit.name(thisUnit))                        
+                        debugMessage("Failed to Interrupt: pummel "..unit.name(thisUnit))
                     end
                 end
             end
@@ -212,43 +212,43 @@ end -- End Action List - Cooldowns
 actionList.PreCombat = function()
     if not unit.inCombat() and not (unit.flying() or unit.mounted() or unit.taxi()) then -- Only run when not in combat and not flying/mounted/taxi
         if not buff.battleShout.exists() and cast.able.battleShout() then
-                if cast.battleShout() then 
-                    debugMessage("Casting Battle Shout") 
-                    return true 
+                if cast.battleShout() then
+                    debugMessage("Casting Battle Shout")
+                    return true
                 else
-                    debugMessage("Failed to Battle Shout")                    
+                    debugMessage("Failed to Battle Shout")
                 end
         end
         if unit.valid("target") then -- Abilities below this only used when target is valid
-            
-            if ui.mode.HeroicLeap==1 and unit.distance("target") >=8 and unit.distance("target") <= 40 
-                and cast.able.heroicLeap("target") 
+
+            if ui.mode.HeroicLeap==1 and unit.distance("target") >=8 and unit.distance("target") <= 40
+                and cast.able.heroicLeap("target")
                 and not cast.last.heroicLeap()
                 and not cast.last.charge()
                 and not cast.last.heroicThrow()
                 then
-                if cast.heroicLeap("target") then 
-                    debugMessage("Casting Heroic Leap") 
-                    return true 
+                if cast.heroicLeap("target") then
+                    debugMessage("Casting Heroic Leap")
+                    return true
                 else
                     debugMessage("Failed to Heroic Leap")
                 end
             end
 
-            if ui.mode.Charge==1 and unit.distance("target") >=8 and unit.distance("target") <= 25 
-                and cast.able.charge("target") 
+            if ui.mode.Charge==1 and unit.distance("target") >=8 and unit.distance("target") <= 25
+                and cast.able.charge("target")
                 and not cast.last.heroicLeap()
                 and not cast.last.charge()
                 and not cast.last.heroicThrow()
-                then 
-                    if cast.charge("target") then 
-                        debugMessage("Casting Charge") 
-                        return true 
+                then
+                    if cast.charge("target") then
+                        debugMessage("Casting Charge")
+                        return true
                     else
                         debugMessage("Failed to Charge")
                     end
             end
-            
+
             if unit.distance("target") <= 5 then
                 if cast.able.autoAttack("target") then
                     if cast.autoAttack("target") then debugMessage("Casting Auto Attack [Pre-Combat]") return true end
@@ -341,52 +341,52 @@ local function runRotation() -- This is the main profile loop, any below this po
             ------------
 
             if not talent.impendingVictory and buff.victorious.exists() and cast.able.victoryRush("target") and unit.gcd()<= 0 then
-                if cast.victoryRush("target") then 
-                    debugMessage("Casting Victory Rush") 
-                    return true 
+                if cast.victoryRush("target") then
+                    debugMessage("Casting Victory Rush")
+                    return true
                 else
                     debugMessage("Failed to Victory Rush")
                 end
             end
             if talent.impendingVictory and cast.able.impendingVictory("target") and unit.gcd()<= 0 then
-                if cast.impendingVictory("target") then 
-                    debugMessage("Casting Impending Victory") 
-                    return true 
+                if cast.impendingVictory("target") then
+                    debugMessage("Casting Impending Victory")
+                    return true
                 else
                     debugMessage("Failed to Impending Victory")
                 end
             end
             -- if cast.able.victoryRush("target") and unit.gcd()<= 0 then
-            --     if cast.victoryRush("target") then 
-            --         debugMessage("Casting Victory Rush") 
-            --         return true 
+            --     if cast.victoryRush("target") then
+            --         debugMessage("Casting Victory Rush")
+            --         return true
             --     else
             --         debugMessage("Failed to Victory Rush")
             --     end
             -- end
 
             if cast.able.execute("target") and unit.hp("target") < 20  and unit.gcd()<= 0 then
-                if cast.execute("target") then 
-                    debugMessage("Casting Execute") 
-                    return true 
+                if cast.execute("target") then
+                    debugMessage("Casting Execute")
+                    return true
                 else
                     debugMessage("Failed to Execute")
                 end
             end
 
             if cast.able.bloodthirst("target") and unit.gcd()<= 0 then
-                if cast.bloodthirst("target") then 
-                    debugMessage("Casting Bloodthirst") 
-                    return true 
+                if cast.bloodthirst("target") then
+                    debugMessage("Casting Bloodthirst")
+                    return true
                 else
                     debugMessage("Failed to Bloodthirst")
                 end
             end
 
             if cast.able.ragingBlow("target") and unit.gcd()<= 0 then
-                if cast.ragingBlow("target") then 
-                    debugMessage("Casting Raging Blow") 
-                    return true 
+                if cast.ragingBlow("target") then
+                    debugMessage("Casting Raging Blow")
+                    return true
                 else
                     debugMessage("Failed to Raging Blow")
                 end
@@ -394,19 +394,19 @@ local function runRotation() -- This is the main profile loop, any below this po
 
             if #enemies.yards5 >= 3 then
                 if cast.able.whirlwind() and unit.gcd()<= 0 then
-                    if cast.whirlwind() then 
-                        debugMessage("Casting whirlwind") 
-                        return true 
+                    if cast.whirlwind() then
+                        debugMessage("Casting whirlwind")
+                        return true
                     else
                         debugMessage("Failed to Whirlwind")
                     end
                 end
             end
-            
+
             if cast.able.slam("target") and unit.gcd()<= 0 then
-                if cast.slam("target") then 
-                    debugMessage("Casting Slam") 
-                    return true 
+                if cast.slam("target") then
+                    debugMessage("Casting Slam")
+                    return true
                 else
                     debugMessage("Failed to Slam")
                 end
@@ -417,11 +417,11 @@ local function runRotation() -- This is the main profile loop, any below this po
             -- Start Attack - This will start auto attacking your target if it's within 5yrds and valid
             if unit.distance("target") <= 5 then
                 if cast.able.autoAttack("target") then
-                    if cast.autoAttack("target") then 
-                        debugMessage("Casting Auto Attack [Pre-Combat]") 
-                        return true 
+                    if cast.autoAttack("target") then
+                        debugMessage("Casting Auto Attack [Pre-Combat]")
+                        return true
                     else
-                        debugMessage("Failed to Auto Attack")                        
+                        debugMessage("Failed to Auto Attack")
                     end
                 end
             end

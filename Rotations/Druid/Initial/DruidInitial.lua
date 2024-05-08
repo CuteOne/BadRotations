@@ -6,25 +6,25 @@ local rotationName = "Initial Druid" -- Change to name of profile listed in opti
 local function createToggles() -- Define custom toggles
     -- Rotation Button
     local RotationModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range.", highlight = 1, icon = br.player.spell.wrath },
-        [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.moonfire },
-        [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.shred },
-        [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.regrowth}
+        [1] = { mode = "Auto", value = 1, overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range.", highlight = 1, icon = br.player.spells.wrath },
+        [2] = { mode = "Mult", value = 2, overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spells.moonfire },
+        [3] = { mode = "Sing", value = 3, overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spells.shred },
+        [4] = { mode = "Off", value = 4, overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spells.regrowth }
     };
-    br.ui:createToggle(RotationModes,"Rotation",1,0)
+    br.ui:createToggle(RotationModes, "Rotation", 1, 0)
     -- Defensive Button
     local DefensiveModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.regrowth },
-        [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.regrowth }
+        [1] = { mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spells.regrowth },
+        [2] = { mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spells.regrowth }
     };
-    br.ui:createToggle(DefensiveModes,"Defensive",2,0)
+    br.ui:createToggle(DefensiveModes, "Defensive", 2, 0)
     -- Form Button
     local FormModes = {
-        [1] = { mode = "Caster", value = 1 , overlay = "Caster Form", tip = "Will force and use Caster Form", highlight = 1, icon = br.player.spell.moonkinForm },
-        [2] = { mode = "Cat", value = 2 , overlay = "Cat Form", tip = "Will force and use Cat Form", highlight = 0, icon = br.player.spell.catForm },
-        [3] = { mode = "Bear", value = 3 , overlay = "Bear Form", tip = "Will force and use Bear Form", highlight = 0, icon = br.player.spell.bearForm }
+        [1] = { mode = "Caster", value = 1, overlay = "Caster Form", tip = "Will force and use Caster Form", highlight = 1, icon = br.player.spells.moonkinForm },
+        [2] = { mode = "Cat", value = 2, overlay = "Cat Form", tip = "Will force and use Cat Form", highlight = 0, icon = br.player.spells.catForm },
+        [3] = { mode = "Bear", value = 3, overlay = "Bear Form", tip = "Will force and use Bear Form", highlight = 0, icon = br.player.spells.bearForm }
     };
-    br.ui:createToggle(FormModes,"Forms",3,0)
+    br.ui:createToggle(FormModes, "Forms", 3, 0)
 end
 
 ---------------
@@ -38,36 +38,39 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS ---
         -----------------------
-        section = br.ui:createSection(br.ui.window.profile,  "General")
-            br.ui:createSpinnerWithout(section, "Shift Wait Time", 2, 0, 5, 1, "|cffFFFFFFTime in seconds the profile will wait while moving to shift. Combat is instant!")
-            -- Mark of the Wild
-            br.ui:createDropdown(section, "Mark of the Wild",{"|cffFFFFFFPlayer", "|cffFFFFFFTarget", "|cffFFFFFFMouseover", "|cffFFFFFFFocus", "|cffFFFFFFGroup"}, 1, "|cffFFFFFFSet how to use Mark of the Wild")
+        section = br.ui:createSection(br.ui.window.profile, "General")
+        br.ui:createSpinnerWithout(section, "Shift Wait Time", 2, 0, 5, 1,
+            "|cffFFFFFFTime in seconds the profile will wait while moving to shift. Combat is instant!")
+        -- Mark of the Wild
+        br.ui:createDropdown(section, "Mark of the Wild",
+            { "|cffFFFFFFPlayer", "|cffFFFFFFTarget", "|cffFFFFFFMouseover", "|cffFFFFFFFocus", "|cffFFFFFFGroup" }, 1,
+            "|cffFFFFFFSet how to use Mark of the Wild")
         br.ui:checkSectionState(section)
         -------------------------
         --- DEFENSIVE OPTIONS ---
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
-            -- Basic Healing Module
-            br.player.module.BasicHealing(section)
-            -- Regrowth
-            br.ui:createSpinner(section, "Regrowth",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+        -- Basic Healing Module
+        br.player.module.BasicHealing(section)
+        -- Regrowth
+        br.ui:createSpinner(section, "Regrowth", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
         br.ui:checkSectionState(section)
         ----------------------
         --- TOGGLE OPTIONS ---
         ----------------------
-        section = br.ui:createSection(br.ui.window.profile,  "Toggle Keys")
-            -- Single/Multi Toggle
-            br.ui:createDropdownWithout(section,  "Rotation Mode", br.dropOptions.Toggle,  4)
-            --Defensive Key Toggle
-            br.ui:createDropdownWithout(section,  "Defensive Mode", br.dropOptions.Toggle,  6)
-            -- Pause Toggle
-            br.ui:createDropdown(section,  "Pause Mode", br.dropOptions.Toggle,  6)
+        section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
+        -- Single/Multi Toggle
+        br.ui:createDropdownWithout(section, "Rotation Mode", br.dropOptions.Toggle, 4)
+        --Defensive Key Toggle
+        br.ui:createDropdownWithout(section, "Defensive Mode", br.dropOptions.Toggle, 6)
+        -- Pause Toggle
+        br.ui:createDropdown(section, "Pause Mode", br.dropOptions.Toggle, 6)
         br.ui:checkSectionState(section)
     end
-    optionTable = {{
+    optionTable = { {
         [1] = "Rotation Options",
         [2] = rotationOptions,
-    }}
+    } }
     return optionTable
 end
 
@@ -102,20 +105,20 @@ local movingTimer
 -- Ferocious Bite Finish
 local function ferociousBiteFinish(thisUnit)
     local GetSpellDescription = br._G["GetSpellDescription"]
-    local desc = GetSpellDescription(spell.ferociousBite)
+    local desc = GetSpellDescription(spell.ferociousBite.id())
     local damage = 0
     local finishHim = false
     if thisUnit == nil then thisUnit = units.dyn5 end
     if comboPoints > 0 and not unit.isDummy(thisUnit) then
-        local comboStart = desc:find(" "..comboPoints.." ",1,true)
+        local comboStart = desc:find(" " .. comboPoints .. " ", 1, true)
         if comboStart ~= nil then
             comboStart = comboStart + 2
-            local damageList = desc:sub(comboStart,desc:len())
-            comboStart = damageList:find(": ",1,true)+2
-            damageList = damageList:sub(comboStart,desc:len())
-            local comboEnd = damageList:find(" ",1,true)-1
-            damageList = damageList:sub(1,comboEnd)
-            damage = damageList:gsub(",","")
+            local damageList = desc:sub(comboStart, desc:len())
+            comboStart = damageList:find(": ", 1, true) + 2
+            damageList = damageList:sub(comboStart, desc:len())
+            local comboEnd = damageList:find(" ", 1, true) - 1
+            damageList = damageList:sub(1, comboEnd)
+            damage = damageList:gsub(",", "")
         end
         finishHim = tonumber(damage) >= unit.health(thisUnit)
     end
@@ -167,15 +170,18 @@ end
 actionList.Extra = function()
     -- Auto Shapeshift
     if (not buff.travelForm.exists() and unit.moving() and timeMoving() > ui.value("Shift Wait Time")) or unit.inCombat()
-        or (unit.exists("target") and (unit.id("target") == 164577 or unit.id("target") == 166906) and unit.canAttack("player","target"))
+        or (unit.exists("target") and (unit.id("target") == 164577 or unit.id("target") == 166906) and unit.canAttack("player", "target"))
     then
         local formValue = ui.mode.forms
         -- Bear Form
         if formValue == 3 and unit.level() >= 8 and cast.able.bearForm() and not buff.bearForm.exists() then
-            if cast.bearForm() then ui.debug("Casting Bear Form") return true end
+            if cast.bearForm() then
+                ui.debug("Casting Bear Form")
+                return true
+            end
         end
         -- Caster Form
-        if (formValue == 1 or (unit.exists("target") and (unit.id("target") == 164577 or unit.id("target") == 166906) and unit.canAttack("player","target")))
+        if (formValue == 1 or (unit.exists("target") and (unit.id("target") == 164577 or unit.id("target") == 166906) and unit.canAttack("player", "target")))
             and (buff.bearForm.exists() or buff.catForm.exists())
         then
             br._G.RunMacroText("/CancelForm")
@@ -184,15 +190,21 @@ actionList.Extra = function()
         end
         --Cat Form
         if (formValue == 2 or (formValue == 3 and unit.level() < 8)) and unit.level() >= 5 and cast.able.catForm() and not buff.catForm.exists()
-            and ((unit.id("target") ~= 164577 and unit.id("target") ~= 166906) or not unit.canAttack("player","target"))
+            and ((unit.id("target") ~= 164577 and unit.id("target") ~= 166906) or not unit.canAttack("player", "target"))
         then
-            if cast.catForm() then ui.debug("Casting Cat Form") return true end
+            if cast.catForm() then
+                ui.debug("Casting Cat Form")
+                return true
+            end
         end
         -- Mark of the Wild
         if ui.checked("Mark of the Wild") then
             var.markUnit = getMarkUnitOption("Mark of the Wild")
             if cast.able.markOfTheWild(var.markUnit) and buff.markOfTheWild.refresh(var.markUnit) and not unit.resting() and unit.distance(var.markUnit) < 40 then
-                if cast.markOfTheWild(var.markUnit) then ui.debug("Casting Mark of the Wild") return true end
+                if cast.markOfTheWild(var.markUnit) then
+                    ui.debug("Casting Mark of the Wild")
+                    return true
+                end
             end
         end
     end
@@ -210,7 +222,10 @@ actionList.Defensive = function()
                     -- CancelShapeshiftForm()
                     br._G.RunMacroText("/CancelForm")
                 else
-                    if cast.regrowth("target") then ui.debug("Casting Regrowth on "..unit.name("target")) return true end
+                    if cast.regrowth("target") then
+                        ui.debug("Casting Regrowth on " .. unit.name("target"))
+                        return true
+                    end
                 end
             end
             if not unit.friend("target") and unit.hp() <= ui.value("Regrowth") then
@@ -218,7 +233,10 @@ actionList.Defensive = function()
                     -- CancelShapeshiftForm()
                     br._G.RunMacroText("/CancelForm")
                 else
-                    if cast.regrowth("player") then ui.debug("Casting Regrowth on "..unit.name("player")) return true end
+                    if cast.regrowth("player") then
+                        ui.debug("Casting Regrowth on " .. unit.name("player"))
+                        return true
+                    end
                 end
             end
         end
@@ -232,13 +250,19 @@ actionList.PreCombat = function()
             local thisDistance = unit.distance("target") or 99
             if not unit.moving() and not (buff.catForm.exists() or buff.bearForm.exists()) and thisDistance < 40 then
                 if cast.able.wrath("target") and (unit.level() < 2 or not cast.last.wrath() or cast.timeSinceLast.wrath() > unit.gcd(true) + 0.5) then
-                    if cast.wrath("target") then ui.debug("Casting Wrath [Pre-Pull]") return true end
+                    if cast.wrath("target") then
+                        ui.debug("Casting Wrath [Pre-Pull]")
+                        return true
+                    end
                 end
             end
             if thisDistance < 5 then
                 -- Shred
                 if cast.able.shred() and buff.catForm.exists() then
-                    if cast.shred() then ui.debug("Casting Shred [Pre-Pull]") return true end
+                    if cast.shred() then
+                        ui.debug("Casting Shred [Pre-Pull]")
+                        return true
+                    end
                 end
                 -- Auto Attack
                 if not br._G.IsAutoRepeatSpell(br._G.GetSpellInfo(6603)) then
@@ -257,27 +281,27 @@ local function runRotation()
     --- Define Locals ---
     ---------------------
     -- BR API Locals
-    buff                                        = br.player.buff
-    cast                                        = br.player.cast
-    cd                                          = br.player.cd
-    comboPoints                                 = br.player.power.comboPoints()
-    debuff                                      = br.player.debuff
-    enemies                                     = br.player.enemies
-    energy                                      = br.player.power.energy()
-    module                                      = br.player.module
-    ui                                          = br.player.ui
-    unit                                        = br.player.unit
-    units                                       = br.player.units
-    spell                                       = br.player.spell
+    buff        = br.player.buff
+    cast        = br.player.cast
+    cd          = br.player.cd
+    comboPoints = br.player.power.comboPoints()
+    debuff      = br.player.debuff
+    enemies     = br.player.enemies
+    energy      = br.player.power.energy()
+    module      = br.player.module
+    ui          = br.player.ui
+    unit        = br.player.unit
+    units       = br.player.units
+    spell       = br.player.spell
     -- General Locals
-    profileStop                                 = profileStop or false
-    haltProfile                                 = (unit.inCombat() and profileStop) or br.pause() or ui.mode.rotation==4 or unit.id("target") == 156716
+    profileStop = profileStop or false
+    haltProfile = (unit.inCombat() and profileStop) or br.pause() or ui.mode.rotation == 4 or unit.id("target") == 156716
     -- Units
-    units.get(5) -- Makes a variable called, units.dyn5
-    units.get(40,true) -- Makes a variable called, units.dyn40AOE
+    units.get(5)       -- Makes a variable called, units.dyn5
+    units.get(40, true) -- Makes a variable called, units.dyn40AOE
     -- Enemies
-    enemies.get(5) -- Makes a varaible called, enemies.yards5
-    enemies.get(40) -- Makes a varaible called, enemies.yards40
+    enemies.get(5)     -- Makes a varaible called, enemies.yards5
+    enemies.get(40)    -- Makes a varaible called, enemies.yards40
 
     -- Profile Specific Locals
     fbMaxEnergy = energy >= 50
@@ -313,7 +337,6 @@ local function runRotation()
         --- In Combat - Rotations ---
         -----------------------------
         if unit.inCombat() and unit.valid("target") and cd.global.remain() == 0 then
-
             ------------------------
             --- In Combat - Main ---
             ------------------------
@@ -327,7 +350,10 @@ local function runRotation()
                 if buff.bearForm.exists() then
                     -- Mangle
                     if cast.able.mangle(units.dyn5) then
-                        if cast.mangle(units.dyn5) then ui.debug("Casting Mangle") return true end
+                        if cast.mangle(units.dyn5) then
+                            ui.debug("Casting Mangle")
+                            return true
+                        end
                     end
                 end
                 -- Cat Form
@@ -336,14 +362,23 @@ local function runRotation()
                     -- Ferocious Bite
                     if cast.able.ferociousBite() and ((comboPoints == 5 and fbMaxEnergy) or finish) then
                         if finish then
-                            if cast.ferociousBite() then ui.debug("Casting Ferocious Bite [Finish]") return true end
+                            if cast.ferociousBite() then
+                                ui.debug("Casting Ferocious Bite [Finish]")
+                                return true
+                            end
                         else
-                            if cast.ferociousBite() then ui.debug("Casting Ferocious Bite") return true end
+                            if cast.ferociousBite() then
+                                ui.debug("Casting Ferocious Bite")
+                                return true
+                            end
                         end
                     end
                     -- Shred
                     if cast.able.shred() and (comboPoints < 5 or unit.level() < 7) then
-                        if cast.shred() then ui.debug("Casting Shred") return true end
+                        if cast.shred() then
+                            ui.debug("Casting Shred")
+                            return true
+                        end
                     end
                 end
             end
@@ -351,20 +386,26 @@ local function runRotation()
             if not (buff.catForm.exists() or buff.bearForm.exists() or buff.travelForm.exists()) then
                 -- Moonfire
                 if cast.able.moonfire(units.dyn40AOE) and (unit.level() < 5 or not buff.catForm.exists()) and debuff.moonfire.refresh(units.dyn40AOE) then
-                    if cast.moonfire(units.dyn40AOE) then ui.debug("Casting Moonfire") return true end
+                    if cast.moonfire(units.dyn40AOE) then
+                        ui.debug("Casting Moonfire")
+                        return true
+                    end
                 end
                 -- Wrath
                 if not unit.moving() and cast.able.wrath() and (unit.level() < 2 or (not cast.last.wrath() and cast.timeSinceLast.wrath() > unit.gcd(true) + 0.5) or not debuff.moonfire.refresh(units.dyn40AOE)) then
-                    if cast.wrath() then ui.debug("Casting Wrath") return true end
+                    if cast.wrath() then
+                        ui.debug("Casting Wrath")
+                        return true
+                    end
                 end
             end
-        end -- End In Combat Rotation
-    end -- Pause
+        end     -- End In Combat Rotation
+    end         -- Pause
     return true
-end -- End runRotation
+end             -- End runRotation
 local id = 1447 -- Change to the spec id profile is for.
 if br.rotations[id] == nil then br.rotations[id] = {} end
-br._G.tinsert(br.rotations[id],{
+br._G.tinsert(br.rotations[id], {
     name = rotationName,
     toggles = createToggles,
     options = createOptions,

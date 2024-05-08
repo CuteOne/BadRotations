@@ -14,7 +14,7 @@ local ignoreList = {
 }
 
 local function addSpell(spellID)
-    for _, v in pairs(br.player.spell.abilities) do
+    for _, v in pairs(br.player.spells.abilities) do
         if v == spellID then
             br._G.tinsert(tracker, 1, spellID)
             if #tracker == 10 then
@@ -26,7 +26,7 @@ local function addSpell(spellID)
 end
 
 local function addCastTime(spellID)
-    for _, v in pairs(br.player.spell.abilities) do
+    for _, v in pairs(br.player.spells.abilities) do
         if v == spellID then
             castTime[v] = br._G.GetTime()
         end

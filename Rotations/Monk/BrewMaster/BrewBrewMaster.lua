@@ -56,25 +56,25 @@ local text2 = {
 
 local function createToggles()
     local Content = {
-        [1] = { mode = "Norm", value = 1 , overlay = "Normal Dungeon", tip = "Swaps between Modes", highlight = 1, icon = br.player.spell.weaponsOfOrder },
-        [2] = { mode = "Hero", value = 2 , overlay = "Raid/Heroic Dungeon", tip = "Heroic Dungeon or Raid Settings", highlight = 1, icon = br.player.spell.breathOfFire },
-        [3] = { mode = "OFF", value = 2 , overlay = "OFF", tip = "Mode Settings", highlight = 0, icon = br.player.spell.weaponsOfOrder },
+        [1] = { mode = "Norm", value = 1 , overlay = "Normal Dungeon", tip = "Swaps between Modes", highlight = 1, icon = br.player.spells.weaponsOfOrder },
+        [2] = { mode = "Hero", value = 2 , overlay = "Raid/Heroic Dungeon", tip = "Heroic Dungeon or Raid Settings", highlight = 1, icon = br.player.spells.breathOfFire },
+        [3] = { mode = "OFF", value = 2 , overlay = "OFF", tip = "Mode Settings", highlight = 0, icon = br.player.spells.weaponsOfOrder },
     };
     br.ui:createToggle(Content,"Rotation",1,0)
    local CooldownModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.recklessness },
-        [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.recklessness },
-        [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.recklessness }
+        [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spells.recklessness },
+        [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spells.recklessness },
+        [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spells.recklessness }
     };
     br.ui:createToggle(CooldownModes,"Cooldown",2,0)
     local InterruptModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.spearHandStrike },
-        [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.spearHandStrike }
+        [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spells.spearHandStrike },
+        [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spells.spearHandStrike }
     };
     br.ui:createToggle(InterruptModes,"Interrupt",3,0)
     local DebugModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Debug Enabled", tip = "Show Rotation Debug", highlight = 1, icon = br.player.spell.paralysis },
-        [2] = { mode = "Off", value = 2 , overlay = "Debug Disabled", tip = "Do Not Show Rotation Debug", highlight = 0, icon = br.player.spell.paralysis }
+        [1] = { mode = "On", value = 1 , overlay = "Debug Enabled", tip = "Show Rotation Debug", highlight = 1, icon = br.player.spells.paralysis },
+        [2] = { mode = "Off", value = 2 , overlay = "Debug Disabled", tip = "Do Not Show Rotation Debug", highlight = 0, icon = br.player.spells.paralysis }
     }
     br.ui:createToggle(DebugModes,"DebugMode",4,0)
 end
@@ -107,7 +107,7 @@ local function createOptions()
             br.ui:createCheckbox(section,text.preCombat.rollToEngage,"Enable Rolling to Engage target if Facing")
             br.ui:createCheckbox(section,text.preCombat.chiTorpedoToEngage,"Enable chiTorpedo to Engage if Facing")
             br.ui:createCheckbox(section,text.preCombat.trancedenceSwapOnBoss,"Use Transcendence to engage, then return to original location")
-        br.ui:checkSectionState(section)     
+        br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile,text.interrupts.options)
             br.ui:createText(section,"Normal | Interrupts")
             br.ui:createSpinner(section,text.interrupts.spearHandStrike,0,0,95,5,"Use Spear Hand Strike")
@@ -205,7 +205,7 @@ actionList.Interrupt = function()
                     if cast.spearHandStrike(thisUnit) then ui.debug("Interrupt: SpearHandStrike "..unit.name(thisUnit)) return true end
                 end
             end
-        
+
         if ui.checked(text.interrupts.legSweep) and  cast.able.legSweep("target") then
             for i=1, #enemies.yards5 do
                 thisUnit = enemies.yards5[i]
@@ -218,8 +218,8 @@ actionList.Interrupt = function()
 end
 actionList.Extra = function()
     if (
-        ui.checked(text.options.consumeOnlyInDungeon) and 
-        (br.player.instance=="raid" or br.player.instance=="party")) or 
+        ui.checked(text.options.consumeOnlyInDungeon) and
+        (br.player.instance=="raid" or br.player.instance=="party")) or
         not ui.checked(text.options.consumeOnlyInDungeon) then
             module.ImbueUp()
     end
@@ -257,10 +257,10 @@ end
 actionList.RotationBoc = function ()
     --purifying_brew,if=(buff.blackout_combo.down&(buff.recent_purifies.down|cooldown.purifying_brew.charges_fractional>(1+talent.improved_purifying_brew.enabled-0.1)))
     --&talent.improved_invoke_niuzao_the_black_ox.enabled&(cooldown.weapons_of_order.remains>40|cooldown.weapons_of_order.remains<5)
-    
+
     if (buff.blackoutCombo.down() and (charges.purifyingBrew.frac() > (1 + boolNumeric(talent.improvedPurifyingBrew)-0.1))) and
         talent.improvedInvokeNiuzaoTheBlackOx and (cd.weaponsOfOrder.remains() > 40 or cd.weaponsOfOrder.remains() <5) then
-            if cast.able.purifyingBrew() then 
+            if cast.able.purifyingBrew() then
                 if cast.purifyingBrew() then ui.debug("01.BOC: Purifying Brew") return true end;
             end
     end
@@ -300,7 +300,7 @@ actionList.RotationBoc = function ()
     if cast.last.weaponsOfOrder(2) and cast.able.kegSmash("target") then
         if cast.kegSmash("target") then ui.debug("07.BOC: Keg Smash") return true; end;
     end
-    
+
     --/keg_smash,if=(buff.weapons_of_order.remains<gcd*2&buff.weapons_of_order.up)&!talent.improved_invoke_niuzao_the_black_ox.enabled
     if (buff.weaponsOfOrder.remains() < unit.gcd()*2 and buff.weaponsOfOrder.exists()) and not talent.improvedInvokeNiuzaoTheBlackOx then
         if cast.able.kegSmash("target") then ui.debug("08.BOC: Keg Smash") return true; end;
@@ -313,9 +313,9 @@ actionList.RotationBoc = function ()
 
     --/purifying_brew,if=(!buff.blackout_combo.up)&!talent.improved_invoke_niuzao_the_black_ox.enabled
     if (not buff.blackoutCombo.exists()) and not talent.improvedInvokeNiuzaoTheBlackOx then
-        if cast.able.purifyingBrew() then 
+        if cast.able.purifyingBrew() then
             if cast.purifyingBrew() then ui.debug("10.BOC: Purifying Brew") return true; end;
-        end            
+        end
     end
 
     if cast.able.risingSunKick() then
@@ -412,7 +412,7 @@ actionList.RotationBoc = function ()
         if cast.expelHarm() then ui.debug("27.BOC: Expel Harm") return true; end;
     end
 
-    if cast.able.chiWave("target") then 
+    if cast.able.chiWave("target") then
         if cast.chiWave("target") then ui.debug("28.BOC: Chi Wave") return true; end;
     end
 
@@ -501,7 +501,7 @@ local function runRotation() -- This is the main profile loop, any below this po
         --     print("Unknown obj type: " .. br._G.ObjectType(br._G.GetObjectWithIndex(i)))
         end
     end
-   
+
     if ui.mode.debug==1 then
         local n,r,i,ct,mr,mxr = GetSpellInfo("Recent Purifies")
 
@@ -511,26 +511,26 @@ local function runRotation() -- This is the main profile loop, any below this po
                 if name=="Recent Purifies" then
                     print(name,spellIdbuff)
                     print("---------------------------------------------")
-                end                    
+                end
             end
         end
-        
+
     end
     ------------------------
     --- Custom Variables ---
     ------------------------
     -- Any other local varaible from above would also need to be defined here to be use.
-    if var.profileStop == nil then var.profileStop = false end 
+    if var.profileStop == nil then var.profileStop = false end
 
     -- Profile Stop | Pause
     if not unit.inCombat() and not unit.exists("target") and var.profileStop then -- Reset profile stop once stopped
         var.profileStop = false
     elseif (unit.inCombat() and var.profileStop) or ui.pause() or unit.mounted() or unit.flying() or ui.mode.rotation == 4 then -- If profile triggered to stop go here until it has.
         return true
-    else 
+    else
 
-        if actionList.Extra() then return true end 
-        
+        if actionList.Extra() then return true end
+
         if unit.inCombat() and unit.valid("target") and not var.profileStop then
             if actionList.Interrupt() then return true; end
             if actionList.Defensive() then return true; end
@@ -581,7 +581,7 @@ local function runRotation() -- This is the main profile loop, any below this po
         --         if (not buff.shuffle.exists() or (buff.shuffle.remains() <= 3)) then
         --             if cast.able.kegSmash("target") then
         --                 if cast.kegSmash("target") then ui.debug("SHUFFLE +5: Keg Smash") return true; end;
-        --             elseif cast.able.blackoutKick("target") then 
+        --             elseif cast.able.blackoutKick("target") then
         --                 if cast.blackoutKick("target") then ui.debug("SHUFFLE +3: Blackout Kick") return true; end;
         --             else
         --                 if cast.able.spinningCraneKick() then
@@ -612,11 +612,11 @@ local function runRotation() -- This is the main profile loop, any below this po
         --             if cast.explodingKeg("target") then ui.debug("Exploding Keg") return true; end;
         --         end
                 -- We need to ocassionally cast a damage spell; but the tigerPalm vs Spinning Crane kick options
-                -- Would depend on # of enemies as well as if we need to collect globes.  Not sure we can get the 
+                -- Would depend on # of enemies as well as if we need to collect globes.  Not sure we can get the
                 -- # of globes on the ground nearby.
-                -- if (ui.mode.rotation == 1 or ui.mode.rotation==2) and 
-                --         #enemies.yards8 >= 3 and 
-                --         buff.counterStrike.exists() and 
+                -- if (ui.mode.rotation == 1 or ui.mode.rotation==2) and
+                --         #enemies.yards8 >= 3 and
+                --         buff.counterStrike.exists() and
                 --         cast.able.spinningCraneKick() then
                 --     if cast.spinningCraneKick() then ui.debug("PROC: Spinning Crane Kick") return true; end;
                 -- elseif ui.mode.rotation == 3 and buff.counterStrike.exists() and cast.able.tigerPalm("target") then

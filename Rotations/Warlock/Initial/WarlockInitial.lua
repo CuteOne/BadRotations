@@ -6,21 +6,21 @@ local rotationName = "Overlord"
 local function createToggles()
     -- Rotation Button
     local RotationModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Rotation Enabled", tip = "Enable Rotation", highlight = 1, icon = br.player.spell.shadowBolt },
-        [2] = {  mode = "Off", value = 4 , overlay = "Rotation Disabled", tip = "Disable Rotation", highlight = 0, icon = br.player.spell.soulShards }
+        [1] = { mode = "On", value = 1 , overlay = "Rotation Enabled", tip = "Enable Rotation", highlight = 1, icon = br.player.spells.shadowBolt },
+        [2] = {  mode = "Off", value = 4 , overlay = "Rotation Disabled", tip = "Disable Rotation", highlight = 0, icon = br.player.spells.soulShards }
     };
     br.ui:createToggle(RotationModes,"Rotation",1,0)
     -- Defensive Button
     local DefensiveModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.unendingResolve},
-        [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.unendingResolve}
+        [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spells.unendingResolve},
+        [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spells.unendingResolve}
     };
     br.ui:createToggle(DefensiveModes,"Defensive",2,0)
     --Pet summon
     local PetSummonModes = {
-        [1] = { mode = "1", value = 1 , overlay = "Imp", tip = "Summon Imp", highlight = 1, icon = br.player.spell.summonImp },
-        [2] = { mode = "2", value = 2 ,overlay = "Voidwalker", tip = "Summon Voidwalker", highlight = 1, icon = br.player.spell.summonVoidwalker },
-        [3] = { mode = "None", value = 3 , overlay = "No pet", tip = "Dont Summon any Pet", highlight = 0, icon = br.player.spell.fear }
+        [1] = { mode = "1", value = 1 , overlay = "Imp", tip = "Summon Imp", highlight = 1, icon = br.player.spells.summonImp },
+        [2] = { mode = "2", value = 2 ,overlay = "Voidwalker", tip = "Summon Voidwalker", highlight = 1, icon = br.player.spells.summonVoidwalker },
+        [3] = { mode = "None", value = 3 , overlay = "No pet", tip = "Dont Summon any Pet", highlight = 0, icon = br.player.spells.fear }
     };
     br.ui:createToggle(PetSummonModes,"PetSummon",3,0)
 end
@@ -132,10 +132,10 @@ actionList.PreCombat = function()
     if not unit.moving() and unit.level() >= 3 and GetTime() - br.pauseTime > 0.5
         and br.timer:useTimer("summonPet", 1)
     then
-        if (mode.petSummon == 1 or (mode.petSummon == 2 and not spell.known.summonVoidwalker())) and not pet.imp.active() then
+        if (mode.petSummon == 1 or (mode.petSummon == 2 and not spell.summonVoidwalker.known())) and not pet.imp.active() then
             if cast.summonImp("player") then return true end
         end
-        if mode.petSummon == 2 and spell.known.summonVoidwalker() and not pet.voidwalker.active() then
+        if mode.petSummon == 2 and spell.summonVoidwalker.known() and not pet.voidwalker.active() then
             if cast.summonVoidwalker("player") then return true end
         end
         if mode.petSummon == 3 and (pet.imp.active() or pet.voidwalker.active()) then
@@ -159,7 +159,7 @@ local function runRotation()
     mode                                          = br.player.ui.mode
     ui                                            = br.player.ui
     pet                                           = br.player.pet
-    spell                                         = br.player.spell
+    spell                                         = br.player.spells
     ui                                            = br.player.ui
     unit                                          = br.player.unit
     units                                         = br.player.units

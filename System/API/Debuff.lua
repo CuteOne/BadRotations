@@ -21,24 +21,24 @@ local function getSnapshotValue(dot)
         -- Tigers Fury
         if br.player.buff.tigersFury.exists() then multiplier = multiplier * TigersFury end
         -- moonfire feral
-        if dot == br.player.spell.debuffs.moonfireFeral then
+        if dot == br.player.spells.debuffs.moonfireFeral then
             -- return moonfire
             return multiplier
         end
         -- Bloodtalons
-        if br.player.buff.bloodtalons.exists() and dot == br.player.spell.debuffs.rip then multiplier = multiplier *
+        if br.player.buff.bloodtalons.exists() and dot == br.player.spells.debuffs.rip then multiplier = multiplier *
             Bloodtalons end
         -- Savage Roar
         -- if self.buff.savageRoar.exists() then multiplier = multiplier*SavageRoar end
         -- rip
-        if dot == br.player.spell.debuffs.rip then
+        if dot == br.player.spells.debuffs.rip then
             -- -- Versatility
             -- multiplier = multiplier*(1+Versatility*0.1)
             -- return rip
             return 5 * multiplier
         end
         -- rake
-        if dot == br.player.spell.debuffs.rake then
+        if dot == br.player.spells.debuffs.rake then
             -- Incarnation/Prowl/Sudden Ambush
             if br.player.buff.berserk.exists() or br.player.buff.incarnationAvatarOfAshamane.exists() or br.player.buff.prowl.exists()
                 or br.player.buff.shadowmeld.exists() or br.player.buff.suddenAmbush.exists()
@@ -52,14 +52,14 @@ local function getSnapshotValue(dot)
     -- Assassination Bleeds
     if br._G.GetSpecializationInfo(br._G.GetSpecialization()) == 259 then
         local multiplier = 1
-        if br.player.buff.stealth.exists() and br.player.talent.nightstalker and (dot == br.player.spell.debuffs.rupture
-                or dot == br.player.spell.debuffs.garrote) then
+        if br.player.buff.stealth.exists() and br.player.talent.nightstalker and (dot == br.player.spells.debuffs.rupture
+                or dot == br.player.spells.debuffs.garrote) then
             multiplier = 1.5
         end
         if (br.player.buff.stealth.exists() or br.player.buff.vanish.exists()
                 or (br.player.buff.subterfuge.exists() and br.player.buff.subterfuge.remain() >= 0.1
                     and br.player.buff.subterfuge.remain() >= br.getSpellCD(61304)))
-            and dot == br.player.spell.debuffs.garrote and br.player.talent.subterfuge
+            and dot == br.player.spells.debuffs.garrote and br.player.talent.subterfuge
         then
             multiplier = 1.8
         end

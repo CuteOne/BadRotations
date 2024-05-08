@@ -6,7 +6,7 @@
 local _, br = ...
 if br.api == nil then br.api = {} end
 
-br.api.spells = function(self, k, v)
+br.api.spell = function(self, k, v)
     self.spell = self.spell or {}
     local spell = self.spell
 

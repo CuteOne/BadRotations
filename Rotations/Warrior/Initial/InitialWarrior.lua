@@ -6,22 +6,22 @@ local rotationName = "Overlord"
 local function createToggles()
     -- Rotation Button
     local RotationModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Rotation Enabled", tip = "Enable Rotation", highlight = 1, icon = br.player.spell.victoryRush },
-        [2] = { mode = "Off", value = 4 , overlay = "Rotation Disabled", tip = "Disable Rotation", highlight = 0, icon = br.player.spell.victoryRush}
+        [1] = { mode = "On", value = 1, overlay = "Rotation Enabled", tip = "Enable Rotation", highlight = 1, icon = br.player.spells.victoryRush },
+        [2] = { mode = "Off", value = 4, overlay = "Rotation Disabled", tip = "Disable Rotation", highlight = 0, icon = br.player.spells.victoryRush }
     };
-    br.ui:createToggle(RotationModes,"Rotation",1,0)
+    br.ui:createToggle(RotationModes, "Rotation", 1, 0)
     -- Defensive Button
     local DefensiveModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.shieldBlock},
-        [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.shieldBlock}
+        [1] = { mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spells.shieldBlock },
+        [2] = { mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spells.shieldBlock }
     };
-    br.ui:createToggle(DefensiveModes,"Defensive",2,0)
+    br.ui:createToggle(DefensiveModes, "Defensive", 2, 0)
     -- Movement Button
     local MoverModes = {
-        [1] = { mode = "On", value = 1, overlay = "Mover Enabled", tip = "Will use Charge.", highlight = 1, icon = br.player.spell.charge},
-        [2] = { mode = "Off", value = 2, overlay = "Mover Disabled", tip = "Will NOT use Charge.", highlight = 0, icon = br.player.spell.charge}
+        [1] = { mode = "On", value = 1, overlay = "Mover Enabled", tip = "Will use Charge.", highlight = 1, icon = br.player.spells.charge },
+        [2] = { mode = "Off", value = 2, overlay = "Mover Disabled", tip = "Will NOT use Charge.", highlight = 0, icon = br.player.spells.charge }
     };
-    br.ui:createToggle(MoverModes,"Mover", 3, 0)
+    br.ui:createToggle(MoverModes, "Mover", 3, 0)
 end
 
 ---------------
@@ -35,7 +35,7 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS ---
         -----------------------
-        section = br.ui:createSection(br.ui.window.profile,  "General")
+        section = br.ui:createSection(br.ui.window.profile, "General")
 
         br.ui:checkSectionState(section)
         -------------------------
@@ -47,14 +47,14 @@ local function createOptions()
         ----------------------
         --- TOGGLE OPTIONS ---
         ----------------------
-        section = br.ui:createSection(br.ui.window.profile,  "Toggle Keys")
+        section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
 
         br.ui:checkSectionState(section)
     end
-    optionTable = {{
+    optionTable = { {
         [1] = "Rotation Options",
         [2] = rotationOptions,
-    }}
+    } }
     return optionTable
 end
 
@@ -66,7 +66,6 @@ local cast
 local cd
 local mode
 local ui
-local spell
 local unit
 local units
 -- General Locals
@@ -83,7 +82,10 @@ actionList.Defensive = function()
     --Shield Block
     if unit.hp() < 70 then
         if cast.able.shieldBlock() and unit.exists("target") and unit.distance("target") < 5 then
-            if cast.shieldBlock() then ui.debug("Casting Shield Block") return true end
+            if cast.shieldBlock() then
+                ui.debug("Casting Shield Block")
+                return true
+            end
         end
     end
 end -- End Action List - Defensive
@@ -101,21 +103,20 @@ local function runRotation()
     --- Define Locals ---
     ---------------------
     -- BR API Locals
-    cast                                          = br.player.cast
-    cd                                            = br.player.cd
-    mode                                          = br.player.ui.mode
-    ui                                            = br.player.ui
-    spell                                         = br.player.spell
-    ui                                            = br.player.ui
-    unit                                          = br.player.unit
-    units                                         = br.player.units
+    cast        = br.player.cast
+    cd          = br.player.cd
+    mode        = br.player.ui.mode
+    ui          = br.player.ui
+    ui          = br.player.ui
+    unit        = br.player.unit
+    units       = br.player.units
     -- General Locals
-    profileStop                                   = profileStop or false
-    haltProfile                                   = (unit.inCombat() and profileStop) or unit.mounted() or br.pause() or mode.rotation==4
+    profileStop = profileStop or false
+    haltProfile = (unit.inCombat() and profileStop) or unit.mounted() or br.pause() or mode.rotation == 4
     -- Units
-    units.get(5) -- Makes a variable called, units.dyn5
+    units.get(5)  -- Makes a variable called, units.dyn5
     units.get(40) -- Makes a variable called, units.dyn40
-    units.get(40,true)
+    units.get(40, true)
 
     -- Pause Timer
     if br.pauseTime == nil then br.pauseTime = ui.time() end
@@ -153,34 +154,54 @@ local function runRotation()
                 -- Start Attack
                 if mode.mover == 1 and cast.able.charge("target") then
                     if br.getDistance("player", "target") >= 8 and br.getDistance("player", "target") <= 25 then
-                        if cast.charge("target") then ui.debug("Casting Charge") return true end
+                        if cast.charge("target") then
+                            ui.debug("Casting Charge")
+                            return true
+                        end
                     end
                 end
 
                 if unit.distance("target") <= 6 then
-                    
                     if unit.hp("target") < 20 and cast.able.execute() then
-                        if cast.execute() then ui.debug("Casting Execute") return true end
+                        if cast.execute() then
+                            ui.debug("Casting Execute")
+                            return true
+                        end
                     end
                     -- actions=auto_attack
                     if not cast.auto.autoAttack() and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
-                        if cast.autoAttack() then ui.debug("Casting Auto Attack") return true end
+                        if cast.autoAttack() then
+                            ui.debug("Casting Auto Attack")
+                            return true
+                        end
                     end
                     -- Victory Rush
-                    if  cast.able.victoryRush()  then
-                        if cast.victoryRush() then ui.debug("Casting Victory Rush") return true end
+                    if cast.able.victoryRush() then
+                        if cast.victoryRush() then
+                            ui.debug("Casting Victory Rush")
+                            return true
+                        end
                     end
                     -- Shield Slam
-                    if cast.able.shieldSlam()  then
-                        if cast.shieldSlam() then ui.debug("Casting Shield Slam") return true end
+                    if cast.able.shieldSlam() then
+                        if cast.shieldSlam() then
+                            ui.debug("Casting Shield Slam")
+                            return true
+                        end
                     end
                     -- WhirlWind
                     if cast.able.whirlwind() then
-                        if cast.whirlwind() then ui.debug("Casting Whirlwind") return true end
+                        if cast.whirlwind() then
+                            ui.debug("Casting Whirlwind")
+                            return true
+                        end
                     end
                     -- Slam
-                    if  cast.able.slam() then
-                        if cast.slam() then ui.debug("Casting Slam") return true end
+                    if cast.able.slam() then
+                        if cast.slam() then
+                            ui.debug("Casting Slam")
+                            return true
+                        end
                     end
                     --Pummel Interrupt
                     -- if br.canInterrupt() then
@@ -191,11 +212,11 @@ local function runRotation()
                 end
             end -- End In Combat Rotation
         end
-    end -- Pause
-end -- End runRotation
+    end         -- Pause
+end             -- End runRotation
 local id = 1446 -- Change to the spec id profile is for.
 if br.rotations[id] == nil then br.rotations[id] = {} end
-br._G.tinsert(br.rotations[id],{
+br._G.tinsert(br.rotations[id], {
     name = rotationName,
     toggles = createToggles,
     options = createOptions,

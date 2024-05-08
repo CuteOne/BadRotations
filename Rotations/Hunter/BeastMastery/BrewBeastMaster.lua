@@ -14,30 +14,30 @@ br.loadSupport("PetCuteOne")
 local function createToggles()
     -- Rotation Button
     local RotationModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Rotation Enabled", tip = "Enables Rotation", highlight = 1, icon = br.player.spell.steadyShot},
-        [2] = { mode = "Off", value = 2 , overlay = "Rotation Disabled", tip = "Disables Rotation", highlight = 0, icon = br.player.spell.steadyShot}
+        [1] = { mode = "On", value = 1 , overlay = "Rotation Enabled", tip = "Enables Rotation", highlight = 1, icon = br.player.spells.steadyShot},
+        [2] = { mode = "Off", value = 2 , overlay = "Rotation Disabled", tip = "Disables Rotation", highlight = 0, icon = br.player.spells.steadyShot}
     };
     br.ui:createToggle(RotationModes,"Rotation",1,0)
     -- Defensive Button
     local DefensiveModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Enables Defensive", highlight = 1, icon = br.player.spell.exhilaration},
-        [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "Disables Defensive", highlight = 0, icon = br.player.spell.exhilaration}
+        [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Enables Defensive", highlight = 1, icon = br.player.spells.exhilaration},
+        [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "Disables Defensive", highlight = 0, icon = br.player.spells.exhilaration}
     };
     br.ui:createToggle(DefensiveModes,"Defensive",2,0)
     -- Interrupt Button
     local InterruptModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Interrupt Enabled", tip = "Enables Interrupt", highlight = 1, icon = br.player.spell.freezingTrap},
-        [2] = { mode = "Off", value = 2 , overlay = "Interrupt Disabled", tip = "Disables Interrupt", highlight = 0, icon = br.player.spell.freezingTrap}
+        [1] = { mode = "On", value = 1 , overlay = "Interrupt Enabled", tip = "Enables Interrupt", highlight = 1, icon = br.player.spells.freezingTrap},
+        [2] = { mode = "Off", value = 2 , overlay = "Interrupt Disabled", tip = "Disables Interrupt", highlight = 0, icon = br.player.spells.freezingTrap}
     };
     br.ui:createToggle(InterruptModes,"Interrupt",3,0)
     -- Pet summon
     local PetSummonModes = {
-        [1] = { mode = "1", value = 1 , overlay = "Summon Pet 1", tip = "Summon Pet 1", highlight = 1, icon = br.player.spell.callPet1 },
-        [2] = { mode = "2", value = 2 , overlay = "Summon Pet 2", tip = "Summon Pet 2", highlight = 1, icon = br.player.spell.callPet2 },
-        [3] = { mode = "3", value = 3 , overlay = "Summon Pet 3", tip = "Summon Pet 3", highlight = 1, icon = br.player.spell.callPet3 },
-        [4] = { mode = "4", value = 4 , overlay = "Summon Pet 4", tip = "Summon Pet 4", highlight = 1, icon = br.player.spell.callPet4 },
-        [5] = { mode = "5", value = 5 , overlay = "Summon Pet 5", tip = "Summon Pet 5", highlight = 1, icon = br.player.spell.callPet5 },
-        [6] = { mode = "None", value = 6 , overlay = "No pet", tip = "Dont Summon any Pet", highlight = 0, icon = br.player.spell.callPet }
+        [1] = { mode = "1", value = 1 , overlay = "Summon Pet 1", tip = "Summon Pet 1", highlight = 1, icon = br.player.spells.callPet1 },
+        [2] = { mode = "2", value = 2 , overlay = "Summon Pet 2", tip = "Summon Pet 2", highlight = 1, icon = br.player.spells.callPet2 },
+        [3] = { mode = "3", value = 3 , overlay = "Summon Pet 3", tip = "Summon Pet 3", highlight = 1, icon = br.player.spells.callPet3 },
+        [4] = { mode = "4", value = 4 , overlay = "Summon Pet 4", tip = "Summon Pet 4", highlight = 1, icon = br.player.spells.callPet4 },
+        [5] = { mode = "5", value = 5 , overlay = "Summon Pet 5", tip = "Summon Pet 5", highlight = 1, icon = br.player.spells.callPet5 },
+        [6] = { mode = "None", value = 6 , overlay = "No pet", tip = "Dont Summon any Pet", highlight = 0, icon = br.player.spells.callPet }
     };
     br.ui:createToggle(PetSummonModes,"PetSummon",4,0)
 end
@@ -126,24 +126,24 @@ local var
 --- Functions --- -- List all profile specific custom functions here
 -----------------
 
-local actionList = {} 
+local actionList = {}
 actionList.Extra = function()
-end 
+end
 actionList.Defensive = function()
-end 
+end
 actionList.Interrupt = function()
-end 
+end
 actionList.Cooldown = function()
-end 
+end
 actionList.PreCombat = function()
     if not unit.inCombat() and not (unit.flying() or unit.mounted() or unit.taxi()) then -- Only run when not in combat and not flying/mounted/taxi
-        if unit.valid("target") then 
+        if unit.valid("target") then
             -- Start Attack
             if unit.distance("target") <=40 then
                 br._G.PetAttack("target")
                 if not br._G.IsAutoRepeatSpell(br._G.GetSpellInfo(75)) and unit.exists("target") then
                     br._G.StartAttack("target")
-                end    
+                end
             end
         end
     end
@@ -153,13 +153,13 @@ end
 --- ROTATION ---
 ----------------
 local function runRotation() -- This is the main profile loop, any below this point is ran every cycle, everything above is ran only once during initialization.
-    
+
     if math.random() > 0.80 then return false end;
-    
+
     if actionList.PetManagement == nil then
         actionList.PetManagement = br.rotations.support["PetCuteOne"].run
     end
-    
+
     ---------------------
     --- Define Locals ---
     ---------------------
@@ -205,12 +205,12 @@ local function runRotation() -- This is the main profile loop, any below this po
         var.profileStop = false
     elseif (unit.inCombat() and var.profileStop) or ui.pause() or unit.mounted() or unit.flying() or ui.mode.rotation == 4 then -- If profile triggered to stop go here until it has.
         return true
-    else 
-        if actionList.Extra() then return true end 
-        if actionList.Defensive() then return true end 
-        if actionList.PreCombat() then return true end 
+    else
+        if actionList.Extra() then return true end
+        if actionList.Defensive() then return true end
+        if actionList.PreCombat() then return true end
         if unit.inCombat() and unit.valid("target") and not var.profileStop then
-            if actionList.Interrupt() then return true end 
+            if actionList.Interrupt() then return true end
 
             if unit.valid("target") and cd.global.remain() == 0 then
                 if unit.exists(units.dyn40) and unit.distance(units.dyn40) < 40 then
@@ -220,9 +220,9 @@ local function runRotation() -- This is the main profile loop, any below this po
                     if actionList.Interrupt() then return true end
                     if not br._G.IsAutoRepeatSpell(br._G.GetSpellInfo(75)) and unit.exists(units.dyn40) and unit.distance(units.dyn40) < 40 then
                         br._G.StartAttack(units.dyn40)
-                    end 
+                    end
 
-                    if #enemies.yards40f >= 3 then 
+                    if #enemies.yards40f >= 3 then
                         if cast.able.multishot() then
                             if cast.multishot() then ui.debug("Casting Multi-Shot") return true end
                         else
@@ -247,7 +247,7 @@ local function runRotation() -- This is the main profile loop, any below this po
                     if cast.able.killCommand("target") then
                         if cast.killCommand("target") then ui.debug("Casting Kill Command") return true end
                     end
-                    
+
                     if not buff.barbedShot.exists() or charges.barbedShot.frac() > 1.0 then
                         if cast.able.barbedShot() then
                             if cast.barbedShot() then ui.debug("Casting Barbed Shot") return true end
@@ -263,7 +263,7 @@ local function runRotation() -- This is the main profile loop, any below this po
                     elseif cast.able.steadyShot() then
                         if cast.steadyShot() then ui.debug("Casting Steady Shot") return true end
                     end
-                   
+
                 end -- End In Combat Rotation
             end
         end -- End In Combat Rotation

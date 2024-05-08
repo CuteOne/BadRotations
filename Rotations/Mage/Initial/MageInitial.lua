@@ -6,16 +6,16 @@ local rotationName = "Overlord"
 local function createToggles()
     -- Rotation Button
     local RotationModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Rotation Enabled", tip = "Enable Rotation", highlight = 1, icon = br.player.spell.frostBolt },
-        [2] = {  mode = "Off", value = 4 , overlay = "Rotation Disabled", tip = "Disable Rotation", highlight = 0, icon = br.player.spell.frostBolt }
+        [1] = { mode = "On", value = 1, overlay = "Rotation Enabled", tip = "Enable Rotation", highlight = 1, icon = br.player.spells.frostBolt },
+        [2] = { mode = "Off", value = 4, overlay = "Rotation Disabled", tip = "Disable Rotation", highlight = 0, icon = br.player.spells.frostBolt }
     };
-    br.ui:createToggle(RotationModes,"Rotation",1,0)
+    br.ui:createToggle(RotationModes, "Rotation", 1, 0)
     -- Defensive Button
     local DefensiveModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.frostNova},
-        [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.frostNova}
+        [1] = { mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spells.frostNova },
+        [2] = { mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spells.frostNova }
     };
-    br.ui:createToggle(DefensiveModes,"Defensive",2,0)
+    br.ui:createToggle(DefensiveModes, "Defensive", 2, 0)
 end
 
 ---------------
@@ -29,7 +29,7 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS ---
         -----------------------
-        section = br.ui:createSection(br.ui.window.profile,  "General")
+        section = br.ui:createSection(br.ui.window.profile, "General")
 
         br.ui:checkSectionState(section)
         -------------------------
@@ -41,14 +41,14 @@ local function createOptions()
         ----------------------
         --- TOGGLE OPTIONS ---
         ----------------------
-        section = br.ui:createSection(br.ui.window.profile,  "Toggle Keys")
+        section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
 
         br.ui:checkSectionState(section)
     end
-    optionTable = {{
+    optionTable = { {
         [1] = "Rotation Options",
         [2] = rotationOptions,
-    }}
+    } }
     return optionTable
 end
 
@@ -77,8 +77,11 @@ local actionList = {}
 actionList.Defensive = function()
     --Frost Nova
     if unit.hp() < 95 then
-        if spell.known.frostNova() and cast.able.frostNova and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
-            if cast.frostNova() then ui.debug("Casting Frost Nova") return true end
+        if spell.frostNova.known() and cast.able.frostNova and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
+            if cast.frostNova() then
+                ui.debug("Casting Frost Nova")
+                return true
+            end
         end
     end
 end -- End Action List - Defensive
@@ -96,22 +99,22 @@ local function runRotation()
     --- Define Locals ---
     ---------------------
     -- BR API Locals
-    buff                                          = br.player.buff
-    cast                                          = br.player.cast
-    cd                                            = br.player.cd
-    mode                                          = br.player.ui.mode
-    ui                                            = br.player.ui
-    spell                                         = br.player.spell
-    ui                                            = br.player.ui
-    unit                                          = br.player.unit
-    units                                         = br.player.units
+    buff        = br.player.buff
+    cast        = br.player.cast
+    cd          = br.player.cd
+    mode        = br.player.ui.mode
+    ui          = br.player.ui
+    spell       = br.player.spells
+    ui          = br.player.ui
+    unit        = br.player.unit
+    units       = br.player.units
     -- General Locals
-    profileStop                                   = profileStop or false
-    haltProfile                                   = (unit.inCombat() and profileStop) or br._G.IsMounted() or br.pause() or mode.rotation==4
+    profileStop = profileStop or false
+    haltProfile = (unit.inCombat() and profileStop) or br._G.IsMounted() or br.pause() or mode.rotation == 4
     -- Units
-    units.get(5) -- Makes a variable called, units.dyn5
+    units.get(5)  -- Makes a variable called, units.dyn5
     units.get(40) -- Makes a variable called, units.dyn40
-    units.get(40,true)
+    units.get(40, true)
 
     -- Pause Timer
     if br.pauseTime == nil then br.pauseTime = br._G.GetTime() end
@@ -137,10 +140,13 @@ local function runRotation()
         --- Pre-Combat ---
         ------------------
         if actionList.PreCombat() then return true end
-            --Arcane Intellect
-            if spell.known.arcaneIntellect() and cast.able.arcaneIntellect() and not buff.arcaneIntellect.exists("player") then
-                if cast.arcaneIntellect() then ui.debug("Casting Arcane Intellect") return true end
+        --Arcane Intellect
+        if spell.arcaneIntellect.known() and cast.able.arcaneIntellect() and not buff.arcaneIntellect.exists("player") then
+            if cast.arcaneIntellect() then
+                ui.debug("Casting Arcane Intellect")
+                return true
             end
+        end
         -----------------------------
         --- In Combat - Rotations ---
         -----------------------------
@@ -156,30 +162,42 @@ local function runRotation()
                     br._G.StartAttack(units.dyn5)
                 end
                 --Arcane Explosion
-                if spell.known.arcaneExplosion() and cast.able.arcaneExplosion() and br.getDistance("target") < 8 then
-                    if cast.arcaneExplosion() then ui.debug("Casting Arcane Explosion") return true end
+                if spell.arcaneExplosion.known() and cast.able.arcaneExplosion() and br.getDistance("target") < 8 then
+                    if cast.arcaneExplosion() then
+                        ui.debug("Casting Arcane Explosion")
+                        return true
+                    end
                 end
                 --Fire Blast
-                if spell.known.fireBlast() and cast.able.fireBlast() and unit.distance(units.dyn40) then
-                    if cast.fireBlast() then ui.debug("Casting Fire Blast") return true end
+                if spell.fireBlast.known() and cast.able.fireBlast() and unit.distance(units.dyn40) then
+                    if cast.fireBlast() then
+                        ui.debug("Casting Fire Blast")
+                        return true
+                    end
                 end
                 --Frost Bolt
-                if spell.known.frostBolt() and cast.able.frostBolt(units.dyn40) and not unit.moving() then
-                    if cast.frostBolt() then ui.debug("Casting Frost Bolt") return true end
+                if spell.frostBolt.known() and cast.able.frostBolt(units.dyn40) and not unit.moving() then
+                    if cast.frostBolt() then
+                        ui.debug("Casting Frost Bolt")
+                        return true
+                    end
                 end
                 --Counterspell Interrupt
                 if br.canInterrupt() then
-                    if spell.known.counterspell() and cast.able.counterspell() and unit.distance(units.dyn40) then
-                        if cast.counterspell() then ui.debug("Casting Counterspell") return true end
+                    if spell.counterspell.known() and cast.able.counterspell() and unit.distance(units.dyn40) then
+                        if cast.counterspell() then
+                            ui.debug("Casting Counterspell")
+                            return true
+                        end
                     end
                 end
             end -- End In Combat Rotation
         end
-    end -- Pause
-end -- End runRotation
+    end         -- Pause
+end             -- End runRotation
 local id = 1449 -- Change to the spec id profile is for.
 if br.rotations[id] == nil then br.rotations[id] = {} end
-br._G.tinsert(br.rotations[id],{
+br._G.tinsert(br.rotations[id], {
     name = rotationName,
     toggles = createToggles,
     options = createOptions,

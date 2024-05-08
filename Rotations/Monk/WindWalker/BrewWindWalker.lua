@@ -5,7 +5,7 @@
 -- Status = Limited
 -- Readiness = Development
 -------------------------------------------------------
-local rotationName = "BrewWindWalker" 
+local rotationName = "BrewWindWalker"
 local colors = {
     blue    = "|cff4285F4",
     red     = "|cffDB4437",
@@ -54,26 +54,26 @@ local text = {
 
 local function createToggles()
     local RotationModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range.", highlight = 1, icon = br.player.spell.whirlwind },
-        [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.bladestorm },
-        [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.ragingBlow },
-        [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.enragedRegeneration}
+        [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range.", highlight = 1, icon = br.player.spells.whirlwind },
+        [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spells.bladestorm },
+        [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spells.ragingBlow },
+        [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spells.enragedRegeneration}
     };
     br.ui:createToggle(RotationModes,"Rotation",1,0)
     local CooldownModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.touchOfKarma },
-        [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.fortifyingBrew },
-        [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.touchOfDeath }
+        [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spells.touchOfKarma },
+        [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spells.fortifyingBrew },
+        [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spells.touchOfDeath }
     };
     br.ui:createToggle(CooldownModes,"Cooldown",2,0)
     local DefensiveModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.vivify },
-        [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.vivify }
+        [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spells.vivify },
+        [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spells.vivify }
     };
     br.ui:createToggle(DefensiveModes,"Defensive",3,0)
     local InterruptModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.tigersLust },
-        [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.tigersLust }
+        [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spells.tigersLust },
+        [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spells.tigersLust }
     };
     br.ui:createToggle(InterruptModes,"Interrupt",4,0)
     local DebugModes = {
@@ -170,8 +170,8 @@ local function boolNumeric(value)
     return 0
 end
 
-local function printStats(message)  
-    
+local function printStats(message)
+
     local chiString
     local powerString
     local xuenString = ""
@@ -195,7 +195,7 @@ local function printStats(message)
         serentityString = colors.white .. "[" .. colors.red .. "-SER" .. colors.white .. "]" .. colors.white
     end
 
-    local lastTime = ui.time() - var.lastCast 
+    local lastTime = ui.time() - var.lastCast
     br._G.print(colors.red.. date("%T") ..colors.aqua .."[+" .. string.sub(tostring(lastTime),0,4) .. "]" .. xuenString .. whiteStatueString .. serentityString .. colors.white .. chiString .. powerString .. colors.white .. " : ".. message)
 end
 
@@ -209,7 +209,7 @@ end
 --         if (ui.time() - var.lastCast > 2 and #enemies.yards5f >= 1) or var.DoTiming ~= nil then
 --             printStats("TIMING:" .. message)
 --         end
---     end        
+--     end
 -- end
 
 local function CanUseCooldown()
@@ -225,7 +225,7 @@ end
 local actionList = {} -- Table for holding action lists.
 -- Action List - Extra
 actionList.Extra = function()
-    
+
     -- if cast.able.expelHarm() and unit.distance("target") <= 20 then
     --     if cast.expelHarm() then ui.debug("CAST Expel Harm"); return true; end
     -- end
@@ -276,7 +276,7 @@ actionList.Cooldown = function()
     if ui.checked("Use Serenity") and cast.able.serenity() then
         if cast.serenity() then ui.debug("CAST serenity"); return true; end
     end
-end 
+end
 -- Action List - Pre-Combat
 actionList.PreCombat = function()
     if not unit.inCombat() and not (unit.flying() or unit.mounted() or unit.taxi()) then -- Only run when not in combat and not flying/mounted/taxi
@@ -288,7 +288,7 @@ actionList.PreCombat = function()
             if unit.distance("target") <= 40 then
                 if cast.able.chiWave() then
                     if cast.chiWave() then ui.debug("RANGE: Chi Wave"); return true; end;
-                end 
+                end
                 if unit.distance("target") >= 6 and not unit.moving() and cast.able.cracklingJadeLightning("target") then
                     if cast.cracklingJadeLightning("target") then ui.debug("RANGE: Crackling Jade Lightning"); return true; end;
                 end
@@ -301,7 +301,7 @@ actionList.PreCombat = function()
             end
         end
     end -- End No Combat
-end 
+end
 actionList.Opener = function ()
     if CanUseCooldown() and cast.able.summonWhiteTigerStatue("target") then
         if cast.summonWhiteTigerStatue("target") then debugMessage("OPEN: White Tiger Statue") return true end
@@ -315,7 +315,7 @@ actionList.Opener = function ()
     if talent.chiBurst and chi == 3 and cast.able.expelHarm() then
         if cast.expelHarm() then debugMessage("OPEN: Expel Harm") return true end
     end
-    if cast.able.expelHarm() then 
+    if cast.able.expelHarm() then
         if cast.expelHarm() then debugMessage("OPEN: Expel Harm") return true end
     end
     if cast.able.chiBurst() and (chi > 1 and chiMax-chi >= 3) then
@@ -328,9 +328,9 @@ actionList.bdb_setup = function()
 -- actions.bdb_setup+=/tiger_palm,target_if=min:debuff.mark_of_the_crane.remains+(debuff.skyreach_exhaustion.up*20),if=combo_strike&chi.max-chi>=2&buff.storm_earth_and_fire.up
 -- actions.bdb_setup+=/blackout_kick,target_if=min:debuff.mark_of_the_crane.remains-spinning_crane_kick.max*(target.time_to_die+debuff.keefers_skyreach.remains*20),if=combo_strike&!talent.whirling_dragon_punch&!spinning_crane_kick.max
 -- actions.bdb_setup+=/rising_sun_kick,target_if=min:debuff.mark_of_the_crane.remains-spinning_crane_kick.max*(target.time_to_die+debuff.keefers_skyreach.remains*20),if=combo_strike&chi>=5&talent.whirling_dragon_punch
--- actions.bdb_setup+=/rising_sun_kick,target_if=min:debuff.mark_of_the_crane.remains-spinning_crane_kick.max*(target.time_to_die+debuff.keefers_skyreach.remains*20),if=combo_strike&active_enemies>=2&talent.whirling_dragon_punch    
+-- actions.bdb_setup+=/rising_sun_kick,target_if=min:debuff.mark_of_the_crane.remains-spinning_crane_kick.max*(target.time_to_die+debuff.keefers_skyreach.remains*20),if=combo_strike&active_enemies>=2&talent.whirling_dragon_punch
 end
-actionList.cd_sef = function() 
+actionList.cd_sef = function()
     if cast.able.summonWhiteTigerStatue() then
         --if=!cooldown.invoke_xuen_the_white_tiger.remains|active_enemies>4|cooldown.invoke_xuen_the_white_tiger.remains>50|fight_remains<=30
         if (#enemies.yards5>4 or cd.invokeXuenTheWhiteTiger.remains()>50 or unit.ttdGroup(40) <=30) then
@@ -355,7 +355,7 @@ actionList.cd_sef = function()
         --&(fight_remains<30&cooldown.bonedust_brew.remains<4&chi>=4|buff.bonedust_brew.up|!spinning_crane_kick.max&active_enemies>=3&cooldown.bonedust_brew.remains<=2&chi>=2)
         --&(pet.xuen_the_white_tiger.active|cooldown.invoke_xuen_the_white_tiger.remains>cooldown.storm_earth_and_fire.full_recharge_time)
         if cast.able.stormEarthAndFire() and (
-            talent.bonedustBrew 
+            talent.bonedustBrew
         ) then
             if cast.stormEarthAndFire() then debugMessage("CDSEF: Storm Earth and Fire") return true end
         end
@@ -407,7 +407,7 @@ actionList.cd_serenity = function()
 -- actions.cd_serenity+=/lights_judgment
 -- actions.cd_serenity+=/fireblood,if=buff.serenity.up|fight_remains<20
 -- actions.cd_serenity+=/ancestral_call,if=buff.serenity.up|fight_remains<20
--- actions.cd_serenity+=/bag_of_tricks,if=buff.serenity.up|fight_remains<20    
+-- actions.cd_serenity+=/bag_of_tricks,if=buff.serenity.up|fight_remains<20
 end
 actionList.default_st = function()
 -- tiger_palm,target_if=min:debuff.mark_of_the_crane.remains+(debuff.skyreach_exhaustion.up*20),
@@ -435,7 +435,7 @@ actionList.default_st = function()
 
     -- actions.default_st+=/spinning_crane_kick,target_if=max:target.time_to_die,if=target.time_to_die>duration&combo_strike&buff.dance_of_chiji.up&set_bonus.tier31_2pc&!buff.blackout_reinforcement.up
     if cast.able.spinningCraneKick() and not cast.last.spinningCraneKick() then
-   --     if unit.ttd("target") > 
+   --     if unit.ttd("target") >
     end
 
 -- actions.default_st+=/rising_sun_kick,if=!cooldown.fists_of_fury.remains
@@ -510,8 +510,8 @@ actionList.default_st = function()
     if cast.able.spinningCraneKick() and buff.hitCombo.exists() and buff.danceOfChiJi.exists() then
         if cast.spinningCraneKick() then debugMessage("ST: Spinning Crane Kick") return true end
     end
-    
-    
+
+
 -- actions.default_st+=/blackout_kick,if=buff.teachings_of_the_monastery.up&cooldown.rising_sun_kick.remains>1
     if cast.able.blackoutKick("target") and buff.teachingsOfTheMonastery.exists() and cd.risingSunKick.remains() > 1 and not cast.last.blackoutKick() then
         if cast.blackoutKick("target") then debugMessage("ST: Blackout Kick") return true end
@@ -519,7 +519,7 @@ actionList.default_st = function()
 -- actions.default_st+=/spinning_crane_kick,if=buff.bonedust_brew.up&combo_strike&spinning_crane_kick.modifier>=2.7
     if cast.able.spinningCraneKick() and buff.bonedustBrew.exists() and buff.hitCombo.exists() then
         if cast.spinningCraneKick() then debugMessage("ST: Spinning Crane Kick") return true end
-    end 
+    end
 -- actions.default_st+=/whirling_dragon_punch
     if cast.able.whirlingDragonPunch() then
         if cast.whirlingDragonPunch() then debugMessage("ST: whirling Dragon Punch") return true end
@@ -528,7 +528,7 @@ actionList.default_st = function()
     if cast.able.rushingJadeWind() and not buff.rushingJadeWind.exists() then
         if cast.rushingJadeWind() then debugMessage("ST: Rushing Jade Wind") return true end
     end
--- actions.default_st+=/blackout_kick,if=combo_strike    
+-- actions.default_st+=/blackout_kick,if=combo_strike
     if cast.able.blackoutKick("target") and buff.hitCombo.exists() and not cast.last.blackoutKick() then
         if cast.blackoutKick("target") then debugMessage("ST: blackout Kick") return true end
     end
@@ -631,7 +631,7 @@ local function runRotation() -- This is the main profile loop, any below this po
     enemies.get(25)
     enemies.get(30)
     enemies.get(35)
-    enemies.get(40) 
+    enemies.get(40)
     enemies.get(5,"player",false,true)  --enemies.yards5f
     enemies.get(10,"player",false,true)  --enemies.yards5f
     enemies.get(40,"player",false,true)  --enemies.yards40f
@@ -641,12 +641,12 @@ local function runRotation() -- This is the main profile loop, any below this po
 var.hold_xuen = not talent.invokeXuenTheWhiteTiger or cd.invokeXuenTheWhiteTiger.duration > unit.ttdGroup(40)
 
 --variable,name=hold_tp_rsk,op=set,value=!debuff.skyreach_exhaustion.remains<1&cooldown.rising_sun_kick.remains<1&(set_bonus.tier30_2pc|active_enemies<5)
-var.hold_tp_rsk = not (debuff.skyreachExhaustion.remains("target") < 1) and 
-                      (cd.risingSunKick.remains() < 1) and 
+var.hold_tp_rsk = not (debuff.skyreachExhaustion.remains("target") < 1) and
+                      (cd.risingSunKick.remains() < 1) and
                       (#enemies.yards5 < 5)
 --actions+=/variable,name=hold_tp_bdb,op=set,value=!debuff.skyreach_exhaustion.remains<1&cooldown.bonedust_brew.remains<1&active_enemies=1
-var.hold_tp_bdb = not (debuff.skyreachExhaustion.remains("target") < 1) 
-                    and (cd.bonedustBrew.remains() < 1) 
+var.hold_tp_bdb = not (debuff.skyreachExhaustion.remains("target") < 1)
+                    and (cd.bonedustBrew.remains() < 1)
                     and (var.active_enemies==1)
 
 
@@ -708,7 +708,7 @@ end
     elseif (unit.inCombat() and var.profileStop) or ui.pause() or unit.mounted() or unit.flying() or ui.mode.rotation == 4 then -- If profile triggered to stop go here until it has.
         return true
     else -- Profile is free to perform actions
-       
+
         --------------
         --- Extras ---
         --------------
@@ -716,8 +716,8 @@ end
         if actionList.Defensive() then return true end
         if actionList.PreCombat() then return true end
 
-        if unit.inCombat() and unit.valid("target") and not var.profileStop then 
-            if actionList.Interrupt() then return true end 
+        if unit.inCombat() and unit.valid("target") and not var.profileStop then
+            if actionList.Interrupt() then return true end
 
             --actions+=/potion,if=buff.serenity.up|buff.storm_earth_and_fire.up&pet.xuen_the_white_tiger.active|fight_remains<=30
             if buff.serenity.exists() or buff.stormEarthAndFire.exists() and var.hasXuen or fight_remains <= 30 then
@@ -736,7 +736,7 @@ end
                 if cast.jadefireStomp() then debugMessage("Jadefire Stomp") return true end
             end
 
-            --TODO Bonedust Brew 
+            --TODO Bonedust Brew
             --actions+=/bonedust_brew,if=active_enemies=1&!debuff.skyreach_exhaustion.remains&(pet.xuen_the_white_tiger.active|cooldown.xuen_the_white_tiger.remains)
 
             --TP to not waste energy
@@ -744,7 +744,7 @@ end
             --if=!buff.serenity.up&energy>50&buff.teachings_of_the_monastery.stack<3&combo_strike&chi.max-chi>=(2+buff.power_strikes.up)
             --&(!talent.invoke_xuen_the_white_tiger&!talent.serenity|((!talent.skyreach&!talent.skytouch)|time>5|pet.xuen_the_white_tiger.active))
             --&!variable.hold_tp_rsk&(active_enemies>1|!talent.bonedust_brew|talent.bonedust_brew&active_enemies=1&cooldown.bonedust_brew.remains)
-            
+
             if var.unitsMinMarkOfTheCrane ~= nil and cast.able.tigerPalm(var.unitsMinMarkOfTheCrane) and not cast.last.tigerPalm() then
                 if not buff.serenity.exists() and energy  > 50 and buff.teachingsOfTheMonastery.stack() < 3  and chiDefecit >= (2+ boolNumeric(buff.powerStrikes.exists()))
                 and (not talent.invokeXuenTheWhiteTiger and not talent.serenity or ((not talent.skyreach and not talent.skytouch) or unit.combatTime()>5 or var.hasXuen))
@@ -759,7 +759,7 @@ end
             --if=!buff.serenity.up&buff.teachings_of_the_monastery.stack<3&combo_strike&chi.max-chi>=(2+buff.power_strikes.up)
             --&(!talent.invoke_xuen_the_white_tiger&!talent.serenity|((!talent.skyreach&!talent.skytouch)|time>5|pet.xuen_the_white_tiger.active))
             --&!variable.hold_tp_rsk&(active_enemies>1|!talent.bonedust_brew|talent.bonedust_brew&active_enemies=1&cooldown.bonedust_brew.remains)
-           
+
             if var.unitsMinMarkOfTheCrane ~= nil and cast.able.tigerPalm(var.unitsMinMarkOfTheCrane) and not cast.last.tigerPalm() then
                 if not buff.serenity.exists() and buff.teachingsOfTheMonastery.stack()<3 and chiDefecit >= (2+boolNumeric(buff.powerStrikes.exists()))
                 and(not talent.invokeXuenTheWhiteTiger and not talent.serenity or ((not talent.skyreach and not talent.skytouch) or unit.combatTime()>5 or var.hasXuen))
@@ -779,7 +779,7 @@ end
             ) then
                 if cast.chiBurst() then debugMessage("Reset JfS: chi burst") return true end
             end
-        
+
             --# Use Cooldowns
             --actions+=/call_action_list,name=cd_sef,if=!talent.serenity
             --actions+=/call_action_list,name=cd_serenity,if=talent.serenity
@@ -801,7 +801,7 @@ end
             --actions+=/call_action_list,name=default_3t,if=active_enemies=3
             --actions+=/call_action_list,name=default_2t,if=active_enemies=2
             --actions+=/call_action_list,name=default_st,if=active_enemies=1
-            
+
             if var.active_enemies==1 then
                 if actionList.default_st() then return true end
             end
@@ -809,16 +809,16 @@ end
             if cast.able.summonWhiteTigerStatue() and CanUseCooldown() then
                 if cast.summonWhiteTigerStatue("target") then return true end
             end
-            
+
             --actions+=/call_action_list,name=fallthru
             if actionList.fallthru() then return true end
-            
-                      
-            
+
+
+
             -- if buff.serenity.exists() and #enemies.yards5 == 1 then
             --     if actionList.serenity_st() then return true end
             -- end
-            
+
             if cast.able.autoAttack("target") then
                 if cast.autoAttack("target") then ui.debug("EOR - Auto Attack") return true end
             end

@@ -1610,7 +1610,7 @@ br.lists.spells = {
                 bulletstorm    = 389020,
                 bullseye       = 204090,
                 deadEye        = 321461,
-                doubleTap      = 260402,
+                deathblow      = 378770,
                 feignDeath     = 5384,
                 inTheRhythm    = 272733,
                 lethalShots    = 260395,
@@ -1625,9 +1625,8 @@ br.lists.spells = {
                 unerringVision = 274447,
             },
             debuffs    = {
-                aMurderOfCrows = 131894,
-                huntersMark    = 257284,
-                serpentSting   = 271788,
+                huntersMark  = 257284,
+                serpentSting = 271788,
             },
             glyphs     = {
 

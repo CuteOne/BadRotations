@@ -791,8 +791,8 @@ function cl:Monk(...)
         _,
         spellType = br._G.CombatLogGetCurrentEventInfo()
     -- if prevCombo == nil or not UnitAffectingCombat("player") then prevCombo = 6603 end
-    if br.player ~= nil and br._G.GetSpecialization() == 3 and br.player.spell.fistsOfFury ~= nil then
-        local myspell = br.player.spell
+    if br.player ~= nil and br._G.GetSpecialization() == 3 and br.player.spells.fistsOfFury ~= nil then
+        local myspell = br.player.spells
         local var = br.player.variables
         local comboSpells = {
             [myspell.bonedustBrew] = true,
@@ -1005,10 +1005,10 @@ function cl:Rogue(...)
                     end
                     if br.player ~= nil and br.getDistance(thisUnit) < 40 then
                         local debuff = br.player.debuff
-                        local debuffID = br.player.spell.debuffs
+                        local debuffID = br.player.spells.debuffs
                         local k
                         if debuffID ~= nil then
-                            if spell == br.player.spell.exsanguinate then
+                            if spell == br.player.spells.exsanguinate then
                                 if debuff.crimsonTempest.exsa[thisUnit] == nil then debuff.crimsonTempest.exsa[thisUnit] = true end
                                 if debuff.garrote.exsa[thisUnit] == nil then debuff.garrote.exsa[thisUnit] = true end
                                 if debuff.rupture.exsa[thisUnit] == nil then debuff.rupture.exsa[thisUnit] = true end
@@ -1080,7 +1080,7 @@ function cl:Shaman(...) -- 7
         spellType = br._G.CombatLogGetCurrentEventInfo()
     --------------------
     --[[ Fire Totem ]]
-    if source == br.guid and param == "SPELL_SUMMON" and (spell == br.player.spell.seaingTotem or spell == br.player.spell.magmaTotem) then
+    if source == br.guid and param == "SPELL_SUMMON" and (spell == br.player.spells.seaingTotem or spell == br.player.spells.magmaTotem) then
         br.activeTotem = destination
         br.activeTotemPosition = br.GetObjectPosition("player")
     end
@@ -1098,7 +1098,7 @@ function cl:Shaman(...) -- 7
                 end
                 if param == "SPELL_CAST_START" then
                     if
-                        (spell == br.player.spell.lightningBolt or spell == br.player.spell.chainLightning) and
+                        (spell == br.player.spells.lightningBolt or spell == br.player.spells.chainLightning) and
                             br.player.variables.fillLightning
                      then
                         br.lightningStarted = true
@@ -1106,7 +1106,7 @@ function cl:Shaman(...) -- 7
                 end
                 if param == "SPELL_CAST_SUCCESS" then
                     if
-                        (spell == br.player.spell.lightningBolt or spell == br.player.spell.chainLightning) and
+                        (spell == br.player.spells.lightningBolt or spell == br.player.spells.chainLightning) and
                             br.player.variables.fillLightning and
                             br.lightningStarted
                      then

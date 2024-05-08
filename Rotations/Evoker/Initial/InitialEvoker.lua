@@ -12,7 +12,7 @@ local function createToggles() -- Define custom toggles
             overlay = "Automatic Rotation",
             tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range.",
             highlight = 1,
-            icon = br.player.spell.disintegrate
+            icon = br.player.spells.disintegrate
         },
         [2] = {
             mode = "Mult",
@@ -20,7 +20,7 @@ local function createToggles() -- Define custom toggles
             overlay = "Multiple Target Rotation",
             tip = "Multiple target rotation used.",
             highlight = 1,
-            icon = br.player.spell.azureStrike
+            icon = br.player.spells.azureStrike
         },
         [3] = {
             mode = "Sing",
@@ -28,7 +28,7 @@ local function createToggles() -- Define custom toggles
             overlay = "Single Target Rotation",
             tip = "Single target rotation used.",
             highlight = 1,
-            icon = br.player.spell.livingFlame
+            icon = br.player.spells.livingFlame
         },
         [4] = {
             mode = "Off",
@@ -36,7 +36,7 @@ local function createToggles() -- Define custom toggles
             overlay = "DPS Rotation Disabled",
             tip = "Disable DPS Rotation",
             highlight = 0,
-            icon = br.player.spell.blessingOfTheBronze
+            icon = br.player.spells.blessingOfTheBronze
         }
     };
     br.ui:createToggle(RotationModes, "Rotation", 1, 0)
@@ -48,7 +48,7 @@ local function createToggles() -- Define custom toggles
             overlay = "Cooldowns Automated",
             tip = "Automatic Cooldowns - Boss Detection.",
             highlight = 1,
-            icon = br.player.spell.furyOfTheAspects
+            icon = br.player.spells.furyOfTheAspects
         },
         [2] = {
             mode = "On",
@@ -56,7 +56,7 @@ local function createToggles() -- Define custom toggles
             overlay = "Cooldowns Enabled",
             tip = "Cooldowns used regardless of target.",
             highlight = 0,
-            icon = br.player.spell.furyOfTheAspects
+            icon = br.player.spells.furyOfTheAspects
         },
         [3] = {
             mode = "Off",
@@ -64,7 +64,7 @@ local function createToggles() -- Define custom toggles
             overlay = "Cooldowns Disabled",
             tip = "No Cooldowns will be used.",
             highlight = 0,
-            icon = br.player.spell.furyOfTheAspects
+            icon = br.player.spells.furyOfTheAspects
         }
     };
     br.ui:createToggle(CooldownModes, "Cooldown", 2, 0)
@@ -76,7 +76,7 @@ local function createToggles() -- Define custom toggles
             overlay = "Defensive Enabled",
             tip = "Includes Defensive Cooldowns.",
             highlight = 1,
-            icon = br.player.spell.livingFlame
+            icon = br.player.spells.livingFlame
         },
         [2] = {
             mode = "Off",
@@ -84,7 +84,7 @@ local function createToggles() -- Define custom toggles
             overlay = "Defensive Disabled",
             tip = "No Defensives will be used.",
             highlight = 0,
-            icon = br.player.spell.livingFlame
+            icon = br.player.spells.livingFlame
         }
     };
     br.ui:createToggle(DefensiveModes, "Defensive", 3, 0)
@@ -96,7 +96,7 @@ local function createToggles() -- Define custom toggles
             overlay = "Interrupts Enabled",
             tip = "Includes Basic Interrupts.",
             highlight = 1,
-            icon = br.player.spell.tailSwipe
+            icon = br.player.spells.tailSwipe
         },
         [2] = {
             mode = "Off",
@@ -104,7 +104,7 @@ local function createToggles() -- Define custom toggles
             overlay = "Interrupts Disabled",
             tip = "No Interrupts will be used.",
             highlight = 0,
-            icon = br.player.spell.tailSwipe
+            icon = br.player.spells.tailSwipe
         }
     };
     br.ui:createToggle(InterruptModes, "Interrupt", 4, 0)
@@ -343,7 +343,7 @@ local function runRotation()
     enemies         = br.player.enemies
     module          = br.player.module
     power           = br.player.power
-    spell           = br.player.spell
+    spell           = br.player.spells
     ui              = br.player.ui
     unit            = br.player.unit
     units           = br.player.units

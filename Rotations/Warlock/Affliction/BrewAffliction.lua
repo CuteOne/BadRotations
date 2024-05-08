@@ -23,25 +23,25 @@ local colors = {
 
 local function createToggles()
     local RotationModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Rotation Enabled", tip = "Enable Rotation", highlight = 1, icon = br.player.spell.unendingResolve },
-        [2] = {  mode = "Off", value = 4 , overlay = "Rotation Disabled", tip = "Disable Rotation", highlight = 0, icon = br.player.spell.unendingResolve }
+        [1] = { mode = "On", value = 1 , overlay = "Rotation Enabled", tip = "Enable Rotation", highlight = 1, icon = br.player.spells.unendingResolve },
+        [2] = {  mode = "Off", value = 4 , overlay = "Rotation Disabled", tip = "Disable Rotation", highlight = 0, icon = br.player.spells.unendingResolve }
     };
     br.ui:createToggle(RotationModes,"Rotation",1,0)
 
     local AOEMode
 
     local DefensiveModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.unendingResolve},
-        [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.unendingResolve}
+        [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spells.unendingResolve},
+        [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spells.unendingResolve}
     };
     br.ui:createToggle(DefensiveModes,"Defensive",2,0)
     local PetSummonModes = {
-        [1] = { mode = "1", value = 1 , overlay = "Imp", tip = "Summon Imp", highlight = 1, icon = br.player.spell.summonImp },
-        [2] = { mode = "2", value = 2 ,overlay = "Voidwalker", tip = "Summon Voidwalker", highlight = 1, icon = br.player.spell.summonVoidwalker },
-        [3] = { mode = "3", value = 3 , overlay = "Felhunter", tip = "Summon Felhunter", highlight = 1, icon = br.player.spell.summonFelhunter },
-        [4] = { mode = "4", value = 4 , overlay = "Sayaad", tip = "Summon Sayaad", highlight = 1, icon = br.player.spell.summonSuccubus },
-        [5] = { mode = "5", value = 5 , overlay = "Felguard", tip = "Summon Felguard", highlight = 1, icon = br.player.spell.summonFelguard},
-        [6] = { mode = "6", value = 6 , overlay = "None", tip = "Do Not Summon", highlight = 0, icon = br.player.spell.fear}
+        [1] = { mode = "1", value = 1 , overlay = "Imp", tip = "Summon Imp", highlight = 1, icon = br.player.spells.summonImp },
+        [2] = { mode = "2", value = 2 ,overlay = "Voidwalker", tip = "Summon Voidwalker", highlight = 1, icon = br.player.spells.summonVoidwalker },
+        [3] = { mode = "3", value = 3 , overlay = "Felhunter", tip = "Summon Felhunter", highlight = 1, icon = br.player.spells.summonFelhunter },
+        [4] = { mode = "4", value = 4 , overlay = "Sayaad", tip = "Summon Sayaad", highlight = 1, icon = br.player.spells.summonSuccubus },
+        [5] = { mode = "5", value = 5 , overlay = "Felguard", tip = "Summon Felguard", highlight = 1, icon = br.player.spells.summonFelguard},
+        [6] = { mode = "6", value = 6 , overlay = "None", tip = "Do Not Summon", highlight = 0, icon = br.player.spells.fear}
     }
     br.ui:createToggle(PetSummonModes,"PetSummon",3,0)
 end
@@ -59,7 +59,7 @@ local pets = {
     voidwalker = 1860,
     felhunter = 417,
     succubus = 1863,
-    felguard = 17252    
+    felguard = 17252
 }
 
 
@@ -132,7 +132,7 @@ local actionList = {}
 local activePet
 
 
-local function round(number, digit_position) 
+local function round(number, digit_position)
     local precision = math.pow(10, digit_position)
     number = number + (precision / 2); -- this causes value #.5 and up to round up
     return math.floor(number / precision) * precision
@@ -165,12 +165,12 @@ actionList.Defensive = function()
         if cast.unendingResolve() then ui.debug("Casting Unending Resolve") return true end
     end
 
-end 
+end
 
 actionList.Extra = function()
     if cast.able.createHealthstone() and not has.healthstone() and not ui.fullBags() then
         if cast.createHealthstone() then ui.debug("Casting Create Healthstone") return true end
-    end    
+    end
 end
 
 actionList.Interrupt = function()
@@ -180,8 +180,8 @@ actionList.Interrupt = function()
 end
 
 actionList.PreCombat = function()
-    if not unit.moving() and unit.level() >= 3 
-        and br._G.GetTime() - br.pauseTime > 0.5 
+    if not unit.moving() and unit.level() >= 3
+        and br._G.GetTime() - br.pauseTime > 0.5
         and br.timer:useTimer("summonPet", 1) then
         if mode.petSummon == 1 and activePet ~= pets.imp and cast.able.summonImp() and not cast.last.summonImp() then
             if cast.summonImp("player") then return true end
@@ -199,8 +199,8 @@ actionList.PreCombat = function()
             if cast.summonFelguard("player") then return true end
         end
     end
-    
-    -- if unit.inCombat() and unit.valid("target") and not var.profileStop then 
+
+    -- if unit.inCombat() and unit.valid("target") and not var.profileStop then
     if not unit.inCombat() and  unit.valid("target") and unit.distance("target") <= 40 then
         if cast.able.agony("target") and not debuff.agony.exists("target") then
             if cast.agony("target") then ui.debug("[PreCombat] Agony") return true end
@@ -209,9 +209,9 @@ actionList.PreCombat = function()
 end
 
 actionList.CoolDown = function()
-     
 
-    
+
+
 end
 
 local function runRotation()
@@ -224,7 +224,7 @@ local function runRotation()
     talent                                        = br.player.talent
     ui                                            = br.player.ui
     pet                                           = br.player.pet
-    spell                                         = br.player.spell
+    spell                                         = br.player.spells
     ui                                            = br.player.ui
     unit                                          = br.player.unit
     units                                         = br.player.units
@@ -241,9 +241,9 @@ local function runRotation()
     var.demonicTyrantRemains = 0
 
     -- Units
-    units.get(5) 
-    units.get(40) 
-    enemies.get(5) 
+    units.get(5)
+    units.get(40)
+    enemies.get(5)
     enemies.get(8)
     enemies.get(10)
     enemies.get(15)
@@ -251,8 +251,8 @@ local function runRotation()
     enemies.get(25)
     enemies.get(30)
     enemies.get(35)
-    enemies.get(40) 
-    enemies.get(5,"player",false,true) 
+    enemies.get(40)
+    enemies.get(5,"player",false,true)
     enemies.get(10,"player",false, true)
     enemies.get(20,"player",false,true)
     enemies.get(30,"player",false,true)
@@ -263,7 +263,7 @@ local function runRotation()
     for i=1,#enemies.yards40f do
         if not debuff.agony.exists(enemies.yards40f[i]) and br._G.UnitAffectingCombat(enemies.yards40f[i]) then
             var.UnitNeedsAgony = enemies.yards40f[i]
-        else            
+        else
             var.AgonyCount = var.AgonyCount + 1
         end
     end
@@ -272,7 +272,7 @@ local function runRotation()
     for i=1,#enemies.yards40f do
         if not debuff.corruption.exists(enemies.yards40f[i]) and br._G.UnitAffectingCombat(enemies.yards40f[i]) then
             var.UnitsNeedCorruption = enemies.yards40f[i]
-        else                
+        else
             var.CorruptionCount = var.CorruptionCount + 1
         end
     end
@@ -281,11 +281,11 @@ local function runRotation()
     -- Pause Timer
     if br.pauseTime == nil then br.pauseTime = br._G.GetTime() end
 
-    if not unit.inCombat() and not unit.exists("target") and var.profileStop then 
+    if not unit.inCombat() and not unit.exists("target") and var.profileStop then
         var.profileStop = false
-    elseif (unit.inCombat() and var.profileStop) or ui.pause() or unit.mounted() or unit.flying() or ui.mode.rotation == 4 then 
+    elseif (unit.inCombat() and var.profileStop) or ui.pause() or unit.mounted() or unit.flying() or ui.mode.rotation == 4 then
         return true
-    else 
+    else
         if actionList.Extra() then return true end
         if actionList.Defensive() then return true end
         if actionList.PreCombat() then return true end
@@ -318,11 +318,11 @@ local function runRotation()
                 if cast.maleficRapture() then ui.debug("Casting Malefic Rapture") return true end
             end
 
-          
-              
+
+
         end
     end
-end 
+end
 local id = 265  -- Affliction Warlock
 
 if br.rotations[id] == nil then br.rotations[id] = {} end

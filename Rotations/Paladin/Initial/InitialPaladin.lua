@@ -6,20 +6,20 @@ local rotationName = "Initial"
 local function createToggles()
     -- Rotation Button
     local RotationModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Rotation Enabled", tip = "Enables Rotation", highlight = 1, icon = br.player.spell.crusaderStrike},
-        [2] = { mode = "Off", value = 2 , overlay = "Rotation Disabled", tip = "Disables Rotation", highlight = 0, icon = br.player.spell.crusaderStrike}
+        [1] = { mode = "On", value = 1 , overlay = "Rotation Enabled", tip = "Enables Rotation", highlight = 1, icon = br.player.spells.crusaderStrike},
+        [2] = { mode = "Off", value = 2 , overlay = "Rotation Disabled", tip = "Disables Rotation", highlight = 0, icon = br.player.spells.crusaderStrike}
     };
     br.ui:createToggle(RotationModes,"Rotation",1,0)
     -- Defensive Button
     local DefensiveModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Enables Defensive", highlight = 1, icon = br.player.spell.flashOfLight},
-        [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "Disables Defensive", highlight = 0, icon = br.player.spell.flashOfLight}
+        [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Enables Defensive", highlight = 1, icon = br.player.spells.flashOfLight},
+        [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "Disables Defensive", highlight = 0, icon = br.player.spells.flashOfLight}
     };
     br.ui:createToggle(DefensiveModes,"Defensive",2,0)
     -- Interrupt Button
     local InterruptModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Interrupt Enabled", tip = "Enables Interrupt", highlight = 1, icon = br.player.spell.hammerOfJustice},
-        [2] = { mode = "Off", value = 2 , overlay = "Interrupt Disabled", tip = "Disables Interrupt", highlight = 0, icon = br.player.spell.hammerOfJustice}
+        [1] = { mode = "On", value = 1 , overlay = "Interrupt Enabled", tip = "Enables Interrupt", highlight = 1, icon = br.player.spells.hammerOfJustice},
+        [2] = { mode = "Off", value = 2 , overlay = "Interrupt Disabled", tip = "Disables Interrupt", highlight = 0, icon = br.player.spells.hammerOfJustice}
     };
     br.ui:createToggle(InterruptModes,"Interrupt",3,0)
 end
@@ -300,16 +300,16 @@ local function runRotation()
                 if br.unlocker == "Tinkr" and unit.distance("target") > 5  then
                     return br._G.MoveToRaw(br._G.ObjectRawPosition("target"))
                 end
-                    
+
                 if unit.distance("target") <= 5 then
                     -- Start Attack
                     if unit.distance("target") <= 5 then
                         if cast.able.autoAttack("target") then
-                            if cast.autoAttack("target") then 
-                                ui.debug("Casting Auto Attack [Pre-Combat]") 
-                                return true 
+                            if cast.autoAttack("target") then
+                                ui.debug("Casting Auto Attack [Pre-Combat]")
+                                return true
                             else
-                                ui.debug("Failed to Auto Attack")                        
+                                ui.debug("Failed to Auto Attack")
                             end
                         end
                     end

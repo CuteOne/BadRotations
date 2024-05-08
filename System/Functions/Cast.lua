@@ -405,7 +405,7 @@ function br.castSpellMacro(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,Kn
 end
 -- Used in openers
 function br.castOpener(spellIndex,flag,index,checkdistance)
-	local spellCast = br.player.spell[spellIndex]
+	local spellCast = br.player.spells[spellIndex]
 	local castable = br.player.cast.able[spellIndex]
 	local castSpell = br.player.cast[spellIndex]
 	local spellName = select(1,br._G.GetSpellInfo(spellCast))
@@ -639,7 +639,7 @@ function br.createCastFunction(thisUnit,castType,minUnits,effectRng,spellID,inde
 			br.botCast = true -- Used by old Queue Cast
 			br.botSpell = spellID -- Used by old Queue Cast
 			-- Condemn Patch (Blizz is an small indie developer!)
-			if spellID == br.player.spell.condemn or spellID == br.player.spell.condemnMassacre then spellName = br._G.GetSpellInfo(br.player.spell.execute) end
+			if spellID == br.player.spells.condemn or spellID == br.player.spells.condemnMassacre then spellName = br._G.GetSpellInfo(br.player.spells.execute) end
 			-- br._G.print("Spell: "..tostring(spellName).." - UnitName: "..tostring(br._G.UnitName(thisUnit)).." - Unit: "..tostring(thisUnit))
 			br._G.CastSpellByName(spellName,thisUnit)
 			if br._G.IsAoEPending() then
@@ -659,7 +659,7 @@ function br.createCastFunction(thisUnit,castType,minUnits,effectRng,spellID,inde
 	end
 	-- Talent Check
 	local function hasTalent(spellID)
-		for k,v in pairs(br.player.spell.talents) do
+		for k,v in pairs(br.player.spells.talents) do
 			if spellID == v then return br.player.talent[k] end
 		end
 		return true
@@ -682,7 +682,7 @@ function br.createCastFunction(thisUnit,castType,minUnits,effectRng,spellID,inde
 		and (castTimers[spellID] < br._G.GetTime()) and br.getSpellCD(spellID) <= br:getUpdateRate()
 		and (br.getSpellCD(61304) <= 0 or select(2,br._G.GetSpellBaseCooldown(spellID)) <= 0
 			or (br.getCastTime(spellID) > 0 and br.getCastTimeRemain("player") <= br:getUpdateRate())) -- Cooldown Checks
-		and (br.isKnown(spellID) or castType == "known" or spellID == br.player.spell.condemn or spellID == br.player.spell.condemnMassacre) -- Known/Current Checks
+		and (br.isKnown(spellID) or castType == "known" or spellID == br.player.spells.condemn or spellID == br.player.spells.condemnMassacre) -- Known/Current Checks
 		and hasTalent(spellID) and hasEssence() and not br.isIncapacitated(spellID) and queensCourtCastCheck(spellID)
 		and (not (br._G.IsAutoRepeatSpell(br._G.GetSpellInfo(spellID)) or (spellID == 6603 and br._G.IsCurrentSpell(spellID)))) and not br.hasNoControl(spellID) -- Talent/Essence/Incapacitated/Special Checks
 		and (thisUnit == nil or castType ~= "dead" or (thisUnit ~= nil and castType == "dead" and br._G.UnitIsDeadOrGhost(thisUnit)))) -- Dead Check

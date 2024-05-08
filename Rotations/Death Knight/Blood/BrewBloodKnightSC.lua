@@ -5,7 +5,7 @@
 -- Status = Full
 -- Readiness = Raid
 -------------------------------------------------------
-local rotationName = "BrewBloodKnight-SimC" 
+local rotationName = "BrewBloodKnight-SimC"
 
 local LastMessageTime = 0
 
@@ -52,32 +52,32 @@ local text = {
 
 local function createToggles()
     local RotationModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range.", highlight = 1, icon = br.player.spell.darkCommand },
-        [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.heartStrike },
-        [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.iceboundFortitude },
-        [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.bloodTap}
+        [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range.", highlight = 1, icon = br.player.spells.darkCommand },
+        [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spells.heartStrike },
+        [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spells.iceboundFortitude },
+        [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spells.bloodTap}
     };
     br.ui:createToggle(RotationModes,"Rotation",1,0)
 
     local AutoPullModes = {
-        [1] = { mode = "On", value =1, overlay = "Auto Pull/Taunt Enabled", tip = "Auto Pull/Taunt Enemies", highlight = 1, icon = br.player.spell.deathGrip},
-        [2] = { mode = "Off", value = 2, overlay = "Auto Pull/Taunt Disabled", tip = "Do Not AutoPull/Taunt Enemies", highlight=0, icon=br.player.spell.deathGrip}
+        [1] = { mode = "On", value =1, overlay = "Auto Pull/Taunt Enabled", tip = "Auto Pull/Taunt Enemies", highlight = 1, icon = br.player.spells.deathGrip},
+        [2] = { mode = "Off", value = 2, overlay = "Auto Pull/Taunt Disabled", tip = "Do Not AutoPull/Taunt Enemies", highlight=0, icon=br.player.spells.deathGrip}
     };
     br.ui:createToggle(AutoPullModes,"Autopull",2,0)
     local CooldownModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss/AOE Load Detection.", highlight = 1, icon = br.player.spell.raiseDead },
-        [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.raiseDead},
-        [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.raiseDead }
+        [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss/AOE Load Detection.", highlight = 1, icon = br.player.spells.raiseDead },
+        [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spells.raiseDead},
+        [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spells.raiseDead }
     };
     br.ui:createToggle(CooldownModes,"Cooldown",3,0)
     local DefensiveModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.lichborne },
-        [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.lichborne }
+        [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spells.lichborne },
+        [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spells.lichborne }
     };
     br.ui:createToggle(DefensiveModes,"Defensive",4,0)
     local InterruptModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.mindFreeze },
-        [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.mindFreeze }
+        [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spells.mindFreeze },
+        [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spells.mindFreeze }
     };
     br.ui:createToggle(InterruptModes,"Interrupt",5,0)
     local DebugModes = {
@@ -95,7 +95,7 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile,  "General")
                     br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
                     br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
-                    br.ui:createSpinnerWithout(section,text.options.AoeLoadAmount,4,2,40,1,"|cffFFFFFFSet Number of Enemies required to go into AOE Mode (triggers CDs)")                    
+                    br.ui:createSpinnerWithout(section,text.options.AoeLoadAmount,4,2,40,1,"|cffFFFFFFSet Number of Enemies required to go into AOE Mode (triggers CDs)")
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile,  colors.purple .. "Cooldowns")
                     br.ui:createText(section,colors.purple .. "CDs will be used based on CD toggle and AOE settings")
@@ -181,15 +181,15 @@ local runes
 local runicPower
 local runicPowerMax
 
-local function round(number, digit_position) 
+local function round(number, digit_position)
     local precision = math.pow(10, digit_position)
     number = number + (precision / 2); -- this causes value #.5 and up to round up
                                        -- and #.4 and lower to round down.
-  
+
     return math.floor(number / precision) * precision
   end
 
-local function printStats(message)  
+local function printStats(message)
     local drwString
     local empowerString
     local ghoulString
@@ -208,7 +208,7 @@ local function printStats(message)
      RuneString = colors.white .. "[R:" .. runes .. "]".. colors.white
      RPString = colors.white .. "[RP:" .. runicPower .. "]".. colors.white
      RPDString = colors.white .. "[RPD:" .. var.runicPowerDeficit .. "]".. colors.white
-     local lastTime = ui.time() - var.lastCast 
+     local lastTime = ui.time() - var.lastCast
     print(colors.red.. date("%T") ..colors.aqua .."[+" .. round(lastTime,-2) .. "]" ..colors.white .. drwString .. empowerString .. ghoulString ..colors.white.. RuneString ..RPString..RPDString..colors.white .. " : ".. message)
 end
 
@@ -222,7 +222,7 @@ local function checkTiming(message)
         if (ui.time() - var.lastCast > 2 and #enemies.yards5f >= 1) or var.DoTiming ~= nil then
             printStats("TIMING:" .. message)
         end
-    end        
+    end
 end
 
 local function runeTimeUntil(rCount)
@@ -244,7 +244,7 @@ local actionList = {
         CDs = function()
         end
     }
-} 
+}
 
 actionList.Aggro = function()
     if ui.mode.AutoPull ~=1 then return false end
@@ -297,8 +297,8 @@ actionList.Extra = function()
         --         end
         --     end
         -- end
- 
-end 
+
+end
 
 actionList.InstanceActions = function()
 
@@ -326,14 +326,14 @@ actionList.InstanceActions = function()
     local instanceID = br.getCurrentZoneId()
     --2516	The Nokhud Offensive
     if instanceID == 2516 then
-        --Granyth 
+        --Granyth
         if br.DBM:getTimer(388283) < 3 then return reactIceboundFortitude()  end --Eruption
-        if br.DBM:getTimer(385916) < 3 then return reactDeathsAdvance() end 
-        --Tempest 
+        if br.DBM:getTimer(385916) < 3 then return reactDeathsAdvance() end
+        --Tempest
         if br.DBM:getTimer(384316) < 3 then return reactAntiMagicShell() end
         --Maruuk
         if br.DBM:getTimer(386063) < 3 then return reactLichborne() end    --386063 Frightful roar, pop Lichborne
-        if br.DBM:getTimer(382836) < 3 then return reactIceboundFortitude() end 
+        if br.DBM:getTimer(382836) < 3 then return reactIceboundFortitude() end
         --Teera
         if br.DBM:getTimer(386547) < 3 or br.DBM:getTimer(384808) < 3 then return reactDeathsAdvance() end
         --Balakar
@@ -356,7 +356,7 @@ actionList.InstanceActions = function()
         if br.DBM.getTimer(376049) < 3 then return reactDeathsAdvance() end
         --Sand Breath
         if br.DBM.getTimer(375727) < 3 then return reactAntiMagicShell() end
-        
+
 
 
 
@@ -368,7 +368,7 @@ actionList.InstanceActions = function()
 end
 
 actionList.Defensive = function()
-end 
+end
 
 actionList.Interrupt = function()
     if ui.useInterrupt() and ui.delay("Interrupts",unit.gcd()) then
@@ -385,20 +385,20 @@ actionList.Interrupt = function()
             end
         end
     end
-    if ui.checked(text.options.LichborneNoControl) and br.isIncapacitated(br.player.spell.lichborne)  and cast.able.lichborne() then
+    if ui.checked(text.options.LichborneNoControl) and br.isIncapacitated(br.player.spells.lichborne)  and cast.able.lichborne() then
         if cast.lichborne() then debugMessage("Lichborne to regain control") return true end
     end
-end 
+end
 
 actionList.Cooldown = function()
-    if 
-        (ui.mode.CoolDowns == 1 and unit.isBoss("target")) or 
+    if
+        (ui.mode.CoolDowns == 1 and unit.isBoss("target")) or
         (ui.mode.Rotation == 1 and #enemies.yards8 > ui.value(text.options.AoeLoadAmount)) or
         ui.mode.CoolDowns == 2 then
             if ui.checked(text.cooldowns.RaiseDead) and cast.able.raiseDead() then
                 if cast.raiseDead() then debugMessage( colors.purple .. "CD: Raise Dead") return true; end;
             end
-            
+
             --dancing_rune_weapon,if=!buff.dancing_rune_weapon.up
             if ui.checked(text.cooldowns.DancingRuneWeapon) then
                 if not buff.dancingRuneWeapon.exists() and cast.able.dancingRuneWeapon() then
@@ -413,11 +413,11 @@ actionList.Cooldown = function()
                 end
             end
 
-            if ui.checked(text.cooldowns.useCombatPotion) and 
+            if ui.checked(text.cooldowns.useCombatPotion) and
                 ( (ui.checked(text.options.onlyUseCombatPotOnBoss) and unit.isBoss("target")) or not ui.checked(text.options.onlyUseCombatPotOnBoss)) then
                 if buff.dancingRuneWeapon.exists() and var.hasGhoul and unit.ttdGroup(10) > 30 then
                     if(ui.checked(text.options.onlyUseConsumablesInRaid) and (var.inInstance or var.inRaid)) or not ui.checked(text.options.onlyUseConsumablesInRaid) then
-                        if module.CombatPotionUp() then debugMessage(colors.purple .. "CD: Using Combat Potion") return true; end    
+                        if module.CombatPotionUp() then debugMessage(colors.purple .. "CD: Using Combat Potion") return true; end
                     end
                 end
             end
@@ -429,7 +429,7 @@ actionList.Cooldown = function()
             end
     end
     return false
-end 
+end
 
 -- Action List - Pre-Combat
 actionList.PreCombat = function()
@@ -451,20 +451,20 @@ actionList.PreCombat = function()
             if unit.distance("target") <= 5 and cast.able.autoAttack("target") then
                 if cast.autoAttack("target") then debugMessage("PreCombat: autoAttack") return true; end
             end
-        end            
+        end
     end -- End No Combat
-    
+
 end -- End Action List - PreCombat
 
 actionList.DRWActive = function()
-        
+
                 --blood_boil,if=!dot.blood_plague.ticking
                 if not debuff.bloodPlague.exists("target") and cast.able.bloodBoil() then
                     if cast.bloodBoil("target") then debugMessage("DRW:blood boil") return true; end;
                 end
                 --tombstone,if=buff.bone_shield.stack>5&rune>=2&runic_power.deficit>=30&!talent.shattering_bone|(talent.shattering_bone.enabled&death_and_decay.ticking)
-                if buff.boneShield.stack("player") > 5 and 
-                    runes >= 2 and 
+                if buff.boneShield.stack("player") > 5 and
+                    runes >= 2 and
                     var.runicPowerDeficit >= 30
                     and not talent.shatteringBone or (talent.shatteringBone and buff.deathAndDecay.exists()) and
                     cast.able.tombstone() then
@@ -477,8 +477,8 @@ actionList.DRWActive = function()
                 end
 
                 --marrowrend,if=(buff.bone_shield.remains<=4|buff.bone_shield.stack<variable.bone_shield_refresh_value)&runic_power.deficit>20
-                if cast.able.marrowrend("target") and 
-                (buff.boneShield.remains() <=4 or buff.boneShield.stack() < var.boneShieldRefreshValue) and 
+                if cast.able.marrowrend("target") and
+                (buff.boneShield.remains() <=4 or buff.boneShield.stack() < var.boneShieldRefreshValue) and
                 var.runicPowerDeficit > 20 then
                     if cast.marrowrend("target") then debugMessage("DRW:O:Marrowrend") return true; end;
                 end
@@ -509,7 +509,7 @@ actionList.DRWActive = function()
                 --TODO Fractional Charges
                 if cast.able.bloodBoil() and (
                     #enemies.yards10 > 2 and
-                    charges.bloodBoil.frac() >= 1.1   
+                    charges.bloodBoil.frac() >= 1.1
                 ) then
                     if cast.bloodBoil() then debugMessage("DRW:Blood Boil") return true; end;
                 end
@@ -519,7 +519,7 @@ actionList.DRWActive = function()
                     if cast.deathStrike("target") then debugMessage("DRW:Q:death strike") return true; end;
                 end
 
-                if cast.able.consumption("target") then 
+                if cast.able.consumption("target") then
                     if cast.consumption("target") then debugMessage("DRW:Consumption") return true; end;
                 end
 
@@ -543,7 +543,7 @@ end
 
 
 
-local function runRotation() 
+local function runRotation()
 
     buff                                          = br.player.buff
     cast                                          = br.player.cast
@@ -572,7 +572,7 @@ local function runRotation()
     ui.mode.Rotation        = br.data.settings[br.selectedSpec].toggles["Rotation"]
     ui.mode.Debug           = br.data.settings[br.selectedSpec].toggles["Debugs"]
 
-    units.get(5) 
+    units.get(5)
     units.get(40) -- Makes a variable called, units.dyn40
     enemies.get(5) -- Makes a varaible called, enemies.yards5
     enemies.get(8)
@@ -597,12 +597,12 @@ local function runRotation()
     if not talent.deathsCaress or talent.consumption or talent.blooddrinker then
         var.boneShieldRefreshValue = 4
     else
-        var.boneShieldRefreshValue = 5        
+        var.boneShieldRefreshValue = 5
     end
 
      --variable,name=heart_strike_rp_drw,value=(25+spell_targets.heart_strike*talent.heartbreaker.enabled*2)
      var.heartStrikeRpDrw = (35 + (#enemies.yards5f * talent.rank.heartbreaker))
-    
+
      ----variable,name=heart_strike_rp,value=(10+spell_targets.heart_strike*talent.heartbreaker.enabled*2)
      var.heartStrikeRp = (20 + (#enemies.yards5f * talent.rank.heartbreaker))
      var.runicPowerDeficit = runicPowerMax - runicPower
@@ -627,14 +627,14 @@ local function runRotation()
         var.ghoulTTL = startTime + duration - ui.time() + 1.2
     end
 
-    --rune cooldown timing, why they gotta number them in reverse? i.e. rune[6] is the leftmost. rune[1] rightmost.  
+    --rune cooldown timing, why they gotta number them in reverse? i.e. rune[6] is the leftmost. rune[1] rightmost.
     var.runeCount = 0
     var.runeCountCoolDown = 0
     var.runeCooldowns = {}
-    
+
     for i=1,6 do
         local rStart, rDuration, rRuneReady = _G.GetRuneCooldown(i)
-        if rRuneReady then 
+        if rRuneReady then
             var.runeCount = var.runeCount + 1
         else
             var.runeCountCoolDown = var.runeCountCoolDown + 1
@@ -642,7 +642,7 @@ local function runRotation()
         end
     end
     table.sort(var.runeCooldowns)
- 
+
     -- Any other local varaible from above would also need to be defined here to be use.
     if var.profileStop == nil then var.profileStop = false end -- Trigger variable to help when needing to stop a profile.
 
@@ -666,15 +666,15 @@ local function runRotation()
             if actionList.InstanceActions() then return true end
             if actionList.Aggro() then return true end
             if actionList.Cooldown() then return true end
- 
 
-            
+
+
 
             --icebound_fortitude,if=!(buff.dancing_rune_weapon.up|buff.vampiric_blood.up)
             --&(target.cooldown.pause_action.remains>=8|target.cooldown.pause_action.duration>0)
 
             if cast.able.iceboundFortitude() and (
-                not (buff.dancingRuneWeapon.exists() or buff.vampiricBlood.exists()) 
+                not (buff.dancingRuneWeapon.exists() or buff.vampiricBlood.exists())
             ) then
                 if cast.iceboundFortitude() then debugMessage("C:Icebound fortitude") return true; end;
             end
@@ -698,8 +698,8 @@ local function runRotation()
             end
 
             --death_and_decay,if=!death_and_decay.ticking&(talent.unholy_ground|talent.sanguine_ground|spell_targets.death_and_decay>3|buff.crimson_scourge.up)
- 
-            if not buff.deathAndDecay.exists("player") and not unit.moving("player") and 
+
+            if not buff.deathAndDecay.exists("player") and not unit.moving("player") and
                  cast.able.deathAndDecay("playerGround") then
                     if cast.deathAndDecay("playerGround") then debugMessage("F:Death and Decay") return true; end;
             end
@@ -719,21 +719,21 @@ local function runRotation()
             end
 
             --	blooddrinker,if=!buff.dancing_rune_weapon.up
-     
+
             if not buff.dancingRuneWeapon.exists() and cast.able.blooddrinker("target") then
                 if cast.blooddrinker("target") then debugMessage("Blooddrinker channel") return true; end
             end
-         
+
             --sacrificial_pact,if=!buff.dancing_rune_weapon.up&(pet.ghoul.remains<2|target.time_to_die<gcd)
-           
-            if talent.sacrificialPact and 
-                not buff.dancingRuneWeapon.exists("player")  and 
-                (var.hasGhoul and var.ghoulTTL < 2 or unit.ttd("target") < unit.gcd() ) and 
+
+            if talent.sacrificialPact and
+                not buff.dancingRuneWeapon.exists("player")  and
+                (var.hasGhoul and var.ghoulTTL < 2 or unit.ttd("target") < unit.gcd() ) and
                 cast.able.sacrificialPact()  then
                     if cast.sacrificialPact() then debugMessage("Sacrificial Pact") return true; end;
             end
 
-          
+
             --blood_tap,if=(rune<=2&rune.time_to_4>gcd&charges_fractional>=1.8)|rune.time_to_3>gcd
             if (runes <= 2 and runeTimeUntil(4) > unit.gcd() and charges.bloodTap.frac() >= 1.8 ) or runeTimeUntil(3) > unit.gcd() then
                 if cast.able.bloodTap() then
@@ -741,13 +741,13 @@ local function runRotation()
                 end
             end
 
-           
+
             --gorefiends_grasp,if=talent.tightening_grasp.enabled
             if talent.tighteningGrasp and cast.able.gorefiendsGrasp("target") then
                 if cast.gorefiendsGrasp("target") then debugMessage("GoreFiends Grasp") return true; end;
             end
 
-          
+
             if cast.able.abominationLimb() then
                 if cast.abominationLimb() then debugMessage("Abomination Limb") return true; end;
             end
@@ -756,25 +756,25 @@ local function runRotation()
             if buff.dancingRuneWeapon.exists() then
                 if actionList.DRWActive() then return true end
             end
-  
 
-            --Add Death Strike to build RP 
+
+            --Add Death Strike to build RP
             if cast.able.heartStrike("target") and runes > 4 and var.runicPowerDeficit >= var.heartStrikeRp then
                 if cast.heartStrike("target") then debugMessage("Special Heart Strike") return true end
             end
 
             --tombstone,if=buff.bone_shield.stack>5&rune>=2&runic_power.deficit>=30&!talent.shattering_bone|(talent.shattering_bone.enabled&death_and_decay.ticking)
             --&cooldown.dancing_rune_weapon.remains>=25
-        
+
             if cast.able.tombstone() and (
-                buff.boneShield.stack() > 5 and runes >= 2 and var.runicPowerDeficit >= 30 and 
+                buff.boneShield.stack() > 5 and runes >= 2 and var.runicPowerDeficit >= 30 and
                 (not talent.shatteringBone or (talent.shatteringBone and buff.deathAndDecay.exists())) and
                 cd.dancingRuneWeapon.remains() >= 25) then
                     if cast.tombstone() then debugMessage("Tombstone") return true; end;
             end
-            
+
             --death_strike,if=buff.coagulopathy.remains<=gcd|buff.icy_talons.remains<=gcd|runic_power>=variable.death_strike_dump_amount|runic_power.deficit<=variable.heart_strike_rp|target.time_to_die<10
-          
+
             if cast.able.deathStrike("target") and (
                 buff.coagulopathy.remains() <= unit.gcd() or
                 buff.icyTalons.remains() <= unit.gcd() or
@@ -788,9 +788,9 @@ local function runRotation()
             --deaths_caress,if=(buff.bone_shield.remains<=4|(buff.bone_shield.stack<variable.bone_shield_refresh_value+1))&runic_power.deficit>10&
             --!(talent.insatiable_blade&cooldown.dancing_rune_weapon.remains<buff.bone_shield.remains)&
             --!talent.consumption.enabled&!talent.blooddrinker.enabled&rune.time_to_3>gcd
-           
+
             if cast.able.deathsCaress("target") and (
-                (buff.boneShield.remains() <= 4 or (buff.boneShield.stack() < var.boneShieldRefreshValue+1)) and 
+                (buff.boneShield.remains() <= 4 or (buff.boneShield.stack() < var.boneShieldRefreshValue+1)) and
                 var.runicPowerDeficit > 10 and
                 not (talent.insatiableBlade and cd.dancingRuneWeapon.remains() < buff.boneShield.remains()) and
                 not talent.cosumption and not talent.blooddrinker and runeTimeUntil(3) > unit.gcd()
@@ -800,11 +800,11 @@ local function runRotation()
 
             --marrowrend,if=(buff.bone_shield.remains<=4|buff.bone_shield.stack<variable.bone_shield_refresh_value)&
             --runic_power.deficit>20&!(talent.insatiable_blade&cooldown.dancing_rune_weapon.remains<buff.bone_shield.remains)
-            
+
             if cast.able.marrowrend("target") and (
                 (buff.boneShield.remains() <= 4 or buff.boneShield.stack() < var.boneShieldRefreshValue) and
-                var.runicPowerDeficit >20 and 
-                not (talent.insatiableBlade and cd.dancingRuneWeapon.remains() < buff.boneShield.remains()) 
+                var.runicPowerDeficit >20 and
+                not (talent.insatiableBlade and cd.dancingRuneWeapon.remains() < buff.boneShield.remains())
             ) then
                 if cast.marrowrend("target") then debugMessage("U: Marrowrend") return true; end;
             end
@@ -817,7 +817,7 @@ local function runRotation()
             --soul_reaper,if=active_enemies=1&target.time_to_pct_35<5&target.time_to_die>(dot.soul_reaper.remains+5)
             --soul_reaper,target_if=min:dot.soul_reaper.remains,if=target.time_to_pct_35<5&active_enemies>=2&target.time_to_die>(dot.soul_reaper.remains+5)
             -- Look for target to hit with soul reaper
-            
+
             for i=1,#enemies.yards5f do
                 local thisUnit = enemies.yards5f[i]
                 if unit.ttd(thisUnit,35) < 5 and unit.ttd(thisUnit) > (debuff.soulReaper.remains()+5) then
@@ -828,13 +828,13 @@ local function runRotation()
             end
 
             --bonestorm,if=runic_power>=100
-            
+
             if cast.able.bonestorm() and runicPower >= 100 then
                 if cast.bonestorm() then debugMessage("bonestorm") return true; end;
             end
 
             --blood_boil,if=charges_fractional>=1.8&(buff.hemostasis.stack<=(5-spell_targets.blood_boil)|spell_targets.blood_boil>2)
-            
+
             if cast.able.bloodBoil() and (
                 charges.bloodBoil.frac() > 1.8 and (buff.hemostasis.stack() <= (5-#enemies.yards10) or #enemies.yards10 > 2)
             ) then
@@ -842,22 +842,22 @@ local function runRotation()
             end
 
             --heart_strike,if=rune.time_to_4<gcd
-            
+
             if cast.able.heartStrike("target") and runeTimeUntil(4) < unit.gcd() then
                 if cast.heartStrike("target") then debugMessage("X: Heart Strike") return true; end;
             end
 
             --blood_boil,if=charges_fractional>=1.1
-            
+
             if cast.able.bloodBoil() then
-                if cast.bloodBoil() then 
+                if cast.bloodBoil() then
                     var.doTiming = true;
-                    debugMessage("Y: Blood Boil") 
+                    debugMessage("Y: Blood Boil")
                     return true; end;
             end
 
             --heart_strike,if=(rune>1&(rune.time_to_3<gcd|buff.bone_shield.stack>7))
-            
+
             if cast.able.heartStrike("target") and (
                 runes > 1 --and (runeTimeUntil(3) < unit.gcd() or buff.boneShield.stack() > 7)
             ) then
@@ -872,11 +872,11 @@ local function runRotation()
             --checkTiming("EOR")
             -- if var.lastCast -ui.time() >= 2 then
             --         debugMessage(colors.red "No viable Action, Waiting")
-            -- end                
+            -- end
         end -- End In Combat Rotation
     end -- Pause
 end -- End runRotation
-local id = 250 
+local id = 250
 -- DO NOT EDIT ANYTHING BELOW THIS LINE, WILL BREAK PROFILE --
 if br.rotations[id] == nil then br.rotations[id] = {} end
 tinsert(br.rotations[id],{

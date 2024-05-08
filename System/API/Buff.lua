@@ -6,17 +6,16 @@
 local _, br = ...
 if br.api == nil then br.api = {} end
 
-br.api.buffs = function(buff,v)
-
+br.api.buffs = function(buff, v)
     --- Cancel a buff.
     -- @function buff.spell.cancel
     -- @string[opt="player"] thisUnit The unit to check.
     -- @string[opt="player"] sourceUnit The source of the buff.
-    buff.cancel = function(thisUnit,sourceUnit)
+    buff.cancel = function(thisUnit, sourceUnit)
         if thisUnit == nil then thisUnit = 'player' end
         if sourceUnit == nil then sourceUnit = 'player' end
-        if br.UnitBuffID(thisUnit,v,sourceUnit) ~= nil then
-            br._G.RunMacroText("/cancelaura "..br._G.GetSpellInfo(v))
+        if br.UnitBuffID(thisUnit, v, sourceUnit) ~= nil then
+            br._G.RunMacroText("/cancelaura " .. br._G.GetSpellInfo(v))
         end
     end
 
@@ -32,10 +31,10 @@ br.api.buffs = function(buff,v)
     -- @string[opt="player"] thisUnit The unit to check.
     -- @string[opt="player"] sourceUnit The source of the buff.
     -- @treturn number
-    buff.duration = function(thisUnit,sourceUnit)
+    buff.duration = function(thisUnit, sourceUnit)
         if thisUnit == nil then thisUnit = 'player' end
         if sourceUnit == nil then sourceUnit = 'player' end
-        return br.getBuffDuration(thisUnit,v,sourceUnit)
+        return br.getBuffDuration(thisUnit, v, sourceUnit)
     end
 
     --- Check if a buff exists.
@@ -43,10 +42,10 @@ br.api.buffs = function(buff,v)
     -- @string[opt="player"] thisUnit The unit to check.
     -- @string[opt="player"] sourceUnit The source of the buff.
     -- @treturn boolean
-    buff.exists = function(thisUnit,sourceUnit)
+    buff.exists = function(thisUnit, sourceUnit)
         if thisUnit == nil then thisUnit = 'player' end
         if sourceUnit == nil then sourceUnit = 'player' end
-        return br.UnitBuffID(thisUnit,v,sourceUnit) ~= nil
+        return br.UnitBuffID(thisUnit, v, sourceUnit) ~= nil
     end
 
     --- Check if a buff does NOT exists -- added for readablity into SIMC converted rotations
@@ -54,8 +53,8 @@ br.api.buffs = function(buff,v)
     -- @string[opt="player"] thisUnit The unit to check.
     -- @string[opt="player"] sourceUnit The source of the buff.
     -- @treturn boolean
-    buff.down = function(thisUnit,sourceUnit)
-        return not buff.exists(thisUnit,sourceUnit)
+    buff.down = function(thisUnit, sourceUnit)
+        return not buff.exists(thisUnit, sourceUnit)
     end
 
     --- Check if a buff can be reacted to.
@@ -74,10 +73,10 @@ br.api.buffs = function(buff,v)
     -- @string[opt="player"] thisUnit The unit to check.
     -- @string[opt="player"] sourceUnit The source of the buff.
     -- @treturn number
-    buff.remain = function(thisUnit,sourceUnit)
+    buff.remain = function(thisUnit, sourceUnit)
         if thisUnit == nil then thisUnit = 'player' end
         if sourceUnit == nil then sourceUnit = 'player' end
-        return math.abs(br.getBuffRemain(thisUnit,v,sourceUnit))
+        return math.abs(br.getBuffRemain(thisUnit, v, sourceUnit))
     end
 
     --- Get the remaining time of a buff. (Duplicate of br.player.buff.spell.remain)
@@ -85,10 +84,10 @@ br.api.buffs = function(buff,v)
     -- @string[opt="player"] thisUnit The unit to check.
     -- @string[opt="player"] sourceUnit The source of the buff.
     -- @treturn number
-    buff.remains = function(thisUnit,sourceUnit)
+    buff.remains = function(thisUnit, sourceUnit)
         if thisUnit == nil then thisUnit = 'player' end
         if sourceUnit == nil then sourceUnit = 'player' end
-        return math.abs(br.getBuffRemain(thisUnit,v,sourceUnit))
+        return math.abs(br.getBuffRemain(thisUnit, v, sourceUnit))
     end
 
     --- Check if a buff should be refreshed.
@@ -96,8 +95,8 @@ br.api.buffs = function(buff,v)
     -- @string[opt="player"] thisUnit The unit to check.
     -- @string[opt="player"] sourceUnit The source of the buff.
     -- @treturn boolean
-    buff.refresh = function(thisUnit,sourceUnit)
-        return buff.remain(thisUnit,sourceUnit) <= buff.duration(thisUnit,sourceUnit) * 0.3
+    buff.refresh = function(thisUnit, sourceUnit)
+        return buff.remain(thisUnit, sourceUnit) <= buff.duration(thisUnit, sourceUnit) * 0.3
     end
 
     --- Get the stack count of a buff.
@@ -105,10 +104,10 @@ br.api.buffs = function(buff,v)
     -- @string[opt="player"] thisUnit The unit to check.
     -- @string[opt="player"] sourceUnit The source of the buff.
     -- @treturn number
-    buff.stack = function(thisUnit,sourceUnit)
+    buff.stack = function(thisUnit, sourceUnit)
         if thisUnit == nil then thisUnit = 'player' end
         if sourceUnit == nil then sourceUnit = 'player' end
-        return br.getBuffStacks(thisUnit,v,sourceUnit)
+        return br.getBuffStacks(thisUnit, v, sourceUnit)
     end
 
     --- Get the maximum stack count of a buff.
@@ -116,7 +115,7 @@ br.api.buffs = function(buff,v)
     -- @string[opt="player"] thisUnit The unit to check.
     -- @string[opt="player"] sourceUnit The source of the buff.
     -- @treturn number
-    buff.stackMax = function(thisUnit,sourceUnit)
+    buff.stackMax = function(thisUnit, sourceUnit)
         if thisUnit == nil then thisUnit = 'player' end
         if sourceUnit == nil then sourceUnit = 'player' end
         return br.auraMaxStacks[v] and (br.auraMaxStacks[v][thisUnit] or 0) or 0

@@ -6,20 +6,20 @@ local rotationName = "Initial"
 local function createToggles()
     -- Rotation Button
     local RotationModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Rotation Enabled", tip = "Enable Rotation", highlight = 1, icon = br.player.spell.sinisterStrike},
-        [2] = { mode = "Off", value = 4 , overlay = "Rotation Disabled", tip = "Disable Rotation", highlight = 0, icon = br.player.spell.sinisterStrike}
+        [1] = { mode = "On", value = 1 , overlay = "Rotation Enabled", tip = "Enable Rotation", highlight = 1, icon = br.player.spells.sinisterStrike},
+        [2] = { mode = "Off", value = 4 , overlay = "Rotation Disabled", tip = "Disable Rotation", highlight = 0, icon = br.player.spells.sinisterStrike}
     };
     br.ui:createToggle(RotationModes,"Rotation",1,0)
     -- Defensive Button
     local DefensiveModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.crimsonVial},
-        [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.crimsonVial}
+        [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spells.crimsonVial},
+        [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spells.crimsonVial}
     };
     br.ui:createToggle(DefensiveModes,"Defensive",2,0)
     -- Interrupts Button
     local InterruptModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Use Interrupt Abilities", highlight = 1, icon = br.player.spell.kick},
-        [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "Do Not Use Interrupt Abilities", highlight = 0, icon = br.player.spell.kick}
+        [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Use Interrupt Abilities", highlight = 1, icon = br.player.spells.kick},
+        [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "Do Not Use Interrupt Abilities", highlight = 0, icon = br.player.spells.kick}
     };
     br.ui:createToggle(InterruptModes,"Interrupt",3,0)
 end
@@ -223,7 +223,7 @@ local function runRotation()
     energy                                        = br.player.power.energy.amount()
     mode                                          = br.player.ui.mode
     ui                                            = br.player.ui
-    spell                                         = br.player.spell
+    spell                                         = br.player.spells
     ui                                            = br.player.ui
     unit                                          = br.player.unit
     units                                         = br.player.units

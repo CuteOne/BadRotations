@@ -5,7 +5,7 @@
 -- Status = Limited
 -- Readiness = Development
 -------------------------------------------------------
-local rotationName = "BrewUnholyDK" 
+local rotationName = "BrewUnholyDK"
 
 local colors = {
     blue    = "|cff4285F4",
@@ -37,37 +37,37 @@ local text = {
 
 local function createToggles()
     local RotationModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range.", highlight = 1, icon = br.player.spell.darkCommand },
-        [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.heartStrike },
-        [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.iceboundFortitude },
-        [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.bloodTap}
+        [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range.", highlight = 1, icon = br.player.spells.darkCommand },
+        [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spells.heartStrike },
+        [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spells.iceboundFortitude },
+        [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spells.bloodTap}
     };
     br.ui:createToggle(RotationModes,"Rotation",1,0)
 
     local AutoPullModes = {
-        [1] = { mode = "On", value =1, overlay = "Auto Pull Enabled", tip = "Auto Pull Enemies", highlight = 1, icon = br.player.spell.deathGrip},
-        [2] = { mode = "Off", value = 2, overlay = "Auto Pull Disabled", tip = "Do Not AutoPull Enemies", highlight=0, icon=br.player.spell.deathGrip}
+        [1] = { mode = "On", value =1, overlay = "Auto Pull Enabled", tip = "Auto Pull Enemies", highlight = 1, icon = br.player.spells.deathGrip},
+        [2] = { mode = "Off", value = 2, overlay = "Auto Pull Disabled", tip = "Do Not AutoPull Enemies", highlight=0, icon=br.player.spells.deathGrip}
     };
     br.ui:createToggle(AutoPullModes,"Autopull",2,0)
 
-    
+
     -- Cooldown Button
     local CooldownModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.antiMagicShell },
-        [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.deathsAdvance},
-        [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.antiMagicShell }
+        [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spells.antiMagicShell },
+        [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spells.deathsAdvance},
+        [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spells.antiMagicShell }
     };
     br.ui:createToggle(CooldownModes,"Cooldown",3,0)
     -- Defensive Button
     local DefensiveModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.lichborne },
-        [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.lichborne }
+        [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spells.lichborne },
+        [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spells.lichborne }
     };
     br.ui:createToggle(DefensiveModes,"Defensive",4,0)
     -- Interrupt Button
     local InterruptModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.mindFreeze },
-        [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.mindFreeze }
+        [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spells.mindFreeze },
+        [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spells.mindFreeze }
     };
     br.ui:createToggle(InterruptModes,"Interrupt",5,0)
 end
@@ -84,7 +84,7 @@ local function createOptions()
                     br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
                     br.ui:createCheckbox(section, "Auto Engage")
                     br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
-                    
+
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile,  "Cooldowns")
            br.ui:createCheckbox(section,text.options.onlyUseGargAODonBoss)
@@ -315,11 +315,11 @@ actionList.PreCombat = function()
         if ui.checked("Pre-Pull Timer") and ui.pullTimer() <= ui.value("Pre-Pull Timer") then
             -- Logic based on pull timers (IE: DBM/BigWigs)
         end -- End Pre-Pull
-        
+
     end -- End No Combat
-end 
+end
 actionList.HighPrioActions = function()
-    
+
     --antimagic_shell,if=runic_power.deficit>40&(pet.gargoyle.active|!talent.summon_gargoyle|cooldown.summon_gargoyle.remains>cooldown.antimagic_shell.duration)
 
         if cast.able.antiMagicShell() and (
@@ -333,27 +333,27 @@ actionList.HighPrioActions = function()
     --&(buff.dark_transformation.up&30>=buff.dark_transformation.remains|pet.army_ghoul.active&pet.army_ghoul.remains<=30|pet.apoc_ghoul.active
     --&pet.apoc_ghoul.remains<=30)|fight_remains<=30
     -- if(
-    --     30 >=var.GargoyleTTL and 
-    --     var.hasGargoyle) or 
-    --     (not talent.summonGargoyle or cd.summonGargoyle.remains()>60 or cd.summonGargoyle.ready()) and 
-    --     (buff.darkTransformation.exists() and buff.darkTransformation.remains() <= 30 ) or 
+    --     30 >=var.GargoyleTTL and
+    --     var.hasGargoyle) or
+    --     (not talent.summonGargoyle or cd.summonGargoyle.remains()>60 or cd.summonGargoyle.ready()) and
+    --     (buff.darkTransformation.exists() and buff.darkTransformation.remains() <= 30 ) or
     --     unit.ttdGroup(40) <= 30 then
     --     if (ui.checked(text.options.onlyUseConsumablesInRaid) and (var.inParty or var.inRaid)) or not (ui.checked(text.options.onlyUseConsumablesInRaid)) then
     --         if module.CombatPotionUp() then ui.debug("HPA.02: Combat Potion") return true; end;
-    --     end            
+    --     end
     -- end
 
     if ((ui.checked(text.options.onlyUseConsumablesInRaid) and (var.inParty or var.inRaid)) or not ui.checked(text.options.onlyUseConsumablesInRaid)) then
         if ((ui.checked(text.options.onlyUseCombatPotOnBoss) and unit.isBoss("target")) or not ui.checked(text.options.onlyUseCombatPotOnBoss)) then
-            if ((var.hasGargoyle and 30 >= var.GargoyleTTL) or not talent.summonGargoyle) and 
-                (buff.darkTransformation.exists() or not talent.darkTransformation) and 
+            if ((var.hasGargoyle and 30 >= var.GargoyleTTL) or not talent.summonGargoyle) and
+                (buff.darkTransformation.exists() or not talent.darkTransformation) and
                 cast.last.time.armyOfTheDead(20) and
                 unit.ttdGroup(40) >= 30 then
                     if module.CombatPotionUp() then ui.debug(colors.blue3 .. " COMBAT POTION!!!!!") return true end
                 end
-        end 
+        end
     end
-    --if ((var.hasGargoyle and 30 >= var.GargoyleTTL) or not talent.summonGargoyle) and (buff.darkTransformation.exists() or not talent.darkTransformation) and unit.ttdGroup(40) >= 30 
+    --if ((var.hasGargoyle and 30 >= var.GargoyleTTL) or not talent.summonGargoyle) and (buff.darkTransformation.exists() or not talent.darkTransformation) and unit.ttdGroup(40) >= 30
 
     --army_of_the_dead,if=talent.summon_gargoyle&cooldown.summon_gargoyle.remains<2|!talent.summon_gargoyle|fight_remains<35
     if cast.able.armyOfTheDead() and (
@@ -364,7 +364,7 @@ actionList.HighPrioActions = function()
 
     --death_coil,if=(active_enemies<=3|!talent.epidemic)&(pet.gargoyle.active&talent.commander_of_the_dead&buff.commander_of_the_dead.up&cooldown.apocalypse.remains<5&buff.commander_of_the_dead.remains>27|debuff.death_rot.up&debuff.death_rot.remains<gcd)
     if cast.able.deathCoil("target") and (
-        (#enemies.yards5  <= 3 or not talent.epidemic) and 
+        (#enemies.yards5  <= 3 or not talent.epidemic) and
         (var.hasGargoyle and talent.commanderOfTheDead and buff.commanderOfTheDead.exists() and cd.apocalypse.remains() < 5 and buff.commanderOfTheDead.remains() > 27 or debuff.deathRot.exists("target") and debuff.deathRot.remains("target") < unit.gcd())
     ) then
         if cast.deathCoil("target") then ui.debug("HPA.04: Death Coil") return true end;
@@ -405,7 +405,7 @@ actionList.HighPrioActions = function()
     --(!talent.unholy_blight|talent.unholy_blight&cooldown.unholy_blight.remains>15%((talent.superstrain*3)+(talent.plaguebringer*2)+(talent.ebon_fever*2)))
     if cast.able.outbreak("target") and (
         unit.ttd("target") > debuff.virulentPlague.remains("target") and (debuff.virulentPlague.refresh("target")) and
-        (not talent.unholyBlight or 
+        (not talent.unholyBlight or
             (talent.unholyBlight and cd.unholyBlight.remains >15%((boolNumeric(talent.superstrain)*3)+(boolNumeric(talent.plaguebringer)*2)+(boolNumeric(talent.ebonFever*2))))        )
     ) then
         if cast.outbreak("target") then ui.debug("HPA.08 Outbreak") return true; end;
@@ -426,9 +426,9 @@ actionList.GargSetup = function()
         --army_of_the_dead,if=talent.commander_of_the_dead&(cooldown.dark_transformation.remains<3|buff.commander_of_the_dead.up)|
         --!talent.commander_of_the_dead&talent.unholy_assault&cooldown.unholy_assault.remains<10|!talent.unholy_assault&!talent.commander_of_the_dead
         if cast.able.armyOfTheDead() and (
-            talent.commanderOfTheDead and 
+            talent.commanderOfTheDead and
                 (cd.darkTransformation.remains()<3 or buff.commanderOfTheDead.exists()) or
-                not talent.commanderOfTheDead and talent.unholyAssault and cd.unholyAssault.remains()<10 or 
+                not talent.commanderOfTheDead and talent.unholyAssault and cd.unholyAssault.remains()<10 or
                 (not talent.unholyAssault and not talent.commanderOfTheDead)
         ) then
             if cast.armyOfTheDead() then ui.debug("GARGSETUP.02: Army of the Dead") return true; end;
@@ -565,13 +565,13 @@ actionList.SingleTargetStandard = function()
         if br.getHP("target") <= 35 and unit.ttd("target") > 5 and not debuff.exists.soulReaper("target") and cast.able.soulReaper("target") then
             if cast.soulReaper("target") then ui.debug("STS.01: Soul Reaper") return true; end;
         end
-        if talent.outbreak and  
-        (not debuff.virulentPlague.exists("target") or debuff.virulentPlague.remains("target") < unit.gcd(false)) 
+        if talent.outbreak and
+        (not debuff.virulentPlague.exists("target") or debuff.virulentPlague.remains("target") < unit.gcd(false))
         and cast.able.outbreak("target") then
             if cast.outbreak("target")     then ui.debug("STS.02: outbreak") return true; end;
         end
         if talent.unholyBlight and
-        (not debuff.virulentPlague.exists("target") or debuff.virulentPlague.remains("target") < unit.gcd(false)) 
+        (not debuff.virulentPlague.exists("target") or debuff.virulentPlague.remains("target") < unit.gcd(false))
         and cast.able.unholyBlight("target") then
             if cast.unholyBlight("target") then ui.debug("STS.03: unholy Blight") return true; end;
         end
@@ -581,7 +581,7 @@ actionList.SingleTargetStandard = function()
             end
         end
         if debuff.festeringWound.stack("target") == 0 or (cd.apocalypse.remains() <= (unit.gcd()*2) and debuff.festeringWound.stack("target") < 4) then
-            if cast.able.festeringStrike("target") then 
+            if cast.able.festeringStrike("target") then
                 if cast.festeringStrike("target") then ui.debug("STS.05: Festering Strike") return true; end;
             end
         end
@@ -592,25 +592,25 @@ actionList.SingleTargetStandard = function()
     return false;
 end
 actionList.GargoyleActive = function()
-    
+
     if br.getHP("target") <= 35 and not debuff.exists.soulReaper("target") and cast.able.soulReaper("target") then
         if cast.soulReaper("target") then ui.debug("GARG.01: Soul Reaper") return true; end;
     end
     if cast.able.deathCoil("target") and (runicPower >= 30 or buff.suddenDoom.exists()) then
         if cast.deathCoil("target") then ui.debug("GARG.02: DeathCoil") return true; end;
     end
-    if talent.outbreak and  
-    (not debuff.virulentPlague.exists("target") or debuff.virulentPlague.remains("target") < unit.gcd(false)) 
+    if talent.outbreak and
+    (not debuff.virulentPlague.exists("target") or debuff.virulentPlague.remains("target") < unit.gcd(false))
     and cast.able.outbreak("target") then
         if cast.outbreak("target")     then ui.debug("GARG.03: outbreak") return true; end;
     end
     if talent.unholyBlight and
-    (not debuff.virulentPlague.exists("target") or debuff.virulentPlague.remains("target") < unit.gcd(false)) 
+    (not debuff.virulentPlague.exists("target") or debuff.virulentPlague.remains("target") < unit.gcd(false))
     and cast.able.unholyBlight("target") then
         if cast.unholyBlight("target") then ui.debug("GARG.04: unholy Blight") return true; end;
     end
     if debuff.festeringWound.stack("target") == 0  then
-        if cast.able.festeringStrike("target") then 
+        if cast.able.festeringStrike("target") then
             if cast.festeringStrike("target") then ui.debug("GARG.05: Festering Strike") return true; end;
         end
     end
@@ -655,7 +655,7 @@ actionList.AOE = function()
     end
     --actions.aoe+=/death_coil,if=!variable.pooling_runic_power&!talent.epidemic
     if not var.pooling_runic_power and not talent.epidemic then
-        if cast.able.deathCoil("target") then 
+        if cast.able.deathCoil("target") then
             if cast.deathCoil("target") then ui.debug("GAOE.3: death coil") return true; end
         end
     end
@@ -676,7 +676,7 @@ actionList.AOEBurst = function()
         if talent.clawingShadows then
             if cast.able.clawingShadows(var.maxFesteringWounds) then
                 if cast.clawingShadows(var.maxFesteringWounds) then printWoundSpend(var.maxFesteringWounds,"AOEBurst.2: clawing shadows") return true; end;
-            end 
+            end
         else
             if cast.able.scourgeStrike(var.maxFesteringWounds) then
                 if cast.scourgeString(var.maxFesteringWounds) then printWoundSpend(var.maxFesteringWounds,"AOEBurst.2: scourge strike") return true; end;
@@ -700,7 +700,7 @@ actionList.AOEBurst = function()
     if talent.clawingShadows then
             if cast.able.clawingShadows("target") then
                 if cast.clawingShadows("target") then printWoundSpend("target","AOEBurst.5: clawing shadows") return true; end;
-            end 
+            end
     else
             if cast.able.scourgeStrike("target") then
                 if cast.scourgeString("target") then printWoundSpend("target","AOEBurst.5: scourge strike") return true; end;
@@ -792,7 +792,7 @@ local function runRotation() -- This is the main profile loop, any below this po
     enemies.get(20,"player",false,true)
     enemies.get(30,"player",false,true)
     enemies.get(40,"player",false,true)
-    
+
      var.runicPowerDeficit = runicPowerMax - runicPower
      var.deathStrikeDumpAmount = 65
 
@@ -838,7 +838,7 @@ local function runRotation() -- This is the main profile loop, any below this po
     var.fwounded_targets = 0
     for i=1,#enemies.yards8 do
         local thisUnit = enemies.yards8[i]
-        if debuff.festeringWound.exists(thisUnit) then 
+        if debuff.festeringWound.exists(thisUnit) then
             var.fwounded_targets = var.fwounded_targets + 1
         end
     end
@@ -850,7 +850,7 @@ local function runRotation() -- This is the main profile loop, any below this po
         if unit.isBoss(thisUnit) then var.InstanceBossIsActive = true end
     end
 
-    
+
 
    var.hasGargoyle = false;
    var.GargoyleTTL = 0;
@@ -861,16 +861,16 @@ local function runRotation() -- This is the main profile loop, any below this po
             var.GargoyleTTL = start + duration - ui.time() + 1.2
         end
     end
-    
 
-    
+
+
     --rune cooldown timing, build table of rune cooldowns so we know exactly how long until we get X # of runes
     var.runeCount = 0
     var.runeCountCoolDown = 0
     var.runeCooldowns = {}
     for i=1,6 do
         local rStart, rDuration, rRuneReady = _G.GetRuneCooldown(i)
-        if rRuneReady then 
+        if rRuneReady then
             var.runeCount = var.runeCount + 1
         else
             var.runeCountCoolDown = var.runeCountCoolDown + 1
@@ -902,10 +902,10 @@ local function runRotation() -- This is the main profile loop, any below this po
     ) then
         var.garg_setup_complete=true
     else
-        var.garg_setup_complete=false        
+        var.garg_setup_complete=false
     end
 
-    --actions.variables+=/variable,name=apoc_timing,op=setif,value=7,value_else=2,condition= 
+    --actions.variables+=/variable,name=apoc_timing,op=setif,value=7,value_else=2,condition=
     --cooldown.apocalypse.remains<10&debuff.festering_wound.stack<=4&cooldown.unholy_assault.remains>10
     if (
         cd.apocalypse.remains() < 10 and debuff.festeringWound.stack("target") <= 4 and cd.unholyAssault.remains() > 10
@@ -937,10 +937,10 @@ local function runRotation() -- This is the main profile loop, any below this po
     --|debuff.rotten_touch.up&debuff.festering_wound.stack>=1|debuff.festering_wound.stack>4|set_bonus.tier31_4pc&
     --(pet.apoc_magus.active|pet.army_magus.active)&
     --debuff.festering_wound.stack>=1)|fight_remains<5&debuff.festering_wound.stack>=1
-    
+
     if (cd.apocalypse.remains() > var.apoc_timing or not talent.apocalypse)  and
-        (var.festermight_tracker or debuff.festeringWound.stack("target") >=1 and 
-        cd.unholyAssault.remains()<20 and talent.unholyAssault and var.st_planning or 
+        (var.festermight_tracker or debuff.festeringWound.stack("target") >=1 and
+        cd.unholyAssault.remains()<20 and talent.unholyAssault and var.st_planning or
         debuff.rottenTouch.exists("target") and debuff.festeringWound.stack("target") >=1) or unit.ttdGroup(40)<5 or debuff.festeringWound.stack("target")>4
     then
         var.pop_wounds = true
@@ -950,7 +950,7 @@ local function runRotation() -- This is the main profile loop, any below this po
 
     --actions.variables+=/variable,name=pooling_runic_power,op=setif,value=1,value_else=0,
     --condition=talent.vile_contagion&cooldown.vile_contagion.remains<3&runic_power<60&!variable.st_planning
-    
+
     if(talent.vileContagion and cd.vileContagion.remains() <3 and runicPower < 60 and not var.st_planning) then
         var.pooling_runic_power = true
     else
@@ -967,9 +967,9 @@ local function runRotation() -- This is the main profile loop, any below this po
     --(!set_bonus.tier31_4pc|set_bonus.tier31_4pc&!(pet.apoc_magus.active|pet.army_magus.active)|runic_power.deficit<20|rune<3)&
     --((talent.improved_death_coil&(active_enemies=2|talent.coil_of_devastation)|rune<3|pet.gargoyle.active|buff.sudden_doom.react|cooldown.apocalypse.remains<10
     --&debuff.festering_wound.stack>3|!variable.pop_wounds&debuff.festering_wound.stack>=4))
-    
+
     if (not talent.rottenTouch or (talent.rottenTouch and not debuff.rottenTouch.exists("target") and var.runicPowerDeficit<20)) and
-    ((talent.improvedDeathCoil and (#enemies.yards5==2 or talent.coilOfDevastation)) or 
+    ((talent.improvedDeathCoil and (#enemies.yards5==2 or talent.coilOfDevastation)) or
     runes<3 or var.hasGargoyle or cd.apocalypse.remains() <10) and
     (debuff.festeringWound.stack("target")>3 or (var.pop_wounds==0 and debuff.festeringWound.stack("target")>=4))
      then
@@ -978,7 +978,7 @@ local function runRotation() -- This is the main profile loop, any below this po
         var.spend_rp = false
     end
 
-    
+
 
 
 
@@ -1001,32 +1001,32 @@ local function runRotation() -- This is the main profile loop, any below this po
         if actionList.Defensive() then return true end
         if actionList.PreCombat() then return true end
          if unit.inCombat() and unit.valid("target") and not var.profileStop then
-            
+
             if actionList.Interrupt() then return true end
-            if ((var.inParty or var.inRaid) and unit.isBoss("target") and ui.checked(text.options.onlyUseGargAODonBoss)) or 
+            if ((var.inParty or var.inRaid) and unit.isBoss("target") and ui.checked(text.options.onlyUseGargAODonBoss)) or
                 not ui.checked(text.options.onlyUseGargAODonBoss) or unit.isDummy("target") then
                 if actionList.HighPrioActions() then return true end
                 if not var.garg_setup_complete then
                     if actionList.GargSetup() then return true end
-                end                    
-            end     
-            
+                end
+            end
+
             if var.st_planning then
                 if actionList.Cooldown() then return true end
             end
-            
+
             --AOE Rotatation
             if #enemies.yards8 >= ui.value(text.aoe.aoeCount) then
                 if cd.deathAndDecay.remains() < 10 and not buff.deathAndDecay.exists() then
                     if actionList.AOESetup() then return true end
-                end    
+                end
                 if #enemies.yards5f >= ui.value(text.aoe.aoeCount) and buff.deathAndDecay.exists() then
                     if actionList.AOEBurst() then return true end
                 end
                 if #enemies.yards5f >= ui.value(text.aoe.aoeCount) and (cd.deathAndDecay.remains() >10 and not buff.deathAndDecay.exists()) then
                     if actionList.AOE() then return true end
                 end
-            else                
+            else
                 if actionList.St() then return true end
             end
             if cast.able.autoAttack("target") and unit.distance("target") <= 5 then
@@ -1036,7 +1036,7 @@ local function runRotation() -- This is the main profile loop, any below this po
         end -- End In Combat Rotation
     end -- Pause
 end -- End runRotation
-local id = 252 
+local id = 252
 -- DO NOT EDIT ANYTHING BELOW THIS LINE, WILL BREAK PROFILE --
 if br.rotations[id] == nil then br.rotations[id] = {} end
 tinsert(br.rotations[id],{

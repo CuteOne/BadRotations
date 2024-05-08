@@ -7,7 +7,7 @@ local smartQueueFrame
 local ignoreKeys = {["LALT"] = true, ["LSHIFT"] = true, ["LCTRL"] = true}
 
 local function checkKeys(self, key)
-	if br.player ~= nil and br.player.spell ~= nil and br.player.spell.bindings ~= nil and ignoreKeys[key] == nil and br.isChecked("Smart Queue") and br._G.UnitAffectingCombat("player") then
+	if br.player ~= nil and br.player.spells ~= nil and br.player.spells.bindings ~= nil and ignoreKeys[key] == nil and br.isChecked("Smart Queue") and br._G.UnitAffectingCombat("player") then
 		local pressedKey = ""
 		if br._G.IsLeftShiftKeyDown() then
 			pressedKey = "SHIFT-"
@@ -17,7 +17,7 @@ local function checkKeys(self, key)
 			pressedKey = "CTRL-"
 		end
 		pressedKey = pressedKey .. key
-		local spell = br.player.spell.bindings[pressedKey]
+		local spell = br.player.spells.bindings[pressedKey]
 		if spell ~= nil then
 			local cd = br.getSpellCD(spell)
 			if br._G.GetSpellInfo(br._G.GetSpellInfo(spell)) and cd <= br.getOptionValue("Smart Queue") and br.isChecked(br._G.GetSpellInfo(spell) .. " (Queue)") and (cd > 0 or br._G.IsUsableSpell(spell) == false or br._G.UnitCastingInfo("player")) then
@@ -71,9 +71,9 @@ local function GetKeyBindings()
 		end
 		return name
 	end
-	if br.player ~= nil and br.player.spell ~= nil then
-		br.player.spell.bindings = {}
-		for _, v in pairs(br.player.spell.abilities) do
+	if br.player ~= nil and br.player.spells ~= nil then
+		br.player.spells.bindings = {}
+		for _, v in pairs(br.player.spells.abilities) do
 			local slot = br._G.C_ActionBar.FindSpellActionButtons(v)
 			if slot ~= nil then
 				local _, id, _ = br._G.GetActionInfo(slot[1])
@@ -81,16 +81,16 @@ local function GetKeyBindings()
 					for _, y in pairs(slot) do
 						local key, key2 = br._G.GetBindingKey(GetActionbarSlot(y))
 						if key ~= nil then
-							br.player.spell.bindings[key] = v
+							br.player.spells.bindings[key] = v
 						end
 						if key2 ~= nil then
-							br.player.spell.bindings[key2] = v
+							br.player.spells.bindings[key2] = v
 						end
 					end
 				end
 			end
 		end
-		--for i,v in pairs(br.player.spell.bindings) do print(i,v) end
+		--for i,v in pairs(br.player.spells.bindings) do print(i,v) end
 	end
 end
 local function spellSuccess(self, event, ...)
@@ -124,13 +124,13 @@ function br.smartQueue()
             checkKeys(nil, "BUTTON5")
         end
     end
-    
+
     if br.queueSpell and (br._G.GetTime() - queueSpellTime) > br.getOptionValue("Smart Queue") then
         br.queueSpell = false
     end
 
     if br.queueSpell and br.isChecked("Smart Queue") and (((br._G.GetTime() - queueSpellTime) <= br.getOptionValue("Smart Queue") and not br._G.UnitChannelInfo("player")
-			and (br._G.UnitIsVisible(queueSpellTarget) or br.getOptionValue(br._G.GetSpellInfo(br.queueSpell) .. " (Queue)") == 2) and br._G.UnitAffectingCombat("player")) 
+			and (br._G.UnitIsVisible(queueSpellTarget) or br.getOptionValue(br._G.GetSpellInfo(br.queueSpell) .. " (Queue)") == 2) and br._G.UnitAffectingCombat("player"))
 		or (br._G.IsAoEPending() and br.isChecked("Smart Queue") and br.isChecked(br._G.GetSpellInfo(br.queueSpell) .. " (Queue)") and br._G.UnitAffectingCombat("player")))
 		and (br.queueSpell ~= 1776 or br.getFacing("target", "player"))
 	then
