@@ -82,19 +82,19 @@ Raidable means if its good to raid with.
 
 |      rotation      |   author   |patch |coverage|status|    readiness     |last updated|
 |--------------------|------------|:----:|:------:|:----:|:----------------:|-----------:|
-|BrewBloodKnight-SimC|BrewingCoder|10.2.5|  100%  | Full |:white_check_mark:|  03/15/2024|
+|BrewBloodKnight-SimC|BrewingCoder|10.2.5|  100%  | Full |:white_check_mark:|  05/08/2024|
 
 - Frost
 
 | rotation  |   author   |patch |coverage|  status   |  readiness  |last updated|
 |-----------|------------|:----:|:------:|:---------:|:-----------:|-----------:|
-|BrewDKFrost|BrewingCoder|10.2.6|   0%   |Development|:interrobang:|  05/07/2024|
+|BrewDKFrost|BrewingCoder|10.2.6|   0%   |Development|:interrobang:|  05/08/2024|
 
 - Unholy
 
 |  rotation  |   author   |patch |coverage|status |  readiness  |last updated|
 |------------|------------|:----:|:------:|:-----:|:-----------:|-----------:|
-|BrewUnholyDK|BrewingCoder|10.2.5|  90%   |Limited|:interrobang:|  03/15/2024|
+|BrewUnholyDK|BrewingCoder|10.2.5|  90%   |Limited|:interrobang:|  05/08/2024|
 
 
 ### Demon Hunter
@@ -103,13 +103,13 @@ Raidable means if its good to raid with.
 
 |rotation|author |patch|coverage|status|  readiness  |last updated|
 |--------|-------|:---:|:------:|:----:|:-----------:|-----------:|
-|CuteOne |CuteOne|10.2 |  100%  | Full |:interrobang:|  01/20/2024|
+|CuteOne |CuteOne|10.2 |  100%  | Full |:interrobang:|  05/08/2024|
 
 - Vengeance
 
 |rotation|author |patch|coverage|status |    readiness     |last updated|
 |--------|-------|:---:|:------:|:-----:|:----------------:|-----------:|
-|CuteOne |CuteOne|10.2 |  100%  |Limited|:white_check_mark:|  12/23/2023|
+|CuteOne |CuteOne|10.2 |  100%  |Limited|:white_check_mark:|  05/08/2024|
 
 
 ### Druid
@@ -118,7 +118,7 @@ Raidable means if its good to raid with.
 
 |rotation|author |patch|coverage|status|  readiness  |last updated|
 |--------|-------|:---:|:------:|:----:|:-----------:|-----------:|
-|CuteOne |CuteOne|10.2 |  100%  | Full |:interrobang:|  01/20/2024|
+|CuteOne |CuteOne|10.2 |  100%  | Full |:interrobang:|  05/08/2024|
 
 
 ### Evoker
@@ -130,7 +130,7 @@ Raidable means if its good to raid with.
 
 |   rotation    |   author   |patch |coverage|status |  readiness  |last updated|
 |---------------|------------|:----:|:------:|:-----:|:-----------:|-----------:|
-|BrewBeastMaster|BrewingCoder|10.2.6|  75%   |Limited|:interrobang:|  04/08/2024|
+|BrewBeastMaster|BrewingCoder|10.2.6|  75%   |Limited|:interrobang:|  05/08/2024|
 
 
 ### Mage
@@ -142,20 +142,20 @@ Raidable means if its good to raid with.
 
 |   rotation   |   author   |patch |coverage|        status        |  readiness  |last updated|
 |--------------|------------|:----:|:------:|:--------------------:|:-----------:|-----------:|
-|BrewBrewMaster|BrewingCoder|10.2.5|  90%   |Limited,Hardcoded Vals|:interrobang:|  03/15/2024|
+|BrewBrewMaster|BrewingCoder|10.2.5|  90%   |Limited,Hardcoded Vals|:interrobang:|  05/08/2024|
 
 - MistWeaver
 
 |   rotation   |          author           |patch |coverage|status|    readiness     |last updated|
 |--------------|---------------------------|:----:|:------:|:----:|:----------------:|-----------:|
-|BrewMistWeaver|BrewingCoder/SinWeaver/Lylo|10.2.5|  100%  | Full |:white_check_mark:|  03/12/2024|
+|BrewMistWeaver|BrewingCoder/SinWeaver/Lylo|10.2.5|  100%  | Full |:white_check_mark:|  05/08/2024|
 
 - WindWalker
 
 |   rotation   |   author   | patch |coverage|status |  readiness  |last updated|
 |--------------|------------|:-----:|:------:|:-----:|:-----------:|-----------:|
-|BrewWWPVE     |BrewingCoder|Unknown|Unknown |Unknown|:interrobang:|  05/07/2024|
-|BrewWindWalker|BrewingCoder|10.2.5 |  95%   |Limited|:interrobang:|  05/07/2024|
+|BrewWWPVE     |BrewingCoder|Unknown|Unknown |Unknown|:interrobang:|  05/08/2024|
+|BrewWindWalker|BrewingCoder|10.2.5 |  95%   |Limited|:interrobang:|  05/08/2024|
 
 
 ### Paladin
@@ -176,19 +176,19 @@ Raidable means if its good to raid with.
 
 |   rotation   |   author   |patch |coverage|  status   |  readiness  |last updated|
 |--------------|------------|:----:|:------:|:---------:|:-----------:|-----------:|
-|BrewAffliction|BrewingCoder|10.2.6|  50%   |Development|:interrobang:|  05/07/2024|
+|BrewAffliction|BrewingCoder|10.2.6|  50%   |Development|:interrobang:|  05/08/2024|
 
 - Demonology
 
 |rotation |   author   |patch |coverage|  status   |  readiness  |last updated|
 |---------|------------|:----:|:------:|:---------:|:-----------:|-----------:|
-|BrewDemon|BrewingCoder|10.2.6|  50%   |Development|:interrobang:|  05/07/2024|
+|BrewDemon|BrewingCoder|10.2.6|  50%   |Development|:interrobang:|  05/08/2024|
 
 - Destruction
 
 | rotation |   author   | patch |coverage|status |  readiness  |last updated|
 |----------|------------|:-----:|:------:|:-----:|:-----------:|-----------:|
-|BrewDestro|BrewingCoder|Unknown|Unknown |Unknown|:interrobang:|  04/23/2024|
+|BrewDestro|BrewingCoder|Unknown|Unknown |Unknown|:interrobang:|  05/08/2024|
 
 
 ### Warrior
@@ -197,5 +197,5 @@ Raidable means if its good to raid with.
 
 |    rotation    |   author   |patch |coverage|status |  readiness  |last updated|
 |----------------|------------|:----:|:------:|:-----:|:-----------:|-----------:|
-|BrewFuryLeveling|BrewingCoder|10.2.6|  20%   |Limited|:interrobang:|  05/03/2024|
+|BrewFuryLeveling|BrewingCoder|10.2.6|  20%   |Limited|:interrobang:|  05/08/2024|
 
