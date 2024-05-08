@@ -3,27 +3,29 @@ name: Discord Notification
 on:
   push:
     paths-ignore:
-      - '.github/**'
-      - '.gitignore'
-      - '.gitattributes'
-      - '.luacheckrc'
-      - 'config.ld'
-      - 'README.md'
-      - 'LICENSE'
-      - 'Rotations/Old/**'
-      - 'Rotations/sample rotation.lua'
-      - 'System/API/**' # Temp Ignore API Folder
+      - ".github/**"
+      - ".gitignore"
+      - ".gitattributes"
+      - ".luacheckrc"
+      - "config.ld"
+      - "README.md"
+      - "LICENSE"
+      - "Rotations/Old/**"
+      - "Rotations/sample rotation.lua"
+      - "System/API/**" # Temp Ignore API Folder
 
 jobs:
-    Discord_notification:
-        runs-on: ubuntu-latest
-        steps:
-        - name: Checkout repository
-          uses: actions/checkout@v4
-        - name: Run Discord Webhook
-          uses: mrrobotdotapp/classic-discord-webhook@main
-          with:
-            id: ${{ secrets.DISCORD_WEBHOOK_ID }}
-            token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
-            # threadId is optional and only if you want to post in a specific thread
-            # threadId: ${{ secrets.DISCORD_WEBHOOK_THREAD_ID }}
+  Discord_notification:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          path: master
+      - name: Run Discord Webhook
+        uses: mrrobotdotapp/classic-discord-webhook@main
+        with:
+          id: ${{ secrets.DISCORD_WEBHOOK_ID }}
+          token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
+          # threadId is optional and only if you want to post in a specific thread
+          # threadId: ${{ secrets.DISCORD_WEBHOOK_THREAD_ID }}
