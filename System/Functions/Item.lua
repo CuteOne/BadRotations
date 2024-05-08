@@ -173,6 +173,7 @@ function br.TierScan(thisTier)
 end
 
 function br.hasEquiped(ItemID, Slot)
+	if ItemID == nil then return false end
 	if br._G.PlayerHasToy(ItemID) then
 		return true
 	end

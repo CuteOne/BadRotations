@@ -5,7 +5,7 @@
 -- Status = Development
 -- Readiness = Development
 -------------------------------------------------------
-local rotationName = "BrewDemon"
+local rotationName = "BrewAffliction"
 
 local colors = {
     blue    = "|cff4285F4",
@@ -130,7 +130,6 @@ local enemies
 local talent
 local actionList = {}
 local activePet
-local dynamic
 
 
 local function round(number, digit_position) 
@@ -203,31 +202,16 @@ actionList.PreCombat = function()
     
     -- if unit.inCombat() and unit.valid("target") and not var.profileStop then 
     if not unit.inCombat() and  unit.valid("target") and unit.distance("target") <= 40 then
-        if cast.able.curseOfExhaustion("target") and not debuff.curseOfExhaustion.exists("target") then
-            if cast.curseOfExhaustion("target") then ui.debug("Casting Curse of Exhaustion") return true end
+        if cast.able.agony("target") and not debuff.agony.exists("target") then
+            if cast.agony("target") then ui.debug("[PreCombat] Agony") return true end
         end
     end
 end
 
 actionList.CoolDown = function()
-    if  cast.able.callDreadstalkers() then
-        if cast.callDreadstalkers("target") then ui.debug("Casting Call Dreadstalkers") return true end
-    end
-    if power == 5 and cast.able.handOfGuldan() then
-        if cast.handOfGuldan("target") then ui.debug("Casting Hand of Guldan") return true end
-    end    
+     
 
-    if activePet == pets.felguard and cast.able.demonicStrength() then
-        if cast.demonicStrength("pet") then ui.debug("Casting Demonic Strength") return true end
-    end
-
-    if cast.able.powerSiphon("target") then
-        if cast.powerSiphon("target") then ui.debug("Casting Power Siphon") return true end
-    end
-
-    if cast.able.grimoireFelguard() then
-        if cast.grimoireFelguard() then ui.debug("Casting Grimoire Felguard") return true end
-    end
+    
 end
 
 local function runRotation()
@@ -274,52 +258,24 @@ local function runRotation()
     enemies.get(30,"player",false,true)
     enemies.get(40,"player",false,true)
 
-    dynamic       = {
-        range5          = br.player.units.get(5),
-        range40         = br.player.units.get(40)
-    }
-
-    var.UnitNeedsCurse = nil
+    var.UnitNeedsAgony = nil
+    var.AgonyCount = 0
     for i=1,#enemies.yards40f do
-        if not debuff.curseOfExhaustion.exists(enemies.yards40f[i]) and br._G.UnitAffectingCombat(enemies.yards40f[i]) then
-            var.UnitNeedsCurse = enemies.yards40f[i]
+        if not debuff.agony.exists(enemies.yards40f[i]) and br._G.UnitAffectingCombat(enemies.yards40f[i]) then
+            var.UnitNeedsAgony = enemies.yards40f[i]
+        else            
+            var.AgonyCount = var.AgonyCount + 1
         end
     end
-
-    var.impCount = 0
-    var.wildImpCount = 0
-    var.BossImpCount = 0
-    for i=1,br._G.GetObjectCount() do
-        local objFound = br._G.GetObjectWithIndex(i)
-        if objFound ~= nil then
-        local creator = br._G.UnitCreator(objFound)
-        local objType = br._G.ObjectType(objFound)
-        local objName = br._G.ObjectName(objFound)
-            if objName == "Wild Imp" then
-                var.impCount = var.impCount + 1
-                var.wildImpCount = var.wildImpCount + 1
-            end
-            if objName =="Imp Gang Boss" then
-                var.ImpCount = var.ImpCount + 1
-                var.BossImpCount = var.BossImpCount + 1
-            end
+    var.UnitsNeedCorruption = nil
+    var.CorruptionCount = 0
+    for i=1,#enemies.yards40f do
+        if not debuff.corruption.exists(enemies.yards40f[i]) and br._G.UnitAffectingCombat(enemies.yards40f[i]) then
+            var.UnitsNeedCorruption = enemies.yards40f[i]
+        else                
+            var.CorruptionCount = var.CorruptionCount + 1
         end
     end
-
-    --Simulationcraft Variables
-    --actions.precombat+=/variable,name=tyrant_prep_start,op=set,value=12
-    var.tyrant_prep_start = 12
-    --actions.precombat+=/variable,name=next_tyrant,op=set,value=14+talent.grimoire_felguard+talent.summon_vilefiend
-    var.next_tyrant = 14 + boolNumeric(talent.grimoireFelguard) + boolNumeric(talent.summonVilefiend)
-    --actions.precombat+=/variable,name=shadow_timings,default=0,op=reset
-    var.shadow_timings = 0
-    --actions.precombat+=/variable,name=tyrant_timings,value=0
-    var.tyrant_timings = 0
-    --actions.precombat+=/variable,name=shadow_timings,op=set,value=0,if=cooldown.invoke_power_infusion_0.duration!=120
-    if cd.invokePowerInfusion.duration ~= 120 then
-        var.shadow_timings = 0
-    end
- 
 
 
     -- Pause Timer
@@ -337,28 +293,38 @@ local function runRotation()
             if actionList.Interrupt() then return true end
             if actionList.CoolDown() then return true end
 
-            --Exhaustion
-            if var.UnitNeedsCurse ~= nil and cast.able.curseOfExhaustion(var.UnitNeedsCurse) then 
-                if cast.curseOfExhaustion(var.UnitNeedsCurse) then ui.debug("Casting Curse of Exhaustion") return true end
-            end
-            if cast.able.curseOfExhaustion("target") and (not debuff.curseOfExhaustion.exists("target") or debuff.curseOfExhaustion.remains("target") < 2) then
-                if cast.curseOfExhaustion("target") then ui.debug("Casting Curse of Exhaustion") return true end
+            if cast.able.agony("target") and not debuff.agony.exists("target") then
+                if cast.agony("target") then ui.debug("Casting Agony") return true end
             end
 
+            if var.UnitNeedsAgony ~= nil and cast.able.agony(var.UnitNeedsAgony) then
+                if cast.agony(var.UnitNeedsAgony) then ui.debug("Casting Agony") return true end
+            end
 
-                if cast.able.demonbolt() and buff.demonicCore.exists() then
-                    if cast.demonbolt("target") then ui.debug("Casting Demonbolt") return true end
-                end
-                if cast.able.shadowBolt() and not unit.moving() then
-                    if cast.shadowBolt() then ui.debug("Casting Shadow Bolt") return true end
-                end
-                if cast.able.implosion("target") and #enemies.yards40 >= 3 then
-                    if cast.implosion("target") then ui.debug("Casting Implosion") return true end
-                end
+            if cast.able.corruption("target") and not debuff.corruption.exists("target") then
+                if cast.corruption("target") then ui.debug("Casting Corruption") return true end
+            end
+            if var.UnitsNeedCorruption ~= nil and cast.able.corruption(var.UnitsNeedCorruption) then
+                if cast.corruption(var.UnitsNeedCorruption) then ui.debug("Casting Corruption") return true end
+            end
+
+            if cast.able.maleficRapture() then
+                print("Corruption Count: "..var.CorruptionCount)
+                print("Agony Count: "..var.AgonyCount)
+                print("Enemies in 40 yards: "..#enemies.yards40f)
+            end
+
+            if cast.able.maleficRapture() and var.CorruptionCount == #enemies.yards40f and var.AgonyCount == #enemies.yards40f and not cast.last.maleficRapture() then
+                if cast.maleficRapture() then ui.debug("Casting Malefic Rapture") return true end
+            end
+
+          
+              
         end
     end
 end 
-local id = 266  -- Demonology Warlock
+local id = 265  -- Affliction Warlock
+
 if br.rotations[id] == nil then br.rotations[id] = {} end
 tinsert(br.rotations[id],{
     name = rotationName,

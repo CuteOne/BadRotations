@@ -108,16 +108,20 @@ local units
 local var
 local chi
 
--- Any variables/functions made should have a local here to prevent possible conflicts with other things.
-
-
------------------
---- Functions --- -- List all profile specific custom functions here
------------------
+local getRealHP = function(Unit)
+    if Unit ~= nil then
+        if br.GetObjectExists(Unit) and br.GetUnitIsVisible(Unit) and not br.GetUnitIsDeadOrGhost(Unit) then
+        return 100*(br._G.UnitHealth(Unit)+br._G.UnitGetIncomingHeals(Unit,"player"))/br._G.UnitHealthMax(Unit)
+        end
+    else
+        return 100
+    end        
+end
 
 --------------------
 --- Action Lists --- -- All Action List functions from SimC (or other rotation logic) here, some common ones provided
 --------------------
+
 local actionList = {} -- Table for holding action lists.
 -- Action List - Extra
 actionList.Extra = function()
@@ -140,10 +144,18 @@ end -- End Action List - Extra
 
 -- Action List - Defensive
 actionList.Defensive = function()
-    if br.getHP("player") <= 50 and cast.able.touchOfKarma("player") then
+    if getRealHP("player") <= 90 and cast.able.expelHarm() and chi < 6 then
+        if cast.expelHarm() then ui.debug("CAST Expel Harm"); return true; end
+    end
+
+    if getRealHP("player") <= 75 and cast.able.vivify() and not cast.last.vivify() then
+        if cast.vivify("player") then ui.debug("DEFENSE: Vivify"); return true; end
+    end
+
+    if getRealHP("player") <= 50 and cast.able.touchOfKarma("player") then
         if cast.touchOfKarma("player") then ui.debug("DEFENSE: Touch of Karma") return true; end
     end
-    if br.getHP("player") <= 50 and cast.able.fortifyingBrew("player") then
+    if getRealHP("player") <= 60 and cast.able.fortifyingBrew("player") then
         if cast.fortifyingBrew("player") then ui.debug("DEFENSE: fortifyingBrew") return true; end
     end
 end -- End Action List - Defensive
@@ -165,9 +177,14 @@ actionList.PreCombat = function()
             -- Logic based on pull timers (IE: DBM/BigWigs)
         end -- End Pre-Pull
         if unit.valid("target") then -- Abilities below this only used when target is valid
-            
-            
 
+            if br.unlocker == "Tinkr" and not br.getFacing("player","target")  then
+                return br._G.FaceObject("target")
+            end
+
+            if br.unlocker == "Tinkr" and unit.distance("target") > 5  then
+                return br._G.MoveToRaw(br._G.ObjectRawPosition("target"))
+            end
 
             -- Start Attack
             if unit.distance("target") < 5 then -- Starts attacking if enemy is within 5yrds
@@ -244,10 +261,16 @@ local function runRotation() -- This is the main profile loop, any below this po
             ------------
             --- Main ---
             ------------
+            if br.unlocker == "Tinkr"  then
+                br._G.FaceObject("target")
+            end
 
             --- Priority PROCS
             if buff.danceOfChiJi.exists() then
                 ui.debug("PROC BUFF of Chi-Ji, Castable: " .. tostring(cast.able.spinningCraneKick()))
+            end
+            if buff.blackoutKick.exists() and not cast.last.blackoutKick() and cast.able.blackoutKick("target") then
+                if cast.blackoutKick("target") then ui.debug("PROC Blackout Kick"); return true; end;
             end
             
             if buff.danceOfChiJi.exists() and cast.able.spinningCraneKick() then
@@ -256,6 +279,7 @@ local function runRotation() -- This is the main profile loop, any below this po
             if buff.teachingsOfTheMonastery.exists() and cast.able.blackoutKick("target") then
                 if cast.blackoutKick("target") then ui.debug("PROC Teachings: Blackout Kick"); return true; end;
             end
+
 
             -- Priority, don don't let chi cap
             if chi == 6 and cast.able.blackoutKick("target") and not cast.last.blackoutKick(1) then
@@ -267,9 +291,7 @@ local function runRotation() -- This is the main profile loop, any below this po
                 if cast.touchOfDeath("target") then ui.debug("CAST touch of Death"); return true; end;
             end
 
-            if cast.able.expelHarm() and chi < 6 then
-                if cast.expelHarm() then ui.debug("CAST Expel Harm"); return true; end
-            end
+            
 
             if cast.able.tigerPalm() and chi < 5 and not (buff.serenity.exists() and cast.last.tigerPalm(1)) then
                 if cast.tigerPalm("target") then ui.debug("Cast Tiger Palm"); return true; end
@@ -291,7 +313,7 @@ local function runRotation() -- This is the main profile loop, any below this po
                 if cast.fistsOfFury("target") then ui.debug("CAST Fist of Fury"); return true; end
             end
 
-            if cast.able.blackoutKick("target") and chi >= 1 then
+            if cast.able.blackoutKick("target") and chi >= 1 and not cast.last.blackoutKick(1) then
                 if cast.blackoutKick("target") then ui.debug("CAST blackout Kick"); return true; end;
             end
 
@@ -305,10 +327,6 @@ local function runRotation() -- This is the main profile loop, any below this po
             if cast.able.chiWave() then
                 if cast.chiWave() then ui.debug("CAST: Chi Wave"); return true; end;
             end 
-
-
-
-
 
             -- Start Attack - This will start auto attacking your target if it's within 5yrds and valid
             if unit.distance("target") <= 5 then

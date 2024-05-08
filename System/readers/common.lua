@@ -8,7 +8,7 @@ function br.read.commonReaders()
 	--[[ Bag Update ]]
 	local Frame = br._G.CreateFrame("Frame")
 	Frame:RegisterEvent("BAG_UPDATE")
-	local function BagUpdate(self, event, ...)
+	local function BagUpdate(_, event, _)
 		if event == "BAG_UPDATE" then
 			br.bagsUpdated = true
 		end
@@ -18,7 +18,7 @@ function br.read.commonReaders()
 	--[[ Loss of control ]]
 	local frame = br._G.CreateFrame("Frame")
 	frame:RegisterEvent("LOSS_OF_CONTROL_UPDATE")
-	local function lostControl(self, event, ...)
+	local function lostControl(_, _, ...)
 		-- Print(...)
 	end
 	frame:SetScript("OnEvent", lostControl)
@@ -26,14 +26,14 @@ function br.read.commonReaders()
 	--[[ Auto Join]]
 	Frame = br._G.CreateFrame("Frame")
 	Frame:RegisterEvent("LFG_PROPOSAL_SHOW")
-	local function MerchantShow(self, event, ...)
+	local function MerchantShow_AutoJoin(_, event, _)
 		if br.getOptionCheck("Accept Queues") == true then
 			if event == "LFG_PROPOSAL_SHOW" then
 				br.readyToAccept = br._G.GetTime()
 			end
 		end
 	end
-	Frame:SetScript("OnEvent", MerchantShow)
+	Frame:SetScript("OnEvent", MerchantShow_AutoJoin)
 	--------------
 	-- --[[ Eclipse]] -- Errors in Patch 8.0 (BfA)
 	-- local Frame = CreateFrame('Frame')
@@ -86,19 +86,19 @@ function br.read.commonReaders()
 	--[[ Merchant Show --]]
 	Frame = br._G.CreateFrame("Frame")
 	Frame:RegisterEvent("MERCHANT_SHOW")
-	local function MerchantShow(self, event, ...)
+	local function MerchantShow_AutoSellRepair(_, event, _)
 		if event == "MERCHANT_SHOW" then
 			if br.getOptionCheck("Auto-Sell/Repair") then
 				br.SellGreys()
 			end
 		end
 	end
-	Frame:SetScript("OnEvent", MerchantShow)
+	Frame:SetScript("OnEvent", MerchantShow_AutoSellRepair)
 	-------------------------
 	--[[ Entering Combat --]]
 	Frame = br._G.CreateFrame("Frame")
 	Frame:RegisterEvent("PLAYER_REGEN_DISABLED")
-	local function EnteringCombat(self, event, ...)
+	local function EnteringCombat(_, event, _)
 		if event == "PLAYER_REGEN_DISABLED" then
 			-- here we should manage stats snapshots
 			br.AgiSnap = br.getAgility()
@@ -114,7 +114,7 @@ function br.read.commonReaders()
 	--[[ Leaving Combat --]]
 	Frame = br._G.CreateFrame("Frame")
 	Frame:RegisterEvent("PLAYER_REGEN_ENABLED")
-	local function LeavingCombat(self, event, ...)
+	local function LeavingCombat(_, event, _)
 		if event == "PLAYER_REGEN_ENABLED" then
 			-- start loot manager
 			if br.lM then
@@ -147,7 +147,7 @@ function br.read.commonReaders()
 	--[[ UI Error Messages --]]
 	Frame = br._G.CreateFrame("Frame")
 	Frame:RegisterEvent("UI_ERROR_MESSAGE")
-	local function UiErrorMessages(self, event, errorType, message)
+	local function UiErrorMessages(_, _, errorType, _)
 		br.lastError = br._G.GetGameMessageInfo(errorType)
 		br.lastErrorTime = br._G.GetTime()
 		local param = br.lastError
@@ -199,7 +199,7 @@ function br.read.commonReaders()
 	--[[ Spells Changed --]]
 	Frame = br._G.CreateFrame("Frame")
 	Frame:RegisterEvent("LEARNED_SPELL_IN_TAB")
-	local function SpellsChanged(self, event, ...)
+	local function SpellsChanged(_, _, _)
 		if not br.configReloadTimer or br.configReloadTimer <= br._G.GetTime() - 1 then
 			br.currentConfig, br.configReloadTimer = nil, br._G.GetTime()
 		end
@@ -336,7 +336,7 @@ function br.read.commonReaders()
 	superReaderFrame:RegisterUnitEvent("UI_ERROR_MESSAGE")
 	superReaderFrame:RegisterEvent("LOADING_SCREEN_ENABLED")
 	superReaderFrame:RegisterEvent("LOADING_SCREEN_DISABLED")
-	local function SuperReader(self, event, ...)
+	local function SuperReader(_, event, ...)
 		-- Aura Max Stacks
 		if event == "UNIT_AURA" then
 			local unitTarget, updateInfo = ...
@@ -379,7 +379,7 @@ function br.read.commonReaders()
 		--[[ SpellCast Sents (used to define target) --]]
 		if event == "UNIT_SPELLCAST_SENT" then
 			local SourceUnit = select(1, ...)
-			local SpellID = select(4, ...)
+			-- local SpellID = select(4, ...)
 			br.spellCastTarget = select(2, ...)
 			--Print("UNIT_SPELLCAST_SENT spellCastTarget = "..spellCastTarget)
 			-- local MyClass = select(2, br._G.UnitClass("player"))
