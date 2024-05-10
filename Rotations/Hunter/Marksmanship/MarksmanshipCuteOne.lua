@@ -244,7 +244,9 @@ actionList.Extras = function()
         unit.clearTarget()
     end
     -- Hunter's Mark
-    if ui.checked("Hunter's Mark") and cast.able.huntersMark("target") and not debuff.huntersMark.exists("target") then
+    if ui.checked("Hunter's Mark") and cast.able.huntersMark("target") and not debuff.huntersMark.exists("target")
+        and not unit.friend("target") and unit.hp("target") > 80
+    then
         if cast.huntersMark("target") then
             ui.debug("Cast Hunter's Mark")
             return true
@@ -443,12 +445,11 @@ actionList.Cooldowns = function()
         end
         -- Module - Combatpotion Up
         -- potion,if=buff.trueshot.up&(buff.bloodlust.up|target.health.pct<20)|fight_remains<26
-        if buff.trueshot.exists()
-            and (buff.bloodLust.exists()
-                or unit.hp(units.dyn40) < 20)
+        if ui.checked("Use Combat Potion") and buff.trueshot.exists()
+            and (buff.bloodLust.exists() or unit.hp(units.dyn40) < 20)
             or unit.ttdGroup(40) < 26
         then
-            module.CombatpotionUp()
+            module.CombatPotionUp()
         end
         -- Salvo
         -- salvo,if=active_enemies>2|cooldown.volley.remains<10
@@ -847,10 +848,14 @@ end -- End Action List - St
 actionList.PreCombat = function()
     if not unit.inCombat() and not buff.feignDeath.exists() then
         -- Module PhialUp
-        module.PhialUp()
+        if ui.checked("Use DF Phial") then
+            module.PhialUp()
+        end
         -- Module - Imbue Up
         -- augmentation
-        module.ImbueUp()
+        if ui.checked("Weapon Imbuement") then
+            module.ImbueUp()
+        end
         -- Summon Pet
         -- summon_pet
         -- if actionList.PetManagement() then ui.debug("") return true end
