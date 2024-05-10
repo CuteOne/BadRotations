@@ -9,7 +9,7 @@ local _, br = ...
 
 if br.api == nil then br.api = {} end
 
-br.api.cd = function(self,spell,id)
+br.api.cd = function(self, spell, id)
     self.cd = self.cd or {}
     local cd = self.cd
 
@@ -79,7 +79,7 @@ br.api.cd = function(self,spell,id)
     end
 end
 
-br.api.itemCD = function(self,item,id)
+br.api.itemCD = function(self, item, id)
     --if self[item] == nil then self[item] = {} end
     local cd = self
 
@@ -101,7 +101,7 @@ br.api.itemCD = function(self,item,id)
     -- @within cd.item
     cd[item].remain = function()
         if br._G.GetItemCooldown(id) ~= 0 then
-            return (br._G.GetItemCooldown(id) + select(2,br._G.GetItemCooldown(id)) - br._G.GetTime())
+            return (br._G.GetItemCooldown(id) + select(2, br._G.GetItemCooldown(id)) - br._G.GetTime())
         end
         return 0
     end
@@ -111,7 +111,7 @@ br.api.itemCD = function(self,item,id)
     -- @return number
     -- @within cd.item
     cd[item].duration = function()
-        return br._G.GetSpellBaseCooldown(select(2,br._G.GetItemSpell(id))) / 1000
+        return br._G.GetSpellBaseCooldown(select(2, br._G.GetItemSpell(id))) / 1000
     end
 
     --- Equipment Slot Cooldown Functions
@@ -135,6 +135,28 @@ br.api.itemCD = function(self,item,id)
     -- @return number
     -- @within cd.slot
     cd.slot.remain = function(slotID)
+        if slotID == nil then return nil end
+        local start, duration, enable = br._G.GetInventoryItemCooldown("player", slotID)
+        if enable == 0 or duration == 0 then
+            return 0 -- No cooldown is active, or the item has no cooldown
+        else
+            local currentTime = br._G.GetTime()
+            local endTime = start + duration
+            local timeRemaining = endTime - currentTime
+            if timeRemaining < 0 then
+                timeRemaining = 0 -- To avoid negative values if checked right as cooldown ends
+            end
+            return timeRemaining
+        end
+    end
+
+    --- Gets the time remaining on the equipment slot item cooldown or 0 if not.
+    -- @function cd.slot.remains
+    -- @param slotID - The ID of the equipment slot to check.
+    -- @return number
+    -- @within cd.slot
+    -- @see cd.slot.remain
+    cd.slot.remains = function(slotID)
         if slotID == nil then return nil end
         local start, duration, enable = br._G.GetInventoryItemCooldown("player", slotID)
         if enable == 0 or duration == 0 then
