@@ -301,7 +301,7 @@ function br.hasThreat(unit, playerUnit)
 	end
 	-- Player Threat Valdation
 	if threatSituation(playerUnit, unit) then
-		if br.isChecked("Cast Debug") then--and not br.GetObjectExists("target") then
+		if br.isChecked("Threat Debug") then
 			br._G.print("[Player Threat] "..br._G.UnitName(playerUnit).." has threat with "..br._G.UnitName(unit))
 		end
 		return true
