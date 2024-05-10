@@ -157,18 +157,15 @@ br.api.itemCD = function(self, item, id)
     -- @within cd.slot
     -- @see cd.slot.remain
     cd.slot.remains = function(slotID)
-        if slotID == nil then return nil end
-        local start, duration, enable = br._G.GetInventoryItemCooldown("player", slotID)
-        if enable == 0 or duration == 0 then
-            return 0 -- No cooldown is active, or the item has no cooldown
-        else
-            local currentTime = br._G.GetTime()
-            local endTime = start + duration
-            local timeRemaining = endTime - currentTime
-            if timeRemaining < 0 then
-                timeRemaining = 0 -- To avoid negative values if checked right as cooldown ends
-            end
-            return timeRemaining
-        end
+        return cd.slot.remain(slotID)
+    end
+
+    --- Returns if the item slot is off CD or not
+    -- @function cd.slot.ready
+    -- @param slotID - The ID of the equipment slot to check.
+    -- @return number
+    -- @within cd.slot
+    cd.slot.ready = function(slotID)
+        return cd.slot.remain(slotID) == 0
     end
 end
