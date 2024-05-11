@@ -248,6 +248,7 @@ actionList.PreCombat = function()
     if not unit.inCombat() then
         if unit.valid("target") then
             local thisDistance = unit.distance("target") or 99
+            -- Wrath
             if not unit.moving() and not (buff.catForm.exists() or buff.bearForm.exists()) and thisDistance < 40 then
                 if cast.able.wrath("target") and (unit.level() < 2 or not cast.last.wrath() or cast.timeSinceLast.wrath() > unit.gcd(true) + 0.5) then
                     if cast.wrath("target") then
@@ -297,11 +298,11 @@ local function runRotation()
     profileStop = profileStop or false
     haltProfile = (unit.inCombat() and profileStop) or br.pause() or ui.mode.rotation == 4 or unit.id("target") == 156716
     -- Units
-    units.get(5)       -- Makes a variable called, units.dyn5
+    units.get(5)        -- Makes a variable called, units.dyn5
     units.get(40, true) -- Makes a variable called, units.dyn40AOE
     -- Enemies
-    enemies.get(5)     -- Makes a varaible called, enemies.yards5
-    enemies.get(40)    -- Makes a varaible called, enemies.yards40
+    enemies.get(5)      -- Makes a varaible called, enemies.yards5
+    enemies.get(40)     -- Makes a varaible called, enemies.yards40
 
     -- Profile Specific Locals
     fbMaxEnergy = energy >= 50
