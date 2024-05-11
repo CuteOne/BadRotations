@@ -1562,6 +1562,7 @@ br.lists.spells = {
             },
             buffs     = {
                 aspectOfTheWild = 193530,
+                barbedShot      = 217200,
                 beastCleave     = 118455,
                 berserking      = 26297,
                 bestialWrath    = 19574,
@@ -1570,7 +1571,7 @@ br.lists.spells = {
                 frenzy          = 272790,
                 parselsTongue   = 248084,
                 spittingCobra   = 194407,
-                volley          = 194386
+                volley          = 194386,
             },
             debuffs   = {
                 barbedShot = 217200,
