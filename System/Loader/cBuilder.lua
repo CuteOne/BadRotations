@@ -50,19 +50,19 @@ function br.loader.loadProfiles()
     local IDLength = math.floor(math.log10(specID) + 1)
     local folderSpec = getFolderSpecName(class, specID)
     local path = getFilesLocation() .. sep .. 'Rotations' .. sep .. getFolderClassName(class) .. sep .. folderSpec .. sep
-    -- br._G.print("Path: "..tostring(path))
+    -- br._G.print("Path: " .. tostring(path))
     local profiles = br._G.GetDirectoryFiles(path)
-    -- br._G.print("Profiles: "..tostring(#profiles))
+    -- br._G.print("Profiles: " .. tostring(#profiles))
     for k, file in pairs(profiles) do
-        -- br._G.print("Path: "..path..", File: "..file)
+        -- br._G.print("Path: " .. path .. ", File: " .. file)
         local profile = br._G.ReadFile(path .. file) or ""
-        -- br._G.print("Profile: "..tostring(profile))
+        -- br._G.print("Profile: " .. tostring(profile))
         local start = string.find(profile, "local id = ", 1, true) or 0
         local stringEnd = start + IDLength + 10
         local profileID = math.floor(tonumber(string.sub(profile, start + 10, stringEnd)) or 0)
-        -- br._G.print("ProfileID: "..tostring(profileID)..", SpecID: "..tostring(specID))
+        -- br._G.print("ProfileID: " .. tostring(profileID) .. ", SpecID: " .. tostring(specID))
         if profileID == specID then
-            -- br._G.print("Loading Profile")
+            br._G.print("Loading Profile")
             loadFile(profile, file, false)
         end
     end

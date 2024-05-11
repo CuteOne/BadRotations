@@ -72,7 +72,7 @@ function br.useItem(itemID,thisUnit)
 			if br._G.GetItemCooldown(slotItemID) == 0 then
 				if not br.itemSpamDelay or br._G.GetTime() > br.itemSpamDelay then
 					-- br._G.RunMacroText("/use " .. select(1, GetItemInfo(slotItemID)))
-					br._G.UseItemByName(select(1,br._G.GetItemInfo(slotItemID)),thisUnit);
+					br._G.UseItemByName(select(1, br._G.GetItemInfo(slotItemID)), thisUnit);
 					br.itemSpamDelay = br._G.GetTime() + 1
 					return true
 				end
@@ -82,7 +82,7 @@ function br.useItem(itemID,thisUnit)
 		if br._G.GetItemCooldown(itemID) == 0 then
 			if not br.itemSpamDelay or br._G.GetTime() > br.itemSpamDelay then
 				-- br._G.RunMacroText("/use " .. select(1, GetItemInfo(itemID)))
-				br._G.UseItemByName(select(1,br._G.GetItemInfo(itemID)),thisUnit);
+				br._G.UseItemByName(select(1, br._G.GetItemInfo(itemID)), thisUnit);
 				br.itemSpamDelay = br._G.GetTime() + 1
 				return true
 			end

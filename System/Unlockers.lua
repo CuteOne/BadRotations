@@ -13,9 +13,9 @@ function br:loadUnlockerAPI()
     end
     -- Set Spell Queue Window
     --if class == 8 or class == 9 then
-        if unlocked and self.prevQueueWindow ~= 400 then
-            b.RunMacroText("/console SpellQueueWindow 400")
-        end
+    if unlocked and self.prevQueueWindow ~= 400 then
+        b.RunMacroText("/console SpellQueueWindow 400")
+    end
     --else
     --     if unlocked and self.prevQueueWindow ~= 0 then
     --         b.RunMacroText("/console SpellQueueWindow 0")
@@ -35,7 +35,7 @@ function br:checkBrOutOfDate()
         -- Request Current Version from GitHub
         if b["EasyWoWToolbox"] ~= nil then -- EWT
             --SendHTTPRequest('https://raw.githubusercontent.com/CuteOne/BadRotations/master/BadRotations.toc', nil,
-                --function(body) brcurrVersion =(string.match(body, "(%d+%p%d+%p%d+)")) end)
+            --function(body) brcurrVersion =(string.match(body, "(%d+%p%d+%p%d+)")) end)
 
             -- Check for commit updates from System/Updater.lua, which relies on EWT
             self.updater:CheckOutdated()
@@ -62,9 +62,9 @@ function br:checkBrOutOfDate()
                     local msg =
                         "BadRotations is currently out of date. Local Version: " ..
                         brlocVersion .. " Current Version: " .. brcurrVersion
-                            .. ".  Please download latest version for best performance."
+                        .. ".  Please download latest version for best performance."
                     if self.isChecked("Overlay Messages") then
-                        b["RaidNotice_AddMessage"](b["RaidWarningFrame"], msg, {r = 1, g = 0.3, b = 0.1})
+                        b["RaidNotice_AddMessage"](b["RaidWarningFrame"], msg, { r = 1, g = 0.3, b = 0.1 })
                     else
                         b.print(msg)
                     end
@@ -75,4 +75,3 @@ function br:checkBrOutOfDate()
         self.debug.cpu:updateDebug(startTime, "outOfDate")
     end
 end
-

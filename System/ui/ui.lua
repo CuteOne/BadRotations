@@ -1,8 +1,11 @@
+local LSM = LibStub("LibSharedMedia-3.0")
+local MediaType_FONT = LSM.MediaType.FONT
 local DiesalGUI = _G.LibStub("DiesalGUI-1.0")
 local _, br = ...
 -- Global setup
 br.ui = {}
 br.spacing = 15
+LSM:Register(MediaType_FONT, "calibrib", [[Interface\Addons\SharedMedia_MyMedia\font\calibrib.ttf]])
 --
 local Type = "UI"
 local BRFont = "DiesalFontNormal"
@@ -83,19 +86,19 @@ br.ui.buttonStyleSheet = {
 }
 br.ui.arrowRight = {
     type = "texture",
-    offset = {-2, nil, -2, nil},
+    offset = { -2, nil, -2, nil },
     height = 16,
     width = 16,
     alpha = .7,
-    image = {"DiesalGUIcons", {7, 5, 16, 256, 128}}
+    image = { "DiesalGUIcons", { 7, 5, 16, 256, 128 } }
 }
 br.ui.arrowLeft = {
     type = "texture",
-    offset = {-2, nil, -2, nil},
+    offset = { -2, nil, -2, nil },
     height = 16,
     width = 16,
     alpha = .7,
-    image = {"DiesalGUIcons", {8, 5, 16, 256, 128}}
+    image = { "DiesalGUIcons", { 8, 5, 16, 256, 128 } }
 }
 br.ui.messageStylesheet = {
     ["track-background"] = {

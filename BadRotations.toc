@@ -3,6 +3,8 @@
 ## Notes: |cffa330c9By CuteOne.
 ## Author: CuteOne
 ## Version: 1.36.0
+## Dependencies: SharedMedia
+## Enabled: true
 
 ## Libs
 
@@ -16,8 +18,27 @@ Libs\LibSharedMedia-3.0\LibSharedMedia-3.0.lua
 
 Libs\DiesalTools-1.0\DiesalTools-1.0.lua
 Libs\DiesalStyle-1.0\DiesalStyle-1.0.lua
-Libs\DiesalGUI-1.0\DiesalGUI-1.0.xml
-Libs\DiesalMenu-1.0\DiesalMenu-1.0.xml
+Libs\DiesalGUI-1.0\DiesalGUI-1.0.lua
+Libs\DiesalGUI-1.0\Objects\Window.lua
+Libs\DiesalGUI-1.0\Objects\ScrollFrame.lua
+Libs\DiesalGUI-1.0\Objects\ScrollingEditBox.lua
+Libs\DiesalGUI-1.0\Objects\ScrollingMessageFrame.lua
+Libs\DiesalGUI-1.0\Objects\CheckBox.lua
+Libs\DiesalGUI-1.0\Objects\Button.lua
+Libs\DiesalGUI-1.0\Objects\Spinner.lua
+Libs\DiesalGUI-1.0\Objects\Input.lua
+Libs\DiesalGUI-1.0\Objects\DropDown.lua
+Libs\DiesalGUI-1.0\Objects\DropDownItem.lua
+Libs\DiesalGUI-1.0\Objects\ComboBox.lua
+Libs\DiesalGUI-1.0\Objects\ComboBoxItem.lua
+Libs\DiesalGUI-1.0\Objects\Accordian.lua
+Libs\DiesalGUI-1.0\Objects\AccordianSection.lua
+Libs\DiesalGUI-1.0\Objects\Tree.lua
+Libs\DiesalGUI-1.0\Objects\Branch.lua
+Libs\DiesalGUI-1.0\Objects\Bar.lua
+Libs\DiesalMenu-1.0\DiesalMenu-1.0.lua
+Libs\DiesalMenu-1.0\Objects\Menu.lua
+Libs\DiesalMenu-1.0\Objects\MenuItem.lua
 
 Libs\DiesalLibs.lua
 

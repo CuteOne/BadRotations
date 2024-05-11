@@ -46,7 +46,7 @@ function br.updateOM()
 	local total = br._G.GetObjectCount(true, "BR") or 0
 	for i = 1, total do
 		local thisUnit = br._G.GetObjectWithIndex(i)
-		-- br._G.print(thisUnit.." - Is Unit: "..tostring(br._G.ObjectIsUnit(thisUnit)).." - Name: "..tostring(br._G.UnitName(thisUnit)))
+		-- br._G.print(thisUnit .. " - Is Unit: " .. tostring(br._G.ObjectIsUnit(thisUnit)) .. " - Name: " .. tostring(br._G.UnitName(thisUnit)))
 		if --[[br._G.IsGuid(thisUnit) and]] br._G.ObjectExists(thisUnit) and br._G.ObjectIsUnit(thisUnit) --[[and not unitExistsInOM(thisUnit) and br.omDist(thisUnit) < 50]] then
 			if not br._G.UnitIsPlayer(thisUnit) and not br.isCritter(thisUnit) and not br._G.UnitIsUnit("player", thisUnit) and not br._G.UnitIsFriend("player", thisUnit) then
 				local enemyUnit = br.unitSetup:new(thisUnit)

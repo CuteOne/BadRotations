@@ -3,36 +3,36 @@ local MAJOR, MINOR = "DiesalGUI-1.0", "$Rev: 61 $"
 local DiesalGUI, oldminor = LibStub:NewLibrary(MAJOR, MINOR)
 if not DiesalGUI then return end -- No Upgrade needed.
 -- ~~| Libraries |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-local CallbackHandler = LibStub("CallbackHandler-1.0")
-local DiesalTools 		= LibStub("DiesalTools-1.0")
-local DiesalStyle 		= LibStub("DiesalStyle-1.0")
+local CallbackHandler                  = LibStub("CallbackHandler-1.0")
+local DiesalTools                      = LibStub("DiesalTools-1.0")
+local DiesalStyle                      = LibStub("DiesalStyle-1.0")
 -- ~~| Lua Upvalues |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-local type, select,  tonumber									= type, select, tonumber
-local setmetatable, getmetatable, next				= setmetatable, getmetatable, next
-local pairs, ipairs														= pairs,ipairs
-local tinsert, tremove												= table.insert, table.remove
+local type, select, tonumber           = type, select, tonumber
+local setmetatable, getmetatable, next = setmetatable, getmetatable, next
+local pairs, ipairs                    = pairs, ipairs
+local tinsert, tremove                 = table.insert, table.remove
 -- ~~| WoW Upvalues |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-local CreateFrame, UIParent  									= CreateFrame, UIParent
+local CreateFrame, UIParent            = CreateFrame, UIParent
 -- ~~| DiesalGUI Values |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-DiesalGUI.callbacks 			= DiesalGUI.callbacks 			or CallbackHandler:New(DiesalGUI)
-DiesalGUI.ObjectFactory 	= DiesalGUI.ObjectFactory 	or {}
-DiesalGUI.ObjectVersions	= DiesalGUI.ObjectVersions	or {}
-DiesalGUI.ObjectPool		 	= DiesalGUI.ObjectPool		 	or {}
-DiesalGUI.ObjectBase			= DiesalGUI.ObjectBase			or {}
+DiesalGUI.callbacks                    = DiesalGUI.callbacks or CallbackHandler:New(DiesalGUI)
+DiesalGUI.ObjectFactory                = DiesalGUI.ObjectFactory or {}
+DiesalGUI.ObjectVersions               = DiesalGUI.ObjectVersions or {}
+DiesalGUI.ObjectPool                   = DiesalGUI.ObjectPool or {}
+DiesalGUI.ObjectBase                   = DiesalGUI.ObjectBase or {}
 -- ~~| DiesalGUI Upvalues |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-local ObjectFactory 			= DiesalGUI.ObjectFactory
-local ObjectVersions 			= DiesalGUI.ObjectVersions
-local ObjectPool 					= DiesalGUI.ObjectPool
-local ObjectBase 					= DiesalGUI.ObjectBase
+local ObjectFactory                    = DiesalGUI.ObjectFactory
+local ObjectVersions                   = DiesalGUI.ObjectVersions
+local ObjectPool                       = DiesalGUI.ObjectPool
+local ObjectBase                       = DiesalGUI.ObjectBase
 -- ~~| DiesalGUI Local Methods |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-local function OnMouse(frame,button)
+local function OnMouse(frame, button)
 	DiesalGUI:ClearFocus()
 end
 -- capture mouse clicks on the WorldFrame
-local function WorldFrameOnMouse(frame,button)
-	OnMouse(frame,button)
+local function WorldFrameOnMouse(frame, button)
+	OnMouse(frame, button)
 end
-_G.WorldFrame:HookScript("OnMouseDown", WorldFrameOnMouse )
+_G.WorldFrame:HookScript("OnMouseDown", WorldFrameOnMouse)
 -- Returns a new object
 local function newObject(objectType)
 	if not ObjectFactory[objectType] then error("Attempt to construct unknown Object type", 2) end
@@ -49,7 +49,7 @@ local function newObject(objectType)
 	return newObj
 end
 -- Releases an object into ReleasedObjects
-local function releaseObject(obj,objectType)
+local function releaseObject(obj, objectType)
 	ObjectPool[objectType] = ObjectPool[objectType] or {}
 
 	if ObjectPool[objectType][obj] then
@@ -73,22 +73,22 @@ end
 ObjectBase.SetWidth = function(self, width)
 	self.settings.width = width
 	self.frame:SetWidth(width)
-	self:FireEvent("OnWidthSet",width)
+	self:FireEvent("OnWidthSet", width)
 end
 ObjectBase.SetHeight = function(self, height)
 	self.settings.height = height
 	self.frame:SetHeight(height)
-	self:FireEvent("OnHeightSet",height)
+	self:FireEvent("OnHeightSet", height)
 end
 ObjectBase.SetSize = function(self, width, height)
-  self.settings.width = width
+	self.settings.width = width
 	self.settings.height = height
 
 	self.frame:SetHeight(height)
-  self.frame:SetWidth(width)
+	self.frame:SetWidth(width)
 
-  self:FireEvent("OnWidthSet",width)
-	self:FireEvent("OnHeightSet",height)
+	self:FireEvent("OnWidthSet", width)
+	self:FireEvent("OnHeightSet", height)
 end
 ObjectBase.GetWidth = function(self)
 	return self.frame:GetWidth()
@@ -118,7 +118,7 @@ ObjectBase.GetPoint = function(self, ...)
 	return self.frame:GetPoint(...)
 end
 -- ~~| Object Diesal Base |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-ObjectBase.CreateRegion = function(self,regionType,regionName,parentRegion,defaultFontObject)
+ObjectBase.CreateRegion = function(self, regionType, regionName, parentRegion, defaultFontObject)
 	if regionType == 'FontString' then
 		local fontString = parentRegion:CreateFontString()
 		-- set Default font properties
@@ -140,7 +140,7 @@ ObjectBase.CreateRegion = function(self,regionType,regionName,parentRegion,defau
 		return self[regionName]
 	end
 	if regionType == 'EditBox' then
-		local editBox = CreateFrame(regionType,nil,parentRegion)
+		local editBox = CreateFrame(regionType, nil, parentRegion)
 		-- set Default font properties
 		if defaultFontObject then
 			editBox.defaultFontObject = defaultFontObject
@@ -150,14 +150,16 @@ ObjectBase.CreateRegion = function(self,regionType,regionName,parentRegion,defau
 		editBox:SetFont(editBox.defaultFontObject:GetFont())
 		editBox:SetTextColor(editBox.defaultFontObject:GetTextColor())
 		editBox:SetSpacing(editBox.defaultFontObject:GetSpacing())
-		editBox:HookScript('OnEscapePressed', 	function(this)	DiesalGUI:ClearFocus();	end)
-		editBox:HookScript('OnEditFocusGained',function(this)	DiesalGUI:SetFocus(this); GameTooltip:Hide(); end)
+		editBox:HookScript('OnEscapePressed', function(this) DiesalGUI:ClearFocus(); end)
+		editBox:HookScript('OnEditFocusGained', function(this)
+			DiesalGUI:SetFocus(this); GameTooltip:Hide();
+		end)
 
 		self[regionName] = editBox
 		return editBox
 	end
 	if regionType == 'ScrollingMessageFrame' then
-		local srollingMessageFrame = CreateFrame(regionType,nil,parentRegion)
+		local srollingMessageFrame = CreateFrame(regionType, nil, parentRegion)
 		-- set Default font properties
 		if defaultFontObject then
 			srollingMessageFrame.defaultFontObject = defaultFontObject
@@ -172,11 +174,11 @@ ObjectBase.CreateRegion = function(self,regionType,regionName,parentRegion,defau
 		return srollingMessageFrame
 	end
 
-	self[regionName] = CreateFrame(regionType,nil,parentRegion)
+	self[regionName] = CreateFrame(regionType, nil, parentRegion)
 	return self[regionName]
 end
 ObjectBase.ResetFonts = function(self)
-	for name,fontString in pairs(self.fontStrings) do
+	for name, fontString in pairs(self.fontStrings) do
 		fontString:SetFont(fontString.defaultFontObject:GetFont())
 		fontString:SetTextColor(fontString.defaultFontObject:GetTextColor())
 		fontString:SetSpacing(fontString.defaultFontObject:GetSpacing())
@@ -185,19 +187,20 @@ end
 ObjectBase.AddChild = function(self, object)
 	tinsert(self.children, object)
 end
-ObjectBase.ReleaseChild = function(self,object)
+ObjectBase.ReleaseChild = function(self, object)
 	local children = self.children
 
-	for i = 1,#children do
+	for i = 1, #children do
 		if children[i] == object then
 			children[i]:Release()
-			tremove(children,i)
-		break end
+			tremove(children, i)
+			break
+		end
 	end
 end
 ObjectBase.ReleaseChildren = function(self)
 	local children = self.children
-	for i = 1,#children do
+	for i = 1, #children do
 		children[i]:Release()
 		children[i] = nil
 	end
@@ -211,17 +214,17 @@ ObjectBase.SetParentObject = function(self, parent)
 
 	frame:SetParent(nil)
 	frame:SetParent(parent.content)
-	settings.parent 				= parent.content
-	settings.parentObject 	= parent
+	settings.parent       = parent.content
+	settings.parentObject = parent
 end
-ObjectBase.SetSettings = function(self,settings,apply)
-	for key,value in pairs(settings) do
+ObjectBase.SetSettings = function(self, settings, apply)
+	for key, value in pairs(settings) do
 		self.settings[key] = value
 	end
 	if apply then self:ApplySettings() end
 end
-ObjectBase.ResetSettings = function(self,apply)
-	self.settings = DiesalTools.TableCopy( self.defaults )
+ObjectBase.ResetSettings = function(self, apply)
+	self.settings = DiesalTools.TableCopy(self.defaults)
 	if apply then self:ApplySettings() end
 end
 ObjectBase.SetEventListener = function(self, event, listener)
@@ -238,24 +241,24 @@ ObjectBase.ResetEventListeners = function(self)
 end
 ObjectBase.FireEvent = function(self, event, ...)
 	if self.eventListeners[event] then
-		return self.eventListeners[event]( self, event, ...)
+		return self.eventListeners[event](self, event, ...)
 	end
 end
-ObjectBase.SetStyle = function(self,name,style)
-	DiesalStyle:SetObjectStyle(self,name,style)
+ObjectBase.SetStyle = function(self, name, style)
+	DiesalStyle:SetObjectStyle(self, name, style)
 end
-ObjectBase.UpdateStyle = function(self,name,style)
-	DiesalStyle:UpdateObjectStyle(self,name,style)
+ObjectBase.UpdateStyle = function(self, name, style)
+	DiesalStyle:UpdateObjectStyle(self, name, style)
 end
-ObjectBase.UpdateStylesheet = function(self,Stylesheet)
-  DiesalStyle:UpdateObjectStylesheet(self,Stylesheet)
+ObjectBase.UpdateStylesheet = function(self, Stylesheet)
+	DiesalStyle:UpdateObjectStylesheet(self, Stylesheet)
 end
-ObjectBase.SetStylesheet = function(self,Stylesheet)
-  DiesalStyle:SetObjectStylesheet(self,Stylesheet)
+ObjectBase.SetStylesheet = function(self, Stylesheet)
+	DiesalStyle:SetObjectStylesheet(self, Stylesheet)
 end
-ObjectBase.ReleaseTexture = function(self,name)
+ObjectBase.ReleaseTexture = function(self, name)
 	if not self.textures[name] then return end
-	DiesalStyle:ReleaseTexture(self,name)
+	DiesalStyle:ReleaseTexture(self, name)
 end
 ObjectBase.ReleaseTextures = function(self)
 	DiesalStyle:ReleaseTextures(self)
@@ -264,15 +267,16 @@ end
 -- Returns an Object Base
 function DiesalGUI:CreateObjectBase(Type)
 	local object = {
-		type						= Type,
-		fontStrings			= {},
-		textures 				= {},
-		children 				= {},
-		eventListeners	= {},
+		type           = Type,
+		fontStrings    = {},
+		textures       = {},
+		children       = {},
+		eventListeners = {},
 	}
-	setmetatable(object, {__index = ObjectBase})
+	setmetatable(object, { __index = ObjectBase })
 	return object
 end
+
 -- Registers an Object constructor in the ObjectFactory
 function DiesalGUI:RegisterObjectConstructor(Type, constructor, version)
 	assert(type(constructor) == "function")
@@ -282,10 +286,11 @@ function DiesalGUI:RegisterObjectConstructor(Type, constructor, version)
 	if oldVersion and oldVersion >= version then return end
 
 	ObjectVersions[Type] = version
-	ObjectFactory[Type]	= constructor
+	ObjectFactory[Type] = constructor
 end
+
 -- Create a new Object
-function DiesalGUI:Create(objectType,name)
+function DiesalGUI:Create(objectType, name)
 	if ObjectFactory[objectType] then
 		local object
 		if name then -- needs a specific name, bypass the objectPool and create a new object
@@ -301,40 +306,41 @@ function DiesalGUI:Create(objectType,name)
 end
 
 function DiesalGUI:CreateThrottle(duration, callback)
-  assert(callback and type(callback) == 'function','callback has to be a function ')
-  assert(duration and type(duration) == 'number','duration has to be a number ')
+	assert(callback and type(callback) == 'function', 'callback has to be a function ')
+	assert(duration and type(duration) == 'number', 'duration has to be a number ')
 
-  local throttle = CreateFrame("Frame", nil, UIParent):CreateAnimationGroup()
-  throttle.anim  = throttle:CreateAnimation("Animation")
-  throttle.args  = {}
-  local mt = getmetatable(throttle)
-  mt.__index.SetCallback = function(self,callback)
-    assert(callback and type(callback) == 'function','callback required to be a function ')
-    self:SetScript("OnFinished", function() callback(unpack(self.args)) end)
-  end
-  mt.__index.AddCallback = function(self,callback)
-    assert(callback and type(callback) == 'function','callback required to be a function ')
-    self:HookScript("OnFinished", function() callback(unpack(self.args)) end)
-  end
-  mt.__index.SetDuration = function(self,duration)
-    assert(duration and type(duration) == 'number','duration has to be a number ')
-    self.anim:SetDuration(duration)
-  end
-  mt.__call = function(self,...)
-    self.args = {...}
-    self:Stop()
-    self:Play()
-  end
-  setmetatable(throttle,mt)
+	local throttle         = CreateFrame("Frame", nil, UIParent):CreateAnimationGroup()
+	throttle.anim          = throttle:CreateAnimation("Animation")
+	throttle.args          = {}
+	local mt               = getmetatable(throttle)
+	mt.__index.SetCallback = function(self, callback)
+		assert(callback and type(callback) == 'function', 'callback required to be a function ')
+		self:SetScript("OnFinished", function() callback(unpack(self.args)) end)
+	end
+	mt.__index.AddCallback = function(self, callback)
+		assert(callback and type(callback) == 'function', 'callback required to be a function ')
+		self:HookScript("OnFinished", function() callback(unpack(self.args)) end)
+	end
+	mt.__index.SetDuration = function(self, duration)
+		assert(duration and type(duration) == 'number', 'duration has to be a number ')
+		self.anim:SetDuration(duration)
+	end
+	mt.__call              = function(self, ...)
+		self.args = { ... }
+		self:Stop()
+		self:Play()
+	end
+	setmetatable(throttle, mt)
 
-  throttle:SetScript("OnFinished", function() callback(unpack(throttle.args)) end)
-  throttle:SetDuration(duration)
+	throttle:SetScript("OnFinished", function() callback(unpack(throttle.args)) end)
+	throttle:SetDuration(duration)
 
-  return throttle
+	return throttle
 end
+
 -- Releases an object ready for reuse by Create
 function DiesalGUI:Release(object)
-	if object.OnRelease then object:OnRelease()	end
+	if object.OnRelease then object:OnRelease() end
 	object:FireEvent("OnRelease")
 
 	object:ReleaseChildren()
@@ -347,25 +353,28 @@ function DiesalGUI:Release(object)
 	object.frame:SetParent(UIParent)
 	releaseObject(object, object.type)
 end
+
 -- Set FocusedObject: Menu, Dropdown, editBox etc....
 function DiesalGUI:SetFocus(object)
-	if self.FocusedObject and self.FocusedObject ~= object then	DiesalGUI:ClearFocus() end
+	if self.FocusedObject and self.FocusedObject ~= object then DiesalGUI:ClearFocus() end
 	self.FocusedObject = object
 end
+
 -- clear focus from the FocusedObject
 function DiesalGUI:ClearFocus()
 	local FocusedObject = self.FocusedObject
 	if FocusedObject then
-		if FocusedObject.ClearFocus then 			-- FocusedObject is Focusable Frame
+		if FocusedObject.ClearFocus then -- FocusedObject is Focusable Frame
 			FocusedObject:ClearFocus()
 		end
 		self.FocusedObject = nil
 	end
 end
+
 -- Mouse Input capture for any DiesalGUI interactive region
-function DiesalGUI:OnMouse(frame,button)
+function DiesalGUI:OnMouse(frame, button)
 	-- print(button)
-	OnMouse(frame,button)
+	OnMouse(frame, button)
 	DiesalGUI.callbacks:Fire("DiesalGUI_OnMouse", frame, button)
 end
 
@@ -378,6 +387,7 @@ function DiesalGUI:GetNextObjectNum(type)
 	self.counts[type] = self.counts[type] + 1
 	return self.counts[type]
 end
+
 --- Return the number of created widgets for this type.
 function DiesalGUI:GetObjectCount(type)
 	return self.counts[type] or 0

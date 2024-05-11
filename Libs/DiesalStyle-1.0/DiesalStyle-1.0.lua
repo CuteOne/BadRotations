@@ -29,22 +29,29 @@ local Media = DiesalStyle.Media
 local Colors = DiesalStyle.Colors
 local Formatters = DiesalStyle.Formatters
 -- ~~| Locals |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-local OUTLINES = {'_LEFT','_RIGHT','_TOP','_BOTTOM'}
-local MEDIA_PATH = type(AddonName) ~= 'string' and string.format("Interface\\AddOns\\Media\\")
-  or AddonName == 'DiesalLibs' and string.format("Interface\\AddOns\\%s\\%s\\Media\\",AddonName,MAJOR)
-  or string.format("Interface\\AddOns\\%s\\Libs\\%s\\Media\\",AddonName,MAJOR)
+local OUTLINES = { '_LEFT', '_RIGHT', '_TOP', '_BOTTOM' }
+local MEDIA_PATH = AddonName == 'BadRotations' and string.format("Interface\\AddOns\\Media\\")
+    or type(AddonName) ~= 'string' and string.format("Interface\\AddOns\\Media\\")
+    or AddonName == 'DiesalLibs' and string.format("Interface\\AddOns\\%s\\%s\\Media\\", AddonName, MAJOR)
+    or string.format("Interface\\AddOns\\%s\\Libs\\%s\\Media\\", AddonName, MAJOR)
 local DEFAULT_COLOR = 'FFFFFF'
 local DEFAULT_GRADIENT_ORIENTATION = 'horizontal'
 local DEFAULT_LAYER = 'ARTWORK'
 -- ~~| Local Methods |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-local function addMedia(mediaType,name,mediaFile)
+local function addMedia(mediaType, name, mediaFile)
   Media[mediaType] = Media[mediaType] or {}
   -- update or create new media entry
-  Media[mediaType][name] = MEDIA_PATH..mediaFile
+  Media[mediaType][name] = MEDIA_PATH .. mediaFile
 end
-local function getMedia(mediaType,name)
-  if not Media[mediaType] then error('media type: '..mediaType..' does not exist',2) return end
-  if not Media[mediaType][name] then error('media: "'..name..'" does not exist',2) return end
+local function getMedia(mediaType, name)
+  if not Media[mediaType] then
+    error('media type: ' .. mediaType .. ' does not exist', 2)
+    return
+  end
+  if not Media[mediaType][name] then
+    error('media: "' .. name .. '" does not exist', 2)
+    return
+  end
   return Media[mediaType][name]
 end
 local function newTexture()
@@ -76,23 +83,24 @@ local function releaseTexture(texture)
   ReleasedTextures[texture] = true
 end
 local function round(number, base)
-   base = base or 1
-   return floor((number + base/2)/base) * base
+  base = base or 1
+  return floor((number + base / 2) / base) * base
 end
 local function GetBlizzColorValues(value)
-	if not value then return end
+  if not value then return end
 
-	if type(value) == 'table' and #value >= 3 then
-		return value[1]/255, value[2]/255, value[3]/255
-	elseif type(value) == 'string' then
-		return tonumber(sub(value,1,2),16)/255, tonumber(sub(value,3,4),16)/255, tonumber(sub(value,5,6),16)/255
-	end
+  if type(value) == 'table' and #value >= 3 then
+    return value[1] / 255, value[2] / 255, value[3] / 255
+  elseif type(value) == 'string' then
+    return tonumber(sub(value, 1, 2), 16) / 255, tonumber(sub(value, 3, 4), 16) / 255, tonumber(sub(value, 5, 6), 16) /
+        255
+  end
 end
 local function formatCoords(coords)
   if type(coords) ~= 'table' then return end
 
   if #coords == 5 then
-    return {GetIconCoords(coords[1],coords[2],coords[3],coords[4],coords[5])}
+    return { GetIconCoords(coords[1], coords[2], coords[3], coords[4], coords[5]) }
   else
     return coords
   end
@@ -105,7 +113,7 @@ end
 local function formatPosition(position)
   if type(position) ~= 'table' and type(position) ~= 'number' then return end
 
-  return type(position) == 'number' and {position,position,position,position} or position
+  return type(position) == 'number' and { position, position, position, position } or position
 end
 local function formatOrientation(orientation)
   if type(orientation) ~= 'string' then return end
@@ -115,10 +123,10 @@ end
 local function formatAlpha(alpha)
   if type(alpha) ~= 'table' and type(alpha) ~= 'number' then return end
 
-  return type(alpha) == 'number' and {alpha,alpha} or alpha
+  return type(alpha) == 'number' and { alpha, alpha } or alpha
 end
 
-local function CreateColor(r,g,b,a)
+local function CreateColor(r, g, b, a)
   return {
     r = r or 0,
     g = g or 0,
@@ -129,15 +137,22 @@ end
 
 -- error handling
 local function setColor(texture, r, g, b, a)
-  local status, err = pcall( texture.SetColorTexture, texture, r, g, b, a )
-  if not status then errorhandler('error in "'..(texture.style.name or 'texture')..'" '..texture.style.mode..' or alpha setting',r, g, b, a) end
+  local status, err = pcall(texture.SetColorTexture, texture, r, g, b, a)
+  if not status then
+    errorhandler(
+      'error in "' .. (texture.style.name or 'texture') .. '" ' .. texture.style.mode .. ' or alpha setting', r, g, b, a)
+  end
 end
 local function setGradient(texture, orientation, r1, g1, b1, a1, r2, g2, b2, a2)
-  local status, err = pcall( texture.SetGradient, texture, orientation, CreateColor(r1, g1, b1, a1), CreateColor(r2, g2, b2, a2) )
-  if not status then errorhandler('error in "'..(texture.style.name or 'texture')..'" '..texture.style.mode..' or alpha setting.') end
+  local status, err = pcall(texture.SetGradient, texture, orientation, CreateColor(r1, g1, b1, a1),
+    CreateColor(r2, g2, b2, a2))
+  if not status then
+    errorhandler('error in "' ..
+      (texture.style.name or 'texture') .. '" ' .. texture.style.mode .. ' or alpha setting.')
+  end
 end
 -- ~~| Media |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-do -- | Set Colors |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+do   -- | Set Colors |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   do -- google material colors
     Colors.red_50 = 'fde0dc'
     Colors.red_100 = 'f9bdbb'
@@ -395,106 +410,104 @@ do -- | Set Colors |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     Colors.blue_gray_900 = '263238'
   end
   do -- Base UI Colors
-
-    Colors.UI_Hue = 210
+    Colors.UI_Hue        = 210
     Colors.UI_Saturation = .24
 
-    Colors.UI_TEXT      = HSL(Colors.UI_Hue,Colors.UI_Saturation,.9)
+    Colors.UI_TEXT       = HSL(Colors.UI_Hue, Colors.UI_Saturation, .9)
 
 
     -- level 1
-    Colors.UI_100       = HSL(Colors.UI_Hue,Colors.UI_Saturation,.03) -- BG
-    Colors.UI_150       = HSL(Colors.UI_Hue,Colors.UI_Saturation,.05)
+    Colors.UI_100    = HSL(Colors.UI_Hue, Colors.UI_Saturation, .03) -- BG
+    Colors.UI_150    = HSL(Colors.UI_Hue, Colors.UI_Saturation, .05)
     -- level 2
-    Colors.UI_200       = HSL(Colors.UI_Hue,Colors.UI_Saturation,.07)
+    Colors.UI_200    = HSL(Colors.UI_Hue, Colors.UI_Saturation, .07)
     -- level 3
-    Colors.UI_300       = HSL(Colors.UI_Hue,Colors.UI_Saturation,.12)
-    Colors.UI_300_GR    = {HSL(Colors.UI_Hue,Colors.UI_Saturation,.12),HSL(Colors.UI_Hue,Colors.UI_Saturation,.11)}
-    Colors.UI_350       = HSL(Colors.UI_Hue,Colors.UI_Saturation,.15)
-    Colors.UI_350_GR    = {HSL(Colors.UI_Hue,Colors.UI_Saturation,.17),HSL(Colors.UI_Hue,Colors.UI_Saturation,.14)}
+    Colors.UI_300    = HSL(Colors.UI_Hue, Colors.UI_Saturation, .12)
+    Colors.UI_300_GR = { HSL(Colors.UI_Hue, Colors.UI_Saturation, .12), HSL(Colors.UI_Hue, Colors.UI_Saturation, .11) }
+    Colors.UI_350    = HSL(Colors.UI_Hue, Colors.UI_Saturation, .15)
+    Colors.UI_350_GR = { HSL(Colors.UI_Hue, Colors.UI_Saturation, .17), HSL(Colors.UI_Hue, Colors.UI_Saturation, .14) }
     -- level 4
-    Colors.UI_400       = HSL(Colors.UI_Hue,Colors.UI_Saturation,.20)
-    Colors.UI_400_GR    = {HSL(Colors.UI_Hue,Colors.UI_Saturation,.20),HSL(Colors.UI_Hue,Colors.UI_Saturation,.17)}
-    Colors.UI_450_GR    = {HSL(Colors.UI_Hue,Colors.UI_Saturation,.24),HSL(Colors.UI_Hue,Colors.UI_Saturation,.20)}
+    Colors.UI_400    = HSL(Colors.UI_Hue, Colors.UI_Saturation, .20)
+    Colors.UI_400_GR = { HSL(Colors.UI_Hue, Colors.UI_Saturation, .20), HSL(Colors.UI_Hue, Colors.UI_Saturation, .17) }
+    Colors.UI_450_GR = { HSL(Colors.UI_Hue, Colors.UI_Saturation, .24), HSL(Colors.UI_Hue, Colors.UI_Saturation, .20) }
     -- level 5
-    Colors.UI_500       = HSL(Colors.UI_Hue,Colors.UI_Saturation,.29)
-    Colors.UI_500_GR    = {HSL(Colors.UI_Hue,Colors.UI_Saturation,.29),HSL(Colors.UI_Hue,Colors.UI_Saturation,.26)}
+    Colors.UI_500    = HSL(Colors.UI_Hue, Colors.UI_Saturation, .29)
+    Colors.UI_500_GR = { HSL(Colors.UI_Hue, Colors.UI_Saturation, .29), HSL(Colors.UI_Hue, Colors.UI_Saturation, .26) }
 
-    Colors.UI_600_GR    = {HSL(Colors.UI_Hue,Colors.UI_Saturation,.35),HSL(Colors.UI_Hue,Colors.UI_Saturation,.32)}
+    Colors.UI_600_GR = { HSL(Colors.UI_Hue, Colors.UI_Saturation, .35), HSL(Colors.UI_Hue, Colors.UI_Saturation, .32) }
 
     -- font Colors -35
-    Colors.UI_F450      = HSL(Colors.UI_Hue,Colors.UI_Saturation,.75)
-    Colors.UI_F350      = HSL(Colors.UI_Hue,Colors.UI_Saturation,.60)
+    Colors.UI_F450   = HSL(Colors.UI_Hue, Colors.UI_Saturation, .75)
+    Colors.UI_F350   = HSL(Colors.UI_Hue, Colors.UI_Saturation, .60)
 
-    Colors.UI_1000      = HSL(Colors.UI_Hue,Colors.UI_Saturation,1)
+    Colors.UI_1000   = HSL(Colors.UI_Hue, Colors.UI_Saturation, 1)
 
-    Colors.UI_A900      = HSL(Colors.UI_Hue,1,.7)
-    Colors.UI_A800      = HSL(Colors.UI_Hue,1,.65)
-    Colors.UI_A700      = HSL(Colors.UI_Hue,1,.6)
-    Colors.UI_A600      = HSL(Colors.UI_Hue,1,.55)
-    Colors.UI_A500      = HSL(Colors.UI_Hue,1,.5)
-    Colors.UI_A400      = HSL(Colors.UI_Hue,1,.45)
-    Colors.UI_A300      = HSL(Colors.UI_Hue,1,.4)
-    Colors.UI_A200      = HSL(Colors.UI_Hue,1,.35)
-    Colors.UI_A100      = HSL(Colors.UI_Hue,1,.3)
+    Colors.UI_A900   = HSL(Colors.UI_Hue, 1, .7)
+    Colors.UI_A800   = HSL(Colors.UI_Hue, 1, .65)
+    Colors.UI_A700   = HSL(Colors.UI_Hue, 1, .6)
+    Colors.UI_A600   = HSL(Colors.UI_Hue, 1, .55)
+    Colors.UI_A500   = HSL(Colors.UI_Hue, 1, .5)
+    Colors.UI_A400   = HSL(Colors.UI_Hue, 1, .45)
+    Colors.UI_A300   = HSL(Colors.UI_Hue, 1, .4)
+    Colors.UI_A200   = HSL(Colors.UI_Hue, 1, .35)
+    Colors.UI_A100   = HSL(Colors.UI_Hue, 1, .3)
   end
 end
 do -- | Text Formatters |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  Formatters.tooltip = '|cff'..Colors.gray_50..'%s\n|cff'..Colors.yellow_500..'%s'
-
+  Formatters.tooltip = '|cff' .. Colors.gray_50 .. '%s\n|cff' .. Colors.yellow_500 .. '%s'
 end
 do -- | Set Media |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  addMedia('font','calibrib','calibrib.ttf')
+  addMedia('font', 'calibrib', 'calibrib.ttf')
   -- monospaced
-  addMedia('font','DejaVuSansMono','DejaVuSansMono.ttf')
-  addMedia('font','DejaVuSansMonoBold','DejaVuSansMono-Bold.ttf')
+  addMedia('font', 'DejaVuSansMono', 'DejaVuSansMono.ttf')
+  addMedia('font', 'DejaVuSansMonoBold', 'DejaVuSansMono-Bold.ttf')
 
-  addMedia('font','FiraMonoMedium','FiraMono-Medium.ttf')
-  addMedia('font','FiraMonoRegular','FiraMono-Regular.ttf')
-  addMedia('font','FiraMonoBold','FiraMono-Bold.ttf')
+  addMedia('font', 'FiraMonoMedium', 'FiraMono-Medium.ttf')
+  addMedia('font', 'FiraMonoRegular', 'FiraMono-Regular.ttf')
+  addMedia('font', 'FiraMonoBold', 'FiraMono-Bold.ttf')
 
-  addMedia('font','HackRegular','Hack-Regular.ttf')
-  addMedia('font','HackBold','Hack-Bold.ttf')
+  addMedia('font', 'HackRegular', 'Hack-Regular.ttf')
+  addMedia('font', 'HackBold', 'Hack-Bold.ttf')
 
-  addMedia('font','InconsolataRegular','Inconsolata-Regular.ttf')
-  addMedia('font','InconsolataBold','Inconsolata-Bold.ttf')
+  addMedia('font', 'InconsolataRegular', 'Inconsolata-Regular.ttf')
+  addMedia('font', 'InconsolataBold', 'Inconsolata-Bold.ttf')
 
-  addMedia('font','LucidiaMono','LUCON.ttf')
+  addMedia('font', 'LucidiaMono', 'LUCON.ttf')
 
-  addMedia('font','MonoFur','monof55.ttf')
-  addMedia('font','MonoFurItalic','monof56.ttf')
+  addMedia('font', 'MonoFur', 'monof55.ttf')
+  addMedia('font', 'MonoFurItalic', 'monof56.ttf')
 
-  addMedia('font','OfficeCodeProRegular','OfficeCodePro-Regular.ttf')
-  addMedia('font','OfficeCodeProMedium','OfficeCodePro-Medium.ttf')
-  addMedia('font','OfficeCodeProBold','OfficeCodePro-Bold.ttf')
+  addMedia('font', 'OfficeCodeProRegular', 'OfficeCodePro-Regular.ttf')
+  addMedia('font', 'OfficeCodeProMedium', 'OfficeCodePro-Medium.ttf')
+  addMedia('font', 'OfficeCodeProBold', 'OfficeCodePro-Bold.ttf')
 
-  addMedia('font','RobotoMonoRegular','RobotoMono-Regular.ttf')
-  addMedia('font','RobotoMonoMedium','RobotoMono-Medium.ttf')
-  addMedia('font','RobotoMonoBold','RobotoMono-Bold.ttf')
+  addMedia('font', 'RobotoMonoRegular', 'RobotoMono-Regular.ttf')
+  addMedia('font', 'RobotoMonoMedium', 'RobotoMono-Medium.ttf')
+  addMedia('font', 'RobotoMonoBold', 'RobotoMono-Bold.ttf')
 
-  addMedia('font','SourceCodeProRegular','SourceCodePro-Regular.ttf')
-  addMedia('font','SourceCodeProMedium','SourceCodePro-Medium.ttf')
-  addMedia('font','SourceCodeProSemibold','SourceCodePro-Semibold.ttf')
-  addMedia('font','SourceCodeProBold','SourceCodePro-Bold.ttf')
-  addMedia('font','SourceCodeProBlack','SourceCodePro-Black.ttf')
+  addMedia('font', 'SourceCodeProRegular', 'SourceCodePro-Regular.ttf')
+  addMedia('font', 'SourceCodeProMedium', 'SourceCodePro-Medium.ttf')
+  addMedia('font', 'SourceCodeProSemibold', 'SourceCodePro-Semibold.ttf')
+  addMedia('font', 'SourceCodeProBold', 'SourceCodePro-Bold.ttf')
+  addMedia('font', 'SourceCodeProBlack', 'SourceCodePro-Black.ttf')
 
-  addMedia('font','UbuntuMonoBold','UbuntuMono-B.ttf')
-  addMedia('font','UbuntuMonoRegular','UbuntuMono-R.ttf')
+  addMedia('font', 'UbuntuMonoBold', 'UbuntuMono-B.ttf')
+  addMedia('font', 'UbuntuMonoRegular', 'UbuntuMono-R.ttf')
 
   -- pixel fonts
-  addMedia('font','FiraSans','FiraSans-Regular.ttf')
-  addMedia('font','Standard0755','Standard0755.ttf')
-  addMedia('font','FFF Intelligent Thin Condensed','FFF Intelligent Thin Condensed.ttf')
-  addMedia('texture','DiesalGUIcons','DiesalGUIcons16x256x128.tga')
-  addMedia('texture','DiesalGUIcons64','DiesalGUIcons64x256x256.tga')
-  addMedia('texture','DiesalGUIcons32','DiesalGUIcons32x256x256.tga')
-  addMedia('texture','DiesalButtonIcons32','DiesalButtonIcons32x128x512.tga')
-  addMedia('border','shadow','shadow.tga')
-  addMedia('border','shadowNoDist','shadowNoDist.tga')
+  addMedia('font', 'FiraSans', 'FiraSans-Regular.ttf')
+  addMedia('font', 'Standard0755', 'Standard0755.ttf')
+  addMedia('font', 'FFF Intelligent Thin Condensed', 'FFF Intelligent Thin Condensed.ttf')
+  addMedia('texture', 'DiesalGUIcons', 'DiesalGUIcons16x256x128.tga')
+  addMedia('texture', 'DiesalGUIcons64', 'DiesalGUIcons64x256x256.tga')
+  addMedia('texture', 'DiesalGUIcons32', 'DiesalGUIcons32x256x256.tga')
+  addMedia('texture', 'DiesalButtonIcons32', 'DiesalButtonIcons32x128x512.tga')
+  addMedia('border', 'shadow', 'shadow.tga')
+  addMedia('border', 'shadowNoDist', 'shadowNoDist.tga')
 end
 do -- | Add LibSharedMedia |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  LibSharedMedia:Register("font","Calibri Bold",getMedia('font','calibrib'))
-  LibSharedMedia:Register("font","Fira Sans",getMedia('font','FiraSans'))
+  LibSharedMedia:Register("font", "Calibri Bold", getMedia('font', 'calibrib'))
+  LibSharedMedia:Register("font", "Fira Sans", getMedia('font', 'FiraSans'))
   -- monospaced
   -- LibSharedMedia:Register("font","DejaVuSansMono",getMedia('font','DejaVuSansMono'))
   -- LibSharedMedia:Register("font","Hack",getMedia('font','Hack'))
@@ -502,19 +515,19 @@ do -- | Add LibSharedMedia |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   -- LibSharedMedia:Register("font","Fira Sans",getMedia('font','FiraSans'))
   -- LibSharedMedia:Register("font","Source Code Pro",getMedia('font','SourceCodePro'))
   -- pixel fonts
-  LibSharedMedia:Register("font","Standard0755",getMedia('font','Standard0755'))
-  LibSharedMedia:Register("font","FFF Intelligent",getMedia('font','FFF Intelligent Thin Condensed'))
+  LibSharedMedia:Register("font", "Standard0755", getMedia('font', 'Standard0755'))
+  LibSharedMedia:Register("font", "FFF Intelligent", getMedia('font', 'FFF Intelligent Thin Condensed'))
 end
 do -- | Set Fonts |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   CreateFont("DiesalFontNormal")
-  DiesalFontNormal:SetFont( getMedia('font','calibrib'),11, '' )
+  DiesalFontNormal:SetFont(getMedia('font', 'calibrib'), 11, '')
   CreateFont("DiesalFontPixel")
-  DiesalFontPixel:SetFont( getMedia('font','Standard0755'), 8, '' )
+  DiesalFontPixel:SetFont(getMedia('font', 'Standard0755'), 8, '')
   CreateFont("DiesalFontPixelOutLine")
-  DiesalFontPixelOutLine:SetFont( getMedia('font','Standard0755'), 8, "OUTLINE, MONOCHROME" )
+  DiesalFontPixelOutLine:SetFont(getMedia('font', 'Standard0755'), 8, "OUTLINE, MONOCHROME")
   DiesalFontPixelOutLine:SetSpacing(2)
   CreateFont("DiesalFontPixel2")
-  DiesalFontPixel2:SetFont( getMedia('font','FFF Intelligent Thin Condensed'), 8, "OUTLINE, MONOCHROME" )
+  DiesalFontPixel2:SetFont(getMedia('font', 'FFF Intelligent Thin Condensed'), 8, "OUTLINE, MONOCHROME")
 end
 -- ~~| DiesalStyle API |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 --[[ Texture style table format
@@ -557,18 +570,18 @@ style.height height
 --
 -- position             = 0 | {0,0,0,0}
 
-function DiesalStyle:StyleTexture(texture,style)
+function DiesalStyle:StyleTexture(texture, style)
   -- | Setup Texture.style |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   if not texture.style or style.clear then texture.style = {} end
   -- debugging
-  texture.style.name  = style.name  or texture.style.name
+  texture.style.name  = style.name or texture.style.name
   texture.style.debug = style.debug or texture.style.debug
   -- | Format Settings |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   -- Gradient ~~~~~~~~~~~~~~~~~~~~~~~~~
   if style.gradient and type(style.gradient) == 'table' then
     texture.style.gradient = {
       orientation = formatOrientation(style.gradient[1]),
-      color = style.gradient[2] and style.gradient[3] and {style.gradient[2],style.gradient[3]},
+      color = style.gradient[2] and style.gradient[3] and { style.gradient[2], style.gradient[3] },
     }
   end
   style.gradient_orientation = formatOrientation(style.gradient_orientation) -- fuck you
@@ -579,28 +592,30 @@ function DiesalStyle:StyleTexture(texture,style)
       file = formatFile(style.image[1]),
       coords = formatCoords(style.image[2]),
       color = style.image[3],
-      tiling = {style.image[4],style.image[5]},
+      tiling = { style.image[4], style.image[5] },
     }
   end
   if not texture.style.image and style.image_file then texture.style.image = {} end
   -- | Update Settings |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  texture.style.layer                  = style.layer                      or texture.style.layer                or DEFAULT_LAYER
-  texture.style.position               = formatPosition(style.position)   or texture.style.position             or {0,0,0,0}
-  texture.style.width                  = style.width                      or texture.style.width
-  texture.style.height                 = style.height                     or texture.style.height
-  texture.style.color                  = style.color                      or texture.style.color
-  texture.style.alpha                  = formatAlpha(style.alpha)         or texture.style.alpha                or {1,1}
+  texture.style.layer    = style.layer or texture.style.layer or DEFAULT_LAYER
+  texture.style.position = formatPosition(style.position) or texture.style.position or { 0, 0, 0, 0 }
+  texture.style.width    = style.width or texture.style.width
+  texture.style.height   = style.height or texture.style.height
+  texture.style.color    = style.color or texture.style.color
+  texture.style.alpha    = formatAlpha(style.alpha) or texture.style.alpha or { 1, 1 }
   -- gradient
   if texture.style.gradient then
-    texture.style.gradient.orientation = style.gradient_orientation       or texture.style.gradient.orientation or DEFAULT_GRADIENT_ORIENTATION
-    texture.style.gradient.color       = style.gradient_color             or texture.style.gradient.color       or {DEFAULT_COLOR,DEFAULT_COLOR}
+    texture.style.gradient.orientation = style.gradient_orientation or texture.style.gradient.orientation or
+        DEFAULT_GRADIENT_ORIENTATION
+    texture.style.gradient.color       = style.gradient_color or texture.style.gradient.color or
+        { DEFAULT_COLOR, DEFAULT_COLOR }
   end
   -- image
   if texture.style.image then
-    texture.style.image.file           = formatFile(style.image_file)     or texture.style.image.file
-    texture.style.image.coords         = formatCoords(style.image_coords) or texture.style.image.coords         or {0,1,0,1}
-    texture.style.image.color          = style.image_color                or texture.style.image.color
-    texture.style.image.tiling         = style.image_tiling               or texture.style.image.tiling
+    texture.style.image.file   = formatFile(style.image_file) or texture.style.image.file
+    texture.style.image.coords = formatCoords(style.image_coords) or texture.style.image.coords or { 0, 1, 0, 1 }
+    texture.style.image.color  = style.image_color or texture.style.image.color
+    texture.style.image.tiling = style.image_tiling or texture.style.image.tiling
   end
   -- | Apply Settings |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -608,86 +623,99 @@ function DiesalStyle:StyleTexture(texture,style)
   texture:SetDrawLayer(texture.style.layer, 0)
   -- position
   texture:ClearAllPoints() -- clear offsets
-  if texture.style.position[1] then texture:SetPoint("LEFT", -texture.style.position[1],0) end
-  if texture.style.position[2] then texture:SetPoint("RIGHT", texture.style.position[2],0) end
-  if texture.style.position[3] then texture:SetPoint("TOP", 0,texture.style.position[3]) end
-  if texture.style.position[4] then texture:SetPoint("BOTTOM", 0,-texture.style.position[4]) end
+  if texture.style.position[1] then texture:SetPoint("LEFT", -texture.style.position[1], 0) end
+  if texture.style.position[2] then texture:SetPoint("RIGHT", texture.style.position[2], 0) end
+  if texture.style.position[3] then texture:SetPoint("TOP", 0, texture.style.position[3]) end
+  if texture.style.position[4] then texture:SetPoint("BOTTOM", 0, -texture.style.position[4]) end
   -- size
-  if texture.style.width  then texture:SetWidth(texture.style.width) end
+  if texture.style.width then texture:SetWidth(texture.style.width) end
   if texture.style.height then texture:SetHeight(texture.style.height) end
 
-  if style.debug then print(texture:GetHeight(),texture.style.position[1], texture.style.position[2], texture.style.position[3], texture.style.position[4]) end
+  if style.debug then
+    print(texture:GetHeight(), texture.style.position[1], texture.style.position[2],
+      texture.style.position[3], texture.style.position[4])
+  end
   -- [1] Texture > [2] gradient > [3] color
   if texture.style.image then -- [1] Texture
     -- set mode
     texture.style.mode = 'image'
     -- clear any old settings
-    setGradient(texture,'HORIZONTAL',1,1,1,1,1,1,1,1) -- clear gradient
-    texture:SetColorTexture(1,1,1,1) -- clear color
+    setGradient(texture, 'HORIZONTAL', 1, 1, 1, 1, 1, 1, 1, 1) -- clear gradient
+    texture:SetColorTexture(1, 1, 1, 1)                        -- clear color
     -- apply settings
-    texture:SetTexCoord(texture.style.image.coords[1],texture.style.image.coords[2],texture.style.image.coords[3],texture.style.image.coords[4])
-    texture:SetTexture(texture.style.image.file,texture.style.image.tiling and texture.style.image.tiling[1], texture.style.image.tiling and texture.style.image.tiling[2])
+    texture:SetTexCoord(texture.style.image.coords[1], texture.style.image.coords[2], texture.style.image.coords[3],
+      texture.style.image.coords[4])
+    texture:SetTexture(texture.style.image.file, texture.style.image.tiling and texture.style.image.tiling[1],
+      texture.style.image.tiling and texture.style.image.tiling[2])
     texture:SetHorizTile(texture.style.image.tiling[1])
     texture:SetVertTile(texture.style.image.tiling[2])
-    local r,g,b = GetBlizzColorValues(texture.style.image.color)
+    local r, g, b = GetBlizzColorValues(texture.style.image.color)
     texture:SetVertexColor(r or 1, g or 1, b or 1, texture.style.alpha[1])
   elseif texture.style.gradient then -- [2] gradient
     -- set mode
     texture.style.mode = 'gradient'
     -- clear any old  settings
-    texture:SetTexture() -- clear image
-    texture:SetColorTexture(1,1,1,1) -- clear color
+    texture:SetTexture()                -- clear image
+    texture:SetColorTexture(1, 1, 1, 1) -- clear color
     -- apply settings
-    local r1,g1,b1 = GetBlizzColorValues(texture.style.gradient.color[texture.style.gradient.orientation == 'HORIZONTAL' and 1 or 2])
-    local r2,g2,b2 = GetBlizzColorValues(texture.style.gradient.color[texture.style.gradient.orientation == 'HORIZONTAL' and 2 or 1])
-    local a1,a2    = texture.style.alpha[texture.style.gradient.orientation == 'HORIZONTAL' and 1 or 2], texture.style.alpha[texture.style.gradient.orientation == 'HORIZONTAL' and 2 or 1]
+    local r1, g1, b1 = GetBlizzColorValues(texture.style.gradient.color
+      [texture.style.gradient.orientation == 'HORIZONTAL' and 1 or 2])
+    local r2, g2, b2 = GetBlizzColorValues(texture.style.gradient.color
+      [texture.style.gradient.orientation == 'HORIZONTAL' and 2 or 1])
+    local a1, a2     = texture.style.alpha[texture.style.gradient.orientation == 'HORIZONTAL' and 1 or 2],
+        texture.style.alpha[texture.style.gradient.orientation == 'HORIZONTAL' and 2 or 1]
     setGradient(texture, texture.style.gradient.orientation, r1, g1, b1, a1, r2, g2, b2, a2)
   elseif texture.style.color then -- [3] color
     -- set mode
     texture.style.mode = 'color'
     -- clear any old settings
-    texture:SetTexture() -- clear image
-    setGradient(texture,'HORIZONTAL',1,1,1,1,1,1,1,1) -- clear gradient
+    texture:SetTexture()                                       -- clear image
+    setGradient(texture, 'HORIZONTAL', 1, 1, 1, 1, 1, 1, 1, 1) -- clear gradient
     -- apply settings
-    local r,g,b = GetBlizzColorValues(texture.style.color)
+    local r, g, b = GetBlizzColorValues(texture.style.color)
     setColor(texture, r, g, b, texture.style.alpha[1])
   else
     -- set mode
     texture.style.mode = 'none!'
     -- clear the texture
-    texture:SetTexture() -- clear image
-    setGradient(texture,'HORIZONTAL',0,0,0,0,0,0,0,0) -- clear gradient
-    texture:SetColorTexture(0,0,0,0) -- clear color
+    texture:SetTexture()                                       -- clear image
+    setGradient(texture, 'HORIZONTAL', 0, 0, 0, 0, 0, 0, 0, 0) -- clear gradient
+    texture:SetColorTexture(0, 0, 0, 0)                        -- clear color
   end
 end
 
-function DiesalStyle:StyleOutline(leftTexture,rightTexture,topTexture,bottomTexture,style)
+function DiesalStyle:StyleOutline(leftTexture, rightTexture, topTexture, bottomTexture, style)
   -- | Setup Texture.style |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  if not leftTexture.style or style.clear then leftTexture.style = {}; rightTexture.style = leftTexture.style; topTexture.style = leftTexture.style; bottomTexture.style = leftTexture.style end
-  local texture = leftTexture
+  if not leftTexture.style or style.clear then
+    leftTexture.style = {}; rightTexture.style = leftTexture.style; topTexture.style = leftTexture.style; bottomTexture.style =
+        leftTexture.style
+  end
+  local texture       = leftTexture
   -- debugging
-  texture.style.name  = style.name  or texture.style.name
+  texture.style.name  = style.name or texture.style.name
   texture.style.debug = style.debug or texture.style.debug
   -- | Format Settings |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   if style.gradient and type(style.gradient) == 'table' then
     texture.style.gradient = {
       orientation = formatOrientation(style.gradient[1]),
-      color = style.gradient[2] and style.gradient[3] and {style.gradient[2],style.gradient[3]},
+      color = style.gradient[2] and style.gradient[3] and { style.gradient[2], style.gradient[3] },
     }
   end
   style.gradient_orientation = formatOrientation(style.gradient_orientation) -- fuck you
   if not texture.style.gradient and (style.gradient_orientation or style.gradient_alpha or style.gradient_color) then texture.style.gradient = {} end
   -- | Update Settings |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  texture.style.layer                  = style.layer                      or texture.style.layer                or DEFAULT_LAYER
-  texture.style.position               = formatPosition(style.position)   or texture.style.position             or {0,0,0,0}
-  texture.style.width                  = style.width                      or texture.style.width
-  texture.style.height                 = style.height                     or texture.style.height
-  texture.style.color                  = style.color                      or texture.style.color
-  texture.style.alpha                  = formatAlpha(style.alpha)         or texture.style.alpha                or {1,1}
+  texture.style.layer    = style.layer or texture.style.layer or DEFAULT_LAYER
+  texture.style.position = formatPosition(style.position) or texture.style.position or { 0, 0, 0, 0 }
+  texture.style.width    = style.width or texture.style.width
+  texture.style.height   = style.height or texture.style.height
+  texture.style.color    = style.color or texture.style.color
+  texture.style.alpha    = formatAlpha(style.alpha) or texture.style.alpha or { 1, 1 }
   -- gradient
   if texture.style.gradient then
-    texture.style.gradient.orientation = style.gradient_orientation       or texture.style.gradient.orientation or DEFAULT_GRADIENT_ORIENTATION
-    texture.style.gradient.color       = style.gradient_color             or texture.style.gradient.color       or {DEFAULT_COLOR,DEFAULT_COLOR}
+    texture.style.gradient.orientation = style.gradient_orientation or texture.style.gradient.orientation or
+        DEFAULT_GRADIENT_ORIENTATION
+    texture.style.gradient.color       = style.gradient_color or texture.style.gradient.color or
+        { DEFAULT_COLOR, DEFAULT_COLOR }
   end
   -- | Apply Settings |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -702,78 +730,90 @@ function DiesalStyle:StyleOutline(leftTexture,rightTexture,topTexture,bottomText
   topTexture:ClearAllPoints()
   bottomTexture:ClearAllPoints()
 
-  if texture.style.position [1] then leftTexture:SetPoint("LEFT", -texture.style.position [1],0)
-  else                               leftTexture:SetPoint("RIGHT", -texture.style.width,0) end
-  if texture.style.position [3] then leftTexture:SetPoint("TOP", 0,texture.style.position [3]) end
-  if texture.style.position [4] then leftTexture:SetPoint("BOTTOM", 0,-texture.style.position [4]) end
-  if texture.style.position [2] then rightTexture:SetPoint("RIGHT", texture.style.position [2],0)
-  else                               rightTexture:SetPoint("LEFT", texture.style.width-(texture.style.position [1]+1),0) end
-  if texture.style.position [3] then rightTexture:SetPoint("TOP", 0,texture.style.position [3]) end
-  if texture.style.position [4] then rightTexture:SetPoint("BOTTOM", 0,-texture.style.position [4]) end
-  if texture.style.position [1] then topTexture:SetPoint("LEFT", -texture.style.position [1]+1,0) end
-  if texture.style.position [2] then topTexture:SetPoint("RIGHT", (texture.style.position [2])-1,0) end
-  if texture.style.position [3] then topTexture:SetPoint("TOP", 0,texture.style.position [3])
-  else                               topTexture:SetPoint("BOTTOM", 0,texture.style.height-1) end
-  if texture.style.position [1] then bottomTexture:SetPoint("LEFT", -texture.style.position [1]+1,0) end
-  if texture.style.position [2] then bottomTexture:SetPoint("RIGHT", texture.style.position [2]-1,0) end
-  if texture.style.position [4] then bottomTexture:SetPoint("BOTTOM", 0,-texture.style.position [4])
-  else                               bottomTexture:SetPoint("TOP", 0,-(texture.style.height+1)+(texture.style.position [3]+2)) end
+  if texture.style.position[1] then
+    leftTexture:SetPoint("LEFT", -texture.style.position[1], 0)
+  else
+    leftTexture:SetPoint("RIGHT", -texture.style.width, 0)
+  end
+  if texture.style.position[3] then leftTexture:SetPoint("TOP", 0, texture.style.position[3]) end
+  if texture.style.position[4] then leftTexture:SetPoint("BOTTOM", 0, -texture.style.position[4]) end
+  if texture.style.position[2] then
+    rightTexture:SetPoint("RIGHT", texture.style.position[2], 0)
+  else
+    rightTexture:SetPoint("LEFT", texture.style.width - (texture.style.position[1] + 1), 0)
+  end
+  if texture.style.position[3] then rightTexture:SetPoint("TOP", 0, texture.style.position[3]) end
+  if texture.style.position[4] then rightTexture:SetPoint("BOTTOM", 0, -texture.style.position[4]) end
+  if texture.style.position[1] then topTexture:SetPoint("LEFT", -texture.style.position[1] + 1, 0) end
+  if texture.style.position[2] then topTexture:SetPoint("RIGHT", (texture.style.position[2]) - 1, 0) end
+  if texture.style.position[3] then
+    topTexture:SetPoint("TOP", 0, texture.style.position[3])
+  else
+    topTexture:SetPoint("BOTTOM", 0, texture.style.height - 1)
+  end
+  if texture.style.position[1] then bottomTexture:SetPoint("LEFT", -texture.style.position[1] + 1, 0) end
+  if texture.style.position[2] then bottomTexture:SetPoint("RIGHT", texture.style.position[2] - 1, 0) end
+  if texture.style.position[4] then
+    bottomTexture:SetPoint("BOTTOM", 0, -texture.style.position[4])
+  else
+    bottomTexture:SetPoint("TOP", 0, -(texture.style.height + 1) + (texture.style.position[3] + 2))
+  end
   -- size
   leftTexture:SetWidth(1)
   if texture.style.height then leftTexture:SetHeight(texture.style.height) end
   rightTexture:SetWidth(1)
   if texture.style.height then rightTexture:SetHeight(texture.style.height) end
   topTexture:SetHeight(1)
-  if texture.style.width then topTexture:SetWidth(texture.style.width-2) end
+  if texture.style.width then topTexture:SetWidth(texture.style.width - 2) end
   bottomTexture:SetHeight(1)
-  if texture.style.width then bottomTexture:SetWidth(texture.style.width-2) end
+  if texture.style.width then bottomTexture:SetWidth(texture.style.width - 2) end
   -- texture
   if texture.style.gradient then
     -- set mode
     texture.style.mode = 'gradient'
     -- clear any old  settings
-    leftTexture:SetTexture() -- clear image
+    leftTexture:SetTexture()   -- clear image
     -- leftTexture:SetAlpha(1) -- reset alpha
-    rightTexture:SetTexture() -- clear image
+    rightTexture:SetTexture()  -- clear image
     -- rightTexture:SetAlpha(1) -- reset alpha
-    topTexture:SetTexture() -- clear image
+    topTexture:SetTexture()    -- clear image
     -- topTexture:SetAlpha(1) -- reset alpha
     bottomTexture:SetTexture() -- clear image
     -- bottomTexture:SetAlpha(1) -- reset alpha
 
-    local r1,g1,b1,r2,g2,b2,a1,a2
+    local r1, g1, b1, r2, g2, b2, a1, a2
 
     if texture.style.gradient.orientation == 'HORIZONTAL' then
       -- clear settings
-      setGradient(leftTexture,'HORIZONTAL',1,1,1,1,1,1,1,1)
-      setGradient(rightTexture,'HORIZONTAL',1,1,1,1,1,1,1,1)
-      topTexture:SetColorTexture(1,1,1,1) -- clear color
-      bottomTexture:SetColorTexture(1,1,1,1) -- clear color
+      setGradient(leftTexture, 'HORIZONTAL', 1, 1, 1, 1, 1, 1, 1, 1)
+      setGradient(rightTexture, 'HORIZONTAL', 1, 1, 1, 1, 1, 1, 1, 1)
+      topTexture:SetColorTexture(1, 1, 1, 1)    -- clear color
+      bottomTexture:SetColorTexture(1, 1, 1, 1) -- clear color
 
       -- aply settings
-      r1,g1,b1 = GetBlizzColorValues(texture.style.gradient.color[1])
-      r2,g2,b2 = GetBlizzColorValues(texture.style.gradient.color[2])
-      a1,a2    = texture.style.alpha[1], texture.style.alpha[2]
+      r1, g1, b1 = GetBlizzColorValues(texture.style.gradient.color[1])
+      r2, g2, b2 = GetBlizzColorValues(texture.style.gradient.color[2])
+      a1, a2     = texture.style.alpha[1], texture.style.alpha[2]
 
-      setColor( leftTexture,  r1,g1,b1,a1 )
-      setColor( rightTexture, r2,g2,b2,a2 )
-      setGradient(topTexture,   'HORIZONTAL', r1, g1, b1, a1, r2, g2, b2, a2)
-      setGradient(bottomTexture,'HORIZONTAL', r1, g1, b1, a1, r2, g2, b2, a2)
+      setColor(leftTexture, r1, g1, b1, a1)
+      setColor(rightTexture, r2, g2, b2, a2)
+      setGradient(topTexture, 'HORIZONTAL', r1, g1, b1, a1, r2, g2, b2, a2)
+      setGradient(bottomTexture, 'HORIZONTAL', r1, g1, b1, a1, r2, g2, b2, a2)
     elseif texture.style.gradient.orientation == 'VERTICAL' then
       -- clear settings
-      leftTexture:SetColorTexture(1,1,1,1) -- clear color
-      rightTexture:SetColorTexture(1,1,1,1) -- clear color
-      setGradient(topTexture,'HORIZONTAL',1,1,1,1,1,1,1,1)
-      setGradient(bottomTexture,'HORIZONTAL',1,1,1,1,1,1,1,1)
+      leftTexture:SetColorTexture(1, 1, 1, 1)  -- clear color
+      rightTexture:SetColorTexture(1, 1, 1, 1) -- clear color
+      setGradient(topTexture, 'HORIZONTAL', 1, 1, 1, 1, 1, 1, 1, 1)
+      setGradient(bottomTexture, 'HORIZONTAL', 1, 1, 1, 1, 1, 1, 1, 1)
 
       -- aply settings
-      r1,g1,b1 = GetBlizzColorValues(texture.style.gradient.color[2])
-      r2,g2,b2 = GetBlizzColorValues(texture.style.gradient.color[1])
-      a1,a2    = texture.style.alpha[2], texture.style.alpha[1]
+      r1, g1, b1 = GetBlizzColorValues(texture.style.gradient.color[2])
+      r2, g2, b2 = GetBlizzColorValues(texture.style.gradient.color[1])
+      a1, a2     = texture.style.alpha[2], texture.style.alpha[1]
 
-      setColor( topTexture,    r2,g2,b2,a2 )
-      setColor( bottomTexture, r1,g1,b1,a1 )
-      setGradient(leftTexture,  'VERTICAL', r1, g1, b1, a1, r2, g2, b2, a2)
+      setColor(topTexture, r2, g2, b2, a2)
+      setColor(bottomTexture, r1, g1, b1, a1)
+      setGradient(leftTexture, 'VERTICAL', r1, g1, b1, a1, r2, g2, b2, a2)
       setGradient(rightTexture, 'VERTICAL', r1, g1, b1, a1, r2, g2, b2, a2)
     else
       texture.style.mode = 'gradient: no orientation!'
@@ -783,47 +823,48 @@ function DiesalStyle:StyleOutline(leftTexture,rightTexture,topTexture,bottomText
     -- set mode
     texture.style.mode = 'color'
     -- clear any old settings
-    setGradient(leftTexture,'HORIZONTAL',1,1,1,1,1,1,1,1)
-    setGradient(rightTexture,'HORIZONTAL',1,1,1,1,1,1,1,1)
-    setGradient(topTexture,'HORIZONTAL',1,1,1,1,1,1,1,1)
-    setGradient(bottomTexture,'HORIZONTAL',1,1,1,1,1,1,1,1)
+    setGradient(leftTexture, 'HORIZONTAL', 1, 1, 1, 1, 1, 1, 1, 1)
+    setGradient(rightTexture, 'HORIZONTAL', 1, 1, 1, 1, 1, 1, 1, 1)
+    setGradient(topTexture, 'HORIZONTAL', 1, 1, 1, 1, 1, 1, 1, 1)
+    setGradient(bottomTexture, 'HORIZONTAL', 1, 1, 1, 1, 1, 1, 1, 1)
     -- apply settings
-    local r,g,b = GetBlizzColorValues(texture.style.color)
+    local r, g, b = GetBlizzColorValues(texture.style.color)
 
-    setColor( leftTexture,   r,g,b,texture.style.alpha[1] )
-    setColor( rightTexture,  r,g,b,texture.style.alpha[1] )
-    setColor( topTexture,    r,g,b,texture.style.alpha[1] )
-    setColor( bottomTexture, r,g,b,texture.style.alpha[1] )
+    setColor(leftTexture, r, g, b, texture.style.alpha[1])
+    setColor(rightTexture, r, g, b, texture.style.alpha[1])
+    setColor(topTexture, r, g, b, texture.style.alpha[1])
+    setColor(bottomTexture, r, g, b, texture.style.alpha[1])
   else
     -- set mode
     texture.style.mode = 'none!'
     -- clear the texture
-    leftTexture:SetTexture() -- clear image
-    setGradient(leftTexture,'HORIZONTAL',0,0,0,0,0,0,0,0) -- clear gradient
-    leftTexture:SetColorTexture(0,0,0,0) -- clear color
-    rightTexture:SetTexture() -- clear image
-    setGradient(rightTexture,'HORIZONTAL',0,0,0,0,0,0,0,0) -- clear gradient
-    rightTexture:SetColorTexture(0,0,0,0) -- clear color
-    topTexture:SetTexture() -- clear image
-    setGradient(topTexture,'HORIZONTAL',0,0,0,0,0,0,0,0) -- clear gradient
-    topTexture:SetColorTexture(0,0,0,0) -- clear color
-    bottomTexture:SetTexture() -- clear image
-    setGradient(bottomTexture,'HORIZONTAL',0,0,0,0,0,0,0,0) -- clear gradient
-    bottomTexture:SetColorTexture(0,0,0,0) -- clear color
+    leftTexture:SetTexture()                                         -- clear image
+    setGradient(leftTexture, 'HORIZONTAL', 0, 0, 0, 0, 0, 0, 0, 0)   -- clear gradient
+    leftTexture:SetColorTexture(0, 0, 0, 0)                          -- clear color
+    rightTexture:SetTexture()                                        -- clear image
+    setGradient(rightTexture, 'HORIZONTAL', 0, 0, 0, 0, 0, 0, 0, 0)  -- clear gradient
+    rightTexture:SetColorTexture(0, 0, 0, 0)                         -- clear color
+    topTexture:SetTexture()                                          -- clear image
+    setGradient(topTexture, 'HORIZONTAL', 0, 0, 0, 0, 0, 0, 0, 0)    -- clear gradient
+    topTexture:SetColorTexture(0, 0, 0, 0)                           -- clear color
+    bottomTexture:SetTexture()                                       -- clear image
+    setGradient(bottomTexture, 'HORIZONTAL', 0, 0, 0, 0, 0, 0, 0, 0) -- clear gradient
+    bottomTexture:SetColorTexture(0, 0, 0, 0)                        -- clear color
   end
 end
 
-
-function DiesalStyle:StyleShadow(object,frame,style)
-  object.shadow = object.shadow or CreateFrame("Frame",nil,frame,BackdropTemplateMixin and "BackdropTemplate") --CreateFrame("Frame",nil,frame) 
+function DiesalStyle:StyleShadow(object, frame, style)
+  object.shadow = object.shadow or
+      CreateFrame("Frame", nil, frame, BackdropTemplateMixin and "BackdropTemplate") --CreateFrame("Frame",nil,frame)
   object.shadow:Show()
   if not object.shadow.style or style.clear then object.shadow.style = {} end
   local shadowStyle = object.shadow.style
   -- ~~ Format New Settings ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  local red,green,blue = DiesalTools.GetColor(style.color)
-  local offset = style.offset and type(style.offset)=='number' and {style.offset,style.offset,style.offset,style.offset} or style.offset
+  local red, green, blue = DiesalTools.GetColor(style.color)
+  local offset = style.offset and type(style.offset) == 'number' and
+      { style.offset, style.offset, style.offset, style.offset } or style.offset
   -- Setting ~~~~~~~~~~~~~~~~~~~~~~~ New Setting ~~~~~~~~~~~~~~~ Old Setting ~~~~~~~~~~~~~~~~~ Default ~~~~~~~~~~~~~~~~~~
-  shadowStyle.edgeFile = style.edgeFile or shadowStyle.edgeFile or getMedia('border','shadow')
+  shadowStyle.edgeFile = style.edgeFile or shadowStyle.edgeFile or getMedia('border', 'shadow')
   shadowStyle.edgeSize = style.edgeSize or shadowStyle.edgeSize or 28
 
   shadowStyle.red = red or shadowStyle.red or 0
@@ -831,17 +872,18 @@ function DiesalStyle:StyleShadow(object,frame,style)
   shadowStyle.blue = blue or shadowStyle.blue or 0
   shadowStyle.alpha = style.alpha or shadowStyle.alpha or .45
 
-  shadowStyle.offset = offset or shadowStyle.offset or {20,20,20,20}
+  shadowStyle.offset = offset or shadowStyle.offset or { 20, 20, 20, 20 }
   -- ~~ Apply Settings ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-  if shadowStyle.offset[1] then object.shadow:SetPoint("LEFT", -shadowStyle.offset[1],0) end
-  if shadowStyle.offset[2] then object.shadow:SetPoint("RIGHT", shadowStyle.offset[2],0) end
-  if shadowStyle.offset[3] then object.shadow:SetPoint("TOP", 0,shadowStyle.offset[3]) end
-  if shadowStyle.offset[4] then object.shadow:SetPoint("BOTTOM", 0,-shadowStyle.offset[4]) end
+  if shadowStyle.offset[1] then object.shadow:SetPoint("LEFT", -shadowStyle.offset[1], 0) end
+  if shadowStyle.offset[2] then object.shadow:SetPoint("RIGHT", shadowStyle.offset[2], 0) end
+  if shadowStyle.offset[3] then object.shadow:SetPoint("TOP", 0, shadowStyle.offset[3]) end
+  if shadowStyle.offset[4] then object.shadow:SetPoint("BOTTOM", 0, -shadowStyle.offset[4]) end
 
   object.shadow:SetBackdrop({ edgeFile = shadowStyle.edgeFile, edgeSize = shadowStyle.edgeSize })
   object.shadow:SetBackdropBorderColor(shadowStyle.red, shadowStyle.green, shadowStyle.blue, shadowStyle.alpha)
 end
+
 --[[ Font style table format
 TODO style.offset ( offset|{ Left, Right, Top, Bottom })
 TODO style.width ( width )
@@ -854,14 +896,14 @@ style.alpha ( alpha )
 style.color ( hexColor|{ Red, Green, Blue } [0-255])
 style.lineSpacing ( number - Sets the font instance's amount of spacing between lines)
 ]]
-function DiesalStyle:StyleFont(fontInstance,name,style)
+function DiesalStyle:StyleFont(fontInstance, name, style)
   local filename, fontSize, flags = fontInstance:GetFont()
-  local red,green,blue,alpha = fontInstance:GetTextColor()
+  local red, green, blue, alpha = fontInstance:GetTextColor()
   local lineSpacing = fontInstance:GetSpacing()
-   -- Fallback to DiesalFontNormal for Patch 8.1
-   if not filename then 
+  -- Fallback to DiesalFontNormal for Patch 8.1
+  if not filename then
     filename, fontSize, flags = DiesalFontNormal:GetFont()
-    red,green,blue,alpha = DiesalFontNormal:GetTextColor()
+    red, green, blue, alpha = DiesalFontNormal:GetTextColor()
     lineSpacing = DiesalFontNormal:GetSpacing()
   end
   style.red, style.green, style.blue = DiesalTools.GetColor(style.color)
@@ -876,23 +918,23 @@ function DiesalStyle:StyleFont(fontInstance,name,style)
   style.alpha = style.alpha or alpha
   style.lineSpacing = style.lineSpacing or lineSpacing
   -- ~~ Apply Settings ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  fontInstance:SetFont( style.filename, style.fontSize, style.flags )
+  fontInstance:SetFont(style.filename, style.fontSize, style.flags)
   fontInstance:SetTextColor(style.red, style.green, style.blue, style.alpha)
   fontInstance:SetSpacing(style.lineSpacing)
 
   fontInstance.style = style
 end
 
-function DiesalStyle:UpdateObjectStyle(object,name,style)
-  if not style or type(style) ~='table' then return end
-  if type(name) ~='string' then return end
+function DiesalStyle:UpdateObjectStyle(object, name, style)
+  if not style or type(style) ~= 'table' then return end
+  if type(name) ~= 'string' then return end
   -- ~~ Clear Texture ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   if style.clear then
     -- clear texture
-    if object.textures[name] then DiesalStyle:ReleaseTexture(object,name) end
+    if object.textures[name] then DiesalStyle:ReleaseTexture(object, name) end
     -- clear OUTLINE
-    for i=1, #OUTLINES do
-      if object.textures[name..OUTLINES[i]] then DiesalStyle:ReleaseTexture(object,name..OUTLINES[i]) end
+    for i = 1, #OUTLINES do
+      if object.textures[name .. OUTLINES[i]] then DiesalStyle:ReleaseTexture(object, name .. OUTLINES[i]) end
     end
   end
   -- add texture name to style for better debugging
@@ -900,7 +942,10 @@ function DiesalStyle:UpdateObjectStyle(object,name,style)
   -- ~~ Get styleType ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   if not style.type then return end
   local styleType = DiesalTools.Capitalize(style.type)
-  if not DiesalStyle['Style'..styleType] then geterrorhandler()(style.type..' is not a valid style type') return end
+  if not DiesalStyle['Style' .. styleType] then
+    geterrorhandler()(style.type .. ' is not a valid style type')
+    return
+  end
   -- ~~ Get Frame ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   local framename = name:match('^[ \t]*([%w%d%_]*)')
   local frame = object[framename]
@@ -913,78 +958,87 @@ function DiesalStyle:UpdateObjectStyle(object,name,style)
       object.textures[name] = texture
     end
     texture:SetParent(frame)
-    DiesalStyle:StyleTexture(texture,style)
-  return end
+    DiesalStyle:StyleTexture(texture, style)
+    return
+  end
   if styleType == 'Outline' then
     local textures = {}
-    for i=1, #OUTLINES do
-      local texture = object.textures[name..OUTLINES[i]]
+    for i = 1, #OUTLINES do
+      local texture = object.textures[name .. OUTLINES[i]]
       if not texture then
         texture = newTexture()
-        object.textures[name..OUTLINES[i]] = texture
+        object.textures[name .. OUTLINES[i]] = texture
       end
       texture:SetParent(frame)
       textures[i] = texture
     end
-    DiesalStyle:StyleOutline(textures[1],textures[2],textures[3],textures[4],style)
-  return end
+    DiesalStyle:StyleOutline(textures[1], textures[2], textures[3], textures[4], style)
+    return
+  end
   if styleType == 'Shadow' then
-    DiesalStyle:StyleShadow(object,frame,style)
-  return end
+    DiesalStyle:StyleShadow(object, frame, style)
+    return
+  end
   if styleType == 'Font' then
-    DiesalStyle:StyleFont(frame,name,style)
+    DiesalStyle:StyleFont(frame, name, style)
   end
 end
-function DiesalStyle:SetObjectStyle(object,name,style)
-  if not style or type(style) ~='table' then return end
-  if type(name) ~='string' then return end
+
+function DiesalStyle:SetObjectStyle(object, name, style)
+  if not style or type(style) ~= 'table' then return end
+  if type(name) ~= 'string' then return end
   -- clear texture
-  if object.textures[name] then DiesalStyle:ReleaseTexture(object,name) end
+  if object.textures[name] then DiesalStyle:ReleaseTexture(object, name) end
   -- clear OUTLINE
-  for i=1, #OUTLINES do
-    if object.textures[name..OUTLINES[i]] then DiesalStyle:ReleaseTexture(object,name..OUTLINES[i]) end
+  for i = 1, #OUTLINES do
+    if object.textures[name .. OUTLINES[i]] then DiesalStyle:ReleaseTexture(object, name .. OUTLINES[i]) end
   end
   -- Set object style
-  DiesalStyle:UpdateObjectStyle(object,name,style)
+  DiesalStyle:UpdateObjectStyle(object, name, style)
 end
-function DiesalStyle:UpdateObjectStylesheet(object,Stylesheet)
-  if not Stylesheet or type(Stylesheet) ~='table' then return end
+
+function DiesalStyle:UpdateObjectStylesheet(object, Stylesheet)
+  if not Stylesheet or type(Stylesheet) ~= 'table' then return end
   if not object.textures then object.textures = {} end
 
-  for name,style in pairs(Stylesheet) do
-    self:UpdateObjectStyle(object,name,style)
+  for name, style in pairs(Stylesheet) do
+    self:UpdateObjectStyle(object, name, style)
   end
 end
-function DiesalStyle:SetObjectStylesheet(object,Stylesheet)
+
+function DiesalStyle:SetObjectStylesheet(object, Stylesheet)
   if not object.textures then object.textures = {} end
 
   DiesalStyle:ReleaseTextures(object)
 
-  for name,style in pairs(Stylesheet) do
-    self:UpdateObjectStyle(object,name,style)
+  for name, style in pairs(Stylesheet) do
+    self:UpdateObjectStyle(object, name, style)
   end
 end
-function DiesalStyle:ReleaseTexture(object,name)
+
+function DiesalStyle:ReleaseTexture(object, name)
   if not object or not object.textures or not object.textures[name] then
-    error('No such texture on ojbect',2)
-  return end
+    error('No such texture on ojbect', 2)
+    return
+  end
   releaseTexture(object.textures[name])
   object.textures[name] = nil
 end
+
 function DiesalStyle:ReleaseTextures(object)
-  for name,texture in pairs(object.textures) do
+  for name, texture in pairs(object.textures) do
     releaseTexture(texture)
     object.textures[name] = nil
   end
 end
-function DiesalStyle:GetMedia(mediaType,name)
-  return getMedia(mediaType,name)
-end
-function DiesalStyle:AddMedia(mediaType,name,mediaFile)
-  addMedia(mediaType,name,mediaFile)
+
+function DiesalStyle:GetMedia(mediaType, name)
+  return getMedia(mediaType, name)
 end
 
-
+function DiesalStyle:AddMedia(mediaType, name, mediaFile)
+  addMedia(mediaType, name, mediaFile)
+end
 
 -- deprecated
 
