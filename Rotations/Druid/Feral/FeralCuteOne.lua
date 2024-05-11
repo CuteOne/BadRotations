@@ -895,7 +895,7 @@ actionList.PreCombat = function()
         if unit.valid("target") and unit.exists("target") and unit.distance("target") < 5 then
             -- Rake (Stealth)
             -- rake,if=buff.prowl.up|buff.shadowmeld.up
-            if cast.able.rake("target") and (buff.prowl.exists() or buff.shadowmeld.exists()) then
+            if cast.able.rake("target") and (buff.prowl.exists("player") or buff.shadowmeld.exists("player")) then
                 if cast.rake("target") then
                     ui.debug("Casting Rake [Pre-Combat]")
                     return true
@@ -981,10 +981,8 @@ actionList.Combat = function()
         end
         -- Rake
         -- rake,target_if=persistent_multiplier>dot.rake.pmultiplier,if=buff.prowl.up|buff.shadowmeld.up
-        if cast.able.rake(var.maxRakePandemicUnit) and ((debuff.rake.applied(var.maxRakePandemicUnit) > debuff.rake.pmultiplier(var.maxRakePandemicUnit)
-                and (buff.prowl.exists() or buff.shadowmeld.exists())))
-        then
-            if cast.rake(var.maxRakePandemicUnit) then
+        if cast.able.rake(units.dyn5) and (buff.prowl.exists() or buff.shadowmeld.exists()) then
+            if cast.rake(units.dyn5) then
                 ui.debug("Casting Rake [Combat]")
                 return true
             end
@@ -1166,7 +1164,7 @@ actionList.AoeBuilder = function()
     end
     -- Brutal Slash
     -- brutal_slash,if=!(variable.need_bt&buff.bt_brutal_slash.up)
-    if talent.brutalSlash and cast.able.brutalSlash("player", "aoe", ui.value("Brutal Slash Targets"), 8) and not (var.needBt and buff.btBrutalSlash.exists()) then
+    if talent.brutalSlash and cast.able.brutalSlash("player", "aoe", ui.value("Brutal Slash Targets"), 8) and not (var.needBt and var.btGen.brutalSlash) then
         if cast.brutalSlash("player", "aoe", ui.value("Brutal Slash Targets"), 8) then
             ui.debug("Casting Brutal Slash [Aoe Builder]")
             return true
@@ -1218,7 +1216,7 @@ actionList.AoeBuilder = function()
     end
     -- Shred
     -- shred,target_if=max:target.time_to_die,if=!variable.easy_swipe&variable.need_bt&buff.bt_shred.down
-    if cast.able.shred(var.maxTTDUnit) and not var.easySwipe and var.needBt and not buff.btShred.exists() then
+    if cast.able.shred(var.maxTTDUnit) and not var.easySwipe and var.needBt and not var.btGen.shred then
         if cast.shred(var.maxTTDUnit) then
             ui.debug("Casting Shred [Aoe Builder - Bloodtalons Build]")
             var.btGen.shred = true
@@ -1672,11 +1670,11 @@ actionList.Cooldown = function()
         end
         -- Convoke The Spirits
         -- convoke_the_spirits,target_if=max:target.time_to_die,if=fight_remains<5|(buff.smoldering_frenzy.up|!set_bonus.tier31_4pc)&(dot.rip.remains>4-talent.ashamanes_guidance&buff.tigers_fury.up&combo_points<2)&(debuff.dire_fixation.up|!talent.dire_fixation.enabled|spell_targets.swipe_cat>1)&((target.time_to_die<fight_remains&target.time_to_die>5-talent.ashamanes_guidance.enabled)|target.time_to_die=fight_remains)
-        if ui.alwaysCdNever("Convoke The Spirits") and cast.able.convokeTheSpirits() and ((unit.ttdGroup(40) < 5 or (buff.smolderingFrenzy.exists() or not equiped.tier(31, 4))
+        if ui.alwaysCdNever("Convoke The Spirits") and cast.able.convokeTheSpirits() and (unit.ttdGroup(40) < 5 or (buff.smolderingFrenzy.exists() or not equiped.tier(31, 4))
                 and (debuff.rip.remains(var.maxTTDUnit) > 4 - var.ashamanesGuidance and buff.tigersFury.exists() and comboPoints() < 2)
                 and (debuff.direFixation.exists(var.maxTTDUnit) or not talent.direFixation or #enemies.yards8 > 1)
                 and ((unit.ttd(var.maxTTDUnit) < unit.ttdGroup(40) and unit.ttd(var.maxTTDUnit) > 5 - var.ashamanesGuidance)
-                    or unit.ttd(var.maxTTDUnit) == unit.ttdGroup(40) or unit.isDummy("target"))))
+                    or unit.ttd(var.maxTTDUnit) == unit.ttdGroup(40) or unit.isDummy("target") or unit.isBoss(var.maxTTDUnit)))
         then
             if cast.convokeTheSpirits() then
                 ui.debug("Casting Convoke The Spirits [Cooldown]")
@@ -1999,18 +1997,18 @@ local function runRotation()
     end
 
     -- target_if=max:persistent_multiplier>dot.rake.pmultiplier+refreshable
-    var.maxRakePandemic = 0
-    var.maxRakePandemicUnit = "target"
-    for i = 1, #enemies.yards5f do
-        local thisUnit = enemies.yards5f[i]
-        local numRefresh = debuff.rake.refresh(thisUnit) and 1 or 0
-        local pandemic = debuff.rake.applied(thisUnit) > debuff.rake.pmultiplier(thisUnit) + numRefresh and 1 or 0
-        if pandemic > var.maxRakePandemic then
-            var.maxRakePandemic = pandemic
-            var.maxRakePandemicUnit = thisUnit
-            break
-        end
-    end
+    -- var.maxRakePandemic = 0
+    -- var.maxRakePandemicUnit = "target"
+    -- for i = 1, #enemies.yards5f do
+    --     local thisUnit = enemies.yards5f[i]
+    --     local numRefresh = debuff.rake.refresh(thisUnit) and 1 or 0
+    --     local pandemic = debuff.rake.applied(thisUnit) > debuff.rake.pmultiplier(thisUnit) + numRefresh and 1 or 0
+    --     if pandemic > var.maxRakePandemic then
+    --         var.maxRakePandemic = pandemic
+    --         var.maxRakePandemicUnit = thisUnit
+    --         break
+    --     end
+    -- end
 
     -- target_if=max:(1+dot.adaptive_swarm_damage.stack)*dot.adaptive_swarm_damage.stack<3*time_to_die
     var.maxAdaptiveSwarm = 0
