@@ -6,22 +6,29 @@ local rotationName = "Initial"
 local function createToggles()
     -- Rotation Button
     local RotationModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Rotation Enabled", tip = "Enables Rotation", highlight = 1, icon = br.player.spells.tigerPalm},
-        [2] = { mode = "Off", value = 2 , overlay = "Rotation Disabled", tip = "Disables Rotation", highlight = 0, icon = br.player.spells.tigerPalm}
+        [1] = { mode = "On", value = 1, overlay = "Rotation Enabled", tip = "Enables Rotation", highlight = 1, icon = br.player.spells.tigerPalm },
+        [2] = { mode = "Off", value = 2, overlay = "Rotation Disabled", tip = "Disables Rotation", highlight = 0, icon = br.player.spells.tigerPalm }
     };
-    br.ui:createToggle(RotationModes,"Rotation",1,0)
+    br.ui:createToggle(RotationModes, "Rotation", 1, 0)
+    -- Cooldown Button
+    local CooldownModes = {
+        [1] = { mode = "Auto", value = 1, overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spells.touchOfDeath },
+        [2] = { mode = "On", value = 1, overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spells.touchOfDeath },
+        [3] = { mode = "Off", value = 3, overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spells.touchOfDeath }
+    };
+    br.ui:createToggle(CooldownModes, "Cooldown", 2, 0)
     -- Defensive Button
     local DefensiveModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Enables Defensive", highlight = 1, icon = br.player.spells.vivify},
-        [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "Disables Defensive", highlight = 0, icon = br.player.spells.vivify}
+        [1] = { mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Enables Defensive", highlight = 1, icon = br.player.spells.vivify },
+        [2] = { mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "Disables Defensive", highlight = 0, icon = br.player.spells.vivify }
     };
-    br.ui:createToggle(DefensiveModes,"Defensive",2,0)
+    br.ui:createToggle(DefensiveModes, "Defensive", 3, 0)
     -- Interrupt Button
     local InterruptModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Interrupt Enabled", tip = "Enables Interrupt", highlight = 1, icon = br.player.spells.legSweep},
-        [2] = { mode = "Off", value = 2 , overlay = "Interrupt Disabled", tip = "Interrupt Defensive", highlight = 0, icon = br.player.spells.legSweep}
+        [1] = { mode = "On", value = 1, overlay = "Interrupt Enabled", tip = "Enables Interrupt", highlight = 1, icon = br.player.spells.legSweep },
+        [2] = { mode = "Off", value = 2, overlay = "Interrupt Disabled", tip = "Interrupt Defensive", highlight = 0, icon = br.player.spells.legSweep }
     };
-    br.ui:createToggle(InterruptModes,"Interrupt",3,0)
+    br.ui:createToggle(InterruptModes, "Interrupt", 4, 0)
 end
 
 ---------------
@@ -34,64 +41,71 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS ---
         -----------------------
-        section = br.ui:createSection(br.ui.window.profile,  "General")
-            -- Crackling Jade lightning
-            br.ui:createCheckbox(section, "Crackling Jade Lightning")
-            br.ui:createSpinnerWithout(section, "Cancel CJL Range", 10, 5, 40, 5, "|cffFFFFFFCancels Crackling Jade Lightning below this range in yards.")
-            -- Roll
-            br.ui:createCheckbox(section, "Roll")
-            -- Touch of Death
-            br.ui:createCheckbox(section, "Touch of Death")
-            -- Trinkets
-            br.player.module.BasicTrinkets(nil,section)
-            -- br.ui:createDropdownWithout(section,"Trinket 1", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Trinket 1.")
-            -- br.ui:createDropdownWithout(section,"Trinket 2", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Trinket 2.")
+        section = br.ui:createSection(br.ui.window.profile, "General")
+        -- Crackling Jade lightning
+        br.ui:createCheckbox(section, "Crackling Jade Lightning")
+        br.ui:createSpinnerWithout(section, "Cancel CJL Range", 10, 5, 40, 5,
+            "|cffFFFFFFCancels Crackling Jade Lightning below this range in yards.")
+        -- Roll
+        br.ui:createCheckbox(section, "Roll")
+        br.ui:checkSectionState(section)
+        ------------------------
+        --- COOLDOWN OPTIONS ---
+        ------------------------
+        section = br.ui:createSection(br.ui.window.profile, "Cooldown")
+        -- Touch of Death
+        br.ui:createDropdownWithout(section, "Touch of Death", { "Always", "|cff0000ffCD", "|cffff0000Never" }, 2,
+            "|cffFFFFFFWhen to use Touch of Death")
+        -- Trinkets
+        br.player.module.BasicTrinkets(nil, section)
         br.ui:checkSectionState(section)
         -------------------------
         --- DEFENSIVE OPTIONS ---
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
-            -- Expel Harm
-            br.ui:createSpinner(section, "Expel Harm",  40,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-            -- Healthstone / Potion
-            br.ui:createSpinner(section, "Healthstone/Potion", 30, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-            -- Heirloom Neck
-            br.ui:createSpinner(section, "Heirloom Neck",  80,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-            -- Leg Sweep
-            br.ui:createSpinner(section, "Leg Sweep - HP", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-            br.ui:createSpinner(section, "Leg Sweep - AoE", 5, 0, 10, 1, "|cffFFFFFFNumber of Units in 5 Yards to Cast At")
-            -- Vivify
-            br.ui:createSpinner(section, "Vivify",  60,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-            -- Target Heal Key
-            br.ui:createDropdownWithout(section, "Target Heal Key", br.dropOptions.Toggle,  2)
+        -- Expel Harm
+        br.ui:createSpinner(section, "Expel Harm", 40, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
+        -- Healthstone / Potion
+        br.ui:createSpinner(section, "Healthstone/Potion", 30, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
+        -- Heirloom Neck
+        br.ui:createSpinner(section, "Heirloom Neck", 80, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
+        -- Leg Sweep
+        br.ui:createSpinner(section, "Leg Sweep - HP", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
+        br.ui:createSpinner(section, "Leg Sweep - AoE", 5, 0, 10, 1, "|cffFFFFFFNumber of Units in 5 Yards to Cast At")
+        -- Vivify
+        br.ui:createSpinner(section, "Vivify", 60, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
+        -- Target Heal Key
+        br.ui:createDropdownWithout(section, "Target Heal Key", br.dropOptions.Toggle, 2)
         br.ui:checkSectionState(section)
         -------------------------
         --- INTERRUPT OPTIONS ---
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
-            -- Leg Sweep
-            br.ui:createCheckbox(section, "Leg Sweep")
-            -- Interrupt Percentage
-            br.ui:createSpinnerWithout(section,  "Interrupt At",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")
+        -- Leg Sweep
+        br.ui:createCheckbox(section, "Leg Sweep")
+        -- Interrupt Percentage
+        br.ui:createSpinnerWithout(section, "Interrupt At", 0, 0, 95, 5, "|cffFFBB00Cast Percentage to use at.")
         br.ui:checkSectionState(section)
         ----------------------
         --- TOGGLE OPTIONS ---
         ----------------------
-        section = br.ui:createSection(br.ui.window.profile,  "Toggle Keys")
-            -- Single/Multi Toggle
-            br.ui:createDropdownWithout(section,  "Rotation Mode", br.dropOptions.Toggle,  4)
-            --Defensive Key Toggle
-            br.ui:createDropdownWithout(section,  "Defensive Mode", br.dropOptions.Toggle,  6)
-            -- Interrupts Key Toggle
-            br.ui:createDropdownWithout(section,  "Interrupt Mode", br.dropOptions.Toggle,  6)
-            -- Pause Toggle
-            br.ui:createDropdown(section,  "Pause Mode", br.dropOptions.Toggle,  6)
+        section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
+        -- Single/Multi Toggle
+        br.ui:createDropdownWithout(section, "Rotation Mode", br.dropOptions.Toggle, 4)
+        -- Cooldown Key Toggle
+        br.ui:createDropdownWithout(section, "Cooldown Mode", br.dropOptions.Toggle, 6)
+        -- Defensive Key Toggle
+        br.ui:createDropdownWithout(section, "Defensive Mode", br.dropOptions.Toggle, 6)
+        -- Interrupts Key Toggle
+        br.ui:createDropdownWithout(section, "Interrupt Mode", br.dropOptions.Toggle, 6)
+        -- Pause Toggle
+        br.ui:createDropdown(section, "Pause Mode", br.dropOptions.Toggle, 6)
         br.ui:checkSectionState(section)
     end
-    optionTable = {{
+    optionTable = { {
         [1] = "Rotation Options",
         [2] = rotationOptions,
-    }}
+    } }
     return optionTable
 end
 
@@ -110,21 +124,33 @@ local units
 local actionList = {}
 local var = {}
 var.getFacingDistance = br["getFacingDistance"]
-var.getItemInfo = br._G["GetItemInfo"]
 var.haltProfile = false
 var.profileStop = false
-var.specificToggle = br["SpecificToggle"]
 
 --------------------
 --- Action Lists ---
 --------------------
 -- Action List - Extra
 actionList.Extra = function()
-    -- Roll
-    if ui.checked("Roll") and unit.moving() and unit.distance("target") > 10 and unit.valid("target")
-        and var.getFacingDistance() < 5 and unit.facing("player","target",10)
+    -- Crackling Jade Lightning
+    if ui.checked("Crackling Jade Lightning") and not unit.mounted() and not cast.current.cracklingJadeLightning()
+        and not unit.moving() and cast.able.cracklingJadeLightning("target") and unit.valid("target")
+        and unit.distance("target") > ui.value("Cancel CJL Range")
     then
-        if cast.roll() then ui.debug("Casting Roll") return true end
+        if cast.cracklingJadeLightning("target") then
+            ui.debug("Casting Crackling Jade Lightning")
+            return true
+        end
+    end
+    -- Roll
+    if ui.checked("Roll") and cast.able.roll() and unit.moving()
+        and unit.distance("target") > 10 and unit.valid("target")
+        and var.getFacingDistance() < 5 and unit.facing("player", "target", 10)
+    then
+        if cast.roll() then
+            ui.debug("Casting Roll")
+            return true
+        end
     end
 end -- End Action List- Extra
 
@@ -134,62 +160,128 @@ actionList.Defensive = function()
         -- Basic Healing Module
         module.BasicHealing()
         -- Expel Harm
-        if ui.checked("Expel Harm") and unit.hp() <= ui.value("Expel Harm") then
-            if cast.expelHarm() then ui.debug("Casting Expel Harm") return true end
+        if ui.checked("Expel Harm") and cast.able.expelHarm() and unit.hp() <= ui.value("Expel Harm") then
+            if cast.expelHarm() then
+                ui.debug("Casting Expel Harm")
+                return true
+            end
         end
         -- Leg Sweep
-        if ui.checked("Leg Sweep - HP") and unit.hp() <= ui.value("Leg Sweep - HP") and unit.inCombat() and #enemies.yards5 > 0 then
-            if cast.legSweep() then ui.debug("Casting Leg Sweep [HP]") return true end
+        if ui.checked("Leg Sweep - HP") and cast.able.legSweep() and unit.hp() <= ui.value("Leg Sweep - HP")
+            and unit.inCombat() and #enemies.yards5 > 0
+        then
+            if cast.legSweep() then
+                ui.debug("Casting Leg Sweep [HP]")
+                return true
+            end
         end
-        if ui.checked("Leg Sweep - AoE") and #enemies.yards5 >= ui.value("Leg Sweep - AoE") then
-            if cast.legSweep() then ui.debug("Casting Leg Sweep [AOE]") return true end
+        if ui.checked("Leg Sweep - AoE") and cast.able.legSweep()
+            and #enemies.yards5 >= ui.value("Leg Sweep - AoE")
+        then
+            if cast.legSweep() then
+                ui.debug("Casting Leg Sweep [AOE]")
+                return true
+            end
         end
         -- Vivify
-        if ui.checked("Vivify") and cast.able.vivify() then
-            local thisUnit = unit.friend("target") and "target" or "player"
-            if unit.hp(thisUnit) <= ui.value("Vivify") then
-                if cast.vivify(thisUnit) then ui.debug("Casting Vivify on "..unit.name(thisUnit)) return true end
+        local vivifyUnit = unit.friend("target") and "target" or "player"
+        if ui.checked("Vivify") and cast.able.vivify(vivifyUnit) then
+            if unit.hp(vivifyUnit) <= ui.value("Vivify") then
+                if cast.vivify(vivifyUnit) then
+                    ui.debug("Casting Vivify on " .. unit.name(vivifyUnit))
+                    return true
+                end
             end
         end
     end
 end -- End Action List - Defensive
 
+-- Action List - Cooldowns
+actionList.Cooldowns = function()
+    -- Touch of Death
+    if ui.alwaysCdNever("Touch of Death") and cast.able.touchOfDeath(units.dyn5) and unit.health(units.dyn5) < unit.healthMax("player") then
+        if cast.touchOfDeath(units.dyn5) then
+            ui.debug("Casting Touch of Death - Omae wa mou shindeiru")
+            return true
+        end
+    end
+    -- Trinket - Non-Specific
+    if unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
+        module.BasicTrinkets()
+    end
+end -- End Action List - Cooldowns
+
 -- Action List - Interrupt
 actionList.Interrupt = function()
     if ui.useInterrupt() then
-        for i=1, #enemies.yards5 do
+        for i = 1, #enemies.yards5 do
             local thisUnit = enemies.yards5[i]
-            if br.canInterrupt(thisUnit,ui.value("Interrupt At")) then
+            if br.canInterrupt(thisUnit, ui.value("Interrupt At")) then
                 -- Leg Sweep
                 if ui.checked("Leg Sweep") and cast.able.legSweep(thisUnit) and unit.distance(thisUnit) < 5 then
-                    if cast.legSweep(thisUnit) then ui.debug("Casting Leg Sweep [Interrupt]") return true end
+                    if cast.legSweep(thisUnit) then
+                        ui.debug("Casting Leg Sweep [Interrupt]")
+                        return true
+                    end
                 end
             end
         end
     end -- End Interrupt Check
-end -- End Action List - Interrupt
+end     -- End Action List - Interrupt
 
 -- Action List - Pre-Combat
 actionList.PreCombat = function()
     if not unit.inCombat() and not unit.mounted() then
         if unit.valid("target") then
-            -- Touch of Death
-            if cast.able.touchOfDeath("target") and unit.health("target") < unit.health("player") then
-                if cast.touchOfDeath("target") then ui.debug("Casting Touch of Death - DIE! [Pull]") return true end
-            end
-            -- Crackling Jade Lightning
-            if ui.checked("Crackling Jade Lightning") and not cast.current.cracklingJadeLightning()
-                and not unit.moving() and unit.distance("target") > ui.value("Cancel CJL Range")
-            then
-                if cast.cracklingJadeLightning() then ui.debug("Casting Crackling Jade Lightning [Pull]") return true end
-            end
-            -- Start Attack
-            if not br._G.IsAutoRepeatSpell(br._G.GetSpellInfo(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
-                br._G.StartAttack(units.dyn5)
+            -- Auto Attack
+            if cast.able.autoAttack() and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
+                if cast.autoAttack() then
+                    ui.debug("Casting Auto Attack [Precombat]")
+                    return true
+                end
             end
         end
     end
 end -- End Action List - PreCombat
+
+-- Action List - Combat
+actionList.Combat = function()
+    -- Check for combat
+    if unit.valid("target") and cd.global.remain() == 0 then
+        if unit.exists(units.dyn40) and unit.distance(units.dyn40) < 40 then
+            -- Auto Attack
+            if cast.able.autoAttack() and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
+                if cast.autoAttack() then
+                    ui.debug("Casting Auto Attack")
+                    return true
+                end
+            end
+            -- Call Action List - Cooldowns
+            if actionList.Cooldowns() then return true end
+            -- Spinning Crane Kick
+            if cast.able.spinningCraneKick() and #enemies.yards8 > 3 then
+                if cast.spinningCraneKick() then
+                    ui.debug("Casting Spinning Crane Kick")
+                    return true
+                end
+            end
+            -- Blackout Kick
+            if cast.able.blackoutKick() then
+                if cast.blackoutKick() then
+                    ui.debug("Casting Blackout Kick")
+                    return true
+                end
+            end
+            -- Tiger Palm
+            if cast.able.tigerPalm() and #enemies.yards8 < 4 then
+                if cast.tigerPalm() then
+                    ui.debug("Casting Tiger Palm")
+                    return true
+                end
+            end
+        end -- End In Combat Rotation
+    end
+end         -- End Action List - Combat
 
 ----------------
 --- ROTATION ---
@@ -199,16 +291,15 @@ local function runRotation()
     --- Define Locals ---
     ---------------------
     -- BR API Locals
-    cast                                            = br.player.cast
-    cd                                              = br.player.cd
-    enemies                                         = br.player.enemies
-    module                                          = br.player.module
-    ui                                              = br.player.ui
-    unit                                            = br.player.unit
-    units                                           = br.player.units
+    cast            = br.player.cast
+    cd              = br.player.cd
+    enemies         = br.player.enemies
+    module          = br.player.module
+    ui              = br.player.ui
+    unit            = br.player.unit
+    units           = br.player.units
     -- General Locals
-    var.getHealPot                                  = br["getHealthPot"]()
-    var.haltProfile                                 = (unit.inCombat() and var.profileStop) or unit.mounted() or br.pause() or ui.mode.rotation==4
+    var.haltProfile = (unit.inCombat() and var.profileStop) or unit.mounted() or br.pause() or ui.mode.rotation == 2
     -- Units
     units.get(5)
     units.get(40)
@@ -218,7 +309,10 @@ local function runRotation()
 
     -- Cancel Crackling Jade Lightning
     if cast.current.cracklingJadeLightning() and unit.distance("target") < ui.value("Cancel CJL Range") then
-        if cast.cancel.cracklingJadeLightning() then ui.debug("Canceling Crackling Jade Lightning [Within "..ui.value("Cancel CJL Range").."yrds]") return true end
+        if cast.cancel.cracklingJadeLightning() then
+            ui.debug("Canceling Crackling Jade Lightning [Within " .. ui.value("Cancel CJL Range") .. "yrds]")
+            return true
+        end
     end
 
     ---------------------
@@ -245,68 +339,21 @@ local function runRotation()
         --- Pre-Combat ---
         ------------------
         if actionList.PreCombat() then return true end
-        -----------------------------
-        --- In Combat - Rotations ---
-        -----------------------------
-        -- Check for combat
-        if unit.valid("target") and cd.global.remain() == 0 then
-            if unit.exists(units.dyn40) and unit.distance(units.dyn40) < 40 then
-                -----------------
-                --- Interrupt ---
-                -----------------
-                if actionList.Interrupt() then return true end
-                ------------
-                --- Main ---
-                ------------
-                -- Crackling Jade Lightning
-                if ui.checked("Crackling Jade Lightning") and not cast.current.cracklingJadeLightning()
-                and not unit.moving() and unit.distance("target") > ui.value("Cancel CJL Range")
-                then
-                    if cast.cracklingJadeLightning() then ui.debug("Casting Crackling Jade Lightning [Pre-Pull]") return true end
-                end
-                -- Start Attack
-                if not br._G.IsAutoRepeatSpell(br._G.GetSpellInfo(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
-                    br._G.StartAttack(units.dyn5)
-                end
-                -- Trinket - Non-Specific
-                if unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5  then
-                    module.BasicTrinkets()
-                    -- local thisTrinket
-                    -- for i = 13, 14 do
-                    --     thisTrinket = i == 13 and "Trinket 1" or "Trinket 2"
-                    --     local opValue = ui.value(thisTrinket)
-                    --     if (opValue == 1 or (opValue == 2 and ui.useCDs())) and use.able.slot(i)
-                    --     and (not equiped.touchOfTheVoid(i) or (equiped.touchOfTheVoid(i) and (#enemies.yards8 > 2 or (ui.useCDs() and opValue ~= 3))))
-                    --     then
-                    --         use.slot(i)
-                    --         ui.debug("Using Trinket in Slot "..i)
-                    --         return
-                    --     end
-                    -- end
-                end
-                -- Touch of Death
-                if cast.able.touchOfDeath("target") and unit.health("target") < unit.health("player") then
-                    if cast.touchOfDeath("target") then ui.debug("Casting Touch of Death - DIE!") return true end
-                end
-                -- Blackout Kick
-                if cast.able.blackoutKick() then
-                    if cast.blackoutKick() then ui.debug("Casting Blackout Kick") return true end
-                end
-                -- Spinning Crane Kick
-                if cast.able.spinningCraneKick() and #enemies.yards8 > 2 then
-                    if cast.spinningCraneKick() then ui.debug("Casting Spinning Crane Kick") return true end
-                end
-                -- Tiger Palm
-                if cast.able.tigerPalm() and #enemies.yards8 < 3 then
-                    if cast.tigerPalm() then ui.debug("Casting Tiger Palm") return true end
-                end
-            end -- End In Combat Rotation
+        if unit.inCombat() then
+            -----------------
+            --- Interrupt ---
+            -----------------
+            if actionList.Interrupt() then return true end
+            --------------
+            --- Combat ---
+            --------------
+            if actionList.Combat() then return true end
         end
     end -- Pause
-end -- End runRotation
+end     -- End runRotation
 local id = 1450
 if br.rotations[id] == nil then br.rotations[id] = {} end
-br._G.tinsert(br.rotations[id],{
+br._G.tinsert(br.rotations[id], {
     name = rotationName,
     toggles = createToggles,
     options = createOptions,

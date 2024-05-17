@@ -7,9 +7,7 @@ local function createToggles() -- Define custom toggles
     -- Rotation Button
     local RotationModes = {
         [1] = { mode = "Auto", value = 1, overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range.", highlight = 1, icon = br.player.spells.wrath },
-        [2] = { mode = "Mult", value = 2, overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spells.moonfire },
-        [3] = { mode = "Sing", value = 3, overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spells.shred },
-        [4] = { mode = "Off", value = 4, overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spells.regrowth }
+        [2] = { mode = "Off", value = 2, overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spells.regrowth }
     };
     br.ui:createToggle(RotationModes, "Rotation", 1, 0)
     -- Defensive Button
@@ -18,13 +16,19 @@ local function createToggles() -- Define custom toggles
         [2] = { mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spells.regrowth }
     };
     br.ui:createToggle(DefensiveModes, "Defensive", 2, 0)
+    -- Cooldown Button
+    local CooldownModes = {
+        [1] = { mode = "On", value = 1, overlay = "Cooldown Enabled", tip = "Includes Offensive Cooldowns.", highlight = 1, icon = br.player.spells.berserk },
+        [2] = { mode = "Off", value = 2, overlay = "Cooldown Disabled", tip = "No Offensive Cooldowns Used.", highlight = 0, icon = br.player.spells.berserk },
+    };
+    br.ui:createToggle(CooldownModes, "Cooldown", 3, 0)
     -- Form Button
     local FormModes = {
         [1] = { mode = "Caster", value = 1, overlay = "Caster Form", tip = "Will force and use Caster Form", highlight = 1, icon = br.player.spells.moonkinForm },
         [2] = { mode = "Cat", value = 2, overlay = "Cat Form", tip = "Will force and use Cat Form", highlight = 0, icon = br.player.spells.catForm },
         [3] = { mode = "Bear", value = 3, overlay = "Bear Form", tip = "Will force and use Bear Form", highlight = 0, icon = br.player.spells.bearForm }
     };
-    br.ui:createToggle(FormModes, "Forms", 3, 0)
+    br.ui:createToggle(FormModes, "Forms", 4, 0)
 end
 
 ---------------
@@ -46,6 +50,13 @@ local function createOptions()
             { "|cffFFFFFFPlayer", "|cffFFFFFFTarget", "|cffFFFFFFMouseover", "|cffFFFFFFFocus", "|cffFFFFFFGroup" }, 1,
             "|cffFFFFFFSet how to use Mark of the Wild")
         br.ui:checkSectionState(section)
+        ------------------------
+        --- COOLDOWN OPTIONS ---
+        ------------------------
+        section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
+        -- Basic Trinkets Module
+        br.player.module.BasicTrinkets(nil, section)
+        br.ui:checkSectionState(section)
         -------------------------
         --- DEFENSIVE OPTIONS ---
         -------------------------
@@ -63,6 +74,8 @@ local function createOptions()
         br.ui:createDropdownWithout(section, "Rotation Mode", br.dropOptions.Toggle, 4)
         --Defensive Key Toggle
         br.ui:createDropdownWithout(section, "Defensive Mode", br.dropOptions.Toggle, 6)
+        -- Cooldown Key Toggle
+        br.ui:createDropdownWithout(section, "Cooldown Mode", br.dropOptions.Toggle, 6)
         -- Pause Toggle
         br.ui:createDropdown(section, "Pause Mode", br.dropOptions.Toggle, 6)
         br.ui:checkSectionState(section)
@@ -243,6 +256,11 @@ actionList.Defensive = function()
     end
 end -- End Action List - Defensive
 
+-- Action List - Cooldowns
+actionList.Cooldowns = function()
+    module.BasicTrinkets()
+end -- End Action List - Cooldowns
+
 -- Action List - Pre-Combat
 actionList.PreCombat = function()
     if not unit.inCombat() then
@@ -252,7 +270,7 @@ actionList.PreCombat = function()
             if not unit.moving() and not (buff.catForm.exists() or buff.bearForm.exists()) and thisDistance < 40 then
                 if cast.able.wrath("target") and (unit.level() < 2 or not cast.last.wrath() or cast.timeSinceLast.wrath() > unit.gcd(true) + 0.5) then
                     if cast.wrath("target") then
-                        ui.debug("Casting Wrath [Pre-Pull]")
+                        ui.debug("Casting Wrath [Precombat]")
                         return true
                     end
                 end
@@ -261,18 +279,94 @@ actionList.PreCombat = function()
                 -- Shred
                 if cast.able.shred() and buff.catForm.exists() then
                     if cast.shred() then
-                        ui.debug("Casting Shred [Pre-Pull]")
+                        ui.debug("Casting Shred [Precombat]")
                         return true
                     end
                 end
                 -- Auto Attack
-                if not br._G.IsAutoRepeatSpell(br._G.GetSpellInfo(6603)) then
-                    br._G.StartAttack(units.dyn5)
+                if cast.able.autoAttack() and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
+                    if cast.autoAttack() then
+                        ui.debug("Casting Auto Attack [Precombat]")
+                        return true
+                    end
                 end
             end
         end
     end
 end -- End Action List - PreCombat
+
+-- Action List - Combat
+actionList.Combat = function()
+    if unit.inCombat() and unit.valid("target") and cd.global.remain() == 0 then
+        ------------------------
+        --- In Combat - Main ---
+        ------------------------
+        -- Melee in melee range
+        if unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
+            -- Start Attack
+            if cast.able.autoAttack() and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
+                if cast.autoAttack() then
+                    ui.debug("Casting Auto Attack")
+                    return true
+                end
+            end
+            -- Call Action List - Cooldowns
+            if actionList.Cooldowns() then return true end
+            -- Bear Form
+            if buff.bearForm.exists() then
+                -- Mangle
+                if cast.able.mangle(units.dyn5) then
+                    if cast.mangle(units.dyn5) then
+                        ui.debug("Casting Mangle")
+                        return true
+                    end
+                end
+            end
+            -- Cat Form
+            if buff.catForm.exists() then
+                local finish = ferociousBiteFinish()
+                -- Ferocious Bite
+                if cast.able.ferociousBite() and ((comboPoints == 5 and fbMaxEnergy) or finish) then
+                    if finish then
+                        if cast.ferociousBite() then
+                            ui.debug("Casting Ferocious Bite [Finish]")
+                            return true
+                        end
+                    else
+                        if cast.ferociousBite() then
+                            ui.debug("Casting Ferocious Bite")
+                            return true
+                        end
+                    end
+                end
+                -- Shred
+                if cast.able.shred() and (comboPoints < 5 or unit.level() < 7) then
+                    if cast.shred() then
+                        ui.debug("Casting Shred")
+                        return true
+                    end
+                end
+            end
+        end
+        -- Caster Form
+        if not (buff.catForm.exists() or buff.bearForm.exists() or buff.travelForm.exists()) then
+            -- Moonfire
+            if cast.able.moonfire(units.dyn40AOE) and (unit.level() < 5 or not buff.catForm.exists()) and debuff.moonfire.refresh(units.dyn40AOE) then
+                if cast.moonfire(units.dyn40AOE) then
+                    ui.debug("Casting Moonfire")
+                    return true
+                end
+            end
+            -- Wrath
+            if not unit.moving() and cast.able.wrath() and (unit.level() < 2 or (not cast.last.wrath() and cast.timeSinceLast.wrath() > unit.gcd(true) + 0.5) or not debuff.moonfire.refresh(units.dyn40AOE)) then
+                if cast.wrath() then
+                    ui.debug("Casting Wrath")
+                    return true
+                end
+            end
+        end
+    end -- End In Combat Rotation
+end     -- End Action list - Combat
 
 ----------------
 --- ROTATION ---
@@ -296,7 +390,7 @@ local function runRotation()
     spell       = br.player.spell
     -- General Locals
     profileStop = profileStop or false
-    haltProfile = (unit.inCombat() and profileStop) or br.pause() or ui.mode.rotation == 4 or unit.id("target") == 156716
+    haltProfile = (unit.inCombat() and profileStop) or br.pause() or ui.mode.rotation == 2 or unit.id("target") == 156716
     -- Units
     units.get(5)        -- Makes a variable called, units.dyn5
     units.get(40, true) -- Makes a variable called, units.dyn40AOE
@@ -337,70 +431,7 @@ local function runRotation()
         -----------------------------
         --- In Combat - Rotations ---
         -----------------------------
-        if unit.inCombat() and unit.valid("target") and cd.global.remain() == 0 then
-            ------------------------
-            --- In Combat - Main ---
-            ------------------------
-            -- Melee in melee range
-            if unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
-                -- Start Attack
-                if not br._G.IsAutoRepeatSpell(br._G.GetSpellInfo(6603)) then
-                    br._G.StartAttack(units.dyn5)
-                end
-                -- Bear Form
-                if buff.bearForm.exists() then
-                    -- Mangle
-                    if cast.able.mangle(units.dyn5) then
-                        if cast.mangle(units.dyn5) then
-                            ui.debug("Casting Mangle")
-                            return true
-                        end
-                    end
-                end
-                -- Cat Form
-                if buff.catForm.exists() then
-                    local finish = ferociousBiteFinish()
-                    -- Ferocious Bite
-                    if cast.able.ferociousBite() and ((comboPoints == 5 and fbMaxEnergy) or finish) then
-                        if finish then
-                            if cast.ferociousBite() then
-                                ui.debug("Casting Ferocious Bite [Finish]")
-                                return true
-                            end
-                        else
-                            if cast.ferociousBite() then
-                                ui.debug("Casting Ferocious Bite")
-                                return true
-                            end
-                        end
-                    end
-                    -- Shred
-                    if cast.able.shred() and (comboPoints < 5 or unit.level() < 7) then
-                        if cast.shred() then
-                            ui.debug("Casting Shred")
-                            return true
-                        end
-                    end
-                end
-            end
-            -- Caster Form
-            if not (buff.catForm.exists() or buff.bearForm.exists() or buff.travelForm.exists()) then
-                -- Moonfire
-                if cast.able.moonfire(units.dyn40AOE) and (unit.level() < 5 or not buff.catForm.exists()) and debuff.moonfire.refresh(units.dyn40AOE) then
-                    if cast.moonfire(units.dyn40AOE) then
-                        ui.debug("Casting Moonfire")
-                        return true
-                    end
-                end
-                -- Wrath
-                if not unit.moving() and cast.able.wrath() and (unit.level() < 2 or (not cast.last.wrath() and cast.timeSinceLast.wrath() > unit.gcd(true) + 0.5) or not debuff.moonfire.refresh(units.dyn40AOE)) then
-                    if cast.wrath() then
-                        ui.debug("Casting Wrath")
-                        return true
-                    end
-                end
-            end
-        end     -- End In Combat Rotation
+        if actionList.Combat() then return true end
     end         -- Pause
     return true
 end             -- End runRotation

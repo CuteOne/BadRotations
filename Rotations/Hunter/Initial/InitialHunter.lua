@@ -214,9 +214,26 @@ end     -- End Action List - Interrupt
 actionList.PreCombat = function()
     if not unit.inCombat() and not unit.mounted() then
         if unit.valid("target") then
+            -- Steady Shot
+            if cast.able.steadyShot("target") then
+                if cast.steadyShot("target") then
+                    ui.debug("Casting Steady Shot [Precombat]")
+                    return true
+                end
+            end
+            -- Arcane Shot
+            if cast.able.arcaneShot("target") then
+                if cast.arcaneShot("target") then
+                    ui.debug("Casting Arcane Shot [Precombat]")
+                    return true
+                end
+            end
             -- Start Attack
-            if not br._G.IsAutoRepeatSpell(br._G.GetSpellInfo(6603)) and unit.exists(units.dyn40) and unit.distance(units.dyn40) < 40 then
-                br._G.StartAttack(units.dyn40)
+            if cast.able.autoShoot("target") then
+                if cast.autoShoot("target") then
+                    ui.debug("Casting Auto Attack [Precombat]")
+                    return true
+                end
             end
         end
     end
@@ -299,8 +316,11 @@ local function runRotation()
                 --- Main ---
                 ------------
                 -- Start Attack
-                if not br._G.IsAutoRepeatSpell(br._G.GetSpellInfo(6603)) and unit.exists(units.dyn40) and unit.distance(units.dyn40) < 40 then
-                    br._G.StartAttack(units.dyn40)
+                if cast.able.autoShoot("target") then
+                    if cast.autoShoot("target") then
+                        ui.debug("Casting Auto Attack")
+                        return true
+                    end
                 end
                 -- Basic Trinkets Module
                 module.BasicTrinkets()

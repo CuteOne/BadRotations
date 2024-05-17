@@ -192,7 +192,7 @@ br.rotations.support["PetCuteOne"] = {
         end
 
         -- Pet Summoning (Call, Dismiss, Revive)
-        if mode.petSummon ~= 6 and not var.haltPetProfile and not ui.pause() and not unit.falling() then
+        if not var.haltPetProfile and not ui.pause() and not unit.falling() then
             if petAppearTimer < br._G.GetTime() - 2 then
                 -- Check for Pet
                 -- if (petCalled or petRevived) and petExists and petActive then petCalled = false; petRevived = false end
