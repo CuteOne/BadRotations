@@ -2,6 +2,8 @@ name: Discord Notification
 
 on:
   push:
+    branches:
+      - master
     paths-ignore:
       - ".github/**"
       - ".gitignore"
@@ -20,8 +22,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          path: master
       - name: Run Discord Webhook
         uses: mrrobotdotapp/classic-discord-webhook@main
         with:
