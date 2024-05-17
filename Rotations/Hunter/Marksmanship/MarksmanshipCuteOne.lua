@@ -463,7 +463,7 @@ actionList.Cooldowns = function()
         end
         -- Module - Combatpotion Up
         -- potion,if=buff.trueshot.up&(buff.bloodlust.up|target.health.pct<20)|fight_remains<26
-        if ui.checked("Use Combat Potion") and buff.trueshot.exists()
+        if buff.trueshot.exists()
             and (buff.bloodLust.exists() or unit.hp(units.dyn40) < 20)
             or unit.ttdGroup(40) < 26
         then
@@ -863,14 +863,10 @@ end -- End Action List - St
 actionList.PreCombat = function()
     if not unit.inCombat() and not buff.feignDeath.exists() then
         -- Module PhialUp
-        if ui.checked("Use DF Phial") then
-            module.PhialUp()
-        end
+        module.PhialUp()
         -- Module - Imbue Up
         -- augmentation
-        if ui.checked("Weapon Imbuement") then
-            module.ImbueUp()
-        end
+        module.ImbueUp()
         -- Summon Pet
         -- summon_pet
         -- if actionList.PetManagement() then ui.debug("") return true end
