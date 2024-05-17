@@ -160,8 +160,8 @@ Raidable means if its good to raid with.
 
 |   rotation   |   author   | patch |coverage|status |  readiness  |last updated|
 |--------------|------------|:-----:|:------:|:-----:|:-----------:|-----------:|
-|BrewWWPVE     |BrewingCoder|Unknown|Unknown |Unknown|:interrobang:|  05/08/2024|
 |BrewWindWalker|BrewingCoder|10.2.5 |  95%   |Limited|:interrobang:|  05/08/2024|
+|BrewWWPVE     |BrewingCoder|Unknown|Unknown |Unknown|:interrobang:|  05/08/2024|
 
 
 ### Paladin
