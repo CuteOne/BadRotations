@@ -120,12 +120,7 @@ function br.isIncapacitated(spellID)
 			event = br._G.C_LossOfControl.GetActiveLossOfControlData(i)
 			if event then
 				local eventType = event.locType
-				-- br._G.print("Incapacitated: " .. tostring(event.locType) .. " - Can Regain Control: " .. tostring(br.canRegainControl(spellID, event.locType)))
-				if not br.canRegainControl(spellID, eventType)
-					and (eventType ~= "ROOT" and eventType ~= "SNARE")
-				then
-					return true
-				end
+				return not br.canRegainControl(spellID, eventType)
 			end
 		end
 	end
@@ -234,8 +229,14 @@ function br.hasNoControl(spellID)
 		for i = 0, eventIndex do
 			event = br._G.C_LossOfControl.GetActiveLossOfControlData(i)
 			if event then
-				-- br._G.print("Has No Control: " .. tostring(event.locType) .. " - Can Regain Control: " .. tostring(br.canRegainControl(spellID, event.locType)))
-				return not br.canRegainControl(spellID, event.locType)
+				local regain = false
+				if br.timer:useTimer("regainTimer", 0.25) then regain = br.canRegainControl(spellID, event.locType) end
+				return regain
+				-- br._G.print("Has No Control: " ..
+				-- tostring(event.locType) ..
+				-- " - Can Regain Control: " ..
+				-- tostring(br.canRegainControl(spellID, event.locType)) .. ", SpellID: " .. tostring(spellID))
+				-- return br.canRegainControl(spellID, event.locType)
 			end
 		end
 	end

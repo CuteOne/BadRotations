@@ -22,8 +22,12 @@ function br.castAoEHeal(spellID, numUnits, missingHP, rangeValue)
 				-- i make sure i dont compute unit range to hisself.
 				if not br.GetUnitIsUnit(br.friend[i].unit, br.friend[j].unit) then
 					-- table the units
-					br.friend[i].distanceTable[j] = { distance = br.getDistance(br.friend[i].unit, br.friend[j].unit), unit =
-					br.friend[j].unit, hp = br.friend[j].hp }
+					br.friend[i].distanceTable[j] = {
+						distance = br.getDistance(br.friend[i].unit, br.friend[j].unit),
+						unit =
+							br.friend[j].unit,
+						hp = br.friend[j].hp
+					}
 				end
 			end
 		end
@@ -76,8 +80,10 @@ function br.castGround(Unit, SpellID, maxDistance, minDistance, radius, castTime
 			X, Y, Z = br.GetFuturePostion(Unit, castTime)
 		end
 		--local distanceToGround = getGroundDistance(Unit) or 0
-		if groundDistance > maxDistance then X, Y, Z = br._G.GetPositionBetweenObjects(Unit, "player",
-				groundDistance - maxDistance) end
+		if groundDistance > maxDistance then
+			X, Y, Z = br._G.GetPositionBetweenObjects(Unit, "player",
+				groundDistance - maxDistance)
+		end
 		br._G.ClickPosition((X + math.random() * 2), (Y + math.random() * 2), Z) --distanceToGround
 		br.castPosition.x = X
 		br.castPosition.y = Y
@@ -147,7 +153,7 @@ function br.shouldNotOverheal(Unit)
 	local CurShield = br._G.UnitHealth(Unit)
 	if br.UnitDebuffID("player", 142861) then --Ancient Miasma
 		CurShield = select(14, br.UnitDebuffID(Unit, 142863)) or select(14, br.UnitDebuffID(Unit, 142864)) or
-		select(14, br.UnitDebuffID(Unit, 142865)) or (br._G.UnitHealthMax(Unit) / 2)
+			select(14, br.UnitDebuffID(Unit, 142865)) or (br._G.UnitHealthMax(Unit) / 2)
 		overheal = 0
 	end
 	local overhealth = 100 * (CurShield + overheal) / br._G.UnitHealthMax(Unit)
@@ -181,14 +187,29 @@ function br.castHealGround(SpellID, Radius, Health, NumberOfPlayers)
 										and math.sqrt(((lowHPTargets[k].x - lowHPTargets[j].x) ^ 2) + ((lowHPTargets[k].y - lowHPTargets[j].y) ^ 2)) < Radius
 									then
 										br._G.tinsert(foundTargets,
-											{ unit = lowHPTargets[i].unit, x = lowHPTargets[i].x, y = lowHPTargets[i].y, z =
-											lowHPTargets[i].z })
+											{
+												unit = lowHPTargets[i].unit,
+												x = lowHPTargets[i].x,
+												y = lowHPTargets[i].y,
+												z =
+													lowHPTargets[i].z
+											})
 										br._G.tinsert(foundTargets,
-											{ unit = lowHPTargets[j].unit, x = lowHPTargets[j].x, y = lowHPTargets[j].y, z =
-											lowHPTargets[i].z })
+											{
+												unit = lowHPTargets[j].unit,
+												x = lowHPTargets[j].x,
+												y = lowHPTargets[j].y,
+												z =
+													lowHPTargets[i].z
+											})
 										br._G.tinsert(foundTargets,
-											{ unit = lowHPTargets[k].unit, x = lowHPTargets[k].x, y = lowHPTargets[k].y, z =
-											lowHPTargets[i].z })
+											{
+												unit = lowHPTargets[k].unit,
+												x = lowHPTargets[k].x,
+												y = lowHPTargets[k].y,
+												z =
+													lowHPTargets[i].z
+											})
 									end
 								end
 							end
@@ -368,7 +389,7 @@ function br.castSpellMacro(Unit, SpellID, FacingCheck, MovementCheck, SpamAllowe
 		if (Unit == nil or br.GetUnitIsUnit("player", Unit)) or -- Player
 			(Unit ~= nil and br.GetUnitIsFriend("player", Unit)) then -- Ally
 			FacingCheck = true
-		elseif br.isSafeToAttack(Unit) ~= true then         -- enemy
+		elseif br.isSafeToAttack(Unit) ~= true then          -- enemy
 			return false
 		end
 		-- if MovementCheck is nil or false then we dont check it
@@ -650,12 +671,18 @@ function br.createCastFunction(thisUnit, castType, minUnits, effectRng, spellID,
 	if debug == nil then debug = false end
 	-- We should already have enemies counts, so let's get them instead of calculating them again.
 	if enemies == nil then
-		if (castType == "norm" or castType == "pet") and br.player.enemies["yards" .. effectRng .. "f"] ~= nil then enemies = #
-			br.player.enemies["yards" .. effectRng .. "f"] end
-		if castType == "cone" and br.player.enemies["yards" .. effectRng .. "c"] ~= nil then enemies = #br.player
-			.enemies["yards" .. effectRng .. "c"] end
-		if castType == "rect" and br.player.enemies["yards" .. effectRng .. "r"] ~= nil then enemies = #br.player
-			.enemies["yards" .. effectRng .. "r"] end
+		if (castType == "norm" or castType == "pet") and br.player.enemies["yards" .. effectRng .. "f"] ~= nil then
+			enemies = #
+				br.player.enemies["yards" .. effectRng .. "f"]
+		end
+		if castType == "cone" and br.player.enemies["yards" .. effectRng .. "c"] ~= nil then
+			enemies = #br.player
+				.enemies["yards" .. effectRng .. "c"]
+		end
+		if castType == "rect" and br.player.enemies["yards" .. effectRng .. "r"] ~= nil then
+			enemies = #br.player
+				.enemies["yards" .. effectRng .. "r"]
+		end
 		if castType == "aoe" then
 			if thisUnit == "player" and br.player.enemies["yards" .. effectRng] ~= nil then
 				enemies = #br.player.enemies["yards" .. effectRng]
@@ -673,8 +700,10 @@ function br.createCastFunction(thisUnit, castType, minUnits, effectRng, spellID,
 			br.botCast = true -- Used by old Queue Cast
 			br.botSpell = spellID -- Used by old Queue Cast
 			-- Condemn Patch (Blizz is an small indie developer!)
-			if spellID == br.player.spells.condemn or spellID == br.player.spells.condemnMassacre then spellName = br._G
-				.GetSpellInfo(br.player.spells.execute) end
+			if spellID == br.player.spells.condemn or spellID == br.player.spells.condemnMassacre then
+				spellName = br._G
+					.GetSpellInfo(br.player.spells.execute)
+			end
 			-- br._G.print("Spell: "..tostring(spellName).." - UnitName: "..tostring(br._G.UnitName(thisUnit)).." - Unit: "..tostring(thisUnit))
 			br._G.CastSpellByName(spellName, thisUnit)
 			if br._G.IsAoEPending() then
@@ -712,15 +741,20 @@ function br.createCastFunction(thisUnit, castType, minUnits, effectRng, spellID,
 		return queensCourtEncounter == nil or (queensCourtEncounter ~= nil and br.lastCastTable.tracker[1] ~= spellID)
 	end
 	-- Base Spell Availablility Check
+	if br.lastCastTable.castTime[spellID] == nil then br.lastCastTable.castTime[spellID] = br._G.GetTime() -
+		(br.getGlobalCD(true) + (select(3, br._G.GetNetStats()) / 100)) end
 	if ((baseSpellID == spellID or overrideSpellID == spellID) and (br.empowerID == nil or br.empowerID == 0)
+			and (br._G.GetTime() - br.lastCastTable.castTime[spellID] > br.getGlobalCD(true) + (select(3, br._G.GetNetStats()) / 100))                       --br.getGlobalCD(true))                                    -- Double Casting Check
+			and ((thisUnit ~= nil and not br._G.UnitIsUnit(thisUnit, "player") and not br._G.UnitIsFriend(thisUnit, "player")
+				and (br.getCastTime(spellID) < 2 or br.getCastTime(spellID) < br.getTTD(thisUnit))) or true)                                                 -- Dies Soon Check
 			and ((thisUnit ~= nil and br._G.UnitIsUnit(thisUnit, "target") and br._G.IsUsableSpell(spellID)) or true) and not select(2, br._G.IsUsableSpell(spellID)) -- Usability Checks
 			and (castTimers[spellID] < br._G.GetTime()) and br.getSpellCD(spellID) <= br:getUpdateRate()
 			and (br.getSpellCD(61304) <= 0 or select(2, br._G.GetSpellBaseCooldown(spellID)) <= 0
-				or (br.getCastTime(spellID) > 0 and br.getCastTimeRemain("player") <= br:getUpdateRate()))                                                 -- Cooldown Checks
-			and (br.isKnown(spellID) or castType == "known" or spellID == br.player.spells.condemn or spellID == br.player.spells.condemnMassacre)         -- Known/Current Checks
+				or (br.getCastTime(spellID) > 0 and br.getCastTimeRemain("player") <= br:getUpdateRate()))                                                        -- Cooldown Checks
+			and (br.isKnown(spellID) or castType == "known" or spellID == br.player.spells.condemn or spellID == br.player.spells.condemnMassacre)                -- Known/Current Checks
 			and hasTalent(spellID) and hasEssence() and not br.isIncapacitated(spellID) and queensCourtCastCheck(spellID)
-			and (not (br._G.IsAutoRepeatSpell(br._G.GetSpellInfo(spellID)) or (spellID == 6603 and br._G.IsCurrentSpell(spellID)))) and not br.hasNoControl(spellID) -- Talent/Essence/Incapacitated/Special Checks
-			and (thisUnit == nil or castType ~= "dead" or (thisUnit ~= nil and castType == "dead" and br._G.UnitIsDeadOrGhost(thisUnit))))                 -- Dead Check
+			and (not (br._G.IsAutoRepeatSpell(br._G.GetSpellInfo(spellID)) or (spellID == 6603 and br._G.IsCurrentSpell(spellID)))) --[[and not br.hasNoControl(spellID)]] -- Talent/Essence/Incapacitated/Special Checks
+			and (thisUnit == nil or castType ~= "dead" or (thisUnit ~= nil and castType == "dead" and br._G.UnitIsDeadOrGhost(thisUnit))))                        -- Dead Check
 		or spellID == br.empowerID
 	then
 		if castType == "known" then castType = "norm" end
@@ -729,32 +763,32 @@ function br.createCastFunction(thisUnit, castType, minUnits, effectRng, spellID,
 			if ((br.isChecked("Display Failcasts") and not debugOnly) or br.isChecked("Cast Debug")) and not debug then
 				if debugReason == "No Unit" then
 					br.player.ui.debug("Spell: " ..
-					spellName .. " failed to cast because there was not unit found in " .. maxRange .. "yrds.")
+						spellName .. " failed to cast because there was not unit found in " .. maxRange .. "yrds.")
 				elseif debugReason == "Below Min Units" then
 					br.player.ui.debug("Spell: " ..
-					spellName ..
-					" failed to cast because there are " ..
-					thisCount .. " enemies in " .. maxRange .. "yrds, but " .. minUnits .. " are needed to cast.")
+						spellName ..
+						" failed to cast because there are " ..
+						thisCount .. " enemies in " .. maxRange .. "yrds, but " .. minUnits .. " are needed to cast.")
 				elseif debugReason == "Below Min Units Facing" then
 					br.player.ui.debug("Spell: " ..
-					spellName ..
-					" failed to cast because there are " ..
-					thisCount .. " enemies in " .. maxRange .. "yrds in front, but " .. minUnits ..
-					" are needed to cast.")
+						spellName ..
+						" failed to cast because there are " ..
+						thisCount .. " enemies in " .. maxRange .. "yrds in front, but " .. minUnits ..
+						" are needed to cast.")
 				elseif debugReason == "Below Min Units Cone" then
 					br.player.ui.debug("Spell: " ..
-					spellName ..
-					" failed to cast because there are " ..
-					thisCount ..
-					" enemies in " ..
-					maxRange .. "yrds in an " .. effectRng .. "deg cone, but " .. minUnits .. " are needed to cast.")
+						spellName ..
+						" failed to cast because there are " ..
+						thisCount ..
+						" enemies in " ..
+						maxRange .. "yrds in an " .. effectRng .. "deg cone, but " .. minUnits .. " are needed to cast.")
 				elseif debugReason == "Below Min Units Rect" then
 					br.player.ui.debug("Spell: " ..
-					spellName ..
-					" failed to cast because there are " ..
-					thisCount ..
-					" enemies in " ..
-					maxRange .. "yrds by " .. effectRng .. "yrd rectange, but " .. minUnits .. " are needed to cast.")
+						spellName ..
+						" failed to cast because there are " ..
+						thisCount ..
+						" enemies in " ..
+						maxRange .. "yrds by " .. effectRng .. "yrd rectange, but " .. minUnits .. " are needed to cast.")
 				elseif debugReason == "Not Dead" then
 					br.player.ui.debug("Spell: " .. spellName .. " failed to cast because Unit is not dead.")
 				elseif debugReason == "No Range" then
@@ -764,7 +798,7 @@ function br.createCastFunction(thisUnit, castType, minUnits, effectRng, spellID,
 				elseif debugReason == "Invalid Unit" then
 					if not br._G.UnitIsFriend(thisUnit, "player") and br.units[thisUnit] == nil then
 						br.player.ui.debug("Spell: " ..
-						spellName .. " failed to cast because Unit is not player, friend, or in br.units.")
+							spellName .. " failed to cast because Unit is not player, friend, or in br.units.")
 					elseif not br.getLineOfSight(thisUnit) then
 						br.player.ui.debug("Spell: " .. spellName .. " failed to cast because Unit is out line of sight.")
 					else
@@ -828,7 +862,8 @@ function br.createCastFunction(thisUnit, castType, minUnits, effectRng, spellID,
 			-- Range Check
 			local inRange = function(minRange, maxRange)
 				local distance = castType == "pet" and br.getDistance(thisUnit, "pet") or br.getDistance(thisUnit)
-				return br._G.IsSpellInRange(spellName, thisUnit) == 1 or (distance >= minRange and distance < maxRange - 1)
+				return br._G.IsSpellInRange(spellName, thisUnit) == 1 or
+					(distance >= minRange and distance < maxRange - 1)
 			end
 			if --[[br._G.IsSpellInRange(spellName,thisUnit) == 1 or]] inRange(minRange, maxRange) then
 				-- Dead Friend
