@@ -64,7 +64,7 @@ local function createToggles()
         [3] = { mode = "3", value = 3, overlay = "Summon Pet 3", tip = "Summon Pet 3", highlight = 1, icon = br.player.spells.callPet3 },
         [4] = { mode = "4", value = 4, overlay = "Summon Pet 4", tip = "Summon Pet 4", highlight = 1, icon = br.player.spells.callPet4 },
         [5] = { mode = "5", value = 5, overlay = "Summon Pet 5", tip = "Summon Pet 5", highlight = 1, icon = br.player.spells.callPet5 },
-        [6] = { mode = "None", value = 6, overlay = "No pet", tip = "Dont Summon any Pet", highlight = 0, icon = br.player.spells.callPet }
+        [6] = { mode = "None", value = 6, overlay = "No pet", tip = "Dont Summon any Pet", highlight = 0, icon = br.player.spells.talents.loneWolf }
     };
     br.ui:createToggle(PetSummonModes, "PetSummon", 7, 0)
 end
@@ -77,6 +77,7 @@ local function createOptions()
 
     local function rotationOptions()
         local section
+        local alwaysCdNever = { "Always", "|cff0000ffCD", "|cffff0000Never" }
         local alwaysCdAoENever = { "Always", "|cff008000AOE", "|cffffff00AOE/CD", "|cff0000ffCD", "|cffff0000Never" }
         -----------------------
         --- General Options ---
@@ -85,9 +86,13 @@ local function createOptions()
         -- Dummy DPS Test
         br.ui:createSpinner(section, "DPS Testing", 5, 5, 60, 5,
             "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
+        -- Hunter's Mark
+        br.ui:createDropdownWithout(section, "Hunter's Mark", alwaysCdNever, 2, "|cffFFFFFFWhen to use Hunter's Mark")
         -- Misdirection
         br.ui:createDropdownWithout(section, "Misdirection", { "|cff00FF00Tank", "|cffFFFF00Focus", "|cffFF0000Pet" }, 1,
-            "|cffFFFFFFWhen to use Artifact Ability.")
+            "|cffFFFFFFWho to use Misdirection on.")
+        -- Tar Trap
+        br.ui:createCheckbox(section, "Tar Trap")
         -- Volly Units
         br.ui:createSpinnerWithout(section, "Volley Units", 3, 1, 5, 1,
             "|cffFFFFFFSet minimal number of units to cast Volley on")
@@ -108,8 +113,6 @@ local function createOptions()
         br.player.module.ImbueUp(section)
         -- Racial
         br.ui:createCheckbox(section, "Racial")
-        -- Hunter's Mark
-        br.ui:createCheckbox(section, "Hunter's Mark")
         -- Basic Trinkets Module
         br.player.module.BasicTrinkets(nil, section)
         -- Barrage
@@ -119,8 +122,6 @@ local function createOptions()
             "|cffFFFFFFSet when to use ability.")
         -- Explosive Shot
         br.ui:createDropdownWithout(section, "Explosive Shot", alwaysCdAoENever, 1, "|cffFFFFFFSet when to use ability.")
-        -- Rapid Fire
-        br.ui:createDropdownWithout(section, "Rapid Fire", alwaysCdAoENever, 1, "|cffFFFFFFSet when to use ability.")
         -- Salvo
         br.ui:createDropdownWithout(section, "Salvo", alwaysCdAoENever, 1, "|cffFFFFFFSet when to use ability.")
         -- Stampede
@@ -150,6 +151,8 @@ local function createOptions()
         br.ui:createSpinner(section, "Exhilaration", 60, 0, 100, 5, "|cffFFBB00Health Percentage to use at.");
         -- Feign Death
         br.ui:createSpinner(section, "Feign Death", 30, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
+        -- Survival of the Fittest
+        br.ui:createSpinner(section, "Survival of the Fittest", 35, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
         -- Tranquilizing Shot
         br.ui:createDropdown(section, "Tranquilizing Shot", { "|cff00FF00Any", "|cffFFFF00Target" }, 2,
             "|cffFFFFFFHow to use Tranquilizing Shot.")
@@ -244,7 +247,7 @@ actionList.Extras = function()
         unit.clearTarget()
     end
     -- Hunter's Mark
-    if ui.checked("Hunter's Mark") and cast.able.huntersMark("target") and not debuff.huntersMark.exists("target")
+    if ui.alwaysCdNever("Hunter's Mark") and cast.able.huntersMark("target") and not debuff.huntersMark.exists("target")
         and not unit.friend("target") and unit.hp("target") > 80
     then
         if cast.huntersMark("target") then
@@ -290,6 +293,14 @@ actionList.Extras = function()
                     return true
                 end
             end
+        end
+    end
+    -- Tar Trap
+    if ui.checked("Tar Trap") and cast.able.tarTrap("target", "ground") and unit.distance(units.dyn40) > 8 then
+        if cast.tarTrap("target", "ground") then
+            ui.debug("Casting Tar Trap")
+            var.tarred = true
+            return true
         end
     end
 end -- End Action List - Extras
@@ -341,6 +352,13 @@ actionList.Defensive = function()
         if ui.checked("Feign Death") and unit.hp() <= ui.value("Feign Death") then
             if cast.feignDeath("player") then
                 ui.debug("Casting Feign Death")
+                return true
+            end
+        end
+        -- Survival of the Fittest
+        if ui.checked("Survival of the Fittest") and unit.hp() <= ui.value("Survival of the Fittest") then
+            if cast.survivalOfTheFittest("player") then
+                ui.debug("Casting Survival of the Fittest")
                 return true
             end
         end
@@ -549,9 +567,7 @@ actionList.Trickshots = function()
     end
     -- Rapid Fire
     -- rapid_fire,if=buff.trick_shots.remains>=execute_time&talent.surging_shots
-    if ui.alwaysCdAoENever("Rapid Fire", 3, #enemies.yards8t) and cast.able.rapidFire()
-        and buff.trickShots.remains() >= cast.time.rapidFire() and talent.surgingShots
-    then
+    if cast.able.rapidFire() and buff.trickShots.remains() >= cast.time.rapidFire() and talent.surgingShots then
         if cast.rapidFire() then
             ui.debug("Casting Rapid Fire [Trickshots]")
             return true
@@ -587,7 +603,7 @@ actionList.Trickshots = function()
     end
     -- Rapid Fire
     -- rapid_fire,if=buff.trick_shots.remains>=execute_time
-    if ui.alwaysCdAoENever("Rapid Fire", 3, #enemies.yards8t) and cast.able.rapidFire() and buff.trickShots.remains() >= cast.time.rapidFire() then
+    if cast.able.rapidFire() and buff.trickShots.remains() >= cast.time.rapidFire() then
         if cast.rapidFire() then
             ui.debug("Casting Rapid Fire [Trickshots]")
             return true
@@ -674,7 +690,7 @@ actionList.St = function()
     end
     -- Rapid Fire
     -- rapid_fire,if=buff.trick_shots.remains<execute_time
-    if ui.alwaysCdAoENever("Rapid Fire", 1, #enemies.yards8t) and cast.able.rapidFire() and buff.trickShots.remains() < cast.time.rapidFire() then
+    if cast.able.rapidFire() and buff.trickShots.remains() < cast.time.rapidFire() then
         if cast.rapidFire() then
             ui.debug("Casting Rapid Fire [St - Trickshots End Soon]")
             return true
@@ -743,8 +759,7 @@ actionList.St = function()
     end
     -- Rapid Fire
     -- rapid_fire,if=(talent.surging_shots|action.aimed_shot.full_recharge_time>action.aimed_shot.cast_time+cast_time)&(focus+cast_regen<focus.max)
-    if ui.alwaysCdAoENever("Rapid Fire", 1, #enemies.yards8t) and cast.able.rapidFire()
-        and (((talent.surgingShots or charges.aimedShot.timeTillFull() > cast.time.aimedShot() + cast.time.rapidFire())
+    if cast.able.rapidFire() and (((talent.surgingShots or charges.aimedShot.timeTillFull() > cast.time.aimedShot() + cast.time.rapidFire())
             and (focus() + cast.regen.rapidFire() < focus.max())))
     then
         if cast.rapidFire() then
@@ -1046,7 +1061,7 @@ local function runRotation()
     -- Profile Stop | Pause
     if not unit.inCombat() and not unit.exists("target") and var.profileStop then
         var.profileStop = false
-    elseif var.haltProfile and (not unit.isCasting() or ui.pause(true) or ui.mode.rotation == 4) then
+    elseif var.haltProfile and (not unit.isCasting() or ui.pause(true) or ui.mode.rotation == 4 or buff.feignDeath.exists()) then
         unit.stopAttack()
         if unit.isDummy() then unit.clearTarget() end
         return true
