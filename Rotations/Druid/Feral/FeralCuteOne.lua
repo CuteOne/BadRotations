@@ -1528,6 +1528,13 @@ end -- End Action List - Builder
 -- Action List - Cooldown
 actionList.Cooldown = function()
     if unit.distance(units.dyn5) < 5 then
+        -- Use Item - Djaruun, Pillar of the Elder Flame
+        if use.able.djaruunPillarOfTheElderFlame() and ui.useCDs() then
+            if use.djaruunPillarOfTheElderFlame() then
+                ui.debug("Using Djaruun, Pillar of the Elder Flame")
+                return true
+            end
+        end
         -- Use Item - Algethar Puzzle Box
         -- use_item,name=algethar_puzzle_box,if=fight_remains<35|(!variable.align_3minutes)
         if useTrinket(items.algetharPuzzleBox) and use.able.algetharPuzzleBox() and ((unit.ttdGroup(40) < 35 or (not var.align3Minutes))) then
