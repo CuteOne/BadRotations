@@ -166,6 +166,12 @@ Raidable means if its good to raid with.
 
 ### Paladin
 
+- Retribution
+
+|rotation|author |patch|coverage| status |  readiness  |last updated|
+|--------|-------|:---:|:------:|:------:|:-----------:|-----------:|
+|CuteOne |CuteOne|10.2 |  90%   |Sporadic|:interrobang:|  05/17/2024|
+
 
 ### Priest
 
