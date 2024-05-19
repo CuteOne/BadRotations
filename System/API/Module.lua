@@ -24,16 +24,25 @@ br.api.module = function(self)
     -- @string option Name of the option to check.
     -- @string["Check"|"Value"] optionType Type of option check to perform
     local function getOption(option, optionType)
-        if optionType == "Check" then
-            return br.data.settings[br.selectedSpec][br.selectedProfile]["Rotation Options"][option] ~= nil and
-                ui.checked(option, "Rotation Options") or
-                ui.checked(option, "Base Options")
+        if br.data.settings[br.selectedSpec][br.selectedProfile]["Rotation Options"] == nil then
+            if optionType == "Check" then return ui.checked(option, "Base Options") end
+            if optionType == "Value" then return ui.value(option, "Base Options") end
+        else
+            if optionType == "Check" then return ui.checked(option, "Rotation Options") end
+            if optionType == "Value" then return ui.value(option, "Rotation Options") end
         end
-        if optionType == "Value" then
-            return br.data.settings[br.selectedSpec][br.selectedProfile]["Rotation Options"][option] ~= nil and
-                ui.value(option, "Rotation Options") or
-                ui.value(option, "Base Options")
-        end
+        -- if optionType == "Check" then
+        --     return br.data.settings[br.selectedSpec][br.selectedProfile]["Rotation Options"][option] ~= nil and
+        --         ui.checked(option, "Rotation Options") or
+        --         ui.checked(option, "Base Options")
+        -- end
+        -- if optionType == "Value" then
+        --     return br.data.settings[br.selectedSpec][br.selectedProfile]["Rotation Options"][option] ~= nil and
+        --         ui.value(option, "Rotation Options") or
+        --         ui.value(option, "Base Options")
+        -- end
+        -- if optionType == "Check" then return false end
+        -- if optionType == "Value" then return 0 end
     end
 
     --- Auto Put Keystone into Receptable during mythic+ dungeons. | Kinky BR Module Code example
