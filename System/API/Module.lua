@@ -7,17 +7,34 @@ local _, br = ...
 if br.api == nil then br.api = {} end
 br.api.module = function(self)
     -- Local reference to actionList
-    local buff          = self.buff
-    local cast          = self.cast
-    local module        = self.module
-    local has           = self.has
-    local item          = self.items
-    local ui            = self.ui
-    local unit          = self.unit
-    local use           = self.use
-    local var           = {}
-    var.getItemInfo     = br._G["GetItemInfo"]
-    var.getHealPot      = br.getHealthPot
+    local buff      = self.buff
+    local cast      = self.cast
+    local module    = self.module
+    local has       = self.has
+    local item      = self.items
+    local ui        = self.ui
+    local unit      = self.unit
+    local use       = self.use
+    local var       = {}
+    var.getItemInfo = br._G["GetItemInfo"]
+    var.getHealPot  = br.getHealthPot
+
+    --- Get perform the correct check for the provided option and option type checking for "Rotation Option" option before defaulting to "Base Options"
+    -- @function getOption
+    -- @string option Name of the option to check.
+    -- @string["Check"|"Value"] optionType Type of option check to perform
+    local function getOption(option, optionType)
+        if optionType == "Check" then
+            return br.data.settings[br.selectedSpec][br.selectedProfile]["Rotation Options"][option] ~= nil and
+                ui.checked(option, "Rotation Options") or
+                ui.checked(option, "Base Options")
+        end
+        if optionType == "Value" then
+            return br.data.settings[br.selectedSpec][br.selectedProfile]["Rotation Options"][option] ~= nil and
+                ui.value(option, "Rotation Options") or
+                ui.value(option, "Base Options")
+        end
+    end
 
     --- Auto Put Keystone into Receptable during mythic+ dungeons. | Kinky BR Module Code example
     -- @function module.autoKeystone
@@ -30,7 +47,7 @@ br.api.module = function(self)
             -- br.ui:createSpinner(section, "Minimum Keystone to Auto Use", 2, 2, 30, 1, "|cffFFFFFFMinimum keystone number of the key before submitting it. ")
         end
         if section == nil then
-            if ui.checked("Auto Mythic+ Keystone") then
+            if getOption("Auto Mythic+ Keystone", "Check") then
                 var.autoKeystone = br._G.CreateFrame("Frame")
                 var.autoKeystone:RegisterEvent("ADDON_LOADED")
                 var.autoKeystone:SetScript("OnEvent", function(self, event, addon)
@@ -71,7 +88,7 @@ br.api.module = function(self)
 
                             if spellName ~= nil then
                                 local itemName, _, _, itemLevel, itemMinLevel, itemType, itemSubType, _, _, _, _, _, _, _, _, _, _ =
-                                C_Item.GetItemInfo(itemInfo.itemID)
+                                    C_Item.GetItemInfo(itemInfo.itemID)
                                 if itemType == "Consumable" and itemSubType == "Potions" then
                                     if string.find(itemName, "Heal", 0, true) then
                                         table.insert(Consumables, #Consumables + 1, {
@@ -116,7 +133,7 @@ br.api.module = function(self)
         -- Abilities - Call, module.BasicHealing(), in your rotation to use these
         if section == nil then
             -- Health Potion / Stones
-            if ui.checked("Healthstone/Potion") and unit.inCombat() and unit.hp() <= ui.value("Healthstone/Potion") then
+            if getOption("Healthstone/Potion", "Check") and unit.inCombat() and unit.hp() <= getOption("Healthstone/Potion", "Value") then
                 --Health Pot should be first since it's the greatest heal; healthstones second
                 local healPot = BestHealingPotion()
                 if healPot ~= nil and has.item(healPot) and br.canUseItem(healPot) then
@@ -141,7 +158,7 @@ br.api.module = function(self)
                 end
             end
             -- Heirloom Neck
-            if ui.checked("Heirloom Neck") and unit.hp() <= ui.value("Heirloom Neck") and not unit.inCombat() then
+            if getOption("Heirloom Neck", "Check") and unit.hp() <= getOption("Heirloom Neck", "Value") and not unit.inCombat() then
                 if use.able.heirloomNeck() and item.heirloomNeck ~= 0 and item.heirloomNeck ~= item.manariTrainingAmulet then
                     if use.heirloomNeck() then
                         ui.debug("Using Heirloom Neck")
@@ -150,8 +167,8 @@ br.api.module = function(self)
                 end
             end
             -- Gift of the Naaru
-            if ui.checked("Gift of the Naaru") and unit.race() == "Draenei"
-                and unit.inCombat() and unit.hp() <= ui.value("Gift of the Naaru")
+            if getOption("Gift of the Naaru", "Check") and unit.race() == "Draenei"
+                and unit.inCombat() and unit.hp() <= getOption("Gift of the Naaru", "Value")
             then
                 if cast.racial() then
                     ui.debug("Casting Gift of the Naaru")
@@ -159,7 +176,7 @@ br.api.module = function(self)
                 end
             end
             -- Music of Bastion
-            if ui.checked("Music of Bastion") and (br.isInArdenweald() or br.isInBastion() or br.isInMaldraxxus() or br.isInRevendreth()) then
+            if getOption("Music of Bastion", "Check") and (br.isInArdenweald() or br.isInBastion() or br.isInMaldraxxus() or br.isInRevendreth()) then
                 if use.able.ascendedFlute() and has.ascendedFlute() then
                     if use.ascendedFlute() then
                         ui.debug("Using Ascended Flute")
@@ -192,14 +209,14 @@ br.api.module = function(self)
                 end
             end
             -- Phial of Serenity
-            if ui.checked("Phial of Serenity") then
-                if ui.checked("Auto Summon Steward") and not unit.inCombat() and not has.phialOfSerenity() and cast.able.summonSteward() then
+            if getOption("Phial of Serenity", "Check") then
+                if getOption("Auto Summon Steward", "Check") and not unit.inCombat() and not has.phialOfSerenity() and cast.able.summonSteward() then
                     if cast.summonSteward() then
                         ui.debug("Casting Call Steward")
                         return true
                     end
                 end
-                if unit.inCombat() and use.able.phialOfSerenity() and unit.hp() < ui.value("Phial of Serenity") then
+                if unit.inCombat() and use.able.phialOfSerenity() and unit.hp() < getOption("Phial of Serenity", "Value") then
                     if use.phialOfSerenity() then
                         ui.debug("Using Phial of Serenity")
                         return true
@@ -257,8 +274,8 @@ br.api.module = function(self)
                 "|cffFFFFFFSelect Combat Potion, uses best quality.")
         end
         if section == nil then
-            if not ui.checked("Use Combat Potion") then return false end
-            local opValue = ui.value("Use Combat Potion")
+            if not getOption("Use Combat Potion", "Check") then return false end
+            local opValue = getOption("Use Combat Potion", "Value")
             if opValue == 1 and use.isOneOfUsable(br.lists.items.elementalPotionOfUltimatePowerQualities) then
                 if use.bestItem(br.lists.items.elementalPotionOfUltimatePowerQualities) then
                     ui.debug("Using Best Pot: Elemental Potion of Ultimate Power")
@@ -289,7 +306,7 @@ br.api.module = function(self)
             if buff.phialOfTepidVersatility.exists() then buff.phialOfTepidVersatility.cancel() end;
         end
         if section == nil then
-            local opValue = ui.value("Use DF Phial")
+            local opValue = getOption("Use DF Phial", "Value")
             if opValue == 1 and not buff.icedPhialOfCorruptingRage.exists() and use.isOneOfUsable(br.lists.items.icedPhialOfCorruptingRageQualities) then
                 cancelBuffs()
                 if use.bestItem(br.lists.items.icedPhialOfCorruptingRageQualities) then
@@ -327,8 +344,8 @@ br.api.module = function(self)
             br.ui:createDropdown(section, "Weapon Imbuement", runeList, 1,
                 "Imbuement Rune to use, selects best grade available")
         else
-            if ui.checked("Weapon Imbuement") then
-                local selValue = ui.value("Weapon Imbuement")
+            if getOption("Weapon Imbuement", "Check") then
+                local selValue = getOption("Weapon Imbuement", "Value")
                 local auras = {}
                 if selValue == 1 then auras = br.lists.spells.Shared.Shared.itemEnchantments.buzzingRune end
                 if selValue == 2 then auras = br.lists.spells.Shared.Shared.itemEnchantments.chirpingRune end
@@ -372,11 +389,12 @@ br.api.module = function(self)
         end
 
         local function hasFlaskBuff()
-            if ui.value("Flask") == 2 then -- Greater Flask
+            local flask = getOption("Flask", "Value")
+            if flask == 2 then -- Greater Flask
                 return buff.greaterFlaskOfTheCurrents.exists() or buff.greaterFlaskOfEndlessFathoms.exists() or
-                buff.greaterFlaskOfTheVastHorizon.exists() or buff.greaterFlaskOfTheUndertow.exists()
+                    buff.greaterFlaskOfTheVastHorizon.exists() or buff.greaterFlaskOfTheUndertow.exists()
             end
-            if ui.value("Flask") == 3 then
+            if flask == 3 then
                 if isDH then -- Greater FLask or Gaze of the Legion
                     return buff.greaterFlaskOfTheCurrents.exists() or buff.greaterFlaskOfEndlessFathoms.exists() or
                         buff.greaterFlaskOfTheVastHorizon.exists()
@@ -387,7 +405,7 @@ br.api.module = function(self)
                         or buff.greaterFlaskOfTheUndertow.exists() or buff.felFocus.exists()
                 end
             end
-            if ui.value("Flask") == 4 and isDH then -- DH - Greater Flask or Gaze of the Legion or Fel Focus
+            if flask == 4 and isDH then -- DH - Greater Flask or Gaze of the Legion or Fel Focus
                 return buff.greaterFlaskOfTheCurrents.exists() or buff.greaterFlaskOfEndlessFathoms.exists() or
                     buff.greaterFlaskOfTheVastHorizon.exists()
                     or buff.greaterFlaskOfTheUndertow.exists() or buff.gazeOfTheLegion.exists() or buff.felFocus.exists()
@@ -409,7 +427,7 @@ br.api.module = function(self)
         if section == nil then
             -- Flask / Crystal
             -- flask
-            local opValue = ui.value("Flask")
+            local opValue = getOption("Flask", "Value")
             local thisFlask = getFlaskByType(buffType)
             if opValue == 1 and unit.instance("raid") then
                 if thisFlask == "Greater Flask of the Currents" and use.able.greaterFlaskOfTheCurrents() and not buff.greaterFlaskOfTheCurrents.exists() then

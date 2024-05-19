@@ -18,8 +18,8 @@ local function checkDirectory(dir)
 	if not br._G.DirectoryExists(dir) then
 		br._G.CreateDirectory(dir)
 		if not br._G.DirectoryExists(dir) then
-		-- Return Path
-			br._G.print("Creating Directory "..dir.." failed!")
+			-- Return Path
+			br._G.print("Creating Directory " .. dir .. " failed!")
 			return nil
 		end
 	end
@@ -100,12 +100,40 @@ function br.deepcopy(orig)
 	return copy
 end
 
+function br:cleanSettings()
+	if br.data and br.data.settings then
+		if br.data.settings[br.selectedSpec] and br.data.settings[br.selectedSpec][br.selectedProfile] then
+			local settings = br.data.settings[br.selectedSpec][br.selectedProfile]
+			for page, _ in pairs(settings) do
+				if type(page) == "table" then
+					for option, _ in pairs(page) do
+						if br.data.ui[page][option] == nil then
+							print("Option: " ..
+								tostring(option) ..
+								" was not created has been removed from Page: " .. tostring(page) .. ".")
+							settings[page][option] = nil
+						end
+					end
+				elseif type(page) == "string" then
+					local option = page
+					if br.data.ui[option] == nil then
+						print("Option: " ..
+							tostring(option) ..
+							" was not created and had been removed.")
+						settings[option] = nil
+					end
+				end
+			end
+		end
+	end
+end
+
 -- Load Settings
 function br:loadSettings(folder, class, spec, profile, instance)
 	if br.unlocked and (not br.data.loadedSettings or br.rotationChanged) then
 		local loadDir = br:checkDirectories(folder, class, spec, profile, instance)
 		if not loadDir then
-			br._G.print("No settings directory found for "..profile.."!")
+			br._G.print("No settings directory found for " .. profile .. "!")
 			return
 		end
 		local brdata
@@ -136,6 +164,7 @@ function br:loadSettings(folder, class, spec, profile, instance)
 				br.profile = br.deepcopy(brprofile)
 			end
 			br._G.print("Loaded Settings for Profile " .. tostring(profile))
+			-- br:cleanSettings()
 		end
 		if not fileFound then
 			if br.selectedProfileName ~= "None" then
@@ -150,6 +179,8 @@ function br:loadSettings(folder, class, spec, profile, instance)
 		if spec == "" then
 			spec = "Initial"
 		end
+		if br.data.settings == nil then br.data.settings = {} end
+		if br.data.settings[spec] == nil then br.data.settings[spec] = {} end
 		if br.data.settings[spec].config == nil then
 			br.data.settings[spec].config = {}
 		end
@@ -168,7 +199,7 @@ end
 function br:saveSettings(folder, class, spec, profile, instance, wipe)
 	local saveDir = br:checkDirectories(folder, class, spec, profile, instance)
 	if not saveDir then
-		br._G.print("No settings directory found for "..profile.."!")
+		br._G.print("No settings directory found for " .. profile .. "!")
 		return
 	end
 	local brdata = wipe and {} or br.deepcopy(br.data)
@@ -217,7 +248,10 @@ function br:loadLastProfileTracker()
 		local rotationFound = false
 		local trackerName = br.data.tracker[br.selectedSpec]["RotationDropValue"]
 		local specSettings = br.data.settings[br.selectedSpec]
-		if not br.rotations[specID] then print("No rotations found for specID ".. specID) return end
+		if not br.rotations[specID] then
+			print("No rotations found for specID " .. specID)
+			return
+		end
 		if trackerName then
 			for i = 1, #br.rotations[specID] do
 				if br.rotations[specID][i].name == trackerName then
@@ -225,13 +259,13 @@ function br:loadLastProfileTracker()
 					specSettings["RotationDropValue"] = trackerName
 					specSettings["RotationDrop"] = i
 					rotationFound = true
-					br._G.print("Found Last Used From Tracker: "..trackerName)
+					br._G.print("Found Last Used From Tracker: " .. trackerName)
 					break
 				end
 			end
 		end
 		if not rotationFound then
-			br._G.print("No Matching Rotation Found In Tracker, Defaulting to "..br.rotations[specID][1].name)
+			br._G.print("No Matching Rotation Found In Tracker, Defaulting to " .. br.rotations[specID][1].name)
 			specSettings["RotationDropValue"] = br.rotations[specID][1].name
 			specSettings["RotationDrop"] = 1
 		end
@@ -255,7 +289,8 @@ function br:saveLastProfileTracker()
 				local rotationFound = false
 				for i = 1, #br.rotations[specID] do
 					if br.rotations[specID][i].name == br.data.settings[br.selectedSpec]["RotationDropValue"] then
-						br.data.tracker[br.selectedSpec]["RotationDropValue"] = br.data.settings[br.selectedSpec]["RotationDropValue"]
+						br.data.tracker[br.selectedSpec]["RotationDropValue"] = br.data.settings[br.selectedSpec]
+							["RotationDropValue"]
 						br.data.tracker[br.selectedSpec]["RotationDrop"] = i
 						rotationFound = true
 						break

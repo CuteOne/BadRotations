@@ -7,6 +7,12 @@ function br.ui:createCheckbox(parent, text, tooltip, checked)
     local classColor = {
         color = br.classColors[select(3, br._G.UnitClass("player"))].hex
     }
+    -- Option Storage Location
+    -- local parent1 = parent.children[1]
+    if (parent.settings.sectionName == "Cooldowns") then
+        br.parent = parent
+    end
+
     -------------------------------
     ----Need to calculate Y Pos----
     -------------------------------
@@ -34,27 +40,38 @@ function br.ui:createCheckbox(parent, text, tooltip, checked)
     checkBox:SetSettings(
         {
             height = 12,
-            width = 12
+            width = 12,
+            name = text .. " Check",
         }
     )
     --------------
     ---BR Stuff---
     --------------
+    local activePageIdx = parent.settings.parentObject.pageDD.value
+    local activePage = parent.settings.parentObject.pageDD.settings.list[activePageIdx]
+    br.data.settings[br.selectedSpec][br.selectedProfile][activePage] = br.data.settings[br.selectedSpec]
+        [br.selectedProfile][activePage] or {}
+    local data = br.data.settings[br.selectedSpec][br.selectedProfile][activePage]
+    local value = text .. " Check"
+
     -- Read check value from config, false if nothing found
     -- Set default
-    if br.data.settings[br.selectedSpec][br.selectedProfile][text .. "Check"] == nil and not checked then
-        br.data.settings[br.selectedSpec][br.selectedProfile][text .. "Check"] = false
+    if data[value] == nil and not checked then
+        data[value] = false
+        br.data.ui[activePage][value] = false
     end
-    if br.data.settings[br.selectedSpec][br.selectedProfile][text .. "Check"] == nil and checked then
-        br.data.settings[br.selectedSpec][br.selectedProfile][text .. "Check"] = true
+    if data[value] == nil and checked then
+        data[value] = true
+        br.data.ui[activePage][value] = true
     end
     -- Add to UI Settings **Do not comment out or remove, will result in loss of settings**
     if br.data.ui == nil then
         br.data.ui = {}
     end
-    br.data.ui[text .. "Check"] = br.data.settings[br.selectedSpec][br.selectedProfile][text .. "Check"]
+    if br.data.ui[activePage] == nil then br.data.ui[activePage] = {} end
+    br.data.ui[activePage][value] = data[value]
 
-    local check = br.data.settings[br.selectedSpec][br.selectedProfile][text .. "Check"]
+    local check = data[value]
     if check == 0 then
         check = false
     end
@@ -75,7 +92,8 @@ function br.ui:createCheckbox(parent, text, tooltip, checked)
     checkBox:SetEventListener(
         "OnValueChanged",
         function(this, event, checked)
-            br.data.settings[br.selectedSpec][br.selectedProfile][text .. "Check"] = checked
+            data[value] = checked
+            br.data.ui[activePage][value] = checked
             -- Create Chat Overlay
             if checked then
                 DiesalStyle:StyleTexture(checkBox.check, classColor)

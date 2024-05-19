@@ -2,6 +2,11 @@ local DiesalGUI = _G.LibStub("DiesalGUI-1.0")
 local DiesalTools = _G.LibStub("DiesalTools-1.0")
 local _, br = ...
 function br.ui:createSpinner(parent, text, number, min, max, step, tooltip, tooltipSpin, hideCheckbox)
+    local activePageIdx = parent.settings.parentObject.pageDD.value
+    local activePage = parent.settings.parentObject.pageDD.settings.list[activePageIdx]
+    br.data.settings[br.selectedSpec][br.selectedProfile][activePage] = br.data.settings[br.selectedSpec]
+        [br.selectedProfile][activePage] or {}
+    local data = br.data.settings[br.selectedSpec][br.selectedProfile][activePage]
     -------------------------------
     ----Need to calculate Y Pos----
     -------------------------------
@@ -18,7 +23,7 @@ function br.ui:createSpinner(parent, text, number, min, max, step, tooltip, tool
     -------------------------------
     local checkBox = br.ui:createCheckbox(parent, text, tooltip)
     if hideCheckbox then
-        local check = br.data.settings[br.selectedSpec][br.selectedProfile][text .. "Check"]
+        local check = data[text .. " Check"]
         if check == 0 then
             check = false
         end
@@ -62,17 +67,18 @@ function br.ui:createSpinner(parent, text, number, min, max, step, tooltip, tool
     ---BR Stuff---
     --------------
     -- Read number from config or set default
-    if br.data.settings[br.selectedSpec][br.selectedProfile][text .. "Status"] == nil then
-        br.data.settings[br.selectedSpec][br.selectedProfile][text .. "Status"] = number
+    if data[text .. " Status"] == nil then
+        data[text .. " Status"] = number
     end
 
     -- Add to UI Settings **Do not comment out or remove, will result in loss of settings**
     if br.data.ui == nil then
         br.data.ui = {}
     end
-    br.data.ui[text .. "Status"] = br.data.settings[br.selectedSpec][br.selectedProfile][text .. "Status"]
+    if br.data.ui[activePage] == nil then br.data.ui[activePage] = {} end
+    br.data.ui[activePage][text .. " Status"] = data[text .. " Status"]
 
-    local state = br.data.settings[br.selectedSpec][br.selectedProfile][text .. "Status"]
+    local state = data[text .. " Status"]
     spinner:SetNumber(state)
 
     ------------------
@@ -82,7 +88,7 @@ function br.ui:createSpinner(parent, text, number, min, max, step, tooltip, tool
     spinner:SetEventListener(
         "OnValueChanged",
         function()
-            br.data.settings[br.selectedSpec][br.selectedProfile][text .. "Status"] = spinner:GetNumber()
+            data[text .. " Status"] = spinner:GetNumber()
         end
     )
     -- Event: Tooltip
@@ -117,6 +123,13 @@ end
 
 -- Spinner Object : {number, min, max, step, tooltip}
 function br.ui:createDoubleSpinner(parent, text, spinner1, spinner2, hideCheckbox)
+    local activePageIdx = parent.settings.parentObject.pageDD.value
+    local activePage = parent.settings.parentObject.pageDD.settings.list[activePageIdx]
+    -- string.gsub(parent.settings.parentObject.pageDD.settings.list[activePageIdx], " Options", "")
+    -- activePage = string.gsub(activePage, " ", "")
+    br.data.settings[br.selectedSpec][br.selectedProfile][activePage] = br.data.settings[br.selectedSpec]
+        [br.selectedProfile][activePage] or {}
+    local data = br.data.settings[br.selectedSpec][br.selectedProfile][activePage]
     -------------------------------
     ----Need to calculate Y Pos----
     -------------------------------
@@ -133,7 +146,7 @@ function br.ui:createDoubleSpinner(parent, text, spinner1, spinner2, hideCheckbo
     -------------------------------
     local checkBox = br.ui:createCheckbox(parent, text, "Enable auto usage of this spell")
     if hideCheckbox then
-        local check = br.data.settings[br.selectedSpec][br.selectedProfile][text .. "Check"]
+        local check = data[text .. " Check"]
         if check == 0 then
             check = false
         end
@@ -194,23 +207,24 @@ function br.ui:createDoubleSpinner(parent, text, spinner1, spinner2, hideCheckbo
     ---BR Stuff---
     --------------
     -- Read number from config or set default
-    if br.data.settings[br.selectedSpec][br.selectedProfile][text .. "1Status"] == nil then
-        br.data.settings[br.selectedSpec][br.selectedProfile][text .. "1Status"] = spinner1.number
+    if data[text .. " 1Status"] == nil then
+        data[text .. " 1Status"] = spinner1.number
     end
-    if br.data.settings[br.selectedSpec][br.selectedProfile][text .. "2Status"] == nil then
-        br.data.settings[br.selectedSpec][br.selectedProfile][text .. "2Status"] = spinner2.number
+    if data[text .. " 2Status"] == nil then
+        data[text .. " 2Status"] = spinner2.number
     end
 
     -- Add to UI Settings **Do not comment out or remove, will result in loss of settings**
     if br.data.ui == nil then
         br.data.ui = {}
     end
-    br.data.ui[text .. "1Status"] = br.data.settings[br.selectedSpec][br.selectedProfile][text .. "1Status"]
-    br.data.ui[text .. "2Status"] = br.data.settings[br.selectedSpec][br.selectedProfile][text .. "2Status"]
+    if br.data.ui[activePage] == nil then br.data.ui[activePage] = {} end
+    br.data.ui[activePage][text .. " 1Status"] = data[text .. " 1Status"]
+    br.data.ui[activePage][text .. " 2Status"] = data[text .. " 2Status"]
 
-    local state1 = br.data.settings[br.selectedSpec][br.selectedProfile][text .. "1Status"]
+    local state1 = data[text .. " 1Status"]
     spinnerElement1:SetNumber(state1)
-    local state2 = br.data.settings[br.selectedSpec][br.selectedProfile][text .. "2Status"]
+    local state2 = data[text .. " 2Status"]
     spinnerElement2:SetNumber(state2)
 
     ------------------
@@ -220,13 +234,13 @@ function br.ui:createDoubleSpinner(parent, text, spinner1, spinner2, hideCheckbo
     spinnerElement1:SetEventListener(
         "OnValueChanged",
         function()
-            br.data.settings[br.selectedSpec][br.selectedProfile][text .. "1Status"] = spinnerElement1:GetNumber()
+            data[text .. " 1Status"] = spinnerElement1:GetNumber()
         end
     )
     spinnerElement2:SetEventListener(
         "OnValueChanged",
         function()
-            br.data.settings[br.selectedSpec][br.selectedProfile][text .. "2Status"] = spinnerElement2:GetNumber()
+            data[text .. " 2Status"] = spinnerElement2:GetNumber()
         end
     )
     -- Event: Tooltip

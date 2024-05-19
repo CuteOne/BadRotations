@@ -577,7 +577,7 @@ function br.enemyListCheck(Unit)
 	local phaseReason = br._G.UnitPhaseReason(Unit)
 	local distance = br.getDistance(Unit, "player")
 	local mcCheck = (br.isChecked("Attack MC Targets") and (not br.GetUnitIsFriend(Unit, "player") or br._G.UnitIsCharmed(Unit))) or
-	not br.GetUnitIsFriend(Unit, "player")
+		not br.GetUnitIsFriend(Unit, "player")
 	local inPhase = not phaseReason or phaseReason == 2 or phaseReason == 3
 	if (br.UnitDebuffID("player", 320102) or br.UnitDebuffID(Unit, 424495)) and br._G.UnitIsPlayer(Unit) then
 		return true
@@ -616,7 +616,7 @@ function br.isValidUnit(Unit)
 			and ((hostileOnly and reaction < 4) or (not hostileOnly and reaction < 5) or playerTarget or targeting)))
 	then
 		return (playerTarget and (not inInstance or (inInstance and (#br.friend == 1 or not br.hasTank())))) or targeting or
-		burnUnit or br.isInProvingGround() or br.hasThreat(Unit)
+			burnUnit or br.isInProvingGround() or br.hasThreat(Unit)
 	end
 	return false
 end
@@ -735,7 +735,7 @@ function br.pause(skipCastingCheck)
 				br._G.StopAttack()
 				br._G.ClearTarget()
 				br._G.print(tonumber(br.getOptionValue("DPS Testing")) ..
-				" Minute Dummy Test Concluded - Profile Stopped")
+					" Minute Dummy Test Concluded - Profile Stopped")
 				br.profileStop = true
 			else
 				br.profileStop = false
@@ -798,25 +798,102 @@ function br.spellDebug(Message)
 	end
 end
 
--- if br.isChecked("Debug") then
-function br.isChecked(Value)
-	if br.data ~= nil and br.data.settings ~= nil then
-		--Print(br.data.settings[br.selectedSpec]["profile"..Value.."Check"])
-		if br.data.settings[br.selectedSpec] == nil or br.data.settings[br.selectedSpec][br.selectedProfile] == nil then
-			return false
+local reportFindings = {}
+local addFindings = function(thisOption, thisPage, thisTimes)
+	local alreadyReported = false
+	if reportFindings[thisOption] == nil then
+		reportFindings[thisOption] = {}
+		reportFindings[thisOption]["Findings"] = {}
+		reportFindings[thisOption].reported = false
+	end
+	if #reportFindings[thisOption].Findings == 0 then
+		tinsert(reportFindings[thisOption].Findings, { option = thisOption, page = thisPage, timesFound = thisTimes })
+	else
+		for i = 1, #reportFindings[thisOption].Findings do
+			local report = reportFindings[thisOption].Findings[i]
+			if report.option == thisOption and report.page == thisPage then
+				-- print("Already Reported")
+				alreadyReported = true
+				return
+			end
 		end
-
-		if br.data.settings[br.selectedSpec]
-			and (br.data.settings[br.selectedSpec][br.selectedProfile][Value .. "Check"] == 1
-				or br.data.settings[br.selectedSpec][br.selectedProfile][Value .. "Check"] == true)
-		then
-			return true
+		if not alreadyReported then
+			tinsert(reportFindings[thisOption].Findings, { option = thisOption, page = thisPage, timesFound = thisTimes })
 		end
 	end
-	return false
+	-- reportFindings[thisOption].option = thisOption
+	-- reportFindings[thisOption].page = thisPage
+	-- reportFindings[thisOption].timesFound = thisTimes
+end
+local function findOption(Value, Page, Type)
+	-- Assume we are checking Rotation Options, if not specified.
+	if Page == nil then
+		Page = "Rotation Options"
+		-- else
+		-- 	Page = string.gsub(Page, " ", "")
+		-- 	Page = string.gsub(Page, "Options", "")
+	end
+	-- print("Looking in: " .. tostring(Page))
+	if Type == nil then Type = " Check" end
+	if br.data and br.data.settings then
+		if br.data.settings[br.selectedSpec] and br.data.settings[br.selectedSpec][br.selectedProfile] then
+			local settings = br.data.settings[br.selectedSpec][br.selectedProfile]
+			local option = Value .. Type
+			-- Attempt to find the option using the provided Page (or default page: "Rotation")
+			if settings[Page] and settings[Page][option] ~= nil then
+				-- print("Found Option: \"" .. tostring(option) .. "\" within Page: \"" .. tostring(Page) .. "\"")
+				return settings[Page][option] -- Found requested option
+			end
+			-- If no Page was provided, and not in the default location, look for it.
+			local timesFound = 0
+			local foundOption
+			if settings["PageList"] then
+				for i = 1, #settings["PageList"] do
+					local thisPage = settings["PageList"][i]
+					-- print("Searching on Page: " .. tostring(thisPage) .. " for Option: " .. tostring(option))
+					if settings[thisPage] and settings[thisPage][option] ~= nil then
+						-- print("Found Option: \"" .. tostring(option) .. "\" within Page: \"" .. tostring(thisPage) .. "\"")
+						timesFound = timesFound + 1
+						foundOption = settings[thisPage][option] -- Found requested option
+						addFindings(option, thisPage, timesFound)
+					end
+				end
+				-- br.report = reportFindings
+				if reportFindings[option] and #reportFindings[option].Findings ~= 1 and not reportFindings[option].reported then
+					if #reportFindings[option].Findings == 0 then
+						br._G.print("No option found for: " .. tostring(option))
+						reportFindings[option].reported = true
+					end
+					if #reportFindings[option].Findings > 1 then
+						for i = 1, #reportFindings[option].Findings do
+							local report = reportFindings[option].Findings[i]
+							br._G.print("Found Option: " ..
+								tostring(report.option) ..
+								" on Page: " ..
+								tostring(report.page))
+						end
+						reportFindings[option].reported = true
+					end
+				elseif reportFindings[option] ~= nil and reportFindings[option].Findings ~= nil and #reportFindings[option].Findings == 1 then
+					local thisOption = reportFindings[option].Findings[1]
+					return settings[thisOption.page][thisOption.option]
+				end
+			end
+		end
+	end
+	if Type == " Check" then
+		return false
+	else
+		return 0
+	end
 end
 
--- if isSelected("Stormlash Totem") then
+-- if br.isChecked("Debug") then
+function br.isChecked(Value, Page)
+	return findOption(Value, Page, " Check")
+end
+
+-- if br.isSelected("Stormlash Totem") then
 function br.isSelected(Value)
 	if br.data.settings ~= nil
 		and (br.data.settings[br.selectedSpec].toggles["Cooldowns"] == 3
@@ -844,23 +921,44 @@ end
 -- 		return 0
 -- 	end
 -- end
-function br.getValue(Value)
-	if br.data ~= nil and br.data.settings ~= nil then
-		local selectedProfile = br.data.settings[br.selectedSpec][br.selectedProfile]
-		if selectedProfile ~= nil then
-			if selectedProfile[Value .. "Status"] ~= nil then
-				return selectedProfile[Value .. "Status"]
-			elseif selectedProfile[Value .. "Drop"] ~= nil then
-				return selectedProfile[Value .. "Drop"]
-			elseif selectedProfile[Value .. "EditBox"] ~= nil then
-				return selectedProfile[Value .. "EditBox"]
-			else
-				return 0
-			end
-		end
-	else
-		return 0
+function br.getValue(Value, Page)
+	local statusValue = findOption(Value, Page, " Status")
+	if statusValue and statusValue > 0 then
+		return statusValue
 	end
+	local dropValue = findOption(Value, Page, " Drop")
+	if dropValue and dropValue > 0 then
+		return dropValue
+	end
+	local editBoxValue = findOption(Value, Page, " EditBox")
+	if editBoxValue then
+		return editBoxValue
+	end
+	-- if br.data ~= nil and br.data.settings ~= nil then
+	-- 	local selectedProfile = br.data.settings[br.selectedSpec][br.selectedProfile]
+	-- 	if selectedProfile ~= nil then
+	-- 		if selectedProfile[Value .. "EditBox"] ~= nil then
+	-- 			return selectedProfile[Value .. "EditBox"]
+	-- 		end
+	-- 	end
+	-- end
+	return 0
+	-- if br.data ~= nil and br.data.settings ~= nil then
+	-- 	local selectedProfile = br.data.settings[br.selectedSpec][br.selectedProfile]
+	-- 	if selectedProfile ~= nil then
+	-- 		if selectedProfile[Value .. "Status"] ~= nil then
+	-- 			return selectedProfile[Value .. "Status"]
+	-- 		elseif selectedProfile[Value .. "Drop"] ~= nil then
+	-- 			return selectedProfile[Value .. "Drop"]
+	-- 		elseif selectedProfile[Value .. "EditBox"] ~= nil then
+	-- 			return selectedProfile[Value .. "EditBox"]
+	-- 		else
+	-- 			return 0
+	-- 		end
+	-- 	end
+	-- else
+	-- 	return 0
+	-- end
 end
 
 -- used to gather informations from the bot options frame
@@ -987,9 +1085,9 @@ function br.getEssenceRank(essenceName)
 		local milestone = essenceTable[i]
 		if milestone.slot ~= nil and milestone.unlocked == true then
 			local eRank = br._G.C_AzeriteEssence.GetEssenceInfo(br._G.C_AzeriteEssence.GetMilestoneEssence(milestone.ID))
-			.rank
+				.rank
 			local eIcon = br._G.C_AzeriteEssence.GetEssenceInfo(br._G.C_AzeriteEssence.GetMilestoneEssence(milestone.ID))
-			.icon
+				.icon
 			if icon == eIcon then
 				essenceRank = eRank
 			end

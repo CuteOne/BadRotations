@@ -4,6 +4,12 @@ local DiesalStyle = _G.LibStub("DiesalStyle-1.0")
 local Colors = DiesalStyle.Colors
 local _, br = ...
 function br.ui:createScrollingEditBox(parent, text, content, tooltip, width, height, hideCheckbox)
+    local activePageIdx = parent.settings.parentObject.pageDD.value
+    local activePage = parent.settings.parentObject.pageDD.settings.list[activePageIdx]
+    br.data.settings[br.selectedSpec][br.selectedProfile][activePage] = br.data.settings[br.selectedSpec]
+        [br.selectedProfile][activePage] or {}
+    local data = br.data.settings[br.selectedSpec][br.selectedProfile][activePage]
+
     if width == nil then
         width = 240
     end
@@ -26,7 +32,7 @@ function br.ui:createScrollingEditBox(parent, text, content, tooltip, width, hei
     -------------------------------
     local checkBox = br.ui:createCheckbox(parent, text, tooltip)
     if hideCheckbox then
-        local check = br.data.settings[br.selectedSpec][br.selectedProfile][text .. "Check"]
+        local check = data[text .. " Check"]
         if check == 0 then
             check = false
         end
@@ -82,16 +88,17 @@ function br.ui:createScrollingEditBox(parent, text, content, tooltip, width, hei
     input:SetPoint("TOPLEFT", parent.content, "TOPLEFT", 5, Y - 14)
     input:SetStylesheet(inputStyleSheet)
 
-    input.settings.contentPadding = {1, 1, 1, 1}
+    input.settings.contentPadding = { 1, 1, 1, 1 }
 
     --------------
     ---BR Stuff---
     --------------
     -- Read number from config or set default
-    if br.data.settings[br.selectedSpec][br.selectedProfile][text .. "EditBox"] == nil then
-        br.data.settings[br.selectedSpec][br.selectedProfile][text .. "EditBox"] = content
+    if data[text .. " EditBox"] == nil then
+        data[text .. " EditBox"] = content
+        br.data.ui[activePage][text .. " EditBox"] = content
     end
-    local state = br.data.settings[br.selectedSpec][br.selectedProfile][text .. "EditBox"]
+    local state = data[text .. " EditBox"]
     input:SetText(state)
     input:SetWidth(width)
     input:SetHeight(height)
@@ -103,7 +110,8 @@ function br.ui:createScrollingEditBox(parent, text, content, tooltip, width, hei
     input:SetEventListener(
         "OnTextChanged",
         function()
-            br.data.settings[br.selectedSpec][br.selectedProfile][text .. "EditBox"] = input.editBox:GetText()
+            data[text .. " EditBox"] = input.editBox:GetText()
+            br.data.ui[activePage][text .. " EditBox"] = input.editBox:GetText()
             input.settings.text = input.editBox:GetText()
         end
     )

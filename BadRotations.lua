@@ -249,6 +249,9 @@ local function OnEvent(self, event)
 				br._G.RunMacroText("/console SpellQueueWindow " .. br.prevQueueWindow)
 			end
 			br.ui:saveWindowPosition()
+			br:cleanSettings()
+			table.wipe(br.data.settings[br.selectedSpec][br.selectedProfile]["PageList"])
+			table.wipe(br.ui)
 			if br.getOptionCheck("Reset Options") then
 				-- Reset Settings
 				br:saveSettings(nil, nil, br.selectedSpec, br.selectedProfileName, true)

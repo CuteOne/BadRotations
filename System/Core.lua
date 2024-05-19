@@ -199,7 +199,7 @@ function br.BadRotationsUpdate(self)
                     end
                 end
                 if (not br.isChecked("Queue Casting") or br.GetUnitIsDeadOrGhost("player") or
-                    not br._G.UnitAffectingCombat("player")) and br.player ~= nil and #br.player.queue ~= 0 then
+                        not br._G.UnitAffectingCombat("player")) and br.player ~= nil and #br.player.queue ~= 0 then
                     br._G.wipe(br.player.queue)
                     if not br.isChecked("Mute Queue") then
                         if not br.isChecked("Queue Casting") then
@@ -277,20 +277,8 @@ function br.BadRotationsUpdate(self)
                 if not br.loadFile and collectGarbage then
                     -- Ensure we have all the settings recorded
                     br.ui:recreateWindows()
-                    -- Compare br.data.settings for the current spec/profile to the ui options
-                    for k, _ in pairs(br.data.settings[br.selectedSpec][br.selectedProfile]) do
-                        -- local inOptions = br.data.ui[k] ~= nil
-                        -- Remove any Check/Drop/Status Options that are no longer a UI Option
-                        if br.data.ui[k] == nil then
-                            local drop = k.sub(k, -4)
-                            local check = k.sub(k, -5)
-                            local status = k.sub(k, -6)
-                            if check == "Check" or drop == "Drop" or status == "Status" then
-                                Print("Removing Unused Option: " .. k)
-                                br.data.settings[br.selectedSpec][br.selectedProfile][k] = nil
-                            end
-                        end
-                    end
+                    -- Delete old settings
+                    br:cleanSettings()
                     -- Set flag to prevent un-needed runs
                     collectGarbage = false
                 end
@@ -298,6 +286,6 @@ function br.BadRotationsUpdate(self)
         elseif br.player ~= nil then
             updateRotationOnSpecChange()
         end -- End Settings Loaded Check
-    end -- End Unlock Check
+    end     -- End Unlock Check
     br.debug.cpu:updateDebug(startTime, "pulse")
-end -- End Bad Rotations Update Function
+end         -- End Bad Rotations Update Function

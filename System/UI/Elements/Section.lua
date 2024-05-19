@@ -17,14 +17,16 @@ function br.ui:createSection(parent, sectionName, tooltip)
         br.data.settings[br.selectedSpec][br.selectedProfile] = {}
     end
     newSection.settings.expanded =
-        br.data.settings[br.selectedSpec][br.selectedProfile][sectionName .. "Section"] or true
+        br.data.settings[br.selectedSpec][br.selectedProfile][sectionName .. " Section"] or true
+    br.data.ui[sectionName .. " Section"] = newSection.settings.expanded
     -- newSection.settings.contentPadding = {0,0,12,32}
 
     newSection:SetEventListener(
         "OnStateChange",
         function(this, event)
-            br.data.settings[br.selectedSpec][br.selectedProfile][sectionName .. "Section"] =
+            br.data.settings[br.selectedSpec][br.selectedProfile][sectionName .. " Section"] =
                 newSection.settings.expanded
+            br.data.ui[sectionName .. " Section"] = newSection.settings.expanded
         end
     )
     -- Event: Tooltip
@@ -74,9 +76,9 @@ end
 
 -- Restore last saved state of section (collapsed or expanded)
 function br.ui:checkSectionState(section)
-    local state = br.data.settings[br.selectedSpec][br.selectedProfile][section.settings.sectionName .. "Section"]
+    local state = br.data.settings[br.selectedSpec][br.selectedProfile][section.settings.sectionName .. " Section"]
 
-   
+
     if state then
         section:Expand()
         section:UpdateHeight(section)

@@ -81,7 +81,7 @@ function br.ui:createSaveButton(parent, buttonName, x, y)
                 "OnClick",
                 function()
                     local profiles =
-                        br.fetch(br.selectedSpec .. "_" .. "profiles", {{key = "default", text = "Default"}})
+                        br.fetch(br.selectedSpec .. "_" .. "profiles", { { key = "default", text = "Default" } })
                     local profileName = profileInput:GetText()
                     local pkey = string.gsub(profileName, "%s+", "")
                     if profileName ~= "" then
@@ -98,7 +98,7 @@ function br.ui:createSaveButton(parent, buttonName, x, y)
                                 return false
                             end
                         end
-                        table.insert(profiles, {key = pkey, text = br.deepcopy(br.data.settings[br.selectedSpec])})
+                        table.insert(profiles, { key = pkey, text = br.deepcopy(br.data.settings[br.selectedSpec]) })
                         br.store(br.selectedSpec .. "_" .. "profiles", profiles)
                         br.store(br.selectedSpec .. "_" .. "profile", pkey)
                         newWindow:Hide()
@@ -112,7 +112,7 @@ function br.ui:createSaveButton(parent, buttonName, x, y)
                 "OnEnterPressed",
                 function()
                     local profiles =
-                        br.fetch(br.selectedSpec .. "_" .. "profiles", {{key = "default", text = "Default"}})
+                        br.fetch(br.selectedSpec .. "_" .. "profiles", { { key = "default", text = "Default" } })
                     local profileName = profileInput:GetText()
                     local pkey = string.gsub(profileName, "%s+", "")
                     if profileName ~= "" then
@@ -129,7 +129,7 @@ function br.ui:createSaveButton(parent, buttonName, x, y)
                                 return false
                             end
                         end
-                        table.insert(profiles, {key = pkey, text = br.deepcopy(br.data.settings[br.selectedSpec])})
+                        table.insert(profiles, { key = pkey, text = br.deepcopy(br.data.settings[br.selectedSpec]) })
                         br.store(br.selectedSpec .. "_" .. "profiles", profiles)
                         br.store(br.selectedSpec .. "_" .. "profile", pkey)
                         newWindow:Hide()
@@ -162,7 +162,7 @@ function br.ui:createDeleteButton(parent, buttonName, x, y)
         "OnClick",
         function()
             local selectedProfile = br.profileDropValue
-            local profiles = br.fetch(br.selectedSpec .. "_" .. "profiles", {{key = "default", text = "Default"}})
+            local profiles = br.fetch(br.selectedSpec .. "_" .. "profiles", { { key = "default", text = "Default" } })
             if selectedProfile ~= "default" then
                 for i, p in ipairs(profiles) do
                     if p.key == selectedProfile then
@@ -240,6 +240,7 @@ function br.ui:createExportButton(parent, buttonName, x, y)
     exportButton:SetEventListener(
         "OnClick",
         function()
+            br:cleanSettings()
             br:saveSettings("Exported Settings", nil, br.selectedSpec, br.selectedProfileName)
             -- br:saveSettings(nil,"Exported Settings")
 
@@ -329,7 +330,7 @@ br.tableSave = function(tbl, filename)
     -- br._G.WriteFile(filename, "", false)
     local content = ""
     -- initiate variables for save procedure
-    local tables, lookup = {tbl}, {[tbl] = 1}
+    local tables, lookup = { tbl }, { [tbl] = 1 }
     -- file:write( "return {"..charE )
     -- br._G.WriteFile(filename, "return {" .. charE, true)
     content = content .. "return {" .. charE
@@ -443,7 +444,7 @@ br.tableLoad = function(sfile)
                 tables[idx][i] = tables[v[1]]
             end
             if type(i) == "table" and tables[i[1]] then
-                table.insert(tolinki, {i, tables[i[1]]})
+                table.insert(tolinki, { i, tables[i[1]] })
             end
         end
         -- link indices

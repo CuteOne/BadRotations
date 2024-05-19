@@ -2,6 +2,11 @@ local DiesalGUI = _G.LibStub("DiesalGUI-1.0")
 local DiesalTools = _G.LibStub("DiesalTools-1.0")
 local _, br = ...
 function br.ui:createDropdown(parent, text, itemlist, default, tooltip, tooltipDrop, hideCheckbox)
+    local activePageIdx = parent.settings.parentObject.pageDD.value
+    local activePage = parent.settings.parentObject.pageDD.settings.list[activePageIdx]
+    br.data.settings[br.selectedSpec][br.selectedProfile][activePage] = br.data.settings[br.selectedSpec]
+        [br.selectedProfile][activePage] or {}
+    local data = br.data.settings[br.selectedSpec][br.selectedProfile][activePage]
     -------------------------------
     ----Need to calculate Y Pos----
     -------------------------------
@@ -18,7 +23,7 @@ function br.ui:createDropdown(parent, text, itemlist, default, tooltip, tooltipD
     -------------------------------
     local checkBox = br.ui:createCheckbox(parent, text, tooltip)
     if hideCheckbox then
-        local check = br.data.settings[br.selectedSpec][br.selectedProfile][text .. "Check"]
+        local check = data[text .. " Check"]
         if check == 0 then
             check = false
         end
@@ -48,18 +53,21 @@ function br.ui:createDropdown(parent, text, itemlist, default, tooltip, tooltipD
     --------------
     ---BR Stuff---
     --------------
+    local value = text .. " Drop"
+
     -- Read from config or set default
-    if br.data.settings[br.selectedSpec][br.selectedProfile][text .. "Drop"] == nil then
-        br.data.settings[br.selectedSpec][br.selectedProfile][text .. "Drop"] = default
+    if data[value] == nil then
+        data[value] = default
     end
 
     -- Add to UI Settings **Do not comment out or remove, will result in loss of settings**
     if br.data.ui == nil then
         br.data.ui = {}
     end
-    br.data.ui[text .. "Drop"] = br.data.settings[br.selectedSpec][br.selectedProfile][text .. "Drop"]
+    if br.data.ui[activePage] == nil then br.data.ui[activePage] = {} end
+    br.data.ui[activePage][value] = data[value]
 
-    local value = br.data.settings[br.selectedSpec][br.selectedProfile][text .. "Drop"]
+    local value = data[value]
     newDropdown:SetValue(value)
 
     ------------------
@@ -84,12 +92,12 @@ function br.ui:createDropdown(parent, text, itemlist, default, tooltip, tooltipD
             self.dropdown:SetFrameStrata(strata)
         end
     end)
-    
+
     -- Event: OnValueChange
     newDropdown:SetEventListener(
         "OnValueChanged",
         function(this, event, key, value, selection)
-            br.data.settings[br.selectedSpec][br.selectedProfile][text .. "Drop"] = key
+            data[text .. " Drop"] = key
         end
     )
     -- Event: Tooltip
@@ -138,7 +146,7 @@ function br.ui:createProfileDropdown(parent)
     end
     Y = DiesalTools.Round(Y)
 
-    local profiles = br.fetch(br.selectedSpec .. "_" .. "profiles", {{key = "default", text = "Default"}})
+    local profiles = br.fetch(br.selectedSpec .. "_" .. "profiles", { { key = "default", text = "Default" } })
     -- local selectedProfile = br.fetch(br.selectedSpec .. "_" .. "profile", "default")
     local profile_drop = DiesalGUI:Create("Dropdown")
     parent:AddChild(profile_drop)

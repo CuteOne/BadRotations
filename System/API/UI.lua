@@ -16,7 +16,9 @@ br.api.ui = function(self)
     ui.alwaysCdNever = function(thisOption)
         -- Option Dropdown Requires
         -- {"|cff008000Always", "|cff0000ffCD", "|cffff0000Never"}
-        thisOption = ui.value(thisOption)
+        thisOption = br.data.settings[br.selectedSpec][br.selectedProfile]["Rotation Options"][thisOption] ~= nil and
+            ui.value(thisOption, "Rotation Options") or
+            ui.value(thisOption, "Base Options")
         return thisOption == 1 or (thisOption == 2 and ui.useCDs())
     end
 
@@ -29,9 +31,11 @@ br.api.ui = function(self)
     ui.alwaysCdAoENever = function(thisOption, minUnits, enemyCount)
         -- Option Dropdown Requires
         -- {"Always", "|cff008000AOE", "|cffffff00AOE/CD", "|cff0000ffCD", "|cffff0000Never"}
-        thisOption = ui.value(thisOption)
+        thisOption = br.data.settings[br.selectedSpec][br.selectedProfile]["Rotation Options"][thisOption] ~= nil and
+            ui.value(thisOption, "Rotation Options") or
+            ui.value(thisOption, "Base Options")
         minUnits = minUnits or 3
-        enemyCount = enemyCount or #br.getEnemies("player",40,false,true)
+        enemyCount = enemyCount or #br.getEnemies("player", 40, false, true)
         return thisOption == 1
             or (thisOption == 2 and enemyCount >= minUnits)
             or (thisOption == 3 and (ui.useCDs() or enemyCount >= minUnits))
@@ -52,9 +56,9 @@ br.api.ui = function(self)
         -- @function ui.checked
         -- @string thisOption - Name of the option from the defined profile options.
         -- @return boolean
-        ui.checked = function(thisOption)
+        ui.checked = function(thisOption, optionPage)
             if thisOption == nil then return false end
-            return br.isChecked(thisOption)
+            return br.isChecked(thisOption, optionPage)
         end
     end
 
@@ -95,7 +99,8 @@ br.api.ui = function(self)
         ui.isMouseDown = function(mouseButton)
             local mouseDown = br._G.IsMouseButtonDown
             if mouseButton == nil then
-                return mouseDown("LeftButton") or mouseDown("RightButton") or mouseDown("MiddleButton") or mouseDown("Button4") or mouseDown("Button5")
+                return mouseDown("LeftButton") or mouseDown("RightButton") or mouseDown("MiddleButton") or
+                    mouseDown("Button4") or mouseDown("Button5")
             else
                 return mouseDown(mouseButton)
             end
@@ -177,11 +182,11 @@ br.api.ui = function(self)
         -- @number[opt=8] range - The range of the AOE damage in yards.
         -- @number[opt=3] minCount - The minimum number of units to be in range before true
         -- @string[opt="player"] useTarget - the reference unit to check range and units against.
-        ui.useAOE = function(range,minCount,useTarget)
+        ui.useAOE = function(range, minCount, useTarget)
             if range == nil then range = 8 end
             if minCount == nil then minCount = 3 end
             if useTarget == nil then useTarget = "player" end
-            return ((ui.mode.rotation == 1 and #self.enemies.get(range,useTarget) >= minCount) or (ui.mode.rotation == 2 and #self.enemies.get(range, useTarget) > 0))
+            return ((ui.mode.rotation == 1 and #self.enemies.get(range, useTarget) >= minCount) or (ui.mode.rotation == 2 and #self.enemies.get(range, useTarget) > 0))
         end
     end
 
@@ -221,11 +226,11 @@ br.api.ui = function(self)
         -- @number[opt=8] range - The range of the AOE damage in yards.
         -- @number[opt=3] minCount - The minimum number of units to be in range before true
         -- @string[opt="player"] useTarget - the reference unit to check range and units against.
-        ui.useST = function(range,minCount,useTarget)
+        ui.useST = function(range, minCount, useTarget)
             if range == nil then range = 8 end
             if minCount == nil then minCount = 3 end
             if useTarget == nil then useTarget = "player" end
-            return ((ui.mode.rotation == 1 and #self.enemies.get(range,useTarget) < minCount) or (ui.mode.rotation == 3 and #self.enemies.get(range, useTarget) > 0))
+            return ((ui.mode.rotation == 1 and #self.enemies.get(range, useTarget) < minCount) or (ui.mode.rotation == 3 and #self.enemies.get(range, useTarget) > 0))
         end
     end
 
@@ -234,9 +239,9 @@ br.api.ui = function(self)
         -- @function ui.value
         -- @string thisOption - The name of the option specified in the options section
         -- @return number
-        ui.value = function(thisOption)
+        ui.value = function(thisOption, optionPage)
             if thisOption == nil then return 0 end
-            return br.getOptionValue(thisOption)
+            return br.getOptionValue(thisOption, optionPage)
         end
     end
 end

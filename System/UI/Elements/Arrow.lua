@@ -33,6 +33,7 @@ function br.ui:createRightArrow(window)
         function()
             local page = window.currentPage
             if page then
+                -- br.data.settings[br.selectedSpec][window] = page
                 if page + 1 > #window.pages then
                     window.pageDD:SetValue(1)
                 else
@@ -44,6 +45,7 @@ function br.ui:createRightArrow(window)
     rArr:ApplySettings()
     window.parent:AddChild(rArr)
 end
+
 -- Left Arrow
 function br.ui:createLeftArrow(window)
     local lArr = DiesalGUI:Create("Button")
@@ -77,6 +79,7 @@ function br.ui:createLeftArrow(window)
         function()
             local page = window.currentPage
             if page then
+                -- br.data.settings[br.selectedSpec][window] = page
                 if page - 1 == 0 then
                     window.pageDD:SetValue(#window.pages)
                 else

@@ -8,7 +8,9 @@ function br.ui:createDebugWindow()
         "OnClick",
         function()
             if br.data.settings[br.selectedSpec][br.selectedProfile] ~= nil then
-                br.data.settings[br.selectedSpec][br.selectedProfile]["Rotation LogCheck"] = false
+                br.data.settings[br.selectedSpec][br.selectedProfile]["General"]["Rotation Log Check"] = false
+                if br.data.ui["General"] == nil then br.data.ui["General"] = {} end
+                br.data.ui["General"]["Rotation Log Check"] = false
             end
             if br.rotationLog ~= nil then
                 br.rotationLog:SetChecked(false)
@@ -22,6 +24,7 @@ function br.ui:createDebugWindow()
     )
     br.ui:checkWindowStatus("debug")
 end
+
 function br.ui:toggleDebugWindow()
     if not br.ui.window["debug"]["parent"] then
         br.ui:createDebugWindow()
