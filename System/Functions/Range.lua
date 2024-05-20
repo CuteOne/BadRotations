@@ -19,17 +19,17 @@ function br.getDistance(Unit1, Unit2, option)
         Unit2 = Unit1
         Unit1 = "player"
     end
-    if br.units ~= nil then
-        if (Unit1 == "player" and br.units[br._G.ObjectPointer(Unit2)] ~= nil) then
-            return br.units[br._G.ObjectPointer(Unit2)].range
-        end
-        if (br.units[br._G.ObjectPointer(Unit1)] ~= nil and Unit2 == "player") then
-            return br.units[br._G.ObjectPointer(Unit1)].range
-        end
-        local thisUnit = Unit1 == "player" and br.units[br._G.ObjectPointer(Unit2)] or
-            br.units[br._G.ObjectPointer(Unit1)]
-        if thisUnit ~= nil then return thisUnit.range end
-    end
+    -- if br.units ~= nil then
+    --     if (Unit1 == "player" and br.units[br._G.ObjectPointer(Unit2)] ~= nil) then
+    --         return br.units[br._G.ObjectPointer(Unit2)].range
+    --     end
+    --     if (br.units[br._G.ObjectPointer(Unit1)] ~= nil and Unit2 == "player") then
+    --         return br.units[br._G.ObjectPointer(Unit1)].range
+    --     end
+    --     local thisUnit = Unit1 == "player" and br.units[br._G.ObjectPointer(Unit2)] or
+    --         br.units[br._G.ObjectPointer(Unit1)]
+    --     if thisUnit ~= nil then return thisUnit.range end
+    -- end
     return br.getDistanceCalc(Unit1, Unit2, option)
 end
 

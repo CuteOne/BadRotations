@@ -339,6 +339,8 @@ function br.cCharacter:new(class)
 			self.module.BasicHealing()
 		end
 		if not self.unit.inCombat() then
+			-- Module Auto Mythic+ Keystone
+			self.module.autoKeystone()
 			-- Module PhialUp
 			self.module.PhialUp()
 			-- Module - Imbue Up

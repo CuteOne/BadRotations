@@ -186,7 +186,8 @@ br.api.ui = function(self)
             if range == nil then range = 8 end
             if minCount == nil then minCount = 3 end
             if useTarget == nil then useTarget = "player" end
-            return ((ui.mode.rotation == 1 and #self.enemies.get(range, useTarget) >= minCount) or (ui.mode.rotation == 2 and #self.enemies.get(range, useTarget) > 0))
+            local _, enemyCount = self.enemies.get(range, useTarget)
+            return ((ui.mode.rotation == 1 and enemyCount >= minCount) or (ui.mode.rotation == 2 and enemyCount > 0))
         end
     end
 
@@ -230,7 +231,8 @@ br.api.ui = function(self)
             if range == nil then range = 8 end
             if minCount == nil then minCount = 3 end
             if useTarget == nil then useTarget = "player" end
-            return ((ui.mode.rotation == 1 and #self.enemies.get(range, useTarget) < minCount) or (ui.mode.rotation == 3 and #self.enemies.get(range, useTarget) > 0))
+            local _, enemyCount = self.enemies.get(range, useTarget)
+            return ((ui.mode.rotation == 1 and enemyCount < minCount) or (ui.mode.rotation == 3 and enemyCount > 0))
         end
     end
 
