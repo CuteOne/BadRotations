@@ -105,16 +105,10 @@ local function createOptions()
         --- Cooldown Options ---
         ------------------------
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
-        -- Potion
+        -- Module: Combat Potion Up
         br.player.module.CombatPotionUp(section)
-        -- Phial
-        br.player.module.PhialUp(section)
-        -- Imbue
-        br.player.module.ImbueUp(section)
         -- Racial
         br.ui:createCheckbox(section, "Racial")
-        -- Basic Trinkets Module
-        br.player.module.BasicTrinkets(nil, section)
         -- Barrage
         br.ui:createDropdownWithout(section, "Barrage", alwaysCdAoENever, 1, "|cffFFFFFFSet when to use ability.")
         -- Death Chakram
@@ -137,8 +131,6 @@ local function createOptions()
         --- Defensive Options ---
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
-        -- Basic Healing Module
-        br.player.module.BasicHealing(section)
         -- Aspect of the Turtle
         br.ui:createSpinner(section, "Aspect Of The Turtle", 60, 0, 100, 5, "|cffFFBB00Health Percentage to use at.");
         -- Bursting Shot
@@ -296,8 +288,8 @@ actionList.Extras = function()
         end
     end
     -- Tar Trap
-    if ui.checked("Tar Trap") and cast.able.tarTrap("target", "ground") and unit.distance(units.dyn40) > 8 then
-        if cast.tarTrap("target", "ground") then
+    if ui.checked("Tar Trap") and cast.able.tarTrap("target", "ground", 1, 8) and unit.distance(units.dyn40) > 8 then
+        if cast.tarTrap("target", "ground", 1, 8) then
             ui.debug("Casting Tar Trap")
             var.tarred = true
             return true
@@ -308,8 +300,6 @@ end -- End Action List - Extras
 -- Action List - Defensive
 actionList.Defensive = function()
     if ui.useDefensive() then
-        -- Basic Healing Module
-        module.BasicHealing()
         -- Aspect of the Turtle
         if ui.checked("Aspect Of The Turtle") and unit.hp() <= ui.value("Aspect Of The Turtle") then
             if cast.aspectOfTheTurtle("player") then
@@ -477,9 +467,6 @@ actionList.Cooldowns = function()
                 return true
             end
         end
-        -- Module - Basic Trinkets
-        -- use_items
-        module.BasicTrinkets()
     end
 end -- End Action List - Cooldowns
 
@@ -557,10 +544,10 @@ actionList.Trickshots = function()
     end
     -- Volley
     -- volley
-    if ui.alwaysCdAoENever("Volley", ui.value("Volley Units"), 40) and cast.able.volley("best", nil, ui.value("Volley Units"), 8)
-        and ui.mode.volley == 1 and #enemies.yards40 >= ui.value("Volley Units")
+    if ui.alwaysCdAoENever("Volley", ui.value("Volley Units"), 8) and cast.able.volley("target", "ground", ui.value("Volley Units"), 8)
+        and ui.mode.volley == 1 and #enemies.yards8t >= ui.value("Volley Units")
     then
-        if cast.volley("best", nil, ui.value("Volley Units"), 8) then
+        if cast.volley("target", "ground", ui.value("Volley Units"), 8) then
             ui.debug("Casting Volley [Trickshots]")
             return true
         end
@@ -706,11 +693,11 @@ actionList.St = function()
     end
     -- Volley
     -- volley,if=buff.salvo.up|variable.trueshot_ready|cooldown.trueshot.remains>45|fight_remains<12
-    if ui.alwaysCdAoENever("Volley", ui.value("Volley Units"), 40) and cast.able.volley("best", nil, ui.value("Volley Units"), 8)
-        and ui.mode.volley == 1 and (#enemies.yards40 >= ui.value("Volley Units"))
-        and ((buff.salvo.exists() or var.trueshotReady or cd.trueshot.remains() > 45 or unit.ttdGroup(40) < 12))
+    if ui.alwaysCdAoENever("Volley", ui.value("Volley Units"), 8) and cast.able.volley("target", "ground", ui.value("Volley Units"), 8)
+        and ui.mode.volley == 1 and (#enemies.yards8t >= ui.value("Volley Units"))
+        and ((buff.salvo.exists() or var.trueshotReady or cd.trueshot.remains() > 45 --[[or unit.ttdGroup(40) < 12]]))
     then
-        if cast.volley("best", nil, ui.value("Volley Units"), 8) then
+        if cast.volley("target", "ground", ui.value("Volley Units"), 8) then
             ui.debug("Casting Volley [St]")
             return true
         end
@@ -862,14 +849,12 @@ end -- End Action List - St
 -- Action List - Pre-Combat
 actionList.PreCombat = function()
     if not unit.inCombat() and not buff.feignDeath.exists() then
-        -- Module PhialUp
-        module.PhialUp()
-        -- Module - Imbue Up
-        -- augmentation
-        module.ImbueUp()
         -- Summon Pet
         -- summon_pet
-        -- if actionList.PetManagement() then ui.debug("") return true end
+        if actionList.PetManagement() then
+            ui.debug("")
+            return true
+        end
         if unit.valid("target") and unit.distance("target") < 50 then
             -- Salvo
             -- salvo,precast_time=10
@@ -946,12 +931,12 @@ actionList.Combat = function()
         if actionList.Cooldowns() then return true end
         -- Call Action List - St
         -- call_action_list,name=st,if=active_enemies<3|!talent.trick_shots
-        if (ui.useST(40, 3, "player") or not talent.trickShots) then
+        if (ui.useST(10, 3, "target") or not talent.trickShots) then
             if actionList.St() then return true end
         end
         -- Call Action List - Trickshots
         -- call_action_list,name=trickshots,if=active_enemies>2
-        if ui.useAOE(40, 2, "player") then
+        if ui.useAOE(10, 3, "target") then
             if actionList.Trickshots() then return true end
         end
     end
@@ -1048,7 +1033,6 @@ local function runRotation()
     end
 
     var.useKillShot = unit.hp(var.lowestHPUnit) < 20 or buff.deathblow.exists()
-
 
     --     ui.chatOverlay("Is Target: "..tostring(unit.isUnit(var.lowestHPUnit,"target")).." - Name: "..tostring(unit.name(var.lowestHPUnit)))
     ---------------------
