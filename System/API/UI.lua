@@ -16,6 +16,7 @@ br.api.ui = function(self)
     ui.alwaysCdNever = function(thisOption)
         -- Option Dropdown Requires
         -- {"|cff008000Always", "|cff0000ffCD", "|cffff0000Never"}
+        if br.data.settings[br.selectedSpec][br.selectedProfile]["Rotation Options"] == nil then return 0 end
         thisOption = br.data.settings[br.selectedSpec][br.selectedProfile]["Rotation Options"][thisOption] ~= nil and
             ui.value(thisOption, "Rotation Options") or
             ui.value(thisOption, "Base Options")
@@ -31,6 +32,7 @@ br.api.ui = function(self)
     ui.alwaysCdAoENever = function(thisOption, minUnits, enemyCount)
         -- Option Dropdown Requires
         -- {"Always", "|cff008000AOE", "|cffffff00AOE/CD", "|cff0000ffCD", "|cffff0000Never"}
+        if br.data.settings[br.selectedSpec][br.selectedProfile]["Rotation Options"] == nil then return 0 end
         thisOption = br.data.settings[br.selectedSpec][br.selectedProfile]["Rotation Options"][thisOption] ~= nil and
             ui.value(thisOption, "Rotation Options") or
             ui.value(thisOption, "Base Options")
