@@ -7,7 +7,7 @@ function br.ui:createDebugWindow()
     br.ui.window.debug.parent.closeButton:SetScript(
         "OnClick",
         function()
-            if br.data.settings[br.selectedSpec][br.selectedProfile] ~= nil then
+            if br.data.settings[br.selectedSpec][br.selectedProfile] ~= nil and br.data.settings[br.selectedSpec][br.selectedProfile]["General"] ~= nil then
                 br.data.settings[br.selectedSpec][br.selectedProfile]["General"]["Rotation Log Check"] = false
                 if br.data.ui["General"] == nil then br.data.ui["General"] = {} end
                 br.data.ui["General"]["Rotation Log Check"] = false

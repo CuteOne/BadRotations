@@ -58,11 +58,15 @@ function br.ui:createCheckbox(parent, text, tooltip, checked)
     -- Set default
     if data[value] == nil and not checked then
         data[value] = false
-        br.data.ui[activePage][value] = false
+        if br.data.ui[activePage] ~= nil then
+            br.data.ui[activePage][value] = false
+        end
     end
     if data[value] == nil and checked then
         data[value] = true
-        br.data.ui[activePage][value] = true
+        if br.data.ui[activePage] ~= nil then
+            br.data.ui[activePage][value] = false
+        end
     end
     -- Add to UI Settings **Do not comment out or remove, will result in loss of settings**
     if br.data.ui == nil then

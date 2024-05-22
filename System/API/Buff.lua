@@ -6,7 +6,8 @@
 local _, br = ...
 if br.api == nil then br.api = {} end
 
-br.api.buffs = function(buff, v)
+br.api.buffs = function(buff, k, v)
+    local buff = buff[k]
     --- Cancel a buff.
     -- @function buff.spell.cancel
     -- @string[opt="player"] thisUnit The unit to check.
@@ -14,6 +15,10 @@ br.api.buffs = function(buff, v)
     buff.cancel = function(thisUnit, sourceUnit)
         if thisUnit == nil then thisUnit = 'player' end
         if sourceUnit == nil then sourceUnit = 'player' end
+        if k == "bloodLust" then
+            v = br.getLustID()
+            if v == 0 then return end
+        end
         if br.UnitBuffID(thisUnit, v, sourceUnit) ~= nil then
             br._G.RunMacroText("/cancelaura " .. br._G.GetSpellInfo(v))
         end
@@ -23,6 +28,10 @@ br.api.buffs = function(buff, v)
     -- @function buff.spell.count
     -- @treturn number
     buff.count = function()
+        if k == "bloodLust" then
+            v = br.getLustID()
+            if v == 0 then return 0 end
+        end
         return tonumber(br.getBuffCount(v))
     end
 
@@ -34,6 +43,10 @@ br.api.buffs = function(buff, v)
     buff.duration = function(thisUnit, sourceUnit)
         if thisUnit == nil then thisUnit = 'player' end
         if sourceUnit == nil then sourceUnit = 'player' end
+        if k == "bloodLust" then
+            v = br.getLustID()
+            if v == 0 then return 0 end
+        end
         return br.getBuffDuration(thisUnit, v, sourceUnit)
     end
 
@@ -45,6 +58,10 @@ br.api.buffs = function(buff, v)
     buff.exists = function(thisUnit, sourceUnit)
         if thisUnit == nil then thisUnit = 'player' end
         if sourceUnit == nil then sourceUnit = 'player' end
+        if k == "bloodLust" then
+            v = br.getLustID()
+            if v == 0 then return false end
+        end
         return br.UnitBuffID(thisUnit, v, sourceUnit) ~= nil
     end
 
@@ -54,6 +71,10 @@ br.api.buffs = function(buff, v)
     -- @string[opt="player"] sourceUnit The source of the buff.
     -- @treturn boolean
     buff.down = function(thisUnit, sourceUnit)
+        if k == "bloodLust" then
+            v = br.getLustID()
+            if v == 0 then return true end
+        end
         return not buff.exists(thisUnit, sourceUnit)
     end
 
@@ -65,6 +86,10 @@ br.api.buffs = function(buff, v)
     buff.react = function(thisUnit, sourceUnit)
         thisUnit = thisUnit or "player"
         sourceUnit = sourceUnit or "player"
+        if k == "bloodLust" then
+            v = br.getLustID()
+            if v == 0 then return false end
+        end
         return br.getBuffReact(thisUnit, v, sourceUnit)
     end
 
@@ -76,6 +101,10 @@ br.api.buffs = function(buff, v)
     buff.remain = function(thisUnit, sourceUnit)
         if thisUnit == nil then thisUnit = 'player' end
         if sourceUnit == nil then sourceUnit = 'player' end
+        if k == "bloodLust" then
+            v = br.getLustID()
+            if v == 0 then return 0 end
+        end
         return math.abs(br.getBuffRemain(thisUnit, v, sourceUnit))
     end
 
@@ -87,6 +116,10 @@ br.api.buffs = function(buff, v)
     buff.remains = function(thisUnit, sourceUnit)
         if thisUnit == nil then thisUnit = 'player' end
         if sourceUnit == nil then sourceUnit = 'player' end
+        if k == "bloodLust" then
+            v = br.getLustID()
+            if v == 0 then return 0 end
+        end
         return math.abs(br.getBuffRemain(thisUnit, v, sourceUnit))
     end
 
@@ -96,6 +129,10 @@ br.api.buffs = function(buff, v)
     -- @string[opt="player"] sourceUnit The source of the buff.
     -- @treturn boolean
     buff.refresh = function(thisUnit, sourceUnit)
+        if k == "bloodLust" then
+            v = br.getLustID()
+            if v == 0 then return false end
+        end
         return buff.remain(thisUnit, sourceUnit) <= buff.duration(thisUnit, sourceUnit) * 0.3
     end
 
@@ -107,6 +144,10 @@ br.api.buffs = function(buff, v)
     buff.stack = function(thisUnit, sourceUnit)
         if thisUnit == nil then thisUnit = 'player' end
         if sourceUnit == nil then sourceUnit = 'player' end
+        if k == "bloodLust" then
+            v = br.getLustID()
+            if v == 0 then return 0 end
+        end
         return br.getBuffStacks(thisUnit, v, sourceUnit)
     end
 
@@ -118,6 +159,10 @@ br.api.buffs = function(buff, v)
     buff.stackMax = function(thisUnit, sourceUnit)
         if thisUnit == nil then thisUnit = 'player' end
         if sourceUnit == nil then sourceUnit = 'player' end
+        if k == "bloodLust" then
+            v = br.getLustID()
+            if v == 0 then return 0 end
+        end
         return br.auraMaxStacks[v] and (br.auraMaxStacks[v][thisUnit] or 0) or 0
     end
 end

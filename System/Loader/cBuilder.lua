@@ -330,8 +330,8 @@ function br.loader:new(spec, specName)
             if k ~= "rollTheBones" then
                 if self.buff == nil then self.buff = {} end
                 if self.buff[k] == nil then self.buff[k] = {} end
-                if k == "bloodLust" then v = br.getLustID() end
-                br.api.buffs(self.buff[k], v)
+                -- if k == "bloodLust" then v = br.getLustID() end
+                br.api.buffs(self.buff, k, v)
             end
         end
         -- Make Debuff Functions from br.api.debuffs

@@ -78,8 +78,6 @@ br.api.module = function(self)
         end
     end
 
-
-
     --- Basic Healing Module - Uses healthstones, potions, and racial healing abilities.
     -- @function module.BasicHealing
     -- @bool[opt] section If set will generate the options for this module in the Profile Options. Otherwise, will run the module.

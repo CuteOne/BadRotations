@@ -229,12 +229,32 @@ br.api.ui = function(self)
         -- @number[opt=8] range - The range of the AOE damage in yards.
         -- @number[opt=3] minCount - The minimum number of units to be in range before true
         -- @string[opt="player"] useTarget - the reference unit to check range and units against.
+        -- #return boolean
         ui.useST = function(range, minCount, useTarget)
             if range == nil then range = 8 end
             if minCount == nil then minCount = 3 end
             if useTarget == nil then useTarget = "player" end
             local _, enemyCount = self.enemies.get(range, useTarget)
             return ((ui.mode.rotation == 1 and enemyCount < minCount) or (ui.mode.rotation == 3 and enemyCount > 0))
+        end
+    end
+
+    if ui.useTrinkets == nil then
+        --- Checks if the option to use trinkets are valid per each Trinket slot.
+        -- @function ui.useTrinkets
+        -- @number trinket -The item id of the trinket to check for.
+        -- #return boolean
+        ui.useTrinkets = function(trinket)
+            for slotID = 13, 14 do
+                -- local useTrinket = (opValue == 1 or (opValue == 2 and (ui.useCDs() or ui.useAOE())) or (opValue == 3 and ui.useCDs()))
+                if self.use.able.slot(slotID)
+                    and ui.alwaysCdAoENever("Trinket " .. slotID - 12)
+                    and self.equiped.item(trinket, slotID)
+                then
+                    return true
+                end
+            end
+            return false
         end
     end
 
