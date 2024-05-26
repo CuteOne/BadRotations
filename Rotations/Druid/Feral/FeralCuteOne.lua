@@ -66,7 +66,9 @@ local function createOptions()
 
     local function rotationOptions()
         local section
-        -- General Options
+        -----------------------
+        --- General Options ---
+        -----------------------
         section = br.ui:createSection(br.ui.window.profile, "General")
         -- Death Cat
         br.ui:createCheckbox(section, "Death Cat Mode",
@@ -106,7 +108,9 @@ local function createOptions()
             { "|cffFFFFFFPlayer", "|cffFFFFFFTarget", "|cffFFFFFFMouseover", "|cffFFFFFFFocus", "|cffFFFFFFGroup" }, 1,
             "|cffFFFFFFSet how to use Mark of the Wild")
         br.ui:checkSectionState(section)
-        -- SimC Specific Options
+        -----------------------------
+        --- SimC Specific Options ---
+        -----------------------------
         section = br.ui:createSection(br.ui.window.profile, "SimC")
         -- Zerk Biteweave
         br.ui:createCheckbox(section, "Zerk Biteweave",
@@ -121,16 +125,16 @@ local function createOptions()
         br.ui:createCheckbox(section, "Force Align 2min",
             "|cffFFFFFFForces Berserk and Incarnation to align every 2 minutes.")
         br.ui:checkSectionState(section)
-        -- Cooldown Options
+        ------------------------
+        --- Cooldown Options ---
+        ------------------------
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
-        -- Augment Rune
-        br.ui:createCheckbox(section, "Augment Rune")
         -- Potion
         br.ui:createDropdownWithout(section, "Potion", { "Spectral Agility", "None" }, 1, "|cffFFFFFFSet Potion to use.")
-        -- FlaskUp Module
-        br.player.module.FlaskUp("Agility", section)
         -- Racial
         br.ui:createCheckbox(section, "Racial")
+        -- Basic Trinkets
+        br.player.module.BasicTrinkets(nil, section)
         -- Adaptive Swarm
         br.ui:createDropdownWithout(section, "Adaptive Swarm",
             { "|cff00FF00Always", "|cffFFFF00Cooldowns", "|cffFF0000Never" }, 2,
@@ -145,13 +149,11 @@ local function createOptions()
         br.ui:createDropdownWithout(section, "Berserk/Incarnation",
             { "|cff00FF00Always", "|cffFFFF00Cooldowns", "|cffFF0000Never" }, 2,
             "|cffFFFFFFSet when to use Berserk/Incarnation")
-        -- Trinkets
-        br.player.module.BasicTrinkets(nil, section)
         br.ui:checkSectionState(section)
-        -- Defensive Options
+        -------------------------
+        --- Defensive Options ---
+        -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
-        -- Basic Healing Module
-        br.player.module.BasicHealing(section)
         -- Barkskin
         br.ui:createSpinner(section, "Barkskin", 55, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
         -- Rebirth
@@ -188,7 +190,9 @@ local function createOptions()
         br.ui:createDropdownWithout(section, "Auto Heal", { "|cffFFDD11LowestHP", "|cffFFDD11Player" }, 1,
             "|cffFFFFFFSelect Target to Auto-Heal")
         br.ui:checkSectionState(section)
-        -- Interrupt Options
+        -------------------------
+        --- Interrupt Options ---
+        -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
         -- Skull Bash
         br.ui:createCheckbox(section, "Skull Bash")
@@ -200,7 +204,9 @@ local function createOptions()
         br.ui:createSpinnerWithout(section, "Interrupt At", 0, 0, 95, 5,
             "|cffFFFFFFCast Percent to Cast At (0 is random)")
         br.ui:checkSectionState(section)
-        -- Toggle Key Options
+        --------------------------
+        --- Toggle Key Options ---
+        --------------------------
         section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
         -- Single/Multi Toggle
         br.ui:createDropdownWithout(section, "Rotation Mode", br.dropOptions.Toggle, 4)
@@ -214,8 +220,6 @@ local function createOptions()
         br.ui:createDropdownWithout(section, "Cleave Mode", br.dropOptions.Toggle, 6)
         -- Prowl Toggle
         br.ui:createDropdownWithout(section, "Prowl Mode", br.dropOptions.Toggle, 6)
-        -- Pause Toggle
-        br.ui:createDropdown(section, "Pause Mode", br.dropOptions.Toggle, 6)
         br.ui:checkSectionState(section)
     end
     optionTable = { {
@@ -319,7 +323,7 @@ local function usePrimalWrath()
         and ui.useAOE(8, 2)
         and not unit.isExplosive("target")
     then
-        if ui.value("Primal Wrath Usage") == 1 and #enemies.yards8 >= 3 then return true end
+        if ui.value("Primal Wrath Usage") == 1 and ui.useAOE(8, 3) then return true end
         local ripCount = 0
         for i = 1, #enemies.yards8 do
             local thisUnit = enemies.yards8[i]
@@ -360,19 +364,6 @@ local getMarkUnitOption = function(option)
         end
     end
     return thisUnit
-end
--- Use Trinket
-local useTrinket = function(trinket)
-    for slotID = 13, 14 do
-        -- local useTrinket = (opValue == 1 or (opValue == 2 and (ui.useCDs() or ui.useAOE())) or (opValue == 3 and ui.useCDs()))
-        if use.able.slot(slotID)
-            and ui.alwaysCdAoENever("Trinket " .. slotID - 12)
-            and equiped.item(trinket, slotID)
-        then
-            return true
-        end
-    end
-    return false
 end
 
 --------------------
@@ -649,8 +640,6 @@ actionList.Defensive = function()
                 end
             end
         end
-        -- Basic Healing Module
-        module.BasicHealing()
         -- Resto Affinity
         if talent.restorationAffinity and not (unit.mounted() or unit.flying())
             and (ui.value("Auto Heal") ~= 1 or (ui.value("Auto Heal") == 1
@@ -846,12 +835,6 @@ end     -- End Action List - Interrupts
 actionList.PreCombat = function()
     if not unit.inCombat() and not (unit.flying() or unit.mounted()) then
         if not (buff.prowl.exists() or buff.shadowmeld.exists()) then
-            -- FlaskUp Module
-            -- flask
-            module.FlaskUp("Agility")
-            -- Module - Imbue Up
-            -- augmentation
-            module.ImbueUp()
             if (ui.checked("Pre-Pull Timer") and ui.pullTimer() <= ui.value("Pre-Pull Timer")) or unit.isDummy("target") then
                 -- Heart of the Wild
                 -- heart_of_the_wild
@@ -863,7 +846,7 @@ actionList.PreCombat = function()
                 end
                 -- Use Item - Algethar Puzzle Box
                 -- use_item,name=algethar_puzzle_box
-                if useTrinket(items.algetharPuzzleBox) and use.able.algetharPuzzleBox() then
+                if ui.useTrinkets(items.algetharPuzzleBox) and use.able.algetharPuzzleBox() then
                     if use.algetharPuzzleBox() then
                         ui.debug("Using Algethar Puzzle Box [Precombat]")
                         return true
@@ -997,7 +980,7 @@ actionList.Combat = function()
         end
         -- Natures Vigil
         -- natures_vigil,if=spell_targets.swipe_cat>0
-        if cast.able.naturesVigil() and #enemies.yards8 > 0 then
+        if cast.able.naturesVigil() and ui.useAOE(8, 1) then
             if cast.naturesVigil() then
                 ui.debug("Casting Natures Vigil [Combat]")
                 return true
@@ -1017,7 +1000,7 @@ actionList.Combat = function()
             local thisUnit = enemies.yards40[i]
             if cast.able.adaptiveSwarm(thisUnit) and ((((not debuff.adaptiveSwarmDamage.exists(thisUnit) or debuff.adaptiveSwarmDamage.remains(thisUnit) < 2)
                     and debuff.adaptiveSwarmDamage.count(thisUnit) < 3 and not cast.inFlight.adaptiveSwarmDamage() and not cast.inFlight.adaptiveSwarm()
-                    and unit.ttd(thisUnit) > 5) and (not talent.unbridledSwarm or #enemies.yards8 == 1)))
+                    and unit.ttd(thisUnit) > 5) and (not talent.unbridledSwarm or ui.useST(8, 2))))
             then
                 if cast.adaptiveSwarm(thisUnit) then
                     ui.debug("Casting Adaptive Swarm [Combat]")
@@ -1028,7 +1011,7 @@ actionList.Combat = function()
         -- Adaptive Swarm
         -- adaptive_swarm,target_if=max:(1+dot.adaptive_swarm_damage.stack)*dot.adaptive_swarm_damage.stack<3*time_to_die,if=dot.adaptive_swarm_damage.stack<3&talent.unbridled_swarm.enabled&spell_targets.swipe_cat>1
         if cast.able.adaptiveSwarm(var.maxAdaptiveSwarmUnit) and debuff.adaptiveSwarmDamage.count(var.maxAdaptiveSwarmUnit) < 3
-            and talent.unbridledSwarm and #enemies.yards40 > 1
+            and talent.unbridledSwarm and ui.useAOE(8, 2)
         then
             if cast.adaptiveSwarm(var.maxAdaptiveSwarmUnit) then
                 ui.debug("Casting Adaptive Swarm - Unbridled Swarm [Combat]")
@@ -1037,12 +1020,15 @@ actionList.Combat = function()
         end
         -- Call Action List - Cooldown
         -- call_action_list,name=cooldown,if=dot.rip.ticking|spell_targets.swipe_cat>1
-        if (debuff.rip.exists(units.dyn5) or #enemies.yards8 > 1) then
+        if (debuff.rip.exists(units.dyn5) or ui.useAOE(8, 2)) then
             if actionList.Cooldown() then return true end
         end
         -- Feral Frenzy
         -- feral_frenzy,target_if=max:target.time_to_die,if=(combo_points<=2|combo_points<=3&buff.bs_inc.up)&(dot.rip.ticking|spell_targets.swipe_cat>1)&(!talent.dire_fixation.enabled|debuff.dire_fixation.up|spell_targets.swipe_cat>1)&(target.time_to_die>6|target.time_to_die=fight_remains)
-        if cast.able.feralFrenzy(var.maxTTDUnit) and (((comboPoints() <= 2 or comboPoints() <= 3 and buff.bsInc.exists()) and (debuff.rip.exists(var.maxTTDUnit) or #enemies.yards8 > 1) and (not talent.direFixation or debuff.direFixation.exists(var.maxTTDUnit) or #enemies.yards8 > 1) and (unit.ttd(var.maxTTDUnit) > 6 or unit.ttd(var.maxTTDUnit) == unit.ttdGroup(40)))) then
+        if cast.able.feralFrenzy(var.maxTTDUnit) and (((comboPoints() <= 2 or comboPoints() <= 3 and buff.bsInc.exists())
+                and (debuff.rip.exists(var.maxTTDUnit) or ui.useAOE(8, 2)) and (not talent.direFixation or debuff.direFixation.exists(var.maxTTDUnit) or ui.useAOE(8, 2))
+                and (unit.ttd(var.maxTTDUnit) > 6 or unit.ttd(var.maxTTDUnit) == unit.ttdGroup(40))))
+        then
             if cast.feralFrenzy(var.maxTTDUnit) then
                 ui.debug("Casting Feral Frenzy [Combat]")
                 return true
@@ -1051,7 +1037,7 @@ actionList.Combat = function()
         -- Ferocious Bite
         -- ferocious_bite,target_if=max:target.time_to_die,if=buff.apex_predators_craving.up&(spell_targets.swipe_cat=1|!talent.primal_wrath.enabled|!buff.sabertooth.up)&!(variable.need_bt&active_bt_triggers=2)
         if cast.able.ferociousBite(var.maxTTDUnit) and ((buff.apexPredatorsCraving.exists()
-                and (#enemies.yards8 == 1 or not talent.primalWrath or not buff.sabertooth.exists())
+                and (ui.useST(8, 2) or not talent.primalWrath or not buff.sabertooth.exists())
                 and not (var.needBt and var.btGen.triggers == 2)))
         then
             if cast.ferociousBite(var.maxTTDUnit) then
@@ -1066,7 +1052,7 @@ actionList.Combat = function()
         end
         -- Wait
         -- wait,sec=combo_points=5,if=combo_points=4&buff.predator_revealed.react&energy.deficit>40&spell_targets.swipe_cat=1
-        if comboPoints() == 4 and buff.predatorRevealed.exists() and energy.deficit() > 40 and #enemies.yards8 == 1 then
+        if comboPoints() == 4 and buff.predatorRevealed.exists() and energy.deficit() > 40 and ui.useST(8, 2) then
             local waitFor = comboPoints() == 5
             if cast.wait(waitFor, function() return true end) then
                 ui.debug("Waiting for Sec=Combo Points=5")
@@ -1172,7 +1158,7 @@ actionList.AoeBuilder = function()
     end
     -- Swipe Cat
     -- swipe_cat,if=spell_targets.swipe_cat>4&!(variable.need_bt&buff.bt_swipe.up)
-    if not talent.brutalSlash and cast.able.swipeCat("player", "aoe", 1, 8) and #enemies.yards8 > 4 and not (var.needBt and var.btGen.swipe) then
+    if not talent.brutalSlash and cast.able.swipeCat("player", "aoe", 1, 8) and ui.useAOE(8, 5) and not (var.needBt and var.btGen.swipe) then
         if cast.swipeCat("player", "aoe", 1, 8) then
             ui.debug("Casting Swipe Cat [Aoe Builder - High Target Count]")
             return true
@@ -1198,7 +1184,7 @@ actionList.AoeBuilder = function()
     end
     -- Shred
     -- shred,target_if=max:target.time_to_die,if=(spell_targets.swipe_cat<4|talent.dire_fixation.enabled)&!buff.sudden_ambush.up&!(variable.easy_swipe&talent.wild_slashes)&!(variable.need_bt&buff.bt_shred.up)
-    if cast.able.shred(var.maxTTDUnit) and (((#enemies.yards8 < 4 or talent.direFixation) and not buff.suddenAmbush.exists()
+    if cast.able.shred(var.maxTTDUnit) and (((ui.useST(8, 4) or talent.direFixation) and not buff.suddenAmbush.exists()
             and not (var.easySwipe and talent.wildSlashes) and not (var.needBt and var.btGen.shred)))
     then
         if cast.shred(var.maxTTDUnit) then
@@ -1250,7 +1236,7 @@ end -- End Action List - AoE
 actionList.Berserk = function()
     -- Ferocious Bite
     -- ferocious_bite,target_if=max:target.time_to_die,if=combo_points=5&dot.rip.remains>8&variable.zerk_biteweave&spell_targets.swipe_cat>1
-    if cast.able.ferociousBite(var.maxTTDUnit) and comboPoints() == 5 and debuff.rip.remains(var.maxTTDUnit) > 8 and var.zerkBiteweave and #enemies.yards8 > 1 then
+    if cast.able.ferociousBite(var.maxTTDUnit) and comboPoints() == 5 and debuff.rip.remains(var.maxTTDUnit) > 8 and var.zerkBiteweave and ui.useAOE(8, 2) then
         if cast.ferociousBite(var.maxTTDUnit) then
             ui.debug("Casting Ferocious Bite [Berserk]")
             return true
@@ -1263,7 +1249,7 @@ actionList.Berserk = function()
     end
     -- Call Action List - Aoe Builder
     -- run_action_list,name=aoe_builder,if=spell_targets.swipe_cat>1
-    if #enemies.yards8 > 1 then
+    if ui.useAOE(8, 2) then
         if actionList.AoeBuilder() then return true end
     end
     -- Prowl
@@ -1467,7 +1453,7 @@ actionList.Builder = function()
     end
     -- Swipe Cat
     -- swipe_cat,if=spell_targets.swipe_cat>1|(talent.wild_slashes.enabled&(debuff.dire_fixation.up|!talent.dire_fixation.enabled))
-    if not talent.brutalSlash and cast.able.swipeCat("player", "aoe", 1, 8) and ((#enemies.yards8 > 1 or (talent.wildSlashes
+    if not talent.brutalSlash and cast.able.swipeCat("player", "aoe", 1, 8) and ((ui.useAOE(8, 2) or (talent.wildSlashes
             and (debuff.direFixation.exists(units.dyn8) or not talent.direFixation))))
     then
         if cast.swipeCat("player", "aoe", 1, 8) then
@@ -1537,7 +1523,7 @@ actionList.Cooldown = function()
         end
         -- Use Item - Algethar Puzzle Box
         -- use_item,name=algethar_puzzle_box,if=fight_remains<35|(!variable.align_3minutes)
-        if useTrinket(items.algetharPuzzleBox) and use.able.algetharPuzzleBox() and ((unit.ttdGroup(40) < 35 or (not var.align3Minutes))) then
+        if ui.useTrinkets(items.algetharPuzzleBox) and use.able.algetharPuzzleBox() and ((unit.ttdGroup(40) < 35 or (not var.align3Minutes))) then
             if use.algetharPuzzleBox() then
                 ui.debug("Using Algethar Puzzle Box [Cooldown]")
                 return true
@@ -1545,7 +1531,7 @@ actionList.Cooldown = function()
         end
         -- Use Item - Algethar Puzzle Box
         -- use_item,name=algethar_puzzle_box,if=variable.align_3minutes&!variable.align_cds&cooldown.bs_inc.remains<5&!buff.smoldering_frenzy.up
-        if useTrinket(items.algetharPuzzleBox) and use.able.algetharPuzzleBox() and var.align3Minutes
+        if ui.useTrinkets(items.algetharPuzzleBox) and use.able.algetharPuzzleBox() and var.align3Minutes
             and not var.alignCds and cd.bsInc.remains() < 5 and not buff.smolderingFrenzy.exists()
         then
             if use.algetharPuzzleBox() then
@@ -1555,7 +1541,7 @@ actionList.Cooldown = function()
         end
         -- Use Item - Algethar Puzzle Box
         -- use_item,name=algethar_puzzle_box,if=variable.align_3minutes&variable.align_cds&cooldown.convoke_the_spirits.remains<20&!buff.smoldering_frenzy.up
-        if useTrinket(items.algetharPuzzleBox) and use.able.algetharPuzzleBox() and var.align3Minutes
+        if ui.useTrinkets(items.algetharPuzzleBox) and use.able.algetharPuzzleBox() and var.align3Minutes
             and var.alignCds and cd.convokeTheSpirits.remains() < 20 and not buff.smolderingFrenzy.exists()
         then
             if use.algetharPuzzleBox() then
@@ -1587,7 +1573,7 @@ actionList.Cooldown = function()
             end
             -- Berserk
             -- berserk,target_if=max:target.time_to_die,if=!variable.align_cds&!(!talent.frantic_momentum.enabled&equipped.witherbarks_branch&spell_targets.swipe_cat=1)&((!variable.lastZerk)|(variable.lastZerk&!variable.lastConvoke)|(variable.lastConvoke&(cooldown.convoke_the_spirits.remains<10&(!set_bonus.tier31_2pc|set_bonus.tier31_2pc&buff.smoldering_frenzy.up))))&((target.time_to_die<fight_remains&target.time_to_die>18)|target.time_to_die=fight_remains)
-            if cast.able.berserk() and ((not var.alignCds and not (not talent.franticMomentum and equiped.witherbarksBranch() and #enemies.yards8 == 1)
+            if cast.able.berserk() and ((not var.alignCds and not (not talent.franticMomentum and equiped.witherbarksBranch() and ui.useST(8, 2))
                     and ((not var.lastZerk) or (var.lastZerk and not var.lastConvoke) or (var.lastConvoke and (cd.convokeTheSpirits.remains() < 10
                         and (not equiped.tier(31, 2) or equiped.tier(31, 2) and buff.smolderingFrenzy.exists())))) and ((unit.ttd(var.maxTTDUnit) < unit.ttdGroup(40)
                         and unit.ttd(var.maxTTDUnit) > 18) or unit.ttd(var.maxTTDUnit) == unit.ttdGroup(40) or unit.isDummy("target"))))
@@ -1600,7 +1586,7 @@ actionList.Cooldown = function()
             -- Berserk
             -- berserk,if=fight_remains<23|(time+118)%%120<30&!talent.frantic_momentum.enabled&(equipped.witherbarks_branch|equipped.ashes_of_the_embersoul)&spell_targets.swipe_cat=1
             if cast.able.berserk() and ((unit.ttdGroup(40) < 23 or (unit.combatTime() + 118) % 120 < 30 and not talent.franticMomentum
-                    and (equiped.witherbarksBranch() or equiped.ashesOfTheEmbersoul()) and #enemies.yards8 == 1))
+                    and (equiped.witherbarksBranch() or equiped.ashesOfTheEmbersoul()) and ui.useST(8, 2)))
             then
                 if cast.berserk() then
                     ui.debug("Casting Berserk [Cooldown - Condition 3]")
@@ -1630,7 +1616,7 @@ actionList.Cooldown = function()
         end
         -- Use Item - Ashes Of The Embersoul
         -- use_item,name=ashes_of_the_embersoul,if=((buff.smoldering_frenzy.up&(!talent.convoke_the_spirits.enabled|cooldown.convoke_the_spirits.remains<10))|!set_bonus.tier31_4pc&(cooldown.convoke_the_spirits.remains=0|!talent.convoke_the_spirits.enabled&buff.bs_inc.up))
-        if useTrinket(items.ashesOfTheEmbersoul) and use.able.ashesOfTheEmbersoul() and ((((buff.smolderingFrenzy.exists() and (not talent.convokeTheSpirits or cd.convokeTheSpirits.remains() < 10))
+        if ui.useTrinkets(items.ashesOfTheEmbersoul) and use.able.ashesOfTheEmbersoul() and ((((buff.smolderingFrenzy.exists() and (not talent.convokeTheSpirits or cd.convokeTheSpirits.remains() < 10))
                 or not equiped.tier(31, 4) and (cd.convokeTheSpirits.remains() == 0 or not talent.convokeTheSpirits and buff.bsInc.exists()))))
         then
             if use.ashesOfTheEmbersoul() then
@@ -1640,7 +1626,7 @@ actionList.Cooldown = function()
         end
         -- Use Item - Witherbarks Branch
         -- use_item,name=witherbarks_branch,if=(!talent.convoke_the_spirits.enabled|action.feral_frenzy.ready|!set_bonus.tier31_4pc)&!(trinket.1.is.ashes_of_the_embersoul&trinket.1.cooldown.remains<20|trinket.2.is.ashes_of_the_embersoul&trinket.2.cooldown.remains<20)
-        if useTrinket(items.witherbarksBranch) and use.able.witherbarksBranch() and (((not talent.convokeTheSpirits or cast.able.feralFrenzy() or not equiped.tier(31, 4))
+        if ui.useTrinkets(items.witherbarksBranch) and use.able.witherbarksBranch() and (((not talent.convokeTheSpirits or cast.able.feralFrenzy() or not equiped.tier(31, 4))
                 and not (equiped.ashesOfTheEmbersoul(13) and cd.slot.remains(13) < 20 or equiped.ashesOfTheEmbersoul(14) and cd.slot.remains(14) < 20)))
         then
             if use.witherbarksBranch() then
@@ -1650,7 +1636,7 @@ actionList.Cooldown = function()
         end
         -- Use Item - Mirror Of Fractured Tomorrows
         -- use_item,name=mirror_of_fractured_tomorrows,if=(!variable.align_3minutes|buff.bs_inc.up&buff.bs_inc.remains>15|variable.lastConvoke&!variable.lastZerk&cooldown.convoke_the_spirits.remains<1)&(target.time_to_die<fight_remains&target.time_to_die>16|target.time_to_die=fight_remains)
-        if useTrinket(items.mirrorOfFracturedTomorrows) and use.able.mirrorOfFracturedTomorrows() and (((not var.align3Minutes or buff.bsInc.exists() and buff.bsInc.remains() > 15
+        if ui.useTrinkets(items.mirrorOfFracturedTomorrows) and use.able.mirrorOfFracturedTomorrows() and (((not var.align3Minutes or buff.bsInc.exists() and buff.bsInc.remains() > 15
                 or var.lastConvoke and not var.lastZerk and cd.convokeTheSpirits.remains() < 1) and (unit.ttd(units.dyn5) < unit.ttdGroup(40)
                 and unit.ttd(units.dyn5) > 16 or unit.ttd(units.dyn5) == unit.ttdGroup(40))))
         then
@@ -1661,7 +1647,7 @@ actionList.Cooldown = function()
         end
         -- Use Item - Irideus Fragment
         -- use_item,name=irideus_fragment,if=buff.smoldering_frenzy.up&(fight_remains<35|!variable.align_3minutes|buff.bs_inc.up|variable.lastConvoke&!variable.lastZerk&cooldown.convoke_the_spirits.remains<5)
-        if useTrinket(items.irideusFragment) and use.able.irideusFragment() and ((buff.smolderingFrenzy.exists() and (unit.ttdGroup(40) < 35 or not var.align3Minutes or buff.bsInc.exists() or var.lastConvoke and not var.lastZerk and cd.convokeTheSpirits.remains() < 5))) then
+        if ui.useTrinkets(items.irideusFragment) and use.able.irideusFragment() and ((buff.smolderingFrenzy.exists() and (unit.ttdGroup(40) < 35 or not var.align3Minutes or buff.bsInc.exists() or var.lastConvoke and not var.lastZerk and cd.convokeTheSpirits.remains() < 5))) then
             if use.irideusFragment() then
                 ui.debug("Using Irideus Fragment [Cooldown]")
                 return true
@@ -1669,7 +1655,7 @@ actionList.Cooldown = function()
         end
         -- Use Item - Verdant Gladiators Badge Of Ferocity,Use Off Gcd=1
         -- use_item,name=verdant_gladiators_badge_of_ferocity,use_off_gcd=1,if=buff.smoldering_frenzy.up
-        if useTrinket(items.verdantGladiatorsBadgeOfFerocity) and use.able.verdantGladiatorsBadgeOfFerocity() and buff.smolderingFrenzy.exists() then
+        if ui.useTrinkets(items.verdantGladiatorsBadgeOfFerocity) and use.able.verdantGladiatorsBadgeOfFerocity() and buff.smolderingFrenzy.exists() then
             if use.verdantGladiatorsBadgeOfFerocity() then
                 ui.debug("Using Verdant Gladiators Badge Of Ferocity [Cooldown]")
                 return true
@@ -1679,7 +1665,7 @@ actionList.Cooldown = function()
         -- convoke_the_spirits,target_if=max:target.time_to_die,if=fight_remains<5|(buff.smoldering_frenzy.up|!set_bonus.tier31_4pc)&(dot.rip.remains>4-talent.ashamanes_guidance&buff.tigers_fury.up&combo_points<2)&(debuff.dire_fixation.up|!talent.dire_fixation.enabled|spell_targets.swipe_cat>1)&((target.time_to_die<fight_remains&target.time_to_die>5-talent.ashamanes_guidance.enabled)|target.time_to_die=fight_remains)
         if ui.alwaysCdNever("Convoke The Spirits") and cast.able.convokeTheSpirits() and (unit.ttdGroup(40) < 5 or (buff.smolderingFrenzy.exists() or not equiped.tier(31, 4))
                 and (debuff.rip.remains(var.maxTTDUnit) > 4 - var.ashamanesGuidance and buff.tigersFury.exists() and comboPoints() < 2)
-                and (debuff.direFixation.exists(var.maxTTDUnit) or not talent.direFixation or #enemies.yards8 > 1)
+                and (debuff.direFixation.exists(var.maxTTDUnit) or not talent.direFixation or ui.useAOE(8, 2))
                 and ((unit.ttd(var.maxTTDUnit) < unit.ttdGroup(40) and unit.ttd(var.maxTTDUnit) > 5 - var.ashamanesGuidance)
                     or unit.ttd(var.maxTTDUnit) == unit.ttdGroup(40) or unit.isDummy("target") or unit.isBoss(var.maxTTDUnit)))
         then
@@ -1700,7 +1686,7 @@ actionList.Cooldown = function()
         end
         -- Use Item - Manic Grieftorch
         -- use_item,name=manic_grieftorch,target_if=max:target.time_to_die,if=energy.deficit>40
-        if useTrinket(items.manicGrieftorch) and use.able.manicGrieftorch(var.maxTTDUnit) and energy.deficit() > 40 then
+        if ui.useTrinkets(items.manicGrieftorch) and use.able.manicGrieftorch(var.maxTTDUnit) and energy.deficit() > 40 then
             if use.manicGrieftorch(var.maxTTDUnit) then
                 ui.debug("Using Manic Grieftorch [Cooldown]")
                 return true
@@ -1708,7 +1694,7 @@ actionList.Cooldown = function()
         end
         -- Use Item - Mydas Talisman
         -- use_item,name=mydas_talisman,if=!equipped.ashes_of_the_embersoul&!equipped.witherbarks_branch|((trinket.2.is.witherbarks_branch|trinket.2.is.ashes_of_the_embersoul)&trinket.2.cooldown.remains>20)|((trinket.1.is.witherbarks_branch|trinket.1.is.ashes_of_the_embersoul)&trinket.1.cooldown.remains>20)
-        if useTrinket(items.mydasTalisman) and use.able.mydasTalisman() and ((not equiped.ashesOfTheEmbersoul() and not equiped.witherbarksBranch()
+        if ui.useTrinkets(items.mydasTalisman) and use.able.mydasTalisman() and ((not equiped.ashesOfTheEmbersoul() and not equiped.witherbarksBranch()
                 or ((equiped.witherbarksBranch(14) or equiped.ashesOfTheEmbersoul(14)) and cd.slot.remains(14) > 20)
                 or ((equiped.witherbarksBranch(13) or equiped.ashesOfTheEmbersoul(13)) and cd.slot.remains(13) > 20)))
         then
@@ -1719,7 +1705,7 @@ actionList.Cooldown = function()
         end
         -- Use Item - Bandolier Of Twisted Blades
         -- use_item,name=bandolier_of_twisted_blades,if=!equipped.ashes_of_the_embersoul&!equipped.witherbarks_branch|((trinket.2.is.witherbarks_branch|trinket.2.is.ashes_of_the_embersoul)&trinket.2.cooldown.remains>20)|((trinket.1.is.witherbarks_branch|trinket.1.is.ashes_of_the_embersoul)&trinket.1.cooldown.remains>20)
-        if useTrinket(items.bandolierOfTwistedBlades) and use.able.bandolierOfTwistedBlades() and ((not equiped.ashesOfTheEmbersoul() and not equiped.witherbarksBranch()
+        if ui.useTrinkets(items.bandolierOfTwistedBlades) and use.able.bandolierOfTwistedBlades() and ((not equiped.ashesOfTheEmbersoul() and not equiped.witherbarksBranch()
                 or ((equiped.witherbarksBranch(14) or equiped.ashesOfTheEmbersoul(14)) and cd.slot.remains(14) > 20)
                 or ((equiped.witherbarksBranch(13) or equiped.ashesOfTheEmbersoul(13)) and cd.slot.remains(13) > 20)))
         then
@@ -1730,7 +1716,7 @@ actionList.Cooldown = function()
         end
         -- Use Item - Fyrakks Tainted Rageheart
         -- use_item,name=fyrakks_tainted_rageheart,if=!equipped.ashes_of_the_embersoul&!equipped.witherbarks_branch|((trinket.2.is.witherbarks_branch|trinket.2.is.ashes_of_the_embersoul)&trinket.2.cooldown.remains>20)|((trinket.1.is.witherbarks_branch|trinket.1.is.ashes_of_the_embersoul)&trinket.1.cooldown.remains>20)
-        if useTrinket(items.fyrakksTaintedRageheart) and use.able.fyrakksTaintedRageheart() and ((not equiped.ashesOfTheEmbersoul() and not equiped.witherbarksBranch()
+        if ui.useTrinkets(items.fyrakksTaintedRageheart) and use.able.fyrakksTaintedRageheart() and ((not equiped.ashesOfTheEmbersoul() and not equiped.witherbarksBranch()
                 or ((equiped.witherbarksBranch(14) or equiped.ashesOfTheEmbersoul(14)) and cd.slot.remains(14) > 20)
                 or ((equiped.witherbarksBranch(13) or equiped.ashesOfTheEmbersoul(13)) and cd.slot.remains(13) > 20)))
         then
@@ -1739,9 +1725,16 @@ actionList.Cooldown = function()
                 return true
             end
         end
-        -- Module - Basic Trinkets
+        -- Use Items
         -- use_items
-        module.BasicTrinkets()
+        for i = 13, 14 do
+            if not (equiped.algetharPuzzleBox(i) or equiped.ashesOfTheEmbersoul(i) or equiped.witherbarksBranch(i)
+                    or equiped.mirrorOfFracturedTomorrows(i) or equiped.irideusFragment(i) or equiped.verdantGladiatorsBadgeOfFerocity(i)
+                    or equiped.manicGrieftorch(i) or equiped.mydasTalisman(i) or equiped.bandolierOfTwistedBlades(i) or equiped.fyrakksTaintedRageheart(i))
+            then
+                module.BasicTrinkets(i)
+            end
+        end
     end -- End useCooldowns check
 end     -- End Action List - Cooldowns
 
@@ -1751,8 +1744,8 @@ actionList.Finisher = function()
     -- pool_resource,for_next=1,if=buff.bs_inc.up
     -- Primal Wrath
     -- primal_wrath,if=(dot.primal_wrath.refreshable|(talent.tear_open_wounds.enabled|(spell_targets.swipe_cat>4&!talent.rampant_ferocity.enabled)))&spell_targets.primal_wrath>1&talent.primal_wrath.enabled
-    if cast.able.primalWrath("player", "aoe", 1, 8) and (((debuff.primalWrath.refresh(units.dyn8AOE) or (talent.tearOpenWounds or (#enemies.yards8 > 4 and not talent.rampantFerocity)))
-            and #enemies.yards8 > 1 and talent.primalWrath))
+    if cast.able.primalWrath("player", "aoe", 1, 8) and (((debuff.primalWrath.refresh(units.dyn8AOE) or (talent.tearOpenWounds or (ui.useAOE(8, 5) and not talent.rampantFerocity)))
+            and ui.useAOE(8, 2) and talent.primalWrath))
     then
         if buff.bsInc.exists() then
             if cast.pool.primalWrath() then return true end
@@ -1768,7 +1761,7 @@ actionList.Finisher = function()
         local thisUnit = enemies.yards5f[i]
         if cast.able.rip(thisUnit) and (((((equiped.tier(31, 2) and cd.feralFrenzy.remains() < 2 and debuff.rip.remains(thisUnit) < 10)
                 or (unit.combatTime() < 8 or buff.bloodtalons.exists() or not talent.bloodtalons or (buff.bsInc.exists() and debuff.rip.remains(thisUnit) < 2))
-                and debuff.rip.refresh(thisUnit)) and (not talent.primalWrath or #enemies.yards8 == 1) and not (buff.smolderingFrenzy.exists() and debuff.rip.remains(thisUnit) > 2))))
+                and debuff.rip.refresh(thisUnit)) and (not talent.primalWrath or ui.useST(8, 2)) and not (buff.smolderingFrenzy.exists() and debuff.rip.remains(thisUnit) > 2))))
         then
             if cast.rip(thisUnit) then
                 ui.debug("Casting Rip [Finisher]")
@@ -1808,7 +1801,7 @@ actionList.Variables = function()
     var.needBt = talent.bloodtalons and buff.bloodtalons.stack() <= 1
     -- Variable - Align 3Minutes
     -- variable,name=align_3minutes,value=spell_targets.swipe_cat=1&!fight_style.dungeonslice
-    var.align3Minutes = #enemies.yards8 == 1 and not unit.instance("party")
+    var.align3Minutes = ui.useST(8, 2) and not unit.instance("party")
     -- Variable - Lastconvoke
     -- variable,name=lastConvoke,value=fight_remains>cooldown.convoke_the_spirits.remains+3&((talent.ashamanes_guidance.enabled&fight_remains<(cooldown.convoke_the_spirits.remains+60))|(!talent.ashamanes_guidance.enabled&fight_remains<(cooldown.convoke_the_spirits.remains+120)))
     var.lastConvoke = (unit.ttdGroup(40) > cd.convokeTheSpirits.remains() + 3 and ((talent.ashamanesGuidance and unit.ttdGroup(40) < (cd.convokeTheSpirits.remains() + 60))
@@ -1835,7 +1828,7 @@ actionList.Variables = function()
         or (unit.combatTime() + unit.ttdGroup(40) > 150
             and unit.combatTime() + unit.ttdGroup(40) < 200 or unit.combatTime() + unit.ttdGroup(40) > 270 and unit.combatTime() + unit.ttdGroup(40) < 295
             or unit.combatTime() + unit.ttdGroup(40) > 395 and unit.combatTime() + unit.ttdGroup(40) < 400 or unit.combatTime() + unit.ttdGroup(40) > 490
-            and unit.combatTime() + unit.ttdGroup(40) < 495)) and talent.convokeTheSpirits and unit.instance("raid") and #enemies.yards8 == 1 and equiped.tier(31, 4))
+            and unit.combatTime() + unit.ttdGroup(40) < 495)) and talent.convokeTheSpirits and unit.instance("raid") and ui.useST(8, 2) and equiped.tier(31, 4))
 end -- End Action List - Variables
 
 ----------------
