@@ -122,47 +122,47 @@ local function createOptions()
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
         section = br.ui:createSection(br.ui.window.profile, "General")
-            br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
-            -- Blessing of the Bronze
-            br.ui:createCheckbox(section, "Blessing of the Bronze")
-            -- Fire Breath
-            br.ui:createSpinnerWithout(section, "Fire Breath Stage", 2, 1, 3, 1, "Stage to use Fire Breath at.")
+        br.ui:createSpinner(section, "DPS Testing", 5, 5, 60, 5,
+            "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
+        -- Blessing of the Bronze
+        br.ui:createCheckbox(section, "Blessing of the Bronze")
+        -- Stage Limiter
+        br.ui:createCheckbox(section, "Empower Stage Limiter", "|cffFFFFFFEnable to set maximum stages to Empower to.")
+        br.ui:createSpinnerWithout(section, "Fire Breath Stage Limit", 4, 1, 4, 1, "")
         br.ui:checkSectionState(section)
         ------------------------
         --- COOLDOWN OPTIONS --- -- Define Cooldown Options
         ------------------------
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
-            local alwaysCdAoENever = {"Always", "|cff008000AOE", "|cffffff00AOE/CD", "|cff0000ffCD", "|cffff0000Never"}
-            -- Basic Trinkets Module
-            br.player.module.BasicTrinkets(nil, section)
-            -- Deep Breath
-            br.ui:createDropdownWithout(section, "Deep Breath", alwaysCdAoENever, 3, "|cffFFFFFFWhen to use Deep Breath Ability.")
+        local alwaysCdAoENever = { "Always", "|cff008000AOE", "|cffffff00AOE/CD", "|cff0000ffCD", "|cffff0000Never" }
+        -- Deep Breath
+        br.ui:createDropdownWithout(section, "Deep Breath", alwaysCdAoENever, 3,
+            "|cffFFFFFFWhen to use Deep Breath Ability.")
         br.ui:checkSectionState(section)
         -------------------------
         --- DEFENSIVE OPTIONS --- -- Define Defensive Options
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
-            -- Basic Healing Module
-            br.player.module.BasicHealing(section)
-            -- Emerald Blossom
-            br.ui:createSpinner(section, "Emerald Blossom", 35, 0, 99, 5, "Use Emerald Blossom to Heal below this threshold")
-            -- Living Flame
-            br.ui:createSpinner(section, "Living Flame Heal", 45, 0, 99, 5, "Use Living Flame to Heal below this threshold")
-            -- Return
-            br.ui:createCheckbox(section,"Return")
-            br.ui:createDropdownWithout(section, "Return - Target", {"|cff00FF00Target","|cffFF0000Mouseover"}, 1, "|cffFFFFFFTarget to cast on")
-            -- Wing Buffet
-            br.ui:createSpinner(section, "Wing Buffet - HP", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-            br.ui:createSpinner(section, "Wing Buffet - AoE", 5, 0, 10, 1, "|cffFFFFFFNumber of Units in 5 Yards to Cast At")
+        -- Emerald Blossom
+        br.ui:createSpinner(section, "Emerald Blossom", 35, 0, 99, 5, "Use Emerald Blossom to Heal below this threshold")
+        -- Living Flame
+        br.ui:createSpinner(section, "Living Flame Heal", 45, 0, 99, 5, "Use Living Flame to Heal below this threshold")
+        -- Return
+        br.ui:createCheckbox(section, "Return")
+        br.ui:createDropdownWithout(section, "Return - Target", { "|cff00FF00Target", "|cffFF0000Mouseover" }, 1,
+            "|cffFFFFFFTarget to cast on")
+        -- Wing Buffet
+        br.ui:createSpinner(section, "Wing Buffet - HP", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
+        br.ui:createSpinner(section, "Wing Buffet - AoE", 5, 0, 10, 1, "|cffFFFFFFNumber of Units in 5 Yards to Cast At")
         br.ui:checkSectionState(section)
         -------------------------
         --- INTERRUPT OPTIONS --- -- Define Interrupt Options
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
-            -- Tail Swipe
-            br.ui:createCheckbox(section, "Tail Swipe")
-            -- Interrupt Percentage
-            br.ui:createSpinnerWithout(section, "InterruptAt", 0, 0, 95, 5, "|cffFFBB00Cast Percentage to use at.")
+        -- Tail Swipe
+        br.ui:createCheckbox(section, "Tail Swipe")
+        -- Interrupt Percentage
+        br.ui:createSpinnerWithout(section, "InterruptAt", 0, 0, 95, 5, "|cffFFBB00Cast Percentage to use at.")
         br.ui:checkSectionState(section)
         ----------------------
         --- TOGGLE OPTIONS --- -- Degine Toggle Options
@@ -176,14 +176,12 @@ local function createOptions()
         br.ui:createDropdownWithout(section, "Defensive Mode", br.dropOptions.Toggle, 6)
         -- Interrupts Key Toggle
         br.ui:createDropdownWithout(section, "Interrupt Mode", br.dropOptions.Toggle, 6)
-        -- Pause Toggle
-        br.ui:createDropdown(section, "Pause Mode", br.dropOptions.Toggle, 6)
         br.ui:checkSectionState(section)
     end
-    optionTable = {{
+    optionTable = { {
         [1] = "Rotation Options",
         [2] = rotationOptions
-    }}
+    } }
     return optionTable
 end
 
@@ -194,22 +192,30 @@ end
 local buff
 local cast
 local cd
+local debuff
 local enemies
+local essence
 local module
-local power
 local spell
 local ui
 local unit
 local units
 local var
 -- General Locals - Common Non-BR API Locals used in profiles
-local essence
 -- Profile Specific Locals - Any custom to profile locals
 local actionList = {}
+local custom = {}
 
 -----------------
 --- Functions --- -- List all profile specific custom functions here
 -----------------
+custom.stageLimit = function(empowerSpell, requestedStage)
+    if ui.checked("Empower Stage Limiter") then
+        if empowerSpell == "FB" then return ui.value("Fire Breath Stage Limit") end
+        -- if empowerSpell == "ES" then return ui.value("Eternity Surge Stage Limit") end
+    end
+    return requestedStage
+end
 
 --------------------
 --- Action Lists ---
@@ -219,20 +225,23 @@ actionList.Extra = function()
     -- Dummy Test
     if ui.checked("DPS Testing") then
         if unit.exists("target") then
-            if unit.combatTime() >= (tonumber(ui.value("DPS Testing"))*60) and unit.isDummy() then
+            if unit.combatTime() >= (tonumber(ui.value("DPS Testing")) * 60) and unit.isDummy() then
                 unit.stopAttack()
                 unit.clearTarget()
-                ui.print(tonumber(ui.value("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
+                ui.print(tonumber(ui.value("DPS Testing")) .. " Minute Dummy Test Concluded - Profile Stopped")
                 var.profileStop = true
             end
         end
     end -- End Dummy Test-- Dummy DPS Test
     -- Blessing of the Bronze
-    if ui.checked("Blessing of the Bronze") and cast.able.blessingOfTheBronze() then
+    if ui.checked("Blessing of the Bronze") and cast.able.blessingOfTheBronze("player") then
         for i = 1, #br.friend do
             local thisUnit = br.friend[i].unit
             if not unit.deadOrGhost(thisUnit) and unit.distance(thisUnit) < 40 and buff.blessingOfTheBronze.remain(thisUnit) < 600 then
-                if cast.blessingOfTheBronze() then ui.debug("Casting Blessing of the Bronze") return true end
+                if cast.blessingOfTheBronze("player") then
+                    ui.debug("Casting Blessing of the Bronze")
+                    return true
+                end
             end
         end
     end
@@ -243,17 +252,23 @@ actionList.Defensive = function()
     if ui.useDefensive() and not unit.mounted() then
         local opValue
         local thisUnit
-        -- Basic Healing Module
+        -- Basic Healing
         module.BasicHealing()
         -- Emerald Blossom
         if ui.checked("Emerald Blossom") and cast.able.emeraldBlossom("player") and unit.hp() <= ui.value("Emerald Blossom") then
-            if cast.emeraldBlossom("player") then ui.debug("Casting Emerald Blossom") return true end
+            if cast.emeraldBlossom("player") then
+                ui.debug("Casting Emerald Blossom")
+                return true
+            end
         end
         -- Living Flame
         if ui.checked("Living Flame Heal") and not unit.moving() then
             thisUnit = unit.friend("target") and "target" or "player"
             if cast.able.livingFlame(thisUnit) and unit.hp(thisUnit) <= ui.value("Living Flame Heal") then
-                if cast.livingFlame(thisUnit) then ui.debug("Casting Living Flame on " .. unit.name(thisUnit)) return true end
+                if cast.livingFlame(thisUnit) then
+                    ui.debug("Casting Living Flame on " .. unit.name(thisUnit))
+                    return true
+                end
             end
         end
         -- Return
@@ -264,22 +279,31 @@ actionList.Defensive = function()
             elseif opValue == 2 then
                 thisUnit = "mouseover"
             end
-            if cast.able.returnEvoker(thisUnit,"dead") and unit.deadOrGhost(thisUnit)
+            if cast.able.returnEvoker(thisUnit, "dead") and unit.deadOrGhost(thisUnit)
                 and (unit.friend(thisUnit) and unit.player(thisUnit))
             then
-                if cast.returnEvoker(thisUnit,"dead") then ui.debug("Casting Return on "..unit.name(thisUnit)) return true end
+                if cast.returnEvoker(thisUnit, "dead") then
+                    ui.debug("Casting Return on " .. unit.name(thisUnit))
+                    return true
+                end
             end
         end
         -- Wing Buffet
         if ui.checked("Wing Buffet - HP") and unit.hp() <= ui.value("Wing Buffet - HP")
             and cast.able.wingBuffet() and unit.inCombat() and #enemies.yards15f > 0
         then
-            if cast.wingBuffet() then ui.debug("Casting Wing Buffet [HP]") return true end
+            if cast.wingBuffet() then
+                ui.debug("Casting Wing Buffet [HP]")
+                return true
+            end
         end
         if ui.checked("Wing Buffet - AoE") and #enemies.yards15f >= ui.value("Wing Buffet - AoE")
             and cast.able.wingBuffet()
         then
-            if cast.wingBuffet() then ui.debug("Casting Wing Buffet [AOE]") return true end
+            if cast.wingBuffet() then
+                ui.debug("Casting Wing Buffet [AOE]")
+                return true
+            end
         end
     end
 end -- End Action List - Defensive
@@ -292,22 +316,24 @@ actionList.Interrupt = function()
             if br.canInterrupt(thisUnit, ui.value("Interrupt At")) then
                 -- Tail Swipe
                 if ui.checked("Tail Swipe") and cast.able.tailSwipe(thisUnit) and unit.distance(thisUnit) < 8 then
-                    if cast.tailSwipe(thisUnit) then ui.debug("Casting Tail Swipe [Interrupt]") return true end
+                    if cast.tailSwipe(thisUnit) then
+                        ui.debug("Casting Tail Swipe [Interrupt]")
+                        return true
+                    end
                 end
             end
         end
     end -- End Interrupt Check
-end -- End Action List - Interrupt
+end     -- End Action List - Interrupt
 
 -- Action List - Cooldowns
 actionList.Cooldowns = function()
-    -- Trinket - Non-Specific
-    if unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
-        module.BasicTrinkets()
-    end
     -- Deep Breath
-    if ui.alwaysCdAoENever("Deep Breath",1,20) and cast.able.deepBreath("player","rect",1,20) then
-        if cast.deepBreath("player","rect",1,20) then ui.debug("Casting Deep Breath [Cooldowns]") return true end
+    if ui.alwaysCdAoENever("Deep Breath", 1, 20) and cast.able.deepBreath("player", "rect", 1, 20) then
+        if cast.deepBreath("player", "rect", 1, 20) then
+            ui.debug("Casting Deep Breath [Cooldowns]")
+            return true
+        end
     end
 end -- End Action List - Cooldowns
 
@@ -317,17 +343,117 @@ actionList.PreCombat = function()
         if unit.valid("target") then
             -- Living Flame
             if cast.able.livingFlame("target") and not unit.moving() and not cast.current.livingFlame() then
-                if cast.livingFlame("target") then ui.debug("Casting Living Flame [Pre-Combat]") return true end
+                if cast.livingFlame("target") then
+                    ui.debug("Casting Living Flame [Pre-Combat]")
+                    return true
+                end
             end
             -- Start Attack
             if unit.distance("target") < 5 then
                 if cast.able.autoAttack("target") then
-                    if cast.autoAttack("target") then ui.debug("Casting Auto Attack [Pre-Combat]") return true end
+                    if cast.autoAttack("target") then
+                        ui.debug("Casting Auto Attack [Pre-Combat]")
+                        return true
+                    end
                 end
             end
         end
     end
 end -- End Action List - PreCombat
+
+-- Action list - Combat
+actionList.Combat = function()
+    if unit.valid("target") and (cd.global.remain() == 0 or var.fireBreathStage > 0) then
+        if unit.exists(units.dyn40) and unit.distance(units.dyn40) < 40 then
+            -----------------
+            --- Interrupt ---
+            -----------------
+            if actionList.Interrupt() then return true end
+            -----------------
+            --- Cooldowns ---
+            -----------------
+            if actionList.Cooldowns() then return true end
+            ------------
+            --- Main ---
+            ------------
+            -- Fire Breath
+            -- if cast.able.fireBreath("player") and var.moveCast and not cast.current.fireBreath() then
+            --     if var.fireBreathStage == 0 then
+            --         if cast.fireBreath("player") then
+            --             ui.debug("Casting Fire Breath")
+            --             return true
+            --         end
+            --     end
+            --     if var.fireBreathStage >= ui.value("Fire Breath Stage") then
+            --         if cast.fireBreath("player") then
+            --             ui.debug("Casting Fire Breath - Empowered Stage " .. var.fireBreathStage)
+            --             return true
+            --         end
+            --     end
+            -- end
+            -- Fire Breath
+            if cast.able.fireBreath("player", "cone", 1, 25) and var.moveCast and not cast.current.fireBreath() then
+                -- fire_breath,empower_to=1,if=(20+2*talent.blast_furnace.rank)+dot.fire_breath_damage.remains<(20+2*talent.blast_furnace.rank)*1.3|buff.dragonrage.remains<1.75*spell_haste&buff.dragonrage.remains>=1*spell_haste|active_enemies<=2
+                if 20 + debuff.fireBreath.remains(units.dyn25) < 20 * 1.3
+                    or buff.dragonrage.remains() < 1.75 * var.spellHaste and buff.dragonrage.remains() >= 1 * var.spellHaste or #enemies.yards25f <= 2
+                then
+                    if cast.fireBreath("player", "cone", 1, 25) then
+                        var.stageFireBreath = custom.stageLimit("FB", 1)
+                        ui.debug("Empowering Fire Breath to Stage " .. var.stageFireBreath .. " [FB]")
+                        return true
+                    end
+                end
+                -- fire_breath,empower_to=2,if=(14+2*talent.blast_furnace.rank)+dot.fire_breath_damage.remains<(20+2*talent.blast_furnace.rank)*1.3|buff.dragonrage.remains<2.5*spell_haste&buff.dragonrage.remains>=1.75*spell_haste
+                if 14 + debuff.fireBreath.remains(units.dyn25) < 20 * 1.3
+                    or buff.dragonrage.remains() < 2.5 * var.spellHaste and buff.dragonrage.remains() >= 1.75 * var.spellHaste
+                then
+                    if cast.fireBreath("player", "cone", 1, 25) then
+                        var.stageFireBreath = custom.stageLimit("FB", 2)
+                        ui.debug("Empowering Fire Breath to Stage " .. var.stageFireBreath .. " [FB]")
+                        return true
+                    end
+                end
+                -- fire_breath,empower_to=3,if=(8+2*talent.blast_furnace.rank)+dot.fire_breath_damage.remains<(20+2*talent.blast_furnace.rank)*1.3|!talent.font_of_magic|buff.dragonrage.remains<=3.25*spell_haste&buff.dragonrage.remains>=2.5*spell_haste
+                if 8 + debuff.fireBreath.remains(units.dyn25) < 20 * 1.3
+                    or buff.dragonrage.remains() < 3.25 * var.spellHaste and buff.dragonrage.remains() >= 2.5 * var.spellHaste
+                then
+                    if cast.fireBreath("player", "cone", 1, 25) then
+                        var.stageFireBreath = custom.stageLimit("FB", 3)
+                        ui.debug("Empowering Fire Breath to Stage " .. var.stageFireBreath .. " [FB]")
+                        return true
+                    end
+                end
+                -- fire_breath,empower_to=4
+                if cast.fireBreath("player", "cone", 1, 25) then
+                    var.stageFireBreath = custom.stageLimit("FB", 4)
+                    ui.debug("Empowering Fire Breath to Stage " .. var.stageFireBreath .. " [FB]")
+                    return true
+                end
+            end
+            -- Disintegrate
+            if cast.able.disintegrate() and essence() >= 3 and var.moveCast then
+                if cast.disintegrate() then
+                    ui.debug("Casting Disintegrate")
+                    return true
+                end
+            end
+            -- Azure Strike
+            if cast.able.azureStrike() and ui.useAOE(25, 2) then
+                if cast.azureStrike() then
+                    ui.debug("Casting Azure Strike")
+                    return true
+                end
+            end
+            -- Living Flame
+            if cast.able.livingFlame(units.dyn25) and var.moveCast and ui.useST(25, 2) then
+                if cast.livingFlame(units.dyn25) then
+                    ui.debug("Casting Living Flame")
+                    return true
+                end
+            end
+        end -- End In Combat Rotation
+    end
+end         -- End Action List - Combat
 
 ---------------- -
 --- ROTATION ---
@@ -337,19 +463,19 @@ local function runRotation()
     --- Define Locals ---
     ---------------------
     -- BR API Locals
-    buff            = br.player.buff
-    cast            = br.player.cast
-    cd              = br.player.cd
-    enemies         = br.player.enemies
-    module          = br.player.module
-    power           = br.player.power
-    spell           = br.player.spells
-    ui              = br.player.ui
-    unit            = br.player.unit
-    units           = br.player.units
-    var             = br.player.variables
+    buff    = br.player.buff
+    cast    = br.player.cast
+    cd      = br.player.cd
+    debuff  = br.player.debuff
+    enemies = br.player.enemies
+    essence = br.player.power.essence
+    module  = br.player.module
+    spell   = br.player.spells
+    ui      = br.player.ui
+    unit    = br.player.unit
+    units   = br.player.units
+    var     = br.player.variables
     -- General Locals
-    essence = power.essence.amount()
     if var.fireBreathStage == nil or br.empowerID ~= spell.fireBreath then var.fireBreathStage = 0 end
     if cast.empowered.fireBreath() > 0 then
         var.fireBreathStage = cast.empowered.fireBreath()
@@ -357,12 +483,41 @@ local function runRotation()
     var.moveCast = (not unit.moving() or buff.hover.exists())
     var.profileStop = false
     var.haltProfile = (unit.inCombat() and var.profileStop) or unit.mounted() or br.pause() or ui.mode.rotation == 4
+
+    -- Fire Breath Stage
+    if var.stageFireBreath == nil then var.stageFireBreath = 0 end
+    if var.fireBreathStage == nil or br.empowerID ~= spell.fireBreath then var.fireBreathStage = 0; end
+    if cast.empowered.fireBreath() > 0 then
+        var.fireBreathStage = cast.empowered.fireBreath()
+    end
+    if var.pauseForFbCd == nil then var.pauseForFbCd = false end
+
     -- Units
     units.get(25)
     units.get(40)
     -- Enemies
     enemies.get(8)
-    enemies.get(15,"player",false,true) -- makes enemies.yards15f
+    enemies.get(15, "player", false, true) -- makes enemies.yards15f
+    enemies.get(25, "player", false, true)
+
+    -- Cancel if casting with no enemies
+    if #enemies.yards25f == 0 then
+        if var.fireBreathStage > 0 then
+            if cast.cancel.fireBreath() then
+                ui.debug("Canceling Fire Breath [No Enemies in Range]")
+                return true
+            end
+        end
+    end
+
+    -- End Fire Breath Cast at Stage
+    if var.stageFireBreath > 0 and var.fireBreathStage == var.stageFireBreath then
+        if cast.fireBreath("player") then
+            var.stageFireBreath = 0
+            ui.debug("Casting Fire Breath at Empowered Stage " .. var.fireBreathStage)
+            return true
+        end
+    end
 
     ---------------------
     --- Begin Profile ---
@@ -373,9 +528,6 @@ local function runRotation()
     elseif var.haltProfile and cast.current.id() ~= br.empowerID then
         return true
     else
-        ---------------------------------
-        --- Out Of Combat - Rotations ---
-        ---------------------------------
         -------------
         --- Extra ---
         -------------
@@ -388,46 +540,12 @@ local function runRotation()
         --- Pre-Combat ---
         ------------------
         if actionList.PreCombat() then return true end
-        -----------------------------
-        --- In Combat - Rotations ---
-        -----------------------------
-        -- Check for combat
-        if unit.valid("target") and (cd.global.remain() == 0 or var.fireBreathStage > 0) then
-            if unit.exists(units.dyn40) and unit.distance(units.dyn40) < 40 then
-                -----------------
-                --- Interrupt ---
-                -----------------
-                if actionList.Interrupt() then return true end
-                ------------
-                --- Main ---
-                ------------
-                -- Cooldowns
-                if actionList.Cooldowns() then return true end
-                -- Fire Breath
-                if cast.able.fireBreath("player") and var.moveCast then
-                    if var.fireBreathStage == 0 then
-                        if cast.fireBreath("player") then ui.debug("Casting Fire Breath") return true end
-                    end
-                    if var.fireBreathStage >= ui.value("Fire Breath Stage") then
-                        if cast.fireBreath("player") then ui.debug("Casting Fire Breath - Empowered Stage "..var.fireBreathStage) return true end
-                    end
-                end
-                -- Disintegrate
-                if cast.able.disintegrate() and essence >= 3 and var.moveCast then
-                    if cast.disintegrate() then ui.debug("Casting Disintegrate") return true end
-                end
-                -- Azure Strike
-                if cast.able.azureStrike() and ui.useAOE(25,2) then
-                    if cast.azureStrike() then ui.debug("Casting Azure Strike") return true end
-                end
-                -- Living Flame
-                if cast.able.livingFlame(units.dyn25) and var.moveCast and ui.useST(25,2) then
-                    if cast.livingFlame(units.dyn25) then ui.debug("Casting Living Flame") return true end
-                end
-            end -- End In Combat Rotation
-        end
-    end -- Pause
-end -- End runRotation
+        --------------
+        --- Combat ---
+        --------------
+        if actionList.Combat() then return true end
+    end         -- Pause
+end             -- End runRotation
 local id = 1465 -- Change to the spec id profile is for.
 if br.rotations[id] == nil then
     br.rotations[id] = {}
