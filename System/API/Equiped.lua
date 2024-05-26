@@ -7,7 +7,7 @@
 local _, br = ...
 if br.api == nil then br.api = {} end
 
-br.api.equiped = function(self,item,id)
+br.api.equiped = function(self, item, id)
     if self[item] == nil then self[item] = {} end
     local equiped = self
 
@@ -19,7 +19,7 @@ br.api.equiped = function(self,item,id)
         if slotID == nil then
             return br.hasEquiped(id)
         else
-            return br.hasEquiped(id,slotID)
+            return br.hasEquiped(id, slotID)
         end
     end
 
@@ -31,11 +31,11 @@ br.api.equiped = function(self,item,id)
     -- @return boolean value indicating whether the item with specific ID is equipped in the specified slot (if provided)
     -- @usage equipes.item(12345) -- will return true if item with ID 12345 is equipped anywhere
     -- @usage equipes.item(12345, 1) -- will return true if item with ID 12345 is equipped in slot 1
-    equiped.item = function(itemID,slotID)
+    equiped.item = function(itemID, slotID)
         if slotID == nil then
             return br.hasEquiped(itemID)
         else
-            return br.hasEquiped(itemID,slotID)
+            return br.hasEquiped(itemID, slotID)
         end
     end
 
@@ -53,8 +53,9 @@ br.api.equiped = function(self,item,id)
     -- @function equiped.tier
     -- @param tierLevel string|number The tier level to check for. (e.g. "T20" or 20)
     -- @treturn number
-    equiped.tier = function(tierLevel,numEquiped)
-        if type(tierLevel) == "number" then tierLevel = "T"..tierLevel end
+    equiped.tier = function(tierLevel, numEquiped)
+        if type(tierLevel) == "number" then tierLevel = "T" .. tierLevel end
+        if numEquiped == nil then return br.TierScan(tierLevel) end
         return br.TierScan(tierLevel) >= numEquiped
     end
 

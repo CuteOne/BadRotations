@@ -15,6 +15,7 @@ local units
 local var
 local currentTarget
 local fetching = false
+local lootCount
 local paused = false
 local pausekey = false
 local petAppearTimer = br._G.GetTime()
@@ -85,16 +86,6 @@ br.rotations.support["PetCuteOne"] = {
             return petMode
         end
 
-        local function getLootableCount()
-            local count = 0
-            for k, v in pairs(br.lootable) do
-                if br.lootable[k] ~= nil and unit.distance(br.lootable[k]) > 8 then
-                    count = count + 1
-                end
-            end
-            return count
-        end
-
         --Set Pause Key
         if br.player.ui.toggle("Pause Mode") or br.player.ui.value("Pause Mode") == 6 then
             pausekey = br._G.IsLeftAltKeyDown()
@@ -156,6 +147,9 @@ br.rotations.support["PetCuteOne"] = {
         enemies.get(40, "player", false, true)
         enemies.get(40, "pet")
         enemies.yards40r = enemies.rect.get(10, 40, false)
+
+        -- Loot Count
+        lootCount = br.lootManager:lootCount()
 
         -- Pet Target Modes
         if br.petTarget == nil then br.petTarget = "target" end
@@ -251,7 +245,7 @@ br.rotations.support["PetCuteOne"] = {
                 ui.debug("[Pet] Pet is now Defending")
                 br._G.PetDefensiveAssistMode()
             elseif petMode ~= "Passive" and ((not unit.inCombat() and #enemies.yards20pnc == 0 and not unit.valid(br.petTarget)) or var.haltPetProfile)
-                and (not spell.fetch.known() or getLootableCount() == 0)
+                and (not spell.fetch.known() or lootCount == 0)
             then
                 ui.debug("[Pet] Pet is now Passive")
                 br._G.PetPassiveMode()
@@ -692,18 +686,15 @@ br.rotations.support["PetCuteOne"] = {
         if ui.checked("Fetch") and not unit.inCombat() and not unit.inCombat("pet") and cast.able.fetch("pet") and not cast.current.fetch("pet")
             and petExists and not br.deadPet and cast.timeSinceLast.fetch() > unit.gcd(true) * 2 and not buff.playDead.exists("pet")
         then
-            local lootCount = getLootableCount() or 0
-            if fetching and ( --[[fetchCount ~= lootCount or]] lootCount == 0) then fetching = false end
+            if fetching and (lootCount == 0) then fetching = false end
             if not fetching then
-                for k, _ in pairs(br.lootable) do
-                    if br.lootable[k] ~= nil then
-                        local thisDistance = unit.distance(k)
-                        if thisDistance > 8 and thisDistance < 40 then
-                            if cast.fetch("pet") then
-                                fetching = true
-                                ui.debug("[Pet] Cast Fetch")
-                                break
-                            end
+                for _, v in pairs(br.lootable) do
+                    local thisDistance = unit.distance(v.unit)
+                    if thisDistance > 8 and thisDistance < 40 then
+                        if cast.fetch("pet") then
+                            fetching = true
+                            ui.debug("[Pet] Cast Fetch")
+                            break
                         end
                     end
                 end

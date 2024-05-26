@@ -197,6 +197,7 @@ br.lists.items = {
     --- Dragonflight Items Below ---
     algetharPuzzleBox                       = 193701,
     ashesOfTheEmbersoul                     = 207167,
+    beaconToTheBeyond                       = 203963,
     elementalPotionOfUltimatePower          = 191383,
     integratedPrimalFire                    = 200868,
     irideusFragment                         = 193743,

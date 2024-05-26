@@ -724,7 +724,7 @@ function br.createCastFunction(thisUnit, castType, minUnits, effectRng, spellID,
 	-- Talent Check
 	local function hasTalent(spellID)
 		for k, v in pairs(br.player.spells.talents) do
-			if spellID == v then return br.player.talent[k] end
+			if spellID == v then return br.player.talent[k] or br.isKnown(spellID) end
 		end
 		return true
 	end
@@ -741,8 +741,10 @@ function br.createCastFunction(thisUnit, castType, minUnits, effectRng, spellID,
 		return queensCourtEncounter == nil or (queensCourtEncounter ~= nil and br.lastCastTable.tracker[1] ~= spellID)
 	end
 	-- Base Spell Availablility Check
-	if br.lastCastTable.castTime[spellID] == nil then br.lastCastTable.castTime[spellID] = br._G.GetTime() -
-		(br.getGlobalCD(true) + (select(3, br._G.GetNetStats()) / 100)) end
+	if br.lastCastTable.castTime[spellID] == nil then
+		br.lastCastTable.castTime[spellID] = br._G.GetTime() -
+			(br.getGlobalCD(true) + (select(3, br._G.GetNetStats()) / 100))
+	end
 	if ((baseSpellID == spellID or overrideSpellID == spellID) and (br.empowerID == nil or br.empowerID == 0)
 			and (br._G.GetTime() - br.lastCastTable.castTime[spellID] > br.getGlobalCD(true) + (select(3, br._G.GetNetStats()) / 100))                       --br.getGlobalCD(true))                                    -- Double Casting Check
 			and ((thisUnit ~= nil and not br._G.UnitIsUnit(thisUnit, "player") and not br._G.UnitIsFriend(thisUnit, "player")
