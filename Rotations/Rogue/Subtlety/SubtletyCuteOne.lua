@@ -218,6 +218,13 @@ var.profileStop = false
 
 -- Variables
 var.pickPocketUnit = "player"
+var.danseBackstab = false
+var.danseBlackPowder = false
+var.danseEviscerate = false
+var.danseGloomblade = false
+var.danseRupture = false
+var.danseShadowstrike = false
+var.danseShurikenStorm = false
 
 -----------------
 --- Functions ---
@@ -357,6 +364,13 @@ end     -- End Action List - Interrupts
 -- Action List - Cooldowns
 actionList.Cooldowns = function()
     if unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
+        -- Remix - Oblivion Sphere
+        if ui.useCDs() and cast.able.id(435313, "target", "ground", 1, 15) and not unit.moving("target") and not var.stealthAll then
+            if cast.id(435313, "target", "ground", 1, 15) then
+                ui.debug("Casting Oblivion Sphere [Cds]")
+                return true
+            end
+        end
         -- Variable - Trinket Conditions
         -- variable,name=trinket_conditions,value=(!equipped.witherbarks_branch|equipped.witherbarks_branch&cooldown.witherbarks_branch.remains<=8|equipped.bandolier_of_twisted_blades|talent.invigorating_shadowdust)
         var.trinketConditions = ((not equiped.witherbarksBranch() or equiped.witherbarksBranch() and cd.witherbarksBranch.remains() <= 8
@@ -405,7 +419,7 @@ actionList.Cooldowns = function()
         end
         -- Shadow Blades
         -- shadow_blades,if=variable.snd_condition&(combo_points<=1|set_bonus.tier31_4pc)&(buff.flagellation_buff.up|buff.flagellation_persist.up|!talent.flagellation)
-        if ui.alwaysCdNever("Shadow Blades") and cast.able.shadowBlades() and ((var.sndCondition and (comboPoints() <= 1 or equiped.tier(31, 4))
+        if ui.alwaysCdAoENever("Shadow Blades", 3, #enemies.yards10) and cast.able.shadowBlades() and ((var.sndCondition and (comboPoints() <= 1 or equiped.tier(31, 4))
                 and (buff.flagellation.exists() or buff.flagellationPersist.exists() or not talent.flagellation)))
         then
             if cast.shadowBlades() then
@@ -634,7 +648,7 @@ actionList.StealthCooldowns = function()
             and (not talent.theFirstDance or comboPoints.deficit() >= 4 or buff.shadowBlades.exists())
             and (var.shdComboPoints and var.shdThreshold or (buff.shadowBlades.exists() or not cd.symbolsOfDeath.exists()
                 and not talent.sepsis or buff.symbolsOfDeath.remains() >= 4 and not equiped.tier(30, 2) or not buff.symbolsOfDeath.remains()
-                and equiped.tier(30, 2)) and cd.secretTechnique.remains() < 10 + 12 * (not talent.invigoratingShadowdust or equiped.tier(30, 2)))))
+                and equiped.tier(30, 2)) and cd.secretTechnique.remains() < 10 + 12 * var.invigoratingTier)))
     then
         if cast.shadowDance() then
             ui.debug("Casting Shadow Dance [Stealth Cds]")
@@ -716,9 +730,6 @@ end -- End Action List - Stealthed
 
 -- Action List - Finish
 actionList.Finish = function()
-    -- Variable - Secret Condition
-    -- variable,name=secret_condition,value=(action.gloomblade.used_for_danse|action.shadowstrike.used_for_danse|action.backstab.used_for_danse|action.shuriken_storm.used_for_danse)&(action.eviscerate.used_for_danse|action.black_powder.used_for_danse|action.rupture.used_for_danse)|!talent.danse_macabre
-    var.secretCondition = ((var.danseGloomblade or var.danseShadowstrike or var.danseBackstab or var.danseShurikenStorm) and (var.danseEviscerate or var.danseBlackPowder or var.danseRupture) or not talent.danseMacabre)
     -- Rupture
     -- rupture,if=!dot.rupture.ticking&target.time_to_die-remains>6
     if cast.able.rupture() and not debuff.rupture.exists(units.dyn5) and unit.ttd(units.dyn5) - debuff.rupture.remain(units.dyn5) > 6 then
@@ -763,7 +774,9 @@ actionList.Finish = function()
     end
     -- Cold Blood
     -- cold_blood,if=variable.secret_condition&cooldown.secret_technique.ready
-    if ui.alwaysCdNever("Cold Blood") and cast.able.coldBlood() and var.secretCondition and not cd.secretTechnique.exists() then
+    if ui.alwaysCdNever("Cold Blood") and cast.able.coldBlood() and (var.secretCondition or not ui.alwaysCdAoENever("Shadow Dance", 3, #enemies.yards10))
+        and not cd.secretTechnique.exists()
+    then
         if cast.coldBlood() then
             ui.debug("Casting Cold Blood [Finish]")
             return true
@@ -771,7 +784,8 @@ actionList.Finish = function()
     end
     -- Secret Technique
     -- secret_technique,if=variable.secret_condition&(!talent.cold_blood|cooldown.cold_blood.remains>buff.shadow_dance.remains-2|!talent.improved_shadow_dance)
-    if ui.alwaysCdAoENever("Secret Technique", 3, #enemies.yards10) and cast.able.secretTechnique() and ((var.secretCondition and (not talent.coldBlood
+    if ui.alwaysCdAoENever("Secret Technique", 3, #enemies.yards10) and cast.able.secretTechnique()
+        and (((var.secretCondition or not ui.alwaysCdAoENever("Shadow Dance", 3, #enemies.yards10)) and (not talent.coldBlood
             or cd.coldBlood.remains() > buff.shadowDance.remains() - 2 or not talent.improvedShadowDance)))
     then
         if cast.secretTechnique() then
@@ -1177,27 +1191,54 @@ local function runRotation()
     var.subterfuge = talent.subterfuge and 3 or 0
     var.thistleTea = talent.thistleTea and 1 or 0
     var.vigor = talent.vigor and 1 or 0
+    var.invigoratingTier = (not talent.invigoratingShadowdust or equiped.tier(30, 2)) and 1 or 0
 
     -- SimC Specific Variables
+    -- variable,name=secret_condition,value=(action.gloomblade.used_for_danse|action.shadowstrike.used_for_danse|action.backstab.used_for_danse|action.shuriken_storm.used_for_danse)&(action.eviscerate.used_for_danse|action.black_powder.used_for_danse|action.rupture.used_for_danse)|!talent.danse_macabre
+    var.secretCondition = ((var.danseGloomblade or var.danseShadowstrike or var.danseBackstab or var.danseShurikenStorm) and (var.danseEviscerate or var.danseBlackPowder or var.danseRupture) or not talent.danseMacabre)
     -- cp_max_spend
     var.cpMaxSpend = 5 + var.deepStrat + var.secretStrat
     -- effective_combo_points
     var.animaCharged = buff.echoingReprimand.exists() and 2 or 0
     var.effectiveComboPoints = (var.animaCharged > 0 and comboPoints() == var.animaCharged) and 7 or comboPoints()
-    -- action.backstab.used_for_danse
-    var.danseBackstab = (buff.shadowDance.exists() and cast.last.backstab()) and true or false
-    -- action.black_powder.used_for_danse
-    var.danseBlackPowder = (buff.shadowDance.exists() and cast.last.blackPowder()) and true or false
-    -- action.eviscerate.used_for_danse
-    var.danseEviscerate = (buff.shadowDance.exists() and cast.last.eviscerate()) and true or false
-    -- action.gloomblade.used_for_danse
-    var.danseGloomblade = (buff.shadowDance.exists() and cast.last.gloomblade()) and true or false
-    -- action.rupture.used_for_danse
-    var.danseRupture = (buff.shadowDance.exists() and cast.last.rupture()) and true or false
-    -- action.shadowstrike.used_for_danse
-    var.danseShadowstrike = (buff.shadowDance.exists() and cast.last.shadowstrike()) and true or false
-    -- action.shuriken_storm.used_for_danse
-    var.danseShurikenStorm = (buff.shadowDance.exists() and cast.last.shurikenStorm()) and true or false
+    if talent.danseMacabre and buff.shadowDance.exists() then
+        -- action.backstab.used_for_danse
+        if cast.last.backstab() then
+            var.danseBackstab = true
+        end
+        -- action.black_powder.used_for_danse
+        if cast.last.blackPowder() then
+            var.danseBlackPowder = true
+        end
+        -- action.eviscerate.used_for_danse
+        if cast.last.eviscerate() then
+            var.danseEviscerate = true
+        end
+        -- action.gloomblade.used_for_danse
+        if cast.last.gloomblade() then
+            var.danseGloomblade = true
+        end
+        -- action.rupture.used_for_danse
+        if cast.last.rupture() then
+            var.danseRupture = true
+        end
+        -- action.shadowstrike.used_for_danse
+        if cast.last.shadowstrike() then
+            var.danseShadowstrike = true
+        end
+        -- action.shuriken_storm.used_for_danse
+        if cast.last.shurikenStorm() then
+            var.danseShurikenStorm = true
+        end
+    else
+        var.danseBackstab = false
+        var.danseBlackPowder = false
+        var.danseEviscerate = false
+        var.danseGloomblade = false
+        var.danseRupture = false
+        var.danseShadowstrike = false
+        var.danseShurikenStorm = false
+    end
 
     if not (not unit.exists("target") or not unit.isUnit("target", var.pickPocketUnit)) then
         br.unpickable = false

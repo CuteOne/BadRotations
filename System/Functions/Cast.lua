@@ -745,18 +745,19 @@ function br.createCastFunction(thisUnit, castType, minUnits, effectRng, spellID,
 		br.lastCastTable.castTime[spellID] = br._G.GetTime() -
 			(br.getGlobalCD(true) + (select(3, br._G.GetNetStats()) / 100))
 	end
-	if ((baseSpellID == spellID or overrideSpellID == spellID) and (br.empowerID == nil or br.empowerID == 0)
-			and (br._G.GetTime() - br.lastCastTable.castTime[spellID] > br.getGlobalCD(true) + (select(3, br._G.GetNetStats()) / 100))                       --br.getGlobalCD(true))                                    -- Double Casting Check
-			and ((thisUnit ~= nil and not br._G.UnitIsUnit(thisUnit, "player") and not br._G.UnitIsFriend(thisUnit, "player")
-				and (br.getCastTime(spellID) < 2 or br.getCastTime(spellID) < br.getTTD(thisUnit))) or true)                                                 -- Dies Soon Check
-			and ((thisUnit ~= nil and br._G.UnitIsUnit(thisUnit, "target") and br._G.IsUsableSpell(spellID)) or true) and not select(2, br._G.IsUsableSpell(spellID)) -- Usability Checks
-			and (castTimers[spellID] < br._G.GetTime()) and br.getSpellCD(spellID) <= br:getUpdateRate()
-			and (br.getSpellCD(61304) <= 0 or select(2, br._G.GetSpellBaseCooldown(spellID)) <= 0
-				or (br.getCastTime(spellID) > 0 and br.getCastTimeRemain("player") <= br:getUpdateRate()))                                                        -- Cooldown Checks
-			and (br.isKnown(spellID) or castType == "known" or spellID == br.player.spells.condemn or spellID == br.player.spells.condemnMassacre)                -- Known/Current Checks
-			and hasTalent(spellID) and hasEssence() and not br.isIncapacitated(spellID) and queensCourtCastCheck(spellID)
-			and (not (br._G.IsAutoRepeatSpell(br._G.GetSpellInfo(spellID)) or (spellID == 6603 and br._G.IsCurrentSpell(spellID)))) --[[and not br.hasNoControl(spellID)]] -- Talent/Essence/Incapacitated/Special Checks
-			and (thisUnit == nil or castType ~= "dead" or (thisUnit ~= nil and castType == "dead" and br._G.UnitIsDeadOrGhost(thisUnit))))                        -- Dead Check
+	if (baseSpellID == spellID or overrideSpellID == spellID) and (br.empowerID == nil or br.empowerID == 0)
+		and (br._G.GetTime() - br.lastCastTable.castTime[spellID] > br.getGlobalCD(true) + (select(3, br._G.GetNetStats()) / 100)) --br.getGlobalCD(true))                                    -- Double Casting Check
+		and ((thisUnit ~= nil and not br._G.UnitIsUnit(thisUnit, "player") and not br._G.UnitIsFriend(thisUnit, "player")
+				and (br.getCastTime(spellID) <= br.getGlobalCD(true) or br.getCastTime(spellID) < br.getTTD(thisUnit)))
+			or thisUnit == nil or br._G.UnitIsUnit(thisUnit, "player") or br._G.UnitIsFriend(thisUnit, "player"))                                            -- Dies Soon Check
+		and ((thisUnit ~= nil and br._G.UnitIsUnit(thisUnit, "target") and br._G.IsUsableSpell(spellID)) or true) and not select(2, br._G.IsUsableSpell(spellID)) -- Usability Checks
+		and (castTimers[spellID] < br._G.GetTime()) and br.getSpellCD(spellID) <= br:getUpdateRate()
+		and (br.getSpellCD(61304) <= 0 or select(2, br._G.GetSpellBaseCooldown(spellID)) <= 0
+			or (br.getCastTime(spellID) > 0 and br.getCastTimeRemain("player") <= br:getUpdateRate()))                                                            -- Cooldown Checks
+		and (br.isKnown(spellID) or castType == "known" or spellID == br.player.spells.condemn or spellID == br.player.spells.condemnMassacre)                    -- Known/Current Checks
+		and hasTalent(spellID) and hasEssence() and not br.isIncapacitated(spellID) and queensCourtCastCheck(spellID)
+		and (not (br._G.IsAutoRepeatSpell(br._G.GetSpellInfo(spellID)) or (spellID == 6603 and br._G.IsCurrentSpell(spellID)))) --[[and not br.hasNoControl(spellID)]] -- Talent/Essence/Incapacitated/Special Checks
+		and (thisUnit == nil or castType ~= "dead" or (thisUnit ~= nil and castType == "dead" and br._G.UnitIsDeadOrGhost(thisUnit)))                             -- Dead Check
 		or spellID == br.empowerID
 	then
 		if castType == "known" then castType = "norm" end
