@@ -615,44 +615,48 @@ actionList.StealthCooldowns = function()
     -- Variable - Rotten Cb
     -- variable,name=rotten_cb,value=(!buff.the_rotten.up|!set_bonus.tier30_2pc)&(!talent.cold_blood|cooldown.cold_blood.remains<4|cooldown.cold_blood.remains>10)
     var.rottenCb = ((not buff.theRotten.exists() or not equiped.tier(30, 2)) and (not talent.coldBlood or cd.coldBlood.remains() < 4 or cd.coldBlood.remains() > 10))
-    -- Vanish
-    -- vanish,if=(combo_points.deficit>1|buff.shadow_blades.up&talent.invigorating_shadowdust)&!variable.shd_threshold&(cooldown.flagellation.remains>=60|!talent.flagellation|fight_remains<=(30*cooldown.vanish.charges))&(cooldown.symbols_of_death.remains>3|!set_bonus.tier30_2pc)&(cooldown.secret_technique.remains>=10|!talent.secret_technique|cooldown.vanish.charges>=2&talent.invigorating_shadowdust&(buff.the_rotten.up|!talent.the_rotten)&!raid_event.adds.up)
-    if ui.checked("Vanish") and ui.useCDs() and cast.able.vanish() and (((comboPoints.deficit() > 1 or buff.shadowBlades.exists()
-                and talent.invigoratingShadowdust) and not var.shdThreshold and (cd.flagellation.remains() >= 60 or not talent.flagellation
-                or unit.ttdGroup(40) <= (30 * charges.vanish.count())) and (cd.symbolsOfDeath.remains() > 3 or not equiped.tier(30, 2))
-            and (cd.secretTechnique.remains() >= 10 or not talent.secretTechnique or charges.vanish.count() >= 2 and talent.invigoratingShadowdust
-                and (buff.theRotten.exists() or not talent.theRotten))))
-    then
-        if cast.vanish() then
-            ui.debug("Casting Vanish [Stealth Cds]")
-            return true
+    if unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
+        -- Vanish
+        -- vanish,if=(combo_points.deficit>1|buff.shadow_blades.up&talent.invigorating_shadowdust)&!variable.shd_threshold&(cooldown.flagellation.remains>=60|!talent.flagellation|fight_remains<=(30*cooldown.vanish.charges))&(cooldown.symbols_of_death.remains>3|!set_bonus.tier30_2pc)&(cooldown.secret_technique.remains>=10|!talent.secret_technique|cooldown.vanish.charges>=2&talent.invigorating_shadowdust&(buff.the_rotten.up|!talent.the_rotten)&!raid_event.adds.up)
+        if ui.checked("Vanish") and ui.useCDs() and cast.able.vanish() and (((comboPoints.deficit() > 1 or buff.shadowBlades.exists()
+                    and talent.invigoratingShadowdust) and not var.shdThreshold and (cd.flagellation.remains() >= 60 or not talent.flagellation
+                    or unit.ttdGroup(40) <= (30 * charges.vanish.count())) and (cd.symbolsOfDeath.remains() > 3 or not equiped.tier(30, 2))
+                and (cd.secretTechnique.remains() >= 10 or not talent.secretTechnique or charges.vanish.count() >= 2 and talent.invigoratingShadowdust
+                    and (buff.theRotten.exists() or not talent.theRotten))))
+        then
+            if cast.vanish() then
+                ui.debug("Casting Vanish [Stealth Cds]")
+                return true
+            end
         end
-    end
-    -- Shadowmeld
-    -- shadowmeld,if=energy>=40&energy.deficit>=10&!variable.shd_threshold&combo_points.deficit>4
-    if ui.checked("Racial") and ui.useCDs() and cast.able.racial() and unit.race() == "NightElf"
-        and energy() >= 40 and energy.deficit() >= 10 and not var.shdThreshold and comboPoints.deficit() > 4
-    then
-        if cast.racial() then
-            ui.debug("Casting Shadowmeld [Stealth Cds]")
-            return true
+        -- Shadowmeld
+        -- shadowmeld,if=energy>=40&energy.deficit>=10&!variable.shd_threshold&combo_points.deficit>4
+        if ui.checked("Racial") and ui.useCDs() and cast.able.racial() and unit.race() == "NightElf"
+            and energy() >= 40 and energy.deficit() >= 10 and not var.shdThreshold and comboPoints.deficit() > 4
+        then
+            if cast.racial() then
+                ui.debug("Casting Shadowmeld [Stealth Cds]")
+                return true
+            end
         end
     end
     -- Variable - Shd Combo Points
     -- variable,name=shd_combo_points,value=combo_points.deficit>=3
     var.shdComboPoints = comboPoints.deficit() >= 3
-    -- Shadow Dance
-    -- shadow_dance,if=(dot.rupture.ticking|talent.invigorating_shadowdust)&variable.rotten_cb&(!talent.the_first_dance|combo_points.deficit>=4|buff.shadow_blades.up)&(variable.shd_combo_points&variable.shd_threshold|(buff.shadow_blades.up|cooldown.symbols_of_death.up&!talent.sepsis|buff.symbols_of_death.remains>=4&!set_bonus.tier30_2pc|!buff.symbols_of_death.remains&set_bonus.tier30_2pc)&cooldown.secret_technique.remains<10+12*(!talent.invigorating_shadowdust|set_bonus.tier30_2pc))
-    if ui.mode.shadowDance == 1 and ui.alwaysCdAoENever("Shadow Dance", 3, #enemies.yards10) and cast.able.shadowDance()
-        and (((debuff.rupture.exists(units.dyn5) or talent.invigoratingShadowdust) and var.rottenCb
-            and (not talent.theFirstDance or comboPoints.deficit() >= 4 or buff.shadowBlades.exists())
-            and (var.shdComboPoints and var.shdThreshold or (buff.shadowBlades.exists() or not cd.symbolsOfDeath.exists()
-                and not talent.sepsis or buff.symbolsOfDeath.remains() >= 4 and not equiped.tier(30, 2) or not buff.symbolsOfDeath.remains()
-                and equiped.tier(30, 2)) and cd.secretTechnique.remains() < 10 + 12 * var.invigoratingTier)))
-    then
-        if cast.shadowDance() then
-            ui.debug("Casting Shadow Dance [Stealth Cds]")
-            return true
+    if unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
+        -- Shadow Dance
+        -- shadow_dance,if=(dot.rupture.ticking|talent.invigorating_shadowdust)&variable.rotten_cb&(!talent.the_first_dance|combo_points.deficit>=4|buff.shadow_blades.up)&(variable.shd_combo_points&variable.shd_threshold|(buff.shadow_blades.up|cooldown.symbols_of_death.up&!talent.sepsis|buff.symbols_of_death.remains>=4&!set_bonus.tier30_2pc|!buff.symbols_of_death.remains&set_bonus.tier30_2pc)&cooldown.secret_technique.remains<10+12*(!talent.invigorating_shadowdust|set_bonus.tier30_2pc))
+        if ui.mode.shadowDance == 1 and ui.alwaysCdAoENever("Shadow Dance", 3, #enemies.yards10) and cast.able.shadowDance()
+            and (((debuff.rupture.exists(units.dyn5) or talent.invigoratingShadowdust) and var.rottenCb
+                and (not talent.theFirstDance or comboPoints.deficit() >= 4 or buff.shadowBlades.exists())
+                and (var.shdComboPoints and var.shdThreshold or (buff.shadowBlades.exists() or not cd.symbolsOfDeath.exists()
+                    and not talent.sepsis or buff.symbolsOfDeath.remains() >= 4 and not equiped.tier(30, 2) or not buff.symbolsOfDeath.remains()
+                    and equiped.tier(30, 2)) and cd.secretTechnique.remains() < 10 + 12 * var.invigoratingTier)))
+        then
+            if cast.shadowDance() then
+                ui.debug("Casting Shadow Dance [Stealth Cds]")
+                return true
+            end
         end
     end
 end -- End Action List - Stealth Cooldowns
