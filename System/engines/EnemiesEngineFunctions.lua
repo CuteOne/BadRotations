@@ -47,12 +47,12 @@ function br.updateOM()
 	for i = 1, total do
 		local thisUnit = br._G.GetObjectWithIndex(i)
 		-- br._G.print(thisUnit .. " - Is Unit: " .. tostring(br._G.ObjectIsUnit(thisUnit)) .. " - Name: " .. tostring(br._G.UnitName(thisUnit)))
-		if --[[br._G.IsGuid(thisUnit) and]] br._G.ObjectExists(thisUnit) and br._G.ObjectIsUnit(thisUnit) --[[and not unitExistsInOM(thisUnit) and br.omDist(thisUnit) < 50]] then
+		if br._G.ObjectExists(thisUnit) and br._G.ObjectIsUnit(thisUnit) then
 			if not br._G.UnitIsPlayer(thisUnit) and not br.isCritter(thisUnit) and not br._G.UnitIsUnit("player", thisUnit)
-				and (not br._G.UnitIsFriend("player", thisUnit) or string.match(br._G.UnitGUID(thisUnit), "Pet")) --br.GetUnitIsUnit(br._G.UnitCreator(thisUnit), "player"))
+				and (not br._G.UnitIsFriend("player", thisUnit) or string.match(br._G.UnitGUID(thisUnit), "Pet"))
 			then
 				local enemyUnit = br.unitSetup:new(thisUnit)
-				if enemyUnit then --and (enemyUnit.range < 40 or br._G.UnitIsUnit(thisUnit, "target")) then--and not br.isInOM(enemyUnit) then
+				if enemyUnit then
 					br._G.tinsert(om, enemyUnit)
 				end
 			end

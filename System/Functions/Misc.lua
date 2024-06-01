@@ -696,6 +696,8 @@ function br.pause(skipCastingCheck)
 	-- if button == "RightButton" then
 	-- 	Print("Right Clicked")
 	-- end
+	-- Pause if you have no health
+	if br._G.UnitHealth("player") == 0 then return true end
 	if br.disableControl == true then
 		return true
 	end
