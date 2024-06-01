@@ -395,7 +395,7 @@ actionList.Cooldown = function()
         -- Metamorphosis
         if ui.alwaysCdAoENever("Metamorphosis", 3, #enemies.yards8) and cast.able.metamorphosis("player") and #enemies.yards8 > 0 then
             -- metamorphosis,if=!talent.demonic&((!talent.chaotic_transformation|cooldown.eye_beam.remains>20)&active_enemies>desired_targets|raid_event.adds.in>60|fight_remains<25)
-            if ((not talent.demonic and ((not talent.chaoticTransformation or cd.eyeBeam.remains() > 20) and #enemies.yards0 > ui.value("Units to AoE") or unit.ttdGroup(40) < 25))) then
+            if ((not talent.demonic and ((not talent.chaoticTransformation or cd.eyeBeam.remains() > 20) and #enemies.yards8 > ui.value("Units to AoE") or unit.ttdGroup(40) < 25))) then
                 if cast.metamorphosis("player") then
                     ui.debug("Casting Metamorphosis [Cooldown]")
                     return true
@@ -474,7 +474,7 @@ actionList.Cooldown = function()
 
         -- Use Item - Stormeaters Boon,Use Off Gcd=1
         -- use_item,name=stormeaters_boon,use_off_gcd=1,if=cooldown.metamorphosis.remains&(!talent.momentum|buff.momentum.remains>5)&(active_enemies>1|raid_event.adds.in>140)
-        if use.able.stormeatersBoon() and ((cd.metamorphosis.remains() and (not talent.momentum or buff.momentum.remains() > 5) and #enemies.yards0 > 1)) then
+        if use.able.stormeatersBoon() and ((cd.metamorphosis.remains() and (not talent.momentum or buff.momentum.remains() > 5) and #enemies.yards8 > 1)) then
             if use.stormeatersBoon() then
                 ui.debug("Using Stormeaters Boon [Cooldown]")
                 return true
