@@ -135,7 +135,7 @@ br.api.itemCD = function(self, item, id)
     -- @within cd.slot
     cd.slot.exists = function(slotID)
         if slotID == nil then return false end
-        return self.cd.slot.remain(slotID) > 0
+        return cd.slot.remain(slotID) > 0
     end
 
     --- Gets the time remaining on the equipment slot item cooldown or 0 if not.

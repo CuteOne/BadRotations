@@ -108,8 +108,6 @@ local function createOptions()
         br.ui:checkSectionState(section)
         -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
-        -- Flask Module
-        br.player.module.FlaskUp("Agility", section)
         -- Augment Rune
         br.ui:createCheckbox(section, "Augment Rune")
         -- Potion
@@ -127,8 +125,6 @@ local function createOptions()
         br.ui:checkSectionState(section)
         -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
-        -- Basic Healing Module
-        br.player.module.BasicHealing(section)
         -- Blur
         br.ui:createSpinner(section, "Blur", 50, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
         -- Darkness
@@ -168,8 +164,6 @@ local function createOptions()
         br.ui:createDropdownWithout(section, "Interrupt Mode", br.dropOptions.Toggle, 6)
         -- Mover Key Toggle
         br.ui:createDropdownWithout(section, "Mover Mode", br.dropOptions.Toggle, 6)
-        -- Pause Toggle
-        br.ui:createDropdown(section, "Pause Mode", br.dropOptions.Toggle, 6)
         br.ui:checkSectionState(section)
     end
     optionTable = { {
@@ -270,8 +264,6 @@ end -- End Action List - Extras
 -- Action List - Defensive
 actionList.Defensive = function()
     if ui.useDefensive() then
-        -- Basic Heal Module
-        module.BasicHealing()
         -- Blur
         if ui.checked("Blur") and cast.able.blur() and unit.hp() <= ui.value("Blur") and unit.inCombat() then
             if cast.blur() then
@@ -549,9 +541,6 @@ actionList.Precombat = function()
         -- if not buff.felCrystalInfusion.exists() and use.able.felCrystalFragments() and has.felCrystalFragments() then
         --     if use.felCrystalFragments() then ui.debug("Using Fel Crystal Fragments") return true end
         -- end
-        -- Flask Module
-        -- flask
-        module.FlaskUp("Agility")
 
         -- Use Item - Augmentation
         -- augmentation
@@ -611,14 +600,8 @@ actionList.Precombat = function()
             -- Sigil Of Flame
             -- sigil_of_flame,if=!equipped.algethar_puzzle_box
             if equiped.algetharPuzzleBox() then
-                if talent.preciseSigils and cast.able.sigilOfFlame("target", "aoe", 1, 8) then
-                    if cast.sigilOfFlame("target", "aoe", 1, 8) then
-                        ui.debug("Casting Sigil of Flame [Precombat]")
-                        return true
-                    end
-                end
-                if cast.able.sigilOfFlame("best", false, 1, 8) and not talent.preciseSigils then
-                    if cast.sigilOfFlame("best", false, 1, 8) then
+                if cast.able.sigilOfFlame("target", "ground", 1, 8) then
+                    if cast.sigilOfFlame("target", "ground", 1, 8) then
                         ui.debug("Casting Sigil of Flame [Precombat]")
                         return true
                     end
@@ -1085,14 +1068,8 @@ actionList.Combat = function()
     if not unit.moving(units.dyn5) and #enemies.yards5 > 0
         and talent.anyMeansNecessary and not debuff.essenceBreak.exists(units.dyn5) and #enemies.yards30 >= 4
     then
-        if talent.preciseSigils and cast.able.sigilOfFlame(units.dyn30, "aoe", 1, 8) then
-            if cast.sigilOfFlame(units.dyn30, "aoe", 1, 8) then
-                ui.debug("Casting Sigil of Flame [Combat]")
-                return true
-            end
-        end
-        if cast.able.sigilOfFlame("best", false, 1, 8) and not talent.preciseSigils and not talent.concentratedSigils then
-            if cast.sigilOfFlame("best", false, 1, 8) then
+        if cast.able.sigilOfFlame(units.dyn30, "ground", 1, 8) then
+            if cast.sigilOfFlame(units.dyn30, "ground", 1, 8) then
                 ui.debug("Casting Sigil of Flame [Combat]")
                 return true
             end
@@ -1144,14 +1121,8 @@ actionList.Combat = function()
     -- Sigil Of Flame
     -- sigil_of_flame,if=fury.deficit>=40&talent.any_means_necessary
     if not unit.moving(units.dyn5) and #enemies.yards5 > 0 and fury.deficit() >= 40 and talent.anyMeansNecessary then
-        if talent.preciseSigils and cast.able.sigilOfFlame(units.dyn30, "aoe", 1, 8) then
+        if cast.able.sigilOfFlame(units.dyn30, "ground", 1, 8) then
             if cast.sigilOfFlame(units.dyn30, "aoe", 1, 8) then
-                ui.debug("Casting Sigil of Flame - Any Means Necessary [Combat]")
-                return true
-            end
-        end
-        if cast.able.sigilOfFlame("best", false, 1, 8) and not talent.preciseSigils and not talent.concentratedSigils then
-            if cast.sigilOfFlame("best", false, 1, 8) then
                 ui.debug("Casting Sigil of Flame - Any Means Necessary [Combat]")
                 return true
             end
@@ -1205,14 +1176,8 @@ actionList.Combat = function()
     -- Sigil Of Flame
     -- sigil_of_flame,if=raid_event.adds.in>15&fury.deficit>=30&buff.out_of_range.down
     if not unit.moving(units.dyn5) and #enemies.yards5 > 0 and fury.deficit() >= 30 and unit.distance(units.dyn8AOE) < 8 then
-        if talent.preciseSigils and cast.able.sigilOfFlame(units.dyn30, "aoe", 1, 8) then
-            if cast.sigilOfFlame(units.dyn30, "aoe", 1, 8) then
-                ui.debug("Casting Sigil of Flame - Low Fury [Combat]")
-                return true
-            end
-        end
-        if cast.able.sigilOfFlame("best", false, 1, 8) and not talent.preciseSigils and not talent.concentratedSigils then
-            if cast.sigilOfFlame("best", false, 1, 8) then
+        if cast.able.sigilOfFlame(units.dyn30, "ground", 1, 8) then
+            if cast.sigilOfFlame(units.dyn30, "ground", 1, 8) then
                 ui.debug("Casting Sigil of Flame - Low Fury [Combat]")
                 return true
             end
@@ -1277,14 +1242,8 @@ actionList.Combat = function()
     -- Sigil Of Flame
     -- sigil_of_flame,if=raid_event.adds.in>15&fury.deficit>=30&buff.out_of_range.down
     if not unit.moving(units.dyn5) and #enemies.yards5 > 0 and fury.deficit() >= 30 and unit.distance(units.dyn8AoE) < 8 then
-        if talent.preciseSigils and cast.able.sigilOfFlame(units.dyn30, "aoe", 1, 8) then
-            if cast.sigilOfFlame(units.dyn30, "aoe", 1, 8) then
-                ui.debug("Casting Sigil of Flame - Low Fury 2 [Combat]")
-                return true
-            end
-        end
-        if cast.able.sigilOfFlame("best", false, 1, 8) and not talent.preciseSigils and not talent.concentratedSigils then
-            if cast.sigilOfFlame("best", false, 1, 8) then
+        if cast.able.sigilOfFlame(units.dyn30, "ground", 1, 8) then
+            if cast.sigilOfFlame(units.dyn30, "ground", 1, 8) then
                 ui.debug("Casting Sigil of Flame - Low Fury 2 [Combat]")
                 return true
             end
