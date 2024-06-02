@@ -103,7 +103,7 @@ Raidable means if its good to raid with.
 
 |rotation|author |patch|coverage|status|  readiness  |last updated|
 |--------|-------|:---:|:------:|:----:|:-----------:|-----------:|
-|CuteOne |CuteOne|10.2 |  100%  | Full |:interrobang:|  06/01/2024|
+|CuteOne |CuteOne|10.2 |  100%  | Full |:interrobang:|  06/02/2024|
 
 - Vengeance
 
