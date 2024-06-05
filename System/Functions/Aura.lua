@@ -642,6 +642,7 @@ function br.hasBloodLust()
 		br.UnitBuffID("player", 80353) or -- Timewarp
 		br.UnitBuffID("player", 230935) or -- Drums of the Mountain
 		br.UnitBuffID("player", 256740) or -- Drums of the Maelstrom
+		br.UnitBuffID("player", 441076) or -- Timeless Drums
 		br.UnitBuffID("player", 264667) -- Primal Rage
 	then
 		return true
