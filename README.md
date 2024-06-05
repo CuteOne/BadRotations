@@ -109,7 +109,7 @@ Raidable means if its good to raid with.
 
 |rotation|author |patch|coverage|status |    readiness     |last updated|
 |--------|-------|:---:|:------:|:-----:|:----------------:|-----------:|
-|CuteOne |CuteOne|10.2 |  100%  |Limited|:white_check_mark:|  05/08/2024|
+|CuteOne |CuteOne|10.2 |  100%  |Limited|:white_check_mark:|  06/05/2024|
 
 
 ### Druid
