@@ -123,6 +123,12 @@ Raidable means if its good to raid with.
 
 ### Evoker
 
+- Devastation
+
+|rotation|author |patch|coverage|status|    readiness     |last updated|
+|--------|-------|:---:|:------:|:----:|:----------------:|-----------:|
+|CuteOne |CuteOne|10.0 |  95%   | Full |:heavy_check_mark:|  06/08/2024|
+
 
 ### Hunter
 
