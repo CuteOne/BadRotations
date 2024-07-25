@@ -2775,6 +2775,7 @@ br.lists.spells = {
             },
         },
     },
+    Paladin = {
     [65] = {
             abilities  = {
                 absolution       = 212056,
