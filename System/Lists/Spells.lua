@@ -2775,8 +2775,9 @@ br.lists.spells = {
             },
         },
     },
-    Paladin = {
-    [65] = {
+    PALADIN = {
+        -- Holy
+        [65] = {
             abilities  = {
                 absolution       = 212056,
                 auraMastery      = 31821,
@@ -2795,7 +2796,7 @@ br.lists.spells = {
                 lightOfDawn      = 85222,
                 lightOfTheMartyr = 183998,
                 --lightsHammer     = 114158,
-                
+
             },
             artifacts  = {
 
