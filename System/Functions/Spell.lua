@@ -325,21 +325,39 @@ function br.isSpellInSpellbook(spellID, spellType)
 	return false
 end
 
+function br.getSpellInSpellbook(spellID, spellType)
+	for i = 1, C_SpellBook.GetNumSpellBookSkillLines() do
+		local skillLineInfo = C_SpellBook.GetSpellBookSkillLineInfo(i)
+		local offset, numSlots = skillLineInfo.itemIndexOffset, skillLineInfo.numSpellBookItems
+		for j = offset + 1, offset + numSlots do
+			local spellBookItemInfo = C_SpellBook.GetSpellBookItemInfo(j,
+				(spellType == "pet" and Enum.SpellBookSpellBank.Pet or Enum.SpellBookSpellBank.Player))
+			local spellType, id = spellBookItemInfo.itemType, spellBookItemInfo.actionID
+			local spellName
+			if spellType == Enum.SpellBookItemType.Spell then
+				spellName = C_Spell.GetSpellName(id)
+				spellType = "Spell"
+			elseif spellType == Enum.SpellBookItemType.FutureSpell then
+				spellName = C_Spell.GetSpellName(id)
+				spellType = "Future Spell"
+			elseif spellType == Enum.SpellBookItemType.Flyout then
+				spellName = GetFlyoutInfo(id)
+				spellType = "Flyout"
+			end
+			if id == spellID then
+				return i, j, spellType, id, spellName
+			end
+		end
+	end
+	return nil
+end
+
 -- if br.isKnown(106832) then
 function br.isKnown(spellID)
-	local spellName = br._G.GetSpellInfo(spellID)
-	-- if C_SpellBook.GetSpellBookItemType(tostring(spellName)) ~= nil then
-	-- 	return true
-	-- elseif IsPlayerSpell(tonumber(spellID)) == true then
-	-- 	return true
-	-- elseif IsSpellKnown(spellID) == true then
-	-- 	return true
-	-- elseif hasPerk(spellID) == true then
-	--        return true
-	--    end
-	-- return false
+	local _, _, spellInBookType = br._G.C_SpellBook.GetSpellInSpellBook(spellID)
 	return spellID ~= nil and
-		(br._G.C_SpellBook.GetSpellBookItemType(tostring(spellName)) ~= nil or br._G.IsPlayerSpell(tonumber(spellID)) or br._G.IsSpellKnown(spellID) or br.isSpellInSpellbook(spellID, "spell"))
+		(spellInBookType ~= nil or br._G.IsPlayerSpell(tonumber(spellID))
+			or br._G.IsSpellKnown(spellID) or spellInBookType == "Spell")
 end
 
 function br.isActiveEssence(spellID)
