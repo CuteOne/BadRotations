@@ -354,7 +354,7 @@ end
 
 -- if br.isKnown(106832) then
 function br.isKnown(spellID)
-	local _, _, spellInBookType = br.GetSpellInSpellBook(spellID)
+	local _, _, spellInBookType = br.getSpellInSpellBook(spellID)
 	return spellID ~= nil and
 		(spellInBookType ~= nil or br._G.IsPlayerSpell(tonumber(spellID))
 			or br._G.IsSpellKnown(spellID) or spellInBookType == "Spell")
