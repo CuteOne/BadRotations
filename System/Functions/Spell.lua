@@ -325,7 +325,7 @@ function br.isSpellInSpellbook(spellID, spellType)
 	return false
 end
 
-function br.getSpellInSpellbook(spellID, spellType)
+function br.getSpellInSpellBook(spellID, spellType)
 	for i = 1, C_SpellBook.GetNumSpellBookSkillLines() do
 		local skillLineInfo = C_SpellBook.GetSpellBookSkillLineInfo(i)
 		local offset, numSlots = skillLineInfo.itemIndexOffset, skillLineInfo.numSpellBookItems
