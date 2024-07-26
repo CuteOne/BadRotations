@@ -142,8 +142,8 @@ function br.loader:new(spec, specName)
                         -- Assign spell to br.player.spells for the spell type
                         self.spells[spellType][spellRef] = spellID
                         -- Assign active spells to Abilities Subtable and base br.player.spells
-                        if not br._G.C_Spell.IsSpellPassive(spellID)
-                            and (spellType == 'abilities' or spellType == 'covenants' or ((spellType == 'traits' or spellType == 'talents') and spec < 1400))
+                        if (spellType == 'abilities' or spellType == 'covenants' or ((spellType == 'traits' or spellType == 'talents') and spec < 1400))
+                            and type(spellID) ~= 'table' and not br._G.C_Spell.IsSpellPassive(spellID)
                         then
                             self.spells.abilities = self.spells.abilities or {}
                             self.spells.abilities[spellRef] = spellID
