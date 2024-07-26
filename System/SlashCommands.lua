@@ -119,7 +119,7 @@ end
 
 local function forewardDisengage() -- from Stinky Twitch
 	local s = br._G.C_Spell.GetSpellCooldown(781)
-	if s == 0 then
+	if s and s.startTime == 0 then
 		br._G.FaceDirection(br._G.mod(br._G.ObjectFacing("player") + math.pi, math.pi * 2), true)
 		br._G.CastSpellByID(781)
 		br.C_Timer.After(0.05,
@@ -171,8 +171,12 @@ function br.handler(message, editbox)
 		br.SlashCommandHelp("Print Help")
 	elseif msg1 == "cooldowns" then
 		if not br.player then return false end
-		if br.player.ui.mode.cooldown == 2 then br._G.RunMacroText("/br toggle Cooldown 3") else br._G.RunMacroText(
-			"/br toggle Cooldown 2") end
+		if br.player.ui.mode.cooldown == 2 then
+			br._G.RunMacroText("/br toggle Cooldown 3")
+		else
+			br._G.RunMacroText(
+				"/br toggle Cooldown 2")
+		end
 	elseif msg1 == "blacklist" then
 		-- Blacklist
 		if msg2 == "dump" then
@@ -213,7 +217,7 @@ function br.handler(message, editbox)
 			end
 		else
 			br._G.print("Invalid Option for: |cFFFF0000" ..
-			msg1 .. "|r try |cffFFDD11 /br help |r for available options.")
+				msg1 .. "|r try |cffFFDD11 /br help |r for available options.")
 		end
 	elseif msg1 == "pause" then
 		-- Pause
@@ -434,7 +438,7 @@ function br.handler(message, editbox)
 			-- Show/Hide Toggle Bar
 			if br._G.UnitAffectingCombat("player") then
 				br._G.print(
-				"Combat Lockdown detected. Unable to modify button bar. Please try again when out of combat.")
+					"Combat Lockdown detected. Unable to modify button bar. Please try again when out of combat.")
 			else
 				if br.data.settings[br.selectedSpec].toggles["Main"] == 1 then
 					br.data.settings[br.selectedSpec].toggles["Main"] = 0

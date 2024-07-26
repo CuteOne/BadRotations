@@ -541,7 +541,7 @@ function br.isCastingTime(lagTolerance)
 		if select(5, br._G.UnitChannelInfo("player")) - br._G.GetTime() <= lagTolerance then
 			return true
 		end
-	elseif (br._G.C_Spell.GetSpellCooldown(br._G.GetSpellInfo(61304)) ~= nil and br._G.C_Spell.GetSpellCooldown(br._G.GetSpellInfo(61304)) <= lagTolerance) then
+	elseif (br._G.C_Spell.GetSpellCooldown(br._G.GetSpellInfo(61304)) ~= nil and br._G.C_Spell.GetSpellCooldown(br._G.GetSpellInfo(61304)).duration <= lagTolerance) then
 		return true
 	else
 		return false
@@ -578,7 +578,7 @@ function br.castingUnit(Unit)
 	if Unit == nil then Unit = "player" end
 	if br._G.UnitCastingInfo(Unit) ~= nil
 		or br._G.UnitChannelInfo(Unit) ~= nil
-		or (br._G.C_Spell.GetSpellCooldown(61304) ~= nil and br._G.C_Spell.GetSpellCooldown(61304) > 0.001) then
+		or (br._G.C_Spell.GetSpellCooldown(61304) ~= nil and br._G.C_Spell.GetSpellCooldown(61304).duration > 0.001) then
 		return true
 	else
 		return false

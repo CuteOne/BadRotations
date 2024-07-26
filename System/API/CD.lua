@@ -55,8 +55,10 @@ br.api.cd = function(self, spell, id)
     -- @return number
     -- @within cd.spell
     cd[spell].duration = function()
-        local _, CD = br._G.C_Spell.GetSpellCooldown(id)
-        return CD
+        local level = br._G.UnitLevel("player")
+        local spellLevel = br._G.C_Spell.GetSpellLevelLearned(id)
+        local spellCD = br._G.C_Spell.GetSpellCooldown(id)
+        return (spellCD and level >= spellLevel) and spellCD.duration or 0
     end
 
     --- Checks if the spell is not on cooldown or is (opposite of cd.spell.exists()).

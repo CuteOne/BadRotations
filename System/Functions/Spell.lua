@@ -238,11 +238,11 @@ end
 -- if br.getSpellCD(12345) <= 0.4 then
 function br.getSpellCD(SpellID)
 	if SpellID == nil then return false end
-	if br._G.C_Spell.GetSpellCooldown(SpellID) == 0 then
+	local spellCD = br._G.C_Spell.GetSpellCooldown(SpellID)
+	if spellCD == nil or spellCD.startTime == 0 then
 		return 0
 	else
-		local Start, CD = br._G.C_Spell.GetSpellCooldown(SpellID)
-		local MyCD = Start + CD - br._G.GetTime()
+		local MyCD = spellCD.startTime + spellCD.duration - br._G.GetTime()
 		MyCD = MyCD or 0 -- getLatency()
 		if MyCD < 0 then MyCD = 0 end
 		return MyCD
