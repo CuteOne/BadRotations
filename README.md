@@ -88,7 +88,7 @@ Raidable means if its good to raid with.
 
 | rotation  |   author   |patch |coverage|  status   |  readiness  |last updated|
 |-----------|------------|:----:|:------:|:---------:|:-----------:|-----------:|
-|BrewDKFrost|BrewingCoder|10.2.6|   0%   |Development|:interrobang:|  05/08/2024|
+|BrewDKFrost|BrewingCoder|10.2.6|   0%   |Development|:interrobang:|  07/26/2024|
 
 - Unholy
 
@@ -118,7 +118,7 @@ Raidable means if its good to raid with.
 
 |rotation|author |patch|coverage|status|  readiness  |last updated|
 |--------|-------|:---:|:------:|:----:|:-----------:|-----------:|
-|CuteOne |CuteOne|10.2 |  100%  | Full |:interrobang:|  05/26/2024|
+|CuteOne |CuteOne|10.2 |  100%  | Full |:interrobang:|  07/26/2024|
 
 
 ### Evoker
@@ -127,7 +127,7 @@ Raidable means if its good to raid with.
 
 |rotation|author |patch|coverage|status|    readiness     |last updated|
 |--------|-------|:---:|:------:|:----:|:----------------:|-----------:|
-|CuteOne |CuteOne|10.0 |  95%   | Full |:heavy_check_mark:|  06/08/2024|
+|CuteOne |CuteOne|10.0 |  95%   | Full |:heavy_check_mark:|  07/26/2024|
 
 
 ### Hunter
@@ -136,7 +136,7 @@ Raidable means if its good to raid with.
 
 |   rotation    |   author   |patch |coverage|status |  readiness  |last updated|
 |---------------|------------|:----:|:------:|:-----:|:-----------:|-----------:|
-|BrewBeastMaster|BrewingCoder|10.2.6|  75%   |Limited|:interrobang:|  05/08/2024|
+|BrewBeastMaster|BrewingCoder|10.2.6|  75%   |Limited|:interrobang:|  07/26/2024|
 
 - Marksmanship
 
@@ -166,8 +166,8 @@ Raidable means if its good to raid with.
 
 |   rotation   |   author   | patch |coverage|status |  readiness  |last updated|
 |--------------|------------|:-----:|:------:|:-----:|:-----------:|-----------:|
-|BrewWindWalker|BrewingCoder|10.2.5 |  95%   |Limited|:interrobang:|  05/08/2024|
 |BrewWWPVE     |BrewingCoder|Unknown|Unknown |Unknown|:interrobang:|  05/08/2024|
+|BrewWindWalker|BrewingCoder|10.2.5 |  95%   |Limited|:interrobang:|  05/08/2024|
 
 
 ### Paladin
@@ -212,7 +212,7 @@ Raidable means if its good to raid with.
 
 | rotation |   author   | patch |coverage|status |  readiness  |last updated|
 |----------|------------|:-----:|:------:|:-----:|:-----------:|-----------:|
-|BrewDestro|BrewingCoder|Unknown|Unknown |Unknown|:interrobang:|  05/08/2024|
+|BrewDestro|BrewingCoder|Unknown|Unknown |Unknown|:interrobang:|  07/26/2024|
 
 
 ### Warrior
