@@ -142,7 +142,7 @@ function br.loader:new(spec, specName)
                         -- Assign spell to br.player.spells for the spell type
                         self.spells[spellType][spellRef] = spellID
                         -- Assign active spells to Abilities Subtable and base br.player.spells
-                        if not br._G.IsPassiveSpell(spellID)
+                        if not br._G.C_Spell.IsSpellPassive(spellID)
                             and (spellType == 'abilities' or spellType == 'covenants' or ((spellType == 'traits' or spellType == 'talents') and spec < 1400))
                         then
                             self.spells.abilities = self.spells.abilities or {}
@@ -256,7 +256,7 @@ function br.loader:new(spec, specName)
         --     if v ~= heartEssence then
         --         if not self.essence[k] then self.essence[k] = {} end
         --         local essence = self.essence[k]
-        --         if not br._G.IsPassiveSpell(v) then
+        --         if not br._G.C_Spell.IsSpellPassive(v) then
         --             self.spells['abilities'][k] = select(7,br._G.GetSpellInfo(br._G.GetSpellInfo(v))) or v--heartEssence
         --             self.spells[k] = select(7,br._G.GetSpellInfo(br._G.GetSpellInfo(v))) or v--heartEssence
         --         end

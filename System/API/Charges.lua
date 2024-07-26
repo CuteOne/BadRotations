@@ -7,7 +7,7 @@
 local _, br = ...
 if br.api == nil then br.api = {} end
 
-br.api.charges = function(self,spell,id)
+br.api.charges = function(self, spell, id)
     if self[spell] == nil then self[spell] = {} end
     local charges = self[spell]
 
@@ -26,7 +26,7 @@ br.api.charges = function(self,spell,id)
     end
 
     charges.spellCount = function()
-        return br._G.GetSpellCount(id)
+        return br._G.C_Spell.GetSpellCastCount(id)
     end
 
     --- Gets the number of charges remaining on spell as a fraction. (e.g. 1.5 charges remaining)
@@ -40,7 +40,7 @@ br.api.charges = function(self,spell,id)
     -- @function charges.spell.max
     -- @return number
     charges.max = function()
-        return br.getChargesFrac(id,true)
+        return br.getChargesFrac(id, true)
     end
 
     --- Gets the time remaining on until next charge is available.
@@ -49,7 +49,7 @@ br.api.charges = function(self,spell,id)
     -- @return number
     charges.recharge = function(chargeMax)
         if chargeMax then
-            return br.getRecharge(id,true)
+            return br.getRecharge(id, true)
         else
             return br.getRecharge(id)
         end
@@ -63,7 +63,7 @@ br.api.charges = function(self,spell,id)
     end
 end
 
-br.api.itemCharges = function(self,item,id)
+br.api.itemCharges = function(self, item, id)
     if self[item] == nil then self[item] = {} end
     local charges = self[item]
 

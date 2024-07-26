@@ -667,7 +667,7 @@ actionList.Es = function()
         -- eternity_surge,empower_to=1,target_if=max:target.health.pct,if=active_enemies<=1+talent.eternitys_span|buff.dragonrage.remains<1.75*spell_haste&buff.dragonrage.remains>=1*spell_haste|buff.dragonrage.up&(active_enemies==5&!talent.font_of_magic|active_enemies>(3+talent.font_of_magic)*(1+talent.eternitys_span))|active_enemies>=6&!talent.eternitys_span
         if ((#enemies.yards8t <= 1 + var.eternitysSpan or buff.dragonrage.remains() < 1.75 * var.spellHaste
                 and buff.dragonrage.remains() >= 1 * var.spellHaste or buff.dragonrage.exists()
-                and (#enemies.yards8t == 5 and not talent.fontOfMagic or #enemies.yards8t > (3 + talent.fontOfMagic) * (1 + talent.eternitysSpan)) or #enemies.yards8t >= 6
+                and (#enemies.yards8t == 5 and not talent.fontOfMagic or #enemies.yards8t > (3 + var.fontOfMagic) * (1 + var.eternitysSpan)) or #enemies.yards8t >= 6
                 and not talent.eternitysSpan))
         then
             if cast.eternitySurge(var.maxHpUnit, "aoe", 1, 12) then
@@ -1187,11 +1187,12 @@ local function runRotation()
     end
 
     -- Numeric Conversion
+    var.dragonrage = ui.alwaysCdAoENever("Dragonrage", 1, 25) and cd.dragonrage.remains() or 999
+    var.essenceBurstMaxStacks = talent.essenceAttunement and 2 or 1
     var.eternitysSpan = talent.eternitysSpan and 1 or 0
+    var.fontOfMagic = talent.fontOfMagic and 1 or 0
     var.spellHaste = (unit.spellHaste() / 100)
     var.tipTheScales = not buff.tipTheScales.exists() and 1 or 0
-    var.essenceBurstMaxStacks = talent.essenceAttunement and 2 or 1
-    var.dragonrage = ui.alwaysCdAoENever("Dragonrage", 1, 25) and cd.dragonrage.remains() or 999
 
     -- SimC variables
     -- variable,name=next_dragonrage,value=cooldown.dragonrage.remains<?(cooldown.eternity_surge.remains-2*gcd.max)<?(cooldown.fire_breath.remains-gcd.max)

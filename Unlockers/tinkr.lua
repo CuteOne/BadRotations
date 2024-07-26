@@ -54,7 +54,7 @@ local unlockList =
 	"InitiateTrade",
 	-- "InteractUnit",
 	"IsItemInRange",
-	-- "IsSpellInRange",
+	-- "C_Spell.IsSpellInRange",
 	"JoinBattlefield",
 	"JumpOrAscendStart",
 	"Logout",
@@ -74,7 +74,7 @@ local unlockList =
 	"PickupCompanion",
 	"PickupMacro",
 	"PickupPetAction",
-	"PickupSpell",
+	"C_Spell.PickupSpell",
 	"PickupSpellBookItem",
 	"PitchDownStart",
 	"PitchDownStop",
@@ -125,7 +125,7 @@ local unlockList =
 	"ToggleAutoRun",
 	"ToggleGameMenu",
 	"ToggleRun",
-	"ToggleSpellAutocast",
+	"C_Spell.ToggleSpellAutoCast",
 	"TurnLeftStart",
 	"TurnLeftStop",
 	"TurnOrActionStart",
@@ -224,60 +224,60 @@ local funcCopies = {}
 
 -- helper function
 local function stringsplit(inputstr, sep)
-    if sep == nil then
-        sep = "%s"
-    end
-    local t = {}
-    for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
-        table.insert(t, str)
-    end
-    return t
+	if sep == nil then
+		sep = "%s"
+	end
+	local t = {}
+	for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
+		table.insert(t, str)
+	end
+	return t
 end
 
 -- make a backup copy of all APIs before AddOns hook them
 for i = 1, #unlockList do
-    local func = unlockList[i]
-    funcCopies[func] = func --_G[func]
+	local func = unlockList[i]
+	funcCopies[func] = func --_G[func]
 end
 local Unlocker = ...
 local File
 function unlock.TinkrUnlock()
 	if not tinkrUnlocked then
-        if Unlocker and Unlocker.name == "Tinkr" then
+		if Unlocker and Unlocker.name == "Tinkr" then
 			br._G.print("Tinkr Unlocker Detected")
-            tinkrUnlocked = true
+			tinkrUnlocked = true
 			File = Unlocker.Util.File
-        else
-            return false
-        end
-    end
+		else
+			return false
+		end
+	end
 
-    --------------------------------
+	--------------------------------
 	-- API unlocking
 	--------------------------------
 	for k, v in pairs(funcCopies) do
 		b[k] = function(...)
 			if select('#', ...) == 0 then
-				return Eval(k.."()", "")
+				return Eval(k .. "()", "")
 			else
-				return Eval(k.."("..table.concat({...}, ", ")..")", "")
+				return Eval(k .. "(" .. table.concat({ ... }, ", ") .. ")", "")
 			end
 		end
 	end
 
-    -------------------
+	-------------------
 	-- API Wrapping ---
 	-------------------
 	------------------------- Active Player -------------------
 	b.FaceDirection = function(arg)
 		if type(arg) == "number" then
-			FaceDirection(arg,true)
+			FaceDirection(arg, true)
 		else
 			arg = b.GetAnglesBetweenObjects("player", arg)
-			FaceDirection(arg,true)
+			FaceDirection(arg, true)
 		end
 	end
-	
+
 	b.GetMapId = GetMapID
 	------------------------- Object --------------------------
 	b.ObjectPointer = ObjectGUID
@@ -421,7 +421,7 @@ function unlock.TinkrUnlock()
 	b.UnitFacing = b.ObjectFacing
 
 	b.ObjectInteract = b.InteractUnit
-    b.IsHackEnabled = function(...) return false end
+	b.IsHackEnabled = function(...) return false end
 	b.AuraUtil = {}
 	b.AuraUtil.FindAuraByName = function(name, unit, filter)
 		-- return Eval("AuraUtil.FindAuraByName("..table.concat({...}, ", ")..")", "")
@@ -432,10 +432,10 @@ function unlock.TinkrUnlock()
 		return ObjType == 8 or ObjType == 11
 	end
 	b.RunMacroText = function(text)
-		return Eval("RunMacroText(\""..text.."\")", "")
+		return Eval("RunMacroText(\"" .. text .. "\")", "")
 	end
 	b.UseItemByName = function(text)
-		return Eval("UseItemByName(\""..text.."\")", "")
+		return Eval("UseItemByName(\"" .. text .. "\")", "")
 	end
 	b.TargetUnit = function(unit)
 		if Object(unit) then
@@ -455,7 +455,7 @@ function unlock.TinkrUnlock()
 	--- API - Unit Function Object Handler ---
 	------------------------------------------
 	b.CastSpellByName = function(spell, unit)
-		return Eval("CastSpellByName(\""..spell.."\", \""..ObjectUnit(unit).."\")", "")
+		return Eval("CastSpellByName(\"" .. spell .. "\", \"" .. ObjectUnit(unit) .. "\")", "")
 	end
 	b.GetRaidTargetIndex = function(...)
 		return GetRaidTargetIndex(ObjectUnit(...))
@@ -464,7 +464,7 @@ function unlock.TinkrUnlock()
 		return GetUnitSpeed(ObjectUnit(...))
 	end
 	b.InSpellInRange = function(spell, unit)
-		return IsSpellInRange(spell, ObjectUnit(unit))
+		return C_Spell.IsSpellInRange(spell, ObjectUnit(unit))
 	end
 	b.UnitAffectingCombat = function(...)
 		return UnitAffectingCombat(ObjectUnit(...))
@@ -509,7 +509,7 @@ function unlock.TinkrUnlock()
 		return UnitGetIncomingHeals(ObjectUnit(unit1), ObjectUnit(unit2))
 	end
 	b.UnitGUID = function(...)
-		return ObjectGUID(...)--UnitGUID(ObjectUnit(...))
+		return ObjectGUID(...) --UnitGUID(ObjectUnit(...))
 	end
 	b.UnitHealth = function(...)
 		return UnitHealth(ObjectUnit(...))
@@ -571,7 +571,7 @@ function unlock.TinkrUnlock()
 	b.UnitRace = function(...)
 		return UnitRace(ObjectUnit(...))
 	end
-	b.UnitReaction = function (unit1, unit2)
+	b.UnitReaction = function(unit1, unit2)
 		return UnitReaction(ObjectUnit(unit1), ObjectUnit(unit2))
 	end
 	b.UnitStat = function(unit, statIndex)
@@ -587,6 +587,6 @@ function unlock.TinkrUnlock()
 		return UnitIsTrivial(ObjectUnit(...))
 	end
 
-    br.unlocker = "Tinkr"
+	br.unlocker = "Tinkr"
 	return true
 end

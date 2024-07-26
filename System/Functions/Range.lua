@@ -67,11 +67,11 @@ function br.getDistanceCalc(Unit1, Unit2, option)
         -- If melee spell is usable, ignore all other calcs
         if meleeSpell ~= nil then
             if Unit2 == "player" then
-                if br._G.IsSpellInRange(select(1, br._G.GetSpellInfo(meleeSpell)), Unit1) == 1 then
+                if br._G.C_Spell.IsSpellInRange(select(1, br._G.GetSpellInfo(meleeSpell)), Unit1) == 1 then
                     return 0
                 end
             else
-                if br._G.IsSpellInRange(select(1, br._G.GetSpellInfo(meleeSpell)), Unit2) == 1 then
+                if br._G.C_Spell.IsSpellInRange(select(1, br._G.GetSpellInfo(meleeSpell)), Unit2) == 1 then
                     return 0
                 end
             end
@@ -125,7 +125,7 @@ function br.getDistanceCalc(Unit1, Unit2, option)
         -- Rogue Melee Range Increase Mod
         if br.player ~= nil then
             if br.player.talent.acrobaticStrikes ~= nil and meleeSpell ~= nil then
-                if br.player.talent.acrobaticStrikes and option ~= "noMod" and br._G.IsSpellInRange(select(1, br._G.GetSpellInfo(meleeSpell)), Unit2) == 1 then
+                if br.player.talent.acrobaticStrikes and option ~= "noMod" and br._G.C_Spell.IsSpellInRange(select(1, br._G.GetSpellInfo(meleeSpell)), Unit2) == 1 then
                     rangeMod = 3
                 end
             end
@@ -167,7 +167,7 @@ function br.getDistanceCalc(Unit1, Unit2, option)
 end
 
 function br.isInRange(spellID, unit)
-    return br._G.LibStub("SpellRange-1.0").IsSpellInRange(spellID, unit)
+    return br._G.LibStub("SpellRange-1.0").C_Spell.IsSpellInRange(spellID, unit)
 end
 
 function br.getDistanceToLocation(Unit1, X2, Y2, Z2)
@@ -272,9 +272,9 @@ end
 function br.inRange(spellID, unit)
     local spellName = br._G.GetSpellInfo(spellID)
     if unit == nil then unit = "target" end
-    local inRange = br._G.IsSpellInRange(spellName, unit)
+    local inRange = br._G.C_Spell.IsSpellInRange(spellName, unit)
     if inRange ~= nil then
-        return br._G.IsSpellInRange(spellName, unit) == 1
+        return br._G.C_Spell.IsSpellInRange(spellName, unit) == 1
     else
         return false
     end

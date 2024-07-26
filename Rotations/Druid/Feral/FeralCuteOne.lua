@@ -298,8 +298,7 @@ local function canDoT(thisUnit)
 end
 -- Ferocious Bite Finish
 local function ferociousBiteFinish(thisUnit)
-    local GetSpellDescription = br._G["GetSpellDescription"]
-    local desc = GetSpellDescription(spell.ferociousBite.id())
+    local desc = br._G.C_Spell.GetSpellDescription(spell.ferociousBite.id())
     local damage = 0
     local finishHim = false
     if ui.value("Ferocious Bite Execute") ~= 3 and comboPoints() > 0 and not unit.isDummy(thisUnit) then
@@ -1514,6 +1513,13 @@ end -- End Action List - Builder
 -- Action List - Cooldown
 actionList.Cooldown = function()
     if unit.distance(units.dyn5) < 5 then
+        -- Remix - Locus of Power
+        if ui.useCDs() and cast.able.id(443389, "target") and not unit.moving("target") then
+            if cast.id(443389, "target") then
+                ui.debug("Casting Locus of Power [Cds]")
+                return true
+            end
+        end
         -- Use Item - Djaruun, Pillar of the Elder Flame
         if use.able.djaruunPillarOfTheElderFlame() and ui.useCDs() then
             if use.djaruunPillarOfTheElderFlame() then

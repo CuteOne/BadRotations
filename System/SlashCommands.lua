@@ -8,7 +8,8 @@ function br._G.print(msg)
 	local color = br.classColor or ""
 	print(color .. "[BadRotations] |cffFFFFFF" .. msg)
 end
-br.commandHelp = {"|cffFF0000Slash Commands"}
+
+br.commandHelp = { "|cffFF0000Slash Commands" }
 function br.SlashCommandHelp(cmd, msg)
 	if cmd == nil then
 		cmd = ""
@@ -97,7 +98,7 @@ local function toggleRange(name, index1, index2)
 			end
 		end
 	end
-	br._G.print("No toggle found with name: "..tostring(name))
+	br._G.print("No toggle found with name: " .. tostring(name))
 end
 
 local function getStringIndex(string, index)
@@ -117,11 +118,12 @@ local function updateRate()
 end
 
 local function forewardDisengage() -- from Stinky Twitch
-	local s = br._G.GetSpellCooldown(781)
+	local s = br._G.C_Spell.GetSpellCooldown(781)
 	if s == 0 then
 		br._G.FaceDirection(br._G.mod(br._G.ObjectFacing("player") + math.pi, math.pi * 2), true)
 		br._G.CastSpellByID(781)
-		br.C_Timer.After(0.05, function() br._G.FaceDirection(br._G.mod(br._G.ObjectFacing("player") + math.pi, math.pi * 2), true) end )
+		br.C_Timer.After(0.05,
+			function() br._G.FaceDirection(br._G.mod(br._G.ObjectFacing("player") + math.pi, math.pi * 2), true) end)
 	end
 end
 
@@ -169,7 +171,8 @@ function br.handler(message, editbox)
 		br.SlashCommandHelp("Print Help")
 	elseif msg1 == "cooldowns" then
 		if not br.player then return false end
-		if br.player.ui.mode.cooldown == 2 then br._G.RunMacroText("/br toggle Cooldown 3") else br._G.RunMacroText("/br toggle Cooldown 2") end
+		if br.player.ui.mode.cooldown == 2 then br._G.RunMacroText("/br toggle Cooldown 3") else br._G.RunMacroText(
+			"/br toggle Cooldown 2") end
 	elseif msg1 == "blacklist" then
 		-- Blacklist
 		if msg2 == "dump" then
@@ -200,23 +203,25 @@ function br.handler(message, editbox)
 						br._G.tremove(br.data.blackList, k)
 						br._G.print("|cffFFDD11" .. mouseoverName .. "|cffFF0000 Removed from Blacklist")
 						found = true
-					--blackList[k] = nil
+						--blackList[k] = nil
 					end
 				end
 				if not found then
 					br._G.print("|cffFFDD11" .. mouseoverName .. "|cffFF0000 Added to Blacklist")
-					br._G.tinsert(br.data.blackList, {guid = mouseoverGUID, name = mouseoverName})
+					br._G.tinsert(br.data.blackList, { guid = mouseoverGUID, name = mouseoverName })
 				end
 			end
 		else
-			br._G.print("Invalid Option for: |cFFFF0000" .. msg1 .. "|r try |cffFFDD11 /br help |r for available options.")
+			br._G.print("Invalid Option for: |cFFFF0000" ..
+			msg1 .. "|r try |cffFFDD11 /br help |r for available options.")
 		end
 	elseif msg1 == "pause" then
 		-- Pause
 		--[[if msg2 == "hold" then
 			br.ChatOverlay("Profile Paused")
 			return true
-		else]] if msg2 == "toggle" then
+		else]]
+		if msg2 == "toggle" then
 			if br.data.settings[br.selectedSpec].toggles["Pause"] == 0 then
 				br.ChatOverlay("\124cFFED0000 -- Paused -- ")
 				br._G.print("|cFFFF0000Paused")
@@ -229,9 +234,9 @@ function br.handler(message, editbox)
 		else
 			br._G.print(
 				"Invalid Option for: |cFFFF0000" ..
-					msg1 ..
-						"|r try " --[["|cffFFDD11 /br pause hold |r - Pauses while held (via macro) or ]] ..
-							"|cffFFDD11 /br pause toggle |r - Switches Pause On/Off"
+				msg1 ..
+				"|r try " --[["|cffFFDD11 /br pause hold |r - Pauses while held (via macro) or ]] ..
+				"|cffFFDD11 /br pause toggle |r - Switches Pause On/Off"
 			)
 		end
 	elseif msg1 == "toggle" then
@@ -266,13 +271,13 @@ function br.handler(message, editbox)
 			elseif msg3 == "help" then
 				br._G.print(
 					"Queue Add Conditions\n" ..
-						"Example: /br queue add 123456 player aoe 3 8\n\n" ..
-							"123456 = Spell ID, this is required for queue.\n" ..
-								"player = Target (optional), where to cast spell using standard macro targets or (nil, best, playerGround, targetGround, pettarget)\n" ..
-									"aoe    = Cast Type (optional), if the spell you are queuing has special cast type, (nil, aoe, cone, rect, ground, dead)\n" ..
-										"3 	   = Minimal Units to cast on (optional), specify the minimal number of units required to cast the spell or nil for none.\n" ..
-											"8      = Spells effect range (optional), specify the damage effect range of the spell or nil for none.\n\n" ..
-												'This will cast spell 123456 on "player" as an AOE once there are at least 3 units within 8 yards of the player.\n'
+					"Example: /br queue add 123456 player aoe 3 8\n\n" ..
+					"123456 = Spell ID, this is required for queue.\n" ..
+					"player = Target (optional), where to cast spell using standard macro targets or (nil, best, playerGround, targetGround, pettarget)\n" ..
+					"aoe    = Cast Type (optional), if the spell you are queuing has special cast type, (nil, aoe, cone, rect, ground, dead)\n" ..
+					"3 	   = Minimal Units to cast on (optional), specify the minimal number of units required to cast the spell or nil for none.\n" ..
+					"8      = Spells effect range (optional), specify the damage effect range of the spell or nil for none.\n\n" ..
+					'This will cast spell 123456 on "player" as an AOE once there are at least 3 units within 8 yards of the player.\n'
 				)
 			else
 				local spellName, _, _, _, _, _, spellId = br._G.GetSpellInfo(msg3)
@@ -361,8 +366,8 @@ function br.handler(message, editbox)
 		elseif msg2 == nil then
 			br._G.print(
 				"Invalid Option for: |cFFFF0000" ..
-					msg1 ..
-						"|r try |cffFFDD11 /br queue clear |r - Clears the Queue list or |cffFFDD11 /br queue add (spell)|r - Adds specified spell to Queue list or |cffFFDD11 /br queue remove (spell) |r - Removes specifid from Queue list."
+				msg1 ..
+				"|r try |cffFFDD11 /br queue clear |r - Clears the Queue list or |cffFFDD11 /br queue add (spell)|r - Adds specified spell to Queue list or |cffFFDD11 /br queue remove (spell) |r - Removes specifid from Queue list."
 			)
 		end
 	elseif msg == "updaterate" then
@@ -428,7 +433,8 @@ function br.handler(message, editbox)
 		elseif msg2 == "togglebar" then
 			-- Show/Hide Toggle Bar
 			if br._G.UnitAffectingCombat("player") then
-				br._G.print("Combat Lockdown detected. Unable to modify button bar. Please try again when out of combat.")
+				br._G.print(
+				"Combat Lockdown detected. Unable to modify button bar. Please try again when out of combat.")
 			else
 				if br.data.settings[br.selectedSpec].toggles["Main"] == 1 then
 					br.data.settings[br.selectedSpec].toggles["Main"] = 0
@@ -450,9 +456,10 @@ function br.handler(message, editbox)
 			-- Show UI Options
 			br._G.print(
 				"Please provide one of the following options with showUI\n" ..
-					"|cFFFF0000 main |r - Shows/Hides main bot options\n" ..
-						"|cFFFF0000 profile |r - Shows/Hides profile options\n" ..
-							"|cFFFF0000 togglebar |r - Shows/Hides toggle bar\n" .. "|cFFFF0000 icon |r - Shows/Hides minimap button\n"
+				"|cFFFF0000 main |r - Shows/Hides main bot options\n" ..
+				"|cFFFF0000 profile |r - Shows/Hides profile options\n" ..
+				"|cFFFF0000 togglebar |r - Shows/Hides toggle bar\n" ..
+				"|cFFFF0000 icon |r - Shows/Hides minimap button\n"
 			)
 		end
 	elseif msg1 == "update" then
@@ -461,6 +468,7 @@ function br.handler(message, editbox)
 		br._G.print("Invalid Command: |cFFFF0000" .. msg .. "|r try |cffFFDD11 /br help")
 	end
 end
+
 br._G.SlashCmdList["BR"] = br.handler
 
 -- macro used to gather caster/spell/buff on our actual target

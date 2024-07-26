@@ -3,7 +3,7 @@ br.rotations.support["PetCuteOne"] = function()
     local function getCurrentPetMode()
         local petMode = "None"
         for i = 1, NUM_PET_ACTION_SLOTS do
-            local name, _, _,isActive = GetPetActionInfo(i)
+            local name, _, _, isActive = GetPetActionInfo(i)
             if isActive then
                 if name == "PET_MODE_ASSIST" then petMode = "Assist" end
                 if name == "PET_MODE_DEFENSIVE" then petMode = "Defensive" end
@@ -17,31 +17,31 @@ br.rotations.support["PetCuteOne"] = function()
     --- Define Locals ---
     ---------------------
     -- BR API Locals
-    local buff                                          = br.player.buff
-    local cast                                          = br.player.cast
-    local enemies                                       = br.player.enemies
-    local inCombat                                      = br.player.inCombat
-    local mode                                          = br.player.ui.mode
-    local spell                                         = br.player.spell
-    local units                                         = br.player.units
+    local buff        = br.player.buff
+    local cast        = br.player.cast
+    local enemies     = br.player.enemies
+    local inCombat    = br.player.inCombat
+    local mode        = br.player.ui.mode
+    local spell       = br.player.spell
+    local units       = br.player.units
     -- General Locals
-    local profileStop                                   = false
-    local haltProfile                                   = (inCombat and profileStop) or (IsMounted() or IsFlying()) or br.pause(true) or mode.rotation==4
+    local profileStop = false
+    local haltProfile = (inCombat and profileStop) or (IsMounted() or IsFlying()) or br.pause(true) or mode.rotation == 4
     -- Units
     units.get(5)
     units.get(40)
     -- Enemies
     enemies.get(5)
-    enemies.get(5,"pet")
-    enemies.get(8,"target")
-    enemies.get(8,"pet")
-    enemies.get(20,"pet")
+    enemies.get(5, "pet")
+    enemies.get(8, "target")
+    enemies.get(8, "pet")
+    enemies.get(20, "pet")
     enemies.get(30)
-    enemies.get(30,"pet")
+    enemies.get(30, "pet")
     enemies.get(40)
-    enemies.get(40,"player",true)
-    enemies.get(40,"player",false,true)
-    enemies.yards40r = br.getEnemiesInRect(10,40,false) or 0
+    enemies.get(40, "player", true)
+    enemies.get(40, "player", false, true)
+    enemies.yards40r = br.getEnemiesInRect(10, 40, false) or 0
 
     local petTarget
     if petTarget == nil or not UnitExists(petTarget) or not br.isValidUnit(petTarget) then
@@ -50,9 +50,12 @@ br.rotations.support["PetCuteOne"] = function()
         elseif br.getOptionValue("Pet Target") == 2 and br.isValidUnit("target") then
             petTarget = "target"
         elseif br.getOptionValue("Pet Target") == 3 then
-            for i=1, #enemies.yards40 do
+            for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
-                if (br.isValidUnit(thisUnit) or br.isDummy()) then petTarget = thisUnit break end
+                if (br.isValidUnit(thisUnit) or br.isDummy()) then
+                    petTarget = thisUnit
+                    break
+                end
             end
         end
     end
@@ -60,11 +63,12 @@ br.rotations.support["PetCuteOne"] = function()
     local friendUnit = br.friend[1].unit
     local petActive = IsPetActive()
     local petCombat = br._G.UnitAffectingCombat("pet")
-    local petDistance = br.getDistance(petTarget,"pet") or 99
+    local petDistance = br.getDistance(petTarget, "pet") or 99
     local petExists = br._G.UnitExists("pet")
     local petHealth = br.getHP("pet")
     local petMode = getCurrentPetMode()
-    local validTarget = br._G.UnitExists(petTarget) and (br.isValidUnit(petTarget) or br.isDummy()) --or (not UnitExists("pettarget") and br.isValidUnit("target")) or br.isDummy()
+    local validTarget = br._G.UnitExists(petTarget) and
+        (br.isValidUnit(petTarget) or br.isDummy()) --or (not UnitExists("pettarget") and br.isValidUnit("target")) or br.isDummy()
 
     -- if IsMounted() or IsFlying() or UnitHasVehicleUI("player") or CanExitVehicle("player") then
     --     waitForPetToAppear = GetTime()
@@ -164,8 +168,8 @@ br.rotations.support["PetCuteOne"] = function()
     -- end
     -- -- Growl
     -- if br.isChecked("Auto Growl") and inCombat then
-    --     local _, autoCastEnabled = GetSpellAutocast(spell.growl)
-    --     if autoCastEnabled then DisableSpellAutocast(spell.growl) end
+    --     local _, autoCastEnabled = C_Spell.GetSpellAutoCast(spell.growl)
+    --     if autoCastEnabled then C_Spell.SetSpellAutoCastEnabled(spell.growl) end
     --     if not isTankInRange() and not buff.prowl.exists("pet") then
     --         if br.getOptionValue("Misdirection") == 3 and cast.able.misdirection("pet") and #enemies.yards8p > 1 then
     --             if cast.misdirection("pet") then return end

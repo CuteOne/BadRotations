@@ -114,8 +114,7 @@ local actionList = {}
 -----------------
 -- Eviscerate Finish
 local function eviscerateFinish(thisUnit)
-    local GetSpellDescription = br._G["GetSpellDescription"]
-    local desc = GetSpellDescription(spell.eviscerate)
+    local desc = br._G.C_Spell.GetSpellDescription(spell.eviscerate)
     local damage = 0
     finishHim = false
     if ui.value("Eviscerate Execute") ~= 3 and combo() > 0 and not unit.isDummy(thisUnit) then

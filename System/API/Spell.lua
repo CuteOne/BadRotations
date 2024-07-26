@@ -73,6 +73,6 @@ br.api.spell = function(self, k, v)
     -- @function spell.k.texture
     -- @return number
     spell[k].texture = function()
-        return br._G.GetSpellTexture(v)
+        return br._G.C_Spell.GetSpellTexture(v)
     end
 end

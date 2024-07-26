@@ -166,7 +166,8 @@ function br.read.commonReaders()
 		end
 		if param == "PETTAME_CANTCONTROLEXOTIC" .. "." then
 			if br.data.settings[br.selectedSpec]["Box PetManager"] < 5 then
-				br.data.settings[br.selectedSpec]["Box PetManager"] = br.data.settings[br.selectedSpec]["Box PetManager"] + 1
+				br.data.settings[br.selectedSpec]["Box PetManager"] = br.data.settings[br.selectedSpec]
+				["Box PetManager"] + 1
 			else
 				br.data.settings[br.selectedSpec]["Box PetManager"] = 1
 			end
@@ -198,7 +199,7 @@ function br.read.commonReaders()
 	------------------------
 	--[[ Spells Changed --]]
 	Frame = br._G.CreateFrame("Frame")
-	Frame:RegisterEvent("LEARNED_SPELL_IN_TAB")
+	Frame:RegisterEvent("LEARNED_SPELL_IN_SKILL_LINE")
 	local function SpellsChanged(_, _, _)
 		if not br.configReloadTimer or br.configReloadTimer <= br._G.GetTime() - 1 then
 			br.currentConfig, br.configReloadTimer = nil, br._G.GetTime()
@@ -289,7 +290,7 @@ function br.read.commonReaders()
 					elseif
 						not ((br.isChecked("Attack MC Targets") and (not br.GetUnitIsFriend(unit, "player") or (br._G.UnitIsCharmed(unit) and br._G.UnitCanAttack("player", unit)))) or
 							not br.GetUnitIsFriend(unit, "player"))
-					 then
+					then
 						self:AddLine("MC Check Fail", 1, 0, 0)
 					elseif br.getOptionCheck("Don't break CCs") and br.isLongTimeCCed(unit) then
 						self:AddLine("CC Check Fail", 1, 0, 0)
@@ -461,7 +462,8 @@ function br.read.commonReaders()
 									br._G.SpellStopTargeting()
 								end
 								if not br.isChecked("Mute Queue") then
-									br._G.print("Cast Success! - Removed |cFFFF0000" .. br._G.GetSpellInfo(SpellID) .. "|r from the queue.")
+									br._G.print("Cast Success! - Removed |cFFFF0000" ..
+									br._G.GetSpellInfo(SpellID) .. "|r from the queue.")
 								end
 								break
 							end
@@ -504,7 +506,7 @@ function br.read.commonReaders()
 			if SourceUnit == "player" and br.isKnown(SpellID) then
 				-- Kill Command
 				if SpellID == 34026 then
-				---Print("Kill Command FAILED")
+					---Print("Kill Command FAILED")
 				end
 				-- Whistle failed
 				if SpellID == 883 or SpellID == 83242 or SpellID == 83243 or SpellID == 83244 or SpellID == 83245 then
@@ -536,7 +538,7 @@ function br.read.commonReaders()
 			local SourceUnit = select(1, ...)
 			-- local SpellID = select(3, ...)
 			if SourceUnit == "player" then
-			--Print("Channel Update")
+				--Print("Channel Update")
 			end
 		end
 		if event == "UNIT_SPELLCAST_EMPOWER_START" then
@@ -559,7 +561,7 @@ function br.read.commonReaders()
 			local SourceUnit = select(1, ...)
 			-- local SpellID = select(3, ...)
 			if SourceUnit == "player" then
-			--Print("Channel Update")
+				--Print("Channel Update")
 			end
 		end
 		if event == "UI_ERROR_MESSAGE" then
@@ -580,10 +582,10 @@ function br.read.commonReaders()
 			end
 			if not br.GetUnitIsDeadOrGhost("player") and (br.GetUnitIsDeadOrGhost("pet") or not br.GetUnitExists("pet")) and (errorMsg == 51 or errorMsg == 203) then --or errorMsg == 277 or errorMsg == 275 then
 				br.deadPet = true
-			-- if deadPet == false then
-			-- elseif deadPet == true and br._G.UnitHealth("pet") > 0 then
-			-- 	deadPet = false
-			-- end
+				-- if deadPet == false then
+				-- elseif deadPet == true and br._G.UnitHealth("pet") > 0 then
+				-- 	deadPet = false
+				-- end
 			end
 		end
 		if event == "ENCOUNTER_START" then

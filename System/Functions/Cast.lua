@@ -4,7 +4,7 @@ function br.canCast(SpellID, KnownSkip, MovementCheck, thisUnit)
 	if thisUnit == nil then thisUnit = "target" end
 	local myCooldown = br.getSpellCD(SpellID) or 0
 	-- local lagTolerance = br.getValue("Lag Tolerance") or 0
-	if (KnownSkip == true or br.isKnown(SpellID)) and (br._G.UnitIsUnit(thisUnit, "target") and br._G.IsUsableSpell(SpellID) or true) and myCooldown < 0.1
+	if (KnownSkip == true or br.isKnown(SpellID)) and (br._G.UnitIsUnit(thisUnit, "target") and br._G.C_Spell.IsSpellUsable(SpellID) or true) and myCooldown < 0.1
 		and (MovementCheck == false or myCooldown == 0 or br.isMoving("player") ~= true or br.UnitBuffID("player", 79206) ~= nil) then
 		return true
 	end
@@ -268,7 +268,7 @@ function br.castSpell(Unit, SpellID, FacingCheck, MovementCheck, SpamAllowed, Kn
 		-- we create an usableSkip for some specific spells like hammer of wrath aoe mode
 		if usableSkip == nil then usableSkip = false end
 		-- stop if not enough power for that spell
-		if usableSkip ~= true and br._G.IsUsableSpell(SpellID) ~= true then return false end
+		if usableSkip ~= true and br._G.C_Spell.IsSpellUsable(SpellID) ~= true then return false end
 		-- Table used to prevent refiring too quick
 		if br.timersTable == nil then br.timersTable = {} end
 		-- default noCast to false
@@ -373,7 +373,7 @@ function br.castSpellMacro(Unit, SpellID, FacingCheck, MovementCheck, SpamAllowe
 		-- we create an usableSkip for some specific spells like hammer of wrath aoe mode
 		if usableSkip == nil then usableSkip = false end
 		-- stop if not enough power for that spell
-		if usableSkip ~= true and br._G.IsUsableSpell(SpellID) ~= true then return false end
+		if usableSkip ~= true and br._G.C_Spell.IsSpellUsable(SpellID) ~= true then return false end
 		-- Table used to prevent refiring too quick
 		if br.timersTable == nil then br.timersTable = {} end
 		-- default noCast to false
@@ -541,7 +541,7 @@ function br.isCastingTime(lagTolerance)
 		if select(5, br._G.UnitChannelInfo("player")) - br._G.GetTime() <= lagTolerance then
 			return true
 		end
-	elseif (br._G.GetSpellCooldown(br._G.GetSpellInfo(61304)) ~= nil and br._G.GetSpellCooldown(br._G.GetSpellInfo(61304)) <= lagTolerance) then
+	elseif (br._G.C_Spell.GetSpellCooldown(br._G.GetSpellInfo(61304)) ~= nil and br._G.C_Spell.GetSpellCooldown(br._G.GetSpellInfo(61304)) <= lagTolerance) then
 		return true
 	else
 		return false
@@ -578,7 +578,7 @@ function br.castingUnit(Unit)
 	if Unit == nil then Unit = "player" end
 	if br._G.UnitCastingInfo(Unit) ~= nil
 		or br._G.UnitChannelInfo(Unit) ~= nil
-		or (br._G.GetSpellCooldown(61304) ~= nil and br._G.GetSpellCooldown(61304) > 0.001) then
+		or (br._G.C_Spell.GetSpellCooldown(61304) ~= nil and br._G.C_Spell.GetSpellCooldown(61304) > 0.001) then
 		return true
 	else
 		return false
@@ -643,7 +643,7 @@ function br.createCastFunction(thisUnit, castType, minUnits, effectRng, spellID,
 	if br.getOptionCheck("Quaking Helper") then
 		--Detect channels
 		local channeledSpell = false
-		local costTable = br._G.GetSpellPowerCost(spellID)
+		local costTable = br._G.C_Spell.GetSpellPowerCost(spellID)
 		for _, costInfo in pairs(costTable) do
 			if costInfo.costPerSec > 0 then
 				channeledSpell = true
@@ -749,15 +749,15 @@ function br.createCastFunction(thisUnit, castType, minUnits, effectRng, spellID,
 		and (br._G.GetTime() - br.lastCastTable.castTime[spellID] > br.getGlobalCD(true) + (select(3, br._G.GetNetStats()) / 100)) --br.getGlobalCD(true))                                    -- Double Casting Check
 		and ((thisUnit ~= nil and not br._G.UnitIsUnit(thisUnit, "player") and not br._G.UnitIsFriend(thisUnit, "player")
 				and (br.getCastTime(spellID) <= br.getGlobalCD(true) or br.getCastTime(spellID) < br.getTTD(thisUnit)))
-			or thisUnit == nil or br._G.UnitIsUnit(thisUnit, "player") or br._G.UnitIsFriend(thisUnit, "player"))                                            -- Dies Soon Check
-		and ((thisUnit ~= nil and br._G.UnitIsUnit(thisUnit, "target") and br._G.IsUsableSpell(spellID)) or true) and not select(2, br._G.IsUsableSpell(spellID)) -- Usability Checks
+			or thisUnit == nil or br._G.UnitIsUnit(thisUnit, "player") or br._G.UnitIsFriend(thisUnit, "player"))                                                           -- Dies Soon Check
+		and ((thisUnit ~= nil and br._G.UnitIsUnit(thisUnit, "target") and br._G.C_Spell.IsSpellUsable(spellID)) or true) and not select(2, br._G.C_Spell.IsSpellUsable(spellID)) -- Usability Checks
 		and (castTimers[spellID] < br._G.GetTime()) and br.getSpellCD(spellID) <= br:getUpdateRate()
 		and (br.getSpellCD(61304) <= 0 or select(2, br._G.GetSpellBaseCooldown(spellID)) <= 0
-			or (br.getCastTime(spellID) > 0 and br.getCastTimeRemain("player") <= br:getUpdateRate()))                                                            -- Cooldown Checks
-		and (br.isKnown(spellID) or castType == "known" or spellID == br.player.spells.condemn or spellID == br.player.spells.condemnMassacre)                    -- Known/Current Checks
+			or (br.getCastTime(spellID) > 0 and br.getCastTimeRemain("player") <= br:getUpdateRate()))                                                                           -- Cooldown Checks
+		and (br.isKnown(spellID) or castType == "known" or spellID == br.player.spells.condemn or spellID == br.player.spells.condemnMassacre)                                   -- Known/Current Checks
 		and hasTalent(spellID) and hasEssence() and not br.isIncapacitated(spellID) and queensCourtCastCheck(spellID)
-		and (not (br._G.IsAutoRepeatSpell(br._G.GetSpellInfo(spellID)) or (spellID == 6603 and br._G.IsCurrentSpell(spellID)))) --[[and not br.hasNoControl(spellID)]] -- Talent/Essence/Incapacitated/Special Checks
-		and (thisUnit == nil or castType ~= "dead" or (thisUnit ~= nil and castType == "dead" and br._G.UnitIsDeadOrGhost(thisUnit)))                             -- Dead Check
+		and (not (br._G.C_Spell.IsAutoRepeatSpell(br._G.GetSpellInfo(spellID)) or (spellID == 6603 and br._G.C_Spell.IsCurrentSpell(spellID)))) --[[and not br.hasNoControl(spellID)]] -- Talent/Essence/Incapacitated/Special Checks
+		and (thisUnit == nil or castType ~= "dead" or (thisUnit ~= nil and castType == "dead" and br._G.UnitIsDeadOrGhost(thisUnit)))                                            -- Dead Check
 		or spellID == br.empowerID
 	then
 		if castType == "known" then castType = "norm" end
@@ -815,7 +815,7 @@ function br.createCastFunction(thisUnit, castType, minUnits, effectRng, spellID,
 						.. ", Min Range: " .. minRange
 						.. ", Max Range: " .. maxRange
 						.. ", Distance: " .. br.getDistance(thisUnit)
-						.. ", SpellRange: " .. tostring(br._G.IsSpellInRange(spellName, thisUnit) == 1)
+						.. ", SpellRange: " .. tostring(br._G.C_Spell.IsSpellInRange(spellName, thisUnit) == 1)
 						.. ", thisUnit: " .. tostring(thisUnit)
 					)
 				end
@@ -844,7 +844,7 @@ function br.createCastFunction(thisUnit, castType, minUnits, effectRng, spellID,
 			local targetUnit
 			targetUnit = thisUnit == "playerGround" and "player" or "target"
 			if castType == "groundCC" then targetUnit = thisUnit end
-			if (br.getDistance(targetUnit) < maxRange or br._G.IsSpellInRange(spellName, targetUnit) == 1) then
+			if (br.getDistance(targetUnit) < maxRange or br._G.C_Spell.IsSpellInRange(spellName, targetUnit) == 1) then
 				if debug then return true end
 				return br.castGroundAtUnit(spellCast, effectRng, minUnits, maxRange, minRange, castType, targetUnit)
 			end
@@ -865,10 +865,10 @@ function br.createCastFunction(thisUnit, castType, minUnits, effectRng, spellID,
 			-- Range Check
 			local inRange = function(minRange, maxRange)
 				local distance = castType == "pet" and br.getDistance(thisUnit, "pet") or br.getDistance(thisUnit)
-				return br._G.IsSpellInRange(spellName, thisUnit) == 1 or
+				return br._G.C_Spell.IsSpellInRange(spellName, thisUnit) == 1 or
 					(distance >= minRange and distance < maxRange - 1)
 			end
-			if --[[br._G.IsSpellInRange(spellName,thisUnit) == 1 or]] inRange(minRange, maxRange) then
+			if --[[br._G.C_Spell.IsSpellInRange(spellName,thisUnit) == 1 or]] inRange(minRange, maxRange) then
 				-- Dead Friend
 				if castType == "dead" then
 					if br._G.UnitIsPlayer(thisUnit) and br.GetUnitIsDeadOrGhost(thisUnit) and br.GetUnitIsFriend(thisUnit, "player") then
@@ -905,7 +905,7 @@ function br.createCastFunction(thisUnit, castType, minUnits, effectRng, spellID,
 				then
 					-- Failsafe, incase we were unable to retrieve enemies counts
 					local enemyFacingCount = enemies or #br.getEnemies("player", maxRange, false, true) or 0
-					if (minUnits == 1 --[[and br._G.IsSpellInRange(spellName, thisUnit) == 1]]) or (enemyFacingCount >= minUnits) or spellType == "Helpful" or spellType == "Unknown" then
+					if (minUnits == 1 --[[and br._G.C_Spell.IsSpellInRange(spellName, thisUnit) == 1]]) or (enemyFacingCount >= minUnits) or spellType == "Helpful" or spellType == "Unknown" then
 						return castingSpell(thisUnit, spellID, spellName, icon, castType, printReport, debug)
 					else
 						return printReport(false, "Below Min Units Facing", enemyFacingCount)

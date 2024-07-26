@@ -7,6 +7,7 @@ function br.itemCharges(itemID)
 	end
 	return charges
 end
+
 -- if br.canUseItem(1710) then
 function br.canUseItem(itemID)
 	if itemID == 0 or br.getHP("player") == 0 then
@@ -14,7 +15,7 @@ function br.canUseItem(itemID)
 	end
 	if itemID <= 19 then
 		local slotItemID = br._G.GetInventoryItemID("player", itemID)
-		if slotItemID == nil or slotItemID==0 then
+		if slotItemID == nil or slotItemID == 0 then
 			return false
 		end
 		if br._G.GetItemSpell(slotItemID) ~= nil then
@@ -25,32 +26,34 @@ function br.canUseItem(itemID)
 	elseif (br._G.GetItemCount(itemID, false, false) > 0 or br._G.PlayerHasToy(itemID)) and
 		((br._G.IsEquippableItem(itemID) and br._G.IsEquippedItem(itemID)) or (not br._G.IsEquippableItem(itemID) and br.hasItem(itemID)))
 	then
-		if itemID > 19 and br._G.GetItemCooldown(itemID) == 0 and (br._G.IsUsableItem(itemID) or br._G.IsUsableSpell(select(2,br._G.GetItemSpell(itemID)))) then
+		if itemID > 19 and br._G.GetItemCooldown(itemID) == 0 and (br._G.IsUsableItem(itemID) or br._G.C_Spell.IsSpellUsable(select(2, br._G.GetItemSpell(itemID)))) then
 			return true
-			end
 		end
+	end
 	return false
 end
+
 -- if canTrinket(13) then
 function br.canTrinket(trinketSlot)
 	if trinketSlot == 13 or trinketSlot == 14 then
-		if trinketSlot == 13 and select(3,br._G.GetInventoryItemCooldown("player",13)) == 1 and br._G.GetInventoryItemCooldown("player", 13) <= br.player.gcdMax then
+		if trinketSlot == 13 and select(3, br._G.GetInventoryItemCooldown("player", 13)) == 1 and br._G.GetInventoryItemCooldown("player", 13) <= br.player.gcdMax then
 			return true
 		end
-		if trinketSlot == 14 and select(3,br._G.GetInventoryItemCooldown("player",14)) == 1 and br._G.GetInventoryItemCooldown("player", 14) <= br.player.gcdMax then
+		if trinketSlot == 14 and select(3, br._G.GetInventoryItemCooldown("player", 14)) == 1 and br._G.GetInventoryItemCooldown("player", 14) <= br.player.gcdMax then
 			return true
 		end
 	else
 		return false
 	end
 end
+
 -- if br.hasItem(1234) == true then
 function br.hasItem(itemID)
 	if br._G.PlayerHasToy(itemID) then
 		return true
 	end
 	local itemFound = false
-	for i = 0, 4 do --Let's look at each bag
+	for i = 0, 4 do          --Let's look at each bag
 		local numBagSlots = C_Container.GetContainerNumSlots(i)
 		if numBagSlots > 0 then -- Only look for slots if bag present
 			for x = 1, numBagSlots do --Let's look at each bag slot
@@ -63,8 +66,9 @@ function br.hasItem(itemID)
 	end
 	return itemFound
 end
+
 -- br.useItem(12345)
-function br.useItem(itemID,thisUnit)
+function br.useItem(itemID, thisUnit)
 	br.itemSpamDelay = br.itemSpamDelay or 0
 	if itemID <= 19 then
 		if br._G.GetItemSpell(br._G.GetInventoryItemID("player", itemID)) ~= nil then
@@ -90,6 +94,7 @@ function br.useItem(itemID,thisUnit)
 	end
 	return false
 end
+
 function br.useItemGround(Unit, itemID, maxDistance, minDistance, radius)
 	if radius == nil then
 		radius = maxDistance
@@ -100,7 +105,7 @@ function br.useItemGround(Unit, itemID, maxDistance, minDistance, radius)
 	if br.GetUnitExists(Unit) and br.getLineOfSight("player", Unit) and br.getDistance("player", Unit) < maxDistance and
 		br.getDistance("player", Unit) >= minDistance and
 		#br.getEnemies(Unit, radius) >= #br.getEnemies(Unit, radius, true)
-	 then
+	then
 		br.useItem(itemID)
 		local X, Y, Z = br.GetObjectPosition(Unit)
 		--local distanceToGround = getGroundDistance(Unit) or 0
@@ -109,6 +114,7 @@ function br.useItemGround(Unit, itemID, maxDistance, minDistance, radius)
 	end
 	return false
 end
+
 function br.hasHealthPot()
 	local locale = br._G.GetLocale()
 	if locale ~= "enUS" and locale ~= "enGB" then
@@ -126,6 +132,7 @@ function br.hasHealthPot()
 		return true
 	end
 end
+
 function br.getHealthPot()
 	local locale = br._G.GetLocale()
 	if locale ~= "enUS" and locale ~= "enGB" then
@@ -150,6 +157,7 @@ function br.getHealthPot()
 		return 0
 	end
 end
+
 -- if TierScan("T17")>=2 then
 function br.TierScan(thisTier)
 	local equippedItems = 0

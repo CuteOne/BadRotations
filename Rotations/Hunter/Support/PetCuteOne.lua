@@ -653,8 +653,8 @@ br.rotations.support["PetCuteOne"] = {
         end
         -- Auto Growl
         if ui.checked("Auto Growl") and unit.inCombat() and cast.timeSinceLast.growl() > unit.gcd(true) and not buff.playDead.exists("pet") then
-            local _, autoCastEnabled = br._G.GetSpellAutocast(spells.growl)
-            if autoCastEnabled then br._G.ToggleSpellAutocast(spells.growl) end
+            local _, autoCastEnabled = br._G.C_Spell.GetSpellAutoCast(spells.growl)
+            if autoCastEnabled then br._G.C_Spell.ToggleSpellAutoCast(spells.growl) end
             if not unit.isTankInRange() and not buff.prowl.exists("pet") then
                 if ui.value("Misdirection") == 3 and cast.able.misdirection("pet") and #enemies.yards8p > 1 then
                     if cast.misdirection("pet") then

@@ -7,7 +7,7 @@ local _, br = ...
 
 if br.api == nil then br.api = {} end
 
-br.api.cast = function(self,spell,id)
+br.api.cast = function(self, spell, id)
     if self.cast == nil then self.cast = {} end
     local cast = self.cast
     if cast.able == nil then cast.able = {} end
@@ -43,8 +43,8 @@ br.api.cast = function(self,spell,id)
     -- @bool predictPad Pads the prediction cast time. 'predict' must be true.
     -- @tab enemies A table of enemy units that the spell should be cast on.
     -- @treturn boolean
-    cast[spell] = function(thisUnit,castType,minUnits,effectRng,predict,predictPad,enemies)
-        return br.createCastFunction(thisUnit,castType,minUnits,effectRng,id,spell,predict,predictPad,enemies)
+    cast[spell] = function(thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)
+        return br.createCastFunction(thisUnit, castType, minUnits, effectRng, id, spell, predict, predictPad, enemies)
     end
 
     --- Cast a spell by its ID based on various parameters.
@@ -58,8 +58,9 @@ br.api.cast = function(self,spell,id)
     -- @bool predictPad Pads the prediction cast time. 'predict' must be true.
     -- @tab enemies A table of enemy units that the spell should be cast on.
     -- @treturn boolean
-    cast.id = function(spellID,thisUnit,castType,minUnits,effectRng,predict,predictPad,enemies)
-        return br.createCastFunction(thisUnit,castType,minUnits,effectRng,spellID,spell,predict,predictPad,enemies)
+    cast.id = function(spellID, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)
+        return br.createCastFunction(thisUnit, castType, minUnits, effectRng, spellID, spell, predict, predictPad,
+            enemies)
     end
 
 
@@ -74,8 +75,9 @@ br.api.cast = function(self,spell,id)
     -- @bool predictPad Pads the prediction cast time. 'predict' must be true.
     -- @tab enemies A table of enemy units that the spell should be cast on.
     -- @treturn boolean
-    cast.able[spell] = function(thisUnit,castType,minUnits,effectRng,predict,predictPad,enemies)
-        return br.createCastFunction(thisUnit,castType,minUnits,effectRng,id,spell,predict,predictPad,enemies,true)
+    cast.able[spell] = function(thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)
+        return br.createCastFunction(thisUnit, castType, minUnits, effectRng, id, spell, predict, predictPad, enemies,
+            true)
     end
 
     --- Checks if a spell can be cast by its ID based on various parameters.
@@ -89,8 +91,9 @@ br.api.cast = function(self,spell,id)
     -- @bool predictPad Pads the prediction cast time. 'predict' must be true.
     -- @tab enemies A table of enemy units that the spell should be cast on.
     -- @treturn boolean
-    cast.able.id = function(spellID,thisUnit,castType,minUnits,effectRng,predict,predictPad,enemies)
-        return br.createCastFunction(thisUnit,castType,minUnits,effectRng,spellID,spell,predict,predictPad,enemies,true)
+    cast.able.id = function(spellID, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)
+        return br.createCastFunction(thisUnit, castType, minUnits, effectRng, spellID, spell, predict, predictPad,
+            enemies, true)
     end
 
     --- Checks if the spell is the one currently being cast.
@@ -99,14 +102,14 @@ br.api.cast = function(self,spell,id)
     -- @treturn boolean
     cast.active[spell] = function(thisUnit)
         if thisUnit == nil then thisUnit = "player" end
-        return br.isCastingSpell(id,thisUnit)
+        return br.isCastingSpell(id, thisUnit)
     end
 
     --- Checks if the spell is set to auto-repeat or if it's the current spell being cast.
     -- @function cast.auto.spell
     -- @treturn boolean
     cast.auto[spell] = function()
-        return br._G.IsAutoRepeatSpell(br._G.GetSpellInfo(id)) or br._G.IsCurrentSpell(id)
+        return br._G.C_Spell.IsAutoRepeatSpell(br._G.GetSpellInfo(id)) or br._G.C_Spell.IsCurrentSpell(id)
     end
 
     --- Cancels the current spell being cast if it matches the specified spell.
@@ -128,9 +131,9 @@ br.api.cast = function(self,spell,id)
     cast.cost[spell] = function(altPower)
         if altPower == nil then altPower = false end
         if altPower then
-            return select(2,br.getSpellCost(id))
+            return select(2, br.getSpellCost(id))
         else
-            return select(1,br.getSpellCost(id))
+            return select(1, br.getSpellCost(id))
         end
     end
 
@@ -140,7 +143,7 @@ br.api.cast = function(self,spell,id)
     -- @treturn boolean
     cast.current[spell] = function(thisUnit)
         if thisUnit == nil then thisUnit = "player" end
-        return br.isCastingSpell(id,thisUnit)
+        return br.isCastingSpell(id, thisUnit)
     end
 
     --- Gets the spell id of the current (or previously) cast spell by the API.
@@ -156,7 +159,7 @@ br.api.cast = function(self,spell,id)
     -- @treturn boolean
     cast.dispel[spell] = function(thisUnit)
         if thisUnit == nil then thisUnit = "target" end
-        return br.canDispel(thisUnit,id) or false
+        return br.canDispel(thisUnit, id) or false
     end
 
     --- Gets current empowered rank of the spell or 0 if not empowered.
@@ -224,9 +227,9 @@ br.api.cast = function(self,spell,id)
     -- @string thisTracker The tracker for the opener.
     -- @number thisCount The count for the opener.
     -- @treturn boolean
-    cast.opener = function(thisSpell,thisTracker,thisCount)
+    cast.opener = function(thisSpell, thisTracker, thisCount)
         local castOpener = br._G["castOpener"]
-        return castOpener(thisSpell,thisTracker,thisCount)
+        return castOpener(thisSpell, thisTracker, thisCount)
     end
 
     --- Resets cast special opener condition if failed to cast.
@@ -235,9 +238,9 @@ br.api.cast = function(self,spell,id)
     -- @string thisTracker The tracker for the opener.
     -- @number thisCount The count for the opener.
     -- @treturn boolean
-    cast.openerFail = function(thisSpell,thisTracker,thisCount)
+    cast.openerFail = function(thisSpell, thisTracker, thisCount)
         local castOpenerFail = br.castOpenerFail
-        return castOpenerFail(thisSpell,thisTracker,thisCount)
+        return castOpenerFail(thisSpell, thisTracker, thisCount)
     end
 
     --- Checks if specified power requirements are not met.
@@ -277,8 +280,8 @@ br.api.cast = function(self,spell,id)
     -- @number minUnits Specify minimal number of units needed to be hit by AoE spell before it will use.
     -- @number effectRng Specify the AoE's effect range to determine units hit by it.
     -- @treturn boolean
-    cast.safe[spell] = function(thisUnit,aoeType,minUnits,effectRng)
-        return br.isSafeToAoE(id,thisUnit,effectRng,minUnits,aoeType)
+    cast.safe[spell] = function(thisUnit, aoeType, minUnits, effectRng)
+        return br.isSafeToAoE(id, thisUnit, effectRng, minUnits, aoeType)
     end
 
     --- Gets the cast time of player's spell. If the spell has no cast time, it returns the global cooldown.

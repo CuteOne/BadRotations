@@ -117,8 +117,7 @@ local movingTimer
 -----------------
 -- Ferocious Bite Finish
 local function ferociousBiteFinish(thisUnit)
-    local GetSpellDescription = br._G["GetSpellDescription"]
-    local desc = GetSpellDescription(spell.ferociousBite.id())
+    local desc = br._G.C_Spell.GetSpellDescription(spell.ferociousBite.id())
     local damage = 0
     local finishHim = false
     if thisUnit == nil then thisUnit = units.dyn5 end

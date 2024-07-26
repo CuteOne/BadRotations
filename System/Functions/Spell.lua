@@ -1,14 +1,14 @@
 local _, br = ...
-function br.castInterrupt(SpellID,Percent,Unit)
+function br.castInterrupt(SpellID, Percent, Unit)
 	Percent = br._G.Math.min(Percent + math.random(-6, 6), 99)
 	if Unit == nil then Unit = "target" end
 	if br.GetObjectExists(Unit) then
 		local _, _, _, castStartTime, castEndTime, _, _, castInterruptable = br._G.UnitCastingInfo(Unit)
 		local channelName, _, _, channelStartTime, channelEndTime, _, channelInterruptable = br._G.UnitChannelInfo(Unit)
 		-- first make sure we will be able to cast the spellID
-		if br.canCast(SpellID,false,false, Unit) == true then
+		if br.canCast(SpellID, false, false, Unit) == true then
 			-- make sure we cover melee range
-			local allowedDistance = select(6,br._G.GetSpellInfo(SpellID))
+			local allowedDistance = select(6, br._G.GetSpellInfo(SpellID))
 			if allowedDistance < 5 then
 				allowedDistance = 5
 			end
@@ -28,7 +28,7 @@ function br.castInterrupt(SpellID,Percent,Unit)
 				castInterruptable = false
 			end
 			--we can't attack the target.
-			if br._G.UnitCanAttack("player",Unit) == nil then
+			if br._G.UnitCanAttack("player", Unit) == nil then
 				return false
 			end
 			if castInterruptable then
@@ -43,8 +43,8 @@ function br.castInterrupt(SpellID,Percent,Unit)
 					return false
 				end
 				--cast the spell
-				if br.getDistance("player",Unit) < allowedDistance then
-					if br.castSpell(Unit,SpellID,false,false) then
+				if br.getDistance("player", Unit) < allowedDistance then
+					if br.castSpell(Unit, SpellID, false, false) then
 						return true
 					end
 				end
@@ -53,11 +53,12 @@ function br.castInterrupt(SpellID,Percent,Unit)
 	end
 	return false
 end
+
 -- br.canInterrupt("target",20)
-function br.canInterrupt(unit,percentint)
+function br.canInterrupt(unit, percentint)
 	unit = unit or "target"
 	-- M+ Affix: Beguiling (Prevents Interrupt) - Queen's Decree: Unstoppable buff
-	if br.UnitBuffID(unit,302417) ~= nil then return false end
+	if br.UnitBuffID(unit, 302417) ~= nil then return false end
 	local interruptTarget = br.getOptionValue("Interrupt Target")
 	if interruptTarget == 2 and not br.GetUnitIsUnit(unit, "target") then
 		return false
@@ -68,34 +69,34 @@ function br.canInterrupt(unit,percentint)
 	end
 	local castStartTime, castEndTime, interruptID, interruptable = 0, 0, 0, false
 	local castDuration, castTimeRemain, castPercent = 0, 0, 0
-	local channelDelay = 1 -- Delay to mimick human reaction time for channeled spells
+	local channelDelay = 1    -- Delay to mimick human reaction time for channeled spells
 	local castType = "spellcast" -- Handle difference in logic if the spell is cast or being channeles
 	local onWhitelist = false
 	if br.GetUnitExists(unit)
-		and br._G.UnitCanAttack("player",unit)
+		and br._G.UnitCanAttack("player", unit)
 		and not br._G.UnitIsDeadOrGhost(unit)
 	then
 		-- Get Cast/Channel Info
-		if select(5,br._G.UnitCastingInfo(unit)) and not select(8,br._G.UnitCastingInfo(unit)) then --Get spell cast time
-			castStartTime = select(4,br._G.UnitCastingInfo(unit))
-			castEndTime = select(5,br._G.UnitCastingInfo(unit))
-			interruptID = select(9,br._G.UnitCastingInfo(unit))
+		if select(5, br._G.UnitCastingInfo(unit)) and not select(8, br._G.UnitCastingInfo(unit)) then --Get spell cast time
+			castStartTime = select(4, br._G.UnitCastingInfo(unit))
+			castEndTime = select(5, br._G.UnitCastingInfo(unit))
+			interruptID = select(9, br._G.UnitCastingInfo(unit))
 			interruptable = true
 			castType = "spellcast"
-		elseif select(5,br._G.UnitChannelInfo(unit)) and not select(7,br._G.UnitChannelInfo(unit)) then -- Get spell channel time
-			castStartTime = select(4,br._G.UnitChannelInfo(unit))
-			castEndTime = select(5,br._G.UnitChannelInfo(unit))
-			interruptID = select(8,br._G.UnitChannelInfo(unit))
+		elseif select(5, br._G.UnitChannelInfo(unit)) and not select(7, br._G.UnitChannelInfo(unit)) then -- Get spell channel time
+			castStartTime = select(4, br._G.UnitChannelInfo(unit))
+			castEndTime = select(5, br._G.UnitChannelInfo(unit))
+			interruptID = select(8, br._G.UnitChannelInfo(unit))
 			interruptable = true
 			castType = "spellchannel"
 		end
 		-- Assign interrupt time
 		if castEndTime > 0 and castStartTime > 0 then
-			castDuration = (castEndTime - castStartTime)/1000
-			castTimeRemain = ((castEndTime/1000) - br._G.GetTime())
+			castDuration = (castEndTime - castStartTime) / 1000
+			castTimeRemain = ((castEndTime / 1000) - br._G.GetTime())
 			if percentint == nil and castPercent == 0 then
 				if castType == "spellcast" then
-					castPercent = math.random(25,75) --  I am not sure that this is working,we are doing this check every pulse so its different randoms each time
+					castPercent = math.random(25, 75) --  I am not sure that this is working,we are doing this check every pulse so its different randoms each time
 				end
 				if castType == "spellchannel" then
 					if castDuration > 60 then
@@ -106,7 +107,7 @@ function br.canInterrupt(unit,percentint)
 				end
 			elseif percentint == 0 and castPercent == 0 then
 				if castType == "spellcast" then
-					castPercent = math.random(25,75)
+					castPercent = math.random(25, 75)
 				end
 				if castType == "spellchannel" then
 					if castDuration > 60 then
@@ -130,14 +131,14 @@ function br.canInterrupt(unit,percentint)
 		end
 		-- Check if on whitelist (if selected)
 		if br.isChecked("Interrupt Only Whitelist") and br.lists.interruptWhitelist[interruptID] then
-			 onWhitelist = true
+			onWhitelist = true
 		end
 		-- Return when interrupt time is met
-		if ((br.isChecked("Interrupt Only Whitelist") and (onWhitelist or not (br.player.instance=="party" or br.player.instance=="raid" or br.player.instance == "scenario")))
-			or not br.isChecked("Interrupt Only Whitelist"))
+		if ((br.isChecked("Interrupt Only Whitelist") and (onWhitelist or not (br.player.instance == "party" or br.player.instance == "raid" or br.player.instance == "scenario")))
+				or not br.isChecked("Interrupt Only Whitelist"))
 		then
 			local ttd = br.getTTD(unit) or 0
-			local withinsCastPercent = math.ceil((castTimeRemain/castDuration)*100) <= castPercent
+			local withinsCastPercent = math.ceil((castTimeRemain / castDuration) * 100) <= castPercent
 			local willFinishCast = ttd > castTimeRemain
 			if castType == "spellcast" then
 				if withinsCastPercent and interruptable == true and willFinishCast then
@@ -146,7 +147,7 @@ function br.canInterrupt(unit,percentint)
 			end
 			if castType == "spellchannel" then
 				--if (GetTime() - castStartTime/1000) > channelDelay and interruptable == true then
-				if (br._G.GetTime() - castStartTime/1000) > (channelDelay-0.2 + math.random() * 0.4) and (withinsCastPercent or castPercent == 100) and interruptable == true and (willFinishCast or castPercent == 100) then
+				if (br._G.GetTime() - castStartTime / 1000) > (channelDelay - 0.2 + math.random() * 0.4) and (withinsCastPercent or castPercent == 100) and interruptable == true and (willFinishCast or castPercent == 100) then
 					return true
 				end
 			end
@@ -154,15 +155,18 @@ function br.canInterrupt(unit,percentint)
 		return false
 	end
 end
+
 function br.canStun(unit)
 	return br.isCrowdControlCandidates(unit)
 end
+
 -- if br.getCharges(115399) > 0 then
 function br.getCharges(spellID)
-	return select(1,br._G.GetSpellCharges(spellID))
+	return select(1, br._G.C_Spell.GetSpellCharges(spellID))
 end
-function br.getChargesFrac(spellID,chargeMax)
-	local charges,maxCharges,start,duration = br._G.GetSpellCharges(spellID)
+
+function br.getChargesFrac(spellID, chargeMax)
+	local charges, maxCharges, start, duration = br._G.C_Spell.GetSpellCharges(spellID)
 	if chargeMax == nil then chargeMax = false end
 	if maxCharges ~= nil then
 		if chargeMax then
@@ -179,8 +183,9 @@ function br.getChargesFrac(spellID,chargeMax)
 	end
 	return 0
 end
-function br.getRecharge(spellID,chargeMax)
-	local charges,maxCharges,chargeStart,chargeDuration = br._G.GetSpellCharges(spellID)
+
+function br.getRecharge(spellID, chargeMax)
+	local charges, maxCharges, chargeStart, chargeDuration = br._G.C_Spell.GetSpellCharges(spellID)
 	if chargeMax then return chargeDuration end
 	if charges then
 		if charges < maxCharges then
@@ -190,18 +195,21 @@ function br.getRecharge(spellID,chargeMax)
 		return 0
 	end
 end
+
 -- Full RechargeTime of a Spell/dump getFullRechargeTime(214579)
 function br.getFullRechargeTime(spellID)
-    local charges,maxCharges,chargeStart,chargeDuration = br._G.GetSpellCharges(spellID)
-    if charges then
-        local currentChargeTime = (charges or 0) < (maxCharges or 0) and chargeDuration - (br._G.GetTime() - (chargeStart or 0)) or 0
-        local leftChargesTotalTime = (maxCharges - charges - 1) * chargeDuration
-        if charges ~= maxCharges then
-            return currentChargeTime + leftChargesTotalTime
-        end
-    end
-    return 0
+	local charges, maxCharges, chargeStart, chargeDuration = br._G.C_Spell.GetSpellCharges(spellID)
+	if charges then
+		local currentChargeTime = (charges or 0) < (maxCharges or 0) and
+			chargeDuration - (br._G.GetTime() - (chargeStart or 0)) or 0
+		local leftChargesTotalTime = (maxCharges - charges - 1) * chargeDuration
+		if charges ~= maxCharges then
+			return currentChargeTime + leftChargesTotalTime
+		end
+	end
+	return 0
 end
+
 local maxStage = 0
 function br.getEmpoweredRank(spellID)
 	local stage = 0
@@ -213,9 +221,9 @@ function br.getEmpoweredRank(spellID)
 			local currentTime = br._G.GetTime() -- If you really want to get time each loop, go for it. But the time difference will be miniscule for a single frame loop
 			local stageDuration = 0
 			for i = 1, totalStages do
-				stageDuration = stageDuration + br._G.GetUnitEmpowerStageDuration("player", i-1) / 1000
+				stageDuration = stageDuration + br._G.GetUnitEmpowerStageDuration("player", i - 1) / 1000
 				if startTime + stageDuration > currentTime then
-				 	break -- Break early so we don't keep checking, we haven't hit this stage yet
+					break -- Break early so we don't keep checking, we haven't hit this stage yet
 				end
 				stage = i
 			end
@@ -224,26 +232,28 @@ function br.getEmpoweredRank(spellID)
 			stage = maxStage
 		end
 	end
-    return stage
+	return stage
 end
+
 -- if br.getSpellCD(12345) <= 0.4 then
 function br.getSpellCD(SpellID)
 	if SpellID == nil then return false end
-	if br._G.GetSpellCooldown(SpellID) == 0 then
+	if br._G.C_Spell.GetSpellCooldown(SpellID) == 0 then
 		return 0
 	else
-		local Start, CD = br._G.GetSpellCooldown(SpellID)
+		local Start, CD = br._G.C_Spell.GetSpellCooldown(SpellID)
 		local MyCD = Start + CD - br._G.GetTime()
 		MyCD = MyCD or 0 -- getLatency()
 		if MyCD < 0 then MyCD = 0 end
 		return MyCD
 	end
 end
+
 function br.getGlobalCD(max)
-	local currentSpecName = select(2,br._G.GetSpecializationInfo(br._G.GetSpecialization()))
+	local currentSpecName = select(2, br._G.GetSpecializationInfo(br._G.GetSpecialization()))
 	if currentSpecName == "" then currentSpecName = "Initial" end
 	if max == true then
-		if currentSpecName=="Feral" or currentSpecName=="Brewmaster" or currentSpecName=="Windwalker" or br._G.UnitClass("player") == "Rogue" then
+		if currentSpecName == "Feral" or currentSpecName == "Brewmaster" or currentSpecName == "Windwalker" or br._G.UnitClass("player") == "Rogue" then
 			return 1
 		else
 			return math.max(math.max(1, 1.5 / (1 + br._G.UnitSpellHaste("player") / 100)), 0.75)
@@ -251,19 +261,21 @@ function br.getGlobalCD(max)
 	end
 	return br.getSpellCD(61304)
 end
+
 function br.getSpellType(spellName)
 	if spellName == nil then return "Invalid" end
-	local helpful = br._G.IsHelpfulSpell(spellName) or false
-	local harmful = br._G.IsHarmfulSpell(spellName) or false
+	local helpful = br._G.C_Spell.IsSpellHelpful(spellName) or false
+	local harmful = br._G.C_Spell.IsSpellHarmful(spellName) or false
 	if helpful and not harmful then return "Helpful" end
-    if harmful and not helpful then return "Harmful" end
-    if helpful and harmful then return "Both" end
-    if not helpful and not harmful then return "Unknown" end
+	if harmful and not helpful then return "Harmful" end
+	if helpful and harmful then return "Both" end
+	if not helpful and not harmful then return "Unknown" end
 end
+
 function br.getCastingRegen(spellID)
 	local regenRate = br.getRegen("player")
 	local power = 0
-	local desc = br._G.GetSpellDescription(spellID)
+	local desc = br._G.C_Spell.GetSpellDescription(spellID)
 	local generates = desc:gsub("%D+", "")
 	local tooltip = tonumber(generates:sub(-2)) or 0
 	-- Get the "execute time" of the spell (larger of GCD or the cast time).
@@ -285,8 +297,9 @@ function br.getCastingRegen(spellID)
 	end
 	return power
 end
-function br.getSpellRange(spellID,option)
-	local _,_,_,_,_,maxRange = br._G.GetSpellInfo(spellID)
+
+function br.getSpellRange(spellID, option)
+	local _, _, _, _, _, maxRange = br._G.GetSpellInfo(spellID)
 	if maxRange == nil or maxRange == 0 then maxRange = 5 else maxRange = tonumber(maxRange) end
 	-- Modifiers
 	local rangeMod = 0
@@ -300,30 +313,33 @@ function br.getSpellRange(spellID,option)
 	end
 	return maxRange + rangeMod
 end
-function br.isSpellInSpellbook(spellID,spellType)
-    local spellSlot = br._G.FindSpellBookSlotBySpellID(spellID, spellType == "pet" and true or false)
-    if spellSlot then
-       local spellName = br._G.GetSpellBookItemName(spellSlot, spellType)
-       local link = br._G.GetSpellLink(spellName)
-       local currentSpellId = tonumber(link and link:gsub("|", "||"):match("spell:(%d+)"))
-       return currentSpellId == spellID
-    end
+
+function br.isSpellInSpellbook(spellID, spellType)
+	local spellSlot = br._G.FindSpellBookSlotBySpellID(spellID, spellType == "pet" and true or false)
+	if spellSlot then
+		local spellName = br._G.C_SpellBook.GetSpellBookItemName(spellSlot, spellType)
+		local link = br._G.C_Spell.GetSpellLink(spellName)
+		local currentSpellId = tonumber(link and link:gsub("|", "||"):match("spell:(%d+)"))
+		return currentSpellId == spellID
+	end
 	return false
 end
+
 -- if br.isKnown(106832) then
 function br.isKnown(spellID)
 	local spellName = br._G.GetSpellInfo(spellID)
-	-- if GetSpellBookItemInfo(tostring(spellName)) ~= nil then
+	-- if C_SpellBook.GetSpellBookItemType(tostring(spellName)) ~= nil then
 	-- 	return true
 	-- elseif IsPlayerSpell(tonumber(spellID)) == true then
 	-- 	return true
 	-- elseif IsSpellKnown(spellID) == true then
 	-- 	return true
 	-- elseif hasPerk(spellID) == true then
- --        return true
- --    end
+	--        return true
+	--    end
 	-- return false
-	return spellID ~= nil and (br._G.GetSpellBookItemInfo(tostring(spellName)) ~= nil or br._G.IsPlayerSpell(tonumber(spellID)) or br._G.IsSpellKnown(spellID) or br.isSpellInSpellbook(spellID,"spell"))
+	return spellID ~= nil and
+		(br._G.C_SpellBook.GetSpellBookItemType(tostring(spellName)) ~= nil or br._G.IsPlayerSpell(tonumber(spellID)) or br._G.IsSpellKnown(spellID) or br.isSpellInSpellbook(spellID, "spell"))
 end
 
 function br.isActiveEssence(spellID)

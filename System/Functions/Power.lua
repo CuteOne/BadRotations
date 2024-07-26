@@ -276,7 +276,7 @@ function br.getRegen(Unit)
 end
 
 function br.getSpellCost(spell)
-	local t = br._G.GetSpellPowerCost(br._G.GetSpellInfo(spell))
+	local t = br._G.C_Spell.GetSpellPowerCost(br._G.GetSpellInfo(spell))
 	if not t then
 		return 0
 	elseif not t[1] then

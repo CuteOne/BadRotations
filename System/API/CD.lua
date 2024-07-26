@@ -23,7 +23,7 @@ br.api.cd = function(self, spell, id)
     -- @within cd.spell
     cd[spell].exists = function()
         local level = br._G.UnitLevel("player")
-        local spellLevel = br._G.GetSpellLevelLearned(id)
+        local spellLevel = br._G.C_Spell.GetSpellLevelLearned(id)
         local spellCD = level >= spellLevel and br.getSpellCD(id) or 99
         return spellCD > 0
     end
@@ -34,7 +34,7 @@ br.api.cd = function(self, spell, id)
     -- @within cd.spell
     cd[spell].remain = function()
         local level = br._G.UnitLevel("player")
-        local spellLevel = br._G.GetSpellLevelLearned(id)
+        local spellLevel = br._G.C_Spell.GetSpellLevelLearned(id)
         local spellCD = level >= spellLevel and br.getSpellCD(id) or 99
         return spellCD
     end
@@ -45,7 +45,7 @@ br.api.cd = function(self, spell, id)
     -- @within cd.spell
     cd[spell].remains = function()
         local level = br._G.UnitLevel("player")
-        local spellLevel = br._G.GetSpellLevelLearned(id)
+        local spellLevel = br._G.C_Spell.GetSpellLevelLearned(id)
         local spellCD = level >= spellLevel and br.getSpellCD(id) or 99
         return spellCD
     end
@@ -55,7 +55,7 @@ br.api.cd = function(self, spell, id)
     -- @return number
     -- @within cd.spell
     cd[spell].duration = function()
-        local _, CD = br._G.GetSpellCooldown(id)
+        local _, CD = br._G.C_Spell.GetSpellCooldown(id)
         return CD
     end
 
@@ -65,7 +65,7 @@ br.api.cd = function(self, spell, id)
     -- @within cd.spell
     cd[spell].ready = function()
         local level = br._G.UnitLevel("player")
-        local spellLevel = br._G.GetSpellLevelLearned(id)
+        local spellLevel = br._G.C_Spell.GetSpellLevelLearned(id)
         local spellCD = level >= spellLevel and br.getSpellCD(id) or 99
         return spellCD == 0
     end
