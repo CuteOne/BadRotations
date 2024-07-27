@@ -23256,7 +23256,6 @@ read_globals = {
     'RoundToSignificantDigits',
     'RunBinding',
     'RunMacro',
-    'RunMacroText',
     'RunNextFrame',
     'RunScript',
     'RuneButtonMixin',
@@ -33041,6 +33040,11 @@ read_globals = {
             'GetActiveLossOfControlDataByUnit',
             'GetActiveLossOfControlDataCount',
             'GetActiveLossOfControlDataCountByUnit'
+        }
+    },
+    C_Macro ={
+        fields = {
+            'RunMacroText',
         }
     },
     C_Mail = {

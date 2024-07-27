@@ -326,19 +326,19 @@ function br.isSpellInSpellbook(spellID, spellType)
 end
 
 function br.getSpellInSpellBook(spellID, spellType)
-	for i = 1, C_SpellBook.GetNumSpellBookSkillLines() do
-		local skillLineInfo = C_SpellBook.GetSpellBookSkillLineInfo(i)
+	for i = 1, br._G.C_SpellBook.GetNumSpellBookSkillLines() do
+		local skillLineInfo = br._G.C_SpellBook.GetSpellBookSkillLineInfo(i)
 		local offset, numSlots = skillLineInfo.itemIndexOffset, skillLineInfo.numSpellBookItems
 		for j = offset + 1, offset + numSlots do
-			local spellBookItemInfo = C_SpellBook.GetSpellBookItemInfo(j,
+			local spellBookItemInfo = br._G.C_SpellBook.GetSpellBookItemInfo(j,
 				(spellType == "pet" and Enum.SpellBookSpellBank.Pet or Enum.SpellBookSpellBank.Player))
 			local spellType, id = spellBookItemInfo.itemType, spellBookItemInfo.actionID
 			local spellName
 			if spellType == Enum.SpellBookItemType.Spell then
-				spellName = C_Spell.GetSpellName(id)
+				spellName = br._G.C_Spell.GetSpellName(id)
 				spellType = "Spell"
 			elseif spellType == Enum.SpellBookItemType.FutureSpell then
-				spellName = C_Spell.GetSpellName(id)
+				spellName = br._G.C_Spell.GetSpellName(id)
 				spellType = "Future Spell"
 			elseif spellType == Enum.SpellBookItemType.Flyout then
 				spellName = GetFlyoutInfo(id)

@@ -8,13 +8,13 @@ end
 function br.canPrepare()
     if
         br.UnitBuffID("player", 104934) or -- Eating (Feast)
-            br.UnitBuffID("player", 80169) or -- Eating
-            br.UnitBuffID("player", 87959) or -- Drinking
-            br.UnitBuffID("player", 11392) or -- 18 sec Invis Pot
-            br.UnitBuffID("player", 3680) or -- 15 sec Invis pot
-            br.UnitBuffID("player", 5384) or -- Feign Death
-            br._G.IsMounted()
-     then
+        br.UnitBuffID("player", 80169) or  -- Eating
+        br.UnitBuffID("player", 87959) or  -- Drinking
+        br.UnitBuffID("player", 11392) or  -- 18 sec Invis Pot
+        br.UnitBuffID("player", 3680) or   -- 15 sec Invis pot
+        br.UnitBuffID("player", 5384) or   -- Feign Death
+        br._G.IsMounted()
+    then
         return false
     else
         return true
@@ -25,8 +25,8 @@ function br.getAccDistance(Unit1, Unit2)
     -- If both units are visible
     if
         br.GetObjectExists(Unit1) and br.GetUnitIsVisible(Unit1) == true and
-            (Unit2 == nil or (br.GetObjectExists(Unit2) and br.GetUnitIsVisible(Unit2) == true))
-     then
+        (Unit2 == nil or (br.GetObjectExists(Unit2) and br.GetUnitIsVisible(Unit2) == true))
+    then
         -- If Unit2 is nil we compare player to Unit1
         if Unit2 == nil then
             Unit2 = Unit1
@@ -42,7 +42,7 @@ function br.getAccDistance(Unit1, Unit2)
             return math.sqrt(((X2 - X1) ^ 2) + ((Y2 - Y1) ^ 2) + ((Z2 - Z1) ^ 2)) -
                 (math.max(
                     br._G.UnitCombatReach(Unit2) + br._G.UnitCombatReach(Unit1) + 4 / 3 +
-                        ((br.isMoving(Unit2) and br.isMoving(Unit1)) and 8 / 3 or 0),
+                    ((br.isMoving(Unit2) and br.isMoving(Unit1)) and 8 / 3 or 0),
                     5
                 )) --(br._G.UnitCombatReach(Unit2)+UnitBoundingRadius(Unit2))
         end
@@ -72,15 +72,15 @@ end
 function br.getVengeance()
     local VengeanceID = 0
     if select(3, br._G.UnitClass("player")) == 1 then
-        VengeanceID = 93098 -- Warrior
+        VengeanceID = 93098  -- Warrior
     elseif select(3, br._G.UnitClass("player")) == 2 then
-        VengeanceID = 84839 -- Paladin
+        VengeanceID = 84839  -- Paladin
     elseif select(3, br._G.UnitClass("player")) == 6 then
-        VengeanceID = 93099 -- DK
+        VengeanceID = 93099  -- DK
     elseif select(3, br._G.UnitClass("player")) == 10 then
         VengeanceID = 120267 -- Monk
     elseif select(3, br._G.UnitClass("player")) == 11 then
-        VengeanceID = 84840 -- Druid
+        VengeanceID = 84840  -- Druid
     end
     if br._G.UnitBuff("player", VengeanceID) then
         return select(14, br._G.UnitAura("player", br._G.GetSpellInfo(VengeanceID)))
@@ -101,8 +101,8 @@ function br.getLoot2()
                 if br._G.UnitIsDeadOrGhost(thisUnit) then
                     if
                         hasLoot and canLoot and inRange and
-                            (br.canLootTimer == nil or br.canLootTimer <= br._G.GetTime() - 0.5) --[[br.getOptionValue("Auto Loot"))]]
-                     then
+                        (br.canLootTimer == nil or br.canLootTimer <= br._G.GetTime() - 0.5) --[[br.getOptionValue("Auto Loot"))]]
+                    then
                         if br._G.GetCVar("autoLootDefault") == "0" then
                             br._G.SetCVar("autoLootDefault", "1")
                             br._G.InteractUnit(thisUnit)
@@ -156,7 +156,7 @@ function br.nDbDmg(tar, spellID, player)
             --if not issecure() then Print(issecure()) end -- function is called inside the profile
             --SetCVar("DotDamage",tonumber(DoTDamage))
             return tonumber(DoTDamage)
-        --return tonumber(GetCVar("DotDamage"))
+            --return tonumber(GetCVar("DotDamage"))
         end
     end
 end
@@ -175,31 +175,31 @@ end
 
 --[[Taunts Table!! load once]]
 br.tauntsTable = {
-    {spell = 143436, stacks = 1},
+    { spell = 143436, stacks = 1 },
     --Immerseus/71543               143436 - Corrosive Blast                             == 1x
-    {spell = 146124, stacks = 3},
+    { spell = 146124, stacks = 3 },
     --Norushen/72276                146124 - Self Doubt                                  >= 3x
-    {spell = 144358, stacks = 1},
+    { spell = 144358, stacks = 1 },
     --Sha of Pride/71734            144358 - Wounded Pride                               == 1x
-    {spell = 147029, stacks = 3},
+    { spell = 147029, stacks = 3 },
     --Galakras/72249                147029 - Flames of Galakrond                         == 3x
-    {spell = 144467, stacks = 2},
+    { spell = 144467, stacks = 2 },
     --Iron Juggernaut/71466         144467 - Ignite Armor                                >= 2x
-    {spell = 144215, stacks = 6},
+    { spell = 144215, stacks = 6 },
     --Kor'Kron Dark Shaman/71859    144215 - Froststorm Strike (Earthbreaker Haromm)     >= 6x
-    {spell = 143494, stacks = 3},
+    { spell = 143494, stacks = 3 },
     --General Nazgrim/71515         143494 - Sundering Blow                              >= 3x
-    {spell = 142990, stacks = 12},
+    { spell = 142990, stacks = 12 },
     --Malkorok/71454                142990 - Fatal Strike                                == 12x
-    {spell = 143426, stacks = 2},
+    { spell = 143426, stacks = 2 },
     --Thok the Bloodthirsty/71529   143426 - Fearsome Roar                               == 2x
-    {spell = 143780, stacks = 2},
+    { spell = 143780, stacks = 2 },
     --Thok (Saurok eaten)           143780 - Acid Breath                                 == 2x
-    {spell = 143773, stacks = 3},
+    { spell = 143773, stacks = 3 },
     --Thok (Jinyu eaten)            143773 - Freezing Breath                             == 3x
-    {spell = 143767, stacks = 2},
+    { spell = 143767, stacks = 2 },
     --Thok (Yaungol eaten)          143767 - Scorching Breath                            == 2x
-    {spell = 145183, stacks = 3} --Garrosh/71865                 145183 - Gripping Despair                            >= 3x
+    { spell = 145183, stacks = 3 } --Garrosh/71865                 145183 - Gripping Despair                            >= 3x
 }
 --[[Taunt function!! load once]]
 function br.ShouldTaunt()
@@ -208,9 +208,9 @@ function br.ShouldTaunt()
         for i = 1, #br.tauntsTable do
             if
                 not br.UnitDebuffID("player", br.tauntsTable[i].spell) and
-                    br.UnitDebuffID("boss1target", br.tauntsTable[i].spell) and
-                    br.getDebuffStacks("boss1target", br.tauntsTable[i].spell) >= br.tauntsTable[i].stacks
-             then
+                br.UnitDebuffID("boss1target", br.tauntsTable[i].spell) and
+                br.getDebuffStacks("boss1target", br.tauntsTable[i].spell) >= br.tauntsTable[i].stacks
+            then
                 br._G.TargetUnit("boss1")
                 return true
             end

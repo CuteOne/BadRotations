@@ -1,3 +1,4 @@
+---@diagnostic disable: param-type-mismatch, undefined-global
 --------------------------------------------------------------------------------------------------------------------------------
 -- unlockList
 --------------------------------------------------------------------------------------------------------------------------------
@@ -450,7 +451,6 @@ function br.unlock:NNUnlock()
 	b.GetKeyState = GetKeyState
 	b.UnitFacing = b.ObjectFacing
 	b.ObjectInteract = b.InteractUnit
-	b.IsHackEnabled = function(...) return false end
 	b.AuraUtil = {}
 	b.AuraUtil.FindAuraByName = function(name, unit, filter)
 		-- return Eval("AuraUtil.FindAuraByName("..table.concat({...}, ", ")..")", "")
