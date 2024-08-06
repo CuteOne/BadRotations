@@ -162,11 +162,14 @@ end
 
 -- if br.getCharges(115399) > 0 then
 function br.getCharges(spellID)
-	return select(1, br._G.C_Spell.GetSpellCharges(spellID))
+	local chargeInfo = br._G.C_Spell.GetSpellCharges(spellID)
+	return chargeInfo.currentCharges
 end
 
 function br.getChargesFrac(spellID, chargeMax)
-	local charges, maxCharges, start, duration = br._G.C_Spell.GetSpellCharges(spellID)
+	local chargeInfo = br._G.C_Spell.GetSpellCharges(spellID)
+	local charges, maxCharges, start, duration = chargeInfo.currentCharges, chargeInfo.maxCharges,
+		chargeInfo.cooldownStartTime, chargeInfo.cooldownDuration
 	if chargeMax == nil then chargeMax = false end
 	if maxCharges ~= nil then
 		if chargeMax then
@@ -185,7 +188,9 @@ function br.getChargesFrac(spellID, chargeMax)
 end
 
 function br.getRecharge(spellID, chargeMax)
-	local charges, maxCharges, chargeStart, chargeDuration = br._G.C_Spell.GetSpellCharges(spellID)
+	local chargeInfo = br._G.C_Spell.GetSpellCharges(spellID)
+	local charges, maxCharges, chargeStart, chargeDuration = chargeInfo.currentCharges, chargeInfo.maxCharges,
+		chargeInfo.cooldownStartTime, chargeInfo.cooldownDuration
 	if chargeMax then return chargeDuration end
 	if charges then
 		if charges < maxCharges then
@@ -198,7 +203,9 @@ end
 
 -- Full RechargeTime of a Spell/dump getFullRechargeTime(214579)
 function br.getFullRechargeTime(spellID)
-	local charges, maxCharges, chargeStart, chargeDuration = br._G.C_Spell.GetSpellCharges(spellID)
+	local chargeInfo = br._G.C_Spell.GetSpellCharges(spellID)
+	local charges, maxCharges, chargeStart, chargeDuration = chargeInfo.currentCharges, chargeInfo.maxCharges,
+		chargeInfo.cooldownStartTime, chargeInfo.cooldownDuration
 	if charges then
 		local currentChargeTime = (charges or 0) < (maxCharges or 0) and
 			chargeDuration - (br._G.GetTime() - (chargeStart or 0)) or 0
