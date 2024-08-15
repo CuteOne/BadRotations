@@ -1,12 +1,13 @@
 local _, br = ...
-function br.ui:createToggle(table,name,col,row)
+function br.ui:createToggle(table, name, col, row)
 	if type(name) ~= "string" then
-		br._G.print("Invaild type "..type(name).." detected for table "..name..".  Please let devs know!")
+		br._G.print("Invaild type " .. type(name) .. " detected for table " .. name .. ".  Please let devs know!")
 	else
-		br[name.."Modes"] = table
-		br["CreateButton"](name,col,row)
+		br[name .. "Modes"] = table
+		br["CreateButton"](name, col, row)
 	end
 end
+
 -- when we find a match, we reset tooltip
 function br.ResetTip(toggleValue, thisValue)
 	br._G.GameTooltip:SetOwner(br["button" .. toggleValue], br.mainButton, 0, 0)
@@ -18,9 +19,9 @@ function br.GarbageButtons()
 	if br.buttonsTable and not br._G.UnitAffectingCombat("player") then
 		for i = 1, #br.buttonsTable do
 			local Name = br.buttonsTable[i].name
-			br["button" .. Name]:Hide()
-			br["text" .. Name]:Hide()
-			br["frame" .. Name].texture:Hide()
+			if br["button" .. Name] then br["button" .. Name]:Hide() end
+			if br["text" .. Name] then br["text" .. Name]:Hide() end
+			if br["frame" .. Name] then br["frame" .. Name].texture:Hide() end
 			br[Name .. "Modes"] = nil
 		end
 	end
@@ -45,8 +46,8 @@ function br.ToggleToValue(toggleValue, index)
 	if index > modesCount then
 		br._G.print(
 			"Invalid Toggle Index for |cffFFDD11" ..
-				toggleValue ..
-					": |cFFFF0000 Index ( |r" .. index .. "|cFFFF0000) exceeds Max ( |r" .. modesCount .. "|cFFFF0000)|r."
+			toggleValue ..
+			": |cFFFF0000 Index ( |r" .. index .. "|cFFFF0000) exceeds Max ( |r" .. modesCount .. "|cFFFF0000)|r."
 		)
 	else
 		br.specialToggleCodes(toggleValue, index)
@@ -64,8 +65,8 @@ function br.ToggleValue(toggleValue)
 	if br[toggleValue .. "Modes"] == nil then
 		toggleValue = FindToggle(toggleValue)
 	end
-	if br[toggleValue.."Modes"] == nil then
-		br._G.print("No toggle mode found for "..toggleValue..". Please inform devs of this error!")
+	if br[toggleValue .. "Modes"] == nil then
+		br._G.print("No toggle mode found for " .. toggleValue .. ". Please inform devs of this error!")
 		return
 	end
 	-- prevent nil fails
@@ -112,8 +113,8 @@ function br.ToggleMinus(toggleValue)
 	if br[toggleValue .. "Modes"] == nil then
 		toggleValue = FindToggle(toggleValue)
 	end
-	if br[toggleValue.."Modes"] == nil then
-		br._G.print("No toggle mode found for "..toggleValue..". Please inform devs of this error!")
+	if br[toggleValue .. "Modes"] == nil then
+		br._G.print("No toggle mode found for " .. toggleValue .. ". Please inform devs of this error!")
 		return
 	end
 	-- prevent nil fails
@@ -188,8 +189,8 @@ function br.changeButtonValue(toggleValue, newValue)
 	if br[toggleValue .. "Modes"] == nil then
 		toggleValue = FindToggle(toggleValue)
 	end
-	if br[toggleValue.."Modes"] == nil then
-		br._G.print("No toggle mode found for "..toggleValue..". Please inform devs of this error!")
+	if br[toggleValue .. "Modes"] == nil then
+		br._G.print("No toggle mode found for " .. toggleValue .. ". Please inform devs of this error!")
 		return
 	end
 	br.data.settings[br.selectedSpec].toggles[tostring(toggleValue)] = newValue
@@ -245,7 +246,7 @@ end
 -- /run CreateButton("AoE",2,2)
 function br.CreateButton(Name, x, y)
 	if type(Name) ~= "string" then
-		br._G.print("Invaild type "..type(Name).." detected for table "..Name..".  Please let devs know!")
+		br._G.print("Invaild type " .. type(Name) .. " detected for table " .. Name .. ".  Please let devs know!")
 		return
 	end
 	if br.data.settings[br.selectedSpec] ~= nil then
@@ -254,12 +255,12 @@ function br.CreateButton(Name, x, y)
 		-- todo: extend to use spec + profile specific variable; ATM it shares between profile AND spec, -> global for char
 		if
 			br.data.settings[br.selectedSpec].toggles[Name] == nil or
-				br.data.settings[br.selectedSpec].toggles[Name] > #br[Name .. "Modes"]
-		 then
+			br.data.settings[br.selectedSpec].toggles[Name] > #br[Name .. "Modes"]
+		then
 			br.data.settings[br.selectedSpec].toggles[Name] = 1
 		end
 		if br.buttonsTable then
-			br._G.tinsert(br.buttonsTable, {name = Name, bx = x, by = y})
+			br._G.tinsert(br.buttonsTable, { name = Name, bx = x, by = y })
 		end
 		br["button" .. Name] = br._G.CreateFrame("Button", "MyButtonBR", br.mainButton, "SecureHandlerClickTemplate")
 		br["button" .. Name]:SetWidth(br.data.settings["buttonSize"])
@@ -272,9 +273,10 @@ function br.CreateButton(Name, x, y)
 		br["button" .. Name]:RegisterForClicks("AnyUp")
 		if
 			br[Name .. "Modes"][br.data.settings[br.selectedSpec].toggles[Name]].icon ~= nil and
-				type(br[Name .. "Modes"][br.data.settings[br.selectedSpec].toggles[Name]].icon) == "number"
-		 then
-			Icon = select(3, br._G.GetSpellInfo(br[Name .. "Modes"][br.data.settings[br.selectedSpec].toggles[Name]].icon))
+			type(br[Name .. "Modes"][br.data.settings[br.selectedSpec].toggles[Name]].icon) == "number"
+		then
+			Icon = select(3,
+				br._G.GetSpellInfo(br[Name .. "Modes"][br.data.settings[br.selectedSpec].toggles[Name]].icon))
 		else
 			Icon = br[Name .. "Modes"][br.data.settings[br.selectedSpec].toggles[Name]].icon
 		end
@@ -367,7 +369,8 @@ function br.CreateButton(Name, x, y)
 			elseif not br._G.UnitAffectingCombat("player") then
 				br.mainButton:Hide()
 			elseif br._G.UnitAffectingCombat("player") then
-				br._G.print("Combat Lockdown detected. Unable to modify button bar. Please try again when out of combat.")
+				br._G.print(
+				"Combat Lockdown detected. Unable to modify button bar. Please try again when out of combat.")
 			end
 		end
 		br.SlashCommandHelp(

@@ -473,7 +473,33 @@ function unlock.TinkrUnlock()
 		return UnitAttackSpeed(ObjectUnit(...))
 	end
 	b.UnitAura = function(unit, index, filter)
-		return UnitAura(ObjectUnit(unit), index, filter)
+		local unpack = unpack
+		local function UnpackAuraData(auraData)
+			if not auraData then
+				return nil
+			end
+			return auraData.name,
+				auraData.icon,
+				auraData.applications,
+				auraData.dispelName,
+				auraData.duration,
+				auraData.expirationTime,
+				auraData.sourceUnit,
+				auraData.isStealable,
+				auraData.nameplateShowPersonal,
+				auraData.spellId,
+				auraData.canApplyAura,
+				auraData.isBossAura,
+				auraData.isFromPlayerOrPlayerPet,
+				auraData.nameplateShowAll,
+				auraData.timeMod,
+				unpack(auraData.points)
+		end
+		local GetAuraDataByIndex = C_UnitAuras.GetAuraDataByIndex
+		local auraData = Eval(GetAuraDataByIndex, ObjectUnit(unit), index, filter)
+		if not auraData then return nil end
+		return UnpackAuraData(auraData)
+		-- return UnitAura(ObjectUnit(unit), index, filter)
 	end
 	b.UnitBuff = function(unit, index, filter)
 		return UnitBuff(ObjectUnit(unit), index, filter)
