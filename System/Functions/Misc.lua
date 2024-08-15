@@ -963,6 +963,21 @@ function br.getValue(Value, Page)
 	-- end
 end
 
+function br.setValue(Value, Page, Amount)
+	local statusValue = findOption(Value, Page, " Status")
+	if statusValue and statusValue > 0 then
+		statusValue:SetNumber(Amount)
+	end
+	local dropValue = findOption(Value, Page, " Drop")
+	if dropValue and dropValue > 0 then
+		dropValue:SetNumber(Amount)
+	end
+	local editBoxValue = findOption(Value, Page, " EditBox")
+	if editBoxValue then
+		editBoxValue:SetNumber(Amount)
+	end
+end
+
 -- used to gather informations from the bot options frame
 function br.getOptionCheck(Value)
 	return br.isChecked(Value)
@@ -970,6 +985,10 @@ end
 
 function br.getOptionValue(Value)
 	return br.getValue(Value)
+end
+
+function br.setOptionValue(Value, Amount)
+	return br.setValue(Value, nil, Amount)
 end
 
 function br.getOptionText(Value)
@@ -1032,7 +1051,7 @@ function br.talentAnywhere()
 	local removeTalent = br._G.RemoveTalent
 	local learnTalent = br._G.LearnTalent
 	-- Load Talent UI if not opened before
-	if not br._G.IsAddOnLoaded("Blizzard_TalentUI") and not br._G.UnitAffectingCombat("player") then
+	if not br._G.C_AddOns.IsAddOnLoaded("Blizzard_TalentUI") and not br._G.UnitAffectingCombat("player") then
 		br._G.LoadAddOn("Blizzard_TalentUI")
 	end
 

@@ -256,9 +256,9 @@ function br.BadRotationsUpdate(self)
                 end
                 -- Get DBM/BigWigs Timer/Bars
                 -- global -> br.DBM.Timer
-                if br._G.IsAddOnLoaded("DBM-Core") then
+                if br._G.C_AddOns.IsAddOnLoaded("DBM-Core") then
                     br.DBM:getBars()
-                elseif br._G.IsAddOnLoaded("BigWigs") then
+                elseif br._G.C_AddOns.IsAddOnLoaded("BigWigs") then
                     if not br.DBM.BigWigs then
                         br.BWInit()
                     else
