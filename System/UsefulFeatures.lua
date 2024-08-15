@@ -101,7 +101,8 @@ hooksecurefunc(
 	br._G.GameTooltip,
 	"SetUnitAura",
 	function(self, ...)
-		local id = select(10, UnitAura(...))
+		local unitAura = UnitAura(...)
+		local id = unitAura.spellId
 		if id then
 			addLine(self, id, types.spell)
 		end

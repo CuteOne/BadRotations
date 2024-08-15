@@ -31,6 +31,7 @@ function br.TogglesFrame()
 		x = br.data.settings.mainButton.pos.x or -75
 		y = br.data.settings.mainButton.pos.y or -200
 	end
+	br.mainButton:ClearAllPoints()
 	br.mainButton:SetPoint(anchor, x, y)
 	br.mainButton:EnableMouse(true)
 	br.mainButton:SetMovable(true)
@@ -41,8 +42,8 @@ function br.TogglesFrame()
 	-- Set Main Button
 	if
 		br.data.settings[br.selectedSpec] ~= nil and br.data.settings[br.selectedSpec].toggles ~= nil and
-			br.data.settings[br.selectedSpec].toggles["Power"] == 1
-	 then
+		br.data.settings[br.selectedSpec].toggles["Power"] == 1
+	then
 		br.mainButton:SetNormalTexture(br.backIconOn)
 	else
 		br.mainButton:SetNormalTexture(br.backIconOff)
@@ -134,7 +135,7 @@ function br.TogglesFrame()
 	)
 	br.mainButton:SetScript(
 		"OnMouseWheel",
-		function(_,delta)
+		function(_, delta)
 			if br._G.IsLeftAltKeyDown() then
 				local Go = false
 				if delta < 0 and br.data.settings["buttonSize"] > 1 then
