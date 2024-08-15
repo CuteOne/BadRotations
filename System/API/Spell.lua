@@ -18,7 +18,7 @@ br.api.spell = function(self, k, v)
     -- @function spell.k.castTime
     -- @return number
     spell[k].castTime = function()
-        local _, _, _, castTime = GetSpellInfo(v)
+        local _, _, _, castTime = br._G.GetSpellInfo(v)
         return castTime or 0
     end
 
@@ -26,7 +26,7 @@ br.api.spell = function(self, k, v)
     -- @function spell.k.id
     -- @return number
     spell[k].id = function()
-        local _, _, _, _, _, _, spellID = GetSpellInfo(v)
+        local _, _, _, _, _, _, spellID = br._G.GetSpellInfo(v)
         return spellID or 0
     end
 
@@ -41,7 +41,7 @@ br.api.spell = function(self, k, v)
     -- @function spell.k.maxRange
     -- @return number
     spell[k].maxRange = function()
-        local _, _, _, _, _, maxRange = GetSpellInfo(v)
+        local _, _, _, _, _, maxRange = br._G.GetSpellInfo(v)
         return maxRange or 0
     end
 
@@ -49,7 +49,7 @@ br.api.spell = function(self, k, v)
     -- @function spell.k.minRange
     -- @return number
     spell[k].minRange = function()
-        local _, _, _, _, minRange = GetSpellInfo(v)
+        local _, _, _, _, minRange = br._G.GetSpellInfo(v)
         return minRange or 0
     end
 
@@ -57,7 +57,7 @@ br.api.spell = function(self, k, v)
     -- @function spell.k.name
     -- @return string
     spell[k].name = function()
-        local name = GetSpellInfo(v)
+        local name = br._G.GetSpellInfo(v)
         return name or ""
     end
 
@@ -65,7 +65,7 @@ br.api.spell = function(self, k, v)
     -- @function spell.k.rank
     -- @return number
     spell[k].rank = function()
-        local _, rank = GetSpellInfo(v)
+        local _, rank = br._G.GetSpellInfo(v)
         return rank or 0
     end
 
