@@ -66,12 +66,20 @@
 <td class="summary">Cast a spell by its ID based on various parameters.</td>
 </tr>
 <tr>
+<td class="name" nowrap=""><a href="#name">cast.name (spellName, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)</a></td>
+<td class="summary">Cast a spell by its Name based on various parameters.</td>
+</tr>
+<tr>
 <td class="name" nowrap=""><a href="#cast.able.spell">cast.able.spell (thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)</a></td>
 <td class="summary">Checks if a spell can be cast based on various parameters.</td>
 </tr>
 <tr>
 <td class="name" nowrap=""><a href="#cast.able.id">cast.able.id (spellID, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)</a></td>
 <td class="summary">Checks if a spell can be cast by its ID based on various parameters.</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#cast.able.name">cast.able.name (spellName, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)</a></td>
+<td class="summary">Checks if a spell can be cast by its Name based on various parameters.</td>
 </tr>
 <tr>
 <td class="name" nowrap=""><a href="#cast.active.spell">cast.active.spell (thisUnit)</a></td>
@@ -269,6 +277,54 @@
 </ol>
 </dd>
 <dt>
+<a name="name"></a>
+<strong>cast.name (spellName, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)</strong>
+</dt>
+<dd>
+    Cast a spell by its Name based on various parameters.
+
+
+    <h3>Parameters:</h3>
+<ul>
+<li><span class="parameter">spellName</span>
+<span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         The name of the spell to cast.
+        </li>
+<li><span class="parameter">thisUnit</span>
+<span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         The target unit for the spell. Can be standard WoW units, dynamic units, or special parameters.
+        </li>
+<li><span class="parameter">castType</span>
+<span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         Defines the type of AoE or special cast conditions.
+        </li>
+<li><span class="parameter">minUnits</span>
+<span class="types"><span class="type">number</span></span>
+         Minimum number of units needed to be hit by AoE spell.
+        </li>
+<li><span class="parameter">effectRng</span>
+<span class="types"><span class="type">number</span></span>
+         The AoE's effect range.
+        </li>
+<li><span class="parameter">predict</span>
+<span class="types"><span class="type">boolean</span></span>
+         If true, will attempt to predict enemy movements for ground location AoE spells.
+        </li>
+<li><span class="parameter">predictPad</span>
+<span class="types"><span class="type">boolean</span></span>
+         Pads the prediction cast time. 'predict' must be true.
+        </li>
+<li><span class="parameter">enemies</span>
+<span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         A table of enemy units that the spell should be cast on.
+        </li>
+</ul>
+<h3>Returns:</h3>
+<ol>
+<span class="types"><span class="type">boolean</span></span>
+</ol>
+</dd>
+<dt>
 <a name="cast.able.spell"></a>
 <strong>cast.able.spell (thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)</strong>
 </dt>
@@ -326,6 +382,54 @@
 <li><span class="parameter">spellID</span>
 <span class="types"><span class="type">number</span></span>
          The ID of the spell to check.
+        </li>
+<li><span class="parameter">thisUnit</span>
+<span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         The target unit for the spell. Can be standard WoW units, dynamic units, or special parameters.
+        </li>
+<li><span class="parameter">castType</span>
+<span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         Defines the type of AoE or special cast conditions.
+        </li>
+<li><span class="parameter">minUnits</span>
+<span class="types"><span class="type">number</span></span>
+         Minimum number of units needed to be hit by AoE spell.
+        </li>
+<li><span class="parameter">effectRng</span>
+<span class="types"><span class="type">number</span></span>
+         The AoE's effect range.
+        </li>
+<li><span class="parameter">predict</span>
+<span class="types"><span class="type">boolean</span></span>
+         If true, will attempt to predict enemy movements for ground location AoE spells.
+        </li>
+<li><span class="parameter">predictPad</span>
+<span class="types"><span class="type">boolean</span></span>
+         Pads the prediction cast time. 'predict' must be true.
+        </li>
+<li><span class="parameter">enemies</span>
+<span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         A table of enemy units that the spell should be cast on.
+        </li>
+</ul>
+<h3>Returns:</h3>
+<ol>
+<span class="types"><span class="type">boolean</span></span>
+</ol>
+</dd>
+<dt>
+<a name="cast.able.name"></a>
+<strong>cast.able.name (spellName, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)</strong>
+</dt>
+<dd>
+    Checks if a spell can be cast by its Name based on various parameters.
+
+
+    <h3>Parameters:</h3>
+<ul>
+<li><span class="parameter">spellName</span>
+<span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         The Name of the spell to check.
         </li>
 <li><span class="parameter">thisUnit</span>
 <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
@@ -813,7 +917,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
-<i style="float:right;">Last updated 2024-08-15 19:01:54 </i>
+<i style="float:right;">Last updated 2024-08-17 20:06:28 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
