@@ -22,6 +22,7 @@ br.api.cast = function(self, spell, id)
     if cast.inFlightRemain == nil then cast.inFlightRemain = {} end
     if cast.last == nil then cast.last = {} end
     if cast.last.time == nil then cast.last.time = {} end
+    if cast.name == nil then cast.name = {} end
     if cast.noControl == nil then cast.noControl = {} end
     if cast.pool == nil then cast.pool = {} end
     if cast.range == nil then cast.range = {} end
@@ -63,6 +64,23 @@ br.api.cast = function(self, spell, id)
             enemies)
     end
 
+    --- Cast a spell by its Name based on various parameters.
+    -- @function cast.name
+    -- @string spellName The name of the spell to cast.
+    -- @string thisUnit The target unit for the spell. Can be standard WoW units, dynamic units, or special parameters.
+    -- @string castType Defines the type of AoE or special cast conditions.
+    -- @number minUnits Minimum number of units needed to be hit by AoE spell.
+    -- @number effectRng The AoE's effect range.
+    -- @bool predict If true, will attempt to predict enemy movements for ground location AoE spells.
+    -- @bool predictPad Pads the prediction cast time. 'predict' must be true.
+    -- @tab enemies A table of enemy units that the spell should be cast on.
+    -- @treturn boolean
+    cast.name = function(spellName, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)
+        local _, _, _, _, _, _, spellID = br._G.GetSpellInfo(spellName)
+        return br.createCastFunction(thisUnit, castType, minUnits, effectRng, spellID, spell, predict, predictPad,
+            enemies)
+    end
+
 
     --- Checks if a spell can be cast based on various parameters.
     -- The function name is dynamically generated based on the spell name.
@@ -92,6 +110,23 @@ br.api.cast = function(self, spell, id)
     -- @tab enemies A table of enemy units that the spell should be cast on.
     -- @treturn boolean
     cast.able.id = function(spellID, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)
+        return br.createCastFunction(thisUnit, castType, minUnits, effectRng, spellID, spell, predict, predictPad,
+            enemies, true)
+    end
+
+    --- Checks if a spell can be cast by its Name based on various parameters.
+    -- @function cast.able.name
+    -- @string spellName The Name of the spell to check.
+    -- @string thisUnit The target unit for the spell. Can be standard WoW units, dynamic units, or special parameters.
+    -- @string castType Defines the type of AoE or special cast conditions.
+    -- @number minUnits Minimum number of units needed to be hit by AoE spell.
+    -- @number effectRng The AoE's effect range.
+    -- @bool predict If true, will attempt to predict enemy movements for ground location AoE spells.
+    -- @bool predictPad Pads the prediction cast time. 'predict' must be true.
+    -- @tab enemies A table of enemy units that the spell should be cast on.
+    -- @treturn boolean
+    cast.able.name = function(spellName, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)
+        local _, _, _, _, _, _, spellID = br._G.GetSpellInfo(spellName)
         return br.createCastFunction(thisUnit, castType, minUnits, effectRng, spellID, spell, predict, predictPad,
             enemies, true)
     end

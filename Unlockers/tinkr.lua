@@ -496,7 +496,7 @@ function unlock.TinkrUnlock()
 				unpack(auraData.points)
 		end
 		local GetAuraDataByIndex = C_UnitAuras.GetAuraDataByIndex
-		local auraData = Eval(GetAuraDataByIndex, ObjectUnit(unit), index, filter)
+		local auraData = GetAuraDataByIndex(ObjectUnit(unit), index, filter)
 		if not auraData then return nil end
 		return UnpackAuraData(auraData)
 		-- return UnitAura(ObjectUnit(unit), index, filter)
