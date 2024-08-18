@@ -35,7 +35,7 @@ br.api.unit = function(self)
     -- Cancelform
     unit.cancelForm = function()
         local CancelShapeshiftForm = br._G["CancelShapeshiftForm"]
-        return CancelShapeshiftForm() or RunMacroText("/CancelForm")
+        return CancelShapeshiftForm() --or RunMacroText("/CancelForm")
     end
     -- Casting / Channelling
     unit.casting = function(thisUnit, spellID)

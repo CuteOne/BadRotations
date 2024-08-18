@@ -11,6 +11,7 @@ function br:AcceptQueues()
 		end
 	end
 end
+
 ------------------------------------------------------------------------------------------------------------------------
 -- idTip by Silverwind
 local hooksecurefunc, select, UnitBuff, UnitDebuff, UnitAura, UnitGUID, _, tonumber, strfind =
@@ -101,8 +102,8 @@ hooksecurefunc(
 	br._G.GameTooltip,
 	"SetUnitAura",
 	function(self, ...)
-		local unitAura = UnitAura(...)
-		local id = unitAura.spellId
+		local unitAura = C_UnitAuras.GetAuraDataByIndex(...) --UnitAura(...)
+		local id = unitAura and unitAura.spellId or nil
 		if id then
 			addLine(self, id, types.spell)
 		end
@@ -155,7 +156,7 @@ local function attachItemTooltip(self)
 		end
 	end
 end
-TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Item,attachItemTooltip)
+TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Item, attachItemTooltip)
 -- Glyphs -- Commented out due to Legion
 -- hooksecurefunc(GameTooltip, "SetGlyph", function(self, ...)
 -- 	local id = select(4, GetGlyphSocketInfo(...))
@@ -214,7 +215,7 @@ local LIBSTUB_MAJOR, LIBSTUB_MINOR = "LibStub", 2 -- NEVER MAKE THIS AN SVN REVI
 local LibStub = _G[LIBSTUB_MAJOR]
 -- Check to see is this version of the stub is obsolete
 if not LibStub or LibStub.minor < LIBSTUB_MINOR then
-	LibStub = LibStub or {libs = {}, minors = {}}
+	LibStub = LibStub or { libs = {}, minors = {} }
 	_G[LIBSTUB_MAJOR] = LibStub
 	LibStub.minor = LIBSTUB_MINOR
 	-- LibStub:NewLibrary(major, minor)
@@ -225,7 +226,8 @@ if not LibStub or LibStub.minor < LIBSTUB_MINOR then
 	-- returns empty library object or old library object if upgrade is needed
 	function LibStub:NewLibrary(major, minor)
 		assert(type(major) == "string", "Bad argument #2 to `NewLibrary' (string expected)")
-		minor = assert(tonumber(br._G.strmatch(minor, "%d+")), "Minor version must either be a number or contain a number.")
+		minor = assert(tonumber(br._G.strmatch(minor, "%d+")),
+			"Minor version must either be a number or contain a number.")
 		local oldminor = self.minors[major]
 		if oldminor and oldminor >= minor then
 			return nil
@@ -233,6 +235,7 @@ if not LibStub or LibStub.minor < LIBSTUB_MINOR then
 		self.minors[major], self.libs[major] = minor, self.libs[major] or {}
 		return self.libs[major], oldminor
 	end
+
 	-- LibStub:GetLibrary(major, [silent])
 	-- major (string) - the major version of the library
 	-- silent (boolean) - if true, library is optional, silently return nil if its not found
@@ -245,13 +248,15 @@ if not LibStub or LibStub.minor < LIBSTUB_MINOR then
 		end
 		return self.libs[major], self.minors[major]
 	end
+
 	-- LibStub:IterateLibraries()
 	--
 	-- Returns an iterator for the currently registered libraries
 	function LibStub:IterateLibraries()
 		return pairs(self.libs)
 	end
-	setmetatable(LibStub, {__call = LibStub.GetLibrary})
+
+	setmetatable(LibStub, { __call = LibStub.GetLibrary })
 end
 
 function br.deepcopy(orig)
