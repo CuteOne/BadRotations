@@ -22,14 +22,12 @@ br.api.cast = function(self, spell, id)
     if cast.inFlightRemain == nil then cast.inFlightRemain = {} end
     if cast.last == nil then cast.last = {} end
     if cast.last.time == nil then cast.last.time = {} end
-    if cast.name == nil then cast.name = {} end
     if cast.noControl == nil then cast.noControl = {} end
     if cast.pool == nil then cast.pool = {} end
     if cast.range == nil then cast.range = {} end
     if cast.regen == nil then cast.regen = {} end
     if cast.safe == nil then cast.safe = {} end
     if cast.time == nil then cast.time = {} end
-    if cast.timeRemain == nil then cast.timeRemain = {} end
     if cast.timeSinceLast == nil then cast.timeSinceLast = {} end
 
     --- Cast a spell based on various parameters.
