@@ -190,8 +190,39 @@ function br.loader:new(spec, specName)
         return activeTalents
     end
 
+    -- Check Existing Talents
+    local function CheckExistingTalents(talentID)
+        local playerClass = select(2, br._G.UnitClass('player'))
+        local talentName = br.convertName(br._G.GetSpellInfo(talentID))
+        if br.lists.spells[playerClass]["Shared"] ~= nil and br.lists.spells[playerClass][spec] ~= nil then
+            local heroicTalents = br.lists.spells[playerClass]["Shared"]["talentsHeroic"]
+            local sharedTalents = br.lists.spells[playerClass]["Shared"]["talents"]
+            local specTalents = br.lists.spells[playerClass][spec]["talents"]
+            -- Check for missing entries
+            if sharedTalents[talentName] == nil and specTalents[talentName] == nil and heroicTalents[talentName] == nil then
+                br._G.print("|cffff0000Talent: |r" ..
+                    talentName ..
+                    "|cffff0000 with ID: |r" ..
+                    talentID .. " is not listed in the list of Talents Spell List.")
+            end
+            -- Check for incorrect IDs
+            if (specTalents[talentName] ~= nil and specTalents[talentName] ~= talentID)
+                or (sharedTalents[talentName] ~= nil and sharedTalents[talentName] ~= talentID)
+                or (heroicTalents[talentName] ~= nil and heroicTalents[talentName] ~= talentID)
+            then
+                local currentID = specTalents[talentName] ~= nil and specTalents[talentName] or
+                    sharedTalents[talentName]
+                br._G.print("|cffff0000Talent found in the Talent Spell List for |r" ..
+                    talentName .. "|cffff0000 with ID: |r" ..
+                    currentID ..
+                    "|cffff0000 it should be changed to ID: |r" .. talentID .. "|cffff0000.")
+            end
+        end
+    end
+
     -- Get All Talents
     local function getAllTalents()
+        br.talentInfo = {}
         local talents = {}
         local configId = br._G.C_ClassTalents.GetActiveConfigID()
         if not configId then return talents end
@@ -211,6 +242,8 @@ function br.loader:new(spec, specName)
                             talents[talentID] = talents[talentID] or {}
                             talents[talentID].active = activeTalents[talentID] and true or false
                             talents[talentID].rank = node.activeRank or 0
+                            -- Check existing talents
+                            CheckExistingTalents(talentID)
                         end
                     end
                 end
