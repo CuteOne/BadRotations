@@ -313,11 +313,7 @@ function br.unlock:NNUnlock()
 	b.InteractUnit = b.ObjectInteract
 	b.GetDistanceBetweenPositions = Distance
 	b.GetDistanceBetweenObjects = Distance
-
-b.RunMacroText = function(macro)
- return Unlock("C_Macro[\"RunMacroText\"]("..macro..")", "")
-end
-
+ b.RunMacroText = RunMacroText
 
 	b.CastSpellByName = function(spellName, unit)
 		if unit == nil then return CastSpellByName(spellName) end --b.print("No unit provided to CastSpellByName") end
