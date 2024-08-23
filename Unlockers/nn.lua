@@ -62,7 +62,7 @@ local unlockList =
 	"ReplaceEnchant",
 	"ReplaceTradeEnchant",
 	"RunMacro",
-	"C_Macro.RunMacroText",
+	-- "C_Macro.RunMacroText",
 	"StartAttack",
 	"SendChatMessage",
 	"SetBinding",
@@ -313,6 +313,10 @@ function br.unlock:NNUnlock()
 	b.InteractUnit = b.ObjectInteract
 	b.GetDistanceBetweenPositions = Distance
 	b.GetDistanceBetweenObjects = Distance
+
+b.RunMacroText = function(macro)
+ return Unlock("C_Macro[\"RunMacroText\"]("..macro..")", "")
+end
 
 
 	b.CastSpellByName = function(spellName, unit)
