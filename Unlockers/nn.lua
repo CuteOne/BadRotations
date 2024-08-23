@@ -62,7 +62,7 @@ local unlockList =
 	"ReplaceEnchant",
 	"ReplaceTradeEnchant",
 	"RunMacro",
-	"RunMacroText",
+	"C_Macro.RunMacroText",
 	"StartAttack",
 	"SendChatMessage",
 	"SetBinding",
