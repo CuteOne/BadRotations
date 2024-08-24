@@ -4,13 +4,11 @@ local _, br = ...
 br._G = setmetatable({}, { __index = _G })
 br._G.GetSpellInfo = function(spellIdentifier)
 	local spellInfo = br._G.C_Spell.GetSpellInfo(spellIdentifier)
-	---@diagnostic disable-next-line: redundant-return-value
 	if spellInfo then
+		---@diagnostic disable-next-line: redundant-return-value
 		return spellInfo.name, _, spellInfo.iconID, spellInfo.castTime, spellInfo.minRange,
 			---@diagnostic disable-next-line: redundant-return-value
 			spellInfo.maxRange, spellInfo.spellID, spellInfo.originalIconID
-	else
-		return nil
 	end
 end
 br.unlock = {}

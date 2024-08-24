@@ -111,6 +111,8 @@ br.lists.items = {
     -- Wrists
     hyperthreadWristWraps                   = 168989,
     wrapsOfElectrostaticPotential           = 169069,
+    -- TWW Trinkets
+    treacherousTransmitter                  = 221023,
     --Trinkets
     ashvanesRazorCoral                      = 169311,
     aquipotentNautilus                      = 169305,
