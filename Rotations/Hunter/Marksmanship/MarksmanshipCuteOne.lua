@@ -1,6 +1,6 @@
 -------------------------------------------------------
 -- Author = CuteOne
--- Patch = 10.2
+-- Patch = 11.0.2
 --    Patch should be the latest patch you've updated the rotation for (i.e., 9.2.5)
 -- Coverage = 100%
 --    Coverage should be your estimated percent coverage for class mechanics (i.e., 100%)
@@ -111,15 +111,10 @@ local function createOptions()
         br.ui:createCheckbox(section, "Racial")
         -- Barrage
         br.ui:createDropdownWithout(section, "Barrage", alwaysCdAoENever, 1, "|cffFFFFFFSet when to use ability.")
-        -- Death Chakram
-        br.ui:createDropdownWithout(section, "Death Chakram", alwaysCdAoENever, 1,
-            "|cffFFFFFFSet when to use ability.")
         -- Explosive Shot
         br.ui:createDropdownWithout(section, "Explosive Shot", alwaysCdAoENever, 1, "|cffFFFFFFSet when to use ability.")
         -- Salvo
         br.ui:createDropdownWithout(section, "Salvo", alwaysCdAoENever, 1, "|cffFFFFFFSet when to use ability.")
-        -- Stampede
-        br.ui:createDropdownWithout(section, "Stampede", alwaysCdAoENever, 1, "|cffFFFFFFSet when to use ability.")
         -- Trueshot
         br.ui:createDropdownWithout(section, "Trueshot", alwaysCdAoENever, 1, "|cffFFFFFFSet when to use ability.")
         -- Volley
@@ -470,6 +465,29 @@ actionList.Cooldowns = function()
     end
 end -- End Action List - Cooldowns
 
+-- Action List - Trinkets
+actionList.Trinkets = function()
+    -- Variable - Sync Ready
+    -- variable,name=sync_ready,value=variable.trueshot_ready
+    var.syncReady = var.trueshotReady
+
+    -- Variable - Sync Active
+    -- variable,name=sync_active,value=buff.trueshot.up
+    var.syncActive = buff.trueshot.exists()
+
+    -- Variable - Sync Remains
+    -- variable,name=sync_remains,value=cooldown.trueshot.remains_guess
+    -- TODO
+
+    -- Use Item - Use Off Gcd=1
+    -- use_item,use_off_gcd=1,slot=trinket1,if=trinket.1.has_use_buff&(variable.sync_ready&(variable.trinket_1_stronger|trinket.2.cooldown.remains)|!variable.sync_ready&(variable.trinket_1_stronger&(variable.sync_remains>trinket.1.cooldown.duration%3&fight_remains>trinket.1.cooldown.duration+20|trinket.2.has_use_buff&trinket.2.cooldown.remains>variable.sync_remains-15&trinket.2.cooldown.remains-5<variable.sync_remains&variable.sync_remains+45>fight_remains)|variable.trinket_2_stronger&(trinket.2.cooldown.remains&(trinket.2.cooldown.remains-5<variable.sync_remains&variable.sync_remains>=20|trinket.2.cooldown.remains-5>=variable.sync_remains&(variable.sync_remains>trinket.1.cooldown.duration%3|trinket.1.cooldown.duration<fight_remains&(variable.sync_remains+trinket.1.cooldown.duration>fight_remains)))|trinket.2.cooldown.ready&variable.sync_remains>20&variable.sync_remains<trinket.2.cooldown.duration%3)))|!trinket.1.has_use_buff&(trinket.1.cast_time=0|!variable.sync_active)&(!trinket.2.has_use_buff&(variable.trinket_1_stronger|trinket.2.cooldown.remains)|trinket.2.has_use_buff&(variable.sync_remains>20|trinket.2.cooldown.remains>20))|fight_remains<25&(variable.trinket_1_stronger|trinket.2.cooldown.remains)
+    -- TODO
+
+    -- Use Item - Use Off Gcd=1
+    -- use_item,use_off_gcd=1,slot=trinket2,if=trinket.2.has_use_buff&(variable.sync_ready&(variable.trinket_2_stronger|trinket.1.cooldown.remains)|!variable.sync_ready&(variable.trinket_2_stronger&(variable.sync_remains>trinket.2.cooldown.duration%3&fight_remains>trinket.2.cooldown.duration+20|trinket.1.has_use_buff&trinket.1.cooldown.remains>variable.sync_remains-15&trinket.1.cooldown.remains-5<variable.sync_remains&variable.sync_remains+45>fight_remains)|variable.trinket_1_stronger&(trinket.1.cooldown.remains&(trinket.1.cooldown.remains-5<variable.sync_remains&variable.sync_remains>=20|trinket.1.cooldown.remains-5>=variable.sync_remains&(variable.sync_remains>trinket.2.cooldown.duration%3|trinket.2.cooldown.duration<fight_remains&(variable.sync_remains+trinket.2.cooldown.duration>fight_remains)))|trinket.1.cooldown.ready&variable.sync_remains>20&variable.sync_remains<trinket.1.cooldown.duration%3)))|!trinket.2.has_use_buff&(trinket.2.cast_time=0|!variable.sync_active)&(!trinket.1.has_use_buff&(variable.trinket_2_stronger|trinket.1.cooldown.remains)|trinket.1.has_use_buff&(variable.sync_remains>20|trinket.1.cooldown.remains>20))|fight_remains<25&(variable.trinket_2_stronger|trinket.1.cooldown.remains)
+    -- TODO
+end -- End Action List - Trinkets
+
 -- Action List - Trickshots
 actionList.Trickshots = function()
     -- Steady Shot
@@ -479,14 +497,6 @@ actionList.Trickshots = function()
     then
         if cast.steadyShot() then
             ui.debug("Casting Steady Shot [Trickshots - Steady Focus]")
-            return true
-        end
-    end
-    -- Kill Shot
-    -- kill_shot,if=buff.razor_fragments.up
-    if cast.able.killShot(var.lowestHPUnit) and var.useKillShot and buff.razorFragments.exists() then
-        if cast.killShot(var.lowestHPUnit) then
-            ui.debug("Casting Kill Shot [Trickshots - Razor Fragments]")
             return true
         end
     end
@@ -500,48 +510,6 @@ actionList.Trickshots = function()
             return true
         end
     end
-    -- Death Chakram
-    -- death_chakram
-    if ui.alwaysCdAoENever("Death Chakram", 3, #enemies.yards8t) and cast.able.deathChakram() then
-        if cast.deathChakram() then
-            ui.debug("Casting Death Chakram [Trickshots]")
-            return true
-        end
-    end
-    -- Stampede
-    -- stampede
-    if ui.alwaysCdAoENever("Stampede", 3, #enemies.yards40f) and cast.able.stampede() then
-        if cast.stampede() then
-            ui.debug("Casting Stampede [Trickshots]")
-            return true
-        end
-    end
-    -- Wailing Arrow
-    -- wailing_arrow
-    if ui.alwaysCdAoENever("Wailing Arrow", 3, #enemies.yards40f) and cast.able.wailingArrow(units.dyn40, "aoe", 3, 8) then
-        if cast.wailingArrow(units.dyn40, "aoe", 3, 8) then
-            ui.debug("Casting Wailing Arrow [Trickshots]")
-            return true
-        end
-    end
-    -- Serpent Sting
-    -- serpent_sting,target_if=min:dot.serpent_sting.remains,if=refreshable&talent.hydras_bite&!talent.serpentstalkers_trickery
-    if cast.able.serpentSting(var.lowestSerpentSting) and talent.serpentSting and debuff.serpentSting.refresh(var.lowestSerpentSting)
-        and talent.hydrasBite and not talent.serpentstalkersTrickery
-    then
-        if cast.serpentSting(var.lowestSerpentSting) then
-            ui.debug("Casting Serpent Sting [Trickshots - Hydra's Bite]")
-            return true
-        end
-    end
-    -- Barrage
-    -- barrage,if=active_enemies>7
-    if ui.alwaysCdAoENever("Barrage", 3, #enemies.yards8t) and cast.able.barrage() and talent.barrage and #enemies.yards40f > 7 then
-        if cast.barrage() then
-            ui.debug("Casting Barrage [Trickshots]")
-            return true
-        end
-    end
     -- Volley
     -- volley
     if ui.alwaysCdAoENever("Volley", ui.value("Volley Units"), 8) and cast.able.volley("target", "ground", ui.value("Volley Units"), 8)
@@ -552,11 +520,45 @@ actionList.Trickshots = function()
             return true
         end
     end
+    -- Barrage
+    -- barrage,if=talent.rapid_fire_barrage&buff.trick_shots.remains>=execute_time
+    if ui.alwaysCdAoENever("Barrage", 3, #enemies.yards8t) and cast.able.barrage() and talent.barrage and talent.rapidFireBarrage
+        and buff.trickShots.remains() >= cast.time.barrage()
+    then
+        if cast.barrage() then
+            ui.debug("Casting Barrage [Trickshots]")
+            return true
+        end
+    end
     -- Rapid Fire
-    -- rapid_fire,if=buff.trick_shots.remains>=execute_time&talent.surging_shots
-    if cast.able.rapidFire() and buff.trickShots.remains() >= cast.time.rapidFire() and talent.surgingShots then
+    -- rapid_fire,if=buff.trick_shots.remains>=execute_time
+    if cast.able.rapidFire() and buff.trickShots.remains() >= cast.time.rapidFire() then
         if cast.rapidFire() then
             ui.debug("Casting Rapid Fire [Trickshots]")
+            return true
+        end
+    end
+    -- Kill Shot
+    -- kill_shot,if=buff.razor_fragments.up
+    if cast.able.killShot(var.lowestHPUnit) and var.useKillShot and buff.razorFragments.exists() then
+        if cast.killShot(var.lowestHPUnit) then
+            ui.debug("Casting Kill Shot [Trickshots - Razor Fragments]")
+            return true
+        end
+    end
+    -- Black Arrow
+    -- black_arrow
+    if cast.able.blackArrow() then
+        if cast.blackArrow() then
+            ui.debug("Casting Black Arrow [Trickshots]")
+            return true
+        end
+    end
+    -- Wailing Arrow
+    -- wailing_arrow,if=buff.precise_shots.down
+    if ui.alwaysCdAoENever("Wailing Arrow", 3, #enemies.yards40f) and talent.wailingArrow and cast.able.wailingArrow(units.dyn40, "aoe", 3, 8) and not buff.preciseShots.exists() then
+        if cast.wailingArrow(units.dyn40, "aoe", 3, 8) then
+            ui.debug("Casting Wailing Arrow [Trickshots]")
             return true
         end
     end
@@ -569,80 +571,20 @@ actionList.Trickshots = function()
         end
     end
     -- Aimed Shot
-    -- aimed_shot,target_if=min:dot.serpent_sting.remains+action.serpent_sting.in_flight_to_target*99,if=talent.serpentstalkers_trickery&(buff.trick_shots.remains>=execute_time&(buff.precise_shots.down|buff.trueshot.up|full_recharge_time<cast_time+gcd))
-    if cast.able.aimedShot(var.minSerpentStingInFlightUnit) and not unit.moving("player") and ((talent.serpentstalkersTrickery and (buff.trickShots.remains() >= cast.time.aimedShot()
-            and (not buff.preciseShots.exists() or buff.trueshot.exists() or charges.aimedShot.timeTillFull() < cast.time.aimedShot() + unit.gcd()))))
+    -- aimed_shot,target_if=min:dot.serpent_sting.remains+action.serpent_sting.in_flight_to_target*99,if=buff.trick_shots.remains>=execute_time&buff.precise_shots.down
+    if cast.able.aimedShot(var.minSerpentStingInFlightUnit) and not unit.moving("player")
+        and buff.trickShots.remains() >= cast.time.aimedShot() and not buff.preciseShots.exists()
     then
         if cast.aimedShot(var.minSerpentStingInFlightUnit) then
-            ui.debug("Casting Aimed Shot [Trickshots - Serpentstalker's Trickery]")
-            return true
-        end
-    end
-    -- Aimed Shot
-    -- aimed_shot,target_if=max:debuff.latent_poison.stack,if=(buff.trick_shots.remains>=execute_time&(buff.precise_shots.down|buff.trueshot.up|full_recharge_time<cast_time+gcd))
-    if cast.able.aimedShot(var.maxLatentPoisonUnit) and not unit.moving("player") and (((buff.trickShots.remains() >= cast.time.aimedShot()
-            and (not buff.preciseShots.exists() or buff.trueshot.exists() or charges.aimedShot.timeTillFull() < cast.time.aimedShot() + unit.gcd()))))
-    then
-        if cast.aimedShot(var.maxLatentPoisonUnit) then
             ui.debug("Casting Aimed Shot [Trickshots]")
             return true
         end
     end
-    -- Rapid Fire
-    -- rapid_fire,if=buff.trick_shots.remains>=execute_time
-    if cast.able.rapidFire() and buff.trickShots.remains() >= cast.time.rapidFire() then
-        if cast.rapidFire() then
-            ui.debug("Casting Rapid Fire [Trickshots]")
-            return true
-        end
-    end
-    -- Chimaera Shot
-    -- chimaera_shot,if=buff.trick_shots.up&buff.precise_shots.up&focus>cost+action.aimed_shot.cost&active_enemies<4
-    if cast.able.chimaeraShot() and buff.trickShots.exists() and buff.preciseShots.exists()
-        and focus() > var.chimaeraCost + var.aimedShotCost and #enemies.yards40f < 4
-    then
-        if cast.chimaeraShot() then
-            ui.debug("Casting Chimaera Shot [Trickshots]")
-            return true
-        end
-    end
     -- Multishot
-    -- multishot,if=buff.trick_shots.down|(buff.precise_shots.up|buff.bulletstorm.stack=10)&focus>cost+action.aimed_shot.cost
-    if cast.able.multishot(units.dyn40, "aoe", 1, 10) and ((not buff.trickShots.exists() or (buff.preciseShots.exists()
-            or buff.bulletstorm.stack() == 10) and focus() > var.multishotCost + var.aimedShotCost))
+    -- multishot,if=buff.trick_shots.down|buff.precise_shots.up|focus>cost+action.aimed_shot.cost
+    if cast.able.multishot(units.dyn40, "aoe", 1, 10)
+        and (not buff.trickShots.exists() or buff.preciseShots.exists() or focus() > var.multishotCost + var.aimedShotCost)
     then
-        if cast.multishot(units.dyn40, "aoe", 1, 10) then
-            ui.debug("Casting Multishot [Trickshots - No Trick Shorts | Precise Shots / Bulletstorm]")
-            return true
-        end
-    end
-    -- Serpent Sting
-    -- serpent_sting,target_if=min:dot.serpent_sting.remains,if=refreshable&talent.poison_injection&!talent.serpentstalkers_trickery
-    if cast.able.serpentSting(var.lowestSerpentSting) and debuff.serpentSting.refresh(var.lowestSerpentSting) and talent.poisonInjection and not talent.serpentstalkersTrickery then
-        if cast.serpentSting(var.lowestSerpentSting) then
-            ui.debug("Casting Serpent Sting [Trickshots]")
-            return true
-        end
-    end
-    -- Steel Trap
-    -- steel_trap,if=buff.trueshot.down
-    if cast.able.steelTrap() and not buff.trueshot.exists() then
-        if cast.steelTrap() then
-            ui.debug("Casting Steel Trap [Trickshots]")
-            return true
-        end
-    end
-    -- Kill Shot
-    -- kill_shot,if=focus>cost+action.aimed_shot.cost
-    if cast.able.killShot(var.lowestHPUnit) and var.useKillShot and focus() > cast.cost.killShot() + var.aimedShotCost then
-        if cast.killShot(var.lowestHPUnit) then
-            ui.debug("Casting Kill Shot [Trickshots]")
-            return true
-        end
-    end
-    -- Multishot
-    -- multishot,if=focus>cost+action.aimed_shot.cost
-    if cast.able.multishot(units.dyn40, "aoe", 1, 10) and focus() > var.multishotCost + var.aimedShotCost then
         if cast.multishot(units.dyn40, "aoe", 1, 10) then
             ui.debug("Casting Multishot [Trickshots]")
             return true
@@ -650,12 +592,18 @@ actionList.Trickshots = function()
     end
     -- Bag Of Tricks
     -- bag_of_tricks,if=buff.trueshot.down
+    if ui.checked("Racial") and unit.race() == "Vulpera" and cast.able.bagOfTricks() and not buff.trueshot.exists() then
+        if cast.bagOfTricks() then
+            ui.debug("Casting Bag Of Tricks [St]")
+            return true
+        end
+    end
     -- Steady Shot
     -- steady_shot
     if cast.able.steadyShot() and unit.ttd(units.dyn40) > cast.time.steadyShot()
         and ((not buff.preciseShots.exists() or focus() < 20) and focus() <= var.multishotCost + var.aimedShotCost)
         and cast.timeSinceLast.steadyShot() > unit.gcd("true") and not cast.current.steadyShot()
-    then -- and power.focus.amount() <= cast.cost.arcaneShot() + var.aimedShotCost then
+    then
         if cast.steadyShot() then
             ui.debug("Casting Steady Shot [Trickshots]")
             return true
@@ -666,91 +614,53 @@ end -- End Action List - Trickshots
 -- Action List - St
 actionList.St = function()
     -- Steady Shot
-    -- steady_shot,if=talent.steady_focus&steady_focus_count&(buff.steady_focus.remains<8|buff.steady_focus.down&!buff.trueshot.up)
+    -- steady_shot,if=talent.steady_focus&steady_focus_count&buff.steady_focus.remains<8
     if cast.able.steadyShot() and cast.timeSinceLast.steadyShot() > unit.gcd("true") and not cast.current.steadyShot()
-        and ((talent.steadyFocus and buff.steadyFocus.count() < 2 and (buff.steadyFocus.remains() < 8 or not buff.steadyFocus.exists() and not buff.trueshot.exists())))
+        and talent.steadyFocus and buff.steadyFocus.count() < 2 and buff.steadyFocus.remains() < 8
     then
         if cast.steadyShot() then
             ui.debug("Casting Steady Shot [St - Steady Focus]")
             return true
         end
     end
-    -- Rapid Fire
-    -- rapid_fire,if=buff.trick_shots.remains<execute_time
-    if cast.able.rapidFire() and buff.trickShots.remains() < cast.time.rapidFire() then
-        if cast.rapidFire() then
-            ui.debug("Casting Rapid Fire [St - Trickshots End Soon]")
-            return true
-        end
-    end
     -- Kill Shot
-    -- kill_shot,if=focus+cast_regen<focus.max
-    if cast.able.killShot(var.lowestHPUnit) and var.useKillShot and focus() + cast.regen.killShot() < focus.max() then
+    -- kill_shot,if=buff.razor_fragments.up
+    if cast.able.killShot(var.lowestHPUnit) and var.useKillShot and buff.razorFragments.exists() then
         if cast.killShot(var.lowestHPUnit) then
-            ui.debug("Casting Kill Shot [St]")
+            ui.debug("Casting Kill Shot [St - Razor Fragments]")
             return true
         end
     end
-    -- Volley
-    -- volley,if=buff.salvo.up|variable.trueshot_ready|cooldown.trueshot.remains>45|fight_remains<12
-    if ui.alwaysCdAoENever("Volley", ui.value("Volley Units"), 8) and cast.able.volley("target", "ground", ui.value("Volley Units"), 8)
-        and ui.mode.volley == 1 and (#enemies.yards8t >= ui.value("Volley Units"))
-        and ((buff.salvo.exists() or var.trueshotReady or cd.trueshot.remains() > 45 --[[or unit.ttdGroup(40) < 12]]))
-    then
-        if cast.volley("target", "ground", ui.value("Volley Units"), 8) then
-            ui.debug("Casting Volley [St]")
-            return true
-        end
-    end
-    -- Serpent Sting
-    -- serpent_sting,target_if=min:dot.serpent_sting.remains,if=refreshable&!talent.serpentstalkers_trickery&buff.trueshot.down
-    if cast.able.serpentSting(var.lowestSerpentSting) and debuff.serpentSting.refresh(units.dyn40) and not talent.serpentstalkersTrickery and not buff.trueshot.exists() then
-        if cast.serpentSting(var.lowestSerpentSting) then
-            ui.debug("Casting Serpent Sting [St]")
+    -- Black Arrow
+    -- black_arrow
+    if cast.able.blackArrow() then
+        if cast.blackArrow() then
+            ui.debug("Casting Black Arrow [St]")
             return true
         end
     end
     -- Explosive Shot
-    -- explosive_shot
-    if ui.alwaysCdAoENever("Explosive Shot", 1, #enemies.yards8t) and cast.able.explosiveShot(units.dyn40, "aoe", 1, 8) and talent.explosiveShot and unit.ttd(units.dyn40) > 3 then
+    -- explosive_shot,if=active_enemies>1
+    if ui.alwaysCdAoENever("Explosive Shot", 1, #enemies.yards8t) and cast.able.explosiveShot(units.dyn40, "aoe", 1, 8)
+        and talent.explosiveShot and unit.ttd(units.dyn40) > 3 and #enemies.yards8t > 1 then
         if cast.explosiveShot(units.dyn40, "aoe", 1, 8) then
-            ui.debug("Casting Explosive Shot [St]")
+            ui.debug("Casting Explosive Shot [St - Multiple Targets]")
             return true
         end
     end
-    -- Stampede
-    -- stampede
-    if ui.alwaysCdAoENever("Stampede", 1, #enemies.yards40f) and cast.able.stampede() then
-        if cast.stampede() then
-            ui.debug("Casting Stampede [St]")
-            return true
-        end
-    end
-    -- Death Chakram
-    -- death_chakram
-    if ui.alwaysCdAoENever("Death Chakram", 1, #enemies.yards8t) and cast.able.deathChakram() then
-        if cast.deathChakram() then
-            ui.debug("Casting Death Chakram [St]")
-            return true
-        end
-    end
-    -- Wailing Arrow
-    -- wailing_arrow,if=active_enemies>1
-    if ui.alwaysCdAoENever("Wailing Arrow", 2, #enemies.yards40f)
-        and cast.able.wailingArrow(units.dyn40, "aoe", 2, 8) and #enemies.yards40f > 1
-    then
-        if cast.wailingArrow(units.dyn40, "aoe", 2, 8) then
-            ui.debug("Casting Wailing Arrow [St]")
+    -- Volley
+    -- volley
+    if ui.alwaysCdAoENever("Volley", 1, 8) and cast.able.volley("target", "ground", 1, 8) and ui.mode.volley == 1 then
+        if cast.volley("target", "ground", 1, 8) then
+            ui.debug("Casting Volley [St]")
             return true
         end
     end
     -- Rapid Fire
-    -- rapid_fire,if=(talent.surging_shots|action.aimed_shot.full_recharge_time>action.aimed_shot.cast_time+cast_time)&(focus+cast_regen<focus.max)
-    if cast.able.rapidFire() and (((talent.surgingShots or charges.aimedShot.timeTillFull() > cast.time.aimedShot() + cast.time.rapidFire())
-            and (focus() + cast.regen.rapidFire() < focus.max())))
-    then
+    -- rapid_fire,if=!talent.lunar_storm|(!cooldown.lunar_storm.remains|cooldown.lunar_storm.remains>5)
+    if cast.able.rapidFire() and (not talent.lunarStorm or (not cd.lunarStorm.exists() or cd.lunarStorm.remains() > 5)) then
         if cast.rapidFire() then
-            ui.debug("Casting Rapid Fire [St]")
+            ui.debug("Casting Rapid Fire [St - No Lunar Storm]")
             return true
         end
     end
@@ -770,70 +680,91 @@ actionList.St = function()
             return true
         end
     end
-    -- Aimed Shot
-    -- aimed_shot,target_if=min:dot.serpent_sting.remains+action.serpent_sting.in_flight_to_target*99,if=talent.serpentstalkers_trickery&(buff.precise_shots.down|(buff.trueshot.up|full_recharge_time<gcd+cast_time)&(!talent.chimaera_shot|active_enemies<2|ca_active)|buff.trick_shots.remains>execute_time&active_enemies>1)
-    if cast.able.aimedShot(var.minSerpentStingInFlightUnit) and not unit.moving("player") and ((talent.serpentstalkersTrickery
-            and (not buff.preciseShots.exists() or (buff.trueshot.exists() or charges.aimedShot.timeTillFull() < unit.gcd() + cast.time.aimedShot())
-                and (not talent.chimaeraShot or #enemies.yards40f < 2 or var.caActive) or buff.trickShots.remains() > cast.time.aimedShot() and #enemies.yards40f > 1)))
-    then
-        if cast.aimedShot(var.minSerpentStingInFlightUnit) then
-            ui.debug("Casting Aimed Shot [St - Serpentstalker's Trickery]")
+    -- Wailing Arrow
+    -- wailing_arrow
+    if ui.alwaysCdAoENever("Wailing Arrow", 1, #enemies.yards40f) and talent.wailingArrow and cast.able.wailingArrow(units.dyn40, "aoe", 1, 8) then
+        if cast.wailingArrow(units.dyn40, "aoe", 1, 8) then
+            ui.debug("Casting Wailing Arrow [St]")
             return true
         end
     end
     -- Aimed Shot
-    -- aimed_shot,target_if=max:debuff.latent_poison.stack,if=buff.precise_shots.down|(buff.trueshot.up|full_recharge_time<gcd+cast_time)&(!talent.chimaera_shot|active_enemies<2|ca_active)|buff.trick_shots.remains>execute_time&active_enemies>1
-    if cast.able.aimedShot(var.maxLatentPoisonUnit) and not unit.moving("player") and ((not buff.preciseShots.exists() or (buff.trueshot.exists() or charges.aimedShot.timeTillFull() < unit.gcd() + cast.time.aimedShot())
-            and (not talent.chimaeraShot or #enemies.yards40f < 2 or var.caActive) or buff.trickShots.remains() > cast.time.aimedShot() and #enemies.yards40f > 1))
+    -- aimed_shot,target_if=min:dot.serpent_sting.remains+action.serpent_sting.in_flight_to_target*99,if=buff.precise_shots.down|(buff.trueshot.up|full_recharge_time<gcd+cast_time)&(active_enemies<2|!talent.chimaera_shot)|(buff.trick_shots.remains>execute_time&active_enemies>1)
+    if cast.able.aimedShot(var.minSerpentStingInFlightUnit) and not unit.moving("player")
+        and (not buff.preciseShots.exists() or (buff.trueshot.exists() or charges.aimedShot.timeTillFull() < unit.gcd() + cast.time.aimedShot())
+            and (#enemies.yards40f < 2 or not talent.chimaeraShot) or (buff.trickShots.remains() > cast.time.aimedShot() and #enemies.yards40f > 1))
     then
-        if cast.aimedShot(var.maxLatentPoisonUnit) then
+        if cast.aimedShot(var.minSerpentStingInFlightUnit) then
             ui.debug("Casting Aimed Shot [St]")
             return true
         end
     end
-    -- Wailing Arrow
-    -- wailing_arrow,if=buff.trueshot.down
-    if ui.alwaysCdAoENever("Wailing Arrow", 1, #enemies.yards40f)
-        and cast.able.wailingArrow(units.dyn40, "aoe", 1, 8) and not buff.trueshot.exists() then
-        if cast.wailingArrow(units.dyn40, "aoe", 1, 8) then
-            ui.debug("Casting Wailing Arrow [St - No Trueshot]")
-            return true
-        end
-    end
-    -- Kill Command
-    -- kill_command,if=buff.trueshot.down
-    if cast.able.killCommand() and not buff.trueshot.exists() then
-        if cast.killCommand() then
-            ui.debug("Casting Kill Command [St]")
-            return true
-        end
-    end
-    -- Steel Trap
-    -- steel_trap
-    if cast.able.steelTrap() then
-        if cast.steelTrap() then
-            ui.debug("Casting Steel Trap [St]")
+    -- Steady Shot
+    -- steady_shot,if=talent.steady_focus&buff.steady_focus.down&buff.trueshot.down
+    if cast.able.steadyShot() and cast.timeSinceLast.steadyShot() > unit.gcd("true") and not cast.current.steadyShot()
+        and talent.steadyFocus and not buff.steadyFocus.exists() and not buff.trueshot.exists()
+    then
+        if cast.steadyShot() then
+            ui.debug("Casting Steady Shot [St - No Steady Focus]")
             return true
         end
     end
     -- Chimaera Shot
-    -- chimaera_shot,if=buff.precise_shots.up|focus>cost+action.aimed_shot.cost
-    if cast.able.chimaeraShot() and ((buff.preciseShots.exists() or focus() > var.chimaeraCost + var.aimedShotCost)) then
+    -- chimaera_shot,if=buff.precise_shots.up
+    if cast.able.chimaeraShot() and buff.preciseShots.exists() then
         if cast.chimaeraShot() then
             ui.debug("Casting Chimaera Shot [St]")
             return true
         end
     end
     -- Arcane Shot
-    -- arcane_shot,if=buff.precise_shots.up|focus>cost+action.aimed_shot.cost
-    if cast.able.arcaneShot() and ((buff.preciseShots.exists() or focus() > cast.cost.arcaneShot() + var.aimedShotCost)) then
+    -- arcane_shot,if=buff.precise_shots.up
+    if cast.able.arcaneShot() and buff.preciseShots.exists() then
         if cast.arcaneShot() then
-            ui.debug("Casting Arcane Shot [St]")
+            ui.debug("Casting Arcane Shot [St - Precise Shots]")
+            return true
+        end
+    end
+    -- Kill Shot
+    -- kill_shot
+    if cast.able.killShot(var.lowestHPUnit) and var.useKillShot then
+        if cast.killShot(var.lowestHPUnit) then
+            ui.debug("Casting Kill Shot [St]")
+            return true
+        end
+    end
+    -- Barrage
+    -- barrage,if=talent.rapid_fire_barrage
+    if ui.alwaysCdAoENever("Barrage", 1, #enemies.yards8t) and cast.able.barrage() and talent.barrage and talent.rapidFireBarrage then
+        if cast.barrage() then
+            ui.debug("Casting Barrage [St]")
+            return true
+        end
+    end
+    -- Explosive Shot
+    -- explosive_shot
+    if ui.alwaysCdAoENever("Explosive Shot", 1, #enemies.yards8t) and cast.able.explosiveShot(units.dyn40, "aoe", 1, 8) and talent.explosiveShot and unit.ttd(units.dyn40) > 3 then
+        if cast.explosiveShot(units.dyn40, "aoe", 1, 8) then
+            ui.debug("Casting Explosive Shot [St]")
+            return true
+        end
+    end
+    -- Arcane Shot
+    -- arcane_shot,if=focus>cost+action.aimed_shot.cost
+    if cast.able.arcaneShot() and focus() > cast.cost.arcaneShot() + var.aimedShotCost then
+        if cast.arcaneShot() then
+            ui.debug("Casting Arcane Shot [St - High Focus]")
             return true
         end
     end
     -- Bag Of Tricks
     -- bag_of_tricks,if=buff.trueshot.down
+    if ui.checked("Racial") and unit.race() == "Vulpera" and cast.able.bagOfTricks() and not buff.trueshot.exists() then
+        if cast.bagOfTricks() then
+            ui.debug("Casting Bag Of Tricks [St]")
+            return true
+        end
+    end
     -- Steady Shot
     -- steady_shot
     if cast.able.steadyShot() and unit.ttd(units.dyn40) > cast.time.steadyShot()
@@ -849,8 +780,14 @@ end -- End Action List - St
 -- Action List - Pre-Combat
 actionList.PreCombat = function()
     if not unit.inCombat() and not buff.feignDeath.exists() then
+        -- Module - Phial Up
+        -- flask
+        module.PhialUp()
+        -- Module - Imbue Up
+        -- augmentation
+        module.ImbueUp()
         -- Summon Pet
-        -- summon_pet
+        -- summon_pet,if=!talent.lone_wolf
         if actionList.PetManagement() then
             ui.debug("")
             return true
@@ -864,14 +801,6 @@ actionList.PreCombat = function()
                     return true
                 end
             end
-            -- Use Item - Algethar Puzzle Box
-            -- use_item,name=algethar_puzzle_box
-            if use.able.algetharPuzzleBox() then
-                if use.algetharPuzzleBox() then
-                    ui.debug("Using Algethar Puzzle Box [Precombat]")
-                    return true
-                end
-            end
             -- Aimed Shot
             -- aimed_shot,if=active_enemies<3&(!talent.volley|active_enemies<2)
             if cast.able.aimedShot("target") and not unit.moving("player")
@@ -880,16 +809,6 @@ actionList.PreCombat = function()
             then
                 if cast.aimedShot("target") then
                     ui.debug("Casting Aimed Shot [Precombat]")
-                    return true
-                end
-            end
-            -- Wailing Arrow
-            -- wailing_arrow,if=active_enemies>2|!talent.steady_focus
-            if ui.alwaysCdAoENever("Wailing Arrow", 1, #enemies.yards40f) and cast.able.wailingArrow("target") and not unit.moving("player")
-                and ((#enemies.yards40f > 2 or not talent.steadyFocus))
-            then
-                if cast.wailingArrow("target") then
-                    ui.debug("Casting Wailing Arrow [Precombat]")
                     return true
                 end
             end
@@ -929,6 +848,9 @@ actionList.Combat = function()
         -- Call Action List - Cds
         -- call_action_list,name=cds
         if actionList.Cooldowns() then return true end
+        -- Call Action List - Trinkets
+        -- call_action_list,name=trinkets
+        if actionList.Trinkets() then return true end
         -- Call Action List - St
         -- call_action_list,name=st,if=active_enemies<3|!talent.trick_shots
         if (ui.useST(10, 3, "target") or not talent.trickShots) then
@@ -982,12 +904,8 @@ local function runRotation()
     if var.profileStop == nil then var.profileStop = false end
     var.haltProfile = (unit.inCombat() and var.profileStop) or (unit.mounted() or unit.flying()) or ui.pause() or
         buff.feignDeath.exists() or ui.mode.rotation == 4
-    var.caActive = talent.carefulAim and unit.hp(units.dyn40) > 70
-    -- target_if=min:dot.serpent_sting.remains
-    var.lowestSerpentSting = debuff.serpentSting.lowest(40, "remain") or "target"
-    var.serpentInFlight = cast.inFlight.serpentSting() and 1 or 0
+    var.serpentInFlight = 0 --cast.inFlight.serpentSting() and 1 or 0
     var.aimedShotCost = talent.aimedShot and cast.cost.aimedShot() or 0
-    var.chimaeraCost = talent.chimaeraShot and cast.cost.chimaeraShot() or 0
     var.multishotCost = talent.multishot and cast.cost.multishot() or 0
 
     -- Variable - Trueshot Ready
@@ -1009,18 +927,6 @@ local function runRotation()
         end
     end
 
-    -- target_if=max:debuff.latent_poison.stack
-    var.maxLatentPoison = 0
-    var.maxLatentPoisonUnit = "target"
-    for i = 1, #enemies.yards40f do
-        local thisUnit = enemies.yards40f[i]
-        local thisCondition = debuff.latentPoison.count(thisUnit)
-        if thisCondition > var.maxLatentPoison then
-            var.maxLatentPoison = thisCondition
-            var.maxLatentPoisonUnit = thisUnit
-        end
-    end
-
     var.lowestHP = 100
     var.lowestHPUnit = "target"
     for i = 1, #enemies.yards40f do
@@ -1034,7 +940,6 @@ local function runRotation()
 
     var.useKillShot = unit.hp(var.lowestHPUnit) < 20 or buff.deathblow.exists()
 
-    --     ui.chatOverlay("Is Target: "..tostring(unit.isUnit(var.lowestHPUnit,"target")).." - Name: "..tostring(unit.name(var.lowestHPUnit)))
     ---------------------
     --- Begin Profile ---
     ---------------------
