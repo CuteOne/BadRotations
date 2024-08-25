@@ -140,9 +140,9 @@ Raidable means if its good to raid with.
 
 - Marksmanship
 
-|rotation|author |patch|coverage|status |    readiness     |last updated|
-|--------|-------|:---:|:------:|:-----:|:----------------:|-----------:|
-|CuteOne |CuteOne|10.2 |  100%  |Limited|:white_check_mark:|  05/20/2024|
+|rotation|author |patch |coverage|status |    readiness     |last updated|
+|--------|-------|:----:|:------:|:-----:|:----------------:|-----------:|
+|CuteOne |CuteOne|11.0.2|  100%  |Limited|:white_check_mark:|  08/25/2024|
 
 
 ### Mage
