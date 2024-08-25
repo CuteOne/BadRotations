@@ -66,10 +66,12 @@ if not br.metaTable1 then
 	-- We are checking if the user has a Debuff we either can not or don't want to heal them
 	local function CheckBadDebuff(tar)
 		for i = 1, 40 do
-			local buffName, _, _, _, _, _, _, _, _, buffSpellID = br._G.UnitAura(tar, i, "HELPFUL|HARMFUL")
-			if buffName then
-				if br.novaEngineTables.BadDebuffList[buffSpellID] ~= nil then
-					return false
+			local auraInfo = br._G.UnitAura(tar, i, "HELPFUL|HARMFUL")
+			if auraInfo then
+				if auraInfo.name then
+					if br.novaEngineTables.BadDebuffList[auraInfo.spellID] ~= nil then
+						return false
+					end
 				end
 			end
 		end

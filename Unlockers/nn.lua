@@ -493,10 +493,10 @@ function br.unlock:NNUnlock()
 		return UnitAttackSpeed(ObjectUnit(...))
 	end
 	b.UnitAura = function(unit, index, filter)
-		return UnitAura(ObjectUnit(unit), index, filter)
+		return C_UnitAuras.GetAuraDataByIndex(ObjectUnit(unit), index, filter)
 	end
 	b.UnitBuff = function(unit, index, filter)
-		return UnitBuff(ObjectUnit(unit), index, filter)
+		return C_UnitAuras.GetBuffDataByIndex(ObjectUnit(unit), index, filter)
 	end
 	b.UnitCanAttack = function(unit1, unit2)
 		return UnitCanAttack(ObjectUnit(unit1), ObjectUnit(unit2))
@@ -520,7 +520,7 @@ function br.unlock:NNUnlock()
 		return UnitCreatureType(ObjectUnit(...))
 	end
 	b.UnitDebuff = function(unit, index, filter)
-		return UnitDebuff(ObjectUnit(unit), index, filter)
+		return C_UnitAuras.GetDebuffDataByIndex(ObjectUnit(unit), index, filter)
 	end
 	b.UnitExists = function(...)
 		return UnitExists(ObjectUnit(...))
