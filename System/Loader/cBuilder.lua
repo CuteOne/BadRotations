@@ -195,7 +195,8 @@ function br.loader:new(spec, specName)
         local playerClass = select(2, br._G.UnitClass('player'))
         local talentName = br.convertName(br._G.GetSpellInfo(talentID))
         if br.lists.spells[playerClass]["Shared"] ~= nil and br.lists.spells[playerClass][spec] ~= nil then
-            local heroicTalents = br.lists.spells[playerClass]["Shared"]["talentsHeroic"] and br.lists.spells[playerClass]["Shared"]["talentsHeroic"] or {}
+            local heroicTalents = br.lists.spells[playerClass]["Shared"]["talentsHeroic"] and
+                br.lists.spells[playerClass]["Shared"]["talentsHeroic"] or {}
             local sharedTalents = br.lists.spells[playerClass]["Shared"]["talents"]
             local specTalents = br.lists.spells[playerClass][spec]["talents"]
             -- Check for missing entries

@@ -1008,12 +1008,15 @@ function br.getOptionText(Value)
 end
 
 function br.convertName(name)
-	local function titleCase(first, rest)
-		return first:upper() .. rest:lower()
-	end
 	if name ~= nil then
+		-- Remove hyphens and lowercase the letter that follows
+		name = name:gsub("-(%a)", function(letter)
+			return letter:lower()
+		end)
 		-- Cap All First Letters of Words
-		name = name:gsub("(%a)([%w_']*)", titleCase)
+		name = name:gsub("(%a)([%w_']*)", function(first, rest)
+			return first:upper() .. rest:lower()
+		end)
 		-- Lower first character of name
 		name = name:gsub("%a", string.lower, 1)
 		-- Remove all non alphanumeric in string
