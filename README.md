@@ -80,9 +80,10 @@ Raidable means if its good to raid with.
 
 - Blood
 
-|      rotation      |   author   |patch |coverage|status|    readiness     |last updated|
-|--------------------|------------|:----:|:------:|:----:|:----------------:|-----------:|
-|BrewBloodKnight-SimC|BrewingCoder|10.2.5|  100%  | Full |:white_check_mark:|  05/08/2024|
+|      rotation      |   author   |patch |coverage|status |    readiness     |last updated|
+|--------------------|------------|:----:|:------:|:-----:|:----------------:|-----------:|
+|CuteOne             |CuteOne     |11.0.2|  50%   |Limited|  :interrobang:   |  08/27/2024|
+|BrewBloodKnight-SimC|BrewingCoder|10.2.5|  100%  | Full  |:white_check_mark:|  05/08/2024|
 
 - Frost
 
