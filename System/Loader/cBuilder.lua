@@ -142,7 +142,7 @@ function br.loader:new(spec, specName)
                         -- Assign spell to br.player.spells for the spell type
                         self.spells[spellType][spellRef] = spellID
                         -- Assign active spells to Abilities Subtable and base br.player.spells
-                        if (spellType == 'abilities' or spellType == 'covenants' or ((spellType == 'traits' or spellType == 'talents') and spec < 1400))
+                        if (spellType == 'abilities' or spellType == 'covenants' or ((spellType == 'traits' or spellType == 'talents' or spellType == 'talentsHeroic') and spec < 1400))
                             and type(spellID) ~= 'table' and not br._G.C_Spell.IsSpellPassive(spellID)
                         then
                             self.spells.abilities = self.spells.abilities or {}
@@ -173,6 +173,7 @@ function br.loader:new(spec, specName)
         end
     end
 
+    br.allTalents = {}
     -- Get Active Talents
     local function getActiveTalents(node, configId)
         local activeTalents = {}
@@ -265,8 +266,22 @@ function br.loader:new(spec, specName)
     local function getFunctions()
         -- Build Talent Info
         local allTalents = getTalentInfo()
+        br.allTalents = allTalents
         if self.talent == nil then self.talent = {} end
-        for k, v in pairs(self.spells.talents) do
+        -- Heroic Talent Patching
+        local spellListTalents = self.spells.talents -- Copy to holding table
+        if self.spells.talentsHeroic ~= nil then
+            -- Add heroic talents to holding table
+            for k, v in pairs(self.spells.talentsHeroic) do spellListTalents[k] = v end
+            -- Add in missing heroic talents to allTalents (allTalents only get talents available to spec, not all heroic talents are available)
+            for _, v in pairs(self.spells.talentsHeroic) do
+                if allTalents[v] == nil then
+                    allTalents[v] = { rank = 0, active = false }
+                end
+            end
+        end
+        -- Parse Holding Table
+        for k, v in pairs(spellListTalents) do
             br.api.talent(self.talent, k, v, allTalents, self.spells)
         end
 

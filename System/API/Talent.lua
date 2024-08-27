@@ -37,7 +37,7 @@ br.api.talent = function(talent, name, id, allTalents, spellList)
         end
     end
     -- No matching talent for listed talent id, report to dev
-    if not talentFound or allTalents[id] == nil then
+    if (not talentFound or allTalents[id] == nil) then
         br._G.print("|cffff0000No talent found for: |r" ..
             name ..
             " (" ..
