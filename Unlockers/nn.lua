@@ -112,7 +112,7 @@ local unlockList =
 local globalCacheList =
 {
 	"AscendStop",
-	"CanSummonFriend",
+	-- "CanSummonFriend", -- Not Provided
 	"CheckInteractDistance",
 	"CombatTextSetActiveUnit",
 	"CopyToClipboard",
@@ -130,7 +130,7 @@ local globalCacheList =
 	"GetUnitName",
 	"InitiateTrade",
 	"IsItemInRange",
-	-- "C_Spell.IsSpellInRange",
+	"IsSpellInRange",
 	"PitchDownStart",
 	"PitchDownStop",
 	"PitchUpStart",
@@ -143,79 +143,79 @@ local globalCacheList =
 	"SpellIsTargeting",
 	"SpellTargetItem",
 	"StartAttack",
-	"SummonFriend",
+	-- "SummonFriend", -- Not Provided
 	"SwapRaidSubgroup",
 	"ToggleGameMenu",
-	"C_Spell.ToggleSpellAutoCast",
+	-- "ToggleSpellAutoCast", -- Not Provided
 	"TraceLine",
-	-- "UnitAffectingCombat",
+	"UnitAffectingCombat",
 	"UnitArmor",
 	"UnitAttackPower",
-	-- "UnitAttackSpeed",
-	-- "UnitAura",
-	"UnitAuraSlots",
-	-- "UnitBuff",
+	"UnitAttackSpeed",
+	-- "UnitAura", -- Not Provided
+	-- "UnitAuraSlots", -- Not Provided
+	-- "UnitBuff",-- Not Provided
 	"UnitCanAssist",
-	-- "UnitCanAttack",
+	"UnitCanAttack",
 	"UnitCanCooperate",
-	-- "UnitCastingInfo",
-	-- "UnitChannelInfo",
-	-- "UnitClass",
-	-- "UnitClassification",
-	-- "UnitCreatureFamily",
-	-- "UnitCreatureType",
+	"UnitCastingInfo",
+	"UnitChannelInfo",
+	"UnitClass",
+	"UnitClassification",
+	"UnitCreatureFamily",
+	"UnitCreatureType",
 	"UnitDamage",
-	-- "UnitDebuff",
+	-- "UnitDebuff", -- Not Provided
 	"UnitDetailedThreatSituation",
-	-- "UnitExists",
-	-- "UnitGetIncomingHeals",
+	"UnitExists",
+	"UnitGetIncomingHeals",
 	"UnitGetTotalHealAbsorbs",
 	"UnitGroupRolesAssigned",
-	-- "UnitGUID",
-	-- "UnitHealth",
-	-- "UnitHealthMax",
+	"UnitGUID",
+	"UnitHealth",
+	"UnitHealthMax",
 	"UnitInBattleground",
-	-- "UnitInParty",
-	-- "UnitInRaid",
-	-- "UnitInRange",
+	"UnitInParty",
+	"UnitInRaid",
+	"UnitInRange",
 	"UnitIsAFK",
-	-- "UnitIsCharmed",
-	-- "UnitIsConnected",
+	"UnitIsCharmed",
+	"UnitIsConnected",
 	"UnitIsCorpse",
 	"UnitIsDead",
-	-- "UnitIsDeadOrGhost",
+	"UnitIsDeadOrGhost",
 	"UnitIsDND",
-	-- "UnitIsEnemy",
+	"UnitIsEnemy",
 	"UnitIsFeignDeath",
-	-- "UnitIsFriend",
+	"UnitIsFriend",
 	"UnitIsGhost",
 	"UnitIsInMyGuild",
-	-- "UnitIsPlayer",
+	"UnitIsPlayer",
 	"UnitIsPossessed",
 	"UnitIsPVP",
 	"UnitIsPVPFreeForAll",
 	"UnitIsPVPSanctuary",
 	"UnitIsSameServer",
-	-- "UnitIsTrivial",
-	-- "UnitIsUnit",
-	-- "UnitIsVisible",
-	-- "UnitLevel",
-	-- "UnitName",
-	-- "UnitOnTaxi",
-	-- "UnitPhaseReason",
+	"UnitIsTrivial",
+	"UnitIsUnit",
+	"UnitIsVisible",
+	"UnitLevel",
+	"UnitName",
+	"UnitOnTaxi",
+	"UnitPhaseReason",
 	"UnitPlayerControlled",
 	"UnitPlayerOrPetInParty",
 	"UnitPlayerOrPetInRaid",
 	"UnitPowerType",
 	"UnitPVPName",
-	-- "UnitRace",
+	"UnitRace",
 	"UnitRangedAttackPower",
 	"UnitRangedDamage",
-	-- "UnitReaction",
+	"UnitReaction",
 	"UnitSelectionColor",
 	"UnitSex",
-	-- "UnitStat",
-	-- "UnitThreatSituation",
+	"UnitStat",
+	"UnitThreatSituation",
 	"UnitTarget",
 	"UnitUsingVehicle",
 	"UnitXP",
@@ -231,7 +231,6 @@ local globalCacheList =
 --------------------------------------------------------------------------------------------------------------------------------
 local _, br = ...
 local b = br._G
-local unlock = br.unlock
 local funcCopies = {}
 local globalFuncCopies = {}
 
@@ -284,7 +283,11 @@ function br.unlock:NNUnlock()
 		b[k] = function(...) return Unlock(k, ...) end
 	end
 	for _, v in pairs(globalCacheList) do
-		b[v] = C_Timer.Nn[v]
+		if C_Timer.Nn[v] == nil then
+			print("Function: " .. tostring(v) .. ", was not provided.")
+		else
+			b[v] = C_Timer.Nn[v]
+		end
 	end
 	for k, v in pairs(globalFuncCopies) do
 		if not b[k] then
@@ -313,13 +316,16 @@ function br.unlock:NNUnlock()
 	b.InteractUnit = b.ObjectInteract
 	b.GetDistanceBetweenPositions = Distance
 	b.GetDistanceBetweenObjects = Distance
- b.RunMacroText = RunMacroText
+	b.RunMacroText = RunMacroText
+	b.AuraUtil = AuraUtil
+
+	local ObjectUnit = function(unit)
+		return type(unit) == "number" and Object(unit) or unit
+	end
 
 	b.CastSpellByName = function(spellName, unit)
-		if unit == nil then return CastSpellByName(spellName) end --b.print("No unit provided to CastSpellByName") end
-		if type(unit) == number then unit = Object(unit) end
-		return CastSpellByName(spellName, unit)
-		-- return BRCastSpellByName(spellName, unit)
+		if unit == nil then return CastSpellByName(spellName) end
+		return CastSpellByName(spellName, ObjectUnit(unit))
 	end
 
 	b.ObjectPointer = function(unit)
@@ -445,17 +451,11 @@ function br.unlock:NNUnlock()
 		return ShortestAngle < degrees
 	end
 	------------------------- Miscellaneous -------------------
-	local ObjectUnit = function(unit)
-		return type(unit) == "number" and Object(unit) or unit
-	end
-	b.GetKeyState = GetKeyState
-	b.UnitFacing = b.ObjectFacing
-	b.ObjectInteract = b.InteractUnit
-	b.AuraUtil = {}
-	b.AuraUtil.FindAuraByName = function(name, unit, filter)
-		-- return Eval("AuraUtil.FindAuraByName("..table.concat({...}, ", ")..")", "")
-		return AuraUtil.FindAuraByName(name, ObjectUnit(unit), filter)
-	end
+	-- b.AuraUtil = {}
+	-- b.AuraUtil.FindAuraByName = function(name, unit, filter)
+	-- 	-- return Eval("AuraUtil.FindAuraByName("..table.concat({...}, ", ")..")", "")
+	-- 	return AuraUtil.FindAuraByName(name, ObjectUnit(unit), filter)
+	-- end
 	b.ObjectIsGameObject = function(...)
 		local ObjType = ObjectType(...)
 		return ObjType == 8 or ObjType == 11
