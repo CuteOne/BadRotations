@@ -224,7 +224,7 @@ function br.loader:new(spec, specName)
 
     -- Get All Talents
     local function getAllTalents()
-        br.talentInfo = {}
+        -- br.talentInfo = {}
         local talents = {}
         local configId = br._G.C_ClassTalents.GetActiveConfigID()
         if not configId then return talents end
@@ -266,7 +266,7 @@ function br.loader:new(spec, specName)
     local function getFunctions()
         -- Build Talent Info
         local allTalents = getTalentInfo()
-        br.allTalents = allTalents
+        -- br.allTalents = allTalents
         if self.talent == nil then self.talent = {} end
         -- Heroic Talent Patching
         local spellListTalents = self.spells.talents -- Copy to holding table
@@ -274,9 +274,11 @@ function br.loader:new(spec, specName)
             -- Add heroic talents to holding table
             for k, v in pairs(self.spells.talentsHeroic) do spellListTalents[k] = v end
             -- Add in missing heroic talents to allTalents (allTalents only get talents available to spec, not all heroic talents are available)
-            for _, v in pairs(self.spells.talentsHeroic) do
-                if allTalents[v] == nil then
-                    allTalents[v] = { rank = 0, active = false }
+            if allTalents ~= nil then
+                for _, v in pairs(self.spells.talentsHeroic) do
+                    if allTalents[v] == nil then
+                        allTalents[v] = { rank = 0, active = false }
+                    end
                 end
             end
         end
