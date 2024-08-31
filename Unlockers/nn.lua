@@ -126,8 +126,10 @@ local globalCacheList =
 	"GetPartyAssignment",
 	"GetPlayerInfoByGUID",
 	"GetPositionFromPosition",
+	"GetRaidTargetIndex",
 	"GetReadyCheckStatus",
 	"GetUnitName",
+	"GetUnitSpeed",
 	"InitiateTrade",
 	"IsItemInRange",
 	"IsSpellInRange",
@@ -196,6 +198,7 @@ local globalCacheList =
 	"UnitIsPVPFreeForAll",
 	"UnitIsPVPSanctuary",
 	"UnitIsSameServer",
+	"UnitIsTapDenied",
 	"UnitIsTrivial",
 	"UnitIsUnit",
 	"UnitIsVisible",
@@ -206,6 +209,8 @@ local globalCacheList =
 	"UnitPlayerControlled",
 	"UnitPlayerOrPetInParty",
 	"UnitPlayerOrPetInRaid",
+	"UnitPower",
+	"UnitPowerMax",
 	"UnitPowerType",
 	"UnitPVPName",
 	"UnitRace",
@@ -271,17 +276,21 @@ for i = 1, #globalCacheList do
 	local func = globalCacheList[i]
 	globalFuncCopies[func] = _G[func]
 end
+
 -- print("NN File Called")
 function br.unlock:NNUnlock()
 	if not C_Timer.Nn then return false end
 	setfenv(1, C_Timer.Nn)
 	-- print("NN Api Loaded")
+
 	--------------------------------
 	-- API unlocking
 	--------------------------------
+	---
 	for k, v in pairs(funcCopies) do
 		b[k] = function(...) return Unlock(k, ...) end
 	end
+
 	for _, v in pairs(globalCacheList) do
 		if C_Timer.Nn[v] == nil then
 			print("Function: " .. tostring(v) .. ", was not provided.")
@@ -289,6 +298,7 @@ function br.unlock:NNUnlock()
 			b[v] = C_Timer.Nn[v]
 		end
 	end
+
 	for k, v in pairs(globalFuncCopies) do
 		if not b[k] then
 			b[k] = function(...) return v(...) end
@@ -343,19 +353,17 @@ function br.unlock:NNUnlock()
 		return ObjectID(unit)
 	end
 
-	-- b.UnitTarget = function(unit)
-	-- 	return UnitTarget(unit)
-	-- end
 	b.UnitCreator = function(unit)
 		return UnitCreator(unit)
 	end
+
 	b.UnitBoundingRadius = function(unit)
 		return ObjectBoundingRadius(unit)
 	end
+
 	b.UnitCombatReach = function(unit)
 		return CombatReach(unit)
 	end
-
 
 	--------------------------------
 	-- API conversions
@@ -363,11 +371,13 @@ function br.unlock:NNUnlock()
 	b.GetWoWDirectory = function()
 		return "\\scripts"
 	end
+
 	local om = {}
 	b.GetObjectCount = function()
 		om = Objects()
 		return #Objects()
 	end
+
 	b.GetObjectWithIndex = function(index)
 		return om[index]
 	end
@@ -382,6 +392,7 @@ function br.unlock:NNUnlock()
 		local castGUID = b.UnitTarget(select(1, ...))
 		return spellId1, spellId2, castGUID, castGUID
 	end
+
 	b.GetDirectoryFiles = function(...)
 		local str = ...
 		if str == nil or str == "*" then return "" end
@@ -412,9 +423,11 @@ function br.unlock:NNUnlock()
 			SetPlayerFacing(arg)
 		end
 	end
+
 	b.GetObjectWithGUID = function(...)
 		return ...
 	end
+
 	b.IsHackEnabled = function(...) return false end
 
 	--------------------------------
@@ -430,10 +443,12 @@ function br.unlock:NNUnlock()
 			return 0, 0
 		end
 	end
+
 	b.GetPositionBetweenPositions = function(X1, Y1, Z1, X2, Y2, Z2, DistanceFromPosition1)
 		local AngleXY, AngleXYZ = b.GetAnglesBetweenPositions(X1, Y1, Z1, X2, Y2, Z2)
 		return b.GetPositionFromPosition(X1, Y1, Z1, DistanceFromPosition1, AngleXY, AngleXYZ)
 	end
+
 	b.GetPositionBetweenObjects = function(unit1, unit2, DistanceFromPosition1)
 		local X1, Y1, Z1 = b.ObjectPosition(unit1)
 		local X2, Y2, Z2 = b.ObjectPosition(unit2)
@@ -450,12 +465,8 @@ function br.unlock:NNUnlock()
 		degrees = degrees and b.rad(degrees) / 2 or math.pi / 2
 		return ShortestAngle < degrees
 	end
+
 	------------------------- Miscellaneous -------------------
-	-- b.AuraUtil = {}
-	-- b.AuraUtil.FindAuraByName = function(name, unit, filter)
-	-- 	-- return Eval("AuraUtil.FindAuraByName("..table.concat({...}, ", ")..")", "")
-	-- 	return AuraUtil.FindAuraByName(name, ObjectUnit(unit), filter)
-	-- end
 	b.ObjectIsGameObject = function(...)
 		local ObjType = ObjectType(...)
 		return ObjType == 8 or ObjType == 11
@@ -468,157 +479,33 @@ function br.unlock:NNUnlock()
 			return
 		end
 	end
+
 	b.InteractUnit = function(unit)
 		return ObjectInteract(Object(unit))
 	end
+
 	------------------------------------------
 	--- API - Unit Function Object Handler ---
 	------------------------------------------
-	-- b.CastSpellByName = function(spell, unit)
-	-- 	return Unlock("CastSpellByName(\""..spell.."\", \""..ObjectUnit(unit).."\")", "")
-	-- end
-	b.GetRaidTargetIndex = function(...)
-		return GetRaidTargetIndex(ObjectUnit(...))
-	end
-	b.GetUnitSpeed = function(...)
-		return GetUnitSpeed(ObjectUnit(...))
-	end
-	b.InSpellInRange = function(spell, unit)
-		return C_Spell.IsSpellInRange(spell, ObjectUnit(unit))
-	end
-	b.UnitAffectingCombat = function(...)
-		return UnitAffectingCombat(ObjectUnit(...))
-	end
-	b.UnitAttackSpeed = function(...)
-		return UnitAttackSpeed(ObjectUnit(...))
-	end
 	b.UnitAura = function(unit, index, filter)
 		return C_UnitAuras.GetAuraDataByIndex(ObjectUnit(unit), index, filter)
 	end
+
 	b.UnitBuff = function(unit, index, filter)
 		return C_UnitAuras.GetBuffDataByIndex(ObjectUnit(unit), index, filter)
 	end
-	b.UnitCanAttack = function(unit1, unit2)
-		return UnitCanAttack(ObjectUnit(unit1), ObjectUnit(unit2))
-	end
-	b.UnitCastingInfo = function(...)
-		return UnitCastingInfo(ObjectUnit(...))
-	end
-	b.UnitChannelInfo = function(...)
-		return UnitChannelInfo(ObjectUnit(...))
-	end
-	b.UnitClass = function(...)
-		return UnitClass(ObjectUnit(...))
-	end
-	b.UnitClassification = function(...)
-		return UnitClassification(ObjectUnit(...))
-	end
-	b.UnitCreatureFamily = function(...)
-		return UnitCreatureFamily(ObjectUnit(...))
-	end
-	b.UnitCreatureType = function(...)
-		return UnitCreatureType(ObjectUnit(...))
-	end
+
 	b.UnitDebuff = function(unit, index, filter)
 		return C_UnitAuras.GetDebuffDataByIndex(ObjectUnit(unit), index, filter)
-	end
-	b.UnitExists = function(...)
-		return UnitExists(ObjectUnit(...))
-	end
-	b.UnitGetIncomingHeals = function(unit1, unit2)
-		return UnitGetIncomingHeals(ObjectUnit(unit1), ObjectUnit(unit2))
-	end
-	b.UnitGUID = function(...)
-		return UnitGUID(ObjectUnit(...))
-	end
-	b.UnitHealth = function(...)
-		return UnitHealth(ObjectUnit(...))
-	end
-	b.UnitHealthMax = function(...)
-		return UnitHealthMax(ObjectUnit(...))
-	end
-	b.UnitLevel = function(...)
-		return UnitLevel(ObjectUnit(...))
-	end
-	b.UnitName = function(...)
-		return UnitName(ObjectUnit(...))
-	end
-	b.UnitInParty = function(...)
-		return UnitInParty(ObjectUnit(...))
-	end
-	b.UnitInRaid = function(...)
-		return UnitInRaid(ObjectUnit(...))
-	end
-	b.UnitInRange = function(...)
-		return UnitInRange(ObjectUnit(...))
-	end
-	b.UnitIsCharmed = function(...)
-		return UnitIsCharmed(ObjectUnit(...))
-	end
-	b.UnitIsConnected = function(...)
-		return UnitIsConnected(ObjectUnit(...))
-	end
-	b.UnitIsDeadOrGhost = function(...)
-		return UnitIsDeadOrGhost(ObjectUnit(...))
-	end
-	b.UnitIsEnemy = function(unit1, unit2)
-		return UnitIsEnemy(ObjectUnit(unit1), ObjectUnit(unit2))
-	end
-	b.UnitIsFriend = function(unit1, unit2)
-		return UnitIsFriend(ObjectUnit(unit1), ObjectUnit(unit2))
-	end
-	b.UnitIsPlayer = function(...)
-		return UnitIsPlayer(ObjectUnit(...))
-	end
-	b.UnitIsUnit = function(unit1, unit2)
-		return UnitIsUnit(ObjectUnit(unit1), ObjectUnit(unit2))
-	end
-	b.UnitIsVisible = function(...)
-		return UnitIsVisible(ObjectUnit(...))
-	end
-	b.UnitOnTaxi = function(...)
-		return UnitOnTaxi(ObjectUnit(...))
-	end
-	b.UnitPhaseReason = function(...)
-		return UnitPhaseReason(ObjectUnit(...))
-	end
-	b.UnitPower = function(unit, powerType)
-		return UnitPower(ObjectUnit(unit), powerType)
-	end
-	b.UnitPowerMax = function(unit, powerType)
-		return UnitPowerMax(ObjectUnit(unit), powerType)
-	end
-	b.UnitRace = function(...)
-		return UnitRace(ObjectUnit(...))
-	end
-	b.UnitReaction = function(unit1, unit2)
-		return UnitReaction(ObjectUnit(unit1), ObjectUnit(unit2))
-	end
-	b.UnitStat = function(unit, statIndex)
-		return UnitStat(ObjectUnit(unit), statIndex)
-	end
-	b.UnitIsTapDenied = function(...)
-		return UnitIsTapDenied(ObjectUnit(...))
-	end
-	b.UnitThreatSituation = function(unit1, unit2)
-		return UnitThreatSituation(ObjectUnit(unit1), ObjectUnit(unit2))
-	end
-	b.UnitIsTrivial = function(...)
-		return UnitIsTrivial(ObjectUnit(...))
 	end
 
 	--------------------------------
 	-- extra APIs
 	--------------------------------
-	-- b.AuraUtil = {}
-	-- b.AuraUtil.FindAuraByName = _G.AuraUtil["FindAuraByName"]
-	-- b.ObjectIsGameObject = function(...)
-	-- 	local ObjType = ObjectType(...)
-	-- 	return ObjType == 8 or ObjType == 11
-	-- end
 	b.GetMapId = function()
 		return select(8, b.GetInstanceInfo())
 	end
+
 	--------------------------------
 	-- missing APIs
 	--------------------------------
