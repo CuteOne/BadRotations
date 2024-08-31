@@ -361,10 +361,11 @@ end
 
 -- if br.isKnown(106832) then
 function br.isKnown(spellID)
+	local baseSpellID = br._G.FindBaseSpellByID(spellID)
 	local _, _, spellInBookType = br.getSpellInSpellBook(spellID)
 	return spellID ~= nil and spellInBookType ~= "Future Spell" and
 		( --[[spellInBookType ~= nil or]] br._G.IsPlayerSpell(tonumber(spellID))
-			or br._G.IsSpellKnown(spellID)) -- or spellInBookType == "Spell")
+			or br._G.IsSpellKnown(spellID) or br._G.IsPlayerSpell(tonumber(baseSpellID) or br._G.IsSpellKnown(baseSpellID))) -- or spellInBookType == "Spell")
 end
 
 function br.isActiveEssence(spellID)
