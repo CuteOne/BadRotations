@@ -78,15 +78,17 @@ function br.canInterrupt(unit, percentint)
 	then
 		-- Get Cast/Channel Info
 		if select(5, br._G.UnitCastingInfo(unit)) and not select(8, br._G.UnitCastingInfo(unit)) then --Get spell cast time
-			castStartTime = select(4, br._G.UnitCastingInfo(unit))
-			castEndTime = select(5, br._G.UnitCastingInfo(unit))
-			interruptID = select(9, br._G.UnitCastingInfo(unit))
+			_, _, _, castStartTime, castEndTime, _, _, _, interruptID = br._G.UnitCastingInfo(unit)
+			-- castStartTime = select(4, br._G.UnitCastingInfo(unit))
+			-- castEndTime = select(5, br._G.UnitCastingInfo(unit))
+			-- interruptID = select(9, br._G.UnitCastingInfo(unit))
 			interruptable = true
 			castType = "spellcast"
 		elseif select(5, br._G.UnitChannelInfo(unit)) and not select(7, br._G.UnitChannelInfo(unit)) then -- Get spell channel time
-			castStartTime = select(4, br._G.UnitChannelInfo(unit))
-			castEndTime = select(5, br._G.UnitChannelInfo(unit))
-			interruptID = select(8, br._G.UnitChannelInfo(unit))
+			_, _, _, castStartTime, castEndTime, _, _, interruptID = br._G.UnitChannelInfo(unit)
+			-- castStartTime = select(4, br._G.UnitChannelInfo(unit))
+			-- castEndTime = select(5, br._G.UnitChannelInfo(unit))
+			-- interruptID = select(8, br._G.UnitChannelInfo(unit))
 			interruptable = true
 			castType = "spellchannel"
 		end
@@ -139,7 +141,7 @@ function br.canInterrupt(unit, percentint)
 		then
 			local ttd = br.getTTD(unit) or 0
 			local withinsCastPercent = math.ceil((castTimeRemain / castDuration) * 100) <= castPercent
-			local willFinishCast = ttd > castTimeRemain
+			local willFinishCast = ttd > castTimeRemain or ttd == -2
 			if castType == "spellcast" then
 				if withinsCastPercent and interruptable == true and willFinishCast then
 					return true
@@ -147,7 +149,10 @@ function br.canInterrupt(unit, percentint)
 			end
 			if castType == "spellchannel" then
 				--if (GetTime() - castStartTime/1000) > channelDelay and interruptable == true then
-				if (br._G.GetTime() - castStartTime / 1000) > (channelDelay - 0.2 + math.random() * 0.4) and (withinsCastPercent or castPercent == 100) and interruptable == true and (willFinishCast or castPercent == 100) then
+				if (br._G.GetTime() - castStartTime / 1000) > (channelDelay - 0.2 + math.random() * 0.4)
+					and (withinsCastPercent or castPercent == 100) and interruptable == true
+					and (willFinishCast or castPercent == 100)
+				then
 					return true
 				end
 			end
