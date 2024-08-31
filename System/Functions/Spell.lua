@@ -72,6 +72,7 @@ function br.canInterrupt(unit, percentint)
 	local channelDelay = 1    -- Delay to mimick human reaction time for channeled spells
 	local castType = "spellcast" -- Handle difference in logic if the spell is cast or being channeles
 	local onWhitelist = false
+	local whitelistOnly = br.isChecked("Interrupt Only Whitelist")
 	if br.GetUnitExists(unit)
 		and br._G.UnitCanAttack("player", unit)
 		and not br._G.UnitIsDeadOrGhost(unit)
@@ -132,16 +133,16 @@ function br.canInterrupt(unit, percentint)
 			end
 		end
 		-- Check if on whitelist (if selected)
-		if br.isChecked("Interrupt Only Whitelist") and br.lists.interruptWhitelist[interruptID] then
+		if whitelistOnly and br.lists.interruptWhitelist[interruptID] then
 			onWhitelist = true
 		end
 		-- Return when interrupt time is met
-		if ((br.isChecked("Interrupt Only Whitelist") and (onWhitelist or not (br.player.instance == "party" or br.player.instance == "raid" or br.player.instance == "scenario")))
-				or not br.isChecked("Interrupt Only Whitelist"))
+		if ((whitelistOnly and onWhitelist) or not whitelistOnly)
+			or not (br.player.instance == "party" or br.player.instance == "raid" or br.player.instance == "scenario")
 		then
 			local ttd = br.getTTD(unit) or 0
 			local withinsCastPercent = math.ceil((castTimeRemain / castDuration) * 100) <= castPercent
-			local willFinishCast = ttd > castTimeRemain or ttd == -2
+			local willFinishCast = ttd > castTimeRemain or ttd < 0
 			if castType == "spellcast" then
 				if withinsCastPercent and interruptable == true and willFinishCast then
 					return true
