@@ -18,7 +18,7 @@ end
 function br.CancelUnitBuffID(unit, spellID, filter)
 	-- local spellName = GetSpellInfo(spellID)
 	for i = 1, 40 do
-		local _, _, _, _, _, _, _, _, _, buffSpellID = br._G.UnitBuff(unit, i)
+		local _, _, _, _, _, _, _, _, _, buffSpellID = br.UnitBuff(unit, i)
 		if buffSpellID ~= nil then
 			if buffSpellID == spellID then
 				br._G.CancelUnitBuff(unit, i, filter)
@@ -294,8 +294,8 @@ function br.canDispel(Unit, spellID)
 				i = i + 1
 			end
 		else
-			while br._G.UnitBuff(Unit, i) do
-				local _, _, stacks, buffType, buffDuration, buffExpire, _, _, _, buffid = br._G.UnitBuff(Unit, i)
+			while br.UnitBuff(Unit, i) do
+				local _, _, stacks, buffType, buffDuration, buffExpire, _, _, _, buffid = br.UnitBuff(Unit, i)
 				local buffRemain = buffExpire - br._G.GetTime()
 				if (buffType and ValidType(buffType)) and not br._G.UnitIsPlayer(Unit) then
 					local dispelUnitObj = Dispel(Unit, stacks, buffDuration, buffRemain, buffid, true)
@@ -680,7 +680,7 @@ function br.isBuffed(UnitID, SpellID, TimeLeft, Filter)
 	for i = 1, #SpellID do
 		local buff, _, _, _, _, _, buffID = br._G.GetSpellInfo(SpellID[i])
 		if buff then
-			local expire = select(6, br._G.UnitBuff(UnitID, buffID, Filter))
+			local expire = select(6, br.UnitBuff(UnitID, buffID, Filter))
 			if expire and (expire == 0 or expire - br._G.GetTime() > TimeLeft) then
 				return true
 			end

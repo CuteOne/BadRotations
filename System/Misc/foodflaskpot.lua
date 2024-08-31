@@ -28,24 +28,24 @@ local staminaFoodBuff = 0
 
 --playerHasBuff(x) @param spellID # returns true if player has buff x
 function br.playerHasBuff(spellID)
-    local buffs, i = { }, 1
-    local buff = br._G.UnitBuff("player", i)
-    while buff do
-        buffs[#buffs + 1] = buff
-        i = i + 1
-        buff = select(10,br._G.UnitBuff("player", i))
-        if buff ~= nil then
-            if buff == spellID then return true end
-        end
-    end
-    return false
+	local buffs, i = {}, 1
+	local buff = br.UnitBuff("player", i)
+	while buff do
+		buffs[#buffs + 1] = buff
+		i = i + 1
+		buff = select(10, br.UnitBuff("player", i))
+		if buff ~= nil then
+			if buff == spellID then return true end
+		end
+	end
+	return false
 end
 
 --getClass # returns class as string
 function br.getClass()
 	local myClass = "nil"
 	local class = select(3, br._G.UnitClass("player"))
-	if class == 1 then -- Warrior
+	if class == 1 then   -- Warrior
 		myClass = "Warrior"
 	elseif class == 2 then -- Paladin
 		myClass = "Paladin"
@@ -78,31 +78,31 @@ function br.getClassType()
 	local mySpec = br._G.GetSpecialization()
 	--Agility
 	if myClass == "Hunter"
-	or myClass == "Rogue"
-	or (myClass == "Shaman" and mySpec == 2)
-	or (myClass == "Monk" and mySpec == 3)
-	or (myClass == "Druid" and mySpec == 2) then
+		or myClass == "Rogue"
+		or (myClass == "Shaman" and mySpec == 2)
+		or (myClass == "Monk" and mySpec == 3)
+		or (myClass == "Druid" and mySpec == 2) then
 		classType = "agilityClass"
-	--Intellect
+		--Intellect
 	elseif (myClass == "Paladin" and mySpec == 1)
-	or myClass == "Priest"
-	or (myClass == "Shaman" and (mySpec == 1 or mySpec == 3))
-	or myClass == "Mage"
-	or myClass == "Warlock"
-	or (myClass == "Monk" and mySpec == 2)
-	or (myClass == "Druid" and (mySpec == 1 or mySpec == 4)) then
+		or myClass == "Priest"
+		or (myClass == "Shaman" and (mySpec == 1 or mySpec == 3))
+		or myClass == "Mage"
+		or myClass == "Warlock"
+		or (myClass == "Monk" and mySpec == 2)
+		or (myClass == "Druid" and (mySpec == 1 or mySpec == 4)) then
 		classType = "intellectClass"
-	--Strength
+		--Strength
 	elseif (myClass == "Warrior" and (mySpec == 1 or mySpec == 2))
-	or (myClass == "Paladin" and mySpec == 3)
-	or (myClass == "DeathKnight" and (mySpec == 2 or mySpec == 3)) then
+		or (myClass == "Paladin" and mySpec == 3)
+		or (myClass == "DeathKnight" and (mySpec == 2 or mySpec == 3)) then
 		classType = "strengthClass"
-	--Stamina
+		--Stamina
 	elseif (myClass == "Warrior" and mySpec == 3)
-	or (myClass == "Paladin" and mySpec == 2)
-	or (myClass == "DeathKnight" and mySpec == 1)
-	or (myClass == "Monk" and mySpec == 1)
-	or (myClass == "Druid" and mySpec == 3) then
+		or (myClass == "Paladin" and mySpec == 2)
+		or (myClass == "DeathKnight" and mySpec == 1)
+		or (myClass == "Monk" and mySpec == 1)
+		or (myClass == "Druid" and mySpec == 3) then
 		classType = "staminaClass"
 	end
 	return classType
@@ -112,11 +112,11 @@ end
 function br.playerHasItem(itemID)
 	if itemID == nil then return false end
 	local itemFound = false
-	for i = 0, 4 do --Let's look at each bag
+	for i = 0, 4 do                                 --Let's look at each bag
 		local numBagSlots = C_Container.GetContainerNumSlots(i)
-		if numBagSlots > 0 then --Only look for slots if bag present
-			for x = 1, numBagSlots do --Let's look at each bag slot
-				local bagItemID = C_Container.GetContainerItemID(i,x)
+		if numBagSlots > 0 then                     --Only look for slots if bag present
+			for x = 1, numBagSlots do               --Let's look at each bag slot
+				local bagItemID = C_Container.GetContainerItemID(i, x)
 				if tostring(bagItemID) == tostring(itemID) then --Compare bagItemID to parameter
 					itemFound = true
 				end
@@ -149,7 +149,7 @@ function br.usePotion(skipSurvivability)
 				return true
 			end
 		end
-	--Intellect
+		--Intellect
 	elseif classType == "intellectClass" then
 		if br.playerCanUseItem(intellectPotion) then
 			if br.playerHasBuff(intellectPotionBuff) == false then
@@ -157,7 +157,7 @@ function br.usePotion(skipSurvivability)
 				return true
 			end
 		end
-	--Strength
+		--Strength
 	elseif classType == "strengthClass" or (classType == "staminaClass" and skipSurvivability == true) then
 		if br.playerCanUseItem(strengthPotion) then
 			if br.playerHasBuff(strengthPotionBuff) == false then
@@ -165,7 +165,7 @@ function br.usePotion(skipSurvivability)
 				return true
 			end
 		end
-	--Armor
+		--Armor
 	elseif classType == "staminaClass" and skipSurvivability == false then
 		if br.playerCanUseItem(armorPotion) then
 			if br.playerHasBuff(armorPotionBuff) == false then
@@ -189,7 +189,7 @@ function br.useFlask(skipSurvivability)
 				return true
 			end
 		end
-	--Intellect
+		--Intellect
 	elseif classType == "intellectClass" then
 		if br.playerCanUseItem(intellectFlask) then
 			if br.playerHasBuff(intellectFlaskBuff) == false then
@@ -197,7 +197,7 @@ function br.useFlask(skipSurvivability)
 				return true
 			end
 		end
-	--Strength
+		--Strength
 	elseif classType == "strengthClass" or (classType == "staminaClass" and skipSurvivability == true) then
 		if br.playerCanUseItem(strengthFlask) then
 			if br.playerHasBuff(strengthFlaskBuff) == false then
@@ -205,7 +205,7 @@ function br.useFlask(skipSurvivability)
 				return true
 			end
 		end
-	--Stamina
+		--Stamina
 	elseif classType == "staminaClass" and skipSurvivability == false then
 		if br.playerCanUseItem(staminaFlask) then
 			if br.playerHasBuff(staminaFlaskBuff) == false then
@@ -229,7 +229,7 @@ function br.useFood(skipSurvivability)
 				return true
 			end
 		end
-	--Intellect
+		--Intellect
 	elseif classType == "intellectClass" then
 		if br.playerCanUseItem(intellectFood) then
 			if br.playerHasBuff(intellectFoodBuff) == false then
@@ -237,7 +237,7 @@ function br.useFood(skipSurvivability)
 				return true
 			end
 		end
-	--Strength
+		--Strength
 	elseif classType == "strengthClass" or (classType == "staminaClass" and skipSurvivability == true) then
 		if br.playerCanUseItem(strengthFood) then
 			if br.playerHasBuff(strengthFoodBuff) == false then
@@ -245,7 +245,7 @@ function br.useFood(skipSurvivability)
 				return true
 			end
 		end
-	--Stamina
+		--Stamina
 	elseif classType == "staminaClass" and skipSurvivability == false then
 		if br.playerCanUseItem(staminaFood) then
 			if br.playerHasBuff(staminaFoodBuff) == false then

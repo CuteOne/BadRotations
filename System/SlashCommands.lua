@@ -485,10 +485,10 @@ function br._G.SlashCmdList.dumpInfo(msg, editbox)
 			_G.targetInfo.name = br._G.UnitName("target")
 			local thisUnit = br.enemy[k].unit
 			_G.targetInfo.unitID = thisUnit.id
-			local buff1 = br._G.UnitBuff("target", 1)
-			local buff2 = br._G.UnitBuff("target", 2)
-			local deBuff1 = br._G.UnitBuff("target", 1)
-			local deBuff2 = br._G.UnitBuff("target", 2)
+			local buff1 = br.UnitBuff("target", 1)
+			local buff2 = br.UnitBuff("target", 2)
+			local deBuff1 = br.UnitBuff("target", 1)
+			local deBuff2 = br.UnitBuff("target", 2)
 			if buff1 then
 				_G.targetInfo.buff1 = buff1
 			end

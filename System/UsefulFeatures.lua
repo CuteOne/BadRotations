@@ -17,7 +17,7 @@ end
 local hooksecurefunc, select, UnitBuff, UnitDebuff, UnitAura, UnitGUID, _, tonumber, strfind =
 	br._G.hooksecurefunc,
 	br._G.select,
-	br._G.UnitBuff,
+	br.UnitBuff,
 	br._G.UnitDebuff,
 	br._G.UnitAura,
 	br._G.UnitGUID,

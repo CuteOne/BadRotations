@@ -82,7 +82,7 @@ function br.getVengeance()
     elseif select(3, br._G.UnitClass("player")) == 11 then
         VengeanceID = 84840  -- Druid
     end
-    if br._G.UnitBuff("player", VengeanceID) then
+    if br.UnitBuff("player", VengeanceID) then
         return select(14, br._G.UnitAura("player", br._G.GetSpellInfo(VengeanceID)))
     end
     return 0

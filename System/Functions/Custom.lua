@@ -713,11 +713,11 @@ end
 -- hasBuff(12345)
 function br.hasBuff(spellID)
     local buffs, i = {}, 1
-    local buff = br._G.UnitBuff("player", i)
+    local buff = br.UnitBuff("player", i)
     while buff do
         buffs[#buffs + 1] = buff
         i = i + 1
-        buff = select(10, br._G.UnitBuff("player", i))
+        buff = select(10, br.UnitBuff("player", i))
         if buff ~= nil then
             if buff == spellID then return true end
         end
@@ -730,11 +730,11 @@ end
 -- cancelBuff(12345)
 function br.cancelBuff(spellID)
     local buffs, i = {}, 1
-    local buff = br._G.UnitBuff("player", i)
+    local buff = br.UnitBuff("player", i)
     while buff do
         buffs[#buffs + 1] = buff
         i = i + 1
-        buff = select(10, br._G.UnitBuff("player", i))
+        buff = select(10, br.UnitBuff("player", i))
         if buff ~= nil then
             if buff == spellID then
                 br._G.CancelUnitBuff("player", i, "")
