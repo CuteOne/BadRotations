@@ -119,7 +119,7 @@ Raidable means if its good to raid with.
 
 |rotation|author |patch |coverage|status|  readiness  |last updated|
 |--------|-------|:----:|:------:|:----:|:-----------:|-----------:|
-|CuteOne |CuteOne|11.0.2|  100%  | Full |:interrobang:|  08/24/2024|
+|CuteOne |CuteOne|11.0.2|  100%  | Full |:interrobang:|  09/02/2024|
 
 
 ### Evoker
