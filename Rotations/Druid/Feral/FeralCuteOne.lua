@@ -1079,9 +1079,9 @@ actionList.AoeBuilder = function()
     -- Shadowmeld
     -- shadowmeld,target_if=dot.rake.refreshable|dot.rake.pmultiplier<1.4,if=!(buff.bt_rake.up&variable.need_bt)&action.rake.ready&!buff.sudden_ambush.up&!buff.prowl.up
     if ui.checked("Racial") and race == "NightElf" and cast.able.racial() and ui.useCDs() and not unit.moving()
-        and unit.distance(var.maxRakeRefreshUnit) < 5 and not var.solo and var.friendsInRange
+        and unit.distance(var.rakeRefreshUnit) < 5 and not var.solo and var.friendsInRange
     then
-        if not (buff.btGen.rake and var.needBT) and cast.able.rake(var.rakeRefreshUnit) and not buff.suddenAmbush.exists() and not buff.prowl.exists() then
+        if not (var.btGen.rake and var.needBT) and cast.able.rake(var.rakeRefreshUnit) and not buff.suddenAmbush.exists() and not buff.prowl.exists() then
             if cast.racial() then
                 ui.debug("Casting Shadowmeld [Aoe Builder]")
                 return true
@@ -1354,7 +1354,7 @@ actionList.Builder = function()
         and unit.distance(units.dyn5) < 5 and not var.solo and var.friendsInRange
     then
         if ((unit.gcd() == 0 and energy() >= 35 and not buff.suddenAmbush.exists()
-                and (debuff.rake.refresh(units.dyn5) or debuff.rake.pmultiplier(units.dyn5) < 1.4) * var.noBtRake
+                and var.rakeRefresh * var.noBtRake
                 and buff.tigersFury.exists()))
         then
             if cast.racial() then
@@ -1588,7 +1588,7 @@ actionList.Finisher = function()
     -- rip,target_if=refreshable,if=(!talent.primal_wrath|spell_targets=1)&(buff.bloodtalons.up|!talent.bloodtalons)&(buff.tigers_fury.up|dot.rip.remains<cooldown.tigers_fury.remains)
     for i = 1, #enemies.yards5f do
         local thisUnit = enemies.yards5f[i]
-        if cast.able.rip(thisUnit) and (not talent.primalWrath or ui.useST(8, 1)) and (buff.bloodtalons.exists() or not talent.bloodtalons)
+        if cast.able.rip(thisUnit) and (not talent.primalWrath or ui.useST(8, 2)) and (buff.bloodtalons.exists() or not talent.bloodtalons)
             and (buff.tigersFury.exists() or debuff.rip.remains(thisUnit) < cd.tigersFury.remains())
         then
             if cast.rip(thisUnit) then
@@ -1751,12 +1751,13 @@ local function runRotation()
         if var.profileStop then var.profileStop = false end
         var.leftCombat = var.getTime
     end
-    var.btGen = var.btGen or {}
-    var.unit5ID = br.GetObjectID(units.dyn5) or 0
-    var.noDoT = var.unit5ID == 153758 or var.unit5ID == 156857 or var.unit5ID == 156849 or var.unit5ID == 156865 or
+    var.btGen       = var.btGen or {}
+    var.rakeRefresh = (debuff.rake.refresh(units.dyn5) or debuff.rake.pmultiplier(units.dyn5) < 1.4) and 1 or 0
+    var.unit5ID     = br.GetObjectID(units.dyn5) or 0
+    var.noDoT       = var.unit5ID == 153758 or var.unit5ID == 156857 or var.unit5ID == 156849 or var.unit5ID == 156865 or
         var.unit5ID == 156869
     -- Add buff.bsInc.exists()
-    buff.bsInc = buff.bsInc or {}
+    buff.bsInc      = buff.bsInc or {}
     if not buff.bsInc.exists then
         buff.bsInc.exists = function()
             return buff.berserk.exists() or buff.incarnationAvatarOfAshamane.exists()
@@ -1819,151 +1820,114 @@ local function runRotation()
     if not var.btGen.swipe and not talent.brutalSlash then var.btGen.triggers = var.btGen.triggers + 1 end
     if not var.btGen.thrash then var.btGen.triggers = var.btGen.triggers + 1 end
 
-    -- target_if=min:target.time_to_die
-    var.minTTD = 99999
-    var.minTTDUnit = "target"
-    for i = 1, #enemies.yards5f do
-        local thisUnit = enemies.yards5f[i]
-        local ttdUnit = unit.ttd(thisUnit)
-        if ttdUnit < var.minTTD then
-            var.minTTD = ttdUnit
-            var.minTTDUnit = thisUnit
-        end
-    end
-
-    -- target_if=!dot.rake.ticking
-    var.noRakeUnit = "target"
-    for i = 1, #enemies.yards5f do
-        local thisUnit = enemies.yards5f[i]
-        if not debuff.rake.exists(thisUnit) then
-            var.noRakeUnit = thisUnit
-            break
-        end
-    end
-
-    -- target_if=max:refreshable+(persistent_multiplier>dot.rake.pmultiplier)
-    var.maxRakePandemic = 0
-    var.maxRakePandemicUnit = "target"
-    for i = 1, #enemies.yards5f do
-        local thisUnit = enemies.yards5f[i]
-        local refresh = debuff.rake.refresh(thisUnit) and 1 or 0
-        local pandemic = (debuff.rake.applied(thisUnit) > debuff.rake.pmultiplier(thisUnit)) and 1 or 0
-        if (refresh + pandemic) > var.maxRakePandemic then
-            var.maxRakePandemic = pandemic
-            var.maxRakePandemicUnit = thisUnit
-            break
-        end
-    end
-
-    -- target_if=max:refreshable+(persistent_multiplier>dot.rake.pmultiplier)
-    var.maxRakeRefresh = 0
-    var.maxRakeRefreshUnit = "target"
-    for i = 1, #enemies.yards5f do
-        local thisUnit = enemies.yards5f[i]
-        local pandemic = (debuff.rake.applied(thisUnit) > debuff.rake.pmultiplier(thisUnit)) and 1 or 0
-        local refresh = debuff.rake.refresh(thisUnit) and 1 or 0
-        if (refresh + pandemic) > var.maxRakeRefresh then
-            var.maxRakeRefresh = (refresh + pandemic)
-            var.maxRakeRefreshUnit = thisUnit
-        end
-    end
-
-    -- target_if=max:(1+dot.adaptive_swarm_damage.stack)*dot.adaptive_swarm_damage.stack<3*time_to_die
-    var.maxAdaptiveSwarm = 0
-    var.maxAdaptiveSwarmUnit = "target"
+    -- Yards40 Target_If Variables
+    var.maxAdaptiveSwarmDot = 0
+    var.maxAdaptiveSwarmDotUnit = "target"
+    var.maxMoonFirePandemic = 0
+    var.maxMoonFirePandemicUnit = "target"
     for i = 1, #enemies.yards40 do
         local thisUnit = enemies.yards40[i]
-        local toNumeric = (debuff.adaptiveSwarmDamage.count(thisUnit) < 3) and 1 or 0
-        local thisCondition = (1 + debuff.adaptiveSwarmDamage.count(thisUnit)) * toNumeric * unit.ttd(thisUnit)
+        local moonfireRefresh = debuff.moonfireCat.refresh(thisUnit) and 1 or 0
+        local numAdaptiveSwarm = debuff.adaptiveSwarmDamage.exists(thisUnit) and 1 or 0
+        local adaptiveSwarm = (3 * moonfireRefresh) + numAdaptiveSwarm
+        local moonfire = debuff.moonfire.ticksGainedOnRefresh(thisUnit)
+        local swarmCount = debuff.adaptiveSwarmDamage.count(thisUnit)
+        local toNumeric = (swarmCount < 3) and 1 or 0
+        local thisCondition = (1 + swarmCount) * toNumeric * unit.ttd(thisUnit)
+        -- target_if=max:(3*refreshable)+dot.adaptive_swarm_damage.ticking
+        if adaptiveSwarm > var.maxAdaptiveSwarmDot then
+            var.maxAdaptiveSwarmDot = adaptiveSwarm
+            var.maxAdaptiveSwarmDotUnit = thisUnit
+        end
+        -- target_if=max:dot.moonfire.ticks_gained_on_refresh
+        if moonfire > var.maxMoonFirePandemic then
+            var.maxMoonFirePandemic = moonfire
+            var.maxMoonFirePandemicUnit = thisUnit
+        end
+        -- target_if=max:(1+dot.adaptive_swarm_damage.stack)*dot.adaptive_swarm_damage.stack<3*time_to_die
         if thisCondition > var.maxAdaptiveSwarm then
             var.maxAdaptiveSwarm = thisCondition
             var.maxAdaptiveSwarmUnit = thisUnit
         end
     end
 
-    -- target_if=dot.rake.refreshable|dot.rake.pmultiplier<1.4
+    -- Yards5f Target_If Variables
+    var.minTTD = 99999
+    var.minTTDUnit = "target"
+    var.noRakeUnit = "target"
+    var.maxRakePandemic = 0
+    var.maxRakePandemicUnit = "target"
+    var.maxRakeRefresh = 0
+    var.maxRakeRefreshUnit = "target"
+    var.maxAdaptiveSwarm = 0
+    var.maxAdaptiveSwarmUnit = "target"
     var.rakeRefreshUnit = "target"
-    for i = 1, #enemies.yards5f do
-        local thisUnit = enemies.yards5f[i]
-        if debuff.rake.refresh(thisUnit) or debuff.rake.pmultiplier(thisUnit) < 1.4 then
-            var.maxRakeRefreshUnit = thisUnit
-            break
-        end
-    end
-
-    -- target_if=max:(dot.rake.pmultiplier<1.6|dot.rake.refreshable)*druid.rake.ticks_gained_on_refresh
     var.maxRakeTicksGain = 0
     var.maxRakeTicksGainUnit = "target"
-    for i = 1, #enemies.yards5f do
-        local thisUnit = enemies.yards5f[i]
-        local rakeable = (debuff.rake.pmultiplier(thisUnit) < 1.6 or debuff.rake.refresh(thisUnit)) and 1 or 0
-        local ticksGain = (rakeable * debuff.rake.ticksGainedOnRefresh(thisUnit))
-        if ticksGain > var.maxRakeTicksGain then
-            var.maxRakeTicksGain = ticksGain
-            var.maxRakeTicksGainUnit = thisUnit
-        end
-    end
-
-    -- target_if=max:(3*refreshable)+dot.adaptive_swarm_damage.ticking
-    var.maxAdaptiveSwarmDot = 0
-    var.maxAdaptiveSwarmDotUnit = "target"
-    for i = 1, #enemies.yards40 do
-        local thisUnit = enemies.yards40[i]
-        local moonfireRefresh = debuff.moonfireCat.refresh(thisUnit) and 1 or 0
-        local numAdaptiveSwarm = debuff.adaptiveSwarmDamage.exists(thisUnit) and 1 or 0
-        local adaptiveSwarm = (3 * moonfireRefresh) + numAdaptiveSwarm
-        if adaptiveSwarm > var.maxAdaptiveSwarmDot then
-            var.maxAdaptiveSwarmDot = adaptiveSwarm
-            var.maxAdaptiveSwarmDotUnit = thisUnit
-        end
-    end
-
-    -- target_if=max:dot.moonfire.ticks_gained_on_refresh
-    var.maxMoonFirePandemic = 0
-    var.maxMoonFirePandemicUnit = "target"
-    for i = 1, #enemies.yards40 do
-        local thisUnit = enemies.yards40[i]
-        local moonfire = debuff.moonfire.ticksGainedOnRefresh(thisUnit)
-        if moonfire > var.maxMoonFirePandemic then
-            var.maxMoonFirePandemic = moonfire
-            var.maxMoonFirePandemicUnit = thisUnit
-        end
-    end
-
-    -- target_if=min:dot.rake.remains-20*(dot.rake.pmultiplier<persistent_multiplier)
     var.minRakePandemicX20 = 999
     var.minRakePandemicX20Unit = "target"
-    for i = 1, #enemies.yards5f do
-        local thisUnit = enemies.yards5f[i]
-        local rakePandemic = (debuff.rake.pmultiplier(thisUnit) < debuff.rake.applied(thisUnit)) and 1 or 0
-        local rake = debuff.rake.remains(thisUnit) - (rakePandemic * 20)
-        if rake < var.minRakePandemicX20 then
-            var.minRakePandemicX20 = rake
-            var.minRakePandemicX20Unit = thisUnit
-        end
-    end
-
-    -- target_if=max:((dot.rake.pmultiplier<=persistent_multiplier)*25)+druid.rake.ticks_gained_on_refresh
     var.maxRakePandemicX25 = 0
     var.maxRakePandemicX25Unit = "target"
-    for i = 1, #enemies.yards5f do
-        local thisUnit = enemies.yards5f[i]
-        local rakePandemic = (debuff.rake.pmultiplier(thisUnit) <= debuff.rake.applied(thisUnit)) and 1 or 0
-        local rake = (rakePandemic * 25) + debuff.rake.ticksGainedOnRefresh(thisUnit)
-        if rake > var.maxRakePandemicX25 then
-            var.maxRakePandemicX25 = rake
-            var.maxRakePandemicX25Unit = thisUnit
-        end
-    end
-
-    -- target_if=max:dot.bloodseeker_vines.ticking
     var.maxBloodseekerVines = 0
     var.maxBloodseekerVinesUnit = "target"
     for i = 1, #enemies.yards5f do
         local thisUnit = enemies.yards5f[i]
-        local thisCondition = debuff.bloodseekerVines.remain(thisUnit)
-        if thisCondition > var.maxBloodseekerVines then
-            var.maxBloodseekerVines = thisCondition
+        local ttdUnit = unit.ttd(thisUnit)
+        local applied = debuff.rake.applied(thisUnit)
+        local pmulti = debuff.rake.pmultiplier(thisUnit)
+        local gainRefresh = debuff.rake.ticksGainedOnRefresh(thisUnit)
+        local remain = debuff.rake.remains(thisUnit)
+        local refresh = debuff.rake.refresh(thisUnit) and 1 or 0
+        local pandemic = (applied > pmulti) and 1 or 0
+        local rakeable = (pmulti < 1.6 or refresh) and 1 or 0
+        local ticksGain = (rakeable * gainRefresh)
+        local rakePandemic = (pmulti < applied) and 1 or 0
+        local rakeRemain = remain - (rakePandemic * 20)
+        local rakePandemic = (pmulti <= applied) and 1 or 0
+        local rakeRefresh = (rakePandemic * 25) + gainRefresh
+        local bloodseeker = debuff.bloodseekerVines.remain(thisUnit)
+        -- target_if=min:target.time_to_die
+        if ttdUnit < var.minTTD then
+            var.minTTD = ttdUnit
+            var.minTTDUnit = thisUnit
+        end
+        -- target_if=!dot.rake.ticking
+        if not debuff.rake.exists(thisUnit) then
+            var.noRakeUnit = thisUnit
+        end
+        -- target_if=max:refreshable+(persistent_multiplier>dot.rake.pmultiplier)
+        if (refresh + pandemic) > var.maxRakePandemic then
+            var.maxRakePandemic = pandemic
+            var.maxRakePandemicUnit = thisUnit
+        end
+        -- target_if=max:refreshable+(persistent_multiplier>dot.rake.pmultiplier)
+        if (refresh + pandemic) > var.maxRakeRefresh then
+            var.maxRakeRefresh = (refresh + pandemic)
+            var.maxRakeRefreshUnit = thisUnit
+        end
+        -- target_if=dot.rake.refreshable|dot.rake.pmultiplier<1.4
+        if refresh or debuff.rake.pmultiplier(thisUnit) < 1.4 then
+            var.rakeRefreshUnit = thisUnit
+            break
+        end
+        -- target_if=max:(dot.rake.pmultiplier<1.6|dot.rake.refreshable)*druid.rake.ticks_gained_on_refresh
+        if ticksGain > var.maxRakeTicksGain then
+            var.maxRakeTicksGain = ticksGain
+            var.maxRakeTicksGainUnit = thisUnit
+        end
+        -- target_if=min:dot.rake.remains-20*(dot.rake.pmultiplier<persistent_multiplier)
+        if rakeRemain < var.minRakePandemicX20 then
+            var.minRakePandemicX20 = rakeRemain
+            var.minRakePandemicX20Unit = thisUnit
+        end
+        -- target_if=max:((dot.rake.pmultiplier<=persistent_multiplier)*25)+druid.rake.ticks_gained_on_refresh
+        if rakeRefresh > var.maxRakePandemicX25 then
+            var.maxRakePandemicX25 = rakeRefresh
+            var.maxRakePandemicX25Unit = thisUnit
+        end
+        -- target_if=max:dot.bloodseeker_vines.ticking
+        if bloodseeker > var.maxBloodseekerVines then
+            var.maxBloodseekerVines = bloodseeker
             var.maxBloodseekerVinesUnit = thisUnit
         end
     end
@@ -1974,7 +1938,7 @@ local function runRotation()
     -- Profile Stop | Pause
     if not unit.inCombat() and not unit.exists("target") and var.profileStop then
         var.profileStop = false
-    elseif (unit.inCombat() and var.profileStop) or ui.pause() or ui.mode.rotation == 4 then
+    elseif (unit.inCombat() and var.profileStop) or ui.pause() then
         return true
     else
         -----------------------
@@ -1985,14 +1949,17 @@ local function runRotation()
         --- Defensive Rotation ---
         --------------------------
         if actionList.Defensive() then return true end
-        ------------------------------
-        --- Out of Combat Rotation ---
-        ------------------------------
-        if actionList.PreCombat() then return true end
-        --------------------------
-        --- In Combat Rotation ---
-        --------------------------
-        if actionList.Combat() then return true end
+        --- Don't run if rotation mode is off --
+        if ui.mode.rotation ~= 4 then
+            ------------------------------
+            --- Out of Combat Rotation ---
+            ------------------------------
+            if actionList.PreCombat() then return true end
+            --------------------------
+            --- In Combat Rotation ---
+            --------------------------
+            if actionList.Combat() then return true end
+        end
     end --End Rotation Logic
 end     -- End runRotation
 
