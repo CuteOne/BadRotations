@@ -119,10 +119,10 @@ hooksecurefunc(
 	end
 )
 TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Spell,
-	function(self)
-		local id = select(3, self:GetSpell())
-		if id then
-			addLine(self, id, types.spell)
+	function(self, data)
+		-- local id = select(3, self:GetSpell())
+		if data.id then
+			addLine(self, data.id, types.spell)
 		end
 	end
 )

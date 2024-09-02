@@ -1,7 +1,8 @@
 local _, br = ...
+local enemyTable
 function br.TTDRefresh(hpLimit)
-	if not br.enemyTable then
-		br.enemyTable = {
+	if not enemyTable then
+		enemyTable = {
 			units = {},
 			ttd = {},
 			dps = {},
@@ -10,10 +11,10 @@ function br.TTDRefresh(hpLimit)
 		}
 	end
 
-	local units = br.enemyTable.units
-	local ttd = br.enemyTable.ttd
-	local dps = br.enemyTable.dps
-	local health = br.enemyTable.health
+	local units = enemyTable.units
+	local ttd = enemyTable.ttd
+	local dps = enemyTable.dps
+	local health = enemyTable.health
 
 	if hpLimit == nil then hpLimit = 0 end
 
@@ -26,7 +27,7 @@ function br.TTDRefresh(hpLimit)
 			if ttd[object] == nil then
 				ttd[object] = -1
 			end
-			br.enemyTable.totalUnits = br.enemyTable.totalUnits + 1
+			enemyTable.totalUnits = enemyTable.totalUnits + 1
 		else
 			if units[object] and ttd[object] then
 				local currentHP = br._G.UnitHealth(object)
@@ -36,7 +37,7 @@ function br.TTDRefresh(hpLimit)
 				local _dps = diff / dura
 				local death
 				local adjustment = maxHP * (hpLimit / 100)
-				if _dps ~= 0 then death = math.max(0,currentHP-adjustment) / _dps else death = 0 end
+				if _dps ~= 0 then death = math.max(0, currentHP - adjustment) / _dps else death = 0 end
 				dps[object] = math.floor(_dps)
 				if death == math.huge then
 					ttd[object] = -1
@@ -58,33 +59,36 @@ function br.TTDRefresh(hpLimit)
 			ttd[object] = nil
 			health[object] = nil
 			dps[object] = nil
-			br.enemyTable.totalUnits = br.enemyTable.totalUnits -1
+			enemyTable.totalUnits = enemyTable.totalUnits - 1
 		end
 	end
 end
 
-function br.getTTD(unit,hp)
+function br.getTTD(unit, hp)
 	if br.getOptionCheck("Enhanced Time to Die") then
 		if unit == "target" and br.GetObjectExists("target") then unit = br._G.UnitTarget("player") end
-		if br.unitSetup.cache[unit] ~= nil then br.unitSetup.cache[unit]:unitTtd(hp) return br.unitSetup.cache[unit].ttd end
+		if br.unitSetup.cache[unit] ~= nil then
+			br.unitSetup.cache[unit]:unitTtd(hp)
+			return br.unitSetup.cache[unit].ttd
+		end
 		return -2
 	end
 	if br.isDummy() then return 99 end
 	br.TTDRefresh(hp)
 	local thisUnit = unit
-	if thisUnit ~= nil then
-		if not string.find(thisUnit,"0x") then
-			if br.GetObjectExists(thisUnit) and not br.GetUnitIsDeadOrGhost(thisUnit) and br.GetUnitIsVisible(thisUnit) then
-				thisUnit = br._G.GetObjectWithGUID(br._G.UnitGUID(thisUnit))
-			else
-				return -2
-			end
-		end
-	end
+	-- if thisUnit ~= nil then
+	-- 	if not string.find(thisUnit, "0x") or not type(thisUnit) == "number" then
+	-- 		if br.GetObjectExists(thisUnit) and not br.GetUnitIsDeadOrGhost(thisUnit) and br.GetUnitIsVisible(thisUnit) then
+	-- 			thisUnit = br._G.GetObjectWithGUID(br._G.UnitGUID(thisUnit))
+	-- 		else
+	-- 			return -2
+	-- 		end
+	-- 	end
+	-- end
 
-	if br.enemyTable then
-		if br.enemyTable.ttd[thisUnit] ~= nil then
-			return br.enemyTable.ttd[thisUnit]
+	if enemyTable then
+		if enemyTable.ttd[thisUnit] ~= nil then
+			return enemyTable.ttd[thisUnit]
 		end
 	end
 	return -1
