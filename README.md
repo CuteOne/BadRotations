@@ -194,6 +194,12 @@ Raidable means if its good to raid with.
 
 ### Shaman
 
+- Enhancement
+
+|rotation|         author         |patch |coverage|status |readiness|last updated|
+|--------|------------------------|:----:|:------:|:-----:|:-------:|-----------:|
+|CuteOne |CuteOne rework by Blazin|11.0.2|  100%  |Limited|   :x:   |  09/08/2024|
+
 
 ### Warlock
 
