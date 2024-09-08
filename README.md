@@ -143,7 +143,7 @@ Raidable means if its good to raid with.
 
 |rotation|author |patch |coverage|status |    readiness     |last updated|
 |--------|-------|:----:|:------:|:-----:|:----------------:|-----------:|
-|CuteOne |CuteOne|11.0.2|  100%  |Limited|:white_check_mark:|  08/25/2024|
+|CuteOne |CuteOne|11.0.2|  100%  |Limited|:white_check_mark:|  09/08/2024|
 
 
 ### Mage
