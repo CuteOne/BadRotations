@@ -401,6 +401,7 @@ br.lists.spells = {
         -- All
         Shared = {
             abilities     = {
+				
                 antiMagicShell = 48707,
                 chainsOfIce    = 45524,
                 darkCommand    = 56222,
@@ -454,6 +455,7 @@ br.lists.spells = {
                 superstrain   = 334974,
             },
             talents       = {
+				runeStrike	         = 316239,
                 abominationLimb      = 383269,
                 antimagicZone        = 51052,
                 asphyxiate           = 221562,
@@ -4290,6 +4292,7 @@ br.lists.spells = {
         -- Enhancement
         [263] = {
             abilities = {
+				tempest    = 454015,
                 feralLunge = 196884,
                 --windfuryTotem = 8512,
                 windstrike = 115356, --17364,
@@ -4300,6 +4303,7 @@ br.lists.spells = {
             buffs     = {
                 ascendance            = 114051,
                 ashenCatalyst         = 390371,
+				awakeningStorms       = 462131,
                 cracklingSurge        = 224127,
                 crashLightning        = 187878,
                 clCrashLightning      = 333964,
@@ -4315,6 +4319,7 @@ br.lists.spells = {
                 moltenWeapon          = 224125,
                 primordialWave        = 327164,
                 splinteredElements    = 354648,
+				tempest               = 454015,
                 -- stormkeeper                 = 320137,
                 -- stormbringer                = 201845,
             },
@@ -4363,6 +4368,7 @@ br.lists.spells = {
                 stormsWrath             = 392352,
                 sundering               = 197214,
                 swirlingMaelstrom       = 384359,
+				tempest                 = 454009,
                 tempestStrikes          = 428071,
                 thorimsInvocation       = 384444,
                 unrulyWinds             = 390288,
@@ -4560,7 +4566,6 @@ br.lists.spells = {
             },
             talentsHeroic = {
                 -- Enhance / Elemental  Stormbringer
-                tempest               = 454009,
                 unlimitedPower        = 454391,
                 supercharge           = 455110,
                 voltaicSurge          = 454919,
