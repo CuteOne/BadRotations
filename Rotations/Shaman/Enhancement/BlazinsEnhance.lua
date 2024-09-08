@@ -12,7 +12,7 @@
 -- Required: Fill above fields to populate README.md --
 -------------------------------------------------------
 
-local rotationName = "CuteOne"
+local rotationName = "Blazin"
 ---------------
 --- Toggles ---
 ---------------
