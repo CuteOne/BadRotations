@@ -408,40 +408,40 @@ actionList.Cooldowns = function()
     if ui.useCDs() then
         -- Berserking
         -- berserking,if=buff.trueshot.up|fight_remains<13
-        if ui.checked("Racial") and unit.race() == "Troll" and cast.able.berserking() and ((buff.trueshot.exists() or unit.ttdGroup(40) < 13)) then
-            if cast.berserking() then
+        if ui.checked("Racial") and unit.race() == "Troll" and cast.able.racial() and ((buff.trueshot.exists() or unit.ttdGroup(40) < 13)) then
+            if cast.racial() then
                 ui.debug("Casting Berserking [Cooldowns]")
                 return true
             end
         end
         -- Blood Fury
         -- blood_fury,if=buff.trueshot.up|cooldown.trueshot.remains>30|fight_remains<16
-        if ui.checked("Racial") and unit.race() == "Orc" and cast.able.bloodFury() and ((buff.trueshot.exists() or cd.trueshot.remains() > 30 or unit.ttdGroup(40) < 16)) then
-            if cast.bloodFury() then
+        if ui.checked("Racial") and unit.race() == "Orc" and cast.able.racial() and ((buff.trueshot.exists() or cd.trueshot.remains() > 30 or unit.ttdGroup(40) < 16)) then
+            if cast.racial() then
                 ui.debug("Casting Blood Fury [Cooldowns]")
                 return true
             end
         end
         -- Ancestral Call
         -- ancestral_call,if=buff.trueshot.up|cooldown.trueshot.remains>30|fight_remains<16
-        if ui.checked("Racial") and unit.race() == "MagharOrc" and cast.able.ancestralCall() and ((buff.trueshot.exists() or cd.trueshot.remains() > 30 or unit.ttdGroup(40) < 16)) then
-            if cast.ancestralCall() then
+        if ui.checked("Racial") and unit.race() == "MagharOrc" and cast.able.racial() and ((buff.trueshot.exists() or cd.trueshot.remains() > 30 or unit.ttdGroup(40) < 16)) then
+            if cast.racial() then
                 ui.debug("Casting Ancestral Call [Cooldowns]")
                 return true
             end
         end
         -- Fireblood
         -- fireblood,if=buff.trueshot.up|cooldown.trueshot.remains>30|fight_remains<9
-        if ui.checked("Racial") and unit.race() == "DarkIronDwarf" and cast.able.fireblood() and ((buff.trueshot.exists() or cd.trueshot.remains() > 30 or unit.ttdGroup(40) < 9)) then
-            if cast.fireblood() then
+        if ui.checked("Racial") and unit.race() == "DarkIronDwarf" and cast.able.racial() and ((buff.trueshot.exists() or cd.trueshot.remains() > 30 or unit.ttdGroup(40) < 9)) then
+            if cast.racial() then
                 ui.debug("Casting Fireblood [Cooldowns]")
                 return true
             end
         end
         -- Lights Judgment
         -- lights_judgment,if=buff.trueshot.down
-        if ui.checked("Racial") and unit.race() == "LightforgedDraenei" and cast.able.lightsJudgment("target", "ground") and not buff.trueshot.exists() then
-            if cast.lightsJudgment("target", "ground") then
+        if ui.checked("Racial") and unit.race() == "LightforgedDraenei" and cast.able.racial("target", "ground") and not buff.trueshot.exists() then
+            if cast.racial("target", "ground") then
                 ui.debug("Casting Lights Judgment [Cooldowns]")
                 return true
             end
@@ -592,8 +592,8 @@ actionList.Trickshots = function()
     end
     -- Bag Of Tricks
     -- bag_of_tricks,if=buff.trueshot.down
-    if ui.checked("Racial") and unit.race() == "Vulpera" and cast.able.bagOfTricks() and not buff.trueshot.exists() then
-        if cast.bagOfTricks() then
+    if ui.checked("Racial") and unit.race() == "Vulpera" and cast.able.racial() and not buff.trueshot.exists() then
+        if cast.racial() then
             ui.debug("Casting Bag Of Tricks [St]")
             return true
         end
@@ -759,8 +759,8 @@ actionList.St = function()
     end
     -- Bag Of Tricks
     -- bag_of_tricks,if=buff.trueshot.down
-    if ui.checked("Racial") and unit.race() == "Vulpera" and cast.able.bagOfTricks() and not buff.trueshot.exists() then
-        if cast.bagOfTricks() then
+    if ui.checked("Racial") and unit.race() == "Vulpera" and cast.able.racial() and not buff.trueshot.exists() then
+        if cast.racial() then
             ui.debug("Casting Bag Of Tricks [St]")
             return true
         end
