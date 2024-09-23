@@ -271,16 +271,15 @@ function br.CreateButton(Name, x, y)
 			y * (br.data.settings["buttonSize"]) + (y * 2)
 		)
 		br["button" .. Name]:RegisterForClicks("AnyUp")
-		if
-			br[Name .. "Modes"][br.data.settings[br.selectedSpec].toggles[Name]].icon ~= nil and
-			type(br[Name .. "Modes"][br.data.settings[br.selectedSpec].toggles[Name]].icon) == "number"
-		then
-			Icon = select(3,
-				br._G.GetSpellInfo(br[Name .. "Modes"][br.data.settings[br.selectedSpec].toggles[Name]].icon))
+		local toggleIcon = br[Name .. "Modes"][br.data.settings[br.selectedSpec].toggles[Name]].icon
+		if toggleIcon ~= nil and type(toggleIcon) == "number" then
+			Icon = toggleIcon
 		else
-			Icon = br[Name .. "Modes"][br.data.settings[br.selectedSpec].toggles[Name]].icon
+			Icon = br.emptyIcon
 		end
-		br["button" .. Name]:SetNormalTexture(Icon or br.emptyIcon)
+		local spellInfo = br._G.GetSpellInfo(Icon)
+		Icon = spellInfo.iconID or br.emptyIcon
+		br["button" .. Name]:SetNormalTexture(Icon)
 		--CreateBorder(br["button"..Name], 8, 0.6, 0.6, 0.6)
 		br["text" .. Name] = br["button" .. Name]:CreateFontString(nil, "OVERLAY")
 		br["text" .. Name]:SetFont(br.data.settings.font, br.data.settings.fontsize, "THICKOUTLINE")
@@ -370,7 +369,7 @@ function br.CreateButton(Name, x, y)
 				br.mainButton:Hide()
 			elseif br._G.UnitAffectingCombat("player") then
 				br._G.print(
-				"Combat Lockdown detected. Unable to modify button bar. Please try again when out of combat.")
+					"Combat Lockdown detected. Unable to modify button bar. Please try again when out of combat.")
 			end
 		end
 		br.SlashCommandHelp(
