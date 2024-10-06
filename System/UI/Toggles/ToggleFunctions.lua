@@ -283,7 +283,6 @@ function br.CreateButton(Name, x, y)
 		end
 		local _, _, spellIcon = br._G.GetSpellInfo(Icon)
 		Icon = spellIcon or br.emptyIcon
-		print(tostring(Icon))
 		br["button" .. Name]:SetNormalTexture(Icon)
 		--CreateBorder(br["button"..Name], 8, 0.6, 0.6, 0.6)
 		br["text" .. Name] = br["button" .. Name]:CreateFontString(nil, "OVERLAY")
