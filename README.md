@@ -232,7 +232,8 @@ Raidable means if its good to raid with.
 
 - Fury
 
-|    rotation    |   author   |patch |coverage|status |  readiness  |last updated|
-|----------------|------------|:----:|:------:|:-----:|:-----------:|-----------:|
-|BrewFuryLeveling|BrewingCoder|10.2.6|  20%   |Limited|:interrobang:|  05/08/2024|
+|    rotation    |   author   |patch |coverage|status |    readiness     |last updated|
+|----------------|------------|:----:|:------:|:-----:|:----------------:|-----------:|
+|CuteOne         |CuteOne     |11.0.2|  100%  |Limited|:heavy_check_mark:|  10/06/2024|
+|BrewFuryLeveling|BrewingCoder|10.2.6|  20%   |Limited|  :interrobang:   |  05/08/2024|
 
