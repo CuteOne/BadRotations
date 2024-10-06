@@ -4,8 +4,14 @@ function br.ui:createToggle(table, name, col, row)
 		br._G.print("Invaild type " .. type(name) .. " detected for table " .. name .. ".  Please let devs know!")
 	else
 		br[name .. "Modes"] = table
-		br["CreateButton"](name, col, row)
+		br.CreateButton(name, col, row)
+		-- br.ui:RefreshButton(name)
 	end
+end
+
+function br.ui:RefreshButton(name)
+	local index = br[name .. "Modes"] and br[name .. "Modes"].value or 1
+	br.changeButton(name, index)
 end
 
 -- when we find a match, we reset tooltip
@@ -253,11 +259,9 @@ function br.CreateButton(Name, x, y)
 		local Icon
 		-- local Name = string.upper(Name)
 		-- todo: extend to use spec + profile specific variable; ATM it shares between profile AND spec, -> global for char
-		if
-			br.data.settings[br.selectedSpec].toggles[Name] == nil or
-			br.data.settings[br.selectedSpec].toggles[Name] > #br[Name .. "Modes"]
-		then
-			br.data.settings[br.selectedSpec].toggles[Name] = 1
+		local toggleIndex = br.data.settings[br.selectedSpec].toggles[Name]
+		if toggleIndex == nil or toggleIndex > #br[Name .. "Modes"] or toggleIndex == 0 then
+			toggleIndex = 1
 		end
 		if br.buttonsTable then
 			br._G.tinsert(br.buttonsTable, { name = Name, bx = x, by = y })
@@ -271,14 +275,15 @@ function br.CreateButton(Name, x, y)
 			y * (br.data.settings["buttonSize"]) + (y * 2)
 		)
 		br["button" .. Name]:RegisterForClicks("AnyUp")
-		local toggleIcon = br[Name .. "Modes"][br.data.settings[br.selectedSpec].toggles[Name]].icon
+		local toggleIcon = br[Name .. "Modes"][toggleIndex].icon
 		if toggleIcon ~= nil and type(toggleIcon) == "number" then
 			Icon = toggleIcon
 		else
 			Icon = br.emptyIcon
 		end
-		local spellInfo = br._G.GetSpellInfo(Icon)
-		Icon = spellInfo.iconID or br.emptyIcon
+		local _, _, spellIcon = br._G.GetSpellInfo(Icon)
+		Icon = spellIcon or br.emptyIcon
+		print(tostring(Icon))
 		br["button" .. Name]:SetNormalTexture(Icon)
 		--CreateBorder(br["button"..Name], 8, 0.6, 0.6, 0.6)
 		br["text" .. Name] = br["button" .. Name]:CreateFontString(nil, "OVERLAY")
@@ -304,11 +309,11 @@ function br.CreateButton(Name, x, y)
 			br[Name .. "Modes"] = br[Name .. "Modes"] or ""
 		end
 		local modeValue
-		if br.data.settings[br.selectedSpec].toggles[tostring(Name)] == nil then
-			br.data.settings[br.selectedSpec].toggles[tostring(Name)] = 1
+		if toggleIndex == nil then
+			toggleIndex = 1
 			modeValue = 1
 		else
-			modeValue = br.data.settings[br.selectedSpec].toggles[tostring(Name)]
+			modeValue = toggleIndex
 		end
 		br["button" .. Name]:SetScript(
 			"OnClick",
@@ -324,14 +329,13 @@ function br.CreateButton(Name, x, y)
 			"OnMouseWheel",
 			function(_, delta)
 				local Go = false
-				if delta < 0 and br.data.settings[br.selectedSpec].toggles[tostring(Name)] > 1 then
+				if delta < 0 and toggleIndex > 1 then
 					Go = true
-				elseif delta > 0 and br.data.settings[br.selectedSpec].toggles[tostring(Name)] < #br[Name .. "Modes"] then
+				elseif delta > 0 and toggleIndex < #br[Name .. "Modes"] then
 					Go = true
 				end
 				if Go == true then
-					br.data.settings[br.selectedSpec].toggles[tostring(Name)] =
-						br.data.settings[br.selectedSpec].toggles[tostring(Name)] + delta
+					toggleIndex = toggleIndex + delta
 				end
 			end
 		)
@@ -340,7 +344,7 @@ function br.CreateButton(Name, x, y)
 			function()
 				br._G.GameTooltip:SetOwner(br["button" .. Name], br._G.UIParent, 0, 0)
 				br._G.GameTooltip:SetText(
-					br[Name .. "Modes"][br.data.settings[br.selectedSpec].toggles[Name]].tip,
+					br[Name .. "Modes"][toggleIndex].tip,
 					225 / 255,
 					225 / 255,
 					225 / 255,

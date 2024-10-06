@@ -878,7 +878,9 @@ local function findOption(Value, Page, Type)
 					end
 				elseif reportFindings[option] ~= nil and reportFindings[option].Findings ~= nil and #reportFindings[option].Findings == 1 then
 					local thisOption = reportFindings[option].Findings[1]
-					return settings[thisOption.page][thisOption.option]
+					if settings and settings[thisOption.page] and settings[thisOption.page][thisOption.option] then
+						return settings[thisOption.page][thisOption.option]
+					end
 				end
 			end
 		end
