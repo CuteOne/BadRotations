@@ -82,7 +82,7 @@ hooksecurefunc(
 	br._G.GameTooltip,
 	"SetUnitBuff",
 	function(self, ...)
-		local id = select(10, UnitBuff(...))
+		local id = select(10, br._G.UnitBuff(...))
 		if id then
 			addLine(self, id, types.spell)
 		end
@@ -92,7 +92,7 @@ hooksecurefunc(
 	br._G.GameTooltip,
 	"SetUnitDebuff",
 	function(self, ...)
-		local id = select(10, UnitDebuff(...))
+		local id = select(10, br._G.UnitDebuff(...))
 		if id then
 			addLine(self, id, types.spell)
 		end
