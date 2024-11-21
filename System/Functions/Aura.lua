@@ -45,6 +45,10 @@ end
 function br.UnitBuffID(unit, spellID, filter)
 	local spellName = br._G.GetSpellInfo(spellID)
 	local exactSearch = filter ~= nil and br._G.strfind(br._G.strupper(filter), "EXACT")
+ if unit == "player" then
+	    local auraInfo = C_UnitAuras.GetPlayerAuraBySpellID(spellID)
+	    if auraInfo and auraInfo.expirationTime > br._G.GetTime() then return true end
+	end
 	if exactSearch then
 		for i = 1, 40 do
 			local buffName, _, _, _, _, _, _, _, _, buffSpellID = br.UnitBuff(unit, i, "player")
@@ -81,6 +85,10 @@ function br.UnitDebuffID(unit, spellID, filter)
 
 	-- Failsafe if not cached
 	local exactSearch = filter ~= nil and br._G.strfind(br._G.strupper(filter), "EXACT")
+ if unit == "player" then
+	    local auraInfo = C_UnitAuras.GetPlayerAuraBySpellID(spellID)
+	    if auraInfo and auraInfo.expirationTime > br._G.GetTime() then return true end
+	end
 	if exactSearch then
 		for i = 1, 40 do
 			local buffName, _, _, _, _, _, _, _, _, buffSpellID = br._G.UnitDebuff(unit, i, "player")
