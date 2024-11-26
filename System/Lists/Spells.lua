@@ -5136,9 +5136,10 @@ br.lists.spells = {
         -- Fury
         [72] = {
             abilities = {
-                enrage    = 184361,
-                execute   = 5308,
-                whirlwind = 190411,
+                crushingBlow = 335097,
+                enrage       = 184361,
+                execute      = 5308,
+                whirlwind    = 190411,
             },
             artifacts = {
 
