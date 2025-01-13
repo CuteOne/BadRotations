@@ -84,24 +84,33 @@ function br.UnitDebuffID(unit, spellID, filter)
 	end
 
 	-- Failsafe if not cached
-	local exactSearch = filter ~= nil and br._G.strfind(br._G.strupper(filter), "EXACT")
- 	if unit == "player" then
-	    local auraInfo = C_UnitAuras.GetPlayerAuraBySpellID(spellID)
+	if unit == "player" then
+		local auraInfo = C_UnitAuras.GetPlayerAuraBySpellID(spellID)
 	    if auraInfo and auraInfo.expirationTime > br._G.GetTime() then return auraInfo end
 	end
+	local exactSearch = filter ~= nil and br._G.strfind(br._G.strupper(filter), "EXACT")
 	if exactSearch then
 		for i = 1, 40 do
-			local buffName, _, _, _, _, _, _, _, _, buffSpellID = br._G.UnitDebuff(unit, i, "player")
-			if buffName == nil then return nil end
-			if buffSpellID == spellID then
-				return br._G.UnitDebuff(unit, i, "player")
+			-- local buffName, _, _, _, _, _, _, _, _, buffSpellID = br._G.UnitDebuff(unit, i, "player")
+			local auraInfo = C_UnitAuras.GetDebuffDataByIndex(unit, i, "PLAYER")
+			if auraInfo == nil then return nil end
+			if auraInfo.spellId == spellID then
+				return auraInfo --br._G.UnitDebuff(unit, i, "player")
 			end
 		end
 	else
 		if filter ~= nil and br._G.strfind(br._G.strupper(filter), "PLAYER") then
-			return br._G.AuraUtil.FindAuraByName(spellName, unit, "HARMFUL|PLAYER")
+			for i = 1, 40 do
+				local auraInfo = C_UnitAuras.GetDebuffDataByIndex(unit, i, "HARMFUL|PLAYER")
+				if auraInfo and auraInfo.name == spellName then return auraInfo end
+			end
+			-- return br._G.AuraUtil.FindAuraByName(spellName, unit, "HARMFUL|PLAYER")
 		end
-		return br._G.AuraUtil.FindAuraByName(spellName, unit, "HARMFUL")
+		for i = 1, 40 do
+			local auraInfo = C_UnitAuras.GetDebuffDataByIndex(unit, i, "HARMFUL")
+			if auraInfo and auraInfo.name == spellName then return auraInfo end
+		end
+		-- return br._G.AuraUtil.FindAuraByName(spellName, unit, "HARMFUL")
 	end
 end
 

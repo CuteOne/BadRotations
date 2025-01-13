@@ -281,13 +281,14 @@ br.api.debuffs = function(debuff, k, v)
     -- string[opt="target"] thisUnit The unit to check the ticks gained by reapplying the debuff on.
     -- @treturn number
     debuff.ticksGainedOnRefresh = function(thisUnit)
-        local name, _, _, _, duration, expirationTime = br.UnitDebuffID(thisUnit, v, nil, "PLAYER")
         local haste = br._G.UnitSpellHaste("player")
         local hasteMultiplier = 1 + (haste / 100)
         local baseTickTime = baseTickTimes[v] or 3
         local hastedTickTime = baseTickTime / hasteMultiplier
-
-        if name then
+        local auraInfo = br.UnitDebuffID(thisUnit, v, nil, "PLAYER")
+        if auraInfo then
+            local expirationTime = auraInfo.expirationTime
+            local duration = auraInfo.duration
             local remainingDuration = expirationTime - br._G.GetTime()
             local remainingTicks = math.floor(remainingDuration / hastedTickTime)
 
