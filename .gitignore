@@ -1,3 +1,4 @@
+.*
 Simc.lua
 System/SimC/aplList.lua
 System/SimC/parser.lua
@@ -8,7 +9,6 @@ Rotations/Druid/Guardian.lua
 Rotations/Priest/Shadow_CML.lua
 Rotations/Priest/Shadow_ragnar.lua
 Rotations/Priest/Shadow_ragnar_MoP.lua
-.gitignore
 rename.sh
 Rotations/Druid/moonkin_combat_backup.lua
 Rotations/Priest/Shadow/tbd.txt
@@ -18,7 +18,6 @@ Rotations/Priest/Shadow/libs/prio-2015-01-09.txt
 Rotations/Priest/Shadow/libs/prio-2014-11-19.txt
 System/Libs/LibDispellable-1.0/LibDispellable-1.0.lua
 Rotations/Priest/Shadow/libs/Functions_old.lua
-/.project
 Rotations/Priest/Discipline/libs/Functions_old.lua
 Rotations/Priest/Discipline/libs/Options_old.lua
 Rotations/Priest/Discipline/libs/Toggles_old.lua
@@ -26,7 +25,6 @@ Rotations/Priest/Discipline/Discipline_old.lua
 config.ini
 AutoIndent.exe
 QuickIndent.exe
-.idea
 misc.xml
 Rotations/Test
 .vscode/settings.json
@@ -36,4 +34,3 @@ Unlockers/mmb.lua
 Unlockers/daemonic.lua
 Unlockers/icc.lua
 Rotations/Rogue/Outlaw/OutlawRavens\.lua
-.DS_Store

@@ -45,9 +45,9 @@ end
 function br.UnitBuffID(unit, spellID, filter)
 	local spellName = br._G.GetSpellInfo(spellID)
 	local exactSearch = filter ~= nil and br._G.strfind(br._G.strupper(filter), "EXACT")
- if unit == "player" then
+ 	if unit == "player" then
 	    local auraInfo = C_UnitAuras.GetPlayerAuraBySpellID(spellID)
-	    if auraInfo and auraInfo.expirationTime > br._G.GetTime() then return true end
+	    if auraInfo and auraInfo.expirationTime > br._G.GetTime() then return auraInfo end
 	end
 	if exactSearch then
 		for i = 1, 40 do
@@ -85,9 +85,9 @@ function br.UnitDebuffID(unit, spellID, filter)
 
 	-- Failsafe if not cached
 	local exactSearch = filter ~= nil and br._G.strfind(br._G.strupper(filter), "EXACT")
- if unit == "player" then
+ 	if unit == "player" then
 	    local auraInfo = C_UnitAuras.GetPlayerAuraBySpellID(spellID)
-	    if auraInfo and auraInfo.expirationTime > br._G.GetTime() then return true end
+	    if auraInfo and auraInfo.expirationTime > br._G.GetTime() then return auraInfo end
 	end
 	if exactSearch then
 		for i = 1, 40 do
@@ -325,9 +325,9 @@ function br.canDispel(Unit, spellID)
 end
 
 function br.getAuraDuration(Unit, AuraID, Source)
-	local duration = select(5, br.UnitAuraID(Unit, AuraID, Source))
-	if duration ~= nil then
-		duration = duration * 1
+	local auraInfo = br.UnitAuraID(Unit, AuraID, Source)
+	if auraInfo and auraInfo.duration ~= nil then
+		local duration = auraInfo.duration * 1
 		return duration
 	end
 	--if UnitAuraID(Unit,AuraID,Source) ~= nil then
@@ -337,9 +337,9 @@ function br.getAuraDuration(Unit, AuraID, Source)
 end
 
 function br.getAuraRemain(Unit, AuraID, Source)
-	local remain = select(6, br.UnitAuraID(Unit, AuraID, Source))
-	if remain ~= nil then
-		remain = remain - br._G.GetTime()
+	local auraInfo = br.UnitAuraID(Unit, AuraID, Source)
+	if auraInfo and auraInfo.expirationTime ~= nil then
+		local remain = auraInfo.expirationTime - br._G.GetTime()
 		return remain
 	end
 	-- if UnitAuraID(Unit,AuraID,Source) ~= nil then
@@ -349,8 +349,8 @@ function br.getAuraRemain(Unit, AuraID, Source)
 end
 
 function br.getAuraStacks(Unit, AuraID, Source)
-	local stacks = select(3, br.UnitAuraID(Unit, AuraID, Source))
-	if stacks ~= nil then return stacks end
+	local auraInfo = br.UnitAuraID(Unit, AuraID, Source)
+	if auraInfo and auraInfo.applications ~= nil then return auraInfo.applications end
 	-- if UnitAuraID(Unit,AuraID,Source) ~= nil then
 	-- 	return select(3,UnitAuraID(Unit,AuraID,Source))
 	-- end
@@ -359,9 +359,9 @@ end
 
 -- if br.getDebuffDuration("target",12345) < 3 then
 function br.getDebuffDuration(Unit, DebuffID, Source)
-	local duration = select(5, br.UnitDebuffID(Unit, DebuffID, Source))
-	if duration ~= nil then
-		duration = duration * 1
+	local auraInfo = br.UnitDebuffID(Unit, DebuffID, Source)
+	if auraInfo and auraInfo.duration ~= nil then
+		local duration = auraInfo.duration * 1
 		return duration
 	end
 	-- if br.UnitDebuffID(Unit,DebuffID,Source) ~= nil then
@@ -372,9 +372,9 @@ end
 
 -- if br.getDebuffRemain("target",12345) < 3 then
 function br.getDebuffRemain(Unit, DebuffID, Source)
-	local remain = select(6, br.UnitDebuffID(Unit, DebuffID, Source))
-	if remain ~= nil then
-		remain = remain - br._G.GetTime()
+	local auraInfo = br.UnitDebuffID(Unit, DebuffID, Source)
+	if auraInfo and auraInfo.expirationTime ~= nil then
+		local remain = auraInfo.expirationTime - br._G.GetTime()
 		-- Print(GetSpellInfo(DebuffID)..": "..remain)
 		return remain
 	end
@@ -386,9 +386,9 @@ end
 
 -- if br.getDebuffStacks("target",138756) > 0 then
 function br.getDebuffStacks(Unit, DebuffID, Source)
-	local stacks = select(3, br.UnitDebuffID(Unit, DebuffID, Source))
-	if stacks ~= nil then
-		return stacks
+	local auraInfo = br.UnitDebuffID(Unit, DebuffID, Source)
+	if auraInfo and auraInfo.applications ~= nil then
+		return auraInfo.applications
 	end
 	return 0
 	-- if br.UnitDebuffID(Unit,DebuffID,Source) then
@@ -477,9 +477,9 @@ end
 
 -- if getBuffDuration("target",12345) < 3 then
 function br.getBuffDuration(Unit, BuffID, Source)
-	local duration = select(5, br.UnitBuffID(Unit, BuffID, Source))
-	if duration ~= nil then
-		duration = duration * 1
+	local auraInfo = br.UnitBuffID(Unit, BuffID, Source)
+	if auraInfo and auraInfo.duration ~= nil then
+		local duration = auraInfo.duration * 1
 		return duration
 	end
 	-- if br.UnitBuffID(Unit,BuffID,Source) ~= nil then
@@ -490,9 +490,9 @@ end
 
 -- if br.getBuffRemain("target",12345) < 3 then
 function br.getBuffRemain(Unit, BuffID, Source)
-	local remain = select(6, br.UnitBuffID(Unit, BuffID, Source))
-	if remain ~= nil then
-		remain = remain - br._G.GetTime()
+	local auraInfo = br.UnitBuffID(Unit, BuffID, Source)
+	if auraInfo and auraInfo.expirationTime ~= nil then
+		local remain = auraInfo.expirationTime - br._G.GetTime()
 		return remain
 	end
 	-- if br.UnitBuffID(Unit,BuffID,Source) ~= nil then
@@ -503,9 +503,9 @@ end
 
 -- if br.getBuffStacks(138756) > 0 then
 function br.getBuffStacks(Unit, BuffID, Source)
-	local stacks = select(3, br.UnitBuffID(Unit, BuffID, Source))
-	if stacks ~= nil then
-		return stacks
+	local auraInfo = br.UnitBuffID(Unit, BuffID, Source)
+	if auraInfo and auraInfo.applications ~= nil then
+		return auraInfo.applications
 	end
 	return 0
 	-- if br.UnitBuffID(unit,BuffID,Source) then
@@ -674,43 +674,5 @@ function br.hasBloodLustRemain()
 		return br.getBuffRemain("player", 80353)
 	else
 		return 0
-	end
-end
-
---- if isBuffed()
-function br.isBuffed(UnitID, SpellID, TimeLeft, Filter)
-	if not TimeLeft then
-		TimeLeft = 0
-	end
-	if type(SpellID) == "number" then
-		SpellID = { SpellID }
-	end
-	for i = 1, #SpellID do
-		local buff, _, _, _, _, _, buffID = br._G.GetSpellInfo(SpellID[i])
-		if buff then
-			local expire = select(6, br.UnitBuff(UnitID, buffID, Filter))
-			if expire and (expire == 0 or expire - br._G.GetTime() > TimeLeft) then
-				return true
-			end
-		end
-	end
-end
-
--- if isDeBuffed("target",{123,456,789},2,"player") then
-function br.isDeBuffed(UnitID, DebuffID, TimeLeft, Filter)
-	if not TimeLeft then
-		TimeLeft = 0
-	end
-	if type(DebuffID) == "number" then
-		DebuffID = { DebuffID }
-	end
-	for i = 1, #DebuffID do
-		local debuff, _, _, _, _, _, debuffID = br._G.GetSpellInfo(DebuffID[i])
-		if debuff then
-			local expire = select(6, br._G.UnitDebuff(UnitID, debuffID, Filter))
-			if expire and (expire == 0 or expire - br._G.GetTime() > TimeLeft) then
-				return true
-			end
-		end
 	end
 end
