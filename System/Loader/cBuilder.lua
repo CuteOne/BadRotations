@@ -263,6 +263,26 @@ function br.loader:new(spec, specName)
         end
     end
 
+    -- Check if Hero Spec if Active
+    local function getHeroTreeInfo()
+        local playerClass = select(2, br._G.UnitClass('player'))
+        -- Retrieve the active hero talent spec ID
+        local activeSpecID = C_ClassTalents.GetActiveHeroTalentSpec()
+        -- Check if the specName exists in the br.lists.heroSpec table
+        for class, specs in pairs(br.lists.heroSpec) do
+            -- print("Class: "..tostring(class).." Specs: "..tostring(specs))
+            for spec, specID in pairs(specs) do
+                -- print("Spec: "..tostring(spec).." SpecID: "..tostring(specID))
+                if class == playerClass then
+                    if self.heroTree == nil then self.heroTree = {} end
+                    if self.heroTree[spec] == nil then self.heroTree[spec] = false end
+                    self.heroTree[spec] = specID == activeSpecID or false
+                end
+            end
+        end
+    end
+
+
     local function getFunctions()
         -- Build Talent Info
         local allTalents = getTalentInfo()
@@ -282,6 +302,10 @@ function br.loader:new(spec, specName)
                 end
             end
         end
+
+        -- Build Hero Tree Info
+        getHeroTreeInfo()
+
         -- Parse Holding Table
         for k, v in pairs(spellListTalents) do
             br.api.talent(self.talent, k, v, allTalents, self.spells)

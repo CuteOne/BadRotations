@@ -82,3 +82,70 @@ br.lists.spec = {
 		Initial = 1446,
 	}
 }
+br.lists.heroSpec = {
+	DEATHKNIGHT = {
+		sanlayn = 31,
+		riderOfTheApocalypse = 32,
+		deathbringer = 33
+	},
+    DEMONHUNTER = {
+        felScarred = 34,
+        aldrachiReaver = 35
+    },
+    DRUID = {
+        druidOfTheClaw = 21,
+        wildstalker = 22,
+        keeperOfTheGrove = 23,
+        elunesChosen = 24
+    },
+    EVOKER = {
+        scalecommander = 36,
+        flameshaper = 37,
+        chronowarden = 38
+    },
+    HUNTER = {
+        sentinel = 42,
+        packLeader = 43,
+        darkRanger = 44
+    },
+    MAGE = {
+        sunfury = 39,
+        spellslinger = 40,
+        frostfire = 41
+    },
+    MONK = {
+        conduitOfTheCelestials = 64,
+        shadopan = 65,
+        masterOfHarmony = 66
+    },
+    PALADIN = {
+        templar = 48,
+        lightsmith = 49,
+        heraldOfTheSun = 50
+    },
+    PRIEST = {
+        voidweaver = 18,
+        archon = 19,
+        oracle = 20
+    },
+    ROGUE = {
+        trickster = 51,
+        fatebound = 52,
+        deathstalker = 53
+    },
+    SHAMAN = {
+        totemic = 54,
+        stormbringer = 55,
+        farseer = 56
+    },
+    WARLOCK = {
+        soulHarvester = 57,
+        hellcaller = 58,
+        diabolist = 59
+    },
+    WARRIOR = {
+        slayer = 60,
+        mountainThane = 61,
+        colossus = 62
+    }
+}
