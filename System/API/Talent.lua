@@ -1,15 +1,21 @@
 ---
+-- Talent handling functions for BadRotations.
 -- These calls help in retrieving information about talent based checks.
 -- talent is the table located at br.player.talent, call this in profile to use.
--- name in the examples represent the name in the talent list (Spec, Shared Class, Shared Global Lists) defined in System/List/Spells.lua
---
--- `br.player.talent` has the following checks:
---
--- br.player.talent.name - Indicates if the talent is active.
---
--- br.player.talent.rank.name - Returns the rank of the specified talent.
 --
 -- @module br.player.talent
+--
+-- @usage
+-- -- Check if a talent is active
+-- if br.player.talent.talentName then
+--     -- Do something
+-- end
+--
+-- -- Get the rank of a talent
+-- local rank = br.player.talent.rank.talentName
+-- if rank > 1 then
+--     -- Do something
+-- end
 
 local _, br = ...
 if br.api == nil then br.api = {} end
@@ -47,6 +53,13 @@ br.api.talent = function(talent, name, id, allTalents, spellList)
     ------------------
     --- Talent API ---
     ------------------
+
+    ---
+    -- Sets talent information in the provided talent table:
+    --
+    -- - talent[name] = boolean indicating if the talent is active
+    -- - talent.rank[name] = number indicating the talent rank
+
     -- Active
     talent[name] = allTalents[id].active
     -- Rank
