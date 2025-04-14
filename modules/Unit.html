@@ -1,0 +1,1934 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>BadRotations</h1>
+
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/br.player.anima.html">br.player.anima</a></li>
+  <li><a href="../modules/br.player.buff.html">br.player.buff</a></li>
+  <li><a href="../modules/br.player.cd.html">br.player.cd</a></li>
+  <li><a href="../modules/br.player.cast.html">br.player.cast</a></li>
+  <li><a href="../modules/br.player.charges.html">br.player.charges</a></li>
+  <li><a href="../modules/br.player.conduit.html">br.player.conduit</a></li>
+  <li><a href="../modules/br.player.covenant.html">br.player.covenant</a></li>
+  <li><a href="../modules/br.player.debuff.html">br.player.debuff</a></li>
+  <li><a href="../modules/br.player.enemies.html">br.player.enemies</a></li>
+  <li><a href="../modules/br.player.equiped.html">br.player.equiped</a></li>
+  <li><a href="../modules/br.player.essence.html">br.player.essence</a></li>
+  <li><a href="../modules/br.player.has.html">br.player.has</a></li>
+  <li><a href="../modules/br.player.module.html">br.player.module</a></li>
+  <li><a href="../modules/br.player.pets.html">br.player.pets</a></li>
+  <li><a href="../modules/br.player.power.html">br.player.power</a></li>
+  <li><a href="../modules/br.player.spell.html">br.player.spell</a></li>
+  <li><a href="../modules/br.player.talent.html">br.player.talent</a></li>
+  <li><a href="../modules/br.player.ui.html">br.player.ui</a></li>
+  <li><strong>Unit</strong></li>
+  <li><a href="../modules/br.player.units.html">br.player.units</a></li>
+  <li><a href="../modules/br.player.use.html">br.player.use</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>Unit</code></h1>
+<p>Unit API for BadRotations</p>
+<p></p>
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">local unit = br.player.unit
+</pre>
+    </ul>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#unit.aberration">unit.aberration (thisUnit)</a></td>
+	<td class="summary">Check if a unit is an Aberration</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.beast">unit.beast (thisUnit)</a></td>
+	<td class="summary">Check if a unit is a Beast</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.canAttack">unit.canAttack (thisUnit, playerUnit)</a></td>
+	<td class="summary">Check if a unit can be attacked</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.cancelForm">unit.cancelForm ()</a></td>
+	<td class="summary">Cancel current shapeshift form</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.casting">unit.casting (thisUnit, spellID)</a></td>
+	<td class="summary">Check if a unit is casting or channeling a spell</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.combatTime">unit.combatTime ()</a></td>
+	<td class="summary">Get combat time</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.ooCombatTime">unit.ooCombatTime ()</a></td>
+	<td class="summary">Get time out of combat</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.charmed">unit.charmed (thisUnit)</a></td>
+	<td class="summary">Check if a unit is charmed</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.clearTarget">unit.clearTarget ()</a></td>
+	<td class="summary">Clear current target</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.deadOrGhost">unit.deadOrGhost (thisUnit)</a></td>
+	<td class="summary">Check if a unit is dead or ghost</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.demon">unit.demon (thisUnit)</a></td>
+	<td class="summary">Check if a unit is a Demon</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.distance">unit.distance (thisUnit, otherUnit)</a></td>
+	<td class="summary">Get distance between units</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.dualWielding">unit.dualWielding ()</a></td>
+	<td class="summary">Check if player is dual wielding weapons</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.enemy">unit.enemy (thisUnit, playerUnit)</a></td>
+	<td class="summary">Check if a unit is an enemy</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.exists">unit.exists (thisUnit)</a></td>
+	<td class="summary">Check if a unit exists</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.facing">unit.facing (thisUnit, otherUnit, degrees)</a></td>
+	<td class="summary">Check if a unit is facing another unit</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.falling">unit.falling ()</a></td>
+	<td class="summary">Check if a unit is falling</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.fallTime">unit.fallTime ()</a></td>
+	<td class="summary">Get time the player has been falling</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.flying">unit.flying ()</a></td>
+	<td class="summary">Check if player is flying</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.form">unit.form ()</a></td>
+	<td class="summary">Get current shapeshift form</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.formCount">unit.formCount ()</a></td>
+	<td class="summary">Get number of available shapeshift forms</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.friend">unit.friend (thisUnit, playerUnit)</a></td>
+	<td class="summary">Check if a unit is friendly to another unit</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.gcd">unit.gcd (max)</a></td>
+	<td class="summary">Get global cooldown duration</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.guid">unit.guid (thisUnit)</a></td>
+	<td class="summary">Get unit's GUID (Globally Unique Identifier)</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.health">unit.health (thisUnit)</a></td>
+	<td class="summary">Get unit's current health</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.healthMax">unit.healthMax (thisUnit)</a></td>
+	<td class="summary">Get unit's maximum health</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.hp">unit.hp (thisUnit)</a></td>
+	<td class="summary">Get unit's health percentage</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.humanoid">unit.humanoid (thisUnit)</a></td>
+	<td class="summary">Check if a unit is a Humanoid</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.id">unit.id (thisUnit)</a></td>
+	<td class="summary">Get unit's ID</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.inCombat">unit.inCombat (thisUnit)</a></td>
+	<td class="summary">Check if a unit is in combat</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.instance">unit.instance (thisInstance)</a></td>
+	<td class="summary">Check instance type or if in a specific instance type</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.interruptable">unit.interruptable (thisUnit, castPercent)</a></td>
+	<td class="summary">Check if a unit's cast can be interrupted</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.isBoss">unit.isBoss (thisUnit)</a></td>
+	<td class="summary">Check if a unit is a boss</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.isCasting">unit.isCasting (thisUnit)</a></td>
+	<td class="summary">Check if a unit is casting</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.isDummy">unit.isDummy (thisUnit)</a></td>
+	<td class="summary">Check if a unit is a training dummy</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.isExplosive">unit.isExplosive (thisUnit)</a></td>
+	<td class="summary">Check if a unit is an explosive orb (M+ affix)</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.isTanking">unit.isTanking (thisUnit)</a></td>
+	<td class="summary">Check if a unit is tanking</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.isTankInRange">unit.isTankInRange ()</a></td>
+	<td class="summary">Check if a tank is in range</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.isUnit">unit.isUnit (thisUnit, otherUnit)</a></td>
+	<td class="summary">Check if two units are the same</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.level">unit.level (thisUnit)</a></td>
+	<td class="summary">Get unit's level</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.lowest">unit.lowest (range)</a></td>
+	<td class="summary">Get the lowest health friendly unit in range</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.mounted">unit.mounted ()</a></td>
+	<td class="summary">Check if player is mounted</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.moving">unit.moving (thisUnit)</a></td>
+	<td class="summary">Check if a unit is moving</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.movingTime">unit.movingTime ()</a></td>
+	<td class="summary">Get time a unit has been moving</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.name">unit.name (thisUnit)</a></td>
+	<td class="summary">Get unit's name</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.player">unit.player (thisUnit)</a></td>
+	<td class="summary">Check if a unit is a player</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.outdoors">unit.outdoors ()</a></td>
+	<td class="summary">Check if player is outdoors</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.race">unit.race (thisUnit)</a></td>
+	<td class="summary">Get unit's race</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.reaction">unit.reaction (thisUnit, playerUnit)</a></td>
+	<td class="summary">Get unit's reaction level towards another unit</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.resting">unit.resting ()</a></td>
+	<td class="summary">Check if player is resting</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.role">unit.role (thisUnit)</a></td>
+	<td class="summary">Get unit's assigned role in group</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.solo">unit.solo ()</a></td>
+	<td class="summary">Check if player is solo (no group)</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.spellHaste">unit.spellHaste ()</a></td>
+	<td class="summary">Get player's spell haste percentage</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.standingTime">unit.standingTime ()</a></td>
+	<td class="summary">Get time a unit has been standing still</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.startAttack">unit.startAttack ()</a></td>
+	<td class="summary">Start auto-attack</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.stopAttack">unit.stopAttack ()</a></td>
+	<td class="summary">Stop auto-attack</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.swimming">unit.swimming ()</a></td>
+	<td class="summary">Check if player is swimming</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.taxi">unit.taxi (thisUnit)</a></td>
+	<td class="summary">Check if a unit is on a taxi</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.threat">unit.threat (thisUnit)</a></td>
+	<td class="summary">Check if a unit has threat</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.ttd">unit.ttd (thisUnit, percent)</a></td>
+	<td class="summary">Estimate time until unit dies</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.ttdGroup">unit.ttdGroup (range, percent)</a></td>
+	<td class="summary">Get combined time to death for all enemies in range</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.undead">unit.undead (thisUnit)</a></td>
+	<td class="summary">Check if a unit is Undead</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.valid">unit.valid (thisUnit)</a></td>
+	<td class="summary">Check if a unit is valid for targeting</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.weaponImbue.exists">unit.weaponImbue.exists (imbueId, offHand)</a></td>
+	<td class="summary">Check if a weapon imbue exists</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.weaponImbue.remain">unit.weaponImbue.remain (imbueId, offHand)</a></td>
+	<td class="summary">Get weapon imbue remaining time</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.weaponImbue.charges">unit.weaponImbue.charges (imbueId, offHand)</a></td>
+	<td class="summary">Get weapon imbue charges</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "unit.aberration"></a>
+    <strong>unit.aberration (thisUnit)</strong>
+    </dt>
+    <dd>
+    Check if a unit is an Aberration
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit to check, defaults to "target" if nil
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean True if the unit is an Aberration
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.beast"></a>
+    <strong>unit.beast (thisUnit)</strong>
+    </dt>
+    <dd>
+    Check if a unit is a Beast
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit to check, defaults to "target" if nil
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean True if the unit is a Beast
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.canAttack"></a>
+    <strong>unit.canAttack (thisUnit, playerUnit)</strong>
+    </dt>
+    <dd>
+    Check if a unit can be attacked
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit to check
+        </li>
+        <li><span class="parameter">playerUnit</span>
+         The attacking unit, defaults to "player" if nil
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean True if playerUnit can attack thisUnit
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.cancelForm"></a>
+    <strong>unit.cancelForm ()</strong>
+    </dt>
+    <dd>
+    Cancel current shapeshift form
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        nil
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.casting"></a>
+    <strong>unit.casting (thisUnit, spellID)</strong>
+    </dt>
+    <dd>
+    Check if a unit is casting or channeling a spell
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit to check, defaults to "player" if nil
+        </li>
+        <li><span class="parameter">spellID</span>
+         Optional spellID to check for
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean True if the unit is casting, or casting the specific spell if spellID provided
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.combatTime"></a>
+    <strong>unit.combatTime ()</strong>
+    </dt>
+    <dd>
+    Get combat time
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number Time in combat in seconds
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.ooCombatTime"></a>
+    <strong>unit.ooCombatTime ()</strong>
+    </dt>
+    <dd>
+    Get time out of combat
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number Time out of combat in seconds
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.charmed"></a>
+    <strong>unit.charmed (thisUnit)</strong>
+    </dt>
+    <dd>
+    Check if a unit is charmed
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit to check
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean True if the unit is charmed
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.clearTarget"></a>
+    <strong>unit.clearTarget ()</strong>
+    </dt>
+    <dd>
+    Clear current target
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        nil
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.deadOrGhost"></a>
+    <strong>unit.deadOrGhost (thisUnit)</strong>
+    </dt>
+    <dd>
+    Check if a unit is dead or ghost
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit to check
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean True if the unit is dead or a ghost
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.demon"></a>
+    <strong>unit.demon (thisUnit)</strong>
+    </dt>
+    <dd>
+    Check if a unit is a Demon
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit to check, defaults to "target" if nil
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean True if the unit is a Demon
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.distance"></a>
+    <strong>unit.distance (thisUnit, otherUnit)</strong>
+    </dt>
+    <dd>
+    Get distance between units
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         First unit
+        </li>
+        <li><span class="parameter">otherUnit</span>
+         Second unit (if nil, first unit is assumed to be the target and player is used)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number Distance between units in yards
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.dualWielding"></a>
+    <strong>unit.dualWielding ()</strong>
+    </dt>
+    <dd>
+    Check if player is dual wielding weapons
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean True if player is dual wielding
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.enemy"></a>
+    <strong>unit.enemy (thisUnit, playerUnit)</strong>
+    </dt>
+    <dd>
+    Check if a unit is an enemy
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit to check
+        </li>
+        <li><span class="parameter">playerUnit</span>
+         The reference unit, defaults to "player" if nil
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean True if thisUnit is an enemy to playerUnit
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.exists"></a>
+    <strong>unit.exists (thisUnit)</strong>
+    </dt>
+    <dd>
+    Check if a unit exists
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit to check
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean True if the unit exists
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.facing"></a>
+    <strong>unit.facing (thisUnit, otherUnit, degrees)</strong>
+    </dt>
+    <dd>
+    Check if a unit is facing another unit
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit to check facing from, defaults to "player" if only one parameter provided
+        </li>
+        <li><span class="parameter">otherUnit</span>
+         The unit to check facing towards
+        </li>
+        <li><span class="parameter">degrees</span>
+         Optional angle in degrees to consider "facing", defaults to normal game value
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean True if thisUnit is facing otherUnit within the specified degrees
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.falling"></a>
+    <strong>unit.falling ()</strong>
+    </dt>
+    <dd>
+    Check if a unit is falling
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean True if player is falling
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.fallTime"></a>
+    <strong>unit.fallTime ()</strong>
+    </dt>
+    <dd>
+    Get time the player has been falling
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number Time in seconds player has been falling
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.flying"></a>
+    <strong>unit.flying ()</strong>
+    </dt>
+    <dd>
+    Check if player is flying
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean True if player is flying
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.form"></a>
+    <strong>unit.form ()</strong>
+    </dt>
+    <dd>
+    Get current shapeshift form
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number Current shapeshift form ID
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.formCount"></a>
+    <strong>unit.formCount ()</strong>
+    </dt>
+    <dd>
+    Get number of available shapeshift forms
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number Count of available shapeshift forms
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.friend"></a>
+    <strong>unit.friend (thisUnit, playerUnit)</strong>
+    </dt>
+    <dd>
+    Check if a unit is friendly to another unit
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit to check
+        </li>
+        <li><span class="parameter">playerUnit</span>
+         The reference unit, defaults to "player" if nil
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean True if thisUnit is friendly to playerUnit
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.gcd"></a>
+    <strong>unit.gcd (max)</strong>
+    </dt>
+    <dd>
+    Get global cooldown duration
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">max</span>
+         Optional boolean to return maximum possible GCD instead of current
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number Global cooldown in seconds
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.guid"></a>
+    <strong>unit.guid (thisUnit)</strong>
+    </dt>
+    <dd>
+    Get unit's GUID (Globally Unique Identifier)
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit to get GUID for
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        string Unit's GUID
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.health"></a>
+    <strong>unit.health (thisUnit)</strong>
+    </dt>
+    <dd>
+    Get unit's current health
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit to check, defaults to "player" if nil
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number Current health of the unit
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.healthMax"></a>
+    <strong>unit.healthMax (thisUnit)</strong>
+    </dt>
+    <dd>
+    Get unit's maximum health
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit to check, defaults to "player" if nil
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number Maximum health of the unit
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.hp"></a>
+    <strong>unit.hp (thisUnit)</strong>
+    </dt>
+    <dd>
+    Get unit's health percentage
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit to check, defaults to "player" if nil
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number Health percentage of the unit (0-100)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.humanoid"></a>
+    <strong>unit.humanoid (thisUnit)</strong>
+    </dt>
+    <dd>
+    Check if a unit is a Humanoid
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit to check, defaults to "target" if nil
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean True if the unit is a Humanoid
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.id"></a>
+    <strong>unit.id (thisUnit)</strong>
+    </dt>
+    <dd>
+    Get unit's ID
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit to get ID for
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number Unit's ID
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.inCombat"></a>
+    <strong>unit.inCombat (thisUnit)</strong>
+    </dt>
+    <dd>
+    Check if a unit is in combat
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit to check, defaults to "player" if nil
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean True if the unit is in combat or special conditions are met
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.instance"></a>
+    <strong>unit.instance (thisInstance)</strong>
+    </dt>
+    <dd>
+    Check instance type or if in a specific instance type
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisInstance</span>
+         Optional specific instance type to check for
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        string|boolean Returns instance type if no parameter, or boolean if matching specific instance
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.interruptable"></a>
+    <strong>unit.interruptable (thisUnit, castPercent)</strong>
+    </dt>
+    <dd>
+    Check if a unit's cast can be interrupted
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit to check, defaults to "target" if nil
+        </li>
+        <li><span class="parameter">castPercent</span>
+         Optional cast percentage threshold
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean True if the unit's cast can be interrupted
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.isBoss"></a>
+    <strong>unit.isBoss (thisUnit)</strong>
+    </dt>
+    <dd>
+    Check if a unit is a boss
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit to check, defaults to "target" if nil
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean True if the unit is a boss
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.isCasting"></a>
+    <strong>unit.isCasting (thisUnit)</strong>
+    </dt>
+    <dd>
+    Check if a unit is casting
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit to check, defaults to "player" if nil
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean True if the unit is casting
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.isDummy"></a>
+    <strong>unit.isDummy (thisUnit)</strong>
+    </dt>
+    <dd>
+    Check if a unit is a training dummy
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit to check
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean True if the unit is a training dummy
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.isExplosive"></a>
+    <strong>unit.isExplosive (thisUnit)</strong>
+    </dt>
+    <dd>
+    Check if a unit is an explosive orb (M+ affix)
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit to check
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean True if the unit is an explosive orb
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.isTanking"></a>
+    <strong>unit.isTanking (thisUnit)</strong>
+    </dt>
+    <dd>
+    Check if a unit is tanking
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit to check, defaults to "player" if nil
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean True if the unit is tanking
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.isTankInRange"></a>
+    <strong>unit.isTankInRange ()</strong>
+    </dt>
+    <dd>
+    Check if a tank is in range
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean True if a tank is in range
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.isUnit"></a>
+    <strong>unit.isUnit (thisUnit, otherUnit)</strong>
+    </dt>
+    <dd>
+    Check if two units are the same
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         First unit to compare
+        </li>
+        <li><span class="parameter">otherUnit</span>
+         Second unit to compare
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean True if both units are the same
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.level"></a>
+    <strong>unit.level (thisUnit)</strong>
+    </dt>
+    <dd>
+    Get unit's level
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit to check, defaults to "player" if nil
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number The level of the unit
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.lowest"></a>
+    <strong>unit.lowest (range)</strong>
+    </dt>
+    <dd>
+    Get the lowest health friendly unit in range
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">range</span>
+         The range to check for units, defaults to 5 if nil
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        unit The friendly unit with lowest health in range
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.mounted"></a>
+    <strong>unit.mounted ()</strong>
+    </dt>
+    <dd>
+    Check if player is mounted
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean True if player is mounted
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.moving"></a>
+    <strong>unit.moving (thisUnit)</strong>
+    </dt>
+    <dd>
+    Check if a unit is moving
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit to check, defaults to "player" if nil
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean True if the unit is moving
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.movingTime"></a>
+    <strong>unit.movingTime ()</strong>
+    </dt>
+    <dd>
+    Get time a unit has been moving
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number Time in seconds the unit has been moving
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.name"></a>
+    <strong>unit.name (thisUnit)</strong>
+    </dt>
+    <dd>
+    Get unit's name
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit to get name of
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        string The name of the unit
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.player"></a>
+    <strong>unit.player (thisUnit)</strong>
+    </dt>
+    <dd>
+    Check if a unit is a player
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit to check
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean True if the unit is a player
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.outdoors"></a>
+    <strong>unit.outdoors ()</strong>
+    </dt>
+    <dd>
+    Check if player is outdoors
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean True if player is outdoors
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.race"></a>
+    <strong>unit.race (thisUnit)</strong>
+    </dt>
+    <dd>
+    Get unit's race
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit to check, defaults to "player" if nil
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        string The race of the unit
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.reaction"></a>
+    <strong>unit.reaction (thisUnit, playerUnit)</strong>
+    </dt>
+    <dd>
+    Get unit's reaction level towards another unit
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit to check reaction of
+        </li>
+        <li><span class="parameter">playerUnit</span>
+         The reference unit, defaults to "player" if nil
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number Reaction level (1-hostile to 8-friendly)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.resting"></a>
+    <strong>unit.resting ()</strong>
+    </dt>
+    <dd>
+    Check if player is resting
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean True if player is resting
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.role"></a>
+    <strong>unit.role (thisUnit)</strong>
+    </dt>
+    <dd>
+    Get unit's assigned role in group
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit to check, defaults to "target" if nil
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        string The role assigned to the unit ("TANK", "HEALER", "DAMAGER", "NONE")
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.solo"></a>
+    <strong>unit.solo ()</strong>
+    </dt>
+    <dd>
+    Check if player is solo (no group)
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean True if player is solo
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.spellHaste"></a>
+    <strong>unit.spellHaste ()</strong>
+    </dt>
+    <dd>
+    Get player's spell haste percentage
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number Spell haste percentage
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.standingTime"></a>
+    <strong>unit.standingTime ()</strong>
+    </dt>
+    <dd>
+    Get time a unit has been standing still
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number Time in seconds the unit has been standing still
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.startAttack"></a>
+    <strong>unit.startAttack ()</strong>
+    </dt>
+    <dd>
+    Start auto-attack
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        nil
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.stopAttack"></a>
+    <strong>unit.stopAttack ()</strong>
+    </dt>
+    <dd>
+    Stop auto-attack
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        nil
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.swimming"></a>
+    <strong>unit.swimming ()</strong>
+    </dt>
+    <dd>
+    Check if player is swimming
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean True if player is swimming
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.taxi"></a>
+    <strong>unit.taxi (thisUnit)</strong>
+    </dt>
+    <dd>
+    Check if a unit is on a taxi
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit to check, defaults to "player" if nil
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean True if the unit is on a taxi
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.threat"></a>
+    <strong>unit.threat (thisUnit)</strong>
+    </dt>
+    <dd>
+    Check if a unit has threat
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit to check, defaults to "target" if nil
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean True if the unit has threat
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.ttd"></a>
+    <strong>unit.ttd (thisUnit, percent)</strong>
+    </dt>
+    <dd>
+    Estimate time until unit dies
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit to check, defaults to "target" if nil
+        </li>
+        <li><span class="parameter">percent</span>
+         Optional health percentage to calculate time to
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number Estimated time until death in seconds
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.ttdGroup"></a>
+    <strong>unit.ttdGroup (range, percent)</strong>
+    </dt>
+    <dd>
+    Get combined time to death for all enemies in range
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">range</span>
+         Range to check for enemies, defaults to 5 yards if nil
+        </li>
+        <li><span class="parameter">percent</span>
+         Optional health percentage to calculate time to
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number Combined estimated time until death for all enemies in range
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.undead"></a>
+    <strong>unit.undead (thisUnit)</strong>
+    </dt>
+    <dd>
+    Check if a unit is Undead
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit to check
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean True if the unit is Undead
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.valid"></a>
+    <strong>unit.valid (thisUnit)</strong>
+    </dt>
+    <dd>
+    Check if a unit is valid for targeting
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit to check
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean True if the unit is valid
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.weaponImbue.exists"></a>
+    <strong>unit.weaponImbue.exists (imbueId, offHand)</strong>
+    </dt>
+    <dd>
+    Check if a weapon imbue exists
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">imbueId</span>
+         The ID of the imbue to check for
+        </li>
+        <li><span class="parameter">offHand</span>
+         Boolean whether to check offhand (true) or main hand (false, default)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean True if the imbue exists on the specified weapon
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.weaponImbue.remain"></a>
+    <strong>unit.weaponImbue.remain (imbueId, offHand)</strong>
+    </dt>
+    <dd>
+    Get weapon imbue remaining time
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">imbueId</span>
+         The ID of the imbue to check
+        </li>
+        <li><span class="parameter">offHand</span>
+         Boolean whether to check offhand (true) or main hand (false, default)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number Time remaining on the weapon imbue in seconds
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.weaponImbue.charges"></a>
+    <strong>unit.weaponImbue.charges (imbueId, offHand)</strong>
+    </dt>
+    <dd>
+    Get weapon imbue charges
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">imbueId</span>
+         The ID of the imbue to check
+        </li>
+        <li><span class="parameter">offHand</span>
+         Boolean whether to check offhand (true) or main hand (false, default)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number Number of charges remaining on the weapon imbue
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2025-04-14 19:17:47 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

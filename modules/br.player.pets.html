@@ -1,0 +1,229 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<head>
+<title>Reference</title>
+<link href="../ldoc.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div id="container">
+<div id="product">
+<div id="product_logo"></div>
+<div id="product_name"><big><b></b></big></div>
+<div id="product_description"></div>
+</div> <!-- id="product" -->
+<div id="main">
+<!-- Menu -->
+<div id="navigation">
+<br/>
+<h1>BadRotations</h1>
+<ul>
+<li><a href="../index.html">Index</a></li>
+</ul>
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+<li><a href="../modules/br.player.anima.html">br.player.anima</a></li>
+<li><a href="../modules/br.player.buff.html">br.player.buff</a></li>
+<li><a href="../modules/br.player.cd.html">br.player.cd</a></li>
+<li><a href="../modules/br.player.cast.html">br.player.cast</a></li>
+<li><a href="../modules/br.player.charges.html">br.player.charges</a></li>
+<li><a href="../modules/br.player.conduit.html">br.player.conduit</a></li>
+<li><a href="../modules/br.player.covenant.html">br.player.covenant</a></li>
+<li><a href="../modules/br.player.debuff.html">br.player.debuff</a></li>
+<li><a href="../modules/br.player.enemies.html">br.player.enemies</a></li>
+<li><a href="../modules/br.player.equiped.html">br.player.equiped</a></li>
+<li><a href="../modules/br.player.essence.html">br.player.essence</a></li>
+<li><a href="../modules/br.player.has.html">br.player.has</a></li>
+<li><a href="../modules/br.player.module.html">br.player.module</a></li>
+<li><strong>br.player.pets</strong></li>
+<li><a href="../modules/br.player.power.html">br.player.power</a></li>
+<li><a href="../modules/br.player.spell.html">br.player.spell</a></li>
+<li><a href="../modules/br.player.talent.html">br.player.talent</a></li>
+<li><a href="../modules/br.player.ui.html">br.player.ui</a></li>
+<li><a href="../modules/Unit.html">Unit</a></li>
+<li><a href="../modules/br.player.units.html">br.player.units</a></li>
+<li><a href="../modules/br.player.use.html">br.player.use</a></li>
+</ul>
+</div>
+<div id="content">
+<h1>Module <code>br.player.pets</code></h1>
+<p>Pet handling functions for BadRotations.</p>
+<p>
+ These functions provide pet management capabilities such as checking if pets exist,
+ counting specific pets, and retrieving pet information.</p>
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+<tr>
+<td class="name" nowrap=""><a href="#br.player.pet.active.exists">br.player.pet.active.exists ()</a></td>
+<td class="summary">Checks if the player's current pet exists</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#br.player.pet.active.count">br.player.pet.active.count ()</a></td>
+<td class="summary">Counts player pets that match any pet in the list</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#br.player.pet.active.id">br.player.pet.active.id ()</a></td>
+<td class="summary">Gets the ID of the player's current pet</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#br.player.pet.count">br.player.pet.count ()</a></td>
+<td class="summary">Counts specific pets matching the current pet ID</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#br.player.pet.active">br.player.pet.active ()</a></td>
+<td class="summary">Checks if the specific pet type is active</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#br.player.pet.exists">br.player.pet.exists ()</a></td>
+<td class="summary">Checks if the specific pet type exists</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#br.player.pet.id">br.player.pet.id ()</a></td>
+<td class="summary">Gets the ID of the specific pet type</td>
+</tr>
+</table>
+<br/>
+<br/>
+<h2 class="section-header"><a name="Functions"></a>Functions</h2>
+<dl class="function">
+<dt>
+<a name="br.player.pet.active.exists"></a>
+<strong>br.player.pet.active.exists ()</strong>
+</dt>
+<dd>
+    Checks if the player's current pet exists
+
+
+
+    <h3>Returns:</h3>
+<ol>
+
+        boolean True if player has an active pet, false otherwise
+    </ol>
+<h3>Usage:</h3>
+<ul>
+<pre class="example"><span class="keyword">local</span> hasPet = br.player.pet.active.<span class="function-name">exists</span>()</pre>
+</ul>
+</dd>
+<dt>
+<a name="br.player.pet.active.count"></a>
+<strong>br.player.pet.active.count ()</strong>
+</dt>
+<dd>
+    Counts player pets that match any pet in the list
+
+
+
+    <h3>Returns:</h3>
+<ol>
+
+        number The count of matching active pets
+    </ol>
+</dd>
+<dt>
+<a name="br.player.pet.active.id"></a>
+<strong>br.player.pet.active.id ()</strong>
+</dt>
+<dd>
+    Gets the ID of the player's current pet
+
+
+
+    <h3>Returns:</h3>
+<ol>
+
+        number The ID of the active pet
+    </ol>
+</dd>
+<dt>
+<a name="br.player.pet.count"></a>
+<strong>br.player.pet.count ()</strong>
+</dt>
+<dd>
+    Counts specific pets matching the current pet ID
+
+
+
+    <h3>Returns:</h3>
+<ol>
+
+        number The count of matching pets
+    </ol>
+<h3>Usage:</h3>
+<ul>
+<pre class="example"><span class="keyword">local</span> impCount = br.player.pet.imp.<span class="function-name">count</span>()</pre>
+</ul>
+</dd>
+<dt>
+<a name="br.player.pet.active"></a>
+<strong>br.player.pet.active ()</strong>
+</dt>
+<dd>
+    Checks if the specific pet type is active
+
+
+
+    <h3>Returns:</h3>
+<ol>
+
+        boolean True if this pet type is active, false otherwise
+    </ol>
+<h3>Usage:</h3>
+<ul>
+<pre class="example"><span class="keyword">local</span> hasImp = br.player.pet.imp.<span class="function-name">active</span>()</pre>
+</ul>
+</dd>
+<dt>
+<a name="br.player.pet.exists"></a>
+<strong>br.player.pet.exists ()</strong>
+</dt>
+<dd>
+    Checks if the specific pet type exists
+
+
+
+    <h3>Returns:</h3>
+<ol>
+
+        boolean True if this pet type exists, false otherwise
+    </ol>
+<h3>Usage:</h3>
+<ul>
+<pre class="example"><span class="keyword">local</span> hasImp = br.player.pet.imp.<span class="function-name">exists</span>()</pre>
+</ul>
+</dd>
+<dt>
+<a name="br.player.pet.id"></a>
+<strong>br.player.pet.id ()</strong>
+</dt>
+<dd>
+    Gets the ID of the specific pet type
+
+
+
+    <h3>Returns:</h3>
+<ol>
+
+        number The pet ID
+    </ol>
+<h3>Usage:</h3>
+<ul>
+<pre class="example"><span class="keyword">local</span> impID = br.player.pet.imp.<span class="function-name">id</span>()</pre>
+</ul>
+</dd>
+</dl>
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2025-04-14 19:17:47 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

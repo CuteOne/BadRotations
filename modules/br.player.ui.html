@@ -41,10 +41,12 @@
 <li><a href="../modules/br.player.essence.html">br.player.essence</a></li>
 <li><a href="../modules/br.player.has.html">br.player.has</a></li>
 <li><a href="../modules/br.player.module.html">br.player.module</a></li>
+<li><a href="../modules/br.player.pets.html">br.player.pets</a></li>
 <li><a href="../modules/br.player.power.html">br.player.power</a></li>
 <li><a href="../modules/br.player.spell.html">br.player.spell</a></li>
 <li><a href="../modules/br.player.talent.html">br.player.talent</a></li>
 <li><strong>br.player.ui</strong></li>
+<li><a href="../modules/Unit.html">Unit</a></li>
 <li><a href="../modules/br.player.units.html">br.player.units</a></li>
 <li><a href="../modules/br.player.use.html">br.player.use</a></li>
 </ul>
@@ -69,7 +71,7 @@
 <td class="summary">Displays the passed text as an overlay on the chat windows</td>
 </tr>
 <tr>
-<td class="name" nowrap=""><a href="#checked">ui.checked (thisOption)</a></td>
+<td class="name" nowrap=""><a href="#checked">ui.checked (thisOption[, optionPage])</a></td>
 <td class="summary">Checks if the passed option is enabled</td>
 </tr>
 <tr>
@@ -137,7 +139,7 @@
 <td class="summary">Checks if the option to use trinkets are valid per each Trinket slot.</td>
 </tr>
 <tr>
-<td class="name" nowrap=""><a href="#value">ui.value (thisOption)</a></td>
+<td class="name" nowrap=""><a href="#value">ui.value (thisOption[, optionPage])</a></td>
 <td class="summary">Returns the value of the specified option.</td>
 </tr>
 </table>
@@ -160,6 +162,11 @@
          - Name of the option from the defined profile options.
         </li>
 </ul>
+<h3>Returns:</h3>
+<ol>
+
+        boolean - Returns true if the option is set to Always or if CD is selected and CDs are enabled
+    </ol>
 </dd>
 <dt>
 <a name="alwaysCdAoENever"></a>
@@ -177,7 +184,7 @@
         </li>
 <li><span class="parameter">minUnits</span>
 <span class="types"><span class="type">number</span></span>
-         - Minimum Number of units to cound for AOE checks.
+         - Minimum Number of units to count for AOE checks.
          (<em>default</em> 3)
         </li>
 <li><span class="parameter">enemyCount</span>
@@ -186,6 +193,11 @@
          (<em>optional</em>)
         </li>
 </ul>
+<h3>Returns:</h3>
+<ol>
+
+        boolean - Returns true based on selected option and current combat conditions
+    </ol>
 </dd>
 <dt>
 <a name="chatOverlay"></a>
@@ -202,10 +214,15 @@
          - The text to display.
         </li>
 </ul>
+<h3>Returns:</h3>
+<ol>
+
+        nil
+    </ol>
 </dd>
 <dt>
 <a name="checked"></a>
-<strong>ui.checked (thisOption)</strong>
+<strong>ui.checked (thisOption[, optionPage])</strong>
 </dt>
 <dd>
     Checks if the passed option is enabled
@@ -217,11 +234,16 @@
 <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          - Name of the option from the defined profile options.
         </li>
+<li><span class="parameter">optionPage</span>
+<span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         - The page where the option is located.
+         (<em>optional</em>)
+        </li>
 </ul>
 <h3>Returns:</h3>
 <ol>
 
-        boolean
+        boolean - Returns true if the option is checked
     </ol>
 </dd>
 <dt>
@@ -239,6 +261,11 @@
          - The message to show in chat.
         </li>
 </ul>
+<h3>Returns:</h3>
+<ol>
+
+        nil
+    </ol>
 </dd>
 <dt>
 <a name="delay"></a>
@@ -262,7 +289,7 @@
 <h3>Returns:</h3>
 <ol>
 
-        boolean
+        boolean - Returns true if the delay time has passed
     </ol>
 </dd>
 <dt>
@@ -277,7 +304,7 @@
     <h3>Returns:</h3>
 <ol>
 
-        boolean
+        boolean - Returns true if bags are full
     </ol>
 </dd>
 <dt>
@@ -299,7 +326,7 @@
 <h3>Returns:</h3>
 <ol>
 
-        boolean
+        boolean - Returns true if the specified mouse button is down
     </ol>
 </dd>
 <dt>
@@ -314,7 +341,7 @@
     <h3>Returns:</h3>
 <ol>
 
-        boolean
+        boolean - Returns true if rotation should be paused
     </ol>
 <h3>See also:</h3>
 <ul>
@@ -335,6 +362,11 @@
          - The message to show in chat.
         </li>
 </ul>
+<h3>Returns:</h3>
+<ol>
+
+        nil
+    </ol>
 </dd>
 <dt>
 <a name="pullTimer"></a>
@@ -348,7 +380,7 @@
     <h3>Returns:</h3>
 <ol>
 
-        number
+        number - Returns seconds remaining on pull timer
     </ol>
 </dd>
 <dt>
@@ -360,10 +392,11 @@
 
 
 
+    <h3>Returns:</h3>
+<ol>
 
-
-
-
+        number - Returns the current game time
+    </ol>
 </dd>
 <dt>
 <a name="timer"></a>
@@ -387,7 +420,7 @@
 <h3>Returns:</h3>
 <ol>
 
-        boolean
+        boolean - Returns true if the interval has passed
     </ol>
 </dd>
 <dt>
@@ -408,7 +441,7 @@
 <h3>Returns:</h3>
 <ol>
 
-        boolean
+        boolean - Returns true if the toggle is active
     </ol>
 </dd>
 <dt>
@@ -437,6 +470,11 @@
          (<em>default</em> "player")
         </li>
 </ul>
+<h3>Returns:</h3>
+<ol>
+
+        boolean - Returns true if AOE should be used
+    </ol>
 </dd>
 <dt>
 <a name="useCDs"></a>
@@ -450,7 +488,7 @@
     <h3>Returns:</h3>
 <ol>
 
-        boolean
+        boolean - Returns true if cooldowns should be used
     </ol>
 </dd>
 <dt>
@@ -465,7 +503,7 @@
     <h3>Returns:</h3>
 <ol>
 
-        boolean
+        boolean - Returns true if defensive abilities should be used
     </ol>
 </dd>
 <dt>
@@ -480,7 +518,7 @@
     <h3>Returns:</h3>
 <ol>
 
-        boolean
+        boolean - Returns true if interrupts should be used
     </ol>
 </dd>
 <dt>
@@ -506,10 +544,14 @@
 <li><span class="parameter">useTarget</span>
 <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          - the reference unit to check range and units against.
- #return boolean
          (<em>default</em> "player")
         </li>
 </ul>
+<h3>Returns:</h3>
+<ol>
+
+        boolean - Returns true if single target abilities should be used
+    </ol>
 </dd>
 <dt>
 <a name="useTrinkets"></a>
@@ -523,14 +565,18 @@
 <ul>
 <li><span class="parameter">trinket</span>
 <span class="types"><span class="type">number</span></span>
-         -The item id of the trinket to check for.
- #return boolean
+         - The item id of the trinket to check for.
         </li>
 </ul>
+<h3>Returns:</h3>
+<ol>
+
+        boolean - Returns true if the trinket should be used
+    </ol>
 </dd>
 <dt>
 <a name="value"></a>
-<strong>ui.value (thisOption)</strong>
+<strong>ui.value (thisOption[, optionPage])</strong>
 </dt>
 <dd>
     Returns the value of the specified option.
@@ -542,11 +588,16 @@
 <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          - The name of the option specified in the options section
         </li>
+<li><span class="parameter">optionPage</span>
+<span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         - The page where the option is located.
+         (<em>optional</em>)
+        </li>
 </ul>
 <h3>Returns:</h3>
 <ol>
 
-        number
+        number - Returns the value of the specified option
     </ol>
 </dd>
 </dl>
@@ -554,7 +605,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
-<i style="float:right;">Last updated 2025-03-18 17:18:22 </i>
+<i style="float:right;">Last updated 2025-04-14 19:17:47 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
