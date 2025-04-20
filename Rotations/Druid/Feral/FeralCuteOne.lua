@@ -1245,7 +1245,7 @@ actionList.Builder = function()
     -- prowl,if=gcd.remains=0&energy>=35&!buff.sudden_ambush.up&(dot.rake.refreshable|dot.rake.pmultiplier<1.4)*!(variable.need_bt&buff.bt_rake.up)&buff.tigers_fury.up&!buff.shadowmeld.up
     if cast.able.prowl("player") and unit.gcd() == 0 and energy() >= 35 and not buff.suddenAmbush.exists()
         and ((debuff.rake.refresh(units.dyn5) or debuff.rake.pmultiplier(units.dyn5) < 1.4) and not (var.needBt and var.btGen.rake))
-        and buff.tigersFury.exists() and not buff.shadowmeld.exists()
+        and buff.tigersFury.exists() and not buff.shadowmeld.exists() and buff.incarnationAvatarOfAshamane.exists()
     then
         if cast.prowl("player") then
             ui.debug("Casting Prowl [Builder]")
@@ -1312,10 +1312,10 @@ actionList.Builder = function()
     end
     -- Pool Resource
     -- pool_resource,wait=0.2,if=variable.dot_refresh_soon&energy.deficit>70&!variable.need_bt&!buff.bs_inc.up&cooldown.tigers_fury.remains>3
-    if var.dotRefreshSoon and energy.deficit() > 70 and not var.needBt and not buff.bsInc.exists() and cd.tigersFury.remains() > 3 then
-        ui.debug("Pooling Resource [Builder]")
-        return true
-    end
+    -- if ui.delay("Pool Resource",0.2) and var.dotRefreshSoon and energy.deficit() > 70 and not var.needBt and not buff.bsInc.exists() and cd.tigersFury.remains() > 3 then
+    --     if ui.delay("Message",unit.gcd(true)) then ui.debug("Pooling Resource [Builder]") end
+    --     return true
+    -- end
     -- Brutal Slash
     -- brutal_slash,if=!(variable.need_bt&buff.bt_swipe.up)
     if talent.brutalSlash and cast.able.brutalSlash("player", "aoe", ui.value("Brutal Slash Targets"), 8)
