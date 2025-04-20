@@ -119,7 +119,7 @@ Raidable means if its good to raid with.
 
 |rotation|author |patch |coverage|status|  readiness  |last updated|
 |--------|-------|:----:|:------:|:----:|:-----------:|-----------:|
-|CuteOne |CuteOne|11.0.2|  100%  | Full |:interrobang:|  01/18/2025|
+|CuteOne |CuteOne|11.0.2|  100%  | Full |:interrobang:|  04/20/2025|
 
 
 ### Evoker
@@ -167,8 +167,8 @@ Raidable means if its good to raid with.
 
 |   rotation   |   author   | patch |coverage|status |  readiness  |last updated|
 |--------------|------------|:-----:|:------:|:-----:|:-----------:|-----------:|
-|BrewWindWalker|BrewingCoder|10.2.5 |  95%   |Limited|:interrobang:|  05/08/2024|
 |BrewWWPVE     |BrewingCoder|Unknown|Unknown |Unknown|:interrobang:|  05/08/2024|
+|BrewWindWalker|BrewingCoder|10.2.5 |  95%   |Limited|:interrobang:|  05/08/2024|
 
 
 ### Paladin
