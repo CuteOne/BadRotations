@@ -395,16 +395,13 @@ end
 
 -- if br.getDebuffStacks("target",138756) > 0 then
 function br.getDebuffStacks(Unit, DebuffID, Source)
-	local auraInfo = br.UnitDebuffID(Unit, DebuffID, Source)
-	if auraInfo and auraInfo.applications ~= nil then
-		return auraInfo.applications
-	end
-	return 0
-	-- if br.UnitDebuffID(Unit,DebuffID,Source) then
-	-- 	return (select(3,br.UnitDebuffID(Unit,DebuffID,Source)))
-	-- else
-	-- 	return 0
-	-- end
+	local auraInfo,_,stacks = br.UnitDebuffID(Unit, DebuffID, Source)
+	if not auraInfo then return 0 end
+ if auraInfo.applications then
+		 return auraInfo.applications
+ else
+   return stacks or 0
+ end
 end
 
 function br.getDebuffCount(spellID)
@@ -512,16 +509,13 @@ end
 
 -- if br.getBuffStacks(138756) > 0 then
 function br.getBuffStacks(Unit, BuffID, Source)
-	local auraInfo = br.UnitBuffID(Unit, BuffID, Source)
-	if auraInfo and auraInfo.applications ~= nil then
-		return auraInfo.applications
-	end
-	return 0
-	-- if br.UnitBuffID(unit,BuffID,Source) then
-	-- 	return (select(3,br.UnitBuffID(unit,BuffID,Source)))
-	-- else
-	-- 	return 0
-	-- end
+	local auraInfo,_,stacks = br.UnitBuffID(Unit, BuffID, Source)
+	if not auraInfo then return 0 end
+ if auraInfo.applications then
+		 return auraInfo.applications
+ else
+   return stacks or 0
+ end
 end
 
 function br.getBuffCount(spellID)
