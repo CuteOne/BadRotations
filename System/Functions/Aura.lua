@@ -334,74 +334,66 @@ function br.canDispel(Unit, spellID)
 end
 
 function br.getAuraDuration(Unit, AuraID, Source)
-	local auraInfo = br.UnitAuraID(Unit, AuraID, Source)
-	if auraInfo and auraInfo.duration ~= nil then
-		local duration = auraInfo.duration * 1
-		return duration
+	local auraInfo,_,_,_,duration = br.UnitAuraID(Unit, AuraID, Source)
+	if not auraInfo then return 0 end
+	if auraInfo.duration then
+		return auraInfo.duration * 1
+	else
+		return duration * 1 or 0
 	end
-	--if UnitAuraID(Unit,AuraID,Source) ~= nil then
-	--	return select(5,UnitAuraID(Unit,AuraID,Source))*1
-	--end
-	return 0
 end
 
 function br.getAuraRemain(Unit, AuraID, Source)
-	local auraInfo = br.UnitAuraID(Unit, AuraID, Source)
-	if auraInfo and auraInfo.expirationTime ~= nil then
-		local remain = auraInfo.expirationTime - br._G.GetTime()
-		return remain
+	local auraInfo,_,_,_,_,expires = br.UnitAuraID(Unit, AuraID, Source)
+	if not auraInfo then return 0 end
+	if auraInfo.expirationTime then
+		return auraInfo.expirationTime - br._G.GetTime()
+	else
+		return (expires - br._G.GetTime()) or 0
 	end
-	-- if UnitAuraID(Unit,AuraID,Source) ~= nil then
-	-- 	return (select(6,UnitAuraID(Unit,AuraID,Source)) - GetTime())
-	-- end
-	return 0
 end
 
 function br.getAuraStacks(Unit, AuraID, Source)
-	local auraInfo = br.UnitAuraID(Unit, AuraID, Source)
-	if auraInfo and auraInfo.applications ~= nil then return auraInfo.applications end
-	-- if UnitAuraID(Unit,AuraID,Source) ~= nil then
-	-- 	return select(3,UnitAuraID(Unit,AuraID,Source))
-	-- end
-	return 0
+	local auraInfo,_,stacks = br.UnitAuraID(Unit, AuraID, Source)
+	if not auraInfo then return 0 end
+	if auraInfo.applications then
+		return auraInfo.applications
+	else
+		return stacks or 0
+	end
 end
 
 -- if br.getDebuffDuration("target",12345) < 3 then
 function br.getDebuffDuration(Unit, DebuffID, Source)
-	local auraInfo = br.UnitDebuffID(Unit, DebuffID, Source)
-	if auraInfo and auraInfo.duration ~= nil then
-		local duration = auraInfo.duration * 1
-		return duration
+	local auraInfo,_,_,_,duration = br.UnitDebuffID(Unit, DebuffID, Source)
+	if not auraInfo then return 0 end
+	if auraInfo.duration then
+		return auraInfo.duration * 1
+	else
+		return duration * 1 or 0
 	end
-	-- if br.UnitDebuffID(Unit,DebuffID,Source) ~= nil then
-	-- 	return select(5,br.UnitDebuffID(Unit,DebuffID,Source))*1
-	-- end
-	return 0
 end
 
 -- if br.getDebuffRemain("target",12345) < 3 then
 function br.getDebuffRemain(Unit, DebuffID, Source)
-	local auraInfo = br.UnitDebuffID(Unit, DebuffID, Source)
-	if auraInfo and auraInfo.expirationTime ~= nil then
-		local remain = auraInfo.expirationTime - br._G.GetTime()
-		-- Print(GetSpellInfo(DebuffID)..": "..remain)
-		return remain
+	local auraInfo,_,_,_,_,expires = br.UnitDebuffID(Unit, DebuffID, Source)
+	if not auraInfo then return 0 end
+	if auraInfo.expirationTime then
+		return auraInfo.expirationTime - br._G.GetTime()
+	else
+		return (expires - br._G.GetTime()) or 0
 	end
-	-- if br.UnitDebuffID(Unit,DebuffID,Source) ~= nil then
-	-- 	return (select(6,br.UnitDebuffID(Unit,DebuffID,Source)) - GetTime())
-	-- end
-	return 0
 end
 
 -- if br.getDebuffStacks("target",138756) > 0 then
 function br.getDebuffStacks(Unit, DebuffID, Source)
 	local auraInfo,_,stacks = br.UnitDebuffID(Unit, DebuffID, Source)
 	if not auraInfo then return 0 end
- if auraInfo.applications then
-		 return auraInfo.applications
- else
-   return stacks or 0
- end
+	if auraInfo.applications then
+		return auraInfo.applications
+	else
+		return stacks or 0
+	end
 end
 
 function br.getDebuffCount(spellID)
@@ -409,12 +401,12 @@ function br.getDebuffCount(spellID)
 	for k, _ in pairs(br.enemy) do
 		local thisUnit = br.enemy[k].unit
 		-- check if unit is valid
-		if br.GetObjectExists(thisUnit) then
+		-- if br.GetObjectExists(thisUnit) then
 			-- increase counter for each occurences
 			if br.UnitDebuffID(thisUnit, spellID, "player") then
 				counter = counter + 1
 			end
-		end
+		-- end
 	end
 	return tonumber(counter)
 end
@@ -424,12 +416,12 @@ function br.getDebuffRemainCount(spellID, remain)
 	for k, _ in pairs(br.enemy) do
 		local thisUnit = br.enemy[k].unit
 		-- check if unit is valid
-		if br.GetObjectExists(thisUnit) then
+		-- if br.GetObjectExists(thisUnit) then
 			-- increase counter for each occurences
 			if br.UnitDebuffID(thisUnit, spellID, "player") and br.getDebuffRemain(thisUnit, spellID, "player") >= remain then
 				counter = counter + 1
 			end
-		end
+		-- end
 	end
 	return tonumber(counter)
 end
@@ -483,39 +475,35 @@ end
 
 -- if getBuffDuration("target",12345) < 3 then
 function br.getBuffDuration(Unit, BuffID, Source)
-	local auraInfo = br.UnitBuffID(Unit, BuffID, Source)
-	if auraInfo and auraInfo.duration ~= nil then
-		local duration = auraInfo.duration * 1
-		return duration
+	local auraInfo,_,_,_,duration = br.UnitBuffID(Unit, BuffID, Source)
+	if not auraInfo then return 0 end
+	if auraInfo.duration then
+		return auraInfo.duration * 1
+	else
+		return duration * 1 or 0
 	end
-	-- if br.UnitBuffID(Unit,BuffID,Source) ~= nil then
-	-- 	return select(5,br.UnitBuffID(Unit,BuffID,Source))*1
-	-- end
-	return 0
 end
 
 -- if br.getBuffRemain("target",12345) < 3 then
 function br.getBuffRemain(Unit, BuffID, Source)
-	local auraInfo = br.UnitBuffID(Unit, BuffID, Source)
-	if auraInfo and auraInfo.expirationTime ~= nil then
-		local remain = auraInfo.expirationTime - br._G.GetTime()
-		return remain
+	local auraInfo,_,_,_,_,expires = br.UnitBuffID(Unit, BuffID, Source)
+	if not auraInfo then return 0 end
+	if auraInfo.expirationTime then
+		return auraInfo.expirationTime - br._G.GetTime()
+	else
+		return (expires - br._G.GetTime()) or 0
 	end
-	-- if br.UnitBuffID(Unit,BuffID,Source) ~= nil then
-	-- 	return (select(6,br.UnitBuffID(Unit,BuffID,Source)) - GetTime())
-	-- end
-	return 0
 end
 
 -- if br.getBuffStacks(138756) > 0 then
 function br.getBuffStacks(Unit, BuffID, Source)
 	local auraInfo,_,stacks = br.UnitBuffID(Unit, BuffID, Source)
 	if not auraInfo then return 0 end
- if auraInfo.applications then
-		 return auraInfo.applications
- else
-   return stacks or 0
- end
+	if auraInfo.applications then
+		return auraInfo.applications
+	else
+		return stacks or 0
+ 	end
 end
 
 function br.getBuffCount(spellID)
@@ -523,18 +511,23 @@ function br.getBuffCount(spellID)
 	for i = 1, #br.friend do
 		local thisUnit = br.friend[i].unit
 		-- check if unit is valid
-		if br.GetObjectExists(thisUnit) then
+		-- if br.GetObjectExists(thisUnit) then
 			-- increase counter for each occurences
 			if br.UnitBuffID(thisUnit, spellID, "player") then
 				counter = counter + 1
 			end
-		end
+		-- end
 	end
 	return tonumber(counter)
 end
 
 function br.getBuffReact(Unit, BuffID, Source)
-	local _, _, _, _, duration, expire = br.UnitBuffID(Unit, BuffID, Source)
+	local auraInfo, _, _, _, duration, expire = br.UnitBuffID(Unit, BuffID, Source)
+	if not auraInfo then return false end
+	if auraInfo.duration then
+		duration = auraInfo.duration
+		expire = auraInfo.expirationTime
+	end
 	if duration ~= nil then
 		return (br._G.GetTime() - (expire - duration)) > 0.5
 	end
