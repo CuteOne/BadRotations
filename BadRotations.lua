@@ -3,12 +3,14 @@
 local _, br = ...
 br._G = setmetatable({}, { __index = _G })
 br._G.GetSpellInfo = function(spellIdentifier)
-	local spellInfo = br._G.C_Spell.GetSpellInfo(spellIdentifier)
-	if spellInfo then
+	local spellInfo = _G["GetSpellInfo"](spellIdentifier)
+	if spellInfo and type(spellInfo) == "table" then
 		---@diagnostic disable-next-line: redundant-return-value
 		return spellInfo.name, _, spellInfo.iconID, spellInfo.castTime, spellInfo.minRange,
 			---@diagnostic disable-next-line: redundant-return-value
 			spellInfo.maxRange, spellInfo.spellID, spellInfo.originalIconID
+	else
+		return _G["GetSpellInfo"](spellIdentifier)
 	end
 end
 br.unlock = {}
@@ -95,7 +97,7 @@ end
 -- Run
 function br.Run()
 	if br.selectedSpec == nil then
-		br.selectedSpecID, br.selectedSpec = br._G.GetSpecializationInfo(br._G.GetSpecialization())
+		br.selectedSpecID, br.selectedSpec = br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization())
 		if br.selectedSpec == "" then
 			br.selectedSpec = "Initial"
 		end
@@ -200,7 +202,7 @@ end
 
 function br.load()
 	-- Update Selected Spec
-	br.selectedSpecID, br.selectedSpec = br._G.GetSpecializationInfo(br._G.GetSpecialization())
+	br.selectedSpecID, br.selectedSpec = br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization())
 	if br.selectedSpec == "" then
 		br.selectedSpec = "Initial"
 	end

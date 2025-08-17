@@ -12,10 +12,10 @@ if br.api == nil then br.api = {} end
 -- Local function needed to facilitate debuff.calc
 local function getSnapshotValue(dot)
     -- Feral Bleeds
-    if br._G.GetSpecializationInfo(br._G.GetSpecialization()) == 103 then
+    if br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization()) == 103 then
         local multiplier     = 1.00
-        local Bloodtalons    = 1.30
-        -- local SavageRoar        = 1.40
+        -- local Bloodtalons    = 1.30
+        local SavageRoar     = 1.40
         local TigersFury     = 1.15
         local RakeMultiplier = 1
         -- Tigers Fury
@@ -26,10 +26,11 @@ local function getSnapshotValue(dot)
             return multiplier
         end
         -- Bloodtalons
-        if br.player.buff.bloodtalons.exists() and dot == br.player.spells.debuffs.rip then multiplier = multiplier *
-            Bloodtalons end
+        -- if br.player.buff.bloodtalons.exists() and dot == br.player.spells.debuffs.rip then
+        --     multiplier = multiplier * Bloodtalons
+        -- end
         -- Savage Roar
-        -- if self.buff.savageRoar.exists() then multiplier = multiplier*SavageRoar end
+        if br.player.buff.savageRoar.exists() then multiplier = multiplier * SavageRoar end
         -- rip
         if dot == br.player.spells.debuffs.rip then
             -- -- Versatility
@@ -40,31 +41,31 @@ local function getSnapshotValue(dot)
         -- rake
         if dot == br.player.spells.debuffs.rake then
             -- Incarnation/Prowl/Sudden Ambush
-            if br.player.buff.berserk.exists() or br.player.buff.incarnationAvatarOfAshamane.exists() or br.player.buff.prowl.exists()
-                or br.player.buff.shadowmeld.exists() or br.player.buff.suddenAmbush.exists()
+            if br.player.buff.berserk.exists() --[[or br.player.buff.incarnationAvatarOfAshamane.exists()]] or br.player.buff.prowl.exists()
+                or br.player.buff.shadowmeld.exists() --or br.player.buff.suddenAmbush.exists()
             then
-                RakeMultiplier = 1.6
+                RakeMultiplier = 2.0
             end
             -- return rake
             return multiplier * RakeMultiplier
         end
     end
     -- Assassination Bleeds
-    if br._G.GetSpecializationInfo(br._G.GetSpecialization()) == 259 then
-        local multiplier = 1
-        if br.player.buff.stealth.exists() and br.player.talent.nightstalker and (dot == br.player.spells.debuffs.rupture
-                or dot == br.player.spells.debuffs.garrote) then
-            multiplier = 1.5
-        end
-        if (br.player.buff.stealth.exists() or br.player.buff.vanish.exists()
-                or (br.player.buff.subterfuge.exists() and br.player.buff.subterfuge.remain() >= 0.1
-                    and br.player.buff.subterfuge.remain() >= br.getSpellCD(61304)))
-            and dot == br.player.spells.debuffs.garrote and br.player.talent.subterfuge
-        then
-            multiplier = 1.8
-        end
-        return multiplier
-    end
+    -- if br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization()) == 259 then
+    --     local multiplier = 1
+    --     if br.player.buff.stealth.exists() and br.player.talent.nightstalker and (dot == br.player.spells.debuffs.rupture
+    --             or dot == br.player.spells.debuffs.garrote) then
+    --         multiplier = 1.5
+    --     end
+    --     if (br.player.buff.stealth.exists() or br.player.buff.vanish.exists()
+    --             or (br.player.buff.subterfuge.exists() and br.player.buff.subterfuge.remain() >= 0.1
+    --                 and br.player.buff.subterfuge.remain() >= br.getSpellCD(61304)))
+    --         and dot == br.player.spells.debuffs.garrote and br.player.talent.subterfuge
+    --     then
+    --         multiplier = 1.8
+    --     end
+    --     return multiplier
+    -- end
     return 0
 end
 
@@ -78,7 +79,7 @@ local baseTickTimes = {
 }
 
 br.api.debuffs = function(debuff, k, v)
-    local spec = br._G.GetSpecializationInfo(br._G.GetSpecialization())
+    local spec = br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization())
 
     --- Checks if a debuff exists on a unit.
     -- @function debuff.spell.exists
@@ -274,6 +275,29 @@ br.api.debuffs = function(debuff, k, v)
     -- @treturn number
     debuff.applied = function(thisUnit)
         return (spec == 103 or spec == 259) and debuff.bleed[thisUnit] or 0
+    end
+
+    --- Gets the number of debuff ticks remaining until it expores on the specified unit.
+    -- @function debuff.spell.ticksRemain
+    -- string[opt="target"] thisUnit The unit to check the remaining ticks on.
+    -- @treturn number
+    debuff.ticksRemain = function(thisUnit)
+        local haste = br._G.UnitSpellHaste("player")
+        local hasteMultiplier = 1 + (haste / 100)
+        local baseTickTime = baseTickTimes[v] or 3
+        local hastedTickTime = baseTickTime / hasteMultiplier
+        local auraInfo = br.UnitDebuffID(thisUnit, v, nil, "PLAYER")
+        if auraInfo then
+            local expirationTime = auraInfo.expirationTime
+            -- local duration = auraInfo.duration
+            local remainingDuration = expirationTime - br._G.GetTime()
+            local remainingTicks = math.floor(remainingDuration / hastedTickTime)
+
+            return remainingTicks -- The additional ticks gained by refreshing
+        else
+            -- Duration amount here shouldn't matter, since no DoT exists
+            return math.floor(99 / hastedTickTime) -- Return the max possible ticks for a fresh DoT
+        end
     end
 
     --- Gets the number of debuff ticks that will be gained by reapplying the debuff to the specified unit.

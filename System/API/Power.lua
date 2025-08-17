@@ -31,7 +31,7 @@ if br.api == nil then br.api = {} end
 
 br.api.power = function(power,powerType,powerIndex)
     local isDKRunes = select(2,br._G.UnitClass("player")) == "DEATHKNIGHT" and powerIndex == 5
-    local isDestruction = br._G.GetSpecializationInfo(br._G.GetSpecialization()) == 267 and powerIndex == 7
+    local isDestruction = br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization()) == 267 and powerIndex == 7
 
     --- Gets the amount of specified power until max is reached
     -- @function power.powerType.deficit

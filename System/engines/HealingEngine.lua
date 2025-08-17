@@ -4,7 +4,7 @@ local _, br = ...
 
 
 -----------------------------------------Bubba's Healing Engine--------------------------------------]]
-local LGIST = br._G.LibStub("LibGroupInSpecT-1.1")
+-- local LGIST = br._G.LibStub("LibGroupInSpecT-1.1")
 if not br.metaTable1 then
 	-- localizing the commonly used functions while inside loops
 	local getDistance, tinsert, tremove, UnitClass, GetUnitIsUnit = br.getDistance, br._G.tinsert, br._G.tremove, br._G.UnitClass, br.GetUnitIsUnit
@@ -311,10 +311,11 @@ if not br.metaTable1 then
 					return br.novaEngineTables.roleTable[br._G.UnitName(o.unit)].role
 				else
 ---@diagnostic disable-next-line: undefined-field
-					local info = LGIST:GetCachedInfo(br.getGUID(o.unit))
-					if info and info.spec_role then
-						return info.spec_role
-					end
+					-- local info = LGIST:GetCachedInfo(br.getGUID(o.unit))
+					-- if info and info.spec_role then
+					-- 	return info.spec_role
+					-- end
+					return ""
 				end
 			else
 				return br._G.UnitGroupRolesAssigned(o.unit)

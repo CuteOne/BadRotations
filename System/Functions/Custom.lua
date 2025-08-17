@@ -642,7 +642,7 @@ end
 
 function br.mergeIdTables(idTable)
     local class = select(2, br._G.UnitClass("player"))
-    local spec = br._G.GetSpecializationInfo(br._G.GetSpecialization())
+    local spec = br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization())
     if idTable ~= nil then idTable = {} end
     if br.lists.spells.Shared ~= nil then
         idTable = br.mergeTables(idTable, br.lists.spells.Shared)

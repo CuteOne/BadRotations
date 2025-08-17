@@ -98,7 +98,7 @@ local QuestCacheUpdate = function()
 
 	local mapId = br._G.C_Map.GetBestMapForUnit("player")
 	if (mapId) then
-		local worldQuests = br._G.C_TaskQuest.GetQuestsForPlayerByMapID(mapId)
+		local worldQuests = br._G.C_TaskQuest.GetQuestsOnMap(mapId)
 		if (type(worldQuests) == "table") then
 			for _, questTable in ipairs(worldQuests) do
 				local questId = questTable.questId

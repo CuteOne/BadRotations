@@ -60,7 +60,7 @@ end
 function br.getPowerAlt(Unit)
 	local value = 0
 	local class = select(2, br._G.UnitClass(Unit))
-	local spec = br._G.GetSpecialization()
+	local spec = br._G.C_SpecializationInfo.GetSpecialization()
 	local power = br._G.UnitPower
 	if (class == "DRUID" and spec == 2) or class == "ROGUE" then
 		value = power(Unit, 4)
@@ -246,7 +246,7 @@ function br.getTimeToMax(Unit, Limit)
 	local curr = br._G.UnitPower(Unit)
 	local curr2 = curr
 	local _, regen = br._G.GetPowerRegen(Unit)
-	if select(3, br._G.UnitClass("player")) == 11 and br._G.GetSpecialization() == 2 and br.isKnown(114107) then
+	if select(3, br._G.UnitClass("player")) == 11 and br._G.C_SpecializationInfo.GetSpecialization() == 2 and br.isKnown(114107) then
 		curr2 = curr + 4 * br.getCombo()
 	end
 	timeTill = (curr2 > max) and 0 or (max - curr2) * (1.0 / regen)

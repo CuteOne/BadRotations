@@ -19,14 +19,14 @@ function br.canUseItem(itemID)
 			return false
 		end
 		if br._G.GetItemSpell(slotItemID) ~= nil then
-			if br._G.GetItemCooldown(slotItemID) == 0 and br._G.IsUsableItem(slotItemID) then
+			if br._G.C_Container.GetItemCooldown(slotItemID) == 0 and br._G.IsUsableItem(slotItemID) then
 				return true
 			end
 		end
 	elseif (br._G.GetItemCount(itemID, false, false) > 0 or br._G.PlayerHasToy(itemID)) and
 		((br._G.IsEquippableItem(itemID) and br._G.IsEquippedItem(itemID)) or (not br._G.IsEquippableItem(itemID) and br.hasItem(itemID)))
 	then
-		if itemID > 19 and br._G.GetItemCooldown(itemID) == 0 and (br._G.IsUsableItem(itemID) or br._G.C_Spell.IsSpellUsable(select(2, br._G.GetItemSpell(itemID)))) then
+		if itemID > 19 and br._G.C_Container.GetItemCooldown(itemID) == 0 and (br._G.IsUsableItem(itemID) or br._G.C_Spell.IsSpellUsable(select(2, br._G.GetItemSpell(itemID)))) then
 			return true
 		end
 	end
@@ -73,7 +73,7 @@ function br.useItem(itemID, thisUnit)
 	if itemID <= 19 then
 		if br._G.GetItemSpell(br._G.GetInventoryItemID("player", itemID)) ~= nil then
 			local slotItemID = br._G.GetInventoryItemID("player", itemID)
-			if br._G.GetItemCooldown(slotItemID) == 0 then
+			if br._G.C_Container.GetItemCooldown(slotItemID) == 0 then
 				if not br.itemSpamDelay or br._G.GetTime() > br.itemSpamDelay then
 					-- br._G.RunMacroText("/use " .. select(1, GetItemInfo(slotItemID)))
 					br._G.UseItemByName(select(1, br._G.GetItemInfo(slotItemID)), thisUnit);
@@ -83,7 +83,7 @@ function br.useItem(itemID, thisUnit)
 			end
 		end
 	elseif itemID > 19 and (br._G.GetItemCount(itemID) > 0 or br._G.PlayerHasToy(itemID)) then
-		if br._G.GetItemCooldown(itemID) == 0 then
+		if br._G.C_Container.GetItemCooldown(itemID) == 0 then
 			if not br.itemSpamDelay or br._G.GetTime() > br.itemSpamDelay then
 				-- br._G.RunMacroText("/use " .. select(1, GetItemInfo(itemID)))
 				br._G.UseItemByName(select(1, br._G.GetItemInfo(itemID)), thisUnit);

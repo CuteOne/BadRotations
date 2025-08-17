@@ -597,7 +597,7 @@ function cl:Druid(...)
     -----------
     -- Kitty ---------------
     --[[ Bleed Recorder --]]
-    if br._G.GetSpecialization() == 2 then
+    if br._G.C_SpecializationInfo.GetSpecialization() == 2 then
         if source == br._G.UnitGUID("player") then
             if destination ~= nil and destination ~= "" then
                 local thisUnit = "target"
@@ -665,7 +665,7 @@ function cl:Druid(...)
     then
         br.shroomsTable[1] = {}
     end
-    if source == br.guid and br.class == 11 and br._G.GetSpecialization() == 1 then
+    if source == br.guid and br.class == 11 and br._G.C_SpecializationInfo.GetSpecialization() == 1 then
         -- Starsurge Casted
         if spell == 78674 and param == "SPELL_CAST_SUCCESS" then
             if br.core then
@@ -800,7 +800,7 @@ function cl:Monk(...)
     _,
     spellType = br._G.CombatLogGetCurrentEventInfo()
     -- if prevCombo == nil or not UnitAffectingCombat("player") then prevCombo = 6603 end
-    if br.player ~= nil and br._G.GetSpecialization() == 3 and br.player.spells.fistsOfFury ~= nil then
+    if br.player ~= nil and br._G.C_SpecializationInfo.GetSpecialization() == 3 and br.player.spells.fistsOfFury ~= nil then
         local myspell = br.player.spells
         local var = br.player.variables
         local comboSpells = {
@@ -856,7 +856,7 @@ function cl:Priest(...)
     spellName,
     _,
     spellType = br._G.CombatLogGetCurrentEventInfo()
-    if br._G.GetSpecialization() == 3 then
+    if br._G.C_SpecializationInfo.GetSpecialization() == 3 then
         -- Periodic Damage Events
         if param == "SPELL_PERIODIC_DAMAGE" then
             if br.mfTicks == nil then
@@ -1002,7 +1002,7 @@ function cl:Rogue(...)
         br.pickPocketing = false
     end
     --[[ Bleed Recorder --]]
-    if br._G.GetSpecialization() == 1 then
+    if br._G.C_SpecializationInfo.GetSpecialization() == 1 then
         if source == br._G.UnitGUID("player") then
             if destination ~= nil and destination ~= "" then
                 local thisUnit = "target"
@@ -1064,7 +1064,7 @@ function cl:Rogue(...)
         end
     end
     -- OUTLAW
-    if br._G.GetSpecialization() == 2 then
+    if br._G.C_SpecializationInfo.GetSpecialization() == 2 then
         if source == br._G.UnitGUID("player") then
             if spell == 287916 then
                 br.vigorstacks = br.getBuffStacks("player", 287916) or 0
@@ -1102,7 +1102,7 @@ function cl:Shaman(...) -- 7
     end
     -------------
     --[[ Lightning Bolt ]]
-    if br.player ~= nil and br._G.GetSpecialization() == 2 then
+    if br.player ~= nil and br._G.C_SpecializationInfo.GetSpecialization() == 2 then
         if sourceName ~= nil then
             if br.isInCombat("player") and br.GetUnitIsUnit(sourceName, "player") then
                 -- Chain Lightning / Lightning Bolt
@@ -1148,7 +1148,7 @@ function cl:Warlock(...) -- 9
     spellName,
     _,
     spellType = br._G.CombatLogGetCurrentEventInfo()
-    if br._G.GetSpecialization() == 1 then
+    if br._G.C_SpecializationInfo.GetSpecialization() == 1 then
         if source == br.guid and param == "UNIT_SPELLCAST_CHANNEL_START" then
             -- Drain Soul counter
             if br._G.UnitChannelInfo("player") == br._G.GetSpellInfo(198590) then
@@ -1213,7 +1213,7 @@ function cl:Warlock(...) -- 9
             end
         end
     end
-    if br._G.GetSpecialization() == 2 then
+    if br._G.C_SpecializationInfo.GetSpecialization() == 2 then
         -- if source == br.guid and param == "SPELL_CAST_SUCCESS" then
         --     -- Hand of Guldan
         --     if  == 105174 then
@@ -1239,7 +1239,7 @@ function cl:Warlock(...) -- 9
         --     print("Demon SUMMON")
         -- end
     end
-    if br._G.GetSpecialization() == 3 then
+    if br._G.C_SpecializationInfo.GetSpecialization() == 3 then
         -- last Immolate
         if param == "SPELL_CAST_SUCCESS" and spell == 348 then
             br.lastImmolateTarget = destination
@@ -1295,7 +1295,7 @@ function cl:Warrior(...)
     elseif br.timer:useTimer("reflect reset", 0.8) then
         br.reflectPlayer = false
     end
-    if br._G.GetSpecialization("player") == 1 then
+    if br._G.C_SpecializationInfo.GetSpecialization("player") == 1 then
         -- snapshot on spellcast
         if source == br.guid and param == "SPELL_CAST_SUCCESS" then
             -- but only record the snapshot if it successfully applied

@@ -39,7 +39,7 @@ local function eventTracker(_, event, ...)
     local spellName = br._G.GetSpellInfo(spellID)
     if sourceUnit == "player" and br.player and not ignoreList[spellID] then
         if event == "UNIT_SPELLCAST_SENT" or event == "UNIT_SPELLCAST_START"
-            or event == "UNIT_SPELLCAST_CHANNEL_START" or event == "UNIT_SPELLCAST_EMPOWER_START"
+            or event == "UNIT_SPELLCAST_CHANNEL_START" --or event == "UNIT_SPELLCAST_EMPOWER_START"
         then
             -- if event == "UNIT_SPELLCAST_SENT" then br._G.print("Sent Cast Spell: " .. spellName) end
             -- if event == "UNIT_SPELLCAST_START" then br._G.print("Start Cast Spell: " .. spellName) end
@@ -58,7 +58,7 @@ local function eventTracker(_, event, ...)
                 addCastTime(spellID)
             end
         end
-        if event == "UNIT_SPELLCAST_STOP" or event == "UNIT_SPELLCAST_CHANNEL_STOP" or event == "UNIT_SPELLCAST_EMPOWER_STOP"
+        if event == "UNIT_SPELLCAST_STOP" or event == "UNIT_SPELLCAST_CHANNEL_STOP" --or event == "UNIT_SPELLCAST_EMPOWER_STOP"
             or event == "UNIT_SPELLCAST_FAILED" or event == "UNIT_SPELLCAST_FAILED_QUIET" or event == "UNIT_SPELLCAST_INTERRUPTED"
         then
             -- if event == "UNIT_SPELLCAST_STOP" then br._G.print("Stop Cast Spell: " .. spellName) end
@@ -80,11 +80,11 @@ end
 lastCastFrame:RegisterEvent("UNIT_SPELLCAST_SENT")          -- Fired when a unit attempts to cast a spell regardless of the success of the cast.
 lastCastFrame:RegisterEvent("UNIT_SPELLCAST_START")         -- Fired when a unit begins casting a non-instant cast spell.
 lastCastFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START") -- Fired when a unit begins channeling in the course of casting a spell.
-lastCastFrame:RegisterEvent("UNIT_SPELLCAST_EMPOWER_START")
+-- lastCastFrame:RegisterEvent("UNIT_SPELLCAST_EMPOWER_START")
 -- Stop Cast Events
 lastCastFrame:RegisterEvent("UNIT_SPELLCAST_STOP")         -- Fired when a unit stops casting.
 lastCastFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP") -- Fired when a unit stops channeling.
-lastCastFrame:RegisterEvent("UNIT_SPELLCAST_EMPOWER_STOP")
+-- lastCastFrame:RegisterEvent("UNIT_SPELLCAST_EMPOWER_STOP")
 lastCastFrame:RegisterEvent("UNIT_SPELLCAST_FAILED")       -- Fired when a unit's spellcast fails.
 lastCastFrame:RegisterEvent("UNIT_SPELLCAST_FAILED_QUIET")
 lastCastFrame:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")  -- Fired when a unit's spellcast is interrupted

@@ -133,7 +133,7 @@ function br.cCharacter:new(class)
 		self.health = br.getHP("player")
 		self.instance = select(2, br._G.IsInInstance())
 		self.level = br._G.UnitLevel("player") -- TODO: EVENT - UNIT_LEVEL
-		self.spec = select(2, br._G.GetSpecializationInfo(br._G.GetSpecialization())) or "None"
+		self.spec = select(2, br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization())) or "None"
 		self.currentPet = br._G.UnitCreatureFamily("pet") or "None"
 		if self.currentPet ~= "None" then
 			self.petId = tonumber(br._G.UnitGUID("pet"):match("-(%d+)-%x+$"), 10)
@@ -391,7 +391,7 @@ function br.cCharacter:new(class)
 							local itemInfo = {
 								--Collect Item Data
 								itemID = itemID,
-								itemCD = br._G.GetItemCooldown(itemID),
+								itemCD = br._G.C_Container.GetItemCooldown(itemID),
 								itemName = br._G.GetItemInfo(itemID),
 								minLevel = select(5, br._G.GetItemInfo(itemID)),
 								itemType = select(7, br._G.GetItemInfo(itemID)),

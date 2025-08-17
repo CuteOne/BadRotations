@@ -701,8 +701,7 @@ function br.createCastFunction(thisUnit, castType, minUnits, effectRng, spellID,
 			br.botSpell = spellID -- Used by old Queue Cast
 			-- Condemn Patch (Blizz is an small indie developer!)
 			if spellID == br.player.spells.condemn or spellID == br.player.spells.condemnMassacre then
-				spellName = br._G
-					.GetSpellInfo(br.player.spells.execute)
+				spellName = br._G.GetSpellInfo(br.player.spells.execute)
 			end
 			-- br._G.print("Spell: "..tostring(spellName).." - UnitName: "..tostring(br._G.UnitName(thisUnit)).." - Unit: "..tostring(thisUnit))
 			br._G.CastSpellByName(spellName, thisUnit)
@@ -728,18 +727,18 @@ function br.createCastFunction(thisUnit, castType, minUnits, effectRng, spellID,
 		end
 		return true
 	end
-	-- Essence Check - BfA
-	local function hasEssence()
-		local essence = br.player.essence
-		if essence[index] == nil then return true end
-		if essence[index].id == nil then return true end
-		return essence[index].active
-	end
-	-- Queen's Court - BfA
-	local function queensCourtCastCheck(spellID)
-		local queensCourtEncounter = br.UnitDebuffID("player", 304409) -- EJ_GetEncounterInfo(2311)
-		return queensCourtEncounter == nil or (queensCourtEncounter ~= nil and br.lastCastTable.tracker[1] ~= spellID)
-	end
+	-- -- Essence Check - BfA
+	-- local function hasEssence()
+	-- 	local essence = br.player.essence
+	-- 	if essence[index] == nil then return true end
+	-- 	if essence[index].id == nil then return true end
+	-- 	return essence[index].active
+	-- end
+	-- -- Queen's Court - BfA
+	-- local function queensCourtCastCheck(spellID)
+	-- 	local queensCourtEncounter = br.UnitDebuffID("player", 304409) -- EJ_GetEncounterInfo(2311)
+	-- 	return queensCourtEncounter == nil or (queensCourtEncounter ~= nil and br.lastCastTable.tracker[1] ~= spellID)
+	-- end
 	-- Base Spell Availablility Check
 	if br.lastCastTable.castTime[spellID] == nil then
 		br.lastCastTable.castTime[spellID] = br._G.GetTime() -
@@ -755,7 +754,7 @@ function br.createCastFunction(thisUnit, castType, minUnits, effectRng, spellID,
 		and (br.getSpellCD(61304) <= 0 or select(2, br._G.GetSpellBaseCooldown(spellID)) <= 0
 			or (br.getCastTime(spellID) > 0 and br.getCastTimeRemain("player") <= br:getUpdateRate()))                                                                           -- Cooldown Checks
 		and (br.isKnown(spellID) or castType == "known" or spellID == br.player.spells.condemn or spellID == br.player.spells.condemnMassacre)                                   -- Known/Current Checks
-		and hasTalent(spellID) and hasEssence() and not br.isIncapacitated(spellID) and queensCourtCastCheck(spellID)
+		and hasTalent(spellID) --[[and hasEssence()]] and not br.isIncapacitated(spellID) --and queensCourtCastCheck(spellID)
 		and (not (br._G.C_Spell.IsAutoRepeatSpell(br._G.GetSpellInfo(spellID)) or (spellID == 6603 and br._G.C_Spell.IsCurrentSpell(spellID)))) --[[and not br.hasNoControl(spellID)]] -- Talent/Essence/Incapacitated/Special Checks
 		and (thisUnit == nil or castType ~= "dead" or (thisUnit ~= nil and castType == "dead" and br._G.UnitIsDeadOrGhost(thisUnit)))                                            -- Dead Check
 		or spellID == br.empowerID
@@ -815,7 +814,7 @@ function br.createCastFunction(thisUnit, castType, minUnits, effectRng, spellID,
 						.. ", Min Range: " .. minRange
 						.. ", Max Range: " .. maxRange
 						.. ", Distance: " .. br.getDistance(thisUnit)
-						.. ", SpellRange: " .. tostring(br._G.C_Spell.IsSpellInRange(spellName, thisUnit) == 1)
+						.. ", SpellRange: " .. tostring(br._G.C_Spell.IsSpellInRange(spellName, thisUnit))
 						.. ", thisUnit: " .. tostring(thisUnit)
 					)
 				end
@@ -865,10 +864,10 @@ function br.createCastFunction(thisUnit, castType, minUnits, effectRng, spellID,
 			-- Range Check
 			local inRange = function(minRange, maxRange)
 				local distance = castType == "pet" and br.getDistance(thisUnit, "pet") or br.getDistance(thisUnit)
-				return br._G.C_Spell.IsSpellInRange(spellName, thisUnit) == 1 or
-					(distance >= minRange and distance < maxRange - 1)
+				return br._G.C_Spell.IsSpellInRange(spellName, thisUnit) or
+				(distance >= minRange and distance < maxRange - 1)
 			end
-			if --[[br._G.C_Spell.IsSpellInRange(spellName,thisUnit) == 1 or]] inRange(minRange, maxRange) then
+			if --[[br._G.C_Spell.IsSpellInRange(spellName,thisUnit) or]] inRange(minRange, maxRange) then
 				-- Dead Friend
 				if castType == "dead" then
 					if br._G.UnitIsPlayer(thisUnit) and br.GetUnitIsDeadOrGhost(thisUnit) and br.GetUnitIsFriend(thisUnit, "player") then

@@ -46,7 +46,7 @@ end
 function br.loader.loadProfiles()
     -- Search each Profile in the Spec Folder
     br._G.wipe(br.rotations)
-    local specID = br._G.GetSpecializationInfo(br._G.GetSpecialization())
+    local specID = br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization())
     local IDLength = math.floor(math.log10(specID) + 1)
     local folderSpec = getFolderSpecName(class, specID)
     local path = getFilesLocation() .. sep .. 'Rotations' .. sep .. getFolderClassName(class) .. sep .. folderSpec .. sep
@@ -139,6 +139,29 @@ function br.loader:new(spec, specName)
                         self.items = self.items or {}
                         self.items[spellRef] = spellID
                     else
+                        -- Check if br._G.GetSpellInfo returns a valid spell name
+                        local name, _, _, _, _, _, gsiSpellID = br._G.GetSpellInfo(spellID)
+                        if type(spellID) ~= "table" then
+                            if (not name or gsiSpellID ~= spellID) then
+                                br._G.print("SpellID not valid: " .. tostring(spellID))
+                                br._G.print("|cffff0000"..spellType..": |r" ..
+                                    spellRef ..
+                                    "|cffff0000 with ID: |r" ..
+                                    spellID .. "|cffff0000 is not a valid in the list of "..spellType.." Spell List.")
+                            end
+                        else
+                            -- If spellID is a table, then it is a list of spellIDs, so we need to check each one
+                            for spellRef, id in pairs(spellID) do
+                                local name, _, _, _, _, _, gsiSpellID = br._G.GetSpellInfo(id)
+                                if (not name or gsiSpellID ~= id) then
+                                    br._G.print("SpellID not valid: " .. tostring(id))
+                                    br._G.print("|cffff0000"..spellType..": |r" ..
+                                        spellRef ..
+                                        "|cffff0000 with ID: |r" ..
+                                        id .. "|cffff0000 is not a valid in the list of "..spellType.." Spell List.")
+                                end
+                            end
+                        end
                         -- Assign spell to br.player.spells for the spell type
                         self.spells[spellType][spellRef] = spellID
                         -- Assign active spells to Abilities Subtable and base br.player.spells
@@ -255,32 +278,64 @@ function br.loader:new(spec, specName)
     end
 
     -- Update Talent Info
+    -- local function getTalentInfo()
+    --     for specName, specID in pairs(br.lists.spec[class]) do
+    --         if specID == spec and specName ~= "Initial" then
+    --             return getAllTalents()
+    --         end
+    --     end
+    -- end
+    -- Update Talent Info
     local function getTalentInfo()
-        for specName, specID in pairs(br.lists.spec[class]) do
-            if specID == spec and specName ~= "Initial" then
-                return getAllTalents()
+        local talentFound
+        br.activeSpecGroup = br._G.C_SpecializationInfo.GetActiveSpecGroup()
+        if self.talent == nil then self.talent = {} end
+        if spec > 1400 then return end
+        for k,v in pairs(self.spells.talents) do
+            talentFound = false
+            for r = 1, 7 do --search each talent row
+                for c = 1, 3 do -- search each talent column
+                    local _,_,_,selected,_,talentID = br._G.GetTalentInfo(r,c,br.activeSpecGroup)
+                    if v == talentID then
+                        talentFound = true
+                        -- Add All Matches to Talent List for Boolean Checks
+                        self.talent[k] = selected
+                        -- Add All Active Ability Matches to Ability/Spell List for Use Checks
+                        if not br._G.IsPassiveSpell(v) then
+                            self.spells['abilities'][k] = v
+                            self.spells[k] = v
+                        end
+                        break;
+                    end
+                end
+                -- If we found the talent, then stop looking for it.
+                if talentFound then break end
+            end
+            -- No matching talent for listed talent id, report to
+            if not talentFound then
+                br._G.print("|cffff0000No talent found for: |r"..k.." ("..v..") |cffff0000in the talent spell list, please notify profile developer to remove from the list.")
             end
         end
     end
 
     -- Check if Hero Spec if Active
-    local function getHeroTreeInfo()
-        local playerClass = select(2, br._G.UnitClass('player'))
-        -- Retrieve the active hero talent spec ID
-        local activeSpecID = C_ClassTalents.GetActiveHeroTalentSpec()
-        -- Check if the specName exists in the br.lists.heroSpec table
-        for class, specs in pairs(br.lists.heroSpec) do
-            -- print("Class: "..tostring(class).." Specs: "..tostring(specs))
-            for spec, specID in pairs(specs) do
-                -- print("Spec: "..tostring(spec).." SpecID: "..tostring(specID))
-                if class == playerClass then
-                    if self.heroTree == nil then self.heroTree = {} end
-                    if self.heroTree[spec] == nil then self.heroTree[spec] = false end
-                    self.heroTree[spec] = specID == activeSpecID or false
-                end
-            end
-        end
-    end
+    -- local function getHeroTreeInfo()
+    --     local playerClass = select(2, br._G.UnitClass('player'))
+    --     -- Retrieve the active hero talent spec ID
+    --     local activeSpecID = C_ClassTalents.GetActiveHeroTalentSpec()
+    --     -- Check if the specName exists in the br.lists.heroSpec table
+    --     for class, specs in pairs(br.lists.heroSpec) do
+    --         -- print("Class: "..tostring(class).." Specs: "..tostring(specs))
+    --         for spec, specID in pairs(specs) do
+    --             -- print("Spec: "..tostring(spec).." SpecID: "..tostring(specID))
+    --             if class == playerClass then
+    --                 if self.heroTree == nil then self.heroTree = {} end
+    --                 if self.heroTree[spec] == nil then self.heroTree[spec] = false end
+    --                 self.heroTree[spec] = specID == activeSpecID or false
+    --             end
+    --         end
+    --     end
+    -- end
 
 
     local function getFunctions()
@@ -304,7 +359,7 @@ function br.loader:new(spec, specName)
         end
 
         -- Build Hero Tree Info
-        getHeroTreeInfo()
+        -- getHeroTreeInfo()
 
         -- Parse Holding Table
         for k, v in pairs(spellListTalents) do
@@ -496,7 +551,7 @@ function br.loader:new(spec, specName)
         end
     end
 
-    if spec == br._G.GetSpecializationInfo(br._G.GetSpecialization()) and (self.talent == nil or self.cast == nil) then
+    if spec == br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization()) and (self.talent == nil or self.cast == nil) then
         getSpellsForSpec(spec); --[[getTalentInfo(); getAzeriteTraitInfo();]] getFunctions(); br.updatePlayerInfo = false
     end
     ------------------
@@ -513,7 +568,7 @@ function br.loader:new(spec, specName)
     --------------
 
     function self.update()
-        if spec == br._G.GetSpecializationInfo(br._G.GetSpecialization()) then
+        if spec == br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization()) then
             -- Call baseUpdate()
             if not br._G.UnitAffectingCombat("player") then self.updateOOC() end
             self.baseUpdate()

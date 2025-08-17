@@ -37,7 +37,7 @@ function br.getDistanceCalc(Unit1, Unit2, option)
     local currentDist = 100
     local meleeSpell = nil
     local playerClass = select(2, br._G.UnitClass("player"))
-    local playerSpec = br._G.GetSpecializationInfo(br._G.GetSpecialization())
+    local playerSpec = br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization())
     if testSpell[playerClass] ~= nil then
         meleeSpell = testSpell[playerClass]
     elseif playerClass == "DRUID" and br.UnitBuffID("player", 768) then

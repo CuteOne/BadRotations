@@ -82,8 +82,8 @@ local function updateRotationOnSpecChange()
     br.ui:closeWindow("all")
     br:saveSettings(nil, nil, br.selectedSpec, br.selectedProfileName)
     -- Update Selected Spec/Profile
-    br.selectedSpec = select(2, br._G.GetSpecializationInfo(br._G.GetSpecialization()))
-    br.selectedSpecID = br._G.GetSpecializationInfo(br._G.GetSpecialization())
+    br.selectedSpec = select(2, br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization()))
+    br.selectedSpecID = br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization())
     br.loader.loadProfiles()
     br.loadLastProfileTracker()
     br.data.loadedSettings = false
@@ -159,7 +159,7 @@ function br.BadRotationsUpdate(self)
                     br._G.CastSpellByID(br.botSpell, br.botUnit)
                     br.castID = false
                 end
-                local playerSpec = br._G.GetSpecializationInfo(br._G.GetSpecialization())
+                local playerSpec = br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization())
                 if playerSpec == "" then
                     playerSpec = "Initial"
                 end
@@ -232,7 +232,7 @@ function br.BadRotationsUpdate(self)
                 -- Auto Loot
                 br.autoLoot()
                 -- Close windows and swap br.selectedSpec on Spec Change
-                local thisSpec = select(2, br._G.GetSpecializationInfo(br._G.GetSpecialization()))
+                local thisSpec = select(2, br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization()))
                 if thisSpec ~= "" and thisSpec ~= br.selectedSpec then
                     updateRotationOnSpecChange()
                 end

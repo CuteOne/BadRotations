@@ -75,7 +75,7 @@ end
 function br.getClassType()
 	local classType = "nil"
 	local myClass = br.getClass()
-	local mySpec = br._G.GetSpecialization()
+	local mySpec = br._G.C_SpecializationInfo.GetSpecialization()
 	--Agility
 	if myClass == "Hunter"
 		or myClass == "Rogue"
@@ -130,7 +130,7 @@ end
 function br.playerCanUseItem(itemID)
 	if itemID == nil then return false end
 	if br.playerHasItem(itemID) then
-		if br._G.GetItemCooldown(itemID) == 0 then
+		if br._G.C_Container.GetItemCooldown(itemID) == 0 then
 			return true
 		end
 	end

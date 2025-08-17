@@ -330,7 +330,7 @@ local function getUnitCoeficient(unit)
 			-- if threat is checked, add 100 points of prio if we lost aggro on that target
 			if br.getOptionCheck("Tank Threat") then
 				local threat = br._G.UnitThreatSituation("player", unit) or -1
-				if select(6, br._G.GetSpecializationInfo(br._G.GetSpecialization())) == "TANK" and threat < 3 and unitHP > 10 then
+				if select(6, br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization())) == "TANK" and threat < 3 and unitHP > 10 then
 					coef = coef + 100 - threat
 				end
 			end
@@ -346,7 +346,7 @@ local function getUnitCoeficient(unit)
 				coef = coef + isShieldedTarget(unit)
 			end
 			-- Outlaw - Blind Shot 10% dmg increase all sources
-			if select(2, br._G.UnitClass('player')) == "ROGUE" and br._G.GetSpecializationInfo(br._G.GetSpecialization()) == 260 then
+			if select(2, br._G.UnitClass('player')) == "ROGUE" and br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization()) == 260 then
 				-- Between the eyes
 				if br.getDebuffRemain(unit, 315341) > 0 then
 					coef = coef + 75

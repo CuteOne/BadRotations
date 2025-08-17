@@ -93,8 +93,7 @@ function br.UnitDebuffID(unit, spellID, filter)
 		for i = 1, 40 do
 			-- local buffName, _, _, _, _, _, _, _, _, buffSpellID = br._G.UnitDebuff(unit, i, "player")
 			local auraInfo = C_UnitAuras.GetDebuffDataByIndex(unit, i, "PLAYER")
-			if auraInfo == nil then return nil end
-			if auraInfo.spellId == spellID then
+			if auraInfo and auraInfo.spellId == spellID then
 				return auraInfo --br._G.UnitDebuff(unit, i, "player")
 			end
 		end
@@ -276,7 +275,7 @@ function br.canDispel(Unit, spellID)
 		return typeCheck
 	end
 	local i = 1
-	if not br._G.UnitPhaseReason(Unit) then
+	if br._G.UnitInPhase(Unit) then
 		if br.GetUnitIsFriend("player", Unit) then
 			while br._G.UnitDebuff(Unit, i) do
 				local _, _, stacks, debuffType, debuffDuration, debuffExpire, _, _, _, debuffid = br._G.UnitDebuff(Unit,

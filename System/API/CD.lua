@@ -94,7 +94,7 @@ br.api.itemCD = function(self, item, id)
     -- @return boolean
     -- @within cd.item
     cd[item].exists = function()
-        return br._G.GetItemCooldown(id) > 0
+        return br._G.C_Container.GetItemCooldown(id) > 0
     end
 
     --- Gets the time remaining on item cooldown or 0 if not.
@@ -102,8 +102,8 @@ br.api.itemCD = function(self, item, id)
     -- @return number
     -- @within cd.item
     cd[item].remain = function()
-        if br._G.GetItemCooldown(id) ~= 0 then
-            return (br._G.GetItemCooldown(id) + select(2, br._G.GetItemCooldown(id)) - br._G.GetTime())
+        if br._G.C_Container.GetItemCooldown(id) ~= 0 then
+            return (br._G.C_Container.GetItemCooldown(id) + select(2, br._G.C_Container.GetItemCooldown(id)) - br._G.GetTime())
         end
         return 0
     end

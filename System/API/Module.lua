@@ -130,11 +130,11 @@ br.api.module = function(self)
             br.ui:createSpinner(section, "Healthstone/Potion", 60, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
             -- Heirloom Neck
             br.ui:createSpinner(section, "Heirloom Neck", 80, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-            -- Music of Bastion
-            br.ui:createCheckbox(section, "Music of Bastion", "|cffFFFFFFCheck to use.")
-            -- Phial of Serenity
-            br.ui:createSpinner(section, "Phial of Serenity", 30, 0, 80, 5, "|cffFFFFFFHealth Percent to Cast At")
-            br.ui:createCheckbox(section, "Auto Summon Steward")
+            -- -- Music of Bastion
+            -- br.ui:createCheckbox(section, "Music of Bastion", "|cffFFFFFFCheck to use.")
+            -- -- Phial of Serenity
+            -- br.ui:createSpinner(section, "Phial of Serenity", 30, 0, 80, 5, "|cffFFFFFFHealth Percent to Cast At")
+            -- br.ui:createCheckbox(section, "Auto Summon Steward")
         end
 
         -- Abilities - Call, module.BasicHealing(), in your rotation to use these
@@ -157,12 +157,12 @@ br.api.module = function(self)
                     end
                 end
                 --Legion Healthstone
-                if use.able.legionHealthstone() and has.legionHealthstone() then
-                    if use.legionHealthstone() then
-                        ui.debug("Using Legion Healthstone")
-                        return true
-                    end
-                end
+                -- if use.able.legionHealthstone() and has.legionHealthstone() then
+                --     if use.legionHealthstone() then
+                --         ui.debug("Using Legion Healthstone")
+                --         return true
+                --     end
+                -- end
             end
             -- Heirloom Neck
             if getOption("Heirloom Neck", "Check") and unit.hp() <= getOption("Heirloom Neck", "Value") and not unit.inCombat() then
@@ -182,54 +182,54 @@ br.api.module = function(self)
                     return true
                 end
             end
-            -- Music of Bastion
-            if getOption("Music of Bastion", "Check") and (br.isInArdenweald() or br.isInBastion() or br.isInMaldraxxus() or br.isInRevendreth()) then
-                if use.able.ascendedFlute() and has.ascendedFlute() then
-                    if use.ascendedFlute() then
-                        ui.debug("Using Ascended Flute")
-                        return true
-                    end
-                end
-                if use.able.benevolentGong() and has.benevolentGong() then
-                    if use.benevolentGong() then
-                        ui.debug("Using Benevolent Gong")
-                        return true
-                    end
-                end
-                if use.able.heavenlyDrum() and has.heavenlyDrum() then
-                    if use.heavenlyDrum() then
-                        ui.debug("Using Heavenly Drum")
-                        return true
-                    end
-                end
-                if use.able.kyrianBell() and has.kyrianBell() then
-                    if use.kyrianBell() then
-                        ui.debug("Using Kyrian Bell")
-                        return true
-                    end
-                end
-                if use.able.unearthlyChime() and has.unearthlyChime() then
-                    if use.unearthlyChime() then
-                        ui.debug("Using Unearthly Chime")
-                        return true
-                    end
-                end
-            end
-            -- Phial of Serenity
-            if getOption("Phial of Serenity", "Check") then
-                if getOption("Auto Summon Steward", "Check") and not unit.inCombat() and not has.phialOfSerenity() and cast.able.summonSteward() then
-                    if cast.summonSteward() then
-                        ui.debug("Casting Call Steward")
-                        return true
-                    end
-                end
-                if unit.inCombat() and use.able.phialOfSerenity() and unit.hp() < getOption("Phial of Serenity", "Value") then
-                    if use.phialOfSerenity() then
-                        ui.debug("Using Phial of Serenity")
-                        return true
-                    end
-                end
-            end
+            -- -- Music of Bastion
+            -- if getOption("Music of Bastion", "Check") and (br.isInArdenweald() or br.isInBastion() or br.isInMaldraxxus() or br.isInRevendreth()) then
+            --     if use.able.ascendedFlute() and has.ascendedFlute() then
+            --         if use.ascendedFlute() then
+            --             ui.debug("Using Ascended Flute")
+            --             return true
+            --         end
+            --     end
+            --     if use.able.benevolentGong() and has.benevolentGong() then
+            --         if use.benevolentGong() then
+            --             ui.debug("Using Benevolent Gong")
+            --             return true
+            --         end
+            --     end
+            --     if use.able.heavenlyDrum() and has.heavenlyDrum() then
+            --         if use.heavenlyDrum() then
+            --             ui.debug("Using Heavenly Drum")
+            --             return true
+            --         end
+            --     end
+            --     if use.able.kyrianBell() and has.kyrianBell() then
+            --         if use.kyrianBell() then
+            --             ui.debug("Using Kyrian Bell")
+            --             return true
+            --         end
+            --     end
+            --     if use.able.unearthlyChime() and has.unearthlyChime() then
+            --         if use.unearthlyChime() then
+            --             ui.debug("Using Unearthly Chime")
+            --             return true
+            --         end
+            --     end
+            -- end
+            -- -- Phial of Serenity
+            -- if getOption("Phial of Serenity", "Check") then
+            --     if getOption("Auto Summon Steward", "Check") and not unit.inCombat() and not has.phialOfSerenity() and cast.able.summonSteward() then
+            --         if cast.summonSteward() then
+            --             ui.debug("Casting Call Steward")
+            --             return true
+            --         end
+            --     end
+            --     if unit.inCombat() and use.able.phialOfSerenity() and unit.hp() < getOption("Phial of Serenity", "Value") then
+            --         if use.phialOfSerenity() then
+            --             ui.debug("Using Phial of Serenity")
+            --             return true
+            --         end
+            --     end
+            -- end
         end
     end
 
@@ -313,32 +313,32 @@ br.api.module = function(self)
             if buff.phialOfTepidVersatility.exists() then buff.phialOfTepidVersatility.cancel() end;
         end
         if section == nil then
-            local opValue = getOption("Use DF Phial", "Value")
-            if opValue == 1 and not buff.icedPhialOfCorruptingRage.exists() and use.isOneOfUsable(br.lists.items.icedPhialOfCorruptingRageQualities) then
-                cancelBuffs()
-                if use.bestItem(br.lists.items.icedPhialOfCorruptingRageQualities) then
-                    ui.debug("Using Best Phial: Iced Phial of Corrupting Rage")
-                    return true;
-                end
-            end
-            if opValue == 2 and not buff.phialOfGlacialFury.exists() and use.isOneOfUsable(br.lists.items.phialOfGlacialFuryQualities) then
-                cancelBuffs()
-                if use.bestItem(br.lists.items.phialOfGlacialFuryQualities) then
-                    ui.debug("Using Best Phial: Phial of Glacial Fury")
-                    return true;
-                end
-            end
-            if opValue == 3 then
-                if not buff.phialOfTepidVersatility.exists() then
-                    if use.isOneOfUsable(br.lists.items.phialOfTepidVersatilityQualities) then
-                        cancelBuffs()
-                        if use.bestItem(br.lists.items.phialOfTepidVersatilityQualities) then
-                            ui.debug("Using Best Phial: Phial of Tepid Versatility")
-                            return true;
-                        end;
-                    end
-                end
-            end
+            -- local opValue = getOption("Use DF Phial", "Value")
+            -- if opValue == 1 and not buff.icedPhialOfCorruptingRage.exists() and use.isOneOfUsable(br.lists.items.icedPhialOfCorruptingRageQualities) then
+            --     cancelBuffs()
+            --     if use.bestItem(br.lists.items.icedPhialOfCorruptingRageQualities) then
+            --         ui.debug("Using Best Phial: Iced Phial of Corrupting Rage")
+            --         return true;
+            --     end
+            -- end
+            -- if opValue == 2 and not buff.phialOfGlacialFury.exists() and use.isOneOfUsable(br.lists.items.phialOfGlacialFuryQualities) then
+            --     cancelBuffs()
+            --     if use.bestItem(br.lists.items.phialOfGlacialFuryQualities) then
+            --         ui.debug("Using Best Phial: Phial of Glacial Fury")
+            --         return true;
+            --     end
+            -- end
+            -- if opValue == 3 then
+            --     if not buff.phialOfTepidVersatility.exists() then
+            --         if use.isOneOfUsable(br.lists.items.phialOfTepidVersatilityQualities) then
+            --             cancelBuffs()
+            --             if use.bestItem(br.lists.items.phialOfTepidVersatilityQualities) then
+            --                 ui.debug("Using Best Phial: Phial of Tepid Versatility")
+            --                 return true;
+            --             end;
+            --         end
+            --     end
+            -- end
         end
     end
 
@@ -354,16 +354,16 @@ br.api.module = function(self)
             if getOption("Weapon Imbuement", "Check") then
                 local selValue = getOption("Weapon Imbuement", "Value")
                 local auras = {}
-                if selValue == 1 then auras = br.lists.spells.Shared.Shared.itemEnchantments.buzzingRune end
-                if selValue == 2 then auras = br.lists.spells.Shared.Shared.itemEnchantments.chirpingRune end
-                if selValue == 3 then auras = br.lists.spells.Shared.Shared.itemEnchantments.howlingRune end
-                if selValue == 4 then auras = br.lists.spells.Shared.Shared.itemEnchantments.hissingRune end
-                if not unit.weaponImbue.exists(auras) then
-                    if selValue == 1 then return use.bestItem(br.lists.items.buzzingRuneQualities) end
-                    if selValue == 2 then return use.bestItem(br.lists.items.chirpingRuneQualities) end
-                    if selValue == 3 then return use.bestItem(br.lists.items.howlingRuneQualities) end
-                    if selValue == 4 then return use.bestItem(br.lists.items.hissingRuneQualities) end
-                end
+                -- if selValue == 1 then auras = br.lists.spells.Shared.Shared.itemEnchantments.buzzingRune end
+                -- if selValue == 2 then auras = br.lists.spells.Shared.Shared.itemEnchantments.chirpingRune end
+                -- if selValue == 3 then auras = br.lists.spells.Shared.Shared.itemEnchantments.howlingRune end
+                -- if selValue == 4 then auras = br.lists.spells.Shared.Shared.itemEnchantments.hissingRune end
+                -- if not unit.weaponImbue.exists(auras) then
+                --     if selValue == 1 then return use.bestItem(br.lists.items.buzzingRuneQualities) end
+                --     if selValue == 2 then return use.bestItem(br.lists.items.chirpingRuneQualities) end
+                --     if selValue == 3 then return use.bestItem(br.lists.items.howlingRuneQualities) end
+                --     if selValue == 4 then return use.bestItem(br.lists.items.hissingRuneQualities) end
+                -- end
             end
         end
     end
@@ -397,36 +397,36 @@ br.api.module = function(self)
 
         local function hasFlaskBuff()
             local flask = getOption("Flask", "Value")
-            if flask == 2 then -- Greater Flask
-                return buff.greaterFlaskOfTheCurrents.exists() or buff.greaterFlaskOfEndlessFathoms.exists() or
-                    buff.greaterFlaskOfTheVastHorizon.exists() or buff.greaterFlaskOfTheUndertow.exists()
-            end
-            if flask == 3 then
-                if isDH then -- Greater FLask or Gaze of the Legion
-                    return buff.greaterFlaskOfTheCurrents.exists() or buff.greaterFlaskOfEndlessFathoms.exists() or
-                        buff.greaterFlaskOfTheVastHorizon.exists()
-                        or buff.greaterFlaskOfTheUndertow.exists() or buff.gazeOfTheLegion.exists()
-                else -- Greater Flask or Fel Focus
-                    return buff.greaterFlaskOfTheCurrents.exists() or buff.greaterFlaskOfEndlessFathoms.exists() or
-                        buff.greaterFlaskOfTheVastHorizon.exists()
-                        or buff.greaterFlaskOfTheUndertow.exists() or buff.felFocus.exists()
-                end
-            end
-            if flask == 4 and isDH then -- DH - Greater Flask or Gaze of the Legion or Fel Focus
-                return buff.greaterFlaskOfTheCurrents.exists() or buff.greaterFlaskOfEndlessFathoms.exists() or
-                    buff.greaterFlaskOfTheVastHorizon.exists()
-                    or buff.greaterFlaskOfTheUndertow.exists() or buff.gazeOfTheLegion.exists() or buff.felFocus.exists()
-            end
+            -- if flask == 2 then -- Greater Flask
+            --     return buff.greaterFlaskOfTheCurrents.exists() or buff.greaterFlaskOfEndlessFathoms.exists() or
+            --         buff.greaterFlaskOfTheVastHorizon.exists() or buff.greaterFlaskOfTheUndertow.exists()
+            -- end
+            -- if flask == 3 then
+            --     if isDH then -- Greater FLask or Gaze of the Legion
+            --         return buff.greaterFlaskOfTheCurrents.exists() or buff.greaterFlaskOfEndlessFathoms.exists() or
+            --             buff.greaterFlaskOfTheVastHorizon.exists()
+            --             or buff.greaterFlaskOfTheUndertow.exists() or buff.gazeOfTheLegion.exists()
+            --     else -- Greater Flask or Fel Focus
+            --         return buff.greaterFlaskOfTheCurrents.exists() or buff.greaterFlaskOfEndlessFathoms.exists() or
+            --             buff.greaterFlaskOfTheVastHorizon.exists()
+            --             or buff.greaterFlaskOfTheUndertow.exists() or buff.felFocus.exists()
+            --     end
+            -- end
+            -- if flask == 4 and isDH then -- DH - Greater Flask or Gaze of the Legion or Fel Focus
+            --     return buff.greaterFlaskOfTheCurrents.exists() or buff.greaterFlaskOfEndlessFathoms.exists() or
+            --         buff.greaterFlaskOfTheVastHorizon.exists()
+            --         or buff.greaterFlaskOfTheUndertow.exists() or buff.gazeOfTheLegion.exists() or buff.felFocus.exists()
+            -- end
         end
 
         local function cancelFlaskBuff()
-            if buff.greaterFlaskOfTheCurrents.exists() then buff.greaterFlaskOfTheCurrents.cancel() end
-            if buff.greaterFlaskOfEndlessFathoms.exists() then buff.greaterFlaskOfEndlessFathoms.cancel() end
-            if buff.greaterFlaskOfTheVastHorizon.exists() then buff.greaterFlaskOfTheVastHorizon.cancel() end
-            if buff.greaterFlaskOfTheUndertow.exists() then buff.greaterFlaskOfTheUndertow.cancel() end
-            if (isDH and buff.gazeOfTheLegion.exists()) then buff.gazeOfTheLegion.cancel() end
-            if buff.felFocus.exists() then buff.felFocus.cancel() end
-            if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
+            -- if buff.greaterFlaskOfTheCurrents.exists() then buff.greaterFlaskOfTheCurrents.cancel() end
+            -- if buff.greaterFlaskOfEndlessFathoms.exists() then buff.greaterFlaskOfEndlessFathoms.cancel() end
+            -- if buff.greaterFlaskOfTheVastHorizon.exists() then buff.greaterFlaskOfTheVastHorizon.cancel() end
+            -- if buff.greaterFlaskOfTheUndertow.exists() then buff.greaterFlaskOfTheUndertow.cancel() end
+            -- if (isDH and buff.gazeOfTheLegion.exists()) then buff.gazeOfTheLegion.cancel() end
+            -- if buff.felFocus.exists() then buff.felFocus.cancel() end
+            -- if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
         end
 
 
@@ -437,75 +437,75 @@ br.api.module = function(self)
             local opValue = getOption("Flask", "Value")
             local thisFlask = getFlaskByType(buffType)
             if opValue == 1 and unit.instance("raid") then
-                if thisFlask == "Greater Flask of the Currents" and use.able.greaterFlaskOfTheCurrents() and not buff.greaterFlaskOfTheCurrents.exists() then
-                    cancelFlaskBuff()
-                    if use.greaterFlaskOfTheCurrents() then
-                        ui.debug("Using Greater Flask of the Currents")
-                        return true
-                    end
-                end
-                if thisFlask == "Greater Flask of Endless Fathoms" and use.able.greaterFlaskOfEndlessFathoms() and not buff.greaterFlaskOfEndlessFathoms.exists() then
-                    cancelFlaskBuff()
-                    if use.greaterFlaskOfEndlessFathoms() then
-                        ui.debug("Using Greater Flask of Endless Fathoms")
-                        return true
-                    end
-                end
-                if thisFlask == "Greater Flask of the Vast Horizon" and use.able.greaterFlaskOfTheVastHorizon() and not buff.greaterFlaskOfTheVastHorizon.exists() then
-                    cancelFlaskBuff()
-                    if use.greaterFlaskOfTheVastHorizon() then
-                        ui.debug("Using Greater Flask of the Vast Horizon")
-                        return true
-                    end
-                end
-                if thisFlask == "Greater Flask of the Undertow" and use.able.greaterFlaskOfTheUndertow() and not buff.greaterFlaskOfTheUndertow.exists() then
-                    cancelFlaskBuff()
-                    if use.greaterFlaskOfTheUndertow() then
-                        ui.debug("Using Greater Flask of the Undertow")
-                        return true
-                    end
-                end
+                -- if thisFlask == "Greater Flask of the Currents" and use.able.greaterFlaskOfTheCurrents() and not buff.greaterFlaskOfTheCurrents.exists() then
+                --     cancelFlaskBuff()
+                --     if use.greaterFlaskOfTheCurrents() then
+                --         ui.debug("Using Greater Flask of the Currents")
+                --         return true
+                --     end
+                -- end
+                -- if thisFlask == "Greater Flask of Endless Fathoms" and use.able.greaterFlaskOfEndlessFathoms() and not buff.greaterFlaskOfEndlessFathoms.exists() then
+                --     cancelFlaskBuff()
+                --     if use.greaterFlaskOfEndlessFathoms() then
+                --         ui.debug("Using Greater Flask of Endless Fathoms")
+                --         return true
+                --     end
+                -- end
+                -- if thisFlask == "Greater Flask of the Vast Horizon" and use.able.greaterFlaskOfTheVastHorizon() and not buff.greaterFlaskOfTheVastHorizon.exists() then
+                --     cancelFlaskBuff()
+                --     if use.greaterFlaskOfTheVastHorizon() then
+                --         ui.debug("Using Greater Flask of the Vast Horizon")
+                --         return true
+                --     end
+                -- end
+                -- if thisFlask == "Greater Flask of the Undertow" and use.able.greaterFlaskOfTheUndertow() and not buff.greaterFlaskOfTheUndertow.exists() then
+                --     cancelFlaskBuff()
+                --     if use.greaterFlaskOfTheUndertow() then
+                --         ui.debug("Using Greater Flask of the Undertow")
+                --         return true
+                --     end
+                -- end
             end
             if opValue == 2 and (not unit.instance("raid") or (unit.instance("raid") and not hasFlaskBuff())) then
-                if isDH and use.able.inquisitorsMenacingEye() and not buff.gazeOfTheLegion.exists() then
-                    cancelFlaskBuff()
-                    if use.inquisitorsMenacingEye() then
-                        ui.debug("Using Inquisitor's Menacing Eye")
-                        return true
-                    end
-                elseif use.able.repurposedFelFocuser() and not buff.felFocus.exists() then
-                    cancelFlaskBuff()
-                    if use.repurposedFelFocuser() then
-                        ui.debug("Using Repurposed Fel Focuser")
-                        return true
-                    end
-                end
+                -- if isDH and use.able.inquisitorsMenacingEye() and not buff.gazeOfTheLegion.exists() then
+                --     cancelFlaskBuff()
+                --     if use.inquisitorsMenacingEye() then
+                --         ui.debug("Using Inquisitor's Menacing Eye")
+                --         return true
+                --     end
+                -- elseif use.able.repurposedFelFocuser() and not buff.felFocus.exists() then
+                --     cancelFlaskBuff()
+                --     if use.repurposedFelFocuser() then
+                --         ui.debug("Using Repurposed Fel Focuser")
+                --         return true
+                --     end
+                -- end
             end
             if opValue == 3 and (not unit.instance("raid") or (unit.instance("raid") and not hasFlaskBuff())) then
-                if isDH and use.able.repurposedFelFocuser() and not buff.felFocus.exists() then
-                    cancelFlaskBuff()
-                    if use.repurposedFelFocuser() then
-                        ui.debug("Using Repurposed Fel Focuser")
-                        return true
-                    end
-                elseif use.able.oraliusWhisperingCrystal() and not buff.whispersOfInsanity.exists() then
-                    cancelFlaskBuff()
-                    if use.oraliusWhisperingCrystal() then
-                        ui.debug("Using Oralius's Whispering Crystal")
-                        return true
-                    end
-                end
+                -- if isDH and use.able.repurposedFelFocuser() and not buff.felFocus.exists() then
+                --     cancelFlaskBuff()
+                --     if use.repurposedFelFocuser() then
+                --         ui.debug("Using Repurposed Fel Focuser")
+                --         return true
+                --     end
+                -- elseif use.able.oraliusWhisperingCrystal() and not buff.whispersOfInsanity.exists() then
+                --     cancelFlaskBuff()
+                --     if use.oraliusWhisperingCrystal() then
+                --         ui.debug("Using Oralius's Whispering Crystal")
+                --         return true
+                --     end
+                -- end
             end
             if opValue == 4 then
-                if isDH and (not unit.instance("raid") or (unit.instance("raid") and not hasFlaskBuff()))
-                    and use.able.oraliusWhisperingCrystal() and not buff.whispersOfInsanity.exists()
-                then
-                    cancelFlaskBuff()
-                    if use.oraliusWhisperingCrystal() then
-                        ui.debug("Using Oralius's Whispering Crystal")
-                        return true
-                    end
-                end
+                -- if isDH and (not unit.instance("raid") or (unit.instance("raid") and not hasFlaskBuff()))
+                --     and use.able.oraliusWhisperingCrystal() and not buff.whispersOfInsanity.exists()
+                -- then
+                --     cancelFlaskBuff()
+                --     if use.oraliusWhisperingCrystal() then
+                --         ui.debug("Using Oralius's Whispering Crystal")
+                --         return true
+                --     end
+                -- end
             end
         end
     end

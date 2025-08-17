@@ -164,7 +164,7 @@ end
 -- br.useItem(12345)
 function br.useItem_old(itemID)
     if br._G.GetItemCount(itemID) > 0 then
-        if select(2, br._G.GetItemCooldown(itemID)) == 0 then
+        if select(2, br._G.C_Container.GetItemCooldown(itemID)) == 0 then
             local itemName = br._G.GetItemInfo(itemID)
             br._G.RunMacroText("/use " .. itemName)
             return true

@@ -7,13 +7,13 @@ local function createToggles() -- Define custom toggles
     -- Rotation Button
     local RotationModes = {
         [1] = { mode = "Auto", value = 1, overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range.", highlight = 1, icon = br.player.spells.wrath },
-        [2] = { mode = "Off", value = 2, overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spells.regrowth }
+        [2] = { mode = "Off", value = 2, overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spells.rejuvenation }
     };
     br.ui:createToggle(RotationModes, "Rotation", 1, 0)
     -- Defensive Button
     local DefensiveModes = {
-        [1] = { mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spells.regrowth },
-        [2] = { mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spells.regrowth }
+        [1] = { mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spells.rejuvenation },
+        [2] = { mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spells.rejuvenation }
     };
     br.ui:createToggle(DefensiveModes, "Defensive", 2, 0)
     -- Cooldown Button
@@ -29,6 +29,12 @@ local function createToggles() -- Define custom toggles
         [3] = { mode = "Bear", value = 3, overlay = "Bear Form", tip = "Will force and use Bear Form", highlight = 0, icon = br.player.spells.bearForm }
     };
     br.ui:createToggle(FormModes, "Forms", 4, 0)
+    -- Prowl Button
+    local ProwlModes = {
+        [1] = { mode = "On", value = 1, overlay = "Prowl Enabled", tip = "Rotation will use Prowl", highlight = 1, icon = br.player.spells.prowl },
+        [2] = { mode = "Off", value = 2, overlay = "Prowl Disabled", tip = "Rotation will not use Prowl", highlight = 0, icon = br.player.spells.prowl }
+    };
+    br.ui:createToggle(ProwlModes, "Prowl", 5, 0)
 end
 
 ---------------
@@ -65,6 +71,8 @@ local function createOptions()
         br.player.module.BasicHealing(section)
         -- Regrowth
         br.ui:createSpinner(section, "Regrowth", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
+        -- Rejuvenation
+        br.ui:createSpinner(section, "Rejuvenation", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
         br.ui:checkSectionState(section)
         ----------------------
         --- TOGGLE OPTIONS ---
@@ -115,6 +123,24 @@ local movingTimer
 -----------------
 --- Functions --- -- List all profile specific custom functions here
 -----------------
+-- AutoProwl
+local function autoProwl()
+    if not unit.inCombat() and not buff.prowl.exists() then
+        if #enemies.yards20 > 0 then return true end
+        if #enemies.yards20nc > 0 then
+            for i = 1, #enemies.yards20nc do
+                local thisUnit = enemies.yards20nc[i]
+                local threatRange = math.max((20 + (unit.level(thisUnit) - unit.level())), 5)
+                local react = unit.reaction(thisUnit) or 10
+                if unit.distance(thisUnit) < threatRange and (react < 4 or (unit.isUnit("target", thisUnit) and react == 4)) and unit.enemy(thisUnit) and unit.canAttack(thisUnit) then
+                    return true
+                end
+            end
+        end
+        -- if unit.isDummy("target") and unit.distance("target") < 20 then return true end
+    end
+    return false
+end
 -- Ferocious Bite Finish
 local function ferociousBiteFinish(thisUnit)
     local desc = br._G.C_Spell.GetSpellDescription(spell.ferociousBite.id())
@@ -132,7 +158,8 @@ local function ferociousBiteFinish(thisUnit)
             damageList = damageList:sub(1, comboEnd)
             damage = damageList:gsub(",", "")
         end
-        finishHim = tonumber(damage) >= unit.health(thisUnit)
+        local lower = tonumber(damage:match("^(%d+)%-%d+$"))
+        finishHim = tonumber(lower) >= unit.health(thisUnit)
     end
     return finishHim
 end
@@ -209,17 +236,17 @@ actionList.Extra = function()
                 return true
             end
         end
-        -- Mark of the Wild
-        if ui.checked("Mark of the Wild") then
-            var.markUnit = getMarkUnitOption("Mark of the Wild")
-            if cast.able.markOfTheWild(var.markUnit) and buff.markOfTheWild.refresh(var.markUnit) and not unit.resting() and unit.distance(var.markUnit) < 40 then
-                if cast.markOfTheWild(var.markUnit) then
-                    ui.debug("Casting Mark of the Wild")
-                    return true
-                end
-            end
-        end
     end
+    -- -- Mark of the Wild
+    -- if ui.checked("Mark of the Wild") then
+    --     var.markUnit = getMarkUnitOption("Mark of the Wild")
+    --     if cast.able.markOfTheWild(var.markUnit) and buff.markOfTheWild.refresh(var.markUnit) and not unit.resting() and unit.distance(var.markUnit) < 40 then
+    --         if cast.markOfTheWild(var.markUnit) then
+    --             ui.debug("Casting Mark of the Wild")
+    --             return true
+    --         end
+    --     end
+    -- end
 end -- End Action List - Extra
 
 -- Action List - Defensive
@@ -227,31 +254,58 @@ actionList.Defensive = function()
     if ui.useDefensive() then
         -- Basic Healing Module
         module.BasicHealing()
-        -- Regrowth
-        if ui.checked("Regrowth") and cast.able.regrowth() and not cast.current.regrowth() and not unit.moving() then
-            if unit.friend("target") and unit.hp("target") <= ui.value("Regrowth") and br._G.UnitIsPlayer("target") then
+        -- Rejuvenation
+        if ui.checked("Rejuvenation") and not cast.current.rejuvenation() then
+            if cast.able.rejuvenation("target") and unit.friend("target") and unit.hp("target") <= ui.value("Rejuvenation")
+                and br._G.UnitIsPlayer("target") and buff.rejuvenation.refresh("target")
+            then
                 if buff.catForm.exists() or buff.bearForm.exists() then
                     -- CancelShapeshiftForm()
                     br._G.RunMacroText("/CancelForm")
                 else
-                    if cast.regrowth("target") then
-                        ui.debug("Casting Regrowth on " .. unit.name("target"))
+                    ui.debug("Attempting to cast Rejuvenation on " .. unit.name("target"))
+                    if cast.rejuvenation("target") then
                         return true
                     end
                 end
             end
-            if not unit.friend("target") and unit.hp() <= ui.value("Regrowth") then
+            if cast.able.rejuvenation("player") and not unit.friend("target") and unit.hp() <= ui.value("Rejuvenation") and buff.rejuvenation.refresh("player") then
                 if buff.catForm.exists() or buff.bearForm.exists() then
                     -- CancelShapeshiftForm()
                     br._G.RunMacroText("/CancelForm")
                 else
-                    if cast.regrowth("player") then
-                        ui.debug("Casting Regrowth on " .. unit.name("player"))
+                    if cast.rejuvenation("player") then
+                        ui.debug("Casting Rejuvenation on " .. unit.name("player"))
                         return true
                     end
                 end
             end
         end
+        -- Regrowth
+        -- if ui.checked("Regrowth") and cast.able.regrowth() and not cast.current.regrowth() and not unit.moving() then
+        --     if unit.friend("target") and unit.hp("target") <= ui.value("Regrowth") and br._G.UnitIsPlayer("target") then
+        --         if buff.catForm.exists() or buff.bearForm.exists() then
+        --             -- CancelShapeshiftForm()
+        --             br._G.RunMacroText("/CancelForm")
+        --         else
+        --             if cast.regrowth("target") then
+        --                 ui.debug("Casting Regrowth on " .. unit.name("target"))
+        --                 return true
+        --             end
+        --         end
+        --     end
+        --     if not unit.friend("target") and unit.hp() <= ui.value("Regrowth") then
+        --         if buff.catForm.exists() or buff.bearForm.exists() then
+        --             -- CancelShapeshiftForm()
+        --             br._G.RunMacroText("/CancelForm")
+        --         else
+        --             if cast.regrowth("player") then
+        --                 ui.debug("Casting Regrowth on " .. unit.name("player"))
+        --                 return true
+        --             end
+        --         end
+        --     end
+        -- end
     end
 end -- End Action List - Defensive
 
@@ -262,7 +316,18 @@ end -- End Action List - Cooldowns
 
 -- Action List - Pre-Combat
 actionList.PreCombat = function()
-    if not unit.inCombat() then
+    if not unit.inCombat() and not (unit.flying() or unit.mounted()) then
+        if not (buff.prowl.exists() or buff.shadowmeld.exists()) then
+            -- Prowl
+            if cast.able.prowl("player") and buff.catForm.exists() and autoProwl() and ui.mode.prowl == 1
+                and not buff.prowl.exists() and (not unit.resting() or unit.isDummy("target"))
+            then
+                if cast.prowl("player") then
+                    ui.debug("Casting Prowl [Precombat]")
+                    return true
+                end
+            end
+        end -- End No Stealth
         if unit.valid("target") then
             local thisDistance = unit.distance("target") or 99
             -- Wrath
@@ -276,15 +341,29 @@ actionList.PreCombat = function()
             end
             if thisDistance < 5 then
                 -- Shred
-                if cast.able.shred() and buff.catForm.exists() then
-                    if cast.shred() then
-                        ui.debug("Casting Shred [Precombat]")
+                -- if cast.able.shred() and buff.catForm.exists() then
+                --     if cast.shred() then
+                --         ui.debug("Casting Shred [Precombat]")
+                --         return true
+                --     end
+                -- end
+                -- Mangle
+                if cast.able.mangleBear(units.dyn5) and buff.bearForm.exists() then
+                    if cast.mangleBear(units.dyn5) then
+                        ui.debug("Casting Mangle [Precombat]")
+                        return true
+                    end
+                end
+                -- Rake
+                if cast.able.rake() and buff.catForm.exists() then
+                    if cast.rake() then
+                        ui.debug("Casting Rake [Precombat]")
                         return true
                     end
                 end
                 -- Auto Attack
-                if cast.able.autoAttack() and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
-                    if cast.autoAttack() then
+                if cast.able.autoAttack("target") and unit.exists("target") and unit.distance("target") < 5 then
+                    if cast.autoAttack("target") then
                         ui.debug("Casting Auto Attack [Precombat]")
                         return true
                     end
@@ -303,8 +382,8 @@ actionList.Combat = function()
         -- Melee in melee range
         if unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
             -- Start Attack
-            if cast.able.autoAttack() and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
-                if cast.autoAttack() then
+            if cast.able.autoAttack("target") and unit.exists("target") and unit.distance("target") < 5 then
+                if cast.autoAttack("target") then
                     ui.debug("Casting Auto Attack")
                     return true
                 end
@@ -313,9 +392,16 @@ actionList.Combat = function()
             if actionList.Cooldowns() then return true end
             -- Bear Form
             if buff.bearForm.exists() then
+                -- Maul
+                if cast.able.maul(units.dyn5) then
+                    if cast.maul(units.dyn5) then
+                        ui.debug("Casting Maul")
+                        return true
+                    end
+                end
                 -- Mangle
-                if cast.able.mangle(units.dyn5) then
-                    if cast.mangle(units.dyn5) then
+                if cast.able.mangleBear(units.dyn5) then
+                    if cast.mangleBear(units.dyn5) then
                         ui.debug("Casting Mangle")
                         return true
                     end
@@ -323,9 +409,9 @@ actionList.Combat = function()
             end
             -- Cat Form
             if buff.catForm.exists() then
-                local finish = ferociousBiteFinish()
                 -- Ferocious Bite
-                if cast.able.ferociousBite() and ((comboPoints == 5 and fbMaxEnergy) or finish) then
+                local finish = ferociousBiteFinish(units.dyn5)
+                if cast.able.ferociousBite(units.dyn5) and ((comboPoints == 5 and fbMaxEnergy) or finish) then
                     if finish then
                         if cast.ferociousBite() then
                             ui.debug("Casting Ferocious Bite [Finish]")
@@ -338,10 +424,17 @@ actionList.Combat = function()
                         end
                     end
                 end
-                -- Shred
-                if cast.able.shred() and (comboPoints < 5 or unit.level() < 7) then
-                    if cast.shred() then
-                        ui.debug("Casting Shred")
+                -- Rake
+                if cast.able.rake() and comboPoints < 5 and debuff.rake.refresh(units.dyn5) then
+                    if cast.rake() then
+                        ui.debug("Casting Rake")
+                        return true
+                    end
+                end
+                -- Mangle
+                if cast.able.mangle() and comboPoints < 5 and not debuff.rake.refresh(units.dyn5) then
+                    if cast.mangle() then
+                        ui.debug("Casting Mangle")
                         return true
                     end
                 end
@@ -395,6 +488,8 @@ local function runRotation()
     units.get(40, true) -- Makes a variable called, units.dyn40AOE
     -- Enemies
     enemies.get(5)      -- Makes a varaible called, enemies.yards5
+    enemies.get(20)     -- Makes a varaible called, enemies.yards20
+    enemies.get(20, "player", true)        -- makes enemies.yards20nc
     enemies.get(40)     -- Makes a varaible called, enemies.yards40
 
     -- Profile Specific Locals

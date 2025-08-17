@@ -229,7 +229,7 @@ function br:loadLastProfileTracker()
 	local selectedProfile = br.selectedSpec
 	if br:findFileInFolder("lastProfileTracker.lua", loadDir) then
 		local tracker = br.tableLoad(loadDir .. "lastProfileTracker.lua")
-		local specID = br._G.GetSpecializationInfo(br._G.GetSpecialization())
+		local specID = br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization())
 		if br.data == nil then
 			br.data = {}
 		end
@@ -279,7 +279,7 @@ end
 
 function br:saveLastProfileTracker()
 	local saveDir = br:checkDirectories(nil, nil, nil, "Tracker")
-	local specID = br._G.GetSpecializationInfo(br._G.GetSpecialization()) or br.selectedSpecID
+	local specID = br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization()) or br.selectedSpecID
 	if br.data ~= nil and br.data.settings ~= nil and br.data.settings[br.selectedSpec] ~= nil then
 		if br.data.tracker ~= nil then
 			if br.data.tracker[br.selectedSpec] == nil then

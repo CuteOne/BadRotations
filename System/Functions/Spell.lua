@@ -263,7 +263,7 @@ function br.getSpellCD(SpellID)
 end
 
 function br.getGlobalCD(max)
-	local currentSpecName = select(2, br._G.GetSpecializationInfo(br._G.GetSpecialization()))
+	local currentSpecName = select(2, br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization()))
 	if currentSpecName == "" then currentSpecName = "Initial" end
 	if max == true then
 		if currentSpecName == "Feral" or currentSpecName == "Brewmaster" or currentSpecName == "Windwalker" or br._G.UnitClass("player") == "Rogue" then
@@ -339,13 +339,13 @@ function br.isSpellInSpellbook(spellID, spellType)
 end
 
 function br.getSpellInSpellBook(spellID, spellType)
-	for i = 1, br._G.C_SpellBook.GetNumSpellBookSkillLines() do
-		local skillLineInfo = br._G.C_SpellBook.GetSpellBookSkillLineInfo(i)
-		local offset, numSlots = skillLineInfo.itemIndexOffset, skillLineInfo.numSpellBookItems
+	for i = 1, br._G.GetNumSpellTabs() do
+		local name, texture, offset, numSlots, isGuild, offspecID = br._G.GetSpellTabInfo(i)
+		-- local offset, numSlots = skillLineInfo.itemIndexOffset, skillLineInfo.numSpellBookItems
 		for j = offset + 1, offset + numSlots do
-			local spellBookItemInfo = br._G.C_SpellBook.GetSpellBookItemInfo(j,
+			local spellType, id = br._G.GetSpellBookItemInfo(j,
 				(spellType == "pet" and Enum.SpellBookSpellBank.Pet or Enum.SpellBookSpellBank.Player))
-			local spellType, id = spellBookItemInfo.itemType, spellBookItemInfo.actionID
+			-- local spellType, id = spellBookItemInfo.itemType, spellBookItemInfo.actionID
 			local spellName
 			if spellType == Enum.SpellBookItemType.Spell then
 				spellName = br._G.C_Spell.GetSpellName(id)
@@ -366,12 +366,27 @@ function br.getSpellInSpellBook(spellID, spellType)
 end
 
 -- if br.isKnown(106832) then
+-- function br.isKnown(spellID)
+-- 	local baseSpellID = br._G.FindBaseSpellByID(spellID)
+-- 	local _, _, spellInBookType = br.getSpellInSpellBook(spellID)
+-- 	return spellID ~= nil and spellInBookType ~= "Future Spell" and
+-- 		( --[[spellInBookType ~= nil or]] br._G.IsPlayerSpell(tonumber(spellID))
+-- 			or br._G.IsSpellKnown(spellID) or br._G.IsPlayerSpell(tonumber(baseSpellID) or br._G.IsSpellKnown(baseSpellID))) -- or spellInBookType == "Spell")
+-- end
+
 function br.isKnown(spellID)
-	local baseSpellID = br._G.FindBaseSpellByID(spellID)
-	local _, _, spellInBookType = br.getSpellInSpellBook(spellID)
-	return spellID ~= nil and spellInBookType ~= "Future Spell" and
-		( --[[spellInBookType ~= nil or]] br._G.IsPlayerSpell(tonumber(spellID))
-			or br._G.IsSpellKnown(spellID) or br._G.IsPlayerSpell(tonumber(baseSpellID) or br._G.IsSpellKnown(baseSpellID))) -- or spellInBookType == "Spell")
+	local spellName = br._G.GetSpellInfo(spellID)
+	-- if GetSpellBookItemInfo(tostring(spellName)) ~= nil then
+	-- 	return true
+	-- elseif IsPlayerSpell(tonumber(spellID)) == true then
+	-- 	return true
+	-- elseif IsSpellKnown(spellID) == true then
+	-- 	return true
+	-- elseif hasPerk(spellID) == true then
+ --        return true
+ --    end
+	-- return false
+	return spellID ~= nil and (br._G.GetSpellBookItemInfo(tostring(spellName)) ~= nil or br._G.IsPlayerSpell(tonumber(spellID)) or br._G.IsSpellKnown(spellID) or br.isSpellInSpellbook(spellID,"spell"))
 end
 
 function br.isActiveEssence(spellID)

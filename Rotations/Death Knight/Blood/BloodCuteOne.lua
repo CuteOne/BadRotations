@@ -113,6 +113,7 @@ local charges
 local debuff
 local enemies
 local module
+local pet
 local runes
 local runicPower
 local talent
@@ -330,7 +331,7 @@ actionList.Combat = function()
             if actionList.Racials() then return true end
             -- Sacrificial Pact
             -- sacrificial_pact,if=!buff.dancing_rune_weapon.up&(pet.ghoul.remains<2|target.time_to_die<gcd)
-            if cast.able.sacrificialPact() and ((not buff.dancingRuneWeapon.exists() and (pet.ghoul.remains() < 2 or unit.ttd(units.dyn5) < unit.gcd(true)))) then
+            if cast.able.sacrificialPact() and ((not buff.dancingRuneWeapon.exists() and (pet.ghoul.exists() or unit.ttd(units.dyn5) < unit.gcd(true)))) then
                 if cast.sacrificialPact() then
                     ui.debug("Casting Sacrificial Pact [Combat]")
                     return true
@@ -707,6 +708,7 @@ local function runRotation()
     debuff          = br.player.debuff
     enemies         = br.player.enemies
     module          = br.player.module
+    pet             = br.player.pet
     runes           = br.player.power.runes
     runicPower      = br.player.power.runicPower
     talent          = br.player.talent

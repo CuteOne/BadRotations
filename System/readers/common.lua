@@ -196,16 +196,16 @@ function br.read.commonReaders()
 		end
 	end
 	Frame:SetScript("OnEvent", UiErrorMessages)
-	------------------------
-	--[[ Spells Changed --]]
-	Frame = br._G.CreateFrame("Frame")
-	Frame:RegisterEvent("LEARNED_SPELL_IN_SKILL_LINE")
-	local function SpellsChanged(_, _, _)
-		if not br.configReloadTimer or br.configReloadTimer <= br._G.GetTime() - 1 then
-			br.currentConfig, br.configReloadTimer = nil, br._G.GetTime()
-		end
-	end
-	Frame:SetScript("OnEvent", SpellsChanged)
+	-- ------------------------
+	-- --[[ Spells Changed --]]
+	-- Frame = br._G.CreateFrame("Frame")
+	-- Frame:RegisterEvent("LEARNED_SPELL_IN_SKILL_LINE")
+	-- local function SpellsChanged(_, _, _)
+	-- 	if not br.configReloadTimer or br.configReloadTimer <= br._G.GetTime() - 1 then
+	-- 		br.currentConfig, br.configReloadTimer = nil, br._G.GetTime()
+	-- 	end
+	-- end
+	-- Frame:SetScript("OnEvent", SpellsChanged)
 	--- under devlopment not working as of now
 	--[[ Addon reader ]]
 	-- local Frame = CreateFrame('Frame')
@@ -321,14 +321,14 @@ function br.read.commonReaders()
 	superReaderFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP")
 	superReaderFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START")
 	superReaderFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_UPDATE")
-	superReaderFrame:RegisterEvent("UNIT_SPELLCAST_EMPOWER_START")
-	superReaderFrame:RegisterEvent("UNIT_SPELLCAST_EMPOWER_STOP")
-	superReaderFrame:RegisterEvent("UNIT_SPELLCAST_EMPOWER_UPDATE")
+	-- superReaderFrame:RegisterEvent("UNIT_SPELLCAST_EMPOWER_START")
+	-- superReaderFrame:RegisterEvent("UNIT_SPELLCAST_EMPOWER_STOP")
+	-- superReaderFrame:RegisterEvent("UNIT_SPELLCAST_EMPOWER_UPDATE")
 	superReaderFrame:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
 	superReaderFrame:RegisterEvent("UNIT_POWER_UPDATE")
 	superReaderFrame:RegisterEvent("ENCOUNTER_START")
 	superReaderFrame:RegisterEvent("ENCOUNTER_END")
-	superReaderFrame:RegisterUnitEvent("AZERITE_EMPOWERED_ITEM_SELECTION_UPDATED")
+	-- superReaderFrame:RegisterUnitEvent("AZERITE_EMPOWERED_ITEM_SELECTION_UPDATED")
 	superReaderFrame:RegisterUnitEvent("AZERITE_ESSENCE_ACTIVATED")
 	superReaderFrame:RegisterUnitEvent("PLAYER_EQUIPMENT_CHANGED")
 	superReaderFrame:RegisterUnitEvent("PLAYER_LEVEL_UP")
@@ -373,7 +373,7 @@ function br.read.commonReaders()
 		-- if event == "PLAYER_TALENT_UPDATE" and select(2, GetSpecializationInfo(GetSpecialization())) == br.selectedSpec then
 		-- 	br.rotationChanged = true
 		-- end
-		if event == "PLAYER_TALENT_UPDATE" or event == "PLAYER_LEVEL_UP" or event == "PLAYER_EQUIPMENT_CHANGED" or event == "AZERITE_EMPOWERED_ITEM_SELECTION_UPDATED" or event == "TRAIT_CONFIG_UPDATED" then
+		if event == "PLAYER_TALENT_UPDATE" or event == "PLAYER_LEVEL_UP" or event == "PLAYER_EQUIPMENT_CHANGED" --[[or event == "AZERITE_EMPOWERED_ITEM_SELECTION_UPDATED"]] or event == "TRAIT_CONFIG_UPDATED" then
 			br.updatePlayerInfo = true
 		end
 		-------------------------------------------------
@@ -541,29 +541,29 @@ function br.read.commonReaders()
 				--Print("Channel Update")
 			end
 		end
-		if event == "UNIT_SPELLCAST_EMPOWER_START" then
-			local SourceUnit = select(1, ...)
-			local SpellID = select(3, ...)
-			if SourceUnit == "player" then
-				--Print("Channel Start")
-				br.empowerID = SpellID
-			end
-		end
-		if event == "UNIT_SPELLCAST_EMPOWER_STOP" then
-			local SourceUnit = select(1, ...)
-			local SpellID = select(3, ...)
-			if SourceUnit == "player" then
-				--Print("Channel STOP")
-				br.empowerID = 0
-			end
-		end
-		if event == "UNIT_SPELLCAST_EMPOWER_UPDATE" then
-			local SourceUnit = select(1, ...)
-			-- local SpellID = select(3, ...)
-			if SourceUnit == "player" then
-				--Print("Channel Update")
-			end
-		end
+		-- if event == "UNIT_SPELLCAST_EMPOWER_START" then
+		-- 	local SourceUnit = select(1, ...)
+		-- 	local SpellID = select(3, ...)
+		-- 	if SourceUnit == "player" then
+		-- 		--Print("Channel Start")
+		-- 		br.empowerID = SpellID
+		-- 	end
+		-- end
+		-- if event == "UNIT_SPELLCAST_EMPOWER_STOP" then
+		-- 	local SourceUnit = select(1, ...)
+		-- 	local SpellID = select(3, ...)
+		-- 	if SourceUnit == "player" then
+		-- 		--Print("Channel STOP")
+		-- 		br.empowerID = 0
+		-- 	end
+		-- end
+		-- if event == "UNIT_SPELLCAST_EMPOWER_UPDATE" then
+		-- 	local SourceUnit = select(1, ...)
+		-- 	-- local SpellID = select(3, ...)
+		-- 	if SourceUnit == "player" then
+		-- 		--Print("Channel Update")
+		-- 	end
+		-- end
 		if event == "UI_ERROR_MESSAGE" then
 			local errorMsg = select(1, ...)
 			local messageErr = select(2, ...)

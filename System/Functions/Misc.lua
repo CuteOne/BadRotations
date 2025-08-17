@@ -291,7 +291,7 @@ end
 -- if getTalent(8) == true then
 function br.getTalent(Row, Column, specGroup)
 	if specGroup == nil then
-		specGroup = br._G.GetActiveSpecGroup()
+		specGroup = br._G.C_SpecializationInfo.GetActiveSpecGroup()
 	end
 	local _, _, _, selected = br._G.GetTalentInfo(Row, Column, specGroup)
 	return selected or false
@@ -574,23 +574,23 @@ function br.enemyListCheck(Unit)
 	if targetBuff ~= playerBuff then
 		return false
 	end
-	local phaseReason = br._G.UnitPhaseReason(Unit)
+	local phaseReason = br._G.UnitInPhase(Unit)--br._G.UnitPhaseReason(Unit)
 	local distance = br.getDistance(Unit, "player")
 	local mcCheck = (br.isChecked("Attack MC Targets") and (not br.GetUnitIsFriend(Unit, "player") or br._G.UnitIsCharmed(Unit))) or
 		not br.GetUnitIsFriend(Unit, "player")
-	local inPhase = not phaseReason or phaseReason == 2 or phaseReason == 3
+	local inPhase = phaseReason--not phaseReason or phaseReason == 2 or phaseReason == 3
 	if (br.UnitDebuffID("player", 320102) or br.UnitDebuffID(Unit, 424495)) and br._G.UnitIsPlayer(Unit) then
 		return true
 	end
-	return br.GetObjectExists(Unit) and not br.GetUnitIsDeadOrGhost(Unit) and inPhase and
-		br._G.UnitCanAttack("player", Unit) and br._G.UnitHealth(Unit) > 0 and distance < 50 and
-		not br.isCritter(Unit) and
-		mcCheck and
-		not br.GetUnitIsUnit(Unit, "pet") and
-		br._G.UnitCreator(Unit) ~= br._G.ObjectPointer("player") and
-		br.GetObjectID(Unit) ~= 11492 and
-		br.getLineOfSight("player", Unit) and
-		((Unit ~= 131824 and Unit ~= 131823 and Unit ~= 131825) or
+	return br.GetObjectExists(Unit) and not br.GetUnitIsDeadOrGhost(Unit) --and inPhase
+		and br._G.UnitCanAttack("player", Unit) and br._G.UnitHealth(Unit) > 0 and distance < 50
+		and not br.isCritter(Unit)
+		and mcCheck
+		and not br.GetUnitIsUnit(Unit, "pet")
+		and br._G.UnitCreator(Unit) ~= br._G.ObjectPointer("player")
+		and br.GetObjectID(Unit) ~= 11492
+		and br.getLineOfSight("player", Unit)
+		and ((Unit ~= 131824 and Unit ~= 131823 and Unit ~= 131825) or
 			((br.UnitBuffID(Unit, 260805) or br.GetUnitIsUnit(Unit, "target")) and (Unit == 131824 or Unit == 131823 or Unit == 131825)))
 end
 
@@ -716,11 +716,11 @@ function br.pause(skipCastingCheck)
 				br.pauseCast = br._G.GetTime() + br.getCastTime(295258) + (br.getCastTime(295261) * hasted)
 			end
 			-- Cyclotronic Blast
-			if lastCast == 293491 and br._G.GetItemCooldown(167555) == 0 then
+			if lastCast == 293491 and br._G.C_Container.GetItemCooldown(167555) == 0 then
 				br.pauseCast = br._G.GetTime() + br.getCastTime(293491) + (2.5 * hasted) + br.getGlobalCD(true)
 			end
 			-- Azshara's Font of Power - Latent Arcana
-			if lastCast == 296962 and br._G.GetItemCooldown(169314) == 0 then
+			if lastCast == 296962 and br._G.C_Container.GetItemCooldown(169314) == 0 then
 				br.pauseCast = br._G.GetTime() + br.getCastTime(296962) + (2.5 * hasted)
 			end
 		end

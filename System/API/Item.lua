@@ -20,7 +20,7 @@ br.api.items = function(item,k,v,subtable)
         -- -- @treturn boolean
         -- cd[k].exists = function(itemID)
         --     if itemID == nil then itemID = v end
-        --     return br._G.GetItemCooldown(itemID) > 0
+        --     return br._G.C_Container.GetItemCooldown(itemID) > 0
         -- end
 
         -- --- Gets the time remaining on item cooldown or 0 if not.
@@ -29,8 +29,8 @@ br.api.items = function(item,k,v,subtable)
         -- -- @treturn number
         -- cd[k].remain = function(itemID)
         --     if itemID == nil then itemID = v end
-        --     if br._G.GetItemCooldown(itemID) ~= 0 then
-        --         return (br._G.GetItemCooldown(itemID) + select(2,br._G.GetItemCooldown(itemID)) - br._G.GetTime())
+        --     if br._G.C_Container.GetItemCooldown(itemID) ~= 0 then
+        --         return (br._G.C_Container.GetItemCooldown(itemID) + select(2,br._G.C_Container.GetItemCooldown(itemID)) - br._G.GetTime())
         --     end
         --     return 0
         -- end
