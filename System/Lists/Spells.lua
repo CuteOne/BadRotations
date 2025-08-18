@@ -1329,12 +1329,11 @@ br.lists.spells = {
 
             },
             buffs         = {
-                -- adaptiveSwarm              = 325748,
+                aquaticForm                = 1066,
                 barkskin                   = 22812,
                 bearForm                   = 5487,
                 burningEssence             = 138927,
                 catForm                    = 768,
-                -- convokeTheSpirits          = 391528,
                 dash                       = 1850,
                 faerieFire                 = 770,
                 flightForm                 = 33943,

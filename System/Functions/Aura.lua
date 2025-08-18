@@ -187,14 +187,14 @@ function br.canDispel(Unit, spellID)
 		-- Cleanse Toxins (Ret, Prot)
 		if spellID == 213644 then typesList = { "Poison", "Disease" } end
 	end
-	if ClassNum == 3 then                                                            --Hunter
+	if ClassNum == 3 then --Hunter
 		if spellID == 19801 then typesList = { "Magic", "" } end                     --tranq shot
 	end
-	if ClassNum == 4 then                                                            --Rogue
+	if ClassNum == 4 then --Rogue
 		if spellID == 31224 then typesList = { "Poison", "Curse", "Disease", "Magic" } end -- Cloak of Shadows
 		if spellID == 5938 then typesList = { "" } end                               --shiv
 	end
-	if ClassNum == 5 then                                                            --Priest
+	if ClassNum == 5 then --Priest
 		-- Purify
 		if spellID == 527 then typesList = { "Disease", "Magic" } end
 		-- Mass Dispell

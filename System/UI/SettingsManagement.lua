@@ -280,7 +280,8 @@ end
 function br:saveLastProfileTracker()
 	local saveDir = br:checkDirectories(nil, nil, nil, "Tracker")
 	local specID = br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization()) or br.selectedSpecID
-	if br.data ~= nil and br.data.settings ~= nil and br.data.settings[br.selectedSpec] ~= nil then
+	if specID == 0 and br.selectedSpecID ~= nil then specID = br.selectedSpecID end
+	if br.data ~= nil and br.data.settings ~= nil and br.data.settings[br.selectedSpec] ~= nil and specID ~= 0 then
 		if br.data.tracker ~= nil then
 			if br.data.tracker[br.selectedSpec] == nil then
 				br.data.tracker[br.selectedSpec] = {}
@@ -312,7 +313,7 @@ function br:saveLastProfileTracker()
 				br.data.tracker[br.selectedSpec]["RotationDrop"] = 1
 			end
 		end
-	else
+	elseif specID ~= 0 then
 		br._G.print("Nothing found, recreating tracker")
 		br.data.tracker = {}
 		br.data.tracker[br.selectedSpec] = {}
