@@ -992,7 +992,7 @@ actionList.Combat = function()
         end
         -- Savage Roar
         -- savage_roar,if=buff.savage_roar.down
-        if cast.able.savageRoar() and buff.savageRoar.exists() then
+        if cast.able.savageRoar() and not buff.savageRoar.exists() then
             if cast.savageRoar() then
                 ui.debug("Casting Savage Roar - No Exist [Combat]")
                 return true
