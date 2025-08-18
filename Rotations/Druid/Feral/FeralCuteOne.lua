@@ -480,7 +480,7 @@ actionList.Extras = function()
             --     end
             -- end
             -- Shred - Single
-            if cast.able.shred() and #enemies.yards5f == 1 then
+            if cast.able.shred() and #enemies.yards5f == 1 and not unit.facing(units.dyn5,"player") then
                 if cast.shred() then
                     ui.debug("Casting Shred [Death Cat Mode]"); var.swipeSoon = nil; return true
                 end
@@ -551,22 +551,22 @@ actionList.Defensive = function()
         --     end
         -- end
         -- Revive
-        -- if ui.checked("Revive") and not unit.inCombat() then
-        --     opValue = ui.value("Revive - Target")
-        --     if opValue == 1 then
-        --         thisUnit = "target"
-        --     elseif opValue == 2 then
-        --         thisUnit = "mouseover"
-        --     end
-        --     if cast.able.revive(thisUnit, "dead") and unit.deadOrGhost(thisUnit)
-        --         and (unit.friend(thisUnit) and unit.player(thisUnit))
-        --     then
-        --         if cast.revive(thisUnit, "dead") then
-        --             ui.debug("Casting Revive on " .. unit.name(thisUnit))
-        --             return true
-        --         end
-        --     end
-        -- end
+        if ui.checked("Revive") and not unit.inCombat() then
+            opValue = ui.value("Revive - Target")
+            if opValue == 1 then
+                thisUnit = "target"
+            elseif opValue == 2 then
+                thisUnit = "mouseover"
+            end
+            if cast.able.revive(thisUnit, "dead") and unit.deadOrGhost(thisUnit)
+                and (unit.friend(thisUnit) and unit.player(thisUnit))
+            then
+                if cast.revive(thisUnit, "dead") then
+                    ui.debug("Casting Revive on " .. unit.name(thisUnit))
+                    return true
+                end
+            end
+        end
         -- Remove Corruption
         -- if ui.checked("Remove Corruption") then
         --     opValue = ui.value("Remove Corruption - Target")
@@ -765,13 +765,6 @@ actionList.Defensive = function()
         --         return true
         --     end
         -- end
-        -- -- Fleshcraft
-        -- if cast.able.fleshcraft() and unit.exists("target") and unit.deadOrGhost("target") and not unit.moving() and unit.ooCombatTime() > 2 then
-        --     if cast.fleshcraft("player") then
-        --         ui.debug("Casting Fleshcraft")
-        --         return true
-        --     end
-        -- end
     end -- End Defensive Toggle
 end     -- End Action List - Defensive
 
@@ -838,7 +831,7 @@ actionList.PreCombat = function()
             -- prowl,if=!buff.prowl.up
             if cast.able.prowl("player") and buff.catForm.exists() and autoProwl() and ui.mode.prowl == 1
                 and not buff.prowl.exists() and (not unit.resting() or unit.isDummy("target"))
-                and not buff.bsInc.exists() -- and var.getTime - var.leftCombat > lootDelay
+                and not buff.bsInc.exists()
             then
                 if cast.prowl("player") then
                     ui.debug("Casting Prowl [Pre-Combat]")
@@ -857,6 +850,13 @@ actionList.PreCombat = function()
         end -- End Pre-Pull
         -- Pull
         if unit.valid("target") and unit.exists("target") and unit.distance("target") < 5 then
+            -- Shred
+            if cast.able.shred("target") and not unit.facing("target","player") then
+                if cast.shred("target") then
+                    ui.debug("Casting Shred on " .. unit.name("target") .. " [Pre-Combat]")
+                    return true
+                end
+            end
             -- Rake (Stealth)
             -- rake,if=buff.prowl.up|buff.shadowmeld.up
             if cast.able.rake("target") and (buff.prowl.exists("player") or buff.shadowmeld.exists("player")) then
@@ -882,14 +882,14 @@ end -- End Action List - PreCombat
 -- Action List - Combat
 actionList.Combat = function()
     -- Cat is 4 fyte!
-    if unit.inCombat() and cast.able.catForm("player") and not buff.catForm.exists() and not buff.moonkinForm.exists()
+    if unit.inCombat() and cast.able.catForm("player") and not buff.catForm.exists() --and not buff.moonkinForm.exists()
         and #enemies.yards5f > 0 and not unit.moving() and ui.checked("Auto Shapeshifts")
     then
         if cast.catForm("player") then
             ui.debug("Casting Cat Form [Combat]")
             return true
         end
-    elseif (unit.inCombat() or (not unit.inCombat() and unit.valid(units.dyn5))) and (buff.catForm.exists() or buff.moonkinForm.exists()) and not var.profileStop
+    elseif (unit.inCombat() or (not unit.inCombat() and unit.valid(units.dyn5))) and buff.catForm.exists() and not var.profileStop--or buff.moonkinForm.exists()) and not var.profileStop
         and not ui.checked("Death Cat Mode") and unit.exists(units.dyn5) and cd.global.remain() == 0
     then
         -- Wild Charge
@@ -928,9 +928,11 @@ actionList.Combat = function()
                 return true
             end
         end
-        -- Call Action List - Variables
-        -- call_action_list,name=variables
-        -- if actionList.Variables() then return true end
+        -- Call Action List - AoE
+        -- swap_action_list,name=aoe,if=active_enemies>=5
+        if ui.useAOE(8,5) then
+            if actionList.AoE() then return true end
+        end
         -- Auto Attack
         -- auto_attack,if=!buff.prowl.up&!buff.shadowmeld.up
         if cast.able.autoAttack(units.dyn5) and unit.distance(units.dyn5) < 5 and not buff.prowl.exists() and not buff.shadowmeld.exists() then
@@ -939,10 +941,17 @@ actionList.Combat = function()
                 return true
             end
         end
-        -- Call Action List - AoE
-        -- swap_action_list,name=aoe,if=active_enemies>=5
-        if ui.useAOE(8,5) then
-            if actionList.AoE() then return true end
+        -- Racial
+        -- blood_fury,if=buff.tigers_fury.up
+        -- berserking,if=buff.tigers_fury.up
+        -- arcane_torrent,if=buff.tigers_fury.up
+        if buff.tigersFury.exists() then
+            if unit.race() == "Orc" or unit.race() == "Troll" or unit.race() == "BloodElf" then
+                if cast.racial() then
+                    ui.debug("Casting Racial [Combat]")
+                    return true
+                end
+            end
         end
         -- Ravage
         -- ravage,if=buff.stealthed.up
@@ -1008,7 +1017,7 @@ actionList.Combat = function()
                 return true
             end
         end
-        -- Use Item - Hands
+        -- Use Item Slot - Hands
         -- use_item,slot=hands,if=buff.tigers_fury.up
 
         -- Thrash
@@ -1122,8 +1131,8 @@ actionList.Combat = function()
         -- Thrash
         -- thrash_cat,if=target.time_to_die>=6&dot.thrash_cat.remains<3&(dot.rip.remains>=8&buff.savage_roar.remains>=12|buff.berserk.up|combo_points>=5)&dot.rip.ticking
         if cast.able.thrash() and unit.ttd(units.dyn5) >= 6 and debuff.thrash.remains(units.dyn5) < 3
-        and ((debuff.rip.remains(units.dyn5) >= 8 and buff.savageRoar.remains() >= 12)
-        or buff.berserk.exists() or comboPoints() >= 5) and debuff.rip.exists(units.dyn5)
+            and ((debuff.rip.remains(units.dyn5) >= 8 and buff.savageRoar.remains() >= 12)
+                or buff.berserk.exists() or comboPoints() >= 5) and debuff.rip.exists(units.dyn5)
         then
             -- Pool Energy for Thrash
             -- # Pool energy for and maintain Thrash.
@@ -1188,7 +1197,14 @@ actionList.AoE = function()
     if ui.useST(8, 5, "player") then
         actionList.Combat()
     end
-
+    -- Auto Attack
+    -- auto_attack
+    if cast.able.autoAttack(units.dyn5) and unit.distance(units.dyn5) < 5 then
+        if cast.autoAttack(units.dyn5) then
+            ui.debug("Casting Auto Attack [AoE]")
+            return true
+        end
+    end
     -- Faerie Fire
     -- faerie_fire,cycle_targets=1,if=debuff.weakened_armor.stack<3
     for i = 1, #enemies.yards35 do
@@ -1202,18 +1218,16 @@ actionList.AoE = function()
             end
         end
     end
-
     -- Savage Roar
     -- savage_roar,if=buff.savage_roar.down|(buff.savage_roar.remains<3&combo_points>0)
     if cast.able.savageRoar() then
-        if buff.savageRoar.down() or (buff.savageRoar.remains() < 3 and comboPoints() > 0) then
+        if not buff.savageRoar.exists() or (buff.savageRoar.remains() < 3 and comboPoints() > 0) then
             if cast.savageRoar() then
                 ui.debug("Casting Savage Roar - No Exist / Expire Soon [AoE]")
                 return true
             end
         end
     end
-
     -- Use Item Slot - Hands
     -- use_item,slot=hands,if=buff.tigers_fury.up
 
@@ -1221,7 +1235,14 @@ actionList.AoE = function()
     -- blood_fury,if=buff.tigers_fury.up
     -- berserking,if=buff.tigers_fury.up
     -- arcane_torrent,if=buff.tigers_fury.up
-
+    if buff.tigersFury.exists() then
+        if unit.race() == "Orc" or unit.race() == "Troll" or unit.race() == "BloodElf" then
+            if cast.racial() then
+                ui.debug("Casting Racial [Combat]")
+                return true
+            end
+        end
+    end
     -- Tiger's Fury
     -- tigers_fury,if=energy<=35&!buff.omen_of_clarity.react
     if cast.able.tigersFury() then
@@ -1232,7 +1253,6 @@ actionList.AoE = function()
             end
         end
     end
-
     -- Berserk
     -- berserk,if=buff.tigers_fury.up
     if cast.able.berserk() then
@@ -1243,7 +1263,6 @@ actionList.AoE = function()
             end
         end
     end
-
     -- Pool Resource
     -- pool_resource,wait=0.1,for_next=1
 
@@ -1260,7 +1279,6 @@ actionList.AoE = function()
             end
         end
     end
-
     -- Savage Roar
     -- savage_roar,if=buff.savage_roar.remains<9&combo_points>=5
     if cast.able.savageRoar() then
@@ -1271,18 +1289,15 @@ actionList.AoE = function()
             end
         end
     end
-
     -- Rip
     -- rip,if=combo_points>=5
     if cast.able.rip() then
         if comboPoints() >= 5 then
             if cast.rip() then
                 ui.debug("Casting Rip [AoE]")
-                return true
             end
         end
     end
-
     -- Rake
     -- rake,cycle_targets=1,if=active_enemies<8&dot.rake.remains<3&target.time_to_die>=15
     for i = 1, #enemies.yards5f do
@@ -1296,7 +1311,6 @@ actionList.AoE = function()
             end
         end
     end
-
     -- Swipe
     -- swipe_cat,if=buff.savage_roar.remains<=5
     if cast.able.swipe() and buff.savageRoar.remains() <= 5 then
@@ -1345,7 +1359,6 @@ actionList.Filler = function()
             return true
         end
     end
-
     -- Rake
     -- # Rake if it hits harder than Mangle and we won't apply a weaker bleed to the target.
     -- rake,if=target.time_to_die-dot.rake.remains>3&action.rake.tick_damage*(dot.rake.ticks_remain+1)-dot.rake.tick_dmg*dot.rake.ticks_remain>action.mangle_cat.hit_damage
@@ -1364,22 +1377,20 @@ actionList.Filler = function()
             end
         end
     end
-
     -- Shred
     -- shred,if=(buff.omen_of_clarity.react|buff.berserk.up|energy.regen>=15)&buff.king_of_the_jungle.down
     if cast.able.shred(units.dyn5) then
-        if (buff.clearcasting.exists() or buff.berserk.exists() or energy.regen() >= 15) and buff.incarnation.down() then
+        if (buff.clearcasting.exists() or buff.berserk.exists() or energy.regen() >= 15) and not buff.incarnation.exists() then
             if cast.shred(units.dyn5) then
                 ui.debug("Casting Shred on " .. unit.name(units.dyn5) .. " [Filler]")
                 return true
             end
         end
     end
-
     -- Mangle
     -- mangle_cat,if=buff.king_of_the_jungle.down
     if cast.able.mangle(units.dyn5) then
-        if buff.incarnation.down() then
+        if not buff.incarnation.exists() then
             if cast.mangle(units.dyn5) then
                 ui.debug("Casting Mangle on " .. unit.name(units.dyn5) .. " [Filler]")
                 return true
@@ -1391,37 +1402,6 @@ end -- End Action List - Filler
 -- Action List - Cooldown
 actionList.Cooldown = function()
     if unit.distance(units.dyn5) < 5 then
-        if ui.alwaysCdNever("Berserk/Incarnation") and ui.useCDs() then
-            -- Incarnation
-            -- incarnation,if=target.time_to_die>17|target.time_to_die=fight_remains
-            if cast.able.incarnationAvatarOfAshamane() and (unit.ttd(units.dyn5) > 17) or unit.ttd(units.dyn5) == unit.ttdGroup(40) then
-                if cast.incarnationAvatarOfAshamane() then
-                    ui.debug("Casting Incarnation [Cooldown]")
-                    return true
-                end
-            end
-            -- Berserk
-            -- berserk,if=buff.tigers_fury.up&(target.time_to_die>12|target.time_to_die=fight_remains)
-            if cast.able.berserk() and buff.tigersFury.exists() and (unit.ttd(units.dyn5) > 12) or unit.ttd(units.dyn5) == unit.ttdGroup(40) then
-                if cast.berserk() then
-                    ui.debug("Casting Berserk [Cooldown]")
-                    return true
-                end
-            end
-        end
-        -- Racial: Berserking (Troll)
-        -- berserking,if=buff.bs_inc.up
-        if ui.checked("Racial") and race == "Troll" and cast.able.racial() and ui.useCDs() and buff.bsInc.exists() then
-            if cast.racial() then
-                ui.debug("Casting Berserking [Cooldown]")
-                return true
-            end
-        end
-        -- Module - Combatpotion Up
-        -- potion,if=buff.bs_inc.up|fight_remains<32|(!variable.lastZerk&variable.lastConvoke&cooldown.convoke_the_spirits.remains<10)
-        if buff.bsInc.exists() or unit.ttdGroup() < 32 or (not var.lastZerk and var.lastConvoke and cd.convokeTheSpirits.remains() < 10) then
-            module.CombatPotionUp()
-        end
         -- Module- Basic Trinkets
         -- use_items
         module.BasicTrinkets()
@@ -1473,33 +1453,6 @@ local function runRotation()
         var.profileStop         = false
         var.unit5ID             = 0
 
-        -- General Variables - Numeric Conversion
-        -- var.ashamanesGuidance   = talent.ashamanesGuidance and 1 or 0
-        -- var.clarity             = talent.momentOfClarity and 1 or 0
-        -- var.druidOfTheClaw      = heroTree.druidOfTheClaw and 1 or 0
-        -- var.noBtRake            = not (var.needBt and var.btGen.rake) and 1 or 0
-        -- var.ravage              = talent.ravage and 1 or 0
-        -- var.tigersFury          = (cd.tigersFury.remains() < 3.5) and 1 or 0
-        -- var.incarnation         = buff.incarnationAvatarOfAshamane.exists() and 1 or 0
-
-        -- Bloodtalons - Init
-        -- var.btGen               = var.btGen or {}
-        -- var.btGen.brutalSlash   = false
-        -- var.btGen.moonfireFeral = false
-        -- var.btGen.rake          = false
-        -- var.btGen.shred         = false
-        -- var.btGen.swipe         = false
-        -- var.btGen.thrash        = false
-        -- var.btGen.stack         = 2
-        -- var.btGen.timer         = var.getTime
-        -- var.btGen.triggers      = 0
-
-        -- Ticks Gain - Init
-        -- var.ticksGain           = var.ticksGain or {}
-        -- var.ticksGain.rake      = 5
-        -- var.ticksGain.rip       = 12
-        -- var.ticksGain.thrash    = 5
-
         br.player.initialized   = true
     end
 
@@ -1530,11 +1483,6 @@ local function runRotation()
         if var.profileStop then var.profileStop = false end
         var.leftCombat = var.getTime
     end
-    -- var.btGen       = var.btGen or {}
-    -- var.rakeRefresh = (debuff.rake.refresh(units.dyn5) or debuff.rake.pmultiplier(units.dyn5) < 1.4) and 1 or 0
-    -- var.unit5ID     = br.GetObjectID(units.dyn5) or 0
-    -- var.noDoT       = var.unit5ID == 153758 or var.unit5ID == 156857 or var.unit5ID == 156849 or var.unit5ID == 156865 or
-    --     var.unit5ID == 156869
     -- Add buff.bsInc.exists()
     buff.bsInc      = buff.bsInc or {}
     if not buff.bsInc.exists then
@@ -1604,7 +1552,7 @@ local function runRotation()
             if actionList.Combat() then return true end
         end
     end --End Rotation Logic
-end     -- End runRotation
+end -- End runRotation
 
 local id = 103
 br.rotations[id] = br.rotations[id] or {}
