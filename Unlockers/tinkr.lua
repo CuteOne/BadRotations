@@ -425,7 +425,7 @@ function unlock.TinkrUnlock()
 	b.AuraUtil = {}
 	b.AuraUtil.FindAuraByName = function(name, unit, filter)
 		-- return Eval("AuraUtil.FindAuraByName("..table.concat({...}, ", ")..")", "")
-		return AuraUtil.FindAuraByName(name, ObjectUnit(unit), filter)
+		return AuraUtil.FindAuraByName(name, Object(unit), filter)
 	end
 	b.ObjectIsGameObject = function(...)
 		local ObjType = ObjectType(...)
@@ -439,14 +439,14 @@ function unlock.TinkrUnlock()
 	end
 	b.TargetUnit = function(unit)
 		if Object(unit) then
-			return TargetUnit(Object(unit):unit())
+			return TargetUnit(Object(unit))
 		else
 			return
 		end
 	end
 	b.InteractUnit = function(unit)
 		if Object(unit) then
-			return InteractUnit(Object(unit):unit())
+			return InteractUnit(Object(unit))
 		else
 			return
 		end
@@ -455,23 +455,23 @@ function unlock.TinkrUnlock()
 	--- API - Unit Function Object Handler ---
 	------------------------------------------
 	b.CastSpellByName = function(spell, unit)
-		-- return Eval("CastSpellByName(\"" .. spell .. "\", \"" .. ObjectUnit(unit) .. "\")", "")
-		return CastSpellByName(spell, ObjectUnit(unit))
+		-- return Eval("CastSpellByName(\"" .. spell .. "\", \"" .. Object(unit) .. "\")", "")
+		return CastSpellByName(spell, Object(unit))
 	end
 	b.GetRaidTargetIndex = function(...)
-		return GetRaidTargetIndex(ObjectUnit(...))
+		return GetRaidTargetIndex(Object(...))
 	end
 	b.GetUnitSpeed = function(...)
-		return GetUnitSpeed(ObjectUnit(...))
+		return GetUnitSpeed(Object(...))
 	end
 	b.InSpellInRange = function(spell, unit)
-		return C_Spell.IsSpellInRange(spell, ObjectUnit(unit))
+		return C_Spell.IsSpellInRange(spell, Object(unit))
 	end
 	b.UnitAffectingCombat = function(...)
-		return UnitAffectingCombat(ObjectUnit(...))
+		return UnitAffectingCombat(Object(...))
 	end
 	b.UnitAttackSpeed = function(...)
-		return UnitAttackSpeed(ObjectUnit(...))
+		return UnitAttackSpeed(Object(...))
 	end
 	b.UnitAura = function(unit, index, filter)
 		local unpack = unpack
@@ -497,121 +497,121 @@ function unlock.TinkrUnlock()
 				unpack(auraData.points)
 		end
 		local GetAuraDataByIndex = C_UnitAuras.GetAuraDataByIndex
-		local auraData = GetAuraDataByIndex(ObjectUnit(unit), index, filter)
+		local auraData = GetAuraDataByIndex(Object(unit), index, filter)
 		if not auraData then return nil end
 		return UnpackAuraData(auraData)
-		-- return UnitAura(ObjectUnit(unit), index, filter)
+		-- return UnitAura(Object(unit), index, filter)
 	end
 	b.UnitBuff = function(unit, index, filter)
-		return UnitBuff(ObjectUnit(unit), index, filter)
+		return UnitBuff(Object(unit), index, filter)
 	end
 	b.UnitCanAttack = function(unit1, unit2)
-		return UnitCanAttack(ObjectUnit(unit1), ObjectUnit(unit2))
+		return UnitCanAttack(Object(unit1), Object(unit2))
 	end
 	b.UnitCastingInfo = function(...)
-		return UnitCastingInfo(ObjectUnit(...))
+		return UnitCastingInfo(Object(...))
 	end
 	b.UnitChannelInfo = function(...)
-		return UnitChannelInfo(ObjectUnit(...))
+		return UnitChannelInfo(Object(...))
 	end
 	b.UnitClass = function(...)
-		return UnitClass(ObjectUnit(...))
+		return UnitClass(Object(...))
 	end
 	b.UnitClassification = function(...)
-		return UnitClassification(ObjectUnit(...))
+		return UnitClassification(Object(...))
 	end
 	b.UnitCreatureFamily = function(...)
-		return UnitCreatureFamily(ObjectUnit(...))
+		return UnitCreatureFamily(Object(...))
 	end
 	b.UnitCreatureType = function(...)
-		return UnitCreatureType(ObjectUnit(...))
+		return UnitCreatureType(Object(...))
 	end
 	b.UnitDebuff = function(unit, index, filter)
-		return UnitDebuff(ObjectUnit(unit), index, filter)
+		return UnitDebuff(Object(unit), index, filter)
 	end
 	b.UnitExists = function(...)
-		return UnitExists(ObjectUnit(...))
+		return UnitExists(Object(...))
 	end
 	b.UnitGetIncomingHeals = function(unit1, unit2)
-		return UnitGetIncomingHeals(ObjectUnit(unit1), ObjectUnit(unit2))
+		return UnitGetIncomingHeals(Object(unit1), Object(unit2))
 	end
 	b.UnitGUID = function(...)
-		return ObjectGUID(...) --UnitGUID(ObjectUnit(...))
+		return ObjectGUID(...) --UnitGUID(Object(...))
 	end
 	b.UnitHealth = function(...)
-		return UnitHealth(ObjectUnit(...))
+		return UnitHealth(Object(...))
 	end
 	b.UnitHealthMax = function(...)
-		return UnitHealthMax(ObjectUnit(...))
+		return UnitHealthMax(Object(...))
 	end
 	b.UnitLevel = function(...)
-		return UnitLevel(ObjectUnit(...))
+		return UnitLevel(Object(...))
 	end
 	b.UnitName = function(...)
-		return UnitName(ObjectUnit(...))
+		return UnitName(Object(...))
 	end
 	b.UnitInParty = function(...)
-		return UnitInParty(ObjectUnit(...))
+		return UnitInParty(Object(...))
 	end
 	b.UnitInRaid = function(...)
-		return UnitInRaid(ObjectUnit(...))
+		return UnitInRaid(Object(...))
 	end
 	b.UnitInRange = function(...)
-		return UnitInRange(ObjectUnit(...))
+		return UnitInRange(Object(...))
 	end
 	b.UnitIsCharmed = function(...)
-		return UnitIsCharmed(ObjectUnit(...))
+		return UnitIsCharmed(Object(...))
 	end
 	b.UnitIsConnected = function(...)
-		return UnitIsConnected(ObjectUnit(...))
+		return UnitIsConnected(Object(...))
 	end
 	b.UnitIsDeadOrGhost = function(...)
-		return UnitIsDeadOrGhost(ObjectUnit(...))
+		return UnitIsDeadOrGhost(Object(...))
 	end
 	b.UnitIsEnemy = function(unit1, unit2)
-		return UnitIsEnemy(ObjectUnit(unit1), ObjectUnit(unit2))
+		return UnitIsEnemy(Object(unit1), Object(unit2))
 	end
 	b.UnitIsFriend = function(unit1, unit2)
-		return UnitIsFriend(ObjectUnit(unit1), ObjectUnit(unit2))
+		return UnitIsFriend(Object(unit1), Object(unit2))
 	end
 	b.UnitIsPlayer = function(...)
-		return UnitIsPlayer(ObjectUnit(...))
+		return UnitIsPlayer(Object(...))
 	end
 	b.UnitIsUnit = function(unit1, unit2)
-		return UnitIsUnit(ObjectUnit(unit1), ObjectUnit(unit2))
+		return UnitIsUnit(Object(unit1), Object(unit2))
 	end
 	b.UnitIsVisible = function(...)
-		return UnitIsVisible(ObjectUnit(...))
+		return UnitIsVisible(Object(...))
 	end
 	b.UnitOnTaxi = function(...)
-		return UnitOnTaxi(ObjectUnit(...))
+		return UnitOnTaxi(Object(...))
 	end
 	b.UnitPhaseReason = function(...)
-		return UnitPhaseReason(ObjectUnit(...))
+		return UnitPhaseReason(Object(...))
 	end
 	b.UnitPower = function(unit, powerType)
-		return UnitPower(ObjectUnit(unit), powerType)
+		return UnitPower(Object(unit), powerType)
 	end
 	b.UnitPowerMax = function(unit, powerType)
-		return UnitPowerMax(ObjectUnit(unit), powerType)
+		return UnitPowerMax(Object(unit), powerType)
 	end
 	b.UnitRace = function(...)
-		return UnitRace(ObjectUnit(...))
+		return UnitRace(Object(...))
 	end
 	b.UnitReaction = function(unit1, unit2)
-		return UnitReaction(ObjectUnit(unit1), ObjectUnit(unit2))
+		return UnitReaction(Object(unit1), Object(unit2))
 	end
 	b.UnitStat = function(unit, statIndex)
-		return UnitStat(ObjectUnit(unit), statIndex)
+		return UnitStat(Object(unit), statIndex)
 	end
 	b.UnitIsTapDenied = function(...)
-		return UnitIsTapDenied(ObjectUnit(...))
+		return UnitIsTapDenied(Object(...))
 	end
 	b.UnitThreatSituation = function(unit1, unit2)
-		return UnitThreatSituation(ObjectUnit(unit1), ObjectUnit(unit2))
+		return UnitThreatSituation(Object(unit1), Object(unit2))
 	end
 	b.UnitIsTrivial = function(...)
-		return UnitIsTrivial(ObjectUnit(...))
+		return UnitIsTrivial(Object(...))
 	end
 
 	br.unlocker = "Tinkr"
