@@ -456,7 +456,7 @@ function unlock.TinkrUnlock()
 	------------------------------------------
 	b.CastSpellByName = function(spell, unit)
 		-- return Eval("CastSpellByName(\"" .. spell .. "\", \"" .. ObjectUnit(unit) .. "\")", "")
-		reeturn CastSpellByName(spell, ObjectUnit(unit))
+		return CastSpellByName(spell, ObjectUnit(unit))
 	end
 	b.GetRaidTargetIndex = function(...)
 		return GetRaidTargetIndex(ObjectUnit(...))
