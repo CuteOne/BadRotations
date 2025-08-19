@@ -271,25 +271,32 @@ function unlock.TinkrUnlock()
 	------------------------- Active Player -------------------
 	b.FaceDirection = function(arg)
 		if type(arg) == "number" then
-			FaceDirection(arg, true)
+			SetHeading(arg)
 		else
 			arg = b.GetAnglesBetweenObjects("player", arg)
-			FaceDirection(arg, true)
+			SetHeading(arg)
 		end
 	end
 
 	b.GetMapId = GetMapID
 	------------------------- Object --------------------------
-	b.ObjectPointer = ObjectGUID
+	b.Object = function(...) return Object(...) and Object(...):unit() or nil end
+	b.ObjectPointer = function(object) return object:unit() end
 	b.ObjectExists = function(...) return Object(...) ~= nil end
 	b.ObjectIsVisible = function(...) return Object(...) ~= nil end
-	b.ObjectPosition = ObjectPosition
+	b.ObjectPosition = function(...)
+		if ObjectMover(...) then return ObjectWorldPosition(...) end
+		return ObjectPosition(...)
+	end
 	b.ObjectRawPosition = ObjectRawPosition
 	b.MoveToRaw = MoveToRaw
-	b.ObjectFacing = ObjectRotation
+	b.ObjectFacing = function(...)
+		if ObjectMover(...) then return ObjectRawRotation(...) end
+		return ObjectRotation(...)
+	end
 	b.ObjectGUID = ObjectGUID
 	b.ObjectName = ObjectName
-	b.ObjectID = ObjectId
+	b.ObjectID = function(...) return ObjectID(...) end
 	b.ObjectType = ObjectType
 	b.ObjectRawType = GameObjectType
 	b.ObjectIsUnit = function(...)
@@ -363,7 +370,7 @@ function unlock.TinkrUnlock()
 	b.UnitMovementFlags = ObjectMovementFlag
 	b.UnitBoundingRadius = ObjectBoundingRadius
 	b.UnitCombatReach = ObjectCombatReach
-	b.UnitTarget = ObjectTarget
+	b.UnitTarget = function(object) return object:GetPointer() .. "target"
 	b.UnitCastID = ObjectCastingInfo
 	------------------------- World ---------------------------
 	b.TraceLine = TraceLine
