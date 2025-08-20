@@ -455,7 +455,6 @@ function unlock.TinkrUnlock()
 	end
 	b.TargetUnit = function(unit)
 		if Object(unit) then
-			print("TargetUnit: Passed " .. tostring(unit) .. " with object ref " .. tostring(Object(unit)))
 			return TargetUnit(Object(unit))
 		else
 			return nil
@@ -471,10 +470,15 @@ function unlock.TinkrUnlock()
 	------------------------------------------
 	--- API - Unit Function Object Handler ---
 	------------------------------------------
-	-- b.CastSpellByName = function(spell, unit)
-	-- 	-- return Eval("CastSpellByName(\"" .. spell .. "\", \"" .. Object(unit) .. "\")", "")
-	-- 	return CastSpellByName(spell, Object(unit))
-	-- end
+	b.CastSpellByName = function(spell, unit)
+		-- return Eval("CastSpellByName(\"" .. spell .. "\", \"" .. Object(unit) .. "\")", "")
+		if Object(unit) then
+			print("CastSpellByName: Passed " .. tostring(unit) .. " with object ref " .. tostring(Object(unit)))
+			return CastSpellByName(spell, Object(unit))
+		else
+			return nil
+		end
+	end
 	-- b.GetRaidTargetIndex = function(...)
 	-- 	return GetRaidTargetIndex(Object(...))
 	-- end
