@@ -568,8 +568,10 @@ function unlock.TinkrUnlock()
 	-- 	return UnitLevel(Object(...))
 	-- end
 	b.UnitName = function(...)
-		print("UnitName: Passed " .. tostring(...) .. "with object ref " .. tostring(Object(...)))
-		return UnitName(Object(...))
+		if Object(...) then
+			print("UnitName: Passed " .. tostring(...) .. " with object ref " .. tostring(Object(...)))
+			return UnitName(Object(...))
+		end
 	end
 	-- b.UnitInParty = function(...)
 	-- 	return UnitInParty(Object(...))
