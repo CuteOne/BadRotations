@@ -370,7 +370,7 @@ function unlock.TinkrUnlock()
 	b.UnitMovementFlags = ObjectMovementFlag
 	b.UnitBoundingRadius = ObjectBoundingRadius
 	b.UnitCombatReach = ObjectCombatReach
-	b.UnitTarget = function(...) return Object(...):GetPointer() .. "target" end
+	b.UnitTarget = function(...) return ObjectCastingTarget(...) end
 	b.UnitCastID = ObjectCastingInfo
 	------------------------- World ---------------------------
 	b.TraceLine = TraceLine
