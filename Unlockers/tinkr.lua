@@ -479,8 +479,8 @@ function unlock.TinkrUnlock()
 	b.GetUnitSpeed = function(...)
 		return GetUnitSpeed(Object(...))
 	end
-	b.InSpellInRange = function(spell, unit)
-		return C_Spell.IsSpellInRange(spell, unit)
+	b.C_Spell.IsSpellInRange = function(spell, unit)
+		return C_Spell.IsSpellInRange(spell, Object(unit))
 	end
 	b.UnitAffectingCombat = function(...)
 		return UnitAffectingCombat(Object(...))
