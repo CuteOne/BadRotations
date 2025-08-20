@@ -448,6 +448,7 @@ br.api.unit = function(self)
     -- @return string The name of the unit
     unit.name = function(thisUnit)
         local UnitName = br._G["UnitName"]
+        if thisUnit == nil then return "" end
         return UnitName(thisUnit)
     end
 

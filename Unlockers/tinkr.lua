@@ -294,11 +294,11 @@ function unlock.TinkrUnlock()
 		if ObjectMover(...) then return ObjectRawRotation(...) end
 		return ObjectRotation(...)
 	end
-	b.ObjectGUID = ObjectGUID
-	b.ObjectName = ObjectName
+	b.ObjectGUID = function(...) return ObjectGUID(Object(...)) end
+	b.ObjectName = function(...) return ObjectName(Object(...)) end
 	b.ObjectID = function(...) return ObjectID(...) end
-	b.ObjectType = ObjectType
-	b.ObjectRawType = GameObjectType
+	b.ObjectType = function(...) return ObjectType(Object(...)) end
+	b.ObjectRawType = function(...) return GameObjectType(Object(...)) end
 	b.ObjectIsUnit = function(...)
 		local ObjType = ObjectType(...)
 		return ObjType == 5
@@ -308,6 +308,8 @@ function unlock.TinkrUnlock()
 		return FastDistance(X1, Y1, Z1, X2, Y2, Z2)
 	end
 	b.GetAnglesBetweenObjects = function(Object1, Object2)
+		Object1 = Object(Object1)
+		Object2 = Object(Object2)
 		if Object1 and Object2 then
 			local X1, Y1, Z1 = b.ObjectPosition(Object1)
 			local X2, Y2, Z2 = b.ObjectPosition(Object2)
@@ -329,6 +331,8 @@ function unlock.TinkrUnlock()
 		return b.GetPositionFromPosition(X1, Y1, Z1, DistanceFromPosition1, AngleXY, AngleXYZ)
 	end
 	b.GetPositionBetweenObjects = function(unit1, unit2, DistanceFromPosition1)
+		unit1 = Object(unit1)
+		unit2 = Object(unit2)
 		local X1, Y1, Z1 = b.ObjectPosition(unit1)
 		local X2, Y2, Z2 = b.ObjectPosition(unit2)
 		if not X1 or not X2 then return end
@@ -339,9 +343,13 @@ function unlock.TinkrUnlock()
 		-- local X1, Y1, Z1 = b.ObjectPosition(unit1)
 		-- local X2, Y2, Z2 = b.ObjectPosition(unit2)
 		-- return math.sqrt((X2-X1)^2 + (Y2-Y1)^2 + (Z2-Z1)^2)
+		unit1 = Object(unit1)
+		unit2 = Object(unit2)
 		return ObjectDistance(unit1, unit2)
 	end
 	b.ObjectIsFacing = function(obj1, obj2, degrees)
+		obj1 = Object(obj1)
+		obj2 = Object(obj2)
 		local Facing = b.UnitFacing(obj1)
 		local AngleToUnit = b.GetAnglesBetweenObjects(obj1, obj2)
 		local AngleDifference = Facing > AngleToUnit and Facing - AngleToUnit or AngleToUnit - Facing
@@ -363,15 +371,15 @@ function unlock.TinkrUnlock()
 		return tostring(om[index])
 	end
 	b.GetObjectWithGUID = function(...)
-		return ...
+		return Object(...)
 	end
 	------------------------- Unit ------------------
-	b.UnitCreator = ObjectCreator
-	b.UnitMovementFlags = ObjectMovementFlag
-	b.UnitBoundingRadius = ObjectBoundingRadius
-	b.UnitCombatReach = ObjectCombatReach
-	b.UnitTarget = function(...) return ObjectCastingTarget(...) end
-	b.UnitCastID = ObjectCastingInfo
+	b.UnitCreator = function(...) return ObjectCreator(Object(...)) end
+	b.UnitMovementFlags = function(...) return ObjectMovementFlag(Object(...)) end
+	b.UnitBoundingRadius = function(...) return ObjectBoundingRadius(Object(...)) end
+	b.UnitCombatReach = function(...) return ObjectCombatReach(Object(...)) end
+	b.UnitTarget = function(...) return ObjectCastingTarget(Object(...)) end
+	b.UnitCastID = function(...) return ObjectCastingInfo(Object(...)) end
 	------------------------- World ---------------------------
 	b.TraceLine = TraceLine
 	b.GetCameraPosition = CameraPosition
