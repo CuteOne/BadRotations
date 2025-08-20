@@ -429,11 +429,11 @@ function unlock.TinkrUnlock()
 
 	b.ObjectInteract = b.InteractUnit
 	b.IsHackEnabled = function(...) return false end
-	b.AuraUtil = {}
-	b.AuraUtil.FindAuraByName = function(name, unit, filter)
-		-- return Eval("AuraUtil.FindAuraByName("..table.concat({...}, ", ")..")", "")
-		return AuraUtil.FindAuraByName(name, Object(unit), filter)
-	end
+	-- b.AuraUtil = {}
+	-- b.AuraUtil.FindAuraByName = function(name, unit, filter)
+	-- 	-- return Eval("AuraUtil.FindAuraByName("..table.concat({...}, ", ")..")", "")
+	-- 	return AuraUtil.FindAuraByName(name, Object(unit), filter)
+	-- end
 	b.ObjectIsGameObject = function(...)
 		local ObjType = ObjectType(...)
 		return ObjType == 8 or ObjType == 11
