@@ -280,8 +280,8 @@ function unlock.TinkrUnlock()
 
 	b.GetMapId = GetMapID
 	------------------------- Object --------------------------
-	b.Object = function(...) return Object(...) and Object(...):unit() or nil end
-	b.ObjectPointer = function(...) return Object(...):unit() end
+	b.Object = function(...) return Object(...) end
+	b.ObjectPointer = function(...) return Object(...) end
 	b.ObjectExists = function(...) return Object(...) ~= nil end
 	b.ObjectIsVisible = function(...) return Object(...) ~= nil end
 	b.ObjectPosition = function(...)
@@ -446,14 +446,14 @@ function unlock.TinkrUnlock()
 	end
 	b.TargetUnit = function(unit)
 		if Object(unit) then
-			return TargetUnit(Object(unit):unit())
+			return TargetUnit(Object(unit))
 		else
 			return
 		end
 	end
 	b.InteractUnit = function(unit)
 		if Object(unit) then
-			return InteractUnit(Object(unit):unit())
+			return InteractUnit(Object(unit))
 		else
 			return
 		end
