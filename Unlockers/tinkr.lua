@@ -455,9 +455,10 @@ function unlock.TinkrUnlock()
 	end
 	b.TargetUnit = function(unit)
 		if Object(unit) then
+			print("TargetUnit: Passed " .. tostring(...) .. " with object ref " .. tostring(Object(...)))
 			return TargetUnit(Object(unit))
 		else
-			return
+			return nil
 		end
 	end
 	b.InteractUnit = function(unit)
@@ -569,8 +570,9 @@ function unlock.TinkrUnlock()
 	-- end
 	b.UnitName = function(...)
 		if Object(...) then
-			print("UnitName: Passed " .. tostring(...) .. " with object ref " .. tostring(Object(...)))
 			return UnitName(Object(...))
+		else 
+			return ""
 		end
 	end
 	-- b.UnitInParty = function(...)
