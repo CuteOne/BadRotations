@@ -229,14 +229,9 @@ function br.hasNoControl(spellID)
 		for i = 0, eventIndex do
 			event = br._G.C_LossOfControl.GetActiveLossOfControlData(i)
 			if event then
-				local regain = false
-				if br.timer:useTimer("regainTimer", 0.25) then regain = br.canRegainControl(spellID, event.locType) end
+				local regain = br.canRegainControl(spellID, event.locType)
+				if not regain and br.timer:useTimer("regainTimer", 0.25) then regain = br.canRegainControl(spellID, event.locType) end
 				return regain
-				-- br._G.print("Has No Control: " ..
-				-- tostring(event.locType) ..
-				-- " - Can Regain Control: " ..
-				-- tostring(br.canRegainControl(spellID, event.locType)) .. ", SpellID: " .. tostring(spellID))
-				-- return br.canRegainControl(spellID, event.locType)
 			end
 		end
 	end
@@ -288,11 +283,11 @@ function br.hasThreat(unit, playerUnit)
 	-- Print("Unit: "..tostring(UnitName(unit)).." | Player: "..tostring(playerUnit))
 	local playerInCombat = br._G.UnitAffectingCombat("player")
 	local unitInCombat = br._G.UnitAffectingCombat(unit)
-	local unitObject = br._G.ObjectPointer(unit)
+	-- local unitObject = br._G.ObjectPointer(unit)
 	local instance = select(2, br._G.IsInInstance())
 	-- Unit is Targeting Player/Pet/Party/Raid Validation
 	if targetFriend then
-		if br.isChecked("Threat Debug") then --and not br.GetObjectExists("target") then
+		if br.isChecked("Threat Debug") and not br._G.UnitIsUnit("target", unit) then --and not br.GetObjectExists("target") then
 			br._G.print("[Targeting Threat] " ..
 				br._G.UnitName(br.GetUnit(unit)) .. " is targeting " .. br._G.UnitName(targetUnit))
 		end
@@ -310,12 +305,12 @@ function br.hasThreat(unit, playerUnit)
 		-- 		return true
 	end
 	-- Open World Mob Pack Validation
-	if instance == "none" and playerInCombat and not br.isCritter(unitObject) and br.enemy[br._G.ObjectPointer("target")] ~= nil and br.enemy[unitObject] == nil and br.getDistance("target", unitObject) < 8 then
-		-- if br.isChecked("Cast Debug") then br._G.print("[Open World Threat] "..br._G.UnitName(unit).." is within "..round2(getDistance("target",unitObject),1).."yrds of your target and is considered a threat.") end
+	if instance == "none" and playerInCombat and not br.isCritter(unit) and br.enemy[br._G.ObjectPointer("target")] ~= nil and br.enemy[unit] == nil and br.getDistance("target", unit) < 8 then
+		if br.isChecked("Threat Debug") then br._G.print("[Open World Threat] "..br._G.UnitName(unit).." is within "..br.round2(br.getDistance("target",unit),1).."yrds of your target and is considered a threat.") end
 		return true
 	end
 	-- Player Threat Valdation
-	if threatSituation(playerUnit, unit) then
+	if threatSituation(playerUnit, unit) and not br.GetUnitIsDeadOrGhost(unit) then
 		if br.isChecked("Threat Debug") then --and not br.GetObjectExists("target") then
 			br._G.print("[Player Threat] " .. br._G.UnitName(playerUnit) .. " has threat with " .. br._G.UnitName(unit))
 		end
@@ -326,7 +321,7 @@ function br.hasThreat(unit, playerUnit)
 		for i = 1, #br.friend do
 			if br.friend[i] then
 				local thisUnit = br.friend[i].unit
-				if threatSituation(thisUnit, unit) then
+				if threatSituation(thisUnit, unit) and not br.GetUnitIsDeadOrGhost(unit) then
 					if br.isChecked("Threat Debug") then --and not br.GetObjectExists("target") then
 						br._G.print("[Party/Raid Threat] " ..
 							br._G.UnitName(thisUnit) .. " has threat with " .. br._G.UnitName(unit))

@@ -1,24 +1,37 @@
 -- LubDraw by docbrown on fh-wow.com
-local _, br = ...
+local Nn, br = ...
 local LibDraw
 local sin, cos, atan, atan2, sqrt, rad = math.sin, math.cos, math.atan, math.atan2, math.sqrt, math.rad
 local tinsert, tremove = tinsert, tremove
 
 
-local function WorldToScreen (wX, wY, wZ)
-	if wZ == nil then wZ = select(3,br.GetObjectPosition("player")) end
-	-- for k,v in pairs(br._G) do
-	-- 	br._G.print("K: "..tostring(k)..", V: "..tostring(v))
-	-- end
-	local sX, sY = br._G.WorldToScreen(wX, wY, wZ)
-	if not sX or sX == 0 then
-		return false, false
-	end
-	if sX and sY and br.unlocker ~= "WA" and br.unlocker ~= "LuaBox" then
-		return sX, -(WorldFrame:GetTop() - sY);
-	else
-		return sX, sY;
-	end
+-- local function WorldToScreen (wX, wY, wZ)
+-- 	if wZ == nil then wZ = select(3,br.GetObjectPosition("player")) end
+-- 	-- for k,v in pairs(br._G) do
+-- 	-- 	br._G.print("K: "..tostring(k)..", V: "..tostring(v))
+-- 	-- end
+-- 	local sX, sY = br._G.WorldToScreen(wX, wY, wZ)
+-- 	if not sX or sX == 0 then
+-- 		return false, false
+-- 	end
+-- 	if sX and sY and br.unlocker ~= "WA" and br.unlocker ~= "LuaBox" then
+-- 		return sX, -(WorldFrame:GetTop() - sY);
+-- 	else
+-- 		return sX, sY;
+-- 	end
+-- end
+local UIParent = UIParent
+local function WorldToScreen(sx, sy, sz)
+    local x, y = Nn.WorldToScreen(sx, sy, sz)
+    if x == 0 and y == 0 then
+        return
+    end
+    local scale = UIParent:GetScale()
+    local width = UIParent:GetWidth() * scale
+    local height = UIParent:GetHeight() * scale
+    x = x * width
+    y = -(height - (y * height))
+    return x, y
 end
 
 if LibStub then
@@ -135,8 +148,8 @@ function LibDraw.Array(vectors, x, y, z, rotationX, rotationY, rotationZ)
 			ex, ey, ez = LibDraw.rotateZ(x, y, z, ex, ey, ez, rotationZ)
 		end
 
-		local sx, sy = WorldToScreen(sx, sy, sz)
-		local ex, ey = WorldToScreen(ex, ey, ez)
+		sx, sy = WorldToScreen(sx, sy, sz)
+		ex, ey = WorldToScreen(ex, ey, ez)
 		LibDraw.Draw2DLine(sx, sy, ex, ey)
 	end
 end

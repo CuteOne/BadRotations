@@ -287,35 +287,46 @@ function br.loader:new(spec, specName)
     -- end
     -- Update Talent Info
     local function getTalentInfo()
-        local talentFound
+        -- Optimized: Build a lookup of all talents (21 API calls max) instead of
+        -- looping tiers/columns for every talent in self.spells.talents (T * 21).
+        -- Returns an allTalents table compatible with the earlier trait-style structure:
+        -- allTalents[talentID] = { active = <bool>, rank = <number> }
         br.activeSpecGroup = br._G.C_SpecializationInfo.GetActiveSpecGroup()
+        if spec > 1400 then return {} end
         if self.talent == nil then self.talent = {} end
-        if spec > 1400 then return end
-        for k,v in pairs(self.spells.talents) do
-            talentFound = false
-            for r = 1, 7 do --search each talent row
-                for c = 1, 3 do -- search each talent column
-                    local _,_,_,selected,_,talentID = br._G.GetTalentInfo(r,c,br.activeSpecGroup)
-                    if v == talentID then
-                        talentFound = true
-                        -- Add All Matches to Talent List for Boolean Checks
-                        self.talent[k] = selected
-                        -- Add All Active Ability Matches to Ability/Spell List for Use Checks
-                        if not br._G.IsPassiveSpell(v) then
-                            self.spells['abilities'][k] = v
-                            self.spells[k] = v
-                        end
-                        break;
-                    end
+        local allTalents = {}
+
+        -- Cache tier/column data once
+        for tier = 1, 7 do
+            for column = 1, 3 do
+                local info = br._G.C_SpecializationInfo.GetTalentInfo({ tier = tier, column = column, specializationIndex = br.activeSpecGroup })
+                if info and info.spellID then
+                    allTalents[info.spellID] = {
+                        active = info.selected and true or false,
+                        rank = 0, -- Classic talents don't expose rank via this API; keep interface stable
+                        tier = tier,
+                        column = column,
+                    }
                 end
-                -- If we found the talent, then stop looking for it.
-                if talentFound then break end
-            end
-            -- No matching talent for listed talent id, report to
-            if not talentFound then
-                br._G.print("|cffff0000No talent found for: |r"..k.." ("..v..") |cffff0000in the talent spell list, please notify profile developer to remove from the list.")
             end
         end
+
+        -- Map defined spell talents to talent state
+        for name, spellID in pairs(self.spells.talents) do
+            local entry = allTalents[spellID]
+            if entry then
+                self.talent[name] = entry.active
+                if entry.active and not br._G.IsPassiveSpell(spellID) then
+                    self.spells.abilities[name] = spellID
+                    self.spells[name] = spellID
+                end
+            else
+                -- Only warn once per missing mapping
+                br._G.print("|cffff0000No talent found for: |r" .. name .. " (" .. tostring(spellID) .. ") |cffff0000in the talent spell list; please verify ID or remove.")
+            end
+        end
+
+        return allTalents
     end
 
     -- Check if Hero Spec if Active

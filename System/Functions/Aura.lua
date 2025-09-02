@@ -278,13 +278,12 @@ function br.canDispel(Unit, spellID)
 	if br._G.UnitInPhase(Unit) then
 		if br.GetUnitIsFriend("player", Unit) then
 			while br._G.UnitDebuff(Unit, i) do
-				local _, _, stacks, debuffType, debuffDuration, debuffExpire, _, _, _, debuffid = br._G.UnitDebuff(Unit,
-					i)
-				local debuffRemain = debuffExpire - br._G.GetTime()
-				if (debuffType and ValidType(debuffType)) then
+				local debuffInfo = br._G.UnitDebuff(Unit, i)
+				local debuffRemain = debuffInfo.expirationTime - br._G.GetTime()
+				if (debuffInfo.dispelName and ValidType(debuffInfo.dispelName)) then
 					local delay = br.getValue("Dispel delay") - 0.3 + math.random() * 0.6
-					if debuffid == 284663 and (br.GetHP(Unit) < br.getOptionValue("Bwonsamdi's Wrath HP")
-							or (br._G.UnitGroupRolesAssigned(Unit) == "TANK" and (debuffDuration - debuffRemain) > delay)) then
+					if debuffInfo.spellId == 284663 and (br.GetHP(Unit) < br.getOptionValue("Bwonsamdi's Wrath HP")
+							or (br._G.UnitGroupRolesAssigned(Unit) == "TANK" and (debuffInfo.duration - debuffRemain) > delay)) then
 						HasValidDispel = true
 						break
 					end
@@ -292,14 +291,14 @@ function br.canDispel(Unit, spellID)
 					for j = 1, #br.friend do
 						local thisUnit = br.friend[j].unit
 						if Unit == thisUnit then
-							dispelUnitObj = Dispel(thisUnit, stacks, debuffDuration, debuffRemain, debuffid)
+							dispelUnitObj = Dispel(thisUnit, debuffInfo.applications, debuffInfo.duration, debuffRemain, debuffInfo.spellId)
 							if dispelUnitObj ~= nil then
 								break
 							end
 						end
 					end
 					if dispelUnitObj == nil and not br.isChecked("Dispel Only Whitelist")
-						and (debuffDuration - debuffRemain) > delay then
+						and (debuffInfo.duration - debuffRemain) > delay then
 						HasValidDispel = true
 						break
 					elseif dispelUnitObj == true then
@@ -310,13 +309,13 @@ function br.canDispel(Unit, spellID)
 				i = i + 1
 			end
 		else
-			while br.UnitBuff(Unit, i) do
-				local _, _, stacks, buffType, buffDuration, buffExpire, _, _, _, buffid = br.UnitBuff(Unit, i)
-				local buffRemain = buffExpire - br._G.GetTime()
-				if (buffType and ValidType(buffType)) and not br._G.UnitIsPlayer(Unit) then
-					local dispelUnitObj = Dispel(Unit, stacks, buffDuration, buffRemain, buffid, true)
+			while br._G.UnitBuff(Unit, i) do
+				local buffInfo = br._G.UnitBuff(Unit, i)
+				local buffRemain = buffInfo.expirationTime - br._G.GetTime()
+				if (buffInfo.dispelName and ValidType(buffInfo.dispelName)) and not br._G.UnitIsPlayer(Unit) then
+					local dispelUnitObj = Dispel(Unit, buffInfo.applications, buffInfo.duration, buffRemain, buffInfo.spellId, true)
 					if dispelUnitObj == nil and not br.isChecked("Purge Only Whitelist") then
-						if (buffDuration - buffRemain) > (br.getValue("Dispel delay") - 0.3 + math.random() * 0.6) then
+						if (buffInfo.duration - buffRemain) > (br.getValue("Dispel delay") - 0.3 + math.random() * 0.6) then
 							HasValidDispel = true
 							break
 						end

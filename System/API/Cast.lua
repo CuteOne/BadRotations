@@ -22,6 +22,7 @@ br.api.cast = function(self, spell, id)
     if cast.inFlightRemain == nil then cast.inFlightRemain = {} end
     if cast.last == nil then cast.last = {} end
     if cast.last.time == nil then cast.last.time = {} end
+    if cast.macro == nil then cast.macro = {} end
     if cast.noControl == nil then cast.noControl = {} end
     if cast.pool == nil then cast.pool = {} end
     if cast.range == nil then cast.range = {} end
@@ -244,6 +245,15 @@ br.api.cast = function(self, spell, id)
     cast.last.time[spell] = function()
         if br.lastCastTable.castTime[id] == nil then br.lastCastTable.castTime[id] = br._G.GetTime() end
         return br.lastCastTable.castTime[id]
+    end
+
+    --- Runs the macro text passed to it.
+    -- @function cast.macro
+    -- @string macroText The macro text to be run.
+    -- @treturn boolean
+    cast.macro = function(macroText)
+        br._G.RunMacroText(macroText)
+        return true
     end
 
     --- Checks if the spell can free you of a "no control" effect.

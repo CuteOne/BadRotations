@@ -27,8 +27,8 @@ end
 
 local function trackObject(object, isUnit, name, objectid, objectguid, interact)
     if not br._G.ObjectExists(object) then return end
-    local xOb, yOb, zOb = br._G.ObjectPosition(object)
     local pX, pY, pZ = br._G.ObjectPosition("player")
+    local xOb, yOb, zOb = br._G.ObjectPosition(object)
     if zOb == nil then zOb = pZ end
     if zOb == nil then return end
     if interact == nil then
@@ -46,9 +46,9 @@ local function trackObject(object, isUnit, name, objectid, objectguid, interact)
         if not Cr or Cr == 0 then Cr = 1.5 end
         LibDraw.Circle(xOb, yOb, zOb, Cr)
         if isUnit then
-            LibDraw.Arrow(xOb, yOb, zOb, br._G.UnitFacing(object) + math.pi * 2, Cr / 2)
+            LibDraw.Arrow(xOb, yOb, zOb, br._G.UnitFacing(object) --[[+ math.pi * 2]], Cr / 2)
         else
-            LibDraw.Arrow(xOb, yOb, zOb, br._G.UnitFacing("player") + math.pi * 2, Cr / 2)
+            LibDraw.Arrow(xOb, yOb, zOb, br._G.UnitFacing("player") --[[+ math.pi * 2]], Cr / 2)
         end
         -- if name == "" or name == "Unknown" then
         --     name = isUnit and br._G.UnitName(object) or nil

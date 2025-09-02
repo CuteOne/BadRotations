@@ -59,6 +59,7 @@ function br.getDistanceCalc(Unit1, Unit2, option)
         Unit1 = "player"
     end
     if Unit1 == nil or Unit2 == nil then return 100 end
+    if Unit1 == Unit2 or br._G.UnitIsUnit(Unit1, Unit2) then return 0 end
     if option == nil then option = "none" end
     -- Check if objects exists and are visible
     if (br.GetUnitIsUnit(Unit1, "player") or (br.GetObjectExists(Unit1) and br.GetUnitIsVisible(Unit1) == true))
@@ -66,12 +67,13 @@ function br.getDistanceCalc(Unit1, Unit2, option)
     then
         -- If melee spell is usable, ignore all other calcs
         if meleeSpell ~= nil then
-            if Unit2 == "player" then
-                if br._G.C_Spell.IsSpellInRange(select(1, br._G.GetSpellInfo(meleeSpell)), Unit1) == 1 then
+            if br._G.UnitIsUnit(Unit2, "player") and not br._G.UnitIsUnit(Unit1, "player") then
+                if br._G.C_Spell.IsSpellInRange(select(1, br._G.GetSpellInfo(meleeSpell)), Unit1) then
                     return 0
                 end
-            else
-                if br._G.C_Spell.IsSpellInRange(select(1, br._G.GetSpellInfo(meleeSpell)), Unit2) == 1 then
+            end
+            if br._G.UnitIsUnit(Unit1, "player") and not br._G.UnitIsUnit(Unit2, "player") then
+                if br._G.C_Spell.IsSpellInRange(select(1, br._G.GetSpellInfo(meleeSpell)), Unit2) then
                     return 0
                 end
             end
@@ -142,9 +144,8 @@ function br.getDistanceCalc(Unit1, Unit2, option)
         if option == "dist3" then return dist3 end
         if option == "dist4" then return dist4 end
         if option == "meleeRange" then return meleeRange end
-        -- if (br._G.UnitIsUnit("target", Unit1) or br._G.UnitIsUnit("target", Unit2)) then
-        --     br._G.print("Dist: " ..
-        --     tostring(br.round2(PlayerCombatReach, 0) .. ", " .. tostring(br.round2(TargetCombatReach, 0))))
+        -- if (br._G.UnitExists(Unit1) and br._G.UnitExists(Unit2)) then
+        --     br._G.print("Dist: " .. tostring(br.round2(dist, 0)) .. ", Unit1: " .. tostring(br._G.UnitName(Unit1)) .. ", Unit2: " .. tostring(br._G.UnitName(Unit2)))
         -- end
         -- currentDist = br._G.max(dist, meleeRange, 0)
         if dist > 13 then

@@ -433,6 +433,7 @@ br.api.unit = function(self)
     --- Get time a unit has been moving
     -- @function unit.movingTime
     -- @return number Time in seconds the unit has been moving
+    local movingTimer
     unit.movingTime = function()
         local GetTime = br._G["GetTime"]
         if movingTimer == nil then movingTimer = GetTime() end
