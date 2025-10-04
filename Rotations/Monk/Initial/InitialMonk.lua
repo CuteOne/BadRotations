@@ -75,12 +75,16 @@ local function createOptions()
         -- Vivify
         br.ui:createSpinner(section, "Vivify", 60, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
         -- Target Heal Key
-        br.ui:createDropdownWithout(section, "Target Heal Key", br.dropOptions.Toggle, 2)
+        br.ui:createDropdownWithout(section, "Target Heal Key", br.ui.dropOptions.Toggle, 2)
         br.ui:checkSectionState(section)
         -------------------------
         --- INTERRUPT OPTIONS ---
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
+        -- Pandaren Racial
+        if select(2, UnitRace("player")) == "Pandaren" then
+            br.ui:createCheckbox(section, "Quaking Palm", "|cffFFBB00Pandaren Racial")
+        end
         -- Leg Sweep
         br.ui:createCheckbox(section, "Leg Sweep")
         -- Interrupt Percentage
@@ -91,15 +95,15 @@ local function createOptions()
         ----------------------
         section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
         -- Single/Multi Toggle
-        br.ui:createDropdownWithout(section, "Rotation Mode", br.dropOptions.Toggle, 4)
+        br.ui:createDropdownWithout(section, "Rotation Mode", br.ui.dropOptions.Toggle, 4)
         -- Cooldown Key Toggle
-        br.ui:createDropdownWithout(section, "Cooldown Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdownWithout(section, "Cooldown Mode", br.ui.dropOptions.Toggle, 6)
         -- Defensive Key Toggle
-        br.ui:createDropdownWithout(section, "Defensive Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdownWithout(section, "Defensive Mode", br.ui.dropOptions.Toggle, 6)
         -- Interrupts Key Toggle
-        br.ui:createDropdownWithout(section, "Interrupt Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdownWithout(section, "Interrupt Mode", br.ui.dropOptions.Toggle, 6)
         -- Pause Toggle
-        br.ui:createDropdown(section, "Pause Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdown(section, "Pause Mode", br.ui.dropOptions.Toggle, 6)
         br.ui:checkSectionState(section)
     end
     optionTable = { {
@@ -113,17 +117,21 @@ end
 --- Locals ---
 --------------
 -- BR API Locals
+local buff
 local cast
 local cd
+local chi
 local enemies
+local energy
 local module
 local ui
 local unit
 local units
+local spell
 -- Profile Specific Locals
 local actionList = {}
 local var = {}
-var.getFacingDistance = br["getFacingDistance"]
+var.getFacingDistance = br.functions.range.getFacingDistance
 var.haltProfile = false
 var.profileStop = false
 
@@ -133,15 +141,15 @@ var.profileStop = false
 -- Action List - Extra
 actionList.Extra = function()
     -- Crackling Jade Lightning
-    if ui.checked("Crackling Jade Lightning") and not unit.mounted() and not cast.current.cracklingJadeLightning()
-        and not unit.moving() and cast.able.cracklingJadeLightning("target") and unit.valid("target")
-        and unit.distance("target") > ui.value("Cancel CJL Range")
-    then
-        if cast.cracklingJadeLightning("target") then
-            ui.debug("Casting Crackling Jade Lightning")
-            return true
-        end
-    end
+    -- if ui.checked("Crackling Jade Lightning") and not unit.mounted() and not cast.current.cracklingJadeLightning()
+    --     and not unit.moving() and cast.able.cracklingJadeLightning("target") and unit.valid("target")
+    --     and unit.distance("target") > ui.value("Cancel CJL Range")
+    -- then
+    --     if cast.cracklingJadeLightning("target") then
+    --         ui.debug("Casting Crackling Jade Lightning")
+    --         return true
+    --     end
+    -- end
     -- Roll
     if ui.checked("Roll") and cast.able.roll() and unit.moving()
         and unit.distance("target") > 10 and unit.valid("target")
@@ -159,52 +167,52 @@ actionList.Defensive = function()
     if ui.useDefensive() then
         -- Basic Healing Module
         module.BasicHealing()
-        -- Expel Harm
-        if ui.checked("Expel Harm") and cast.able.expelHarm() and unit.hp() <= ui.value("Expel Harm") then
-            if cast.expelHarm() then
-                ui.debug("Casting Expel Harm")
-                return true
-            end
-        end
-        -- Leg Sweep
-        if ui.checked("Leg Sweep - HP") and cast.able.legSweep() and unit.hp() <= ui.value("Leg Sweep - HP")
-            and unit.inCombat() and #enemies.yards5 > 0
-        then
-            if cast.legSweep() then
-                ui.debug("Casting Leg Sweep [HP]")
-                return true
-            end
-        end
-        if ui.checked("Leg Sweep - AoE") and cast.able.legSweep()
-            and #enemies.yards5 >= ui.value("Leg Sweep - AoE")
-        then
-            if cast.legSweep() then
-                ui.debug("Casting Leg Sweep [AOE]")
-                return true
-            end
-        end
-        -- Vivify
-        local vivifyUnit = unit.friend("target") and "target" or "player"
-        if ui.checked("Vivify") and cast.able.vivify(vivifyUnit) then
-            if unit.hp(vivifyUnit) <= ui.value("Vivify") then
-                if cast.vivify(vivifyUnit) then
-                    ui.debug("Casting Vivify on " .. unit.name(vivifyUnit))
-                    return true
-                end
-            end
-        end
+        -- -- Expel Harm
+        -- if ui.checked("Expel Harm") and cast.able.expelHarm() and unit.hp() <= ui.value("Expel Harm") then
+        --     if cast.expelHarm() then
+        --         ui.debug("Casting Expel Harm")
+        --         return true
+        --     end
+        -- end
+        -- -- Leg Sweep
+        -- if ui.checked("Leg Sweep - HP") and cast.able.legSweep() and unit.hp() <= ui.value("Leg Sweep - HP")
+        --     and unit.inCombat() and #enemies.yards5 > 0
+        -- then
+        --     if cast.legSweep() then
+        --         ui.debug("Casting Leg Sweep [HP]")
+        --         return true
+        --     end
+        -- end
+        -- if ui.checked("Leg Sweep - AoE") and cast.able.legSweep()
+        --     and #enemies.yards5 >= ui.value("Leg Sweep - AoE")
+        -- then
+        --     if cast.legSweep() then
+        --         ui.debug("Casting Leg Sweep [AOE]")
+        --         return true
+        --     end
+        -- end
+        -- -- Vivify
+        -- local vivifyUnit = unit.friend("target") and "target" or "player"
+        -- if ui.checked("Vivify") and cast.able.vivify(vivifyUnit) then
+        --     if unit.hp(vivifyUnit) <= ui.value("Vivify") then
+        --         if cast.vivify(vivifyUnit) then
+        --             ui.debug("Casting Vivify on " .. unit.name(vivifyUnit))
+        --             return true
+        --         end
+        --     end
+        -- end
     end
 end -- End Action List - Defensive
 
 -- Action List - Cooldowns
 actionList.Cooldowns = function()
     -- Touch of Death
-    if ui.alwaysCdNever("Touch of Death") and cast.able.touchOfDeath(units.dyn5) and unit.health(units.dyn5) < unit.healthMax("player") then
-        if cast.touchOfDeath(units.dyn5) then
-            ui.debug("Casting Touch of Death - Omae wa mou shindeiru")
-            return true
-        end
-    end
+    -- if ui.alwaysCdNever("Touch of Death") and cast.able.touchOfDeath(units.dyn5) and unit.health(units.dyn5) < unit.healthMax("player") then
+    --     if cast.touchOfDeath(units.dyn5) then
+    --         ui.debug("Casting Touch of Death - Omae wa mou shindeiru")
+    --         return true
+    --     end
+    -- end
     -- Trinket - Non-Specific
     if unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
         module.BasicTrinkets()
@@ -216,14 +224,21 @@ actionList.Interrupt = function()
     if ui.useInterrupt() then
         for i = 1, #enemies.yards5 do
             local thisUnit = enemies.yards5[i]
-            if br.canInterrupt(thisUnit, ui.value("Interrupt At")) then
-                -- Leg Sweep
-                if ui.checked("Leg Sweep") and cast.able.legSweep(thisUnit) and unit.distance(thisUnit) < 5 then
-                    if cast.legSweep(thisUnit) then
-                        ui.debug("Casting Leg Sweep [Interrupt]")
+            if br.functions.spell:canInterrupt(thisUnit, ui.value("Interrupt At")) then
+                -- Quaking Palm (Pandaren Racial)
+                if ui.checked("Quaking Palm") and unit.race("Pandaren") and cast.able.racial(thisUnit) and unit.distance(thisUnit) < 5 then
+                    if cast.racial(thisUnit) then
+                        ui.debug("Casting Quaking Palm [Interrupt]")
                         return true
                     end
                 end
+                -- Leg Sweep
+                -- if ui.checked("Leg Sweep") and cast.able.legSweep(thisUnit) and unit.distance(thisUnit) < 5 then
+                --     if cast.legSweep(thisUnit) then
+                --         ui.debug("Casting Leg Sweep [Interrupt]")
+                --         return true
+                --     end
+                -- end
             end
         end
     end -- End Interrupt Check
@@ -234,8 +249,8 @@ actionList.PreCombat = function()
     if not unit.inCombat() and not unit.mounted() then
         if unit.valid("target") then
             -- Auto Attack
-            if cast.able.autoAttack() and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
-                if cast.autoAttack() then
+            if cast.able.autoAttack("target") and unit.exists("target") and unit.distance("target") < 5 then
+                if cast.autoAttack("target") then
                     ui.debug("Casting Auto Attack [Precombat]")
                     return true
                 end
@@ -258,24 +273,31 @@ actionList.Combat = function()
             end
             -- Call Action List - Cooldowns
             if actionList.Cooldowns() then return true end
-            -- Spinning Crane Kick
-            if cast.able.spinningCraneKick() and #enemies.yards8 > 3 then
-                if cast.spinningCraneKick() then
-                    ui.debug("Casting Spinning Crane Kick")
-                    return true
-                end
-            end
+            -- -- Spinning Crane Kick
+            -- if cast.able.spinningCraneKick() and #enemies.yards8 > 3 then
+            --     if cast.spinningCraneKick() then
+            --         ui.debug("Casting Spinning Crane Kick")
+            --         return true
+            --     end
+            -- end
             -- Blackout Kick
-            if cast.able.blackoutKick() then
+            if cast.able.blackoutKick() and buff.tigerPower.exists() then
                 if cast.blackoutKick() then
                     ui.debug("Casting Blackout Kick")
                     return true
                 end
             end
             -- Tiger Palm
-            if cast.able.tigerPalm() and #enemies.yards8 < 4 then
+            if cast.able.tigerPalm() and (buff.tigerPower.refresh() or (chi() >= chi.max() - 1) or energy() < 40) then
                 if cast.tigerPalm() then
                     ui.debug("Casting Tiger Palm")
+                    return true
+                end
+            end
+            -- Jab
+            if cast.able.jab() then
+                if cast.jab() then
+                    ui.debug("Casting Jab")
                     return true
                 end
             end
@@ -291,15 +313,19 @@ local function runRotation()
     --- Define Locals ---
     ---------------------
     -- BR API Locals
+    buff            = br.player.buff
     cast            = br.player.cast
     cd              = br.player.cd
+    chi             = br.player.power.chi
     enemies         = br.player.enemies
+    energy          = br.player.power.energy
     module          = br.player.module
     ui              = br.player.ui
     unit            = br.player.unit
     units           = br.player.units
+    spell           = br.player.spell
     -- General Locals
-    var.haltProfile = (unit.inCombat() and var.profileStop) or unit.mounted() or br.pause() or ui.mode.rotation == 2
+    var.haltProfile = (unit.inCombat() and var.profileStop) or unit.mounted() or br.functions.misc:pause() or ui.mode.rotation == 2
     -- Units
     units.get(5)
     units.get(40)
@@ -308,12 +334,12 @@ local function runRotation()
     enemies.get(8)
 
     -- Cancel Crackling Jade Lightning
-    if cast.current.cracklingJadeLightning() and unit.distance("target") < ui.value("Cancel CJL Range") then
-        if cast.cancel.cracklingJadeLightning() then
-            ui.debug("Canceling Crackling Jade Lightning [Within " .. ui.value("Cancel CJL Range") .. "yrds]")
-            return true
-        end
-    end
+    -- if cast.current.cracklingJadeLightning() and unit.distance("target") < ui.value("Cancel CJL Range") then
+    --     if cast.cancel.cracklingJadeLightning() then
+    --         ui.debug("Canceling Crackling Jade Lightning [Within " .. ui.value("Cancel CJL Range") .. "yrds]")
+    --         return true
+    --     end
+    -- end
 
     ---------------------
     --- Begin Profile ---
@@ -352,8 +378,8 @@ local function runRotation()
     end -- Pause
 end     -- End runRotation
 local id = 1450
-if br.rotations[id] == nil then br.rotations[id] = {} end
-br._G.tinsert(br.rotations[id], {
+if br.loader.rotations[id] == nil then br.loader.rotations[id] = {} end
+br._G.tinsert(br.loader.rotations[id], {
     name = rotationName,
     toggles = createToggles,
     options = createOptions,
