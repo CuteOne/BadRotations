@@ -1,12 +1,15 @@
 local _, br = ...
-function br.castInterrupt(SpellID, Percent, Unit)
+br.functions.spell = br.functions.spell or {}
+local spell = br.functions.spell
+
+function spell:castInterrupt(SpellID, Percent, Unit)
 	Percent = br._G.Math.min(Percent + math.random(-6, 6), 99)
 	if Unit == nil then Unit = "target" end
-	if br.GetObjectExists(Unit) then
+	if br.functions.unit:GetObjectExists(Unit) then
 		local _, _, _, castStartTime, castEndTime, _, _, castInterruptable = br._G.UnitCastingInfo(Unit)
 		local channelName, _, _, channelStartTime, channelEndTime, _, channelInterruptable = br._G.UnitChannelInfo(Unit)
 		-- first make sure we will be able to cast the spellID
-		if br.canCast(SpellID, false, false, Unit) == true then
+		if br.functions.cast:canCast(SpellID, false, false, Unit) == true then
 			-- make sure we cover melee range
 			local allowedDistance = select(6, br._G.GetSpellInfo(SpellID))
 			if allowedDistance < 5 then
@@ -43,8 +46,8 @@ function br.castInterrupt(SpellID, Percent, Unit)
 					return false
 				end
 				--cast the spell
-				if br.getDistance("player", Unit) < allowedDistance then
-					if br.castSpell(Unit, SpellID, false, false) then
+				if br.functions.range:getDistance("player", Unit) < allowedDistance then
+					if br.functions.cast:castSpell(Unit, SpellID, false, false) then
 						return true
 					end
 				end
@@ -54,17 +57,17 @@ function br.castInterrupt(SpellID, Percent, Unit)
 	return false
 end
 
--- br.canInterrupt("target",20)
-function br.canInterrupt(unit, percentint)
+-- br.functions.spell:canInterrupt("target",20)
+function spell:canInterrupt(unit, percentint)
 	unit = unit or "target"
 	-- M+ Affix: Beguiling (Prevents Interrupt) - Queen's Decree: Unstoppable buff
-	if br.UnitBuffID(unit, 302417) ~= nil then return false end
-	local interruptTarget = br.getOptionValue("Interrupt Target")
-	if interruptTarget == 2 and not br.GetUnitIsUnit(unit, "target") then
+	if br.functions.aura:UnitBuffID(unit, 302417) ~= nil then return false end
+	local interruptTarget = br.functions.misc:getOptionValue("Interrupt Target")
+	if interruptTarget == 2 and not br.functions.unit:GetUnitIsUnit(unit, "target") then
 		return false
-	elseif interruptTarget == 3 and not br.GetUnitIsUnit(unit, "focus") then
+	elseif interruptTarget == 3 and not br.functions.unit:GetUnitIsUnit(unit, "focus") then
 		return false
-	elseif interruptTarget == 4 and br.getOptionValue("Interrupt Mark") ~= br._G.GetRaidTargetIndex(unit) then
+	elseif interruptTarget == 4 and br.functions.misc:getOptionValue("Interrupt Mark") ~= br._G.GetRaidTargetIndex(unit) then
 		return false
 	end
 	local castStartTime, castEndTime, interruptID, interruptable = 0, 0, 0, false
@@ -72,8 +75,8 @@ function br.canInterrupt(unit, percentint)
 	local channelDelay = 1    -- Delay to mimick human reaction time for channeled spells
 	local castType = "spellcast" -- Handle difference in logic if the spell is cast or being channeles
 	local onWhitelist = false
-	local whitelistOnly = br.isChecked("Interrupt Only Whitelist")
-	if br.GetUnitExists(unit)
+	local whitelistOnly = br.functions.misc:isChecked("Interrupt Only Whitelist")
+	if br.functions.unit:GetUnitExists(unit)
 		and br._G.UnitCanAttack("player", unit)
 		and not br._G.UnitIsDeadOrGhost(unit)
 	then
@@ -140,7 +143,7 @@ function br.canInterrupt(unit, percentint)
 		if ((whitelistOnly and onWhitelist) or not whitelistOnly)
 			or not (br.player.instance == "party" or br.player.instance == "raid" or br.player.instance == "scenario")
 		then
-			local ttd = br.getTTD(unit) or 0
+			local ttd = br.engines.ttdTable:getTTD(unit) or 0
 			local withinsCastPercent = math.ceil((castTimeRemain / castDuration) * 100) <= castPercent
 			local willFinishCast = ttd > castTimeRemain or ttd < 0
 			if castType == "spellcast" then
@@ -162,17 +165,17 @@ function br.canInterrupt(unit, percentint)
 	end
 end
 
-function br.canStun(unit)
-	return br.isCrowdControlCandidates(unit)
+function spell:canStun(unit)
+	return br.engines.enemiesEngineFunctions:isCrowdControlCandidates(unit)
 end
 
--- if br.getCharges(115399) > 0 then
-function br.getCharges(spellID)
+-- if br.functions.spell:getCharges(115399) > 0 then
+function spell:getCharges(spellID)
 	local chargeInfo = br._G.C_Spell.GetSpellCharges(spellID)
-	return chargeInfo.currentCharges
+	return chargeInfo and chargeInfo.currentCharges or 0
 end
 
-function br.getChargesFrac(spellID, chargeMax)
+function spell:getChargesFrac(spellID, chargeMax)
 	local chargeInfo = br._G.C_Spell.GetSpellCharges(spellID)
 	local charges, maxCharges, start, duration = chargeInfo.currentCharges, chargeInfo.maxCharges,
 		chargeInfo.cooldownStartTime, chargeInfo.cooldownDuration
@@ -193,7 +196,7 @@ function br.getChargesFrac(spellID, chargeMax)
 	return 0
 end
 
-function br.getRecharge(spellID, chargeMax)
+function spell:getRecharge(spellID, chargeMax)
 	local chargeInfo = br._G.C_Spell.GetSpellCharges(spellID)
 	local charges, maxCharges, chargeStart, chargeDuration = chargeInfo.currentCharges, chargeInfo.maxCharges,
 		chargeInfo.cooldownStartTime, chargeInfo.cooldownDuration
@@ -208,7 +211,7 @@ function br.getRecharge(spellID, chargeMax)
 end
 
 -- Full RechargeTime of a Spell/dump getFullRechargeTime(214579)
-function br.getFullRechargeTime(spellID)
+function spell:getFullRechargeTime(spellID)
 	local chargeInfo = br._G.C_Spell.GetSpellCharges(spellID)
 	local charges, maxCharges, chargeStart, chargeDuration = chargeInfo.currentCharges, chargeInfo.maxCharges,
 		chargeInfo.cooldownStartTime, chargeInfo.cooldownDuration
@@ -224,7 +227,7 @@ function br.getFullRechargeTime(spellID)
 end
 
 local maxStage = 0
-function br.getEmpoweredRank(spellID)
+function spell:getEmpoweredRank(spellID)
 	local stage = 0
 	if br.empowerID and spellID == br.empowerID then
 		local _, _, _, startTime, _, _, _, _, _, totalStages = br._G.UnitChannelInfo("player")
@@ -248,21 +251,21 @@ function br.getEmpoweredRank(spellID)
 	return stage
 end
 
--- if br.getSpellCD(12345) <= 0.4 then
-function br.getSpellCD(SpellID)
+-- if br.functions.spell:getSpellCD(12345) <= 0.4 then
+function spell:getSpellCD(SpellID)
 	if SpellID == nil then return false end
 	local spellCD = br._G.C_Spell.GetSpellCooldown(SpellID)
 	if spellCD == nil or spellCD.startTime == 0 then
 		return 0
 	else
 		local MyCD = spellCD.startTime + spellCD.duration - br._G.GetTime()
-		MyCD = MyCD or 0 -- getLatency()
+		MyCD = MyCD or 0 -- br.functions.misc:getLatency()
 		if MyCD < 0 then MyCD = 0 end
 		return MyCD
 	end
 end
 
-function br.getGlobalCD(max)
+function spell:getGlobalCD(max)
 	local currentSpecName = select(2, br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization()))
 	if currentSpecName == "" then currentSpecName = "Initial" end
 	if max == true then
@@ -272,10 +275,10 @@ function br.getGlobalCD(max)
 			return math.max(math.max(1, 1.5 / (1 + br._G.UnitSpellHaste("player") / 100)), 0.75)
 		end
 	end
-	return br.getSpellCD(61304)
+	return br.functions.spell:getSpellCD(61304)
 end
 
-function br.getSpellType(spellName)
+function spell:getSpellType(spellName)
 	if spellName == nil then return "Invalid" end
 	local helpful = br._G.C_Spell.IsSpellHelpful(spellName) or false
 	local harmful = br._G.C_Spell.IsSpellHarmful(spellName) or false
@@ -285,21 +288,21 @@ function br.getSpellType(spellName)
 	if not helpful and not harmful then return "Unknown" end
 end
 
-function br.getCastingRegen(spellID)
-	local regenRate = br.getRegen("player")
+function spell:getCastingRegen(spellID)
+	local regenRate = br.functions.power:getRegen("player")
 	local power = 0
 	local desc = br._G.C_Spell.GetSpellDescription(spellID)
 	local generates = desc:gsub("%D+", "")
 	local tooltip = tonumber(generates:sub(-2)) or 0
 	-- Get the "execute time" of the spell (larger of GCD or the cast time).
-	local castTime = br.getCastTime(spellID) or 0
+	local castTime = br.functions.cast:getCastTime(spellID) or 0
 	local gcd = br.player.gcdMax
 	local castSeconds = (castTime > gcd) and castTime or gcd
 	power = power + regenRate * castSeconds + tooltip
 
 	-- Get the amount of time remaining on the Steady Focus buff.
-	if br.UnitBuffID("player", 193534) ~= nil then
-		local seconds = br.getBuffRemain("player", 193534)
+	if br.functions.aura:UnitBuffID("player", 193534) ~= nil then
+		local seconds = br.functions.aura:getBuffRemain("player", 193534)
 		if seconds <= 0 then
 			seconds = 0
 		elseif seconds > castSeconds then
@@ -311,7 +314,7 @@ function br.getCastingRegen(spellID)
 	return power
 end
 
-function br.getSpellRange(spellID, option)
+function spell:getSpellRange(spellID, option)
 	local _, _, _, _, _, maxRange = br._G.GetSpellInfo(spellID)
 	if maxRange == nil or maxRange == 0 then maxRange = 5 else maxRange = tonumber(maxRange) end
 	-- Modifiers
@@ -327,7 +330,7 @@ function br.getSpellRange(spellID, option)
 	return maxRange + rangeMod
 end
 
-function br.isSpellInSpellbook(spellID, spellType)
+function spell:isSpellInSpellbook(spellID, spellType)
 	local spellSlot = br._G.FindSpellBookSlotBySpellID(spellID, spellType == "pet" and true or false)
 	if spellSlot then
 		local spellName = br._G.C_SpellBook.GetSpellBookItemName(spellSlot, spellType)
@@ -338,7 +341,7 @@ function br.isSpellInSpellbook(spellID, spellType)
 	return false
 end
 
-function br.getSpellInSpellBook(spellID, spellType)
+function spell:getSpellInSpellBook(spellID, spellType)
 	for i = 1, br._G.GetNumSpellTabs() do
 		local name, texture, offset, numSlots, isGuild, offspecID = br._G.GetSpellTabInfo(i)
 		-- local offset, numSlots = skillLineInfo.itemIndexOffset, skillLineInfo.numSpellBookItems
@@ -365,16 +368,16 @@ function br.getSpellInSpellBook(spellID, spellType)
 	return nil
 end
 
--- if br.isKnown(106832) then
--- function br.isKnown(spellID)
+-- if br.functions.spell:isKnown(106832) then
+-- function spell:isKnown(spellID)
 -- 	local baseSpellID = br._G.FindBaseSpellByID(spellID)
--- 	local _, _, spellInBookType = br.getSpellInSpellBook(spellID)
+-- 	local _, _, spellInBookType = br.functions.spell:getSpellInSpellBook(spellID)
 -- 	return spellID ~= nil and spellInBookType ~= "Future Spell" and
 -- 		( --[[spellInBookType ~= nil or]] br._G.IsPlayerSpell(tonumber(spellID))
 -- 			or br._G.IsSpellKnown(spellID) or br._G.IsPlayerSpell(tonumber(baseSpellID) or br._G.IsSpellKnown(baseSpellID))) -- or spellInBookType == "Spell")
 -- end
 
-function br.isKnown(spellID)
+function spell:isKnown(spellID)
 	local spellName = br._G.GetSpellInfo(spellID)
 	-- if GetSpellBookItemInfo(tostring(spellName)) ~= nil then
 	-- 	return true
@@ -386,11 +389,171 @@ function br.isKnown(spellID)
  --        return true
  --    end
 	-- return false
-	return spellID ~= nil and (br._G.GetSpellBookItemInfo(tostring(spellName)) ~= nil or br._G.IsPlayerSpell(tonumber(spellID)) or br._G.IsSpellKnown(spellID) or br.isSpellInSpellbook(spellID,"spell"))
+	return spellID ~= nil and (br._G.GetSpellBookItemInfo(tostring(spellName)) ~= nil or br._G.IsPlayerSpell(tonumber(spellID)) or br._G.IsSpellKnown(spellID) or br.functions.spell:isSpellInSpellbook(spellID,"spell"))
 end
 
-function br.isActiveEssence(spellID)
+function spell:isActiveEssence(spellID)
 	local _, _, heartIcon = br._G.GetSpellInfo(296208)
 	local _, _, essenceIcon = br._G.GetSpellInfo(spellID)
 	return heartIcon == essenceIcon
+end
+
+local function flipRace()
+    local race = select(2, br._G.UnitRace("player"))
+    local class = select(3, br._G.UnitClass("player"))
+    if br.functions.aura:UnitBuffID("player", 193863) then
+        if race == "Orc" then
+            return "Dwarf"
+        elseif race == "Undead" then
+            return "Human"
+        elseif race == "Troll" then
+            if class == 7 then
+                return "Draenei"
+            elseif class == 9 then
+                return "Human"
+            else
+                return "NightElf"
+            end
+        elseif race == "Tauren" then
+            if class == 11 then
+                return "NightElf"
+            else
+                return "Draenei"
+            end
+        elseif race == "BloodElf" then
+            if class == 12 then
+                return "NightElf"
+            else
+                return "Human"
+            end
+        elseif race == "Goblin" then
+            if class == 3 or class == 7 then
+                return "Dwarf"
+            else
+                return "Gnome"
+            end
+        elseif race == "Pandaren" then
+            return "Pandaren"
+        elseif race == "HighmountainTauren" then
+            if class == 11 then
+                return "NightElf"
+            else
+                return "Draenei"
+            end
+        elseif race == "Nightborne" then
+            if class == 9 then
+                return "Human"
+            else
+                return "NightElf"
+            end
+        elseif race == "MagharOrc" then
+            return "DarkIronDwarf"
+        end
+    elseif br.functions.aura:UnitBuffID("player", 193864) then
+        if race == "Worgen" then
+            return "Troll"
+        elseif race == "DarkIronDwarf" then
+            return "MagharOrc"
+        elseif race == "Human" then
+            if class == 2 then
+                return "BloodElf"
+            else
+                return "Undead"
+            end
+        elseif race == "NightElf" then
+            if class == 12 then
+                return "BloodElf"
+            else
+                return "Troll"
+            end
+        elseif race == "Dwarf" then
+            if class == 2 then
+                return "Tauren"
+            elseif class == 5 then
+                return "Undead"
+            else
+                return "Orc"
+            end
+        elseif race == "Draenei" then
+            if class == 8 then
+                return "Orc"
+            else
+                return "Tauren"
+            end
+        elseif race == "Pandaren" then
+            return "Pandaren"
+        elseif race == "Gnome" then
+            if class == 10 then
+                return "BloodElf"
+            else
+                return "Goblin"
+            end
+        elseif race == "VoidElf" then
+            if class == 3 or class == 5 or class == 1 then
+                return "BloodElf"
+            else
+                return "Troll"
+            end
+        elseif race == "LightforgedDraenei" then
+            if class == 8 then
+                return "Orc"
+            else
+                return "Tauren"
+            end
+        end
+    end
+end
+
+function spell:getRacial(thisRace)
+    local forTheAlliance = br.functions.aura:UnitBuffID("player", 193863) or false
+    local forTheHorde = br.functions.aura:UnitBuffID("player", 193864) or false
+    local race = select(2, br._G.UnitRace("player"))
+    if forTheAlliance or forTheHorde then
+        race = flipRace()
+    end
+    local BloodElfRacial
+    local DraeneiRacial
+    local OrcRacial
+
+    if race == "BloodElf" or race == thisRace then
+        BloodElfRacial = select(7, br._G.GetSpellInfo(br._G.GetSpellInfo(69179)))
+    end
+    if race == "Draenei" or race == thisRace then
+        DraeneiRacial = select(7, br._G.GetSpellInfo(br._G.GetSpellInfo(28880)))
+    end
+    if race == "Orc" or race == thisRace then
+        OrcRacial = select(7, br._G.GetSpellInfo(br._G.GetSpellInfo(33702)))
+    end
+    local racialSpells = {
+        -- Alliance
+        Dwarf              = 20594,          -- Stoneform
+        Gnome              = 20589,          -- Escape Artist
+        Draenei            = DraeneiRacial,  -- Gift of the Naaru
+        Human              = 59752,          -- Every Man for Himself
+        NightElf           = 58984,          -- Shadowmeld
+        Worgen             = 68992,          -- Darkflight
+        -- Horde
+        BloodElf           = BloodElfRacial, -- Arcane Torrent
+        Goblin             = 69041,          -- Rocket Barrage
+        Orc                = OrcRacial,      -- Blood Fury
+        Tauren             = 20549,          -- War Stomp
+        Troll              = 26297,          -- Berserking
+        Scourge            = 7744,           -- Will of the Forsaken
+        -- Both
+        Pandaren           = 107079,         -- Quaking Palm
+        -- Allied Races
+        HighmountainTauren = 255654,         -- Bull Rush
+        LightforgedDraenei = 255647,         -- Light's Judgment
+        Nightborne         = 260364,         -- Arcane Pulse
+        VoidElf            = 256948,         -- Spatial Rift
+        DarkIronDwarf      = 265221,         -- Fireblood
+        MagharOrc          = 274738,         -- Ancestral Call
+        ZandalariTroll     = 291944,         -- Regeneratin'
+        KulTiran           = 287712,         -- Haymaker
+        Vulpera            = 312411,         -- Bag of Tricks
+        Mechagnome         = 312924,         -- Hyper Organic Light Originator
+    }
+    if thisRace ~= nil and racialSpells[thisRace] ~= nil then return racialSpells[thisRace] end
+    return racialSpells[race]
+    -- return racialSpells[race]
 end

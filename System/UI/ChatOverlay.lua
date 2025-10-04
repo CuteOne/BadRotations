@@ -1,4 +1,7 @@
 local _, br = ...
+br.ui.chatOverlay = br.ui.chatOverlay or {}
+local chatOverlay = br.ui.chatOverlay
+
 -- Chat Overlay: Originally written by Sheuron.
 local function onUpdate(self)
 	if self.time < br._G.GetTime() - 2.0 then
@@ -9,27 +12,31 @@ local function onUpdate(self)
 		end
 	end
 end
-br.chatOverlayText = br._G.CreateFrame("Frame", nil, br._G.ChatFrame1)
-br.chatOverlayText:SetSize(br._G.ChatFrame1:GetWidth(), 50)
-br.chatOverlayText:Hide()
-br.chatOverlayText:SetScript("OnUpdate", onUpdate)
-br.chatOverlayText:SetPoint("TOP", 0, 0)
-br.chatOverlayText.text = br.chatOverlayText:CreateFontString(nil, "OVERLAY", "MovieSubtitleFont")
-br.chatOverlayText.text:SetAllPoints()
-br.chatOverlayText.texture = br.chatOverlayText:CreateTexture()
-br.chatOverlayText.texture:SetAllPoints()
-br.chatOverlayText.texture:SetTexture(0, 0, 0, .50)
-br.chatOverlayText.time = 0
-function br.ChatOverlay(Message, FadingTime)
-	if br.getOptionCheck("Overlay Messages") then
-		br.chatOverlayText:SetSize(br._G.ChatFrame1:GetWidth(), 50)
-		br.chatOverlayText.text:SetText(Message)
-		br.chatOverlayText:SetAlpha(1)
+
+-- Chat Overlay Frame
+chatOverlay.frame = br._G.CreateFrame("Frame", nil, br._G.ChatFrame1)
+chatOverlay.frame:SetSize(br._G.ChatFrame1:GetWidth(), 50)
+chatOverlay.frame:Hide()
+chatOverlay.frame:SetScript("OnUpdate", onUpdate)
+chatOverlay.frame:SetPoint("TOP", 0, 0)
+chatOverlay.frame.text = chatOverlay.frame:CreateFontString(nil, "OVERLAY", "MovieSubtitleFont")
+chatOverlay.frame.text:SetAllPoints()
+chatOverlay.frame.texture = chatOverlay.frame:CreateTexture()
+chatOverlay.frame.texture:SetAllPoints()
+chatOverlay.frame.texture:SetTexture(0, 0, 0, .50)
+chatOverlay.frame.time = 0
+
+-- Function to show messages in chat overlay
+function chatOverlay:Show(Message, FadingTime)
+	if br.functions.misc:getOptionCheck("Overlay Messages") then
+		chatOverlay.frame:SetSize(br._G.ChatFrame1:GetWidth(), 50)
+		chatOverlay.frame.text:SetText(Message)
+		chatOverlay.frame:SetAlpha(1)
 		if FadingTime == nil or type(FadingTime) ~= "number" then
-			br.chatOverlayText.time = br._G.GetTime()
+			chatOverlay.frame.time = br._G.GetTime()
 		else
-			br.chatOverlayText.time = br._G.GetTime() - 2 + FadingTime
+			chatOverlay.frame.time = br._G.GetTime() - 2 + FadingTime
 		end
-		br.chatOverlayText:Show()
+		chatOverlay.frame:Show()
 	end
 end

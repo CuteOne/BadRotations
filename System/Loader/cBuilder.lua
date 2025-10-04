@@ -1,5 +1,7 @@
 local _, br = ...
-br.loader = {}
+br.loader.cBuilder = br.loader.cBuilder or {}
+local cBuilder = br.loader.cBuilder
+
 local sep = IsMacClient() and "/" or "\\"
 local class = select(2, br._G.UnitClass('player'))
 local function getFolderClassName(class)
@@ -16,9 +18,9 @@ end
 local function getFilesLocation()
     local wowDir = br._G.GetWoWDirectory() or ""
     if wowDir:match('_retail_') then
-        return wowDir .. sep .. 'Interface' .. sep .. 'AddOns' .. sep .. br.addonName
+        return wowDir .. sep .. 'Interface' .. sep .. 'AddOns' .. sep .. br.loader.addonName
     end
-    return wowDir .. sep .. br.addonName
+    return wowDir .. sep .. br.loader.addonName
 end
 
 local function errorhandler(err)
@@ -43,9 +45,9 @@ local function loadFile(profile, file, support)
 end
 
 -- Load Rotation Files
-function br.loader.loadProfiles()
+function cBuilder:loadProfiles()
     -- Search each Profile in the Spec Folder
-    br._G.wipe(br.rotations)
+    br._G.wipe(br.loader.rotations)
     local specID = br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization())
     local IDLength = math.floor(math.log10(specID) + 1)
     local folderSpec = getFolderSpecName(class, specID)
@@ -69,11 +71,12 @@ function br.loader.loadProfiles()
 end
 
 -- Load Support Files - Specified in Rotation File
-function br.loadSupport(thisFile) -- Loads support rotation file from Class Folder
+function cBuilder:loadSupport(thisFile)
+    -- Loads support rotation file from Class Folder
     if thisFile == nil then return end
-    br.rotations.support = br.rotations.support or {}
-    if br.rotations.support[thisFile] then
-        br._G.wipe(br.rotations.support[thisFile])
+    br.loader.rotations.support = br.loader.rotations.support or {}
+    if br.loader.rotations.support[thisFile] then
+        br._G.wipe(br.loader.rotations.support[thisFile])
     end
     local file = thisFile .. ".lua"
     local profile = br._G.ReadFile(getFilesLocation() ..
@@ -83,28 +86,28 @@ end
 
 -- Generate Profile API
 local loadRotations = false
-function br.loader:new(spec, specName)
+function cBuilder:new(spec, specName)
     local loadStart = br._G.debugprofilestop()
-    local self = br.cCharacter:new(tostring(select(1, br._G.UnitClass("player"))))
+    local self = br.loader.cCharacter:new()--tostring(select(1, br._G.UnitClass("player"))))
     -- local player = "player" -- if someone forgets ""
     if specName == nil then specName = "Initial" end
 
     self.profile = specName
 
     -- Mandatory !
-    if br.rotations[spec] == nil then
-        br.loader.loadProfiles()
+    if br.loader.rotations[spec] == nil then
+        cBuilder:loadProfiles()
         br.rotationChanged = true
     end
 
     if not loadRotations then
-        if br.selectedProfile ~= nil and br.rotations[spec] ~= nil and br.rotations[spec][br.selectedProfile] then
-            br._G.print("Selecting Previous Rotation: " .. br.rotations[spec][br.selectedProfile].name)
-            self.rotation = br.rotations[spec][br.selectedProfile]
+        if br.loader.selectedProfile ~= nil and br.loader.rotations[spec] ~= nil and br.loader.rotations[spec][br.loader.selectedProfile] then
+            br._G.print("Selecting Previous Rotation: " .. br.loader.rotations[spec][br.loader.selectedProfile].name)
+            self.rotation = br.loader.rotations[spec][br.loader.selectedProfile]
             loadRotations = true
-        elseif br.rotations[spec] ~= nil then
-            br._G.print("No Previously Selected Rotation, Defaulting To: " .. br.rotations[spec][1].name)
-            self.rotation = br.rotations[spec][1]
+        elseif br.loader.rotations[spec] ~= nil then
+            br._G.print("No Previously Selected Rotation, Defaulting To: " .. br.loader.rotations[spec][1].name)
+            self.rotation = br.loader.rotations[spec][1]
             loadRotations = true
         else
             if not loadRotations then
@@ -189,14 +192,13 @@ function br.loader:new(spec, specName)
 
         -- Ending the Race War!
         if self.spells.abilities["racial"] == nil then
-            local racialID = br.getRacial()
+            local racialID = br.functions.spell:getRacial()
             self.spells.abilities["racial"] = racialID
             self.spells.buffs["racial"] = racialID
             self.spells["racial"] = racialID
         end
     end
 
-    br.allTalents = {}
     -- Get Active Talents
     local function getActiveTalents(node, configId)
         local activeTalents = {}
@@ -217,7 +219,7 @@ function br.loader:new(spec, specName)
     -- Check Existing Talents
     local function CheckExistingTalents(talentID)
         local playerClass = select(2, br._G.UnitClass('player'))
-        local talentName = br.convertName(br._G.GetSpellInfo(talentID))
+        local talentName = br.functions.misc:convertName(br._G.GetSpellInfo(talentID))
         if br.lists.spells[playerClass]["Shared"] ~= nil and br.lists.spells[playerClass][spec] ~= nil then
             local heroicTalents = br.lists.spells[playerClass]["Shared"]["talentsHeroic"] and
                 br.lists.spells[playerClass]["Shared"]["talentsHeroic"] or {}
@@ -291,7 +293,7 @@ function br.loader:new(spec, specName)
         -- looping tiers/columns for every talent in self.spells.talents (T * 21).
         -- Returns an allTalents table compatible with the earlier trait-style structure:
         -- allTalents[talentID] = { active = <bool>, rank = <number> }
-        br.activeSpecGroup = br._G.C_SpecializationInfo.GetActiveSpecGroup()
+        local activeSpecGroup = br._G.C_SpecializationInfo.GetActiveSpecGroup()
         if spec > 1400 then return {} end
         if self.talent == nil then self.talent = {} end
         local allTalents = {}
@@ -299,7 +301,7 @@ function br.loader:new(spec, specName)
         -- Cache tier/column data once
         for tier = 1, 7 do
             for column = 1, 3 do
-                local info = br._G.C_SpecializationInfo.GetTalentInfo({ tier = tier, column = column, specializationIndex = br.activeSpecGroup })
+                local info = br._G.C_SpecializationInfo.GetTalentInfo({ tier = tier, column = column, specializationIndex = activeSpecGroup })
                 if info and info.spellID then
                     allTalents[info.spellID] = {
                         active = info.selected and true or false,
@@ -471,7 +473,7 @@ function br.loader:new(spec, specName)
             if k ~= "rollTheBones" then
                 if self.buff == nil then self.buff = {} end
                 if self.buff[k] == nil then self.buff[k] = {} end
-                -- if k == "bloodLust" then v = br.getLustID() end
+                -- if k == "bloodLust" then v = br.functions.aura:getLustID() end
                 br.api.buffs(self.buff, k, v)
             end
         end
@@ -530,7 +532,7 @@ function br.loader:new(spec, specName)
 
             br.api.use(self.use, item, id)
 
-            br.getHeirloomNeck()
+            br.functions.item:getHeirloomNeck()
         end
 
         -- Cycle through Abilities List
@@ -563,7 +565,7 @@ function br.loader:new(spec, specName)
     end
 
     if spec == br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization()) and (self.talent == nil or self.cast == nil) then
-        getSpellsForSpec(spec); --[[getTalentInfo(); getAzeriteTraitInfo();]] getFunctions(); br.updatePlayerInfo = false
+        getSpellsForSpec(spec); --[[getTalentInfo(); getAzeriteTraitInfo();]] getFunctions(); self.updatePlayer = false
     end
     ------------------
     --- OOC UPDATE ---
@@ -578,19 +580,19 @@ function br.loader:new(spec, specName)
     --- UPDATE ---
     --------------
 
-    function self.update()
+    function self:update()
         if spec == br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization()) then
             -- Call baseUpdate()
             if not br._G.UnitAffectingCombat("player") then self.updateOOC() end
             self.baseUpdate()
             self.getBleeds()
             -- Update Player Info on Init, Talent, and Level Change
-            if br.updatePlayerInfo then
+            if self.updatePlayer then
                 getSpellsForSpec(spec)
                 -- getTalentInfo()
                 -- getAzeriteTraitInfo()
                 getFunctions()
-                br.updatePlayerInfo = false
+                self.updatePlayer = false
             end
             self.getToggleModes()
             self.startRotation()
@@ -606,7 +608,7 @@ function br.loader:new(spec, specName)
                 if k == "rake" or k == "rip" or k == "rupture" or k == "garrote" or k == "crimsonTempest" then
                     if self.debuff[k].bleed == nil then self.debuff[k].bleed = {} end
                     for l, _ in pairs(self.debuff[k].bleed) do
-                        if --[[not UnitAffectingCombat("player") or]] br.GetUnitIsDeadOrGhost(l) then
+                        if --[[not UnitAffectingCombat("player") or]] br.functions.unit:GetUnitIsDeadOrGhost(l) then
                             self.debuff[k].bleed[l] = nil
                         elseif not self.debuff[k].exists(l, "EXACT") then
                             self.debuff[k].bleed[l] = 0
@@ -621,7 +623,7 @@ function br.loader:new(spec, specName)
                 if k == "crimsonTempest" or k == "garrote" or k == "rupture" then
                     if self.debuff[k].exsa == nil then self.debuff[k].exsa = {} end
                     for l, _ in pairs(self.debuff[k].exsa) do
-                        if --[[not UnitAffectingCombat("player") or]] br.GetUnitIsDeadOrGhost(l) then
+                        if --[[not UnitAffectingCombat("player") or]] br.functions.unit:GetUnitIsDeadOrGhost(l) then
                             self.debuff[k].exsa[l] = nil
                         elseif not self.debuff[k].exists(l) then
                             self.debuff[k].exsa[l] = false
@@ -637,16 +639,16 @@ function br.loader:new(spec, specName)
     ---------------
 
     function self.getToggleModes()
-        for k, _ in pairs(br.data.settings[br.selectedSpec].toggles) do
+        for k, _ in pairs(br.data.settings[br.loader.selectedSpec].toggles) do
             local toggle = k:sub(1, 1):lower() .. k:sub(2)
-            self.ui.mode[toggle] = br.data.settings[br.selectedSpec].toggles[k]
-            br.UpdateToggle(k, 0.25)
+            self.ui.mode[toggle] = br.data.settings[br.loader.selectedSpec].toggles[k]
+            br.functions.misc:UpdateToggle(k, 0.25)
         end
     end
 
     -- Create the toggle defined within rotation files
     function self.createToggles()
-        br.GarbageButtons()
+        br.ui:GarbageButtons()
         if self.rotation ~= nil and self.rotation.toggles ~= nil then
             self.rotation.toggles()
         else
@@ -678,21 +680,21 @@ function br.loader:new(spec, specName)
     local names
     function self.createOptions()
         -- if br.ui:closeWindow("profile")
-        for i = 1, #br.data.settings[br.selectedSpec] do
-            local thisProfile = br.data.settings[br.selectedSpec][i]
-            if thisProfile ~= br.data.settings[br.selectedSpec][br.selectedProfile] then
+        for i = 1, #br.data.settings[br.loader.selectedSpec] do
+            local thisProfile = br.data.settings[br.loader.selectedSpec][i]
+            if thisProfile ~= br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile] then
                 br.ui:closeWindow("profile")
             end
         end
-        if br.data.settings[br.selectedSpec][br.selectedProfile] == nil then br.data.settings[br.selectedSpec][br.selectedProfile] = {} end
+        if br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile] == nil then br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile] = {} end
         br.ui:createProfileWindow(self.profile)
 
         -- Get the names of all profiles and create rotation dropdown
         if names == nil then names = {} end
         table.wipe(names)
-        if #br.rotations[spec] > 0 then
-            for i = 1, #br.rotations[spec] do
-                local thisName = br.rotations[spec][i].name
+        if #br.loader.rotations[spec] > 0 then
+            for i = 1, #br.loader.rotations[spec] do
+                local thisName = br.loader.rotations[spec][i].name
                 br._G.tinsert(names, thisName)
             end
         end
@@ -721,7 +723,7 @@ function br.loader:new(spec, specName)
         --
         -- -- Only add profile pages if they are found
         if self.rotation.options ~= nil then
-            br.insertTableIntoTable(optionTable, self.rotation.options())
+            br.functions.custom:insertTableIntoTable(optionTable, self.rotation.options())
         end
 
         -- Create pages dropdown
@@ -734,96 +736,6 @@ function br.loader:new(spec, specName)
     ------------------------
     --- CUSTOM FUNCTIONS ---
     ------------------------
-
-    function br.useAoE()
-        local rotation = self.ui.mode.rotation
-        if (rotation == 1 and #self.enemies.get(8) >= 3) or rotation == 2 then
-            return true
-        else
-            return false
-        end
-    end
-
-    function br.useCDs()
-        local cooldown = self.ui.mode.cooldown
-        if (cooldown == 1 and br.isBoss()) or cooldown == 2 or (cooldown == 4 and br.hasBloodLust()) then
-            return true
-        else
-            return false
-        end
-    end
-
-    function br.useDefensive()
-        if self.ui.mode.defensive == 1 then
-            return true
-        else
-            return false
-        end
-    end
-
-    function br.useInterrupts()
-        if self.ui.mode.interrupt == 1 then
-            return true
-        else
-            return false
-        end
-    end
-
-    function br.useMfD()
-        if self.ui.mode.mfd == 1 then
-            return true
-        else
-            return false
-        end
-    end
-
-    function br.useRollForTB()
-        if self.ui.mode.RerollTB == 1 then
-            return true
-        else
-            return false
-        end
-    end
-
-    function br.useRollForOne()
-        if self.ui.mode.RollForOne == 1 then
-            return true
-        else
-            return false
-        end
-    end
-
-    function br.ComboMaxSpend()
-        return br.player.talent.deeperStratagem and 6 or 5
-    end
-
-    function br.ComboSpend()
-        return math.min(br.player.power.comboPoints.amount(), br.ComboMaxSpend())
-    end
-
-    function br.mantleDuration()
-        if br.hasEquiped(144236) then
-            --if br.player.buff.masterAssassinsInitiative.remain("player") > 100 or br.player.buff.masterAssassinsInitiative.remain("player") < 0 then
-            if br.player.buff.masterAssassinsInitiative.exists("player") and (br.getBuffRemain("player", 235027) > 100 or br.getBuffRemain("player", 235027) < 100) then
-                return br.player.cd.global.remain() + 5
-            else
-                --return br.player.buff.masterAssassinsInitiative.remain("player")
-                if br.getBuffRemain("player", 235027) >= 0 and br.getBuffRemain("player", 235027) < 0.1 then
-                    return 0
-                else
-                    return br.getBuffRemain("player", 235027)
-                end
-            end
-        else
-            return 0
-        end
-    end
-
-    function br.BleedTarget()
-        return (br.player.debuff.garrote.exists("target") and 1 or 0) +
-            (br.player.debuff.rupture.exists("target") and 1 or 0) +
-            (br.player.debuff.internalBleeding.exists("target") and 1 or 0)
-    end
 
     -- Debugging
     br.debug.cpu:updateDebug(loadStart, "rotation.loadTime")

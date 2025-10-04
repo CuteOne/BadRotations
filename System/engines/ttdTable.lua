@@ -1,6 +1,9 @@
 local _, br = ...
+br.engines.ttdTable = br.engines.ttdTable or {}
+local ttdTable = br.engines.ttdTable
 local enemyTable
-function br.TTDRefresh(hpLimit)
+
+function br.engines.ttdTable:TTDRefresh(hpLimit)
 	if not enemyTable then
 		enemyTable = {
 			units = {},
@@ -18,8 +21,8 @@ function br.TTDRefresh(hpLimit)
 
 	if hpLimit == nil then hpLimit = 0 end
 
-	for k, _ in pairs(br.enemy) do
-		local object = br.enemy[k].unit
+	for k, _ in pairs(br.engines.enemiesEngine.enemy) do
+		local object = br.engines.enemiesEngine.enemy[k].unit
 		if not units[object] then
 			units[object] = br._G.GetTime()
 			health[object] = br._G.UnitHealth(object)
@@ -64,21 +67,21 @@ function br.TTDRefresh(hpLimit)
 	end
 end
 
-function br.getTTD(unit, hp)
-	if br.getOptionCheck("Enhanced Time to Die") then
-		if unit == "target" and br.GetObjectExists("target") then unit = br._G.UnitTarget("player") end
-		if br.unitSetup.cache[unit] ~= nil then
-			br.unitSetup.cache[unit]:unitTtd(hp)
-			return br.unitSetup.cache[unit].ttd
+function br.engines.ttdTable:getTTD(unit, hp)
+	if br.functions.misc:getOptionCheck("Enhanced Time to Die") then
+		if unit == "target" and br.functions.unit:GetObjectExists("target") then unit = br._G.UnitTarget("player") end
+		if br.engines.enemiesEngine.unitSetup.cache[unit] ~= nil then
+			br.engines.enemiesEngine.unitSetup.cache[unit]:unitTtd(hp)
+			return br.engines.enemiesEngine.unitSetup.cache[unit].ttd or -2
 		end
 		return -2
 	end
-	if br.isDummy() then return 99 end
-	br.TTDRefresh(hp)
+	if br.functions.unit:isDummy() then return 99 end
+	ttdTable:TTDRefresh(hp)
 	local thisUnit = unit
 	-- if thisUnit ~= nil then
 	-- 	if not string.find(thisUnit, "0x") or not type(thisUnit) == "number" then
-	-- 		if br.GetObjectExists(thisUnit) and not br.GetUnitIsDeadOrGhost(thisUnit) and br.GetUnitIsVisible(thisUnit) then
+	-- 		if br.functions.unit:GetObjectExists(thisUnit) and not br.functions.unit:GetUnitIsDeadOrGhost(thisUnit) and br.functions.unit:GetUnitIsVisible(thisUnit) then
 	-- 			thisUnit = br._G.GetObjectWithGUID(br._G.UnitGUID(thisUnit))
 	-- 		else
 	-- 			return -2

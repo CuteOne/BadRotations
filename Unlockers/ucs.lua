@@ -1,6 +1,6 @@
 local _, br = ...
 local b = br._G
-local unlock = br.unlock
+local unlock = br.unlockers
 -- UCS Unlocker
 function unlock.UCSUnlock()
     local unlocked = false
@@ -68,7 +68,7 @@ function unlock.UCSUnlock()
     b.Draw2DText = Draw2DText
     b.WorldToScreenRaw = WorldToScreenRaw
     b.IsQuestObject = IsQuestObject
-    br.unlocker = "UCS"
+    br.unlockers.selected = "UCS"
     unlocked = true
     return unlocked
 end

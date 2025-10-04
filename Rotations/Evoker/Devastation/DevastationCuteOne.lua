@@ -219,13 +219,13 @@ local function createOptions()
         ----------------------
         section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
         -- Single/Multi Toggle
-        br.ui:createDropdownWithout(section, "Rotation Mode", br.dropOptions.Toggle, 4)
+        br.ui:createDropdownWithout(section, "Rotation Mode", br.ui.dropOptions.Toggle, 4)
         -- Cooldown Key Toggle
-        br.ui:createDropdownWithout(section, "Cooldown Mode", br.dropOptions.Toggle, 3)
+        br.ui:createDropdownWithout(section, "Cooldown Mode", br.ui.dropOptions.Toggle, 3)
         -- Defensive Key Toggle
-        br.ui:createDropdownWithout(section, "Defensive Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdownWithout(section, "Defensive Mode", br.ui.dropOptions.Toggle, 6)
         -- Interrupts Key Toggle
-        br.ui:createDropdownWithout(section, "Interrupt Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdownWithout(section, "Interrupt Mode", br.ui.dropOptions.Toggle, 6)
         br.ui:checkSectionState(section)
     end
     optionTable = { {
@@ -274,8 +274,8 @@ custom.getDeepBreathLocation = function(minUnits)
     for i = 21, 50 do
         local enemies = #br.player.enemies.rect.get(6, i, false)
         if enemies >= minUnits then
-            local playerX, playerY, playerZ = br.GetObjectPosition("player")
-            local playerFacing = br.GetObjectFacing("player")
+            local playerX, playerY, playerZ = br.functions.unit:GetObjectPosition("player")
+            local playerFacing = br.functions.unit:GetObjectFacing("player")
             local x = playerX + (i * math.cos(playerFacing))
             local y = playerY + (i * math.sin(playerFacing))
             return x, y, playerZ
@@ -301,8 +301,8 @@ actionList.Extra = function()
     end -- End Dummy Test-- Dummy DPS Test
     -- Blessing of the Bronze
     if ui.checked("Blessing of the Bronze") and cast.able.blessingOfTheBronze("player") then
-        for i = 1, #br.friend do
-            local thisUnit = br.friend[i].unit
+        for i = 1, #br.engines.healingEngine.friend do
+            local thisUnit = br.engines.healingEngine.friend[i].unit
             if not unit.deadOrGhost(thisUnit) and unit.distance(thisUnit) < 40 and buff.blessingOfTheBronze.remain(thisUnit) < 600 then
                 if cast.blessingOfTheBronze("player") then
                     ui.debug("Casting Blessing of the Bronze")
@@ -1130,7 +1130,7 @@ local function runRotation()
 
     var.moveCast = (not unit.moving() or buff.hover.exists())
     var.profileStop = false
-    var.haltProfile = (unit.inCombat() and var.profileStop) or unit.mounted() or br.pause() or ui.mode.rotation == 4
+    var.haltProfile = (unit.inCombat() and var.profileStop) or unit.mounted() or br.functions.misc:pause() or ui.mode.rotation == 4
     -- Units
     units.get(25)
     units.get(40)
@@ -1246,8 +1246,8 @@ local function runRotation()
     end         -- Pause
 end             -- End runRotation
 local id = 1467 -- Change to the spec id profile is for.
-if br.rotations[id] == nil then br.rotations[id] = {} end
-br._G.tinsert(br.rotations[id], {
+if br.loader.rotations[id] == nil then br.loader.rotations[id] = {} end
+br._G.tinsert(br.loader.rotations[id], {
     name = rotationName,
     toggles = createToggles,
     options = createOptions,

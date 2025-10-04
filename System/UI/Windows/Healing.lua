@@ -6,13 +6,13 @@ function br.ui:createHealingWindow()
     br.ui.window.healing.parent.closeButton:SetScript(
         "OnClick",
         function()
-            if br.data.settings[br.selectedSpec][br.selectedProfile] ~= nil then
-                br.data.settings[br.selectedSpec][br.selectedProfile]["Healing DebugCheck"] = false
+            if br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile] ~= nil then
+                br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["Healing DebugCheck"] = false
             end
             if br.healingDebug ~= nil then
                 br.healingDebug:SetChecked(false)
             end
-            br.data.settings[br.selectedSpec].healing["active"] = false
+            br.data.settings[br.loader.selectedSpec].healing["active"] = false
             br.ui.window.healing.parent:Hide()
         end
     )

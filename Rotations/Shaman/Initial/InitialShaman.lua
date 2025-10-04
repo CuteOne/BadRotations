@@ -43,7 +43,7 @@ local function createOptions()
             "|cff0070deCheck this to automatically control GW transformation based on toggle bar setting.")
         br.ui:createSpinnerWithout(section, "Ghost Wolf Shift Delay", 2, 0, 5, 1,
             "|cff0070deSet to desired time to wait before shifting into Ghost Wolf.")
-        br.ui:createDropdownWithout(section, "Ghost Wolf Key", br.dropOptions.Toggle, 6,
+        br.ui:createDropdownWithout(section, "Ghost Wolf Key", br.ui.dropOptions.Toggle, 6,
             "|cff0070deSet key to hold down for Ghost Wolf")
         -- FLametongue Weapon
         br.ui:createCheckbox(section, "Flametongue Weapon", "|cff0070deCheck this to keep flametongue weapon enchant up.")
@@ -67,11 +67,11 @@ local function createOptions()
         ----------------------
         section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
         -- Single/Multi Toggle
-        br.ui:createDropdownWithout(section, "Rotation Mode", br.dropOptions.Toggle, 4)
+        br.ui:createDropdownWithout(section, "Rotation Mode", br.ui.dropOptions.Toggle, 4)
         --Defensive Key Toggle
-        br.ui:createDropdownWithout(section, "Defensive Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdownWithout(section, "Defensive Mode", br.ui.dropOptions.Toggle, 6)
         -- Pause Toggle
-        br.ui:createDropdown(section, "Pause Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdown(section, "Pause Mode", br.ui.dropOptions.Toggle, 6)
         br.ui:checkSectionState(section)
     end
     optionTable = { {
@@ -175,7 +175,7 @@ actionList.PreCombat = function()
             if cast.able.lightningBolt() and not unit.moving() then
                 if cast.lightningBolt() then
                     ui.debug("Casting Lightning Bolt [Pre-Combat] " ..
-                        br.round2(cast.timeSinceLast.lightningBolt(), 2) ..
+                        br.functions.misc:round2(cast.timeSinceLast.lightningBolt(), 2) ..
                         "  " .. unit.gcd(true) + (select(3, br._G.GetNetStats()) / 100))
                     return true
                 end
@@ -301,8 +301,8 @@ local function runRotation()
     return true
 end         -- End runRotation
 local id = 1444
-if br.rotations[id] == nil then br.rotations[id] = {} end
-br._G.tinsert(br.rotations[id], {
+if br.loader.rotations[id] == nil then br.loader.rotations[id] = {} end
+br._G.tinsert(br.loader.rotations[id], {
     name = rotationName,
     toggles = createToggles,
     options = createOptions,

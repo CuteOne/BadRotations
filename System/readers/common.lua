@@ -1,6 +1,8 @@
 local _, br = ...
+br.readers.common = br.readers.common or {}
+local common = br.readers.common
 
-function br.read.commonReaders()
+function common:commonReaders()
 	---------------
 	--[[ Readers ]]
 	---------------
@@ -9,8 +11,8 @@ function br.read.commonReaders()
 	local Frame = br._G.CreateFrame("Frame")
 	Frame:RegisterEvent("BAG_UPDATE")
 	local function BagUpdate(_, event, _)
-		if event == "BAG_UPDATE" then
-			br.bagsUpdated = true
+		if event == "BAG_UPDATE" and br.player then
+			br.player.bagsUpdated = true
 		end
 	end
 	Frame:SetScript("OnEvent", BagUpdate)
@@ -27,9 +29,9 @@ function br.read.commonReaders()
 	Frame = br._G.CreateFrame("Frame")
 	Frame:RegisterEvent("LFG_PROPOSAL_SHOW")
 	local function MerchantShow_AutoJoin(_, event, _)
-		if br.getOptionCheck("Accept Queues") == true then
+		if br.functions.misc:getOptionCheck("Accept Queues") == true then
 			if event == "LFG_PROPOSAL_SHOW" then
-				br.readyToAccept = br._G.GetTime()
+				br.functions.misc.readyToAccept = br._G.GetTime()
 			end
 		end
 	end
@@ -50,20 +52,21 @@ function br.read.commonReaders()
 	-- Frame:SetScript("OnEvent", Eclipse)
 	--------------------------
 	--[[ isStanding Frame --]]
-	br.DontMoveStartTime = nil
+	common.DontMoveStartTime = 0
+	common.isMovingStartTime = 0
 	br._G.CreateFrame("Frame"):SetScript(
 		"OnUpdate",
 		function()
 			if br._G.GetUnitSpeed("Player") == 0 then
-				if not br.DontMoveStartTime then
-					br.DontMoveStartTime = br._G.GetTime()
+				if not common.DontMoveStartTime then
+					common.DontMoveStartTime = br._G.GetTime()
 				end
-				br.isMovingStartTime = 0
+				common.isMovingStartTime = 0
 			else
-				if br.isMovingStartTime == 0 then
-					br.isMovingStartTime = br._G.GetTime()
+				if common.isMovingStartTime == 0 then
+					common.isMovingStartTime = br._G.GetTime()
 				end
-				br.DontMoveStartTime = nil
+				common.DontMoveStartTime = 0
 			end
 		end
 	)
@@ -88,8 +91,8 @@ function br.read.commonReaders()
 	Frame:RegisterEvent("MERCHANT_SHOW")
 	local function MerchantShow_AutoSellRepair(_, event, _)
 		if event == "MERCHANT_SHOW" then
-			if br.getOptionCheck("Auto-Sell/Repair") then
-				br.SellGreys()
+			if br.functions.misc:getOptionCheck("Auto-Sell/Repair") then
+				br.lootManager:SellGreys()
 			end
 		end
 	end
@@ -101,12 +104,12 @@ function br.read.commonReaders()
 	local function EnteringCombat(_, event, _)
 		if event == "PLAYER_REGEN_DISABLED" then
 			-- here we should manage stats snapshots
-			br.AgiSnap = br.getAgility()
+			br.AgiSnap = br.functions.misc:getAgility()
 
 			if br.data.settings ~= nil then
-				br.data.settings[br.selectedSpec]["Combat Started"] = br._G.GetTime()
+				br.data.settings[br.loader.selectedSpec]["Combat Started"] = br._G.GetTime()
 			end
-			br.ChatOverlay("|cffFF0000Entering Combat")
+			br.ui.chatOverlay:Show("|cffFF0000Entering Combat")
 		end
 	end
 	Frame:SetScript("OnEvent", EnteringCombat)
@@ -130,16 +133,16 @@ function br.read.commonReaders()
 			br.data.successCasts = 0
 			br.data.failCasts = 0
 			if br.data.settings ~= nil then
-				br.data.settings[br.selectedSpec]["Combat Started"] = 0
+				br.data.settings[br.loader.selectedSpec]["Combat Started"] = 0
 			end
-			br.ChatOverlay("|cff00FF00Leaving Combat")
+			br.ui.chatOverlay:Show("|cff00FF00Leaving Combat")
 			-- clean up out of combat
 			br.Rip_sDamage = {}
 			br.Rake_sDamage = {}
 			br.Thrash_sDamage = {}
 			br.petAttacking = false
-			br.lastCastTable.line_cd = {}
-			br._G.wipe(br.read.debuffTracker)
+			br.functions.lastCast.lastCastTable.line_cd = {}
+			br._G.wipe(br.readers.combatLog.debuffTracker)
 		end
 	end
 	Frame:SetScript("OnEvent", LeavingCombat)
@@ -153,28 +156,28 @@ function br.read.commonReaders()
 		local param = br.lastError
 		--br._G.print("|cffFF0000UI Error: " .. errorType .. " - " .. param)
 		if param == "ERR_PET_SPELL_DEAD" then
-			br.data.settings[br.selectedSpec]["Pet Dead"] = true
-			br.data.settings[br.selectedSpec]["Pet Whistle"] = false
+			br.data.settings[br.loader.selectedSpec]["Pet Dead"] = true
+			br.data.settings[br.loader.selectedSpec]["Pet Whistle"] = false
 		end
 		if param == "PETTAME_NOTDEAD" .. "." then
-			br.data.settings[br.selectedSpec]["Pet Dead"] = false
-			br.data.settings[br.selectedSpec]["Pet Whistle"] = true
+			br.data.settings[br.loader.selectedSpec]["Pet Dead"] = false
+			br.data.settings[br.loader.selectedSpec]["Pet Whistle"] = true
 		end
 		if param == "SPELL_FAILED_ALREADY_HAVE_PET" then
-			br.data.settings[br.selectedSpec]["Pet Dead"] = true
-			br.data.settings[br.selectedSpec]["Pet Whistle"] = false
+			br.data.settings[br.loader.selectedSpec]["Pet Dead"] = true
+			br.data.settings[br.loader.selectedSpec]["Pet Whistle"] = false
 		end
 		if param == "PETTAME_CANTCONTROLEXOTIC" .. "." then
-			if br.data.settings[br.selectedSpec]["Box PetManager"] < 5 then
-				br.data.settings[br.selectedSpec]["Box PetManager"] = br.data.settings[br.selectedSpec]
+			if br.data.settings[br.loader.selectedSpec]["Box PetManager"] < 5 then
+				br.data.settings[br.loader.selectedSpec]["Box PetManager"] = br.data.settings[br.loader.selectedSpec]
 				["Box PetManager"] + 1
 			else
-				br.data.settings[br.selectedSpec]["Box PetManager"] = 1
+				br.data.settings[br.loader.selectedSpec]["Box PetManager"] = 1
 			end
 		end
 		if param == "PETTAME_NOPETAVAILABLE" .. "." then
-			br.data.settings[br.selectedSpec]["Pet Dead"] = false
-			br.data.settings[br.selectedSpec]["Pet Whistle"] = true
+			br.data.settings[br.loader.selectedSpec]["Pet Dead"] = false
+			br.data.settings[br.loader.selectedSpec]["Pet Whistle"] = true
 		end
 		if param == "SPELL_FAILED_TARGET_NO_WEAPONS" then
 			br.isDisarmed = true
@@ -269,34 +272,34 @@ function br.read.commonReaders()
 					return
 				end
 				local unit = br._G.UnitGUID(lunit)
-				local burnUnit = br.getOptionCheck("Forced Burn") and br.isBurnTarget(unit) > 0
-				local playerTarget = br.GetUnitIsUnit(unit, "target")
-				local targeting = br.isTargeting(unit)
-				local hasThreat = br.hasThreat(unit) or targeting or br.isInProvingGround() or burnUnit
-				local reaction = br.GetUnitReaction(unit, "player") or 10
-				if br.isChecked("Target Validation Debug") and (not br._G.UnitIsPlayer(unit) or br._G.UnitIsCharmed(unit) or br.UnitDebuffID("player", 320102)) then
-					if br.isValidUnit(unit) then
+				local burnUnit = br.functions.misc:getOptionCheck("Forced Burn") and br.engines.enemiesEngineFunctions:isBurnTarget(unit) > 0
+				local playerTarget = br.functions.unit:GetUnitIsUnit(unit, "target")
+				local targeting = br.functions.misc:isTargeting(unit)
+				local hasThreat = br.functions.combat:hasThreat(unit) or targeting or br.functions.misc:isInProvingGround() or burnUnit
+				local reaction = br.functions.unit:GetUnitReaction(unit, "player") or 10
+				if br.functions.misc:isChecked("Target Validation Debug") and (not br._G.UnitIsPlayer(unit) or br._G.UnitIsCharmed(unit) or br.functions.aura:UnitDebuffID("player", 320102)) then
+					if br.functions.misc:isValidUnit(unit) then
 						self:AddLine("Unit is Valid", 0, 1, 0)
-					elseif not br.getLineOfSight("player", unit) then
+					elseif not br.functions.misc:getLineOfSight("player", unit) then
 						self:AddLine("LoS Fail", 1, 0, 0)
-					elseif not (br.units[unit] ~= nil or br.GetUnitIsUnit(unit, "target") or br.lists.threatBypass[br.GetObjectID(unit)] ~= nil or burnUnit) then
+					elseif not (br.engines.enemiesEngine.units[unit] ~= nil or br.functions.unit:GetUnitIsUnit(unit, "target") or br.lists.threatBypass[br.functions.unit:GetObjectID(unit)] ~= nil or burnUnit) then
 						self:AddLine("Not in Units Table", 1, 0, 0)
 					elseif not (not br._G.UnitIsTapDenied(unit) or br.isDummy) then
 						self:AddLine("Unit is Tap Denied", 1, 0, 0)
-					elseif not (br.isSafeToAttack(unit) or burnUnit) then
+					elseif not (br.engines.enemiesEngineFunctions:isSafeToAttack(unit) or burnUnit) then
 						self:AddLine("Safe Attack Fail", 1, 0, 0)
-					elseif not ((reaction < 5 and not br.isChecked("Hostiles Only")) or (br.isChecked("Hostiles Only") and (reaction < 4 or playerTarget or targeting)) or br.isDummy or burnUnit) then
+					elseif not ((reaction < 5 and not br.functions.misc:isChecked("Hostiles Only")) or (br.functions.misc:isChecked("Hostiles Only") and (reaction < 4 or playerTarget or targeting)) or br.isDummy or burnUnit) then
 						self:AddLine("Reaction Value Fail", 1, 0, 0)
 					elseif
-						not ((br.isChecked("Attack MC Targets") and (not br.GetUnitIsFriend(unit, "player") or (br._G.UnitIsCharmed(unit) and br._G.UnitCanAttack("player", unit)))) or
-							not br.GetUnitIsFriend(unit, "player"))
+						not ((br.functions.misc:isChecked("Attack MC Targets") and (not br.functions.unit:GetUnitIsFriend(unit, "player") or (br._G.UnitIsCharmed(unit) and br._G.UnitCanAttack("player", unit)))) or
+							not br.functions.unit:GetUnitIsFriend(unit, "player"))
 					then
 						self:AddLine("MC Check Fail", 1, 0, 0)
-					elseif br.getOptionCheck("Don't break CCs") and br.isLongTimeCCed(unit) then
+					elseif br.functions.misc:getOptionCheck("Don't break CCs") and br.functions.misc:isLongTimeCCed(unit) then
 						self:AddLine("CC Check Fail", 1, 0, 0)
 					elseif not hasThreat then
 						self:AddLine("Threat Fail", 1, 0, 0)
-					elseif not br.enemyListCheck(unit) then
+					elseif not br.functions.misc:enemyListCheck(unit) then
 						self:AddLine("List Check Fail", 1, 0, 0)
 					else
 						self:AddLine("Validation Failed", 0, 0, 1)
@@ -343,18 +346,18 @@ function br.read.commonReaders()
 			local unitTarget, updateInfo = ...
 			if updateInfo and updateInfo.addedAuras then
 				for _, aura in ipairs(updateInfo.addedAuras) do
-					br.auraMaxStacks = br.auraMaxStacks or {}
-					br.auraMaxStacks[aura.spellId] = br.auraMaxStacks[aura.spellId] or {}
-					br.auraMaxStacks[aura.spellId][unitTarget] = aura.maxCharges or 0
+					br.readers.common.auraMaxStacks = br.readers.common.auraMaxStacks or {}
+					br.readers.common.auraMaxStacks[aura.spellId] = br.readers.common.auraMaxStacks[aura.spellId] or {}
+					br.readers.common.auraMaxStacks[aura.spellId][unitTarget] = aura.maxCharges or 0
 				end
 			end
 		end
 		-- Azerite Essence
 		if event == "AZERITE_ESSENCE_ACTIVATED" then
-			br.updatePlayerInfo = true
+			br.player.updatePlayer = true
 		end
-		if event == "PLAYER_EQUIPMENT_CHANGED" then
-			br.equipHasChanged = true
+		if event == "PLAYER_EQUIPMENT_CHANGED" and br.player then
+			br.player.equipHasChanged = true
 		end
 		-- Player moving
 		if event == "PLAYER_STARTED_MOVING" then
@@ -370,11 +373,11 @@ function br.read.commonReaders()
 			return
 		end
 		-- Update Player Info
-		-- if event == "PLAYER_TALENT_UPDATE" and select(2, GetSpecializationInfo(GetSpecialization())) == br.selectedSpec then
+		-- if event == "PLAYER_TALENT_UPDATE" and select(2, GetSpecializationInfo(GetSpecialization())) == br.loader.selectedSpec then
 		-- 	br.rotationChanged = true
 		-- end
 		if event == "PLAYER_TALENT_UPDATE" or event == "PLAYER_LEVEL_UP" or event == "PLAYER_EQUIPMENT_CHANGED" --[[or event == "AZERITE_EMPOWERED_ITEM_SELECTION_UPDATED"]] or event == "TRAIT_CONFIG_UPDATED" then
-			br.updatePlayerInfo = true
+			br.player.updatePlayer = true
 		end
 		-------------------------------------------------
 		--[[ SpellCast Sents (used to define target) --]]
@@ -461,7 +464,7 @@ function br.read.commonReaders()
 								if br._G.IsAoEPending() then
 									br._G.SpellStopTargeting()
 								end
-								if not br.isChecked("Mute Queue") then
+								if not br.functions.misc:isChecked("Mute Queue") then
 									br._G.print("Cast Success! - Removed |cFFFF0000" ..
 									br._G.GetSpellInfo(SpellID) .. "|r from the queue.")
 								end
@@ -503,7 +506,7 @@ function br.read.commonReaders()
 			local SourceUnit = select(1, ...)
 			local SpellID = select(3, ...)
 			local MyClass = br._G.UnitClass("player")
-			if SourceUnit == "player" and br.isKnown(SpellID) then
+			if SourceUnit == "player" and br.functions.spell:isKnown(SpellID) then
 				-- Kill Command
 				if SpellID == 34026 then
 					---Print("Kill Command FAILED")
@@ -575,13 +578,13 @@ function br.read.commonReaders()
 				local revive = br._G.GetSpellInfo(50769) -- Used for string matching error messasge.
 				local match = string.find(messageErr, revive) ~= nil
 				if match then
-					br.deadPet = true
+					br.readers.combatLog.deadPet = true
 				else
-					br.deadPet = false
+					br.readers.combatLog.deadPet = false
 				end
 			end
-			if not br.GetUnitIsDeadOrGhost("player") and (br.GetUnitIsDeadOrGhost("pet") or not br.GetUnitExists("pet")) and (errorMsg == 51 or errorMsg == 203) then --or errorMsg == 277 or errorMsg == 275 then
-				br.deadPet = true
+			if not br.functions.unit:GetUnitIsDeadOrGhost("player") and (br.functions.unit:GetUnitIsDeadOrGhost("pet") or not br.functions.unit:GetUnitExists("pet")) and (errorMsg == 51 or errorMsg == 203) then --or errorMsg == 277 or errorMsg == 275 then
+				br.readers.combatLog.deadPet = true
 				-- if deadPet == false then
 				-- elseif deadPet == true and br._G.UnitHealth("pet") > 0 then
 				-- 	deadPet = false

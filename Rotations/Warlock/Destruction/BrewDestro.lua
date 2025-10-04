@@ -62,11 +62,11 @@ local function createOptions()
         ----------------------
         section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
         -- Single/Multi Toggle
-        br.ui:createDropdownWithout(section, "Rotation Mode", br.dropOptions.Toggle, 4)
+        br.ui:createDropdownWithout(section, "Rotation Mode", br.ui.dropOptions.Toggle, 4)
         --Defensive Key Toggle
-        br.ui:createDropdownWithout(section, "Defensive Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdownWithout(section, "Defensive Mode", br.ui.dropOptions.Toggle, 6)
         -- Pause Toggle
-        br.ui:createDropdown(section, "Pause Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdown(section, "Pause Mode", br.ui.dropOptions.Toggle, 6)
         br.ui:checkSectionState(section)
     end
     optionTable = { {
@@ -145,7 +145,7 @@ end -- End Action List - Defensive
 actionList.PreCombat = function()
     --actions.precombat+=/summon_pet
     if not unit.moving() and unit.level() >= 3 and GetTime() - br.pauseTime > 0.5
-        and br.timer:useTimer("summonPet", 1)
+        and br.debug.timer:useTimer("summonPet", 1)
     then
         if (mode.petSummon == 1 or (mode.petSummon == 2 and not spell.summonVoidwalker.known())) and not UnitExists("pet") then
             if cast.summonImp("player") then return true end
@@ -182,7 +182,7 @@ local function runRotation()
     power       = br.player.power.soulShards()
     -- General Locals
     profileStop = profileStop or false
-    haltProfile = (unit.inCombat() and profileStop) or IsMounted() or br.pause() or mode.rotation == 4
+    haltProfile = (unit.inCombat() and profileStop) or IsMounted() or br.functions.misc:pause() or mode.rotation == 4
     -- Units
     units.get(5)  -- Makes a variable called, units.dyn5
     units.get(40) -- Makes a variable called, units.dyn40
@@ -263,8 +263,8 @@ local function runRotation()
     end         -- Pause
 end             -- End runRotation
 local id = 267  -- Change to the spec id profile is for.
-if br.rotations[id] == nil then br.rotations[id] = {} end
-tinsert(br.rotations[id], {
+if br.loader.rotations[id] == nil then br.loader.rotations[id] = {} end
+tinsert(br.loader.rotations[id], {
     name = rotationName,
     toggles = createToggles,
     options = createOptions,

@@ -1,9 +1,12 @@
 local _, br = ...
-br.lastCastTable = {}
-br.lastCastTable.tracker = {}
-br.lastCastTable.castTime = {}
-local tracker = br.lastCastTable.tracker
-local castTime = br.lastCastTable.castTime
+br.functions.lastCast = br.functions.lastCast or {}
+local lastCast = br.functions.lastCast
+
+lastCast.lastCastTable = {}
+lastCast.lastCastTable.tracker = {}
+lastCast.lastCastTable.castTime = {}
+local tracker = lastCast.lastCastTable.tracker
+local castTime = lastCast.lastCastTable.castTime
 local waitForSuccess
 local lastCastFrame = br._G.CreateFrame("Frame")
 
@@ -20,7 +23,7 @@ local function addSpell(spellID)
             if #tracker == 10 then
                 tracker[10] = nil
             end
-            br.lastCast = spellID -- legacy support for some rotations reading this in locals
+            lastCast.lastCast= spellID -- legacy support for some rotations reading this in locals
         end
     end
 end
@@ -70,7 +73,7 @@ local function eventTracker(_, event, ...)
             if waitForSuccess == spellID then
                 br._G.tremove(tracker, 1)
                 waitForSuccess = nil
-                br.lastCast = tracker[1]
+                lastCast.lastCast= tracker[1]
             end
         end
     end

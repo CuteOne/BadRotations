@@ -122,15 +122,15 @@ local function createOptions()
 
         section = br.ui:createSection(br.ui.window.profile,  "Toggle Keys")
             -- Single/Multi Toggle
-            br.ui:createDropdown(section,  "Rotation Mode", br.dropOptions.Toggle,  4)
+            br.ui:createDropdown(section,  "Rotation Mode", br.ui.dropOptions.Toggle,  4)
             --Cooldown Key Toggle
-            br.ui:createDropdown(section,  "Cooldown Mode", br.dropOptions.Toggle,  3)
+            br.ui:createDropdown(section,  "Cooldown Mode", br.ui.dropOptions.Toggle,  3)
             --Defensive Key Toggle
-            br.ui:createDropdown(section,  "Defensive Mode", br.dropOptions.Toggle,  6)
+            br.ui:createDropdown(section,  "Defensive Mode", br.ui.dropOptions.Toggle,  6)
             -- Interrupts Key Toggle
-            br.ui:createDropdown(section,  "Interrupt Mode", br.dropOptions.Toggle,  6)
+            br.ui:createDropdown(section,  "Interrupt Mode", br.ui.dropOptions.Toggle,  6)
             -- Pause Toggle
-            br.ui:createDropdown(section,  "Pause Mode", br.dropOptions.Toggle,  6)
+            br.ui:createDropdown(section,  "Pause Mode", br.ui.dropOptions.Toggle,  6)
         br.ui:checkSectionState(section)
     end
     optionTable = {{
@@ -243,7 +243,7 @@ end -- End Action List - Extra
 
 -- Action List - Defensive
 actionList.Defensive = function()
-    if br.canDispel("player") and cast.able.detox() then
+    if br.functions.aura:canDispel("player") and cast.able.detox() then
         if cast.detox() then debugMessage("DETOX") return true end
     end
 end -- End Action List - Defensive
@@ -614,10 +614,10 @@ local function runRotation() -- This is the main profile loop, any below this po
     chiDefecit                                    = chiMax-chi
     fight_remains                                 = unit.ttdGroup(40)
 
-        ui.mode.AutoPull        = br.data.settings[br.selectedSpec].toggles["Autopull"]
-        ui.mode.CoolDown        = br.data.settings[br.selectedSpec].toggles["Cooldown"]
-        ui.mode.Rotation        = br.data.settings[br.selectedSpec].toggles["Rotation"]
-        ui.mode.Debug           = br.data.settings[br.selectedSpec].toggles["Debugs"]
+        ui.mode.AutoPull        = br.data.settings[br.loader.selectedSpec].toggles["Autopull"]
+        ui.mode.CoolDown        = br.data.settings[br.loader.selectedSpec].toggles["Cooldown"]
+        ui.mode.Rotation        = br.data.settings[br.loader.selectedSpec].toggles["Rotation"]
+        ui.mode.Debug           = br.data.settings[br.loader.selectedSpec].toggles["Debugs"]
 
     local validTargets=nil
 
@@ -678,7 +678,7 @@ var.XuenTTL = 0
 for index = 1,5 do
     local exists, totemName, startTime, duration, icon = GetTotemInfo(index)
     if exists then
-        local estimateDuration = br.round2(startTime + duration - GetTime())
+        local estimateDuration = br.functions.misc:round2(startTime + duration - GetTime())
         if icon == 4667418 then
             var.hasWhiteTigerStatue = true
             var.WhiteTigerStatueTTL = estimateDuration
@@ -825,10 +825,10 @@ end
         end -- End In Combat Rotation
     end -- Pause
 end -- End runRotation
-local id = 269 -- Change to the spec id profile is for. Spec ID can be found at: https://wowpedia.fandom.com/wiki/SpecializationID
+local id = 0 -- Change to the spec id profile is for. Spec ID can be found at: https://wowpedia.fandom.com/wiki/SpecializationID
 -- DO NOT EDIT ANYTHING BELOW THIS LINE, WILL BREAK PROFILE --
-if br.rotations[id] == nil then br.rotations[id] = {} end
-tinsert(br.rotations[id],{
+if br.loader.rotations[id] == nil then br.loader.rotations[id] = {} end
+tinsert(br.loader.rotations[id],{
     name = rotationName,
     toggles = createToggles,
     options = createOptions,

@@ -1,6 +1,6 @@
 local _, br = ...
-br.InFlight = {}
-local InFlight = br.InFlight
+br.functions.InFlight = br.functions.InFlight or {}
+local InFlight = br.functions.InFlight
 InFlight.Tracker = {}
 
 local projectileSpeed = {
@@ -11,7 +11,7 @@ local projectileSpeed = {
     [214634] = 30, --Ebonbolt
 }
 
-function InFlight.Hit(spellID, destinationGUID, sourceGUID)
+function InFlight:Hit(spellID, destinationGUID, sourceGUID)
     local target, source
     local function distance(unit1, unit2)
         local x1, y1, z1 = br._G.ObjectPosition(unit1)
@@ -36,21 +36,21 @@ function InFlight.Hit(spellID, destinationGUID, sourceGUID)
     return (distance(source, target) / projectileSpeed[spellID])
 end
 
-function InFlight.Check(spellID, destination)
-    if InFlight.Tracker[spellID] and InFlight.Tracker[spellID].HitTime > br._G.GetTime() and (not destination or not InFlight.Tracker[spellID].Target or br.GetUnitIsUnit(InFlight.Tracker[spellID].Target, destination)) then
+function InFlight:Check(spellID, destination)
+    if InFlight.Tracker[spellID] and InFlight.Tracker[spellID].HitTime > br._G.GetTime() and (not destination or not InFlight.Tracker[spellID].Target or br.functions.unit:GetUnitIsUnit(InFlight.Tracker[spellID].Target, destination)) then
         return true
     end
     return false
 end
 
-function InFlight.Remain(spellID, destination)
+function InFlight:Remain(spellID, destination)
     if InFlight.Check(spellID, destination) then
         return InFlight.Tracker[spellID].HitTime - br._G.GetTime()
     end
     return 0
 end
 
-function InFlight.Add(spellID, destinationGUID, sourceGUID)
+function InFlight:Add(spellID, destinationGUID, sourceGUID)
     if InFlight.Tracker[spellID] == nil then
         InFlight.Tracker[spellID] = {}
     end

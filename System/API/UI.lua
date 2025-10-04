@@ -16,8 +16,8 @@ br.api.ui = function(self)
     ui.alwaysCdNever = function(thisOption)
         -- Option Dropdown Requires
         -- {"|cff008000Always", "|cff0000ffCD", "|cffff0000Never"}
-        if br.data.settings[br.selectedSpec][br.selectedProfile]["Rotation Options"] == nil then return 0 end
-        thisOption = br.data.settings[br.selectedSpec][br.selectedProfile]["Rotation Options"][thisOption] ~= nil and
+        if br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["Rotation Options"] == nil then return 0 end
+        thisOption = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["Rotation Options"][thisOption] ~= nil and
             ui.value(thisOption, "Rotation Options") or
             ui.value(thisOption, "Base Options")
         return thisOption == 1 or (thisOption == 2 and ui.useCDs())
@@ -32,12 +32,12 @@ br.api.ui = function(self)
     ui.alwaysCdAoENever = function(thisOption, minUnits, enemyCount)
         -- Option Dropdown Requires
         -- {"Always", "|cff008000AOE", "|cffffff00AOE/CD", "|cff0000ffCD", "|cffff0000Never"}
-        if br.data.settings[br.selectedSpec][br.selectedProfile]["Rotation Options"] == nil then return 0 end
-        thisOption = br.data.settings[br.selectedSpec][br.selectedProfile]["Rotation Options"][thisOption] ~= nil and
+        if br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["Rotation Options"] == nil then return 0 end
+        thisOption = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["Rotation Options"][thisOption] ~= nil and
             ui.value(thisOption, "Rotation Options") or
             ui.value(thisOption, "Base Options")
         minUnits = minUnits or 3
-        enemyCount = enemyCount or #br.getEnemies("player", 40, false, true)
+        enemyCount = enemyCount or #br.engines.enemiesEngineFunctions:getEnemies("player", 40, false, true)
         return thisOption == 1
             or (thisOption == 2 and enemyCount >= minUnits)
             or (thisOption == 3 and (ui.useCDs() or enemyCount >= minUnits))
@@ -50,7 +50,7 @@ br.api.ui = function(self)
         -- @string text - The text to display.
         -- @return nil
         ui.chatOverlay = function(text)
-            return br.ChatOverlay(text)
+            return br.ui.chatOverlay:Show(text)
         end
     end
 
@@ -62,7 +62,7 @@ br.api.ui = function(self)
         -- @return boolean - Returns true if the option is checked
         ui.checked = function(thisOption, optionPage)
             if thisOption == nil then return false end
-            return br.isChecked(thisOption, optionPage)
+            return br.functions.misc:isChecked(thisOption, optionPage)
         end
     end
 
@@ -72,7 +72,7 @@ br.api.ui = function(self)
         -- @string text - The message to show in chat.
         -- @return nil
         ui.debug = function(text)
-            return br.addonDebug(text)
+            return br.functions.misc:addonDebug(text)
         end
     end
 
@@ -83,7 +83,7 @@ br.api.ui = function(self)
         -- @number delayTime - The length of time to wait until true, in seconds.
         -- @return boolean - Returns true if the delay time has passed
         ui.delay = function(delayName, delayTime)
-            return br.timer:useTimer(delayName, delayTime)
+            return br.debug.timer:useTimer(delayName, delayTime)
         end
     end
 
@@ -114,14 +114,14 @@ br.api.ui = function(self)
 
     if ui.pause == nil then
         --- Returns true if special conditions are met to pause
-        -- @see br.pause for these conditions
+        -- @see br.functions.misc:pause for these conditions
         -- @function ui.pause
         -- @boolean[opt=false] ignoreChannel - Set to true to ignore pausing on channel casts
         -- @return boolean - Returns true if rotation should be paused
         ui.pause = function(ignoreChannel)
             --local pause = br._G["pause"]
             if ignoreChannel == nil then ignoreChannel = false end
-            return br.pause(ignoreChannel)
+            return br.functions.misc:pause(ignoreChannel)
         end
     end
 
@@ -147,8 +147,7 @@ br.api.ui = function(self)
         -- @function ui.pullTimer
         -- @return number - Returns seconds remaining on pull timer
         ui.pullTimer = function()
-            --local PullTimerRemain = br._G["PullTimerRemain"]
-            return br.PullTimerRemain()
+            return br.functions.custom:PullTimerRemain()
         end
     end
 
@@ -168,7 +167,7 @@ br.api.ui = function(self)
         -- @number interval - The length of time to wait until true, in seconds.
         -- @return boolean - Returns true if the interval has passed
         ui.timer = function(timerName, interval)
-            return br.timer:useTimer(timerName, interval)
+            return br.debug.timer:useTimer(timerName, interval)
         end
     end
 
@@ -178,7 +177,7 @@ br.api.ui = function(self)
         -- @string thisToggle - Name of the toggle to check.
         -- @return boolean - Returns true if the toggle is active
         ui.toggle = function(thisToggle)
-            return not br._G.GetCurrentKeyBoardFocus() and br.SpecificToggle(thisToggle) or false
+            return not br._G.GetCurrentKeyBoardFocus() and br.functions.misc:SpecificToggle(thisToggle) or false
         end
     end
 
@@ -204,7 +203,7 @@ br.api.ui = function(self)
         -- @return boolean - Returns true if cooldowns should be used
         ui.useCDs = function()
             local hasBloodLust = br._G["hasBloodLust"]
-            return (ui.mode.cooldown == 1 and br.isBoss())
+            return (ui.mode.cooldown == 1 and br.functions.unit:isBoss())
                 or ui.mode.cooldown == 2
                 or (ui.mode.cooldown == 4 and hasBloodLust())
         end
@@ -271,7 +270,7 @@ br.api.ui = function(self)
         -- @return number - Returns the value of the specified option
         ui.value = function(thisOption, optionPage)
             if thisOption == nil then return 0 end
-            return br.getOptionValue(thisOption, optionPage)
+            return br.functions.misc:getOptionValue(thisOption, optionPage)
         end
     end
 end

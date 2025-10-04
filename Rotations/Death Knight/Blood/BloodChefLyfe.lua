@@ -135,15 +135,15 @@ local function createOptions()
         ----------------------
         section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
             -- Single/Multi Toggle
-            br.ui:createDropdown(section, "Rotation Mode", br.dropOptions.Toggle, 4)
+            br.ui:createDropdown(section, "Rotation Mode", br.ui.dropOptions.Toggle, 4)
             --Cooldown Key Toggle
-            br.ui:createDropdown(section, "Cooldown Mode", br.dropOptions.Toggle, 3)
+            br.ui:createDropdown(section, "Cooldown Mode", br.ui.dropOptions.Toggle, 3)
             --Defensive Key Toggle
-            br.ui:createDropdown(section, "Defensive Mode", br.dropOptions.Toggle, 6)
+            br.ui:createDropdown(section, "Defensive Mode", br.ui.dropOptions.Toggle, 6)
             -- Interrupts Key Toggle
-            br.ui:createDropdown(section, "Interrupt Mode", br.dropOptions.Toggle, 6)
+            br.ui:createDropdown(section, "Interrupt Mode", br.ui.dropOptions.Toggle, 6)
             -- Pause Toggle
-            br.ui:createDropdown(section, "Pause Mode", br.dropOptions.Toggle, 6)
+            br.ui:createDropdown(section, "Pause Mode", br.ui.dropOptions.Toggle, 6)
         br.ui:checkSectionState(section)
     end
     optionTable = {{
@@ -215,17 +215,17 @@ local levelRequirements = {
 -- Action List - Extra
 actionList.Extra = function()
     -- Death Grip as Taunt or Both (modes 3 or 4)
-    local gripMode = br.data.settings[br.selectedSpec][br.selectedProfile]["Death Grip Usage"] or 3
+    local gripMode = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["Death Grip Usage"] or 3
     if cast.able.deathGrip() and var.playerLevel >= levelRequirements.deathGrip and (gripMode == 3 or gripMode == 4) then
         for i = 1, #enemies.yards40 do
             local thisUnit = enemies.yards40[i]
             local shouldGrip = false
             
             -- Range check
-            local gripRange = br.data.settings[br.selectedSpec][br.selectedProfile]["Death Grip Range"] or 25
+            local gripRange = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["Death Grip Range"] or 25
             if unit.distance(thisUnit) > 8 and unit.distance(thisUnit) < gripRange then
                 -- Check target priority based on selection
-                local targetPriority = br.data.settings[br.selectedSpec][br.selectedProfile]["Death Grip Target"] or 1
+                local targetPriority = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["Death Grip Target"] or 1
                 if targetPriority == 1 then -- Any target
                     shouldGrip = true
                 elseif targetPriority == 2 and unit.isCaster(thisUnit) then -- Caster priority
@@ -293,8 +293,8 @@ actionList.Interrupts = function()
             local thisUnit = enemies.yards30[i]
             if unit.interruptable(thisUnit, ui.value("Interrupt At")) then
                 -- Death Grip as interrupt (mode 2 or mode 4) - Available at level 25
-                local gripMode = br.data.settings[br.selectedSpec][br.selectedProfile]["Death Grip Usage"] or 3
-                local gripRange = br.data.settings[br.selectedSpec][br.selectedProfile]["Death Grip Range"] or 25
+                local gripMode = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["Death Grip Usage"] or 3
+                local gripRange = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["Death Grip Range"] or 25
                 if (gripMode == 2 or gripMode == 4) and 
                    cast.able.deathGrip(thisUnit) and var.playerLevel >= levelRequirements.deathGrip and 
                    unit.distance(thisUnit) > 8 and unit.distance(thisUnit) < gripRange 
@@ -366,11 +366,11 @@ actionList.PreCombat = function()
         
         if unit.valid("target") then -- Abilities below this only used when target is valid
             -- Death Grip - Available at level 25
-            local gripMode = br.data.settings[br.selectedSpec][br.selectedProfile]["Death Grip Usage"] or 3
+            local gripMode = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["Death Grip Usage"] or 3
             if (gripMode == 3 or gripMode == 4) and 
                cast.able.deathGrip("target") and var.playerLevel >= levelRequirements.deathGrip and 
                not unit.isDummy("target") and unit.distance("target") > 8 and 
-               unit.distance("target") < (br.data.settings[br.selectedSpec][br.selectedProfile]["Death Grip Range"] or 25) and 
+               unit.distance("target") < (br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["Death Grip Range"] or 25) and 
                (not unit.moving("target") or (unit.moving("target") and not unit.facing("target", "player")))
             then
                 if cast.deathGrip("target") then ui.debug("Casting Death Grip [Pre-Combat]") return true end
@@ -738,7 +738,7 @@ local function runRotation()
         if actionList.HighPriority() then return true end
         
         -- Main Rotation based on selected Hero Tree
-        local heroTree = br.data.settings[br.selectedSpec][br.selectedProfile]["HeroTree"] or 1
+        local heroTree = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["HeroTree"] or 1
         if heroTree == 1 then
             -- Deathbringer APL
             if actionList.Deathbringer() then return true end
@@ -750,8 +750,8 @@ local function runRotation()
 end -- End runRotation
 
 local id = 250 -- Blood Death Knight spec ID
-if br.rotations[id] == nil then br.rotations[id] = {} end
-tinsert(br.rotations[id],{
+if br.loader.rotations[id] == nil then br.loader.rotations[id] = {} end
+tinsert(br.loader.rotations[id],{
     name = rotationName,
     toggles = createToggles,
     options = createOptions,

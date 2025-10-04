@@ -169,13 +169,13 @@ local function createOptions()
         ----------------------
         section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
         -- Single/Multi Toggle
-        br.ui:createDropdownWithout(section, "Rotation Mode", br.dropOptions.Toggle, 4)
+        br.ui:createDropdownWithout(section, "Rotation Mode", br.ui.dropOptions.Toggle, 4)
         -- Cooldown Key Toggle
-        br.ui:createDropdownWithout(section, "Cooldown Mode", br.dropOptions.Toggle, 3)
+        br.ui:createDropdownWithout(section, "Cooldown Mode", br.ui.dropOptions.Toggle, 3)
         -- Defensive Key Toggle
-        br.ui:createDropdownWithout(section, "Defensive Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdownWithout(section, "Defensive Mode", br.ui.dropOptions.Toggle, 6)
         -- Interrupts Key Toggle
-        br.ui:createDropdownWithout(section, "Interrupt Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdownWithout(section, "Interrupt Mode", br.ui.dropOptions.Toggle, 6)
         br.ui:checkSectionState(section)
     end
     optionTable = { {
@@ -235,8 +235,8 @@ actionList.Extra = function()
     end -- End Dummy Test-- Dummy DPS Test
     -- Blessing of the Bronze
     if ui.checked("Blessing of the Bronze") and cast.able.blessingOfTheBronze("player") then
-        for i = 1, #br.friend do
-            local thisUnit = br.friend[i].unit
+        for i = 1, #br.engines.healingEngine.friend do
+            local thisUnit = br.engines.healingEngine.friend[i].unit
             if not unit.deadOrGhost(thisUnit) and unit.distance(thisUnit) < 40 and buff.blessingOfTheBronze.remain(thisUnit) < 600 then
                 if cast.blessingOfTheBronze("player") then
                     ui.debug("Casting Blessing of the Bronze")
@@ -313,7 +313,7 @@ actionList.Interrupt = function()
     if ui.useInterrupt() then
         for i = 1, #enemies.yards8 do
             local thisUnit = enemies.yards8[i]
-            if br.canInterrupt(thisUnit, ui.value("Interrupt At")) then
+            if br.functions.spell:canInterrupt(thisUnit, ui.value("Interrupt At")) then
                 -- Tail Swipe
                 if ui.checked("Tail Swipe") and cast.able.tailSwipe(thisUnit) and unit.distance(thisUnit) < 8 then
                     if cast.tailSwipe(thisUnit) then
@@ -482,7 +482,7 @@ local function runRotation()
     end
     var.moveCast = (not unit.moving() or buff.hover.exists())
     var.profileStop = false
-    var.haltProfile = (unit.inCombat() and var.profileStop) or unit.mounted() or br.pause() or ui.mode.rotation == 4
+    var.haltProfile = (unit.inCombat() and var.profileStop) or unit.mounted() or br.functions.misc:pause() or ui.mode.rotation == 4
 
     -- Fire Breath Stage
     if var.stageFireBreath == nil then var.stageFireBreath = 0 end
@@ -547,10 +547,10 @@ local function runRotation()
     end         -- Pause
 end             -- End runRotation
 local id = 1465 -- Change to the spec id profile is for.
-if br.rotations[id] == nil then
-    br.rotations[id] = {}
+if br.loader.rotations[id] == nil then
+    br.loader.rotations[id] = {}
 end
-br._G.tinsert(br.rotations[id], {
+br._G.tinsert(br.loader.rotations[id], {
     name = rotationName,
     toggles = createToggles,
     options = createOptions,

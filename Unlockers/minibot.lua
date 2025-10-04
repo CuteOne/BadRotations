@@ -1,6 +1,6 @@
 local _, br = ...
 local b = br._G
-local unlock = br.unlock
+local unlock = br.unlockers
 -- Minibot
 function unlock.MBUnlock()
     local wmbapi = _G.wmbapi
@@ -227,7 +227,7 @@ function unlock.MBUnlock()
     b.IsQuestObject = function(...)
         return wmbapi.ObjectIsQuestObjective(...,false)
     end
-    br.unlocker = "Minibot"
+    br.unlockers.selected = "Minibot"
     unlocked = true
     return unlocked
 end

@@ -108,11 +108,11 @@ local function createOptions()
         br.ui:checkSectionState(section)
 
         section = br.ui:createSection(br.ui.window.profile,  "Toggle Keys")
-            br.ui:createDropdown(section,  "Rotation Mode", br.dropOptions.Toggle,  4)
-            br.ui:createDropdown(section,  "Cooldown Mode", br.dropOptions.Toggle,  3)
-            br.ui:createDropdown(section,  "Defensive Mode", br.dropOptions.Toggle,  6)
-            br.ui:createDropdown(section,  "Interrupt Mode", br.dropOptions.Toggle,  6)
-            br.ui:createDropdown(section,  "Pause Mode", br.dropOptions.Toggle,  6)
+            br.ui:createDropdown(section,  "Rotation Mode", br.ui.dropOptions.Toggle,  4)
+            br.ui:createDropdown(section,  "Cooldown Mode", br.ui.dropOptions.Toggle,  3)
+            br.ui:createDropdown(section,  "Defensive Mode", br.ui.dropOptions.Toggle,  6)
+            br.ui:createDropdown(section,  "Interrupt Mode", br.ui.dropOptions.Toggle,  6)
+            br.ui:createDropdown(section,  "Pause Mode", br.ui.dropOptions.Toggle,  6)
         br.ui:checkSectionState(section)
     end
     optionTable = {{
@@ -282,9 +282,9 @@ local function runRotation() -- This is the main profile loop, any below this po
 
 
     if var.lastCast == nil then var.lastCast=ui.time() end
-    ui.mode.Debug      = br.data.settings[br.selectedSpec].toggles["Debugs"]
-    ui.mode.Charge     = br.data.settings[br.selectedSpec].toggles["Charge"]
-    ui.mode.HeroicLeap = br.data.settings[br.selectedSpec].toggles["HeroicLeap"]
+    ui.mode.Debug      = br.data.settings[br.loader.selectedSpec].toggles["Debugs"]
+    ui.mode.Charge     = br.data.settings[br.loader.selectedSpec].toggles["Charge"]
+    ui.mode.HeroicLeap = br.data.settings[br.loader.selectedSpec].toggles["HeroicLeap"]
 
     -- Explanations on the Units and Enemies functions can be found in System/API/Units.lua and System/API/Enemies.lua
     -------------
@@ -430,8 +430,8 @@ local function runRotation() -- This is the main profile loop, any below this po
 end -- End runRotation
 local id = 72 -- Change to the spec id profile is for. Spec ID can be found at: https://wowpedia.fandom.com/wiki/SpecializationID
 -- DO NOT EDIT ANYTHING BELOW THIS LINE, WILL BREAK PROFILE --
-if br.rotations[id] == nil then br.rotations[id] = {} end
-tinsert(br.rotations[id],{
+if br.loader.rotations[id] == nil then br.loader.rotations[id] = {} end
+tinsert(br.loader.rotations[id],{
     name = rotationName,
     toggles = createToggles,
     options = createOptions,

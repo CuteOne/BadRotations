@@ -63,11 +63,11 @@ local function createOptions()
         ----------------------
         section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
         -- Single/Multi Toggle
-        br.ui:createDropdownWithout(section, "Rotation Mode", br.dropOptions.Toggle, 4)
+        br.ui:createDropdownWithout(section, "Rotation Mode", br.ui.dropOptions.Toggle, 4)
         --Defensive Key Toggle
-        br.ui:createDropdownWithout(section, "Defensive Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdownWithout(section, "Defensive Mode", br.ui.dropOptions.Toggle, 6)
         -- Pause Toggle
-        br.ui:createDropdown(section, "Pause Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdown(section, "Pause Mode", br.ui.dropOptions.Toggle, 6)
         br.ui:checkSectionState(section)
     end
     optionTable = { {
@@ -106,7 +106,7 @@ local actionList = {}
 actionList.Extras = function()
     -- Summon Pet
     if not unit.moving() and unit.level() >= 3 and GetTime() - br.pauseTime > 0.5
-        and br.timer:useTimer("summonPet", 1)
+        and br.debug.timer:useTimer("summonPet", 1)
     then
         if (mode.petSummon == 1 or (mode.petSummon == 2 and not spell.summonVoidwalker.known())) and not pet.imp.active() then
             if cast.summonImp("player") then return true end
@@ -290,8 +290,8 @@ local function runRotation()
     end         -- Pause
 end             -- End runRotation
 local id = 1454 -- Change to the spec id profile is for.
-if br.rotations[id] == nil then br.rotations[id] = {} end
-tinsert(br.rotations[id], {
+if br.loader.rotations[id] == nil then br.loader.rotations[id] = {} end
+tinsert(br.loader.rotations[id], {
     name = rotationName,
     toggles = createToggles,
     options = createOptions,

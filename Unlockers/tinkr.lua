@@ -1,3 +1,4 @@
+---@diagnostic disable: undefined-global
 -- req.saved.disableAutoTargeting = true
 --------------------------------------------------------------------------------------------------------------------------------
 -- unlockList
@@ -219,7 +220,7 @@ local unlockList =
 --------------------------------------------------------------------------------------------------------------------------------
 local _, br = ...
 local b = br._G
-local unlock = br.unlock
+local unlock = br.unlockers
 local tinkrUnlocked = false
 local funcCopies = {}
 
@@ -256,15 +257,15 @@ function unlock.TinkrUnlock()
 	--------------------------------
 	-- API unlocking
 	--------------------------------
-	for k, v in pairs(funcCopies) do
-		b[k] = function(...)
-			if select('#', ...) == 0 then
-				return Eval(k .. "()", "")
-			else
-				return Eval(k .. "(" .. table.concat({ ... }, ", ") .. ")", "")
-			end
-		end
-	end
+	-- for k, v in pairs(funcCopies) do
+	-- 	b[k] = function(...)
+	-- 		if select('#', ...) == 0 then
+	-- 			return Eval(k .. "()", "")
+	-- 		else
+	-- 			return Eval(k .. "(" .. table.concat({ ... }, ", ") .. ")", "")
+	-- 		end
+	-- 	end
+	-- end
 
 	-------------------
 	-- API Wrapping ---
@@ -365,8 +366,12 @@ function unlock.TinkrUnlock()
 	local om = {}
 	b.GetObjectCount = function()
 		table.wipe(om)
-		om = Objects()
-		return #Objects()
+		-- om = Objects()
+		local objects = Objects()
+		for i, object in ipairs(objects) do
+			om[i] = object
+		end
+		return #om--Objects()
 	end
 	b.GetObjectWithIndex = function(index)
 		return tostring(om[index])
@@ -575,7 +580,7 @@ function unlock.TinkrUnlock()
 	b.UnitName = function(...)
 		if Object(...) then
 			return UnitName(Object(...))
-		else 
+		else
 			return ""
 		end
 	end
@@ -643,6 +648,6 @@ function unlock.TinkrUnlock()
 	-- 	return UnitIsTrivial(Object(...))
 	-- end
 
-	br.unlocker = "Tinkr"
+	br.unlockers.selected = "Tinkr"
 	return true
 end

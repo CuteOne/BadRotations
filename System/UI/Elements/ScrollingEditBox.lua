@@ -6,9 +6,9 @@ local _, br = ...
 function br.ui:createScrollingEditBox(parent, text, content, tooltip, width, height, hideCheckbox)
     local activePageIdx = parent.settings.parentObject.pageDD.value
     local activePage = parent.settings.parentObject.pageDD.settings.list[activePageIdx]
-    br.data.settings[br.selectedSpec][br.selectedProfile][activePage] = br.data.settings[br.selectedSpec]
-        [br.selectedProfile][activePage] or {}
-    local data = br.data.settings[br.selectedSpec][br.selectedProfile][activePage]
+    br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile][activePage] = br.data.settings[br.loader.selectedSpec]
+        [br.loader.selectedProfile][activePage] or {}
+    local data = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile][activePage]
 
     if width == nil then
         width = 240

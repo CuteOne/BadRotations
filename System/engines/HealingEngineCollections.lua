@@ -1,8 +1,11 @@
 local _, br = ...
-br.novaEngineTables = { }
+br.engines.healingEngineCollections = br.engines.healingEngineCollections or {}
+local healingEngineCollections = br.engines.healingEngineCollections
+
+-- br.novaEngineTables = { }
 -- This is for the Dispel Check, all Debuffs we want dispelled go here
 -- valid arguments: stacks = num range = num
-br.novaEngineTables.DispelID = {
+healingEngineCollections.DispelID = {
 	[143579] = {stacks = 3 }, -- Immersius
 	[143434] = {stacks = 3 }, -- Fallen Protectors
 	[144514] = {stacks = 0 }, -- Norushen
@@ -121,7 +124,7 @@ br.novaEngineTables.DispelID = {
 
 }
 -- List of buffs to purge
-br.novaEngineTables.PurgeID = {
+healingEngineCollections.PurgeID = {
 	[282098] = true, -- Gift of Wind (Conclave)
 	[283619] = true, -- Wave of Light (Champion of Light)
 	[289623] = true, -- Guardian Spirit (BoD Trash)
@@ -162,14 +165,14 @@ br.novaEngineTables.PurgeID = {
 	[297133] = true, -- Defensive Countermeasure (Defense Bot Mk III)
 }
 -- List of debuffs that we should never dispell
-br.novaEngineTables.DoNotDispellList = {
+healingEngineCollections.DoNotDispellList = {
 	-- Midnight (Attumen the Huntsman)
 	{ id = 227404 }, -- Intangible Presence
 	{ id = 285000 }, -- https://www.wowhead.com/spell=285000/kelp-wrapped
 	--{ id = 284663}, --Bwonsamdi's Wrath
 }
 -- This is where we house the Debuffs that are bad for our users, and should not be healed when they have it
-br.novaEngineTables.BadDebuffList= {
+healingEngineCollections.BadDebuffList= {
 	[360618] = "Necrosis",
 	[104451] = "Ice Tomb",
 	[76577] = "Smoke Bomb",
@@ -208,7 +211,7 @@ br.novaEngineTables.BadDebuffList= {
     	[327992] = "Desolation", --Sire 100% healing reduction lasagna
 }
 -- list of special units we want to heal, these npc will go directly into healing engine(Special Heal must be checked)
-br.novaEngineTables.SpecialHealUnitList = {
+healingEngineCollections.SpecialHealUnitList = {
 	[71604] = "Contaminated Puddle",
 	[6459] = "Boss#3 SoO",
 	[6460] = "Boss#3 SoO",
@@ -222,8 +225,8 @@ br.novaEngineTables.SpecialHealUnitList = {
 };
 -- set dot that need to be healed to max(needs to be topped) to very low values so that engine will prioritize them
 -- the value used here will be substract from current health, we could use negative values to add back health instead
--- these are checked debuff on allies ie br.friend[i].unit wear 145263 and its hp is 70, engine will use 50 instead
-br.novaEngineTables.SpecificHPDebuffs = {
+-- these are checked debuff on allies ie br.engines.healingEngine.friend[i].unit wear 145263 and its hp is 70, engine will use 50 instead
+healingEngineCollections.SpecificHPDebuffs = {
 	--[123456, value = 20, stacks = 1 }, -- Exemple.
 	--[123456, value = -100, stacks = 3 }, -- Exemple
 	-- Twin Ogrons
@@ -293,7 +296,7 @@ br.novaEngineTables.SpecificHPDebuffs = {
 
 }
 -- this table will assign role to any unit wearing the unit name
-br.novaEngineTables.roleTable = {
+healingEngineCollections.roleTable = {
 	["Oto the Protector"] = { role = "TANK", class = "Warrior" }, -- proving grounds tank
 	["Sooli the Survivalist"] = { role = "DPS", class = "Hunter" }, -- proving grounds dps
 	["Ki the Assassin"] = { role = "DPS", class = "Rogue" }, -- proving grounds dps
@@ -304,13 +307,13 @@ br.novaEngineTables.roleTable = {
 	["Primal Earth Elemental"] = {role = "TANK", class = "Warrior"}
 }
 -- special targets to include when we want to heal npcs
-br.novaEngineTables.SavedSpecialTargets = {
+healingEngineCollections.SavedSpecialTargets = {
 	["target"] = nil,
 	["mouseover"] = nil,
 	["focus"] = nil,
 }
 -- ToDo: we need a powerful DoT handler to handle stuff such as hand of purity/heal over time
-br.novaEngineTables.BadlyDeBuffed = {
+healingEngineCollections.BadlyDeBuffed = {
 	--High Maul
 		--Kargath
 		159386,    --http://www.wowhead.com/spell=159386/iron-bomb
@@ -336,7 +339,7 @@ br.novaEngineTables.BadlyDeBuffed = {
 
 }
 -- Table for NPCs we do not want to add to table (eg. Hymdal/Odyn after they become friendly)
-br.novaEngineTables.skipNPC = {
+healingEngineCollections.skipNPC = {
         "95676", -- Odyn
         "94960", -- Hynmdall
         "100482", -- Senegos

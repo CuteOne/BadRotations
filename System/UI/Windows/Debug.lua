@@ -7,18 +7,18 @@ function br.ui:createDebugWindow()
     br.ui.window.debug.parent.closeButton:SetScript(
         "OnClick",
         function()
-            if br.data.settings[br.selectedSpec][br.selectedProfile] ~= nil and br.data.settings[br.selectedSpec][br.selectedProfile]["General"] ~= nil then
-                br.data.settings[br.selectedSpec][br.selectedProfile]["General"]["Rotation Log Check"] = false
+            if br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile] ~= nil and br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["General"] ~= nil then
+                br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["General"]["Rotation Log Check"] = false
                 if br.data.ui["General"] == nil then br.data.ui["General"] = {} end
                 br.data.ui["General"]["Rotation Log Check"] = false
             end
-            if br.rotationLog ~= nil then
-                br.rotationLog:SetChecked(false)
+            if br.ui.rotationLog ~= nil then
+                br.ui.rotationLog:SetChecked(false)
             end
-            if br.data.settings[br.selectedSpec].debug == nil then
-                br.data.settings[br.selectedSpec].debug = {}
+            if br.data.settings[br.loader.selectedSpec].debug == nil then
+                br.data.settings[br.loader.selectedSpec].debug = {}
             end
-            br.data.settings[br.selectedSpec].debug["active"] = false
+            br.data.settings[br.loader.selectedSpec].debug["active"] = false
             br.ui.window.debug.parent:Hide()
         end
     )
@@ -30,15 +30,15 @@ function br.ui:toggleDebugWindow()
         br.ui:createDebugWindow()
         br.ui:closeWindow("debug")
     end
-    if br.getOptionCheck("Rotation Log") then
+    if br.functions.misc:getOptionCheck("Rotation Log") then
         if not br.ui.window["debug"]["parent"] then
             br.ui:createDebugWindow()
         end
         br.ui:showWindow("debug")
-    elseif br.data.settings[br.selectedSpec]["debug"] == nil then
-        br.data.settings[br.selectedSpec]["debug"] = {}
-        br.data.settings[br.selectedSpec]["debug"].active = false
-    elseif br.data.settings[br.selectedSpec]["debug"].active == true then
+    elseif br.data.settings[br.loader.selectedSpec]["debug"] == nil then
+        br.data.settings[br.loader.selectedSpec]["debug"] = {}
+        br.data.settings[br.loader.selectedSpec]["debug"].active = false
+    elseif br.data.settings[br.loader.selectedSpec]["debug"].active == true then
         br.ui:closeWindow("debug")
     end
 end

@@ -30,6 +30,7 @@ local unlockList =
 	"DestroyTotem",
 	"FocusUnit",
 	"ForceQuit",
+	"GetComboPoints",
 	"GetUnscaledFrameRect",
 	"GuildControlSetRank",
 	"GuildControlSetRankFlag",
@@ -227,7 +228,7 @@ local globalCacheList =
 	"UnitXP",
 	"UnitXPMax",
 	"UseInventoryItem",
-	"WorldToScreen",
+	-- "WorldToScreen",
 	"WriteFile"
 }
 
@@ -235,7 +236,7 @@ local globalCacheList =
 --------------------------------------------------------------------------------------------------------------------------------
 -- functions exported to BadRotations
 --------------------------------------------------------------------------------------------------------------------------------
-local _, br = ...
+local Nn, br = ...
 local b = br._G
 local funcCopies = {}
 local globalFuncCopies = {}
@@ -279,7 +280,7 @@ for i = 1, #globalCacheList do
 end
 
 -- print("NN File Called")
-function br.unlock:NNUnlock()
+function br.unlockers:NNUnlock()
 	if not C_Timer.Nn then return false end
 	setfenv(1, C_Timer.Nn)
 	-- print("NN Api Loaded")
@@ -318,7 +319,7 @@ function br.unlock:NNUnlock()
 	b.ObjectFacing = ObjectFacing
 	b.ObjectExists = ObjectExists
 	b.GetCameraPosition = GetCameraPosition
-	b.UnitFacing = ObjectFacing
+	b.UnitFacing = UnitFacing
 	b.GetMousePosition = b.GetCursorPosition
 	b.CancelPendingSpell = b.SpellStopTargeting
 	b.ObjectIsVisible = b.UnitIsVisible
@@ -426,7 +427,7 @@ function br.unlock:NNUnlock()
 	end
 
 	b.GetObjectWithGUID = function(...)
-		return ...
+		return Object(...)
 	end
 
 	b.IsHackEnabled = function(...) return false end
@@ -506,6 +507,7 @@ function br.unlock:NNUnlock()
 	b.GetMapId = function()
 		return select(8, b.GetInstanceInfo())
 	end
+	-- b.WorldToScreen = Nn.WorldToScreen
 
 	--------------------------------
 	-- missing APIs
@@ -514,6 +516,7 @@ function br.unlock:NNUnlock()
 		return false
 	end
 
-	br.unlocker = "NN"
+	br.unlockers.selected = "NN"
+	b.print("NN Unlocker Loaded")
 	return true
 end

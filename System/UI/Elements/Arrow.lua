@@ -33,7 +33,7 @@ function br.ui:createRightArrow(window)
         function()
             local page = window.currentPage
             if page then
-                -- br.data.settings[br.selectedSpec][window] = page
+                -- br.data.settings[br.loader.selectedSpec][window] = page
                 if page + 1 > #window.pages then
                     window.pageDD:SetValue(1)
                 else
@@ -79,7 +79,7 @@ function br.ui:createLeftArrow(window)
         function()
             local page = window.currentPage
             if page then
-                -- br.data.settings[br.selectedSpec][window] = page
+                -- br.data.settings[br.loader.selectedSpec][window] = page
                 if page - 1 == 0 then
                     window.pageDD:SetValue(#window.pages)
                 else

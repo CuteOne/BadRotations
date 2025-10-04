@@ -1,75 +1,78 @@
 local _, br = ...
-function br.GetObjectExists(Unit)
+br.functions.unit = br.functions.unit or {}
+local unit = br.functions.unit
+
+function unit:GetObjectExists(Unit)
 	if Unit == nil then return false end
-	return br.GetUnitIsVisible(Unit)
+	return br.functions.unit:GetUnitIsVisible(Unit)
 end
 
-function br.GetUnit(Unit)
-	if Unit ~= nil and br.GetObjectExists(Unit) then
+function unit:GetUnit(Unit)
+	if Unit ~= nil and br.functions.unit:GetObjectExists(Unit) then
 		return Unit
 	end
 	return nil
 end
 
-function br.GetUnitIsUnit(Unit, otherUnit)
-	if not br.GetUnitIsVisible(Unit) or not br.GetUnitIsVisible(otherUnit) then return false end
+function unit:GetUnitIsUnit(Unit, otherUnit)
+	if not br.functions.unit:GetUnitIsVisible(Unit) or not br.functions.unit:GetUnitIsVisible(otherUnit) then return false end
 	return br._G.UnitIsUnit(Unit, otherUnit)
 end
 
-function br.GetUnitReaction(Unit, otherUnit)
-	if not br.GetUnitIsVisible(Unit) or not br.GetUnitIsVisible(otherUnit) then return 10 end
+function unit:GetUnitReaction(Unit, otherUnit)
+	if not br.functions.unit:GetUnitIsVisible(Unit) or not br.functions.unit:GetUnitIsVisible(otherUnit) then return 10 end
 	return br._G.UnitReaction(Unit, otherUnit)
 end
 
-function br.GetUnitIsFriend(Unit, otherUnit)
-	if not br.GetUnitIsVisible(Unit) or not br.GetUnitIsVisible(otherUnit) then return false end
+function unit:GetUnitIsFriend(Unit, otherUnit)
+	if not br.functions.unit:GetUnitIsVisible(Unit) or not br.functions.unit:GetUnitIsVisible(otherUnit) then return false end
 	return br._G.UnitIsFriend(Unit, otherUnit)
 end
 
-function br.GetUnitExists(Unit)
+function unit:GetUnitExists(Unit)
 	if Unit == nil then return false end
 	return br._G.UnitExists(Unit)
 end
 
-function br.GetUnitIsVisible(Unit)
+function unit:GetUnitIsVisible(Unit)
 	if Unit == nil then return false end
 	return br._G.UnitIsVisible(Unit)
 end
 
-function br.GetUnitIsDeadOrGhost(Unit)
+function unit:GetUnitIsDeadOrGhost(Unit)
 	if Unit == nil then return false end
 	return br._G.UnitIsDeadOrGhost(Unit)
 end
 
-function br.GetObjectFacing(Unit)
-	if br.unlocked and br.GetObjectExists(Unit) then
+function unit:GetObjectFacing(Unit)
+	if br.unlocked and br.functions.unit:GetObjectExists(Unit) then
 		return br._G.ObjectFacing(Unit)
 	else
 		return 0
 	end
 end
 
-function br.GetObjectPosition(Unit)
+function unit:GetObjectPosition(Unit)
 	local x, y, z = 0, 0, 0
 	if br.unlocked then --EWT then
 		if Unit == nil then return br._G.ObjectPosition("player") end
-		if br.GetObjectExists(Unit) then
+		if br.functions.unit:GetObjectExists(Unit) then
 			x, y, z = br._G.ObjectPosition(Unit)
 		end
 	end
 	return x, y, z
 end
 
-function br.GetObjectType(Unit)
-	if br.unlocked and br.GetObjectExists(Unit) then
+function unit:GetObjectType(Unit)
+	if br.unlocked and br.functions.unit:GetObjectExists(Unit) then
 		return br._G.ObjectTypes(Unit)
 	else
 		return 65561
 	end
 end
 
-function br.GetObjectIndex(Index)
-	if br.unlocked and br.GetObjectExists(br._G.GetObjectWithIndex(Index)) then
+function unit:GetObjectIndex(Index)
+	if br.unlocked and br.functions.unit:GetObjectExists(br._G.GetObjectWithIndex(Index)) then
 		return br._G.GetObjectWithIndex(Index)
 	else
 		return 0
@@ -83,15 +86,15 @@ end
 --     	return 0
 --     end
 -- end
-function br.GetObjectID(Unit)
-	if br.unlocked and br.GetObjectExists(Unit) then
+function unit:GetObjectID(Unit)
+	if br.unlocked and br.functions.unit:GetObjectExists(Unit) then
 		return br._G.ObjectID(Unit)
 	else
 		return 0
 	end
 end
 
-function br.UnitIsTappedByPlayer(mob)
+function unit:UnitIsTappedByPlayer(mob)
 	-- if br._G.UnitTarget("player") and mob == br._G.UnitTarget("player") then return true end
 	-- if UnitAffectingCombat(mob) and br._G.UnitTarget(mob) then
 	--    	mobPlaceHolderOne = br._G.UnitTarget(mob)
@@ -106,14 +109,14 @@ function br.UnitIsTappedByPlayer(mob)
 	end
 end
 
-function br.getSpellUnit(spellCast, aoe, minRange, maxRange, spellType)
+function unit:getSpellUnit(spellCast, aoe, minRange, maxRange, spellType)
 	local spellName = br._G.GetSpellInfo(spellCast)
 	if aoe == nil then aoe = false end
 	local hasRange = br._G.C_Spell.SpellHasRange(spellName) and true or false
 	local facing = not aoe
-	local unit = br.dynamicTarget(maxRange, facing) or (not hasRange and "player")
+	local unit = br.engines.enemiesEngineFunctions:dynamicTarget(maxRange, facing) or (not hasRange and "player")
 	if not unit then return "None" end
-	local distance = br.getDistance(unit)
+	local distance = br.functions.range:getDistance(unit)
 	local thisUnit = "None"
 	if (distance >= minRange and distance < maxRange) then
 		if spellType == "Helpful" then return "player" end
@@ -123,7 +126,7 @@ function br.getSpellUnit(spellCast, aoe, minRange, maxRange, spellType)
 end
 
 -- if getCreatureType(Unit) == true then
-function br.getCreatureType(Unit)
+function unit:getCreatureType(Unit)
 	local CreatureTypeList = { "Critter", "Totem", "Non-combat Pet", "Wild Pet" }
 	for i = 1, #CreatureTypeList do
 		if br._G.UnitCreatureType(Unit) == CreatureTypeList[i] then
@@ -137,20 +140,20 @@ function br.getCreatureType(Unit)
 	end
 end
 
--- if br.getFacing("target","player") == false then
-function br.getFacing(Unit1, Unit2, Degrees)
+-- if br.functions.unit:getFacing("target","player") == false then
+function unit:getFacing(Unit1, Unit2, Degrees)
 	if Degrees == nil then
 		Degrees = 90
 	end
 	if Unit2 == nil then
 		Unit2 = "player"
 	end
-	if br.GetObjectExists(Unit1) and br.GetUnitIsVisible(Unit1) and br.GetObjectExists(Unit2) and br.GetUnitIsVisible(Unit2) then
+	if br.functions.unit:GetObjectExists(Unit1) and br.functions.unit:GetUnitIsVisible(Unit1) and br.functions.unit:GetObjectExists(Unit2) and br.functions.unit:GetUnitIsVisible(Unit2) then
 		local angle3
-		local angle1 = br.GetObjectFacing(Unit1)
-		local angle2 = br.GetObjectFacing(Unit2)
-		local Y1, X1, Z1 = br.GetObjectPosition(Unit1)
-		local Y2, X2, Z2 = br.GetObjectPosition(Unit2)
+		local angle1 = br.functions.unit:GetObjectFacing(Unit1)
+		local angle2 = br.functions.unit:GetObjectFacing(Unit2)
+		local Y1, X1, Z1 = br.functions.unit:GetObjectPosition(Unit1)
+		local Y2, X2, Z2 = br.functions.unit:GetObjectPosition(Unit2)
 		if Y1 and X1 and Z1 and angle1 and Y2 and X2 and Z2 and angle2 then
 			local deltaY = Y2 - Y1
 			local deltaX = X2 - X1
@@ -177,9 +180,9 @@ function br.getFacing(Unit1, Unit2, Degrees)
 	end
 end
 
-function br.getGUID(unit)
+function unit:getGUID(unit)
 	local nShortHand, targetGUID = "", ""
-	if br.GetObjectExists(unit) then
+	if br.functions.unit:GetObjectExists(unit) then
 		local guid = br._G.UnitGUID(unit)
 		if guid ~= nil then
 			if br._G.UnitIsPlayer(unit) then
@@ -194,21 +197,21 @@ function br.getGUID(unit)
 	return targetGUID, nShortHand
 end
 
--- if br.getHP("player") then
-function br.getHP(Unit)
-	if br.GetObjectExists(Unit) then
+-- if br.functions.unit:getHP("player") then
+function unit:getHP(Unit)
+	if br.functions.unit:GetObjectExists(Unit) then
 		if br._G.UnitIsEnemy("player", Unit) then
 			return 100 * (br._G.UnitHealth(Unit) / br._G.UnitHealthMax(Unit))
 		else
-			if not br.GetUnitIsDeadOrGhost(Unit) and br.GetUnitIsVisible(Unit) then
-				for i = 1, #br.friend do
-					if br.friend[i] then
-						if br.friend[i].guidsh == string.sub(br._G.UnitGUID(Unit), -5) then
-							return br.friend[i].hp
+			if not br.functions.unit:GetUnitIsDeadOrGhost(Unit) and br.functions.unit:GetUnitIsVisible(Unit) then
+				for i = 1, #br.engines.healingEngine.friend do
+					if br.engines.healingEngine.friend[i] then
+						if br.engines.healingEngine.friend[i].guidsh == string.sub(br._G.UnitGUID(Unit), -5) then
+							return br.engines.healingEngine.friend[i].hp
 						end
 					end
 				end
-				if br.getOptionCheck("Incoming Heals") == true and br._G.UnitGetIncomingHeals(Unit, "player") ~= nil then
+				if br.functions.misc:getOptionCheck("Incoming Heals") == true and br._G.UnitGetIncomingHeals(Unit, "player") ~= nil then
 					return 100 * (br._G.UnitHealth(Unit) + br._G.UnitGetIncomingHeals(Unit, "player")) /
 					br._G.UnitHealthMax(Unit)
 				else
@@ -220,13 +223,13 @@ function br.getHP(Unit)
 	return 0
 end
 
--- if br.getHPLossPercent("player",5) then
-function br.getHPLossPercent(unit, sec)
+-- if br.functions.unit:getHPLossPercent("player",5) then
+function unit:getHPLossPercent(unit, sec)
 	if unit == nil then unit = "player" end
-	local currentHP = br.getHP(unit)
+	local currentHP = br.functions.unit:getHP(unit)
 	if sec == nil then sec = 1 end
 	if br.snapHP == nil then br.snapHP = 0 end
-	if br.timer:useTimer("Loss Percent", sec) then
+	if br.debug.timer:useTimer("Loss Percent", sec) then
 		br.snapHP = currentHP
 	end
 	if br.snapHP < currentHP then
@@ -236,15 +239,15 @@ function br.getHPLossPercent(unit, sec)
 	end
 end
 
-function br.getLowestUnit(range)
+function unit:getLowestUnit(range)
 	local lowestUnit = "player"
-	local lowestHP = br.getHP("player")
+	local lowestHP = br.functions.unit:getHP("player")
 	if range == nil then range = 40 end
-	if br ~= nil and br.friend ~= nil then
-		for i = 1, #br.friend do
-			local thisUnit = br.friend[i].unit
-			local thisDist = br.getDistance(thisUnit)
-			local thisHp = br.getHP(thisUnit)
+	if br ~= nil and br.engines.healingEngine.friend ~= nil then
+		for i = 1, #br.engines.healingEngine.friend do
+			local thisUnit = br.engines.healingEngine.friend[i].unit
+			local thisDist = br.functions.range:getDistance(thisUnit)
+			local thisHp = br.functions.unit:getHP(thisUnit)
 			if thisDist < range and thisHp < lowestHP and thisHp > 0 then
 				lowestUnit = thisUnit
 				lowestHP = thisHp
@@ -255,32 +258,32 @@ function br.getLowestUnit(range)
 end
 
 -- if getBossID("boss1") == 71734 then
-function br.getBossID(BossUnitID)
-	return br.GetObjectID(BossUnitID)
+function unit:getBossID(BossUnitID)
+	return br.functions.unit:GetObjectID(BossUnitID)
 end
 
-function br.getUnitID(Unit)
-	if br.GetObjectExists(Unit) and br.GetUnitIsVisible(Unit) then
+function unit:getUnitID(Unit)
+	if br.functions.unit:GetObjectExists(Unit) and br.functions.unit:GetUnitIsVisible(Unit) then
 		local id = select(6, br._G.strsplit("-", br._G.UnitGUID(Unit) or ""))
 		return tonumber(id)
 	end
 	return 0
 end
 
-function br.isAberration(Unit)
+function unit:isAberration(Unit)
 	if Unit == nil then Unit = "target" end
 	return br._G.UnitCreatureType(Unit) == "Aberration"
 end
 
--- if br.isAlive([Unit]) == true then
-function br.isAlive(Unit)
+-- if br.functions.unit:isAlive([Unit]) == true then
+function unit:isAlive(Unit)
 	Unit = Unit or "player"
 	if br._G.UnitIsDeadOrGhost(Unit) == false then
 		return true
 	end
 end
 
-function br.isInstanceBoss(unit)
+function unit:isInstanceBoss(unit)
 	if br._G.IsInInstance() then
 		local _, _, encountersTotal = br._G.GetInstanceLockTimeRemaining();
 		for i = 1, encountersTotal do
@@ -288,7 +291,7 @@ function br.isInstanceBoss(unit)
 				local bossList = br._G.GetInstanceLockTimeRemainingEncounter(i)
 				br._G.print(bossList)
 			end
-			if br.GetObjectExists(unit) then
+			if br.functions.unit:GetObjectExists(unit) then
 				local bossName = br._G.GetInstanceLockTimeRemainingEncounter(i)
 				local targetName = br._G.UnitName(unit)
 				-- Print("Target: "..targetName.." | Boss: "..bossName.." | Match: "..tostring(targetName == bossName))
@@ -297,22 +300,22 @@ function br.isInstanceBoss(unit)
 		end
 		for i = 1, 5 do
 			local bossNum = "boss" .. i
-			if br.GetUnitIsUnit(bossNum, unit) then return true end
+			if br.functions.unit:GetUnitIsUnit(bossNum, unit) then return true end
 		end
 	end
 	return false
 end
 
--- br.isBoss()
-function br.isBoss(unit)
+-- br.functions.unit:isBoss()
+function unit:isBoss(unit)
 	if unit == nil then unit = "target" end
-	if br.GetObjectExists(unit) and not br.isTotem(unit) then
+	if br.functions.unit:GetObjectExists(unit) and not br.engines.enemiesEngineFunctions:isTotem(unit) then
 		local class = br._G.UnitClassification(unit)
 		local healthMax = br._G.UnitHealthMax(unit)
 		local pHealthMax = br._G.UnitHealthMax("player")
 		local instance = select(2, br._G.IsInInstance())
-		return br.isInstanceBoss(unit) or br.isDummy(unit)
-			or (not br.isChecked("Boss Detection Only In Instance") and not br._G.UnitIsTrivial(unit) and instance ~= "party"
+		return br.functions.unit:isInstanceBoss(unit) or br.functions.unit:isDummy(unit)
+			or (not br.functions.misc:isChecked("Boss Detection Only In Instance") and not br._G.UnitIsTrivial(unit) and instance ~= "party"
 				and ((class == "rare" and healthMax > 4 * pHealthMax) or class == "rareelite" or class == "worldboss"
 					or (class == "elite" and ((healthMax > 4 * pHealthMax and instance ~= "raid") or instance == "scenario")) or br._G.UnitLevel(unit) < 0))
 	end
@@ -334,12 +337,12 @@ local critterTypes = {
 	["Ungezähmtes Tier"] = true,
 	["Mascotte sauvage"] = true
 }
-function br.isCritter(Unit)
+function unit:isCritter(Unit)
 	if Unit == nil then Unit = "target" end
 	return critterTypes[br._G.UnitCreatureType(Unit)] or false
 end
 
-function br.isDemon(Unit)
+function unit:isDemon(Unit)
 	if Unit == nil then Unit = "target" end
 	local isDemon = false
 	local unitType = br._G.UnitCreatureType(Unit)
@@ -361,11 +364,11 @@ function br.isDemon(Unit)
 	return isDemon
 end
 
-function br.isExplosive(Unit)
-	return br.GetObjectID(Unit) == 120651
+function unit:isExplosive(Unit)
+	return br.functions.unit:GetObjectID(Unit) == 120651
 end
 
-function br.isUndead(Unit)
+function unit:isUndead(Unit)
 	if Unit == nil then Unit = "target" end
 	local isUndead = false
 	local unitType = br._G.UnitCreatureType(Unit)
@@ -387,7 +390,7 @@ function br.isUndead(Unit)
 	return isUndead
 end
 
-function br.isBeast(Unit)
+function unit:isBeast(Unit)
 	if Unit == nil then Unit = "target" end
 	local isBeast = false
 	local unitType = br._G.UnitCreatureType(Unit)
@@ -408,7 +411,7 @@ function br.isBeast(Unit)
 	return isBeast
 end
 
-function br.isHumanoid(Unit)
+function unit:isHumanoid(Unit)
 	if Unit == nil then Unit = "target" end
 	local isHumanoid = false
 	local unitType = br._G.UnitCreatureType(Unit)
@@ -428,13 +431,13 @@ function br.isHumanoid(Unit)
 end
 
 -- Dummy Check
-function br.isDummy(Unit)
+function unit:isDummy(Unit)
 	if Unit == nil then
 		Unit = "target"
 	end
-	if br.GetObjectExists(Unit) then
+	if br.functions.unit:GetObjectExists(Unit) then
 		local dummies = br.lists.dummies
-		local objectID = br.GetObjectID(Unit)
+		local objectID = br.functions.unit:GetObjectID(Unit)
 		-- if dummies[tonumber(string.match(UnitGUID(Unit),"-(%d+)-%x+$"))] then --~= nil
 		return dummies[objectID] ~= nil
 	end
@@ -442,7 +445,7 @@ function br.isDummy(Unit)
 end
 
 -- if isEnemy([Unit])
-function br.isEnemy(Unit)
+function unit:isEnemy(Unit)
 	Unit = Unit or "target"
 	if br._G.UnitCanAttack(Unit, "player") then
 		return true
@@ -451,11 +454,12 @@ function br.isEnemy(Unit)
 	end
 end
 
-function br.isTankInRange()
-	if #br.friend > 1 then
-		for i = 1, #br.friend do
-			local friend = br.friend[i]
-			if friend.GetRole() == "TANK" and not br.GetUnitIsDeadOrGhost(friend.unit) and br.getDistance(friend.unit) < 40 then
+function unit:isTankInRange(range)
+	if range == nil then range = 40 end
+	if #br.engines.healingEngine.friend > 1 then
+		for i = 1, #br.engines.healingEngine.friend do
+			local friend = br.engines.healingEngine.friend[i]
+			if friend.GetRole() == "TANK" and not br.functions.unit:GetUnitIsDeadOrGhost(friend.unit) and br.functions.range:getDistance(friend.unit) < range then
 				return true, friend.unit
 			end
 		end

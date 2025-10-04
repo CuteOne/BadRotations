@@ -1,40 +1,42 @@
 local _, br = ...
+br.engines.healingEngine = br.engines.healingEngine or {} -- This will be the MetaTable attached to our Main Table that the world will see
+local healingEngine = br.engines.healingEngine
+
 --[[---------------------------------------------------------------------------------------------------
 
 
 
 -----------------------------------------Bubba's Healing Engine--------------------------------------]]
 -- local LGIST = br._G.LibStub("LibGroupInSpecT-1.1")
-if not br.metaTable1 then
+if not healingEngine.metaTable1 then
 	-- localizing the commonly used functions while inside loops
 	local getDistance, tinsert, tremove, UnitClass, GetUnitIsUnit = br.getDistance, br._G.tinsert, br._G.tremove, br._G.UnitClass, br.GetUnitIsUnit
 	local UnitHealth, UnitHealthMax = br._G.UnitHealth, br._G.UnitHealthMax
 	local GetTime, UnitDebuffID = br._G.GetTime, br.UnitDebuffID
-	br.friend = {} -- This is our main Table that the world will see
-	br.memberSetup = {} -- This is one of our MetaTables that will be the default user/contructor
-	br.memberSetup.cache = {} -- This is for the cache Table to check against
-	br.metaTable1 = {} -- This will be the MetaTable attached to our Main Table that the world will see
-	br.metaTable1.__call = function(_) -- (_, forceRetable, excludePets, onlyInRange) [Not Implemented]
+	br.engines.healingEngine.friend = {} -- This is our main Table that the world will see
+	healingEngine.memberSetup = {} -- This is one of our MetaTables that will be the default user/contructor
+	healingEngine.memberSetup.cache = {} -- This is for the cache Table to check against
+	healingEngine.__call = function(_) -- (_, forceRetable, excludePets, onlyInRange) [Not Implemented]
 		local group = br._G.IsInRaid() and "raid" or "party" -- Determining if the UnitID will be raid or party based
 		local groupSize = br._G.IsInRaid() and br._G.GetNumGroupMembers() or br._G.GetNumGroupMembers() - 1 -- If in raid, we check the entire raid. If in party, we remove one from max to account for the player.
 		if group == "party" then
-			tinsert(br.friend, br.memberSetup:new("player"))
+			tinsert(br.engines.healingEngine.friend, healingEngine.memberSetup:new("player"))
 		end -- We are creating a new User for player if in a Group
 		for i = 1, groupSize do -- start of the loop to read throught the party/raid
 			local groupUnit = group .. i
-			local groupMember = br.memberSetup:new(groupUnit)
+			local groupMember = healingEngine.memberSetup:new(groupUnit)
 			if groupMember then
-				tinsert(br.friend, groupMember)
+				tinsert(br.engines.healingEngine.friend, groupMember)
 			end -- Inserting a newly created Unit into the Main Frame
 		end
 	end
-	br.metaTable1.__index = {
+	healingEngine.__index = {
 		-- Setting the Metamethod of Index for our Main Table
 		name = "Healing Table",
 		author = "Bubba"
 	}
 	-- Creating a default Unit to default to on a check
-	br.memberSetup.__index = {
+	healingEngine.memberSetup.__index = {
 		name = "noob",
 		hp = 100,
 		unit = "noob",
@@ -50,15 +52,15 @@ if not br.metaTable1 then
 	updateHealingTable:SetScript(
 		"OnEvent",
 		function()
-			_G.table.wipe(br.friend)
-			_G.table.wipe(br.memberSetup.cache)
-			br.SetupTables()
+			_G.table.wipe(br.engines.healingEngine.friend)
+			_G.table.wipe(healingEngine.memberSetup.cache)
+			healingEngine:SetupTables()
 		end
 	)
 	-- This is for those NPC units that need healing. Compare them against our list of Unit ID's
 	local function SpecialHealUnit(tar)
-		for i = 1, #br.novaEngineTables.SpecialHealUnitList do
-			if br.getGUID(tar) == br.novaEngineTables.SpecialHealUnitList[i] then
+		for i = 1, #br.engines.healingEngineCollections.SpecialHealUnitList do
+			if br.functions.unit:getGUID(tar) == br.engines.healingEngineCollections.SpecialHealUnitList[i] then
 				return true
 			end
 		end
@@ -69,7 +71,7 @@ if not br.metaTable1 then
 			local auraInfo = br._G.UnitAura(tar, i, "HELPFUL|HARMFUL")
 			if auraInfo then
 				if auraInfo.name then
-					if br.novaEngineTables.BadDebuffList[auraInfo.spellID] ~= nil then
+					if br.engines.healingEngineCollections.BadDebuffList[auraInfo.spellID] ~= nil then
 						return false
 					end
 				end
@@ -80,9 +82,9 @@ if not br.metaTable1 then
 
 	-- This is for NPC units we do not want to heal. Compare to list in collections.
 	local function CheckSkipNPC(tar)
-		local npcId = (br.getGUID(tar))
-		for i = 1, #br.novaEngineTables.skipNPC do
-			if npcId == br.novaEngineTables.skipNPC[i] then
+		local npcId = (br.functions.unit:getGUID(tar))
+		for i = 1, #br.engines.healingEngineCollections.skipNPC do
+			if npcId == br.engines.healingEngineCollections.skipNPC[i] then
 				return true
 			end
 		end
@@ -102,33 +104,33 @@ if not br.metaTable1 then
 		end
 	end
 	-- Verifying the target is a Valid Healing target
-	function br.HealCheck(tar)
+	function healingEngine:HealCheck(tar)
 		if
-			(br.GetUnitIsVisible(tar) and br.GetUnitReaction("player", tar) > 4 and not br.GetUnitIsDeadOrGhost(tar) and br.getLineOfSight("player", tar) and CheckCreatureType(tar) and
-				not br._G.UnitPhaseReason(tar)) and
-				((br.isPlayer(tar) and br._G.UnitIsConnected(tar) and CheckBadDebuff(tar) and not br._G.UnitIsCharmed(tar) and not br._G.UnitIsOtherPlayersPet(tar)) or
-					((GetUnitIsUnit(tar,"pet") or br._G.UnitIsOtherPlayersPet(tar)) and br.getOptionCheck("Heal Pets")) or
-					br.novaEngineTables.SpecialHealUnitList[tonumber(select(2, br.getGUID(tar)))] ~= nil)
+			(br.functions.unit:GetUnitIsVisible(tar) and br.functions.unit:GetUnitReaction("player", tar) > 4 and not br.functions.unit:GetUnitIsDeadOrGhost(tar) and br.functions.misc:getLineOfSight("player", tar) and CheckCreatureType(tar) and
+				br._G.UnitInPhase(tar)) and
+				((br.functions.misc:isPlayer(tar) and br._G.UnitIsConnected(tar) and CheckBadDebuff(tar) and not br._G.UnitIsCharmed(tar) and not br._G.UnitIsOtherPlayersPet(tar)) or
+					((GetUnitIsUnit(tar,"pet") or br._G.UnitIsOtherPlayersPet(tar)) and br.functions.misc:getOptionCheck("Heal Pets")) or
+					br.engines.healingEngineCollections.SpecialHealUnitList[tonumber(select(2, br.functions.unit:getGUID(tar)))] ~= nil)
 		 then
 			return true
 		else
 			return false
 		end
 	end
-	function br.memberSetup:new(unit)
+	function healingEngine.memberSetup:new(unit)
 		-- Seeing if we have already cached this unit before
-		if br.memberSetup.cache[br.getGUID(unit)] then
+		if healingEngine.memberSetup.cache[br.functions.unit:getGUID(unit)] then
 			return false
 		end
 		local o = {}
-		setmetatable(o, br.memberSetup)
+		setmetatable(o, healingEngine.memberSetup)
 		if unit and type(unit) == "string" then
 			o.unit = unit
 		end
 		-- We are checking the HP of the person through their own function.
 		function o:CalcHP()
-			local toxicBrand = br.getOptionValue("Toxic Brand")
-			local necroRot = br.getOptionValue("Necrotic Rot")
+			local toxicBrand = br.functions.misc:getOptionValue("Toxic Brand")
+			local necroRot = br.functions.misc:getOptionValue("Necrotic Rot")
 			if toxicBrand == 0 or toxicBrand == nil then
 				toxicBrand = 10
 			end
@@ -139,23 +141,23 @@ if not br.metaTable1 then
 			if o.unit == nil then return 0, 0, 0 end
 			-- Darkness phase of Kil'Jaeden. basically blacklists all friends if I have this debuff, since I can't heal.
 			-- but once I have Illidan's Sightless Gaze (241721), I can hea
-			if br.isChecked("Necrotic Rot") and br.getDebuffStacks(o.unit, 209858) > 0 and br.getDebuffStacks(o.unit, 209858) >= necroRot then
+			if br.functions.misc:isChecked("Necrotic Rot") and br.functions.aura:getDebuffStacks(o.unit, 209858) > 0 and br.functions.aura:getDebuffStacks(o.unit, 209858) >= necroRot then
 				return 250, 250, 250
 			end
-			if br.UnitBuffID(o.unit, 360618) then
+			if br.functions.aura:UnitBuffID(o.unit, 360618) then
 				return 250, 250, 250
 			end
-			if br.UnitBuffID(o.unit, 295271) then
+			if br.functions.aura:UnitBuffID(o.unit, 295271) then
 				return 250, 250, 250
 			end
-			if br.UnitBuffID(o.unit, 344916) then
+			if br.functions.aura:UnitBuffID(o.unit, 344916) then
 				return 250, 250, 250
 			end
-			if br.UnitBuffID(o.unit, 327140) or br.UnitBuffID(o.unit, 327676) then
+			if br.functions.aura:UnitBuffID(o.unit, 327140) or br.functions.aura:UnitBuffID(o.unit, 327676) then
 				return 250, 250, 250
 			end
-			if br.isChecked("Toxic Brand") and br.player.eID and br.player.eID == 2298 then
-				if br.getDebuffStacks(o.unit, 294715) > 0 and br.getDebuffStacks(o.unit, 294715) >= toxicBrand then
+			if br.functions.misc:isChecked("Toxic Brand") and br.player.eID and br.player.eID == 2298 then
+				if br.functions.aura:getDebuffStacks(o.unit, 294715) > 0 and br.functions.aura:getDebuffStacks(o.unit, 294715) >= toxicBrand then
 					return 250, 250, 250
 				end
 			end
@@ -163,11 +165,11 @@ if not br.metaTable1 then
 				return 250, 250, 250
 			end
 			if br.player.eID == 2331 then
-				local time_remain = br.DBM:getPulltimer(nil, 313213)
-				if time_remain < br.getOptionValue("Decaying Strike Timer") then
+				local time_remain = br.functions.DBM:getPulltimer(nil, 313213)
+				if time_remain < br.functions.misc:getOptionValue("Decaying Strike Timer") then
 					for i = 1, br._G.GetObjectCount() do
 						local thisUnit = br._G.GetObjectWithIndex(i)
-						if br.GetObjectID(thisUnit) == 156866 and br._G.UnitTarget(thisUnit) ~= nil then
+						if br.functions.unit:GetObjectID(thisUnit) == 156866 and br._G.UnitTarget(thisUnit) ~= nil then
 							if br._G.UnitTarget(thisUnit) == o.unit then
 								return 250, 250, 250
 							end
@@ -208,7 +210,7 @@ if not br.metaTable1 then
 			-- Place Dead players at the end of the list
 			if o.hcRefresh == nil or o.hcRefresh < GetTime() - 1 then
 				local startTime = br._G.debugprofilestop()
-				if br.HealCheck(o.unit) ~= true or UnitHealth(o.unit) == 0 then
+				if healingEngine:HealCheck(o.unit) ~= true or UnitHealth(o.unit) == 0 then
 					return 250, 250, 250
 				end
 				br.debug.cpu.healingEngine.HealCheck = br._G.debugprofilestop() - startTime
@@ -216,38 +218,38 @@ if not br.metaTable1 then
 			end
 			-- incoming heals
 			local incomingheals
-			if br.getOptionCheck("Incoming Heals") == true and br._G.UnitGetIncomingHeals(o.unit, "player") ~= nil then
+			if br.functions.misc:getOptionCheck("Incoming Heals") == true and br._G.UnitGetIncomingHeals(o.unit, "player") ~= nil then
 				incomingheals = br._G.UnitGetIncomingHeals(o.unit, "player")
 			else
 				incomingheals = 0
 			end
 			-- absorbs
 			local nAbsorbs
-			if br.getOptionCheck("Ignore Absorbs") ~= true then
+			if br.functions.misc:getOptionCheck("Ignore Absorbs") ~= true then
 				nAbsorbs = (br._G.UnitGetTotalAbsorbs(o.unit) * 0.25)
 			else
 				nAbsorbs = 0
 			end
 			-- calc base + absorbs + incomings
 			local PercentWithIncoming = 100 * (UnitHealth(o.unit) + incomingheals + nAbsorbs) / UnitHealthMax(o.unit)
-			if br.getOptionCheck("Prioritize Tank") then
+			if br.functions.misc:getOptionCheck("Prioritize Tank") then
 				-- Using the group role assigned to the Unit
 				if o.role == "TANK" then
-					PercentWithIncoming = PercentWithIncoming - br.getOptionValue("Prioritize Tank")
+					PercentWithIncoming = PercentWithIncoming - br.functions.misc:getOptionValue("Prioritize Tank")
 				end
 				-- Tank in Proving Grounds
 				if o.guidsh == 72218 then
-					PercentWithIncoming = PercentWithIncoming - br.getOptionValue("Prioritize Tank")
+					PercentWithIncoming = PercentWithIncoming - br.functions.misc:getOptionValue("Prioritize Tank")
 				end
 				-- Using threat to remove %hp from all tanking units
 				if o.threat == 3 then
-					PercentWithIncoming = PercentWithIncoming - br.getOptionValue("Prioritize Tank")
+					PercentWithIncoming = PercentWithIncoming - br.functions.misc:getOptionValue("Prioritize Tank")
 				end
 			end
-			-- if br.getOptionCheck("Prioritize Debuff") then
+			-- if br.functions.misc:getOptionCheck("Prioritize Debuff") then
 			-- 	-- Using Dispel Check to see if we should give bonus weight
 			-- 	if o.dispel then
-			-- 		PercentWithIncoming = PercentWithIncoming - br.getOptionValue("Prioritize Debuff")
+			-- 		PercentWithIncoming = PercentWithIncoming - br.functions.misc:getOptionValue("Prioritize Debuff")
 			-- 	end
 			-- end
 			local ActualWithIncoming = (UnitHealthMax(o.unit) - (UnitHealth(o.unit) + incomingheals))
@@ -255,7 +257,7 @@ if not br.metaTable1 then
 			local debugTimerStartTime = GetTime()
 			for i = 1, 40 do
 				local _, _, count, _, _, _, _, _, _, SpellID = br._G.UnitAura(o.unit, i, "HELPFUL|HARMFUL")
-				local debuffID = br.novaEngineTables.SpecificHPDebuffs[SpellID]
+				local debuffID = br.engines.healingEngineCollections.SpecificHPDebuffs[SpellID]
 				if debuffID ~= nil then
 				  for i = 1, #debuffID do
 					  local debuffData = debuffID[i]
@@ -270,10 +272,10 @@ if not br.metaTable1 then
 			if elapsedDebugTime > 0.5 then
 				br._G.print("WARNING: Debuff Scan took a long time: " .. elapsedDebugTime .. " Seconds")
 			end
-			if br.getOptionCheck("Blacklist") == true and br.data.blackList ~= nil then
+			if br.functions.misc:getOptionCheck("Blacklist") == true and br.data.blackList ~= nil then
 				for i = 1, #br.data.blackList do
 					if o.guid == br.data.blackList[i].guid then
-						PercentWithIncoming, ActualWithIncoming, nAbsorbs = PercentWithIncoming + br.getValue("Blacklist"), ActualWithIncoming + br.getValue("Blacklist"), nAbsorbs + br.getValue("Blacklist")
+						PercentWithIncoming, ActualWithIncoming, nAbsorbs = PercentWithIncoming + br.functions.misc:getValue("Blacklist"), ActualWithIncoming + br.functions.misc:getValue("Blacklist"), nAbsorbs + br.functions.misc:getValue("Blacklist")
 						break
 					end
 				end
@@ -284,7 +286,7 @@ if not br.metaTable1 then
 		function o:nGUID()
 			local nShortHand = ""
 			local targetGUID = ""
-			if br.GetUnitIsVisible(unit) then
+			if br.functions.unit:GetUnitIsVisible(unit) then
 				targetGUID = br._G.UnitGUID(unit)
 				nShortHand = br._G.UnitGUID(unit):sub(-5)
 			end
@@ -296,8 +298,8 @@ if not br.metaTable1 then
 				if GetUnitIsUnit("player", o.unit) then
 					return UnitClass("player")
 				end
-				if br.novaEngineTables.roleTable[br._G.UnitName(o.unit)] ~= nil then
-					return br.novaEngineTables.roleTable[br._G.UnitName(o.unit)].class
+				if br.engines.healingEngineCollections.roleTable[br._G.UnitName(o.unit)] ~= nil then
+					return br.engines.healingEngineCollections.roleTable[br._G.UnitName(o.unit)].class
 				end
 			else
 				return UnitClass(o.unit)
@@ -307,11 +309,11 @@ if not br.metaTable1 then
 		function o:GetRole()
 			if br._G.UnitGroupRolesAssigned(o.unit) == "NONE" then
 				-- if we already have a role defined we dont scan
-				if br.novaEngineTables.roleTable[br._G.UnitName(o.unit)] ~= nil then
-					return br.novaEngineTables.roleTable[br._G.UnitName(o.unit)].role
+				if br.engines.healingEngineCollections.roleTable[br._G.UnitName(o.unit)] ~= nil then
+					return br.engines.healingEngineCollections.roleTable[br._G.UnitName(o.unit)].role
 				else
 ---@diagnostic disable-next-line: undefined-field
-					-- local info = LGIST:GetCachedInfo(br.getGUID(o.unit))
+					-- local info = LGIST:GetCachedInfo(br.functions.unit:getGUID(o.unit))
 					-- if info and info.spec_role then
 					-- 	return info.spec_role
 					-- end
@@ -323,9 +325,9 @@ if not br.metaTable1 then
 		end
 		-- sets actual position of unit in engine, shouldnt refresh more than once/sec
 		function o:GetPosition()
-			if br.GetUnitIsVisible(o.unit) and br.getLineOfSight("player",o.unit) then
+			if br.functions.unit:GetUnitIsVisible(o.unit) and br.functions.misc:getLineOfSight("player",o.unit) then
 				o.refresh = GetTime()
-				local x, y, z = br.GetObjectPosition(o.unit)
+				local x, y, z = br.functions.unit:GetObjectPosition(o.unit)
 				x = math.ceil(x * 100) / 100
 				y = math.ceil(y * 100) / 100
 				z = math.ceil(z * 100) / 100
@@ -351,7 +353,7 @@ if not br.metaTable1 then
 		end
 		-- Updating the values of the Unit
 		function o:UpdateUnit()
-			if br.isChecked("Debug Timers") then
+			if br.functions.misc:isChecked("Debug Timers") then
 				local startTime
 				local debugprofilestop = br._G.debugprofilestop
 
@@ -462,22 +464,23 @@ if not br.metaTable1 then
 				o.x, o.y, o.z = o:GetPosition()
 			end
 			-- add unit to setup cache
-			br.memberSetup.cache[select(2, br.getGUID(o.unit))] = o -- Add unit to SetupTable
+			healingEngine.memberSetup.cache[select(2, br.functions.unit:getGUID(o.unit))] = o -- Add unit to SetupTable
 		end
 		-- Adding the user and functions we just created to this cached version in case we need it again
 		-- This will also serve as a good check for if the unit is already in the table easily
-		--Print(UnitName(unit), select(2, br.getGUID(unit)))
-		br.memberSetup.cache[select(2, o:nGUID())] = o
+		--Print(UnitName(unit), select(2, br.functions.unit:getGUID(unit)))
+		healingEngine.memberSetup.cache[select(2, o:nGUID())] = o
 		return o
 	end
 	-- Setting up the tables on either Wipe or Initial Setup
-	function br.SetupTables() -- Creating the cache (we use this to check if some1 is already in the table)
-		setmetatable(br.friend, br.metaTable1) -- Set the metaTable of Main to Meta
-		function br.friend:Update()
+	function healingEngine:SetupTables()
+		-- Creating the cache (we use this to check if some1 is already in the table)
+		setmetatable(br.engines.healingEngine.friend, healingEngine) -- Set the metaTable of Main to Meta
+		function br.engines.healingEngine.friend:Update()
 			-- Print("HEAL PULSE: "..GetTime())		-- debug Print to check update time
 			-- This is for special situations, IE world healing or NPC healing in encounters
-			local selectedMode, SpecialTargets = br.getOptionValue("Special Heal"), {}
-			if br.getOptionCheck("Special Heal") == true then
+			local selectedMode, SpecialTargets = br.functions.misc:getOptionValue("Special Heal"), {}
+			if br.functions.misc:getOptionCheck("Special Heal") == true then
 				if selectedMode == 1 then
 					SpecialTargets = {"target"}
 				elseif selectedMode == 2 then
@@ -490,63 +493,63 @@ if not br.metaTable1 then
 			end
 			for p = 1, #SpecialTargets do
 				-- Checking if Unit Exists and it's possible to heal them
-				if br.GetUnitExists(SpecialTargets[p]) and br.HealCheck(SpecialTargets[p]) and not CheckSkipNPC(SpecialTargets[p]) then
-					if not br.memberSetup.cache[select(2, br.getGUID(SpecialTargets[p]))] then
-						local SpecialCase = br.memberSetup:new(SpecialTargets[p])
+				if br.functions.unit:GetUnitExists(SpecialTargets[p]) and healingEngine:HealCheck(SpecialTargets[p]) and not CheckSkipNPC(SpecialTargets[p]) then
+					if not healingEngine.memberSetup.cache[select(2, br.functions.unit:getGUID(SpecialTargets[p]))] then
+						local SpecialCase = healingEngine.memberSetup:new(SpecialTargets[p])
 						if SpecialCase then
 							-- Creating a new user, if not already tabled, will return with the User
-							for j = 1, #br.friend do
-								if br.friend[j].unit == SpecialTargets[p] then
+							for j = 1, #br.engines.healingEngine.friend do
+								if br.engines.healingEngine.friend[j].unit == SpecialTargets[p] then
 									-- Now we add the Unit we just created to the Main Table
-									for k, _ in pairs(br.memberSetup.cache) do
-										if br.friend[j].guidsh == k then
-											br.memberSetup.cache[k] = nil
+									for k, _ in pairs(healingEngine.memberSetup.cache) do
+										if br.engines.healingEngine.friend[j].guidsh == k then
+											healingEngine.memberSetup.cache[k] = nil
 										end
 									end
-									tremove(br.friend, j)
+									tremove(br.engines.healingEngine.friend, j)
 									break
 								end
 							end
 						end
-						tinsert(br.friend, SpecialCase)
-						br.novaEngineTables.SavedSpecialTargets[SpecialTargets[p]] = select(2, br.getGUID(SpecialTargets[p]))
+						tinsert(br.engines.healingEngine.friend, SpecialCase)
+						br.engines.healingEngineCollections.SavedSpecialTargets[SpecialTargets[p]] = select(2, br.functions.unit:getGUID(SpecialTargets[p]))
 					end
 				end
 			end
 			for p = 1, #SpecialTargets do
 				local removedTarget = false
-				for j = 1, #br.friend do
+				for j = 1, #br.engines.healingEngine.friend do
 					-- Trying to find a case of the unit inside the Main Table to remove
-					if br.friend[j].unit == SpecialTargets[p] and (br.friend[j].guid ~= 0 and br.friend[j].guid ~= br._G.UnitGUID(SpecialTargets[p])) then
-						tremove(br.friend, j)
+					if br.engines.healingEngine.friend[j].unit == SpecialTargets[p] and (br.engines.healingEngine.friend[j].guid ~= 0 and br.engines.healingEngine.friend[j].guid ~= br._G.UnitGUID(SpecialTargets[p])) then
+						tremove(br.engines.healingEngine.friend, j)
 						removedTarget = true
 						break
 					end
 				end
 				if removedTarget == true then
-					for k, v in pairs(br.memberSetup.cache) do
+					for k, v in pairs(healingEngine.memberSetup.cache) do
 						-- Now we're trying to find that unit in the Cache table to remove
 						if SpecialTargets[p] == v.unit then
-							br.memberSetup.cache[k] = nil
+							healingEngine.memberSetup.cache[k] = nil
 						end
 					end
 				end
 			end
-			for i = 1, #br.friend do
+			for i = 1, #br.engines.healingEngine.friend do
 				-- We are updating all of the User Info (Health/Range/Name)
-				br.friend[i]:UpdateUnit()
+				br.engines.healingEngine.friend[i]:UpdateUnit()
 			end
 			-- We are sorting by Health first
 			table.sort(
-				br.friend,
+				br.engines.healingEngine.friend,
 				function(x, y)
 					return x.hp < y.hp
 				end
 			)
-			if br.getOptionCheck("Prioritize Special Targets") == true then
-				if br.GetUnitExists("focus") and br.memberSetup.cache[select(2, br.getGUID("focus"))] then
+			if br.functions.misc:getOptionCheck("Prioritize Special Targets") == true then
+				if br.functions.unit:GetUnitExists("focus") and healingEngine.memberSetup.cache[select(2, br.functions.unit:getGUID("focus"))] then
 					table.sort(
-						br.friend,
+						br.engines.healingEngine.friend,
 						function(x)
 							if x.unit == "focus" then
 								return true
@@ -556,9 +559,9 @@ if not br.metaTable1 then
 						end
 					)
 				end
-				if br.GetUnitExists("target") and br.memberSetup.cache[select(2, br.getGUID("target"))] then
+				if br.functions.unit:GetUnitExists("target") and healingEngine.memberSetup.cache[select(2, br.functions.unit:getGUID("target"))] then
 					table.sort(
-						br.friend,
+						br.engines.healingEngine.friend,
 						function(x)
 							if x.unit == "target" then
 								return true
@@ -568,9 +571,9 @@ if not br.metaTable1 then
 						end
 					)
 				end
-				if br.GetUnitExists("mouseover") and br.memberSetup.cache[select(2, br.getGUID("mouseover"))] then
+				if br.functions.unit:GetUnitExists("mouseover") and healingEngine.memberSetup.cache[select(2, br.functions.unit:getGUID("mouseover"))] then
 					table.sort(
-						br.friend,
+						br.engines.healingEngine.friend,
 						function(x)
 							if x.unit == "mouseover" then
 								return true
@@ -581,15 +584,15 @@ if not br.metaTable1 then
 					)
 				end
 			end
-			if br.pulseNovaDebugTimer == nil or br.pulseNovaDebugTimer <= GetTime() then
-				br.pulseNovaDebugTimer = GetTime() + 0.5
-				br.pulseNovaDebug()
+			if br.engines.healingEngineFrame.pulseNovaDebugTimer == nil or br.engines.healingEngineFrame.pulseNovaDebugTimer <= GetTime() then
+				br.engines.healingEngineFrame.pulseNovaDebugTimer = GetTime() + 0.5
+				br.engines.healingEngineFrame:pulseNovaDebug()
 			end
-			-- update these frames to current br.friend values via a pulse in nova engine
+			-- update these frames to current br.engines.healingEngine.friend values via a pulse in nova engine
 		end
 		-- We are creating the initial Main Table
-		br.friend()
+		br.engines.healingEngine.friend()
 	end
 	-- We are setting up the Tables for the first time
-	br.SetupTables()
+	healingEngine:SetupTables()
 end

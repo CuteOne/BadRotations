@@ -71,15 +71,15 @@ local function createOptions()
         ----------------------
         section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
         -- Single/Multi Toggle
-        br.ui:createDropdown(section, "Rotation Mode", br.dropOptions.Toggle, 4)
+        br.ui:createDropdown(section, "Rotation Mode", br.ui.dropOptions.Toggle, 4)
         --Cooldown Key Toggle
-        br.ui:createDropdown(section, "Cooldown Mode", br.dropOptions.Toggle, 3)
+        br.ui:createDropdown(section, "Cooldown Mode", br.ui.dropOptions.Toggle, 3)
         --Defensive Key Toggle
-        br.ui:createDropdown(section, "Defensive Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdown(section, "Defensive Mode", br.ui.dropOptions.Toggle, 6)
         -- Interrupts Key Toggle
-        br.ui:createDropdown(section, "Interrupt Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdown(section, "Interrupt Mode", br.ui.dropOptions.Toggle, 6)
         -- Pause Toggle
-        br.ui:createDropdown(section, "Pause Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdown(section, "Pause Mode", br.ui.dropOptions.Toggle, 6)
         br.ui:checkSectionState(section)
     end
     optionTable = { {
@@ -110,7 +110,7 @@ local chi
 
 local getRealHP = function(Unit)
     if Unit ~= nil then
-        if br.GetObjectExists(Unit) and br.GetUnitIsVisible(Unit) and not br.GetUnitIsDeadOrGhost(Unit) then
+        if br.functions.unit:GetObjectExists(Unit) and br.functions.unit:GetUnitIsVisible(Unit) and not br.functions.unit:GetUnitIsDeadOrGhost(Unit) then
             return 100 * (br._G.UnitHealth(Unit) + br._G.UnitGetIncomingHeals(Unit, "player")) /
             br._G.UnitHealthMax(Unit)
         end
@@ -193,11 +193,11 @@ actionList.PreCombat = function()
             -- Logic based on pull timers (IE: DBM/BigWigs)
         end                          -- End Pre-Pull
         if unit.valid("target") then -- Abilities below this only used when target is valid
-            if br.unlocker == "Tinkr" and not br.getFacing("player", "target") then
+            if br.unlockers.selected == "Tinkr" and not br.functions.unit:getFacing("player", "target") then
                 return br._G.FaceObject("target")
             end
 
-            if br.unlocker == "Tinkr" and unit.distance("target") > 5 then
+            if br.unlockers.selected == "Tinkr" and unit.distance("target") > 5 then
                 return br._G.MoveToRaw(br._G.ObjectRawPosition("target"))
             end
 
@@ -278,7 +278,7 @@ local function runRotation() -- This is the main profile loop, any below this po
             ------------
             --- Main ---
             ------------
-            if br.unlocker == "Tinkr" then
+            if br.unlockers.selected == "Tinkr" then
                 br._G.FaceObject("target")
             end
 
@@ -385,10 +385,10 @@ local function runRotation() -- This is the main profile loop, any below this po
         end    -- End In Combat Rotation
     end        -- Pause
 end            -- End runRotation
-local id = 269 -- Change to the spec id profile is for. Spec ID can be found at: https://wowpedia.fandom.com/wiki/SpecializationID
+local id = 0 -- Change to the spec id profile is for. Spec ID can be found at: https://wowpedia.fandom.com/wiki/SpecializationID
 -- DO NOT EDIT ANYTHING BELOW THIS LINE, WILL BREAK PROFILE --
-if br.rotations[id] == nil then br.rotations[id] = {} end
-tinsert(br.rotations[id], {
+if br.loader.rotations[id] == nil then br.loader.rotations[id] = {} end
+tinsert(br.loader.rotations[id], {
     name = rotationName,
     toggles = createToggles,
     options = createOptions,

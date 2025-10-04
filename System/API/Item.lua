@@ -53,14 +53,14 @@ br.api.items = function(item,k,v,subtable)
         -- -- @function charges.item.exists
         -- -- @treturn boolean
         -- charges[k].exists = function()
-        --     return br.itemCharges(v) > 0
+        --     return br.functions.item:itemCharges(v) > 0
         -- end
 
         -- --- Gets the number of charges remaining on item.
         -- -- @function charges.item.count
         -- -- @treturn number
         -- charges[k].count = function()
-        --     return br.itemCharges(v)
+        --     return br.functions.item:itemCharges(v)
         -- end
     -- end
 
@@ -74,9 +74,9 @@ br.api.items = function(item,k,v,subtable)
     --     -- @treturn boolean
     --     equiped[k] = function(slotID)
     --         if slotID == nil then
-    --             return br.hasEquiped(v)
+    --             return br.functions.item:hasEquiped(v)
     --         else
-    --             return br.hasEquiped(v,slotID)
+    --             return br.functions.item:hasEquiped(v,slotID)
     --         end
     --     end
 
@@ -96,7 +96,7 @@ br.api.items = function(item,k,v,subtable)
     --     -- @treturn number
     --     equiped.tier = function(tierLevel)
     --         if type(tierLevel) == "number" then tierLevel = "T"..tierLevel end
-    --         return br.TierScan(tierLevel)
+    --         return br.functions.item:TierScan(tierLevel)
     --     end
 
     --     if equiped.type == nil then
@@ -121,7 +121,7 @@ br.api.items = function(item,k,v,subtable)
         -- -- @function has.item
         -- -- @treturn boolean
         -- has[k] = function()
-        --     return br.hasItem(v)
+        --     return br.functions.item:hasItem(v)
         -- end
 
         -- if has.item == nil then
@@ -132,7 +132,7 @@ br.api.items = function(item,k,v,subtable)
         --     -- @treturn boolean
         --     has.item = function(itemID)
         --         if itemID == nil then return end
-        --         return br.hasItem(itemID)
+        --         return br.functions.item:hasItem(itemID)
         --     end
         -- end
     end
@@ -149,9 +149,9 @@ br.api.items = function(item,k,v,subtable)
         -- use[k] = function(slotID,thisUnit)
         --     if thisUnit == nil then thisUnit = "target" end
         --     if slotID == nil then
-        --         if br.canUseItem(v) then return br.useItem(v,thisUnit) else return end
+        --         if br.functions.item:canUseItem(v) then return br.functions.item:useItem(v,thisUnit) else return end
         --     else
-        --         if br.canUseItem(slotID) then return br.useItem(slotID,thisUnit) else return end
+        --         if br.functions.item:canUseItem(slotID) then return br.functions.item:useItem(slotID,thisUnit) else return end
         --     end
         -- end
 
@@ -165,8 +165,8 @@ br.api.items = function(item,k,v,subtable)
         --     use.item = function(itemID,thisUnit)
         --         if itemID == nil then return false end
         --         if thisUnit == nil then thisUnit = "target" end
-        --         if br.canUseItem(itemID) then
-        --             return br.useItem(itemID,thisUnit)
+        --         if br.functions.item:canUseItem(itemID) then
+        --             return br.functions.item:useItem(itemID,thisUnit)
         --         else
         --             return
         --         end
@@ -181,7 +181,7 @@ br.api.items = function(item,k,v,subtable)
         --     -- @treturn boolean
         --     use.slot = function(slotID,thisUnit)
         --         if thisUnit == nil then thisUnit = "target" end
-        --         if br.canUseItem(slotID) then return br.useItem(slotID,thisUnit) else return end
+        --         if br.functions.item:canUseItem(slotID) then return br.functions.item:useItem(slotID,thisUnit) else return end
         --     end
         -- end
 
@@ -192,7 +192,7 @@ br.api.items = function(item,k,v,subtable)
         -- -- @number[opt] slotID The ID of the equipment slot to check.
         -- -- @treturn boolean
         -- use.able[k] = function(slotID)
-        --     if slotID == nil then return br.canUseItem(v) else return br.canUseItem(slotID) end
+        --     if slotID == nil then return br.functions.item:canUseItem(v) else return br.functions.item:canUseItem(slotID) end
         -- end
 
         -- if use.able.item == nil then
@@ -203,7 +203,7 @@ br.api.items = function(item,k,v,subtable)
         --     -- @treturn boolean
         --     use.able.item = function(itemID)
         --         if itemID == nil then return false end
-        --         return br.canUseItem(itemID)
+        --         return br.functions.item:canUseItem(itemID)
         --     end
         -- end
 
@@ -213,7 +213,7 @@ br.api.items = function(item,k,v,subtable)
         --     -- @number slotID The ID of the equipment slot to check.
         --     -- @treturn boolean
         --     use.able.slot = function(slotID)
-        --         return br.canUseItem(slotID)
+        --         return br.functions.item:canUseItem(slotID)
         --     end
         -- end
     end

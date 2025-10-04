@@ -4,7 +4,7 @@ local DiesalGUI = _G.LibStub("DiesalGUI-1.0")
 local _, br = ...
 -- Global setup
 br.ui = {}
-br.spacing = 15
+br.ui.spacing = 15
 LSM:Register(MediaType_FONT, "calibrib", [[Interface\Addons\SharedMedia_MyMedia\font\calibrib.ttf]])
 --
 local Type = "UI"

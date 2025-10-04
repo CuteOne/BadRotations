@@ -48,11 +48,11 @@ local function createOptions()
         ----------------------
         section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
         -- Single/Multi Toggle
-        br.ui:createDropdownWithout(section, "Rotation Mode", br.dropOptions.Toggle, 4)
+        br.ui:createDropdownWithout(section, "Rotation Mode", br.ui.dropOptions.Toggle, 4)
         --Defensive Key Toggle
-        br.ui:createDropdownWithout(section, "Defensive Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdownWithout(section, "Defensive Mode", br.ui.dropOptions.Toggle, 6)
         -- Pause Toggle
-        br.ui:createDropdown(section, "Pause Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdown(section, "Pause Mode", br.ui.dropOptions.Toggle, 6)
         br.ui:checkSectionState(section)
     end
     optionTable = { {
@@ -158,14 +158,14 @@ actionList.PreCombat = function()
             -- Smite
             if cast.able.smite("target") and not unit.moving() then
                 if cast.smite("target") then
-                    br.addonDebug("Casting Smite [Precombat]")
+                    br.functions.misc:addonDebug("Casting Smite [Precombat]")
                     return true
                 end
             end
             -- Shadow Word: Pain
             if cast.able.shadowWordPain("target") and debuff.shadowWordPain.refresh("target") then
                 if cast.shadowWordPain("target") then
-                    br.addonDebug("Casting Shadow Word: Pain [Precombat]")
+                    br.functions.misc:addonDebug("Casting Shadow Word: Pain [Precombat]")
                     return true
                 end
             end
@@ -197,7 +197,7 @@ actionList.Combat = function()
             -- Shadow Word: Pain
             if cast.able.shadowWordPain(units.dyn40) and debuff.shadowWordPain.refresh(units.dyn40) then
                 if cast.shadowWordPain(units.dyn40) then
-                    br.addonDebug("Casting Shadow Word: Pain")
+                    br.functions.misc:addonDebug("Casting Shadow Word: Pain")
                     return true
                 end
             end
@@ -211,7 +211,7 @@ actionList.Combat = function()
             -- Smite
             if cast.able.smite() and not unit.moving() then
                 if cast.smite() then
-                    br.addonDebug("Casting Smite")
+                    br.functions.misc:addonDebug("Casting Smite")
                     return true
                 end
             end
@@ -237,7 +237,7 @@ local function runRotation()
     units          = br.player.units
     -- General Locals
     profileStop    = profileStop or false
-    haltProfile    = (unit.inCombat() and profileStop) or IsMounted() or br.pause() or mode.rotation == 2
+    haltProfile    = (unit.inCombat() and profileStop) or IsMounted() or br.functions.misc:pause() or mode.rotation == 2
     var.friendUnit = (unit.player("target") and unit.friend("target")) and "target" or "player"
     -- Units
     units.get(5)  -- Makes a variable called, units.dyn5
@@ -281,8 +281,8 @@ local function runRotation()
     end         -- Pause
 end             -- End runRotation
 local id = 1452 -- Change to the spec id profile is for.
-if br.rotations[id] == nil then br.rotations[id] = {} end
-tinsert(br.rotations[id], {
+if br.loader.rotations[id] == nil then br.loader.rotations[id] = {} end
+tinsert(br.loader.rotations[id], {
     name = rotationName,
     toggles = createToggles,
     options = createOptions,

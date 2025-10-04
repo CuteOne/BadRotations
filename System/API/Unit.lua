@@ -3,6 +3,7 @@
 -- Provides unit-based check functionality for the rotation system.
 -- These calls help in retrieving information about unit-based checks.
 -- @usage local unit = br.player.unit
+
 local _, br = ...
 if br.api == nil then br.api = {} end
 ----------------------
@@ -25,9 +26,8 @@ br.api.unit = function(self)
     -- @param thisUnit The unit to check, defaults to "target" if nil
     -- @return boolean True if the unit is an Aberration
     unit.aberration = function(thisUnit)
-        local isAberration = br["isAberration"]
         if thisUnit == nil then thisUnit = "target" end
-        return isAberration(thisUnit)
+        return br.functions.unit:isAberration(thisUnit)
     end
 
     --- Check if a unit is a Beast
@@ -35,9 +35,8 @@ br.api.unit = function(self)
     -- @param thisUnit The unit to check, defaults to "target" if nil
     -- @return boolean True if the unit is a Beast
     unit.beast = function(thisUnit)
-        local isBeast = br["isBeast"]
         if thisUnit == nil then thisUnit = "target" end
-        return isBeast(thisUnit)
+        return br.functions.unit:isBeast(thisUnit)
     end
 
     --- Check if a unit can be attacked
@@ -79,15 +78,14 @@ br.api.unit = function(self)
     -- @function unit.combatTime
     -- @return number Time in combat in seconds
     unit.combatTime = function()
-        return br.getCombatTime()
+        return br.functions.combat:getCombatTime()
     end
 
     --- Get time out of combat
     -- @function unit.ooCombatTime
     -- @return number Time out of combat in seconds
     unit.ooCombatTime = function()
-        local getOoCTime = br["getOoCTime()"]
-        return getOoCTime()
+        return br.functions.combat:getOoCTime()
     end
 
     --- Check if a unit is charmed
@@ -95,8 +93,7 @@ br.api.unit = function(self)
     -- @param thisUnit The unit to check
     -- @return boolean True if the unit is charmed
     unit.charmed = function(thisUnit)
-        local UnitIsCharmed = br._G["UnitIsCharmed"]
-        return UnitIsCharmed(thisUnit)
+        return br.functions.unit:UnitIsCharmed(thisUnit)
     end
 
     --- Clear current target
@@ -120,9 +117,8 @@ br.api.unit = function(self)
     -- @param thisUnit The unit to check, defaults to "target" if nil
     -- @return boolean True if the unit is a Demon
     unit.demon = function(thisUnit)
-        local isDemon = br["isDemon"]
         if thisUnit == nil then thisUnit = "target" end
-        return isDemon(thisUnit)
+        return br.functions.unit:isDemon(thisUnit)
     end
 
     --- Get distance between units
@@ -135,7 +131,7 @@ br.api.unit = function(self)
             otherUnit = thisUnit
             thisUnit = "player"
         end
-        return br.getDistance(thisUnit, otherUnit)
+        return br.functions.range:getDistance(thisUnit, otherUnit)
     end
 
     --- Check if player is dual wielding weapons
@@ -162,8 +158,7 @@ br.api.unit = function(self)
     -- @param thisUnit The unit to check
     -- @return boolean True if the unit exists
     unit.exists = function(thisUnit)
-        local UnitExists = br["GetUnitExists"]
-        return UnitExists(thisUnit)
+        return br.functions.unit:GetUnitExists(thisUnit)
     end
 
     --- Check if a unit is facing another unit
@@ -176,7 +171,7 @@ br.api.unit = function(self)
         if otherUnit == nil then
             otherUnit = thisUnit; thisUnit = "player"
         end
-        return br.getFacing(thisUnit, otherUnit, degrees)
+        return br.functions.unit:getFacing(thisUnit, otherUnit, degrees)
     end
 
     --- Check if a unit is falling
@@ -191,8 +186,7 @@ br.api.unit = function(self)
     -- @function unit.fallTime
     -- @return number Time in seconds player has been falling
     unit.fallTime = function()
-        local getFallTime = br["getFallTime"]
-        return getFallTime()
+        return br.functions.misc:getFallTime()
     end
 
     --- Check if player is flying
@@ -225,7 +219,7 @@ br.api.unit = function(self)
     -- @param playerUnit The reference unit, defaults to "player" if nil
     -- @return boolean True if thisUnit is friendly to playerUnit
     unit.friend = function(thisUnit, playerUnit)
-        local UnitIsFriend = br["GetUnitIsFriend"]
+        local UnitIsFriend = br._G["UnitIsFriend"]
         if playerUnit == nil then playerUnit = "player" end
         return UnitIsFriend(thisUnit, playerUnit)
     end
@@ -235,7 +229,7 @@ br.api.unit = function(self)
     -- @param max Optional boolean to return maximum possible GCD instead of current
     -- @return number Global cooldown in seconds
     unit.gcd = function(max)
-        return br.getGlobalCD(max)
+        return br.functions.spell:getGlobalCD(max)
     end
 
     --- Get unit's GUID (Globally Unique Identifier)
@@ -253,6 +247,9 @@ br.api.unit = function(self)
     -- @return number Current health of the unit
     unit.health = function(thisUnit)
         if thisUnit == nil then thisUnit = "player" end
+        if unit.isDummy(thisUnit) then
+            return br._G.UnitHealthMax(thisUnit)
+        end
         return br._G.UnitHealth(thisUnit)
     end
 
@@ -271,9 +268,11 @@ br.api.unit = function(self)
     -- @param thisUnit The unit to check, defaults to "player" if nil
     -- @return number Health percentage of the unit (0-100)
     unit.hp = function(thisUnit)
-        local getHP = br["getHP"]
         if thisUnit == nil then thisUnit = "player" end
-        return br.round2(getHP(thisUnit), 2)
+        if unit.isDummy(thisUnit) then
+            return 100
+        end
+        return br.functions.misc:round2(br.functions.unit:getHP(thisUnit), 2)
     end
 
     --- Check if a unit is a Humanoid
@@ -281,9 +280,8 @@ br.api.unit = function(self)
     -- @param thisUnit The unit to check, defaults to "target" if nil
     -- @return boolean True if the unit is a Humanoid
     unit.humanoid = function(thisUnit)
-        local isHumanoid = br["isHumanoid"]
         if thisUnit == nil then thisUnit = "target" end
-        return isHumanoid(thisUnit)
+        return br.functions.unit:isHumanoid(thisUnit)
     end
 
     --- Get unit's ID
@@ -291,7 +289,7 @@ br.api.unit = function(self)
     -- @param thisUnit The unit to get ID for
     -- @return number Unit's ID
     unit.id = function(thisUnit)
-        return br.GetObjectID(thisUnit)
+        return br.functions.unit:GetObjectID(thisUnit)
     end
 
     --- Check if a unit is in combat
@@ -326,7 +324,7 @@ br.api.unit = function(self)
     unit.interruptable = function(thisUnit, castPercent)
         if thisUnit == nil then thisUnit = "target" end
         if castPercent == nil then castPercent = 0 end
-        return br.canInterrupt(thisUnit, castPercent)
+        return br.functions.spell:canInterrupt(thisUnit, castPercent)
     end
 
     --- Check if a unit is a boss
@@ -335,7 +333,7 @@ br.api.unit = function(self)
     -- @return boolean True if the unit is a boss
     unit.isBoss = function(thisUnit)
         if thisUnit == nil then thisUnit = "target" end
-        return br.isBoss(thisUnit)
+        return br.functions.unit:isBoss(thisUnit)
     end
 
     --- Check if a unit is casting
@@ -353,7 +351,7 @@ br.api.unit = function(self)
     -- @param thisUnit The unit to check
     -- @return boolean True if the unit is a training dummy
     unit.isDummy = function(thisUnit)
-        return br.isDummy(thisUnit)
+        return br.functions.unit:isDummy(thisUnit)
     end
 
     --- Check if a unit is an explosive orb (M+ affix)
@@ -361,8 +359,7 @@ br.api.unit = function(self)
     -- @param thisUnit The unit to check
     -- @return boolean True if the unit is an explosive orb
     unit.isExplosive = function(thisUnit)
-        local isExplosive = br["isExplosive"]
-        return isExplosive(thisUnit)
+        return br.functions.unit:isExplosive(thisUnit)
     end
 
     --- Check if a unit is tanking
@@ -371,14 +368,14 @@ br.api.unit = function(self)
     -- @return boolean True if the unit is tanking
     unit.isTanking = function(thisUnit)
         if thisUnit == nil then thisUnit = "player" end
-        return br.isTanking(thisUnit)
+        return br.functions.combat:isTanking(thisUnit)
     end
 
     --- Check if a tank is in range
     -- @function unit.isTankInRange
     -- @return boolean True if a tank is in range
     unit.isTankInRange = function()
-        return br.isTankInRange()
+        return br.functions.unit:isTankInRange()
     end
 
     --- Check if two units are the same
@@ -407,9 +404,8 @@ br.api.unit = function(self)
     -- @param range The range to check for units, defaults to 5 if nil
     -- @return unit The friendly unit with lowest health in range
     unit.lowest = function(range)
-        local getLowestUnit = br["getLowestUnit"]
         if range == nil then range = 5 end
-        return getLowestUnit(range)
+        return br.functions.unit:getLowestUnit(range)
     end
 
     --- Check if player is mounted
@@ -486,9 +482,8 @@ br.api.unit = function(self)
     -- @param playerUnit The reference unit, defaults to "player" if nil
     -- @return number Reaction level (1-hostile to 8-friendly)
     unit.reaction = function(thisUnit, playerUnit)
-        local GetUnitReaction = br["GetUnitReaction"]
         if playerUnit == nil then playerUnit = "player" end
-        return GetUnitReaction(thisUnit, playerUnit)
+        return br.functions.unit:GetUnitReaction(thisUnit, playerUnit)
     end
 
     --- Check if player is resting
@@ -512,7 +507,7 @@ br.api.unit = function(self)
     -- @function unit.solo
     -- @return boolean True if player is solo
     unit.solo = function()
-        return #br.friend == 1
+        return #br.engines.healingEngine.friend == 1
     end
 
     --- Get player's spell haste percentage
@@ -573,7 +568,7 @@ br.api.unit = function(self)
     -- @return boolean True if the unit has threat
     unit.threat = function(thisUnit)
         if thisUnit == nil then thisUnit = "target" end
-        return br.hasThreat(thisUnit)
+        return br.functions.combat:hasThreat(thisUnit)
     end
 
     --- Estimate time until unit dies
@@ -583,7 +578,7 @@ br.api.unit = function(self)
     -- @return number Estimated time until death in seconds
     unit.ttd = function(thisUnit, percent)
         if thisUnit == nil then thisUnit = "target" end
-        return br.getTTD(thisUnit, percent) or 0
+        return br.engines.ttdTable:getTTD(thisUnit, percent) or 0
     end
 
     --- Get combined time to death for all enemies in range
@@ -606,8 +601,7 @@ br.api.unit = function(self)
     -- @param thisUnit The unit to check
     -- @return boolean True if the unit is Undead
     unit.undead = function(thisUnit)
-        local isUndead = br["isUndead"]
-        return isUndead(thisUnit)
+        return br.functions.unit:isUndead(thisUnit)
     end
 
     --- Check if a unit is valid for targeting
@@ -615,7 +609,7 @@ br.api.unit = function(self)
     -- @param thisUnit The unit to check
     -- @return boolean True if the unit is valid
     unit.valid = function(thisUnit)
-        return br.isValidUnit(thisUnit)
+        return br.functions.misc:isValidUnit(thisUnit)
     end
 
     -- Weapon Imbue Fuctions

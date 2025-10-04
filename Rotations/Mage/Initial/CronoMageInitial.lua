@@ -58,13 +58,13 @@ local function createOptions()
         ----------------------
         section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
         -- Single/Multi Toggle
-        br.ui:createDropdown(section, "Rotation Mode", br.dropOptions.Toggle, 4)
+        br.ui:createDropdown(section, "Rotation Mode", br.ui.dropOptions.Toggle, 4)
         --Defensive Key Toggle
-        br.ui:createDropdown(section, "Defensive Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdown(section, "Defensive Mode", br.ui.dropOptions.Toggle, 6)
         -- Interrupts Key Toggle
-        br.ui:createDropdown(section, "Interrupt Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdown(section, "Interrupt Mode", br.ui.dropOptions.Toggle, 6)
         -- Pause Toggle
-        br.ui:createDropdown(section, "Pause Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdown(section, "Pause Mode", br.ui.dropOptions.Toggle, 6)
         br.ui:checkSectionState(section)
     end
     optionTable = { {
@@ -173,7 +173,7 @@ local function runRotation()
     units       = br.player.units
     -- General Locals
     profileStop = profileStop or false
-    haltProfile = (unit.inCombat() and profileStop) or br._G.IsMounted() or br.pause() or mode.rotation == 4
+    haltProfile = (unit.inCombat() and profileStop) or br._G.IsMounted() or br.functions.misc:pause() or mode.rotation == 4
     -- Units
     units.get(5)  -- Makes a variable called, units.dyn5
     units.get(40) -- Makes a variable called, units.dyn40
@@ -252,8 +252,8 @@ local function runRotation()
 end             -- End runRotation
 local id = 1449 -- Change to the spec id profile is for. Spec ID can be found at: https://wowpedia.fandom.com/wiki/SpecializationID
 -- DO NOT EDIT ANYTHING BELOW THIS LINE, WILL BREAK PROFILE --
-if br.rotations[id] == nil then br.rotations[id] = {} end
-br._G.tinsert(br.rotations[id], {
+if br.loader.rotations[id] == nil then br.loader.rotations[id] = {} end
+br._G.tinsert(br.loader.rotations[id], {
     name = rotationName,
     toggles = createToggles,
     options = createOptions,

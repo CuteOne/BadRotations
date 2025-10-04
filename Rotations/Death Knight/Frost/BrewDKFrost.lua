@@ -76,13 +76,13 @@ local function createOptions()
         ----------------------
         section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
         -- Single/Multi Toggle
-        br.ui:createDropdownWithout(section, "Rotation Mode", br.dropOptions.Toggle, 4)
+        br.ui:createDropdownWithout(section, "Rotation Mode", br.ui.dropOptions.Toggle, 4)
         -- Defensive Key Toggle
-        br.ui:createDropdownWithout(section, "Defensive Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdownWithout(section, "Defensive Mode", br.ui.dropOptions.Toggle, 6)
         -- Interrupt Key Toggle
-        br.ui:createDropdownWithout(section, "Interrupt Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdownWithout(section, "Interrupt Mode", br.ui.dropOptions.Toggle, 6)
         -- Pause Toggle
-        br.ui:createDropdown(section, "Pause Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdown(section, "Pause Mode", br.ui.dropOptions.Toggle, 6)
         br.ui:checkSectionState(section)
     end
     optionTable = { {
@@ -146,7 +146,7 @@ actionList.Interrupts = function()
         if ui.checked("Mind Freeze") and cast.able.mindFreeze() then
             for i = 1, #enemies.yards15 do
                 local thisUnit = enemies.yards15[i]
-                if br.canInterrupt(thisUnit, ui.value("Interrupt At")) then
+                if br.functions.spell:canInterrupt(thisUnit, ui.value("Interrupt At")) then
                     if cast.mindFreeze(thisUnit) then
                         ui.debug("Casting Mind Freeze")
                         return true
@@ -158,7 +158,7 @@ actionList.Interrupts = function()
         if ui.checked("Death Grip (Interrupt)") and cast.able.deathGrip() then
             for i = 1, #enemies.yards30 do
                 local thisUnit = enemies.yards30[i]
-                if br.canInterrupt(thisUnit, ui.value("Interrupt At")) and unit.distance(thisUnit) > 8 then
+                if br.functions.spell:canInterrupt(thisUnit, ui.value("Interrupt At")) and unit.distance(thisUnit) > 8 then
                     if cast.deathGrip(thisUnit) then
                         ui.debug("Casting Death Grip [Int]")
                         return true
@@ -212,7 +212,7 @@ local function runRotation()
     talent          = br.player.talent
     buff            = br.player.buff
     -- General Locals
-    var.haltProfile = (unit.inCombat() and var.profileStop) or unit.mounted() or br.pause() or ui.mode.rotation == 4
+    var.haltProfile = (unit.inCombat() and var.profileStop) or unit.mounted() or br.functions.misc:pause() or ui.mode.rotation == 4
     -- Units
     units.get(5) -- Makes a variable called, units.dyn5
     units.get(40)
@@ -327,8 +327,8 @@ local function runRotation()
     end         -- Pause
 end             -- End runRotation
 local id = 251
-if br.rotations[id] == nil then br.rotations[id] = {} end
-br._G.tinsert(br.rotations[id], {
+if br.loader.rotations[id] == nil then br.loader.rotations[id] = {} end
+br._G.tinsert(br.loader.rotations[id], {
     name = rotationName,
     toggles = createToggles,
     options = createOptions,

@@ -17,25 +17,25 @@ local isInitialized = false
 -- Utilities
 ----------------------------------------------------------------------------------------------------
 local function IsSettingChecked()
-   return br.isChecked("Auto Check for Updates")
+   return br.functions.misc:isChecked("Auto Check for Updates")
 end
 
 local function Print(msg)
    if msg == nil then
       return
    end
-   print(br.classColor .. "[BadRotations] |cffFFFFFF" .. msg)
+   print(br.ui.colors.class .. "[BadRotations] |cffFFFFFF" .. msg)
 end
 
 local function PrintError(msg)
    if msg == nil then
       return
    end
-   print(br.classColor .. "[BadRotations] |cffff6666" .. msg)
+   print(br.ui.colors.class .. "[BadRotations] |cffff6666" .. msg)
 end
 
 local function RaidWarning(message)
-   if br.isChecked("Overlay Messages") then
+   if br.functions.misc:isChecked("Overlay Messages") then
       br._G.RaidNotice_AddMessage(br._G.RaidWarningFrame, message, {r = 1, g = 0.3, b = 0.1})
    end
 end

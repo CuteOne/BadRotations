@@ -166,17 +166,17 @@ local function createOptions()
         ----------------------
         section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
         -- Single/Multi Toggle
-        br.ui:createDropdownWithout(section, "Rotation Mode", br.dropOptions.Toggle, 4)
+        br.ui:createDropdownWithout(section, "Rotation Mode", br.ui.dropOptions.Toggle, 4)
         --Cooldown Key Toggle
-        br.ui:createDropdownWithout(section, "Cooldown Mode", br.dropOptions.Toggle, 3)
+        br.ui:createDropdownWithout(section, "Cooldown Mode", br.ui.dropOptions.Toggle, 3)
         --Defensive Key Toggle
-        br.ui:createDropdownWithout(section, "Defensive Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdownWithout(section, "Defensive Mode", br.ui.dropOptions.Toggle, 6)
         -- Interrupts Key Toggle
-        br.ui:createDropdownWithout(section, "Interrupt Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdownWithout(section, "Interrupt Mode", br.ui.dropOptions.Toggle, 6)
         -- Wake of Ashes Key Toggle
-        br.ui:createDropdownWithout(section, "Wake Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdownWithout(section, "Wake Mode", br.ui.dropOptions.Toggle, 6)
         -- Pause Toggle
-        br.ui:createDropdown(section, "Pause Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdown(section, "Pause Mode", br.ui.dropOptions.Toggle, 6)
         br.ui:checkSectionState(section)
     end
     optionTable = {
@@ -216,14 +216,14 @@ local canGlory = function()
     local optionValue = ui.value("Word of Glory")
     local otherCounter = 0
     if holyPower() >= 3 then
-        if #br.friend == 1 then
+        if #br.engines.healingEngine.friend == 1 then
             if unit.hp("player") <= optionValue then
                 var.gloryUnit = "player"
                 return true
             end
         end
-        for i = 1, #br.friend do
-            local thisUnit = br.friend[i].unit
+        for i = 1, #br.engines.healingEngine.friend do
+            local thisUnit = br.engines.healingEngine.friend[i].unit
             local thisHP = unit.hp(thisUnit)
             if thisHP < optionValue then
                 -- Emergency Single
@@ -233,8 +233,8 @@ local canGlory = function()
                 end
                 -- Group Heal
                 if otherCounter < 2 then
-                    for j = 1, #br.friend do
-                        local otherUnit = br.friend[j].unit
+                    for j = 1, #br.engines.healingEngine.friend do
+                        local otherUnit = br.engines.healingEngine.friend[j].unit
                         local otherHP = unit.hp(otherUnit)
                         local distanceFromYou = unit.distance(otherUnit, "player")
                         if distanceFromYou < 30 and otherHP < optionValue then
@@ -269,9 +269,9 @@ local getHealUnitOption = function(option, checkForbearance)
     if thisTar == 5 then
         thisUnit = var.lowestUnit
         -- Get the next lowest unit if lowest unit has Forbearance debuff
-        if checkForbearance and #br.friend > 1 and debuff.forbearance.exists(thisUnit) then
-            for i = 1, #br.friend do
-                local nextUnit = br.friend[i].unit
+        if checkForbearance and #br.engines.healingEngine.friend > 1 and debuff.forbearance.exists(thisUnit) then
+            for i = 1, #br.engines.healingEngine.friend do
+                local nextUnit = br.engines.healingEngine.friend[i].unit
                 if not debuff.forbearance.exists(nextUnit) then
                     thisUnit = nextUnit
                     break
@@ -1044,7 +1044,7 @@ local runRotation = function()
     -- variable,name=ds_castable,value=spell_targets.divine_storm=2&!(runeforge.final_verdict&talent.righteous_verdict.enabled&conduit.templars_vindication.enabled)|spell_targets.divine_storm>2|buff.empyrean_power.up&debuff.judgment.down&buff.divine_purpose.down
     -- var.dsUnits = ((ui.mode.rotation == 1 and ((#enemies.yards8 == 2 and not (runeforge.finalVerdict.equiped and talent.righteousVerdict and conduit.templarsVindication.enabled)) or #enemies.yards8 > 2)) or (ui.mode.rotation == 2 and #enemies.yards8 > 0))
     -- var.dsCastable = (var.dsUnits or (buff.empyreanPower.exists() and not debuff.judgment.exists(units.dyn8) and not buff.divinePurpose.exists()))
-    var.lowestUnit = br.friend[1].unit
+    var.lowestUnit = br.engines.healingEngine.friend[1].unit
     var.resable = unit.player("target") and unit.deadOrGhost("target") and unit.friend("target", "player")
     var.timeToHPG = 99
     if unit.level() >= 46 then
@@ -1188,11 +1188,11 @@ local runRotation = function()
     end -- End Profile
 end     -- runRotation
 local id = 70
-if br.rotations[id] == nil then
-    br.rotations[id] = {}
+if br.loader.rotations[id] == nil then
+    br.loader.rotations[id] = {}
 end
 br._G.tinsert(
-    br.rotations[id],
+    br.loader.rotations[id],
     {
         name = rotationName,
         toggles = createToggles,

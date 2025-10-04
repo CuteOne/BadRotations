@@ -219,7 +219,7 @@ local unlockList =
 --------------------------------------------------------------------------------------------------------------------------------
 local _, br = ...
 local b = br._G
-local unlock = br.unlock
+local unlock = br.unlockers
 local wa = nil
 local funcCopies = {}
 
@@ -461,6 +461,6 @@ function unlock.WowAdUnlock()
 	b.UnitIsUnit = function(unit1, unit2)
 		return b.UnitGUID(unit1) == b.UnitGUID(unit2)
 	end
-	br.unlocker = "WA"
+	br.unlockers.selected = "WA"
 	return true
 end

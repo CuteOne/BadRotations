@@ -24,7 +24,7 @@ local petDead = false
 local petRevived = false
 local targetSwitchTimer = br._G.GetTime()
 
-br.rotations.support["PetCuteOne"] = {
+br.loader.rotations.support["PetCuteOne"] = {
     options = function()
         local alwaysCdAoENever = { "Always", "|cff008000AOE", "|cffffff00AOE/CD", "|cff0000ffCD", "|cffff0000Never" }
         -- Pet Options
@@ -115,11 +115,11 @@ br.rotations.support["PetCuteOne"] = {
         var.haltPetProfile = br._G.UnitCastingInfo("pet") or br._G.UnitHasVehicleUI("player") or
             br._G.CanExitVehicle("player") or br._G.UnitOnTaxi("player") or unit.mounted() or unit.flying()
             or paused or buff.feignDeath.exists() or buff.playDead.exists("pet") or
-            (mode.rotation == 4 or (mode.rotation == 2 and br.selectedSpec == "Initial"))
+            (mode.rotation == 4 or (mode.rotation == 2 and br.loader.selectedSpec == "Initial"))
         -- Pet Specific Locals
         local callPet      = spells["callPet" .. mode.petSummon]
         local callPetName  = mode.petSummon < 6 and select(2, br._G.GetCallPetSpellInfo(callPet)) or ""
-        local friendUnit   = br.friend[1].unit
+        local friendUnit   = br.engines.healingEngine.friend[1].unit
         local petActive    = pet.active.exists()
         local petDistance  = unit.distance(br.petTarget, "pet") or 99
         local petExists    = unit.exists("pet")
@@ -219,11 +219,11 @@ br.rotations.support["PetCuteOne"] = {
                         end
                     end
                     -- -- Call Pet
-                    -- if ((not br.deadPet and not petExists) or not petActive) and not buff.playDead.exists("pet") and not petCalled then
+                    -- if ((not br.readers.combatLog.deadPet and not petExists) or not petActive) and not buff.playDead.exists("pet") and not petCalled then
                     --     if cast["callPet"..mode.petSummon]("player") then ui.debug("[Pet] Casting Call Pet") --[[ui.print("Hey "..callPetName.."...WAKE THE FUCK UP! It's already past noon!...GET YOUR LIFE TOGETHER!")]] petAppearTimer = br._G.GetTime(); petCalled = true; petRevived = false; return true end
                     -- end
                     -- -- Revive Pet
-                    -- if br.deadPet or (petExists and petHealth == 0) or petCalled == true then
+                    -- if br.readers.combatLog.deadPet or (petExists and petHealth == 0) or petCalled == true then
                     --     if cast.able.revivePet("player") and cast.timeSinceLast.revivePet() > unit.gcd(true) then
                     --         if cast.revivePet("player") then ui.debug("[Pet] Casting Revive Pet") --[[ui.print("Hey "..callPetName.."...WAKE THE FUCK UP! It's already past noon!...GET YOUR LIFE TOGETHER!")]] petAppearTimer = br._G.GetTime(); petRevived = true; petCalled = false; return true end
                     --     end
@@ -303,7 +303,7 @@ br.rotations.support["PetCuteOne"] = {
         end
         -- Attack Abilities
         if ui.checked("Use Attack Ability") and not var.haltPetProfile and unit.inCombat("pet") and validTarget and petDistance < 5
-            and not br.isTotem(br.petTarget) and not buff.playDead.exists("pet")
+            and not br.engines.enemiesEngineFunctions:isTotem(br.petTarget) and not buff.playDead.exists("pet")
         then
             -- Bite
             if cast.able.bite(br.petTarget, "pet") then
@@ -465,7 +465,7 @@ br.rotations.support["PetCuteOne"] = {
         end
         -- Debuff Abilities
         if ui.checked("Use Debuff Ability") and not var.haltPetProfile and unit.inCombat("pet") and not buff.playDead.exists("pet")
-            and validTarget and petDistance < 5 and not br.isTotem(br.petTarget) and debuff.mortalWounds.refresh(br.petTarget)
+            and validTarget and petDistance < 5 and not br.engines.enemiesEngineFunctions:isTotem(br.petTarget) and debuff.mortalWounds.refresh(br.petTarget)
         then
             -- Acid Bite
             if cast.able.acidBite(br.petTarget) then
@@ -555,7 +555,7 @@ br.rotations.support["PetCuteOne"] = {
         -- Heal Abilities
         if ui.checked("Use Heal Ability") and not buff.playDead.exists("pet") then
             -- Eternal Guardian
-            if cast.able.eternalGuardian() and (br.deadPet or (petExists and petHealth == 0)) then
+            if cast.able.eternalGuardian() and (br.readers.combatLog.deadPet or (petExists and petHealth == 0)) then
                 if cast.eternalGuardian() then
                     ui.debug("[Pet] Cast Eternal Guardian")
                     return true
@@ -591,7 +591,7 @@ br.rotations.support["PetCuteOne"] = {
                 for i = 1, #enemies.yards5p do
                     local thisUnit = enemies.yards5p[i]
                     if ui.value("Purge") == 1 or (ui.value("Purge") == 2 and unit.isUnit(thisUnit, "target")) then
-                        if unit.valid(thisUnit) and cast.dispel.spiritPulse(thisUnit) then --br.canDispel(thisUnit,spells.spiritPulse) then
+                        if unit.valid(thisUnit) and cast.dispel.spiritPulse(thisUnit) then --br.functions.aura:canDispel(thisUnit,spells.spiritPulse) then
                             if cast.able.spiritPulse(thisUnit, "pet") then
                                 if cast.spiritPulse(thisUnit, "pet") then
                                     ui.debug("[Pet] Cast Spirit Pulse")
@@ -684,11 +684,11 @@ br.rotations.support["PetCuteOne"] = {
         end
         -- Fetch
         if ui.checked("Fetch") and not unit.inCombat() and not unit.inCombat("pet") and cast.able.fetch("pet") and not cast.current.fetch("pet")
-            and petExists and not br.deadPet and cast.timeSinceLast.fetch() > unit.gcd(true) * 2 and not buff.playDead.exists("pet")
+            and petExists and not br.readers.combatLog.deadPet and cast.timeSinceLast.fetch() > unit.gcd(true) * 2 and not buff.playDead.exists("pet")
         then
             if fetching and (lootCount == 0) then fetching = false end
             if not fetching then
-                for _, v in pairs(br.lootable) do
+                for _, v in pairs(br.engines.enemiesEngine.lootable) do
                     local thisDistance = unit.distance(v.unit)
                     if thisDistance > 8 and thisDistance < 40 then
                         if cast.fetch("pet") then
@@ -701,7 +701,7 @@ br.rotations.support["PetCuteOne"] = {
             end
         end
         -- Mend Pet
-        if ui.checked("Mend Pet") and cast.able.mendPet("pet") and petExists and not br.deadPet
+        if ui.checked("Mend Pet") and cast.able.mendPet("pet") and petExists and not br.readers.combatLog.deadPet
             and not buff.mendPet.exists("pet") and petHealth < ui.value("Mend Pet")
         then
             if cast.mendPet("pet") then
@@ -710,7 +710,7 @@ br.rotations.support["PetCuteOne"] = {
             end
         end
         -- Play Dead / Wake Up
-        if ui.checked("Play Dead / Wake Up") and not br.deadPet then
+        if ui.checked("Play Dead / Wake Up") and not br.readers.combatLog.deadPet then
             if cast.able.playDead("player") and unit.inCombat("pet") and not buff.playDead.exists("pet")
                 and petHealth < ui.value("Play Dead / Wake Up")
             then
@@ -719,7 +719,7 @@ br.rotations.support["PetCuteOne"] = {
                     return true
                 end
             end
-            if ui.checked("Play Dead / Wake Up") and not br.deadPet then
+            if ui.checked("Play Dead / Wake Up") and not br.readers.combatLog.deadPet then
                 var.woke = ui.value("Play Dead / Wake Up") > 50 and 100 or 50
                 if cast.able.wakeUp("player") and buff.playDead.exists("pet") and not buff.feignDeath.exists()
                     and petHealth >= var.woke

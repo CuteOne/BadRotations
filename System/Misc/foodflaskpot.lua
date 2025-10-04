@@ -1,4 +1,7 @@
 local _, br = ...
+br.misc.foodflaskpot = br.misc.foodflaskpot or {}
+local foodflaskpot = br.misc.foodflaskpot
+
 local agilityPotion = br.player.potion.wod.agilityBasic
 local intellectPotion = br.player.potion.wod.intellectBasic
 local strengthPotion = br.player.potion.wod.strengthBasic
@@ -27,13 +30,13 @@ local strengthFoodBuff = 0
 local staminaFoodBuff = 0
 
 --playerHasBuff(x) @param spellID # returns true if player has buff x
-function br.playerHasBuff(spellID)
+function foodflaskpot:playerHasBuff(spellID)
 	local buffs, i = {}, 1
-	local buff = br.UnitBuff("player", i)
+	local buff = br.functions.aura:UnitBuff("player", i)
 	while buff do
 		buffs[#buffs + 1] = buff
 		i = i + 1
-		buff = select(10, br.UnitBuff("player", i))
+		buff = select(10, br.functions.aura:UnitBuff("player", i))
 		if buff ~= nil then
 			if buff == spellID then return true end
 		end
@@ -42,7 +45,7 @@ function br.playerHasBuff(spellID)
 end
 
 --getClass # returns class as string
-function br.getClass()
+function foodflaskpot:getClass()
 	local myClass = "nil"
 	local class = select(3, br._G.UnitClass("player"))
 	if class == 1 then   -- Warrior
@@ -72,9 +75,9 @@ function br.getClass()
 end
 
 --getClassType # returns class type as string
-function br.getClassType()
+function foodflaskpot:getClassType()
 	local classType = "nil"
-	local myClass = br.getClass()
+	local myClass = br.misc.foodflaskpot:getClass()
 	local mySpec = br._G.C_SpecializationInfo.GetSpecialization()
 	--Agility
 	if myClass == "Hunter"
@@ -109,7 +112,7 @@ function br.getClassType()
 end
 
 --playerHasItem(x) @param itemID # returns true if player has item x
-function br.playerHasItem(itemID)
+function foodflaskpot:playerHasItem(itemID)
 	if itemID == nil then return false end
 	local itemFound = false
 	for i = 0, 4 do                                 --Let's look at each bag
@@ -127,9 +130,9 @@ function br.playerHasItem(itemID)
 end
 
 --playerCanUseItem(x) @param itemID # returns true if player can use item x
-function br.playerCanUseItem(itemID)
+function foodflaskpot:playerCanUseItem(itemID)
 	if itemID == nil then return false end
-	if br.playerHasItem(itemID) then
+	if br.misc.foodflaskpot:playerHasItem(itemID) then
 		if br._G.C_Container.GetItemCooldown(itemID) == 0 then
 			return true
 		end
@@ -138,38 +141,38 @@ function br.playerCanUseItem(itemID)
 end
 
 --usePotion(x) @param skipSurvivability # if x is true skips armor potion
-function br.usePotion(skipSurvivability)
+function foodflaskpot:usePotion(skipSurvivability)
 	if skipSurvivability == nil then skipSurvivability = false end
-	local classType = br.getClassType()
+	local classType = br.misc.foodflaskpot:getClassType()
 	--Agility
 	if classType == "agilityClass" then
-		if br.playerCanUseItem(agilityPotion) then
-			if br.playerHasBuff(agilityPotionBuff) == false then
-				br.useItem(agilityPotion)
+		if br.misc.foodflaskpot:playerCanUseItem(agilityPotion) then
+			if br.misc.foodflaskpot:playerHasBuff(agilityPotionBuff) == false then
+				br.functions.item:useItem(agilityPotion)
 				return true
 			end
 		end
 		--Intellect
 	elseif classType == "intellectClass" then
-		if br.playerCanUseItem(intellectPotion) then
-			if br.playerHasBuff(intellectPotionBuff) == false then
-				br.useItem(intellectPotion)
+		if br.misc.foodflaskpot:playerCanUseItem(intellectPotion) then
+			if br.misc.foodflaskpot:playerHasBuff(intellectPotionBuff) == false then
+				br.functions.item:useItem(intellectPotion)
 				return true
 			end
 		end
 		--Strength
 	elseif classType == "strengthClass" or (classType == "staminaClass" and skipSurvivability == true) then
-		if br.playerCanUseItem(strengthPotion) then
-			if br.playerHasBuff(strengthPotionBuff) == false then
-				br.useItem(strengthPotion)
+		if br.misc.foodflaskpot:playerCanUseItem(strengthPotion) then
+			if br.misc.foodflaskpot:playerHasBuff(strengthPotionBuff) == false then
+				br.functions.item:useItem(strengthPotion)
 				return true
 			end
 		end
 		--Armor
 	elseif classType == "staminaClass" and skipSurvivability == false then
-		if br.playerCanUseItem(armorPotion) then
-			if br.playerHasBuff(armorPotionBuff) == false then
-				br.useItem(armorPotion)
+		if br.misc.foodflaskpot:playerCanUseItem(armorPotion) then
+			if br.misc.foodflaskpot:playerHasBuff(armorPotionBuff) == false then
+				br.functions.item:useItem(armorPotion)
 				return true
 			end
 		end
@@ -178,38 +181,38 @@ function br.usePotion(skipSurvivability)
 end
 
 --useFlask(x) @param skipSurvivability # if x is true skips stamina flask
-function br.useFlask(skipSurvivability)
+function foodflaskpot:useFlask(skipSurvivability)
 	if skipSurvivability == nil then skipSurvivability = false end
-	local classType = br.getClassType()
+	local classType = br.misc.foodflaskpot:getClassType()
 	--Agility
 	if classType == "agilityClass" then
-		if br.playerCanUseItem(agilityFlask) then
-			if br.playerHasBuff(agilityFlaskBuff) == false then
-				br.useItem(agilityFlask)
+		if br.misc.foodflaskpot:playerCanUseItem(agilityFlask) then
+			if br.misc.foodflaskpot:playerHasBuff(agilityFlaskBuff) == false then
+				br.functions.item:useItem(agilityFlask)
 				return true
 			end
 		end
 		--Intellect
 	elseif classType == "intellectClass" then
-		if br.playerCanUseItem(intellectFlask) then
-			if br.playerHasBuff(intellectFlaskBuff) == false then
-				br.useItem(intellectFlask)
+		if br.misc.foodflaskpot:playerCanUseItem(intellectFlask) then
+			if br.misc.foodflaskpot:playerHasBuff(intellectFlaskBuff) == false then
+				br.functions.item:useItem(intellectFlask)
 				return true
 			end
 		end
 		--Strength
 	elseif classType == "strengthClass" or (classType == "staminaClass" and skipSurvivability == true) then
-		if br.playerCanUseItem(strengthFlask) then
-			if br.playerHasBuff(strengthFlaskBuff) == false then
-				br.useItem(strengthFlask)
+		if br.misc.foodflaskpot:playerCanUseItem(strengthFlask) then
+			if br.misc.foodflaskpot:playerHasBuff(strengthFlaskBuff) == false then
+				br.functions.item:useItem(strengthFlask)
 				return true
 			end
 		end
 		--Stamina
 	elseif classType == "staminaClass" and skipSurvivability == false then
-		if br.playerCanUseItem(staminaFlask) then
-			if br.playerHasBuff(staminaFlaskBuff) == false then
-				br.useItem(staminaFlask)
+		if br.misc.foodflaskpot:playerCanUseItem(staminaFlask) then
+			if br.misc.foodflaskpot:playerHasBuff(staminaFlaskBuff) == false then
+				br.functions.item:useItem(staminaFlask)
 				return true
 			end
 		end
@@ -218,38 +221,38 @@ function br.useFlask(skipSurvivability)
 end
 
 --useFood(x) @param skipSurvivability # if x is true skips stamina food
-function br.useFood(skipSurvivability)
+function foodflaskpot:useFood(skipSurvivability)
 	if skipSurvivability == nil then skipSurvivability = false end
-	local classType = br.getClassType()
+	local classType = br.misc.foodflaskpot:getClassType()
 	--Agility
 	if classType == "agilityClass" then
-		if br.playerCanUseItem(agilityFood) then
-			if br.playerHasBuff(agilityFoodBuff) == false then
-				br.useItem(agilityFood)
+		if br.misc.foodflaskpot:playerCanUseItem(agilityFood) then
+			if br.misc.foodflaskpot:playerHasBuff(agilityFoodBuff) == false then
+				br.functions.item:useItem(agilityFood)
 				return true
 			end
 		end
 		--Intellect
 	elseif classType == "intellectClass" then
-		if br.playerCanUseItem(intellectFood) then
-			if br.playerHasBuff(intellectFoodBuff) == false then
-				br.useItem(intellectFood)
+		if br.misc.foodflaskpot:playerCanUseItem(intellectFood) then
+			if br.misc.foodflaskpot:playerHasBuff(intellectFoodBuff) == false then
+				br.functions.item:useItem(intellectFood)
 				return true
 			end
 		end
 		--Strength
 	elseif classType == "strengthClass" or (classType == "staminaClass" and skipSurvivability == true) then
-		if br.playerCanUseItem(strengthFood) then
-			if br.playerHasBuff(strengthFoodBuff) == false then
-				br.useItem(strengthFood)
+		if br.misc.foodflaskpot:playerCanUseItem(strengthFood) then
+			if br.misc.foodflaskpot:playerHasBuff(strengthFoodBuff) == false then
+				br.functions.item:useItem(strengthFood)
 				return true
 			end
 		end
 		--Stamina
 	elseif classType == "staminaClass" and skipSurvivability == false then
-		if br.playerCanUseItem(staminaFood) then
-			if br.playerHasBuff(staminaFoodBuff) == false then
-				br.useItem(staminaFood)
+		if br.misc.foodflaskpot:playerCanUseItem(staminaFood) then
+			if br.misc.foodflaskpot:playerHasBuff(staminaFoodBuff) == false then
+				br.functions.item:useItem(staminaFood)
 				return true
 			end
 		end

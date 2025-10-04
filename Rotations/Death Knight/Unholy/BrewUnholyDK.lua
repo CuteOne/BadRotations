@@ -123,15 +123,15 @@ local function createOptions()
         ----------------------
         section = br.ui:createSection(br.ui.window.profile,  "Toggle Keys")
             -- Single/Multi Toggle
-            br.ui:createDropdown(section,  "Rotation Mode", br.dropOptions.Toggle,  4)
+            br.ui:createDropdown(section,  "Rotation Mode", br.ui.dropOptions.Toggle,  4)
             --Cooldown Key Toggle
-            br.ui:createDropdown(section,  "Cooldown Mode", br.dropOptions.Toggle,  3)
+            br.ui:createDropdown(section,  "Cooldown Mode", br.ui.dropOptions.Toggle,  3)
             --Defensive Key Toggle
-            br.ui:createDropdown(section,  "Defensive Mode", br.dropOptions.Toggle,  6)
+            br.ui:createDropdown(section,  "Defensive Mode", br.ui.dropOptions.Toggle,  6)
             -- Interrupts Key Toggle
-            br.ui:createDropdown(section,  "Interrupt Mode", br.dropOptions.Toggle,  6)
+            br.ui:createDropdown(section,  "Interrupt Mode", br.ui.dropOptions.Toggle,  6)
             -- Pause Toggle
-            br.ui:createDropdown(section,  "Pause Mode", br.dropOptions.Toggle,  6)
+            br.ui:createDropdown(section,  "Pause Mode", br.ui.dropOptions.Toggle,  6)
         br.ui:checkSectionState(section)
     end
     optionTable = {{
@@ -562,7 +562,7 @@ end
 
 actionList.SingleTargetStandard = function()
     if #enemies.yards5f == 1  then
-        if br.getHP("target") <= 35 and unit.ttd("target") > 5 and not debuff.exists.soulReaper("target") and cast.able.soulReaper("target") then
+        if br.functions.unit:getHP("target") <= 35 and unit.ttd("target") > 5 and not debuff.exists.soulReaper("target") and cast.able.soulReaper("target") then
             if cast.soulReaper("target") then ui.debug("STS.01: Soul Reaper") return true; end;
         end
         if talent.outbreak and
@@ -593,7 +593,7 @@ actionList.SingleTargetStandard = function()
 end
 actionList.GargoyleActive = function()
 
-    if br.getHP("target") <= 35 and not debuff.exists.soulReaper("target") and cast.able.soulReaper("target") then
+    if br.functions.unit:getHP("target") <= 35 and not debuff.exists.soulReaper("target") and cast.able.soulReaper("target") then
         if cast.soulReaper("target") then ui.debug("GARG.01: Soul Reaper") return true; end;
     end
     if cast.able.deathCoil("target") and (runicPower >= 30 or buff.suddenDoom.exists()) then
@@ -1038,8 +1038,8 @@ local function runRotation() -- This is the main profile loop, any below this po
 end -- End runRotation
 local id = 252
 -- DO NOT EDIT ANYTHING BELOW THIS LINE, WILL BREAK PROFILE --
-if br.rotations[id] == nil then br.rotations[id] = {} end
-tinsert(br.rotations[id],{
+if br.loader.rotations[id] == nil then br.loader.rotations[id] = {} end
+tinsert(br.loader.rotations[id],{
     name = rotationName,
     toggles = createToggles,
     options = createOptions,

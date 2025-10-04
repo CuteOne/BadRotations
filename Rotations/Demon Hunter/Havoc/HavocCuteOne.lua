@@ -155,15 +155,15 @@ local function createOptions()
         -- Toggle Key Options
         section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
         -- Single/Multi Toggle
-        br.ui:createDropdownWithout(section, "Rotation Mode", br.dropOptions.Toggle, 4)
+        br.ui:createDropdownWithout(section, "Rotation Mode", br.ui.dropOptions.Toggle, 4)
         -- Cooldown Key Toggle
-        br.ui:createDropdownWithout(section, "Cooldown Mode", br.dropOptions.Toggle, 3)
+        br.ui:createDropdownWithout(section, "Cooldown Mode", br.ui.dropOptions.Toggle, 3)
         -- Defensive Key Toggle
-        br.ui:createDropdownWithout(section, "Defensive Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdownWithout(section, "Defensive Mode", br.ui.dropOptions.Toggle, 6)
         -- Interrupts Key Toggle
-        br.ui:createDropdownWithout(section, "Interrupt Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdownWithout(section, "Interrupt Mode", br.ui.dropOptions.Toggle, 6)
         -- Mover Key Toggle
-        br.ui:createDropdownWithout(section, "Mover Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdownWithout(section, "Mover Mode", br.ui.dropOptions.Toggle, 6)
         br.ui:checkSectionState(section)
     end
     optionTable = { {
@@ -242,7 +242,7 @@ actionList.Extras = function()
     -- Dummy Test
     if ui.checked("DPS Testing") then
         if unit.exists("target") then
-            if br.getCombatTime() >= (tonumber(ui.value("DPS Testing")) * 60) and unit.isDummy("target") then
+            if br.functions.combat:getCombatTime() >= (tonumber(ui.value("DPS Testing")) * 60) and unit.isDummy("target") then
                 br._G.StopAttack()
                 br._G.ClearTarget()
                 br._G.Print(tonumber(ui.value("DPS Testing")) .. " Minute Dummy Test Concluded - Profile Stopped")
@@ -336,7 +336,7 @@ actionList.Interrupts = function()
         if ui.checked("Fel Eruption") and talent.felEruption then
             for i = 1, #enemies.yards20 do
                 local thisUnit = enemies.yards20[i]
-                if br.canInterrupt(thisUnit, ui.value("Interrupt At")) and cast.able.felEruption(thisUnit) then
+                if br.functions.spell:canInterrupt(thisUnit, ui.value("Interrupt At")) and cast.able.felEruption(thisUnit) then
                     if cast.felEruption(thisUnit) then
                         ui.debug("Casting Fel Eruption")
                         return true
@@ -348,7 +348,7 @@ actionList.Interrupts = function()
         if ui.checked("Disrupt") then
             for i = 1, #enemies.yards10 do
                 local thisUnit = enemies.yards10[i]
-                if br.canInterrupt(thisUnit, ui.value("Interrupt At")) and cast.able.disrupt(thisUnit) then
+                if br.functions.spell:canInterrupt(thisUnit, ui.value("Interrupt At")) and cast.able.disrupt(thisUnit) then
                     if cast.disrupt(thisUnit) then
                         ui.debug("Casting Disrupt")
                         return true
@@ -360,7 +360,7 @@ actionList.Interrupts = function()
         if ui.checked("Chaos Nova") then
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]
-                if br.canInterrupt(thisUnit, ui.value("InterruptAt")) and cast.able.chaosNova(thisUnit) then
+                if br.functions.spell:canInterrupt(thisUnit, ui.value("InterruptAt")) and cast.able.chaosNova(thisUnit) then
                     if cast.chaosNova(thisUnit) then
                         ui.debug("Casting Chaos Nova [Int]")
                         return true
@@ -1377,7 +1377,7 @@ local function runRotation()
     var.inRaid             = unit.instance == "raid"
     -- target_if=min:debuff.burning_wound.remains
     var.lowestBurningWound = debuff.burningWound.lowest(5, "remain") or "target"
-    var.solo               = #br.friend == 1
+    var.solo               = #br.engines.healingEngine.friend == 1
 
     units.get(5)
     units.get(8, true)
@@ -1460,8 +1460,8 @@ local function runRotation()
     end --End Rotation Logic
 end     -- End runRotation
 local id = 577
-if br.rotations[id] == nil then br.rotations[id] = {} end
-br._G.tinsert(br.rotations[id], {
+if br.loader.rotations[id] == nil then br.loader.rotations[id] = {} end
+br._G.tinsert(br.loader.rotations[id], {
     name = rotationName,
     toggles = createToggles,
     options = createOptions,

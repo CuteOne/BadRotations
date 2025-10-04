@@ -1,5 +1,7 @@
 local _, br = ...
 local LibDraw = br._G.LibStub("LibDraw-BR")
+br.engines.tracker = br.engines.tracker or {}
+local tracker = br.engines.tracker
 local tracking = false
 local interactTime
 
@@ -53,11 +55,11 @@ local function trackObject(object, isUnit, name, objectid, objectguid, interact)
         -- if name == "" or name == "Unknown" then
         --     name = isUnit and br._G.UnitName(object) or nil
         -- end
-        if br.isChecked("Display Extra Info") then
+        if br.functions.misc:isChecked("Display Extra Info") then
             name = name .. "  [" .. objectid .. "] " .. "\n" .. objectguid .. "  [ZDiff: " .. zDifference .. "]"
         end
         LibDraw.Text(name, "GameFontNormal", xOb, yOb, zOb + 3)
-        if br.isChecked("Draw Lines to Tracked Objects") then
+        if br.functions.misc:isChecked("Draw Lines to Tracked Objects") then
             if math.abs(zDifference) > 50 then
                 LibDraw.SetColor(255, 0, 0, 80)
             else
@@ -67,10 +69,10 @@ local function trackObject(object, isUnit, name, objectid, objectguid, interact)
         end
         -- local hasLoot = br._G.CanLootUnit(objectguid)
         -- local interacting = isInteracting("player")
-        if br.isChecked("Auto Interact with Any Tracked Object") and interact and not br.player.inCombat
+        if br.functions.misc:isChecked("Auto Interact with Any Tracked Object") and interact and not br.player.inCombat
             and --[[playerDistance]] br._G.GetDistanceBetweenPositions(pX, pY, pZ, xOb, yOb, zOb) <= 7 and
-            not br.isUnitCasting("player") and not br.isMoving("player")
-            and (not isInteracting("player") or br._G.CanLootUnit(objectguid)) --and br.timer:useTimer("Interact Delay", 1.5)
+            not br.functions.cast:isUnitCasting("player") and not br.functions.misc:isMoving("player")
+            and (not isInteracting("player") or br._G.CanLootUnit(objectguid)) --and br.debug.timer:useTimer("Interact Delay", 1.5)
         then
             br._G.ObjectInteract(object)
         end
@@ -83,14 +85,14 @@ br._G.string.trim = function(string)
     return from > #string and "" or string:match(".*%S", from)
 end
 
-br.tracking = {}
-function br.objectTracker()
-    if br.isChecked("Enable Tracker") then
+br.engines.tracker.tracking = {}
+function tracker:objectTracker()
+    if br.functions.misc:isChecked("Enable Tracker") then
         LibDraw:clearCanvas()
         -- Custom Tracker
-        if (br.isChecked("Custom Tracker") and br.getOptionValue("Custom Tracker") ~= "" and
-            string.len(br.getOptionValue("Custom Tracker")) >= 3) or br.isChecked("Rare Tracker") or
-            br.isChecked("Quest Tracker")
+        if (br.functions.misc:isChecked("Custom Tracker") and br.functions.misc:getOptionValue("Custom Tracker") ~= "" and
+            string.len(br.functions.misc:getOptionValue("Custom Tracker")) >= 3) or br.functions.misc:isChecked("Rare Tracker") or
+            br.functions.misc:isChecked("Quest Tracker")
         then
             local object
             local objUnit
@@ -99,16 +101,16 @@ function br.objectTracker()
             local objectguid
             local interact
             local track
-            for i = 1, #br.tracking do
-                object = br.tracking[i].object
-                objUnit = br.tracking[i].unit
-                name = br.tracking[i].name
-                objectid = br.tracking[i].id
-                objectguid = br.tracking[i].guid
+            for i = 1, #br.engines.tracker.tracking do
+                object = br.engines.tracker.tracking[i].object
+                objUnit = br.engines.tracker.tracking[i].unit
+                name = br.engines.tracker.tracking[i].name
+                objectid = br.engines.tracker.tracking[i].id
+                objectguid = br.engines.tracker.tracking[i].guid
                 interact = nil
                 track = false
                 if object and name and objectid and objectguid then
-                    if br.isChecked("Rare Tracker") and not track then
+                    if br.functions.misc:isChecked("Rare Tracker") and not track then
                         if br._G.UnitClassification(object) == "rare" then
                             name = "(r) " .. name
                             track = true
@@ -120,8 +122,8 @@ function br.objectTracker()
                             interact = false
                         end
                     end
-                    if br.isChecked("Custom Tracker") and not track then
-                        for k in string.gmatch(tostring(br.getOptionValue("Custom Tracker")), "([^,]+)") do
+                    if br.functions.misc:isChecked("Custom Tracker") and not track then
+                        for k in string.gmatch(tostring(br.functions.misc:getOptionValue("Custom Tracker")), "([^,]+)") do
                             if string.len(br._G.string.trim(k)) >= 3 and
                                 br._G.strmatch(br._G.strupper(name), br._G.strupper(br._G.string.trim(k)))
                             then
@@ -129,7 +131,7 @@ function br.objectTracker()
                             end
                         end
                     end
-                    if br.isChecked("Quest Tracker") and not br.isInCombat("player") and not br._G.IsInInstance() then
+                    if br.functions.misc:isChecked("Quest Tracker") and not br.functions.misc:isInCombat("player") and not br._G.IsInInstance() then
                         local ignoreList = {
                             [36756] = true, -- Dead Soldier (Azshara)
                             [36922] = true, -- Wounded Soldier (Azshara)
@@ -139,21 +141,21 @@ function br.objectTracker()
                             [162605] = true, -- Aqir Larva
                             [156079] = true -- Blood Font
                         }
-                        if (br.getOptionValue("Quest Tracker") == 1 or br.getOptionValue("Quest Tracker") == 3) and
+                        if (br.functions.misc:getOptionValue("Quest Tracker") == 1 or br.functions.misc:getOptionValue("Quest Tracker") == 3) and
                             object ~= nil and
-                            objUnit and br.isQuestUnit(object) and not br._G.UnitIsTapDenied(object)
+                            objUnit and br.engines.questTracker.isQuestUnit(object) and not br._G.UnitIsTapDenied(object)
                         then
 
-                            if object and br.GetObjectExists(object) and (ignoreList[objectid] ~= nil or
-                                (select(2, br._G.CanLootUnit(br._G.UnitGUID(object))) and br.getItemGlow(object))) then
+                            if object and br.functions.unit:GetObjectExists(object) and (ignoreList[objectid] ~= nil or
+                                (select(2, br._G.CanLootUnit(br._G.UnitGUID(object))) and br.functions.misc:getItemGlow(object))) then
                                 track = true
                             else
                                 interact = false
                                 track = true
                             end
                         end
-                        if (br.getOptionValue("Quest Tracker") == 2 or br.getOptionValue("Quest Tracker") == 3)
-                            and not objUnit and br.isQuestObject(object)
+                        if (br.functions.misc:getOptionValue("Quest Tracker") == 2 or br.functions.misc:getOptionValue("Quest Tracker") == 3)
+                            and not objUnit and br.engines.questTracker.isQuestObject(object)
                         then
                             track = true
                         end

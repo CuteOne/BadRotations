@@ -17,7 +17,7 @@ br.api.has = function(self,item,id)
     -- @function has.item
     -- @treturn boolean
     has[item] = function()
-        return br.hasItem(id)
+        return br.functions.item:hasItem(id)
     end
 
     if has.item == nil then
@@ -28,7 +28,7 @@ br.api.has = function(self,item,id)
         -- @treturn boolean
         has.item = function(itemID)
             if itemID == nil then return end
-            return br.hasItem(itemID)
+            return br.functions.item:hasItem(itemID)
         end
     end
 

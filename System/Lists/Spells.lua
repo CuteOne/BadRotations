@@ -1,165 +1,6 @@
 local _, br = ...
-local function flipRace()
-    local race = select(2, br._G.UnitRace("player"))
-    local class = select(3, br._G.UnitClass("player"))
-    if br.UnitBuffID("player", 193863) then
-        if race == "Orc" then
-            return "Dwarf"
-        elseif race == "Undead" then
-            return "Human"
-        elseif race == "Troll" then
-            if class == 7 then
-                return "Draenei"
-            elseif class == 9 then
-                return "Human"
-            else
-                return "NightElf"
-            end
-        elseif race == "Tauren" then
-            if class == 11 then
-                return "NightElf"
-            else
-                return "Draenei"
-            end
-        elseif race == "BloodElf" then
-            if class == 12 then
-                return "NightElf"
-            else
-                return "Human"
-            end
-        elseif race == "Goblin" then
-            if class == 3 or class == 7 then
-                return "Dwarf"
-            else
-                return "Gnome"
-            end
-        elseif race == "Pandaren" then
-            return "Pandaren"
-        elseif race == "HighmountainTauren" then
-            if class == 11 then
-                return "NightElf"
-            else
-                return "Draenei"
-            end
-        elseif race == "Nightborne" then
-            if class == 9 then
-                return "Human"
-            else
-                return "NightElf"
-            end
-        elseif race == "MagharOrc" then
-            return "DarkIronDwarf"
-        end
-    elseif br.UnitBuffID("player", 193864) then
-        if race == "Worgen" then
-            return "Troll"
-        elseif race == "DarkIronDwarf" then
-            return "MagharOrc"
-        elseif race == "Human" then
-            if class == 2 then
-                return "BloodElf"
-            else
-                return "Undead"
-            end
-        elseif race == "NightElf" then
-            if class == 12 then
-                return "BloodElf"
-            else
-                return "Troll"
-            end
-        elseif race == "Dwarf" then
-            if class == 2 then
-                return "Tauren"
-            elseif class == 5 then
-                return "Undead"
-            else
-                return "Orc"
-            end
-        elseif race == "Draenei" then
-            if class == 8 then
-                return "Orc"
-            else
-                return "Tauren"
-            end
-        elseif race == "Pandaren" then
-            return "Pandaren"
-        elseif race == "Gnome" then
-            if class == 10 then
-                return "BloodElf"
-            else
-                return "Goblin"
-            end
-        elseif race == "VoidElf" then
-            if class == 3 or class == 5 or class == 1 then
-                return "BloodElf"
-            else
-                return "Troll"
-            end
-        elseif race == "LightforgedDraenei" then
-            if class == 8 then
-                return "Orc"
-            else
-                return "Tauren"
-            end
-        end
-    end
-end
-
-function br.getRacial(thisRace)
-    local forTheAlliance = br.UnitBuffID("player", 193863) or false
-    local forTheHorde = br.UnitBuffID("player", 193864) or false
-    local race = select(2, br._G.UnitRace("player"))
-    if forTheAlliance or forTheHorde then
-        race = flipRace()
-    end
-    local BloodElfRacial
-    local DraeneiRacial
-    local OrcRacial
-
-    if race == "BloodElf" or race == thisRace then
-        BloodElfRacial = select(7, br._G.GetSpellInfo(br._G.GetSpellInfo(69179)))
-    end
-    if race == "Draenei" or race == thisRace then
-        DraeneiRacial = select(7, br._G.GetSpellInfo(br._G.GetSpellInfo(28880)))
-    end
-    if race == "Orc" or race == thisRace then
-        OrcRacial = select(7, br._G.GetSpellInfo(br._G.GetSpellInfo(33702)))
-    end
-    local racialSpells = {
-        -- Alliance
-        Dwarf              = 20594,          -- Stoneform
-        Gnome              = 20589,          -- Escape Artist
-        Draenei            = DraeneiRacial,  -- Gift of the Naaru
-        Human              = 59752,          -- Every Man for Himself
-        NightElf           = 58984,          -- Shadowmeld
-        Worgen             = 68992,          -- Darkflight
-        -- Horde
-        BloodElf           = BloodElfRacial, -- Arcane Torrent
-        Goblin             = 69041,          -- Rocket Barrage
-        Orc                = OrcRacial,      -- Blood Fury
-        Tauren             = 20549,          -- War Stomp
-        Troll              = 26297,          -- Berserking
-        Scourge            = 7744,           -- Will of the Forsaken
-        -- Both
-        Pandaren           = 107079,         -- Quaking Palm
-        -- Allied Races
-        HighmountainTauren = 255654,         -- Bull Rush
-        LightforgedDraenei = 255647,         -- Light's Judgment
-        Nightborne         = 260364,         -- Arcane Pulse
-        VoidElf            = 256948,         -- Spatial Rift
-        DarkIronDwarf      = 265221,         -- Fireblood
-        MagharOrc          = 274738,         -- Ancestral Call
-        ZandalariTroll     = 291944,         -- Regeneratin'
-        KulTiran           = 287712,         -- Haymaker
-        Vulpera            = 312411,         -- Bag of Tricks
-        Mechagnome         = 312924,         -- Hyper Organic Light Originator
-    }
-    if thisRace ~= nil and racialSpells[thisRace] ~= nil then return racialSpells[thisRace] end
-    return racialSpells[race]
-    -- return racialSpells[race]
-end
-
 if br.lists == nil then br.lists = {} end
+
 br.lists.spells = {
     DEATHKNIGHT = {
         -- Blood
@@ -1022,7 +863,7 @@ br.lists.spells = {
             abilities = {
                 -- adaptiveSwarmDamage = 391889, -- Not Castable but needed for In-Flight
                 -- adaptiveSwarmHeal   = 391891, -- Not Castable but needed for In-Flight
-                berserk                = 106952,
+                berserk                = 106951,
                 maim                  = 22570,
                 -- moonfireCat         = 155625,
                 naturesSwiftness       = 16974,
@@ -1377,6 +1218,7 @@ br.lists.spells = {
                 stampedingRoar             = 106898,
                 stampedingRoarCat          = 77764,
                 -- suddenAmbush               = 340698,
+                swiftFlightForm            = 40120,
                 -- tigerDash                  = 252216,
                 tigersFury                 = 5217,
                 travelForm                 = 783,
@@ -2571,243 +2413,187 @@ br.lists.spells = {
         -- Brewmaster
         [268] = {
             abilities = {
-                blackoutKick      = 205523,
-                breathOfFire      = 115181,
-                celestialBrew     = 322507,
-                clash             = 324312,
-                invokeNiuzao      = 132578,
-                kegSmash          = 121253,
-                purifyingBrew     = 119582,
-                spinningCraneKick = 322729,
-                zenMeditation     = 115176
+                -- blackoutKick      = 205523,
+                -- breathOfFire      = 115181,
+                -- celestialBrew     = 322507,
+                -- clash             = 324312,
+                -- invokeNiuzao      = 132578,
+                -- kegSmash          = 121253,
+                -- purifyingBrew     = 119582,
+                -- spinningCraneKick = 322729,
+                -- zenMeditation     = 115176
             },
             artifacts = {
 
             },
             buffs     = {
-                eyeOfTheTiger          = 196608,
-                ironskinBrew           = 215479,
-                blackoutCombo          = 228563,
-                purifiedChi            = 325092,
-                rushingJadeWind        = 116847,
-                zenMeditation          = 115176,
-                celestialBrew          = 322507,
-                invokeNiuzao           = 132578,
-                counterStrike          = 383800,
-                hitScheme              = 383696,
-                shuffle                = 322120,
-                invokeNiuzaoTheBlackOx = 132578,
-                weaponsOfOrder         = 387184,
-                charredPassions        = 386965,
-                bonedustBrew           = 386276,
+                -- eyeOfTheTiger          = 196608,
+                -- ironskinBrew           = 215479,
+                -- blackoutCombo          = 228563,
+                -- purifiedChi            = 325092,
+                -- rushingJadeWind        = 116847,
+                -- zenMeditation          = 115176,
+                -- celestialBrew          = 322507,
+                -- invokeNiuzao           = 132578,
+                -- counterStrike          = 383800,
+                -- hitScheme              = 383696,
+                -- shuffle                = 322120,
+                -- invokeNiuzaoTheBlackOx = 132578,
+                -- weaponsOfOrder         = 387184,
+                -- charredPassions        = 386965,
+                -- bonedustBrew           = 386276,
             },
             debuffs   = {
-                breathOfFire    = 146222,
-                moderateStagger = 124274,
-                heavyStagger    = 124273,
-                kegSmash        = 121253,
-                weaponsOfOrder  = 387184,
-                bonedustBrew    = 386276,
-
+                -- breathOfFire    = 146222,
+                -- moderateStagger = 124274,
+                -- heavyStagger    = 124273,
+                -- kegSmash        = 121253,
+                -- weaponsOfOrder  = 387184,
+                -- bonedustBrew    = 386276,
             },
             glyphs    = {
-
             },
             talents   = {
-                blackoutCombo                  = 196736,
-                blackOxBrew                    = 115399,
-                blackOxStatue                  = 115399,
-                bobAndWeave                    = 280515,
-                celestialFlame                 = 325177,
-                explodingKeg                   = 325153,
-                eyeOfTheTiger                  = 196607,
-                healingElixir                  = 122281,
-                highTolerance                  = 196737,
-                lightBrewing                   = 325093,
-                rushingJadeWind                = 116847,
-                specialDelivery                = 196730,
-                summonBlackOxStatue            = 115315,
-                detox                          = 218164,
-                improvedPurifyingBrew          = 343743,
-                invokeNiuzaoTheBlackOx         = 132578,
-                improvedInvokeNiuzaoTheBlackOx = 322740,
-                weaponsOfOrder                 = 387184,
-                charredPassions                = 386965,
-                pressTheAdvantage              = 418359,
-                bonedustBrew                   = 386276,
             },
         },
         -- Mistweaver
         [270] = {
             abilities  = {
-
-                envelopingMist            = 124682,
-                essenceFont               = 191837,
-                invokeYulon               = 322118,
-                reawaken                  = 212051,
-                renewingMist              = 115151,
-                revival                   = 115310,
-                risingSunKick             = 107428,
-                soothingMist              = 115175,
-                thunderFocusTea           = 116680,
-                invokeYulonTheJadeSerpent = 322118,
-                invokeChiJiTheRedCrane    = 325197,
-                fortifyingBrew            = 243435,
-                zenFocusTea               = 209584,
-                transcendenceTransfer     = 119996,
-                sheilunsGift              = 399491,
-                detox                     = 115450,
-                manaTea                   = 115294,
+                -- envelopingMist            = 124682,
+                -- essenceFont               = 191837,
+                -- invokeYulon               = 322118,
+                -- reawaken                  = 212051,
+                -- renewingMist              = 115151,
+                -- revival                   = 115310,
+                -- risingSunKick             = 107428,
+                -- soothingMist              = 115175,
+                -- thunderFocusTea           = 116680,
+                -- invokeYulonTheJadeSerpent = 322118,
+                -- invokeChiJiTheRedCrane    = 325197,
+                -- fortifyingBrew            = 243435,
+                -- zenFocusTea               = 209584,
+                -- transcendenceTransfer     = 119996,
+                -- sheilunsGift              = 399491,
+                -- detox                     = 115450,
+                -- manaTea                   = 115294,
             },
             artifacts  = {
             },
             buffs      = {
-                weaponsOfOrder                = 310454,
-                fortifyingBrew                = 243435,
-                soothingMist                  = 115175,
-                renewingMist                  = 115151,
-                envelopingMist                = 124682,
-                thunderFocusTea               = 116680,
-                lifeCyclesEnvelopingMist      = 197919,
-                lifeCyclesVivify              = 197916,
-                surgeOfMist                   = 246328,
-                danceOfMist                   = 247891,
-                upliftTrance                  = 197206,
-                refreshingJadeWind            = 196725,
-                lifeCocoon                    = 116849,
-                transcendence                 = 101643,
-                tigersLust                    = 116841,
-                teachingsOfTheMonastery       = 202090,
-                diffuseMagic                  = 122783,
-                dempenHarm                    = 122278,
-                innervate                     = 29166,
-                symbolOfHope                  = 64901,
-                wayOfTheCrane                 = 216113,
-                essenceFont                   = 191840,
-                risingMist                    = 22170,
-                soothingMistJadeStatue        = 198533,
-                envelopingBreath              = 325209,
-                invokeChiJiTheRedCrane        = 343820,
-                ancientTeachingOfTheMonastery = 347553,
-                fallenOrder                   = 326860,
-                vivaciousVivification         = 392883,
-                rushingJadeWind               = 116847,
-                ancientTeachings              = 388023,
-                sheilunsGift                  = 399491,
-                manaTea                       = 115867,
+                -- weaponsOfOrder                = 310454,
+                -- fortifyingBrew                = 243435,
+                -- soothingMist                  = 115175,
+                -- renewingMist                  = 115151,
+                -- envelopingMist                = 124682,
+                -- thunderFocusTea               = 116680,
+                -- lifeCyclesEnvelopingMist      = 197919,
+                -- lifeCyclesVivify              = 197916,
+                -- surgeOfMist                   = 246328,
+                -- danceOfMist                   = 247891,
+                -- upliftTrance                  = 197206,
+                -- refreshingJadeWind            = 196725,
+                -- lifeCocoon                    = 116849,
+                -- transcendence                 = 101643,
+                -- tigersLust                    = 116841,
+                -- teachingsOfTheMonastery       = 202090,
+                -- diffuseMagic                  = 122783,
+                -- dempenHarm                    = 122278,
+                -- innervate                     = 29166,
+                -- symbolOfHope                  = 64901,
+                -- wayOfTheCrane                 = 216113,
+                -- essenceFont                   = 191840,
+                -- risingMist                    = 22170,
+                -- soothingMistJadeStatue        = 198533,
+                -- envelopingBreath              = 325209,
+                -- invokeChiJiTheRedCrane        = 343820,
+                -- ancientTeachingOfTheMonastery = 347553,
+                -- fallenOrder                   = 326860,
+                -- vivaciousVivification         = 392883,
+                -- rushingJadeWind               = 116847,
+                -- ancientTeachings              = 388023,
+                -- sheilunsGift                  = 399491,
+                -- manaTea                       = 115867,
             },
             debuffs    = {
-                mysticTouch = 113746,
+                -- mysticTouch = 113746,
             },
             glyphs     = {
             },
             talents    = {
-                diffuseMagic              = 122783,
-                focusedThunder            = 197895,
-                invokeChiJiTheRedCrane    = 325197,
-                lifecycles                = 197915,
-                mistWrap                  = 197900,
-                refreshingJadeWind        = 196725,
-                risingMist                = 274909,
-                songOfChiJi               = 198898,
-                summonJadeSerpentStatue   = 115313,
-                upwelling                 = 274963,
-                faelineStomp              = 388193,
-                zenPulse                  = 124081,
-                ancienTeachings           = 388023,
-                invokeYulonTheJadeSerpent = 322118,
-                lifeCocoon                = 116849,
-                sheilunsGift              = 399491,
-                spearHandStrike           = 116705,
-                --manaTea                     = 197908,
-
             },
             runeforges = {
-                ancientTeachingsOfTheMonastery = 337172,
-                tearOfMorning                  = 337473,
+                -- ancientTeachingsOfTheMonastery = 337172,
+                -- tearOfMorning                  = 337473,
             }
         },
         -- Windwalker
         [269] = {
             abilities  = {
-                disable                 = 116095,
+                energizingBrew          = 115288,
                 fistsOfFury             = 113656,
                 flyingSerpentKick       = 101545,
                 flyingSerpentKickEnd    = 115057,
-                fortifyingBrew          = 243435,
-                invokeXuenTheWhiteTiger = 123904,
+                legacyOfTheWhiteTiger   = 116781,
                 risingSunKick           = 107428,
+                spinningFireBlossom     = 115073,
                 stormEarthAndFire       = 137639,
-                stormEarthAndFireFixate = 221771,
+                stormEarthAndFireFixate = 138130,
+                tigereyeBrew            = 116740,
                 touchOfKarma            = 122470,
-                grappleWeapon           = 233759,
-                fallenOrder             = 326860,
-                flashcraft              = 324631,
-                summonWhiteTigerStatue  = 388686,
             },
             artifacts  = {
-
             },
             buffs      = {
-                alphaTiger              = 287504,
-                fortifyingBrew          = 243435,
-                invokersDelight         = 338321,
-                blackoutKick            = 116768,
-                chiEnergy               = 337571,
-                danceOfChiJi            = 325202,
-                hitCombo                = 196741,
-                pressurePoint           = 247255,
-                rushingJadeWind         = 116847,
-                serenity                = 152173,
+                comboBreakerBoK         = 116768,
+                comboBreakerTP          = 118864,
+                energizingBrew          = 115288,
+                sparring                = 116023,
                 stormEarthAndFire       = 137639,
-                swiftRoundhouse         = 278710,
-                theEmperorsCapacitor    = 235054,
-                touchOfKarma            = 122470,
-                transferThePower        = 195321,
-                whirlingDragonPunch     = 152175,
-                fallenOrder             = 326860,
-                bonedustBrew            = 325216,
-                teachingsOfTheMonastery = 202090,
+                tigereyeBrew            = 1247279,
+                tigereyeBrewUse         = 116740,
+                -- alphaTiger              = 287504,
+                -- fortifyingBrew          = 243435,
+                -- invokersDelight         = 338321,
+                -- blackoutKick            = 116768,
+                -- chiEnergy               = 337571,
+                -- danceOfChiJi            = 325202,
+                -- hitCombo                = 196741,
+                -- pressurePoint           = 247255,
+                -- rushingJadeWind         = 116847,
+                -- serenity                = 152173,
+                -- stormEarthAndFire       = 137639,
+                -- swiftRoundhouse         = 278710,
+                -- theEmperorsCapacitor    = 235054,
+                -- touchOfKarma            = 122470,
+                -- transferThePower        = 195321,
+                -- whirlingDragonPunch     = 152175,
+                -- fallenOrder             = 326860,
+                -- bonedustBrew            = 325216,
+                -- teachingsOfTheMonastery = 202090,
             },
             debuffs    = {
-                disable            = 116095,
-                disableRoot        = 116706,
-                markOfTheCrane     = 228287,
-                mortalWounds       = 115804,
-                risingFist         = 242259,
-                skyreachExhaustion = 337341,
-                jadefireBrand      = 395414,
+                risingSunKick           = 130320,
+                stormEarthAndFireFixate = 138130,
+                -- disable            = 116095,
+                -- disableRoot        = 116706,
+                -- markOfTheCrane     = 228287,
+                -- mortalWounds       = 115804,
+                -- risingFist         = 242259,
+                -- skyreachExhaustion = 337341,
+                -- jadefireBrand      = 395414,
             },
             glyphs     = {
-                glyphOfRisingTigerKick = 125151,
+                -- glyphOfRisingTigerKick = 125151,
             },
             talents    = {
-                ascension           = 115396,
-                danceOfChiJi        = 325201,
-                diffuseMagic        = 122783,
-                eyeOfTheTiger       = 196607,
-                hitCombo            = 196740,
-                rushingJadeWind     = 116847,
-                serenity            = 152173,
-                spiritualFocus      = 280197,
-                strikeOfTheWindlord = 392983,
-                whirlingDragonPunch = 152175,
-                skyreach            = 392991,
-                skytouch            = 405044,
-                detox               = 218164,
-                jadefireHarmony     = 391412,
-                bonedustBrew        = 386276,
-                stormEarthAndFire   = 137639,
-                jadefireStomp       = 388193,
-
             },
             traits     = {
-                gloryOfTheDawn  = 288634,
-                openPalmStrikes = 279918,
-                swiftRoundhouse = 277669,
+                -- gloryOfTheDawn  = 288634,
+                -- openPalmStrikes = 279918,
+                -- swiftRoundhouse = 277669,
             },
             runeforges = {
-                fatalTouch = 337296
+                -- fatalTouch = 337296
             }
         },
         -- All
@@ -2815,17 +2601,32 @@ br.lists.spells = {
             abilities = {
                 blackoutKick           = 100784,
                 cracklingJadeLightning = 117952,
-                expelHarm              = 322101,
-                legSweep               = 119381,
+                detox                  = 115450,
+                disable                = 116095,
+                expelHarm              = 115072,
+                fortifyingBrew         = 115203,
+                grappleWeapon          = 117368,
+                healingSphere          = 115460,
+                jab                    = 100780,
+                legacyOfTheEmperor     = 115921,
+                -- legSweep               = 119381,
+                nimbleBrew             = 137562,
+                paralysis              = 115078,
                 provoke                = 115546,
+                reawaken               = 1245934,
                 resuscitate            = 115178,
                 roll                   = 109132,
+                spearHandStrike        = 116705,
                 spinningCraneKick      = 101546,
-                tigerPalm              = 100780,
-                touchOfDeath           = 322109,
-                touchOfFatality        = 169340,
-                vivify                 = 116670,
-                zenFlight              = 125883,
+                stanceOfTheFierceTiger = 103985,
+                tigerPalm              = 100787,
+                touchOfDeath           = 115080,
+                transcendence          = 101643,
+                transcendenceTransfer  = 119996,
+                -- touchOfFatality        = 169340,
+                -- vivify                 = 116670,
+                -- zenFlight              = 125883,
+                zenMeditation          = 115176,
                 zenPilgrimage          = 126892,
                 zenPilgrimageReturn    = 126895,
             },
@@ -2833,72 +2634,57 @@ br.lists.spells = {
 
             },
             buffs     = {
-                theEmperorsCapacitor   = 235054,
-                transcendence          = 101643,
-                weaponsOfOrder         = 328908, --310454,
-                weaponsOfOrderWW       = 310454, --311054,
-                prideful               = 340880,
-                vivaciousVivification  = 392883,
-                powerStrikes           = 129914, --bonus chi proc buff
-                hitCombo               = 196741,
-                kicksOfFlowingMomentum = 394944,
-                blackoutReinforcement  = 424454,
+                legacyOfTheEmperor      = 117666,
+                legacyOfTheWhiteTiger   = 116781,
+                tigerPower              = 125359,
+                -- theEmperorsCapacitor   = 235054,
+                -- transcendence          = 101643,
+                -- weaponsOfOrder         = 328908, --310454,
+                -- weaponsOfOrderWW       = 310454, --311054,
+                -- prideful               = 340880,
+                -- vivaciousVivification  = 392883,
+                -- powerStrikes           = 129914, --bonus chi proc buff
+                -- hitCombo               = 196741,
+                -- kicksOfFlowingMomentum = 394944,
+                -- blackoutReinforcement  = 424454,
             },
             conduits  = {
-                calculatedStrikes    = 336526,
-                coordinatedOffensive = 336598,
-                pustuleEruption      = 351094
+                -- calculatedStrikes    = 336526,
+                -- coordinatedOffensive = 336598,
+                -- pustuleEruption      = 351094
             },
             covenants = {
-                bonedustBrew   = 325216,
-                faelineStomp   = 327104,
-                fallenOrder    = 326860,
-                weaponsOfOrder = 310454,
+                -- bonedustBrew   = 325216,
+                -- faelineStomp   = 327104,
+                -- fallenOrder    = 326860,
+                -- weaponsOfOrder = 310454,
             },
             debuffs   = {
-                bonedustBrew = 325216,
+                zenSphere               = 124098,
+                -- bonedustBrew = 325216,
             },
             glyphs    = {
 
             },
             talents   = {
-                bounceBack               = 389577,
-                calmingPresence          = 388664,
+                ascencion                = 115396,
                 celerity                 = 115173,
+                chargingOxWave           = 119392,
+                chiBrew                  = 115399,
                 chiBurst                 = 123986,
                 chiTorpedo               = 115008,
                 chiWave                  = 115098,
-                closeToHeart             = 389574,
                 dampenHarm               = 122278,
-                disable                  = 116095,
-                elusiveMists             = 388681,
-                escapeFromReality        = 394110,
-                expeditiousFortification = 388813,
-                fastFeet                 = 388809,
-                fatalTouch               = 394123,
-                ferocityOfXuen           = 388674,
-                generousPour             = 389575,
-                graceOfTheCrane          = 388811,
-                hastyProvocation         = 328670,
-                improvedParalysis        = 344359,
-                improvedRoll             = 328669,
-                improvedTouchOfDeath     = 322113,
-                ironshellBrew            = 388814,
-                paralysis                = 115078,
-                profoundRebuttal         = 392910,
-                resonantFists            = 389578,
+                diffuseMagic             = 122783,
+                healingElixirs           = 122280,
+                invokeXuenTheWhiteTiger  = 123904,
+                legSweep                 = 119381,
+                momentum                 = 115174,
+                powerStrikes             = 121817,
                 ringOfPeace              = 116844,
-                risingSunKick            = 107428,
-                saveThemAll              = 389579,
-                spearHandStrike          = 116705,
-                strengthOfSpirit         = 387276,
-                summonWhiteTigerStatue   = 388686,
-                tigerTailSweep           = 264348,
+                rushingJadeWind          = 116847,
                 tigersLust               = 116841,
-                transcendence            = 101643,
-                vigorousExpulsion        = 392900,
-                vivaciousVivication      = 388812,
-                windwalking              = 157411,
+                zenSphere                = 124081,
             },
         },
     },
@@ -5380,13 +5166,13 @@ br.lists.spells = {
             abilities        = {
                 autoAttack     = 6603,
                 autoShot       = 75,
-                giftOfTheNaaru = br.getRacial("Draenei"), --select(7, GetSpellInfo(GetSpellInfo(28880))),
+                giftOfTheNaaru = br.functions.spell:getRacial("Draenei"), --select(7, GetSpellInfo(GetSpellInfo(28880))),
                 global         = 61304,
                 -- latentArcana   = 296971,
                 -- lightsJudgment = 255647,
-                quakingPalm    = 107079,
-                racial         = br.getRacial(),
-                shadowmeld     = 58984,
+                quakingPalm    = br.functions.spell:getRacial("Pandaren"),
+                racial         = br.functions.spell:getRacial(),
+                shadowmeld     = br.functions.spell:getRacial("NightElf"),
             },
             animas           = {
                 -- scrollOfElchaver = 305006,
@@ -5448,7 +5234,7 @@ br.lists.spells = {
                 -- potionOfBurstingBlood          = 265514,
                 -- potionOfFocusedResolve         = 298317,
                 -- prolongedPower                 = 229206,
-                racial                         = br.getRacial(),
+                racial                         = br.functions.spell:getRacial(),
                 -- razorCoral                     = 303570, -- Crit Buff from Ashvane's Razor Coral
                 -- sephuz1                        = 208051, -- the fulltime 10% movement, 2% haste buff
                 -- sephuz2                        = 208052, -- the proc, 70% movement, 25% haste buff

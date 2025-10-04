@@ -1,16 +1,22 @@
 local _, br = ...
+br.slashCommands = br.slashCommands or {}
+local slashCommands = br.slashCommands
+
 -- Slash Commands
 ---------------------------------
 function br._G.print(msg)
 	if msg == nil then
 		return
 	end
-	local color = br.classColor or ""
-	print(color .. "[BadRotations] |cffFFFFFF" .. msg)
+	local color = ""
+	if br.ui and br.ui.colors and br.ui.colors.class then
+		color = br.ui.colors.class
+	end
+	print(color .. "[BadRotations] |r" .. tostring(msg))
 end
 
-br.commandHelp = { "|cffFF0000Slash Commands" }
-function br.SlashCommandHelp(cmd, msg)
+br.slashCommands.commandHelp = { "|cffFF0000Slash Commands" }
+function slashCommands:SlashCommandHelp(cmd, msg)
 	if cmd == nil then
 		cmd = ""
 	end
@@ -18,8 +24,8 @@ function br.SlashCommandHelp(cmd, msg)
 		msg = ""
 	end
 	if cmd == "Print Help" then
-		for i = 1, #br.commandHelp do
-			local command = br.commandHelp[i]
+		for i = 1, #br.slashCommands.commandHelp do
+			local command = br.slashCommands.commandHelp[i]
 			if i == 1 then
 				br._G.print(tostring(command))
 			else
@@ -28,19 +34,19 @@ function br.SlashCommandHelp(cmd, msg)
 		end
 		return
 	end
-	table.insert(br.commandHelp, "|cffFFFFFF        /" .. cmd .. "|cffFFDD11 - " .. msg)
-	-- br.commandHelp = br.commandHelp .. "|cffFFFFFF\n        /" .. cmd .. "|cffFFDD11 - " .. msg
+	table.insert(br.slashCommands.commandHelp, "|cffFFFFFF        /" .. cmd .. "|cffFFDD11 - " .. msg)
+	-- br.slashCommands.commandHelp = br.slashCommands.commandHelp .. "|cffFFFFFF\n        /" .. cmd .. "|cffFFDD11 - " .. msg
 end
 
 local function toggleUI()
 	local UIState = false
 	if UIState == false then
-		br.mainButton:Click()
-		br.BadRotationsButton:Show()
+		br.ui.toggles.mainButton:Click()
+		br.ui.minimapButton.frame:Show()
 		br.UIState = true
 	else
-		br.mainButton:Click()
-		br.BadRotationsButton:Hide()
+		br.ui.toggles.mainButton:Click()
+		br.ui.minimapButton.frame:Hide()
 		br.UIState = false
 	end
 end
@@ -53,7 +59,7 @@ local function toggle(name, index, check)
 	if toggleFound == nil then
 		toggleFound = false
 	end
-	for k, _ in pairs(br.data.settings[br.selectedSpec].toggles) do
+	for k, _ in pairs(br.data.settings[br.loader.selectedSpec].toggles) do
 		local toggle = string.upper(name) --name --(name:gsub("^%l", string.upper))
 		name = string.lower(name)
 		k = string.lower(k)
@@ -79,17 +85,17 @@ end
 local function toggleRange(name, index1, index2)
 	if br.data == nil then return end
 	if br.data.settings == nil then return end
-	if br.data.settings[br.selectedSpec] == nil then return end
-	if br.data.settings[br.selectedSpec].toggles == nil then return end
-	for k, _ in pairs(br.data.settings[br.selectedSpec].toggles) do
+	if br.data.settings[br.loader.selectedSpec] == nil then return end
+	if br.data.settings[br.loader.selectedSpec].toggles == nil then return end
+	for k, _ in pairs(br.data.settings[br.loader.selectedSpec].toggles) do
 		local toggle = string.upper(name) --name --(name:gsub("^%l", string.upper))
 		name = string.lower(name)
 		local lowerKey = string.lower(k)
 		if name == lowerKey then
-			if tostring(br.data.settings[br.selectedSpec].toggles[k]) == index1 then
+			if tostring(br.data.settings[br.loader.selectedSpec].toggles[k]) == index1 then
 				br.ToggleToValue(toggle, index2)
 				return
-			elseif tostring(br.data.settings[br.selectedSpec].toggles[k]) == index2 then
+			elseif tostring(br.data.settings[br.loader.selectedSpec].toggles[k]) == index2 then
 				br.ToggleToValue(toggle, index1)
 				return
 			else
@@ -114,7 +120,7 @@ local function getStringIndex(string, index)
 end
 
 local function updateRate()
-	print("Current Update Rate: " .. br:getUpdateRate())
+	print("Current Update Rate: " .. br.engines:getUpdateRate())
 end
 
 local function forewardDisengage() -- from Stinky Twitch
@@ -127,30 +133,31 @@ local function forewardDisengage() -- from Stinky Twitch
 	end
 end
 
-function br:slashHelpList()
+function slashCommands:slashHelpList()
 	SLASH_BR1, SLASH_BR2 = "/br", "/badrotations"
-	br.SlashCommandHelp("br", "Toggles BadRotations On/Off")
-	br.SlashCommandHelp("br help", "Displays this list of help commands. ***Obviously***")
-	br.SlashCommandHelp("br cooldowns", "Toggles CDs between on/off")
-	br.SlashCommandHelp("br blacklist mouseover", "Adds/Removes mouseover unit to healing blacklist.")
-	br.SlashCommandHelp("br blacklist dump", "Prints all units currently on blacklist.")
-	br.SlashCommandHelp("br blacklist clear", "Clears the blacklist.")
+	slashCommands:SlashCommandHelp("br", "Toggles BadRotations On/Off")
+	slashCommands:SlashCommandHelp("br help", "Displays this list of help commands. ***Obviously***")
+	slashCommands:SlashCommandHelp("br cooldowns", "Toggles CDs between on/off")
+	slashCommands:SlashCommandHelp("br blacklist mouseover", "Adds/Removes mouseover unit to healing blacklist.")
+	slashCommands:SlashCommandHelp("br blacklist dump", "Prints all units currently on blacklist.")
+	slashCommands:SlashCommandHelp("br blacklist clear", "Clears the blacklist.")
 	-- SlashCommandHelp("br pause hold","Pauses while held (via macro).")
-	br.SlashCommandHelp("br pause toggle", "Switches Pause On/Off")
-	br.SlashCommandHelp("br queue clear", "Clears the Spell Queue of all queued spells.")
-	br.SlashCommandHelp("br queue add spellId", "Adds the Spell to the Queue by Spell Id.")
-	br.SlashCommandHelp("br queue remove spellId", "Removes the Spell from the Queue by Spell Id.")
-	br.SlashCommandHelp("br ui", "Shows a list of toggleable UI elements, IE: /br ui main")
-	br.SlashCommandHelp("br updaterate", "Displays Current Update Rate")
+	slashCommands:SlashCommandHelp("br pause toggle", "Switches Pause On/Off")
+	slashCommands:SlashCommandHelp("br queue clear", "Clears the Spell Queue of all queued spells.")
+	slashCommands:SlashCommandHelp("br queue add spellId", "Adds the Spell to the Queue by Spell Id.")
+	slashCommands:SlashCommandHelp("br queue remove spellId", "Removes the Spell from the Queue by Spell Id.")
+	slashCommands:SlashCommandHelp("br ui", "Shows a list of toggleable UI elements, IE: /br ui main")
+	slashCommands:SlashCommandHelp("br updaterate", "Displays Current Update Rate")
 	if select(2, br._G.UnitClass("player")) == "HUNTER" then
-		br.SlashCommandHelp("br disengage", "Assign to macro to Forward Disengage.")
+		slashCommands:SlashCommandHelp("br disengage", "Assign to macro to Forward Disengage.")
 	end
-	br.SlashCommandHelp("br healing", "Adds/Removes Target from Healing List")
-	br.SlashCommandHelp("br baddebuff spellId", "Adds/Removes Debuff from Do Not Heal List")
+	slashCommands:SlashCommandHelp("br healing", "Adds/Removes Target from Healing List")
+	slashCommands:SlashCommandHelp("br baddebuff spellId", "Adds/Removes Debuff from Do Not Heal List")
 end
 
-br:slashHelpList()
-function br.handler(message, editbox)
+slashCommands:slashHelpList()
+
+local function handler(message, editbox)
 	local msg = string.lower(message)
 	local msg1 = getStringIndex(message, 1)
 	local msg2 = getStringIndex(message, 2)
@@ -196,7 +203,7 @@ function br.handler(message, editbox)
 			if not br.data.blackList then
 				br.data.blackList = {}
 			end
-			if br.GetUnitExists("mouseover") then
+			if br.functions.unit:GetUnitExists("mouseover") then
 				local mouseoverName = br._G.UnitName("mouseover")
 				local mouseoverGUID = br._G.UnitGUID("mouseover")
 				-- Now we're trying to find that unit in the blackList table to remove
@@ -222,18 +229,18 @@ function br.handler(message, editbox)
 	elseif msg1 == "pause" then
 		-- Pause
 		--[[if msg2 == "hold" then
-			br.ChatOverlay("Profile Paused")
+			br.ui.chatOverlay:Show("Profile Paused")
 			return true
 		else]]
 		if msg2 == "toggle" then
-			if br.data.settings[br.selectedSpec].toggles["Pause"] == 0 then
-				br.ChatOverlay("\124cFFED0000 -- Paused -- ")
+			if br.data.settings[br.loader.selectedSpec].toggles["Pause"] == 0 then
+				br.ui.chatOverlay:Show("\124cFFED0000 -- Paused -- ")
 				br._G.print("|cFFFF0000Paused")
-				br.data.settings[br.selectedSpec].toggles["Pause"] = 1
+				br.data.settings[br.loader.selectedSpec].toggles["Pause"] = 1
 			else
-				br.ChatOverlay("\124cFF3BB0FF -- Pause Removed -- ")
+				br.ui.chatOverlay:Show("\124cFF3BB0FF -- Pause Removed -- ")
 				br._G.print("|cFF3BB0FFPause Removed")
-				br.data.settings[br.selectedSpec].toggles["Pause"] = 0
+				br.data.settings[br.loader.selectedSpec].toggles["Pause"] = 0
 			end
 		else
 			br._G.print(
@@ -287,7 +294,7 @@ function br.handler(message, editbox)
 				local spellName, _, _, _, _, _, spellId = br._G.GetSpellInfo(msg3)
 				local notOnCD = true
 				if br ~= nil and br.player ~= nil and spellName ~= nil then
-					notOnCD = br.getSpellCD(spellName) <= br.player.gcdMax
+					notOnCD = br.functions.spell:getSpellCD(spellName) <= br.player.gcdMax
 				end
 				if msg4 ~= nil then
 					targetUnit = tostring(msg4)
@@ -380,22 +387,22 @@ function br.handler(message, editbox)
 	elseif msg1 == "healing" then
 		-- Special Heal List
 		local unit
-		if br.GetUnitExists("mouseover") then
+		if br.functions.unit:GetUnitExists("mouseover") then
 			unit = "mouseover"
-		elseif br.GetUnitExists("focus") then
+		elseif br.functions.unit:GetUnitExists("focus") then
 			unit = "focus"
-		elseif br.GetUnitExists("target") then
+		elseif br.functions.unit:GetUnitExists("target") then
 			unit = "target"
 		end
 		if unit then
 			local unitName = br._G.UnitName(unit)
 			local unitGUID = br._G.UnitGUID(unit)
-			if br.novaEngineTables.SpecialHealUnitList[unitGUID] ~= nil then
-				br.novaEngineTables.SpecialHealUnitList[unitGUID] = nil
+			if br.engines.healingEngineCollections.SpecialHealUnitList[unitGUID] ~= nil then
+				br.engines.healingEngineCollections.SpecialHealUnitList[unitGUID] = nil
 				br._G.print("|cffFFDD11" .. unitName .. "|cffFF0000 Removed from Special Heal List")
 			else
 				br._G.print("|cffFFDD11" .. unitName .. "|cffFF0000 Added to Special Heal List")
-				br.novaEngineTables.SpecialHealUnitList[unitGUID] = unitName
+				br.engines.healingEngineCollections.SpecialHealUnitList[unitGUID] = unitName
 			end
 		else
 			br._G.print("No Target Found.  Please Select a Target Before Adding")
@@ -409,12 +416,12 @@ function br.handler(message, editbox)
 			if spellName == nil then
 				br._G.print("Invalid Spell ID: |cffFFDD11 Unable to add.")
 			else
-				if br.novaEngineTables.BadDebuffList[spellId] ~= nil then
-					br.novaEngineTables.BadDebuffList[spellId] = nil
+				if br.engines.healingEngineCollections.BadDebuffList[spellId] ~= nil then
+					br.engines.healingEngineCollections.BadDebuffList[spellId] = nil
 					br._G.print("|cffFFDD11" .. spellName .. "|cffFF0000 Removed from Debuff List")
 				else
 					br._G.print("|cffFFDD11" .. spellName .. "|cffFF0000 Added to Debuff List")
-					br.novaEngineTables.BadDebuffList[spellId] = spellName
+					br.engines.healingEngineCollections.BadDebuffList[spellId] = spellName
 				end
 			end
 		end
@@ -440,20 +447,20 @@ function br.handler(message, editbox)
 				br._G.print(
 					"Combat Lockdown detected. Unable to modify button bar. Please try again when out of combat.")
 			else
-				if br.data.settings[br.selectedSpec].toggles["Main"] == 1 then
-					br.data.settings[br.selectedSpec].toggles["Main"] = 0
-					br.mainButton:Hide()
+				if br.data.settings[br.loader.selectedSpec].toggles["Main"] == 1 then
+					br.data.settings[br.loader.selectedSpec].toggles["Main"] = 0
+					br.ui.toggles.mainButton:Hide()
 				else
-					br.data.settings[br.selectedSpec].toggles["Main"] = 1
-					br.mainButton:Show()
+					br.data.settings[br.loader.selectedSpec].toggles["Main"] = 1
+					br.ui.toggles.mainButton:Show()
 				end
 			end
 		elseif msg2 == "icon" then
 			if br.hiddenIcon == nil or br.hiddenIcon == false then
-				br.BadRotationsButton:Hide()
+				br.ui.minimapButton.frame:Hide()
 				br.hiddenIcon = true
 			else
-				br.BadRotationsButton:Show()
+				br.ui.minimapButton.frame:Show()
 				br.hiddenIcon = false
 			end
 		elseif msg2 == nil then
@@ -473,22 +480,20 @@ function br.handler(message, editbox)
 	end
 end
 
-br._G.SlashCmdList["BR"] = br.handler
-
 -- macro used to gather caster/spell/buff on our actual target
 SLASH_dumpInfo1 = "/dumpinfo"
-function br._G.SlashCmdList.dumpInfo(msg, editbox)
+local function dumpInfo(msg, editbox)
 	-- find unit in our engines
-	for k, _ in pairs(br.enemy) do
-		if br.enemy[k].guid == br._G.UnitGUID("target") then
+	for k, _ in pairs(br.engines.enemiesEngine.enemy) do
+		if br.engines.enemiesEngine.enemy[k].guid == br._G.UnitGUID("target") then
 			_G.targetInfo = {}
 			_G.targetInfo.name = br._G.UnitName("target")
-			local thisUnit = br.enemy[k].unit
+			local thisUnit = br.engines.enemiesEngine.enemy[k].unit
 			_G.targetInfo.unitID = thisUnit.id
-			local buff1 = br.UnitBuff("target", 1)
-			local buff2 = br.UnitBuff("target", 2)
-			local deBuff1 = br.UnitBuff("target", 1)
-			local deBuff2 = br.UnitBuff("target", 2)
+			local buff1 = br.functions.aura:UnitBuff("target", 1)
+			local buff2 = br.functions.aura:UnitBuff("target", 2)
+			local deBuff1 = br.functions.aura:UnitBuff("target", 1)
+			local deBuff2 = br.functions.aura:UnitBuff("target", 2)
 			if buff1 then
 				_G.targetInfo.buff1 = buff1
 			end
@@ -507,3 +512,6 @@ function br._G.SlashCmdList.dumpInfo(msg, editbox)
 		end
 	end
 end
+
+br._G.SlashCmdList["BR"] = handler
+br._G.SlashCmdList.dumpInfo = dumpInfo

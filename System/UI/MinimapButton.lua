@@ -1,6 +1,9 @@
 local _, br = ...
+br.ui.minimapButton = br.ui.minimapButton or {}
+local minimapButton = br.ui.minimapButton
+
 -- Minimap Button
-function br:MinimapButton()
+function br.ui:MinimapButton()
 	-- Function to define the shapes of the minimap
 	local function defineMinimapShapes()
 		return {
@@ -71,12 +74,12 @@ function br:MinimapButton()
 		update_position(self, pos)
 	end
 
-	-- Function to create the BadRotationsButton and set its properties
-	local function createBadRotationsButton()
-		br.BadRotationsButton = br._G.CreateFrame("Button", "BadRotationsButton", br._G.Minimap)
-		br.BadRotationsButton:SetHeight(25)
-		br.BadRotationsButton:SetWidth(25)
-		br.BadRotationsButton:SetFrameStrata("MEDIUM")
+	-- Function to create the MinimapButton and set its properties
+	local function createMinimapButton()
+		br.ui.minimapButton.frame = br._G.CreateFrame("Button", "BadRotationsButton", br._G.Minimap)
+		br.ui.minimapButton.frame:SetHeight(25)
+		br.ui.minimapButton.frame:SetWidth(25)
+		br.ui.minimapButton.frame:SetFrameStrata("MEDIUM")
 		local x, y
 		if not br.data.settings.minimapButton then
 			x = 75.70
@@ -85,12 +88,12 @@ function br:MinimapButton()
 			x = br.data.settings.minimapButton.pos.x or 75.70
 			y = br.data.settings.minimapButton.pos.y or -6.63
 		end
-		br.BadRotationsButton:SetPoint("CENTER", x, y)
-		br.BadRotationsButton:SetMovable(true)
-		br.BadRotationsButton:SetUserPlaced(true)
-		br.BadRotationsButton:SetNormalTexture("Interface\\HelpFrame\\HotIssueIcon.blp")
-		br.BadRotationsButton:SetPushedTexture("Interface\\HelpFrame\\HotIssueIcon.blp")
-		br.BadRotationsButton:SetHighlightTexture("Interface\\Minimap\\UI-Minimap-Background.blp")
+		br.ui.minimapButton.frame:SetPoint("CENTER", x, y)
+		br.ui.minimapButton.frame:SetMovable(true)
+		br.ui.minimapButton.frame:SetUserPlaced(true)
+		br.ui.minimapButton.frame:SetNormalTexture("Interface\\HelpFrame\\HotIssueIcon.blp")
+		br.ui.minimapButton.frame:SetPushedTexture("Interface\\HelpFrame\\HotIssueIcon.blp")
+		br.ui.minimapButton.frame:SetHighlightTexture("Interface\\Minimap\\UI-Minimap-Background.blp")
 	end
 
 	local function handleOnMouseDown(self, button)
@@ -119,15 +122,15 @@ function br:MinimapButton()
 		end
 		if button == "LeftButton" then
 			if br._G.IsShiftKeyDown() and not br._G.IsAltKeyDown() and not br._G.UnitAffectingCombat("player") then
-				if br.data.settings[br.selectedSpec].toggles["Main"] == 1 then
-					br.data.settings[br.selectedSpec].toggles["Main"] = 0
-					br.mainButton:Hide()
+				if br.data.settings[br.loader.selectedSpec].toggles["Main"] == 1 then
+					br.data.settings[br.loader.selectedSpec].toggles["Main"] = 0
+					br.ui.toggles.mainButton:Hide()
 				else
-					br.data.settings[br.selectedSpec].toggles["Main"] = 1
-					br.mainButton:Show()
+					br.data.settings[br.loader.selectedSpec].toggles["Main"] = 1
+					br.ui.toggles.mainButton:Show()
 				end
 			elseif br._G.IsShiftKeyDown() and not br._G.IsAltKeyDown() and br._G.UnitAffectingCombat("player") then
-				br._G_.print("Combat Lockdown detected. Unable to modify br.BadRotationsButton bar. Please try again when out of combat.")
+				br._G_.print("Combat Lockdown detected. Unable to modify minimap button. Please try again when out of combat.")
 			elseif not br._G.IsShiftKeyDown() and not br._G.IsAltKeyDown() then
 				br.ui:toggleWindow("config")
 			end
@@ -150,10 +153,10 @@ function br:MinimapButton()
 		br._G.GameTooltip:Hide()
 	end
 
-	createBadRotationsButton()
-	br.BadRotationsButton:SetScript("OnMouseDown", handleOnMouseDown)
-	br.BadRotationsButton:SetScript("OnMouseUp", handleOnMouseUp)
-	br.BadRotationsButton:SetScript("OnClick", handleOnClick)
-	br.BadRotationsButton:SetScript("OnEnter", handleOnEnter)
-	br.BadRotationsButton:SetScript("OnLeave", handleOnLeave)
+	createMinimapButton()
+	br.ui.minimapButton.frame:SetScript("OnMouseDown", handleOnMouseDown)
+	br.ui.minimapButton.frame:SetScript("OnMouseUp", handleOnMouseUp)
+	br.ui.minimapButton.frame:SetScript("OnClick", handleOnClick)
+	br.ui.minimapButton.frame:SetScript("OnEnter", handleOnEnter)
+	br.ui.minimapButton.frame:SetScript("OnLeave", handleOnLeave)
 end

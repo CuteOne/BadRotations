@@ -1,5 +1,8 @@
 local _, br = ...
-function br.canAoE(unit, distance)
+br.functions.combat = br.functions.combat or {}
+local combat = br.functions.combat
+
+function combat:canAoE(unit, distance)
 	local notValid = false
 	if unit == nil then
 		return false
@@ -7,9 +10,9 @@ function br.canAoE(unit, distance)
 	if distance == nil then
 		distance = 8
 	end
-	for i = 1, #br.getEnemies(unit, distance) do
-		local thisUnit = br.getEnemies(unit, distance)[i]
-		if not br.isValidUnit(thisUnit) then
+	for i = 1, #br.engines.enemiesEngineFunctions:getEnemies(unit, distance) do
+		local thisUnit = br.engines.enemiesEngineFunctions:getEnemies(unit, distance)[i]
+		if not br.functions.misc:isValidUnit(thisUnit) then
 			notValid = true
 			break
 		end
@@ -21,7 +24,7 @@ function br.canAoE(unit, distance)
 end
 
 -- if canAttack("player","target") then
-function br.canAttack(Unit1, Unit2)
+function combat:canAttack(Unit1, Unit2)
 	if Unit1 == nil then
 		Unit1 = "player"
 	end
@@ -31,12 +34,12 @@ function br.canAttack(Unit1, Unit2)
 	return br._G.UnitCanAttack(Unit1, Unit2)
 end
 
-function br.canDisarm(Unit)
+function combat:canDisarm(Unit)
 	if br.DisarmedTarget == nil then
 		br.DisarmedTarget = 0
 	end
 	if br.isDisarmed == true then
-		if br.GetUnitExists(Unit) and br._G.UnitGUID(Unit) ~= br.DisarmedTarget then
+		if br.functions.unit:GetUnitExists(Unit) and br._G.UnitGUID(Unit) ~= br.DisarmedTarget then
 			br.DisarmedTarget = br._G.UnitGUID(Unit)
 			return false
 		else
@@ -44,18 +47,18 @@ function br.canDisarm(Unit)
 			return true
 		end
 	end
-	if not br.isInCombat("player") or br.GetUnitExists(Unit) then
-		if not br.isInCombat("player") or br._G.UnitGUID(Unit) ~= br.DisarmedTarget then
+	if not br.functions.misc:isInCombat("player") or br.functions.unit:GetUnitExists(Unit) then
+		if not br.functions.misc:isInCombat("player") or br._G.UnitGUID(Unit) ~= br.DisarmedTarget then
 			br.isDisarmed = false
 			return true
 		end
 	end
 end
 
--- if br.getCombatTime() <= 5 then
-function br.getCombatTime()
-	local combatStarted = br.data.settings[br.selectedSpec]["Combat Started"]
-	local combatTime = br.data.settings[br.selectedSpec]["Combat Time"]
+-- if br.functions.combat:getCombatTime() <= 5 then
+function combat:getCombatTime()
+	local combatStarted = br.data.settings[br.loader.selectedSpec]["Combat Started"]
+	local combatTime = br.data.settings[br.loader.selectedSpec]["Combat Time"]
 	if combatStarted == nil then
 		return 0
 	end
@@ -67,12 +70,12 @@ function br.getCombatTime()
 	else
 		combatTime = 0
 	end
-	br.data.settings[br.selectedSpec]["Combat Time"] = combatTime
+	br.data.settings[br.loader.selectedSpec]["Combat Time"] = combatTime
 	return (math.floor(combatTime * 1000) / 1000)
 end
 
-function br.getOoCTime()
-	local combatStarted = br.data.settings[br.selectedSpec]["Combat Started"]
+function combat:getOoCTime()
+	local combatStarted = br.data.settings[br.loader.selectedSpec]["Combat Started"]
 	local combatTime
 	if combatStarted ~= nil then
 		return br._G.GetTime()
@@ -86,10 +89,10 @@ function br.getOoCTime()
 end
 
 -- if getLowAllies(60) > 3 then
-function br.getLowAllies(Value)
+function combat:getLowAllies(Value)
 	local lowAllies = 0
-	for i = 1, #br.friend do
-		if br.friend[i].hp <= Value then
+	for i = 1, #br.engines.healingEngine.friend do
+		if br.engines.healingEngine.friend[i].hp <= Value then
 			lowAllies = lowAllies + 1
 		end
 	end
@@ -97,7 +100,7 @@ function br.getLowAllies(Value)
 end
 
 -- if getLowAlliesInTable(60, nNove) > 3 then
-function br.getLowAlliesInTable(Value, unitTable)
+function combat:getLowAlliesInTable(Value, unitTable)
 	local lowAllies = 0
 	for i = 1, #unitTable do
 		if unitTable[i].hp <= Value then
@@ -108,11 +111,11 @@ function br.getLowAlliesInTable(Value, unitTable)
 end
 
 -- if getNumEnemies("target",10) >= 3 then
-function br.getNumEnemies(Unit, Radius)
-	return #br.getEnemies(Unit, Radius)
+function combat:getNumEnemies(Unit, Radius)
+	return #br.engines.enemiesEngineFunctions:getEnemies(Unit, Radius)
 end
 
-function br.isIncapacitated(spellID)
+function combat:isIncapacitated(spellID)
 	local event
 	local eventIndex = br._G.C_LossOfControl.GetActiveLossOfControlDataCount()
 	if eventIndex > 0 then
@@ -120,14 +123,14 @@ function br.isIncapacitated(spellID)
 			event = br._G.C_LossOfControl.GetActiveLossOfControlData(i)
 			if event then
 				local eventType = event.locType
-				return not br.canRegainControl(spellID, eventType)
+				return not combat:canRegainControl(spellID, eventType)
 			end
 		end
 	end
 	return false
 end
 
-function br.canRegainControl(spellID, controlEvent)
+function combat:canRegainControl(spellID, controlEvent)
 	local class = select(3, br._G.UnitClass("player"))
 	-- Warrior
 	if class == 1 then
@@ -222,15 +225,15 @@ function br.canRegainControl(spellID, controlEvent)
 end
 
 -- if hasNoControl(12345) == true then
-function br.hasNoControl(spellID)
+function combat:hasNoControl(spellID)
 	local event
 	local eventIndex = br._G.C_LossOfControl.GetActiveLossOfControlDataCount()
 	if eventIndex > 0 then
 		for i = 0, eventIndex do
 			event = br._G.C_LossOfControl.GetActiveLossOfControlData(i)
 			if event then
-				local regain = br.canRegainControl(spellID, event.locType)
-				if not regain and br.timer:useTimer("regainTimer", 0.25) then regain = br.canRegainControl(spellID, event.locType) end
+				local regain = combat:canRegainControl(spellID, event.locType)
+				if not regain and br.debug.timer:useTimer("regainTimer", 0.25) then regain = combat:canRegainControl(spellID, event.locType) end
 				return regain
 			end
 		end
@@ -238,15 +241,15 @@ function br.hasNoControl(spellID)
 	return false
 end
 
--- if br.hasThreat("target") then
-function br.hasThreat(unit, playerUnit)
+-- if br.functions.combat:hasThreat("target") then
+function combat:hasThreat(unit, playerUnit)
 	-- Early Exit
 	if unit == nil then return false end
 	-- Dummy Validation
-	if br.isDummy(unit) and br.getDistance("target", unit) < 8 then return true end
+	if br.functions.unit:isDummy(unit) and br.functions.range:getDistance("target", unit) < 8 then return true end
 	-- Damaged Validation
-	if br.damaged[br._G.ObjectPointer(unit)] ~= nil then
-		if br.isChecked("Threat Debug") then --and not br.GetUnitExists("target") then
+	if br.engines.enemiesEngine.damaged[br._G.ObjectPointer(unit)] ~= nil then
+		if br.functions.misc:isChecked("Threat Debug") then --and not br.functions.unit:GetUnitExists("target") then
 			br._G.print("[Damage Threat] " .. br._G.UnitName(unit) .. " was attacked, it now hates you.")
 		end
 		return true
@@ -255,18 +258,18 @@ function br.hasThreat(unit, playerUnit)
 		playerUnit = "player"
 	end
 	local targetUnit, targetFriend
-	if br.GetUnit(unit) == nil or br.GetUnitIsDeadOrGhost(unit) or br._G.UnitIsTapDenied(unit) then
+	if br.functions.unit:GetUnit(unit) == nil or br.functions.unit:GetUnitIsDeadOrGhost(unit) or br._G.UnitIsTapDenied(unit) then
 		targetUnit = "None"
-	elseif br._G.UnitTarget(br.GetUnit(unit)) ~= nil then
-		targetUnit = br._G.UnitTarget(br.GetUnit(unit))
+	elseif br._G.UnitTarget(br.functions.unit:GetUnit(unit)) ~= nil then
+		targetUnit = br._G.UnitTarget(br.functions.unit:GetUnit(unit))
 	else
 		targetUnit = "None"
 	end
 	if not targetUnit or targetUnit == "None" then
 		targetFriend = false
 	else
-		targetFriend = (br.isTargeting(unit) or br._G.UnitName(targetUnit) == br._G.UnitName("player")
-			or (br.GetUnitExists("pet") and br._G.UnitName(targetUnit) == br._G.UnitName("pet"))
+		targetFriend = (br.functions.misc:isTargeting(unit) or br._G.UnitName(targetUnit) == br._G.UnitName("player")
+			or (br.functions.unit:GetUnitExists("pet") and br._G.UnitName(targetUnit) == br._G.UnitName("pet"))
 			or br._G.UnitInParty(targetUnit) or br._G.UnitInRaid(targetUnit))
 	end
 
@@ -287,42 +290,42 @@ function br.hasThreat(unit, playerUnit)
 	local instance = select(2, br._G.IsInInstance())
 	-- Unit is Targeting Player/Pet/Party/Raid Validation
 	if targetFriend then
-		if br.isChecked("Threat Debug") and not br._G.UnitIsUnit("target", unit) then --and not br.GetObjectExists("target") then
+		if br.functions.misc:isChecked("Threat Debug") and not br._G.UnitIsUnit("target", unit) then --and not br.functions.unit:GetObjectExists("target") then
 			br._G.print("[Targeting Threat] " ..
-				br._G.UnitName(br.GetUnit(unit)) .. " is targeting " .. br._G.UnitName(targetUnit))
+				br._G.UnitName(br.functions.unit:GetUnit(unit)) .. " is targeting " .. br._G.UnitName(targetUnit))
 		end
 		return true
 	end
 	-- Boss Adds Validation
-	if br.isBoss(unit) and unitInCombat and (instance == "party" or instance == "raid") then
-		if br.isChecked("Threat Debug") then
+	if br.functions.unit:isBoss(unit) and unitInCombat and (instance == "party" or instance == "raid") then
+		if br.functions.misc:isChecked("Threat Debug") then
 			br._G.print("[Boss Threat] " .. br._G.UnitName(unit) ..
 				" has threat with you.")
 		end
 		return true
 		-- Threat Bypass Validation
-		-- elseif playerInCombat and br.lists.threatBypass[unitID] ~= nil and #br.getEnemies(unit,20,true) == 0 then
+		-- elseif playerInCombat and br.lists.threatBypass[unitID] ~= nil and #br.engines.enemiesEngineFunctions:getEnemies(unit,20,true) == 0 then
 		-- 		return true
 	end
 	-- Open World Mob Pack Validation
-	if instance == "none" and playerInCombat and not br.isCritter(unit) and br.enemy[br._G.ObjectPointer("target")] ~= nil and br.enemy[unit] == nil and br.getDistance("target", unit) < 8 then
-		if br.isChecked("Threat Debug") then br._G.print("[Open World Threat] "..br._G.UnitName(unit).." is within "..br.round2(br.getDistance("target",unit),1).."yrds of your target and is considered a threat.") end
+	if instance == "none" and playerInCombat and not br.functions.unit:isCritter(unit) and br.engines.enemiesEngine.enemy[br._G.ObjectPointer("target")] ~= nil and br.engines.enemiesEngine.enemy[unit] == nil and br.functions.range:getDistance("target", unit) < 8 then
+		if br.functions.misc:isChecked("Threat Debug") then br._G.print("[Open World Threat] "..br._G.UnitName(unit).." is within "..br.functions.misc:round2(br.functions.range:getDistance("target",unit),1).."yrds of your target and is considered a threat.") end
 		return true
 	end
 	-- Player Threat Valdation
-	if threatSituation(playerUnit, unit) and not br.GetUnitIsDeadOrGhost(unit) then
-		if br.isChecked("Threat Debug") then --and not br.GetObjectExists("target") then
+	if threatSituation(playerUnit, unit) and not br.functions.unit:GetUnitIsDeadOrGhost(unit) then
+		if br.functions.misc:isChecked("Threat Debug") then --and not br.functions.unit:GetObjectExists("target") then
 			br._G.print("[Player Threat] " .. br._G.UnitName(playerUnit) .. " has threat with " .. br._G.UnitName(unit))
 		end
 		return true
 	end
 	-- Party/Raid Threat Validation
-	if #br.friend > 1 then
-		for i = 1, #br.friend do
-			if br.friend[i] then
-				local thisUnit = br.friend[i].unit
-				if threatSituation(thisUnit, unit) and not br.GetUnitIsDeadOrGhost(unit) then
-					if br.isChecked("Threat Debug") then --and not br.GetObjectExists("target") then
+	if #br.engines.healingEngine.friend > 1 then
+		for i = 1, #br.engines.healingEngine.friend do
+			if br.engines.healingEngine.friend[i] then
+				local thisUnit = br.engines.healingEngine.friend[i].unit
+				if threatSituation(thisUnit, unit) and not br.functions.unit:GetUnitIsDeadOrGhost(unit) then
+					if br.functions.misc:isChecked("Threat Debug") then --and not br.functions.unit:GetObjectExists("target") then
 						br._G.print("[Party/Raid Threat] " ..
 							br._G.UnitName(thisUnit) .. " has threat with " .. br._G.UnitName(unit))
 					end
@@ -334,14 +337,14 @@ function br.hasThreat(unit, playerUnit)
 	return false
 end
 
-function br.isTanking(unit)
+function combat:isTanking(unit)
 	return br._G.UnitThreatSituation("player", unit) ~= nil and br._G.UnitThreatSituation("player", unit) >= 2
 end
 
 -- if isAggroed("target") then
-function br.isAggroed(unit)
-	for i = 1, #br.friend do
-		local friend = br.friend[i].unit
+function combat:isAggroed(unit)
+	for i = 1, #br.engines.healingEngine.friend do
+		local friend = br.engines.healingEngine.friend[i].unit
 		local threat = select(5, br._G.UnitDetailedThreatSituation(friend, unit))
 		if threat ~= nil then
 			if threat >= 0 then

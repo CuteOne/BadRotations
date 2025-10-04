@@ -1,8 +1,11 @@
 local _, br = ...
-function br.ProfessionHelper()
-	if br.isChecked("Profession Helper") then
-		if not br.isInCombat("player") and not (br._G.IsMounted() or br._G.IsFlying()) then
-			local lootDelay = br.getValue("Profession Helper")
+br.misc.ProfessionHelper = br.misc.ProfessionHelper or {}
+local ProfessionHelper = br.misc.ProfessionHelper
+
+function ProfessionHelper:ProfessionHelper()
+	if br.functions.misc:isChecked("Profession Helper") then
+		if not br.functions.misc:isInCombat("player") and not (br._G.IsMounted() or br._G.IsFlying()) then
+			local lootDelay = br.functions.misc:getValue("Profession Helper")
 			local function processThatTable(thisTable, spell)
 				for i = 1, #thisTable do
 					local thisItem = thisTable[i]
@@ -36,8 +39,8 @@ function br.ProfessionHelper()
 			------------------------------------------------------------------------------------------------------
 			-- Milling -------------------------------------------------------------------------------------------
 			------------------------------------------------------------------------------------------------------
-			if br.isChecked("Mill Herbs") and br._G.IsSpellKnown(51005) then
-				local millMode = br.getValue("Mill Herbs")
+			if br.functions.misc:isChecked("Mill Herbs") and br._G.IsSpellKnown(51005) then
+				local millMode = br.functions.misc:getValue("Mill Herbs")
 				if millMode == 7 or millMode == 1 then
 					local tableMillSL = {
 						168586, -- Rising Glory
@@ -107,8 +110,8 @@ function br.ProfessionHelper()
 			------------------------------------------------------------------------------------------------------
 			-- Prospecting ---------------------------------------------------------------------------------------
 			------------------------------------------------------------------------------------------------------
-			if br.isChecked("Prospect Ores") and br._G.IsSpellKnown(31252) then
-				local prospectMode = br.getValue("Prospect Ores")
+			if br.functions.misc:isChecked("Prospect Ores") and br._G.IsSpellKnown(31252) then
+				local prospectMode = br.functions.misc:getValue("Prospect Ores")
 				if prospectMode == 7 or prospectMode == 1 then
 					local tableProspectSL = {
 						171828, -- Laestrite Ore
@@ -163,7 +166,7 @@ function br.ProfessionHelper()
 			------------------------------------------------------------------------------------------------------
 			-- Disenchant ----------------------------------------------------------------------------------------
 			------------------------------------------------------------------------------------------------------
-			if br.isChecked("Disenchant") and br._G.IsSpellKnown(13262) then
+			if br.functions.misc:isChecked("Disenchant") and br._G.IsSpellKnown(13262) then
 				-- list of items to me DE
 				local tableDisenchant = {
 					90905, -- JC Blue Neck ilvl 415
@@ -194,7 +197,7 @@ function br.ProfessionHelper()
 			------------------------------------------------------------------------------------------------------
 			-- Leather Scraps-------------------------------------------------------------------------------------
 			------------------------------------------------------------------------------------------------------
-			if br.isChecked("Leather Scraps") then
+			if br.functions.misc:isChecked("Leather Scraps") then
 				-- Raw Beast Hide Scraps
 				if br._G.GetItemCount(110610, false, false) >= 10 then
 					if br.lootTimer == nil or br.lootTimer <= br._G.GetTime() - lootDelay then
@@ -208,7 +211,7 @@ function br.ProfessionHelper()
 			------------------------------------------------------------------------------------------------------
 			-- Lockboxes -----------------------------------------------------------------------------------------
 			------------------------------------------------------------------------------------------------------
-			if br.isChecked("Lockboxes") then
+			if br.functions.misc:isChecked("Lockboxes") then
 				local tableLockBox = {
 					121331 -- Leystone Lockbox
 				}
@@ -236,7 +239,7 @@ function br.ProfessionHelper()
 			------------------------------------------------------------------------------------------------------
 			-- Fish Oil ------------------------------------------------------------------------------------------
 			------------------------------------------------------------------------------------------------------
-			if br.isChecked("Fish Oil") then
+			if br.functions.misc:isChecked("Fish Oil") then
 				local tableFish = {
 					152545, -- Frenzied Fangtooth
 					152547, -- Great Sea Catfish
@@ -263,12 +266,12 @@ function br.ProfessionHelper()
 	end
 end
 
-function br.fishing()
-	if br.isChecked("Fishing") and br.unlocked --[[EasyWoWToolbox ~= nil]] and br.getOptionValue("Fishing") == 1 then
+function ProfessionHelper:fishing()
+	if br.functions.misc:isChecked("Fishing") and br.unlocked --[[EasyWoWToolbox ~= nil]] and br.functions.misc:getOptionValue("Fishing") == 1 then
 		if not br._G.IsHackEnabled("fish") then
 			br._G.SetHackEnabled("fish", true)
 		end
-	elseif br.isChecked("Fishing") and br.unlocked --[[EasyWoWToolbox ~= nil]] and br.getOptionValue("Fishing") == 2 then
+	elseif br.functions.misc:isChecked("Fishing") and br.unlocked --[[EasyWoWToolbox ~= nil]] and br.functions.misc:getOptionValue("Fishing") == 2 then
 		if br._G.IsHackEnabled("fish") then
 			br._G.SetHackEnabled("fish", false)
 		end
@@ -276,47 +279,47 @@ function br.fishing()
 	------------------------------------------------------------------------------------------------------
 	-- Bait ----------------------------------------------------------------------------------------------
 	------------------------------------------------------------------------------------------------------
-	if br.isChecked("Bait") then
-		local bait = br.getValue("Bait")
+	if br.functions.misc:isChecked("Bait") then
+		local bait = br.functions.misc:getValue("Bait")
 		if bait == 1 then -- Lost Sole Bait
-			if br.hasItem(173038) and br.getBuffRemain("player", 331688) == 0 then
-				if br.canUseItem(173038) then
-					br.useItem(173038)
+			if br.functions.item:hasItem(173038) and br.functions.aura:getBuffRemain("player", 331688) == 0 then
+				if br.functions.item:canUseItem(173038) then
+					br.functions.item:useItem(173038)
 				end
 			end
 		end
 		if bait == 2 then -- Silvergill Pike Bait
-			if br.hasItem(173040) and br.getBuffRemain("player", 331690) == 0 then
-				if br.canUseItem(173040) then
-					br.useItem(173040)
+			if br.functions.item:hasItem(173040) and br.functions.aura:getBuffRemain("player", 331690) == 0 then
+				if br.functions.item:canUseItem(173040) then
+					br.functions.item:useItem(173040)
 				end
 			end
 		end
 		if bait == 3 then -- Pocked Bonefish Bait
-			if br.hasItem(173041) and br.getBuffRemain("player", 331695) == 0 then
-				if br.canUseItem(173041) then
-					br.useItem(173041)
+			if br.functions.item:hasItem(173041) and br.functions.aura:getBuffRemain("player", 331695) == 0 then
+				if br.functions.item:canUseItem(173041) then
+					br.functions.item:useItem(173041)
 				end
 			end
 		end
 		if bait == 4 then -- Iridescent Amberjack Bait
-			if br.hasItem(173039) and br.getBuffRemain("player", 331692) == 0 then
-				if br.canUseItem(173039) then
-					br.useItem(173039)
+			if br.functions.item:hasItem(173039) and br.functions.aura:getBuffRemain("player", 331692) == 0 then
+				if br.functions.item:canUseItem(173039) then
+					br.functions.item:useItem(173039)
 				end
 			end
 		end
 		if bait == 5 then -- Spinefin Piranha Bait
-			if br.hasItem(173042) and br.getBuffRemain("player", 331699) == 0 then
-				if br.canUseItem(173042) then
-					br.useItem(173042)
+			if br.functions.item:hasItem(173042) and br.functions.aura:getBuffRemain("player", 331699) == 0 then
+				if br.functions.item:canUseItem(173042) then
+					br.functions.item:useItem(173042)
 				end
 			end
 		end
 		if bait == 6 then -- Elysian Thade Bait
-			if br.hasItem(173043) and br.getBuffRemain("player", 331698) == 0 then
-				if br.canUseItem(173043) then
-					br.useItem(173043)
+			if br.functions.item:hasItem(173043) and br.functions.aura:getBuffRemain("player", 331698) == 0 then
+				if br.functions.item:canUseItem(173043) then
+					br.functions.item:useItem(173043)
 				end
 			end
 		end

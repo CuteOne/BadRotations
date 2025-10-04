@@ -6,7 +6,7 @@
 -- Readiness = Development
 -------------------------------------------------------
 local rotationName = "BrewBeastMaster" -- Change to name of profile listed in options drop down
-br.loadSupport("PetCuteOne")
+br.loader.cBuilder:loadSupport("PetCuteOne")
 
 ---------------
 --- Toggles ---
@@ -58,7 +58,7 @@ local function createOptions()
 
         br.ui:checkSectionState(section)
 
-        br.rotations.support["PetCuteOne"].options()
+        br.loader.rotations.support["PetCuteOne"].options()
         ------------------------
         --- COOLDOWN OPTIONS --- -- Define Cooldown Options
         ------------------------
@@ -83,15 +83,15 @@ local function createOptions()
         ----------------------
         section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
         -- Single/Multi Toggle
-        br.ui:createDropdown(section, "Rotation Mode", br.dropOptions.Toggle, 4)
+        br.ui:createDropdown(section, "Rotation Mode", br.ui.dropOptions.Toggle, 4)
         --Cooldown Key Toggle
-        br.ui:createDropdown(section, "Cooldown Mode", br.dropOptions.Toggle, 3)
+        br.ui:createDropdown(section, "Cooldown Mode", br.ui.dropOptions.Toggle, 3)
         --Defensive Key Toggle
-        br.ui:createDropdown(section, "Defensive Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdown(section, "Defensive Mode", br.ui.dropOptions.Toggle, 6)
         -- Interrupts Key Toggle
-        br.ui:createDropdown(section, "Interrupt Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdown(section, "Interrupt Mode", br.ui.dropOptions.Toggle, 6)
         -- Pause Toggle
-        br.ui:createDropdown(section, "Pause Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdown(section, "Pause Mode", br.ui.dropOptions.Toggle, 6)
         br.ui:checkSectionState(section)
     end
     optionTable = { {
@@ -156,7 +156,7 @@ local function runRotation() -- This is the main profile loop, any below this po
     if math.random() > 0.80 then return false end;
 
     if actionList.PetManagement == nil then
-        actionList.PetManagement = br.rotations.support["PetCuteOne"].run
+        actionList.PetManagement = br.loader.rotations.support["PetCuteOne"].run
     end
 
     ---------------------
@@ -299,8 +299,8 @@ local function runRotation() -- This is the main profile loop, any below this po
 end                 -- End runRotation
 local id = 253      -- Change to the spec id profile is for. Spec ID can be found at: https://wowpedia.fandom.com/wiki/SpecializationID
 -- DO NOT EDIT ANYTHING BELOW THIS LINE, WILL BREAK PROFILE --
-if br.rotations[id] == nil then br.rotations[id] = {} end
-tinsert(br.rotations[id], {
+if br.loader.rotations[id] == nil then br.loader.rotations[id] = {} end
+tinsert(br.loader.rotations[id], {
     name = rotationName,
     toggles = createToggles,
     options = createOptions,

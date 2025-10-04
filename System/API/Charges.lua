@@ -15,14 +15,14 @@ br.api.charges = function(self, spell, id)
     -- @function charges.spell.exists
     -- @return boolean
     charges.exists = function()
-        return br.getCharges(id) >= 1
+        return br.functions.spell:getCharges(id) >= 1
     end
 
     --- Gets the number of charges remaining on spell.
     -- @function charges.spell.count
     -- @return number
     charges.count = function()
-        return br.getCharges(id)
+        return br.functions.spell:getCharges(id)
     end
 
     charges.spellCount = function()
@@ -33,14 +33,14 @@ br.api.charges = function(self, spell, id)
     -- @function charges.spell.frac
     -- @return number
     charges.frac = function()
-        return br.getChargesFrac(id)
+        return br.functions.spell:getChargesFrac(id)
     end
 
     --- Gets the maximum number of charges the spell can have.
     -- @function charges.spell.max
     -- @return number
     charges.max = function()
-        return br.getChargesFrac(id, true)
+        return br.functions.spell:getChargesFrac(id, true)
     end
 
     --- Gets the time remaining on until next charge is available.
@@ -49,9 +49,9 @@ br.api.charges = function(self, spell, id)
     -- @return number
     charges.recharge = function(chargeMax)
         if chargeMax then
-            return br.getRecharge(id, true)
+            return br.functions.spell:getRecharge(id, true)
         else
-            return br.getRecharge(id)
+            return br.functions.spell:getRecharge(id)
         end
     end
 
@@ -59,7 +59,7 @@ br.api.charges = function(self, spell, id)
     -- @function charges.spell.timeTillFull
     -- @return number
     charges.timeTillFull = function()
-        return br.getFullRechargeTime(id)
+        return br.functions.spell:getFullRechargeTime(id)
     end
 end
 
@@ -71,13 +71,13 @@ br.api.itemCharges = function(self, item, id)
     -- @function charges.item.exists
     -- @return boolean
     charges.exists = function()
-        return br.itemCharges(id) > 0
+        return br.functions.item.itemCharges(id) > 0
     end
 
     --- Gets the number of charges remaining on item.
     -- @function charges.item.count
     -- @return number
     charges.count = function()
-        return br.itemCharges(id)
+        return br.functions.item.itemCharges(id)
     end
 end

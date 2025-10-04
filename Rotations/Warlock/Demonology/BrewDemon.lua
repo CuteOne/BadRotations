@@ -97,11 +97,11 @@ local function createOptions()
         ----------------------
         section = br.ui:createSection(br.ui.window.profile,  "Toggle Keys")
             -- Single/Multi Toggle
-            br.ui:createDropdownWithout(section,  "Rotation Mode", br.dropOptions.Toggle,  4)
+            br.ui:createDropdownWithout(section,  "Rotation Mode", br.ui.dropOptions.Toggle,  4)
             --Defensive Key Toggle
-            br.ui:createDropdownWithout(section,  "Defensive Mode", br.dropOptions.Toggle,  6)
+            br.ui:createDropdownWithout(section,  "Defensive Mode", br.ui.dropOptions.Toggle,  6)
             -- Pause Toggle
-            br.ui:createDropdown(section,  "Pause Mode", br.dropOptions.Toggle,  6)
+            br.ui:createDropdown(section,  "Pause Mode", br.ui.dropOptions.Toggle,  6)
         br.ui:checkSectionState(section)
     end
     optionTable = {{
@@ -183,7 +183,7 @@ end
 actionList.PreCombat = function()
     if not unit.moving() and unit.level() >= 3
         and br._G.GetTime() - br.pauseTime > 0.5
-        and br.timer:useTimer("summonPet", 1) then
+        and br.debug.timer:useTimer("summonPet", 1) then
         if mode.petSummon == 1 and activePet ~= pets.imp and cast.able.summonImp() and not cast.last.summonImp() then
             if cast.summonImp("player") then return true end
         end
@@ -359,8 +359,8 @@ local function runRotation()
     end
 end
 local id = 266  -- Demonology Warlock
-if br.rotations[id] == nil then br.rotations[id] = {} end
-tinsert(br.rotations[id],{
+if br.loader.rotations[id] == nil then br.loader.rotations[id] = {} end
+tinsert(br.loader.rotations[id],{
     name = rotationName,
     toggles = createToggles,
     options = createOptions,

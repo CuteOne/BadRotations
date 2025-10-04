@@ -5,7 +5,7 @@ local _, br = ...
 function br.ui:createCheckbox(parent, text, tooltip, checked)
     -- Class Specific Color for UI Elements
     local classColor = {
-        color = br.classColors[select(3, br._G.UnitClass("player"))].hex
+        color = br.ui.colors:getColor("player").hex
     }
     -- Option Storage Location
     -- local parent1 = parent.children[1]
@@ -47,11 +47,11 @@ function br.ui:createCheckbox(parent, text, tooltip, checked)
     --------------
     ---BR Stuff---
     --------------
-    local activePageIdx = parent.settings.parentObject.pageDD.value
-    local activePage = parent.settings.parentObject.pageDD.settings.list[activePageIdx]
-    br.data.settings[br.selectedSpec][br.selectedProfile][activePage] = br.data.settings[br.selectedSpec]
-        [br.selectedProfile][activePage] or {}
-    local data = br.data.settings[br.selectedSpec][br.selectedProfile][activePage]
+    local activePageIdx = parent.settings.parentObject.pageDD.value or 0
+    local activePage = parent.settings.parentObject.pageDD.settings.list[activePageIdx] or 0
+    local activePageSettings = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile][activePage] or {}
+    br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile][activePage] = activePageSettings
+    local data = activePageSettings
     local value = text .. " Check"
 
     -- Read check value from config, false if nothing found
@@ -101,9 +101,9 @@ function br.ui:createCheckbox(parent, text, tooltip, checked)
             -- Create Chat Overlay
             if checked then
                 DiesalStyle:StyleTexture(checkBox.check, classColor)
-                br.ChatOverlay("|cff15FF00" .. text .. " Enabled")
+                br.ui.chatOverlay:Show("|cff15FF00" .. text .. " Enabled")
             else
-                br.ChatOverlay("|cFFED0000" .. text .. " Disabled")
+                br.ui.chatOverlay:Show("|cFFED0000" .. text .. " Disabled")
             end
         end
     )

@@ -1,63 +1,75 @@
 local _, br = ...
+br.functions.power = br.functions.power or {}
+local power = br.functions.power
 local runeTable = {}
-function br.getChi(Unit)
+
+function power:getChi(Unit)
 	return br._G.UnitPower(Unit, 12)
 end
 
-function br.getChiMax(Unit)
+function power:getChiMax(Unit)
 	return br._G.UnitPowerMax(Unit, 12)
 end
 
 -- if getCombo() >= 1 then
-function br.getCombo()
-	return br._G.UnitPower("player", 4) --GetComboPoints("player") - Legion Change
+function power:getCombo(thisUnit)
+	if thisUnit == nil then thisUnit = "target" end
+	return br._G.GetComboPoints("player", thisUnit) --GetComboPoints("player") - Legion Change
 end
 
-function br.getEmber(Unit)
+function power:getEmber(Unit)
 	return br._G.UnitPower(Unit, 14)
 end
 
-function br.getEmberMax(Unit)
+function power:getEmberMax(Unit)
 	return br._G.UnitPowerMax(Unit, 14)
 end
 
 -- if getMana("target") <= 15 then
-function br.getMana(Unit)
+function power:getMana(Unit)
 	return 100 * br._G.UnitPower(Unit, 0) / br._G.UnitPowerMax(Unit, 0)
 end
 
-function br.getEssence(Unit)
+function power:getEssence(Unit)
 	return br._G.UnitPower(Unit, 19)
 end
 
-function br.getEssenceMax(Unit)
+function power:getEssenceMax(Unit)
 	return br._G.UnitPowerMax(Unit, 19)
 end
 
--- if br.getPower("target") <= 15 then
-function br.getPower(Unit, index)
-	local value = br._G.UnitPower(Unit, index)
+-- if br.functions.power:getPower("target") <= 15 then
+function power:getPower(Unit, index)
+	local value = index == 4 and br._G.GetComboPoints("player", Unit) or br._G.UnitPower(Unit, index)
 	if select(3, br._G.UnitClass("player")) == 11 or select(3, br._G.UnitClass("player")) == 4 then
 		-- Druid: Incarnation affects all energy values report as having 20% more
-		if br.UnitBuffID("player", 102543) then
+		if br.functions.aura:UnitBuffID("player", 102543) then
 			value = value * 1.2
+		end
+		if br.functions.aura:UnitBuffID("player", 106951) then
+			-- Druid: Berserk affects energy values report as having 50% more
+			value = value * 5
 		end
 	end
 	return value
 end
 
-function br.getPowerMax(Unit, index)
+function power:getPowerMax(Unit, index)
 	local value = br._G.UnitPowerMax(Unit, index)
 	if select(3, br._G.UnitClass("player")) == 11 or select(3, br._G.UnitClass("player")) == 4 then
 		-- Druid: Incarnation affects all energy values report as having 20% more
-		if br.UnitBuffID("player", 102543) then
+		if br.functions.aura:UnitBuffID("player", 102543) then
 			value = value * 1.2
 		end
+		if br.functions.aura:UnitBuffID("player", 106951) then
+            -- Druid: Berserk halves costs -> treat energy max as doubled for checks
+            value = value * 2
+        end
 	end
 	return value
 end
 
-function br.getPowerAlt(Unit)
+function power:getPowerAlt(Unit)
 	local value = 0
 	local class = select(2, br._G.UnitClass(Unit))
 	local spec = br._G.C_SpecializationInfo.GetSpecialization()
@@ -78,7 +90,7 @@ function br.getPowerAlt(Unit)
 end
 
 -- Rune Tracking Table
-function br.getRuneInfo()
+function power:getRuneInfo()
 	local bCount = 0
 	local uCount = 0
 	local fCount = 0
@@ -172,7 +184,7 @@ function br.getRuneInfo()
 end
 
 -- Get Count of Specific Rune Time
-function br.getRuneCount(Type)
+function power:getRuneCount(Type)
 	Type = string.lower(Type)
 	local runeCount = 0
 	for i = 1, 6 do
@@ -184,7 +196,7 @@ function br.getRuneCount(Type)
 end
 
 -- Get Colldown Percent Remaining of Specific Runes
-function br.getRunePercent(Type)
+function power:getRunePercent(Type)
 	Type = string.lower(Type)
 	local runePercent = 0
 	-- local runeCooldown = 0
@@ -194,16 +206,16 @@ function br.getRunePercent(Type)
 			-- runeCooldown = runeTable[i].Cooldown
 		end
 	end
-	if br.getRuneCount(Type) == 2 then
+	if br.functions.power:getRuneCount(Type) == 2 then
 		return 2
-	elseif br.getRuneCount(Type) == 1 then
+	elseif br.functions.power:getRuneCount(Type) == 1 then
 		return runePercent + 1
 	else
 		return runePercent
 	end
 end
 
-function br.runeCDPercent(runeIndex)
+function power:runeCDPercent(runeIndex)
 	if br._G.GetRuneCount(runeIndex) == 0 then
 		return (br._G.GetTime() - select(1, br._G.GetRuneCooldown(runeIndex))) /
 			select(2, br._G.GetRuneCooldown(runeIndex))
@@ -212,7 +224,7 @@ function br.runeCDPercent(runeIndex)
 	end
 end
 
-function br.runeRecharge(runeIndex)
+function power:runeRecharge(runeIndex)
 	if not select(3, br._G.GetRuneCooldown(runeIndex)) then
 		return select(2, br._G.GetRuneCooldown(runeIndex)) -
 			(br._G.GetTime() - select(1, br._G.GetRuneCooldown(runeIndex)))
@@ -221,14 +233,14 @@ function br.runeRecharge(runeIndex)
 	end
 end
 
-function br.runeTimeTill(runeIndex)
+function power:runeTimeTill(runeIndex)
 	local runeCDs = {}
 	local runeCount = 0
 	local timeTill = 0
 	for i = 1, 6 do
 		runeCount = runeCount + br._G.GetRuneCount(i)
 		if runeCDs[runeIndex] == nil then
-			runeCDs[i] = br.runeRecharge(i)
+			runeCDs[i] = br.functions.power:runeRecharge(i)
 		end
 	end
 	if runeCount < runeIndex then
@@ -240,27 +252,27 @@ function br.runeTimeTill(runeIndex)
 end
 
 -- if getTimeToMax("player") < 3 then
-function br.getTimeToMax(Unit, Limit)
+function power:getTimeToMax(Unit, Limit)
 	local timeTill = 999
 	local max = Limit or br._G.UnitPowerMax(Unit)
 	local curr = br._G.UnitPower(Unit)
 	local curr2 = curr
 	local _, regen = br._G.GetPowerRegen(Unit)
-	if select(3, br._G.UnitClass("player")) == 11 and br._G.C_SpecializationInfo.GetSpecialization() == 2 and br.isKnown(114107) then
-		curr2 = curr + 4 * br.getCombo()
+	if select(3, br._G.UnitClass("player")) == 11 and br._G.C_SpecializationInfo.GetSpecialization() == 2 and br.functions.spell:isKnown(114107) then
+		curr2 = curr + 4 * br.functions.power:getCombo()
 	end
 	timeTill = (curr2 > max) and 0 or (max - curr2) * (1.0 / regen)
 	return timeTill
 end
 
 -- /dump getCastRegen(185358)
-function br.getCastRegen(spellId)
+function power:getCastRegen(spellId)
 	local regenRate = br._G.GetPowerRegen("player")
 	local power = 0
 
 	-- Get the "execute time" of the spell (larger of GCD or the cast time).
-	local castTime = br.getCastTime(spellId) or 0
-	local gcd = br.getSpellCD(61304)
+	local castTime = br.functions.cast:getCastTime(spellId) or 0
+	local gcd = br.functions.spell:getSpellCD(61304)
 	if gcd == 0 then
 		gcd = br._G.max(1, 1.5 / (1 + br._G.UnitSpellHaste("player") / 100))
 	end
@@ -270,13 +282,14 @@ function br.getCastRegen(spellId)
 	return power
 end
 
--- if br.getRegen("player") > 15 then
-function br.getRegen(Unit)
+-- if br.functions.power:getRegen("player") > 15 then
+function power:getRegen(Unit)
 	return select(2, br._G.GetPowerRegen(Unit))
 end
 
-function br.getSpellCost(spell)
-	local t = br._G.C_Spell.GetSpellPowerCost(br._G.GetSpellInfo(spell))
+function power:getSpellCost(spell)
+	local spellName = br._G.GetSpellInfo(spell) or ""
+	local t = br._G.C_Spell.GetSpellPowerCost(spellName)
 	if not t then
 		return 0
 	elseif not t[1] then
@@ -292,8 +305,8 @@ function br.getSpellCost(spell)
 	end
 end
 
-function br.hasResources(spell, offset)
-	local cost, _, costtype = br.getSpellCost(spell)
+function power:hasResources(spell, offset)
+	local cost, _, costtype = br.functions.power:getSpellCost(spell)
 	offset = offset or 0
 	if not cost then
 		return false

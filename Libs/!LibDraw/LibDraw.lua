@@ -6,7 +6,7 @@ local tinsert, tremove = tinsert, tremove
 
 
 -- local function WorldToScreen (wX, wY, wZ)
--- 	if wZ == nil then wZ = select(3,br.GetObjectPosition("player")) end
+-- 	if wZ == nil then wZ = select(3,br.functions.unit:GetObjectPosition("player")) end
 -- 	-- for k,v in pairs(br._G) do
 -- 	-- 	br._G.print("K: "..tostring(k)..", V: "..tostring(v))
 -- 	-- end
@@ -14,7 +14,7 @@ local tinsert, tremove = tinsert, tremove
 -- 	if not sX or sX == 0 then
 -- 		return false, false
 -- 	end
--- 	if sX and sY and br.unlocker ~= "WA" and br.unlocker ~= "LuaBox" then
+-- 	if sX and sY and br.unlockers.selected ~= "WA" and br.unlockers.selected ~= "LuaBox" then
 -- 		return sX, -(WorldFrame:GetTop() - sY);
 -- 	else
 -- 		return sX, sY;

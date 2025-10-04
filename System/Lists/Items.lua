@@ -1,20 +1,5 @@
 local _, br = ...
 if br.lists == nil then br.lists = {} end
-function br.getHeirloomNeck()
-    local necks = {
-        eternalAmuletOfTheRedeemed = 122663,
-        eternalEmberfuryTalisman   = 122667,
-        eternalHorizonChoker       = 122664,
-        eternalTalismanOfEvasion   = 122662,
-        eternalWillOfTheMartyr     = 122668,
-        eternalWovenIvyNecklace    = 122666,
-        manariTrainingAmulet       = 153130,
-    }
-    for _, v in pairs(necks) do
-        if br.hasEquiped(v, 2) then return v end
-    end
-    return 0
-end
 
 br.lists.items = {
     -- Dragon Isle Food buffs
@@ -85,7 +70,7 @@ br.lists.items = {
     eternalTalismanOfEvasion                = 122662,
     eternalWillOfTheMartyr                  = 122668,
     eternalWovenIvyNecklace                 = 122666,
-    heirloomNeck                            = br.getHeirloomNeck(),
+    heirloomNeck                            = br.functions.item:getHeirloomNeck(),
     manariTrainingAmulet                    = 153130,
     touchOfTheVoid                          = 128318,
     -- Potions
@@ -222,8 +207,4 @@ br.lists.items = {
     icedPhialOfCorruptingRageQualities      = { 204654, 191329, 204653, 191328, 204652, 191327 },
     phialOfTepidVersatilityQualities        = { 204666, 191341, 204665, 191340, 204664, 191339 },
     dreamwalkersHealingPotion               = { 207023, 207022, 207021 }
-
-
-
-
 }

@@ -79,13 +79,13 @@ local function createOptions()
         ----------------------
         section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
         -- Single/Multi Toggle
-        br.ui:createDropdownWithout(section, "Rotation Mode", br.dropOptions.Toggle, 4)
+        br.ui:createDropdownWithout(section, "Rotation Mode", br.ui.dropOptions.Toggle, 4)
         --Defensive Key Toggle
-        br.ui:createDropdownWithout(section, "Defensive Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdownWithout(section, "Defensive Mode", br.ui.dropOptions.Toggle, 6)
         -- Cooldown Key Toggle
-        br.ui:createDropdownWithout(section, "Cooldown Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdownWithout(section, "Cooldown Mode", br.ui.dropOptions.Toggle, 6)
         -- Pause Toggle
-        br.ui:createDropdown(section, "Pause Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdown(section, "Pause Mode", br.ui.dropOptions.Toggle, 6)
         br.ui:checkSectionState(section)
     end
     optionTable = { {
@@ -189,9 +189,9 @@ local getMarkUnitOption = function(option)
     end
     if thisTar == 5 then
         thisUnit = "player"
-        if #br.friend > 1 then
-            for i = 1, #br.friend do
-                local nextUnit = br.friend[i].unit
+        if #br.engines.healingEngine.friend > 1 then
+            for i = 1, #br.engines.healingEngine.friend do
+                local nextUnit = br.engines.healingEngine.friend[i].unit
                 if buff.markOfTheWild.refresh(nextUnit) and unit.distance(var.markUnit) < 40 then
                     thisUnit = nextUnit
                     break
@@ -482,7 +482,7 @@ local function runRotation()
     spell       = br.player.spell
     -- General Locals
     profileStop = profileStop or false
-    haltProfile = (unit.inCombat() and profileStop) or br.pause() or ui.mode.rotation == 2 or unit.id("target") == 156716
+    haltProfile = (unit.inCombat() and profileStop) or br.functions.misc:pause() or ui.mode.rotation == 2 or unit.id("target") == 156716
     -- Units
     units.get(5)        -- Makes a variable called, units.dyn5
     units.get(40, true) -- Makes a variable called, units.dyn40AOE
@@ -530,8 +530,8 @@ local function runRotation()
     return true
 end             -- End runRotation
 local id = 1447 -- Change to the spec id profile is for.
-if br.rotations[id] == nil then br.rotations[id] = {} end
-br._G.tinsert(br.rotations[id], {
+if br.loader.rotations[id] == nil then br.loader.rotations[id] = {} end
+br._G.tinsert(br.loader.rotations[id], {
     name = rotationName,
     toggles = createToggles,
     options = createOptions,

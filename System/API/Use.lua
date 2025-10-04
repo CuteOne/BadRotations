@@ -19,9 +19,9 @@ br.api.use = function(self,item,id)
     use[item] = function(slotID,thisUnit)
         if thisUnit == nil then thisUnit = "target" end
         if slotID == nil then
-            if br.canUseItem(id) then return br.useItem(id,thisUnit) else return end
+            if br.functions.item:canUseItem(id) then return br.functions.item:useItem(id,thisUnit) else return end
         else
-            if br.canUseItem(slotID) then return br.useItem(slotID,thisUnit) else return end
+            if br.functions.item:canUseItem(slotID) then return br.functions.item:useItem(slotID,thisUnit) else return end
         end
     end
 
@@ -35,8 +35,8 @@ br.api.use = function(self,item,id)
         use.item = function(itemID,thisUnit)
             if itemID == nil then return false end
             if thisUnit == nil then thisUnit = "target" end
-            if br.canUseItem(itemID) then
-                return br.useItem(itemID,thisUnit)
+            if br.functions.item:canUseItem(itemID) then
+                return br.functions.item:useItem(itemID,thisUnit)
             else
                 return
             end
@@ -56,8 +56,8 @@ br.api.use = function(self,item,id)
             if itemIDs == nil then return false end
             if thisUnit == nil then thisUnit = "player" end
             for i=1,#itemIDs do
-               if br.canUseItem(itemIDs[i])  then
-                    return br.useItem(itemIDs[i],thisUnit)
+               if br.functions.item:canUseItem(itemIDs[i])  then
+                    return br.functions.item:useItem(itemIDs[i],thisUnit)
                end
             end
         end
@@ -73,7 +73,7 @@ br.api.use = function(self,item,id)
         use.isOneOfUsable = function(itemIDs)
             if itemIDs == nil then return false end
             for i=1, #itemIDs do
-                if br.canUseItem(itemIDs[i]) then return true end
+                if br.functions.item:canUseItem(itemIDs[i]) then return true end
             end
             return false
         end
@@ -87,7 +87,7 @@ br.api.use = function(self,item,id)
         -- @treturn boolean
         use.slot = function(slotID,thisUnit)
             if thisUnit == nil then thisUnit = "target" end
-            if br.canUseItem(slotID) then return br.useItem(slotID,thisUnit) else return end
+            if br.functions.item:canUseItem(slotID) then return br.functions.item:useItem(slotID,thisUnit) else return end
         end
     end
 
@@ -98,7 +98,7 @@ br.api.use = function(self,item,id)
     -- @number[opt] slotID The ID of the equipment slot to check.
     -- @treturn boolean
     use.able[item] = function(slotID)
-        if slotID == nil then return br.canUseItem(id) else return br.canUseItem(slotID) end
+        if slotID == nil then return br.functions.item:canUseItem(id) else return br.functions.item:canUseItem(slotID) end
     end
 
     if use.able.item == nil then
@@ -109,7 +109,7 @@ br.api.use = function(self,item,id)
         -- @treturn boolean
         use.able.item = function(itemID)
             if itemID == nil then return false end
-            return br.canUseItem(itemID)
+            return br.functions.item:canUseItem(itemID)
         end
     end
 
@@ -119,7 +119,7 @@ br.api.use = function(self,item,id)
         -- @number slotID The ID of the equipment slot to check.
         -- @treturn boolean
         use.able.slot = function(slotID)
-            return br.canUseItem(slotID)
+            return br.functions.item:canUseItem(slotID)
         end
     end
 end

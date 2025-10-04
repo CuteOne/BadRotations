@@ -34,7 +34,7 @@ br.api.spell = function(self, k, v)
     -- @function spell.k.known
     -- @return boolean
     spell[k].known = function()
-        return br.isKnown(v)
+        return br.functions.spell:isKnown(v)
     end
 
     --- Returns the spell's max range.

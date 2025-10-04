@@ -13,7 +13,7 @@
 -------------------------------------------------------
 
 local rotationName = "CuteOne"
-br.loadSupport("PetCuteOne")
+br.loader.cBuilder:loadSupport("PetCuteOne")
 ---------------
 --- Toggles ---
 ---------------
@@ -100,7 +100,7 @@ local function createOptions()
         -------------------
         --- Pet Options ---
         -------------------
-        br.rotations.support["PetCuteOne"].options()
+        br.loader.rotations.support["PetCuteOne"].options()
         ------------------------
         --- Cooldown Options ---
         ------------------------
@@ -160,17 +160,17 @@ local function createOptions()
         --------------------------
         section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
         -- Single/Multi Toggle
-        br.ui:createDropdownWithout(section, "Rotation Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdownWithout(section, "Rotation Mode", br.ui.dropOptions.Toggle, 6)
         -- Cooldown Key Toggle
-        br.ui:createDropdownWithout(section, "Cooldown Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdownWithout(section, "Cooldown Mode", br.ui.dropOptions.Toggle, 6)
         -- Defensive Key Toggle
-        br.ui:createDropdownWithout(section, "Defensive Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdownWithout(section, "Defensive Mode", br.ui.dropOptions.Toggle, 6)
         -- Interrupts Key Toggle
-        br.ui:createDropdownWithout(section, "Interrupt Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdownWithout(section, "Interrupt Mode", br.ui.dropOptions.Toggle, 6)
         -- Volley Key Toggle
-        br.ui:createDropdownWithout(section, "Volley Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdownWithout(section, "Volley Mode", br.ui.dropOptions.Toggle, 6)
         -- Pause Toggle
-        br.ui:createDropdown(section, "Pause Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdown(section, "Pause Mode", br.ui.dropOptions.Toggle, 6)
         br.ui:checkSectionState(section)
     end
     optionTable = { {
@@ -872,7 +872,7 @@ local function runRotation()
     --- Load Additional Rotation Files ---
     --------------------------------------
     if actionList.PetManagement == nil then
-        actionList.PetManagement = br.rotations.support["PetCuteOne"].run
+        actionList.PetManagement = br.loader.rotations.support["PetCuteOne"].run
     end
 
     ---------------
@@ -995,8 +995,8 @@ local function runRotation()
     end     --End Rotation Logic
 end         -- End runRotation
 local id = 254
-if br.rotations[id] == nil then br.rotations[id] = {} end
-br._G.tinsert(br.rotations[id], {
+if br.loader.rotations[id] == nil then br.loader.rotations[id] = {} end
+br._G.tinsert(br.loader.rotations[id], {
     name = rotationName,
     toggles = createToggles,
     options = createOptions,

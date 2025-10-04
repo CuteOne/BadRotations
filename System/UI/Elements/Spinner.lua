@@ -4,9 +4,9 @@ local _, br = ...
 function br.ui:createSpinner(parent, text, number, min, max, step, tooltip, tooltipSpin, hideCheckbox)
     local activePageIdx = parent.settings.parentObject.pageDD.value
     local activePage = parent.settings.parentObject.pageDD.settings.list[activePageIdx]
-    br.data.settings[br.selectedSpec][br.selectedProfile][activePage] = br.data.settings[br.selectedSpec]
-        [br.selectedProfile][activePage] or {}
-    local data = br.data.settings[br.selectedSpec][br.selectedProfile][activePage]
+    br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile][activePage] = br.data.settings[br.loader.selectedSpec]
+        [br.loader.selectedProfile][activePage] or {}
+    local data = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile][activePage]
     -------------------------------
     ----Need to calculate Y Pos----
     -------------------------------
@@ -127,9 +127,9 @@ function br.ui:createDoubleSpinner(parent, text, spinner1, spinner2, hideCheckbo
     local activePage = parent.settings.parentObject.pageDD.settings.list[activePageIdx]
     -- string.gsub(parent.settings.parentObject.pageDD.settings.list[activePageIdx], " Options", "")
     -- activePage = string.gsub(activePage, " ", "")
-    br.data.settings[br.selectedSpec][br.selectedProfile][activePage] = br.data.settings[br.selectedSpec]
-        [br.selectedProfile][activePage] or {}
-    local data = br.data.settings[br.selectedSpec][br.selectedProfile][activePage]
+    br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile][activePage] = br.data.settings[br.loader.selectedSpec]
+        [br.loader.selectedProfile][activePage] or {}
+    local data = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile][activePage]
     -------------------------------
     ----Need to calculate Y Pos----
     -------------------------------

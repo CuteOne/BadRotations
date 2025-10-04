@@ -16,10 +16,10 @@ br.api.buffs = function(buff, k, v)
         if thisUnit == nil then thisUnit = 'player' end
         if sourceUnit == nil then sourceUnit = 'player' end
         if k == "bloodLust" then
-            v = br.getLustID()
+            v = br.functions.aura:getLustID()
             if v == 0 then return end
         end
-        if br.UnitBuffID(thisUnit, v, sourceUnit) ~= nil then
+        if br.functions.aura:UnitBuffID(thisUnit, v, sourceUnit) ~= nil then
             br._G.RunMacroText("/cancelaura " .. br._G.GetSpellInfo(v))
         end
     end
@@ -29,10 +29,10 @@ br.api.buffs = function(buff, k, v)
     -- @treturn number
     buff.count = function()
         if k == "bloodLust" then
-            v = br.getLustID()
+            v = br.functions.aura:getLustID()
             if v == 0 then return 0 end
         end
-        return tonumber(br.getBuffCount(v))
+        return tonumber(br.functions.aura:getBuffCount(v))
     end
 
     --- Get the duration of a buff.
@@ -44,10 +44,10 @@ br.api.buffs = function(buff, k, v)
         if thisUnit == nil then thisUnit = 'player' end
         if sourceUnit == nil then sourceUnit = 'player' end
         if k == "bloodLust" then
-            v = br.getLustID()
+            v = br.functions.aura:getLustID()
             if v == 0 then return 0 end
         end
-        return br.getBuffDuration(thisUnit, v, sourceUnit)
+        return br.functions.aura:getBuffDuration(thisUnit, v, sourceUnit)
     end
 
     --- Check if a buff exists.
@@ -59,10 +59,10 @@ br.api.buffs = function(buff, k, v)
         if thisUnit == nil then thisUnit = 'player' end
         if sourceUnit == nil then sourceUnit = 'player' end
         if k == "bloodLust" then
-            v = br.getLustID()
+            v = br.functions.aura:getLustID()
             if v == 0 then return false end
         end
-        return br.UnitBuffID(thisUnit, v, sourceUnit) ~= nil
+        return br.functions.aura:UnitBuffID(thisUnit, v, sourceUnit) ~= nil
     end
 
     --- Check if a buff does NOT exists -- added for readablity into SIMC converted rotations
@@ -72,7 +72,7 @@ br.api.buffs = function(buff, k, v)
     -- @treturn boolean
     buff.down = function(thisUnit, sourceUnit)
         if k == "bloodLust" then
-            v = br.getLustID()
+            v = br.functions.aura:getLustID()
             if v == 0 then return true end
         end
         return not buff.exists(thisUnit, sourceUnit)
@@ -87,10 +87,10 @@ br.api.buffs = function(buff, k, v)
         thisUnit = thisUnit or "player"
         sourceUnit = sourceUnit or "player"
         if k == "bloodLust" then
-            v = br.getLustID()
+            v = br.functions.aura:getLustID()
             if v == 0 then return false end
         end
-        return br.getBuffReact(thisUnit, v, sourceUnit)
+        return br.functions.aura:getBuffReact(thisUnit, v, sourceUnit)
     end
 
     --- Get the remaining time of a buff.
@@ -102,10 +102,10 @@ br.api.buffs = function(buff, k, v)
         if thisUnit == nil then thisUnit = 'player' end
         if sourceUnit == nil then sourceUnit = 'player' end
         if k == "bloodLust" then
-            v = br.getLustID()
+            v = br.functions.aura:getLustID()
             if v == 0 then return 0 end
         end
-        return math.abs(br.getBuffRemain(thisUnit, v, sourceUnit))
+        return math.abs(br.functions.aura:getBuffRemain(thisUnit, v, sourceUnit))
     end
 
     --- Get the remaining time of a buff. (Duplicate of br.player.buff.spell.remain)
@@ -117,10 +117,10 @@ br.api.buffs = function(buff, k, v)
         if thisUnit == nil then thisUnit = 'player' end
         if sourceUnit == nil then sourceUnit = 'player' end
         if k == "bloodLust" then
-            v = br.getLustID()
+            v = br.functions.aura:getLustID()
             if v == 0 then return 0 end
         end
-        return math.abs(br.getBuffRemain(thisUnit, v, sourceUnit))
+        return math.abs(br.functions.aura:getBuffRemain(thisUnit, v, sourceUnit))
     end
 
     --- Check if a buff should be refreshed.
@@ -130,7 +130,7 @@ br.api.buffs = function(buff, k, v)
     -- @treturn boolean
     buff.refresh = function(thisUnit, sourceUnit)
         if k == "bloodLust" then
-            v = br.getLustID()
+            v = br.functions.aura:getLustID()
             if v == 0 then return false end
         end
         return buff.remain(thisUnit, sourceUnit) <= buff.duration(thisUnit, sourceUnit) * 0.3
@@ -145,10 +145,10 @@ br.api.buffs = function(buff, k, v)
         if thisUnit == nil then thisUnit = 'player' end
         if sourceUnit == nil then sourceUnit = 'player' end
         if k == "bloodLust" then
-            v = br.getLustID()
+            v = br.functions.aura:getLustID()
             if v == 0 then return 0 end
         end
-        return br.getBuffStacks(thisUnit, v, sourceUnit)
+        return br.functions.aura:getBuffStacks(thisUnit, v, sourceUnit)
     end
 
     --- Get the maximum stack count of a buff.
@@ -160,9 +160,10 @@ br.api.buffs = function(buff, k, v)
         if thisUnit == nil then thisUnit = 'player' end
         if sourceUnit == nil then sourceUnit = 'player' end
         if k == "bloodLust" then
-            v = br.getLustID()
+            v = br.functions.aura:getLustID()
             if v == 0 then return 0 end
         end
-        return br.auraMaxStacks[v] and (br.auraMaxStacks[v][thisUnit] or 0) or 0
+        if not br.readers.common.auraMaxStacks then return 0 end
+        return br.readers.common.auraMaxStacks[v] and (br.readers.common.auraMaxStacks[v][thisUnit] or 0) or 0
     end
 end

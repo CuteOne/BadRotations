@@ -44,7 +44,7 @@ br.api.cast = function(self, spell, id)
     -- @tab enemies A table of enemy units that the spell should be cast on.
     -- @treturn boolean
     cast[spell] = function(thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)
-        return br.createCastFunction(thisUnit, castType, minUnits, effectRng, id, spell, predict, predictPad, enemies)
+        return br.functions.cast:createCastFunction(thisUnit, castType, minUnits, effectRng, id, spell, predict, predictPad, enemies)
     end
 
     --- Cast a spell by its ID based on various parameters.
@@ -59,7 +59,7 @@ br.api.cast = function(self, spell, id)
     -- @tab enemies A table of enemy units that the spell should be cast on.
     -- @treturn boolean
     cast.id = function(spellID, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)
-        return br.createCastFunction(thisUnit, castType, minUnits, effectRng, spellID, spell, predict, predictPad,
+        return br.functions.cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellID, spell, predict, predictPad,
             enemies)
     end
 
@@ -76,7 +76,7 @@ br.api.cast = function(self, spell, id)
     -- @treturn boolean
     cast.name = function(spellName, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)
         local _, _, _, _, _, _, spellID = br._G.GetSpellInfo(spellName)
-        return br.createCastFunction(thisUnit, castType, minUnits, effectRng, spellID, spell, predict, predictPad,
+        return br.functions.cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellID, spell, predict, predictPad,
             enemies)
     end
 
@@ -93,7 +93,7 @@ br.api.cast = function(self, spell, id)
     -- @tab enemies A table of enemy units that the spell should be cast on.
     -- @treturn boolean
     cast.able[spell] = function(thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)
-        return br.createCastFunction(thisUnit, castType, minUnits, effectRng, id, spell, predict, predictPad, enemies,
+        return br.functions.cast:createCastFunction(thisUnit, castType, minUnits, effectRng, id, spell, predict, predictPad, enemies,
             true)
     end
 
@@ -109,7 +109,7 @@ br.api.cast = function(self, spell, id)
     -- @tab enemies A table of enemy units that the spell should be cast on.
     -- @treturn boolean
     cast.able.id = function(spellID, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)
-        return br.createCastFunction(thisUnit, castType, minUnits, effectRng, spellID, spell, predict, predictPad,
+        return br.functions.cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellID, spell, predict, predictPad,
             enemies, true)
     end
 
@@ -126,7 +126,7 @@ br.api.cast = function(self, spell, id)
     -- @treturn boolean
     cast.able.name = function(spellName, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)
         local _, _, _, _, _, _, spellID = br._G.GetSpellInfo(spellName)
-        return br.createCastFunction(thisUnit, castType, minUnits, effectRng, spellID, spell, predict, predictPad,
+        return br.functions.cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellID, spell, predict, predictPad,
             enemies, true)
     end
 
@@ -136,7 +136,7 @@ br.api.cast = function(self, spell, id)
     -- @treturn boolean
     cast.active[spell] = function(thisUnit)
         if thisUnit == nil then thisUnit = "player" end
-        return br.isCastingSpell(id, thisUnit)
+        return br.functions.cast:isCastingSpell(id, thisUnit)
     end
 
     --- Checks if the spell is set to auto-repeat or if it's the current spell being cast.
@@ -165,9 +165,9 @@ br.api.cast = function(self, spell, id)
     cast.cost[spell] = function(altPower)
         if altPower == nil then altPower = false end
         if altPower then
-            return select(2, br.getSpellCost(id))
+            return select(2, br.functions.power:getSpellCost(id))
         else
-            return select(1, br.getSpellCost(id))
+            return select(1, br.functions.power:getSpellCost(id))
         end
     end
 
@@ -177,7 +177,7 @@ br.api.cast = function(self, spell, id)
     -- @treturn boolean
     cast.current[spell] = function(thisUnit)
         if thisUnit == nil then thisUnit = "player" end
-        return br.isCastingSpell(id, thisUnit)
+        return br.functions.cast:isCastingSpell(id, thisUnit)
     end
 
     --- Gets the spell id of the current (or previously) cast spell by the API.
@@ -193,14 +193,14 @@ br.api.cast = function(self, spell, id)
     -- @treturn boolean
     cast.dispel[spell] = function(thisUnit)
         if thisUnit == nil then thisUnit = "target" end
-        return br.canDispel(thisUnit, id) or false
+        return br.functions.aura:canDispel(thisUnit, id) or false
     end
 
     --- Gets current empowered rank of the spell or 0 if not empowered.
     -- @function cast.empowered.spell
     -- @treturn number
     cast.empowered[spell] = function()
-        return br.getEmpoweredRank(id)
+        return br.functions.spell:getEmpoweredRank(id)
     end
 
     --- Casts the form corresponding to the provided formIndex number.
@@ -218,7 +218,7 @@ br.api.cast = function(self, spell, id)
     -- @treturn boolean
     cast.inFlight[spell] = function(thisUnit)
         if thisUnit == nil then thisUnit = "target" end
-        return br.InFlight.Check(id, thisUnit)
+        return br.functions.InFlight:Check(id, thisUnit)
     end
 
     --- Gets time remaining on a spell in flight to the target.
@@ -226,7 +226,7 @@ br.api.cast = function(self, spell, id)
     -- @string thisUnit The target unit to check for the spell in flight.
     -- @treturn number
     cast.inFlightRemain[spell] = function(thisUnit)
-        return br.InFlight.Remain(id, thisUnit)
+        return br.functions.InFlight:Remain(id, thisUnit)
     end
 
     --- Checks if the spell was the last one cast or not.
@@ -234,7 +234,7 @@ br.api.cast = function(self, spell, id)
     -- @number index Number of last cast spell up to 10 previous spells, default value is 1 if not provided.
     -- @treturn boolean
     cast.last[spell] = function(index)
-        local tracker = br.lastCastTable.tracker
+        local tracker = br.functions.lastCast.lastCastTable.tracker
         index = index or 1
         return tracker[index] and tracker[index] == id
     end
@@ -243,8 +243,8 @@ br.api.cast = function(self, spell, id)
     -- @function cast.last.time.spell
     -- @treturn number
     cast.last.time[spell] = function()
-        if br.lastCastTable.castTime[id] == nil then br.lastCastTable.castTime[id] = br._G.GetTime() end
-        return br.lastCastTable.castTime[id]
+        if br.functions.lastCast.lastCastTable.castTime[id] == nil then br.functions.lastCast.lastCastTable.castTime[id] = br._G.GetTime() end
+        return br.functions.lastCast.lastCastTable.castTime[id]
     end
 
     --- Runs the macro text passed to it.
@@ -260,8 +260,7 @@ br.api.cast = function(self, spell, id)
     -- @function cast.noControl.spell
     -- @treturn boolean
     cast.noControl[spell] = function()
-        local hasNoControl = br.hasNoControl
-        return hasNoControl(id)
+        return br.functions.combat:hasNoControl(id)
     end
 
     --- Casts special opener condition spell.
@@ -306,14 +305,14 @@ br.api.cast = function(self, spell, id)
     -- @function cast.range.spell
     -- @treturn number
     cast.range[spell] = function()
-        return br.getSpellRange(id)
+        return br.functions.spell:getSpellRange(id)
     end
 
     --- Gets the amount of power spell will generate when cast.
     -- @function cast.regen.spell
     -- @treturn number
     cast.regen[spell] = function()
-        return br.getCastingRegen(id)
+        return br.functions.spell:getCastingRegen(id)
     end
 
     --- Checks if safe to cast specified aoe spell on unit given the aoe dimensions.
@@ -324,15 +323,15 @@ br.api.cast = function(self, spell, id)
     -- @number effectRng Specify the AoE's effect range to determine units hit by it.
     -- @treturn boolean
     cast.safe[spell] = function(thisUnit, aoeType, minUnits, effectRng)
-        return br.isSafeToAoE(id, thisUnit, effectRng, minUnits, aoeType)
+        return br.functions.range:isSafeToAoE(id, thisUnit, effectRng, minUnits, aoeType)
     end
 
     --- Gets the cast time of player's spell. If the spell has no cast time, it returns the global cooldown.
     -- @function cast.time.spell
     -- @treturn number
     cast.time[spell] = function()
-        local castTime = br.getCastTime(id)
-        return castTime > 0 and castTime or br.getGlobalCD(true)
+        local castTime = br.functions.cast:getCastTime(id)
+        return castTime > 0 and castTime or br.functions.spell:getGlobalCD(true)
     end
 
     --- Gets the cast time remaining on player's cast or supplied target.
@@ -341,15 +340,15 @@ br.api.cast = function(self, spell, id)
     -- @treturn number
     cast.timeRemain = function(thisUnit)
         if thisUnit == nil then thisUnit = "player" end
-        return br.getCastTimeRemain(thisUnit)
+        return br.functions.cast:getCastTimeRemain(thisUnit)
     end
 
     --- Gets the time since the last cast of this spell occurred.
     -- @function cast.timeSinceLast.spell
     -- @treturn number
     cast.timeSinceLast[spell] = function()
-        if br.lastCastTable.castTime[id] == nil then br.lastCastTable.castTime[id] = br._G.GetTime() end
-        return br._G.GetTime() - br.lastCastTable.castTime[id]
+        if br.functions.lastCast.lastCastTable.castTime[id] == nil then br.functions.lastCast.lastCastTable.castTime[id] = br._G.GetTime() end
+        return br._G.GetTime() - br.functions.lastCast.lastCastTable.castTime[id]
     end
 
     --- Checks if the provided condition is true else it waits for 0.1sec.

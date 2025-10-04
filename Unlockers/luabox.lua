@@ -1,6 +1,6 @@
 local _, br = ...
 local b = br._G
-local unlock = br.unlock
+local unlock = br.unlockers
 local CurrentTable, OldTable
 local function copyTable(datatable)
 	local tblRes = {}
@@ -443,7 +443,7 @@ function unlock.LBUnlock()
 		return lb.Unlock(lb.ClickPosition, ...)  end
 	b.UnitBoundingRadius = lb.UnitBoundingRadius
 	b.CancelPendingSpell = lb.CancelPendingSpells
-	br.unlocker = "LuaBox"
+	br.unlockers.selected = "LuaBox"
 	unlocked = true
 	return unlocked
 end

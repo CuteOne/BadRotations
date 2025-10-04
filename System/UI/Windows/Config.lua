@@ -18,10 +18,10 @@ function br.ui:createConfigWindow()
             0.01,
             "Adjust the update rate of Bot operations. Increase to improve FPS but may cause reaction delays. Will be ignored if Auto Delay is checked. Default: 0.1"
         )
-        br.rotationLog = br.ui:createCheckbox(section, "Rotation Log", "Display Rotation Log.")
+        br.ui.rotationLog = br.ui:createCheckbox(section, "Rotation Log", "Display Rotation Log.")
         br.ui:createDropdown(section, "Addon Debug Messages", { "System Only", "Profile Only", "All" }, 3,
             "Check this to display developer debug messages.")
-        br.targetval = br.ui:createCheckbox(section, "Target Validation Debug",
+        br.ui:createCheckbox(section, "Target Validation Debug",
             "Check this to display current target's validation.")
         br.ui:createCheckbox(section, "Display Failcasts", "Dispaly Failcasts in Debug.")
         br.ui:createCheckbox(section, "Queue Casting", "Allow Queue Casting on some profiles.")
@@ -217,24 +217,24 @@ function br.ui:createConfigWindow()
             "Select profile to use, then click load")
         br.ui:createText(section, "|cffDB4437Save your settings before loading a new one!!")
         local saveProfile = function()
-            br:saveSettings("Profile Settings", br.player.class, br.selectedSpec, br.selectedProfileName,
-                profileSettings[br.getValue("Select Settings")])
+            br.settingsManagement:saveSettings("Profile Settings", br.player.class, br.loader.selectedSpec, br.loader.selectedProfileName,
+                profileSettings[br.functions.misc:getValue("Select Settings")])
         end
         local loadProfile = function()
             br.data.loadedSettings = false
             local loadDir =
-                br:checkDirectories("Profile Settings", br.player.class, br.selectedSpec, br.selectedProfileName,
-                    profileSettings[br.getValue("Select Settings")])
+                br.settingsManagement:checkDirectories("Profile Settings", br.player.class, br.loader.selectedSpec, br.loader.selectedProfileName,
+                    profileSettings[br.functions.misc:getValue("Select Settings")])
             if not loadDir then
                 br._G.print("Load Directory is nil!")
                 return
             end
-            if loadDir and br:findFileInFolder("savedSettings.lua", loadDir) then
-                br:loadSettings("Profile Settings", br.player.class, br.selectedSpec, br.selectedProfileName,
-                    profileSettings[br.getValue("Select Settings")])
+            if loadDir and br.settingsManagement:findFileInFolder("savedSettings.lua", loadDir) then
+                br.settingsManagement:loadSettings("Profile Settings", br.player.class, br.loader.selectedSpec, br.loader.selectedProfileName,
+                    profileSettings[br.functions.misc:getValue("Select Settings")])
                 br.rotationChanged = true
             else
-                br._G.print("You don't have saved setting for :" .. profileSettings[br.getValue("Select Settings")])
+                br._G.print("You don't have saved setting for :" .. profileSettings[br.functions.misc:getValue("Select Settings")])
             end
         end
         local y = -5
@@ -243,7 +243,7 @@ function br.ui:createConfigWindow()
                 y = y - section.children[i].frame:GetHeight() * 1.2
             end
         end
-        y = br.round2(y, 1)
+        y = br.functions.misc:round2(y, 1)
         br.ui:createButton(section, "Save", 10, y, saveProfile)
         br.ui:createButton(section, "Load", -10, y, loadProfile, true)
         br.ui:checkSectionState(section)
@@ -253,7 +253,7 @@ function br.ui:createConfigWindow()
         -- -90)
         br.ui:createImportButton(section, "Import", 140, y)
         -- -90)
-        br.ui:createText(section, "FileName: " .. br.selectedSpec .. br.selectedProfileName .. ".lua")
+        br.ui:createText(section, "FileName: " .. br.loader.selectedSpec .. br.loader.selectedProfileName .. ".lua")
         br.ui:checkSectionState(section)
     end
 

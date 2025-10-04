@@ -24,7 +24,7 @@ br.api.module = function(self)
     -- @string option Name of the option to check.
     -- @string["Check"|"Value"] optionType Type of option check to perform
     local function getOption(option, optionType)
-        if br.data.settings[br.selectedSpec][br.selectedProfile]["Rotation Options"] == nil then
+        if br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["Rotation Options"] == nil then
             if optionType == "Check" then return ui.checked(option, "Base Options") end
             if optionType == "Value" then return ui.value(option, "Base Options") end
         else
@@ -32,12 +32,12 @@ br.api.module = function(self)
             if optionType == "Value" then return ui.value(option, "Rotation Options") end
         end
         -- if optionType == "Check" then
-        --     return br.data.settings[br.selectedSpec][br.selectedProfile]["Rotation Options"][option] ~= nil and
+        --     return br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["Rotation Options"][option] ~= nil and
         --         ui.checked(option, "Rotation Options") or
         --         ui.checked(option, "Base Options")
         -- end
         -- if optionType == "Value" then
-        --     return br.data.settings[br.selectedSpec][br.selectedProfile]["Rotation Options"][option] ~= nil and
+        --     return br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["Rotation Options"][option] ~= nil and
         --         ui.value(option, "Rotation Options") or
         --         ui.value(option, "Base Options")
         -- end
@@ -115,7 +115,7 @@ br.api.module = function(self)
             end
             table.sort(Consumables, function(v1, v2) return v1.itemLevel > v2.itemLevel end)
             for i = 1, #Consumables do
-                if br.canUseItem(Consumables[i].itemID) then return Consumables[i].itemID end
+                if br.functions.item:canUseItem(Consumables[i].itemID) then return Consumables[i].itemID end
             end
             return nil
         end
@@ -143,7 +143,7 @@ br.api.module = function(self)
             if getOption("Healthstone/Potion", "Check") and unit.inCombat() and unit.hp() <= getOption("Healthstone/Potion", "Value") then
                 --Health Pot should be first since it's the greatest heal; healthstones second
                 local healPot = BestHealingPotion()
-                if healPot ~= nil and has.item(healPot) and br.canUseItem(healPot) then
+                if healPot ~= nil and has.item(healPot) and br.functions.item:canUseItem(healPot) then
                     if use.item(healPot) then
                         ui.debug("using Healing Potion")
                         return true
@@ -183,7 +183,7 @@ br.api.module = function(self)
                 end
             end
             -- -- Music of Bastion
-            -- if getOption("Music of Bastion", "Check") and (br.isInArdenweald() or br.isInBastion() or br.isInMaldraxxus() or br.isInRevendreth()) then
+            -- if getOption("Music of Bastion", "Check") and (br.functions.misc:isInArdenweald() or br.functions.misc:isInBastion() or br.functions.misc:isInMaldraxxus() or br.functions.misc:isInRevendreth()) then
             --     if use.able.ascendedFlute() and has.ascendedFlute() then
             --         if use.ascendedFlute() then
             --             ui.debug("Using Ascended Flute")
@@ -249,7 +249,7 @@ br.api.module = function(self)
             if slotID ~= nil then
                 -- For use in rotation loop - pass slotID
                 if slotID == 13 or slotID == 14 then
-                    if use.able.slot(slotID) and ui.alwaysCdAoENever("Trinket " .. slotID - 12, 3, #br.getEnemies("player", 8)) then
+                    if use.able.slot(slotID) and ui.alwaysCdAoENever("Trinket " .. slotID - 12, 3, #br.engines.enemiesEngineFunctions:getEnemies("player", 8)) then
                         if use.slot(slotID) then
                             ui.debug("Using Trinket " .. slotID - 12)
                             return true
@@ -260,7 +260,7 @@ br.api.module = function(self)
                 -- If not used in rotation loop - loop here
                 for slotID = 13, 14 do
                     -- local useTrinket = (opValue == 1 or (opValue == 2 and (ui.useCDs() or ui.useAOE())) or (opValue == 3 and ui.useCDs()))
-                    if use.able.slot(slotID) and ui.alwaysCdAoENever("Trinket " .. slotID - 12, 3, #br.getEnemies("player", 8)) then
+                    if use.able.slot(slotID) and ui.alwaysCdAoENever("Trinket " .. slotID - 12, 3, #br.engines.enemiesEngineFunctions:getEnemies("player", 8)) then
                         if use.slot(slotID) then
                             ui.debug("Using Trinket " .. slotID - 12)
                             return true
@@ -340,6 +340,287 @@ br.api.module = function(self)
             --     end
             -- end
         end
+    end
+
+    --- Racial Module - Attempts to use the racial ability based on the options set in the Profile Options.
+    --- @function module.Racial
+    --- @bool[opt] section If set will generate the options for this module in the Profile Options. Otherwise, will run the module.
+    --- @unit[opt] thisUnit If set will use the racial on the specified unit. Otherwise, will use on player or appropriate target.
+    module.Racial = function(section,thisUnit)
+        local race = unit.race()
+        local alwaysCdAoENever = { "Always", "|cff008000AOE", "|cffffff00AOE/CD", "|cff0000ffCD", "|cffff0000Never" }
+        -- local racialNames = {
+        --     Draenei     = "Gift of the Naaru", -- Heal
+        --     Human       = "Will To Survive", -- Loss of Control Break
+        --     Dwarf       = "Stoneform", -- Decurse (Poison, Disease, Bleed) / Damage Reduction
+        --     NightElf    = "Shadowmeld", -- Stealth
+        --     Gnome       = "Escape Artist", -- Snare Removal
+        --     Orc         = "Blood Fury", -- Damage Increase
+        --     Troll       = "Berserking", -- Attack Speed Increase
+        --     BloodElf    = "Arcane Torrent", -- Silence
+        --     Tauren      = "War Stomp", -- AoE Stun
+        --     Undead      = "Will of the Forsaken", -- Fear Break
+        --     Goblin      = "Rocket Barrage", -- AoE Damage
+        --     Pandaren    = "Quaking", -- AoE Stun
+        --     Worgen      = "Darkflight" -- Movement Speed Increase
+        -- }
+
+        -- Blood Elf Racial (Silence + Resource)
+        if race == "BloodElf" then
+            if section ~= nil then
+                br.ui:createCheckbox(section, "Use Racial", "|cffFFFFFFAuto-use Arcane Torrent for interrupt/resource")
+                br.ui:createSpinner(section, "Use Racial Resource", 80, 0, 100, 5, "|cffFFFFFFResource Percent to Cast At")
+                return
+            end
+            if section == nil then
+                if not getOption("Use Racial", "Check") then return false end
+                local needsResource = unit.power("player") <= getOption("Use Racial Resource", "Value")
+                local canInterrupt = unit.casting() or unit.channeling()
+
+                if (needsResource or canInterrupt) and cast.able.racial() then
+                    if cast.racial() then
+                        ui.debug("Casting Racial - Arcane Torrent")
+                        return true
+                    end
+                end
+                return false
+            end
+        end
+
+        -- Draenei Racial (Healing)
+        if race == "Draenei" then
+            if section ~= nil then
+                br.ui:createSpinner(section, "Use Racial", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
+                return
+            end
+            if section == nil then
+                if not getOption("Use Racial", "Check") then return false end
+                if unit.hp() > getOption("Use Racial", "Value") then return false end
+                if cast.able.racial() then
+                    if cast.racial() then
+                        ui.debug("Casting Racial - Gift of the Naaru")
+                        return true
+                    end
+                end
+                return false
+            end
+        end
+
+        -- Dwarf Racial (Decurse + Damage Reduction)
+        if race == "Dwarf" then
+            if section ~= nil then
+                br.ui:createSpinner(section, "Use Racial for Defense", 30, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
+                br.ui:createCheckbox(section, "Use Racial for Decurse", "|cffFFFFFFAuto-use Stoneform to remove poison/disease/bleed")
+                return
+            end
+            if section == nil then
+                if not getOption("Use Racial", "Check") then return false end
+                local useForHealth = unit.hp() <= getOption("Use Racial", "Value")
+                --local useForDebuffs = getOption("Use Racial for Decurse", "Check")
+                --    and (unit.hasDebuffType("poison") or unit.hasDebuffType("disease") or unit.hasDebuffType("bleed"))
+
+                if useForHealth--[[ (useForHealth or useForDebuffs)]] and cast.able.racial() then
+                    if cast.racial() then
+                        ui.debug("Casting Racial - Stoneform")
+                        return true
+                    end
+                end
+                return false
+            end
+        end
+
+        -- Gnome Racial (Snare Removal)
+        if race == "Gnome" then
+            if section ~= nil then
+                br.ui:createCheckbox(section, "Use Racial", "|cffFFFFFFAuto-use Escape Artist when slowed/rooted")
+                return
+            end
+            if section == nil then
+                if not getOption("Use Racial", "Check") then return false end
+                if --[[unit.isSlowed("player") and ]]cast.able.racial() then
+                    if cast.racial() then
+                        ui.debug("Casting Racial - Escape Artist")
+                        return true
+                    end
+                end
+                return false
+            end
+        end
+
+        -- Goblin Racial (AoE Damage)
+        if race == "Goblin" then
+            if section ~= nil then
+                br.ui:createCheckbox(section, "Use Racial", "|cffFFFFFFAuto-use Rocket Barrage during combat")
+                br.ui:createSpinner(section, "Use Racial Enemies", 1, 1, 10, 1, "|cffFFFFFFMinimum enemies nearby to use")
+                return
+            end
+            if section == nil then
+                if not getOption("Use Racial", "Check") then return false end
+                local enemyCount = #br.engines.enemiesEngineFunctions:getEnemies("player", 30) >= getOption("Use Racial Enemies", "Value")
+
+                if unit.inCombat() and enemyCount and cast.able.racial() then
+                    if cast.racial() then
+                        ui.debug("Casting Racial - Rocket Barrage")
+                        return true
+                    end
+                end
+                return false
+            end
+        end
+
+        -- Human Racial (Loss of Control Break)
+        if race == "Human" then
+            if section ~= nil then
+                br.ui:createCheckbox(section, "Use Racial", "|cffFFFFFFAuto-use Will to Survive when feared/charmed/incapacitated")
+                return
+            end
+            if section == nil then
+                if not getOption("Use Racial", "Check") then return false end
+                if --[[unit.isCC("player") and ]]cast.able.racial() then
+                    if cast.racial() then
+                        ui.debug("Casting Racial - Will to Survive")
+                        return true
+                    end
+                end
+                return false
+            end
+        end
+
+        -- Night Elf Racial (Stealth)
+        if race == "NightElf" then
+            if section ~= nil then
+                br.ui:createSpinner(section, "Use Racial", 30, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
+                br.ui:createCheckbox(section, "Use Racial in Combat", "|cffFFFFFFAllow Shadowmeld use during combat")
+                return
+            end
+            if section == nil then
+                if not getOption("Use Racial", "Check") then return false end
+                local lowHealth = unit.hp() <= getOption("Use Racial", "Value")
+                local allowInCombat = getOption("Use Racial in Combat", "Check")
+
+                if lowHealth and (not unit.inCombat() or allowInCombat) and cast.able.racial() then
+                    if cast.racial() then
+                        ui.debug("Casting Racial - Shadowmeld")
+                        return true
+                    end
+                end
+                return false
+            end
+        end
+
+        -- Orc Racial (Damage Increase)
+        if race == "Orc" then
+            if section ~= nil then
+                br.ui:createDropdownWithout(section, "Use Racial", alwaysCdAoENever, 3, "|cffFFFFFFWhen to use Racial")
+                return
+            end
+            if section == nil then
+                if not getOption("Use Racial", "Check") then return false end
+                if unit.inCombat() and cast.able.racial() then
+                    if cast.racial() then
+                        ui.debug("Casting Racial - Blood Fury")
+                        return true
+                    end
+                end
+                return false
+            end
+        end
+
+        -- Pandaren Racial (AoE Stun)
+        if race == "Pandaren" then
+            if section ~= nil then
+                br.ui:createCheckbox(section, "Use Racial")
+                return
+            end
+            if section == nil then
+                if not getOption("Use Racial", "Check") then return false end
+                if cast.able.racial(thisUnit) then
+                    if cast.racial(thisUnit) then
+                        ui.debug("Casting Racial on "..unit.name(thisUnit).." - Quaking Palm [Interrupt]")
+                        return true
+                    end
+                end
+                return false
+            end
+        end
+
+        -- Tauren Racial (AoE Stun)
+        if race == "Tauren" then
+            if section ~= nil then
+                br.ui:createSpinner(section, "Use Racial", 30, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
+                br.ui:createSpinner(section, "Use Racial Enemies", 2, 1, 10, 1, "|cffFFFFFFMinimum enemies nearby to use")
+                return
+            end
+            if section == nil then
+                if not getOption("Use Racial", "Check") then return false end
+                local lowHealth = unit.hp() <= getOption("Use Racial", "Value")
+                local enemyCount = #br.engines.enemiesEngineFunctions:getEnemies("player", 8) >= getOption("Use Racial Enemies", "Value")
+
+                if (lowHealth or enemyCount) and cast.able.racial() then
+                    if cast.racial() then
+                        ui.debug("Casting Racial - War Stomp")
+                        return true
+                    end
+                end
+                return false
+            end
+        end
+
+        -- Troll Racial (Attack Speed Increase)
+        if race == "Troll" then
+            if section ~= nil then
+                br.ui:createDropdownWithout(section, "Use Racial", alwaysCdAoENever, 3, "|cffFFFFFFWhen to use Racial")
+                return
+            end
+            if section == nil then
+                if not getOption("Use Racial", "Check") then return false end
+                if unit.inCombat() and cast.able.racial() then
+                    if cast.racial() then
+                        ui.debug("Casting Racial - Berserking")
+                        return true
+                    end
+                end
+                return false
+            end
+        end
+
+        -- Undead Racial (Fear Break)
+        if race == "Undead" then
+            if section ~= nil then
+                br.ui:createCheckbox(section, "Use Racial", "|cffFFFFFFAuto-use Will of the Forsaken when feared/charmed")
+                return
+            end
+            if section == nil then
+                if not getOption("Use Racial", "Check") then return false end
+                if --[[(unit.hasDebuffType("fear") or unit.hasDebuffType("charm")) and]] cast.able.racial() then
+                    if cast.racial() then
+                        ui.debug("Casting Racial - Will of the Forsaken")
+                        return true
+                    end
+                end
+                return false
+            end
+        end
+
+        -- Worgen Racial (Movement Speed)
+        if race == "Worgen" then
+            if section ~= nil then
+                br.ui:createCheckbox(section, "Use Racial", "|cffFFFFFFAuto-use Darkflight for movement")
+                return
+            end
+            if section == nil then
+                if not getOption("Use Racial", "Check") then return false end
+                if unit.moving() --[[and not unit.hasMovementBuff() ]]and cast.able.racial() then
+                    if cast.racial() then
+                        ui.debug("Casting Racial - Darkflight")
+                        return true
+                    end
+                end
+                return false
+            end
+        end
+
+        return false
     end
 
     --- ImbueUp Module - Attmpts to use the weapon imbuement specified in the Profile Options

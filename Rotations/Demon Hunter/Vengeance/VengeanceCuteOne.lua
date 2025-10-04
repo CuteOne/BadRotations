@@ -154,19 +154,19 @@ local function createOptions()
         -- Toggle Key Options
         section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
         -- Single/Multi Toggle
-        br.ui:createDropdownWithout(section, "Rotation Mode", br.dropOptions.Toggle, 4)
+        br.ui:createDropdownWithout(section, "Rotation Mode", br.ui.dropOptions.Toggle, 4)
         -- Cooldown Key Toggle
-        br.ui:createDropdownWithout(section, "Cooldown Mode", br.dropOptions.Toggle, 3)
+        br.ui:createDropdownWithout(section, "Cooldown Mode", br.ui.dropOptions.Toggle, 3)
         -- Defensive Key Toggle
-        br.ui:createDropdownWithout(section, "Defensive Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdownWithout(section, "Defensive Mode", br.ui.dropOptions.Toggle, 6)
         -- Interrupts Key Toggle
-        br.ui:createDropdownWithout(section, "Interrupt Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdownWithout(section, "Interrupt Mode", br.ui.dropOptions.Toggle, 6)
         -- Mover Key Toggle
-        br.ui:createDropdownWithout(section, "Mover Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdownWithout(section, "Mover Mode", br.ui.dropOptions.Toggle, 6)
         -- Tankbuster Toggle
-        br.ui:createDropdownWithout(section, "Tankbuster Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdownWithout(section, "Tankbuster Mode", br.ui.dropOptions.Toggle, 6)
         -- Pause Toggle
-        br.ui:createDropdown(section, "Pause Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdown(section, "Pause Mode", br.ui.dropOptions.Toggle, 6)
         br.ui:checkSectionState(section)
     end
     optionTable = { {
@@ -245,13 +245,13 @@ actionList.Extras = function()
                 if br.lists.tankBuster[select(9, br._G.UnitCastingInfo("target"))] ~= nil then
                     if cd.demonSpikes.ready() and not debuff.fieryBrand.exists(thisUnit) then
                         if cast.demonSpikes() then
-                            br.addonDebug("[TANKBUST] Demon Spike")
+                            br.functions.misc:addonDebug("[TANKBUST] Demon Spike")
                             return true
                         end
                     end
                     if cast.able.fieryBrand() and not buff.demonSpikes.exists() then
                         if cast.fieryBrand(thisUnit) then
-                            br.addonDebug("[TANKBUST] Fiery Brand")
+                            br.functions.misc:addonDebug("[TANKBUST] Fiery Brand")
                             return true
                         end
                     end
@@ -1133,8 +1133,8 @@ local function runRotation()
     end --End Rotation Logic
 end     -- End runRotation
 local id = 581
-if br.rotations[id] == nil then br.rotations[id] = {} end
-br._G.tinsert(br.rotations[id], {
+if br.loader.rotations[id] == nil then br.loader.rotations[id] = {} end
+br._G.tinsert(br.loader.rotations[id], {
     name = rotationName,
     toggles = createToggles,
     options = createOptions,

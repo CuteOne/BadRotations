@@ -14,34 +14,24 @@ local function getSnapshotValue(dot)
     -- Feral Bleeds
     if br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization()) == 103 then
         local multiplier     = 1.00
-        -- local Bloodtalons    = 1.30
+        local DreamOfCenarius    = 1.30
         local SavageRoar     = 1.40
         local TigersFury     = 1.15
         local RakeMultiplier = 1
-        -- Tigers Fury
+        -- * Tigers Fury
         if br.player.buff.tigersFury.exists() then multiplier = multiplier * TigersFury end
-        -- moonfire feral
-        if dot == br.player.spells.debuffs.moonfireFeral then
-            -- return moonfire
-            return multiplier
-        end
-        -- Bloodtalons
-        -- if br.player.buff.bloodtalons.exists() and dot == br.player.spells.debuffs.rip then
-        --     multiplier = multiplier * Bloodtalons
-        -- end
-        -- Savage Roar
+        -- * Dream  of Cenarius
+        if br.player.buff.dreamOfCenarius.exists() then multiplier = multiplier * DreamOfCenarius end
+        -- * Savage Roar
         if br.player.buff.savageRoar.exists() then multiplier = multiplier * SavageRoar end
-        -- rip
+        -- * Rip
         if dot == br.player.spells.debuffs.rip then
-            -- -- Versatility
-            -- multiplier = multiplier*(1+Versatility*0.1)
-            -- return rip
             return 5 * multiplier
         end
-        -- rake
+        -- * Rake
         if dot == br.player.spells.debuffs.rake then
-            -- Incarnation/Prowl/Sudden Ambush
-            if br.player.buff.berserk.exists() --[[or br.player.buff.incarnationAvatarOfAshamane.exists()]] or br.player.buff.prowl.exists()
+            -- Incarnation/Prowl/Shadowmeld
+            if br.player.buff.incarnation.exists() or br.player.buff.prowl.exists()
                 or br.player.buff.shadowmeld.exists() --or br.player.buff.suddenAmbush.exists()
             then
                 RakeMultiplier = 2.0
@@ -59,7 +49,7 @@ local function getSnapshotValue(dot)
     --     end
     --     if (br.player.buff.stealth.exists() or br.player.buff.vanish.exists()
     --             or (br.player.buff.subterfuge.exists() and br.player.buff.subterfuge.remain() >= 0.1
-    --                 and br.player.buff.subterfuge.remain() >= br.getSpellCD(61304)))
+    --                 and br.player.buff.subterfuge.remain() >= br.functions.spell:getSpellCD(61304)))
     --         and dot == br.player.spells.debuffs.garrote and br.player.talent.subterfuge
     --     then
     --         multiplier = 1.8
@@ -89,7 +79,7 @@ br.api.debuffs = function(debuff, k, v)
     debuff.exists = function(thisUnit, sourceUnit)
         if thisUnit == nil then thisUnit = 'target' end
         if sourceUnit == nil then sourceUnit = 'player' end
-        return br.UnitDebuffID(thisUnit, v, sourceUnit) ~= nil
+        return br.functions.aura:UnitDebuffID(thisUnit, v, sourceUnit) ~= nil
     end
 
     --- Gets the duration of a debuff on a unit.
@@ -100,7 +90,7 @@ br.api.debuffs = function(debuff, k, v)
     debuff.duration = function(thisUnit, sourceUnit)
         if thisUnit == nil then thisUnit = 'target' end
         if sourceUnit == nil then sourceUnit = 'player' end
-        return br.getDebuffDuration(thisUnit, v, sourceUnit) or 0
+        return br.functions.aura:getDebuffDuration(thisUnit, v, sourceUnit) or 0
     end
 
     --- Gets the remaining time of a debuff on a unit.
@@ -111,7 +101,7 @@ br.api.debuffs = function(debuff, k, v)
     debuff.remain = function(thisUnit, sourceUnit)
         if thisUnit == nil then thisUnit = 'target' end
         if sourceUnit == nil then sourceUnit = 'player' end
-        return math.abs(br.getDebuffRemain(thisUnit, v, sourceUnit))
+        return math.abs(br.functions.aura:getDebuffRemain(thisUnit, v, sourceUnit))
     end
 
     --- Gets the remaining time of a debuff on a unit. (Duplicate of debuff.spell.remain)
@@ -122,7 +112,7 @@ br.api.debuffs = function(debuff, k, v)
     debuff.remains = function(thisUnit, sourceUnit)
         if thisUnit == nil then thisUnit = 'target' end
         if sourceUnit == nil then sourceUnit = 'player' end
-        return math.abs(br.getDebuffRemain(thisUnit, v, sourceUnit))
+        return math.abs(br.functions.aura:getDebuffRemain(thisUnit, v, sourceUnit))
     end
 
     --- Gets the stack count of a debuff on a unit.
@@ -133,10 +123,10 @@ br.api.debuffs = function(debuff, k, v)
     debuff.stack = function(thisUnit, sourceUnit)
         if thisUnit == nil then thisUnit = 'target' end
         if sourceUnit == nil then sourceUnit = 'player' end
-        if br.getDebuffStacks(thisUnit, v, sourceUnit) == 0 and br.UnitDebuffID(thisUnit, v, sourceUnit) ~= nil then
+        if br.functions.aura:getDebuffStacks(thisUnit, v, sourceUnit) == 0 and br.functions.aura:UnitDebuffID(thisUnit, v, sourceUnit) ~= nil then
             return 1
         else
-            return br.getDebuffStacks(thisUnit, v, sourceUnit)
+            return br.functions.aura:getDebuffStacks(thisUnit, v, sourceUnit)
         end
     end
 
@@ -166,9 +156,9 @@ br.api.debuffs = function(debuff, k, v)
         if sourceUnit == nil then sourceUnit = 'player' end
         if thisUnit == 'target' then thisUnit = br._G.UnitGUID("target") end
         local multiplier = 0
-        local duration = br.getDebuffDuration(thisUnit, v, sourceUnit) or 0
+        local duration = br.functions.aura:getDebuffDuration(thisUnit, v, sourceUnit) or 0
         if duration > 0 then
-            multiplier = math.abs(br.getDebuffRemain(thisUnit, v, sourceUnit)) / duration
+            multiplier = math.abs(br.functions.aura:getDebuffRemain(thisUnit, v, sourceUnit)) / duration
         end
         return multiplier
     end
@@ -189,7 +179,7 @@ br.api.debuffs = function(debuff, k, v)
     -- @function debuff.spell.count
     -- @treturn number
     debuff.count = function()
-        return tonumber(br.getDebuffCount(v))
+        return tonumber(br.functions.aura:getDebuffCount(v))
     end
 
     --- Gets the count of units with a debuff remaining time less than a specified value.
@@ -197,7 +187,7 @@ br.api.debuffs = function(debuff, k, v)
     -- @number remain The remaining time to check against.
     -- @treturn number
     debuff.remainCount = function(remain)
-        return tonumber(br.getDebuffRemainCount(v, remain))
+        return tonumber(br.functions.aura:getDebuffRemainCount(v, remain))
     end
 
     --- Gets the count of units that should have their debuff refreshed.
@@ -206,12 +196,12 @@ br.api.debuffs = function(debuff, k, v)
     -- @treturn number
     debuff.refreshCount = function(range)
         local counter = 0
-        for l, _ in pairs(br.enemy) do
-            local thisUnit = br.enemy[l].unit
+        for l, _ in pairs(br.engines.enemiesEngine.enemy) do
+            local thisUnit = br.engines.enemiesEngine.enemy[l].unit
             if range == nil then range = 40 end
-            local distance = br.getDistance(thisUnit, "player")
+            local distance = br.functions.range:getDistance(thisUnit, "player")
             -- check if unit is valid
-            if br.GetObjectExists(thisUnit) and distance <= range then
+            if br.functions.unit:GetObjectExists(thisUnit) and distance <= range then
                 -- increase counter for each occurences
                 if not debuff.refresh(thisUnit, "player") then
                     counter = counter + 1
@@ -229,7 +219,7 @@ br.api.debuffs = function(debuff, k, v)
     debuff.lowest = function(range, debuffType, source)
         if range == nil then range = 40 end
         if debuffType == nil then debuffType = "remain" end
-        return br.getDebuffMinMax(k, range, debuffType, "min", source) or "target"
+        return br.functions.aura:getDebuffMinMax(k, range, debuffType, "min", source) or "target"
     end
 
     --- Gets the unit with the lowest remaining time for a debuff within a specified range, considering only pets.
@@ -240,7 +230,7 @@ br.api.debuffs = function(debuff, k, v)
     debuff.lowestPet = function(range, debuffType)
         if range == nil then range = 8 end
         if debuffType == nil then debuffType = "remain" end
-        return br.getDebuffMinMaxButForPetsThisTime(k, range, debuffType, "min") or "target"
+        return br.functions.aura:getDebuffMinMaxButForPetsThisTime(k, range, debuffType, "min") or "target"
     end
 
     --- Gets the unit with the highest remaining time for a debuff within a specified range.
@@ -251,7 +241,7 @@ br.api.debuffs = function(debuff, k, v)
     debuff.max = function(range, debuffType)
         if range == nil then range = 40 end
         if debuffType == nil then debuffType = "remain" end
-        return br.getDebuffMinMax(k, range, debuffType, "max") or "target"
+        return br.functions.aura:getDebuffMinMax(k, range, debuffType, "max") or "target"
     end
 
     --- Checks if a debuff is exsanguinated.
@@ -274,6 +264,7 @@ br.api.debuffs = function(debuff, k, v)
     -- @string[opt="target"] thisUnit The unit to check the debuff applied value on.
     -- @treturn number
     debuff.applied = function(thisUnit)
+        local thisUnit = br._G.GetObjectWithGUID(thisUnit) or thisUnit or "target"
         return (spec == 103 or spec == 259) and debuff.bleed[thisUnit] or 0
     end
 
@@ -286,7 +277,7 @@ br.api.debuffs = function(debuff, k, v)
         local hasteMultiplier = 1 + (haste / 100)
         local baseTickTime = baseTickTimes[v] or 3
         local hastedTickTime = baseTickTime / hasteMultiplier
-        local auraInfo = br.UnitDebuffID(thisUnit, v, nil, "PLAYER")
+        local auraInfo = br.functions.aura:UnitDebuffID(thisUnit, v, nil, "PLAYER")
         if auraInfo then
             local expirationTime = auraInfo.expirationTime
             -- local duration = auraInfo.duration
@@ -309,7 +300,7 @@ br.api.debuffs = function(debuff, k, v)
         local hasteMultiplier = 1 + (haste / 100)
         local baseTickTime = baseTickTimes[v] or 3
         local hastedTickTime = baseTickTime / hasteMultiplier
-        local auraInfo = br.UnitDebuffID(thisUnit, v, nil, "PLAYER")
+        local auraInfo = br.functions.aura:UnitDebuffID(thisUnit, v, nil, "PLAYER")
         if auraInfo then
             local expirationTime = auraInfo.expirationTime
             local duration = auraInfo.duration

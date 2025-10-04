@@ -124,6 +124,8 @@ System\Engines\Tracker.lua
 
 ## BadRotations UI
 
+System\UI\Colors.lua
+System\UI\DropOptions.lua
 System\UI\SettingsManagement.lua
 System\UI\ChatOverlay.lua
 #System\UI\MinimapButton.lua

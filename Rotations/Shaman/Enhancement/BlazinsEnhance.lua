@@ -142,15 +142,15 @@ local function createOptions()
         -- Toggle Key Options
         section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
             -- Single/Multi Toggle
-            br.ui:createDropdownWithout(section, "Rotation Mode", br.dropOptions.Toggle,  4)
+            br.ui:createDropdownWithout(section, "Rotation Mode", br.ui.dropOptions.Toggle,  4)
             -- Cooldown Key Toggle
-            br.ui:createDropdownWithout(section, "Cooldown Mode", br.dropOptions.Toggle,  3)
+            br.ui:createDropdownWithout(section, "Cooldown Mode", br.ui.dropOptions.Toggle,  3)
             -- Defensive Key Toggle
-            br.ui:createDropdownWithout(section, "Defensive Mode", br.dropOptions.Toggle,  6)
+            br.ui:createDropdownWithout(section, "Defensive Mode", br.ui.dropOptions.Toggle,  6)
             -- Interrupts Key Toggle
-            br.ui:createDropdownWithout(section, "Interrupt Mode", br.dropOptions.Toggle,  6)
+            br.ui:createDropdownWithout(section, "Interrupt Mode", br.ui.dropOptions.Toggle,  6)
             -- Pause Toggle
-            br.ui:createDropdown(section, "Pause Mode", br.dropOptions.Toggle,  6)
+            br.ui:createDropdown(section, "Pause Mode", br.ui.dropOptions.Toggle,  6)
         br.ui:checkSectionState(section)
     end
     optionTable = {{
@@ -289,7 +289,7 @@ actionList.Defensive = function()
         -- Healing Surge
         if ui.checked("Healing Surge") and cast.able.healingSurge(var.healUnit) and not (unit.mounted() or unit.flying())
             and (ui.value("Heal Target") ~= 1 or (ui.value("Heal Target") == 1
-            and unit.distance(br.friend[1].unit) < 40)) and not cast.current.healingSurge()
+            and unit.distance(br.engines.healingEngine.friend[1].unit) < 40)) and not cast.current.healingSurge()
         then
             if not unit.inCombat() then
                 -- Lowest Party/Raid or Player
@@ -793,9 +793,9 @@ actionList.PreCombat = function()
         if ui.checked("Pre-Pull Timer") and ui.pullTimer() <= ui.value("Pre-Pull Timer") then
             -- Potion
             -- potion
-            -- if ui.checked("Potion") and br.canUseItem(142117) and unit.instance("raid") then
+            -- if ui.checked("Potion") and br.functions.item:canUseItem(142117) and unit.instance("raid") then
             --     if feralSpiritRemain > 5 and not buff.prolongedPower.exists() then
-            --         br.useItem(142117)
+            --         br.functions.item:useItem(142117)
             --     end
             -- end
         end -- End Pre-Pull
@@ -885,12 +885,12 @@ local function runRotation()
     var.healUnit = ui.value("Heal Target") == 1 and unit.lowest(40) or "player"
     var.healHP = unit.hp(var.healUnit)
     var.unitsNeedingHealing = 0
-    if ui.checked("Use HST While Solo") and br.getHP("player") <= ui.value("Healing Stream Totem") then
+    if ui.checked("Use HST While Solo") and br.functions.unit:getHP("player") <= ui.value("Healing Stream Totem") then
         var.unitsNeedingHealing = var.unitsNeedingHealing + 1
     end
-    if #br.friend > 1 then
-        for i = 1, #br.friend do
-            local thisFriend = br.friend[i].unit
+    if #br.engines.healingEngine.friend > 1 then
+        for i = 1, #br.engines.healingEngine.friend do
+            local thisFriend = br.engines.healingEngine.friend[i].unit
             local thisDistance = unit.distance(thisFriend)
             if not unit.isUnit(thisFriend,"player") and thisDistance < 40 and unit.hp(thisFriend) <= ui.value("Healing Stream Totem") then
                 var.unitsNeedingHealing = var.unitsNeedingHealing + 1
@@ -985,8 +985,8 @@ local function runRotation()
     end --End Rotation Logic
 end -- End runRotation
 local id = 263
-if br.rotations[id] == nil then br.rotations[id] = {} end
-br._G.tinsert(br.rotations[id],{
+if br.loader.rotations[id] == nil then br.loader.rotations[id] = {} end
+br._G.tinsert(br.loader.rotations[id],{
     name = rotationName,
     toggles = createToggles,
     options = createOptions,

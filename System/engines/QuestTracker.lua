@@ -1,13 +1,15 @@
 local _, br = ...
 -- local LibDraw = br._G.LibStub("LibDraw-BR")
-br.QuestCache = {}
+br.engines.questTracker = br.engines.questTracker or {}
+local questTracker = br.engines.questTracker
+questTracker.cache = questTracker.cache or {}
 
 --Quest stuff
 --local questPlateTooltip = CreateFrame('GameTooltip', 'QuestPlateTooltip', nil, 'GameTooltipTemplate')
 local questTooltipScanQuest = br._G.CreateFrame("GameTooltip", "QuestPlateTooltipScanQuest", nil, "GameTooltipTemplate")
 local ScannedQuestTextCache = {}
 
-function br.isQuestUnit(Pointer)
+function questTracker:isQuestUnit(Pointer)
 	local guid
 	if not br._G["lb"] then
 		guid = br._G.UnitGUID(Pointer)
@@ -26,7 +28,7 @@ function br.isQuestUnit(Pointer)
 	local atLeastOneQuestUnfinished = false
 	for i = 1, #ScannedQuestTextCache do
 		local text = ScannedQuestTextCache[i]:GetText()
-		if (br.QuestCache[text]) then
+		if (br.engines.questTracker.cache[text]) then
 			--unit belongs to a quest
 			isQuestUnit = true
 			-- local amount1, amount2 = nil, nil
@@ -59,7 +61,7 @@ function br.isQuestUnit(Pointer)
 		end
 	end
 	if isQuestUnit and atLeastOneQuestUnfinished and
-		(not br.GetUnitIsDeadOrGhost(Pointer) or br.GetUnitIsFriend("player", Pointer)) then
+		(not br.functions.unit:GetUnitIsDeadOrGhost(Pointer) or br.functions.unit:GetUnitIsFriend("player", Pointer)) then
 		return true
 	else
 		return false
@@ -76,7 +78,7 @@ local QuestCacheUpdate = function()
 		[57728] = true, --- Assault: The Endless Swarm
 	}
 	--clear the quest cache
-	br._G.wipe(br.QuestCache)
+	br._G.wipe(br.engines.questTracker.cache)
 
 	--do not update if is inside an instance
 	local isInInstance = br._G.IsInInstance()
@@ -93,7 +95,7 @@ local QuestCacheUpdate = function()
 		-- local title = questInfo["title"]
 		-- local questId = questInfo["questID"]
 		if (type(questId) == "number" and questId > 0 and ignoreQuest[questId] == nil) then -- and not isComplete
-			br.QuestCache[title] = true
+			br.engines.questTracker.cache[title] = true
 		end
 	end
 
@@ -106,7 +108,7 @@ local QuestCacheUpdate = function()
 				if (type(questId) == "number" and questId > 0 and ignoreQuest[questId] == nil) then
 					local questName = br._G.C_TaskQuest.GetQuestInfoByQuestID(questId)
 					if (questName) then
-						br.QuestCache[questName] = true
+						br.engines.questTracker.cache[questName] = true
 					end
 				end
 			end
@@ -115,13 +117,13 @@ local QuestCacheUpdate = function()
 end
 
 local function FunctionQuestLogUpdate() --private
-	if (br.QuestCacheThrottle and not br.QuestCacheThrottle["_cancelled"]) then
-		br.QuestCacheThrottle:Cancel()
+	if (br.engines.questTracker.cacheThrottle and not br.engines.questTracker.cacheThrottle["_cancelled"]) then
+		br.engines.questTracker.cacheThrottle:Cancel()
 	end
-	br.QuestCacheThrottle = br._G.C_Timer.NewTimer(2, QuestCacheUpdate)
+	br.engines.questTracker.cacheThrottle = br._G.C_Timer.NewTimer(2, QuestCacheUpdate)
 end
 
-function br.isQuestObject(object) --Ty Ssateneth
+function questTracker:isQuestObject(object) --Ty Ssateneth
 	local objectID = br._G.ObjectID(object)
 	local ignoreObjects = {
 		[327571] = true,
@@ -142,7 +144,7 @@ function br.isQuestObject(object) --Ty Ssateneth
 		-- mechagon chests
 		objectID == 151166 -- algan units
 	then return true end
-	local glow = br.getItemGlow(object) --or select(2, CanLootUnit(object)) or questObj == 12
+	local glow = br.functions.misc:getItemGlow(object) --or select(2, CanLootUnit(object)) or questObj == 12
 	if glow then
 		return true
 	end

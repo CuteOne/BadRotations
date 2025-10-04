@@ -37,7 +37,7 @@ br.api.power = function(power,powerType,powerIndex)
     -- @function power.powerType.deficit
     -- @return number
     power[powerType].deficit = function()
-        return br.getPowerMax("player",powerIndex) - br.getPower("player",powerIndex)
+        return br.functions.power:getPowerMax("player",powerIndex) - br.functions.power:getPower("player",powerIndex)
     end
 
     --- Gets the fractional counts of their available runes - Used by DKs
@@ -50,7 +50,7 @@ br.api.power = function(power,powerType,powerIndex)
             for i = 1, 6 do
                 runeCount = runeCount + br._G.GetRuneCount(i)
             end
-            return runeCount + math.max(br.runeCDPercent(1),br.runeCDPercent(2),br.runeCDPercent(3),br.runeCDPercent(4),br.runeCDPercent(5),br.runeCDPercent(6))
+            return runeCount + math.max(br.functions.power:runeCDPercent(1),br.functions.power:runeCDPercent(2),br.functions.power:runeCDPercent(3),br.functions.power:runeCDPercent(4),br.functions.power:runeCDPercent(5),br.functions.power:runeCDPercent(6))
         end
         -- Destruction Warlocks
         if isDestruction then
@@ -59,24 +59,24 @@ br.api.power = function(power,powerType,powerIndex)
             local fragmentCount = (shardModifier ~= 0) and (shardPower / shardModifier) or 0
             return (shardPower + fragmentCount)/10
         end
-        return br.getPower("player",powerIndex)
+        return br.functions.power:getPower("player",powerIndex)
     end
 
     --- Gets the maximum aount of the specified power
     -- @function power.powerType.max
     -- @return number
     power[powerType].max = function()
-        return br.getPowerMax("player",powerIndex)
+        return br.functions.power:getPowerMax("player",powerIndex)
     end
 
     --- Gets the current amount of specified power as a percentage
     -- @function power.powerType.percent
     -- @return number
     power[powerType].percent = function()
-        if br.getPowerMax("player",powerIndex) == 0 then
+        if br.functions.power:getPowerMax("player",powerIndex) == 0 then
             return 0
         else
-            return ((br.getPower("player",powerIndex) / br.getPowerMax("player",powerIndex)) * 100)
+            return ((br.functions.power:getPower("player",powerIndex) / br.functions.power:getPowerMax("player",powerIndex)) * 100)
         end
     end
 
@@ -84,7 +84,7 @@ br.api.power = function(power,powerType,powerIndex)
     -- @function power.powerType.regen
     -- @return number
     power[powerType].regen = function()
-        return br.getRegen("player")
+        return br.functions.power:getRegen("player")
     end
 
     --- Gets the time in seconds until the specified power is maxed
@@ -93,9 +93,9 @@ br.api.power = function(power,powerType,powerIndex)
     power[powerType].ttm = function(amount)
         if isDKRunes then
             if amount == nil then amount = 6 end
-            return br.runeTimeTill(amount)
+            return br.functions.power:runeTimeTill(amount)
         else
-            return br.getTimeToMax("player",amount)
+            return br.functions.power:getTimeToMax("player",amount)
         end
     end
 
@@ -103,11 +103,11 @@ br.api.power = function(power,powerType,powerIndex)
     -- -- This function serves a dual purpose. When `isDKRunes` is true,
     -- -- it counts the total number of 'runes' by executing a loop 6 times
     -- -- and adding the result of `br._G.GetRuneCount(i)` to `runeCount` in each iteration.
-    -- -- If `isDKRunes` is false, it simply retrieves the power of the player using `br.getPower()`.
+    -- -- If `isDKRunes` is false, it simply retrieves the power of the player using `br.functions.power:getPower()`.
     -- -- @global
     -- -- @name power[powerType]
     -- -- @class function
-    -- -- @return runeCount if `isDKRunes` is true, otherwise it returns the result of `br.getPower("player",powerIndex)`
+    -- -- @return runeCount if `isDKRunes` is true, otherwise it returns the result of `br.functions.power:getPower("player",powerIndex)`
     -- -- power[powerType] = function()
     -- --     if isDKRunes then
     -- --         local runeCount = 0
@@ -116,7 +116,7 @@ br.api.power = function(power,powerType,powerIndex)
     -- --         end
     -- --         return runeCount
     -- --     else
-    -- --         return br.getPower("player",powerIndex)
+    -- --         return br.functions.power:getPower("player",powerIndex)
     -- --     end
     -- -- end
 
@@ -133,7 +133,8 @@ br.api.power = function(power,powerType,powerIndex)
                 end
                 return runeCount
             else
-                return br.getPower("player",powerIndex)
+                local unit = powerIndex == 4 and "target" or "player"
+                return br.functions.power:getPower(unit,powerIndex)
             end
         end,
 
@@ -144,6 +145,7 @@ br.api.power = function(power,powerType,powerIndex)
                 return tbl[key]
             end
             -- Handle any additional properties here if needed
+            return rawget(tbl, key)
         end
     }
 

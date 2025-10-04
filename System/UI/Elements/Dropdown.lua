@@ -4,9 +4,9 @@ local _, br = ...
 function br.ui:createDropdown(parent, text, itemlist, default, tooltip, tooltipDrop, hideCheckbox)
     local activePageIdx = parent.settings.parentObject.pageDD.value
     local activePage = parent.settings.parentObject.pageDD.settings.list[activePageIdx]
-    br.data.settings[br.selectedSpec][br.selectedProfile][activePage] = br.data.settings[br.selectedSpec]
-        [br.selectedProfile][activePage] or {}
-    local data = br.data.settings[br.selectedSpec][br.selectedProfile][activePage]
+    br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile][activePage] = br.data.settings[br.loader.selectedSpec]
+        [br.loader.selectedProfile][activePage] or {}
+    local data = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile][activePage]
     -------------------------------
     ----Need to calculate Y Pos----
     -------------------------------
@@ -146,8 +146,8 @@ function br.ui:createProfileDropdown(parent)
     end
     Y = DiesalTools.Round(Y)
 
-    local profiles = br.fetch(br.selectedSpec .. "_" .. "profiles", { { key = "default", text = "Default" } })
-    -- local selectedProfile = br.fetch(br.selectedSpec .. "_" .. "profile", "default")
+    local profiles = br.functions.settingsManagement:fetch(br.loader.selectedSpec .. "_" .. "profiles", { { key = "default", text = "Default" } })
+    -- local selectedProfile = br.functions.settingsManagement:fetch(br.loader.selectedSpec .. "_" .. "profile", "default")
     local profile_drop = DiesalGUI:Create("Dropdown")
     parent:AddChild(profile_drop)
     profile_drop:SetParent(parent.content)
@@ -159,7 +159,7 @@ function br.ui:createProfileDropdown(parent)
         list[value.key] = value.key
     end
     profile_drop:SetList(list)
-    profile_drop:SetValue(br.fetch(br.selectedSpec .. "_" .. "profile", "Default Profile"))
+    profile_drop:SetValue(br.functions.settingsManagement:fetch(br.loader.selectedSpec .. "_" .. "profile", "Default Profile"))
     profile_drop:SetEventListener(
         "OnValueChanged",
         function(this, event, key, value, selection)

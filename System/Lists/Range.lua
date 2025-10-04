@@ -1,5 +1,8 @@
 local _, br = ...
-br.rangeOrMelee = {
+br.lists.range = br.lists.range or {}
+local range = br.lists.range
+
+range.rangeOrMelee = {
 	[250] = "melee",
 	[251] = "melee",
 	[252] = "melee",

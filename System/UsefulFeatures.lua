@@ -1,23 +1,12 @@
 local _, br = ...
-function br:AcceptQueues()
-	if br.getOptionCheck("Accept Queues") then
-		-- Accept Queues
-		br.randomReady = math.random(8, 15)
-		-- add some randomness
-		if br.readyToAccept and br.readyToAccept <= br._G.GetTime() - 5 then
-			br._G.AcceptProposal()
-			br.readyToAccept = nil
-			br.randomReady = nil
-		end
-	end
-end
+
 
 ------------------------------------------------------------------------------------------------------------------------
 -- idTip by Silverwind
 local hooksecurefunc, select, UnitBuff, UnitDebuff, UnitAura, UnitGUID, _, tonumber, strfind =
 	br._G.hooksecurefunc,
 	br._G.select,
-	br.UnitBuff,
+	br._G.UnitBuff,
 	br._G.UnitDebuff,
 	br._G.UnitAura,
 	br._G.UnitGUID,
@@ -133,7 +122,7 @@ TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Unit,
 			return
 		end
 		local unit = select(2, self:GetUnit())
-		if br.isChecked("Unit ID In Tooltip") and unit then
+		if br.functions.misc:isChecked("Unit ID In Tooltip") and unit then
 			local guid = UnitGUID(unit) or ""
 			local id = tonumber(guid:match("-(%d+)-%x+$"), 10)
 			local type = guid:match("%a+")
@@ -257,19 +246,4 @@ if not LibStub or LibStub.minor < LIBSTUB_MINOR then
 	end
 
 	setmetatable(LibStub, { __call = LibStub.GetLibrary })
-end
-
-function br.deepcopy(orig)
-	local orig_type = type(orig)
-	local copy
-	if orig_type == "table" then
-		copy = {}
-		for orig_key, orig_value in next, orig, nil do
-			copy[br.deepcopy(orig_key)] = br.deepcopy(orig_value)
-		end
-		setmetatable(copy, br.deepcopy(getmetatable(orig)))
-	else -- number, string, boolean, etc
-		copy = orig
-	end
-	return copy
 end

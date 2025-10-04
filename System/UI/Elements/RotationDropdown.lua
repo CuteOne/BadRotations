@@ -12,25 +12,25 @@ function br.ui:createRotationDropdown(parent, itemlist, tooltip)
 
     -- Set selected profile to 1 if not found
     -- br:loadLastProfileTracker()
-    if br.data.settings[br.selectedSpec][text .. "Drop"] == nil then
-        br.data.settings[br.selectedSpec][text .. "Drop"] = 1
-    elseif br.data.settings[br.selectedSpec][text .. "Drop"] > #itemlist then
+    if br.data.settings[br.loader.selectedSpec][text .. "Drop"] == nil then
+        br.data.settings[br.loader.selectedSpec][text .. "Drop"] = 1
+    elseif br.data.settings[br.loader.selectedSpec][text .. "Drop"] > #itemlist then
         --[[ Rest the profile which is no longer found
              If someone adds a profile then the old options from profile befopre would be loaded
         --]]
-        local notFoundProfile = br.data.settings[br.selectedSpec][text .. "Drop"]
-        br.data.settings[br.selectedSpec][notFoundProfile] = {}
+        local notFoundProfile = br.data.settings[br.loader.selectedSpec][text .. "Drop"]
+        br.data.settings[br.loader.selectedSpec][notFoundProfile] = {}
 
-        br.data.settings[br.selectedSpec][text .. "Drop"] = 1
+        br.data.settings[br.loader.selectedSpec][text .. "Drop"] = 1
         br._G.print("Selected profile not found fallback to profile 1.")
     end
 
-    -- if br.data.tracker ~= nil and br.data.tracker.lastProfile ~= nil then br.data.settings[br.selectedSpec][text.."Drop"] = br.data.tracker.lastProfile end
+    -- if br.data.tracker ~= nil and br.data.tracker.lastProfile ~= nil then br.data.settings[br.loader.selectedSpec][text.."Drop"] = br.data.tracker.lastProfile end
     -- Set Values
-    local value = br.data.settings[br.selectedSpec][text .. "Drop"]
-    br.selectedProfile = value
-    br.selectedProfileName = itemlist[value]
-    br.settingsFile = itemlist[value] .. ".lua"
+    local value = br.data.settings[br.loader.selectedSpec][text .. "Drop"]
+    br.loader.selectedProfile = value
+    br.loader.selectedProfileName = itemlist[value]
+    br.loader.settingsFile = itemlist[value] .. ".lua"
     newDropdown:SetValue(value)
     -- br.ui:loadWindowPositions("config")
     -- br.ui:loadWindowPositions("profile")
@@ -43,15 +43,15 @@ function br.ui:createRotationDropdown(parent, itemlist, tooltip)
             else
                 -- br.ui:recreateWindows()
                 -- br._G.print("Rotation Changed")
-                br:saveSettings(nil, nil, br.selectedSpec, br.selectedProfileName)
+                br.settingsManagement:saveSettings(nil, nil, br.loader.selectedSpec, br.loader.selectedProfileName)
                 br:saveLastProfileTracker()
-                br.data.settings[br.selectedSpec][text .. "Drop"] = key
-                br.data.tracker[br.selectedSpec][text .. "Drop"] = key
-                br.data.settings[br.selectedSpec][text .. "DropValue"] = value
-                br.data.tracker[br.selectedSpec][text .. "DropValue"] = value
+                br.data.settings[br.loader.selectedSpec][text .. "Drop"] = key
+                br.data.tracker[br.loader.selectedSpec][text .. "Drop"] = key
+                br.data.settings[br.loader.selectedSpec][text .. "DropValue"] = value
+                br.data.tracker[br.loader.selectedSpec][text .. "DropValue"] = value
                 br.data.lastProfile = key
-                br.selectedProfile = key
-                br.selectedProfileName = value
+                br.loader.selectedProfile = key
+                br.loader.selectedProfileName = value
             end
             br.rotationChanged = true
         end

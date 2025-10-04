@@ -1,24 +1,29 @@
 local _, br = ...
 local b = br._G
+br.unlockers = br.unlockers or {}
+local unlockers = br.unlockers
 
-function br:loadUnlockerAPI()
+br.unlockers.selected = "None"
+br.unlockers.unlock = {}
+
+function unlockers:loadUnlockerAPI()
     local unlocked = false
     --local class = self.class
-    if self.unlock["NNUnlock"] ~= nil and self.unlock:NNUnlock() then
+    if unlockers["NNUnlock"] ~= nil and unlockers:NNUnlock() then
         unlocked = true
-    elseif self.unlock["TinkrUnlock"] ~= nil and self.unlock.TinkrUnlock() then
+    elseif unlockers["TinkrUnlock"] ~= nil and unlockers:TinkrUnlock() then
         unlocked = true
-    elseif self.unlock["DaemonicUnlock"] ~= nil and self.unlock.DaemonicUnlock() then
+    elseif unlockers["DaemonicUnlock"] ~= nil and unlockers:DaemonicUnlock() then
         unlocked = true
     end
     -- Set Spell Queue Window
     --if class == 8 or class == 9 then
     if unlocked and self.prevQueueWindow ~= 400 then
-        b.RunMacroText("/console SpellQueueWindow 400")
+        br._G.RunMacroText("/console SpellQueueWindow 400")
     end
     --else
     --     if unlocked and self.prevQueueWindow ~= 0 then
-    --         b.RunMacroText("/console SpellQueueWindow 0")
+    --         br._G.RunMacroText("/console SpellQueueWindow 0")
     --     end
     -- end
     return unlocked
@@ -28,10 +33,10 @@ end
 local brlocVersion
 local brcurrVersion
 local brUpdateTimer
-function br:checkBrOutOfDate()
-    brlocVersion = b.C_AddOns.GetAddOnMetadata(self.addonName, "Version")
-    if (not brUpdateTimer or (b.GetTime() - brUpdateTimer) > 300) and self.player ~= nil then
-        local startTime = b.debugprofilestop()
+function unlockers:checkBrOutOfDate()
+    brlocVersion = br._G.C_AddOns.GetAddOnMetadata(self.addonName, "Version")
+    if (not brUpdateTimer or (br._G.GetTime() - brUpdateTimer) > 300) and self.player ~= nil then
+        local startTime = br._G.debugprofilestop()
         -- Request Current Version from GitHub
         if b["EasyWoWToolbox"] ~= nil then -- EWT
             --SendHTTPRequest('https://raw.githubusercontent.com/CuteOne/BadRotations/master/BadRotations.toc', nil,
@@ -39,7 +44,7 @@ function br:checkBrOutOfDate()
 
             -- Check for commit updates from System/Updater.lua, which relies on EWT
             self.updater:CheckOutdated()
-            brUpdateTimer = b.GetTime()
+            brUpdateTimer = br._G.GetTime()
         elseif b["wmbapi"] ~= nil then -- MB
             local info = {
                 Url = "https://raw.githubusercontent.com/CuteOne/BadRotations/master/BadRotations.toc",
@@ -56,8 +61,8 @@ function br:checkBrOutOfDate()
             -- Check against current version installed
             if brlocVersion and brcurrVersion then
                 -- Print("Local: "..tostring(brlocVersion).." | Remote: "..tostring(brcurrVersion))
-                local brcleanCurr = b.gsub(tostring(brcurrVersion), "%p", "")
-                local brcleanLoc = b.gsub(tostring(brlocVersion), "%p", "")
+                local brcleanCurr = br._G.gsub(tostring(brcurrVersion), "%p", "")
+                local brcleanLoc = br._G.gsub(tostring(brlocVersion), "%p", "")
                 if tonumber(brcleanCurr) ~= tonumber(brcleanLoc) then
                     local msg =
                         "BadRotations is currently out of date. Local Version: " ..
@@ -66,11 +71,11 @@ function br:checkBrOutOfDate()
                     if self.isChecked("Overlay Messages") then
                         b["RaidNotice_AddMessage"](b["RaidWarningFrame"], msg, { r = 1, g = 0.3, b = 0.1 })
                     else
-                        b.print(msg)
+                        br._G.print(msg)
                     end
                 end
             end
-            brUpdateTimer = b.GetTime()
+            brUpdateTimer = br._G.GetTime()
         end
         self.debug.cpu:updateDebug(startTime, "outOfDate")
     end

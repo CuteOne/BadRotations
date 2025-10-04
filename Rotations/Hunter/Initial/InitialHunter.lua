@@ -1,5 +1,5 @@
 local rotationName = "Initial"
-br.loadSupport("PetCuteOne")
+br.loader.cBuilder:loadSupport("PetCuteOne")
 
 ---------------
 --- Toggles ---
@@ -54,7 +54,7 @@ local function createOptions()
         -------------------
         --- PET OPTIONS ---
         -------------------
-        br.rotations.support["PetCuteOne"].options()
+        br.loader.rotations.support["PetCuteOne"].options()
         -------------------------
         --- DEFENSIVE OPTIONS ---
         -------------------------
@@ -86,13 +86,13 @@ local function createOptions()
         ----------------------
         section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
         -- Single/Multi Toggle
-        br.ui:createDropdownWithout(section, "Rotation Mode", br.dropOptions.Toggle, 4)
+        br.ui:createDropdownWithout(section, "Rotation Mode", br.ui.dropOptions.Toggle, 4)
         --Defensive Key Toggle
-        br.ui:createDropdownWithout(section, "Defensive Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdownWithout(section, "Defensive Mode", br.ui.dropOptions.Toggle, 6)
         -- Interrupts Key Toggle
-        br.ui:createDropdownWithout(section, "Interrupt Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdownWithout(section, "Interrupt Mode", br.ui.dropOptions.Toggle, 6)
         -- Pause Toggle
-        br.ui:createDropdown(section, "Pause Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdown(section, "Pause Mode", br.ui.dropOptions.Toggle, 6)
         br.ui:checkSectionState(section)
     end
     optionTable = { {
@@ -195,7 +195,7 @@ actionList.Interrupt = function()
     if ui.useInterrupt() then
         for i = 1, #enemies.yards5 do
             local thisUnit = enemies.yards5[i]
-            if br.canInterrupt(thisUnit, ui.value("Interrupt At")) then
+            if br.functions.spell:canInterrupt(thisUnit, ui.value("Interrupt At")) then
                 -- Freezing Trap
                 if ui.hecked("Freezing Trap") and cast.able.freezingTrap() then
                     for j = 1, #enemies.yards40 do
@@ -247,7 +247,7 @@ local function runRotation()
     --- Load Additional Rotation Files ---
     --------------------------------------
     if actionList.PetManagement == nil then
-        actionList.PetManagement = br.rotations.support["PetCuteOne"].run
+        actionList.PetManagement = br.loader.rotations.support["PetCuteOne"].run
     end
 
     ---------------------
@@ -264,7 +264,7 @@ local function runRotation()
     unit            = br.player.unit
     units           = br.player.units
     -- General Locals
-    var.haltProfile = (unit.inCombat() and var.profileStop) or unit.mounted() or br.pause() or buff.feignDeath.exists() or
+    var.haltProfile = (unit.inCombat() and var.profileStop) or unit.mounted() or br.functions.misc:pause() or buff.feignDeath.exists() or
         ui.mode.rotation == 2
     -- Units
     units.get(5)
@@ -343,8 +343,8 @@ local function runRotation()
     end         -- Pause
 end             -- End runRotation
 local id = 1448
-if br.rotations[id] == nil then br.rotations[id] = {} end
-br._G.tinsert(br.rotations[id], {
+if br.loader.rotations[id] == nil then br.loader.rotations[id] = {} end
+br._G.tinsert(br.loader.rotations[id], {
     name = rotationName,
     toggles = createToggles,
     options = createOptions,

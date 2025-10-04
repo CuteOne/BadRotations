@@ -527,7 +527,7 @@ end
 
 local getRealHP = function(Unit)
     if Unit ~= nil then
-        if br.GetObjectExists(Unit) and br.GetUnitIsVisible(Unit) and not br.GetUnitIsDeadOrGhost(Unit) then
+        if br.functions.unit:GetObjectExists(Unit) and br.functions.unit:GetUnitIsVisible(Unit) and not br.functions.unit:GetUnitIsDeadOrGhost(Unit) then
             return 100 * (br._G.UnitHealth(Unit) + br._G.UnitGetIncomingHeals(Unit, "player")) /
             br._G.UnitHealthMax(Unit)
         end
@@ -558,7 +558,7 @@ end
 
 local getHPDefecit = function(Unit)
     if Unit == nil then Unit = "player" end
-    if br.GetObjectExists(Unit) and br.GetUnitIsVisible(Unit) and not br.GetUnitIsDeadOrGhost(Unit) then
+    if br.functions.unit:GetObjectExists(Unit) and br.functions.unit:GetUnitIsVisible(Unit) and not br.functions.unit:GetUnitIsDeadOrGhost(Unit) then
         return ((br._G.UnitHealthMax(Unit) - br._G.UnitHealth(Unit)) + br._G.UnitGetIncomingHeals(Unit, "player"))
     else
         return 0
@@ -983,7 +983,7 @@ local actionList = {
             if br.player.ui.mode.content == 1 then
                 -- Chi Burst
                 if ui.checked(text.heal.chiBurst) and cd.chiBurst.ready() and talent.chiBurst and not player.isMoving then
-                    local lowAlliesTargetsChiBurst = br.getUnitsInRect(7, 40, false, ui.value(text.heal.chiBurst .. "2"))
+                    local lowAlliesTargetsChiBurst = br.engines.healingEngineFunctions:getUnitsInRect(7, 40, false, ui.value(text.heal.chiBurst .. "2"))
                     if lowAlliesTargetsChiBurst >= ui.value(text.heal.chiBurst .. "1") and cast.able.chiBurst(player.unit) then
                         if cast.chiBurst() then
                             ui.debug("[SUCCESS]: " .. text.heal.chiBurst)
@@ -1003,7 +1003,7 @@ local actionList = {
                 -- Enveloping Mist
                 if ui.checked(text.heal.envelopingBreath) and cd.envelopingMist.ready() and not player.isMoving then
                     if totemInfo.yulonDuration > cast.time.envelopingMist() + br.getLatency() or totemInfo.chiJiDuration > cast.time.envelopingMist() + br.getLatency() then
-                        local lowHealthAroundUnit = br.getUnitsToHealAround(friends.lowest.unit, 7.5,
+                        local lowHealthAroundUnit = br.engines.healingEngineFunctions:getUnitsToHealAround(friends.lowest.unit, 7.5,
                             ui.value(text.heal.envelopingBreath .. "2"), 6)
                         if #lowHealthAroundUnit >= ui.value(text.heal.envelopingBreath .. "1") and cast.able.envelopingMist(friends.lowest.unit) then
                             if cast.envelopingMist(friends.lowest.unit) then
@@ -1025,7 +1025,7 @@ local actionList = {
             elseif br.player.ui.mode.content == 2 then
                 -- Chi Burst
                 if ui.checked(text2.heal2.chiBurst2) and cd.chiBurst.ready() and talent.chiBurst and not player.isMoving then
-                    local lowAlliesTargetsChiBurst = br.getUnitsInRect(7, 40, false, ui.value(text2.heal2.chiBurst2 ..
+                    local lowAlliesTargetsChiBurst = br.engines.healingEngineFunctions:getUnitsInRect(7, 40, false, ui.value(text2.heal2.chiBurst2 ..
                     "2"))
                     if lowAlliesTargetsChiBurst >= ui.value(text2.heal2.chiBurst2 .. "1") and cast.able.chiBurst() then
                         if cast.chiBurst() then
@@ -1046,7 +1046,7 @@ local actionList = {
                 -- Enveloping Breath
                 if ui.checked(text2.heal2.envelopingBreath2) and cd.envelopingMist.ready() and not player.isMoving then
                     if totemInfo.yulonDuration > cast.time.envelopingMist() + br.getLatency() or totemInfo.chiJiDuration > cast.time.envelopingMist() + br.getLatency() then
-                        local lowHealthAroundUnit = br.getUnitsToHealAround(friends.lowest.unit, 7.5,
+                        local lowHealthAroundUnit = br.engines.healingEngineFunctions:getUnitsToHealAround(friends.lowest.unit, 7.5,
                             ui.value(text2.heal2.envelopingBreath2 .. "2"), 6)
                         if #lowHealthAroundUnit >= ui.value(text2.heal2.envelopingBreath2 .. "1") and cast.able.envelopingMist(friends.lowest.unit) and
                             cast.able.envelopingMist(friends.lowest.unit) then
@@ -1072,7 +1072,7 @@ local actionList = {
         faelineStompRotation = function()
             if br.player.ui.mode.content == 1 then
                 if ui.checked(text.heal.faelineStomp) and cd.faelineStomp.ready() and talent.faelineStomp then
-                    local lowAlliesTargetsfaelineStomp = br.getUnitsInRect(7, 40, false,
+                    local lowAlliesTargetsfaelineStomp = br.engines.healingEngineFunctions:getUnitsInRect(7, 40, false,
                         ui.value(text.heal.faelineStomp .. "2"))
                     if lowAlliesTargetsfaelineStomp >= ui.value(text.heal.faelineStomp .. "1") and cast.able.faelineStomp() then
                         if cast.faelineStomp() then
@@ -1083,7 +1083,7 @@ local actionList = {
                 end
             elseif br.player.ui.mode.content == 2 then
                 if ui.checked(text2.heal2.faelineStomp2) and cd.faelineStomp.ready() and talent.faelineStomp then
-                    local lowAlliesTargetsfaelineStomp2 = br.getUnitsInRect(7, 40, false,
+                    local lowAlliesTargetsfaelineStomp2 = br.engines.healingEngineFunctions:getUnitsInRect(7, 40, false,
                         ui.value(text2.heal2.faelineStomp2 .. "2"))
                     if lowAlliesTargetsfaelineStomp2 >= ui.value(text2.heal2.faelineStomp2 .. "1") and cast.able.faelineStomp() then
                         if cast.faelineStomp(player.unit) then
@@ -1098,7 +1098,7 @@ local actionList = {
         zenPulseRotation = function()
             if br.player.ui.mode.content == 1 then
                 if ui.checked(text.heal.zenPulse) and cd.zenPulse.ready() and talent.zenPulse then
-                    local lowAlliesTargetszenPulse = br.getUnitsInRect(7, 40, false, ui.value(text.heal.zenPulse .. "2"))
+                    local lowAlliesTargetszenPulse = br.engines.healingEngineFunctions:getUnitsInRect(7, 40, false, ui.value(text.heal.zenPulse .. "2"))
                     if lowAlliesTargetszenPulse >= ui.value(text.heal.zenPulse .. "1") and cast.able.zenPulse(friends.lowest.unit) then
                         if cast.zenPulse(friends.lowest.unit) then
                             ui.debug(buildSingleActionMessage(friends.lowest, text.heal.zenPulse))
@@ -1108,7 +1108,7 @@ local actionList = {
                 end
             elseif br.player.ui.mode.content == 2 then
                 if ui.checked(text.heal.zenPulse2) and cd.zenPulse.ready() and talent.zenPulse then
-                    local lowAlliesTargetszenPulse2 = br.getUnitsInRect(7, 40, false,
+                    local lowAlliesTargetszenPulse2 = br.engines.healingEngineFunctions:getUnitsInRect(7, 40, false,
                         ui.value(text2.heal2.zenPulse2 .. "2"))
                     if lowAlliesTargetszenPulse2 >= ui.value(text2.heal2.zenPulse2 .. "1") and cast.able.zenPulse(friends.lowest.unit) then
                         if cast.zenPulse(friends.lowest.unit) then
@@ -1352,12 +1352,12 @@ local actionList = {
                 cd.summonJadeSerpentStatue.ready() and unit.inCombat("player") and not player.isMoving then
                 local aroundUnit
                 if tanks[1] ~= nil then
-                    if ui.value(text.utility.summonJadeSerpentStatue) == 1 and #br.friend > 1 then
+                    if ui.value(text.utility.summonJadeSerpentStatue) == 1 and #br.engines.healingEngine.friend > 1 then
                         aroundUnit = tanks[1].unit
                     else
                         aroundUnit = player.unit
                     end
-                    local tx, ty, tz = br.GetObjectPosition(aroundUnit)
+                    local tx, ty, tz = br.functions.unit:GetObjectPosition(aroundUnit)
                     local results = sqrt(
                         ((tx - summonJadeSerpentStatuePosition.x) ^ 2) +
                         ((ty - summonJadeSerpentStatuePosition.y) ^ 2) +
@@ -1365,12 +1365,12 @@ local actionList = {
                     )
                     local distanceToStatue = results
                     --TODO switch back to API call
-                    --br.getDistanceToLocation(player.unit, summonJadeSerpentStatuePosition.x, summonJadeSerpentStatuePosition.y, summonJadeSerpentStatuePosition.z)
+                    --br.functions.range:getDistanceToLocation(player.unit, summonJadeSerpentStatuePosition.x, summonJadeSerpentStatuePosition.y, summonJadeSerpentStatuePosition.z)
                     if distanceToStatue > 40 or totemInfo.jadeSerpentStatueDuration <= 5 then
                         tx = tx + math.random(-2, 2)
                         ty = ty + math.random(-2, 2)
-                        if br.castGroundAtLocation({ x = tx, y = ty, z = tz }, spell.summonJadeSerpentStatue) then
-                            br.addonDebug(colors.yellow ..
+                        if br.engines.healingEngineFunctions:castGroundAtLocation({ x = tx, y = ty, z = tz }, spell.summonJadeSerpentStatue) then
+                            br.functions.misc:addonDebug(colors.yellow ..
                             "[?]:5P | Jade Serpent Statue - distance to statue: " ..
                             distanceToStatue .. ", old totem duration: " .. totemInfo.jadeSerpentStatueDuration)
                             return true
@@ -1379,7 +1379,7 @@ local actionList = {
                 end
             end
             -- Arcane Torrent
-            if ui.checked(text.utility.arcaneTorrent) and player.race == "BloodElf" and br.getSpellCD(129597) == 0 then
+            if ui.checked(text.utility.arcaneTorrent) and player.race == "BloodElf" and br.functions.spell:getSpellCD(129597) == 0 then
                 if player.mana <= ui.value(text.utility.arcaneTorrent) then
                     br._G.CastSpellByName(GetSpellInfo(129597))
                     ui.debug("[?]: " .. text.utility.arcaneTorrent)
@@ -1388,11 +1388,11 @@ local actionList = {
             end
             -- Detox
             if ui.mode.detox == 1 and cd.detox.ready() then
-                for i = 1, #br.friend do
-                    if br.canDispel(br.friend[i].unit, spell.detox) and (br.getLineOfSight(br.friend[i].unit) and br.getDistance(br.friend[i].unit) <= 40 or br.friend[i].unit == "player") then
-                        if cast.able.detox(br.friend[i].unit) then
-                            if cast.detox(br.friend[i].unit) then
-                                ui.debug(buildSingleActionMessage(br.friend[i], " DETOX"))
+                for i = 1, #br.engines.healingEngine.friend do
+                    if br.functions.aura:canDispel(br.engines.healingEngine.friend[i].unit, spell.detox) and (br.functions.misc:getLineOfSight(br.engines.healingEngine.friend[i].unit) and br.functions.range:getDistance(br.engines.healingEngine.friend[i].unit) <= 40 or br.engines.healingEngine.friend[i].unit == "player") then
+                        if cast.able.detox(br.engines.healingEngine.friend[i].unit) then
+                            if cast.detox(br.engines.healingEngine.friend[i].unit) then
+                                ui.debug(buildSingleActionMessage(br.engines.healingEngine.friend[i], " DETOX"))
                                 return true
                             end
                         end
@@ -1434,12 +1434,12 @@ local actionList = {
             --Summon Jade Serpent Statue
             if ui.checked(text2.utility2.summonJadeSerpentStatue2) and talent.summonJadeSerpentStatue and cd.summonJadeSerpentStatue.ready() then
                 local aroundUnit
-                if ui.value(text2.utility2.summonJadeSerpentStatue2) == 1 and #br.friend > 1 then
+                if ui.value(text2.utility2.summonJadeSerpentStatue2) == 1 and #br.engines.healingEngine.friend > 1 then
                     aroundUnit = tanks[1].unit
                 else
                     aroundUnit = player.unit
                 end
-                local tx, ty, tz = br.GetObjectPosition(aroundUnit)
+                local tx, ty, tz = br.functions.unit:GetObjectPosition(aroundUnit)
                 local results = sqrt(
                     ((tx - summonJadeSerpentStatuePosition.x) ^ 2) +
                     ((ty - summonJadeSerpentStatuePosition.y) ^ 2) +
@@ -1447,12 +1447,12 @@ local actionList = {
                 )
                 local distanceToStatue = results
                 --TODO switch back to API call
-                --br.getDistanceToLocation(player.unit, summonJadeSerpentStatuePosition.x, summonJadeSerpentStatuePosition.y, summonJadeSerpentStatuePosition.z)
+                --br.functions.range:getDistanceToLocation(player.unit, summonJadeSerpentStatuePosition.x, summonJadeSerpentStatuePosition.y, summonJadeSerpentStatuePosition.z)
                 if distanceToStatue > 40 or totemInfo.jadeSerpentStatueDuration <= 5 then
                     tx = tx + math.random(-2, 2)
                     ty = ty + math.random(-2, 2)
-                    if br.castGroundAtLocation({ x = tx, y = ty, z = tz }, spell.summonJadeSerpentStatue) then
-                        br.addonDebug(colors.yellow ..
+                    if br.engines.healingEngineFunctions:castGroundAtLocation({ x = tx, y = ty, z = tz }, spell.summonJadeSerpentStatue) then
+                        br.functions.misc:addonDebug(colors.yellow ..
                         "[?]:20P | Jade Serpent Statue - distance to statue: " ..
                         distanceToStatue .. ", old totem duration: " .. totemInfo.jadeSerpentStatueDuration)
                         return true
@@ -1460,7 +1460,7 @@ local actionList = {
                 end
             end
             -- Arcane Torrent
-            if ui.checked(text2.utility2.arcaneTorren2t) and player.race == "BloodElf" and br.getSpellCD(129597) == 0 then
+            if ui.checked(text2.utility2.arcaneTorren2t) and player.race == "BloodElf" and br.functions.spell:getSpellCD(129597) == 0 then
                 if player.mana <= ui.value(text2.utility2.arcaneTorrent2) then
                     br._G.CastSpellByName(GetSpellInfo(129597))
                     ui.debug("[?]: " .. text2.utility2.arcaneTorrent2)
@@ -1469,9 +1469,9 @@ local actionList = {
             end
             -- Detox
             if ui.mode.detox == 1 and cd.detox.ready() then
-                for i = 1, #br.friend do
-                    if br.canDispel(br.friend[i].unit, spell.detox) and (br.getLineOfSight(br.friend[i].unit) and br.getDistance(br.friend[i].unit) <= 40 or br.friend[i].unit == "player") then
-                        if cast.detox(br.friend[i].unit) then
+                for i = 1, #br.engines.healingEngine.friend do
+                    if br.functions.aura:canDispel(br.engines.healingEngine.friend[i].unit, spell.detox) and (br.functions.misc:getLineOfSight(br.engines.healingEngine.friend[i].unit) and br.functions.range:getDistance(br.engines.healingEngine.friend[i].unit) <= 40 or br.engines.healingEngine.friend[i].unit == "player") then
+                        if cast.detox(br.engines.healingEngine.friend[i].unit) then
                             return true
                         end
                     end
@@ -1756,7 +1756,7 @@ local actionList = {
                     for i = 1, #enemies.range5 do
                         local thisUnit = enemies.range5[i]
                         if br._G.ObjectIsFacing(player.unit, thisUnit) then
-                            if touchOfDeathMode == 1 or (touchOfDeathMode == 2 and br.isBoss(thisUnit)) then
+                            if touchOfDeathMode == 1 or (touchOfDeathMode == 2 and br.functions.unit:isBoss(thisUnit)) then
                                 if cast.able.touchOfDeath(thisUnit) then
                                     if cast.touchOfDeath(thisUnit) then
                                         ui.debug("[SUCCESS]: " .. text.damage.touchOfDeath)
@@ -1773,8 +1773,8 @@ local actionList = {
                     for i = 1, #enemies.range5 do
                         local thisUnit = enemies.range5[i]
                         if br._G.ObjectIsFacing(player.unit, thisUnit) then
-                            if touchOfDeathMode == 1 or (touchOfDeathMode == 2 and br.isBoss(thisUnit)) then
-                                if unit.health(player.unit) > unit.health(thisUnit) or (br.isBoss(thisUnit) and unit.hp(thisUnit) <= 15) and cast.able.touchofDeath(thisUnit) then
+                            if touchOfDeathMode == 1 or (touchOfDeathMode == 2 and br.functions.unit:isBoss(thisUnit)) then
+                                if unit.health(player.unit) > unit.health(thisUnit) or (br.functions.unit:isBoss(thisUnit) and unit.hp(thisUnit) <= 15) and cast.able.touchofDeath(thisUnit) then
                                     if cast.touchOfDeath(thisUnit) then
                                         ui.debug("[SUCCESS]: " .. text2.damage2.touchOfDeath2)
                                         return true
@@ -2087,7 +2087,7 @@ local getTotemInfo = function()
     for index = 1, 5 do
         local exists, totemName, startTime, duration, icon = GetTotemInfo(index)
         if exists then
-            local estimateDuration = br.round2(startTime + duration - GetTime())
+            local estimateDuration = br.functions.misc:round2(startTime + duration - GetTime())
             if icon == 620831 then
                 totemInfo.jadeSerpentStatueDuration = estimateDuration
                 var.jadeSerpentStatueName = totemName
@@ -2120,49 +2120,49 @@ local function runRotation()
 
     --fix wonky HE friends list
     --TODO fix in HE and add defecit
-    for i = 1, #br.friend do
-        br.friend[i].hpDefecit = getHPDefecit(br.friend[i].unit)
-        br.friend[i].hp = getRealHP(br.friend[i].unit)
+    for i = 1, #br.engines.healingEngine.friend do
+        br.engines.healingEngine.friend[i].hpDefecit = getHPDefecit(br.engines.healingEngine.friend[i].unit)
+        br.engines.healingEngine.friend[i].hp = getRealHP(br.engines.healingEngine.friend[i].unit)
     end
-    table.sort(br.friend, function(f1, f2)
+    table.sort(br.engines.healingEngine.friend, function(f1, f2)
         if f1 == nil then return false end
         if f2 == nil then return true end
         return f1.hpDefecit > f2.hpDefecit
     end)
     friends = {
-        lowest  = br.friend[1],
-        range10 = br.getAllies("player", 10),
-        range30 = br.getAllies("player", 30),
-        range40 = br.getAllies("player", 40),
+        lowest  = br.engines.healingEngine.friend[1],
+        range10 = br.engines.healingEngineFunctions:getAllies("player", 10),
+        range30 = br.engines.healingEngineFunctions:getAllies("player", 30),
+        range40 = br.engines.healingEngineFunctions:getAllies("player", 40),
     }
     if br.player.ui.mode.content == 1 then
         friends.lowAllies = {
-            essenceFont               = br.getLowAlliesInTable(br.player.ui.value(text.heal.essenceFont .. "2"),
+            essenceFont               = br.functions.combat:getLowAlliesInTable(br.player.ui.value(text.heal.essenceFont .. "2"),
                 friends.range30),
-            essenceFontOoc            = br.getLowAlliesInTable(
+            essenceFontOoc            = br.functions.combat:getLowAlliesInTable(
             br.player.ui.value(text.heal.outOfCombat.essenceFont .. "2"), friends.range30),
-            revival                   = br.getLowAlliesInTable(br.player.ui.value(text.heal.revival .. "2"),
+            revival                   = br.functions.combat:getLowAlliesInTable(br.player.ui.value(text.heal.revival .. "2"),
                 friends.range40),
-            refreshingJadeWind        = br.getLowAlliesInTable(br.player.ui.value(text.heal.refreshingJadeWind .. "2"),
+            refreshingJadeWind        = br.functions.combat:getLowAlliesInTable(br.player.ui.value(text.heal.refreshingJadeWind .. "2"),
                 friends.range10),
-            invokeYulonTheJadeSerpent = br.getLowAlliesInTable(
+            invokeYulonTheJadeSerpent = br.functions.combat:getLowAlliesInTable(
             br.player.ui.value(text.heal.invokeYulonTheJadeSerpent .. "2"), friends.range40),
-            invokeChiJiTheRedCrane    = br.getLowAlliesInTable(br.player.ui.value(text.heal.invokeChiJiTheRedCrane .. "2"),
+            invokeChiJiTheRedCrane    = br.functions.combat:getLowAlliesInTable(br.player.ui.value(text.heal.invokeChiJiTheRedCrane .. "2"),
                 friends.range40),
         }
     elseif br.player.ui.mode.content == 2 then
         friends.lowAllies = {
-            essenceFont               = br.getLowAlliesInTable(br.player.ui.value(text2.heal2.essenceFont2 .. "2"),
+            essenceFont               = br.functions.combat:getLowAlliesInTable(br.player.ui.value(text2.heal2.essenceFont2 .. "2"),
                 friends.range30),
-            essenceFontOoc            = br.getLowAlliesInTable(
+            essenceFontOoc            = br.functions.combat:getLowAlliesInTable(
             br.player.ui.value(text2.heal2.outOfCombat2.essenceFont2 .. "2"), friends.range30),
-            revival                   = br.getLowAlliesInTable(br.player.ui.value(text2.heal2.revival2 .. "2"),
+            revival                   = br.functions.combat:getLowAlliesInTable(br.player.ui.value(text2.heal2.revival2 .. "2"),
                 friends.range40),
-            refreshingJadeWind        = br.getLowAlliesInTable(br.player.ui.value(text2.heal2.refreshingJadeWind2 .. "2"),
+            refreshingJadeWind        = br.functions.combat:getLowAlliesInTable(br.player.ui.value(text2.heal2.refreshingJadeWind2 .. "2"),
                 friends.range10),
-            invokeYulonTheJadeSerpent = br.getLowAlliesInTable(
+            invokeYulonTheJadeSerpent = br.functions.combat:getLowAlliesInTable(
             br.player.ui.value(text2.heal2.invokeYulonTheJadeSerpent2 .. "2"), friends.range40),
-            invokeChiJiTheRedCrane    = br.getLowAlliesInTable(
+            invokeChiJiTheRedCrane    = br.functions.combat:getLowAlliesInTable(
             br.player.ui.value(text2.heal2.invokeChiJiTheRedCrane2 .. "2"), friends.range40),
         }
     end
@@ -2173,13 +2173,13 @@ local function runRotation()
         race       = br.player.unit.race(),
         isFlying   = IsFlying(),
         isMounted  = IsMounted(),
-        isMoving   = br.isMoving("player"),
-        isDrinking = br.getBuffRemain("player", 308433) > 0 or br.getBuffRemain("player", 167152) > 0,
+        isMoving   = br.functions.misc:isMoving("player"),
+        isDrinking = br.functions.aura:getBuffRemain("player", 308433) > 0 or br.functions.aura:getBuffRemain("player", 167152) > 0,
         inCombat   = br.player.inCombat
     }
     spell                     = br.player.spells
     talent                    = br.player.talent
-    tanks                     = br.getTanksTable()
+    tanks                     = br.engines.healingEngineFunctions:getTanksTable()
     totemInfo                 = {
         jadeSerpentStatueDuration = 0,
         yulonDuration             = 0,
@@ -2188,12 +2188,12 @@ local function runRotation()
     ui                        = br.player.ui
     unit                      = br.player.unit
     var                       = br.player.variables
-    ui.mode.thunderFocusTea   = br.data.settings[br.selectedSpec].toggles["ThunderFocusTea"]
-    ui.mode.dps               = br.data.settings[br.selectedSpec].toggles["DPS"]
-    ui.mode.RollMode          = br.data.settings[br.selectedSpec].toggles["RollMode"]
+    ui.mode.thunderFocusTea   = br.data.settings[br.loader.selectedSpec].toggles["ThunderFocusTea"]
+    ui.mode.dps               = br.data.settings[br.loader.selectedSpec].toggles["DPS"]
+    ui.mode.RollMode          = br.data.settings[br.loader.selectedSpec].toggles["RollMode"]
     var.jadeSerpentStatueName = ""
     getTotemInfo()
-    if br.pause(true) or player.isMounted or player.isFlying or player.isDrinking then return true; end
+    if br.functions.misc:pause(true) or player.isMounted or player.isFlying or player.isDrinking then return true; end
 
     if (br.player.ui.mode.content == 1 and ui.checked(text.utility.summonJadeSerpentStatue)) or
         (br.player.ui.mode.content == 2 and ui.checked(text2.utility2.summonJadeSerpentStatue2)) then
@@ -2219,9 +2219,9 @@ local function runRotation()
     if actionList.Extra() then return true; end
 
     --don't interrupt certain channelings
-    if br.isCastingSpell(spell.manaTea) and player.mana <= 90 then return true end;
+    if br.functions.cast:isCastingSpell(spell.manaTea) and player.mana <= 90 then return true end;
 
-    if ui.mode.RollMode == 1 and br.isMoving("player") and cast.able.roll() then
+    if ui.mode.RollMode == 1 and br.functions.misc:isMoving("player") and cast.able.roll() then
         if cast.roll() then return true; end
     end
 
@@ -2286,8 +2286,8 @@ local function runRotation()
 end            -- End runRotation
 local id = 270 -- Change to the spec id profile is for. Spec ID can be found at: https://wowpedia.fandom.com/wiki/SpecializationID
 -- DO NOT EDIT ANYTHING BELOW THIS LINE, WILL BREAK PROFILE --
-if br.rotations[id] == nil then br.rotations[id] = {} end
-tinsert(br.rotations[id], {
+if br.loader.rotations[id] == nil then br.loader.rotations[id] = {} end
+tinsert(br.loader.rotations[id], {
     name = rotationName,
     toggles = createToggles,
     options = createOptions,

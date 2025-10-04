@@ -19,7 +19,7 @@ br.api.units = function(self)
         aoe = aoe or false
         if aoe then dynString = dynString.."AOE" end
         local facing = not aoe
-        local thisUnit = br.dynamicTarget(range, facing)
+        local thisUnit = br.engines.enemiesEngineFunctions:dynamicTarget(range, facing)
         -- Build units.dyn varaible
         units[dynString] = units[dynString] or {}
         units[dynString] = thisUnit
