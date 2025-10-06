@@ -86,21 +86,17 @@ local function createOptions()
                 3, "|cffFFFFFFWhen to use Invoke Xuen the White Tiger")
             -- Touch of Death
             br.ui:createDropdownWithout(section, "Touch of Death", br.ui.dropOptions.AlwaysCdAoeNever, 3, "|cffFFFFFFWhen to use Touch of Death")
-            -- Trinkets
-            br.player.module.BasicTrinkets(nil, section)
         br.ui:checkSectionState(section)
         -------------------------
         --- DEFENSIVE OPTIONS ---
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
-            -- Dampen Harm
-            br.ui:createSpinner(section, "Dampen Harm", 60, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
+            -- Dampen Harm / Diffuse Magic
+            br.ui:createSpinner(section, "Dampen Harm / Diffuse Magic", 60, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
             -- Detox
             br.ui:createCheckbox(section, "Detox")
             br.ui:createDropdownWithout(section, "Detox - Target",
                 { "|cff00FF00Player", "|cffFFFF00Target", "|cffFF0000Mouseover" }, 1, "|cffFFFFFFTarget to cast on")
-            -- Diffuse Magic
-            br.ui:createSpinner(section, "Diffuse Magic", 60, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
             -- Expel Harm
             br.ui:createSpinner(section, "Expel Harm", 40, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
             -- Fortifying Brew
@@ -116,15 +112,13 @@ local function createOptions()
                 "|cffFFFFFFTarget to cast on")
             -- Touch of Karma
             br.ui:createSpinner(section, "Touch of Karma", 60, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
+            -- Tiger's Lust
+            br.ui:createCheckbox(section, "Tiger's Lust", "|cffFFFFFFAuto-cast Tiger's Lust to free movement impairment.")
         br.ui:checkSectionState(section)
         -------------------------
         --- INTERRUPT OPTIONS ---
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
-            -- Racial
-            if br._G.UnitRace("player") == "Pandaren" then
-                br.player.module.Racial(section)
-            end
             -- Leg Sweep
             br.ui:createCheckbox(section, "Leg Sweep")
             -- Paralysis
@@ -146,8 +140,6 @@ local function createOptions()
             br.ui:createDropdownWithout(section, "Defensive Mode", br.ui.dropOptions.Toggle, 6)
             -- Interrupts Key Toggle
             br.ui:createDropdownWithout(section, "Interrupt Mode", br.ui.dropOptions.Toggle, 6)
-            -- Pause Toggle
-            br.ui:createDropdown(section, "Pause Mode", br.ui.dropOptions.Toggle, 6)
         br.ui:checkSectionState(section)
     end
     optionTable = { {
@@ -270,19 +262,28 @@ actionList.Defensive = function()
     if ui.useDefensive() and not unit.mounted() then
         local opValue
         local thisUnit
+        -- * Tiger's Lust
+        if ui.checked("Tiger's Lust") and talent.tigersLust
+            and cast.able.tigersLust() and cast.noControl.tigersLust()
+        then
+            if cast.tigersLust() then
+                ui.debug("Casting Tiger's Lust [Defensive]")
+                return true
+            end
+        end
         -- * Expel Harm
         if ui.checked("Expel Harm") and cast.able.expelHarm()
             and unit.hp() <= ui.value("Expel Harm") and energy() >= 40
         then
             if cast.expelHarm() then
-                ui.debug("Casting Expel Harm")
+                ui.debug("Casting Expel Harm [Defensive]")
                 return true
             end
         end
         -- * Touch of Karma
         if ui.checked("Touch of Karma") and cast.able.touchOfKarma() and unit.hp() <= ui.value("Touch of Karma") then
             if cast.touchOfKarma() then
-                ui.debug("Casting Touch of Karma")
+                ui.debug("Casting Touch of Karma [Defensive]")
                 return true
             end
         end
@@ -291,7 +292,7 @@ actionList.Defensive = function()
             and not buff.fortifyingBrew.exists()
         then
             if cast.fortifyingBrew() then
-                ui.debug("Casting Fortifying Brew")
+                ui.debug("Casting Fortifying Brew [Defensive]")
                 return true
             end
         end
@@ -300,33 +301,33 @@ actionList.Defensive = function()
             and unit.inCombat() and #enemies.yards5 > 0
         then
             if cast.legSweep() then
-                ui.debug("Casting Leg Sweep [HP]")
+                ui.debug("Casting Leg Sweep - HP [Defensive]")
                 return true
             end
         end
         if ui.checked("Leg Sweep - AoE") and cast.able.legSweep()
-            and #enemies.yards5 >= ui.value("Leg Sweep - AoE")
+            and #enemies.yards5 >= ui.value("Leg Sweep - AoE [Defensive]")
         then
             if cast.legSweep() then
-                ui.debug("Casting Leg Sweep [AOE]")
+                ui.debug("Casting Leg Sweep - AoE [Defensive]")
                 return true
             end
         end
         -- * Dampen Harm
-        if ui.checked("Dampen Harm") and cast.able.dampenHarm() and unit.hp() <= ui.value("Dampen Harm")
+        if ui.checked("Dampen Harm / Diffuse Magic") and cast.able.dampenHarm() and unit.hp() <= ui.value("Dampen Harm / Diffuse Magic")
             and not buff.dampenHarm.exists()
         then
             if cast.dampenHarm() then
-                ui.debug("Casting Dampen Harm")
+                ui.debug("Casting Dampen Harm [Defensive]")
                 return true
             end
         end
         -- * Diffuse Magic
-        if ui.checked("Diffuse Magic") and cast.able.diffuseMagic() and unit.hp() <= ui.value("Diffuse Magic")
+        if ui.checked("Dampen Harm / Diffuse Magic") and cast.able.diffuseMagic() and unit.hp() <= ui.value("Dampen Harm / Diffuse Magic")
             and not buff.diffuseMagic.exists()
         then
             if cast.diffuseMagic() then
-                ui.debug("Casting Diffuse Magic")
+                ui.debug("Casting Diffuse Magic [Defensive]")
                 return true
             end
         end
@@ -344,7 +345,7 @@ actionList.Defensive = function()
                 and cast.dispel.detox(thisUnit)
             then
                 if cast.detox(thisUnit) then
-                    ui.debug("Casting Detox on " .. unit.name(thisUnit))
+                    ui.debug("Casting Detox on " .. unit.name(thisUnit) .. "[Defensive]")
                     return true
                 end
             end
@@ -361,7 +362,7 @@ actionList.Defensive = function()
                 and (unit.friend(thisUnit) and unit.player(thisUnit))
             then
                 if cast.resuscitate(thisUnit, "dead") then
-                    ui.debug("Casting Resuscitate on " .. unit.name(thisUnit))
+                    ui.debug("Casting Resuscitate on " .. unit.name(thisUnit) .. "[Defensive]")
                     return true
                 end
             end
@@ -372,9 +373,9 @@ end -- End Action List - Defensive
 -- Action List - Cooldowns
 actionList.Cooldowns = function()
     -- Trinket - Non-Specific
-    -- if unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
-    --     module.BasicTrinkets()
-    -- end
+    if unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
+        module.BasicTrinkets()
+    end
 end -- End Action List - Cooldowns
 
 -- Action List - Interrupt
@@ -384,7 +385,7 @@ actionList.Interrupt = function()
             local thisUnit = enemies.yards5[i]
             if br.functions.spell:canInterrupt(thisUnit, ui.value("Interrupt At")) and unit.distance(thisUnit) < 5 then
                 -- * Quaking Palm (Pandaren Racial)
-                if unit.race() == "Pandaren" then
+                if ui.checked("Use Racial") and unit.race() == "Pandaren" then
                     module.Racial(nil,thisUnit)
                 end
                 -- * Spear Hand Strike
@@ -407,7 +408,7 @@ actionList.Interrupt = function()
             local thisUnit = enemies.yards20[i]
             if br.functions.spell:canInterrupt(thisUnit, ui.value("Interrupt At")) then
                 -- * Paralysis
-                if ui.checked("Paralysis") and talent.paralysis and cast.able.paralysis(thisUnit) and unit.distance(thisUnit) < 20 then
+                if ui.checked("Paralysis") and cast.able.paralysis(thisUnit) and unit.distance(thisUnit) < 20 then
                     if cast.paralysis(thisUnit) then
                         ui.debug("Casting Paralysis [Interrupt]")
                         return true
@@ -487,7 +488,7 @@ actionList.SingleTarget = function()
     end
     -- * Fists of Fury
     -- fists_of_fury,if=buff.energizing_brew.down&energy.time_to_max>4&buff.tiger_power.remains>4
-    if cast.able.fistsOfFury() and not unit.moving() and (unit.ttdGroup(5) > 3 or unit.isDummy())
+    if cast.able.fistsOfFury() and unit.standingTime() > 1 and (unit.ttdGroup(5) > 3 or unit.isDummy())
         and not buff.energizingBrew.exists() and energy.ttm() > 4 and buff.tigerPower.remain() > 4
     then
         if cast.fistsOfFury() then
@@ -581,7 +582,7 @@ actionList.Combat = function()
     if unit.valid("target") and cd.global.remain() == 0 then
         if unit.exists(units.dyn40) and unit.distance(units.dyn40) < 40 then
             -- *Touch of Death
-            if ui.alwaysCdNever("Touch of Death") then
+            if ui.alwaysCdAoENever("Touch of Death",3,5) then
                 for i = 1, #enemies.yards5 do
                     local thisUnit = enemies.yards5[i]
                     if cast.able.touchOfDeath(thisUnit) and unit.health(thisUnit) <= unit.healthMax("player") then
@@ -737,7 +738,7 @@ local function runRotation()
         enemies.get(20)
         var.lastEnemyScan = now
         -- Debug overlay (commented out / throttled). Enable only if needed:
-        -- ui.chatOverlay("om: "..#br.engines.enemiesEngine.om)
+        -- ui.chatOverlay("Standing: "..unit.standingTime())
     end
 
     -- Cancel Crackling Jade Lightning

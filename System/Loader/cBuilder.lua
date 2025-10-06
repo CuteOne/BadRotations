@@ -192,7 +192,7 @@ function cBuilder:new(spec, specName)
 
         -- Ending the Race War!
         if self.spells.abilities["racial"] == nil then
-            local racialID = br.functions.spell:getRacial()
+            local racialID = self:getRacial()
             self.spells.abilities["racial"] = racialID
             self.spells.buffs["racial"] = racialID
             self.spells["racial"] = racialID

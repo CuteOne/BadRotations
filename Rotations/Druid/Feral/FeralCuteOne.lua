@@ -100,10 +100,6 @@ local function createOptions()
         --- Cooldown Options ---
         ------------------------
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
-        -- Racial
-        br.ui:createCheckbox(section, "Racial")
-        -- Basic Trinkets
-        br.player.module.BasicTrinkets(nil, section)
         -- Tiger's Fury
         br.ui:createCheckbox(section, "Tiger's Fury")
         -- Berserk / Incarnation: King of the Jungle
@@ -436,7 +432,7 @@ actionList.Extras = function()
         end -- End 20yrd Enemy Scan
     end     -- End Death Cat Mode
     -- * Mark of the Wild
-    if ui.checked("Mark of the Wild") then
+    if ui.checked("Mark of the Wild") and not (buff.legacyOfTheEmperor.exists() or buff.blessingOfKings.exists()) then
         var.markUnit = getMarkUnitOption("Mark of the Wild")
         if cast.able.markOfTheWild(var.markUnit) and buff.markOfTheWild.refresh(var.markUnit)
             and not (buff.prowl.exists() or buff.shadowmeld.exists()) and not unit.resting() and unit.distance(var.markUnit) < 40
@@ -703,21 +699,13 @@ end     -- End Action List - Interrupts
 actionList.PreCombat = function()
     if not unit.inCombat() and not (unit.flying() or unit.mounted()) then
         if not (buff.prowl.exists() or buff.shadowmeld.exists()) then
-            -- if (ui.checked("Pre-Pull Timer") and ui.pullTimer() <= ui.value("Pre-Pull Timer")) or unit.isDummy("target") then
-            --     -- Heart of the Wild
-            --     -- heart_of_the_wild
-            --     if cast.able.heartOfTheWild() then --and unit.valid("target") and unit.exists("target") and unit.distance("target") < 5 then
-            --         if cast.heartOfTheWild() then
-            --             ui.debug("Casting Heart Of The Wild [Pre-Combat]")
-            --             return true
-            --         end
-            --     end
-            -- end
+            -- * Flask: Flask of Spring Blossoms
+            module.FlaskUp()
             -- * Prowl
             -- prowl,if=!buff.prowl.up
             if cast.able.prowl("player") and buff.catForm.exists() and autoProwl() and ui.mode.prowl == 1
-                and not buff.prowl.exists() and (not unit.resting() or unit.isDummy("target"))
-                and not buff.bsInc.exists()
+            and not buff.prowl.exists() and (not unit.resting() or unit.isDummy("target"))
+            and not buff.bsInc.exists()
             then
                 if cast.prowl("player") then
                     ui.debug("Casting Prowl [Pre-Combat]")
@@ -733,6 +721,10 @@ actionList.PreCombat = function()
             end
         end
         if ui.checked("Pre-Pull Timer") and ui.pullTimer() <= ui.value("Pre-Pull Timer") then
+            -- * Virmen's Bite
+            if ui.useCDs() and ui.checked("Use Combat Potion") then
+                module.CombatPotionUp()
+            end
         end -- End Pre-Pull
         -- * Pull
         if unit.valid("target") and unit.exists("target") then
@@ -833,7 +825,7 @@ actionList.Combat = function()
         -- blood_fury,if=buff.tigers_fury.up
         -- berserking,if=buff.tigers_fury.up
         -- arcane_torrent,if=buff.tigers_fury.up
-        if ui.checked("Racial") and buff.tigersFury.exists() then
+        if ui.checked("Use Racial") and buff.tigersFury.exists() then
             if unit.race() == "Orc" or unit.race() == "Troll" or unit.race() == "BloodElf" then
                 if cast.racial() then
                     ui.debug("Casting Racial [Combat]")
@@ -939,7 +931,12 @@ actionList.Combat = function()
         -- * Potion - Virmen's Bite
         -- # Potion near or during execute range when Rune is up and we have 5 CP.
         -- virmens_bite_potion,if=(combo_points>=5&(target.time_to_die*(target.health.pct-25)%target.health.pct)<15&buff.rune_of_reorigination.up)|target.time_to_die<=40
-        -- TODO
+        if ui.useCDs() and ui.checked("Use Combat Potion")
+            and ((comboPoints(units.dyn5) >= 5 and (unit.ttd(units.dyn5) * (unit.hp(units.dyn5) - 25) / unit.hp(units.dyn5)) < 15
+                and buff.runeOfReorigination.exists()) or unit.ttd(units.dyn5) <= 40)
+        then
+            module.CombatPotionUp()
+        end
 
         -- * Rip
         -- # Overwrite Rip if it's at least 15% stronger than the current.
@@ -1183,7 +1180,7 @@ actionList.AoE = function()
     -- blood_fury,if=buff.tigers_fury.up
     -- berserking,if=buff.tigers_fury.up
     -- arcane_torrent,if=buff.tigers_fury.up
-    if ui.checked("Racial") and buff.tigersFury.exists() then
+    if ui.checked("Use Racial") and buff.tigersFury.exists() then
         if unit.race() == "Orc" or unit.race() == "Troll" or unit.race() == "BloodElf" then
             if cast.racial() then
                 ui.debug("Casting Racial [Combat]")
@@ -1389,7 +1386,7 @@ end -- End Action List - Filler
 -- * Action List - Cooldown
 actionList.Cooldown = function()
     if unit.distance(units.dyn5) < 5 and not buff.prowl.exists()then
-        --  *Module- Basic Trinkets
+        -- * Module- Basic Trinkets
         -- use_items
         module.BasicTrinkets()
     end -- End useCooldowns check

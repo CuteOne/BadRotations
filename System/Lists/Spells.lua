@@ -1224,6 +1224,8 @@ br.lists.spells = {
                 travelForm                 = 783,
                 treantForm                 = 114282,
                 wildGrowth                 = 48438,
+                legacyOfTheEmperor         = 117666, -- Monk Shared Buff
+                blessingOfKings            = 20217, -- Paladin Shared Buff
             },
             conduits      = {
                 -- deepAllegiance = 341378,
@@ -5209,6 +5211,7 @@ br.lists.spells = {
                 -- concordanceOfTheLegionfall     = 239042,
                 -- defiledAugmentation            = 224001, -- Lightforged Augment Rune buff
                 -- felFocus                       = 242551,
+                flashOfSpringBlossoms       = 105689,
                 -- flaskOfTenThousandScars        = 188035,
                 -- flaskOfTheCountlessArmies      = 188034,
                 -- flaskOfTheSeventhDemon         = 188033,
@@ -5257,7 +5260,7 @@ br.lists.spells = {
                 -- domineeringArrogance           = 411661,
                 runeOfReorigination              = 139120,
                 vicious                          = 148903,
-
+                virmensBite                      = 105697,
             },
             --TODO Add to API
             itemEnchantments = {

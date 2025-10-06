@@ -329,6 +329,8 @@ function cCharacter:new()
 		br.ui:createText(section_module, "===Combat Options===")
 		-- Combat Potion Module
 		self.module.CombatPotionUp(section_module)
+		-- Flask Module
+		self.module.FlaskUp(self.primaryStat, section_module)
 		-- Imbue Module
 		self.module.ImbueUp(section_module)
 		-- Phial Module

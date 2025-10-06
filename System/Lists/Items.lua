@@ -42,6 +42,7 @@ br.lists.items = {
     defiledAugmentRune                      = 140587,
     lightforgedAugmentRune                  = 153023, -- 7.3 augment rune item
     -- Flasks
+    flaskOfSpringBlossoms                   = 76084,
     flaskOfTenThousandScars                 = 127850,
     flaskOfTheCountlessArmies               = 127849,
     flaskOfTheSeventhDemon                  = 127848,
@@ -80,6 +81,7 @@ br.lists.items = {
     potionOfBurstingBlood                   = 152560,
     potionOfProlongedPower                  = 142117,
     potionOfTheOldWar                       = 127844,
+    virmensBite                             = 76089,
     -- 8.2 Potions
     abyssalHealingPotion                    = 169451,
     potionOfUnbridledFury                   = 169299, -- DPS Potion

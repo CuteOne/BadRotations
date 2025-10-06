@@ -275,7 +275,7 @@ br.api.module = function(self)
     -- @function module.CombatPotionUp
     -- @bool[opt] section If set will generate the options for this module in the Profile Options. Otherwise, will run the module.
     module.CombatPotionUp = function(section)
-        local potList = { "Pot Ultimate Power", "Pot of Power" }
+        local potList = { "Virmen's Bite" }
         if section ~= nil then
             br.ui:createDropdown(section, "Use Combat Potion", potList, 1,
                 "|cffFFFFFFSelect Combat Potion, uses best quality.")
@@ -283,18 +283,18 @@ br.api.module = function(self)
         if section == nil then
             if not getOption("Use Combat Potion", "Check") then return false end
             local opValue = getOption("Use Combat Potion", "Value")
-            if opValue == 1 and use.isOneOfUsable(br.lists.items.elementalPotionOfUltimatePowerQualities) then
-                if use.bestItem(br.lists.items.elementalPotionOfUltimatePowerQualities) then
-                    ui.debug("Using Best Pot: Elemental Potion of Ultimate Power")
+            if opValue == 1 and unit.instance("raid") and use.able.virmensBite() and not buff.virmensBite.exists() then
+                if use.virmensBite() then
+                    ui.debug("Using Virmen's Bite")
                     return true;
                 end
             end
-            if opValue == 2 and use.isOneOfUsable(br.lists.items.elementalPotionOfPowerQualities) then
-                if use.bestItem(br.lists.items.elementalPotionOfPowerQualities) then
-                    ui.debug("Using Best Pot: Elemental Potion of Power")
-                    return true;
-                end
-            end
+            -- if opValue == 2 and use.isOneOfUsable(br.lists.items.elementalPotionOfPowerQualities) then
+            --     if use.bestItem(br.lists.items.elementalPotionOfPowerQualities) then
+            --         ui.debug("Using Best Pot: Elemental Potion of Power")
+            --         return true;
+            --     end
+            -- end
         end
     end
 
@@ -656,7 +656,7 @@ br.api.module = function(self)
     module.FlaskUp = function(buffType, section)
         local function getFlaskByType(buff)
             local thisFlask = ""
-            if buff == "Agility" then thisFlask = "Greater Flask of the Currents" end
+            if buff == "Agility" then thisFlask = "Flask of Spring Blossoms" end
             if buff == "Intellect" then thisFlask = "Greater Flask of Endless Fathoms" end
             if buff == "Stamina" then thisFlask = "Greater Flask of the Vast Horizon" end
             if buff == "Strength" then thisFlask = "Greater Flask of the Undertow" end
@@ -678,10 +678,10 @@ br.api.module = function(self)
 
         local function hasFlaskBuff()
             local flask = getOption("Flask", "Value")
-            -- if flask == 2 then -- Greater Flask
-            --     return buff.greaterFlaskOfTheCurrents.exists() or buff.greaterFlaskOfEndlessFathoms.exists() or
-            --         buff.greaterFlaskOfTheVastHorizon.exists() or buff.greaterFlaskOfTheUndertow.exists()
-            -- end
+            if flask == 2 then -- Greater Flask
+                return buff.flaskOfSpringBlossoms.exists() --or buff.greaterFlaskOfEndlessFathoms.exists() or
+                    --buff.greaterFlaskOfTheVastHorizon.exists() or buff.greaterFlaskOfTheUndertow.exists()
+            end
             -- if flask == 3 then
             --     if isDH then -- Greater FLask or Gaze of the Legion
             --         return buff.greaterFlaskOfTheCurrents.exists() or buff.greaterFlaskOfEndlessFathoms.exists() or
@@ -701,7 +701,7 @@ br.api.module = function(self)
         end
 
         local function cancelFlaskBuff()
-            -- if buff.greaterFlaskOfTheCurrents.exists() then buff.greaterFlaskOfTheCurrents.cancel() end
+            if buff.flaskOfSpringBlossoms.exists() then buff.flaskOfSpringBlossoms.cancel() end
             -- if buff.greaterFlaskOfEndlessFathoms.exists() then buff.greaterFlaskOfEndlessFathoms.cancel() end
             -- if buff.greaterFlaskOfTheVastHorizon.exists() then buff.greaterFlaskOfTheVastHorizon.cancel() end
             -- if buff.greaterFlaskOfTheUndertow.exists() then buff.greaterFlaskOfTheUndertow.cancel() end
@@ -718,13 +718,13 @@ br.api.module = function(self)
             local opValue = getOption("Flask", "Value")
             local thisFlask = getFlaskByType(buffType)
             if opValue == 1 and unit.instance("raid") then
-                -- if thisFlask == "Greater Flask of the Currents" and use.able.greaterFlaskOfTheCurrents() and not buff.greaterFlaskOfTheCurrents.exists() then
-                --     cancelFlaskBuff()
-                --     if use.greaterFlaskOfTheCurrents() then
-                --         ui.debug("Using Greater Flask of the Currents")
-                --         return true
-                --     end
-                -- end
+                if thisFlask == "Flask of Spring Blossoms" and use.able.flaskOfSpringBlossoms() and not buff.flaskOfSpringBlossoms.exists() then
+                    cancelFlaskBuff()
+                    if use.flaskOfSpringBlossoms() then
+                        ui.debug("Using Flask of Spring Blossoms")
+                        return true
+                    end
+                end
                 -- if thisFlask == "Greater Flask of Endless Fathoms" and use.able.greaterFlaskOfEndlessFathoms() and not buff.greaterFlaskOfEndlessFathoms.exists() then
                 --     cancelFlaskBuff()
                 --     if use.greaterFlaskOfEndlessFathoms() then

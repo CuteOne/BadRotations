@@ -202,7 +202,15 @@ function combat:canRegainControl(spellID, controlEvent)
 	end
 	-- Monk
 	if class == 10 then
-		if controlEvent == "ROOT" or controlEvent == "SNARE" then
+		if spellID ==116841 and -- Tiger's Lust
+			(controlEvent == "ROOT" or controlEvent == "SNARE")
+		then
+			return true
+		end
+		if spellID == 137562 and -- Nimble Brew
+			(controlEvent == "ROOT" or controlEvent == "SNARE" or controlEvent == "STUN" or controlEvent == "STUN_MECHANIC"
+			or controlEvent == "FEAR" or controlEvent == "FEAR_MECHANIC")
+		then
 			return true
 		end
 	end
