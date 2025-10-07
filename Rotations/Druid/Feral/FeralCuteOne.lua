@@ -579,7 +579,7 @@ actionList.Defensive = function()
             end
             local rejuvPercent = ui.value("Rejuvenation")
             if cast.able.rejuvenation(rejuvUnit) and buff.rejuvenation.refresh(rejuvUnit) and thisHP <= rejuvPercent then
-                if unit.form() ~= 0 then --and unit.level() < 26 then
+                if unit.form() ~= 0 and unit.level() < 26 then
                     unit.cancelForm()
                     ui.debug("Cancel Form [Rejuvenation]")
                 elseif unit.form() == 0 then

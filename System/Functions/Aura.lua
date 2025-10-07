@@ -339,8 +339,8 @@ function aura:canDispel(Unit, spellID)
 	local i = 1
 	if br._G.UnitInPhase(Unit) then
 		if br.functions.unit:GetUnitIsFriend("player", Unit) then
-			while br._G.UnitDebuff(Unit, i) do
-				local debuffInfo = br._G.UnitDebuff(Unit, i)
+			while br._G.C_UnitAuras.GetDebuffDataByIndex(Unit, i) do
+				local debuffInfo = br._G.C_UnitAuras.GetDebuffDataByIndex(Unit, i)
 				local debuffRemain = debuffInfo.expirationTime - br._G.GetTime()
 				if (debuffInfo.dispelName and ValidType(debuffInfo.dispelName)) then
 					local delay = br.functions.misc:getValue("Dispel delay") - 0.3 + math.random() * 0.6
@@ -371,8 +371,8 @@ function aura:canDispel(Unit, spellID)
 				i = i + 1
 			end
 		else
-			while br._G.UnitBuff(Unit, i) do
-				local buffInfo = br._G.UnitBuff(Unit, i)
+			while br._G.C_UnitAuras.GetBuffDataByIndex(Unit, i) do
+				local buffInfo = br._G.C_UnitAuras.GetBuffDataByIndex(Unit, i)
 				local buffRemain = buffInfo.expirationTime - br._G.GetTime()
 				if (buffInfo.dispelName and ValidType(buffInfo.dispelName)) and not br._G.UnitIsPlayer(Unit) then
 					local dispelUnitObj = Dispel(Unit, buffInfo.applications, buffInfo.duration, buffRemain, buffInfo.spellId, true)

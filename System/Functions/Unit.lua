@@ -466,3 +466,35 @@ function unit:isTankInRange(range)
 	end
 	return false
 end
+
+function unit:isFleeing(thisUnit)
+    if thisUnit == nil then thisUnit = "target" end
+
+    -- Early exit if unit doesn't exist or is dead
+    if not unit:GetObjectExists(thisUnit) or unit:GetUnitIsDeadOrGhost(thisUnit) then
+        return false
+    end
+
+    -- Don't check bosses (they typically don't flee)
+    if unit:isBoss(thisUnit) then
+        return false
+    end
+
+    -- Health-based fleeing detection (10-25% health range)
+    local unitHP = unit:getHP(thisUnit)
+    local lowHealthThreshold = unitHP <= 25 and unitHP > 0
+
+    -- Movement pattern detection
+    local isMovingAway = false
+    local unitSpeed = br._G.GetUnitSpeed(thisUnit)
+    if unitSpeed > 0 then
+        -- Check if unit is facing away from player (indicating fleeing)
+        local isFacingPlayer = unit:getFacing(thisUnit, "player")
+        if not isFacingPlayer then
+            isMovingAway = true
+        end
+    end
+
+    -- Return true if any fleeing condition is met
+    return lowHealthThreshold and isMovingAway
+end

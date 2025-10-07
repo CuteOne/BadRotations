@@ -145,7 +145,7 @@ function spell:canInterrupt(unit, percentint)
 		then
 			local ttd = br.engines.ttdTable:getTTD(unit) or 0
 			local withinsCastPercent = math.ceil((castTimeRemain / castDuration) * 100) <= castPercent
-			local willFinishCast = ttd > castTimeRemain or ttd < 0
+			local willFinishCast = ttd > castTimeRemain --or ttd < 0
 			if castType == "spellcast" then
 				if withinsCastPercent and interruptable == true and willFinishCast then
 					return true

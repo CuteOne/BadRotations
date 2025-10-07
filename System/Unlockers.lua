@@ -13,7 +13,7 @@ function unlockers:loadUnlockerAPI()
         unlocked = true
     elseif unlockers["TinkrUnlock"] ~= nil and unlockers:TinkrUnlock() then
         unlocked = true
-    elseif unlockers["DaemonicUnlock"] ~= nil and unlockers:DaemonicUnlock() then
+    elseif br.unlock["DaemonicUnlock"] ~= nil and br.unlock:DaemonicUnlock() then
         unlocked = true
     end
     -- Set Spell Queue Window

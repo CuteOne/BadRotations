@@ -362,6 +362,14 @@ br.api.unit = function(self)
         return br.functions.unit:isExplosive(thisUnit)
     end
 
+    --- Check if a unit is fleeing
+    -- @function unit.isFleeing
+    -- @param thisUnit The unit to check
+    -- @return boolean True if the unit is fleeing
+    unit.isFleeing = function(thisUnit)
+        return br.functions.unit:isFleeing(thisUnit)
+    end
+
     --- Check if a unit is tanking
     -- @function unit.isTanking
     -- @param thisUnit The unit to check, defaults to "player" if nil

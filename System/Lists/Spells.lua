@@ -2636,6 +2636,7 @@ br.lists.spells = {
 
             },
             buffs     = {
+                fortifyingBrew          = 126456,
                 legacyOfTheEmperor      = 117666,
                 legacyOfTheWhiteTiger   = 116781,
                 tigerPower              = 125359,

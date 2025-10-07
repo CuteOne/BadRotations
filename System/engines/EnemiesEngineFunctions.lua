@@ -7,6 +7,8 @@ br.engines.enemiesEngine.units        = {}
 br.engines.enemiesEngine.storedTables = {}
 local enemiesEngineFunctions = br.engines.enemiesEngineFunctions
 local refreshStored
+local lastOMUpdate = 0
+local OM_UPDATE_INTERVAL = 0.5 -- Update every 0.5 seconds
 
 --Check Totem
 function enemiesEngineFunctions:isTotem(unit)
@@ -40,12 +42,17 @@ function enemiesEngineFunctions:updateOM()
 	wipe(br.engines.tracker.tracking)
 	local om = br.engines.enemiesEngine.om
 	local startTime = br._G.debugprofilestop()
+	local now = br._G.GetTime()
+    if now - lastOMUpdate < OM_UPDATE_INTERVAL then
+        return -- Skip update
+    end
+    lastOMUpdate = now
 
 	local objUnit
 	local name
 	local objectid
 	local objectguid
-	local total = br._G.GetObjectCount(true, "BR") or 0
+	local total = math.min(br._G.GetObjectCount(true, "BR") or 0, 500)
 	for i = 1, total do
 		local thisUnit = br._G.GetObjectWithIndex(i)
 		-- br._G.print(thisUnit .. " - Is Unit: " .. tostring(br._G.ObjectIsUnit(thisUnit)) .. " - Name: " .. tostring(br._G.UnitName(thisUnit)))
@@ -141,13 +148,28 @@ function enemiesEngineFunctions:getEnemies(thisUnit, radius, checkNoCombat, faci
 		for k, _ in pairs(br.engines.enemiesEngine.storedTables) do br.engines.enemiesEngine.storedTables[k] = nil end
 		refreshStored = false
 	end
+	-- if br.engines.enemiesEngine.storedTables[checkNoCombat] ~= nil then
+	-- 	if checkNoCombat == false then
+	-- 		if br.engines.enemiesEngine.storedTables[checkNoCombat][thisUnit] ~= nil then
+	-- 			if br.engines.enemiesEngine.storedTables[checkNoCombat][thisUnit][radius] ~= nil then
+	-- 				if br.engines.enemiesEngine.storedTables[checkNoCombat][thisUnit][radius][facing] ~= nil then
+	-- 					--print("Found Table Unit: "..UnitName(thisUnit).." Radius: "..radius.." CombatCheck: "..tostring(checkNoCombat))
+	-- 					return br.engines.enemiesEngine.storedTables[checkNoCombat][thisUnit][radius][facing]
+	-- 				end
+	-- 			end
+	-- 		end
+	-- 	end
+	-- end
 	if br.engines.enemiesEngine.storedTables[checkNoCombat] ~= nil then
 		if checkNoCombat == false then
 			if br.engines.enemiesEngine.storedTables[checkNoCombat][thisUnit] ~= nil then
 				if br.engines.enemiesEngine.storedTables[checkNoCombat][thisUnit][radius] ~= nil then
 					if br.engines.enemiesEngine.storedTables[checkNoCombat][thisUnit][radius][facing] ~= nil then
-						--print("Found Table Unit: "..UnitName(thisUnit).." Radius: "..radius.." CombatCheck: "..tostring(checkNoCombat))
-						return br.engines.enemiesEngine.storedTables[checkNoCombat][thisUnit][radius][facing]
+						local cachedTable = br.engines.enemiesEngine.storedTables[checkNoCombat][thisUnit][radius][facing]
+						-- Add timestamp check
+						if cachedTable._timestamp and (br._G.GetTime() - cachedTable._timestamp) < 0.1 then
+							return cachedTable
+						end
 					end
 				end
 			end
@@ -291,10 +313,19 @@ local function isShieldedTarget(unit)
 	return coef
 end
 
+local coefficientCache = {}
+local COEF_CACHE_TIME = 0.2
 -- This function will set the prioritisation of the units, ie which target should i attack
 local function getUnitCoeficient(unit)
 	local startTime = br._G.debugprofilestop()
-	local coef = 0
+	local now = br._G.GetTime()
+    local cached = coefficientCache[unit]
+    if cached and (now - cached.time) < COEF_CACHE_TIME then
+        return cached.value
+    end
+
+    local startTime = br._G.debugprofilestop()
+    local coef = 0
 	-- if distance == nil then distance = br.functions.range:getDistance("player",unit) end
 	local distance = br.functions.range:getDistance("player", unit)
 	-- check if unit is valid
@@ -371,6 +402,7 @@ local function getUnitCoeficient(unit)
 			-- Print("Unit "..displayName.." - "..displayCoef)
 		end
 	end
+	coefficientCache[unit] = { value = coef, time = now }
 	-- Debugging
 	br.debug.cpu:updateDebug(startTime, "enemiesEngine.unitCoef")
 	return coef
@@ -384,13 +416,33 @@ local function compare(a, b)
 	end
 end
 
+local bestUnitCache = {}
+local BEST_UNIT_CACHE_TIME = 0.15
 -- Finds the "best" unit for a given range and optional facing
 local function findBestUnit(range, facing)
 	local tsort = table.sort
 	local startTime = br._G.debugprofilestop()
 	local bestUnitCoef
 	local bestUnit = nil
+	local now = br._G.GetTime()
+    local cacheKey = range .. "_" .. tostring(facing)
+    local cached = bestUnitCache[cacheKey]
+
+    if cached and (now - cached.time) < BEST_UNIT_CACHE_TIME then
+        return cached.unit
+    end
 	local enemyList = enemiesEngineFunctions:getEnemies("player", range, false, facing)
+	-- Limit processing to prevent long loops
+    local maxProcess = math.min(#enemyList, 20)
+    if #enemyList > maxProcess then
+        -- Only sort subset for performance
+        local subset = {}
+        for i = 1, maxProcess do
+            subset[i] = enemyList[i]
+        end
+        enemyList = subset
+    end
+	tsort(enemyList, compare)
 	if bestUnit ~= nil and br.engines.enemiesEngine.enemy[bestUnit] == nil then bestUnit = nil end
 	if bestUnit == nil
 	--		or GetTime() > lastCheckTime
@@ -428,6 +480,7 @@ local function findBestUnit(range, facing)
 			end
 		end
 	end
+	bestUnitCache[cacheKey] = { unit = bestUnit, time = now }
 	-- Debugging
 	br.debug.cpu:updateDebug(startTime, "enemiesEngine.findBestUnit")
 	return bestUnit
@@ -509,12 +562,12 @@ function enemiesEngineFunctions:getEnemiesInCone(angle, length, checkNoCombat, s
 	---@diagnostic disable-next-line: undefined-field
 	if showLines then LibDraw.Arc(playerX, playerY, playerZ, length, angle, 0) end
 	table.wipe(coneUnits)
-	for i = 1, #enemiesTable do
+	for i = 1, math.min(#enemiesTable, 30) do
 		local thisUnit = enemiesTable[i]
 		local radius = br._G.UnitCombatReach(thisUnit)
 		local unitX, unitY, unitZ = br._G.GetPositionBetweenObjects(thisUnit, "player", radius)
 		if playerX and unitX and playerY and unitY then
-			for j = radius, 0, -0.1 do
+			for j = radius, 0, -0.5 do
 				inside = false
 				if j > 0 then
 					unitX, unitY = br._G.GetPositionBetweenObjects(thisUnit, "player", j)

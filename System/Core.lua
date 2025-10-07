@@ -5,8 +5,8 @@ local engines = br.engines
 function engines:getUpdateRate()
     local updateRate = 0.1
 
-    local FrameRate = br._G.GetFramerate() or 0
     if br.functions.misc:isChecked("Auto Delay") then
+        local FrameRate = br._G.GetFramerate() or 0
         if FrameRate >= 0 and FrameRate < 60 then
             updateRate = (60 - FrameRate) / 60
         else
@@ -114,9 +114,9 @@ function engines:Update(self)
         br.ui:closeWindow("all")
         br.ui.chatOverlay:Show("Unable To Load")
         if br.functions.misc:isChecked("Notify Not Unlocked") and
-            br.debug.timer:useTimer("notLoaded", br.functions.misc:getOptionValue("Notify Not Unlocked")) then
-            Print(
-                "|cffFFFFFFCannot Start... |cffFF1100BR |cffFFFFFFcan not complete loading. Please check requirements.")
+            br.debug.timer:useTimer("notLoaded", br.functions.misc:getOptionValue("Notify Not Unlocked"))
+        then
+            Print("|cffFFFFFFCannot Start... |cffFF1100BR |cffFFFFFFcan not complete loading. Please check requirements.")
         end
         return false
     elseif br.unlocked and br._G.GetObjectCount() ~= nil then

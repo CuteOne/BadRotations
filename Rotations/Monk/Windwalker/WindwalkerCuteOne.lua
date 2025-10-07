@@ -97,7 +97,9 @@ local function createOptions()
             br.ui:createCheckbox(section, "Detox")
             br.ui:createDropdownWithout(section, "Detox - Target",
                 { "|cff00FF00Player", "|cffFFFF00Target", "|cffFF0000Mouseover" }, 1, "|cffFFFFFFTarget to cast on")
-            -- Expel Harm
+            -- Disable
+            br.ui:createCheckbox(section, "Disable", "|cffFFFFFFDisables all defensive abilities.")
+                -- Expel Harm
             br.ui:createSpinner(section, "Expel Harm", 40, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
             -- Fortifying Brew
             br.ui:createSpinner(section, "Fortifying Brew", 30, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
@@ -262,6 +264,18 @@ actionList.Defensive = function()
     if ui.useDefensive() and not unit.mounted() then
         local opValue
         local thisUnit
+        -- * Disable
+        if ui.checked("Disable") then
+            for i = 1, #enemies.yards5 do
+                local thisUnit = enemies.yards5[i]
+                if cast.able.disable(thisUnit) and unit.isFleeing(thisUnit) then
+                    if cast.disable(thisUnit) then
+                        ui.debug("Casting Disable on " .. unit.name(thisUnit) .. " [Defensive]")
+                        return true
+                    end
+                end
+            end
+        end
         -- * Tiger's Lust
         if ui.checked("Tiger's Lust") and talent.tigersLust
             and cast.able.tigersLust() and cast.noControl.tigersLust()
@@ -383,7 +397,7 @@ actionList.Interrupt = function()
     if ui.useInterrupt() then
         for i = 1, #enemies.yards5 do
             local thisUnit = enemies.yards5[i]
-            if br.functions.spell:canInterrupt(thisUnit, ui.value("Interrupt At")) and unit.distance(thisUnit) < 5 then
+            if unit.interruptable(thisUnit, ui.value("Interrupt At")) and unit.distance(thisUnit) < 5 then
                 -- * Quaking Palm (Pandaren Racial)
                 if ui.checked("Use Racial") and unit.race() == "Pandaren" then
                     module.Racial(nil,thisUnit)
@@ -488,7 +502,7 @@ actionList.SingleTarget = function()
     end
     -- * Fists of Fury
     -- fists_of_fury,if=buff.energizing_brew.down&energy.time_to_max>4&buff.tiger_power.remains>4
-    if cast.able.fistsOfFury() and unit.standingTime() > 1 and (unit.ttdGroup(5) > 3 or unit.isDummy())
+    if cast.able.fistsOfFury() and unit.standingTime() > 1 and (unit.ttdGroup(5) > 4 or unit.isDummy())
         and not buff.energizingBrew.exists() and energy.ttm() > 4 and buff.tigerPower.remain() > 4
     then
         if cast.fistsOfFury() then
@@ -738,7 +752,7 @@ local function runRotation()
         enemies.get(20)
         var.lastEnemyScan = now
         -- Debug overlay (commented out / throttled). Enable only if needed:
-        -- ui.chatOverlay("Standing: "..unit.standingTime())
+        -- ui.chatOverlay("TTD: "..unit.ttdGroup(5))
     end
 
     -- Cancel Crackling Jade Lightning

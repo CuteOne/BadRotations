@@ -91,7 +91,7 @@ local QuestCacheUpdate = function()
 	for questIdx = 1, numEntries do
 		-- local title, level, suggestedGroup, isHeader, isCollapsed, isComplete, frequency, questId, startEvent, displayQuestID, isOnMap, hasLocalPOI, isTask, isStory = GetQuestLogTitle (questId)
 		-- local questInfo = br._G.C_QuestLog.GetInfo(questIdx)
-		local _, title, _, _, _, _, _, questId = _G["GetQuestLogTitle"](questIdx)
+		local title, _, _, _, _, _, _, questId = _G["GetQuestLogTitle"](questIdx)
 		-- local title = questInfo["title"]
 		-- local questId = questInfo["questID"]
 		if (type(questId) == "number" and questId > 0 and ignoreQuest[questId] == nil) then -- and not isComplete
@@ -107,6 +107,7 @@ local QuestCacheUpdate = function()
 				local questId = questTable.questId
 				if (type(questId) == "number" and questId > 0 and ignoreQuest[questId] == nil) then
 					local questName = br._G.C_TaskQuest.GetQuestInfoByQuestID(questId)
+					br._G.print("Quest Name: " .. tostring(questName))
 					if (questName) then
 						br.engines.questTracker.cache[questName] = true
 					end

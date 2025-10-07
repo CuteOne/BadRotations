@@ -143,7 +143,7 @@ function tracker:objectTracker()
                         }
                         if (br.functions.misc:getOptionValue("Quest Tracker") == 1 or br.functions.misc:getOptionValue("Quest Tracker") == 3) and
                             object ~= nil and
-                            objUnit and br.engines.questTracker.isQuestUnit(object) and not br._G.UnitIsTapDenied(object)
+                            objUnit and br.engines.questTracker:isQuestUnit(object) and not br._G.UnitIsTapDenied(object)
                         then
 
                             if object and br.functions.unit:GetObjectExists(object) and (ignoreList[objectid] ~= nil or
@@ -155,7 +155,7 @@ function tracker:objectTracker()
                             end
                         end
                         if (br.functions.misc:getOptionValue("Quest Tracker") == 2 or br.functions.misc:getOptionValue("Quest Tracker") == 3)
-                            and not objUnit and br.engines.questTracker.isQuestObject(object)
+                            and not objUnit and br.engines.questTracker:isQuestObject(object)
                         then
                             track = true
                         end

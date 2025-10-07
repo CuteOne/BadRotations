@@ -5,34 +5,34 @@ local sin, cos, atan, atan2, sqrt, rad = math.sin, math.cos, math.atan, math.ata
 local tinsert, tremove = tinsert, tremove
 
 
--- local function WorldToScreen (wX, wY, wZ)
--- 	if wZ == nil then wZ = select(3,br.functions.unit:GetObjectPosition("player")) end
--- 	-- for k,v in pairs(br._G) do
--- 	-- 	br._G.print("K: "..tostring(k)..", V: "..tostring(v))
--- 	-- end
--- 	local sX, sY = br._G.WorldToScreen(wX, wY, wZ)
--- 	if not sX or sX == 0 then
--- 		return false, false
--- 	end
--- 	if sX and sY and br.unlockers.selected ~= "WA" and br.unlockers.selected ~= "LuaBox" then
--- 		return sX, -(WorldFrame:GetTop() - sY);
--- 	else
--- 		return sX, sY;
--- 	end
--- end
-local UIParent = UIParent
-local function WorldToScreen(sx, sy, sz)
-    local x, y = Nn.WorldToScreen(sx, sy, sz)
-    if x == 0 and y == 0 then
-        return
-    end
-    local scale = UIParent:GetScale()
-    local width = UIParent:GetWidth() * scale
-    local height = UIParent:GetHeight() * scale
-    x = x * width
-    y = -(height - (y * height))
-    return x, y
+local function WorldToScreen (wX, wY, wZ)
+	if wZ == nil then wZ = select(3,br.functions.unit:GetObjectPosition("player")) end
+	-- for k,v in pairs(br._G) do
+	-- 	br._G.print("K: "..tostring(k)..", V: "..tostring(v))
+	-- end
+	local sX, sY = br._G.WorldToScreen(wX, wY, wZ)
+	if not sX or sX == 0 then
+		return false, false
+	end
+	-- if sX and sY and br.unlockers.selected ~= "WA" and br.unlockers.selected ~= "LuaBox" then
+	-- 	return sX, -(WorldFrame:GetTop() - sY);
+	-- else
+		return sX, sY;
+	-- end
 end
+-- local UIParent = UIParent
+-- local function WorldToScreen(sx, sy, sz)
+--     local x, y = Nn.WorldToScreen(sx, sy, sz)
+--     if x == 0 and y == 0 then
+--         return
+--     end
+--     local scale = UIParent:GetScale()
+--     local width = UIParent:GetWidth() * scale
+--     local height = UIParent:GetHeight() * scale
+--     x = x * width
+--     y = -(height - (y * height))
+--     return x, y
+-- end
 
 if LibStub then
 	-- LibStub version control
