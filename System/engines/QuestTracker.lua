@@ -3,11 +3,36 @@ local _, br = ...
 br.engines.questTracker = br.engines.questTracker or {}
 local questTracker = br.engines.questTracker
 questTracker.cache = questTracker.cache or {}
+questTracker.objectCheckCache = questTracker.objectCheckCache or {} -- Cache for already-checked objects
 
 --Quest stuff
 --local questPlateTooltip = CreateFrame('GameTooltip', 'QuestPlateTooltip', nil, 'GameTooltipTemplate')
 local questTooltipScanQuest = br._G.CreateFrame("GameTooltip", "QuestPlateTooltipScanQuest", nil, "GameTooltipTemplate")
 local ScannedQuestTextCache = {}
+
+-- Helper function to add name variations to cache (called during cache build)
+local function addNameVariations(name, cache)
+	if not name or #name < 3 then return end
+
+	-- Add the original name
+	cache[name] = true
+
+	-- Add plural variation (add 's')
+	cache[name .. "s"] = true
+
+	-- Add plural variation (add 'es')
+	cache[name .. "es"] = true
+
+	-- If name ends in 's', add singular
+	if name:sub(-1) == "s" then
+		cache[name:sub(1, -2)] = true
+	end
+
+	-- If name ends in 'es', add singular
+	if name:sub(-2) == "es" then
+		cache[name:sub(1, -3)] = true
+	end
+end
 
 function questTracker:isQuestUnit(Pointer)
 	local guid
@@ -77,8 +102,9 @@ local QuestCacheUpdate = function()
 		[57008] = true, -- Assault The Warring Clans
 		[57728] = true, --- Assault: The Endless Swarm
 	}
-	--clear the quest cache
+	--clear the quest cache and object check cache
 	br._G.wipe(br.engines.questTracker.cache)
+	br._G.wipe(br.engines.questTracker.objectCheckCache)
 
 	--do not update if is inside an instance
 	local isInInstance = br._G.IsInInstance()
@@ -95,21 +121,74 @@ local QuestCacheUpdate = function()
 		-- local title = questInfo["title"]
 		-- local questId = questInfo["questID"]
 		if (type(questId) == "number" and questId > 0 and ignoreQuest[questId] == nil) then -- and not isComplete
-			br.engines.questTracker.cache[title] = true
+			-- Cache the quest title with variations
+			addNameVariations(title, br.engines.questTracker.cache)
+
+			-- Also cache quest objectives (units/objects to kill/collect)
+			local numObjectives = br._G.GetNumQuestLeaderBoards(questIdx)
+			if numObjectives and numObjectives > 0 then
+				for objIdx = 1, numObjectives do
+					local objectiveText, objectiveType, finished = br._G.GetQuestLogLeaderBoard(objIdx, questIdx)
+					if objectiveText and not finished then
+						-- Debug: Print the full objective text to see what we're working with
+						-- br._G.print("[QuestTracker] Objective: " .. tostring(objectiveText))
+
+						-- Extract the objective name from text like "Kill Murlocs: 5/10" or "Collect Apples: 3/5"
+						-- Pattern matches: "ObjectiveName: number/number" or "ObjectiveName slain: number/number"
+						local objectiveName = objectiveText:match("^(.-):%s*%d") or objectiveText:match("^(.-)%s+slain:%s*%d")
+						if objectiveName then
+							-- Clean up the name and cache it with variations
+							objectiveName = br._G.strtrim(objectiveName)
+							addNameVariations(objectiveName, br.engines.questTracker.cache)
+							-- br._G.print("[QuestTracker] Cached objective name: " .. tostring(objectiveName))
+						else
+							-- If no pattern matched, try to cache the whole text minus progress numbers
+							local simpleName = objectiveText:match("^(.-)%s*:%s*%d") or objectiveText:match("^(.-)%s+%d+/%d+")
+							if simpleName then
+								simpleName = br._G.strtrim(simpleName)
+								addNameVariations(simpleName, br.engines.questTracker.cache)
+								-- br._G.print("[QuestTracker] Cached simple name: " .. tostring(simpleName))
+							end
+						end
+					end
+				end
+			end
 		end
 	end
 
 	local mapId = br._G.C_Map.GetBestMapForUnit("player")
 	if (mapId) then
-		local worldQuests = br._G.C_TaskQuest.GetQuestsOnMap(mapId)
+		-- Try new API first, fallback to old API for compatibility
+		local worldQuests = br._G.C_TaskQuest.GetQuestsForPlayerOnMap and
+			br._G.C_TaskQuest.GetQuestsForPlayerOnMap(mapId) or
+			br._G.C_TaskQuest.GetQuestsOnMap(mapId)
 		if (type(worldQuests) == "table") then
 			for _, questTable in ipairs(worldQuests) do
 				local questId = questTable.questId
 				if (type(questId) == "number" and questId > 0 and ignoreQuest[questId] == nil) then
 					local questName = br._G.C_TaskQuest.GetQuestInfoByQuestID(questId)
-					br._G.print("Quest Name: " .. tostring(questName))
+					-- Remove debug print to avoid spam
+					-- br._G.print("Quest Name: " .. tostring(questName))
 					if (questName) then
-						br.engines.questTracker.cache[questName] = true
+						addNameVariations(questName, br.engines.questTracker.cache)
+					end
+
+					-- Try to get world quest objectives
+					local questInfo = br._G.C_TaskQuest.GetQuestInfoByQuestID(questId)
+					if questInfo then
+						-- World quests might have objectives we can parse similarly
+						local objectives = br._G.C_QuestLog.GetQuestObjectives(questId)
+						if objectives then
+							for _, objective in ipairs(objectives) do
+								if objective.text and not objective.finished then
+									local objectiveName = objective.text:match("^(.-):%s*%d") or objective.text:match("^(.-)%s+slain:%s*%d")
+									if objectiveName then
+										objectiveName = br._G.strtrim(objectiveName)
+										br.engines.questTracker.cache[objectiveName] = true
+									end
+								end
+							end
+						end
 					end
 				end
 			end
@@ -124,6 +203,17 @@ local function FunctionQuestLogUpdate() --private
 	br.engines.questTracker.cacheThrottle = br._G.C_Timer.NewTimer(2, QuestCacheUpdate)
 end
 
+-- Debug function to print cache contents
+function questTracker:printCache()
+	br._G.print("=== Quest Tracker Cache Contents ===")
+	local count = 0
+	for name, _ in pairs(br.engines.questTracker.cache) do
+		count = count + 1
+		br._G.print(count .. ". " .. tostring(name))
+	end
+	br._G.print("=== Total cached items: " .. count .. " ===")
+end
+
 function questTracker:isQuestObject(object) --Ty Ssateneth
 	local objectID = br._G.ObjectID(object)
 	local ignoreObjects = {
@@ -132,6 +222,8 @@ function questTracker:isQuestObject(object) --Ty Ssateneth
 	if ignoreObjects[objectID] ~= nil then
 		return false
 	end
+
+	-- Check hardcoded quest object IDs (specific expansions)
 	if objectID == 325958 or objectID == 325962 or objectID == 325963 or objectID == 325959 or objectID == 335703 or
 		objectID == 152692 or objectID == 163757 or objectID == 290542 or objectID == 113768 or objectID == 113771 or
 		objectID == 113769 or objectID == 113770 or objectID == 153290 or
@@ -145,10 +237,31 @@ function questTracker:isQuestObject(object) --Ty Ssateneth
 		-- mechagon chests
 		objectID == 151166 -- algan units
 	then return true end
-	local glow = br.functions.misc:getItemGlow(object) --or select(2, CanLootUnit(object)) or questObj == 12
+
+	-- Check if object has quest glow
+	local glow = br.functions.misc:getItemGlow(object)
 	if glow then
 		return true
 	end
+
+	-- Check if object name matches any quest in cache
+	-- This is more reliable for objects than tooltip scanning
+	local objectName = br._G.ObjectName(object)
+	if objectName then
+		-- Check result cache first (avoids repeated lookups for same objects)
+		if br.engines.questTracker.objectCheckCache[objectName] ~= nil then
+			return br.engines.questTracker.objectCheckCache[objectName]
+		end
+
+		-- Direct lookup (variations are already pre-cached during QuestCacheUpdate)
+		local result = br.engines.questTracker.cache[objectName] or false
+
+		-- Cache the result for next time
+		br.engines.questTracker.objectCheckCache[objectName] = result
+
+		return result
+	end
+
 	return false
 end
 
