@@ -435,7 +435,9 @@ actionList.Extras = function()
     if ui.checked("Mark of the Wild") and not (buff.legacyOfTheEmperor.exists() or buff.blessingOfKings.exists()) then
         var.markUnit = getMarkUnitOption("Mark of the Wild")
         if cast.able.markOfTheWild(var.markUnit) and buff.markOfTheWild.refresh(var.markUnit)
-            and not (buff.prowl.exists() or buff.shadowmeld.exists()) and not unit.resting() and unit.distance(var.markUnit) < 40
+            and not unit.inCombat()
+            and not (buff.prowl.exists() or buff.shadowmeld.exists())
+            and not unit.resting() and unit.distance(var.markUnit) < 40
         then
             if cast.markOfTheWild(var.markUnit) then
                 ui.debug("Casting Mark of the Wild")
@@ -620,7 +622,7 @@ actionList.Defensive = function()
                     return castHealingTouch(healingTouchUnit, "InC DoC Hold")
                 end
                 -- Nature's Swiftness - Emergency Heal
-                if talent.naturesSwiftness and cast.able.naturesSwiftness() and unit.hp() <= 20
+                if cast.able.naturesSwiftness() and unit.hp() <= 20
                     and not buff.naturesSwiftness.exists() and not buff.predatorySwiftness.exists()
                 then
                     if cast.naturesSwiftness() then
@@ -857,7 +859,7 @@ actionList.Combat = function()
         -- * Healing Touch
         -- # Proc Dream of Cenarius at 4+ CP or when PS is about to expire.
         -- healing_touch,if=talent.dream_of_cenarius.enabled&buff.predatory_swiftness.up&buff.dream_of_cenarius.down&(buff.predatory_swiftness.remains<1.5|combo_points>=4)
-        if cast.able.healingTouch() and buff.predatorySwiftness.exists()
+        if cast.able.healingTouch() and talent.dreamOfCenarious and buff.predatorySwiftness.exists()
             and not buff.dreamOfCenarius.exists() and (buff.predatorySwiftness.remains() < 1.5 or comboPoints(units.dyn5) >= 4)
         then
             if cast.healingTouch("player") then
@@ -875,7 +877,7 @@ actionList.Combat = function()
         end
         -- * Tiger's Fury
         -- tigers_fury,if=energy<=35&!buff.omen_of_clarity.react
-        if ui.checked("Tiger's Fury") and cast.able.tigersFury() and energy.deficit() > 35 and not buff.clearcasting.exists() then
+        if ui.checked("Tiger's Fury") and cast.able.tigersFury() and energy() <= 35 and not buff.clearcasting.exists() then
             if cast.tigersFury() then
                 ui.debug("Casting Tiger's Fury [Combat]")
                 return true
@@ -936,8 +938,7 @@ actionList.Combat = function()
         -- * Rip
         -- # Overwrite Rip if it's at least 15% stronger than the current.
         -- rip,if=combo_points>=5&action.rip.tick_damage%dot.rip.tick_dmg>=1.15&target.time_to_die>30
-        -- NOTE: SimC '%' here means new_tick / current_tick (strength increase), not Lua modulus.
-        if comboPoints(units.dyn5) >= 5 and debuff.rip.applied(units.dyn5) and debuff.rip.applied(units.dyn5) > 0 -- ensure an existing Rip to compare
+        if cast.able.rip(units.dyn5) and comboPoints(units.dyn5) >= 5 and debuff.rip.applied(units.dyn5) > 0 -- ensure an existing Rip to compare
             and (debuff.rip.calc() / debuff.rip.applied(units.dyn5)) >= 1.15 and unit.ttd(units.dyn5) > 30
         then
             if cast.rip(units.dyn5) then
@@ -947,7 +948,7 @@ actionList.Combat = function()
         end
         -- # Use 4 or more CP to apply Rip if Rune of Reorigination is about to expire and it's at least close to the current rip in damage.
         -- rip,if=combo_points>=4&action.rip.tick_damage%dot.rip.tick_dmg>=0.95&target.time_to_die>30&buff.rune_of_reorigination.up&buff.rune_of_reorigination.remains<=1.5
-        if comboPoints(units.dyn5) >= 4 and (debuff.rip.calc() / debuff.rip.applied(units.dyn5)) >= 0.95 and unit.ttd(units.dyn5) > 30
+        if cast.able.rip(units.dyn5) and comboPoints(units.dyn5) >= 4 and (debuff.rip.calc() / debuff.rip.applied(units.dyn5)) >= 0.95 and unit.ttd(units.dyn5) > 30
             and buff.runeOfReorigination.exists() and buff.runeOfReorigination.remains() <= 1.5
         then
             if cast.rip(units.dyn5) then
@@ -1251,6 +1252,7 @@ actionList.AoE = function()
         if comboPoints(units.dyn5) >= 5 then
             if cast.rip(units.dyn5) then
                 ui.debug("Casting Rip [AoE]")
+                return true
             end
         end
     end
@@ -1454,7 +1456,7 @@ local function runRotation()
         var.leftCombat = var.getTime
     end
     -- Add buff.bsInc.exists()
-    buff.bsInc      = buff.bsInc or {}
+    buff.bsInc = buff.bsInc or {}
     if not buff.bsInc.exists then
         buff.bsInc.exists = function()
             return buff.berserk.exists() or buff.incarnation.exists()

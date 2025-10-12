@@ -41,13 +41,10 @@ end
 -- if br.functions.power:getPower("target") <= 15 then
 function power:getPower(Unit, index)
 	local value = index == 4 and br._G.GetComboPoints("player", Unit) or br._G.UnitPower(Unit, index)
-	if select(3, br._G.UnitClass("player")) == 11 or select(3, br._G.UnitClass("player")) == 4 then
-		-- Druid: Incarnation affects all energy values report as having 20% more
-		if br.functions.aura:UnitBuffID("player", 102543) then
-			value = value * 1.2
-		end
+	-- Only apply Druid buffs to energy (index 3)
+	if index == 3 and select(3, br._G.UnitClass("player")) == 11 then
+		-- Druid: Berserk affects energy values report as having 50% more
 		if br.functions.aura:UnitBuffID("player", 106951) then
-			-- Druid: Berserk affects energy values report as having 50% more
 			value = value * 5
 		end
 	end
@@ -56,13 +53,10 @@ end
 
 function power:getPowerMax(Unit, index)
 	local value = br._G.UnitPowerMax(Unit, index)
-	if select(3, br._G.UnitClass("player")) == 11 or select(3, br._G.UnitClass("player")) == 4 then
-		-- Druid: Incarnation affects all energy values report as having 20% more
-		if br.functions.aura:UnitBuffID("player", 102543) then
-			value = value * 1.2
-		end
+	-- Only apply Druid buffs to energy (index 3)
+	if index == 3 and select(3, br._G.UnitClass("player")) == 11 then
+		-- Druid: Berserk halves costs -> treat energy max as doubled for checks
 		if br.functions.aura:UnitBuffID("player", 106951) then
-            -- Druid: Berserk halves costs -> treat energy max as doubled for checks
             value = value * 2
         end
 	end
