@@ -146,8 +146,8 @@ function br.ui:createProfileDropdown(parent)
     end
     Y = DiesalTools.Round(Y)
 
-    local profiles = br.functions.settingsManagement:fetch(br.loader.selectedSpec .. "_" .. "profiles", { { key = "default", text = "Default" } })
-    -- local selectedProfile = br.functions.settingsManagement:fetch(br.loader.selectedSpec .. "_" .. "profile", "default")
+    local profiles = br.ui.settingsManagement:fetch(br.loader.selectedSpec .. "_" .. "profiles", { { key = "default", text = "Default" } })
+    -- local selectedProfile = br.ui.settingsManagement:fetch(br.loader.selectedSpec .. "_" .. "profile", "default")
     local profile_drop = DiesalGUI:Create("Dropdown")
     parent:AddChild(profile_drop)
     profile_drop:SetParent(parent.content)
@@ -159,7 +159,7 @@ function br.ui:createProfileDropdown(parent)
         list[value.key] = value.key
     end
     profile_drop:SetList(list)
-    profile_drop:SetValue(br.functions.settingsManagement:fetch(br.loader.selectedSpec .. "_" .. "profile", "Default Profile"))
+    profile_drop:SetValue(br.ui.settingsManagement:fetch(br.loader.selectedSpec .. "_" .. "profile", "Default Profile"))
     profile_drop:SetEventListener(
         "OnValueChanged",
         function(this, event, key, value, selection)

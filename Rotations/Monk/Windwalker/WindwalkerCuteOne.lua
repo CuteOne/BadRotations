@@ -276,9 +276,20 @@ actionList.Defensive = function()
                 end
             end
         end
+        -- * Nimble Brew
+        if ui.checked("Nimble Brew") and cast.able.nimbleBrew()
+            and cast.noControl.nimbleBrew()
+        then
+            if cast.nimbleBrew() then
+                ui.debug("Casting Nimble Brew [Defensive]")
+                return true
+            end
+        end
         -- * Tiger's Lust
         if ui.checked("Tiger's Lust") and talent.tigersLust
             and cast.able.tigersLust() and cast.noControl.tigersLust()
+            and (not ui.checked("Nimble Brew") or not spell.nimbleBrew.known()
+            or cd.nimbleBrew.remain() > 1 and cd.nimbleBrew.remain() < 119)
         then
             if cast.tigersLust() then
                 ui.debug("Casting Tiger's Lust [Defensive]")
@@ -403,14 +414,19 @@ actionList.Interrupt = function()
                     module.Racial(nil,thisUnit)
                 end
                 -- * Spear Hand Strike
-                if ui.checked("Spear Hand Strike") and cast.able.spearHandStrike(thisUnit) then
+                if ui.checked("Spear Hand Strike") and cast.able.spearHandStrike(thisUnit)
+                    and not (ui.checked("Use Racial") and unit.race() == "Pandaren" and cast.able.quakingPalm(thisUnit))
+                 then
                     if cast.spearHandStrike(thisUnit) then
                         ui.debug("Casting Spear Hand Strike [Interrupt]")
                         return true
                     end
                 end
                 -- * Leg Sweep
-                if ui.checked("Leg Sweep") and cast.able.legSweep(thisUnit) then
+                if ui.checked("Leg Sweep") and cast.able.legSweep(thisUnit)
+                    and not (ui.checked("Use Racial") and unit.race() == "Pandaren" and cast.able.quakingPalm(thisUnit))
+                    and not (ui.checked("Spear Hand Strike") and cast.able.spearHandStrike(thisUnit))
+                then
                     if cast.legSweep(thisUnit) then
                         ui.debug("Casting Leg Sweep [Interrupt]")
                         return true
@@ -420,9 +436,19 @@ actionList.Interrupt = function()
         end
         for i = 1,#enemies.yards20 do
             local thisUnit = enemies.yards20[i]
-            if br.functions.spell:canInterrupt(thisUnit, ui.value("Interrupt At")) then
+            if unit.interruptable(thisUnit, ui.value("Interrupt At")) then
+                local thisDistance = unit.distance(thisUnit)
+                -- Only use Paralysis on targets outside melee range OR when melee interrupts are on cooldown
+                local useMeleeInterrupt = thisDistance < 5 and (
+                    (ui.checked("Use Racial") and unit.race() == "Pandaren" and cast.able.quakingPalm(thisUnit)) or
+                    (ui.checked("Spear Hand Strike") and cast.able.spearHandStrike(thisUnit)) or
+                    (ui.checked("Leg Sweep") and cast.able.legSweep(thisUnit))
+                )
+
                 -- * Paralysis
-                if ui.checked("Paralysis") and cast.able.paralysis(thisUnit) and unit.distance(thisUnit) < 20 then
+                if ui.checked("Paralysis") and cast.able.paralysis(thisUnit)
+                    and thisDistance < 20 and not useMeleeInterrupt
+                then
                     if cast.paralysis(thisUnit) then
                         ui.debug("Casting Paralysis [Interrupt]")
                         return true
@@ -482,8 +508,8 @@ actionList.AOE = function()
     end
     -- * Spinning Crane Kick
     -- spinning_crane_kick,if=!talent.rushing_jade_wind.enabled
-    if cast.able.spinningCraneKick() and not talent.rushingJadeWind then
-        if cast.spinningCraneKick() then
+    if cast.able.spinningCraneKick("player", "aoe", 1, 8) and not talent.rushingJadeWind then
+        if cast.spinningCraneKick("player", "aoe", 1, 8) then
             ui.debug("Casting Spinning Crane Kick [AOE]")
             return true
         end
@@ -494,7 +520,7 @@ end -- End Action List - AOE
 actionList.SingleTarget = function()
     -- * Rising Sun Kick
     -- rising_sun_kick
-    if cast.able.risingSunKick() then--and not debuff.risingSunKick.exists() then
+    if cast.able.risingSunKick() then--and not debuff.risingSunKick.exists(units.dyn5) then
         if cast.risingSunKick() then
             ui.debug("Casting Rising Sun Kick [Single Target]")
             return true
@@ -502,10 +528,10 @@ actionList.SingleTarget = function()
     end
     -- * Fists of Fury
     -- fists_of_fury,if=buff.energizing_brew.down&energy.time_to_max>4&buff.tiger_power.remains>4
-    if cast.able.fistsOfFury() and unit.standingTime() > 1 and (unit.ttdGroup(5) > 4 or unit.isDummy())
+    if cast.able.fistsOfFury("player","cone",1,90) and unit.standingTime() > 1 and (unit.ttdGroup(5) > 5 or unit.isDummy())
         and not buff.energizingBrew.exists() and energy.ttm() > 4 and buff.tigerPower.remain() > 4
     then
-        if cast.fistsOfFury() then
+        if cast.fistsOfFury("player","cone",1,90) then
             ui.debug("Casting Fists of Fury [Single Target]")
             return true
         end
@@ -650,8 +676,8 @@ actionList.Combat = function()
             end
             -- * Tigereye Brew
             -- tigereye_brew,if=buff.tigereye_brew_use.down&buff.tigereye_brew.stack=20
-            if cast.able.tigereyeBrew() and not buff.tigereyeBrewUse.exists() and buff.tigereyeBrew.stack() == 20 then
-                if cast.tigereyeBrew() then
+            if cast.able.tigereyeBrew("player") and not buff.tigereyeBrewUse.exists("player","EXACT") and buff.tigereyeBrew.stack() == 20 then
+                if cast.tigereyeBrew("player") then
                     ui.debug("Casting Tigereye Brew - 20 Stacks [Combat]")
                     return true
                 end
@@ -659,11 +685,11 @@ actionList.Combat = function()
             -- tigereye_brew,if=buff.tigereye_brew_use.down&trinket.proc.agility.react
             -- TODO: Trinket Procs
             -- tigereye_brew,if=buff.tigereye_brew_use.down&chi>=2&(trinket.proc.agility.react|trinket.proc.strength.react|buff.tigereye_brew.stack>=15|target.time_to_die<40)&debuff.rising_sun_kick.up&buff.tiger_power.up
-            if cast.able.tigereyeBrew() and not buff.tigereyeBrewUse.exists() and chi() >= 2
-                and (buff.tigereyeBrew.stack() >= 15 or unit.ttd(units.dyn5) < 40)
-                and debuff.risingSunKick.exists() and buff.tigerPower.exists()
+            if cast.able.tigereyeBrew("player") and not buff.tigereyeBrewUse.exists("player","EXACT") and chi() >= 2
+                and (buff.tigereyeBrew.stack() >= 15 or (unit.ttdGroup() < 40 and not unit.isDummy()))
+                and debuff.risingSunKick.exists(units.dyn5) and buff.tigerPower.exists()
             then
-                if cast.tigereyeBrew() then
+                if cast.tigereyeBrew("player") then
                     ui.debug("Casting Tigereye Brew - 15 Stacks or TTD < 40 [Combat]")
                     return true
                 end
@@ -678,7 +704,7 @@ actionList.Combat = function()
             end
             -- * Rising Sun Kick
             -- rising_sun_kick,if=debuff.rising_sun_kick.down
-            if cast.able.risingSunKick() and not debuff.risingSunKick.exists() then
+            if cast.able.risingSunKick() and not debuff.risingSunKick.exists(units.dyn5) then
                 if cast.risingSunKick() then
                     ui.debug("Casting Rising Sun Kick [Combat]")
                     return true
@@ -686,7 +712,7 @@ actionList.Combat = function()
             end
             -- * Tiger Palm
             -- tiger_palm,if=buff.tiger_power.down&debuff.rising_sun_kick.remains>1&energy.time_to_max>1
-            if cast.able.tigerPalm() and not buff.tigerPower.exists() and debuff.risingSunKick.remain() > 1 and energy.ttm() > 1 then
+            if cast.able.tigerPalm() and not buff.tigerPower.exists() and debuff.risingSunKick.remain(units.dyn5) > 1 and energy.ttm() > 1 then
                 if cast.tigerPalm() then
                     ui.debug("Casting Tiger Palm [Combat]")
                     return true
@@ -737,23 +763,15 @@ local function runRotation()
     spell           = br.player.spell
     talent          = br.player.talent
     -- General Locals
-    var.haltProfile = (unit.inCombat() and var.profileStop) or unit.mounted() or br.functions.misc:pause() or ui.mode.rotation == 2
-    -- Throttle scans / overlays to improve FPS
-    if var.lastEnemyScan == nil then var.lastEnemyScan = 0 end
-    if var.enemyScanInterval == nil then var.enemyScanInterval = 0.25 end -- seconds; raise this to reduce CPU
-    local now = ui.time()
-    if (now - var.lastEnemyScan) >= var.enemyScanInterval then
-        -- Units (throttled)
-        units.get(5)
-        units.get(40)
-        -- Enemies (throttled)
-        enemies.get(5)
-        enemies.get(8)
-        enemies.get(20)
-        var.lastEnemyScan = now
-        -- Debug overlay (commented out / throttled). Enable only if needed:
-        -- ui.chatOverlay("TTD: "..unit.ttdGroup(5))
-    end
+    var.haltProfile = (unit.inCombat() and var.profileStop) or unit.mounted() or ui.pause() or ui.mode.rotation == 2
+    -- Dynamic Units
+    -- Units (throttled)
+    units.get(5)
+    units.get(40)
+    -- Enemies (throttled)
+    enemies.get(5)
+    enemies.get(8)
+    enemies.get(20)
 
     -- Cancel Crackling Jade Lightning
     if cast.current.cracklingJadeLightning() and unit.distance("target") < ui.value("Cancel CJL Range") then

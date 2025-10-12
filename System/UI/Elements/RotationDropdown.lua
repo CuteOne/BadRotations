@@ -43,8 +43,8 @@ function br.ui:createRotationDropdown(parent, itemlist, tooltip)
             else
                 -- br.ui:recreateWindows()
                 -- br._G.print("Rotation Changed")
-                br.settingsManagement:saveSettings(nil, nil, br.loader.selectedSpec, br.loader.selectedProfileName)
-                br:saveLastProfileTracker()
+                br.ui.settingsManagement:saveSettings(nil, nil, br.loader.selectedSpec, br.loader.selectedProfileName)
+                br.ui.settingsManagement:saveLastProfileTracker()
                 br.data.settings[br.loader.selectedSpec][text .. "Drop"] = key
                 br.data.tracker[br.loader.selectedSpec][text .. "Drop"] = key
                 br.data.settings[br.loader.selectedSpec][text .. "DropValue"] = value

@@ -16,16 +16,25 @@ function unlockers:loadUnlockerAPI()
     elseif br.unlock["DaemonicUnlock"] ~= nil and br.unlock:DaemonicUnlock() then
         unlocked = true
     end
-    -- Set Spell Queue Window
-    --if class == 8 or class == 9 then
-    if unlocked and self.prevQueueWindow ~= 400 then
-        br._G.RunMacroText("/console SpellQueueWindow 400")
+
+    if unlocked then
+        -- Set Spell Queue Window
+        --if class == 8 or class == 9 then
+        if unlocked and self.prevQueueWindow ~= 400 then
+            br._G.RunMacroText("/console SpellQueueWindow 400")
+        --else
+        --     if unlocked and self.prevQueueWindow ~= 0 then
+        --         br._G.RunMacroText("/console SpellQueueWindow 0")
+        --     end
+        -- end
+        end
+        -- UPDATE MEDIA PATH to use the copied Media folder in Interface\AddOns
+        local DiesalStyle = LibStub("DiesalStyle-1.0")
+        -- Use Interface\AddOns\Media\ which is copied during installation
+        local newPath = "Interface\\AddOns\\Media\\"
+        DiesalStyle:SetMediaPath(newPath)
+        DiesalStyle:ReloadMedia()
     end
-    --else
-    --     if unlocked and self.prevQueueWindow ~= 0 then
-    --         br._G.RunMacroText("/console SpellQueueWindow 0")
-    --     end
-    -- end
     return unlocked
 end
 

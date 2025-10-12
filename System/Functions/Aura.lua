@@ -55,6 +55,7 @@ function aura:UnitBuffID(unit, spellID, filter)
 	if exactSearch then
 		for i = 1, 40 do
 			local buffName, _, _, _, _, _, _, _, _, buffSpellID = aura:UnitBuff(unit, i, "player")
+			-- print("Unit: " .. tostring(unit) .. ", Spell: " .. tostring(spellName) .. ", ID: " .. tostring(spellID) .. ", Buff: " .. tostring(buffName) .. ", BuffID: " .. tostring(buffSpellID))
 			if buffName == nil then return nil end
 			if buffSpellID == spellID then
 				return aura:UnitBuff(unit, i)

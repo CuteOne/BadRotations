@@ -3,19 +3,13 @@ br.engines = br.engines or {}
 local engines = br.engines
 
 function engines:getUpdateRate()
-    local updateRate = 0.1
+    local updateRate = br.functions.misc:getOptionValue("Bot Update Rate") or 0.1
 
     if br.functions.misc:isChecked("Auto Delay") then
         local FrameRate = br._G.GetFramerate() or 0
         if FrameRate >= 0 and FrameRate < 60 then
             updateRate = (60 - FrameRate) / 60
-        else
-            updateRate = 0.1
         end
-    elseif br.functions.misc:getOptionValue("Bot Update Rate") == nil then
-        updateRate = 0.1
-    else
-        updateRate = br.functions.misc:getOptionValue("Bot Update Rate")
     end
     return updateRate
 end
@@ -81,12 +75,12 @@ end
 
 local function updateRotationOnSpecChange()
     br.ui:closeWindow("all")
-    br.settingsManagement:saveSettings(nil, nil, br.loader.selectedSpec, br.loader.selectedProfileName)
+    br.ui.settingsManagement:saveSettings(nil, nil, br.loader.selectedSpec, br.loader.selectedProfileName)
     -- Update Selected Spec/Profile
     br.loader.selectedSpec = select(2, br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization()))
     br.loader.selectedSpecID = br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization())
     br.loader.cBuilder:loadProfiles()
-    br.settingsManagement:loadLastProfileTracker()
+    br.ui.settingsManagement:loadLastProfileTracker()
     br.data.loadedSettings = false
     -- Load Default Settings
     br:defaultSettings()
@@ -124,11 +118,14 @@ function engines:Update(self)
         -- Check BR Out of Date
         -- br.unlockers:checkBrOutOfDate()
         -- Load Saved Settings
-        br.settingsManagement:loadSavedSettings()
+        br.ui.settingsManagement:loadSavedSettings()
+        -- Cache settings check
+        local settings = br.data and br.data.settings and br.data.settings[br.loader.selectedSpec]
+        local toggles = settings and settings.toggles
         -- Continue Load
-        if br.data ~= nil and br.data.settings ~= nil and br.data.settings[br.loader.selectedSpec] ~= nil and br.data.settings[br.loader.selectedSpec].toggles ~= nil then
+        if toggles then
             -- BR Main Toggle Off
-            if br.data.settings[br.loader.selectedSpec].toggles["Power"] ~= nil and br.data.settings[br.loader.selectedSpec].toggles["Power"] ~= 1 then
+            if toggles["Power"] ~= nil and toggles["Power"] ~= 1 then
                 -- BR Main Toggle On - Main Cycle
                 -- Clear Queue
                 if br.player ~= nil and br.player.queue ~= nil and #br.player.queue ~= 0 then
@@ -178,14 +175,15 @@ function engines:Update(self)
 
                         br.player:update()
                         if br.rotationChanged then
-                            br:saveLastProfileTracker()
-                            br.settingsManagement:loadSettings(nil, br.player.class, br.loader.selectedSpec, br.loader.selectedProfileName)
+                            br.ui.settingsManagement:saveLastProfileTracker()
+                            br.ui.settingsManagement:loadSettings(nil, br.player.class, br.loader.selectedSpec, br.loader.selectedProfileName)
                             br.ui:closeWindow("profile")
                             br.player:createOptions()
                             br.player:createToggles()
                         end
                         collectGarbage = true
                         br.rotationChanged = false
+                        br._G.print("Profile Load Complete - Ready to run.")
                     end
                 end
                 -- Queue Casting
@@ -270,12 +268,12 @@ function engines:Update(self)
                 br.misc.ProfessionHelper:ProfessionHelper()
                 -- Rotation Log
                 br.ui:toggleDebugWindow()
-                -- Settings Garbage Collection
+                -- Collect Garbage
                 if collectGarbage then
                     -- Ensure we have all the settings recorded
                     br.ui:recreateWindows()
                     -- Delete old settings
-                    br.settingsManagement:cleanSettings()
+                    br.ui.settingsManagement:cleanSettings()
                     -- Set flag to prevent un-needed runs
                     collectGarbage = false
                 end
@@ -283,6 +281,6 @@ function engines:Update(self)
         elseif br.player ~= nil then
             updateRotationOnSpecChange()
         end -- End Settings Loaded Check
-    end     -- End Unlock Check
+    end -- End Unlock Check
     br.debug.cpu:updateDebug(startTime, "pulse")
-end         -- End Bad Rotations Update Function
+end -- End Bad Rotations Update Function

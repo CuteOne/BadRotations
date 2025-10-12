@@ -81,7 +81,7 @@ function br.ui:createSaveButton(parent, buttonName, x, y)
                 "OnClick",
                 function()
                     local profiles =
-                        br.functions.settingsManagement:fetch(br.loader.selectedSpec .. "_" .. "profiles", { { key = "default", text = "Default" } })
+                        br.ui.settingsManagement:fetch(br.loader.selectedSpec .. "_" .. "profiles", { { key = "default", text = "Default" } })
                     local profileName = profileInput:GetText()
                     local pkey = string.gsub(profileName, "%s+", "")
                     if profileName ~= "" then
@@ -98,9 +98,9 @@ function br.ui:createSaveButton(parent, buttonName, x, y)
                                 return false
                             end
                         end
-                        table.insert(profiles, { key = pkey, text = br.settingsManagement:deepcopy(br.data.settings[br.loader.selectedSpec]) })
-                        br.functions.settingsManagement:store(br.loader.selectedSpec .. "_" .. "profiles", profiles)
-                        br.functions.settingsManagement:store(br.loader.selectedSpec .. "_" .. "profile", pkey)
+                        table.insert(profiles, { key = pkey, text = br.ui.settingsManagement:deepcopy(br.data.settings[br.loader.selectedSpec]) })
+                        br.ui.settingsManagement:store(br.loader.selectedSpec .. "_" .. "profiles", profiles)
+                        br.ui.settingsManagement:store(br.loader.selectedSpec .. "_" .. "profile", pkey)
                         newWindow:Hide()
                         parent:Hide()
                         parent:Release()
@@ -112,7 +112,7 @@ function br.ui:createSaveButton(parent, buttonName, x, y)
                 "OnEnterPressed",
                 function()
                     local profiles =
-                        br.functions.settingsManagement:fetch(br.loader.selectedSpec .. "_" .. "profiles", { { key = "default", text = "Default" } })
+                        br.ui.settingsManagement:fetch(br.loader.selectedSpec .. "_" .. "profiles", { { key = "default", text = "Default" } })
                     local profileName = profileInput:GetText()
                     local pkey = string.gsub(profileName, "%s+", "")
                     if profileName ~= "" then
@@ -129,9 +129,9 @@ function br.ui:createSaveButton(parent, buttonName, x, y)
                                 return false
                             end
                         end
-                        table.insert(profiles, { key = pkey, text = br.settingsManagement:deepcopy(br.data.settings[br.loader.selectedSpec]) })
-                        br.functions.settingsManagement:store(br.loader.selectedSpec .. "_" .. "profiles", profiles)
-                        br.functions.settingsManagement:store(br.loader.selectedSpec .. "_" .. "profile", pkey)
+                        table.insert(profiles, { key = pkey, text = br.ui.settingsManagement:deepcopy(br.data.settings[br.loader.selectedSpec]) })
+                        br.ui.settingsManagement:store(br.loader.selectedSpec .. "_" .. "profiles", profiles)
+                        br.ui.settingsManagement:store(br.loader.selectedSpec .. "_" .. "profile", pkey)
                         newWindow:Hide()
                         parent:Hide()
                         parent:Release()
@@ -162,14 +162,14 @@ function br.ui:createDeleteButton(parent, buttonName, x, y)
         "OnClick",
         function()
             local selectedProfile = br.profileDropValue
-            local profiles = br.functions.settingsManagement:fetch(br.loader.selectedSpec .. "_" .. "profiles", { { key = "default", text = "Default" } })
+            local profiles = br.ui.settingsManagement:fetch(br.loader.selectedSpec .. "_" .. "profiles", { { key = "default", text = "Default" } })
             if selectedProfile ~= "default" then
                 for i, p in ipairs(profiles) do
                     if p.key == selectedProfile then
                         profiles[i] = nil
                         br._G.print("Deleting " .. selectedProfile .. " profile!")
-                        br.functions.settingsManagement:store(br.loader.selectedSpec .. "_" .. "profiles", profiles)
-                        br.functions.settingsManagement:store(br.loader.selectedSpec .. "_" .. "profile", "default")
+                        br.ui.settingsManagement:store(br.loader.selectedSpec .. "_" .. "profiles", profiles)
+                        br.ui.settingsManagement:store(br.loader.selectedSpec .. "_" .. "profile", "default")
                         parent:Hide()
                         parent:Release()
                         br.rotationChanged = true
@@ -204,12 +204,12 @@ function br.ui:createLoadButton(parent, buttonName, x, y)
                 br._G.print("Please select a profile other than default!")
                 return
             end
-            if br.settingsManagement.profile ~= nil then
-                if br.settingsManagement.profile[br.loader.selectedSpec .. "_" .. "profiles"] ~= nil then
-                    local lProfile = br.settingsManagement.profile[br.loader.selectedSpec .. "_" .. "profiles"]
+            if br.ui.settingsManagement.profile ~= nil then
+                if br.ui.settingsManagement.profile[br.loader.selectedSpec .. "_" .. "profiles"] ~= nil then
+                    local lProfile = br.ui.settingsManagement.profile[br.loader.selectedSpec .. "_" .. "profiles"]
                     for _, v in pairs(lProfile) do
                         if v.key == br.profileDropValue then
-                            br.data.settings[br.loader.selectedSpec] = br.settingsManagement:deepcopy(v.text)
+                            br.data.settings[br.loader.selectedSpec] = br.ui.settingsManagement:deepcopy(v.text)
                             br._G.print(v.key .. " profile found!")
                             br.rotationChanged = true
                             break
@@ -240,12 +240,12 @@ function br.ui:createExportButton(parent, buttonName, x, y)
     exportButton:SetEventListener(
         "OnClick",
         function()
-            br.settingsManagement:cleanSettings()
-            br.settingsManagement:saveSettings("Exported Settings", nil, br.loader.selectedSpec, br.loader.selectedProfileName)
-            -- br.settingsManagement:saveSettings(nil,"Exported Settings")
+            br.ui.settingsManagement:cleanSettings()
+            br.ui.settingsManagement:saveSettings("Exported Settings", nil, br.loader.selectedSpec, br.loader.selectedProfileName)
+            -- br.ui.settingsManagement:saveSettings(nil,"Exported Settings")
 
             -- -- Save br.data for current profile to Settings folder
-            -- local exportDir = br.settingsManagement:checkDirectories("Exported Settings")
+            -- local exportDir = br.ui.settingsManagement:checkDirectories("Exported Settings")
             -- local savedSettings = deepcopy(br.data)
             -- local settingsFile = br.loader.selectedSpec..selectedProfileName
             -- if savedSettings ~= nil then
@@ -276,22 +276,22 @@ function br.ui:createImportButton(parent, buttonName, x, y)
         "OnClick",
         function()
             br.data.loadedSettings = false
-            br.settingsManagement:loadSettings("Exported Settings", nil, br.loader.selectedSpec, br.loader.selectedProfileName)
+            br.ui.settingsManagement:loadSettings("Exported Settings", nil, br.loader.selectedSpec, br.loader.selectedProfileName)
             br._G.ReloadUI()
             -- -- Load settings file matching profile to br.data
-            -- local loadDir = br.settingsManagement:checkDirectories("Exported Settings")
+            -- local loadDir = br.ui.settingsManagement:checkDirectories("Exported Settings")
             -- local brdata
             -- local brprofile
             -- local fileFound = false
             -- local profileFound = false
             -- -- Load Settings
-            -- if br.settingsManagement:findFileInFolder(br.loader.settingsFile,loadDir) then
+            -- if br.ui.settingsManagement:findFileInFolder(br.loader.settingsFile,loadDir) then
             -- 	Print("Loading Settings File: " .. br.loader.settingsFile)
             -- 	brdata = br.tableLoad(loadDir .. br.loader.settingsFile)
             -- 	fileFound = true
             -- end
             -- -- Load Profile
-            -- if br.settingsManagement:findFileInFolder("savedProfile.lua",loadDir) then
+            -- if br.ui.settingsManagement:findFileInFolder("savedProfile.lua",loadDir) then
             --     brprofile = br.tableLoad(loadDir .. br.loader.settingsFile)
             --     profileFound = true
             -- end
@@ -299,7 +299,7 @@ function br.ui:createImportButton(parent, buttonName, x, y)
             --     br.ui:closeWindow("all")
             --     br.ui.toggles.mainButton:Hide()
             --     br.data = deepcopy(brdata)
-            --     if profileFound then br.settingsManagement.profile = deepcopy(brprofile) end
+            --     if profileFound then br.ui.settingsManagement.profile = deepcopy(brprofile) end
             --     br.ui:recreateWindows()
             --     Print("Loaded Settings for Profile "..br.loader.selectedProfileName..", from Exported Settings Folder")
             --     ReloadUI()

@@ -21,6 +21,7 @@ DiesalStyle.ReleasedTextures = DiesalStyle.ReleasedTextures or {}
 DiesalStyle.TextureFrame = DiesalStyle.TextureFrame or CreateFrame("Frame"); DiesalStyle.TextureFrame:Hide();
 DiesalStyle.Colors = DiesalStyle.Colors or {}
 DiesalStyle.Formatters = DiesalStyle.Formatters or {}
+DiesalStyle.MediaPath = DiesalStyle.MediaPath or nil -- Store the media path for runtime updates
 -- ~~| DiesalStyle UpValues |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 local AddonName = ...
 local ReleasedTextures = DiesalStyle.ReleasedTextures
@@ -30,30 +31,75 @@ local Colors = DiesalStyle.Colors
 local Formatters = DiesalStyle.Formatters
 -- ~~| Locals |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 local OUTLINES = { '_LEFT', '_RIGHT', '_TOP', '_BOTTOM' }
-local MEDIA_PATH = AddonName == 'BadRotations' and string.format("Interface\\AddOns\\Media\\")
-    or type(AddonName) ~= 'string' and string.format("Interface\\AddOns\\Media\\")
-    or AddonName == 'DiesalLibs' and string.format("Interface\\AddOns\\%s\\%s\\Media\\", AddonName, MAJOR)
-    or string.format("Interface\\AddOns\\%s\\Libs\\%s\\Media\\", AddonName, MAJOR)
+local MEDIA_PATH = DiesalStyle.MediaPath or (AddonName == 'BadRotations' and string.format("Interface\\AddOns\\Media\\"))
+or (type(AddonName) ~= 'string' and string.format("Interface\\AddOns\\Media\\"))
+or (AddonName == 'DiesalLibs' and string.format("Interface\\AddOns\\%s\\%s\\Media\\", AddonName, MAJOR))
+or string.format("Interface\\AddOns\\%s\\Libs\\%s\\Media\\", AddonName, MAJOR)
+DiesalStyle.MediaPath = DiesalStyle.MediaPath or MEDIA_PATH -- Initialize if not already set
 local DEFAULT_COLOR = 'FFFFFF'
 local DEFAULT_GRADIENT_ORIENTATION = 'horizontal'
 local DEFAULT_LAYER = 'ARTWORK'
 -- ~~| Local Methods |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-- Helper function to convert absolute path to WoW-compatible relative path
+local function toWoWPath(absolutePath)
+  if not absolutePath then return nil end
+
+  -- If already a relative path, return as-is
+  if not absolutePath:match("^%a:") then
+    return absolutePath
+  end
+
+  -- For unlocker environments, try to convert to Interface path
+  -- Extract everything after "AddOns\"
+  local addonsPath = absolutePath:match("AddOns\\(.+)$")
+  if addonsPath then
+    return "Interface\\AddOns\\" .. addonsPath
+  end
+
+  -- If path can't be converted, return the absolute path anyway
+  -- Some unlockers may allow absolute paths
+  return absolutePath
+end
+
 local function addMedia(mediaType, name, mediaFile)
   Media[mediaType] = Media[mediaType] or {}
-  -- update or create new media entry
-  Media[mediaType][name] = MEDIA_PATH .. mediaFile
+
+  -- Use default path if MediaPath is not set (initial load)
+  local basePath = DiesalStyle.MediaPath or "Interface\\AddOns\\Media\\"
+  local fullPath = basePath .. mediaFile
+
+  -- Store both the absolute and converted paths for maximum compatibility
+  Media[mediaType][name] = {
+    absolute = fullPath,
+    relative = toWoWPath(fullPath)
+  }
 end
 local function getMedia(mediaType, name)
   if not Media[mediaType] then
-    error('media type: ' .. mediaType .. ' does not exist', 2)
-    return
+    return nil
   end
   if not Media[mediaType][name] then
-    error('media: "' .. name .. '" does not exist', 2)
-    return
+    return nil
   end
-  return Media[mediaType][name]
+
+  local mediaEntry = Media[mediaType][name]
+
+  -- If it's the new table format with absolute/relative paths
+  if type(mediaEntry) == "table" then
+    -- Return the absolute path for unlockers to try first
+    return mediaEntry.absolute, mediaEntry.relative
+  end
+
+  -- Old format (string path)
+  return mediaEntry
 end
+
+-- Helper function for LibSharedMedia - returns only the first path
+local function getMediaPath(mediaType, name)
+  local absolute, relative = getMedia(mediaType, name)
+  return absolute or relative
+end
+
 local function newTexture()
   local newTexture = next(ReleasedTextures)
   if not newTexture then
@@ -108,7 +154,8 @@ end
 local function formatFile(file)
   if type(file) ~= 'string' and type(file) ~= 'number' then return end
 
-  return Media.texture[file] or file
+  -- Use getMediaPath to extract the actual path string from the media table
+  return getMediaPath('texture', file) or file
 end
 local function formatPosition(position)
   if type(position) ~= 'table' and type(position) ~= 'number' then return end
@@ -506,28 +553,49 @@ do -- | Set Media |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   addMedia('border', 'shadowNoDist', 'shadowNoDist.tga')
 end
 do -- | Add LibSharedMedia |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  LibSharedMedia:Register("font", "Calibri Bold", getMedia('font', 'calibrib'))
-  LibSharedMedia:Register("font", "Fira Sans", getMedia('font', 'FiraSans'))
+  LibSharedMedia:Register("font", "Calibri Bold", getMediaPath('font', 'calibrib'))
+  LibSharedMedia:Register("font", "Fira Sans", getMediaPath('font', 'FiraSans'))
   -- monospaced
-  -- LibSharedMedia:Register("font","DejaVuSansMono",getMedia('font','DejaVuSansMono'))
-  -- LibSharedMedia:Register("font","Hack",getMedia('font','Hack'))
-  -- LibSharedMedia:Register("font","Inconsolata",getMedia('font','Inconsolata'))
-  -- LibSharedMedia:Register("font","Fira Sans",getMedia('font','FiraSans'))
-  -- LibSharedMedia:Register("font","Source Code Pro",getMedia('font','SourceCodePro'))
+  -- LibSharedMedia:Register("font","DejaVuSansMono",getMediaPath('font','DejaVuSansMono'))
+  -- LibSharedMedia:Register("font","Hack",getMediaPath('font','Hack'))
+  -- LibSharedMedia:Register("font","Inconsolata",getMediaPath('font','Inconsolata'))
+  -- LibSharedMedia:Register("font","Fira Sans",getMediaPath('font','FiraSans'))
+  -- LibSharedMedia:Register("font","Source Code Pro",getMediaPath('font','SourceCodePro'))
   -- pixel fonts
-  LibSharedMedia:Register("font", "Standard0755", getMedia('font', 'Standard0755'))
-  LibSharedMedia:Register("font", "FFF Intelligent", getMedia('font', 'FFF Intelligent Thin Condensed'))
+  LibSharedMedia:Register("font", "Standard0755", getMediaPath('font', 'Standard0755'))
+  LibSharedMedia:Register("font", "FFF Intelligent", getMediaPath('font', 'FFF Intelligent Thin Condensed'))
+  -- textures
+  LibSharedMedia:Register("texture", "DiesalGUIcons", getMediaPath('texture', 'DiesalGUIcons'))
+  LibSharedMedia:Register("texture", "DiesalGUIcons64", getMediaPath('texture', 'DiesalGUIcons64'))
+  LibSharedMedia:Register("texture", "DiesalGUIcons32", getMediaPath('texture', 'DiesalGUIcons32'))
+  LibSharedMedia:Register("texture", "DiesalButtonIcons32", getMediaPath('texture', 'DiesalButtonIcons32'))
 end
 do -- | Set Fonts |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  -- Create font objects
   CreateFont("DiesalFontNormal")
-  DiesalFontNormal:SetFont(getMedia('font', 'calibrib'), 11, '')
   CreateFont("DiesalFontPixel")
-  DiesalFontPixel:SetFont(getMedia('font', 'Standard0755'), 8, '')
   CreateFont("DiesalFontPixelOutLine")
-  DiesalFontPixelOutLine:SetFont(getMedia('font', 'Standard0755'), 8, "OUTLINE, MONOCHROME")
-  DiesalFontPixelOutLine:SetSpacing(2)
   CreateFont("DiesalFontPixel2")
-  DiesalFontPixel2:SetFont(getMedia('font', 'FFF Intelligent Thin Condensed'), 8, "OUTLINE, MONOCHROME")
+
+  -- Safe font initialization with fallback to default WoW font
+  local function safeSetFont(fontObject, path, size, flags)
+    local status, err = pcall(fontObject.SetFont, fontObject, path, size, flags or '')
+    if not status then
+      -- If custom font fails, try WoW default
+      pcall(fontObject.SetFont, fontObject, "Fonts\\FRIZQT__.TTF", size, flags or '')
+    end
+  end
+
+  local calibribPath = getMedia('font', 'calibrib')
+  safeSetFont(DiesalFontNormal, calibribPath or "Fonts\\FRIZQT__.TTF", 11, '')
+
+  local standard0755Path = getMedia('font', 'Standard0755')
+  safeSetFont(DiesalFontPixel, standard0755Path or "Fonts\\FRIZQT__.TTF", 8, '')
+  safeSetFont(DiesalFontPixelOutLine, standard0755Path or "Fonts\\FRIZQT__.TTF", 8, "OUTLINE, MONOCHROME")
+  if DiesalFontPixelOutLine then DiesalFontPixelOutLine:SetSpacing(2) end
+
+  local fffIntelligentPath = getMedia('font', 'FFF Intelligent Thin Condensed')
+  safeSetFont(DiesalFontPixel2, fffIntelligentPath or "Fonts\\FRIZQT__.TTF", 8, "OUTLINE, MONOCHROME")
 end
 -- ~~| DiesalStyle API |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 --[[ Texture style table format
@@ -1038,6 +1106,138 @@ end
 
 function DiesalStyle:AddMedia(mediaType, name, mediaFile)
   addMedia(mediaType, name, mediaFile)
+end
+
+function DiesalStyle:SetMediaPath(newPath)
+  -- Ensure the path ends with a backslash
+  if not newPath:match("\\$") then
+    newPath = newPath .. "\\"
+  end
+  DiesalStyle.MediaPath = newPath
+end
+
+function DiesalStyle:GetMediaPath()
+  return DiesalStyle.MediaPath
+end
+
+function DiesalStyle:ReloadMedia()
+  -- Clear current media
+  Media.font = {}
+  Media.texture = {}
+  Media.border = {}
+
+  -- Re-add all media with the new path
+  -- Fonts
+  addMedia('font', 'calibrib', 'calibrib.ttf')
+  -- monospaced
+  addMedia('font', 'DejaVuSansMono', 'DejaVuSansMono.ttf')
+  addMedia('font', 'DejaVuSansMonoBold', 'DejaVuSansMono-Bold.ttf')
+
+  addMedia('font', 'FiraMonoMedium', 'FiraMono-Medium.ttf')
+  addMedia('font', 'FiraMonoRegular', 'FiraMono-Regular.ttf')
+  addMedia('font', 'FiraMonoBold', 'FiraMono-Bold.ttf')
+
+  addMedia('font', 'HackRegular', 'Hack-Regular.ttf')
+  addMedia('font', 'HackBold', 'Hack-Bold.ttf')
+
+  addMedia('font', 'InconsolataRegular', 'Inconsolata-Regular.ttf')
+  addMedia('font', 'InconsolataBold', 'Inconsolata-Bold.ttf')
+
+  addMedia('font', 'LucidiaMono', 'LUCON.ttf')
+
+  addMedia('font', 'MonoFur', 'monof55.ttf')
+  addMedia('font', 'MonoFurItalic', 'monof56.ttf')
+
+  addMedia('font', 'OfficeCodeProRegular', 'OfficeCodePro-Regular.ttf')
+  addMedia('font', 'OfficeCodeProMedium', 'OfficeCodePro-Medium.ttf')
+  addMedia('font', 'OfficeCodeProBold', 'OfficeCodePro-Bold.ttf')
+
+  addMedia('font', 'RobotoMonoRegular', 'RobotoMono-Regular.ttf')
+  addMedia('font', 'RobotoMonoMedium', 'RobotoMono-Medium.ttf')
+  addMedia('font', 'RobotoMonoBold', 'RobotoMono-Bold.ttf')
+
+  addMedia('font', 'SourceCodeProRegular', 'SourceCodePro-Regular.ttf')
+  addMedia('font', 'SourceCodeProMedium', 'SourceCodePro-Medium.ttf')
+  addMedia('font', 'SourceCodeProSemibold', 'SourceCodePro-Semibold.ttf')
+  addMedia('font', 'SourceCodeProBold', 'SourceCodePro-Bold.ttf')
+  addMedia('font', 'SourceCodeProBlack', 'SourceCodePro-Black.ttf')
+
+  addMedia('font', 'UbuntuMonoBold', 'UbuntuMono-B.ttf')
+  addMedia('font', 'UbuntuMonoRegular', 'UbuntuMono-R.ttf')
+
+  -- pixel fonts
+  addMedia('font', 'FiraSans', 'FiraSans-Regular.ttf')
+  addMedia('font', 'Standard0755', 'Standard0755.ttf')
+  addMedia('font', 'FFF Intelligent Thin Condensed', 'FFF Intelligent Thin Condensed.ttf')
+  addMedia('texture', 'DiesalGUIcons', 'DiesalGUIcons16x256x128.tga')
+  addMedia('texture', 'DiesalGUIcons64', 'DiesalGUIcons64x256x256.tga')
+  addMedia('texture', 'DiesalGUIcons32', 'DiesalGUIcons32x256x256.tga')
+  addMedia('texture', 'DiesalButtonIcons32', 'DiesalButtonIcons32x128x512.tga')
+  addMedia('border', 'shadow', 'shadow.tga')
+  addMedia('border', 'shadowNoDist', 'shadowNoDist.tga')
+
+  -- Re-register with LibSharedMedia after path change
+  LibSharedMedia:Register("font", "Calibri Bold", getMediaPath('font', 'calibrib'))
+  LibSharedMedia:Register("font", "Fira Sans", getMediaPath('font', 'FiraSans'))
+  LibSharedMedia:Register("font", "Standard0755", getMediaPath('font', 'Standard0755'))
+  LibSharedMedia:Register("font", "FFF Intelligent", getMediaPath('font', 'FFF Intelligent Thin Condensed'))
+  LibSharedMedia:Register("texture", "DiesalGUIcons", getMediaPath('texture', 'DiesalGUIcons'))
+  LibSharedMedia:Register("texture", "DiesalGUIcons64", getMediaPath('texture', 'DiesalGUIcons64'))
+  LibSharedMedia:Register("texture", "DiesalGUIcons32", getMediaPath('texture', 'DiesalGUIcons32'))
+  LibSharedMedia:Register("texture", "DiesalButtonIcons32", getMediaPath('texture', 'DiesalButtonIcons32'))
+
+  -- Reinitialize fonts after media is reloaded
+  self:ReinitializeFonts()
+end
+
+function DiesalStyle:ReinitializeFonts()
+  -- Safe font setter with fallback - tries multiple paths
+  local function safeSetFont(fontObject, absolutePath, relativePath, size, flags)
+    if not fontObject then
+      return
+    end
+
+    local fontSet = false
+
+    -- Try 1: Absolute path (for unlockers that allow it)
+    if absolutePath and not fontSet then
+      local status = pcall(fontObject.SetFont, fontObject, absolutePath, size, flags or '')
+      if status then
+        local verifyPath = fontObject:GetFont()
+        if verifyPath then
+          fontSet = true
+        end
+      end
+    end
+
+    -- Try 2: Relative path (standard WoW format)
+    if relativePath and not fontSet then
+      local status = pcall(fontObject.SetFont, fontObject, relativePath, size, flags or '')
+      if status then
+        local verifyPath = fontObject:GetFont()
+        if verifyPath then
+          fontSet = true
+        end
+      end
+    end
+
+    -- Try 3: WoW default fallback
+    if not fontSet then
+      pcall(fontObject.SetFont, fontObject, "Fonts\\FRIZQT__.TTF", size, flags or '')
+    end
+  end
+
+  -- Reinitialize all global fonts with the new media paths
+  local calibribAbs, calibribRel = getMedia('font', 'calibrib')
+  safeSetFont(DiesalFontNormal, calibribAbs, calibribRel, 11, '')
+
+  local standard0755Abs, standard0755Rel = getMedia('font', 'Standard0755')
+  safeSetFont(DiesalFontPixel, standard0755Abs, standard0755Rel, 8, '')
+  safeSetFont(DiesalFontPixelOutLine, standard0755Abs, standard0755Rel, 8, "OUTLINE, MONOCHROME")
+  if DiesalFontPixelOutLine then DiesalFontPixelOutLine:SetSpacing(2) end
+
+  local fffIntelligentAbs, fffIntelligentRel = getMedia('font', 'FFF Intelligent Thin Condensed')
+  safeSetFont(DiesalFontPixel2, fffIntelligentAbs, fffIntelligentRel, 8, "OUTLINE, MONOCHROME")
 end
 
 -- deprecated

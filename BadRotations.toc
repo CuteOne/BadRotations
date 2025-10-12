@@ -4,7 +4,7 @@
 ## Author: CuteOne
 ## Version: 1.36.0
 ## Dependencies: SharedMedia
-## Enabled: false
+## Enabled: true
 
 ## Libs
 

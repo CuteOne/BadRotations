@@ -8,7 +8,10 @@ br.engines.enemiesEngine.storedTables = {}
 local enemiesEngineFunctions = br.engines.enemiesEngineFunctions
 local refreshStored
 local lastOMUpdate = 0
+local lastTrackerUpdate = 0
 local OM_UPDATE_INTERVAL = 0.5 -- Update every 0.5 seconds
+local TRACKER_UPDATE_INTERVAL = 0.1
+local scanOffset = 1 -- Used for batched scanning when object count is high
 
 --Check Totem
 function enemiesEngineFunctions:isTotem(unit)
@@ -38,80 +41,150 @@ end
 
 --Update OM
 function enemiesEngineFunctions:updateOM()
-	-- wipe(br.engines.enemiesEngine.om)
-	wipe(br.engines.tracker.tracking)
-	local om = br.engines.enemiesEngine.om
-	local startTime = br._G.debugprofilestop()
 	local now = br._G.GetTime()
-    if now - lastOMUpdate < OM_UPDATE_INTERVAL then
-        return -- Skip update
-    end
-    lastOMUpdate = now
+	local startTime = br._G.debugprofilestop()
 
+	-- Separate tracker updates from OM updates
+    local shouldUpdateTracker = br.functions.misc:isChecked("Enable Tracker") and (now - lastTrackerUpdate) >= TRACKER_UPDATE_INTERVAL
+    local shouldUpdateOM = (now - lastOMUpdate) >= OM_UPDATE_INTERVAL
+
+    -- Always update tracker if enabled (more frequently)
+    if shouldUpdateTracker then
+        table.wipe(br.engines.tracker.tracking)
+        lastTrackerUpdate = now
+    end
+
+	local om = br.engines.enemiesEngine.om
 	local objUnit
 	local name
 	local objectid
 	local objectguid
-	local total = math.min(br._G.GetObjectCount(true, "BR") or 0, 500)
-	for i = 1, total do
-		local thisUnit = br._G.GetObjectWithIndex(i)
-		-- br._G.print(thisUnit .. " - Is Unit: " .. tostring(br._G.ObjectIsUnit(thisUnit)) .. " - Name: " .. tostring(br._G.UnitName(thisUnit)))
-		if br._G.ObjectExists(thisUnit) and br._G.ObjectIsUnit(thisUnit) and br._G.UnitIsVisible(thisUnit) then--and br.functions.misc:getLineOfSight("player", thisUnit) then
-			if not br._G.UnitIsPlayer(thisUnit) and not br.functions.unit:isCritter(thisUnit) and not br._G.UnitIsUnit("player", thisUnit)
-				and (not br._G.UnitIsFriend("player", thisUnit) or string.match(br._G.UnitGUID(thisUnit), "Pet"))
-			then
-				local enemyUnit = br.engines.enemiesEngine.unitSetup:new(thisUnit)
-				if enemyUnit then
-					br._G.tinsert(om, enemyUnit)
-				end
-			end
+	local totalObjects = br._G.GetObjectCount(true, "BR") or 0
+	local total = math.min(totalObjects, 500)
+
+	-- Performance optimization: Dynamically adjust scanning based on object count and FPS
+	local fps = br._G.GetFramerate() or 60
+	local objectsPerScan = total
+	local skipDistance = nil
+
+	-- High object count optimization
+	if totalObjects > 300 then
+		-- Limit objects scanned per update based on object density
+		if totalObjects > 450 then
+			objectsPerScan = 150 -- Very high density: scan 1/3 per update
+		elseif totalObjects > 350 then
+			objectsPerScan = 200 -- High density: scan ~half per update
+		else
+			objectsPerScan = 250 -- Moderate-high: scan most per update
 		end
-		if br.functions.misc:isChecked("Enable Tracker") and thisUnit ~= nil and br._G.ObjectExists(thisUnit)
-			and ((br._G.ObjectIsUnit(thisUnit) and br._G.UnitIsVisible(thisUnit) and not br.functions.unit:GetUnitIsDeadOrGhost(thisUnit)) or not br._G.ObjectIsUnit(thisUnit))
-		then
-			objUnit = br._G.ObjectIsUnit(thisUnit)
-			name = objUnit and br._G.UnitName(thisUnit) or br._G.ObjectName(thisUnit)
-			objectid = br._G.ObjectID(thisUnit)
-			objectguid = br._G.UnitGUID(thisUnit)
-			if thisUnit and name and objectid and objectguid then
-				local trackerFound = false
-				if #br.engines.tracker.tracking > 0 then
-					for i = 1, #br.engines.tracker.tracking do
-						local thisTracker = br.engines.tracker.tracking[i]
-						if thisTracker.object == thisUnit then
-							trackerFound = true
-							return
+
+		-- Additionally skip distant objects if performance is struggling
+		if fps < 40 then
+			skipDistance = 60 -- Only scan within 60 yards
+		elseif fps < 50 then
+			skipDistance = 80 -- Only scan within 80 yards
+		end
+	end
+
+	-- Always scan for units to add to OM, but only when we should update
+	if shouldUpdateOM then
+		lastOMUpdate = now
+
+		-- Calculate scan range for this update
+		local scanStart = scanOffset
+		local scanEnd = math.min(scanOffset + objectsPerScan - 1, total)
+
+		-- Cache player position for distance checks
+		local playerX, playerY, playerZ = br._G.ObjectPosition("player")
+
+		for i = scanStart, scanEnd do
+			local thisUnit = br._G.GetObjectWithIndex(i)
+			local shouldProcess = false
+
+			if br._G.ObjectExists(thisUnit) and br._G.ObjectIsUnit(thisUnit) then
+				-- Fast fail checks before expensive operations
+				if not br._G.UnitIsPlayer(thisUnit) and not br._G.UnitIsUnit("player", thisUnit) then
+					shouldProcess = true
+
+					-- Distance check if we're throttling
+					if skipDistance ~= nil and playerX ~= nil then
+						local unitX, unitY, unitZ = br._G.ObjectPosition(thisUnit)
+						if unitX ~= nil then
+							local distance = math.sqrt(((unitX - playerX) ^ 2) + ((unitY - playerY) ^ 2) + ((unitZ - playerZ) ^ 2))
+							if distance > skipDistance then
+								shouldProcess = false -- Skip distant units when performance is low
+							end
+						end
+					end
+
+					-- Now check visibility and other properties
+					if shouldProcess and br._G.UnitIsVisible(thisUnit) and not br.functions.unit:isCritter(thisUnit)
+						and (not br._G.UnitIsFriend("player", thisUnit) or string.match(br._G.UnitGUID(thisUnit), "Pet"))
+					then
+						local enemyUnit = br.engines.enemiesEngine.unitSetup:new(thisUnit)
+						if enemyUnit then
+							br._G.tinsert(om, enemyUnit)
 						end
 					end
 				end
-				if not trackerFound then
-					br._G.tinsert(br.engines.tracker.tracking,
-						{ object = thisUnit, unit = objUnit, name = name, id = objectid, guid = objectguid })
+			end
+
+			-- Update tracker during full OM scan
+			if shouldUpdateTracker
+				and thisUnit ~= nil and br._G.ObjectExists(thisUnit)
+				and ((br._G.ObjectIsUnit(thisUnit) and br._G.UnitIsVisible(thisUnit) and not br.functions.unit:GetUnitIsDeadOrGhost(thisUnit)) or not br._G.ObjectIsUnit(thisUnit))
+			then
+				objUnit = br._G.ObjectIsUnit(thisUnit)
+				name = objUnit and br._G.UnitName(thisUnit) or br._G.ObjectName(thisUnit)
+				objectid = br._G.ObjectID(thisUnit)
+				objectguid = br._G.UnitGUID(thisUnit)
+				if thisUnit and name and objectid and objectguid then
+					local trackerFound = false
+					if #br.engines.tracker.tracking > 0 then
+						for j = 1, #br.engines.tracker.tracking do
+							if br.engines.tracker.tracking[j].object == thisUnit then
+								trackerFound = true
+								break
+							end
+						end
+					end
+					if not trackerFound then
+						br._G.tinsert(br.engines.tracker.tracking,
+							{ object = thisUnit, unit = objUnit, name = name, id = objectid, guid = objectguid })
+					end
+				end
+			end
+		end
+
+		-- Update scan offset for next cycle (batched scanning)
+		scanOffset = scanEnd + 1
+		if scanOffset > total then
+			scanOffset = 1 -- Reset to beginning
+			refreshStored = true
+		end
+	else
+		-- When throttled, only update tracker if needed
+		if shouldUpdateTracker then
+			for i = 1, total do
+				local thisUnit = br._G.GetObjectWithIndex(i)
+				if br._G.ObjectExists(thisUnit)
+					and ((br._G.ObjectIsUnit(thisUnit) and br._G.UnitIsVisible(thisUnit) and not br.functions.unit:GetUnitIsDeadOrGhost(thisUnit)) or not br._G.ObjectIsUnit(thisUnit))
+				then
+					objUnit = br._G.ObjectIsUnit(thisUnit)
+					name = objUnit and br._G.UnitName(thisUnit) or br._G.ObjectName(thisUnit)
+					objectid = br._G.ObjectID(thisUnit)
+					objectguid = br._G.UnitGUID(thisUnit)
+					if thisUnit and name and objectid and objectguid then
+						br._G.tinsert(br.engines.tracker.tracking,
+							{ object = thisUnit, unit = objUnit, name = name, id = objectid, guid = objectguid })
+					end
 				end
 			end
 		end
 	end
 
-	refreshStored = true
 	-- Debugging
 	br.debug.cpu:updateDebug(startTime, "enemiesEngine.objects")
-
-	-- local counter = 0
-	-- local grappleCounter = 0
-	-- for i = 1, br._G.GetObjectCount(), 1 do
-	--    	local guid = br._G.GetObjectWithIndex(i)
-	--    	if IsGuid(guid) and br._G.ObjectExists(guid) and br._G.ObjectIsUnit(guid) and not unitExistsInOM(guid) and enemiesEngine:omDist(guid) < 50
-	--    		and not br._G.UnitIsUnit("player", guid) and not br._G.UnitIsFriend("player", guid) and not br._G.UnitIsPlayer(guid)
-	-- 	then
-	-- 		print(ObjectName(guid).." - "..guid)
-	-- 		counter = counter + 1
-	-- 		if ObjectName(guid) == "Grapple Point" then
-	-- 			grappleCounter = grappleCounter + 1
-	-- 		end
-	--    	end
-	-- end
-
-	-- br._G.print("OM Count: "..counter..", BR OM Count: "..#br.engines.enemiesEngine.om..", Grapple Count: "..grappleCounter)
 end
 
 function enemiesEngineFunctions:omDist(thisUnit)

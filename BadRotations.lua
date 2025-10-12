@@ -62,7 +62,7 @@ function br.Run()
 		br.engines:ObjectTracker()
 		-- Complete Loadin
 		br.ui.chatOverlay:Show("-= BadRotations Loaded =-")
-		br._G.print("Initialization Complete, Finding Previous Settings.")
+		br._G.print("Initialization Complete.")
 		loadedIn = true
 	end
 end
@@ -89,7 +89,7 @@ function br.load()
 		br.data.settings[br.loader.selectedSpec] = {}
 	end
 	if not br.unlocked then
-		br.settingsManagement.initializeSettings = true
+		br.ui.settingsManagement.initializeSettings = true
 		print(br.ui.colors.class .. "[BadRotations] |cffFFFFFFInitializing Please Wait...")
 	end
 	if not loadedIn then
@@ -107,7 +107,6 @@ local frame = br._G.CreateFrame("FRAME")
 -- Registering events
 frame:RegisterEvent("PLAYER_LOGOUT")
 frame:RegisterEvent("PLAYER_ENTERING_WORLD")
-frame:RegisterEvent("PLAYER_LEAVING_WORLD")
 frame:RegisterEvent("LOADING_SCREEN_ENABLED")
 frame:RegisterEvent("LOADING_SCREEN_DISABLED")
 
@@ -126,37 +125,21 @@ local function OnEvent(self, event)
 				br._G.RunMacroText("/console SpellQueueWindow " .. br._G.GetCVar("SpellQueueWindow"))
 			end
 			br.ui:saveWindowPosition()
-			br.settingsManagement:cleanSettings()
+			br.ui.settingsManagement:cleanSettings()
 			table.wipe(br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["PageList"])
-			table.wipe(br.ui)
 			if br.functions.misc:getOptionCheck("Reset Options") then
 				-- Reset Settings
-				br.settingsManagement:saveSettings(nil, nil, br.loader.selectedSpec, br.loader.selectedProfileName, true)
+				br.ui.settingsManagement:saveSettings(nil, nil, br.loader.selectedSpec, br.loader.selectedProfileName, true)
 			else
 				-- Save Settings
-				br.settingsManagement:saveSettings(nil, nil, br.loader.selectedSpec, br.loader.selectedProfileName)
+				br.ui.settingsManagement:saveSettings(nil, nil, br.loader.selectedSpec, br.loader.selectedProfileName)
 			end
-			br.settingsManagement:saveLastProfileTracker()
+			br.ui.settingsManagement:saveLastProfileTracker()
+			table.wipe(br.ui)
 		end
 	end
 	if event == "PLAYER_ENTERING_WORLD" then
 		br.load()
-	end
-	if event == "PLAYER_LEAVING_WORLD" then
-		if br.unlocked then
-			br.ui:saveWindowPosition()
-			-- br.settingsManagement:cleanSettings()
-			-- table.wipe(br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["PageList"])
-			-- table.wipe(br.ui)
-			if br.functions.misc:getOptionCheck("Reset Options") then
-				-- Reset Settings
-				br.settingsManagement:saveSettings(nil, nil, br.loader.selectedSpec, br.loader.selectedProfileName, true)
-			else
-				-- Save Settings
-				br.settingsManagement:saveSettings(nil, nil, br.loader.selectedSpec, br.loader.selectedProfileName)
-			end
-			br.settingsManagement:saveLastProfileTracker()
-		end
 	end
 end
 

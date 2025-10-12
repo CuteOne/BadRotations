@@ -496,5 +496,5 @@ function unit:isFleeing(thisUnit)
     end
 
     -- Return true if any fleeing condition is met
-    return lowHealthThreshold and isMovingAway
+    return --[[lowHealthThreshold and]] isMovingAway
 end

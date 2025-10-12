@@ -1,6 +1,6 @@
 local _, br = ...
-br.settingsManagement = br.settingsManagement or {}
-local settingsManagement = br.settingsManagement
+br.ui.settingsManagement = br.ui.settingsManagement or {}
+local settingsManagement = br.ui.settingsManagement
 local sep = IsMacClient() and "/" or "\\"
 
 local function getFolderClassName(class)
@@ -24,6 +24,34 @@ local function checkDirectory(dir)
 			return nil
 		end
 	end
+end
+
+local function cleanOrphanedSettings(specID)
+    if not br.data or not br.data.settings or not br.data.settings[specID] then
+        return
+    end
+
+    local currentSettings = br.data.settings[specID]
+
+    -- Only clean options - toggles and modes are small and mostly static
+    if not currentSettings.options or not br.ui or not br.ui.options or not br.ui.options.options then
+        return
+    end
+
+    -- Build quick lookup of valid option keys
+    local validOptions = {}
+    for _, optionDef in pairs(br.ui.options.options) do
+        if type(optionDef) == "table" and optionDef.key then
+            validOptions[optionDef.key] = true
+        end
+    end
+
+    -- Remove orphaned options
+    for key in pairs(currentSettings.options) do
+        if not validOptions[key] then
+            currentSettings.options[key] = nil
+        end
+    end
 end
 
 --------------------------------------------------------------------------
@@ -166,7 +194,6 @@ local tableLoad = function(sfile)
     return tables[1]
 end
 
-
 -- Default Settings
 function settingsManagement:defaultSettings()
 	br._G.C_Timer.After(2, function()
@@ -217,17 +244,18 @@ function settingsManagement:defaultSettings()
 end
 
 -- Load Saved Settings
+settingsManagement.initializeSettings = false
 function settingsManagement:loadSavedSettings()
 	if settingsManagement.initializeSettings then
 		br.loader.cBuilder:loadProfiles()
-		br.settingsManagement:loadLastProfileTracker()
+		settingsManagement:loadLastProfileTracker()
 		if br.data.settings[br.loader.selectedSpec]["RotationDropValue"] then
-			br.settingsManagement:loadSettings(nil, nil, nil, br.data.settings[br.loader.selectedSpec]["RotationDropValue"])
+			settingsManagement:loadSettings(nil, nil, nil, br.data.settings[br.loader.selectedSpec]["RotationDropValue"])
 		elseif br.loader.rotations[br.loader.selectedSpec] then
-			br.settingsManagement:loadSettings(nil, nil, nil, br.loader.rotations[br.loader.selectedSpec][1].name)
+			settingsManagement:loadSettings(nil, nil, nil, br.loader.rotations[br.loader.selectedSpec][1].name)
 		else
 			if not br.loader.rotations[br.loader.selectedSpec] then
-				br.settingsManagement.initializeSettings = false
+				settingsManagement.initializeSettings = false
 				return
 			end
 		end
@@ -237,7 +265,7 @@ function settingsManagement:loadSavedSettings()
 		-- Restore Minimap Button Position
 		br.ui.minimapButton.frame:SetPoint("CENTER", br.data.settings.minimapButton.pos.x,
 			br.data.settings.minimapButton.pos.y)
-		br.settingsManagement.initializeSettings = false
+		settingsManagement.initializeSettings = false
 	end
 end
 
@@ -374,7 +402,7 @@ function settingsManagement:loadSettings(folder, class, spec, profile, instance)
 		local fileFound = false
 		local profileFound = false
 		-- Load Settings
-		if br.settingsManagement:findFileInFolder("savedSettings.lua", loadDir) then
+		if settingsManagement:findFileInFolder("savedSettings.lua", loadDir) then
 			--br._G.print("Loading Settings File From Directory: " .. loadDir)
 			brdata = tableLoad(loadDir .. "savedSettings.lua")
 			if brdata then
@@ -382,7 +410,7 @@ function settingsManagement:loadSettings(folder, class, spec, profile, instance)
 			end
 		end
 		-- Load Profile
-		if br.settingsManagement:findFileInFolder("savedProfile.lua", loadDir) then
+		if settingsManagement:findFileInFolder("savedProfile.lua", loadDir) then
 			-- Print("Loading Saved Profiles")
 			-- Print("From Directory: "..loadDir)
 			brprofile = tableLoad(loadDir .. "savedProfile.lua")
@@ -435,6 +463,9 @@ function settingsManagement:saveSettings(folder, class, spec, profile, instance,
 		br._G.print("No settings directory found for " .. profile .. "!")
 		return
 	end
+	-- if spec then
+    --     cleanOrphanedSettings(spec)
+    -- end
 	local brdata = wipe and {} or settingsManagement:deepcopy(br.data)
 	local brprofile = wipe and {} or settingsManagement:deepcopy(settingsManagement.profile)
 	br._G.print("Saving Profiles and Settings to Directory: " .. tostring(saveDir))
@@ -492,7 +523,7 @@ function settingsManagement:loadLastProfileTracker()
 					specSettings["RotationDropValue"] = trackerName
 					specSettings["RotationDrop"] = i
 					rotationFound = true
-					br._G.print("Found Last Used From Tracker: " .. trackerName)
+					-- br._G.print("Found Last Used From Tracker: " .. trackerName)
 					break
 				end
 			end
@@ -553,6 +584,6 @@ function settingsManagement:saveLastProfileTracker()
 		br.data.tracker[br.loader.selectedSpec]["RotationDrop"] = 1
 		br.data.tracker[br.loader.selectedSpec]["RotationDropValue"] = br.loader.rotations[specID][1].name
 	end
-	br._G.print("Saving Tracker to Directory: " .. tostring(saveDir))
+	-- br._G.print("Saving Tracker to Directory: " .. tostring(saveDir))
 	tableSave(br.data.tracker, saveDir .. "lastProfileTracker.lua")
 end

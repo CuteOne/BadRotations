@@ -722,7 +722,7 @@ actionList.PreCombat = function()
         end
         if ui.checked("Pre-Pull Timer") and ui.pullTimer() <= ui.value("Pre-Pull Timer") then
             -- * Virmen's Bite
-            if ui.useCDs() and ui.checked("Use Combat Potion") then
+            if ui.useCDs() and ui.checked("Use Combat Potion") and not buff.prowl.exists() then
                 module.CombatPotionUp()
             end
         end -- End Pre-Pull
@@ -765,21 +765,16 @@ actionList.Combat = function()
             end
         end
         -- * Ferocious Bite
-        for i = 1, #enemies.yards5f do
-            local thisUnit = enemies.yards5f[i]
-            if cast.able.ferociousBite(thisUnit) then
-                -- execute
-                if ferociousBiteFinish(thisUnit) then
-                    if cast.ferociousBite(thisUnit) then
-                        if ui.value("Ferocious Bite Execute") == 1 then
-                            ui.print("Ferocious Bite Finished! " ..
-                                unit.name(thisUnit) .. " with " .. br.functions.misc:round2(unit.hp(thisUnit), 0) .. "% health remaining.")
-                        else
-                            ui.debug("Casting Ferocious Bite on " .. unit.name(thisUnit) .. " [Execute]")
-                        end
-                        return true
-                    end
+        -- execute
+        if cast.able.ferociousBite(units.dyn5) and ferociousBiteFinish(units.dyn5) then
+            if cast.ferociousBite(units.dyn5) then
+                if ui.value("Ferocious Bite Execute") == 1 then
+                    ui.print("Ferocious Bite Finished! " ..
+                        unit.name(units.dyn5) .. " with " .. br.functions.misc:round2(unit.hp(units.dyn5), 0) .. "% health remaining.")
+                else
+                    ui.debug("Casting Ferocious Bite on " .. unit.name(units.dyn5) .. " [Execute]")
                 end
+                return true
             end
         end
         -- * Prowl
@@ -888,7 +883,7 @@ actionList.Combat = function()
         end
         -- * Berserk
         -- berserk,if=buff.tigers_fury.up|(target.time_to_die<18&cooldown.tigers_fury.remains>6)
-        if ui.useCDs() and ui.alwaysCdNever("Berserk/Incarnation") and cast.able.berserk()
+        if ui.alwaysCdAoENever("Berserk/Incarnation") and cast.able.berserk()
             and (buff.tigersFury.exists() or (unit.ttd(units.dyn5) < 18 and cd.tigersFury.remains() > 6))
         then
             if cast.berserk() then
@@ -931,7 +926,7 @@ actionList.Combat = function()
         -- * Potion - Virmen's Bite
         -- # Potion near or during execute range when Rune is up and we have 5 CP.
         -- virmens_bite_potion,if=(combo_points>=5&(target.time_to_die*(target.health.pct-25)%target.health.pct)<15&buff.rune_of_reorigination.up)|target.time_to_die<=40
-        if ui.useCDs() and ui.checked("Use Combat Potion")
+        if ui.useCDs() and ui.checked("Use Combat Potion") and not (buff.prowl.exists() or buff.shadowmeld.exists())
             and ((comboPoints(units.dyn5) >= 5 and (unit.ttd(units.dyn5) * (unit.hp(units.dyn5) - 25) / unit.hp(units.dyn5)) < 15
                 and buff.runeOfReorigination.exists()) or unit.ttd(units.dyn5) <= 40)
         then
@@ -1095,7 +1090,7 @@ actionList.Combat = function()
         -- ferocious_bite,if=combo_points>=5&dot.rip.ticking
         if cast.able.ferociousBite(units.dyn5) and comboPoints(units.dyn5) >= 5 and debuff.rip.exists(units.dyn5) then
             if cast.ferociousBite(units.dyn5) then
-                ui.debug("Casting Ferocious Bite - Max Combo [Combat]")
+                ui.debug("Casting Ferocious Bite - "..comboPoints(units.dyn5).." Combo [Combat]")
                 return true
             end
         end
@@ -1141,7 +1136,7 @@ actionList.AoE = function()
     end
     -- * Auto Attack
     -- auto_attack
-    if cast.able.autoAttack(units.dyn5) and unit.distance(units.dyn5) < 5 then
+    if cast.able.autoAttack(units.dyn5) and unit.distance(units.dyn5) < 5 and not (buff.prowl.exists() or buff.shadowmeld.exists()) then
         if cast.autoAttack(units.dyn5) then
             ui.debug("Casting Auto Attack [AoE]")
             return true
@@ -1433,33 +1428,21 @@ local function runRotation()
         br.player.initialized   = true
     end
 
-    -- Throttle scans / overlays to improve FPS
-    if var.lastEnemyScan == nil then var.lastEnemyScan = 0 end
-    if var.enemyScanInterval == nil then var.enemyScanInterval = 0.25 end -- seconds; raise this to reduce CPU
-    local now = ui.time()
-    if (now - var.lastEnemyScan) >= var.enemyScanInterval then
-        var.lastEnemyScan = now
+    -- * Get Best Unit for Range
+    -- units.get(range, aoe)
+    units.get(40)
+    units.get(8, true)
+    units.get(5)
 
-        -- * Get Best Unit for Range
-        -- units.get(range, aoe)
-        units.get(40)
-        units.get(8, true)
-        units.get(5)
-
-        -- * Get List of Enemies for Range
-        -- enemies.get(range, from unit, no combat, variable)
-        enemies.get(40)                        -- makes enemies.yards40
-        enemies.get(35)                        -- makes enemies.yards35
-        enemies.get(20, "player", true)        -- makes enemies.yards20nc
-        enemies.get(20)
-        enemies.get(13, "player", false, true) -- makes enemies.yards13f
-        enemies.get(8)                         -- makes enemies.yards8
-        enemies.get(5, "player", false, true)  -- makes enemies.yards5f
-
-        var.lastEnemyScan = now
-        -- Debug overlay (commented out / throttled). Enable only if needed:
-
-    end
+    -- * Get List of Enemies for Range
+    -- enemies.get(range, from unit, no combat, variable)
+    enemies.get(40)                        -- makes enemies.yards40
+    enemies.get(35)                        -- makes enemies.yards35
+    enemies.get(20, "player", true)        -- makes enemies.yards20nc
+    enemies.get(20)
+    enemies.get(13, "player", false, true) -- makes enemies.yards13f
+    enemies.get(8)                         -- makes enemies.yards8
+    enemies.get(5, "player", false, true)  -- makes enemies.yards5f
 
     -- * General Vars
     var.multidot  = ui.mode.cleave == 1 and ui.mode.rotation < 3

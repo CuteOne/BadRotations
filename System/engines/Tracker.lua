@@ -89,6 +89,7 @@ br.engines.tracker.tracking = {}
 function tracker:objectTracker()
     if br.functions.misc:isChecked("Enable Tracker") then
         LibDraw:clearCanvas()
+
         -- Custom Tracker
         if (br.functions.misc:isChecked("Custom Tracker") and br.functions.misc:getOptionValue("Custom Tracker") ~= "" and
             string.len(br.functions.misc:getOptionValue("Custom Tracker")) >= 3) or br.functions.misc:isChecked("Rare Tracker") or

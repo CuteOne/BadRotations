@@ -2,6 +2,7 @@
 ..\FrameXML\UI.xsd">
 	<Script file="DiesalGUI-1.0.lua"/>	
 	<!-- Objects -->
+	<Script file="Objects\FontString.lua"/>
 	<Script file="Objects\Window.lua"/>	
 	<Script file="Objects\ScrollFrame.lua"/>
 	<Script file="Objects\ScrollingEditBox.lua"/>

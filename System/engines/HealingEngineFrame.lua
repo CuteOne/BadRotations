@@ -74,7 +74,7 @@ function healingEngineFrame:pulseNovaDebug()
 		--     end
 		-- end
 		-- local y = howManyBoxes
-		-- if y  ~= 1 then y = ((y-1) * -br.ui.spacing) -5 end
+		-- if y  ~= 1 then y = ((y-1) * -15) -5 end
 		-- if y == 1 then y = -5 end
 
 		-- if hideCheckbox then

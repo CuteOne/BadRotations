@@ -102,7 +102,7 @@ function cBuilder:new(spec, specName)
 
     if not loadRotations then
         if br.loader.selectedProfile ~= nil and br.loader.rotations[spec] ~= nil and br.loader.rotations[spec][br.loader.selectedProfile] then
-            br._G.print("Selecting Previous Rotation: " .. br.loader.rotations[spec][br.loader.selectedProfile].name)
+            -- br._G.print("Selecting Previous Rotation: " .. br.loader.rotations[spec][br.loader.selectedProfile].name)
             self.rotation = br.loader.rotations[spec][br.loader.selectedProfile]
             loadRotations = true
         elseif br.loader.rotations[spec] ~= nil then

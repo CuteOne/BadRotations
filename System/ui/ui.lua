@@ -1,12 +1,8 @@
-local LSM = LibStub("LibSharedMedia-3.0")
-local MediaType_FONT = LSM.MediaType.FONT
 local DiesalGUI = _G.LibStub("DiesalGUI-1.0")
 local _, br = ...
 -- Global setup
-br.ui = {}
-br.ui.spacing = 15
-LSM:Register(MediaType_FONT, "calibrib", [[Interface\Addons\SharedMedia_MyMedia\font\calibrib.ttf]])
---
+br.ui = br.ui or {}
+
 local Type = "UI"
 local BRFont = "DiesalFontNormal"
 do

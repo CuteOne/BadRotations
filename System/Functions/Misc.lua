@@ -599,6 +599,9 @@ function misc:enemyListCheck(Unit)
 end
 
 function misc:isValidUnit(Unit)
+	if Unit == nil then
+		return false
+	end
 	local inInstance = br._G.IsInInstance()
 	local hostileOnly = br.functions.misc:isChecked("Hostiles Only")
 	local playerTarget = br.functions.unit:GetUnitIsUnit(Unit, "target")
@@ -615,8 +618,12 @@ function misc:isValidUnit(Unit)
 	if playerTarget and br.engines.enemiesEngine.units[br._G.UnitTarget("player")] == nil and not br.functions.misc:enemyListCheck("target") then
 		return false
 	end
+	-- Check if unit is tapped but we've damaged it
+	local isTapped = br._G.UnitIsTapDenied(Unit)
+	local hasDamagedTapped = isTapped and br.engines.enemiesEngine.damaged[br._G.ObjectPointer(Unit)] ~= nil
+
 	if not br.functions.misc:pause(true) and Unit ~= nil and (br.engines.enemiesEngine.units[Unit] ~= nil or Unit == "target" or burnUnit or dummy) and mcCheck
-		and not isCC and (dummy or burnUnit or (not br._G.UnitIsTapDenied(Unit) and br.engines.enemiesEngineFunctions:isSafeToAttack(Unit)
+		and not isCC and (dummy or burnUnit or hasDamagedTapped or (not isTapped and br.engines.enemiesEngineFunctions:isSafeToAttack(Unit)
 			and ((hostileOnly and reaction < 4) or (not hostileOnly and reaction < 5) or playerTarget or targeting)))
 	then
 		return (playerTarget and (not inInstance or (inInstance and (#br.engines.healingEngine.friend == 1 or not br.functions.misc:hasTank())))) or targeting or
@@ -762,7 +769,7 @@ function misc:pause(skipCastingCheck)
 	end
 	-- Pause Hold/Auto
 	if (pausekey and br._G.GetCurrentKeyBoardFocus() == nil and br.functions.misc:isChecked("Pause Mode")) or br.profileStop
-		or (br._G.IsMounted() or br._G.IsFlying() or br._G.UnitOnTaxi("player")
+		or (((br._G.IsMounted() or br._G.IsFlying()) and not br.functions.unit:isBoss("target")) or br._G.UnitOnTaxi("player")
 			or (br._G.UnitInVehicle("player") and not br.functions.misc:isChecked("Bypass Vehicle Check")
 				and (not br._G.UnitExists("target") or (br._G.UnitExists("target") and not br._G.UnitCanAttack("player", "target"))))
 			and not (br.functions.aura:UnitBuffID("player", 190784) or br.functions.aura:UnitBuffID("player", 164222) or br.functions.aura:UnitBuffID("player", 165803) or br.functions.aura:UnitBuffID("player", 157059)))
@@ -1112,9 +1119,15 @@ end
 
 function misc:devMode()
 	if br.functions.misc:isChecked("Dev Mode") then
-		_G.br = br
+		if _G.br == nil then
+			_G.br = br
+			br._G.print("<Dev Mode Enabled>")
+		end
 	else
-		_G.br = nil
+		if _G.br ~= nil then
+			_G.br = nil
+			br._G.print("<Dev Mode Disabled>")
+		end
 	end
 end
 

@@ -2,7 +2,13 @@ local _, br = ...
 -- This creates the normal BadRotations Configuration Window
 br.ui.window.config = {}
 function br.ui:createConfigWindow()
+    -- br._G.print("Creating Config Window") -- Debug
     br.ui.window.config = br.ui:createWindow("config", 275, 400, "Configuration")
+
+    if not br.ui.window.config then
+        br._G.print("Error: Failed to create config window")
+        return
+    end
 
     local section
     local function callGeneral()
@@ -217,20 +223,20 @@ function br.ui:createConfigWindow()
             "Select profile to use, then click load")
         br.ui:createText(section, "|cffDB4437Save your settings before loading a new one!!")
         local saveProfile = function()
-            br.settingsManagement:saveSettings("Profile Settings", br.player.class, br.loader.selectedSpec, br.loader.selectedProfileName,
+            br.ui.settingsManagement:saveSettings("Profile Settings", br.player.class, br.loader.selectedSpec, br.loader.selectedProfileName,
                 profileSettings[br.functions.misc:getValue("Select Settings")])
         end
         local loadProfile = function()
             br.data.loadedSettings = false
             local loadDir =
-                br.settingsManagement:checkDirectories("Profile Settings", br.player.class, br.loader.selectedSpec, br.loader.selectedProfileName,
+                br.ui.settingsManagement:checkDirectories("Profile Settings", br.player.class, br.loader.selectedSpec, br.loader.selectedProfileName,
                     profileSettings[br.functions.misc:getValue("Select Settings")])
             if not loadDir then
                 br._G.print("Load Directory is nil!")
                 return
             end
-            if loadDir and br.settingsManagement:findFileInFolder("savedSettings.lua", loadDir) then
-                br.settingsManagement:loadSettings("Profile Settings", br.player.class, br.loader.selectedSpec, br.loader.selectedProfileName,
+            if loadDir and br.ui.settingsManagement:findFileInFolder("savedSettings.lua", loadDir) then
+                br.ui.settingsManagement:loadSettings("Profile Settings", br.player.class, br.loader.selectedSpec, br.loader.selectedProfileName,
                     profileSettings[br.functions.misc:getValue("Select Settings")])
                 br.rotationChanged = true
             else

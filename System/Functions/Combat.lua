@@ -282,7 +282,6 @@ function combat:hasThreat(unit, playerUnit)
 	end
 
 	local function threatSituation(friendlyUnit, enemyUnit)
-		local friendlyUnit = br._G.UnitGUID(friendlyUnit)
 		if not br._G.UnitIsVisible(friendlyUnit) or not br._G.UnitIsVisible(enemyUnit) then
 			return false
 		end
@@ -290,12 +289,23 @@ function combat:hasThreat(unit, playerUnit)
 		return status ~= nil
 	end
 
-	-- Valididation Checks
+	-- Validation Checks
 	-- Print("Unit: "..tostring(UnitName(unit)).." | Player: "..tostring(playerUnit))
 	local playerInCombat = br._G.UnitAffectingCombat("player")
 	local unitInCombat = br._G.UnitAffectingCombat(unit)
 	-- local unitObject = br._G.ObjectPointer(unit)
 	local instance = select(2, br._G.IsInInstance())
+	
+	-- Tapped Unit Targeting Validation
+	-- Check if tapped unit is targeting player or group (handles quest mobs that turn hostile)
+	if br._G.UnitIsTapDenied(unit) and targetFriend then
+		if br.functions.misc:isChecked("Threat Debug") then
+			br._G.print("[Tapped Targeting Threat] " ..
+				br._G.UnitName(unit) .. " is tapped but targeting " .. br._G.UnitName(targetUnit))
+		end
+		return true
+	end
+	
 	-- Unit is Targeting Player/Pet/Party/Raid Validation
 	if targetFriend then
 		if br.functions.misc:isChecked("Threat Debug") and not br._G.UnitIsUnit("target", unit) then --and not br.functions.unit:GetObjectExists("target") then
@@ -316,23 +326,43 @@ function combat:hasThreat(unit, playerUnit)
 		-- 		return true
 	end
 	-- Open World Mob Pack Validation
-	if instance == "none" and playerInCombat and not br.functions.unit:isCritter(unit) and br.engines.enemiesEngine.enemy[br._G.ObjectPointer("target")] ~= nil and br.engines.enemiesEngine.enemy[unit] == nil and br.functions.range:getDistance("target", unit) < 8 then
-		if br.functions.misc:isChecked("Threat Debug") then br._G.print("[Open World Threat] "..br._G.UnitName(unit).." is within "..br.functions.misc:round2(br.functions.range:getDistance("target",unit),1).."yrds of your target and is considered a threat.") end
-		return true
+	if instance == "none" and playerInCombat and not br.functions.unit:isCritter(unit) then
+		local unitPointer = br._G.ObjectPointer(unit)
+		local targetPointer = br._G.ObjectPointer("target")
+
+		-- If unit is already in the enemy engine, it has threat
+		if br.engines.enemiesEngine.enemy[unitPointer] ~= nil then
+			if br.functions.misc:isChecked("Threat Debug") then
+				br._G.print("[Open World Threat] " .. br._G.UnitName(unit) .. " is in enemy engine and has threat.")
+			end
+			return true
+		end
+
+		-- If unit is near your current target, it's part of the pack
+		if br.engines.enemiesEngine.enemy[targetPointer] ~= nil then
+			local distanceToTarget = br.functions.range:getDistance("target", unit)
+			if distanceToTarget < 8 then
+				if br.functions.misc:isChecked("Threat Debug") then
+					br._G.print("[Open World Threat] " .. br._G.UnitName(unit) .. " is within " ..
+						br.functions.misc:round2(distanceToTarget, 1) .. "yrds of your target and is considered a threat.")
+				end
+				return true
+			end
+		end
 	end
-	-- Player Threat Valdation
-	if threatSituation(playerUnit, unit) and not br.functions.unit:GetUnitIsDeadOrGhost(unit) then
+	-- Player Threat Validation
+	if not br.functions.unit:GetUnitIsDeadOrGhost(unit) and threatSituation(playerUnit, unit) then
 		if br.functions.misc:isChecked("Threat Debug") then --and not br.functions.unit:GetObjectExists("target") then
 			br._G.print("[Player Threat] " .. br._G.UnitName(playerUnit) .. " has threat with " .. br._G.UnitName(unit))
 		end
 		return true
 	end
 	-- Party/Raid Threat Validation
-	if #br.engines.healingEngine.friend > 1 then
+	if not br.functions.unit:GetUnitIsDeadOrGhost(unit) and #br.engines.healingEngine.friend >= 1 then
 		for i = 1, #br.engines.healingEngine.friend do
 			if br.engines.healingEngine.friend[i] then
 				local thisUnit = br.engines.healingEngine.friend[i].unit
-				if threatSituation(thisUnit, unit) and not br.functions.unit:GetUnitIsDeadOrGhost(unit) then
+				if threatSituation(thisUnit, unit) then
 					if br.functions.misc:isChecked("Threat Debug") then --and not br.functions.unit:GetObjectExists("target") then
 						br._G.print("[Party/Raid Threat] " ..
 							br._G.UnitName(thisUnit) .. " has threat with " .. br._G.UnitName(unit))
@@ -342,6 +372,8 @@ function combat:hasThreat(unit, playerUnit)
 			end
 		end
 	end
+	-- Note: Fallback removed - the above checks should be sufficient to detect valid threats
+	-- without risking false positives from mobs fighting NPCs or other groups
 	return false
 end
 

@@ -2540,7 +2540,7 @@ br.lists.spells = {
                 spinningFireBlossom     = 115073,
                 stormEarthAndFire       = 137639,
                 stormEarthAndFireFixate = 138130,
-                tigereyeBrew            = 116740,
+                tigereyeBrew            = 116740,--1247275,
                 touchOfKarma            = 122470,
             },
             artifacts  = {
@@ -2552,7 +2552,7 @@ br.lists.spells = {
                 sparring                = 116023,
                 stormEarthAndFire       = 137639,
                 tigereyeBrew            = 1247279,
-                tigereyeBrewUse         = 116740,
+                tigereyeBrewUse         = 1247275,
                 -- alphaTiger              = 287504,
                 -- fortifyingBrew          = 243435,
                 -- invokersDelight         = 338321,
