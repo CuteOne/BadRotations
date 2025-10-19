@@ -116,6 +116,11 @@ function combat:getNumEnemies(Unit, Radius)
 end
 
 function combat:isIncapacitated(spellID)
+	-- Initialize tracking table if it doesn't exist
+	if not br.incapacitationTracker then
+		br.incapacitationTracker = {}
+	end
+
 	local event
 	local eventIndex = br._G.C_LossOfControl.GetActiveLossOfControlDataCount()
 	if eventIndex > 0 then
@@ -123,9 +128,42 @@ function combat:isIncapacitated(spellID)
 			event = br._G.C_LossOfControl.GetActiveLossOfControlData(i)
 			if event then
 				local eventType = event.locType
-				return not combat:canRegainControl(spellID, eventType)
+				local canRegain = combat:canRegainControl(spellID, eventType)
+
+				-- If we cannot regain control (meaning we are incapacitated)
+				if not canRegain then
+					-- Create a unique key for this event type
+					local trackerKey = eventType .. "_" .. spellID
+
+					-- If this is a new incapacitation, record the start time
+					if not br.incapacitationTracker[trackerKey] then
+						br.incapacitationTracker[trackerKey] = br._G.GetTime()
+					end
+
+					-- Calculate time since incapacitation started
+					local timeSinceStart = br._G.GetTime() - br.incapacitationTracker[trackerKey]
+
+					-- Human-like delay: 0.15 to 0.45 seconds (base 0.3 +/- 0.15)
+					-- You can adjust this value or make it configurable
+					local reactionDelay = 0.15 + math.random() * 0.3
+
+					-- Only return true (we are incapacitated) if enough time has passed
+					if timeSinceStart >= reactionDelay then
+						return true
+					else
+						-- Still within reaction time, pretend we haven't noticed yet
+						return false
+					end
+				else
+					-- We can regain control, so clean up the tracker
+					local trackerKey = eventType .. "_" .. spellID
+					br.incapacitationTracker[trackerKey] = nil
+				end
 			end
 		end
+	else
+		-- No loss of control events, clear all trackers
+		br.incapacitationTracker = {}
 	end
 	return false
 end
@@ -286,6 +324,18 @@ function combat:hasThreat(unit, playerUnit)
 			return false
 		end
 		local status = br._G.UnitThreatSituation(friendlyUnit, enemyUnit)
+		-- Also check detailed threat situation as a fallback
+		if status == nil then
+			local _, _, _, _, threatPercent = br._G.UnitDetailedThreatSituation(friendlyUnit, enemyUnit)
+			-- If we have any threat percentage, consider it a valid threat situation
+			if threatPercent and threatPercent > 0 then
+				if br.functions.misc:isChecked("Threat Debug") then
+					br._G.print("[Detailed Threat] " .. br._G.UnitName(friendlyUnit) .. " has " ..
+						br.functions.misc:round2(threatPercent, 1) .. "% threat on " .. br._G.UnitName(enemyUnit))
+				end
+				return true
+			end
+		end
 		return status ~= nil
 	end
 
@@ -295,7 +345,7 @@ function combat:hasThreat(unit, playerUnit)
 	local unitInCombat = br._G.UnitAffectingCombat(unit)
 	-- local unitObject = br._G.ObjectPointer(unit)
 	local instance = select(2, br._G.IsInInstance())
-	
+
 	-- Tapped Unit Targeting Validation
 	-- Check if tapped unit is targeting player or group (handles quest mobs that turn hostile)
 	if br._G.UnitIsTapDenied(unit) and targetFriend then
@@ -305,7 +355,7 @@ function combat:hasThreat(unit, playerUnit)
 		end
 		return true
 	end
-	
+
 	-- Unit is Targeting Player/Pet/Party/Raid Validation
 	if targetFriend then
 		if br.functions.misc:isChecked("Threat Debug") and not br._G.UnitIsUnit("target", unit) then --and not br.functions.unit:GetObjectExists("target") then

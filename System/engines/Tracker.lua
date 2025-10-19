@@ -124,11 +124,17 @@ function tracker:objectTracker()
                         end
                     end
                     if br.functions.misc:isChecked("Custom Tracker") and not track then
-                        for k in string.gmatch(tostring(br.functions.misc:getOptionValue("Custom Tracker")), "([^,]+)") do
-                            if string.len(br._G.string.trim(k)) >= 3 and
-                                br._G.strmatch(br._G.strupper(name), br._G.strupper(br._G.string.trim(k)))
-                            then
-                                track = true
+                        local customTrackerValue = tostring(br.functions.misc:getOptionValue("Custom Tracker"))
+                        for k in string.gmatch(customTrackerValue, "([^,]+)") do
+                            local searchTerm = br._G.string.trim(k)
+                            if string.len(searchTerm) >= 3 then
+                                local upperName = br._G.strupper(name)
+                                local upperSearch = br._G.strupper(searchTerm)
+                                -- Use plain string find (not pattern matching) to check if name contains the search term
+                                if upperName:find(upperSearch, 1, true) then
+                                    track = true
+                                    break -- Found a match, no need to check other terms
+                                end
                             end
                         end
                     end

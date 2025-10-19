@@ -58,8 +58,6 @@ misc.xml
 System\Unlockers.lua
 System\Core.lua
 System\Debugging.lua
-System\LootManager.lua
-System\UsefulFeatures.lua
 System\SlashCommands.lua
 
 ## Functions
@@ -118,12 +116,15 @@ System\Engines\HealingEngineFrame.lua
 System\Engines\HealingEngineFunctions.lua
 #System\Engines\InterruptsFrame.lua -- Unused
 System\Engines\Interrupts.lua
+System\Engines\LootEngine.lua
+System\Engines\LootEngineFunctions.lua
 System\Engines\ttdTable.lua
 System\Engines\QuestTracker.lua
 System\Engines\Tracker.lua
 
 ## BadRotations UI
 
+System\UI\Tooltips.lua
 System\UI\Colors.lua
 System\UI\DropOptions.lua
 System\UI\SettingsManagement.lua
@@ -205,8 +206,6 @@ System\Updater.lua
 # System\Unlockers.lua
 # System\Core.lua
 # System\Debugging.lua
-# System\LootManager.lua
-# System\UsefulFeatures.lua
 # System\SlashCommands.lua
 
 # ## Functions
@@ -283,12 +282,15 @@ System\Updater.lua
 # System\Engines\HealingEngineFunctions.lua
 # #System\Engines\InterruptsFrame.lua -- Unused
 # System\Engines\Interrupts.lua
+# System\Engines\LootEngine.lua
+# System\Engines\LootEngineFunctions.lua
 # System\Engines\ttdTable.lua
 # System\Engines\QuestTracker.lua
 # System\Engines\Tracker.lua
 
 # ## BadRotations UI
 
+# System\UI\Tooltips.lua
 # System\UI\SettingsManagement.lua
 # System\UI\ChatOverlay.lua
 # System\UI\MinimapButton.lua

@@ -92,7 +92,7 @@ br.api.ui = function(self)
         -- @function ui.fullBags
         -- @return boolean - Returns true if bags are full
         ui.fullBags = function()
-            return br.lootManager:emptySlots() == 0
+            return br.engines.lootEngine:emptySlots() == 0
         end
     end
 

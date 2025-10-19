@@ -149,7 +149,7 @@ br.loader.rotations.support["PetCuteOne"] = {
         enemies.yards40r = enemies.rect.get(10, 40, false)
 
         -- Loot Count
-        lootCount = br.lootManager:lootCount()
+        lootCount = br.engines.lootEngine:lootCount()
 
         -- Pet Target Modes
         if br.petTarget == nil then br.petTarget = "target" end

@@ -2663,6 +2663,7 @@ br.lists.spells = {
                 -- weaponsOfOrder = 310454,
             },
             debuffs   = {
+                grappleWeapon           = 117368,
                 zenSphere               = 124098,
                 -- bonedustBrew = 325216,
             },
@@ -5287,6 +5288,7 @@ br.lists.spells = {
                 -- bloodOfTheEnemy   = 297108,
                 -- concentratedFlame = 295368,
                 -- conductiveInk     = 302565,
+                convert           = 122740,
                 dampening         = 110310,
                 -- eyeOfLeotheras    = 206649,
                 -- necroticWound     = 209858,

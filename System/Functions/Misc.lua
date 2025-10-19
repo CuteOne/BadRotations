@@ -567,17 +567,20 @@ function misc:hasTank()
 end
 
 function misc:enemyListCheck(Unit)
-	local targetBuff = 0
-	local playerBuff = 0
-	if br.functions.aura:UnitDebuffID(Unit, 310499) then
-		targetBuff = 1
-	end
-	if br.functions.aura:UnitDebuffID("player", 310499) then
-		playerBuff = 1
-	end
-	if targetBuff ~= playerBuff then
-		return false
-	end
+	-- local targetBuff = 0
+	-- local playerBuff = 0
+	-- if br.functions.aura:UnitDebuffID(Unit, 310499) then
+	-- 	targetBuff = 1
+	-- end
+	-- if br.functions.aura:UnitDebuffID("player", 310499) then
+	-- 	playerBuff = 1
+	-- end
+	-- if targetBuff ~= playerBuff then
+	-- 	if br.functions.misc:isChecked("Enemy List Debug") then
+	-- 		br._G.print("[EnemyListCheck] Phase sync failed for " .. tostring(br._G.UnitName(Unit)))
+	-- 	end
+	-- 	return false
+	-- end
 	local phaseReason = br._G.UnitInPhase(Unit)--br._G.UnitPhaseReason(Unit)
 	local distance = br.functions.range:getDistance(Unit, "player")
 	local mcCheck = (br.functions.misc:isChecked("Attack MC Targets") and (not br.functions.unit:GetUnitIsFriend(Unit, "player") or br._G.UnitIsCharmed(Unit))) or
@@ -586,23 +589,57 @@ function misc:enemyListCheck(Unit)
 	if (br.functions.aura:UnitDebuffID("player", 320102) or br.functions.aura:UnitDebuffID(Unit, 424495)) and br._G.UnitIsPlayer(Unit) then
 		return true
 	end
-	return br.functions.unit:GetObjectExists(Unit) and not br.functions.unit:GetUnitIsDeadOrGhost(Unit) --and inPhase
-		and br._G.UnitCanAttack("player", Unit) and br._G.UnitHealth(Unit) > 0 and distance < 50
-		and not br.functions.unit:isCritter(Unit)
-		and mcCheck
-		and not br.functions.unit:GetUnitIsUnit(Unit, "pet")
-		and br._G.UnitCreator(Unit) ~= br._G.ObjectPointer("player")
-		and br.functions.unit:GetObjectID(Unit) ~= 11492
-		and br.functions.misc:getLineOfSight("player", Unit)
-		and ((Unit ~= 131824 and Unit ~= 131823 and Unit ~= 131825) or
-			((br.functions.aura:UnitBuffID(Unit, 260805) or br.functions.unit:GetUnitIsUnit(Unit, "target")) and (Unit == 131824 or Unit == 131823 or Unit == 131825)))
+	-- Check if unit was created by player, but allow quest NPCs that turn hostile (like Peak of Serenity monks)
+	-- UnitReaction: 1=Hated, 2=Hostile, 3=Unfriendly, 4=Neutral, 5+=Friendly
+	local createdByPlayer = br._G.UnitCreator(Unit) == br._G.ObjectPointer("player")
+	local unitReaction = br._G.UnitReaction(Unit, "player") or 5
+	local isHostileQuestNPC = createdByPlayer and unitReaction < 4 -- Hostile/Unfriendly reaction
+
+	-- Debug output to identify which check is failing
+	local checks = {
+		exists = br.functions.unit:GetObjectExists(Unit),
+		notDead = not br.functions.unit:GetUnitIsDeadOrGhost(Unit),
+		canAttack = br._G.UnitCanAttack("player", Unit),
+		hasHealth = br._G.UnitHealth(Unit) > 0,
+		inRange = distance < 50,
+		notCritter = not br.functions.unit:isCritter(Unit),
+		mcCheck = mcCheck,
+		notPet = not br.functions.unit:GetUnitIsUnit(Unit, "pet"),
+		creatorCheck = (not createdByPlayer or isHostileQuestNPC),
+		notWaterEle = br.functions.unit:GetObjectID(Unit) ~= 11492,
+		los = br.functions.misc:getLineOfSight("player", Unit)
+	}
+
+	local allPass = checks.exists and checks.notDead and checks.canAttack and checks.hasHealth
+		and checks.inRange and checks.notCritter and checks.mcCheck and checks.notPet
+		and checks.creatorCheck and checks.notWaterEle
+		-- LoS check: allow units without LoS if they're in combat (actively fighting)
+		and (checks.los or br._G.UnitAffectingCombat(Unit))
+		and ((Unit ~= 131824 and Unit ~= 131823 and Unit ~= 131825) or ((br.functions.aura:UnitBuffID(Unit, 260805)
+			or br.functions.unit:GetUnitIsUnit(Unit, "target")) and (Unit == 131824 or Unit == 131823 or Unit == 131825)))
+
+	-- if not allPass and br.functions.misc:isChecked("Enemy List Debug") then
+	-- 	local unitName = br._G.UnitName(Unit) or "Unknown"
+	-- 	br._G.print("[EnemyListCheck] FAILED for " .. unitName .. " (Dist: " .. string.format("%.1f", distance) .. ")")
+	-- 	for k, v in pairs(checks) do
+	-- 		if not v then
+	-- 			br._G.print("  - " .. k .. ": FAILED")
+	-- 		end
+	-- 	end
+	-- 	if not checks.los and not br._G.UnitAffectingCombat(Unit) then
+	-- 		br._G.print("  - NO LoS AND not in combat")
+	-- 	end
+	-- end
+
+	return allPass
 end
 
 function misc:isValidUnit(Unit)
 	if Unit == nil then
 		return false
 	end
-	local inInstance = br._G.IsInInstance()
+
+	-- Calculate all conditions once
 	local hostileOnly = br.functions.misc:isChecked("Hostiles Only")
 	local playerTarget = br.functions.unit:GetUnitIsUnit(Unit, "target")
 	local reaction = br.functions.unit:GetUnitReaction(Unit, "player") or 10
@@ -612,23 +649,38 @@ function misc:isValidUnit(Unit)
 	local isCC = br.functions.misc:getOptionCheck("Don't break CCs") and br.functions.misc:isLongTimeCCed(Unit) or false
 	local mcCheck = (br.functions.misc:isChecked("Attack MC Targets") and (not br.functions.unit:GetUnitIsFriend(Unit, "player") or (br._G.UnitIsCharmed(Unit) and br._G.UnitCanAttack("player", Unit))))
 		or not br.functions.unit:GetUnitIsFriend(Unit, "player")
+
+	-- Early exit for PvP debuffs (special case)
 	if playerTarget and (br.functions.aura:UnitDebuffID("player", 320102) or br.functions.aura:UnitDebuffID(Unit, 424495)) and br._G.UnitIsPlayer(Unit) then
 		return true
 	end
-	if playerTarget and br.engines.enemiesEngine.units[br._G.UnitTarget("player")] == nil and not br.functions.misc:enemyListCheck("target") then
-		return false
-	end
+
 	-- Check if unit is tapped but we've damaged it
 	local isTapped = br._G.UnitIsTapDenied(Unit)
 	local hasDamagedTapped = isTapped and br.engines.enemiesEngine.damaged[br._G.ObjectPointer(Unit)] ~= nil
 
-	if not br.functions.misc:pause(true) and Unit ~= nil and (br.engines.enemiesEngine.units[Unit] ~= nil or Unit == "target" or burnUnit or dummy) and mcCheck
-		and not isCC and (dummy or burnUnit or hasDamagedTapped or (not isTapped and br.engines.enemiesEngineFunctions:isSafeToAttack(Unit)
+	-- Check if unit actually passed enemyListCheck or is in units table
+	-- If it's the player target but not in units table, verify it at least passes basic enemyListCheck
+	-- Also allow units that have threat on the group (targeting tank/party) even if not in units table yet
+	local inUnitsTable = br.engines.enemiesEngine.units[Unit] ~= nil
+	local hasThreat = br.functions.combat:hasThreat(Unit)
+	local passedEnemyCheck = inUnitsTable or (playerTarget and br.functions.misc:enemyListCheck(Unit)) or burnUnit or dummy or hasThreat
+
+	-- Fast path for special units (dummy/burn) - skip most checks
+	if passedEnemyCheck and mcCheck and not isCC and (dummy or burnUnit) then
+		return true
+	end
+
+	-- Standard validation path
+	if passedEnemyCheck and mcCheck and not isCC
+		and (hasDamagedTapped or (not isTapped and br.engines.enemiesEngineFunctions:isSafeToAttack(Unit)
 			and ((hostileOnly and reaction < 4) or (not hostileOnly and reaction < 5) or playerTarget or targeting)))
 	then
-		return (playerTarget and (not inInstance or (inInstance and (#br.engines.healingEngine.friend == 1 or not br.functions.misc:hasTank())))) or targeting or
-			burnUnit or br.functions.misc:isInProvingGround() or br.functions.combat:hasThreat(Unit)
+		-- Valid if any threat condition is met:
+		-- Player target, unit targeting us, burn target, proving grounds, or has group threat
+		return playerTarget or targeting or burnUnit or br.functions.misc:isInProvingGround() or hasThreat
 	end
+
 	return false
 end
 

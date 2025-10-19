@@ -225,7 +225,7 @@ function engines:Update(self)
                     br.engines.healingEngine.friend:Update()
                 end
                 -- Auto Loot
-                br.lootManager:autoLoot()
+                br.engines.lootEngine:autoLoot()
                 -- Close windows and swap br.loader.selectedSpec on Spec Change
                 local thisSpec = select(2, br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization()))
                 if thisSpec ~= "" and thisSpec ~= br.loader.selectedSpec then

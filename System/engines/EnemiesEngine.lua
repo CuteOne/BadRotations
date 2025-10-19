@@ -252,7 +252,27 @@ if not enemiesEngine.metaTable2 then
 			o.debuffs = o.debuffs or {}
 			if o.distance <= 50 and not br.functions.unit:GetUnitIsDeadOrGhost(o.unit) and not br.functions.unit:isCritter(o.unit) then
 				-- EnemyListCheck
-				if o.enemyRefresh == nil or o.enemyRefresh < GetTime() - 1 then
+				-- FPS-adaptive refresh rate for optimal responsiveness without sacrificing performance
+				-- Solo: 1s (low priority), Group + Good FPS (60+): 0.25s (responsive), Group + Low FPS: scale back
+				local refreshInterval = 1 -- Default: solo content
+				if br._G.GetNumGroupMembers() > 0 then
+					local fps = br._G.GetFramerate() or 60
+					if fps >= 60 then
+						refreshInterval = 0.25 -- Excellent FPS: maximum responsiveness
+					elseif fps >= 45 then
+						refreshInterval = 0.4 -- Good FPS: balanced
+					elseif fps >= 30 then
+						refreshInterval = 0.6 -- Acceptable FPS: reduce load
+					else
+						refreshInterval = 0.8 -- Low FPS: prioritize performance over responsiveness
+					end
+				end
+
+				-- Performance optimization: If unit is already validated and in tables, check less frequently
+				local isAlreadyValid = br.engines.enemiesEngine.units[o.unit] ~= nil
+				local actualRefreshInterval = isAlreadyValid and (refreshInterval * 2) or refreshInterval
+
+				if o.enemyRefresh == nil or o.enemyRefresh < GetTime() - actualRefreshInterval then
 					o.enemyListCheck = br.functions.misc:enemyListCheck(o.unit)
 					o.enemyRefresh = GetTime()
 					if o.enemyListCheck == true then
@@ -367,19 +387,25 @@ if not enemiesEngine.metaTable2 then
 					br.player.pet.list = {}
 				end
 			end
-			--Cycle and clean tables
-			local i = 1
-			while i <= #enemiesEngine.om do
-				if enemiesEngine.om[i] ~= nil and (enemiesEngine.om[i].pulseTime == nil or GetTime() >= enemiesEngine.om[i].pulseTime) then
-					-- this delay is extremely important as the unit updates are a major source of FPS loss for BR
-					-- for non-raids, this code will spread out unit updates so that everything gets updated every update
-					-- for raids, only half of units will be updated per BR update
-					local delay = ((math.random() * 0.25) + 0.75) * br.engines:getUpdateRate()
-					if br._G.IsInRaid() then
-						delay = delay * 2.00
-					end
+		--Cycle and clean tables
+		local i = 1
+		while i <= #enemiesEngine.om do
+			if enemiesEngine.om[i] ~= nil and (enemiesEngine.om[i].pulseTime == nil or GetTime() >= enemiesEngine.om[i].pulseTime) then
+				-- this delay is extremely important as the unit updates are a major source of FPS loss for BR
+				-- for non-raids, this code will spread out unit updates so that everything gets updated every update
+				-- for raids, only half of units will be updated per BR update
+				local delay = ((math.random() * 0.25) + 0.75) * br.engines:getUpdateRate()
+				if br._G.IsInRaid() then
+					delay = delay * 2.00
+				end
 
-					enemiesEngine.om[i].pulseTime = GetTime() + delay
+				-- Reduce delay for unvalidated units (not yet in units table) for faster responsiveness
+				-- Once validated and in combat rotation, full throttle applies for FPS optimization
+				if enemiesEngine.om[i].enemyListCheck == nil or br.engines.enemiesEngine.units[enemiesEngine.om[i].unit] == nil then
+					delay = delay * 0.25 -- New/unvalidated units check 4x faster to minimize perceived lag
+				end
+
+				enemiesEngine.om[i].pulseTime = GetTime() + delay
 					local thisUnit = enemiesEngine.om[i].unit
 					-- setfenv(1, C_Timer.Nn)
 					-- br._G.print(tostring(br._G.UnitName(thisUnit)).." is Visible: "..tostring(br.functions.unit:GetUnitIsVisible(thisUnit)))

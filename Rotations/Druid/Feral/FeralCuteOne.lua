@@ -211,14 +211,40 @@ local var
 -----------------
 
 -- * Potential Mangle Damage
+-- action.mangle_cat.hit_damage
 local function getMangleDamage()
-    local calc = (1 * 78 + 1.25 * (select(1, UnitDamage("player")) + select(2, UnitDamage("player"))))*(1 - (24835 * (1 - .04 * 0)) / (24835 * (1 - .04*0) + 46257.5));
-    if buff.dreamOfCenarius.exists() then
-        return calc;
-    else
-        return calc*1.3;
+    -- Get weapon damage and attack power using Unit API
+    local avgWeaponDmg = unit.weaponDamage("player")
+    local ap = unit.attackPower("player")
+
+    -- Mangle Cat: 515% weapon damage + (AP × 4.2)
+    local baseDmg = (5.15 * avgWeaponDmg) + (ap * 4.2)
+
+    -- Apply multipliers
+    local multiplier = 1.0
+
+    -- Savage Roar: +45% physical damage
+    if buff.savageRoar.exists() then
+        multiplier = multiplier * 1.45
     end
+
+    -- Tiger's Fury: +15% physical damage
+    if buff.tigersFury.exists() then
+        multiplier = multiplier * 1.15
+    end
+
+    -- Dream of Cenarius: +30% damage
+    if buff.dreamOfCenarius.exists() then
+        multiplier = multiplier * 1.30
+    end
+
+    -- Apply crit as expected value (200% crit damage = 100% extra damage)
+    local critChance = unit.critChance("player") / 100
+    local critMultiplier = 1 + (critChance * 1.0)
+
+    return baseDmg * multiplier * critMultiplier
 end
+
 -- * AutoProwl
 local function autoProwl()
     if not unit.inCombat() and not buff.prowl.exists() then
@@ -605,8 +631,17 @@ actionList.Defensive = function()
             else
                 healingTouchUnit = "player"
             end
-            if not unit.inCombat() and thisHP <= ui.value("Healing Touch") and (not unit.moving() or buff.predatorySwiftness.exists()) then
-                return castHealingTouch(healingTouchUnit, "OoC")
+            if not unit.inCombat() then
+                -- Out of Combat: Only heal player unless mouseover is available
+                local oocHealUnit = "player"
+                local oocHP = unit.hp("player")
+                if unit.exists("mouseover") and unit.friend("mouseover") and unit.distance("mouseover") < 40 then
+                    oocHealUnit = "mouseover"
+                    oocHP = unit.hp("mouseover")
+                end
+                if oocHP <= ui.value("Healing Touch") and (not unit.moving() or buff.predatorySwiftness.exists()) then
+                    return castHealingTouch(oocHealUnit, "OoC")
+                end
             elseif unit.inCombat()then
                 -- Always Use Predatory Swiftness when available
                 if ui.value("Healing Touch - InC") == 1 and (thisHP <= ui.value("Healing Touch")
@@ -642,7 +677,7 @@ actionList.Defensive = function()
         -- -- * Survival Instincts
         if ui.checked("Survival Instincts") and unit.inCombat() and cast.able.survivalInstincts()
             and unit.hp() <= ui.value("Survival Instincts")
-            and not buff.survivalInstincts.exists() and charges.survivalInstincts.count() > 0
+            and not buff.survivalInstincts.exists() --and charges.survivalInstincts.count() > 0
         then
             if cast.survivalInstincts() then
                 ui.debug("Casting Survival Instincts")
@@ -654,7 +689,9 @@ end     -- End Action List - Defensive
 
 -- * Action List - Interrupts
 actionList.Interrupts = function()
-    if ui.useInterrupt() and ui.delay("Interrupts", unit.gcd(true)) then
+    if ui.useInterrupt() and ui.delay("Interrupts", unit.gcd(true))
+        and not (buff.prowl.exists() or buff.shadowmeld.exists())
+    then
         local thisUnit
         -- * Skull Bash
         if ui.checked("Skull Bash") then
@@ -702,18 +739,80 @@ actionList.PreCombat = function()
     if not unit.inCombat() and not (unit.flying() or unit.mounted()) then
         if not (buff.prowl.exists() or buff.shadowmeld.exists()) then
             -- * Flask: Flask of Spring Blossoms
+            -- flask,type=spring_blossoms
             module.FlaskUp()
-            -- * Prowl
-            -- prowl,if=!buff.prowl.up
-            if cast.able.prowl("player") and buff.catForm.exists() and autoProwl() and ui.mode.prowl == 1
-            and not buff.prowl.exists() and (not unit.resting() or unit.isDummy("target"))
-            and not buff.bsInc.exists()
+            -- * Food: Sea Mist Rice Noodles
+            -- food,type=sea_mist_rice_noodles
+            -- Food buff check would be handled by module if it exists
+
+            -- * Mark of the Wild
+            -- mark_of_the_wild,if=!aura.str_agi_int.up
+            -- This is handled elsewhere in the rotation via the Mark of the Wild option
+
+            -- * Healing Touch (Dream of Cenarius Pre-Combat)
+            -- healing_touch,if=!buff.dream_of_cenarius.up&talent.dream_of_cenarius.enabled
+            -- if cast.able.healingTouch("player") and unit.valid("target") and unit.exists("target")
+            --     and talent.dreamOfCenarius and not buff.dreamOfCenarius.exists()
+            -- then
+            --     if cast.healingTouch("player") then
+            --         ui.debug("Casting Healing Touch - Dream of Cenarius [Pre-Combat]")
+            --         return true
+            --     end
+            -- end
+            -- * Cat Form
+            -- cat_form
+            -- if cast.able.catForm("player") and not buff.catForm.exists() then
+            --     if cast.catForm("player") then
+            --         ui.debug("Casting Cat Form [Pre-Combat]")
+            --         return true
+            --     end
+            -- end
+            -- * Savage Roar
+            -- savage_roar
+            if cast.able.savageRoar("player") and buff.catForm.exists() and not buff.savageRoar.exists()
+                and unit.valid("target") and unit.exists("target") --and unit.distance("target") < 20
             then
-                if cast.prowl("player") then
-                    ui.debug("Casting Prowl [Pre-Combat]")
+                if cast.savageRoar("player") then
+                    ui.debug("Casting Savage Roar [Pre-Combat]")
                     return true
                 end
             end
+            -- Pre-Pull Timer Actions (DBM/BigWigs)
+            if ui.checked("Pre-Pull Timer") and ui.pullTimer() <= ui.value("Pre-Pull Timer") then
+                -- * Virmen's Bite Potion (Pre-Pull)
+                -- virmens_bite_potion
+                -- Potion module already checks for raid instance and ui.useCDs() provides boss detection
+                -- Use potion BEFORE prowl since using items breaks stealth
+                if ui.useCDs() and ui.checked("Use Combat Potion")
+                    and not (buff.prowl.exists() or buff.shadowmeld.exists())
+                then
+                    module.CombatPotionUp()
+                end
+
+                -- * Prowl (Stealth) - Cast after potion during pre-pull to avoid breaking stealth
+                -- stealth
+                if cast.able.prowl("player") and buff.catForm.exists() and autoProwl() and ui.mode.prowl == 1
+                    and not buff.prowl.exists() and (not unit.resting() or unit.isDummy("target"))
+                    and not buff.bsInc.exists()
+                then
+                    if cast.prowl("player") then
+                        ui.debug("Casting Prowl [Pre-Pull]")
+                        return true
+                    end
+                end
+            else
+                -- * Prowl (Stealth) - Outside of pre-pull window, can cast normally
+                -- prowl,if=!buff.prowl.up
+                if cast.able.prowl("player") and buff.catForm.exists() and autoProwl() and ui.mode.prowl == 1
+                    and not buff.prowl.exists() and (not unit.resting() or unit.isDummy("target"))
+                    and not buff.bsInc.exists()
+                then
+                    if cast.prowl("player") then
+                        ui.debug("Casting Prowl [Pre-Combat]")
+                        return true
+                    end
+                end
+            end -- End Pre-Pull
         end -- End No Stealth
         -- * Wild Charge
         if ui.checked("Displacer Beast / Wild Charge") and cast.able.wildCharge("target") and unit.valid("target") then
@@ -722,24 +821,22 @@ actionList.PreCombat = function()
                 return true
             end
         end
-        if ui.checked("Pre-Pull Timer") and ui.pullTimer() <= ui.value("Pre-Pull Timer") then
-            -- * Virmen's Bite
-            if ui.useCDs() and ui.checked("Use Combat Potion") and not buff.prowl.exists() then
-                module.CombatPotionUp()
-            end
-        end -- End Pre-Pull
         -- * Pull
         if unit.valid("target") and unit.exists("target") then
-            -- * Savage Roar
-            -- savage_roar
-            if cast.able.savageRoar("player") and buff.catForm.exists() and not buff.savageRoar.exists() and unit.distance("target") < 20 then
-                if cast.savageRoar("player") then
-                    ui.debug("Casting Savage Roar [Pre-Combat]")
-                    return true
-                end
-            end
-            -- * Action List - Filler
-            if unit.distance("target") < 5 then
+            -- -- * Savage Roar
+            -- -- savage_roar
+            -- if cast.able.savageRoar("player") and buff.catForm.exists() and not buff.savageRoar.exists() and unit.distance("target") < 20 then
+            --     if cast.savageRoar("player") then
+            --         ui.debug("Casting Savage Roar [Pre-Combat]")
+            --         return true
+            --     end
+            -- end
+            -- * Call Action List - AoE
+            -- swap_action_list,name=aoe,if=active_enemies>=5
+            if ui.useAOE(8,5) then
+                if actionList.AoE() then return true end
+            else
+                -- * Call Action List - Filler
                 if actionList.Filler() then return true end
             end
         end
@@ -772,369 +869,39 @@ actionList.Combat = function()
             if cast.ferociousBite(units.dyn5) then
                 if ui.value("Ferocious Bite Execute") == 1 then
                     ui.print("Ferocious Bite Finished! " ..
-                        unit.name(units.dyn5) .. " with " .. br.functions.misc:round2(unit.hp(units.dyn5), 0) .. "% health remaining.")
+                    unit.name(units.dyn5) .. " with " .. br.functions.misc:round2(unit.hp(units.dyn5), 0) .. "% health remaining.")
                 else
                     ui.debug("Casting Ferocious Bite on " .. unit.name(units.dyn5) .. " [Execute]")
                 end
                 return true
             end
         end
-        -- * Prowl
-        -- prowl,if=(buff.bs_inc.down|!in_combat)&!buff.prowl.up
-        if cast.able.prowl("player") and buff.catForm.exists() and autoProwl()
-        and ui.mode.prowl == 1 and not buff.prowl.exists() and not unit.resting()
-        and (((not buff.bsInc.exists() or not unit.inCombat()) and not buff.prowl.exists()))
-        then
-            if cast.prowl("player") then
-                ui.debug("Casting Prowl [Combat]")
-                return true
-            end
-        end
+        -- -- * Prowl
+        -- -- prowl,if=(buff.bs_inc.down|!in_combat)&!buff.prowl.up
+        -- if cast.able.prowl("player") and buff.catForm.exists() and autoProwl()
+        --     and ui.mode.prowl == 1 and not buff.prowl.exists() and not unit.resting()
+        --     and (((not buff.bsInc.exists() or not unit.inCombat()) and not buff.prowl.exists()))
+        -- then
+        --     if cast.prowl("player") then
+        --         ui.debug("Casting Prowl [Combat]")
+        --         return true
+        --     end
+        -- end
         -- * Call Action List - AoE
         -- swap_action_list,name=aoe,if=active_enemies>=5
         if ui.useAOE(8,5) then
             if actionList.AoE() then return true end
         end
-        -- * Auto Attack
-        -- auto_attack,if=!buff.prowl.up&!buff.shadowmeld.up
-        if cast.able.autoAttack(units.dyn5) and unit.distance(units.dyn5) < 5 and not (buff.prowl.exists() or buff.shadowmeld.exists()) then
-            if cast.autoAttack(units.dyn5) then
-                ui.debug("Casting Auto Attack [Combat]")
-                return true
-            end
-        end
-        -- * Call Action List - Interrupts
-        -- skull_bash_cat
-        if actionList.Interrupts() then return true end
-        -- * Force of Nature
-        -- force_of_nature,if=charges=3|(buff.rune_of_reorigination.react&buff.rune_of_reorigination.remains<1)|(buff.vicious.react&buff.vicious.remains<1)|target.time_to_die<20
-        if cast.able.forceOfNature(units.dyn40) and charges.forceOfNature.count() == 3
-            or (buff.runeOfReorigination.exists() and buff.runeOfReorigination.remains() < 1)
-            or (buff.vicious.exists() and buff.vicious.remains() < 1)
-            or unit.ttd(units.dyn40) < 20
-        then
-            if cast.forceOfNature(units.dyn40) then
-                ui.debug("Casting Force of Nature on " .. unit.name(units.dyn40) .. " [Combat]")
-                return true
-            end
-        end
-        -- * Racial
-        -- blood_fury,if=buff.tigers_fury.up
-        -- berserking,if=buff.tigers_fury.up
-        -- arcane_torrent,if=buff.tigers_fury.up
-        if ui.checked("Use Racial") and buff.tigersFury.exists() then
-            if unit.race() == "Orc" or unit.race() == "Troll" or unit.race() == "BloodElf" then
-                if cast.racial() then
-                    ui.debug("Casting Racial [Combat]")
-                    return true
-                end
-            end
-        end
-        -- * Ravage
-        -- ravage,if=buff.stealthed.up
-        if cast.able.ravage(units.dyn5) and (buff.prowl.exists() or buff.shadowmeld.exists()) and not unit.facing(units.dyn5, "player") then
-            if cast.ravage(units.dyn5) then
-                ui.debug("Casting Ravage [Combat]")
-                return true
-            end
-        end
-        -- * Ferocious Bite
-        -- # Keep Rip from falling off during execute range.
-        -- ferocious_bite,if=dot.rip.ticking&dot.rip.remains<=3&target.health.pct<=25
-        if cast.able.ferociousBite(units.dyn5) and comboPoints(units.dyn5) > 0
-            and debuff.rip.exists(units.dyn5) and debuff.rip.remains(units.dyn5) <= 3 and unit.hp(units.dyn5) <= 25
-        then
-            if cast.ferociousBite(units.dyn5) then
-                ui.debug("Casting Ferocious Bite - Maintain Rip [Combat]"); return true
-            end
-        end
-        -- * Faerie Fire
-        -- faerie_fire,if=debuff.weakened_armor.stack<3
-        if cast.able.faerieFire(units.dyn5) and not (buff.prowl.exists() or buff.shadowmeld.exists()) and debuff.weakenedArmor.stack(units.dyn5) < 3 then
-            if cast.faerieFire(units.dyn5) then
-                ui.debug("Casting Faerie Fire [Combat]")
-                return true
-            end
-        end
-        -- * Healing Touch
-        -- # Proc Dream of Cenarius at 4+ CP or when PS is about to expire.
-        -- healing_touch,if=talent.dream_of_cenarius.enabled&buff.predatory_swiftness.up&buff.dream_of_cenarius.down&(buff.predatory_swiftness.remains<1.5|combo_points>=4)
-        if cast.able.healingTouch() and talent.dreamOfCenarious and buff.predatorySwiftness.exists()
-            and not buff.dreamOfCenarius.exists() and (buff.predatorySwiftness.remains() < 1.5 or comboPoints(units.dyn5) >= 4)
-        then
-            if cast.healingTouch("player") then
-                ui.debug("Casting Healing Touch [Combat]")
-                return true
-            end
-        end
-        -- * Savage Roar
-        -- savage_roar,if=buff.savage_roar.down
-        if cast.able.savageRoar() and not buff.savageRoar.exists() then
-            if cast.savageRoar() then
-                ui.debug("Casting Savage Roar - No Exist [Combat]")
-                return true
-            end
-        end
-        -- * Tiger's Fury
-        -- tigers_fury,if=energy<=35&!buff.omen_of_clarity.react
-        if ui.checked("Tiger's Fury") and cast.able.tigersFury() and energy() <= 35 and not buff.clearcasting.exists() then
-            if cast.tigersFury() then
-                ui.debug("Casting Tiger's Fury [Combat]")
-                return true
-            end
-        end
-        -- * Berserk
-        -- berserk,if=buff.tigers_fury.up|(target.time_to_die<18&cooldown.tigers_fury.remains>6)
-        if ui.alwaysCdAoENever("Berserk/Incarnation") and cast.able.berserk()
-            and (buff.tigersFury.exists() or (unit.ttd(units.dyn5) < 18 and cd.tigersFury.remains() > 6))
-        then
-            if cast.berserk() then
-                ui.debug("Casting Berserk [Combat]")
-                return true
-            end
-        end
-        -- * Action List - Cooldown
-        if actionList.Cooldown() then return true end
-        -- * Use Item Slot - Hands
-        -- use_item,slot=hands,if=buff.tigers_fury.up
-        -- TODO
-
-        -- * Thrash
-        -- thrash_cat,if=buff.omen_of_clarity.react&dot.thrash_cat.remains<3&target.time_to_die>=6
-        if cast.able.thrash("player", "aoe", 1, 8) and buff.clearcasting.exists() and debuff.thrash.remains(units.dyn5) < 3 and unit.ttd(units.dyn5) >= 6 then
-            if cast.thrash("player", "aoe", 1, 8) then
-                ui.debug("Casting Thrash [Combat]")
-                return true
-            end
-        end
-        -- * Ferocious Bite
-        -- ferocious_bite,if=target.time_to_die<=1&combo_points>=3
-        if cast.able.ferociousBite(units.dyn5)
-            and ((unit.ttd(units.dyn5) <= 1 or ferociousBiteFinish(units.dyn5)) and comboPoints(units.dyn5) >= 3)
-        then
-            if cast.ferociousBite(units.dyn5) then
-                ui.debug("Casting Ferocious Bite - TTD <= 1 [Combat]")
-                return true
-            end
-        end
-        -- * Savage Roar
-        -- savage_roar,if=buff.savage_roar.remains<=3&combo_points>0&target.health.pct<25
-        if cast.able.savageRoar() and buff.savageRoar.remains() <= 3 and comboPoints(units.dyn5) > 0 and unit.hp(units.dyn5) < 25 then
-            if cast.savageRoar() then
-                ui.debug("Casting Savage Roar - Low Target HP [Combat]")
-                return true
-            end
-        end
-        -- * Potion - Virmen's Bite
-        -- # Potion near or during execute range when Rune is up and we have 5 CP.
-        -- virmens_bite_potion,if=(combo_points>=5&(target.time_to_die*(target.health.pct-25)%target.health.pct)<15&buff.rune_of_reorigination.up)|target.time_to_die<=40
-        if ui.useCDs() and ui.checked("Use Combat Potion") and not (buff.prowl.exists() or buff.shadowmeld.exists())
-            and ((comboPoints(units.dyn5) >= 5 and (unit.ttd(units.dyn5) * (unit.hp(units.dyn5) - 25) / unit.hp(units.dyn5)) < 15
-                and buff.runeOfReorigination.exists()) or unit.ttd(units.dyn5) <= 40)
-        then
-            module.CombatPotionUp()
-        end
-
-        -- * Rip
-        -- # Overwrite Rip if it's at least 15% stronger than the current.
-        -- rip,if=combo_points>=5&action.rip.tick_damage%dot.rip.tick_dmg>=1.15&target.time_to_die>30
-        if cast.able.rip(units.dyn5) and comboPoints(units.dyn5) >= 5 and debuff.rip.applied(units.dyn5) > 0 -- ensure an existing Rip to compare
-            and (debuff.rip.calc() / debuff.rip.applied(units.dyn5)) >= 1.15 and unit.ttd(units.dyn5) > 30
-        then
-            if cast.rip(units.dyn5) then
-                ui.debug("Casting Rip - Overwrite [Combat]")
-                return true
-            end
-        end
-        -- # Use 4 or more CP to apply Rip if Rune of Reorigination is about to expire and it's at least close to the current rip in damage.
-        -- rip,if=combo_points>=4&action.rip.tick_damage%dot.rip.tick_dmg>=0.95&target.time_to_die>30&buff.rune_of_reorigination.up&buff.rune_of_reorigination.remains<=1.5
-        if cast.able.rip(units.dyn5) and comboPoints(units.dyn5) >= 4 and (debuff.rip.calc() / debuff.rip.applied(units.dyn5)) >= 0.95 and unit.ttd(units.dyn5) > 30
-            and buff.runeOfReorigination.exists() and buff.runeOfReorigination.remains() <= 1.5
-        then
-            if cast.rip(units.dyn5) then
-                ui.debug("Casting Rip - Rune of Reorigination [Combat]")
-                return true
-            end
-        end
-        -- * Pool Resource
-        -- # Pool 50 energy for Ferocious Bite.
-        -- pool_resource,if=combo_points>=5&target.health.pct<=25&dot.rip.ticking&!(energy>=50|(buff.berserk.up&energy>=25))
-        if comboPoints(units.dyn5) >= 5 and unit.hp(units.dyn5) <= 25 and debuff.rip.exists(units.dyn5)
-            and not (energy() >= 50 or (buff.berserk.exists() and energy() >= 25))
-        then
-            -- ui.debug("Pooling 50 energy for Ferocious Bite [Combat]")
-            return true
-        end
-        -- * Ferocious Bite
-        -- ferocious_bite,if=combo_points>=5&dot.rip.ticking&target.health.pct<=25
-        if cast.able.ferociousBite(units.dyn5) and comboPoints(units.dyn5) >= 5
-            and debuff.rip.exists(units.dyn5) and unit.hp(units.dyn5) <= 25
-        then
-            if cast.ferociousBite(units.dyn5) then
-                ui.debug("Casting Ferocious Bite - Low Target HP [Combat]")
-                return true
-            end
-        end
-        -- * Rip
-        -- rip,if=combo_points>=5&target.time_to_die>=6&dot.rip.remains<2&(buff.berserk.up|dot.rip.remains+1.9<=cooldown.tigers_fury.remains)
-        if cast.able.rip(units.dyn5) and comboPoints(units.dyn5) >= 5 and unit.ttd(units.dyn5) >= 6 and debuff.rip.remains(units.dyn5) < 2
-            and (buff.berserk.exists() or debuff.rip.remains(units.dyn5) + 1.9 <= cd.tigersFury.remains())
-        then
-            if cast.rip(units.dyn5) then
-                ui.debug("Casting Rip [Combat]")
-                return true
-            end
-        end
-        -- * Savage Roar
-        -- savage_roar,if=buff.savage_roar.remains<=3&combo_points>0&buff.savage_roar.remains+2>dot.rip.remains
-        if cast.able.savageRoar() and buff.savageRoar.remains() <= 3 and comboPoints(units.dyn5) > 0
-            and buff.savageRoar.remains() + 2 > debuff.rip.remains(units.dyn5)
-        then
-            if cast.savageRoar() then
-                ui.debug("Casting Savage Roar - Remain <= 3 [Combat]")
-                return true
-            end
-        end
-        -- savage_roar,if=buff.savage_roar.remains<=6&combo_points>=5&buff.savage_roar.remains+2<=dot.rip.remains&dot.rip.ticking
-        if cast.able.savageRoar() and buff.savageRoar.remains() <= 6 and comboPoints(units.dyn5) >= 5
-            and buff.savageRoar.remains() + 2 <= debuff.rip.remains(units.dyn5) and debuff.rip.exists(units.dyn5)
-        then
-            if cast.savageRoar() then
-                ui.debug("Casting Savage Roar - Remain <= 6 [Combat]")
-                return true
-            end
-        end
-        -- # Savage Roar if we're about to energy cap and it will keep our Rip from expiring around the same time as Savage Roar.
-        -- savage_roar,if=buff.savage_roar.remains<=12&combo_points>=5&energy.time_to_max<=1&buff.savage_roar.remains<=dot.rip.remains+6&dot.rip.ticking
-        if cast.able.savageRoar() and buff.savageRoar.remains() <= 12 and comboPoints(units.dyn5) >= 5
-            and energy.ttm() <= 1 and buff.savageRoar.remains() <= debuff.rip.remains(units.dyn5) + 6
-            and debuff.rip.exists(units.dyn5)
-        then
-            if cast.savageRoar() then
-                ui.debug("Casting Savage Roar - Energy Cap [Combat]")
-                return true
-            end
-        end
-        -- * Rake
-        -- # Refresh Rake as Re-Origination is about to end if Rake has <9 seconds left.
-        -- rake,if=buff.rune_of_reorigination.up&dot.rake.remains<9&buff.rune_of_reorigination.remains<=1.5
-        if cast.able.rake(units.dyn5) and buff.runeOfReorigination.exists() and debuff.rake.remains(units.dyn5) < 9
-            and buff.runeOfReorigination.remains() <= 1.5
-        then
-            if cast.rake(units.dyn5) then
-                ui.debug("Casting Rake - Rune of Reorigination [Combat]")
-                return true
-            end
-        end
-        -- # Rake if we can apply a stronger Rake or if it's about to fall off and clipping the last tick won't waste too much damage.
-        -- rake,cycle_targets=1,if=target.time_to_die-dot.rake.remains>3&(action.rake.tick_damage>dot.rake.tick_dmg|(dot.rake.remains<3&action.rake.tick_damage%dot.rake.tick_dmg>=0.75))
-        if not (buff.prowl.exists() or buff.shadowmeld.exists()) then
-            for i = 1, #enemies.yards5f do
-                local thisUnit = enemies.yards5f[i]
-                local applied = debuff.rake.applied(thisUnit) > 0 and debuff.rake.applied(thisUnit) or 1
-                if cast.able.rake(thisUnit) and (unit.ttd(thisUnit) - debuff.rake.remains(thisUnit) > 3)
-                    and (debuff.rake.calc(thisUnit) > applied
-                        or (debuff.rake.remains(thisUnit) < 3
-                            and (debuff.rake.calc(thisUnit) / applied) >= 0.75))
-                then
-                    if cast.rake(thisUnit) then
-                        ui.debug("Casting Rake on " .. unit.name(thisUnit) .. " [Combat]")
-                        return true
-                    end
-                end
-            end
-        end
-        -- * Thrash
-        -- thrash_cat,if=target.time_to_die>=6&dot.thrash_cat.remains<3&(dot.rip.remains>=8&buff.savage_roar.remains>=12|buff.berserk.up|combo_points>=5)&dot.rip.ticking
-        if unit.ttd(units.dyn8AOE) >= 6 and debuff.thrash.remains(units.dyn8AOE) < 3
-            and ((debuff.rip.remains(units.dyn8AOE) >= 8 and buff.savageRoar.remains() >= 12)
-                or buff.berserk.exists() or comboPoints(units.dyn8AOE) >= 5) and debuff.rip.exists(units.dyn8AOE)
-        then
-            -- Pool Energy for Thrash
-            -- # Pool energy for and maintain Thrash.
-            -- pool_resource,for_next=1
-            if energy() < 50 then return true end
-            if cast.able.thrash("player", "aoe", 1, 8) then
-                if cast.thrash("player", "aoe", 1, 8) then
-                    ui.debug("Casting Thrash - Refresh [Combat]")
-                    return true
-                end
-            end
-        end
-        -- # Pool energy for and clip Thrash if Rune of Re-Origination is expiring.
-        -- pool_resource,for_next=1
-        -- thrash_cat,if=target.time_to_die>=6&dot.thrash_cat.remains<9&buff.rune_of_reorigination.up&buff.rune_of_reorigination.remains<=1.5&dot.rip.ticking
-        if unit.ttd(units.dyn8AOE) >= 6 and debuff.thrash.remains(units.dyn8AOE) < 9
-            and buff.runeOfReorigination.exists() and buff.runeOfReorigination.remains() <= 1.5
-            and debuff.rip.exists(units.dyn8AOE)
-        then
-            if energy() < 50 then return true end
-            if cast.able.thrash("player", "aoe", 1, 8) then
-                if cast.thrash("player", "aoe", 1, 8) then
-                    ui.debug("Casting Thrash - Rune of Reorigination [Combat]")
-                    return true
-                end
-            end
-        end
-        -- * Pool Energy for Ferocious Bite
-        -- # Pool to near-full energy before casting Ferocious Bite.
-        -- pool_resource,if=combo_points>=5&!(energy.time_to_max<=1|(buff.berserk.up&energy>=25))&dot.rip.ticking
-        if comboPoints(units.dyn5) >= 5
-            and not (energy.ttm() <= 1 or (buff.berserk.exists() and energy() >= 25))
-            and debuff.rip.exists(units.dyn5)
-        then
-            -- ui.debug("Pooling to near-full energy for Ferocious Bite [Combat]")
-            return true
-        end
-        -- * Ferocious Bite
-        -- # Ferocious Bite if we reached near-full energy without spending our CP on something else.
-        -- ferocious_bite,if=combo_points>=5&dot.rip.ticking
-        if cast.able.ferociousBite(units.dyn5) and comboPoints(units.dyn5) >= 5 and debuff.rip.exists(units.dyn5) then
-            if cast.ferociousBite(units.dyn5) then
-                ui.debug("Casting Ferocious Bite - "..comboPoints(units.dyn5).." Combo [Combat]")
-                return true
-            end
-        end
-        -- * Call Action List - Filler
-        -- # Conditions under which we should execute a CP generator.
-        -- run_action_list,name=filler,if=buff.omen_of_clarity.react
-        if buff.clearcasting.exists() then
-            if actionList.Filler("Clearcasting") then return true end
-        end
-        -- run_action_list,name=filler,if=buff.feral_fury.react
-        if buff.feralFury.exists() then
-            if actionList.Filler("Feral Fury") then return true end
-        end
-        -- run_action_list,name=filler,if=(combo_points<5&dot.rip.remains<3.0)|(combo_points=0&buff.savage_roar.remains<2)
-        if (comboPoints(units.dyn5) < 5 and debuff.rip.remains(units.dyn5) < 3) or (comboPoints(units.dyn5) == 0 and buff.savageRoar.remains() < 2) then
-            if actionList.Filler("Rip/Savage Roar") then return true end
-        end
-        -- run_action_list,name=filler,if=target.time_to_die<=8.5
-        if unit.ttd(units.dyn5) <= 8.5 and comboPoints(units.dyn5) < 5 and not ferociousBiteFinish(units.dyn5) then
-            if actionList.Filler("TTD") then return true end
-        end
-        -- run_action_list,name=filler,if=buff.tigers_fury.up|buff.berserk.up
-        if (buff.tigersFury.exists() or buff.berserk.exists()) then
-            if actionList.Filler("Tiger/Berserk") then return true end
-        end
-        -- run_action_list,name=filler,if=cooldown.tigers_fury.remains<=3
-        if cd.tigersFury.remains() <= 3 then
-            if actionList.Filler("Tiger Soon") then return true end
-        end
-        -- run_action_list,name=filler,if=energy.time_to_max<=1.0
-        if energy.ttm() <= 1.0 then
-            if actionList.Filler("Energy Max") then return true end
+        -- * Call Action List - Single Target
+        -- swap_action_list,name=default,if=active_enemies<5
+        if ui.useST(8, 5) then
+            if actionList.SingleTarget() then return true end
         end
     end
 end -- End Action List - Combat
 
 -- * Action List - AoE
 actionList.AoE = function()
-    -- * Call Action List
-    -- swap_action_list,name=default,if=active_enemies<5
-    if ui.useST(8, 5) then
-        if actionList.Combat() then return true end
-    end
     -- * Auto Attack
     -- auto_attack
     if cast.able.autoAttack(units.dyn5) and unit.distance(units.dyn5) < 5 and not (buff.prowl.exists() or buff.shadowmeld.exists()) then
@@ -1248,7 +1015,7 @@ actionList.AoE = function()
     end
     -- * Rip
     -- rip,if=combo_points>=5
-    if cast.able.rip(units.dyn5) then
+    if cast.able.rip(units.dyn5) and not debuff.convert.exists(units.dyn5) then
         if comboPoints(units.dyn5) >= 5 then
             if cast.rip(units.dyn5) then
                 ui.debug("Casting Rip [AoE]")
@@ -1260,7 +1027,7 @@ actionList.AoE = function()
     -- rake,cycle_targets=1,if=active_enemies<8&dot.rake.remains<3&target.time_to_die>=15
     for i = 1, #enemies.yards5f do
         local thisUnit = enemies.yards5f[i]
-        if cast.able.rake(thisUnit) then
+        if cast.able.rake(thisUnit) and not debuff.convert.exists(thisUnit) then
             if #enemies.yards5f < 8 and debuff.rake.remains(thisUnit) < 3 and unit.ttd(thisUnit) >= 15 then
                 if cast.rake(thisUnit) then
                     ui.debug("Casting Rake on " .. unit.name(thisUnit) .. " [AoE]")
@@ -1307,6 +1074,342 @@ actionList.AoE = function()
     end
 end -- End Action List - AoE
 
+-- * Action List - Single Target
+actionList.SingleTarget = function()
+    -- * Auto Attack
+    -- auto_attack,if=!buff.prowl.up&!buff.shadowmeld.up
+    if cast.able.autoAttack(units.dyn5) and unit.distance(units.dyn5) < 5 and not (buff.prowl.exists() or buff.shadowmeld.exists()) then
+        if cast.autoAttack(units.dyn5) then
+            ui.debug("Casting Auto Attack [Single]")
+            return true
+        end
+    end
+    -- * Call Action List - Interrupts
+    -- skull_bash_cat
+    if actionList.Interrupts() then return true end
+    -- * Force of Nature
+    -- force_of_nature,if=charges=3|(buff.rune_of_reorigination.react&buff.rune_of_reorigination.remains<1)|(buff.vicious.react&buff.vicious.remains<1)|target.time_to_die<20
+    if cast.able.forceOfNature(units.dyn40) and charges.forceOfNature.count() == 3
+        or (buff.runeOfReorigination.exists() and buff.runeOfReorigination.remains() < 1)
+        or (buff.vicious.exists() and buff.vicious.remains() < 1)
+        or unit.ttd(units.dyn40) < 20
+    then
+        if cast.forceOfNature(units.dyn40) then
+            ui.debug("Casting Force of Nature on " .. unit.name(units.dyn40) .. " [Single]")
+            return true
+        end
+    end
+    -- * Racial
+    -- blood_fury,if=buff.tigers_fury.up
+    -- berserking,if=buff.tigers_fury.up
+    -- arcane_torrent,if=buff.tigers_fury.up
+    if ui.checked("Use Racial") and buff.tigersFury.exists() then
+        if unit.race() == "Orc" or unit.race() == "Troll" or unit.race() == "BloodElf" then
+            if cast.racial() then
+                ui.debug("Casting Racial [Single]")
+                return true
+            end
+        end
+    end
+    -- * Ravage
+    -- ravage,if=buff.stealthed.up
+    if cast.able.ravage(units.dyn5) and (buff.prowl.exists() or buff.shadowmeld.exists()) and not unit.facing(units.dyn5, "player") then
+        if cast.ravage(units.dyn5) then
+            ui.debug("Casting Ravage [Single]")
+            return true
+        end
+    end
+    -- * Ferocious Bite
+    -- # Keep Rip from falling off during execute range.
+    -- ferocious_bite,if=dot.rip.ticking&dot.rip.remains<=3&target.health.pct<=25
+    if cast.able.ferociousBite(units.dyn5) and comboPoints(units.dyn5) > 0
+        and debuff.rip.exists(units.dyn5) and debuff.rip.remains(units.dyn5) <= 3 and unit.hp(units.dyn5) <= 25
+    then
+        if cast.ferociousBite(units.dyn5) then
+            ui.debug("Casting Ferocious Bite - Maintain Rip [Single]"); return true
+        end
+    end
+    -- * Faerie Fire
+    -- faerie_fire,if=debuff.weakened_armor.stack<3
+    if cast.able.faerieFire(units.dyn5) and not (buff.prowl.exists() or buff.shadowmeld.exists()) and debuff.weakenedArmor.stack(units.dyn5) < 3 then
+        if cast.faerieFire(units.dyn5) then
+            ui.debug("Casting Faerie Fire [Single]")
+            return true
+        end
+    end
+    -- * Healing Touch
+    -- # Proc Dream of Cenarius at 4+ CP or when PS is about to expire.
+    -- healing_touch,if=talent.dream_of_cenarius.enabled&buff.predatory_swiftness.up&buff.dream_of_cenarius.down&(buff.predatory_swiftness.remains<1.5|combo_points>=4)
+    if cast.able.healingTouch() and talent.dreamOfCenarious and buff.predatorySwiftness.exists()
+        and not buff.dreamOfCenarius.exists() and (buff.predatorySwiftness.remains() < 1.5 or comboPoints(units.dyn5) >= 4)
+    then
+        if cast.healingTouch("player") then
+            ui.debug("Casting Healing Touch [Single]")
+            return true
+        end
+    end
+    -- * Savage Roar
+    -- savage_roar,if=buff.savage_roar.down
+    if cast.able.savageRoar() and not buff.savageRoar.exists() then
+        if cast.savageRoar() then
+            ui.debug("Casting Savage Roar - No Exist [Single]")
+            return true
+        end
+    end
+    -- * Tiger's Fury
+    -- tigers_fury,if=energy<=35&!buff.omen_of_clarity.react
+    if ui.checked("Tiger's Fury") and cast.able.tigersFury() and energy() <= 35 and not buff.clearcasting.exists() then
+        if cast.tigersFury() then
+            ui.debug("Casting Tiger's Fury [Single]")
+            return true
+        end
+    end
+    -- * Berserk
+    -- berserk,if=buff.tigers_fury.up|(target.time_to_die<18&cooldown.tigers_fury.remains>6)
+    if ui.alwaysCdAoENever("Berserk/Incarnation") and cast.able.berserk()
+        and (buff.tigersFury.exists() or (unit.ttd(units.dyn5) < 18 and cd.tigersFury.remains() > 6))
+    then
+        if cast.berserk() then
+            ui.debug("Casting Berserk [Single]")
+            return true
+        end
+    end
+    -- * Action List - Cooldown
+    if actionList.Cooldown() then return true end
+    -- * Use Item Slot - Hands
+    -- use_item,slot=hands,if=buff.tigers_fury.up
+    -- TODO
+
+    -- * Thrash
+    -- thrash_cat,if=buff.omen_of_clarity.react&dot.thrash_cat.remains<3&target.time_to_die>=6
+    if cast.able.thrash("player", "aoe", 1, 8) and buff.clearcasting.exists() and debuff.thrash.remains(units.dyn5) < 3 and unit.ttd(units.dyn5) >= 6 then
+        if cast.thrash("player", "aoe", 1, 8) then
+            ui.debug("Casting Thrash [Single]")
+            return true
+        end
+    end
+    -- * Ferocious Bite
+    -- ferocious_bite,if=target.time_to_die<=1&combo_points>=3
+    if cast.able.ferociousBite(units.dyn5)
+        and ((unit.ttd(units.dyn5) <= 1 or ferociousBiteFinish(units.dyn5)) and comboPoints(units.dyn5) >= 3)
+    then
+        if cast.ferociousBite(units.dyn5) then
+            ui.debug("Casting Ferocious Bite - TTD <= 1 [Single]")
+            return true
+        end
+    end
+    -- * Savage Roar
+    -- savage_roar,if=buff.savage_roar.remains<=3&combo_points>0&target.health.pct<25
+    if cast.able.savageRoar() and buff.savageRoar.remains() <= 3 and comboPoints(units.dyn5) > 0 and unit.hp(units.dyn5) < 25 then
+        if cast.savageRoar() then
+            ui.debug("Casting Savage Roar - Low Target HP [Single]")
+            return true
+        end
+    end
+    -- * Potion - Virmen's Bite
+    -- # Potion near or during execute range when Rune is up and we have 5 CP.
+    -- virmens_bite_potion,if=(combo_points>=5&(target.time_to_die*(target.health.pct-25)%target.health.pct)<15&buff.rune_of_reorigination.up)|target.time_to_die<=40
+    if ui.useCDs() and ui.checked("Use Combat Potion") and not (buff.prowl.exists() or buff.shadowmeld.exists())
+        and ((comboPoints(units.dyn5) >= 5 and (unit.ttd(units.dyn5) * (unit.hp(units.dyn5) - 25) / unit.hp(units.dyn5)) < 15
+            and buff.runeOfReorigination.exists()) or unit.ttd(units.dyn5) <= 40)
+    then
+        module.CombatPotionUp()
+    end
+
+    -- * Rip
+    -- # Overwrite Rip if it's at least 15% stronger than the current.
+    -- rip,if=combo_points>=5&action.rip.tick_damage%dot.rip.tick_dmg>=1.15&target.time_to_die>30
+    if cast.able.rip(units.dyn5) and not debuff.convert.exists(units.dyn5)
+        and comboPoints(units.dyn5) >= 5 and debuff.rip.applied(units.dyn5) > 0 -- ensure an existing Rip to compare
+        and (debuff.rip.calc() / debuff.rip.applied(units.dyn5)) >= 1.15 and unit.ttd(units.dyn5) > 30
+    then
+        if cast.rip(units.dyn5) then
+            ui.debug("Casting Rip - Overwrite [Single]")
+            return true
+        end
+    end
+    -- # Use 4 or more CP to apply Rip if Rune of Reorigination is about to expire and it's at least close to the current rip in damage.
+    -- rip,if=combo_points>=4&action.rip.tick_damage%dot.rip.tick_dmg>=0.95&target.time_to_die>30&buff.rune_of_reorigination.up&buff.rune_of_reorigination.remains<=1.5
+    if cast.able.rip(units.dyn5) and comboPoints(units.dyn5) >= 4 and (debuff.rip.calc() / debuff.rip.applied(units.dyn5)) >= 0.95 and unit.ttd(units.dyn5) > 30
+        and buff.runeOfReorigination.exists() and buff.runeOfReorigination.remains() <= 1.5
+    then
+        if cast.rip(units.dyn5) then
+            ui.debug("Casting Rip - Rune of Reorigination [Single]")
+            return true
+        end
+    end
+    -- * Pool Resource
+    -- # Pool 50 energy for Ferocious Bite.
+    -- pool_resource,if=combo_points>=5&target.health.pct<=25&dot.rip.ticking&!(energy>=50|(buff.berserk.up&energy>=25))
+    if comboPoints(units.dyn5) >= 5 and unit.hp(units.dyn5) <= 25 and debuff.rip.exists(units.dyn5)
+        and not (energy() >= 50 or (buff.berserk.exists() and energy() >= 25))
+    then
+        -- ui.debug("Pooling 50 energy for Ferocious Bite [Single]")
+        return true
+    end
+    -- * Ferocious Bite
+    -- ferocious_bite,if=combo_points>=5&dot.rip.ticking&target.health.pct<=25
+    if cast.able.ferociousBite(units.dyn5) and comboPoints(units.dyn5) >= 5
+        and debuff.rip.exists(units.dyn5) and unit.hp(units.dyn5) <= 25
+    then
+        if cast.ferociousBite(units.dyn5) then
+            ui.debug("Casting Ferocious Bite - Low Target HP [Single]")
+            return true
+        end
+    end
+    -- * Rip
+    -- rip,if=combo_points>=5&target.time_to_die>=6&dot.rip.remains<2&(buff.berserk.up|dot.rip.remains+1.9<=cooldown.tigers_fury.remains)
+    if cast.able.rip(units.dyn5) and not debuff.convert.exists(units.dyn5)
+        and comboPoints(units.dyn5) >= 5 and unit.ttd(units.dyn5) >= 6 and debuff.rip.remains(units.dyn5) < 2
+        and (buff.berserk.exists() or debuff.rip.remains(units.dyn5) + 1.9 <= cd.tigersFury.remains())
+    then
+        if cast.rip(units.dyn5) then
+            ui.debug("Casting Rip [Single]")
+            return true
+        end
+    end
+    -- * Savage Roar
+    -- savage_roar,if=buff.savage_roar.remains<=3&combo_points>0&buff.savage_roar.remains+2>dot.rip.remains
+    if cast.able.savageRoar() and buff.savageRoar.remains() <= 3 and comboPoints(units.dyn5) > 0
+        and buff.savageRoar.remains() + 2 > debuff.rip.remains(units.dyn5)
+    then
+        if cast.savageRoar() then
+            ui.debug("Casting Savage Roar - Remain <= 3 [Single]")
+            return true
+        end
+    end
+    -- savage_roar,if=buff.savage_roar.remains<=6&combo_points>=5&buff.savage_roar.remains+2<=dot.rip.remains&dot.rip.ticking
+    if cast.able.savageRoar() and buff.savageRoar.remains() <= 6 and comboPoints(units.dyn5) >= 5
+        and buff.savageRoar.remains() + 2 <= debuff.rip.remains(units.dyn5) and debuff.rip.exists(units.dyn5)
+    then
+        if cast.savageRoar() then
+            ui.debug("Casting Savage Roar - Remain <= 6 [Single]")
+            return true
+        end
+    end
+    -- # Savage Roar if we're about to energy cap and it will keep our Rip from expiring around the same time as Savage Roar.
+    -- savage_roar,if=buff.savage_roar.remains<=12&combo_points>=5&energy.time_to_max<=1&buff.savage_roar.remains<=dot.rip.remains+6&dot.rip.ticking
+    if cast.able.savageRoar() and buff.savageRoar.remains() <= 12 and comboPoints(units.dyn5) >= 5
+        and energy.ttm() <= 1 and buff.savageRoar.remains() <= debuff.rip.remains(units.dyn5) + 6
+        and debuff.rip.exists(units.dyn5)
+    then
+        if cast.savageRoar() then
+            ui.debug("Casting Savage Roar - Energy Cap [Single]")
+            return true
+        end
+    end
+    -- * Rake
+    -- # Refresh Rake as Re-Origination is about to end if Rake has <9 seconds left.
+    -- rake,if=buff.rune_of_reorigination.up&dot.rake.remains<9&buff.rune_of_reorigination.remains<=1.5
+    if cast.able.rake(units.dyn5) and buff.runeOfReorigination.exists() and debuff.rake.remains(units.dyn5) < 9
+        and buff.runeOfReorigination.remains() <= 1.5
+    then
+        if cast.rake(units.dyn5) then
+            ui.debug("Casting Rake - Rune of Reorigination [Single]")
+            return true
+        end
+    end
+    -- # Rake if we can apply a stronger Rake or if it's about to fall off and clipping the last tick won't waste too much damage.
+    -- rake,cycle_targets=1,if=target.time_to_die-dot.rake.remains>3&(action.rake.tick_damage>dot.rake.tick_dmg|(dot.rake.remains<3&action.rake.tick_damage%dot.rake.tick_dmg>=0.75))
+    if not (buff.prowl.exists() or buff.shadowmeld.exists()) then
+        for i = 1, #enemies.yards5f do
+            local thisUnit = enemies.yards5f[i]
+            local applied = debuff.rake.applied(thisUnit) > 0 and debuff.rake.applied(thisUnit) or 1
+            if cast.able.rake(thisUnit) and (unit.ttd(thisUnit) - debuff.rake.remains(thisUnit) > 3)
+                and (debuff.rake.calc(thisUnit) > applied
+                    or (debuff.rake.remains(thisUnit) < 3
+                        and (debuff.rake.calc(thisUnit) / applied) >= 0.75))
+            then
+                if cast.rake(thisUnit) then
+                    ui.debug("Casting Rake on " .. unit.name(thisUnit) .. " [Single]")
+                    return true
+                end
+            end
+        end
+    end
+    -- * Thrash
+    -- thrash_cat,if=target.time_to_die>=6&dot.thrash_cat.remains<3&(dot.rip.remains>=8&buff.savage_roar.remains>=12|buff.berserk.up|combo_points>=5)&dot.rip.ticking
+    if unit.ttd(units.dyn8AOE) >= 6 and debuff.thrash.remains(units.dyn8AOE) < 3
+        and ((debuff.rip.remains(units.dyn8AOE) >= 8 and buff.savageRoar.remains() >= 12)
+            or buff.berserk.exists() or comboPoints(units.dyn8AOE) >= 5) and debuff.rip.exists(units.dyn8AOE)
+    then
+        -- Pool Energy for Thrash
+        -- # Pool energy for and maintain Thrash.
+        -- pool_resource,for_next=1
+        if energy() < 50 then return true end
+        if cast.able.thrash("player", "aoe", 1, 8) then
+            if cast.thrash("player", "aoe", 1, 8) then
+                ui.debug("Casting Thrash - Refresh [Single]")
+                return true
+            end
+        end
+    end
+    -- # Pool energy for and clip Thrash if Rune of Re-Origination is expiring.
+    -- pool_resource,for_next=1
+    -- thrash_cat,if=target.time_to_die>=6&dot.thrash_cat.remains<9&buff.rune_of_reorigination.up&buff.rune_of_reorigination.remains<=1.5&dot.rip.ticking
+    if unit.ttd(units.dyn8AOE) >= 6 and debuff.thrash.remains(units.dyn8AOE) < 9
+        and buff.runeOfReorigination.exists() and buff.runeOfReorigination.remains() <= 1.5
+        and debuff.rip.exists(units.dyn8AOE)
+    then
+        if energy() < 50 then return true end
+        if cast.able.thrash("player", "aoe", 1, 8) then
+            if cast.thrash("player", "aoe", 1, 8) then
+                ui.debug("Casting Thrash - Rune of Reorigination [Single]")
+                return true
+            end
+        end
+    end
+    -- * Pool Energy for Ferocious Bite
+    -- # Pool to near-full energy before casting Ferocious Bite.
+    -- pool_resource,if=combo_points>=5&!(energy.time_to_max<=1|(buff.berserk.up&energy>=25))&dot.rip.ticking
+    if comboPoints(units.dyn5) >= 5
+        and not (energy.ttm() <= 1 or (buff.berserk.exists() and energy() >= 25))
+        and debuff.rip.exists(units.dyn5)
+    then
+        -- ui.debug("Pooling to near-full energy for Ferocious Bite [Single]")
+        return true
+    end
+    -- * Ferocious Bite
+    -- # Ferocious Bite if we reached near-full energy without spending our CP on something else.
+    -- ferocious_bite,if=combo_points>=5&dot.rip.ticking
+    if cast.able.ferociousBite(units.dyn5) and comboPoints(units.dyn5) >= 5 and debuff.rip.exists(units.dyn5) then
+        if cast.ferociousBite(units.dyn5) then
+            ui.debug("Casting Ferocious Bite - "..comboPoints(units.dyn5).." Combo [Single]")
+            return true
+        end
+    end
+    -- * Call Action List - Filler
+    -- # Conditions under which we should execute a CP generator.
+    -- run_action_list,name=filler,if=buff.omen_of_clarity.react
+    if buff.clearcasting.exists() then
+        if actionList.Filler("Clearcasting") then return true end
+    end
+    -- run_action_list,name=filler,if=buff.feral_fury.react
+    if buff.feralFury.exists() then
+        if actionList.Filler("Feral Fury") then return true end
+    end
+    -- run_action_list,name=filler,if=(combo_points<5&dot.rip.remains<3.0)|(combo_points=0&buff.savage_roar.remains<2)
+    if (comboPoints(units.dyn5) < 5 and debuff.rip.remains(units.dyn5) < 3) or (comboPoints(units.dyn5) == 0 and buff.savageRoar.remains() < 2) then
+        if actionList.Filler("Rip/Savage Roar") then return true end
+    end
+    -- run_action_list,name=filler,if=target.time_to_die<=8.5
+    if unit.ttd(units.dyn5) <= 8.5 and comboPoints(units.dyn5) < 5 and not ferociousBiteFinish(units.dyn5) then
+        if actionList.Filler("TTD") then return true end
+    end
+    -- run_action_list,name=filler,if=buff.tigers_fury.up|buff.berserk.up
+    if (buff.tigersFury.exists() or buff.berserk.exists()) then
+        if actionList.Filler("Tiger/Berserk") then return true end
+    end
+    -- run_action_list,name=filler,if=cooldown.tigers_fury.remains<=3
+    if cd.tigersFury.remains() <= 3 then
+        if actionList.Filler("Tiger Soon") then return true end
+    end
+    -- run_action_list,name=filler,if=energy.time_to_max<=1.0
+    if energy.ttm() <= 1.0 then
+        if actionList.Filler("Energy Max") then return true end
+    end
+end -- End Action List - Single Target
+
 -- * Action List - Filler
 actionList.Filler = function(reason)
     reason = reason and " - " .. reason or ""
@@ -1323,7 +1426,7 @@ actionList.Filler = function(reason)
     -- rake,if=target.time_to_die-dot.rake.remains>3&action.rake.tick_damage*(dot.rake.ticks_remain+1)-dot.rake.tick_dmg*dot.rake.ticks_remain>action.mangle_cat.hit_damage
     for i = 1, #enemies.yards5f do
         local thisUnit = enemies.yards5f[i]
-        if cast.able.rake(thisUnit) then
+        if cast.able.rake(thisUnit) and not debuff.convert.exists(thisUnit) then
             if unit.ttd(thisUnit) - debuff.rake.remains(thisUnit) > 3
                 and ((debuff.rake.calc() * (debuff.rake.ticksRemain(thisUnit) + 1)
                     - debuff.rake.applied(thisUnit) * debuff.rake.ticksRemain(thisUnit)
@@ -1482,6 +1585,8 @@ local function runRotation()
             return math.max(cd.berserk.duration(), cd.incarnation.duration())
         end
     end
+
+    -- ui.chatOverlay("AOE: "..tostring(ui.useAOE(8,5)).." - Count: "..#enemies.yards8)
 
     ---------------------
     --- Begin Profile ---

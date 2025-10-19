@@ -97,7 +97,7 @@ br.api.module = function(self)
                                 local itemName, _, _, itemLevel, itemMinLevel, itemType, itemSubType, _, _, _, _, _, _, _, _, _, _ =
                                     C_Item.GetItemInfo(itemInfo.itemID)
                                 if itemType == "Consumable" and itemSubType == "Potions" then
-                                    if string.find(itemName, "Heal", 0, true) then
+                                    if string.find(itemName, "Heal", 1, true) then
                                         table.insert(Consumables, #Consumables + 1, {
                                             itemID = itemInfo.itemID,
                                             spellId = spellID,

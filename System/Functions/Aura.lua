@@ -232,6 +232,11 @@ end
 
 -- if br.functions.aura:canDispel("target",SpellID) == true then
 function aura:canDispel(Unit, spellID)
+	-- Initialize dispel tracking table if it doesn't exist
+	if not br.dispelTracker then
+		br.dispelTracker = {}
+	end
+	
 	-- first, check DoNotDispell list
 	for i = 1, #br.engines.healingEngineCollections.DoNotDispellList do
 		if br.engines.healingEngineCollections.DoNotDispellList[i].id == spellID then
@@ -344,7 +349,19 @@ function aura:canDispel(Unit, spellID)
 				local debuffInfo = br._G.C_UnitAuras.GetDebuffDataByIndex(Unit, i)
 				local debuffRemain = debuffInfo.expirationTime - br._G.GetTime()
 				if (debuffInfo.dispelName and ValidType(debuffInfo.dispelName)) then
-					local delay = br.functions.misc:getValue("Dispel delay") - 0.3 + math.random() * 0.6
+					-- Create a unique key for this specific debuff instance
+					local trackerKey = Unit .. "_" .. debuffInfo.spellId .. "_" .. debuffInfo.expirationTime
+					
+					-- If this is a new debuff, calculate and store a random reaction delay
+					if not br.dispelTracker[trackerKey] then
+						-- Human-like reaction time: base delay +/- 0.3 seconds
+						local baseDelay = br.functions.misc:getValue("Dispel delay")
+						local randomDelay = baseDelay - 0.3 + math.random() * 0.6
+						br.dispelTracker[trackerKey] = randomDelay
+					end
+					
+					local delay = br.dispelTracker[trackerKey]
+					
 					if debuffInfo.spellId == 284663 and (br.GetHP(Unit) < br.functions.misc:getOptionValue("Bwonsamdi's Wrath HP")
 							or (br._G.UnitGroupRolesAssigned(Unit) == "TANK" and (debuffInfo.duration - debuffRemain) > delay)) then
 						HasValidDispel = true
@@ -363,9 +380,12 @@ function aura:canDispel(Unit, spellID)
 					if dispelUnitObj == nil and not br.functions.misc:isChecked("Dispel Only Whitelist")
 						and (debuffInfo.duration - debuffRemain) > delay then
 						HasValidDispel = true
+						-- Clean up the tracker once we've detected it (optional: keeps memory usage down)
+						-- br.dispelTracker[trackerKey] = nil
 						break
 					elseif dispelUnitObj == true then
 						HasValidDispel = true
+						-- br.dispelTracker[trackerKey] = nil
 						break
 					end
 				end
@@ -376,14 +396,29 @@ function aura:canDispel(Unit, spellID)
 				local buffInfo = br._G.C_UnitAuras.GetBuffDataByIndex(Unit, i)
 				local buffRemain = buffInfo.expirationTime - br._G.GetTime()
 				if (buffInfo.dispelName and ValidType(buffInfo.dispelName)) and not br._G.UnitIsPlayer(Unit) then
+					-- Create a unique key for this specific buff instance
+					local trackerKey = Unit .. "_" .. buffInfo.spellId .. "_" .. buffInfo.expirationTime
+					
+					-- If this is a new buff, calculate and store a random reaction delay
+					if not br.dispelTracker[trackerKey] then
+						-- Human-like reaction time: base delay +/- 0.3 seconds
+						local baseDelay = br.functions.misc:getValue("Dispel delay")
+						local randomDelay = baseDelay - 0.3 + math.random() * 0.6
+						br.dispelTracker[trackerKey] = randomDelay
+					end
+					
+					local delay = br.dispelTracker[trackerKey]
+					
 					local dispelUnitObj = Dispel(Unit, buffInfo.applications, buffInfo.duration, buffRemain, buffInfo.spellId, true)
 					if dispelUnitObj == nil and not br.functions.misc:isChecked("Purge Only Whitelist") then
-						if (buffInfo.duration - buffRemain) > (br.functions.misc:getValue("Dispel delay") - 0.3 + math.random() * 0.6) then
+						if (buffInfo.duration - buffRemain) > delay then
 							HasValidDispel = true
+							-- br.dispelTracker[trackerKey] = nil
 							break
 						end
 					elseif dispelUnitObj == true then
 						HasValidDispel = true
+						-- br.dispelTracker[trackerKey] = nil
 						break
 					end
 				end
@@ -391,6 +426,14 @@ function aura:canDispel(Unit, spellID)
 			end
 		end
 	end
+	
+	-- Periodically clean up old tracker entries to prevent memory bloat
+	-- Run cleanup every 30 seconds
+	if not br.dispelTrackerLastCleanup or (br._G.GetTime() - br.dispelTrackerLastCleanup) > 30 then
+		br.dispelTracker = {}
+		br.dispelTrackerLastCleanup = br._G.GetTime()
+	end
+	
 	return HasValidDispel
 end
 

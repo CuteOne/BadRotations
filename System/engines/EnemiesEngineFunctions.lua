@@ -62,10 +62,46 @@ function enemiesEngineFunctions:updateOM()
 	local totalObjects = br._G.GetObjectCount(true, "BR") or 0
 	local total = math.min(totalObjects, 500)
 
+	--[[
+		Performance Optimization System:
+
+		1. FPS-based Range Gating for Tracker:
+		   - Dynamically reduces scan radius as FPS drops to maintain smooth performance
+		   - Graduated tiers: 30y (< 25 FPS), 50y (< 35 FPS), 70y (< 45 FPS), 100y (< 55 FPS), unlimited (55+ FPS)
+		   - Prevents scanning distant objects that won't be interacted with when performance is low
+
+		2. Object Count Batching:
+		   - When > 300 objects exist, limits objects scanned per update cycle
+		   - Spreads the load across multiple frames to prevent frame drops
+
+		3. Distance-based Skipping:
+		   - Skips very distant objects for OM updates when FPS is struggling
+		   - Works in conjunction with tracker range gating for maximum performance
+	]]--
 	-- Performance optimization: Dynamically adjust scanning based on object count and FPS
 	local fps = br._G.GetFramerate() or 60
 	local objectsPerScan = total
 	local skipDistance = nil
+	local trackerScanRadius = nil -- Range limit for tracker objects
+
+	-- FPS-based range gating for tracker to maintain smooth performance
+	-- Gradually reduce scan radius as FPS drops
+	if fps < 25 then
+		trackerScanRadius = 30 -- Critical FPS: very tight radius
+		skipDistance = 40
+	elseif fps < 35 then
+		trackerScanRadius = 50 -- Low FPS: tight radius
+		skipDistance = 60
+	elseif fps < 45 then
+		trackerScanRadius = 70 -- Medium-low FPS: moderate radius
+		skipDistance = 80
+	elseif fps < 55 then
+		trackerScanRadius = 100 -- Medium FPS: normal radius
+		skipDistance = 100
+	else
+		-- Good FPS (55+): no tracker range limit
+		trackerScanRadius = nil
+	end
 
 	-- High object count optimization
 	if totalObjects > 300 then
@@ -79,10 +115,13 @@ function enemiesEngineFunctions:updateOM()
 		end
 
 		-- Additionally skip distant objects if performance is struggling
-		if fps < 40 then
-			skipDistance = 60 -- Only scan within 60 yards
+		-- Override with more aggressive limits at very low FPS
+		if fps < 30 then
+			skipDistance = math.min(skipDistance or 999, 50) -- Extremely aggressive
+		elseif fps < 40 then
+			skipDistance = math.min(skipDistance or 999, 60) -- Only scan within 60 yards
 		elseif fps < 50 then
-			skipDistance = 80 -- Only scan within 80 yards
+			skipDistance = math.min(skipDistance or 999, 80) -- Only scan within 80 yards
 		end
 	end
 
@@ -119,7 +158,7 @@ function enemiesEngineFunctions:updateOM()
 
 					-- Now check visibility and other properties
 					if shouldProcess and br._G.UnitIsVisible(thisUnit) and not br.functions.unit:isCritter(thisUnit)
-						and (not br._G.UnitIsFriend("player", thisUnit) or string.match(br._G.UnitGUID(thisUnit), "Pet"))
+						--and (not br._G.UnitIsFriend("player", thisUnit) or string.match(br._G.UnitGUID(thisUnit), "Pet"))
 					then
 						local enemyUnit = br.engines.enemiesEngine.unitSetup:new(thisUnit)
 						if enemyUnit then
@@ -132,25 +171,39 @@ function enemiesEngineFunctions:updateOM()
 			-- Update tracker during full OM scan
 			if shouldUpdateTracker
 				and thisUnit ~= nil and br._G.ObjectExists(thisUnit)
-				and ((br._G.ObjectIsUnit(thisUnit) and br._G.UnitIsVisible(thisUnit) and not br.functions.unit:GetUnitIsDeadOrGhost(thisUnit)) or not br._G.ObjectIsUnit(thisUnit))
+				and ((br._G.ObjectIsUnit(thisUnit) and br._G.UnitIsVisible(thisUnit)) or not br._G.ObjectIsUnit(thisUnit))
 			then
-				objUnit = br._G.ObjectIsUnit(thisUnit)
-				name = objUnit and br._G.UnitName(thisUnit) or br._G.ObjectName(thisUnit)
-				objectid = br._G.ObjectID(thisUnit)
-				objectguid = br._G.UnitGUID(thisUnit)
-				if thisUnit and name and objectid and objectguid then
-					local trackerFound = false
-					if #br.engines.tracker.tracking > 0 then
-						for j = 1, #br.engines.tracker.tracking do
-							if br.engines.tracker.tracking[j].object == thisUnit then
-								trackerFound = true
-								break
-							end
+				-- Apply FPS-based range gating for tracker
+				local shouldAddToTracker = true
+				if trackerScanRadius ~= nil and playerX ~= nil then
+					local unitX, unitY, unitZ = br._G.ObjectPosition(thisUnit)
+					if unitX ~= nil then
+						local distance = math.sqrt(((unitX - playerX) ^ 2) + ((unitY - playerY) ^ 2) + ((unitZ - playerZ) ^ 2))
+						if distance > trackerScanRadius then
+							shouldAddToTracker = false -- Skip distant units for tracker when FPS is low
 						end
 					end
-					if not trackerFound then
-						br._G.tinsert(br.engines.tracker.tracking,
-							{ object = thisUnit, unit = objUnit, name = name, id = objectid, guid = objectguid })
+				end
+
+				if shouldAddToTracker then
+					objUnit = br._G.ObjectIsUnit(thisUnit)
+					name = objUnit and br._G.UnitName(thisUnit) or br._G.ObjectName(thisUnit)
+					objectid = br._G.ObjectID(thisUnit)
+					objectguid = br._G.UnitGUID(thisUnit)
+					if thisUnit and name and objectid and objectguid then
+						local trackerFound = false
+						if #br.engines.tracker.tracking > 0 then
+							for j = 1, #br.engines.tracker.tracking do
+								if br.engines.tracker.tracking[j].object == thisUnit then
+									trackerFound = true
+									break
+								end
+							end
+						end
+						if not trackerFound then
+							br._G.tinsert(br.engines.tracker.tracking,
+								{ object = thisUnit, unit = objUnit, name = name, id = objectid, guid = objectguid })
+						end
 					end
 				end
 			end
@@ -165,18 +218,35 @@ function enemiesEngineFunctions:updateOM()
 	else
 		-- When throttled, only update tracker if needed
 		if shouldUpdateTracker then
+			-- Cache player position for distance checks
+			local playerX, playerY, playerZ = br._G.ObjectPosition("player")
+
 			for i = 1, total do
 				local thisUnit = br._G.GetObjectWithIndex(i)
 				if br._G.ObjectExists(thisUnit)
-					and ((br._G.ObjectIsUnit(thisUnit) and br._G.UnitIsVisible(thisUnit) and not br.functions.unit:GetUnitIsDeadOrGhost(thisUnit)) or not br._G.ObjectIsUnit(thisUnit))
+					and ((br._G.ObjectIsUnit(thisUnit) and br._G.UnitIsVisible(thisUnit)) or not br._G.ObjectIsUnit(thisUnit))
 				then
-					objUnit = br._G.ObjectIsUnit(thisUnit)
-					name = objUnit and br._G.UnitName(thisUnit) or br._G.ObjectName(thisUnit)
-					objectid = br._G.ObjectID(thisUnit)
-					objectguid = br._G.UnitGUID(thisUnit)
-					if thisUnit and name and objectid and objectguid then
-						br._G.tinsert(br.engines.tracker.tracking,
-							{ object = thisUnit, unit = objUnit, name = name, id = objectid, guid = objectguid })
+					-- Apply FPS-based range gating for tracker
+					local shouldAddToTracker = true
+					if trackerScanRadius ~= nil and playerX ~= nil then
+						local unitX, unitY, unitZ = br._G.ObjectPosition(thisUnit)
+						if unitX ~= nil then
+							local distance = math.sqrt(((unitX - playerX) ^ 2) + ((unitY - playerY) ^ 2) + ((unitZ - playerZ) ^ 2))
+							if distance > trackerScanRadius then
+								shouldAddToTracker = false -- Skip distant units for tracker when FPS is low
+							end
+						end
+					end
+
+					if shouldAddToTracker then
+						objUnit = br._G.ObjectIsUnit(thisUnit)
+						name = objUnit and br._G.UnitName(thisUnit) or br._G.ObjectName(thisUnit)
+						objectid = br._G.ObjectID(thisUnit)
+						objectguid = br._G.UnitGUID(thisUnit)
+						if thisUnit and name and objectid and objectguid then
+							br._G.tinsert(br.engines.tracker.tracking,
+								{ object = thisUnit, unit = objUnit, name = name, id = objectid, guid = objectguid })
+						end
 					end
 				end
 			end

@@ -92,7 +92,7 @@ function common:commonReaders()
 	local function MerchantShow_AutoSellRepair(_, event, _)
 		if event == "MERCHANT_SHOW" then
 			if br.functions.misc:getOptionCheck("Auto-Sell/Repair") then
-				br.lootManager:SellGreys()
+				br.engines.lootEngine:sellGreys()
 			end
 		end
 	end
@@ -264,50 +264,7 @@ function common:commonReaders()
 	-- 	br._G.print(...)
 	-- end
 	--Frame:SetScript("OnEvent", addonReader)
-	TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Unit,
-		function(self)
-			if br.unlocked --[[EWT]] and br._G.GetObjectCount() ~= nil then
-				local _, lunit = self:GetUnit()
-				if not br._G.UnitIsVisible(lunit) then
-					return
-				end
-				local unit = br._G.UnitGUID(lunit)
-				local burnUnit = br.functions.misc:getOptionCheck("Forced Burn") and br.engines.enemiesEngineFunctions:isBurnTarget(unit) > 0
-				local playerTarget = br.functions.unit:GetUnitIsUnit(unit, "target")
-				local targeting = br.functions.misc:isTargeting(unit)
-				local hasThreat = br.functions.combat:hasThreat(unit) or targeting or br.functions.misc:isInProvingGround() or burnUnit
-				local reaction = br.functions.unit:GetUnitReaction(unit, "player") or 10
-				if br.functions.misc:isChecked("Target Validation Debug") and (not br._G.UnitIsPlayer(unit) or br._G.UnitIsCharmed(unit) or br.functions.aura:UnitDebuffID("player", 320102)) then
-					if br.functions.misc:isValidUnit(unit) then
-						self:AddLine("Unit is Valid", 0, 1, 0)
-					elseif not br.functions.misc:getLineOfSight("player", unit) then
-						self:AddLine("LoS Fail", 1, 0, 0)
-					elseif not (br.engines.enemiesEngine.units[unit] ~= nil or br.functions.unit:GetUnitIsUnit(unit, "target") or br.lists.threatBypass[br.functions.unit:GetObjectID(unit)] ~= nil or burnUnit) then
-						self:AddLine("Not in Units Table", 1, 0, 0)
-					elseif not (not br._G.UnitIsTapDenied(unit) or br.isDummy) then
-						self:AddLine("Unit is Tap Denied", 1, 0, 0)
-					elseif not (br.engines.enemiesEngineFunctions:isSafeToAttack(unit) or burnUnit) then
-						self:AddLine("Safe Attack Fail", 1, 0, 0)
-					elseif not ((reaction < 5 and not br.functions.misc:isChecked("Hostiles Only")) or (br.functions.misc:isChecked("Hostiles Only") and (reaction < 4 or playerTarget or targeting)) or br.isDummy or burnUnit) then
-						self:AddLine("Reaction Value Fail", 1, 0, 0)
-					elseif
-						not ((br.functions.misc:isChecked("Attack MC Targets") and (not br.functions.unit:GetUnitIsFriend(unit, "player") or (br._G.UnitIsCharmed(unit) and br._G.UnitCanAttack("player", unit)))) or
-							not br.functions.unit:GetUnitIsFriend(unit, "player"))
-					then
-						self:AddLine("MC Check Fail", 1, 0, 0)
-					elseif br.functions.misc:getOptionCheck("Don't break CCs") and br.functions.misc:isLongTimeCCed(unit) then
-						self:AddLine("CC Check Fail", 1, 0, 0)
-					elseif not hasThreat then
-						self:AddLine("Threat Fail", 1, 0, 0)
-					elseif not br.functions.misc:enemyListCheck(unit) then
-						self:AddLine("List Check Fail", 1, 0, 0)
-					else
-						self:AddLine("Validation Failed", 0, 0, 1)
-					end
-				end
-			end
-		end
-	)
+
 	---------------------------
 	--[[ Combat Log Reader --]]
 	local superReaderFrame = br._G.CreateFrame("Frame")

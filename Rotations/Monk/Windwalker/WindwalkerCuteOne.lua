@@ -70,6 +70,8 @@ local function createOptions()
             br.ui:createCheckbox(section, "Crackling Jade Lightning")
             br.ui:createSpinnerWithout(section, "Cancel CJL Range", 10, 5, 40, 5,
                 "|cffFFFFFFCancels Crackling Jade Lightning below this range in yards.")
+            -- Grapple Weapon
+            br.ui:createCheckbox(section, "Grapple Weapon", "|cffFFFFFFAutomatically disarms dangerous melee enemies in PvE.")
             -- Legacy of the Emperor
             br.ui:createCheckbox(section, "Legacy of the Emperor")
             -- Legacy of the White Tiger
@@ -99,10 +101,12 @@ local function createOptions()
                 { "|cff00FF00Player", "|cffFFFF00Target", "|cffFF0000Mouseover" }, 1, "|cffFFFFFFTarget to cast on")
             -- Disable
             br.ui:createCheckbox(section, "Disable", "|cffFFFFFFDisables all defensive abilities.")
-                -- Expel Harm
+            -- Expel Harm
             br.ui:createSpinner(section, "Expel Harm", 40, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
             -- Fortifying Brew
             br.ui:createSpinner(section, "Fortifying Brew", 30, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
+            -- Healing Sphere
+            br.ui:createSpinner(section, "Healing Sphere", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
             -- Leg Sweep
             br.ui:createSpinner(section, "Leg Sweep - HP", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
             br.ui:createSpinner(section, "Leg Sweep - AoE", 5, 0, 10, 1, "|cffFFFFFFNumber of Units in 5 Yards to Cast At")
@@ -175,6 +179,8 @@ local var = {}
 var.getFacingDistance = br.functions.range.getFacingDistance
 var.haltProfile = false
 var.profileStop = false
+var.grappleWeaponBlacklist = {} -- Stores NPC IDs that don't have weapons
+var.lastGrappleTarget = nil
 
 --------------------
 --- Action Lists ---
@@ -206,7 +212,7 @@ actionList.Extra = function()
         end
         -- Single / AOE follow-up on current target
         if unit.exists("target") then
-            if not ui.useAOE(8,2) then
+            if not ui.useAOE(8,3) then
                 if cast.able.jab("target") then
                     if cast.jab("target") then
                         ui.debug("Casting Jab [Death Monk]")
@@ -241,6 +247,26 @@ actionList.Extra = function()
         if cast.roll() then
             ui.debug("Casting Roll")
             return true
+        end
+    end
+    -- * Grapple Weapon
+    if ui.checked("Grapple Weapon")then
+        for i = 1, #enemies.yards40 do
+            local thisUnit = enemies.yards40[i]
+            if cast.able.grappleWeapon(thisUnit) and unit.exists(thisUnit) and unit.distance(thisUnit) <= 40
+                and not debuff.grappleWeapon.exists(thisUnit)
+            then
+                -- Get NPC ID to check blacklist
+                local npcID = br.functions.unit:GetObjectID(thisUnit)
+                -- Skip if this NPC type is blacklisted (known to not have weapons)
+                if not var.grappleWeaponBlacklist[npcID] then
+                    var.lastGrappleTarget = thisUnit
+                    if cast.grappleWeapon(thisUnit) then
+                        ui.debug("Casting Grapple Weapon on " .. unit.name(thisUnit) .. " [Extra]")
+                        return true
+                    end
+                end
+            end
         end
     end
     -- * Legacy of the Emperor
@@ -331,7 +357,7 @@ actionList.Defensive = function()
             end
         end
         if ui.checked("Leg Sweep - AoE") and cast.able.legSweep()
-            and #enemies.yards5 >= ui.value("Leg Sweep - AoE [Defensive]")
+            and #enemies.yards5 >= ui.value("Leg Sweep - AoE")
         then
             if cast.legSweep() then
                 ui.debug("Casting Leg Sweep - AoE [Defensive]")
@@ -390,6 +416,15 @@ actionList.Defensive = function()
                     ui.debug("Casting Resuscitate on " .. unit.name(thisUnit) .. "[Defensive]")
                     return true
                 end
+            end
+        end
+        -- * Healing Sphere
+        if ui.checked("Healing Sphere") and cast.able.healingSphere("player","ground",0)
+            and unit.hp() <= ui.value("Healing Sphere") and energy() >= 40
+        then
+            if cast.healingSphere("player","ground",0) then
+                ui.debug("Casting Healing Sphere [Defensive]")
+                return true
             end
         end
     end
@@ -743,6 +778,25 @@ end -- End Action List - Combat
 ----------------
 --- ROTATION ---
 ----------------
+-- Event frame for error detection
+var.grappleWeaponErrorFrame = var.grappleWeaponErrorFrame or CreateFrame("Frame")
+
+var.grappleWeaponErrorFrame:RegisterEvent("UI_ERROR_MESSAGE")
+var.grappleWeaponErrorFrame:SetScript("OnEvent", function(self, event, errorType, message)
+    if message and var.lastGrappleTarget and var.grappleWeaponBlacklist then
+        -- Check for weapon-related errors (common messages: "Target has no weapons", "Can't do that")
+        local weaponError = message:lower():find("weapon") or message:lower():find("disarm")
+        if weaponError then
+            local npcID = br.functions.unit:GetObjectID(var.lastGrappleTarget)
+            if npcID and not var.grappleWeaponBlacklist[npcID] then
+                var.grappleWeaponBlacklist[npcID] = true
+                print("|cff8000FFBadRotations|r: Blacklisted " .. (UnitName(var.lastGrappleTarget) or "Unknown") .. " (ID: " .. npcID .. ") - No weapons to grapple")
+            end
+        end
+        var.lastGrappleTarget = nil
+    end
+end)
+
 local function runRotation()
     ---------------------
     --- Define Locals ---
@@ -765,13 +819,15 @@ local function runRotation()
     -- General Locals
     var.haltProfile = (unit.inCombat() and var.profileStop) or unit.mounted() or ui.pause() or ui.mode.rotation == 2
     -- Dynamic Units
-    -- Units (throttled)
+    -- Units
     units.get(5)
     units.get(40)
-    -- Enemies (throttled)
+    -- Enemies
     enemies.get(5)
     enemies.get(8)
+    -- enemies.get(8,"player",true) -- No Combat
     enemies.get(20)
+    enemies.get(40)
 
     -- Cancel Crackling Jade Lightning
     if cast.current.cracklingJadeLightning() and unit.distance("target") < ui.value("Cancel CJL Range") then
@@ -780,6 +836,8 @@ local function runRotation()
             return true
         end
     end
+
+    -- ui.chatOverlay("AOE: "..tostring(ui.useAOE(8,3)).." - C: "..#enemies.yards8.. " - NC: "..#enemies.yards8nc)
 
     ---------------------
     --- Begin Profile ---

@@ -15,7 +15,7 @@ local function getSnapshotValue(dot)
     if br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization()) == 103 then
         local multiplier     = 1.00
         local DreamOfCenarius    = 1.30
-        local SavageRoar     = 1.40
+        local SavageRoar     = 1.45
         local TigersFury     = 1.15
         local RakeMultiplier = 1
         -- * Tigers Fury
@@ -24,20 +24,29 @@ local function getSnapshotValue(dot)
         if br.player.buff.dreamOfCenarius.exists() then multiplier = multiplier * DreamOfCenarius end
         -- * Savage Roar
         if br.player.buff.savageRoar.exists() then multiplier = multiplier * SavageRoar end
+        
+        -- Get Attack Power for actual damage calculations
+        local UnitAttackPower = br._G["UnitAttackPower"]
+        local base, posBuff, negBuff = UnitAttackPower("player")
+        local ap = base + posBuff + negBuff
+        
         -- * Rip
         if dot == br.player.spells.debuffs.rip then
-            return 5 * multiplier
+            -- Rip: 768% AP over 16 seconds (8 ticks, one every 2 seconds)
+            local ripTickDamage = (7.68 * ap) / 8
+            return ripTickDamage * multiplier
         end
         -- * Rake
         if dot == br.player.spells.debuffs.rake then
+            -- Rake: 155% AP over 15 seconds (9 ticks, one every 3 seconds)
+            local rakeTickDamage = (0.155 * ap) / 9
             -- Incarnation/Prowl/Shadowmeld
-            if br.player.buff.incarnation.exists() or br.player.buff.prowl.exists()
-                or br.player.buff.shadowmeld.exists() --or br.player.buff.suddenAmbush.exists()
-            then
-                RakeMultiplier = 2.0
-            end
-            -- return rake
-            return multiplier * RakeMultiplier
+            -- if br.player.buff.incarnation.exists() or br.player.buff.prowl.exists()
+            --     or br.player.buff.shadowmeld.exists() --or br.player.buff.suddenAmbush.exists()
+            -- then
+            --     RakeMultiplier = 2.0
+            -- end
+            return rakeTickDamage * multiplier * RakeMultiplier
         end
     end
     -- Assassination Bleeds

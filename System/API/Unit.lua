@@ -673,4 +673,40 @@ br.api.unit = function(self)
         if not offHand and unit.weaponImbue.exists(imbueId) then return mainCharges end
         return 0
     end
+
+    ----------------------
+    --- Combat Stats API ---
+    ----------------------
+
+    --- Get player's attack power
+    -- @function unit.attackPower
+    -- @param thisUnit The unit to check, defaults to "player" if nil
+    -- @return number Total attack power (base + positive buffs + negative buffs)
+    unit.attackPower = function(thisUnit)
+        if thisUnit == nil then thisUnit = "player" end
+        local UnitAttackPower = br._G["UnitAttackPower"]
+        local base, posBuff, negBuff = UnitAttackPower(thisUnit)
+        return base + posBuff + negBuff
+    end
+
+    --- Get player's critical strike chance
+    -- @function unit.critChance
+    -- @param thisUnit The unit to check, defaults to "player" if nil
+    -- @return number Critical strike chance percentage
+    unit.critChance = function(thisUnit)
+        if thisUnit == nil then thisUnit = "player" end
+        local GetCritChance = br._G["GetCritChance"]
+        return GetCritChance()
+    end
+
+    --- Get player's average weapon damage
+    -- @function unit.weaponDamage
+    -- @param thisUnit The unit to check, defaults to "player" if nil
+    -- @return number Average weapon damage
+    unit.weaponDamage = function(thisUnit)
+        if thisUnit == nil then thisUnit = "player" end
+        local UnitDamage = br._G["UnitDamage"]
+        local minDmg, maxDmg = UnitDamage(thisUnit)
+        return (minDmg + maxDmg) / 2
+    end
 end
