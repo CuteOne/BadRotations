@@ -194,31 +194,40 @@ function br.loader:new(spec, specName)
     -- Check Existing Talents
     local function CheckExistingTalents(talentID)
         local playerClass = select(2, br._G.UnitClass('player'))
-        local talentName = br.convertName(br._G.GetSpellInfo(talentID))
-        if br.lists.spells[playerClass]["Shared"] ~= nil and br.lists.spells[playerClass][spec] ~= nil then
-            local heroicTalents = br.lists.spells[playerClass]["Shared"]["talentsHeroic"] and
-                br.lists.spells[playerClass]["Shared"]["talentsHeroic"] or {}
-            local sharedTalents = br.lists.spells[playerClass]["Shared"]["talents"]
-            local specTalents = br.lists.spells[playerClass][spec]["talents"]
-            -- Check for missing entries
-            if sharedTalents[talentName] == nil and specTalents[talentName] == nil and heroicTalents[talentName] == nil then
-                br._G.print("|cffff0000Talent: |r" ..
-                    talentName ..
-                    "|cffff0000 with ID: |r" ..
-                    talentID .. " is not listed in the list of Talents Spell List.")
+        if br.lists.spells[playerClass]["Shared"] == nil or br.lists.spells[playerClass][spec] == nil then
+            return
+        end
+
+        local heroicTalents = br.lists.spells[playerClass]["Shared"]["talentsHeroic"] or {}
+        local sharedTalents = br.lists.spells[playerClass]["Shared"]["talents"]
+        local specTalents = br.lists.spells[playerClass][spec]["talents"]
+
+        -- Helper function to find talent name by ID in a talent table
+        local function findTalentNameByID(talentTable, searchID)
+            for name, id in pairs(talentTable) do
+                if id == searchID then
+                    return name
+                end
             end
-            -- Check for incorrect IDs
-            if (specTalents[talentName] ~= nil and specTalents[talentName] ~= talentID)
-                or (sharedTalents[talentName] ~= nil and sharedTalents[talentName] ~= talentID)
-                or (heroicTalents[talentName] ~= nil and heroicTalents[talentName] ~= talentID)
-            then
-                local currentID = specTalents[talentName] ~= nil and specTalents[talentName] or
-                    sharedTalents[talentName]
-                br._G.print("|cffff0000Talent found in the Talent Spell List for |r" ..
-                    talentName .. "|cffff0000 with ID: |r" ..
-                    currentID ..
-                    "|cffff0000 it should be changed to ID: |r" .. talentID .. "|cffff0000.")
-            end
+            return nil
+        end
+
+        -- Helper function to check if talent ID exists in any talent table
+        local function talentIDExists(searchID)
+            return findTalentNameByID(specTalents, searchID) ~= nil or
+                   findTalentNameByID(sharedTalents, searchID) ~= nil or
+                   findTalentNameByID(heroicTalents, searchID) ~= nil
+        end
+
+        -- Get the localized talent name for display purposes only
+        local talentName = br._G.GetSpellInfo(talentID) or ("Unknown Spell " .. talentID)
+
+        -- Check for missing entries
+        if not talentIDExists(talentID) then
+            br._G.print("|cffff0000Talent: |r" ..
+                talentName ..
+                "|cffff0000 with ID: |r" ..
+                talentID .. " is not listed in the list of Talents Spell List.")
         end
     end
 
