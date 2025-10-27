@@ -29,8 +29,13 @@ if not lootEngine.metaTable then
 	setmetatable(lootEngine, lootEngine.metaTable)
 
 	-- Debug function
-	function lootEngine:debug(message)
-		if message and self.oldMessage ~= message then
+	function lootEngine:debug(message, forceShow)
+		-- Check if loot debugging is enabled or forceShow is true
+		local showDebug = forceShow or (br.data and br.data.settings and br.data.settings[br.loader.selectedSpec] 
+			and br.data.settings[br.loader.selectedSpec].toggles 
+			and br.data.settings[br.loader.selectedSpec].toggles["isDebugging"])
+		
+		if showDebug and message and self.oldMessage ~= message then
 			br.functions.misc:addonDebug("<LootEngine> " .. (math.floor(GetTime() * 1000) / 1000) .. " " .. message, true)
 			self.oldMessage = message
 		end
@@ -57,18 +62,28 @@ if not lootEngine.metaTable then
 
 		-- Use the lootable table from EnemiesEngine
 		local lootableTable = br.engines.enemiesEngine.lootable
-		for k, _ in pairs(lootableTable) do
-			if lootableTable[k] ~= nil then
-				local thisUnit = lootableTable[k].unit
-				local hasLoot = CanLootUnit(lootableTable[k].guid)
-				if br.functions.unit:GetObjectExists(thisUnit) and hasLoot then
-					lootCount = lootCount + 1
-					-- Find the closest lootable unit instead of just the first
-					local distance = br.functions.range:getDistance(thisUnit)
-					if distance < closestDistance then
-					closestDistance = distance
-						closestUnit = thisUnit
+		for k, v in pairs(lootableTable) do
+			if v ~= nil and v.unit ~= nil and v.guid ~= nil then
+				local thisUnit = v.unit
+				local thisGUID = v.guid
+				-- Verify the unit still exists and has loot
+				if br.functions.unit:GetObjectExists(thisUnit) then
+					local hasLoot = CanLootUnit(thisGUID)
+					if hasLoot then
+						lootCount = lootCount + 1
+						-- Find the closest lootable unit instead of just the first
+						local distance = br.functions.range:getDistance(thisUnit)
+						if distance < closestDistance then
+							closestDistance = distance
+							closestUnit = thisUnit
+						end
+					else
+						-- No longer has loot, remove from table
+						lootableTable[k] = nil
 					end
+				else
+					-- Unit no longer exists, remove from table
+					lootableTable[k] = nil
 				end
 			end
 		end
@@ -83,7 +98,17 @@ if not lootEngine.metaTable then
 
 	-- Main looting logic
 	function lootEngine:getLoot(lootUnit)
-		if not lootUnit then return end
+		if not lootUnit then 
+			self:debug("getLoot called with nil unit")
+			return 
+		end
+
+		-- Verify unit still exists
+		if not br.functions.unit:GetObjectExists(lootUnit) then
+			self:debug("Loot unit no longer exists")
+			self.lootUnit = nil
+			return
+		end
 
 		-- Don't loot while in combat
 		if br.functions.misc:isInCombat("player") then
@@ -103,7 +128,21 @@ if not lootEngine.metaTable then
 		end
 
 		local unitGUID = br._G.UnitGUID(lootUnit)
-		if not unitGUID then return end
+		if not unitGUID then 
+			self:debug("Could not get GUID for loot unit")
+			return 
+		end
+
+		-- Verify unit still has loot
+		if not CanLootUnit(unitGUID) then
+			self:debug("Unit no longer has loot available")
+			-- Remove from lootable table
+			if br.engines.enemiesEngine.lootable[lootUnit] then
+				br.engines.enemiesEngine.lootable[lootUnit] = nil
+			end
+			self.lootUnit = nil
+			return
+		end
 
 		-- Throttle loot attempts on same unit
 		local now = GetTime()
@@ -119,12 +158,26 @@ if not lootEngine.metaTable then
 			if distance < 7 and br.functions.misc:getLineOfSight("player", lootUnit) then
 				self.lootAttempts[unitGUID] = now
 				self:debug("Looting " .. br._G.UnitName(lootUnit) .. " at " .. math.floor(distance) .. " yards")
+				
 				-- Use InteractUnit or ObjectInteract depending on what the unlocker provides
 				local interactFunc = br._G.InteractUnit or br._G.ObjectInteract
 				if interactFunc then
 					self.isLooting = true
 					self.lootStartTime = now
 					interactFunc(lootUnit)
+				else
+					self:debug("ERROR: No interact function available (InteractUnit or ObjectInteract)")
+					-- Try direct TargetUnit + Interact as fallback
+					if br._G.TargetUnit then
+						br._G.TargetUnit(lootUnit)
+						br._G.C_Timer.After(0.1, function()
+							if br._G.InteractTarget then
+								self.isLooting = true
+								self.lootStartTime = now
+								br._G.InteractTarget()
+							end
+						end)
+					end
 				end
 
 				-- Note: Manual looting is handled by LOOT_OPENED event
@@ -132,6 +185,8 @@ if not lootEngine.metaTable then
 			else
 				if distance >= 7 then
 					self:debug("Unit too far for looting: " .. math.floor(distance) .. " yards")
+				else
+					self:debug("No line of sight to loot unit")
 				end
 			end
 
@@ -149,12 +204,22 @@ if not lootEngine.metaTable then
 		if not br.functions.misc:getOptionCheck("Auto Loot") then return end
 
 		-- Only loot when out of combat or no enemies nearby
-		if br.functions.misc:isInCombat("player") and br.player.enemies.get(10)[1] ~= nil then
-			return
+		if br.functions.misc:isInCombat("player") then
+			if br.player and br.player.enemies and br.player.enemies.get then
+				local nearbyEnemies = br.player.enemies.get(10)
+				if nearbyEnemies and nearbyEnemies[1] ~= nil then
+					return
+				end
+			else
+				return -- Can't check enemies, don't loot in combat
+			end
 		end
 
 		-- Check if there are units to loot
-		if self:lootCount() == 0 then return end
+		local lootableCount = self:lootCount()
+		if lootableCount == 0 then 
+			return 
+		end
 
 		-- Check for bag space
 		local freeSlots = self:emptySlots()
@@ -193,6 +258,8 @@ if not lootEngine.metaTable then
 		-- All checks passed, attempt to loot
 		if self.lootUnit then
 			self:getLoot(self.lootUnit)
+		else
+			self:debug("No valid loot unit found despite " .. lootableCount .. " lootable units")
 		end
 	end
 
@@ -299,9 +366,9 @@ if not lootEngine.metaTable then
 
 				-- Remove the unit from lootable table now that loot window opened successfully
 				if lootEngine.lootUnit then
-					local unitGUID = br._G.UnitGUID(lootEngine.lootUnit)
-					if unitGUID and br.engines.enemiesEngine.lootable[unitGUID] then
-						br.engines.enemiesEngine.lootable[unitGUID] = nil
+					-- Find and remove the unit from the lootable table (indexed by unit token)
+					if br.engines.enemiesEngine.lootable[lootEngine.lootUnit] then
+						br.engines.enemiesEngine.lootable[lootEngine.lootUnit] = nil
 						lootEngine:debug("Removed " .. br._G.UnitName(lootEngine.lootUnit) .. " from lootable table")
 					end
 				end

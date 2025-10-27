@@ -1137,11 +1137,23 @@ actionList.SingleTarget = function()
             return true
         end
     end
+    -- * Nature's Swiftness
+    -- # Use Nature's Swiftness for an instant Healing Touch when no predatory swiftness is available to proc Dream of Cenarius.
+    -- natures_swiftness,if=talent.dream_of_cenarius.enabled&buff.predatory_swiftness.down&buff.dream_of_cenarius.down
+    if cast.able.naturesSwiftness() and talent.dreamOfCenarious
+        and not buff.predatorySwiftness.exists() and not buff.dreamOfCenarius.exists() and comboPoints(units.dyn5) >= 4
+    then
+        if cast.naturesSwiftness() then
+            ui.debug("Casting Nature's Swiftness [Single]")
+            return true
+        end
+    end
     -- * Healing Touch
     -- # Proc Dream of Cenarius at 4+ CP or when PS is about to expire.
     -- healing_touch,if=talent.dream_of_cenarius.enabled&buff.predatory_swiftness.up&buff.dream_of_cenarius.down&(buff.predatory_swiftness.remains<1.5|combo_points>=4)
-    if cast.able.healingTouch() and talent.dreamOfCenarious and buff.predatorySwiftness.exists()
-        and not buff.dreamOfCenarius.exists() and (buff.predatorySwiftness.remains() < 1.5 or comboPoints(units.dyn5) >= 4)
+    if cast.able.healingTouch() and talent.dreamOfCenarious and not buff.dreamOfCenarius.exists()
+        and ((buff.predatorySwiftness.exists() and (buff.predatorySwiftness.remains() < 1.5 or comboPoints(units.dyn5) >= 4))
+            or (buff.naturesSwiftness.exists() and comboPoints(units.dyn5) >= 4))
     then
         if cast.healingTouch("player") then
             ui.debug("Casting Healing Touch [Single]")

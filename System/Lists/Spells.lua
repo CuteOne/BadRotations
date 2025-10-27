@@ -2636,6 +2636,9 @@ br.lists.spells = {
 
             },
             buffs     = {
+                dampenHarm              = 122278,
+                deathNote               = 121125,
+                diffuseMagic            = 122783,
                 fortifyingBrew          = 126456,
                 legacyOfTheEmperor      = 117666,
                 legacyOfTheWhiteTiger   = 116781,
@@ -2650,6 +2653,11 @@ br.lists.spells = {
                 -- hitCombo               = 196741,
                 -- kicksOfFlowingMomentum = 394944,
                 -- blackoutReinforcement  = 424454,
+                arcaneBrilliance         = 1459, -- Mage Shared Buff
+                blessingOfKings          = 20217, -- Paladin Shared Buff
+                dalaranBrilliance        = 61316, -- Mage Shared Buff
+                markOfTheWild            = 117666, -- Druid Shared Buff
+                leaderOfThePack          = 24932, -- Druid Shared Buff
             },
             conduits  = {
                 -- calculatedStrikes    = 336526,

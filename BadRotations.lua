@@ -60,6 +60,10 @@ function br.Run()
 		br.engines:Main()
 		br.engines:ObjectManager()
 		br.engines:ObjectTracker()
+		-- Initialize Loot Engine
+		if br.engines.lootEngine and br.engines.lootEngine.init then
+			br.engines.lootEngine:init()
+		end
 		-- Complete Loadin
 		br.ui.chatOverlay:Show("-= BadRotations Loaded =-")
 		br._G.print("Initialization Complete.")

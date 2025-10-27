@@ -300,6 +300,19 @@ function combat:hasThreat(unit, playerUnit)
 		end
 		return true
 	end
+
+	-- FIXED: Early exit for already validated enemies to avoid expensive checks
+	-- Safety check: Still verify unit is attackable to handle evade/reset/faction change scenarios
+	local unitPointer = br._G.ObjectPointer(unit)
+	if br._G.UnitAffectingCombat("player") and br.engines.enemiesEngine.enemy[unitPointer] ~= nil
+		and br._G.UnitCanAttack("player", unit) and not br.functions.unit:GetUnitIsDeadOrGhost(unit)
+	then
+		if br.functions.misc:isChecked("Threat Debug") then
+			br._G.print("[Validated Enemy Threat] " .. br._G.UnitName(unit) .. " is already in enemy table.")
+		end
+		return true
+	end
+
 	if playerUnit == nil then
 		playerUnit = "player"
 	end

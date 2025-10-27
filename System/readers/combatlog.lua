@@ -137,14 +137,25 @@ function combatLog:common(...)
             (param == "SPELL_DAMAGE" or param == "SWING_DAMAGE")
         then
             local thisUnit = br._G.GetObjectWithGUID(destination)
-            if br.engines.enemiesEngine.damaged[thisUnit] == nil and br.engines.enemiesEngine.units[thisUnit] ~= nil and br.engines.enemiesEngine.enemy[thisUnit] == nil then
-                for i = 1, #br.engines.healingEngine.friend do
-                    if br._G.ObjectPointer(br.engines.healingEngine.friend[i].unit) == br._G.GetObjectWithGUID(source) then
-                        if br.engines.enemiesEngine.damaged[thisUnit] == nil then
-                            br.engines.enemiesEngine.damaged[thisUnit] = thisUnit
+            -- FIXED: Track any enemy damaged by player/party/raid that isn't yet validated
+            -- Removed units table requirement - catches enemies before full validation completes
+            if br.engines.enemiesEngine.damaged[thisUnit] == nil and br.engines.enemiesEngine.enemy[thisUnit] == nil then
+                -- Check if damage source is player, pet, or any party/raid member
+                local isDamagedByGroup = false
+                if br._G.GetObjectWithGUID(source) == br._G.ObjectPointer("player") or
+                   (br.functions.unit:GetUnitExists("pet") and br._G.GetObjectWithGUID(source) == br._G.ObjectPointer("pet")) then
+                    isDamagedByGroup = true
+                else
+                    -- Check if damage is from any party/raid member
+                    for i = 1, #br.engines.healingEngine.friend do
+                        if br._G.ObjectPointer(br.engines.healingEngine.friend[i].unit) == br._G.GetObjectWithGUID(source) then
+                            isDamagedByGroup = true
                             break
                         end
                     end
+                end
+                if isDamagedByGroup then
+                    br.engines.enemiesEngine.damaged[thisUnit] = thisUnit
                 end
             end
         end

@@ -268,9 +268,40 @@ if not enemiesEngine.metaTable2 then
 					end
 				end
 
-				-- Performance optimization: If unit is already validated and in tables, check less frequently
+				-- FIXED: Combat-reactive refresh rates for better responsiveness
+				-- Use lightweight threat indicators to prioritize validation without full isValidUnit overhead
 				local isAlreadyValid = br.engines.enemiesEngine.units[o.unit] ~= nil
-				local actualRefreshInterval = isAlreadyValid and (refreshInterval * 2) or refreshInterval
+				local actualRefreshInterval
+
+				-- Fast path: In combat, check for threat indicators (balanced between performance and coverage)
+				if br._G.UnitAffectingCombat("player") then
+					local needsFastValidation = false
+
+					-- Cheap checks first: targeting player/group or damaged by us
+					if br.functions.misc:isTargeting(o.unit) or br.engines.enemiesEngine.damaged[br._G.ObjectPointer(o.unit)] ~= nil then
+						needsFastValidation = true
+					-- More expensive but important: full threat check for group content
+					elseif br._G.GetNumGroupMembers() > 0 then
+						needsFastValidation = br.functions.combat:hasThreat(o.unit)
+					end
+
+					if needsFastValidation then
+						-- Enemy is actively engaging us/group: refresh every 0.1s for immediate response
+						actualRefreshInterval = 0.1
+					elseif isAlreadyValid then
+						-- Already validated enemies: use slightly slower refresh (1.25x) for performance
+						actualRefreshInterval = refreshInterval * 1.25
+					else
+						-- New/unvalidated enemies: use base refresh rate
+						actualRefreshInterval = refreshInterval
+					end
+				elseif isAlreadyValid then
+					-- Not in combat, already validated: use slower refresh
+					actualRefreshInterval = refreshInterval * 1.25
+				else
+					-- Not in combat, new enemy: use base refresh rate
+					actualRefreshInterval = refreshInterval
+				end
 
 				if o.enemyRefresh == nil or o.enemyRefresh < GetTime() - actualRefreshInterval then
 					o.enemyListCheck = br.functions.misc:enemyListCheck(o.unit)
@@ -442,17 +473,21 @@ if not enemiesEngine.metaTable2 then
 				else
 					i = i + 1
 				end
-			end
-			-- clean our loots
-			if autoLoot then
-				for k, _ in pairs(br.engines.enemiesEngine.lootable) do
-					if not br._G.CanLootUnit(br.engines.enemiesEngine.lootable[k].guid) or not br.functions.unit:GetObjectExists(br.engines.enemiesEngine.lootable[k].unit) then
+		end
+		-- clean our loots
+		if autoLoot then
+			for k, v in pairs(br.engines.enemiesEngine.lootable) do
+				if v ~= nil and v.unit ~= nil and v.guid ~= nil then
+					-- Check if unit still exists and has loot
+					if not br.functions.unit:GetObjectExists(v.unit) or not br._G.CanLootUnit(v.guid) then
 						br.engines.enemiesEngine.lootable[k] = nil
 					end
+				else
+					-- Invalid entry, remove it
+					br.engines.enemiesEngine.lootable[k] = nil
 				end
 			end
 		end
-
-	-- We are setting up the Tables for the first time
+	end	-- We are setting up the Tables for the first time
 	enemiesEngine:SetupEnemyTables()
 end

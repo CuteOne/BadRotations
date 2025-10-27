@@ -8,7 +8,8 @@ local function createToggles()
     local RotationModes = {
         [1] = { mode = "Auto", value = 1, overlay = "Automatic Rotation Enabled", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spells.spinningCraneKick },
         [2] = { mode = "AOE", value = 2, overlay = "AOE Rotation Enabled", tip = "AOE Rotation Used", highlight = 0, icon = br.player.spells.spinningCraneKick },
-        [3] = { mode = "Single", value = 3, overlay = "Single Target Rotation Enabled", tip = "Single Target Rotation Used", highlight = 0, icon = br.player.spells.tigerPalm }
+        [3] = { mode = "Single", value = 3, overlay = "Single Target Rotation Enabled", tip = "Single Target Rotation Used", highlight = 0, icon = br.player.spells.tigerPalm },
+        [4] = { mode = "Off", value = 4, overlay = "Rotation Disabled", tip = "No Rotation will be used.", highlight = 0, icon = br.player.spells.expelHarm }
     };
     br.ui:createToggle(RotationModes, "Rotation", 1, 0)
     -- Cooldown Button
@@ -64,8 +65,6 @@ local function createOptions()
             -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing", 5, 5, 60, 5,
                 "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
-            -- Death Monk Mode
-            br.ui:createCheckbox(section, "Death Monk Mode")
             -- Crackling Jade lightning
             br.ui:createCheckbox(section, "Crackling Jade Lightning")
             br.ui:createSpinnerWithout(section, "Cancel CJL Range", 10, 5, 40, 5,
@@ -187,48 +186,6 @@ var.lastGrappleTarget = nil
 --------------------
 -- Action List - Extra
 actionList.Extra = function()
-    -- * Death Monk mode
-    if ui.checked("Death Monk Mode") then
-        local sefStack = buff.stormEarthFire.stack() or 0
-        -- Cast Storm, Earth, and Fire on first target if no SEF active
-        if sefStack == 0 and #enemies.yards8 > 0 then
-            local thisUnit = enemies.yards8[1]
-            if cast.able.stormEarthFire(thisUnit) then
-                if cast.stormEarthFire(thisUnit) then
-                    ui.debug("Casting Storm, Earth and Fire on " .. unit.name(thisUnit) .. " [Death Monk]")
-                    return true
-                end
-            end
-        end
-        -- If one SEF stack and exactly two targets, cast SEF on second target
-        if sefStack == 1 and #enemies.yards8 == 2 then
-            local thisUnit = enemies.yards8[2]
-            if cast.able.stormEarthFire(thisUnit) then
-                if cast.stormEarthFire(thisUnit) then
-                    ui.debug("Casting Storm, Earth and Fire on " .. unit.name(thisUnit) .. " [Death Monk]")
-                    return true
-                end
-            end
-        end
-        -- Single / AOE follow-up on current target
-        if unit.exists("target") then
-            if not ui.useAOE(8,3) then
-                if cast.able.jab("target") then
-                    if cast.jab("target") then
-                        ui.debug("Casting Jab [Death Monk]")
-                        return true
-                    end
-                end
-            else
-                if cast.able.spinningCraneKick("target") then
-                    if cast.spinningCraneKick("target") then
-                        ui.debug("Casting Spinning Crane Kick [Death Monk]")
-                        return true
-                    end
-                end
-            end
-        end
-    end
     -- * Crackling Jade Lightning
     if ui.checked("Crackling Jade Lightning") and not unit.mounted() and not cast.current.cracklingJadeLightning()
         and not unit.moving() and cast.able.cracklingJadeLightning("target") and unit.valid("target")
@@ -250,7 +207,7 @@ actionList.Extra = function()
         end
     end
     -- * Grapple Weapon
-    if ui.checked("Grapple Weapon")then
+    if ui.checked("Grapple Weapon") and unit.inCombat()then
         for i = 1, #enemies.yards40 do
             local thisUnit = enemies.yards40[i]
             if cast.able.grappleWeapon(thisUnit) and unit.exists(thisUnit) and unit.distance(thisUnit) <= 40
@@ -270,14 +227,19 @@ actionList.Extra = function()
         end
     end
     -- * Legacy of the Emperor
-    if ui.checked("Legacy of the Emperor") and cast.able.legacyOfTheEmperor() and not buff.legacyOfTheEmperor.exists() then
+    if ui.checked("Legacy of the Emperor") and cast.able.legacyOfTheEmperor()
+        and buff.legacyOfTheEmperor.refresh() and not (buff.markOfTheWild.exists() or buff.blessingOfKings.exists())
+    then
         if cast.legacyOfTheEmperor() then
             ui.debug("Casting Legacy of the Emperor")
             return true
         end
     end
     -- * Legacy of the White Tiger
-    if ui.checked("Legacy of the White Tiger") and cast.able.legacyOfTheWhiteTiger() and not buff.legacyOfTheWhiteTiger.exists() then
+    if ui.checked("Legacy of the White Tiger") and cast.able.legacyOfTheWhiteTiger()
+        and buff.legacyOfTheWhiteTiger.refresh() and not (buff.arcaneBrilliance.exists() or buff.dalaranBrilliance.exists()
+            or buff.leaderOfThePack.exists())
+    then
         if cast.legacyOfTheWhiteTiger() then
             ui.debug("Casting Legacy of the White Tiger")
             return true
@@ -420,7 +382,7 @@ actionList.Defensive = function()
         end
         -- * Healing Sphere
         if ui.checked("Healing Sphere") and cast.able.healingSphere("player","ground",0)
-            and unit.hp() <= ui.value("Healing Sphere") and energy() >= 40
+            and (unit.hp() <= ui.value("Healing Sphere") or (not unit.inCombat() and unit.hp() < 80)) and energy() >= 40
         then
             if cast.healingSphere("player","ground",0) then
                 ui.debug("Casting Healing Sphere [Defensive]")
@@ -543,6 +505,15 @@ actionList.AOE = function()
     end
     -- * Spinning Crane Kick
     -- spinning_crane_kick,if=!talent.rushing_jade_wind.enabled
+    -- * Healing Sphere
+    if ui.checked("Healing Sphere") and cast.able.healingSphere("player","ground",0)
+        and (unit.hp() <= ui.value("Healing Sphere") or (not unit.inCombat() and unit.hp() < 80)) and energy() >= 40
+    then
+        if cast.healingSphere("player","ground",0) then
+            ui.debug("Casting Healing Sphere [Defensive]")
+            return true
+        end
+    end
     if cast.able.spinningCraneKick("player", "aoe", 1, 8) and not talent.rushingJadeWind then
         if cast.spinningCraneKick("player", "aoe", 1, 8) then
             ui.debug("Casting Spinning Crane Kick [AOE]")
@@ -656,11 +627,13 @@ actionList.Combat = function()
     -- Check for combat
     if unit.valid("target") and cd.global.remain() == 0 then
         if unit.exists(units.dyn40) and unit.distance(units.dyn40) < 40 then
-            -- *Touch of Death
+            -- * Touch of Death
             if ui.alwaysCdAoENever("Touch of Death",3,5) then
                 for i = 1, #enemies.yards5 do
                     local thisUnit = enemies.yards5[i]
-                    if cast.able.touchOfDeath(thisUnit) and unit.health(thisUnit) <= unit.healthMax("player") then
+                    if cast.able.touchOfDeath(thisUnit)
+                        and (unit.health(thisUnit) <= unit.healthMax("player") or buff.deathNote.exists())
+                    then
                         if cast.touchOfDeath(thisUnit) then
                             ui.debug("Casting Touch of Death - Omae wa mou shindeiru")
                             return true
@@ -859,18 +832,18 @@ local function runRotation()
         --- Defensive ---
         -----------------
         if actionList.Defensive() then return true end
-        ------------------
-        --- Pre-Combat ---
-        ------------------
-        if actionList.PreCombat() then return true end
-        if unit.inCombat() then
+        if ui.mode.rotation ~= 4 then
+            ------------------------------
+            --- Out of Combat Rotation ---
+            ------------------------------
+            if actionList.PreCombat() then return true end
+            --------------------------
+            --- In Combat Rotation ---
+            --------------------------
             -----------------
             --- Interrupt ---
             -----------------
             if actionList.Interrupt() then return true end
-            --------------
-            --- Combat ---
-            --------------
             if actionList.Combat() then return true end
         end
     end -- Pause

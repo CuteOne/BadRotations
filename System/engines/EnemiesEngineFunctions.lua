@@ -309,8 +309,9 @@ function enemiesEngineFunctions:getEnemies(thisUnit, radius, checkNoCombat, faci
 				if br.engines.enemiesEngine.storedTables[checkNoCombat][thisUnit][radius] ~= nil then
 					if br.engines.enemiesEngine.storedTables[checkNoCombat][thisUnit][radius][facing] ~= nil then
 						local cachedTable = br.engines.enemiesEngine.storedTables[checkNoCombat][thisUnit][radius][facing]
-						-- Add timestamp check
-						if cachedTable._timestamp and (br._G.GetTime() - cachedTable._timestamp) < 0.1 then
+						-- FIXED: Combat-reactive cache duration - shorter in combat for responsiveness, longer out of combat for performance
+						local cacheExpiration = br._G.UnitAffectingCombat("player") and 0.05 or 0.1
+						if cachedTable._timestamp and (br._G.GetTime() - cachedTable._timestamp) < cacheExpiration then
 							return cachedTable
 						end
 					end
@@ -321,19 +322,48 @@ function enemiesEngineFunctions:getEnemies(thisUnit, radius, checkNoCombat, faci
 
 	for _, v in pairs(enemyTable) do
 		thisEnemy = v.unit
-		distance = br.functions.range:getDistance(thisUnit, thisEnemy)
-		if distance < radius and (not facing or br.functions.unit:getFacing("player", thisEnemy)) then
-			br._G.tinsert(enemiesTable, thisEnemy)
+		-- FIXED: Filter out dead/ghost units to prevent them from inflating enemy counts
+		if not br.functions.unit:GetUnitIsDeadOrGhost(thisEnemy) then
+			distance = br.functions.range:getDistance(thisUnit, thisEnemy)
+			if distance < radius and (not facing or br.functions.unit:getFacing("player", thisEnemy)) then
+				br._G.tinsert(enemiesTable, thisEnemy)
+			end
 		end
 	end
-	if #enemiesTable == 0 and br.functions.range:getDistance("target", "player") < radius and br.functions.misc:isValidUnit("target") and (not facing or br.functions.unit:getFacing("player", "target")) then
+
+	-- FIXED: Improved fallback to include enemies not yet in validated tables
+	-- Check for target if we have one and it's valid
+	if #enemiesTable == 0 and br.functions.unit:GetUnitExists("target")
+		and br.functions.range:getDistance("target", "player") < radius
+		and br.functions.misc:isValidUnit("target")
+		and (not facing or br.functions.unit:getFacing("player", "target")) then
 		br._G.tinsert(enemiesTable, "target")
+	end
+
+	-- FIXED: If still empty and no target, check for enemies with threat on player/group (e.g., mobs attacking you)
+	-- This catches enemies that haven't been validated yet but are actively engaging the player
+	if #enemiesTable == 0 and not checkNoCombat and br._G.UnitAffectingCombat("player") then
+		-- Check all units in the broader units table (includes unvalidated units)
+		for _, v in pairs(br.engines.enemiesEngine.units) do
+			local thisEnemy = v.unit
+			if br.functions.unit:GetUnitExists(thisEnemy) and not br.functions.unit:GetUnitIsDeadOrGhost(thisEnemy) then
+				local distance = br.functions.range:getDistance(thisUnit, thisEnemy)
+				if distance < radius and (not facing or br.functions.unit:getFacing("player", thisEnemy)) then
+					-- Check if this enemy has threat on us or is targeting us
+					if br.functions.combat:hasThreat(thisEnemy) or br.functions.misc:isTargeting(thisEnemy) then
+						br._G.tinsert(enemiesTable, thisEnemy)
+					end
+				end
+			end
+		end
 	end
 	---
 	if #enemiesTable > 0 and thisUnit ~= nil then
 		if br.engines.enemiesEngine.storedTables[checkNoCombat] == nil then br.engines.enemiesEngine.storedTables[checkNoCombat] = {} end
 		if br.engines.enemiesEngine.storedTables[checkNoCombat][thisUnit] == nil then br.engines.enemiesEngine.storedTables[checkNoCombat][thisUnit] = {} end
 		if br.engines.enemiesEngine.storedTables[checkNoCombat][thisUnit][radius] == nil then br.engines.enemiesEngine.storedTables[checkNoCombat][thisUnit][radius] = {} end
+		-- FIXED: Add timestamp to cached table so cache expiration check works properly
+		enemiesTable._timestamp = br._G.GetTime()
 		br.engines.enemiesEngine.storedTables[checkNoCombat][thisUnit][radius][facing] = enemiesTable
 		--print("Made Table Unit: "..UnitName(thisUnit).." Radius: "..radius.." CombatCheck: "..tostring(checkNoCombat))
 	end

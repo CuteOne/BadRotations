@@ -1,5 +1,5 @@
 local Nn = ...
-print("test TP 1")
+
 -- if --[[(...).name ~= "Nn" or]] Nn == nil then return end
 -- local read   = Nn.Utils.Storage.read
 -- local write  = Nn.Utils.Storage.write
@@ -59,8 +59,6 @@ br.files[#br.files+1] = {file = 'BadRotations/Libs/DiesalStyle-1.0/Media/Standar
 br.files[#br.files+1] = {file = 'BadRotations/Libs/DiesalStyle-1.0/Media/UbuntuMono-B.ttf', load = true}
 br.files[#br.files+1] = {file = 'BadRotations/Libs/DiesalStyle-1.0/Media/UbuntuMono-R.ttf', load = true}
 
-LoadFilesFromTOC(toc)
-
 -- Add Lua Files from .toc
 function LoadFilesFromTOC(tocFile)
     for line in tocFile:gmatch("([^\n]*)\n?") do
@@ -104,6 +102,8 @@ function LoadFilesFromTOC(tocFile)
     end
 end
 
+LoadFilesFromTOC(toc)
+
 -- Unlocker Lua Files
 br.files[#br.files+1] = {file = 'BadRotations/Unlockers/tinkr', load = false}
 br.files[#br.files+1] = {file = 'BadRotations/Unlockers/nn', load = true}
@@ -123,4 +123,3 @@ if UnitExists('player') then
     print "[Nn] Loading BR"
     br.load()
 end
-print("test TP 2")

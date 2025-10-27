@@ -333,10 +333,18 @@ end
 function spell:isSpellInSpellbook(spellID, spellType)
 	local spellSlot = br._G.FindSpellBookSlotBySpellID(spellID, spellType == "pet" and true or false)
 	if spellSlot then
-		local spellName = br._G.C_SpellBook.GetSpellBookItemName(spellSlot, spellType)
-		local link = br._G.C_Spell.GetSpellLink(spellName)
-		local currentSpellId = tonumber(link and link:gsub("|", "||"):match("spell:(%d+)"))
-		return currentSpellId == spellID
+		-- Modern API: Use C_SpellBook.GetSpellBookItemInfo instead of GetSpellBookItemName
+		local spellBookItemInfo = br._G.C_SpellBook.GetSpellBookItemInfo(spellSlot, spellType == "pet" and Enum.SpellBookSpellBank.Pet or Enum.SpellBookSpellBank.Player)
+		if spellBookItemInfo and spellBookItemInfo.actionID then
+			return spellBookItemInfo.actionID == spellID
+		end
+		-- Fallback: Try getting spell name directly from the slot
+		local spellName = br._G.C_Spell.GetSpellName(spellID)
+		if spellName then
+			local link = br._G.C_Spell.GetSpellLink(spellName)
+			local currentSpellId = tonumber(link and link:gsub("|", "||"):match("spell:(%d+)"))
+			return currentSpellId == spellID
+		end
 	end
 	return false
 end

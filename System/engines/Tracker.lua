@@ -72,7 +72,7 @@ local function trackObject(object, isUnit, name, objectid, objectguid, interact)
         if br.functions.misc:isChecked("Auto Interact with Any Tracked Object") and interact and not br.player.inCombat
             and --[[playerDistance]] br._G.GetDistanceBetweenPositions(pX, pY, pZ, xOb, yOb, zOb) <= 7 and
             not br.functions.cast:isUnitCasting("player") and not br.functions.misc:isMoving("player")
-            and (not isInteracting("player") or br._G.CanLootUnit(objectguid)) --and br.debug.timer:useTimer("Interact Delay", 1.5)
+            and not isInteracting("player") -- Only interact if not already interacting
         then
             br._G.ObjectInteract(object)
         end
