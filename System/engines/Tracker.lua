@@ -4,6 +4,8 @@ br.engines.tracker = br.engines.tracker or {}
 local tracker = br.engines.tracker
 local tracking = false
 local interactTime
+local lastInteractTime = 0
+local nextInteractDelay = 0
 
 
 local function getCastTime(unit)
@@ -74,7 +76,14 @@ local function trackObject(object, isUnit, name, objectid, objectguid, interact)
             not br.functions.cast:isUnitCasting("player") and not br.functions.misc:isMoving("player")
             and not isInteracting("player") -- Only interact if not already interacting
         then
-            br._G.ObjectInteract(object)
+            local currentTime = br._G.GetTime()
+            -- Human-like delay: only interact if enough time has passed since last interaction
+            if currentTime >= (lastInteractTime + nextInteractDelay) then
+                br._G.ObjectInteract(object)
+                lastInteractTime = currentTime
+                -- Set next delay with variance: 0.3 to 0.8 seconds (random human-like timing)
+                nextInteractDelay = 0.3 + (br._G.math.random() * 0.5)
+            end
         end
         tracking = true
     end
@@ -152,18 +161,23 @@ function tracker:objectTracker()
                             object ~= nil and
                             objUnit and br.engines.questTracker:isQuestUnit(object) and not br._G.UnitIsTapDenied(object)
                         then
-
-                            if object and br.functions.unit:GetObjectExists(object) and (ignoreList[objectid] ~= nil or
-                                (select(2, br._G.CanLootUnit(br._G.UnitGUID(object))) and br.functions.misc:getItemGlow(object))) then
-                                track = true
-                            else
-                                interact = false
+                            -- Quest units should be interactable by default (for rescue NPCs, freeing prisoners, etc.)
+                            -- Only disable interaction for hostile alive units that aren't meant to be interacted with
+                            if object and br.functions.unit:GetObjectExists(object) then
+                                -- Check if it's a hostile unit that's alive - don't interact with those
+                                -- if not br.functions.unit:GetUnitIsFriend("player", object) and not br.functions.unit:GetUnitIsDeadOrGhost(object) then
+                                --     interact = false
+                                -- else
+                                    -- Friendly units, dead units with loot, or units in ignore list should be interactable
+                                    interact = true
+                                -- end
                                 track = true
                             end
                         end
                         if (br.functions.misc:getOptionValue("Quest Tracker") == 2 or br.functions.misc:getOptionValue("Quest Tracker") == 3)
                             and not objUnit and br.engines.questTracker:isQuestObject(object)
                         then
+                            interact = true
                             track = true
                         end
                     end

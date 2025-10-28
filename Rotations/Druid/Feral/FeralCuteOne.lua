@@ -1140,8 +1140,8 @@ actionList.SingleTarget = function()
     -- * Nature's Swiftness
     -- # Use Nature's Swiftness for an instant Healing Touch when no predatory swiftness is available to proc Dream of Cenarius.
     -- natures_swiftness,if=talent.dream_of_cenarius.enabled&buff.predatory_swiftness.down&buff.dream_of_cenarius.down
-    if cast.able.naturesSwiftness() and talent.dreamOfCenarious
-        and not buff.predatorySwiftness.exists() and not buff.dreamOfCenarius.exists() and comboPoints(units.dyn5) >= 4
+    if cast.able.naturesSwiftness() and talent.dreamOfCenarius and not buff.dreamOfCenarius.exists()
+        and not buff.predatorySwiftness.exists() and comboPoints(units.dyn5) >= 4
     then
         if cast.naturesSwiftness() then
             ui.debug("Casting Nature's Swiftness [Single]")
@@ -1151,7 +1151,7 @@ actionList.SingleTarget = function()
     -- * Healing Touch
     -- # Proc Dream of Cenarius at 4+ CP or when PS is about to expire.
     -- healing_touch,if=talent.dream_of_cenarius.enabled&buff.predatory_swiftness.up&buff.dream_of_cenarius.down&(buff.predatory_swiftness.remains<1.5|combo_points>=4)
-    if cast.able.healingTouch() and talent.dreamOfCenarious and not buff.dreamOfCenarius.exists()
+    if cast.able.healingTouch() and talent.dreamOfCenarius and not buff.dreamOfCenarius.exists()
         and ((buff.predatorySwiftness.exists() and (buff.predatorySwiftness.remains() < 1.5 or comboPoints(units.dyn5) >= 4))
             or (buff.naturesSwiftness.exists() and comboPoints(units.dyn5) >= 4))
     then
@@ -1597,8 +1597,6 @@ local function runRotation()
             return math.max(cd.berserk.duration(), cd.incarnation.duration())
         end
     end
-
-    -- ui.chatOverlay("AOE: "..tostring(ui.useAOE(8,5)).." - Count: "..#enemies.yards8)
 
     ---------------------
     --- Begin Profile ---

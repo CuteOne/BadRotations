@@ -505,16 +505,16 @@ actionList.AOE = function()
     end
     -- * Spinning Crane Kick
     -- spinning_crane_kick,if=!talent.rushing_jade_wind.enabled
-    -- * Healing Sphere
-    if ui.checked("Healing Sphere") and cast.able.healingSphere("player","ground",0)
-        and (unit.hp() <= ui.value("Healing Sphere") or (not unit.inCombat() and unit.hp() < 80)) and energy() >= 40
-    then
-        if cast.healingSphere("player","ground",0) then
-            ui.debug("Casting Healing Sphere [Defensive]")
-            return true
-        end
-    end
     if cast.able.spinningCraneKick("player", "aoe", 1, 8) and not talent.rushingJadeWind then
+        -- * Healing Sphere - instead if HP low
+        if ui.checked("Healing Sphere") and cast.able.healingSphere("player","ground",0)
+            and unit.hp() <= ui.value("Healing Sphere") and energy() >= 40
+        then
+            if cast.healingSphere("player","ground",0) then
+                ui.debug("Casting Healing Sphere [AOE]")
+                return true
+            end
+        end
         if cast.spinningCraneKick("player", "aoe", 1, 8) then
             ui.debug("Casting Spinning Crane Kick [AOE]")
             return true
@@ -585,6 +585,15 @@ actionList.SingleTarget = function()
     -- * Jab
     -- jab,if=chi.max-chi>=2
     if cast.able.jab() and (chi.max() - chi()) >= 2 then
+        -- * Healing Sphere - instead if HP low
+        if ui.checked("Healing Sphere") and cast.able.healingSphere("player","ground",0)
+            and unit.hp() <= ui.value("Healing Sphere") and energy() >= 40
+        then
+            if cast.healingSphere("player","ground",0) then
+                ui.debug("Casting Healing Sphere [Single Target]")
+                return true
+            end
+        end
         if cast.jab() then
             ui.debug("Casting Jab [Single Target]")
             return true
