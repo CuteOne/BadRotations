@@ -7,10 +7,10 @@ function br.ui:createDebugWindow()
     br.ui.window.debug.parent.closeButton:SetScript(
         "OnClick",
         function()
-            if br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile] ~= nil and br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["General"] ~= nil then
-                br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["General"]["Rotation Log Check"] = false
-                if br.data.ui["General"] == nil then br.data.ui["General"] = {} end
-                br.data.ui["General"]["Rotation Log Check"] = false
+            if br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile] ~= nil and br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["Debug"] ~= nil then
+                br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["Debug"]["Rotation Log Check"] = false
+                if br.data.ui["Debug"] == nil then br.data.ui["Debug"] = {} end
+                br.data.ui["Debug"]["Rotation Log Check"] = false
             end
             if br.ui.rotationLog ~= nil then
                 br.ui.rotationLog:SetChecked(false)

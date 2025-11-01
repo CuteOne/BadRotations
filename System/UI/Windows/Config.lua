@@ -24,12 +24,6 @@ function br.ui:createConfigWindow()
             0.01,
             "Adjust the update rate of Bot operations. Increase to improve FPS but may cause reaction delays. Will be ignored if Auto Delay is checked. Default: 0.1"
         )
-        br.ui.rotationLog = br.ui:createCheckbox(section, "Rotation Log", "Display Rotation Log.")
-        br.ui:createDropdown(section, "Addon Debug Messages", { "System Only", "Profile Only", "All" }, 3,
-            "Check this to display developer debug messages.")
-        br.ui:createCheckbox(section, "Target Validation Debug",
-            "Check this to display current target's validation.")
-        br.ui:createCheckbox(section, "Display Failcasts", "Dispaly Failcasts in Debug.")
         br.ui:createCheckbox(section, "Queue Casting", "Allow Queue Casting on some profiles.")
         br.ui:createSpinner(section, "Auto Loot", 0.5, 0.1, 3, 0.1, "Sets Autloot on/off.", "Sets a delay for Auto Loot.")
         br.ui:createCheckbox(section, "Auto-Sell/Repair",
@@ -44,8 +38,6 @@ function br.ui:createConfigWindow()
             "|cffFF0000 WARNING!|cffFFFFFF Checking this will reset saved profiles on reload!")
         br.ui:createCheckbox(section, "Auto Check for Updates",
             "EWT only. This uses the Git master head sha for comparison. |cffFF0000Experimental!")
-        br.ui:createCheckbox(section, "Dev Mode",
-            "|cffFF0000WARNING! This will expose the BR table to global for testing purposes.  Do not use unless you know what you're doing.")
         br.ui:checkSectionState(section)
     end
 
@@ -202,10 +194,6 @@ function br.ui:createConfigWindow()
             1,
             "Using the bait."
         )
-        br.ui:createCheckbox(section, "Debug Timers", "Useless to users, for Devs.")
-        br.ui:createCheckbox(section, "Cache Debuffs", "Experimental feature still in testing")
-        br.ui:createCheckbox(section, "Unit ID In Tooltip", "Show/Hide Unit IDs in Tooltip")
-        br.ui:createCheckbox(section, "Show Drawings", "Show drawings on screen using Lib Draw")
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.config, "Dungeon Helpers")
         br.ui:createCheckbox(section, "Quaking Helper",
@@ -274,6 +262,29 @@ function br.ui:createConfigWindow()
         br.ui:createDropdown(section, "Quest Tracker", { "Units", "Objects", "Both" }, 3, "Track Quest Units/Objects")
         br.ui:createScrollingEditBox(section, "Custom Tracker", nil, "Type custom search, Can Seperate items by comma",
             300, 40)
+        br.ui:checkSectionState(section)
+    end
+
+    local function callDebugOptions()
+        -- Debug and Developer Options
+        section = br.ui:createSection(br.ui.window.config, "Debug Options")
+        br.ui.rotationLog = br.ui:createCheckbox(section, "Rotation Log", "Display Rotation Log.")
+        br.ui:createDropdown(section, "Addon Debug Messages", { "System Only", "Profile Only", "All" }, 3,
+            "Check this to display developer debug messages.")
+        br.ui:createCheckbox(section, "Target Validation Debug",
+            "Check this to display current target's validation.")
+        br.ui:createCheckbox(section, "Display Failcasts", "Dispaly Failcasts in Debug.")
+        br.ui:createCheckbox(section, "Cast Debug", "Shows information about how the bot is casting.")
+        br.ui:createCheckbox(section, "Threat Debug", "Shows information about threat and threat changes.")
+        br.ui:checkSectionState(section)
+
+        section = br.ui:createSection(br.ui.window.config, "Developer Options")
+        br.ui:createCheckbox(section, "Dev Mode",
+            "|cffFF0000WARNING! This will expose the BR table to global for testing purposes.  Do not use unless you know what you're doing.")
+        br.ui:createCheckbox(section, "Debug Timers", "Useless to users, for Devs.")
+        br.ui:createCheckbox(section, "Cache Debuffs", "Experimental feature still in testing")
+        br.ui:createCheckbox(section, "Unit ID In Tooltip", "Show/Hide Unit IDs in Tooltip")
+        br.ui:createCheckbox(section, "Show Drawings", "Show drawings on screen using Lib Draw")
         br.ui:checkSectionState(section)
     end
 
@@ -385,6 +396,10 @@ function br.ui:createConfigWindow()
             {
                 [1] = "Tracker Engine",
                 [2] = callTrackerEngine
+            },
+            {
+                [1] = "Debug",
+                [2] = callDebugOptions
             },
             -- {
             --     [1] = "Debug Info",

@@ -132,14 +132,19 @@ function combatLog:common(...)
         if br.engines.enemiesEngine.damaged == nil then
             br.engines.enemiesEngine.damaged = {}
         end
-        if
-            (not inInstance or (instanceType ~= "pvp" and instanceType ~= "arena")) and destination ~= nil and
-            (param == "SPELL_DAMAGE" or param == "SWING_DAMAGE")
+        -- Throttle damaged table cleanup to once per second (instead of every combat log event)
+        if br.engines.enemiesEngine.damagedCleanupTimer == nil then
+            br.engines.enemiesEngine.damagedCleanupTimer = 0
+        end
+        local currentTime = br._G.GetTime()
+        local shouldCleanup = (currentTime - br.engines.enemiesEngine.damagedCleanupTimer) >= 1.0
+
+        if (not inInstance or (instanceType ~= "pvp" and instanceType ~= "arena")) and destination ~= nil
+            and (param == "SPELL_DAMAGE" or param == "SWING_DAMAGE")
         then
-            local thisUnit = br._G.GetObjectWithGUID(destination)
-            -- FIXED: Track any enemy damaged by player/party/raid that isn't yet validated
-            -- Removed units table requirement - catches enemies before full validation completes
-            if br.engines.enemiesEngine.damaged[thisUnit] == nil and br.engines.enemiesEngine.enemy[thisUnit] == nil then
+            -- Track units being damaged by player/party/raid
+            local damageTarget = br._G.GetObjectWithGUID(destination)
+            if damageTarget ~= nil then
                 -- Check if damage source is player, pet, or any party/raid member
                 local isDamagedByGroup = false
                 if br._G.GetObjectWithGUID(source) == br._G.ObjectPointer("player") or
@@ -154,14 +159,95 @@ function combatLog:common(...)
                         end
                     end
                 end
-                if isDamagedByGroup then
-                    br.engines.enemiesEngine.damaged[thisUnit] = thisUnit
+                if isDamagedByGroup and br._G.UnitCanAttack("player", damageTarget) then
+                    -- Use unified unitSetup structure for damaged table
+                    -- Check cache first - if unit already exists, use cached version
+                    local damagedUnit = br.engines.enemiesEngine.unitSetup.cache[damageTarget]
+                    if not damagedUnit then
+                        -- Not in cache, create new unitSetup object
+                        damagedUnit = br.engines.enemiesEngine.unitSetup:new(damageTarget)
+                    end
+                    if damagedUnit then
+                        damagedUnit.damageReason = "damaged_by_group"
+                        damagedUnit.damageTimestamp = br._G.GetTime()
+                        br.engines.enemiesEngine.damaged[damageTarget] = damagedUnit
+                    end
+                end
+            end
+
+            -- Track units attacking player/party/raid
+            local attackSource = br._G.GetObjectWithGUID(source)
+            if attackSource ~= nil then
+                -- Check if damage destination is player, pet, or any party/raid member
+                local isAttackingGroup = false
+                if br._G.GetObjectWithGUID(destination) == br._G.ObjectPointer("player") or
+                   (br.functions.unit:GetUnitExists("pet") and br._G.GetObjectWithGUID(destination) == br._G.ObjectPointer("pet")) then
+                    isAttackingGroup = true
+                else
+                    -- Check if damage is to any party/raid member
+                    for i = 1, #br.engines.healingEngine.friend do
+                        if br._G.ObjectPointer(br.engines.healingEngine.friend[i].unit) == br._G.GetObjectWithGUID(destination) then
+                            isAttackingGroup = true
+                            break
+                        end
+                    end
+                end
+                if isAttackingGroup then
+                    -- Use unified unitSetup structure for damaged table
+                    -- Check cache first - if unit already exists, use cached version
+                    local attackingUnit = br.engines.enemiesEngine.unitSetup.cache[attackSource]
+                    if not attackingUnit then
+                        -- Not in cache, create new unitSetup object
+                        attackingUnit = br.engines.enemiesEngine.unitSetup:new(attackSource)
+                    end
+                    if attackingUnit then
+                        attackingUnit.damageReason = "attacking_group"
+                        attackingUnit.damageTimestamp = br._G.GetTime()
+                        br.engines.enemiesEngine.damaged[attackSource] = attackingUnit
+                    end
                 end
             end
         end
-        for k, v in pairs(br.engines.enemiesEngine.damaged) do
-            if br.engines.enemiesEngine.units[v] == nil or not br._G.UnitAffectingCombat("player") or br.functions.unit:GetUnitIsDeadOrGhost(v) then
-                br.engines.enemiesEngine.damaged[v] = nil
+
+        -- Throttled cleanup of damaged table (runs max once per second)
+        if shouldCleanup then
+            br.engines.enemiesEngine.damagedCleanupTimer = currentTime
+            -- More careful cleanup of damaged table
+            -- Only remove units that are truly invalid, not just because they haven't been validated yet
+            for k, v in pairs(br.engines.enemiesEngine.damaged) do
+                local shouldRemove = false
+                -- v is now a unitSetup object, access .unit directly
+                local unit = v.unit
+
+                -- Remove if unit is dead or ghost
+                if br.functions.unit:GetUnitIsDeadOrGhost(unit) then
+                    shouldRemove = true
+                -- Remove if unit no longer exists
+                elseif not br.functions.unit:GetObjectExists(unit) then
+                    shouldRemove = true
+                -- Remove if not visible
+                elseif not br.functions.unit:GetUnitIsVisible(unit) then
+                    shouldRemove = true
+                -- Remove if player out of combat AND unit was added more than 10 seconds ago
+                elseif not br._G.UnitAffectingCombat("player") and v.damageTimestamp and (currentTime - v.damageTimestamp) > 10 then
+                    shouldRemove = true
+                -- Remove if unit is now friendly (e.g., MC broken)
+                elseif not br._G.UnitCanAttack("player", unit) then
+                    shouldRemove = true
+                -- Remove if unit successfully validated and added to enemy table (job done)
+                elseif br.engines.enemiesEngine.enemy[unit] ~= nil then
+                    shouldRemove = true
+                end
+
+                if shouldRemove then
+                    br.engines.enemiesEngine.damaged[k] = nil
+                    -- Only clear cache if unit is not in other tables (prevents premature cleanup)
+                    -- OM cleanup will handle cache removal for units still in use elsewhere
+                    if br.engines.enemiesEngine.enemy[unit] == nil
+                        and br.engines.enemiesEngine.units[unit] == nil then
+                        br.engines.enemiesEngine.unitSetup.cache[unit] = nil
+                    end
+                end
             end
         end
     end

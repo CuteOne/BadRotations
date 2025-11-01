@@ -607,14 +607,22 @@ function misc:enemyListCheck(Unit)
 		notPet = not br.functions.unit:GetUnitIsUnit(Unit, "pet"),
 		creatorCheck = (not createdByPlayer or isHostileQuestNPC),
 		notWaterEle = br.functions.unit:GetObjectID(Unit) ~= 11492,
-		los = br.functions.misc:getLineOfSight("player", Unit)
 	}
 
-	local allPass = checks.exists and checks.notDead and checks.canAttack and checks.hasHealth
+	-- Expensive LoS check only done if other checks pass (early exit optimization)
+	local basicChecks = checks.exists and checks.notDead and checks.canAttack and checks.hasHealth
 		and checks.inRange and checks.notCritter and checks.mcCheck and checks.notPet
 		and checks.creatorCheck and checks.notWaterEle
-		-- LoS check: allow units without LoS if they're in combat (actively fighting)
-		and (checks.los or br._G.UnitAffectingCombat(Unit))
+
+	if not basicChecks then
+		return false -- Early exit before expensive LoS check
+	end
+
+	-- LoS check: allow units without LoS if they're in combat (actively fighting)
+	-- Skip LoS check for close enemies (<15y) to reduce overhead
+	local los = distance < 15 or br.functions.misc:getLineOfSight("player", Unit) or br._G.UnitAffectingCombat(Unit)
+
+	local allPass = basicChecks and los
 		and ((Unit ~= 131824 and Unit ~= 131823 and Unit ~= 131825) or ((br.functions.aura:UnitBuffID(Unit, 260805)
 			or br.functions.unit:GetUnitIsUnit(Unit, "target")) and (Unit == 131824 or Unit == 131823 or Unit == 131825)))
 
@@ -639,7 +647,21 @@ function misc:isValidUnit(Unit)
 		return false
 	end
 
+	-- PRIORITY: Units in damaged table bypass all validation checks
+	-- These are units actively in combat with our group (attacking or being attacked)
+	-- The combatlog cleanup already ensures these units are valid (exists, alive, attackable)
+	-- damaged table keys are pointers from GetObjectWithGUID()
+	-- damaged table values are unitSetup objects where .unit is also the pointer
+	if br.engines.enemiesEngine.damaged then
+		local unitPointer = br._G.ObjectPointer(Unit)
+		-- Direct pointer lookup - ObjectPointer() should match GetObjectWithGUID() for same unit
+		if unitPointer and br.engines.enemiesEngine.damaged[unitPointer] ~= nil then
+			return true
+		end
+	end
+
 	-- Calculate all conditions once
+	local unitPointer = br._G.ObjectPointer(Unit)
 	local hostileOnly = br.functions.misc:isChecked("Hostiles Only")
 	local playerTarget = br.functions.unit:GetUnitIsUnit(Unit, "target")
 	local reaction = br.functions.unit:GetUnitReaction(Unit, "player") or 10
@@ -657,7 +679,7 @@ function misc:isValidUnit(Unit)
 
 	-- Check if unit is tapped but we've damaged it
 	local isTapped = br._G.UnitIsTapDenied(Unit)
-	local hasDamagedTapped = isTapped and br.engines.enemiesEngine.damaged[br._G.ObjectPointer(Unit)] ~= nil
+	local hasDamagedTapped = isTapped and br.engines.enemiesEngine.damaged[unitPointer] ~= nil
 
 	-- Check if unit actually passed enemyListCheck or is in units table
 	-- If it's the player target but not in units table, verify it at least passes basic enemyListCheck

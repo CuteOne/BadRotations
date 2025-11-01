@@ -273,4 +273,16 @@ br.api.ui = function(self)
             return br.functions.misc:getOptionValue(thisOption, optionPage)
         end
     end
+
+    if ui.setToggle == nil then
+        --- Sets a toggle to the specified value and updates the UI
+        -- @function ui.setToggle
+        -- @string toggleName - The name of the toggle to set
+        -- @number toggleValue - The value to set the toggle to (1, 2, 3, etc.)
+        -- @return nil
+        ui.setToggle = function(toggleName, toggleValue)
+            if toggleName == nil or toggleValue == nil then return end
+            br.ui:ToggleToValue(toggleName, toggleValue)
+        end
+    end
 end

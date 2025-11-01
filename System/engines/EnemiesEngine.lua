@@ -250,13 +250,18 @@ if not enemiesEngine.metaTable2 then
 			o.objectID = br._G.ObjectID(o.unit)
 			o.range = o.range or 0
 			o.debuffs = o.debuffs or {}
+
+			-- Check if this unit is in damaged table (bypass normal validation)
+			local unitPointer = br._G.ObjectPointer(o.unit)
+			local isDamagedUnit = br.engines.enemiesEngine.damaged and br.engines.enemiesEngine.damaged[unitPointer] ~= nil
+
 			if o.distance <= 50 and not br.functions.unit:GetUnitIsDeadOrGhost(o.unit) and not br.functions.unit:isCritter(o.unit) then
 				-- EnemyListCheck
 				-- FPS-adaptive refresh rate for optimal responsiveness without sacrificing performance
-				-- Solo: 1s (low priority), Group + Good FPS (60+): 0.25s (responsive), Group + Low FPS: scale back
+				-- Cache FPS check to avoid multiple GetFramerate() calls
+				local fps = br.engines.enemiesEngine.cachedFPS or 60
 				local refreshInterval = 1 -- Default: solo content
 				if br._G.GetNumGroupMembers() > 0 then
-					local fps = br._G.GetFramerate() or 60
 					if fps >= 60 then
 						refreshInterval = 0.25 -- Excellent FPS: maximum responsiveness
 					elseif fps >= 45 then
@@ -277,11 +282,15 @@ if not enemiesEngine.metaTable2 then
 				if br._G.UnitAffectingCombat("player") then
 					local needsFastValidation = false
 
-					-- Cheap checks first: targeting player/group or damaged by us
-					if br.functions.misc:isTargeting(o.unit) or br.engines.enemiesEngine.damaged[br._G.ObjectPointer(o.unit)] ~= nil then
+					-- Damaged units always get fast validation (they're actively in combat with us)
+					if isDamagedUnit then
+						needsFastValidation = true
+					-- Cheap checks first: targeting player/group
+					elseif br.functions.misc:isTargeting(o.unit) then
 						needsFastValidation = true
 					-- More expensive but important: full threat check for group content
-					elseif br._G.GetNumGroupMembers() > 0 then
+					-- Skip if already validated to avoid redundant expensive checks
+					elseif not isAlreadyValid and br._G.GetNumGroupMembers() > 0 then
 						needsFastValidation = br.functions.combat:hasThreat(o.unit)
 					end
 
@@ -304,7 +313,12 @@ if not enemiesEngine.metaTable2 then
 				end
 
 				if o.enemyRefresh == nil or o.enemyRefresh < GetTime() - actualRefreshInterval then
-					o.enemyListCheck = br.functions.misc:enemyListCheck(o.unit)
+					-- Units in damaged table bypass enemyListCheck - they're confirmed combatants
+					if isDamagedUnit then
+						o.enemyListCheck = true
+					else
+						o.enemyListCheck = br.functions.misc:enemyListCheck(o.unit)
+					end
 					o.enemyRefresh = GetTime()
 					if o.enemyListCheck == true then
 						o.range = br.functions.range:getDistanceCalc(o.unit)
@@ -324,29 +338,43 @@ if not enemiesEngine.metaTable2 then
 					br.engines.enemiesEngine.units[o.unit] = nil
 				end
 			end
-			-- Is valid unit - only check if enemyList checks out
+			-- Is valid unit - only check if enemyList checks out OR if unit is in damaged table
 			if o.enemyListCheck == true then
-				o.isValidUnit = br.functions.misc:isValidUnit(o.unit)
+				-- Damaged units bypass isValidUnit check - combat log confirmed they're valid targets
+				if isDamagedUnit then
+					o.isValidUnit = true
+				else
+					o.isValidUnit = br.functions.misc:isValidUnit(o.unit)
+				end
+
 				if o.isValidUnit == true then
-					o.debuffs = o:UpdateDebuffs(o.debuffs, o.unit)
+					-- Only update debuffs for units we're actively using in rotation (in combat and targeted/nearby)
+					-- This avoids expensive aura scans for distant validated enemies
+					local shouldUpdateDebuffs = br._G.UnitAffectingCombat("player") and 
+						(o.distance < 40 or br.functions.unit:GetUnitIsUnit(o.unit, "target"))
+					if shouldUpdateDebuffs then
+						o.debuffs = o:UpdateDebuffs(o.debuffs, o.unit)
+					end
 					-- o.range = getDistanceCalc(o.unit)
 					if br.engines.enemiesEngine.enemy[o.unit] == nil then
 						o:AddUnit(br.engines.enemiesEngine.enemy)
 					end
 					-- br.engines.enemiesEngine.enemy[o.unit].range = o.
-					br.engines.enemiesEngine.enemy[o.unit].debuffs = o.debuffs
+					if shouldUpdateDebuffs then
+						br.engines.enemiesEngine.enemy[o.unit].debuffs = o.debuffs
+					end
 				else
 					if br.engines.enemiesEngine.enemy[o.unit] ~= nil then
 						br.engines.enemiesEngine.enemy[o.unit] = nil
 					end
-					if br.engines.enemiesEngine.damaged ~= nil and br.engines.enemiesEngine.damaged[o.unit] ~= nil then br.engines.enemiesEngine.damaged[o.unit] = nil end
+					-- Don't remove from damaged table here - let combatlog cleanup handle it
 				end
 			else
 				o.isValidUnit = false
 				if br.engines.enemiesEngine.enemy[o.unit] ~= nil then
 					br.engines.enemiesEngine.enemy[o.unit] = nil
 				end
-				if br.engines.enemiesEngine.damaged ~= nil and br.engines.enemiesEngine.damaged[o.unit] ~= nil then br.engines.enemiesEngine.damaged[o.unit] = nil end
+				-- Don't remove from damaged table here - let combatlog cleanup handle it
 			end
 			-- TTD
 			if br.functions.misc:getOptionCheck("Enhanced Time to Die") then

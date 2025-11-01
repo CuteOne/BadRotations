@@ -214,7 +214,7 @@ function br.ui:changeButtonValue(toggleValue, newValue)
 	br.data.settings[br.loader.selectedSpec].toggles[tostring(toggleValue)] = newValue
 end
 
--- set to desired button value
+	-- set to desired button value
 function br.ui:changeButton(toggleValue, newValue)
 	local toggleValue = Trim(toggleValue)
 	if newValue == 0 then newValue = 1 end
@@ -223,7 +223,14 @@ function br.ui:changeButton(toggleValue, newValue)
 	br.ui.toggles["text" .. StripModes(toggleValue)]:SetText(br.ui.toggles[toggleValue][newValue].mode)
 	-- define icon
 	if type(br.ui.toggles[toggleValue][newValue].icon) == "number" then
-		Icon = select(3, br._G.GetSpellInfo(br.ui.toggles[toggleValue][newValue].icon))
+		-- Try spell first, then item if spell doesn't exist
+		local spellName, _, spellIcon = br._G.GetSpellInfo(br.ui.toggles[toggleValue][newValue].icon)
+		if spellName then
+			Icon = spellIcon
+		else
+			-- Try as item ID
+			Icon = br._G.C_Item.GetItemIconByID(br.ui.toggles[toggleValue][newValue].icon)
+		end
 	else
 		Icon = br.ui.toggles[toggleValue][newValue].icon
 	end
@@ -290,12 +297,18 @@ function br.ui:CreateButton(Name, x, y)
 		br.ui.toggles["button" .. Name]:RegisterForClicks("AnyUp")
 		local toggleIcon = br.ui.toggles[Name][toggleIndex].icon
 		if toggleIcon ~= nil and type(toggleIcon) == "number" then
-			Icon = toggleIcon
+			-- Try spell first, then item if spell doesn't exist
+			local spellName, _, spellIcon = br._G.GetSpellInfo(toggleIcon)
+			if spellName then
+				Icon = spellIcon
+			else
+				-- Try as item ID
+				Icon = br._G.C_Item.GetItemIconByID(toggleIcon)
+			end
 		else
-			Icon = br.ui.toggles.emptyIcon
+			Icon = toggleIcon or br.ui.toggles.emptyIcon
 		end
-		local _, _, spellIcon = br._G.GetSpellInfo(Icon)
-		Icon = spellIcon or br.ui.toggles.emptyIcon
+		Icon = Icon or br.ui.toggles.emptyIcon
 		br.ui.toggles["button" .. Name]:SetNormalTexture(Icon)
 		--CreateBorder(br["button"..Name], 8, 0.6, 0.6, 0.6)
 		br.ui.toggles["text" .. Name] = br.ui.toggles["button" .. Name]:CreateFontString(nil, "OVERLAY")

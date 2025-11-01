@@ -49,6 +49,12 @@ local function createToggles()
         [2] = { mode = "Off", value = 2, overlay = "Prowl Disabled", tip = "Rotation will not use Prowl", highlight = 0, icon = br.player.spells.prowl }
     };
     br.ui:createToggle(ProwlModes, "Prowl", 5, 0)
+    -- Boss Pull Button
+    local BossPullModes = {
+        [1] = { mode = "On", value = 1, overlay = "Boss Pre-Pull Active", tip = "Raid Boss Pre-Pull. Auto-disables on combat.", highlight = 1, icon = br.player.items.virmensBite },
+        [2] = { mode = "Off", value = 2, overlay = "Boss Pre-Pull Disabled", tip = "Normal rotation", highlight = 0, icon = br.player.items.virmensBite }
+    };
+    br.ui:createToggle(BossPullModes, "BossPull", 6, 0)
 end
 
 ---------------
@@ -313,7 +319,7 @@ local getMarkUnitOption = function(option)
     end
     return thisUnit
 end
--- *Cast Healing Touch
+-- * Cast Healing Touch
 local function castHealingTouch(healingTouchUnit, tag)
     -- Break Form
     -- if unit.form() ~= 0 and not buff.predatorySwiftness.exists() and unit.isUnit(healingTouchUnit, "player") then
@@ -482,7 +488,7 @@ actionList.Extras = function()
             end
         end
     end -- End Dummy Test
-end     -- End Action List - Extras
+end -- End Action List - Extras
 
 -- * Action List - Defensive
 actionList.Defensive = function()
@@ -685,7 +691,7 @@ actionList.Defensive = function()
             end
         end
     end -- End Defensive Toggle
-end     -- End Action List - Defensive
+end -- End Action List - Defensive
 
 -- * Action List - Interrupts
 actionList.Interrupts = function()
@@ -732,7 +738,125 @@ actionList.Interrupts = function()
             end
         end
     end -- End useInterrupts check
-end     -- End Action List - Interrupts
+end -- End Action List - Interrupts
+
+-- * Action List - Cooldown
+actionList.Cooldown = function()
+    if unit.distance(units.dyn5) < 5 and not buff.prowl.exists()then
+        -- * Module- Basic Trinkets
+        -- use_items
+        module.BasicTrinkets()
+    end -- End useCooldowns check
+end -- End Action List - Cooldowns
+
+-- * Action List - Opener (Initial Engagement - Stealth or Non-Stealth)
+actionList.Opener = function(thisUnit, isAoE)
+    -- If opener has already been cast for this target, skip
+    if var.openerCast then return false end
+
+    -- Use provided unit or default to units.dyn5
+    thisUnit = thisUnit or units.dyn5
+
+    -- Only run if target exists, is hostile, and is in melee range
+    if unit.distance(thisUnit) >= 5 or not unit.valid(thisUnit) then
+        return false
+    end
+
+    -- Don't fire opener while falling/moving from Wild Charge
+    -- Wait at least 0.5 seconds after Wild Charge to ensure we're positioned behind target
+    if unit.falling() or (cast.last.wildCharge(1) and cast.timeSinceLast.wildCharge() < 0.5) then
+        return false
+    end
+
+    -- Apply Savage Roar first if missing (can be cast from stealth without breaking it)
+    if not buff.savageRoar.exists() and cast.able.savageRoar("player") then
+        if cast.savageRoar("player") then
+            ui.debug("Casting Savage Roar [Opener - Pre-buff]")
+            return true -- Applied, will try opener again next frame
+        end
+    end
+
+    local behindTarget = not unit.facing(thisUnit, "player")
+    local enemyCount = #enemies.yards8 -- Count enemies for AoE decision
+    local inStealth = buff.prowl.exists() or buff.shadowmeld.exists()
+
+    -- ==================== STEALTH OPENERS ====================
+    if inStealth then
+        -- * AoE Stealth Opener (3+ enemies)
+        if isAoE or enemyCount >= 3 then
+            -- Thrash from stealth in AoE - applies DoT to all nearby enemies
+            if cast.able.thrash("player", "aoe", 1, 8) then
+                if cast.thrash("player", "aoe", 1, 8) then
+                    var.openerCast = true -- Mark that opener has been executed
+                    ui.debug("Casting Thrash [Opener - AoE Stealth]")
+                    return true
+                end
+            end
+            -- Swipe as fallback if Thrash not available
+            if cast.able.swipe("player", "aoe", 1, 8) then
+                if cast.swipe("player", "aoe", 1, 8) then
+                    var.openerCast = true -- Mark that opener has been executed
+                    ui.debug("Casting Swipe [Opener - AoE Stealth]")
+                    return true
+                end
+            end
+        end
+
+        -- * Single Target Stealth Opener
+        -- Ravage - From Behind (Highest Priority)
+        if cast.able.ravage(thisUnit) and behindTarget then
+            if cast.ravage(thisUnit) then
+                var.openerCast = true -- Mark that opener has been executed
+                ui.debug("Casting Ravage on " .. unit.name(thisUnit) .. " [Opener - Stealth Behind]")
+                return true
+            end
+        end
+
+        -- Rake - From Stealth (Front or Ravage not available)
+        if cast.able.rake(thisUnit) then
+            if cast.rake(thisUnit) then
+                var.openerCast = true -- Mark that opener has been executed
+                ui.debug("Casting Rake on " .. unit.name(thisUnit) .. " [Opener - Stealth]")
+                return true
+            end
+        end
+    end
+
+    -- ==================== NON-STEALTH OPENERS ====================
+    if not inStealth then
+        -- Apply Faerie Fire first if missing (doesn't require stealth)
+        if cast.able.faerieFire(thisUnit) and debuff.weakenedArmor.stack(thisUnit) < 3 then
+            if cast.faerieFire(thisUnit) then
+                ui.debug("Casting Faerie Fire [Opener - Pre-debuff]")
+                return true
+            end
+        end
+
+        -- * AoE Non-Stealth Opener (3+ enemies)
+        if isAoE or enemyCount >= 3 then
+            -- Swipe for AoE engagement
+            if cast.able.swipe("player", "aoe", 1, 8) then
+                if cast.swipe("player", "aoe", 1, 8) then
+                    var.openerCast = true -- Mark that opener has been executed
+                    ui.debug("Casting Swipe [Opener - AoE]")
+                    return true
+                end
+            end
+        end
+
+        -- * Single Target Non-Stealth Opener
+        -- Rake is best opener - applies DoT immediately and generates combo point
+        if cast.able.rake(thisUnit) then
+            if cast.rake(thisUnit) then
+                var.openerCast = true -- Mark that opener has been executed
+                ui.debug("Casting Rake on " .. unit.name(thisUnit) .. " [Opener]")
+                return true
+            end
+        end
+    end
+
+    return false
+end -- End Action List - Opener
 
 -- * Action List - PreCombat
 actionList.PreCombat = function()
@@ -749,97 +873,116 @@ actionList.PreCombat = function()
             -- mark_of_the_wild,if=!aura.str_agi_int.up
             -- This is handled elsewhere in the rotation via the Mark of the Wild option
 
-            -- * Healing Touch (Dream of Cenarius Pre-Combat)
-            -- healing_touch,if=!buff.dream_of_cenarius.up&talent.dream_of_cenarius.enabled
-            -- if cast.able.healingTouch("player") and unit.valid("target") and unit.exists("target")
-            --     and talent.dreamOfCenarius and not buff.dreamOfCenarius.exists()
-            -- then
-            --     if cast.healingTouch("player") then
-            --         ui.debug("Casting Healing Touch - Dream of Cenarius [Pre-Combat]")
-            --         return true
-            --     end
-            -- end
-            -- * Cat Form
-            -- cat_form
-            -- if cast.able.catForm("player") and not buff.catForm.exists() then
-            --     if cast.catForm("player") then
-            --         ui.debug("Casting Cat Form [Pre-Combat]")
-            --         return true
-            --     end
-            -- end
-            -- * Savage Roar
-            -- savage_roar
+            if unit.valid("target") and unit.exists("target") then
+                --------------------
+                -- Raid Boss Pre-Pull Sequence
+                -- Use ui.mode.bossPull (toggle keybind) to trigger the raid boss pre-pull sequence
+                -- Sequence: [Healing Touch (DoC)] → Cat Form → Savage Roar → Potion → Prowl
+                -- Healing Touch only cast if Dream of Cenarius talented
+                --------------------
+                if ui.mode.bossPull == 1 then
+                    -- Step 1: Healing Touch for Dream of Cenarius buff (if talented)
+                    if talent.dreamOfCenarius and not buff.dreamOfCenarius.exists() and cast.able.healingTouch("player") then
+                        if cast.healingTouch("player") then
+                            ui.debug("Casting Healing Touch - Dream of Cenarius [Boss Pre-Pull]")
+                            return true
+                        end
+                    end
+
+                    -- Step 2: Cat Form
+                    -- Wait for DoC buff if talented, otherwise proceed immediately
+                    if (not talent.dreamOfCenarius or buff.dreamOfCenarius.exists())
+                        and not buff.catForm.exists() and cast.able.catForm("player")
+                    then
+                        if cast.catForm("player") then
+                            ui.debug("Casting Cat Form [Boss Pre-Pull]")
+                            return true
+                        end
+                    end
+
+                    -- Step 3: Savage Roar
+                    if (not talent.dreamOfCenarius or buff.dreamOfCenarius.exists())
+                        and buff.catForm.exists() and not buff.savageRoar.exists() and cast.able.savageRoar("player")
+                    then
+                        if cast.savageRoar("player") then
+                            ui.debug("Casting Savage Roar [Boss Pre-Pull]")
+                            return true
+                        end
+                    end
+
+                    -- Step 4: Combat Potion
+                    if (not talent.dreamOfCenarius or buff.dreamOfCenarius.exists())
+                        and buff.catForm.exists() and buff.savageRoar.exists()
+                        and ui.useCDs() and ui.checked("Use Combat Potion")
+                    then
+                        module.CombatPotionUp()
+                    end
+
+                    -- Step 5: Prowl (after all buffs are up)
+                    if (not talent.dreamOfCenarius or buff.dreamOfCenarius.exists())
+                        and buff.catForm.exists() and buff.savageRoar.exists()
+                        and cast.able.prowl("player") and not buff.prowl.exists()
+                        and autoProwl() and ui.mode.prowl == 1
+                        and (not unit.resting() or unit.isDummy("target"))
+                        and not buff.bsInc.exists()
+                    then
+                        if cast.prowl("player") then
+                            ui.debug("Casting Prowl [Boss Pre-Pull]")
+                            return true
+                        end
+                    end
+                end -- End Raid Boss Pre-Pull Sequence
+
+                --------------------
+                -- Normal Pre-Combat (Non-Boss Pull)
+                --------------------
+                -- Only run if Boss Pull mode is OFF
+                if ui.mode.bossPull ~= 1 then
+                    -- * Cat Form - Ensure we're in cat form before prowling
+                    if cast.able.catForm("player") and not buff.catForm.exists() then
+                        if cast.catForm("player") then
+                            ui.debug("Casting Cat Form [Pre-Combat]")
+                            return true
+                        end
+                    end
+
+                    -- * Prowl (Stealth)
+                    if cast.able.prowl("player") and buff.catForm.exists() and autoProwl() and ui.mode.prowl == 1
+                        and not buff.prowl.exists() and (not unit.resting() or unit.isDummy("target"))
+                        and not buff.bsInc.exists()
+                    then
+                        if cast.prowl("player") then
+                            ui.debug("Casting Prowl [Pre-Combat]")
+                            return true
+                        end
+                    end
+                end
+            end -- End Target Valid Check
+        end -- End No Stealth
+        if unit.valid("target") and unit.exists("target") then
+            -- * Savage Roar - Always cast if missing (works while prowled)
+            -- Skip if Boss Pull sequence already handled it
             if cast.able.savageRoar("player") and buff.catForm.exists() and not buff.savageRoar.exists()
-                and unit.valid("target") and unit.exists("target") --and unit.distance("target") < 20
+                and not (ui.mode.bossPull == 1 and (not talent.dreamOfCenarius or buff.dreamOfCenarius.exists()))
             then
                 if cast.savageRoar("player") then
                     ui.debug("Casting Savage Roar [Pre-Combat]")
                     return true
                 end
             end
-            -- Pre-Pull Timer Actions (DBM/BigWigs)
-            if ui.checked("Pre-Pull Timer") and ui.pullTimer() <= ui.value("Pre-Pull Timer") then
-                -- * Virmen's Bite Potion (Pre-Pull)
-                -- virmens_bite_potion
-                -- Potion module already checks for raid instance and ui.useCDs() provides boss detection
-                -- Use potion BEFORE prowl since using items breaks stealth
-                if ui.useCDs() and ui.checked("Use Combat Potion")
-                    and not (buff.prowl.exists() or buff.shadowmeld.exists())
-                then
-                    module.CombatPotionUp()
-                end
 
-                -- * Prowl (Stealth) - Cast after potion during pre-pull to avoid breaking stealth
-                -- stealth
-                if cast.able.prowl("player") and buff.catForm.exists() and autoProwl() and ui.mode.prowl == 1
-                    and not buff.prowl.exists() and (not unit.resting() or unit.isDummy("target"))
-                    and not buff.bsInc.exists()
-                then
-                    if cast.prowl("player") then
-                        ui.debug("Casting Prowl [Pre-Pull]")
-                        return true
-                    end
+            -- * Wild Charge - Get into range if needed
+            if ui.checked("Wild Charge") and cast.able.wildCharge("target") and unit.distance("target") >= 8 then
+                if cast.wildCharge("target") then
+                    ui.debug("Wild Charge on " .. unit.name("target") .. " [Pre-Combat]")
+                    return true
                 end
-            else
-                -- * Prowl (Stealth) - Outside of pre-pull window, can cast normally
-                -- prowl,if=!buff.prowl.up
-                if cast.able.prowl("player") and buff.catForm.exists() and autoProwl() and ui.mode.prowl == 1
-                    and not buff.prowl.exists() and (not unit.resting() or unit.isDummy("target"))
-                    and not buff.bsInc.exists()
-                then
-                    if cast.prowl("player") then
-                        ui.debug("Casting Prowl [Pre-Combat]")
-                        return true
-                    end
-                end
-            end -- End Pre-Pull
-        end -- End No Stealth
-        -- * Wild Charge
-        if ui.checked("Displacer Beast / Wild Charge") and cast.able.wildCharge("target") and unit.valid("target") then
-            if cast.wildCharge("target") then
-                ui.debug("Wild Charge on " .. unit.name("target"))
-                return true
             end
-        end
-        -- * Pull
-        if unit.valid("target") and unit.exists("target") then
-            -- -- * Savage Roar
-            -- -- savage_roar
-            -- if cast.able.savageRoar("player") and buff.catForm.exists() and not buff.savageRoar.exists() and unit.distance("target") < 20 then
-            --     if cast.savageRoar("player") then
-            --         ui.debug("Casting Savage Roar [Pre-Combat]")
-            --         return true
-            --     end
-            -- end
-            -- * Call Action List - AoE
-            -- swap_action_list,name=aoe,if=active_enemies>=5
-            if ui.useAOE(8,5) then
-                if actionList.AoE() then return true end
-            else
-                -- * Call Action List - Filler
-                if actionList.Filler() then return true end
-            end
-        end
+
+            -- * Opener - Handles both stealth and non-stealth engagement
+            -- Auto-detects single target vs AoE based on enemy count
+            if actionList.Opener("target") then return true end
+        end -- End Target Valid Check
     end -- End No Combat
 end -- End Action List - PreCombat
 
@@ -902,6 +1045,15 @@ end -- End Action List - Combat
 
 -- * Action List - AoE
 actionList.AoE = function()
+    -- * Opener - AoE Mode
+    if actionList.Opener(nil, true) then return true end
+
+    -- * Block entire rotation until opener has been cast
+    -- This prevents any abilities from firing before the engagement opener completes
+    if not var.openerCast then
+        return true -- Wait for opener to execute
+    end
+
     -- * Auto Attack
     -- auto_attack
     if cast.able.autoAttack(units.dyn5) and unit.distance(units.dyn5) < 5 and not (buff.prowl.exists() or buff.shadowmeld.exists()) then
@@ -1076,6 +1228,15 @@ end -- End Action List - AoE
 
 -- * Action List - Single Target
 actionList.SingleTarget = function()
+    -- * Opener - Must execute first
+    if actionList.Opener() then return true end
+
+    -- * Block entire rotation until opener has been cast
+    -- This prevents any abilities from firing before the engagement opener completes
+    if not var.openerCast then
+        return true -- Wait for opener to execute
+    end
+
     -- * Auto Attack
     -- auto_attack,if=!buff.prowl.up&!buff.shadowmeld.up
     if cast.able.autoAttack(units.dyn5) and unit.distance(units.dyn5) < 5 and not (buff.prowl.exists() or buff.shadowmeld.exists()) then
@@ -1440,9 +1601,9 @@ actionList.Filler = function(reason)
         local thisUnit = enemies.yards5f[i]
         if cast.able.rake(thisUnit) and not debuff.convert.exists(thisUnit) then
             if unit.ttd(thisUnit) - debuff.rake.remains(thisUnit) > 3
-                and ((debuff.rake.calc() * (debuff.rake.ticksRemain(thisUnit) + 1)
+                and (debuff.rake.calc() * (debuff.rake.ticksRemain(thisUnit) + 1)
                     - debuff.rake.applied(thisUnit) * debuff.rake.ticksRemain(thisUnit)
-                    > getMangleDamage()) or (not unit.inCombat() and unit.facing(thisUnit, "player")))
+                    > getMangleDamage())
             then
                 if cast.rake(thisUnit) then
                     ui.debug("Casting Rake on " .. unit.name(thisUnit) .. " [Filler" .. reason .. "]")
@@ -1487,6 +1648,7 @@ actionList.Filler = function(reason)
         -- and (unit.facing(units.dyn5, "player") or (not unit.facing(units.dyn5,"player")
         --     and not (buff.clearcasting.exists() or buff.berserk.exists() or energy.regen() >= 15)))
         and not buff.incarnation.exists()
+        and unit.inCombat() -- Only use Mangle in combat, never for engagement
     then
         if cast.mangle(units.dyn5) then
             ui.debug("Casting Mangle on " .. unit.name(units.dyn5) .. " [Filler" .. reason .. "]")
@@ -1494,15 +1656,6 @@ actionList.Filler = function(reason)
         end
     end
 end -- End Action List - Filler
-
--- * Action List - Cooldown
-actionList.Cooldown = function()
-    if unit.distance(units.dyn5) < 5 and not buff.prowl.exists()then
-        -- * Module- Basic Trinkets
-        -- use_items
-        module.BasicTrinkets()
-    end -- End useCooldowns check
-end     -- End Action List - Cooldowns
 
 ----------------
 --- ROTATION ---
@@ -1541,6 +1694,7 @@ local function runRotation()
         var.minCount            = 3
         var.noDoT               = false
         var.profileStop         = false
+        var.openerCast          = false
 
         br.player.initialized   = true
     end
@@ -1566,10 +1720,20 @@ local function runRotation()
     var.getTime   = br._G.GetTime()
     var.lootDelay = ui.checked("Auto Loot") and ui.value("Auto Loot") or 0
     var.minCount  = ui.useCDs() and 1 or 3
+
+    -- Reset opener flag when out of combat or target changes
     if not unit.inCombat() and not unit.exists("target") then
         if var.profileStop then var.profileStop = false end
         var.leftCombat = var.getTime
+        var.openerCast = false -- Reset opener flag
     end
+
+    -- Auto-disable Boss Pull mode when entering combat
+    if unit.inCombat() and ui.mode.bossPull == 1 then
+        ui.setToggle("BossPull", 2)  -- Use API function to update toggle
+        ui.debug("Boss Pull mode auto-disabled on combat start")
+    end
+
     -- Add buff.bsInc.exists()
     buff.bsInc = buff.bsInc or {}
     if not buff.bsInc.exists then

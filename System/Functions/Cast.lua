@@ -323,6 +323,11 @@ function cast:castSpell(Unit, SpellID, FacingCheck, MovementCheck, SpamAllowed, 
 							if noCast then
 								return true
 							else
+								-- Store pre-cast state to verify cast success
+								local gcdBefore = br.functions.spell:getSpellCD(61304) -- GCD spell
+								local castingBefore = br._G.UnitCastingInfo("player") ~= nil
+								local channelingBefore = br._G.UnitChannelInfo("player") ~= nil
+
 								br.timersTable[SpellID] = br._G.GetTime()
 								-- currentTarget = UnitGUID(Unit) -- Not Used
 								br.botCast = true -- Used by old Queue Cast
@@ -332,14 +337,31 @@ function cast:castSpell(Unit, SpellID, FacingCheck, MovementCheck, SpamAllowed, 
 									local X, Y, Z = br._G.ObjectPosition(Unit)
 									br._G.ClickPosition(X, Y, Z)
 								end
-								--lastSpellCast = SpellID
-								-- change main button icon
-								--if br.functions.misc:getOptionCheck("Start/Stop BadRotations") then
-								br.ui.toggles.mainButton:SetNormalTexture(select(3, br._G.GetSpellInfo(SpellID)))
-								br.lastSpellCast = SpellID
-								br.lastSpellTarget = br._G.UnitGUID(Unit)
-								--end
-								return true
+
+								-- Verify cast actually started
+								local gcdAfter = br.functions.spell:getSpellCD(61304)
+								local castingAfter = br._G.UnitCastingInfo("player") ~= nil
+								local channelingAfter = br._G.UnitChannelInfo("player") ~= nil
+
+								-- Cast succeeded if: GCD triggered OR started casting OR started channeling
+								local castSucceeded = (gcdAfter > gcdBefore) or
+								                     (castingAfter and not castingBefore) or
+								                     (channelingAfter and not channelingBefore)
+
+								if castSucceeded then
+									--lastSpellCast = SpellID
+									-- change main button icon
+									--if br.functions.misc:getOptionCheck("Start/Stop BadRotations") then
+									br.ui.toggles.mainButton:SetNormalTexture(select(3, br._G.GetSpellInfo(SpellID)))
+									br.lastSpellCast = SpellID
+									br.lastSpellTarget = br._G.UnitGUID(Unit)
+									--end
+									return true
+								else
+									-- Cast failed - reset timer to allow retry
+									br.timersTable[SpellID] = nil
+									return false
+								end
 							end
 						end
 					end
@@ -347,6 +369,11 @@ function cast:castSpell(Unit, SpellID, FacingCheck, MovementCheck, SpamAllowed, 
 					if noCast then
 						return true
 					else
+						-- Store pre-cast state to verify cast success
+						local gcdBefore = br.functions.spell:getSpellCD(61304) -- GCD spell
+						local castingBefore = br._G.UnitCastingInfo("player") ~= nil
+						local channelingBefore = br._G.UnitChannelInfo("player") ~= nil
+
 						-- currentTarget = UnitGUID(Unit) -- Not Used
 						br.botCast = true
 						br.botSpell = SpellID
@@ -355,12 +382,28 @@ function cast:castSpell(Unit, SpellID, FacingCheck, MovementCheck, SpamAllowed, 
 							local X, Y, Z = br._G.ObjectPosition(Unit)
 							br._G.ClickPosition(X, Y, Z)
 						end
-						--if br.functions.misc:getOptionCheck("Start/Stop BadRotations") then
-						br.ui.toggles.mainButton:SetNormalTexture(select(3, br._G.GetSpellInfo(SpellID)))
-						br.lastSpellCast = SpellID
-						br.lastSpellTarget = br._G.UnitGUID(Unit)
-						--end
-						return true
+
+						-- Verify cast actually started
+						local gcdAfter = br.functions.spell:getSpellCD(61304)
+						local castingAfter = br._G.UnitCastingInfo("player") ~= nil
+						local channelingAfter = br._G.UnitChannelInfo("player") ~= nil
+
+						-- Cast succeeded if: GCD triggered OR started casting OR started channeling
+						local castSucceeded = (gcdAfter > gcdBefore) or
+						                     (castingAfter and not castingBefore) or
+						                     (channelingAfter and not channelingBefore)
+
+						if castSucceeded then
+							--if br.functions.misc:getOptionCheck("Start/Stop BadRotations") then
+							br.ui.toggles.mainButton:SetNormalTexture(select(3, br._G.GetSpellInfo(SpellID)))
+							br.lastSpellCast = SpellID
+							br.lastSpellTarget = br._G.UnitGUID(Unit)
+							--end
+							return true
+						else
+							-- Cast failed - don't set lastSpellCast
+							return false
+						end
 					end
 				end
 			end
@@ -426,17 +469,39 @@ function cast:castSpellMacro(Unit, SpellID, FacingCheck, MovementCheck, SpamAllo
 							if noCast then
 								return true
 							else
+								-- Store pre-cast state to verify cast success
+								local gcdBefore = br.functions.spell:getSpellCD(61304) -- GCD spell
+								local castingBefore = br._G.UnitCastingInfo("player") ~= nil
+								local channelingBefore = br._G.UnitChannelInfo("player") ~= nil
+
 								br.timersTable[SpellID] = br._G.GetTime()
 								br.currentTarget = br._G.UnitGUID(Unit)
 								br._G.RunMacroText("/cast [@" .. Unit .. "] " .. br._G.GetSpellInfo(SpellID))
-								--lastSpellCast = SpellID
-								-- change main button icon
-								--if br.functions.misc:getOptionCheck("Start/Stop BadRotations") then
-								br.ui.toggles.mainButton:SetNormalTexture(select(3, br._G.GetSpellInfo(SpellID)))
-								br.lastSpellCast = SpellID
-								br.lastSpellTarget = br._G.UnitGUID(Unit)
-								--end
-								return true
+
+								-- Verify cast actually started
+								local gcdAfter = br.functions.spell:getSpellCD(61304)
+								local castingAfter = br._G.UnitCastingInfo("player") ~= nil
+								local channelingAfter = br._G.UnitChannelInfo("player") ~= nil
+
+								-- Cast succeeded if: GCD triggered OR started casting OR started channeling
+								local castSucceeded = (gcdAfter > gcdBefore) or
+								                     (castingAfter and not castingBefore) or
+								                     (channelingAfter and not channelingBefore)
+
+								if castSucceeded then
+									--lastSpellCast = SpellID
+									-- change main button icon
+									--if br.functions.misc:getOptionCheck("Start/Stop BadRotations") then
+									br.ui.toggles.mainButton:SetNormalTexture(select(3, br._G.GetSpellInfo(SpellID)))
+									br.lastSpellCast = SpellID
+									br.lastSpellTarget = br._G.UnitGUID(Unit)
+									--end
+									return true
+								else
+									-- Cast failed - reset timer to allow retry
+									br.timersTable[SpellID] = nil
+									return false
+								end
 							end
 						end
 					end
@@ -444,14 +509,35 @@ function cast:castSpellMacro(Unit, SpellID, FacingCheck, MovementCheck, SpamAllo
 					if noCast then
 						return true
 					else
+						-- Store pre-cast state to verify cast success
+						local gcdBefore = br.functions.spell:getSpellCD(61304) -- GCD spell
+						local castingBefore = br._G.UnitCastingInfo("player") ~= nil
+						local channelingBefore = br._G.UnitChannelInfo("player") ~= nil
+
 						br.currentTarget = br._G.UnitGUID(Unit)
 						br._G.RunMacroText("/cast [@" .. Unit .. "] " .. br._G.GetSpellInfo(SpellID))
-						--if br.functions.misc:getOptionCheck("Start/Stop BadRotations") then
-						br.ui.toggles.mainButton:SetNormalTexture(select(3, br._G.GetSpellInfo(SpellID)))
-						br.lastSpellCast = SpellID
-						br.lastSpellTarget = br._G.UnitGUID(Unit)
-						--end
-						return true
+
+						-- Verify cast actually started
+						local gcdAfter = br.functions.spell:getSpellCD(61304)
+						local castingAfter = br._G.UnitCastingInfo("player") ~= nil
+						local channelingAfter = br._G.UnitChannelInfo("player") ~= nil
+
+						-- Cast succeeded if: GCD triggered OR started casting OR started channeling
+						local castSucceeded = (gcdAfter > gcdBefore) or
+						                     (castingAfter and not castingBefore) or
+						                     (channelingAfter and not channelingBefore)
+
+						if castSucceeded then
+							--if br.functions.misc:getOptionCheck("Start/Stop BadRotations") then
+							br.ui.toggles.mainButton:SetNormalTexture(select(3, br._G.GetSpellInfo(SpellID)))
+							br.lastSpellCast = SpellID
+							br.lastSpellTarget = br._G.UnitGUID(Unit)
+							--end
+							return true
+						else
+							-- Cast failed - don't set lastSpellCast
+							return false
+						end
 					end
 				end -- End Spam Check
 			end -- End CD/Distance Check
@@ -714,6 +800,13 @@ function cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellI
 		if br._G.UnitHealth(thisUnit) > 0 or castType == "dead" then
 			-- Debug Only
 			if debug then return true end
+
+			-- Store pre-cast state to verify cast success
+			local gcdBefore = br.functions.spell:getSpellCD(61304) -- GCD spell
+			local spellCDBefore = br.functions.spell:getSpellCD(spellID) -- This spell's CD
+			local castingBefore = br._G.UnitCastingInfo("player") ~= nil
+			local channelingBefore = br._G.UnitChannelInfo("player") ~= nil
+
 			-- Cast Spell
 			br.botCast = true -- Used by old Queue Cast
 			br.botSpell = spellID -- Used by old Queue Cast
@@ -727,14 +820,32 @@ function cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellI
 				local X, Y, Z = br._G.ObjectPosition(thisUnit)
 				br._G.ClickPosition(X, Y, Z)
 			end
-			-- add to cast timer
-			castTimers[spellID] = br._G.GetTime() + 1
-			-- change main button icon
-			br.ui.toggles.mainButton:SetNormalTexture(icon)
-			-- Update Last Cast
-			br.lastSpellCast = spellID
-			br.lastSpellTarget = br._G.UnitGUID(thisUnit)
-			return true
+
+			-- Verify cast actually started
+			local gcdAfter = br.functions.spell:getSpellCD(61304)
+			local spellCDAfter = br.functions.spell:getSpellCD(spellID)
+			local castingAfter = br._G.UnitCastingInfo("player") ~= nil
+			local channelingAfter = br._G.UnitChannelInfo("player") ~= nil
+
+			-- Cast succeeded if: GCD triggered OR spell CD triggered OR started casting OR started channeling
+			local castSucceeded = (gcdAfter > gcdBefore) or
+			                     (spellCDAfter > spellCDBefore) or
+			                     (castingAfter and not castingBefore) or
+			                     (channelingAfter and not channelingBefore)
+
+			if castSucceeded then
+				-- add to cast timer
+				castTimers[spellID] = br._G.GetTime() + 1
+				-- change main button icon
+				br.ui.toggles.mainButton:SetNormalTexture(icon)
+				-- Update Last Cast
+				br.lastSpellCast = spellID
+				br.lastSpellTarget = br._G.UnitGUID(thisUnit)
+				return true
+			else
+				-- Cast failed - don't update timers or last cast
+				return false
+			end
 		end
 		return false
 	end

@@ -799,7 +799,7 @@ local function runRotation()
     spell           = br.player.spell
     talent          = br.player.talent
     -- General Locals
-    var.haltProfile = (unit.inCombat() and var.profileStop) or unit.mounted() or ui.pause() or ui.mode.rotation == 2
+    var.haltProfile = (unit.inCombat() and var.profileStop) or unit.mounted() or ui.pause() or ui.mode.rotation == 4
     -- Dynamic Units
     -- Units
     units.get(5)
@@ -818,8 +818,6 @@ local function runRotation()
             return true
         end
     end
-
-    -- ui.chatOverlay("AOE: "..tostring(ui.useAOE(8,3)).." - C: "..#enemies.yards8.. " - NC: "..#enemies.yards8nc)
 
     ---------------------
     --- Begin Profile ---

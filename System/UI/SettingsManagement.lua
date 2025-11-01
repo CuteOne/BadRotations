@@ -365,31 +365,69 @@ function settingsManagement:cleanSettings()
 	if br.data and br.data.settings then
 		if br.data.settings[br.loader.selectedSpec] and br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile] then
 			local settings = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]
-			for page, _ in pairs(settings) do
-				if type(page) == "table" then
-					for option, _ in pairs(page) do
-						if br.data.ui[page][option] == nil then
-							print("Option: " ..
-								tostring(option) ..
-								" was not created has been removed from Page: " .. tostring(page) .. ".")
-							settings[page][option] = nil
+			local removedItems = {}
+
+			-- Ensure all pages in all windows are created so br.data.ui is complete
+			if br.ui and br.ui.window then
+				for windowName, window in pairs(br.ui.window) do
+					if type(window) == "table" and window.pageDD then
+						local pageDD = window.pageDD
+						if pageDD.settings and pageDD.settings.list then
+							local currentPage = pageDD.value or 1
+							-- Visit each page to force creation
+							for i = 1, #pageDD.settings.list do
+								pageDD:SetValue(i)
+							end
+							-- Restore original page
+							pageDD:SetValue(currentPage)
 						end
-					end
-				elseif type(page) == "string" then
-					local option = page
-					if br.data.ui[option] == nil then
-						print("Option: " ..
-							tostring(option) ..
-							" was not created and had been removed.")
-						settings[option] = nil
 					end
 				end
 			end
+
+			-- Now check for orphaned settings using the complete br.data.ui registry
+			if not br.data.ui then
+				br._G.print("|cffFF8800[cleanSettings] br.data.ui is nil after forcing page creation|r")
+				return
+			end
+
+			for page, pageData in pairs(settings) do
+				if type(pageData) == "table" and type(page) == "string" then
+					-- Check if this is an actual page (not PageList, currentPage, etc.)
+					if page ~= "PageList" and page ~= "currentPage" and page ~= "totalPages" then
+						for option, _ in pairs(pageData) do
+							-- Check if this option exists in br.data.ui for THIS specific page
+							if not br.data.ui[page] or br.data.ui[page][option] == nil then
+								settings[page][option] = nil
+								table.insert(removedItems, option:gsub(" Check", ""):gsub(" Drop", ""):gsub(" Status", "") .. " from " .. page)
+							end
+						end
+					end
+				elseif type(page) == "string" then
+					-- This handles settings that aren't in a page structure
+					local option = page
+					if br.data.ui[option] == nil then
+						settings[option] = nil
+						table.insert(removedItems, option)
+					end
+				end
+			end
+
+			if #removedItems > 0 then
+				br._G.print("|cffFFDD00[BadRotations]|r Cleaned " .. #removedItems .. " orphaned setting(s):")
+				for _, item in ipairs(removedItems) do
+					br._G.print("  |cffFF8800→|r " .. item)
+				end
+				br._G.print("|cff00FF00Saving cleaned settings...|r")
+				-- Save immediately so cleaned settings persist
+				br.data.collectGarbage = false -- Prevent re-running cleanup
+				settingsManagement:saveSettings(nil, nil, br.loader.selectedSpec, br.loader.selectedProfileName)
+			else
+				br._G.print("|cff00CCFF[cleanSettings] No orphaned settings found to clean.|r")
+			end
 		end
 	end
-end
-
--- Load Settings
+end-- Load Settings
 function settingsManagement:loadSettings(folder, class, spec, profile, instance)
 	if br.unlocked and (not br.data.loadedSettings or br.rotationChanged) then
 		local loadDir = settingsManagement:checkDirectories(folder, class, spec, profile, instance)
@@ -421,6 +459,8 @@ function settingsManagement:loadSettings(folder, class, spec, profile, instance)
 		if fileFound then
 			br.ui:closeWindow("all")
 			br.data = settingsManagement:deepcopy(brdata)
+			-- Clear br.data.ui from loaded settings - it will be rebuilt when UI is created
+			br.data.ui = nil
 			if profileFound then
 				settingsManagement.profile = settingsManagement:deepcopy(brprofile)
 			end
