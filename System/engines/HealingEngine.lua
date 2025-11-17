@@ -52,11 +52,26 @@ if not healingEngine.metaTable1 then
 	updateHealingTable:SetScript(
 		"OnEvent",
 		function()
+			-- Track group size changes for buff stability
+			healingEngine.lastGroupSize = healingEngine.currentGroupSize or 0
+			healingEngine.currentGroupSize = #br.engines.healingEngine.friend
+			healingEngine.groupSizeChangeTime = br._G.GetTime()
+
 			_G.table.wipe(br.engines.healingEngine.friend)
 			_G.table.wipe(healingEngine.memberSetup.cache)
 			healingEngine:SetupTables()
 		end
 	)
+
+	-- Helper function to check if group composition is stable (for buff logic)
+	-- Returns true if group size hasn't changed in the last 3 seconds
+	function healingEngine:isGroupStable(seconds)
+		seconds = seconds or 3 -- Default to 3 seconds
+		if not healingEngine.groupSizeChangeTime then
+			return true -- No changes recorded yet, assume stable
+		end
+		return (br._G.GetTime() - healingEngine.groupSizeChangeTime) >= seconds
+	end
 	-- This is for those NPC units that need healing. Compare them against our list of Unit ID's
 	local function SpecialHealUnit(tar)
 		for i = 1, #br.engines.healingEngineCollections.SpecialHealUnitList do

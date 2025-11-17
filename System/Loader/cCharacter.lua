@@ -66,6 +66,7 @@ function cCharacter:new()
 	self.health = 100                            -- Health Points in %
 	self.ignoreCombat = false                    -- Ignores combat status if set to true
 	self.inCombat = false                        -- if is in combat
+	self.inCombatPrevious = false                -- Previous combat state for tracking combat start
 	self.instance = select(2, br._G.IsInInstance()) -- Get type of group we are in (none, party, instance, raid, etc)
 	self.level = 0                               -- Player Level
 	self.moving = false                          -- Moving event
@@ -195,14 +196,33 @@ function cCharacter:new()
 
 	-- Returns if in combat
 	function self.getInCombat()
+		local wasInCombat = self.inCombat
+
 		if br._G.UnitAffectingCombat("player") or self.ignoreCombat or
 			(br.functions.misc:isChecked("Tank Aggro = Player Aggro") and self.tankAggro()) or
 			(br._G.GetNumGroupMembers() > 1 and (br._G.UnitAffectingCombat("player") or br._G.UnitAffectingCombat("target")))
 		then
 			self.inCombat = true
+
+			-- Detect combat start transition (was not in combat, now in combat)
+			if not self.inCombatPrevious and self.inCombat then
+				if self.ui and self.ui.debug then
+					self.ui.debug("Combat Started")
+				end
+			end
 		else
 			self.inCombat = false
+
+			-- Detect combat end transition (was in combat, now not in combat)
+			if self.inCombatPrevious and not self.inCombat then
+				if self.ui and self.ui.debug then
+					self.ui.debug("Combat Ended")
+				end
+			end
 		end
+
+		-- Update previous combat state for next check
+		self.inCombatPrevious = self.inCombat
 	end
 
 	-- Rotation selection update
@@ -221,6 +241,11 @@ function cCharacter:new()
 		local startTime = br._G.debugprofilestop()
 		-- dont check if player is casting to allow off-cd usage and cast while other spell is casting
 		-- if pause(true) then return end
+
+		-- Halt all rotations during loading screens and transitions
+		if br.disableControl or br.disablePulse then
+			return
+		end
 
 		if self.rotation ~= nil and self.rotation.run ~= nil then
 			self.runModules()

@@ -3640,268 +3640,188 @@ br.lists.spells = {
                 countTheOdds = 341546,
             },
         },
-        -- Subtlety
+        -- Subtlety (MoP Classic - 5.4.8)
         [261] = {
             abilities  = {
-                backstab       = 53,
-                blackPowder    = 319175,
-                rupture        = 1943,
-                shadowstrike   = 185438,
-                shurikenStorm  = 197835,
-                shurikenToss   = 114014,
-                symbolsOfDeath = 212283,
+                ambush           = 8676,
+                backstab         = 53,
+                crimsonTempest   = 121411,
+                eviscerate       = 2098,
+                fanOfKnives      = 51723,
+                hemorrhage       = 16511,
+                preparation      = 14185,
+                premeditation    = 14183,
+                rupture          = 1943,
+                shadowBlades     = 121471,
+                shadowDance      = 121471,  -- MoP Classic uses same ID as Shadow Blades
+                shadowstep       = 36554,
+                shurikenToss     = 114014,
+                sliceAndDice     = 5171,
+                vanish           = 1856,
             },
             artifacts  = {
 
             },
             buffs      = {
-                danseMacabre        = 393969,
-                deeperDaggers       = 383405,
-                finalityRupture     = 385951,
-                flagellation        = 384631,
-                flagellationPersist = 394758,
-                lingeringShadow     = 385960,
-                masterAssassin      = 256735,
-                masterOfShadows     = 196980,
-                nightsVengeance     = 273424,
-                perforatedVeins     = 341572,
-                premeditation       = 343160,
-                shadowBlades        = 121471,
-                shadowDance         = 185422,
-                sharpenedBlades     = 272916,
-                shurikenCombo       = 245640,
-                shurikenTornado     = 277925,
-                subterfuge          = 115192,
-                symbolsOfDeath      = 212283,
-                symbolsOfDeathCrit  = 227151,
-                shotInTheDark       = 257506,
-                theDreadlordsDeceit = 228224,
-                theRotten           = 394203,
+                anticipation       = 115189, -- Talent buff for extra combo points
+                masterOfSubtlety   = 31665,  -- Shadow Dance / Stealth buff
+                shadowBlades       = 121471,
+                shadowDance        = 121471,  -- MoP Classic uses same ID as Shadow Blades
+                shadowmeld         = 58984,  -- Night Elf racial
+                sliceAndDice       = 5171,
+                sleightOfHand      = 145211, -- Proc from Ambush
+                stealth            = 1784,
+                subterfuge         = 115192, -- Talent - Stealth linger
+                vanish             = 1856,
             },
             debuffs    = {
-                rupture      = 1943,
-                findWeakness = 91021,
-                nightblade   = 195452,
-                shadowsGrasp = 206760,
+                crimsonTempest = 122233,
+                findWeakness   = 91023, -- Shadow Dance debuff
+                hemorrhage     = 16511,
+                rupture        = 1943,
             },
             glyphs     = {
-
+                glyphOfAmbush           = 56813,
+                glyphOfBackstab         = 63254,
+                glyphOfHemorrhage       = 56807,
+                glyphOfPreparation      = 63249,
+                glyphOfShadowDance      = 63253,
+                glyphOfSliceAndDice     = 146638,
+                glyphOfVanish           = 56814,
             },
             talents    = {
-                cloakedInShadows         = 382515, --
-                danseMacabre             = 382528, --
-                darkBrew                 = 382504, --
-                darkShadow               = 245687, --
-                deepeningShadows         = 185314, --
-                deeperDaggers            = 382517, --
-                ephemeralBond            = 426563, --
-                exhilaratingExecution    = 428486, --
-                fadeToNothing            = 382514, --
-                finality                 = 382525, --
-                findWeakness             = 91023,  --
-                flagellation             = 384631, --
-                gloomblade               = 200758, --
-                goremawsBite             = 426591, --
-                improvedBackstab         = 319949, --
-                improvedShadowDance      = 393972, --
-                improvedShadowTechniques = 394023, --
-                improvedShurikenStorm    = 319951, --
-                inevitability            = 382512, --
-                invigoratingShadowdust   = 382523, --
-                lingeringShadow          = 382524, --
-                masterOfShadows          = 196976, --
-                nightTerrors             = 277953, --
-                perforatedVeins          = 382518, --
-                plannedExecution         = 382508, --
-                premeditation            = 343160, --
-                quickDecisions           = 382503, --
-                relentlessStrikes        = 58423,  --
-                replicatingShadows       = 382506, --
-                secretStratagem          = 394320, --
-                secretTechnique          = 280719, --
-                sepsis                   = 385408, --
-                shadowBlades             = 121471, --
-                shadowFocus              = 108209, --
-                shadowcraft              = 426594, --
-                shadowedFinishers        = 382511, --
-                shotInTheDark            = 257505, --
-                shroudedInDarkness       = 382507, --
-                shurikenTornado          = 277925, --
-                silentStorm              = 385722, --
-                swiftDeath               = 394309, --
-                terrifyingPace           = 428387, --
-                theFirstDance            = 382505, --
-                theRotten                = 382015, --
-                veiltouched              = 382017, --
-                warningSigns             = 426555, --
-                weaponmaster             = 193537, --
-                withoutATrace            = 382513, --
+                -- Tier 1 (Level 15)
+                nightstalker      = 14062,
+                subterfuge        = 108208,
+                shadowFocus       = 108209,
+                -- Tier 2 (Level 30) - Shared
+                deadlyThrow       = 26679,
+                combatReadiness   = 74001,
+                -- Tier 3 (Level 45)
+                cheatDeath        = 31230,
+                leechingPoison    = 108211,
+                elusiveness       = 79008,
+                -- Tier 4 (Level 60)
+                cloakAndDagger    = 138106,
+                shadowstep        = 36554,
+                burstOfSpeed      = 108212,
+                -- Tier 5 (Level 75)
+                preyOnTheWeak     = 131511,
+                paralyticPoison   = 108215,
+                dirtyTricks       = 108216,
+                -- Tier 6 (Level 90)
+                shurikenToss      = 114014,
+                markedForDeath    = 137619,
+                anticipation      = 114015,
             },
             traits     = {
-                bladeInTheShadows  = 275896,
-                nightsVengeance    = 273418,
-                replicatingShadows = 286121,
-                sharpenedBlades    = 272911,
-                theFirstDance      = 278681,
-                perforate          = 277720,
-                inevitability      = 278683,
-            },
-            runeforges = {
-                finality            = 340089,
-                akaarisSoulFragment = 340090,
-            },
-            conduits   = {
-                deeperDaggers    = 341549,
-                perforatedVeins  = 341567,
-                plannedExecution = 341556,
-                stilettoStaccato = 341559,
-            },
-        },
-        -- All
-        Shared = {
-            abilities  = {
-                ambush = 8676,
-                cheapShot = 1833,
-                crimsonVial = 185311,
-                cripplingPoison = 3408,
-                distract = 1725,
-                eviscerate = 196819,
-                feint = 1966,
-                instantPoison = 315584,
-                kick = 1766,
-                kidneyShot = 408,
-                pickLock = 1804,
-                pickPocket = 921,
-                sap = 6770,
-                shadowDance = 185313,
-                shroudOfConcealment = 114018,
-                sinisterStrike = 1752,
-                sliceAndDice = 315496,
-                sprint = 2983,
-                stealth = 1784,
-                vanish = 1856,
-                woundPoison = 8679,
-            },
-            artifacts  = {
 
             },
-            buffs      = {
-                chaosBane           = 356043,
+            runeforges = {
+
+            },
+            conduits   = {
+
+            },
+        },
+        -- All (MoP Classic - 5.4.8)
+        Shared = {
+            abilities  = {
+                ambush              = 8676,
+                blind               = 2094,
+                cheapShot           = 1833,
                 cloakOfShadows      = 31224,
-                coldBlood           = 213981,
+                combatReadiness     = 74001,  -- MoP defensive CD
                 cripplingPoison     = 3408,
-                deathFromAbove      = 152150,
-                deathlyShadows      = 341202,
+                deadlyPoison        = 2823,
+                distract            = 1725,
+                evasion             = 5277,
+                eviscerate          = 2098,
                 feint               = 1966,
-                flagellation        = 345569,
-                flagellationPersist = 394758,
-                instantPoison       = 315584,
-                leadByExample       = 342156,
-                masterAssassinsMark = 340094,
-                numbingPoison       = 5761,
-                sepsis              = 328305,
-                shroudOfConcealment = 114018,
-                sliceAndDice        = 315496,
+                gouge               = 1776,
+                instantPoison       = 6603,   -- MoP version
+                kick                = 1766,
+                kidneyShot          = 408,
+                mindNumbingPoison   = 5761,   -- MoP version (previously Crippling in later expansions)
+                paralyticPoison     = 108211, -- MoP poison
+                pickLock            = 1804,
+                pickPocket          = 921,
+                redirect            = 73981,  -- MoP ability
+                recuperate          = 73651,  -- MoP healing finisher
+                sap                 = 6770,
+                shroudOfConcealment = 114018, -- MoP group stealth
+                sinisterStrike      = 1752,
+                sliceAndDice        = 5171,
                 sprint              = 2983,
                 stealth             = 1784,
-                stealthSepsis       = 347037,
-                theRotten           = 341134,
+                throw               = 2764,   -- MoP version
                 tricksOfTheTrade    = 57934,
                 vanish              = 1856,
                 woundPoison         = 8679,
-                echoingReprimand    = 323558,
-                thistleTea          = 381623,
+            },
+            artifacts  = {
+
+            },
+            buffs      = {
+                cloakOfShadows      = 31224,
+                combatReadiness     = 74001,
+                cripplingPoison     = 3408,
+                deadlyPoison        = 2823,
+                evasion             = 5277,
+                feint               = 1966,
+                instantPoison       = 6603,
+                mindNumbingPoison   = 5761,
+                paralyticPoison     = 108211,
+                recuperate          = 73651,
+                shroudOfConcealment = 114018,
+                sliceAndDice        = 5171,
+                sprint              = 2983,
+                stealth             = 1784,
+                tricksOfTheTrade    = 57934,
+                vanish              = 1856,
+                woundPoison         = 8679,
             },
             conduits   = {
-                lashingScars     = 341310,
-                plannedExecution = 341556,
-                reverberation    = 341264,
-                septicShock      = 341309,
+
             },
             covenants  = {
-                echoingReprimand    = 323547,
-                flagellation        = 323654,
-                flagellationCleanse = 346975,
-                sepsis              = 328305,
-                serratedBoneSpike   = 328547,
+
             },
             debuffs    = {
-                cheapShot            = 1833,
-                cripplingPoison      = 3408,
-                flagellation         = 323654,
-                instantPoison        = 315584,
-                kidneyShot           = 408,
-                numbingPoison        = 5761,
-                sap                  = 6770,
-                sepsis               = 328305,
-                serratedBoneSpike    = 328547,
-                serratedBoneSpikeDot = 324073,
-                shiv                 = 319504,
-                woundPoison          = 8679,
+                blind           = 2094,
+                cheapShot       = 1833,
+                cripplingPoison = 3408,
+                garrote         = 703,
+                gouge           = 1776,
+                kidneyShot      = 408,
+                mindNumbingPoison = 5761,
+                paralyticPoison = 113952, -- Debuff version
+                rupture         = 1943,
+                sap             = 6770,
+                woundPoison     = 8679,
             },
             glyphs     = {
-                glyphOfBlackout  = 219693,
-                glyphOfBurnout   = 220279,
-                glyphOfDisguise  = 63268,
-                glyphOfFlashBang = 219678,
+                glyphOfAdrenalineRush  = 56803,
+                glyphOfBlind           = 91299,
+                glyphOfCloakOfShadows  = 63269,
+                glyphOfExposedArmor    = 56805,
+                glyphOfFanOfKnives     = 63254,
+                glyphOfFeint           = 63257,
+                glyphOfGarrote         = 56812,
+                glyphOfGouge           = 56809,
+                glyphOfKick            = 63252,
+                glyphOfKillingSpree    = 63249,
+                glyphOfSap             = 56798,
+                glyphOfSprint          = 63250,
+                glyphOfTricksOfTheTrade = 63256,
             },
             talents    = {
-                acrobaticStrikes    = 196924, --
-                airbourneIrritant   = 200733, --
-                alacrity            = 193539, --
-                atrophicPoison      = 381637, --
-                blackjack           = 379005, --
-                blind               = 2094,   --
-                cheatDeath          = 31230,  --
-                cloakOfShadows      = 31224,  --
-                coldBlood           = 382245, --
-                deadenedNerves      = 231719, --
-                deadlyPrecision     = 381542, --
-                deeperStratagem     = 193531, --
-                echoingReprimand    = 385616, --
-                elusiveness         = 79008,  --
-                evasion             = 5277,   --
-                featherfoot         = 423683, --
-                fleetFooted         = 378813, --
-                gouge               = 1776,   --
-                gracefulGuile       = 423647, --
-                improvedAmbush      = 381620, --
-                improvedSprint      = 231691, --
-                improvedWoundPoison = 319066, --
-                ironStomach         = 193546, --
-                lethality           = 382238, --
-                leechingPoison      = 280716, --
-                masterPoisoner      = 378436, --
-                nightstalker        = 14062,  --
-                nimbleFingers       = 378427, --
-                numbingPoison       = 5761,   --
-                recuperator         = 378996, --
-                resoundingClarity   = 381622, --
-                reverberation       = 394332, --
-                rushedSetup         = 378803, --
-                soothingDarkness    = 393970, --
-                shadowDance         = 185313, --
-                shadowrunner        = 378807, --
-                shadowstep          = 36554,  --
-                shiv                = 5938,   --
-                stillshroud         = 423662, --
-                subterfuge          = 108208, --
-                superiorMixture     = 423701, --
-                thistleTea          = 381623, --
-                tightSpender        = 381621, --
-                tricksOfTheTrade    = 57934,  --
-                unbreakableStride   = 400804, --
-                vigor               = 14983,  --
-                virulentPoisons     = 381543, --
+                -- Tier 2 (Level 30) - Shared across all Rogue specs
+                deadlyThrow       = 26679,
+                combatReadiness   = 74001,
             },
             runeforges = {
-                deathlyShadows          = 340092,
-                essenceOfBloodfang      = 340079,
-                invigoratingShadowdust  = 340080,
-                markOfTheMasterAssassin = 340076,
-                obedience               = 354703,
-                tinyToxicBlade          = 340078,
-                theRotten               = 340091,
+
             },
         },
     },

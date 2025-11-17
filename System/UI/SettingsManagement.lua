@@ -363,6 +363,13 @@ end
 
 function settingsManagement:cleanSettings()
 	if br.data and br.data.settings then
+		-- Check if Power toggle is off - if so, skip cleaning as UI was never built
+		if br.data.settings[br.loader.selectedSpec] and br.data.settings[br.loader.selectedSpec].toggles and
+			br.data.settings[br.loader.selectedSpec].toggles["Power"] ~= 1 then
+			-- br._G.print("|cffFF8800[cleanSettings] System was toggled off - skipping settings cleanup to prevent data loss|r")
+			return
+		end
+
 		if br.data.settings[br.loader.selectedSpec] and br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile] then
 			local settings = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]
 			local removedItems = {}

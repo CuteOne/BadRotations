@@ -240,7 +240,15 @@ if not enemiesEngine.metaTable2 then
 		function o:UpdateUnit()
 			-- br._G.print("Updating "..o.unit)
 			local startTime = br._G.debugprofilestop()
+			
+			-- Cache position first (used multiple times below)
 			o.posX, o.posY, o.posZ = br._G.ObjectPosition(o.unit)
+			
+			-- Early exit if unit has no position (invalid)
+			if not o.posX then
+				return
+			end
+			
 			o.name = br._G.UnitName(o.unit)
 			o.guid = br._G.UnitGUID(o.unit)
 			o.distance = o:RawDistance()

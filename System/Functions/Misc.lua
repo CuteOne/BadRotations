@@ -618,9 +618,30 @@ function misc:enemyListCheck(Unit)
 		return false -- Early exit before expensive LoS check
 	end
 
-	-- LoS check: allow units without LoS if they're in combat (actively fighting)
-	-- Skip LoS check for close enemies (<15y) to reduce overhead
-	local los = distance < 15 or br.functions.misc:getLineOfSight("player", Unit) or br._G.UnitAffectingCombat(Unit)
+	-- OPTIMIZATION: More aggressive LoS check skipping to reduce FPS impact
+	-- Skip LoS check entirely for:
+	-- 1. Close enemies (<15y) - always reachable
+	-- 2. Units in combat - already engaged
+	-- 3. Mid-range units (15-40y) - perform check to maintain accuracy for prowl/pre-combat detection
+	-- 4. Distant units (>40y) - skip unless damaged or targeting us
+	local isDamagedUnit = br.engines.enemiesEngine.damaged and br.engines.enemiesEngine.damaged[br._G.ObjectPointer(Unit)] ~= nil
+	local isTargetingUs = br.functions.misc:isTargeting(Unit)
+	local los = true -- Default to true (skip check)
+
+	if distance >= 15 and not br._G.UnitAffectingCombat(Unit) then
+		-- CRITICAL: Always check LoS for mid-range units (15-40y) to support pre-emptive prowling/stealth detection
+		-- These checks are needed for Feral pre-emptive prowl, Rogue stealth prep, etc.
+		if distance <= 40 then
+			los = br.functions.misc:getLineOfSight("player", Unit)
+		elseif isDamagedUnit or isTargetingUs then
+			-- Distant but important: damaged or targeting us
+			los = br.functions.misc:getLineOfSight("player", Unit)
+		else
+			-- Very distant (>40y), not damaged, not targeting: skip LoS check, assume no LoS
+			-- These units are too far to matter for gameplay
+			los = false
+		end
+	end
 
 	local allPass = basicChecks and los
 		and ((Unit ~= 131824 and Unit ~= 131823 and Unit ~= 131825) or ((br.functions.aura:UnitBuffID(Unit, 260805)

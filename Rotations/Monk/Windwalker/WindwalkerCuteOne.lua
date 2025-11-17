@@ -72,9 +72,13 @@ local function createOptions()
             -- Grapple Weapon
             br.ui:createCheckbox(section, "Grapple Weapon", "|cffFFFFFFAutomatically disarms dangerous melee enemies in PvE.")
             -- Legacy of the Emperor
-            br.ui:createCheckbox(section, "Legacy of the Emperor")
+            br.ui:createDropdown(section, "Legacy of the Emperor",
+                { "|cffFFFFFFPlayer", "|cffFFFFFFTarget", "|cffFFFFFFMouseover", "|cffFFFFFFFocus", "|cffFFFFFFGroup" }, 1,
+                "|cffFFFFFFSet how to use Legacy of the Emperor")
             -- Legacy of the White Tiger
-            br.ui:createCheckbox(section, "Legacy of the White Tiger")
+            br.ui:createDropdown(section, "Legacy of the White Tiger",
+                { "|cffFFFFFFPlayer", "|cffFFFFFFTarget", "|cffFFFFFFMouseover", "|cffFFFFFFFocus", "|cffFFFFFFGroup" }, 1,
+                "|cffFFFFFFSet how to use Legacy of the White Tiger")
             -- Roll
             br.ui:createCheckbox(section, "Roll")
         br.ui:checkSectionState(section)
@@ -181,6 +185,72 @@ var.profileStop = false
 var.grappleWeaponBlacklist = {} -- Stores NPC IDs that don't have weapons
 var.lastGrappleTarget = nil
 
+-- * Get Buff Unit Option (Generic for all buffs)
+local getBuffUnitOption = function(option, buffObject)
+    local thisTar = ui.value(option)
+    local thisUnit
+    if thisTar == 1 then
+        thisUnit = "player"
+    end
+    if thisTar == 2 then
+        thisUnit = "target"
+    end
+    if thisTar == 3 then
+        thisUnit = "mouseover"
+    end
+    if thisTar == 4 then
+        thisUnit = "focus"
+    end
+    if thisTar == 5 then
+        -- Group mode: Only buff when:
+        -- 1. At least one member needs the buff
+        -- 2. All current party/raid members are alive and in range
+        -- 3. Group size has been stable for at least 3 seconds (prevents buffing when someone just left)
+
+        -- Don't buff if group size changed recently (within 3 seconds)
+        if not br.engines.healingEngine:isGroupStable(3) then
+            return nil
+        end
+
+        local allAliveAndInRange = true
+        local someoneNeedsBuff = false
+        local unitNeedingBuff = nil
+        local currentGroupSize = #br.engines.healingEngine.friend
+
+        if currentGroupSize > 1 then
+            -- First pass: Check if all members are alive and in range
+            for i = 1, currentGroupSize do
+                local checkUnit = br.engines.healingEngine.friend[i].unit
+                if unit.deadOrGhost(checkUnit) or unit.distance(checkUnit) >= 40 then
+                    allAliveAndInRange = false
+                    break
+                end
+            end
+
+            -- Second pass: Check if anyone needs the buff
+            if allAliveAndInRange then
+                for i = 1, currentGroupSize do
+                    local nextUnit = br.engines.healingEngine.friend[i].unit
+                    if buffObject.refresh(nextUnit) and unit.distance(nextUnit) < 40 then
+                        someoneNeedsBuff = true
+                        if unitNeedingBuff == nil then
+                            unitNeedingBuff = nextUnit
+                        end
+                    end
+                end
+            end
+        end
+
+        -- Only return a unit if all members are ready AND someone needs the buff
+        if allAliveAndInRange and someoneNeedsBuff then
+            thisUnit = unitNeedingBuff or "player"
+        else
+            return nil
+        end
+    end
+    return thisUnit
+end
+
 --------------------
 --- Action Lists ---
 --------------------
@@ -189,7 +259,7 @@ actionList.Extra = function()
     -- * Crackling Jade Lightning
     if ui.checked("Crackling Jade Lightning") and not unit.mounted() and not cast.current.cracklingJadeLightning()
         and not unit.moving() and cast.able.cracklingJadeLightning("target") and unit.valid("target")
-        and unit.distance("target") > ui.value("Cancel CJL Range")
+        and var.targetDistance > ui.value("Cancel CJL Range")
     then
         if cast.cracklingJadeLightning("target") then
             ui.debug("Casting Crackling Jade Lightning")
@@ -198,7 +268,7 @@ actionList.Extra = function()
     end
     -- * Roll
     if ui.checked("Roll") and cast.able.roll() and unit.moving()
-        and unit.distance("target") > 10 and unit.valid("target")
+        and var.targetDistance > 10 and unit.valid("target")
         and var.getFacingDistance() < 5 and unit.facing("player", "target", 10)
     then
         if cast.roll() then
@@ -207,7 +277,7 @@ actionList.Extra = function()
         end
     end
     -- * Grapple Weapon
-    if ui.checked("Grapple Weapon") and unit.inCombat()then
+    if ui.checked("Grapple Weapon") and unit.inCombat() and #enemies.yards5 > 0 then
         for i = 1, #enemies.yards40 do
             local thisUnit = enemies.yards40[i]
             if cast.able.grappleWeapon(thisUnit) and unit.exists(thisUnit) and unit.distance(thisUnit) <= 40
@@ -227,22 +297,34 @@ actionList.Extra = function()
         end
     end
     -- * Legacy of the Emperor
-    if ui.checked("Legacy of the Emperor") and cast.able.legacyOfTheEmperor()
-        and buff.legacyOfTheEmperor.refresh() and not (buff.markOfTheWild.exists() or buff.blessingOfKings.exists())
-    then
-        if cast.legacyOfTheEmperor() then
-            ui.debug("Casting Legacy of the Emperor")
-            return true
+    if ui.checked("Legacy of the Emperor") and not (buff.markOfTheWild.exists() or buff.blessingOfKings.exists()) then
+        var.markUnit = getBuffUnitOption("Legacy of the Emperor", buff.legacyOfTheEmperor)
+        -- Only cast if we have a valid unit (will be nil in Group mode if not all members are ready)
+        if var.markUnit and cast.able.legacyOfTheEmperor(var.markUnit) and buff.legacyOfTheEmperor.refresh(var.markUnit)
+            and not unit.inCombat()
+            and not unit.resting() and unit.distance(var.markUnit) < 40
+        then
+            if cast.legacyOfTheEmperor(var.markUnit) then
+                local targetName = ui.value("Legacy of the Emperor") == 5 and "Party" or unit.name(var.markUnit)
+                ui.debug("Casting Legacy of the Emperor on " .. targetName)
+                return true
+            end
         end
     end
     -- * Legacy of the White Tiger
-    if ui.checked("Legacy of the White Tiger") and cast.able.legacyOfTheWhiteTiger()
-        and buff.legacyOfTheWhiteTiger.refresh() and not (buff.arcaneBrilliance.exists() or buff.dalaranBrilliance.exists()
-            or buff.leaderOfThePack.exists())
-    then
-        if cast.legacyOfTheWhiteTiger() then
-            ui.debug("Casting Legacy of the White Tiger")
-            return true
+    if ui.checked("Legacy of the White Tiger") and not (buff.arcaneBrilliance.exists() or buff.dalaranBrilliance.exists()
+            or buff.leaderOfThePack.exists()) then
+        var.whiteTigerUnit = getBuffUnitOption("Legacy of the White Tiger", buff.legacyOfTheWhiteTiger)
+        -- Only cast if we have a valid unit (will be nil in Group mode if not all members are ready)
+        if var.whiteTigerUnit and cast.able.legacyOfTheWhiteTiger(var.whiteTigerUnit) and buff.legacyOfTheWhiteTiger.refresh(var.whiteTigerUnit)
+            and not unit.inCombat()
+            and not unit.resting() and unit.distance(var.whiteTigerUnit) < 40
+        then
+            if cast.legacyOfTheWhiteTiger(var.whiteTigerUnit) then
+                local targetName = ui.value("Legacy of the White Tiger") == 5 and "Party" or unit.name(var.whiteTigerUnit)
+                ui.debug("Casting Legacy of the White Tiger on " .. targetName)
+                return true
+            end
         end
     end
 end -- End Action List- Extra
@@ -431,24 +513,26 @@ actionList.Interrupt = function()
                 end
             end
         end
-        for i = 1,#enemies.yards20 do
-            local thisUnit = enemies.yards20[i]
-            if unit.interruptable(thisUnit, ui.value("Interrupt At")) then
-                local thisDistance = unit.distance(thisUnit)
-                -- Only use Paralysis on targets outside melee range OR when melee interrupts are on cooldown
-                local useMeleeInterrupt = thisDistance < 5 and (
-                    (ui.checked("Use Racial") and unit.race() == "Pandaren" and cast.able.quakingPalm(thisUnit)) or
-                    (ui.checked("Spear Hand Strike") and cast.able.spearHandStrike(thisUnit)) or
-                    (ui.checked("Leg Sweep") and cast.able.legSweep(thisUnit))
-                )
+        if #enemies.yards5 > 0 then
+            for i = 1,#enemies.yards20 do
+                local thisUnit = enemies.yards20[i]
+                if unit.interruptable(thisUnit, ui.value("Interrupt At")) then
+                    local thisDistance = unit.distance(thisUnit)
+                    -- Only use Paralysis on targets outside melee range OR when melee interrupts are on cooldown
+                    local useMeleeInterrupt = thisDistance < 5 and (
+                        (ui.checked("Use Racial") and unit.race() == "Pandaren" and cast.able.quakingPalm(thisUnit)) or
+                        (ui.checked("Spear Hand Strike") and cast.able.spearHandStrike(thisUnit)) or
+                        (ui.checked("Leg Sweep") and cast.able.legSweep(thisUnit))
+                    )
 
-                -- * Paralysis
-                if ui.checked("Paralysis") and cast.able.paralysis(thisUnit)
-                    and thisDistance < 20 and not useMeleeInterrupt
-                then
-                    if cast.paralysis(thisUnit) then
-                        ui.debug("Casting Paralysis [Interrupt]")
-                        return true
+                    -- * Paralysis
+                    if ui.checked("Paralysis") and cast.able.paralysis(thisUnit)
+                        and thisDistance < 20 and not useMeleeInterrupt
+                    then
+                        if cast.paralysis(thisUnit) then
+                            ui.debug("Casting Paralysis [Interrupt]")
+                            return true
+                        end
                     end
                 end
             end
@@ -621,7 +705,7 @@ actionList.PreCombat = function()
                 end
             end
             -- * Auto Attack
-            if cast.able.autoAttack("target") and unit.exists("target") and unit.distance("target") < 5 then
+            if cast.able.autoAttack("target") and unit.exists("target") and var.targetDistance < 5 then
                 if cast.autoAttack("target") then
                     ui.debug("Casting Auto Attack [Precombat]")
                     return true
@@ -737,7 +821,7 @@ actionList.Combat = function()
             end
             -- * Invoke Xuen
             -- invoke_xuen,if=talent.invoke_xuen.enabled
-            if ui.alwaysCdAoENever("Invoke Xuen") and talent.invokeXuenTheWhiteTiger and cast.able.invokeXuenTheWhiteTiger() then
+            if ui.alwaysCdAoENever("Invoke Xuen") and talent.invokeXuenTheWhiteTiger and cast.able.invokeXuenTheWhiteTiger() and var.targetDistance < 5 then
                 if cast.invokeXuenTheWhiteTiger() then
                     ui.debug("Casting Invoke Xuen [Combat]")
                     return true
@@ -811,8 +895,10 @@ local function runRotation()
     enemies.get(20)
     enemies.get(40)
 
+    var.targetDistance = unit.distance("target")
+
     -- Cancel Crackling Jade Lightning
-    if cast.current.cracklingJadeLightning() and unit.distance("target") < ui.value("Cancel CJL Range") then
+    if cast.current.cracklingJadeLightning() and var.targetDistance < ui.value("Cancel CJL Range") then
         if cast.cancel.cracklingJadeLightning() then
             ui.debug("Canceling Crackling Jade Lightning [Within " .. ui.value("Cancel CJL Range") .. "yrds]")
             return true

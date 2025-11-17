@@ -49,7 +49,10 @@ local function eventTracker(_, event, ...)
             -- if event == "UNIT_SPELLCAST_CHANNEL_START" then br._G.print("Start Channel Spell: " .. spellName) end
             -- if event == "UNIT_SPELLCAST_EMPOWER_START" then br._G.print("Sent Empower Spell: " .. spellName) end
             waitForSuccess = spellID
-            addSpell(spellID)
+            -- Only add to tracker on SENT event to avoid duplicates
+            if event == "UNIT_SPELLCAST_SENT" then
+                addSpell(spellID)
+            end
             addCastTime(spellID)
         end
         if event == "UNIT_SPELLCAST_SUCCEEDED" then
@@ -57,6 +60,8 @@ local function eventTracker(_, event, ...)
             if waitForSuccess == spellID then
                 waitForSuccess = nil
             else
+                -- Instant cast spell (no SENT/START event, only SUCCESS)
+                -- OR spell that completed after being interrupted/failed
                 addSpell(spellID)
                 addCastTime(spellID)
             end

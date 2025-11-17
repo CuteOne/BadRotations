@@ -733,7 +733,7 @@ local castTimers
 function cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellID, index, predict, predictPad, enemies,
 							   debug)
 	-- Invalid Spell ID Check
-	if br._G.GetSpellInfo(spellID) == nil then br._G.print("Invalid Spell ID: " .. spellID .. " for key: " .. index) end
+	-- if br._G.GetSpellInfo(spellID) == nil then br._G.print("Invalid Spell ID: " .. spellID .. " for key: " .. index) end
 	local spellCast = spellID
 	local baseSpellID = br._G.FindBaseSpellByID(spellID)
 	local overrideSpellID = br._G.FindSpellOverrideByID(spellID)
@@ -961,6 +961,11 @@ function cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellI
 				thisUnit = br.functions.unit:getSpellUnit(baseSpellID, true, minRange, maxRange, spellType)
 			end
 			-- if thisUnit ~= nil and thisUnit ~= "None" then unitAssigned = true end
+		end
+		-- CRITICAL: Early exit if we still have nil after attempting to find unit
+		if thisUnit == nil then
+			printReport(true, "No Unit")
+			return false
 		end
 		-- Cast Ground AOE at "Best" Locaton
 		if thisUnit == "best" then

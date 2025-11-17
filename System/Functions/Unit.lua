@@ -114,9 +114,20 @@ function unit:getSpellUnit(spellCast, aoe, minRange, maxRange, spellType)
 	if aoe == nil then aoe = false end
 	local hasRange = br._G.C_Spell.SpellHasRange(spellName) and true or false
 	local facing = not aoe
-	local unit = br.engines.enemiesEngineFunctions:dynamicTarget(maxRange, facing) or (not hasRange and "player")
-	if not unit then return "None" end
+	local unit = br.engines.enemiesEngineFunctions:dynamicTarget(maxRange, facing)
+	
+	-- Handle nil from dynamicTarget
+	if not unit then
+		-- Fallback to player for non-ranged spells only
+		if not hasRange then
+			return "player"
+		end
+		return "None"
+	end
+	
 	local distance = br.functions.range:getDistance(unit)
+	if not distance then return "None" end
+	
 	local thisUnit = "None"
 	if (distance >= minRange and distance < maxRange) then
 		if spellType == "Helpful" then return "player" end
