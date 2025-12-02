@@ -240,27 +240,38 @@ if not enemiesEngine.metaTable2 then
 		function o:UpdateUnit()
 			-- br._G.print("Updating "..o.unit)
 			local startTime = br._G.debugprofilestop()
-			
+			-- Localize hot APIs for this update to reduce table lookups
+			local ObjectPosition = br._G.ObjectPosition
+			local UnitName = br._G.UnitName
+			local UnitGUID = br._G.UnitGUID
+			local UnitHealth = br._G.UnitHealth
+			local UnitHealthMax = br._G.UnitHealthMax
+			local ObjectID = br._G.ObjectID
+			local UnitCombatReach = br._G.UnitCombatReach
+			local ObjectPointer = br._G.ObjectPointer
+			local GetTime = br._G.GetTime
+			local UnitAffectingCombat = br._G.UnitAffectingCombat
+
 			-- Cache position first (used multiple times below)
-			o.posX, o.posY, o.posZ = br._G.ObjectPosition(o.unit)
-			
+			o.posX, o.posY, o.posZ = ObjectPosition(o.unit)
+
 			-- Early exit if unit has no position (invalid)
 			if not o.posX then
 				return
 			end
-			
-			o.name = br._G.UnitName(o.unit)
-			o.guid = br._G.UnitGUID(o.unit)
+
+			o.name = UnitName(o.unit)
+			o.guid = UnitGUID(o.unit)
 			o.distance = o:RawDistance()
-			o.hpabs = br._G.UnitHealth(o.unit)
-			o.hpmax = br._G.UnitHealthMax(o.unit)
+			o.hpabs = UnitHealth(o.unit)
+			o.hpmax = UnitHealthMax(o.unit)
 			o.hp = o.hpabs / o.hpmax * 100
 			o.objectID = br._G.ObjectID(o.unit)
 			o.range = o.range or 0
 			o.debuffs = o.debuffs or {}
 
 			-- Check if this unit is in damaged table (bypass normal validation)
-			local unitPointer = br._G.ObjectPointer(o.unit)
+			local unitPointer = ObjectPointer(o.unit)
 			local isDamagedUnit = br.engines.enemiesEngine.damaged and br.engines.enemiesEngine.damaged[unitPointer] ~= nil
 
 			if o.distance <= 50 and not br.functions.unit:GetUnitIsDeadOrGhost(o.unit) and not br.functions.unit:isCritter(o.unit) then
@@ -358,7 +369,7 @@ if not enemiesEngine.metaTable2 then
 				if o.isValidUnit == true then
 					-- Only update debuffs for units we're actively using in rotation (in combat and targeted/nearby)
 					-- This avoids expensive aura scans for distant validated enemies
-					local shouldUpdateDebuffs = br._G.UnitAffectingCombat("player") and 
+					local shouldUpdateDebuffs = br._G.UnitAffectingCombat("player") and
 						(o.distance < 40 or br.functions.unit:GetUnitIsUnit(o.unit, "target"))
 					if shouldUpdateDebuffs then
 						o.debuffs = o:UpdateDebuffs(o.debuffs, o.unit)
@@ -521,6 +532,30 @@ if not enemiesEngine.metaTable2 then
 				else
 					-- Invalid entry, remove it
 					br.engines.enemiesEngine.lootable[k] = nil
+				end
+			end
+		end
+
+		-- Periodic cleanup of unitSetup.cache to avoid stale units inflating enemy counts
+		if enemiesEngine.cacheCleanupTimer == nil then enemiesEngine.cacheCleanupTimer = 0 end
+		local now = GetTime()
+		-- Run cleanup every 5 seconds
+		if (now - enemiesEngine.cacheCleanupTimer) >= 5 then
+			enemiesEngine.cacheCleanupTimer = now
+			for u, entry in pairs(enemiesEngine.unitSetup.cache) do
+				local shouldRemove = false
+				-- If unit no longer exists, dead/ghost or not visible and not referenced elsewhere, remove it
+				if not br.functions.unit:GetObjectExists(u)
+					or br.functions.unit:GetUnitIsDeadOrGhost(u)
+					or not br.functions.unit:GetUnitIsVisible(u)
+				then
+					if (br.engines.enemiesEngine.enemy[u] == nil) and (br.engines.enemiesEngine.units[u] == nil)
+						and (br.engines.enemiesEngine.damaged == nil or br.engines.enemiesEngine.damaged[u] == nil) then
+						shouldRemove = true
+					end
+				end
+				if shouldRemove then
+					enemiesEngine.unitSetup.cache[u] = nil
 				end
 			end
 		end

@@ -123,15 +123,21 @@ local function OnEvent(self, event)
 		br.disablePulse = false
 	end
 	if event == "PLAYER_LOGOUT" then
-		if br.unlocked then
-			-- Return queue window to previous setting
+		-- Attempt to save settings and UI state on logout regardless of unlock status.
+		-- Guard calls to avoid errors if subsystems are not available.
+		-- Return queue window to previous setting if possible
+		if br._G and br._G.C_CVar and br._G.GetCVar and br._G.RunMacroText then
 			if br._G.C_CVar.GetCVar("SpellQueueWindow") == "0" then
 				br._G.RunMacroText("/console SpellQueueWindow " .. br._G.GetCVar("SpellQueueWindow"))
 			end
+		end
+		if br.ui and br.ui.settingsManagement then
 			br.ui:saveWindowPosition()
 			br.ui.settingsManagement:cleanSettings()
-			table.wipe(br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["PageList"])
-			if br.functions.misc:getOptionCheck("Reset Options") then
+			if br.data and br.data.settings and br.data.settings[br.loader.selectedSpec] and br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile] and br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["PageList"] then
+				table.wipe(br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["PageList"])
+			end
+			if br.functions and br.functions.misc and br.functions.misc:getOptionCheck("Reset Options") then
 				-- Reset Settings
 				br.ui.settingsManagement:saveSettings(nil, nil, br.loader.selectedSpec, br.loader.selectedProfileName, true)
 			else

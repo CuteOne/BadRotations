@@ -25,6 +25,7 @@ function br.engines.ttdTable:TTDRefresh(hpLimit)
 		local object = br.engines.enemiesEngine.enemy[k].unit
 		if not units[object] then
 			units[object] = br._G.GetTime()
+			-- Baseline health is the unit's current health at first sighting
 			health[object] = br._G.UnitHealth(object)
 			dps[object] = 0
 			if ttd[object] == nil then

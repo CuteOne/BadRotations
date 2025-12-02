@@ -246,7 +246,9 @@ end
 -- Load Saved Settings
 settingsManagement.initializeSettings = false
 function settingsManagement:loadSavedSettings()
-	if settingsManagement.initializeSettings then
+	-- Run initialization either when explicitly requested via initializeSettings
+	-- or when settings have not yet been loaded (e.g. on login) or a rotation changed
+	if settingsManagement.initializeSettings or (not (br.data and br.data.loadedSettings) or br.rotationChanged) then
 		br.loader.cBuilder:loadProfiles()
 		settingsManagement:loadLastProfileTracker()
 		if br.data.settings[br.loader.selectedSpec]["RotationDropValue"] then

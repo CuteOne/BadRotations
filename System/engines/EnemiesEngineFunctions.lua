@@ -62,6 +62,20 @@ function enemiesEngineFunctions:updateOM()
 	local totalObjects = br._G.GetObjectCount(true, "BR") or 0
 	local total = math.min(totalObjects, 500)
 
+	-- Localize hot global functions to reduce table lookups in tight loops
+	local GetObjectWithIndex = br._G.GetObjectWithIndex
+	local ObjectExists = br._G.ObjectExists
+	local ObjectIsUnit = br._G.ObjectIsUnit
+	local UnitIsVisible = br._G.UnitIsVisible
+	local UnitIsPlayer = br._G.UnitIsPlayer
+	local UnitIsUnit = br._G.UnitIsUnit
+	local ObjectPosition = br._G.ObjectPosition
+	local UnitName = br._G.UnitName
+	local ObjectName = br._G.ObjectName
+	local ObjectID = br._G.ObjectID
+	local UnitGUID = br._G.UnitGUID
+	local tinsert = br._G.tinsert
+
 	--[[
 		Performance Optimization System:
 
@@ -138,25 +152,25 @@ function enemiesEngineFunctions:updateOM()
 		local scanEnd = math.min(scanOffset + objectsPerScan - 1, total)
 
 		-- Cache player position for distance checks
-		local playerX, playerY, playerZ = br._G.ObjectPosition("player")
+		local playerX, playerY, playerZ = ObjectPosition("player")
 
 		for i = scanStart, scanEnd do
-			local thisUnit = br._G.GetObjectWithIndex(i)
+			local thisUnit = GetObjectWithIndex(i)
 			local shouldProcess = false
 
-			if br._G.ObjectExists(thisUnit) and br._G.ObjectIsUnit(thisUnit) then
+			if ObjectExists(thisUnit) and ObjectIsUnit(thisUnit) then
 				-- Fast fail checks before expensive operations
-				if not br._G.UnitIsPlayer(thisUnit) and not br._G.UnitIsUnit("player", thisUnit) then
+				if not UnitIsPlayer(thisUnit) and not UnitIsUnit("player", thisUnit) then
 					-- OPTIMIZATION: Check visibility FIRST before any other processing
 					-- This is cheap and filters out many units immediately
-					if not br._G.UnitIsVisible(thisUnit) then
+					if not UnitIsVisible(thisUnit) then
 						shouldProcess = false
 					else
 						shouldProcess = true
 
 						-- Distance check if we're throttling (with cached position)
 						if skipDistance ~= nil and playerX ~= nil then
-							local unitX, unitY, unitZ = br._G.ObjectPosition(thisUnit)
+							local unitX, unitY, unitZ = ObjectPosition(thisUnit)
 							if unitX ~= nil then
 								local distance = math.sqrt(((unitX - playerX) ^ 2) + ((unitY - playerY) ^ 2) + ((unitZ - playerZ) ^ 2))
 								if distance > skipDistance then
@@ -174,7 +188,7 @@ function enemiesEngineFunctions:updateOM()
 					then
 						local enemyUnit = br.engines.enemiesEngine.unitSetup:new(thisUnit)
 						if enemyUnit then
-							br._G.tinsert(om, enemyUnit)
+							tinsert(om, enemyUnit)
 						end
 					end
 				end
@@ -182,13 +196,13 @@ function enemiesEngineFunctions:updateOM()
 
 			-- Update tracker during full OM scan
 			if shouldUpdateTracker
-				and thisUnit ~= nil and br._G.ObjectExists(thisUnit)
-				and ((br._G.ObjectIsUnit(thisUnit) and br._G.UnitIsVisible(thisUnit)) or not br._G.ObjectIsUnit(thisUnit))
+				and thisUnit ~= nil and ObjectExists(thisUnit)
+				and ((ObjectIsUnit(thisUnit) and UnitIsVisible(thisUnit)) or not ObjectIsUnit(thisUnit))
 			then
 				-- Apply FPS-based range gating for tracker
 				local shouldAddToTracker = true
 				if trackerScanRadius ~= nil and playerX ~= nil then
-					local unitX, unitY, unitZ = br._G.ObjectPosition(thisUnit)
+					local unitX, unitY, unitZ = ObjectPosition(thisUnit)
 					if unitX ~= nil then
 						local distance = math.sqrt(((unitX - playerX) ^ 2) + ((unitY - playerY) ^ 2) + ((unitZ - playerZ) ^ 2))
 						if distance > trackerScanRadius then
@@ -198,10 +212,10 @@ function enemiesEngineFunctions:updateOM()
 				end
 
 				if shouldAddToTracker then
-					objUnit = br._G.ObjectIsUnit(thisUnit)
-					name = objUnit and br._G.UnitName(thisUnit) or br._G.ObjectName(thisUnit)
-					objectid = br._G.ObjectID(thisUnit)
-					objectguid = br._G.UnitGUID(thisUnit)
+					objUnit = ObjectIsUnit(thisUnit)
+					name = objUnit and UnitName(thisUnit) or ObjectName(thisUnit)
+					objectid = ObjectID(thisUnit)
+					objectguid = UnitGUID(thisUnit)
 					if thisUnit and name and objectid and objectguid then
 						local trackerFound = false
 						if #br.engines.tracker.tracking > 0 then
@@ -213,7 +227,7 @@ function enemiesEngineFunctions:updateOM()
 							end
 						end
 						if not trackerFound then
-							br._G.tinsert(br.engines.tracker.tracking,
+							tinsert(br.engines.tracker.tracking,
 								{ object = thisUnit, unit = objUnit, name = name, id = objectid, guid = objectguid })
 						end
 					end
@@ -231,17 +245,17 @@ function enemiesEngineFunctions:updateOM()
 		-- When throttled, only update tracker if needed
 		if shouldUpdateTracker then
 			-- Cache player position for distance checks
-			local playerX, playerY, playerZ = br._G.ObjectPosition("player")
+			local playerX, playerY, playerZ = ObjectPosition("player")
 
 			for i = 1, total do
-				local thisUnit = br._G.GetObjectWithIndex(i)
-				if br._G.ObjectExists(thisUnit)
-					and ((br._G.ObjectIsUnit(thisUnit) and br._G.UnitIsVisible(thisUnit)) or not br._G.ObjectIsUnit(thisUnit))
+				local thisUnit = GetObjectWithIndex(i)
+				if ObjectExists(thisUnit)
+					and ((ObjectIsUnit(thisUnit) and UnitIsVisible(thisUnit)) or not ObjectIsUnit(thisUnit))
 				then
 					-- Apply FPS-based range gating for tracker
 					local shouldAddToTracker = true
 					if trackerScanRadius ~= nil and playerX ~= nil then
-						local unitX, unitY, unitZ = br._G.ObjectPosition(thisUnit)
+						local unitX, unitY, unitZ = ObjectPosition(thisUnit)
 						if unitX ~= nil then
 							local distance = math.sqrt(((unitX - playerX) ^ 2) + ((unitY - playerY) ^ 2) + ((unitZ - playerZ) ^ 2))
 							if distance > trackerScanRadius then
@@ -251,12 +265,12 @@ function enemiesEngineFunctions:updateOM()
 					end
 
 					if shouldAddToTracker then
-						objUnit = br._G.ObjectIsUnit(thisUnit)
-						name = objUnit and br._G.UnitName(thisUnit) or br._G.ObjectName(thisUnit)
-						objectid = br._G.ObjectID(thisUnit)
-						objectguid = br._G.UnitGUID(thisUnit)
+						objUnit = ObjectIsUnit(thisUnit)
+						name = objUnit and UnitName(thisUnit) or ObjectName(thisUnit)
+						objectid = ObjectID(thisUnit)
+						objectguid = UnitGUID(thisUnit)
 						if thisUnit and name and objectid and objectguid then
-							br._G.tinsert(br.engines.tracker.tracking,
+							tinsert(br.engines.tracker.tracking,
 								{ object = thisUnit, unit = objUnit, name = name, id = objectid, guid = objectguid })
 						end
 					end
@@ -332,13 +346,35 @@ function enemiesEngineFunctions:getEnemies(thisUnit, radius, checkNoCombat, faci
 		end
 	end
 
-	for _, v in pairs(enemyTable) do
-		thisEnemy = v.unit
-		-- FIXED: Filter out dead/ghost units to prevent them from inflating enemy counts
-		if not br.functions.unit:GetUnitIsDeadOrGhost(thisEnemy) then
-			distance = br.functions.range:getDistance(thisUnit, thisEnemy)
-			if distance < radius and (not facing or br.functions.unit:getFacing("player", thisEnemy)) then
-				br._G.tinsert(enemiesTable, thisEnemy)
+	-- Localize frequently used references for performance
+	local rangeFuncs = br.functions.range
+	local unitFuncs = br.functions.unit
+	local tinsert = br._G.tinsert
+
+	-- Fast-path when checking around the player: use precomputed .range where available
+	if thisUnit == "player" then
+		for _, v in pairs(enemyTable) do
+			if v and v.unit and not unitFuncs:GetUnitIsDeadOrGhost(v.unit) then
+				local d
+				if v.range ~= nil then
+					d = v.range
+				else
+					d = rangeFuncs:getDistance("player", v.unit)
+				end
+				if d and d < radius and (not facing or unitFuncs:getFacing("player", v.unit)) then
+					tinsert(enemiesTable, v.unit)
+				end
+			end
+		end
+	else
+		for _, v in pairs(enemyTable) do
+			thisEnemy = v.unit
+			-- FIXED: Filter out dead/ghost units to prevent them from inflating enemy counts
+			if not unitFuncs:GetUnitIsDeadOrGhost(thisEnemy) then
+				distance = rangeFuncs:getDistance(thisUnit, thisEnemy)
+				if distance < radius and (not facing or unitFuncs:getFacing("player", thisEnemy)) then
+					br._G.tinsert(enemiesTable, thisEnemy)
+				end
 			end
 		end
 	end

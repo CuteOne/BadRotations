@@ -254,44 +254,45 @@ end
 -- * Should Use DoTs - Determines if DoT abilities are worth using based on damage value
 -- Returns true if DoTs are worth using, false if direct damage is better
 local function shouldUseDoTs(thisUnit)
-    thisUnit = thisUnit or units.dyn5
 
-    -- Always use DoTs on bosses and players
-    if unit.isBoss(thisUnit) or unit.player(thisUnit) then
-        return true
-    end
+    -- thisUnit = thisUnit or units.dyn5
 
-    -- Get target health values
-    local targetHealthPercent = unit.hp(thisUnit)  -- Health percentage (0-100)
-    local targetHealthActual = unit.health(thisUnit)  -- Current health value
+    -- -- Always use DoTs on bosses and players
+    -- if unit.isBoss(thisUnit) or unit.player(thisUnit) then
+    --     return true
+    -- end
 
-    -- Use Mangle damage as baseline for DPS estimation (it's our basic builder)
-    local mangleDamage = getMangleDamage()
+    -- -- Get target health values
+    -- local targetHealthPercent = unit.hp(thisUnit)  -- Health percentage (0-100)
+    -- local targetHealthActual = unit.health(thisUnit)  -- Current health value
 
-    -- Estimate our sustained DPS based on Mangle damage
-    -- Mangle costs 35 energy, energy regen ~10/sec, so roughly 3.5 second Mangle cooldown
-    -- This gives us a baseline DPS estimate
-    local estimatedDPS = mangleDamage / 3.5
+    -- -- Use Mangle damage as baseline for DPS estimation (it's our basic builder)
+    -- local mangleDamage = getMangleDamage()
 
-    -- Prevent division by zero
-    if estimatedDPS < 100 then
-        estimatedDPS = 100
-    end
+    -- -- Estimate our sustained DPS based on Mangle damage
+    -- -- Mangle costs 35 energy, energy regen ~10/sec, so roughly 3.5 second Mangle cooldown
+    -- -- This gives us a baseline DPS estimate
+    -- local estimatedDPS = mangleDamage / 3.5
 
-    -- Estimate time to kill based on health and our DPS
-    local estimatedTTK = targetHealthActual / estimatedDPS
+    -- -- Prevent division by zero
+    -- if estimatedDPS < 100 then
+    --     estimatedDPS = 100
+    -- end
 
-    -- If target will die in less than 6 seconds, skip DoTs
-    -- Rake: 15 second duration, ticks every 3 seconds = need at least 2 ticks (6 seconds)
-    if estimatedTTK < 6 then
-        return false
-    end
+    -- -- Estimate time to kill based on health and our DPS
+    -- local estimatedTTK = targetHealthActual / estimatedDPS
 
-    -- Edge case: Very low health targets die too fast even if calculation suggests otherwise
-    -- This handles situations where our damage estimate is off
-    if targetHealthPercent < 10 or targetHealthActual < 50000 then
-        return false
-    end
+    -- -- If target will die in less than 6 seconds, skip DoTs
+    -- -- Rake: 15 second duration, ticks every 3 seconds = need at least 2 ticks (6 seconds)
+    -- if estimatedTTK < 6 then
+    --     return false
+    -- end
+
+    -- -- Edge case: Very low health targets die too fast even if calculation suggests otherwise
+    -- -- This handles situations where our damage estimate is off
+    -- if targetHealthPercent < 10 or targetHealthActual < 50000 then
+    --     return false
+    -- end
 
     -- Default: Use DoTs
     return true
@@ -1360,7 +1361,7 @@ actionList.AoE = function()
     end
     -- * Berserk
     -- berserk,if=buff.tigers_fury.up
-    if ui.useCDs() and ui.alwaysCdNever() and cast.able.berserk() then
+    if ui.alwaysCdAoENever("Berserk/Incarnation",1,#enemies.yards5) and cast.able.berserk() then
         if buff.tigersFury.exists() then
             if cast.berserk() then
                 ui.debug("Casting Berserk [AoE]")
@@ -1592,7 +1593,7 @@ actionList.SingleTarget = function()
     end
     -- * Berserk
     -- berserk,if=buff.tigers_fury.up|(target.time_to_die<18&cooldown.tigers_fury.remains>6)
-    if ui.alwaysCdAoENever("Berserk/Incarnation") and cast.able.berserk()
+    if ui.alwaysCdAoENever("Berserk/Incarnation",1,#enemies.yards5) and cast.able.berserk()
         and (buff.tigersFury.exists() or (unit.ttd(units.dyn5) < 18 and cd.tigersFury.remains() > 6))
     then
         if cast.berserk() then
@@ -1608,7 +1609,7 @@ actionList.SingleTarget = function()
 
     -- * Thrash
     -- thrash_cat,if=buff.omen_of_clarity.react&dot.thrash_cat.remains<3&target.time_to_die>=6
-    if cast.able.thrash("player", "aoe", 1, 8) and buff.clearcasting.exists() and debuff.thrash.remains(units.dyn5) < 3 and unit.ttd(units.dyn5) >= 6 then
+    if cast.able.thrash("player", "aoe", 1, 8) and not ui.mode.rotation == 3 and buff.clearcasting.exists() and debuff.thrash.remains(units.dyn5) < 3 and unit.ttd(units.dyn5) >= 6 then
         if cast.thrash("player", "aoe", 1, 8) then
             ui.debug("Casting Thrash [Single]")
             return true
@@ -1761,7 +1762,7 @@ actionList.SingleTarget = function()
     end
     -- * Thrash
     -- thrash_cat,if=target.time_to_die>=6&dot.thrash_cat.remains<3&(dot.rip.remains>=8&buff.savage_roar.remains>=12|buff.berserk.up|combo_points>=5)&dot.rip.ticking
-    if useDoTs and unit.ttd(units.dyn8AOE) >= 6 and debuff.thrash.remains(units.dyn8AOE) < 3
+    if useDoTs and not ui.mode.rotation == 3 and unit.ttd(units.dyn8AOE) >= 6 and debuff.thrash.remains(units.dyn8AOE) < 3
         and ((debuff.rip.remains(units.dyn8AOE) >= 8 and buff.savageRoar.remains() >= 12)
             or buff.berserk.exists() or comboPoints(units.dyn8AOE) >= 5) and debuff.rip.exists(units.dyn8AOE)
     then
@@ -1986,6 +1987,7 @@ local function runRotation()
     enemies.get(13, "player", false, true) -- makes enemies.yards13f
     enemies.get(8)                         -- makes enemies.yards8
     enemies.get(5, "player", false, true)  -- makes enemies.yards5f
+    enemies.get(5)
 
     -- * General Vars
     var.multidot  = ui.mode.cleave == 1 and ui.mode.rotation < 3
