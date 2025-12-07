@@ -327,6 +327,7 @@ function cast:castSpell(Unit, SpellID, FacingCheck, MovementCheck, SpamAllowed, 
 								local gcdBefore = br.functions.spell:getSpellCD(61304) -- GCD spell
 								local castingBefore = br._G.UnitCastingInfo("player") ~= nil
 								local channelingBefore = br._G.UnitChannelInfo("player") ~= nil
+								local prevLastCastTime = br.functions.lastCast.lastCastTable.castTime[SpellID] or 0
 
 								br.timersTable[SpellID] = br._G.GetTime()
 								-- currentTarget = UnitGUID(Unit) -- Not Used
@@ -342,11 +343,18 @@ function cast:castSpell(Unit, SpellID, FacingCheck, MovementCheck, SpamAllowed, 
 								local gcdAfter = br.functions.spell:getSpellCD(61304)
 								local castingAfter = br._G.UnitCastingInfo("player") ~= nil
 								local channelingAfter = br._G.UnitChannelInfo("player") ~= nil
-
 								-- Cast succeeded if: GCD triggered OR started casting OR started channeling
 								local castSucceeded = (gcdAfter > gcdBefore) or
-								                     (castingAfter and not castingBefore) or
-								                     (channelingAfter and not channelingBefore)
+											 (castingAfter and not castingBefore) or
+											 (channelingAfter and not channelingBefore)
+
+								-- Fallback: some instant/toggle spells won't trigger GCD/casting/channel or a CD
+								-- but will fire UNIT_SPELLCAST events which update lastCastTable.castTime. Check
+								-- if the lastCastTable timestamp changed as a result of this cast attempt.
+								local newLastCastTime = br.functions.lastCast.lastCastTable.castTime[SpellID]
+								if not castSucceeded and newLastCastTime and newLastCastTime ~= 0 and newLastCastTime ~= prevLastCastTime and (br._G.GetTime() - newLastCastTime) < 1 then
+									castSucceeded = true
+								end
 
 								if castSucceeded then
 									--lastSpellCast = SpellID
@@ -360,6 +368,14 @@ function cast:castSpell(Unit, SpellID, FacingCheck, MovementCheck, SpamAllowed, 
 								else
 									-- Cast failed - reset timer to allow retry
 									br.timersTable[SpellID] = nil
+									-- Optional debug logging
+									if br.functions.misc and (br.functions.misc:isChecked("Cast Debug") or br.functions.misc:isChecked("Display Failcasts")) then
+										br._G.print("[CAST DEBUG] Failed cast attempt: SpellID=" .. tostring(SpellID) .. " Name=" .. tostring(br._G.GetSpellInfo(SpellID)))
+										br._G.print("  GCD before/after: " .. tostring(gcdBefore) .. " -> " .. tostring(br.functions.spell:getSpellCD(61304)))
+										br._G.print("  Casting before/after: " .. tostring(castingBefore) .. " -> " .. tostring(br._G.UnitCastingInfo("player") ~= nil))
+										br._G.print("  Channeling before/after: " .. tostring(channelingBefore) .. " -> " .. tostring(br._G.UnitChannelInfo("player") ~= nil))
+										br._G.print("  PrevLastCastTime/newLastCastTime: " .. tostring(prevLastCastTime) .. " -> " .. tostring(br.functions.lastCast.lastCastTable.castTime[SpellID]))
+									end
 									return false
 								end
 							end
@@ -796,17 +812,78 @@ function cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellI
 		end
 	end
 	-- Lighter Cast Spell
+	-- local function castingSpell(thisUnit, spellID, spellName, icon, castType, printReport, debug)
+	-- 	if br._G.UnitHealth(thisUnit) > 0 or castType == "dead" then
+	-- 		-- Debug Only
+	-- 		if debug then return true end
+
+	-- 		-- Store pre-cast state to verify cast success
+	-- 			local gcdBefore = br.functions.spell:getSpellCD(61304) -- GCD spell
+	-- 			local spellCDBefore = br.functions.spell:getSpellCD(spellID) -- This spell's CD
+	-- 			local castingBefore = br._G.UnitCastingInfo("player") ~= nil
+	-- 			local channelingBefore = br._G.UnitChannelInfo("player") ~= nil
+	-- 			local prevLastCastTime = br.functions.lastCast.lastCastTable.castTime[spellID] or 0
+
+	-- 		-- Cast Spell
+	-- 		br.botCast = true -- Used by old Queue Cast
+	-- 		br.botSpell = spellID -- Used by old Queue Cast
+	-- 		-- Condemn Patch (Blizz is an small indie developer!)
+	-- 		if spellID == br.player.spells.condemn or spellID == br.player.spells.condemnMassacre then
+	-- 			spellName = br._G.GetSpellInfo(br.player.spells.execute)
+	-- 		end
+	-- 		-- br._G.print("Spell: "..tostring(spellName).." - UnitName: "..tostring(br._G.UnitName(thisUnit)).." - Unit: "..tostring(thisUnit))
+	-- 		br._G.CastSpellByName(spellName, thisUnit)
+	-- 		if br._G.IsAoEPending() then
+	-- 			local X, Y, Z = br._G.ObjectPosition(thisUnit)
+	-- 			br._G.ClickPosition(X, Y, Z)
+	-- 		end
+
+	-- 		-- Verify cast actually started
+	-- 		local gcdAfter = br.functions.spell:getSpellCD(61304)
+	-- 		local spellCDAfter = br.functions.spell:getSpellCD(spellID)
+	-- 		local castingAfter = br._G.UnitCastingInfo("player") ~= nil
+	-- 		local channelingAfter = br._G.UnitChannelInfo("player") ~= nil
+	-- 			-- Cast succeeded if: GCD triggered OR spell CD triggered OR started casting OR started channeling
+	-- 			local castSucceeded = (gcdAfter > gcdBefore) or
+	-- 						 (spellCDAfter > spellCDBefore) or
+	-- 						 (castingAfter and not castingBefore) or
+	-- 						 (channelingAfter and not channelingBefore)
+
+	-- 			-- Fallback: check lastCastTable timestamp updates for instant/toggle spells
+	-- 			local newLastCastTime = br.functions.lastCast.lastCastTable.castTime[spellID]
+	-- 			if not castSucceeded and newLastCastTime and newLastCastTime ~= 0 and newLastCastTime ~= prevLastCastTime and (br._G.GetTime() - newLastCastTime) < 1 then
+	-- 				castSucceeded = true
+	-- 			end
+
+	-- 		if castSucceeded then
+	-- 			-- add to cast timer
+	-- 			castTimers[spellID] = br._G.GetTime() + 1
+	-- 			-- change main button icon
+	-- 			br.ui.toggles.mainButton:SetNormalTexture(icon)
+	-- 			-- Update Last Cast
+	-- 			br.lastSpellCast = spellID
+	-- 			br.lastSpellTarget = br._G.UnitGUID(thisUnit)
+	-- 			return true
+	-- 		else
+	-- 				-- Cast failed - don't update timers or last cast
+	-- 				-- Optional debug logging
+	-- 				if br.functions.misc and (br.functions.misc:isChecked("Cast Debug") or br.functions.misc:isChecked("Display Failcasts")) then
+	-- 					br._G.print("[CAST DEBUG] Failed createCastFunction attempt: SpellID=" .. tostring(spellID) .. " Name=" .. tostring(spellName))
+	-- 					br._G.print("  GCD before/after: " .. tostring(gcdBefore) .. " -> " .. tostring(br.functions.spell:getSpellCD(61304)))
+	-- 					br._G.print("  SpellCD before/after: " .. tostring(spellCDBefore) .. " -> " .. tostring(br.functions.spell:getSpellCD(spellID)))
+	-- 					br._G.print("  Casting before/after: " .. tostring(castingBefore) .. " -> " .. tostring(br._G.UnitCastingInfo("player") ~= nil))
+	-- 					br._G.print("  Channeling before/after: " .. tostring(channelingBefore) .. " -> " .. tostring(br._G.UnitChannelInfo("player") ~= nil))
+	-- 					br._G.print("  PrevLastCastTime/newLastCastTime: " .. tostring(prevLastCastTime) .. " -> " .. tostring(br.functions.lastCast.lastCastTable.castTime[spellID]))
+	-- 				end
+	-- 				return false
+	-- 		end
+	-- 	end
+	-- 	return false
+	-- end
 	local function castingSpell(thisUnit, spellID, spellName, icon, castType, printReport, debug)
 		if br._G.UnitHealth(thisUnit) > 0 or castType == "dead" then
 			-- Debug Only
 			if debug then return true end
-
-			-- Store pre-cast state to verify cast success
-			local gcdBefore = br.functions.spell:getSpellCD(61304) -- GCD spell
-			local spellCDBefore = br.functions.spell:getSpellCD(spellID) -- This spell's CD
-			local castingBefore = br._G.UnitCastingInfo("player") ~= nil
-			local channelingBefore = br._G.UnitChannelInfo("player") ~= nil
-
 			-- Cast Spell
 			br.botCast = true -- Used by old Queue Cast
 			br.botSpell = spellID -- Used by old Queue Cast
@@ -820,32 +897,14 @@ function cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellI
 				local X, Y, Z = br._G.ObjectPosition(thisUnit)
 				br._G.ClickPosition(X, Y, Z)
 			end
-
-			-- Verify cast actually started
-			local gcdAfter = br.functions.spell:getSpellCD(61304)
-			local spellCDAfter = br.functions.spell:getSpellCD(spellID)
-			local castingAfter = br._G.UnitCastingInfo("player") ~= nil
-			local channelingAfter = br._G.UnitChannelInfo("player") ~= nil
-
-			-- Cast succeeded if: GCD triggered OR spell CD triggered OR started casting OR started channeling
-			local castSucceeded = (gcdAfter > gcdBefore) or
-			                     (spellCDAfter > spellCDBefore) or
-			                     (castingAfter and not castingBefore) or
-			                     (channelingAfter and not channelingBefore)
-
-			if castSucceeded then
-				-- add to cast timer
-				castTimers[spellID] = br._G.GetTime() + 1
-				-- change main button icon
-				br.ui.toggles.mainButton:SetNormalTexture(icon)
-				-- Update Last Cast
-				br.lastSpellCast = spellID
-				br.lastSpellTarget = br._G.UnitGUID(thisUnit)
-				return true
-			else
-				-- Cast failed - don't update timers or last cast
-				return false
-			end
+			-- add to cast timer
+			castTimers[spellID] = br._G.GetTime() + 1
+			-- change main button icon
+			br.ui.toggles.mainButton:SetNormalTexture(icon)
+			-- Update Last Cast
+			br.lastSpellCast = spellID
+			br.lastSpellTarget = br._G.UnitGUID(thisUnit)
+			return true
 		end
 		return false
 	end
@@ -880,7 +939,7 @@ function cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellI
 			or thisUnit == nil or br._G.UnitIsUnit(thisUnit, "player") or br._G.UnitIsFriend(thisUnit, "player"))                                                           -- Dies Soon Check
 		and ((thisUnit ~= nil and br._G.UnitIsUnit(thisUnit, "target") and br._G.C_Spell.IsSpellUsable(spellID)) or true) and not select(2, br._G.C_Spell.IsSpellUsable(spellID)) -- Usability Checks
 		and (castTimers[spellID] < br._G.GetTime()) and br.functions.spell:getSpellCD(spellID) <= br.engines:getUpdateRate()
-		and (br.functions.spell:getSpellCD(61304) <= 0 or select(2, br._G.GetSpellBaseCooldown(spellID)) <= 0
+		and (br.functions.spell:getSpellCD(61304) <= 0 or br.functions.spell:getSpellCD(spellID) <= 0--select(2, br._G.GetSpellBaseCooldown(spellID)) <= 0
 			or (br.functions.cast:getCastTime(spellID) > 0 and br.functions.cast:getCastTimeRemain("player") <= br.engines:getUpdateRate()))                                                                           -- Cooldown Checks
 		and (br.functions.spell:isKnown(spellID) or castType == "known" or spellID == br.player.spells.condemn or spellID == br.player.spells.condemnMassacre)                                   -- Known/Current Checks
 		and hasTalent(spellID) --[[and hasEssence()]] and not br.functions.combat:isIncapacitated(spellID) --and queensCourtCastCheck(spellID)

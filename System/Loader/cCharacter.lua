@@ -346,6 +346,8 @@ function cCharacter:new()
 		br.ui:createText(section_module, "===General Options===")
 		self.module.autoKeystone(section_module)
 		self.module.Racial(section_module)
+		-- Two Forms (Worgen) - shared module option
+		self.module.TwoForms(section_module)
 		br.ui:createText(section_module, "===Healing Options===")
 		-- Basic Healing Module
 		self.module.BasicHealing(section_module)
@@ -382,6 +384,8 @@ function cCharacter:new()
 			-- Module - Basic Trinkets
 			self.module.BasicTrinkets()
 		end
+		-- Module - Two Forms (Worgen)
+		self.module.TwoForms()
 	end
 
 	-- Returns and sets highest stat, which will be the primary stat

@@ -297,7 +297,7 @@ local function markPickPocketResult(thisUnit, success, lootMsg, errorMsg)
 end
 
 -- Event handler for Pick Pocket detection
-local pickPocketFrame = pickPocketFrame or br._G.CreateFrame("Frame")
+local pickPocketFrame = br._G.CreateFrame("Frame")
 pickPocketFrame:RegisterEvent("UI_ERROR_MESSAGE")
 pickPocketFrame:RegisterEvent("CHAT_MSG_LOOT")
 pickPocketFrame:RegisterEvent("CHAT_MSG_MONEY")

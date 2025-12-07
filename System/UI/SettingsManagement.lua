@@ -264,9 +264,20 @@ function settingsManagement:loadSavedSettings()
 		settingsManagement:defaultSettings()
 		-- Build the Toggles
 		br.ui.toggles:TogglesFrame()
-		-- Restore Minimap Button Position
-		br.ui.minimapButton.frame:SetPoint("CENTER", br.data.settings.minimapButton.pos.x,
-			br.data.settings.minimapButton.pos.y)
+		-- Restore Minimap Button Position (validate values and anchor to Minimap)
+		do
+			local mx = br.data.settings.minimapButton and br.data.settings.minimapButton.pos and br.data.settings.minimapButton.pos.x
+			local my = br.data.settings.minimapButton and br.data.settings.minimapButton.pos and br.data.settings.minimapButton.pos.y
+			if br.ui.minimapButton and br.ui.minimapButton.frame then
+				br.ui.minimapButton.frame:ClearAllPoints()
+				if type(mx) == "number" and type(my) == "number" and br._G.Minimap then
+					br.ui.minimapButton.frame:SetPoint("CENTER", br._G.Minimap, "CENTER", mx, my)
+				else
+					-- Fallback to sensible defaults if saved data is invalid
+					br.ui.minimapButton.frame:SetPoint("CENTER", br._G.Minimap or br._G.UIParent, "CENTER", 75.70, -6.63)
+				end
+			end
+		end
 		settingsManagement.initializeSettings = false
 	end
 end

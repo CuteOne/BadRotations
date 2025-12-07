@@ -129,12 +129,16 @@ function cBuilder:new(spec, specName)
         local sharedClassSpells = br.lists.spells[playerClass]["Shared"]
         local sharedGlobalSpells = br.lists.spells["Shared"]["Shared"]
         -- Get the new spells
-        local function getSpells(spellTable)
+        -- origin: "global" | "sharedClass" | "spec"
+        local function getSpells(spellTable, origin)
             self.spells = self.spells or {}
+            -- track where each spell entry came from so we can prefer spec-specific entries
+            if self.spellSource == nil then self.spellSource = {} end
             -- Look through spell type subtables
             for spellType, spellTypeTable in pairs(spellTable) do
                 -- Create spell type subtable in br.player.spells if not already there.
                 self.spells[spellType] = self.spells[spellType] or {}
+                self.spellSource[spellType] = self.spellSource[spellType] or {}
                 -- Look through spells for spell type
                 for spellRef, spellID in pairs(spellTypeTable) do
                     -- If spellType is items then add to br.player.spells.items
@@ -166,14 +170,29 @@ function cBuilder:new(spec, specName)
                             end
                         end
                         -- Assign spell to br.player.spells for the spell type
-                        self.spells[spellType][spellRef] = spellID
+                        -- If a spec-specific entry already exists, prefer it (don't overwrite with Shared/global)
+                        local existingSource = self.spellSource[spellType][spellRef]
+                        if existingSource == "spec" and origin ~= "spec" then
+                            -- keep existing spec-specific entry
+                        else
+                            self.spells[spellType][spellRef] = spellID
+                            self.spellSource[spellType][spellRef] = origin or "shared"
+                        end
                         -- Assign active spells to Abilities Subtable and base br.player.spells
                         if (spellType == 'abilities' or spellType == 'covenants' or ((spellType == 'traits' or spellType == 'talents' or spellType == 'talentsHeroic') and spec < 1400))
                             and type(spellID) ~= 'table' and not br._G.C_Spell.IsSpellPassive(spellID)
                         then
                             self.spells.abilities = self.spells.abilities or {}
-                            self.spells.abilities[spellRef] = spellID
-                            self.spells[spellRef] = spellID
+                            -- When mapping into abilities/base table, apply same origin-preference rules
+                            local existingAbilitiesSource = self.spellSource["abilities"] and self.spellSource["abilities"][spellRef]
+                            if existingAbilitiesSource == "spec" and origin ~= "spec" then
+                                -- keep existing spec-specific ability
+                            else
+                                self.spells.abilities[spellRef] = spellID
+                                self.spells[spellRef] = spellID
+                                self.spellSource["abilities"] = self.spellSource["abilities"] or {}
+                                self.spellSource["abilities"][spellRef] = origin or "shared"
+                            end
                         end
                     end
                 end
@@ -184,11 +203,11 @@ function cBuilder:new(spec, specName)
         -- Talent Test
         -- getTalentTest()
         -- Shared Global Spells
-        getSpells(sharedGlobalSpells)
+        getSpells(sharedGlobalSpells, "global")
         -- Shared Class Spells
-        getSpells(sharedClassSpells)
+        getSpells(sharedClassSpells, "sharedClass")
         -- Spec Spells - Don't Load on Initial Levels
-        if br.lists.spells[playerClass][spec] ~= nil then getSpells(specSpells) end
+        if br.lists.spells[playerClass][spec] ~= nil then getSpells(specSpells, "spec") end
 
         -- Ending the Race War!
         if self.spells.abilities["racial"] == nil then

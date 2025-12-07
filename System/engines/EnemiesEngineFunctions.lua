@@ -335,7 +335,7 @@ function enemiesEngineFunctions:getEnemies(thisUnit, radius, checkNoCombat, faci
 				if br.engines.enemiesEngine.storedTables[checkNoCombat][thisUnit][radius] ~= nil then
 					if br.engines.enemiesEngine.storedTables[checkNoCombat][thisUnit][radius][facing] ~= nil then
 						local cachedTable = br.engines.enemiesEngine.storedTables[checkNoCombat][thisUnit][radius][facing]
-						-- FIXED: Combat-reactive cache duration - shorter in combat for responsiveness, longer out of combat for performance
+						-- Combat-reactive cache duration: shorter in combat for responsiveness
 						local cacheExpiration = br._G.UnitAffectingCombat("player") and 0.05 or 0.1
 						if cachedTable._timestamp and (br._G.GetTime() - cachedTable._timestamp) < cacheExpiration then
 							return cachedTable
@@ -361,44 +361,26 @@ function enemiesEngineFunctions:getEnemies(thisUnit, radius, checkNoCombat, faci
 				else
 					d = rangeFuncs:getDistance("player", v.unit)
 				end
-				if d and d < radius and (not facing or unitFuncs:getFacing("player", v.unit)) then
-					tinsert(enemiesTable, v.unit)
-				end
-			end
-		end
-	else
-		for _, v in pairs(enemyTable) do
-			thisEnemy = v.unit
-			-- FIXED: Filter out dead/ghost units to prevent them from inflating enemy counts
-			if not unitFuncs:GetUnitIsDeadOrGhost(thisEnemy) then
-				distance = rangeFuncs:getDistance(thisUnit, thisEnemy)
-				if distance < radius and (not facing or unitFuncs:getFacing("player", thisEnemy)) then
-					br._G.tinsert(enemiesTable, thisEnemy)
-				end
-			end
-		end
-	end
-
-	-- PRIORITY: Check damaged table for units actively in combat with our group
-	-- These units may not be in the validated enemy table yet but are confirmed combatants
-	if br.engines.enemiesEngine.damaged then
-		for k, v in pairs(br.engines.enemiesEngine.damaged) do
-			-- v is now a unitSetup object with .unit property
-			local damagedUnit = v.unit
-			-- Only add if not already in the list and not dead
-			local alreadyAdded = false
-			for i = 1, #enemiesTable do
-				if br.functions.unit:GetUnitIsUnit(enemiesTable[i], damagedUnit) then
-					alreadyAdded = true
-					break
-				end
-			end
-			if not alreadyAdded and br.functions.unit:GetObjectExists(damagedUnit)
-				and not br.functions.unit:GetUnitIsDeadOrGhost(damagedUnit) then
-				distance = br.functions.range:getDistance(thisUnit, damagedUnit)
-				if distance < radius and (not facing or br.functions.unit:getFacing("player", damagedUnit)) then
-					br._G.tinsert(enemiesTable, damagedUnit)
-				end
+					if d and d < radius and (not facing or unitFuncs:getFacing("player", v.unit)) then
+						tinsert(enemiesTable, v.unit)
+					end
+					-- v is now a unitSetup object with .unit property
+					local damagedUnit = v.unit
+					-- Only add if not already in the list and not dead
+					local alreadyAdded = false
+					for i = 1, #enemiesTable do
+						if br.functions.unit:GetUnitIsUnit(enemiesTable[i], damagedUnit) then
+							alreadyAdded = true
+							break
+						end
+					end
+					if not alreadyAdded and br.functions.unit:GetObjectExists(damagedUnit)
+						and not br.functions.unit:GetUnitIsDeadOrGhost(damagedUnit) then
+						distance = br.functions.range:getDistance(thisUnit, damagedUnit)
+						if distance < radius and (not facing or br.functions.unit:getFacing("player", damagedUnit)) then
+							br._G.tinsert(enemiesTable, damagedUnit)
+						end
+					end
 			end
 		end
 	end
@@ -435,7 +417,10 @@ function enemiesEngineFunctions:getEnemies(thisUnit, radius, checkNoCombat, faci
 		if br.engines.enemiesEngine.storedTables[checkNoCombat][thisUnit] == nil then br.engines.enemiesEngine.storedTables[checkNoCombat][thisUnit] = {} end
 		if br.engines.enemiesEngine.storedTables[checkNoCombat][thisUnit][radius] == nil then br.engines.enemiesEngine.storedTables[checkNoCombat][thisUnit][radius] = {} end
 		-- FIXED: Add timestamp to cached table so cache expiration check works properly
+		local px, py, pz = br._G.ObjectPosition("player")
 		enemiesTable._timestamp = br._G.GetTime()
+		-- store player position at cache time to detect movement-based invalidation
+		enemiesTable._playerPos = { x = px, y = py, z = pz }
 		br.engines.enemiesEngine.storedTables[checkNoCombat][thisUnit][radius][facing] = enemiesTable
 		--print("Made Table Unit: "..UnitName(thisUnit).." Radius: "..radius.." CombatCheck: "..tostring(checkNoCombat))
 	end
@@ -852,7 +837,7 @@ function enemiesEngineFunctions:dynamicTarget(range, facing)
 		end
 	end
 
-	if (not br.functions.misc:isChecked("Dynamic Targetting") or bestUnit == nil) and tarDist < range
+	if (not br.functions.misc:isChecked("Dynamic Targetting") or bestUnit == nil) and (tarDist < range or br.functions.unit:GetUnitExists("target"))
 		and (not facing or (facing and br.functions.unit:getFacing("player", "target"))) and br.functions.misc:isValidUnit("target")
 	then
 		bestUnit = "target"

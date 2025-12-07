@@ -623,6 +623,41 @@ br.api.module = function(self)
         return false
     end
 
+    --- Two Forms Module - Return Worgen to Human Form out of combat
+    -- @function module.TwoForms
+    -- @bool[opt] section If set will generate the options for this module in the Profile Options. Otherwise, will run the module.
+    local twoFormsDone = false
+    module.TwoForms = function(section)
+        if section ~= nil then
+            br.ui:createCheckbox(section, "Two Forms", "|cffFFFFFFReturn to Human Form when out of combat (Worgen only)")
+            return
+        end
+        if section == nil then
+            if not getOption("Two Forms", "Check") then return false end
+
+            -- When entering combat reset the flag so we can attempt again after combat ends.
+            if unit.inCombat() then
+                if twoFormsDone then
+                    ui.debug("Resetting Two Forms flag to false (entered combat)")
+                    twoFormsDone = false
+                end
+            else
+                -- Out of combat: attempt to return to Human Form once
+                if unit.race() == "Worgen" and not unit.mounted() and not twoFormsDone
+                    and cast.able.twoForms() and unit.gcd() == 0
+                then
+                    if cast.twoForms() then
+                        ui.debug("Casting Two Forms - Returning to Human Form")
+                        twoFormsDone = true
+                        return true
+                    end
+                end
+            end
+
+            return false
+        end
+    end
+
     --- ImbueUp Module - Attmpts to use the weapon imbuement specified in the Profile Options
     -- @function module.ImbueUp
     -- @bool[opt] section If set will generate the options for this module in the Profile Options. Otherwise, will run the module.

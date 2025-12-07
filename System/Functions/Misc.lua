@@ -1317,12 +1317,29 @@ function misc:addonDebug(msg, system)
 		return
 	end
 	if br.functions.misc:isChecked("Addon Debug Messages") then
+		-- Use a per-message short timer key so different messages printed
+		-- within a short interval aren't suppressed by the same global key.
+		local msgKey = tostring(msg)
+		if #msgKey > 40 then msgKey = msgKey:sub(1, 40) end
+
+		-- Immediate-print for casting-related messages to avoid them being
+		-- swallowed by simultaneous 'Combat Started' messages. Use a
+		-- short per-message guard so we don't spam identical lines.
+		if string.find(msg, "Casting") then
+			local castKey = "Casting Immediate:" .. msgKey
+			if br.debug.timer:useTimer(castKey, 0.05) then
+				print(br.ui.colors.class .. "[BadRotations] Profile Debug: |cffFFFFFF" .. tostring(msg))
+			end
+			return
+		end
 		if system == true and (br.functions.misc:getValue("Addon Debug Messages") == 1 or br.functions.misc:getValue("Addon Debug Messages") == 3) then
-			if br.debug.timer:useTimer("System Delay", 0.1) then
+			local timerKey = "System Delay:" .. msgKey
+			if br.debug.timer:useTimer(timerKey, 0.1) then
 				print(br.ui.colors.class .. "[BadRotations] System Debug: |cffFFFFFF" .. tostring(msg))
 			end
 		elseif system ~= true and (br.functions.misc:getValue("Addon Debug Messages") == 2 or br.functions.misc:getValue("Addon Debug Messages") == 3) then
-			if br.debug.timer:useTimer("Profile Delay", 0.1) then
+			local timerKey = "Profile Delay:" .. msgKey
+			if br.debug.timer:useTimer(timerKey, 0.1) then
 				print(br.ui.colors.class .. "[BadRotations] Profile Debug: |cffFFFFFF" .. tostring(msg))
 			end
 		end

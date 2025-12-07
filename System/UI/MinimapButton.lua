@@ -88,7 +88,13 @@ function br.ui:MinimapButton()
 			x = br.data.settings.minimapButton.pos.x or 75.70
 			y = br.data.settings.minimapButton.pos.y or -6.63
 		end
-		br.ui.minimapButton.frame:SetPoint("CENTER", x, y)
+		-- Ensure explicit anchoring to the Minimap and validate x/y
+		br.ui.minimapButton.frame:ClearAllPoints()
+		if type(x) == "number" and type(y) == "number" and br._G.Minimap then
+			br.ui.minimapButton.frame:SetPoint("CENTER", br._G.Minimap, "CENTER", x, y)
+		else
+			br.ui.minimapButton.frame:SetPoint("CENTER", br._G.Minimap or br._G.UIParent, "CENTER", 75.70, -6.63)
+		end
 		br.ui.minimapButton.frame:SetMovable(true)
 		br.ui.minimapButton.frame:SetUserPlaced(true)
 		br.ui.minimapButton.frame:SetNormalTexture("Interface\\HelpFrame\\HotIssueIcon.blp")
