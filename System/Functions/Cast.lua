@@ -810,6 +810,11 @@ function cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellI
 				enemies = #br.player.enemies["yards" .. effectRng .. "t"]
 			end
 		end
+		if castType == "targetAOE" then
+			if br.player.enemies["yards" .. effectRng .. "t"] ~= nil then
+				enemies = #br.player.enemies["yards" .. effectRng .. "t"]
+			end
+		end
 	end
 	-- Lighter Cast Spell
 	-- local function castingSpell(thisUnit, spellID, spellName, icon, castType, printReport, debug)
@@ -1071,12 +1076,13 @@ function cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellI
 				end
 				-- AOE/ST Casts
 				-- Cast Ground/Cone/Rectangle/Player AOE
-				if (castType == "ground" or castType == "aoe" or castType == "cone" or castType == "rect") then
+				if (castType == "ground" or castType == "aoe" or castType == "cone" or castType == "rect" or castType == "targetAOE") then
 					-- Failsafe, incase we were unable to retrieve enemies counts
 					local enemyCount = enemies
 						or ((castType == "ground" or castType == "aoe") and #br.engines.enemiesEngineFunctions:getEnemies("player", maxRange))
 						or (castType == "cone" and br.engines.enemiesEngineFunctions:getEnemiesInCone(180, effectRng))
 						or (castType == "rect" and br.engines.enemiesEngineFunctions:getEnemiesInRect(effectRng, maxRange))
+						or (castType == "targetAOE" and #br.engines.enemiesEngineFunctions:getEnemies(thisUnit, effectRng))
 						or 0
 					if enemyCount >= minUnits and (br.functions.range:isSafeToAoE(spellID, thisUnit, effectRng, minUnits, castType, enemyCount) or br.functions.unit:isDummy("target")) then
 						-- if castType == "ground" then

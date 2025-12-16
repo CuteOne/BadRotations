@@ -217,6 +217,8 @@ local getBuffUnitOption = function(option, buffObject)
         local unitNeedingBuff = nil
         local currentGroupSize = #br.engines.healingEngine.friend
 
+        if currentGroupSize == 1 then return "player" end
+
         if currentGroupSize > 1 then
             -- First pass: Check if all members are alive and in range
             for i = 1, currentGroupSize do
@@ -314,8 +316,8 @@ actionList.Extra = function()
     -- * Legacy of the White Tiger
     if ui.checked("Legacy of the White Tiger") and not (buff.arcaneBrilliance.exists() or buff.dalaranBrilliance.exists()
             or buff.leaderOfThePack.exists()) then
+                -- Only cast if we have a valid unit (will be nil in Group mode if not all members are ready)
         var.whiteTigerUnit = getBuffUnitOption("Legacy of the White Tiger", buff.legacyOfTheWhiteTiger)
-        -- Only cast if we have a valid unit (will be nil in Group mode if not all members are ready)
         if var.whiteTigerUnit and cast.able.legacyOfTheWhiteTiger(var.whiteTigerUnit) and buff.legacyOfTheWhiteTiger.refresh(var.whiteTigerUnit)
             and not unit.inCombat()
             and not unit.resting() and unit.distance(var.whiteTigerUnit) < 40
@@ -327,6 +329,17 @@ actionList.Extra = function()
             end
         end
     end
+    -- * Dummy Test
+    if ui.checked("DPS Testing") then
+        if unit.exists("target") then
+            if unit.combatTime() >= (tonumber(ui.value("DPS Testing")) * 60) and unit.isDummy() then
+                unit.stopAttack()
+                unit.clearTarget()
+                ui.print(tonumber(ui.value("DPS Testing")) .. " Minute Dummy Test Concluded - Profile Stopped")
+                var.profileStop = true
+            end
+        end
+    end -- End Dummy Test
 end -- End Action List- Extra
 
 -- Action List - Defensive
@@ -410,7 +423,7 @@ actionList.Defensive = function()
         end
         -- * Dampen Harm
         if ui.checked("Dampen Harm / Diffuse Magic") and cast.able.dampenHarm() and unit.hp() <= ui.value("Dampen Harm / Diffuse Magic")
-            and not buff.dampenHarm.exists()
+            and not buff.dampenHarm.exists() and unit.inCombat()
         then
             if cast.dampenHarm() then
                 ui.debug("Casting Dampen Harm [Defensive]")
@@ -419,7 +432,7 @@ actionList.Defensive = function()
         end
         -- * Diffuse Magic
         if ui.checked("Dampen Harm / Diffuse Magic") and cast.able.diffuseMagic() and unit.hp() <= ui.value("Dampen Harm / Diffuse Magic")
-            and not buff.diffuseMagic.exists()
+            and not buff.diffuseMagic.exists() and unit.inCombat()
         then
             if cast.diffuseMagic() then
                 ui.debug("Casting Diffuse Magic [Defensive]")

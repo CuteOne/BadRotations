@@ -326,7 +326,7 @@ local function runRotation()
         end
     end         -- Pause
 end             -- End runRotation
-local id = 251
+local id = 0
 if br.loader.rotations[id] == nil then br.loader.rotations[id] = {} end
 br._G.tinsert(br.loader.rotations[id], {
     name = rotationName,

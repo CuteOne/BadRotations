@@ -1024,7 +1024,11 @@ local function findOption(Value, Page, Type)
 	if br.data and br.data.settings then
 		if br.data.settings[br.loader.selectedSpec] and br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile] then
 			local settings = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]
-			local option = Value .. Type
+					-- Defensive: if Value is nil, return default based on Type to avoid concatenation errors
+					if Value == nil then
+						if Type == " Check" then return false else return 0 end
+					end
+					local option = Value .. Type
 			-- Attempt to find the option using the provided Page (or default page: "Rotation")
 			if settings[Page] and settings[Page][option] ~= nil then
 				-- print("Found Option: \"" .. tostring(option) .. "\" within Page: \"" .. tostring(Page) .. "\"")
@@ -1078,6 +1082,7 @@ end
 
 -- if br.functions.misc:isChecked("Debug") then
 function misc:isChecked(Value, Page)
+	if Value == nil then return false end
 	return findOption(Value, Page, " Check")
 end
 

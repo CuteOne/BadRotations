@@ -6,6 +6,13 @@ local tracking = false
 local interactTime
 local lastInteractTime = 0
 local nextInteractDelay = 0
+-- Performance tunables
+tracker._updateInterval = tracker._updateInterval or 0.08 -- seconds between redraws
+tracker._lastUpdate = tracker._lastUpdate or 0
+tracker._maxDrawDistance = tracker._maxDrawDistance or 200 -- max distance to draw objects
+tracker._cache = tracker._cache or {}
+tracker._moveThreshold = tracker._moveThreshold or 0.25 -- meters to consider movement
+tracker._lastCount = tracker._lastCount or 0
 
 
 local function getCastTime(unit)
@@ -29,9 +36,10 @@ local function isInteracting(unit)
     return interactTime > time
 end
 
-local function trackObject(object, isUnit, name, objectid, objectguid, interact)
+local function trackObject(object, isUnit, name, objectid, objectguid, interact, pX, pY, pZ)
     if not br._G.ObjectExists(object) then return end
-    local pX, pY, pZ = br._G.ObjectPosition("player")
+    -- Allow caller to pass player position to avoid repeated lookups
+    if not pX then pX, pY, pZ = br._G.ObjectPosition("player") end
     local xOb, yOb, zOb = br._G.ObjectPosition(object)
     if zOb == nil then zOb = pZ end
     if zOb == nil then return end
@@ -40,7 +48,10 @@ local function trackObject(object, isUnit, name, objectid, objectguid, interact)
     end
     -- local playerDistance = br._G.GetDistanceBetweenPositions(pX, pY, pZ, xOb, yOb, zOb)
     local zDifference = math.floor(zOb - pZ)
-    if xOb ~= nil then --and playerDistance < 200 then
+    if xOb ~= nil then
+        -- Cull distant objects early to avoid expensive draw calls
+        local distance = br._G.GetDistanceBetweenPositions(pX, pY, pZ, xOb, yOb, zOb)
+        if distance > tracker._maxDrawDistance then return end
         if math.abs(zDifference) > 50 then
             LibDraw.SetColor(255, 0, 0, 100)
         else
@@ -72,7 +83,7 @@ local function trackObject(object, isUnit, name, objectid, objectguid, interact)
         -- local hasLoot = br._G.CanLootUnit(objectguid)
         -- local interacting = isInteracting("player")
         if br.functions.misc:isChecked("Auto Interact with Any Tracked Object") and interact and not br.player.inCombat
-            and --[[playerDistance]] br._G.GetDistanceBetweenPositions(pX, pY, pZ, xOb, yOb, zOb) <= 7 and
+            and distance <= 7 and
             not br.functions.cast:isUnitCasting("player") and not br.functions.misc:isMoving("player")
             and not isInteracting("player") -- Only interact if not already interacting
         then
@@ -97,93 +108,115 @@ end
 br.engines.tracker.tracking = {}
 function tracker:objectTracker()
     if br.functions.misc:isChecked("Enable Tracker") then
-        LibDraw:clearCanvas()
+        local now = br._G.GetTime()
+        if now - (tracker._lastUpdate or 0) < tracker._updateInterval then return end
+        tracker._lastUpdate = now
+        -- Cache commonly used objects; call methods with colon to preserve self
+        local misc = br.functions.misc
+        local showCustom = misc:isChecked("Custom Tracker")
+        local customValue = tostring(misc:getOptionValue("Custom Tracker") or "")
+        local showRare = misc:isChecked("Rare Tracker")
+        local showQuest = misc:isChecked("Quest Tracker")
+        local inCombatPlayer = misc:isInCombat("player")
+        local inInstance = br._G.IsInInstance()
 
-        -- Custom Tracker
-        if (br.functions.misc:isChecked("Custom Tracker") and br.functions.misc:getOptionValue("Custom Tracker") ~= "" and
-            string.len(br.functions.misc:getOptionValue("Custom Tracker")) >= 3) or br.functions.misc:isChecked("Rare Tracker") or
-            br.functions.misc:isChecked("Quest Tracker")
-        then
-            local object
-            local objUnit
-            local name
-            local objectid
-            local objectguid
-            local interact
-            local track
-            for i = 1, #br.engines.tracker.tracking do
-                object = br.engines.tracker.tracking[i].object
-                objUnit = br.engines.tracker.tracking[i].unit
-                name = br.engines.tracker.tracking[i].name
-                objectid = br.engines.tracker.tracking[i].id
-                objectguid = br.engines.tracker.tracking[i].guid
-                interact = nil
-                track = false
+        -- Only proceed if any tracker mode is active
+        if (showCustom and customValue ~= "" and string.len(customValue) >= 3) or showRare or showQuest then
+            local pX, pY, pZ = br._G.ObjectPosition("player")
+            local t = br.engines.tracker.tracking
+            local n = #t
+            local newCache = {}
+            local redrawNeeded = false
+
+            -- First pass: collect positions and decide if redraw is needed
+            for i = 1, n do
+                local entry = t[i]
+                local object = entry.object
+                local objUnit = entry.unit
+                local name = entry.name
+                local objectid = entry.id
+                local objectguid = entry.guid
+                local interact = nil
+                local track = false
                 if object and name and objectid and objectguid then
-                    if br.functions.misc:isChecked("Rare Tracker") and not track then
-                        if br._G.UnitClassification(object) == "rare" then
-                            name = "(r) " .. name
+                    if showRare and not track then
+                        local class = br._G.UnitClassification(object)
+                        if class == "rare" then
                             track = true
                             interact = false
-                        end
-                        if br._G.UnitClassification(object) == "rareelite" then
-                            name = "(r*) " .. name
+                        elseif class == "rareelite" then
                             track = true
                             interact = false
                         end
                     end
-                    if br.functions.misc:isChecked("Custom Tracker") and not track then
-                        local customTrackerValue = tostring(br.functions.misc:getOptionValue("Custom Tracker"))
-                        for k in string.gmatch(customTrackerValue, "([^,]+)") do
+                    if showCustom and not track then
+                        for k in string.gmatch(customValue, "([^,]+)") do
                             local searchTerm = br._G.string.trim(k)
                             if string.len(searchTerm) >= 3 then
                                 local upperName = br._G.strupper(name)
                                 local upperSearch = br._G.strupper(searchTerm)
-                                -- Use plain string find (not pattern matching) to check if name contains the search term
                                 if upperName:find(upperSearch, 1, true) then
                                     track = true
-                                    break -- Found a match, no need to check other terms
+                                    break
                                 end
                             end
                         end
                     end
-                    if br.functions.misc:isChecked("Quest Tracker") and not br.functions.misc:isInCombat("player") and not br._G.IsInInstance() then
-                        local ignoreList = {
-                            [36756] = true, -- Dead Soldier (Azshara)
-                            [36922] = true, -- Wounded Soldier (Azshara)
-                            [159784] = true, -- Wastewander Laborer
-                            [159804] = true, -- Wastewander Tracker
-                            [159803] = true, -- Wastewander Warrior
-                            [162605] = true, -- Aqir Larva
-                            [156079] = true -- Blood Font
-                        }
-                        if (br.functions.misc:getOptionValue("Quest Tracker") == 1 or br.functions.misc:getOptionValue("Quest Tracker") == 3) and
-                            object ~= nil and
-                            objUnit and br.engines.questTracker:isQuestUnit(object) and not br._G.UnitIsTapDenied(object)
+                    if showQuest and not inCombatPlayer and not inInstance then
+                        if (misc:getOptionValue("Quest Tracker") == 1 or misc:getOptionValue("Quest Tracker") == 3)
+                            and object ~= nil and objUnit and br.engines.questTracker:isQuestUnit(object) and not br._G.UnitIsTapDenied(object)
                         then
-                            -- Quest units should be interactable by default (for rescue NPCs, freeing prisoners, etc.)
-                            -- Only disable interaction for hostile alive units that aren't meant to be interacted with
                             if object and br.functions.unit:GetObjectExists(object) then
-                                -- Check if it's a hostile unit that's alive - don't interact with those
-                                -- if not br.functions.unit:GetUnitIsFriend("player", object) and not br.functions.unit:GetUnitIsDeadOrGhost(object) then
-                                --     interact = false
-                                -- else
-                                    -- Friendly units, dead units with loot, or units in ignore list should be interactable
-                                    interact = true
-                                -- end
+                                interact = true
                                 track = true
                             end
                         end
-                        if (br.functions.misc:getOptionValue("Quest Tracker") == 2 or br.functions.misc:getOptionValue("Quest Tracker") == 3)
+                        if (misc:getOptionValue("Quest Tracker") == 2 or misc:getOptionValue("Quest Tracker") == 3)
                             and not objUnit and br.engines.questTracker:isQuestObject(object)
                         then
                             interact = true
                             track = true
                         end
                     end
-                    -- Track
-                    if track then trackObject(object, objUnit, name, objectid, objectguid, interact) end
+                    if track then
+                        -- get position once for movement detection and culling
+                        if br._G.ObjectExists(object) then
+                            local xOb, yOb, zOb = br._G.ObjectPosition(object)
+                            if xOb then
+                                local distance = br._G.GetDistanceBetweenPositions(pX, pY, pZ, xOb, yOb, zOb)
+                                if distance <= tracker._maxDrawDistance then
+                                    newCache[object] = { x = xOb, y = yOb, z = zOb, entry = entry, distance = distance }
+                                    local old = tracker._cache[object]
+                                    if not old then
+                                        redrawNeeded = true
+                                    else
+                                        local dx = old.x - xOb
+                                        local dy = old.y - yOb
+                                        local dz = old.z - zOb
+                                        if (dx * dx + dy * dy + dz * dz) >= (tracker._moveThreshold * tracker._moveThreshold) then
+                                            redrawNeeded = true
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
                 end
+            end
+
+            -- If count changed, force redraw
+            if n ~= tracker._lastCount then redrawNeeded = true end
+
+            -- Second pass: redraw only if needed
+            if redrawNeeded then
+                LibDraw:clearCanvas()
+                for object, data in pairs(newCache) do
+                    local e = data.entry
+                    -- reuse existing trackObject drawing logic; pass player pos
+                    trackObject(object, e.unit, e.name, e.id, e.guid, nil, pX, pY, pZ)
+                end
+                tracker._cache = newCache
+                tracker._lastCount = n
             end
         end
     elseif tracking then

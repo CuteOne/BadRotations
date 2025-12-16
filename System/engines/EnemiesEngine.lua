@@ -314,11 +314,11 @@ if not enemiesEngine.metaTable2 then
 					end
 
 					if needsFastValidation then
-						-- Enemy is actively engaging us/group: refresh every 0.1s for immediate response
-						actualRefreshInterval = 0.1
+						-- Enemy is actively engaging us/group: refresh every 0.05s for higher reactivity
+						actualRefreshInterval = 0.05
 					elseif isAlreadyValid then
-						-- Already validated enemies: use slightly slower refresh (1.25x) for performance
-						actualRefreshInterval = refreshInterval * 1.25
+						-- Already validated enemies: use slightly slower refresh but keep responsiveness
+						actualRefreshInterval = refreshInterval * 1.1
 					else
 						-- New/unvalidated enemies: use base refresh rate
 						actualRefreshInterval = refreshInterval

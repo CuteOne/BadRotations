@@ -9,8 +9,9 @@ local enemiesEngineFunctions = br.engines.enemiesEngineFunctions
 local refreshStored
 local lastOMUpdate = 0
 local lastTrackerUpdate = 0
-local OM_UPDATE_INTERVAL = 0.5 -- Update every 0.5 seconds
-local TRACKER_UPDATE_INTERVAL = 0.1
+-- More reactive update intervals (favor accuracy over FPS)
+local OM_UPDATE_INTERVAL = 0.25 -- Update every 0.25 seconds
+local TRACKER_UPDATE_INTERVAL = 0.05
 local scanOffset = 1 -- Used for batched scanning when object count is high
 
 --Check Totem
@@ -335,9 +336,20 @@ function enemiesEngineFunctions:getEnemies(thisUnit, radius, checkNoCombat, faci
 				if br.engines.enemiesEngine.storedTables[checkNoCombat][thisUnit][radius] ~= nil then
 					if br.engines.enemiesEngine.storedTables[checkNoCombat][thisUnit][radius][facing] ~= nil then
 						local cachedTable = br.engines.enemiesEngine.storedTables[checkNoCombat][thisUnit][radius][facing]
-						-- Combat-reactive cache duration: shorter in combat for responsiveness
-						local cacheExpiration = br._G.UnitAffectingCombat("player") and 0.05 or 0.1
-						if cachedTable._timestamp and (br._G.GetTime() - cachedTable._timestamp) < cacheExpiration then
+						-- Combat-reactive cache duration: much shorter in combat for higher reactivity
+						local cacheExpiration = br._G.UnitAffectingCombat("player") and 0.02 or 0.05
+						-- Invalidate cache if player moved since cache creation (prevents stale AoE/position info)
+						local px, py, pz = br._G.ObjectPosition("player")
+						local movedTooFar = false
+						if cachedTable._playerPos and px and py and pz then
+							local dx = cachedTable._playerPos.x - px
+							local dy = cachedTable._playerPos.y - py
+							local dz = cachedTable._playerPos.z - pz
+							local moved = math.sqrt((dx * dx) + (dy * dy) + (dz * dz))
+							-- Be aggressive: invalidate cache on small player movement to keep AoE accurate
+							if moved > 0.5 then movedTooFar = true end
+						end
+						if cachedTable._timestamp and (br._G.GetTime() - cachedTable._timestamp) < cacheExpiration and not movedTooFar then
 							return cachedTable
 						end
 					end
@@ -351,15 +363,41 @@ function enemiesEngineFunctions:getEnemies(thisUnit, radius, checkNoCombat, faci
 	local unitFuncs = br.functions.unit
 	local tinsert = br._G.tinsert
 
+	-- Quick guard: when not requesting `checkNoCombat`, avoid returning enemies
+	-- while the player is not in combat and the requested unit (or player's target)
+	-- isn't a valid unit. This prevents accidental population outside combat.
+	if not checkNoCombat and not br._G.UnitAffectingCombat("player") then
+		local unitToCheck = thisUnit or "player"
+		local validRequest = false
+		if unitToCheck == "player" then
+			-- If caller asked about player-area, require at least a valid target to proceed
+			validRequest = br.functions.misc:isValidUnit("target")
+		else
+			-- For specific units (target, focus, pointers), only proceed if that unit is valid
+			validRequest = br.functions.misc:isValidUnit(unitToCheck)
+		end
+		if not validRequest then
+			if br.functions.misc:isChecked("Enemy List Debug") then
+				br._G.print("[enemiesEngine.getEnemies] Early exit: non-combat and no valid unit for: " .. tostring(unitToCheck))
+			end
+			br.debug.cpu:updateDebug(startTime, "enemiesEngine.getEnemies_quickguard")
+			return {}
+		end
+	end
+
 	-- Fast-path when checking around the player: use precomputed .range where available
 	if thisUnit == "player" then
+		local now = br._G.GetTime()
 		for _, v in pairs(enemyTable) do
 			if v and v.unit and not unitFuncs:GetUnitIsDeadOrGhost(v.unit) then
 				local d
-				if v.range ~= nil then
+				-- Ensure we have an up-to-date range on the enemy entry. Recalculate if missing.
+				if v.range ~= nil and v.timestamp ~= nil and (now - v.timestamp) <= 0.25 then
 					d = v.range
 				else
 					d = rangeFuncs:getDistance("player", v.unit)
+					v.range = d
+					v.timestamp = now
 				end
 					if d and d < radius and (not facing or unitFuncs:getFacing("player", v.unit)) then
 						tinsert(enemiesTable, v.unit)
@@ -410,6 +448,21 @@ function enemiesEngineFunctions:getEnemies(thisUnit, radius, checkNoCombat, faci
 				end
 			end
 		end
+
+	-- FINAL FALLBACK: If still empty while player is in combat, include any validated units
+	-- within radius regardless of explicit threat checks. This helps capture newly-engaged
+	-- enemies that haven't registered threat/targeting yet.
+	if #enemiesTable == 0 and not checkNoCombat and br._G.UnitAffectingCombat("player") then
+		for _, v in pairs(br.engines.enemiesEngine.units) do
+			local thisEnemy = v.unit
+			if br.functions.unit:GetUnitExists(thisEnemy) and not br.functions.unit:GetUnitIsDeadOrGhost(thisEnemy) then
+				local distance = br.functions.range:getDistance(thisUnit, thisEnemy)
+				if distance < radius and (not facing or br.functions.unit:getFacing("player", thisEnemy)) then
+					br._G.tinsert(enemiesTable, thisEnemy)
+				end
+			end
+		end
+	end
 	end
 	---
 	if #enemiesTable > 0 and thisUnit ~= nil then
@@ -544,7 +597,8 @@ local function isShieldedTarget(unit)
 end
 
 local coefficientCache = {}
-local COEF_CACHE_TIME = 0.2
+-- Make coefficient cache shorter to adapt to fast-changing combat situations
+local COEF_CACHE_TIME = 0.1
 local lastCoefficientCleanup = 0
 -- This function will set the prioritisation of the units, ie which target should i attack
 local function getUnitCoeficient(unit)
@@ -668,7 +722,8 @@ local function compare(a, b)
 end
 
 local bestUnitCache = {}
-local BEST_UNIT_CACHE_TIME = 0.25 -- Increased from 0.15s to reduce recalc frequency
+-- Shorten best unit cache to improve target re-evaluation frequency
+local BEST_UNIT_CACHE_TIME = 0.12
 -- Finds the "best" unit for a given range and optional facing
 local function findBestUnit(range, facing)
 	local tsort = table.sort

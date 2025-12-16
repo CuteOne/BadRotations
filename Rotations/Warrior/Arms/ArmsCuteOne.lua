@@ -412,7 +412,7 @@ actionList.AOE = function()
     end
     -- Bladestorm
     -- bladestorm,if=enabled&(buff.bloodbath.up|!talent.bloodbath.enabled)
-    if ui.alwaysCdAoENever("Bladestorm",3,8) and cast.able.bladestorm("player","aoe",1,8)
+    if ui.alwaysCdAoENever("Bladestorm",3,#enemies.yards8) and cast.able.bladestorm("player","aoe",1,8)
         and (buff.bloodbath.exists() or not talent.bloodbath)
     then
         if cast.bladestorm("player","aoe",1,8) then
@@ -422,7 +422,7 @@ actionList.AOE = function()
     end
     -- Dragon Roar
     -- dragon_roar,if=enabled&debuff.colossus_smash.down
-    if ui.alwaysCdAoENever("Dragon Roar",3,8) and cast.able.dragonRoar("player","aoe",1,8)
+    if ui.alwaysCdAoENever("Dragon Roar",3,#enemies.yards8) and cast.able.dragonRoar("player","aoe",1,8)
         and not debuff.colossusSmash.exists(units.dyn5)
     then
         if cast.dragonRoar("player","aoe",1,8) then
@@ -548,7 +548,7 @@ actionList.Single = function()
     -- Bladestorm
     --# Use cancelaura (in-game) to stop bladestorm if CS comes off cooldown during it for any reason.
     -- bladestorm,if=enabled,interrupt_if=!cooldown.colossus_smash.remains
-    if ui.alwaysCdAoENever("Bladestorm",3,8) and cast.able.bladestorm("player","aoe",1,8) and (not var.knownCS or cd.colossusSmash.remains(units.dyn5) > 10) then
+    if ui.alwaysCdAoENever("Bladestorm",3,#enemies.yards8) and cast.able.bladestorm("player","aoe",1,8) and (not var.knownCS or cd.colossusSmash.remains(units.dyn5) > 10) then
         if cast.bladestorm("player","aoe",1,8) then
             ui.debug("Casting Bladestorm [Single]")
             return true
@@ -574,7 +574,7 @@ actionList.Single = function()
     end
     -- Dragon Roar
     -- dragon_roar,if=enabled&debuff.colossus_smash.down
-    if ui.alwaysCdAoENever("Dragon Roar",3,8) and cast.able.dragonRoar("player","aoe",1,8)
+    if ui.alwaysCdAoENever("Dragon Roar",3,#enemies.yards8) and cast.able.dragonRoar("player","aoe",1,8)
         and not debuff.colossusSmash.exists(units.dyn5)
     then
         if cast.dragonRoar("player","aoe",1,8) then
@@ -750,7 +750,7 @@ actionList.Combat = function()
         if actionList.Interrupts() then return true end
         -- Recklessness
         -- recklessness,if=!talent.bloodbath.enabled&((cooldown.colossus_smash.remains<2|debuff.colossus_smash.remains>=5)&(target.time_to_die>(192*buff.cooldown_reduction.value)|target.health.pct<20))|buff.bloodbath.up&(target.time_to_die>(192*buff.cooldown_reduction.value)|target.health.pct<20)|target.time_to_die<=12
-        if ui.alwaysCdAoENever("Recklessness",3,8) and cast.able.recklessness() and (not talent.bloodbath and ((cd.colossusSmash.remains() < 2 or debuff.colossusSmash.remains(units.dyn5) >= 5 or not var.knownCS)
+        if ui.alwaysCdAoENever("Recklessness",3,#enemies.yards8) and cast.able.recklessness() and (not talent.bloodbath and ((cd.colossusSmash.remains() < 2 or debuff.colossusSmash.remains(units.dyn5) >= 5 or not var.knownCS)
             and (unit.ttd(units.dyn5) > (192 * 1--[[buff.cooldownReduction.value()]]) or unit.hp(units.dyn5) < 20)) or buff.bloodbath.exists()
             and (unit.ttd(units.dyn5) > (192 * 1--[[buff.cooldownReduction.value()]]) or unit.hp(units.dyn5) < 20) or unit.ttd(units.dyn5) <= 12)
         then
@@ -956,7 +956,7 @@ local function runRotation()
     -- Profile Stop | Pause
     if not unit.inCombat() and not unit.exists("target") and var.profileStop then
         var.profileStop = false
-    elseif (unit.inCombat() and var.profileStop == true) or ui.pause() or unit.mounted() or unit.flying() or ui.mode.rotation == 4 then
+    elseif (unit.inCombat() and var.profileStop == true) or ui.pause() or unit.mounted() or unit.flying() then
         return true
     else
         -----------------------
@@ -967,6 +967,7 @@ local function runRotation()
         --- Defensive Rotation ---
         --------------------------
         if actionList.Defensive() then return true end
+        if ui.mode.rotation == 4 then return true end
         ---------------------------
         --- Pre-Combat Rotation ---
         ---------------------------

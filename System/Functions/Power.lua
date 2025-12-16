@@ -181,9 +181,10 @@ end
 function power:getRuneCount(Type)
 	Type = string.lower(Type)
 	local runeCount = 0
-	for i = 1, 6 do
-		if runeTable[i].Type == Type then
-			runeCount = runeCount + runeTable[i].Count
+	for i = 1, #runeTable do
+		local entry = runeTable[i]
+		if entry and entry.Type == Type then
+			runeCount = runeCount + (entry.Count or 0)
 		end
 	end
 	return runeCount
@@ -194,10 +195,10 @@ function power:getRunePercent(Type)
 	Type = string.lower(Type)
 	local runePercent = 0
 	-- local runeCooldown = 0
-	for i = 1, 6 do
-		if runeTable[i].Type == Type then --and runeTable[i].Cooldown > runeCooldown then
-			runePercent = runeTable[i].Percent
-			-- runeCooldown = runeTable[i].Cooldown
+	for i = 1, #runeTable do
+		local entry = runeTable[i]
+		if entry and entry.Type == Type then
+			runePercent = entry.Percent or runePercent
 		end
 	end
 	if br.functions.power:getRuneCount(Type) == 2 then
@@ -210,9 +211,12 @@ function power:getRunePercent(Type)
 end
 
 function power:runeCDPercent(runeIndex)
-	if br._G.GetRuneCount(runeIndex) == 0 then
-		return (br._G.GetTime() - select(1, br._G.GetRuneCooldown(runeIndex))) /
-			select(2, br._G.GetRuneCooldown(runeIndex))
+	local start, duration, ready = br._G.GetRuneCooldown(runeIndex)
+	if start == nil or duration == 0 then
+		return 0
+	end
+	if not ready then
+		return (br._G.GetTime() - start) / duration
 	else
 		return 0
 	end
@@ -232,8 +236,10 @@ function power:runeTimeTill(runeIndex)
 	local runeCount = 0
 	local timeTill = 0
 	for i = 1, 6 do
-		runeCount = runeCount + br._G.GetRuneCount(i)
-		if runeCDs[runeIndex] == nil then
+		local start, duration, ready = br._G.GetRuneCooldown(i)
+		if ready then
+			runeCount = runeCount + 1
+		else
 			runeCDs[i] = br.functions.power:runeRecharge(i)
 		end
 	end

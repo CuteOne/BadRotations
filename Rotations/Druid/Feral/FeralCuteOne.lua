@@ -368,6 +368,11 @@ local getMarkUnitOption = function(option)
         local unitNeedingBuff = nil
         local currentGroupSize = #br.engines.healingEngine.friend
 
+        -- If only the player is present in the group, behave like the Player option
+        if currentGroupSize <= 1 then
+            return "player"
+        end
+
         if currentGroupSize > 1 then
             -- First pass: Check if all members are alive and in range
             for i = 1, currentGroupSize do
@@ -545,7 +550,7 @@ actionList.Extras = function()
             end
         end -- End 20yrd Enemy Scan
     end     -- End Death Cat Mode
-    -- * Mark of the Wild
+    -- -- * Mark of the Wild
     if ui.checked("Mark of the Wild") and not (buff.legacyOfTheEmperor.exists() or buff.blessingOfKings.exists()) then
         var.markUnit = getMarkUnitOption("Mark of the Wild")
         -- Only cast if we have a valid unit (will be nil in Group mode if not all members are ready)
@@ -2074,7 +2079,7 @@ local function runRotation()
         --- Defensive Rotation ---
         --------------------------
         if actionList.Defensive() then return true end
-        --- Don't run if rotation mode is off --
+        -- Don't run if rotation mode is off --
         if ui.mode.rotation ~= 4 then
             ------------------------------
             --- Out of Combat Rotation ---

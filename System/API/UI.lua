@@ -16,32 +16,66 @@ br.api.ui = function(self)
     ui.alwaysCdNever = function(thisOption)
         -- Option Dropdown Requires
         -- {"|cff008000Always", "|cff0000ffCD", "|cffff0000Never"}
-        if br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["Rotation Options"] == nil then return 0 end
-        thisOption = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["Rotation Options"][thisOption] ~= nil and
-            ui.value(thisOption, "Rotation Options") or
-            ui.value(thisOption, "Base Options")
-        return thisOption == 1 or (thisOption == 2 and ui.useCDs())
+        local settings = br.data.settings[br.loader.selectedSpec] and br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]
+        if not settings or settings["Rotation Options"] == nil then return false end
+
+        local optVal = settings["Rotation Options"][thisOption] ~= nil and ui.value(thisOption, "Rotation Options") or ui.value(thisOption, "Base Options")
+        return optVal == 1 or (optVal == 2 and ui.useCDs())
     end
 
     --- Checks if the passed option is set to "Always, AOE/CD, CD, or Never"
     -- @function ui.alwaysCdAoENever
     -- @string thisOption - Name of the option from the defined profile options.
-    -- @number[opt=3] minUnits - Minimum Number of units to count for AOE checks.
-    -- @number[opt] enemyCount - Number of enemies for a given range, default is the number of enemies in 40yrds.
+    -- @number[opt=3] minUnits - Minimum number of units required to treat this as AOE.
+    -- @number[opt] enemyCount - A precomputed enemy count (e.g. `#enemies.yards8`) provided by the caller.
     -- @return boolean - Returns true based on selected option and current combat conditions
+    -- @example
+    -- -- Preferred (profile-controlled): compute a count and pass it
+    -- local use = ui.alwaysCdAoENever("Bladestorm", 3, #enemies.yards8)
+    --
+    -- -- Convenience wrapper (helper computes the count for you):
+    -- local use2 = ui.alwaysCdAoENeverRange("Bladestorm", 3, 8, "player")
+    -- -- Both forms return true if the Bladestorm option is set to Always, or set to AOE and there are at least 3 enemies,
+    -- -- or set to AOE/CD and either CDs are enabled or the count meets the threshold.
     ui.alwaysCdAoENever = function(thisOption, minUnits, enemyCount)
         -- Option Dropdown Requires
         -- {"Always", "|cff008000AOE", "|cffffff00AOE/CD", "|cff0000ffCD", "|cffff0000Never"}
-        if br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["Rotation Options"] == nil then return 0 end
-        thisOption = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["Rotation Options"][thisOption] ~= nil and
-            ui.value(thisOption, "Rotation Options") or
-            ui.value(thisOption, "Base Options")
+        local settings = br.data.settings[br.loader.selectedSpec] and br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]
+        if not settings or settings["Rotation Options"] == nil then return false end
+
+        local optVal = settings["Rotation Options"][thisOption] ~= nil and ui.value(thisOption, "Rotation Options") or ui.value(thisOption, "Base Options")
         minUnits = minUnits or 3
-        enemyCount = enemyCount or #br.engines.enemiesEngineFunctions:getEnemies("player", 40, false, true)
-        return thisOption == 1
-            or (thisOption == 2 and enemyCount >= minUnits)
-            or (thisOption == 3 and (ui.useCDs() or enemyCount >= minUnits))
-            or (thisOption == 4 and ui.useCDs())
+
+        -- If explicitly Always/ Never/ CD-only selected, handle those first.
+        if optVal == 1 then return true end
+        if optVal == 5 then return false end
+        if optVal == 4 then return ui.useCDs() end
+
+        -- For AOE/CD or CD cases where AOE matters, require either CDs enabled or the provided enemyCount meets the threshold.
+        if optVal == 2 then
+            -- AOE selected: require enemyCount
+            return (enemyCount ~= nil and enemyCount >= minUnits)
+        end
+        if optVal == 3 then
+            -- AOE/CD selected: true if CDs enabled, otherwise require enemyCount
+            return ui.useCDs() or (enemyCount ~= nil and enemyCount >= minUnits)
+        end
+        return false
+    end
+
+    -- Convenience wrapper: compute enemy count from a range and delegate to ui.alwaysCdAoENever
+    -- @function ui.alwaysCdAoENeverRange
+    -- @string thisOption - Name of the option from the defined profile options.
+    -- @number[opt=3] minUnits - Minimum number of units required to treat this as AOE.
+    -- @number[opt=8] range - Range in yards to check for enemies.
+    -- @string[opt="player"] useTarget - Reference unit used to evaluate range (defaults to `player`).
+    -- @return boolean
+    ui.alwaysCdAoENeverRange = function(thisOption, minUnits, range, useTarget)
+        if minUnits == nil then minUnits = 3 end
+        if range == nil then range = 8 end
+        if useTarget == nil then useTarget = "player" end
+        local _, enemyCount = self.enemies.get(range, useTarget)
+        return ui.alwaysCdAoENever(thisOption, minUnits, enemyCount)
     end
 
     if ui.chatOverlay == nil then

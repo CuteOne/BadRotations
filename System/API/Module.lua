@@ -13,6 +13,7 @@ br.api.module = function(self)
     local has       = self.has
     local item      = self.items
     local ui        = self.ui
+    local enemies   = self.enemies
     local unit      = self.unit
     local use       = self.use
     local var       = {}
@@ -246,10 +247,11 @@ br.api.module = function(self)
                 "|cffFFFFFFWhen to use Trinket 1 (Slot 14).")
         end
         if section == nil then
+            enemies.get(8)
             if slotID ~= nil then
                 -- For use in rotation loop - pass slotID
                 if slotID == 13 or slotID == 14 then
-                    if use.able.slot(slotID) and ui.alwaysCdAoENever("Trinket " .. slotID - 12, 3, #br.engines.enemiesEngineFunctions:getEnemies("player", 8)) then
+                    if use.able.slot(slotID) and ui.alwaysCdAoENever("Trinket " .. slotID - 12, 3, #enemies.yards8) then
                         if use.slot(slotID) then
                             ui.debug("Using Trinket " .. slotID - 12)
                             return true
@@ -260,7 +262,7 @@ br.api.module = function(self)
                 -- If not used in rotation loop - loop here
                 for slotID = 13, 14 do
                     -- local useTrinket = (opValue == 1 or (opValue == 2 and (ui.useCDs() or ui.useAOE())) or (opValue == 3 and ui.useCDs()))
-                    if use.able.slot(slotID) and ui.alwaysCdAoENever("Trinket " .. slotID - 12, 3, #br.engines.enemiesEngineFunctions:getEnemies("player", 8)) then
+                    if use.able.slot(slotID) and ui.alwaysCdAoENever("Trinket " .. slotID - 12, 3, #enemies.yards8) then
                         if use.slot(slotID) then
                             ui.debug("Using Trinket " .. slotID - 12)
                             return true
