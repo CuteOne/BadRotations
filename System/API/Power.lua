@@ -46,12 +46,7 @@ br.api.power = function(power,powerType,powerIndex)
     power[powerType].frac = function()
         -- Death Knights
         if isDKRunes then
-            local runeCount = 0
-            local runeInfo = br.functions.power:getRuneInfo()
-            for i = 1, 6 do
-                runeCount = runeCount + (runeInfo[i] and runeInfo[i].Count or 0)
-            end
-            return runeCount + math.max(br.functions.power:runeCDPercent(1),br.functions.power:runeCDPercent(2),br.functions.power:runeCDPercent(3),br.functions.power:runeCDPercent(4),br.functions.power:runeCDPercent(5),br.functions.power:runeCDPercent(6))
+            return br.functions.power:getRuneFrac()
         end
         -- Destruction Warlocks
         if isDestruction then
@@ -128,12 +123,7 @@ br.api.power = function(power,powerType,powerIndex)
         -- @return number
         __call = function(tbl, ...)
             if isDKRunes then
-                local runeCount = 0
-                local runeInfo = br.functions.power:getRuneInfo()
-                for i = 1, 6 do
-                    runeCount = runeCount + (runeInfo[i] and runeInfo[i].Count or 0)
-                end
-                return runeCount
+                return br.functions.power:getTotalReadyRunes()
             else
                 local unit = powerIndex == 4 and "target" or "player"
                 return br.functions.power:getPower(unit,powerIndex)
@@ -164,7 +154,7 @@ br.api.power = function(power,powerType,powerIndex)
             return br.functions.power:getRunePercent(rtype)
         end
         power[powerType].runes.info = function()
-            return br.functions.power:getRuneInfo()
+            return br.functions.power:getRuneObjects()
         end
         power[powerType].runes.recharge = function(index)
             return br.functions.power:runeRecharge(index)

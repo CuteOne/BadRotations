@@ -89,7 +89,8 @@ local function updateRotationOnSpecChange()
     br.slashCommands:slashHelpList()
 end
 
-local collectGarbage = true
+-- collectGarbage should only be set when rotation explicitly changes
+local collectGarbage = false
 function engines:Update(self)
     local startTime = br._G.debugprofilestop()
     local LibDraw = br._G.LibStub("LibDraw-BR")
@@ -180,8 +181,8 @@ function engines:Update(self)
                             br.ui:closeWindow("profile")
                             br.player:createOptions()
                             br.player:createToggles()
+                            collectGarbage = true
                         end
-                        collectGarbage = true
                         br.rotationChanged = false
                         br._G.print("Profile Load Complete - Ready to run.")
                     end
@@ -268,11 +269,11 @@ function engines:Update(self)
                 br.misc.ProfessionHelper:ProfessionHelper()
                 -- Rotation Log
                 br.ui:toggleDebugWindow()
-                -- Collect Garbage
+                -- Collect Garbage - only when rotation actually changed, not on every profile init
                 if collectGarbage then
                     -- Ensure we have all the settings recorded
                     br.ui:recreateWindows()
-                    -- Delete old settings
+                    -- Delete old settings only when rotation changed to prevent wiping on toggle
                     br.ui.settingsManagement:cleanSettings()
                     -- Set flag to prevent un-needed runs
                     collectGarbage = false

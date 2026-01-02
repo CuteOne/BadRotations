@@ -1192,7 +1192,7 @@ function combatLog:Shaman(...) -- 7
     spellType = br._G.CombatLogGetCurrentEventInfo()
     --------------------
     --[[ Fire Totem ]]
-    if source == guid and param == "SPELL_SUMMON" and (spell == br.player.spells.seaingTotem or spell == br.player.spells.magmaTotem) then
+    if source == guid and param == "SPELL_SUMMON" and (spell == br.player.spells.searingTotem or spell == br.player.spells.magmaTotem) then
         br.activeTotem = destination
         br.activeTotemPosition = br.functions.unit:GetObjectPosition("player")
     end

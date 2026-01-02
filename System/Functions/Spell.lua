@@ -333,15 +333,22 @@ end
 function spell:isSpellInSpellbook(spellID, spellType)
 	local spellSlot = br._G.FindSpellBookSlotBySpellID(spellID, spellType == "pet" and true or false)
 	if spellSlot then
-		-- Modern API: Use C_SpellBook.GetSpellBookItemInfo instead of GetSpellBookItemName
-		local spellBookItemInfo = br._G.C_SpellBook.GetSpellBookItemInfo(spellSlot, spellType == "pet" and Enum.SpellBookSpellBank.Pet or Enum.SpellBookSpellBank.Player)
-		if spellBookItemInfo and spellBookItemInfo.actionID then
-			return spellBookItemInfo.actionID == spellID
+		-- Try modern API first if available
+		if br._G.C_SpellBook and br._G.C_SpellBook.GetSpellBookItemInfo then
+			local spellBookItemInfo = br._G.C_SpellBook.GetSpellBookItemInfo(spellSlot, spellType == "pet" and Enum.SpellBookSpellBank.Pet or Enum.SpellBookSpellBank.Player)
+			if spellBookItemInfo and spellBookItemInfo.actionID then
+				return spellBookItemInfo.actionID == spellID
+			end
 		end
-		-- Fallback: Try getting spell name directly from the slot
-		local spellName = br._G.C_Spell.GetSpellName(spellID)
+		-- Older API fallback
+		if br._G.GetSpellBookItemInfo then
+			local itemType, id = br._G.GetSpellBookItemInfo(spellSlot, (spellType == "pet" and Enum.SpellBookSpellBank.Pet or Enum.SpellBookSpellBank.Player))
+			if id == spellID then return true end
+		end
+		-- Fallback: try resolving via spell link/name
+		local spellName = (br._G.C_Spell and br._G.C_Spell.GetSpellName and br._G.C_Spell.GetSpellName(spellID)) or br._G.GetSpellInfo(spellID)
 		if spellName then
-			local link = br._G.C_Spell.GetSpellLink(spellName)
+			local link = (br._G.C_Spell and br._G.C_Spell.GetSpellLink and br._G.C_Spell.GetSpellLink(spellName)) or br._G.GetSpellLink(spellID)
 			local currentSpellId = tonumber(link and link:gsub("|", "||"):match("spell:(%d+)"))
 			return currentSpellId == spellID
 		end
@@ -354,8 +361,17 @@ function spell:getSpellInSpellBook(spellID, spellType)
 		local name, texture, offset, numSlots, isGuild, offspecID = br._G.GetSpellTabInfo(i)
 		-- local offset, numSlots = skillLineInfo.itemIndexOffset, skillLineInfo.numSpellBookItems
 		for j = offset + 1, offset + numSlots do
-			local spellType, id = br._G.GetSpellBookItemInfo(j,
-				(spellType == "pet" and Enum.SpellBookSpellBank.Pet or Enum.SpellBookSpellBank.Player))
+			local spellType, id
+			if br._G.GetSpellBookItemInfo then
+				spellType, id = br._G.GetSpellBookItemInfo(j, (spellType == "pet" and Enum.SpellBookSpellBank.Pet or Enum.SpellBookSpellBank.Player))
+			elseif br._G.C_SpellBook and br._G.C_SpellBook.GetSpellBookItemInfo then
+				local info = br._G.C_SpellBook.GetSpellBookItemInfo(j, (spellType == "pet" and Enum.SpellBookSpellBank.Pet or Enum.SpellBookSpellBank.Player))
+				-- try to map modern return to older variables
+				if info then
+					spellType = info.itemType
+					id = info.actionID
+				end
+			end
 			-- local spellType, id = spellBookItemInfo.itemType, spellBookItemInfo.actionID
 			local spellName
 			if spellType == Enum.SpellBookItemType.Spell then
@@ -397,7 +413,14 @@ function spell:isKnown(spellID)
  --        return true
  --    end
 	-- return false
-	return spellID ~= nil and (br._G.GetSpellBookItemInfo(tostring(spellName)) ~= nil or br._G.IsPlayerSpell(tonumber(spellID)) or br._G.IsSpellKnown(spellID) or br.functions.spell:isSpellInSpellbook(spellID,"spell"))
+	local inBook = false
+	if br._G.GetSpellBookItemInfo then
+		inBook = br._G.GetSpellBookItemInfo(tostring(spellName)) ~= nil
+	else
+		-- Fallback to slot-based lookup if modern API missing
+		inBook = br.functions.spell:isSpellInSpellbook(spellID, "spell")
+	end
+	return spellID ~= nil and (inBook or br._G.IsPlayerSpell(tonumber(spellID)) or br._G.IsSpellKnown(spellID) or br.functions.spell:isSpellInSpellbook(spellID,"spell"))
 end
 
 function spell:isActiveEssence(spellID)

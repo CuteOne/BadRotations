@@ -4,11 +4,41 @@ br.engines.questTracker = br.engines.questTracker or {}
 local questTracker = br.engines.questTracker
 questTracker.cache = questTracker.cache or {}
 questTracker.objectCheckCache = questTracker.objectCheckCache or {} -- Cache for already-checked objects
+questTracker.unitResultCache = questTracker.unitResultCache or {} -- Cache for isQuestUnit results by GUID
+questTracker.objectResultCache = questTracker.objectResultCache or {} -- Cache for isQuestObject results by GUID
+questTracker.questObjectivesCache = questTracker.questObjectivesCache or {} -- Cache parsed quest objectives
+questTracker.lastCacheClean = questTracker.lastCacheClean or 0
+local CACHE_EXPIRATION_TIME = 5 -- Seconds before cached result expires
+local CACHE_CLEAN_INTERVAL = 30 -- Seconds between cache cleanups
 
 --Quest stuff
 --local questPlateTooltip = CreateFrame('GameTooltip', 'QuestPlateTooltip', nil, 'GameTooltipTemplate')
 local questTooltipScanQuest = br._G.CreateFrame("GameTooltip", "QuestPlateTooltipScanQuest", nil, "GameTooltipTemplate")
 local ScannedQuestTextCache = {}
+
+-- Clean expired cache entries to prevent memory bloat
+local function cleanExpiredCaches()
+	local currentTime = br._G.GetTime()
+	local cleanCount = 0
+
+	-- Clean unit result cache
+	for guid, data in pairs(questTracker.unitResultCache) do
+		if currentTime - data.timestamp > CACHE_EXPIRATION_TIME then
+			questTracker.unitResultCache[guid] = nil
+			cleanCount = cleanCount + 1
+		end
+	end
+
+	-- Clean object result cache
+	for guid, data in pairs(questTracker.objectResultCache) do
+		if currentTime - data.timestamp > CACHE_EXPIRATION_TIME then
+			questTracker.objectResultCache[guid] = nil
+			cleanCount = cleanCount + 1
+		end
+	end
+
+	questTracker.lastCacheClean = currentTime
+end
 
 -- Helper function to add name variations to cache (called during cache build)
 local function addNameVariations(name, cache)
@@ -64,12 +94,36 @@ local function addNameVariations(name, cache)
 end
 
 function questTracker:isQuestUnit(Pointer)
+	-- Get GUID for caching
+	local guid
+	if not br._G["lb"] then
+		guid = br._G.UnitGUID(Pointer)
+	else
+		guid = Pointer
+	end
+
+	-- Check GUID-based result cache first
+	if guid and questTracker.unitResultCache[guid] then
+		local cached = questTracker.unitResultCache[guid]
+		if br._G.GetTime() - cached.timestamp < CACHE_EXPIRATION_TIME then
+			return cached.result
+		end
+	end
+
+	-- Periodic cache cleanup
+	if br._G.GetTime() - questTracker.lastCacheClean > CACHE_CLEAN_INTERVAL then
+		cleanExpiredCaches()
+	end
+
 	-- First check: Use native API if available (most reliable)
 	if br._G.UnitIsQuestBoss then
 		local isQuestBoss = br._G.UnitIsQuestBoss(Pointer)
 		if isQuestBoss then
 			-- Double-check it's not dead (unless friendly, like rescuable NPCs)
 			if not br.functions.unit:GetUnitIsDeadOrGhost(Pointer) or br.functions.unit:GetUnitIsFriend("player", Pointer) then
+				if guid then
+					questTracker.unitResultCache[guid] = {result = true, timestamp = br._G.GetTime()}
+				end
 				return true
 			end
 		end
@@ -79,40 +133,42 @@ function questTracker:isQuestUnit(Pointer)
 	-- Check if the unit's name appears in any active quest objective
 	local unitName = br._G.UnitName(Pointer)
 	if unitName and (not br.functions.unit:GetUnitIsDeadOrGhost(Pointer) or br.functions.unit:GetUnitIsFriend("player", Pointer)) then
-		local numEntries = br._G.GetNumQuestLogEntries()
-		for questIdx = 1, numEntries do
-			local numObjectives = br._G.GetNumQuestLeaderBoards(questIdx)
-			if numObjectives and numObjectives > 0 then
-				for objIdx = 1, numObjectives do
-					local objectiveText, objectiveType, finished = br._G.GetQuestLogLeaderBoard(objIdx, questIdx)
-					if objectiveText and not finished then
-						-- Check if the objective text contains the unit name (case-insensitive)
-						-- This handles "Zan'thik Impaler" matching "Zan'thik Impaler slain: 0/6"
-						if objectiveText:lower():find(unitName:lower(), 1, true) then
-							return true
-						end
+		local lowerUnitName = unitName:lower()
+		-- Use cached objectives instead of repeated API calls
+		for _, objectives in pairs(questTracker.questObjectivesCache) do
+			for _, objText in ipairs(objectives) do
+				if objText:find(lowerUnitName, 1, true) then
+					if guid then
+						questTracker.unitResultCache[guid] = {result = true, timestamp = br._G.GetTime()}
 					end
+					return true
 				end
 			end
 		end
 	end
 
-	-- Third check: Tooltip scanning for drop quests
+	-- Third check: Tooltip scanning for drop quests (expensive, use sparingly)
 	-- Some mobs drop quest items but aren't named in objectives (e.g., "Zan'thik Shackles" dropped by various Zan'thik mobs)
 	-- Their tooltips show quest info to indicate they can drop quest items
-	local guid
-	if not br._G["lb"] then
-		guid = br._G.UnitGUID(Pointer)
-	else
-		guid = Pointer
+	-- Only do this check if we haven't found a match yet and GUID exists
+	if not guid then
+		return false
 	end
 
-	if guid then
-		questTooltipScanQuest:SetOwner(br._G["WorldFrame"], 'ANCHOR_NONE')
-		questTooltipScanQuest:SetHyperlink('unit:' .. guid)
-		for i = 1, questTooltipScanQuest:NumLines() do
-			ScannedQuestTextCache[i] = br._G["QuestPlateTooltipScanQuestTextLeft" .. i]
-		end
+	-- Perform tooltip scan (expensive operation)
+	questTooltipScanQuest:SetOwner(br._G["WorldFrame"], 'ANCHOR_NONE')
+	questTooltipScanQuest:SetHyperlink('unit:' .. guid)
+	local numLines = questTooltipScanQuest:NumLines()
+
+	-- Early exit if no lines
+	if numLines == 0 then
+		questTracker.unitResultCache[guid] = {result = false, timestamp = br._G.GetTime()}
+		return false
+	end
+
+	-- Cache tooltip lines
+	for i = 1, numLines do
+		ScannedQuestTextCache[i] = br._G["QuestPlateTooltipScanQuestTextLeft" .. i]
 	end
 
 	local isQuestUnit = false
@@ -138,25 +194,29 @@ function questTracker:isQuestUnit(Pointer)
 								end
 							end
 							if (p1 and p2 and not (p1 == p2)) or (p1 and not p2 and not (p1 == "100")) then
-							-- Quest not completed
+								-- Quest not completed
 								atLeastOneQuestUnfinished = true
+								break -- Early exit once we found unfinished quest
 							end
 						else
-							j = 99 -- Break here, saw threat% -> quest text is done
+							break -- Break here, saw threat% -> quest text is done
 						end
 					end
 					j = j + 1
+				end
+				if atLeastOneQuestUnfinished then
+					break -- Early exit from outer loop
 				end
 			end
 		end
 	end
 
-	if isQuestUnit and atLeastOneQuestUnfinished and
-		(not br.functions.unit:GetUnitIsDeadOrGhost(Pointer) or br.functions.unit:GetUnitIsFriend("player", Pointer)) then
-		return true
-	else
-		return false
-	end
+	local result = isQuestUnit and atLeastOneQuestUnfinished and
+		(not br.functions.unit:GetUnitIsDeadOrGhost(Pointer) or br.functions.unit:GetUnitIsFriend("player", Pointer))
+
+	-- Cache the result
+	questTracker.unitResultCache[guid] = {result = result, timestamp = br._G.GetTime()}
+	return result
 end
 
 local QuestCacheUpdate = function()
@@ -171,6 +231,7 @@ local QuestCacheUpdate = function()
 	--clear the quest cache and object check cache
 	br._G.wipe(br.engines.questTracker.cache)
 	br._G.wipe(br.engines.questTracker.objectCheckCache)
+	br._G.wipe(br.engines.questTracker.questObjectivesCache)
 
 	--do not update if is inside an instance
 	local isInInstance = br._G.IsInInstance()
@@ -193,6 +254,7 @@ local QuestCacheUpdate = function()
 			-- Also cache quest objectives (units/objects to kill/collect)
 			local numObjectives = br._G.GetNumQuestLeaderBoards(questIdx)
 			if numObjectives and numObjectives > 0 then
+				local questObjectives = {}
 				for objIdx = 1, numObjectives do
 					local objectiveText, objectiveType, finished = br._G.GetQuestLogLeaderBoard(objIdx, questIdx)
 					if objectiveText and not finished then
@@ -215,8 +277,15 @@ local QuestCacheUpdate = function()
 
 							-- Cache with variations (handles plural/singular automatically)
 							addNameVariations(objectiveName, br.engines.questTracker.cache)
+
+							-- Store in structured objectives cache (lowercase for fast matching)
+							table.insert(questObjectives, objectiveText:lower())
 						end
 					end
+				end
+				-- Store objectives for this quest
+				if #questObjectives > 0 then
+					br.engines.questTracker.questObjectivesCache[questId] = questObjectives
 				end
 			end
 		end
@@ -266,7 +335,8 @@ local function FunctionQuestLogUpdate() --private
 	if (br.engines.questTracker.cacheThrottle and not br.engines.questTracker.cacheThrottle["_cancelled"]) then
 		br.engines.questTracker.cacheThrottle:Cancel()
 	end
-	br.engines.questTracker.cacheThrottle = br._G.C_Timer.NewTimer(2, QuestCacheUpdate)
+	-- Increased from 2 to 3 seconds to reduce CPU usage during quest spam
+	br.engines.questTracker.cacheThrottle = br._G.C_Timer.NewTimer(3, QuestCacheUpdate)
 end
 
 -- Debug function to print cache contents
@@ -289,9 +359,27 @@ function questTracker:isQuestObject(object) --Ty Ssateneth
 		return false
 	end
 
+	-- Get object GUID for caching
+	-- Object can be either a GUID string or an object pointer
+	local guid
+	if type(object) == "string" and object:match("^GameObject") then
+		guid = object
+	end
+
+	-- Check GUID-based result cache first
+	if guid and questTracker.objectResultCache[guid] then
+		local cached = questTracker.objectResultCache[guid]
+		if br._G.GetTime() - cached.timestamp < CACHE_EXPIRATION_TIME then
+			return cached.result
+		end
+	end
+
 	-- Get object name
 	local objectName = br._G.ObjectName(object)
 	if not objectName then
+		if guid then
+			questTracker.objectResultCache[guid] = {result = false, timestamp = br._G.GetTime()}
+		end
 		return false
 	end
 
@@ -311,12 +399,19 @@ function questTracker:isQuestObject(object) --Ty Ssateneth
 	}
 
 	if nonQuestObjects[objectName] then
+		if guid then
+			questTracker.objectResultCache[guid] = {result = false, timestamp = br._G.GetTime()}
+		end
 		return false
 	end
 
-	-- Check result cache first (avoids repeated lookups)
+	-- Check name-based cache first (avoids repeated lookups for same object name)
 	if br.engines.questTracker.objectCheckCache[objectName] ~= nil then
-		return br.engines.questTracker.objectCheckCache[objectName]
+		local result = br.engines.questTracker.objectCheckCache[objectName]
+		if guid then
+			questTracker.objectResultCache[guid] = {result = result, timestamp = br._G.GetTime()}
+		end
+		return result
 	end
 
 	-- Check hardcoded quest object IDs (specific expansions)
@@ -334,45 +429,36 @@ function questTracker:isQuestObject(object) --Ty Ssateneth
 		objectID == 151166 -- algan units
 	then
 		br.engines.questTracker.objectCheckCache[objectName] = true
+		if guid then
+			questTracker.objectResultCache[guid] = {result = true, timestamp = br._G.GetTime()}
+		end
 		return true
 	end
 
 	-- Main check: See if any quest objective text contains this object's name (or vice versa)
 	-- Check both directions to handle cases like "Whitepetal Reed" (quest) vs "Whitepetal Reeds" (object)
-	local numEntries = br._G.GetNumQuestLogEntries()
-	for questIdx = 1, numEntries do
-		local numObjectives = br._G.GetNumQuestLeaderBoards(questIdx)
-		if numObjectives and numObjectives > 0 then
-			for objIdx = 1, numObjectives do
-				local objectiveText, objectiveType, finished = br._G.GetQuestLogLeaderBoard(objIdx, questIdx)
-				if objectiveText and not finished then
-					-- Extract just the target name from objective text (before the progress numbers)
-					local targetName = objectiveText:match("^(.-)%s*:?%s*%d+/%d+") or
-					                   objectiveText:match("^(.-)%s*:?%s*%d+%%") or
-					                   objectiveText
+	local lowerObjectName = objectName:lower()
 
-					if targetName then
-						targetName = br._G.strtrim(targetName)
-						-- Remove common action words
-						targetName = targetName:gsub("%s+(slain|destroyed|collected|gathered|killed|used)$", "")
-						targetName = br._G.strtrim(targetName)
-
-						local lowerTargetName = targetName:lower()
-						local lowerObjectName = objectName:lower()
-
-						-- Check if either string contains the other (handles singular/plural automatically)
-						if lowerTargetName:find(lowerObjectName, 1, true) or lowerObjectName:find(lowerTargetName, 1, true) then
-							br.engines.questTracker.objectCheckCache[objectName] = true
-							return true
-						end
-					end
+	-- Use cached objectives instead of repeated API calls
+	for _, objectives in pairs(questTracker.questObjectivesCache) do
+		for _, objText in ipairs(objectives) do
+			-- objText is already lowercase from cache building
+			-- Check if either string contains the other (handles singular/plural automatically)
+			if objText:find(lowerObjectName, 1, true) or lowerObjectName:find(objText, 1, true) then
+				br.engines.questTracker.objectCheckCache[objectName] = true
+				if guid then
+					questTracker.objectResultCache[guid] = {result = true, timestamp = br._G.GetTime()}
 				end
+				return true
 			end
 		end
 	end
 
 	-- Cache the negative result (object exists but isn't a quest object)
 	br.engines.questTracker.objectCheckCache[objectName] = false
+	if guid then
+		questTracker.objectResultCache[guid] = {result = false, timestamp = br._G.GetTime()}
+	end
 	return false
 end
 

@@ -30,9 +30,403 @@ if not enemiesEngine.metaTable2 then
 		guid = 0,
 		guidsh = 0,
 		range = 100,
-		debuffs = {},
 		timestamp = GetTime(),
 	}
+
+	local unitIndex = enemiesEngine.unitSetup.__index
+
+	-- Function time to die
+	function unitIndex:unitTtd(targetPercentage)
+		local startTime = br._G.debugprofilestop()
+		if targetPercentage == nil then targetPercentage = 0 end
+		local value
+		if self.hp == 0 then return -1 end
+		if self.hp == 100 or br.functions.unit:isDummy(self.unit) then return 999 end
+		local timeNow = GetTime()
+		-- Reset unit if HP is higher
+		if enemiesEngine.ttd[self.unit] ~= nil and (enemiesEngine.ttd[self.unit].lasthp < self.hp or #enemiesEngine.ttd[self.unit].values == 0) then
+			enemiesEngine.ttd[self.unit] = nil
+		end
+		-- initialize new unit
+		if enemiesEngine.ttd[self.unit] == nil then
+			enemiesEngine.ttd[self.unit] = {}          -- create unit
+			enemiesEngine.ttd[self.unit].values = {}   -- create value table
+			value = { time = 0, hp = self.hp } -- create initial values
+			tinsert(enemiesEngine.ttd[self.unit].values, 1, value) -- insert unit
+			enemiesEngine.ttd[self.unit].lasthp = self.hp -- store current hp pct
+			enemiesEngine.ttd[self.unit].startTime = timeNow -- store current time
+			enemiesEngine.ttd[self.unit].lastTime = 0  --store last time value
+			return 999
+		end
+		local ttdUnit = enemiesEngine.ttd[self.unit]
+		-- add current value to ttd table if HP changed or more than X sec since last update
+		if self.hp ~= ttdUnit.lasthp or (timeNow - ttdUnit.startTime - ttdUnit.lastTime) > 0.5 then
+			value = { time = timeNow - ttdUnit.startTime, hp = self.hp }
+			tinsert(ttdUnit.values, 1, value)
+			enemiesEngine.ttd[self.unit].lasthp = self.hp
+			enemiesEngine.ttd[self.unit].lastTime = timeNow - ttdUnit.startTime
+		end
+		-- clean units
+		local valueCount = #ttdUnit.values
+		while valueCount > 0 and (valueCount > 100 or (timeNow - ttdUnit.startTime - ttdUnit.values[valueCount].time) > 10) do
+			ttdUnit.values[valueCount] = nil
+			valueCount = valueCount - 1
+		end
+		-- limit samples used for regression to avoid long computation in combat UI
+		valueCount = #ttdUnit.values
+		if valueCount > 1 then
+			local maxSamples = 20
+			local samples = math.min(valueCount, maxSamples)
+			-- linear regression calculation from https://github.com/herotc/hero-lib/
+			local a, b = 0, 0
+			local Ex2, Ex, Exy, Ey = 0, 0, 0, 0
+			local x, y
+			-- use most recent 'samples' entries (values are inserted at index 1)
+			for i = 1, samples do
+				x, y = ttdUnit.values[i].time, ttdUnit.values[i].hp
+				Ex2 = Ex2 + x * x
+				Ex = Ex + x
+				Exy = Exy + x * y
+				Ey = Ey + y
+			end
+			local denom = (Ex2 * samples - Ex * Ex)
+			if denom ~= 0 then
+				local invariant = 1 / denom
+				a = (-Ex * Exy * invariant) + (Ex2 * Ey * invariant)
+				b = (samples * Exy * invariant) - (Ex * Ey * invariant)
+				if b ~= 0 then
+					local ttdSec = (targetPercentage - a) / b
+					ttdSec = math.min(999, ttdSec - (timeNow - ttdUnit.startTime))
+					if ttdSec > 0 then
+						return ttdSec
+					end
+					return -1 -- TTD under 0
+				end
+			end
+		end
+		-- Debugging
+		br.debug.cpu:updateDebug(startTime, "enemiesEngine.unitSetup.ttd")
+		return 999 -- not enough values
+	end
+
+	-- Distance
+	function unitIndex:RawDistance()
+		local x1, y1, z1 = pX, pY, pZ
+		local x2, y2, z2 = self.posX, self.posY, self.posZ
+		if x1 == nil or x2 == nil or y1 == nil or y2 == nil or z1 == nil or z2 == nil then
+			return 99
+		else
+			return math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2)) -
+				((pCR or 0) + (br._G.UnitCombatReach(self.unit) or 0)), z2 - z1
+		end
+	end
+
+	-- Add unit to table
+	function unitIndex:AddUnit(table)
+		local thisUnit
+		if br._G.UnitIsOtherPlayersPet(self.unit) then
+			thisUnit = {
+				unit = self.unit,
+			}
+		else
+			thisUnit = {
+				unit = self.unit,
+				name = self.name,
+				guid = self.guid,
+				id = self.objectID,
+				range = self.range,
+				debuffs = self.debuffs,
+				timestamp = GetTime(),
+			}
+		end
+		-- br._G.print("Adding "..thisUnit.unit.." to table")
+		rawset(table, self.unit, thisUnit)
+	end
+
+	-- Debuffs
+	function unitIndex:UpdateDebuffs(debuffList, unit)
+		local startTime = br._G.debugprofilestop()
+		if not br.functions.misc:isChecked("Cache Debuffs") then
+			debuffList = {}
+			return debuffList
+		end
+		local tracker
+		local buffCaster
+		local buffName
+		local buffUnit
+		-- Add Debuffs
+		local function cacheDebuff(buffUnit, buffName, buffCaster)
+			-- Cache it to the OM
+			if buffCaster ~= nil and buffCaster == "player" then
+				if debuffList[buffCaster] == nil then debuffList[buffCaster] = {} end
+				if debuffList[buffCaster][buffName] == nil then
+					debuffList[buffCaster][buffName] = function(buffName, unit)
+						return br._G.AuraUtil.FindAuraByName(br._G.GetSpellInfo(buffName), buffUnit, "HARMFUL|PLAYER")
+					end
+					if debuffList[buffCaster][buffName] ~= nil then br.readers.combatLog.debuffTracker[unit][buffName] = nil end
+				end
+			end
+		end
+		-- Get the Info from Combat Log
+		for k, _ in pairs(br.readers.combatLog.debuffTracker) do
+			tracker = br.readers.combatLog.debuffTracker[k]
+			for j, _ in pairs(tracker) do
+				buffCaster = tracker[j][1]
+				buffName = tracker[j][2]
+				buffUnit = tracker[j][3]
+				if buffUnit == unit and (debuffList[buffCaster] == nil or debuffList[buffCaster][buffName] == nil) then
+					cacheDebuff(buffUnit, buffName, buffCaster)
+				end
+			end
+		end
+		-- Remove Debuffs
+		for buffCaster, buffs in pairs(debuffList) do
+			for buffName, _ in pairs(buffs) do
+				if debuffList[buffCaster][buffName] ~= nil then
+					if debuffList[buffCaster][buffName](buffName, unit) == nil then
+						debuffList[buffCaster][buffName] = nil
+						if br.readers.combatLog.debuffTracker[unit] ~= nil and br.readers.combatLog.debuffTracker[unit][buffName] ~= nil and br.readers.combatLog.debuffTracker[unit][buffName][1] == buffCaster then
+							br.readers.combatLog.debuffTracker[unit][buffName] = nil
+						end
+					end
+				end
+			end
+		end
+		-- Debugging
+		br.debug.cpu:updateDebug(startTime, "enemiesEngine.unitSetup.updateDebuffs")
+		return debuffList
+	end
+
+	-- Updating the values of the Unit
+	function unitIndex:UpdateUnit()
+		local startTime = br._G.debugprofilestop()
+		-- Localize hot APIs for this update to reduce table lookups
+		local ObjectPosition = br._G.ObjectPosition
+		local UnitName = br._G.UnitName
+		local UnitGUID = br._G.UnitGUID
+		local UnitHealth = br._G.UnitHealth
+		local UnitHealthMax = br._G.UnitHealthMax
+		local ObjectPointer = br._G.ObjectPointer
+		local UnitCanAttack = br._G.UnitCanAttack
+		local UnitAffectingCombat = br._G.UnitAffectingCombat
+		local GetTime = br._G.GetTime
+
+		-- Cache position first (used multiple times below)
+		self.posX, self.posY, self.posZ = ObjectPosition(self.unit)
+
+		-- Early exit if unit has no position (invalid)
+		if not self.posX then
+			return
+		end
+
+		self.name = UnitName(self.unit)
+		self.guid = UnitGUID(self.unit)
+		self.distance = self:RawDistance()
+		self.hpabs = UnitHealth(self.unit)
+		self.hpmax = UnitHealthMax(self.unit)
+		self.hp = self.hpabs / self.hpmax * 100
+		self.objectID = br._G.ObjectID(self.unit)
+		self.range = self.range or 0
+		self.debuffs = self.debuffs or {}
+
+		-- Check if this unit is in damaged table (bypass normal validation)
+		local unitPointer = ObjectPointer(self.unit)
+		local isDamagedUnit = br.engines.enemiesEngine.damaged and br.engines.enemiesEngine.damaged[unitPointer] ~= nil
+
+		if self.distance <= 50 and not br.functions.unit:GetUnitIsDeadOrGhost(self.unit) and not br.functions.unit:isCritter(self.unit) then
+			-- EnemyListCheck
+			-- FPS-adaptive refresh rate for optimal responsiveness without sacrificing performance
+			local fps = br.engines.enemiesEngine.cachedFPS or 60
+			local refreshInterval = 1 -- Default: solo content
+			if br._G.GetNumGroupMembers() > 0 then
+				if fps >= 60 then
+					refreshInterval = 0.25 -- Excellent FPS: maximum responsiveness
+				elseif fps >= 45 then
+					refreshInterval = 0.4 -- Good FPS: balanced
+				elseif fps >= 30 then
+					refreshInterval = 0.6 -- Acceptable FPS: reduce load
+				else
+					refreshInterval = 0.8 -- Low FPS: prioritize performance over responsiveness
+				end
+			end
+
+			-- Combat-reactive refresh rates for better responsiveness
+			local isAlreadyValid = br.engines.enemiesEngine.units[self.unit] ~= nil
+			local actualRefreshInterval
+
+			if UnitAffectingCombat("player") then
+				local needsFastValidation = false
+				if isDamagedUnit then
+					needsFastValidation = true
+				elseif br.functions.misc:isTargeting(self.unit) then
+					needsFastValidation = true
+				elseif not isAlreadyValid and br._G.GetNumGroupMembers() > 0 then
+					needsFastValidation = br.functions.combat:hasThreat(self.unit)
+				end
+
+				if needsFastValidation then
+					actualRefreshInterval = 0.05
+				elseif isAlreadyValid then
+					actualRefreshInterval = refreshInterval * 1.1
+				else
+					actualRefreshInterval = refreshInterval
+				end
+			elseif isAlreadyValid then
+				actualRefreshInterval = refreshInterval * 1.25
+			else
+				actualRefreshInterval = refreshInterval
+			end
+
+			if self.enemyRefresh == nil or self.enemyRefresh < GetTime() - actualRefreshInterval then
+				if isDamagedUnit then
+					self.enemyListCheck = true
+				else
+					self.enemyListCheck = br.functions.misc:enemyListCheck(self.unit)
+				end
+				self.enemyRefresh = GetTime()
+				if self.enemyListCheck == true then
+					self.range = br.functions.range:getDistanceCalc(self.unit)
+					if br.engines.enemiesEngine.units[self.unit] == nil then
+						self:AddUnit(br.engines.enemiesEngine.units)
+					end
+					br.engines.enemiesEngine.units[self.unit].range = self.range
+				else
+					if br.engines.enemiesEngine.units[self.unit] ~= nil then
+						br.engines.enemiesEngine.units[self.unit] = nil
+					end
+				end
+			end
+		else
+			self.enemyListCheck = false
+			if br.engines.enemiesEngine.units[self.unit] ~= nil then
+				br.engines.enemiesEngine.units[self.unit] = nil
+			end
+		end
+
+		-- Fast invalidation path (already-valid enemies):
+		-- Goal: reflect CC/no-touch/unattackable state ASAP without re-running full validation every pulse.
+		-- This only runs for units currently in the enemy table and uses a very short TTL to cap aura scan cost.
+		local isAlreadyEnemy = br.engines.enemiesEngine.enemy[self.unit] ~= nil
+		if isAlreadyEnemy and self.enemyListCheck == true and not isDamagedUnit then
+			local now = GetTime()
+			local fastTTL = UnitAffectingCombat("player") and 0.05 or 0.10
+			if self.fastInvalidationRefresh == nil or self.fastInvalidationRefresh < (now - fastTTL) then
+				local ok = true
+				-- Basic cheap guards (avoid waiting for enemyListCheck refresh)
+				if self.hpabs <= 0 or br.functions.unit:GetUnitIsDeadOrGhost(self.unit) then
+					ok = false
+				elseif not UnitCanAttack("player", self.unit) then
+					ok = false
+				end
+				-- Don't break CCs (fast response)
+				if ok and br.functions.misc:getOptionCheck("Don't break CCs") and br.functions.misc:isLongTimeCCed(self.unit) then
+					ok = false
+				end
+				-- No-touch / invuln / affix safety rules
+				if ok and not br.engines.enemiesEngineFunctions:isSafeToAttack(self.unit) then
+					ok = false
+				end
+
+				self.fastInvalidationOk = ok
+				self.fastInvalidationRefresh = now
+			end
+
+			if self.fastInvalidationOk == false then
+				self.isValidUnit = false
+				br.engines.enemiesEngine.enemy[self.unit] = nil
+				-- Skip expensive validation this pulse; the unit can re-validate on the next pass.
+				br.debug.cpu:updateDebug(startTime, "enemiesEngine.unitSetup.updateUnit")
+				return
+			end
+		end
+
+		-- Is valid unit - only check if enemyList checks out OR if unit is in damaged table
+		if self.enemyListCheck == true then
+			if isDamagedUnit then
+				self.isValidUnit = true
+			else
+				-- Short TTL caching for expensive validation.
+				-- We keep responsiveness for important units and reduce CPU load for stable packs.
+				local now = GetTime()
+				local needsFastValidation = false
+				if br.functions.misc:isTargeting(self.unit) then
+					needsFastValidation = true
+				elseif br.functions.unit:GetUnitIsUnit(self.unit, "target") then
+					needsFastValidation = true
+				elseif br._G.GetNumGroupMembers() > 0 and br.functions.combat:hasThreat(self.unit) then
+					needsFastValidation = true
+				end
+				local validTTL
+				if needsFastValidation then
+					validTTL = 0.05
+				elseif br.engines.enemiesEngine.enemy[self.unit] ~= nil then
+					validTTL = UnitAffectingCombat("player") and 0.15 or 0.25
+				else
+					validTTL = UnitAffectingCombat("player") and 0.10 or 0.20
+				end
+
+				if self.validRefresh == nil or self.validRefresh < (now - validTTL) then
+					self.isValidUnit = br.functions.misc:isValidUnit(self.unit)
+					self.validRefresh = now
+				end
+			end
+
+			if self.isValidUnit == true then
+				local shouldUpdateDebuffs = br._G.UnitAffectingCombat("player") and
+					(self.distance < 40 or br.functions.unit:GetUnitIsUnit(self.unit, "target"))
+				if shouldUpdateDebuffs then
+					self.debuffs = self:UpdateDebuffs(self.debuffs, self.unit)
+				end
+				if br.engines.enemiesEngine.enemy[self.unit] == nil then
+					self:AddUnit(br.engines.enemiesEngine.enemy)
+				end
+				if shouldUpdateDebuffs then
+					br.engines.enemiesEngine.enemy[self.unit].debuffs = self.debuffs
+				end
+			else
+				if br.engines.enemiesEngine.enemy[self.unit] ~= nil then
+					br.engines.enemiesEngine.enemy[self.unit] = nil
+				end
+			end
+		else
+			self.isValidUnit = false
+			if br.engines.enemiesEngine.enemy[self.unit] ~= nil then
+				br.engines.enemiesEngine.enemy[self.unit] = nil
+			end
+		end
+
+		-- TTD
+		if br.functions.misc:getOptionCheck("Enhanced Time to Die") then
+			if self.objectID == 140853 then
+				self.ttd = self:unitTtd(10)
+			elseif self.objectID == 149684 then
+				self.ttd = self:unitTtd(5)
+			else
+				self.ttd = self:unitTtd()
+			end
+		end
+
+		-- Check for loots
+		if autoLoot and br.engines.enemiesEngine.lootable[self.unit] == nil and br.functions.unit:GetUnitIsDeadOrGhost(self.unit) then
+			local hasLoot = br._G.CanLootUnit(self.guid)
+			if hasLoot then
+				self:AddUnit(br.engines.enemiesEngine.lootable)
+			end
+		end
+		-- Add pets
+		if br.player ~= nil and br.player.pet.list[self.unit] == nil and (self.objectID == 11492 or br.functions.unit:GetUnitIsUnit(br._G.UnitCreator(self.unit), "player")) then
+			self:AddUnit(br.player.pet.list)
+		end
+		-- Add other player pets
+		if br.engines.enemiesEngine.pet ~= nil and br.engines.enemiesEngine.pet[self.unit] == nil and (br._G.UnitIsOtherPlayersPet(self.unit)) then
+			self:AddUnit(br.engines.enemiesEngine.pet)
+		end
+
+		-- add unit to setup cache
+		enemiesEngine.unitSetup.cache[self.unit] = self
+		-- Debugging
+		br.debug.cpu:updateDebug(startTime, "enemiesEngine.unitSetup.updateUnit")
+	end
 
 	function enemiesEngine.unitSetup:new(unit)
 		local startTime = br._G.debugprofilestop()
@@ -45,394 +439,11 @@ if not enemiesEngine.metaTable2 then
 		if unit and (type(unit) == "string" or (br.unlockers.selected == "NN" and type(unit) == "number")) then
 			o.unit = unit
 		end
-		--Function time to die
-		function o:unitTtd(targetPercentage)
-			local startTime = br._G.debugprofilestop()
-			if targetPercentage == nil then targetPercentage = 0 end
-			local value
-			if o.hp == 0 then return -1 end
-			if o.hp == 100 or br.functions.unit:isDummy(o.unit) then return 999 end
-			local timeNow = GetTime()
-			-- Reset unit if HP is higher
-			if enemiesEngine.ttd[o.unit] ~= nil and (enemiesEngine.ttd[o.unit].lasthp < o.hp or #enemiesEngine.ttd[o.unit].values == 0) then
-				enemiesEngine.ttd[o.unit] = nil
-			end
-			-- initialize new unit
-			if enemiesEngine.ttd[o.unit] == nil then
-				enemiesEngine.ttd[o.unit] = {}          -- create unit
-				enemiesEngine.ttd[o.unit].values = {}   -- create value table
-				value = { time = 0, hp = o.hp } -- create initial values
-				tinsert(enemiesEngine.ttd[o.unit].values, 1, value) -- insert unit
-				enemiesEngine.ttd[o.unit].lasthp = o.hp -- store current hp pct
-				enemiesEngine.ttd[o.unit].startTime = timeNow -- store current time
-				enemiesEngine.ttd[o.unit].lastTime = 0  --store last time value
-				return 999
-			end
-			local ttdUnit = enemiesEngine.ttd[o.unit]
-			-- add current value to ttd table if HP changed or more than X sec since last update
-			if o.hp ~= ttdUnit.lasthp or (timeNow - ttdUnit.startTime - ttdUnit.lastTime) > 0.5 then
-				value = { time = timeNow - ttdUnit.startTime, hp = o.hp }
-				tinsert(ttdUnit.values, 1, value)
-				enemiesEngine.ttd[o.unit].lasthp = o.hp
-				enemiesEngine.ttd[o.unit].lastTime = timeNow - ttdUnit.startTime
-			end
-			-- clean units
-			local valueCount = #ttdUnit.values
-			while valueCount > 0 and (valueCount > 100 or (timeNow - ttdUnit.startTime - ttdUnit.values[valueCount].time) > 10) do
-				ttdUnit.values[valueCount] = nil
-				valueCount = valueCount - 1
-			end
-			-- calculate ttd if more than 3 values
-			-- valueCount = #ttdUnit.values
-			-- if valueCount > 1 then
-			-- 	-- linear regression calculation from https://github.com/herotc/hero-lib/
-			-- 	local a, b = 0, 0
-			-- 	local Ex2, Ex, Exy, Ey = 0, 0, 0, 0
-			-- 	local x, y
-			-- 	for i = 1, valueCount do
-			-- 		x, y = ttdUnit.values[i].time, ttdUnit.values[i].hp
-			-- 		Ex2 = Ex2 + x * x
-			-- 		Ex = Ex + x
-			-- 		Exy = Exy + x * y
-			-- 		Ey = Ey + y
-			-- 	end
-			-- 	local invariant = 1 / (Ex2 * valueCount - Ex * Ex)
-			-- 	a = (-Ex * Exy * invariant) + (Ex2 * Ey * invariant)
-			-- 	b = (valueCount * Exy * invariant) - (Ex * Ey * invariant)
-			-- 	if b ~= 0 then
-			-- 		local ttdSec = (targetPercentage - a) / b
-			-- 		ttdSec = math.min(999, ttdSec - (timeNow - ttdUnit.startTime))
-			-- 		if ttdSec > 0 then
-			-- 			return ttdSec
-			-- 		end
-			-- 		return -1 -- TTD under 0
-			-- 	end
-			-- end
-			valueCount = #ttdUnit.values
-			-- limit samples used for regression to avoid long computation in combat UI
-			if valueCount > 1 then
-				local maxSamples = 20
-				local samples = math.min(valueCount, maxSamples)
-				-- linear regression calculation from https://github.com/herotc/hero-lib/
-				local a, b = 0, 0
-				local Ex2, Ex, Exy, Ey = 0, 0, 0, 0
-				local x, y
-				-- use most recent 'samples' entries (values are inserted at index 1)
-				for i = 1, samples do
-					x, y = ttdUnit.values[i].time, ttdUnit.values[i].hp
-					Ex2 = Ex2 + x * x
-					Ex = Ex + x
-					Exy = Exy + x * y
-					Ey = Ey + y
-				end
-				local denom = (Ex2 * samples - Ex * Ex)
-				if denom ~= 0 then
-					local invariant = 1 / denom
-					a = (-Ex * Exy * invariant) + (Ex2 * Ey * invariant)
-					b = (samples * Exy * invariant) - (Ex * Ey * invariant)
-					if b ~= 0 then
-						local ttdSec = (targetPercentage - a) / b
-						ttdSec = math.min(999, ttdSec - (timeNow - ttdUnit.startTime))
-						if ttdSec > 0 then
-							return ttdSec
-						end
-						return -1 -- TTD under 0
-					end
-				end
-			end
-			-- Debugging
-			br.debug.cpu:updateDebug(startTime, "enemiesEngine.unitSetup.ttd")
-			return 999 -- not enough values
+		-- Ensure per-unit state is not accidentally shared via the metatable.
+		o.debuffs = {}
+		if o.unit ~= nil then
+			enemiesEngine.unitSetup.cache[o.unit] = o
 		end
-
-		--Distance
-		function o:RawDistance()
-			local x1, y1, z1 = pX, pY, pZ
-			local x2, y2, z2 = o.posX, o.posY, o.posZ
-			if x1 == nil or x2 == nil or y1 == nil or y2 == nil or z1 == nil or z2 == nil then
-				return 99
-			else
-				return math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2)) -
-					((pCR or 0) + (br._G.UnitCombatReach(o.unit) or 0)), z2 - z1
-			end
-		end
-
-		--Add unit to table
-		function o:AddUnit(table)
-			local thisUnit
-			if br._G.UnitIsOtherPlayersPet(o.unit) then
-				thisUnit = {
-					unit = o.unit,
-				}
-			else
-				thisUnit = {
-					unit = o.unit,
-					name = o.name,
-					guid = o.guid,
-					id = o.objectID,
-					range = o.range,
-					debuffs = o.debuffs,
-					timestamp = GetTime(),
-				}
-			end
-			-- br._G.print("Adding "..thisUnit.unit.." to table")
-			rawset(table, o.unit, thisUnit)
-		end
-
-		--Debuffs
-		function o:UpdateDebuffs(debuffList, unit)
-			local startTime = br._G.debugprofilestop()
-			if not br.functions.misc:isChecked("Cache Debuffs") then
-				debuffList = {}
-				return debuffList
-			end
-			local tracker
-			local buffCaster
-			local buffName
-			local buffUnit
-			-- Add Debuffs
-			local function cacheDebuff(buffUnit, buffName, buffCaster)
-				-- Print("Caching Debuff!")
-				-- Cache it to the OM
-				if buffCaster ~= nil and buffCaster == "player" then --(buffCaster == "player" or UnitIsFriend("player",buffCaster)) then
-					if debuffList[buffCaster] == nil then debuffList[buffCaster] = {} end
-					if debuffList[buffCaster][buffName] == nil then
-						-- Print("Adding player debuff")
-						debuffList[buffCaster][buffName] = function(buffName, unit)
-							return br._G.AuraUtil.FindAuraByName(br._G.GetSpellInfo(buffName), buffUnit, "HARMFUL|PLAYER")
-						end
-						if debuffList[buffCaster][buffName] ~= nil then br.readers.combatLog.debuffTracker[unit][buffName] = nil end
-					end
-				end
-			end
-			-- Get the Info from Combat Log
-			for k, _ in pairs(br.readers.combatLog.debuffTracker) do
-				tracker = br.readers.combatLog.debuffTracker[k]
-				for j, _ in pairs(tracker) do
-					buffCaster = tracker[j][1]
-					buffName = tracker[j][2]
-					buffUnit = tracker[j][3]
-					if buffUnit == unit and (debuffList[buffCaster] == nil or debuffList[buffCaster][buffName] == nil) then
-						cacheDebuff(buffUnit, buffName, buffCaster)
-					end
-				end
-			end
-			-- Remove Debuffs
-			for buffCaster, buffs in pairs(debuffList) do
-				for buffName, _ in pairs(buffs) do
-					if debuffList[buffCaster][buffName] ~= nil then
-						if debuffList[buffCaster][buffName](buffName, unit) == nil then
-							-- Print("Removing player expired - "..buffName)
-							debuffList[buffCaster][buffName] = nil
-							if br.readers.combatLog.debuffTracker[unit] ~= nil and br.readers.combatLog.debuffTracker[unit][buffName] ~= nil and br.readers.combatLog.debuffTracker[unit][buffName][1] == buffCaster then
-								br.readers.combatLog.debuffTracker[unit][buffName] = nil
-							end
-						end
-					end
-				end
-			end
-			-- Debugging
-			br.debug.cpu:updateDebug(startTime, "enemiesEngine.unitSetup.updateDebuffs")
-			return debuffList
-		end
-
-		-- Updating the values of the Unit
-		function o:UpdateUnit()
-			-- br._G.print("Updating "..o.unit)
-			local startTime = br._G.debugprofilestop()
-			-- Localize hot APIs for this update to reduce table lookups
-			local ObjectPosition = br._G.ObjectPosition
-			local UnitName = br._G.UnitName
-			local UnitGUID = br._G.UnitGUID
-			local UnitHealth = br._G.UnitHealth
-			local UnitHealthMax = br._G.UnitHealthMax
-			local ObjectID = br._G.ObjectID
-			local UnitCombatReach = br._G.UnitCombatReach
-			local ObjectPointer = br._G.ObjectPointer
-			local GetTime = br._G.GetTime
-			local UnitAffectingCombat = br._G.UnitAffectingCombat
-
-			-- Cache position first (used multiple times below)
-			o.posX, o.posY, o.posZ = ObjectPosition(o.unit)
-
-			-- Early exit if unit has no position (invalid)
-			if not o.posX then
-				return
-			end
-
-			o.name = UnitName(o.unit)
-			o.guid = UnitGUID(o.unit)
-			o.distance = o:RawDistance()
-			o.hpabs = UnitHealth(o.unit)
-			o.hpmax = UnitHealthMax(o.unit)
-			o.hp = o.hpabs / o.hpmax * 100
-			o.objectID = br._G.ObjectID(o.unit)
-			o.range = o.range or 0
-			o.debuffs = o.debuffs or {}
-
-			-- Check if this unit is in damaged table (bypass normal validation)
-			local unitPointer = ObjectPointer(o.unit)
-			local isDamagedUnit = br.engines.enemiesEngine.damaged and br.engines.enemiesEngine.damaged[unitPointer] ~= nil
-
-			if o.distance <= 50 and not br.functions.unit:GetUnitIsDeadOrGhost(o.unit) and not br.functions.unit:isCritter(o.unit) then
-				-- EnemyListCheck
-				-- FPS-adaptive refresh rate for optimal responsiveness without sacrificing performance
-				-- Cache FPS check to avoid multiple GetFramerate() calls
-				local fps = br.engines.enemiesEngine.cachedFPS or 60
-				local refreshInterval = 1 -- Default: solo content
-				if br._G.GetNumGroupMembers() > 0 then
-					if fps >= 60 then
-						refreshInterval = 0.25 -- Excellent FPS: maximum responsiveness
-					elseif fps >= 45 then
-						refreshInterval = 0.4 -- Good FPS: balanced
-					elseif fps >= 30 then
-						refreshInterval = 0.6 -- Acceptable FPS: reduce load
-					else
-						refreshInterval = 0.8 -- Low FPS: prioritize performance over responsiveness
-					end
-				end
-
-				-- FIXED: Combat-reactive refresh rates for better responsiveness
-				-- Use lightweight threat indicators to prioritize validation without full isValidUnit overhead
-				local isAlreadyValid = br.engines.enemiesEngine.units[o.unit] ~= nil
-				local actualRefreshInterval
-
-				-- Fast path: In combat, check for threat indicators (balanced between performance and coverage)
-				if br._G.UnitAffectingCombat("player") then
-					local needsFastValidation = false
-
-					-- Damaged units always get fast validation (they're actively in combat with us)
-					if isDamagedUnit then
-						needsFastValidation = true
-					-- Cheap checks first: targeting player/group
-					elseif br.functions.misc:isTargeting(o.unit) then
-						needsFastValidation = true
-					-- More expensive but important: full threat check for group content
-					-- Skip if already validated to avoid redundant expensive checks
-					elseif not isAlreadyValid and br._G.GetNumGroupMembers() > 0 then
-						needsFastValidation = br.functions.combat:hasThreat(o.unit)
-					end
-
-					if needsFastValidation then
-						-- Enemy is actively engaging us/group: refresh every 0.05s for higher reactivity
-						actualRefreshInterval = 0.05
-					elseif isAlreadyValid then
-						-- Already validated enemies: use slightly slower refresh but keep responsiveness
-						actualRefreshInterval = refreshInterval * 1.1
-					else
-						-- New/unvalidated enemies: use base refresh rate
-						actualRefreshInterval = refreshInterval
-					end
-				elseif isAlreadyValid then
-					-- Not in combat, already validated: use slower refresh
-					actualRefreshInterval = refreshInterval * 1.25
-				else
-					-- Not in combat, new enemy: use base refresh rate
-					actualRefreshInterval = refreshInterval
-				end
-
-				if o.enemyRefresh == nil or o.enemyRefresh < GetTime() - actualRefreshInterval then
-					-- Units in damaged table bypass enemyListCheck - they're confirmed combatants
-					if isDamagedUnit then
-						o.enemyListCheck = true
-					else
-						o.enemyListCheck = br.functions.misc:enemyListCheck(o.unit)
-					end
-					o.enemyRefresh = GetTime()
-					if o.enemyListCheck == true then
-						o.range = br.functions.range:getDistanceCalc(o.unit)
-						if br.engines.enemiesEngine.units[o.unit] == nil then
-							o:AddUnit(br.engines.enemiesEngine.units)
-						end
-						br.engines.enemiesEngine.units[o.unit].range = o.range
-					else
-						if br.engines.enemiesEngine.units[o.unit] ~= nil then
-							br.engines.enemiesEngine.units[o.unit] = nil
-						end
-					end
-				end
-			else
-				o.enemyListCheck = false
-				if br.engines.enemiesEngine.units[o.unit] ~= nil then
-					br.engines.enemiesEngine.units[o.unit] = nil
-				end
-			end
-			-- Is valid unit - only check if enemyList checks out OR if unit is in damaged table
-			if o.enemyListCheck == true then
-				-- Damaged units bypass isValidUnit check - combat log confirmed they're valid targets
-				if isDamagedUnit then
-					o.isValidUnit = true
-				else
-					o.isValidUnit = br.functions.misc:isValidUnit(o.unit)
-				end
-
-				if o.isValidUnit == true then
-					-- Only update debuffs for units we're actively using in rotation (in combat and targeted/nearby)
-					-- This avoids expensive aura scans for distant validated enemies
-					local shouldUpdateDebuffs = br._G.UnitAffectingCombat("player") and
-						(o.distance < 40 or br.functions.unit:GetUnitIsUnit(o.unit, "target"))
-					if shouldUpdateDebuffs then
-						o.debuffs = o:UpdateDebuffs(o.debuffs, o.unit)
-					end
-					-- o.range = getDistanceCalc(o.unit)
-					if br.engines.enemiesEngine.enemy[o.unit] == nil then
-						o:AddUnit(br.engines.enemiesEngine.enemy)
-					end
-					-- br.engines.enemiesEngine.enemy[o.unit].range = o.
-					if shouldUpdateDebuffs then
-						br.engines.enemiesEngine.enemy[o.unit].debuffs = o.debuffs
-					end
-				else
-					if br.engines.enemiesEngine.enemy[o.unit] ~= nil then
-						br.engines.enemiesEngine.enemy[o.unit] = nil
-					end
-					-- Don't remove from damaged table here - let combatlog cleanup handle it
-				end
-			else
-				o.isValidUnit = false
-				if br.engines.enemiesEngine.enemy[o.unit] ~= nil then
-					br.engines.enemiesEngine.enemy[o.unit] = nil
-				end
-				-- Don't remove from damaged table here - let combatlog cleanup handle it
-			end
-			-- TTD
-			if br.functions.misc:getOptionCheck("Enhanced Time to Die") then
-				if o.objectID == 140853 then -- If mother, TTD is 10 pct
-					o.ttd = o:unitTtd(10)
-				elseif o.objectID == 149684 then -- Jaina tps out at 5%
-					o.ttd = o:unitTtd(5)
-				else
-					o.ttd = o:unitTtd()
-				end
-			end
-			-- Check for loots
-			if autoLoot and br.engines.enemiesEngine.lootable[o.unit] == nil and br.functions.unit:GetUnitIsDeadOrGhost(o.unit) then
-				-- print("Checking unit: " .. o.guid .. " for loot.")
-				local hasLoot = br._G.CanLootUnit(o.guid)
-				if hasLoot then
-					-- print("Adding lootable unit")
-					o:AddUnit(br.engines.enemiesEngine.lootable)
-				end
-			end
-			-- Add pets
-			if br.player ~= nil and br.player.pet.list[o.unit] == nil and (o.objectID == 11492 or br.functions.unit:GetUnitIsUnit(br._G.UnitCreator(o.unit), "player")) then
-				o:AddUnit(br.player.pet.list)
-			end
-			-- Add other player pets
-			if br.engines.enemiesEngine.pet ~= nil and br.engines.enemiesEngine.pet[o.unit] == nil and (br._G.UnitIsOtherPlayersPet(o.unit)) then
-				o:AddUnit(br.engines.enemiesEngine.pet)
-			end
-
-			-- add unit to setup cache
-			enemiesEngine.unitSetup.cache[o.unit] = o -- Add unit to SetupTable
-			-- Debugging
-			br.debug.cpu:updateDebug(startTime, "enemiesEngine.unitSetup.updateUnit")
-		end
-
-		-- Adding the user and functions we just created to this cached version in case we need it again
-		-- This will also serve as a good check for if the unit is already in the table easily
-		enemiesEngine.unitSetup.cache[o.unit] = o
-		-- Debugging
 		br.debug.cpu:updateDebug(startTime, "enemiesEngine.unitSetup")
 		return o
 	end
@@ -509,9 +520,22 @@ if not enemiesEngine.metaTable2 then
 						if br.engines.enemiesEngine.pet[thisUnit] ~= nil then
 							br.engines.enemiesEngine.pet[thisUnit] = nil
 						end
-						enemiesEngine.om[i] = nil
-						-- br._G.print("Removing "..thisUnit.." from om table")
-						-- tremove(enemiesEngine.om, i)
+						-- IMPORTANT: keep enemiesEngine.om as a packed array.
+						-- Setting enemiesEngine.om[i] = nil creates holes, making #enemiesEngine.om unreliable
+						-- and causing this loop (and future tinsert) to miss units.
+						local omIndex = enemiesEngine.omIndex
+						if omIndex ~= nil then
+							omIndex[thisUnit] = nil
+						end
+						local last = #enemiesEngine.om
+						if i ~= last then
+							enemiesEngine.om[i] = enemiesEngine.om[last]
+							if omIndex ~= nil and enemiesEngine.om[i] and enemiesEngine.om[i].unit ~= nil then
+								omIndex[enemiesEngine.om[i].unit] = i
+							end
+						end
+						enemiesEngine.om[last] = nil
+						-- Do not increment i here; we need to process the swapped-in entry at index i.
 					else
 						--Update unit and move to next
 						enemiesEngine.om[i]:UpdateUnit()

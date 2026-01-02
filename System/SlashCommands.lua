@@ -475,6 +475,13 @@ local function handler(message, editbox)
 		end
 	elseif msg1 == "update" then
 		br.updater:Update()
+	elseif msg1 == "clean" or msg1 == "cleansettings" then
+		if br.ui and br.ui.settingsManagement then
+			br._G.print("|cffFFDD11[BadRotations]|r Manually cleaning orphaned settings...")
+			br.ui.settingsManagement:cleanSettings()
+		else
+			br._G.print("|cffFF0000[BadRotations]|r Settings management not available")
+		end
 	else
 		br._G.print("Invalid Command: |cFFFF0000" .. msg .. "|r try |cffFFDD11 /br help")
 	end

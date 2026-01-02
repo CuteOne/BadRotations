@@ -83,131 +83,129 @@ function power:getPowerAlt(Unit)
 	return value
 end
 
--- Rune Tracking Table
-function power:getRuneInfo()
-	local bCount = 0
-	local uCount = 0
-	local fCount = 0
-	local dCount = 0
-	local bPercent = 0
-	local uPercent = 0
-	local fPercent = 0
-	local dPercent = 0
-	_G.table.wipe(runeTable)
+-- Return array of 6 rune objects suitable for SimC-style logic
+-- rune object: { base = "blood"|"frost"|"unholy", is_death = bool, ready = bool }
+function power:getRuneObjects()
+	local runes = {}
 	for i = 1, 6 do
-		local CDstart = select(1, br._G.GetRuneCooldown(i))
-		local CDduration = select(2, br._G.GetRuneCooldown(i))
-		local CDready = select(3, br._G.GetRuneCooldown(i))
-		local CDrune = CDduration - (br._G.GetTime() - CDstart)
-		local CDpercent = 0
-		local runePercent = 0
-		local runeCount = 0
-		local runeCooldown = 0
-		local dCooldown
-		local bCooldown
-		local uCooldown
-		local fCooldown
-		if CDrune > CDduration then
-			CDpercent = 1 - (CDrune / (CDduration * 2))
+		local rt = br._G.GetRuneType(i)
+		local is_death = (rt == 4)
+		local base
+		-- if i <= 2 then
+		-- 	base = "blood"
+		-- elseif i <= 4 then
+		-- 	base = "frost"
+		-- else
+		-- 	base = "unholy"
+		-- end
+		if rt == 1 then
+			base = "blood"
+		elseif rt == 2 then
+			base = "frost"
+		elseif rt == 3 then
+			base = "unholy"
+		end
+		local start, duration, ready = br._G.GetRuneCooldown(i)
+		runes[i] = { base = base, is_death = is_death, ready = ready }
+	end
+	return runes
+end
+
+-- SimC-style rune counting
+-- rt: "blood"|"frost"|"unholy"|"death"
+-- include_death: bool - if true, death runes count toward base types
+-- position: optional numeric positional query (1 or 2) for base types, or Nth death rune when rt=="death"
+function power:runesCount(rt, include_death, position)
+	rt = rt and string.lower(rt) or nil
+	local runes = power:getRuneObjects()
+
+	-- positional base-type query (e.g., second blood slot)
+	if position and position > 0 and (rt == "blood" or rt == "frost" or rt == "unholy") then
+		local ti = (rt == "blood") and 1 or (rt == "frost") and 2 or (rt == "unholy") and 3
+		if not ti then return 0 end
+		local idx = (ti - 1) * 2 + position -- Lua 1-based index
+		local r = runes[idx]
+		return (r and r.ready) and 1 or 0
+	end
+
+	local result = 0
+	local rpc = 0
+	for i = 1, 6 do
+		local r = runes[i]
+		-- positional death-query (nth death rune)
+		if position and position ~= 0 and rt == "death" and r.is_death then
+			rpc = rpc + 1
+			if rpc == position then
+				return r.ready and 1 or 0
+			end
+
 		else
-			CDpercent = 1 - CDrune / CDduration
-		end
-		if not CDready then
-			runePercent = CDpercent
-			runeCount = 0
-			runeCooldown = CDrune
-		else
-			runePercent = 1
-			runeCount = 1
-			runeCooldown = 0
-		end
-		if br._G.GetRuneType(i) == 4 then
-			dPercent = runePercent
-			dCount = runeCount
-			dCooldown = runeCooldown
-			runeTable[#runeTable + 1] = {
-				Type = "death",
-				Index = i,
-				Count = dCount,
-				Percent = dPercent,
-				Cooldown =
-					dCooldown
-			}
-		end
-		if br._G.GetRuneType(i) == 1 then
-			bPercent = runePercent
-			bCount = runeCount
-			bCooldown = runeCooldown
-			runeTable[#runeTable + 1] = {
-				Type = "blood",
-				Index = i,
-				Count = bCount,
-				Percent = bPercent,
-				Cooldown =
-					bCooldown
-			}
-		end
-		if br._G.GetRuneType(i) == 2 then
-			uPercent = runePercent
-			uCount = runeCount
-			uCooldown = runeCooldown
-			runeTable[#runeTable + 1] = {
-				Type = "unholy",
-				Index = i,
-				Count = uCount,
-				Percent = uPercent,
-				Cooldown =
-					uCooldown
-			}
-		end
-		if br._G.GetRuneType(i) == 3 then
-			fPercent = runePercent
-			fCount = runeCount
-			fCooldown = runeCooldown
-			runeTable[#runeTable + 1] = {
-				Type = "frost",
-				Index = i,
-				Count = fCount,
-				Percent = fPercent,
-				Cooldown =
-					fCooldown
-			}
+			if ((include_death or rt == "death") and r.is_death) or (r.base == rt) then
+				if r.ready then result = result + 1 end
+			end
 		end
 	end
-	return runeTable
+
+	return result
 end
 
 -- Get Count of Specific Rune Time
 function power:getRuneCount(Type)
-	Type = string.lower(Type)
-	local runeCount = 0
-	for i = 1, #runeTable do
-		local entry = runeTable[i]
-		if entry and entry.Type == Type then
-			runeCount = runeCount + (entry.Count or 0)
-		end
+	-- Use SimC-style counting: include death runes for base types
+	Type = string.lower(Type or "")
+	if Type == "" then return 0 end
+	-- for death queries, return strict death count
+	if Type == "death" then
+		return power:runesCount("death", false)
 	end
-	return runeCount
+	-- for base types include death runes as usable
+	if Type == "blood" or Type == "frost" or Type == "unholy" then
+		return power:runesCount(Type, true)
+	end
 end
 
 -- Get Colldown Percent Remaining of Specific Runes
 function power:getRunePercent(Type)
-	Type = string.lower(Type)
-	local runePercent = 0
-	-- local runeCooldown = 0
-	for i = 1, #runeTable do
-		local entry = runeTable[i]
-		if entry and entry.Type == Type then
-			runePercent = entry.Percent or runePercent
+	-- Compute percent using per-rune cooldowns; include death runes for base types
+	Type = string.lower(Type or "")
+	if Type == "" then return 0 end
+
+	local include_death = (Type == "blood" or Type == "frost" or Type == "unholy")
+	local readyCount = 0
+	local maxCooldownPercent = 0
+	local timeNow = br._G.GetTime()
+
+	for i = 1, 6 do
+		local start, duration, ready = br._G.GetRuneCooldown(i)
+		local rt = br._G.GetRuneType(i)
+		local base = (rt == 1) and "blood" or (rt == 2) and "frost" or (rt == 3) and "unholy"
+		local is_match = false
+		if Type == "death" then
+			is_match = (rt == 4)
+		else
+			is_match = (base == Type) or (include_death and rt == 4)
+		end
+		if is_match then
+			if ready then
+				readyCount = readyCount + 1
+			else
+				if duration and duration > 0 and start then
+					local CDrune = duration - (timeNow - start)
+					local CDpercent
+					if CDrune > duration then
+						CDpercent = 1 - (CDrune / (duration * 2))
+					else
+						CDpercent = 1 - CDrune / duration
+					end
+					if CDpercent > maxCooldownPercent then maxCooldownPercent = CDpercent end
+				end
+			end
 		end
 	end
-	if br.functions.power:getRuneCount(Type) == 2 then
-		return 2
-	elseif br.functions.power:getRuneCount(Type) == 1 then
-		return runePercent + 1
-	else
-		return runePercent
-	end
+
+	if readyCount >= 2 then return 2 end
+	if readyCount == 1 then return 1 + maxCooldownPercent end
+	return maxCooldownPercent
 end
 
 function power:runeCDPercent(runeIndex)
@@ -223,9 +221,9 @@ function power:runeCDPercent(runeIndex)
 end
 
 function power:runeRecharge(runeIndex)
-	if not select(3, br._G.GetRuneCooldown(runeIndex)) then
-		return select(2, br._G.GetRuneCooldown(runeIndex)) -
-			(br._G.GetTime() - select(1, br._G.GetRuneCooldown(runeIndex)))
+	local start, duration, ready = br._G.GetRuneCooldown(runeIndex)
+	if not ready and duration and duration > 0 and start then
+		return duration - (br._G.GetTime() - start)
 	else
 		return 0
 	end
@@ -249,6 +247,31 @@ function power:runeTimeTill(runeIndex)
 		end
 	end
 	return timeTill
+end
+
+-- Count total ready runes (simple helper)
+function power:getTotalReadyRunes()
+	local total = 0
+	for i = 1, 6 do
+		local _, _, ready = br._G.GetRuneCooldown(i)
+		if ready then total = total + 1 end
+	end
+	return total
+end
+
+-- Return the maximum rune cooldown percent among all runes (0..1)
+function power:getMaxRuneCDPercent()
+	local maxPct = 0
+	for i = 1, 6 do
+		local pct = power:runeCDPercent(i)
+		if pct > maxPct then maxPct = pct end
+	end
+	return maxPct
+end
+
+-- Fractional rune value used by DKs: ready runes + highest CD percent
+function power:getRuneFrac()
+	return power:getTotalReadyRunes() + power:getMaxRuneCDPercent()
 end
 
 -- if getTimeToMax("player") < 3 then

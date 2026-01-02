@@ -232,7 +232,10 @@ function br.ui:toggleWindow(windowName)
 end
 
 function br.ui:recreateWindows()
-    br.ui:closeWindow("all")
+    -- Close only config and debug windows, not profile window
+    -- Profile window is created by br.player:createOptions() and should not be destroyed here
+    br.ui:closeWindow("config")
+    br.ui:closeWindow("debug")
     br.ui:createConfigWindow()
     br.ui:createDebugWindow()
 end

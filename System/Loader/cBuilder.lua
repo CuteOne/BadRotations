@@ -521,12 +521,44 @@ function cBuilder:new(spec, specName)
             br.api.unit(self)
         end
 
+        -- Make Totem Functions from br.api.totem
+        if self.totem == nil then
+            self.totem = {}
+            if br.api.totem then
+                br.api.totem(self)
+            end
+        end
+
         -- Make Pet Functions from br.api.pets
         if self.pets ~= nil then
             for k, v in pairs(self.pets) do
                 if self.pet[k] == nil then self.pet[k] = {} end
                 local pet = self.pet[k]
                 br.api.pets(pet, k, v, self)
+            end
+        end
+
+        -- Make Glyph Functions from br.api.glyph / br.api.glyphs
+        if self.glyph == nil then self.glyph = {} end
+        if br.api.glyph then
+            br.api.glyph(self)
+        end
+        if self.spells and self.spells.glyphs then
+            for k, v in pairs(self.spells.glyphs) do
+                self.glyph[k] = self.glyph[k] or {}
+                if br.api.glyphs then
+                    br.api.glyphs(self.glyph, k, v)
+                end
+                -- Convenience alias: glyphOfFrostShock -> frostShock
+                if type(k) == "string" and k:sub(1, 7) == "glyphOf" then
+                    local suffix = k:sub(8)
+                    if suffix and suffix ~= "" then
+                        local alias = suffix:sub(1, 1):lower() .. suffix:sub(2)
+                        if self.glyph[alias] == nil then
+                            self.glyph[alias] = self.glyph[k]
+                        end
+                    end
+                end
             end
         end
 

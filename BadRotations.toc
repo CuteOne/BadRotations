@@ -76,6 +76,8 @@ System\Functions\Range.lua
 System\Functions\Spell.lua
 System\Functions\Unit.lua
 System\Functions\SmartQueue.lua
+System\Functions\Glyph.lua
+System\Functions\Totem.lua
 
 ## Lists
 
@@ -163,6 +165,7 @@ System\API\Debuff.lua
 System\API\Enemies.lua
 System\API\Essence.lua
 System\API\Equiped.lua
+System\API\Glyph.lua
 System\API\Has.lua
 System\API\Item.lua
 System\API\Module.lua
@@ -171,6 +174,7 @@ System\API\Power.lua
 # System\API\Runeforge.lua
 System\API\Spell.lua
 System\API\Talent.lua
+System\API\Totem.lua
 System\API\UI.lua
 System\API\Unit.lua
 System\API\Units.lua

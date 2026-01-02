@@ -174,7 +174,20 @@ function tooltips:targetValidationDebugHandler(tooltip)
 
 	-- Gather all validation data
 	local distance = br.functions.range:getDistance(unit, "player")
-	local dummy = br.functions.unit:isDummy(unit)
+	local isDummy = br.functions.unit:isDummy(unit)
+	local dummy = false
+	if isDummy then
+		if br.functions.unit:GetUnitIsUnit(unit, "target") then
+			dummy = true
+		else
+			if br.functions.unit:GetObjectExists("target") and br.functions.unit:isDummy("target") then
+				local distToTarget = br.functions.range:getDistance(unit, "target")
+				if distToTarget ~= nil and distToTarget <= 8 then
+					dummy = true
+				end
+			end
+		end
+	end
 	local burnUnit = br.functions.misc:getOptionCheck("Forced Burn") and br.engines.enemiesEngineFunctions:isBurnTarget(unitGUID) > 0
 	local playerTarget = br.functions.unit:GetUnitIsUnit(unit, "target")
 	local targeting = br.functions.misc:isTargeting(unitGUID)

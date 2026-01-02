@@ -2,7 +2,10 @@ local _, br = ...
 if br.lists == nil then
 	br.lists = {}
 end
--- Shield Units = shielding and levels, we should add coef as shield %
+-- Shield Units: "soft shields" that REDUCE incoming damage.
+-- These should DEPRIORITIZE targets (via coefficient penalty) when "Avoid Shields" is enabled.
+-- Do NOT use this list for invulnerability/phase/reflect mechanics that should hard-block targeting.
+-- Hard "do not attack" mechanics belong in NoTouchUnits.lua (and are enforced by isSafeToAttack()).
 br.lists.shieldUnits = {
 	--[[===========================]]
 	--[[  CLASSIC / VANILLA (60)   ]]

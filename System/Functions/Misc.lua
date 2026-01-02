@@ -315,16 +315,6 @@ function misc:hasEmptySlots()
 	end
 end
 
--- if hasGlyph(1234) == true then
-function misc:hasGlyph(glyphid)
-	for i = 1, 6 do
-		if select(4, br._G.GetGlyphSocketInfo(i)) == glyphid or select(6, br._G.GetGlyphSocketInfo(i)) == glyphid then
-			return true
-		end
-	end
-	return false
-end
-
 -- UnitGUID("target"):sub(-15,-10)
 
 --if isGarrMCd() then
@@ -687,7 +677,25 @@ function misc:isValidUnit(Unit)
 	local playerTarget = br.functions.unit:GetUnitIsUnit(Unit, "target")
 	local reaction = br.functions.unit:GetUnitReaction(Unit, "player") or 10
 	local targeting = br.functions.misc:isTargeting(Unit)
-	local dummy = br.functions.unit:isDummy(Unit)
+	-- Dummies have special handling:
+	-- They should only be treated as "valid" when they are your current target OR
+	-- when you have a dummy targeted and this unit is within 8 yards of that targeted dummy.
+	-- Otherwise, dummies follow the standard validation path (and generally won't be considered valid without threat/targeting).
+	local isDummy = br.functions.unit:isDummy(Unit)
+	local dummyEligible = false
+	if isDummy then
+		if playerTarget then
+			dummyEligible = true
+		else
+			-- Nearby-dummy allowance for cleave testing: allow other dummies near the targeted dummy.
+			if br.functions.unit:GetObjectExists("target") and br.functions.unit:isDummy("target") then
+				local distToTarget = br.functions.range:getDistance(Unit, "target")
+				if distToTarget ~= nil and distToTarget <= 8 then
+					dummyEligible = true
+				end
+			end
+		end
+	end
 	local burnUnit = br.functions.misc:getOptionCheck("Forced Burn") and br.engines.enemiesEngineFunctions:isBurnTarget(Unit) > 0
 	local isCC = br.functions.misc:getOptionCheck("Don't break CCs") and br.functions.misc:isLongTimeCCed(Unit) or false
 	local mcCheck = (br.functions.misc:isChecked("Attack MC Targets") and (not br.functions.unit:GetUnitIsFriend(Unit, "player") or (br._G.UnitIsCharmed(Unit) and br._G.UnitCanAttack("player", Unit))))
@@ -707,10 +715,10 @@ function misc:isValidUnit(Unit)
 	-- Also allow units that have threat on the group (targeting tank/party) even if not in units table yet
 	local inUnitsTable = br.engines.enemiesEngine.units[Unit] ~= nil
 	local hasThreat = br.functions.combat:hasThreat(Unit)
-	local passedEnemyCheck = inUnitsTable or (playerTarget and br.functions.misc:enemyListCheck(Unit)) or burnUnit or dummy or hasThreat
+	local passedEnemyCheck = inUnitsTable or (playerTarget and br.functions.misc:enemyListCheck(Unit)) or burnUnit or dummyEligible or hasThreat
 
 	-- Fast path for special units (dummy/burn) - skip most checks
-	if passedEnemyCheck and mcCheck and not isCC and (dummy or burnUnit) then
+	if passedEnemyCheck and mcCheck and not isCC and (dummyEligible or burnUnit) then
 		return true
 	end
 

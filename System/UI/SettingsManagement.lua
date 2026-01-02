@@ -379,33 +379,42 @@ function settingsManagement:cleanSettings()
 		-- Check if Power toggle is off - if so, skip cleaning as UI was never built
 		if br.data.settings[br.loader.selectedSpec] and br.data.settings[br.loader.selectedSpec].toggles and
 			br.data.settings[br.loader.selectedSpec].toggles["Power"] ~= 1 then
-			-- br._G.print("|cffFF8800[cleanSettings] System was toggled off - skipping settings cleanup to prevent data loss|r")
+			br._G.print("|cffFF8800[cleanSettings] System toggled off - skipping cleanup|r")
 			return
 		end
+
+		-- Check if br.data.ui exists and has actual page data before attempting cleanup
+		-- This prevents cleaning when UI hasn't been fully initialized yet
+		if not br.data.ui then
+			br._G.print("|cffFF8800[cleanSettings] br.data.ui is nil - skipping cleanup|r")
+			return
+		end
+
+		-- Count how many pages exist in br.data.ui (excluding meta keys like PageList, currentPage, totalPages)
+		local uiPageCount = 0
+		for pageName, pageData in pairs(br.data.ui) do
+			if type(pageData) == "table" and pageName ~= "PageList" and pageName ~= "currentPage" and pageName ~= "totalPages" then
+				uiPageCount = uiPageCount + 1
+			end
+		end
+
+		-- If no actual pages exist in br.data.ui, skip cleaning
+		if uiPageCount == 0 then
+			br._G.print("|cffFF8800[cleanSettings] No UI pages found (count: " .. uiPageCount .. ") - skipping cleanup|r")
+			return
+		end
+
+		br._G.print("|cffFFDD00[cleanSettings] Starting cleanup with " .. uiPageCount .. " UI pages|r")
 
 		if br.data.settings[br.loader.selectedSpec] and br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile] then
 			local settings = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]
 			local removedItems = {}
 
-			-- Ensure all pages in all windows are created so br.data.ui is complete
-			if br.ui and br.ui.window then
-				for windowName, window in pairs(br.ui.window) do
-					if type(window) == "table" and window.pageDD then
-						local pageDD = window.pageDD
-						if pageDD.settings and pageDD.settings.list then
-							local currentPage = pageDD.value or 1
-							-- Visit each page to force creation
-							for i = 1, #pageDD.settings.list do
-								pageDD:SetValue(i)
-							end
-							-- Restore original page
-							pageDD:SetValue(currentPage)
-						end
-					end
-				end
-			end
+			-- DON'T iterate through pages - causes issues with timing
+			-- Pages will be created as needed when user visits them
+			-- We'll only clean settings that are definitely orphaned
 
-			-- Now check for orphaned settings using the complete br.data.ui registry
+			-- Now check for orphaned settings using the br.data.ui registry
 			if not br.data.ui then
 				br._G.print("|cffFF8800[cleanSettings] br.data.ui is nil after forcing page creation|r")
 				return
@@ -415,11 +424,19 @@ function settingsManagement:cleanSettings()
 				if type(pageData) == "table" and type(page) == "string" then
 					-- Check if this is an actual page (not PageList, currentPage, etc.)
 					if page ~= "PageList" and page ~= "currentPage" and page ~= "totalPages" then
-						for option, _ in pairs(pageData) do
-							-- Check if this option exists in br.data.ui for THIS specific page
-							if not br.data.ui[page] or br.data.ui[page][option] == nil then
-								settings[page][option] = nil
-								table.insert(removedItems, option:gsub(" Check", ""):gsub(" Drop", ""):gsub(" Status", "") .. " from " .. page)
+						-- Check if this page exists in br.data.ui
+						if not br.data.ui[page] then
+							-- Page doesn't exist in UI registry - this might be normal if page hasn't been created yet
+							-- Don't wipe settings for pages that haven't been visited/created
+							-- br._G.print("|cffFFDD00[cleanSettings] Skipping page '" .. page .. "' - not in UI registry (not created yet)|r")
+						else
+							-- Page exists in UI, check individual options
+							for option, _ in pairs(pageData) do
+								-- Check if this option exists in br.data.ui for THIS specific page
+								if br.data.ui[page][option] == nil then
+									settings[page][option] = nil
+									table.insert(removedItems, option:gsub(" Check", ""):gsub(" Drop", ""):gsub(" Status", "") .. " from " .. page)
+								end
 							end
 						end
 					end
@@ -479,7 +496,8 @@ function settingsManagement:loadSettings(folder, class, spec, profile, instance)
 		if fileFound then
 			br.ui:closeWindow("all")
 			br.data = settingsManagement:deepcopy(brdata)
-			-- Clear br.data.ui from loaded settings - it will be rebuilt when UI is created
+			-- Clear br.data.ui from loaded settings - it should NOT be loaded from disk
+			-- It will be rebuilt when UI is created and populated as pages are visited
 			br.data.ui = nil
 			if profileFound then
 				settingsManagement.profile = settingsManagement:deepcopy(brprofile)

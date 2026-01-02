@@ -2,7 +2,10 @@ local _, br = ...
 if br.lists == nil then
     br.lists = {}
 end
--- No Touch Units = List of units that we should not attack for any reason
+-- No Touch Units: hard "do not attack" rules (invulnerability/phase/reflect/encounter mechanics).
+-- This list is enforced by enemiesEngineFunctions:isSafeToAttack() and should REMOVE/INVALIDATE targets.
+-- If a unit is merely taking reduced damage (but still attackable), prefer adding it to ShieldUnits.lua
+-- so it is only deprioritized when "Avoid Shields" is enabled.
 br.lists.noTouchUnits = {
     --[[===========================]]
     --[[  CLASSIC / VANILLA (60)   ]]

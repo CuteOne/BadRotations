@@ -141,12 +141,12 @@ br.api.module = function(self)
         -- Abilities - Call, module.BasicHealing(), in your rotation to use these
         if section == nil then
             -- Health Potion / Stones
-            if getOption("Healthstone/Potion", "Check") and unit.inCombat() and unit.hp() <= getOption("Healthstone/Potion", "Value") then
+            if ui.checked("Healthstone/Potion") and unit.inCombat() and unit.hp() <= ui.value("Healthstone/Potion") then
                 --Health Pot should be first since it's the greatest heal; healthstones second
                 local healPot = BestHealingPotion()
                 if healPot ~= nil and has.item(healPot) and br.functions.item:canUseItem(healPot) then
                     if use.item(healPot) then
-                        ui.debug("using Healing Potion")
+                        ui.debug("Using Healing Potion")
                         return true
                     end
                 end
@@ -166,7 +166,7 @@ br.api.module = function(self)
                 -- end
             end
             -- Heirloom Neck
-            if getOption("Heirloom Neck", "Check") and unit.hp() <= getOption("Heirloom Neck", "Value") and not unit.inCombat() then
+            if ui.checked("Heirloom Neck") and unit.hp() <= ui.value("Heirloom Neck") and not unit.inCombat() then
                 if use.able.heirloomNeck() and item.heirloomNeck ~= 0 and item.heirloomNeck ~= item.manariTrainingAmulet then
                     if use.heirloomNeck() then
                         ui.debug("Using Heirloom Neck")
@@ -175,8 +175,8 @@ br.api.module = function(self)
                 end
             end
             -- Gift of the Naaru
-            if getOption("Gift of the Naaru", "Check") and unit.race() == "Draenei"
-                and unit.inCombat() and unit.hp() <= getOption("Gift of the Naaru", "Value")
+            if ui.checked("Gift of the Naaru") and unit.race() == "Draenei"
+                and unit.inCombat() and unit.hp() <= ui.value("Gift of the Naaru")
             then
                 if cast.racial() then
                     ui.debug("Casting Gift of the Naaru")

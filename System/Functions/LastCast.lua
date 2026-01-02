@@ -5,8 +5,10 @@ local lastCast = br.functions.lastCast
 lastCast.lastCastTable = {}
 lastCast.lastCastTable.tracker = {}
 lastCast.lastCastTable.castTime = {}
+lastCast.lastCastTable.failedTime = {}
 local tracker = lastCast.lastCastTable.tracker
 local castTime = lastCast.lastCastTable.castTime
+local failedTime = lastCast.lastCastTable.failedTime
 local waitForSuccess
 local lastCastFrame = br._G.CreateFrame("Frame")
 
@@ -79,6 +81,12 @@ local function eventTracker(_, event, ...)
                 br._G.tremove(tracker, 1)
                 waitForSuccess = nil
                 lastCast.lastCast= tracker[1]
+            end
+            if event == "UNIT_SPELLCAST_FAILED" or event == "UNIT_SPELLCAST_FAILED_QUIET" or event == "UNIT_SPELLCAST_INTERRUPTED" then
+                failedTime[spellID] = br._G.GetTime()
+                lastCast.lastCastTable.lastFailedSpellID = spellID
+                lastCast.lastCastTable.lastFailedAt = failedTime[spellID]
+                lastCast.lastCastTable.lastFailedEvent = event
             end
         end
     end

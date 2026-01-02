@@ -279,89 +279,173 @@ end
 -- end
 
 function custom:castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange, spellType, castTime)
-    local allUnitsInRange = (spellType == "heal") and br.engines.healingEngineFunctions:getAllies("player", maxRange) or
-        br.engines.enemiesEngineFunctions:getEnemies("player", maxRange, false)
+    -- Finds the best ground location (within spell range) that maximizes the number of units inside a
+    -- fixed-radius circle. If the maximum hit count is >= minUnits, casts at that location.
+    --
+    -- NOTE: castTime is currently unused; reliable movement prediction is not available here.
 
-    local bestLocation = nil
-    local maxHitCount = 0
+    local _, _, _, _, spellMinRange, spellMaxRange = br._G.GetSpellInfo(spellID)
+    minRange = minRange or spellMinRange or 0
+    maxRange = maxRange or spellMaxRange or 5
+    radius = radius or maxRange
+    minUnits = minUnits or 1
+
+    local allUnitsInRange = (spellType == "heal")
+        and br.engines.healingEngineFunctions:getAllies("player", maxRange)
+        or br.engines.enemiesEngineFunctions:getEnemies("player", maxRange, false)
+
+    if not allUnitsInRange or #allUnitsInRange == 0 then return false end
+
     local playerX, playerY, playerZ = br.functions.unit:GetObjectPosition("player")
 
-    local function GetUnitMovementDirectionAndSpeed(unit)
-        -- Placeholder function: In practice, this would require complex calculations
-        -- and might not be entirely accurate due to unpredictable player behavior.
-        local direction = 0 -- Direction the unit is moving in radians
-        local speed = 0     -- Speed of the unit
-
-        -- You would need to calculate the actual direction and speed based on the unit's movement.
-        -- World of Warcraft's API may not provide direct methods to get these values accurately.
-
-        return direction, speed
+    local function dist2(x1, y1, x2, y2)
+        local dx, dy = x2 - x1, y2 - y1
+        return dx * dx + dy * dy
     end
 
-    local function GetFuturePosition(unit, castTime)
-        -- Get the current position of the unit
-        local currentX, currentY, currentZ = br.functions.unit:GetObjectPosition(unit)
-
-        -- Estimate the unit's current movement direction and speed
-        -- This is a simplified example. In practice, this can be quite complex.
-        local direction, speed = GetUnitMovementDirectionAndSpeed(unit)
-
-        -- Calculate the future position based on current position, direction, speed, and castTime
-        local futureX = currentX + speed * castTime * math.cos(direction)
-        local futureY = currentY + speed * castTime * math.sin(direction)
-        local futureZ = currentZ -- Assuming no vertical movement for simplicity
-
-        return futureX, futureY, futureZ
+    local function inSpellRange(cx, cy, cz)
+        local d = math.sqrt(dist2(playerX, playerY, cx, cy))
+        return d <= maxRange and d >= (minRange or 0)
     end
 
-    local function IsWithinRadiusFuture(center, target, radius, castTime)
-        local futureCenterX, futureCenterY = GetFuturePosition(center, castTime)
-        local futureTargetX, futureTargetY = GetFuturePosition(target, castTime)
-        local dx, dy = futureCenterX - futureTargetX, futureCenterY - futureTargetY
-        return (dx * dx + dy * dy) <= (radius * radius)
-    end
-
-    local function CalculateFutureClusterCenter(cluster, castTime)
-        local sumX, sumY, sumZ = 0, 0, 0
-        for _, unit in ipairs(cluster) do
-            local x, y, z = GetFuturePosition(unit, castTime)
-            sumX = sumX + x
-            sumY = sumY + y
-            sumZ = sumZ + z
+    -- Build a compact list of points we can evaluate.
+    local points = {}
+    for i = 1, #allUnitsInRange do
+        local unitObj = allUnitsInRange[i]
+        local unitToken = (spellType == "heal" and unitObj.unit) or unitObj
+        if unitToken then
+            local x, y, z = br.functions.unit:GetObjectPosition(unitToken)
+            if x and y and z then
+                points[#points + 1] = { unit = unitToken, x = x, y = y, z = z }
+            end
         end
-        return {
-            x = sumX / #cluster,
-            y = sumY / #cluster,
-            z = sumZ / #cluster
-        }
     end
 
-    local function GetDistance(x1, y1, x2, y2)
-        return math.sqrt((x2 - x1) ^ 2 + (y2 - y1) ^ 2)
+    if #points == 0 then return false end
+
+    local candidates = {}
+
+    -- Candidate centers: every unit position.
+    for i = 1, #points do
+        local p = points[i]
+        candidates[#candidates + 1] = { x = p.x, y = p.y, z = p.z }
     end
 
-    for _, potentialCenter in ipairs(allUnitsInRange) do
-        local hitCount = 0
-        local cluster = {}
+    -- Candidate centers: circle intersection points for each pair within 2*radius.
+    -- Standard algorithm: for two points p1, p2 with distance d <= 2r,
+    -- compute midpoint m and perpendicular offset h to get two possible centers.
+    local r = radius
+    local r2 = r * r
+    local maxPairDist2 = (2 * r) * (2 * r)
 
-        for _, target in ipairs(allUnitsInRange) do
-            if IsWithinRadiusFuture(potentialCenter, target, radius, castTime) then
-                hitCount = hitCount + 1
-                table.insert(cluster, target)
+    local function getHitInfoAt(cx, cy, cz)
+        local count = 0
+        local sumX, sumY, sumZ = 0, 0, 0
+        for j = 1, #points do
+            local p = points[j]
+            if dist2(cx, cy, p.x, p.y) <= r2 then
+                count = count + 1
+                sumX = sumX + p.x
+                sumY = sumY + p.y
+                sumZ = sumZ + p.z
+            end
+        end
+        if count == 0 then
+            return 0, nil, nil
+        end
+        local centroid = { x = sumX / count, y = sumY / count, z = sumZ / count }
+
+        -- Centering score: minimize the maximum distance from centroid to any covered unit.
+        local maxDistToCentroid2 = 0
+        for j = 1, #points do
+            local p = points[j]
+            if dist2(cx, cy, p.x, p.y) <= r2 then
+                local d2 = dist2(centroid.x, centroid.y, p.x, p.y)
+                if d2 > maxDistToCentroid2 then
+                    maxDistToCentroid2 = d2
+                end
             end
         end
 
-        local clusterCenter = CalculateFutureClusterCenter(cluster, castTime)
-        local distanceFromPlayer = GetDistance(playerX, playerY, clusterCenter.x, clusterCenter.y)
-
-        if hitCount >= minUnits and hitCount > maxHitCount and distanceFromPlayer >= minRange then
-            bestLocation = clusterCenter
-            maxHitCount = hitCount
+        return count, centroid, maxDistToCentroid2
+    end
+    for i = 1, #points - 1 do
+        local p1 = points[i]
+        for j = i + 1, #points do
+            local p2 = points[j]
+            local dSq = dist2(p1.x, p1.y, p2.x, p2.y)
+            if dSq > 0 and dSq <= maxPairDist2 then
+                local d = math.sqrt(dSq)
+                local mx, my = (p1.x + p2.x) / 2, (p1.y + p2.y) / 2
+                local hSq = r2 - (d * d) / 4
+                if hSq >= 0 then
+                    local h = math.sqrt(hSq)
+                    local ux, uy = (p2.x - p1.x) / d, (p2.y - p1.y) / d
+                    local px, py = -uy, ux
+                    local z = (p1.z + p2.z) / 2
+                    candidates[#candidates + 1] = { x = mx + px * h, y = my + py * h, z = z }
+                    candidates[#candidates + 1] = { x = mx - px * h, y = my - py * h, z = z }
+                end
+            end
         end
     end
 
-    if bestLocation and maxHitCount >= minUnits then
-        -- Cast the spell at the bestLocation
+    local bestLocation = nil
+    local bestCentroid = nil
+    local bestCount = 0
+    local bestMaxDistToCentroid2 = nil
+    local bestDistToPlayer2 = nil
+
+    for i = 1, #candidates do
+        local c = candidates[i]
+        if inSpellRange(c.x, c.y, c.z) then
+            local count, centroid, maxDistToCentroid2 = getHitInfoAt(c.x, c.y, c.z)
+
+            if count > bestCount then
+                bestCount = count
+                bestLocation = c
+                bestCentroid = centroid
+                bestMaxDistToCentroid2 = maxDistToCentroid2
+                bestDistToPlayer2 = dist2(playerX, playerY, c.x, c.y)
+            elseif count == bestCount and bestCount > 0 then
+                -- Tie-breaker order:
+                -- 1) More centered (smaller max distance to centroid)
+                -- 2) Closer to player (minor preference)
+                if centroid and maxDistToCentroid2 then
+                    if (not bestMaxDistToCentroid2) or (maxDistToCentroid2 < bestMaxDistToCentroid2) then
+                        bestLocation = c
+                        bestCentroid = centroid
+                        bestMaxDistToCentroid2 = maxDistToCentroid2
+                        bestDistToPlayer2 = dist2(playerX, playerY, c.x, c.y)
+                    elseif maxDistToCentroid2 == bestMaxDistToCentroid2 then
+                        local d2 = dist2(playerX, playerY, c.x, c.y)
+                        if not bestDistToPlayer2 or d2 < bestDistToPlayer2 then
+                            bestLocation = c
+                            bestCentroid = centroid
+                            bestDistToPlayer2 = d2
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    -- If we found a best cluster, try snapping the cast to the centroid of the covered group.
+    -- This keeps the same hit count when possible, and avoids placing the pack on the edge.
+    if bestCentroid and inSpellRange(bestCentroid.x, bestCentroid.y, bestCentroid.z) then
+        local centroidCount = 0
+        for j = 1, #points do
+            local p = points[j]
+            if dist2(bestCentroid.x, bestCentroid.y, p.x, p.y) <= r2 then
+                centroidCount = centroidCount + 1
+            end
+        end
+        if centroidCount == bestCount then
+            bestLocation = bestCentroid
+        end
+    end
+
+    if bestLocation and bestCount >= minUnits then
         return br.functions.cast:castAtPosition(bestLocation.x, bestLocation.y, bestLocation.z, spellID)
     end
 
@@ -419,7 +503,7 @@ function custom:castBossButton(target)
         br._G.RunMacroText("/click ExtraActionButton1")
         return true
     else
-        br._G.TargetUnit(target)
+        -- br._G.TargetUnit(target)
         br._G.RunMacroText("/click ExtraActionButton1")
         return true
     end

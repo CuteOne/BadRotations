@@ -13,6 +13,8 @@ tracker._maxDrawDistance = tracker._maxDrawDistance or 200 -- max distance to dr
 tracker._cache = tracker._cache or {}
 tracker._moveThreshold = tracker._moveThreshold or 0.25 -- meters to consider movement
 tracker._lastCount = tracker._lastCount or 0
+tracker._customTerms = tracker._customTerms or {}
+tracker._customTermsKey = tracker._customTermsKey or nil
 
 
 local function getCastTime(unit)
@@ -36,11 +38,13 @@ local function isInteracting(unit)
     return interactTime > time
 end
 
-local function trackObject(object, isUnit, name, objectid, objectguid, interact, pX, pY, pZ)
+local function trackObject(object, isUnit, name, objectid, objectguid, interact, pX, pY, pZ, xOb, yOb, zOb, distance, drawLines, showExtraInfo, autoInteractEnabled)
     if not br._G.ObjectExists(object) then return end
     -- Allow caller to pass player position to avoid repeated lookups
     if not pX then pX, pY, pZ = br._G.ObjectPosition("player") end
-    local xOb, yOb, zOb = br._G.ObjectPosition(object)
+    if not xOb then
+        xOb, yOb, zOb = br._G.ObjectPosition(object)
+    end
     if zOb == nil then zOb = pZ end
     if zOb == nil then return end
     if interact == nil then
@@ -50,7 +54,9 @@ local function trackObject(object, isUnit, name, objectid, objectguid, interact,
     local zDifference = math.floor(zOb - pZ)
     if xOb ~= nil then
         -- Cull distant objects early to avoid expensive draw calls
-        local distance = br._G.GetDistanceBetweenPositions(pX, pY, pZ, xOb, yOb, zOb)
+        if not distance then
+            distance = br._G.GetDistanceBetweenPositions(pX, pY, pZ, xOb, yOb, zOb)
+        end
         if distance > tracker._maxDrawDistance then return end
         if math.abs(zDifference) > 50 then
             LibDraw.SetColor(255, 0, 0, 100)
@@ -68,11 +74,13 @@ local function trackObject(object, isUnit, name, objectid, objectguid, interact,
         -- if name == "" or name == "Unknown" then
         --     name = isUnit and br._G.UnitName(object) or nil
         -- end
-        if br.functions.misc:isChecked("Display Extra Info") then
+        if showExtraInfo == nil then showExtraInfo = br.functions.misc:isChecked("Display Extra Info") end
+        if showExtraInfo then
             name = name .. "  [" .. objectid .. "] " .. "\n" .. objectguid .. "  [ZDiff: " .. zDifference .. "]"
         end
         LibDraw.Text(name, "GameFontNormal", xOb, yOb, zOb + 3)
-        if br.functions.misc:isChecked("Draw Lines to Tracked Objects") then
+        if drawLines == nil then drawLines = br.functions.misc:isChecked("Draw Lines to Tracked Objects") end
+        if drawLines then
             if math.abs(zDifference) > 50 then
                 LibDraw.SetColor(255, 0, 0, 80)
             else
@@ -82,7 +90,8 @@ local function trackObject(object, isUnit, name, objectid, objectguid, interact,
         end
         -- local hasLoot = br._G.CanLootUnit(objectguid)
         -- local interacting = isInteracting("player")
-        if br.functions.misc:isChecked("Auto Interact with Any Tracked Object") and interact and not br.player.inCombat
+        if autoInteractEnabled == nil then autoInteractEnabled = br.functions.misc:isChecked("Auto Interact with Any Tracked Object") end
+        if autoInteractEnabled and interact and not br.player.inCombat
             and distance <= 7 and
             not br.functions.cast:isUnitCasting("player") and not br.functions.misc:isMoving("player")
             and not isInteracting("player") -- Only interact if not already interacting
@@ -109,7 +118,19 @@ br.engines.tracker.tracking = {}
 function tracker:objectTracker()
     if br.functions.misc:isChecked("Enable Tracker") then
         local now = br._G.GetTime()
-        if now - (tracker._lastUpdate or 0) < tracker._updateInterval then return end
+
+        -- Adaptive redraw interval: smoother when FPS is good, lighter when FPS is low.
+        local fps = (br.engines.enemiesEngine and br.engines.enemiesEngine.cachedFPS) or br._G.GetFramerate() or 60
+        local interval = tracker._updateInterval
+        if fps < 30 then
+            if interval < 0.15 then interval = 0.15 end
+        elseif fps < 45 then
+            if interval < 0.10 then interval = 0.10 end
+        elseif fps > 55 then
+            if interval > 0.05 then interval = 0.05 end
+        end
+
+        if now - (tracker._lastUpdate or 0) < interval then return end
         tracker._lastUpdate = now
         -- Cache commonly used objects; call methods with colon to preserve self
         local misc = br.functions.misc
@@ -120,12 +141,36 @@ function tracker:objectTracker()
         local inCombatPlayer = misc:isInCombat("player")
         local inInstance = br._G.IsInInstance()
 
+        -- Cache draw-related toggles once per update (avoid per-object option checks)
+        local drawLines = misc:isChecked("Draw Lines to Tracked Objects")
+        local showExtraInfo = misc:isChecked("Display Extra Info")
+        local autoInteract = misc:isChecked("Auto Interact with Any Tracked Object")
+
+        -- Pre-parse custom search terms once per update (avoid per-object string.gmatch/strupper)
+        if showCustom and customValue ~= "" and string.len(customValue) >= 3 then
+            if tracker._customTermsKey ~= customValue then
+                tracker._customTermsKey = customValue
+                br._G.wipe(tracker._customTerms)
+                for k in string.gmatch(customValue, "([^,]+)") do
+                    local term = br._G.string.trim(k)
+                    if term and string.len(term) >= 3 then
+                        tracker._customTerms[#tracker._customTerms + 1] = br._G.strupper(term)
+                    end
+                end
+            end
+        else
+            tracker._customTermsKey = nil
+            br._G.wipe(tracker._customTerms)
+        end
+
         -- Only proceed if any tracker mode is active
-        if (showCustom and customValue ~= "" and string.len(customValue) >= 3) or showRare or showQuest then
+        if ((showCustom and #tracker._customTerms > 0) or showRare or showQuest) then
             local pX, pY, pZ = br._G.ObjectPosition("player")
             local t = br.engines.tracker.tracking
             local n = #t
-            local newCache = {}
+            local newCache = tracker._scratchCache or {}
+            tracker._scratchCache = newCache
+            br._G.wipe(newCache)
             local redrawNeeded = false
 
             -- First pass: collect positions and decide if redraw is needed
@@ -150,15 +195,11 @@ function tracker:objectTracker()
                         end
                     end
                     if showCustom and not track then
-                        for k in string.gmatch(customValue, "([^,]+)") do
-                            local searchTerm = br._G.string.trim(k)
-                            if string.len(searchTerm) >= 3 then
-                                local upperName = br._G.strupper(name)
-                                local upperSearch = br._G.strupper(searchTerm)
-                                if upperName:find(upperSearch, 1, true) then
-                                    track = true
-                                    break
-                                end
+                        local upperName = br._G.strupper(name)
+                        for idx = 1, #tracker._customTerms do
+                            if upperName:find(tracker._customTerms[idx], 1, true) then
+                                track = true
+                                break
                             end
                         end
                     end
@@ -185,7 +226,6 @@ function tracker:objectTracker()
                             if xOb then
                                 local distance = br._G.GetDistanceBetweenPositions(pX, pY, pZ, xOb, yOb, zOb)
                                 if distance <= tracker._maxDrawDistance then
-                                    newCache[object] = { x = xOb, y = yOb, z = zOb, entry = entry, distance = distance }
                                     local old = tracker._cache[object]
                                     if not old then
                                         redrawNeeded = true
@@ -197,6 +237,13 @@ function tracker:objectTracker()
                                             redrawNeeded = true
                                         end
                                     end
+
+                                    local cached = old or {}
+                                    cached.x, cached.y, cached.z = xOb, yOb, zOb
+                                    cached.entry = entry
+                                    cached.distance = distance
+                                    cached.interact = interact
+                                    newCache[object] = cached
                                 end
                             end
                         end
@@ -212,8 +259,11 @@ function tracker:objectTracker()
                 LibDraw:clearCanvas()
                 for object, data in pairs(newCache) do
                     local e = data.entry
-                    -- reuse existing trackObject drawing logic; pass player pos
-                    trackObject(object, e.unit, e.name, e.id, e.guid, nil, pX, pY, pZ)
+                    -- reuse existing trackObject drawing logic; pass cached coords/distance and per-update option flags
+                    trackObject(object, e.unit, e.name, e.id, e.guid,
+                        data.interact,
+                        pX, pY, pZ, data.x, data.y, data.z, data.distance,
+                        drawLines, showExtraInfo, autoInteract)
                 end
                 tracker._cache = newCache
                 tracker._lastCount = n
