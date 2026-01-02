@@ -52,8 +52,6 @@ local function createOptions()
         br.ui:createCheckbox(section, "Death Grip")
         -- Horn of Winter
         br.ui:createCheckbox(section, "Horn of Winter")
-        -- Pillar of Frost
-        br.ui:createCheckbox(section, "Pillar of Frost")
         -- Lichborne: allow breaking CC and enable self-heal via Death Coil
         br.ui:createCheckbox(section, "Lichborne")
         br.ui:createSpinnerWithout(section, "Lichborne Heal At", 35, 0, 95, 5,
@@ -69,6 +67,8 @@ local function createOptions()
         br.ui:createDropdownWithout(section, "Army of the Dead", alwaysCdAoENever, 3, "|cffFFFFFFWhen to use Army of the Dead.")
         -- Empower Rune Weapon
         br.ui:createDropdownWithout(section, "Empower Rune Weapon", alwaysCdAoENever, 3, "|cffFFFFFFWhen to use Empower Rune Weapon.")
+        -- Pillar of Frost
+        br.ui:createDropdownWithout(section, "Pillar of Frost", alwaysCdAoENever, 3, "|cffFFFFFFWhen to use Pillar of Frost.")
         -- Raise Dead
         br.ui:createDropdownWithout(section, "Raise Dead", alwaysCdAoENever, 3, "|cffFFFFFFWhen to use Raise Dead.")
         br.ui:checkSectionState(section)
@@ -78,7 +78,16 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
         -- Death Strike
         br.ui:createSpinner(section, "Death Strike", 50, 0, 95, 5,
-            "|cffFFFFFFHealth Percent to Cast At (0 is random)")
+            "|cffFFFFFFHealth Percent to Cast At")
+        -- Death Pact
+        br.ui:createSpinner(section, "Death Pact", 30, 0, 95, 5,
+            "|cffFFFFFFHealth Percent to Cast Death Pact At")
+        -- Raise Dead to enable Death Pact
+        br.ui:createSpinner(section, "Death Pact Raise Dead", 30, 0, 95, 5,
+            "|cffFFFFFFHealth Percent to Cast Raise Dead and Death Pact At")
+        -- Icebound Fortitude
+        br.ui:createSpinner(section, "Icebound Fortitude", 40, 0, 95, 5,
+            "|cffFFFFFFHealth Percent to Cast At")
         br.ui:checkSectionState(section)
         -------------------------
         --- INTERRUPT OPTIONS ---
@@ -157,16 +166,63 @@ end -- End Action List - Extra
 -- Action List - Defensive
 actionList.Defensive = function()
     if ui.useDefensive() then
-        -- Death Strike
+        -- * Death Pact: try to use if available, otherwise optionally raise ghoul to enable
+        if ui.checked("Death Pact") then
+            -- If Death Pact is available, use it
+            if cast.able.deathPact() and GetTime() < var.raiseDeadExpiresAt
+                and unit.hp("player") <= ui.value("Death Pact")
+            then
+                if cast.deathPact() then
+                    ui.debug("Casting Death Pact [Defensive]")
+                    return true
+                end
+            end
+            -- If not available, optionally raise ghoul to enable Death Pact
+            if ui.checked("Death Pact Raise Dead") and cast.able.raiseDead()
+                and unit.hp("player") <= ui.value("Death Pact Raise Dead")
+            then
+                if cast.raiseDead() then
+                    ui.debug("Casting Raise Dead - to enable Death Pact [Defensive]")
+                    var.raiseDeadExpiresAt = GetTime() + 60
+                    return true
+                end
+            end
+        end
+        -- * Death Strike (Dark Succor)
+        if ui.checked("Death Strike") and unit.inCombat() and buff.darkSuccor.exists() then
+            for i = 1, #enemies.yards5f do
+                local thisUnit = enemies.yards5f[i]
+                if buff.darkSuccor.exists()
+                    and (buff.darkSuccor.remain() < unit.gcd(true) or unit.ttd(thisUnit) < unit.gcd(true) or unit.hp("player") <= 80)
+                then
+                    if buff.darkSuccor.exists() and cast.able.deathStrike(thisUnit) then
+                        if cast.deathStrike(thisUnit) then
+                            ui.debug("Casting Death Strike - Dark Succor [Defensive]")
+                            return true
+                        end
+                    end
+                end
+            end
+        end
+        -- * Death Strike
         if ui.checked("Death Strike") and cast.able.deathStrike() then
-            if unit.health("player") <= tonumber(ui.value("Death Strike")) and runes.frost() > 0 and runes.unholy() > 0 then
+            if unit.hp("player") <= tonumber(ui.value("Death Strike")) and runes.frost() > 0 and runes.unholy() > 0 then
                 if cast.deathStrike() then
                     ui.debug("Casting Death Strike [Defensive]")
                     return true
                 end
             end
         end
-        -- Lichborne: break CC or enable self-heal via Death Coil
+        -- * Icebound Fortitude
+        if ui.checked("Icebound Fortitude") and cast.able.iceboundFortitude() and not unit.inCombat() then
+            if unit.hp("player") <= tonumber(ui.value("Icebound Fortitude")) then
+                if cast.iceboundFortitude() then
+                    ui.debug("Casting Icebound Fortitude [Defensive]")
+                    return true
+                end
+            end
+        end
+        -- * Lichborne: break CC or enable self-heal via Death Coil
         if ui.checked("Lichborne") and talent.lichborne then
             -- Break CC: Charm / Fear / Sleep
             if cast.able.lichborne() and cast.noControl.lichborne() then
@@ -177,7 +233,7 @@ actionList.Defensive = function()
             end
             -- Self-heal: if lichborne buff present, cast Death Coil on player
             if buff.lichborne.exists() then
-                if cast.able.deathCoil("player") and unit.health("player") <= tonumber(ui.value("Lichborne Heal At")) then
+                if cast.able.deathCoil("player") and unit.hp("player") <= tonumber(ui.value("Lichborne Heal At")) then
                     if cast.deathCoil("player") then
                         ui.debug("Casting Death Coil -> Heal Self (via Lichborne) [Defensive]")
                         return true
@@ -185,7 +241,7 @@ actionList.Defensive = function()
                 end
             else
                 -- If low health and Lichborne is available, cast it to enable the heal next tick
-                if cast.able.lichborne() and unit.health("player") <= tonumber(ui.value("Lichborne Heal At")) then
+                if cast.able.lichborne() and unit.hp("player") <= tonumber(ui.value("Lichborne Heal At")) then
                     if cast.lichborne() then
                         ui.debug("Casting Lichborne - Prepare Self-Heal [Defensive]")
                         return true
@@ -202,14 +258,14 @@ actionList.Interrupts = function()
         for i = 1, #enemies.yards30 do
             local thisUnit = enemies.yards30[i]
             if unit.interruptable(thisUnit, ui.value("Interrupt At")) and unit.distance(thisUnit) > 8 then
-                -- Strangulate
+                -- * Strangulate
                 if ui.checked("Strangulate") and cast.able.strangulate(thisUnit) and runes.blood() > 0 then
                     if cast.strangulate(thisUnit) then
                         ui.debug("Casting Strangulate [Int]")
                         return true
                     end
                 end
-                -- Death Grip
+                -- * Death Grip
                 if ui.checked("Death Grip (Interrupt)") and cast.able.deathGrip()
                     and (not spell.strangulate.known() or (cd.strangulate.remains() > 0 and cd.strangulate.remains() < 55))
                 then
@@ -223,7 +279,7 @@ actionList.Interrupts = function()
         for i = 1, #enemies.yards5 do
             local thisUnit = enemies.yards5[i]
             if unit.interruptable(thisUnit, ui.value("Interrupt At")) then
-                -- Mind Freeze
+                -- * Mind Freeze
                 if ui.checked("Mind Freeze") and cast.able.mindFreeze(thisUnit) then
                     if cast.mindFreeze(thisUnit) then
                         ui.debug("Casting Mind Freeze [Int]")
@@ -237,196 +293,214 @@ end -- End Action List - Interrupts
 
 -- Action List - AOE
 actionList.AOE = function()
-    -- Unholy Blight
+    -- * Unholy Blight
     -- unholy_blight,if=talent.unholy_blight.enabled
     if talent.unholyBlight and cast.able.unholyBlight(nil,"aoe",1,8) then
         if cast.unholyBlight(nil,"aoe",1,8) then ui.debug("Casting Unholy Blight [AOE]") return true end
     end
-    -- Pestilence (spread plague if blood_plague ticking and talent)
+    -- * Pestilence (spread plague if blood_plague ticking and talent)
     -- pestilence,if=dot.blood_plague.ticking&talent.plague_leech.enabled,line_cd=28
-    if talent.plagueLeech and cast.able.pestilence() and debuff.bloodPlague.exists(units.dyn5) and ui.delay("pestilenceLineCD",28) then
+    if talent.plagueLeech and cast.able.pestilence() and debuff.bloodPlague.exists(units.dyn5) and debuff.frostFever.exists(units.dyn5)
+        and ui.delay("pestilenceLineCD",28)
+    then
         if cast.pestilence() then ui.debug("Casting Pestilence - Plague Leech [AOE]") return true end
     end
     -- pestilence,if=dot.blood_plague.ticking&talent.unholy_blight.enabled&cooldown.unholy_blight.remains<49,line_cd=28
-    if talent.unholyBlight and cast.able.pestilence() and debuff.bloodPlague.exists(units.dyn5)
+    if talent.unholyBlight and cast.able.pestilence() and debuff.bloodPlague.exists(units.dyn5) and debuff.frostFever.exists(units.dyn5)
         and cd.unholyBlight.remains() < 49 and ui.delay("pestilenceLineCD2",28)
     then
         if cast.pestilence() then ui.debug("Casting Pestilence - Unholy Blight [AOE]") return true end
     end
-    -- Howling Blast
+    -- * Howling Blast
     -- howling_blast
-    if (ui.mode.rotation == 3 or not cast.safe.howlingBlast(units.dyn30,"targetAOE",1,10)) and cast.able.icyTouch(units.dyn30) then
-        if cast.icyTouch(units.dyn30) then ui.debug("Casting Icy Touch [AOE]") return true end
-    elseif cast.able.howlingBlast(units.dyn30,"targetAOE",1,10) then
-        if cast.howlingBlast(units.dyn30,"targetAOE",1,10) then ui.debug("Casting Howling Blast [AOE]") return true end
+    if (ui.mode.rotation == 3 or not cast.safe.howlingBlast(units.dyn5,"targetAOE",1,10)) and cast.able.icyTouch(units.dyn5) then
+        if cast.icyTouch(units.dyn5) then ui.debug("Casting Icy Touch [AOE]") return true end
+    elseif cast.able.howlingBlast(units.dyn5,"targetAOE",1,10) then
+        if cast.howlingBlast(units.dyn5,"targetAOE",1,10) then ui.debug("Casting Howling Blast [AOE]") return true end
     end
-    -- Blood Tap
+    -- * Blood Tap
     -- blood_tap,if=talent.blood_tap.enabled&buff.blood_charge.stack>1
-    if talent.bloodTap and cast.able.bloodTap() and buff.bloodCharge.stack() > 1 then
+    if talent.bloodTap and cast.able.bloodTap() and buff.bloodCharge.stack() > 4 and runes() < 5 then
         if cast.bloodTap() then ui.debug("Casting Blood Tap - Blood Charges [AOE]") return true end
     end
-    -- Frost Strike when RP high
+    -- * Frost Strike when RP high
     -- frost_strike,if=runic_power>76
     if cast.able.frostStrike() and runicPower() > 76 then
         if cast.frostStrike() then ui.debug("Casting Frost Strike - High RP [AOE]") return true end
     end
-    -- Death and Decay
+    -- * Death and Decay
     -- death_and_decay,if=unholy=1
-    if cast.able.deathAndDecay("playerGround","aoe",1,8) and runes.unholy() == 1 then
-        if cast.deathAndDecay("playerGround","aoe",1,8) then ui.debug("Casting Death and Decay [AOE]") return true end
+    if cast.able.deathAndDecay("best",nil,1,8) and runes.unholy() == 1 then
+        if cast.deathAndDecay("best",nil,1,8) then ui.debug("Casting Death and Decay [AOE]") return true end
     end
-    -- Plague Strike
+    -- * Plague Strike
     -- plague_strike,if=unholy=2
     if cast.able.plagueStrike() and runes.unholy() == 2 then
         if cast.plagueStrike() then ui.debug("Casting Plague Strike - 2 Ungoly Runes [AOE]") return true end
     end
-    -- Blood Tap
+    -- * Blood Tap
     -- blood_tap,if=talent.blood_tap.enabled
-    if talent.bloodTap and cast.able.bloodTap() then
+    if talent.bloodTap and cast.able.bloodTap() and buff.bloodCharge.stack() > 4 and runes() < 5 then
         if cast.bloodTap() then ui.debug("Casting Blood Tap [AOE]") return true end
     end
-    -- Frost Strike
+    -- * Frost Strike
     -- frost_strike
     if cast.able.frostStrike() then
         if cast.frostStrike() then ui.debug("Casting Frost Strike [AOE]") return true end
     end
-    -- Horn of Winter
+    -- * Horn of Winter
     -- horn_of_winter
     if ui.checked("Horn of Winter") and cast.able.hornOfWinter() then
         if cast.hornOfWinter() then ui.debug("Casting Horn of Winter [AOE]") return true end
     end
-    -- Plague Leech
+    -- * Plague Leech
     -- plague_leech,if=talent.plague_leech.enabled&unholy=1
-    if talent.plagueLeech and cast.able.plagueLeech() and runes.unholy() == 1 then
-        if cast.plagueLeech() then ui.debug("Casting Plague Leech [AOE]") return true end
+    if talent.plagueLeech and runes() < 5 and runes.unholy() == 1 then
+        for i = 1, #enemies.yards30 do
+            local thisUnit = enemies.yards30[i]
+            if cast.able.plagueLeech(thisUnit) and debuff.bloodPlague.exists(thisUnit) and debuff.frostFever.exists(thisUnit) then
+                if cast.plagueLeech(thisUnit) then ui.debug("Casting Plague Leech [AOE]") return true end
+            end
+        end
     end
-    -- Plague Strike
+    -- * Plague Strike
     -- plague_strike,if=unholy=1
     if cast.able.plagueStrike() and runes.unholy() == 1 then
         if cast.plagueStrike() then ui.debug("Casting Plague Strike - 1 Unholy Rune [AOE]") return true end
     end
-    -- Empower Rune Weapon
+    -- * Empower Rune Weapon
     -- empower_rune_weapon
-    if ui.alwaysCdAoENever("Empower Rune Weapon",3,#enemies.yards8) and cast.able.empowerRuneWeapon() then
+    if ui.alwaysCdAoENever("Empower Rune Weapon",3,#enemies.yards8) and cast.able.empowerRuneWeapon()
+        and runes() == 0 and runicPower() <= 75
+    then
         if cast.empowerRuneWeapon() then ui.debug("Casting Empower Rune Weapon [AOE]") return true end
     end
 end -- End Action List - AOE
 
 -- Action List - Single Target
 actionList.SingleTarget = function()
-    -- Blood Tap: use to convert charges when stacks high and RP conditions met
+    -- * Blood Tap: use to convert charges when stacks high and RP conditions met
     -- blood_tap,if=talent.blood_tap.enabled&(buff.blood_charge.stack>10&(runic_power>76|(runic_power>=20&buff.killing_machine.react)))
-    if talent.bloodTap and cast.able.bloodTap() and buff.bloodCharge.stack() > 10
+    if talent.bloodTap and cast.able.bloodTap() and buff.bloodCharge.stack() > 10 and runes() < 5
         and (runicPower() > 76 or (runicPower() >= 20 and buff.killingMachine.exists()))
     then
         if cast.bloodTap() then ui.debug("Casting Blood Tap - Killing Machine | High RP [Single]") return true end
     end
-    -- Frost Strike on Killing Machine or very high RP
+    -- * Frost Strike on Killing Machine or very high RP
     -- frost_strike,if=buff.killing_machine.react|runic_power>88
     if cast.able.frostStrike() and (buff.killingMachine.exists() or runicPower() > 88) then
         if cast.frostStrike() then ui.debug("Casting Frost Strike - Killing Machine | High RP [Single]") return true end
     end
-    -- Howling Blast: apply Frost Fever if missing or use on rime proc
+    -- * Howling Blast: apply Frost Fever if missing or use on rime proc
     -- howling_blast,if=death>1|frost>1
     if (runes.death() > 1 or runes.frost() > 1) then
-        if (ui.mode.rotation == 3 or not cast.safe.howlingBlast(units.dyn30,"targetAOE",1,10)) and cast.able.icyTouch(units.dyn30) then
-            if cast.icyTouch(units.dyn30) then ui.debug("Casting Icy Touch - Multiple Death or Frost Runes [Single]") return true end
-        elseif cast.able.howlingBlast(units.dyn30,"targetAOE",1,10) then
-            if cast.howlingBlast(units.dyn30,"targetAOE",1,10) then ui.debug("Casting Howling Blast - Multiple Death or Frost Runes [Single]") return true end
+        if (ui.mode.rotation == 3 or not cast.safe.howlingBlast(units.dyn5,"targetAOE",1,10)) and cast.able.icyTouch(units.dyn5) then
+            if cast.icyTouch(units.dyn5) then ui.debug("Casting Icy Touch - Multiple Death or Frost Runes [Single]") return true end
+        elseif cast.able.howlingBlast(units.dyn5,"targetAOE",1,10) then
+            if cast.howlingBlast(units.dyn5,"targetAOE",1,10) then ui.debug("Casting Howling Blast - Multiple Death or Frost Runes [Single]") return true end
         end
     end
-    -- Unholy Blight
+    -- * Unholy Blight
     -- unholy_blight,if=talent.unholy_blight.enabled&((dot.frost_fever.remains<3|dot.blood_plague.remains<3))
     if talent.unholyBlight and cast.able.unholyBlight() and
         (debuff.frostFever.remains(units.dyn5) < 3 or debuff.bloodPlague.remains(units.dyn5) < 3)
     then
         if cast.unholyBlight() then ui.debug("Casting Unholy Blight [Single]") return true end
     end
-    -- Soul Reaper (execute range) - translate simc expression safely
+    -- * Soul Reaper (execute range) - translate simc expression safely
     -- soul_reaper,if=target.health.pct-3*(target.health.pct%target.time_to_die)<=45
     if cast.able.soulReaper() and (unit.hp(units.dyn5) - 3 * (unit.hp(units.dyn5) / unit.ttd(units.dyn5))) <= 45 then
         if cast.soulReaper() then ui.debug("Casting Soul Reaper [Single]") return true end
     end
-    -- Blood Tap
+    -- * Blood Tap
     -- blood_tap,if=talent.blood_tap.enabled&((target.health.pct-3*(target.health.pct%target.time_to_die)<=45&cooldown.soul_reaper.remains=0))
-    if talent.bloodTap and cast.able.bloodTap() and ((unit.hp(units.dyn5) - 3 * (unit.hp(units.dyn5) / unit.ttd(units.dyn5))) <= 45 and cd.soulReaper.remains() == 0) then
+    if talent.bloodTap and cast.able.bloodTap() and buff.bloodCharge.stack() > 4 and runes() < 5
+        and ((unit.hp(units.dyn5) - 3 * (unit.hp(units.dyn5) / unit.ttd(units.dyn5))) <= 45 and cd.soulReaper.remains() == 0)
+    then
         if cast.bloodTap() then ui.debug("Casting Blood Tap - Soul Reaper Available [Single]") return true end
     end
-    -- Howling Blast
+    -- * Howling Blast
     -- howling_blast,if=!dot.frost_fever.ticking
     if not debuff.frostFever.exists(units.dyn5) then
-        if (ui.mode.rotation == 3 or not cast.safe.howlingBlast(units.dyn30,"targetAOE",1,10)) and cast.able.icyTouch(units.dyn30) then
-            if cast.icyTouch(units.dyn30) then ui.debug("Casting Icy Touch - No Frost Fever [Single]") return true end
-        elseif cast.able.howlingBlast(units.dyn30,"targetAOE",1,10) then
-            if cast.howlingBlast(units.dyn30,"targetAOE",1,10) then ui.debug("Casting Howling Blast - No Frost Fever [Single]") return true end
+        if (ui.mode.rotation == 3 or not cast.safe.howlingBlast(units.dyn5,"targetAOE",1,10)) and cast.able.icyTouch(units.dyn5) then
+            if cast.icyTouch(units.dyn5) then ui.debug("Casting Icy Touch - No Frost Fever [Single]") return true end
+        elseif cast.able.howlingBlast(units.dyn5,"targetAOE",1,10) then
+            if cast.howlingBlast(units.dyn5,"targetAOE",1,10) then ui.debug("Casting Howling Blast - No Frost Fever [Single]") return true end
         end
     end
-    -- Plague Strike: apply Blood Plague if missing (unholy presence handled elsewhere)
+    -- * Plague Strike: apply Blood Plague if missing (unholy presence handled elsewhere)
     -- plague_strike,if=!dot.blood_plague.ticking&unholy>0
-    if cast.able.plagueStrike() and not debuff.bloodPlague.exists(units.dyn5) then
+    if cast.able.plagueStrike() and not debuff.bloodPlague.exists(units.dyn5) and runes.unholy() > 0 then
         if cast.plagueStrike() then ui.debug("Casting Plague Strike [Single]") return true end
     end
-    -- Howling Blast
+    -- * Howling Blast
     -- howling_blast,if=buff.rime.react
     if buff.rime.exists() then
-        if (ui.mode.rotation == 3 or not cast.safe.howlingBlast(units.dyn30,"targetAOE",1,10)) and cast.able.icyTouch(units.dyn30) then
-            if cast.icyTouch(units.dyn30) then ui.debug("Casting Icy Touch - Rime Proc [Single]") return true end
-        elseif cast.able.howlingBlast(units.dyn30,"targetAOE",1,10) then
-            if cast.howlingBlast(units.dyn30,"targetAOE",1,10) then ui.debug("Casting Howling Blast - Rime Proc [Single]") return true end
+        if (ui.mode.rotation == 3 or not cast.safe.howlingBlast(units.dyn5,"targetAOE",1,10)) and cast.able.icyTouch(units.dyn5) then
+            if cast.icyTouch(units.dyn5) then ui.debug("Casting Icy Touch - Rime Proc [Single]") return true end
+        elseif cast.able.howlingBlast(units.dyn5,"targetAOE",1,10) then
+            if cast.howlingBlast(units.dyn5,"targetAOE",1,10) then ui.debug("Casting Howling Blast - Rime Proc [Single]") return true end
         end
     end
-    -- Frost Strike
+    -- * Frost Strike
     -- frost_strike,if=runic_power>76
     if cast.able.frostStrike() and runicPower() > 76 then
         if cast.frostStrike() then ui.debug("Casting Frost Strike - High RP [Single]") return true end
     end
-    -- Obliterate
+    -- * Obliterate
     -- obliterate,if=unholy>0&!buff.killing_machine.react
     if cast.able.obliterate() and runes.unholy() > 0 and not buff.killingMachine.exists() then
         if cast.obliterate() then ui.debug("Casting Obliterate [Single]") return true end
     end
-    -- Howling Blast / Icy Touch
+    -- * Howling Blast / Icy Touch
     -- howling_blast
-    if (ui.mode.rotation == 3 or not cast.safe.howlingBlast(units.dyn30,"targetAOE",1,10)) and cast.able.icyTouch(units.dyn30) then
-        if cast.icyTouch(units.dyn30) then ui.debug("Casting Icy Touch [Single]") return true end
-    elseif cast.able.howlingBlast(units.dyn30,"targetAOE",1,10) then
-        if cast.howlingBlast(units.dyn30,"targetAOE",1,10) then ui.debug("Casting Howling Blast [Single]") return true end
+    if (ui.mode.rotation == 3 or not cast.safe.howlingBlast(units.dyn5,"targetAOE",1,10)) and cast.able.icyTouch(units.dyn5) then
+        if cast.icyTouch(units.dyn5) then ui.debug("Casting Icy Touch [Single]") return true end
+    elseif cast.able.howlingBlast(units.dyn5,"targetAOE",1,10) then
+        if cast.howlingBlast(units.dyn5,"targetAOE",1,10) then ui.debug("Casting Howling Blast [Single]") return true end
     end
-    -- Frost Strike
+    -- * Frost Strike
     -- frost_strike,if=talent.runic_empowerment.enabled&unholy=1
     if talent.runicEmpowerment and cast.able.frostStrike() and runes.unholy() == 1 then
         if cast.frostStrike() then ui.debug("Casting Frost Strike - Runic Empowerment Single Unholy Rune [Single]") return true end
     end
-    -- Blood Tap
+    -- * Blood Tap
     -- blood_tap,if=talent.blood_tap.enabled&(target.health.pct-3*(target.health.pct%target.time_to_die)>35|buff.blood_charge.stack>=8)
-    if talent.bloodTap and cast.able.bloodTap() and
-        ((unit.hp(units.dyn5) - 3 * (unit.hp(units.dyn5) / unit.ttd(units.dyn5))) > 35 or buff.bloodCharge.stack() >= 8 )
+    if talent.bloodTap and cast.able.bloodTap() and buff.bloodCharge.stack() > 4 and runes() < 5
+        and ((unit.hp(units.dyn5) - 3 * (unit.hp(units.dyn5) / unit.ttd(units.dyn5))) > 35 or buff.bloodCharge.stack() >= 8)
     then
         if cast.bloodTap() then ui.debug("Casting Blood Tap - Execute | High Blood Charges [Single]") return true end
     end
-    -- Frost Strike
+    -- * Frost Strike
     -- frost_strike,if=runic_power>=40
     if cast.able.frostStrike() and runicPower() >= 40 then
         if cast.frostStrike() then ui.debug("Casting Frost Strike [Single]") return true end
     end
-    -- Horn of Winter
+    -- * Horn of Winter
     -- horn_of_winter
     if ui.checked("Horn of Winter") and cast.able.hornOfWinter() then
         if cast.hornOfWinter() then ui.debug("Casting Horn of Winter [Single]") return true end
     end
-    -- Blood Tap
+    -- * Blood Tap
     -- blood_tap,if=talent.blood_tap.enabled
-    if talent.bloodTap and cast.able.bloodTap() then
+    if talent.bloodTap and cast.able.bloodTap() and buff.bloodCharge.stack() > 4 and runes() < 5 then
         if cast.bloodTap() then ui.debug("Casting Blood Tap [Single]") return true end
     end
-    -- Plague Leech: consume diseases to generate Runic Power when diseases are present and RP is not high
+    -- * Plague Leech: consume diseases to generate Runic Power when diseases are present and RP is not high
     -- plague_leech,if=talent.plague_leech.enabled
-    if talent.plagueLeech and cast.able.plagueLeech() then
-        if cast.plagueLeech() then ui.debug("Casting Plague Leech [Single]") return true end
+    if talent.plagueLeech and runes() < 5 then
+        for i = 1, #enemies.yards30 do
+            local thisUnit = enemies.yards30[i]
+            if cast.able.plagueLeech(thisUnit) and debuff.bloodPlague.exists(thisUnit) and debuff.frostFever.exists(thisUnit) then
+                if cast.plagueLeech(thisUnit) then ui.debug("Casting Plague Leech [Single]") return true end
+            end
+        end
     end
-    -- Empower Rune Weapon
+    -- * Empower Rune Weapon
     -- empower_rune_weapon
-    if ui.alwaysCdAoENever("Empower Rune Weapon",3,#enemies.yards8) and cast.able.empowerRuneWeapon() then
+    if ui.alwaysCdAoENever("Empower Rune Weapon",3,#enemies.yards8) and cast.able.empowerRuneWeapon()
+        and runes() == 0 and runicPower() <= 75
+    then
         if cast.empowerRuneWeapon() then ui.debug("Casting Empower Rune Weapon [Single]") return true end
     end
 end -- End Action List - Single Target
@@ -434,48 +508,49 @@ end -- End Action List - Single Target
 -- Action List - Pre-Combat
 actionList.PreCombat = function()
     if not unit.inCombat() and not (unit.flying() or unit.mounted() or unit.taxi()) then
-        -- Flask
+        -- * Flask
         -- flask,type=winters_bite
-        -- Food
+        -- * Food
         -- food,type=black_pepper_ribs_and_shrimp
         if unit.valid("target") then
-            -- Horn of Winter
+            -- * Horn of Winter
             -- horn_of_winter
             if ui.checked("Horn of Winter") and cast.able.hornOfWinter() and unit.distance("target") < 8 then
                 if cast.hornOfWinter() then ui.debug("Casting Horn of Winter [Precombat]") return true end
             end
-            -- Frost Presence
+            -- * Frost Presence
             -- frost_presence
-            if cast.able.frostPresence() then
+            if cast.able.frostPresence() and not buff.frostPresence.exists() then
                 if cast.frostPresence() then ui.debug("Casting Frost Presence [Precombat]") return true end
             end
-            -- Army of the Dead
+            -- * Army of the Dead
             -- army_of_the_dead
             if ui.alwaysCdAoENever("Army of the Dead",3,#enemies.yards8) and cast.able.armyOfTheDead() then
                 if cast.armyOfTheDead() then ui.debug("Casting Army of the Dead [Precombat]") return true end
             end
-            -- Potion
+            -- * Potion
             -- mogu_power_potion
             if module and module.CombatPotionUp then
                 module.CombatPotionUp()
             end
-            -- Pillar of Frost
+            -- * Pillar of Frost
             -- pillar_of_frost
-            if ui.checked("Pillar of Frost") and cast.able.pillarOfFrost() then
+            if ui.alwaysCdAoENever("Pillar of Frost",3,#enemies.yards8) and cast.able.pillarOfFrost() then
                 if cast.pillarOfFrost() then
                     ui.debug("Casting Pillar of Frost [Precombat]")
                     return true
                 end
             end
-            -- Raise Dead
+            -- * Raise Dead
             -- raise_dead
             if ui.alwaysCdAoENever("Raise Dead",3,#enemies.yards8) and cast.able.raiseDead() then
                 if cast.raiseDead() then
                     ui.debug("Casting Raise Dead [Precombat]")
+                    var.raiseDeadExpiresAt = GetTime() + 60
                     return true
                 end
             end
-            -- Death Grip
+            -- * Death Grip
             if ui.checked("Death Grip") and cast.able.deathGrip("target") and not unit.isDummy("target")
                 and unit.distance("target") > 8 and unit.distance("target") < 30
                 and (not unit.moving("target") or (unit.moving("target") and not unit.facing("target", "player")))
@@ -485,23 +560,15 @@ actionList.PreCombat = function()
                     return true
                 end
             end
-            -- -- Death Coil - Ranged
-            -- -- simc: actions.precombat+=/death_coil (ranged pre-pull)
-            -- if cast.able.deathCoil("target") and runicPower()> 30 and unit.distance("target") >= 5 then
-            --     if cast.deathCoil("target") then
-            --         ui.debug("Casting Death Coil [Precombat")
-            --         return true
-            --     end
-            -- end
-            -- Howling Blast / Icy Touch
+            -- * Howling Blast / Icy Touch
             if (ui.mode.rotation == 3 or not cast.safe.howlingBlast("target","targetAOE",1,10)) and cast.able.icyTouch("target") then
                 if cast.icyTouch("target") then ui.debug("Casting Icy Touch [Precombat]") return true end
             elseif cast.able.howlingBlast("target","targetAOE",1,10) then
                 if cast.howlingBlast("target","targetAOE",1,10) then ui.debug("Casting Howling Blast [Precombat]") return true end
             end
-            -- Start Attack
+            -- * Start Attack
             -- actions=auto_attack
-            if cast.able.autoAttack("target") and unit.exists("target") and unit.distance("target") < 5 then
+            if cast.able.autoAttack("target") and unit.distance("target") < 5 then
                 if cast.autoAttack("target") then
                     ui.debug("Casting Auto Attack [Precombat]")
                     return true
@@ -515,15 +582,15 @@ end -- End Action List - PreCombat
 actionList.Combat = function()
     -- Check for combat
     if unit.inCombat() and unit.valid("target") and not var.profileStop then
-        -- Start Attack
+        -- * Start Attack
         -- actions=auto_attack
-        if cast.able.autoAttack() and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
-            if cast.autoAttack() then
+        if cast.able.autoAttack(units.dyn5) and unit.distance(units.dyn5) < 5 then
+            if cast.autoAttack(units.dyn5) then
                 ui.debug("Casting Auto Attack [Combat]")
                 return true
             end
         end
-        -- Death Grip
+        -- * Death Grip
         if ui.checked("Death Grip") and cast.able.deathGrip("target") and not unit.isDummy("target")
             and unit.distance("target") > 8 and unit.distance("target") < 30
             and (not unit.moving("target") or (unit.moving("target") and not unit.facing("target", "player")))
@@ -534,31 +601,31 @@ actionList.Combat = function()
             end
         end
         -- -- Cooldowns / Utility
-        -- -- Anti-Magic Shell
+        -- -- * Anti-Magic Shell
         -- -- antimagic_shell,damage=100000
         -- if cast.able.antiMagicShell() then
         --     if cast.antiMagicShell() then ui.debug("Casting Anti-Magic Shell") return true end
         -- end
-        -- Pillar of Frost
+        -- * Pillar of Frost
         -- pillar_of_frost
-        if ui.checked("Pillar of Frost") and cast.able.pillarOfFrost() then
+        if ui.alwaysCdAoENever("Pillar of Frost",3,#enemies.yards8) and cast.able.pillarOfFrost() then
             if cast.pillarOfFrost() then ui.debug("Casting Pillar of Frost [Combat]") return true end
         end
-        -- -- Combat Potion usage
+        -- -- * Combat Potion usage
         -- -- mogu_power_potion,if=target.time_to_die<=30|(target.time_to_die<=60&buff.pillar_of_frost.up)
         -- if module and module.CombatPotionUp and unit.ttd and unit.ttd(units.dyn5) then
         --     if unit.ttd(units.dyn5) <= 30 or (unit.ttd(units.dyn5) <= 60 and buff and buff.pillarOfFrost and buff.pillarOfFrost.exists()) then
         --         module.CombatPotionUp()
         --     end
         -- end
-        -- Empower Rune Weapon
+        -- * Empower Rune Weapon
         -- empower_rune_weapon,if=target.time_to_die<=60&(buff.mogu_power_potion.up|buff.golemblood_potion.up)
-        if ui.alwaysCdAoENever("Empower Rune Weapon", 3, #enemies.yards5f) and cast.able.empowerRuneWeapon() then
-            if unit.ttd(units.dyn5) <= 60 then
-                if cast.empowerRuneWeapon() then ui.debug("Casting Empower Rune Weapon [Combat]") return true end
-            end
+        if ui.alwaysCdAoENever("Empower Rune Weapon", 3, #enemies.yards5f) and cast.able.empowerRuneWeapon()
+            and runes() == 0 and runicPower() <= 75 and unit.ttd(units.dyn5) <= 60
+        then
+            if cast.empowerRuneWeapon() then ui.debug("Casting Empower Rune Weapon [Combat]") return true end
         end
-        -- Racials
+        -- * Racials
         -- if br.player and br.player.race then
         --     if br.player.race == "Orc" and cast.able.bloodFury() then
         --         if cast.bloodFury() then ui.debug("Casting Blood Fury") return true end
@@ -570,17 +637,21 @@ actionList.Combat = function()
         --         if cast.arcaneTorrent() then ui.debug("Casting Arcane Torrent") return true end
         --     end
         -- end
-        -- Raise Dead
+        -- * Raise Dead
         -- raise_dead
         if ui.alwaysCdAoENever("Raise Dead", 3, #enemies.yards8) and cast.able.raiseDead() then
-            if cast.raiseDead() then ui.debug("Casting Raise Dead [Combat]") return true end
+            if cast.raiseDead() then
+                ui.debug("Casting Raise Dead [Combat]")
+                var.raiseDeadExpiresAt = GetTime() + 60
+                return true
+            end
         end
-        -- Run Action List: AOE
+        -- * Run Action List: AOE
         -- run_action_list,name=aoe,if=active_enemies>=3
         if ui.useAOE(8,3) then
             if actionList.AOE() then return true end
         end
-        -- Run Action List: Single Target
+        -- * Run Action List: Single Target
         -- run_action_list,name=single_target,if=active_enemies<3
         if ui.useST(8,3) then
             if actionList.SingleTarget() then return true end
@@ -625,6 +696,11 @@ local function runRotation()
     enemies.get(30)
 
     if var.profileStop == nil then var.profileStop = false end
+    if var.raiseDeadExpiresAt == nil then var.raiseDeadExpiresAt = 0 end
+
+    -- ui.chatOverlay("Blood: " .. runes.blood() .. " | Frost: " .. runes.frost() .. " | Unholy: " .. runes.unholy()
+    --     .. " | Death: " .. runes.death())
+    -- ui.chatOverlay("Enemies (8y): " .. #enemies.yards8)
 
     ---------------------
     --- Begin Profile ---

@@ -110,6 +110,8 @@ local function createOptions()
             br.ui:createSpinner(section, "Fortifying Brew", 30, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
             -- Healing Sphere
             br.ui:createSpinner(section, "Healing Sphere", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
+            br.ui:createDropdownWithout(section, "Healing Sphere - Target",
+                { "|cff00FF00Self", "|cffFFFF00Lowest" }, 1, "|cffFFFFFFTarget to cast Healing Sphere on")
             -- Leg Sweep
             br.ui:createSpinner(section, "Leg Sweep - HP", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
             br.ui:createSpinner(section, "Leg Sweep - AoE", 5, 0, 10, 1, "|cffFFFFFFNumber of Units in 5 Yards to Cast At")
@@ -476,12 +478,44 @@ actionList.Defensive = function()
             end
         end
         -- * Healing Sphere
-        if ui.checked("Healing Sphere") and cast.able.healingSphere("player","ground",0)
-            and (unit.hp() <= ui.value("Healing Sphere") or (not unit.inCombat() and unit.hp() < 80)) and energy() >= 40
-        then
-            if cast.healingSphere("player","ground",0) then
-                ui.debug("Casting Healing Sphere [Defensive]")
-                return true
+        if ui.checked("Healing Sphere") and energy() >= 40 then
+            local healTarget = "player"
+            local shouldCast = false
+
+            if ui.value("Healing Sphere - Target") == 1 then
+                -- Self only
+                if unit.hp() <= ui.value("Healing Sphere") or (not unit.inCombat() and unit.hp() < 80) then
+                    healTarget = "player"
+                    shouldCast = true
+                end
+            elseif ui.value("Healing Sphere - Target") == 2 then
+                -- Lowest health
+                local lowestUnit = "player"
+                local lowestHP = unit.hp()
+
+                -- Check party/raid members
+                if #br.engines.healingEngine.friend > 1 then
+                    for i = 1, #br.engines.healingEngine.friend do
+                        local friendUnit = br.engines.healingEngine.friend[i].unit
+                        local friendHP = unit.hp(friendUnit)
+                        if friendHP < lowestHP and unit.distance(friendUnit) < 40 then
+                            lowestHP = friendHP
+                            lowestUnit = friendUnit
+                        end
+                    end
+                end
+
+                if lowestHP <= ui.value("Healing Sphere") or (not unit.inCombat() and lowestHP < 80) then
+                    healTarget = lowestUnit
+                    shouldCast = true
+                end
+            end
+
+            if shouldCast and cast.able.healingSphere(healTarget, "ground", 0) then
+                if cast.healingSphere(healTarget, "ground", 0) then
+                    ui.debug("Casting Healing Sphere on " .. unit.name(healTarget) .. " [Defensive]")
+                    return true
+                end
             end
         end
     end
@@ -603,15 +637,6 @@ actionList.AOE = function()
     -- * Spinning Crane Kick
     -- spinning_crane_kick,if=!talent.rushing_jade_wind.enabled
     if cast.able.spinningCraneKick("player", "aoe", 1, 8) and not talent.rushingJadeWind then
-        -- * Healing Sphere - instead if HP low
-        if ui.checked("Healing Sphere") and cast.able.healingSphere("player","ground",0)
-            and unit.hp() <= ui.value("Healing Sphere") and energy() >= 40
-        then
-            if cast.healingSphere("player","ground",0) then
-                ui.debug("Casting Healing Sphere [AOE]")
-                return true
-            end
-        end
         if cast.spinningCraneKick("player", "aoe", 1, 8) then
             ui.debug("Casting Spinning Crane Kick [AOE]")
             return true
@@ -682,15 +707,6 @@ actionList.SingleTarget = function()
     -- * Jab
     -- jab,if=chi.max-chi>=2
     if cast.able.jab() and (chi.max() - chi()) >= 2 then
-        -- * Healing Sphere - instead if HP low
-        if ui.checked("Healing Sphere") and cast.able.healingSphere("player","ground",0)
-            and unit.hp() <= ui.value("Healing Sphere") and energy() >= 40
-        then
-            if cast.healingSphere("player","ground",0) then
-                ui.debug("Casting Healing Sphere [Single Target]")
-                return true
-            end
-        end
         if cast.jab() then
             ui.debug("Casting Jab [Single Target]")
             return true
@@ -732,7 +748,7 @@ end -- End Action List - PreCombat
 actionList.Combat = function()
     -- Check for combat
     if unit.valid("target") and cd.global.remain() == 0 then
-        if unit.exists(units.dyn40) and unit.distance(units.dyn40) < 40 then
+        if unit.exists(units.dyn40) and unit.distance(units.dyn40) < 40 and not buff.spinningCraneKick.exists() then
             -- * Touch of Death
             if ui.alwaysCdAoENever("Touch of Death",3,5) then
                 for i = 1, #enemies.yards5 do
@@ -917,6 +933,7 @@ local function runRotation()
             return true
         end
     end
+
 
     ---------------------
     --- Begin Profile ---

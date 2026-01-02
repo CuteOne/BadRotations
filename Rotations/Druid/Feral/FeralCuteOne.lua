@@ -251,53 +251,6 @@ local function getMangleDamage()
     return baseDmg * multiplier * critMultiplier
 end
 
--- * Should Use DoTs - Determines if DoT abilities are worth using based on damage value
--- Returns true if DoTs are worth using, false if direct damage is better
-local function shouldUseDoTs(thisUnit)
-
-    -- thisUnit = thisUnit or units.dyn5
-
-    -- -- Always use DoTs on bosses and players
-    -- if unit.isBoss(thisUnit) or unit.player(thisUnit) then
-    --     return true
-    -- end
-
-    -- -- Get target health values
-    -- local targetHealthPercent = unit.hp(thisUnit)  -- Health percentage (0-100)
-    -- local targetHealthActual = unit.health(thisUnit)  -- Current health value
-
-    -- -- Use Mangle damage as baseline for DPS estimation (it's our basic builder)
-    -- local mangleDamage = getMangleDamage()
-
-    -- -- Estimate our sustained DPS based on Mangle damage
-    -- -- Mangle costs 35 energy, energy regen ~10/sec, so roughly 3.5 second Mangle cooldown
-    -- -- This gives us a baseline DPS estimate
-    -- local estimatedDPS = mangleDamage / 3.5
-
-    -- -- Prevent division by zero
-    -- if estimatedDPS < 100 then
-    --     estimatedDPS = 100
-    -- end
-
-    -- -- Estimate time to kill based on health and our DPS
-    -- local estimatedTTK = targetHealthActual / estimatedDPS
-
-    -- -- If target will die in less than 6 seconds, skip DoTs
-    -- -- Rake: 15 second duration, ticks every 3 seconds = need at least 2 ticks (6 seconds)
-    -- if estimatedTTK < 6 then
-    --     return false
-    -- end
-
-    -- -- Edge case: Very low health targets die too fast even if calculation suggests otherwise
-    -- -- This handles situations where our damage estimate is off
-    -- if targetHealthPercent < 10 or targetHealthActual < 50000 then
-    --     return false
-    -- end
-
-    -- Default: Use DoTs
-    return true
-end
-
 -- * AutoProwl
 local function autoProwl()
     if not unit.inCombat() and not buff.prowl.exists() then
@@ -869,11 +822,7 @@ actionList.Opener = function(thisUnit, isAoE)
 
     local targetDistance = unit.distance(thisUnit)
     local behindTarget = not unit.facing(thisUnit, "player")
-    local enemyCount = #enemies.yards8 -- Count enemies for AoE decision
     local inStealth = buff.prowl.exists() or buff.shadowmeld.exists()
-
-    -- Determine if DoTs are worth using on this target
-    local useDoTs = shouldUseDoTs(thisUnit)
 
     -- ==================== RANGE CHECK & WILD CHARGE ====================
     -- If out of melee range and Wild Charge is available, use it first
@@ -891,73 +840,10 @@ actionList.Opener = function(thisUnit, isAoE)
 
     -- ==================== STEALTH OPENERS ====================
     if inStealth then
-        -- * AoE Opener (3+ enemies) - Always Thrash first if available, then Swipe
-        if isAoE or enemyCount >= 3 then
-            -- Thrash from stealth - applies DoT to all nearby enemies (skip if target dies too fast)
-            if cast.able.thrash("player", "aoe", 1, 8) and useDoTs then
-                if cast.thrash("player", "aoe", 1, 8) then
-                    var.openerCast = true
-                    var.openerTime = var.getTime
-                    var.openerAttemptTime = nil
-                    ui.debug("Casting Thrash [Opener - AoE Stealth]")
-                    return true
-                end
-            end
-            -- Swipe - Always available, good for fast-dying packs or if Thrash not available
-            if cast.able.swipe("player", "aoe", 1, 8) then
-                if cast.swipe("player", "aoe", 1, 8) then
-                    var.openerCast = true
-                    var.openerTime = var.getTime
-                    var.openerAttemptTime = nil
-                    if not useDoTs then
-                        ui.debug("Casting Swipe [Opener - AoE Stealth - Fast Dying]")
-                    else
-                        ui.debug("Casting Swipe [Opener - AoE Stealth]")
-                    end
-                    return true
-                end
-            end
-        end
-
         -- ==================== SINGLE TARGET STEALTH OPENER ====================
-        -- Priority: Ravage > Rake (unless fast-dying, then use Shred/Mangle for instant damage)
-
-        -- Fast-dying targets: Skip DoTs entirely, use direct damage
-        if not useDoTs then
-            -- Try Shred first (higher damage) if behind target
-            if cast.able.shred(thisUnit) and behindTarget then
-                if cast.shred(thisUnit) then
-                    var.openerCast = true
-                    var.openerTime = var.getTime
-                    var.openerAttemptTime = nil
-                    ui.debug("Casting Shred on " .. unit.name(thisUnit) .. " [Opener - Fast Dying]")
-                    return true
-                end
-            end
-            -- Mangle works from any angle
-            if cast.able.mangle(thisUnit) then
-                if cast.mangle(thisUnit) then
-                    var.openerCast = true
-                    var.openerTime = var.getTime
-                    var.openerAttemptTime = nil
-                    ui.debug("Casting Mangle on " .. unit.name(thisUnit) .. " [Opener - Fast Dying]")
-                    return true
-                end
-            end
-            -- Fall back to Rake if nothing else available
-            if cast.able.rake(thisUnit) and not (var.skipPlayerDoTs and unit.player(thisUnit)) then
-                if cast.rake(thisUnit) then
-                    var.openerCast = true
-                    var.openerTime = var.getTime
-                    var.openerAttemptTime = nil
-                    ui.debug("Casting Rake on " .. unit.name(thisUnit) .. " [Opener - Fast Dying Fallback]")
-                    return true
-                end
-            end
-        end
 
         -- * Ravage - Only if available, behind target, and worth using DoTs
-        if cast.able.ravage(thisUnit) and useDoTs then
+        if cast.able.ravage(thisUnit) then
             if behindTarget then
                 -- Perfect conditions - cast Ravage
                 if cast.ravage(thisUnit) then
@@ -1008,14 +894,14 @@ actionList.Opener = function(thisUnit, isAoE)
                     --     "s) - using Rake [Opener - Stealth]")
                 end
             end
-        elseif not cast.able.ravage(thisUnit) and useDoTs and not cast.last.ravage(1) then
+        elseif not cast.able.ravage(thisUnit) and not cast.last.ravage(1) then
             -- Ravage not available (wrong level, not learned) - but don't spam if we just cast it
             -- ui.debug("Ravage not available - using Rake [Opener - Stealth]")
         end
 
         -- * Rake - Fallback when Ravage not available, positioning timeout, or not worth waiting
         -- Only cast if DoTs are worth using (fast-dying targets already handled above)
-        if cast.able.rake(thisUnit) and not (var.skipPlayerDoTs and unit.player(thisUnit)) and useDoTs then
+        if cast.able.rake(thisUnit) and not ((var.skipPlayerDoTs and unit.player(thisUnit)) or spell.ravage.known()) then
             if cast.rake(thisUnit) then
                 var.openerCast = true
                 var.openerTime = var.getTime
@@ -1028,29 +914,25 @@ actionList.Opener = function(thisUnit, isAoE)
 
     -- ==================== NON-STEALTH OPENERS ====================
     if not inStealth then
-        -- * Faerie Fire - Apply Weakened Armor Debuff first (ranged, doesn't break stealth)
-        -- Skip on fast-dying targets
-        if cast.able.faerieFire(thisUnit) and debuff.weakenedArmor.stack(thisUnit) < 3
-            and targetDistance < 35 and useDoTs
-        then
-            if cast.faerieFire(thisUnit) then
-                ui.debug("Casting Faerie Fire [Opener - Pre-debuff]")
-                return true
+        -- * AoE Opener (3+ enemies) - Always Thrash first if available, then Swipe
+        if isAoE then
+            -- Thrash from stealth - applies DoT to all nearby enemies (skip if target dies too fast)
+            if cast.able.thrash("player", "aoe", 1, 8) then
+                if cast.thrash("player", "aoe", 1, 8) then
+                    var.openerCast = true
+                    var.openerTime = var.getTime
+                    var.openerAttemptTime = nil
+                    ui.debug("Casting Thrash [Opener - AoE Stealth]")
+                    return true
+                end
             end
-        end
-
-        -- * AoE Non-Stealth Opener (3+ enemies)
-        if isAoE or enemyCount >= 3 then
-            -- Swipe for instant AoE damage (no DoT application needed for fast-dying)
+            -- Swipe - Always available, good for fast-dying packs or if Thrash not available
             if cast.able.swipe("player", "aoe", 1, 8) then
                 if cast.swipe("player", "aoe", 1, 8) then
                     var.openerCast = true
                     var.openerTime = var.getTime
-                    if not useDoTs then
-                        ui.debug("Casting Swipe [Opener - AoE - Fast Dying]")
-                    else
-                        ui.debug("Casting Swipe [Opener - AoE]")
-                    end
+                    var.openerAttemptTime = nil
+                    ui.debug("Casting Swipe [Opener - AoE Stealth]")
                     return true
                 end
             end
@@ -1058,26 +940,7 @@ actionList.Opener = function(thisUnit, isAoE)
 
         -- * Single Target Non-Stealth Opener
         -- Fast-dying: Use direct damage instead of DoTs
-        if not useDoTs then
-            -- Shred if behind
-            if cast.able.shred(thisUnit) and behindTarget then
-                if cast.shred(thisUnit) then
-                    var.openerCast = true
-                    var.openerTime = var.getTime
-                    ui.debug("Casting Shred on " .. unit.name(thisUnit) .. " [Opener - Fast Dying]")
-                    return true
-                end
-            end
-            -- Mangle from any angle
-            if cast.able.mangle(thisUnit) then
-                if cast.mangle(thisUnit) then
-                    var.openerCast = true
-                    var.openerTime = var.getTime
-                    ui.debug("Casting Mangle on " .. unit.name(thisUnit) .. " [Opener - Fast Dying]")
-                    return true
-                end
-            end
-        else
+        if not isAoE then
             -- Normal target: Use Rake (best opener for combo point + DoT)
             if cast.able.rake(thisUnit) and not (var.skipPlayerDoTs and unit.player(thisUnit)) then
                 if cast.rake(thisUnit) then
@@ -1095,6 +958,17 @@ actionList.Opener = function(thisUnit, isAoE)
                 var.openerCast = true
                 var.openerTime = var.getTime
                 ui.debug("Casting Mangle on " .. unit.name(thisUnit) .. " [Opener - Fallback]")
+                return true
+            end
+        end
+
+        -- * Faerie Fire - Apply Weakened Armor Debuff first (ranged, doesn't break stealth)
+        -- Skip on fast-dying targets
+        if cast.able.faerieFire(thisUnit) and debuff.weakenedArmor.stack(thisUnit) < 3
+            and targetDistance < 35
+        then
+            if cast.faerieFire(thisUnit) then
+                ui.debug("Casting Faerie Fire [Opener - Pre-debuff]")
                 return true
             end
         end
@@ -1228,7 +1102,7 @@ actionList.PreCombat = function()
 
             -- * Opener - Handles both stealth and non-stealth engagement
             -- Auto-detects single target vs AoE based on enemy count
-            if actionList.Opener("target") then return true end
+            if actionList.Opener("target", ui.useAOE(8,5)) then return true end
         end -- End Target Valid Check
     end -- End No Combat
 end -- End Action List - PreCombat
@@ -1293,7 +1167,7 @@ end -- End Action List - Combat
 -- * Action List - AoE
 actionList.AoE = function()
     -- * Opener - AoE Mode
-    if actionList.Opener(nil, true) then return true end
+    if actionList.Opener(units.dyn5, true) then return true end
 
     -- * Block entire rotation until opener has been cast AND landed
     -- This prevents any abilities from firing before the engagement opener completes
@@ -1301,9 +1175,6 @@ actionList.AoE = function()
     if not var.openerCast or (var.openerTime and var.getTime - var.openerTime < 0.3) then
         return true -- Wait for opener to execute and land
     end
-
-    -- Determine if DoTs are worth using on this target (profile-wide check)
-    local useDoTs = shouldUseDoTs(units.dyn8AOE)
 
     -- * Auto Attack
     -- auto_attack
@@ -1315,7 +1186,7 @@ actionList.AoE = function()
     end
     -- * Faerie Fire
     -- faerie_fire,cycle_targets=1,if=debuff.weakened_armor.stack<3
-    if not buff.prowl.exists() and not buff.shadowmeld.exists() and useDoTs then
+    if not buff.prowl.exists() and not buff.shadowmeld.exists() then
         for i = 1, #enemies.yards35 do
             local thisUnit = enemies.yards35[i]
             if cast.able.faerieFire(thisUnit) then
@@ -1380,7 +1251,7 @@ actionList.AoE = function()
     -- pool_resource,for_next=1
     -- * Thrash
     -- thrash_cat,if=buff.rune_of_reorigination.up
-    if buff.runeOfReorigination.exists() and useDoTs then
+    if buff.runeOfReorigination.exists() then
         if energy() < 50 and not buff.clearcasting.exists() then
             return true
         end
@@ -1395,7 +1266,7 @@ actionList.AoE = function()
     -- pool_resource,wait=0.1,for_next=1
     -- * Thrash
     -- thrash_cat,if=dot.thrash_cat.remains<3|(buff.tigers_fury.up&dot.thrash_cat.remains<9)
-    if (debuff.thrash.remains(units.dyn8AOE) < 3 or (buff.tigersFury.exists() and debuff.thrash.remains(units.dyn8AOE) < 9)) and useDoTs then
+    if (debuff.thrash.remains(units.dyn8AOE) < 3 or (buff.tigersFury.exists() and debuff.thrash.remains(units.dyn8AOE) < 9)) then
         if energy() < 50 and not buff.clearcasting.exists() then
             return true
         end
@@ -1418,7 +1289,7 @@ actionList.AoE = function()
     end
     -- * Rip
     -- rip,if=combo_points>=5
-    if cast.able.rip(units.dyn5) and not debuff.convert.exists(units.dyn5) and not (var.skipPlayerDoTs and unit.player(units.dyn5)) and useDoTs then
+    if cast.able.rip(units.dyn5) and not debuff.convert.exists(units.dyn5) and not (var.skipPlayerDoTs and unit.player(units.dyn5)) then
         if comboPoints(units.dyn5) >= 5 then
             if cast.rip(units.dyn5) then
                 ui.debug("Casting Rip [AoE]")
@@ -1428,15 +1299,13 @@ actionList.AoE = function()
     end
     -- * Rake
     -- rake,cycle_targets=1,if=active_enemies<8&dot.rake.remains<3&target.time_to_die>=15
-    if useDoTs then
-        for i = 1, #enemies.yards5f do
-            local thisUnit = enemies.yards5f[i]
-            if cast.able.rake(thisUnit) and not debuff.convert.exists(thisUnit) and not (var.skipPlayerDoTs and unit.player(thisUnit)) then
-                if #enemies.yards5f < 8 and debuff.rake.remains(thisUnit) < 3 and unit.ttd(thisUnit) >= 15 then
-                    if cast.rake(thisUnit) then
-                        ui.debug("Casting Rake on " .. unit.name(thisUnit) .. " [AoE]")
-                        return true
-                    end
+    for i = 1, #enemies.yards5f do
+        local thisUnit = enemies.yards5f[i]
+        if cast.able.rake(thisUnit) and not debuff.convert.exists(thisUnit) and not (var.skipPlayerDoTs and unit.player(thisUnit)) then
+            if #enemies.yards5f < 8 and debuff.rake.remains(thisUnit) < 3 and unit.ttd(thisUnit) >= 15 then
+                if cast.rake(thisUnit) then
+                    ui.debug("Casting Rake on " .. unit.name(thisUnit) .. " [AoE]")
+                    return true
                 end
             end
         end
@@ -1482,7 +1351,7 @@ end -- End Action List - AoE
 -- * Action List - Single Target
 actionList.SingleTarget = function()
     -- * Opener - Must execute first
-    if actionList.Opener() then return true end
+    if actionList.Opener(units.dyn5,false) then return true end
 
     -- * Block entire rotation until opener has been cast AND landed
     -- This prevents any abilities from firing before the engagement opener completes
@@ -1490,9 +1359,6 @@ actionList.SingleTarget = function()
     if not var.openerCast or (var.openerTime and var.getTime - var.openerTime < 0.3) then
         return true -- Wait for opener to execute and land
     end
-
-    -- Determine if DoTs are worth using on this target (profile-wide check)
-    local useDoTs = shouldUseDoTs(units.dyn5)
 
     -- * Auto Attack
     -- auto_attack,if=!buff.prowl.up&!buff.shadowmeld.up
@@ -1507,10 +1373,11 @@ actionList.SingleTarget = function()
     if actionList.Interrupts() then return true end
     -- * Force of Nature
     -- force_of_nature,if=charges=3|(buff.rune_of_reorigination.react&buff.rune_of_reorigination.remains<1)|(buff.vicious.react&buff.vicious.remains<1)|target.time_to_die<20
-    if cast.able.forceOfNature(units.dyn40) and charges.forceOfNature.count() == 3
-        or (buff.runeOfReorigination.exists() and buff.runeOfReorigination.remains() < 1)
+    if cast.able.forceOfNature(units.dyn40)
+        and ((charges.forceOfNature.count() == 3 and cast.timeSinceLast.forceOfNature() > unit.gcd(true))
+        or (ui.useCDs() and ((buff.runeOfReorigination.exists() and buff.runeOfReorigination.remains() < 1)
         or (buff.vicious.exists() and buff.vicious.remains() < 1)
-        or unit.ttd(units.dyn40) < 20
+        or unit.ttd(units.dyn40) < 20)))
     then
         if cast.forceOfNature(units.dyn40) then
             ui.debug("Casting Force of Nature on " .. unit.name(units.dyn40) .. " [Single]")
@@ -1540,7 +1407,7 @@ actionList.SingleTarget = function()
     -- * Ferocious Bite
     -- # Keep Rip from falling off during execute range (only relevant when using DoTs).
     -- ferocious_bite,if=dot.rip.ticking&dot.rip.remains<=3&target.health.pct<=25
-    if useDoTs and cast.able.ferociousBite(units.dyn5) and comboPoints(units.dyn5) > 0
+    if cast.able.ferociousBite(units.dyn5) and comboPoints(units.dyn5) > 0
         and debuff.rip.exists(units.dyn5) and debuff.rip.remains(units.dyn5) <= 3 and unit.hp(units.dyn5) <= 25
     then
         if cast.ferociousBite(units.dyn5) then
@@ -1550,7 +1417,7 @@ actionList.SingleTarget = function()
     -- * Faerie Fire
     -- faerie_fire,if=debuff.weakened_armor.stack<3
     if cast.able.faerieFire(units.dyn5) and not (buff.prowl.exists() or buff.shadowmeld.exists())
-        and debuff.weakenedArmor.stack(units.dyn5) < 3 and useDoTs
+        and debuff.weakenedArmor.stack(units.dyn5) < 3
     then
         if cast.faerieFire(units.dyn5) then
             ui.debug("Casting Faerie Fire [Single]")
@@ -1651,7 +1518,7 @@ actionList.SingleTarget = function()
     -- * Rip
     -- # Overwrite Rip if it's at least 15% stronger than the current.
     -- rip,if=combo_points>=5&action.rip.tick_damage%dot.rip.tick_dmg>=1.15&target.time_to_die>30
-    if useDoTs and cast.able.rip(units.dyn5) and not debuff.convert.exists(units.dyn5) and not (var.skipPlayerDoTs and unit.player(units.dyn5))
+    if cast.able.rip(units.dyn5) and not debuff.convert.exists(units.dyn5) and not (var.skipPlayerDoTs and unit.player(units.dyn5))
         and comboPoints(units.dyn5) >= 5 and debuff.rip.applied(units.dyn5) > 0 -- ensure an existing Rip to compare
         and (debuff.rip.calc() / debuff.rip.applied(units.dyn5)) >= 1.15 and unit.ttd(units.dyn5) > 30
     then
@@ -1662,7 +1529,7 @@ actionList.SingleTarget = function()
     end
     -- # Use 4 or more CP to apply Rip if Rune of Reorigination is about to expire and it's at least close to the current rip in damage.
     -- rip,if=combo_points>=4&action.rip.tick_damage%dot.rip.tick_dmg>=0.95&target.time_to_die>30&buff.rune_of_reorigination.up&buff.rune_of_reorigination.remains<=1.5
-    if useDoTs and cast.able.rip(units.dyn5) and not (var.skipPlayerDoTs and unit.player(units.dyn5)) and comboPoints(units.dyn5) >= 4 and (debuff.rip.calc() / debuff.rip.applied(units.dyn5)) >= 0.95 and unit.ttd(units.dyn5) > 30
+    if cast.able.rip(units.dyn5) and not (var.skipPlayerDoTs and unit.player(units.dyn5)) and comboPoints(units.dyn5) >= 4 and (debuff.rip.calc() / debuff.rip.applied(units.dyn5)) >= 0.95 and unit.ttd(units.dyn5) > 30
         and buff.runeOfReorigination.exists() and buff.runeOfReorigination.remains() <= 1.5
     then
         if cast.rip(units.dyn5) then
@@ -1673,8 +1540,7 @@ actionList.SingleTarget = function()
     -- * Pool Resource
     -- # Pool 50 energy for Ferocious Bite (only when using DoTs and Rip is active).
     -- pool_resource,if=combo_points>=5&target.health.pct<=25&dot.rip.ticking&!(energy>=50|(buff.berserk.up&energy>=25))
-    if comboPoints(units.dyn5) >= 5 and unit.hp(units.dyn5) <= 25
-        and useDoTs and debuff.rip.exists(units.dyn5)
+    if comboPoints(units.dyn5) >= 5 and unit.hp(units.dyn5) <= 25 and debuff.rip.exists(units.dyn5)
         and not (energy() >= 50 or (buff.berserk.exists() and energy() >= 25))
     then
         -- ui.debug("Pooling 50 energy for Ferocious Bite [Single]")
@@ -1682,22 +1548,18 @@ actionList.SingleTarget = function()
     end
     -- * Ferocious Bite
     -- # Execute range finisher - use on low HP targets regardless of Rip when not using DoTs
-    -- ferocious_bite,if=combo_points>=5&target.health.pct<=25&(dot.rip.ticking|!useDoTs)
-    if cast.able.ferociousBite(units.dyn5) and comboPoints(units.dyn5) >= 5 and unit.hp(units.dyn5) <= 25
-        and (not useDoTs or debuff.rip.exists(units.dyn5))
+    -- ferocious_bite,if=combo_points>=5&dot.rip.ticking&target.health.pct<=25
+    if cast.able.ferociousBite(units.dyn5) and comboPoints(units.dyn5) >= 5
+        and debuff.rip.exists(units.dyn5) and unit.hp(units.dyn5) <= 25
     then
         if cast.ferociousBite(units.dyn5) then
-            if not useDoTs then
-                ui.debug("Casting Ferocious Bite - Fast Dying Execute [Single]")
-            else
-                ui.debug("Casting Ferocious Bite - Low Target HP [Single]")
-            end
+            ui.debug("Casting Ferocious Bite - Low Target HP [Single]")
             return true
         end
     end
     -- * Rip
     -- rip,if=combo_points>=5&target.time_to_die>=6&dot.rip.remains<2&(buff.berserk.up|dot.rip.remains+1.9<=cooldown.tigers_fury.remains)
-    if useDoTs and cast.able.rip(units.dyn5) and not debuff.convert.exists(units.dyn5) and not (var.skipPlayerDoTs and unit.player(units.dyn5))
+    if cast.able.rip(units.dyn5) and not debuff.convert.exists(units.dyn5) and not (var.skipPlayerDoTs and unit.player(units.dyn5))
         and comboPoints(units.dyn5) >= 5 and unit.ttd(units.dyn5) >= 6 and debuff.rip.remains(units.dyn5) < 2
         and (buff.berserk.exists() or debuff.rip.remains(units.dyn5) + 1.9 <= cd.tigersFury.remains())
     then
@@ -1707,18 +1569,18 @@ actionList.SingleTarget = function()
         end
     end
     -- * Savage Roar
-    -- savage_roar,if=buff.savage_roar.remains<=3&combo_points>0&(buff.savage_roar.remains+2>dot.rip.remains|!useDoTs)
+    -- savage_roar,if=buff.savage_roar.remains<=3&combo_points>0&buff.savage_roar.remains+2>dot.rip.remains
     if cast.able.savageRoar() and buff.savageRoar.remains() <= 3 and comboPoints(units.dyn5) > 0
-        and (not useDoTs or buff.savageRoar.remains() + 2 > debuff.rip.remains(units.dyn5))
+        and buff.savageRoar.remains() + 2 > debuff.rip.remains(units.dyn5)
     then
         if cast.savageRoar() then
             ui.debug("Casting Savage Roar - Remain <= 3 [Single]")
             return true
         end
     end
-    -- savage_roar,if=buff.savage_roar.remains<=6&combo_points>=5&(buff.savage_roar.remains+2<=dot.rip.remains&dot.rip.ticking|!useDoTs)
+    -- savage_roar,if=buff.savage_roar.remains<=6&combo_points>=5&buff.savage_roar.remains+2<=dot.rip.remains&dot.rip.ticking
     if cast.able.savageRoar() and buff.savageRoar.remains() <= 6 and comboPoints(units.dyn5) >= 5
-        and (not useDoTs or (buff.savageRoar.remains() + 2 <= debuff.rip.remains(units.dyn5) and debuff.rip.exists(units.dyn5)))
+        and buff.savageRoar.remains() + 2 <= debuff.rip.remains(units.dyn5) and debuff.rip.exists(units.dyn5)
     then
         if cast.savageRoar() then
             ui.debug("Casting Savage Roar - Remain <= 6 [Single]")
@@ -1726,10 +1588,9 @@ actionList.SingleTarget = function()
         end
     end
     -- # Savage Roar if we're about to energy cap and it will keep our Rip from expiring around the same time as Savage Roar.
-    -- savage_roar,if=buff.savage_roar.remains<=12&combo_points>=5&energy.time_to_max<=1&(buff.savage_roar.remains<=dot.rip.remains+6&dot.rip.ticking|!useDoTs)
-    if cast.able.savageRoar() and buff.savageRoar.remains() <= 12 and comboPoints(units.dyn5) >= 5
-        and energy.ttm() <= 1
-        and (not useDoTs or (buff.savageRoar.remains() <= debuff.rip.remains(units.dyn5) + 6 and debuff.rip.exists(units.dyn5)))
+    -- savage_roar,if=buff.savage_roar.remains<=12&combo_points>=5&energy.time_to_max<=1&buff.savage_roar.remains<=dot.rip.remains+6&dot.rip.ticking
+    if cast.able.savageRoar() and buff.savageRoar.remains() <= 12 and comboPoints(units.dyn5) >= 5 and energy.ttm() <= 1
+        and buff.savageRoar.remains() <= debuff.rip.remains(units.dyn5) + 6 and debuff.rip.exists(units.dyn5)
     then
         if cast.savageRoar() then
             ui.debug("Casting Savage Roar - Energy Cap [Single]")
@@ -1739,7 +1600,8 @@ actionList.SingleTarget = function()
     -- * Rake
     -- # Refresh Rake as Re-Origination is about to end if Rake has <9 seconds left.
     -- rake,if=buff.rune_of_reorigination.up&dot.rake.remains<9&buff.rune_of_reorigination.remains<=1.5
-    if useDoTs and cast.able.rake(units.dyn5) and not (var.skipPlayerDoTs and unit.player(units.dyn5)) and buff.runeOfReorigination.exists() and debuff.rake.remains(units.dyn5) < 9
+    if cast.able.rake(units.dyn5) and not (var.skipPlayerDoTs and unit.player(units.dyn5))
+        and buff.runeOfReorigination.exists() and debuff.rake.remains(units.dyn5) < 9
         and buff.runeOfReorigination.remains() <= 1.5
     then
         if cast.rake(units.dyn5) then
@@ -1749,11 +1611,12 @@ actionList.SingleTarget = function()
     end
     -- # Rake if we can apply a stronger Rake or if it's about to fall off and clipping the last tick won't waste too much damage.
     -- rake,cycle_targets=1,if=target.time_to_die-dot.rake.remains>3&(action.rake.tick_damage>dot.rake.tick_dmg|(dot.rake.remains<3&action.rake.tick_damage%dot.rake.tick_dmg>=0.75))
-    if useDoTs and not (buff.prowl.exists() or buff.shadowmeld.exists()) then
+    if not (buff.prowl.exists() or buff.shadowmeld.exists()) then
         for i = 1, #enemies.yards5f do
             local thisUnit = enemies.yards5f[i]
             local applied = debuff.rake.applied(thisUnit) > 0 and debuff.rake.applied(thisUnit) or 1
-            if cast.able.rake(thisUnit) and not (var.skipPlayerDoTs and unit.player(thisUnit)) and (unit.ttd(thisUnit) - debuff.rake.remains(thisUnit) > 3)
+            if cast.able.rake(thisUnit) and not (var.skipPlayerDoTs and unit.player(thisUnit))
+                and (unit.ttd(thisUnit) - debuff.rake.remains(thisUnit) > 3)
                 and (debuff.rake.calc(thisUnit) > applied
                     or (debuff.rake.remains(thisUnit) < 3
                         and (debuff.rake.calc(thisUnit) / applied) >= 0.75))
@@ -1767,7 +1630,7 @@ actionList.SingleTarget = function()
     end
     -- * Thrash
     -- thrash_cat,if=target.time_to_die>=6&dot.thrash_cat.remains<3&(dot.rip.remains>=8&buff.savage_roar.remains>=12|buff.berserk.up|combo_points>=5)&dot.rip.ticking
-    if useDoTs and not ui.mode.rotation == 3 and unit.ttd(units.dyn8AOE) >= 6 and debuff.thrash.remains(units.dyn8AOE) < 3
+    if not ui.mode.rotation == 3 and unit.ttd(units.dyn8AOE) >= 6 and debuff.thrash.remains(units.dyn8AOE) < 3
         and ((debuff.rip.remains(units.dyn8AOE) >= 8 and buff.savageRoar.remains() >= 12)
             or buff.berserk.exists() or comboPoints(units.dyn8AOE) >= 5) and debuff.rip.exists(units.dyn8AOE)
     then
@@ -1785,7 +1648,7 @@ actionList.SingleTarget = function()
     -- # Pool energy for and clip Thrash if Rune of Re-Origination is expiring.
     -- pool_resource,for_next=1
     -- thrash_cat,if=target.time_to_die>=6&dot.thrash_cat.remains<9&buff.rune_of_reorigination.up&buff.rune_of_reorigination.remains<=1.5&dot.rip.ticking
-    if useDoTs and unit.ttd(units.dyn8AOE) >= 6 and debuff.thrash.remains(units.dyn8AOE) < 9
+    if unit.ttd(units.dyn8AOE) >= 6 and debuff.thrash.remains(units.dyn8AOE) < 9
         and buff.runeOfReorigination.exists() and buff.runeOfReorigination.remains() <= 1.5
         and debuff.rip.exists(units.dyn8AOE)
     then
@@ -1799,9 +1662,9 @@ actionList.SingleTarget = function()
     end
     -- * Pool Energy for Ferocious Bite
     -- # Pool to near-full energy before casting Ferocious Bite.
-    -- pool_resource,if=combo_points>=5&!(energy.time_to_max<=1|(buff.berserk.up&energy>=25))&dot.rip.ticking
+    -- pool_resource,if=combo_points>=5&!(energy.time_to_max<=1|(buff.berserk.up&energy>=25)|(buff.feral_rage.up&buff.feral_rage.remains<=1))&dot.rip.ticking
     if comboPoints(units.dyn5) >= 5
-        and not (energy.ttm() <= 1 or (buff.berserk.exists() and energy() >= 25))
+        and not (energy.ttm() <= 1 or (buff.berserk.exists() and energy() >= 25) or (buff.feralRage.exists() and buff.feralRage.remains() <= 1))
         and debuff.rip.exists(units.dyn5)
     then
         -- ui.debug("Pooling to near-full energy for Ferocious Bite [Single]")
@@ -1828,7 +1691,7 @@ actionList.SingleTarget = function()
     end
     -- run_action_list,name=filler,if=(combo_points<5&dot.rip.remains<3.0)|(combo_points=0&buff.savage_roar.remains<2)
     -- When not using DoTs, always check filler when combo points < 5
-    if (comboPoints(units.dyn5) < 5 and (not useDoTs or debuff.rip.remains(units.dyn5) < 3))
+    if (comboPoints(units.dyn5) < 5 and debuff.rip.remains(units.dyn5) < 3)
         or (comboPoints(units.dyn5) == 0 and buff.savageRoar.remains() < 2)
     then
         if actionList.Filler("Rip/Savage Roar") then return true end
@@ -1855,9 +1718,6 @@ end -- End Action List - Single Target
 actionList.Filler = function(reason)
     reason = reason and " - " .. reason or ""
 
-    -- Check if DoTs are worth using
-    local useDoTs = shouldUseDoTs(units.dyn5)
-
     -- * Ravage
     -- ravage
     if cast.able.ravage() and (buff.prowl.exists() or buff.shadowmeld.exists()) and not unit.facing(units.dyn5, "player") then
@@ -1869,19 +1729,17 @@ actionList.Filler = function(reason)
     -- * Rake
     -- # Rake if it hits harder than Mangle and we won't apply a weaker bleed to the target.
     -- rake,if=target.time_to_die-dot.rake.remains>3&action.rake.tick_damage*(dot.rake.ticks_remain+1)-dot.rake.tick_dmg*dot.rake.ticks_remain>action.mangle_cat.hit_damage
-    if useDoTs then
-        for i = 1, #enemies.yards5f do
-            local thisUnit = enemies.yards5f[i]
-            if cast.able.rake(thisUnit) and not debuff.convert.exists(thisUnit) and not (var.skipPlayerDoTs and unit.player(thisUnit)) then
-                if unit.ttd(thisUnit) - debuff.rake.remains(thisUnit) > 3
-                    and (debuff.rake.calc() * (debuff.rake.ticksRemain(thisUnit) + 1)
-                        - debuff.rake.applied(thisUnit) * debuff.rake.ticksRemain(thisUnit)
-                        > getMangleDamage())
-                then
-                    if cast.rake(thisUnit) then
-                        ui.debug("Casting Rake on " .. unit.name(thisUnit) .. " [Filler" .. reason .. "]")
-                        return true
-                    end
+    for i = 1, #enemies.yards5f do
+        local thisUnit = enemies.yards5f[i]
+        if cast.able.rake(thisUnit) and not debuff.convert.exists(thisUnit) and not (var.skipPlayerDoTs and unit.player(thisUnit)) then
+            if unit.ttd(thisUnit) - debuff.rake.remains(thisUnit) > 3
+                and (debuff.rake.calc() * (debuff.rake.ticksRemain(thisUnit) + 1)
+                    - debuff.rake.applied(thisUnit) * debuff.rake.ticksRemain(thisUnit)
+                    > getMangleDamage())
+            then
+                if cast.rake(thisUnit) then
+                    ui.debug("Casting Rake on " .. unit.name(thisUnit) .. " [Filler" .. reason .. "]")
+                    return true
                 end
             end
         end

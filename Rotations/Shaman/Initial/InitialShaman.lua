@@ -16,12 +16,6 @@ local function createToggles()
         [2] = { mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spells.healingSurge }
     };
     br.ui:createToggle(DefensiveModes, "Defensive", 2, 0)
-    -- Ghost Wolf Button
-    local GhostWolfModes = {
-        [1] = { mode = "Moving", value = 1, overlay = "Moving Enabled", tip = "Will Ghost Wolf when movement detected", highlight = 1, icon = br.player.spells.ghostWolf },
-        [2] = { mode = "Hold", value = 2, overlay = "Hold Enabled", tip = "Will Ghost Wolf when key is held down", highlight = 0, icon = br.player.spells.ghostWolf },
-    };
-    br.ui:createToggle(GhostWolfModes, "GhostWolf", 3, 0)
 end
 
 ---------------
@@ -36,16 +30,7 @@ local function createOptions()
         --- GENERAL OPTIONS ---
         -----------------------
         section = br.ui:createSection(br.ui.window.profile, "General")
-        -- Basic Trinket Module
-        br.player.module.BasicTrinkets(nil, section)
-        -- Ghost Wolf
-        br.ui:createCheckbox(section, "Auto Ghost Wolf",
-            "|cff0070deCheck this to automatically control GW transformation based on toggle bar setting.")
-        br.ui:createSpinnerWithout(section, "Ghost Wolf Shift Delay", 2, 0, 5, 1,
-            "|cff0070deSet to desired time to wait before shifting into Ghost Wolf.")
-        br.ui:createDropdownWithout(section, "Ghost Wolf Key", br.ui.dropOptions.Toggle, 6,
-            "|cff0070deSet key to hold down for Ghost Wolf")
-        -- FLametongue Weapon
+        -- Flametongue Weapon
         br.ui:createCheckbox(section, "Flametongue Weapon", "|cff0070deCheck this to keep flametongue weapon enchant up.")
         -- Lightning Shield
         br.ui:createCheckbox(section, "Lightning Shield", "|cff0070deCheck this to keep lightning shield up.")
@@ -54,8 +39,6 @@ local function createOptions()
         --- DEFENSIVE OPTIONS ---
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
-        -- Basic Healing Module
-        br.player.module.BasicHealing(section)
         -- Healing Surge
         br.ui:createSpinner(section, "Healing Surge", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
         -- OOC Healing
@@ -70,8 +53,6 @@ local function createOptions()
         br.ui:createDropdownWithout(section, "Rotation Mode", br.ui.dropOptions.Toggle, 4)
         --Defensive Key Toggle
         br.ui:createDropdownWithout(section, "Defensive Mode", br.ui.dropOptions.Toggle, 6)
-        -- Pause Toggle
-        br.ui:createDropdown(section, "Pause Mode", br.ui.dropOptions.Toggle, 6)
         br.ui:checkSectionState(section)
     end
     optionTable = { {
@@ -91,6 +72,7 @@ local cd
 local debuff
 local enemies
 local module
+local spell
 local ui
 local unit
 local units
@@ -100,46 +82,44 @@ local actionList = {}
 -----------------
 --- Functions ---
 -----------------
-local function ghostWolf()
-    -- Ghost Wolf
-    local moveTimer = unit.movingTime()
-    if not (unit.mounted() or unit.flying()) and ui.checked("Auto Ghost Wolf") then
-        if ui.mode.ghostWolf == 1 then
-            if cast.able.ghostWolf() and ((#enemies.yards20 == 0 and not unit.inCombat()) or (#enemies.yards10 == 0 and unit.inCombat()))
-                and unit.moving() and moveTimer > ui.value("Ghost Wolf Shift Delay") and not buff.ghostWolf.exists()
-            then
-                if cast.ghostWolf("player") then ui.debug("Casting Ghost Wolf [Moving]") end
-            end
-        elseif ui.mode.ghostWolf == 2 then
-            if cast.able.ghostWolf() and not buff.ghostWolf.exists() and unit.moving() then
-                if ui.toggle("Ghost Wolf Key") then
-                    if cast.ghostWolf("player") then ui.debug("Casting Ghost Wolf [Keybind]") end
-                end
-            elseif buff.ghostWolf.exists() then
-                if ui.toggle("Ghost Wolf Key") then return end
-            end
+local function cancelLightningBolt()
+    if cast.current.lightningBolt() and cast.timeRemain() > unit.gcd(true) then
+        if cast.cancel.lightningBolt() then
+            ui.debug("Canceled Lightning Bolt Cast [Melee Range]")
+            return true
         end
     end
+    return false
 end
-
+local function canLightningBolt()
+    -- Earth Shock
+    if (not spell.earthShock.known() or cast.time.lightningBolt() > cd.earthShock.remain()) and
+        unit.distance(units.dyn25) < 25
+    then
+        return false
+    end
+    -- Primal Strike
+    if (not spell.primalStrike.known() or cast.time.lightningBolt() > cd.primalStrike.remain()) and unit.distance(units.dyn5) < 5 then
+        return false
+    end
+    return true
+end
 --------------------
 --- Action Lists ---
 --------------------
 -- Action List - Extra
 actionList.Extra = function()
-    -- FLametongue Weapon
+    -- Flametongue Weapon
     if ui.checked("Flametongue Weapon") and cast.able.flametongueWeapon() and not unit.weaponImbue.exists() then
         if cast.flametongueWeapon("player") then
-            ui.debug("Casting Flametongue Weapon")
+            ui.debug("Casting Flametongue Weapon [Extra]")
             return true
         end
     end
-    -- Ghost Wolf
-    ghostWolf()
     -- Lightning Shield
     if ui.checked("Lightning Shield") and cast.able.lightningShield() and not buff.lightningShield.exists() then
         if cast.lightningShield("player") then
-            ui.debug("Casting Lightning Shield")
+            ui.debug("Casting Lightning Shield [Extra]")
             return true
         end
     end
@@ -148,18 +128,16 @@ end -- End Action List - Extra
 -- Action List - Defensive
 actionList.Defensive = function()
     if ui.useDefensive() then
-        -- Basic Healing Module
-        module.BasicHealing()
         -- Healing Surge
         if ui.checked("Healing Surge") and cast.able.healingSurge() and not unit.moving() then
             if unit.friend("target") and unit.hp("target") <= ui.value("Healing Surge") then
                 if cast.healingSurge("target") then
-                    ui.debug("Casting Healing Surge on " .. unit.name("target"))
+                    ui.debug("Casting Healing Surge on " .. unit.name("target") .. " [Defensive]")
                     return true
                 end
             elseif unit.hp("player") <= ui.value("Healing Surge") then
                 if cast.healingSurge("player") then
-                    ui.debug("Casting Healing Surge on " .. unit.name("player"))
+                    ui.debug("Casting Healing Surge on " .. unit.name("player") .. " [Defensive]")
                     return true
                 end
             end
@@ -169,30 +147,37 @@ end -- End Action List - Defensive
 
 -- Action List - Pre-Combat
 actionList.PreCombat = function()
-    if not unit.inCombat() then
-        if unit.distance("target") > 5 then
-            -- Lightning Bolt
-            if cast.able.lightningBolt() and not unit.moving() then
-                if cast.lightningBolt() then
-                    ui.debug("Casting Lightning Bolt [Pre-Combat] " ..
-                        br.functions.misc:round2(cast.timeSinceLast.lightningBolt(), 2) ..
-                        "  " .. unit.gcd(true) + (select(3, br._G.GetNetStats()) / 100))
-                    return true
+    if not unit.inCombat() and not (unit.flying() or unit.mounted()) then
+        if unit.valid("target") and unit.exists("target") then
+            if unit.distance("target") > 5 then
+                -- Lightning Bolt
+                if cast.able.lightningBolt("target") and var.useLightningBolt then
+                    if cast.lightningBolt("target") then
+                        ui.debug("Casting Lightning Bolt [Precombat]")
+                        return true
+                    end
                 end
-            end
-            -- Flame Shock
-            if cast.able.flameShock() then
-                if cast.flameShock() then
-                    ui.debug("Casting Flame Shock [Pre-Combat]")
-                    return true
+                -- Earth Shock
+                if cast.able.earthShock("target") then
+                    if cast.earthShock("target") then
+                        ui.debug("Casting Earth Shock [Precombat]")
+                        return true
+                    end
                 end
-            end
-        else
-            -- Start Attack
-            if cast.able.autoAttack("target") then
-                if cast.autoAttack("target") then
-                    ui.debug("Casting Auto Attack [Precombat]")
-                    return true
+            else
+                -- Primal Strike
+                if cast.able.primalStrike("target") then
+                    if cast.primalStrike("target") then
+                        ui.debug("Casting Primal Strike [Precombat]")
+                        return true
+                    end
+                end
+                -- Start Attack
+                if cast.able.autoAttack("target") then
+                    if cast.autoAttack("target") then
+                        ui.debug("Casting Auto Attack [Precombat]")
+                        return true
+                    end
                 end
             end
         end
@@ -201,34 +186,36 @@ end -- End Action List - PreCombat
 
 -- Action List - Combat
 actionList.Combat = function()
-    -- Start Attack
-    if cast.able.autoAttack("target") then
-        if cast.autoAttack("target") then
-            ui.debug("Casting Auto Attack")
-            return true
+    if (unit.inCombat() or (not unit.inCombat() and unit.valid(units.dyn5))) and not var.profileStop
+        and unit.exists(units.dyn5) and cd.global.remain() == 0
+    then
+        -- Start Attack
+        if cast.able.autoAttack("target") then
+            if cast.autoAttack("target") then
+                ui.debug("Casting Auto Attack [Combat]")
+                return true
+            end
         end
-    end
-    -- Basic Trinkets Module
-    module.BasicTrinkets()
-    -- Flame Shock
-    if cast.able.flameShock() and not debuff.flameShock.exists(units.dyn40) then
-        if cast.flameShock() then
-            ui.debug("Casting Flame Shock")
-            return true
+        -- Earth Shock
+        if cast.able.earthShock() then
+            if cast.earthShock() then
+                ui.debug("Casting Earth Shock [Combat]")
+                return true
+            end
         end
-    end
-    -- Primal Strike
-    if cast.able.primalStrike() then
-        if cast.primalStrike() then
-            ui.debug("Casting Primal Strike")
-            return true
+        -- Primal Strike
+        if cast.able.primalStrike() then
+            if cast.primalStrike() then
+                ui.debug("Casting Primal Strike [Combat]")
+                return true
+            end
         end
-    end
-    -- Lightning Bolt
-    if cast.able.lightningBolt() and not unit.moving() and (unit.distance("target") > 5 or unit.level() < 2) then
-        if cast.lightningBolt() then
-            ui.debug("Casting Lightning Bolt")
-            return true
+        -- Lightning Bolt
+        if cast.able.lightningBolt() and var.useLightningBolt then
+            if cast.lightningBolt() then
+                ui.debug("Casting Lightning Bolt [Combat]")
+                return true
+            end
         end
     end
 end -- End Action List - Combat
@@ -247,6 +234,7 @@ local function runRotation()
     debuff          = br.player.debuff
     enemies         = br.player.enemies
     module          = br.player.module
+    spell           = br.player.spell
     ui              = br.player.ui
     unit            = br.player.unit
     units           = br.player.units
@@ -257,6 +245,7 @@ local function runRotation()
         ui.mode.rotation == 2
     -- Units
     units.get(5)
+    units.get(25)
     units.get(40)
     -- Enemies
     enemies.get(5)
@@ -264,19 +253,18 @@ local function runRotation()
     enemies.get(20)
     enemies.get(40)
 
-
-    -- Cancel Lightning Bolt in Melee
-    if unit.distance("target") < 5 and cast.current.lightningBolt() and unit.level() > 1 then
-        if cast.cancel.lightningBolt() then ui.debug("Canceled Lightning Bolt Cast [Melee Range]") end
+    var.useLightningBolt = canLightningBolt()
+    if not var.useLightningBolt then
+        cancelLightningBolt()
     end
 
     ---------------------
     --- Begin Profile ---
     ---------------------
-    -- Profile Stop | Pause
+    -- * Profile Stop | Pause
     if not unit.inCombat() and not unit.exists("target") and var.profileStop then
         var.profileStop = false
-    elseif var.haltProfile then
+    elseif (unit.inCombat() and var.profileStop) or ui.pause() then
         return true
     else
         -----------------------
@@ -287,14 +275,14 @@ local function runRotation()
         --- Defensive ---
         -----------------
         if actionList.Defensive() then return true end
-        ------------------
-        --- Pre-Combat ---
-        ------------------
-        if actionList.PreCombat() then return true end
-        -----------------------------
-        --- In Combat - Rotations ---
-        -----------------------------
-        if unit.inCombat() and unit.valid("target") and cd.global.remain() == 0 then
+        if ui.mode.rotation ~= 2 then
+            ------------------
+            --- Pre-Combat ---
+            ------------------
+            if actionList.PreCombat() then return true end
+            -----------------------------
+            --- In Combat - Rotations ---
+            -----------------------------
             if actionList.Combat() then return true end
         end -- End In Combat Rotation
     end     -- Pause
