@@ -85,14 +85,18 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
             -- Ascendance
             br.ui:createDropdownWithout(section,"Ascendance", alwaysCdNever, 1, "|cffFFFFFFWhen to use Ascendance.")
+            -- Ancestral Swiftness
+            br.ui:createDropdownWithout(section,"Ancestral Swiftness", alwaysCdNever, 1, "|cffFFFFFFWhen to use Ancestral Swiftness.")
             -- Earth Elemental Totem
             br.ui:createDropdownWithout(section,"Earth Elemental", alwaysCdNever, 1, "|cffFFFFFFWhen to use Earth Elemental.")
+            -- Elemental Mastery
+            br.ui:createDropdownWithout(section,"Elemental Mastery", alwaysCdNever, 1, "|cffFFFFFFWhen to use Elemental Mastery.")
             -- Feral Spirit
             br.ui:createDropdownWithout(section,"Feral Spirit", alwaysCdNever, 1, "|cffFFFFFFWhen to use Feral Spirit.")
-            -- Primordial Wave
-            br.ui:createDropdownWithout(section,"Primordial Wave", alwaysCdNever, 1, "|cffFFFFFFWhen to use Primordial Wave.")
-            -- Sundering
-            br.ui:createDropdownWithout(section,"Sundering", alwaysCdNever, 1, "|cffFFFFFFWhen to use Sundering.")
+            -- Fire Elemental Totem
+            br.ui:createDropdownWithout(section,"Fire Elemental", alwaysCdNever, 1, "|cffFFFFFFWhen to use Fire Elemental Totem.")
+            -- Stormlash Totem
+            br.ui:createDropdownWithout(section,"Stormlash", alwaysCdNever, 1, "|cffFFFFFFWhen to use Stormlash Totem.")
         br.ui:checkSectionState(section)
         -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
@@ -484,7 +488,7 @@ actionList.AOE = function()
     end
     -- * Chain Lightning
     -- chain_lightning,if=active_enemies>=2&buff.maelstrom_weapon.react>=3
-    if cast.able.chainLightning() and #enemies.yards8 >= 2 and buff.maelstromWeapon.stack() >= 3 then
+    if cast.able.chainLightning() and #enemies.yards8t >= 2 and buff.maelstromWeapon.stack() >= 3 then
         if cast.chainLightning() then
             var.fillerChainLightning = false
             ui.debug("Casting Chain Lightning - 3+ Maelstrom [AOE]")
@@ -498,8 +502,11 @@ actionList.AOE = function()
     end
     -- * Flame Shock
     -- flame_shock,cycle_targets=1,if=!ticking
-    if cast.able.flameShock(var.lowestFlameShock) and not debuff.flameShock.exists(var.lowestFlameShock) then
-        if cast.flameShock(var.lowestFlameShock) then ui.debug("Casting Flame Shock [AOE]") return true end
+    for i = 1, #enemies.yards5 do
+        local thisUnit = enemies.yards5[i]
+        if cast.able.flameShock(thisUnit) and not debuff.flameShock.exists(thisUnit) then
+            if cast.flameShock(thisUnit) then ui.debug("Casting Flame Shock on "..unit.name(thisUnit).." [AOE]") return true end
+        end
     end
     -- * Stormblast
     -- stormblast
@@ -513,7 +520,7 @@ actionList.AOE = function()
     end
     -- * Chain Lightning
     -- chain_lightning,if=active_enemies>=2&buff.maelstrom_weapon.react>=1
-    if cast.able.chainLightning() and #enemies.yards8 >= 2 and buff.maelstromWeapon.stack() >= 1 then
+    if cast.able.chainLightning() and #enemies.yards8t >= 2 and buff.maelstromWeapon.stack() >= 1 then
         if cast.chainLightning() then
             var.fillerChainLightning = false
             ui.debug("Casting Chain Lightning [AOE]")
@@ -619,12 +626,12 @@ actionList.Single = function()
     -- * Flame Shock
     -- flame_shock,if=buff.unleash_flame.up&!ticking
     if cast.able.flameShock(units.dyn5) and buff.unleashFlame.exists() and not debuff.flameShock.exists(units.dyn5) then
-        if cast.flameShock() then ui.debug("Casting Flame Shock - Unleash Flame [Single]") return true end
+        if cast.flameShock(units.dyn5) then ui.debug("Casting Flame Shock - Unleash Flame [Single]") return true end
     end
     -- * Lava Lash
     -- lava_lash
-    if cast.able.lavaLash() and debuff.flameShock.exists(units.dyn5) then
-        if cast.lavaLash() then ui.debug("Casting Lava Lash [Single]") return true end
+    if cast.able.lavaLash(units.dyn5) and debuff.flameShock.exists(units.dyn5) then
+        if cast.lavaLash(units.dyn5) then ui.debug("Casting Lava Lash [Single]") return true end
     end
     -- * Lightning Bolt
     -- lightning_bolt,if=set_bonus.tier15_2pc_melee=1&buff.maelstrom_weapon.react>=4&!buff.ascendance.up
@@ -641,7 +648,7 @@ actionList.Single = function()
         and (debuff.flameShock.remains(units.dyn5) < 10 --[[or cast.flameShock.tickDamage() > debuff.flameShock.tickDamage(units.dyn25)]]))
             or not debuff.flameShock.exists(units.dyn5))
     then
-        if cast.flameShock() then ui.debug("Casting Flame Shock [Single]") return true end
+        if cast.flameShock(units.dyn5) then ui.debug("Casting Flame Shock [Single]") return true end
     end
     -- * Unleash Elements
     -- unleash_elements
@@ -664,7 +671,7 @@ actionList.Single = function()
     end
     -- * Ancestral Swiftness
     -- ancestral_swiftness,if=talent.ancestral_swiftness.enabled&buff.maelstrom_weapon.react<2
-    if cast.able.ancestralSwiftness() and talent.ancestralSwiftness and buff.maelstromWeapon.stack() < 2 then
+    if ui.alwaysCdNever("Ancestral Swiftness") and cast.able.ancestralSwiftness() and talent.ancestralSwiftness and buff.maelstromWeapon.stack() < 2 then
         if cast.ancestralSwiftness() then ui.debug("Casting Ancestral Swiftness [Single]") return true end
     end
     -- * Lightning Bolt
@@ -762,6 +769,20 @@ actionList.Combat = function()
     if (unit.inCombat() --[[or (not unit.inCombat() and unit.valid(units.dyn5))]]) and not var.profileStop
         and unit.exists(units.dyn5) and cd.global.remain() == 0
     then
+        -- * Cancel ranged lightning casts if enemies are in melee range
+        if (cast.current.lightningBolt() or cast.current.chainLightning()) and #enemies.yards5 > 0 then
+            if cast.current.lightningBolt() then
+                if cast.cancel.lightningBolt() then
+                    ui.debug("Canceled Lightning Bolt - Enemy in melee range")
+                    return true
+                end
+            elseif cast.current.chainLightning() then
+                if cast.cancel.chainLightning() then
+                    ui.debug("Canceled Chain Lightning - Enemy in melee range")
+                    return true
+                end
+            end
+        end
         -- * Call Action List - Interrupt
         -- wind_shear
         if actionList.Interrupt() then return true end
@@ -776,11 +797,37 @@ actionList.Combat = function()
                 return true
             end
         end
+        -- * Ranged Lightning when not in melee range
+        if unit.valid("target") and #enemies.yards5 == 0 and unit.distance("target") > 5 and unit.distance("target") <= 40 then
+            -- Chain Lightning for multiple targets
+            if cast.able.chainLightning() and #enemies.yards8t >= 2 then
+                if cast.chainLightning() then
+                    ui.debug("Casting Chain Lightning - Out of Melee [Combat]")
+                    return true
+                end
+            end
+            -- Lightning Bolt for single target
+            if cast.able.lightningBolt() then
+                if cast.lightningBolt() then
+                    ui.debug("Casting Lightning Bolt - Out of Melee [Combat]")
+                    return true
+                end
+            end
+        end
         -- * Use Items - Hands
         -- use_item,name=grips_of_the_witch_doctor
         -- * Stormlash Totem
         -- # Link Stormlash totem cast to early Bloodlust, and ensure that only one Stormlash is used at a time.
         -- stormlash_totem,if=!active&!buff.stormlash.up&(buff.bloodlust.up|time>=60)
+        if ui.alwaysCdNever("Stormlash Totem") and cast.able.stormlashTotem("player")
+            and not totem.air.stormlash.exists() and not buff.stormlash.exists()
+            and (buff.bloodlust.exists() or unit.combatTime() >= 60)
+        then
+            if cast.stormlashTotem("player") then
+                ui.debug("Casting Stormlash Totem")
+                return true
+            end
+        end
         -- * In-Combat Potion
         -- # In-combat potion is linked to Primal or Greater Fire Elemental Totem, after the first 60 seconds of combat.
         -- virmens_bite_potion,if=time>60&(pet.primal_fire_elemental.active|pet.greater_fire_elemental.active|target.time_to_die<=60)
@@ -788,15 +835,49 @@ actionList.Combat = function()
         -- blood_fury
         -- arcane_torrent
         -- berserking
-        if ui.alwaysCdNever("Racial") and cast.able.racial() then
+        if ui.alwaysCdNever("Racial") and cast.able.racial()
+            and (unit.race() == "Orc" or unit.race() == "BloodElf" or unit.race() == "Troll")
+        then
             if cast.racial() then ui.debug("Casting Racial") return true end
         end
         -- * Elemental Mastery
         -- elemental_mastery,if=talent.elemental_mastery.enabled&(talent.primal_elementalist.enabled&glyph.fire_elemental_totem.enabled&(cooldown.fire_elemental_totem.remains=0|cooldown.fire_elemental_totem.remains>=80))
+        if ui.alwaysCdNever("Elemental Mastery") and cast.able.elementalMastery() and talent.elementalMastery
+            and (talent.primalElementalist and glyph.fireElementalTotem.exists()
+            and (cd.fireElementalTotem.remain() == 0 or cd.fireElementalTotem.remain() >= 80))
+        then
+            if cast.elementalMastery() then
+                ui.debug("Casting Elemental Mastery")
+                return true
+            end
+        end
         -- elemental_mastery,if=talent.elemental_mastery.enabled&(talent.primal_elementalist.enabled&!glyph.fire_elemental_totem.enabled&(cooldown.fire_elemental_totem.remains=0|cooldown.fire_elemental_totem.remains>=50))
+        if ui.alwaysCdNever("Elemental Mastery") and cast.able.elementalMastery() and talent.elementalMastery
+            and (talent.primalElementalist and not glyph.fireElementalTotem.enabled()
+            and (cd.fireElementalTotem.remain() == 0 or cd.fireElementalTotem.remain() >= 50))
+        then
+            if cast.elementalMastery() then
+                ui.debug("Casting Elemental Mastery")
+                return true
+            end
+        end
         -- elemental_mastery,if=talent.elemental_mastery.enabled&!talent.primal_elementalist.enabled
+        if ui.alwaysCdNever("Elemental Mastery") and cast.able.elementalMastery() and talent.elementalMastery
+            and not talent.primalElementalist
+        then
+            if cast.elementalMastery() then
+                ui.debug("Casting Elemental Mastery")
+                return true
+            end
+        end
         -- * Fire Elemental Totem
         -- fire_elemental_totem,if=!active
+        if ui.alwaysCdNever("Fire Elemental") and cast.able.fireElementalTotem("player") and not totem.fireElemental.exists() then
+            if cast.fireElementalTotem("player") then
+                ui.debug("Casting Fire Elemental Totem")
+                return true
+            end
+        end
         -- * Ascendance
         -- ascendance,if=cooldown.strike.remains>=3
         if ui.alwaysCdNever("Ascendance") and cast.able.ascendance() and cd.stormstrike.remain() >= 3 then
@@ -849,25 +930,15 @@ local function runRotation()
 
     -- Dynamic Units
     units.get(5)
-    -- units.get(8)
-    -- units.get(20)
-    units.get(40)
 
     -- Enemies Lists
     enemies.get(5)
     enemies.get(8)
     enemies.get(8, "target")
-    enemies.get(8,"player",false,true)
-    enemies.cone.get(180,8,false)
     enemies.get(10)
-    enemies.rect.get(10,11,false)
     enemies.get(20)
     enemies.get(25,"player",true,false)
     enemies.get(30)
-    enemies.get(40,"player",false,true)
-    enemies.get(40)
-
-    var.lowestFlameShock = debuff.flameShock.lowest(25,"remain") or "target"
 
     -- Initialize filler tracking variables
     if var.fillerLightningBolt == nil then var.fillerLightningBolt = false end

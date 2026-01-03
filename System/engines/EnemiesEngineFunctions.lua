@@ -673,9 +673,9 @@ local function getUnitCoeficient(unit)
 			end
 			-- Distance Coef add for multiple burn units (Will prioritize closest first)
 			coef = coef + ((50 - distance) / 100)
-			-- if its our actual target we give it a bonus
+			-- if its our actual target we give it a bonus (increased to strongly prefer selected target)
 			if br.functions.unit:GetUnitIsUnit("target", unit) == true and not br.functions.unit:GetUnitIsDeadOrGhost(unit) then
-				coef = coef + 50
+				coef = coef + 200
 			end
 			-- raid target management
 			-- if the unit have the skull and we have param for it add 50

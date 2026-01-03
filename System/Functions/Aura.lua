@@ -161,6 +161,7 @@ function aura:UnitDebuffID(unit, spellID, filter)
                     local auraInfo = C_UnitAuras.GetDebuffDataByIndex(unit, i, "HARMFUL|PLAYER")
                     if auraInfo and auraInfo.name == spellName then return auraInfo end
                 end
+                return nil -- Don't fall through to non-player filter if PLAYER was specified
             end
             for i = 1, 40 do
                 local auraInfo = C_UnitAuras.GetDebuffDataByIndex(unit, i, "HARMFUL")
