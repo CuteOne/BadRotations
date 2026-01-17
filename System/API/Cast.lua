@@ -75,7 +75,7 @@ br.api.cast = function(self, spell, id)
     -- @tab enemies A table of enemy units that the spell should be cast on.
     -- @treturn boolean
     cast.name = function(spellName, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)
-        local _, _, _, _, _, _, spellID = br._G.GetSpellInfo(spellName)
+        local _, _, _, _, _, _, spellID = br.api.wow.GetSpellInfo(spellName)
         return br.functions.cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellID, spell, predict, predictPad,
             enemies)
     end
@@ -125,7 +125,7 @@ br.api.cast = function(self, spell, id)
     -- @tab enemies A table of enemy units that the spell should be cast on.
     -- @treturn boolean
     cast.able.name = function(spellName, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)
-        local _, _, _, _, _, _, spellID = br._G.GetSpellInfo(spellName)
+        local _, _, _, _, _, _, spellID = br.api.wow.GetSpellInfo(spellName)
         return br.functions.cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellID, spell, predict, predictPad,
             enemies, true)
     end
@@ -143,7 +143,7 @@ br.api.cast = function(self, spell, id)
     -- @function cast.auto.spell
     -- @treturn boolean
     cast.auto[spell] = function()
-        return br._G.C_Spell.IsAutoRepeatSpell(br._G.GetSpellInfo(id)) or br._G.C_Spell.IsCurrentSpell(id)
+        return br._G.C_Spell.IsAutoRepeatSpell(br.api.wow.GetSpellInfo(id)) or br._G.C_Spell.IsCurrentSpell(id)
     end
 
     --- Cancels the current spell being cast if it matches the specified spell.
@@ -361,5 +361,60 @@ br.api.cast = function(self, spell, id)
         else
             return true
         end
+    end
+
+    -- ===========================
+    -- SPELL RANK SYSTEM (CLASSIC)
+    -- ===========================
+
+    if cast.rank == nil then cast.rank = {} end
+
+    --- Cast a specific rank of a spell (Classic WoW only).
+    -- Allows casting a lower rank of a spell for mana efficiency or specific mechanics.
+    -- @function cast.rank.spell
+    -- @number rankNum The rank number to cast (1-based index, e.g., 1 for Rank 1, 2 for Rank 2)
+    -- @string thisUnit The target unit for the spell. Can be standard WoW units, dynamic units, or special parameters.
+    -- @string castType Defines the type of AoE or special cast conditions.
+    -- @number minUnits Minimum number of units needed to be hit by AoE spell.
+    -- @number effectRng The AoE's effect range.
+    -- @bool predict If true, will attempt to predict enemy movements for ground location AoE spells.
+    -- @bool predictPad Pads the prediction cast time. 'predict' must be true.
+    -- @tab enemies A table of enemy units that the spell should be cast on.
+    -- @treturn boolean
+    -- @usage
+    -- -- Cast Rank 1 Healing Touch for mana efficiency
+    -- if cast.rank.healingTouch(1, "target") then return true end
+    -- 
+    -- -- Cast Rank 3 Rejuvenation
+    -- if cast.rank.rejuvenation(3, "target") then return true end
+    cast.rank[spell] = function(rankNum, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)
+        if not br.isClassic then
+            -- In non-Classic, just use the regular spell (no ranks)
+            return br.functions.cast:createCastFunction(thisUnit, castType, minUnits, effectRng, id, spell, predict, predictPad, enemies)
+        end
+        
+        -- Get the specific rank spell ID from the spell definition (id might be a table)
+        local rankID = br.functions.spell:getSpellRank(id, rankNum)
+        if not rankID then
+            -- Rank doesn't exist, fallback to base ID
+            rankID = type(id) == "table" and id[1] or id
+        end
+        
+        -- Cast the specific rank
+        return br.functions.cast:createCastFunction(thisUnit, castType, minUnits, effectRng, rankID, spell, predict, predictPad, enemies)
+    end
+
+    --- Get the highest known rank number for this spell.
+    -- @function cast.maxRank.spell
+    -- @treturn number The highest rank number the player knows (1-based), or 0 if none
+    -- @usage
+    -- local knownRank = cast.maxRank.healingTouch()
+    -- if knownRank >= 5 then
+    --     -- Player knows at least Rank 5
+    -- end
+    cast.maxRank = cast.maxRank or {}
+    cast.maxRank[spell] = function()
+        if not br.isClassic then return 1 end
+        return br.functions.spell:getKnownRank(id)
     end
 end

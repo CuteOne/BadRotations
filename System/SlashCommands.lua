@@ -291,7 +291,7 @@ local function handler(message, editbox)
 					'This will cast spell 123456 on "player" as an AOE once there are at least 3 units within 8 yards of the player.\n'
 				)
 			else
-				local spellName, _, _, _, _, _, spellId = br._G.GetSpellInfo(msg3)
+				local spellName, _, _, _, _, _, spellId = br.api.wow.GetSpellInfo(msg3)
 				local notOnCD = true
 				if br ~= nil and br.player ~= nil and spellName ~= nil then
 					notOnCD = br.functions.spell:getSpellCD(spellName) <= br.player.gcdMax
@@ -354,7 +354,7 @@ local function handler(message, editbox)
 			if msg3 == nil then
 				br._G.print("No Spell Provided to remove from Queue.")
 			else
-				local spellName, _, _, _, _, _, spellId = br._G.GetSpellInfo(msg3)
+				local spellName, _, _, _, _, _, spellId = br.api.wow.GetSpellInfo(msg3)
 				local removedSpell = false
 				if #br.player.queue ~= 0 then
 					for i = 1, #br.player.queue do
@@ -412,7 +412,7 @@ local function handler(message, editbox)
 		if msg2 == nil then
 			br._G.print("No Spell Provided to Add")
 		else
-			local spellName, _, _, _, _, _, spellId = br._G.GetSpellInfo(msg3)
+			local spellName, _, _, _, _, _, spellId = br.api.wow.GetSpellInfo(msg3)
 			if spellName == nil then
 				br._G.print("Invalid Spell ID: |cffFFDD11 Unable to add.")
 			else
@@ -428,7 +428,7 @@ local function handler(message, editbox)
 	elseif msg == "disengage" then
 		-- Forward Disengage
 		if br._G.IsLeftShiftKeyDown() then
-			br._G.CastSpellByName(br._G.GetSpellInfo(781))
+			br._G.CastSpellByName(br.api.wow.GetSpellInfo(781))
 		else
 			forewardDisengage()
 		end

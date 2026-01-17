@@ -14,22 +14,33 @@ local function getSnapshotValue(dot)
     -- Feral Bleeds
     if br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization()) == 103 then
         local multiplier     = 1.00
-        local DreamOfCenarius    = 1.30
-        local SavageRoar     = 1.45
+        local DreamOfCenarius    = 1
+        local Bloodtalons      = 1
+        local SavageRoar     = 1
         local TigersFury     = 1.15
         local RakeMultiplier = 1
         -- * Tigers Fury
         if br.player.buff.tigersFury.exists() then multiplier = multiplier * TigersFury end
-        -- * Dream  of Cenarius
-        if br.player.buff.dreamOfCenarius.exists() then multiplier = multiplier * DreamOfCenarius end
+        -- * Dream  of Cenarius / Bloodtalons
+        if br.isMOP then
+            DreamOfCenarius    = 1.30
+            if br.player.buff.dreamOfCenarius.exists() then multiplier = multiplier * DreamOfCenarius end
+        end
+        if br.isRetail then
+            Bloodtalons    = 1.30
+            if br.player.buff.bloodtalons.exists() then multiplier = multiplier * Bloodtalons end
+        end
         -- * Savage Roar
-        if br.player.buff.savageRoar.exists() then multiplier = multiplier * SavageRoar end
-        
+        if br.isMOP then
+            SavageRoar     = 1.45
+            if br.player.buff.savageRoar.exists() then multiplier = multiplier * SavageRoar end
+        end
+
         -- Get Attack Power for actual damage calculations
         local UnitAttackPower = br._G["UnitAttackPower"]
         local base, posBuff, negBuff = UnitAttackPower("player")
         local ap = base + posBuff + negBuff
-        
+
         -- * Rip
         if dot == br.player.spells.debuffs.rip then
             -- Rip: 768% AP over 16 seconds (8 ticks, one every 2 seconds)
@@ -41,11 +52,11 @@ local function getSnapshotValue(dot)
             -- Rake: 155% AP over 15 seconds (9 ticks, one every 3 seconds)
             local rakeTickDamage = (0.155 * ap) / 9
             -- Incarnation/Prowl/Shadowmeld
-            -- if br.player.buff.incarnation.exists() or br.player.buff.prowl.exists()
-            --     or br.player.buff.shadowmeld.exists() --or br.player.buff.suddenAmbush.exists()
-            -- then
-            --     RakeMultiplier = 2.0
-            -- end
+            if br.isRetail and (br.player.buff.incarnationAvatarOfAshamane.exists() or br.player.buff.prowl.exists()
+                or br.player.buff.shadowmeld.exists()) --or br.player.buff.suddenAmbush.exists()
+            then
+                RakeMultiplier = 2.0
+            end
             return rakeTickDamage * multiplier * RakeMultiplier
         end
     end

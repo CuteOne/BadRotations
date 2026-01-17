@@ -108,13 +108,12 @@ hooksecurefunc(
 		end
 	end
 )
--- Spell tooltips (MoP Classic compatible)
-br._G.GameTooltip:HookScript("OnTooltipSetSpell", function(self)
-	local _, id = self:GetSpell()
-	if id then
-		addLine(self, id, types.spell)
-	end
-end)
+-- Spell tooltips (uses compatibility wrapper for Retail vs Classic)
+if br.api and br.api.wow and br.api.wow.HookTooltipSetSpell then
+	br.api.wow.HookTooltipSetSpell(function(tooltip, id)
+		addLine(tooltip, id, types.spell)
+	end)
+end
 -- NPCs
 local function unitTooltipHandler(tooltip)
 	if br._G.C_PetBattles and br._G.C_PetBattles.IsInBattle and br._G.C_PetBattles.IsInBattle() then
@@ -344,11 +343,11 @@ function tooltips:targetValidationDebugHandler(tooltip)
 	end
 end
 
--- Register tooltip hook (MoP Classic / Classic Era compatible)
--- Note: TooltipDataProcessor may exist from other addons but doesn't work properly in Classic
--- Force use of HookScript method for MoP Classic
-br._G.GameTooltip:HookScript("OnTooltipSetUnit", unitTooltipHandler)
-br._G.GameTooltip:HookScript("OnTooltipSetUnit", function(tooltip) tooltips:targetValidationDebugHandler(tooltip) end)
+-- Register tooltip hook (uses compatibility wrapper for Retail vs Classic)
+if br.api and br.api.wow and br.api.wow.HookTooltipSetUnit then
+	br.api.wow.HookTooltipSetUnit(unitTooltipHandler)
+	br.api.wow.HookTooltipSetUnit(function(tooltip) tooltips:targetValidationDebugHandler(tooltip) end)
+end
 -- Items
 local function attachItemTooltip(self)
 	if (self == GameTooltip or self == ItemRefTooltip) then
@@ -362,9 +361,11 @@ local function attachItemTooltip(self)
 	end
 end
 
--- Register item tooltip hooks (MoP Classic compatible)
-br._G.GameTooltip:HookScript("OnTooltipSetItem", attachItemTooltip)
-br._G.ItemRefTooltip:HookScript("OnTooltipSetItem", attachItemTooltip)
+-- Register item tooltip hooks (uses compatibility wrapper for Retail vs Classic)
+if br.api and br.api.wow and br.api.wow.HookTooltipSetItem then
+	br.api.wow.HookTooltipSetItem(br._G.GameTooltip, attachItemTooltip)
+	br.api.wow.HookTooltipSetItem(br._G.ItemRefTooltip, attachItemTooltip)
+end
 -- Glyphs -- Commented out due to Legion
 -- hooksecurefunc(GameTooltip, "SetGlyph", function(self, ...)
 -- 	local id = select(4, GetGlyphSocketInfo(...))

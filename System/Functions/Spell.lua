@@ -11,7 +11,7 @@ function spell:castInterrupt(SpellID, Percent, Unit)
 		-- first make sure we will be able to cast the spellID
 		if br.functions.cast:canCast(SpellID, false, false, Unit) == true then
 			-- make sure we cover melee range
-			local allowedDistance = select(6, br._G.GetSpellInfo(SpellID))
+			local allowedDistance = select(6, br.api.wow.GetSpellInfo(SpellID))
 			if allowedDistance < 5 then
 				allowedDistance = 5
 			end
@@ -143,9 +143,10 @@ function spell:canInterrupt(unit, percentint)
 		if ((whitelistOnly and onWhitelist) or not whitelistOnly)
 			or not (br.player.instance == "party" or br.player.instance == "raid" or br.player.instance == "scenario")
 		then
-			local ttd = br.engines.ttdTable:getTTD(unit) or 0
+			local ttd = br.engines.ttdTable:getTTD(unit)
 			local withinsCastPercent = math.ceil((castTimeRemain / castDuration) * 100) <= castPercent
-			local willFinishCast = ttd > castTimeRemain --or ttd < 0
+			-- ttdTable returns negative values when unknown/unreliable; don't block interrupts in that case.
+			local willFinishCast = (ttd == nil) or (ttd < 0) or (ttd > castTimeRemain)
 			if castType == "spellcast" then
 				if withinsCastPercent and interruptable == true and willFinishCast then
 					return true
@@ -275,7 +276,12 @@ function spell:getGlobalCD(max)
 			return math.max(math.max(1, 1.5 / (1 + br._G.UnitSpellHaste("player") / 100)), 0.75)
 		end
 	end
-	return br.functions.spell:getSpellCD(61304)
+	-- Use Classic-compatible GCD spell if available
+	local gcdSpellID = 61304
+	if br.isClassic and br.api.wow.GetGCDSpellID then
+		gcdSpellID = br.api.wow.GetGCDSpellID()
+	end
+	return br.functions.spell:getSpellCD(gcdSpellID)
 end
 
 function spell:getSpellType(spellName)
@@ -315,7 +321,7 @@ function spell:getCastingRegen(spellID)
 end
 
 function spell:getSpellRange(spellID, option)
-	local _, _, _, _, _, maxRange = br._G.GetSpellInfo(spellID)
+	local _, _, _, _, _, maxRange = br.api.wow.GetSpellInfo(spellID)
 	if maxRange == nil or maxRange == 0 then maxRange = 5 else maxRange = tonumber(maxRange) end
 	-- Modifiers
 	local rangeMod = 0
@@ -346,7 +352,7 @@ function spell:isSpellInSpellbook(spellID, spellType)
 			if id == spellID then return true end
 		end
 		-- Fallback: try resolving via spell link/name
-		local spellName = (br._G.C_Spell and br._G.C_Spell.GetSpellName and br._G.C_Spell.GetSpellName(spellID)) or br._G.GetSpellInfo(spellID)
+		local spellName = (br._G.C_Spell and br._G.C_Spell.GetSpellName and br._G.C_Spell.GetSpellName(spellID)) or br.api.wow.GetSpellInfo(spellID)
 		if spellName then
 			local link = (br._G.C_Spell and br._G.C_Spell.GetSpellLink and br._G.C_Spell.GetSpellLink(spellName)) or br._G.GetSpellLink(spellID)
 			local currentSpellId = tonumber(link and link:gsub("|", "||"):match("spell:(%d+)"))
@@ -402,17 +408,17 @@ end
 -- end
 
 function spell:isKnown(spellID)
-	local spellName = br._G.GetSpellInfo(spellID)
-	-- if GetSpellBookItemInfo(tostring(spellName)) ~= nil then
-	-- 	return true
-	-- elseif IsPlayerSpell(tonumber(spellID)) == true then
-	-- 	return true
-	-- elseif IsSpellKnown(spellID) == true then
-	-- 	return true
-	-- elseif hasPerk(spellID) == true then
- --        return true
- --    end
-	-- return false
+	if spellID == nil then return false end
+
+	-- In Classic WoW, we need to check the specific spell ID, not just the name
+	-- because multiple ranks of the same spell have different IDs
+	if br.isClassic then
+		-- Check if this specific spell ID is known
+		return br._G.IsPlayerSpell(tonumber(spellID)) or br._G.IsSpellKnown(spellID) or br.functions.spell:isSpellInSpellbook(spellID, "spell")
+	end
+
+	-- For non-Classic, use the existing logic
+	local spellName = br.api.wow.GetSpellInfo(spellID)
 	local inBook = false
 	if br._G.GetSpellBookItemInfo then
 		inBook = br._G.GetSpellBookItemInfo(tostring(spellName)) ~= nil
@@ -420,12 +426,12 @@ function spell:isKnown(spellID)
 		-- Fallback to slot-based lookup if modern API missing
 		inBook = br.functions.spell:isSpellInSpellbook(spellID, "spell")
 	end
-	return spellID ~= nil and (inBook or br._G.IsPlayerSpell(tonumber(spellID)) or br._G.IsSpellKnown(spellID) or br.functions.spell:isSpellInSpellbook(spellID,"spell"))
+	return inBook or br._G.IsPlayerSpell(tonumber(spellID)) or br._G.IsSpellKnown(spellID) or br.functions.spell:isSpellInSpellbook(spellID,"spell")
 end
 
 function spell:isActiveEssence(spellID)
-	local _, _, heartIcon = br._G.GetSpellInfo(296208)
-	local _, _, essenceIcon = br._G.GetSpellInfo(spellID)
+	local _, _, heartIcon = br.api.wow.GetSpellInfo(296208)
+	local _, _, essenceIcon = br.api.wow.GetSpellInfo(spellID)
 	return heartIcon == essenceIcon
 end
 
@@ -547,13 +553,13 @@ function spell:getRacial(thisRace)
     local OrcRacial
 
     if race == "BloodElf" or race == thisRace then
-        BloodElfRacial = select(7, br._G.GetSpellInfo(br._G.GetSpellInfo(69179)))
+        BloodElfRacial = select(7, br.api.wow.GetSpellInfo(br.api.wow.GetSpellInfo(69179)))
     end
     if race == "Draenei" or race == thisRace then
-        DraeneiRacial = select(7, br._G.GetSpellInfo(br._G.GetSpellInfo(28880)))
+        DraeneiRacial = select(7, br.api.wow.GetSpellInfo(br.api.wow.GetSpellInfo(28880)))
     end
     if race == "Orc" or race == thisRace then
-        OrcRacial = select(7, br._G.GetSpellInfo(br._G.GetSpellInfo(33702)))
+        OrcRacial = select(7, br.api.wow.GetSpellInfo(br.api.wow.GetSpellInfo(33702)))
     end
     local racialSpells = {
         -- Alliance
@@ -584,7 +590,111 @@ function spell:getRacial(thisRace)
         Vulpera            = 312411,         -- Bag of Tricks
         Mechagnome         = 312924,         -- Hyper Organic Light Originator
     }
-    if thisRace ~= nil and racialSpells[thisRace] ~= nil then return racialSpells[thisRace] end
-    return racialSpells[race]
+	local classicRacialSpells = {
+        -- Alliance
+        -- Dwarf              = 20594,          -- Stoneform
+        -- Gnome              = 20589,          -- Escape Artist
+        -- Human              = 59752,          -- Every Man for Himself
+        NightElf           = 20580,          -- Shadowmeld
+        -- Worgen             = 68992,          -- Darkflight
+        -- Horde
+        -- BloodElf           = BloodElfRacial, -- Arcane Torrent
+        -- Orc                = OrcRacial,      -- Blood Fury
+        -- Tauren             = 20549,          -- War Stomp
+        -- Troll              = 26297,          -- Berserking
+        -- Scourge            = 7744,           -- Will of the Forsaken
+    }
+
+	if br.isClassic then
+		if thisRace ~= nil and classicRacialSpells[thisRace] ~= nil then return classicRacialSpells[thisRace] end
+    	return classicRacialSpells[race]
+	else
+		if thisRace ~= nil and racialSpells[thisRace] ~= nil then return racialSpells[thisRace] end
+		return racialSpells[race]
+	end
     -- return racialSpells[race]
+end
+
+-- ===========================
+-- SPELL RANK SYSTEM (CLASSIC)
+-- ===========================
+
+-- Get the highest known rank of a spell from a spell ID table or single ID
+-- @param spellIDOrTable - A spell ID (number) or table of spell IDs {rank1, rank2, ...}
+-- @return spellID - The highest rank spell ID that the player knows, or the original ID if not a table
+function spell:getHighestKnownRank(spellIDOrTable)
+    if not br.isClassic then
+        return type(spellIDOrTable) == "table" and spellIDOrTable[1] or spellIDOrTable
+    end
+
+    -- If it's not a table, just return it
+    if type(spellIDOrTable) ~= "table" then
+        return spellIDOrTable
+    end
+
+    -- It's a table of ranks - find the highest known one
+    for i = #spellIDOrTable, 1, -1 do
+        local rankID = spellIDOrTable[i]
+        if self:isKnown(rankID) then
+            return rankID
+        end
+    end
+
+    -- No rank known, return the first rank (base)
+    return spellIDOrTable[1]
+end
+
+-- Get a specific rank of a spell
+-- @param spellIDOrTable - A spell ID (number) or table of spell IDs {rank1, rank2, ...}
+-- @param rank - The rank number (1-based index)
+-- @return spellID - The spell ID for the specified rank, or nil if doesn't exist
+function spell:getSpellRank(spellIDOrTable, rank)
+    if not br.isClassic then
+        return type(spellIDOrTable) == "table" and spellIDOrTable[1] or spellIDOrTable
+    end
+
+    -- If it's not a table, return it for rank 1, nil otherwise
+    if type(spellIDOrTable) ~= "table" then
+        return rank == 1 and spellIDOrTable or nil
+    end
+
+    -- Return the specified rank if it exists
+    if rank >= 1 and rank <= #spellIDOrTable then
+        return spellIDOrTable[rank]
+    end
+
+    return nil
+end
+
+-- Get the number of ranks for a spell
+-- @param spellIDOrTable - A spell ID (number) or table of spell IDs
+-- @return number - The total number of ranks available
+function spell:getMaxRank(spellIDOrTable)
+    if type(spellIDOrTable) == "table" then
+        return #spellIDOrTable
+    end
+    return 1
+end
+
+-- Get the current rank the player knows for a spell
+-- @param spellIDOrTable - A spell ID (number) or table of spell IDs
+-- @return number - The highest rank number known (1-based), or 0 if none known
+function spell:getKnownRank(spellIDOrTable)
+    if not br.isClassic then
+        return self:isKnown(type(spellIDOrTable) == "table" and spellIDOrTable[1] or spellIDOrTable) and 1 or 0
+    end
+
+    -- If it's not a table, check if we know it
+    if type(spellIDOrTable) ~= "table" then
+        return self:isKnown(spellIDOrTable) and 1 or 0
+    end
+
+    -- Find the highest known rank
+    for i = #spellIDOrTable, 1, -1 do
+        if self:isKnown(spellIDOrTable[i]) then
+            return i
+        end
+    end
+
+    return 0
 end

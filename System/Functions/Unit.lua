@@ -110,30 +110,29 @@ function unit:UnitIsTappedByPlayer(mob)
 end
 
 function unit:getSpellUnit(spellCast, aoe, minRange, maxRange, spellType)
-	local spellName = br._G.GetSpellInfo(spellCast)
+	local spellName = br.api.wow.GetSpellInfo(spellCast)
 	if aoe == nil then aoe = false end
 	local hasRange = br._G.C_Spell.SpellHasRange(spellName) and true or false
 	local facing = not aoe
-	local unit = br.engines.enemiesEngineFunctions:dynamicTarget(maxRange, facing)
-	
+	local unit = maxRange > 0 and br.engines.enemiesEngineFunctions:dynamicTarget(maxRange, facing) or nil
+
 	-- Handle nil from dynamicTarget
-	if not unit then
-		-- Fallback to player for non-ranged spells only
-		if not hasRange then
-			return "player"
-		end
-		return "None"
-	end
-	
-	local distance = br.functions.range:getDistance(unit)
+	-- if not unit then
+	-- 	-- Fallback to player for non-ranged spells only
+	-- 	if not hasRange then
+	-- 		return "player"
+	-- 	end
+	-- 	return "None"
+	-- end
+
+	local distance = unit and br.functions.range:getDistance(unit) or 0
 	if not distance then return "None" end
-	
-	local thisUnit = "None"
-	if (distance >= minRange and distance < maxRange) then
+
+	if (distance >= minRange and distance < maxRange) or (minRange > maxRange) then
 		if spellType == "Helpful" then return "player" end
 		if hasRange then return unit else return "player" end
 	end
-	return thisUnit
+	return "None"
 end
 
 -- if getCreatureType(Unit) == true then
@@ -153,42 +152,40 @@ end
 
 -- if br.functions.unit:getFacing("target","player") == false then
 function unit:getFacing(Unit1, Unit2, Degrees)
-	if Degrees == nil then
-		Degrees = 90
+	if Degrees == nil then Degrees = 90 end
+	if Unit2 == nil then Unit2 = "player" end
+
+	-- We can only do accurate facing math when the unlocker APIs are available.
+	if not br.unlocked then
+		return nil
 	end
-	if Unit2 == nil then
-		Unit2 = "player"
+	if not (br.functions.unit:GetObjectExists(Unit1) and br.functions.unit:GetUnitIsVisible(Unit1)
+			and br.functions.unit:GetObjectExists(Unit2) and br.functions.unit:GetUnitIsVisible(Unit2)) then
+		return nil
 	end
-	if br.functions.unit:GetObjectExists(Unit1) and br.functions.unit:GetUnitIsVisible(Unit1) and br.functions.unit:GetObjectExists(Unit2) and br.functions.unit:GetUnitIsVisible(Unit2) then
-		local angle3
-		local angle1 = br.functions.unit:GetObjectFacing(Unit1)
-		local angle2 = br.functions.unit:GetObjectFacing(Unit2)
-		local Y1, X1, Z1 = br.functions.unit:GetObjectPosition(Unit1)
-		local Y2, X2, Z2 = br.functions.unit:GetObjectPosition(Unit2)
-		if Y1 and X1 and Z1 and angle1 and Y2 and X2 and Z2 and angle2 then
-			local deltaY = Y2 - Y1
-			local deltaX = X2 - X1
-			angle1 = math.deg(math.abs(angle1 - math.pi * 2))
-			if deltaX > 0 then
-				angle2 = math.deg(math.atan(deltaY / deltaX) + (math.pi / 2) + math.pi)
-			elseif deltaX < 0 then
-				angle2 = math.deg(math.atan(deltaY / deltaX) + (math.pi / 2))
-			end
-			if angle2 - angle1 > 180 then
-				angle3 = math.abs(angle2 - angle1 - 360)
-			elseif angle1 - angle2 > 180 then
-				angle3 = math.abs(angle1 - angle2 - 360)
-			else
-				angle3 = math.abs(angle2 - angle1)
-			end
-			-- return angle3
-			if angle3 < Degrees then
-				return true
-			else
-				return false
-			end
-		end
+
+	-- Prefer unlocker-provided implementation when present.
+	-- Note: our Degrees parameter is treated as a HALF-angle (e.g. 90 == 180deg front hemisphere).
+	if br._G.ObjectIsFacing ~= nil then
+		local ok, result = pcall(br._G.ObjectIsFacing, Unit1, Unit2, Degrees * 2)
+		if not ok then return nil end
+		return result == true
 	end
+
+	-- Fallback: compute shortest angle between Unit1 facing and the vector Unit1->Unit2.
+	local facing = br.functions.unit:GetObjectFacing(Unit1)
+	local x1, y1, z1 = br.functions.unit:GetObjectPosition(Unit1)
+	local x2, y2, z2 = br.functions.unit:GetObjectPosition(Unit2)
+	if facing == nil or x1 == nil or y1 == nil or x2 == nil or y2 == nil then
+		return nil
+	end
+
+	local angleTo = math.atan2(y2 - y1, x2 - x1) % (math.pi * 2)
+	local diff = math.abs(facing - angleTo)
+	if diff > math.pi then
+		diff = (math.pi * 2) - diff
+	end
+	return diff < math.rad(Degrees)
 end
 
 function unit:getGUID(unit)
@@ -508,4 +505,25 @@ function unit:isFleeing(thisUnit)
 
     -- Return true if any fleeing condition is met
     return --[[lowHealthThreshold and]] isMovingAway
+end
+
+function unit:isElemental(Unit)
+	if Unit == nil then Unit = "target" end
+	local isElemental = false
+	local unitType = br._G.UnitCreatureType(Unit)
+	local types = {
+		"Elemental",
+		"Elementar",
+		"Elemental", -- ES/PT
+		"Élémentaire",
+		"Elementare",
+		"Элементаль",
+		"정령",
+		"元素生物",
+		"元素生物"
+	}
+	for i = 1, #types do
+		if types[i] == unitType then isElemental = true end
+	end
+	return isElemental
 end

@@ -186,6 +186,13 @@ function misc:getLineOfSight(Unit1, Unit2)
 			Unit1 = "player"
 		end
 	end
+
+	-- First check: units must be visible
+	if not (br.functions.unit:GetObjectExists(Unit1) and br.functions.unit:GetUnitIsVisible(Unit1) and
+	        br.functions.unit:GetObjectExists(Unit2) and br.functions.unit:GetUnitIsVisible(Unit2)) then
+		return false
+	end
+
 	local skipLoSTable = br.lists.los
 	if skipLoSTable[br.functions.unit:GetObjectID(Unit1)] or skipLoSTable[br.functions.unit:GetObjectID(Unit2)] or -- Kyrian Hunter Ability
 		(Unit1 and Unit1 ~= "player" and br.functions.aura:getDebuffRemain(Unit1, 308498) > 0) or
@@ -193,54 +200,51 @@ function misc:getLineOfSight(Unit1, Unit2)
 	then
 		return true
 	end
-	if br.functions.unit:GetObjectExists(Unit1) and br.functions.unit:GetUnitIsVisible(Unit1) and br.functions.unit:GetObjectExists(Unit2) and br.functions.unit:GetUnitIsVisible(Unit2) then
-		local X1, Y1, Z1 = br.functions.unit:GetObjectPosition(Unit1)
-		local X2, Y2, Z2 = br.functions.unit:GetObjectPosition(Unit2)
-		local pX = br.functions.unit:GetObjectPosition("player")
-		local flags = bit.bor(0x10, 0x100)
-		local trace
-		-- Only calculate if we actually got values
-		if (X1 == nil or X2 == nil or pX == nil) then return false end
-		-- Trace to see if we are in Line of Sight
-		if br.player and br.player.eID and (br.player.eID == 2398 or br.player.eID == 2399) then
-			trace = br._G.TraceLine(X1, Y1, Z1 + 2 --[[.25]], X2, Y2, Z2 + 2 --[[.25]], 0x100111)
-		else
-			trace = br._G.TraceLine(X1, Y1, Z1 + 2.25, X2, Y2, Z2 + 2.25, flags)
-			-- if (br._G.UnitIsUnit(Unit2,"target")) then
-			-- 	br._G.print("Target Is LoS: "..tostring(trace))
-			-- end
-		end
-		if trace == nil or trace == false then
-			--Print("Past Traceline")
-			if br.player and br.player.eID and br.player.eID == 2141 then
-				if pX < -108 and X2 < -108 then
-					return true
-				elseif (pX > -108 and pX < -54) and (X2 > -108 and X2 < -54) then
-					return true
-				elseif pX > -54 and X2 > -54 then
-					return true
-				else
-					return false
-				end
-			elseif br.player and br.player.eID and br.player.eID == 2337 then
-				--Print("Past Cara Check")
-				if misc:carapaceMath(Unit1, Unit2) == true then
-					--Print("Cara True")
-					return true
-				else
-					--Print("cara False")
-					return false
-				end
-			else
-				--Print("Skippped all the code")
+
+	local X1, Y1, Z1 = br.functions.unit:GetObjectPosition(Unit1)
+	local X2, Y2, Z2 = br.functions.unit:GetObjectPosition(Unit2)
+	local pX = br.functions.unit:GetObjectPosition("player")
+	local flags = bit.bor(0x10, 0x100)
+	local trace
+	-- Only calculate if we actually got values
+	if (X1 == nil or X2 == nil or pX == nil) then return false end
+	-- Trace to see if we are in Line of Sight
+	if br.player and br.player.eID and (br.player.eID == 2398 or br.player.eID == 2399) then
+		trace = br._G.TraceLine(X1, Y1, Z1 + 2 --[[.25]], X2, Y2, Z2 + 2 --[[.25]], 0x100111)
+	else
+		trace = br._G.TraceLine(X1, Y1, Z1 + 2.25, X2, Y2, Z2 + 2.25, flags)
+		-- if (br._G.UnitIsUnit(Unit2,"target")) then
+		-- 	br._G.print("Target Is LoS: "..tostring(trace))
+		-- end
+	end
+	if trace == nil or trace == false then
+		--Print("Past Traceline")
+		if br.player and br.player.eID and br.player.eID == 2141 then
+			if pX < -108 and X2 < -108 then
 				return true
+			elseif (pX > -108 and pX < -54) and (X2 > -108 and X2 < -54) then
+				return true
+			elseif pX > -54 and X2 > -54 then
+				return true
+			else
+				return false
+			end
+		elseif br.player and br.player.eID and br.player.eID == 2337 then
+			--Print("Past Cara Check")
+			if misc:carapaceMath(Unit1, Unit2) == true then
+				--Print("Cara True")
+				return true
+			else
+				--Print("cara False")
+				return false
 			end
 		else
-			-- br._G.print("Really Skipped it all")
+			--Print("Skippped all the code")
 			return true
 		end
 	else
-		return false
+		-- br._G.print("Really Skipped it all")
+		return true
 	end
 end
 
@@ -658,11 +662,12 @@ function misc:isValidUnit(Unit)
 		return false
 	end
 
-	-- PRIORITY: Units in damaged table bypass all validation checks
+	-- PRIORITY: Units in damaged table bypass most validation checks
 	-- These are units actively in combat with our group (attacking or being attacked)
 	-- The combatlog cleanup already ensures these units are valid (exists, alive, attackable)
 	-- damaged table keys are pointers from GetObjectWithGUID()
 	-- damaged table values are unitSetup objects where .unit is also the pointer
+	-- HOWEVER, we still need to check line of sight to prevent casting on units behind walls
 	if br.engines.enemiesEngine.damaged then
 		local unitPointer = br._G.ObjectPointer(Unit)
 		-- Direct pointer lookup - ObjectPointer() should match GetObjectWithGUID() for same unit
@@ -1304,12 +1309,12 @@ function misc:talentAnywhere()
 end
 
 function misc:getEssenceRank(essenceName)
-	if br._G.GetSpellInfo(essenceName) == nil then
+	if br.api.wow.GetSpellInfo(essenceName) == nil then
 		return 0
 	end
 	local essenceRank = 0
 	local essenceTable = br._G.C_AzeriteEssence.GetMilestones()
-	local icon = select(3, br._G.GetSpellInfo(essenceName))
+	local icon = select(3, br.api.wow.GetSpellInfo(essenceName))
 	for i = 1, #essenceTable do
 		local milestone = essenceTable[i]
 		if milestone.slot ~= nil and milestone.unlocked == true then

@@ -41,7 +41,7 @@ end
 local function eventTracker(_, event, ...)
     local sourceUnit = select(1, ...)
     local spellID = event == "UNIT_SPELLCAST_SENT" and select(4, ...) or select(3, ...)
-    local spellName = br._G.GetSpellInfo(spellID)
+    local spellName = br.api.wow.GetSpellInfo(spellID)
     if sourceUnit == "player" and br.player and not ignoreList[spellID] then
         if event == "UNIT_SPELLCAST_SENT" or event == "UNIT_SPELLCAST_START"
             or event == "UNIT_SPELLCAST_CHANNEL_START" --or event == "UNIT_SPELLCAST_EMPOWER_START"

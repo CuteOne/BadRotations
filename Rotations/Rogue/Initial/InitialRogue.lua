@@ -308,6 +308,7 @@ local function runRotation()
     end         -- Pause
 end             -- End runRotation
 local id = 1453 -- Change to the spec id profile is for.
+local expansion = br.isMOP
 if br.loader.rotations[id] == nil then br.loader.rotations[id] = {} end
 br._G.tinsert(br.loader.rotations[id], {
     name = rotationName,

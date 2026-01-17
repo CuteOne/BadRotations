@@ -46,6 +46,8 @@ function range:getDistanceCalc(Unit1, Unit2, option)
         meleeSpell = testSpell["DRUIDC"]
     elseif playerClass == "DRUID" and br.functions.aura:UnitBuffID("player", 5487) then
         meleeSpell = testSpell["DRUIDB"]
+    elseif playerClass == "DRUID" then
+        meleeSpell = testSpell["DRUIDC"]
     elseif playerSpec == 255 then
         meleeSpell = testSpell["SHUNTER"]
     elseif playerSpec == 263 then
@@ -67,21 +69,21 @@ function range:getDistanceCalc(Unit1, Unit2, option)
     if (br.functions.unit:GetUnitIsUnit(Unit1, "player") or (br.functions.unit:GetObjectExists(Unit1) and br.functions.unit:GetUnitIsVisible(Unit1) == true))
         and (br.functions.unit:GetUnitIsUnit(Unit2, "player") or (br.functions.unit:GetObjectExists(Unit2) and br.functions.unit:GetUnitIsVisible(Unit2) == true))
     then
-        -- If melee spell is usable, ignore all other calcs
-        -- if meleeSpell ~= nil then
-        --     if br._G.UnitIsUnit(Unit2, "player") and not br._G.UnitIsUnit(Unit1, "player") then
-        --         if br._G.C_Spell.IsSpellInRange(select(1, br._G.GetSpellInfo(meleeSpell)), Unit1) then
-        --             br._G.print("Unit1 Melee Range Bypass "..tostring(br._G.C_Spell.IsSpellInRange(select(1, br._G.GetSpellInfo(meleeSpell)), Unit1)))
-        --             return 0
-        --         end
-        --     end
-        --     if br._G.UnitIsUnit(Unit1, "player") and not br._G.UnitIsUnit(Unit2, "player") then
-        --         if br._G.C_Spell.IsSpellInRange(select(1, br._G.GetSpellInfo(meleeSpell)), Unit2) then
-        --             br._G.print("Unit2 Melee Range Bypass "..tostring(br._G.C_Spell.IsSpellInRange(select(1, br._G.GetSpellInfo(meleeSpell)), Unit2)))
-        --             return 0
-        --         end
-        --     end
-        -- end
+        -- If melee spell is in range, return 0 (accurate melee range detection)
+        if meleeSpell ~= nil then
+            if br._G.UnitIsUnit(Unit2, "player") and not br._G.UnitIsUnit(Unit1, "player") then
+                local spellName = select(1, br.api.wow.GetSpellInfo(meleeSpell))
+                if not br.isClassic and spellName and br._G.C_Spell.IsSpellInRange(spellName, Unit1) == true then
+                    return 0
+                end
+            end
+            if br._G.UnitIsUnit(Unit1, "player") and not br._G.UnitIsUnit(Unit2, "player") then
+                local spellName = select(1, br.api.wow.GetSpellInfo(meleeSpell))
+                if not br.isClassic and spellName and br._G.C_Spell.IsSpellInRange(spellName, Unit2) == true then
+                    return 0
+                end
+            end
+        end
         local rangeMod = 0
         --See if we already have a position, else get position
         local X1, Y1, Z1, X2, Y2, Z2 = 0, 0, 0, 0, 0, 0
@@ -128,10 +130,20 @@ function range:getDistanceCalc(Unit1, Unit2, option)
         local MeleeCombatReachConstant = 7 / 3
         local IfSourceAndTargetAreRunning = 0
         if br.functions.misc:isMoving(Unit1) and br.functions.misc:isMoving(Unit2) then IfSourceAndTargetAreRunning = 8 / 3 end
+
+        -- Classic fallback: determine melee range from positions alone.
+        -- Uses the same constants as the meleeRange calculation below.
+        if br.isClassic and meleeSpell ~= nil and (br._G.UnitIsUnit(Unit1, "player") or br._G.UnitIsUnit(Unit2, "player")) then
+            local edgeToEdge = sqrt(((X2 - X1) ^ 2) + ((Y2 - Y1) ^ 2) + ((Z2 - Z1) ^ 2)) - (PlayerCombatReach + TargetCombatReach)
+            local meleeEdgeDistance = MeleeCombatReachConstant + IfSourceAndTargetAreRunning + rangeMod
+            if edgeToEdge <= meleeEdgeDistance then
+                return 0
+            end
+        end
         -- Rogue Melee Range Increase Mod
         if br.player ~= nil then
             if br.player.talent.acrobaticStrikes ~= nil and meleeSpell ~= nil then
-                if br.player.talent.acrobaticStrikes and option ~= "noMod" and br._G.C_Spell.IsSpellInRange(select(1, br._G.GetSpellInfo(meleeSpell)), Unit2) == 1 then
+                if br.player.talent.acrobaticStrikes and option ~= "noMod" and br._G.C_Spell.IsSpellInRange(select(1, br.api.wow.GetSpellInfo(meleeSpell)), Unit2) == true then
                     rangeMod = 3
                 end
             end
@@ -139,7 +151,7 @@ function range:getDistanceCalc(Unit1, Unit2, option)
         local dist = sqrt(((X2 - X1) ^ 2) + ((Y2 - Y1) ^ 2) + ((Z2 - Z1) ^ 2)) - (PlayerCombatReach + TargetCombatReach) -
             rangeMod
         local dist2 = dist + 0.03 * ((13 - dist) / 0.13)
-        local dist3 = dist + 0.05 * ((8 - dist) / 0.15) + 1
+        local dist3 = dist + 0.05 * ((8 - dist) / 0.15) --+ 1
         local dist4 = dist + (PlayerCombatReach + TargetCombatReach)
         local meleeRange = br._G.max(6,
             PlayerCombatReach + TargetCombatReach + MeleeCombatReachConstant + IfSourceAndTargetAreRunning)
@@ -148,9 +160,6 @@ function range:getDistanceCalc(Unit1, Unit2, option)
         if option == "dist3" then return dist3 end
         if option == "dist4" then return dist4 end
         if option == "meleeRange" then return meleeRange end
-        -- if (br._G.UnitExists(Unit1) and br._G.UnitExists(Unit2)) then
-        --     br._G.print("Dist: " .. tostring(br.functions.misc:round2(dist, 0)) .. ", Unit1: " .. tostring(br._G.UnitName(Unit1)) .. ", Unit2: " .. tostring(br._G.UnitName(Unit2)))
-        -- end
         -- currentDist = br._G.max(dist, meleeRange, 0)
         if dist > 13 then
             currentDist = br._G.max(0, dist)
@@ -161,7 +170,7 @@ function range:getDistanceCalc(Unit1, Unit2, option)
         elseif dist4 > meleeRange then -- Thanks Ssateneth
             currentDist = dist4
         else
-            currentDist = 0
+            currentDist = 5
         end
         -- Modifier for Mastery: Sniper Training (Hunter - Marksmanship)
         -- if currentDist < 100 and br.functions.spell:isKnown(193468) and option ~= "noMod" and (Unit1 == "player" or Unit2 == "player") then
@@ -252,7 +261,7 @@ end
 function range:isSafeToAoE(spellID, Unit, effectRng, minUnits, aoeType, enemies)
     if not br.functions.misc:isChecked("Safe Damage Check") then return true end
     local enemiesValid, enemiesAll
-    local maxRange = select(6, br._G.GetSpellInfo(spellID))
+    local maxRange = select(6, br.api.wow.GetSpellInfo(spellID))
     if effectRng == nil then effectRng = 5 end
     if maxRange == nil or maxRange == 0 then
         maxRange = tonumber(effectRng)
@@ -275,11 +284,11 @@ function range:isSafeToAoE(spellID, Unit, effectRng, minUnits, aoeType, enemies)
 end
 
 function range:inRange(spellID, unit)
-    local spellName = br._G.GetSpellInfo(spellID)
+    local spellName = br.api.wow.GetSpellInfo(spellID)
     if unit == nil then unit = "target" end
     local inRange = br._G.C_Spell.IsSpellInRange(spellName, unit)
     if inRange ~= nil then
-        return br._G.C_Spell.IsSpellInRange(spellName, unit) == 1
+        return br._G.C_Spell.IsSpellInRange(spellName, unit) == true
     else
         return false
     end

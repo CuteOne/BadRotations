@@ -374,6 +374,93 @@ function settingsManagement:deepcopy(orig)
 	return copy
 end
 
+-- Build all UI window pages programmatically for cleanup purposes
+-- This forces all pages to register in br.data.ui by temporarily setting the page dropdown
+function settingsManagement:buildAllUIPages()
+	if not br.ui or not br.ui.window then
+		return false
+	end
+
+	local totalPagesBuilt = 0
+	local failedPages = {}
+
+	-- Iterate through all windows in br.ui.window
+	for windowName, window in pairs(br.ui.window) do
+		if type(window) == "table" and window.pages and window.parent then
+			local pagesBuilt = 0
+			local pageDD = window.pageDD
+
+			if pageDD then
+				-- Save the current page index so we can restore it later
+				local originalPageIdx = pageDD.value or 1
+
+				for i = 1, #window.pages do
+					local page = window.pages[i]
+					local pageFunction = page[2]
+
+					if type(pageFunction) == "function" then
+						-- Set the page dropdown to this page index so activePage resolves correctly
+						pageDD.value = i
+
+						-- Mirror normal page switching behavior to prevent UI from accumulating
+						-- elements from multiple pages in the currently visible window.
+						if window.ReleaseChildren then
+							window:ReleaseChildren()
+						end
+
+						-- Call the page function to create all UI elements
+						local success, err = pcall(pageFunction)
+						if success then
+							pagesBuilt = pagesBuilt + 1
+						else
+							table.insert(failedPages, page[1] .. " (" .. tostring(err):sub(1, 50) .. ")")
+						end
+					end
+				end
+
+				-- Restore and rebuild original page so the window doesn't show a merged UI.
+				pageDD.value = originalPageIdx
+				if window.ReleaseChildren then
+					window:ReleaseChildren()
+				end
+				if window.pages[originalPageIdx] and type(window.pages[originalPageIdx][2]) == "function" then
+					pcall(window.pages[originalPageIdx][2])
+				end
+			else
+				-- Fallback for windows without pageDD - just try calling functions directly
+				for i = 1, #window.pages do
+					local page = window.pages[i]
+					local pageFunction = page[2]
+					if type(pageFunction) == "function" then
+						if window.ReleaseChildren then
+							window:ReleaseChildren()
+						end
+						local success, err = pcall(pageFunction)
+						if success then pagesBuilt = pagesBuilt + 1 end
+					end
+				end
+			end
+
+			if pagesBuilt > 0 then
+				totalPagesBuilt = totalPagesBuilt + pagesBuilt
+			end
+		end
+	end
+
+	if totalPagesBuilt > 0 then
+		-- br._G.print("Loading UI (" .. totalPagesBuilt .. " pages)...")
+		if #failedPages > 0 then
+			br._G.print("|cffFF8800[buildAllUIPages] " .. #failedPages .. " pages failed to build|r")
+			for _, failMsg in ipairs(failedPages) do
+				br._G.print("|cffFF8800  - " .. failMsg .. "|r")
+			end
+		end
+		return true
+	end
+
+	return false
+end
+
 function settingsManagement:cleanSettings()
 	if br.data and br.data.settings then
 		-- Check if Power toggle is off - if so, skip cleaning as UI was never built
@@ -382,6 +469,11 @@ function settingsManagement:cleanSettings()
 			br._G.print("|cffFF8800[cleanSettings] System toggled off - skipping cleanup|r")
 			return
 		end
+
+		-- Force all window pages to be created so we have complete UI registry
+		-- This is called here in case cleanSettings is invoked manually (e.g., before export)
+		-- If already built during loadSettings, this will be very fast
+		-- settingsManagement:buildAllUIPages()
 
 		-- Check if br.data.ui exists and has actual page data before attempting cleanup
 		-- This prevents cleaning when UI hasn't been fully initialized yet
@@ -404,22 +496,55 @@ function settingsManagement:cleanSettings()
 			return
 		end
 
-		br._G.print("|cffFFDD00[cleanSettings] Starting cleanup with " .. uiPageCount .. " UI pages|r")
-
-		if br.data.settings[br.loader.selectedSpec] and br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile] then
+		if uiPageCount >= 3 then
 			local settings = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]
 			local removedItems = {}
 
-			-- DON'T iterate through pages - causes issues with timing
-			-- Pages will be created as needed when user visits them
-			-- We'll only clean settings that are definitely orphaned
-
-			-- Now check for orphaned settings using the br.data.ui registry
-			if not br.data.ui then
-				br._G.print("|cffFF8800[cleanSettings] br.data.ui is nil after forcing page creation|r")
-				return
+			-- ========================================
+			-- PHASE 1: Remove duplicate/misplaced options
+			-- ========================================
+			-- Build a map of where each option SHOULD exist (from br.data.ui which reflects actual UI)
+			local optionToCorrectPage = {}
+			for page, pageData in pairs(br.data.ui) do
+				if type(pageData) == "table" and page ~= "PageList" and page ~= "currentPage" and page ~= "totalPages" then
+					for option, _ in pairs(pageData) do
+						if type(option) == "string" then
+							optionToCorrectPage[option] = page
+						end
+					end
+				end
 			end
 
+			-- Scan all pages in saved settings and remove options that belong on a different page
+			for page, pageData in pairs(settings) do
+				if type(pageData) == "table" and page ~= "PageList" and page ~= "currentPage" and page ~= "totalPages" then
+					for option, _ in pairs(pageData) do
+						-- Skip sections - they're UI elements, not settings
+						if not option:match("Section$") then
+							local correctPage = optionToCorrectPage[option]
+							-- If this option exists in UI but on a DIFFERENT page, remove it from here
+							-- Only if we actually found where it should be
+							if correctPage and type(correctPage) == "string" and correctPage ~= page then
+								settings[page][option] = nil
+								local cleanName = option:gsub(" Check", ""):gsub(" Drop", ""):gsub(" Status", "")
+								table.insert(removedItems, cleanName .. " (misplaced on " .. page .. ", should be on " .. correctPage .. ")")
+							end
+						end
+					end
+				end
+			end
+		else
+			br._G.print("|cffFFDD00[cleanSettings] Skipping duplicate check - only " .. uiPageCount .. " pages built (need 3+)|r")
+		end
+
+		if br.data.settings[br.loader.selectedSpec] and br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile] then
+			local settings = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]
+---@diagnostic disable-next-line: undefined-global
+			local removedItems = removedItems or {}
+
+			-- ========================================
+			-- PHASE 2: Remove orphaned options
+			-- ========================================
 			for page, pageData in pairs(settings) do
 				if type(pageData) == "table" and type(page) == "string" then
 					-- Check if this is an actual page (not PageList, currentPage, etc.)
@@ -432,10 +557,14 @@ function settingsManagement:cleanSettings()
 						else
 							-- Page exists in UI, check individual options
 							for option, _ in pairs(pageData) do
-								-- Check if this option exists in br.data.ui for THIS specific page
-								if br.data.ui[page][option] == nil then
-									settings[page][option] = nil
-									table.insert(removedItems, option:gsub(" Check", ""):gsub(" Drop", ""):gsub(" Status", "") .. " from " .. page)
+								-- Skip sections - they're UI elements, not settings
+								if not option:match("Section$") then
+									-- Check if this option exists in br.data.ui for THIS specific page
+									if br.data.ui[page][option] == nil then
+										settings[page][option] = nil
+										local cleanName = option:gsub(" Check", ""):gsub(" Drop", ""):gsub(" Status", "")
+										table.insert(removedItems, cleanName .. " (orphaned from " .. page .. ")")
+									end
 								end
 							end
 						end
@@ -443,7 +572,8 @@ function settingsManagement:cleanSettings()
 				elseif type(page) == "string" then
 					-- This handles settings that aren't in a page structure
 					local option = page
-					if br.data.ui[option] == nil then
+					-- Skip sections - they're UI elements, not settings
+					if not option:match("Section$") and br.data.ui[option] == nil then
 						settings[option] = nil
 						table.insert(removedItems, option)
 					end
@@ -451,17 +581,12 @@ function settingsManagement:cleanSettings()
 			end
 
 			if #removedItems > 0 then
-				br._G.print("|cffFFDD00[BadRotations]|r Cleaned " .. #removedItems .. " orphaned setting(s):")
-				for _, item in ipairs(removedItems) do
-					br._G.print("  |cffFF8800→|r " .. item)
-				end
-				br._G.print("|cff00FF00Saving cleaned settings...|r")
+				br._G.print("|cffFFDD00Settings Cleanup: Removed " .. #removedItems .. " duplicate/orphaned setting(s)|r")
 				-- Save immediately so cleaned settings persist
 				br.data.collectGarbage = false -- Prevent re-running cleanup
 				settingsManagement:saveSettings(nil, nil, br.loader.selectedSpec, br.loader.selectedProfileName)
-			else
-				br._G.print("|cff00CCFF[cleanSettings] No orphaned settings found to clean.|r")
 			end
+			br._G.print("UI Load Complete")
 		end
 	end
 end-- Load Settings
@@ -503,7 +628,6 @@ function settingsManagement:loadSettings(folder, class, spec, profile, instance)
 				settingsManagement.profile = settingsManagement:deepcopy(brprofile)
 			end
 			br._G.print("Loaded Settings for Profile " .. tostring(profile))
-			-- settingsManagement:cleanSettings()
 		end
 		if not fileFound then
 			if br.loader.selectedProfileName ~= "None" then
@@ -512,6 +636,7 @@ function settingsManagement:loadSettings(folder, class, spec, profile, instance)
 				br._G.print("No pre-existing settings to load.")
 			end
 		end
+
 		if spec == nil then
 			spec = br.loader.selectedSpec
 		end
@@ -530,6 +655,35 @@ function settingsManagement:loadSettings(folder, class, spec, profile, instance)
 			br.ui:toggleWindow("config")
 			br.data.settings[spec].config.initialLoad = true
 		end
+
+		-- After config window is created and toggled, build all pages and run cleanup
+		-- By setting pageDD.value before calling each page function, the pages will
+		-- properly register in br.data.ui, allowing cleanup to detect duplicates/orphans
+		if fileFound then
+			br._G.C_Timer.After(1.0, function()
+				-- Ensure config window exists and is shown before building pages
+				if br.ui.window.config and br.ui.window.config.frame then
+					if not br.ui.window.config.frame:IsShown() then
+						br.ui:toggleWindow("config")
+					end
+				else
+					-- Window doesn't exist yet, create and show it
+					if br.ui.window.config == nil then br.ui.window.config = {} end
+					if br.ui.window.config.frame == nil then br.ui:createConfigWindow() end
+					br.ui:toggleWindow("config")
+				end
+
+				if settingsManagement:buildAllUIPages() then
+					settingsManagement:cleanSettings()
+				end
+
+				-- Close the window if it was initially closed
+				if initialLoad then
+					br.ui:closeWindow("config")
+				end
+			end)
+		end
+
 		br.data.loadedSettings = true
 	end
 end

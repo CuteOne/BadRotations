@@ -44,6 +44,12 @@ Libs\DiesalLibs.lua
 
 #@end-no-lib-strip@
 
+## WoW API Compatibility
+System\wowapi.lua
+System\Expansions\retail.lua
+System\Expansions\mop.lua
+System\Expansions\classic.lua
+
 BadRotations.lua
 System\UI\UI.lua
 System\UI\MinimapButton.lua

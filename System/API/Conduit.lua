@@ -16,7 +16,7 @@ br.api.conduit = function(conduit,spell,id)
             if collectionData.conduitID > 0 then
                 local spellID = br._G.C_Soulbinds.GetConduitSpellID(collectionData.conduitID, collectionData.conduitRank)
                 if spellID == id then
-                    local spellName, _, spellIcon = br._G.GetSpellInfo(spellID)
+                    local spellName, _, spellIcon = br.api.wow.GetSpellInfo(spellID)
                     conduit[spell] = {
                         state = node.state,
                         icon = spellIcon,
@@ -32,7 +32,7 @@ br.api.conduit = function(conduit,spell,id)
         end
     end
     if conduit[spell].name == nil then
-        local spellName, _, spellIcon, _, _, _, spellID = br._G.GetSpellInfo(id)
+        local spellName, _, spellIcon, _, _, _, spellID = br.api.wow.GetSpellInfo(id)
 
         --- Gets information about a specific conduit.
         -- @table conduit.spell

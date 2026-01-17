@@ -69,7 +69,7 @@ local function trackObject(object, isUnit, name, objectid, objectguid, interact,
         if isUnit then
             LibDraw.Arrow(xOb, yOb, zOb, br._G.UnitFacing(object) --[[+ math.pi * 2]], Cr / 2)
         else
-            LibDraw.Arrow(xOb, yOb, zOb, br._G.UnitFacing("player") --[[+ math.pi * 2]], Cr / 2)
+            -- LibDraw.Arrow(xOb, yOb, zOb, br._G.UnitFacing("player") --[[+ math.pi * 2]], Cr / 2)
         end
         -- if name == "" or name == "Unknown" then
         --     name = isUnit and br._G.UnitName(object) or nil
@@ -91,18 +91,18 @@ local function trackObject(object, isUnit, name, objectid, objectguid, interact,
         -- local hasLoot = br._G.CanLootUnit(objectguid)
         -- local interacting = isInteracting("player")
         if autoInteractEnabled == nil then autoInteractEnabled = br.functions.misc:isChecked("Auto Interact with Any Tracked Object") end
-        if autoInteractEnabled and interact and not br.player.inCombat
-            and distance <= 7 and
-            not br.functions.cast:isUnitCasting("player") and not br.functions.misc:isMoving("player")
+        if autoInteractEnabled and interact and not br.player.inCombat and distance <= 7
+            and not br.functions.cast:isUnitCasting("player") and not br.functions.misc:isMoving("player")
             and not isInteracting("player") -- Only interact if not already interacting
+            and (not isUnit or br._G.CheckInteractDistance(object, 3)) -- Check if object can be interacted with (3 = interact distance)
         then
             local currentTime = br._G.GetTime()
             -- Human-like delay: only interact if enough time has passed since last interaction
             if currentTime >= (lastInteractTime + nextInteractDelay) then
                 br._G.ObjectInteract(object)
                 lastInteractTime = currentTime
-                -- Set next delay with variance: 0.3 to 0.8 seconds (random human-like timing)
-                nextInteractDelay = 0.3 + (br._G.math.random() * 0.5)
+                -- Set next delay with variance: 0.5 to 1.0 seconds (random human-like timing)
+                nextInteractDelay = 0.5 + (br._G.math.random() * 0.5)
             end
         end
         tracking = true

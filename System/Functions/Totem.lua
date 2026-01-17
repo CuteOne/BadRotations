@@ -9,13 +9,13 @@ local function resolveCandidateName(candidate)
     if not candidate then return nil end
 
     if type(candidate) == "number" then
-        return br._G.GetSpellInfo(candidate)
+        return br.api.wow.GetSpellInfo(candidate)
     end
 
     if type(candidate) == "string" then
         local idFromKey = br.player and br.player.spells and br.player.spells[candidate]
         if type(idFromKey) == "number" then
-            return br._G.GetSpellInfo(idFromKey)
+            return br.api.wow.GetSpellInfo(idFromKey)
         end
         return candidate
     end
@@ -26,7 +26,7 @@ end
 function totem:spellName(spellId)
     if not spellId then return nil end
     if spellNameCache[spellId] == nil then
-        spellNameCache[spellId] = br._G.GetSpellInfo(spellId)
+        spellNameCache[spellId] = br.api.wow.GetSpellInfo(spellId)
     end
     return spellNameCache[spellId]
 end

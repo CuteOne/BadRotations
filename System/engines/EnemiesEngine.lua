@@ -161,7 +161,7 @@ if not enemiesEngine.metaTable2 then
 				if debuffList[buffCaster] == nil then debuffList[buffCaster] = {} end
 				if debuffList[buffCaster][buffName] == nil then
 					debuffList[buffCaster][buffName] = function(buffName, unit)
-						return br._G.AuraUtil.FindAuraByName(br._G.GetSpellInfo(buffName), buffUnit, "HARMFUL|PLAYER")
+						return br._G.AuraUtil.FindAuraByName(br.api.wow.GetSpellInfo(buffName), buffUnit, "HARMFUL|PLAYER")
 					end
 					if debuffList[buffCaster][buffName] ~= nil then br.readers.combatLog.debuffTracker[unit][buffName] = nil end
 				end

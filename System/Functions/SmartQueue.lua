@@ -22,18 +22,18 @@ local function checkKeys(self, key)
 		local spell = br.player.spells.bindings[pressedKey]
 		if spell ~= nil then
 			local cd = br.functions.spell:getSpellCD(spell)
-			if br._G.GetSpellInfo(br._G.GetSpellInfo(spell)) and cd <= br.functions.misc:getOptionValue("Smart Queue") and br.functions.misc:isChecked(br._G.GetSpellInfo(spell) .. " (Queue)") and (cd > 0 or br._G.C_Spell.IsSpellUsable(spell) == false or br._G.UnitCastingInfo("player")) then
+			if br.api.wow.GetSpellInfo(br.api.wow.GetSpellInfo(spell)) and cd <= br.functions.misc:getOptionValue("Smart Queue") and br.functions.misc:isChecked(br.api.wow.GetSpellInfo(spell) .. " (Queue)") and (cd > 0 or br._G.C_Spell.IsSpellUsable(spell) == false or br._G.UnitCastingInfo("player")) then
 				SmartQueue.queueSpell = spell
 				queueSpellTime = br._G.GetTime()
-				if br.functions.misc:getOptionValue(br._G.GetSpellInfo(SmartQueue.queueSpell) .. " (Queue)") == 2 then
+				if br.functions.misc:getOptionValue(br.api.wow.GetSpellInfo(SmartQueue.queueSpell) .. " (Queue)") == 2 then
 					local x, y = br._G.GetMousePosition()
 					queueSpellPos.x, queueSpellPos.y, queueSpellPos.z = br._G.ScreenToWorld(x, y)
-				elseif br.functions.misc:getOptionValue(br._G.GetSpellInfo(SmartQueue.queueSpell) .. " (Queue)") == 4 and br._G.UnitIsVisible("mouseover") then
+				elseif br.functions.misc:getOptionValue(br.api.wow.GetSpellInfo(SmartQueue.queueSpell) .. " (Queue)") == 4 and br._G.UnitIsVisible("mouseover") then
 					queueSpellTarget = br._G.ObjectPointer("mouseover")
 				else
 					queueSpellTarget = "target"
 				end
-				br.ui.chatOverlay:Show("Queued: " .. br._G.GetSpellInfo(SmartQueue.queueSpell))
+				br.ui.chatOverlay:Show("Queued: " .. br.api.wow.GetSpellInfo(SmartQueue.queueSpell))
 			end
 		end
 	end
@@ -101,7 +101,7 @@ local function spellSuccess(self, event, ...)
 		local spellID = select(3, ...)
 		if sourceUnit == "player" then
 			if spellID == SmartQueue.queueSpell then
-				br.ui.chatOverlay:Show("Casted Queued Spell: " .. br._G.GetSpellInfo(spellID))
+				br.ui.chatOverlay:Show("Casted Queued Spell: " .. br.api.wow.GetSpellInfo(spellID))
 				SmartQueue.queueSpell = false
 			end
 		end
@@ -132,32 +132,32 @@ function SmartQueue:smartQueue()
 	end
 
 	if SmartQueue.queueSpell and br.functions.misc:isChecked("Smart Queue") and (((br._G.GetTime() - queueSpellTime) <= br.functions.misc:getOptionValue("Smart Queue") and not br._G.UnitChannelInfo("player")
-				and (br._G.UnitIsVisible(queueSpellTarget) or br.functions.misc:getOptionValue(br._G.GetSpellInfo(SmartQueue.queueSpell) .. " (Queue)") == 2) and br._G.UnitAffectingCombat("player"))
-			or (br._G.IsAoEPending() and br.functions.misc:isChecked("Smart Queue") and br.functions.misc:isChecked(br._G.GetSpellInfo(SmartQueue.queueSpell) .. " (Queue)") and br._G.UnitAffectingCombat("player")))
+				and (br._G.UnitIsVisible(queueSpellTarget) or br.functions.misc:getOptionValue(br.api.wow.GetSpellInfo(SmartQueue.queueSpell) .. " (Queue)") == 2) and br._G.UnitAffectingCombat("player"))
+			or (br._G.IsAoEPending() and br.functions.misc:isChecked("Smart Queue") and br.functions.misc:isChecked(br.api.wow.GetSpellInfo(SmartQueue.queueSpell) .. " (Queue)") and br._G.UnitAffectingCombat("player")))
 		and (SmartQueue.queueSpell ~= 1776 or br.functions.unit:getFacing("target", "player"))
 	then
-		if br._G.IsAoEPending() and br.functions.misc:getOptionValue(br._G.GetSpellInfo(SmartQueue.queueSpell) .. " (Queue)") ~= 3 then
+		if br._G.IsAoEPending() and br.functions.misc:getOptionValue(br.api.wow.GetSpellInfo(SmartQueue.queueSpell) .. " (Queue)") ~= 3 then
 			local pendingSpell = SmartQueue.queueSpell
 			br._G.CancelPendingSpell()
-			br._G.CastSpellByName(br._G.GetSpellInfo(pendingSpell), "cursor")
+			br._G.CastSpellByName(br.api.wow.GetSpellInfo(pendingSpell), "cursor")
 			return true
 		end
 		if SmartQueue.queueSpell and not br._G.UnitCastingInfo("player") then
-			if br.functions.misc:getOptionValue(br._G.GetSpellInfo(SmartQueue.queueSpell) .. " (Queue)") == 2 then
+			if br.functions.misc:getOptionValue(br.api.wow.GetSpellInfo(SmartQueue.queueSpell) .. " (Queue)") == 2 then
 				if br.functions.cast:createCastFunction("player", nil, nil, nil, SmartQueue.queueSpell, nil, nil, nil, nil, true) then
 					if br.functions.cast:castAtPosition(queueSpellPos.x, queueSpellPos.y, queueSpellPos.z, SmartQueue.queueSpell) then
-						br.ui.chatOverlay:Show("Casted Queued Spell: " .. br._G.GetSpellInfo(SmartQueue.queueSpell))
+						br.ui.chatOverlay:Show("Casted Queued Spell: " .. br.api.wow.GetSpellInfo(SmartQueue.queueSpell))
 						return true
 					end
 				end
-			elseif br.functions.misc:getOptionValue(br._G.GetSpellInfo(SmartQueue.queueSpell) .. " (Queue)") == 3 then
+			elseif br.functions.misc:getOptionValue(br.api.wow.GetSpellInfo(SmartQueue.queueSpell) .. " (Queue)") == 3 then
 				if br.functions.cast:createCastFunction("player", nil, nil, nil, SmartQueue.queueSpell, nil, nil, nil, nil, true) then
-					br._G.CastSpellByName(br._G.GetSpellInfo(SmartQueue.queueSpell))
-					br.ui.chatOverlay:Show("Casted Queued Spell: " .. br._G.GetSpellInfo(SmartQueue.queueSpell))
+					br._G.CastSpellByName(br.api.wow.GetSpellInfo(SmartQueue.queueSpell))
+					br.ui.chatOverlay:Show("Casted Queued Spell: " .. br.api.wow.GetSpellInfo(SmartQueue.queueSpell))
 					return true
 				end
 			else
-				if br._G.C_Spell.IsSpellInRange(br._G.GetSpellInfo(SmartQueue.queueSpell), queueSpellTarget) ~= nil then
+				if br._G.C_Spell.IsSpellInRange(br.api.wow.GetSpellInfo(SmartQueue.queueSpell), queueSpellTarget) ~= nil then
 					if br.functions.cast:createCastFunction(queueSpellTarget, nil, nil, nil, SmartQueue.queueSpell) then
 						return true
 					end

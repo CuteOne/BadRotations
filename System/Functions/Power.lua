@@ -295,7 +295,7 @@ function power:getCastRegen(spellId)
 
 	-- Get the "execute time" of the spell (larger of GCD or the cast time).
 	local castTime = br.functions.cast:getCastTime(spellId) or 0
-	local gcd = br.functions.spell:getSpellCD(61304)
+	local gcd = br.functions.spell:getGlobalCD()
 	if gcd == 0 then
 		gcd = br._G.max(1, 1.5 / (1 + br._G.UnitSpellHaste("player") / 100))
 	end
@@ -311,8 +311,30 @@ function power:getRegen(Unit)
 end
 
 function power:getSpellCost(spell)
-	local spellName = br._G.GetSpellInfo(spell) or ""
-	local t = br._G.C_Spell.GetSpellPowerCost(spellName)
+	if spell == nil then
+		return 0
+	end
+
+	local spellKey = spell
+	if type(spell) == "table" then
+		if type(spell.id) == "function" then
+			local ok, value = pcall(spell.id)
+			if ok and value ~= nil then
+				spellKey = value
+			end
+		elseif type(spell.id) == "number" then
+			spellKey = spell.id
+		end
+	end
+
+	local t = br._G.C_Spell.GetSpellPowerCost(spellKey)
+	if (not t or not t[1]) and type(spellKey) == "number" then
+		-- Fallback for older clients/APIs that may prefer spellName.
+		local spellName = br.api.wow.GetSpellInfo(spellKey)
+		if spellName then
+			t = br._G.C_Spell.GetSpellPowerCost(spellName)
+		end
+	end
 	if not t then
 		return 0
 	elseif not t[1] then

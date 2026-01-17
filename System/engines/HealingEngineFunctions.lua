@@ -551,7 +551,7 @@ end
 -- <param name="SpellID">ID of spell to ground cast</param>
 -- <returns>Returns if successfully tried to cast</returns>
 function healingEngineFunctions:castGroundAtLocation(loc, SpellID)
-    br._G.CastSpellByName(br._G.GetSpellInfo(SpellID))
+    br._G.CastSpellByName(br.api.wow.GetSpellInfo(SpellID))
     --local mouselookup = IsMouseButtonDown(2)
 	--MouselookStop()
 	local px,py,pz = br._G.ObjectPosition("player")

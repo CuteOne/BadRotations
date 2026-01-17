@@ -12,7 +12,9 @@ function br.unused:canPrepare()
     if
         br.functions.aura:UnitBuffID("player", 104934) or -- Eating (Feast)
         br.functions.aura:UnitBuffID("player", 80169) or  -- Eating
+        br.functions.aura:UnitBuffID("player", 5005) or -- Food
         br.functions.aura:UnitBuffID("player", 87959) or  -- Drinking
+        br.functions.aura:UnitBuffID("player", 430) or    -- Drink
         br.functions.aura:UnitBuffID("player", 11392) or  -- 18 sec Invis Pot
         br.functions.aura:UnitBuffID("player", 3680) or   -- 15 sec Invis pot
         br.functions.aura:UnitBuffID("player", 5384) or   -- Feign Death
@@ -86,7 +88,7 @@ function br.unused:getVengeance()
         VengeanceID = 84840  -- Druid
     end
     if br.functions.aura:UnitBuff("player", VengeanceID) then
-        return select(14, br._G.UnitAura("player", br._G.GetSpellInfo(VengeanceID)))
+        return select(14, br._G.UnitAura("player", br.api.wow.GetSpellInfo(VengeanceID)))
     end
     return 0
 end
@@ -152,7 +154,7 @@ function br.unused:nDbDmg(tar, spellID, player)
     end
     br.unused.nGTT:ClearLines()
     for i = 1, 40 do
-        if br._G.UnitDebuff(tar, i, player) == br._G.GetSpellInfo(spellID) then
+        if br._G.UnitDebuff(tar, i, player) == br.api.wow.GetSpellInfo(spellID) then
             br.unused.nGTT:SetUnitDebuff(tar, i, player)
             local scanText = _G["MyScanningTooltipTextLeft2"]:GetText()
             local DoTDamage = scanText:match("([0-9]+%.?[0-9]*)")

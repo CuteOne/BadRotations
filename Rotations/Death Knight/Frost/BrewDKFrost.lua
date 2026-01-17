@@ -184,7 +184,7 @@ actionList.PreCombat = function()
             end
             -- Start Attack
             -- actions=auto_attack
-            if not br._G.C_Spell.IsAutoRepeatSpell(br._G.GetSpellInfo(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
+            if not br._G.C_Spell.IsAutoRepeatSpell(br.api.wow.GetSpellInfo(6603)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
                 br._G.StartAttack(units.dyn5)
             end
         end
@@ -327,6 +327,7 @@ local function runRotation()
     end         -- Pause
 end             -- End runRotation
 local id = 0
+local expansion = br.isMOP
 if br.loader.rotations[id] == nil then br.loader.rotations[id] = {} end
 br._G.tinsert(br.loader.rotations[id], {
     name = rotationName,

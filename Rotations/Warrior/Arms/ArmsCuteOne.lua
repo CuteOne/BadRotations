@@ -979,6 +979,7 @@ local function runRotation()
     end -- Pause
 end     -- runRotation
 local id = 71
+local expansion = br.isMOP
 if br.loader.rotations[id] == nil then br.loader.rotations[id] = {} end
 br._G.tinsert(br.loader.rotations[id], {
     name = rotationName,

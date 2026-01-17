@@ -324,6 +324,7 @@ local function runRotation()
     end
 end
 local id = 265  -- Affliction Warlock
+local expansion = br.isMOP
 
 if br.loader.rotations[id] == nil then br.loader.rotations[id] = {} end
 tinsert(br.loader.rotations[id],{

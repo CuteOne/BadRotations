@@ -22,7 +22,7 @@ local function takeCastStartSnapshot(spellID)
 	end
 	return {
 		timeNow = br._G.GetTime(),
-		gcdBefore = br.functions.spell:getSpellCD(61304),
+		gcdBefore = br.functions.spell:getGlobalCD(),
 		castingBefore = br._G.UnitCastingInfo("player") ~= nil,
 		channelingBefore = br._G.UnitChannelInfo("player") ~= nil,
 		prevLastCastTime = (br.functions.lastCast and br.functions.lastCast.lastCastTable and br.functions.lastCast.lastCastTable.castTime and br.functions.lastCast.lastCastTable.castTime[spellID]) or 0,
@@ -33,8 +33,8 @@ local function takeCastStartSnapshot(spellID)
 end
 
 local function verifyCastStarted(spellID, snapshot, expectedSpellName)
-	expectedSpellName = expectedSpellName or br._G.GetSpellInfo(spellID)
-	local gcdAfter = br.functions.spell:getSpellCD(61304)
+	expectedSpellName = expectedSpellName or br.api.wow.GetSpellInfo(spellID)
+	local gcdAfter = br.functions.spell:getGlobalCD()
 	local castNameAfter, _, _, _, _, _, _, _, castSpellIdAfter = br._G.UnitCastingInfo("player")
 	local channelNameAfter, _, _, _, _, _, _, _, channelSpellIdAfter = br._G.UnitChannelInfo("player")
 	local castingAfter = castNameAfter ~= nil
@@ -203,7 +203,7 @@ function cast:castAtPosition(X, Y, Z, SpellID)
 
 	-- Ground-targeted spells should not be cast "on" a unit token; doing so can force a self-cast.
 	-- We want the targeting cursor so we can click the provided world coordinates.
-	br._G.CastSpellByName(br._G.GetSpellInfo(SpellID))
+	br._G.CastSpellByName(br.api.wow.GetSpellInfo(SpellID))
 
 	local baseZ = Z
 	local attempts = 0
@@ -246,7 +246,7 @@ function cast:castGround(Unit, SpellID, maxDistance, minDistance, radius, castTi
 			mouselookActive = true
 			br._G.MouselookStop()
 		end
-		br._G.CastSpellByName(br._G.GetSpellInfo(SpellID))
+		br._G.CastSpellByName(br.api.wow.GetSpellInfo(SpellID))
 		local X, Y, Z
 		if castTime == nil or castTime == 0 then
 			X, Y, Z = br.functions.unit:GetObjectPosition(Unit)
@@ -282,7 +282,7 @@ function cast:castGroundLocation(X, Y, SpellID, maxDistance, minDistance, radius
 			br._G.MouselookStop()
 		end
 		-- br._G.print("Casting Spell")
-		br._G.CastSpellByName(br._G.GetSpellInfo(SpellID))
+		br._G.CastSpellByName(br.api.wow.GetSpellInfo(SpellID))
 		if br._G.IsAoEPending() then
 			-- br._G.print("Clicking Position")
 			br._G.ClickPosition((X + math.random() * 2), (Y + math.random() * 2), Z) --distanceToGround
@@ -298,7 +298,7 @@ end
 -- castGroundBetween("target",12345,40)
 function cast:castGroundBetween(Unit, SpellID, maxDistance)
 	if br.functions.unit:GetUnitExists(Unit) and br.functions.spell:getSpellCD(SpellID) <= 0.4 and br.functions.misc:getLineOfSight("player", Unit) and br.functions.range:getDistance("player", Unit) <= maxDistance then
-		br._G.CastSpellByName(br._G.GetSpellInfo(SpellID))
+		br._G.CastSpellByName(br.api.wow.GetSpellInfo(SpellID))
 		local X, Y, Z = br.functions.unit:GetObjectPosition(Unit)
 		br._G.ClickPosition(X, Y, Z, true)
 		return true
@@ -395,14 +395,14 @@ function cast:castHealGround(SpellID, Radius, Health, NumberOfPlayers)
 				medX, medY, medZ = medX / 3, medY / 3, medZ / 3
 				local myX, myY = br.functions.unit:GetObjectPosition("player")
 				if math.sqrt(((medX - myX) ^ 2) + ((medY - myY) ^ 2)) < 40 then
-					br._G.CastSpellByName(br._G.GetSpellInfo(SpellID), "target")
+					br._G.CastSpellByName(br.api.wow.GetSpellInfo(SpellID), "target")
 					br._G.ClickPosition(medX, medY, medZ, true)
 					if SpellID == 145205 then br.shroomsTable[1] = { x = medX, y = medY, z = medZ } end
 					return true
 				end
 			elseif lowHPTargets ~= nil and #lowHPTargets == 1 and lowHPTargets[1].unit == "player" then
 				local myX, myY, myZ = br.functions.unit:GetObjectPosition("player")
-				br._G.CastSpellByName(br._G.GetSpellInfo(SpellID), "target")
+				br._G.CastSpellByName(br.api.wow.GetSpellInfo(SpellID), "target")
 				br._G.ClickPosition(myX, myY, myZ, true)
 				if SpellID == 145205 then br.shroomsTable[1] = { x = medX, y = medY, z = medZ } end
 				return true
@@ -444,7 +444,7 @@ function cast:castSpell(Unit, SpellID, FacingCheck, MovementCheck, SpamAllowed, 
 		-- make sure it is a known spell
 		if not (KnownSkip == true or br.functions.spell:isKnown(SpellID)) then return false end
 		-- gather our spell range information
-		local spellRange = select(6, br._G.GetSpellInfo(SpellID))
+		local spellRange = select(6, br.api.wow.GetSpellInfo(SpellID))
 		if DistanceSkip == nil then DistanceSkip = false end
 		if spellRange == nil or (spellRange < 4 and DistanceSkip == false) then spellRange = 4 end
 		if DistanceSkip == true then spellRange = 40 end
@@ -480,7 +480,7 @@ function cast:castSpell(Unit, SpellID, FacingCheck, MovementCheck, SpamAllowed, 
 								br.botCast = true -- Used by old Queue Cast
 								br.botSpell = SpellID -- Used by old Queue Cast
 								br.botUnit = Unit
-								br._G.CastSpellByName(br._G.GetSpellInfo(SpellID), Unit)
+								br._G.CastSpellByName(br.api.wow.GetSpellInfo(SpellID), Unit)
 								if br._G.IsAoEPending() then
 									local X, Y, Z = br._G.ObjectPosition(Unit)
 									br._G.ClickPosition(X, Y, Z)
@@ -491,7 +491,7 @@ function cast:castSpell(Unit, SpellID, FacingCheck, MovementCheck, SpamAllowed, 
 									--lastSpellCast = SpellID
 									-- change main button icon
 									--if br.functions.misc:getOptionCheck("Start/Stop BadRotations") then
-									br.ui.toggles.mainButton:SetNormalTexture(select(3, br._G.GetSpellInfo(SpellID)))
+									br.ui.toggles.mainButton:SetNormalTexture(select(3, br.api.wow.GetSpellInfo(SpellID)))
 									br.lastSpellCast = SpellID
 									br.lastSpellTarget = br._G.UnitGUID(Unit)
 									--end
@@ -503,9 +503,9 @@ function cast:castSpell(Unit, SpellID, FacingCheck, MovementCheck, SpamAllowed, 
 									-- Cast failed - reset timer to allow retry
 									br.timersTable[SpellID] = nil
 									-- Optional debug logging
-									if shouldPrintCastDebug() then
-										printCastFailedDetails("[CAST FAIL][CAST_FAILED] ", SpellID, br._G.GetSpellInfo(SpellID), snapshot, details)
-									end
+									-- if shouldPrintCastDebug() then
+									-- 	printCastFailedDetails("[CAST FAIL][CAST_FAILED] ", SpellID, br.api.wow.GetSpellInfo(SpellID), snapshot, details)
+									-- end
 									return false
 								end
 							end
@@ -521,7 +521,7 @@ function cast:castSpell(Unit, SpellID, FacingCheck, MovementCheck, SpamAllowed, 
 						br.botCast = true
 						br.botSpell = SpellID
 						br.botUnit = Unit
-						br._G.CastSpellByName(br._G.GetSpellInfo(SpellID), Unit)
+						br._G.CastSpellByName(br.api.wow.GetSpellInfo(SpellID), Unit)
 						if br._G.IsAoEPending() then
 							local X, Y, Z = br._G.ObjectPosition(Unit)
 							br._G.ClickPosition(X, Y, Z)
@@ -530,7 +530,7 @@ function cast:castSpell(Unit, SpellID, FacingCheck, MovementCheck, SpamAllowed, 
 
 						if castSucceeded then
 							--if br.functions.misc:getOptionCheck("Start/Stop BadRotations") then
-							br.ui.toggles.mainButton:SetNormalTexture(select(3, br._G.GetSpellInfo(SpellID)))
+							br.ui.toggles.mainButton:SetNormalTexture(select(3, br.api.wow.GetSpellInfo(SpellID)))
 							br.lastSpellCast = SpellID
 							br.lastSpellTarget = br._G.UnitGUID(Unit)
 							--end
@@ -539,9 +539,9 @@ function cast:castSpell(Unit, SpellID, FacingCheck, MovementCheck, SpamAllowed, 
 							return true
 						else
 							-- Cast failed - don't set lastSpellCast
-							if shouldPrintCastDebug() then
-								printCastFailedDetails("[CAST FAIL][CAST_FAILED] ", SpellID, br._G.GetSpellInfo(SpellID), snapshot, details)
-							end
+							-- if shouldPrintCastDebug() then
+							-- 	printCastFailedDetails("[CAST FAIL][CAST_FAILED] ", SpellID, br.api.wow.GetSpellInfo(SpellID), snapshot, details)
+							-- end
 							return false
 						end
 					end
@@ -582,7 +582,7 @@ function cast:castSpellMacro(Unit, SpellID, FacingCheck, MovementCheck, SpamAllo
 		-- make sure it is a known spell
 		if not (KnownSkip == true or br.functions.spell:isKnown(SpellID)) then return false end
 		-- gather our spell range information
-		local spellRange = select(6, br._G.GetSpellInfo(SpellID))
+		local spellRange = select(6, br.api.wow.GetSpellInfo(SpellID))
 		if DistanceSkip == nil then DistanceSkip = false end
 		if spellRange == nil or (spellRange < 4 and DistanceSkip == false) then spellRange = 4 end
 		if DistanceSkip == true then spellRange = 40 end
@@ -616,14 +616,14 @@ function cast:castSpellMacro(Unit, SpellID, FacingCheck, MovementCheck, SpamAllo
 								br.botCast = true
 								br.botSpell = SpellID
 								br.botUnit = Unit
-								br._G.RunMacroText("/cast [@" .. Unit .. "] " .. br._G.GetSpellInfo(SpellID))
+								br._G.RunMacroText("/cast [@" .. Unit .. "] " .. br.api.wow.GetSpellInfo(SpellID))
 								local castSucceeded, details = verifyCastStarted(SpellID, snapshot)
 
 								if castSucceeded then
 									--lastSpellCast = SpellID
 									-- change main button icon
 									--if br.functions.misc:getOptionCheck("Start/Stop BadRotations") then
-									br.ui.toggles.mainButton:SetNormalTexture(select(3, br._G.GetSpellInfo(SpellID)))
+									br.ui.toggles.mainButton:SetNormalTexture(select(3, br.api.wow.GetSpellInfo(SpellID)))
 									br.lastSpellCast = SpellID
 									br.lastSpellTarget = br._G.UnitGUID(Unit)
 									--end
@@ -647,11 +647,11 @@ function cast:castSpellMacro(Unit, SpellID, FacingCheck, MovementCheck, SpamAllo
 						br.botCast = true
 						br.botSpell = SpellID
 						br.botUnit = Unit
-						br._G.RunMacroText("/cast [@" .. Unit .. "] " .. br._G.GetSpellInfo(SpellID))
+						br._G.RunMacroText("/cast [@" .. Unit .. "] " .. br.api.wow.GetSpellInfo(SpellID))
 						local castSucceeded, details = verifyCastStarted(SpellID, snapshot)
 
 						if castSucceeded then
-							br.ui.toggles.mainButton:SetNormalTexture(select(3, br._G.GetSpellInfo(SpellID)))
+							br.ui.toggles.mainButton:SetNormalTexture(select(3, br.api.wow.GetSpellInfo(SpellID)))
 							br.lastSpellCast = SpellID
 							br.lastSpellTarget = br._G.UnitGUID(Unit)
 							return true
@@ -660,9 +660,9 @@ function cast:castSpellMacro(Unit, SpellID, FacingCheck, MovementCheck, SpamAllo
 							return true
 						end
 
-						if shouldPrintCastDebug() then
-							printCastFailedDetails("[CAST FAIL][CAST_FAILED] ", SpellID, br._G.GetSpellInfo(SpellID), snapshot, details)
-						end
+						-- if shouldPrintCastDebug() then
+						-- 	printCastFailedDetails("[CAST FAIL][CAST_FAILED] ", SpellID, br.api.wow.GetSpellInfo(SpellID), snapshot, details)
+						-- end
 						return false
 					end
 				end -- End Spam Check
@@ -677,8 +677,8 @@ function cast:castOpener(spellIndex, flag, index, checkdistance)
 	local spellCast = br.player.spells[spellIndex]
 	local castable = br.player.cast.able[spellIndex]
 	local castSpell = br.player.cast[spellIndex]
-	local spellName = select(1, br._G.GetSpellInfo(spellCast))
-	local maxRange = select(6, br._G.GetSpellInfo(spellCast))
+	local spellName = select(1, br.api.wow.GetSpellInfo(spellCast))
+	local maxRange = select(6, br.api.wow.GetSpellInfo(spellCast))
 	local cooldown = br.player.cd[spellIndex].remain()
 	if not maxRange or maxRange == 0 then maxRange = 5 end
 	if checkdistance == nil then checkdistance = true end
@@ -768,7 +768,7 @@ function cast:isCastingTime(lagTolerance)
 		if select(5, br._G.UnitChannelInfo("player")) - br._G.GetTime() <= lagTolerance then
 			return true
 		end
-	elseif (br._G.C_Spell.GetSpellCooldown(br._G.GetSpellInfo(61304)) ~= nil and br._G.C_Spell.GetSpellCooldown(br._G.GetSpellInfo(61304)).duration <= lagTolerance) then
+	elseif br.functions.spell:getGlobalCD() <= lagTolerance then
 		return true
 	else
 		return false
@@ -778,15 +778,15 @@ end
 -- if getCastTime("Healing Touch")<3 then
 function cast:getCastTime(spellID)
 	if spellID == 202767 then
-		if select(3, br._G.GetSpellInfo(202767)) == 1392545 then
+		if select(3, br.api.wow.GetSpellInfo(202767)) == 1392545 then
 			spellID = 202767
-		elseif select(3, br._G.GetSpellInfo(202767)) == 1392543 then
+		elseif select(3, br.api.wow.GetSpellInfo(202767)) == 1392543 then
 			spellID = 202768
-		elseif select(3, br._G.GetSpellInfo(202767)) == 1392542 then
+		elseif select(3, br.api.wow.GetSpellInfo(202767)) == 1392542 then
 			spellID = 202771
 		end
 	end
-	local castTime = select(4, br._G.GetSpellInfo(spellID)) / 1000
+	local castTime = select(4, br.api.wow.GetSpellInfo(spellID)) / 1000
 	return castTime
 end
 
@@ -805,7 +805,7 @@ function cast:castingUnit(Unit)
 	if Unit == nil then Unit = "player" end
 	if br._G.UnitCastingInfo(Unit) ~= nil
 		or br._G.UnitChannelInfo(Unit) ~= nil
-		or (br._G.C_Spell.GetSpellCooldown(61304) ~= nil and br._G.C_Spell.GetSpellCooldown(61304).duration > 0.001) then
+		or br.functions.spell:getGlobalCD() > 0.001 then
 		return true
 	else
 		return false
@@ -831,7 +831,7 @@ end
 -- if isCasting(12345,"target") then
 function cast:isCasting(SpellID, Unit)
 	if br.functions.unit:GetUnitIsVisible(Unit) and br._G.UnitCastingInfo(Unit) then
-		if br._G.UnitCastingInfo(Unit) == br._G.GetSpellInfo(SpellID) then
+		if br._G.UnitCastingInfo(Unit) == br.api.wow.GetSpellInfo(SpellID) then
 			return true
 		end
 	else
@@ -854,19 +854,21 @@ function cast:isUnitCasting(unit)
 end
 
 local castTimers
+local rangeDelayTimers  -- Track when spells first become in range
 function cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellID, index, predict, predictPad, enemies,
 							   debug)
 	-- Invalid Spell ID Check
-	-- if br._G.GetSpellInfo(spellID) == nil then br._G.print("Invalid Spell ID: " .. spellID .. " for key: " .. index) end
+	-- if br.api.wow.GetSpellInfo(spellID) == nil then br._G.print("Invalid Spell ID: " .. spellID .. " for key: " .. index) end
 	local spellCast = spellID
 	local baseSpellID = br._G.FindBaseSpellByID(spellID)
 	local overrideSpellID = br._G.FindSpellOverrideByID(spellID)
-	local baseSpellName = br._G.GetSpellInfo(baseSpellID)
-	local spellName, _, icon, castTime, minRange, maxRange = br._G.GetSpellInfo(spellID)
+	local baseSpellName = br.api.wow.GetSpellInfo(baseSpellID)
+	local spellName, _, icon, castTime, minRange, maxRange = br.api.wow.GetSpellInfo(spellID)
 	local spellType = br.functions.spell:getSpellType(baseSpellName)
 	if castTimers == nil then castTimers = {} end
 	if castTimers[spellID] == nil then castTimers[spellID] = br._G.GetTime() end
-	if maxRange == 0 then _, _, _, _, minRange, maxRange = br._G.GetSpellInfo(baseSpellID) end
+	if rangeDelayTimers == nil then rangeDelayTimers = {} end
+	if maxRange == 0 then _, _, _, _, minRange, maxRange = br.api.wow.GetSpellInfo(baseSpellID) end
 	-- Quaking helper - M+ Affix
 	if br.functions.misc:getOptionCheck("Quaking Helper") then
 		--Detect channels
@@ -942,7 +944,7 @@ function cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellI
 	-- 		br.botSpell = spellID -- Used by old Queue Cast
 	-- 		-- Condemn Patch (Blizz is an small indie developer!)
 	-- 		if spellID == br.player.spells.condemn or spellID == br.player.spells.condemnMassacre then
-	-- 			spellName = br._G.GetSpellInfo(br.player.spells.execute)
+	-- 			spellName = br.api.wow.GetSpellInfo(br.player.spells.execute)
 	-- 		end
 	-- 		-- br._G.print("Spell: "..tostring(spellName).." - UnitName: "..tostring(br._G.UnitName(thisUnit)).." - Unit: "..tostring(thisUnit))
 	-- 		br._G.CastSpellByName(spellName, thisUnit)
@@ -1018,7 +1020,7 @@ function cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellI
 			br.botUnit = thisUnit
 			-- Condemn Patch (Blizz is an small indie developer!)
 			if br.player and br.player.spells and (spellID == br.player.spells.condemn or spellID == br.player.spells.condemnMassacre) then
-				spellName = br._G.GetSpellInfo(br.player.spells.execute)
+				spellName = br.api.wow.GetSpellInfo(br.player.spells.execute)
 			end
 			br._G.CastSpellByName(spellName, thisUnit)
 			if br._G.IsAoEPending() then
@@ -1051,9 +1053,9 @@ function cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellI
 			-- Failed to start casting: allow a quick retry, but don't lock out for 1s.
 			castTimers[spellID] = br._G.GetTime() + 0.10
 			castIntentLocks[spellID] = br._G.GetTime() -- Lock intent on failed cast
-			if shouldPrintCastDebug() and not debug then
-				printCastFailedDetails("[CAST FAIL][CAST_FAILED] ", spellID, spellName, snapshot, details)
-			end
+			-- if shouldPrintCastDebug() and not debug then
+			-- 	printCastFailedDetails("[CAST FAIL][CAST_FAILED] ", spellID, spellName, snapshot, details)
+			-- end
 			return printReport(false, "Cast Failed")
 		end
 		return false
@@ -1094,13 +1096,15 @@ function cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellI
 			or thisUnit == nil or br._G.UnitIsUnit(thisUnit, "player") or br._G.UnitIsFriend(thisUnit, "player"))                                                           -- Dies Soon Check
 		and ((thisUnit ~= nil and br._G.UnitIsUnit(thisUnit, "target") and br._G.C_Spell.IsSpellUsable(spellID)) or true) and not select(2, br._G.C_Spell.IsSpellUsable(spellID)) -- Usability Checks
 		and (castTimers[spellID] < br._G.GetTime()) and br.functions.spell:getSpellCD(spellID) <= br.engines:getUpdateRate()
-		and (br.functions.spell:getSpellCD(61304) <= 0 or br.functions.spell:getSpellCD(spellID) <= 0--select(2, br._G.GetSpellBaseCooldown(spellID)) <= 0
+		and (br.functions.spell:getGlobalCD() <= 0
+			or br.functions.spell:getSpellCD(spellID) <= 0
+			or (select(2, br._G.GetSpellBaseCooldown(spellID)) or 0) <= 0 -- Spell has no base cooldown (only GCD)
 			or (br.functions.cast:getCastTime(spellID) > 0 and br.functions.cast:getCastTimeRemain("player") <= br.engines:getUpdateRate()))                                                                           -- Cooldown Checks
 		and (br.functions.spell:isKnown(spellID) or castType == "known" or spellID == br.player.spells.condemn or spellID == br.player.spells.condemnMassacre)                                   -- Known/Current Checks
 		and hasTalent(spellID) --[[and hasEssence()]]
 		and not (br.functions.combat and br.functions.combat.cannotCast and br.functions.combat:cannotCast(spellID))
 		and not br.functions.combat:isIncapacitated(spellID) -- legacy behavior; cannotCast() handles hard CC
-		and (not (br._G.C_Spell.IsAutoRepeatSpell(br._G.GetSpellInfo(spellID)) or (spellID == 6603 and br._G.C_Spell.IsCurrentSpell(spellID)))) --[[and not br.functions.combat:hasNoControl(spellID)]] -- Talent/Essence/Incapacitated/Special Checks
+		and (not (br._G.C_Spell.IsAutoRepeatSpell(br.api.wow.GetSpellInfo(spellID)) or (spellID == 6603 and br._G.C_Spell.IsCurrentSpell(spellID)))) --[[and not br.functions.combat:hasNoControl(spellID)]] -- Talent/Essence/Incapacitated/Special Checks
 		and (thisUnit == nil or castType ~= "dead" or (thisUnit ~= nil and castType == "dead" and br._G.UnitIsDeadOrGhost(thisUnit)))                                            -- Dead Check
 		or spellID == br.empowerID
 	then
@@ -1215,7 +1219,7 @@ function cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellI
 			local targetUnit
 			targetUnit = thisUnit == "playerGround" and "player" or "target"
 			if castType == "groundCC" then targetUnit = thisUnit end
-			if (br.functions.range:getDistance(targetUnit) < maxRange or br._G.C_Spell.IsSpellInRange(spellName, targetUnit) == 1) then
+			if (br.functions.range:getDistance(targetUnit) < maxRange or br._G.C_Spell.IsSpellInRange(spellName, targetUnit) == true) then
 				if debug then return true end
 				return br.functions.custom:castGroundAtUnit(spellCast, effectRng, minUnits, maxRange, minRange, castType, targetUnit)
 			end
@@ -1231,15 +1235,54 @@ function cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellI
 		end
 		-- Other Cast Conditions - Require Target
 		if thisUnit ~= nil and thisUnit ~= "None"
-			and (br.functions.unit:GetUnitIsUnit(thisUnit, "player") or br.functions.unit:GetUnitIsFriend(thisUnit, "player") or br.engines.enemiesEngine.units[thisUnit] ~= nil or br.functions.misc:getLineOfSight(thisUnit))
+			and (br.functions.unit:GetUnitIsUnit(thisUnit, "player")
+				or br.functions.unit:GetUnitIsFriend(thisUnit, "player")
+				or br.engines.enemiesEngine.units[thisUnit] ~= nil
+				or br.functions.misc:getLineOfSight("player", thisUnit))
 		then
 			-- Range Check
 			local inRange = function(minRange, maxRange)
-				local distance = castType == "pet" and br.functions.range:getDistance(thisUnit, "pet") or br.functions.range:getDistance(thisUnit)
+				-- For player target, always consider in range for self-cast spells
+				if thisUnit == "player" then return true end
+
+				-- Check spell range using WoW API first
 				local spellInRange = br._G.C_Spell.IsSpellInRange(spellName, thisUnit)
-				return (spellInRange == 1) or (distance >= minRange and distance < maxRange - 1)
+
+				-- If definitively out of range, return false immediately
+				if spellInRange == false then
+					-- Reset the range delay timer since we're out of range
+					local timerKey = spellID .. "_" .. (br._G.UnitGUID(thisUnit) or thisUnit)
+					rangeDelayTimers[timerKey] = nil
+					return false
+				end
+
+				if spellInRange == true then
+					-- When moving, require the spell to be in range for a short duration
+					-- to prevent casting at the exact moment it becomes in range
+					if br.functions.misc:isMoving("player") and maxRange > 0 then
+						local currentTime = br._G.GetTime()
+						local timerKey = spellID .. "_" .. (br._G.UnitGUID(thisUnit) or thisUnit)
+
+						if rangeDelayTimers[timerKey] == nil then
+							-- First time seeing this spell in range, start the timer
+							rangeDelayTimers[timerKey] = currentTime
+							return false
+						else
+							-- Check if enough time has passed (150ms delay when moving)
+							local timeInRange = currentTime - rangeDelayTimers[timerKey]
+							if timeInRange < 0.5 then
+								return false  -- Not in range long enough yet
+							end
+						end
+					end
+					return true
+				end
+
+				-- If IsSpellInRange returns nil (no range or can't determine), fall back to distance calculation
+				local distance = castType == "pet" and br.functions.range:getDistance(thisUnit, "pet") or br.functions.range:getDistance(thisUnit)
+				return (distance >= minRange and distance < maxRange - 1.5)
 			end
-			if --[[br._G.C_Spell.IsSpellInRange(spellName,thisUnit) or]] inRange(minRange, maxRange) then
+			if inRange(minRange, maxRange) then
 				-- Dead Friend
 				if castType == "dead" then
 					if br._G.UnitIsPlayer(thisUnit) and br.functions.unit:GetUnitIsDeadOrGhost(thisUnit) and br.functions.unit:GetUnitIsFriend(thisUnit, "player") then
@@ -1277,7 +1320,7 @@ function cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellI
 				then
 					-- Failsafe, incase we were unable to retrieve enemies counts
 					local enemyFacingCount = enemies or #br.engines.enemiesEngineFunctions:getEnemies("player", maxRange, false, true) or 0
-					if (minUnits == 1 --[[and br._G.C_Spell.IsSpellInRange(spellName, thisUnit) == 1]]) or (enemyFacingCount >= minUnits) or spellType == "Helpful" or spellType == "Unknown" then
+					if (minUnits == 1 --[[and br._G.C_Spell.IsSpellInRange(spellName, thisUnit) == true]]) or (enemyFacingCount >= minUnits) or spellType == "Helpful" or spellType == "Unknown" then
 						return castingSpell(thisUnit, spellID, spellName, icon, castType, printReport, debug)
 					else
 						return printReport(false, "Below Min Units Facing", enemyFacingCount)

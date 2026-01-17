@@ -29,7 +29,7 @@ function auraTracker:add(guid, name, spellId, time) --Check if exists and create
     end
 	if not unit.auras[spellId] then
 		unit.auras[spellId] = {
-			spellName = br._G.GetSpellInfo(spellId), --GetSpellName(spellId),
+			spellName = br.api.wow.GetSpellInfo(spellId), --GetSpellName(spellId),
 			id = spellId,
 			duration = br.functions.aura:getAuraDuration(br.objectID, spellId),
 			remain = br.functions.aura:getAuraRemain(br.objectID, spellId),

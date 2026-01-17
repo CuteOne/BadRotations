@@ -31,10 +31,10 @@ if not lootEngine.metaTable then
 	-- Debug function
 	function lootEngine:debug(message, forceShow)
 		-- Check if loot debugging is enabled or forceShow is true
-		local showDebug = forceShow or (br.data and br.data.settings and br.data.settings[br.loader.selectedSpec] 
-			and br.data.settings[br.loader.selectedSpec].toggles 
+		local showDebug = forceShow or (br.data and br.data.settings and br.data.settings[br.loader.selectedSpec]
+			and br.data.settings[br.loader.selectedSpec].toggles
 			and br.data.settings[br.loader.selectedSpec].toggles["isDebugging"])
-		
+
 		if showDebug and message and self.oldMessage ~= message then
 			br.functions.misc:addonDebug("<LootEngine> " .. (math.floor(GetTime() * 1000) / 1000) .. " " .. message, true)
 			self.oldMessage = message
@@ -98,9 +98,9 @@ if not lootEngine.metaTable then
 
 	-- Main looting logic
 	function lootEngine:getLoot(lootUnit)
-		if not lootUnit then 
+		if not lootUnit then
 			self:debug("getLoot called with nil unit")
-			return 
+			return
 		end
 
 		-- Verify unit still exists
@@ -128,9 +128,9 @@ if not lootEngine.metaTable then
 		end
 
 		local unitGUID = br._G.UnitGUID(lootUnit)
-		if not unitGUID then 
+		if not unitGUID then
 			self:debug("Could not get GUID for loot unit")
-			return 
+			return
 		end
 
 		-- Verify unit still has loot
@@ -158,10 +158,11 @@ if not lootEngine.metaTable then
 			if distance < 7 and br.functions.misc:getLineOfSight("player", lootUnit) then
 				self.lootAttempts[unitGUID] = now
 				self:debug("Looting " .. br._G.UnitName(lootUnit) .. " at " .. math.floor(distance) .. " yards")
-				
+
 				-- Use InteractUnit or ObjectInteract depending on what the unlocker provides
 				local interactFunc = br._G.InteractUnit or br._G.ObjectInteract
 				if interactFunc then
+					if br.functions.misc:pause(true) then return end
 					self.isLooting = true
 					self.lootStartTime = now
 					interactFunc(lootUnit)
@@ -172,6 +173,7 @@ if not lootEngine.metaTable then
 						br._G.TargetUnit(lootUnit)
 						br._G.C_Timer.After(0.1, function()
 							if br._G.InteractTarget then
+								if br.functions.misc:pause(true) then return end
 								self.isLooting = true
 								self.lootStartTime = now
 								br._G.InteractTarget()
@@ -217,8 +219,8 @@ if not lootEngine.metaTable then
 
 		-- Check if there are units to loot
 		local lootableCount = self:lootCount()
-		if lootableCount == 0 then 
-			return 
+		if lootableCount == 0 then
+			return
 		end
 
 		-- Check for bag space

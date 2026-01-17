@@ -310,7 +310,7 @@ function common:commonReaders()
 			end
 		end
 		-- Azerite Essence
-		if event == "AZERITE_ESSENCE_ACTIVATED" then
+		if event == "AZERITE_ESSENCE_ACTIVATED" and br.player then
 			br.player.updatePlayer = true
 		end
 		if event == "PLAYER_EQUIPMENT_CHANGED" and br.player then
@@ -334,7 +334,9 @@ function common:commonReaders()
 		-- 	br.rotationChanged = true
 		-- end
 		if event == "PLAYER_TALENT_UPDATE" or event == "PLAYER_LEVEL_UP" or event == "PLAYER_EQUIPMENT_CHANGED" --[[or event == "AZERITE_EMPOWERED_ITEM_SELECTION_UPDATED"]] or event == "TRAIT_CONFIG_UPDATED" then
-			br.player.updatePlayer = true
+			if br.player then
+				br.player.updatePlayer = true
+			end
 		end
 		-------------------------------------------------
 		--[[ SpellCast Sents (used to define target) --]]
@@ -416,14 +418,14 @@ function common:commonReaders()
 				if br.player ~= nil then
 					if #br.player.queue ~= 0 then
 						for i = 1, #br.player.queue do
-							if br._G.GetSpellInfo(SpellID) == br._G.GetSpellInfo(br.player.queue[i].id) then
+							if br.api.wow.GetSpellInfo(SpellID) == br.api.wow.GetSpellInfo(br.player.queue[i].id) then
 								br._G.tremove(br.player.queue, i)
 								if br._G.IsAoEPending() then
 									br._G.SpellStopTargeting()
 								end
 								if not br.functions.misc:isChecked("Mute Queue") then
 									br._G.print("Cast Success! - Removed |cFFFF0000" ..
-									br._G.GetSpellInfo(SpellID) .. "|r from the queue.")
+									br.api.wow.GetSpellInfo(SpellID) .. "|r from the queue.")
 								end
 								break
 							end
@@ -532,7 +534,7 @@ function common:commonReaders()
 			-- 203 = "Cannot attack while dead"
 			-- 278 = "Your Pet is not Dead" / "Your pet is dead. Use Revive Pet"
 			if errorMsg == 278 then
-				local revive = br._G.GetSpellInfo(50769) -- Used for string matching error messasge.
+				local revive = br.api.wow.GetSpellInfo(50769) -- Used for string matching error messasge.
 				local match = string.find(messageErr, revive) ~= nil
 				if match then
 					br.readers.combatLog.deadPet = true

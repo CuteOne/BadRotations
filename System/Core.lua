@@ -83,7 +83,7 @@ local function updateRotationOnSpecChange()
     br.ui.settingsManagement:loadLastProfileTracker()
     br.data.loadedSettings = false
     -- Load Default Settings
-    br:defaultSettings()
+    br.ui.settingsManagement:defaultSettings()
     br.rotationChanged = true
     br._G.wipe(br.slashCommands.commandHelp)
     br.slashCommands:slashHelpList()
@@ -91,6 +91,7 @@ end
 
 -- collectGarbage should only be set when rotation explicitly changes
 local collectGarbage = false
+local initialized = false
 function engines:Update(self)
     local startTime = br._G.debugprofilestop()
     local LibDraw = br._G.LibStub("LibDraw-BR")
@@ -114,12 +115,22 @@ function engines:Update(self)
             Print("|cffFFFFFFCannot Start... |cffFF1100BR |cffFFFFFFcan not complete loading. Please check requirements.")
         end
         return false
-    elseif br.unlocked and br._G.GetObjectCount() ~= nil then
+    elseif br.unlocked then--and br._G.GetObjectCount() ~= nil then
+        -- Load Expansion Spell Lists
+        if br.lists.spells == nil then
+            br.lists:loadExpansionSpells()
+        end
         br.functions.misc:devMode()
         -- Check BR Out of Date
         -- br.unlockers:checkBrOutOfDate()
         -- Load Saved Settings
         br.ui.settingsManagement:loadSavedSettings()
+        -- Initialization Complete
+        if not initialized then
+            br.ui.chatOverlay:Show("-= BadRotations Loaded =-")
+            br._G.print("Initialization Complete.")
+            initialized = true
+        end
         -- Cache settings check
         local settings = br.data and br.data.settings and br.data.settings[br.loader.selectedSpec]
         local toggles = settings and settings.toggles
@@ -184,7 +195,7 @@ function engines:Update(self)
                             collectGarbage = true
                         end
                         br.rotationChanged = false
-                        br._G.print("Profile Load Complete - Ready to run.")
+                        br._G.print("Profile Load Complete")
                     end
                 end
                 -- Queue Casting

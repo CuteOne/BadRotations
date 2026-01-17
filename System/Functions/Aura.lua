@@ -3,9 +3,13 @@ br.functions.aura = br.functions.aura or {}
 local aura = br.functions.aura
 
 function aura:AuraData(unit, index, filter)
-	local auraData = br._G.C_UnitAuras.GetAuraDataByIndex(unit, index, filter)
+	local auraData = br.api.wow.GetAuraDataByIndex(unit, index, filter)
 	if not auraData then return nil end
-	return AuraUtil.UnpackAuraData(auraData)
+	if _G.AuraUtil and _G.AuraUtil.UnpackAuraData then
+		return _G.AuraUtil.UnpackAuraData(auraData)
+	end
+	-- If AuraUtil doesn't exist, return the auraData structure
+	return auraData
 end
 
 -- Overwrite UnitBuff
@@ -46,10 +50,10 @@ function aura:UnitAuraID(unit, spellID, filter)
 end
 
 function aura:UnitBuffID(unit, spellID, filter)
-	local spellName = br._G.GetSpellInfo(spellID)
+	local spellName = br.api.wow.GetSpellInfo(spellID)
 	local exactSearch = filter ~= nil and br._G.strfind(br._G.strupper(filter), "EXACT")
  	if unit == "player" then
-	    local auraInfo = C_UnitAuras.GetPlayerAuraBySpellID(spellID)
+	    local auraInfo = br.api.wow.GetPlayerAuraBySpellID(spellID)
 	    if auraInfo and auraInfo.expirationTime > br._G.GetTime() then return auraInfo end
 	end
 	if exactSearch then
@@ -72,7 +76,7 @@ end
 
 -- function aura:UnitDebuffID(unit, spellID, filter)
 -- 	local thisUnit = br._G["ObjectPointer"](unit)
--- 	local spellName = br._G.GetSpellInfo(spellID)
+-- 	local spellName = br.api.wow.GetSpellInfo(spellID)
 -- 	-- Check Cache
 -- 	if br.functions.misc:isChecked("Cache Debuffs") then
 -- 		if br.engines.enemiesEngine.enemy[thisUnit] ~= nil then
@@ -127,7 +131,7 @@ function aura:UnitDebuffID(unit, spellID, filter)
 
     local ok, r1, r2, r3, r4, r5 = pcall(function()
         local thisUnit = br._G["ObjectPointer"](unit)
-        local spellName = br._G.GetSpellInfo(spellID)
+        local spellName = br.api.wow.GetSpellInfo(spellID)
         -- Check Cache
         if br.functions.misc:isChecked("Cache Debuffs") then
             if thisUnit and br.engines.enemiesEngine.enemy[thisUnit] ~= nil then
@@ -144,13 +148,13 @@ function aura:UnitDebuffID(unit, spellID, filter)
 
         -- Failsafe if not cached
         if unit == "player" then
-            local auraInfo = C_UnitAuras.GetPlayerAuraBySpellID(spellID)
+            local auraInfo = br.api.wow.GetPlayerAuraBySpellID(spellID)
             if auraInfo and auraInfo.expirationTime > br._G.GetTime() then return auraInfo end
         end
         local exactSearch = filter ~= nil and br._G.strfind(br._G.strupper(filter), "EXACT")
         if exactSearch then
             for i = 1, 40 do
-                local auraInfo = C_UnitAuras.GetDebuffDataByIndex(unit, i, "PLAYER")
+                local auraInfo = br.api.wow.GetDebuffDataByIndex(unit, i, "PLAYER")
                 if auraInfo and auraInfo.spellId == spellID then
                     return auraInfo
                 end
@@ -158,13 +162,13 @@ function aura:UnitDebuffID(unit, spellID, filter)
         else
             if filter ~= nil and br._G.strfind(br._G.strupper(filter), "PLAYER") then
                 for i = 1, 40 do
-                    local auraInfo = C_UnitAuras.GetDebuffDataByIndex(unit, i, "HARMFUL|PLAYER")
+                    local auraInfo = br.api.wow.GetDebuffDataByIndex(unit, i, "HARMFUL|PLAYER")
                     if auraInfo and auraInfo.name == spellName then return auraInfo end
                 end
                 return nil -- Don't fall through to non-player filter if PLAYER was specified
             end
             for i = 1, 40 do
-                local auraInfo = C_UnitAuras.GetDebuffDataByIndex(unit, i, "HARMFUL")
+                local auraInfo = br.api.wow.GetDebuffDataByIndex(unit, i, "HARMFUL")
                 if auraInfo and auraInfo.name == spellName then return auraInfo end
             end
         end
@@ -237,7 +241,7 @@ function aura:canDispel(Unit, spellID)
 	if not br.dispelTracker then
 		br.dispelTracker = {}
 	end
-	
+
 	-- first, check DoNotDispell list
 	for i = 1, #br.engines.healingEngineCollections.DoNotDispellList do
 		if br.engines.healingEngineCollections.DoNotDispellList[i].id == spellID then
@@ -326,7 +330,7 @@ function aura:canDispel(Unit, spellID)
 	end
 	if br.player.race == "BloodElf" then --Blood Elf
 		-- Arcane Torrent
-		if spellID == select(7, br._G.GetSpellInfo(69179)) then typesList = { "Magic" } end
+		if spellID == select(7, br.api.wow.GetSpellInfo(69179)) then typesList = { "Magic" } end
 	end
 	if br.functions.item:hasItem(177278) and spellID == 177278 then typesList = { "Disease", "Poison", "Curse", } end -- Phail of Serenity
 	local function ValidType(debuffType)
@@ -346,13 +350,13 @@ function aura:canDispel(Unit, spellID)
 	local i = 1
 	if br._G.UnitInPhase(Unit) then
 		if br.functions.unit:GetUnitIsFriend("player", Unit) then
-			while br._G.C_UnitAuras.GetDebuffDataByIndex(Unit, i) do
-				local debuffInfo = br._G.C_UnitAuras.GetDebuffDataByIndex(Unit, i)
+			while br.api.wow.GetDebuffDataByIndex(Unit, i) do
+				local debuffInfo = br.api.wow.GetDebuffDataByIndex(Unit, i)
 				local debuffRemain = debuffInfo.expirationTime - br._G.GetTime()
 				if (debuffInfo.dispelName and ValidType(debuffInfo.dispelName)) then
 					-- Create a unique key for this specific debuff instance
 					local trackerKey = Unit .. "_" .. debuffInfo.spellId .. "_" .. debuffInfo.expirationTime
-					
+
 					-- If this is a new debuff, calculate and store a random reaction delay
 					if not br.dispelTracker[trackerKey] then
 						-- Human-like reaction time: base delay +/- 0.3 seconds
@@ -360,9 +364,9 @@ function aura:canDispel(Unit, spellID)
 						local randomDelay = baseDelay - 0.3 + math.random() * 0.6
 						br.dispelTracker[trackerKey] = randomDelay
 					end
-					
+
 					local delay = br.dispelTracker[trackerKey]
-					
+
 					if debuffInfo.spellId == 284663 and (br.GetHP(Unit) < br.functions.misc:getOptionValue("Bwonsamdi's Wrath HP")
 							or (br._G.UnitGroupRolesAssigned(Unit) == "TANK" and (debuffInfo.duration - debuffRemain) > delay)) then
 						HasValidDispel = true
@@ -393,13 +397,13 @@ function aura:canDispel(Unit, spellID)
 				i = i + 1
 			end
 		else
-			while br._G.C_UnitAuras.GetBuffDataByIndex(Unit, i) do
-				local buffInfo = br._G.C_UnitAuras.GetBuffDataByIndex(Unit, i)
+			while br.api.wow.GetBuffDataByIndex(Unit, i) do
+				local buffInfo = br.api.wow.GetBuffDataByIndex(Unit, i)
 				local buffRemain = buffInfo.expirationTime - br._G.GetTime()
 				if (buffInfo.dispelName and ValidType(buffInfo.dispelName)) and not br._G.UnitIsPlayer(Unit) then
 					-- Create a unique key for this specific buff instance
 					local trackerKey = Unit .. "_" .. buffInfo.spellId .. "_" .. buffInfo.expirationTime
-					
+
 					-- If this is a new buff, calculate and store a random reaction delay
 					if not br.dispelTracker[trackerKey] then
 						-- Human-like reaction time: base delay +/- 0.3 seconds
@@ -407,9 +411,9 @@ function aura:canDispel(Unit, spellID)
 						local randomDelay = baseDelay - 0.3 + math.random() * 0.6
 						br.dispelTracker[trackerKey] = randomDelay
 					end
-					
+
 					local delay = br.dispelTracker[trackerKey]
-					
+
 					local dispelUnitObj = Dispel(Unit, buffInfo.applications, buffInfo.duration, buffRemain, buffInfo.spellId, true)
 					if dispelUnitObj == nil and not br.functions.misc:isChecked("Purge Only Whitelist") then
 						if (buffInfo.duration - buffRemain) > delay then
@@ -427,14 +431,14 @@ function aura:canDispel(Unit, spellID)
 			end
 		end
 	end
-	
+
 	-- Periodically clean up old tracker entries to prevent memory bloat
 	-- Run cleanup every 30 seconds
 	if not br.dispelTrackerLastCleanup or (br._G.GetTime() - br.dispelTrackerLastCleanup) > 30 then
 		br.dispelTracker = {}
 		br.dispelTrackerLastCleanup = br._G.GetTime()
 	end
-	
+
 	return HasValidDispel
 end
 

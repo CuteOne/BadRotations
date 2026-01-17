@@ -222,17 +222,27 @@ function br.ui:changeButton(toggleValue, newValue)
 	-- define text
 	br.ui.toggles["text" .. StripModes(toggleValue)]:SetText(br.ui.toggles[toggleValue][newValue].mode)
 	-- define icon
-	if type(br.ui.toggles[toggleValue][newValue].icon) == "number" then
+	local iconValue = br.ui.toggles[toggleValue][newValue].icon
+	-- Handle table-based spell ranks (Classic WoW)
+	if type(iconValue) == "table" then
+		-- Get highest known rank for icon display
+		if br.functions and br.functions.spell and br.functions.spell.getHighestKnownRank then
+			iconValue = br.functions.spell:getHighestKnownRank(iconValue) or iconValue[1]
+		else
+			iconValue = iconValue[1] -- Fallback to first rank
+		end
+	end
+	if type(iconValue) == "number" then
 		-- Try spell first, then item if spell doesn't exist
-		local spellName, _, spellIcon = br._G.GetSpellInfo(br.ui.toggles[toggleValue][newValue].icon)
+		local spellName, _, spellIcon = br.api.wow.GetSpellInfo(iconValue)
 		if spellName then
 			Icon = spellIcon
 		else
 			-- Try as item ID
-			Icon = br._G.C_Item.GetItemIconByID(br.ui.toggles[toggleValue][newValue].icon)
+			Icon = br._G.C_Item.GetItemIconByID(iconValue)
 		end
 	else
-		Icon = br.ui.toggles[toggleValue][newValue].icon
+		Icon = iconValue
 	end
 	br.ui.toggles["button" .. StripModes(toggleValue)]:SetNormalTexture(Icon or br.ui.toggles.emptyIcon)
 	-- define highlight
@@ -296,9 +306,18 @@ function br.ui:CreateButton(Name, x, y)
 		)
 		br.ui.toggles["button" .. Name]:RegisterForClicks("AnyUp")
 		local toggleIcon = br.ui.toggles[Name][toggleIndex].icon
+		-- Handle table-based spell ranks (Classic WoW)
+		if type(toggleIcon) == "table" then
+			-- Get highest known rank for icon display
+			if br.functions and br.functions.spell and br.functions.spell.getHighestKnownRank then
+				toggleIcon = br.functions.spell:getHighestKnownRank(toggleIcon) or toggleIcon[1]
+			else
+				toggleIcon = toggleIcon[1] -- Fallback to first rank
+			end
+		end
 		if toggleIcon ~= nil and type(toggleIcon) == "number" then
 			-- Try spell first, then item if spell doesn't exist
-			local spellName, _, spellIcon = br._G.GetSpellInfo(toggleIcon)
+			local spellName, _, spellIcon = br.api.wow.GetSpellInfo(toggleIcon)
 			if spellName then
 				Icon = spellIcon
 			else

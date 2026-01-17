@@ -175,8 +175,6 @@ local function createOptions()
         br.ui:createDropdownWithout(section, "Interrupt Mode", br.ui.dropOptions.Toggle, 6)
         -- Wake of Ashes Key Toggle
         br.ui:createDropdownWithout(section, "Wake Mode", br.ui.dropOptions.Toggle, 6)
-        -- Pause Toggle
-        br.ui:createDropdown(section, "Pause Mode", br.ui.dropOptions.Toggle, 6)
         br.ui:checkSectionState(section)
     end
     optionTable = {
@@ -322,8 +320,6 @@ end -- End Action List - Extras
 -- Action List - Defensives
 actionList.Defensive = function()
     if ui.useDefensive() then
-        -- Basic Healing Module
-        module.BasicHealing()
         -- Blessing of Protection
         if ui.checked("Blessing of Protection", true) then
             var.protectionUnit = getHealUnitOption("Blessing of Protection Target")
@@ -1186,8 +1182,9 @@ local runRotation = function()
         --     br.debug.cpu.rotation.inCombat = debugprofilestop() - startTime
         -- end -- End In Combat
     end -- End Profile
-end     -- runRotation
+end -- runRotation
 local id = 70
+local expansion = br.isRetail
 if br.loader.rotations[id] == nil then
     br.loader.rotations[id] = {}
 end

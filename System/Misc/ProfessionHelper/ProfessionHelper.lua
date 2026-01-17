@@ -18,7 +18,7 @@ function ProfessionHelper:ProfessionHelper()
 									-- local itemName, _, _, _, _, itemClass, itemSubClass = br._G.GetItemInfo(itemLink);
 									local itemID = select(10, br._G.C_Container.GetContainerItemIndo(bagID, slotID)) --tonumber(string.match(containerItemInfo, "Hitem:(%d+)"))
 									if itemID == thisItem then
-										br._G.RunMacroText("/cast " .. br._G.GetSpellInfo(spell))
+										br._G.RunMacroText("/cast " .. br.api.wow.GetSpellInfo(spell))
 										br._G.RunMacroText("/use item:" .. itemID)
 										br.lootTimer = br._G.GetTime()
 									end
@@ -219,7 +219,7 @@ function ProfessionHelper:ProfessionHelper()
 					local thisItem = tableLockBox[i]
 					if br._G.GetItemCount(thisItem, false, false) >= 1 then
 						if br.lootTimer == nil or br.lootTimer <= br._G.GetTime() - lootDelay and not br._G.LootFrame:IsShown() then
-							br._G.CastSpellByName(br._G.GetSpellInfo(1804), "player")
+							br._G.CastSpellByName(br.api.wow.GetSpellInfo(1804), "player")
 							br._G.UseItemByName(tostring(select(1, br._G.GetItemInfo(thisItem))))
 							br._G.C_Timer.After(1.5,
 								function() br._G.UseItemByName(tostring(select(1, br._G.GetItemInfo(thisItem)))) end)

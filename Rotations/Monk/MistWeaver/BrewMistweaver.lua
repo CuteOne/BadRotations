@@ -2285,6 +2285,7 @@ local function runRotation()
     end
 end            -- End runRotation
 local id = 270 -- Change to the spec id profile is for. Spec ID can be found at: https://wowpedia.fandom.com/wiki/SpecializationID
+local expansion = br.isMOP
 -- DO NOT EDIT ANYTHING BELOW THIS LINE, WILL BREAK PROFILE --
 if br.loader.rotations[id] == nil then br.loader.rotations[id] = {} end
 tinsert(br.loader.rotations[id], {

@@ -3,19 +3,26 @@
 local _, br = ...
 local loadedIn = false
 br._G = setmetatable({}, { __index = _G })
-br._G.GetSpellInfo = function(spellIdentifier)
-	local spellInfo = _G["GetSpellInfo"](spellIdentifier)
-	if spellInfo and type(spellInfo) == "table" then
-		---@diagnostic disable-next-line: redundant-return-value
-		return spellInfo.name, _, spellInfo.iconID, spellInfo.castTime, spellInfo.minRange,
-			---@diagnostic disable-next-line: redundant-return-value
-			spellInfo.maxRange, spellInfo.spellID, spellInfo.originalIconID
-	else
-		return _G["GetSpellInfo"](spellIdentifier)
+
+-- WoW API Compatibility Layer
+-- Expansion-specific API wrappers are loaded via wowapi.lua -> retail.lua or mop.lua
+-- This allows all API differences to be managed in one place per expansion
+-- Access API functions via: br.api.wow.FunctionName() or br._G.FunctionName()
+
+-- Override br._G to use compatibility layer when available
+local originalIndex = getmetatable(br._G).__index
+setmetatable(br._G, {
+	__index = function(t, k)
+		-- First check if we have a compatibility wrapper
+		if br.api and br.api.wow and br.api.wow[k] then
+			return br.api.wow[k]
+		end
+		-- Fall back to global _G
+		return originalIndex[k]
 	end
-end
+})
 -- System Table Initialization
-br.api = {}
+br.api = br.api or {} -- Don't overwrite if already initialized by wowapi.lua
 br.engines = {}
 br.functions = {}
 br.lists = {}
@@ -64,9 +71,6 @@ function br.Run()
 		if br.engines.lootEngine and br.engines.lootEngine.init then
 			br.engines.lootEngine:init()
 		end
-		-- Complete Loadin
-		br.ui.chatOverlay:Show("-= BadRotations Loaded =-")
-		br._G.print("Initialization Complete.")
 		loadedIn = true
 	end
 end

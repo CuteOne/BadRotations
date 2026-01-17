@@ -70,7 +70,7 @@ function custom:isNotBlacklisted(checkUnit)
 end
 
 function custom:castGroundAtUnit(spellID, radius, minUnits, maxRange, minRange, spellType, unit)
-    local _, _, _, _, spellMinRange, spellMaxRange = br._G.GetSpellInfo(spellID)
+    local _, _, _, _, spellMinRange, spellMaxRange = br.api.wow.GetSpellInfo(spellID)
     minRange                                       = minRange or spellMinRange or 0
     maxRange                                       = maxRange or spellMaxRange or 5
     radius                                         = radius or maxRange
@@ -106,7 +106,7 @@ function custom:castGroundAtUnit(spellID, radius, minUnits, maxRange, minRange, 
 end
 
 -- function custom:castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange, spellType, castTime)
---     local _, _, _, _, spellMinRange, spellMaxRange = br._G.GetSpellInfo(spellID)
+--     local _, _, _, _, spellMinRange, spellMaxRange = br.api.wow.GetSpellInfo(spellID)
 --     minRange = minRange or spellMinRange or 0
 --     maxRange = maxRange or spellMaxRange or 5
 --     radius   = radius or maxRange
@@ -284,7 +284,7 @@ function custom:castGroundAtBestLocation(spellID, radius, minUnits, maxRange, mi
     --
     -- NOTE: castTime is currently unused; reliable movement prediction is not available here.
 
-    local _, _, _, _, spellMinRange, spellMaxRange = br._G.GetSpellInfo(spellID)
+    local _, _, _, _, spellMinRange, spellMaxRange = br.api.wow.GetSpellInfo(spellID)
     minRange = minRange or spellMinRange or 0
     maxRange = maxRange or spellMaxRange or 5
     radius = radius or maxRange
@@ -595,7 +595,7 @@ function custom:RaidBuff(BuffSlot, myBuffSpellID)
         else
             for index = 1, br._G.GetNumGroupMembers() do
                 local _, _, _, _, _, _, _, online, isDead, _, _ = br._G.GetRaidRosterInfo(index)
-                if online and not isDead and 1 == br._G.C_Spell.IsSpellInRange(select(1, br._G.GetSpellInfo(SpellID)), "raid" .. index) then
+                if online and not isDead and br._G.C_Spell.IsSpellInRange(select(1, br.api.wow.GetSpellInfo(SpellID)), "raid" .. index) == true then
                     -- local playerBuffed=false
                     for auraIndex = 1, #chosenTable do
                         if br.functions.aura:getBuffRemain("raid" .. index, chosenTable[auraIndex]) > 0 then break end

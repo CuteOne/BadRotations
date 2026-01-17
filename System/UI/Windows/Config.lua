@@ -312,7 +312,7 @@ function br.ui:createConfigWindow()
             "Seconds to attempt cast")
         if br.player ~= nil and br.player.spells ~= nil and br.player.spells.abilities ~= nil then
             for _, v in pairsByKeys(br.player.spells.abilities) do
-                local spellName = br._G.GetSpellInfo(v)
+                local spellName = br.api.wow.GetSpellInfo(v)
                 if v ~= 61304 and spellName ~= nil then
                     br.ui:createDropdown(
                         section,

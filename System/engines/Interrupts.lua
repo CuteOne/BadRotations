@@ -10,8 +10,8 @@ function interrupts:shouldStopCasting(Spell)
 		local Boss1Cast,Boss1CastEnd,PlayerCastEnd,StopCasting
 		local MySpellCastTime
 		-- Set Spell Cast Time
-		if br._G.GetSpellInfo(Spell) ~= nil then
-			MySpellCastTime = (br._G.GetTime()*1000) + select(4,br._G.GetSpellInfo(Spell))
+		if br.api.wow.GetSpellInfo(Spell) ~= nil then
+			MySpellCastTime = (br._G.GetTime()*1000) + select(4,br.api.wow.GetSpellInfo(Spell))
 		else
 			return false
 		end
@@ -57,7 +57,7 @@ function interrupts:shouldStopCasting(Spell)
 			return true
 		end
 		for j = 1,#ShouldStop do
-			if Boss1Cast == select(1,br._G.GetSpellInfo(ShouldStop[j])) then
+			if Boss1Cast == select(1,br.api.wow.GetSpellInfo(ShouldStop[j])) then
 				br.SetStopTime = Boss1CastEnd
 				if PlayerCastEnd ~= nil then
 					if Boss1CastEnd < PlayerCastEnd then
@@ -70,7 +70,7 @@ function interrupts:shouldStopCasting(Spell)
 	end
 end
 function interrupts:betterStopCasting(Spell)
-	local spellCastLengt = select(4,br._G.GetSpellInfo(Spell)) or 0
+	local spellCastLengt = select(4,br.api.wow.GetSpellInfo(Spell)) or 0
 	local MySpellCastTime = (br._G.GetTime()*1000) + spellCastLengt
 	if br.shouldStopTime and br.shouldStopTime <= MySpellCastTime and not br.engines.interrupts:canContinue() then
 		return true

@@ -20,7 +20,7 @@ br.api.buffs = function(buff, k, v)
             if v == 0 then return end
         end
         if br.functions.aura:UnitBuffID(thisUnit, v, sourceUnit) ~= nil then
-            br._G.RunMacroText("/cancelaura " .. br._G.GetSpellInfo(v))
+            br._G.RunMacroText("/cancelaura " .. br.api.wow.GetSpellInfo(v))
         end
     end
 
@@ -129,10 +129,24 @@ br.api.buffs = function(buff, k, v)
     -- @string[opt="player"] sourceUnit The source of the buff.
     -- @treturn boolean
     buff.refresh = function(thisUnit, sourceUnit)
+        if thisUnit == nil then thisUnit = 'player' end
         if k == "bloodLust" then
             v = br.functions.aura:getLustID()
             if v == 0 then return false end
         end
+
+        -- Classic: when sourceUnit is omitted, treat refresh checks as "any source".
+        -- Also: don't attempt to refresh a buff that exists in a higher rank (same name, different spellId).
+        if br.isClassic and sourceUnit == nil then
+            local auraInfo = br.functions.aura:UnitBuffID(thisUnit, v)
+            if auraInfo and auraInfo.spellId and auraInfo.spellId > v then
+                return false
+            end
+            local remain = math.abs(br.functions.aura:getBuffRemain(thisUnit, v))
+            local duration = br.functions.aura:getBuffDuration(thisUnit, v)
+            return remain <= duration * 0.3
+        end
+
         return buff.remain(thisUnit, sourceUnit) <= buff.duration(thisUnit, sourceUnit) * 0.3
     end
 
