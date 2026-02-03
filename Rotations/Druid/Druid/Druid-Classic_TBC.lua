@@ -1306,7 +1306,7 @@ actionList.PreCombat = function()
                 end
                 -- Auto Attack (do not break Prowl)
                 if not buff.prowl.exists() and not cast.auto.autoAttack() and unit.valid("target") and not unit.deadOrGhost("target") and unit.distance("target") < 5 then
-                    StartAttack()
+                    br._G.StartAttack()
                     ui.debug("Casting Auto Attack [Precombat]")
                     return true
                 end
@@ -1324,7 +1324,7 @@ actionList.Combat = function()
         ------------------------
         -- Start Attack (do not break Prowl)
         if not buff.prowl.exists() and unit.exists(units.dyn5) and not cast.auto.autoAttack() and not unit.deadOrGhost("target") then
-            StartAttack()
+            br._G.StartAttack()
             ui.debug("Casting Auto Attack")
             return true
         end

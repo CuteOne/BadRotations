@@ -194,7 +194,7 @@ if not lootEngine.metaTable then
 
 			-- Clean up after looting
 			if not br.functions.misc:isInCombat("player") and self.isLooting then
-				ClearTarget()
+				br._G.ClearTarget()
 			end
 
 			return
