@@ -186,6 +186,7 @@ local debuff
 local enemies
 local energy
 local rage
+local mana
 local module
 local ui
 local unit
@@ -234,9 +235,9 @@ local function ferociousBiteFinish(thisUnit)
 
     local finishHim = false
     if thisUnit == nil then thisUnit = units.dyn5 end
-    if comboPoints <= 0 or unit.isDummy(thisUnit) then return false end
+    if comboPoints() <= 0 or unit.isDummy(thisUnit) then return false end
 
-    local comboStart = desc:find(" " .. comboPoints .. " ", 1, true)
+    local comboStart = desc:find(" " .. comboPoints() .. " ", 1, true)
     if comboStart == nil then return false end
 
     local damageList = desc:sub(comboStart + 2)
@@ -363,12 +364,12 @@ end
 
 -- Powershift for Energy
 local function powershift()
-    if cd.global.remain() == 0 and unit.combatTime() > 1 then
+    if cd.global.remain() == 0 and unit.combatTime() > 1 and unit.ttd(units.dyn5) > 1 then
         for i = 1, br._G.GetNumShapeshiftForms() do
             local _, name, active = br._G.GetShapeshiftFormInfo(i)
             if name and active then
-                br._G.CancelShapeshiftForm()
-                ui.debug("Powershift - Canceling Form")
+                -- br._G.CancelShapeshiftForm()
+                -- ui.debug("Powershift - Canceling Form")
                 br._G.CastShapeshiftForm(i)
                 return true
             end
@@ -588,8 +589,8 @@ actionList.Extra = function()
     end
 
     -- Powershift for Energy (Cat Form with Furor talent)
-    if ui.checked("Powershifting") and cast.able.catForm() and buff.catForm.exists() and unit.inCombat() and energy < 30
-        and comboPoints < 5 and not buff.clearcasting.exists() and unit.power.mana.percent() > 30
+    if ui.checked("Powershifting") and cast.able.catForm() and buff.catForm.exists() and unit.inCombat() and energy() < 30
+        and comboPoints() < 5 and not buff.clearcasting.exists() and mana.percent() > 30
     then
         if powershift() then
             ui.debug("Powershift for Energy")
@@ -900,7 +901,7 @@ actionList.Defensive = function()
         -- end
         -- -- Mana Potion
         -- if ui.checked("Mana Potion") and unit.canUseItem(2455)
-        --     and unit.power.mana.percent() < 30
+        --     and mana.percent() < 30
         -- then
         --     if buff.catForm.exists() or buff.bearForm.exists() then
         --         br._G.RunMacroText("/CancelForm")
@@ -959,7 +960,7 @@ actionList.Cooldowns = function()
     if ui.useCDs() then
         -- Innervate
         if ui.checked("Self-Innervate") and cast.able.innervate()
-            and unit.power.mana.percent() < 30
+            and mana.percent() < 30
         then
             if cast.innervate("player") then
                 ui.debug("Casting Innervate")
@@ -972,7 +973,7 @@ end -- End Action List - Cooldowns
 -- Action List - Bear Form
 actionList.BearForm = function()
     -- Enrage
-    if cast.able.enrage() and not unit.deadOrGhost("target") and not buff.enrage.exists() and rage < 10 and unit.hp() > 80 then
+    if cast.able.enrage() and not unit.deadOrGhost("target") and not buff.enrage.exists() and rage() < 10 and unit.hp() > 80 then
         if cast.enrage() then
             ui.debug("Casting Enrage")
             return true
@@ -1010,7 +1011,7 @@ actionList.CatOpener = function()
     if unit.player("target") then return false end
 
     -- Tiger's Fury gating: if enabled+known and we're at full energy, cast it before opening.
-    if ui.checked("Tiger's Fury") and spell.tigersFury.known() and energy == 100 and not buff.tigersFury.exists() then
+    if ui.checked("Tiger's Fury") and spell.tigersFury.known() and energy()== 100 and not buff.tigersFury.exists() then
         if cast.able.tigersFury() and cast.tigersFury() then
             ui.debug("Casting Tiger's Fury [Opener]")
             return true
@@ -1118,7 +1119,7 @@ end
 actionList.CatForm = function()
     -- Ferocious Bite - Finish Him!
     local finish = ferociousBiteFinish(units.dyn5)
-    if cast.able.ferociousBite(units.dyn5) and energy >= 35 and finish then
+    if cast.able.ferociousBite(units.dyn5) and energy() >= 35 and finish then
         if cast.ferociousBite(units.dyn5) then
             ui.debug("Casting Ferocious Bite [Finish Him!]")
             return true
@@ -1126,7 +1127,7 @@ actionList.CatForm = function()
     end
 
     -- Tiger's Fury
-    if ui.checked("Tiger's Fury") and cast.able.tigersFury() and buff.catForm.exists() and energy == 100
+    if ui.checked("Tiger's Fury") and cast.able.tigersFury() and buff.catForm.exists() and energy() == 100
         and not buff.tigersFury.exists()
     then
         if cast.tigersFury() then
@@ -1148,9 +1149,9 @@ actionList.CatForm = function()
     end
 
     -- 5 Combo Points - Finishers
-    if comboPoints == 5 and not finish then
+    if comboPoints() == 5 and not finish then
         -- Ferocious Bite (low energy)
-        if cast.able.ferociousBite(units.dyn5) and energy >= 35 and energy < 60 then
+        if cast.able.ferociousBite(units.dyn5) and energy() >= 35 and energy() < 60 then
             if cast.ferociousBite(units.dyn5) then
                 ui.debug("Casting Ferocious Bite")
                 return true
@@ -1166,7 +1167,7 @@ actionList.CatForm = function()
     end
 
     -- Combo Point Builders
-    if (comboPoints < 5 or energy >= 60 or freeDPS) and not finish then
+    if (comboPoints() < 5 or energy() >= 60 or freeDPS) and not finish then
         -- Ravage (from Prowl)
         local behindRavage = isBehind(units.dyn5, "player")
         if behindRavage then debugBehind("Ravage behind=true", units.dyn5) end
@@ -1283,7 +1284,7 @@ actionList.PreCombat = function()
                 -- Bear Form
                 if formValue == 3 and buff.bearForm.exists() then
                     -- Enrage
-                    if cast.able.enrage() and not unit.deadOrGhost("target") and not buff.enrage.exists() and rage < 10 then
+                    if cast.able.enrage() and not unit.deadOrGhost("target") and not buff.enrage.exists() and rage() < 10 then
                         if cast.enrage() then
                             ui.debug("Casting Enrage [Precombat]")
                             return true
@@ -1391,11 +1392,12 @@ local function runRotation()
     buff        = br.player.buff
     cast        = br.player.cast
     cd          = br.player.cd
-    comboPoints = br.player.power.comboPoints()
+    comboPoints = br.player.power.comboPoints
     debuff      = br.player.debuff
     enemies     = br.player.enemies
-    energy      = br.player.power.energy()
-    rage        = br.player.power.rage()
+    energy      = br.player.power.energy
+    mana        = br.player.power.mana
+    rage        = br.player.power.rage
     module      = br.player.module
     ui          = br.player.ui
     unit        = br.player.unit
@@ -1415,7 +1417,7 @@ local function runRotation()
     enemies.get(40)     -- Makes a varaible called, enemies.yards40
 
     -- Profile Specific Locals
-    fbMaxEnergy = energy >= 50
+    fbMaxEnergy = energy() >= 50
 
     -- Update Last Form tracking
     updateLastForm()
@@ -1432,8 +1434,8 @@ local function runRotation()
     freeHeal = omenSetting ~= 4 and omenSetting ~= 3 and buff.clearcasting.exists()
 
     -- No Shapeshift Power check
-    noShapeshiftPower = ((not buff.catForm.exists() or (buff.catForm.exists() and energy < ui.value("Energy")))
-        and (not buff.bearForm.exists() or (buff.bearForm.exists() and rage < ui.value("Rage"))))
+    noShapeshiftPower = ((not buff.catForm.exists() or (buff.catForm.exists() and energy() < ui.value("Energy")))
+        and (not buff.bearForm.exists() or (buff.bearForm.exists() and rage() < ui.value("Rage"))))
         or not unit.inCombat()
 
     if not unit.inCombat() and not unit.exists("target") then

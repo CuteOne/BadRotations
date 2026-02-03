@@ -58,6 +58,20 @@ function br.ui:createCheckbox(parent, text, tooltip, checked)
     local activePageSettings = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile][activePage] or {}
     br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile][activePage] = activePageSettings
     local data = activePageSettings
+    -- Ensure the active page is registered in the profile PageList so
+    -- option lookups (findOption) can locate values immediately.
+    br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["PageList"] = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["PageList"] or {}
+    local pageList = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["PageList"]
+    local found = false
+    for i = 1, #pageList do
+        if pageList[i] == activePage then
+            found = true
+            break
+        end
+    end
+    if not found then
+        br._G.tinsert(pageList, activePage)
+    end
     local value = text .. " Check"
 
     -- Read check value from config, false if nothing found

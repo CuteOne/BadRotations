@@ -1334,7 +1334,11 @@ function misc:addonDebug(msg, system)
 	if msg == nil then
 		return
 	end
-	if br.functions.misc:isChecked("Addon Debug Messages") then
+	-- Prefer the dropdown value for Addon Debug Messages. Some configs
+	-- may not include a separate checkbox, so rely on the dropdown being
+	-- set (1=System Only, 2=Profile Only, 3=All).
+	local addonDebugValue = br.functions.misc:getValue("Addon Debug Messages")
+	if addonDebugValue and addonDebugValue > 0 then
 		-- Use a per-message short timer key so different messages printed
 		-- within a short interval aren't suppressed by the same global key.
 		local msgKey = tostring(msg)
@@ -1350,12 +1354,13 @@ function misc:addonDebug(msg, system)
 			end
 			return
 		end
-		if system == true and (br.functions.misc:getValue("Addon Debug Messages") == 1 or br.functions.misc:getValue("Addon Debug Messages") == 3) then
+
+		if system == true and (addonDebugValue == 1 or addonDebugValue == 3) then
 			local timerKey = "System Delay:" .. msgKey
 			if br.debug.timer:useTimer(timerKey, 0.1) then
 				print(br.ui.colors.class .. "[BadRotations] System Debug: |cffFFFFFF" .. tostring(msg))
 			end
-		elseif system ~= true and (br.functions.misc:getValue("Addon Debug Messages") == 2 or br.functions.misc:getValue("Addon Debug Messages") == 3) then
+		elseif system ~= true and (addonDebugValue == 2 or addonDebugValue == 3) then
 			local timerKey = "Profile Delay:" .. msgKey
 			if br.debug.timer:useTimer(timerKey, 0.1) then
 				print(br.ui.colors.class .. "[BadRotations] Profile Debug: |cffFFFFFF" .. tostring(msg))
