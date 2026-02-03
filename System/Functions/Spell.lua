@@ -278,7 +278,7 @@ function spell:getGlobalCD(max)
 	end
 	-- Use Classic-compatible GCD spell if available
 	local gcdSpellID = 61304
-	if br.isClassic and br.api.wow.GetGCDSpellID then
+	if (br.isClassic or br.isBC) and br.api.wow.GetGCDSpellID then
 		gcdSpellID = br.api.wow.GetGCDSpellID()
 	end
 	return br.functions.spell:getSpellCD(gcdSpellID)
@@ -400,7 +400,7 @@ end
 
 -- if br.functions.spell:isKnown(106832) then
 -- function spell:isKnown(spellID)
--- 	local baseSpellID = br._G.FindBaseSpellByID(spellID)
+-- 	local baseSpellID = br.api.wow.FindBaseSpellByID(spellID)
 -- 	local _, _, spellInBookType = br.functions.spell:getSpellInSpellBook(spellID)
 -- 	return spellID ~= nil and spellInBookType ~= "Future Spell" and
 -- 		( --[[spellInBookType ~= nil or]] br._G.IsPlayerSpell(tonumber(spellID))
@@ -412,7 +412,7 @@ function spell:isKnown(spellID)
 
 	-- In Classic WoW, we need to check the specific spell ID, not just the name
 	-- because multiple ranks of the same spell have different IDs
-	if br.isClassic then
+	if br.isClassic or br.isBC then
 		-- Check if this specific spell ID is known
 		return br._G.IsPlayerSpell(tonumber(spellID)) or br._G.IsSpellKnown(spellID) or br.functions.spell:isSpellInSpellbook(spellID, "spell")
 	end
@@ -567,7 +567,7 @@ function spell:getRacial(thisRace)
         Gnome              = 20589,          -- Escape Artist
         Draenei            = DraeneiRacial,  -- Gift of the Naaru
         Human              = 59752,          -- Every Man for Himself
-        NightElf           = 58984,          -- Shadowmeld
+        NightElf           = 20580,          -- Shadowmeld
         Worgen             = 68992,          -- Darkflight
         -- Horde
         BloodElf           = BloodElfRacial, -- Arcane Torrent
@@ -605,7 +605,7 @@ function spell:getRacial(thisRace)
         -- Scourge            = 7744,           -- Will of the Forsaken
     }
 
-	if br.isClassic then
+	if br.isClassic or br.isBC then
 		if thisRace ~= nil and classicRacialSpells[thisRace] ~= nil then return classicRacialSpells[thisRace] end
     	return classicRacialSpells[race]
 	else
@@ -623,7 +623,7 @@ end
 -- @param spellIDOrTable - A spell ID (number) or table of spell IDs {rank1, rank2, ...}
 -- @return spellID - The highest rank spell ID that the player knows, or the original ID if not a table
 function spell:getHighestKnownRank(spellIDOrTable)
-    if not br.isClassic then
+    if not br.isClassic and not br.isBC then
         return type(spellIDOrTable) == "table" and spellIDOrTable[1] or spellIDOrTable
     end
 
@@ -649,7 +649,7 @@ end
 -- @param rank - The rank number (1-based index)
 -- @return spellID - The spell ID for the specified rank, or nil if doesn't exist
 function spell:getSpellRank(spellIDOrTable, rank)
-    if not br.isClassic then
+    if not br.isClassic and not br.isBC then
         return type(spellIDOrTable) == "table" and spellIDOrTable[1] or spellIDOrTable
     end
 
@@ -680,7 +680,7 @@ end
 -- @param spellIDOrTable - A spell ID (number) or table of spell IDs
 -- @return number - The highest rank number known (1-based), or 0 if none known
 function spell:getKnownRank(spellIDOrTable)
-    if not br.isClassic then
+    if not br.isClassic and not br.isBC then
         return self:isKnown(type(spellIDOrTable) == "table" and spellIDOrTable[1] or spellIDOrTable) and 1 or 0
     end
 

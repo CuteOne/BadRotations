@@ -47,8 +47,14 @@ function br.ui:createCheckbox(parent, text, tooltip, checked)
     --------------
     ---BR Stuff---
     --------------
-    local activePageIdx = parent.settings.parentObject.pageDD.value or 0
-    local activePage = parent.settings.parentObject.pageDD.settings.list[activePageIdx] or 0
+    local activePage = parent.settings.sectionName or ""
+    -- Fallback: try the window page dropdown if sectionName isn't available
+    if activePage == "" and parent.settings.parentObject and parent.settings.parentObject.pageDD then
+        local pdd = parent.settings.parentObject.pageDD
+        if pdd.value and pdd.settings and pdd.settings.list and pdd.settings.list[pdd.value] then
+            activePage = pdd.settings.list[pdd.value]
+        end
+    end
     local activePageSettings = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile][activePage] or {}
     br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile][activePage] = activePageSettings
     local data = activePageSettings

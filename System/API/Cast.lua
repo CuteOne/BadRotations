@@ -384,22 +384,22 @@ br.api.cast = function(self, spell, id)
     -- @usage
     -- -- Cast Rank 1 Healing Touch for mana efficiency
     -- if cast.rank.healingTouch(1, "target") then return true end
-    -- 
+    --
     -- -- Cast Rank 3 Rejuvenation
     -- if cast.rank.rejuvenation(3, "target") then return true end
     cast.rank[spell] = function(rankNum, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)
-        if not br.isClassic then
+        if not br.isClassic and not br.isBC then
             -- In non-Classic, just use the regular spell (no ranks)
             return br.functions.cast:createCastFunction(thisUnit, castType, minUnits, effectRng, id, spell, predict, predictPad, enemies)
         end
-        
+
         -- Get the specific rank spell ID from the spell definition (id might be a table)
         local rankID = br.functions.spell:getSpellRank(id, rankNum)
         if not rankID then
             -- Rank doesn't exist, fallback to base ID
             rankID = type(id) == "table" and id[1] or id
         end
-        
+
         -- Cast the specific rank
         return br.functions.cast:createCastFunction(thisUnit, castType, minUnits, effectRng, rankID, spell, predict, predictPad, enemies)
     end
@@ -414,7 +414,7 @@ br.api.cast = function(self, spell, id)
     -- end
     cast.maxRank = cast.maxRank or {}
     cast.maxRank[spell] = function()
-        if not br.isClassic then return 1 end
+        if not br.isClassic and not br.isBC then return 1 end
         return br.functions.spell:getKnownRank(id)
     end
 end

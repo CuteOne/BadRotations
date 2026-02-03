@@ -2,8 +2,15 @@ local DiesalGUI = _G.LibStub("DiesalGUI-1.0")
 local DiesalTools = _G.LibStub("DiesalTools-1.0")
 local _, br = ...
 function br.ui:createDropdown(parent, text, itemlist, default, tooltip, tooltipDrop, hideCheckbox)
-    local activePageIdx = parent.settings.parentObject.pageDD.value
-    local activePage = parent.settings.parentObject.pageDD.settings.list[activePageIdx]
+    local activePage = parent.settings.sectionName or ""
+    if activePage == "" then
+        if parent and parent.settings and parent.settings.parentObject and parent.settings.parentObject.pageDD then
+            local pdd = parent.settings.parentObject.pageDD
+            if pdd.value and pdd.settings and pdd.settings.list and pdd.settings.list[pdd.value] then
+                activePage = pdd.settings.list[pdd.value]
+            end
+        end
+    end
     br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile][activePage] = br.data.settings[br.loader.selectedSpec]
         [br.loader.selectedProfile][activePage] or {}
     local data = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile][activePage]

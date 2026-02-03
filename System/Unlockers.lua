@@ -32,8 +32,11 @@ function unlockers:loadUnlockerAPI()
         local DiesalStyle = LibStub("DiesalStyle-1.0")
         -- Use Interface\AddOns\Media\ which is copied during installation
         local newPath = "Interface\\AddOns\\Media\\"
-        DiesalStyle:SetMediaPath(newPath)
-        DiesalStyle:ReloadMedia()
+        if DiesalStyle.SetMediaPath then
+            print("BadRotations: Unlocker loaded, updating Media path for DiesalStyle.")
+            DiesalStyle:SetMediaPath(newPath)
+            DiesalStyle:ReloadMedia()
+        end
     end
     return unlocked
 end

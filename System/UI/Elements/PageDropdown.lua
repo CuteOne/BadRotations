@@ -40,7 +40,7 @@ function br.ui:createPagesDropdown(window, menuPages)
             local thisPage = data["PageList"][i]
             if thisPage == pageName then
                 foundPage = true
-                return
+                break
             end
         end
         if not foundPage then

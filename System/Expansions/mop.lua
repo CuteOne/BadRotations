@@ -234,6 +234,63 @@ api.GetPlayerAuraBySpellID = function(spellID)
     return nil
 end
 
+-- FindAuraByName wrapper
+-- TBC: Use AuraUtil.FindAuraByName
+api.FindAuraByName = function(spellName, unit, filter)
+    -- Prefer the native AuraUtil if present
+    if _G.AuraUtil and _G.AuraUtil.FindAuraByName then
+        return _G.AuraUtil.FindAuraByName(spellName, unit, filter)
+    end
+
+    -- Fallback: try to find the aura by scanning buff/debuff lists
+    if not spellName or not unit then return nil end
+
+    local upFilter = filter and br._G.strupper(filter) or nil
+    local hasPlayer = upFilter and br._G.strfind(upFilter, "PLAYER")
+    local hasHelpful = upFilter and br._G.strfind(upFilter, "HELPFUL")
+    local hasHarmful = upFilter and br._G.strfind(upFilter, "HARMFUL")
+
+    local function scanForAura(spellName, unit, filterType, auraType)
+        for i = 1, 40 do
+            local aura = (hasHelpful or auraType=="HELPFUL") and api.GetBuffDataByIndex(unit, i, filterType)
+            or api.GetDebuffDataByIndex(unit, i, filterType)
+            if not aura then break end
+            if aura.name and aura.name == spellName then return aura end
+        end
+        return nil
+    end
+
+    -- If an explicit filter is provided, prefer using it when scanning
+    if upFilter then
+        if hasHelpful then
+            scanForAura(spellName, unit, filter, "HELPFUL")
+        end
+
+        if hasHarmful then
+            scanForAura(spellName, unit, filter, "HARMFUL")
+        end
+
+        -- If only PLAYER specified (no HELPFUL/HARMFUL), scan both with PLAYER filter
+        if hasPlayer and not hasHelpful and not hasHarmful then
+            scanForAura(spellName, unit, "PLAYER", "HELPFUL")
+            scanForAura(spellName, unit, "PLAYER", "HARMFUL")
+        end
+    else
+        -- No filter provided: scan buffs then debuffs
+        scanForAura(spellName, unit, nil, "HELPFUL")
+        scanForAura(spellName, unit, nil, "HARMFUL")
+    end
+
+    -- Last resort: generic GetAuraDataByIndex scan
+    for i = 1, 40 do
+        local aura = api.GetAuraDataByIndex(unit, i, filter)
+        if not aura then break end
+        if aura.name == spellName then return aura end
+    end
+
+    return nil
+end
+
 -- Tooltip Hook Compatibility
 -- MoP Classic: Use OnTooltipSetSpell script hook
 api.HookTooltipSetSpell = function(callback)
@@ -323,6 +380,18 @@ api.getTalentInfo = function(spec, spellTalents)
     end
 
     return talents
+end
+
+--FindBaseSpellByID wrapper
+-- TBC: Use the global FindBaseSpellByID function if available
+api.FindBaseSpellByID = function(spellID)
+    if C_SpellBook and C_SpellBook.FindBaseSpellByID then
+        return C_SpellBook.FindBaseSpellByID(spellID)
+    end
+    if _G.FindBaseSpellByID then
+        return _G.FindBaseSpellByID(spellID)
+    end
+    return spellID
 end
 
 -- Print version info on load

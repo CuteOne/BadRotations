@@ -11,7 +11,7 @@ local function getFolderClassName(class)
     return formatClass
 end
 local function getFolderSpecName(class, specID)
-    if br.isClassic then return class end
+    if br.isClassic or br.isBC then return class end
     for k, v in pairs(br.lists.spec[class]) do
         if v == specID then return tostring(k) end
     end
@@ -498,7 +498,7 @@ function cBuilder:new(spec, specName)
                 if self.buff[k] == nil then self.buff[k] = {} end
                 -- if k == "bloodLust" then v = br.functions.aura:getLustID() end
                 local resolvedID = v
-                if br.isClassic and type(v) == "table" then
+                if (br.isClassic or br.isBC) and type(v) == "table" then
                     if br.functions.spell and br.functions.spell.getHighestKnownRank then
                         resolvedID = br.functions.spell:getHighestKnownRank(v)
                         if not resolvedID then
@@ -519,7 +519,7 @@ function cBuilder:new(spec, specName)
             if self.debuff == nil then self.debuff = {} end
             if self.debuff[k] == nil then self.debuff[k] = {} end
             local resolvedID = v
-            if br.isClassic and type(v) == "table" then
+            if (br.isClassic or br.isBC) and type(v) == "table" then
                 if br.functions.spell and br.functions.spell.getHighestKnownRank then
                     resolvedID = br.functions.spell:getHighestKnownRank(v)
                     if not resolvedID then
@@ -626,7 +626,7 @@ function cBuilder:new(spec, specName)
 
             -- Classic WoW: If spell ID is a table (ranks), resolve to highest known rank
             local resolvedID = id
-            if br.isClassic and type(id) == "table" then
+            if (br.isClassic or br.isBC) and type(id) == "table" then
                 -- Get highest known rank from the table
                 if br.functions.spell and br.functions.spell.getHighestKnownRank then
                     resolvedID = br.functions.spell:getHighestKnownRank(id)

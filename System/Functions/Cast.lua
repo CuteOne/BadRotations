@@ -857,10 +857,19 @@ local castTimers
 local rangeDelayTimers  -- Track when spells first become in range
 function cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellID, index, predict, predictPad, enemies,
 							   debug)
+	if type(spellID) == "table" then
+		-- return highest rank spell that is known
+		for i = #spellID, 1, -1 do
+			if br.functions.spell:isKnown(spellID[i]) then
+				spellID = spellID[i]
+				break
+			end
+		end
+	end
 	-- Invalid Spell ID Check
-	-- if br.api.wow.GetSpellInfo(spellID) == nil then br._G.print("Invalid Spell ID: " .. spellID .. " for key: " .. index) end
+	if spellID == nil or br.api.wow.GetSpellInfo(spellID) == nil then br._G.print("Invalid Spell ID: " .. tostring(spellID) .. " for key: " .. index) end
 	local spellCast = spellID
-	local baseSpellID = br._G.FindBaseSpellByID(spellID)
+	local baseSpellID = br.api.wow.FindBaseSpellByID(spellID)
 	local overrideSpellID = br._G.FindSpellOverrideByID(spellID)
 	local baseSpellName = br.api.wow.GetSpellInfo(baseSpellID)
 	local spellName, _, icon, castTime, minRange, maxRange = br.api.wow.GetSpellInfo(spellID)

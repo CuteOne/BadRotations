@@ -130,6 +130,26 @@ br.api.ui = function(self)
         end
     end
 
+    if ui.getSpell == nil then
+        --- Returns the spellID for the highest known if table is passed, or the spellID for the single spell name.
+        -- @function ui.getSpell
+        -- @string spellName - The name of the spell.
+        -- @return number - Returns the spell ID
+        ui.getSpell = function(spellID)
+            if type(spellID) == "table" then
+                -- return highest rank spell that is known
+                for i = #spellID, 1, -1 do
+                    if br.functions.spell:isKnown(spellID[i]) then
+                        return spellID[i]
+                    end
+                end
+                return nil
+            else
+                return spellID
+            end
+        end
+    end
+
     if ui.isMouseDown == nil then
         --- Checks if the mouse button specified is down, or any if none are specified
         -- @function ui.isMouseDown

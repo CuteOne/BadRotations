@@ -48,6 +48,7 @@ Libs\DiesalLibs.lua
 System\wowapi.lua
 System\Expansions\retail.lua
 System\Expansions\mop.lua
+System\Expansions\tbc.lua
 System\Expansions\classic.lua
 
 BadRotations.lua

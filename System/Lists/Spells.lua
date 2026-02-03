@@ -48,9 +48,9 @@ function br.lists:loadExpansionSpells()
         -- Future: Load Wrath spell lists
         br._G.print("|cffFFFF00Warning:|r Wrath spell lists not yet implemented!")
     elseif br.isBC then
+        -- Load Burning Crusade spell lists
         br._G.print("Loading Burning Crusade spell lists...")
-        -- Future: Load Burning Crusade spell lists
-        br._G.print("|cffFFFF00Warning:|r Burning Crusade spell lists not yet implemented!")
+        loadSpellList("TBC")
     elseif br.isClassic then
         -- Load Classic spell lists
         br._G.print("Loading Classic spell lists...")

@@ -68,9 +68,9 @@ function aura:UnitBuffID(unit, spellID, filter)
 	else
 		if filter ~= nil and br._G.strfind(br._G.strupper(filter), "PLAYER") then
 			-- br._G.print("Unit: " .. tostring(unit) .. ", Spell: " .. tostring(spellName) .. ", ID: " .. tostring(spellID))
-			return br._G.AuraUtil.FindAuraByName(spellName, unit, "HELPFUL|PLAYER")
+			return br.api.wow.FindAuraByName(spellName, unit, "HELPFUL|PLAYER")
 		end
-		return br._G.AuraUtil.FindAuraByName(spellName, unit, "HELPFUL")
+		return br.api.wow.FindAuraByName(spellName, unit, "HELPFUL")
 	end
 end
 

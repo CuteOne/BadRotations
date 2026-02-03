@@ -1,7 +1,10 @@
 -- [[ Global Variables and Tables Initialization ]] --
 -- define br global that will hold the bot global background features
 local _, br = ...
+
 local loadedIn = false
+-- Guard to make br.load idempotent when multiple loaders invoke it
+local _br_loaded = false
 br._G = setmetatable({}, { __index = _G })
 
 -- WoW API Compatibility Layer
@@ -71,11 +74,13 @@ function br.Run()
 		if br.engines.lootEngine and br.engines.lootEngine.init then
 			br.engines.lootEngine:init()
 		end
-		loadedIn = true
+			loadedIn = true
 	end
 end
 
 function br.load()
+	if _br_loaded then return end
+	_br_loaded = true
 	-- Update Selected Spec
 	br.loader.selectedSpecID, br.loader.selectedSpec = br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization())
 	if br.loader.selectedSpec == "" then
