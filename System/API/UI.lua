@@ -205,6 +205,18 @@ br.api.ui = function(self)
         end
     end
 
+    if ui.round == nil then
+        --- Rounds a number to the specified number of decimal places (default 2)
+        -- @function ui.round
+        -- @number num - The number to round.
+        -- @number[opt=2] numDecimalPlaces - The number of decimal places to round to.
+        -- @return number - Returns the rounded number
+        ui.round = function(num, numDecimalPlaces)
+            if numDecimalPlaces == nil then numDecimalPlaces = 2 end
+            return br.functions.misc:round2(num, numDecimalPlaces)
+        end
+    end
+
     if ui.time == nil then
         --- Returns the time, value of GetTime
         -- @function ui.time

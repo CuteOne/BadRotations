@@ -292,42 +292,61 @@ function unit:isAlive(Unit)
 end
 
 function unit:isInstanceBoss(unit)
-	if br._G.IsInInstance() then
-		local _, _, encountersTotal = br._G.GetInstanceLockTimeRemaining();
-		for i = 1, encountersTotal do
-			if unit == "player" then
-				local bossList = br._G.GetInstanceLockTimeRemainingEncounter(i)
-				br._G.print(bossList)
-			end
-			if br.functions.unit:GetObjectExists(unit) then
-				local bossName = br._G.GetInstanceLockTimeRemainingEncounter(i)
-				local targetName = br._G.UnitName(unit)
-				-- Print("Target: "..targetName.." | Boss: "..bossName.." | Match: "..tostring(targetName == bossName))
-				if targetName == bossName then return true end
+	unit = unit or "target"
+	if not br.functions.unit:GetObjectExists(unit) then return false end
+
+	if br._G.IsInInstance and br._G.IsInInstance() then
+		-- Try modern instance API first (may exist on Retail or newer clients)
+		if br._G.GetInstanceLockTimeRemaining then
+			local ok, _, _, encountersTotal = pcall(br._G.GetInstanceLockTimeRemaining)
+			if ok and type(encountersTotal) == "number" and encountersTotal > 0 then
+				for i = 1, encountersTotal do
+					local ok2, bossName = pcall(br._G.GetInstanceLockTimeRemainingEncounter, i)
+					if ok2 and bossName and br.functions.unit:GetObjectExists(unit) then
+						local targetName = br._G.UnitName(unit)
+						if targetName == bossName then return true end
+					end
+				end
 			end
 		end
+
+		-- Always fall back to boss1..boss5 unit frames (works in Classic and Retail)
 		for i = 1, 5 do
 			local bossNum = "boss" .. i
 			if br.functions.unit:GetUnitIsUnit(bossNum, unit) then return true end
 		end
+
+		-- Extra heuristics
+		local class = br._G.UnitClassification(unit)
+		if class == "worldboss" then return true end
+		local level = br._G.UnitLevel(unit)
+		if level and level < 0 then return true end
 	end
 	return false
 end
 
 -- br.functions.unit:isBoss()
 function unit:isBoss(unit)
-	if unit == nil then unit = "target" end
-	if br.functions.unit:GetObjectExists(unit) and not br.engines.enemiesEngineFunctions:isTotem(unit) then
-		local class = br._G.UnitClassification(unit)
-		local healthMax = br._G.UnitHealthMax(unit)
-		local pHealthMax = br._G.UnitHealthMax("player")
-		local instance = select(2, br._G.IsInInstance())
-		return br.functions.unit:isInstanceBoss(unit) or br.functions.unit:isDummy(unit)
-			or (not br.functions.misc:isChecked("Boss Detection Only In Instance") and not br._G.UnitIsTrivial(unit) and instance ~= "party"
-				and ((class == "rare" and healthMax > 4 * pHealthMax) or class == "rareelite" or class == "worldboss"
-					or (class == "elite" and ((healthMax > 4 * pHealthMax and instance ~= "raid") or instance == "scenario")) or br._G.UnitLevel(unit) < 0))
+	unit = unit or "target"
+	if not br.functions.unit:GetObjectExists(unit) or br.engines.enemiesEngineFunctions:isTotem(unit) then return false end
+
+	-- Quick exact-match check using static boss ID list
+	if br.lists and br.lists.bossIds then
+		local id = br.functions.unit:getUnitID(unit)
+		if id and id > 0 and br.lists.bossIds[id] then
+			return true
+		end
 	end
-	return false
+
+	local class = br._G.UnitClassification(unit)
+	local healthMax = br._G.UnitHealthMax(unit) or 0
+	local pHealthMax = br._G.UnitHealthMax("player") or 1
+	local instance = select(2, br._G.IsInInstance())
+
+	return br.functions.unit:isInstanceBoss(unit) or br.functions.unit:isDummy(unit)
+		or (not br.functions.misc:isChecked("Boss Detection Only In Instance") and not br._G.UnitIsTrivial(unit) and instance ~= "party"
+			and ((class == "rare" and healthMax > 4 * pHealthMax) or class == "rareelite" or class == "worldboss"
+				or (class == "elite" and ((healthMax > 4 * pHealthMax and instance ~= "raid") or instance == "scenario")) or (br._G.UnitLevel(unit) and br._G.UnitLevel(unit) < 0)))
 end
 
 local critterTypes = {

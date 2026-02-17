@@ -90,6 +90,7 @@ local baseTickTimes = {
 
 br.api.debuffs = function(debuff, k, v)
     local spec = br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization())
+    if type(v) == "table" then v = br.functions.spell:getHighestKnownRank(v) end
 
     --- Checks if a debuff exists on a unit.
     -- @function debuff.spell.exists

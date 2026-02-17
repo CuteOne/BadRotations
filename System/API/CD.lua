@@ -23,7 +23,7 @@ br.api.cd = function(self, spell, id)
     -- @within cd.spell
     cd[spell].exists = function()
         -- Special handling for global CD in Classic
-        local spellID = id
+        local spellID = type(id) == "table" and (br.functions.spell and br.functions.spell.getHighestKnownRank and br.functions.spell:getHighestKnownRank(id) or id[1]) or id
         if spell == "global" and (br.isClassic or br.isBC) and br.api.wow.GetGCDSpellID then
             spellID = br.api.wow.GetGCDSpellID()
         end
@@ -40,7 +40,7 @@ br.api.cd = function(self, spell, id)
     -- @within cd.spell
     cd[spell].remain = function()
         -- Special handling for global CD in Classic
-        local spellID = id
+        local spellID = type(id) == "table" and (br.functions.spell and br.functions.spell.getHighestKnownRank and br.functions.spell:getHighestKnownRank(id) or id[1]) or id
         if spell == "global" and (br.isClassic or br.isBC) and br.api.wow.GetGCDSpellID then
             spellID = br.api.wow.GetGCDSpellID()
         end
@@ -56,7 +56,7 @@ br.api.cd = function(self, spell, id)
     -- @within cd.spell
     cd[spell].remains = function()
         -- Special handling for global CD in Classic
-        local spellID = id
+        local spellID = type(id) == "table" and (br.functions.spell and br.functions.spell.getHighestKnownRank and br.functions.spell:getHighestKnownRank(id) or id[1]) or id
         if spell == "global" and (br.isClassic or br.isBC) and br.api.wow.GetGCDSpellID then
             spellID = br.api.wow.GetGCDSpellID()
         end
@@ -72,7 +72,7 @@ br.api.cd = function(self, spell, id)
     -- @within cd.spell
     cd[spell].duration = function()
         -- Special handling for global CD in Classic
-        local spellID = id
+        local spellID = type(id) == "table" and (br.functions.spell and br.functions.spell.getHighestKnownRank and br.functions.spell:getHighestKnownRank(id) or id[1]) or id
         if spell == "global" and (br.isClassic or br.isBC) and br.api.wow.GetGCDSpellID then
             spellID = br.api.wow.GetGCDSpellID()
         end
@@ -89,7 +89,7 @@ br.api.cd = function(self, spell, id)
     -- @within cd.spell
     cd[spell].ready = function()
         -- Special handling for global CD in Classic
-        local spellID = id
+        local spellID = type(id) == "table" and (br.functions.spell and br.functions.spell.getHighestKnownRank and br.functions.spell:getHighestKnownRank(id) or id[1]) or id
         if spell == "global" and (br.isClassic or br.isBC) and br.api.wow.GetGCDSpellID then
             spellID = br.api.wow.GetGCDSpellID()
         end
@@ -104,7 +104,8 @@ br.api.cd = function(self, spell, id)
     -- @return number
     -- @within cd.spell
     cd[spell].prevgcd = function()
-        return select(2, br._G.GetSpellBaseCooldown(id))
+        local spellID = type(id) == "table" and (br.functions.spell and br.functions.spell.getHighestKnownRank and br.functions.spell:getHighestKnownRank(id) or id[1]) or id
+        return select(2, br._G.GetSpellBaseCooldown(spellID))
     end
 end
 

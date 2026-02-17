@@ -305,8 +305,14 @@ function aura:canDispel(Unit, spellID)
 		-- if spellID == 122783 then typesList = { "Magic" } end
 	end
 	if ClassNum == 11 then --Druid
+		-- Abolish Poison
+		if spellID == 2893 then typesList = { "Poison" } end
+		-- Cure Poison
+		if spellID == 8946 then typesList = { "Poison" } end
 		-- Remove Corruption
 		if spellID == 2782 then typesList = { "Poison", "Curse" } end
+		-- Remove Curse
+		if spellID == 2783 then typesList = { "Curse" } end
 		-- Nature's Cure
 		if spellID == 88423 then typesList = { "Poison", "Curse", "Magic" } end
 		-- Symbiosis: Cleanse

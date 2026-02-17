@@ -312,14 +312,15 @@ function br.ui:createConfigWindow()
             "Seconds to attempt cast")
         if br.player ~= nil and br.player.spells ~= nil and br.player.spells.abilities ~= nil then
             for _, v in pairsByKeys(br.player.spells.abilities) do
-                local spellName = br.api.wow.GetSpellInfo(v)
-                if v ~= 61304 and spellName ~= nil then
+                local id = type(v) == "table" and (br.functions.spell and br.functions.spell.getHighestKnownRank and br.functions.spell:getHighestKnownRank(v) or v[1]) or v
+                local spellName = br.api.wow.GetSpellInfo(id)
+                if id ~= 61304 and spellName ~= nil then
                     br.ui:createDropdown(
                         section,
                         spellName .. " (Queue)",
                         { "Normal", "Cursor", "Cursor (No Cast)", "Mouseover" },
                         1,
-                        "Active Queueing Of " .. spellName .. " (ID: " .. v .. ")",
+                        "Active Queueing Of " .. spellName .. " (ID: " .. id .. ")",
                         "Select cast mode"
                     )
                 end

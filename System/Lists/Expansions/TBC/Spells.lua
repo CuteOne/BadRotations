@@ -504,6 +504,7 @@ br.lists.spells = {
                 barkskin            = 22812,
                 clearcasting        = 16870,
                 enrage              = 5229,
+                giftOfTheWild       = 21850,
                 markOfTheWild       = {1126, 5232, 6756, 5234, 8907, 9884, 9885},
                 naturesGrasp        = 16689,
                 omenOfClarity       = 16864,
@@ -518,7 +519,9 @@ br.lists.spells = {
                 bearForm            = 5487,
                 catForm             = 768,
                 direBearForm        = 9634,
+                flightForm          = 33943,
                 moonkinForm         = 24858,
+                swiftFlightForm     = 40120,
                 travelForm          = 783,
             },
             conduits      = {

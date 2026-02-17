@@ -803,7 +803,7 @@ end
 -- (useful if you want to use off-cd stuff, or spells which can be cast while other is casting)
 misc.pauseCast = br._G.GetTime()
 function misc:pause(skipCastingCheck)
-	local food = { 257427, 225737, 274914, 192001, 167152, 314646, 308433 }
+	local food = { 257427, 225737, 274914, 192001, 167152, 314646, 308433, 32491, 33773 }
 	local eating = false
 	local pausekey
 	for i = 1, #food do

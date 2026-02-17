@@ -41,10 +41,7 @@ function br.ui:createRotationDropdown(parent, itemlist, tooltip)
             if br._G.UnitAffectingCombat("player") then
                 br._G.print("Unable to change profile in combat.  Please try again when combat ends.")
             else
-                -- br.ui:recreateWindows()
-                -- br._G.print("Rotation Changed")
-                br.ui.settingsManagement:saveSettings(nil, nil, br.loader.selectedSpec, br.loader.selectedProfileName)
-                br.ui.settingsManagement:saveLastProfileTracker()
+                -- Update selection first so saves go to the new profile
                 br.data.settings[br.loader.selectedSpec][text .. "Drop"] = key
                 br.data.tracker[br.loader.selectedSpec][text .. "Drop"] = key
                 br.data.settings[br.loader.selectedSpec][text .. "DropValue"] = value
@@ -52,6 +49,10 @@ function br.ui:createRotationDropdown(parent, itemlist, tooltip)
                 br.data.lastProfile = key
                 br.loader.selectedProfile = key
                 br.loader.selectedProfileName = value
+
+                -- Now persist the new profile selection and update tracker
+                br.ui.settingsManagement:saveSettings(nil, nil, br.loader.selectedSpec, br.loader.selectedProfileName)
+                br.ui.settingsManagement:saveLastProfileTracker()
             end
             br.rotationChanged = true
         end

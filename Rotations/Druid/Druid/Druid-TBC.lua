@@ -1,4 +1,4 @@
-local rotationName = "Feral-TBC" -- Port of wowsims/tbc feral rotation.go
+local rotationName = "WowsimsFeralTBC" -- Port of wowsims/tbc feral rotation.go
 
 ---------------
 --- Toggles ---
@@ -142,131 +142,139 @@ actionList.Rotation = function()
     rotation.UseRipTrick = ui.checked("Use Rip Weave")
     rotation.UseRakeTrick = ui.checked("Use Rake Trick")
     rotation.UseMangleTrick = ui.checked("Use Mangle Trick")
+    -- Rotation flags (defaults chosen to match wowsims behaviour where not exposed in UI)
+    rotation.UseBite = true
+    rotation.BiteOverRip = false
+    rotation.Wolfshead = false
+    rotation.MaintainFaerieFire = ui.checked("Maintain Faerie Fire")
+    -- Rip trick CP fallback (not exposed in UI here)
+    rotation.RipTrickCP = rotation.RipCP
 
     comboPoints = br.player.power.comboPoints()
     energy = br.player.power.energy()
     local cp = comboPoints
     local omenProc = buff.clearcasting.exists()
     local ripDebuff = debuff.rip.exists(units.dyn5)
-    local mangleDebuff = debuff.mangle.exists(units.dyn5)
+    local mangleDebuff = debuff.mangleCat.exists(units.dyn5)
     local rakeDebuff = debuff.rake.exists(units.dyn5)
     local nextTick = br._G.GetTime() + timeToNextEnergyTick()
     local energyRegen = br.player.power.energy.regen() or 0
     local timeToNextTick = timeToNextEnergyTick()
 
-        local pseudoNoCost = br.player.pseudoStats and br.player.pseudoStats.noCost
-        local ripNow = (cp >= rotation.RipCP and not ripDebuff)
-            or (rotation.UseRipTrick and cp >= rotation.RipTrickCP and not ripDebuff and energy >= 52 and not pseudoNoCost)
+    -- br.player.pseudoStats is not available in this environment; default to false
+    local pseudoNoCost = false
+    local ripNow = (cp >= rotation.RipCP and not ripDebuff)
+        or (rotation.UseRipTrick and cp >= rotation.RipTrickCP and not ripDebuff and energy >= 52 and not pseudoNoCost)
 
-        local biteNow = (cp >= rotation.BiteCP)
+    local biteNow = (cp >= rotation.BiteCP)
 
-        -- debuff remaining times (seconds)
-        local ripRemains = ripDebuff and debuff.rip.remains(units.dyn5) or 0
-        local mangleRemains = mangleDebuff and debuff.mangle.remains(units.dyn5) or 0
+    -- debuff remaining times (seconds)
+    local ripRemains = ripDebuff and debuff.rip.remains(units.dyn5) or 0
+    local mangleRemains = mangleDebuff and debuff.mangleCat.remains(units.dyn5) or 0
 
-        -- time until next energy 'tick' (use ttm to reach next whole energy point)
-        local energyRegen = br.player.power.energy.regen() or 0
-        local timeToNextTick = 99
-        if energyRegen > 0 then
-            -- time to gain 1 energy
-            timeToNextTick = br.player.power.energy.ttm((br.player.power.energy() or 0) + 1) or (1 / energyRegen)
-        end
+    -- time until next energy 'tick' (use ttm to reach next whole energy point)
+    local energyRegen = br.player.power.energy.regen() or 0
+    local timeToNextTick = 99
+    if energyRegen > 0 then
+        -- time to gain 1 energy
+        timeToNextTick = br.player.power.energy.ttm((br.player.power.energy() or 0) + 1) or (1 / energyRegen)
+    end
 
-        -- ripNext logic: either we should rip now OR rip would fall off before next tick
-        local ripNext = (ripNow or (cp >= rotation.RipCP and ripDebuff and ripRemains <= timeToNextTick))
-            and (unit.ttd(units.dyn5) > RipEndThresh)
+    -- ripNext logic: either we should rip now OR rip would fall off before next tick
+    local ripNext = (ripNow or (cp >= rotation.RipCP and ripDebuff and ripRemains <= timeToNextTick))
+        and (unit.ttd(units.dyn5) > RipEndThresh)
 
-        -- mangleNext: only if rip won't be next and mangle needs refresh or will fall off
-        local mangleNow = not ripNow and not mangleDebuff
-        local mangleNext = (not ripNext) and (mangleNow or (mangleDebuff and mangleRemains <= timeToNextTick))
+    -- mangleNext: only if rip won't be next and mangle needs refresh or will fall off
+    local mangleNow = not ripNow and not mangleDebuff
+    local mangleNext = (not ripNext) and (mangleNow or (mangleDebuff and mangleRemains <= timeToNextTick))
 
-        -- biteBeforeRip: if rip exists and we want to bite before rip falls
-        local biteBeforeRip = ripDebuff and rotation.UseBite and (ripRemains >= 0)
-        local biteBeforeRipNext = biteBeforeRip and (ripRemains - timeToNextTick >= 0)
+    -- biteBeforeRip: if rip exists and we want to bite before rip falls
+    local biteBeforeRip = ripDebuff and rotation.UseBite and (ripRemains >= 0)
+    local biteBeforeRipNext = biteBeforeRip and (ripRemains - timeToNextTick >= 0)
 
-        local prioBiteOverMangle = rotation.BiteOverRip or (not mangleNow)
+    local prioBiteOverMangle = rotation.BiteOverRip or (not mangleNow)
 
-        -- Decide action following the Go decision tree
-        local shiftCost = 0
-        if br.player.spell and br.player.spell.catForm and br.player.spell.catForm.DefaultCast then shiftCost = br.player.spell.catForm.DefaultCast.Cost or 0 end
-        local hasShiftMana = true
-        if br.player.CurrentMana and br.player.CurrentMana() < shiftCost then hasShiftMana = false end
+    -- Decide action following the Go decision tree
+    local shiftCost = 0
+    if br.player.spell and br.player.spell.catForm and br.player.spell.catForm.DefaultCast then shiftCost = br.player.spell.catForm.DefaultCast.Cost or 0 end
+    local hasShiftMana = true
+    if br.player.CurrentMana and br.player.CurrentMana() < shiftCost then hasShiftMana = false end
 
-        local mangleCost = (br.player.spell and br.player.spell.mangle and br.player.spell.mangle.DefaultCast and br.player.spell.mangle.DefaultCast.Cost) or 40
+    local mangleCost = (br.player.spell and br.player.spell.mangle and br.player.spell.mangleCat.DefaultCast and br.player.spell.mangleCat.DefaultCast.Cost) or 40
 
-        if not hasShiftMana then
-            -- No-shift rotation
-            if ripNow and (energy >= 30 or omenProc) then
-                if cast.rip(units.dyn5) then ui.debug("Casting Rip") return true end
-            elseif mangleNow and (energy >= mangleCost or omenProc) then
-                if cast.mangle(units.dyn5) then ui.debug("Casting Mangle") return true end
-            elseif biteNow and (energy >= 35 or omenProc) then
-                if cast.ferociousBite(units.dyn5) then ui.debug("Casting Ferocious Bite") return true end
-            elseif energy >= 42 or omenProc then
-                if cast.shred(units.dyn5) then ui.debug("Casting Shred") return true end
-            else
-                if timeToNextTick > MaxWaitTime then doShift() else waitingForTick = true end
-            end
+    if not hasShiftMana then
+        -- No-shift rotation
+        if ripNow and (energy >= 30 or omenProc) then
+            if cast.rip(units.dyn5) then ui.debug("Casting Rip") return true end
+        elseif mangleNow and (energy >= mangleCost or omenProc) then
+            if cast.mangleCat(units.dyn5) then ui.debug("Casting Mangle") return true end
+        elseif biteNow and (energy >= 35 or omenProc) then
+            if cast.ferociousBite(units.dyn5) then ui.debug("Casting Ferocious Bite") return true end
+        elseif energy >= 42 or omenProc then
+            if cast.shred(units.dyn5) then ui.debug("Casting Shred") return true end
         else
-            -- Shift allowed path: mirror Go's more complex branching
-            if energy < 10 then
-                if timeToNextTick > MaxWaitTime then doShift() else waitingForTick = true end
-            elseif ripNow then
-                if energy >= 30 or omenProc then
-                    if cast.rip(units.dyn5) then ui.debug("Casting Rip") waitingForTick = false return true end
-                elseif timeToNextTick > MaxWaitTime then
-                    doShift()
-                end
-            elseif (biteNow and prioBiteOverMangle) then
-                -- Bite vs Shred decision tree (simplified)
-                local cutoffMod = 20.0
-                if timeToNextTick <= 1.0 then cutoffMod = 0.0 end
-                if energy >= 57.0 + cutoffMod or (energy >= 15 + cutoffMod and omenProc) then
-                    if cast.shred(units.dyn5) then ui.debug("Casting Shred (bite gate)") return true end
-                elseif energy >= 35 then
-                    if cast.ferociousBite(units.dyn5) then ui.debug("Casting Ferocious Bite") return true end
-                else
-                    -- decide wait vs shift
-                    local wait = false
-                    if energy >= 22 and biteBeforeRip and not biteBeforeRipNext then
-                        wait = true
-                    elseif energy >= 15 and (not biteBeforeRip or biteBeforeRipNext) then
-                        wait = true
-                    elseif not ripNext and (energy < 20 or not mangleNext) then
-                        doShift(); return true
-                    else
-                        wait = true
-                    end
-                    if wait and timeToNextTick > MaxWaitTime then doShift() end
-                end
-            elseif energy >= 35 and energy <= BiteTrickMax and rotation.UseRakeTrick and timeToNextTick > latency and not omenProc and cp >= BiteTrickCP then
-                if cast.ferociousBite(units.dyn5) then ui.debug("Casting Ferocious Bite (Bite Trick)") return true end
-            elseif energy >= 35 and energy < mangleCost and rotation.UseRakeTrick and timeToNextTick > 1.0 + latency and not rakeDebuff and not omenProc then
-                if cast.rake(units.dyn5) then ui.debug("Casting Rake (Rake Trick)") return true end
-            elseif mangleNow then
-                if energy < mangleCost - 20 and not ripNext then doShift()
-                elseif energy >= mangleCost or omenProc then if cast.mangle(units.dyn5) then ui.debug("Casting Mangle") return true end
-                elseif timeToNextTick > MaxWaitTime then doShift() end
-            elseif energy >= 22 then
-                if omenProc then if cast.shred(units.dyn5) then ui.debug("Casting Shred (omen)") return true end end
-                if energy >= 2 * mangleCost - 20 and energy < 22 + mangleCost and timeToNextTick <= 1.0 and rotation.UseMangleTrick and (not rotation.UseRakeTrick or mangleCost == 35) then
-                    if cast.mangle(units.dyn5) then ui.debug("Casting Mangle (trick)") return true end
-                end
-                if energy >= 42 then if cast.shred(units.dyn5) then ui.debug("Casting Shred") return true end end
-                if energy >= mangleCost and timeToNextTick > 1.0 + latency then if cast.mangle(units.dyn5) then ui.debug("Casting Mangle") return true end end
-                if timeToNextTick > MaxWaitTime then doShift() end
-            elseif not ripNext and (energy < mangleCost - 20 or not (mangleNext or rotation.UseMangleTrick)) then
-                doShift()
+            if timeToNextTick > MaxWaitTime then doShift() else waitingForTick = true end
+        end
+    else
+        -- Shift allowed path: mirror Go's more complex branching
+        if energy < 10 then
+            if timeToNextTick > MaxWaitTime then doShift() else waitingForTick = true end
+        elseif ripNow then
+            if energy >= 30 or omenProc then
+                if cast.rip(units.dyn5) then ui.debug("Casting Rip") waitingForTick = false return true end
             elseif timeToNextTick > MaxWaitTime then
                 doShift()
             end
+        elseif (biteNow and prioBiteOverMangle) then
+            -- Bite vs Shred decision tree (simplified)
+            local cutoffMod = 20.0
+            if timeToNextTick <= 1.0 then cutoffMod = 0.0 end
+            if energy >= 57.0 + cutoffMod or (energy >= 15 + cutoffMod and omenProc) then
+                if cast.shred(units.dyn5) then ui.debug("Casting Shred (bite gate)") return true end
+            elseif energy >= 35 then
+                if cast.ferociousBite(units.dyn5) then ui.debug("Casting Ferocious Bite") return true end
+            else
+                -- decide wait vs shift
+                local wait = false
+                if energy >= 22 and biteBeforeRip and not biteBeforeRipNext then
+                    wait = true
+                elseif energy >= 15 and (not biteBeforeRip or biteBeforeRipNext) then
+                    wait = true
+                elseif not ripNext and (energy < 20 or not mangleNext) then
+                    doShift(); return true
+                else
+                    wait = true
+                end
+                if wait and timeToNextTick > MaxWaitTime then doShift() end
+            end
+        elseif energy >= 35 and energy <= BiteTrickMax and rotation.UseRakeTrick and timeToNextTick > latency and not omenProc and cp >= BiteTrickCP then
+            if cast.ferociousBite(units.dyn5) then ui.debug("Casting Ferocious Bite (Bite Trick)") return true end
+        elseif energy >= 35 and energy < mangleCost and rotation.UseRakeTrick and timeToNextTick > 1.0 + latency and not rakeDebuff and not omenProc then
+            if cast.rake(units.dyn5) then ui.debug("Casting Rake (Rake Trick)") return true end
+        elseif mangleNow then
+            if energy < mangleCost - 20 and not ripNext then doShift()
+            elseif energy >= mangleCost or omenProc then if cast.mangleCat(units.dyn5) then ui.debug("Casting Mangle") return true end
+            elseif timeToNextTick > MaxWaitTime then doShift() end
+        elseif energy >= 22 then
+            if omenProc then if cast.shred(units.dyn5) then ui.debug("Casting Shred (omen)") return true end end
+            if energy >= 2 * mangleCost - 20 and energy < 22 + mangleCost and timeToNextTick <= 1.0 and rotation.UseMangleTrick and (not rotation.UseRakeTrick or mangleCost == 35) then
+                if cast.mangleCat(units.dyn5) then ui.debug("Casting Mangle (trick)") return true end
+            end
+            if energy >= 42 then if cast.shred(units.dyn5) then ui.debug("Casting Shred") return true end end
+            if energy >= mangleCost and timeToNextTick > 1.0 + latency then if cast.mangleCat(units.dyn5) then ui.debug("Casting Mangle") return true end end
+            if timeToNextTick > MaxWaitTime then doShift() end
+        elseif not ripNext and (energy < mangleCost - 20 or not (mangleNext or rotation.UseMangleTrick)) then
+            doShift()
+        elseif timeToNextTick > MaxWaitTime then
+            doShift()
         end
+    end
     if not hasShiftMana then
         -- No-shift rotation
         if ripNow and (energy >= 30 or omenProc) then
             if cast.rip(units.dyn5) then ui.debug("Casting Rip") return true end
         elseif not mangleDebuff and (energy >= mangleCost or omenProc) then
-            if cast.mangle(units.dyn5) then ui.debug("Casting Mangle") return true end
+            if cast.mangleCat(units.dyn5) then ui.debug("Casting Mangle") return true end
         elseif biteNow and (energy >= 35 or omenProc) then
             if cast.ferociousBite(units.dyn5) then ui.debug("Casting Ferocious Bite") return true end
         elseif energy >= 42 or omenProc then
@@ -292,13 +300,14 @@ actionList.Rotation = function()
             end
         end
         if ripNow and (energy >= 30 or omenProc) then if cast.rip(units.dyn5) then ui.debug("Casting Rip") return true end end
-        if not mangleDebuff and (energy >= mangleCost or omenProc) then if cast.mangle(units.dyn5) then ui.debug("Casting Mangle") return true end end
+        if not mangleDebuff and (energy >= mangleCost or omenProc) then if cast.mangleCat(units.dyn5) then ui.debug("Casting Mangle") return true end end
         if biteNow and (energy >= 35 or omenProc) then if cast.ferociousBite(units.dyn5) then ui.debug("Casting Ferocious Bite") return true end end
     end
 
     -- Fallbacks
-    if cast.able.shred() and energy >= 42 then if cast.shred(units.dyn5) then ui.debug("Casting Shred - fallback") return true end end
-    if cast.able.claw() then if cast.claw(units.dyn5) then ui.debug("Casting Claw fallback") return true end end
+    if cast.able.shred() and not unit.facing("target", "player") and energy >= 42 then if cast.shred(units.dyn5) then ui.debug("Casting Shred - fallback") return true end end
+    if cast.able.mangleCat() and energy >= mangleCost then if cast.mangleCat(units.dyn5) then ui.debug("Casting Mangle - fallback") return true end end
+    if cast.able.claw() and not spell.mangleCat.known() then if cast.claw(units.dyn5) then ui.debug("Casting Claw fallback") return true end end
 
     return false
 end
@@ -335,7 +344,7 @@ local function runRotation()
 end
 
 local id = 283
-local expansion = br.isTBC
+local expansion = br.isBC
 if br.loader.rotations[id] == nil then br.loader.rotations[id] = {} end
 br._G.tinsert(br.loader.rotations[id], {
     name = rotationName,

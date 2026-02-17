@@ -66,7 +66,7 @@ function cBuilder:loadProfiles()
     local path = getFilesLocation() .. sep .. 'Rotations' .. sep .. getFolderClassName(class) .. sep .. folderSpec .. sep
 
     -- br._G.print("Path: " .. tostring(path))
-    local profiles = br._G.GetDirectoryFiles(path)
+    local profiles = br._G.GetDirectoryFiles(path) or {}
     local matchedProfiles = 0
     -- br._G.print("Profiles: " .. tostring(#profiles))
     for k, file in pairs(profiles) do
@@ -141,6 +141,14 @@ function cBuilder:loadProfiles()
         br._G.print("|cffFF0000BadRotations:|r Found " .. #profiles .. " profile(s) but none matched for " .. br.api.expansionName .. " expansion!")
         br._G.print("|cffFFFF00Create a Retail rotation or change profile expansion markers.|r")
     end
+
+    -- Track per-spec no-rotation state so callers can avoid retrying
+    br.loader.noRotationsFound = br.loader.noRotationsFound or {}
+    if matchedProfiles == 0 then
+        br.loader.noRotationsFound[specID] = true
+    else
+        br.loader.noRotationsFound[specID] = nil
+    end
 end
 
 -- Load Support Files - Specified in Rotation File
@@ -186,6 +194,9 @@ function cBuilder:new(spec, specName)
             if not loadRotations then
                 br._G.print("No Rotations Found!")
                 self.rotation = {}
+                -- Mark that this spec currently has no rotations to avoid repeated load attempts
+                br.loader.noRotationsFound = br.loader.noRotationsFound or {}
+                br.loader.noRotationsFound[spec] = true
             end
             return
         end

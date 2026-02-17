@@ -12,33 +12,39 @@ local function createToggles() -- Define custom toggles
         [4] = { mode = "Off", value = 4, overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spells.healingTouch }
     };
     br.ui:createToggle(RotationModes, "Rotation", 1, 0)
+    -- Cooldown Button
+    local CooldownModes = {
+        [1] = { mode = "Auto", value = 1, overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spells.tigersFury },
+        [2] = { mode = "On", value = 2, overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spells.tigersFury },
+        [3] = { mode = "Off", value = 3, overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spells.tigersFury }
+    };
+    br.ui:createToggle(CooldownModes, "Cooldown", 2, 0)
     -- Defensive Button
     local DefensiveModes = {
         [1] = { mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spells.healingTouch },
         [2] = { mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spells.healingTouch }
     };
-    br.ui:createToggle(DefensiveModes, "Defensive", 2, 0)
+    br.ui:createToggle(DefensiveModes, "Defensive", 3, 0)
     -- Interrupt Button
     local InterruptModes = {
         [1] = { mode = "On", value = 1, overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spells.bash },
         [2] = { mode = "Off", value = 2, overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spells.bash }
     };
-    br.ui:createToggle(InterruptModes, "Interrupt", 3, 0)
+    br.ui:createToggle(InterruptModes, "Interrupt", 4, 0)
     -- Form Button
     local FormModes = {
         [1] = { mode = "Caster", value = 1, overlay = "Caster Form", tip = "Will force and use Caster Form", highlight = 1, icon = br.player.spells.moonkinForm },
         [2] = { mode = "Cat", value = 2, overlay = "Cat Form", tip = "Will force and use Cat Form", highlight = 0, icon = br.player.spells.catForm },
         [3] = { mode = "Bear", value = 3, overlay = "Bear Form", tip = "Will force and use Bear Form", highlight = 0, icon = br.player.spells.bearForm }
     };
-    br.ui:createToggle(FormModes, "Forms", 4, 0)
+    br.ui:createToggle(FormModes, "Forms", 5, 0)
     -- Prowl Button
     local ProwlModes = {
         [1] = { mode = "On", value = 1, overlay = "Prowl Enabled", tip = "Rotation will use Prowl", highlight = 1, icon = br.player.spells.prowl },
         [2] = { mode = "Off", value = 2, overlay = "Prowl Disabled", tip = "Rotation will not use Prowl", highlight = 0, icon = br.player.spells.prowl }
     };
-    br.ui:createToggle(ProwlModes, "Prowl", 5, 0)
+    br.ui:createToggle(ProwlModes, "Prowl", 6, 0)
 end
-
 ---------------
 --- OPTIONS ---
 ---------------
@@ -147,6 +153,8 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
         -- Bash
         br.ui:createCheckbox(section, "Bash - Int")
+        -- Maim
+        br.ui:createCheckbox(section, "Maim")
         -- Interrupt Percentage
         br.ui:createSpinnerWithout(section, "Interrupt At", 0, 0, 95, 5,
             "|cffFFFFFFCast Percent to Cast At (0 is random)")
@@ -157,6 +165,8 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
         -- Single/Multi Toggle
         br.ui:createDropdownWithout(section, "Rotation Mode", br.ui.dropOptions.Toggle, 4)
+        -- Cooldown Key Toggle
+        br.ui:createDropdownWithout(section, "Cooldown Mode", br.ui.dropOptions.Toggle, 3)
         -- Defensive Key Toggle
         br.ui:createDropdownWithout(section, "Defensive Mode", br.ui.dropOptions.Toggle, 6)
         -- Interrupt Key Toggle
@@ -198,18 +208,34 @@ local haltProfile
 local profileStop
 -- Profile Specific Locals - Any custom to profile locals
 local actionList = {}
-local fbMaxEnergy
+-- local fbMaxEnergy
+local formCost
+local formValue
 local movingTimer
 local lastForm
-local lastFormBuff = false
-local freeDPS
-local freeHeal
-local noShapeshiftPower
-local needsHealing
+local powershiftReady = false
+local powershiftArmedAt = 0
+-- local lastFormBuff = false
+-- local freeDPS
+-- local freeHeal
+local keepAquatic
+
+-- local noShapeshiftPower
+-- local needsHealing
 
 -----------------
 --- Functions --- -- List all profile specific custom functions here
 -----------------
+---
+-- estimate time (s) until next energy 'tick' using regen (energy/sec)
+local function timeToNextEnergyTick()
+    local regen = br.player.power.energy.regen() or 0
+    if regen > 0 then
+        return 1 / regen
+    end
+    return 99
+end
+
 -- AutoProwl
 local function autoProwl()
     if not unit.inCombat() and not buff.prowl.exists() then
@@ -219,7 +245,9 @@ local function autoProwl()
                 local thisUnit = enemies.yards20nc[i]
                 local threatRange = math.max((20 + (unit.level(thisUnit) - unit.level())), 5)
                 local react = unit.reaction(thisUnit) or 10
-                if unit.distance(thisUnit) < threatRange and (react < 4 or (unit.isUnit("target", thisUnit) and react == 4)) and unit.enemy(thisUnit) and unit.canAttack(thisUnit) then
+                if unit.distance(thisUnit) < threatRange and (react < 4 or (unit.isUnit("target", thisUnit) and react == 4))
+                    and unit.enemy(thisUnit) and unit.canAttack(thisUnit) and not unit.deadOrGhost(thisUnit)
+                then
                     return true
                 end
             end
@@ -228,13 +256,14 @@ local function autoProwl()
     end
     return false
 end
+
 -- Ferocious Bite Finish
 local function ferociousBiteFinish(thisUnit)
     local desc = br._G.C_Spell.GetSpellDescription(spell.ferociousBite.id()) or ""
     if desc == "" then return false end
 
     local finishHim = false
-    if thisUnit == nil then thisUnit = units.dyn5 end
+    if thisUnit == nil then thisUnit = "target" end
     if comboPoints() <= 0 or unit.isDummy(thisUnit) then return false end
 
     local comboStart = desc:find(" " .. comboPoints() .. " ", 1, true)
@@ -255,6 +284,7 @@ local function ferociousBiteFinish(thisUnit)
     finishHim = lower >= (unit.health(thisUnit) or 0)
     return finishHim
 end
+
 -- Time Moving
 local function timeMoving()
     if movingTimer == nil then movingTimer = br._G.GetTime() end
@@ -281,53 +311,8 @@ local function isBehind(thisUnit, otherUnit, degrees)
     return true
 end
 
-local function debugBehind(label, thisUnit)
-    if ui == nil or ui.checked == nil or not ui.checked("Behind Debug") then return end
-    if thisUnit == nil or not unit.exists(thisUnit) then return end
-    local targetName = unit.exists("target") and unit.name("target") or "none"
-    local thisName = unit.name(thisUnit) or tostring(thisUnit)
-    local isTarget = unit.exists("target") and unit.isUnit(thisUnit, "target")
-    local dist = unit.distance(thisUnit) or -1
-
-    -- Engine-facing results
-    local facingPlayer = unit.facing(thisUnit, "player")
-    local behindPlayer = unit.isBehind(thisUnit, "player")
-
-    -- Raw unlocker-facing check (front 180 cone)
-    local rawFacing180
-    if br and br._G and br._G.ObjectIsFacing then
-        local ok, res = pcall(br._G.ObjectIsFacing, thisUnit, "player", 180)
-        rawFacing180 = ok and res or nil
-    end
-
-    ui.debug(string.format(
-        "%s | unit=%s (isTarget=%s, dist=%.1f) | target=%s | facingPlayer=%s | behindPlayer=%s | rawFacing180=%s",
-        tostring(label), tostring(thisName), tostring(isTarget), tonumber(dist) or -1, tostring(targetName),
-        tostring(facingPlayer), tostring(behindPlayer), tostring(rawFacing180)
-    ))
-end
-
--- Update Last Form
-local function updateLastForm()
-    if buff.direBearForm.exists() then lastForm = spell.direBearForm end
-    if buff.bearForm.exists() then lastForm = spell.bearForm end
-    if buff.catForm.exists() then lastForm = spell.catForm end
-    if buff.moonkinForm.exists() then lastForm = spell.moonkinForm end
-
-    lastFormBuff = false
-    if buff.direBearForm.exists() or buff.bearForm.exists() or buff.catForm.exists() or buff.moonkinForm.exists() then
-        lastFormBuff = true
-    end
-
-    -- Set default last form if none set
-    if lastForm == nil and unit.level() >= 10 and spell.bearForm.known() then
-        lastForm = spell.direBearForm.known() and spell.direBearForm or spell.bearForm
-    end
-    if lastForm == nil and unit.level() >= 20 and spell.catForm.known() then
-        lastForm = spell.catForm
-    end
-end
 local function safeCancelForm(outOfFormSpellRef, reason, treatOutSpellAsFree)
+    treatOutSpellAsFree = false -- Not currently used, but can be used to allow ignoring mana cost of out of form spell when checking if we can break form
     if unit.exists("target") and unit.friend("target") then
         -- ui.debug("Skip Cancel Form [" .. tostring(reason) .. "] (friendly target)")
         return false
@@ -360,22 +345,6 @@ local function safeCancelForm(outOfFormSpellRef, reason, treatOutSpellAsFree)
     end
     ui.debug("Cancel Form [" .. tostring(reason) .. "]")
     return true
-end
-
--- Powershift for Energy
-local function powershift()
-    if cd.global.remain() == 0 and unit.combatTime() > 1 and unit.ttd(units.dyn5) > 1 then
-        for i = 1, br._G.GetNumShapeshiftForms() do
-            local _, name, active = br._G.GetShapeshiftFormInfo(i)
-            if name and active then
-                -- br._G.CancelShapeshiftForm()
-                -- ui.debug("Powershift - Canceling Form")
-                br._G.CastShapeshiftForm(i)
-                return true
-            end
-        end
-    end
-    return false
 end
 
 -- In Aggro Range Check
@@ -437,217 +406,30 @@ local getBuffUnitOption = function(option)
     return thisUnit
 end
 
--- Check if we need to cast anything that requires breaking form
-local function needsFormBreak()
-    -- Buffs
-    if ui.checked("Mark of the Wild") then
-        var.markUnit = getBuffUnitOption("Mark of the Wild")
-        if cast.able.markOfTheWild(var.markUnit) and buff.markOfTheWild.refresh(var.markUnit)
-            and not unit.inCombat() and not unit.resting() and unit.distance(var.markUnit) < 40
-            and (var.markUnit == "player" or unit.player(var.markUnit))
-        then
-            return true
-        end
-    end
-    if ui.checked("Thorns") then
-        var.thornUnit = getBuffUnitOption("Thorns")
-        if cast.able.thorns(var.thornUnit) and buff.thorns.refresh(var.thornUnit)
-            and not unit.inCombat() and not unit.resting() and unit.distance(var.thornUnit) < 40
-            and (var.thornUnit == "player" or unit.player(var.thornUnit))
-        then
-            return true
-        end
-    end
-    if ui.value("Omen of Clarity") ~= 4 and not unit.inCombat() then
-        if cast.able.omenOfClarity("player") and buff.omenOfClarity.refresh("player") then
-            return true
-        end
-    end
-
-    -- Defensive actions
-    if ui.useDefensive() then
-        -- Dispels
-        if ui.checked("Abolish Poison") and cast.able.abolishPoison("player")
-            and not buff.abolishPoison.exists("player") and cast.dispel.abolishPoison("player")
-        then
-            return true
-        end
-        if ui.checked("Cure Poison") and cast.able.curePoison("player")
-            and not ui.checked("Abolish Poison") and cast.dispel.curePoison("player")
-        then
-            return true
-        end
-        if ui.checked("Remove Curse") and cast.able.removeCurse("player")
-            and not unit.inCombat() and cast.dispel.removeCurse("player")
-        then
-            return true
-        end
-        -- Entangling Roots
-        if ui.checked("Entangling Roots") and cast.able.entanglingRoots("target")
-            and unit.exists("target") and not unit.facing("target", "player") and unit.moving("target")
-            and unit.valid("target") and unit.hp("target") < 100 and not debuff.entanglingRoots.exists("target")
-            and unit.distance("target") > 8 and unit.inCombat()
-        then
-            return true
-        end
-        -- Nature's Grasp
-        if ui.checked("Nature's Grasp") and cast.able.naturesGrasp()
-            and not buff.naturesGrasp.exists("player") and unit.inCombat()
-            and #enemies.yards10 > 0
-        then
-            return true
-        end
-        -- Healing
-        if ui.checked("Regrowth") and cast.able.regrowth("player") and not cast.current.regrowth() and not unit.moving()
-            and unit.hp() <= ui.value("Regrowth") and not buff.regrowth.exists("player")
-            and (freeHeal or noShapeshiftPower)
-            and (not unit.inGroup() or ui.checked("Self Heal In Group"))
-        then
-            return true
-        end
-        if ui.checked("Rejuvenation") and not cast.current.rejuvenation("target") then
-            if cast.able.rejuvenation("target") and unit.friend("target") and unit.hp("target") <= ui.value("Rejuvenation")
-                and unit.player("target") and buff.rejuvenation.refresh("target")
-            then
-                return true
-            end
-            if cast.able.rejuvenation("player") and not unit.friend("target") and unit.hp() <= ui.value("Rejuvenation")
-                and buff.rejuvenation.refresh("player") and not buff.clearcasting.exists()
-                and (unit.solo() or ui.checked("Self Heal In Group"))
-            then
-                return true
-            end
-        end
-        if ui.checked("Healing Touch") and not cast.current.healingTouch() and not unit.moving()
-            and (freeHeal or noShapeshiftPower)
-        then
-            if cast.able.healingTouch("target") and unit.friend("target") and unit.hp("target") <= ui.value("Healing Touch") and unit.player("target") then
-                return true
-            end
-            if cast.able.healingTouch("player") and not unit.friend("target") and unit.hp() <= ui.value("Healing Touch")
-                and (not unit.inGroup() or ui.checked("Self Heal In Group"))
-            then
-                return true
-            end
-        end
-    end
-
-    return false
+-- Keep Aquatic Form while swimming unless danger/enemy target.
+keepAquatic = function()
+    return ui.checked("Aquatic Form")
+        and br._G.IsSwimming()
+        and buff.aquaticForm.exists()
+        and not inAggroRange()
+        and (not unit.exists("target") or unit.friend("target"))
 end
 
 --------------------
 --- Action Lists ---
 --------------------
+
 -- Action List - Extra
 actionList.Extra = function()
-    -- Cancel Form to Interact with NPCs
-    -- if unit.exists("target") and unit.friend("target") and not unit.deadOrGhost("target") and not unit.player("target")
-    --     and unit.distance("target") < 8 and (buff.catForm.exists() or buff.bearForm.exists())
-    -- then
-    --     br._G.RunMacroText("/CancelForm")
-    --     ui.debug("Cancel Form [NPC]")
-    --     br._G.InteractUnit("target")
-    --     ui.debug("Interacting [NPC]")
-    --     return true
-    -- end
-
-    -- Aquatic Form
-    if ui.checked("Aquatic Form") and not unit.inCombat() and cast.able.aquaticForm()
-        and br._G.IsSwimming() and not buff.aquaticForm.exists() and not buff.prowl.exists()
-        and unit.moving() and timeMoving() > 2 and not inAggroRange()
-        and not (buff.markOfTheWild.refresh() and ui.checked("Mark of the Wild"))
-        and not (buff.thorns.refresh() and ui.checked("Thorns"))
-    then
-        if buff.catForm.exists() or buff.bearForm.exists() or buff.travelForm.exists() then
-            if safeCancelForm(spell.aquaticForm, "Swimming") then
-                return true
-            end
-        end
-        if cast.aquaticForm() then
-            ui.debug("Casting Aquatic Form")
-            return true
-        end
-    end
-
-    -- Travel Form
-    if ui.checked("Travel Form") and not unit.inCombat() and not br._G.IsMounted()
-        and not br._G.IsSwimming() and not br._G.IsFalling() and cast.able.travelForm()
-        and not buff.travelForm.exists() and not buff.prowl.exists()
-        and unit.moving() and timeMoving() > 2 and not inAggroRange()
-        and not (buff.markOfTheWild.refresh() and ui.checked("Mark of the Wild"))
-        and not (buff.thorns.refresh() and ui.checked("Thorns"))
-    then
-        if buff.catForm.exists() or buff.bearForm.exists() then
-            if safeCancelForm(spell.travelForm, "Travel") then
-                return true
-            end
-        end
-        if cast.travelForm() then
-            ui.debug("Casting Travel Form")
-            return true
-        end
-    end
-
-    -- Powershift for Energy (Cat Form with Furor talent)
-    if ui.checked("Powershifting") and cast.able.catForm() and buff.catForm.exists() and unit.inCombat() and energy() < 30
-        and comboPoints() < 5 and not buff.clearcasting.exists() and mana.percent() > 30
-    then
-        if powershift() then
-            ui.debug("Powershift for Energy")
-            return true
-        end
-    end
-
-    -- Keep Aquatic Form while swimming unless danger/enemy target.
-    local keepAquatic = ui.checked("Aquatic Form")
-        and br._G.IsSwimming()
-        and buff.aquaticForm.exists()
-        and not inAggroRange()
-        and (not unit.exists("target") or unit.friend("target"))
-
-    -- Auto Shapeshift
-    if not keepAquatic and not needsFormBreak()
-        and ((unit.moving() and timeMoving() > ui.value("Shift Wait Time")) or unit.inCombat() or inAggroRange(5))
-    then
-        local formValue = ui.mode.forms
-        -- Bear Form
-        if formValue == 3 and unit.level() >= 8 and cast.able.bearForm() and not buff.bearForm.exists()
-            and not (buff.markOfTheWild.refresh() and ui.checked("Mark of the Wild"))
-            and not (buff.thorns.refresh() and ui.checked("Thorns"))
-        then
-            if cast.bearForm() then
-                ui.debug("Casting Bear Form")
-                return true
-            end
-        end
-        -- Caster Form
-        if formValue == 1 and (buff.bearForm.exists() or buff.catForm.exists()) then
-            if unit and unit.cancelForm then
-                unit.cancelForm()
-            else
-                br._G.RunMacroText("/CancelForm")
-            end
-            ui.debug("Casting Caster Form")
-            return true
-        end
-        -- Cat Form
-        if (formValue == 2 or (formValue == 3 and unit.level() < 8)) and unit.level() >= 5
-            and cast.able.catForm() and not buff.catForm.exists()
-            and not (buff.markOfTheWild.refresh() and ui.checked("Mark of the Wild"))
-            and not (buff.thorns.refresh() and ui.checked("Thorns"))
-        then
-            if cast.catForm() then
-                ui.debug("Casting Cat Form")
-                return true
-            end
-        end
-    end
     -- Mark of the Wild
-    if ui.checked("Mark of the Wild") then
+    if ui.checked("Mark of the Wild") and not unit.flying() and not buff.prowl.exists()
+        and mana() > cast.cost.markOfTheWild() + formCost
+    then
         var.markUnit = getBuffUnitOption("Mark of the Wild")
         if cast.able.markOfTheWild(var.markUnit) and buff.markOfTheWild.refresh(var.markUnit)
             and not unit.inCombat() and not unit.resting() and unit.distance(var.markUnit) < 40
             and (var.markUnit == "player" or unit.player(var.markUnit))
+            and not buff.giftOfTheWild.exists(var.markUnit)
         then
             -- Cancel form if needed to buff
             local needsCancel = buff.catForm.exists() or buff.bearForm.exists() or buff.travelForm.exists() or buff.aquaticForm.exists()
@@ -664,7 +446,7 @@ actionList.Extra = function()
         end
     end
     -- Thorns
-    if ui.checked("Thorns") then
+    if ui.checked("Thorns") and not unit.flying() and not buff.prowl.exists() and mana() > cast.cost.thorns() + formCost then
         var.thornUnit = getBuffUnitOption("Thorns")
         if cast.able.thorns(var.thornUnit) and buff.thorns.refresh(var.thornUnit)
             and not unit.inCombat() and not unit.resting() and unit.distance(var.thornUnit) < 40
@@ -685,7 +467,9 @@ actionList.Extra = function()
         end
     end
     -- Omen of Clarity
-    if ui.value("Omen of Clarity") ~= 4 and not unit.inCombat() then
+    if ui.value("Omen of Clarity") ~= 4 and not unit.flying() and not unit.inCombat() and not unit.resting() and not buff.prowl.exists()
+        and mana() > cast.cost.omenOfClarity() + formCost
+    then
         if cast.able.omenOfClarity("player") and buff.omenOfClarity.refresh("player") then
             -- Cancel form if needed to buff
             local needsCancel = buff.catForm.exists() or buff.bearForm.exists() or buff.travelForm.exists() or buff.aquaticForm.exists()
@@ -709,6 +493,7 @@ actionList.Defensive = function()
         -- Abolish Poison
         if ui.checked("Abolish Poison") and cast.able.abolishPoison("player")
             and not buff.abolishPoison.exists("player") and cast.dispel.abolishPoison("player")
+            and mana() > cast.cost.abolishPoison() + formCost
         then
             if buff.catForm.exists() or buff.bearForm.exists() then
                 if safeCancelForm(spell.abolishPoison, "Abolish Poison") then
@@ -723,7 +508,8 @@ actionList.Defensive = function()
         end
         -- Cure Poison
         if ui.checked("Cure Poison") and cast.able.curePoison("player")
-            and (not ui.checked("Abolish Poison") --[[or not spell.known.abolishPoison()]]) and cast.dispel.curePoison("player")
+            and (not ui.checked("Abolish Poison") --[[or not spell.abolishPoison.known()]]) and cast.dispel.curePoison("player")
+            and mana() > cast.cost.curePoison() + formCost
         then
             if buff.catForm.exists() or buff.bearForm.exists() then
                 if safeCancelForm(spell.curePoison, "Cure Poison") then
@@ -739,6 +525,7 @@ actionList.Defensive = function()
         -- Remove Curse
         if ui.checked("Remove Curse") and cast.able.removeCurse("player")
             and not unit.inCombat() and cast.dispel.removeCurse("player")
+            and mana() > cast.cost.removeCurse() + formCost
         then
             if buff.catForm.exists() or buff.bearForm.exists() then
                 if safeCancelForm(spell.removeCurse, "Remove Curse") then
@@ -754,6 +541,7 @@ actionList.Defensive = function()
         -- Barkskin
         if ui.checked("Barkskin") and cast.able.barkskin()
             and unit.hp() <= ui.value("Barkskin") and unit.inCombat()
+            and mana() > cast.cost.barkskin() + formCost
         then
             if cast.barkskin() then
                 ui.debug("Casting Barkskin")
@@ -765,9 +553,10 @@ actionList.Defensive = function()
             and unit.exists("target") and not unit.facing("target", "player") and unit.moving("target")
             and unit.valid("target") and unit.hp("target") < 100 and not debuff.entanglingRoots.exists("target")
             and unit.distance("target") > 8 and unit.inCombat()
+            and mana() > cast.cost.entanglingRoots() + formCost
         then
             if buff.catForm.exists() or buff.bearForm.exists() then
-                if safeCancelForm(spell.entanglingRoots, "Entangling Roots", freeDPS) then
+                if safeCancelForm(spell.entanglingRoots, "Entangling Roots", buff.clearcasting.exists()) then
                     return true
                 end
             else
@@ -778,10 +567,10 @@ actionList.Defensive = function()
             end
         end
         -- Faerie Fire (Caster)
-        if ui.checked("Faerie Fire") and cast.able.faerieFire("target")
+        if ui.checked("Faerie Fire") and cast.able.faerieFire("target") and not buff.prowl.exists() and formValue == 1
             and unit.exists("target") and unit.enemy("target") and unit.canAttack("target") and not debuff.faerieFire.exists("target")
             and not (buff.catForm.exists() or buff.bearForm.exists())
-            and unit.distance("target") > 8 and noShapeshiftPower
+            and unit.distance("target") > 8 and mana() > cast.cost.faerieFire() + formCost
         then
             if cast.faerieFire("target") then
                 ui.debug("Casting Faerie Fire")
@@ -791,10 +580,10 @@ actionList.Defensive = function()
         -- Nature's Grasp
         if ui.checked("Nature's Grasp") and cast.able.naturesGrasp()
             and not buff.naturesGrasp.exists("player") and unit.inCombat()
-            and #enemies.yards10 > 0
+            and #enemies.yards10 > 0 and mana() > cast.cost.naturesGrasp() + formCost
         then
             if buff.catForm.exists() or buff.bearForm.exists() then
-                if safeCancelForm(spell.naturesGrasp, "Nature's Grasp", freeDPS) then
+                if safeCancelForm(spell.naturesGrasp, "Nature's Grasp", buff.clearcasting.exists()) then
                     return true
                 end
             else
@@ -807,11 +596,11 @@ actionList.Defensive = function()
         -- Regrowth
         if ui.checked("Regrowth") and cast.able.regrowth("player") and not cast.current.regrowth() and not unit.moving()
             and unit.hp() <= ui.value("Regrowth") and not buff.regrowth.exists("player")
-            and (freeHeal or noShapeshiftPower)
+            and (buff.clearcasting.exists() or mana() > cast.cost.regrowth() + formCost)
             and (not unit.inGroup() or ui.checked("Self Heal In Group"))
         then
             if buff.catForm.exists() or buff.bearForm.exists() then
-                if safeCancelForm(spell.regrowth, "Regrowth", freeHeal) then
+                if safeCancelForm(spell.regrowth, "Regrowth", buff.clearcasting.exists()) then
                     return true
                 end
             else
@@ -822,12 +611,12 @@ actionList.Defensive = function()
             end
         end
         -- Rejuvenation
-        if ui.checked("Rejuvenation") and not cast.current.rejuvenation("target") then
+        if ui.checked("Rejuvenation") and not cast.current.rejuvenation("target") and mana() > cast.cost.rejuvenation() + formCost then
             if cast.able.rejuvenation("target") and unit.friend("target") and unit.hp("target") <= ui.value("Rejuvenation")
                 and unit.player("target") and buff.rejuvenation.refresh("target")
             then
                 if buff.catForm.exists() or buff.bearForm.exists() then
-                    if safeCancelForm(spell.rejuvenation, "Rejuvenation", freeHeal) then
+                    if safeCancelForm(spell.rejuvenation, "Rejuvenation", buff.clearcasting.exists()) then
                         return true
                     end
                 else
@@ -842,7 +631,7 @@ actionList.Defensive = function()
                 and (unit.solo() or ui.checked("Self Heal In Group"))
             then
                 if buff.catForm.exists() or buff.bearForm.exists() then
-                    if safeCancelForm(spell.rejuvenation, "Rejuvenation", freeHeal) then
+                    if safeCancelForm(spell.rejuvenation, "Rejuvenation", buff.clearcasting.exists()) then
                         return true
                     end
                 else
@@ -855,11 +644,12 @@ actionList.Defensive = function()
         end
         -- Healing Touch
         if ui.checked("Healing Touch") and not cast.current.healingTouch() and not unit.moving()
-            and (freeHeal or noShapeshiftPower)
+            and (buff.clearcasting.exists() or mana() > cast.cost.healingTouch() + formCost)
+            and cast.timeSinceLast.healingTouch() > unit.gcd(true)
         then
             if cast.able.healingTouch("target") and unit.friend("target") and unit.hp("target") <= ui.value("Healing Touch") and unit.player("target") then
                 if buff.catForm.exists() or buff.bearForm.exists() then
-                    if safeCancelForm(spell.healingTouch, "Healing Touch", freeHeal) then
+                    if safeCancelForm(spell.healingTouch, "Healing Touch", buff.clearcasting.exists()) then
                         return true
                     end
                 else
@@ -873,7 +663,7 @@ actionList.Defensive = function()
                 and (not unit.inGroup() or ui.checked("Self Heal In Group"))
             then
                 if buff.catForm.exists() or buff.bearForm.exists() then
-                    if safeCancelForm(spell.healingTouch, "Healing Touch", freeHeal) then
+                    if safeCancelForm(spell.healingTouch, "Healing Touch", buff.clearcasting.exists()) then
                         return true
                     end
                 else
@@ -952,15 +742,32 @@ actionList.Interrupts = function()
                 end
             end
         end
+        -- * Maim
+        if ui.checked("Maim") and comboPoints() > 0 and energy() >= 35 then
+            for i = 1, #enemies.yards5f do
+                thisUnit = enemies.yards5f[i]
+                if unit.interruptable(thisUnit, ui.value("Interrupt At")) then
+                    if cast.able.maim(thisUnit) then
+                        if cast.maim(thisUnit) then
+                            ui.debug("Casting Maim on " .. unit.name(thisUnit))
+                            return true
+                        end
+                    end
+                end
+            end
+        end
     end -- End useInterrupts check
 end -- End Action List - Interrupts
 
 -- Action List - Cooldowns
 actionList.Cooldowns = function()
-    if ui.useCDs() then
+    if not buff.prowl.exists() and unit.distance("target") < 5 then
+        -- * Module- Basic Trinkets
+        -- use_items
+        module.BasicTrinkets()
         -- Innervate
-        if ui.checked("Self-Innervate") and cast.able.innervate()
-            and mana.percent() < 30
+        if ui.checked("Self-Innervate") and ui.useCDs()
+            and cast.able.innervate() and mana.percent() < 30
         then
             if cast.innervate("player") then
                 ui.debug("Casting Innervate")
@@ -970,8 +777,106 @@ actionList.Cooldowns = function()
     end
 end -- End Action List - Cooldowns
 
+-- Action List - Form Management
+actionList.FormManagement = function()
+    -- Aquatic Form
+    if ui.checked("Aquatic Form") and not unit.inCombat() and cast.able.aquaticForm()
+        and br._G.IsSwimming() and not buff.aquaticForm.exists() and not buff.prowl.exists()
+        and unit.moving() and timeMoving() > 2 and not inAggroRange()
+    then
+        if buff.catForm.exists() or buff.bearForm.exists() or buff.travelForm.exists() then
+            if safeCancelForm(spell.aquaticForm, "Swimming") then
+                return true
+            end
+        end
+        if cast.aquaticForm() then
+            ui.debug("Casting Aquatic Form")
+            return true
+        end
+    end
+
+    -- Travel Form
+    if ui.checked("Travel Form") and not unit.inCombat() and not br._G.IsMounted()
+        and not br._G.IsSwimming() and not br._G.IsFalling() and cast.able.travelForm()
+        and not buff.travelForm.exists() and not buff.prowl.exists()
+        and unit.moving() and timeMoving() > 2 and not inAggroRange()
+    then
+        if buff.catForm.exists() or buff.bearForm.exists() then
+            if safeCancelForm(spell.travelForm, "Travel") then
+                return true
+            end
+        end
+        if cast.travelForm() then
+            ui.debug("Casting Travel Form")
+            return true
+        end
+    end
+
+    -- Auto Shapeshift
+    if not keepAquatic() --and not needsFormBreak()
+        and ((unit.moving() and timeMoving() > ui.value("Shift Wait Time")) or unit.inCombat() or inAggroRange(5))
+    then
+        -- Bear Form
+        if formValue == 3 and (spell.bearForm.known() or spell.direBearForm.known())
+            and ((cast.able.bearForm() and not spell.direBearForm.known()) or cast.able.direBearForm())
+            and not buff.bearForm.exists() and not buff.direBearForm.exists()
+        then
+            if spell.direBearForm.known() then
+                if cast.direBearForm() then
+                    ui.debug("Casting Dire Bear Form")
+                    return true
+                end
+            else
+                if cast.bearForm() then
+                    ui.debug("Casting Bear Form")
+                    return true
+                end
+            end
+        end
+        -- Cat Form
+        if (formValue == 2 or (formValue == 3 and unit.level() < 8)) and unit.level() >= 5
+            -- and not unit.inCombat()
+            and cast.able.catForm() and not buff.catForm.exists()
+            and not (buff.aquaticForm.exists() or buff.travelForm.exists() or buff.flightForm.exists() or buff.swiftFlightForm.exists())
+        then
+            if cast.catForm() then
+                ui.debug("Casting Cat Form")
+                return true
+            end
+        end
+        -- Caster Form
+        if formValue == 1 and (buff.bearForm.exists() or buff.direBearForm.exists() or buff.catForm.exists()) then
+            if unit and unit.cancelForm then
+                unit.cancelForm()
+            else
+                br._G.RunMacroText("/CancelForm")
+            end
+            ui.debug("Casting Caster Form")
+            return true
+        end
+    end
+end -- End Action List - Form Management
+
 -- Action List - Bear Form
 actionList.BearForm = function()
+    -- -- Bear Form
+    -- if ((cast.able.bearForm() and not spell.direBearForm.known()) or cast.able.direBearForm())
+    --     and not buff.bearForm.exists() and not buff.direBearForm.exists()
+    --     and not (buff.markOfTheWild.refresh() and ui.checked("Mark of the Wild"))
+    --     and not (buff.thorns.refresh() and ui.checked("Thorns"))
+    -- then
+    --     if spell.direBearForm.known() then
+    --         if cast.direBearForm() then
+    --             ui.debug("Casting Dire Bear Form")
+    --             return true
+    --         end
+    --     else
+    --         if cast.bearForm() then
+    --             ui.debug("Casting Bear Form")
+    --             return true
+    --         end
+    --     end
+    -- end
     -- Enrage
     if cast.able.enrage() and not unit.deadOrGhost("target") and not buff.enrage.exists() and rage() < 10 and unit.hp() > 80 then
         if cast.enrage() then
@@ -980,7 +885,7 @@ actionList.BearForm = function()
         end
     end
     -- Demoralizing Roar
-    if cast.able.demoralizingRoar() and not debuff.demoralizingRoar.exists(units.dyn5)
+    if cast.able.demoralizingRoar() and not debuff.demoralizingRoar.exists("target")
         and #enemies.yards10 > 0
     then
         if cast.demoralizingRoar() then
@@ -996,8 +901,8 @@ actionList.BearForm = function()
         end
     end
     -- Maul
-    if cast.able.maul(units.dyn5) and (ui.useST(8,3) or not spell.swipe.known()) then
-        if cast.maul(units.dyn5) then
+    if cast.able.maul("target") and (ui.useST(8,3) or not spell.swipe.known()) then
+        if cast.maul("target") then
             ui.debug("Casting Maul")
             return true
         end
@@ -1033,7 +938,7 @@ actionList.CatOpener = function()
 
         -- Ravage from behind (Opener 2 or fallback)
         if (opener == 2 or (opener <= 1 and not spell.pounce.known()))
-            and cast.able.ravage() and isBehind("target", "player")
+            and cast.able.ravage("target") and isBehind("target", "player")
         then
             if cast.ravage("target") then
                 ui.debug("Casting Ravage [Stealth Opener]")
@@ -1043,7 +948,7 @@ actionList.CatOpener = function()
 
         -- Shred from behind (Opener 3 or fallback)
         if (opener == 3 or (opener <= 2 and not spell.ravage.known()))
-            and cast.able.shred() and isBehind("target", "player") and not unit.facing("target", "player")
+            and cast.able.shred("target") and isBehind("target", "player") and not unit.facing("target", "player")
         then
             if cast.shred("target") then
                 ui.debug("Casting Shred [Stealth Opener]")
@@ -1053,7 +958,7 @@ actionList.CatOpener = function()
 
         -- Rake (Opener 4 or fallback)
         if ui.checked("Rake") and (opener == 4 or (opener <= 3 and not spell.shred.known()))
-            and cast.able.rake()
+            and cast.able.rake("target")
         then
             if cast.rake("target") then
                 ui.debug("Casting Rake [Stealth Opener]")
@@ -1062,7 +967,9 @@ actionList.CatOpener = function()
         end
 
         -- Mangle
-        if ((opener == 5 and not ui.checked("Rake")) or (opener < 5 and not spell.rake.known())) and cast.able.mangleCat() then
+        if ((opener == 5 and not ui.checked("Rake")) or (opener < 5 and not spell.rake.known()))
+            and cast.able.mangleCat("target") and (not (spell.ravage.known() or spell.shred.known()) or unit.facing("target", "player"))
+        then
             if cast.mangleCat("target") then
                 ui.debug("Casting Mangle [Stealth Opener]")
                 return true
@@ -1071,7 +978,7 @@ actionList.CatOpener = function()
 
         -- Claw (ultimate fallback)
         if ((opener == 4 and not ui.checked("Rake")) or (opener < 4 and not spell.rake.known()))
-            and not spell.mangleCat.known() and cast.able.claw()
+            and not spell.mangleCat.known() and cast.able.claw("target")
         then
             if cast.claw("target") then
                 ui.debug("Casting Claw [Stealth Opener]")
@@ -1087,7 +994,7 @@ actionList.CatOpener = function()
     if (behindTarget or not spell.shred.known()) then
         -- Shred (from behind)
         local triedShred = false
-        if behindTarget and cast.able.shred() then
+        if behindTarget and cast.able.shred("target") then
             if not unit.facing("target", "player") then
                 triedShred = true
                 if cast.shred("target") then
@@ -1097,14 +1004,14 @@ actionList.CatOpener = function()
             end
         end
         -- Mangle
-        if cast.able.mangleCat() and (not spell.shred.known() or not behindTarget) then
+        if cast.able.mangleCat("target") and (not spell.shred.known() or not behindTarget) then
             if cast.mangleCat("target") then
                 ui.debug("Casting Mangle [Opener]")
                 return true
             end
         end
         -- Claw (fallback)
-        if cast.able.claw() and ((not spell.shred.known() or not behindTarget) or not spell.mangleCat.known()) then
+        if cast.able.claw("target") and ((not spell.shred.known() or not behindTarget) or not spell.mangleCat.known()) then
             if cast.claw("target") then
                 ui.debug("Casting Claw [Opener]")
                 return true
@@ -1117,104 +1024,161 @@ end
 
 -- Action List - Cat Form
 actionList.CatForm = function()
-    -- Ferocious Bite - Finish Him!
-    local finish = ferociousBiteFinish(units.dyn5)
-    if cast.able.ferociousBite(units.dyn5) and energy() >= 35 and finish then
-        if cast.ferociousBite(units.dyn5) then
-            ui.debug("Casting Ferocious Bite [Finish Him!]")
-            return true
-        end
-    end
-
-    -- Tiger's Fury
-    if ui.checked("Tiger's Fury") and cast.able.tigersFury() and buff.catForm.exists() and energy() == 100
-        and not buff.tigersFury.exists()
-    then
-        if cast.tigersFury() then
-            ui.debug("Casting Tiger's Fury")
-            return true
-        end
-    end
-
-    -- Faerie Fire (Feral)
-    if ui.checked("Faerie Fire") and cast.able.faerieFireFeral() and unit.enemy(units.dyn5) and unit.canAttack(units.dyn5)
-        and not debuff.faerieFireFeral.exists(units.dyn5)
-        and not unit.isElemental(units.dyn5)
-        and unit.ttd(units.dyn5) > cd.global.remain()
-    then
-        if cast.faerieFireFeral() then
-            ui.debug("Casting Faerie Fire (Feral)")
-            return true
-        end
-    end
-
-    -- 5 Combo Points - Finishers
-    if comboPoints() == 5 and not finish then
-        -- Ferocious Bite (low energy)
-        if cast.able.ferociousBite(units.dyn5) and energy() >= 35 and energy() < 60 then
-            if cast.ferociousBite(units.dyn5) then
-                ui.debug("Casting Ferocious Bite")
-                return true
-            end
-        end
-        -- Rip
-        if ui.checked("Rip") and cast.able.rip() and unit.ttd(units.dyn5) > 6 and debuff.rip.refresh(units.dyn5) then
-            if cast.rip(units.dyn5) then
-                ui.debug("Casting Rip")
-                return true
-            end
-        end
-    end
-
-    -- Combo Point Builders
-    if (comboPoints() < 5 or energy() >= 60 or freeDPS) and not finish then
-        -- Ravage (from Prowl)
-        local behindRavage = isBehind(units.dyn5, "player")
-        if behindRavage then debugBehind("Ravage behind=true", units.dyn5) end
-        if cast.able.ravage() and buff.prowl.exists() and behindRavage then
-            if cast.ravage(units.dyn5) then
-                ui.debug("Casting Ravage")
-                return true
-            end
-        end
-        -- Rake
-        if ui.checked("Rake") and cast.able.rake() and debuff.rake.refresh(units.dyn5)
-            and (unit.ttd(units.dyn5) <= 3 or not spell.ferociousBite.known())
-            and not freeDPS
+    if unit.inCombat("player") and buff.catForm.exists() then
+        -- Powershift for Energy (Cat Form with Furor talent)
+        if ui.checked("Powershifting") and cast.able.catForm() and unit.inCombat()
+            and not buff.clearcasting.exists() and mana() > formCost
         then
-            if cast.rake(units.dyn5) then
-                ui.debug("Casting Rake")
+            local cp = comboPoints()
+            local nextTick = timeToNextEnergyTick()
+            local omen = buff.clearcasting.exists()
+            local maxWait = 0.75
+            local immediateShiftThreshold = math.max(10, ui.round(ui.value("Energy")*(mana.percent()/100), 0))
+
+            -- Immediate shift if energy is very low
+            if energy() < immediateShiftThreshold then
+                if cast.macro("/cast !"..spell.catForm.name()) then
+                    ui.debug("Powershift for Energy")
+                    powershiftReady = false
+                    return true
+                end
+            end
+
+            -- -- Decide whether to shift now or wait for next tick
+            -- local shouldShift = false
+            -- if cp > 0 then
+            --     -- If we can finish now, prefer finishing rather than shifting
+            --     if energy() >= 35 or omen then
+            --         shouldShift = false
+            --     else
+            --         -- Not enough energy to finish; shift if next tick is sufficiently far
+            --         if nextTick > maxWait then shouldShift = true end
+            --     end
+            -- else
+            --     -- No combo points: shift when waiting for next tick would be long
+            --     if nextTick > maxWait then shouldShift = true end
+            -- end
+
+            -- if shouldShift then
+            --     if not powershiftReady then
+            --         powershiftReady = true
+            --         powershiftArmedAt = br._G.GetTime()
+            --         ui.debug("Powershift - armed, will execute next tick")
+            --         return true
+            --     else
+            --         -- small safety: ensure at least a tiny delay after arming
+            --         if br._G.GetTime() - powershiftArmedAt < 0.05 then
+            --             return true
+            --         end
+            --         -- Execute powershift: recast via macro (macro handles rebuff)
+            --         if cast.macro("/cast !"..spell.catForm.name()) then
+            --             ui.debug("Powershift")
+            --             powershiftReady = false
+            --             powershiftArmedAt = 0
+            --             return true
+            --         end
+            --     end
+            -- else
+            --     powershiftReady = false
+            -- end
+        end
+        -- Ferocious Bite - Finish Him!
+        local finish = ferociousBiteFinish("target")
+        if cast.able.ferociousBite("target") and energy() >= 35 and finish then
+            if cast.ferociousBite("target") then
+                ui.debug("Casting Ferocious Bite [Finish Him!]")
                 return true
             end
         end
-        -- Shred (from behind)
-        local behindDyn5 = isBehind(units.dyn5, "player")
-        if behindDyn5 then debugBehind("Shred behind=true", units.dyn5) end
 
-        local triedShred = false
-        if behindDyn5 and cast.able.shred() then
-            if not unit.facing(units.dyn5, "player") then
-                triedShred = true
-                if cast.shred(units.dyn5) then
-                    ui.debug("Casting Shred")
+        -- Tiger's Fury
+        if ui.checked("Tiger's Fury") and cast.able.tigersFury() and buff.catForm.exists() and energy() == 100
+            and not buff.tigersFury.exists()
+        then
+            if cast.tigersFury() then
+                ui.debug("Casting Tiger's Fury")
+                return true
+            end
+        end
+
+        -- Faerie Fire (Feral)
+        if ui.checked("Faerie Fire") and cast.able.faerieFireFeral("target") and unit.valid("target")
+            and not buff.prowl.exists()
+            and not debuff.faerieFireFeral.exists("target")
+            and not unit.isElemental("target")
+            and unit.ttd("target") > cd.global.remain()
+        then
+            if cast.faerieFireFeral("target") then
+                ui.debug("Casting Faerie Fire (Feral)")
+                return true
+            end
+        end
+
+        -- 5 Combo Points - Finishers
+        if comboPoints() >= 4 and not finish then
+            -- Rip
+            if ui.checked("Rip") and cast.able.rip("target") and unit.ttd("target") > 6 and debuff.rip.refresh("target") then
+                if cast.rip("target") then
+                    ui.debug("Casting Rip")
+                    return true
+                end
+            end
+            -- Ferocious Bite (low energy)
+            if cast.able.ferociousBite("target") and energy() >= 35 and energy() < 60 then
+                if cast.ferociousBite("target") then
+                    ui.debug("Casting Ferocious Bite")
                     return true
                 end
             end
         end
-        -- Mangle
-        if cast.able.mangleCat() and ((not spell.shred.known() or not behindDyn5)
-            or debuff.mangleCat.refresh(units.dyn5))
-        then
-            if cast.mangleCat(units.dyn5) then
-                ui.debug("Casting Mangle")
-                return true
+
+        -- Combo Point Builders
+        if (comboPoints() < 5 or energy() >= 60 or buff.clearcasting.exists()) and not finish then
+            -- Ravage (from Prowl)
+            local behindRavage = isBehind("target", "player")
+            if cast.able.ravage("target") and buff.prowl.exists() and behindRavage then
+                if cast.ravage("target") then
+                    ui.debug("Casting Ravage")
+                    return true
+                end
             end
-        end
-        -- Claw (not behind)
-        if cast.able.claw() and (not spell.shred.known() or not behindDyn5) and not spell.mangleCat.known()then
-            if cast.claw(units.dyn5) then
-                ui.debug("Casting Claw")
-                return true
+            -- Rake
+            if ui.checked("Rake") and cast.able.rake("target") and debuff.rake.refresh("target")
+                and (unit.ttd("target") <= 3 or not spell.ferociousBite.known())
+                and not buff.clearcasting.exists()
+            then
+                if cast.rake("target") then
+                    ui.debug("Casting Rake")
+                    return true
+                end
+            end
+            -- Mangle
+            local behindDyn5 = isBehind("target", "player")
+            if cast.able.mangleCat("target") and ((not spell.shred.known() or not behindDyn5)
+                or debuff.mangleCat.refresh("target","any"))
+            then
+                if cast.mangleCat("target") then
+                    ui.debug("Casting Mangle")
+                    return true
+                end
+            end
+            -- Shred (from behind)
+            local triedShred = false
+            if behindDyn5 and cast.able.shred("target") then
+                if not unit.facing("target", "player") then
+                    triedShred = true
+                    if cast.shred("target") then
+                        ui.debug("Casting Shred")
+                        return true
+                    end
+                end
+            end
+            -- Claw (not behind)
+            if cast.able.claw("target") and (not spell.shred.known() or not behindDyn5) and not spell.mangleCat.known() then
+                if cast.claw("target") then
+                    ui.debug("Casting Claw")
+                    return true
+                end
             end
         end
     end
@@ -1258,7 +1222,7 @@ actionList.PreCombat = function()
         if not (buff.prowl.exists() or buff.shadowmeld.exists()) then
             -- Prowl
             if ui.checked("Prowl") and cast.able.prowl("player") and buff.catForm.exists() and autoProwl() and ui.mode.prowl == 1
-                and not buff.prowl.exists() and not unit.resting()
+                and not buff.prowl.exists() and not unit.resting() and not unit.deadOrGhost("target")
             then
                 if cast.prowl("player") then
                     ui.debug("Casting Prowl [Precombat]")
@@ -1267,10 +1231,9 @@ actionList.PreCombat = function()
             end
         end -- End No Stealth
         if unit.valid("target") then
-            local formValue = ui.mode.forms
             local thisDistance = unit.distance("target") or 99
             -- Wrath
-            if not unit.moving() and not (buff.catForm.exists() or buff.bearForm.exists()) and thisDistance < 30 then
+            if not unit.moving() and not (buff.catForm.exists() or buff.bearForm.exists() or buff.direBearForm.exists()) and thisDistance < 30 then
                 if cast.able.wrath("target") and (unit.level() < 2 or not cast.last.wrath() or cast.timeSinceLast.wrath() > unit.gcd(true) + 0.5) then
                     if cast.wrath("target") then
                         ui.debug("Casting Wrath [Precombat]")
@@ -1280,28 +1243,50 @@ actionList.PreCombat = function()
             end
             if thisDistance < 5 then
                 -- Cat Opener (Stealth + Non-Stealth)
-                if actionList.CatOpener() then return true end
+                if formValue == 2 then
+                    if actionList.CatOpener() then return true end
+                end
                 -- Bear Form
-                if formValue == 3 and buff.bearForm.exists() then
-                    -- Enrage
-                    if cast.able.enrage() and not unit.deadOrGhost("target") and not buff.enrage.exists() and rage() < 10 then
-                        if cast.enrage() then
-                            ui.debug("Casting Enrage [Precombat]")
-                            return true
+                if formValue == 3 then
+                    -- Bear Form
+                    if ((cast.able.bearForm() and not spell.direBearForm.known()) or cast.able.direBearForm())
+                        and not buff.bearForm.exists() and not buff.direBearForm.exists()
+                        and not (buff.markOfTheWild.refresh() and ui.checked("Mark of the Wild"))
+                        and not (buff.thorns.refresh() and ui.checked("Thorns"))
+                    then
+                        if spell.direBearForm.known() then
+                            if cast.direBearForm() then
+                                ui.debug("Casting Dire Bear Form")
+                                return true
+                            end
+                        else
+                            if cast.bearForm() then
+                                ui.debug("Casting Bear Form")
+                                return true
+                            end
                         end
                     end
-                    -- Swipe
-                    if cast.able.swipe() and ui.useAOE(8,3) then
-                        if cast.swipe() then
-                            ui.debug("Casting Swipe [Precombat]")
-                            return true
+                    if (buff.bearForm.exists() or buff.direBearForm.exists()) then
+                        -- Enrage
+                        if cast.able.enrage() and not unit.deadOrGhost("target") and not buff.enrage.exists() and rage() < 10 then
+                            if cast.enrage() then
+                                ui.debug("Casting Enrage [Precombat]")
+                                return true
+                            end
                         end
-                    end
-                    -- Maul
-                    if cast.able.maul(units.dyn5) and (ui.useST(8,3) or not spell.swipe.known()) then
-                        if cast.maul(units.dyn5) then
-                            ui.debug("Casting Maul [Precombat]")
-                            return true
+                        -- Swipe
+                        if cast.able.swipe() and ui.useAOE(8,3) then
+                            if cast.swipe() then
+                                ui.debug("Casting Swipe [Precombat]")
+                                return true
+                            end
+                        end
+                        -- Maul
+                        if cast.able.maul("target") and (ui.useST(8,3) or not spell.swipe.known()) then
+                            if cast.maul("target") then
+                                ui.debug("Casting Maul [Precombat]")
+                                return true
+                            end
                         end
                     end
                 end
@@ -1319,63 +1304,56 @@ end -- End Action List - PreCombat
 -- Action List - Combat
 actionList.Combat = function()
     if unit.inCombat() and unit.valid("target") then
-        local formValue = ui.mode.forms
         ------------------------
         --- In Combat - Main ---
         ------------------------
         -- Start Attack (do not break Prowl)
-        if not buff.prowl.exists() and unit.exists(units.dyn5) and not cast.auto.autoAttack() and not unit.deadOrGhost("target") then
+        if not buff.prowl.exists() and unit.exists("target") and not cast.auto.autoAttack() and not unit.deadOrGhost("target") then
             br._G.StartAttack()
             ui.debug("Casting Auto Attack")
             return true
         end
 
-        -- Wait for swing if in melee range
-        if unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
-            local swing = br.swingTimer
-            -- ui.debug("Swing Timer: " .. tostring(swing) .. " | Distance: " .. tostring(unit.distance(units.dyn5)))
-            if swing and swing > 0 and swing < 0.3 then
-                -- ui.debug("Waiting for swing: " .. br.functions.misc:round2(swing) .. "s")
-                return true
-            end
-        end
-
         -- Call Action List - Cooldowns
         if actionList.Cooldowns() then return true end
 
-        -- Last Form restoration
-        if ui.checked("Last Form") and lastForm ~= nil
-            and (((unit.moving() and timeMoving() > 2 and (not spell.travelForm.known() or not ui.checked("Travel Form")))
-                or (unit.inCombat() or inAggroRange(5)) and ((unit.exists("target") and not unit.friend("target")) or not unit.exists("target")))
-            and not lastFormBuff and not (buff.aquaticForm.exists() or buff.travelForm.exists() or inAggroRange(5)))
-        then
-            if cast.able.catForm() and lastForm == spell.catForm then
-                if cast.catForm() then
-                    ui.debug("Casting Last Form [Cat]")
-                    return true
-                end
-            end
-            if cast.able.bearForm() and (lastForm == spell.bearForm or lastForm == spell.direBearForm) then
-                if cast.bearForm() then
-                    ui.debug("Casting Last Form [Bear]")
-                    return true
-                end
-            end
-        end
+        -- Wait for swing if in melee range
+        -- if unit.exists("target") and unit.distance("target") < 5 and
+        --     (formValue == 2 and buff.catForm.exists()
+        --     or formValue == 3 and (buff.bearForm.exists() or buff.direBearForm.exists()))
+        -- then
+        --     local swing = br.swingTimer
+        --     -- ui.debug("Swing Timer: " .. tostring(swing) .. " | Distance: " .. tostring(unit.distance("target")))
+        --     local waitThreshold = 0.15 -- seconds; tune between 0.15-0.30
+        --     if swing and swing > 0 and swing < waitThreshold then
+        --         if not br.waitingForSwing then
+        --             br.waitingForSwing = true
+        --             br.waitingForSwingTimeout = br._G.GetTime() + 1.5 -- safety timeout
+        --             ui.debug("Waiting for swing: " .. br.functions.misc:round2(swing,2) .. "s")
+        --         end
+        --         -- clear waiting flag if swing occurred or timeout expired
+        --         if br.swingTimer == 0 or (br.waitingForSwingTimeout and br._G.GetTime() >= br.waitingForSwingTimeout) then
+        --             br.waitingForSwing = false
+        --             br.waitingForSwingTimeout = nil
+        --         else
+        --             return true
+        --         end
+        --     end
+        -- end
 
         -- Call Action List - Bear Form
-        if formValue == 3 and buff.bearForm.exists() and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
+        if formValue == 3 and (buff.bearForm.exists() or buff.direBearForm.exists()) and unit.exists("target") and unit.distance("target") < 5 then
             if actionList.BearForm() then return true end
         end
 
         -- Call Action List - Cat Form
-        if formValue == 2 and buff.catForm.exists() and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
+        if formValue == 2 and unit.exists("target") and unit.distance("target") < 5 then
             if buff.prowl.exists() and actionList.CatOpener() then return true end
             if actionList.CatForm() then return true end
         end
 
         -- Call Action List - Caster Form
-        if formValue == 1 and not (buff.catForm.exists() or buff.bearForm.exists()) then
+        if formValue == 1 and not (buff.catForm.exists() or buff.bearForm.exists() or buff.direBearForm.exists()) then
             if actionList.CasterForm() then return true end
         end
     end -- End In Combat Rotation
@@ -1406,41 +1384,49 @@ local function runRotation()
     -- General Locals
     profileStop = profileStop or false
     haltProfile = (unit.inCombat() and profileStop) or ui.pause() or ui.mode.rotation == 4 or unit.id("target") == 156716
+    formValue = ui.mode.forms
+    formCost = 0
+    if not br.player.localTrinkets then br.player.localTrinkets = true end
+    if ui.mode.forms == 2 then formCost = cast.cost.catForm() end
+    if ui.mode.forms == 3 then formCost = spell.direBearForm.known() and cast.cost.direBearForm() or cast.cost.bearForm() end
     -- Units
-    units.get(5)        -- Makes a variable called, units.dyn5
-    units.get(40)       -- Makes a variable called, units.dyn40
+    units.get(5)        -- Makes a variable called, "target"
+    -- units.get(40)       -- Makes a variable called, units.dyn40
     units.get(40, true) -- Makes a variable called, units.dyn40AOE
     -- Enemies
-    enemies.get(5)      -- Makes a varaible called, enemies.yards5
+    -- enemies.get(5)      -- Makes a varaible called, enemies.yards5
     enemies.get(20)     -- Makes a varaible called, enemies.yards20
     enemies.get(20, "player", true)        -- makes enemies.yards20nc
     enemies.get(40)     -- Makes a varaible called, enemies.yards40
 
     -- Profile Specific Locals
-    fbMaxEnergy = energy() >= 50
+    -- fbMaxEnergy = energy() >= 50
 
     -- Update Last Form tracking
-    updateLastForm()
+    -- updateLastForm()
 
-    -- Omen of Clarity Logic
-    local omenSetting = ui.value("Omen of Clarity")
-    needsHealing = (ui.checked("Regrowth") and unit.hp() <= ui.value("Regrowth"))
-        or (ui.checked("Healing Touch") and unit.hp() <= ui.value("Healing Touch"))
-        or (ui.checked("Rejuvenation") and unit.hp() <= ui.value("Rejuvenation"))
+    -- -- Omen of Clarity Logic
+    -- local omenSetting = ui.value("Omen of Clarity")
+    -- needsHealing = (ui.checked("Regrowth") and unit.hp() <= ui.value("Regrowth"))
+    --     or (ui.checked("Healing Touch") and unit.hp() <= ui.value("Healing Touch"))
+    --     or (ui.checked("Rejuvenation") and unit.hp() <= ui.value("Rejuvenation"))
 
-    freeDPS = omenSetting ~= 4 and omenSetting ~= 2 and buff.clearcasting.exists()
-        and (not needsHealing or omenSetting == 3)
+    -- freeDPS = omenSetting ~= 4 and omenSetting ~= 2 and buff.clearcasting.exists()
+    --     and (not needsHealing or omenSetting == 3)
 
-    freeHeal = omenSetting ~= 4 and omenSetting ~= 3 and buff.clearcasting.exists()
+    -- freeHeal = omenSetting ~= 4 and omenSetting ~= 3 and buff.clearcasting.exists()
 
     -- No Shapeshift Power check
-    noShapeshiftPower = ((not buff.catForm.exists() or (buff.catForm.exists() and energy() < ui.value("Energy")))
-        and (not buff.bearForm.exists() or (buff.bearForm.exists() and rage() < ui.value("Rage"))))
-        or not unit.inCombat()
+    -- noShapeshiftPower = ((not buff.catForm.exists() or (buff.catForm.exists() and energy() < ui.value("Energy")))
+    --     and (not (buff.bearForm.exists() and buff.direBearForm.exists())
+    --         or ((buff.bearForm.exists() or buff.direBearForm.exists()) and rage() < ui.value("Rage"))))
+    --     or not unit.inCombat()
 
     if not unit.inCombat() and not unit.exists("target") then
         if profileStop then profileStop = false end
     end
+
+    -- ui.chatOverlay("Shift At: "..tostring(ui.round(math.max(10, ui.value("Energy")*(mana.percent()/100)),0)))
 
     ---------------------
     --- Begin Profile ---
@@ -1462,6 +1448,10 @@ local function runRotation()
         --- Defensive ---
         -----------------
         if actionList.Defensive() then return true end
+        -----------------------
+        --- Form Management ---
+        -----------------------
+        if actionList.FormManagement() then return true end
         ------------------
         --- Pre-Combat ---
         ------------------

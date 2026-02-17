@@ -402,7 +402,7 @@ function br.unlockers:NNUnlock()
 		str = str .. "*.lua" --:match("*.lua") or str
 		local filter = str:gsub(str:match("*.lua"), "*")
 		-- print("Filter: "..filter)
-		local files = ListFiles(filter)
+		local files = ListFiles(filter) or {}
 		local returnFiles = ""
 		for i = 1, #files do
 			-- print("File: "..files[i])

@@ -8,6 +8,8 @@ if br.api == nil then br.api = {} end
 
 br.api.buffs = function(buff, k, v)
     local buff = buff[k]
+    if type(v) == "table" then v = br.functions.spell:getHighestKnownRank(v) end
+
     --- Cancel a buff.
     -- @function buff.spell.cancel
     -- @string[opt="player"] thisUnit The unit to check.

@@ -55,10 +55,11 @@ local function eventTracker(_, event, ...)
             if event == "UNIT_SPELLCAST_SENT" then
                 addSpell(spellID)
             end
-            addCastTime(spellID)
+            -- addCastTime(spellID) -- Don't add cast time on SENT event, as the cast may not actually start (could be interrupted/failed before START event)
         end
         if event == "UNIT_SPELLCAST_SUCCEEDED" then
-            -- if event == "UNIT_SPELLCAST_SUCCEEDED" then br._G.print("Success Cast Spell: " .. spellName) end
+            -- Record the actual completion time for the spell (useful for timeSinceLast)
+            addCastTime(spellID)
             if waitForSuccess == spellID then
                 waitForSuccess = nil
             else

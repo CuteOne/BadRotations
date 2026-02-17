@@ -378,11 +378,13 @@ function cCharacter:new()
 			-- Module - Imbue Up
 			self.module.ImbueUp()
 		end
-		if self.unit.inCombat() and self.ui.useCDs() then
+		if self.unit.inCombat() then --and self.ui.useCDs() then
 			-- Module - Combatpotion Up
 			self.module.CombatPotionUp()
 			-- Module - Basic Trinkets
-			self.module.BasicTrinkets()
+			if not self.localTrinkets then
+				self.module.BasicTrinkets()
+			end
 		end
 		-- Module - Two Forms (Worgen)
 		self.module.TwoForms()

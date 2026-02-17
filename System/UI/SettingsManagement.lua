@@ -250,7 +250,10 @@ function settingsManagement:loadSavedSettings()
 	-- or when settings have not yet been loaded (e.g. on login) or a rotation changed
 	if settingsManagement.initializeSettings or (not (br.data and br.data.loadedSettings) or br.rotationChanged) then
 		br.loader.cBuilder:loadProfiles()
-		settingsManagement:loadLastProfileTracker()
+		local specID = br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization())
+		if not (br.loader.noRotationsFound and br.loader.noRotationsFound[specID]) then
+			settingsManagement:loadLastProfileTracker()
+		end
 		if br.data.settings[br.loader.selectedSpec]["RotationDropValue"] then
 			settingsManagement:loadSettings(nil, nil, nil, br.data.settings[br.loader.selectedSpec]["RotationDropValue"])
 		elseif br.loader.rotations[br.loader.selectedSpec] then
@@ -744,8 +747,13 @@ function settingsManagement:loadLastProfileTracker()
 		local rotationFound = false
 		local trackerName = br.data.tracker[br.loader.selectedSpec]["RotationDropValue"]
 		local specSettings = br.data.settings[br.loader.selectedSpec]
+		-- If rotations are not yet available, print once and mark to avoid repeated retries
 		if not br.loader.rotations[specID] then
-			print("No rotations found for specID " .. specID)
+			br.loader.noRotationsFound = br.loader.noRotationsFound or {}
+			if not br.loader.noRotationsFound[specID] then
+				print("No rotations found for specID " .. specID)
+				br.loader.noRotationsFound[specID] = true
+			end
 			return
 		end
 		if trackerName then

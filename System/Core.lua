@@ -80,7 +80,10 @@ local function updateRotationOnSpecChange()
     br.loader.selectedSpec = select(2, br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization()))
     br.loader.selectedSpecID = br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization())
     br.loader.cBuilder:loadProfiles()
-    br.ui.settingsManagement:loadLastProfileTracker()
+    local specID = br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization())
+    if not (br.loader.noRotationsFound and br.loader.noRotationsFound[specID]) then
+        br.ui.settingsManagement:loadLastProfileTracker()
+    end
     br.data.loadedSettings = false
     -- Load Default Settings
     br.ui.settingsManagement:defaultSettings()

@@ -89,6 +89,7 @@ System\Functions\Totem.lua
 ## Lists
 
 System\Lists\AoEDamage.lua
+System\Lists\Bosses.lua
 System\Lists\BurnUnits.lua
 System\Lists\CCUnits.lua
 System\Lists\Defensives.lua

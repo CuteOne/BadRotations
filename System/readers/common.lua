@@ -418,14 +418,20 @@ function common:commonReaders()
 				if br.player ~= nil then
 					if #br.player.queue ~= 0 then
 						for i = 1, #br.player.queue do
-							if br.api.wow.GetSpellInfo(SpellID) == br.api.wow.GetSpellInfo(br.player.queue[i].id) then
+							local queuedID = br.player.queue[i].id
+							if type(queuedID) == "table" and br.functions and br.functions.spell and br.functions.spell.getHighestKnownRank then
+								queuedID = br.functions.spell:getHighestKnownRank(queuedID) or queuedID[1]
+							elseif type(queuedID) == "table" then
+								queuedID = queuedID[1]
+							end
+							if br.api.wow.GetSpellInfo(SpellID) == br.api.wow.GetSpellInfo(queuedID) then
 								br._G.tremove(br.player.queue, i)
 								if br._G.IsAoEPending() then
 									br._G.SpellStopTargeting()
 								end
 								if not br.functions.misc:isChecked("Mute Queue") then
 									br._G.print("Cast Success! - Removed |cFFFF0000" ..
-									br.api.wow.GetSpellInfo(SpellID) .. "|r from the queue.")
+									br.api.wow.GetSpellInfo(queuedID) .. "|r from the queue.")
 								end
 								break
 							end
