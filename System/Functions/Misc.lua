@@ -1334,36 +1334,41 @@ function misc:addonDebug(msg, system)
 	if msg == nil then
 		return
 	end
+	local msgText = tostring(msg)
 	-- Prefer the dropdown value for Addon Debug Messages. Some configs
 	-- may not include a separate checkbox, so rely on the dropdown being
-	-- set (1=System Only, 2=Profile Only, 3=All).
+	-- set.
 	local addonDebugValue = br.functions.misc:getValue("Addon Debug Messages")
-	if addonDebugValue and addonDebugValue > 0 then
+	if br.functions.misc:isChecked("Addon Debug Messages") and addonDebugValue then
+		local showSystem = addonDebugValue == 1 or addonDebugValue == 2
+		local showProfile = addonDebugValue == 1 or addonDebugValue == 3
+
 		-- Use a per-message short timer key so different messages printed
 		-- within a short interval aren't suppressed by the same global key.
-		local msgKey = tostring(msg)
+		local msgKey = msgText
 		if #msgKey > 40 then msgKey = msgKey:sub(1, 40) end
 
 		-- Immediate-print for casting-related messages to avoid them being
 		-- swallowed by simultaneous 'Combat Started' messages. Use a
 		-- short per-message guard so we don't spam identical lines.
-		if string.find(msg, "Casting") then
+		-- Respect configured channel filtering (System/Profile/All).
+		if showProfile and system ~= true and string.find(msgText, "Casting") then
 			local castKey = "Casting Immediate:" .. msgKey
 			if br.debug.timer:useTimer(castKey, 0.05) then
-				print(br.ui.colors.class .. "[BadRotations] Profile Debug: |cffFFFFFF" .. tostring(msg))
+				print(br.ui.colors.class .. "[BadRotations] Profile Debug: |cffFFFFFF" .. msgText)
 			end
 			return
 		end
 
-		if system == true and (addonDebugValue == 1 or addonDebugValue == 3) then
+		if system == true and showSystem then
 			local timerKey = "System Delay:" .. msgKey
 			if br.debug.timer:useTimer(timerKey, 0.1) then
-				print(br.ui.colors.class .. "[BadRotations] System Debug: |cffFFFFFF" .. tostring(msg))
+				print(br.ui.colors.class .. "[BadRotations] System Debug: |cffFFFFFF" .. msgText)
 			end
-		elseif system ~= true and (addonDebugValue == 2 or addonDebugValue == 3) then
+		elseif system ~= true and showProfile then
 			local timerKey = "Profile Delay:" .. msgKey
 			if br.debug.timer:useTimer(timerKey, 0.1) then
-				print(br.ui.colors.class .. "[BadRotations] Profile Debug: |cffFFFFFF" .. tostring(msg))
+				print(br.ui.colors.class .. "[BadRotations] Profile Debug: |cffFFFFFF" .. msgText)
 			end
 		end
 	end

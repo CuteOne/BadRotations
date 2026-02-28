@@ -1060,7 +1060,7 @@ function enemiesEngineFunctions:dynamicTarget(range, facing)
 			bestUnit = findBestUnit(range, facing)
 		end
 	end
-	if (not br.functions.misc:isChecked("Dynamic Targetting") or bestUnit == nil) and tarDist < range
+	if (not br.functions.misc:isChecked("Dynamic Targetting") or bestUnit == nil) --and tarDist < range
 		and (not facing or (facing and br.functions.unit:getFacing("player", "target"))) and br.functions.misc:isValidUnit("target")
 	then
 		bestUnit = "target"

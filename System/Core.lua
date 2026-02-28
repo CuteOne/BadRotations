@@ -24,7 +24,7 @@ function engines:Main()
 end
 
 -- Object Manager Engine
-local function ObjectManagerUpdate(self)
+local function ObjectManagerUpdate(self, elapsed)
     if br.unlocked then
         if br.data ~= nil and br.data.settings ~= nil and br.data.settings[br.loader.selectedSpec] ~= nil
             and br.data.settings[br.loader.selectedSpec].toggles ~= nil
@@ -32,6 +32,12 @@ local function ObjectManagerUpdate(self)
             if br.data.settings[br.loader.selectedSpec].toggles["Power"] ~= nil
                 and br.data.settings[br.loader.selectedSpec].toggles["Power"] == 1
             then
+                self.omElapsed = (self.omElapsed or 0) + (elapsed or 0)
+                local omInterval = math.max(0.05, engines:getUpdateRate())
+                if self.omElapsed < omInterval then
+                    return
+                end
+                self.omElapsed = 0
                 -- attempt to update objects every frame
                 -- updates for each object will be spread out randomly
                 engines.enemiesEngineFunctions:updateOM()
@@ -50,7 +56,7 @@ function engines:ObjectManager()
 end
 
 -- Object Tracker
-local function ObjectTrackerUpdate(self)
+local function ObjectTrackerUpdate(self, elapsed)
     if br.unlocked then
         if br.data ~= nil and br.data.settings ~= nil and br.data.settings[br.loader.selectedSpec] ~= nil
             and br.data.settings[br.loader.selectedSpec].toggles ~= nil
@@ -58,6 +64,12 @@ local function ObjectTrackerUpdate(self)
             if br.data.settings[br.loader.selectedSpec].toggles["Power"] ~= nil
                 and br.data.settings[br.loader.selectedSpec].toggles["Power"] == 1
             then
+                self.trackerElapsed = (self.trackerElapsed or 0) + (elapsed or 0)
+                local trackerInterval = math.max(0.10, engines:getUpdateRate())
+                if self.trackerElapsed < trackerInterval then
+                    return
+                end
+                self.trackerElapsed = 0
                 -- Tracker
                 engines.tracker:objectTracker()
             end

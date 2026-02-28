@@ -25,7 +25,7 @@ br.api.units = function(self)
         units[dynString] = thisUnit
         return thisUnit -- Backwards compatability for old way
     end
-    
+
     --- Custom target weight function that profiles can override to add coefficient bonuses for dynamic targeting.
     -- This allows profiles to customize target prioritization beyond the default coefficient system.
     -- Return a number to add to the unit's coefficient (higher = more priority).

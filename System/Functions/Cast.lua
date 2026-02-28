@@ -7,6 +7,30 @@ local function shouldPrintCastDebug()
 	return br.functions.misc and (br.functions.misc:isChecked("Cast Debug") or br.functions.misc:isChecked("Display Failcasts"))
 end
 
+local function setCastIntentLock(spellID, duration)
+	if spellID == nil then return end
+	if duration == nil then duration = 0.15 end
+	castIntentLocks[spellID] = br._G.GetTime() + duration
+end
+
+local function isCastIntentLocked(spellID)
+	if spellID == nil then return false end
+	return castIntentLocks[spellID] ~= nil and br._G.GetTime() < castIntentLocks[spellID]
+end
+
+local function getSameSpellCastRemain(spellID)
+	local now = br._G.GetTime()
+	local _, _, _, _, castEndTime, _, _, _, castingSpellID = br._G.UnitCastingInfo("player")
+	if castingSpellID == spellID and castEndTime and castEndTime > 0 then
+		return math.max(0, (castEndTime / 1000) - now)
+	end
+	local _, _, _, _, channelEndTime, _, _, channelingSpellID = br._G.UnitChannelInfo("player")
+	if channelingSpellID == spellID and channelEndTime and channelEndTime > 0 then
+		return math.max(0, (channelEndTime / 1000) - now)
+	end
+	return 0
+end
+
 local function takeCastStartSnapshot(spellID)
 	local spellCdBefore = 0
 	if br.functions.spell and br.functions.spell.getSpellCD then
@@ -1014,12 +1038,12 @@ function cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellI
 			-- Hard CC (stun/fear/silence/etc): don't spam cast attempts for spells that can't be used.
 			if br.functions.combat and br.functions.combat.cannotCast and br.functions.combat:cannotCast(spellID) then
 				castTimers[spellID] = br._G.GetTime() + 0.50
-				castIntentLocks[spellID] = br._G.GetTime() -- Lock intent during hard CC
+				setCastIntentLock(spellID, 0.50) -- Lock intent during hard CC
 				return printReport(false, "No Control")
 			end
 
 			-- Set cast intent lock to prevent rapid re-casting attempts
-			castIntentLocks[spellID] = br._G.GetTime()
+			setCastIntentLock(spellID, 0.20)
 
 			local snapshot = takeCastStartSnapshot(spellID)
 
@@ -1042,7 +1066,18 @@ function cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellI
 			if castSucceeded then
 				-- add to cast timer
 				castTimers[spellID] = br._G.GetTime() + 1
-				castIntentLocks[spellID] = br._G.GetTime() -- Lock intent on successful cast
+				local sameSpellCastRemain = getSameSpellCastRemain(spellID)
+				if sameSpellCastRemain > 0 then
+					setCastIntentLock(spellID, sameSpellCastRemain + 0.12)
+				else
+					local settleLock = 0.12
+					if spellType == "Helpful" then
+						settleLock = 0.30
+					elseif spellType == "Harmful" and not br._G.UnitAffectingCombat("player") then
+						settleLock = 0.30
+					end
+					setCastIntentLock(spellID, settleLock)
+				end
 				-- change main button icon
 				br.ui.toggles.mainButton:SetNormalTexture(icon)
 				-- Update Last Cast
@@ -1055,13 +1090,13 @@ function cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellI
 				-- Cast may have been queued/started but signals didn't update yet.
 				-- Throttle quick retries, but don't emit CAST_FAILED spam.
 				castTimers[spellID] = br._G.GetTime() + 0.10
-				castIntentLocks[spellID] = br._G.GetTime() -- Lock intent on inconclusive result
+				setCastIntentLock(spellID, 0.20) -- Lock intent on inconclusive result
 				return true
 			end
 
 			-- Failed to start casting: allow a quick retry, but don't lock out for 1s.
 			castTimers[spellID] = br._G.GetTime() + 0.10
-			castIntentLocks[spellID] = br._G.GetTime() -- Lock intent on failed cast
+			setCastIntentLock(spellID, 0.20) -- Lock intent on failed cast
 			-- if shouldPrintCastDebug() and not debug then
 			-- 	printCastFailedDetails("[CAST FAIL][CAST_FAILED] ", spellID, spellName, snapshot, details)
 			-- end
@@ -1093,9 +1128,13 @@ function cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellI
 		br.functions.lastCast.lastCastTable.castTime[spellID] = br._G.GetTime() -
 			(br.functions.spell:getGlobalCD(true) + (select(3, br._G.GetNetStats()) / 100))
 	end
+	-- Never allow same-spell recast while it's currently being cast/channelled.
+	if cast:isCastingSpell(spellID, "player") then
+		return false
+	end
 	-- Cast Intent Lock: Prevent multiple cast attempts in rapid succession
 	-- Only check when NOT in debug mode (actual casting, not ability checking)
-	if not debug and castIntentLocks[spellID] and (br._G.GetTime() - castIntentLocks[spellID]) < 0.15 then
+	if not debug and isCastIntentLocked(spellID) then
 		return false
 	end
 	if (baseSpellID == spellID or overrideSpellID == spellID) and (br.empowerID == nil or br.empowerID == 0)

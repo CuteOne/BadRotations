@@ -663,6 +663,20 @@ function cBuilder:new(spec, specName)
             br.api.spell(self, spell, resolvedID)
         end
 
+        -- Ensure racial cast helpers always exist, even when no racial spell is available.
+        if self.cast == nil then self.cast = {} end
+        if self.cast.able == nil then self.cast.able = {} end
+        if self.cast.racial == nil then
+            self.cast.racial = function()
+                return false
+            end
+        end
+        if self.cast.able.racial == nil then
+            self.cast.able.racial = function()
+                return false
+            end
+        end
+
         -- Make UI Functions from br.api.ui
         if self.ui == nil then
             self.ui = {}
