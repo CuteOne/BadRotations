@@ -803,15 +803,10 @@ end
 -- (useful if you want to use off-cd stuff, or spells which can be cast while other is casting)
 misc.pauseCast = br._G.GetTime()
 function misc:pause(skipCastingCheck)
-	local food = { 257427, 225737, 274914, 192001, 167152, 314646, 308433, 32491, 33773 }
-	local eating = false
+	local eating = br.functions.unit:isEating() or false
+	local drinking = br.functions.unit:isDrinking() or false
 	local pausekey
-	for i = 1, #food do
-		if br.functions.aura:UnitBuffID("player", food[i]) then
-			eating = true
-			break
-		end
-	end
+
 	-- local button = CreateFrame("Button", "DismountButton")
 	-- if button == "RightButton" then
 	-- 	Print("Right Clicked")
@@ -880,11 +875,11 @@ function misc:pause(skipCastingCheck)
 		or (((br._G.IsMounted() or br._G.IsFlying()) and not br.functions.unit:isBoss("target")) or br._G.UnitOnTaxi("player")
 			or (br._G.UnitInVehicle("player") and not br.functions.misc:isChecked("Bypass Vehicle Check")
 				and (not br._G.UnitExists("target") or (br._G.UnitExists("target") and not br._G.UnitCanAttack("player", "target"))))
-			and not (br.functions.aura:UnitBuffID("player", 190784) or br.functions.aura:UnitBuffID("player", 164222) or br.functions.aura:UnitBuffID("player", 165803) or br.functions.aura:UnitBuffID("player", 157059)))
+			and not (br.functions.aura:UnitBuffID("player", 190784) or br.functions.aura:UnitBuffID("player", 164222) or br.functions.aura:UnitBuffID("player", 165803) or br.functions.aura:UnitBuffID("player", 157059))) -- Draenor Nagrand Mounts
 		or br._G.SpellIsTargeting() or (br._G.UnitCastingInfo("player") and not skipCastingCheck)
 		or (br._G.UnitChannelInfo("player") and not skipCastingCheck)
-		or br._G.UnitIsDeadOrGhost("player") or eating or br.functions.aura:UnitDebuffID("player", 252753) or -- Potion of Replenishment (BFA Mana channel) Apparently a debuff
-		br.functions.aura:UnitBuffID("player", 114018)
+		or br._G.UnitIsDeadOrGhost("player") or eating or drinking or br.functions.aura:UnitDebuffID("player", 252753) or -- Potion of Replenishment (BFA Mana channel) Apparently a debuff
+		br.functions.aura:UnitBuffID("player", 114018) -- Shroud of Concealment (Rogue Subterfuge)
 	then
 		if br.empowerID ~= nil and br.empowerID > 0 and not (pausekey and br._G.GetCurrentKeyBoardFocus() == nil and br.functions.misc:isChecked("Pause Mode")) then
 			return false

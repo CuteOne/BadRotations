@@ -3,22 +3,17 @@ br.functions.combat = br.functions.combat or {}
 local combat = br.functions.combat
 
 function combat:canAoE(unit, distance)
-	local notValid = false
 	if unit == nil then
 		return false
 	end
 	if distance == nil then
 		distance = 8
 	end
-	for i = 1, #br.engines.enemiesEngineFunctions:getEnemies(unit, distance) do
-		local thisUnit = br.engines.enemiesEngineFunctions:getEnemies(unit, distance)[i]
-		if not br.functions.misc:isValidUnit(thisUnit) then
-			notValid = true
-			break
+	local enemies = br.engines.enemiesEngineFunctions:getEnemies(unit, distance)
+	for i = 1, #enemies do
+		if not br.functions.misc:isValidUnit(enemies[i]) then
+			return false
 		end
-	end
-	if notValid then
-		return false
 	end
 	return true
 end
@@ -330,6 +325,7 @@ function combat:cannotCast(spellID)
 	return true
 end
 
+local threatCache = {}
 -- if br.functions.combat:hasThreat("target") then
 function combat:hasThreat(unit, playerUnit)
 	-- Early Exit
@@ -355,6 +351,11 @@ function combat:hasThreat(unit, playerUnit)
 		end
 		return true
 	end
+
+	-- Per-unit cache for expensive threat computation (0.1s TTL)
+	local _tcNow = br._G.GetTime()
+	local _tcEntry = threatCache[unit]
+	if _tcEntry and (_tcNow - _tcEntry.time) < 0.1 then return _tcEntry.value end
 
 	if playerUnit == nil then
 		playerUnit = "player"
@@ -461,6 +462,7 @@ function combat:hasThreat(unit, playerUnit)
 		if br.functions.misc:isChecked("Threat Debug") then --and not br.functions.unit:GetObjectExists("target") then
 			br._G.print("[Player Threat] " .. br._G.UnitName(playerUnit) .. " has threat with " .. br._G.UnitName(unit))
 		end
+		threatCache[unit] = { value = true, time = _tcNow }
 		return true
 	end
 	-- Party/Raid Threat Validation
@@ -473,6 +475,7 @@ function combat:hasThreat(unit, playerUnit)
 						br._G.print("[Party/Raid Threat] " ..
 							br._G.UnitName(thisUnit) .. " has threat with " .. br._G.UnitName(unit))
 					end
+					threatCache[unit] = { value = true, time = _tcNow }
 					return true
 				end
 			end
@@ -480,6 +483,7 @@ function combat:hasThreat(unit, playerUnit)
 	end
 	-- Note: Fallback removed - the above checks should be sufficient to detect valid threats
 	-- without risking false positives from mobs fighting NPCs or other groups
+	threatCache[unit] = { value = false, time = _tcNow }
 	return false
 end
 

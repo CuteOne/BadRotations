@@ -2,6 +2,11 @@ local _, br = ...
 br.engines.enemiesEngine = br.engines.enemiesEngine or {}
 local enemiesEngine = br.engines.enemiesEngine
 
+-- Shared debuff lookup: module-scoped to avoid allocating a new closure per cached debuff entry
+local function findDebuffOnUnit(buffName, unit)
+	return br.api.wow.FindAuraByName(br.api.wow.GetSpellInfo(buffName), unit, "HARMFUL|PLAYER")
+end
+
 -----------------------------------------Bubba's Healing Engine--------------------------------------
 --Modified to enemies engine by fisker
 if not enemiesEngine.metaTable2 then
@@ -160,9 +165,7 @@ if not enemiesEngine.metaTable2 then
 			if buffCaster ~= nil and buffCaster == "player" then
 				if debuffList[buffCaster] == nil then debuffList[buffCaster] = {} end
 				if debuffList[buffCaster][buffName] == nil then
-					debuffList[buffCaster][buffName] = function(buffName, unit)
-						return br.api.wow.FindAuraByName(br.api.wow.GetSpellInfo(buffName), buffUnit, "HARMFUL|PLAYER")
-					end
+						debuffList[buffCaster][buffName] = findDebuffOnUnit
 					if debuffList[buffCaster][buffName] ~= nil then br.readers.combatLog.debuffTracker[unit][buffName] = nil end
 				end
 			end

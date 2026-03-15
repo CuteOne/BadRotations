@@ -33,14 +33,8 @@ function enemiesEngineFunctions:isTotem(unit)
 end
 
 local function unitExistsInOM(unit)
-	local exists = false
-	for index, value in pairs(br.engines.enemiesEngine.om) do
-		if type(value) == "table" and value.unit and value.unit == unit then
-			exists = true
-			break;
-		end
-	end
-	return exists
+	local omIndex = br.engines.enemiesEngine.omIndex
+	return omIndex ~= nil and omIndex[unit] ~= nil
 end
 
 
@@ -316,13 +310,9 @@ function enemiesEngineFunctions:omDist(thisUnit)
 end
 
 function enemiesEngineFunctions:isInOM(thisUnit)
-	if #br.engines.enemiesEngine.om == 0 then return false end
-	for i = 1, #br.engines.enemiesEngine.om do
-		local thisX, thisY, thisZ = br._G.ObjectPosition(thisUnit)
-		local omX, omY, omZ = br._G.ObjectPosition(br.engines.enemiesEngine.om[i].guid)
-		if --[[br.engines.enemiesEngine.om[i].guid == thisUnit and]] thisX == omX and thisY == omY and thisZ == omZ then return true end
-	end
-	return false
+	-- Use omIndex for O(1) lookup (previous impl passed .guid to ObjectPosition which is a native crash risk)
+	local omIndex = br.engines.enemiesEngine.omIndex
+	return omIndex ~= nil and omIndex[thisUnit] ~= nil
 end
 
 -- /dump enemiesEngineFunctions:getEnemies("target",10)
@@ -422,41 +412,22 @@ function enemiesEngineFunctions:getEnemies(thisUnit, radius, checkNoCombat, faci
 	-- Fast-path when checking around the player: use precomputed .range where available
 	if thisUnit == "player" then
 		local now = br._G.GetTime()
+		local addedSet = {} -- O(1) hash set replaces O(n) GetUnitIsUnit duplicate scan
 		for _, v in pairs(enemyTable) do
-			if v and v.unit and not unitFuncs:GetUnitIsDeadOrGhost(v.unit) then
-				if not dummyAllowed(v.unit) then
-					-- Skip non-eligible dummies
-				else
+			local vUnit = v and v.unit
+			if vUnit and not unitFuncs:GetUnitIsDeadOrGhost(vUnit) and dummyAllowed(vUnit) and not addedSet[vUnit] then
 				local d
 				-- Ensure we have an up-to-date range on the enemy entry. Recalculate if missing.
 				if v.range ~= nil and v.timestamp ~= nil and (now - v.timestamp) <= 0.25 then
 					d = v.range
 				else
-					d = rangeFuncs:getDistance("player", v.unit)
+					d = rangeFuncs:getDistance("player", vUnit)
 					v.range = d
 					v.timestamp = now
 				end
-						if d and d < radius and (not facing or unitFuncs:getFacing("player", v.unit)) then
-							tinsert(enemiesTable, v.unit)
-						end
-					-- v is now a unitSetup object with .unit property
-					local damagedUnit = v.unit
-					-- Only add if not already in the list and not dead
-					local alreadyAdded = false
-					for i = 1, #enemiesTable do
-						if br.functions.unit:GetUnitIsUnit(enemiesTable[i], damagedUnit) then
-							alreadyAdded = true
-							break
-						end
-					end
-					if not alreadyAdded and dummyAllowed(damagedUnit)
-						and br.functions.unit:GetObjectExists(damagedUnit)
-						and not br.functions.unit:GetUnitIsDeadOrGhost(damagedUnit) then
-						distance = br.functions.range:getDistance(thisUnit, damagedUnit)
-						if distance < radius and (not facing or br.functions.unit:getFacing("player", damagedUnit)) then
-							br._G.tinsert(enemiesTable, damagedUnit)
-						end
-					end
+				if d and d < radius and (not facing or unitFuncs:getFacing("player", vUnit)) then
+					tinsert(enemiesTable, vUnit)
+					addedSet[vUnit] = true
 				end
 			end
 		end

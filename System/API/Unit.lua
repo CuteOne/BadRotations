@@ -739,6 +739,14 @@ br.api.unit = function(self)
         return br.functions.combat:hasThreat(thisUnit)
     end
 
+    --- Get the player's current threat status
+    -- @function unit.threatStatus
+    -- @return number Threat status: 0=no/low threat, 1=high threat (not primary target),
+    --   2=primary target (another unit has 100%+ threat), 3=primary target (sole aggro)
+    unit.threatStatus = function()
+        return br.functions.custom:getThreat()
+    end
+
     --- Estimate time until unit dies
     -- @function unit.ttd
     -- @param thisUnit The unit to check, defaults to "target" if nil

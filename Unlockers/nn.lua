@@ -376,8 +376,11 @@ function br.unlockers:NNUnlock()
 
 	local om = {}
 	b.GetObjectCount = function()
-		om = Objects()
-		return #Objects()
+		-- Call Objects() exactly once: the snapshot used for GetObjectWithIndex must match
+		-- the count returned, otherwise index overruns return nil under heavy load.
+		local objects = Objects()
+		om = objects
+		return #objects
 	end
 
 	b.GetObjectWithIndex = function(index)

@@ -121,10 +121,27 @@ function combatLog:common(...)
     _,
     spellType = br._G.CombatLogGetCurrentEventInfo()
     guid = br._G.UnitGUID("player")
-    -- Unit Dies - Remove from enemy tracking
+    -- Unit Dies - flag the OM so that the next regular OM update cycle cleans up promptly.
+    -- Do NOT call updateOM/Update synchronously here: they scan up to 500 objects each and
+    -- are called for every UNIT_DIED in the log.  In a raid wipe or big M+ pull, multiple
+    -- enemies die in the same frame, stacking full scans inside the event handler and pushing
+    -- total Lua time over Blizzard's script budget, which leads to the disconnect.
     if param == "UNIT_DIED" and br.unlocked then
-        br.engines.enemiesEngineFunctions:updateOM()
-        br.engines.enemiesEngine:Update()
+        -- Remove the dead unit from all enemy tracking tables immediately so the rotation
+        -- never acts on it, but skip the expensive full-scan.
+        local deadUnit = br._G.GetObjectWithGUID(destination)
+        if deadUnit ~= nil then
+            br.engines.enemiesEngine.unitSetup.cache[deadUnit] = nil
+            if br.engines.enemiesEngine.units[deadUnit] ~= nil then
+                br.engines.enemiesEngine.units[deadUnit] = nil
+            end
+            if br.engines.enemiesEngine.enemy[deadUnit] ~= nil then
+                br.engines.enemiesEngine.enemy[deadUnit] = nil
+            end
+            if br.engines.enemiesEngine.damaged ~= nil and br.engines.enemiesEngine.damaged[deadUnit] ~= nil then
+                br.engines.enemiesEngine.damaged[deadUnit] = nil
+            end
+        end
     end
     --[[Combat Validation]]
     if br.player ~= nil then
@@ -142,69 +159,62 @@ function combatLog:common(...)
         if (not inInstance or (instanceType ~= "pvp" and instanceType ~= "arena")) and destination ~= nil
             and (param == "SPELL_DAMAGE" or param == "SWING_DAMAGE")
         then
-            -- Track units being damaged by player/party/raid
-            local damageTarget = br._G.GetObjectWithGUID(destination)
-            if damageTarget ~= nil then
-                -- Check if damage source is player, pet, or any party/raid member
-                local isDamagedByGroup = false
-                if br._G.GetObjectWithGUID(source) == br._G.ObjectPointer("player") or
-                   (br.functions.unit:GetUnitExists("pet") and br._G.GetObjectWithGUID(source) == br._G.ObjectPointer("pet")) then
-                    isDamagedByGroup = true
-                else
-                    -- Check if damage is from any party/raid member
-                    for i = 1, #br.engines.healingEngine.friend do
-                        if br._G.ObjectPointer(br.engines.healingEngine.friend[i].unit) == br._G.GetObjectWithGUID(source) then
-                            isDamagedByGroup = true
-                            break
-                        end
+            -- Group member pointer set: rebuilt at most once per second to give O(1) lookups below.
+            -- Previously two separate O(n) loops over healingEngine.friend ran for every single
+            -- damage event in the log. In a 20-person raid that was up to 40 ObjectPointer() calls
+            -- per event, multiplied by hundreds of events per second during heavy AoE.
+            if combatLog._groupPointerSet == nil then combatLog._groupPointerSet = {} end
+            if combatLog._groupPointerSetTime == nil then combatLog._groupPointerSetTime = 0 end
+            if (currentTime - combatLog._groupPointerSetTime) >= 1.0 then
+                combatLog._groupPointerSetTime = currentTime
+                local set = {}
+                set[br._G.ObjectPointer("player")] = true
+                if br.functions.unit:GetUnitExists("pet") then
+                    set[br._G.ObjectPointer("pet")] = true
+                end
+                for i = 1, #br.engines.healingEngine.friend do
+                    local friendUnit = br.engines.healingEngine.friend[i].unit
+                    if friendUnit then
+                        local ptr = br._G.ObjectPointer(friendUnit)
+                        if ptr then set[ptr] = true end
                     end
                 end
-                if isDamagedByGroup and br._G.UnitCanAttack("player", damageTarget) then
+                combatLog._groupPointerSet = set
+            end
+            local groupSet = combatLog._groupPointerSet
+
+            -- Track units being damaged by player/party/raid
+            local sourcePtr = br._G.GetObjectWithGUID(source)
+            local damageTarget = br._G.GetObjectWithGUID(destination)
+            if damageTarget ~= nil and groupSet[sourcePtr] then
+                if br._G.UnitCanAttack("player", damageTarget) then
                     -- Use unified unitSetup structure for damaged table
                     -- Check cache first - if unit already exists, use cached version
                     local damagedUnit = br.engines.enemiesEngine.unitSetup.cache[damageTarget]
                     if not damagedUnit then
-                        -- Not in cache, create new unitSetup object
                         damagedUnit = br.engines.enemiesEngine.unitSetup:new(damageTarget)
                     end
                     if damagedUnit then
                         damagedUnit.damageReason = "damaged_by_group"
-                        damagedUnit.damageTimestamp = br._G.GetTime()
+                        damagedUnit.damageTimestamp = currentTime
                         br.engines.enemiesEngine.damaged[damageTarget] = damagedUnit
                     end
                 end
             end
 
             -- Track units attacking player/party/raid
-            local attackSource = br._G.GetObjectWithGUID(source)
-            if attackSource ~= nil then
-                -- Check if damage destination is player, pet, or any party/raid member
-                local isAttackingGroup = false
-                if br._G.GetObjectWithGUID(destination) == br._G.ObjectPointer("player") or
-                   (br.functions.unit:GetUnitExists("pet") and br._G.GetObjectWithGUID(destination) == br._G.ObjectPointer("pet")) then
-                    isAttackingGroup = true
-                else
-                    -- Check if damage is to any party/raid member
-                    for i = 1, #br.engines.healingEngine.friend do
-                        if br._G.ObjectPointer(br.engines.healingEngine.friend[i].unit) == br._G.GetObjectWithGUID(destination) then
-                            isAttackingGroup = true
-                            break
-                        end
-                    end
+            local destPtr = br._G.GetObjectWithGUID(destination)
+            local attackSource = sourcePtr
+            if attackSource ~= nil and groupSet[destPtr] then
+                -- Use unified unitSetup structure for damaged table
+                local attackingUnit = br.engines.enemiesEngine.unitSetup.cache[attackSource]
+                if not attackingUnit then
+                    attackingUnit = br.engines.enemiesEngine.unitSetup:new(attackSource)
                 end
-                if isAttackingGroup then
-                    -- Use unified unitSetup structure for damaged table
-                    -- Check cache first - if unit already exists, use cached version
-                    local attackingUnit = br.engines.enemiesEngine.unitSetup.cache[attackSource]
-                    if not attackingUnit then
-                        -- Not in cache, create new unitSetup object
-                        attackingUnit = br.engines.enemiesEngine.unitSetup:new(attackSource)
-                    end
-                    if attackingUnit then
-                        attackingUnit.damageReason = "attacking_group"
-                        attackingUnit.damageTimestamp = br._G.GetTime()
-                        br.engines.enemiesEngine.damaged[attackSource] = attackingUnit
-                    end
+                if attackingUnit then
+                    attackingUnit.damageReason = "attacking_group"
+                    attackingUnit.damageTimestamp = currentTime
+                    br.engines.enemiesEngine.damaged[attackSource] = attackingUnit
                 end
             end
         end
