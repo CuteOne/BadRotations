@@ -80,6 +80,7 @@ local cast
 local cd
 local debuff
 local enemies
+local module
 local ui
 local unit
 local units

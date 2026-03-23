@@ -1381,7 +1381,7 @@ local actionList = {
             -- Arcane Torrent
             if ui.checked(text.utility.arcaneTorrent) and player.race == "BloodElf" and br.functions.spell:getSpellCD(129597) == 0 then
                 if player.mana <= ui.value(text.utility.arcaneTorrent) then
-                    br._G.CastSpellByName(GetSpellInfo(129597))
+                    br._G.CastSpellByName(br._G.GetSpellInfo(129597))
                     ui.debug("[?]: " .. text.utility.arcaneTorrent)
                     return true
                 end
@@ -1462,7 +1462,7 @@ local actionList = {
             -- Arcane Torrent
             if ui.checked(text2.utility2.arcaneTorren2t) and player.race == "BloodElf" and br.functions.spell:getSpellCD(129597) == 0 then
                 if player.mana <= ui.value(text2.utility2.arcaneTorrent2) then
-                    br._G.CastSpellByName(GetSpellInfo(129597))
+                    br._G.CastSpellByName(br._G.GetSpellInfo(129597))
                     ui.debug("[?]: " .. text2.utility2.arcaneTorrent2)
                     return true
                 end

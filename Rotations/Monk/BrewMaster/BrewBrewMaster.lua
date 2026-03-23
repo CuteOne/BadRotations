@@ -503,10 +503,10 @@ local function runRotation() -- This is the main profile loop, any below this po
     end
 
     if ui.mode.debug==1 then
-        local n,r,i,ct,mr,mxr = GetSpellInfo("Recent Purifies")
+        local n,r,i,ct,mr,mxr = br._G.GetSpellInfo("Recent Purifies")
 
         for i=1,40 do
-            local name, rank, icon, count, debuffType, duration, expirationTime, unitCaster, isStealable, shouldConsolidate, spellIdbuff = UnitBuff("player", i);
+            local name, rank, icon, count, debuffType, duration, expirationTime, unitCaster, isStealable, shouldConsolidate, spellIdbuff = br._G.UnitBuff("player", i);
             if name then
                 if name=="Recent Purifies" then
                     print(name,spellIdbuff)

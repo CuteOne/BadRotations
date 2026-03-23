@@ -223,7 +223,7 @@ local function runRotation()
                 ------------------------------
                 -- Start Attack
                 -- actions=auto_attack
-                if not C_Spell.IsAutoRepeatSpell(GetSpellInfo(29722)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
+                if not C_Spell.IsAutoRepeatSpell(br._G.GetSpellInfo(29722)) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
                     br._G.StartAttack(units.dyn5)
                 end
 
