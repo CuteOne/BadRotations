@@ -27,8 +27,8 @@ local function createToggles() -- Define custom toggles
     br.ui:createToggle(DefensiveModes, "Defensive", 3, 0)
     -- Interrupt Button
     local InterruptModes = {
-        [1] = { mode = "On", value = 1, overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spells.windShear },
-        [2] = { mode = "Off", value = 2, overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spells.windShear }
+        [1] = { mode = "On", value = 1, overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spells.earthShock },
+        [2] = { mode = "Off", value = 2, overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spells.earthShock }
     };
     br.ui:createToggle(InterruptModes, "Interrupt", 4, 0)
 end
@@ -202,7 +202,18 @@ end -- End Action List - Defensive
 actionList.Interrupts = function()
     if ui.useInterrupt() and ui.delay("Interrupts", unit.gcd(true)) then
         local thisUnit
-
+        -- * Earth Shock (20-yard instant interrupt, locks spell school for 2 sec)
+        for i = 1, #enemies.yards20 do
+            thisUnit = enemies.yards20[i]
+            if unit.interruptable(thisUnit, ui.value("Interrupt At")) then
+                if cast.able.earthShock(thisUnit) then
+                    if cast.earthShock(thisUnit) then
+                        ui.debug("Casting Earth Shock on " .. unit.name(thisUnit))
+                        return true
+                    end
+                end
+            end
+        end
     end -- End useInterrupts check
 end -- End Action List - Interrupts
 
@@ -392,7 +403,7 @@ local function runRotation()
     -- Enemies
     enemies.get(5)      -- Makes a varaible called, enemies.yards5
     enemies.get(15)     -- Makes a varaible called, enemies.yards15
-    -- enemies.get(20)     -- Makes a varaible called, enemies.yards20
+    enemies.get(20)     -- Makes a variable called, enemies.yards20
     -- enemies.get(20, "player", true)        -- makes enemies.yards20nc
     enemies.get(40)     -- Makes a varaible called, enemies.yards40
 
