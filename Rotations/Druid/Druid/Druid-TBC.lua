@@ -62,12 +62,8 @@ local function createOptions()
         br.ui:createCheckbox(section, "Behind Debug", "|cffFFFFFFDebug behind/facing checks for Shred/Ravage.")
         -- Powershifting
         br.ui:createCheckbox(section, "Powershifting", "|cffFFFFFFFeral DPS In-Form Shifting for Energy")
-        -- Prowl
-        br.ui:createCheckbox(section, "Prowl", "|cffFFFFFFUses Prowl when near aggro range")
-        -- Cat Opener
-        br.ui:createDropdown(section, "Cat Opener",
-            { "|cffFFFFFFPounce", "|cffFFFFFFRavage", "|cffFFFFFFShred", "|cffFFFFFFRake", "|cffFFFFFFMangle" }, 2,
-            "|cffFFFFFFSelect Spell to Open with from Stealth")
+        -- Cower
+        br.ui:createCheckbox(section, "Cower", "|cffFFFFFFUse Cower (20 energy) to drop threat when being attacked while a tank is alive and nearby")
         br.ui:checkSectionState(section)
         --------------------------
         --- FORM MANAGEMENT ---
@@ -349,11 +345,11 @@ end
 
 -- In Aggro Range Check
 local function inAggroRange(offset)
-    offset = offset or 0
-    for i = 1, #enemies.yards40 do
-        local thisUnit = enemies.yards40[i]
+    offset = offset or 5
+    for i = 1, #enemies.yards20nc do
+        local thisUnit = enemies.yards20nc[i]
         local threatRange = math.max((20 + (unit.level(thisUnit) - unit.level())), 5) + offset
-        local react = unit.reaction(thisUnit) or 10
+        --local react = unit.reaction(thisUnit) or 10
         if unit.distance(thisUnit) < threatRange and not unit.friend(thisUnit) then--(react < 3 or (unit.isUnit("target", thisUnit) and react == 4)) then
             -- ui.debug("Unit in Aggro Range: " .. unit.name(thisUnit) .. " at distance " .. tostring(unit.distance(thisUnit)) .. " with threat range " .. tostring(threatRange))
             return true
@@ -416,6 +412,28 @@ keepAquatic = function()
         and (not unit.exists("target") or unit.friend("target"))
 end
 
+-- Safe to Cower: only drop threat if a Warrior or Paladin is alive and within range.
+-- TBC has no role system, so we use class as a proxy for reliable tank presence.
+-- If no such player is nearby, keeping aggro on ourselves is safer than handing it to a healer.
+local COWER_SAFE_TANK_CLASS = { WARRIOR = true, PALADIN = true }
+local function safeToCower(range)
+    range = range or 40
+    if #br.engines.healingEngine.friend < 2 then return false end
+    for i = 1, #br.engines.healingEngine.friend do
+        local f = br.engines.healingEngine.friend[i]
+        if not unit.isUnit(f.unit, "player")
+            and not unit.deadOrGhost(f.unit)
+            and unit.distance(f.unit) < range
+        then
+            local _, classTag = br._G.UnitClass(f.unit)
+            if classTag and COWER_SAFE_TANK_CLASS[classTag] then
+                return true
+            end
+        end
+    end
+    return false
+end
+
 --------------------
 --- Action Lists ---
 --------------------
@@ -429,7 +447,7 @@ actionList.Extra = function()
         var.markUnit = getBuffUnitOption("Mark of the Wild")
         if cast.able.markOfTheWild(var.markUnit) and buff.markOfTheWild.refresh(var.markUnit)
             and not unit.inCombat() and not unit.resting() and unit.distance(var.markUnit) < 40
-            and (var.markUnit == "player" or unit.player(var.markUnit))
+            and (var.markUnit == "player" or unit.player(var.markUnit)) and unit.friend(var.markUnit)
             and not buff.giftOfTheWild.exists(var.markUnit)
         then
             -- Cancel form if needed to buff
@@ -744,7 +762,7 @@ actionList.Interrupts = function()
             end
         end
         -- * Maim
-        if ui.checked("Maim") and comboPoints() > 0 and energy() >= 35 then
+        if ui.checked("Maim") and buff.catForm.exists() and comboPoints() > 0 and energy() >= 35 then
             for i = 1, #enemies.yards5f do
                 thisUnit = enemies.yards5f[i]
                 if unit.interruptable(thisUnit, ui.value("Interrupt At")) then
@@ -908,6 +926,13 @@ actionList.BearForm = function()
             return true
         end
     end
+    -- Mangle
+    if cast.able.mangleBear("target") then--and not debuff.mangleBear.exists("target") then
+        if cast.mangleBear("target") then
+            ui.debug("Casting Mangle")
+            return true
+        end
+    end
 end -- End Action List - Bear Form
 
 -- Action List - Cat Opener (Stealth + Non-Stealth)
@@ -925,98 +950,82 @@ actionList.CatOpener = function()
         return false
     end
 
-    local opener = ui.value("Cat Opener")
+    local isStealth = buff.prowl.exists()
+    local behindTarget = isBehind("target", "player")
+    local mangleDebuffUp = debuff.mangleCat.exists("target") or debuff.mangleBear.exists("target")
 
     -- Stealth Opener
-    if buff.prowl.exists() then
-        -- Pounce (Opener 1)
-        if opener == 1 and cast.able.pounce() then
-            if cast.pounce("target") then
-                ui.debug("Casting Pounce [Stealth Opener]")
-                return true
+    if isStealth then
+        if behindTarget then
+            -- Behind: fire the best available ability immediately; no need to hold
+            -- Ravage: best stealth ability, requires being behind
+            if cast.able.ravage("target") then
+                if cast.ravage("target") then
+                    ui.debug("Casting Ravage [Stealth Opener]")
+                    return true
+                end
+            end
+            -- Mangle: apply debuff to improve Shred damage; skip if Ravage known or debuff already up
+            if cast.able.mangleCat("target") and not spell.ravage.known() and not mangleDebuffUp and unit.standingTime() > 1 then
+                if cast.mangleCat("target") then
+                    ui.debug("Casting Mangle [Stealth Opener]")
+                    return true
+                end
+            end
+            -- Shred: Ravage not known, and debuff is already up or Mangle not known
+            if cast.able.shred("target") and not spell.ravage.known()
+                and (mangleDebuffUp or not spell.mangleCat.known())
+            then
+                if cast.shred("target") then
+                    ui.debug("Casting Shred [Stealth Opener]")
+                    return true
+                end
+            end
+        else
+            -- Facing the target. Only hold Mangle back for Ravage when BOTH:
+            --   1) currently prowling (already guaranteed by this block), AND
+            --   2) Ravage is known
+            -- If either condition fails, use Mangle immediately.
+            if isStealth and spell.ravage.known() and unit.standingTime() <= 1 then return false end
+            -- Positioning window closed, or Ravage not known; commit from the front
+            -- Only cast Mangle if the debuff isn't already present
+            if cast.able.mangleCat("target") and not mangleDebuffUp then
+                if cast.mangleCat("target") then
+                    ui.debug("Casting Mangle [Stealth Opener]")
+                    return true
+                end
             end
         end
-
-        -- Ravage from behind (Opener 2 or fallback)
-        if (opener == 2 or (opener <= 1 and not spell.pounce.known()))
-            and cast.able.ravage("target") and isBehind("target", "player")
-        then
-            if cast.ravage("target") then
-                ui.debug("Casting Ravage [Stealth Opener]")
-                return true
-            end
-        end
-
-        -- Shred from behind (Opener 3 or fallback)
-        if (opener == 3 or (opener <= 2 and not spell.ravage.known()))
-            and cast.able.shred("target") and isBehind("target", "player") and not unit.facing("target", "player")
-        then
-            if cast.shred("target") then
-                ui.debug("Casting Shred [Stealth Opener]")
-                return true
-            end
-        end
-
-        -- Rake (Opener 4 or fallback)
-        if ui.checked("Rake") and (opener == 4 or (opener <= 3 and not spell.shred.known()))
-            and cast.able.rake("target")
-        then
-            if cast.rake("target") then
-                ui.debug("Casting Rake [Stealth Opener]")
-                return true
-            end
-        end
-
-        -- Mangle
-        if ((opener == 5 and not ui.checked("Rake")) or (opener < 5 and not spell.rake.known()))
-            and cast.able.mangleCat("target") and (not (spell.ravage.known() or spell.shred.known()) or unit.facing("target", "player"))
-        then
-            if cast.mangleCat("target") then
-                ui.debug("Casting Mangle [Stealth Opener]")
-                return true
-            end
-        end
-
-        -- Claw (ultimate fallback)
-        if ((opener == 4 and not ui.checked("Rake")) or (opener < 4 and not spell.rake.known()))
-            and not spell.mangleCat.known() and cast.able.claw("target")
-        then
+        -- Claw: ultimate fallback — only if Mangle and Shred are not known
+        if cast.able.claw("target") and not spell.mangleCat.known() and not spell.shred.known() then
             if cast.claw("target") then
                 ui.debug("Casting Claw [Stealth Opener]")
                 return true
             end
         end
-
         return false
     end
 
     -- Non-Stealth Opener
-    local behindTarget = isBehind("target", "player")
-    if (behindTarget or not spell.shred.known()) then
-        -- Shred (from behind)
-        local triedShred = false
-        if behindTarget and cast.able.shred("target") then
-            if not unit.facing("target", "player") then
-                triedShred = true
-                if cast.shred("target") then
-                    ui.debug("Casting Shred [Opener]")
-                    return true
-                end
-            end
+    -- Mangle first: apply debuff to improve Shred damage; skip if debuff already up
+    if cast.able.mangleCat("target") and not mangleDebuffUp then
+        if cast.mangleCat("target") then
+            ui.debug("Casting Mangle [Opener]")
+            return true
         end
-        -- Mangle
-        if cast.able.mangleCat("target") and (not spell.shred.known() or not behindTarget) then
-            if cast.mangleCat("target") then
-                ui.debug("Casting Mangle [Opener]")
-                return true
-            end
+    end
+    -- Shred from behind: debuff is up or Mangle not known
+    if behindTarget and cast.able.shred("target") and (mangleDebuffUp or not spell.mangleCat.known()) then
+        if cast.shred("target") then
+            ui.debug("Casting Shred [Opener]")
+            return true
         end
-        -- Claw (fallback)
-        if cast.able.claw("target") and ((not spell.shred.known() or not behindTarget) or not spell.mangleCat.known()) then
-            if cast.claw("target") then
-                ui.debug("Casting Claw [Opener]")
-                return true
-            end
+    end
+    -- Claw: fallback — only if Mangle and Shred are not known
+    if cast.able.claw("target") and not spell.mangleCat.known() and not spell.shred.known() then
+        if cast.claw("target") then
+            ui.debug("Casting Claw [Opener]")
+            return true
         end
     end
 
@@ -1026,62 +1035,17 @@ end
 -- Action List - Cat Form
 actionList.CatForm = function()
     if unit.inCombat("player") and buff.catForm.exists() then
-        -- Powershift for Energy (Cat Form with Furor talent)
-        if ui.checked("Powershifting") and cast.able.catForm() and unit.inCombat()
-            and not buff.clearcasting.exists() and mana() > formCost
+        -- Cower (threat reduction)
+        -- Only drop threat if a Warrior or Paladin is alive and nearby — in TBC these are the
+        -- only reliable tanks. If none is present (dead or out of range) it is safer to keep
+        -- aggro on ourselves rather than risk handing it to a healer or caster.
+        if ui.checked("Cower") and cast.able.cower() and energy() >= 20 and unit.inGroup()
+            and unit.threatStatus() >= 2 and safeToCower()
         then
-            local cp = comboPoints()
-            local nextTick = timeToNextEnergyTick()
-            local omen = buff.clearcasting.exists()
-            local maxWait = 0.75
-            local immediateShiftThreshold = math.max(10, ui.round(ui.value("Energy")*(mana.percent()/100), 0))
-
-            -- Immediate shift if energy is very low
-            if energy() < immediateShiftThreshold then
-                if cast.macro("/cast !"..spell.catForm.name()) then
-                    ui.debug("Powershift for Energy")
-                    powershiftReady = false
-                    return true
-                end
+            if cast.cower() then
+                ui.debug("Casting Cower [Threat Reduction]")
+                return true
             end
-
-            -- -- Decide whether to shift now or wait for next tick
-            -- local shouldShift = false
-            -- if cp > 0 then
-            --     -- If we can finish now, prefer finishing rather than shifting
-            --     if energy() >= 35 or omen then
-            --         shouldShift = false
-            --     else
-            --         -- Not enough energy to finish; shift if next tick is sufficiently far
-            --         if nextTick > maxWait then shouldShift = true end
-            --     end
-            -- else
-            --     -- No combo points: shift when waiting for next tick would be long
-            --     if nextTick > maxWait then shouldShift = true end
-            -- end
-
-            -- if shouldShift then
-            --     if not powershiftReady then
-            --         powershiftReady = true
-            --         powershiftArmedAt = br._G.GetTime()
-            --         ui.debug("Powershift - armed, will execute next tick")
-            --         return true
-            --     else
-            --         -- small safety: ensure at least a tiny delay after arming
-            --         if br._G.GetTime() - powershiftArmedAt < 0.05 then
-            --             return true
-            --         end
-            --         -- Execute powershift: recast via macro (macro handles rebuff)
-            --         if cast.macro("/cast !"..spell.catForm.name()) then
-            --             ui.debug("Powershift")
-            --             powershiftReady = false
-            --             powershiftArmedAt = 0
-            --             return true
-            --         end
-            --     end
-            -- else
-            --     powershiftReady = false
-            -- end
         end
         -- Ferocious Bite - Finish Him!
         local finish = ferociousBiteFinish("target")
@@ -1092,9 +1056,9 @@ actionList.CatForm = function()
             end
         end
 
-        -- Tiger's Fury
-        if ui.checked("Tiger's Fury") and cast.able.tigersFury() and buff.catForm.exists() and energy() == 100
-            and not buff.tigersFury.exists()
+        -- Tiger's Fury (opener only - first 6s of combat so it doesn't interrupt the mid-fight rotation)
+        if ui.checked("Tiger's Fury") and cast.able.tigersFury() and buff.catForm.exists()
+            and not buff.tigersFury.exists() and unit.combatTime() < 6
         then
             if cast.tigersFury() then
                 ui.debug("Casting Tiger's Fury")
@@ -1118,14 +1082,16 @@ actionList.CatForm = function()
         -- 5 Combo Points - Finishers
         if comboPoints() >= 4 and not finish then
             -- Rip
-            if ui.checked("Rip") and cast.able.rip("target") and unit.ttd("target") > 6 and debuff.rip.refresh("target") then
+            if ui.checked("Rip") and cast.able.rip("target") and unit.ttd("target") > 6 and not debuff.rip.exists("target") then
                 if cast.rip("target") then
                     ui.debug("Casting Rip")
                     return true
                 end
             end
-            -- Ferocious Bite (low energy)
-            if cast.able.ferociousBite("target") and energy() >= 35 and energy() < 60 then
+            -- Ferocious Bite (Rip running or not worth applying)
+            if cast.able.ferociousBite("target") and energy() >= 35
+                and (not spell.rip.known() or debuff.rip.exists("target") or unit.ttd("target") <= 6)
+            then
                 if cast.ferociousBite("target") then
                     ui.debug("Casting Ferocious Bite")
                     return true
@@ -1145,7 +1111,7 @@ actionList.CatForm = function()
             end
             -- Rake
             if ui.checked("Rake") and cast.able.rake("target") and debuff.rake.refresh("target")
-                and (unit.ttd("target") <= 3 or not spell.ferociousBite.known())
+                and (unit.ttd("target") > 9 or not spell.ferociousBite.known())
                 and not buff.clearcasting.exists()
             then
                 if cast.rake("target") then
@@ -1155,9 +1121,9 @@ actionList.CatForm = function()
             end
             -- Mangle
             local behindDyn5 = isBehind("target", "player")
-            if cast.able.mangleCat("target") and ((not spell.shred.known() or not behindDyn5)
-                or debuff.mangleCat.refresh("target","any"))
-            then
+            if cast.able.mangleCat("target") and (not behindDyn5 or not spell.shred.known()
+                or (debuff.mangleCat.refresh("target","any") and not debuff.mangleBear.exists("target","any"))
+            ) then
                 if cast.mangleCat("target") then
                     ui.debug("Casting Mangle")
                     return true
@@ -1165,7 +1131,9 @@ actionList.CatForm = function()
             end
             -- Shred (from behind)
             local triedShred = false
-            if behindDyn5 and cast.able.shred("target") then
+            if behindDyn5 and cast.able.shred("target")
+                and (debuff.mangleCat.exists("target") or debuff.mangleBear.exists("target") or not spell.mangleCat.known())
+            then
                 if not unit.facing("target", "player") then
                     triedShred = true
                     if cast.shred("target") then
@@ -1178,6 +1146,20 @@ actionList.CatForm = function()
             if cast.able.claw("target") and (not spell.shred.known() or not behindDyn5) and not spell.mangleCat.known() then
                 if cast.claw("target") then
                     ui.debug("Casting Claw")
+                    return true
+                end
+            end
+        end
+        -- Powershift for Energy (Cat Form with Furor talent)
+        -- Runs last so finishers and builders are always preferred over shifting.
+        if ui.checked("Powershifting") and cast.able.catForm() and unit.inCombat()
+            and not buff.clearcasting.exists() and mana() > formCost
+        then
+            local immediateShiftThreshold = math.max(10, ui.round(ui.value("Energy")*(mana.percent()/100), 0))
+            if energy() < immediateShiftThreshold then
+                if cast.macro("/cast !"..spell.catForm.name()) then
+                    ui.debug("Powershift for Energy")
+                    powershiftReady = false
                     return true
                 end
             end
@@ -1222,7 +1204,7 @@ actionList.PreCombat = function()
     if not unit.inCombat() and not (unit.flying() or unit.mounted()) then
         if not (buff.prowl.exists() or buff.shadowmeld.exists()) then
             -- Prowl
-            if ui.checked("Prowl") and cast.able.prowl("player") and buff.catForm.exists() --[[and autoProwl()]] and ui.mode.prowl == 1
+            if cast.able.prowl("player") and buff.catForm.exists() --[[and autoProwl()]] and ui.mode.prowl == 1
                 and inAggroRange() and not buff.prowl.exists() and not unit.resting() and not unit.deadOrGhost("target")
             then
                 if cast.prowl("player") then
@@ -1351,8 +1333,14 @@ actionList.Combat = function()
 
         -- Call Action List - Cat Form
         if formValue == 2 and unit.exists("target") and unit.distance("target") < 5 then
-            if buff.prowl.exists() and actionList.CatOpener() then return true end
-            if actionList.CatForm() then return true end
+            if buff.prowl.exists() then
+                -- While prowled, only CatOpener runs; CatForm is never called.
+                -- If CatOpener returns false (still repositioning), we yield and
+                -- try again next tick rather than falling through to CatForm's Mangle.
+                if actionList.CatOpener() then return true end
+            else
+                if actionList.CatForm() then return true end
+            end
         end
 
         -- Call Action List - Caster Form
@@ -1397,7 +1385,7 @@ local function runRotation()
     -- units.get(40)       -- Makes a variable called, units.dyn40
     units.get(40, true) -- Makes a variable called, units.dyn40AOE
     -- Enemies
-    -- enemies.get(5)      -- Makes a varaible called, enemies.yards5
+    enemies.get(5, "player", false, true) -- Makes a variable called, enemies.yards5f
     enemies.get(20)     -- Makes a varaible called, enemies.yards20
     enemies.get(20, "player", true)        -- makes enemies.yards20nc
     enemies.get(40)     -- Makes a varaible called, enemies.yards40
