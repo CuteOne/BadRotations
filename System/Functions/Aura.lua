@@ -183,19 +183,19 @@ end
 
 local function Dispel(unit, stacks, buffDuration, buffRemain, buffSpellID, buff)
 	if not buff then
-		if buffSpellID == 288388 then
+		if buffSpellID == (br.functions.spell:getHighestSpellID("reaping") or 288388) then
 			if stacks >= br.functions.misc:getOptionValue("Reaping") or not br._G.UnitAffectingCombat("player") then
 				return true
 			else
 				return false
 			end
-		elseif buffSpellID == 282566 then
+		elseif buffSpellID == (br.functions.spell:getHighestSpellID("promiseOfPower") or 282566) then
 			if stacks >= br.functions.misc:getOptionValue("Promise of Power") then
 				return true
 			else
 				return false
 			end
-		elseif buffSpellID == 303657 and br.functions.misc:isChecked("Arcane Burst")
+		elseif buffSpellID == (br.functions.spell:getHighestSpellID("arcaneBurst") or 303657) and br.functions.misc:isChecked("Arcane Burst")
 			and buffDuration - buffRemain > (br.functions.misc:getValue("Dispel delay") - 0.3 + math.random() * 0.6)
 		then
 			return true
@@ -256,89 +256,86 @@ function aura:canDispel(Unit, spellID)
 	end
 	if ClassNum == 2 then --Paladin
 		-- Cleanse (Holy)
-		if spellID == 4987 then typesList = { "Poison", "Disease", "Magic" } end
+		if spellID == (br.functions.spell:getHighestSpellID("cleanse") or 4987) then typesList = { "Poison", "Disease", "Magic" } end
 		-- Cleanse Toxins (Ret, Prot)
-		if spellID == 213644 then typesList = { "Poison", "Disease" } end
+		if spellID == (br.functions.spell:getHighestSpellID("cleanseToxins") or 213644) then typesList = { "Poison", "Disease" } end
 	end
 	if ClassNum == 3 then --Hunter
-		if spellID == 19801 then typesList = { "Magic", "" } end                     --tranq shot
+		if spellID == (br.functions.spell:getHighestSpellID("tranquilizingShot") or 19801) then typesList = { "Magic", "" } end                     --tranq shot
 	end
 	if ClassNum == 4 then --Rogue
-		if spellID == 31224 then typesList = { "Poison", "Curse", "Disease", "Magic" } end -- Cloak of Shadows
-		if spellID == 5938 then typesList = { "" } end                               --shiv
+		if spellID == (br.functions.spell:getHighestSpellID("cloakOfShadows") or 31224) then typesList = { "Poison", "Curse", "Disease", "Magic" } end -- Cloak of Shadows
+		if spellID == (br.functions.spell:getHighestSpellID("shiv") or 5938) then typesList = { "" } end                               --shiv
 	end
 	if ClassNum == 5 then --Priest
 		-- Purify
-		if spellID == 527 then typesList = { "Disease", "Magic" } end
+		if spellID == (br.functions.spell:getHighestSpellID("purify") or 527) then typesList = { "Disease", "Magic" } end
 		-- Mass Dispell
-		if spellID == 32375 then typesList = { "Magic" } end
+		if spellID == (br.functions.spell:getHighestSpellID("massDispel") or 32375) then typesList = { "Magic" } end
 		-- Dispel Magic
-		if spellID == 528 then typesList = { "Magic" } end
+		if spellID == (br.functions.spell:getHighestSpellID("dispelMagic") or 528) then typesList = { "Magic" } end
 	end
 	if ClassNum == 6 then --Death Knight
 		typesList = {}
 	end
 	if ClassNum == 7 then --Shaman
 		-- Cleanse Spirit
-		if spellID == 51886 then typesList = { "Curse" } end
+		if spellID == (br.functions.spell:getHighestSpellID("cleanseSpirit") or 51886) then typesList = { "Curse" } end
 		-- Purify Spirit
-		if spellID == 77130 then typesList = { "Curse", "Magic" } end
+		if spellID == (br.functions.spell:getHighestSpellID("purifySpirit") or 77130) then typesList = { "Curse", "Magic" } end
 		-- Purge
-		if spellID == 370 then typesList = { "Magic" } end
+		if spellID == (br.functions.spell:getHighestSpellID("purge") or 370) then typesList = { "Magic" } end
 	end
 	if ClassNum == 8 then --Mage
 		-- Remove Curse
-		if spellID == 475 then typesList = { "Curse" } end
+		if spellID == (br.functions.spell:getHighestSpellID("removeCurse") or 475) then typesList = { "Curse" } end
 	end
 	if ClassNum == 9 then --Warlock
-		if spellID == 19505 then typesList = { "Magic" } end
+		if spellID == (br.functions.spell:getHighestSpellID("devourMagic") or 19505) then typesList = { "Magic" } end
 	end
 	if ClassNum == 10 then --Monk
 		-- Detox (MW)
 		--if GetSpecialization() == 2 then
-		if spellID == 115450 then typesList = { "Poison", "Disease" } end --, "Magic" } end
-		-- Detox (WW or BM)
-		--else
-		if spellID == 218164 then typesList = { "Poison", "Disease" } end
-		--end
+		if spellID == (br.functions.spell:getHighestSpellID("detox") or 115450) or spellID == 218164 then typesList = { "Poison", "Disease" } end --, "Magic" } end
+		-- Detox (WW or BM) handled above via detox key or fallback 218164
 		-- Diffuse Magic
 		-- if spellID == 122783 then typesList = { "Magic" } end
 	end
 	if ClassNum == 11 then --Druid
 		-- Abolish Poison
-		if spellID == 2893 then typesList = { "Poison" } end
+		if spellID == (br.functions.spell:getHighestSpellID("abolishPoison") or 2893) then typesList = { "Poison" } end
 		-- Cure Poison
-		if spellID == 8946 then typesList = { "Poison" } end
+		if spellID == (br.functions.spell:getHighestSpellID("curePoison") or 8946) then typesList = { "Poison" } end
 		-- Remove Corruption
-		if spellID == 2782 then typesList = { "Poison", "Curse" } end
+		if spellID == (br.functions.spell:getHighestSpellID("removeCorruption") or 2782) then typesList = { "Poison", "Curse" } end
 		-- Remove Curse
 		if spellID == 2783 then typesList = { "Curse" } end
 		-- Nature's Cure
-		if spellID == 88423 then typesList = { "Poison", "Curse", "Magic" } end
+		if spellID == (br.functions.spell:getHighestSpellID("naturesCure") or 88423) then typesList = { "Poison", "Curse", "Magic" } end
 		-- Symbiosis: Cleanse
 		if spellID == 122288 then typesList = { "Poison", "Disease" } end
 		-- Soothe
-		if spellID == 2908 then
+		if spellID == (br.functions.spell:getHighestSpellID("soothe") or 2908) then
 			typesList = { "" }
 		end
 	end
 	if ClassNum == 12 then --Demon Hunter
 		-- Consume Magic
-		if spellID == 278326 then typesList = { "Magic" } end
+		if spellID == (br.functions.spell:getHighestSpellID("consumeMagic") or 278326) then typesList = { "Magic" } end
 	end
 	if ClassNum == 13 then -- Evoker
 		-- Expunge
-		if spellID == 365585 then typesList = { "Poison" } end
+		if spellID == (br.functions.spell:getHighestSpellID("expunge") or 365585) then typesList = { "Poison" } end
 		-- Cauterizing Flame
-		if spellID == 374251 then typesList = { "Bleed", "Poison", "Curse", "Disease" } end
+		if spellID == (br.functions.spell:getHighestSpellID("cauterizingFlame") or 374251) then typesList = { "Bleed", "Poison", "Curse", "Disease" } end
 		-- Naturalize
-		if spellID == 360823 then typesList = { "Magic", "Poison" } end
+		if spellID == (br.functions.spell:getHighestSpellID("naturalize") or 360823) then typesList = { "Magic", "Poison" } end
 	end
 	if br.player.race == "BloodElf" then --Blood Elf
 		-- Arcane Torrent
-		if spellID == select(7, br.api.wow.GetSpellInfo(69179)) then typesList = { "Magic" } end
+		if spellID == select(7, br.api.wow.GetSpellInfo(br.lists.racials and br.lists.racials._bloodElfBase or 69179)) then typesList = { "Magic" } end
 	end
-	if br.functions.item:hasItem(177278) and spellID == 177278 then typesList = { "Disease", "Poison", "Curse", } end -- Phail of Serenity
+	if br.functions.item:hasItem(br.functions.item:getHighestItemID("phialOfSerenity") or 177278) and spellID == (br.functions.item:getHighestItemID("phialOfSerenity") or 177278) then typesList = { "Disease", "Poison", "Curse", } end -- Phail of Serenity
 	local function ValidType(debuffType)
 		local typeCheck = false
 		if typesList == nil then
@@ -373,7 +370,7 @@ function aura:canDispel(Unit, spellID)
 
 					local delay = br.dispelTracker[trackerKey]
 
-					if debuffInfo.spellId == 284663 and (br.GetHP(Unit) < br.functions.misc:getOptionValue("Bwonsamdi's Wrath HP")
+					if debuffInfo.spellId == (br.functions.spell:getHighestSpellID("bwonsamdiWrath") or 284663) and (br.GetHP(Unit) < br.functions.misc:getOptionValue("Bwonsamdi's Wrath HP")
 							or (br._G.UnitGroupRolesAssigned(Unit) == "TANK" and (debuffInfo.duration - debuffRemain) > delay)) then
 						HasValidDispel = true
 						break

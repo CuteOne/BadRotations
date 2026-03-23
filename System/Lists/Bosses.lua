@@ -142,7 +142,7 @@ br.lists.bossIds = {
 	-------------------------------------------------------------------------------
 	[9156]	= true,	-- Ambassador Flamelash
 	[8923]	= true,	-- Panzor the Invincible
-	[17808]	= true,	-- Anger'rel
+	[9035]	= true,	-- Anger'rel
 	[9039]	= true,	-- Doom'rel
 	[9040]	= true,	-- Dope'rel
 	[9037]	= true,	-- Gloom'rel
@@ -394,7 +394,7 @@ br.lists.bossIds = {
 	-------------------------------------------------------------------------------
 	-- Gate of the Setting Sun (MoP-Dungeon 5.0.1)
 	-------------------------------------------------------------------------------
-	[54432]	= true,	-- Gadok
+	[56589]	= true,	-- Gadok
 	[56636]	= true,	-- Rimok
 	[56877]	= true,	-- Raigon
 	[56906]	= true,	-- Kiptilak
@@ -478,7 +478,6 @@ br.lists.bossIds = {
 	[38112]	= true,	-- Falric
 	[38113]	= true,	-- Marwyn
 	[37226]	= true,	-- The Lich King
-	[38113]	= true,	-- Marvyn
 
 	-------------------------------------------------------------------------------
 	-- Halls of Stone
@@ -1651,7 +1650,6 @@ br.lists.bossIds = {
 	[24239]	= true,	-- Malacrass
 
 	-- Final Bosses
-	[24239]	= true,	-- Hex Lord Malacrass
 	[23863]	= true,	-- Zul'jin
 
 	-------------------------------------------------------------------------------

@@ -11,6 +11,8 @@ local Nn = ...
 
 local toc = ""
 local tocPath = '/scripts/BadRotations/BadRotations.toc'
+local FileExists = _G["FileExists"]
+local ReadFile = _G["ReadFile"]
 if not FileExists(tocPath) then print(tocPath, 'does not exist') return end
 if FileExists(tocPath) then
     toc = ReadFile(tocPath)

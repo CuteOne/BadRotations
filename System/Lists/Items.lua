@@ -61,8 +61,10 @@ br.lists.items = {
     greaterFlaskOfTheVastHorizon            = 168653,
     -- Healing Items
     phialOfSerenity                         = 177278,
+    abyssalHealingPotion                    = 169451, -- non-enUS locale healing pot
+    coastalHealingPotion                    = 171267, -- non-enUS locale healing pot (SL)
     -- Healthstones
-    healthstone                             = 5512,
+    healthstone                             = {5512, 19004, 19005, 5511, 19006, 19007, 19008, 19009, 5509, 5510, 19010, 19011, 19012, 9412, 19013, 22104, 22105, 22103}, -- rank 1-6 (Minor → Master)
     legionHealthstone                       = 129196,
     -- Heirlooms
     eternalAmuletOfTheRedeemed              = 122663,
@@ -71,7 +73,7 @@ br.lists.items = {
     eternalTalismanOfEvasion                = 122662,
     eternalWillOfTheMartyr                  = 122668,
     eternalWovenIvyNecklace                 = 122666,
-    heirloomNeck                            = br.functions.item:getHeirloomNeck(),
+    -- heirloomNeck is set after the table so getHeirloomNeck() can read the individual neck IDs above.
     manariTrainingAmulet                    = 153130,
     touchOfTheVoid                          = 128318,
     -- Potions
@@ -83,7 +85,6 @@ br.lists.items = {
     potionOfTheOldWar                       = 127844,
     virmensBite                             = 76089,
     -- 8.2 Potions
-    abyssalHealingPotion                    = 169451,
     potionOfUnbridledFury                   = 169299, -- DPS Potion
     potionOfEmpoweredProximity              = 168529, -- DPS Potion (AoE)
     potionOfFocusedResolve                  = 168506, -- Crit Damage Potion
@@ -210,3 +211,5 @@ br.lists.items = {
     phialOfTepidVersatilityQualities        = { 204666, 191341, 204665, 191340, 204664, 191339 },
     dreamwalkersHealingPotion               = { 207023, 207022, 207021 }
 }
+-- Computed after the table so getHeirloomNeck() can safely read the individual neck entries above.
+br.lists.items.heirloomNeck = br.functions.item:getHeirloomNeck()

@@ -1,6 +1,13 @@
 local _, br = ...
 if br.lists == nil then br.lists = {} end
 
+-- Racial spell IDs for Classic WoW.
+br.lists.racials = {
+    NightElf     = 20580, -- Shadowmeld
+    -- Dynamic lookup base IDs
+    _draeneiBase = 28880, -- Gift of the Naaru
+}
+
 br.lists.spells = {
     DRUID = {
         -- Initial

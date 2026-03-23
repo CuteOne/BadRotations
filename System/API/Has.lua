@@ -17,6 +17,9 @@ br.api.has = function(self,item,id)
     -- @function has.item
     -- @treturn boolean
     has[item] = function()
+        if type(id) == "table" then
+            return br.functions.item:getHighestHeldRank(id) ~= nil
+        end
         return br.functions.item:hasItem(id)
     end
 

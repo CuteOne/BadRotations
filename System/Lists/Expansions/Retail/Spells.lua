@@ -1,6 +1,41 @@
 local _, br = ...
 
 if br.lists == nil then br.lists = {} end
+
+-- Racial spell IDs for this expansion.
+-- Defined before br.lists.spells so getRacial() can read them during spell list construction.
+-- Three races use dynamic IDs resolved at runtime; their base lookup IDs are stored with a _ prefix.
+br.lists.racials = {
+    -- Alliance
+    Dwarf              = 20594,  -- Stoneform
+    Gnome              = 20589,  -- Escape Artist
+    Human              = 59752,  -- Every Man for Himself
+    NightElf           = 20580,  -- Shadowmeld
+    Worgen             = 68992,  -- Darkflight
+    -- Horde
+    Goblin             = 69041,  -- Rocket Barrage
+    Tauren             = 20549,  -- War Stomp
+    Troll              = 26297,  -- Berserking
+    Scourge            = 7744,   -- Will of the Forsaken
+    -- Both
+    Pandaren           = 107079, -- Quaking Palm
+    -- Allied Races
+    HighmountainTauren = 255654, -- Bull Rush
+    LightforgedDraenei = 255647, -- Light's Judgment
+    Nightborne         = 260364, -- Arcane Pulse
+    VoidElf            = 256948, -- Spatial Rift
+    DarkIronDwarf      = 265221, -- Fireblood
+    MagharOrc          = 274738, -- Ancestral Call
+    ZandalariTroll     = 291944, -- Regeneratin'
+    KulTiran           = 287712, -- Haymaker
+    Vulpera            = 312411, -- Bag of Tricks
+    Mechagnome         = 312924, -- Hyper Organic Light Originator
+    -- Base lookup IDs for dynamically-resolved racials (Arcane Torrent, Gift of the Naaru, Blood Fury)
+    _bloodElfBase      = 69179,
+    _draeneiBase       = 28880,
+    _orcBase           = 33702,
+}
+
 br.lists.spells = {
     DEATHKNIGHT = {
         -- Blood
@@ -251,8 +286,9 @@ br.lists.spells = {
                 deathGate      = 50977,
                 deathGrip      = 49576,
                 deathsAdvance  = 48265,
-                lichborne      = 49039,
-                pathOfFrost    = 3714,
+                lichborne         = 49039,
+                desecratedGround  = 108201,
+                pathOfFrost       = 3714,
                 raiseAlly      = 61999,
                 runeforging    = 53428,
             },
@@ -2853,6 +2889,7 @@ br.lists.spells = {
                 summonWhiteTigerStatue   = 388686,
                 tigerTailSweep           = 264348,
                 tigersLust               = 116841,
+                nimbleBrew               = 137562,
                 transcendence            = 101643,
                 vigorousExpulsion        = 392900,
                 vivaciousVivication      = 388812,
@@ -4399,6 +4436,7 @@ br.lists.spells = {
                 spiritWolf           = 260878,
                 staticCharge         = 265046,
                 stoneBulwarkTotem    = 108270,
+                windwalkTotem        = 108273,
                 thunderousPaws       = 378075,
                 thundershock         = 378779,
                 thunderstorm         = 51490,
@@ -5340,6 +5378,7 @@ br.lists.spells = {
                 autoShot       = 75,
                 giftOfTheNaaru = br.functions.spell:getRacial("Draenei"), --select(7, GetSpellInfo(GetSpellInfo(28880))),
                 global         = 61304,
+                heartOfAzeroth = 296208,  -- used for isActiveEssence icon comparison
                 latentArcana   = 296971,
                 lightsJudgment = 255647,
                 quakingPalm    = 107079,
@@ -5390,6 +5429,8 @@ br.lists.spells = {
                 flaskOfTheVastHorizon          = 251838,
                 flaskOfTheUndertow             = 251839,
                 flayedWingToxin                = 345546,
+                forTheAlliance                 = 193863, -- BfA seasonal event buff
+                forTheHorde                    = 193864, -- BfA seasonal event buff
                 fruitfulMachinatins            = 242623, -- Absorb Shield from Deceiver's Grand Design
                 mistcallerOcarina              = 330067, -- SL Trinket with group buff
                 greaterFlaskOfEndlessFathoms   = 298837,
@@ -5406,6 +5447,7 @@ br.lists.spells = {
                 potionOfBurstingBlood          = 265514,
                 potionOfFocusedResolve         = 298317,
                 prolongedPower                 = 229206,
+                queensDecreeUnstoppable        = 302417, -- M+ Beguiling affix: prevents interrupt
                 racial                         = br.functions.spell:getRacial(),
                 razorCoral                     = 303570, -- Crit Buff from Ashvane's Razor Coral
                 sephuz1                        = 208051, -- the fulltime 10% movement, 2% haste buff
@@ -5471,6 +5513,11 @@ br.lists.spells = {
                 vileCorruption    = 314392,
                 timeToFeed        = 162415, -- Oshir Iron Docks
                 cascadingTerror   = 314478,
+                bwonsamdiWrath    = 284663, -- Bwonsamdi's Wrath debuff
+                quaking           = 240448, -- M+ Quaking affix
+                reaping           = 288388, -- M+ Reaping affix
+                promiseOfPower    = 282566, -- M+ Promise of Power affix
+                arcaneBurst       = 303657, -- M+ Arcane Burst affix
             },
             essences         = {
             },

@@ -12,11 +12,15 @@ if not lootEngine.metaTable then
 	local ClearTarget = br._G.ClearTarget
 	-- Note: InteractUnit is accessed via br._G dynamically to support late-loading unlockers
 
+	local MAX_LOOT_RETRIES = 3 -- Max real loot attempts per GUID before treating it as a unique/unavailable item
+
 	-- Note: lootable table is managed by EnemiesEngine (br.engines.enemiesEngine.lootable)
 	lootEngine.lootUnit = nil         -- Current unit to loot
 	lootEngine.oldMessage = nil       -- For debug message tracking
 	lootEngine.lastBagWarning = 0     -- Throttle bag full warnings
 	lootEngine.lootAttempts = {}      -- Track loot attempts to avoid spam
+	lootEngine.lootRetryCount = {}    -- Track per-GUID actual attempt counts
+	lootEngine.lootSkipList = {}      -- GUIDs to permanently skip this session (unique/unavailable items)
 	lootEngine.isLooting = false      -- Global looting state flag
 	lootEngine.lootWindowOpen = false -- Track if loot window is currently open
 	lootEngine.lootStartTime = 0      -- Track when looting started for timeout
@@ -150,6 +154,16 @@ if not lootEngine.metaTable then
 			return
 		end
 
+		-- Skip units that have hit the retry limit with bag space (likely unique/already-owned items)
+		if self.lootSkipList[unitGUID] then
+			self:debug("Skipping " .. (br._G.UnitName(lootUnit) or "unknown") .. " - on skip list (unique item?)")
+			if br.engines.enemiesEngine.lootable[lootUnit] then
+				br.engines.enemiesEngine.lootable[lootUnit] = nil
+			end
+			self.lootUnit = nil
+			return
+		end
+
 		-- If we have a unit to loot, check if it's time to loot
 		if br.debug.timer:useTimer("getLoot", br.functions.misc:getOptionValue("Auto Loot")) then
 			local distance = br.functions.range:getDistance(lootUnit)
@@ -157,7 +171,20 @@ if not lootEngine.metaTable then
 			-- Check distance and line of sight
 			if distance < 7 and br.functions.misc:getLineOfSight("player", lootUnit) then
 				self.lootAttempts[unitGUID] = now
-				self:debug("Looting " .. br._G.UnitName(lootUnit) .. " at " .. math.floor(distance) .. " yards")
+				self.lootRetryCount[unitGUID] = (self.lootRetryCount[unitGUID] or 0) + 1
+
+				-- If we've exhausted retries and bags have space, the item is likely unique or otherwise blocked
+				if self.lootRetryCount[unitGUID] > MAX_LOOT_RETRIES and self:emptySlots() > 0 then
+					self:debug("Retry limit reached for " .. (br._G.UnitName(lootUnit) or "unknown") .. " with bag space available - likely a unique item, skipping")
+					self.lootSkipList[unitGUID] = true
+					if br.engines.enemiesEngine.lootable[lootUnit] then
+						br.engines.enemiesEngine.lootable[lootUnit] = nil
+					end
+					self.lootUnit = nil
+					return
+				end
+
+				self:debug("Looting " .. br._G.UnitName(lootUnit) .. " at " .. math.floor(distance) .. " yards (attempt " .. self.lootRetryCount[unitGUID] .. "/" .. MAX_LOOT_RETRIES .. ")")
 
 				-- Use InteractUnit or ObjectInteract depending on what the unlocker provides
 				local interactFunc = br._G.InteractUnit or br._G.ObjectInteract
@@ -269,9 +296,12 @@ if not lootEngine.metaTable then
 	function lootEngine:cleanupAttempts()
 		local now = GetTime()
 		for guid, timestamp in pairs(self.lootAttempts) do
-			-- Remove attempts older than 30 seconds
+			-- Remove attempts older than 30 seconds and reset their retry count
+			-- (allows re-attempting a GUID encountered again after a long absence)
 			if (now - timestamp) > 30 then
 				self.lootAttempts[guid] = nil
+				self.lootRetryCount[guid] = nil
+				-- Note: lootSkipList entries are intentionally kept for the session
 			end
 		end
 	end

@@ -61,7 +61,8 @@ end
 function spell:canInterrupt(unit, percentint)
 	unit = unit or "target"
 	-- M+ Affix: Beguiling (Prevents Interrupt) - Queen's Decree: Unstoppable buff
-	if br.functions.aura:UnitBuffID(unit, 302417) ~= nil then return false end
+	local queensDecreeID = br.functions.spell:getHighestSpellID("queensDecreeUnstoppable") or 302417
+	if br.functions.aura:UnitBuffID(unit, queensDecreeID) ~= nil then return false end
 	local interruptTarget = br.functions.misc:getOptionValue("Interrupt Target")
 	if interruptTarget == 2 and not br.functions.unit:GetUnitIsUnit(unit, "target") then
 		return false
@@ -277,7 +278,7 @@ function spell:getGlobalCD(max)
 		end
 	end
 	-- Use Classic-compatible GCD spell if available
-	local gcdSpellID = 61304
+	local gcdSpellID = br.functions.spell:getHighestSpellID("global") or 61304
 	if (br.isClassic or br.isBC) and br.api.wow.GetGCDSpellID then
 		gcdSpellID = br.api.wow.GetGCDSpellID()
 	end
@@ -307,8 +308,9 @@ function spell:getCastingRegen(spellID)
 	power = power + regenRate * castSeconds + tooltip
 
 	-- Get the amount of time remaining on the Steady Focus buff.
-	if br.functions.aura:UnitBuffID("player", 193534) ~= nil then
-		local seconds = br.functions.aura:getBuffRemain("player", 193534)
+	local steadyFocusID = br.functions.spell:getHighestSpellID("steadyFocus") or 193534
+	if br.functions.aura:UnitBuffID("player", steadyFocusID) ~= nil then
+		local seconds = br.functions.aura:getBuffRemain("player", steadyFocusID)
 		if seconds <= 0 then
 			seconds = 0
 		elseif seconds > castSeconds then
@@ -430,15 +432,22 @@ function spell:isKnown(spellID)
 end
 
 function spell:isActiveEssence(spellID)
-	local _, _, heartIcon = br.api.wow.GetSpellInfo(296208)
+	local heartOfAzerothID = br.functions.spell:getHighestSpellID("heartOfAzeroth") or 296208
+	local _, _, heartIcon = br.api.wow.GetSpellInfo(heartOfAzerothID)
 	local _, _, essenceIcon = br.api.wow.GetSpellInfo(spellID)
 	return heartIcon == essenceIcon
+end
+
+local function getEventBuffIDs()
+    return br.functions.spell:getHighestSpellID("forTheAlliance") or 193863,
+           br.functions.spell:getHighestSpellID("forTheHorde")    or 193864
 end
 
 local function flipRace()
     local race = select(2, br._G.UnitRace("player"))
     local class = select(3, br._G.UnitClass("player"))
-    if br.functions.aura:UnitBuffID("player", 193863) then
+    local forTheAllianceID, forTheHordeID = getEventBuffIDs()
+    if br.functions.aura:UnitBuffID("player", forTheAllianceID) then
         if race == "Orc" then
             return "Dwarf"
         elseif race == "Undead" then
@@ -486,7 +495,7 @@ local function flipRace()
         elseif race == "MagharOrc" then
             return "DarkIronDwarf"
         end
-    elseif br.functions.aura:UnitBuffID("player", 193864) then
+    elseif br.functions.aura:UnitBuffID("player", forTheHordeID) then
         if race == "Worgen" then
             return "Troll"
         elseif race == "DarkIronDwarf" then
@@ -542,78 +551,73 @@ local function flipRace()
 end
 
 function spell:getRacial(thisRace)
-    local forTheAlliance = br.functions.aura:UnitBuffID("player", 193863) or false
-    local forTheHorde = br.functions.aura:UnitBuffID("player", 193864) or false
+    local forTheAllianceID, forTheHordeID = getEventBuffIDs()
+    local forTheAlliance = br.functions.aura:UnitBuffID("player", forTheAllianceID) or false
+    local forTheHorde    = br.functions.aura:UnitBuffID("player", forTheHordeID)    or false
     local race = select(2, br._G.UnitRace("player"))
     if forTheAlliance or forTheHorde then
         race = flipRace()
     end
-    local BloodElfRacial
-    local DraeneiRacial
-    local OrcRacial
 
+    -- Read static racial IDs from the list; fall back to hardcoded values if the list isn't loaded yet.
+    local r = (br.lists and br.lists.racials) or {}
+
+    -- Three racials have IDs that vary by rank/level and must be resolved dynamically.
+    local BloodElfRacial, DraeneiRacial, OrcRacial
     if race == "BloodElf" or race == thisRace then
-        BloodElfRacial = select(7, br.api.wow.GetSpellInfo(br.api.wow.GetSpellInfo(69179)))
+        local baseID = r._bloodElfBase or 69179
+        BloodElfRacial = select(7, br.api.wow.GetSpellInfo(br.api.wow.GetSpellInfo(baseID)))
     end
     if race == "Draenei" or race == thisRace then
-        DraeneiRacial = select(7, br.api.wow.GetSpellInfo(br.api.wow.GetSpellInfo(28880)))
+        local baseID = r._draeneiBase or 28880
+        DraeneiRacial = select(7, br.api.wow.GetSpellInfo(br.api.wow.GetSpellInfo(baseID)))
     end
     if race == "Orc" or race == thisRace then
-        OrcRacial = select(7, br.api.wow.GetSpellInfo(br.api.wow.GetSpellInfo(33702)))
+        local baseID = r._orcBase or 33702
+        OrcRacial = select(7, br.api.wow.GetSpellInfo(br.api.wow.GetSpellInfo(baseID)))
     end
+
     local racialSpells = {
         -- Alliance
-        Dwarf              = 20594,          -- Stoneform
-        Gnome              = 20589,          -- Escape Artist
-        Draenei            = DraeneiRacial,  -- Gift of the Naaru
-        Human              = 59752,          -- Every Man for Himself
-        NightElf           = 20580,          -- Shadowmeld
-        Worgen             = 68992,          -- Darkflight
+        Dwarf              = r.Dwarf,              -- Stoneform
+        Gnome              = r.Gnome,              -- Escape Artist
+        Draenei            = DraeneiRacial,        -- Gift of the Naaru
+        Human              = r.Human,              -- Every Man for Himself
+        NightElf           = r.NightElf,           -- Shadowmeld
+        Worgen             = r.Worgen,             -- Darkflight
         -- Horde
-        BloodElf           = BloodElfRacial, -- Arcane Torrent
-        Goblin             = 69041,          -- Rocket Barrage
-        Orc                = OrcRacial,      -- Blood Fury
-        Tauren             = 20549,          -- War Stomp
-        Troll              = 26297,          -- Berserking
-        Scourge            = 7744,           -- Will of the Forsaken
+        BloodElf           = BloodElfRacial,       -- Arcane Torrent
+        Goblin             = r.Goblin,             -- Rocket Barrage
+        Orc                = OrcRacial,            -- Blood Fury
+        Tauren             = r.Tauren,             -- War Stomp
+        Troll              = r.Troll,              -- Berserking
+        Scourge            = r.Scourge,            -- Will of the Forsaken
         -- Both
-        Pandaren           = 107079,         -- Quaking Palm
+        Pandaren           = r.Pandaren,           -- Quaking Palm
         -- Allied Races
-        HighmountainTauren = 255654,         -- Bull Rush
-        LightforgedDraenei = 255647,         -- Light's Judgment
-        Nightborne         = 260364,         -- Arcane Pulse
-        VoidElf            = 256948,         -- Spatial Rift
-        DarkIronDwarf      = 265221,         -- Fireblood
-        MagharOrc          = 274738,         -- Ancestral Call
-        ZandalariTroll     = 291944,         -- Regeneratin'
-        KulTiran           = 287712,         -- Haymaker
-        Vulpera            = 312411,         -- Bag of Tricks
-        Mechagnome         = 312924,         -- Hyper Organic Light Originator
+        HighmountainTauren = r.HighmountainTauren, -- Bull Rush
+        LightforgedDraenei = r.LightforgedDraenei, -- Light's Judgment
+        Nightborne         = r.Nightborne,         -- Arcane Pulse
+        VoidElf            = r.VoidElf,            -- Spatial Rift
+        DarkIronDwarf      = r.DarkIronDwarf,      -- Fireblood
+        MagharOrc          = r.MagharOrc,          -- Ancestral Call
+        ZandalariTroll     = r.ZandalariTroll,     -- Regeneratin'
+        KulTiran           = r.KulTiran,           -- Haymaker
+        Vulpera            = r.Vulpera,            -- Bag of Tricks
+        Mechagnome         = r.Mechagnome,         -- Hyper Organic Light Originator
     }
-	local classicRacialSpells = {
-        -- Alliance
-		Draenei            = DraeneiRacial,  -- Gift of the Naaru
-        -- Dwarf              = 20594,          -- Stoneform
-        -- Gnome              = 20589,          -- Escape Artist
-        -- Human              = 59752,          -- Every Man for Himself
-        NightElf           = 20580,          -- Shadowmeld
-        -- Worgen             = 68992,          -- Darkflight
-        -- Horde
-        -- BloodElf           = BloodElfRacial, -- Arcane Torrent
-        -- Orc                = OrcRacial,      -- Blood Fury
-        -- Tauren             = 20549,          -- War Stomp
-        -- Troll              = 26297,          -- Berserking
-        -- Scourge            = 7744,           -- Will of the Forsaken
+    local classicRacialSpells = {
+        Draenei  = DraeneiRacial, -- Gift of the Naaru
+        NightElf = r.NightElf,   -- Shadowmeld
     }
 
-	if br.isClassic or br.isBC then
-		if thisRace ~= nil and classicRacialSpells[thisRace] ~= nil then return classicRacialSpells[thisRace] end
-    	return classicRacialSpells[race]
-	else
-		if thisRace ~= nil and racialSpells[thisRace] ~= nil then return racialSpells[thisRace] end
-		return racialSpells[race]
-	end
-    -- return racialSpells[race]
+    if br.isClassic or br.isBC then
+        if thisRace ~= nil and classicRacialSpells[thisRace] ~= nil then return classicRacialSpells[thisRace] end
+        return classicRacialSpells[race]
+    else
+        if thisRace ~= nil and racialSpells[thisRace] ~= nil then return racialSpells[thisRace] end
+        return racialSpells[race]
+    end
 end
 
 -- ===========================
@@ -698,4 +702,28 @@ function spell:getKnownRank(spellIDOrTable)
     end
 
     return 0
+end
+
+-- Look up a spell ID from br.lists.spells by key name.
+-- Recursively searches all class/spec/type subtables for the key.
+-- If the found value is a rank table (Classic), returns the highest known rank.
+-- @param key - The spell name key as it appears in the spell list (e.g. "rake", "global")
+-- @return number|nil - The spell ID, or nil if the list is not loaded or the key is not found.
+function spell:getHighestSpellID(key)
+    if not br.lists or not br.lists.spells then return nil end
+    local function search(t)
+        for k, v in pairs(t) do
+            if k == key then
+                if type(v) == "table" then
+                    return self:getHighestKnownRank(v)
+                end
+                return v
+            elseif type(v) == "table" then
+                local found = search(v)
+                if found then return found end
+            end
+        end
+        return nil
+    end
+    return search(br.lists.spells)
 end

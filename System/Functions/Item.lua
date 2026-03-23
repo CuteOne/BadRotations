@@ -98,6 +98,22 @@ function item:useItem(itemID, thisUnit)
 	return false
 end
 
+-- Get the best (highest rank) item the player has from a ranked table.
+-- Mirrors br.functions.spell:getHighestKnownRank for items.
+-- @param itemIDTable - A table of item IDs {rank1, rank2, ..., rankN} ordered lowest to highest rank.
+-- @return itemID - The highest rank item ID the player currently has in their bags, or nil if none.
+function item:getHighestHeldRank(itemIDTable)
+    if type(itemIDTable) ~= "table" then
+        return itemIDTable
+    end
+    for i = #itemIDTable, 1, -1 do
+        if self:hasItem(itemIDTable[i]) then
+            return itemIDTable[i]
+        end
+    end
+    return nil
+end
+
 function item:useItemGround(Unit, itemID, maxDistance, minDistance, radius)
 	if radius == nil then
 		radius = maxDistance
@@ -121,7 +137,8 @@ end
 function item:hasHealthPot()
 	local locale = br._G.GetLocale()
 	if locale ~= "enUS" and locale ~= "enGB" then
-		if br.functions.item:hasItem(169451) then
+		local abyssalHealingPotion = br.functions.item:getHighestItemID("abyssalHealingPotion") or 169451
+		if br.functions.item:hasItem(abyssalHealingPotion) then
 			return true
 		end
 	end
@@ -139,8 +156,9 @@ end
 function item:getHealthPot()
 	local locale = br._G.GetLocale()
 	if locale ~= "enUS" and locale ~= "enGB" then
-		if br.functions.item:hasItem(171267) then
-			return 171267
+		local coastalHealingPotion = br.functions.item:getHighestItemID("coastalHealingPotion") or 171267
+		if br.functions.item:hasItem(coastalHealingPotion) then
+			return coastalHealingPotion
 		end
 	end
 	local potion = br.player.potion
@@ -206,17 +224,34 @@ function item:hasEquiped(ItemID, Slot)
 end
 
 function item:getHeirloomNeck()
-    local necks = {
-        eternalAmuletOfTheRedeemed = 122663,
-        eternalEmberfuryTalisman   = 122667,
-        eternalHorizonChoker       = 122664,
-        eternalTalismanOfEvasion   = 122662,
-        eternalWillOfTheMartyr     = 122668,
-        eternalWovenIvyNecklace    = 122666,
-        manariTrainingAmulet       = 153130,
+    if not br.lists or not br.lists.items then return 0 end
+    local items = br.lists.items
+    local neckKeys = {
+        "eternalAmuletOfTheRedeemed",
+        "eternalEmberfuryTalisman",
+        "eternalHorizonChoker",
+        "eternalTalismanOfEvasion",
+        "eternalWillOfTheMartyr",
+        "eternalWovenIvyNecklace",
+        "manariTrainingAmulet",
     }
-    for _, v in pairs(necks) do
-        if br.functions.item:hasEquiped(v, 2) then return v end
+    for _, k in ipairs(neckKeys) do
+        local id = items[k]
+        if id and br.functions.item:hasEquiped(id, 2) then return id end
     end
     return 0
+end
+
+-- Look up an item ID from br.lists.items by key name.
+-- If the found value is a ranked table, returns the highest rank the player currently holds.
+-- @param key - The item name key as it appears in the item list (e.g. "abyssalHealingPotion")
+-- @return number|nil - The item ID, or nil if the list is not loaded or the key is not found.
+function item:getHighestItemID(key)
+    if not br.lists or not br.lists.items then return nil end
+    local v = br.lists.items[key]
+    if v == nil then return nil end
+    if type(v) == "table" then
+        return br.functions.item:getHighestHeldRank(v)
+    end
+    return v
 end

@@ -44,9 +44,9 @@ function power:getPower(Unit, index)
 	-- Only apply Druid buffs to energy (index 3)
 	if index == 3 and select(3, br._G.UnitClass("player")) == 11 then
 		-- Druid: Clearcasting affects energy values as if there is max energy available
-		-- if br.functions.aura:UnitBuffID("player", 16870) then
-		-- 	value = br._G.UnitPowerMax(Unit, index)
-		-- end
+		if br.functions.aura:UnitBuffID("player", 16870) then
+			value = br._G.UnitPowerMax(Unit, index)
+		end
 		-- Druid: Berserk affects energy values report as having 50% more
 		if br.functions.aura:UnitBuffID("player", 106951) then
 			value = value * 5

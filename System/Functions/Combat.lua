@@ -167,7 +167,7 @@ function combat:canRegainControl(spellID, controlEvent)
 	local class = select(3, br._G.UnitClass("player"))
 	-- Warrior
 	if class == 1 then
-		if spellID == 18499 and -- Fear, Sap and Incapacitate
+		if spellID == (br.functions.spell:getHighestSpellID("berserkerRage") or 18499) and -- Fear, Sap and Incapacitate
 			(controlEvent == "FEAR" or controlEvent == "FEAR_MECHANIC" or controlEvent == "ROOT"
 				or controlEvent == "SNARE" or controlEvent == "STUN" or controlEvent == "STUN_MECHANIC")
 		then
@@ -176,7 +176,7 @@ function combat:canRegainControl(spellID, controlEvent)
 	end
 	-- Paladin
 	if class == 2 then
-		if spellID == 1044 and (controlEvent == "ROOT" or controlEvent == "SNARE") then
+		if spellID == (br.functions.spell:getHighestSpellID("blessingOfFreedom") or 1044) and (controlEvent == "ROOT" or controlEvent == "SNARE") then
 			return true
 		end
 	end
@@ -197,12 +197,12 @@ function combat:canRegainControl(spellID, controlEvent)
 	end
 	-- Death Knight
 	if class == 6 then
-		if spellID == 49039 and --Lichborne
+		if spellID == (br.functions.spell:getHighestSpellID("lichborne") or 49039) and --Lichborne
 			(controlEvent == "CHARM" or controlEvent == "FEAR" or controlEvent == "FEAR_MECHANIC" or controlEvent == "SLEEP")
 		then
 			return true
 		end
-		if spellID == 108201 and --Desecrated Ground
+		if spellID == (br.functions.spell:getHighestSpellID("desecratedGround") or 108201) and --Desecrated Ground
 			(controlEvent == "ROOT" or controlEvent == "SNARE")
 		then
 			return true
@@ -210,12 +210,12 @@ function combat:canRegainControl(spellID, controlEvent)
 	end
 	-- Shaman
 	if class == 7 then
-		if spellID == 58875 and -- Spirit Walk
+		if spellID == (br.functions.spell:getHighestSpellID("spiritWalk") or 58875) and -- Spirit Walk
 			(controlEvent == "ROOT" or controlEvent == "SNARE")
 		then
 			return true
 		end
-		if spellID == 108273 and --Windwalk Totem
+		if spellID == (br.functions.spell:getHighestSpellID("windwalkTotem") or 108273) and --Windwalk Totem
 			(controlEvent == "ROOT" or controlEvent == "SNARE")
 		then
 			return true
@@ -235,12 +235,12 @@ function combat:canRegainControl(spellID, controlEvent)
 	end
 	-- Monk
 	if class == 10 then
-		if spellID ==116841 and -- Tiger's Lust
+		if spellID ==(br.functions.spell:getHighestSpellID("tigersLust") or 116841) and -- Tiger's Lust
 			(controlEvent == "ROOT" or controlEvent == "SNARE")
 		then
 			return true
 		end
-		if spellID == 137562 and -- Nimble Brew
+		if spellID == (br.functions.spell:getHighestSpellID("nimbleBrew") or 137562) and -- Nimble Brew
 			(controlEvent == "ROOT" or controlEvent == "SNARE" or controlEvent == "STUN" or controlEvent == "STUN_MECHANIC"
 			or controlEvent == "FEAR" or controlEvent == "FEAR_MECHANIC")
 		then

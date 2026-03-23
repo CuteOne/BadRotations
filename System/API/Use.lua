@@ -19,7 +19,9 @@ br.api.use = function(self,item,id)
     use[item] = function(slotID,thisUnit)
         if thisUnit == nil then thisUnit = "target" end
         if slotID == nil then
-            if br.functions.item:canUseItem(id) then return br.functions.item:useItem(id,thisUnit) else return end
+            local resolvedID = type(id) == "table" and br.functions.item:getHighestHeldRank(id) or id
+            if resolvedID == nil then return false end
+            if br.functions.item:canUseItem(resolvedID) then return br.functions.item:useItem(resolvedID,thisUnit) else return end
         else
             if br.functions.item:canUseItem(slotID) then return br.functions.item:useItem(slotID,thisUnit) else return end
         end
@@ -98,7 +100,10 @@ br.api.use = function(self,item,id)
     -- @number[opt] slotID The ID of the equipment slot to check.
     -- @treturn boolean
     use.able[item] = function(slotID)
-        if slotID == nil then return br.functions.item:canUseItem(id) else return br.functions.item:canUseItem(slotID) end
+        if slotID ~= nil then return br.functions.item:canUseItem(slotID) end
+        local resolvedID = type(id) == "table" and br.functions.item:getHighestHeldRank(id) or id
+        if resolvedID == nil then return false end
+        return br.functions.item:canUseItem(resolvedID)
     end
 
     if use.able.item == nil then

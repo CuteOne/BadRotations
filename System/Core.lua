@@ -169,8 +169,9 @@ function engines:Update(self)
             elseif br.debug.timer:useTimer("playerUpdate", br.engines:getUpdateRate()) then
                 -- Quaking helper
                 if br.functions.misc:getOptionCheck("Quaking Helper") then
+                    local quakingID = br.functions.spell:getHighestSpellID("quaking") or 240448
                     if (br._G.UnitChannelInfo("player") or br._G.UnitCastingInfo("player")) and
-                        br.functions.aura:getDebuffRemain("player", 240448) < 0.5 and br.functions.aura:getDebuffRemain("player", 240448) > 0 then
+                        br.functions.aura:getDebuffRemain("player", quakingID) < 0.5 and br.functions.aura:getDebuffRemain("player", quakingID) > 0 then
                         br._G.RunMacroText("/stopcasting")
                     end
                 end
