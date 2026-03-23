@@ -30,8 +30,9 @@ br.api.essences = function(essence,k,v)
     local milestoneTable = br._G.C_AzeriteEssence.GetMilestones()
     local GetSpellInfo = br._G["GetSpellInfo"]
     local C_AzeriteEssence = br._G["C_AzeriteEssence"]
-    local essenceIdName = GetSpellInfo(GetSpellInfo(v)) or "None"
-    local essenceIcon = select(3,GetSpellInfo(v)) or 0
+    local resolvedV = type(v) == "table" and (br.functions.spell and br.functions.spell.getHighestKnownRank and br.functions.spell:getHighestKnownRank(v) or v[1]) or v
+    local essenceIdName = GetSpellInfo(GetSpellInfo(resolvedV)) or "None"
+    local essenceIcon = select(3,GetSpellInfo(resolvedV)) or 0
     if milestoneTable then
         for i = 1, #milestoneTable do
             local thisMilestone = milestoneTable[i]
@@ -56,5 +57,5 @@ br.api.essences = function(essence,k,v)
     -- Other Data
     essence.key = k
     essence.id = v
-    essence.spellID = select(7,essenceIdName) or v
+    essence.spellID = select(7,essenceIdName) or resolvedV
 end

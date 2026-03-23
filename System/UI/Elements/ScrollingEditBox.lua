@@ -6,9 +6,24 @@ local _, br = ...
 function br.ui:createScrollingEditBox(parent, text, content, tooltip, width, height, hideCheckbox)
     local activePageIdx = parent.settings.parentObject.pageDD.value
     local activePage = parent.settings.parentObject.pageDD.settings.list[activePageIdx]
-    br.data.settings[br.selectedSpec][br.selectedProfile][activePage] = br.data.settings[br.selectedSpec]
-        [br.selectedProfile][activePage] or {}
-    local data = br.data.settings[br.selectedSpec][br.selectedProfile][activePage]
+    br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile][activePage] = br.data.settings[br.loader.selectedSpec]
+        [br.loader.selectedProfile][activePage] or {}
+    local data = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile][activePage]
+
+    -- Ensure the active page is registered in the profile PageList so
+    -- option lookups (findOption) can locate values immediately.
+    br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["PageList"] = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["PageList"] or {}
+    local pageList = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["PageList"]
+    local found = false
+    for i = 1, #pageList do
+        if pageList[i] == activePage then
+            found = true
+            break
+        end
+    end
+    if not found then
+        br._G.tinsert(pageList, activePage)
+    end
 
     if width == nil then
         width = 240

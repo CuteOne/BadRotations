@@ -2,11 +2,32 @@ local DiesalGUI = _G.LibStub("DiesalGUI-1.0")
 local DiesalTools = _G.LibStub("DiesalTools-1.0")
 local _, br = ...
 function br.ui:createDropdown(parent, text, itemlist, default, tooltip, tooltipDrop, hideCheckbox)
-    local activePageIdx = parent.settings.parentObject.pageDD.value
-    local activePage = parent.settings.parentObject.pageDD.settings.list[activePageIdx]
-    br.data.settings[br.selectedSpec][br.selectedProfile][activePage] = br.data.settings[br.selectedSpec]
-        [br.selectedProfile][activePage] or {}
-    local data = br.data.settings[br.selectedSpec][br.selectedProfile][activePage]
+    local activePage = parent.settings.sectionName or ""
+    if activePage == "" then
+        if parent and parent.settings and parent.settings.parentObject and parent.settings.parentObject.pageDD then
+            local pdd = parent.settings.parentObject.pageDD
+            if pdd.value and pdd.settings and pdd.settings.list and pdd.settings.list[pdd.value] then
+                activePage = pdd.settings.list[pdd.value]
+            end
+        end
+    end
+    br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile][activePage] = br.data.settings[br.loader.selectedSpec]
+        [br.loader.selectedProfile][activePage] or {}
+    local data = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile][activePage]
+    -- Ensure the active page is registered in the profile PageList so
+    -- option lookups (findOption) can locate values immediately.
+    br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["PageList"] = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["PageList"] or {}
+    local pageList = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["PageList"]
+    local found = false
+    for i = 1, #pageList do
+        if pageList[i] == activePage then
+            found = true
+            break
+        end
+    end
+    if not found then
+        br._G.tinsert(pageList, activePage)
+    end
     -------------------------------
     ----Need to calculate Y Pos----
     -------------------------------
@@ -146,8 +167,8 @@ function br.ui:createProfileDropdown(parent)
     end
     Y = DiesalTools.Round(Y)
 
-    local profiles = br.fetch(br.selectedSpec .. "_" .. "profiles", { { key = "default", text = "Default" } })
-    -- local selectedProfile = br.fetch(br.selectedSpec .. "_" .. "profile", "default")
+    local profiles = br.ui.settingsManagement:fetch(br.loader.selectedSpec .. "_" .. "profiles", { { key = "default", text = "Default" } })
+    -- local selectedProfile = br.ui.settingsManagement:fetch(br.loader.selectedSpec .. "_" .. "profile", "default")
     local profile_drop = DiesalGUI:Create("Dropdown")
     parent:AddChild(profile_drop)
     profile_drop:SetParent(parent.content)
@@ -159,7 +180,7 @@ function br.ui:createProfileDropdown(parent)
         list[value.key] = value.key
     end
     profile_drop:SetList(list)
-    profile_drop:SetValue(br.fetch(br.selectedSpec .. "_" .. "profile", "Default Profile"))
+    profile_drop:SetValue(br.ui.settingsManagement:fetch(br.loader.selectedSpec .. "_" .. "profile", "Default Profile"))
     profile_drop:SetEventListener(
         "OnValueChanged",
         function(this, event, key, value, selection)

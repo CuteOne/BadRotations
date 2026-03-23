@@ -120,16 +120,43 @@ end
 -- ~~| Object Diesal Base |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ObjectBase.CreateRegion = function(self, regionType, regionName, parentRegion, defaultFontObject)
 	if regionType == 'FontString' then
-		local fontString = parentRegion:CreateFontString()
+		-- Try creating with explicit parameters
+		local fontString = parentRegion:CreateFontString(nil, "OVERLAY")
+
+		-- CRITICAL: Set font IMMEDIATELY and DON'T let anything override it if it fails
+		-- Start with GameFontNormal which is guaranteed to work
+		fontString:SetFontObject(_G.GameFontNormal)
+
 		-- set Default font properties
 		if defaultFontObject then
 			fontString.defaultFontObject = defaultFontObject
 		else
-			fontString.defaultFontObject = DiesalFontNormal
+			fontString.defaultFontObject = _G.DiesalFontNormal or _G.GameFontNormal
 		end
-		fontString:SetFont(fontString.defaultFontObject:GetFont())
-		fontString:SetTextColor(fontString.defaultFontObject:GetTextColor())
-		fontString:SetSpacing(fontString.defaultFontObject:GetSpacing())
+
+		-- ONLY try to apply custom font if we can verify it's valid first
+		if fontString.defaultFontObject and fontString.defaultFontObject ~= _G.GameFontNormal and type(fontString.defaultFontObject.GetFont) == "function" then
+			local success, fontPath, fontSize, fontFlags = pcall(fontString.defaultFontObject.GetFont, fontString.defaultFontObject)
+			-- Only apply if we got a valid font path
+			if success and fontPath and fontPath ~= "" then
+				local fontSuccess = pcall(fontString.SetFont, fontString, fontPath, fontSize or 12, fontFlags or "")
+				-- If custom font failed, font object fallback is still active from SetFontObject above
+			end
+		end
+
+		-- Set colors and spacing safely
+		if fontString.defaultFontObject and type(fontString.defaultFontObject.GetTextColor) == "function" then
+			local success, r, g, b, a = pcall(fontString.defaultFontObject.GetTextColor, fontString.defaultFontObject)
+			if success and r then
+				pcall(fontString.SetTextColor, fontString, r, g, b, a or 1)
+			end
+		end
+		if fontString.defaultFontObject and type(fontString.defaultFontObject.GetSpacing) == "function" then
+			local success, spacing = pcall(fontString.defaultFontObject.GetSpacing, fontString.defaultFontObject)
+			if success and spacing then
+				pcall(fontString.SetSpacing, fontString, spacing)
+			end
+		end
 
 		self[regionName] = fontString
 		self.fontStrings[regionName] = fontString
@@ -141,15 +168,47 @@ ObjectBase.CreateRegion = function(self, regionType, regionName, parentRegion, d
 	end
 	if regionType == 'EditBox' then
 		local editBox = CreateFrame(regionType, nil, parentRegion)
+
+		-- CRITICAL: Set a font IMMEDIATELY with multiple fallbacks
+		if _G.GameFontNormal then
+			pcall(editBox.SetFontObject, editBox, _G.GameFontNormal)
+		end
+		pcall(editBox.SetFont, editBox, "Fonts\\FRIZQT__.TTF", 12, "")
+
+		local testFont = editBox:GetFont()
+		if not testFont and _G.ChatFontNormal then
+			pcall(editBox.SetFontObject, editBox, _G.ChatFontNormal)
+		end
+
 		-- set Default font properties
 		if defaultFontObject then
 			editBox.defaultFontObject = defaultFontObject
 		else
-			editBox.defaultFontObject = DiesalFontNormal
+			editBox.defaultFontObject = _G.DiesalFontNormal or _G.GameFontNormal
 		end
-		editBox:SetFont(editBox.defaultFontObject:GetFont())
-		editBox:SetTextColor(editBox.defaultFontObject:GetTextColor())
-		editBox:SetSpacing(editBox.defaultFontObject:GetSpacing())
+
+		-- Try to apply custom font if available
+		if editBox.defaultFontObject and type(editBox.defaultFontObject.GetFont) == "function" then
+			local success, fontPath, fontSize, fontFlags = pcall(editBox.defaultFontObject.GetFont, editBox.defaultFontObject)
+			if success and fontPath then
+				pcall(editBox.SetFont, editBox, fontPath, fontSize or 11, fontFlags or "")
+			end
+		end
+
+		-- Set colors and spacing safely
+		if editBox.defaultFontObject and type(editBox.defaultFontObject.GetTextColor) == "function" then
+			local success, r, g, b, a = pcall(editBox.defaultFontObject.GetTextColor, editBox.defaultFontObject)
+			if success and r then
+				pcall(editBox.SetTextColor, editBox, r, g, b, a or 1)
+			end
+		end
+		if editBox.defaultFontObject and type(editBox.defaultFontObject.GetSpacing) == "function" then
+			local success, spacing = pcall(editBox.defaultFontObject.GetSpacing, editBox.defaultFontObject)
+			if success and spacing then
+				pcall(editBox.SetSpacing, editBox, spacing)
+			end
+		end
+
 		editBox:HookScript('OnEscapePressed', function(this) DiesalGUI:ClearFocus(); end)
 		editBox:HookScript('OnEditFocusGained', function(this)
 			DiesalGUI:SetFocus(this); GameTooltip:Hide();
@@ -160,15 +219,46 @@ ObjectBase.CreateRegion = function(self, regionType, regionName, parentRegion, d
 	end
 	if regionType == 'ScrollingMessageFrame' then
 		local srollingMessageFrame = CreateFrame(regionType, nil, parentRegion)
+
+		-- CRITICAL: Set a font IMMEDIATELY with multiple fallbacks
+		if _G.GameFontNormal then
+			pcall(srollingMessageFrame.SetFontObject, srollingMessageFrame, _G.GameFontNormal)
+		end
+		pcall(srollingMessageFrame.SetFont, srollingMessageFrame, "Fonts\\FRIZQT__.TTF", 12, "")
+
+		local testFont = srollingMessageFrame:GetFont()
+		if not testFont and _G.ChatFontNormal then
+			pcall(srollingMessageFrame.SetFontObject, srollingMessageFrame, _G.ChatFontNormal)
+		end
+
 		-- set Default font properties
 		if defaultFontObject then
 			srollingMessageFrame.defaultFontObject = defaultFontObject
 		else
-			srollingMessageFrame.defaultFontObject = DiesalFontNormal
+			srollingMessageFrame.defaultFontObject = _G.DiesalFontNormal or _G.GameFontNormal
 		end
-		srollingMessageFrame:SetFont(srollingMessageFrame.defaultFontObject:GetFont())
-		srollingMessageFrame:SetTextColor(srollingMessageFrame.defaultFontObject:GetTextColor())
-		srollingMessageFrame:SetSpacing(srollingMessageFrame.defaultFontObject:GetSpacing())
+
+		-- Try to apply custom font if available
+		if srollingMessageFrame.defaultFontObject and type(srollingMessageFrame.defaultFontObject.GetFont) == "function" then
+			local success, fontPath, fontSize, fontFlags = pcall(srollingMessageFrame.defaultFontObject.GetFont, srollingMessageFrame.defaultFontObject)
+			if success and fontPath then
+				pcall(srollingMessageFrame.SetFont, srollingMessageFrame, fontPath, fontSize or 11, fontFlags or "")
+			end
+		end
+
+		-- Set colors and spacing safely
+		if srollingMessageFrame.defaultFontObject and type(srollingMessageFrame.defaultFontObject.GetTextColor) == "function" then
+			local success, r, g, b, a = pcall(srollingMessageFrame.defaultFontObject.GetTextColor, srollingMessageFrame.defaultFontObject)
+			if success and r then
+				pcall(srollingMessageFrame.SetTextColor, srollingMessageFrame, r, g, b, a or 1)
+			end
+		end
+		if srollingMessageFrame.defaultFontObject and type(srollingMessageFrame.defaultFontObject.GetSpacing) == "function" then
+			local success, spacing = pcall(srollingMessageFrame.defaultFontObject.GetSpacing, srollingMessageFrame.defaultFontObject)
+			if success and spacing then
+				pcall(srollingMessageFrame.SetSpacing, srollingMessageFrame, spacing)
+			end
+		end
 
 		self[regionName] = srollingMessageFrame
 		return srollingMessageFrame
@@ -179,7 +269,13 @@ ObjectBase.CreateRegion = function(self, regionType, regionName, parentRegion, d
 end
 ObjectBase.ResetFonts = function(self)
 	for name, fontString in pairs(self.fontStrings) do
-		fontString:SetFont(fontString.defaultFontObject:GetFont())
+		-- Safe font initialization with fallback
+		local fontPath, fontSize, fontFlags = fontString.defaultFontObject:GetFont()
+		if not fontPath then
+			-- Fallback to WoW default if GetFont returns nil
+			fontPath, fontSize, fontFlags = "Fonts\\FRIZQT__.TTF", 11, ""
+		end
+		fontString:SetFont(fontPath, fontSize, fontFlags)
 		fontString:SetTextColor(fontString.defaultFontObject:GetTextColor())
 		fontString:SetSpacing(fontString.defaultFontObject:GetSpacing())
 	end

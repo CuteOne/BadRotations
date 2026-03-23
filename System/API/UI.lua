@@ -16,32 +16,66 @@ br.api.ui = function(self)
     ui.alwaysCdNever = function(thisOption)
         -- Option Dropdown Requires
         -- {"|cff008000Always", "|cff0000ffCD", "|cffff0000Never"}
-        if br.data.settings[br.selectedSpec][br.selectedProfile]["Rotation Options"] == nil then return 0 end
-        thisOption = br.data.settings[br.selectedSpec][br.selectedProfile]["Rotation Options"][thisOption] ~= nil and
-            ui.value(thisOption, "Rotation Options") or
-            ui.value(thisOption, "Base Options")
-        return thisOption == 1 or (thisOption == 2 and ui.useCDs())
+        local settings = br.data.settings[br.loader.selectedSpec] and br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]
+        if not settings or settings["Rotation Options"] == nil then return false end
+
+        local optVal = settings["Rotation Options"][thisOption] ~= nil and ui.value(thisOption, "Rotation Options") or ui.value(thisOption, "Base Options")
+        return optVal == 1 or (optVal == 2 and ui.useCDs())
     end
 
     --- Checks if the passed option is set to "Always, AOE/CD, CD, or Never"
     -- @function ui.alwaysCdAoENever
     -- @string thisOption - Name of the option from the defined profile options.
-    -- @number[opt=3] minUnits - Minimum Number of units to count for AOE checks.
-    -- @number[opt] enemyCount - Number of enemies for a given range, default is the number of enemies in 40yrds.
+    -- @number[opt=3] minUnits - Minimum number of units required to treat this as AOE.
+    -- @number[opt] enemyCount - A precomputed enemy count (e.g. `#enemies.yards8`) provided by the caller.
     -- @return boolean - Returns true based on selected option and current combat conditions
+    -- @example
+    -- -- Preferred (profile-controlled): compute a count and pass it
+    -- local use = ui.alwaysCdAoENever("Bladestorm", 3, #enemies.yards8)
+    --
+    -- -- Convenience wrapper (helper computes the count for you):
+    -- local use2 = ui.alwaysCdAoENeverRange("Bladestorm", 3, 8, "player")
+    -- -- Both forms return true if the Bladestorm option is set to Always, or set to AOE and there are at least 3 enemies,
+    -- -- or set to AOE/CD and either CDs are enabled or the count meets the threshold.
     ui.alwaysCdAoENever = function(thisOption, minUnits, enemyCount)
         -- Option Dropdown Requires
         -- {"Always", "|cff008000AOE", "|cffffff00AOE/CD", "|cff0000ffCD", "|cffff0000Never"}
-        if br.data.settings[br.selectedSpec][br.selectedProfile]["Rotation Options"] == nil then return 0 end
-        thisOption = br.data.settings[br.selectedSpec][br.selectedProfile]["Rotation Options"][thisOption] ~= nil and
-            ui.value(thisOption, "Rotation Options") or
-            ui.value(thisOption, "Base Options")
+        local settings = br.data.settings[br.loader.selectedSpec] and br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]
+        if not settings or settings["Rotation Options"] == nil then return false end
+
+        local optVal = settings["Rotation Options"][thisOption] ~= nil and ui.value(thisOption, "Rotation Options") or ui.value(thisOption, "Base Options")
         minUnits = minUnits or 3
-        enemyCount = enemyCount or #br.getEnemies("player", 40, false, true)
-        return thisOption == 1
-            or (thisOption == 2 and enemyCount >= minUnits)
-            or (thisOption == 3 and (ui.useCDs() or enemyCount >= minUnits))
-            or (thisOption == 4 and ui.useCDs())
+
+        -- If explicitly Always/ Never/ CD-only selected, handle those first.
+        if optVal == 1 then return true end
+        if optVal == 5 then return false end
+        if optVal == 4 then return ui.useCDs() end
+
+        -- For AOE/CD or CD cases where AOE matters, require either CDs enabled or the provided enemyCount meets the threshold.
+        if optVal == 2 then
+            -- AOE selected: require enemyCount
+            return (enemyCount ~= nil and enemyCount >= minUnits)
+        end
+        if optVal == 3 then
+            -- AOE/CD selected: true if CDs enabled, otherwise require enemyCount
+            return ui.useCDs() or (enemyCount ~= nil and enemyCount >= minUnits)
+        end
+        return false
+    end
+
+    -- Convenience wrapper: compute enemy count from a range and delegate to ui.alwaysCdAoENever
+    -- @function ui.alwaysCdAoENeverRange
+    -- @string thisOption - Name of the option from the defined profile options.
+    -- @number[opt=3] minUnits - Minimum number of units required to treat this as AOE.
+    -- @number[opt=8] range - Range in yards to check for enemies.
+    -- @string[opt="player"] useTarget - Reference unit used to evaluate range (defaults to `player`).
+    -- @return boolean
+    ui.alwaysCdAoENeverRange = function(thisOption, minUnits, range, useTarget)
+        if minUnits == nil then minUnits = 3 end
+        if range == nil then range = 8 end
+        if useTarget == nil then useTarget = "player" end
+        local _, enemyCount = self.enemies.get(range, useTarget)
+        return ui.alwaysCdAoENever(thisOption, minUnits, enemyCount)
     end
 
     if ui.chatOverlay == nil then
@@ -50,7 +84,7 @@ br.api.ui = function(self)
         -- @string text - The text to display.
         -- @return nil
         ui.chatOverlay = function(text)
-            return br.ChatOverlay(text)
+            return br.ui.chatOverlay:Show(text)
         end
     end
 
@@ -62,7 +96,7 @@ br.api.ui = function(self)
         -- @return boolean - Returns true if the option is checked
         ui.checked = function(thisOption, optionPage)
             if thisOption == nil then return false end
-            return br.isChecked(thisOption, optionPage)
+            return br.functions.misc:isChecked(thisOption, optionPage)
         end
     end
 
@@ -72,7 +106,7 @@ br.api.ui = function(self)
         -- @string text - The message to show in chat.
         -- @return nil
         ui.debug = function(text)
-            return br.addonDebug(text)
+            return br.functions.misc:addonDebug(text)
         end
     end
 
@@ -83,7 +117,7 @@ br.api.ui = function(self)
         -- @number delayTime - The length of time to wait until true, in seconds.
         -- @return boolean - Returns true if the delay time has passed
         ui.delay = function(delayName, delayTime)
-            return br.timer:useTimer(delayName, delayTime)
+            return br.debug.timer:useTimer(delayName, delayTime)
         end
     end
 
@@ -92,7 +126,27 @@ br.api.ui = function(self)
         -- @function ui.fullBags
         -- @return boolean - Returns true if bags are full
         ui.fullBags = function()
-            return br.lootManager:emptySlots() == 0
+            return br.engines.lootEngine:emptySlots() == 0
+        end
+    end
+
+    if ui.getSpell == nil then
+        --- Returns the spellID for the highest known if table is passed, or the spellID for the single spell name.
+        -- @function ui.getSpell
+        -- @string spellName - The name of the spell.
+        -- @return number - Returns the spell ID
+        ui.getSpell = function(spellID)
+            if type(spellID) == "table" then
+                -- return highest rank spell that is known
+                for i = #spellID, 1, -1 do
+                    if br.functions.spell:isKnown(spellID[i]) then
+                        return spellID[i]
+                    end
+                end
+                return nil
+            else
+                return spellID
+            end
         end
     end
 
@@ -114,14 +168,14 @@ br.api.ui = function(self)
 
     if ui.pause == nil then
         --- Returns true if special conditions are met to pause
-        -- @see br.pause for these conditions
+        -- @see br.functions.misc:pause for these conditions
         -- @function ui.pause
         -- @boolean[opt=false] ignoreChannel - Set to true to ignore pausing on channel casts
         -- @return boolean - Returns true if rotation should be paused
         ui.pause = function(ignoreChannel)
             --local pause = br._G["pause"]
             if ignoreChannel == nil then ignoreChannel = false end
-            return br.pause(ignoreChannel)
+            return br.functions.misc:pause(ignoreChannel)
         end
     end
 
@@ -147,8 +201,19 @@ br.api.ui = function(self)
         -- @function ui.pullTimer
         -- @return number - Returns seconds remaining on pull timer
         ui.pullTimer = function()
-            --local PullTimerRemain = br._G["PullTimerRemain"]
-            return br.PullTimerRemain()
+            return br.functions.custom:PullTimerRemain()
+        end
+    end
+
+    if ui.round == nil then
+        --- Rounds a number to the specified number of decimal places (default 2)
+        -- @function ui.round
+        -- @number num - The number to round.
+        -- @number[opt=2] numDecimalPlaces - The number of decimal places to round to.
+        -- @return number - Returns the rounded number
+        ui.round = function(num, numDecimalPlaces)
+            if numDecimalPlaces == nil then numDecimalPlaces = 2 end
+            return br.functions.misc:round2(num, numDecimalPlaces)
         end
     end
 
@@ -168,7 +233,7 @@ br.api.ui = function(self)
         -- @number interval - The length of time to wait until true, in seconds.
         -- @return boolean - Returns true if the interval has passed
         ui.timer = function(timerName, interval)
-            return br.timer:useTimer(timerName, interval)
+            return br.debug.timer:useTimer(timerName, interval)
         end
     end
 
@@ -178,7 +243,7 @@ br.api.ui = function(self)
         -- @string thisToggle - Name of the toggle to check.
         -- @return boolean - Returns true if the toggle is active
         ui.toggle = function(thisToggle)
-            return not br._G.GetCurrentKeyBoardFocus() and br.SpecificToggle(thisToggle) or false
+            return not br._G.GetCurrentKeyBoardFocus() and br.functions.misc:SpecificToggle(thisToggle) or false
         end
     end
 
@@ -204,7 +269,7 @@ br.api.ui = function(self)
         -- @return boolean - Returns true if cooldowns should be used
         ui.useCDs = function()
             local hasBloodLust = br._G["hasBloodLust"]
-            return (ui.mode.cooldown == 1 and br.isBoss())
+            return (ui.mode.cooldown == 1 and br.functions.unit:isBoss())
                 or ui.mode.cooldown == 2
                 or (ui.mode.cooldown == 4 and hasBloodLust())
         end
@@ -271,7 +336,19 @@ br.api.ui = function(self)
         -- @return number - Returns the value of the specified option
         ui.value = function(thisOption, optionPage)
             if thisOption == nil then return 0 end
-            return br.getOptionValue(thisOption, optionPage)
+            return br.functions.misc:getOptionValue(thisOption, optionPage)
+        end
+    end
+
+    if ui.setToggle == nil then
+        --- Sets a toggle to the specified value and updates the UI
+        -- @function ui.setToggle
+        -- @string toggleName - The name of the toggle to set
+        -- @number toggleValue - The value to set the toggle to (1, 2, 3, etc.)
+        -- @return nil
+        ui.setToggle = function(toggleName, toggleValue)
+            if toggleName == nil or toggleValue == nil then return end
+            br.ui:ToggleToValue(toggleName, toggleValue)
         end
     end
 end

@@ -13,54 +13,54 @@
 
 ---
 
-`br.UnitBuffID(UnitID, SpellID, Filter) - 1/nil` Returns 1 if Buff found on target
-`br.UnitDebuffID(UnitID, SpellID, Filter) - 1/nil` Returns 1 if Debuff found on target
+`br.functions.aura:UnitBuffID(UnitID, SpellID, Filter) - 1/nil` Returns 1 if Buff found on target
+`br.functions.aura:UnitDebuffID(UnitID, SpellID, Filter) - 1/nil` Returns 1 if Debuff found on target
 **CAN - Booleans**
 
 ---
 
 `canAttack(Unit1,Unit2) - Bool` Returns true if Unit1 can attack Unit2
-`br.canDispel(Unit,spellID) - Bool` Retruns true if the Unit have a valid Dispel
+`br.functions.aura:canDispel(Unit,spellID) - Bool` Retruns true if the Unit have a valid Dispel
 `canHeal(Unit) - Bool` Returns true if we can heal that Unit
-`br.canInterrupt(spellID,percentint) - Bool` Returns true if we can Interrupt that target
+`br.functions.spell:canInterrupt(spellID,percentint) - Bool` Returns true if we can Interrupt that target
 `canPrepare() - Bool` Returns true if ready to buff(ooc)
-`br.canRun() - Bool` Returns true if we can Run profile(incombat)
-`br.canUseItem(itemID) - Bool` Returns true if the item can be used
+`br.functions.action:canRun() - Bool` Returns true if we can Run profile(incombat)
+`br.functions.item:canUseItem(itemID) - Bool` Returns true if the item can be used
 **CAST - Function Methods**
 
 ---
 
 `castGround(Unit,SpellID,maxDistance)` Used to cast Spells on ground. Returns true if everything passes.
 `castGroundBetween(Unit,SpellID,maxDistance) ` Used to ground cast between yourself and target. Returns true if everything passes.
-`castHealGround(SpellID,Radius,Health,NumberOfPlayers)` Used to ground cast between lowest br.friend members. Returns true if everything passes.
+`castHealGround(SpellID,Radius,Health,NumberOfPlayers)` Used to ground cast between lowest br.engines.healingEngine.friend members. Returns true if everything passes.
 [castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip)](https://github.com/CuteOne/BadRotations/wiki/castSpell-Method#castspell) Used to cast Spells. Returns true if everything passes.
 **GET - Mixed**
 
 ---
 
 `getAllies(Target,Radius) - Table` Returns a table of the allies found within Radius of the target
-`br.getBuffRemain(Unit,BuffID) - Num` Returns how long remain on this Unit buff.
-`br.getBuffStacks(Unit,BuffID) - Num` Returns number of stacks of this Units buff.
-`br.getCombatTime() - Num` Returns time since combat started.
+`br.functions.aura:getBuffRemain(Unit,BuffID) - Num` Returns how long remain on this Unit buff.
+`br.functions.aura:getBuffStacks(Unit,BuffID) - Num` Returns number of stacks of this Units buff.
+`br.functions.combat:getCombatTime() - Num` Returns time since combat started.
 `getCreatureType(Unit) - Bool` Returns true if Unit is not a pet battle or a totem.
 `getCombo() - Num` Returns combo points on current target.
-`br.getDebuffRemain(Unit,DebuffID) - Num` Returns how long remain on this Units Debuff.
-`br.getDebuffStacks(Unit,DebuffID)  - Num` Returns number of stacks of this Units Debuff.
-`br.getDistance(Unit1,Unit2) - Num` Returns distance to target in yards.
-`br.getEnemies(Target,Radius) - Table` Returns a table of the Enemies found within Radius of the target
-`br.getFacing(Unit1,Unit2)	- Bool` Returns true if Unit1 is facing Unit2
+`br.functions.aura:getDebuffRemain(Unit,DebuffID) - Num` Returns how long remain on this Units Debuff.
+`br.functions.aura:getDebuffStacks(Unit,DebuffID)  - Num` Returns number of stacks of this Units Debuff.
+`br.functions.range:getDistance(Unit1,Unit2) - Num` Returns distance to target in yards.
+`br.engines.enemiesEngineFunctions:getEnemies(Target,Radius) - Table` Returns a table of the Enemies found within Radius of the target
+`br.functions.unit:getFacing(Unit1,Unit2)	- Bool` Returns true if Unit1 is facing Unit2
 `getFallTime() - Num` Returns the time the character has been falling.
 `getGround(Unit) - Bool` Returns true if ground is found under the target
-`br.getHP(Unit) - Num` Returns Unit HP %
-`br.getLineOfSight(Unit1,Unit2) - Bool` Returns true if the Unit1 can see Unit2
-`getLowAllies(Value) - Num` Returns number of units under Value HP in br.friend
+`br.functions.unit:getHP(Unit) - Num` Returns Unit HP %
+`br.functions.misc:getLineOfSight(Unit1,Unit2) - Bool` Returns true if the Unit1 can see Unit2
+`getLowAllies(Value) - Num` Returns number of units under Value HP in br.engines.healingEngine.friend
 `getMana(Unit) - Num` Returns Unit Mana %
 `getNumEnemies(Target,Radius) - Num` Returns number of Enemies found within Radius of the target
 `getPetLineOfSight(Unit) - Bool` Returns true if our pet is in sight of target
-`br.getPower(Unit) - Num` Returns Unit Power %
-`br.getRegen(Unit) - Num` Returns power regen rate of Unit
+`br.functions.power:getPower(Unit) - Num` Returns Unit Power %
+`br.functions.power:getRegen(Unit) - Num` Returns power regen rate of Unit
 `round2(num, idp) - Num` Used to round numbers
-`br.getSpellCD(SpellID) - Num` Returns how long remain until the CD is ready
+`br.functions.spell:getSpellCD(SpellID) - Num` Returns how long remain until the CD is ready
 `getTimeToDie(unit) - Num` Returns approximative Time To Die for Unit
 `getTimeToMax(Unit) - Num` Returns how long it will take until our ressources are maxed
 `getTotemDistance(Unit1) - Num` Returns distance from totem to target
@@ -74,18 +74,18 @@
 
 ---
 
-`br.isAlive(Unit) - Bool` Returns true if Unit is alive
-`br.isBoss() - Bool` Returns true if a boss is found in boss 1-2-3-4-5
+`br.functions.unit:isAlive(Unit) - Bool` Returns true if Unit is alive
+`br.functions.unit:isBoss() - Bool` Returns true if a boss is found in boss 1-2-3-4-5
 `isBuffed(UnitID,SpellID,TimeLeft) - Bool` Rturns true if Unit have at least Timeleft remaining on SpellId Buff
 `isCasting(SpellID,Unit) - Bool` Returns true if Unit is casting given spell
-`br.isCastingSpell(spellID) - Bool` returns true if WE are casting spellid
-`br.isDummy(Unit) - Bool` Returns true if Unit is a dummy
+`br.functions.cast:isCastingSpell(spellID) - Bool` returns true if WE are casting spellid
+`br.functions.unit:isDummy(Unit) - Bool` Returns true if Unit is a dummy
 `isEnnemy(Unit) - Bool` Returns true if we can attack the Unit
 `isGarrMCd(Unit) - Bool` Returns true if Unit if affected by Garrosh MC
 `isInCombat(Unit) - Bool` Returns true if Unit is in combat
 `isInMelee(Unit) - Bool` Returns true if we are withing 4 yard of the Unit
 `isInPvP() - Bool` Returns true if we are in PvP
-`br.isKnown(spellID) - Bool` Returns true if we know this spell(via spellbook check)
+`br.functions.spell:isKnown(spellID) - Bool` Returns true if we know this spell(via spellbook check)
 `isLooting() - Bool` Returns true if we are currently looting
 `isMoving(Unit) - Num` Returns Unit movement speed
 `IsMovingTime(time) - Bool` Returns true if we have been moving for time seconds
@@ -95,19 +95,19 @@
 
 ---
 
-`makeEnemiesTable()` - does not return anything but create br.enemy that hold br.enemy[i].unit br.enemy[i].distance and br.enemy[i].hp of all enemies in 40 yards
+`makeEnemiesTable()` - does not return anything but create br.engines.enemiesEngine.enemy that hold br.engines.enemiesEngine.enemy[i].unit br.engines.enemiesEngine.enemy[i].distance and br.engines.enemiesEngine.enemy[i].hp of all enemies in 40 yards
 `nDbDmg(tar, spellID, player) - Num` Returns tooltip damage
 `pause() - Bool` Returns true if pause is engaged
 `castingUnit() - Bool` Returns true is said unit is casting.
-`br.useItem(itemID)` Use item via ID
+`br.functions.item:useItem(itemID)` Use item via ID
 `shouldStopCasting(SpellID) - Bool` Built into casts methods. Prevents spell locking.
 **Config Queries - Mixed**
 
 ---
 
-`br.isChecked(Value) - Bool` Returns true if Value Checkbox is checked in UI
+`br.functions.misc:isChecked(Value) - Bool` Returns true if Value Checkbox is checked in UI
 `isSelected(Value) - Bool` Returns true if Value Checkbox is checked in UI and CD requirements are met.
-`br.getValue(Value) - Num` Returns drop or box Value from UI
+`br.functions.misc:getValue(Value) - Num` Returns drop or box Value from UI
 `CreateNewCheck(value, textString, tip1, state)`
 
 - Used to create checkboxes in UI

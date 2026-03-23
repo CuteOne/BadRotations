@@ -18,7 +18,7 @@ br.api.pets = function(pet,k,v,brplayer)
         -- @return boolean True if player has an active pet, false otherwise
         -- @usage local hasPet = br.player.pet.active.exists()
         pet.active.exists = function()
-            return br.GetObjectExists("pet")
+            return br.functions.unit:GetObjectExists("pet")
         end
 
         ---
@@ -29,7 +29,7 @@ br.api.pets = function(pet,k,v,brplayer)
             local count = 0
             for l,_ in pairs(brplayer.pet.list) do
                 local listID = brplayer.pet.list[l].id
-                if br.GetObjectID("pet") == listID then count = count + 1 end
+                if br.functions.unit:GetObjectID("pet") == listID then count = count + 1 end
             end
             return count
         end
@@ -39,7 +39,7 @@ br.api.pets = function(pet,k,v,brplayer)
         -- @function br.player.pet.active.id
         -- @return number The ID of the active pet
         pet.active.id =  function()
-            return br.GetObjectID("pet")
+            return br.functions.unit:GetObjectID("pet")
         end
     end
     pet = petList
@@ -89,7 +89,7 @@ br.api.pets = function(pet,k,v,brplayer)
     -- self.pet.buff.exists = function(buffID,petID)
     --     for k, v in pairs(self.pet) do
     --         local pet = self.pet[k]
-    --         if self.pet[k].id == petID and br.UnitBuffID(k,buffID) ~= nil then return true end
+    --         if self.pet[k].id == petID and br.functions.aura:UnitBuffID(k,buffID) ~= nil then return true end
     --     end
     --     return false
     -- end
@@ -98,7 +98,7 @@ br.api.pets = function(pet,k,v,brplayer)
     --     local petCount = 0
     --     for k, v in pairs(self.pet) do
     --         local pet = self.pet[k]
-    --         if self.pet[k].id == petID and br.UnitBuffID(k,buffID) ~= nil then petCount = petCount + 1 end
+    --         if self.pet[k].id == petID and br.functions.aura:UnitBuffID(k,buffID) ~= nil then petCount = petCount + 1 end
     --     end
     --     return petCount
     -- end
@@ -107,7 +107,7 @@ br.api.pets = function(pet,k,v,brplayer)
     --     local petCount = 0
     --     for k, v in pairs(self.pet) do
     --         local pet = self.pet[k]
-    --         if self.pet[k].id == petID and br.UnitBuffID(k,buffID) == nil then petCount = petCount + 1 end
+    --         if self.pet[k].id == petID and br.functions.aura:UnitBuffID(k,buffID) == nil then petCount = petCount + 1 end
     --     end
     --     return petCount
     -- end

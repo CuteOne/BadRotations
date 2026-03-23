@@ -1,24 +1,31 @@
 local _, br = ...
-function br.AuraData(unit, index, filter)
-	local auraData = br._G.C_UnitAuras.GetAuraDataByIndex(unit, index, filter)
+br.functions.aura = br.functions.aura or {}
+local aura = br.functions.aura
+
+function aura:AuraData(unit, index, filter)
+	local auraData = br.api.wow.GetAuraDataByIndex(unit, index, filter)
 	if not auraData then return nil end
-	return AuraUtil.UnpackAuraData(auraData)
+	if _G.AuraUtil and _G.AuraUtil.UnpackAuraData then
+		return _G.AuraUtil.UnpackAuraData(auraData)
+	end
+	-- If AuraUtil doesn't exist, return the auraData structure
+	return auraData
 end
 
 -- Overwrite UnitBuff
-function br.UnitBuff(unit, index, filter)
-	return br.AuraData(unit, index, filter)
+function aura:UnitBuff(unit, index, filter)
+	return aura:AuraData(unit, index, filter)
 end
 
 -- Overwrite UnitDebuff
-function br.UnitDebuff(unit, index, filter)
-	return br.AuraData(unit, index, filter)
+function aura:UnitDebuff(unit, index, filter)
+	return aura:AuraData(unit, index, filter)
 end
 
-function br.CancelUnitBuffID(unit, spellID, filter)
+function aura:CancelUnitBuffID(unit, spellID, filter)
 	-- local spellName = GetSpellInfo(spellID)
 	for i = 1, 40 do
-		local _, _, _, _, _, _, _, _, _, buffSpellID = br.UnitBuff(unit, i)
+		local _, _, _, _, _, _, _, _, _, buffSpellID = aura:UnitBuff(unit, i)
 		if buffSpellID ~= nil then
 			if buffSpellID == spellID then
 				br._G.CancelUnitBuff(unit, i, filter)
@@ -30,9 +37,9 @@ function br.CancelUnitBuffID(unit, spellID, filter)
 	end
 end
 
-function br.UnitAuraID(unit, spellID, filter)
-	local buff = br.UnitBuffID(unit, spellID, filter)
-	local debuff = br.UnitDebuffID(unit, spellID, filter)
+function aura:UnitAuraID(unit, spellID, filter)
+	local buff = aura:UnitBuffID(unit, spellID, filter)
+	local debuff = aura:UnitDebuffID(unit, spellID, filter)
 	if buff then
 		return buff
 	elseif debuff then
@@ -42,108 +49,168 @@ function br.UnitAuraID(unit, spellID, filter)
 	end
 end
 
-function br.UnitBuffID(unit, spellID, filter)
-	local spellName = br._G.GetSpellInfo(spellID)
+function aura:UnitBuffID(unit, spellID, filter)
+	local spellName = br.api.wow.GetSpellInfo(spellID)
 	local exactSearch = filter ~= nil and br._G.strfind(br._G.strupper(filter), "EXACT")
  	if unit == "player" then
-	    local auraInfo = C_UnitAuras.GetPlayerAuraBySpellID(spellID)
+	    local auraInfo = br.api.wow.GetPlayerAuraBySpellID(spellID)
 	    if auraInfo and auraInfo.expirationTime > br._G.GetTime() then return auraInfo end
 	end
 	if exactSearch then
 		for i = 1, 40 do
-			local buffName, _, _, _, _, _, _, _, _, buffSpellID = br.UnitBuff(unit, i, "player")
+			local buffName, _, _, _, _, _, _, _, _, buffSpellID = aura:UnitBuff(unit, i, "player")
+			-- print("Unit: " .. tostring(unit) .. ", Spell: " .. tostring(spellName) .. ", ID: " .. tostring(spellID) .. ", Buff: " .. tostring(buffName) .. ", BuffID: " .. tostring(buffSpellID))
 			if buffName == nil then return nil end
 			if buffSpellID == spellID then
-				return br.UnitBuff(unit, i)
+				return aura:UnitBuff(unit, i)
 			end
 		end
 	else
 		if filter ~= nil and br._G.strfind(br._G.strupper(filter), "PLAYER") then
 			-- br._G.print("Unit: " .. tostring(unit) .. ", Spell: " .. tostring(spellName) .. ", ID: " .. tostring(spellID))
-			return br._G.AuraUtil.FindAuraByName(spellName, unit, "HELPFUL|PLAYER")
+			return br.api.wow.FindAuraByName(spellName, unit, "HELPFUL|PLAYER")
 		end
-		return br._G.AuraUtil.FindAuraByName(spellName, unit, "HELPFUL")
+		return br.api.wow.FindAuraByName(spellName, unit, "HELPFUL")
 	end
 end
 
-function br.UnitDebuffID(unit, spellID, filter)
-	local thisUnit = br._G["ObjectPointer"](unit)
-	local spellName = br._G.GetSpellInfo(spellID)
-	-- Check Cache
-	if br.isChecked("Cache Debuffs") then
-		if br.enemy[thisUnit] ~= nil then
-			if filter == nil then filter = "player" else filter = br._G["ObjectPointer"](filter) end
-			if br.enemy[thisUnit].debuffs[filter] ~= nil then
-				if br.enemy[thisUnit].debuffs[filter][spellID] ~= nil then
-					return br.enemy[thisUnit].debuffs[filter][spellID](spellID, thisUnit)
-				else
-					return nil
-				end
-			end
-		end
-	end
+-- function aura:UnitDebuffID(unit, spellID, filter)
+-- 	local thisUnit = br._G["ObjectPointer"](unit)
+-- 	local spellName = br.api.wow.GetSpellInfo(spellID)
+-- 	-- Check Cache
+-- 	if br.functions.misc:isChecked("Cache Debuffs") then
+-- 		if br.engines.enemiesEngine.enemy[thisUnit] ~= nil then
+-- 			if filter == nil then filter = "player" else filter = br._G["ObjectPointer"](filter) end
+-- 			if br.engines.enemiesEngine.enemy[thisUnit].debuffs[filter] ~= nil then
+-- 				if br.engines.enemiesEngine.enemy[thisUnit].debuffs[filter][spellID] ~= nil then
+-- 					return br.engines.enemiesEngine.enemy[thisUnit].debuffs[filter][spellID](spellID, thisUnit)
+-- 				else
+-- 					return nil
+-- 				end
+-- 			end
+-- 		end
+-- 	end
 
-	-- Failsafe if not cached
-	if unit == "player" then
-		local auraInfo = C_UnitAuras.GetPlayerAuraBySpellID(spellID)
-	    if auraInfo and auraInfo.expirationTime > br._G.GetTime() then return auraInfo end
-	end
-	local exactSearch = filter ~= nil and br._G.strfind(br._G.strupper(filter), "EXACT")
-	if exactSearch then
-		for i = 1, 40 do
-			-- local buffName, _, _, _, _, _, _, _, _, buffSpellID = br._G.UnitDebuff(unit, i, "player")
-			local auraInfo = C_UnitAuras.GetDebuffDataByIndex(unit, i, "PLAYER")
-			if auraInfo == nil then return nil end
-			if auraInfo.spellId == spellID then
-				return auraInfo --br._G.UnitDebuff(unit, i, "player")
-			end
-		end
-	else
-		if filter ~= nil and br._G.strfind(br._G.strupper(filter), "PLAYER") then
-			for i = 1, 40 do
-				local auraInfo = C_UnitAuras.GetDebuffDataByIndex(unit, i, "HARMFUL|PLAYER")
-				if auraInfo and auraInfo.name == spellName then return auraInfo end
-			end
-			-- return br._G.AuraUtil.FindAuraByName(spellName, unit, "HARMFUL|PLAYER")
-		end
-		for i = 1, 40 do
-			local auraInfo = C_UnitAuras.GetDebuffDataByIndex(unit, i, "HARMFUL")
-			if auraInfo and auraInfo.name == spellName then return auraInfo end
-		end
-		-- return br._G.AuraUtil.FindAuraByName(spellName, unit, "HARMFUL")
-	end
+-- 	-- Failsafe if not cached
+-- 	if unit == "player" then
+-- 		local auraInfo = C_UnitAuras.GetPlayerAuraBySpellID(spellID)
+-- 	    if auraInfo and auraInfo.expirationTime > br._G.GetTime() then return auraInfo end
+-- 	end
+-- 	local exactSearch = filter ~= nil and br._G.strfind(br._G.strupper(filter), "EXACT")
+-- 	if exactSearch then
+-- 		for i = 1, 40 do
+-- 			-- local buffName, _, _, _, _, _, _, _, _, buffSpellID = br._G.UnitDebuff(unit, i, "player")
+-- 			local auraInfo = C_UnitAuras.GetDebuffDataByIndex(unit, i, "PLAYER")
+-- 			if auraInfo and auraInfo.spellId == spellID then
+-- 				return auraInfo --br._G.UnitDebuff(unit, i, "player")
+-- 			end
+-- 		end
+-- 	else
+-- 		if filter ~= nil and br._G.strfind(br._G.strupper(filter), "PLAYER") then
+-- 			for i = 1, 40 do
+-- 				local auraInfo = C_UnitAuras.GetDebuffDataByIndex(unit, i, "HARMFUL|PLAYER")
+-- 				if auraInfo and auraInfo.name == spellName then return auraInfo end
+-- 			end
+-- 			-- return br._G.AuraUtil.FindAuraByName(spellName, unit, "HARMFUL|PLAYER")
+-- 		end
+-- 		for i = 1, 40 do
+-- 			local auraInfo = C_UnitAuras.GetDebuffDataByIndex(unit, i, "HARMFUL")
+-- 			if auraInfo and auraInfo.name == spellName then return auraInfo end
+-- 		end
+-- 		-- return br._G.AuraUtil.FindAuraByName(spellName, unit, "HARMFUL")
+-- 	end
+-- end
+local _UnitDebuffID_lock = false
+function aura:UnitDebuffID(unit, spellID, filter)
+    -- guard invalid input quickly
+    if not unit or not spellID then return nil end
+
+    -- prevent re-entrancy / infinite recursion that can cause "script ran too long"
+    if _UnitDebuffID_lock then return nil end
+    _UnitDebuffID_lock = true
+
+    local ok, r1, r2, r3, r4, r5 = pcall(function()
+        local thisUnit = br._G["ObjectPointer"](unit)
+        local spellName = br.api.wow.GetSpellInfo(spellID)
+        -- Check Cache
+        if br.functions.misc:isChecked("Cache Debuffs") then
+            if thisUnit and br.engines.enemiesEngine.enemy[thisUnit] ~= nil then
+                if filter == nil then filter = "player" else filter = br._G["ObjectPointer"](filter) end
+                if br.engines.enemiesEngine.enemy[thisUnit].debuffs[filter] ~= nil then
+                    if br.engines.enemiesEngine.enemy[thisUnit].debuffs[filter][spellID] ~= nil then
+                        return br.engines.enemiesEngine.enemy[thisUnit].debuffs[filter][spellID](spellID, thisUnit)
+                    else
+                        return nil
+                    end
+                end
+            end
+        end
+
+        -- Failsafe if not cached
+        if unit == "player" then
+            local auraInfo = br.api.wow.GetPlayerAuraBySpellID(spellID)
+            if auraInfo and auraInfo.expirationTime > br._G.GetTime() then return auraInfo end
+        end
+        local exactSearch = filter ~= nil and br._G.strfind(br._G.strupper(filter), "EXACT")
+        if exactSearch then
+            for i = 1, 40 do
+                local auraInfo = br.api.wow.GetDebuffDataByIndex(unit, i, "PLAYER")
+                if auraInfo and auraInfo.spellId == spellID then
+                    return auraInfo
+                end
+            end
+        else
+            if filter ~= nil and br._G.strfind(br._G.strupper(filter), "PLAYER") then
+                for i = 1, 40 do
+                    local auraInfo = br.api.wow.GetDebuffDataByIndex(unit, i, "HARMFUL|PLAYER")
+                    if auraInfo and auraInfo.name == spellName then return auraInfo end
+                end
+                return nil -- Don't fall through to non-player filter if PLAYER was specified
+            end
+            for i = 1, 40 do
+                local auraInfo = br.api.wow.GetDebuffDataByIndex(unit, i, "HARMFUL")
+                if auraInfo and auraInfo.name == spellName then return auraInfo end
+            end
+        end
+        return nil
+    end)
+
+    -- release lock and return results (if pcall failed, return nil)
+    _UnitDebuffID_lock = false
+    if not ok then return nil end
+    return r1, r2, r3, r4, r5
 end
 
 local function Dispel(unit, stacks, buffDuration, buffRemain, buffSpellID, buff)
 	if not buff then
-		if buffSpellID == 288388 then
-			if stacks >= br.getOptionValue("Reaping") or not br._G.UnitAffectingCombat("player") then
+		if buffSpellID == (br.functions.spell:getHighestSpellID("reaping") or 288388) then
+			if stacks >= br.functions.misc:getOptionValue("Reaping") or not br._G.UnitAffectingCombat("player") then
 				return true
 			else
 				return false
 			end
-		elseif buffSpellID == 282566 then
-			if stacks >= br.getOptionValue("Promise of Power") then
+		elseif buffSpellID == (br.functions.spell:getHighestSpellID("promiseOfPower") or 282566) then
+			if stacks >= br.functions.misc:getOptionValue("Promise of Power") then
 				return true
 			else
 				return false
 			end
-		elseif buffSpellID == 303657 and br.isChecked("Arcane Burst")
-			and buffDuration - buffRemain > (br.getValue("Dispel delay") - 0.3 + math.random() * 0.6)
+		elseif buffSpellID == (br.functions.spell:getHighestSpellID("arcaneBurst") or 303657) and br.functions.misc:isChecked("Arcane Burst")
+			and buffDuration - buffRemain > (br.functions.misc:getValue("Dispel delay") - 0.3 + math.random() * 0.6)
 		then
 			return true
-		elseif br.novaEngineTables.DispelID[buffSpellID] ~= nil then
-			if (stacks >= br.novaEngineTables.DispelID[buffSpellID].stacks or br.isChecked("Ignore Stack Count"))
+		elseif br.engines.healingEngineCollections.DispelID[buffSpellID] ~= nil then
+			if (stacks >= br.engines.healingEngineCollections.DispelID[buffSpellID].stacks or br.functions.misc:isChecked("Ignore Stack Count"))
 			then
-				if br.novaEngineTables.DispelID[buffSpellID].stacks ~= 0
-					and br.novaEngineTables.DispelID[buffSpellID].range == nil
+				if br.engines.healingEngineCollections.DispelID[buffSpellID].stacks ~= 0
+					and br.engines.healingEngineCollections.DispelID[buffSpellID].range == nil
 				then
 					return true
 				else
-					if buffDuration - buffRemain > (br.getValue("Dispel delay") - 0.3 + math.random() * 0.6) then -- Dispel Delay then
-						if br.novaEngineTables.DispelID[buffSpellID].range ~= nil then
-							if not br.isChecked("Ignore Range Check")
-								and #br.getAllies(unit, br.novaEngineTables.DispelID[buffSpellID].range) > 1
+					if buffDuration - buffRemain > (br.functions.misc:getValue("Dispel delay") - 0.3 + math.random() * 0.6) then -- Dispel Delay then
+						if br.engines.healingEngineCollections.DispelID[buffSpellID].range ~= nil then
+							if not br.functions.misc:isChecked("Ignore Range Check")
+								and #br.engines.healingEngineFunctions:getAllies(unit, br.engines.healingEngineCollections.DispelID[buffSpellID].range) > 1
 							then
 								return false
 							end
@@ -158,8 +225,8 @@ local function Dispel(unit, stacks, buffDuration, buffRemain, buffSpellID, buff)
 		end
 		return nil
 	elseif buff then
-		if br.novaEngineTables.PurgeID[buffSpellID] ~= nil then
-			if (buffDuration - buffRemain) > (br.getValue("Dispel delay") - 0.3 + math.random() * 0.6) then
+		if br.engines.healingEngineCollections.PurgeID[buffSpellID] ~= nil then
+			if (buffDuration - buffRemain) > (br.functions.misc:getValue("Dispel delay") - 0.3 + math.random() * 0.6) then
 				return true
 			end
 			return false
@@ -168,11 +235,16 @@ local function Dispel(unit, stacks, buffDuration, buffRemain, buffSpellID, buff)
 	end
 end
 
--- if br.canDispel("target",SpellID) == true then
-function br.canDispel(Unit, spellID)
+-- if br.functions.aura:canDispel("target",SpellID) == true then
+function aura:canDispel(Unit, spellID)
+	-- Initialize dispel tracking table if it doesn't exist
+	if not br.dispelTracker then
+		br.dispelTracker = {}
+	end
+
 	-- first, check DoNotDispell list
-	for i = 1, #br.novaEngineTables.DoNotDispellList do
-		if br.novaEngineTables.DoNotDispellList[i].id == spellID then
+	for i = 1, #br.engines.healingEngineCollections.DoNotDispellList do
+		if br.engines.healingEngineCollections.DoNotDispellList[i].id == spellID then
 			return false
 		end
 	end
@@ -184,83 +256,86 @@ function br.canDispel(Unit, spellID)
 	end
 	if ClassNum == 2 then --Paladin
 		-- Cleanse (Holy)
-		if spellID == 4987 then typesList = { "Poison", "Disease", "Magic" } end
+		if spellID == (br.functions.spell:getHighestSpellID("cleanse") or 4987) then typesList = { "Poison", "Disease", "Magic" } end
 		-- Cleanse Toxins (Ret, Prot)
-		if spellID == 213644 then typesList = { "Poison", "Disease" } end
+		if spellID == (br.functions.spell:getHighestSpellID("cleanseToxins") or 213644) then typesList = { "Poison", "Disease" } end
 	end
-	if ClassNum == 3 then                                                            --Hunter
-		if spellID == 19801 then typesList = { "Magic", "" } end                     --tranq shot
+	if ClassNum == 3 then --Hunter
+		if spellID == (br.functions.spell:getHighestSpellID("tranquilizingShot") or 19801) then typesList = { "Magic", "" } end                     --tranq shot
 	end
-	if ClassNum == 4 then                                                            --Rogue
-		if spellID == 31224 then typesList = { "Poison", "Curse", "Disease", "Magic" } end -- Cloak of Shadows
-		if spellID == 5938 then typesList = { "" } end                               --shiv
+	if ClassNum == 4 then --Rogue
+		if spellID == (br.functions.spell:getHighestSpellID("cloakOfShadows") or 31224) then typesList = { "Poison", "Curse", "Disease", "Magic" } end -- Cloak of Shadows
+		if spellID == (br.functions.spell:getHighestSpellID("shiv") or 5938) then typesList = { "" } end                               --shiv
 	end
-	if ClassNum == 5 then                                                            --Priest
+	if ClassNum == 5 then --Priest
 		-- Purify
-		if spellID == 527 then typesList = { "Disease", "Magic" } end
+		if spellID == (br.functions.spell:getHighestSpellID("purify") or 527) then typesList = { "Disease", "Magic" } end
 		-- Mass Dispell
-		if spellID == 32375 then typesList = { "Magic" } end
+		if spellID == (br.functions.spell:getHighestSpellID("massDispel") or 32375) then typesList = { "Magic" } end
 		-- Dispel Magic
-		if spellID == 528 then typesList = { "Magic" } end
+		if spellID == (br.functions.spell:getHighestSpellID("dispelMagic") or 528) then typesList = { "Magic" } end
 	end
 	if ClassNum == 6 then --Death Knight
 		typesList = {}
 	end
 	if ClassNum == 7 then --Shaman
 		-- Cleanse Spirit
-		if spellID == 51886 then typesList = { "Curse" } end
+		if spellID == (br.functions.spell:getHighestSpellID("cleanseSpirit") or 51886) then typesList = { "Curse" } end
 		-- Purify Spirit
-		if spellID == 77130 then typesList = { "Curse", "Magic" } end
+		if spellID == (br.functions.spell:getHighestSpellID("purifySpirit") or 77130) then typesList = { "Curse", "Magic" } end
 		-- Purge
-		if spellID == 370 then typesList = { "Magic" } end
+		if spellID == (br.functions.spell:getHighestSpellID("purge") or 370) then typesList = { "Magic" } end
 	end
 	if ClassNum == 8 then --Mage
 		-- Remove Curse
-		if spellID == 475 then typesList = { "Curse" } end
+		if spellID == (br.functions.spell:getHighestSpellID("removeCurse") or 475) then typesList = { "Curse" } end
 	end
 	if ClassNum == 9 then --Warlock
-		if spellID == 19505 then typesList = { "Magic" } end
+		if spellID == (br.functions.spell:getHighestSpellID("devourMagic") or 19505) then typesList = { "Magic" } end
 	end
 	if ClassNum == 10 then --Monk
 		-- Detox (MW)
 		--if GetSpecialization() == 2 then
-		if spellID == 115450 then typesList = { "Poison", "Disease", "Magic" } end
-		-- Detox (WW or BM)
-		--else
-		if spellID == 218164 then typesList = { "Poison", "Disease" } end
-		--end
+		if spellID == (br.functions.spell:getHighestSpellID("detox") or 115450) or spellID == 218164 then typesList = { "Poison", "Disease" } end --, "Magic" } end
+		-- Detox (WW or BM) handled above via detox key or fallback 218164
 		-- Diffuse Magic
 		-- if spellID == 122783 then typesList = { "Magic" } end
 	end
 	if ClassNum == 11 then --Druid
+		-- Abolish Poison
+		if spellID == (br.functions.spell:getHighestSpellID("abolishPoison") or 2893) then typesList = { "Poison" } end
+		-- Cure Poison
+		if spellID == (br.functions.spell:getHighestSpellID("curePoison") or 8946) then typesList = { "Poison" } end
 		-- Remove Corruption
-		if spellID == 2782 then typesList = { "Poison", "Curse" } end
+		if spellID == (br.functions.spell:getHighestSpellID("removeCorruption") or 2782) then typesList = { "Poison", "Curse" } end
+		-- Remove Curse
+		if spellID == 2783 then typesList = { "Curse" } end
 		-- Nature's Cure
-		if spellID == 88423 then typesList = { "Poison", "Curse", "Magic" } end
+		if spellID == (br.functions.spell:getHighestSpellID("naturesCure") or 88423) then typesList = { "Poison", "Curse", "Magic" } end
 		-- Symbiosis: Cleanse
 		if spellID == 122288 then typesList = { "Poison", "Disease" } end
 		-- Soothe
-		if spellID == 2908 then
+		if spellID == (br.functions.spell:getHighestSpellID("soothe") or 2908) then
 			typesList = { "" }
 		end
 	end
 	if ClassNum == 12 then --Demon Hunter
 		-- Consume Magic
-		if spellID == 278326 then typesList = { "Magic" } end
+		if spellID == (br.functions.spell:getHighestSpellID("consumeMagic") or 278326) then typesList = { "Magic" } end
 	end
 	if ClassNum == 13 then -- Evoker
 		-- Expunge
-		if spellID == 365585 then typesList = { "Poison" } end
+		if spellID == (br.functions.spell:getHighestSpellID("expunge") or 365585) then typesList = { "Poison" } end
 		-- Cauterizing Flame
-		if spellID == 374251 then typesList = { "Bleed", "Poison", "Curse", "Disease" } end
+		if spellID == (br.functions.spell:getHighestSpellID("cauterizingFlame") or 374251) then typesList = { "Bleed", "Poison", "Curse", "Disease" } end
 		-- Naturalize
-		if spellID == 360823 then typesList = { "Magic", "Poison" } end
+		if spellID == (br.functions.spell:getHighestSpellID("naturalize") or 360823) then typesList = { "Magic", "Poison" } end
 	end
 	if br.player.race == "BloodElf" then --Blood Elf
 		-- Arcane Torrent
-		if spellID == select(7, br._G.GetSpellInfo(69179)) then typesList = { "Magic" } end
+		if spellID == select(7, br.api.wow.GetSpellInfo(br.lists.racials and br.lists.racials._bloodElfBase or 69179)) then typesList = { "Magic" } end
 	end
-	if br.hasItem(177278) and spellID == 177278 then typesList = { "Disease", "Poison", "Curse", } end -- Phail of Serenity
+	if br.functions.item:hasItem(br.functions.item:getHighestItemID("phialOfSerenity") or 177278) and spellID == (br.functions.item:getHighestItemID("phialOfSerenity") or 177278) then typesList = { "Disease", "Poison", "Curse", } end -- Phail of Serenity
 	local function ValidType(debuffType)
 		local typeCheck = false
 		if typesList == nil then
@@ -276,53 +351,82 @@ function br.canDispel(Unit, spellID)
 		return typeCheck
 	end
 	local i = 1
-	if not br._G.UnitPhaseReason(Unit) then
-		if br.GetUnitIsFriend("player", Unit) then
-			while br._G.UnitDebuff(Unit, i) do
-				local _, _, stacks, debuffType, debuffDuration, debuffExpire, _, _, _, debuffid = br._G.UnitDebuff(Unit,
-					i)
-				local debuffRemain = debuffExpire - br._G.GetTime()
-				if (debuffType and ValidType(debuffType)) then
-					local delay = br.getValue("Dispel delay") - 0.3 + math.random() * 0.6
-					if debuffid == 284663 and (br.GetHP(Unit) < br.getOptionValue("Bwonsamdi's Wrath HP")
-							or (br._G.UnitGroupRolesAssigned(Unit) == "TANK" and (debuffDuration - debuffRemain) > delay)) then
+	if br._G.UnitInPhase(Unit) then
+		if br.functions.unit:GetUnitIsFriend("player", Unit) then
+			while br.api.wow.GetDebuffDataByIndex(Unit, i) do
+				local debuffInfo = br.api.wow.GetDebuffDataByIndex(Unit, i)
+				local debuffRemain = debuffInfo.expirationTime - br._G.GetTime()
+				if (debuffInfo.dispelName and ValidType(debuffInfo.dispelName)) then
+					-- Create a unique key for this specific debuff instance
+					local trackerKey = Unit .. "_" .. debuffInfo.spellId .. "_" .. debuffInfo.expirationTime
+
+					-- If this is a new debuff, calculate and store a random reaction delay
+					if not br.dispelTracker[trackerKey] then
+						-- Human-like reaction time: base delay +/- 0.3 seconds
+						local baseDelay = br.functions.misc:getValue("Dispel delay")
+						local randomDelay = baseDelay - 0.3 + math.random() * 0.6
+						br.dispelTracker[trackerKey] = randomDelay
+					end
+
+					local delay = br.dispelTracker[trackerKey]
+
+					if debuffInfo.spellId == (br.functions.spell:getHighestSpellID("bwonsamdiWrath") or 284663) and (br.GetHP(Unit) < br.functions.misc:getOptionValue("Bwonsamdi's Wrath HP")
+							or (br._G.UnitGroupRolesAssigned(Unit) == "TANK" and (debuffInfo.duration - debuffRemain) > delay)) then
 						HasValidDispel = true
 						break
 					end
 					local dispelUnitObj
-					for j = 1, #br.friend do
-						local thisUnit = br.friend[j].unit
+					for j = 1, #br.engines.healingEngine.friend do
+						local thisUnit = br.engines.healingEngine.friend[j].unit
 						if Unit == thisUnit then
-							dispelUnitObj = Dispel(thisUnit, stacks, debuffDuration, debuffRemain, debuffid)
+							dispelUnitObj = Dispel(thisUnit, debuffInfo.applications, debuffInfo.duration, debuffRemain, debuffInfo.spellId)
 							if dispelUnitObj ~= nil then
 								break
 							end
 						end
 					end
-					if dispelUnitObj == nil and not br.isChecked("Dispel Only Whitelist")
-						and (debuffDuration - debuffRemain) > delay then
+					if dispelUnitObj == nil and not br.functions.misc:isChecked("Dispel Only Whitelist")
+						and (debuffInfo.duration - debuffRemain) > delay then
 						HasValidDispel = true
+						-- Clean up the tracker once we've detected it (optional: keeps memory usage down)
+						-- br.dispelTracker[trackerKey] = nil
 						break
 					elseif dispelUnitObj == true then
 						HasValidDispel = true
+						-- br.dispelTracker[trackerKey] = nil
 						break
 					end
 				end
 				i = i + 1
 			end
 		else
-			while br.UnitBuff(Unit, i) do
-				local _, _, stacks, buffType, buffDuration, buffExpire, _, _, _, buffid = br.UnitBuff(Unit, i)
-				local buffRemain = buffExpire - br._G.GetTime()
-				if (buffType and ValidType(buffType)) and not br._G.UnitIsPlayer(Unit) then
-					local dispelUnitObj = Dispel(Unit, stacks, buffDuration, buffRemain, buffid, true)
-					if dispelUnitObj == nil and not br.isChecked("Purge Only Whitelist") then
-						if (buffDuration - buffRemain) > (br.getValue("Dispel delay") - 0.3 + math.random() * 0.6) then
+			while br.api.wow.GetBuffDataByIndex(Unit, i) do
+				local buffInfo = br.api.wow.GetBuffDataByIndex(Unit, i)
+				local buffRemain = buffInfo.expirationTime - br._G.GetTime()
+				if (buffInfo.dispelName and ValidType(buffInfo.dispelName)) and not br._G.UnitIsPlayer(Unit) then
+					-- Create a unique key for this specific buff instance
+					local trackerKey = Unit .. "_" .. buffInfo.spellId .. "_" .. buffInfo.expirationTime
+
+					-- If this is a new buff, calculate and store a random reaction delay
+					if not br.dispelTracker[trackerKey] then
+						-- Human-like reaction time: base delay +/- 0.3 seconds
+						local baseDelay = br.functions.misc:getValue("Dispel delay")
+						local randomDelay = baseDelay - 0.3 + math.random() * 0.6
+						br.dispelTracker[trackerKey] = randomDelay
+					end
+
+					local delay = br.dispelTracker[trackerKey]
+
+					local dispelUnitObj = Dispel(Unit, buffInfo.applications, buffInfo.duration, buffRemain, buffInfo.spellId, true)
+					if dispelUnitObj == nil and not br.functions.misc:isChecked("Purge Only Whitelist") then
+						if (buffInfo.duration - buffRemain) > delay then
 							HasValidDispel = true
+							-- br.dispelTracker[trackerKey] = nil
 							break
 						end
 					elseif dispelUnitObj == true then
 						HasValidDispel = true
+						-- br.dispelTracker[trackerKey] = nil
 						break
 					end
 				end
@@ -330,11 +434,19 @@ function br.canDispel(Unit, spellID)
 			end
 		end
 	end
+
+	-- Periodically clean up old tracker entries to prevent memory bloat
+	-- Run cleanup every 30 seconds
+	if not br.dispelTrackerLastCleanup or (br._G.GetTime() - br.dispelTrackerLastCleanup) > 30 then
+		br.dispelTracker = {}
+		br.dispelTrackerLastCleanup = br._G.GetTime()
+	end
+
 	return HasValidDispel
 end
 
-function br.getAuraDuration(Unit, AuraID, Source)
-	local auraInfo,_,_,_,duration = br.UnitAuraID(Unit, AuraID, Source)
+function aura:getAuraDuration(Unit, AuraID, Source)
+	local auraInfo,_,_,_,duration = aura:UnitAuraID(Unit, AuraID, Source)
 	if not auraInfo then return 0 end
 	if auraInfo.duration then
 		return auraInfo.duration * 1
@@ -343,8 +455,8 @@ function br.getAuraDuration(Unit, AuraID, Source)
 	end
 end
 
-function br.getAuraRemain(Unit, AuraID, Source)
-	local auraInfo,_,_,_,_,expires = br.UnitAuraID(Unit, AuraID, Source)
+function aura:getAuraRemain(Unit, AuraID, Source)
+	local auraInfo,_,_,_,_,expires = aura:UnitAuraID(Unit, AuraID, Source)
 	if not auraInfo then return 0 end
 	if auraInfo.expirationTime then
 		return auraInfo.expirationTime - br._G.GetTime()
@@ -353,8 +465,8 @@ function br.getAuraRemain(Unit, AuraID, Source)
 	end
 end
 
-function br.getAuraStacks(Unit, AuraID, Source)
-	local auraInfo,_,stacks = br.UnitAuraID(Unit, AuraID, Source)
+function aura:getAuraStacks(Unit, AuraID, Source)
+	local auraInfo,_,stacks = aura:UnitAuraID(Unit, AuraID, Source)
 	if not auraInfo then return 0 end
 	if auraInfo.applications then
 		return auraInfo.applications
@@ -363,9 +475,9 @@ function br.getAuraStacks(Unit, AuraID, Source)
 	end
 end
 
--- if br.getDebuffDuration("target",12345) < 3 then
-function br.getDebuffDuration(Unit, DebuffID, Source)
-	local auraInfo,_,_,_,duration = br.UnitDebuffID(Unit, DebuffID, Source)
+-- if br.functions.aura:getDebuffDuration("target",12345) < 3 then
+function aura:getDebuffDuration(Unit, DebuffID, Source)
+	local auraInfo,_,_,_,duration = aura:UnitDebuffID(Unit, DebuffID, Source)
 	if not auraInfo then return 0 end
 	if auraInfo.duration then
 		return auraInfo.duration * 1
@@ -374,9 +486,9 @@ function br.getDebuffDuration(Unit, DebuffID, Source)
 	end
 end
 
--- if br.getDebuffRemain("target",12345) < 3 then
-function br.getDebuffRemain(Unit, DebuffID, Source)
-	local auraInfo,_,_,_,_,expires = br.UnitDebuffID(Unit, DebuffID, Source)
+-- if br.functions.aura:getDebuffRemain("target",12345) < 3 then
+function aura:getDebuffRemain(Unit, DebuffID, Source)
+	local auraInfo,_,_,_,_,expires = aura:UnitDebuffID(Unit, DebuffID, Source)
 	if not auraInfo then return 0 end
 	if auraInfo.expirationTime then
 		return auraInfo.expirationTime - br._G.GetTime()
@@ -385,9 +497,9 @@ function br.getDebuffRemain(Unit, DebuffID, Source)
 	end
 end
 
--- if br.getDebuffStacks("target",138756) > 0 then
-function br.getDebuffStacks(Unit, DebuffID, Source)
-	local auraInfo,_,stacks = br.UnitDebuffID(Unit, DebuffID, Source)
+-- if br.functions.aura:getDebuffStacks("target",138756) > 0 then
+function aura:getDebuffStacks(Unit, DebuffID, Source)
+	local auraInfo,_,stacks = aura:UnitDebuffID(Unit, DebuffID, Source)
 	if not auraInfo then return 0 end
 	if auraInfo.applications then
 		return auraInfo.applications
@@ -396,14 +508,14 @@ function br.getDebuffStacks(Unit, DebuffID, Source)
 	end
 end
 
-function br.getDebuffCount(spellID)
+function aura:getDebuffCount(spellID)
 	local counter = 0
-	for k, _ in pairs(br.enemy) do
-		local thisUnit = br.enemy[k].unit
+	for k, _ in pairs(br.engines.enemiesEngine.enemy) do
+		local thisUnit = br.engines.enemiesEngine.enemy[k].unit
 		-- check if unit is valid
-		-- if br.GetObjectExists(thisUnit) then
+		-- if br.functions.unit:GetObjectExists(thisUnit) then
 			-- increase counter for each occurences
-			if br.UnitDebuffID(thisUnit, spellID, "player") then
+			if aura:UnitDebuffID(thisUnit, spellID, "player") then
 				counter = counter + 1
 			end
 		-- end
@@ -411,14 +523,14 @@ function br.getDebuffCount(spellID)
 	return tonumber(counter)
 end
 
-function br.getDebuffRemainCount(spellID, remain)
+function aura:getDebuffRemainCount(spellID, remain)
 	local counter = 0
-	for k, _ in pairs(br.enemy) do
-		local thisUnit = br.enemy[k].unit
+	for k, _ in pairs(br.engines.enemiesEngine.enemy) do
+		local thisUnit = br.engines.enemiesEngine.enemy[k].unit
 		-- check if unit is valid
-		-- if br.GetObjectExists(thisUnit) then
+		-- if br.functions.unit:GetObjectExists(thisUnit) then
 			-- increase counter for each occurences
-			if br.UnitDebuffID(thisUnit, spellID, "player") and br.getDebuffRemain(thisUnit, spellID, "player") >= remain then
+			if aura:UnitDebuffID(thisUnit, spellID, "player") and aura:getDebuffRemain(thisUnit, spellID, "player") >= remain then
 				counter = counter + 1
 			end
 		-- end
@@ -426,16 +538,16 @@ function br.getDebuffRemainCount(spellID, remain)
 	return tonumber(counter)
 end
 
-function br.getDebuffMinMax(spell, range, debuffType, returnType, source)
+function aura:getDebuffMinMax(spell, range, debuffType, returnType, source)
 	local thisMin = 99
 	local thisMax = 0
 	local lowestUnit = "target"
 	local maxUnit = "target"
-	for k, _ in pairs(br.enemy) do
-		local thisUnit = br.enemy[k].unit
-		local distance = br.getDistance(thisUnit, source)
+	for k, _ in pairs(br.engines.enemiesEngine.enemy) do
+		local thisUnit = br.engines.enemiesEngine.enemy[k].unit
+		local distance = br.functions.range:getDistance(thisUnit, source)
 		local thisDebuff = br.player.debuff[spell][debuffType](thisUnit)
-		if br.getFacing("player", thisUnit) and distance <= range and thisDebuff >= 0
+		if br.functions.unit:getFacing("player", thisUnit) and distance <= range and thisDebuff >= 0
 			and ((returnType == "min" and thisDebuff < thisMin) or (returnType == "max" and thisDebuff > thisMax))
 		then
 			if returnType == "min" then
@@ -456,14 +568,14 @@ function br.getDebuffMinMax(spell, range, debuffType, returnType, source)
 	end
 end
 
-function br.getDebuffMinMaxButForPetsThisTime(spell, range, debuffType, returnType)
+function aura:getDebuffMinMaxButForPetsThisTime(spell, range, debuffType, returnType)
 	local thisMin = 99
 	local lowestUnit = "target"
-	for k, _ in pairs(br.enemy) do
-		local thisUnit = br.enemy[k].unit
-		local distance = br.getDistance(thisUnit, "pet")
+	for k, _ in pairs(br.engines.enemiesEngine.enemy) do
+		local thisUnit = br.engines.enemiesEngine.enemy[k].unit
+		local distance = br.functions.range:getDistance(thisUnit, "pet")
 		local thisDebuff = br.player.debuff[spell][debuffType](thisUnit)
-		if br.getFacing("player", thisUnit) and distance <= range and thisDebuff >= 0 and thisDebuff < thisMin then
+		if br.functions.unit:getFacing("player", thisUnit) and distance <= range and thisDebuff >= 0 and thisDebuff < thisMin then
 			if returnType == "min" or returnType == nil then
 				lowestUnit = thisUnit
 				thisMin = thisDebuff
@@ -474,8 +586,8 @@ function br.getDebuffMinMaxButForPetsThisTime(spell, range, debuffType, returnTy
 end
 
 -- if getBuffDuration("target",12345) < 3 then
-function br.getBuffDuration(Unit, BuffID, Source)
-	local auraInfo,_,_,_,duration = br.UnitBuffID(Unit, BuffID, Source)
+function aura:getBuffDuration(Unit, BuffID, Source)
+	local auraInfo,_,_,_,duration = aura:UnitBuffID(Unit, BuffID, Source)
 	if not auraInfo then return 0 end
 	if auraInfo.duration then
 		return auraInfo.duration * 1
@@ -484,9 +596,9 @@ function br.getBuffDuration(Unit, BuffID, Source)
 	end
 end
 
--- if br.getBuffRemain("target",12345) < 3 then
-function br.getBuffRemain(Unit, BuffID, Source)
-	local auraInfo,_,_,_,_,expires = br.UnitBuffID(Unit, BuffID, Source)
+-- if br.functions.aura:getBuffRemain("target",12345) < 3 then
+function aura:getBuffRemain(Unit, BuffID, Source)
+	local auraInfo,_,_,_,_,expires = aura:UnitBuffID(Unit, BuffID, Source)
 	if not auraInfo then return 0 end
 	if auraInfo.expirationTime then
 		return auraInfo.expirationTime - br._G.GetTime()
@@ -495,9 +607,9 @@ function br.getBuffRemain(Unit, BuffID, Source)
 	end
 end
 
--- if br.getBuffStacks(138756) > 0 then
-function br.getBuffStacks(Unit, BuffID, Source)
-	local auraInfo,_,stacks = br.UnitBuffID(Unit, BuffID, Source)
+-- if br.functions.aura:getBuffStacks(138756) > 0 then
+function aura:getBuffStacks(Unit, BuffID, Source)
+	local auraInfo,_,stacks = aura:UnitBuffID(Unit, BuffID, Source)
 	if not auraInfo then return 0 end
 	if auraInfo.applications then
 		return auraInfo.applications
@@ -506,14 +618,14 @@ function br.getBuffStacks(Unit, BuffID, Source)
  	end
 end
 
-function br.getBuffCount(spellID)
+function aura:getBuffCount(spellID)
 	local counter = 0
-	for i = 1, #br.friend do
-		local thisUnit = br.friend[i].unit
+	for i = 1, #br.engines.healingEngine.friend do
+		local thisUnit = br.engines.healingEngine.friend[i].unit
 		-- check if unit is valid
-		-- if br.GetObjectExists(thisUnit) then
+		-- if br.functions.unit:GetObjectExists(thisUnit) then
 			-- increase counter for each occurences
-			if br.UnitBuffID(thisUnit, spellID, "player") then
+			if aura:UnitBuffID(thisUnit, spellID, "player") then
 				counter = counter + 1
 			end
 		-- end
@@ -521,8 +633,8 @@ function br.getBuffCount(spellID)
 	return tonumber(counter)
 end
 
-function br.getBuffReact(Unit, BuffID, Source)
-	local auraInfo, _, _, _, duration, expire = br.UnitBuffID(Unit, BuffID, Source)
+function aura:getBuffReact(Unit, BuffID, Source)
+	local auraInfo, _, _, _, duration, expire = aura:UnitBuffID(Unit, BuffID, Source)
 	if not auraInfo then return false end
 	if auraInfo.duration then
 		duration = auraInfo.duration
@@ -535,7 +647,7 @@ function br.getBuffReact(Unit, BuffID, Source)
 end
 
 -- if getDisease(30,true,min) < 2 then
-function br.getDisease(range, aoe, mod)
+function aura:getDisease(range, aoe, mod)
 	if mod == nil then
 		mod = "min"
 	end
@@ -547,16 +659,16 @@ function br.getDisease(range, aoe, mod)
 	end
 	range = tonumber(range)
 	mod = tostring(mod)
-	local dynTar = br.dynamicTarget(range, true)
-	local dynTarAoE = br.dynamicTarget(range, false)
-	local dist = br.getDistance("player", dynTar)
-	local distAoE = br.getDistance("player", dynTarAoE)
-	local ff = br.getDebuffRemain(dynTar, 55095, "player") or 0
-	local ffAoE = br.getDebuffRemain(dynTarAoE, 55095, "player") or 0
-	local bp = br.getDebuffRemain(dynTar, 55078, "player") or 0
-	local bpAoE = br.getDebuffRemain(dynTarAoE, 55078, "player") or 0
-	local np = br.getDebuffRemain(dynTar, 155159, "player") or 0
-	local npAoE = br.getDebuffRemain(dynTarAoE, 155159, "player") or 0
+	local dynTar = br.engines.enemiesEngineFunctions:dynamicTarget(range, true)
+	local dynTarAoE = br.engines.enemiesEngineFunctions:dynamicTarget(range, false)
+	local dist = br.functions.range:getDistance("player", dynTar)
+	local distAoE = br.functions.range:getDistance("player", dynTarAoE)
+	local ff = aura:getDebuffRemain(dynTar, 55095, "player") or 0
+	local ffAoE = aura:getDebuffRemain(dynTarAoE, 55095, "player") or 0
+	local bp = aura:getDebuffRemain(dynTar, 55078, "player") or 0
+	local bpAoE = aura:getDebuffRemain(dynTarAoE, 55078, "player") or 0
+	local np = aura:getDebuffRemain(dynTar, 155159, "player") or 0
+	local npAoE = aura:getDebuffRemain(dynTarAoE, 155159, "player") or 0
 	local diseases = { ff, bp }
 	local diseasesAoE = { ffAoE, bpAoE }
 	local minD = 99
@@ -564,7 +676,7 @@ function br.getDisease(range, aoe, mod)
 	if mod == "min" then
 		if aoe == false then
 			if dist < range then
-				if br.getTalent(7, 1) then
+				if br.functions.misc:getTalent(7, 1) then
 					return np
 				else
 					for i = 1, #diseases do
@@ -579,7 +691,7 @@ function br.getDisease(range, aoe, mod)
 			end
 		elseif aoe == true then
 			if distAoE < range then
-				if br.getTalent(7, 1) then
+				if br.functions.misc:getTalent(7, 1) then
 					return npAoE
 				else
 					for i = 1, #diseasesAoE do
@@ -596,7 +708,7 @@ function br.getDisease(range, aoe, mod)
 	elseif mod == "max" then
 		if aoe == false then
 			if dist < range then
-				if br.getTalent(7, 1) then
+				if br.functions.misc:getTalent(7, 1) then
 					return np
 				else
 					for i = 1, #diseases do
@@ -611,7 +723,7 @@ function br.getDisease(range, aoe, mod)
 			end
 		elseif aoe == true then
 			if distAoE < range then
-				if br.getTalent(7, 1) then
+				if br.functions.misc:getTalent(7, 1) then
 					return npAoE
 				else
 					for i = 1, #diseasesAoE do
@@ -629,25 +741,25 @@ function br.getDisease(range, aoe, mod)
 end
 
 -- TODO: update BL list
-function br.getLustID()
+function aura:getLustID()
 	for _, v in pairs(br.lists.spells.Shared.Shared.buffs["bloodLust"]) do
-		if br.UnitBuffID("player", v) then return v end
+		if aura:UnitBuffID("player", v) then return v end
 	end
 	return 0
 end
 
-function br.hasBloodLust()
-	if br.UnitBuffID("player", 90355) or -- Ancient Hysteria
-		br.UnitBuffID("player", 2825) or -- Bloodlust
-		br.UnitBuffID("player", 146555) or -- Drums of Rage
-		br.UnitBuffID("player", 390386) or -- Fury of the Aspects
-		br.UnitBuffID("player", 32182) or -- Heroism
-		br.UnitBuffID("player", 90355) or -- Netherwinds
-		br.UnitBuffID("player", 80353) or -- Timewarp
-		br.UnitBuffID("player", 230935) or -- Drums of the Mountain
-		br.UnitBuffID("player", 256740) or -- Drums of the Maelstrom
-		br.UnitBuffID("player", 441076) or -- Timeless Drums
-		br.UnitBuffID("player", 264667) -- Primal Rage
+function aura:hasBloodLust()
+	if aura:UnitBuffID("player", 90355) or -- Ancient Hysteria
+		aura:UnitBuffID("player", 2825) or -- Bloodlust
+		aura:UnitBuffID("player", 146555) or -- Drums of Rage
+		aura:UnitBuffID("player", 390386) or -- Fury of the Aspects
+		aura:UnitBuffID("player", 32182) or -- Heroism
+		aura:UnitBuffID("player", 90355) or -- Netherwinds
+		aura:UnitBuffID("player", 80353) or -- Timewarp
+		aura:UnitBuffID("player", 230935) or -- Drums of the Mountain
+		aura:UnitBuffID("player", 256740) or -- Drums of the Maelstrom
+		aura:UnitBuffID("player", 441076) or -- Timeless Drums
+		aura:UnitBuffID("player", 264667) -- Primal Rage
 	then
 		return true
 	else
@@ -655,19 +767,19 @@ function br.hasBloodLust()
 	end
 end
 
-function br.hasBloodLustRemain()
-	if br.UnitBuffID("player", 90355) then
-		return br.getBuffRemain("player", 90355)
-	elseif br.UnitBuffID("player", 2825) then
-		return br.getBuffRemain("player", 2825)
-	elseif br.UnitBuffID("player", 146555) then
-		return br.getBuffRemain("player", 146555)
-	elseif br.UnitBuffID("player", 390386) then
-		return br.getBuffRemain("player", 390386)
-	elseif br.UnitBuffID("player", 32182) then
-		return br.getBuffRemain("player", 32182)
-	elseif br.UnitBuffID("player", 80353) then
-		return br.getBuffRemain("player", 80353)
+function aura:hasBloodLustRemain()
+	if aura:UnitBuffID("player", 90355) then
+		return aura:getBuffRemain("player", 90355)
+	elseif aura:UnitBuffID("player", 2825) then
+		return aura:getBuffRemain("player", 2825)
+	elseif aura:UnitBuffID("player", 146555) then
+		return aura:getBuffRemain("player", 146555)
+	elseif aura:UnitBuffID("player", 390386) then
+		return aura:getBuffRemain("player", 390386)
+	elseif aura:UnitBuffID("player", 32182) then
+		return aura:getBuffRemain("player", 32182)
+	elseif aura:UnitBuffID("player", 80353) then
+		return aura:getBuffRemain("player", 80353)
 	else
 		return 0
 	end

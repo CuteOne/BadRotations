@@ -1,208 +1,90 @@
 -- [[ Global Variables and Tables Initialization ]] --
 -- define br global that will hold the bot global background features
 local _, br = ...
+
+local loadedIn = false
+-- Guard to make br.load idempotent when multiple loaders invoke it
+local _br_loaded = false
 br._G = setmetatable({}, { __index = _G })
-br._G.GetSpellInfo = function(spellIdentifier)
-	local spellInfo = br._G.C_Spell.GetSpellInfo(spellIdentifier)
-	if spellInfo then
-		---@diagnostic disable-next-line: redundant-return-value
-		return spellInfo.name, _, spellInfo.iconID, spellInfo.castTime, spellInfo.minRange,
-			---@diagnostic disable-next-line: redundant-return-value
-			spellInfo.maxRange, spellInfo.spellID, spellInfo.originalIconID
+
+-- WoW API Compatibility Layer
+-- Expansion-specific API wrappers are loaded via wowapi.lua -> retail.lua or mop.lua
+-- This allows all API differences to be managed in one place per expansion
+-- Access API functions via: br.api.wow.FunctionName() or br._G.FunctionName()
+
+-- Override br._G to use compatibility layer when available
+local originalIndex = getmetatable(br._G).__index
+setmetatable(br._G, {
+	__index = function(t, k)
+		-- First check if we have a compatibility wrapper
+		if br.api and br.api.wow and br.api.wow[k] then
+			return br.api.wow[k]
+		end
+		-- Fall back to global _G
+		return originalIndex[k]
 	end
-end
-br.unlock = {}
+})
+-- System Table Initialization
+br.api = br.api or {} -- Don't overwrite if already initialized by wowapi.lua
+br.engines = {}
+br.functions = {}
+br.lists = {}
+br.loader = {}
+br.misc = {}
+br.readers = {}
+br.ui = {}
+br.debug = {}
+br.slashCommands = {}
+br.unlockers = {}
+
+-- Other Initialization
 br.data = {}
 br.data.settings = {}
-br.addonName = "BadRotations"
-br.auraMaxStacks = {}
-br.castPosition = { x = 0, y = 0, z = 0 }
-br.commandHelp = {}
-br.deadPet = false
--- developers debug, use /run br.data.settings[br.selectedSpec].toggles["isDebugging"] = true
-br.debug = {}
-br.dropOptions = {}
---br.dropOptions.Toggle = {"LeftCtrl","LeftShift","RightCtrl","RightShift","RightAlt","None"}
-br.dropOptions.Toggle = {
-	"LeftCtrl",
-	"LeftShift",
-	"RightCtrl",
-	"RightShift",
-	"RightAlt",
-	"None",
-	"MMouse",
-	"Mouse4",
-	"Mouse5"
-}
-br.dropOptions.CD = { "Never", "CDs", "Always" }
-br.engines = {}
-br.loadedIn = false
-br.loadFile = false
-br.pauseCast = br._G.GetTime()
-br.prevQueueWindow = br._G.GetCVar("SpellQueueWindow")
-br.profile = {}
-br.rotations = {}
-br.selectedSpec = "None"
-br.selectedSpecID = 0
-br.selectedProfile = 1
-br.selectedProfileName = "None"
-br.settingsDir = "\\"
-br.settingsFile = "None.lua"
-br.unlocker = "None"
-
--- [[ Class Colors Definition ]] --
--- The colors Duke, the colors!
-br.classColors = {
-	[1] = { class = "Warrior", B = 0.43, G = 0.61, R = 0.78, hex = "c79c6e" },
-	[2] = { class = "Paladin", B = 0.73, G = 0.55, R = 0.96, hex = "f58cba" },
-	[3] = { class = "Hunter", B = 0.45, G = 0.83, R = 0.67, hex = "abd473" },
-	[4] = { class = "Rogue", B = 0.41, G = 0.96, R = 1, hex = "fff569" },
-	[5] = { class = "Priest", B = 1, G = 1, R = 1, hex = "ffffff" },
-	[6] = { class = "Deathknight", B = 0.23, G = 0.12, R = 0.77, hex = "c41f3b" },
-	[7] = { class = "Shaman", B = 0.87, G = 0.44, R = 0, hex = "0070de" },
-	[8] = { class = "Mage", B = 0.94, G = 0.8, R = 0.41, hex = "69ccf0" },
-	[9] = { class = "Warlock", B = 0.79, G = 0.51, R = 0.58, hex = "9482c9" },
-	[10] = { class = "Monk", B = 0.59, G = 1, R = 0, hex = "00ff96" },
-	[11] = { class = "Druid", B = 0.04, G = 0.49, R = 1, hex = "ff7d0a" },
-	[12] = { class = "Demonhunter", B = 0.79, G = 0.19, R = 0.64, hex = "a330c9" },
-	[13] = { class = "Evoker", B = 0.50, G = 0.58, R = 0.20, hex = "33937f" }
-}
-br.classColor = tostring("|cff" .. br.classColors[select(3, br._G.UnitClass("player"))].hex)
-br.qualityColors = {
-	blue = "0070dd",
-	green = "1eff00",
-	white = "ffffff",
-	grey = "9d9d9d"
-}
-br.druid = {}
-br.evoker = {}
-
-local nameSet = false
--- [[ Functions Definition ]] --
-function br.setAddonName()
-	if not nameSet then
-		nameSet = true
-	end
-end
-
--- Custom Print
-function br.debugPrint(message)
-	if br.data.settings[br.selectedSpec].toggles["isDebugging"] == true then
-		br._G.print(message)
-	end
-end
+br.loader.addonName = "BadRotations"
+br.loader.rotations = {}
+br.loader.selectedSpec = "None"
+br.loader.selectedSpecID = 0
+br.loader.selectedProfile = 1
+br.loader.selectedProfileName = "None"
+br.loader.settingsFile = "None.lua"
+-- developers debug, use /run br.data.settings[br.loader.selectedSpec].toggles["isDebugging"] = true
 
 -- Run
 function br.Run()
-	if br.selectedSpec == nil then
-		br.selectedSpecID, br.selectedSpec = br._G.GetSpecializationInfo(br._G.GetSpecialization())
-		if br.selectedSpec == "" then
-			br.selectedSpec = "Initial"
+	if br.loader.selectedSpec == nil then
+		br.loader.selectedSpecID, br.loader.selectedSpec = br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization())
+		if br.loader.selectedSpec == "" then
+			br.loader.selectedSpec = "Initial"
 		end
 	end
 	-- add minimap fire icon
-	br:MinimapButton()
+	br.ui:MinimapButton()
 	-- Build up pulse frame (hearth)
-	if not br.loadedIn then
+	if not loadedIn then
 		-- Start Logs
 		-- combat log
-		br.read.combatLog()
+		br.readers.combatLog:combatLog()
 		-- other readers
-		br.read.commonReaders()
+		br.readers.common:commonReaders()
 		-- Start Engines
-		br:Engine()
-		br:ObjectManager()
-		br:ObjectTracker()
-		-- Complete Loadin
-		br.ChatOverlay("-= BadRotations Loaded =-")
-		br._G.print("Initialization Complete, Finding Previous Settings.")
-		br.loadedIn = true
-	end
-end
-
--- Default Settings
-function br.defaultSettings()
-	br._G.C_Timer.After(
-		2,
-		function()
-			if br.ui.window.config == nil then
-				br.ui.window.config = {}
-			end
-			if br.ui.window.config.frame == nil then
-				br.ui:createConfigWindow()
-			end
-			br.ui:toggleWindow("config")
-			br.ui:closeWindow("config")
+		br.engines:Main()
+		br.engines:ObjectManager()
+		br.engines:ObjectTracker()
+		-- Initialize Loot Engine
+		if br.engines.lootEngine and br.engines.lootEngine.init then
+			br.engines.lootEngine:init()
 		end
-	)
-	-- Settings Per Spec
-	if br.data.settings[br.selectedSpec].toggles == nil then
-		br.data.settings[br.selectedSpec].toggles = {}
-	end
-	if br.data.settings[br.selectedSpec]["RotationDrop"] == nil then
-		br.selectedProfile = 1
-	else
-		br.selectedProfile = br.data.settings[br.selectedSpec]["RotationDrop"]
-	end
-	if br.data.settings[br.selectedSpec][br.selectedProfile] == nil then
-		br.data.settings[br.selectedSpec][br.selectedProfile] = {}
-	end
-	-- Define Main Button if no settings exist
-	if (br.data.settings and br.data.settings.mainButton == nil) then
-		br.data.settings.mainButton = {
-			pos = {
-				anchor = "CENTER",
-				x = -75,
-				y = -200
-			}
-		}
-		br.data.settings.buttonSize = 32
-		br.data.settings.font = "Fonts/arialn.ttf"
-		br.data.settings.fontsize = 16
-		br.data.settings.wiped = true
-	end
-	-- Define Minimap Button if no settings exist
-	if (br.data.settings and br.data.settings.minimapButton == nil) then
-		br.data.settings.minimapButton = {
-			pos = {
-				x = 75.70,
-				y = -6.63
-			}
-		}
-	end
-end
-
--- Load Saved Settings
-function br.loadSavedSettings()
-	if br.initializeSettings then
-		br.initOM = true
-		br.loader.loadProfiles()
-		br:loadLastProfileTracker()
-		if br.data.settings[br.selectedSpec]["RotationDropValue"] then
-			br:loadSettings(nil, nil, nil, br.data.settings[br.selectedSpec]["RotationDropValue"])
-		elseif br.rotations[br.selectedSpec] then
-			br:loadSettings(nil, nil, nil, br.rotations[br.selectedSpec][1].name)
-		else
-			if not br.rotations[br.selectedSpec] then
-				br.initializeSettings = false
-				return
-			end
-		end
-		br.defaultSettings()
-		-- Build the Toggles
-		br.TogglesFrame()
-		-- Restore Minimap Button Position
-		br.BadRotationsButton:SetPoint("CENTER", br.data.settings.minimapButton.pos.x,
-			br.data.settings.minimapButton.pos.y)
-		br.initializeSettings = false
+			loadedIn = true
 	end
 end
 
 function br.load()
+	if _br_loaded then return end
+	_br_loaded = true
 	-- Update Selected Spec
-	br.selectedSpecID, br.selectedSpec = br._G.GetSpecializationInfo(br._G.GetSpecialization())
-	if br.selectedSpec == "" then
-		br.selectedSpec = "Initial"
+	br.loader.selectedSpecID, br.loader.selectedSpec = br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization())
+	if br.loader.selectedSpec == "" then
+		br.loader.selectedSpec = "Initial"
 	end
 	if br.data == nil then
 		br.data = {}
@@ -216,22 +98,20 @@ function br.load()
 	if br.data.ui == nil then
 		br.data.ui = {}
 	end
-	if br.data.settings[br.selectedSpec] == nil then
-		br.data.settings[br.selectedSpec] = {}
+	if br.data.settings[br.loader.selectedSpec] == nil then
+		br.data.settings[br.loader.selectedSpec] = {}
 	end
 	if not br.unlocked then
-		br.initializeSettings = true
-		print(br.classColor .. "[BadRotations] |cffFFFFFFInitializing Please Wait...")
+		br.ui.settingsManagement.initializeSettings = true
+		print(br.ui.colors.class .. "[BadRotations] |cffFFFFFFInitializing Please Wait...")
 	end
-	br.equipHasChanged = true
-	if not br.loadedIn then
-		if br.damaged == nil then
-			br.damaged = {}
+	if not loadedIn then
+		if br.engines.enemiesEngine.damaged == nil then
+			br.engines.enemiesEngine.damaged = {}
 		end
-		br.bagsUpdated = true
+		-- br.bagsUpdated = true
 		br:Run()
 	end
-	br.timeOfLastLoadingScreen = br._G.GetTime()
 end
 
 -- [[ Event Listeners ]] --
@@ -252,23 +132,29 @@ local function OnEvent(self, event)
 		br.disablePulse = false
 	end
 	if event == "PLAYER_LOGOUT" then
-		if br.unlocked then
-			-- Return queue window to previous setting
+		-- Attempt to save settings and UI state on logout regardless of unlock status.
+		-- Guard calls to avoid errors if subsystems are not available.
+		-- Return queue window to previous setting if possible
+		if br._G and br._G.C_CVar and br._G.GetCVar and br._G.RunMacroText then
 			if br._G.C_CVar.GetCVar("SpellQueueWindow") == "0" then
-				br._G.RunMacroText("/console SpellQueueWindow " .. br.prevQueueWindow)
+				br._G.RunMacroText("/console SpellQueueWindow " .. br._G.GetCVar("SpellQueueWindow"))
 			end
+		end
+		if br.ui and br.ui.settingsManagement then
 			br.ui:saveWindowPosition()
-			br:cleanSettings()
-			table.wipe(br.data.settings[br.selectedSpec][br.selectedProfile]["PageList"])
-			table.wipe(br.ui)
-			if br.getOptionCheck("Reset Options") then
+			br.ui.settingsManagement:cleanSettings()
+			if br.data and br.data.settings and br.data.settings[br.loader.selectedSpec] and br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile] and br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["PageList"] then
+				table.wipe(br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["PageList"])
+			end
+			if br.functions and br.functions.misc and br.functions.misc:getOptionCheck("Reset Options") then
 				-- Reset Settings
-				br:saveSettings(nil, nil, br.selectedSpec, br.selectedProfileName, true)
+				br.ui.settingsManagement:saveSettings(nil, nil, br.loader.selectedSpec, br.loader.selectedProfileName, true)
 			else
 				-- Save Settings
-				br:saveSettings(nil, nil, br.selectedSpec, br.selectedProfileName)
+				br.ui.settingsManagement:saveSettings(nil, nil, br.loader.selectedSpec, br.loader.selectedProfileName)
 			end
-			br.saveLastProfileTracker()
+			br.ui.settingsManagement:saveLastProfileTracker()
+			table.wipe(br.ui)
 		end
 	end
 	if event == "PLAYER_ENTERING_WORLD" then

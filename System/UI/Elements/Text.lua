@@ -34,6 +34,11 @@ function br.ui:createText(parent, text, isCheckbox)
 
     label = label.fontString
 
+    -- Ensure font is set before using the FontString
+    if not label:GetFont() then
+        label:SetFontObject(_G.GameFontNormal)
+    end
+
     label:SetPoint("TOPLEFT", parent.content, "TOPLEFT", 20, Y)
     label:SetWidth(parent.content:GetWidth() - 10)
     label:SetJustifyH("LEFT")

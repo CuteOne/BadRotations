@@ -5,7 +5,7 @@ local _, br = ...
 function br.ui:createCheckbox(parent, text, tooltip, checked)
     -- Class Specific Color for UI Elements
     local classColor = {
-        color = br.classColors[select(3, br._G.UnitClass("player"))].hex
+        color = br.ui.colors:getColor("player").hex
     }
     -- Option Storage Location
     -- local parent1 = parent.children[1]
@@ -47,11 +47,31 @@ function br.ui:createCheckbox(parent, text, tooltip, checked)
     --------------
     ---BR Stuff---
     --------------
-    local activePageIdx = parent.settings.parentObject.pageDD.value
-    local activePage = parent.settings.parentObject.pageDD.settings.list[activePageIdx]
-    br.data.settings[br.selectedSpec][br.selectedProfile][activePage] = br.data.settings[br.selectedSpec]
-        [br.selectedProfile][activePage] or {}
-    local data = br.data.settings[br.selectedSpec][br.selectedProfile][activePage]
+    local activePage = parent.settings.sectionName or ""
+    -- Fallback: try the window page dropdown if sectionName isn't available
+    if activePage == "" and parent.settings.parentObject and parent.settings.parentObject.pageDD then
+        local pdd = parent.settings.parentObject.pageDD
+        if pdd.value and pdd.settings and pdd.settings.list and pdd.settings.list[pdd.value] then
+            activePage = pdd.settings.list[pdd.value]
+        end
+    end
+    local activePageSettings = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile][activePage] or {}
+    br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile][activePage] = activePageSettings
+    local data = activePageSettings
+    -- Ensure the active page is registered in the profile PageList so
+    -- option lookups (findOption) can locate values immediately.
+    br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["PageList"] = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["PageList"] or {}
+    local pageList = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["PageList"]
+    local found = false
+    for i = 1, #pageList do
+        if pageList[i] == activePage then
+            found = true
+            break
+        end
+    end
+    if not found then
+        br._G.tinsert(pageList, activePage)
+    end
     local value = text .. " Check"
 
     -- Read check value from config, false if nothing found
@@ -101,9 +121,9 @@ function br.ui:createCheckbox(parent, text, tooltip, checked)
             -- Create Chat Overlay
             if checked then
                 DiesalStyle:StyleTexture(checkBox.check, classColor)
-                br.ChatOverlay("|cff15FF00" .. text .. " Enabled")
+                br.ui.chatOverlay:Show("|cff15FF00" .. text .. " Enabled")
             else
-                br.ChatOverlay("|cFFED0000" .. text .. " Disabled")
+                br.ui.chatOverlay:Show("|cFFED0000" .. text .. " Disabled")
             end
         end
     )

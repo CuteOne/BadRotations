@@ -22,9 +22,15 @@ br.api.cd = function(self, spell, id)
     -- @return boolean
     -- @within cd.spell
     cd[spell].exists = function()
+        -- Special handling for global CD in Classic
+        local spellID = type(id) == "table" and (br.functions.spell and br.functions.spell.getHighestKnownRank and br.functions.spell:getHighestKnownRank(id) or id[1]) or id
+        if spell == "global" and (br.isClassic or br.isBC) and br.api.wow.GetGCDSpellID then
+            spellID = br.api.wow.GetGCDSpellID()
+        end
         local level = br._G.UnitLevel("player")
-        local spellLevel = br._G.C_Spell.GetSpellLevelLearned(id)
-        local spellCD = level >= spellLevel and br.getSpellCD(id) or 99
+        local spellLevel = br._G.C_Spell.GetSpellLevelLearned(spellID) or 1
+        if level < spellLevel then return false end
+        local spellCD = br.functions.spell:getSpellCD(spellID)
         return spellCD > 0
     end
 
@@ -33,10 +39,15 @@ br.api.cd = function(self, spell, id)
     -- @return number
     -- @within cd.spell
     cd[spell].remain = function()
+        -- Special handling for global CD in Classic
+        local spellID = type(id) == "table" and (br.functions.spell and br.functions.spell.getHighestKnownRank and br.functions.spell:getHighestKnownRank(id) or id[1]) or id
+        if spell == "global" and (br.isClassic or br.isBC) and br.api.wow.GetGCDSpellID then
+            spellID = br.api.wow.GetGCDSpellID()
+        end
         local level = br._G.UnitLevel("player")
-        local spellLevel = br._G.C_Spell.GetSpellLevelLearned(id)
-        local spellCD = level >= spellLevel and br.getSpellCD(id) or 99
-        return spellCD
+        local spellLevel = br._G.C_Spell.GetSpellLevelLearned(spellID) or 1
+        if level < spellLevel then return 99 end
+        return br.functions.spell:getSpellCD(spellID)
     end
 
     --- Gets the time remaining on spell cooldown or 0 if not (alternate to cd.spell.remain() incase of typo).
@@ -44,10 +55,15 @@ br.api.cd = function(self, spell, id)
     -- @return number
     -- @within cd.spell
     cd[spell].remains = function()
+        -- Special handling for global CD in Classic
+        local spellID = type(id) == "table" and (br.functions.spell and br.functions.spell.getHighestKnownRank and br.functions.spell:getHighestKnownRank(id) or id[1]) or id
+        if spell == "global" and (br.isClassic or br.isBC) and br.api.wow.GetGCDSpellID then
+            spellID = br.api.wow.GetGCDSpellID()
+        end
         local level = br._G.UnitLevel("player")
-        local spellLevel = br._G.C_Spell.GetSpellLevelLearned(id)
-        local spellCD = level >= spellLevel and br.getSpellCD(id) or 99
-        return spellCD
+        local spellLevel = br._G.C_Spell.GetSpellLevelLearned(spellID) or 1
+        if level < spellLevel then return 99 end
+        return br.functions.spell:getSpellCD(spellID)
     end
 
     --- Gets the total time of the spell cooldown
@@ -55,10 +71,16 @@ br.api.cd = function(self, spell, id)
     -- @return number
     -- @within cd.spell
     cd[spell].duration = function()
+        -- Special handling for global CD in Classic
+        local spellID = type(id) == "table" and (br.functions.spell and br.functions.spell.getHighestKnownRank and br.functions.spell:getHighestKnownRank(id) or id[1]) or id
+        if spell == "global" and (br.isClassic or br.isBC) and br.api.wow.GetGCDSpellID then
+            spellID = br.api.wow.GetGCDSpellID()
+        end
         local level = br._G.UnitLevel("player")
-        local spellLevel = br._G.C_Spell.GetSpellLevelLearned(id)
-        local spellCD = br._G.C_Spell.GetSpellCooldown(id)
-        return (spellCD and level >= spellLevel) and spellCD.duration or 0
+        local spellLevel = br._G.C_Spell.GetSpellLevelLearned(spellID) or 1
+        if level < spellLevel then return 0 end
+        local spellCD = br._G.C_Spell.GetSpellCooldown(spellID)
+        return spellCD and spellCD.duration or 0
     end
 
     --- Checks if the spell is not on cooldown or is (opposite of cd.spell.exists()).
@@ -66,10 +88,15 @@ br.api.cd = function(self, spell, id)
     -- @return boolean
     -- @within cd.spell
     cd[spell].ready = function()
+        -- Special handling for global CD in Classic
+        local spellID = type(id) == "table" and (br.functions.spell and br.functions.spell.getHighestKnownRank and br.functions.spell:getHighestKnownRank(id) or id[1]) or id
+        if spell == "global" and (br.isClassic or br.isBC) and br.api.wow.GetGCDSpellID then
+            spellID = br.api.wow.GetGCDSpellID()
+        end
         local level = br._G.UnitLevel("player")
-        local spellLevel = br._G.C_Spell.GetSpellLevelLearned(id)
-        local spellCD = level >= spellLevel and br.getSpellCD(id) or 99
-        return spellCD == 0
+        local spellLevel = br._G.C_Spell.GetSpellLevelLearned(spellID) or 1
+        if level < spellLevel then return false end
+        return br.functions.spell:getSpellCD(spellID) == 0
     end
 
     --- Gets the duration of the spells Global Cooldown.
@@ -77,7 +104,8 @@ br.api.cd = function(self, spell, id)
     -- @return number
     -- @within cd.spell
     cd[spell].prevgcd = function()
-        return select(2, br._G.GetSpellBaseCooldown(id))
+        local spellID = type(id) == "table" and (br.functions.spell and br.functions.spell.getHighestKnownRank and br.functions.spell:getHighestKnownRank(id) or id[1]) or id
+        return select(2, br._G.GetSpellBaseCooldown(spellID))
     end
 end
 
@@ -94,7 +122,7 @@ br.api.itemCD = function(self, item, id)
     -- @return boolean
     -- @within cd.item
     cd[item].exists = function()
-        return br._G.GetItemCooldown(id) > 0
+        return br._G.C_Container.GetItemCooldown(id) > 0
     end
 
     --- Gets the time remaining on item cooldown or 0 if not.
@@ -102,8 +130,8 @@ br.api.itemCD = function(self, item, id)
     -- @return number
     -- @within cd.item
     cd[item].remain = function()
-        if br._G.GetItemCooldown(id) ~= 0 then
-            return (br._G.GetItemCooldown(id) + select(2, br._G.GetItemCooldown(id)) - br._G.GetTime())
+        if br._G.C_Container.GetItemCooldown(id) ~= 0 then
+            return (br._G.C_Container.GetItemCooldown(id) + select(2, br._G.C_Container.GetItemCooldown(id)) - br._G.GetTime())
         end
         return 0
     end

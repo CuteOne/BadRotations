@@ -147,15 +147,15 @@ local function createOptions()
         ----------------------
         section = br.ui:createSection(br.ui.window.profile,  "Toggle Keys")
             -- Single/Multi Toggle
-            br.ui:createDropdown(section,  "Rotation Mode", br.dropOptions.Toggle,  4)
+            br.ui:createDropdown(section,  "Rotation Mode", br.ui.dropOptions.Toggle,  4)
             --Cooldown Key Toggle
-            br.ui:createDropdown(section,  "Cooldown Mode", br.dropOptions.Toggle,  3)
+            br.ui:createDropdown(section,  "Cooldown Mode", br.ui.dropOptions.Toggle,  3)
             --Defensive Key Toggle
-            br.ui:createDropdown(section,  "Defensive Mode", br.dropOptions.Toggle,  6)
+            br.ui:createDropdown(section,  "Defensive Mode", br.ui.dropOptions.Toggle,  6)
             -- Interrupts Key Toggle
-            br.ui:createDropdown(section,  "Interrupt Mode", br.dropOptions.Toggle,  6)
+            br.ui:createDropdown(section,  "Interrupt Mode", br.ui.dropOptions.Toggle,  6)
             -- Pause Toggle
-            br.ui:createDropdown(section,  "Pause Mode", br.dropOptions.Toggle,  6)
+            br.ui:createDropdown(section,  "Pause Mode", br.ui.dropOptions.Toggle,  6)
         br.ui:checkSectionState(section)
     end
     optionTable = {{
@@ -464,7 +464,7 @@ local function runRotation() -- This is the main profile loop, any below this po
     var                                           = br.player.variables
     debuff                                        = br.player.debuff
 
-    ui.mode.debug = br.data.settings[br.selectedSpec].toggles["DebugMode"]
+    ui.mode.debug = br.data.settings[br.loader.selectedSpec].toggles["DebugMode"]
 
     --TODO this needs to be replaced with some sort of real calculation, in the mean time we're just looking for having cast Purifying Brew in the last 10 seconds
     var.recent_purifies = cast.last.purifyingBrew(10)
@@ -503,10 +503,10 @@ local function runRotation() -- This is the main profile loop, any below this po
     end
 
     if ui.mode.debug==1 then
-        local n,r,i,ct,mr,mxr = GetSpellInfo("Recent Purifies")
+        local n,r,i,ct,mr,mxr = br._G.GetSpellInfo("Recent Purifies")
 
         for i=1,40 do
-            local name, rank, icon, count, debuffType, duration, expirationTime, unitCaster, isStealable, shouldConsolidate, spellIdbuff = UnitBuff("player", i);
+            local name, rank, icon, count, debuffType, duration, expirationTime, unitCaster, isStealable, shouldConsolidate, spellIdbuff = br._G.UnitBuff("player", i);
             if name then
                 if name=="Recent Purifies" then
                     print(name,spellIdbuff)
@@ -643,9 +643,10 @@ local function runRotation() -- This is the main profile loop, any below this po
     end -- Pause
 end -- End runRotation
 local id = 268 -- Change to the spec id profile is for. Spec ID can be found at: https://wowpedia.fandom.com/wiki/SpecializationID
+local expansion = br.isMOP
 -- DO NOT EDIT ANYTHING BELOW THIS LINE, WILL BREAK PROFILE --
-if br.rotations[id] == nil then br.rotations[id] = {} end
-tinsert(br.rotations[id],{
+if br.loader.rotations[id] == nil then br.loader.rotations[id] = {} end
+tinsert(br.loader.rotations[id],{
     name = rotationName,
     toggles = createToggles,
     options = createOptions,

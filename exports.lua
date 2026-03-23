@@ -1,5 +1,5 @@
 local _, br = ...
 local exports =  {
-    updateButton = function() br.mainButton:Click() end;
+    updateButton = function() br.ui.toggles.mainButton:Click() end;
 }
 _G.test = exports

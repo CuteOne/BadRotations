@@ -1,66 +1,76 @@
 local _, br = ...
+br.functions.power = br.functions.power or {}
+local power = br.functions.power
 local runeTable = {}
-function br.getChi(Unit)
+
+function power:getChi(Unit)
 	return br._G.UnitPower(Unit, 12)
 end
 
-function br.getChiMax(Unit)
+function power:getChiMax(Unit)
 	return br._G.UnitPowerMax(Unit, 12)
 end
 
 -- if getCombo() >= 1 then
-function br.getCombo()
-	return br._G.UnitPower("player", 4) --GetComboPoints("player") - Legion Change
+function power:getCombo(thisUnit)
+	if thisUnit == nil then thisUnit = "target" end
+	return br._G.GetComboPoints("player", thisUnit) --GetComboPoints("player") - Legion Change
 end
 
-function br.getEmber(Unit)
+function power:getEmber(Unit)
 	return br._G.UnitPower(Unit, 14)
 end
 
-function br.getEmberMax(Unit)
+function power:getEmberMax(Unit)
 	return br._G.UnitPowerMax(Unit, 14)
 end
 
 -- if getMana("target") <= 15 then
-function br.getMana(Unit)
+function power:getMana(Unit)
 	return 100 * br._G.UnitPower(Unit, 0) / br._G.UnitPowerMax(Unit, 0)
 end
 
-function br.getEssence(Unit)
+function power:getEssence(Unit)
 	return br._G.UnitPower(Unit, 19)
 end
 
-function br.getEssenceMax(Unit)
+function power:getEssenceMax(Unit)
 	return br._G.UnitPowerMax(Unit, 19)
 end
 
--- if br.getPower("target") <= 15 then
-function br.getPower(Unit, index)
-	local value = br._G.UnitPower(Unit, index)
-	if select(3, br._G.UnitClass("player")) == 11 or select(3, br._G.UnitClass("player")) == 4 then
-		-- Druid: Incarnation affects all energy values report as having 20% more
-		if br.UnitBuffID("player", 102543) then
-			value = value * 1.2
+-- if br.functions.power:getPower("target") <= 15 then
+function power:getPower(Unit, index)
+	local value = index == 4 and br._G.GetComboPoints("player", Unit) or br._G.UnitPower(Unit, index)
+	-- Only apply Druid buffs to energy (index 3)
+	if index == 3 and select(3, br._G.UnitClass("player")) == 11 then
+		-- Druid: Clearcasting affects energy values as if there is max energy available
+		if br.functions.aura:UnitBuffID("player", 16870) then
+			value = br._G.UnitPowerMax(Unit, index)
+		end
+		-- Druid: Berserk affects energy values report as having 50% more
+		if br.functions.aura:UnitBuffID("player", 106951) then
+			value = value * 5
 		end
 	end
 	return value
 end
 
-function br.getPowerMax(Unit, index)
+function power:getPowerMax(Unit, index)
 	local value = br._G.UnitPowerMax(Unit, index)
-	if select(3, br._G.UnitClass("player")) == 11 or select(3, br._G.UnitClass("player")) == 4 then
-		-- Druid: Incarnation affects all energy values report as having 20% more
-		if br.UnitBuffID("player", 102543) then
-			value = value * 1.2
-		end
+	-- Only apply Druid buffs to energy (index 3)
+	if index == 3 and select(3, br._G.UnitClass("player")) == 11 then
+		-- Druid: Berserk halves costs -> treat energy max as doubled for checks
+		if br.functions.aura:UnitBuffID("player", 106951) then
+            value = value * 2
+        end
 	end
 	return value
 end
 
-function br.getPowerAlt(Unit)
+function power:getPowerAlt(Unit)
 	local value = 0
 	local class = select(2, br._G.UnitClass(Unit))
-	local spec = br._G.GetSpecialization()
+	local spec = br._G.C_SpecializationInfo.GetSpecialization()
 	local power = br._G.UnitPower
 	if (class == "DRUID" and spec == 2) or class == "ROGUE" then
 		value = power(Unit, 4)
@@ -77,158 +87,162 @@ function br.getPowerAlt(Unit)
 	return value
 end
 
--- Rune Tracking Table
-function br.getRuneInfo()
-	local bCount = 0
-	local uCount = 0
-	local fCount = 0
-	local dCount = 0
-	local bPercent = 0
-	local uPercent = 0
-	local fPercent = 0
-	local dPercent = 0
-	_G.table.wipe(runeTable)
+-- Return array of 6 rune objects suitable for SimC-style logic
+-- rune object: { base = "blood"|"frost"|"unholy", is_death = bool, ready = bool }
+function power:getRuneObjects()
+	local runes = {}
 	for i = 1, 6 do
-		local CDstart = select(1, br._G.GetRuneCooldown(i))
-		local CDduration = select(2, br._G.GetRuneCooldown(i))
-		local CDready = select(3, br._G.GetRuneCooldown(i))
-		local CDrune = CDduration - (br._G.GetTime() - CDstart)
-		local CDpercent = 0
-		local runePercent = 0
-		local runeCount = 0
-		local runeCooldown = 0
-		local dCooldown
-		local bCooldown
-		local uCooldown
-		local fCooldown
-		if CDrune > CDduration then
-			CDpercent = 1 - (CDrune / (CDduration * 2))
+		local rt = br._G.GetRuneType(i)
+		local is_death = (rt == 4)
+		local base
+		-- if i <= 2 then
+		-- 	base = "blood"
+		-- elseif i <= 4 then
+		-- 	base = "frost"
+		-- else
+		-- 	base = "unholy"
+		-- end
+		if rt == 1 then
+			base = "blood"
+		elseif rt == 2 then
+			base = "frost"
+		elseif rt == 3 then
+			base = "unholy"
+		end
+		local start, duration, ready = br._G.GetRuneCooldown(i)
+		runes[i] = { base = base, is_death = is_death, ready = ready }
+	end
+	return runes
+end
+
+-- SimC-style rune counting
+-- rt: "blood"|"frost"|"unholy"|"death"
+-- include_death: bool - if true, death runes count toward base types
+-- position: optional numeric positional query (1 or 2) for base types, or Nth death rune when rt=="death"
+function power:runesCount(rt, include_death, position)
+	rt = rt and string.lower(rt) or nil
+	local runes = power:getRuneObjects()
+
+	-- positional base-type query (e.g., second blood slot)
+	if position and position > 0 and (rt == "blood" or rt == "frost" or rt == "unholy") then
+		local ti = (rt == "blood") and 1 or (rt == "frost") and 2 or (rt == "unholy") and 3
+		if not ti then return 0 end
+		local idx = (ti - 1) * 2 + position -- Lua 1-based index
+		local r = runes[idx]
+		return (r and r.ready) and 1 or 0
+	end
+
+	local result = 0
+	local rpc = 0
+	for i = 1, 6 do
+		local r = runes[i]
+		-- positional death-query (nth death rune)
+		if position and position ~= 0 and rt == "death" and r.is_death then
+			rpc = rpc + 1
+			if rpc == position then
+				return r.ready and 1 or 0
+			end
+
 		else
-			CDpercent = 1 - CDrune / CDduration
-		end
-		if not CDready then
-			runePercent = CDpercent
-			runeCount = 0
-			runeCooldown = CDrune
-		else
-			runePercent = 1
-			runeCount = 1
-			runeCooldown = 0
-		end
-		if br._G.GetRuneType(i) == 4 then
-			dPercent = runePercent
-			dCount = runeCount
-			dCooldown = runeCooldown
-			runeTable[#runeTable + 1] = {
-				Type = "death",
-				Index = i,
-				Count = dCount,
-				Percent = dPercent,
-				Cooldown =
-					dCooldown
-			}
-		end
-		if br._G.GetRuneType(i) == 1 then
-			bPercent = runePercent
-			bCount = runeCount
-			bCooldown = runeCooldown
-			runeTable[#runeTable + 1] = {
-				Type = "blood",
-				Index = i,
-				Count = bCount,
-				Percent = bPercent,
-				Cooldown =
-					bCooldown
-			}
-		end
-		if br._G.GetRuneType(i) == 2 then
-			uPercent = runePercent
-			uCount = runeCount
-			uCooldown = runeCooldown
-			runeTable[#runeTable + 1] = {
-				Type = "unholy",
-				Index = i,
-				Count = uCount,
-				Percent = uPercent,
-				Cooldown =
-					uCooldown
-			}
-		end
-		if br._G.GetRuneType(i) == 3 then
-			fPercent = runePercent
-			fCount = runeCount
-			fCooldown = runeCooldown
-			runeTable[#runeTable + 1] = {
-				Type = "frost",
-				Index = i,
-				Count = fCount,
-				Percent = fPercent,
-				Cooldown =
-					fCooldown
-			}
+			if ((include_death or rt == "death") and r.is_death) or (r.base == rt) then
+				if r.ready then result = result + 1 end
+			end
 		end
 	end
-	return runeTable
+
+	return result
 end
 
 -- Get Count of Specific Rune Time
-function br.getRuneCount(Type)
-	Type = string.lower(Type)
-	local runeCount = 0
-	for i = 1, 6 do
-		if runeTable[i].Type == Type then
-			runeCount = runeCount + runeTable[i].Count
-		end
+function power:getRuneCount(Type)
+	-- Use SimC-style counting: include death runes for base types
+	Type = string.lower(Type or "")
+	if Type == "" then return 0 end
+	-- for death queries, return strict death count
+	if Type == "death" then
+		return power:runesCount("death", false)
 	end
-	return runeCount
+	-- for base types include death runes as usable
+	if Type == "blood" or Type == "frost" or Type == "unholy" then
+		return power:runesCount(Type, true)
+	end
 end
 
 -- Get Colldown Percent Remaining of Specific Runes
-function br.getRunePercent(Type)
-	Type = string.lower(Type)
-	local runePercent = 0
-	-- local runeCooldown = 0
+function power:getRunePercent(Type)
+	-- Compute percent using per-rune cooldowns; include death runes for base types
+	Type = string.lower(Type or "")
+	if Type == "" then return 0 end
+
+	local include_death = (Type == "blood" or Type == "frost" or Type == "unholy")
+	local readyCount = 0
+	local maxCooldownPercent = 0
+	local timeNow = br._G.GetTime()
+
 	for i = 1, 6 do
-		if runeTable[i].Type == Type then --and runeTable[i].Cooldown > runeCooldown then
-			runePercent = runeTable[i].Percent
-			-- runeCooldown = runeTable[i].Cooldown
+		local start, duration, ready = br._G.GetRuneCooldown(i)
+		local rt = br._G.GetRuneType(i)
+		local base = (rt == 1) and "blood" or (rt == 2) and "frost" or (rt == 3) and "unholy"
+		local is_match = false
+		if Type == "death" then
+			is_match = (rt == 4)
+		else
+			is_match = (base == Type) or (include_death and rt == 4)
+		end
+		if is_match then
+			if ready then
+				readyCount = readyCount + 1
+			else
+				if duration and duration > 0 and start then
+					local CDrune = duration - (timeNow - start)
+					local CDpercent
+					if CDrune > duration then
+						CDpercent = 1 - (CDrune / (duration * 2))
+					else
+						CDpercent = 1 - CDrune / duration
+					end
+					if CDpercent > maxCooldownPercent then maxCooldownPercent = CDpercent end
+				end
+			end
 		end
 	end
-	if br.getRuneCount(Type) == 2 then
-		return 2
-	elseif br.getRuneCount(Type) == 1 then
-		return runePercent + 1
-	else
-		return runePercent
-	end
+
+	if readyCount >= 2 then return 2 end
+	if readyCount == 1 then return 1 + maxCooldownPercent end
+	return maxCooldownPercent
 end
 
-function br.runeCDPercent(runeIndex)
-	if br._G.GetRuneCount(runeIndex) == 0 then
-		return (br._G.GetTime() - select(1, br._G.GetRuneCooldown(runeIndex))) /
-			select(2, br._G.GetRuneCooldown(runeIndex))
+function power:runeCDPercent(runeIndex)
+	local start, duration, ready = br._G.GetRuneCooldown(runeIndex)
+	if start == nil or duration == 0 then
+		return 0
+	end
+	if not ready then
+		return (br._G.GetTime() - start) / duration
 	else
 		return 0
 	end
 end
 
-function br.runeRecharge(runeIndex)
-	if not select(3, br._G.GetRuneCooldown(runeIndex)) then
-		return select(2, br._G.GetRuneCooldown(runeIndex)) -
-			(br._G.GetTime() - select(1, br._G.GetRuneCooldown(runeIndex)))
+function power:runeRecharge(runeIndex)
+	local start, duration, ready = br._G.GetRuneCooldown(runeIndex)
+	if not ready and duration and duration > 0 and start then
+		return duration - (br._G.GetTime() - start)
 	else
 		return 0
 	end
 end
 
-function br.runeTimeTill(runeIndex)
+function power:runeTimeTill(runeIndex)
 	local runeCDs = {}
 	local runeCount = 0
 	local timeTill = 0
 	for i = 1, 6 do
-		runeCount = runeCount + br._G.GetRuneCount(i)
-		if runeCDs[runeIndex] == nil then
-			runeCDs[i] = br.runeRecharge(i)
+		local start, duration, ready = br._G.GetRuneCooldown(i)
+		if ready then
+			runeCount = runeCount + 1
+		else
+			runeCDs[i] = br.functions.power:runeRecharge(i)
 		end
 	end
 	if runeCount < runeIndex then
@@ -239,28 +253,53 @@ function br.runeTimeTill(runeIndex)
 	return timeTill
 end
 
+-- Count total ready runes (simple helper)
+function power:getTotalReadyRunes()
+	local total = 0
+	for i = 1, 6 do
+		local _, _, ready = br._G.GetRuneCooldown(i)
+		if ready then total = total + 1 end
+	end
+	return total
+end
+
+-- Return the maximum rune cooldown percent among all runes (0..1)
+function power:getMaxRuneCDPercent()
+	local maxPct = 0
+	for i = 1, 6 do
+		local pct = power:runeCDPercent(i)
+		if pct > maxPct then maxPct = pct end
+	end
+	return maxPct
+end
+
+-- Fractional rune value used by DKs: ready runes + highest CD percent
+function power:getRuneFrac()
+	return power:getTotalReadyRunes() + power:getMaxRuneCDPercent()
+end
+
 -- if getTimeToMax("player") < 3 then
-function br.getTimeToMax(Unit, Limit)
+function power:getTimeToMax(Unit, Limit)
 	local timeTill = 999
 	local max = Limit or br._G.UnitPowerMax(Unit)
 	local curr = br._G.UnitPower(Unit)
 	local curr2 = curr
 	local _, regen = br._G.GetPowerRegen(Unit)
-	if select(3, br._G.UnitClass("player")) == 11 and br._G.GetSpecialization() == 2 and br.isKnown(114107) then
-		curr2 = curr + 4 * br.getCombo()
+	if select(3, br._G.UnitClass("player")) == 11 and br._G.C_SpecializationInfo.GetSpecialization() == 2 and br.functions.spell:isKnown(114107) then
+		curr2 = curr + 4 * br.functions.power:getCombo()
 	end
 	timeTill = (curr2 > max) and 0 or (max - curr2) * (1.0 / regen)
 	return timeTill
 end
 
 -- /dump getCastRegen(185358)
-function br.getCastRegen(spellId)
+function power:getCastRegen(spellId)
 	local regenRate = br._G.GetPowerRegen("player")
 	local power = 0
 
 	-- Get the "execute time" of the spell (larger of GCD or the cast time).
-	local castTime = br.getCastTime(spellId) or 0
-	local gcd = br.getSpellCD(61304)
+	local castTime = br.functions.cast:getCastTime(spellId) or 0
+	local gcd = br.functions.spell:getGlobalCD()
 	if gcd == 0 then
 		gcd = br._G.max(1, 1.5 / (1 + br._G.UnitSpellHaste("player") / 100))
 	end
@@ -270,13 +309,36 @@ function br.getCastRegen(spellId)
 	return power
 end
 
--- if br.getRegen("player") > 15 then
-function br.getRegen(Unit)
+-- if br.functions.power:getRegen("player") > 15 then
+function power:getRegen(Unit)
 	return select(2, br._G.GetPowerRegen(Unit))
 end
 
-function br.getSpellCost(spell)
-	local t = br._G.C_Spell.GetSpellPowerCost(br._G.GetSpellInfo(spell))
+function power:getSpellCost(spell)
+	if spell == nil then
+		return 0
+	end
+
+	local spellKey = spell
+	if type(spell) == "table" then
+		if type(spell.id) == "function" then
+			local ok, value = pcall(spell.id)
+			if ok and value ~= nil then
+				spellKey = value
+			end
+		elseif type(spell.id) == "number" then
+			spellKey = spell.id
+		end
+	end
+
+	local t = br._G.C_Spell.GetSpellPowerCost(spellKey)
+	if (not t or not t[1]) and type(spellKey) == "number" then
+		-- Fallback for older clients/APIs that may prefer spellName.
+		local spellName = br.api.wow.GetSpellInfo(spellKey)
+		if spellName then
+			t = br._G.C_Spell.GetSpellPowerCost(spellName)
+		end
+	end
 	if not t then
 		return 0
 	elseif not t[1] then
@@ -292,8 +354,8 @@ function br.getSpellCost(spell)
 	end
 end
 
-function br.hasResources(spell, offset)
-	local cost, _, costtype = br.getSpellCost(spell)
+function power:hasResources(spell, offset)
+	local cost, _, costtype = br.functions.power:getSpellCost(spell)
 	offset = offset or 0
 	if not cost then
 		return false

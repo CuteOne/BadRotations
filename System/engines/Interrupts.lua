@@ -1,14 +1,17 @@
 local _, br = ...
+br.engines.interrupts = br.engines.interrupts or {}
+local interrupts = br.engines.interrupts
+
 -- if shouldStopCasting(12345) then
-function br.shouldStopCasting(Spell)
+function interrupts:shouldStopCasting(Spell)
 	-- if we are on a boss fight
-	if br.GetUnitExists("boss1") then
+	if br.functions.unit:GetUnitExists("boss1") then
 		-- Locally  casting informations
 		local Boss1Cast,Boss1CastEnd,PlayerCastEnd,StopCasting
 		local MySpellCastTime
 		-- Set Spell Cast Time
-		if br._G.GetSpellInfo(Spell) ~= nil then
-			MySpellCastTime = (br._G.GetTime()*1000) + select(4,br._G.GetSpellInfo(Spell))
+		if br.api.wow.GetSpellInfo(Spell) ~= nil then
+			MySpellCastTime = (br._G.GetTime()*1000) + select(4,br.api.wow.GetSpellInfo(Spell))
 		else
 			return false
 		end
@@ -42,19 +45,19 @@ function br.shouldStopCasting(Spell)
 			PlayerCastEnd = MySpellCastTime
 		end
 		for i = 1,#ShouldContinue do
-			if br.UnitBuffID("player",ShouldContinue[i])
-				and (select(6,br.UnitBuffID("player",ShouldContinue[i]))*1000)+50 > Boss1CastEnd then
-				br.ChatOverlay("\124cFFFFFFFFStopper Safety Found")
+			if br.functions.aura:UnitBuffID("player",ShouldContinue[i])
+				and (select(6,br.functions.aura:UnitBuffID("player",ShouldContinue[i]))*1000)+50 > Boss1CastEnd then
+				br.ui.chatOverlay:Show("\124cFFFFFFFFStopper Safety Found")
 				return false
 			end
 		end
 		if not br._G.UnitCastingInfo("player") and not br._G.UnitChannelInfo("player") and MySpellCastTime and br.SetStopTime
 			and MySpellCastTime > Boss1CastEnd then
-			br.ChatOverlay("\124cFFD93B3BStop for "..Boss1Cast)
+			br.ui.chatOverlay:Show("\124cFFD93B3BStop for "..Boss1Cast)
 			return true
 		end
 		for j = 1,#ShouldStop do
-			if Boss1Cast == select(1,br._G.GetSpellInfo(ShouldStop[j])) then
+			if Boss1Cast == select(1,br.api.wow.GetSpellInfo(ShouldStop[j])) then
 				br.SetStopTime = Boss1CastEnd
 				if PlayerCastEnd ~= nil then
 					if Boss1CastEnd < PlayerCastEnd then
@@ -66,14 +69,14 @@ function br.shouldStopCasting(Spell)
 		return StopCasting
 	end
 end
-function br.betterStopCasting(Spell)
-	local spellCastLengt = select(4,br._G.GetSpellInfo(Spell)) or 0
+function interrupts:betterStopCasting(Spell)
+	local spellCastLengt = select(4,br.api.wow.GetSpellInfo(Spell)) or 0
 	local MySpellCastTime = (br._G.GetTime()*1000) + spellCastLengt
-	if br.shouldStopTime and br.shouldStopTime <= MySpellCastTime and not br.canContinue() then
+	if br.shouldStopTime and br.shouldStopTime <= MySpellCastTime and not br.engines.interrupts:canContinue() then
 		return true
 	end
 end
-br.stopCasting = {
+interrupts.stopCasting = {
 	shouldContinue = {
 		[1022] = "Melee" , -- Hand of Protection
 		[31821] = "All",-- Devotion
@@ -87,9 +90,9 @@ br.stopCasting = {
 		[19750] = "Spell" -- Flash heal(Test)
 	}
 }
-function br.canContinue()
-	for i = 1, #br.stopCasting.shouldContinue do
-		if br.UnitBuffID("player", br.stopCasting.shouldContinue[i]) then
+function interrupts:canContinue()
+	for i = 1, #interrupts.stopCasting.shouldContinue do
+		if br.functions.aura:UnitBuffID("player", interrupts.stopCasting.shouldContinue[i]) then
 			return true
 		end
 	end

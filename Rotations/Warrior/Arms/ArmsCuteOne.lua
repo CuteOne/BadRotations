@@ -23,7 +23,7 @@ local function createToggles()
         [1] = { mode = "Auto", value = 1, overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spells.cleave },
         [2] = { mode = "Mult", value = 2, overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spells.whirlwind },
         [3] = { mode = "Sing", value = 3, overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spells.mortalStrike },
-        [4] = { mode = "Off", value = 4, overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spells.victoryRush }
+        [4] = { mode = "Off", value = 4, overlay = "DPS Rotation Disabled", tip = "Disarm DPS Rotation", highlight = 0, icon = br.player.spells.victoryRush }
     };
     br.ui:createToggle(RotationModes, "Rotation", 1, 0)
     -- Cooldown Button
@@ -77,8 +77,12 @@ local function createOptions()
         br.ui:createCheckbox(section, "Berserker Rage", "Check to use Berserker Rage")
         -- Charge
         br.ui:createCheckbox(section, "Charge", "Check to use Charge")
+        -- Heroic Leap
+        br.ui:createCheckbox(section, "Heroic Leap", "Check to use Heroic Leap")
         -- Heroic Throw
         br.ui:createCheckbox(section, "Heroic Throw", "Check to use Heroic Throw out of range")
+        -- Piercing Howl
+        br.ui:createCheckbox(section, "Piercing Howl", "Use Piercing Howl on moving enemies not facing you.")
         -- Taunt
         br.ui:createCheckbox(section, "Solo Taunt", "Only uses Taunt when not in a group.")
         br.ui:checkSectionState(section)
@@ -86,26 +90,33 @@ local function createOptions()
         --- COOLDOWN OPTIONS ---
         ------------------------
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
+        local alwaysCdNever = { "Always", "|cff0000ffCD", "|cffff0000Never" }
         local alwaysCdAoENever = { "Always", "|cff008000AOE", "|cffffff00AOE/CD", "|cff0000ffCD", "|cffff0000Never" }
-        -- Racial
-        br.ui:createDropdownWithout(section, "Racial", alwaysCdAoENever, 4, "|cffFFFFFFWhen to use Racial.")
         -- Avatar
-        br.ui:createDropdownWithout(section, "Avatar", alwaysCdAoENever, 4, "|cffFFFFFFWhen to use Avatar.")
+        br.ui:createDropdownWithout(section, "Avatar", alwaysCdNever, 2, "|cffFFFFFFWhen to use Avatar.")
         -- Bladestorm
         br.ui:createDropdownWithout(section, "Bladestorm", alwaysCdAoENever, 3, "|cffFFFFFFWhen to use Bladestorm.")
-        -- Champions Spear
-        br.ui:createDropdownWithout(section, "Champion's Spear", alwaysCdAoENever, 3,
-            "|cffFFFFFFWhen to use Champion's Spear.")
-        -- Colossus Smash / Warbreaker
-        br.ui:createDropdownWithout(section, "Colossus Smash / Warbreaker", alwaysCdAoENever, 4,
-            "|cffFFFFFFWhen to use Colossus Smash / Warbreaker.")
-        -- Demolish
-        br.ui:createDropdownWithout(section, "Demolish", alwaysCdAoENever, 3, "|cffFFFFFFWhen to use Demolish.")
-        -- Ravager
-        br.ui:createDropdownWithout(section, "Ravager", alwaysCdAoENever, 3, "|cffFFFFFFWhen to use Ravager.")
-        -- Thunderous Roar
-        br.ui:createDropdownWithout(section, "Thunderous Roar", alwaysCdAoENever, 3,
-            "|cffFFFFFFWhen to use Thunderous Roar.")
+        -- Bloodbath
+        br.ui:createDropdownWithout(section, "Bloodbath", alwaysCdNever, 2,
+            "|cffFFFFFFWhen to use Bloodbath.")
+        -- Colossus Smash
+        br.ui:createDropdownWithout(section, "Colossus Smash", alwaysCdNever, 1,
+            "|cffFFFFFFWhen to use Colossus Smash.")
+        -- Dragon Roar
+        br.ui:createDropdownWithout(section, "Dragon Roar", alwaysCdAoENever, 3,
+            "|cffFFFFFFWhen to use Dragon Roar.")
+        -- Recklessness
+        br.ui:createDropdownWithout(section, "Recklessness", alwaysCdAoENever, 3,
+            "|cffFFFFFFWhen to use Recklessness.")
+        -- Skull Banner
+        br.ui:createDropdownWithout(section, "Skull Banner", alwaysCdNever, 2,
+            "|cffFFFFFFWhen to use Skull Banner.")
+        -- Shattering Throw
+        br.ui:createDropdownWithout(section, "Shattering Throw", alwaysCdNever, 2,
+            "|cffFFFFFFWhen to use Shattering Throw.")
+        -- Storm Bolt
+        br.ui:createDropdownWithout(section, "Storm Bolt", alwaysCdNever, 2,
+            "|cffFFFFFFWhen to use Storm Bolt.")
         br.ui:checkSectionState(section)
         -------------------------
         --- DEFENSIVE OPTIONS ---
@@ -114,14 +125,16 @@ local function createOptions()
         local defTooltip = "|cffFFBB00Health Percentage to use at."
         -- Defensive Stance
         br.ui:createSpinner(section, "Defensive Stance", 60, 0, 100, 5, defTooltip)
+        -- Disarm (CC fleeing enemies)
+        br.ui:createCheckbox(section, "Disarm", "Use Disarm on fleeing enemies")
         -- Die By The Sword
         br.ui:createSpinner(section, "Die By The Sword", 60, 0, 100, 5, defTooltip)
-        -- Ignore Pain
-        br.ui:createSpinner(section, "Ignore Pain", 60, 0, 100, 5, defTooltip)
         -- Intimidating Shout
         br.ui:createSpinner(section, "Intimidating Shout", 60, 0, 100, 5, defTooltip)
         -- Rallying Cry
         br.ui:createSpinner(section, "Rallying Cry", 60, 0, 100, 5, defTooltip)
+        -- Shield Wall
+        br.ui:createSpinner(section, "Shield Wall", 30, 0, 100, 5, defTooltip)
         -- Victory Rush
         br.ui:createSpinner(section, "Victory Rush", 60, 0, 100, 5, defTooltip)
         br.ui:checkSectionState(section)
@@ -134,7 +147,7 @@ local function createOptions()
         -- Intimidating Shout
         br.ui:createCheckbox(section, "Intimidating Shout - Int")
         -- Storm Bolt Logic
-        br.ui:createCheckbox(section, "Storm Bolt Logic", "Stun specific Spells and Mobs")
+        br.ui:createCheckbox(section, "Storm Bolt - Int", "Stun specific Spells and Mobs")
         -- Interrupt Percentage
         br.ui:createSpinner(section, "Interrupt At", 70, 0, 95, 5, "|cffFFBB00Cast Percentage to use at.")
         br.ui:checkSectionState(section)
@@ -143,17 +156,17 @@ local function createOptions()
         ----------------------
         section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
         -- Single/Multi Toggle
-        br.ui:createDropdownWithout(section, "Rotation Mode", br.dropOptions.Toggle, 4)
+        br.ui:createDropdownWithout(section, "Rotation Mode", br.ui.dropOptions.Toggle, 4)
         --Cooldown Key Toggle
-        br.ui:createDropdownWithout(section, "Cooldown Mode", br.dropOptions.Toggle, 3)
+        br.ui:createDropdownWithout(section, "Cooldown Mode", br.ui.dropOptions.Toggle, 3)
         --Defensive Key Toggle
-        br.ui:createDropdownWithout(section, "Defensive Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdownWithout(section, "Defensive Mode", br.ui.dropOptions.Toggle, 6)
         -- Interrupts Key Toggle
-        br.ui:createDropdownWithout(section, "Interrupt Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdownWithout(section, "Interrupt Mode", br.ui.dropOptions.Toggle, 6)
         -- Mover Toggle
-        br.ui:createDropdownWithout(section, "Mover Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdownWithout(section, "Mover Mode", br.ui.dropOptions.Toggle, 6)
         -- Pause Toggle
-        br.ui:createDropdown(section, "Pause Mode", br.dropOptions.Toggle, 6)
+        -- br.ui:createDropdown(section, "Pause Mode", br.ui.dropOptions.Toggle, 6)
         br.ui:checkSectionState(section)
     end
     optionTable = {
@@ -178,10 +191,12 @@ local equiped
 local module
 local race
 local rage
+local spell
 local talent
 local ui
 local unit
 local units
+local use
 local var
 
 --------------------
@@ -201,23 +216,39 @@ actionList.Extras = function()
             end
         end
     end -- End Dummy Test
-    -- Battle Shout
-    if ui.checked("Battle Shout") and cast.able.battleShout() then
-        for i = 1, #br.friend do
-            local thisUnit = br.friend[i].unit
-            if not unit.deadOrGhost(thisUnit) and unit.distance(thisUnit) < 100 and buff.battleShout.remain(thisUnit) < 600 then
-                if cast.battleShout() then
-                    ui.debug("Casting Battle Shout")
-                    return true
-                end
+    -- Battle Stance
+    if cast.able.battleStance() then
+        if unit.form() ~= 1 and (not ui.checked("Defensive Stance") or (unit.hp("player") > ui.value("Defensive Stance"))) then
+            if cast.battleStance() then
+                ui.debug("Casting Battle Stance [Extra]")
+                return true
             end
         end
     end
     -- Berserker Rage
     if ui.checked("Berserker Rage") and cast.able.berserkerRage() and cast.noControl.berserkerRage() then
         if cast.berserkerRage() then
-            ui.debug("Casting Berserker Rage")
+            ui.debug("Casting Berserker Rage [Extra]")
             return true
+        end
+    end
+    -- Disarm: mirror Grapple Weapon logic (with blacklist on error)
+    if ui.checked("Disarm") and unit.inCombat() and #enemies.yards5f > 0 then
+        for i = 1, #enemies.yards5f do
+            local thisUnit = enemies.yards5f[i]
+            if cast.able.disarm(thisUnit) and unit.exists(thisUnit) and unit.distance(thisUnit) <= 5
+                and (not debuff.disarm.exists(thisUnit))
+            then
+                -- Get NPC ID to check blacklist
+                local npcID = br.functions.unit:GetObjectID(thisUnit)
+                if not var.disarmBlacklist[npcID] then
+                    var.lastDisarmTarget = thisUnit
+                    if cast.disarm(thisUnit) then
+                        ui.debug("Casting Disarm on " .. unit.name(thisUnit) .. " [Extra]")
+                        return true
+                    end
+                end
+            end
         end
     end
     -- Piercing Howl
@@ -226,7 +257,7 @@ actionList.Extras = function()
             local thisUnit = enemies.yards15[i]
             if cast.able.piercingHowl(thisUnit) and unit.moving(thisUnit) and not unit.facing(thisUnit, "player") and unit.distance(thisUnit) >= 5 then
                 if cast.piercingHowl(thisUnit) then
-                    ui.debug("Casting Piercing Howl")
+                    ui.debug("Casting Piercing Howl [Extra]")
                     return true
                 end
             end
@@ -238,20 +269,15 @@ end -- End Action List - Extra
 actionList.Defensive = function()
     if ui.useDefensive() then
         local useDefensive = function(op)
-            return unit.inCombat() and unit.hp() <= ui.value(op)
+            return unit.inCombat() and unit.hp("player") <= ui.value(op)
         end
         -- Basic Healing Module
         module.BasicHealing()
         -- Defensive Stance
         if ui.checked("Defensive Stance") and cast.able.defensiveStance() then
-            if useDefensive("Defensive Stance") and not buff.defensiveStance.exists() then
+            if unit.form() ~= 2 and unit.hp("player") <= ui.value("Defensive Stance") then
                 if cast.defensiveStance() then
-                    ui.debug("Casting Defensive Stance")
-                    return
-                end
-            elseif buff.defensiveStance.exists() and unit.hp() > ui.value("Defensive Stance") then
-                if cast.defensiveStance() then
-                    ui.debug("Casting Defensive Stance")
+                    ui.debug("Casting Defensive Stance [Defensive]")
                     return
                 end
             end
@@ -259,28 +285,28 @@ actionList.Defensive = function()
         -- Die By The Sword
         if ui.checked("Die By The Sword") and cast.able.dieByTheSword() and useDefensive("Die By The Sword") then
             if cast.dieByTheSword() then
-                ui.debug("Casting Die By The Sword")
+                ui.debug("Casting Die By The Sword [Defensive]")
                 return
-            end
-        end
-        -- Ignore Pain
-        if ui.checked("Ignore Pain") and cast.able.ignorePain() and useDefensive("Ignore Pain") and rage() >= 40 then
-            if cast.ignorePain() then
-                ui.debug("Casting Ignore Pain")
-                return true
             end
         end
         -- Intimidating Shout
         if ui.checked("Intimidating Shout") and cast.able.intimidatingShout() and useDefensive("Intimidating Shout") then
             if cast.intimidatingShout() then
-                ui.debug("Casting Intimidating Shout")
+                ui.debug("Casting Intimidating Shout [Defensive]")
                 return true
             end
         end
         -- Rallying Cry
         if ui.checked("Rallying Cry") and cast.able.rallyingCry() and useDefensive("Rallying Cry") then
             if cast.rallyingCry() then
-                ui.debug("Casting Rallying Cry")
+                ui.debug("Casting Rallying Cry [Defensive]")
+                return true
+            end
+        end
+        -- Shield Wall
+        if ui.checked("Shield Wall") and cast.able.shieldWall() and useDefensive("Shield Wall") then
+            if cast.shieldWall() then
+                ui.debug("Casting Shield Wall [Defensive]")
                 return true
             end
         end
@@ -290,7 +316,7 @@ actionList.Defensive = function()
                 local thisUnit = enemies.yards40[i]
                 if (cast.timeRemain(thisUnit) < 5 or cast.inFlight.spellReflection(thisUnit)) then
                     if cast.spellReflection() then
-                        ui.debug("Casting Spell Reflection")
+                        ui.debug("Casting Spell Reflection [Defensive]")
                         return true
                     end
                 end
@@ -299,33 +325,39 @@ actionList.Defensive = function()
         -- Storm Bolt
         if ui.checked("Storm Bolt") and cast.able.stormBolt() and useDefensive("Storm Bolt") then
             if cast.stormBolt() then
-                ui.debug("Casting Storm Bolt")
+                ui.debug("Casting Storm Bolt [Defensive]")
                 return true
             end
         end
-        -- Victory Rush
-        if ui.checked("Victory Rush") and (cast.able.victoryRush() or cast.able.impendingVictory())
-            and unit.inCombat() and buff.victorious.exists()
-        then
+        -- Victory Rush / Impending Victory (defensive heal)
+        if ui.checked("Victory Rush") and unit.inCombat() and (buff.victorious.exists() or talent.impendingVictory) then
             for i = 1, #enemies.yards5f do
                 local thisUnit = enemies.yards5f[i]
-                if unit.hp() <= ui.value("Victory Rush") or buff.victorious.remain() < unit.gcd(true) or unit.ttd(thisUnit) < unit.gcd(true) then
+                if unit.hp("player") <= ui.value("Victory Rush") or (buff.victorious.exists()
+                    and (buff.victorious.remain() < unit.gcd(true) or unit.ttd(thisUnit) < unit.gcd(true)))
+                then
                     if talent.impendingVictory then
-                        if cast.impendingVictory(thisUnit) then
-                            ui.debug("Casting Impending Victory")
-                            return true
+                        -- Replacement: use Impending Victory (does not require victorious)
+                        if cast.able.impendingVictory(thisUnit) then
+                            if cast.impendingVictory(thisUnit) then
+                                ui.debug("Casting Impending Victory [Defensive]")
+                                return true
+                            end
                         end
                     else
-                        if cast.victoryRush(thisUnit) then
-                            ui.debug("Casting Victory Rush")
-                            return true
+                        -- No talent: use Victory Rush only when buff exists
+                        if buff.victorious.exists() and cast.able.victoryRush(thisUnit) then
+                            if cast.victoryRush(thisUnit) then
+                                ui.debug("Casting Victory Rush [Defensive]")
+                                return true
+                            end
                         end
                     end
                 end
             end
         end
     end -- End Defensive Check
-end     -- End Action List - Defensive
+end -- End Action List - Defensive
 
 -- Action List - Interrupts
 actionList.Interrupts = function()
@@ -337,7 +369,7 @@ actionList.Interrupts = function()
                 -- Pummel
                 if ui.checked("Pummel") and cast.able.pummel(thisUnit) and distance < 5 then
                     if cast.pummel(thisUnit) then
-                        ui.debug("Casting Pummel")
+                        ui.debug("Casting Pummel [Interrupt]")
                         return true
                     end
                 end
@@ -360,1192 +392,165 @@ actionList.Interrupts = function()
     end
 end -- End Action List - Interrupts
 
--- Action List - ColossusAoe
-actionList.ColossusAoe = function()
-    -- Cleave
-    -- cleave,if=buff.collateral_damage.up&buff.merciless_bonegrinder.up
-    if cast.able.cleave("player", "cone", 1, 8) and buff.collateralDamage.exists() and buff.mercilessBonegrinder.exists() then
-        if cast.cleave("player", "cone", 1, 8) then
-            ui.debug("Casting Cleave - Collateral Damage [Colossus Aoe]")
-            return true
-        end
-    end
-    -- Thunder Clap
-    -- thunder_clap,if=!dot.rend.remains
-    if cast.able.thunderClap("player", "aoe", 1, 8) and not debuff.rend.exists(units.dyn5) then
-        if cast.thunderClap("player", "aoe", 1, 8) then
-            ui.debug("Casting Thunder Clap - No Rend [Colossus Aoe]")
-            return true
-        end
-    end
-    -- Thunderous Roar
-    -- thunderous_roar
-    if ui.alwaysCdAoENever("Thunderous Roar") and cast.able.thunderousRoar("player", "aoe", 1, 12) then
-        if cast.thunderousRoar() then
-            ui.debug("Casting Thunderous Roar [Colossus Aoe]")
-            return true
-        end
-    end
-    -- Avatar
-    -- avatar
-    if ui.alwaysCdAoENever("Avatar") and cast.able.avatar() then
-        if cast.avatar() then
-            ui.debug("Casting Avatar [Colossus Aoe]")
-            return true
-        end
-    end
-    -- Ravager
-    -- ravager
-    if ui.alwaysCdAoENever("Ravager", 1, 8) and cast.able.ravager("target", "ground", 1, 8) then
-        if cast.ravager("target", "ground") then
-            ui.debug("Casting Ravager [Colossus Aoe]")
-            return true
-        end
-    end
+-- Action List - AOE
+actionList.AOE = function()
     -- Sweeping Strikes
     -- sweeping_strikes
-    if cast.able.sweepingStrikes() then
+    if cast.able.sweepingStrikes() and not buff.sweepingStrikes.exists() then
         if cast.sweepingStrikes() then
-            ui.debug("Casting Sweeping Strikes [Colossus Aoe]")
-            return true
-        end
-    end
-    -- Skullsplitter
-    -- skullsplitter,if=buff.sweeping_strikes.up
-    if cast.able.skullsplitter() and buff.sweepingStrikes.exists() then
-        if cast.skullsplitter() then
-            ui.debug("Casting Skullsplitter [Colossus Aoe]")
-            return true
-        end
-    end
-    -- Warbreaker
-    -- warbreaker
-    if ui.alwaysCdAoENever("Colossus Smash / Warbreaker", 1, 8) and cast.able.warbreaker("player", "aoe", 1, 8) then
-        if cast.warbreaker("player", "aoe", 1, 8) then
-            ui.debug("Casting Warbreaker [Colossus Aoe]")
-            return true
-        end
-    end
-    -- Bladestorm
-    -- bladestorm,if=talent.unhinged|talent.merciless_bonegrinder
-    if ui.alwaysCdAoENever("Bladestorm", 3, 8) and cast.able.bladestorm("player", "aoe", 1, 8) and ((talent.unhinged or talent.mercilessBonegrinder)) then
-        if cast.bladestorm("player", "aoe", 1, 8) then
-            ui.debug("Casting Bladestorm - Unhinged/Merciless Bonegrinder [Colossus Aoe]")
-            return true
-        end
-    end
-    -- Champions Spear
-    -- champions_spear
-    if ui.alwaysCdAoENever("Champion's Spear", 3, 8) and cast.able.championsSpear("target", "ground", 1, 8) then
-        if cast.championsSpear("target", "ground", 1, 8) then
-            ui.debug("Casting Champions Spear [Colossus Aoe]")
-            return true
-        end
-    end
-    -- Colossus Smash
-    -- colossus_smash
-    if ui.alwaysCdAoENever("Colossus Smash / Warbreaker", 1, 5) and cast.able.colossusSmash() then
-        if cast.colossusSmash() then
-            ui.debug("Casting Colossus Smash [Colossus Aoe]")
+            ui.debug("Casting Sweeping Strikes [AOE]")
             return true
         end
     end
     -- Cleave
-    -- cleave
-    if cast.able.cleave("player", "cone", 1, 8) then
-        if cast.cleave("player", "cone", 1, 8) then
-            ui.debug("Casting Cleave [Colossus Aoe]")
-            return true
-        end
-    end
-    -- Demolish
-    -- demolish,if=buff.sweeping_strikes.up
-    if ui.alwaysCdAoENever("Demolish", 3, 8) and cast.able.demolish("player", "aoe", 1, 8) and buff.sweepingStrikes.exists() then
-        if cast.demolish("player", "aoe", 1, 8) then
-            ui.debug("Casting Demolish [Colossus Aoe]")
+    -- cleave,if=rage>110&active_enemies<=4
+    if cast.able.cleave(units.dyn5,"cone",1,8) and (rage() > 110 or (rage.max() == 100 and rage() > 90)) and #enemies.yards5f <= 4 then
+        if cast.cleave("player","cone",1,8) then
+            ui.debug("Casting Cleave [AOE]")
             return true
         end
     end
     -- Bladestorm
-    -- bladestorm,if=talent.unhinged
-    if ui.alwaysCdAoENever("Bladestorm", 3, 8) and cast.able.bladestorm("player", "aoe", 1, 8) and talent.unhinged then
-        if cast.bladestorm("player", "aoe", 1, 8) then
-            ui.debug("Casting Bladestorm - Unhinged [Colossus Aoe]")
-            return true
-        end
-    end
-    -- Overpower
-    -- overpower
-    if cast.able.overpower() then
-        if cast.overpower() then
-            ui.debug("Casting Overpower [Colossus Aoe]")
-            return true
-        end
-    end
-    -- Mortal Strike
-    -- mortal_strike,if=buff.sweeping_strikes.up
-    if cast.able.mortalStrike() and buff.sweepingStrikes.exists() then
-        if cast.mortalStrike() then
-            ui.debug("Casting Mortal Strike - Sweeping Strikes [Colossus Aoe]")
-            return true
-        end
-    end
-    -- Overpower
-    -- overpower,if=buff.sweeping_strikes.up
-    if cast.able.overpower() and buff.sweepingStrikes.exists() then
-        if cast.overpower() then
-            ui.debug("Casting Overpower - Sweeping Strikes [Colossus Aoe]")
-            return true
-        end
-    end
-    -- Execute
-    -- execute,if=buff.sweeping_strikes.up
-    if cast.able.execute() and buff.sweepingStrikes.exists() then
-        if cast.execute() then
-            ui.debug("Casting Execute - Sweeping Strikes [Colossus Aoe]")
-            return true
-        end
-    end
-    -- Thunder Clap
-    -- thunder_clap
-    if cast.able.thunderClap("player", "aoe", 1, 8) then
-        if cast.thunderClap("player", "aoe", 1, 8) then
-            ui.debug("Casting Thunder Clap [Colossus Aoe]")
-            return true
-        end
-    end
-    -- Mortal Strike
-    -- mortal_strike
-    if cast.able.mortalStrike() then
-        if cast.mortalStrike() then
-            ui.debug("Casting Mortal Strike [Colossus Aoe]")
-            return true
-        end
-    end
-    -- Execute
-    -- execute
-    if cast.able.execute() then
-        if cast.execute() then
-            ui.debug("Casting Execute [Colossus Aoe]")
-            return true
-        end
-    end
-    -- Bladestorm
-    -- bladestorm
-    if ui.alwaysCdAoENever("Bladestorm", 3, 8) and cast.able.bladestorm("player", "aoe", 1, 8) then
-        if cast.bladestorm("player", "aoe", 1, 8) then
-            ui.debug("Casting Bladestorm [Colossus Aoe]")
-            return true
-        end
-    end
-    -- Whirlwind
-    -- whirlwind
-    if cast.able.whirlwind("player", "aoe", 1, 8) then
-        if cast.whirlwind("player", "aoe", 1, 8) then
-            ui.debug("Casting Whirlwind [Colossus Aoe]")
-            return true
-        end
-    end
-end -- End Action List - ColossusAoe
-
--- Action List - ColossusExecute
-actionList.ColossusExecute = function()
-    -- Sweeping Strikes
-    -- sweeping_strikes,if=active_enemies=2
-    if cast.able.sweepingStrikes() and #enemies.yards5f == 2 then
-        if cast.sweepingStrikes() then
-            ui.debug("Casting Sweeping Strikes [Colossus Execute]")
-            return true
-        end
-    end
-    -- Rend
-    -- rend,if=dot.rend.remains<=gcd&!talent.bloodletting
-    if cast.able.rend(var.minHpUnit) and debuff.rend.remains(units.dyn5) <= unit.gcd(true) and not talent.bloodletting then
-        if cast.rend(var.minHpUnit) then
-            ui.debug("Casting Rend [Colossus Execute]")
-            return true
-        end
-    end
-    -- Thunderous Roar
-    -- thunderous_roar
-    if ui.alwaysCdAoENever("Thunderous Roar") and cast.able.thunderousRoar("player", "aoe", 1, 12) then
-        if cast.thunderousRoar("player", "aoe", 1, 12) then
-            ui.debug("Casting Thunderous Roar [Colossus Execute]")
-            return true
-        end
-    end
-    -- Champions Spear
-    -- champions_spear
-    if ui.alwaysCdAoENever("Champion's Spear", 3, 8) and cast.able.championsSpear(var.minHpUnit, "ground", 1, 8) then
-        if cast.championsSpear(var.minHpUnit, "ground", 1, 8) then
-            ui.debug("Casting Champions Spear [Colossus Execute]")
-            return true
-        end
-    end
-    -- Ravager
-    -- ravager,if=cooldown.colossus_smash.remains<=gcd
-    if ui.alwaysCdAoENever("Ravager", 1, 8) and cast.able.ravager(var.minHpUnit, "ground", 1, 8) and cd.colossusSmash.remains() <= unit.gcd(true) then
-        if cast.ravager(var.minHpUnit, "ground", 1, 8) then
-            ui.debug("Casting Ravager [Colossus Execute]")
-            return true
-        end
-    end
-    -- Avatar
-    -- avatar
-    if ui.alwaysCdAoENever("Avatar") and cast.able.avatar() then
-        if cast.avatar() then
-            ui.debug("Casting Avatar [Colossus Execute]")
-            return true
-        end
-    end
-    -- Colossus Smash
-    -- colossus_smash
-    if ui.alwaysCdAoENever("Colossus Smash / Warbreaker", 1, 5) and cast.able.colossusSmash(var.minHpUnit) then
-        if cast.colossusSmash(var.minHpUnit) then
-            ui.debug("Casting Colossus Smash [Colossus Execute]")
-            return true
-        end
-    end
-    -- Warbreaker
-    -- warbreaker
-    if ui.alwaysCdAoENever("Colossus Smash / Warbreaker", 1, 8) and cast.able.warbreaker("player", "aoe", 1, 8) then
-        if cast.warbreaker("player", "aoe", 1, 8) then
-            ui.debug("Casting Warbreaker [Colossus Execute]")
-            return true
-        end
-    end
-    -- Demolish
-    -- demolish,if=debuff.colossus_smash.up
-    if ui.alwaysCdAoENever("Demolish", 3, 8) and cast.able.demolish("player", "aoe", 1, 8) and debuff.colossusSmash.exists(var.minHpUnit) then
-        if cast.demolish("player", "aoe", 1, 8) then
-            ui.debug("Casting Demolish [Colossus Execute]")
-            return true
-        end
-    end
-    -- Mortal Strike
-    -- mortal_strike,if=debuff.executioners_precision.stack=2&!dot.ravager.remains&(buff.lethal_blows.stack=2|!set_bonus.tww1_4pc)
-    if cast.able.mortalStrike(var.minHpUnit) and ((debuff.executionersPrecision.count(var.minHpUnit) == 2 and not debuff.ravager.remains(units.dyn5)
-            and (buff.lethalBlows.stack() == 2 or not equiped.tier("TWW1", 4))))
+    -- bladestorm,if=enabled&(buff.bloodbath.up|!talent.bloodbath.enabled)
+    if ui.alwaysCdAoENever("Bladestorm",3,#enemies.yards8) and cast.able.bladestorm("player","aoe",1,8)
+        and (buff.bloodbath.exists() or not talent.bloodbath)
     then
-        if cast.mortalStrike(var.minHpUnit) then
-            ui.debug("Casting Mortal Strike - Executioner's Precision [Colossus Execute]")
+        if cast.bladestorm("player","aoe",1,8) then
+            ui.debug("Casting Bladestorm [Single]")
             return true
         end
     end
-    -- Execute
-    -- execute,if=rage>=40
-    if cast.able.execute(var.minHpUnit) and rage() >= 40 then
-        if cast.execute(var.minHpUnit) then
-            ui.debug("Casting Execute - High Rage [Colossus Execute]")
-            return true
-        end
-    end
-    -- Skullsplitter
-    -- skullsplitter
-    if cast.able.skullsplitter(var.minHpUnit) then
-        if cast.skullsplitter(var.minHpUnit) then
-            ui.debug("Casting Skullsplitter [Colossus Execute]")
-            return true
-        end
-    end
-    -- Overpower
-    -- overpower
-    if cast.able.overpower(var.minHpUnit) then
-        if cast.overpower(var.minHpUnit) then
-            ui.debug("Casting Overpower [Colossus Execute]")
-            return true
-        end
-    end
-    -- Bladestorm
-    -- bladestorm
-    if ui.alwaysCdAoENever("Bladestorm", 3, 8) and cast.able.bladestorm("player", "aoe", 1, 8) then
-        if cast.bladestorm("player", "aoe", 1, 8) then
-            ui.debug("Casting Bladestorm [Colossus Execute]")
-            return true
-        end
-    end
-    -- Execute
-    -- execute
-    if cast.able.execute(var.minHpUnit) then
-        if cast.execute(var.minHpUnit) then
-            ui.debug("Casting Execute [Colossus Execute]")
-            return true
-        end
-    end
-    -- Mortal Strike
-    -- mortal_strike
-    if cast.able.mortalStrike(var.minHpUnit) then
-        if cast.mortalStrike(var.minHpUnit) then
-            ui.debug("Casting Mortal Strike [Colossus Execute]")
-            return true
-        end
-    end
-end -- End Action List - ColossusExecute
-
--- Action List - ColossusSt
-actionList.ColossusSt = function()
-    -- Rend
-    -- rend,if=dot.rend.remains<=gcd
-    if cast.able.rend() and debuff.rend.remains(units.dyn5) <= unit.gcd(true) then
-        if cast.rend() then
-            ui.debug("Casting Rend - Reapply Now [Colossus St]")
-            return true
-        end
-    end
-    -- Thunderous Roar
-    -- thunderous_roar
-    if ui.alwaysCdAoENever("Thunderous Roar") and cast.able.thunderousRoar("player", "aoe", 1, 12) then
-        if cast.thunderousRoar("player", "aoe", 1, 12) then
-            ui.debug("Casting Thunderous Roar [Colossus St]")
-            return true
-        end
-    end
-    -- Champions Spear
-    -- champions_spear
-    if ui.alwaysCdAoENever("Champion's Spear", 3, 8) and cast.able.championsSpear("target", "ground", 1, 8) then
-        if cast.championsSpear("target", "ground", 1, 8) then
-            ui.debug("Casting Champions Spear [Colossus St]")
-            return true
-        end
-    end
-    -- Ravager
-    -- ravager,if=cooldown.colossus_smash.remains<=gcd
-    if ui.alwaysCdAoENever("Ravager", 1, 8) and cast.able.ravager("target", "ground", 1, 8) and cd.colossusSmash.remains() <= unit.gcd(true) then
-        if cast.ravager("target", "ground", 1, 8) then
-            ui.debug("Casting Ravager [Colossus St]")
-            return true
-        end
-    end
-    -- Avatar
-    -- avatar,if=raid_event.adds.in>15
-    if ui.alwaysCdAoENever("Avatar") and cast.able.avatar() then
-        if cast.avatar() then
-            ui.debug("Casting Avatar [Colossus St]")
-            return true
-        end
-    end
-    -- Colossus Smash
-    -- colossus_smash
-    if ui.alwaysCdAoENever("Colossus Smash / Warbreaker", 1, 5) and cast.able.colossusSmash() then
-        if cast.colossusSmash() then
-            ui.debug("Casting Colossus Smash [Colossus St]")
-            return true
-        end
-    end
-    -- Warbreaker
-    -- warbreaker
-    if ui.alwaysCdAoENever("Colossus Smash / Warbreaker", 1, 8) and cast.able.warbreaker("player", "aoe", 1, 8) then
-        if cast.warbreaker("player", "aoe", 1, 8) then
-            ui.debug("Casting Warbreaker [Colossus St]")
-            return true
-        end
-    end
-    -- Mortal Strike
-    -- mortal_strike
-    if cast.able.mortalStrike() then
-        if cast.mortalStrike() then
-            ui.debug("Casting Mortal Strike [Colossus St]")
-            return true
-        end
-    end
-    -- Demolish
-    -- demolish
-    if ui.alwaysCdAoENever("Demolish", 3, 8) and cast.able.demolish("player", "aoe", 1, 8) then
-        if cast.demolish("player", "aoe", 1, 8) then
-            ui.debug("Casting Demolish [Colossus St]")
-            return true
-        end
-    end
-    -- Skullsplitter
-    -- skullsplitter
-    if cast.able.skullsplitter() then
-        if cast.skullsplitter() then
-            ui.debug("Casting Skullsplitter [Colossus St]")
-            return true
-        end
-    end
-    -- Overpower
-    -- overpower,if=charges=2
-    if cast.able.overpower() and charges == 2 then
-        if cast.overpower() then
-            ui.debug("Casting Overpower - Max Charges [Colossus St]")
-            return true
-        end
-    end
-    -- Execute
-    -- execute
-    if cast.able.execute() then
-        if cast.execute() then
-            ui.debug("Casting Execute [Colossus St]")
-            return true
-        end
-    end
-    -- Overpower
-    -- overpower
-    if cast.able.overpower() then
-        if cast.overpower() then
-            ui.debug("Casting Overpower [Colossus St]")
-            return true
-        end
-    end
-    -- Rend
-    -- rend,if=dot.rend.remains<=gcd*5
-    if cast.able.rend() and debuff.rend.remains(units.dyn5) <= unit.gcd() * 5 then
-        if cast.rend() then
-            ui.debug("Casting Rend [Colossus St]")
-            return true
-        end
-    end
-    -- Slam
-    -- slam
-    if cast.able.slam() then
-        if cast.slam() then
-            ui.debug("Casting Slam [Colossus St]")
-            return true
-        end
-    end
-end -- End Action List - ColossusSt
-
--- Action List - ColossusSweep
-actionList.ColossusSweep = function()
-    -- Sweeping Strikes
-    -- sweeping_strikes
-    if cast.able.sweepingStrikes() then
-        if cast.sweepingStrikes() then
-            ui.debug("Casting Sweeping Strikes [Colossus Sweep]")
-            return true
-        end
-    end
-    -- Rend
-    -- rend,if=dot.rend.remains<=gcd&buff.sweeping_strikes.up
-    if cast.able.rend() and debuff.rend.remains(units.dyn5) <= unit.gcd(true) and buff.sweepingStrikes.exists() then
-        if cast.rend() then
-            ui.debug("Casting Rend - Sweeping Strikes [Colossus Sweep]")
-            return true
-        end
-    end
-    -- Thunderous Roar
-    -- thunderous_roar
-    if ui.alwaysCdAoENever("Thunderous Roar") and cast.able.thunderousRoar("player", "aoe", 1, 12) then
-        if cast.thunderousRoar("player", "aoe", 1, 12) then
-            ui.debug("Casting Thunderous Roar [Colossus Sweep]")
-            return true
-        end
-    end
-    -- Champions Spear
-    -- champions_spear
-    if ui.alwaysCdAoENever("Champion's Spear", 3, 8) and cast.able.championsSpear("target", "ground", 1, 8) then
-        if cast.championsSpear("target", "ground", 1, 8) then
-            ui.debug("Casting Champions Spear [Colossus Sweep]")
-            return true
-        end
-    end
-    -- Ravager
-    -- ravager,if=cooldown.colossus_smash.ready
-    if ui.alwaysCdAoENever("Ravager", 1, 8) and cast.able.ravager("target", "ground", 1, 8) and not cd.colossusSmash.exists() then
-        if cast.ravager("target", "ground", 1, 8) then
-            ui.debug("Casting Ravager [Colossus Sweep]")
-            return true
-        end
-    end
-    -- Avatar
-    -- avatar
-    if ui.alwaysCdAoENever("Avatar") and cast.able.avatar() then
-        if cast.avatar() then
-            ui.debug("Casting Avatar [Colossus Sweep]")
-            return true
-        end
-    end
-    -- Colossus Smash
-    -- colossus_smash
-    if ui.alwaysCdAoENever("Colossus Smash / Warbreaker", 1, 5) and cast.able.colossusSmash() then
-        if cast.colossusSmash() then
-            ui.debug("Casting Colossus Smash [Colossus Sweep]")
-            return true
-        end
-    end
-    -- Warbreaker
-    -- warbreaker
-    if ui.alwaysCdAoENever("Colossus Smash / Warbreaker", 1, 8) and cast.able.warbreaker("player", "aoe", 1, 8) then
-        if cast.warbreaker("player", "aoe", 1, 8) then
-            ui.debug("Casting Warbreaker [Colossus Sweep]")
-            return true
-        end
-    end
-    -- Overpower
-    -- overpower,if=action.overpower.charges=2&talent.dreadnaught|buff.sweeping_strikes.up
-    if cast.able.overpower() and ((charges.overpower.count() == 2 and talent.dreadnaught or buff.sweepingStrikes.exists())) then
-        if cast.overpower() then
-            ui.debug("Casting Overpower - Max Charges Dreadnaught / Sweeping Strikes [Colossus Sweep]")
-            return true
-        end
-    end
-    -- Mortal Strike
-    -- mortal_strike,if=buff.sweeping_strikes.up
-    if cast.able.mortalStrike() and buff.sweepingStrikes.exists() then
-        if cast.mortalStrike() then
-            ui.debug("Casting Mortal Strike - Sweeping Strikes [Colossus Sweep]")
-            return true
-        end
-    end
-    -- Skullsplitter
-    -- skullsplitter,if=buff.sweeping_strikes.up
-    if cast.able.skullsplitter() and buff.sweepingStrikes.exists() then
-        if cast.skullsplitter() then
-            ui.debug("Casting Skullsplitter [Colossus Sweep]")
-            return true
-        end
-    end
-    -- Demolish
-    -- demolish,if=buff.sweeping_strikes.up&debuff.colossus_smash.up
-    if ui.alwaysCdAoENever("Demolish", 3, 8) and cast.able.demolish("player", "aoe", 1, 8) and buff.sweepingStrikes.exists() and debuff.colossusSmash.exists(units.dyn5) then
-        if cast.demolish("player", "aoe", 1, 8) then
-            ui.debug("Casting Demolish - Sweeping Strikes [Colossus Sweep]")
-            return true
-        end
-    end
-    -- Mortal Strike
-    -- mortal_strike,if=buff.sweeping_strikes.down
-    if cast.able.mortalStrike() and not buff.sweepingStrikes.exists() then
-        if cast.mortalStrike() then
-            ui.debug("Casting Mortal Strike [Colossus Sweep]")
-            return true
-        end
-    end
-    -- Demolish
-    -- demolish,if=buff.avatar.up|debuff.colossus_smash.up&cooldown.avatar.remains>=35
-    if ui.alwaysCdAoENever("Demolish", 3, 8) and cast.able.demolish("player", "aoe", 1, 8) and ((buff.avatar.exists() or debuff.colossusSmash.exists(units.dyn5) and cd.avatar.remains() >= 35)) then
-        if cast.demolish("player", "aoe", 1, 8) then
-            ui.debug("Casting Demolish [Colossus Sweep]")
-            return true
-        end
-    end
-    -- Execute
-    -- execute,if=buff.recklessness_warlords_torment.up|buff.sweeping_strikes.up
-    if cast.able.execute() and ((buff.recklessness.exists() or buff.sweepingStrikes.exists())) then
-        if cast.execute() then
-            ui.debug("Casting Execute - Recklessness/Sweeping Strikes [Colossus Sweep]")
-            return true
-        end
-    end
-    -- Overpower
-    -- overpower,if=charges=2|buff.sweeping_strikes.up
-    if cast.able.overpower() and ((charges == 2 or buff.sweepingStrikes.exists())) then
-        if cast.overpower() then
-            ui.debug("Casting Overpower [Colossus Sweep]")
-            return true
-        end
-    end
-    -- Execute
-    -- execute
-    if cast.able.execute() then
-        if cast.execute() then
-            ui.debug("Casting Execute [Colossus Sweep]")
-            return true
-        end
-    end
-    -- Thunder Clap
-    -- thunder_clap,if=dot.rend.remains<=8&buff.sweeping_strikes.down
-    if cast.able.thunderClap("player", "aoe", 1, 8) and debuff.rend.remains(units.dyn5) <= 8 and not buff.sweepingStrikes.exists() then
-        if cast.thunderClap("player", "aoe", 1, 8) then
-            ui.debug("Casting Thunder Clap [Colossus Sweep]")
-            return true
-        end
-    end
-    -- Rend
-    -- rend,if=dot.rend.remains<=5
-    if cast.able.rend() and debuff.rend.remains(units.dyn5) <= 5 then
-        if cast.rend() then
-            ui.debug("Casting Rend [Colossus Sweep]")
-            return true
-        end
-    end
-    -- Cleave
-    -- cleave,if=talent.fervor_of_battle
-    if cast.able.cleave("player", "cone", 1, 8) and talent.fervorOfBattle then
-        if cast.cleave("player", "cone", 1, 8) then
-            ui.debug("Casting Cleave [Colossus Sweep]")
-            return true
-        end
-    end
-    -- Whirlwind
-    -- whirlwind,if=talent.fervor_of_battle
-    if cast.able.whirlwind("player", "aoe", 1, 8) and talent.fervorOfBattle then
-        if cast.whirlwind("player", "aoe", 1, 8) then
-            ui.debug("Casting Whirlwind [Colossus Sweep]")
-            return true
-        end
-    end
-    -- Slam
-    -- slam
-    if cast.able.slam() then
-        if cast.slam() then
-            ui.debug("Casting Slam [Colossus Sweep]")
-            return true
-        end
-    end
-end -- End Action List - ColossusSweep
-
--- Action List - SlayerAoe
-actionList.SlayerAoe = function()
-    -- Thunder Clap
-    -- thunder_clap,if=!dot.rend.remains
-    if cast.able.thunderClap("player", "aoe", 1, 8) and not debuff.rend.exists(units.dyn5) then
-        if cast.thunderClap("player", "aoe", 1, 8) then
-            ui.debug("Casting Thunder Clap - No Rend [Slayer Aoe]")
-            return true
-        end
-    end
-    -- Sweeping Strikes
-    -- sweeping_strikes
-    if cast.able.sweepingStrikes() then
-        if cast.sweepingStrikes() then
-            ui.debug("Casting Sweeping Strikes [Slayer Aoe]")
-            return true
-        end
-    end
-    -- Thunderous Roar
-    -- thunderous_roar
-    if ui.alwaysCdAoENever("Thunderous Roar") and cast.able.thunderousRoar("player", "aoe", 1, 12) then
-        if cast.thunderousRoar("player", "aoe", 1, 12) then
-            ui.debug("Casting Thunderous Roar [Slayer Aoe]")
-            return true
-        end
-    end
-    -- Avatar
-    -- avatar
-    if ui.alwaysCdAoENever("Avatar") and cast.able.avatar() then
-        if cast.avatar() then
-            ui.debug("Casting Avatar [Slayer Aoe]")
-            return true
-        end
-    end
-    -- Champions Spear
-    -- champions_spear
-    if ui.alwaysCdAoENever("Champion's Spear", 3, 8) and cast.able.championsSpear("target", "ground", 1, 8) then
-        if cast.championsSpear("target", "ground", 1, 8) then
-            ui.debug("Casting Champions Spear [Slayer Aoe]")
-            return true
-        end
-    end
-    -- Warbreaker
-    -- warbreaker
-    if ui.alwaysCdAoENever("Colossus Smash / Warbreaker", 1, 8) and cast.able.warbreaker("player", "aoe", 1, 8) then
-        if cast.warbreaker("player", "aoe", 1, 8) then
-            ui.debug("Casting Warbreaker [Slayer Aoe]")
-            return true
-        end
-    end
-    -- Colossus Smash
-    -- colossus_smash
-    if ui.alwaysCdAoENever("Colossus Smash / Warbreaker", 1, 5) and cast.able.colossusSmash() then
-        if cast.colossusSmash() then
-            ui.debug("Casting Colossus Smash [Slayer Aoe]")
-            return true
-        end
-    end
-    -- Cleave
-    -- cleave
-    if cast.able.cleave("player", "cone", 1, 8) then
-        if cast.cleave("player", "cone", 1, 8) then
-            ui.debug("Casting Cleave [Slayer Aoe]")
-            return true
-        end
-    end
-    -- Overpower
-    -- overpower,if=buff.sweeping_strikes.up
-    if cast.able.overpower() and buff.sweepingStrikes.exists() then
-        if cast.overpower() then
-            ui.debug("Casting Overpower - Sweeping Strikes [Slayer Aoe]")
-            return true
-        end
-    end
-    -- Execute
-    -- execute,if=buff.sudden_death.up&buff.imminent_demise.stack<3
-    if cast.able.execute() and buff.suddenDeath.exists() and buff.imminentDemise.stack() < 3 then
-        if cast.execute() then
-            ui.debug("Casting Execute - Sudden Death [Slayer Aoe]")
-            return true
-        end
-    end
-    -- Bladestorm
-    -- bladestorm
-    if ui.alwaysCdAoENever("Bladestorm", 3, 8) and cast.able.bladestorm("player", "aoe", 1, 8) then
-        if cast.bladestorm("player", "aoe", 1, 8) then
-            ui.debug("Casting Bladestorm [Slayer Aoe]")
-            return true
-        end
-    end
-    -- Skullsplitter
-    -- skullsplitter,if=buff.sweeping_strikes.up
-    if cast.able.skullsplitter() and buff.sweepingStrikes.exists() then
-        if cast.skullsplitter() then
-            ui.debug("Casting Skullsplitter [Slayer Aoe]")
-            return true
-        end
-    end
-    -- Execute
-    -- execute,if=buff.sweeping_strikes.up&debuff.executioners_precision.stack<2
-    if cast.able.execute() and buff.sweepingStrikes.exists() and debuff.executionersPrecision.count(units.dyn5) < 2 then
-        if cast.execute() then
-            ui.debug("Casting Execute - Sweeping Strikes [Slayer Aoe]")
-            return true
-        end
-    end
-    -- Mortal Strike
-    -- mortal_strike,if=buff.sweeping_strikes.up&debuff.executioners_precision.stack=2
-    if cast.able.mortalStrike() and buff.sweepingStrikes.exists() and debuff.executionersPrecision.count(units.dyn5) == 2 then
-        if cast.mortalStrike() then
-            ui.debug("Casting Mortal Strike - Executioner's Precision [Slayer Aoe]")
-            return true
-        end
-    end
-    -- Execute
-    -- execute,if=debuff.marked_for_execution.up
-    if cast.able.execute() and debuff.markedForExecution.exists(units.dyn5) then
-        if cast.execute() then
-            ui.debug("Casting Execute - Marked for Execution [Slayer Aoe]")
-            return true
-        end
-    end
-    -- Mortal Strike
-    -- mortal_strike,if=buff.sweeping_strikes.up
-    if cast.able.mortalStrike() and buff.sweepingStrikes.exists() then
-        if cast.mortalStrike() then
-            ui.debug("Casting Mortal Strike - Sweeping Strikes [Slayer Aoe]")
-            return true
-        end
-    end
-    -- Overpower
-    -- overpower,if=talent.dreadnaught
-    if cast.able.overpower() and talent.dreadnaught then
-        if cast.overpower() then
-            ui.debug("Casting Overpower - Dreadnaught [Slayer Aoe]")
-            return true
-        end
-    end
-    -- Thunder Clap
-    -- thunder_clap
-    if cast.able.thunderClap("player", "aoe", 1, 8) then
-        if cast.thunderClap("player", "aoe", 1, 8) then
-            ui.debug("Casting Thunder Clap [Slayer Aoe]")
-            return true
-        end
-    end
-    -- Overpower
-    -- overpower
-    if cast.able.overpower() then
-        if cast.overpower() then
-            ui.debug("Casting Overpower [Slayer Aoe]")
-            return true
-        end
-    end
-    -- Execute
-    -- execute
-    if cast.able.execute() then
-        if cast.execute() then
-            ui.debug("Casting Execute [Slayer Aoe]")
-            return true
-        end
-    end
-    -- Mortal Strike
-    -- mortal_strike
-    if cast.able.mortalStrike() then
-        if cast.mortalStrike() then
-            ui.debug("Casting Mortal Strike [Slayer Aoe]")
-            return true
-        end
-    end
-    -- Whirlwind
-    -- whirlwind
-    if cast.able.whirlwind("player", "aoe", 1, 8) then
-        if cast.whirlwind("player", "aoe", 1, 8) then
-            ui.debug("Casting Whirlwind [Slayer Aoe]")
-            return true
-        end
-    end
-    -- Skullsplitter
-    -- skullsplitter
-    if cast.able.skullsplitter() then
-        if cast.skullsplitter() then
-            ui.debug("Casting Skullsplitter [Slayer Aoe]")
-            return true
-        end
-    end
-    -- Slam
-    -- slam
-    if cast.able.slam() then
-        if cast.slam() then
-            ui.debug("Casting Slam [Slayer Aoe]")
-            return true
-        end
-    end
-    -- Storm Bolt
-    -- storm_bolt,if=buff.bladestorm.up
-    if cast.able.stormBolt() and buff.bladestorm.exists() then
-        if cast.stormBolt() then
-            ui.debug("Casting Storm Bolt [Slayer Aoe]")
-            return true
-        end
-    end
-end -- End Action List - SlayerAoe
-
--- Action List - SlayerSt
-actionList.SlayerSt = function()
-    -- Rend
-    -- rend,if=dot.rend.remains<=gcd
-    if cast.able.rend() and debuff.rend.remains(units.dyn5) <= unit.gcd(true) then
-        if cast.rend() then
-            ui.debug("Casting Rend - Reapply Now [Slayer St]")
-            return true
-        end
-    end
-    -- Thunderous Roar
-    -- thunderous_roar
-    if ui.alwaysCdAoENever("Thunderous Roar") and cast.able.thunderousRoar("player", "aoe", 1, 12) then
-        if cast.thunderousRoar("player", "aoe", 1, 8) then
-            ui.debug("Casting Thunderous Roar [Slayer St]")
-            return true
-        end
-    end
-    -- Champions Spear
-    -- champions_spear
-    if ui.alwaysCdAoENever("Champion's Spear", 3, 8) and cast.able.championsSpear("target", "ground", 1, 8) then
-        if cast.championsSpear("target", "ground", 1, 8) then
-            ui.debug("Casting Champions Spear [Slayer St]")
-            return true
-        end
-    end
-    -- Avatar
-    -- avatar,if=cooldown.colossus_smash.remains<=5|debuff.colossus_smash.up
-    if ui.alwaysCdAoENever("Avatar") and cast.able.avatar() and ((cd.colossusSmash.remains() <= 5 or debuff.colossusSmash.exists(units.dyn5))) then
-        if cast.avatar() then
-            ui.debug("Casting Avatar [Slayer St]")
-            return true
-        end
-    end
-    -- Colossus Smash
-    -- colossus_smash
-    if ui.alwaysCdAoENever("Colossus Smash / Warbreaker", 1, 5) and cast.able.colossusSmash() then
-        if cast.colossusSmash() then
-            ui.debug("Casting Colossus Smash [Slayer St]")
-            return true
-        end
-    end
-    -- Warbreaker
-    -- warbreaker
-    if ui.alwaysCdAoENever("Colossus Smash / Warbreaker", 1, 8) and cast.able.warbreaker("player", "aoe", 1, 8) then
-        if cast.warbreaker("player", "aoe", 1, 8) then
-            ui.debug("Casting Warbreaker [Slayer St]")
-            return true
-        end
-    end
-    -- Execute
-    -- execute,if=debuff.marked_for_execution.stack=3|buff.juggernaut.remains<=gcd*3|buff.sudden_death.stack=2
-    if cast.able.execute() and ((debuff.markedForExecution.count(units.dyn5) == 3 or (buff.juggernaut.exists() and buff.juggernaut.remains() <= unit.gcd(true) * 3) or buff.suddenDeath.stack() == 2)) then
-        if cast.execute() then
-            ui.debug("Casting Execute [Slayer St]")
-            return true
-        end
-    end
-    -- Bladestorm
-    -- bladestorm,if=cooldown.colossus_smash.remains>=gcd*4|buff.colossus_smash.remains>=gcd*4
-    if ui.alwaysCdAoENever("Bladestorm", 3, 8) and cast.able.bladestorm("player", "aoe", 1, 8) and ((cd.colossusSmash.remains() >= unit.gcd(true) * 4 or debuff.colossusSmash.remains(units.dyn5) >= unit.gcd(true) * 4)) then
-        if cast.bladestorm("player", "aoe", 1, 8) then
-            ui.debug("Casting Bladestorm [Slayer St]")
-            return true
-        end
-    end
-    -- Overpower
-    -- overpower,if=buff.opportunist.up
-    if cast.able.overpower() and buff.opportunist.exists() then
-        if cast.overpower() then
-            ui.debug("Casting Overpower - Opportunist [Slayer St]")
-            return true
-        end
-    end
-    -- Mortal Strike
-    -- mortal_strike
-    if cast.able.mortalStrike() then
-        if cast.mortalStrike() then
-            ui.debug("Casting Mortal Strike [Slayer St]")
-            return true
-        end
-    end
-    -- Skullsplitter
-    -- skullsplitter
-    if cast.able.skullsplitter() then
-        if cast.skullsplitter() then
-            ui.debug("Casting Skullsplitter [Slayer St]")
-            return true
-        end
-    end
-    -- Overpower
-    -- overpower
-    if cast.able.overpower() then
-        if cast.overpower() then
-            ui.debug("Casting Overpower [Slayer St]")
-            return true
-        end
-    end
-    -- Rend
-    -- rend,if=dot.rend.remains<=gcd*5
-    if cast.able.rend() and debuff.rend.remains(units.dyn5) <= unit.gcd(true) * 5 then
-        if cast.rend() then
-            ui.debug("Casting Rend [Slayer St]")
-            return true
-        end
-    end
-    -- Cleave
-    -- cleave,if=buff.martial_prowess.down
-    if cast.able.cleave("player", "cone", 1, 8) and not buff.overpower.exists() then
-        if cast.cleave("player", "cone", 1, 8) then
-            ui.debug("Casting Cleave [Slayer St]")
-            return true
-        end
-    end
-    -- Slam
-    -- slam
-    if cast.able.slam() then
-        if cast.slam() then
-            ui.debug("Casting Slam [Slayer St]")
-            return true
-        end
-    end
-    -- Storm Bolt
-    -- storm_bolt,if=buff.bladestorm.up
-    if cast.able.stormBolt() and buff.bladestorm.exists() then
-        if cast.stormBolt() then
-            ui.debug("Casting Storm Bolt [Slayer St]")
-            return true
-        end
-    end
-end -- End Action List - SlayerSt
-
--- Action List - SlayerExecute
-actionList.SlayerExecute = function()
-    -- Sweeping Strikes
-    -- sweeping_strikes,if=active_enemies=2
-    if cast.able.sweepingStrikes() and #enemies.yards5f == 2 then
-        if cast.sweepingStrikes() then
-            ui.debug("Casting Sweeping Strikes [Slayer Execute]")
-            return true
-        end
-    end
-    -- Rend
-    -- rend,if=dot.rend.remains<=gcd&!talent.bloodletting
-    if cast.able.rend(var.minHpUnit) and debuff.rend.remains(var.minHpUnit) <= unit.gcd(true) and not talent.bloodletting then
-        if cast.rend(var.minHpUnit) then
-            ui.debug("Casting Rend [Slayer Execute]")
-            return true
-        end
-    end
-    -- Thunderous Roar
-    -- thunderous_roar
-    if ui.alwaysCdAoENever("Thunderous Roar") and cast.able.thunderousRoar("player", "aoe", 1, 12) then
-        if cast.thunderousRoar("player", "aoe", 1, 12) then
-            ui.debug("Casting Thunderous Roar [Slayer Execute]")
-            return true
-        end
-    end
-    -- Champions Spear
-    -- champions_spear
-    if ui.alwaysCdAoENever("Champion's Spear", 3, 8) and cast.able.championsSpear(var.minHpUnit, "ground", 1, 8) then
-        if cast.championsSpear(var.minHpUnit, "ground", 1, 8) then
-            ui.debug("Casting Champions Spear [Slayer Execute]")
-            return true
-        end
-    end
-    -- Avatar
-    -- avatar,if=cooldown.colossus_smash.remains<=5|debuff.colossus_smash.up
-    if ui.alwaysCdAoENever("Avatar") and cast.able.avatar() and ((cd.colossusSmash.remains() <= 5 or debuff.colossusSmash.exists(var.minHpUnit))) then
-        if cast.avatar() then
-            ui.debug("Casting Avatar [Slayer Execute]")
-            return true
-        end
-    end
-    -- Warbreaker
-    -- warbreaker
-    if ui.alwaysCdAoENever("Colossus Smash / Warbreaker", 1, 8) and cast.able.warbreaker("player", "aoe", 1, 8) then
-        if cast.warbreaker("player", "aoe", 1, 8) then
-            ui.debug("Casting Warbreaker [Slayer Execute]")
-            return true
-        end
-    end
-    -- Colossus Smash
-    -- colossus_smash
-    if ui.alwaysCdAoENever("Colossus Smash / Warbreaker", 1, 5) and cast.able.colossusSmash(var.minHpUnit) then
-        if cast.colossusSmash(var.minHpUnit) then
-            ui.debug("Casting Colossus Smash [Slayer Execute]")
-            return true
-        end
-    end
-    -- Execute
-    -- execute,if=buff.juggernaut.remains<=gcd
-    if cast.able.execute(var.minHpUnit) and buff.juggernaut.remains() <= unit.gcd(true) then
-        if cast.execute(var.minHpUnit) then
-            ui.debug("Casting Execute - Juggernaut [Slayer Execute]")
-            return true
-        end
-    end
-    -- Bladestorm
-    -- bladestorm,if=debuff.executioners_precision.stack=2&debuff.colossus_smash.remains>4|debuff.executioners_precision.stack=2&cooldown.colossus_smash.remains>15|!talent.executioners_precision
-    if ui.alwaysCdAoENever("Bladestorm", 3, 8) and cast.able.bladestorm("player", "aoe", 1, 8) and ((debuff.executionersPrecision.count(units.dyn5) == 2
-            and debuff.colossusSmash.remains(units.dyn5) > 4 or debuff.executionersPrecision.count(units.dyn5) == 2
-            and cd.colossusSmash.remains() > 15 or not talent.executionersPrecision))
+    -- Dragon Roar
+    -- dragon_roar,if=enabled&debuff.colossus_smash.down
+    if ui.alwaysCdAoENever("Dragon Roar",3,#enemies.yards8) and cast.able.dragonRoar("player","aoe",1,8)
+        and not debuff.colossusSmash.exists(units.dyn5)
     then
-        if cast.bladestorm("player", "aoe", 1, 8) then
-            ui.debug("Casting Bladestorm [Slayer Execute]")
-            return true
-        end
-    end
-    -- Skullsplitter
-    -- skullsplitter,if=rage<85
-    if cast.able.skullsplitter(var.minHpUnit) and rage() < 85 then
-        if cast.skullsplitter(var.minHpUnit) then
-            ui.debug("Casting Skullsplitter [Slayer Execute]")
-            return true
-        end
-    end
-    -- Mortal Strike
-    -- mortal_strike,if=dot.rend.remains<2|(debuff.executioners_precision.stack=2&buff.lethal_blows.stack=2)
-    if cast.able.mortalStrike(var.minHpUnit) and ((debuff.rend.remains(var.minHpUnit) < 2 or (debuff.executionersPrecision.count(var.minHpUnit) == 2
-            and buff.lethalBlows.stack() == 2)))
-    then
-        if cast.mortalStrike(var.minHpUnit) then
-            ui.debug("Casting Mortal Strike - No Rend Soon / Lethal Blows [Slayer Execute]")
-            return true
-        end
-    end
-    -- Overpower
-    -- overpower,if=buff.opportunist.up&rage<80&buff.martial_prowess.stack<2
-    if cast.able.overpower(var.minHpUnit) and buff.opportunist.exists() and rage() < 80 and buff.overpower.stack() < 2 then
-        if cast.overpower(var.minHpUnit) then
-            ui.debug("Casting Overpower - Opportunist [Slayer Execute]")
-            return true
-        end
-    end
-    -- Execute
-    -- execute
-    if cast.able.execute(var.minHpUnit) then
-        if cast.execute(var.minHpUnit) then
-            ui.debug("Casting Execute [Slayer Execute]")
-            return true
-        end
-    end
-    -- Overpower
-    -- overpower
-    if cast.able.overpower(var.minHpUnit) then
-        if cast.overpower(var.minHpUnit) then
-            ui.debug("Casting Overpower [Slayer Execute]")
-            return true
-        end
-    end
-    -- Mortal Strike
-    -- mortal_strike,if=!talent.executioners_precision
-    if cast.able.mortalStrike(var.minHpUnit) and not talent.executionersPrecision then
-        if cast.mortalStrike(var.minHpUnit) then
-            ui.debug("Casting Mortal Strike [Slayer Execute]")
-            return true
-        end
-    end
-    -- Storm Bolt
-    -- storm_bolt,if=buff.bladestorm.up
-    if cast.able.stormBolt(var.minHpUnit) and buff.bladestorm.exists() then
-        if cast.stormBolt(var.minHpUnit) then
-            ui.debug("Casting Storm Bolt [Slayer Execute]")
-            return true
-        end
-    end
-end -- End Action List - SlayerExecute
-
--- Action List - SlayerSweep
-actionList.SlayerSweep = function()
-    -- Thunderous Roar
-    -- thunderous_roar
-    if ui.alwaysCdAoENever("Thunderous Roar") and cast.able.thunderousRoar("player", "aoe", 1, 12) then
-        if cast.thunderousRoar("player", "aoe", 1, 12) then
-            ui.debug("Casting Thunderous Roar [Slayer Sweep]")
-            return true
-        end
-    end
-    -- Sweeping Strikes
-    -- sweeping_strikes
-    if cast.able.sweepingStrikes() then
-        if cast.sweepingStrikes() then
-            ui.debug("Casting Sweeping Strikes [Slayer Sweep]")
-            return true
-        end
-    end
-    -- Rend
-    -- rend,if=dot.rend.remains<=gcd
-    if cast.able.rend() and debuff.rend.remains(units.dyn5) <= unit.gcd() then
-        if cast.rend() then
-            ui.debug("Casting Rend - Reapply Now [Slayer Sweep]")
-            return true
-        end
-    end
-    -- Champions Spear
-    -- champions_spear
-    if ui.alwaysCdAoENever("Champion's Spear", 3, 8) and cast.able.championsSpear("target", "ground", 1, 8) then
-        if cast.championsSpear("target", "ground", 1, 8) then
-            ui.debug("Casting Champions Spear [Slayer Sweep]")
-            return true
-        end
-    end
-    -- Avatar
-    -- avatar
-    if ui.alwaysCdAoENever("Avatar") and cast.able.avatar() then
-        if cast.avatar() then
-            ui.debug("Casting Avatar [Slayer Sweep]")
+        if cast.dragonRoar("player","aoe",1,8) then
+            ui.debug("Casting Dragon Roar [Single]")
             return true
         end
     end
     -- Colossus Smash
-    -- colossus_smash
-    if ui.alwaysCdAoENever("Colossus Smash / Warbreaker", 1, 5) and cast.able.colossusSmash() then
+    -- colossus_smash,if=debuff.colossus_smash.remains<1
+    if ui.alwaysCdNever("Colossus Smash") and cast.able.colossusSmash()
+        and debuff.colossusSmash.remains(units.dyn5) < 1
+    then
         if cast.colossusSmash() then
-            ui.debug("Casting Colossus Smash [Slayer Sweep]")
+            ui.debug("Casting Colossus Smash [Single]")
             return true
         end
     end
-    -- Warbreaker
-    -- warbreaker
-    if ui.alwaysCdAoENever("Colossus Smash / Warbreaker", 1, 8) and cast.able.warbreaker("player", "aoe", 1, 8) then
-        if cast.warbreaker("player", "aoe", 1, 8) then
-            ui.debug("Casting Warbreaker [Slayer Sweep]")
+    -- Thunder Clap
+    -- thunder_clap,target=2,if=dot.deep_wounds.attack_power*1.1<stat.attack_power
+    if cast.able.thunderClap("player","aoe",1,8) and #enemies.yards8 >= 2 then
+        if cast.thunderClap("player","aoe",1,8) then
+            ui.debug("Casting Thunder Clap [AOE]")
             return true
         end
     end
-    -- Skullsplitter
-    -- skullsplitter,if=buff.sweeping_strikes.up
-    if cast.able.skullsplitter() and buff.sweepingStrikes.exists() then
-        if cast.skullsplitter() then
-            ui.debug("Casting Skullsplitter [Slayer Sweep]")
+    -- Mortal Strike
+    -- mortal_strike,if=active_enemies=2|rage<50
+    if cast.able.mortalStrike() and (#enemies.yards5f == 2 or rage() < 50) then
+        if cast.mortalStrike() then
+            ui.debug("Casting Mortal Strike [AOE]")
             return true
         end
     end
     -- Execute
-    -- execute,if=debuff.marked_for_execution.stack=3
-    if cast.able.execute() and debuff.markedForExecution.count(units.dyn5) == 3 then
+    -- execute,if=buff.sudden_execute.down&active_enemies=2
+    if cast.able.execute() and not buff.suddenExecute.exists()
+        and #enemies.yards5f == 2 and unit.hp(units.dyn5) < 20
+    then
         if cast.execute() then
-            ui.debug("Casting Execute - Marked For Execution [Slayer Sweep]")
+            ui.debug("Casting Execute [AOE]")
             return true
         end
     end
-    -- Bladestorm
-    -- bladestorm
-    if ui.alwaysCdAoENever("Bladestorm", 3, 8) and cast.able.bladestorm("player", "aoe", 1, 8) then
-        if cast.bladestorm("player", "aoe", 1, 8) then
-            ui.debug("Casting Bladestorm [Slayer Sweep]")
+    -- Slam
+    -- slam,if=buff.sweeping_strikes.up&debuff.colossus_smash.up
+    if cast.able.slam() and buff.sweepingStrikes.exists()
+        and debuff.colossusSmash.exists(units.dyn5)
+    then
+        if cast.slam() then
+            ui.debug("Casting Slam [AOE]")
             return true
         end
     end
     -- Overpower
-    -- overpower,if=talent.dreadnaught|buff.opportunist.up
-    if cast.able.overpower() and ((talent.dreadnaught or buff.opportunist.exists())) then
+    -- overpower,if=active_enemies=2
+    if cast.able.overpower() and #enemies.yards5f == 2 then
         if cast.overpower() then
-            ui.debug("Casting Overpower - Dreadnaught / Opportunist [Slayer Sweep]")
+            ui.debug("Casting Overpower [AOE]")
+            return true
+        end
+    end
+    -- Whirlwind
+    if cast.able.whirlwind("player","aoe",1,8) and not spell.sweepingStrikes.known()
+        and rage() > 40
+    then
+        if cast.whirlwind("player","aoe",1,8) then
+            ui.debug("Casting Whirlwind [AOE]")
+            return true
+        end
+    end
+    -- Slam
+    -- slam,if=buff.sweeping_strikes.up
+    if cast.able.slam() and (buff.sweepingStrikes.exists() or not spell.sweepingStrikes.known()) then
+        if cast.slam() then
+            ui.debug("Casting Slam [AOE]")
+            return true
+        end
+    end
+    -- Battle Shout
+    -- battle_shout
+    if cast.able.battleShout() and not buff.battleShout.exists() and rage.max() - rage() > 20 then
+        if cast.battleShout() then
+            ui.debug("Casting Battle Shout [AOE]")
+            return true
+        end
+    end
+end -- End Action List - AOE
+
+-- Action List - Single
+actionList.Single = function()
+    -- Heroic Strike
+    -- heroic_strike,if=rage>115|(debuff.colossus_smash.up&rage>60&set_bonus.tier16_2pc_melee)
+    if cast.able.heroicStrike()
+        and ((rage() > 115 or (rage.max() == 100 and rage() > 95)) or (debuff.colossusSmash.exists(units.dyn5)
+        and rage() > 60 and equiped.tier(16,2)))
+    then
+        if cast.heroicStrike() then
+            ui.debug("Casting Heroic Strike [Single]")
+            return true
+        end
+    end
+    -- Mortal Strike
+    -- mortal_strike,if=dot.deep_wounds.remains<1.0|buff.enrage.down|rage<10
+    if cast.able.mortalStrike()
+        and (debuff.deepWounds.remains(units.dyn5) < 1.0
+        or not buff.enrage.exists() or rage() < 10)
+    then
+        if cast.mortalStrike() then
+            ui.debug("Casting Mortal Strike [Single]")
+            return true
+        end
+    end
+    -- Colossus Smash
+    -- colossus_smash,if=debuff.colossus_smash.remains<1.0
+    if ui.alwaysCdNever("Colossus Smash") and cast.able.colossusSmash()
+        and debuff.colossusSmash.remains(units.dyn5) < 1.0
+    then
+        if cast.colossusSmash() then
+            ui.debug("Casting Colossus Smash [Single]")
+            return true
+        end
+    end
+    -- Bladestorm
+    --# Use cancelaura (in-game) to stop bladestorm if CS comes off cooldown during it for any reason.
+    -- bladestorm,if=enabled,interrupt_if=!cooldown.colossus_smash.remains
+    if ui.alwaysCdAoENever("Bladestorm",3,#enemies.yards8) and cast.able.bladestorm("player","aoe",1,8) and (not var.knownCS or cd.colossusSmash.remains(units.dyn5) > 10) then
+        if cast.bladestorm("player","aoe",1,8) then
+            ui.debug("Casting Bladestorm [Single]")
             return true
         end
     end
@@ -1553,158 +558,93 @@ actionList.SlayerSweep = function()
     -- mortal_strike
     if cast.able.mortalStrike() then
         if cast.mortalStrike() then
-            ui.debug("Casting Mortal Strike [Slayer Sweep]")
+            ui.debug("Casting Mortal Strike [Single]")
             return true
         end
     end
-    -- Cleave
-    -- cleave,if=talent.fervor_of_battle
-    if cast.able.cleave("player", "cone", 1, 8) and talent.fervorOfBattle then
-        if cast.cleave("player", "cone", 1, 8) then
-            ui.debug("Casting Cleave [Slayer Sweep]")
+    -- Storm Bolt
+    -- storm_bolt,if=enabled&debuff.colossus_smash.up
+    if ui.alwaysCdNever("Storm Bolt") and cast.able.stormBolt()
+        and debuff.colossusSmash.exists(units.dyn5)
+    then
+        if cast.stormBolt() then
+            ui.debug("Casting Storm Bolt [Single]")
+            return true
+        end
+    end
+    -- Dragon Roar
+    -- dragon_roar,if=enabled&debuff.colossus_smash.down
+    if ui.alwaysCdAoENever("Dragon Roar",3,#enemies.yards8) and cast.able.dragonRoar("player","aoe",1,8)
+        and not debuff.colossusSmash.exists(units.dyn5)
+    then
+        if cast.dragonRoar("player","aoe",1,8) then
+            ui.debug("Casting Dragon Roar [Single]")
+            return true
+        end
+    end
+    -- Execute
+    -- execute,if=buff.sudden_execute.down|buff.taste_for_blood.down|rage>90|target.time_to_die<12
+    if cast.able.execute()
+        and (not buff.suddenExecute.exists() or not buff.tasteForBlood.exists()
+        or rage() > 90 or unit.ttd(units.dyn5) < 12) and unit.hp(units.dyn5) < 20
+    then
+        if cast.execute() then
+            ui.debug("Casting Execute [Single]")
+            return true
+        end
+    end
+    -- Slam
+    --# Slam is preferable to overpower with crit procs/recklessness.
+    -- slam,if=target.health.pct>=20&(trinket.stacking_stat.crit.stack>=10|buff.recklessness.up)
+    if cast.able.slam() and unit.hp(units.dyn5) >= 20 and buff.recklessness.exists() then
+        if cast.slam() then
+            ui.debug("Casting Slam [Single]")
+            return true
+        end
+    end
+    -- Overpower
+    -- overpower,if=target.health.pct>=20&rage<100|buff.sudden_execute.up
+    if cast.able.overpower() and unit.hp(units.dyn5) >= 20
+        and (rage() < 100 or buff.suddenExecute.exists())
+    then
+        if cast.overpower() then
+            ui.debug("Casting Overpower [Single]")
             return true
         end
     end
     -- Execute
     -- execute
-    if cast.able.execute() then
+    if cast.able.execute() and unit.hp(units.dyn5) < 20 then
         if cast.execute() then
-            ui.debug("Casting Execute [Slayer Sweep]")
-            return true
-        end
-    end
-    -- Overpower
-    -- overpower
-    if cast.able.overpower() then
-        if cast.overpower() then
-            ui.debug("Casting Overpower [Slayer Sweep]")
-            return true
-        end
-    end
-    -- Thunder Clap
-    -- thunder_clap,if=dot.rend.remains<=8&buff.sweeping_strikes.down
-    if cast.able.thunderClap("player", "aoe", 1, 8) and debuff.rend.remains(units.dyn5) <= 8 and not buff.sweepingStrikes.exists() then
-        if cast.thunderClap("player", "aoe", 1, 8) then
-            ui.debug("Casting Thunder Clap [Slayer Sweep]")
-            return true
-        end
-    end
-    -- Rend
-    -- rend,if=dot.rend.remains<=5
-    if cast.able.rend() and debuff.rend.remains(units.dyn5) <= 5 then
-        if cast.rend() then
-            ui.debug("Casting Rend [Slayer Sweep]")
-            return true
-        end
-    end
-    -- Whirlwind
-    -- whirlwind,if=talent.fervor_of_battle
-    if cast.able.whirlwind("player", "aoe", 1, 8) and talent.fervorOfBattle then
-        if cast.whirlwind("player", "aoe", 1, 8) then
-            ui.debug("Casting Whirlwind [Slayer Sweep]")
+            ui.debug("Casting Execute [Single]")
             return true
         end
     end
     -- Slam
-    -- slam
-    if cast.able.slam() then
+    -- slam,if=target.health.pct>=20
+    if cast.able.slam() and unit.hp(units.dyn5) >= 20 then
         if cast.slam() then
-            ui.debug("Casting Slam [Slayer Sweep]")
+            ui.debug("Casting Slam [Single]")
             return true
         end
     end
-    -- Storm Bolt
-    -- storm_bolt,if=buff.bladestorm.up
-    if cast.able.stormBolt() and buff.bladestorm.exists() then
-        if cast.stormBolt() then
-            ui.debug("Casting Storm Bolt [Slayer Sweep]")
+    -- Heroic Throw
+    -- heroic_throw
+    if ui.checked("Heroic Throw") and cast.able.heroicThrow(units.dyn5) then
+        if cast.heroicThrow(units.dyn5) then
+            ui.debug("Casting Heroic Throw [Single]")
             return true
         end
     end
-end -- End Action List - SlayerSweep
-
--- Action List - Trinkets
-actionList.Trinkets = function()
-    -- -- Do Treacherous Transmitter Task
-    -- -- do_treacherous_transmitter_task
-    -- if cast.able.doTreacherousTransmitterTask() then
-    --     if cast.doTreacherousTransmitterTask() then ui.debug("Casting Do Treacherous Transmitter Task [Trinkets]") return true end
-    -- end
-
-    -- -- Use Item - Treacherous Transmitter
-    -- -- use_item,name=treacherous_transmitter,if=(variable.adds_remain|variable.st_planning)&cooldown.avatar.remains<3
-    -- if use.able.treacherousTransmitter() and (((var.addsRemain or var.stPlanning) and cd.avatar.remains()<3)) then
-    --     if use.treacherousTransmitter() then ui.debug("Using Treacherous Transmitter [Trinkets]") return true end
-    -- end
-
-    -- -- Use Item - Slot1
-    -- -- use_item,slot=trinket1,if=variable.trinket_1_buffs&!variable.trinket_1_manual&(!buff.avatar.up&trinket.1.cast_time>0|!trinket.1.cast_time>0)&buff.avatar.up&(variable.trinket_2_exclude|!trinket.2.has_cooldown|trinket.2.cooldown.remains|variable.trinket_priority=1)|trinket.1.proc.any_dps.duration>=fight_remains
-    -- -- TODO: The following conditions were not converted:
-    -- -- trinket.1.cast_time
-    -- -- trinket.1.cast_time
-    -- -- trinket.2.has_cooldown
-    -- -- trinket.1.proc.any_dps.duration
-    -- if use.able.slot1() and ((var.trinket1Buffs and not var.trinket1Manual and (not buff.avatar.exists() and >0 or not >0) and buff.avatar.exists() and (var.trinket2Exclude or not  or cd.slot.remains(14) or var.trinketPriority==1) or >=unit.ttdGroup(40))) then
-    --     if use.slot1() then ui.debug("Using Slot1 [Trinkets]") return true end
-    -- end
-
-    -- -- Use Item - Slot2
-    -- -- use_item,slot=trinket2,if=variable.trinket_2_buffs&!variable.trinket_2_manual&(!buff.avatar.up&trinket.2.cast_time>0|!trinket.2.cast_time>0)&buff.avatar.up&(variable.trinket_1_exclude|!trinket.1.has_cooldown|trinket.1.cooldown.remains|variable.trinket_priority=2)|trinket.2.proc.any_dps.duration>=fight_remains
-    -- -- TODO: The following conditions were not converted:
-    -- -- trinket.2.cast_time
-    -- -- trinket.2.cast_time
-    -- -- trinket.1.has_cooldown
-    -- -- trinket.2.proc.any_dps.duration
-    -- if use.able.slot2() and ((var.trinket2Buffs and not var.trinket2Manual and (not buff.avatar.exists() and >0 or not >0) and buff.avatar.exists() and (var.trinket1Exclude or not  or cd.slot.remains(13) or var.trinketPriority==2) or >=unit.ttdGroup(40))) then
-    --     if use.slot2() then ui.debug("Using Slot2 [Trinkets]") return true end
-    -- end
-
-    -- -- Use Item - Slot1
-    -- -- use_item,slot=trinket1,if=!variable.trinket_1_buffs&(trinket.1.cast_time>0&!buff.avatar.up|!trinket.1.cast_time>0)&!variable.trinket_1_manual&(!variable.trinket_1_buffs&(trinket.2.cooldown.remains|!variable.trinket_2_buffs)|(trinket.1.cast_time>0&!buff.avatar.up|!trinket.1.cast_time>0)|cooldown.avatar.remains_expected>20)
-    -- -- TODO: The following conditions were not converted:
-    -- -- trinket.1.cast_time
-    -- -- trinket.1.cast_time
-    -- -- trinket.1.cast_time
-    -- -- trinket.1.cast_time
-    -- -- cooldown.avatar.remains_expected
-    -- if use.able.slot1() and ((not var.trinket1Buffs and (>0 and not buff.avatar.exists() or not >0) and not var.trinket1Manual and (not var.trinket1Buffs and (cd.slot.remains(14) or not var.trinket2Buffs) or (>0 and not buff.avatar.exists() or not >0) or >20))) then
-    --     if use.slot1() then ui.debug("Using Slot1 [Trinkets]") return true end
-    -- end
-
-    -- -- Use Item - Slot2
-    -- -- use_item,slot=trinket2,if=!variable.trinket_2_buffs&(trinket.2.cast_time>0&!buff.avatar.up|!trinket.2.cast_time>0)&!variable.trinket_2_manual&(!variable.trinket_2_buffs&(trinket.1.cooldown.remains|!variable.trinket_1_buffs)|(trinket.2.cast_time>0&!buff.avatar.up|!trinket.2.cast_time>0)|cooldown.avatar.remains_expected>20)
-    -- -- TODO: The following conditions were not converted:
-    -- -- trinket.2.cast_time
-    -- -- trinket.2.cast_time
-    -- -- trinket.2.cast_time
-    -- -- trinket.2.cast_time
-    -- -- cooldown.avatar.remains_expected
-    -- if use.able.slot2() and ((not var.trinket2Buffs and (>0 and not buff.avatar.exists() or not >0) and not var.trinket2Manual and (not var.trinket2Buffs and (cd.slot.remains(13) or not var.trinket1Buffs) or (>0 and not buff.avatar.exists() or not >0) or >20))) then
-    --     if use.slot2() then ui.debug("Using Slot2 [Trinkets]") return true end
-    -- end
-
-    -- -- Use Item - Slot=Main Hand
-    -- -- use_item,slot=main_hand,if=!equipped.fyralath_the_dreamrender&(!variable.trinket_1_buffs|trinket.1.cooldown.remains)&(!variable.trinket_2_buffs|trinket.2.cooldown.remains)
-    -- if use.able.slot=mainHand() and ((not equiped.fyralathTheDreamrender() and (not var.trinket1Buffs or cd.slot.remains(13)) and (not var.trinket2Buffs or cd.slot.remains(14)))) then
-    --     if use.slot=mainHand() then ui.debug("Using Slot=Main Hand [Trinkets]") return true end
-    -- end
-    module.BasicTrinkets()
-end -- End Action List - Trinkets
-
--- Action List - Variables
-actionList.Variables = function()
-    -- Variable - St Planning
-    -- variable,name=st_planning,value=active_enemies=1&(raid_event.adds.in>15|!raid_event.adds.exists)
-    var.stPlanning = (#enemies.yards5f == 1)
-
-    -- Variable - Adds Remain
-    -- variable,name=adds_remain,value=active_enemies>=2&(!raid_event.adds.exists|raid_event.adds.exists&raid_event.adds.remains>5)
-    var.addsRemain = (#enemies.yards5f >= 2)
-
-    -- Variable - Execute Phase
-    -- variable,name=execute_phase,value=(talent.massacre.enabled&target.health.pct<35)|target.health.pct<20
-    var.executePhase = ((talent.massacre and unit.hp(units.dyn5) < 35) or unit.hp(units.dyn5) < 20)
-end -- End Action List - Variables
+    -- Battle Shout
+    -- battle_shout
+    if cast.able.battleShout() and not buff.battleShout.exists() and rage.max() - rage() > 20 then
+        if cast.battleShout() then
+            ui.debug("Casting Battle Shout [Single]")
+            return true
+        end
+    end
+end -- End Action List - Single
 
 -- Action List - PreCombat
 actionList.PreCombat = function()
@@ -1715,49 +655,22 @@ actionList.PreCombat = function()
         -- Module - Imbue Up
         -- augmentation
         module.ImbueUp()
-        -- Variable - Trinket 1 Exclude
-        -- variable,name=trinket_1_exclude,value=trinket.1.is.treacherous_transmitter
-        var.trinket1Exclude = false -- TODO: Optional replace with UI option, review SimC for detailed notes
-        -- Variable - Trinket 2 Exclude
-        -- variable,name=trinket_2_exclude,value=trinket.2.is.treacherous_transmitter
-        var.trinket2Exclude = false -- TODO: Optional replace with UI option, review SimC for detailed notes
-        -- Variable - Trinket 1 Sync,Op=Setif,Value=1,Value Else=0.5,Condition=Trinket.1.Has Use Buff&(Trinket.1.Cooldown.Duration%%Cooldown.Avatar.Duration=0)
-        -- variable,name=trinket_1_sync,op=setif,value=1,value_else=0.5,condition=trinket.1.has_use_buff&(trinket.1.cooldown.duration%%cooldown.avatar.duration=0)
-        var.trinket1Sync = false
-        -- Variable - Trinket 2 Sync,Op=Setif,Value=1,Value Else=0.5,Condition=Trinket.2.Has Use Buff&(Trinket.2.Cooldown.Duration%%Cooldown.Avatar.Duration=0)
-        -- variable,name=trinket_2_sync,op=setif,value=1,value_else=0.5,condition=trinket.2.has_use_buff&(trinket.2.cooldown.duration%%cooldown.avatar.duration=0)
-        var.trinket2Sync = false
-        -- Variable - Trinket 1 Buffs
-        -- variable,name=trinket_1_buffs,value=trinket.1.has_use_buff|(trinket.1.has_stat.any_dps&!variable.trinket_1_exclude)
-        var.trinket1Buffs = false
-        -- Variable - Trinket 2 Buffs
-        -- variable,name=trinket_2_buffs,value=trinket.2.has_use_buff|(trinket.2.has_stat.any_dps&!variable.trinket_2_exclude)
-        var.trinket2Buffs = false
-        -- Variable - Trinket Priority,Op=Setif,Value=2,Value Else=1,Condition=!Variable.Trinket 1 Buffs&Variable.Trinket 2 Buffs|Variable.Trinket 2 Buffs&((Trinket.2.Cooldown.Duration%Trinket.2.Proc.Any Dps.Duration)*(1.5+Trinket.2.Has Buff.Strength)*(Variable.Trinket 2 Sync))>((Trinket.1.Cooldown.Duration%Trinket.1.Proc.Any Dps.Duration)*(1.5+Trinket.1.Has Buff.Strength)*(Variable.Trinket 1 Sync))
-        -- variable,name=trinket_priority,op=setif,value=2,value_else=1,condition=!variable.trinket_1_buffs&variable.trinket_2_buffs|variable.trinket_2_buffs&((trinket.2.cooldown.duration%trinket.2.proc.any_dps.duration)*(1.5+trinket.2.has_buff.strength)*(variable.trinket_2_sync))>((trinket.1.cooldown.duration%trinket.1.proc.any_dps.duration)*(1.5+trinket.1.has_buff.strength)*(variable.trinket_1_sync))
-        var.trinketPriority = 1
-        -- Variable - Trinket 1 Manual
-        -- variable,name=trinket_1_manual,value=trinket.1.is.algethar_puzzle_box
-        var.trinket1Manual = false -- TODO: Optional replace with UI option, review SimC for detailed notes
-        -- Variable - Trinket 2 Manual
-        -- variable,name=trinket_2_manual,value=trinket.2.is.algethar_puzzle_box
-        var.trinket2Manual = false -- TODO: Optional replace with UI option, review SimC for detailed notes
         -- Pre-Pull
         if ui.checked("Pre-Pull Timer") and ui.pullTimer() <= ui.value("Pre-Pull Timer") then
 
         end -- End Pre-Pull
+        -- -- Battle Stance
+        -- -- battle_stance,toggle=on
+        -- if cast.able.battleStance() and unit.form() ~= 1 then
+        --     if cast.battleStance() then
+        --         ui.debug("Casting Battle Stance [Precombat]")
+        --         return true
+        --     end
+        -- end
         if unit.valid("target") then
-            -- Battle Stance
-            -- battle_stance,toggle=on
-            if cast.able.battleStance() and not buff.battleStance.exists() then
-                if cast.battleStance() then
-                    ui.debug("Casting Battle Stance [Precombat]")
-                    return true
-                end
-            end
             -- Charge
             -- charge
-            if ui.mode.mover == 1 and ui.checked("Charge") and cast.able.charge("target") then
+            if ui.mode.mover == 1 and ui.checked("Charge") and cast.able.charge("target") and unit.distance("target") > 8 then
                 if cast.charge("target") then
                     ui.debug("Casting Charge [Precombat]")
                     return true
@@ -1769,6 +682,14 @@ actionList.PreCombat = function()
             then
                 if cast.taunt("target") then
                     ui.debug("Casting Taunt [Precombat]")
+                    return true
+                end
+            end
+            -- Shattering Throw
+            -- shattering_throw
+            if ui.alwaysCdNever("Shattering Throw") and cast.able.shatteringThrow("target") then
+                if cast.shatteringThrow("target") then
+                    ui.debug("Casting Shattering Throw [Precombat]")
                     return true
                 end
             end
@@ -1799,130 +720,143 @@ actionList.Combat = function()
         if unit.distance("target") <= 5 then
             if cast.able.autoAttack("target") then
                 if cast.autoAttack("target") then
-                    ui.debug("Casting Auto Attack")
+                    ui.debug("Casting Auto Attack [Combat]")
                     return true
                 end
             end
         end
         -- Charge
         -- charge
-        if ui.mode.mover == 1 and ui.checked("Charge") and cast.able.charge(units.dyn5) then
+        if ui.mode.mover == 1 and ui.checked("Charge") and cast.able.charge(units.dyn5) and unit.distance(units.dyn5) > 8 then
             if cast.charge(units.dyn5) then
-                ui.debug("Casting Charge")
+                ui.debug("Casting Charge [Combat]")
                 return true
             end
         end
         -- Module - Combatpotion Up
-        -- potion,if=gcd.remains=0&debuff.colossus_smash.remains>8|target.time_to_die<25
-        if unit.gcd() == 0 and debuff.colossusSmash.remain() > 8 or unit.ttd(units.dyn5) < 25 then
+        -- mogu_power_potion,if=(target.health.pct<20&buff.recklessness.up)|buff.bloodlust.react|target.time_to_die<=25
+        if (unit.hp(units.dyn5) < 20 and buff.recklessness.exists()) or buff.bloodLust.exists() or unit.ttd(units.dyn5) < 25 then
             module.CombatPotionUp()
+        end
+        -- Shattering Throw
+        -- shattering_throw
+        if ui.alwaysCdNever("Shattering Throw") and cast.able.shatteringThrow(units.dyn5) then
+            if cast.shatteringThrow(units.dyn5) then
+                ui.debug("Casting Shattering Throw [Combat]")
+                return true
+            end
         end
         -- Action List - Interrupts
         if actionList.Interrupts() then return true end
-        -- Call Action List - Variables
-        -- call_action_list,name=variables
-        if actionList.Variables() then return true end
-        -- Call Action List - Trinkets
-        -- call_action_list,name=trinkets
-        if actionList.Trinkets() then return true end
+        -- Recklessness
+        -- recklessness,if=!talent.bloodbath.enabled&((cooldown.colossus_smash.remains<2|debuff.colossus_smash.remains>=5)&(target.time_to_die>(192*buff.cooldown_reduction.value)|target.health.pct<20))|buff.bloodbath.up&(target.time_to_die>(192*buff.cooldown_reduction.value)|target.health.pct<20)|target.time_to_die<=12
+        if ui.alwaysCdAoENever("Recklessness",3,#enemies.yards8) and cast.able.recklessness() and (not talent.bloodbath and ((cd.colossusSmash.remains() < 2 or debuff.colossusSmash.remains(units.dyn5) >= 5 or not var.knownCS)
+            and (unit.ttd(units.dyn5) > (192 * 1--[[buff.cooldownReduction.value()]]) or unit.hp(units.dyn5) < 20)) or buff.bloodbath.exists()
+            and (unit.ttd(units.dyn5) > (192 * 1--[[buff.cooldownReduction.value()]]) or unit.hp(units.dyn5) < 20) or unit.ttd(units.dyn5) <= 12)
+        then
+            if cast.recklessness() then
+                ui.debug("Casting Recklessness [Combat]")
+                return true
+            end
+        end
+        -- Avatar
+        -- avatar,if=enabled&(buff.recklessness.up|target.time_to_die<=25)
+        if ui.alwaysCdNever("Avatar") and cast.able.avatar() and (buff.recklessness.exists() or unit.ttd(units.dyn5) <= 25) then
+            if cast.avatar() then
+                ui.debug("Casting Avatar [Combat]")
+                return true
+            end
+        end
+        -- Skull Banner
+        -- skull_banner,if=buff.skull_banner.down&(((cooldown.colossus_smash.remains<2|debuff.colossus_smash.remains>=5)&target.time_to_die>192&buff.cooldown_reduction.up)|buff.recklessness.up)
+        if ui.alwaysCdNever("Skull Banner") and cast.able.skullBanner() and not buff.skullBanner.exists()
+            and (((cd.colossusSmash.remains() < 2 or debuff.colossusSmash.remains(units.dyn5) >= 5)
+            and unit.ttd(units.dyn5) > 192 --[[and buff.cooldownReduction.exists()]]) or buff.recklessness.exists())
+        then
+            if cast.skullBanner() then
+                ui.debug("Casting Skull Banner [Combat]")
+                return true
+            end
+        end
+        -- Use Item: Hands
+        -- use_item,slot=hands,if=!talent.bloodbath.enabled&debuff.colossus_smash.up|buff.bloodbath.up
+        -- if use.able.item.slot(9) and ((not talent.bloodbath and debuff.colossusSmash.exists(units.dyn5)) or buff.bloodbath.exists()) then
+        --     if use.item.slot(9) then
+        --         ui.debug("Using Item: Hands")
+        --         return true
+        --     end
+        -- end
         -- Racials
         if ui.alwaysCdNever("Racial") and cast.able.racial() then
-            -- Arcane Torrent (Blood Elf)
-            -- arcane_torrent,if=cooldown.mortal_strike.remains>1.5&rage<50
-            if race == "BloodElf" and cast.able.arcaneTorrent() and cd.mortalStrike.remains() > 1.5 and rage() < 50 then
-                if cast.arcaneTorrent() then
-                    ui.debug("Casting Arcane Torrent")
-                    return true
-                end
-            end
-            -- Light's Judgment (Lightforged Draenei)
-            -- lights_judgment,if=debuff.colossus_smash.down&cooldown.mortal_strike.remains
-            if race == "LightforgedDraenei" and cast.able.lightsJudgment() and not debuff.colossusSmash.exists(units.dyn5) and cd.mortalStrike.exists() then
-                if cast.lightsJudgment() then
-                    ui.debug("Casting Light's Judgement")
-                    return true
-                end
-            end
-            -- Bag Of Tricks
-            -- bag_of_tricks,if=debuff.colossus_smash.down&cooldown.mortal_strike.remains
-            if race == "Vulpera" and cast.able.bagOfTricks() and not debuff.colossusSmash.exists(units.dyn5) and cd.mortalStrike.remains() then
-                if cast.bagOfTricks() then
-                    ui.debug("Casting Bag Of Tricks [Combat]")
+            -- Blood Fury (Orc)
+            -- blood_fury,if=buff.cooldown_reduction.down&(buff.bloodbath.up|(!talent.bloodbath.enabled&debuff.colossus_smash.up))|buff.cooldown_reduction.up&buff.recklessness.up
+            if race == "Orc" and cast.able.bloodFury() and (--[[not buff.cooldownReduction.exists()
+                and]] (buff.bloodbath.exists() or (not talent.bloodbath and debuff.colossusSmash.exists(units.dyn5)))
+                    or --[[buff.cooldownReduction.exists() and]] buff.recklessness.exists())
+            then
+                if cast.bloodFury() then
+                    ui.debug("Casting Blood Fury [Combat]")
                     return true
                 end
             end
             -- Berserking (Troll)
-            -- berserking,if=debuff.colossus_smash.remains>6
-            if race == "Troll" and cast.able.berserking() and debuff.colossusSmash.remain(units.dyn5) > 6 then
+            -- /berserking,if=buff.cooldown_reduction.down&(buff.bloodbath.up|(!talent.bloodbath.enabled&debuff.colossus_smash.up))|buff.cooldown_reduction.up&buff.recklessness.up
+            if race == "Troll" and cast.able.berserking() and (--[[not buff.cooldownReduction.exists()
+                and]] (buff.bloodbath.exists() or (not talent.bloodbath and debuff.colossusSmash.exists(units.dyn5)))
+                    or --[[buff.cooldownReduction.exists() and]] buff.recklessness.exists())
+            then
                 if cast.berserking() then
-                    ui.debug("Casting Berserking")
+                    ui.debug("Casting Berserking [Combat]")
                     return true
                 end
             end
-            -- Blood Fury (Orc)
-            -- blood_fury,if=debuff.colossus_smash.up
-            if race == "Orc" and cast.able.bloodFury() and debuff.colossusSmash.exists(units.dyn5) then
-                if cast.bloodFury() then
-                    ui.debug("Casting Blood Fury")
-                    return true
-                end
-            end
-            -- Fireblood (Dark Iron Dwarf)
-            -- fireblood,if=debuff.colossus_smash.up
-            if race == "DarkIronDwarf" and cast.able.fireblood() and debuff.colossusSmash.exists(units.dyn5) then
-                if cast.fireblood() then
-                    ui.debug("Casting Fireblood")
-                    return true
-                end
-            end
-            -- Ancestral Call (Maghar Orc)
-            -- ancestral_call,if=debuff.colossus_smash.up
-            if race == "MagharOrc" and cast.able.ancestralCall() and debuff.colossusSmash.exists(units.dyn5) then
-                if cast.ancestralCall() then
-                    ui.debug("Casting Ancestral Call")
+            -- Arcane Torrent (Blood Elf)
+            -- arcane_torrent,if=buff.cooldown_reduction.down&(buff.bloodbath.up|(!talent.bloodbath.enabled&debuff.colossus_smash.up))|buff.cooldown_reduction.up&buff.recklessness.up
+            if race == "BloodElf" and cast.able.arcaneTorrent() and (--[[not buff.cooldownReduction.exists()
+                and]] (buff.bloodbath.exists() or (not talent.bloodbath and debuff.colossusSmash.exists(units.dyn5)))
+                    or --[[buff.cooldownReduction.exists() and]] buff.recklessness.exists())
+            then
+                if cast.arcaneTorrent() then
+                    ui.debug("Casting Arcane Torrent [Combat]")
                     return true
                 end
             end
         end
-        -- Call Action List - Colossus Aoe
-        -- run_action_list,name=colossus_aoe,if=talent.demolish&active_enemies>2
-        if talent.demolish and ui.useAOE(8, 3) then
-            if actionList.ColossusAoe() then return true end
+        -- Bloodbath
+        -- bloodbath,if=enabled&(debuff.colossus_smash.remains>0.1|cooldown.colossus_smash.remains<5|target.time_to_die<=20)
+        if ui.alwaysCdNever("Bloodbath") and cast.able.bloodbath() and (debuff.colossusSmash.remains(units.dyn5) > 0.1
+            or cd.colossusSmash.remains() < 5 or unit.ttd(units.dyn5) <= 20)
+        then
+            if cast.bloodbath() then
+                ui.debug("Casting Bloodbath [Combat]")
+                return true
+            end
         end
-        -- Call Action List - Colossus Execute,Target If=Min:Target.Health.Pct
-        -- run_action_list,name=colossus_execute,target_if=min:target.health.pct,if=talent.demolish&variable.execute_phase
-        if talent.demolish and var.executePhase then
-            if actionList.ColossusExecute() then return true end
+        -- Berserker Rage
+        -- berserker_rage,if=buff.enrage.remains<0./berserker_rage,if=buff.enrage.remains<0.5
+        if ui.checked("Berserker Rage") and cast.able.berserkerRage() and buff.enrage.remains() < 0.5 then
+            if cast.berserkerRage() then
+                ui.debug("Casting Berserker Rage [Combat]")
+                return true
+            end
         end
-        -- Call Action List - Colossus Sweep
-        -- run_action_list,name=colossus_sweep,if=talent.demolish&active_enemies=2&!variable.execute_phase
-        if talent.demolish and ui.useAOE(8, 2) and ui.useST(8, 3) and not var.executePhase then
-            if actionList.ColossusSweep() then return true end
+        -- Heroic Leap
+        -- heroic_leap,if=debuff.colossus_smash.up
+        if ui.mode.mover == 1 and ui.checked("Heroic Leap") and cast.able.heroicLeap(units.dyn5) and (not var.knownCS or debuff.colossusSmash.exists(units.dyn5)) then
+            if cast.heroicLeap(units.dyn5) then
+                ui.debug("Casting Heroic Leap [Combat]")
+                return true
+            end
         end
-        -- Call Action List - Colossus St
-        -- run_action_list,name=colossus_st,if=talent.demolish
-        if talent.demolish then
-            if actionList.ColossusSt() then return true end
+        -- Action List - AOE
+        -- run_action_list,name=aoe,if=active_enemies>=2
+        if ui.useAOE(8,2) then
+            if actionList.AOE() then return true end
         end
-        -- Call Action List - Slayer Aoe
-        -- run_action_list,name=slayer_aoe,if=talent.slayers_dominance&active_enemies>2
-        if (talent.slayersDominance or not (talent.demolish and talent.slayersDominance)) and ui.useAOE(8, 3) then
-            if actionList.SlayerAoe() then return true end
-        end
-        -- Call Action List - Slayer Execute,Target If=Min:Target.Health.Pct
-        -- run_action_list,name=slayer_execute,target_if=min:target.health.pct,if=talent.slayers_dominance&variable.execute_phase
-        if (talent.slayersDominance or not (talent.demolish and talent.slayersDominance)) and var.executePhase then
-            if actionList.SlayerExecute() then return true end
-        end
-        -- Call Action List - Slayer Sweep
-        -- run_action_list,name=slayer_sweep,if=talent.slayers_dominance&active_enemies=2&!variable.execute_phase
-        if (talent.slayersDominance or not (talent.demolish and talent.slayersDominance)) and ui.useAOE(8, 2) and ui.useST(8, 3) and not var.executePhase then
-            if actionList.SlayerSweep() then return true end
-        end
-        -- Call Action List - Slayer St
-        -- run_action_list,name=slayer_st,if=talent.slayers_dominance
-        if talent.slayersDominance or not (talent.demolish and talent.slayersDominance) then
-            if actionList.SlayerSt() then return true end
+        -- Action List - Single
+        -- run_action_list,name=single_target,if=active_enemies<2
+        if ui.useST(8,2) then
+            if actionList.Single() then return true end
         end
     end -- End Combat Rotation
 end     -- End Action List - Combat
@@ -1944,11 +878,35 @@ local function runRotation()
     module  = br.player.module
     race    = br.player.race
     rage    = br.player.power.rage
+    spell   = br.player.spell
     talent  = br.player.talent
     ui      = br.player.ui
     unit    = br.player.unit
     units   = br.player.units
+    use     = br.player.use
     var     = br.player.variables
+
+    var.knownCS = spell.colossusSmash.known()
+
+    -- Ensure blacklist and error-frame for Disarm exist (persist across runs)
+    if var.disarmBlacklist == nil then var.disarmBlacklist = {} end
+    var.lastDisarmTarget = var.lastDisarmTarget or nil
+    var.disarmErrorFrame = var.disarmErrorFrame or CreateFrame("Frame")
+    var.disarmErrorFrame:RegisterEvent("UI_ERROR_MESSAGE")
+    var.disarmErrorFrame:SetScript("OnEvent", function(self, event, errorType, message)
+        if message and var.lastDisarmTarget and var.disarmBlacklist then
+            local err = tostring(message):lower()
+            local disarmError = err:find("disarm") or err:find("invalid target")
+            if disarmError then
+                local npcID = br.functions.unit:GetObjectID(var.lastDisarmTarget)
+                if npcID and not var.disarmBlacklist[npcID] then
+                    var.disarmBlacklist[npcID] = true
+                    print("|cff8000FFBadRotations|r: Blacklisted " .. (UnitName(var.lastDisarmTarget) or "Unknown") .. " (ID: " .. npcID .. ") - Cannot Disarm")
+                end
+            end
+            var.lastDisarmTarget = nil
+        end
+    end)
 
     units.get(5)
     units.get(8)
@@ -1958,6 +916,7 @@ local function runRotation()
     enemies.get(8)
     enemies.get(8, "target")
     enemies.get(8, "player", false, true) -- makes enemies.yards8f
+    enemies.get(15)
     enemies.get(20)
 
     ------------------------
@@ -1986,6 +945,8 @@ local function runRotation()
         end
     end
 
+    -- ui.chatOverlay("AOE: " .. tostring(ui.useAOE(8,2)) .. " | ST: " .. tostring(ui.useST(8,2)) .. " | Count: " .. #enemies.yards8)
+
     -----------------
     --- Rotations ---
     -----------------
@@ -1995,7 +956,7 @@ local function runRotation()
     -- Profile Stop | Pause
     if not unit.inCombat() and not unit.exists("target") and var.profileStop then
         var.profileStop = false
-    elseif (unit.inCombat() and var.profileStop == true) or ui.pause() or unit.mounted() or unit.flying() or ui.mode.rotation == 4 then
+    elseif (unit.inCombat() and var.profileStop == true) or ui.pause() or unit.mounted() or unit.flying() then
         return true
     else
         -----------------------
@@ -2006,6 +967,7 @@ local function runRotation()
         --- Defensive Rotation ---
         --------------------------
         if actionList.Defensive() then return true end
+        if ui.mode.rotation == 4 then return true end
         ---------------------------
         --- Pre-Combat Rotation ---
         ---------------------------
@@ -2017,8 +979,9 @@ local function runRotation()
     end -- Pause
 end     -- runRotation
 local id = 71
-if br.rotations[id] == nil then br.rotations[id] = {} end
-br._G.tinsert(br.rotations[id], {
+local expansion = br.isMOP
+if br.loader.rotations[id] == nil then br.loader.rotations[id] = {} end
+br._G.tinsert(br.loader.rotations[id], {
     name = rotationName,
     toggles = createToggles,
     options = createOptions,

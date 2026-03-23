@@ -1,6 +1,14 @@
 local _, br = ...
 -- Provides functions to help debugging and profiling
 
+-- Custom Debug Print
+function br.debug:print(message)
+	if br.data.settings[br.loader.selectedSpec].toggles["isDebugging"] == true then
+		br._G.print(message)
+	end
+end
+
+-- CPU Debug
 br.debug.cpu = {}
 br.debug.cpu.healingEngine = {
     UnitName = 0,
@@ -31,7 +39,7 @@ function br.debug.cpu:updateDebug(startTime, table)
             averageTime = 0
         }
     end
-    if br.isChecked("Debug Timers") then
+    if br.functions.misc:isChecked("Debug Timers") then
         br.debug.cpu[table].totalIterations = br.debug.cpu[table].totalIterations + 1
         br.debug.cpu[table].currentTime = endTime - startTime
         br.debug.cpu[table].elapsedTime = br.debug.cpu[table].elapsedTime + br.debug.cpu[table].currentTime
@@ -47,26 +55,26 @@ end
 function br.debug.cpu:getHealingEngine()
     local usage, calls
 
-    usage, calls = br._G.GetFunctionCPUUsage(br.friend.Update, true)
-    br.debug.cpu.healingEngine["br.friend_Update"] = {usage = usage, calls = calls}
+    usage, calls = br._G.GetFunctionCPUUsage(br.engines.healingEngine.friend.Update, true)
+    br.debug.cpu.healingEngine["br.engines.healingEngine.friend_Update"] = {usage = usage, calls = calls}
 
-    usage, calls = br._G.GetFunctionCPUUsage(br.friend.UpdateUnit, true)
-    br.debug.cpu.healingEngine["br.friend_UpdateUnit"] = {usage = usage, calls = calls}
+    usage, calls = br._G.GetFunctionCPUUsage(br.engines.healingEngine.friend.UpdateUnit, true)
+    br.debug.cpu.healingEngine["br.engines.healingEngine.friend_UpdateUnit"] = {usage = usage, calls = calls}
 
     --local tmpUsage, tmpCalls
-    --for i=1, #br.friend do
-    --    usage, calls = GetFunctionCPUUsage(br.friend[i].UpdateUnit, true)
+    --for i=1, #br.engines.healingEngine.friend do
+    --    usage, calls = GetFunctionCPUUsage(br.engines.healingEngine.friend[i].UpdateUnit, true)
     --    tmpUsage = tmpUsage + usage
     --    tmpCalls = tmpCalls + calls
-    --    br.debug.cpu.healingEngine["br.friend_UpdateUnit"] = {usage = usage, calls = calls }
-    --    br.friend[i]:UpdateUnit()
+    --    br.debug.cpu.healingEngine["br.engines.healingEngine.friend_UpdateUnit"] = {usage = usage, calls = calls }
+    --    br.engines.healingEngine.friend[i]:UpdateUnit()
     --end
     -- usage, calls = GetFunctionCPUUsage(, true)
 end
 
 --- Get Execution Speed
 --  Prints the time needed to run a function X times
-function br.debug.getEXspeed(cycles, func)
+function br.debug:getEXspeed(cycles, func)
     local startTime = br._G.debugprofilestop()
 
     for i = 1, cycles do
@@ -80,8 +88,8 @@ end
 
 -- INTO TIMER LUA
 
-br.timer = {}
-function br.timer:useTimer(timerName, interval)
+br.debug.timer = {}
+function br.debug.timer:useTimer(timerName, interval)
     if self[timerName] == nil then
         self[timerName] = 0
     end
@@ -93,8 +101,8 @@ function br.timer:useTimer(timerName, interval)
     end
 end
 
---[[br.timer = {}
-function br.timer:useTimer(timerName, interval, randomPercent)
+--[[br.debug.timer = {}
+function br.debug.timer:useTimer(timerName, interval, randomPercent)
     local randomPercent = randomPercent or 0
     if randomPercent > 0 then
         local randomRange = interval * randomPercent / 100

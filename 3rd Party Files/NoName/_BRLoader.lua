@@ -1,4 +1,5 @@
 local Nn = ...
+
 -- if --[[(...).name ~= "Nn" or]] Nn == nil then return end
 -- local read   = Nn.Utils.Storage.read
 -- local write  = Nn.Utils.Storage.write
@@ -6,9 +7,19 @@ local Nn = ...
 -- local AceGUI = Nn.Utils.AceGUI
 
 --Only load BR if in retail 10.2.7 (UI Update); Classic/Cata Not Supported.
-if select(4,GetBuildInfo()) < 100207 then return end
+-- if select(4,GetBuildInfo()) < 100207 then return end
 
-local toc = ReadFile('/scripts/BadRotations/BadRotations.toc')
+local toc = ""
+local tocPath = '/scripts/BadRotations/BadRotations.toc'
+local FileExists = _G["FileExists"]
+local ReadFile = _G["ReadFile"]
+if not FileExists(tocPath) then print(tocPath, 'does not exist') return end
+if FileExists(tocPath) then
+    toc = ReadFile(tocPath)
+else
+    print('TOC file does not exist:', tocPath)
+end
+
 local br = {}
 br.files = {}
 
@@ -51,45 +62,49 @@ br.files[#br.files+1] = {file = 'BadRotations/Libs/DiesalStyle-1.0/Media/UbuntuM
 br.files[#br.files+1] = {file = 'BadRotations/Libs/DiesalStyle-1.0/Media/UbuntuMono-R.ttf', load = true}
 
 -- Add Lua Files from .toc
-for line in toc:gmatch("([^\n]*)\n?") do
-    local thisLine = line:trim()
-    if thisLine:find('#') == nil and thisLine:len() > 0
-        and thisLine:find('.lua') ~= nil
-    then
-        thisLine = thisLine:gsub("\\","/")
-        thisLine = thisLine:gsub(" ","")
-        thisLine = thisLine:gsub(".lua","")
-        thisLine = 'BadRotations/'..thisLine
-        br.files[#br.files+1] = {
-            file = thisLine,
-            load = true
-        }
-        -- Lua Files loaded via XML Files
-        if thisLine == "BadRotations/Libs/DiesalStyle-1.0/DiesalStyle-1.0" then
-            br.files[#br.files+1] = {file = 'BadRotations/Libs/DiesalGUI-1.0/DiesalGUI-1.0', load = true}
-            br.files[#br.files+1] = {file = 'BadRotations/Libs/DiesalGUI-1.0/Objects/Window', load = true}
-            br.files[#br.files+1] = {file = 'BadRotations/Libs/DiesalGUI-1.0/Objects/ScrollFrame', load = true}
-            br.files[#br.files+1] = {file = 'BadRotations/Libs/DiesalGUI-1.0/Objects/ScrollingEditBox', load = true}
-            br.files[#br.files+1] = {file = 'BadRotations/Libs/DiesalGUI-1.0/Objects/ScrollingMessageFrame', load = true}
-            br.files[#br.files+1] = {file = 'BadRotations/Libs/DiesalGUI-1.0/Objects/CheckBox', load = true}
-            br.files[#br.files+1] = {file = 'BadRotations/Libs/DiesalGUI-1.0/Objects/Button', load = true}
-            br.files[#br.files+1] = {file = 'BadRotations/Libs/DiesalGUI-1.0/Objects/Spinner', load = true}
-            br.files[#br.files+1] = {file = 'BadRotations/Libs/DiesalGUI-1.0/Objects/Input', load = true}
-            br.files[#br.files+1] = {file = 'BadRotations/Libs/DiesalGUI-1.0/Objects/Dropdown', load = true}
-            br.files[#br.files+1] = {file = 'BadRotations/Libs/DiesalGUI-1.0/Objects/DropdownItem', load = true}
-            br.files[#br.files+1] = {file = 'BadRotations/Libs/DiesalGUI-1.0/Objects/ComboBox', load = true}
-            br.files[#br.files+1] = {file = 'BadRotations/Libs/DiesalGUI-1.0/Objects/ComboBoxItem', load = true}
-            br.files[#br.files+1] = {file = 'BadRotations/Libs/DiesalGUI-1.0/Objects/Accordian', load = true}
-            br.files[#br.files+1] = {file = 'BadRotations/Libs/DiesalGUI-1.0/Objects/AccordianSection', load = true}
-            br.files[#br.files+1] = {file = 'BadRotations/Libs/DiesalGUI-1.0/Objects/Tree', load = true}
-            br.files[#br.files+1] = {file = 'BadRotations/Libs/DiesalGUI-1.0/Objects/Branch', load = true}
-            br.files[#br.files+1] = {file = 'BadRotations/Libs/DiesalGUI-1.0/Objects/Bar', load = true}
-            br.files[#br.files+1] = {file = 'BadRotations/Libs/DiesalMenu-1.0/DiesalMenu-1.0', load = true}
-            br.files[#br.files+1] = {file = 'BadRotations/Libs/DiesalMenu-1.0/Objects/MenuItem', load = true}
-            br.files[#br.files+1] = {file = 'BadRotations/Libs/DiesalMenu-1.0/Objects/Menu', load = true}
+function LoadFilesFromTOC(tocFile)
+    for line in tocFile:gmatch("([^\n]*)\n?") do
+        local thisLine = line:trim()
+        if thisLine:find('#') == nil and thisLine:len() > 0
+            and thisLine:find('.lua') ~= nil
+        then
+            thisLine = thisLine:gsub("\\","/")
+            thisLine = thisLine:gsub(" ","")
+            thisLine = thisLine:gsub(".lua","")
+            thisLine = 'BadRotations/'..thisLine
+            br.files[#br.files+1] = {
+                file = thisLine,
+                load = true
+            }
+            -- Lua Files loaded via XML Files
+            if thisLine == "BadRotations/Libs/DiesalStyle-1.0/DiesalStyle-1.0" then
+                br.files[#br.files+1] = {file = 'BadRotations/Libs/DiesalGUI-1.0/DiesalGUI-1.0', load = true}
+                br.files[#br.files+1] = {file = 'BadRotations/Libs/DiesalGUI-1.0/Objects/Window', load = true}
+                br.files[#br.files+1] = {file = 'BadRotations/Libs/DiesalGUI-1.0/Objects/ScrollFrame', load = true}
+                br.files[#br.files+1] = {file = 'BadRotations/Libs/DiesalGUI-1.0/Objects/ScrollingEditBox', load = true}
+                br.files[#br.files+1] = {file = 'BadRotations/Libs/DiesalGUI-1.0/Objects/ScrollingMessageFrame', load = true}
+                br.files[#br.files+1] = {file = 'BadRotations/Libs/DiesalGUI-1.0/Objects/CheckBox', load = true}
+                br.files[#br.files+1] = {file = 'BadRotations/Libs/DiesalGUI-1.0/Objects/Button', load = true}
+                br.files[#br.files+1] = {file = 'BadRotations/Libs/DiesalGUI-1.0/Objects/Spinner', load = true}
+                br.files[#br.files+1] = {file = 'BadRotations/Libs/DiesalGUI-1.0/Objects/Input', load = true}
+                br.files[#br.files+1] = {file = 'BadRotations/Libs/DiesalGUI-1.0/Objects/Dropdown', load = true}
+                br.files[#br.files+1] = {file = 'BadRotations/Libs/DiesalGUI-1.0/Objects/DropdownItem', load = true}
+                br.files[#br.files+1] = {file = 'BadRotations/Libs/DiesalGUI-1.0/Objects/ComboBox', load = true}
+                br.files[#br.files+1] = {file = 'BadRotations/Libs/DiesalGUI-1.0/Objects/ComboBoxItem', load = true}
+                br.files[#br.files+1] = {file = 'BadRotations/Libs/DiesalGUI-1.0/Objects/Accordian', load = true}
+                br.files[#br.files+1] = {file = 'BadRotations/Libs/DiesalGUI-1.0/Objects/AccordianSection', load = true}
+                br.files[#br.files+1] = {file = 'BadRotations/Libs/DiesalGUI-1.0/Objects/Tree', load = true}
+                br.files[#br.files+1] = {file = 'BadRotations/Libs/DiesalGUI-1.0/Objects/Branch', load = true}
+                br.files[#br.files+1] = {file = 'BadRotations/Libs/DiesalGUI-1.0/Objects/Bar', load = true}
+                br.files[#br.files+1] = {file = 'BadRotations/Libs/DiesalMenu-1.0/DiesalMenu-1.0', load = true}
+                br.files[#br.files+1] = {file = 'BadRotations/Libs/DiesalMenu-1.0/Objects/MenuItem', load = true}
+                br.files[#br.files+1] = {file = 'BadRotations/Libs/DiesalMenu-1.0/Objects/Menu', load = true}
+            end
         end
     end
 end
+
+LoadFilesFromTOC(toc)
 
 -- Unlocker Lua Files
 br.files[#br.files+1] = {file = 'BadRotations/Unlockers/tinkr', load = false}

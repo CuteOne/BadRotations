@@ -17,9 +17,9 @@ br.api.equiped = function(self, item, id)
     -- @treturn boolean
     equiped[item] = function(slotID)
         if slotID == nil then
-            return br.hasEquiped(id)
+            return br.functions.item:hasEquiped(id)
         else
-            return br.hasEquiped(id, slotID)
+            return br.functions.item:hasEquiped(id, slotID)
         end
     end
 
@@ -33,9 +33,9 @@ br.api.equiped = function(self, item, id)
     -- @usage equipes.item(12345, 1) -- will return true if item with ID 12345 is equipped in slot 1
     equiped.item = function(itemID, slotID)
         if slotID == nil then
-            return br.hasEquiped(itemID)
+            return br.functions.item:hasEquiped(itemID)
         else
-            return br.hasEquiped(itemID, slotID)
+            return br.functions.item:hasEquiped(itemID, slotID)
         end
     end
 
@@ -55,8 +55,8 @@ br.api.equiped = function(self, item, id)
     -- @treturn number
     equiped.tier = function(tierLevel, numEquiped)
         if type(tierLevel) == "number" then tierLevel = "T" .. tierLevel end
-        if numEquiped == nil then return br.TierScan(tierLevel) end
-        return br.TierScan(tierLevel) >= numEquiped
+        if numEquiped == nil then return br.functions.item:TierScan(tierLevel) end
+        return br.functions.item:TierScan(tierLevel) >= numEquiped
     end
 
     if equiped.type == nil then

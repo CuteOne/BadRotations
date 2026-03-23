@@ -12,8 +12,8 @@ local function createToggles()
     br.ui:createToggle(RotationModes, "Rotation", 1, 0)
     -- Defensive Button
     local DefensiveModes = {
-        [1] = { mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spells.crimsonVial },
-        [2] = { mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spells.crimsonVial }
+        [1] = { mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spells.evasion },
+        [2] = { mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spells.evasion }
     };
     br.ui:createToggle(DefensiveModes, "Defensive", 2, 0)
     -- Interrupts Button
@@ -40,28 +40,24 @@ local function createOptions()
         br.ui:createDropdownWithout(section, "Eviscerate Execute",
             { "|cffFFFF00Enabled Notify", "|cff00FF00Enabled", "|cffFF0000Disabled" }, 2,
             "Options for using Eviscerate when the damage from it will kill the unit.")
-        -- Sprint
-        br.ui:createCheckbox(section, "Sprint", "|cffFFFFFFWill use sprint automatically.")
         -- Stealth
         br.ui:createCheckbox(section, "Stealth", "|cffFFFFFFWill use stealth at all times.")
         -- Stealth Breaker
         br.ui:createDropdownWithout(section, "Stealth Breaker",
-            { "|cff00FF00Ambush", "|cffFFFF00Cheapshot", "|cffFF0000Sinister Strike" }, 3,
+            { "|cff00FF00Ambush", "|cffFF0000Sinister Strike" }, 3,
             "|cffFFFFFFSet what to break Stealth with.")
         br.ui:checkSectionState(section)
         -------------------------
         --- DEFENSIVE OPTIONS ---
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
-        -- Crimson Vial
-        br.ui:createSpinner(section, "Crimson Vial", 70, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
+        -- Evasion
+        br.ui:createSpinner(section, "Evasion", 70, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
         br.ui:checkSectionState(section)
         -------------------------
         --- INTERRUPT OPTIONS ---
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Interrupt")
-        -- Kick
-        br.ui:createCheckbox(section, "Kick", "|cffFFFFFFUse Kick")
         -- Interrupt Percentage
         br.ui:createSpinnerWithout(section, "Interrupt At", 0, 0, 95, 5,
             "|cffFFFFFFCast Percent to Cast At (0 is random)")
@@ -71,13 +67,11 @@ local function createOptions()
         ----------------------
         section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
         -- Single/Multi Toggle
-        br.ui:createDropdownWithout(section, "Rotation Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdownWithout(section, "Rotation Mode", br.ui.dropOptions.Toggle, 6)
         -- Defensive Key Toggle
-        br.ui:createDropdownWithout(section, "Defensive Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdownWithout(section, "Defensive Mode", br.ui.dropOptions.Toggle, 6)
         -- Interrupts Key Toggle
-        br.ui:createDropdownWithout(section, "Interrupt Mode", br.dropOptions.Toggle, 6)
-        -- Pause Toggle
-        br.ui:createDropdown(section, "Pause Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdownWithout(section, "Interrupt Mode", br.ui.dropOptions.Toggle, 6)
         br.ui:checkSectionState(section)
     end
     optionTable = { {
@@ -104,7 +98,6 @@ local units
 -- General Locals
 local haltProfile
 local profileStop
-local eviscerateDamage
 local finishHim
 -- Profile Specific Locals
 local actionList = {}
@@ -117,20 +110,19 @@ local function eviscerateFinish(thisUnit)
     local desc = br._G.C_Spell.GetSpellDescription(spell.eviscerate)
     local damage = 0
     finishHim = false
-    if ui.value("Eviscerate Execute") ~= 3 and combo() > 0 and not unit.isDummy(thisUnit) then
-        local comboStart = desc:find(" " .. combo() .. " ", 1, true)
-        if comboStart ~= nil then
-            comboStart = comboStart + 2
-            local damageList = desc:sub(comboStart, desc:len())
-            comboStart = damageList:find(": ", 1, true) + 2
-            damageList = damageList:sub(comboStart, desc:len())
-            local comboEnd = damageList:find(" ", 1, true) - 1
-            damageList = damageList:sub(1, comboEnd)
-            damage = damageList:gsub(",", "")
-        end
-        eviscerateDamage = tonumber(damage)
-        finishHim = tonumber(damage) >= unit.health(thisUnit) and unit.health(thisUnit) > 0
+    if ui.value("Eviscerate Execute") == 3 or combo() == 0 or unit.isDummy(thisUnit) then return false end
+    local comboStart = desc:find(" " .. combo() .. " ", 1, true)
+    if comboStart ~= nil then
+        comboStart = comboStart + 2
+        local damageList = desc:sub(comboStart, desc:len())
+        comboStart = damageList:find(": ", 1, true) + 2
+        damageList = damageList:sub(comboStart, desc:len())
+        local comboEnd = damageList:find(" ", 1, true) - 1
+        damageList = damageList:sub(1, comboEnd)
+        damage = damageList:gsub(",", "")
     end
+    local lower = tonumber(string.match(damage, "^(%d+)%-%d+$")) or 0
+    finishHim = tonumber(lower) >= unit.health(thisUnit)
     return finishHim
 end
 
@@ -139,17 +131,10 @@ end
 --------------------
 -- Action List - Extras
 actionList.Extras = function()
-    -- Crippling Poison
-    if cast.able.cripplingPoison() and not buff.cripplingPoison.exists() then
-        if cast.cripplingPoison() then
-            ui.debug("Casting Crippling Poison")
-            return true
-        end
-    end
-    -- Instant Poison
-    if cast.able.instantPoison() and not buff.instantPoison.exists() then
-        if cast.instantPoison() then
-            ui.debug("Casting Instant Poison")
+    -- Deadly Poison
+    if cast.able.deadlyPoison() and not buff.deadlyPoison.exists() then
+        if cast.deadlyPoison() then
+            ui.debug("Casting Deadly Poison")
             return true
         end
     end
@@ -162,21 +147,14 @@ actionList.Extras = function()
             return true
         end
     end
-    -- Sprint
-    if ui.checked("Sprint") and cast.able.sprint() then
-        if cast.sprint() then
-            ui.debug("Casting Sprint")
-            return true
-        end
-    end
 end
 -- Action List - Defensive
 actionList.Defensive = function()
-    --Crimson Vial
-    if unit.level() >= 8 and ui.checked("Crimson Vial") then
-        if cast.able.crimsonVial() and unit.inCombat() and unit.hp() <= ui.value("Crimson Vial") then
-            if cast.crimsonVial() then
-                ui.debug("Casting Crimson Vial")
+    --Evasion
+    if unit.level() >= 8 and ui.checked("Evasion") then
+        if cast.able.evasion() and unit.inCombat() and unit.hp() <= ui.value("Evasion") then
+            if cast.evasion() then
+                ui.debug("Casting Evasion")
                 return true
             end
         end
@@ -186,18 +164,7 @@ end -- End Action List - Defensive
 -- Action List - Interrupt
 actionList.Interrupt = function()
     if ui.useInterrupt() then
-        -- Kick
-        if ui.checked("Kick") then
-            for i = 1, #enemies.yards5f do
-                local thisUnit = enemies.yards5f[i]
-                if cast.able.kick(thisUnit) and unit.interruptable(thisUnit, ui.value("Interrupt At")) then
-                    if cast.kick(thisUnit) then
-                        ui.debug("Casting Kick on " .. unit.name(thisUnit))
-                        return true
-                    end
-                end
-            end
-        end
+
     end
 end -- End Action List - Interrupt
 
@@ -206,22 +173,16 @@ actionList.PreCombat = function()
     if unit.valid("target") and unit.distance("target") < 5 then
         if buff.stealth.exists() or unit.level() < 3 then
             --Ambush
-            if ui.value("Stealth Breaker") == 1 and cast.able.ambush("target") then
+            if ui.value("Stealth Breaker") == 1 and cast.able.ambush("target") and not unit.facing("target", "player") then
                 if cast.ambush("target") then
                     ui.debug("Casting Ambush [Pre-Combat]")
                     return true
                 end
             end
-            -- Cheap Shot
-            if (ui.value("Stealth Breaker") == 2 or (ui.value("Stealth Breaker") == 1 and unit.level() < 7)) and cast.able.cheapShot("target") then
-                if cast.cheapShot("target") then
-                    ui.debug("Casting Cheap Shot [Pre-Combat]")
-                    return true
-                end
-            end
             -- Sinister Strike
-            if ui.value("Stealth Breaker") == 3 and cast.able.sinisterStrike("target")
-                and not unit.inCombat() and (combo() < 5 or unit.level() < 3)
+            if (ui.value("Stealth Breaker") == 2 or (ui.value("Stealth Breaker") == 1
+                and (unit.level() < 6 or unit.facing("target", "player"))))
+                and cast.able.sinisterStrike("target") and not unit.inCombat() and (combo() < 5 or unit.level() < 3)
             then
                 if cast.sinisterStrike("target") then
                     ui.debug("Casting Sinister Strike [Pre-Combat]")
@@ -230,7 +191,7 @@ actionList.PreCombat = function()
             end
         end
         -- Start Attack
-        if cast.able.autoAttack("target") and not unit.inCombat() and energy() < 45 then
+        if cast.able.autoAttack("target") and not unit.inCombat() and energy() < 40 then
             if cast.autoAttack("target") then
                 ui.debug("Casting Auto Attack [Pre-Combat]")
                 return true
@@ -260,20 +221,6 @@ actionList.Combat = function()
                 ui.debug("Casting Eviscerate")
                 return true
             end
-        end
-    end
-    --Ambush
-    if cast.able.ambush() and buff.stealth.exists() then
-        if cast.ambush() then
-            ui.debug("Casting Ambush")
-            return true
-        end
-    end
-    --Slice and Dice
-    if cast.able.sliceAndDice() and unit.level() >= 9 and combo() > 4 and not buff.sliceAndDice.exists() then
-        if cast.sliceAndDice() then
-            ui.debug("Casting Slice and Dice")
-            return true
         end
     end
     --Eviscerate
@@ -313,7 +260,7 @@ local function runRotation()
     units       = br.player.units
     -- General Locals
     profileStop = profileStop or false
-    haltProfile = (unit.inCombat() and profileStop) or unit.mounted() or br.pause() or mode.rotation == 2
+    haltProfile = (unit.inCombat() and profileStop) or unit.mounted() or br.functions.misc:pause() or mode.rotation == 2
     -- Units
     units.get(5)  -- Makes a variable called, units.dyn5
     units.get(40) -- Makes a variable called, units.dyn40
@@ -321,7 +268,6 @@ local function runRotation()
     -- Enemies
     enemies.get(5, "player", false, true) -- makes enemies.yards5f
 
-    if eviscerateDamage == nil then eviscerateDamage = 0 end
     finishHim = eviscerateFinish(units.dyn5)
 
     -- Pause Timer
@@ -349,7 +295,7 @@ local function runRotation()
         --- Pre-Combat ---
         ------------------
         if actionList.PreCombat() then return true end
-        if unit.inCombat() and not profileStop and unit.exists(units.dyn5) then
+        if unit.inCombat() and not profileStop and unit.exists(units.dyn5) and not buff.stealth.exists() then
             ------------------------------
             --- In Combat - Interrupts ---
             ------------------------------
@@ -362,8 +308,9 @@ local function runRotation()
     end         -- Pause
 end             -- End runRotation
 local id = 1453 -- Change to the spec id profile is for.
-if br.rotations[id] == nil then br.rotations[id] = {} end
-br._G.tinsert(br.rotations[id], {
+local expansion = br.isMOP
+if br.loader.rotations[id] == nil then br.loader.rotations[id] = {} end
+br._G.tinsert(br.loader.rotations[id], {
     name = rotationName,
     toggles = createToggles,
     options = createOptions,

@@ -2,7 +2,13 @@ local _, br = ...
 -- This creates the normal BadRotations Configuration Window
 br.ui.window.config = {}
 function br.ui:createConfigWindow()
+    -- br._G.print("Creating Config Window") -- Debug
     br.ui.window.config = br.ui:createWindow("config", 275, 400, "Configuration")
+
+    if not br.ui.window.config then
+        br._G.print("Error: Failed to create config window")
+        return
+    end
 
     local section
     local function callGeneral()
@@ -18,12 +24,6 @@ function br.ui:createConfigWindow()
             0.01,
             "Adjust the update rate of Bot operations. Increase to improve FPS but may cause reaction delays. Will be ignored if Auto Delay is checked. Default: 0.1"
         )
-        br.rotationLog = br.ui:createCheckbox(section, "Rotation Log", "Display Rotation Log.")
-        br.ui:createDropdown(section, "Addon Debug Messages", { "System Only", "Profile Only", "All" }, 3,
-            "Check this to display developer debug messages.")
-        br.targetval = br.ui:createCheckbox(section, "Target Validation Debug",
-            "Check this to display current target's validation.")
-        br.ui:createCheckbox(section, "Display Failcasts", "Dispaly Failcasts in Debug.")
         br.ui:createCheckbox(section, "Queue Casting", "Allow Queue Casting on some profiles.")
         br.ui:createSpinner(section, "Auto Loot", 0.5, 0.1, 3, 0.1, "Sets Autloot on/off.", "Sets a delay for Auto Loot.")
         br.ui:createCheckbox(section, "Auto-Sell/Repair",
@@ -38,8 +38,6 @@ function br.ui:createConfigWindow()
             "|cffFF0000 WARNING!|cffFFFFFF Checking this will reset saved profiles on reload!")
         br.ui:createCheckbox(section, "Auto Check for Updates",
             "EWT only. This uses the Git master head sha for comparison. |cffFF0000Experimental!")
-        br.ui:createCheckbox(section, "Dev Mode",
-            "|cffFF0000WARNING! This will expose the BR table to global for testing purposes.  Do not use unless you know what you're doing.")
         br.ui:checkSectionState(section)
     end
 
@@ -196,10 +194,6 @@ function br.ui:createConfigWindow()
             1,
             "Using the bait."
         )
-        br.ui:createCheckbox(section, "Debug Timers", "Useless to users, for Devs.")
-        br.ui:createCheckbox(section, "Cache Debuffs", "Experimental feature still in testing")
-        br.ui:createCheckbox(section, "Unit ID In Tooltip", "Show/Hide Unit IDs in Tooltip")
-        br.ui:createCheckbox(section, "Show Drawings", "Show drawings on screen using Lib Draw")
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.config, "Dungeon Helpers")
         br.ui:createCheckbox(section, "Quaking Helper",
@@ -217,24 +211,24 @@ function br.ui:createConfigWindow()
             "Select profile to use, then click load")
         br.ui:createText(section, "|cffDB4437Save your settings before loading a new one!!")
         local saveProfile = function()
-            br:saveSettings("Profile Settings", br.player.class, br.selectedSpec, br.selectedProfileName,
-                profileSettings[br.getValue("Select Settings")])
+            br.ui.settingsManagement:saveSettings("Profile Settings", br.player.class, br.loader.selectedSpec, br.loader.selectedProfileName,
+                profileSettings[br.functions.misc:getValue("Select Settings")])
         end
         local loadProfile = function()
             br.data.loadedSettings = false
             local loadDir =
-                br:checkDirectories("Profile Settings", br.player.class, br.selectedSpec, br.selectedProfileName,
-                    profileSettings[br.getValue("Select Settings")])
+                br.ui.settingsManagement:checkDirectories("Profile Settings", br.player.class, br.loader.selectedSpec, br.loader.selectedProfileName,
+                    profileSettings[br.functions.misc:getValue("Select Settings")])
             if not loadDir then
                 br._G.print("Load Directory is nil!")
                 return
             end
-            if loadDir and br:findFileInFolder("savedSettings.lua", loadDir) then
-                br:loadSettings("Profile Settings", br.player.class, br.selectedSpec, br.selectedProfileName,
-                    profileSettings[br.getValue("Select Settings")])
+            if loadDir and br.ui.settingsManagement:findFileInFolder("savedSettings.lua", loadDir) then
+                br.ui.settingsManagement:loadSettings("Profile Settings", br.player.class, br.loader.selectedSpec, br.loader.selectedProfileName,
+                    profileSettings[br.functions.misc:getValue("Select Settings")])
                 br.rotationChanged = true
             else
-                br._G.print("You don't have saved setting for :" .. profileSettings[br.getValue("Select Settings")])
+                br._G.print("You don't have saved setting for :" .. profileSettings[br.functions.misc:getValue("Select Settings")])
             end
         end
         local y = -5
@@ -243,7 +237,7 @@ function br.ui:createConfigWindow()
                 y = y - section.children[i].frame:GetHeight() * 1.2
             end
         end
-        y = br.round2(y, 1)
+        y = br.functions.misc:round2(y, 1)
         br.ui:createButton(section, "Save", 10, y, saveProfile)
         br.ui:createButton(section, "Load", -10, y, loadProfile, true)
         br.ui:checkSectionState(section)
@@ -253,7 +247,7 @@ function br.ui:createConfigWindow()
         -- -90)
         br.ui:createImportButton(section, "Import", 140, y)
         -- -90)
-        br.ui:createText(section, "FileName: " .. br.selectedSpec .. br.selectedProfileName .. ".lua")
+        br.ui:createText(section, "FileName: " .. br.loader.selectedSpec .. br.loader.selectedProfileName .. ".lua")
         br.ui:checkSectionState(section)
     end
 
@@ -268,6 +262,29 @@ function br.ui:createConfigWindow()
         br.ui:createDropdown(section, "Quest Tracker", { "Units", "Objects", "Both" }, 3, "Track Quest Units/Objects")
         br.ui:createScrollingEditBox(section, "Custom Tracker", nil, "Type custom search, Can Seperate items by comma",
             300, 40)
+        br.ui:checkSectionState(section)
+    end
+
+    local function callDebugOptions()
+        -- Debug and Developer Options
+        section = br.ui:createSection(br.ui.window.config, "Debug Options")
+        br.ui.rotationLog = br.ui:createCheckbox(section, "Rotation Log", "Display Rotation Log.")
+        br.ui:createDropdown(section, "Addon Debug Messages", { "System Only", "Profile Only", "All" }, 3,
+            "Check this to display developer debug messages.")
+        br.ui:createCheckbox(section, "Target Validation Debug",
+            "Check this to display current target's validation.")
+        br.ui:createCheckbox(section, "Display Failcasts", "Dispaly Failcasts in Debug.")
+        br.ui:createCheckbox(section, "Cast Debug", "Shows information about how the bot is casting.")
+        br.ui:createCheckbox(section, "Threat Debug", "Shows information about threat and threat changes.")
+        br.ui:checkSectionState(section)
+
+        section = br.ui:createSection(br.ui.window.config, "Developer Options")
+        br.ui:createCheckbox(section, "Dev Mode",
+            "|cffFF0000WARNING! This will expose the BR table to global for testing purposes.  Do not use unless you know what you're doing.")
+        br.ui:createCheckbox(section, "Debug Timers", "Useless to users, for Devs.")
+        br.ui:createCheckbox(section, "Cache Debuffs", "Experimental feature still in testing")
+        br.ui:createCheckbox(section, "Unit ID In Tooltip", "Show/Hide Unit IDs in Tooltip")
+        br.ui:createCheckbox(section, "Show Drawings", "Show drawings on screen using Lib Draw")
         br.ui:checkSectionState(section)
     end
 
@@ -295,14 +312,15 @@ function br.ui:createConfigWindow()
             "Seconds to attempt cast")
         if br.player ~= nil and br.player.spells ~= nil and br.player.spells.abilities ~= nil then
             for _, v in pairsByKeys(br.player.spells.abilities) do
-                local spellName = br._G.GetSpellInfo(v)
-                if v ~= 61304 and spellName ~= nil then
+                local id = type(v) == "table" and (br.functions.spell and br.functions.spell.getHighestKnownRank and br.functions.spell:getHighestKnownRank(v) or v[1]) or v
+                local spellName = br.api.wow.GetSpellInfo(id)
+                if id ~= 61304 and spellName ~= nil then
                     br.ui:createDropdown(
                         section,
                         spellName .. " (Queue)",
                         { "Normal", "Cursor", "Cursor (No Cast)", "Mouseover" },
                         1,
-                        "Active Queueing Of " .. spellName .. " (ID: " .. v .. ")",
+                        "Active Queueing Of " .. spellName .. " (ID: " .. id .. ")",
                         "Select cast mode"
                     )
                 end
@@ -379,6 +397,10 @@ function br.ui:createConfigWindow()
             {
                 [1] = "Tracker Engine",
                 [2] = callTrackerEngine
+            },
+            {
+                [1] = "Debug",
+                [2] = callDebugOptions
             },
             -- {
             --     [1] = "Debug Info",

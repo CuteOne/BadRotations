@@ -1,3 +1,5 @@
+---@diagnostic disable: undefined-global
+-- req.saved.disableAutoTargeting = true
 --------------------------------------------------------------------------------------------------------------------------------
 -- unlockList
 --------------------------------------------------------------------------------------------------------------------------------
@@ -218,7 +220,7 @@ local unlockList =
 --------------------------------------------------------------------------------------------------------------------------------
 local _, br = ...
 local b = br._G
-local unlock = br.unlock
+local unlock = br.unlockers
 local tinkrUnlocked = false
 local funcCopies = {}
 
@@ -255,15 +257,15 @@ function unlock.TinkrUnlock()
 	--------------------------------
 	-- API unlocking
 	--------------------------------
-	for k, v in pairs(funcCopies) do
-		b[k] = function(...)
-			if select('#', ...) == 0 then
-				return Eval(k .. "()", "")
-			else
-				return Eval(k .. "(" .. table.concat({ ... }, ", ") .. ")", "")
-			end
-		end
-	end
+	-- for k, v in pairs(funcCopies) do
+	-- 	b[k] = function(...)
+	-- 		if select('#', ...) == 0 then
+	-- 			return Eval(k .. "()", "")
+	-- 		else
+	-- 			return Eval(k .. "(" .. table.concat({ ... }, ", ") .. ")", "")
+	-- 		end
+	-- 	end
+	-- end
 
 	-------------------
 	-- API Wrapping ---
@@ -271,27 +273,34 @@ function unlock.TinkrUnlock()
 	------------------------- Active Player -------------------
 	b.FaceDirection = function(arg)
 		if type(arg) == "number" then
-			FaceDirection(arg, true)
+			SetHeading(arg)
 		else
 			arg = b.GetAnglesBetweenObjects("player", arg)
-			FaceDirection(arg, true)
+			SetHeading(arg)
 		end
 	end
 
 	b.GetMapId = GetMapID
 	------------------------- Object --------------------------
-	b.ObjectPointer = ObjectGUID
+	b.Object = function(...) return Object(...) end
+	b.ObjectPointer = function(...) return Object(...) end
 	b.ObjectExists = function(...) return Object(...) ~= nil end
 	b.ObjectIsVisible = function(...) return Object(...) ~= nil end
-	b.ObjectPosition = ObjectPosition
+	b.ObjectPosition = function(...)
+		if ObjectMover(...) then return ObjectWorldPosition(...) end
+		return ObjectPosition(...)
+	end
 	b.ObjectRawPosition = ObjectRawPosition
 	b.MoveToRaw = MoveToRaw
-	b.ObjectFacing = ObjectRotation
-	b.ObjectGUID = ObjectGUID
-	b.ObjectName = ObjectName
-	b.ObjectID = ObjectId
-	b.ObjectType = ObjectType
-	b.ObjectRawType = GameObjectType
+	b.ObjectFacing = function(...)
+		if ObjectMover(...) then return ObjectRawRotation(...) end
+		return ObjectRotation(...)
+	end
+	b.ObjectGUID = function(...) return ObjectGUID(Object(...)) end
+	b.ObjectName = function(...) return ObjectName(Object(...)) end
+	b.ObjectID = function(...) return ObjectID(...) end
+	b.ObjectType = function(...) return ObjectType(Object(...)) end
+	b.ObjectRawType = function(...) return GameObjectType(Object(...)) end
 	b.ObjectIsUnit = function(...)
 		local ObjType = ObjectType(...)
 		return ObjType == 5
@@ -301,6 +310,8 @@ function unlock.TinkrUnlock()
 		return FastDistance(X1, Y1, Z1, X2, Y2, Z2)
 	end
 	b.GetAnglesBetweenObjects = function(Object1, Object2)
+		Object1 = Object(Object1)
+		Object2 = Object(Object2)
 		if Object1 and Object2 then
 			local X1, Y1, Z1 = b.ObjectPosition(Object1)
 			local X2, Y2, Z2 = b.ObjectPosition(Object2)
@@ -322,6 +333,8 @@ function unlock.TinkrUnlock()
 		return b.GetPositionFromPosition(X1, Y1, Z1, DistanceFromPosition1, AngleXY, AngleXYZ)
 	end
 	b.GetPositionBetweenObjects = function(unit1, unit2, DistanceFromPosition1)
+		unit1 = Object(unit1)
+		unit2 = Object(unit2)
 		local X1, Y1, Z1 = b.ObjectPosition(unit1)
 		local X2, Y2, Z2 = b.ObjectPosition(unit2)
 		if not X1 or not X2 then return end
@@ -332,9 +345,13 @@ function unlock.TinkrUnlock()
 		-- local X1, Y1, Z1 = b.ObjectPosition(unit1)
 		-- local X2, Y2, Z2 = b.ObjectPosition(unit2)
 		-- return math.sqrt((X2-X1)^2 + (Y2-Y1)^2 + (Z2-Z1)^2)
+		unit1 = Object(unit1)
+		unit2 = Object(unit2)
 		return ObjectDistance(unit1, unit2)
 	end
 	b.ObjectIsFacing = function(obj1, obj2, degrees)
+		obj1 = Object(obj1)
+		obj2 = Object(obj2)
 		local Facing = b.UnitFacing(obj1)
 		local AngleToUnit = b.GetAnglesBetweenObjects(obj1, obj2)
 		local AngleDifference = Facing > AngleToUnit and Facing - AngleToUnit or AngleToUnit - Facing
@@ -349,22 +366,26 @@ function unlock.TinkrUnlock()
 	local om = {}
 	b.GetObjectCount = function()
 		table.wipe(om)
-		om = Objects()
-		return #Objects()
+		-- om = Objects()
+		local objects = Objects()
+		for i, object in ipairs(objects) do
+			om[i] = object
+		end
+		return #om--Objects()
 	end
 	b.GetObjectWithIndex = function(index)
 		return tostring(om[index])
 	end
 	b.GetObjectWithGUID = function(...)
-		return ...
+		return Object(...)
 	end
 	------------------------- Unit ------------------
-	b.UnitCreator = ObjectCreator
-	b.UnitMovementFlags = ObjectMovementFlag
-	b.UnitBoundingRadius = ObjectBoundingRadius
-	b.UnitCombatReach = ObjectCombatReach
-	b.UnitTarget = ObjectTarget
-	b.UnitCastID = ObjectCastingInfo
+	b.UnitCreator = function(...) return ObjectCreator(Object(...)) end
+	b.UnitMovementFlags = function(...) return ObjectMovementFlag(Object(...)) end
+	b.UnitBoundingRadius = function(...) return ObjectBoundingRadius(Object(...)) end
+	b.UnitCombatReach = function(...) return ObjectCombatReach(Object(...)) end
+	b.UnitTarget = function(...) return ObjectCastingTarget(Object(...)) end
+	b.UnitCastID = function(...) return ObjectCastingInfo(Object(...)) end
 	------------------------- World ---------------------------
 	b.TraceLine = TraceLine
 	b.GetCameraPosition = CameraPosition
@@ -422,11 +443,11 @@ function unlock.TinkrUnlock()
 
 	b.ObjectInteract = b.InteractUnit
 	b.IsHackEnabled = function(...) return false end
-	b.AuraUtil = {}
-	b.AuraUtil.FindAuraByName = function(name, unit, filter)
-		-- return Eval("AuraUtil.FindAuraByName("..table.concat({...}, ", ")..")", "")
-		return AuraUtil.FindAuraByName(name, ObjectUnit(unit), filter)
-	end
+	-- b.AuraUtil = {}
+	-- b.AuraUtil.FindAuraByName = function(name, unit, filter)
+	-- 	-- return Eval("AuraUtil.FindAuraByName("..table.concat({...}, ", ")..")", "")
+	-- 	return AuraUtil.FindAuraByName(name, Object(unit), filter)
+	-- end
 	b.ObjectIsGameObject = function(...)
 		local ObjType = ObjectType(...)
 		return ObjType == 8 or ObjType == 11
@@ -439,14 +460,14 @@ function unlock.TinkrUnlock()
 	end
 	b.TargetUnit = function(unit)
 		if Object(unit) then
-			return TargetUnit(Object(unit):unit())
+			return TargetUnit(Object(unit))
 		else
-			return
+			return nil
 		end
 	end
 	b.InteractUnit = function(unit)
 		if Object(unit) then
-			return InteractUnit(Object(unit):unit())
+			return InteractUnit(Object(unit))
 		else
 			return
 		end
@@ -455,164 +476,178 @@ function unlock.TinkrUnlock()
 	--- API - Unit Function Object Handler ---
 	------------------------------------------
 	b.CastSpellByName = function(spell, unit)
-		return Eval("CastSpellByName(\"" .. spell .. "\", \"" .. ObjectUnit(unit) .. "\")", "")
-	end
-	b.GetRaidTargetIndex = function(...)
-		return GetRaidTargetIndex(ObjectUnit(...))
-	end
-	b.GetUnitSpeed = function(...)
-		return GetUnitSpeed(ObjectUnit(...))
-	end
-	b.InSpellInRange = function(spell, unit)
-		return C_Spell.IsSpellInRange(spell, ObjectUnit(unit))
-	end
-	b.UnitAffectingCombat = function(...)
-		return UnitAffectingCombat(ObjectUnit(...))
-	end
-	b.UnitAttackSpeed = function(...)
-		return UnitAttackSpeed(ObjectUnit(...))
-	end
-	b.UnitAura = function(unit, index, filter)
-		local unpack = unpack
-		local function UnpackAuraData(auraData)
-			if not auraData then
-				return nil
-			end
-			return auraData.name,
-				auraData.icon,
-				auraData.applications,
-				auraData.dispelName,
-				auraData.duration,
-				auraData.expirationTime,
-				auraData.sourceUnit,
-				auraData.isStealable,
-				auraData.nameplateShowPersonal,
-				auraData.spellId,
-				auraData.canApplyAura,
-				auraData.isBossAura,
-				auraData.isFromPlayerOrPlayerPet,
-				auraData.nameplateShowAll,
-				auraData.timeMod,
-				unpack(auraData.points)
+		-- return Eval("CastSpellByName(\"" .. spell .. "\", \"" .. Object(unit) .. "\")", "")
+		if Object(unit) then
+			print("CastSpellByName: Passed " .. tostring(unit) .. " with object ref " .. tostring(Object(unit)))
+			return CastSpellByName(spell, Object(unit))
+		else
+			return nil
 		end
-		local GetAuraDataByIndex = C_UnitAuras.GetAuraDataByIndex
-		local auraData = GetAuraDataByIndex(ObjectUnit(unit), index, filter)
-		if not auraData then return nil end
-		return UnpackAuraData(auraData)
-		-- return UnitAura(ObjectUnit(unit), index, filter)
 	end
-	b.UnitBuff = function(unit, index, filter)
-		return UnitBuff(ObjectUnit(unit), index, filter)
-	end
-	b.UnitCanAttack = function(unit1, unit2)
-		return UnitCanAttack(ObjectUnit(unit1), ObjectUnit(unit2))
-	end
-	b.UnitCastingInfo = function(...)
-		return UnitCastingInfo(ObjectUnit(...))
-	end
-	b.UnitChannelInfo = function(...)
-		return UnitChannelInfo(ObjectUnit(...))
-	end
-	b.UnitClass = function(...)
-		return UnitClass(ObjectUnit(...))
-	end
-	b.UnitClassification = function(...)
-		return UnitClassification(ObjectUnit(...))
-	end
-	b.UnitCreatureFamily = function(...)
-		return UnitCreatureFamily(ObjectUnit(...))
-	end
-	b.UnitCreatureType = function(...)
-		return UnitCreatureType(ObjectUnit(...))
-	end
-	b.UnitDebuff = function(unit, index, filter)
-		return UnitDebuff(ObjectUnit(unit), index, filter)
-	end
-	b.UnitExists = function(...)
-		return UnitExists(ObjectUnit(...))
-	end
-	b.UnitGetIncomingHeals = function(unit1, unit2)
-		return UnitGetIncomingHeals(ObjectUnit(unit1), ObjectUnit(unit2))
-	end
-	b.UnitGUID = function(...)
-		return ObjectGUID(...) --UnitGUID(ObjectUnit(...))
-	end
-	b.UnitHealth = function(...)
-		return UnitHealth(ObjectUnit(...))
-	end
-	b.UnitHealthMax = function(...)
-		return UnitHealthMax(ObjectUnit(...))
-	end
-	b.UnitLevel = function(...)
-		return UnitLevel(ObjectUnit(...))
-	end
+	-- b.GetRaidTargetIndex = function(...)
+	-- 	return GetRaidTargetIndex(Object(...))
+	-- end
+	-- b.GetUnitSpeed = function(...)
+	-- 	return GetUnitSpeed(Object(...))
+	-- end
+	-- b.C_Spell.IsSpellInRange = function(spell, unit)
+	-- 	if Object(unit) then
+	-- 		return C_Spell.IsSpellInRange(spell, Object(unit))
+	-- 	else
+	-- 		return false
+	-- 	end
+	-- end
+	-- b.UnitAffectingCombat = function(...)
+	-- 	return UnitAffectingCombat(Object(...))
+	-- end
+	-- b.UnitAttackSpeed = function(...)
+	-- 	return UnitAttackSpeed(Object(...))
+	-- end
+	-- -- b.UnitAura = function(unit, index, filter)
+	-- -- 	local unpack = unpack
+	-- -- 	local function UnpackAuraData(auraData)
+	-- -- 		if not auraData then
+	-- -- 			return nil
+	-- -- 		end
+	-- -- 		return auraData.name,
+	-- -- 			auraData.icon,
+	-- -- 			auraData.applications,
+	-- -- 			auraData.dispelName,
+	-- -- 			auraData.duration,
+	-- -- 			auraData.expirationTime,
+	-- -- 			auraData.sourceUnit,
+	-- -- 			auraData.isStealable,
+	-- -- 			auraData.nameplateShowPersonal,
+	-- -- 			auraData.spellId,
+	-- -- 			auraData.canApplyAura,
+	-- -- 			auraData.isBossAura,
+	-- -- 			auraData.isFromPlayerOrPlayerPet,
+	-- -- 			auraData.nameplateShowAll,
+	-- -- 			auraData.timeMod,
+	-- -- 			unpack(auraData.points)
+	-- -- 	end
+	-- -- 	local GetAuraDataByIndex = C_UnitAuras.GetAuraDataByIndex
+	-- -- 	local auraData = GetAuraDataByIndex(Object(unit), index, filter)
+	-- -- 	if not auraData then return nil end
+	-- -- 	return UnpackAuraData(auraData)
+	-- -- 	-- return UnitAura(Object(unit), index, filter)
+	-- -- end
+	-- b.UnitBuff = function(unit, index, filter)
+	-- 	return UnitBuff(Object(unit), index, filter)
+	-- end
+	-- b.UnitCanAttack = function(unit1, unit2)
+	-- 	return UnitCanAttack(Object(unit1), Object(unit2))
+	-- end
+	-- b.UnitCastingInfo = function(...)
+	-- 	return UnitCastingInfo(Object(...))
+	-- end
+	-- b.UnitChannelInfo = function(...)
+	-- 	return UnitChannelInfo(Object(...))
+	-- end
+	-- b.UnitClass = function(...)
+	-- 	return UnitClass(Object(...))
+	-- end
+	-- b.UnitClassification = function(...)
+	-- 	return UnitClassification(Object(...))
+	-- end
+	-- b.UnitCreatureFamily = function(...)
+	-- 	return UnitCreatureFamily(Object(...))
+	-- end
+	-- b.UnitCreatureType = function(...)
+	-- 	return UnitCreatureType(Object(...))
+	-- end
+	-- b.UnitDebuff = function(unit, index, filter)
+	-- 	return UnitDebuff(Object(unit), index, filter)
+	-- end
+	-- b.UnitExists = function(...)
+	-- 	return UnitExists(Object(...))
+	-- end
+	-- b.UnitGetIncomingHeals = function(unit1, unit2)
+	-- 	return UnitGetIncomingHeals(Object(unit1), Object(unit2))
+	-- end
+	-- b.UnitGUID = function(...)
+	-- 	return ObjectGUID(...) --UnitGUID(Object(...))
+	-- end
+	-- b.UnitHealth = function(...)
+	-- 	return UnitHealth(Object(...))
+	-- end
+	-- b.UnitHealthMax = function(...)
+	-- 	return UnitHealthMax(Object(...))
+	-- end
+	-- b.UnitLevel = function(...)
+	-- 	return UnitLevel(Object(...))
+	-- end
 	b.UnitName = function(...)
-		return UnitName(ObjectUnit(...))
+		if Object(...) then
+			return UnitName(Object(...))
+		else
+			return ""
+		end
 	end
-	b.UnitInParty = function(...)
-		return UnitInParty(ObjectUnit(...))
-	end
-	b.UnitInRaid = function(...)
-		return UnitInRaid(ObjectUnit(...))
-	end
-	b.UnitInRange = function(...)
-		return UnitInRange(ObjectUnit(...))
-	end
-	b.UnitIsCharmed = function(...)
-		return UnitIsCharmed(ObjectUnit(...))
-	end
-	b.UnitIsConnected = function(...)
-		return UnitIsConnected(ObjectUnit(...))
-	end
-	b.UnitIsDeadOrGhost = function(...)
-		return UnitIsDeadOrGhost(ObjectUnit(...))
-	end
-	b.UnitIsEnemy = function(unit1, unit2)
-		return UnitIsEnemy(ObjectUnit(unit1), ObjectUnit(unit2))
-	end
-	b.UnitIsFriend = function(unit1, unit2)
-		return UnitIsFriend(ObjectUnit(unit1), ObjectUnit(unit2))
-	end
-	b.UnitIsPlayer = function(...)
-		return UnitIsPlayer(ObjectUnit(...))
-	end
-	b.UnitIsUnit = function(unit1, unit2)
-		return UnitIsUnit(ObjectUnit(unit1), ObjectUnit(unit2))
-	end
-	b.UnitIsVisible = function(...)
-		return UnitIsVisible(ObjectUnit(...))
-	end
-	b.UnitOnTaxi = function(...)
-		return UnitOnTaxi(ObjectUnit(...))
-	end
-	b.UnitPhaseReason = function(...)
-		return UnitPhaseReason(ObjectUnit(...))
-	end
-	b.UnitPower = function(unit, powerType)
-		return UnitPower(ObjectUnit(unit), powerType)
-	end
-	b.UnitPowerMax = function(unit, powerType)
-		return UnitPowerMax(ObjectUnit(unit), powerType)
-	end
-	b.UnitRace = function(...)
-		return UnitRace(ObjectUnit(...))
-	end
-	b.UnitReaction = function(unit1, unit2)
-		return UnitReaction(ObjectUnit(unit1), ObjectUnit(unit2))
-	end
-	b.UnitStat = function(unit, statIndex)
-		return UnitStat(ObjectUnit(unit), statIndex)
-	end
-	b.UnitIsTapDenied = function(...)
-		return UnitIsTapDenied(ObjectUnit(...))
-	end
-	b.UnitThreatSituation = function(unit1, unit2)
-		return UnitThreatSituation(ObjectUnit(unit1), ObjectUnit(unit2))
-	end
-	b.UnitIsTrivial = function(...)
-		return UnitIsTrivial(ObjectUnit(...))
-	end
+	-- b.UnitInParty = function(...)
+	-- 	return UnitInParty(Object(...))
+	-- end
+	-- b.UnitInRaid = function(...)
+	-- 	return UnitInRaid(Object(...))
+	-- end
+	-- b.UnitInRange = function(...)
+	-- 	return UnitInRange(Object(...))
+	-- end
+	-- b.UnitIsCharmed = function(...)
+	-- 	return UnitIsCharmed(Object(...))
+	-- end
+	-- b.UnitIsConnected = function(...)
+	-- 	return UnitIsConnected(Object(...))
+	-- end
+	-- b.UnitIsDeadOrGhost = function(...)
+	-- 	return UnitIsDeadOrGhost(Object(...))
+	-- end
+	-- b.UnitIsEnemy = function(unit1, unit2)
+	-- 	return UnitIsEnemy(Object(unit1), Object(unit2))
+	-- end
+	-- b.UnitIsFriend = function(unit1, unit2)
+	-- 	return UnitIsFriend(Object(unit1), Object(unit2))
+	-- end
+	-- b.UnitIsPlayer = function(...)
+	-- 	return UnitIsPlayer(Object(...))
+	-- end
+	-- b.UnitIsUnit = function(unit1, unit2)
+	-- 	return UnitIsUnit(Object(unit1), Object(unit2))
+	-- end
+	-- b.UnitIsVisible = function(...)
+	-- 	return UnitIsVisible(Object(...))
+	-- end
+	-- b.UnitOnTaxi = function(...)
+	-- 	return UnitOnTaxi(Object(...))
+	-- end
+	-- b.UnitPhaseReason = function(...)
+	-- 	return UnitPhaseReason(Object(...))
+	-- end
+	-- b.UnitPower = function(unit, powerType)
+	-- 	return UnitPower(Object(unit), powerType)
+	-- end
+	-- b.UnitPowerMax = function(unit, powerType)
+	-- 	return UnitPowerMax(Object(unit), powerType)
+	-- end
+	-- b.UnitRace = function(...)
+	-- 	return UnitRace(Object(...))
+	-- end
+	-- b.UnitReaction = function(unit1, unit2)
+	-- 	return UnitReaction(Object(unit1), Object(unit2))
+	-- end
+	-- b.UnitStat = function(unit, statIndex)
+	-- 	return UnitStat(Object(unit), statIndex)
+	-- end
+	-- b.UnitIsTapDenied = function(...)
+	-- 	return UnitIsTapDenied(Object(...))
+	-- end
+	-- b.UnitThreatSituation = function(unit1, unit2)
+	-- 	return UnitThreatSituation(Object(unit1), Object(unit2))
+	-- end
+	-- b.UnitIsTrivial = function(...)
+	-- 	return UnitIsTrivial(Object(...))
+	-- end
 
-	br.unlocker = "Tinkr"
+	br.unlockers.selected = "Tinkr"
 	return true
 end

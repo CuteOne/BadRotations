@@ -1,5 +1,7 @@
 local _, br = ...
-br.loader = {}
+br.loader.cBuilder = br.loader.cBuilder or {}
+local cBuilder = br.loader.cBuilder
+
 local sep = IsMacClient() and "/" or "\\"
 local class = select(2, br._G.UnitClass('player'))
 local function getFolderClassName(class)
@@ -9,16 +11,18 @@ local function getFolderClassName(class)
     return formatClass
 end
 local function getFolderSpecName(class, specID)
+    if br.isClassic or br.isBC then return class end
     for k, v in pairs(br.lists.spec[class]) do
         if v == specID then return tostring(k) end
     end
+    return "Initial"
 end
 local function getFilesLocation()
     local wowDir = br._G.GetWoWDirectory() or ""
     if wowDir:match('_retail_') then
-        return wowDir .. sep .. 'Interface' .. sep .. 'AddOns' .. sep .. br.addonName
+        return wowDir .. sep .. 'Interface' .. sep .. 'AddOns' .. sep .. br.loader.addonName
     end
-    return wowDir .. sep .. br.addonName
+    return wowDir .. sep .. br.loader.addonName
 end
 
 local function errorhandler(err)
@@ -32,48 +36,128 @@ local function loadFile(profile, file, support)
         print("Error: " .. file .. " Cannot Load.  Please inform devs!")
         print("Load Error Message: " .. tostring(errorMessage))
         errorhandler(errorMessage)
+        return false
     end
     br._G.setfenv(func, custom_env)
-    local success, xerrorMessage = xpcall(func, errorhandler);
+
+    -- Capture the actual error in the error handler
+    local actualError = nil
+    local function captureError(err)
+        actualError = err
+        return errorhandler(err)
+    end
+
+    local success = xpcall(func, captureError);
     if not success then
         print('Error: ' .. file .. ' Cannot Run.  Please inform devs!')
-        print("Run Error Message: " .. tostring(xerrorMessage))
-        errorhandler(xerrorMessage)
+        print("Run Error Message: " .. tostring(actualError))
+        return false
     end
+    return true
 end
 
 -- Load Rotation Files
-function br.loader.loadProfiles()
+function cBuilder:loadProfiles()
     -- Search each Profile in the Spec Folder
-    br._G.wipe(br.rotations)
-    local specID = br._G.GetSpecializationInfo(br._G.GetSpecialization())
+    br._G.wipe(br.loader.rotations)
+    local specID = br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization())
     local IDLength = math.floor(math.log10(specID) + 1)
     local folderSpec = getFolderSpecName(class, specID)
     local path = getFilesLocation() .. sep .. 'Rotations' .. sep .. getFolderClassName(class) .. sep .. folderSpec .. sep
+
     -- br._G.print("Path: " .. tostring(path))
-    local profiles = br._G.GetDirectoryFiles(path)
+    local profiles = br._G.GetDirectoryFiles(path) or {}
+    local matchedProfiles = 0
     -- br._G.print("Profiles: " .. tostring(#profiles))
     for k, file in pairs(profiles) do
         -- br._G.print("Path: " .. path .. ", File: " .. file)
         local profile = br._G.ReadFile(path .. file) or ""
         -- br._G.print("Profile: " .. tostring(profile))
+
+        -- Extract spec ID
         local start = string.find(profile, "local id = ", 1, true) or 0
         local stringEnd = start + IDLength + 10
         local profileID = math.floor(tonumber(string.sub(profile, start + 10, stringEnd)) or 0)
-        -- br._G.print("ProfileID: " .. tostring(profileID) .. ", SpecID: " .. tostring(specID))
-        if profileID == specID then
-            br._G.print("Loading Profile")
-            loadFile(profile, file, false)
+
+        -- Extract expansion identifier (optional - defaults to br.isMOP for backward compatibility)
+        local expansionStart = string.find(profile, 'local expansion = ', 1, true)
+        local profileExpansion = nil
+        if expansionStart then
+            -- Extract the value after "local expansion = " (could be br.isMOP, br.isRetail, etc.)
+            local valueStart = expansionStart + 18
+            local valueEnd = string.find(profile, '\n', valueStart) or string.find(profile, '\r', valueStart)
+            if valueEnd then
+                local expansionValue = string.sub(profile, valueStart, valueEnd - 1)
+                -- Remove any comments
+                local commentPos = string.find(expansionValue, '--', 1, true)
+                if commentPos then
+                    expansionValue = string.sub(expansionValue, 1, commentPos - 1)
+                end
+                expansionValue = expansionValue:match("^%s*(.-)%s*$")  -- trim whitespace
+
+                -- Evaluate the expression (e.g., "br.isMOP" becomes true/false)
+                local func = loadstring("return " .. expansionValue)
+                if func then
+                    -- Set the environment so the function has access to br
+                    setfenv(func, setmetatable({br = br}, {__index = _G}))
+                    profileExpansion = func()
+                end
+            end
         end
+
+        -- Extract rotation name from profile content
+        local profileName = file  -- Default to filename
+        local nameStart = string.find(profile, 'local rotationName = "', 1, true)
+        if nameStart then
+            local valueStart = nameStart + 22  -- Length of 'local rotationName = "'
+            local valueEnd = string.find(profile, '"', valueStart)
+            if valueEnd then
+                profileName = string.sub(profile, valueStart, valueEnd - 1)
+            end
+        else
+            -- Try single quotes if double quotes not found
+            nameStart = string.find(profile, "local rotationName = '", 1, true)
+            if nameStart then
+                local valueStart = nameStart + 22
+                local valueEnd = string.find(profile, "'", valueStart)
+                if valueEnd then
+                    profileName = string.sub(profile, valueStart, valueEnd - 1)
+                end
+            end
+        end
+
+        -- br._G.print("ProfileID: " .. tostring(profileID) .. ", SpecID: " .. tostring(specID) .. ", Expansion: " .. tostring(profileExpansion))
+
+        -- Load only if BOTH spec ID matches and expansion is true
+        if profileID == specID and profileExpansion then
+            br._G.print("Loading Profile: " .. profileName .. " for expansion: " .. br.api.expansionName)
+            loadFile(profile, file, false)
+            matchedProfiles = matchedProfiles + 1
+        end
+    end
+
+    -- Warn if no profiles matched for this expansion
+    if matchedProfiles == 0 and #profiles > 0 then
+        br._G.print("|cffFF0000BadRotations:|r Found " .. #profiles .. " profile(s) but none matched for " .. br.api.expansionName .. " expansion!")
+        br._G.print("|cffFFFF00Create a Retail rotation or change profile expansion markers.|r")
+    end
+
+    -- Track per-spec no-rotation state so callers can avoid retrying
+    br.loader.noRotationsFound = br.loader.noRotationsFound or {}
+    if matchedProfiles == 0 then
+        br.loader.noRotationsFound[specID] = true
+    else
+        br.loader.noRotationsFound[specID] = nil
     end
 end
 
 -- Load Support Files - Specified in Rotation File
-function br.loadSupport(thisFile) -- Loads support rotation file from Class Folder
+function cBuilder:loadSupport(thisFile)
+    -- Loads support rotation file from Class Folder
     if thisFile == nil then return end
-    br.rotations.support = br.rotations.support or {}
-    if br.rotations.support[thisFile] then
-        br._G.wipe(br.rotations.support[thisFile])
+    br.loader.rotations.support = br.loader.rotations.support or {}
+    if br.loader.rotations.support[thisFile] then
+        br._G.wipe(br.loader.rotations.support[thisFile])
     end
     local file = thisFile .. ".lua"
     local profile = br._G.ReadFile(getFilesLocation() ..
@@ -83,33 +167,36 @@ end
 
 -- Generate Profile API
 local loadRotations = false
-function br.loader:new(spec, specName)
+function cBuilder:new(spec, specName)
     local loadStart = br._G.debugprofilestop()
-    local self = br.cCharacter:new(tostring(select(1, br._G.UnitClass("player"))))
+    local self = br.loader.cCharacter:new()--tostring(select(1, br._G.UnitClass("player"))))
     -- local player = "player" -- if someone forgets ""
     if specName == nil then specName = "Initial" end
 
     self.profile = specName
 
     -- Mandatory !
-    if br.rotations[spec] == nil then
-        br.loader.loadProfiles()
+    if br.loader.rotations[spec] == nil then
+        cBuilder:loadProfiles()
         br.rotationChanged = true
     end
 
     if not loadRotations then
-        if br.selectedProfile ~= nil and br.rotations[spec] ~= nil and br.rotations[spec][br.selectedProfile] then
-            br._G.print("Selecting Previous Rotation: " .. br.rotations[spec][br.selectedProfile].name)
-            self.rotation = br.rotations[spec][br.selectedProfile]
+        if br.loader.selectedProfile ~= nil and br.loader.rotations[spec] ~= nil and br.loader.rotations[spec][br.loader.selectedProfile] then
+            -- br._G.print("Selecting Previous Rotation: " .. br.loader.rotations[spec][br.loader.selectedProfile].name)
+            self.rotation = br.loader.rotations[spec][br.loader.selectedProfile]
             loadRotations = true
-        elseif br.rotations[spec] ~= nil then
-            br._G.print("No Previously Selected Rotation, Defaulting To: " .. br.rotations[spec][1].name)
-            self.rotation = br.rotations[spec][1]
+        elseif br.loader.rotations[spec] ~= nil then
+            br._G.print("No Previously Selected Rotation, Defaulting To: " .. br.loader.rotations[spec][1].name)
+            self.rotation = br.loader.rotations[spec][1]
             loadRotations = true
         else
             if not loadRotations then
                 br._G.print("No Rotations Found!")
                 self.rotation = {}
+                -- Mark that this spec currently has no rotations to avoid repeated load attempts
+                br.loader.noRotationsFound = br.loader.noRotationsFound or {}
+                br.loader.noRotationsFound[spec] = true
             end
             return
         end
@@ -126,12 +213,16 @@ function br.loader:new(spec, specName)
         local sharedClassSpells = br.lists.spells[playerClass]["Shared"]
         local sharedGlobalSpells = br.lists.spells["Shared"]["Shared"]
         -- Get the new spells
-        local function getSpells(spellTable)
+        -- origin: "global" | "sharedClass" | "spec"
+        local function getSpells(spellTable, origin)
             self.spells = self.spells or {}
+            -- track where each spell entry came from so we can prefer spec-specific entries
+            if self.spellSource == nil then self.spellSource = {} end
             -- Look through spell type subtables
             for spellType, spellTypeTable in pairs(spellTable) do
                 -- Create spell type subtable in br.player.spells if not already there.
                 self.spells[spellType] = self.spells[spellType] or {}
+                self.spellSource[spellType] = self.spellSource[spellType] or {}
                 -- Look through spells for spell type
                 for spellRef, spellID in pairs(spellTypeTable) do
                     -- If spellType is items then add to br.player.spells.items
@@ -139,15 +230,56 @@ function br.loader:new(spec, specName)
                         self.items = self.items or {}
                         self.items[spellRef] = spellID
                     else
+                        -- Check if br.api.wow.GetSpellInfo returns a valid spell name
+                        local name, _, _, _, _, _, gsiSpellID = br.api.wow.GetSpellInfo(spellID)
+                        if spellID == 1449 then
+                            print("Debug: Checking spellID 1449 (Name: "..(name or "nil")..", GSI ID: "..(gsiSpellID or "nil")..")")
+                        end
+                        if type(spellID) ~= "table" then
+                            if (not name or gsiSpellID ~= spellID) then
+                                -- br._G.print("SpellID not valid: " .. tostring(spellID))
+                                br._G.print("|cffff0000"..spellType..": |r" ..
+                                    spellRef ..
+                                    "|cffff0000 with ID: |r" ..
+                                    spellID .. "|cffff0000 is not valid in the list of "..spellType.." Spell List.")
+                            end
+                        else
+                            -- If spellID is a table, then it is a list of spellIDs, so we need to check each one
+                            for spellRef, id in pairs(spellID) do
+                                local name, _, _, _, _, _, gsiSpellID = br.api.wow.GetSpellInfo(id)
+                                if (not name or gsiSpellID ~= id) then
+                                    -- br._G.print("SpellID not valid: " .. tostring(id))
+                                    br._G.print("|cffff0000"..spellType..": |r" ..
+                                        spellRef ..
+                                        "|cffff0000 with ID: |r" ..
+                                        id .. "|cffff0000 is not valid in the list of "..spellType.." Spell List.")
+                                end
+                            end
+                        end
                         -- Assign spell to br.player.spells for the spell type
-                        self.spells[spellType][spellRef] = spellID
+                        -- If a spec-specific entry already exists, prefer it (don't overwrite with Shared/global)
+                        local existingSource = self.spellSource[spellType][spellRef]
+                        if existingSource == "spec" and origin ~= "spec" then
+                            -- keep existing spec-specific entry
+                        else
+                            self.spells[spellType][spellRef] = spellID
+                            self.spellSource[spellType][spellRef] = origin or "shared"
+                        end
                         -- Assign active spells to Abilities Subtable and base br.player.spells
                         if (spellType == 'abilities' or spellType == 'covenants' or ((spellType == 'traits' or spellType == 'talents' or spellType == 'talentsHeroic') and spec < 1400))
                             and type(spellID) ~= 'table' and not br._G.C_Spell.IsSpellPassive(spellID)
                         then
                             self.spells.abilities = self.spells.abilities or {}
-                            self.spells.abilities[spellRef] = spellID
-                            self.spells[spellRef] = spellID
+                            -- When mapping into abilities/base table, apply same origin-preference rules
+                            local existingAbilitiesSource = self.spellSource["abilities"] and self.spellSource["abilities"][spellRef]
+                            if existingAbilitiesSource == "spec" and origin ~= "spec" then
+                                -- keep existing spec-specific ability
+                            else
+                                self.spells.abilities[spellRef] = spellID
+                                self.spells[spellRef] = spellID
+                                self.spellSource["abilities"] = self.spellSource["abilities"] or {}
+                                self.spellSource["abilities"][spellRef] = origin or "shared"
+                            end
                         end
                     end
                 end
@@ -158,130 +290,91 @@ function br.loader:new(spec, specName)
         -- Talent Test
         -- getTalentTest()
         -- Shared Global Spells
-        getSpells(sharedGlobalSpells)
+        getSpells(sharedGlobalSpells, "global")
         -- Shared Class Spells
-        getSpells(sharedClassSpells)
+        getSpells(sharedClassSpells, "sharedClass")
         -- Spec Spells - Don't Load on Initial Levels
-        if br.lists.spells[playerClass][spec] ~= nil then getSpells(specSpells) end
+        if br.lists.spells[playerClass][spec] ~= nil then getSpells(specSpells, "spec") end
 
         -- Ending the Race War!
         if self.spells.abilities["racial"] == nil then
-            local racialID = br.getRacial()
+            local racialID = self:getRacial()
             self.spells.abilities["racial"] = racialID
             self.spells.buffs["racial"] = racialID
             self.spells["racial"] = racialID
         end
     end
 
-    br.allTalents = {}
-    -- Get Active Talents
-    local function getActiveTalents(node, configId)
-        local activeTalents = {}
-        for _, entryID in pairs(node.entryIDsWithCommittedRanks) do
-            local entryInfo = br._G.C_Traits.GetEntryInfo(configId, entryID)
-            if entryInfo and entryInfo.definitionID then
-                local definitionInfo = br._G.C_Traits.GetDefinitionInfo(entryInfo.definitionID)
-                if definitionInfo.spellID ~= nil then
-                    activeTalents[definitionInfo.spellID] = activeTalents[definitionInfo.spellID] or {}
-                    activeTalents[definitionInfo.spellID].active = true
-                    activeTalents[definitionInfo.spellID].rank = node.activeRank or 0
-                end
-            end
-        end
-        return activeTalents
-    end
+    -- Update Talent Info
+    local function getTalentInfo()
+        -- Use expansion-specific talent system
+        local allTalents = br.api.wow.getTalentInfo(spec, self.spells.talents)
+        if self.talent == nil then self.talent = {} end
 
-    -- Check Existing Talents
-    local function CheckExistingTalents(talentID)
-        local playerClass = select(2, br._G.UnitClass('player'))
-        if br.lists.spells[playerClass]["Shared"] == nil or br.lists.spells[playerClass][spec] == nil then
-            return
-        end
+        -- Check for active talents not in spell lists (only for actual specs, not Initial profiles)
+        if spec < 1400 and br.lists and br.lists.spells then
+            local playerClass = select(2, br._G.UnitClass('player'))
+            if br.lists.spells[playerClass] and br.lists.spells[playerClass]["Shared"] and br.lists.spells[playerClass][spec] then
+                local heroicTalents = br.lists.spells[playerClass]["Shared"]["talentsHeroic"] or {}
+                local sharedTalents = br.lists.spells[playerClass]["Shared"]["talents"] or {}
+                local specTalents = br.lists.spells[playerClass][spec]["talents"] or {}
 
-        local heroicTalents = br.lists.spells[playerClass]["Shared"]["talentsHeroic"] or {}
-        local sharedTalents = br.lists.spells[playerClass]["Shared"]["talents"]
-        local specTalents = br.lists.spells[playerClass][spec]["talents"]
+                -- Check each active talent from the game
+                for talentID, talentData in pairs(allTalents) do
+                    if talentData.active then
+                        local spellName = br.api.wow.GetSpellInfo(talentID)
+                        if spellName then
+                            local talentName = br.functions.misc:convertName(spellName)
 
-        -- Helper function to find talent name by ID in a talent table
-        local function findTalentNameByID(talentTable, searchID)
-            for name, id in pairs(talentTable) do
-                if id == searchID then
-                    return name
-                end
-            end
-            return nil
-        end
-
-        -- Helper function to check if talent ID exists in any talent table
-        local function talentIDExists(searchID)
-            return findTalentNameByID(specTalents, searchID) ~= nil or
-                   findTalentNameByID(sharedTalents, searchID) ~= nil or
-                   findTalentNameByID(heroicTalents, searchID) ~= nil
-        end
-
-        -- Get the localized talent name for display purposes only
-        local talentName = br._G.GetSpellInfo(talentID) or ("Unknown Spell " .. talentID)
-
-        -- Check for missing entries
-        if not talentIDExists(talentID) then
-            br._G.print("|cffff0000Talent: |r" ..
-                talentName ..
-                "|cffff0000 with ID: |r" ..
-                talentID .. " is not listed in the list of Talents Spell List.")
-        end
-    end
-
-    -- Get All Talents
-    local function getAllTalents()
-        -- br.talentInfo = {}
-        local talents = {}
-        local configId = br._G.C_ClassTalents.GetActiveConfigID()
-        if not configId then return talents end
-        local configInfo = br._G.C_Traits.GetConfigInfo(configId)
-        if not configInfo then return talents end
-        for _, treeId in pairs(configInfo.treeIDs) do
-            local nodes = br._G.C_Traits.GetTreeNodes(treeId)
-            for _, nodeId in pairs(nodes) do
-                local node = br._G.C_Traits.GetNodeInfo(configId, nodeId)
-                local activeTalents = getActiveTalents(node, configId)
-                for _, entryID in pairs(node.entryIDs) do
-                    local entryInfo = br._G.C_Traits.GetEntryInfo(configId, entryID)
-                    if entryInfo and entryInfo.definitionID then
-                        local definitionInfo = br._G.C_Traits.GetDefinitionInfo(entryInfo.definitionID)
-                        local talentID = definitionInfo.spellID
-                        if talentID ~= nil then
-                            talents[talentID] = talents[talentID] or {}
-                            talents[talentID].active = activeTalents[talentID] and true or false
-                            talents[talentID].rank = node.activeRank or 0
-                            -- Check existing talents
-                            CheckExistingTalents(talentID)
+                            -- Check if talent exists in any spell list
+                            if sharedTalents[talentName] == nil and specTalents[talentName] == nil and heroicTalents[talentName] == nil then
+                                br._G.print("|cffff0000Talent: |r" .. talentName .. "|cffff0000 with ID: |r" .. talentID .. " is not listed in the Talents Spell List.")
+                            -- Check if spell ID matches
+                            elseif (specTalents[talentName] ~= nil and specTalents[talentName] ~= talentID) or
+                                   (sharedTalents[talentName] ~= nil and sharedTalents[talentName] ~= talentID) or
+                                   (heroicTalents[talentName] ~= nil and heroicTalents[talentName] ~= talentID) then
+                                local currentID = specTalents[talentName] or sharedTalents[talentName] or heroicTalents[talentName]
+                                br._G.print("|cffff0000Talent found in Talent Spell List for |r" .. talentName .. "|cffff0000 with ID: |r" .. currentID .. "|cffff0000 it should be changed to ID: |r" .. talentID .. "|cffff0000.")
+                            end
                         end
                     end
                 end
             end
         end
-        return talents
-    end
 
-    -- Update Talent Info
-    local function getTalentInfo()
-        for specName, specID in pairs(br.lists.spec[class]) do
-            if specID == spec and specName ~= "Initial" then
-                return getAllTalents()
+        -- Map defined spell talents to talent state
+        for name, spellID in pairs(self.spells.talents) do
+            local entry = allTalents[spellID]
+            if entry then
+                self.talent[name] = entry.active
+                if entry.active and not br.api.wow.IsPassiveSpell(spellID) then
+                    self.spells.abilities[name] = spellID
+                    self.spells[name] = spellID
+                end
+            else
+                -- Only warn for actual specs, not Initial profiles (spec > 1400)
+                if spec < 1400 then
+                    br._G.print("|cffff0000No talent found for: |r" .. name .. " (" .. tostring(spellID) .. ") |cffff0000in the talent spell list; please verify ID or remove.")
+                end
             end
         end
+
+        return allTalents
     end
 
-    -- Check if Hero Spec if Active
+    -- Check if Hero Spec if Active (Retail only)
     local function getHeroTreeInfo()
+        if not br.isRetail then return end
+        if not br._G.C_ClassTalents or not br._G.C_ClassTalents.GetActiveHeroTalentSpec then return end
+        if not br.lists or not br.lists.heroSpec then return end
+
         local playerClass = select(2, br._G.UnitClass('player'))
         -- Retrieve the active hero talent spec ID
-        local activeSpecID = C_ClassTalents.GetActiveHeroTalentSpec()
+        local activeSpecID = br._G.C_ClassTalents.GetActiveHeroTalentSpec()
+
         -- Check if the specName exists in the br.lists.heroSpec table
         for class, specs in pairs(br.lists.heroSpec) do
-            -- print("Class: "..tostring(class).." Specs: "..tostring(specs))
             for spec, specID in pairs(specs) do
-                -- print("Spec: "..tostring(spec).." SpecID: "..tostring(specID))
                 if class == playerClass then
                     if self.heroTree == nil then self.heroTree = {} end
                     if self.heroTree[spec] == nil then self.heroTree[spec] = false end
@@ -341,8 +434,8 @@ function br.loader:new(spec, specName)
         --         if not self.essence[k] then self.essence[k] = {} end
         --         local essence = self.essence[k]
         --         if not br._G.C_Spell.IsSpellPassive(v) then
-        --             self.spells['abilities'][k] = select(7,br._G.GetSpellInfo(br._G.GetSpellInfo(v))) or v--heartEssence
-        --             self.spells[k] = select(7,br._G.GetSpellInfo(br._G.GetSpellInfo(v))) or v--heartEssence
+        --             self.spells['abilities'][k] = select(7,br.api.wow.GetSpellInfo(br.api.wow.GetSpellInfo(v))) or v--heartEssence
+        --             self.spells[k] = select(7,br.api.wow.GetSpellInfo(br.api.wow.GetSpellInfo(v))) or v--heartEssence
         --         end
         --         br.api.essences(essence,k,v)
         --     end
@@ -414,15 +507,43 @@ function br.loader:new(spec, specName)
             if k ~= "rollTheBones" then
                 if self.buff == nil then self.buff = {} end
                 if self.buff[k] == nil then self.buff[k] = {} end
-                -- if k == "bloodLust" then v = br.getLustID() end
-                br.api.buffs(self.buff, k, v)
+                -- if k == "bloodLust" then v = br.functions.aura:getLustID() end
+                local resolvedID = v
+                if (br.isClassic or br.isBC) and type(v) == "table" then
+                    if br.functions.spell and br.functions.spell.getHighestKnownRank then
+                        resolvedID = br.functions.spell:getHighestKnownRank(v)
+                        if not resolvedID then
+                            resolvedID = v[1] -- Safety fallback
+                        end
+                    else
+                        resolvedID = v[1]
+                    end
+                    -- Update the spell list to use resolved ID for icon references
+                    self.spells.buffs[k] = resolvedID
+                    self.spells[k] = resolvedID  -- Also update base spells table
+                end
+                br.api.buffs(self.buff, k, resolvedID)
             end
         end
         -- Make Debuff Functions from br.api.debuffs
         for k, v in pairs(self.spells.debuffs) do
             if self.debuff == nil then self.debuff = {} end
             if self.debuff[k] == nil then self.debuff[k] = {} end
-            br.api.debuffs(self.debuff[k], k, v)
+            local resolvedID = v
+            if (br.isClassic or br.isBC) and type(v) == "table" then
+                if br.functions.spell and br.functions.spell.getHighestKnownRank then
+                    resolvedID = br.functions.spell:getHighestKnownRank(v)
+                    if not resolvedID then
+                        resolvedID = v[1] -- Safety fallback
+                    end
+                else
+                    resolvedID = v[1]
+                end
+                -- Update the spell list to use resolved ID for icon references
+                self.spells.debuffs[k] = resolvedID
+                self.spells[k] = resolvedID  -- Also update base spells table
+            end
+            br.api.debuffs(self.debuff[k], k, resolvedID)
         end
 
         -- Make Units Functions from br.api.units
@@ -443,12 +564,44 @@ function br.loader:new(spec, specName)
             br.api.unit(self)
         end
 
+        -- Make Totem Functions from br.api.totem
+        if self.totem == nil then
+            self.totem = {}
+            if br.api.totem then
+                br.api.totem(self)
+            end
+        end
+
         -- Make Pet Functions from br.api.pets
         if self.pets ~= nil then
             for k, v in pairs(self.pets) do
                 if self.pet[k] == nil then self.pet[k] = {} end
                 local pet = self.pet[k]
                 br.api.pets(pet, k, v, self)
+            end
+        end
+
+        -- Make Glyph Functions from br.api.glyph / br.api.glyphs
+        if self.glyph == nil then self.glyph = {} end
+        if br.api.glyph then
+            br.api.glyph(self)
+        end
+        if self.spells and self.spells.glyphs then
+            for k, v in pairs(self.spells.glyphs) do
+                self.glyph[k] = self.glyph[k] or {}
+                if br.api.glyphs then
+                    br.api.glyphs(self.glyph, k, v)
+                end
+                -- Convenience alias: glyphOfFrostShock -> frostShock
+                if type(k) == "string" and k:sub(1, 7) == "glyphOf" then
+                    local suffix = k:sub(8)
+                    if suffix and suffix ~= "" then
+                        local alias = suffix:sub(1, 1):lower() .. suffix:sub(2)
+                        if self.glyph[alias] == nil then
+                            self.glyph[alias] = self.glyph[k]
+                        end
+                    end
+                end
             end
         end
 
@@ -473,7 +626,7 @@ function br.loader:new(spec, specName)
 
             br.api.use(self.use, item, id)
 
-            br.getHeirloomNeck()
+            br.functions.item:getHeirloomNeck()
         end
 
         -- Cycle through Abilities List
@@ -482,14 +635,46 @@ function br.loader:new(spec, specName)
             if self.cd == nil then self.cd = {} end           -- Spell Cooldown Functions
             if self.spell == nil then self.spell = {} end     -- Spell Functions
 
+            -- Classic WoW: If spell ID is a table (ranks), resolve to highest known rank
+            local resolvedID = id
+            if (br.isClassic or br.isBC) and type(id) == "table" then
+                -- Get highest known rank from the table
+                if br.functions.spell and br.functions.spell.getHighestKnownRank then
+                    resolvedID = br.functions.spell:getHighestKnownRank(id)
+                    if not resolvedID then
+                        resolvedID = id[1] -- Safety fallback
+                    end
+                else
+                    -- Fallback to first rank if function not available
+                    resolvedID = id[1]
+                end
+                -- Update the spell list to use resolved ID for icon references
+                self.spells.abilities[spell] = resolvedID
+                self.spells[spell] = resolvedID  -- Also update base spells table
+            end
+
             -- Build Cast Funcitons
-            br.api.cast(self, spell, id)
+            br.api.cast(self, spell, resolvedID)
             -- Build Spell Charges
-            br.api.charges(self.charges, spell, id)
+            br.api.charges(self.charges, spell, resolvedID)
             -- Build Spell Cooldown
-            br.api.cd(self, spell, id)
+            br.api.cd(self, spell, resolvedID)
             -- Build Spell
-            br.api.spell(self, spell, id)
+            br.api.spell(self, spell, resolvedID)
+        end
+
+        -- Ensure racial cast helpers always exist, even when no racial spell is available.
+        if self.cast == nil then self.cast = {} end
+        if self.cast.able == nil then self.cast.able = {} end
+        if self.cast.racial == nil then
+            self.cast.racial = function()
+                return false
+            end
+        end
+        if self.cast.able.racial == nil then
+            self.cast.able.racial = function()
+                return false
+            end
         end
 
         -- Make UI Functions from br.api.ui
@@ -505,8 +690,8 @@ function br.loader:new(spec, specName)
         end
     end
 
-    if spec == br._G.GetSpecializationInfo(br._G.GetSpecialization()) and (self.talent == nil or self.cast == nil) then
-        getSpellsForSpec(spec); --[[getTalentInfo(); getAzeriteTraitInfo();]] getFunctions(); br.updatePlayerInfo = false
+    if spec == br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization()) and (self.talent == nil or self.cast == nil) then
+        getSpellsForSpec(spec); --[[getTalentInfo(); getAzeriteTraitInfo();]] getFunctions(); self.updatePlayer = false
     end
     ------------------
     --- OOC UPDATE ---
@@ -521,19 +706,19 @@ function br.loader:new(spec, specName)
     --- UPDATE ---
     --------------
 
-    function self.update()
-        if spec == br._G.GetSpecializationInfo(br._G.GetSpecialization()) then
+    function self:update()
+        if spec == br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization()) then
             -- Call baseUpdate()
             if not br._G.UnitAffectingCombat("player") then self.updateOOC() end
             self.baseUpdate()
             self.getBleeds()
             -- Update Player Info on Init, Talent, and Level Change
-            if br.updatePlayerInfo then
+            if self.updatePlayer then
                 getSpellsForSpec(spec)
                 -- getTalentInfo()
                 -- getAzeriteTraitInfo()
                 getFunctions()
-                br.updatePlayerInfo = false
+                self.updatePlayer = false
             end
             self.getToggleModes()
             self.startRotation()
@@ -549,7 +734,7 @@ function br.loader:new(spec, specName)
                 if k == "rake" or k == "rip" or k == "rupture" or k == "garrote" or k == "crimsonTempest" then
                     if self.debuff[k].bleed == nil then self.debuff[k].bleed = {} end
                     for l, _ in pairs(self.debuff[k].bleed) do
-                        if --[[not UnitAffectingCombat("player") or]] br.GetUnitIsDeadOrGhost(l) then
+                        if --[[not UnitAffectingCombat("player") or]] br.functions.unit:GetUnitIsDeadOrGhost(l) then
                             self.debuff[k].bleed[l] = nil
                         elseif not self.debuff[k].exists(l, "EXACT") then
                             self.debuff[k].bleed[l] = 0
@@ -564,7 +749,7 @@ function br.loader:new(spec, specName)
                 if k == "crimsonTempest" or k == "garrote" or k == "rupture" then
                     if self.debuff[k].exsa == nil then self.debuff[k].exsa = {} end
                     for l, _ in pairs(self.debuff[k].exsa) do
-                        if --[[not UnitAffectingCombat("player") or]] br.GetUnitIsDeadOrGhost(l) then
+                        if --[[not UnitAffectingCombat("player") or]] br.functions.unit:GetUnitIsDeadOrGhost(l) then
                             self.debuff[k].exsa[l] = nil
                         elseif not self.debuff[k].exists(l) then
                             self.debuff[k].exsa[l] = false
@@ -580,16 +765,16 @@ function br.loader:new(spec, specName)
     ---------------
 
     function self.getToggleModes()
-        for k, _ in pairs(br.data.settings[br.selectedSpec].toggles) do
+        for k, _ in pairs(br.data.settings[br.loader.selectedSpec].toggles) do
             local toggle = k:sub(1, 1):lower() .. k:sub(2)
-            self.ui.mode[toggle] = br.data.settings[br.selectedSpec].toggles[k]
-            br.UpdateToggle(k, 0.25)
+            self.ui.mode[toggle] = br.data.settings[br.loader.selectedSpec].toggles[k]
+            br.functions.misc:UpdateToggle(k, 0.25)
         end
     end
 
     -- Create the toggle defined within rotation files
     function self.createToggles()
-        br.GarbageButtons()
+        br.ui:GarbageButtons()
         if self.rotation ~= nil and self.rotation.toggles ~= nil then
             self.rotation.toggles()
         else
@@ -621,21 +806,21 @@ function br.loader:new(spec, specName)
     local names
     function self.createOptions()
         -- if br.ui:closeWindow("profile")
-        for i = 1, #br.data.settings[br.selectedSpec] do
-            local thisProfile = br.data.settings[br.selectedSpec][i]
-            if thisProfile ~= br.data.settings[br.selectedSpec][br.selectedProfile] then
+        for i = 1, #br.data.settings[br.loader.selectedSpec] do
+            local thisProfile = br.data.settings[br.loader.selectedSpec][i]
+            if thisProfile ~= br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile] then
                 br.ui:closeWindow("profile")
             end
         end
-        if br.data.settings[br.selectedSpec][br.selectedProfile] == nil then br.data.settings[br.selectedSpec][br.selectedProfile] = {} end
+        if br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile] == nil then br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile] = {} end
         br.ui:createProfileWindow(self.profile)
 
         -- Get the names of all profiles and create rotation dropdown
         if names == nil then names = {} end
         table.wipe(names)
-        if #br.rotations[spec] > 0 then
-            for i = 1, #br.rotations[spec] do
-                local thisName = br.rotations[spec][i].name
+        if #br.loader.rotations[spec] > 0 then
+            for i = 1, #br.loader.rotations[spec] do
+                local thisName = br.loader.rotations[spec][i].name
                 br._G.tinsert(names, thisName)
             end
         end
@@ -664,7 +849,7 @@ function br.loader:new(spec, specName)
         --
         -- -- Only add profile pages if they are found
         if self.rotation.options ~= nil then
-            br.insertTableIntoTable(optionTable, self.rotation.options())
+            br.functions.custom:insertTableIntoTable(optionTable, self.rotation.options())
         end
 
         -- Create pages dropdown
@@ -677,96 +862,6 @@ function br.loader:new(spec, specName)
     ------------------------
     --- CUSTOM FUNCTIONS ---
     ------------------------
-
-    function br.useAoE()
-        local rotation = self.ui.mode.rotation
-        if (rotation == 1 and #self.enemies.get(8) >= 3) or rotation == 2 then
-            return true
-        else
-            return false
-        end
-    end
-
-    function br.useCDs()
-        local cooldown = self.ui.mode.cooldown
-        if (cooldown == 1 and br.isBoss()) or cooldown == 2 or (cooldown == 4 and br.hasBloodLust()) then
-            return true
-        else
-            return false
-        end
-    end
-
-    function br.useDefensive()
-        if self.ui.mode.defensive == 1 then
-            return true
-        else
-            return false
-        end
-    end
-
-    function br.useInterrupts()
-        if self.ui.mode.interrupt == 1 then
-            return true
-        else
-            return false
-        end
-    end
-
-    function br.useMfD()
-        if self.ui.mode.mfd == 1 then
-            return true
-        else
-            return false
-        end
-    end
-
-    function br.useRollForTB()
-        if self.ui.mode.RerollTB == 1 then
-            return true
-        else
-            return false
-        end
-    end
-
-    function br.useRollForOne()
-        if self.ui.mode.RollForOne == 1 then
-            return true
-        else
-            return false
-        end
-    end
-
-    function br.ComboMaxSpend()
-        return br.player.talent.deeperStratagem and 6 or 5
-    end
-
-    function br.ComboSpend()
-        return math.min(br.player.power.comboPoints.amount(), br.ComboMaxSpend())
-    end
-
-    function br.mantleDuration()
-        if br.hasEquiped(144236) then
-            --if br.player.buff.masterAssassinsInitiative.remain("player") > 100 or br.player.buff.masterAssassinsInitiative.remain("player") < 0 then
-            if br.player.buff.masterAssassinsInitiative.exists("player") and (br.getBuffRemain("player", 235027) > 100 or br.getBuffRemain("player", 235027) < 100) then
-                return br.player.cd.global.remain() + 5
-            else
-                --return br.player.buff.masterAssassinsInitiative.remain("player")
-                if br.getBuffRemain("player", 235027) >= 0 and br.getBuffRemain("player", 235027) < 0.1 then
-                    return 0
-                else
-                    return br.getBuffRemain("player", 235027)
-                end
-            end
-        else
-            return 0
-        end
-    end
-
-    function br.BleedTarget()
-        return (br.player.debuff.garrote.exists("target") and 1 or 0) +
-            (br.player.debuff.rupture.exists("target") and 1 or 0) +
-            (br.player.debuff.internalBleeding.exists("target") and 1 or 0)
-    end
 
     -- Debugging
     br.debug.cpu:updateDebug(loadStart, "rotation.loadTime")

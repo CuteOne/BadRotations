@@ -30,6 +30,7 @@ local unlockList =
 	"DestroyTotem",
 	"FocusUnit",
 	"ForceQuit",
+	"GetComboPoints",
 	"GetUnscaledFrameRect",
 	"GuildControlSetRank",
 	"GuildControlSetRankFlag",
@@ -205,7 +206,8 @@ local globalCacheList =
 	"UnitLevel",
 	"UnitName",
 	"UnitOnTaxi",
-	"UnitPhaseReason",
+	-- "UnitPhaseReason",
+	"UnitInPhase",
 	"UnitPlayerControlled",
 	"UnitPlayerOrPetInParty",
 	"UnitPlayerOrPetInRaid",
@@ -226,7 +228,7 @@ local globalCacheList =
 	"UnitXP",
 	"UnitXPMax",
 	"UseInventoryItem",
-	"WorldToScreen",
+	-- "WorldToScreen",
 	"WriteFile"
 }
 
@@ -234,7 +236,7 @@ local globalCacheList =
 --------------------------------------------------------------------------------------------------------------------------------
 -- functions exported to BadRotations
 --------------------------------------------------------------------------------------------------------------------------------
-local _, br = ...
+local Nn, br = ...
 local b = br._G
 local funcCopies = {}
 local globalFuncCopies = {}
@@ -278,7 +280,7 @@ for i = 1, #globalCacheList do
 end
 
 -- print("NN File Called")
-function br.unlock:NNUnlock()
+function br.unlockers:NNUnlock()
 	if not C_Timer.Nn then return false end
 	setfenv(1, C_Timer.Nn)
 	-- print("NN Api Loaded")
@@ -317,7 +319,7 @@ function br.unlock:NNUnlock()
 	b.ObjectFacing = ObjectFacing
 	b.ObjectExists = ObjectExists
 	b.GetCameraPosition = GetCameraPosition
-	b.UnitFacing = ObjectFacing
+	b.UnitFacing = UnitFacing
 	b.GetMousePosition = b.GetCursorPosition
 	b.CancelPendingSpell = b.SpellStopTargeting
 	b.ObjectIsVisible = b.UnitIsVisible
@@ -374,8 +376,11 @@ function br.unlock:NNUnlock()
 
 	local om = {}
 	b.GetObjectCount = function()
-		om = Objects()
-		return #Objects()
+		-- Call Objects() exactly once: the snapshot used for GetObjectWithIndex must match
+		-- the count returned, otherwise index overruns return nil under heavy load.
+		local objects = Objects()
+		om = objects
+		return #objects
 	end
 
 	b.GetObjectWithIndex = function(index)
@@ -400,7 +405,7 @@ function br.unlock:NNUnlock()
 		str = str .. "*.lua" --:match("*.lua") or str
 		local filter = str:gsub(str:match("*.lua"), "*")
 		-- print("Filter: "..filter)
-		local files = ListFiles(filter)
+		local files = ListFiles(filter) or {}
 		local returnFiles = ""
 		for i = 1, #files do
 			-- print("File: "..files[i])
@@ -425,7 +430,7 @@ function br.unlock:NNUnlock()
 	end
 
 	b.GetObjectWithGUID = function(...)
-		return ...
+		return Object(...)
 	end
 
 	b.IsHackEnabled = function(...) return false end
@@ -505,6 +510,7 @@ function br.unlock:NNUnlock()
 	b.GetMapId = function()
 		return select(8, b.GetInstanceInfo())
 	end
+	-- b.WorldToScreen = Nn.WorldToScreen
 
 	--------------------------------
 	-- missing APIs
@@ -513,6 +519,7 @@ function br.unlock:NNUnlock()
 		return false
 	end
 
-	br.unlocker = "NN"
+	br.unlockers.selected = "NN"
+	b.print("NN Unlocker Loaded")
 	return true
 end

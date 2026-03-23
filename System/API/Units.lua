@@ -19,10 +19,28 @@ br.api.units = function(self)
         aoe = aoe or false
         if aoe then dynString = dynString.."AOE" end
         local facing = not aoe
-        local thisUnit = br.dynamicTarget(range, facing)
+        local thisUnit = br.engines.enemiesEngineFunctions:dynamicTarget(range, facing)
         -- Build units.dyn varaible
         units[dynString] = units[dynString] or {}
         units[dynString] = thisUnit
         return thisUnit -- Backwards compatability for old way
+    end
+
+    --- Custom target weight function that profiles can override to add coefficient bonuses for dynamic targeting.
+    -- This allows profiles to customize target prioritization beyond the default coefficient system.
+    -- Return a number to add to the unit's coefficient (higher = more priority).
+    -- @function units.customTargetWeight
+    -- @param unit - The unit to calculate custom weight for
+    -- @returns number - Additional coefficient to add (default 0)
+    -- @usage
+    -- -- Example: Feral druid prioritizing Rip refresh
+    -- units.customTargetWeight = function(thisUnit)
+    --     if debuff.rip.exists(thisUnit) and debuff.rip.remains(thisUnit) < 5 then
+    --         return 80 -- High priority to refresh expiring Rip
+    --     end
+    --     return 0
+    -- end
+    units.customTargetWeight = function(unit)
+        return 0 -- Default: no custom weight
     end
 end

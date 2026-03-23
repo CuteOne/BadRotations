@@ -18,8 +18,8 @@ local function createToggles() -- Define custom toggles
     br.ui:createToggle(DefensiveModes, "Defensive", 2, 0)
     -- Cooldown Button
     local CooldownModes = {
-        [1] = { mode = "On", value = 1, overlay = "Cooldown Enabled", tip = "Includes Offensive Cooldowns.", highlight = 1, icon = br.player.spells.berserk },
-        [2] = { mode = "Off", value = 2, overlay = "Cooldown Disabled", tip = "No Offensive Cooldowns Used.", highlight = 0, icon = br.player.spells.berserk },
+        [1] = { mode = "On", value = 1, overlay = "Cooldown Enabled", tip = "Includes Offensive Cooldowns.", highlight = 1, icon = br.player.spells.rebirth },
+        [2] = { mode = "Off", value = 2, overlay = "Cooldown Disabled", tip = "No Offensive Cooldowns Used.", highlight = 0, icon = br.player.spells.rebirth },
     };
     br.ui:createToggle(CooldownModes, "Cooldown", 3, 0)
     -- Form Button
@@ -54,15 +54,12 @@ local function createOptions()
         --- COOLDOWN OPTIONS ---
         ------------------------
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
-        -- Basic Trinkets Module
-        br.player.module.BasicTrinkets(nil, section)
+
         br.ui:checkSectionState(section)
         -------------------------
         --- DEFENSIVE OPTIONS ---
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
-        -- Basic Healing Module
-        br.player.module.BasicHealing(section)
         -- Regrowth
         br.ui:createSpinner(section, "Regrowth", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
         br.ui:checkSectionState(section)
@@ -71,13 +68,11 @@ local function createOptions()
         ----------------------
         section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
         -- Single/Multi Toggle
-        br.ui:createDropdownWithout(section, "Rotation Mode", br.dropOptions.Toggle, 4)
+        br.ui:createDropdownWithout(section, "Rotation Mode", br.ui.dropOptions.Toggle, 4)
         --Defensive Key Toggle
-        br.ui:createDropdownWithout(section, "Defensive Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdownWithout(section, "Defensive Mode", br.ui.dropOptions.Toggle, 6)
         -- Cooldown Key Toggle
-        br.ui:createDropdownWithout(section, "Cooldown Mode", br.dropOptions.Toggle, 6)
-        -- Pause Toggle
-        br.ui:createDropdown(section, "Pause Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdownWithout(section, "Cooldown Mode", br.ui.dropOptions.Toggle, 6)
         br.ui:checkSectionState(section)
     end
     optionTable = { {
@@ -162,9 +157,9 @@ local getMarkUnitOption = function(option)
     end
     if thisTar == 5 then
         thisUnit = "player"
-        if #br.friend > 1 then
-            for i = 1, #br.friend do
-                local nextUnit = br.friend[i].unit
+        if #br.engines.healingEngine.friend > 1 then
+            for i = 1, #br.engines.healingEngine.friend do
+                local nextUnit = br.engines.healingEngine.friend[i].unit
                 if buff.markOfTheWild.refresh(nextUnit) and unit.distance(var.markUnit) < 40 then
                     thisUnit = nextUnit
                     break
@@ -389,7 +384,7 @@ local function runRotation()
     spell       = br.player.spell
     -- General Locals
     profileStop = profileStop or false
-    haltProfile = (unit.inCombat() and profileStop) or br.pause() or ui.mode.rotation == 2 or unit.id("target") == 156716
+    haltProfile = (unit.inCombat() and profileStop) or ui.pause() or ui.mode.rotation == 2 or unit.id("target") == 156716
     -- Units
     units.get(5)        -- Makes a variable called, units.dyn5
     units.get(40, true) -- Makes a variable called, units.dyn40AOE
@@ -435,8 +430,9 @@ local function runRotation()
     return true
 end             -- End runRotation
 local id = 1447 -- Change to the spec id profile is for.
-if br.rotations[id] == nil then br.rotations[id] = {} end
-br._G.tinsert(br.rotations[id], {
+local expansion = br.isRetail -- Change to the expansion the profile is for.
+if br.loader.rotations[id] == nil then br.loader.rotations[id] = {} end
+br._G.tinsert(br.loader.rotations[id], {
     name = rotationName,
     toggles = createToggles,
     options = createOptions,

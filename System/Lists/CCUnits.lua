@@ -5,6 +5,244 @@ end
 -- Crowd Control Units = list of units to stun, either always or under certain condition such as having a buff or whirlwind etc
 -- example
 br.lists.ccUnits = {
+    --[[===========================]]
+    --[[  CLASSIC / VANILLA (60)   ]]
+    --[[===========================]]
+    
+    -- Stratholme
+    [10558] = {{ name = "Hearthsinger Forresten", spell = 16798 }}, -- Fear
+    [10813] = {{ name = "Balnazzar", spell = 17405 }}, -- Domination mind control
+    
+    -- Scholomance (Vanilla)
+    [10433] = {{ name = "Marduk Blackpool", spell = 16097 }}, -- Hex
+    [10499] = {{ name = "Spectral Researcher", spell = 16799 }}, -- Mind Flay
+    
+    -- Blackrock Depths
+    [9018] = {{ name = "High Interrogator Gerstahn", spell = 15063 }}, -- Mind Control
+    [9024] = {{ name = "Pyromancer Loregrain", spell = 15744 }}, -- Blast Wave
+    
+    -- Upper Blackrock Spire
+    [10742] = {{ name = "Blackhand Elite", spell = 15284 }}, -- Mortal Strike (high damage)
+    [9693] = {{ name = "Burning Felguard", spell = 15532 }}, -- Frost Nova
+    
+    -- Sunken Temple
+    [5710] = {{ name = "Jammal'an the Prophet", spell = 12480 }}, -- Heal
+    [5717] = {{ name = "Mijan", spell = 11428 }}, -- Knockdown
+    
+    -- Maraudon
+    [13738] = {{ name = "Cavindra", spell = 21869 }}, -- Flame Shock
+    [13741] = {{ name = "Gelk", spell = 21869 }}, -- Fear
+    
+    -- Zul'Farrak
+    [7797] = {{ name = "Ruuzlu", spell = 11642 }}, -- Heal
+    [7796] = {{ name = "Nekrum Gutchewer", spell = 8600 }}, -- Fevered Plague
+    
+    -- Uldaman
+    [6906] = {{ name = "Baelog", spell = 6524 }}, -- Ground Tremor
+    [4854] = {{ name = "Grimlok", spell = 8148 }}, -- Demoralizing Shout
+    
+    -- Molten Core
+    [11662] = {{ name = "Flamewaker Priest", spell = 19776 }}, -- Shadow Word: Pain spam
+    
+    -- Blackwing Lair
+    [12053] = {{ name = "Blackwing Spellbinder", spell = 16793 }}, -- Greater Polymorph on tanks
+    
+    -- Naxxramas
+    [16244] = {{ name = "Infectious Ghoul" }}, -- Plague spreader, CC priority
+    [16146] = {{ name = "Deathknight", spell = 19643 }}, -- High damage Mortal Strike
+    
+    --[[===========================]]
+    --[[  BURNING CRUSADE (70)     ]]
+    --[[===========================]]
+    
+    -- Shadow Labyrinth
+    [18667] = {{ name = "Blackheart the Inciter", spell = 33676 }}, -- Incite Chaos mind control
+    [18663] = {{ name = "Maiden of Discipline", spell = 33787 }}, -- Whirlwind
+    
+    -- Shattered Halls
+    [17670] = {{ name = "Shattered Hand Warhound", spell = 30636 }}, -- Rend (bleed)
+    [20923] = {{ name = "Blood Guard Porung", spell = 31901 }}, -- Shield Wall
+    
+    -- Botanica
+    [19486] = {{ name = "Sunseeker Chemist", spell = 34639 }}, -- Unstable Chemicals
+    [21579] = {{ name = "Bloodwarder Mender", spell = 34649 }}, -- Heal
+    
+    -- Magisters' Terrace
+    [24683] = {{ name = "Sunblade Mage Guard", buff = 46757 }}, -- Glyph of Power buff
+    [24685] = {{ name = "Sunblade Magister", spell = 46035 }}, -- Frostbolt
+    
+    -- Mana-Tombs
+    [18493] = {{ name = "Auchenai Soulpriest", spell = 32860 }}, -- Turns heals into damage
+    [18371] = {{ name = "Shirrak the Dead Watcher", spell = 32361 }}, -- Inhibit Magic
+    
+    -- Sethekk Halls
+    [18322] = {{ name = "Sethekk Ravenguard", spell = 32674 }}, -- Bloodthirst
+    [18473] = {{ name = "Sethekk Oracle", spell = 32129 }}, -- Arcane Lightning
+    
+    -- Old Hillsbrad Foothills
+    [17848] = {{ name = "Lieutenant Drake", spell = 33834 }}, -- Exploding Shot
+    
+    -- Black Morass
+    [17880] = {{ name = "Infinite Assassin", spell = 33865 }}, -- Backstab
+    [17835] = {{ name = "Infinite Chronomancer", spell = 33860 }}, -- Heal
+    
+    -- Slave Pens / Underbog
+    [17827] = {{ name = "Claw", spell = 31429 }}, -- Claw Rage
+    [21337] = {{ name = "Coilfang Tempest", spell = 37159 }}, -- Lightning Bolt
+    
+    -- Blood Furnace
+    [17491] = {{ name = "Laughing Skull Rogue", spell = 30992 }}, -- Hemorrhage
+    
+    -- Hellfire Ramparts
+    [17264] = {{ name = "Bonechewer Ravener", spell = 8599 }}, -- Enrage
+    
+    -- Karazhan
+    [16809] = {{ name = "Wanton Hostess", spell = 29321 }}, -- Fear on tank
+    
+    -- Black Temple
+    [22964] = {{ name = "Sister of Pleasure", spell = 41338 }}, -- Heal
+    
+    --[[===========================]]
+    --[[  WRATH OF THE LICH KING (80) ]]
+    --[[===========================]]
+    
+    -- Violet Hold
+    [29315] = {{ name = "Portal Guardian" }}, -- Must CC/kill to close portals
+    [30695] = {{ name = "Azure Invader", spell = 58471 }}, -- Brutal Strike
+    
+    -- Halls of Lightning
+    [28579] = {{ name = "Dark Rune Champion", spell = 52719 }}, -- Whirlwind
+    [28965] = {{ name = "Volkhan Golem", spell = 52237 }}, -- Shatter (explodes)
+    
+    -- Culling of Stratholme
+    [28167] = {{ name = "Infinite Adversary", spell = 52854 }}, -- Banish
+    [28169] = {{ name = "Infinite Agent", spell = 52942 }}, -- Temporal Rift
+    
+    -- Trial of the Champion
+    [35314] = {{ name = "Eressea Dawnsinger", spell = 66099 }}, -- Holy Smite spam
+    [35328] = {{ name = "Argent Lightwielder", spell = 66920 }}, -- Divine Storm
+    
+    -- Pit of Saron
+    [36494] = {{ name = "Wrathbone Laborer", spell = 69579 }}, -- Puncture Wound
+    [36661] = {{ name = "Ymirjar Deathbringer", spell = 69603 }}, -- Banish
+    
+    -- Halls of Reflection
+    [38177] = {{ name = "Shadowy Mercenary", spell = 72333 }}, -- Deadly Poison
+    [38176] = {{ name = "Tortured Rifleman", spell = 72340 }}, -- Shoot
+    
+    -- Naxxramas
+    [16803] = {{ name = "Deathknight Understudy" }}, -- Always CC to prevent healing Razuvious
+    
+    -- Ulduar
+    [33722] = {{ name = "Rubble", spell = 63849 }}, -- Stone Grip
+    
+    -- Icecrown Citadel
+    [37890] = {{ name = "Cult Adherent", spell = 70842 }}, -- Dark Martyrdom (shields boss)
+    [37934] = {{ name = "Cult Fanatic", spell = 70645 }}, -- Dark Transformation
+    
+    --[[===========================]]
+    --[[  CATACLYSM (85)           ]]
+    --[[===========================]]
+    
+    -- Throne of the Tides
+    [40788] = {{ name = "Gilgoblin Hunter", spell = 76622 }}, -- Poisoned Spear
+    [40825] = {{ name = "Unstable Corruption" }}, -- Must CC before it explodes
+    
+    -- Vortex Pinnacle
+    [45912] = {{ name = "Wild Vortex" }}, -- Cyclone, must CC/kill
+    [45477] = {{ name = "Gust Soldier", spell = 88194 }}, -- Wind Blast
+    
+    -- Stonecore
+    [43438] = {{ name = "Crystalspawn Giant", spell = 81008 }}, -- Quake stomp
+    [42691] = {{ name = "Stonecore Berserker", spell = 81637 }}, -- Spinning Slash
+    
+    -- Grim Batol
+    [39625] = {{ name = "Twilight Beguiler", spell = 76711 }}, -- Deceitful Blast
+    [39854] = {{ name = "Azureborne Seer", spell = 76121 }}, -- Warped Twilight
+    
+    -- Zul'Aman (Heroic)
+    [23596] = {{ name = "Amani'shi Flame Caster", spell = 43140 }}, -- Flame Breath
+    [24549] = {{ name = "Amani'shi Medicine Man", spell = 43432 }}, -- Heal
+    
+    -- Zul'Gurub (Heroic)
+    [52053] = {{ name = "Tiki Lord Mu'Loa", spell = 96689 }}, -- Voodoo Bolt
+    [52157] = {{ name = "Gurubashi Shadow Hunter", spell = 96684 }}, -- Shadowy Protector
+    
+    -- Hour of Twilight
+    [54590] = {{ name = "Twilight Assassin", spell = 103633 }}, -- Backstab
+    [54634] = {{ name = "Twilight Shadow Walker", spell = 103641 }}, -- Shadow Bolt
+    
+    -- Blackwing Descent
+    [41440] = {{ name = "Aberration" }}, -- Must CC/burn, phase mechanic
+    
+    -- Firelands
+    [53216] = {{ name = "Blazing Talon Initiate", spell = 99432 }}, -- Fieroblast
+    
+    --[[===========================]]
+    --[[  MISTS OF PANDARIA CLASSIC ]]
+    --[[===========================]]
+    
+    -- Temple of the Jade Serpent
+    [59546] = {{ name = "Figment of Doubt", spell = 106113 }}, -- When casting Doubt
+    [56762] = {{ name = "Corrupt Living Water", spell = 106797 }}, -- When casting Hydrolance
+    
+    -- Stormstout Brewery
+    [59555] = {{ name = "Haunting Sha", spell = 114646 }}, -- When Haunting Gaze channels
+    [59797] = {{ name = "Yeasty Alemental", spell = 116027 }}, -- Brew Bolt
+    
+    -- Mogu'shan Palace
+    [61340] = {{ name = "Undying Flame" }}, -- Always CC to prevent overwhelming adds
+    [61399] = {{ name = "Whirling Dervish", spell = 119981 }}, -- Mogu Whirlwind
+    
+    -- Shado-Pan Monastery
+    [59547] = {{ name = "Shado-Pan Novice", buff = 115010 }}, -- When Charging Soul is active
+    [59544] = {{ name = "Fragment of Hatred", spell = 115002 }}, -- During Rising Hate cast
+    [59545] = {{ name = "Gripping Hatred", spell = 115002 }}, -- During Rising Hate cast
+    [56541] = {{ name = "Sha Manifestation", spell = 111585 }}, -- Consuming Bite
+    
+    -- Gate of the Setting Sun
+    [56906] = {{ name = "Volatile Munitions" }}, -- Always CC or interrupt before explosion
+    [56589] = {{ name = "Sik'thik Guardian", spell = 107120 }}, -- When Impaling Strike
+    
+    -- Siege of Niuzao Temple
+    [61449] = {{ name = "Sik'thik Soldier", spell = 121282 }}, -- When Devastating Arc channels
+    [62693] = {{ name = "Sik'thik Demolisher", spell = 119610 }}, -- Bombard cast
+    
+    -- Scarlet Halls
+    [59150] = {{ name = "Scarlet Judicator", spell = 113436 }}, -- Heroic Defense cast (damage reduction)
+    [59240] = {{ name = "Scarlet Treasurer", spell = 113959 }}, -- When channeling heal
+    
+    -- Scarlet Monastery
+    [59300] = {{ name = "Scarlet Myrmidon", spell = 115143 }}, -- Dragon Strike windup
+    [59746] = {{ name = "Fuel Barrel" }}, -- CC to prevent explosions
+    
+    -- Scholomance
+    [58823] = {{ name = "Bored Student", buff = 114062 }}, -- When Rising Anger is up
+    [58757] = {{ name = "Failed Student", spell = 113134 }}, -- Explosive Pain cast
+    [58822] = {{ name = "Instructor Chillheart", spell = 113131 }}, -- Ice Wrath
+    
+    -- Mogu'shan Vaults (Raid)
+    [60447] = {{ name = "Stone Guard", spell = 116529 }}, -- When overloading
+    [60397] = {{ name = "Quillen Guardian", spell = 117570 }}, -- Devastating Arc
+    
+    -- Heart of Fear (Raid)
+    [62837] = {{ name = "Blade Lord Ta'yak", spell = 123474 }}, -- When casting Overwhelming Assault windup
+    [63591] = {{ name = "Manticore", spell = 123816 }}, -- Fear cast
+    
+    -- Throne of Thunder (Raid)
+    [69633] = {{ name = "Sul Lithuz Stonegazer", spell = 137261 }}, -- Stone Gaze channel
+    [69680] = {{ name = "Zandalari Dinomancer", spell = 136954 }}, -- Dino Form buff (heal/damage increase)
+    [70216] = {{ name = "Nest Guardian", spell = 138923 }}, -- Talon Rake windup
+    
+    -- Siege of Orgrimmar (Raid)
+    [71152] = {{ name = "Embodied Gloom", spell = 144579 }}, -- When channeling Black Cleave
+    [71995] = {{ name = "Kor'kron Demolisher", spell = 143639 }}, -- Explosive Tar cast
+    [72272] = {{ name = "Dread Spawn", spell = 144548 }}, -- During Dread Screech
+    
+    --[[===========================]]
+    --[[  LATER EXPANSIONS (KEEP)  ]]
+    --[[===========================]]
+    
     -- Raid
     [167566] = {{ name = "Return to Stone", spell = 333145 }}, -- Sun King's Salvation
     [165762] = {{ name = "Soul Infuser" }}, -- Sun King's Salvation

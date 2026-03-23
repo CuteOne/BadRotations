@@ -86,13 +86,13 @@ local function createOptions()
         ----------------------
         section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
         -- Single/Multi Toggle
-        br.ui:createDropdownWithout(section, "Rotation Mode", br.dropOptions.Toggle, 4)
+        br.ui:createDropdownWithout(section, "Rotation Mode", br.ui.dropOptions.Toggle, 4)
         -- Defensive Key Toggle
-        br.ui:createDropdownWithout(section, "Defensive Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdownWithout(section, "Defensive Mode", br.ui.dropOptions.Toggle, 6)
         -- Interrupt Key Toggle
-        br.ui:createDropdownWithout(section, "Interrupt Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdownWithout(section, "Interrupt Mode", br.ui.dropOptions.Toggle, 6)
         -- Pause Toggle
-        br.ui:createDropdown(section, "Pause Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdown(section, "Pause Mode", br.ui.dropOptions.Toggle, 6)
         br.ui:checkSectionState(section)
     end
     optionTable = { {
@@ -113,6 +113,7 @@ local charges
 local debuff
 local enemies
 local module
+local pet
 local runes
 local runicPower
 local talent
@@ -330,7 +331,7 @@ actionList.Combat = function()
             if actionList.Racials() then return true end
             -- Sacrificial Pact
             -- sacrificial_pact,if=!buff.dancing_rune_weapon.up&(pet.ghoul.remains<2|target.time_to_die<gcd)
-            if cast.able.sacrificialPact() and ((not buff.dancingRuneWeapon.exists() and (pet.ghoul.remains() < 2 or unit.ttd(units.dyn5) < unit.gcd(true)))) then
+            if cast.able.sacrificialPact() and ((not buff.dancingRuneWeapon.exists() and (pet.ghoul.exists() or unit.ttd(units.dyn5) < unit.gcd(true)))) then
                 if cast.sacrificialPact() then
                     ui.debug("Casting Sacrificial Pact [Combat]")
                     return true
@@ -707,6 +708,7 @@ local function runRotation()
     debuff          = br.player.debuff
     enemies         = br.player.enemies
     module          = br.player.module
+    pet             = br.player.pet
     runes           = br.player.power.runes
     runicPower      = br.player.power.runicPower
     talent          = br.player.talent
@@ -714,7 +716,7 @@ local function runRotation()
     unit            = br.player.unit
     units           = br.player.units
     -- General Locals
-    var.haltProfile = (unit.inCombat() and var.profileStop) or unit.mounted() or br.pause() or ui.mode.rotation == 2
+    var.haltProfile = (unit.inCombat() and var.profileStop) or unit.mounted() or br.functions.misc:pause() or ui.mode.rotation == 2
     -- Units
     units.get(5) -- Makes a variable called, units.dyn5
     units.get(40)
@@ -771,8 +773,9 @@ local function runRotation()
     end -- Pause
 end     -- End runRotation
 local id = 250
-if br.rotations[id] == nil then br.rotations[id] = {} end
-br._G.tinsert(br.rotations[id], {
+local expansion = br.isMOP
+if br.loader.rotations[id] == nil then br.loader.rotations[id] = {} end
+br._G.tinsert(br.loader.rotations[id], {
     name = rotationName,
     toggles = createToggles,
     options = createOptions,

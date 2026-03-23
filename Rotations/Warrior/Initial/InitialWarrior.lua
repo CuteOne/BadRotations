@@ -37,15 +37,15 @@ local function createOptions()
         -----------------------
         section = br.ui:createSection(br.ui.window.profile, "General")
         -- Basic Trinket Module
-        br.player.module.BasicTrinkets(nil, section)
+        -- br.player.module.BasicTrinkets(nil, section)
         -- Battle Shout
-        br.ui:createCheckbox(section, "Battle Shout")
+        -- br.ui:createCheckbox(section, "Battle Shout")
         -- Charge
         br.ui:createCheckbox(section, "Charge")
         -- Hamstring
-        br.ui:createCheckbox(section, "Hamstring")
+        -- br.ui:createCheckbox(section, "Hamstring")
         -- Heroic Throw
-        br.ui:createCheckbox(section, "Heroic Throw")
+        -- br.ui:createCheckbox(section, "Heroic Throw")
         -- Victory Rush
         br.ui:createCheckbox(section, "Victory Rush")
         br.ui:checkSectionState(section)
@@ -53,17 +53,17 @@ local function createOptions()
         --- DEFENSIVE OPTIONS ---
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
+        -- Basic Healing Module
+        -- br.player.module.BasicHealing(section)
         -- Shield Block
-        br.ui:createSpinner(section, "Shield Block", 30, 0, 100, 5, "|cffFFFFFFPet Health Percent to Cast At")
+        -- br.ui:createSpinner(section, "Shield Block", 30, 0, 100, 5, "|cffFFFFFFPet Health Percent to Cast At")
         br.ui:checkSectionState(section)
         -------------------------
         --- INTERRUPT OPTIONS ---
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Interrupt")
-        -- Basic Healing Module
-        br.player.module.BasicHealing(section)
         -- Pummel
-        br.ui:createCheckbox(section, "Pummel", "|cffFFFFFFUse Pummel")
+        -- br.ui:createCheckbox(section, "Pummel", "|cffFFFFFFUse Pummel")
         -- Interrupt Percentage
         br.ui:createSpinnerWithout(section, "Interrupt At", 0, 0, 95, 5,
             "|cffFFFFFFCast Percent to Cast At (0 is random)")
@@ -73,13 +73,11 @@ local function createOptions()
         ----------------------
         section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
         -- Single/Multi Toggle
-        br.ui:createDropdownWithout(section, "Rotation Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdownWithout(section, "Rotation Mode", br.ui.dropOptions.Toggle, 6)
         -- Defensive Key Toggle
-        br.ui:createDropdownWithout(section, "Defensive Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdownWithout(section, "Defensive Mode", br.ui.dropOptions.Toggle, 6)
         -- Interrupts Key Toggle
-        br.ui:createDropdownWithout(section, "Interrupt Mode", br.dropOptions.Toggle, 6)
-        -- Pause Toggle
-        br.ui:createDropdown(section, "Pause Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdownWithout(section, "Interrupt Mode", br.ui.dropOptions.Toggle, 6)
         br.ui:checkSectionState(section)
     end
     optionTable = { {
@@ -102,9 +100,9 @@ local module
 local ui
 local unit
 local units
+local var
 -- General Locals
-local haltProfile
-local profileStop
+
 -- Profile Specific Locals
 local actionList = {}
 
@@ -113,22 +111,22 @@ local actionList = {}
 --------------------
 -- Action List -Extras
 actionList.Extras = function()
-    -- Battle Shout
-    if ui.checked("Battle Shout") then
-        if cast.able.battleShout() and buff.battleShout.refresh() and not unit.resting() then
-            if cast.battleShout() then
-                ui.debug("Casting Battle Shout")
-                return true
-            end
-        end
-    end
-    -- Hamstring
-    if ui.checked("Hamstring") and cast.able.hamstring("target") and not unit.facing("target", "player") and unit.moving("target") then
-        if cast.hamstring("target") then
-            ui.debug("Casting Hamstring")
-            return true
-        end
-    end
+    -- -- Battle Shout
+    -- if ui.checked("Battle Shout") then
+    --     if cast.able.battleShout() and buff.battleShout.refresh() and not unit.resting() then
+    --         if cast.battleShout() then
+    --             ui.debug("Casting Battle Shout")
+    --             return true
+    --         end
+    --     end
+    -- end
+    -- -- Hamstring
+    -- if ui.checked("Hamstring") and cast.able.hamstring("target") and not unit.facing("target", "player") and unit.moving("target") then
+    --     if cast.hamstring("target") then
+    --         ui.debug("Casting Hamstring")
+    --         return true
+    --     end
+    -- end
 end -- End Action List -Extras
 
 -- Action List - Defensive
@@ -137,14 +135,14 @@ actionList.Defensive = function()
         -- Basic Healing Module
         module.BasicHealing()
         --Shield Block
-        if ui.checked("Shield Block") and cast.able.shieldBlock() and unit.exists("target")
-            and unit.distance("target") < 5 and unit.hp() < ui.value("Shield Block")
-        then
-            if cast.shieldBlock() then
-                ui.debug("Casting Shield Block")
-                return true
-            end
-        end
+        -- if ui.checked("Shield Block") and cast.able.shieldBlock() and unit.exists("target")
+        --     and unit.distance("target") < 5 and unit.hp() < ui.value("Shield Block")
+        -- then
+        --     if cast.shieldBlock() then
+        --         ui.debug("Casting Shield Block")
+        --         return true
+        --     end
+        -- end
     end
 end -- End Action List - Defensive
 
@@ -152,37 +150,51 @@ end -- End Action List - Defensive
 actionList.Interrupt = function()
     if ui.useInterrupt() then
         -- Pummel
-        if ui.checked("Pummel") then
-            for i = 1, #enemies.yards5f do
-                local thisUnit = enemies.yards5f[i]
-                if cast.able.pummel(thisUnit) and unit.interruptable(thisUnit, ui.value("Interrupt At")) then
-                    if cast.pummel(thisUnit) then
-                        ui.debug("Casting Pummel on " .. unit.name(thisUnit))
-                        return true
-                    end
-                end
-            end
-        end
+        -- if ui.checked("Pummel") then
+        --     for i = 1, #enemies.yards5f do
+        --         local thisUnit = enemies.yards5f[i]
+        --         if cast.able.pummel(thisUnit) and unit.interruptable(thisUnit, ui.value("Interrupt At")) then
+        --             if cast.pummel(thisUnit) then
+        --                 ui.debug("Casting Pummel on " .. unit.name(thisUnit))
+        --                 return true
+        --             end
+        --         end
+        --     end
+        -- end
     end
 end -- End Action List - Interrupt
 
 -- Action List - Pre-Combat
 actionList.PreCombat = function()
     if not unit.inCombat() and not unit.mounted() and unit.valid("target") then
-        -- Whirlwind
-        if ui.useAOE(8, 2) and unit.level() >= 9 and cast.able.whirlwind() then
-            if cast.whirlwind() then
-                ui.debug("Casting Whirlwind")
+        -- Execute
+        if unit.hp("target") < 20 and cast.able.execute() then
+            if cast.execute("target") then
+                ui.debug("Casting Execute [Precombat]")
                 return true
             end
         end
-        -- Slam
-        if (ui.useST(8, 2) or unit.level() < 9) and cast.able.slam("target") then
-            if cast.slam("target") then
-                ui.debug("Casting Slam")
+        -- Victory Rush
+        if ui.checked("Victory Rush") and cast.able.victoryRush("target") and buff.victorious.exists() then
+            if cast.victoryRush("target") then
+                ui.debug("Casting Victory Rush [Precombat]")
                 return true
             end
         end
+        -- Heroic Strike
+        if cast.able.heroicStrike("target") then
+            if cast.heroicStrike("target") then
+                ui.debug("Casting Heroic Strike [Precombat]")
+                return true
+            end
+        end
+        -- -- Attack
+        -- if cast.able.attack("target") then
+        --     if cast.attack("target") then
+        --         ui.debug("Casting Attack [Precombat]")
+        --         return true
+        --     end
+        -- end
         -- Start Attack
         if cast.able.autoAttack("target") then
             if cast.autoAttack("target") then
@@ -195,77 +207,61 @@ end -- End Action List - PreCombat
 
 -- Action List - Combat
 actionList.Combat = function()
-    if unit.valid("target") and cd.global.remain() == 0 then
-        if unit.exists(units.dyn40) and unit.distance(units.dyn40) < 40 then
-            -- Charge
-            if mode.mover == 1 and ui.checked("Charge") and cast.able.charge("target")
-                and unit.distance("target") >= 8 and unit.distance("target") <= 25
-            then
-                if cast.charge("target") then
-                    ui.debug("Casting Charge")
-                    return true
-                end
+    if (unit.inCombat() or (not unit.inCombat() and unit.valid(units.dyn5))) and not var.profileStop
+        and unit.exists(units.dyn5) and cd.global.remain() == 0
+    then
+        -- Charge
+        if mode.mover == 1 and ui.checked("Charge") and cast.able.charge("target")
+            and unit.distance("target") >= 8 and unit.distance("target") <= 25
+        then
+            if cast.charge("target") then
+                ui.debug("Casting Charge")
+                return true
             end
-            -- Heroic Throw
-            if ui.checked("Heroic Throw") and cast.able.heroicThrow("target")
-                and unit.distance("target") >= 8 and unit.distance("target") <= 25
-            then
-                if cast.heroicThrow("target") then
-                    ui.debug("Casting Heroic Throw")
-                    return true
-                end
-            end
-            -- Interrupts
-            if actionList.Interrupt() then return true end
+        end
+        -- Interrupts
+        if actionList.Interrupt() then return true end
+        if unit.inCombat() then
+            -- Basic Trinkets Module
+            module.BasicTrinkets()
             -- Execute
-            if unit.inCombat() then
-                if unit.hp("target") < 20 and cast.able.execute() then
-                    if cast.execute() then
-                        ui.debug("Casting Execute")
-                        return true
-                    end
+            if unit.hp("target") < 20 and cast.able.execute("target") then
+                if cast.execute() then
+                    ui.debug("Casting Execute")
+                    return true
                 end
-                -- Victory Rush
-                if ui.checked("Victory Rush") and cast.able.victoryRush("target") and buff.victorious.exists() then
-                    if cast.victoryRush("target") then
-                        ui.debug("Casting Victory Rush")
-                        return true
-                    end
+            end
+            -- Victory Rush
+            if ui.checked("Victory Rush") and cast.able.victoryRush("target") and buff.victorious.exists() then
+                if cast.victoryRush("target") then
+                    ui.debug("Casting Victory Rush")
+                    return true
                 end
-                -- Start Attack
-                if not cast.auto.autoAttack(units.dyn5) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
-                    if cast.autoAttack(units.dyn5) then
-                        ui.debug("Casting Auto Attack")
-                        return true
-                    end
+            end
+            -- Heroic Strike
+            if cast.able.heroicStrike() then
+                if cast.heroicStrike() then
+                    ui.debug("Casting Heroic Strike")
+                    return true
                 end
-                -- Basic Trinkets Module
-                module.BasicTrinkets()
-                -- Shield Slam
-                if cast.able.shieldSlam() then
-                    if cast.shieldSlam() then
-                        ui.debug("Casting Shield Slam")
-                        return true
-                    end
-                end
-                -- Whirlwind
-                if ui.useAOE(8, 2) and unit.level() >= 9 and cast.able.whirlwind() then
-                    if cast.whirlwind() then
-                        ui.debug("Casting Whirlwind")
-                        return true
-                    end
-                end
-                -- Slam
-                if (ui.useST(8, 2) or unit.level() < 9) and cast.able.slam() then
-                    if cast.slam() then
-                        ui.debug("Casting Slam")
-                        return true
-                    end
+            end
+            -- Attack
+            -- if cast.able.attack() then
+            --     if cast.attack() then
+            --         ui.debug("Casting Attack")
+            --         return true
+            --     end
+            -- end
+            -- Start Attack
+            if not cast.auto.autoAttack(units.dyn5) and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
+                if cast.autoAttack(units.dyn5) then
+                    ui.debug("Casting Auto Attack")
+                    return true
                 end
             end
         end -- End In Combat Rotation
     end
-end         -- End Action List - Combat
+end -- End Action List - Combat
 
 ----------------
 --- ROTATION ---
@@ -275,18 +271,23 @@ local function runRotation()
     --- Define Locals ---
     ---------------------
     -- BR API Locals
-    buff        = br.player.buff
-    cast        = br.player.cast
-    cd          = br.player.cd
-    enemies     = br.player.enemies
-    mode        = br.player.ui.mode
-    module      = br.player.module
-    ui          = br.player.ui
-    unit        = br.player.unit
-    units       = br.player.units
-    -- General Locals
-    profileStop = profileStop or false
-    haltProfile = (unit.inCombat() and profileStop) or unit.mounted() or br.pause() or mode.rotation == 2
+    if not br.player.initialized then
+        buff        = br.player.buff
+        cast        = br.player.cast
+        cd          = br.player.cd
+        enemies     = br.player.enemies
+        mode        = br.player.ui.mode
+        module      = br.player.module
+        ui          = br.player.ui
+        unit        = br.player.unit
+        units       = br.player.units
+        var         = br.player.variables
+        -- General Locals
+        var.profileStop = false
+
+        br.player.initialized = true
+    end
+    -- haltProfile = (unit.inCombat() and profileStop) or unit.mounted() or br.functions.misc:pause() or mode.rotation == 2
     -- Units
     units.get(5)  -- Makes a variable called, units.dyn5
     units.get(40) -- Makes a variable called, units.dyn40
@@ -294,17 +295,20 @@ local function runRotation()
     -- Enemies
     enemies.get(5, "player", false, true) -- Makes a variable called, enemies.yards5f
 
+    if not unit.inCombat() then
+        if var.profileStop then var.profileStop = false end
+    end
+
     -- Pause Timer
     if br.pauseTime == nil then br.pauseTime = ui.time() end
 
     ---------------------
     --- Begin Profile ---
     ---------------------
-    -- Profile Stop | Pause
-    if not unit.inCombat() and not unit.exists("target") and profileStop then
-        profileStop = false
-    elseif haltProfile then
-        br.pauseTime = ui.time()
+    -- * Profile Stop | Pause
+    if not unit.inCombat() and not unit.exists("target") and var.profileStop then
+        var.profileStop = false
+    elseif (unit.inCombat() and var.profileStop) or ui.pause() then
         return true
     else
         ---------------------------------
@@ -318,6 +322,7 @@ local function runRotation()
         --- Defensive ---
         -----------------
         if actionList.Defensive() then return true end
+        if ui.mode.rotation == 2 then return true end
         ------------------
         --- Pre-Combat ---
         ------------------
@@ -329,8 +334,9 @@ local function runRotation()
     end         -- Pause
 end             -- End runRotation
 local id = 1446 -- Change to the spec id profile is for.
-if br.rotations[id] == nil then br.rotations[id] = {} end
-br._G.tinsert(br.rotations[id], {
+local expansion = br.isMOP
+if br.loader.rotations[id] == nil then br.loader.rotations[id] = {} end
+br._G.tinsert(br.loader.rotations[id], {
     name = rotationName,
     toggles = createToggles,
     options = createOptions,

@@ -1,28 +1,32 @@
 local _, br = ...
+br.functions.custom = br.functions.custom or {}
+local custom = br.functions.custom
+
 -- Functions from coders for public use
 local sqrt, cos, sin = math.sqrt, math.cos, math.sin
 --[[                                                                                                ]]
 --[[ ragnar                                                                                         ]]
 --[[                                                                                                ]]
-function br.unitLookup(Unit, returnType)
-    for k, _ in pairs(br.enemy) do
-        if br.enemy[k].guid == Unit or br.enemy[k].unit == Unit then
+function custom:unitLookup(Unit, returnType)
+    for k, _ in pairs(br.engines.enemiesEngine.enemy) do
+        local enemy = br.engines.enemiesEngine.enemy[k]
+        if enemy.guid == Unit or enemy.unit == Unit then
             if returnType == "guid" then
-                return br.enemy[k].guid
+                return enemy.guid
             elseif returnType == "table" then
-                return br.enemy[k]
+                return enemy
             else
-                return br.enemy[k].unit
+                return enemy.unit
             end
         end
     end
 end
 
-function br.getUnitCount(ID, maxRange, tapped)
+function custom:getUnitCount(ID, maxRange, tapped)
     local counter = 0
-    for _, enemy in pairs(br.enemy) do
+    for _, enemy in pairs(br.engines.enemiesEngine.enemy) do
         local thisUnit = enemy.unit
-        if enemy.id == ID and br.getDistance(thisUnit) < maxRange then
+        if enemy.id == ID and br.functions.range:getDistance(thisUnit) < maxRange then
             local unitTapped = not br._G.UnitIsTapDenied(thisUnit)
             if (tapped == true and unitTapped) or not tapped then
                 counter = counter + 1
@@ -32,47 +36,23 @@ function br.getUnitCount(ID, maxRange, tapped)
     return counter
 end
 
-function br.isCCed(Unit)
+function custom:isCCed(Unit)
     local CCTable = { 84868, 3355, 19386, 118, 28272, 28271, 61305, 61721, 161372, 61780, 161355, 126819, 161354, 115078,
         20066, 9484, 6770, 1776, 51514, 107079, 10326, 8122, 154359, 2094, 5246, 5782, 5484, 6358, 115268, 339 };
     for i = 1, #CCTable do
-        if br.UnitDebuffID(Unit, CCTable[i]) then
+        if br.functions.aura:UnitDebuffID(Unit, CCTable[i]) then
             return true
         end
     end
     return false
 end
 
---cast spell on position x,y,z
-function br.castAtPosition(X, Y, Z, SpellID)
-    local i = -100
-    local mouselookActive = false
-    if br._G.IsMouselooking() then
-        mouselookActive = true
-        br._G.MouselookStop()
-    end
-    br._G.CastSpellByName(br._G.GetSpellInfo(SpellID), "player")
-    while br._G["IsAoEPending"]() and i <= 100 do
-        br._G["ClickPosition"](X, Y, Z)
-        br.castPosition.x = X
-        br.castPosition.y = Y
-        br.castPosition.z = Z
-        Z = i
-        i = i + 1
-    end
-    if mouselookActive then
-        br._G.MouselookStart()
-    end
-    if i >= 100 and br._G["IsAoEPending"]() then return false end
-    return true
-end
-
 --get number of units around 1 unit
-function br.getUnits(thisUnit, allUnitsInRange, radius)
+function custom:getUnits(thisUnit, allUnitsInRange, radius)
     local unitsAroundThisUnit = {}
     for j = 1, #allUnitsInRange do
         local checkUnit = allUnitsInRange[j]
-        if br.getDistance(thisUnit, checkUnit) < radius then
+        if br.functions.range:getDistance(thisUnit, checkUnit) < radius then
             table.insert(unitsAroundThisUnit, checkUnit)
         end
     end
@@ -80,28 +60,28 @@ function br.getUnits(thisUnit, allUnitsInRange, radius)
 end
 
 -- check if unit is blacklisted
-function br.isNotBlacklisted(checkUnit)
+function custom:isNotBlacklisted(checkUnit)
     local blacklistUnitID = {}
     if checkUnit == nil then return false end
     for i = 1, #blacklistUnitID do
-        if br.GetObjectID(checkUnit) == blacklistUnitID[i] then return false end
+        if br.functions.unit:GetObjectID(checkUnit) == blacklistUnitID[i] then return false end
     end
     return true
 end
 
-function br.castGroundAtUnit(spellID, radius, minUnits, maxRange, minRange, spellType, unit)
-    local _, _, _, _, spellMinRange, spellMaxRange = br._G.GetSpellInfo(spellID)
+function custom:castGroundAtUnit(spellID, radius, minUnits, maxRange, minRange, spellType, unit)
+    local _, _, _, _, spellMinRange, spellMaxRange = br.api.wow.GetSpellInfo(spellID)
     minRange                                       = minRange or spellMinRange or 0
     maxRange                                       = maxRange or spellMaxRange or 5
     radius                                         = radius or maxRange
 
     local allUnitsInRange
     if spellType == "heal" then
-        allUnitsInRange = br.getAllies("player", 40)
+        allUnitsInRange = br.engines.healingEngineFunctions:getAllies("player", 40)
     else
         allUnitsInRange = {}
-        local maxEnemies = br.getEnemies("player", maxRange, true)
-        local minEnemies = br.getEnemies("player", minRange, true)
+        local maxEnemies = br.engines.enemiesEngineFunctions:getEnemies("player", maxRange, true)
+        local minEnemies = br.engines.enemiesEngineFunctions:getEnemies("player", minRange, true)
         for _, maxUnit in pairs(maxEnemies) do
             local minUnitInMaxEnemies = false
             for _, minUnit in pairs(minEnemies) do
@@ -116,17 +96,17 @@ function br.castGroundAtUnit(spellID, radius, minUnits, maxRange, minRange, spel
         end
     end
 
-    local enemiesInRadius        = #br.getEnemies(unit, radius)
-    local visibleEnemiesInRadius = #br.getEnemies(unit, radius, true)
+    local enemiesInRadius        = #br.engines.enemiesEngineFunctions:getEnemies(unit, radius)
+    local visibleEnemiesInRadius = #br.engines.enemiesEngineFunctions:getEnemies(unit, radius, true)
 
-    if br.getUnits(unit, allUnitsInRange, radius - 3) >= minUnits and enemiesInRadius >= visibleEnemiesInRadius then
-        local X1, Y1, Z1 = br.GetObjectPosition(unit)
-        return br.castAtPosition(X1, Y1, Z1, spellID)
+    if br.functions.custom:getUnits(unit, allUnitsInRange, radius - 3) >= minUnits and enemiesInRadius >= visibleEnemiesInRadius then
+        local X1, Y1, Z1 = br.functions.unit:GetObjectPosition(unit)
+        return br.functions.cast:castAtPosition(X1, Y1, Z1, spellID)
     end
 end
 
--- function br.castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange, spellType, castTime)
---     local _, _, _, _, spellMinRange, spellMaxRange = br._G.GetSpellInfo(spellID)
+-- function custom:castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange, spellType, castTime)
+--     local _, _, _, _, spellMinRange, spellMaxRange = br.api.wow.GetSpellInfo(spellID)
 --     minRange = minRange or spellMinRange or 0
 --     maxRange = maxRange or spellMaxRange or 5
 --     radius   = radius or maxRange
@@ -169,9 +149,9 @@ end
 --     local function unitInCircle(unit, cx, cy)
 --         local uX, uY
 --         if castTime == nil or castTime == 0 then
---           uX, uY = br.GetObjectPosition(unit)
+--           uX, uY = br.functions.unit:GetObjectPosition(unit)
 --         else
---           uX, uY = br.GetFuturePostion(unit, castTime)
+--           uX, uY = br.functions.custom:(unit, castTime)
 --         end
 --         local rUnit = br._G["UnitBoundingRadius"](unit)
 --         return math.abs((uX - cx) * (uX - cx) + (uY - cy) * (uY - cy)) <= (rUnit + radius) * (rUnit + radius);
@@ -181,9 +161,9 @@ end
 --     local function unitDistanceCenter(unit, cx, cy)
 --         local uX, uY
 --         if castTime == nil or castTime == 0 then
---             uX, uY = br.GetObjectPosition(unit)
+--             uX, uY = br.functions.unit:GetObjectPosition(unit)
 --         else
---             uX, uY = br.GetFuturePostion(unit, castTime)
+--             uX, uY = br.functions.custom:(unit, castTime)
 --         end
 --         -- local rUnit = br._G.UnitBoundingRadius(unit)
 --         return sqrt(((uX-cx)^2) + ((uY-cy)^2))
@@ -192,9 +172,9 @@ end
 --     if minRange == nil then minRange = 0 end
 --     local allUnitsInRange
 --     if spellType == "heal" then
---         allUnitsInRange = br.getAllies("player",maxRange)
+--         allUnitsInRange = br.engines.healingEngineFunctions:getAllies("player",maxRange)
 --     else
---         allUnitsInRange = br.getEnemies("player",maxRange,false)
+--         allUnitsInRange = br.engines.enemiesEngineFunctions:getEnemies("player",maxRange,false)
 --     end
 
 --     local testCircles = {}
@@ -202,10 +182,10 @@ end
 --         local combs = getAllCombinationsOfASet(allUnitsInRange, 2)
 --         for _, val in pairs(combs) do
 --             local temp = {}
---             local tX1, tY1, tZ1 = (castTime == nil or castTime == 0) and br.GetObjectPosition(val[1]) or 0,0,0
---                 or br.GetFuturePostion(val[1], castTime)
---             local tX2, tY2, tZ2 = (castTime == nil or castTime == 0) and br.GetObjectPosition(val[2]) or 0,0,0
---                 or br.GetFuturePostion(val[2], castTime)
+--             local tX1, tY1, tZ1 = (castTime == nil or castTime == 0) and br.functions.unit:GetObjectPosition(val[1]) or 0,0,0
+--                 or br.functions.custom:(val[1], castTime)
+--             local tX2, tY2, tZ2 = (castTime == nil or castTime == 0) and br.functions.unit:GetObjectPosition(val[2]) or 0,0,0
+--                 or br.functions.custom:(val[2], castTime)
 
 --             --distance
 --             local q = sqrt((tX2-tX1)^2 + (tY2-tY1)^2)
@@ -233,8 +213,8 @@ end
 --     local bestCircle = {x = 0, y = 0, z = 0, q = 0, nro = 0}
 --     for i=1, #testCircles do
 --         local thisCircle = testCircles[i]
---         if br.getDistanceToLocation("player",thisCircle.xfc,thisCircle.yfc,thisCircle.z) > minRange
---             or br.getDistanceToLocation("player",thisCircle.xsc,thisCircle.ysc,thisCircle.z) > minRange
+--         if br.functions.range:getDistanceToLocation("player",thisCircle.xfc,thisCircle.yfc,thisCircle.z) > minRange
+--             or br.functions.range:getDistanceToLocation("player",thisCircle.xsc,thisCircle.ysc,thisCircle.z) > minRange
 --         then
 --             local tempData = { {count=0, units={}, x=thisCircle.xfc, y=thisCircle.yfc},
 --                             {count=0, units={}, x=thisCircle.xsc, y=thisCircle.ysc} }
@@ -272,8 +252,8 @@ end
 --     -- end
 
 --     --check with minUnits
---     if minUnits == 1 and bestCircle.nro == 0 and br.GetUnitExists("target") and br.getDistance("player","target") > minRange then
---         if br.castGround("target",spellID,maxRange,minRange,radius,castTime) then return true else return false end
+--     if minUnits == 1 and bestCircle.nro == 0 and br.functions.unit:GetUnitExists("target") and br.functions.range:getDistance("player","target") > minRange then
+--         if br.functions.cast:castGround("target",spellID,maxRange,minRange,radius,castTime) then return true else return false end
 --     end
 --     if bestCircle.nro < minUnits then return false end
 
@@ -294,101 +274,185 @@ end
 --             end
 --         end
 --         bestCircle.x, bestCircle.y = (newBestCircleX + math.random() * 2), (newBestCircleY + math.random() * 2)
---         if br.castAtPosition(bestCircle.x,bestCircle.y,bestCircle.z, spellID) then return true else return false end
+--         if br.functions.cast:castAtPosition(bestCircle.x,bestCircle.y,bestCircle.z, spellID) then return true else return false end
 --     end
 -- end
 
-function br.castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange, spellType, castTime)
-    local allUnitsInRange = (spellType == "heal") and br.getAllies("player", maxRange) or
-        br.getEnemies("player", maxRange, false)
+function custom:castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange, spellType, castTime)
+    -- Finds the best ground location (within spell range) that maximizes the number of units inside a
+    -- fixed-radius circle. If the maximum hit count is >= minUnits, casts at that location.
+    --
+    -- NOTE: castTime is currently unused; reliable movement prediction is not available here.
 
-    local bestLocation = nil
-    local maxHitCount = 0
-    local playerX, playerY, playerZ = br.GetObjectPosition("player")
+    local _, _, _, _, spellMinRange, spellMaxRange = br.api.wow.GetSpellInfo(spellID)
+    minRange = minRange or spellMinRange or 0
+    maxRange = maxRange or spellMaxRange or 5
+    radius = radius or maxRange
+    minUnits = minUnits or 1
 
-    local function GetUnitMovementDirectionAndSpeed(unit)
-        -- Placeholder function: In practice, this would require complex calculations
-        -- and might not be entirely accurate due to unpredictable player behavior.
-        local direction = 0 -- Direction the unit is moving in radians
-        local speed = 0     -- Speed of the unit
+    local allUnitsInRange = (spellType == "heal")
+        and br.engines.healingEngineFunctions:getAllies("player", maxRange)
+        or br.engines.enemiesEngineFunctions:getEnemies("player", maxRange, false)
 
-        -- You would need to calculate the actual direction and speed based on the unit's movement.
-        -- World of Warcraft's API may not provide direct methods to get these values accurately.
+    if not allUnitsInRange or #allUnitsInRange == 0 then return false end
 
-        return direction, speed
+    local playerX, playerY, playerZ = br.functions.unit:GetObjectPosition("player")
+
+    local function dist2(x1, y1, x2, y2)
+        local dx, dy = x2 - x1, y2 - y1
+        return dx * dx + dy * dy
     end
 
-    local function GetFuturePosition(unit, castTime)
-        -- Get the current position of the unit
-        local currentX, currentY, currentZ = br.GetObjectPosition(unit)
-
-        -- Estimate the unit's current movement direction and speed
-        -- This is a simplified example. In practice, this can be quite complex.
-        local direction, speed = GetUnitMovementDirectionAndSpeed(unit)
-
-        -- Calculate the future position based on current position, direction, speed, and castTime
-        local futureX = currentX + speed * castTime * math.cos(direction)
-        local futureY = currentY + speed * castTime * math.sin(direction)
-        local futureZ = currentZ -- Assuming no vertical movement for simplicity
-
-        return futureX, futureY, futureZ
+    local function inSpellRange(cx, cy, cz)
+        local d = math.sqrt(dist2(playerX, playerY, cx, cy))
+        return d <= maxRange and d >= (minRange or 0)
     end
 
-    local function IsWithinRadiusFuture(center, target, radius, castTime)
-        local futureCenterX, futureCenterY = GetFuturePosition(center, castTime)
-        local futureTargetX, futureTargetY = GetFuturePosition(target, castTime)
-        local dx, dy = futureCenterX - futureTargetX, futureCenterY - futureTargetY
-        return (dx * dx + dy * dy) <= (radius * radius)
-    end
-
-    local function CalculateFutureClusterCenter(cluster, castTime)
-        local sumX, sumY, sumZ = 0, 0, 0
-        for _, unit in ipairs(cluster) do
-            local x, y, z = GetFuturePosition(unit, castTime)
-            sumX = sumX + x
-            sumY = sumY + y
-            sumZ = sumZ + z
+    -- Build a compact list of points we can evaluate.
+    local points = {}
+    for i = 1, #allUnitsInRange do
+        local unitObj = allUnitsInRange[i]
+        local unitToken = (spellType == "heal" and unitObj.unit) or unitObj
+        if unitToken then
+            local x, y, z = br.functions.unit:GetObjectPosition(unitToken)
+            if x and y and z then
+                points[#points + 1] = { unit = unitToken, x = x, y = y, z = z }
+            end
         end
-        return {
-            x = sumX / #cluster,
-            y = sumY / #cluster,
-            z = sumZ / #cluster
-        }
     end
 
-    local function GetDistance(x1, y1, x2, y2)
-        return math.sqrt((x2 - x1) ^ 2 + (y2 - y1) ^ 2)
+    if #points == 0 then return false end
+
+    local candidates = {}
+
+    -- Candidate centers: every unit position.
+    for i = 1, #points do
+        local p = points[i]
+        candidates[#candidates + 1] = { x = p.x, y = p.y, z = p.z }
     end
 
-    for _, potentialCenter in ipairs(allUnitsInRange) do
-        local hitCount = 0
-        local cluster = {}
+    -- Candidate centers: circle intersection points for each pair within 2*radius.
+    -- Standard algorithm: for two points p1, p2 with distance d <= 2r,
+    -- compute midpoint m and perpendicular offset h to get two possible centers.
+    local r = radius
+    local r2 = r * r
+    local maxPairDist2 = (2 * r) * (2 * r)
 
-        for _, target in ipairs(allUnitsInRange) do
-            if IsWithinRadiusFuture(potentialCenter, target, radius, castTime) then
-                hitCount = hitCount + 1
-                table.insert(cluster, target)
+    local function getHitInfoAt(cx, cy, cz)
+        local count = 0
+        local sumX, sumY, sumZ = 0, 0, 0
+        for j = 1, #points do
+            local p = points[j]
+            if dist2(cx, cy, p.x, p.y) <= r2 then
+                count = count + 1
+                sumX = sumX + p.x
+                sumY = sumY + p.y
+                sumZ = sumZ + p.z
+            end
+        end
+        if count == 0 then
+            return 0, nil, nil
+        end
+        local centroid = { x = sumX / count, y = sumY / count, z = sumZ / count }
+
+        -- Centering score: minimize the maximum distance from centroid to any covered unit.
+        local maxDistToCentroid2 = 0
+        for j = 1, #points do
+            local p = points[j]
+            if dist2(cx, cy, p.x, p.y) <= r2 then
+                local d2 = dist2(centroid.x, centroid.y, p.x, p.y)
+                if d2 > maxDistToCentroid2 then
+                    maxDistToCentroid2 = d2
+                end
             end
         end
 
-        local clusterCenter = CalculateFutureClusterCenter(cluster, castTime)
-        local distanceFromPlayer = GetDistance(playerX, playerY, clusterCenter.x, clusterCenter.y)
-
-        if hitCount >= minUnits and hitCount > maxHitCount and distanceFromPlayer >= minRange then
-            bestLocation = clusterCenter
-            maxHitCount = hitCount
+        return count, centroid, maxDistToCentroid2
+    end
+    for i = 1, #points - 1 do
+        local p1 = points[i]
+        for j = i + 1, #points do
+            local p2 = points[j]
+            local dSq = dist2(p1.x, p1.y, p2.x, p2.y)
+            if dSq > 0 and dSq <= maxPairDist2 then
+                local d = math.sqrt(dSq)
+                local mx, my = (p1.x + p2.x) / 2, (p1.y + p2.y) / 2
+                local hSq = r2 - (d * d) / 4
+                if hSq >= 0 then
+                    local h = math.sqrt(hSq)
+                    local ux, uy = (p2.x - p1.x) / d, (p2.y - p1.y) / d
+                    local px, py = -uy, ux
+                    local z = (p1.z + p2.z) / 2
+                    candidates[#candidates + 1] = { x = mx + px * h, y = my + py * h, z = z }
+                    candidates[#candidates + 1] = { x = mx - px * h, y = my - py * h, z = z }
+                end
+            end
         end
     end
 
-    if bestLocation and maxHitCount >= minUnits then
-        -- Cast the spell at the bestLocation
-        return br.castAtPosition(bestLocation.x, bestLocation.y, bestLocation.z, spellID)
+    local bestLocation = nil
+    local bestCentroid = nil
+    local bestCount = 0
+    local bestMaxDistToCentroid2 = nil
+    local bestDistToPlayer2 = nil
+
+    for i = 1, #candidates do
+        local c = candidates[i]
+        if inSpellRange(c.x, c.y, c.z) then
+            local count, centroid, maxDistToCentroid2 = getHitInfoAt(c.x, c.y, c.z)
+
+            if count > bestCount then
+                bestCount = count
+                bestLocation = c
+                bestCentroid = centroid
+                bestMaxDistToCentroid2 = maxDistToCentroid2
+                bestDistToPlayer2 = dist2(playerX, playerY, c.x, c.y)
+            elseif count == bestCount and bestCount > 0 then
+                -- Tie-breaker order:
+                -- 1) More centered (smaller max distance to centroid)
+                -- 2) Closer to player (minor preference)
+                if centroid and maxDistToCentroid2 then
+                    if (not bestMaxDistToCentroid2) or (maxDistToCentroid2 < bestMaxDistToCentroid2) then
+                        bestLocation = c
+                        bestCentroid = centroid
+                        bestMaxDistToCentroid2 = maxDistToCentroid2
+                        bestDistToPlayer2 = dist2(playerX, playerY, c.x, c.y)
+                    elseif maxDistToCentroid2 == bestMaxDistToCentroid2 then
+                        local d2 = dist2(playerX, playerY, c.x, c.y)
+                        if not bestDistToPlayer2 or d2 < bestDistToPlayer2 then
+                            bestLocation = c
+                            bestCentroid = centroid
+                            bestDistToPlayer2 = d2
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    -- If we found a best cluster, try snapping the cast to the centroid of the covered group.
+    -- This keeps the same hit count when possible, and avoids placing the pack on the edge.
+    if bestCentroid and inSpellRange(bestCentroid.x, bestCentroid.y, bestCentroid.z) then
+        local centroidCount = 0
+        for j = 1, #points do
+            local p = points[j]
+            if dist2(bestCentroid.x, bestCentroid.y, p.x, p.y) <= r2 then
+                centroidCount = centroidCount + 1
+            end
+        end
+        if centroidCount == bestCount then
+            bestLocation = bestCentroid
+        end
+    end
+
+    if bestLocation and bestCount >= minUnits then
+        return br.functions.cast:castAtPosition(bestLocation.x, bestLocation.y, bestLocation.z, spellID)
     end
 
     return false
 end
 
-function br.isUnitThere(unitNameOrID, distance)
+function custom:isUnitThere(unitNameOrID, distance)
     -- description:
     -- check if Unit with ID or name is around
 
@@ -399,20 +463,20 @@ function br.isUnitThere(unitNameOrID, distance)
     -- isUnitThere("Shadowfel Warden")
 
     if type(unitNameOrID) == "number" then
-        for k, _ in pairs(br.enemy) do
-            local thisUnit = br.enemy[k].unit
-            if br.GetObjectID(thisUnit) then
-                if distance == nil or br.getDistance("player", thisUnit) < distance then
+        for k, _ in pairs(br.engines.enemiesEngine.enemy) do
+            local thisUnit = br.engines.enemiesEngine.enemy[k].unit
+            if br.functions.unit:GetObjectID(thisUnit) then
+                if distance == nil or br.functions.range:getDistance("player", thisUnit) < distance then
                     return true
                 end
             end
         end
     end
     if type(unitNameOrID) == "string" then
-        for k, _ in pairs(br.enemy) do
-            local thisUnit = br.enemy[k].unit
+        for k, _ in pairs(br.engines.enemiesEngine.enemy) do
+            local thisUnit = br.engines.enemiesEngine.enemy[k].unit
             if br._G.UnitName(thisUnit) == unitNameOrID then
-                if distance == nil or br.getDistance("player", thisUnit) < distance then
+                if distance == nil or br.functions.range:getDistance("player", thisUnit) < distance then
                     return true
                 end
             end
@@ -420,7 +484,7 @@ function br.isUnitThere(unitNameOrID, distance)
     end
 end
 
-function br.getTooltipSize(SpellID)
+function custom:getTooltipSize(SpellID)
     -- description
     -- get the dmg or heal value from a tooltip
 
@@ -434,19 +498,19 @@ function br.getTooltipSize(SpellID)
     return tonumber(n1 .. n2)
 end
 
-function br.castBossButton(target)
+function custom:castBossButton(target)
     if target == nil then
         br._G.RunMacroText("/click ExtraActionButton1")
         return true
     else
-        br._G.TargetUnit(target)
+        -- br._G.TargetUnit(target)
         br._G.RunMacroText("/click ExtraActionButton1")
         return true
     end
 end
 
 -- get threat situation on player and return the number
-function br.getThreat()
+function custom:getThreat()
     if br._G.UnitThreatSituation("player") ~= nil then
         return br._G.UnitThreatSituation("player")
     end
@@ -457,7 +521,7 @@ function br.getThreat()
     return 0
 end
 
-function br.RaidBuff(BuffSlot, myBuffSpellID)
+function custom:RaidBuff(BuffSlot, myBuffSpellID)
     -- description:
     -- check for raidbuff and cast if missing
 
@@ -522,7 +586,7 @@ function br.RaidBuff(BuffSlot, myBuffSpellID)
     if br._G.GetNumGroupMembers() == 0 then
         if not br._G.UnitIsDeadOrGhost("player") then
             if not br._G.GetRaidBuffTrayAuraInfo(id) then
-                if br.castSpell("player", SpellID) then return true end
+                if br.functions.cast:castSpell("player", SpellID) then return true end
             end
         end
     else
@@ -531,12 +595,12 @@ function br.RaidBuff(BuffSlot, myBuffSpellID)
         else
             for index = 1, br._G.GetNumGroupMembers() do
                 local _, _, _, _, _, _, _, online, isDead, _, _ = br._G.GetRaidRosterInfo(index)
-                if online and not isDead and 1 == br._G.C_Spell.IsSpellInRange(select(1, br._G.GetSpellInfo(SpellID)), "raid" .. index) then
+                if online and not isDead and br._G.C_Spell.IsSpellInRange(select(1, br.api.wow.GetSpellInfo(SpellID)), "raid" .. index) == true then
                     -- local playerBuffed=false
                     for auraIndex = 1, #chosenTable do
-                        if br.getBuffRemain("raid" .. index, chosenTable[auraIndex]) > 0 then break end
-                        if br.getBuffRemain("raid" .. index, chosenTable[auraIndex]) <= 0 then
-                            if br.castSpell("player", SpellID, true, false) then return true end
+                        if br.functions.aura:getBuffRemain("raid" .. index, chosenTable[auraIndex]) > 0 then break end
+                        if br.functions.aura:getBuffRemain("raid" .. index, chosenTable[auraIndex]) <= 0 then
+                            if br.functions.cast:castSpell("player", SpellID, true, false) then return true end
                         end
                     end
                 end
@@ -545,7 +609,7 @@ function br.RaidBuff(BuffSlot, myBuffSpellID)
     end
 end
 
-function br.getUnitCluster(minUnits, maxRange, radius)
+function custom:getUnitCluster(minUnits, maxRange, radius)
     -- Description:
     -- returns the enemy with minUnits around in maxRange
 
@@ -563,11 +627,11 @@ function br.getUnitCluster(minUnits, maxRange, radius)
     local enemiesInRange = 0
     local theReturnUnit
 
-    for k, _ in pairs(br.enemy) do
-        local thisUnit = br.enemy[k].unit
-        local thisEnemies = br.getNumEnemies(thisUnit, radius)
-        if br.getLineOfSight(thisUnit) == true then
-            if br.getDistance(thisUnit) < maxRange then
+    for k, _ in pairs(br.engines.enemiesEngine.enemy) do
+        local thisUnit = br.engines.enemiesEngine.enemy[k].unit
+        local thisEnemies = br.functions.combat:getNumEnemies(thisUnit, radius)
+        if br.functions.misc:getLineOfSight(thisUnit) == true then
+            if br.functions.range:getDistance(thisUnit) < maxRange then
                 if thisEnemies >= minUnits and thisEnemies > enemiesInRange then
                     theReturnUnit = thisUnit
                 end
@@ -577,7 +641,7 @@ function br.getUnitCluster(minUnits, maxRange, radius)
     return select(1, theReturnUnit)
 end
 
-function br.getBiggestUnitCluster(maxRange, radius, minCount)
+function custom:getBiggestUnitCluster(maxRange, radius, minCount)
     -- Description:
     -- returns the enemy with most enemies in radius in maxRange from player
 
@@ -596,12 +660,12 @@ function br.getBiggestUnitCluster(maxRange, radius, minCount)
     local theReturnUnit
     -- local foundCluster = false
 
-    for k, _ in pairs(br.enemy) do
-        local thisUnit = br.enemy[k].unit
-        local thisRange = br.getDistance(thisUnit) or 99
-        if br.getLineOfSight(thisUnit) == true then
+    for k, _ in pairs(br.engines.enemiesEngine.enemy) do
+        local thisUnit = br.engines.enemiesEngine.enemy[k].unit
+        local thisRange = br.functions.range:getDistance(thisUnit) or 99
+        if br.functions.misc:getLineOfSight(thisUnit) == true then
             if thisRange < maxRange then
-                local enemyCount = br.getNumEnemies(thisUnit, radius)
+                local enemyCount = br.functions.combat:getNumEnemies(thisUnit, radius)
                 if enemyCount >= enemiesInRange then
                     theReturnUnit = thisUnit
                     -- foundCluster = true
@@ -618,12 +682,12 @@ end
 --[[                                                                                                ]]
 
 -- Used to merge two tables
-function br.mergeTables(a, b)
+function custom:mergeTables(a, b)
     if a == nil then a = {} end
     if type(a) == 'table' and type(b) == 'table' then
         for k, v in pairs(b) do
             if type(v) == 'table' and type(a[k] or false) == 'table' then
-                br.mergeTables(a[k], v)
+                br.functions.custom:mergeTables(a[k], v)
             else
                 a[k] = v
             end
@@ -633,31 +697,31 @@ function br.mergeTables(a, b)
 end
 
 -- Used by new Class Framework to put all seperat Spell-Tables into new spell table
-function br.mergeSpellTables(tSpell, tCharacter, tClass, tSpec)
-    tSpell = br.mergeTables(tSpell, tCharacter)
-    tSpell = br.mergeTables(tSpell, tClass)
-    tSpell = br.mergeTables(tSpell, tSpec)
+function custom:mergeSpellTables(tSpell, tCharacter, tClass, tSpec)
+    tSpell = br.functions.custom:mergeTables(tSpell, tCharacter)
+    tSpell = br.functions.custom:mergeTables(tSpell, tClass)
+    tSpell = br.functions.custom:mergeTables(tSpell, tSpec)
     return tSpell
 end
 
-function br.mergeIdTables(idTable)
+function custom:mergeIdTables(idTable)
     local class = select(2, br._G.UnitClass("player"))
-    local spec = br._G.GetSpecializationInfo(br._G.GetSpecialization())
+    local spec = br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization())
     if idTable ~= nil then idTable = {} end
     if br.lists.spells.Shared ~= nil then
-        idTable = br.mergeTables(idTable, br.lists.spells.Shared)
+        idTable = br.functions.custom:mergeTables(idTable, br.lists.spells.Shared)
     end
     if br.lists.spells[class] ~= nil then
         if br.lists.spells[class].Shared ~= nil then
-            idTable = br.mergeTables(idTable, br.lists.spells[class].Shared)
+            idTable = br.functions.custom:mergeTables(idTable, br.lists.spells[class].Shared)
             if br.lists.spells[class].Shared.abilities ~= nil then
-                idTable = br.mergeTables(idTable, br.lists.spells[class].Shared.abilities)
+                idTable = br.functions.custom:mergeTables(idTable, br.lists.spells[class].Shared.abilities)
             end
         end
         if br.lists.spells[class][spec] ~= nil then
-            idTable = br.mergeTables(idTable, br.lists.spells[class][spec])
+            idTable = br.functions.custom:mergeTables(idTable, br.lists.spells[class][spec])
             if br.lists.spells[class][spec].abilities ~= nil then
-                idTable = br.mergeTables(idTable, br.lists.spells[class][spec].abilities)
+                idTable = br.functions.custom:mergeTables(idTable, br.lists.spells[class][spec].abilities)
             end
         end
     end
@@ -665,10 +729,10 @@ function br.mergeIdTables(idTable)
 end
 
 -- takes a given time duration and returns a string representing the hours, minutes, and seconds
--- examply br.formattedTime(time,format))
+-- examply br.functions.custom:formattedTime(time,format))
 -- format 1 = short time: HH:MM:SS
 -- format 2 = long time:  2hrs 24m 15s
-function br.formattedTime(inTime, format)
+function custom:formattedTime(inTime, format)
     if format == nil then format = 1 end
     inTime = inTime / 1000
     local hours = math.floor(inTime / 3600)
@@ -683,7 +747,7 @@ end
 -- inTable(myTable, "hello") == true
 -- inTable(myTable, "WHAT?") == false
 -- check if tContains() does the same wow api
-function br.inTable(tbl, item)
+function custom:inTable(tbl, item)
     for key, value in pairs(tbl) do
         if value == item then return key end
     end
@@ -692,7 +756,7 @@ end
 
 --- Inserts table values into a table
 --  No nested table (table in a table)
-function br.insertTableIntoTable(originalTable, insertTable)
+function custom:insertTableIntoTable(originalTable, insertTable)
     for i = 1, #insertTable do
         table.insert(originalTable, insertTable[i])
     end
@@ -700,7 +764,7 @@ end
 
 --- Returns if specified trinket is equipped in either slot
 -- if isTrinketEquipped(124518) then trinket = "Libram of Vindication" end
-function br.isTrinketEquipped(trinket)
+function custom:isTrinketEquipped(trinket)
     if (br._G.GetInventoryItemID("player", 13) == trinket or br._G.GetInventoryItemID("player", 14) == trinket) then
         return true
     else
@@ -711,13 +775,13 @@ end
 --- Return true if player has buff X
 -- Parameter: ID
 -- hasBuff(12345)
-function br.hasBuff(spellID)
+function custom:hasBuff(spellID)
     local buffs, i = {}, 1
-    local buff = br.UnitBuff("player", i)
+    local buff = br.functions.aura:UnitBuff("player", i)
     while buff do
         buffs[#buffs + 1] = buff
         i = i + 1
-        buff = select(10, br.UnitBuff("player", i))
+        buff = select(10, br.functions.aura:UnitBuff("player", i))
         if buff ~= nil then
             if buff == spellID then return true end
         end
@@ -728,13 +792,13 @@ end
 --- Cancel the giving BuffID
 -- Parameter: ID
 -- cancelBuff(12345)
-function br.cancelBuff(spellID)
+function custom:cancelBuff(spellID)
     local buffs, i = {}, 1
-    local buff = br.UnitBuff("player", i)
+    local buff = br.functions.aura:UnitBuff("player", i)
     while buff do
         buffs[#buffs + 1] = buff
         i = i + 1
-        buff = select(10, br.UnitBuff("player", i))
+        buff = select(10, br.functions.aura:UnitBuff("player", i))
         if buff ~= nil then
             if buff == spellID then
                 br._G.CancelUnitBuff("player", i, "")
@@ -747,46 +811,46 @@ end
 
 --[[ DBM Timer ]] --
 
-br.DBM = {}
+br.functions.DBM = {}
 
 --- Return: All current DBM Timer
-function br.DBM:getBars()
+function br.functions.DBM:getBars()
     if br._G.DBM then
-        if not br.DBM.Timer then
-            br.DBM.Timer = {}
+        if not br.functions.DBM.Timer then
+            br.functions.DBM.Timer = {}
         else
-            br._G.wipe(br.DBM.Timer)
+            br._G.wipe(br.functions.DBM.Timer)
         end
         if br._G.DBM.Bars ~= nil then
             for bar in pairs(br._G.DBM.Bars.bars) do
                 local number = string.match(bar.id, "%d+")
-                table.insert(br.DBM.Timer, { id = bar.id, timer = bar.timer, spellid = number })
+                table.insert(br.functions.DBM.Timer, { id = bar.id, timer = bar.timer, spellid = number })
             end
         end
     end
 end
 
 --- Usage:
--- 1 - br.DBM:getPulltimer() -> return (number) pulltimer count
--- 2 - br.DBM:getPulltimer(5) -> return (boolean) if pulltimer is below given time TRUE else FALSE
+-- 1 - br.functions.DBM:getPulltimer() -> return (number) pulltimer count
+-- 2 - br.functions.DBM:getPulltimer(5) -> return (boolean) if pulltimer is below given time TRUE else FALSE
 -- specificID can be set if Pulltimer is NOT "Pull in"
-function br.DBM:getPulltimer(time, specificID)
-    if br.DBM.Timer then
+function br.functions.DBM:getPulltimer(time, specificID)
+    if br.functions.DBM.Timer then
         if br._G.C_AddOns.IsAddOnLoaded('DBM-Core') then
             local specificID = specificID or "Pull in"
             local hasPullTimer = false
             local isBelowTime = false
             local pullTimer = 0
-            for i = 1, #br.DBM.Timer do
+            for i = 1, #br.functions.DBM.Timer do
                 -- Check if a Pulltimer is present
-                --Print("get pull timer id="..br.DBM.Timer[i].id)
-                --Print("time="..br.DBM.Timer[i].timer)
+                --Print("get pull timer id="..br.functions.DBM.Timer[i].id)
+                --Print("time="..br.functions.DBM.Timer[i].timer)
 
-                --if br.DBM.Timer[i].id == specificID then
-                local is_find, _ = string.find(br.DBM.Timer[i].id, tostring(specificID))
+                --if br.functions.DBM.Timer[i].id == specificID then
+                local is_find, _ = string.find(br.functions.DBM.Timer[i].id, tostring(specificID))
                 if is_find ~= nil then
                     hasPullTimer = true
-                    pullTimer = br.DBM.Timer[i].timer
+                    pullTimer = br.functions.DBM.Timer[i].timer
                     -- if a time is given set var to true
                     if time then
                         if pullTimer <= time then
@@ -809,11 +873,11 @@ function br.DBM:getPulltimer(time, specificID)
             local isBelowTime = false
             local currentTimer = 0
             local specificID = specificID or "Pull"
-            for i = 1, #br.DBM.Timer do
+            for i = 1, #br.functions.DBM.Timer do
                 -- Check if timer with spell id is present
-                if br.DBM.Timer[i] ~= nil and br.DBM.Timer[i].id == specificID then
+                if br.functions.DBM.Timer[i] ~= nil and br.functions.DBM.Timer[i].id == specificID then
                     hasTimer = true
-                    currentTimer = br.DBM.Timer[i].exptime - br._G.GetTime()
+                    currentTimer = br.functions.DBM.Timer[i].exptime - br._G.GetTime()
                     -- if a time is given set var to true
                     if time then
                         if currentTimer <= time then
@@ -839,22 +903,22 @@ function br.DBM:getPulltimer(time, specificID)
     return 999 -- return number to avoid conflicts but to high so it should never trigger
 end
 
--- function br.DBM:getPulltimer(time, specificID)
---     if br.DBM.Timer then
+-- function br.functions.DBM:getPulltimer(time, specificID)
+--     if br.functions.DBM.Timer then
 --         specificID = specificID or "Pull in"
 --         local hasPulltimer = false
 --         local isBelowTime = false
 --         local pullTimer = 0
---         for i = 1, #br.DBM.Timer do
+--         for i = 1, #br.functions.DBM.Timer do
 --             -- Check if a Pulltimer is present
---             --Print("get pull timer id="..br.DBM.Timer[i].id)
---             --Print("time="..br.DBM.Timer[i].timer)
+--             --Print("get pull timer id="..br.functions.DBM.Timer[i].id)
+--             --Print("time="..br.functions.DBM.Timer[i].timer)
 
---             --if br.DBM.Timer[i].id == specificID then
---             is_find , _ = string.find(br.DBM.Timer[i].id , tostring(specificID))
+--             --if br.functions.DBM.Timer[i].id == specificID then
+--             is_find , _ = string.find(br.functions.DBM.Timer[i].id , tostring(specificID))
 --             if is_find ~= nil then
 --                 hasPulltimer = true
---                 pullTimer = br.DBM.Timer[i].timer
+--                 pullTimer = br.functions.DBM.Timer[i].timer
 
 --                 -- if a time is given set var to true
 --                 if time then
@@ -884,19 +948,19 @@ end
 
 
 --- Usage:
--- 1 - br.DBM:getTimer(spellID) -> return (number) the count of given spell ID timer
--- 2 - br.DBM:getTimer(spellID, time) -> return (boolean) TRUE if spellid is below given time else FALSE
-function br.DBM:getTimer(spellID, time)
-    if br.DBM.Timer then
+-- 1 - br.functions.DBM:getTimer(spellID) -> return (number) the count of given spell ID timer
+-- 2 - br.functions.DBM:getTimer(spellID, time) -> return (boolean) TRUE if spellid is below given time else FALSE
+function br.functions.DBM:getTimer(spellID, time)
+    if br.functions.DBM.Timer then
         if br._G.C_AddOns.IsAddOnLoaded('DBM-Core') then
             local hasTimer = false
             local isBelowTime = false
             local currentTimer = 0
-            for i = 1, #br.DBM.Timer do
+            for i = 1, #br.functions.DBM.Timer do
                 -- Check if timer with spell id is present
-                if tonumber(br.DBM.Timer[i].spellid) == spellID then
+                if tonumber(br.functions.DBM.Timer[i].spellid) == spellID then
                     hasTimer = true
-                    currentTimer = br.DBM.Timer[i].timer
+                    currentTimer = br.functions.DBM.Timer[i].timer
                     -- if a time is given set var to true
                     if time then
                         if currentTimer <= time then
@@ -918,11 +982,11 @@ function br.DBM:getTimer(spellID, time)
             local hasTimer = false
             local isBelowTime = false
             local currentTimer = 0
-            for i = 1, #br.DBM.Timer do
+            for i = 1, #br.functions.DBM.Timer do
                 -- Check if timer with spell id is present
-                if br.DBM.Timer[i] ~= nil and br.DBM.Timer[i].id == spellID then
+                if br.functions.DBM.Timer[i] ~= nil and br.functions.DBM.Timer[i].id == spellID then
                     hasTimer = true
-                    currentTimer = br.DBM.Timer[i].exptime - br._G.GetTime()
+                    currentTimer = br.functions.DBM.Timer[i].exptime - br._G.GetTime()
                     -- if a time is given set var to true
                     if time then
                         if currentTimer <= time then
@@ -949,27 +1013,27 @@ function br.DBM:getTimer(spellID, time)
 end
 
 -- Future position
-function br.GetFuturePostion(unit, castTime)
+function custom:GetFuturePostion(unit, castTime)
     local distance = br._G.GetUnitSpeed(unit) * castTime
     if distance > 0 then
-        local x, y, z = br.GetObjectPosition(unit)
-        local angle = br.GetObjectFacing(unit)
+        local x, y, z = br.functions.unit:GetObjectPosition(unit)
+        local angle = br.functions.unit:GetObjectFacing(unit)
         --If Unit have a target, let's make sure they don't collide
         local unitTarget = br._G.UnitTarget(unit)
         local unitTargetDist = 0
         if unitTarget ~= nil then
-            local tX, tY, tZ = br.GetObjectPosition(unitTarget)
+            local tX, tY, tZ = br.functions.unit:GetObjectPosition(unitTarget)
             --Lets get predicted position of unit target aswell
             if br._G.GetUnitSpeed(unitTarget) > 0 then
                 local tDistance = br._G.GetUnitSpeed(unitTarget) * castTime
-                local tAngle = br.GetObjectFacing(unitTarget)
+                local tAngle = br.functions.unit:GetObjectFacing(unitTarget)
                 tX = tX + cos(tAngle) * tDistance
                 tY = tY + sin(tAngle) * tDistance
                 unitTargetDist = sqrt(((tX - x) ^ 2) + ((tY - y) ^ 2) + ((tZ - z) ^ 2)) -
                     ((br._G.UnitCombatReach(unit) or 0) + (br._G.UnitCombatReach(unitTarget) or 0))
                 if unitTargetDist < distance then distance = unitTargetDist end
             else
-                unitTargetDist = br.getDistance(unitTarget, unit, "dist")
+                unitTargetDist = br.functions.range:getDistance(unitTarget, unit, "dist")
                 if unitTargetDist < distance then distance = unitTargetDist end
             end
             -- calculate angle based on target position/future position
@@ -982,12 +1046,12 @@ function br.GetFuturePostion(unit, castTime)
         y = y + sin(angle) * distance
         return x, y, z
     end
-    return br.GetObjectPosition(unit)
+    return br.functions.unit:GetObjectPosition(unit)
 end
 
-function br.PullTimerRemain(returnBool)
+function custom:PullTimerRemain(returnBool)
     if returnBool == nil then returnBool = false end
-    if br.DBM:getPulltimer() == 999 then
+    if br.functions.DBM:getPulltimer() == 999 then
         if returnBool == false then
             return 999
         else
@@ -995,20 +1059,20 @@ function br.PullTimerRemain(returnBool)
         end
     else
         if returnBool == false then
-            return br.DBM:getPulltimer()
+            return br.functions.DBM:getPulltimer()
         else
             return true
         end
     end
 end
 
-function br.BWInit()
-    if not br.DBM.Timer then
-        br.DBM.Timer = {}
+function custom:BWInit()
+    if not br.functions.DBM.Timer then
+        br.functions.DBM.Timer = {}
     end
-    if br.DBM.BigWigs ~= nil then return end
-    br.DBM.BigWigs = {}
-    local BigWigs = br.DBM.BigWigs
+    if br.functions.DBM.BigWigs ~= nil then return end
+    br.functions.DBM.BigWigs = {}
+    local BigWigs = br.functions.DBM.BigWigs
     BigWigs.callback = {}
     local callback = BigWigs.callback
     BigWigs.BigwigsCallback = function(event, ...)
@@ -1026,10 +1090,10 @@ function br.BWInit()
                     return
                 end
             end
-            for i = 1, #br.DBM.Timer do
-                if br.DBM.Timer[i] ~= nil and br.DBM.Timer[i].id == spellId then
+            for i = 1, #br.functions.DBM.Timer do
+                if br.functions.DBM.Timer[i] ~= nil and br.functions.DBM.Timer[i].id == spellId then
                     clone = true
-                    br.DBM.Timer[i].exptime = br._G.GetTime() + duration
+                    br.functions.DBM.Timer[i].exptime = br._G.GetTime() + duration
                     break
                 end
             end
@@ -1037,16 +1101,16 @@ function br.BWInit()
                 local timer = {}
                 timer.id = spellId
                 timer.exptime = br._G.GetTime() + duration
-                br._G.tinsert(br.DBM.Timer, timer)
+                br._G.tinsert(br.functions.DBM.Timer, timer)
                 clone = false
             end
         elseif (event == "BigWigs_StopBars"
                 or event == "BigWigs_OnBossDisable"
                 or event == "BigWigs_OnPluginDisable") then
-            if #br.DBM.Timer > 0 then
-                local count = #br.DBM.Timer
+            if #br.functions.DBM.Timer > 0 then
+                local count = #br.functions.DBM.Timer
                 for i = 0, count do
-                    br.DBM.Timer[i] = nil
+                    br.functions.DBM.Timer[i] = nil
                 end
             end
         else
@@ -1062,12 +1126,12 @@ function br.BWInit()
     end
 end
 
-function br.BWCheck()
-    if #br.DBM.Timer > 0 then
-        for i = 1, #br.DBM.Timer do
-            if br.DBM.Timer[i] ~= nil then
-                if br.DBM.Timer[i].exptime < br._G.GetTime() then
-                    br.DBM.Timer[i] = nil
+function custom:BWCheck()
+    if #br.functions.DBM.Timer > 0 then
+        for i = 1, #br.functions.DBM.Timer do
+            if br.functions.DBM.Timer[i] ~= nil then
+                if br.functions.DBM.Timer[i].exptime < br._G.GetTime() then
+                    br.functions.DBM.Timer[i] = nil
                 end
             else
             end
@@ -1076,6 +1140,6 @@ function br.BWCheck()
 end
 
 -- Check Instance IDs from https://wow.gamepedia.com/InstanceID
-function br.getCurrentZoneId()
+function custom:getCurrentZoneId()
     return select(8, br._G.GetInstanceInfo())
 end

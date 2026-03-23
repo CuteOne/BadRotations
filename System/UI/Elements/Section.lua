@@ -13,18 +13,18 @@ function br.ui:createSection(parent, sectionName, tooltip)
         newSection.settings.position = #parent.children + 1
     end
     newSection.settings.sectionName = sectionName
-    if br.data.settings[br.selectedSpec][br.selectedProfile] == nil then
-        br.data.settings[br.selectedSpec][br.selectedProfile] = {}
+    if br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile] == nil then
+        br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile] = {}
     end
     newSection.settings.expanded =
-        br.data.settings[br.selectedSpec][br.selectedProfile][sectionName .. " Section"] or true
+        br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile][sectionName .. " Section"] or true
     br.data.ui[sectionName .. " Section"] = newSection.settings.expanded
     -- newSection.settings.contentPadding = {0,0,12,32}
 
     newSection:SetEventListener(
         "OnStateChange",
         function(this, event)
-            br.data.settings[br.selectedSpec][br.selectedProfile][sectionName .. " Section"] =
+            br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile][sectionName .. " Section"] =
                 newSection.settings.expanded
             br.data.ui[sectionName .. " Section"] = newSection.settings.expanded
         end
@@ -76,7 +76,7 @@ end
 
 -- Restore last saved state of section (collapsed or expanded)
 function br.ui:checkSectionState(section)
-    local state = br.data.settings[br.selectedSpec][br.selectedProfile][section.settings.sectionName .. " Section"]
+    local state = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile][section.settings.sectionName .. " Section"]
 
 
     if state then

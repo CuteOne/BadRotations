@@ -2,11 +2,32 @@ local DiesalGUI = _G.LibStub("DiesalGUI-1.0")
 local DiesalTools = _G.LibStub("DiesalTools-1.0")
 local _, br = ...
 function br.ui:createSpinner(parent, text, number, min, max, step, tooltip, tooltipSpin, hideCheckbox)
-    local activePageIdx = parent.settings.parentObject.pageDD.value
-    local activePage = parent.settings.parentObject.pageDD.settings.list[activePageIdx]
-    br.data.settings[br.selectedSpec][br.selectedProfile][activePage] = br.data.settings[br.selectedSpec]
-        [br.selectedProfile][activePage] or {}
-    local data = br.data.settings[br.selectedSpec][br.selectedProfile][activePage]
+    local activePage = parent.settings.sectionName or ""
+    if activePage == "" then
+        if parent and parent.settings and parent.settings.parentObject and parent.settings.parentObject.pageDD then
+            local pdd = parent.settings.parentObject.pageDD
+            if pdd.value and pdd.settings and pdd.settings.list and pdd.settings.list[pdd.value] then
+                activePage = pdd.settings.list[pdd.value]
+            end
+        end
+    end
+    br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile][activePage] = br.data.settings[br.loader.selectedSpec]
+        [br.loader.selectedProfile][activePage] or {}
+    local data = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile][activePage]
+    -- Ensure the active page is registered in the profile PageList so
+    -- option lookups (findOption) can locate values immediately.
+    br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["PageList"] = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["PageList"] or {}
+    local pageList = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["PageList"]
+    local found = false
+    for i = 1, #pageList do
+        if pageList[i] == activePage then
+            found = true
+            break
+        end
+    end
+    if not found then
+        br._G.tinsert(pageList, activePage)
+    end
     -------------------------------
     ----Need to calculate Y Pos----
     -------------------------------
@@ -123,13 +144,20 @@ end
 
 -- Spinner Object : {number, min, max, step, tooltip}
 function br.ui:createDoubleSpinner(parent, text, spinner1, spinner2, hideCheckbox)
-    local activePageIdx = parent.settings.parentObject.pageDD.value
-    local activePage = parent.settings.parentObject.pageDD.settings.list[activePageIdx]
+    local activePageIdx = 1
+    local activePage = ""
+    if parent and parent.settings and parent.settings.parentObject and parent.settings.parentObject.pageDD then
+        local pdd = parent.settings.parentObject.pageDD
+        if pdd.value and pdd.settings and pdd.settings.list and pdd.settings.list[pdd.value] then
+            activePageIdx = pdd.value
+            activePage = pdd.settings.list[activePageIdx]
+        end
+    end
     -- string.gsub(parent.settings.parentObject.pageDD.settings.list[activePageIdx], " Options", "")
     -- activePage = string.gsub(activePage, " ", "")
-    br.data.settings[br.selectedSpec][br.selectedProfile][activePage] = br.data.settings[br.selectedSpec]
-        [br.selectedProfile][activePage] or {}
-    local data = br.data.settings[br.selectedSpec][br.selectedProfile][activePage]
+    br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile][activePage] = br.data.settings[br.loader.selectedSpec]
+        [br.loader.selectedProfile][activePage] or {}
+    local data = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile][activePage]
     -------------------------------
     ----Need to calculate Y Pos----
     -------------------------------

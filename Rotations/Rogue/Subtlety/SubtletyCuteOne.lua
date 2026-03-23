@@ -1,10 +1,10 @@
 -------------------------------------------------------
 -- Author = CuteOne
--- Patch = 10.2
+-- Patch = 5.4.8 (Mists of Pandaria)
 --    Patch should be the latest patch you've updated the rotation for (i.e., 9.2.5)
 -- Coverage = 100%
 --    Coverage should be your estimated percent coverage for class mechanics (i.e., 100%)
--- Status = Limited
+-- Status = Full
 --    Status should be one of: Full, Limited, Sporadic, Inactive, Unknown
 -- Readiness = Basic
 --    Readiness should be one of: Raid, NoRaid, Basic, Development, Untested
@@ -13,128 +13,101 @@
 -------------------------------------------------------
 
 local rotationName = "CuteOne"
+
 ---------------
 --- Toggles ---
 ---------------
-local createToggles = function()
+local function createToggles()
     -- Rotation Button
     local RotationModes = {
-        [1] = { mode = "Auto", value = 1, overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spells.shurikenStorm },
-        [2] = { mode = "Mult", value = 2, overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spells.shurikenStorm },
+        [1] = { mode = "Auto", value = 1, overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spells.fanOfKnives },
+        [2] = { mode = "Mult", value = 2, overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spells.fanOfKnives },
         [3] = { mode = "Sing", value = 3, overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spells.backstab },
-        [4] = { mode = "Off", value = 4, overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spells.crimsonVial }
+        [4] = { mode = "Off", value = 4, overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spells.stealth }
     }
     br.ui:createToggle(RotationModes, "Rotation", 1, 0)
     -- Cooldown Button
     local CooldownModes = {
         [1] = { mode = "Auto", value = 1, overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spells.shadowBlades },
-        [2] = { mode = "On", value = 1, overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spells.shadowBlades },
+        [2] = { mode = "On", value = 2, overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spells.shadowBlades },
         [3] = { mode = "Off", value = 3, overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spells.shadowBlades }
     }
     br.ui:createToggle(CooldownModes, "Cooldown", 2, 0)
     -- Defensive Button
-    DefensiveModes = {
+    local DefensiveModes = {
         [1] = { mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spells.evasion },
         [2] = { mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spells.evasion }
     }
     br.ui:createToggle(DefensiveModes, "Defensive", 3, 0)
     -- Interrupt Button
-    InterruptModes = {
+    local InterruptModes = {
         [1] = { mode = "On", value = 1, overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spells.kick },
         [2] = { mode = "Off", value = 2, overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spells.kick }
     }
     br.ui:createToggle(InterruptModes, "Interrupt", 4, 0)
-    -- Shadow Dance Button
-    ShadowDanceModes = {
-        [1] = { mode = "On", value = 1, overlay = "Shadow Dance Enabled", tip = "Rotation will use Shadow Dance.", highlight = 1, icon = br.player.spells.shadowDance },
-        [2] = { mode = "Off", value = 2, overlay = "Shadow Dance Disabled", tip = "Rotation will not use Shadow Dance. Useful for pooling SD charges as you near dungeon bosses.", highlight = 0, icon = br.player.spells.shadowDance },
-    }
-    br.ui:createToggle(ShadowDanceModes, "ShadowDance", 5, 0)
     -- Pick Pocket Button
-    PickPocketModes = {
-        [1] = { mode = "Auto", value = 1, overlay = "Auto Pick Pocket Enabled", tip = "Profile will attempt to Pick Pocket prior to combat.", highlight = 1, icon = br.player.spells.pickPocket },
-        [2] = { mode = "Only", value = 2, overlay = "Only Pick Pocket Enabled", tip = "Profile will attempt to Sap and only Pick Pocket, no combat.", highlight = 0, icon = br.player.spells.pickPocket },
-        [3] = { mode = "Off", value = 3, overlay = "Pick Pocket Disabled", tip = "Profile will not use Pick Pocket.", highlight = 0, icon = br.player.spells.pickPocket }
+    local PickPocketModes = {
+        [1] = { mode = "Auto", value = 1, overlay = "Pick Pocket Auto", tip = "Automatically Pick Pocket before engaging, minimal delay.", highlight = 1, icon = br.player.spells.pickPocket },
+        [2] = { mode = "Only", value = 2, overlay = "Pick Pocket Only", tip = "Only Pick Pocket targets (Sap > Pick Pocket > Clear Target).", highlight = 0, icon = br.player.spells.pickPocket },
+        [3] = { mode = "Off", value = 3, overlay = "Pick Pocket Disabled", tip = "Never Pick Pocket.", highlight = 0, icon = br.player.spells.pickPocket }
     }
-    br.ui:createToggle(PickPocketModes, "PickPocket", 6, 0)
+    br.ui:createToggle(PickPocketModes, "PickPocket", 5, 0)
 end
 
 ---------------
 --- OPTIONS ---
 ---------------
-local createOptions = function()
+local function createOptions()
     local optionTable
 
-    local rotationOptions = function()
+    local function rotationOptions()
         local section
-        local alwaysCdNever = { "Always", "|cff0000ffCD", "|cffff0000Never" }
-        local alwaysCdAoENever = { "Always", "|cff008000AOE", "|cffffff00AOE/CD", "|cff0000ffCD", "|cffff0000Never" }
         -----------------------
         --- GENERAL OPTIONS ---
         -----------------------
         section = br.ui:createSection(br.ui.window.profile, "General")
-        -- Poison
-        br.ui:createDropdownWithout(section, "Lethal Poison", { "Instant", "Wound", "None" }, 1, "Lethal Poison to Apply")
-        br.ui:createDropdownWithout(section, "Non-Lethal Poison", { "Crippling", "Numbing", "None" }, 1,
-            "Non-Lethal Poison to Apply")
-        -- Priority Rotation
-        br.ui:createCheckbox(section, "Priority Rotation")
-        -- Stealth
-        br.ui:createDropdown(section, "Stealth", { "|cff00FF00Always", "|cffFFDD00PrePot", "|cffFF000020Yards" }, 1,
-            "Stealthing method.")
-        -- Stealth Breaker
-        br.ui:createDropdownWithout(section, "Stealth Breaker",
-            { "|cff00FF00Shadowstrike", "|cffFFFF00Cheapshot", "|cffFF0000Sinister Strike" }, 3,
-            "|cffFFFFFFSet what to break Stealth with.")
-        -- Shadowstep
-        br.ui:createCheckbox(section, "Shadowstep")
-        -- Shadowstrike
-        br.ui:createSpinnerWithout(section, "SS Range", 5, 5, 25, 5, "|cffFFBB00Shadow Strike range, 5 = Melee")
-        -- Shuriken Toss OOR
-        br.ui:createSpinner(section, "Shuriken Toss OOR", 85, 5, 100, 5,
-            "|cffFFBB00Check to use Shuriken Toss out of range and energy to use at.")
-        -- Tricks of the Trade
-        br.ui:createCheckbox(section, "Tricks of the Trade on Focus")
-        -- Pre-Pull
-        br.ui:createCheckbox(section, "Pre-Pull", "|cffFFFFFFSet to use Pre-Pull (DBM Required).")
         -- Dummy DPS Test
         br.ui:createSpinner(section, "DPS Testing", 5, 5, 60, 5,
-            "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
+            "|cffFFFFFFSet to desired time for test in minutes. Min: 5 / Max: 60 / Interval: 5")
+        -- Auto Stealth
+        br.ui:createCheckbox(section, "Auto Stealth")
+        -- Stealth Breaker
+        br.ui:createDropdownWithout(section, "Stealth Breaker",
+            { "|cff00FF00Ambush", "|cffFF0000Hemorrhage" }, 1,
+            "|cffFFFFFFSet what to break Stealth with.")
+        -- Poisons
+        br.ui:createDropdownWithout(section, "Lethal Poison", { "|cffFFFFFFInstant", "|cffFFFFFFDeadly", "|cffFFFFFFWound" }, 2,
+            "|cffFFFFFFSelect Lethal Poison to use.")
+        br.ui:createDropdownWithout(section, "Non-Lethal Poison", { "|cffFFFFFFNone", "|cffFFFFFFCrippling", "|cffFFFFFFMind-Numbing", "|cffFFFFFFParalytic" }, 2,
+            "|cffFFFFFFSelect Non-Lethal Poison to use.")
         br.ui:checkSectionState(section)
         ------------------------
         --- COOLDOWN OPTIONS ---
         ------------------------
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
-        -- Cold Blood
-        br.ui:createDropdownWithout(section, "Cold Blood", alwaysCdNever, 2, "|cffFFFFFFWhen to use Cold Blood.")
-        -- Echoing Reprimand
-        br.ui:createDropdownWithout(section, "Echoing Reprimand", alwaysCdNever, 2,
-            "|cffFFFFFFWhen to use Echoing Reprimand")
-        -- Flagellation
-        br.ui:createDropdownWithout(section, "Flagellation", alwaysCdAoENever, 3, "|cffFFFFFFWhen to use Flagellation")
-        -- Racial
-        br.ui:createCheckbox(section, "Racial")
-        -- Secret Technique
-        br.ui:createDropdownWithout(section, "Secret Technique", alwaysCdAoENever, 3,
-            "|cffFFFFFFWhen to use Secret Technique.")
-        -- Sepsis
-        br.ui:createDropdownWithout(section, "Sepsis", alwaysCdNever, 2, "|cffFFFFFFWhen to use Sepsis.")
+        -- Shadowstep
+        br.ui:createCheckbox(section, "Shadowstep")
         -- Shadow Blades
-        br.ui:createDropdownWithout(section, "Shadow Blades", alwaysCdAoENever, 3, "|cffFFFFFFWhen to use Shadow Blades.")
+        br.ui:createDropdownWithout(section, "Shadow Blades", br.ui.dropOptions.AlwaysCdAoeNever,
+            2, "|cffFFFFFFWhen to use Shadow Blades.")
         -- Shadow Dance
-        br.ui:createDropdownWithout(section, "Shadow Dance", alwaysCdAoENever, 3, "|cffFFFFFFWhen to use Shadow Dance.")
-        -- Shuriken Tornado
-        br.ui:createDropdownWithout(section, "Shuriken Tornado", alwaysCdAoENever, 3,
-            "|cffFFFFFFWhen to use Shuriken Tornado.")
-        -- Symbols of Death
-        br.ui:createDropdownWithout(section, "Symbols of Death", alwaysCdNever, 2,
-            "|cffFFFFFFWhen to use Symbols of Death")
-        -- Thistle Tea
-        br.ui:createDropdownWithout(section, "Thistle Tea", alwaysCdNever, 2, "|cffFFFFFFWhen to use Thistle Tea")
+        br.ui:createDropdownWithout(section, "Shadow Dance", br.ui.dropOptions.AlwaysCdAoeNever,
+            2, "|cffFFFFFFWhen to use Shadow Dance.")
+        -- Vanish
+        br.ui:createDropdownWithout(section, "Vanish", br.ui.dropOptions.AlwaysCdAoeNever,
+            2, "|cffFFFFFFWhen to use Vanish.")
+        -- Preparation
+        br.ui:createCheckbox(section, "Preparation")
+        -- Premeditation
+        br.ui:createCheckbox(section, "Premeditation")
+        -- Marked for Death
+        br.ui:createCheckbox(section, "Marked for Death")
+        -- Use Racial
+        br.ui:createCheckbox(section, "Use Racial")
+        -- Use Combat Potion
+        br.ui:createCheckbox(section, "Use Combat Potion")
         -- Trinkets
         br.player.module.BasicTrinkets(section)
-        -- Vanish
-        br.ui:createCheckbox(section, "Vanish")
         br.ui:checkSectionState(section)
         -------------------------
         --- DEFENSIVE OPTIONS ---
@@ -142,14 +115,14 @@ local createOptions = function()
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
         -- Cloak of Shadows
         br.ui:createCheckbox(section, "Cloak of Shadows")
-        -- Crimson Vial
-        br.ui:createSpinner(section, "Crimson Vial", 80, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
+        -- Combat Readiness
+        br.ui:createSpinner(section, "Combat Readiness", 40, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
         -- Evasion
-        br.ui:createSpinner(section, "Evasion", 40, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
+        br.ui:createSpinner(section, "Evasion", 35, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
         -- Feint
-        br.ui:createSpinner(section, "Feint", 50, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
-        -- Kidney Shot
-        br.ui:createSpinner(section, "Kidney Shot Defensive", 30, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
+        br.ui:createSpinner(section, "Feint", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
+        -- Recuperate
+        br.ui:createSpinner(section, "Recuperate", 60, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
         br.ui:checkSectionState(section)
         -------------------------
         --- INTERRUPT OPTIONS ---
@@ -159,29 +132,26 @@ local createOptions = function()
         br.ui:createCheckbox(section, "Kick")
         -- Kidney Shot
         br.ui:createCheckbox(section, "Kidney Shot")
-        -- Cheap Shot
-        br.ui:createCheckbox(section, "Cheap Shot")
-        -- Blind
-        br.ui:createCheckbox(section, "Blind")
+        -- Gouge
+        br.ui:createCheckbox(section, "Gouge")
         -- Interrupt Percentage
-        br.ui:createSpinnerWithout(section, "Interrupt At", 0, 0, 95, 5, "|cffFFBB00Cast Percentage to use at.")
+        br.ui:createSpinnerWithout(section, "Interrupt At", 0, 0, 95, 5,
+            "|cffFFFFFFCast Percentage to use at. (0 is random)")
         br.ui:checkSectionState(section)
         ----------------------
         --- TOGGLE OPTIONS ---
         ----------------------
         section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
         -- Single/Multi Toggle
-        br.ui:createDropdownWithout(section, "Rotation Mode", br.dropOptions.Toggle, 4)
-        --Cooldown Key Toggle
-        br.ui:createDropdownWithout(section, "Cooldown Mode", br.dropOptions.Toggle, 3)
-        --Defensive Key Toggle
-        br.ui:createDropdownWithout(section, "Defensive Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdownWithout(section, "Rotation Mode", br.ui.dropOptions.Toggle, 4)
+        -- Cooldown Key Toggle
+        br.ui:createDropdownWithout(section, "Cooldown Mode", br.ui.dropOptions.Toggle, 3)
+        -- Defensive Key Toggle
+        br.ui:createDropdownWithout(section, "Defensive Mode", br.ui.dropOptions.Toggle, 6)
         -- Interrupts Key Toggle
-        br.ui:createDropdownWithout(section, "Interrupt Mode", br.dropOptions.Toggle, 6)
-        -- Shadow Dance Toggle
-        br.ui:createDropdownWithout(section, "ShadowDance Mode", br.dropOptions.Toggle, 6)
-        -- Pick Pocket Toggle
-        br.ui:createDropdownWithout(section, "PickPocket Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdownWithout(section, "Interrupt Mode", br.ui.dropOptions.Toggle, 6)
+        -- Pick Pocket Key Toggle
+        br.ui:createDropdownWithout(section, "Pick Pocket Mode", br.ui.dropOptions.Toggle, 6)
         br.ui:checkSectionState(section)
     end
     optionTable = { {
@@ -195,6 +165,7 @@ end
 --- Locals ---
 --------------
 -- BR API Locals
+local actionList = {}
 local buff
 local cast
 local cd
@@ -206,78 +177,383 @@ local energy
 local equiped
 local items
 local module
+local spell
 local talent
+local ui
 local unit
 local units
-local ui
 local use
 local var = {}
 
 -- General Locals
 var.profileStop = false
-
--- Variables
-var.pickPocketUnit = "player"
-var.danseBackstab = false
-var.danseBlackPowder = false
-var.danseEviscerate = false
-var.danseGloomblade = false
-var.danseRupture = false
-var.danseShadowstrike = false
-var.danseShurikenStorm = false
+var.stealthed = false
+var.openerCast = false
+var.openerTime = nil
+var.openerAttemptTime = nil
+var.getTime = 0
+-- Pick Pocket Locals
+var.pickPocketAttempted = {} -- Table to track attempted units by GUID
+var.pickPocketSuccess = {} -- Table to track successful Pick Pockets by GUID
+var.pickPocketFailed = {} -- Table to track failed Pick Pockets by GUID
+var.pickPocketCastTime = 0 -- Time when Pick Pocket was last cast
+var.pickPocketLastGUID = nil -- GUID of last Pick Pocket target for validation
 
 -----------------
 --- Functions ---
 -----------------
-
-var.isPicked = function(thisUnit) --  Pick Pocket Testing
-    if thisUnit == nil then thisUnit = "target" end
-    if (br.unpickable or unit.level() < 24
-            or ui.mode.pickPocket == 3 or unit.isDummy(thisUnit) or (br._G.LootFrame:IsShown() and br._G.GetNumLootItems() == 0))
-    then
-        var.pickPocketUnit = thisUnit
-        return true
-    end
-    return false
+local function isStealthed()
+    return buff.stealth.exists() or buff.vanish.exists() or buff.shadowDance.exists() or buff.shadowmeld.exists()
 end
 
-var.autoStealth = function()
-    for i = 1, #enemies.yards20nc do
-        local thisUnit = enemies.yards20nc[i]
-        if unit.reaction(thisUnit) < 4 then return true end
-    end
-    return false
+-- Pick Pocket Helper Functions
+local function getPickPocketMode()
+    return br.data.settings[br.loader.selectedSpec].toggles["PickPocket"] or 3
 end
+
+local function canPickPocket(thisUnit)
+    thisUnit = thisUnit or "target"
+
+    -- Check if unit exists and is valid
+    if not unit.exists(thisUnit) or not unit.valid(thisUnit) then
+        return false
+    end
+
+    -- Must be stealthed
+    if not var.stealthed then
+        return false
+    end
+
+    -- Get unit GUID
+    local guid = br._G.UnitGUID(thisUnit)
+    if not guid then
+        return false
+    end
+
+    -- Check if already attempted and failed
+    if var.pickPocketFailed[guid] then
+        return false
+    end
+
+    -- Check if already successfully picked
+    if var.pickPocketSuccess[guid] then
+        return false
+    end
+
+    -- Must be enemy
+    if not unit.enemy(thisUnit) then
+        return false
+    end
+
+    -- Can't pickpocket players
+    if unit.player(thisUnit) then
+        return false
+    end
+
+    -- Must be in range
+    if unit.distance(thisUnit) > 10 then
+        return false
+    end
+
+    return true
+end
+
+local function markPickPocketResult(thisUnit, success, lootMsg, errorMsg)
+    local guid = br._G.UnitGUID(thisUnit)
+    if not guid then return end
+
+    if success then
+        var.pickPocketSuccess[guid] = true
+        var.pickPocketFailed[guid] = nil
+        -- Extract item links from loot message for display
+        local itemInfo = ""
+        if lootMsg then
+            -- Extract all item links [Item Name]
+            for itemLink in lootMsg:gmatch("%[.-%]") do
+                itemInfo = itemInfo .. " " .. itemLink
+            end
+            -- If no item links, check if it's a money message
+            if itemInfo == "" and lootMsg:find("%d") then
+                itemInfo = " (Money)"
+            end
+        end
+        -- Use br.player.ui directly since this may be called from event handler
+        if br.player and br.player.ui then
+            br.player.ui.debug("|cff00FF00[Pick Pocket]|r Success" .. itemInfo)
+        end
+    else
+        var.pickPocketFailed[guid] = true
+        var.pickPocketAttempted[guid] = nil
+        -- Use br.player.ui and br.player.unit directly since this may be called from event handler
+        if br.player and br.player.ui then
+            if errorMsg then
+                br.player.ui.debug("|cffFF0000[Pick Pocket]|r Failed: " .. errorMsg)
+            else
+                local unitName = br.player.unit and br.player.unit.name(thisUnit) or thisUnit
+                br.player.ui.debug("|cffFF0000[Pick Pocket]|r Failed on " .. unitName)
+            end
+        end
+    end
+end
+
+-- Event handler for Pick Pocket detection
+local pickPocketFrame = br._G.CreateFrame("Frame")
+pickPocketFrame:RegisterEvent("UI_ERROR_MESSAGE")
+pickPocketFrame:RegisterEvent("CHAT_MSG_LOOT")
+pickPocketFrame:RegisterEvent("CHAT_MSG_MONEY")
+pickPocketFrame:SetScript("OnEvent", function(self, event, ...)
+    if event == "UI_ERROR_MESSAGE" then
+        local errorType, msg = ...
+        local currentTime = br._G.GetTime()
+
+        -- DEBUG: Log all errors to see what's coming through
+        local errorString = br._G.GetGameMessageInfo(errorType)
+
+        -- DEBUG: Try direct print to avoid br.player.ui issues
+        -- pcall(function()
+        --     if br.player and br.player.ui then
+        --         br.player.ui.debug("[PP Event] Error: " .. tostring(errorString) .. " | Type: " .. tostring(errorType) .. " | Msg: " .. tostring(msg))
+        --     end
+        -- end)
+
+        -- Try printing directly to see if br.player.ui is the issue
+        -- pcall(print, "[PP Event DEBUG] CastTime:", var.pickPocketCastTime, "CurrentTime:", currentTime)        -- Only process errors that occurred shortly after Pick Pocket cast
+        -- Extended window to 2.0s to account for GCD + network delay
+        -- AND verify we actually have a Pick Pocket in flight
+        if var.pickPocketCastTime > 0 and (currentTime - var.pickPocketCastTime) < 2.0
+            and var.pickPocketLastGUID then
+
+            -- pcall(function()
+            --     br.player.ui.debug("[PP Event] Within time window. Time since cast: " .. tostring(currentTime - var.pickPocketCastTime))
+            -- end)
+
+            -- Verify the target is still the same one we tried to Pick Pocket
+            local currentGUID = br._G.UnitGUID("target")
+            if currentGUID ~= var.pickPocketLastGUID then
+                -- Target changed, ignore this error
+                -- pcall(function()
+                --     br.player.ui.debug("[PP Event] Target changed, ignoring")
+                -- end)
+                return
+            end
+
+            -- pcall(function()
+            --     br.player.ui.debug("[PP Event] Checking error type: " .. tostring(errorString))
+            -- end)
+
+            -- Use language-agnostic error type IDs
+            -- ERR_SPELL_FAILED_S = Generic spell failure (covers "no pockets to pick")
+            -- ERR_ALREADY_PICKPOCKETED = Already pickpocketed this target
+            -- ERR_NO_LOOT = Target has no loot (empty pockets)
+            -- SPELL_FAILED_BAD_TARGETS = Invalid target
+            -- SPELL_FAILED_TARGET_ENEMY = Must be an enemy
+
+            if errorString == "ERR_SPELL_FAILED_S" or
+               errorString == "ERR_ALREADY_PICKPOCKETED" or
+               errorString == "ERR_NO_LOOT" or
+               errorString == "SPELL_FAILED_BAD_TARGETS" or
+               errorString == "SPELL_FAILED_TARGET_ENEMY" then
+                -- msg contains the actual localized error message shown to player
+                -- pcall(print, "[PP Event] Calling markPickPocketResult with error:", msg)
+                markPickPocketResult("target", false, nil, msg)
+                var.pickPocketCastTime = 0
+                var.pickPocketLastGUID = nil
+            end
+        end
+    elseif event == "CHAT_MSG_LOOT" or event == "CHAT_MSG_MONEY" then
+        local msg = ...
+        local currentTime = br._G.GetTime()
+
+        -- DEBUG: Print to see if we're catching money events
+        -- pcall(print, "[PP Event] Loot/Money:", event, "Msg:", msg, "CastTime:", var.pickPocketCastTime, "GetTime:", currentTime)
+
+        -- Detect successful Pick Pocket by loot message (language-agnostic item link detection)
+        -- Or money message (CHAT_MSG_MONEY fires when you get gold/silver/copper)
+        if msg and var.pickPocketCastTime > 0 and (currentTime - var.pickPocketCastTime) < 2.0
+            and var.pickPocketLastGUID then
+            -- pcall(print, "[PP Event] Conditions met - calling success")
+            -- Check if message contains item links [Item Name] OR if it's a money event
+            if msg:find("%[.+%]") or event == "CHAT_MSG_MONEY" then
+                markPickPocketResult("target", true, msg)
+                var.pickPocketCastTime = 0
+                var.pickPocketLastGUID = nil
+            else
+                -- pcall(print, "[PP Event] No item link found and not money event")
+            end
+        else
+            -- pcall(print, "[PP Event] Conditions NOT met - CastTime:", var.pickPocketCastTime, "Diff:", currentTime - var.pickPocketCastTime, "GUID:", var.pickPocketLastGUID)
+        end
+    end
+end)
 
 --------------------
 --- Action Lists ---
 --------------------
-local actionList = {}
+-- Action List - Pick Pocket
+actionList.PickPocket = function()
+    local ppMode = getPickPocketMode()
+
+    -- Mode 3 = Off, skip entirely
+    if ppMode == 3 then
+        return false
+    end
+
+    -- Must have a target
+    if not unit.valid("target") then
+        return false
+    end
+
+    -- Mode 2 = Only (Sap > Pick Pocket > Clear Target)
+    if ppMode == 2 then
+        -- Must be stealthed for "Only" mode
+        if not var.stealthed then
+            if ui.checked("Auto Stealth") and cast.able.stealth() and not unit.resting() then
+                if cast.stealth() then
+                    ui.debug("[Pick Pocket] Entering Stealth")
+                    return true
+                end
+            end
+            return false
+        end
+
+        -- Get target GUID for tracking
+        local guid = br._G.UnitGUID("target")
+        if not guid then
+            return false
+        end
+
+        -- Check if we've already processed this target (success or failure)
+        if var.pickPocketSuccess[guid] or var.pickPocketFailed[guid] then
+            -- Wait brief moment to see loot (if successful)
+            if cast.last.pickPocket(1) and cast.timeSinceLast.pickPocket() < 1.5 then
+                return true
+            end
+            -- Clear target and stop
+            br._G.ClearTarget()
+            ui.debug("[Pick Pocket] Complete - Target cleared")
+            return true
+        end
+
+        -- Check if we just cast Pick Pocket, wait for result
+        if cast.last.pickPocket(1) and cast.timeSinceLast.pickPocket() < 1.5 then
+            return true
+        end
+
+        -- Check if Pick Pocket is in-flight waiting for event (timeout after 3 seconds)
+        if var.pickPocketCastTime > 0 and var.pickPocketLastGUID then
+            local waitTime = var.getTime - var.pickPocketCastTime
+            if waitTime < 3.0 then
+                -- Still waiting for success/failure event
+                return true
+            else
+                -- Timeout - no event received, consider it failed
+                ui.debug("[Pick Pocket] Timeout waiting for event - clearing state")
+                var.pickPocketCastTime = 0
+                var.pickPocketLastGUID = nil
+            end
+        end
+
+        -- Check if target is sapped
+        local isSapped = debuff.sap.exists("target")
+        local sapAble = cast.able.sap("target")
+        local sapRefresh = debuff.sap.refresh("target")
+
+        -- PRIORITY 1: Cast Sap if needed and available (only if we CAN cast it)
+        if (not isSapped) and sapAble and sapRefresh then
+            if cast.sap("target") then
+                ui.debug("[Pick Pocket] Casting Sap")
+                return true
+            end
+        end
+
+        -- PRIORITY 2: If target is sapped OR we can't cast Sap anymore (meaning it's in flight/on CD), try Pick Pocket
+        if isSapped or (not sapAble) then
+            -- Check range before attempting Pick Pocket (Pick Pocket has 5yd range, Sap has 10yd)
+            local targetDistance = unit.distance("target")
+
+            if targetDistance > 5 then
+                -- Too far for Pick Pocket, move closer
+                -- Target is sapped so we have time to approach safely
+                -- ui.debug("[Pick Pocket] Moving closer (" .. string.format("%.1f", targetDistance) .. "yd)")
+                return true -- Wait and let movement happen
+            end
+
+            if canPickPocket("target") then
+                if cast.able.pickPocket("target") then
+                    -- Set timing BEFORE attempting cast so event handler can match the error
+                    var.pickPocketCastTime = br._G.GetTime()
+                    var.pickPocketLastGUID = guid
+                    var.pickPocketAttempted[guid] = true
+
+                    -- DEBUG: Verify timing is set
+                    ui.debug("[Pick Pocket] Setting CastTime to: " .. var.pickPocketCastTime)
+
+                    if cast.pickPocket("target") then
+                        ui.debug("[Pick Pocket] Attempting Pick Pocket")
+                    else
+                        -- cast.pickPocket returned false, but game may have still attempted it
+                        -- Keep timing data so event handler can process the error
+                        ui.debug("[Pick Pocket] Cast attempt - waiting for result")
+                    end
+
+                    -- Wait for result (success or failure event)
+                    return true
+                end
+                -- If cast.able is false, just wait (likely on GCD from Sap)
+                return true
+            end
+        end
+
+        return false
+    end    -- Mode 1 = Auto (Pick Pocket before engaging, minimal delay)
+    if ppMode == 1 then
+        -- Only attempt if stealthed and not in combat
+        if not var.stealthed or unit.inCombat() then
+            return false
+        end
+
+        -- Check if we can and should Pick Pocket
+        if canPickPocket("target") and cast.able.pickPocket("target") then
+            local targetGUID = br._G.UnitGUID("target")
+            var.pickPocketCastTime = br._G.GetTime()
+            var.pickPocketLastGUID = targetGUID
+            var.pickPocketAttempted[targetGUID] = true
+            if cast.pickPocket("target") then
+                ui.debug("Casting Pick Pocket [Auto Mode] on " .. unit.name("target"))
+                return true
+            end
+        end
+
+        -- If we just cast Pick Pocket, wait very briefly for result
+        if cast.last.pickPocket(1) and cast.timeSinceLast.pickPocket() < 0.3 then
+            return true
+        end
+
+        -- Allow rotation to continue after brief delay
+        return false
+    end
+
+    return false
+end -- End Action List - Pick Pocket
+
 -- Action List - Extras
 actionList.Extras = function()
     -- Dummy Test
     if ui.checked("DPS Testing") then
         if unit.exists("target") then
-            if unit.combatTime() >= (tonumber(ui.value("DPS Testing")) * 60) and unit.isDummy("target") then
+            if unit.combatTime() >= (tonumber(ui.value("DPS Testing")) * 60) and unit.isDummy() then
                 unit.stopAttack()
                 unit.clearTarget()
-                ui.chatOverlay(tonumber(ui.value("DPS Testing")) .. " Minute Dummy Test Concluded - Profile Stopped")
+                ui.print(tonumber(ui.value("DPS Testing")) .. " Minute Dummy Test Concluded - Profile Stopped")
                 var.profileStop = true
             end
         end
     end
-    -- Tricks of the Trade
-    if ui.checked("Tricks of the Trade on Focus") and cast.able.tricksOfTheTrade("focus") and unit.inCombat() and unit.exists("focus") and unit.friend("focus") then
-        if cast.tricksOfTheTrade("focus") then
-            ui.debug("Casting Tricks of the Trade")
-            return true
-        end
-    end
 end -- End Action List - Extras
 
--- Action List - Defensives
+-- Action List - Defensive
 actionList.Defensive = function()
-    if ui.useDefensive() and not var.stealthAll then
+    if ui.useDefensive() and not var.stealthed then
         -- Cloak of Shadows
         if ui.checked("Cloak of Shadows") and cast.able.cloakOfShadows() and cast.dispel.cloakOfShadows("player") then
             if cast.cloakOfShadows() then
@@ -285,31 +561,35 @@ actionList.Defensive = function()
                 return true
             end
         end
-        -- Crimson Vial
-        if ui.checked("Crimson Vial") and cast.able.crimsonVial() and unit.hp() < ui.value("Crimson Vial") and not buff.shadowDance.exists() then
-            if cast.crimsonVial() then
-                ui.debug("Casting Crimson Vial")
-                return true
-            end
-        end
         -- Evasion
-        if ui.checked("Evasion") and cast.able.evasion() and unit.hp() < ui.value("Evasion") and unit.inCombat() then
+        if ui.checked("Evasion") and cast.able.evasion() and unit.hp() <= ui.value("Evasion") and unit.inCombat() then
             if cast.evasion() then
                 ui.debug("Casting Evasion")
                 return true
             end
         end
         -- Feint
-        if ui.checked("Feint") and unit.hp() <= ui.value("Feint") and unit.inCombat() and not buff.feint.exists() and not buff.shadowDance.exists() then
+        if ui.checked("Feint") and cast.able.feint() and unit.hp() <= ui.value("Feint") and unit.inCombat() and not buff.feint.exists() then
             if cast.feint() then
                 ui.debug("Casting Feint")
                 return true
             end
         end
-        -- Kidney Shot
-        if ui.checked("Kidney Shot Defensive") and unit.hp() <= ui.value("Kidney Shot Defensive") and unit.inCombat() and not buff.shadowDance.exists() then
-            if cast.kidneyShot() then
-                ui.debug("Casting Kidney Shot [Defensive]")
+        -- Combat Readiness
+        if ui.checked("Combat Readiness") and cast.able.combatReadiness() and unit.hp() <= ui.value("Combat Readiness")
+            and unit.inCombat() and not buff.combatReadiness.exists()
+        then
+            if cast.combatReadiness() then
+                ui.debug("Casting Combat Readiness")
+                return true
+            end
+        end
+        -- Recuperate
+        if ui.checked("Recuperate") and cast.able.recuperate() and unit.hp() <= ui.value("Recuperate")
+            and comboPoints() > 0 and not buff.recuperate.exists()
+        then
+            if cast.recuperate() then
+                ui.debug("Casting Recuperate")
                 return true
             end
         end
@@ -318,825 +598,573 @@ end -- End Action List - Defensive
 
 -- Action List - Interrupts
 actionList.Interrupts = function()
-    if ui.useInterrupt() and not var.stealthAll then
-        for i = 1, #enemies.yards20 do
-            local thisUnit = enemies.yards20[i]
+    if ui.useInterrupt() and not var.stealthed then
+        for i = 1, #enemies.yards10 do
+            local thisUnit = enemies.yards10[i]
             local distance = unit.distance(thisUnit)
             if unit.interruptable(thisUnit, ui.value("Interrupt At")) then
                 -- Kick
-                -- kick
                 if ui.checked("Kick") and cast.able.kick(thisUnit) and distance < 5 then
                     if cast.kick(thisUnit) then
-                        ui.debug("Kick")
+                        ui.debug("Casting Kick on " .. unit.name(thisUnit))
                         return true
                     end
                 end
                 -- Kidney Shot
-                if ui.checked("Kidney Shot") and cast.able.kidneyShot(thisUnit) and cd.kick.remain() ~= 0 and cd.blind.remain() == 0 then
+                if ui.checked("Kidney Shot") and cast.able.kidneyShot(thisUnit) and comboPoints() > 0 and distance < 5 then
                     if cast.kidneyShot(thisUnit) then
-                        ui.debug("Kidney Shot")
+                        ui.debug("Casting Kidney Shot on " .. unit.name(thisUnit))
                         return true
                     end
                 end
-                -- Blind
-                if ui.checked("Blind") and cast.able.blind(thisUnit) and not buff.shadowDance.exists()
-                    and (cd.kick.remain() ~= 0 or distance >= 5) and not buff.shadowDance.exists()
-                then
-                    if cast.blind(thisUnit) then
-                        ui.debug("Blind")
-                        return true
-                    end
-                end
-                -- Cheap Shot
-                if ui.checked("Cheap Shot") and cast.able.cheapShot(thisUnit) and buff.shadowDance.exists() and distance < 5
-                    and cd.kick.remain() ~= 0 and cd.kidneyShot.remain() == 0 and cd.blind.remain() == 0
-                then
-                    if cast.cheapShot(thisUnit) then
-                        ui.debug("Cheap Shot")
+                -- Gouge
+                if ui.checked("Gouge") and cast.able.gouge(thisUnit) and distance < 5 then
+                    if cast.gouge(thisUnit) then
+                        ui.debug("Casting Gouge on " .. unit.name(thisUnit))
                         return true
                     end
                 end
             end
         end
-    end -- End Interrupt and No Stealth Check
-end     -- End Action List - Interrupts
+    end
+end -- End Action List - Interrupts
 
 -- Action List - Cooldowns
 actionList.Cooldowns = function()
-    if unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
-        -- Remix - Oblivion Sphere
-        if ui.useCDs() and cast.able.id(435313, "target", "ground", 1, 15) and not unit.moving("target") and not var.stealthAll then
-            if cast.id(435313, "target", "ground", 1, 15) then
-                ui.debug("Casting Oblivion Sphere [Cds]")
-                return true
-            end
-        end
-        -- Variable - Trinket Conditions
-        -- variable,name=trinket_conditions,value=(!equipped.witherbarks_branch|equipped.witherbarks_branch&cooldown.witherbarks_branch.remains<=8|equipped.bandolier_of_twisted_blades|talent.invigorating_shadowdust)
-        var.trinketConditions = ((not equiped.witherbarksBranch() or equiped.witherbarksBranch() and cd.witherbarksBranch.remains() <= 8
-            or equiped.bandolierOfTwistedBlades() or talent.invigoratingShadowdust))
-        -- Cold Blood
-        -- cold_blood,if=!talent.secret_technique&combo_points>=5
-        if ui.alwaysCdNever("Cold Blood") and cast.able.coldBlood() and not talent.secretTechnique and comboPoints() >= 5 then
-            if cast.coldBlood() then
-                ui.debug("Casting Cold Blood [Cds]")
-                return true
-            end
-        end
-        -- Sepsis
-        -- sepsis,if=variable.snd_condition&target.time_to_die>=16&(buff.perforated_veins.up|!talent.perforated_veins)
-        if ui.alwaysCdNever("Sepsis") and cast.able.sepsis()
-            and ((var.sndCondition and unit.ttd(units.dyn5) >= 16 and (buff.perforatedVeins.exists() or not talent.perforatedVeins)))
-        then
-            if cast.sepsis() then
-                ui.debug("Casting Sepsis [Cds]")
-                return true
-            end
-        end
-        -- Flagellation
-        -- flagellation,target_if=max:target.time_to_die,if=variable.snd_condition&combo_points>=5&target.time_to_die>10&(variable.trinket_conditions&cooldown.shadow_blades.remains<=3|fight_remains<=28|cooldown.shadow_blades.remains>=14&talent.invigorating_shadowdust&talent.shadow_dance)&(!talent.invigorating_shadowdust|talent.sepsis|!talent.shadow_dance|talent.invigorating_shadowdust.rank=2&spell_targets.shuriken_storm>=2|cooldown.symbols_of_death.remains<=3|buff.symbols_of_death.remains>3)
-        if ui.alwaysCdAoENever("Flagellation", 2, #enemies.yards10) and cast.able.flagellation(var.maxTTDUnit) and ((var.sndCondition and comboPoints() >= 5 and unit.ttd(units.dyn5) > 10
-                and (var.trinketConditions and cd.shadowBlades.remains() <= 3 or unit.ttdGroup(40) <= 28 or cd.shadowBlades.remains() >= 14
-                    and talent.invigoratingShadowdust and talent.shadowDance) and (not talent.invigoratingShadowdust
-                    or talent.sepsis or not talent.shadowDance or talent.rank.invigoratingShadowdust == 2
-                    and ui.useAOE(10, 2) or cd.symbolsOfDeath.remains() <= 3 or buff.symbolsOfDeath.remains() > 3)))
-        then
-            if cast.flagellation(var.maxTTDUnit) then
-                ui.debug("Casting Flagellation [Cds]")
-                return true
-            end
-        end
-        -- Symbols of Death
-        -- symbols_of_death,if=variable.snd_condition&(!buff.the_rotten.up|!set_bonus.tier30_2pc)&buff.symbols_of_death.remains<=3&(!talent.flagellation|cooldown.flagellation.remains>10|buff.shadow_dance.remains>=2&talent.invigorating_shadowdust|cooldown.flagellation.up&combo_points>=5&!talent.invigorating_shadowdust)
-        if ui.alwaysCdNever("Symbols of Death") and cast.able.symbolsOfDeath("player") and ((var.sndCondition and (not buff.theRotten.exists() or not equiped.tier(30, 2))
-                and buff.symbolsOfDeath.remains() <= 3 and (not talent.flagellation or cd.flagellation.remains() > 10 or buff.shadowDance.remains() >= 2
-                    and talent.invigoratingShadowdust or not cd.flagellation.exists() and comboPoints() >= 5 and not talent.invigoratingShadowdust)))
-        then
-            if cast.symbolsOfDeath("player") then
-                ui.debug("Casting Symbols Of Death [Cds]")
-                return true
-            end
-        end
-        -- Shadow Blades
-        -- shadow_blades,if=variable.snd_condition&(combo_points<=1|set_bonus.tier31_4pc)&(buff.flagellation_buff.up|buff.flagellation_persist.up|!talent.flagellation)
-        if ui.alwaysCdAoENever("Shadow Blades", 3, #enemies.yards10) and cast.able.shadowBlades() and ((var.sndCondition and (comboPoints() <= 1 or equiped.tier(31, 4))
-                and (buff.flagellation.exists() or buff.flagellationPersist.exists() or not talent.flagellation)))
-        then
-            if cast.shadowBlades() then
-                ui.debug("Casting Shadow Blades [Cds]")
-                return true
-            end
-        end
-        -- Echoing Reprimand
-        -- echoing_reprimand,if=variable.snd_condition&combo_points.deficit>=3
-        if ui.alwaysCdNever("Echoing Reprimand") and cast.able.echoingReprimand() and var.sndCondition and comboPoints.deficit() >= 3 then
-            if cast.echoingReprimand() then
-                ui.debug("Casting Echoing Reprimand [Cds]")
-                return true
-            end
-        end
-        -- Shuriken Tornado
-        -- shuriken_tornado,if=variable.snd_condition&buff.symbols_of_death.up&combo_points<=2&!buff.premeditation.up&(!talent.flagellation|cooldown.flagellation.remains>20)&spell_targets.shuriken_storm>=3
-        if ui.alwaysCdAoENever("Shuriken Tornado", 3, #enemies.yards10) and cast.able.shurikenTornado("player", "aoe", 1, 10)
-            and ((var.sndCondition and buff.symbolsOfDeath.exists() and comboPoints() <= 2 and not buff.premeditation.exists()
-                and (not talent.flagellation or cd.flagellation.remains() > 20) and ui.useAOE(10, 3)))
-        then
-            if cast.shurikenTornado("player", "aoe", 1, 10) then
-                ui.debug("Casting Shuriken Tornado - Low Combo [Cds]")
-                return true
-            end
-        end
-        -- shuriken_tornado,if=variable.snd_condition&!buff.shadow_dance.up&!buff.flagellation_buff.up&!buff.flagellation_persist.up&!buff.shadow_blades.up&spell_targets.shuriken_storm<=2&!raid_event.adds.up
-        if ui.alwaysCdAoENever("Shuriken Tornado", 3, #enemies.yards10) and cast.able.shurikenTornado("player", "aoe", 1, 10) and var.sndCondition and not buff.shadowDance.exists()
-            and not buff.flagellation.exists() and not buff.flagellationPersist.exists() and not buff.shadowBlades.exists() and ui.useST(10, 3)
-        then
-            if cast.shurikenTornado("player", "aoe", 1, 10) then
-                ui.debug("Casting Shuriken Tornado [Cds]")
-                return true
-            end
-        end
-        -- Shadow Dance
-        -- shadow_dance,if=!buff.shadow_dance.up&fight_remains<=8+talent.subterfuge.enabled
-        if ui.mode.shadowDance == 1 and ui.alwaysCdAoENever("Shadow Dance", 3, #enemies.yards10) and cast.able.shadowDance()
-            and not buff.shadowDance.exists() and unit.ttdGroup(40) <= 8 + var.subterfuge
-        then
-            if cast.shadowDance() then
-                ui.debug("Casting Shadow Dance [Cds]")
-                return true
-            end
-        end
-        -- Goremaws Bite
-        -- goremaws_bite,if=variable.snd_condition&combo_points.deficit>=3&(!cooldown.shadow_dance.up|talent.shadow_dance&buff.shadow_dance.up&!talent.invigorating_shadowdust|spell_targets.shuriken_storm<4&!talent.invigorating_shadowdust|talent.the_rotten|raid_event.adds.up)
-        if ui.alwaysCdNever("Echoing Reprimand") and cast.able.goremawsBite() and ((var.sndCondition and comboPoints.deficit() >= 3
-                and (not not cd.shadowDance.exists() or talent.shadowDance and buff.shadowDance.exists() and not talent.invigoratingShadowdust or ui.useST(10, 4)
-                    and not talent.invigoratingShadowdust or talent.theRotten)))
-        then
-            if cast.goremawsBite() then
-                ui.debug("Casting Goremaws Bite [Cds]")
-                return true
-            end
-        end
-        -- Thistle Tea
-        -- thistle_tea,if=!buff.thistle_tea.up&cooldown.thistle_tea.charges_fractional>=2.5&buff.shadow_dance.remains>=4
-        if ui.alwaysCdNever("Thistle Tea") and cast.able.thistleTea() and not buff.thistleTea.exists()
-            and charges.thistleTea.frac() >= 2.5 and buff.shadowDance.remains() >= 4
-        then
-            if cast.thistleTea() then
-                ui.debug("Casting Thistle Tea - Near Cap [Cds]")
-                return true
-            end
-        end
-        -- Thistle Tea
-        -- thistle_tea,if=!buff.thistle_tea.up&buff.shadow_dance.remains>=4&cooldown.secret_technique.remains<=10
-        if ui.alwaysCdNever("Thistle Tea") and cast.able.thistleTea() and not buff.thistleTea.exists() and buff.shadowDance.remains() >= 4 and talent.secretTechnique and cd.secretTechnique.remains() <= 10 then
-            if cast.thistleTea() then
-                ui.debug("Casting Thistle Tea - Secret Technique Ends Soon [Cds]")
-                return true
-            end
-        end
-        -- Thistle Tea
-        -- thistle_tea,if=!buff.thistle_tea.up&(energy.deficit>=(100)|!buff.thistle_tea.up&fight_remains<=(6*cooldown.thistle_tea.charges))&(cooldown.symbols_of_death.remains>=3|buff.symbols_of_death.up)&combo_points.deficit>=2
-        if ui.alwaysCdNever("Thistle Tea") and cast.able.thistleTea() and ((not buff.thistleTea.exists() and (energy.deficit() >= (100) or not buff.thistleTea.exists()
-                and unit.ttdGroup(40) <= (6 * charges.thistleTea.count())) and (cd.symbolsOfDeath.remains() >= 3
-                or buff.symbolsOfDeath.exists()) and comboPoints.deficit() >= 2))
-        then
-            if cast.thistleTea() then
-                ui.debug("Casting Thistle Tea [Cds]")
-                return true
-            end
-        end
-        -- Module - Combatpotion Up
-        -- potion,if=buff.bloodlust.react|fight_remains<30|buff.symbols_of_death.up&(buff.shadow_blades.up|cooldown.shadow_blades.remains<=10)
-        if buff.bloodLust.exists() or unit.ttdGroup(40) < 30 or buff.symbolsOfDeath.exists() and (buff.shadowBlades.exists() or cd.shadowBlades.remains() <= 10) then
+    if ui.useCDs() and unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
+        -- Potion
+        -- virmens_bite_potion,if=buff.bloodlust.react|target.time_to_die<40
+        if ui.checked("Use Combat Potion") and (buff.bloodLust.exists() or unit.ttd(units.dyn5) < 40) then
             module.CombatPotionUp()
         end
-        -- Variable - Racial Sync
-        -- variable,name=racial_sync,value=buff.shadow_blades.up|!talent.shadow_blades&buff.symbols_of_death.up|fight_remains<20
-        var.racialSync = (buff.shadowBlades.exists() or not talent.shadowBlades and buff.symbolsOfDeath.exists() or unit.ttdGroup(40) < 20)
         -- Racial
-        -- blood_fury,if=variable.racial_sync
-        -- berserking,if=variable.racial_sync
-        -- fireblood,if=variable.racial_sync
-        -- ancestral_call,if=variable.racial_sync
-        if ui.checked("Racial") and ui.useCDs() and cast.able.racial() and (var.racialSync
-                and (unit.race() == "Orc" or unit.race() == "Troll" or unit.race() == "DarkIronDwarf" or unit.race() == "MagharOrc"))
-        then
-            if cast.racial() then
-                ui.debug("Casting Racial [Cds]")
+        -- blood_fury,if=buff.shadow_dance.up
+        -- berserking,if=buff.shadow_dance.up
+        -- arcane_torrent,if=energy<60
+        if ui.checked("Use Racial") and cast.able.racial() then
+            if (unit.race() == "Orc" or unit.race() == "Troll") and buff.shadowDance.exists() then
+                if cast.racial() then
+                    ui.debug("Casting Racial - Blood Fury/Berserking")
+                    return true
+                end
+            end
+            if unit.race() == "BloodElf" and energy() < 60 then
+                if cast.racial() then
+                    ui.debug("Casting Racial - Arcane Torrent")
+                    return true
+                end
+            end
+        end
+        -- Shadow Blades (only if available)
+        -- shadow_blades
+        if cast.able.shadowBlades() and ui.alwaysCdAoENever("Shadow Blades", 3, #enemies.yards10) then
+            if cast.shadowBlades() then
+                ui.debug("Casting Shadow Blades")
                 return true
             end
         end
-        -- Use Item - Irideus Fragment
-        -- use_item,name=irideus_fragment,if=(buff.cold_blood.up|(!talent.danse_macabre&buff.shadow_dance.up|buff.danse_macabre.stack>=3)&!talent.cold_blood)|fight_remains<10
-        if ui.useTrinkets(items.irideusFragment) and use.able.irideusFragment() and (((buff.coldBlood.exists()
-                or (not talent.danseMacabre and buff.shadowDance.exists() or buff.danseMacabre.stack() >= 3)
-                and not talent.coldBlood) or unit.ttdGroup(40) < 10))
-        then
-            if use.irideusFragment() then
-                ui.debug("Using Irideus Fragment [Cds]")
+        -- Premeditation (only if available)
+        -- premeditation,if=combo_points<=4
+        if cast.able.premeditation() and ui.checked("Premeditation") and buff.stealth.exists() and comboPoints() <= 4 then
+            if cast.premeditation() then
+                ui.debug("Casting Premeditation")
                 return true
             end
         end
-
-        -- Use Item - Ashes Of The Embersoul
-        -- use_item,name=ashes_of_the_embersoul,if=(buff.cold_blood.up|(!talent.danse_macabre&buff.shadow_dance.up|buff.danse_macabre.stack>=3)&!talent.cold_blood)|fight_remains<10
-        if ui.useTrinkets(items.ashesOfTheEmbersoul) and use.able.ashesOfTheEmbersoul() and (((buff.coldBlood.exists()
-                or (not talent.danseMacabre and buff.shadowDance.exists() or buff.danseMacabre.stack() >= 3)
-                and not talent.coldBlood) or unit.ttdGroup(40) < 10))
-        then
-            if use.ashesOfTheEmbersoul() then
-                ui.debug("Using Ashes Of The Embersoul [Cds]")
-                return true
-            end
-        end
-
-        -- Use Item - Witherbarks Branch
-        -- use_item,name=witherbarks_branch,if=buff.flagellation_buff.up&talent.invigorating_shadowdust|buff.shadow_blades.up|equipped.bandolier_of_twisted_blades&raid_event.adds.up
-        if ui.useTrinkets(items.witherbarksBranch) and use.able.witherbarksBranch() and ((buff.flagellation.exists()
-                and talent.invigoratingShadowdust or buff.shadowBlades.exists() or equiped.bandolierOfTwistedBlades()))
-        then
-            if use.witherbarksBranch() then
-                ui.debug("Using Witherbarks Branch [Cds]")
-                return true
-            end
-        end
-
-        -- Use Item - Mirror Of Fractured Tomorrows
-        -- use_item,name=mirror_of_fractured_tomorrows,if=buff.shadow_dance.up&(target.time_to_die>=15|equipped.ashes_of_the_embersoul)
-        if ui.useTrinkets(items.mirrorOfFracturedTomorrows) and use.able.mirrorOfFracturedTomorrows() and ((buff.shadowDance.exists()
-                and (unit.ttd(units.dyn5) >= 15 or equiped.ashesOfTheEmbersoul())))
-        then
-            if use.mirrorOfFracturedTomorrows() then
-                ui.debug("Using Mirror Of Fractured Tomorrows [Cds]")
-                return true
-            end
-        end
-
-        -- Use Item - Beacon To The Beyond
-        -- use_item,name=beacon_to_the_beyond,if=!stealthed.all&(buff.deeper_daggers.up|!talent.deeper_daggers)&(!raid_event.adds.up|!equipped.stormeaters_boon|cooldown.stormeaters_boon.remains>20)
-        if ui.useTrinkets(items.beaconToTheBeyond) and use.able.beaconToTheBeyond() and ((not var.stealthAll
-                and (buff.deeperDaggers.exists() or not talent.deeperDaggers) and (not equiped.stormeatersBoon() or cd.stormeatersBoon.remains() > 20)))
-        then
-            if use.beaconToTheBeyond() then
-                ui.debug("Using Beacon To The Beyond [Cds]")
-                return true
-            end
-        end
-
-        -- Use Item - Manic Grieftorch
-        -- use_item,name=manic_grieftorch,if=!buff.shadow_blades.up&!buff.shadow_dance.up&(!cooldown.mirror_of_fractured_tomorrows.ready|!equipped.mirror_of_fractured_tomorrows)&(!cooldown.ashes_of_the_embersoul.ready|!equipped.ashes_of_the_embersoul)&(!cooldown.irideus_fragment.ready|!equipped.irideus_fragment)|fight_remains<10
-        if ui.useTrinkets(items.manicGrieftorch) and use.able.manicGrieftorch() and ((not buff.shadowBlades.exists()
-                and not buff.shadowDance.exists() and (not not cd.mirrorOfFracturedTomorrows.exists() or not equiped.mirrorOfFracturedTomorrows())
-                and (not not cd.ashesOfTheEmbersoul.exists() or not equiped.ashesOfTheEmbersoul()) and (not not cd.irideusFragment.exists()
-                    or not equiped.irideusFragment()) or unit.ttdGroup(40) < 10))
-        then
-            if use.manicGrieftorch() then
-                ui.debug("Using Manic Grieftorch [Cds]")
-                return true
-            end
-        end
-
-
-        -- Use Item - Use Items
-        -- use_items,if=!stealthed.all&(!cooldown.mirror_of_fractured_tomorrows.ready|!equipped.mirror_of_fractured_tomorrows)&(!cooldown.ashes_of_the_embersoul.ready|!equipped.ashes_of_the_embersoul)|fight_remains<10
-        if ((not var.stealthAll and (not not cd.mirrorOfFracturedTomorrows.exists() or not equiped.mirrorOfFracturedTomorrows())
-                and (not not cd.ashesOfTheEmbersoul.exists() or not equiped.ashesOfTheEmbersoul()) or unit.ttdGroup(40) < 10))
-        then
-            module.BasicTrinkets()
-        end
+        -- Module - Basic Trinkets
+        module.BasicTrinkets()
     end
 end -- End Action List - Cooldowns
 
--- Action List - Stealth Cooldowns
-actionList.StealthCooldowns = function()
-    -- Variable - Shd Threshold
-    -- variable,name=shd_threshold,value=cooldown.shadow_dance.charges_fractional>=0.75+talent.shadow_dance
-    var.shdThreshold = charges.shadowDance.frac() >= 0.75 + var.shadowDance
-    -- Variable - Rotten Cb
-    -- variable,name=rotten_cb,value=(!buff.the_rotten.up|!set_bonus.tier30_2pc)&(!talent.cold_blood|cooldown.cold_blood.remains<4|cooldown.cold_blood.remains>10)
-    var.rottenCb = ((not buff.theRotten.exists() or not equiped.tier(30, 2)) and (not talent.coldBlood or cd.coldBlood.remains() < 4 or cd.coldBlood.remains() > 10))
-    if unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
-        -- Vanish
-        -- vanish,if=(combo_points.deficit>1|buff.shadow_blades.up&talent.invigorating_shadowdust)&!variable.shd_threshold&(cooldown.flagellation.remains>=60|!talent.flagellation|fight_remains<=(30*cooldown.vanish.charges))&(cooldown.symbols_of_death.remains>3|!set_bonus.tier30_2pc)&(cooldown.secret_technique.remains>=10|!talent.secret_technique|cooldown.vanish.charges>=2&talent.invigorating_shadowdust&(buff.the_rotten.up|!talent.the_rotten)&!raid_event.adds.up)
-        if ui.checked("Vanish") and ui.useCDs() and cast.able.vanish() and (((comboPoints.deficit() > 1 or buff.shadowBlades.exists()
-                    and talent.invigoratingShadowdust) and not var.shdThreshold and (cd.flagellation.remains() >= 60 or not talent.flagellation
-                    or unit.ttdGroup(40) <= (30 * charges.vanish.count())) and (cd.symbolsOfDeath.remains() > 3 or not equiped.tier(30, 2))
-                and (cd.secretTechnique.remains() >= 10 or not talent.secretTechnique or charges.vanish.count() >= 2 and talent.invigoratingShadowdust
-                    and (buff.theRotten.exists() or not talent.theRotten))))
-        then
-            if cast.vanish() then
-                ui.debug("Casting Vanish [Stealth Cds]")
-                return true
-            end
-        end
-        -- Shadowmeld
-        -- shadowmeld,if=energy>=40&energy.deficit>=10&!variable.shd_threshold&combo_points.deficit>4
-        if ui.checked("Racial") and ui.useCDs() and cast.able.racial() and unit.race() == "NightElf"
-            and energy() >= 40 and energy.deficit() >= 10 and not var.shdThreshold and comboPoints.deficit() > 4
-        then
-            if cast.racial() then
-                ui.debug("Casting Shadowmeld [Stealth Cds]")
-                return true
-            end
+-- Action List - Pool Resource
+actionList.Pool = function()
+    -- Preparation (only if available)
+    -- preparation,if=!buff.vanish.up&cooldown.vanish.remains>60
+    if cast.able.preparation() and ui.checked("Preparation") and not buff.vanish.exists() and cd.vanish.remains() > 60 then
+        if cast.preparation() then
+            ui.debug("Casting Preparation")
+            return true
         end
     end
-    -- Variable - Shd Combo Points
-    -- variable,name=shd_combo_points,value=combo_points.deficit>=3
-    var.shdComboPoints = comboPoints.deficit() >= 3
-    if unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
-        -- Shadow Dance
-        -- shadow_dance,if=(dot.rupture.ticking|talent.invigorating_shadowdust)&variable.rotten_cb&(!talent.the_first_dance|combo_points.deficit>=4|buff.shadow_blades.up)&(variable.shd_combo_points&variable.shd_threshold|(buff.shadow_blades.up|cooldown.symbols_of_death.up&!talent.sepsis|buff.symbols_of_death.remains>=4&!set_bonus.tier30_2pc|!buff.symbols_of_death.remains&set_bonus.tier30_2pc)&cooldown.secret_technique.remains<10+12*(!talent.invigorating_shadowdust|set_bonus.tier30_2pc))
-        if ui.mode.shadowDance == 1 and ui.alwaysCdAoENever("Shadow Dance", 3, #enemies.yards10) and cast.able.shadowDance()
-            and (((debuff.rupture.exists(units.dyn5) or talent.invigoratingShadowdust) and var.rottenCb
-                and (not talent.theFirstDance or comboPoints.deficit() >= 4 or buff.shadowBlades.exists())
-                and (var.shdComboPoints and var.shdThreshold or (buff.shadowBlades.exists() or not cd.symbolsOfDeath.exists()
-                    and not talent.sepsis or buff.symbolsOfDeath.remains() >= 4 and not equiped.tier(30, 2) or not buff.symbolsOfDeath.remains()
-                    and equiped.tier(30, 2)) and cd.secretTechnique.remains() < 10 + 12 * var.invigoratingTier)))
-        then
-            if cast.shadowDance() then
-                ui.debug("Casting Shadow Dance [Stealth Cds]")
-                return true
-            end
-        end
-    end
-end -- End Action List - Stealth Cooldowns
+    return false
+end -- End Action List - Pool
 
--- Action List - Stealthed
-actionList.Stealthed = function()
-    -- Shadowstrike
-    -- shadowstrike,if=buff.stealth.up&(spell_targets.shuriken_storm<4|variable.priority_rotation)
-    if cast.able.shadowstrike("target", nil, 1, ui.value("SS Range")) and ((buff.stealth.exists() and (ui.useST(10, 4) or var.priorityRotation))) then
-        if cast.shadowstrike("target", nil, 1, ui.value("SS Range")) then
-            ui.debug("Casting Shadowstrike [Stealthed]")
-            return true
-        end
-    end
-    -- Call Action List - Finish
-    -- call_action_list,name=finish,if=effective_combo_points>=var.cpMaxSpend
-    if var.effectiveComboPoints >= var.cpMaxSpend then
-        if actionList.Finish() then return true end
-    end
-    -- Call Action List - Finish
-    -- call_action_list,name=finish,if=buff.shuriken_tornado.up&combo_points.deficit<=2
-    if buff.shurikenTornado.exists() and comboPoints.deficit() <= 2 then
-        if actionList.Finish() then return true end
-    end
-    -- Call Action List - Finish
-    -- call_action_list,name=finish,if=combo_points.deficit<=1+(talent.deeper_stratagem|talent.secret_stratagem)
-    if (comboPoints.deficit() <= 1 + var.deepSecrets) then
-        if actionList.Finish() then return true end
-    end
-    -- Backstab
-    -- backstab,if=!buff.premeditation.up&buff.shadow_dance.remains>=3&buff.shadow_blades.up&!used_for_danse&talent.danse_macabre&spell_targets.shuriken_storm<=3&!buff.the_rotten.up
-    if cast.able.backstab() and not buff.premeditation.exists() and buff.shadowDance.remains() >= 3
-        and buff.shadowBlades.exists() and not var.danseBackstab and talent.danseMacabre and ui.useST(10, 4) and not buff.theRotten.exists()
+-- Action List - Generator
+actionList.Generator = function()
+    -- Pool Resource Check
+    -- run_action_list,name=pool,if=buff.master_of_subtlety.down&buff.shadow_dance.down&debuff.find_weakness.down&(energy+cooldown.shadow_dance.remains*energy.regen<80|energy+cooldown.vanish.remains*energy.regen<60)
+    if not buff.masterOfSubtlety.exists() and not buff.shadowDance.exists() and not debuff.findWeakness.exists(units.dyn5)
+        and (energy() + cd.shadowDance.remains() * energy.regen() < 80 or energy() + cd.vanish.remains() * energy.regen() < 60)
     then
-        if cast.backstab() then
-            ui.debug("Casting Backstab [Stealthed]")
+        if actionList.Pool() then return true end
+    end
+    -- Fan of Knives
+    -- fan_of_knives,if=active_enemies>=4
+    if cast.able.fanOfKnives("player", "aoe", 1, 10) and ui.useAOE(10, 4) then
+        if cast.fanOfKnives("player", "aoe", 1, 10) then
+            ui.debug("Casting Fan of Knives")
             return true
         end
     end
-    -- Gloomblade
-    -- gloomblade,if=!buff.premeditation.up&buff.shadow_dance.remains>=3&buff.shadow_blades.up&!used_for_danse&talent.danse_macabre&spell_targets.shuriken_storm<=4
-    if cast.able.gloomblade() and not buff.premeditation.exists() and buff.shadowDance.remains() >= 3 and buff.shadowBlades.exists()
-        and not var.danseGloomblade and talent.danseMacabre and ui.useST(10, 5)
+    -- Hemorrhage (if talented)
+    -- hemorrhage,if=remains<3|position_front
+    if cast.able.hemorrhage(units.dyn5)
+        and (debuff.hemorrhage.remains(units.dyn5) < 3 or unit.facing(units.dyn5, "player") or unit.level() < 40)
     then
-        if cast.gloomblade() then
-            ui.debug("Casting Gloomblade [Stealthed]")
+        if cast.hemorrhage(units.dyn5) then
+            ui.debug("Casting Hemorrhage")
             return true
         end
     end
-    -- Shadowstrike
-    -- shadowstrike,if=!used_for_danse&buff.shadow_blades.up
-    if cast.able.shadowstrike("target", nil, 1, ui.value("SS Range")) and not var.danseShadowstrike and buff.shadowBlades.exists() then
-        if cast.shadowstrike("target", nil, 1, ui.value("SS Range")) then
-            ui.debug("Casting Shadowstrike - Shadow Blades [Stealthed]")
-            return true
-        end
-    end
-    -- Shuriken Storm
-    -- shuriken_storm,if=!buff.premeditation.up&spell_targets>=4
-    if cast.able.shurikenStorm("player", "aoe", 1, 8) and cast.able.shurikenStorm() and not buff.premeditation.exists() and ui.useAOE(10, 4) then
-        if cast.shurikenStorm() then
-            ui.debug("Casting Shuriken Storm [Stealthed]")
-            return true
-        end
-    end
-    -- Shadowstrike
-    -- shadowstrike
-    if cast.able.shadowstrike("target", nil, 1, ui.value("SS Range")) then
-        if cast.shadowstrike("target", nil, 1, ui.value("SS Range")) then
-            ui.debug("Casting Shadowstrike - Just Strike [Stealthed]")
-            return true
-        end
-    end
-end -- End Action List - Stealthed
-
--- Action List - Finish
-actionList.Finish = function()
-    -- Rupture
-    -- rupture,if=!dot.rupture.ticking&target.time_to_die-remains>6
-    if cast.able.rupture() and not debuff.rupture.exists(units.dyn5) and unit.ttd(units.dyn5) - debuff.rupture.remain(units.dyn5) > 6 then
-        if cast.rupture() then
-            ui.debug("Casting Rupture [Finish]")
-            return true
-        end
-    end
-    -- Variable - Premed Snd Condition
-    -- variable,name=premed_snd_condition,value=talent.premeditation.enabled&spell_targets.shuriken_storm<5
-    var.premedSndCondition = talent.premeditation and ui.useST(10, 5)
-    -- Slice And Dice
-    -- slice_and_dice,if=!stealthed.all&!variable.premed_snd_condition&spell_targets.shuriken_storm<6&!buff.shadow_dance.up&buff.slice_and_dice.remains<fight_remains&refreshable
-    if cast.able.sliceAndDice() and not var.stealthAll and not var.premedSndCondition and ui.useST(10, 6)
-        and not buff.shadowDance.exists() and buff.sliceAndDice.remains() < unit.ttdGroup(40) and buff.sliceAndDice.refresh()
+    -- Shuriken Toss (if talented)
+    -- shuriken_toss,if=talent.shuriken_toss.enabled&(energy<65&energy.regen<16)
+    if talent.shurikenToss and cast.able.shurikenToss(units.dyn30)
+        and (energy() < 65 and energy.regen() < 16)
     then
-        if cast.sliceAndDice() then
-            ui.debug("Casting Slice And Dice [Finish]")
-            return true
-        end
-    end
-    -- Variable - Skip Rupture
-    -- variable,name=skip_rupture,value=buff.thistle_tea.up&spell_targets.shuriken_storm=1|buff.shadow_dance.up&(spell_targets.shuriken_storm=1|dot.rupture.ticking&spell_targets.shuriken_storm>=2)
-    var.skipRupture = (buff.thistleTea.exists() and ui.useST(10, 2) or buff.shadowDance.exists() and (ui.useST(10, 2) or debuff.rupture.exists(units.dyn5) and ui.useAOE(10, 2)))
-    -- Rupture
-    -- rupture,if=(!variable.skip_rupture|variable.priority_rotation)&target.time_to_die-remains>6&refreshable
-    if cast.able.rupture() and (((not var.skipRupture or var.priorityRotation)
-            and unit.ttd(units.dyn5) - debuff.rupture.remain(units.dyn5) > 6 and debuff.rupture.refresh(units.dyn5)))
-    then
-        if cast.rupture() then
-            ui.debug("Casting Rupture - Refresh [Finish]")
-            return true
-        end
-    end
-    -- Rupture
-    -- rupture,if=buff.finality_rupture.up&buff.shadow_dance.up&spell_targets.shuriken_storm<=4&!action.rupture.used_for_danse
-    if cast.able.rupture() and buff.finalityRupture.exists() and buff.shadowDance.exists() and ui.useST(10, 4) and not var.danseRupture then
-        if cast.rupture() then
-            ui.debug("Casting Rupture - Finality [Finish]")
-            return true
-        end
-    end
-    -- Cold Blood
-    -- cold_blood,if=variable.secret_condition&cooldown.secret_technique.ready
-    if ui.alwaysCdNever("Cold Blood") and cast.able.coldBlood() and (var.secretCondition or not ui.alwaysCdAoENever("Shadow Dance", 3, #enemies.yards10))
-        and not cd.secretTechnique.exists()
-    then
-        if cast.coldBlood() then
-            ui.debug("Casting Cold Blood [Finish]")
-            return true
-        end
-    end
-    -- Secret Technique
-    -- secret_technique,if=variable.secret_condition&(!talent.cold_blood|cooldown.cold_blood.remains>buff.shadow_dance.remains-2|!talent.improved_shadow_dance)
-    if ui.alwaysCdAoENever("Secret Technique", 3, #enemies.yards10) and cast.able.secretTechnique()
-        and (((var.secretCondition or not ui.alwaysCdAoENever("Shadow Dance", 3, #enemies.yards10)) and (not talent.coldBlood
-            or cd.coldBlood.remains() > buff.shadowDance.remains() - 2 or not talent.improvedShadowDance)))
-    then
-        if cast.secretTechnique() then
-            ui.debug("Casting Secret Technique [Finish]")
-            return true
-        end
-    end
-    -- Rupture
-    -- rupture,cycle_targets=1,if=!variable.skip_rupture&!variable.priority_rotation&spell_targets.shuriken_storm>=2&target.time_to_die>=(2*combo_points)&refreshable
-    if cast.able.rupture() and not var.skipRupture and not var.priorityRotation and ui.useAOE(10, 2)
-        and unit.ttd(units.dyn5) >= (2 * comboPoints()) and debuff.rupture.refresh(units.dyn5)
-    then
-        if cast.rupture() then
-            ui.debug("Casting Rupture - AOE [Finish]")
-            return true
-        end
-    end
-    -- Rupture
-    -- rupture,if=!variable.skip_rupture&remains<cooldown.symbols_of_death.remains+10&cooldown.symbols_of_death.remains<=5&target.time_to_die-remains>cooldown.symbols_of_death.remains+5
-    if cast.able.rupture() and not var.skipRupture and debuff.rupture.remain(units.dyn5) < cd.symbolsOfDeath.remains() + 10
-        and cd.symbolsOfDeath.remains() <= 5 and unit.ttd(units.dyn5) - debuff.rupture.remain(units.dyn5) > cd.symbolsOfDeath.remains() + 5
-    then
-        if cast.rupture() then
-            ui.debug("Casting Rupture - Symbols of Death Soon [Finish]")
-            return true
-        end
-    end
-    -- Black Powder
-    -- black_powder,if=!variable.priority_rotation&spell_targets>=3
-    if cast.able.blackPowder() and not var.priorityRotation and ui.useAOE(10, 3) then
-        if cast.blackPowder() then
-            ui.debug("Casting Black Powder [Finish]")
-            return true
-        end
-    end
-    -- Eviscerate
-    -- eviscerate
-    if cast.able.eviscerate() then
-        if cast.eviscerate() then
-            ui.debug("Casting Eviscerate [Finish]")
-            return true
-        end
-    end
-end -- End Action List - Finish
-
--- Action List - Build
-actionList.Build = function()
-    -- Shuriken Storm
-    -- shuriken_storm,if=spell_targets>=2+(talent.gloomblade&buff.lingering_shadow.remains>=6|buff.perforated_veins.up)
-    if cast.able.shurikenStorm("player", "aoe", 1, 10) and (ui.useAOE(10, 2 + var.gloomShadowVeins)) then
-        if cast.shurikenStorm("player", "aoe", 1, 10) then
-            ui.debug("Casting Shuriken Storm [Build]")
-            return true
-        end
-    end
-    -- Gloomblade
-    -- gloomblade
-    if cast.able.gloomblade() then
-        if cast.gloomblade() then
-            ui.debug("Casting Gloomblade [Build]")
+        if cast.shurikenToss(units.dyn30) then
+            ui.debug("Casting Shuriken Toss")
             return true
         end
     end
     -- Backstab
     -- backstab
-    if cast.able.backstab() then
-        if cast.backstab() then
-            ui.debug("Casting Backstab [Build]")
+    if cast.able.backstab(units.dyn5) then
+        if cast.backstab(units.dyn5) then
+            ui.debug("Casting Backstab")
             return true
         end
     end
-    -- Sinister Strike
-    if unit.level() < 14 and cast.able.sinisterStrike() then
-        if cast.sinisterStrike() then
-            ui.debug("Casting Sinister Strike [Build]")
+    -- Pool
+    if actionList.Pool() then return true end
+end -- End Action List - Generator
+
+-- Action List - Finisher
+actionList.Finisher = function()
+    -- Slice and Dice
+    -- slice_and_dice,if=buff.slice_and_dice.remains<4
+    if cast.able.sliceAndDice() and buff.sliceAndDice.remains() < 4 then
+        if cast.sliceAndDice() then
+            ui.debug("Casting Slice and Dice")
             return true
         end
     end
-end -- End Action List - Build
+    -- Rupture (if available)
+    -- rupture,if=ticks_remain<2&active_enemies<3
+    if cast.able.rupture(units.dyn5) and debuff.rupture.ticksRemain(units.dyn5) < 2 and ui.useST(10, 3) then
+        if cast.rupture(units.dyn5) then
+            ui.debug("Casting Rupture")
+            return true
+        end
+    end
+    -- Crimson Tempest (if talented and available)
+    -- crimson_tempest,if=(active_enemies>1&dot.crimson_tempest_dot.ticks_remain<=2&combo_points=5)|active_enemies>=5
+    if talent.crimsonTempest and cast.able.crimsonTempest("player", "aoe", 1, 10) then
+        if (ui.useAOE(10, 2) and debuff.crimsonTempest.ticksRemain(units.dyn10AOE) <= 2 and comboPoints() == 5)
+            or ui.useAOE(10, 5)
+        then
+            if cast.crimsonTempest("player", "aoe", 1, 10) then
+                ui.debug("Casting Crimson Tempest")
+                return true
+            end
+        end
+    end
+    -- Eviscerate
+    -- eviscerate,if=active_enemies<4|(active_enemies>3&dot.crimson_tempest_dot.ticks_remain>=2)
+    if cast.able.eviscerate(units.dyn5) then
+        if ui.useST(10, 4) or (ui.useAOE(10, 4) and (not talent.crimsonTempest or debuff.crimsonTempest.ticksRemain(units.dyn10AOE) >= 2)) then
+            if cast.eviscerate(units.dyn5) then
+                ui.debug("Casting Eviscerate")
+                return true
+            end
+        end
+    end
+    -- Pool
+    if actionList.Pool() then return true end
+end -- End Action List - Finisher
+
+-- Action List - Opener
+actionList.Opener = function(thisUnit)
+    -- Use provided unit or default to units.dyn5
+    thisUnit = thisUnit or units.dyn5
+
+    -- Only run if target exists and is valid
+    -- unit.valid() handles: exists, alive, attackable, reaction checks
+    if not unit.valid(thisUnit) then
+        return false
+    end
+
+    -- If opener has already been cast AND we're in combat, skip
+    -- This allows the opener to retry if we're still out of combat
+    if var.openerCast and unit.inCombat() then
+        return false
+    end
+
+    -- Don't fire opener while falling/moving from Shadowstep
+    -- Wait at least 0.5 seconds after Shadowstep to ensure we're positioned behind target
+    if unit.falling() or (cast.last.shadowstep(1) and cast.timeSinceLast.shadowstep() < 0.5) then
+        return false
+    end
+
+    -- Apply Slice and Dice first if missing (can be cast from stealth without breaking it)
+    if not buff.sliceAndDice.exists() and cast.able.sliceAndDice("player") and comboPoints() > 0 then
+        if cast.sliceAndDice("player") then
+            ui.debug("Casting Slice and Dice [Opener - Pre-buff]")
+            return true -- Applied, will try opener again next frame
+        end
+    end
+
+    local targetDistance = unit.distance(thisUnit)
+    local behindTarget = not unit.facing(thisUnit, "player")
+    local enemyCount = #enemies.yards10 -- Count enemies for AoE decision
+    local inStealth = var.stealthed
+
+    -- ==================== RANGE CHECK & SHADOWSTEP ====================
+    -- If out of melee range and Shadowstep is available, use it first
+    if ui.checked("Shadowstep") and targetDistance >= 8 and targetDistance <= 25
+        and cast.able.shadowstep(thisUnit)
+    then
+        if cast.shadowstep(thisUnit) then
+            ui.debug("Shadowstep to engage " .. unit.name(thisUnit) .. " [Opener]")
+            return true
+        end
+    end
+
+    -- If still out of melee range and can't Shadowstep, can't engage yet
+    if targetDistance >= 5 then
+        return false
+    end
+
+    -- ==================== STEALTH OPENERS ====================
+    if inStealth then
+        -- Premeditation before opener
+        if cast.able.premeditation() and ui.checked("Premeditation") and comboPoints() < 5 then
+            if cast.premeditation() then
+                ui.debug("Casting Premeditation [Opener]")
+                return true
+            end
+        end
+
+        -- * AoE Opener (3+ enemies) - Fan of Knives
+        if ui.useAOE(10, 3) and enemyCount >= 3 then
+            if cast.able.fanOfKnives("player", "aoe", 1, 10) then
+                if cast.fanOfKnives("player", "aoe", 1, 10) then
+                    var.openerCast = true
+                    var.openerTime = var.getTime
+                    var.openerAttemptTime = nil
+                    ui.debug("Casting Fan of Knives [Opener - AoE Stealth]")
+                    return true
+                end
+            end
+        end
+
+        -- ==================== SINGLE TARGET STEALTH OPENER ====================
+        -- Priority: Ambush (from behind) > Hemorrhage
+
+        -- * Ambush - Only from behind
+        if cast.able.ambush(thisUnit) then
+            if behindTarget then
+                -- Perfect conditions - cast Ambush
+                if cast.ambush(thisUnit) then
+                    var.openerCast = true
+                    var.openerTime = var.getTime
+                    var.openerAttemptTime = nil
+                    ui.debug("Casting Ambush on " .. unit.name(thisUnit) .. " [Opener - Stealth Behind]")
+                    return true
+                end
+                -- Ambush failed to cast (could be range, GCD, etc) - don't fall through yet
+                return false
+            else
+                -- Not behind target - use smart timeout logic
+                if not var.openerAttemptTime then
+                    var.openerAttemptTime = var.getTime
+                end
+
+                local openerWaitTime = var.getTime - var.openerAttemptTime
+
+                -- Dynamic timeout based on situation:
+                -- 1. If just used Shadowstep: Give extra time (1.5s) for positioning to settle
+                -- 2. If player is moving: Give more time (1.2s) - might be repositioning
+                -- 3. Base timeout: 1.0s
+                local timeoutDuration = 1.0 -- Base timeout
+
+                if cast.last.shadowstep(2) then
+                    timeoutDuration = 1.5 -- Give Shadowstep time to settle
+                end
+
+                -- If player is moving, we might be trying to get behind - give more time
+                if unit.moving("player") then
+                    timeoutDuration = math.max(timeoutDuration, 1.2)
+                end
+
+                if openerWaitTime < timeoutDuration then
+                    -- Still waiting for positioning
+                    return true
+                else
+                    -- Timeout - fall through to Hemorrhage
+                    var.openerAttemptTime = nil
+                end
+            end
+        elseif not cast.able.ambush(thisUnit) and not cast.last.ambush(1) then
+            -- Ambush not available (wrong level, not learned) - but don't spam if we just cast it
+        end
+
+        -- * Hemorrhage - Fallback when Ambush not available or positioning timeout
+        if cast.able.hemorrhage(thisUnit) then
+            if cast.hemorrhage(thisUnit) then
+                var.openerCast = true
+                var.openerTime = var.getTime
+                var.openerAttemptTime = nil
+                ui.debug("Casting Hemorrhage on " .. unit.name(thisUnit) .. " [Opener - Stealth]")
+                return true
+            end
+        end
+
+        -- * Backstab - Last resort fallback
+        if cast.able.backstab(thisUnit) and behindTarget then
+            if cast.backstab(thisUnit) then
+                var.openerCast = true
+                var.openerTime = var.getTime
+                var.openerAttemptTime = nil
+                ui.debug("Casting Backstab on " .. unit.name(thisUnit) .. " [Opener - Stealth Fallback]")
+                return true
+            end
+        end
+    end
+
+    -- ==================== NON-STEALTH OPENERS ====================
+    if not inStealth then
+        -- * AoE Non-Stealth Opener (3+ enemies)
+        if ui.useAOE(10, 3) and enemyCount >= 3 then
+            -- Fan of Knives for instant AoE damage
+            if cast.able.fanOfKnives("player", "aoe", 1, 10) then
+                if cast.fanOfKnives("player", "aoe", 1, 10) then
+                    var.openerCast = true
+                    var.openerTime = var.getTime
+                    ui.debug("Casting Fan of Knives [Opener - AoE]")
+                    return true
+                end
+            end
+        end
+
+        -- * Single Target Non-Stealth Opener
+        -- Hemorrhage - best opener for combo point + debuff
+        if cast.able.hemorrhage(thisUnit) then
+            if cast.hemorrhage(thisUnit) then
+                var.openerCast = true
+                var.openerTime = var.getTime
+                ui.debug("Casting Hemorrhage on " .. unit.name(thisUnit) .. " [Opener]")
+                return true
+            end
+        end
+
+        -- * Backstab - Fallback if behind target
+        if cast.able.backstab(thisUnit) and behindTarget then
+            if cast.backstab(thisUnit) then
+                var.openerCast = true
+                var.openerTime = var.getTime
+                ui.debug("Casting Backstab on " .. unit.name(thisUnit) .. " [Opener - Fallback]")
+                return true
+            end
+        end
+
+        -- * Sinister Strike - Last resort for low levels
+        if cast.able.sinisterStrike(thisUnit) then
+            if cast.sinisterStrike(thisUnit) then
+                var.openerCast = true
+                var.openerTime = var.getTime
+                ui.debug("Casting Sinister Strike on " .. unit.name(thisUnit) .. " [Opener - Low Level]")
+                return true
+            end
+        end
+    end
+
+    return false
+end -- End Action List - Opener
 
 -- Action List - PreCombat
 actionList.PreCombat = function()
     if not unit.inCombat() and not (unit.flying() or unit.mounted()) then
-        -- Poisons
-        -- apply_poison
+        -- Apply Poisons
         if not unit.moving() then
-            if ui.value("Lethal Poison") == 1 and buff.instantPoison.remain() < 300 and not cast.last.instantPoison() and ui.timer("Leathal Poison", 1) then
+            -- Lethal Poison
+            if ui.value("Lethal Poison") == 1 and buff.instantPoison.remain() < 300 and not cast.last.instantPoison() then
                 if cast.instantPoison("player") then
                     ui.debug("Casting Instant Poison")
                     return true
                 end
             end
-            if ui.value("Lethal Poison") == 2 and buff.woundPoison.remain() < 300 and not cast.last.woundPoison() and ui.timer("Leathal Poison", 1) then
+            if ui.value("Lethal Poison") == 2 and buff.deadlyPoison.remain() < 300 and not cast.last.deadlyPoison() then
+                if cast.deadlyPoison("player") then
+                    ui.debug("Casting Deadly Poison")
+                    return true
+                end
+            end
+            if ui.value("Lethal Poison") == 3 and buff.woundPoison.remain() < 300 and not cast.last.woundPoison() then
                 if cast.woundPoison("player") then
                     ui.debug("Casting Wound Poison")
                     return true
                 end
             end
-            if ui.value("Non-Lethal Poison") == 1 and buff.cripplingPoison.remain() < 300 and not cast.last.cripplingPoison() and ui.timer("Non-Leathal Poison", 1) then
+            -- Non-Lethal Poison
+            if ui.value("Non-Lethal Poison") == 2 and buff.cripplingPoison.remain() < 300 and not cast.last.cripplingPoison() then
                 if cast.cripplingPoison("player") then
                     ui.debug("Casting Crippling Poison")
                     return true
                 end
             end
-            if ui.value("Non-Lethal Poison") == 2 and buff.numbingPoison.remain() < 300 and not cast.last.numbingPoison() and ui.timer("Non-Leathal Poison", 1) then
-                if cast.numbingPoison("player") then
-                    ui.debug("Casting Numbing Poison")
+            if ui.value("Non-Lethal Poison") == 4 and buff.mindNumbingPoison.remain() < 300 and not cast.last.mindNumbingPoison() then
+                if cast.mindNumbingPoison("player") then
+                    ui.debug("Casting Mind-Numbing Poison")
+                    return true
+                end
+            end
+            if ui.value("Non-Lethal Poison") == 5 and buff.paralyticPoison.remain() < 300 and not cast.last.paralyticPoison() then
+                if cast.paralyticPoison("player") then
+                    ui.debug("Casting Paralytic Poison")
                     return true
                 end
             end
         end
         -- Stealth
-        -- stealth
-        if ui.checked("Stealth") and cast.able.stealth() and (not unit.resting() or unit.isDummy("target")) and not var.stealthAll then
-            if ui.value("Stealth") == 1 then
-                if cast.stealth() then
-                    ui.debug("Casting Stealth [Pre-Combat]")
-                    return true
-                end
-            end
-            if var.autoStealth() and ui.value("Stealth") == 3 then
-                if cast.stealth() then
-                    ui.debug("Casting Stealth - Detected Enemy Nearby [Pre-Combat]")
-                    return true
-                end
+        if ui.checked("Auto Stealth") and cast.able.stealth() and not unit.resting() and not var.stealthed then
+            if cast.stealth() then
+                ui.debug("Casting Stealth [Pre-Combat]")
+                return true
             end
         end
-        -- Variable - Algethar Puzzle Box Precombat Cast
-        -- variable,name=algethar_puzzle_box_precombat_cast,value=3
-        var.algetharPuzzleBoxPrecombatCast = 3
-        if unit.valid("target") then
-            if --[[ui.checked("Pre-Pull") and ui.useCDs() and]] ui.mode.pickPocket ~= 2
-                and (not unit.inCombat() or (unit.inCombat() and not cast.last.vanish())) and not buff.vanish.exists()
-            then
-                -- Slice and Dice
-                -- slice_and_dice,precombat_seconds=1
-                if cast.able.sliceAndDice() and comboPoints() > 0 and ui.pullTimer() <= 1 then
-                    if cast.sliceAndDice() then
-                        ui.debug("Casting Slice and Dice [Pre-Combat]")
-                        return true
-                    end
-                end
-                -- Shadowstep
-                if ui.checked("Shadowstep") and cast.able.shadowstep("target")
-                    and (not var.isPicked("target") or not var.stealth or energy() < 40 or (ui.value("SS Range") < 25 and unit.distance("target") > ui.value("SS Range")))
-                    and unit.distance("target") > 10 and cast.timeSinceLast.shadowstrike() > unit.gcd(true)
-                then
-                    if cast.shadowstep("target") then
-                        ui.debug("Casting Shadowstep [Pre-Combat]")
-                        return true
-                    end
-                end
-                if var.stealthAll then
-                    -- Pickpocket
-                    for i = 1, #enemies.yards10nc do
-                        local thisUnit = enemies.yards10nc[i]
-                        if not var.isPicked(thisUnit) and (unit.isUnit(thisUnit, "target") or ui.mode.pickPocket == 2) then
-                            if ui.mode.pickPocket == 2 and debuff.sap.remain(thisUnit) < 1 then
-                                if cast.sap(thisUnit) then
-                                    ui.debug("Casting Sap - Pickpocket [Pre-Combat]")
-                                    return true
-                                end
-                            end
-                            if cast.pickPocket(thisUnit) then
-                                br.pickPocketing = true
-                                ui.debug("Casting Pickpocket [Pre-Combat]")
-                                return true
-                            end
-                        end
-                    end
-                    -- Shadowstrike
-                    if ui.value("Stealth Breaker") == 1 then
-                        if cast.able.shadowstrike("target", nil, 1, ui.value("SS Range")) and (var.isPicked() or unit.distance("target") > 10) then
-                            if cast.shadowstrike("target", nil, 1, ui.value("SS Range")) then
-                                ui.debug("Casting Shadowstrike [Pre-Combat]")
-                                return true
-                            end
-                        end
-                    end
-                    -- Cheap Shot
-                    if (ui.value("Stealth Breaker") == 2 or (ui.value("Stealth Breaker") == 1 and unit.level() < 7))
-                        and cast.able.cheapShot("target") and cast.timeSinceLast.cheapShot() > unit.gcd(true)
-                    then
-                        if cast.cheapShot("target") then
-                            ui.debug("Casting Cheap Shot [Pre-Combat]")
-                            return true
-                        end
-                    end
-                end
-                -- Sinister Strike / Backstab
-                if ui.value("Stealth Breaker") == 3 then
-                    -- Backstab
-                    if cast.able.backstab("target") and cast.timeSinceLast.backstab() > unit.gcd(true) then
-                        if cast.backstab("target") then
-                            ui.debug("Casting Backstab [Pre-Combat]")
-                            return true
-                        end
-                    end
-                    -- Sinister Strike
-                    if unit.level() < 14 and cast.able.sinisterStrike("target") and cast.timeSinceLast.sinisterStrike() > unit.gcd(true) then
-                        if cast.sinisterStrike("target") then
-                            ui.debug("Casting Sinister Strike [Pre-Combat]")
-                            return true
-                        end
-                    end
-                end
-                -- Start Attack
-                if not var.stealthAll and cast.able.autoAttack("target") and energy() < 45 and unit.distance("target") < 5 then
-                    if cast.autoAttack("target") then
-                        ui.debug("Casting Auto Attack [Pre-Combat]")
-                        return true
-                    end
-                end
-            end
+        -- Pick Pocket (highest priority after stealth, before opener)
+        if actionList.PickPocket() then return true end
+        -- Call Opener if target is valid (but NOT in Pick Pocket Only mode)
+        local ppMode = getPickPocketMode()
+        if ppMode ~= 2 and unit.valid("target") then
+            if actionList.Opener("target") then return true end
         end
     end
 end -- End Action List - PreCombat
 
 -- Action List - Combat
 actionList.Combat = function()
+    -- Block entire combat rotation if in Pick Pocket Only mode
+    local ppMode = getPickPocketMode()
+    if ppMode == 2 and not unit.inCombat() then
+        return false -- Don't engage in combat in Pick Pocket Only mode
+    end
+
     if unit.inCombat() and not var.profileStop and unit.valid("target") then
-        -- Stealth
-        -- stealth
-        -- if ui.checked("Stealth") and cast.able.stealth() and (not unit.resting() or unit.isDummy("target")) and not var.stealthAll then
-        --     if ui.value("Stealth") == 1 then
-        --         if cast.stealth() then
-        --             ui.debug("Casting Stealth [Combat]")
-        --             return true
-        --         end
-        --     end
-        --     if var.autoStealth() and ui.value("Stealth") == 3 then
-        --         if cast.stealth() then
-        --             ui.debug("Casting Stealth - Detected Enemy Nearby [Combat]")
-        --             return true
-        --         end
-        --     end
-        -- end
-        ------------------------------
-        --- In Combat - Interrupts ---
-        ------------------------------
-        if actionList.Interrupts() then return true end
-        ----------------------------------
-        --- In Combat - Begin Rotation ---
-        ----------------------------------
-        -- Shadowstep
-        if ui.checked("Shadowstep") and cast.able.shadowstep("target") and cast.able.shadowstep()
-            and unit.distance("target") >= 8 and cast.timeSinceLast.shadowstrike() > unit.gcd(true)
-        then
-            if cast.shadowstep("target") then
-                ui.debug("Casting Shadowstep [Combat]")
-                return true
-            end
+        -- * Opener - Must execute first
+        if actionList.Opener() then return true end
+
+        -- * Block entire rotation until opener has been cast AND landed
+        -- This prevents any abilities from firing before the engagement opener completes
+        -- Also ensure we wait at least 0.3s after opener to confirm it landed
+        if not var.openerCast or (var.openerTime and var.getTime - var.openerTime < 0.3) then
+            return true -- Wait for opener to execute and land
         end
+
         -- Auto Attack
         -- auto_attack
-        if not var.stealthAll and cast.able.autoAttack("target") and unit.distance("target") < 5 then
-            if cast.autoAttack("target") then
+        if cast.able.autoAttack(units.dyn5) and unit.distance(units.dyn5) < 5 and not var.stealthed then
+            if cast.autoAttack(units.dyn5) then
                 ui.debug("Casting Auto Attack [Combat]")
                 return true
             end
         end
-        -- Variable - Snd Condition
-        -- variable,name=snd_condition,value=buff.slice_and_dice.up|spell_targets.shuriken_storm>=cp_max_spend
-        var.sndCondition = (buff.sliceAndDice.exists() or ui.useAOE(10, var.cpMaxSpend))
-        -- Action List - Cooldowns
-        -- call_action_list,name=cds
+        -- Kick (Outside of Interrupt Toggle for Priority)
+        -- kick
+        if actionList.Interrupts() then return true end
+        -- Shadowstep
+        if ui.checked("Shadowstep") and cast.able.shadowstep(units.dyn5) and unit.distance(units.dyn5) > 10 then
+            if cast.shadowstep(units.dyn5) then
+                ui.debug("Casting Shadowstep [Combat]")
+                return true
+            end
+        end
+        -- Cooldowns
         if actionList.Cooldowns() then return true end
-        -- Slice and Dice
-        -- slice_and_dice,if=spell_targets.shuriken_storm<var.cpMaxSpend&buff.slice_and_dice.remains<gcd.max&fight_remains>6&combo_points>=4
-        if cast.able.sliceAndDice() and ui.useST(10, var.cpMaxSpend)
-            and buff.sliceAndDice.remain() < unit.gcd(true) and unit.ttdGroup(40) > 6 and comboPoints() >= 4
-        then
-            if cast.sliceAndDice() then
-                ui.debug("Casting Slice and Dice [Combat]")
-                return true
-            end
-        end
-        -- Action List - Stealthed
-        -- run_action_list,name=stealthed,if=stealthed.all
-        if var.stealthAll then
-            if actionList.Stealthed() then return true end
-        end
-        -- Variable - Priority Rotation
-        -- variable,name=priority_rotation,value=priority_rotation
-        var.priorityRotation = ui.checked("Priority Rotation") and ui.useAOE(10, 2)
-        -- Variable - Stealth Threshold
-        -- variable,name=stealth_threshold,value=20+talent.vigor.rank*25+talent.thistle_tea*20+talent.shadowcraft*20
-        var.stealthThreshold = 20 + var.vigor * 25 + var.thistleTea * 20 + var.shadowcraft * 20
-        -- Variable - Stealth Helper
-        -- variable,name=stealth_helper,value=energy>=variable.stealth_threshold
-        var.stealthHelper = energy() >= var.stealthThreshold
-        -- Variable - Stealth Helper
-        -- variable,name=stealth_helper,value=energy.deficit<=variable.stealth_threshold,if=!talent.vigor|talent.shadowcraft
-        var.stealthHelper = (not talent.vigor or talent.shadowcraft) and energy.deficit() <= var.stealthThreshold or
-            false
-        -- Call Action List - Stealth Cds
-        -- call_action_list,name=stealth_cds,if=variable.stealth_helper|talent.invigorating_shadowdust
-        if (var.stealthHelper or talent.invigoratingShadowdust) then
-            if actionList.StealthCooldowns() then return true end
-        end
-        -- Action List - Finish
-        -- call_action_list,name=finish,if=variable.effective_combo_points>=cp_max_spend
-        if var.effectiveComboPoints >= var.cpMaxSpend then
-            if actionList.Finish() then return true end
-        end
-        -- call_action_list,name=finish,if=combo_points.deficit<=1|fight_remains<=1&effective_combo_points>=3
-        if (comboPoints.deficit() <= 1 or unit.ttdGroup(40) <= 1 and var.effectiveComboPoints >= 3) then
-            if actionList.Finish() then return true end
-        end
-        -- call_action_list,name=finish,if=spell_targets.shuriken_storm>=4&variable.effective_combo_points>=4
-        if ui.useAOE(10, 4) and var.effectiveComboPoints >= 4 then
-            if actionList.Finish() then return true end
-        end
-        -- Action List - Build
-        -- call_action_list,name=build,if=energy.deficit<=variable.stealth_threshold
-        if energy.deficit() <= var.stealthThreshold then
-            if actionList.Build() then return true end
-        end
-        -- Racials
-        -- arcane_torrent,if=energy.deficit>=15+energy.regen
-        -- arcane_pulse
-        -- lights_judgment
-        if ui.useCDs() and ui.checked("Racial") and cast.able.racial() and not var.stealthAll then
-            if unit.race() == "LightforgedDraenei" then
-                if cast.racial("target") then
-                    ui.debug("Casting Racial [Combat]")
-                    return true
-                end
-            end
-            if (unit.race() == "BloodElf" and energy.deficit() >= 15 + energy.regen()) or unit.race() == "Nightborne" then
-                if cast.racial("player") then
-                    ui.debug("Casting Racial [Combat]")
-                    return true
+        -- Pool Resource for Ambush
+        -- pool_resource,for_next=1
+        -- ambush,if=combo_points<5|(talent.anticipation.enabled&anticipation_charges<3)|(buff.sleight_of_hand.up&buff.sleight_of_hand.remains<=gcd)
+        if var.stealthed then
+            if cast.able.ambush(units.dyn5) then
+                if comboPoints() < 5
+                    or (talent.anticipation and buff.anticipation.stack() < 3)
+                    or (buff.sleightOfHand.exists() and buff.sleightOfHand.remains() <= unit.gcd(true))
+                then
+                    if energy() < 60 then
+                        -- Pool energy
+                        return true
+                    end
+                    if cast.ambush(units.dyn5) then
+                        ui.debug("Casting Ambush [Combat]")
+                        return true
+                    end
                 end
             end
         end
-        -- Shuriken Toss
-        if ui.checked("Shuriken Toss OOR") and energy() >= ui.value("Shuriken Toss OOR") and cast.able.shurikenToss()
-            and (charges.shadowstep.count() == 0 or not ui.checked("Shadowstep")) and unit.distance(units.dyn30) > 5 and not var.stealthAll
-        then
-            if cast.shurikenToss() then
-                ui.debug("Casting Shuriken Toss - Out of Melee [Combat]")
+        -- Pool Resource for Shadow Dance (only if available)
+        -- pool_resource,for_next=1,extra_amount=75
+        -- shadow_dance,if=energy>=75&buff.stealth.down&buff.vanish.down&debuff.find_weakness.down
+        if cast.able.shadowDance() and ui.alwaysCdAoENever("Shadow Dance", 3, #enemies.yards10) then
+            if energy() >= 75 and not buff.stealth.exists() and not buff.vanish.exists() and not debuff.findWeakness.exists(units.dyn5) then
+                if cast.shadowDance() then
+                    ui.debug("Casting Shadow Dance [Combat]")
+                    return true
+                end
+            elseif not buff.stealth.exists() and not buff.vanish.exists() and not debuff.findWeakness.exists(units.dyn5) and energy() < 75 then
+                -- Pool 75 energy
                 return true
             end
         end
-    end -- End In Combat
-end     -- End Action List - Combat
+        -- Pool Resource for Vanish (only if available)
+        -- pool_resource,for_next=1,extra_amount=45
+        -- vanish,if=energy>=45&energy<=75&combo_points<=3&buff.shadow_dance.down&buff.master_of_subtlety.down&debuff.find_weakness.down
+        if cast.able.vanish() and ui.alwaysCdAoENever("Vanish", 3, #enemies.yards10) then
+            if energy() >= 45 and energy() <= 75 and comboPoints() <= 3
+                and not buff.shadowDance.exists() and not buff.masterOfSubtlety.exists()
+                and not debuff.findWeakness.exists(units.dyn5)
+            then
+                if cast.vanish() then
+                    ui.debug("Casting Vanish [Combat]")
+                    return true
+                end
+            elseif energy() < 45 and comboPoints() <= 3
+                and not buff.shadowDance.exists() and not buff.masterOfSubtlety.exists()
+                and not debuff.findWeakness.exists(units.dyn5)
+            then
+                -- Pool 45 energy
+                return true
+            end
+        end
+        -- Marked for Death (only if talented)
+        -- marked_for_death,if=talent.marked_for_death.enabled&combo_points=0
+        if talent.markedForDeath and ui.checked("Marked for Death") and cast.able.markedForDeath(units.dyn5) and comboPoints() == 0 then
+            if cast.markedForDeath(units.dyn5) then
+                ui.debug("Casting Marked for Death [Combat]")
+                return true
+            end
+        end
+        -- Generator (for building Slice and Dice / Rupture) - only if Anticipation talented
+        -- run_action_list,name=generator,if=talent.anticipation.enabled&anticipation_charges<4&buff.slice_and_dice.up&dot.rupture.remains>2&(buff.slice_and_dice.remains<6|dot.rupture.remains<4)
+        if talent.anticipation and buff.anticipation.stack() < 4 and buff.sliceAndDice.exists() and debuff.rupture.remains(units.dyn5) > 2
+            and (buff.sliceAndDice.remains() < 6 or debuff.rupture.remains(units.dyn5) < 4)
+        then
+            if actionList.Generator() then return true end
+        end
+        -- Finisher (flexible combo point requirement for leveling)
+        -- run_action_list,name=finisher,if=combo_points>=5 or (combo_points>=3 and level<20)
+        if comboPoints() >= 5 or (comboPoints() >= 3 and unit.level("player") < 20) then
+            if actionList.Finisher() then return true end
+        end
+        -- Generator
+        -- run_action_list,name=generator,if=combo_points<4|energy>80|talent.anticipation.enabled
+        if comboPoints() < 4 or energy() > 80 or talent.anticipation then
+            if actionList.Generator() then return true end
+        end
+        -- Pool
+        -- run_action_list,name=pool
+        if actionList.Pool() then return true end
+    end
+end -- End Action List - Combat
 
 ----------------
 --- ROTATION ---
@@ -1158,6 +1186,7 @@ local function runRotation()
         equiped     = br.player.equiped
         items       = br.player.items
         module      = br.player.module
+        spell       = br.player.spell
         talent      = br.player.talent
         ui          = br.player.ui
         unit        = br.player.unit
@@ -1166,97 +1195,44 @@ local function runRotation()
     end
 
     -- Get Best Unit for Range
-    -- units.get(range, aoe)
     units.get(5)
+    units.get(10, true)
     units.get(30)
 
     -- Get List of Enemies for Range
-    -- enemies.get(range, from unit, no combat, variable)
     enemies.get(5)
     enemies.get(10)
-    enemies.get(10, "player", true)
     enemies.get(20)
-    enemies.get(20, "player", true)
     enemies.get(30)
 
     -- General Vars
-    var.stealth = buff.stealth.exists() or buff.vanish.exists() or buff.shadowDance.exists()
-    var.stealthAll = buff.stealth.exists() or buff.vanish.exists() or buff.shadowmeld.exists() or
-        buff.shadowDance.exists() or buff.stealthSepsis.exists() or buff.subterfuge.exists()
+    var.getTime = br._G.GetTime()
+    var.stealthed = isStealthed()
 
-    -- Numeric Returns
-    var.gloomShadowVeins = (talent.gloomblade and buff.lingeringShadow.remains() >= 6 or buff.perforatedVeins.exists()) and
-        1 or 0
-    var.deepSecrets = (talent.deeperStratagem or talent.secretStratagem) and 1 or 0
-    var.deepStrat = talent.deeperStratagem and 1 or 0
-    var.secretStrat = talent.secretStratagem and 1 or 0
-    var.shadowcraft = talent.shadowcraft and 1 or 0
-    var.shadowDance = talent.shadowDance and 1 or 0
-    var.subterfuge = talent.subterfuge and 3 or 0
-    var.thistleTea = talent.thistleTea and 1 or 0
-    var.vigor = talent.vigor and 1 or 0
-    var.invigoratingTier = (not talent.invigoratingShadowdust or equiped.tier(30, 2)) and 1 or 0
+    -- Reset opener flag when out of combat
+    if not unit.inCombat() then
+        if var.profileStop then var.profileStop = false end
+        var.openerCast = false -- Reset opener flag
+        var.openerTime = nil -- Reset opener time
+        var.openerAttemptTime = nil -- Reset opener attempt timer
 
-    -- SimC Specific Variables
-    -- variable,name=secret_condition,value=(action.gloomblade.used_for_danse|action.shadowstrike.used_for_danse|action.backstab.used_for_danse|action.shuriken_storm.used_for_danse)&(action.eviscerate.used_for_danse|action.black_powder.used_for_danse|action.rupture.used_for_danse)|!talent.danse_macabre
-    var.secretCondition = ((var.danseGloomblade or var.danseShadowstrike or var.danseBackstab or var.danseShurikenStorm) and (var.danseEviscerate or var.danseBlackPowder or var.danseRupture) or not talent.danseMacabre)
-    -- cp_max_spend
-    var.cpMaxSpend = 5 + var.deepStrat + var.secretStrat
-    -- effective_combo_points
-    var.animaCharged = buff.echoingReprimand.exists() and 2 or 0
-    var.effectiveComboPoints = (var.animaCharged > 0 and comboPoints() == var.animaCharged) and 7 or comboPoints()
-    if talent.danseMacabre and buff.shadowDance.exists() then
-        -- action.backstab.used_for_danse
-        if cast.last.backstab() then
-            var.danseBackstab = true
+        -- Clear Pick Pocket in-flight tracking when out of combat
+        -- BUT only if it's been more than 2 seconds (don't clear if we just cast it)
+        if var.pickPocketCastTime > 0 and (var.getTime - var.pickPocketCastTime) > 2.0 then
+            var.pickPocketCastTime = 0
+            var.pickPocketLastGUID = nil
         end
-        -- action.black_powder.used_for_danse
-        if cast.last.blackPowder() then
-            var.danseBlackPowder = true
-        end
-        -- action.eviscerate.used_for_danse
-        if cast.last.eviscerate() then
-            var.danseEviscerate = true
-        end
-        -- action.gloomblade.used_for_danse
-        if cast.last.gloomblade() then
-            var.danseGloomblade = true
-        end
-        -- action.rupture.used_for_danse
-        if cast.last.rupture() then
-            var.danseRupture = true
-        end
-        -- action.shadowstrike.used_for_danse
-        if cast.last.shadowstrike() then
-            var.danseShadowstrike = true
-        end
-        -- action.shuriken_storm.used_for_danse
-        if cast.last.shurikenStorm() then
-            var.danseShurikenStorm = true
-        end
-    else
-        var.danseBackstab = false
-        var.danseBlackPowder = false
-        var.danseEviscerate = false
-        var.danseGloomblade = false
-        var.danseRupture = false
-        var.danseShadowstrike = false
-        var.danseShurikenStorm = false
-    end
 
-    if not (not unit.exists("target") or not unit.isUnit("target", var.pickPocketUnit)) then
-        br.unpickable = false
-        var.pickPocketUnit = "player"
-    end
-
-    var.maxTTD = 0
-    var.maxTTDUnit = "target"
-    for i = 1, #enemies.yards5 do
-        local thisUnit = enemies.yards5[i]
-        local thisCondition = unit.ttd(thisUnit)
-        if thisCondition > var.maxTTD then
-            var.maxTTD = thisCondition
-            var.maxTTDUnit = thisUnit
+        -- Clean up old Pick Pocket tracking (keep recent attempts for persistence)
+        -- Only clear entries that are more than 5 minutes old
+        local currentTime = var.getTime
+        for guid, _ in pairs(var.pickPocketSuccess) do
+            -- Keep successful picks indefinitely during session, only clear on reload
+        end
+        for guid, timestamp in pairs(var.pickPocketAttempted) do
+            if type(timestamp) == "number" and (currentTime - timestamp) > 300 then
+                var.pickPocketAttempted[guid] = nil
+            end
         end
     end
 
@@ -1285,11 +1261,13 @@ local function runRotation()
         --- In Combat Rotation ---
         --------------------------
         if actionList.Combat() then return true end
-    end -- End Profile
-end     -- runRotation
+    end
+end -- runRotation
+
 local id = 261
-if br.rotations[id] == nil then br.rotations[id] = {} end
-br._G.tinsert(br.rotations[id], {
+local expansion = br.isMOP
+if br.loader.rotations[id] == nil then br.loader.rotations[id] = {} end
+br._G.tinsert(br.loader.rotations[id], {
     name = rotationName,
     toggles = createToggles,
     options = createOptions,

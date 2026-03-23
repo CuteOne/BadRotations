@@ -1,9 +1,11 @@
 local _, br = ...
 --- Character Class
 -- All classes inherit from the base class /cCharacter.lua
-br.cCharacter = {}
+br.loader.cCharacter = br.loader.cCharacter or {}
+local cCharacter = br.loader.cCharacter
+
 -- Creates new character with given class
-function br.cCharacter:new(class)
+function cCharacter:new()
 	local self = {}
 	self.actionList = {} -- Action Lists
 	self.augmentRune = {
@@ -14,6 +16,7 @@ function br.cCharacter:new(class)
 		Legion = 224001
 	}
 	self.artifact = {} -- Artifact Perk IDs
+	self.bagsUpdated = true -- Bags updated flag
 	-- self.buff = {} -- Buffs API
 	-- self.debuff = {} -- Debuffs API
 	self.class = select(2, br._G.UnitClass("player")) -- Class
@@ -25,6 +28,7 @@ function br.cCharacter:new(class)
 	--self.enemies = {} -- Number of Enemies around player (must be overwritten by cCLASS or cSPEC)
 	self.essence = {}                                       -- Azerite Essence
 	-- self.equiped = {} -- Item Equips
+	self.equipHasChanged = true                            -- Flag for equipment changes
 	self.gcd = 1.5                                          -- Global Cooldown
 	self.gcdMax = 1.5                                       -- GLobal Max Cooldown
 	self.glyph = {}                                         -- Glyphs
@@ -62,6 +66,7 @@ function br.cCharacter:new(class)
 	self.health = 100                            -- Health Points in %
 	self.ignoreCombat = false                    -- Ignores combat status if set to true
 	self.inCombat = false                        -- if is in combat
+	self.inCombatPrevious = false                -- Previous combat state for tracking combat start
 	self.instance = select(2, br._G.IsInInstance()) -- Get type of group we are in (none, party, instance, raid, etc)
 	self.level = 0                               -- Player Level
 	self.moving = false                          -- Moving event
@@ -94,7 +99,7 @@ function br.cCharacter:new(class)
 		-- Get Character Info
 		self.getCharacterInfo()
 		-- Get Consumables
-		if br.bagsUpdated then
+		if self.bagsUpdated then
 			self.potion.action = {}
 			self.potion.agility = {} -- Agility Potions
 			self.potion.armor = {} -- Armor Potions
@@ -114,7 +119,7 @@ function br.cCharacter:new(class)
 			self.flask.stamina = {}
 			self.flask.strength = {}
 			self.getConsumables() -- Find All The Tasty Things!
-			br.bagsUpdated = false
+			self.bagsUpdated = false
 		end
 		-- Get selected rotation
 		self.getRotation()
@@ -130,10 +135,10 @@ function br.cCharacter:new(class)
 	function self.getCharacterInfo()
 		self.gcd = self.getGlobalCooldown()
 		self.gcdMax = self.getGlobalCooldown(true)
-		self.health = br.getHP("player")
+		self.health = br.functions.unit:getHP("player")
 		self.instance = select(2, br._G.IsInInstance())
 		self.level = br._G.UnitLevel("player") -- TODO: EVENT - UNIT_LEVEL
-		self.spec = select(2, br._G.GetSpecializationInfo(br._G.GetSpecialization())) or "None"
+		self.spec = select(2, br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization())) or "None"
 		self.currentPet = br._G.UnitCreatureFamily("pet") or "None"
 		if self.currentPet ~= "None" then
 			self.petId = tonumber(br._G.UnitGUID("pet"):match("-(%d+)-%x+$"), 10)
@@ -147,37 +152,37 @@ function br.cCharacter:new(class)
 	function self.baseUpdateOOC()
 		-- Updates special Equip like set bonuses
 		self.baseGetEquip()
-		if br.getOptionCheck("Queue Casting") and #self.queue ~= 0 then
+		if br.functions.misc:getOptionCheck("Queue Casting") and #self.queue ~= 0 then
 			self.queue = {} -- Reset Queue Casting Table out of combat
 			br._G.print("Out of Combat - Queue List Cleared")
 		end
-		self.ignoreCombat = br.getOptionCheck("Ignore Combat")
+		self.ignoreCombat = br.functions.misc:getOptionCheck("Ignore Combat")
 	end
 
 	-- Updates toggle data
 	-- TODO: here should only happen generic ones like Defensive etc.
 	function self.getBaseToggleModes()
-		self.ui.mode.rotation = br.data.settings[br.selectedSpec].toggles["Rotation"]
-		self.ui.mode.cooldown = br.data.settings[br.selectedSpec].toggles["Cooldown"]
-		self.ui.mode.defensive = br.data.settings[br.selectedSpec].toggles["Defensive"]
-		self.ui.mode.interrupt = br.data.settings[br.selectedSpec].toggles["Interrupt"]
+		self.ui.mode.rotation = br.data.settings[br.loader.selectedSpec].toggles["Rotation"]
+		self.ui.mode.cooldown = br.data.settings[br.loader.selectedSpec].toggles["Cooldown"]
+		self.ui.mode.defensive = br.data.settings[br.loader.selectedSpec].toggles["Defensive"]
+		self.ui.mode.interrupt = br.data.settings[br.loader.selectedSpec].toggles["Interrupt"]
 	end
 
 	-- Returns the Global Cooldown time
 	function self.getGlobalCooldown(max)
-		return br.getGlobalCD(max)
+		return br.functions.spell:getGlobalCD(max)
 	end
 
 	-- Starts auto attack when in melee range and facing enemy
 	function self.startMeleeAttack()
-		if self.inCombat and (br.isInMelee() and br.getFacing("player", "target") == true) then
+		if self.inCombat and (br.functions.range:isInMelee() and br.functions.unit:getFacing("player", "target") == true) then
 			br._G.StartAttack('target')
 		end
 	end
 
 	function self.tankAggro()
 		if self.instance == "raid" or self.instance == "party" then
-			local tanksTable = br.getTanksTable()
+			local tanksTable = br.engines.healingEngineFunctions:getTanksTable()
 			if tanksTable ~= nil then
 				for i = 1, #tanksTable do
 					if br._G.UnitAffectingCombat(tanksTable[i].unit) and tanksTable[i].distance < 40 then
@@ -191,19 +196,38 @@ function br.cCharacter:new(class)
 
 	-- Returns if in combat
 	function self.getInCombat()
+		local wasInCombat = self.inCombat
+
 		if br._G.UnitAffectingCombat("player") or self.ignoreCombat or
-			(br.isChecked("Tank Aggro = Player Aggro") and self.tankAggro()) or
+			(br.functions.misc:isChecked("Tank Aggro = Player Aggro") and self.tankAggro()) or
 			(br._G.GetNumGroupMembers() > 1 and (br._G.UnitAffectingCombat("player") or br._G.UnitAffectingCombat("target")))
 		then
 			self.inCombat = true
+
+			-- Detect combat start transition (was not in combat, now in combat)
+			if not self.inCombatPrevious and self.inCombat then
+				if self.ui and self.ui.debug then
+					self.ui.debug("Combat Started")
+				end
+			end
 		else
 			self.inCombat = false
+
+			-- Detect combat end transition (was in combat, now not in combat)
+			if self.inCombatPrevious and not self.inCombat then
+				if self.ui and self.ui.debug then
+					self.ui.debug("Combat Ended")
+				end
+			end
 		end
+
+		-- Update previous combat state for next check
+		self.inCombatPrevious = self.inCombat
 	end
 
 	-- Rotation selection update
 	function self.getRotation()
-		self.selectedRotation = br.selectedProfile
+		self.selectedRotation = br.loader.selectedProfile
 
 		if br.rotationChanged then
 			self.createOptions()
@@ -218,6 +242,11 @@ function br.cCharacter:new(class)
 		-- dont check if player is casting to allow off-cd usage and cast while other spell is casting
 		-- if pause(true) then return end
 
+		-- Halt all rotations during loading screens and transitions
+		if br.disableControl or br.disablePulse then
+			return
+		end
+
 		if self.rotation ~= nil and self.rotation.run ~= nil then
 			self.runModules()
 			self.rotation.run()
@@ -226,7 +255,7 @@ function br.cCharacter:new(class)
 		end
 		-- Debugging
 		br.debug.cpu:updateDebug(startTime, "rotation")
-		-- if br.isChecked("Debug Timers") then
+		-- if br.functions.misc:isChecked("Debug Timers") then
 		-- 	-- br.debug.cpu.rotation = {
 		-- 	-- 	maxTimeOoC = 0,
 		-- 	-- 	minTimeOoC = 999,
@@ -248,12 +277,12 @@ function br.cCharacter:new(class)
 		if self.equiped == nil then
 			self.equiped = {}
 		end
-		if self.equiped.t17 == nil or br.equipHasChanged == nil or br.equipHasChanged then
+		if self.equiped.t17 == nil or self.equipHasChanged == nil or self.equipHasChanged then
 			for i = 17, 21 do
 				if self.equiped["t" .. i] == nil then
 					self.equiped["t" .. i] = 0
 				end
-				self.equiped["t" .. i] = br.TierScan("T" .. i) or 0
+				self.equiped["t" .. i] = br.functions.item:TierScan("T" .. i) or 0
 			end
 			-- Checks class trinket
 			local classTrinket = {
@@ -269,24 +298,24 @@ function br.cCharacter:new(class)
 				warlock = 124522, -- Fragment of the Dark Star
 				warrior = 124523 -- Worldbreaker's Resolve
 			}
-			self.equiped.t18_classTrinket = br.isTrinketEquipped(classTrinket[string.lower(self.class)])
+			self.equiped.t18_classTrinket = br.functions.custom:isTrinketEquipped(classTrinket[string.lower(self.class)])
 
-			br.equipHasChanged = false
+			self.equipHasChanged = false
 		end
 	end
 
 	-- Sets the racial
 	function self.getRacial()
-		return br.getRacial()
+		return br.functions.spell:getRacial()
 	end
 
 	-- Casts the racial
 	function self.castRacial()
-		if br.getSpellCD(self.racial) == 0 and br.getOptionValue("Racial") then
+		if br.functions.spell:getSpellCD(self.racial) == 0 and br.functions.misc:getOptionValue("Racial") then
 			if self.race == "Pandaren" or self.race == "Goblin" then
-				return br.castSpell("target", self.racial, true, false) == true
+				return br.functions.cast:castSpell("target", self.racial, true, false) == true
 			else
-				return br.castSpell("player", self.racial, true, false) == true
+				return br.functions.cast:castSpell("player", self.racial, true, false) == true
 			end
 		end
 	end
@@ -303,11 +332,9 @@ function br.cCharacter:new(class)
 		--- Base Wrap ---
 		-----------------
 		local section_base = br.ui:createSection(br.ui.window.profile, "Base Options")
-		br.ui:createCheckbox(section_base, "Cast Debug", "Shows information about how the bot is casting.")
-		br.ui:createCheckbox(section_base, "Threat Debug", "Shows information about threat and threat changes.")
 		br.ui:createCheckbox(section_base, "Ignore Combat", "Checking this will make BR think it is always in combat")
 		br.ui:createCheckbox(section_base, "Mute Queue", "Mute messages from Smart Queue and Queue Casting")
-		br.ui:createDropdown(section_base, "Pause Mode", br.dropOptions.Toggle, 2,
+		br.ui:createDropdown(section_base, "Pause Mode", br.ui.dropOptions.Toggle, 2,
 			"Define a key which pauses the rotation.")
 		br.ui:checkSectionState(section_base)
 		-------------------
@@ -318,12 +345,17 @@ function br.cCharacter:new(class)
 		br.ui:createText(section_module, "|cffff0000in Rotation Options")
 		br.ui:createText(section_module, "===General Options===")
 		self.module.autoKeystone(section_module)
+		self.module.Racial(section_module)
+		-- Two Forms (Worgen) - shared module option
+		self.module.TwoForms(section_module)
 		br.ui:createText(section_module, "===Healing Options===")
 		-- Basic Healing Module
 		self.module.BasicHealing(section_module)
 		br.ui:createText(section_module, "===Combat Options===")
 		-- Combat Potion Module
 		self.module.CombatPotionUp(section_module)
+		-- Flask Module
+		self.module.FlaskUp(self.primaryStat, section_module)
 		-- Imbue Module
 		self.module.ImbueUp(section_module)
 		-- Phial Module
@@ -346,12 +378,16 @@ function br.cCharacter:new(class)
 			-- Module - Imbue Up
 			self.module.ImbueUp()
 		end
-		if self.unit.inCombat() and self.ui.useCDs() then
+		if self.unit.inCombat() then --and self.ui.useCDs() then
 			-- Module - Combatpotion Up
 			self.module.CombatPotionUp()
 			-- Module - Basic Trinkets
-			self.module.BasicTrinkets()
+			if not self.localTrinkets then
+				self.module.BasicTrinkets()
+			end
 		end
+		-- Module - Two Forms (Worgen)
+		self.module.TwoForms()
 	end
 
 	-- Returns and sets highest stat, which will be the primary stat
@@ -391,14 +427,15 @@ function br.cCharacter:new(class)
 							local itemInfo = {
 								--Collect Item Data
 								itemID = itemID,
-								itemCD = br._G.GetItemCooldown(itemID),
+								itemCD = br._G.C_Container.GetItemCooldown(itemID),
 								itemName = br._G.GetItemInfo(itemID),
 								minLevel = select(5, br._G.GetItemInfo(itemID)),
 								itemType = select(7, br._G.GetItemInfo(itemID)),
 								itemEffect = itemEffect,
 								itemCount = br._G.GetItemCount(itemID)
 							}
-							if itemInfo.itemType == "Potions" and self.level >= itemInfo.minLevel then -- Is the item a Potion and am I level to use it?
+							-- print("Found Item: " .. itemInfo.itemName .. " (" .. itemInfo.itemID .. ") x" .. itemInfo.itemCount)
+							if itemInfo.itemType == "Potion" and self.level >= itemInfo.minLevel then -- Is the item a Potion and am I level to use it?
 								local potionList = {
 									{ ptype = "action",      effect = "Action" },
 									{ ptype = "agility",     effect = "Agility" },

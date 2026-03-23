@@ -4,16 +4,16 @@
             if keystate == "down" then test.updateButton(); end
     </Binding>
     <Binding name="Rotation Toggle" description="Hold to use toggle rotation mode" runOnUp="true" category="BadRotations">
-            if keystate == "down" then br.customToggle = true; br.toggleKey = "Rotation"; br.UpdateToggle("Rotation",0.25); else br.customToggle = nil; br.toggleKey = nil; end
+            if keystate == "down" then br.customToggle = true; br.toggleKey = "Rotation"; br.ui:UpdateToggle("Rotation",0.25); else br.customToggle = nil; br.toggleKey = nil; end
     </Binding>
     <Binding name="Cooldowns Toggle" description="Hold to use toggle cooldowns" runOnUp="true" category="BadRotations">
-            if keystate == "down" then br.customToggle = true; br.toggleKey = "Cooldown"; br.UpdateToggle("Cooldown",0.25); else br.customToggle = nil; br.toggleKey = nil; end
+            if keystate == "down" then br.customToggle = true; br.toggleKey = "Cooldown"; br.ui:UpdateToggle("Cooldown",0.25); else br.customToggle = nil; br.toggleKey = nil; end
     </Binding>
     <Binding name="Defensive Toggle" description="Hold to use toggle defensives" runOnUp="true" category="BadRotations">
-            if keystate == "down" then br.customToggle = true; br.toggleKey = "Defensive"; br.UpdateToggle("Defensive",0.25); else br.customToggle = nil; br.toggleKey = nil; end
+            if keystate == "down" then br.customToggle = true; br.toggleKey = "Defensive"; br.ui:UpdateToggle("Defensive",0.25); else br.customToggle = nil; br.toggleKey = nil; end
     </Binding>
     <Binding name="Interrupt Toggle" description="Hold to use toggle interrupts" runOnUp="true" category="BadRotations">
-            if keystate == "down" then br.customToggle = true; br.toggleKey = "Interrupt"; br.UpdateToggle("Interrupt",0.25); else br.customToggle = nil; br.toggleKey = nil; end
+            if keystate == "down" then br.customToggle = true; br.toggleKey = "Interrupt"; br.ui:UpdateToggle("Interrupt",0.25); else br.customToggle = nil; br.toggleKey = nil; end
     </Binding>
     <Binding name="Force Heal" description="Hold to use force healing" runOnUp="true" category="BadRotations">
             if keystate == "down" then forceHeal = true; else forceHeal = nil; end

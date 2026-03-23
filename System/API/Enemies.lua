@@ -37,7 +37,7 @@ local function setVariable(self, unit, range, checkNoCombat, facing, type, table
         type -- Ex: enemies.yards8 (returns all enemies around player in 8yrds), Adds Table Type (r for Rect, c for Cone, blank for Normal)
     if unit ~= "player" then
         -- letter tag on end based on type of unit passed, if target or enemy unit then "t" otherwise first letter of what is passed in: f - "focus", p - "pet", m - "mouseover", etc
-        if br.units[unit] ~= nil then
+        if br.engines.enemiesEngine.units[unit] ~= nil then
             insertTable = insertTable .. "t" -- Ex: enemies.yards8t (returns all enemies around target in 8yrds)
         else
             insertTable = insertTable ..
@@ -47,7 +47,7 @@ local function setVariable(self, unit, range, checkNoCombat, facing, type, table
     if checkNoCombat then insertTable = insertTable .. "nc" end -- Ex: enemies.yards8tnc (returns all units around target in 8yrds)
     if facing then insertTable = insertTable .. "f" end         -- Ex: enemies.yards8tncf (returns all units the target is facing in 8yrds)
     if self.enemies[insertTable] == nil then self.enemies[insertTable] = {} else br._G.wipe(self.enemies[insertTable]) end
-    if count > 0 then br.insertTableIntoTable(self.enemies[insertTable], table) end
+    if count > 0 then br.functions.custom:insertTableIntoTable(self.enemies[insertTable], table) end
 end
 
 br.api.enemies = function(self)
@@ -66,7 +66,7 @@ br.api.enemies = function(self)
         if unit == nil then unit = "player" end
         if checkNoCombat == nil then checkNoCombat = false end
         if facing == nil then facing = false end
-        local enemyTable = br.getEnemies(unit, range, checkNoCombat, facing)
+        local enemyTable = br.engines.enemiesEngineFunctions:getEnemies(unit, range, checkNoCombat, facing)
         -- Build enemies.yards variable
         setVariable(self, unit, range, checkNoCombat, facing, "", enemyTable)
         -- Backwards compatability for old way
@@ -81,7 +81,7 @@ br.api.enemies = function(self)
     -- @bool showLines Show lines for the cone *non-functional atm*
     -- @treturn table
     enemies.cone.get = function(angle, range, checkNoCombat, showLines)
-        local count, table = br.getEnemiesInCone(angle, range, checkNoCombat, showLines)
+        local count, table = br.engines.enemiesEngineFunctions:getEnemiesInCone(angle, range, checkNoCombat, showLines)
         -- Build enemies.yards variable
         setVariable(self, "player", range, checkNoCombat, false, "c", table, count)
         -- Backwards compatability for old way
@@ -97,7 +97,7 @@ br.api.enemies = function(self)
     -- @bool facing Check if enemies are facing unit *no longer used*
     -- @treturn table
     enemies.rect.get = function(width, range, showLines, checkNoCombat, facing)
-        local count, table = br.getEnemiesInRect(width, range, showLines, checkNoCombat)
+        local count, table = br.engines.enemiesEngineFunctions:getEnemiesInRect(width, range, showLines, checkNoCombat)
         -- Build enemies.yards variable
         setVariable(self, "player", range, checkNoCombat, false, "r", table, count)
         -- Backwards compatability for old way

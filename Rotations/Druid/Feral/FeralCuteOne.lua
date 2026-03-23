@@ -205,17 +205,17 @@ local function createOptions()
         --------------------------
         section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
         -- Single/Multi Toggle
-        br.ui:createDropdownWithout(section, "Rotation Mode", br.dropOptions.Toggle, 4)
+        br.ui:createDropdownWithout(section, "Rotation Mode", br.ui.dropOptions.Toggle, 4)
         -- Cooldown Key Toggle
-        br.ui:createDropdownWithout(section, "Cooldown Mode", br.dropOptions.Toggle, 3)
+        br.ui:createDropdownWithout(section, "Cooldown Mode", br.ui.dropOptions.Toggle, 3)
         -- Defensive Key Toggle
-        br.ui:createDropdownWithout(section, "Defensive Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdownWithout(section, "Defensive Mode", br.ui.dropOptions.Toggle, 6)
         -- Interrupts Key Toggle
-        br.ui:createDropdownWithout(section, "Interrupt Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdownWithout(section, "Interrupt Mode", br.ui.dropOptions.Toggle, 6)
         -- Cleave Toggle
-        br.ui:createDropdownWithout(section, "Cleave Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdownWithout(section, "Cleave Mode", br.ui.dropOptions.Toggle, 6)
         -- Prowl Toggle
-        br.ui:createDropdownWithout(section, "Prowl Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdownWithout(section, "Prowl Mode", br.ui.dropOptions.Toggle, 6)
         br.ui:checkSectionState(section)
     end
     optionTable = { {
@@ -349,9 +349,9 @@ local getMarkUnitOption = function(option)
     end
     if thisTar == 5 then
         thisUnit = "player"
-        if #br.friend > 1 then
-            for i = 1, #br.friend do
-                local nextUnit = br.friend[i].unit
+        if #br.engines.healingEngine.friend > 1 then
+            for i = 1, #br.engines.healingEngine.friend do
+                local nextUnit = br.engines.healingEngine.friend[i].unit
                 if buff.markOfTheWild.refresh(nextUnit) and unit.distance(var.markUnit) < 40 then
                     thisUnit = nextUnit
                     break
@@ -371,7 +371,7 @@ actionList.Extras = function()
     -- Shapeshift Form Management
     if ui.checked("Auto Shapeshifts") then --and br.timer:useTimer("debugShapeshift", 0.25) then
         -- Flight Form
-        if cast.able.travelForm("player") and not unit.inCombat() and br.canFly() and not unit.swimming() and br.fallDist > 90
+        if cast.able.travelForm("player") and not unit.inCombat() and unit.canFly() and not unit.swimming() and unit.fallDist() > 90
             --[[falling > ui.value("Fall Timer")]] and unit.level() >= 24 and not buff.prowl.exists()
         then
             if unit.form() ~= 0 and not cast.last.travelForm() then
@@ -417,9 +417,9 @@ actionList.Extras = function()
                 end
             end
             -- Cat Form - Less Fall Damage
-            if (not br.canFly() or unit.inCombat() or unit.level() < 24 or not unit.outdoors())
+            if (not unit.canFly() or unit.inCombat() or unit.level() < 24 or not unit.outdoors())
                 and (not unit.swimming() or (not unit.moving() and unit.swimming() and #enemies.yards5f > 0))
-                and br.fallDist > 90 --falling > ui.value("Fall Timer")
+                and unit.fallDist() > 90 --falling > ui.value("Fall Timer")
             then
                 if cast.catForm("player") then
                     ui.debug("Casting Cat Form [Reduce Fall Damage]")
@@ -621,7 +621,7 @@ actionList.Defensive = function()
         -- Resto Affinity
         if talent.restorationAffinity and not (unit.mounted() or unit.flying())
             and (ui.value("Auto Heal") ~= 1 or (ui.value("Auto Heal") == 1
-                and unit.distance(br.friend[1].unit) < 40))
+                and unit.distance(br.engines.healingEngine.friend[1].unit) < 40))
         then
             local thisHP = unit.hp()
             local thisUnit = "player"
@@ -662,16 +662,16 @@ actionList.Defensive = function()
             end
             -- Wild Growth
             if ui.checked("Wild Growth") and not unit.inCombat() and cast.able.wildGrowth() then
-                for i = 1, #br.friend do
-                    local wildGrowthUnit = br.friend[i].unit
+                for i = 1, #br.engines.healingEngine.friend do
+                    local wildGrowthUnit = br.engines.healingEngine.friend[i].unit
                     local lowHealthCandidates = br.getUnitsToHealAround(wildGrowthUnit, 30, ui.value("Wild Growth"),
-                        #br.friend)
+                        #br.engines.healingEngine.friend)
                     if #lowHealthCandidates > 1 and not unit.moving() then
                         if unit.form() ~= 0 then
                             unit.cancelForm()
                             ui.debug("Cancel Form [Wild Growth]")
                         elseif unit.form() == 0 then
-                            if cast.wildGrowth(br.friend[i].unit) then
+                            if cast.wildGrowth(br.engines.healingEngine.friend[i].unit) then
                                 ui.debug("Casting Wild Growth on " .. unit.name(wildGrowthUnit))
                                 return true
                             end
@@ -1648,7 +1648,7 @@ local function runRotation()
     end
     var.btGen       = var.btGen or {}
     var.rakeRefresh = (debuff.rake.refresh(units.dyn5) or debuff.rake.pmultiplier(units.dyn5) < 1.4) and 1 or 0
-    var.unit5ID     = br.GetObjectID(units.dyn5) or 0
+    var.unit5ID     = unit.id(units.dyn5) or 0
     var.noDoT       = var.unit5ID == 153758 or var.unit5ID == 156857 or var.unit5ID == 156849 or var.unit5ID == 156865 or
         var.unit5ID == 156869
     -- Add buff.bsInc.exists()
@@ -1680,11 +1680,11 @@ local function runRotation()
     end
 
     -- Friends In Range
-    var.solo = #br.friend < 2
+    var.solo = #br.engines.healingEngine.friend < 2
     var.friendsInRange = false
     if not var.solo then
-        for i = 1, #br.friend do
-            if unit.distance(br.friend[i].unit) < 15 then
+        for i = 1, #br.engines.healingEngine.friend do
+            if unit.distance(br.engines.healingEngine.friend[i].unit) < 15 then
                 var.friendsInRange = true
                 break
             end
@@ -1860,8 +1860,9 @@ local function runRotation()
 end     -- End runRotation
 
 local id = 103
-br.rotations[id] = br.rotations[id] or {}
-br._G.tinsert(br.rotations[id], {
+local expansion = br.isRetail
+br.loader.rotations[id] = br.loader.rotations[id] or {}
+br._G.tinsert(br.loader.rotations[id], {
     name = rotationName,
     toggles = createToggles,
     options = createOptions,

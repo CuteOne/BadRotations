@@ -6,8 +6,8 @@ local rotationName = "Initial"
 local function createToggles()
     -- Rotation Button
     local RotationModes = {
-        [1] = { mode = "On", value = 1, overlay = "Rotation Enabled", tip = "Enable Rotation", highlight = 1, icon = br.player.spells.frostBolt },
-        [2] = { mode = "Off", value = 4, overlay = "Rotation Disabled", tip = "Disable Rotation", highlight = 0, icon = br.player.spells.frostBolt }
+        [1] = { mode = "On", value = 1, overlay = "Rotation Enabled", tip = "Enable Rotation", highlight = 1, icon = br.player.spells.frostfireBolt },
+        [2] = { mode = "Off", value = 4, overlay = "Rotation Disabled", tip = "Disable Rotation", highlight = 0, icon = br.player.spells.frostfireBolt }
     };
     br.ui:createToggle(RotationModes, "Rotation", 1, 0)
     -- Defensive Button
@@ -36,8 +36,7 @@ local function createOptions()
         --- GENERAL OPTIONS ---
         -----------------------
         section = br.ui:createSection(br.ui.window.profile, "General")
-        -- Arcane Intellect
-        br.ui:createCheckbox(section, "Arcane Intellect")
+
         br.ui:checkSectionState(section)
         -------------------------
         --- DEFENSIVE OPTIONS ---
@@ -45,8 +44,6 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
         -- Forst Nova
         br.ui:createSpinner(section, "Frost Nova", 30, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-        --Invisibility
-        br.ui:createSpinner(section, "Invisibility", 25, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
         br.ui:checkSectionState(section)
         -------------------------
         --- INTERRUPT OPTIONS ---
@@ -62,13 +59,11 @@ local function createOptions()
         ----------------------
         section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
         -- Single/Multi Toggle
-        br.ui:createDropdownWithout(section, "Rotation Mode", br.dropOptions.Toggle, 4)
+        br.ui:createDropdownWithout(section, "Rotation Mode", br.ui.dropOptions.Toggle, 4)
         --Defensive Key Toggle
-        br.ui:createDropdownWithout(section, "Defensive Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdownWithout(section, "Defensive Mode", br.ui.dropOptions.Toggle, 6)
         -- Interrupts Key Toggle
-        br.ui:createDropdownWithout(section, "Interrupt Mode", br.dropOptions.Toggle, 6)
-        -- Pause Toggle
-        br.ui:createDropdown(section, "Pause Mode", br.dropOptions.Toggle, 6)
+        br.ui:createDropdownWithout(section, "Interrupt Mode", br.ui.dropOptions.Toggle, 6)
         br.ui:checkSectionState(section)
     end
     optionTable = { {
@@ -99,13 +94,7 @@ local actionList = {}
 --------------------
 -- Action List - Extras
 actionList.Extras = function()
-    -- Arcane Intellect
-    if ui.checked("Arcane Intellect") and cast.able.arcaneIntellect("player") and not buff.arcaneIntellect.exists() then
-        if cast.arcaneIntellect("player") then
-            ui.debug("Casting Arcane Intellect")
-            return true
-        end
-    end
+
 end
 -- Action List - Defensive
 actionList.Defensive = function()
@@ -116,13 +105,6 @@ actionList.Defensive = function()
             return true
         end
     end
-    -- Invisibility
-    if ui.checked("Invisibility") and cast.able.invisibility() and unit.hp() < ui.value("Invisibility") then
-        if cast.invisibility() then
-            ui.debug("Casting Invisibility")
-            return true
-        end
-    end
 end -- End Action List - Defensive
 
 -- Action List - Interrupts
@@ -130,9 +112,9 @@ actionList.Interrupts = function()
     if ui.useInterrupt() then
         for i = 1, #enemies.yards40 do
             local thisUnit = enemies.yards40[i]
-            if br.canInterrupt(thisUnit, ui.value("Interrupt At")) then
+            if br.functions.spell:canInterrupt(thisUnit, ui.value("Interrupt At")) then
                 -- Counterspell
-                if br.canInterrupt() then
+                if br.functions.spell:canInterrupt() then
                     if cast.able.counterspell(thisUnit) and unit.distance(thisUnit) then
                         if cast.counterspell(thisUnit) then
                             ui.debug("Casting Counterspell")
@@ -151,9 +133,9 @@ actionList.PreCombat = function()
         if unit.valid("target") then
             local thisDistance = unit.distance("target") or 99
             if not unit.moving() and thisDistance < 40 then
-                if cast.able.frostbolt("target") and (unit.level() < 2 or not cast.last.frostbolt() or cast.timeSinceLast.frostbolt() > unit.gcd(true) + 0.5) then
-                    if cast.frostbolt("target") then
-                        ui.debug("Casting Frostbolt [Pre-Pull]")
+                if cast.able.frostfireBolt("target") and (unit.level() < 2 or not cast.last.frostfireBolt() or cast.timeSinceLast.frostfireBolt() > unit.gcd(true) + 0.5) then
+                    if cast.frostfireBolt("target") then
+                        ui.debug("Casting Frostfire Bolt [Pre-Pull]")
                         return true
                     end
                 end
@@ -182,13 +164,6 @@ actionList.Combat = function()
                     return true
                 end
             end
-            -- Arcane Explosion
-            if cast.able.arcaneExplosion("player", "aoe", 3, 10) then
-                if cast.arcaneExplosion("player", "aoe", 3, 10) then
-                    ui.debug("Casting Arcane Explosion")
-                    return true
-                end
-            end
             -- Fire Blast
             if cast.able.fireBlast() then
                 if cast.fireBlast() then
@@ -196,10 +171,10 @@ actionList.Combat = function()
                     return true
                 end
             end
-            -- Frost Bolt
-            if cast.able.frostBolt() and not unit.moving() then
-                if cast.frostBolt() then
-                    ui.debug("Casting Frost Bolt")
+            -- Frostfire Bolt
+            if cast.able.frostfireBolt() and not unit.moving() then
+                if cast.frostfireBolt() then
+                    ui.debug("Casting Frostfire Bolt")
                     return true
                 end
             end
@@ -224,7 +199,7 @@ local function runRotation()
     units       = br.player.units
     -- General Locals
     profileStop = profileStop or false
-    haltProfile = (unit.inCombat() and profileStop) or unit.mounted() or br.pause() or ui.mode.rotation == 2
+    haltProfile = (unit.inCombat() and profileStop) or unit.mounted() or br.functions.misc:pause() or ui.mode.rotation == 2
     -- Units
     units.get(40) -- Makes a variable called, units.dyn40
     units.get(40, true)
@@ -270,8 +245,9 @@ local function runRotation()
     end         -- Pause
 end             -- End runRotation
 local id = 1449 -- Change to the spec id profile is for.
-if br.rotations[id] == nil then br.rotations[id] = {} end
-br._G.tinsert(br.rotations[id], {
+local expansion = br.isMOP
+if br.loader.rotations[id] == nil then br.loader.rotations[id] = {} end
+br._G.tinsert(br.loader.rotations[id], {
     name = rotationName,
     toggles = createToggles,
     options = createOptions,
