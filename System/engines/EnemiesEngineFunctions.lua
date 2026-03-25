@@ -349,7 +349,10 @@ function enemiesEngineFunctions:getEnemies(thisUnit, radius, checkNoCombat, faci
 						-- Combat-reactive cache duration: much shorter in combat for higher reactivity
 						local cacheExpiration = br._G.UnitAffectingCombat("player") and 0.02 or 0.05
 						-- Invalidate cache if player moved since cache creation (prevents stale AoE/position info)
-						local px, py, pz = br._G.ObjectPosition("player")
+						-- Use the position cached by enemiesEngine:Update() to avoid a redundant ObjectPosition call
+						local px = br.engines.enemiesEngine.playerPosX
+						local py = br.engines.enemiesEngine.playerPosY
+						local pz = br.engines.enemiesEngine.playerPosZ
 						local movedTooFar = false
 						if cachedTable._playerPos and px and py and pz then
 							local dx = cachedTable._playerPos.x - px
