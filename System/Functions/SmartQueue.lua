@@ -111,6 +111,10 @@ end
 function SmartQueue:smartQueue()
 	if smartQueueFrame == nil then
 		smartQueueFrame = br._G.CreateFrame("Frame")
+		-- EnableKeyboard + Show are required for OnKeyDown to fire.
+		-- Without them the frame exists but never receives key events.
+		smartQueueFrame:EnableKeyboard(true)
+		smartQueueFrame:Show()
 		smartQueueFrame:SetPropagateKeyboardInput(true)
 		smartQueueFrame:SetScript("OnKeyDown", checkKeys)
 		smartQueueFrame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
