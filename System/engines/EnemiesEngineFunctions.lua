@@ -356,8 +356,9 @@ function enemiesEngineFunctions:getEnemies(thisUnit, radius, checkNoCombat, faci
 							local dy = cachedTable._playerPos.y - py
 							local dz = cachedTable._playerPos.z - pz
 							local moved = math.sqrt((dx * dx) + (dy * dy) + (dz * dz))
-							-- Be aggressive: invalidate cache on small player movement to keep AoE accurate
-							if moved > 0.5 then movedTooFar = true end
+							-- Invalidate cache on significant movement (2.0 yards).
+							-- 0.5 was too tight -- normal melee repositioning triggered constant cache rebuilds.
+							if moved > 2.0 then movedTooFar = true end
 						end
 						if cachedTable._timestamp and (br._G.GetTime() - cachedTable._timestamp) < cacheExpiration and not movedTooFar then
 							return cachedTable
