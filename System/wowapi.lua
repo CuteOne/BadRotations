@@ -10,8 +10,8 @@ br.api.compat = {}
 br.isRetail = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE)
 ---@diagnostic disable-next-line: undefined-global
 br.isMOP = (WOW_PROJECT_ID == WOW_PROJECT_MISTS_CLASSIC)
-br.isCata = (WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC)
-br.isWrath = (WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC)
+br.isCata = (WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC)  -- detected but no expansion file; unsupported
+br.isWrath = (WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC)    -- detected but no expansion file; unsupported
 br.isBC = (WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC)
 br.isClassic = (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC)
 
