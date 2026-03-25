@@ -238,7 +238,7 @@ local function runRotation() -- This is the main profile loop, any below this po
 end -- End runRotation
 local id = 000 -- Change to the spec id profile is for. Spec ID can be found at: https://wowpedia.fandom.com/wiki/SpecializationID
 -- DO NOT EDIT ANYTHING BELOW THIS LINE, WILL BREAK PROFILE --
-if br.loader.rotations[id] == nil then br.loader.rotations[id] = {} end
+br.loader.rotations[id] = br.loader.rotations[id] or {}
 tinsert(br.loader.rotations[id],{
     name = rotationName,
     toggles = createToggles,

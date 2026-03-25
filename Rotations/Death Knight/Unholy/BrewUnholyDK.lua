@@ -1039,7 +1039,7 @@ end -- End runRotation
 local id = 252
 local expansion = br.isMOP
 -- DO NOT EDIT ANYTHING BELOW THIS LINE, WILL BREAK PROFILE --
-if br.loader.rotations[id] == nil then br.loader.rotations[id] = {} end
+br.loader.rotations[id] = br.loader.rotations[id] or {}
 tinsert(br.loader.rotations[id],{
     name = rotationName,
     toggles = createToggles,

@@ -360,7 +360,7 @@ local function runRotation()
 end
 local id = 266  -- Demonology Warlock
 local expansion = br.isMOP
-if br.loader.rotations[id] == nil then br.loader.rotations[id] = {} end
+br.loader.rotations[id] = br.loader.rotations[id] or {}
 tinsert(br.loader.rotations[id],{
     name = rotationName,
     toggles = createToggles,

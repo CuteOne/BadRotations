@@ -751,7 +751,7 @@ end -- End runRotation
 
 local id = 250 -- Blood Death Knight spec ID
 local expansion = br.isMOP
-if br.loader.rotations[id] == nil then br.loader.rotations[id] = {} end
+br.loader.rotations[id] = br.loader.rotations[id] or {}
 tinsert(br.loader.rotations[id],{
     name = rotationName,
     toggles = createToggles,
