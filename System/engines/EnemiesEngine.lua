@@ -465,6 +465,8 @@ if not enemiesEngine.metaTable2 then
 			enemiesEngine.omTableTimer = GetTime()
 			--Set variables we don't need to update for each unit
 			pX, pY, pZ = br._G.ObjectPosition("player")
+			-- Publish cached player position so getEnemies() can reuse it without a second ObjectPosition call
+			enemiesEngine.playerPosX, enemiesEngine.playerPosY, enemiesEngine.playerPosZ = pX, pY, pZ
 			pCR = br._G.UnitCombatReach("player")
 			autoLoot = br.functions.misc:isChecked("Auto Loot")
 			if br.engines.enemiesEngine.pet == nil then
@@ -566,8 +568,8 @@ if not enemiesEngine.metaTable2 then
 		-- Periodic cleanup of unitSetup.cache to avoid stale units inflating enemy counts
 		if enemiesEngine.cacheCleanupTimer == nil then enemiesEngine.cacheCleanupTimer = 0 end
 		local now = GetTime()
-		-- Run cleanup every 5 seconds
-		if (now - enemiesEngine.cacheCleanupTimer) >= 5 then
+		-- Run cleanup every 2 seconds (was 5s; tighter eviction reduces stale unit inflation in fast-turnover content)
+		if (now - enemiesEngine.cacheCleanupTimer) >= 2 then
 			enemiesEngine.cacheCleanupTimer = now
 			for u, entry in pairs(enemiesEngine.unitSetup.cache) do
 				local shouldRemove = false
