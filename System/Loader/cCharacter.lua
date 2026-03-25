@@ -26,7 +26,6 @@ function cCharacter:new()
 	self.dynLastUpdate = 0                                  -- Timer variable to reduce Dynamic Target updating
 	self.dynTargetTimer = 0.5                               -- Timer to reduce Dynamic Target updating (1/X = calls per second)
 	--self.enemies = {} -- Number of Enemies around player (must be overwritten by cCLASS or cSPEC)
-	self.essence = {}                                       -- Azerite Essence
 	-- self.equiped = {} -- Item Equips
 	self.equipHasChanged = true                            -- Flag for equipment changes
 	self.gcd = 1.5                                          -- Global Cooldown
@@ -72,7 +71,6 @@ function cCharacter:new()
 	self.moving = false                          -- Moving event
 	self.opener = {}                             -- Opener flag tracking, reduce global vars
 	self.pandemic = {}                           -- Tracking Base Duration per Unit/Debuff
-	self.perk = {}                               -- Perk Table
 	self.petId = 0                               -- Current Pet Id
 	self.pet = {}                                -- Pet Information Table
 	self.pet.list = {}                           -- Table of Pets
