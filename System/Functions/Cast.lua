@@ -56,6 +56,19 @@ local function takeCastStartSnapshot(spellID)
 	}
 end
 
+-- verifyCastStarted: two-stage synchronous cast confirmation.
+--
+-- Stage 1 (immediate, synchronous): Checks snapshot deltas that update in the same
+-- frame the cast fires — GCD tick, UnitCastingInfo/UnitChannelInfo starting a new cast,
+-- spell cooldown appearing, IsCurrentSpell toggling, or a self-buff appearing.
+-- Any of these signals confirms success without waiting for events.
+--
+-- Stage 2 (deferred event fallback): If no synchronous signal is observed but
+-- lastCastTable.castTime[spellID] was updated (populated by UNIT_SPELLCAST_* events),
+-- that event-driven confirmation is accepted as success on the next check.
+--
+-- 'inconclusive' is returned when no signal has arrived in either stage yet.
+-- The caller should throttle retries but not emit a CAST_FAILED message.
 local function verifyCastStarted(spellID, snapshot, expectedSpellName)
 	expectedSpellName = expectedSpellName or br.api.wow.GetSpellInfo(spellID)
 	local gcdAfter = br.functions.spell:getGlobalCD()
@@ -1125,6 +1138,10 @@ function cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellI
 	-- end
 	-- Base Spell Availablility Check
 	if br.functions.lastCast.lastCastTable.castTime[spellID] == nil then
+		-- Seed lastCastTime so the double-cast guard doesn't block the very first use of a spell.
+		-- select(3, GetNetStats()) = home latency in ms. Dividing by 100 (not 1000) intentionally
+		-- scales it to ~10x latency seconds as a conservative initial offset, ensuring the spell
+		-- is considered castable immediately even at high latency.
 		br.functions.lastCast.lastCastTable.castTime[spellID] = br._G.GetTime() -
 			(br.functions.spell:getGlobalCD(true) + (select(3, br._G.GetNetStats()) / 100))
 	end
