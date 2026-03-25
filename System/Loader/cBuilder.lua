@@ -414,16 +414,18 @@ function cBuilder:new(spec, specName)
         end
 
         if not self.spells.abilities then return end
-        -- Build Artifact Info
-        for k, v in pairs(self.spells.artifacts) do
-            if not self.artifact[k] then self.artifact[k] = {} end
-            local artifact = self.artifact[k]
+        -- Build Artifact Info (key may not exist; stripped from spell lists when unused)
+        if self.spells.artifacts ~= nil then
+            for k, v in pairs(self.spells.artifacts) do
+                if not self.artifact[k] then self.artifact[k] = {} end
+                local artifact = self.artifact[k]
 
-            artifact.enabled = function()
-                return br.hasPerk(v)
-            end
-            artifact.rank = function()
-                return br.getPerkRank(v)
+                artifact.enabled = function()
+                    return br.hasPerk(v)
+                end
+                artifact.rank = function()
+                    return br.getPerkRank(v)
+                end
             end
         end
 
@@ -441,18 +443,22 @@ function cBuilder:new(spec, specName)
         --     end
         -- end
 
-        -- Conduits
+        -- Conduits (key may not exist; stripped from spell lists when unused)
         if self.conduit == nil then self.conduit = {} end
-        for k, v in pairs(self.spells.conduits) do
-            if self.conduit[k] == nil then self.conduit[k] = {} end
-            -- br.api.conduit(self.conduit,k,v)
+        if self.spells.conduits ~= nil then
+            for k, v in pairs(self.spells.conduits) do
+                if self.conduit[k] == nil then self.conduit[k] = {} end
+                -- br.api.conduit(self.conduit,k,v)
+            end
         end
 
-        -- Animas
+        -- Animas (key may not exist; stripped from spell lists when unused)
         if self.anima == nil then self.anima = {} end
-        for k, v in pairs(self.spells.animas) do
-            if self.anima[k] == nil then self.anima[k] = {} end
-            -- br.api.animas(self.anima[k],v)
+        if self.spells.animas ~= nil then
+            for k, v in pairs(self.spells.animas) do
+                if self.anima[k] == nil then self.anima[k] = {} end
+                -- br.api.animas(self.anima[k],v)
+            end
         end
 
         -- Covenant
