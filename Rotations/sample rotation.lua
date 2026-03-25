@@ -112,6 +112,12 @@ local var
 -----------------
 --- Functions --- -- List all profile specific custom functions here
 -----------------
+-- OPTIONAL: customTargetWeight hook — bias the automatic target scorer without editing core code.
+-- Return a positive number to raise a unit's priority, negative to lower it, nil to leave unchanged.
+-- Example: prefer targets that already have a debuff on them.
+-- br.player.units.customTargetWeight = function(unit)
+--     if debuff.someDebuff.exists(unit) then return 2.0 end
+-- end
 
 --------------------
 --- Action Lists --- -- All Action List functions from SimC (or other rotation logic) here, some common ones provided
