@@ -118,8 +118,8 @@ function SmartQueue:smartQueue()
 	end
 	GetKeyBindings()
 
-	-- Fix capturing mousebuttons
-	if br.functions.misc:isChecked("Smart Queue") then
+	-- Fix capturing mousebuttons (GetKeyState is unlocker-provided; guard for platforms that omit it)
+	if br.functions.misc:isChecked("Smart Queue") and br._G.GetKeyState then
 		if br._G.GetKeyState(0x05) then
 			checkKeys(nil, "BUTTON4")
 		elseif br._G.GetKeyState(0x06) then
