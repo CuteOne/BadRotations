@@ -106,6 +106,7 @@ System\Lists\ShieldUnits.lua
 System\Lists\Specs.lua
 System\Lists\Spells.lua
 System\Lists\Range.lua
+System\Lists\Tier.lua
 System\Lists\ThreatBypass.lua
 System\Lists\TankBusters.lua
 
