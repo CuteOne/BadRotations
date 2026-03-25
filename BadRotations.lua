@@ -2,6 +2,37 @@
 -- define br global that will hold the bot global background features
 local _, br = ...
 
+--[[
+  API TIER HIERARCHY — call the highest tier that meets your need.
+
+  Tier 1 — br._G
+    Raw proxy over native WoW globals (_G) with br.api.wow overrides applied.
+    Use for WoW API calls that have no higher-level wrapper, or when you need
+    guaranteed access to the raw unlocker/WoW surface.
+    Example: br._G.UnitHealth("player")
+
+  Tier 2 — br.api.wow
+    Expansion compatibility shims. Each expansion file (retail.lua, mop.lua, etc.)
+    overrides functions here so the rest of the codebase can call a single name
+    regardless of which WoW version is running.
+    Example: br.api.wow.GetSpellInfo(spellID)
+
+  Tier 3 — br.functions
+    Low-level manipulation helpers: range checks, aura scans, unit queries, etc.
+    These call Tier 1/2 and add caching, cross-version normalization, and logic
+    that is too low-level for rotation code to repeat inline.
+    Example: br.functions.range:getDistance("player", "target")
+
+  Tier 4 — br.player  (also br.player.cast, br.player.buff, etc.)
+    Rotation-facing clean API. Rotation authors should call this tier exclusively.
+    These wrap Tier 3 with per-spell/per-unit closures generated at load time.
+    Example: cast.fireball()   buff.combustion.up()   cd.pyroblast.remain()
+
+  Rule: never call a lower tier from a higher tier (e.g. don't call br._G directly
+  from a rotation file — use br.player.* instead). Reach down only when the
+  higher-tier wrapper does not exist yet.
+]]
+
 local loadedIn = false
 -- Guard to make br.load idempotent when multiple loaders invoke it
 local _br_loaded = false
