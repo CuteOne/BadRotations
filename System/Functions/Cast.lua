@@ -1408,12 +1408,27 @@ function cast:castQueue()
 	-- Catch for spells not registering on Combat log
 	if br.player ~= nil then
 		if br.player.queue ~= nil and #br.player.queue > 0 and not br._G.IsAoEPending() then
-			for i = 1, #br.player.queue do
-				local thisUnit = br.player.queue[i].target
-				local debug = br.player.queue[i].debug
-				local minUnits = br.player.queue[i].minUnits
-				local effectRng = br.player.queue[i].effectRng
-				local spellID = br.player.queue[i].id
+			local now = br._G.GetTime()
+			-- TTL: expire queue entries older than 3 GCDs to prevent indefinite retry of stale spells
+			local ttl = (br.player.gcdMax or 1.5) * 3
+			local i = 1
+			while i <= #br.player.queue do
+				local entry = br.player.queue[i]
+				if entry.queuedAt and (now - entry.queuedAt) > ttl then
+					br._G.tremove(br.player.queue, i)
+					if not br.functions.misc:isChecked("Mute Queue") then
+						br._G.print("Queue entry expired: |cFFFF0000" .. tostring(entry.name) .. "|r")
+					end
+				else
+					i = i + 1
+				end
+			end
+			for j = 1, #br.player.queue do
+				local thisUnit = br.player.queue[j].target
+				local debug = br.player.queue[j].debug
+				local minUnits = br.player.queue[j].minUnits
+				local effectRng = br.player.queue[j].effectRng
+				local spellID = br.player.queue[j].id
 				if br.functions.cast:createCastFunction(thisUnit, debug, minUnits, effectRng, spellID) then return end
 			end
 		end

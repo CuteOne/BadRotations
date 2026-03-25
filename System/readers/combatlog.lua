@@ -371,7 +371,7 @@ function combatLog:common(...)
                         br.queueDest = destination
                     end
                     if br.player ~= nil and #br.player.queue == 0 and notOnCD then
-                        br._G.tinsert(br.player.queue, { id = spell, name = spellName, target = br.queueDest })
+                        br._G.tinsert(br.player.queue, { id = spell, name = spellName, target = br.queueDest, queuedAt = br._G.GetTime() })
                         if not br.functions.misc:isChecked("Mute Queue") then
                             br._G.print("Added |cFFFF0000" .. spellName .. "|r to the queue.")
                         end
@@ -384,7 +384,7 @@ function combatLog:common(...)
                                 end
                                 break
                             elseif notOnCD then
-                                br._G.tinsert(br.player.queue, { id = spell, name = spellName, target = br.queueDest })
+                                br._G.tinsert(br.player.queue, { id = spell, name = spellName, target = br.queueDest, queuedAt = br._G.GetTime() })
                                 if not br.functions.misc:isChecked("Mute Queue") then
                                     br._G.print("Added |cFFFF0000" .. spellName .. "|r to the queue.")
                                 end
