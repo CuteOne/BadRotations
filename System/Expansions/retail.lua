@@ -217,22 +217,28 @@ api.FindAuraByName = function(spellName, unit, filter)
     -- If an explicit filter is provided, prefer using it when scanning
     if upFilter then
         if hasHelpful then
-            scanForAura(spellName, unit, filter, "HELPFUL")
+            local result = scanForAura(spellName, unit, filter, "HELPFUL")
+            if result then return result end
         end
 
         if hasHarmful then
-            scanForAura(spellName, unit, filter, "HARMFUL")
+            local result = scanForAura(spellName, unit, filter, "HARMFUL")
+            if result then return result end
         end
 
         -- If only PLAYER specified (no HELPFUL/HARMFUL), scan both with PLAYER filter
         if hasPlayer and not hasHelpful and not hasHarmful then
-            scanForAura(spellName, unit, "PLAYER", "HELPFUL")
-            scanForAura(spellName, unit, "PLAYER", "HARMFUL")
+            local result = scanForAura(spellName, unit, "PLAYER", "HELPFUL")
+            if result then return result end
+            result = scanForAura(spellName, unit, "PLAYER", "HARMFUL")
+            if result then return result end
         end
     else
         -- No filter provided: scan buffs then debuffs
-        scanForAura(spellName, unit, nil, "HELPFUL")
-        scanForAura(spellName, unit, nil, "HARMFUL")
+        local result = scanForAura(spellName, unit, nil, "HELPFUL")
+        if result then return result end
+        result = scanForAura(spellName, unit, nil, "HARMFUL")
+        if result then return result end
     end
 
     -- Last resort: generic GetAuraDataByIndex scan
