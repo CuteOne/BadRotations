@@ -4,7 +4,7 @@ local guid = br._G.UnitGUID("player")
 local nextMH = nil
 local swingTimer = nil
 -- specific reader location
-br.readers = {}
+br.readers = br.readers or {}
 br.readers.combatLog = br.readers.combatLog or {}
 br.readers.combatLog.debuffTracker = {}
 br.readers.combatLog.enraged = {}

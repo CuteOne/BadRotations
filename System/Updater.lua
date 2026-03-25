@@ -5,7 +5,7 @@ local _, br = ...
 -- local cdnUrl = "https://cdn.badrotations.org/"
 local apiUrl = "https://www.badrotations.org/"
 
-br.updater = {}
+br.updater = br.updater or {}
 
 local addonPath
 local currentCommit
