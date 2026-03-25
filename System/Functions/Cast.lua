@@ -892,6 +892,15 @@ end
 
 local castTimers
 local rangeDelayTimers  -- Track when spells first become in range
+
+-- createCastFunction is the full cast pipeline. It runs on every call: spell ID resolution,
+-- snapshot, all gate conditions, unit selection, range check, AoE/ST dispatch, verifyCastStarted.
+--
+-- cast.able.X() calls this pipeline with debug=true (returns true/false without casting).
+-- IMPORTANT: each cast.able.X() call in a rotation is a full pipeline execution.
+-- Stacking many pre-checks (if cast.able.X() and cast.able.Y() and ...) runs the full pipeline
+-- for every condition before any spell fires. Prefer cast.X() directly; use cast.able.X() only
+-- when you specifically need to inspect castability without committing to the cast.
 function cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellID, index, predict, predictPad, enemies,
 							   debug)
 	if type(spellID) == "table" then
