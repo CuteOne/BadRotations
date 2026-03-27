@@ -11,7 +11,7 @@ local function getFolderClassName(class)
     return formatClass
 end
 local function getFolderSpecName(class, specID)
-    if br.isClassic or br.isBC then return class end
+    if not br.api.hasSubSpecs then return class end
     for k, v in pairs(br.lists.spec[class]) do
         if v == specID then return tostring(k) end
     end
@@ -67,74 +67,26 @@ function cBuilder:loadProfiles()
 
     -- br._G.print("Path: " .. tostring(path))
     local profiles = br._G.GetDirectoryFiles(path) or {}
-    local matchedProfiles = 0
     -- br._G.print("Profiles: " .. tostring(#profiles))
-    for k, file in pairs(profiles) do
-        -- br._G.print("Path: " .. path .. ", File: " .. file)
-        local profile = br._G.ReadFile(path .. file) or ""
-        -- br._G.print("Profile: " .. tostring(profile))
 
-        -- Extract spec ID
+    -- Load all files whose embedded spec ID matches. Each file conditionally
+    -- self-registers via tinsert only when br.api.spellListName matches, so
+    -- no post-filter is needed here.
+    for k, file in pairs(profiles) do
+        local profile = br._G.ReadFile(path .. file) or ""
+
+        -- Quick spec ID pre-filter (avoids executing unrelated spec files)
         local start = string.find(profile, "local id = ", 1, true) or 0
         local stringEnd = start + IDLength + 10
         local profileID = math.floor(tonumber(string.sub(profile, start + 10, stringEnd)) or 0)
 
-        -- Extract expansion identifier (optional - defaults to br.isMOP for backward compatibility)
-        local expansionStart = string.find(profile, 'local expansion = ', 1, true)
-        local profileExpansion = nil
-        if expansionStart then
-            -- Extract the value after "local expansion = " (could be br.isMOP, br.isRetail, etc.)
-            local valueStart = expansionStart + 18
-            local valueEnd = string.find(profile, '\n', valueStart) or string.find(profile, '\r', valueStart)
-            if valueEnd then
-                local expansionValue = string.sub(profile, valueStart, valueEnd - 1)
-                -- Remove any comments
-                local commentPos = string.find(expansionValue, '--', 1, true)
-                if commentPos then
-                    expansionValue = string.sub(expansionValue, 1, commentPos - 1)
-                end
-                expansionValue = expansionValue:match("^%s*(.-)%s*$")  -- trim whitespace
-
-                -- Evaluate the expression (e.g., "br.isMOP" becomes true/false)
-                local func = loadstring("return " .. expansionValue)
-                if func then
-                    -- Set the environment so the function has access to br
-                    setfenv(func, setmetatable({br = br}, {__index = _G}))
-                    profileExpansion = func()
-                end
-            end
-        end
-
-        -- Extract rotation name from profile content
-        local profileName = file  -- Default to filename
-        local nameStart = string.find(profile, 'local rotationName = "', 1, true)
-        if nameStart then
-            local valueStart = nameStart + 22  -- Length of 'local rotationName = "'
-            local valueEnd = string.find(profile, '"', valueStart)
-            if valueEnd then
-                profileName = string.sub(profile, valueStart, valueEnd - 1)
-            end
-        else
-            -- Try single quotes if double quotes not found
-            nameStart = string.find(profile, "local rotationName = '", 1, true)
-            if nameStart then
-                local valueStart = nameStart + 22
-                local valueEnd = string.find(profile, "'", valueStart)
-                if valueEnd then
-                    profileName = string.sub(profile, valueStart, valueEnd - 1)
-                end
-            end
-        end
-
-        -- br._G.print("ProfileID: " .. tostring(profileID) .. ", SpecID: " .. tostring(specID) .. ", Expansion: " .. tostring(profileExpansion))
-
-        -- Load only if BOTH spec ID matches and expansion is true
-        if profileID == specID and profileExpansion then
-            br._G.print("Loading Profile: " .. profileName .. " for expansion: " .. br.api.expansionName)
+        if profileID == specID then
             loadFile(profile, file, false)
-            matchedProfiles = matchedProfiles + 1
         end
     end
+
+    local list = br.loader.rotations[specID]
+    local matchedProfiles = list and #list or 0
 
     -- Warn if no profiles matched for this expansion
     if matchedProfiles == 0 and #profiles > 0 then
@@ -362,9 +314,9 @@ function cBuilder:new(spec, specName)
         return allTalents
     end
 
-    -- Check if Hero Spec if Active (Retail only)
+    -- Check if Hero Spec is Active (only on expansions with Hero Talent Trees)
     local function getHeroTreeInfo()
-        if not br.isRetail then return end
+        if not br.api.hasHeroTalentTrees then return end
         if not br._G.C_ClassTalents or not br._G.C_ClassTalents.GetActiveHeroTalentSpec then return end
         if not br.lists or not br.lists.heroSpec then return end
 
@@ -515,7 +467,7 @@ function cBuilder:new(spec, specName)
                 if self.buff[k] == nil then self.buff[k] = {} end
                 -- if k == "bloodLust" then v = br.functions.aura:getLustID() end
                 local resolvedID = v
-                if (br.isClassic or br.isBC) and type(v) == "table" then
+                if br.api.hasSpellRanks and type(v) == "table" then
                     if br.functions.spell and br.functions.spell.getHighestKnownRank then
                         resolvedID = br.functions.spell:getHighestKnownRank(v)
                         if not resolvedID then
@@ -536,7 +488,7 @@ function cBuilder:new(spec, specName)
             if self.debuff == nil then self.debuff = {} end
             if self.debuff[k] == nil then self.debuff[k] = {} end
             local resolvedID = v
-            if (br.isClassic or br.isBC) and type(v) == "table" then
+            if br.api.hasSpellRanks and type(v) == "table" then
                 if br.functions.spell and br.functions.spell.getHighestKnownRank then
                     resolvedID = br.functions.spell:getHighestKnownRank(v)
                     if not resolvedID then
@@ -641,9 +593,9 @@ function cBuilder:new(spec, specName)
             if self.cd == nil then self.cd = {} end           -- Spell Cooldown Functions
             if self.spell == nil then self.spell = {} end     -- Spell Functions
 
-            -- Classic WoW: If spell ID is a table (ranks), resolve to highest known rank
+            -- Classic/TBC: If spell ID is a table (ranks), resolve to highest known rank
             local resolvedID = id
-            if (br.isClassic or br.isBC) and type(id) == "table" then
+            if br.api.hasSpellRanks and type(id) == "table" then
                 -- Get highest known rank from the table
                 if br.functions.spell and br.functions.spell.getHighestKnownRank then
                     resolvedID = br.functions.spell:getHighestKnownRank(id)

@@ -73,13 +73,13 @@ function range:getDistanceCalc(Unit1, Unit2, option)
         if meleeSpell ~= nil then
             if br._G.UnitIsUnit(Unit2, "player") and not br._G.UnitIsUnit(Unit1, "player") then
                 local spellName = select(1, br.api.wow.GetSpellInfo(meleeSpell))
-                if not br.isClassic and not br.isBC and spellName and br._G.C_Spell.IsSpellInRange(spellName, Unit1) == true then
+                if spellName and br._G.C_Spell.IsSpellInRange(spellName, Unit1) == true then
                     return 0
                 end
             end
             if br._G.UnitIsUnit(Unit1, "player") and not br._G.UnitIsUnit(Unit2, "player") then
                 local spellName = select(1, br.api.wow.GetSpellInfo(meleeSpell))
-                if not br.isClassic and not br.isBC and spellName and br._G.C_Spell.IsSpellInRange(spellName, Unit2) == true then
+                if spellName and br._G.C_Spell.IsSpellInRange(spellName, Unit2) == true then
                     return 0
                 end
             end
@@ -131,9 +131,9 @@ function range:getDistanceCalc(Unit1, Unit2, option)
         local IfSourceAndTargetAreRunning = 0
         if br.functions.misc:isMoving(Unit1) and br.functions.misc:isMoving(Unit2) then IfSourceAndTargetAreRunning = 8 / 3 end
 
-        -- Classic fallback: determine melee range from positions alone.
+        -- Classic/TBC fallback: determine melee range from positions alone.
         -- Uses the same constants as the meleeRange calculation below.
-        if (br.isClassic or br.isBC) and meleeSpell ~= nil and (br._G.UnitIsUnit(Unit1, "player") or br._G.UnitIsUnit(Unit2, "player")) then
+        if not br.api.hasSubSpecs and meleeSpell ~= nil and (br._G.UnitIsUnit(Unit1, "player") or br._G.UnitIsUnit(Unit2, "player")) then
             local edgeToEdge = sqrt(((X2 - X1) ^ 2) + ((Y2 - Y1) ^ 2) + ((Z2 - Z1) ^ 2)) - (PlayerCombatReach + TargetCombatReach)
             local meleeEdgeDistance = MeleeCombatReachConstant + IfSourceAndTargetAreRunning + rangeMod
             if edgeToEdge <= meleeEdgeDistance then

@@ -20,7 +20,7 @@ function br.lists:loadExpansionSpells()
     end
 
     local loadSpellList = function(label)
-        local spellData = br._G.ReadFile(getFilesLocation() .. sep .. "System" .. sep .. "Lists" .. sep .. "Expansions" .. sep .. label .. sep .. "Spells.lua")
+        local spellData = br._G.ReadFile(getFilesLocation() .. sep .. "Expansions" .. sep .. label .. sep .. "Spells.lua")
         if spellData then
             local func = assert(loadstring(spellData, label .. " Spells"))
             setfenv(func, setmetatable({}, {__index = _G}))
@@ -30,39 +30,12 @@ function br.lists:loadExpansionSpells()
         end
     end
 
-    -- Load the appropriate spell list based on expansion
-    if br.isRetail then
-        -- Load Retail spell lists when created
-        br._G.print("Loading Retail spell lists...")
-        loadSpellList("Retail")
-    elseif br.isMOP then
-        -- Load MoP Classic spell lists
-        br._G.print("Loading MoP spell lists...")
-        loadSpellList("MOP")
-    elseif br.isCata then
-        br._G.print("Loading Cataclysm spell lists...")
-        -- Future: Load Cata spell lists
-        br._G.print("|cffFFFF00Warning:|r Cataclysm spell lists not yet implemented!")
-    elseif br.isWrath then
-        br._G.print("Loading Wrath spell lists...")
-        -- Future: Load Wrath spell lists
-        br._G.print("|cffFFFF00Warning:|r Wrath spell lists not yet implemented!")
-    elseif br.isBC then
-        -- Load Burning Crusade spell lists
-        br._G.print("Loading Burning Crusade spell lists...")
-        loadSpellList("TBC")
-    elseif br.isClassic then
-        -- Load Classic spell lists
-        br._G.print("Loading Classic spell lists...")
-        loadSpellList("Classic")
+    -- Load the appropriate spell list based on expansion.
+    -- spellListName is set by the expansion file in Expansions/<name>/Functions.lua; nil = unsupported.
+    if br.api.spellListName then
+        br._G.print("Loading " .. br.api.expansionName .. " spell lists...")
+        loadSpellList(br.api.spellListName)
     else
-        -- Default to MoP for backward compatibility
-        br._G.print("Unknown expansion, no spell lists loaded!")
-        -- local mopSpells = br._G.ReadFile(getFilesLocation() .. sep .. "System" .. sep .. "Lists" .. sep .. "Expansions" .. sep .. "MOP" .. sep .. "Spells.lua")
-        -- if mopSpells then
-        --     local func = assert(loadstring(mopSpells, "MoP Spells (default)"))
-        --     setfenv(func, setmetatable({}, {__index = _G}))
-        --     func(nil, br)  -- Pass br as second argument to match "local _, br = ..."
-        -- end
+        br._G.print("|cffFFFF00Warning:|r " .. br.api.expansionName .. " spell lists not yet implemented!")
     end
 end

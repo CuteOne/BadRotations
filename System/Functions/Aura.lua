@@ -51,6 +51,7 @@ end
 
 function aura:UnitBuffID(unit, spellID, filter)
 	local spellName = br.api.wow.GetSpellInfo(spellID)
+	if not spellName then return nil end
 	local exactSearch = filter ~= nil and br._G.strfind(br._G.strupper(filter), "EXACT")
  	if unit == "player" then
 	    local auraInfo = br.api.wow.GetPlayerAuraBySpellID(spellID)

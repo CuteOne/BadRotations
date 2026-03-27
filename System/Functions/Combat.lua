@@ -30,21 +30,21 @@ function combat:canAttack(Unit1, Unit2)
 end
 
 function combat:canDisarm(Unit)
-	if br.DisarmedTarget == nil then
-		br.DisarmedTarget = 0
+	if br.functions.unit.DisarmedTarget == nil then
+		br.functions.unit.DisarmedTarget = ""
 	end
-	if br.isDisarmed == true then
-		if br.functions.unit:GetUnitExists(Unit) and br._G.UnitGUID(Unit) ~= br.DisarmedTarget then
-			br.DisarmedTarget = br._G.UnitGUID(Unit)
+	if br.functions.unit.isDisarmed == true then
+		if br.functions.unit:GetUnitExists(Unit) and br._G.UnitGUID(Unit) ~= br.functions.unit.DisarmedTarget then
+			br.functions.unit.DisarmedTarget = br._G.UnitGUID(Unit)
 			return false
 		else
-			br.isDisarmed = false
+			br.functions.unit.isDisarmed = false
 			return true
 		end
 	end
 	if not br.functions.misc:isInCombat("player") or br.functions.unit:GetUnitExists(Unit) then
-		if not br.functions.misc:isInCombat("player") or br._G.UnitGUID(Unit) ~= br.DisarmedTarget then
-			br.isDisarmed = false
+		if not br.functions.misc:isInCombat("player") or br._G.UnitGUID(Unit) ~= br.functions.unit.DisarmedTarget then
+			br.functions.unit.isDisarmed = false
 			return true
 		end
 	end

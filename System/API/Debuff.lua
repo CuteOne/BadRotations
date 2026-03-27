@@ -13,51 +13,35 @@ if br.api == nil then br.api = {} end
 local function getSnapshotValue(dot)
     -- Feral Bleeds
     if br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization()) == 103 then
-        local multiplier     = 1.00
-        local DreamOfCenarius    = 1
-        local Bloodtalons      = 1
-        local SavageRoar     = 1
-        local TigersFury     = 1.15
-        local RakeMultiplier = 1
-        -- * Tigers Fury
-        if br.player.buff.tigersFury.exists() then multiplier = multiplier * TigersFury end
-        -- * Dream  of Cenarius / Bloodtalons
-        if br.isMOP then
-            DreamOfCenarius    = 1.30
-            if br.player.buff.dreamOfCenarius.exists() then multiplier = multiplier * DreamOfCenarius end
-        end
-        if br.isRetail then
-            Bloodtalons    = 1.30
-            if br.player.buff.bloodtalons.exists() then multiplier = multiplier * Bloodtalons end
-        end
-        -- * Savage Roar
-        if br.isMOP then
-            SavageRoar     = 1.45
-            if br.player.buff.savageRoar.exists() then multiplier = multiplier * SavageRoar end
-        end
+        local multiplier = 1.00
+
+        -- Each buff only fires if it exists in the current expansion's spell list.
+        -- Spells absent from the list leave br.player.buff[name] nil, so the nil-guard
+        -- prevents both errors and false positives without any expansion flag checks.
+        if br.player.buff.tigersFury               and br.player.buff.tigersFury.exists()               then multiplier = multiplier * 1.15 end
+        if br.player.buff.dreamOfCenarius          and br.player.buff.dreamOfCenarius.exists()          then multiplier = multiplier * 1.30 end
+        if br.player.buff.bloodtalons              and br.player.buff.bloodtalons.exists()              then multiplier = multiplier * 1.30 end
+        if br.player.buff.savageRoar               and br.player.buff.savageRoar.exists()               then multiplier = multiplier * 1.45 end
 
         -- Get Attack Power for actual damage calculations
-        local UnitAttackPower = br._G["UnitAttackPower"]
-        local base, posBuff, negBuff = UnitAttackPower("player")
+        local base, posBuff, negBuff = br._G.UnitAttackPower("player")
         local ap = base + posBuff + negBuff
 
-        -- * Rip
+        -- * Rip: 768% AP over 16 seconds (8 ticks, one every 2 seconds)
         if dot == br.player.spells.debuffs.rip then
-            -- Rip: 768% AP over 16 seconds (8 ticks, one every 2 seconds)
-            local ripTickDamage = (7.68 * ap) / 8
-            return ripTickDamage * multiplier
+            return ((7.68 * ap) / 8) * multiplier
         end
-        -- * Rake
+        -- * Rake: 155% AP over 15 seconds (9 ticks, one every 3 seconds)
         if dot == br.player.spells.debuffs.rake then
-            -- Rake: 155% AP over 15 seconds (9 ticks, one every 3 seconds)
-            local rakeTickDamage = (0.155 * ap) / 9
-            -- Incarnation/Prowl/Shadowmeld
-            if br.isRetail and (br.player.buff.incarnationAvatarOfAshamane.exists() or br.player.buff.prowl.exists()
-                or br.player.buff.shadowmeld.exists()) --or br.player.buff.suddenAmbush.exists()
+            local rakeMultiplier = 1.0
+            -- Incarnation/Prowl/Shadowmeld bonus — only present on expansions that have them
+            if (br.player.buff.incarnationAvatarOfAshamane and br.player.buff.incarnationAvatarOfAshamane.exists())
+                or (br.player.buff.prowl        and br.player.buff.prowl.exists())
+                or (br.player.buff.shadowmeld   and br.player.buff.shadowmeld.exists())
             then
-                RakeMultiplier = 2.0
+                rakeMultiplier = 2.0
             end
-            return rakeTickDamage * multiplier * RakeMultiplier
+            return ((0.155 * ap) / 9) * multiplier * rakeMultiplier
         end
     end
     -- Assassination Bleeds

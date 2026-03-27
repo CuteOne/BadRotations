@@ -39,7 +39,7 @@ local _br_loaded = false
 br._G = setmetatable({}, { __index = _G })
 
 -- WoW API Compatibility Layer
--- Expansion-specific API wrappers are loaded via wowapi.lua -> retail.lua or mop.lua
+-- Expansion-specific API wrappers are loaded via Expansions/wowapi.lua -> Expansions/<name>/Functions.lua
 -- This allows all API differences to be managed in one place per expansion
 -- Access API functions via: br.api.wow.FunctionName() or br._G.FunctionName()
 

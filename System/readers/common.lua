@@ -180,7 +180,7 @@ function common:commonReaders()
 			br.data.settings[br.loader.selectedSpec]["Pet Whistle"] = true
 		end
 		if param == "SPELL_FAILED_TARGET_NO_WEAPONS" then
-			br.isDisarmed = true
+			br.functions.unit.isDisarmed = true
 		end
 		if param == "ERR_SPELL_FAILED_S" and br.pickPocketing then --"SPELL_FAILED_TARGET_NO_POCKETS"
 			br._G.print("|cffFF0000NO POCKETS")

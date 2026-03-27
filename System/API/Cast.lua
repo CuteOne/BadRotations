@@ -390,7 +390,7 @@ br.api.cast = function(self, spell, id)
     -- -- Cast Rank 3 Rejuvenation
     -- if cast.rank.rejuvenation(3, "target") then return true end
     cast.rank[spell] = function(rankNum, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)
-        if not br.isClassic and not br.isBC then
+        if not br.api.hasSpellRanks then
             -- In non-Classic, just use the regular spell (no ranks)
             return br.functions.cast:createCastFunction(thisUnit, castType, minUnits, effectRng, id, spell, predict, predictPad, enemies)
         end
@@ -416,7 +416,7 @@ br.api.cast = function(self, spell, id)
     -- end
     cast.maxRank = cast.maxRank or {}
     cast.maxRank[spell] = function()
-        if not br.isClassic and not br.isBC then return 1 end
+        if not br.api.hasSpellRanks then return 1 end
         return br.functions.spell:getKnownRank(id)
     end
 end

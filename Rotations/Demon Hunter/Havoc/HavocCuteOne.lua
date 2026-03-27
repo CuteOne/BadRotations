@@ -1460,11 +1460,12 @@ local function runRotation()
     end --End Rotation Logic
 end     -- End runRotation
 local id = 577
-local expansion = br.isMOP
 br.loader.rotations[id] = br.loader.rotations[id] or {}
-br._G.tinsert(br.loader.rotations[id], {
+if br.api.spellListName == "MOP" then
+    br._G.tinsert(br.loader.rotations[id], {
     name = rotationName,
     toggles = createToggles,
     options = createOptions,
     run = runRotation,
-})
+    })
+end

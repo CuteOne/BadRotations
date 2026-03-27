@@ -92,7 +92,7 @@ hooksecurefunc(
 	br._G.GameTooltip,
 	"SetUnitAura",
 	function(self, ...)
-		local unitAura = C_UnitAuras.GetAuraDataByIndex(...) --UnitAura(...)
+		local unitAura = br._G.C_UnitAuras.GetAuraDataByIndex(...) --UnitAura(...)
 		local id = unitAura and unitAura.spellId or nil
 		if id then
 			addLine(self, id, types.spell)

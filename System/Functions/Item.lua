@@ -13,6 +13,8 @@ end
 
 -- if br.functions.item:canUseItem(1710) then
 function item:canUseItem(itemID)
+	if type(itemID) == "table" then itemID = self:getHighestHeldRank(itemID) end
+	if itemID == nil then return false end
 	if itemID == 0 or br.functions.unit:getHP("player") == 0 then
 		return false
 	end
@@ -52,6 +54,8 @@ end
 
 -- if br.functions.item:hasItem(1234) == true then
 function item:hasItem(itemID)
+	if type(itemID) == "table" then itemID = self:getHighestHeldRank(itemID) end
+	if itemID == nil then return false end
 	if br._G.PlayerHasToy(itemID) then
 		return true
 	end
@@ -72,6 +76,8 @@ end
 
 -- br.functions.item:useItem(12345)
 function item:useItem(itemID, thisUnit)
+	if type(itemID) == "table" then itemID = self:getHighestHeldRank(itemID) end
+	if itemID == nil then return false end
 	br.itemSpamDelay = br.itemSpamDelay or 0
 	if itemID <= 19 then
 		if br._G.GetItemSpell(br._G.GetInventoryItemID("player", itemID)) ~= nil then

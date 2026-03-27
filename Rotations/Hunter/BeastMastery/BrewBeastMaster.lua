@@ -298,12 +298,12 @@ local function runRotation() -- This is the main profile loop, any below this po
     end             -- Pause
 end                 -- End runRotation
 local id = 253      -- Change to the spec id profile is for. Spec ID can be found at: https://wowpedia.fandom.com/wiki/SpecializationID
-local expansion = br.isMOP
--- DO NOT EDIT ANYTHING BELOW THIS LINE, WILL BREAK PROFILE --
 br.loader.rotations[id] = br.loader.rotations[id] or {}
-tinsert(br.loader.rotations[id], {
+if br.api.spellListName == "MOP" then
+    br._G.tinsert(br.loader.rotations[id], {
     name = rotationName,
     toggles = createToggles,
     options = createOptions,
     run = runRotation,
-})
+    })
+end

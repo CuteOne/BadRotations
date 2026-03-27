@@ -24,7 +24,7 @@ br.api.cd = function(self, spell, id)
     cd[spell].exists = function()
         -- Special handling for global CD in Classic
         local spellID = type(id) == "table" and (br.functions.spell and br.functions.spell.getHighestKnownRank and br.functions.spell:getHighestKnownRank(id) or id[1]) or id
-        if spell == "global" and (br.isClassic or br.isBC) and br.api.wow.GetGCDSpellID then
+        if spell == "global" and br.api.wow.GetGCDSpellID then
             spellID = br.api.wow.GetGCDSpellID()
         end
         local level = br._G.UnitLevel("player")
@@ -41,7 +41,7 @@ br.api.cd = function(self, spell, id)
     cd[spell].remain = function()
         -- Special handling for global CD in Classic
         local spellID = type(id) == "table" and (br.functions.spell and br.functions.spell.getHighestKnownRank and br.functions.spell:getHighestKnownRank(id) or id[1]) or id
-        if spell == "global" and (br.isClassic or br.isBC) and br.api.wow.GetGCDSpellID then
+        if spell == "global" and br.api.wow.GetGCDSpellID then
             spellID = br.api.wow.GetGCDSpellID()
         end
         local level = br._G.UnitLevel("player")
@@ -57,7 +57,7 @@ br.api.cd = function(self, spell, id)
     cd[spell].remains = function()
         -- Special handling for global CD in Classic
         local spellID = type(id) == "table" and (br.functions.spell and br.functions.spell.getHighestKnownRank and br.functions.spell:getHighestKnownRank(id) or id[1]) or id
-        if spell == "global" and (br.isClassic or br.isBC) and br.api.wow.GetGCDSpellID then
+        if spell == "global" and br.api.wow.GetGCDSpellID then
             spellID = br.api.wow.GetGCDSpellID()
         end
         local level = br._G.UnitLevel("player")
@@ -73,7 +73,7 @@ br.api.cd = function(self, spell, id)
     cd[spell].duration = function()
         -- Special handling for global CD in Classic
         local spellID = type(id) == "table" and (br.functions.spell and br.functions.spell.getHighestKnownRank and br.functions.spell:getHighestKnownRank(id) or id[1]) or id
-        if spell == "global" and (br.isClassic or br.isBC) and br.api.wow.GetGCDSpellID then
+        if spell == "global" and br.api.wow.GetGCDSpellID then
             spellID = br.api.wow.GetGCDSpellID()
         end
         local level = br._G.UnitLevel("player")
@@ -90,7 +90,7 @@ br.api.cd = function(self, spell, id)
     cd[spell].ready = function()
         -- Special handling for global CD in Classic
         local spellID = type(id) == "table" and (br.functions.spell and br.functions.spell.getHighestKnownRank and br.functions.spell:getHighestKnownRank(id) or id[1]) or id
-        if spell == "global" and (br.isClassic or br.isBC) and br.api.wow.GetGCDSpellID then
+        if spell == "global" and br.api.wow.GetGCDSpellID then
             spellID = br.api.wow.GetGCDSpellID()
         end
         local level = br._G.UnitLevel("player")

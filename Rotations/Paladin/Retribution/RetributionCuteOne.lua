@@ -1184,14 +1184,12 @@ local runRotation = function()
     end -- End Profile
 end -- runRotation
 local id = 70
-local expansion = br.isRetail
 br.loader.rotations[id] = br.loader.rotations[id] or {}
-br._G.tinsert(
-    br.loader.rotations[id],
-    {
+if br.api.spellListName == "Retail" then
+    br._G.tinsert(br.loader.rotations[id], {
         name = rotationName,
         toggles = createToggles,
         options = createOptions,
         run = runRotation
-    }
-)
+    })
+end

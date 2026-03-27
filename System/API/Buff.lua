@@ -139,7 +139,7 @@ br.api.buffs = function(buff, k, v)
 
         -- Classic: when sourceUnit is omitted, treat refresh checks as "any source".
         -- Also: don't attempt to refresh a buff that exists in a higher rank (same name, different spellId).
-        if ((br.isClassic or br.isBC) and sourceUnit == nil) then
+        if (br.api.hasSpellRanks and sourceUnit == nil) then
             local auraInfo = br.functions.aura:UnitBuffID(thisUnit, v)
             if auraInfo and auraInfo.spellId and auraInfo.spellId > v then
                 return false

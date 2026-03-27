@@ -286,6 +286,51 @@ function br.unlockers:NNUnlock()
 	-- print("NN Api Loaded")
 
 	--------------------------------
+	-- secret unwrap helpers
+	--------------------------------
+	local issecretvalue = issecretvalue
+	local secretunwrap  = secretunwrap
+
+	-- Unwrap each return value if it is a secret-wrapped scalar.
+	-- Safe no-op when secrets are not present (classic/non-midnight envs).
+	local function unwrap(...)
+		if not issecretvalue then return ... end
+		local n = select('#', ...)
+		local t = {...}
+		for i = 1, n do
+			if issecretvalue(t[i]) then
+				t[i] = secretunwrap(t[i])
+			end
+		end
+		return unpack(t, 1, n)
+	end
+
+	-- Unwrap every field of a returned table in-place.
+	local function UnwrapTable(t)
+		if not issecretvalue or type(t) ~= "table" then return t end
+		for k, v in pairs(t) do
+			if issecretvalue(v) then
+				t[k] = secretunwrap(v)
+			end
+		end
+		return t
+	end
+
+	-- Aura-specific table unwrap. Uses spellId as a cheap early-exit guard
+	-- so non-secret aura tables (vanilla/non-midnight builds) are untouched.
+	local function UnwrapAuraTable(t)
+		if not t then return end
+		if not issecretvalue or not issecretvalue(t.spellId) then return t end
+		for k, v in pairs(t) do
+			t[k] = secretunwrap(v)
+		end
+		if t.points and t.points[1] then
+			t.points = {secretunwrap(unpack(t.points))}
+		end
+		return t
+	end
+
+	--------------------------------
 	-- API unlocking
 	--------------------------------
 	---
@@ -297,7 +342,8 @@ function br.unlockers:NNUnlock()
 		if C_Timer.Nn[v] == nil then
 			print("Function: " .. tostring(v) .. ", was not provided.")
 		else
-			b[v] = C_Timer.Nn[v]
+			local fn = C_Timer.Nn[v]
+			b[v] = function(...) return unwrap(fn(...)) end
 		end
 	end
 
@@ -310,6 +356,28 @@ function br.unlockers:NNUnlock()
 	--------------------------------
 	-- API copy/rename/unlock
 	--------------------------------
+	-- C_Spell proxy: intercepts all method calls and unwraps any secret-wrapped
+	-- return values. Table returns have fields unwrapped via UnwrapTable; scalar
+	-- returns have each value unwrapped via unwrap(). Method wrappers are cached
+	-- on the proxy with rawset so they are only built once per method name.
+	if C_Spell then
+		local _NN_C_Spell = C_Spell
+		b.C_Spell = setmetatable({}, {
+			__index = function(t, k)
+				local fn = _NN_C_Spell[k]
+				if type(fn) ~= "function" then return fn end
+				local wrapper = function(...)
+					local result = fn(...)
+					if type(result) == "table" then
+						return UnwrapTable(result)
+					end
+					return unwrap(result)
+				end
+				rawset(t, k, wrapper)
+				return wrapper
+			end
+		})
+	end
 	-- b.DirectoryExists = DirectoryExists
 	b.ClickPosition = ClickPosition
 	b.GetKeyState = GetKeyState
@@ -493,15 +561,19 @@ function br.unlockers:NNUnlock()
 	--- API - Unit Function Object Handler ---
 	------------------------------------------
 	b.UnitAura = function(unit, index, filter)
-		return C_UnitAuras.GetAuraDataByIndex(ObjectUnit(unit), index, filter)
+		return UnwrapAuraTable(C_UnitAuras.GetAuraDataByIndex(ObjectUnit(unit), index, filter))
 	end
 
 	b.UnitBuff = function(unit, index, filter)
-		return C_UnitAuras.GetBuffDataByIndex(ObjectUnit(unit), index, filter)
+		return UnwrapAuraTable(C_UnitAuras.GetBuffDataByIndex(ObjectUnit(unit), index, filter))
 	end
 
 	b.UnitDebuff = function(unit, index, filter)
-		return C_UnitAuras.GetDebuffDataByIndex(ObjectUnit(unit), index, filter)
+		return UnwrapAuraTable(C_UnitAuras.GetDebuffDataByIndex(ObjectUnit(unit), index, filter))
+	end
+
+	b.CombatLogGetCurrentEventInfo = function()
+		return unwrap(CombatLogGetCurrentEventInfo())
 	end
 
 	--------------------------------

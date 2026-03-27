@@ -2,6 +2,8 @@ local _, br = ...
 br.functions.unit = br.functions.unit or {}
 local unit = br.functions.unit
 
+unit.isDisarmed = false
+
 function unit:GetObjectExists(Unit)
 	if Unit == nil then return false end
 	return br.functions.unit:GetUnitIsVisible(Unit)

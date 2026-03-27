@@ -4,6 +4,11 @@ local _, br = ...
 
 if not br.isRetail then return end
 
+-- Capability flags for Retail
+br.api.hasHeroTalentTrees = true
+br.api.spellListName      = "Retail"
+br.api.expansionName      = "Retail"
+
 local api = br.api.wow
 
 -- GetSpellInfo wrapper
@@ -36,135 +41,6 @@ api.IsPassiveSpell = function(spellID)
     return false
 end
 
--- GetSpellLink wrapper
--- Retail: C_Spell.GetSpellLink
-api.GetSpellLink = function(spellID)
-    if C_Spell and C_Spell.GetSpellLink then
-        return C_Spell.GetSpellLink(spellID)
-    end
-    return nil
-end
-
--- GetSpellName wrapper
--- Retail: C_Spell.GetSpellName
-api.GetSpellName = function(spellID)
-    if C_Spell and C_Spell.GetSpellName then
-        return C_Spell.GetSpellName(spellID)
-    end
-    return nil
-end
-
--- GetSpellDescription wrapper
--- Retail: C_Spell.GetSpellDescription
-api.GetSpellDescription = function(spellID)
-    if C_Spell and C_Spell.GetSpellDescription then
-        return C_Spell.GetSpellDescription(spellID)
-    end
-    return nil
-end
-
--- GetSpellCooldown wrapper
--- Retail: C_Spell.GetSpellCooldown returns a table
-api.GetSpellCooldown = function(spellID)
-    if C_Spell and C_Spell.GetSpellCooldown then
-        return C_Spell.GetSpellCooldown(spellID)
-    end
-    return nil
-end
-
--- GetSpellCharges wrapper
--- Retail: C_Spell.GetSpellCharges returns a table
-api.GetSpellCharges = function(spellID)
-    if C_Spell and C_Spell.GetSpellCharges then
-        return C_Spell.GetSpellCharges(spellID)
-    end
-    return nil
-end
-
--- IsSpellInRange wrapper
--- Retail: C_Spell.IsSpellInRange
-api.IsSpellInRange = function(spellID, unit)
-    if C_Spell and C_Spell.IsSpellInRange then
-        return C_Spell.IsSpellInRange(spellID, unit)
-    end
-    return nil
-end
-
--- IsSpellUsable wrapper
--- Retail: C_Spell.IsSpellUsable returns a table
-api.IsSpellUsable = function(spellID)
-    if C_Spell and C_Spell.IsSpellUsable then
-        return C_Spell.IsSpellUsable(spellID)
-    end
-    return nil
-end
-
--- IsSpellPassive wrapper
--- Retail: C_Spell.IsSpellPassive
-api.IsSpellPassive = function(spellID)
-    if C_Spell and C_Spell.IsSpellPassive then
-        return C_Spell.IsSpellPassive(spellID)
-    end
-    return nil
-end
-
--- IsSpellHelpful wrapper
--- Retail: C_Spell.IsSpellHelpful
-api.IsSpellHelpful = function(spellID)
-    if C_Spell and C_Spell.IsSpellHelpful then
-        return C_Spell.IsSpellHelpful(spellID)
-    end
-    return nil
-end
-
--- IsSpellHarmful wrapper
--- Retail: C_Spell.IsSpellHarmful
-api.IsSpellHarmful = function(spellID)
-    if C_Spell and C_Spell.IsSpellHarmful then
-        return C_Spell.IsSpellHarmful(spellID)
-    end
-    return nil
-end
-
--- SpellHasRange wrapper
--- Retail: C_Spell.SpellHasRange
-api.SpellHasRange = function(spellID)
-    if C_Spell and C_Spell.SpellHasRange then
-        return C_Spell.SpellHasRange(spellID)
-    end
-    return nil
-end
-
--- GetSpellBookItemInfo wrapper
--- Retail: C_SpellBook.GetSpellBookItemInfo returns a table and requires numerical slot
--- Classic could accept spell names, but Retail cannot - return nil for non-numeric slots
-api.GetSpellBookItemInfo = function(slot, bookType)
-    -- Retail API requires a numerical slot, not a spell name
-    if type(slot) ~= "number" then
-        return nil
-    end
-
-    if C_SpellBook and C_SpellBook.GetSpellBookItemInfo then
-        return C_SpellBook.GetSpellBookItemInfo(slot, bookType)
-    end
-    return nil
-end
-
--- GetItemInfo wrapper
--- Retail: GetItemInfo still works but may return nil initially, requiring cache
-api.GetItemInfo = function(itemID)
-    return GetItemInfo(itemID)
-end
-
--- GetItemCooldown wrapper
--- Retail: C_Container.GetItemCooldown
-api.GetItemCooldown = function(itemID)
-    if C_Container and C_Container.GetItemCooldown then
-        return C_Container.GetItemCooldown(itemID)
-    end
-    return nil
-end
-
 -- UnitAura wrapper
 -- Retail: C_UnitAuras.GetAuraDataByIndex, returns table
 api.UnitAura = function(unit, index, filter)
@@ -188,68 +64,7 @@ api.UnitDebuff = function(unit, index, filter)
     return api.UnitAura(unit, index, filter)
 end
 
--- FindAuraByName wrapper
--- TBC: Use AuraUtil.FindAuraByName
-api.FindAuraByName = function(spellName, unit, filter)
-    -- Prefer the native AuraUtil if present
-    if _G.AuraUtil and _G.AuraUtil.FindAuraByName then
-        return _G.AuraUtil.FindAuraByName(spellName, unit, filter)
-    end
 
-    -- Fallback: try to find the aura by scanning buff/debuff lists
-    if not spellName or not unit then return nil end
-
-    local upFilter = filter and br._G.strupper(filter) or nil
-    local hasPlayer = upFilter and br._G.strfind(upFilter, "PLAYER")
-    local hasHelpful = upFilter and br._G.strfind(upFilter, "HELPFUL")
-    local hasHarmful = upFilter and br._G.strfind(upFilter, "HARMFUL")
-
-    local function scanForAura(spellName, unit, filterType, auraType)
-        for i = 1, 40 do
-            local aura = (hasHelpful or auraType=="HELPFUL") and api.GetBuffDataByIndex(unit, i, filterType)
-            or api.GetDebuffDataByIndex(unit, i, filterType)
-            if not aura then break end
-            if aura.name and aura.name == spellName then return aura end
-        end
-        return nil
-    end
-
-    -- If an explicit filter is provided, prefer using it when scanning
-    if upFilter then
-        if hasHelpful then
-            local result = scanForAura(spellName, unit, filter, "HELPFUL")
-            if result then return result end
-        end
-
-        if hasHarmful then
-            local result = scanForAura(spellName, unit, filter, "HARMFUL")
-            if result then return result end
-        end
-
-        -- If only PLAYER specified (no HELPFUL/HARMFUL), scan both with PLAYER filter
-        if hasPlayer and not hasHelpful and not hasHarmful then
-            local result = scanForAura(spellName, unit, "PLAYER", "HELPFUL")
-            if result then return result end
-            result = scanForAura(spellName, unit, "PLAYER", "HARMFUL")
-            if result then return result end
-        end
-    else
-        -- No filter provided: scan buffs then debuffs
-        local result = scanForAura(spellName, unit, nil, "HELPFUL")
-        if result then return result end
-        result = scanForAura(spellName, unit, nil, "HARMFUL")
-        if result then return result end
-    end
-
-    -- Last resort: generic GetAuraDataByIndex scan
-    for i = 1, 40 do
-        local aura = api.GetAuraDataByIndex(unit, i, filter)
-        if not aura then break end
-        if aura.name == spellName then return aura end
-    end
-
-    return nil
-end
 
 -- GetAuraDataByIndex wrapper
 -- Retail: C_UnitAuras.GetAuraDataByIndex
@@ -416,10 +231,12 @@ api.getTalentInfo = function(spec, spellTalents)
                             local definitionInfo = _G.C_Traits.GetDefinitionInfo(entryInfo.definitionID)
                             if definitionInfo and definitionInfo.spellID then
                                 local talentID = definitionInfo.spellID
-                                talents[talentID] = {
-                                    active = activeTalents[talentID] and true or false,
-                                    rank = activeTalents[talentID] and activeTalents[talentID].rank or 0,
-                                }
+                                if talentID then
+                                    talents[talentID] = {
+                                        active = activeTalents[talentID] and true or false,
+                                        rank = activeTalents[talentID] and activeTalents[talentID].rank or 0,
+                                    }
+                                end
                             end
                         end
                     end
@@ -431,14 +248,4 @@ api.getTalentInfo = function(spec, spellTalents)
     return talents
 end
 
---FindBaseSpellByID wrapper
--- TBC: Use the global FindBaseSpellByID function if available
-api.FindBaseSpellByID = function(spellID)
-    if C_SpellBook and C_SpellBook.FindBaseSpellByID then
-        return C_SpellBook.FindBaseSpellByID(spellID)
-    end
-    if _G.FindBaseSpellByID then
-        return _G.FindBaseSpellByID(spellID)
-    end
-    return spellID
-end
+-- FindBaseSpellByID: provided by shared.lua; no retail-specific override needed.

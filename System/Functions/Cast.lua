@@ -457,7 +457,7 @@ Second 		SpellID 		Enter ID of spell to use
 Third 		Facing 			True to allow 360 degrees,false to use facing check
 Fourth 		MovementCheck	True to make sure player is standing to cast,false to allow cast while moving
 Fifth 		SpamAllowed 	True to skip that check,false to prevent spells that we dont want to spam from beign recast for 1 second
-Sixth 		KnownSkip 		True to skip br.isKnown check for some spells that are not managed correctly in wow's spell book.
+Sixth 		KnownSkip 		True to skip isKnown check for some spells that are not managed correctly in wow's spell book.
 Seventh 	DeadCheck 		True to skip checking for dead units. (IE: Resurrection Spells)
 Eigth 		DistanceSkip    True to skip range checking.
 Ninth 		usableSkip 		True to skip usability checks.
@@ -596,7 +596,7 @@ Second 		SpellID 		Enter ID of spell to use
 Third 		Facing 			True to allow 360 degrees,false to use facing check
 Fourth 		MovementCheck	True to make sure player is standing to cast,false to allow cast while moving
 Fifth 		SpamAllowed 	True to skip that check,false to prevent spells that we dont want to spam from beign recast for 1 second
-Sixth 		KnownSkip 		True to skip br.isKnown check for some spells that are not managed correctly in wow's spell book.
+Sixth 		KnownSkip 		True to skip isKnown check for some spells that are not managed correctly in wow's spell book.
 Seventh 	DeadCheck 		True to skip checking for dead units. (IE: Resurrection Spells)
 Eigth 		DistanceSkip    True to skip range checking.
 Ninth 		usableSkip 		True to skip usability checks.

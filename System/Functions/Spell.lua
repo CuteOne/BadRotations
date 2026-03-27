@@ -277,9 +277,9 @@ function spell:getGlobalCD(max)
 			return math.max(math.max(1, 1.5 / (1 + br._G.UnitSpellHaste("player") / 100)), 0.75)
 		end
 	end
-	-- Use Classic-compatible GCD spell if available
+	-- Use expansion-defined GCD spell if available (Classic/TBC define GetGCDSpellID in their expansion file)
 	local gcdSpellID = br.functions.spell:getHighestSpellID("global") or 61304
-	if (br.isClassic or br.isBC) and br.api.wow.GetGCDSpellID then
+	if br.api.wow.GetGCDSpellID then
 		gcdSpellID = br.api.wow.GetGCDSpellID()
 	end
 	return br.functions.spell:getSpellCD(gcdSpellID)
@@ -412,9 +412,8 @@ end
 function spell:isKnown(spellID)
 	if spellID == nil then return false end
 
-	-- In Classic WoW, we need to check the specific spell ID, not just the name
-	-- because multiple ranks of the same spell have different IDs
-	if br.isClassic or br.isBC then
+	-- In Classic/TBC, spell ID is rank-specific so check by ID not by name
+	if br.api.hasSpellRanks then
 		-- Check if this specific spell ID is known
 		return br._G.IsPlayerSpell(tonumber(spellID)) or br._G.IsSpellKnown(spellID) or br.functions.spell:isSpellInSpellbook(spellID, "spell")
 	end
@@ -611,7 +610,7 @@ function spell:getRacial(thisRace)
         NightElf = r.NightElf,   -- Shadowmeld
     }
 
-    if br.isClassic or br.isBC then
+    if not br.api.hasSubSpecs then
         if thisRace ~= nil and classicRacialSpells[thisRace] ~= nil then return classicRacialSpells[thisRace] end
         return classicRacialSpells[race]
     else
@@ -628,7 +627,7 @@ end
 -- @param spellIDOrTable - A spell ID (number) or table of spell IDs {rank1, rank2, ...}
 -- @return spellID - The highest rank spell ID that the player knows, or the original ID if not a table
 function spell:getHighestKnownRank(spellIDOrTable)
-    if not br.isClassic and not br.isBC then
+    if not br.api.hasSpellRanks then
         return type(spellIDOrTable) == "table" and spellIDOrTable[1] or spellIDOrTable
     end
 
@@ -654,7 +653,7 @@ end
 -- @param rank - The rank number (1-based index)
 -- @return spellID - The spell ID for the specified rank, or nil if doesn't exist
 function spell:getSpellRank(spellIDOrTable, rank)
-    if not br.isClassic and not br.isBC then
+    if not br.api.hasSpellRanks then
         return type(spellIDOrTable) == "table" and spellIDOrTable[1] or spellIDOrTable
     end
 
@@ -685,7 +684,7 @@ end
 -- @param spellIDOrTable - A spell ID (number) or table of spell IDs
 -- @return number - The highest rank number known (1-based), or 0 if none known
 function spell:getKnownRank(spellIDOrTable)
-    if not br.isClassic and not br.isBC then
+    if not br.api.hasSpellRanks then
         return self:isKnown(type(spellIDOrTable) == "table" and spellIDOrTable[1] or spellIDOrTable) and 1 or 0
     end
 
