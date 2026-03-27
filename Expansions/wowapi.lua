@@ -14,9 +14,9 @@ br.isWrath = (WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC)    -- detected but no
 br.isBC = (WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC)
 br.isClassic = (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC)
 
--- Expansion name is set by each file in Expansions/<name>/Functions.lua after it detects its client.
+-- br.api.expansion is set by each Expansions/<name>/Functions.lua to its short key ("Retail", "MOP", "TBC", "Classic").
 -- Defaults to "Unknown" for unsupported clients (Cata, Wrath, etc.).
-br.api.expansionName = "Unknown"
+br.api.expansion = "Unknown"
 
 -- Version info for debugging
 function br.api.compat:getVersionInfo()
@@ -27,7 +27,7 @@ function br.api.compat:getVersionInfo()
         date          = date,
         tocVersion    = tocVersion,
         projectID     = WOW_PROJECT_ID,
-        expansionName = br.api.expansionName,
+        expansion     = br.api.expansion,
     }
 end
 
@@ -39,7 +39,6 @@ br.api.wow = {}
 br.api.hasSpellRanks        = false  -- true on Classic/TBC: spell IDs are rank-specific tables
 br.api.hasSubSpecs          = true   -- false on Classic/TBC: no talent specialization subfolders
 br.api.hasHeroTalentTrees   = false  -- true only on Retail (War Within+)
-br.api.spellListName        = nil    -- set by each expansion file; nil = unsupported/not yet implemented
 
 -- Namespace proxy tables for br._G.C_Spell.X / C_Container.X / C_SpellBook.X calls.
 -- br._G.__index returns br.api.wow[name] when a key is not rawset on br._G, so these

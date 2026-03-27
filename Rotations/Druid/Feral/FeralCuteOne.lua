@@ -1861,7 +1861,7 @@ end     -- End runRotation
 
 local id = 103
 br.loader.rotations[id] = br.loader.rotations[id] or {}
-if br.api.spellListName == "Retail" then
+if br.api.expansion == "Retail" then
     br._G.tinsert(br.loader.rotations[id], {
     name = rotationName,
     toggles = createToggles,

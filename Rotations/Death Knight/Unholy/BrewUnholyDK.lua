@@ -1038,7 +1038,7 @@ local function runRotation() -- This is the main profile loop, any below this po
 end -- End runRotation
 local id = 252
 br.loader.rotations[id] = br.loader.rotations[id] or {}
-if br.api.spellListName == "MOP" then
+if br.api.expansion == "MOP" then
     br._G.tinsert(br.loader.rotations[id], {
     name = rotationName,
     toggles = createToggles,

@@ -5,8 +5,7 @@ local _, br = ...
 if not br.isMOP then return end
 
 -- Capability flags for MoP Classic
-br.api.spellListName = "MOP"
-br.api.expansionName = "MoP Classic"
+br.api.expansion = "MOP"
 
 local api = br.api.wow
 

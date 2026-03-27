@@ -7,8 +7,7 @@ if not br.isBC then return end
 -- Capability flags for TBC
 br.api.hasSpellRanks = true   -- spells have rank-specific IDs
 br.api.hasSubSpecs   = false  -- no talent specialization subfolders
-br.api.spellListName = "TBC"
-br.api.expansionName = "Burning Crusade Classic"
+br.api.expansion = "TBC"
 
 local api = br.api.wow
 

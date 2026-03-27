@@ -449,7 +449,7 @@ local function runRotation()
 end             -- End runRotation
 local id = 261 -- Change to the spec id profile is for.
 br.loader.rotations[id] = br.loader.rotations[id] or {}
-if br.api.spellListName == "TBC" then
+if br.api.expansion == "TBC" then
     br._G.tinsert(br.loader.rotations[id], {
     name = rotationName,
     toggles = createToggles,

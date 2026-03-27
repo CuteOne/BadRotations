@@ -7,8 +7,7 @@ if not br.isClassic then return end
 -- Capability flags for Classic
 br.api.hasSpellRanks = true   -- spells have rank-specific IDs
 br.api.hasSubSpecs   = false  -- no talent specialization subfolders
-br.api.spellListName = "Classic"
-br.api.expansionName = "Classic"
+br.api.expansion = "Classic"
 
 local api = br.api.wow
 

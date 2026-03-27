@@ -751,7 +751,7 @@ end -- End runRotation
 
 local id = 250 -- Blood Death Knight spec ID
 br.loader.rotations[id] = br.loader.rotations[id] or {}
-if br.api.spellListName == "MOP" then
+if br.api.expansion == "MOP" then
     br._G.tinsert(br.loader.rotations[id], {
     name = rotationName,
     toggles = createToggles,

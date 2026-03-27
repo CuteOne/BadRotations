@@ -2286,7 +2286,7 @@ local function runRotation()
 end            -- End runRotation
 local id = 270 -- Change to the spec id profile is for. Spec ID can be found at: https://wowpedia.fandom.com/wiki/SpecializationID
 br.loader.rotations[id] = br.loader.rotations[id] or {}
-if br.api.spellListName == "MOP" then
+if br.api.expansion == "MOP" then
     br._G.tinsert(br.loader.rotations[id], {
     name = rotationName,
     toggles = createToggles,

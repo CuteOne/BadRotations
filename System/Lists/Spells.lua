@@ -31,11 +31,12 @@ function br.lists:loadExpansionSpells()
     end
 
     -- Load the appropriate spell list based on expansion.
-    -- spellListName is set by the expansion file in Expansions/<name>/Functions.lua; nil = unsupported.
-    if br.api.spellListName then
-        br._G.print("Loading " .. br.api.expansionName .. " spell lists...")
-        loadSpellList(br.api.spellListName)
+    -- br.api.expansion is set by Expansions/<name>/Functions.lua; "Unknown" = unsupported client.
+    if br.api.expansion and br.api.expansion ~= "Unknown" then
+        br._G.print("Loading " .. br.api.expansion .. " spell lists...")
+        loadSpellList(br.api.expansion)
     else
-        br._G.print("|cffFFFF00Warning:|r " .. br.api.expansionName .. " spell lists not yet implemented!")
+        local label = br.api.expansion or "Unknown"
+        br._G.print("|cffFFFF00Warning:|r " .. label .. " spell lists not yet implemented!")
     end
 end

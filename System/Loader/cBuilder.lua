@@ -70,7 +70,7 @@ function cBuilder:loadProfiles()
     -- br._G.print("Profiles: " .. tostring(#profiles))
 
     -- Load all files whose embedded spec ID matches. Each file conditionally
-    -- self-registers via tinsert only when br.api.spellListName matches, so
+    -- self-registers via tinsert only when br.api.expansion matches, so
     -- no post-filter is needed here.
     for k, file in pairs(profiles) do
         local profile = br._G.ReadFile(path .. file) or ""
@@ -90,7 +90,7 @@ function cBuilder:loadProfiles()
 
     -- Warn if no profiles matched for this expansion
     if matchedProfiles == 0 and #profiles > 0 then
-        br._G.print("|cffFF0000BadRotations:|r Found " .. #profiles .. " profile(s) but none matched for " .. br.api.expansionName .. " expansion!")
+        br._G.print("|cffFF0000BadRotations:|r Found " .. #profiles .. " profile(s) but none matched for " .. br.api.expansion .. " expansion!")
         br._G.print("|cffFFFF00Create a Retail rotation or change profile expansion markers.|r")
     end
 

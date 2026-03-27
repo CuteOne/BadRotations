@@ -6,8 +6,7 @@ if not br.isRetail then return end
 
 -- Capability flags for Retail
 br.api.hasHeroTalentTrees = true
-br.api.spellListName      = "Retail"
-br.api.expansionName      = "Retail"
+br.api.expansion          = "Retail"
 
 local api = br.api.wow
 
