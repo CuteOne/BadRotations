@@ -1168,7 +1168,7 @@ function cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellI
 		and ((thisUnit ~= nil and not br._G.UnitIsUnit(thisUnit, "player") and not br._G.UnitIsFriend(thisUnit, "player")
 				and (cast:getCastTime(spellID) <= br.functions.spell:getGlobalCD(true) or cast:getCastTime(spellID) < br.engines.ttdTable:getTTD(thisUnit)))
 			or thisUnit == nil or br._G.UnitIsUnit(thisUnit, "player") or br._G.UnitIsFriend(thisUnit, "player"))                                                           -- Dies Soon Check
-		and ((thisUnit ~= nil and br._G.UnitIsUnit(thisUnit, "target") and br._G.C_Spell.IsSpellUsable(spellID)) or true) and not select(2, br._G.C_Spell.IsSpellUsable(spellID)) -- Usability Checks
+		and br._G.C_Spell.IsSpellUsable(spellID) ~= false -- Usability Checks (first return: false = not usable e.g. wrong form, insufficient power)
 		and (castTimers[spellID] < br._G.GetTime()) and br.functions.spell:getSpellCD(spellID) <= br.engines:getUpdateRate()
 		and (br.functions.spell:getGlobalCD() <= 0
 			or br.functions.spell:getSpellCD(spellID) <= 0
