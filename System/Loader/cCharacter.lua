@@ -4,6 +4,29 @@ local _, br = ...
 br.loader.cCharacter = br.loader.cCharacter or {}
 local cCharacter = br.loader.cCharacter
 
+local POTION_TYPES = {
+	{ ptype = "action",      effect = "Action" },
+	{ ptype = "agility",     effect = "Agility" },
+	{ ptype = "armor",       effect = "Armor" },
+	{ ptype = "breathing",   effect = "Underwater" },
+	{ ptype = "health",      effect = "Healing" },
+	{ ptype = "intellect",   effect = "Intellect" },
+	{ ptype = "invis",       effect = "Invisibility" },
+	{ ptype = "mana",        effect = "Mana" },
+	{ ptype = "rage",        effect = "Rage" },
+	{ ptype = "rejuve",      effect = "Rejuvenation" },
+	{ ptype = "speed",       effect = "Swiftness" },
+	{ ptype = "strength",    effect = "Strength" },
+	{ ptype = "versatility", effect = "Versatility" },
+	{ ptype = "waterwalk",   effect = "Water Walking" },
+}
+local FLASK_TYPES = {
+	{ id = 152638, type = "agility" },
+	{ id = 152639, type = "intellect" },
+	{ id = 152640, type = "stamina" },
+	{ id = 152641, type = "strength" },
+}
+
 -- Creates new character with given class
 function cCharacter:new()
 	local self = {}
@@ -434,25 +457,9 @@ function cCharacter:new()
 							}
 							-- print("Found Item: " .. itemInfo.itemName .. " (" .. itemInfo.itemID .. ") x" .. itemInfo.itemCount)
 							if itemInfo.itemType == "Potion" and self.level >= itemInfo.minLevel then -- Is the item a Potion and am I level to use it?
-								local potionList = {
-									{ ptype = "action",      effect = "Action" },
-									{ ptype = "agility",     effect = "Agility" },
-									{ ptype = "armor",       effect = "Armor" },
-									{ ptype = "breathing",   effect = "Underwater" },
-									{ ptype = "health",      effect = "Healing" },
-									{ ptype = "intellect",   effect = "Intellect" },
-									{ ptype = "invis",       effect = "Invisibility" },
-									{ ptype = "mana",        effect = "Mana" },
-									{ ptype = "rage",        effect = "Rage" },
-									{ ptype = "rejuve",      effect = "Rejuvenation" },
-									{ ptype = "speed",       effect = "Swiftness" },
-									{ ptype = "strength",    effect = "Strength" },
-									{ ptype = "versatility", effect = "Versatility" },
-									{ ptype = "waterwalk",   effect = "Water Walking" }
-								}
-								for y = 1, #potionList do --Look for and add to right potion table
-									local potionEffect = potionList[y].effect
-									local potionType = potionList[y].ptype
+								for y = 1, #POTION_TYPES do --Look for and add to right potion table
+									local potionEffect = POTION_TYPES[y].effect
+									local potionType = POTION_TYPES[y].ptype
 									-- if self.potion[potionType] == nil then self.potion[potionType] = {} end
 									if br._G.strmatch(itemEffect, potionEffect) ~= nil then
 										br._G.tinsert(self.potion[potionType], itemInfo)
@@ -466,15 +473,9 @@ function cCharacter:new()
 								end
 							end
 							if itemInfo.itemType == "Flask" and self.level >= itemInfo.minLevel then -- Is the item a Flask and am I level to use it?
-								local flaskList = {
-									{ id = 152638, type = "agility" },
-									{ id = 152639, type = "intellect" },
-									{ id = 152640, type = "stamina" },
-									{ id = 152641, type = "strength" }
-								}
-								for y = 1, #flaskList do
-									local flasktype = flaskList[y].type
-									local flaskID = flaskList[y].id
+								for y = 1, #FLASK_TYPES do
+									local flasktype = FLASK_TYPES[y].type
+									local flaskID = FLASK_TYPES[y].id
 									if br._G.strmatch(itemInfo.itemID, flaskID) ~= nil then
 										br._G.tinsert(self.flask[flasktype], itemInfo)
 										table.sort(

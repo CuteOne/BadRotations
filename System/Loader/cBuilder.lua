@@ -119,8 +119,11 @@ end
 
 -- Generate Profile API
 local loadRotations = false
+-- Tracks spell/talent warnings already shown; persists for the WoW session so each broken ID prints exactly once.
+local warnedOnce = {}
 function cBuilder:new(spec, specName)
     local loadStart = br._G.debugprofilestop()
+    loadRotations = false
     local self = br.loader.cCharacter:new()--tostring(select(1, br._G.UnitClass("player"))))
     -- local player = "player" -- if someone forgets ""
     if specName == nil then specName = "Initial" end
@@ -195,27 +198,30 @@ function cBuilder:new(spec, specName)
                     else
                         -- Check if br.api.wow.GetSpellInfo returns a valid spell name
                         local name, _, _, _, _, _, gsiSpellID = br.api.wow.GetSpellInfo(spellID)
-                        if spellID == 1449 then
-                            print("Debug: Checking spellID 1449 (Name: "..(name or "nil")..", GSI ID: "..(gsiSpellID or "nil")..")")
-                        end
                         if type(spellID) ~= "table" then
                             if (not name or gsiSpellID ~= spellID) then
-                                -- br._G.print("SpellID not valid: " .. tostring(spellID))
-                                br._G.print("|cffff0000"..spellType..": |r" ..
-                                    spellRef ..
-                                    "|cffff0000 with ID: |r" ..
-                                    spellID .. "|cffff0000 is not valid in the list of "..spellType.." Spell List.")
+                                local warnKey = spellType .. "_" .. spellRef .. "_" .. tostring(spellID)
+                                if not warnedOnce[warnKey] then
+                                    warnedOnce[warnKey] = true
+                                    br._G.print("|cffff0000"..spellType..": |r" ..
+                                        spellRef ..
+                                        "|cffff0000 with ID: |r" ..
+                                        spellID .. "|cffff0000 is not valid in the list of "..spellType.." Spell List.")
+                                end
                             end
                         else
                             -- If spellID is a table, then it is a list of spellIDs, so we need to check each one
                             for spellRef, id in pairs(spellID) do
                                 local name, _, _, _, _, _, gsiSpellID = br.api.wow.GetSpellInfo(id)
                                 if (not name or gsiSpellID ~= id) then
-                                    -- br._G.print("SpellID not valid: " .. tostring(id))
-                                    br._G.print("|cffff0000"..spellType..": |r" ..
-                                        spellRef ..
-                                        "|cffff0000 with ID: |r" ..
-                                        id .. "|cffff0000 is not valid in the list of "..spellType.." Spell List.")
+                                    local warnKey = spellType .. "_" .. spellRef .. "_" .. tostring(id)
+                                    if not warnedOnce[warnKey] then
+                                        warnedOnce[warnKey] = true
+                                        br._G.print("|cffff0000"..spellType..": |r" ..
+                                            spellRef ..
+                                            "|cffff0000 with ID: |r" ..
+                                            id .. "|cffff0000 is not valid in the list of "..spellType.." Spell List.")
+                                    end
                                 end
                             end
                         end
@@ -294,13 +300,21 @@ function cBuilder:new(spec, specName)
 
                             -- Check if talent exists in any spell list
                             if sharedTalents[talentName] == nil and specTalents[talentName] == nil and heroicTalents[talentName] == nil then
-                                br._G.print("|cffff0000Talent: |r" .. talentName .. "|cffff0000 with ID: |r" .. talentID .. " is not listed in the Talents Spell List.")
+                                local warnKey = "talent_missing_" .. talentName .. "_" .. tostring(talentID)
+                                if not warnedOnce[warnKey] then
+                                    warnedOnce[warnKey] = true
+                                    br._G.print("|cffff0000Talent: |r" .. talentName .. "|cffff0000 with ID: |r" .. talentID .. " is not listed in the Talents Spell List.")
+                                end
                             -- Check if spell ID matches
                             elseif (specTalents[talentName] ~= nil and specTalents[talentName] ~= talentID) or
                                    (sharedTalents[talentName] ~= nil and sharedTalents[talentName] ~= talentID) or
                                    (heroicTalents[talentName] ~= nil and heroicTalents[talentName] ~= talentID) then
-                                local currentID = specTalents[talentName] or sharedTalents[talentName] or heroicTalents[talentName]
-                                br._G.print("|cffff0000Talent found in Talent Spell List for |r" .. talentName .. "|cffff0000 with ID: |r" .. currentID .. "|cffff0000 it should be changed to ID: |r" .. talentID .. "|cffff0000.")
+                                local warnKey = "talent_mismatch_" .. talentName
+                                if not warnedOnce[warnKey] then
+                                    warnedOnce[warnKey] = true
+                                    local currentID = specTalents[talentName] or sharedTalents[talentName] or heroicTalents[talentName]
+                                    br._G.print("|cffff0000Talent found in Talent Spell List for |r" .. talentName .. "|cffff0000 with ID: |r" .. currentID .. "|cffff0000 it should be changed to ID: |r" .. talentID .. "|cffff0000.")
+                                end
                             end
                         end
                     end
@@ -320,7 +334,11 @@ function cBuilder:new(spec, specName)
             else
                 -- Only warn for actual specs, not Initial profiles (spec > 1400)
                 if spec < 1400 then
-                    br._G.print("|cffff0000No talent found for: |r" .. name .. " (" .. tostring(spellID) .. ") |cffff0000in the talent spell list; please verify ID or remove.")
+                    local warnKey = "talent_notfound_" .. name .. "_" .. tostring(spellID)
+                    if not warnedOnce[warnKey] then
+                        warnedOnce[warnKey] = true
+                        br._G.print("|cffff0000No talent found for: |r" .. name .. " (" .. tostring(spellID) .. ") |cffff0000in the talent spell list; please verify ID or remove.")
+                    end
                 end
             end
         end
@@ -395,55 +413,22 @@ function cBuilder:new(spec, specName)
             end
         end
 
-        -- Get Azerite Essence Info
-        -- for k,v in pairs(self.spells.essences) do
-        --     local heartEssence = self.spells.essences['heartEssence']
-        --     if v ~= heartEssence then
-        --         if not self.essence[k] then self.essence[k] = {} end
-        --         local essence = self.essence[k]
-        --         if not br._G.C_Spell.IsSpellPassive(v) then
-        --             self.spells['abilities'][k] = select(7,br.api.wow.GetSpellInfo(br.api.wow.GetSpellInfo(v))) or v--heartEssence
-        --             self.spells[k] = select(7,br.api.wow.GetSpellInfo(br.api.wow.GetSpellInfo(v))) or v--heartEssence
-        --         end
-        --         br.api.essences(essence,k,v)
-        --     end
-        -- end
-
-        -- Conduits (key may not exist; stripped from spell lists when unused)
+        -- Conduits (Shadowlands legacy — API calls removed; table preserved for profile compatibility)
         if self.conduit == nil then self.conduit = {} end
-        if self.spells.conduits ~= nil then
-            for k, v in pairs(self.spells.conduits) do
-                if self.conduit[k] == nil then self.conduit[k] = {} end
-                -- br.api.conduit(self.conduit,k,v)
-            end
-        end
 
-        -- Animas (key may not exist; stripped from spell lists when unused)
+        -- Animas (Shadowlands legacy — API calls removed; table preserved for profile compatibility)
         if self.anima == nil then self.anima = {} end
-        if self.spells.animas ~= nil then
-            for k, v in pairs(self.spells.animas) do
-                if self.anima[k] == nil then self.anima[k] = {} end
-                -- br.api.animas(self.anima[k],v)
-            end
-        end
 
-        -- Covenant
+        -- Covenant (Shadowlands legacy — API calls removed; sub-tables preserved for profile compatibility)
         if self.covenant == nil then self.covenant = {} end
         if self.covenant.kyrian == nil then self.covenant.kyrian = {} end
         if self.covenant.venthyr == nil then self.covenant.venthyr = {} end
         if self.covenant.nightFae == nil then self.covenant.nightFae = {} end
         if self.covenant.necrolord == nil then self.covenant.necrolord = {} end
         if self.covenant.none == nil then self.covenant.none = {} end
-        -- br.api.covenant(self.covenant)
 
-        -- Runeforge
+        -- Runeforge (Shadowlands legacy — API calls removed; table preserved for profile compatibility)
         if self.runeforge == nil then self.runeforge = {} end
-        if self.spells.runeforges ~= nil then
-            for k, v in pairs(self.spells.runeforges) do
-                if self.runeforge[k] == nil then self.runeforge[k] = {} end
-                -- br.api.runeforge(self.runeforge,k,v)
-            end
-        end
 
         -- Update Power
         if not self.power then self.power = {} end
@@ -683,7 +668,7 @@ function cBuilder:new(spec, specName)
             -- Call baseUpdate()
             if not br._G.UnitAffectingCombat("player") then self.updateOOC() end
             self.baseUpdate()
-            self.getBleeds()
+            if spec == 103 or spec == 259 then self.getBleeds() end
             -- Update Player Info on Init, Talent, and Level Change
             if self.updatePlayer then
                 getSpellsForSpec(spec)
