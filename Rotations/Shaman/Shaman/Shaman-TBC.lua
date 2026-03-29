@@ -229,12 +229,19 @@ end -- End Action List - Cooldowns
 -- Action List - Totem Management
 actionList.TotemManagement = function()
     -- * Fire Totems
+    -- Searing Totem
+    if cast.able.searingTotem() and ui.useST(10,2)
+        and (unit.inCombat() or (unit.valid("target") and unit.distance("target") < 20))
+        and not totem.fire.searing.exists() and unit.standingTime() > 1
+    then
+        if cast.searingTotem() then ui.debug("Casting Searing Totem [Totem Management]") return true end
+    end
     -- Fire Nova Totem
-    if cast.able.fireNovaTotem("player","aoe",1,10) and ui.useAOE(2,10)
-        and (unit.inCombat() or (unit.valid("target") and unit.distance("target") < 10))
+    if cast.able.fireNovaTotem("player","aoe",1,10) and ui.useAOE(10,2)
+        and (unit.inCombat() or (unit.valid("target") and unit.distance("target") < 20))
         and not totem.fire.fireNova.exists() and unit.standingTime() > 1
     then
-        if cast.fireNovaTotem("player","aoe",1,10) then ui.debug("Casting Fire Nova Totem [AOE]") return true end
+        if cast.fireNovaTotem("player","aoe",1,10) then ui.debug("Casting Fire Nova Totem [Totem Management]") return true end
     end
     -- * Earth Totems
     -- Stoneclaw Totem
@@ -246,7 +253,7 @@ actionList.TotemManagement = function()
         local stoneclawDistance = (totem.earth.stoneclaw and totem.earth.stoneclaw.distance and totem.earth.stoneclaw.distance()) or 99
         if not tankInRange and enemies.yards15 > 0 and (not stoneclawExists or stoneclawDistance > 15) then
             if cast.stoneclawTotem() then
-                ui.debug("Casting Stoneclaw Totem [Defensive]")
+                ui.debug("Casting Stoneclaw Totem [Totem Management]")
                 return true
             end
         end
@@ -273,12 +280,12 @@ actionList.PreCombat = function()
         if unit.valid("target") and unit.exists("target") then
             if unit.distance("target") > 5 then
                 -- Lightning Bolt
-                if cast.able.lightningBolt("target") and not unit.moving() then --and var.useLightningBolt then
-                    if cast.lightningBolt("target") then
-                        ui.debug("Casting Lightning Bolt [Precombat]")
-                        return true
-                    end
-                end
+                -- if cast.able.lightningBolt("target") and not unit.moving() then --and var.useLightningBolt then
+                --     if cast.lightningBolt("target") then
+                --         ui.debug("Casting Lightning Bolt [Precombat]")
+                --         return true
+                --     end
+                -- end
                 -- Flame Shock
                 if cast.able.flameShock("target") then
                     if cast.flameShock("target") then
@@ -361,14 +368,14 @@ actionList.Combat = function()
         --     end
         -- end
         -- Lightning Bolt
-        if cast.able.lightningBolt() and not unit.moving()
-            and (unit.distance(units.dyn5) > 10 or mana.percent() > 50)-- or unit.ttd(units.dyn5) < 3)
-        then--and var.useLightningBolt then
-            if cast.lightningBolt() then
-                ui.debug("Casting Lightning Bolt [Combat]")
-                return true
-            end
-        end
+        -- if cast.able.lightningBolt() and not unit.moving()
+        --     and (unit.distance(units.dyn5) > 10) --or mana.percent() > 50)-- or unit.ttd(units.dyn5) < 3)
+        -- then--and var.useLightningBolt then
+        --     if cast.lightningBolt() then
+        --         ui.debug("Casting Lightning Bolt [Combat]")
+        --         return true
+        --     end
+        -- end
     end -- End Combat Check
 end     -- End Action list - Combat
 

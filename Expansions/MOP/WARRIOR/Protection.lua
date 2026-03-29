@@ -1,0 +1,57 @@
+local _, br = ...
+br.lists.spells.WARRIOR = br.lists.spells.WARRIOR or {}
+br.lists.spells.WARRIOR[73] = {
+            abilities = {
+                demoralizingShout = 1160,
+                devastate         = 20243,
+                focusedRage       = 204488,
+                impendingVictory  = 202168,
+                intercept         = 198304,
+                lastStand         = 12975,
+                ravager           = 228920,
+                revenge           = 6572,
+                shieldBlock       = 2565,
+                shieldSlam        = 23922,
+                shieldWall        = 871,
+                shockwave         = 46968,
+                thunderClap       = 6343,
+            },
+            buffs     = {
+                avatar               = 107574,
+                defensiveStance      = 71,
+                lastStand            = 12975,
+                revenge              = 5302,
+                shieldBlock          = 132404,
+                shieldWall           = 871,
+                vengeanceFocusedRage = 202573,
+                vengeanceIgnorePain  = 202574,
+                vengeanceRevenge     = 202573,
+                victorious           = 32216,
+            },
+            debuffs   = {
+                deepwoundsProt    = 115767,
+                demoralizingShout = 1160,
+                thunderClap       = 6343,
+            },
+            glyphs    = {
+
+            },
+            talents   = {
+                bestServedCold     = 202560,
+                warMachine         = 316733,
+                bolster            = 280001,
+                boomingVoice       = 202743,
+                cracklingThunder   = 203201,
+                devastator         = 236279,
+                dragonRoar         = 118000,
+                heavyRepercussions = 203177,
+                indomitable        = 202095,
+                intoTheFray        = 202603,
+                menace             = 275338,
+                neverSurrender     = 202561,
+                punish             = 275334,
+                ravager            = 228920,
+                rumblingEarth      = 275339,
+                unstoppableForce   = 275336,
+            },
+        }

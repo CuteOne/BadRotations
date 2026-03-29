@@ -76,7 +76,7 @@ local function createOptions()
         -- Last Form
         br.ui:createCheckbox(section, "Last Form", "|cffFFFFFFEnable/Disable Returning to Last Form")
         -- Energy Threshold
-        br.ui:createSpinner(section, "Energy", 30, 1, 100, 1, "|cffFFFFFFCat Form Energy Threshold to Break Form")
+        br.ui:createSpinner(section, "Energy", 20, 1, 100, 1, "|cffFFFFFFMin energy — shifts if below this and next tick is >1s away")
         -- Rage Threshold
         br.ui:createSpinner(section, "Rage", 10, 1, 100, 1, "|cffFFFFFFBear Form Rage Threshold to Break Form")
         br.ui:checkSectionState(section)
@@ -199,37 +199,25 @@ local unit
 local units
 local spell
 local var = {}
--- General Locals - Common Non-BR API Locals used in profiles
-local haltProfile
-local profileStop
+
 -- Profile Specific Locals - Any custom to profile locals
 local actionList = {}
--- local fbMaxEnergy
-local formCost
-local formValue
-local movingTimer
-local lastForm
-local powershiftReady = false
-local powershiftArmedAt = 0
--- local lastFormBuff = false
--- local freeDPS
--- local freeHeal
-local keepAquatic
-
--- local noShapeshiftPower
--- local needsHealing
 
 -----------------
 --- Functions --- -- List all profile specific custom functions here
 -----------------
----
--- estimate time (s) until next energy 'tick' using regen (energy/sec)
+-- Time (seconds) until the next discrete energy tick (+20 every 2s).
+-- Detected by polling: whenever current energy jumps by >=15, a tick fired.
 local function timeToNextEnergyTick()
-    local regen = br.player.power.energy.regen() or 0
-    if regen > 0 then
-        return 1 / regen
+    if var.lastEnergyTickTime == nil then var.lastEnergyTickTime = 0 end
+    if var.lastEnergyObserved == nil then var.lastEnergyObserved = 0 end
+    local current = br.player.power.energy() or 0
+    if current >= var.lastEnergyObserved + 15 then
+        var.lastEnergyTickTime = br._G.GetTime()
     end
-    return 99
+    var.lastEnergyObserved = current
+    if var.lastEnergyTickTime == 0 then return 2.0 end
+    return math.max(0, (var.lastEnergyTickTime + 2.0) - br._G.GetTime())
 end
 
 -- AutoProwl
@@ -283,11 +271,11 @@ end
 
 -- Time Moving
 local function timeMoving()
-    if movingTimer == nil then movingTimer = br._G.GetTime() end
+    if var.moveTimer == nil then var.moveTimer = br._G.GetTime() end
     if not unit.moving() then
-        movingTimer = br._G.GetTime()
+        var.moveTimer = br._G.GetTime()
     end
-    return br._G.GetTime() - movingTimer
+    return br._G.GetTime() - var.moveTimer
 end
 
 -- Behind check (nil-safe)
@@ -328,8 +316,8 @@ local function safeCancelForm(outOfFormSpellRef, reason, treatOutSpellAsFree)
         return false
     end
 
-    if not unit.canCancelFormFor(outOfFormSpellRef, lastForm, treatOutSpellAsFree) then
-        local requiredMana, currentMana = unit.formBreakManaRequired(outOfFormSpellRef, lastForm, treatOutSpellAsFree)
+    if not unit.canCancelFormFor(outOfFormSpellRef, var.lastForm, treatOutSpellAsFree) then
+        local requiredMana, currentMana = unit.formBreakManaRequired(outOfFormSpellRef, var.lastForm, treatOutSpellAsFree)
         -- ui.debug("Skip Cancel Form [" .. tostring(reason) .. "] (mana " .. tostring(currentMana) .. " < need " .. tostring(requiredMana) .. ")")
         return false
     end
@@ -404,7 +392,7 @@ local getBuffUnitOption = function(option)
 end
 
 -- Keep Aquatic Form while swimming unless danger/enemy target.
-keepAquatic = function()
+var.keepAquatic = function()
     return ui.checked("Aquatic Form")
         and br._G.IsSwimming()
         and buff.aquaticForm.exists()
@@ -442,7 +430,7 @@ end
 actionList.Extra = function()
     -- Mark of the Wild
     if ui.checked("Mark of the Wild") and not unit.flying() and not buff.prowl.exists()
-        and mana() > cast.cost.markOfTheWild() + formCost
+        and mana() > cast.cost.markOfTheWild() + var.formCost
     then
         var.markUnit = getBuffUnitOption("Mark of the Wild")
         if cast.able.markOfTheWild(var.markUnit) and buff.markOfTheWild.refresh(var.markUnit)
@@ -465,7 +453,7 @@ actionList.Extra = function()
         end
     end
     -- Thorns
-    if ui.checked("Thorns") and not unit.flying() and not buff.prowl.exists() and mana() > cast.cost.thorns() + formCost then
+    if ui.checked("Thorns") and not unit.flying() and not buff.prowl.exists() and mana() > cast.cost.thorns() + var.formCost then
         var.thornUnit = getBuffUnitOption("Thorns")
         if cast.able.thorns(var.thornUnit) and buff.thorns.refresh(var.thornUnit)
             and not unit.inCombat() and not unit.resting() and unit.distance(var.thornUnit) < 40
@@ -487,7 +475,7 @@ actionList.Extra = function()
     end
     -- Omen of Clarity
     if ui.value("Omen of Clarity") ~= 4 and not unit.flying() and not unit.inCombat() and not unit.resting() and not buff.prowl.exists()
-        and mana() > cast.cost.omenOfClarity() + formCost
+        and mana() > cast.cost.omenOfClarity() + var.formCost
     then
         if cast.able.omenOfClarity("player") and buff.omenOfClarity.refresh("player") then
             -- Cancel form if needed to buff
@@ -512,7 +500,7 @@ actionList.Defensive = function()
         -- Abolish Poison
         if ui.checked("Abolish Poison") and cast.able.abolishPoison("player")
             and not buff.abolishPoison.exists("player") and cast.dispel.abolishPoison("player")
-            and mana() > cast.cost.abolishPoison() + formCost
+            and mana() > cast.cost.abolishPoison() + var.formCost
         then
             if buff.catForm.exists() or buff.bearForm.exists() then
                 if safeCancelForm(spell.abolishPoison, "Abolish Poison") then
@@ -528,7 +516,7 @@ actionList.Defensive = function()
         -- Cure Poison
         if ui.checked("Cure Poison") and cast.able.curePoison("player")
             and (not ui.checked("Abolish Poison") --[[or not spell.abolishPoison.known()]]) and cast.dispel.curePoison("player")
-            and mana() > cast.cost.curePoison() + formCost
+            and mana() > cast.cost.curePoison() + var.formCost
         then
             if buff.catForm.exists() or buff.bearForm.exists() then
                 if safeCancelForm(spell.curePoison, "Cure Poison") then
@@ -544,7 +532,7 @@ actionList.Defensive = function()
         -- Remove Curse
         if ui.checked("Remove Curse") and cast.able.removeCurse("player")
             and not unit.inCombat() and cast.dispel.removeCurse("player")
-            and mana() > cast.cost.removeCurse() + formCost
+            and mana() > cast.cost.removeCurse() + var.formCost
         then
             if buff.catForm.exists() or buff.bearForm.exists() then
                 if safeCancelForm(spell.removeCurse, "Remove Curse") then
@@ -560,7 +548,7 @@ actionList.Defensive = function()
         -- Barkskin
         if ui.checked("Barkskin") and cast.able.barkskin()
             and unit.hp() <= ui.value("Barkskin") and unit.inCombat()
-            and mana() > cast.cost.barkskin() + formCost
+            and mana() > cast.cost.barkskin() + var.formCost
         then
             if cast.barkskin() then
                 ui.debug("Casting Barkskin")
@@ -572,7 +560,7 @@ actionList.Defensive = function()
             and unit.exists("target") and not unit.facing("target", "player") and unit.moving("target")
             and unit.valid("target") and unit.hp("target") < 100 and not debuff.entanglingRoots.exists("target")
             and unit.distance("target") > 8 and unit.inCombat()
-            and mana() > cast.cost.entanglingRoots() + formCost
+            and mana() > cast.cost.entanglingRoots() + var.formCost
         then
             if buff.catForm.exists() or buff.bearForm.exists() then
                 if safeCancelForm(spell.entanglingRoots, "Entangling Roots", buff.clearcasting.exists()) then
@@ -586,10 +574,10 @@ actionList.Defensive = function()
             end
         end
         -- Faerie Fire (Caster)
-        if ui.checked("Faerie Fire") and cast.able.faerieFire("target") and not buff.prowl.exists() and formValue == 1
+        if ui.checked("Faerie Fire") and cast.able.faerieFire("target") and not buff.prowl.exists() and var.formValue == 1
             and unit.exists("target") and unit.enemy("target") and unit.canAttack("target") and not debuff.faerieFire.exists("target")
             and not (buff.catForm.exists() or buff.bearForm.exists())
-            and unit.distance("target") > 8 and mana() > cast.cost.faerieFire() + formCost
+            and unit.distance("target") > 8 and mana() > cast.cost.faerieFire() + var.formCost
         then
             if cast.faerieFire("target") then
                 ui.debug("Casting Faerie Fire")
@@ -599,7 +587,7 @@ actionList.Defensive = function()
         -- Nature's Grasp
         if ui.checked("Nature's Grasp") and cast.able.naturesGrasp()
             and not buff.naturesGrasp.exists("player") and unit.inCombat()
-            and #enemies.yards10 > 0 and mana() > cast.cost.naturesGrasp() + formCost
+            and #enemies.yards10 > 0 and mana() > cast.cost.naturesGrasp() + var.formCost
         then
             if buff.catForm.exists() or buff.bearForm.exists() then
                 if safeCancelForm(spell.naturesGrasp, "Nature's Grasp", buff.clearcasting.exists()) then
@@ -615,7 +603,7 @@ actionList.Defensive = function()
         -- Regrowth
         if ui.checked("Regrowth") and cast.able.regrowth("player") and not cast.current.regrowth() and not unit.moving()
             and unit.hp() <= ui.value("Regrowth") and not buff.regrowth.exists("player")
-            and (buff.clearcasting.exists() or mana() > cast.cost.regrowth() + formCost)
+            and (buff.clearcasting.exists() or mana() > cast.cost.regrowth() + var.formCost)
             and (not unit.inGroup() or ui.checked("Self Heal In Group"))
         then
             if buff.catForm.exists() or buff.bearForm.exists() then
@@ -630,7 +618,7 @@ actionList.Defensive = function()
             end
         end
         -- Rejuvenation
-        if ui.checked("Rejuvenation") and not cast.current.rejuvenation("target") and mana() > cast.cost.rejuvenation() + formCost then
+        if ui.checked("Rejuvenation") and not cast.current.rejuvenation("target") and mana() > cast.cost.rejuvenation() + var.formCost then
             if cast.able.rejuvenation("target") and unit.friend("target") and unit.hp("target") <= ui.value("Rejuvenation")
                 and unit.player("target") and buff.rejuvenation.refresh("target")
             then
@@ -663,7 +651,7 @@ actionList.Defensive = function()
         end
         -- Healing Touch
         if ui.checked("Healing Touch") and not cast.current.healingTouch() and not unit.moving()
-            and (buff.clearcasting.exists() or mana() > cast.cost.healingTouch() + formCost)
+            and (buff.clearcasting.exists() or mana() > cast.cost.healingTouch() + var.formCost)
             and cast.timeSinceLast.healingTouch() > unit.gcd(true)
         then
             if cast.able.healingTouch("target") and unit.friend("target") and unit.hp("target") <= ui.value("Healing Touch") and unit.player("target") then
@@ -832,11 +820,11 @@ actionList.FormManagement = function()
     end
 
     -- Auto Shapeshift
-    if not keepAquatic() --and not needsFormBreak()
+    if not var.keepAquatic() --and not needsFormBreak()
         and ((unit.moving() and timeMoving() > ui.value("Shift Wait Time")) or unit.inCombat() or inAggroRange(5))
     then
         -- Bear Form
-        if formValue == 3 and (spell.bearForm.known() or spell.direBearForm.known())
+        if var.formValue == 3 and (spell.bearForm.known() or spell.direBearForm.known())
             and ((cast.able.bearForm() and not spell.direBearForm.known()) or cast.able.direBearForm())
             and not buff.bearForm.exists() and not buff.direBearForm.exists()
         then
@@ -853,7 +841,7 @@ actionList.FormManagement = function()
             end
         end
         -- Cat Form
-        if (formValue == 2 or (formValue == 3 and unit.level() < 8)) and unit.level() >= 5
+        if (var.formValue == 2 or (var.formValue == 3 and unit.level() < 8)) and unit.level() >= 5
             -- and not unit.inCombat()
             and cast.able.catForm() and not buff.catForm.exists()
             and not (buff.aquaticForm.exists() or buff.travelForm.exists() or buff.flightForm.exists() or buff.swiftFlightForm.exists())
@@ -864,7 +852,7 @@ actionList.FormManagement = function()
             end
         end
         -- Caster Form
-        if formValue == 1 and (buff.bearForm.exists() or buff.direBearForm.exists() or buff.catForm.exists()) then
+        if var.formValue == 1 and (buff.bearForm.exists() or buff.direBearForm.exists() or buff.catForm.exists()) then
             if unit and unit.cancelForm then
                 unit.cancelForm()
             else
@@ -1152,17 +1140,23 @@ actionList.CatForm = function()
         end
         -- Powershift for Energy (Cat Form with Furor talent)
         -- Runs last so finishers and builders are always preferred over shifting.
+        -- Logic mirrors wowsims: only shift when energy is low AND the next tick is far away.
         if ui.checked("Powershifting") and cast.able.catForm() and unit.inCombat()
-            and not buff.clearcasting.exists() and mana() > formCost
+            and not buff.clearcasting.exists()
         then
-            local immediateShiftThreshold = math.max(10, ui.round(ui.value("Energy")*(mana.percent()/100), 0))
-            if energy() < immediateShiftThreshold then
-                if cast.macro("/cast !"..spell.catForm.name()) then
-                    ui.debug("Powershift for Energy")
-                    powershiftReady = false
-                    return true
+            -- Mana gate: don't shift if we can't sustain it
+            -- if mana() >= var.formCost then--* 1.5 then
+                local tickIn = timeToNextEnergyTick()
+                local threshold = ui.value("Energy")
+                if energy() <= 10 or (energy() < threshold and tickIn > 1.0) then
+                    -- Shift immediately: energy floor hit, or tick is too far away
+                    if cast.macro("/cast !"..spell.catForm.name()) then
+                        ui.debug("Powershift for Energy (tick in "..string.format("%.2f", tickIn).."s)")
+                        return true
+                    end
                 end
-            end
+                -- energy() < threshold but tickIn <= 1.0: wait for the tick, do nothing
+            -- end
         end
     end
 end -- End Action List - Cat Form
@@ -1216,7 +1210,7 @@ actionList.PreCombat = function()
         if unit.valid("target") then
             local thisDistance = unit.distance("target") or 99
             -- Wrath
-            if formValue == 1 and not unit.moving()
+            if var.formValue == 1 and not unit.moving()
                 and not (buff.catForm.exists() or buff.bearForm.exists() or buff.direBearForm.exists()) and thisDistance < 30
             then
                 if cast.able.wrath("target") and (unit.level() < 2 or not cast.last.wrath() or cast.timeSinceLast.wrath() > unit.gcd(true) + 0.5) then
@@ -1228,11 +1222,11 @@ actionList.PreCombat = function()
             end
             if thisDistance < 5 then
                 -- Cat Opener (Stealth + Non-Stealth)
-                if formValue == 2 then
+                if var.formValue == 2 then
                     if actionList.CatOpener() then return true end
                 end
                 -- Bear Form
-                if formValue == 3 then
+                if var.formValue == 3 then
                     -- Bear Form
                     if ((cast.able.bearForm() and not spell.direBearForm.known()) or cast.able.direBearForm())
                         and not buff.bearForm.exists() and not buff.direBearForm.exists()
@@ -1304,8 +1298,8 @@ actionList.Combat = function()
 
         -- Wait for swing if in melee range
         -- if unit.exists("target") and unit.distance("target") < 5 and
-        --     (formValue == 2 and buff.catForm.exists()
-        --     or formValue == 3 and (buff.bearForm.exists() or buff.direBearForm.exists()))
+        --     (var.formValue == 2 and buff.catForm.exists()
+        --     or var.formValue == 3 and (buff.bearForm.exists() or buff.direBearForm.exists()))
         -- then
         --     local swing = br.swingTimer
         --     -- ui.debug("Swing Timer: " .. tostring(swing) .. " | Distance: " .. tostring(unit.distance("target")))
@@ -1327,12 +1321,12 @@ actionList.Combat = function()
         -- end
 
         -- Call Action List - Bear Form
-        if formValue == 3 and (buff.bearForm.exists() or buff.direBearForm.exists()) and unit.exists("target") and unit.distance("target") < 5 then
+        if var.formValue == 3 and (buff.bearForm.exists() or buff.direBearForm.exists()) and unit.exists("target") and unit.distance("target") < 5 then
             if actionList.BearForm() then return true end
         end
 
         -- Call Action List - Cat Form
-        if formValue == 2 and unit.exists("target") and unit.distance("target") < 5 then
+        if var.formValue == 2 and unit.exists("target") and unit.distance("target") < 5 then
             if buff.prowl.exists() then
                 -- While prowled, only CatOpener runs; CatForm is never called.
                 -- If CatOpener returns false (still repositioning), we yield and
@@ -1344,7 +1338,7 @@ actionList.Combat = function()
         end
 
         -- Call Action List - Caster Form
-        if formValue == 1 and not (buff.catForm.exists() or buff.bearForm.exists() or buff.direBearForm.exists()) then
+        if var.formValue == 1 and not (buff.catForm.exists() or buff.bearForm.exists() or buff.direBearForm.exists()) then
             if actionList.CasterForm() then return true end
         end
     end -- End In Combat Rotation
@@ -1373,16 +1367,15 @@ local function runRotation()
     units       = br.player.units
     spell       = br.player.spell
     -- General Locals
-    profileStop = profileStop or false
-    haltProfile = (unit.inCombat() and profileStop) or ui.pause() or ui.mode.rotation == 4 or unit.id("target") == 156716
-    formValue = ui.mode.forms
-    formCost = 0
+    var.profileStop = var.profileStop or false
+    var.haltProfile = (unit.inCombat() and var.profileStop) or ui.pause() or ui.mode.rotation == 4 or unit.id("target") == 156716
+    var.formValue = ui.mode.forms
+    var.formCost = 0
     if not br.player.localTrinkets then br.player.localTrinkets = true end
-    if ui.mode.forms == 2 then formCost = cast.cost.catForm() end
-    if ui.mode.forms == 3 then formCost = spell.direBearForm.known() and cast.cost.direBearForm() or cast.cost.bearForm() end
+    if ui.mode.forms == 2 then var.formCost = cast.cost.catForm() end
+    if ui.mode.forms == 3 then var.formCost = spell.direBearForm.known() and cast.cost.direBearForm() or cast.cost.bearForm() end
     -- Units
     units.get(5)        -- Makes a variable called, "target"
-    -- units.get(40)       -- Makes a variable called, units.dyn40
     units.get(40, true) -- Makes a variable called, units.dyn40AOE
     -- Enemies
     enemies.get(5, "player", false, true) -- Makes a variable called, enemies.yards5f
@@ -1390,31 +1383,8 @@ local function runRotation()
     enemies.get(20, "player", true)        -- makes enemies.yards20nc
     enemies.get(40)     -- Makes a varaible called, enemies.yards40
 
-    -- Profile Specific Locals
-    -- fbMaxEnergy = energy() >= 50
-
-    -- Update Last Form tracking
-    -- updateLastForm()
-
-    -- -- Omen of Clarity Logic
-    -- local omenSetting = ui.value("Omen of Clarity")
-    -- needsHealing = (ui.checked("Regrowth") and unit.hp() <= ui.value("Regrowth"))
-    --     or (ui.checked("Healing Touch") and unit.hp() <= ui.value("Healing Touch"))
-    --     or (ui.checked("Rejuvenation") and unit.hp() <= ui.value("Rejuvenation"))
-
-    -- freeDPS = omenSetting ~= 4 and omenSetting ~= 2 and buff.clearcasting.exists()
-    --     and (not needsHealing or omenSetting == 3)
-
-    -- freeHeal = omenSetting ~= 4 and omenSetting ~= 3 and buff.clearcasting.exists()
-
-    -- No Shapeshift Power check
-    -- noShapeshiftPower = ((not buff.catForm.exists() or (buff.catForm.exists() and energy() < ui.value("Energy")))
-    --     and (not (buff.bearForm.exists() and buff.direBearForm.exists())
-    --         or ((buff.bearForm.exists() or buff.direBearForm.exists()) and rage() < ui.value("Rage"))))
-    --     or not unit.inCombat()
-
     if not unit.inCombat() and not unit.exists("target") then
-        if profileStop then profileStop = false end
+        if var.profileStop then var.profileStop = false end
     end
 
     -- ui.chatOverlay("Shift At: "..tostring(ui.round(math.max(10, ui.value("Energy")*(mana.percent()/100)),0)))
@@ -1423,9 +1393,9 @@ local function runRotation()
     --- Begin Profile ---
     ---------------------
     -- Profile Stop | Pause
-    if not unit.inCombat() and not unit.exists("target") and profileStop then
-        profileStop = false
-    elseif haltProfile then
+    if not unit.inCombat() and not unit.exists("target") and var.profileStop then
+        var.profileStop = false
+    elseif var.haltProfile then
         return true
     else
         ---------------------------------

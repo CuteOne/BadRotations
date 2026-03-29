@@ -1,0 +1,57 @@
+local _, br = ...
+br.lists.spells.MAGE = br.lists.spells.MAGE or {}
+br.lists.spells.MAGE.Shared = {
+            abilities  = {
+                fireBlast          = 319836,
+                frostbolt          = 116,
+                arcaneIntellect    = 1459,
+                arcaneExplosion    = 1449,
+                blink              = 1953,
+                counterspell       = 2139,
+                conjureRefreshment = 190336,
+                --  fireBlast                   = 319836,
+                frostBolt          = 116,
+                frostNova          = 122,
+                iceBlock           = 45438,
+                invisibility       = 66,
+                mirrorImage        = 55342,
+                polymorph          = 118,
+                removeCurse        = 475,
+                ringOfFrost        = 113724,
+                runeOfPower        = 116011,
+                --shimmer                     = 212653,
+                slowFall           = 130,
+                spellsteal         = 30449,
+                teleportExodar     = 32271,
+                timeWarp           = 80353,
+                waterJet           = 135029,
+            },
+            buffs      = {
+                arcaneIntellect     = 1459,
+                disciplinaryCommand = 327365,
+                expandedPotential   = 327489,
+                focusMagic          = 321358,
+                freezingWinds       = 327364,
+                iceBlock            = 45438,
+                incantersFlow       = 1463,
+                slowFall            = 130,
+                slickIce            = 327509,
+                runeOfPower         = 116014,
+            },
+            debuffs    = {
+                frostNova        = 122,
+                mirrorsOfTorment = 314793,
+            },
+            glyphs     = {
+
+            },
+            talents    = {
+                incantersFlow = 1463,
+                iceWard       = 205036,
+                focusMagic    = 321358,
+                ringOfFrost   = 113724,
+                runeOfPower   = 116011,
+                shimmer       = 212653,
+                --unstableMagic               = 157976,
+            },
+        }

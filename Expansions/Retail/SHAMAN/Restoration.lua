@@ -1,0 +1,52 @@
+local _, br = ...
+br.lists.spells.SHAMAN = br.lists.spells.SHAMAN or {}
+br.lists.spells.SHAMAN[264] = {
+            abilities = {
+                ancestralVision       = 212048,
+                waterShield           = 52127,
+                healingRain           = 73920,
+                healingTideTotem      = 108280,
+                healingWave           = 77472,
+                manaTideTotem         = 16191,
+                purifySpirit          = 77130,
+                riptide               = 61295,
+                spiritLinkTotem       = 98008,
+                recallCloudburstTotem = 201764,
+            },
+            buffs     = {
+                ascendance       = 114052,
+                cloudburstTotem  = 157504,
+                waterShield      = 52127,
+                healingRain      = 73920,
+                heavyRainfall    = 338344,
+                jonatsFocus      = 210607,
+                lavaSurge        = 77762,
+                riptide          = 61295,
+                tidalWaves       = 53390,
+                unleashLife      = 73685,
+                undulation       = 216251,
+                swirlingCurrents = 338340,
+            },
+            debuffs   = {
+                flameShock = 188389,
+            },
+            glyphs    = {
+            },
+            talents   = {
+                ancestralVigor           = 207401,
+                ancestralProtectionTotem = 207399,
+                ascendance               = 114052,
+                cloudburstTotem          = 157153,
+                deluge                   = 200076,
+                downpour                 = 207778,
+                earthenWallTotem         = 198838,
+                echoOfTheElements        = 108283,
+                flashFlood               = 280614,
+                highTide                 = 157154,
+                sugeofEarth              = 320746,
+                torrent                  = 200072,
+                undulation               = 200071,
+                unleashLife              = 73685,
+                wellspring               = 197995,
+            },
+        }

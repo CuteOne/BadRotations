@@ -1,0 +1,61 @@
+local _, br = ...
+br.lists.spells.DRUID = br.lists.spells.DRUID or {}
+br.lists.spells.DRUID[103] = {
+            abilities = {
+                -- adaptiveSwarmDamage = 391889, -- Not Castable but needed for In-Flight
+                -- adaptiveSwarmHeal   = 391891, -- Not Castable but needed for In-Flight
+                berserk                = 106951,
+                maim                  = 22570,
+                -- moonfireCat         = 155625,
+                naturesSwiftness       = 132158,
+                pounce                 = 9005,
+                ravage                 = 6785,
+                removeCorruption       = 2782,
+                rip                    = 1079,
+                savageRoar             = 52610,
+                shred                  = 5221,
+                skullBash              = 106839,
+                survivalInstincts      = 61336,
+                swipe                  = 62078,
+                thrash                 = 106830,
+            },
+            buffs     = {
+                berserk                     = 106952,
+                clearcasting                = 135700,
+                dreamOfCenarius             = 145152,
+                feralFury                   = 144865,
+                feralRage                   = 146874,
+                incarnation                 = 102543,
+                naturesSwiftness            = 132158,
+                predatorySwiftness          = 69369,
+                savageRoar                  = 52610,
+                survivalInstincts           = 61336,
+            },
+            debuffs   = {
+                pounce                 = 9005,
+                rip                    = 1079,
+                thrash                 = 106830,
+            },
+            items     = {
+            },
+            talents   = {
+                cenarionWard             = 102351,
+                disorientingRoar         = 99,
+                displacerBeast           = 102280,
+                dreamOfCenarius          = 108373,
+                faerieSwarm              = 106707,
+                felineSwiftness          = 131768,
+                forceOfNature            = 106737,
+                heartOfTheWild           = 108288,
+                incarnation              = 106731,
+                massEntanglement         = 102359,
+                mightyBash               = 5211,
+                naturesVigil             = 124974,
+                renewal                  = 108238,
+                soulOfTheForest          = 114107,
+                typhoon                  = 132469,
+                ursolsVortex             = 102793,
+                wildCharge               = 102401,
+                yserasGift               = 145108,
+            },
+        }

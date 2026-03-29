@@ -1,0 +1,73 @@
+local _, br = ...
+br.lists.spells.MAGE = br.lists.spells.MAGE or {}
+br.lists.spells.MAGE[62] = {
+            abilities = {
+                alterTime           = 342245,
+                arcaneBarrage       = 44425,
+                arcaneBlast         = 30451,
+                arcaneFamiliar      = 205022,
+                arcaneMissiles      = 5143,
+                arcaneOrb           = 153626,
+                arcanePower         = 12042,
+                chargedUp           = 205032,
+                conjuremanaGem      = 759,
+                displacement        = 212801,
+                erosion             = 205039,
+                evocation           = 12051,
+                --  fireblast                   = 519836,
+                greaterInvisibility = 110959,
+                markOfAluneth       = 224968,
+                netherTempest       = 114923,
+                presenceofMind      = 205025,
+                prismaticBarrier    = 235450,
+                runeofPower         = 116011,
+                slow                = 31589,
+                supernova           = 157980,
+                touchOfTheMagi      = 321507,
+            },
+            buffs     = {
+                arcaneCharge              = 36032,
+                arcaneFamiliar            = 210126,
+                arcanePower               = 12042,
+                -- arcaneCharge                  = 36032,
+                evocation                 = 12051,
+                expandedPotential         = 327495,
+                arcaneMissles             = 79683,
+                presenceOfMind            = 205025,
+                prismaticBarrier          = 235450,
+                rhoninsAssaultingArmwraps = 208081,
+                runeofPower               = 116011,
+                ruleOfThrees              = 264774,
+                brainStorm                = 273330,
+                clearcasting              = 263725,
+            },
+            debuffs   = {
+                arcaneCharge   = 36032,
+                netherTempest  = 114923,
+                touchoftheMagi = 210824,
+
+
+            },
+            glyphs    = {
+
+            },
+            talents   = {
+                arcaneEcho     = 342231,
+                amplification  = 236628,
+                arcaneFamiliar = 205022,
+                arcaneOrb      = 153626,
+                chronoShift    = 235711,
+                mastersOfTime  = 342249,
+                --erosion                     = 205039,
+                netherTempest  = 114923,
+                overpowered    = 155147,
+                resonance      = 205028,
+                reverberate    = 281482,
+                rulesOfThrees  = 264354,
+                slipstream     = 236457,
+                supernova      = 157980,
+                timeAnomaly    = 210805
+                --temporalFlux                = 234302,
+                --wordsOfPower                = 205035,
+            },
+        }

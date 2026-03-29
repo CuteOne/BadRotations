@@ -160,6 +160,10 @@ function cBuilder:new(spec, specName)
 
     -- Spells From Spell Table
     local function getSpellsForSpec(spec)
+        -- Lazy-load the spec's spell file if not yet cached (MOP/Retail only)
+        if br.api.hasSubSpecs and br.lists and br.lists.loadSpecSpells then
+            br.lists:loadSpecSpells(br.loader.selectedSpec)
+        end
         local playerClass = select(2, br._G.UnitClass('player'))
         local specSpells = br.lists.spells[playerClass][spec]
         local sharedClassSpells = br.lists.spells[playerClass]["Shared"]
