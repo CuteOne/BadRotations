@@ -16,6 +16,39 @@ local testSpell = {
     ["SHUNTER"] = 186270
 }
 
+-- Cache class/spec/meleeSpell so getDistanceCalc does NOT call UnitClass+GetSpecializationInfo
+-- on every single distance calculation. These never change mid-session; refresh only on
+-- spec-change events or when they are first needed.
+local _cachedClass = nil
+local _cachedSpec  = nil
+local _cachedMeleeSpell = nil
+local _cachedMeleeSpellName = nil  -- resolved spell name for C_Spell.IsSpellInRange
+
+local function refreshMeleeSpellCache()
+    _cachedClass = select(2, br._G.UnitClass("player"))
+    _cachedSpec  = br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization())
+    _cachedMeleeSpell = nil
+    -- Resolve which melee spell represents "in melee range" for this class/spec.
+    -- Bear/Cat form overrides are handled dynamically each call because form can change.
+    if testSpell[_cachedClass] ~= nil then
+        _cachedMeleeSpell = testSpell[_cachedClass]
+    elseif _cachedSpec == 255 then
+        _cachedMeleeSpell = testSpell["SHUNTER"]
+    elseif _cachedSpec == 263 then
+        _cachedMeleeSpell = testSpell["SHAMAN"]
+    elseif _cachedSpec == 577 then
+        _cachedMeleeSpell = testSpell["DHH"]
+    elseif _cachedSpec == 581 then
+        _cachedMeleeSpell = testSpell["DHV"]
+    end
+    -- Pre-resolve spell name once (avoids GetSpellInfo in every IsSpellInRange call)
+    if _cachedMeleeSpell ~= nil then
+        _cachedMeleeSpellName = select(1, br.api.wow.GetSpellInfo(_cachedMeleeSpell))
+    else
+        _cachedMeleeSpellName = nil
+    end
+end
+
 function range:getDistance(Unit1, Unit2, option)
     if Unit2 == nil then
         Unit2 = Unit1
@@ -37,25 +70,24 @@ end
 
 function range:getDistanceCalc(Unit1, Unit2, option)
     local currentDist = 100
-    local meleeSpell = nil
-    local playerClass = select(2, br._G.UnitClass("player"))
-    local playerSpec = br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization())
-    if testSpell[playerClass] ~= nil then
-        meleeSpell = testSpell[playerClass]
-    elseif playerClass == "DRUID" and br.functions.aura:UnitBuffID("player", 768) then
-        meleeSpell = testSpell["DRUIDC"]
-    elseif playerClass == "DRUID" and br.functions.aura:UnitBuffID("player", 5487) then
-        meleeSpell = testSpell["DRUIDB"]
-    elseif playerClass == "DRUID" then
-        meleeSpell = testSpell["DRUIDC"]
-    elseif playerSpec == 255 then
-        meleeSpell = testSpell["SHUNTER"]
-    elseif playerSpec == 263 then
-        meleeSpell = testSpell["SHAMAN"]
-    elseif playerSpec == 577 then
-        meleeSpell = testSpell["DHH"]
-    elseif playerSpec == 581 then
-        meleeSpell = testSpell["DHV"]
+    -- Use cached class/spec/meleeSpell; refresh if not yet populated.
+    if _cachedClass == nil then refreshMeleeSpellCache() end
+    local playerClass = _cachedClass
+    local meleeSpell = _cachedMeleeSpell
+    local meleeSpellName = _cachedMeleeSpellName
+    -- Druid form overrides: form can change at any time so resolve dynamically,
+    -- but only when we already know the player is a Druid to avoid extra checks.
+    if playerClass == "DRUID" then
+        if br.functions.aura:UnitBuffID("player", 768) then        -- Cat Form
+            meleeSpell = testSpell["DRUIDC"]
+        elseif br.functions.aura:UnitBuffID("player", 5487) then   -- Bear Form
+            meleeSpell = testSpell["DRUIDB"]
+        else
+            meleeSpell = testSpell["DRUIDC"]
+        end
+        if meleeSpell ~= nil then
+            meleeSpellName = select(1, br.api.wow.GetSpellInfo(meleeSpell))
+        end
     end
     -- If Unit2 is nil we compare player to Unit1
     if Unit2 == nil then
@@ -70,16 +102,14 @@ function range:getDistanceCalc(Unit1, Unit2, option)
         and (br.functions.unit:GetUnitIsUnit(Unit2, "player") or (br.functions.unit:GetObjectExists(Unit2) and br.functions.unit:GetUnitIsVisible(Unit2) == true))
     then
         -- If melee spell is in range, return 0 (accurate melee range detection)
-        if meleeSpell ~= nil then
+        if meleeSpell ~= nil and meleeSpellName ~= nil then
             if br._G.UnitIsUnit(Unit2, "player") and not br._G.UnitIsUnit(Unit1, "player") then
-                local spellName = select(1, br.api.wow.GetSpellInfo(meleeSpell))
-                if spellName and br._G.C_Spell.IsSpellInRange(spellName, Unit1) == true then
+                if br._G.C_Spell.IsSpellInRange(meleeSpellName, Unit1) == true then
                     return 0
                 end
             end
             if br._G.UnitIsUnit(Unit1, "player") and not br._G.UnitIsUnit(Unit2, "player") then
-                local spellName = select(1, br.api.wow.GetSpellInfo(meleeSpell))
-                if spellName and br._G.C_Spell.IsSpellInRange(spellName, Unit2) == true then
+                if br._G.C_Spell.IsSpellInRange(meleeSpellName, Unit2) == true then
                     return 0
                 end
             end
@@ -142,8 +172,8 @@ function range:getDistanceCalc(Unit1, Unit2, option)
         end
         -- Rogue Melee Range Increase Mod
         if br.player ~= nil then
-            if br.player.talent.acrobaticStrikes ~= nil and meleeSpell ~= nil then
-                if br.player.talent.acrobaticStrikes and option ~= "noMod" and br._G.C_Spell.IsSpellInRange(select(1, br.api.wow.GetSpellInfo(meleeSpell)), Unit2) == true then
+            if br.player.talent.acrobaticStrikes ~= nil and meleeSpell ~= nil and meleeSpellName ~= nil then
+                if br.player.talent.acrobaticStrikes and option ~= "noMod" and br._G.C_Spell.IsSpellInRange(meleeSpellName, Unit2) == true then
                     rangeMod = 3
                 end
             end
@@ -302,4 +332,13 @@ function range:getBaseDistance(unit1, unit2)
     local x2, y2, z2 = br._G.ObjectPosition(unit2)
     return math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2)) -
         ((br._G.UnitCombatReach(unit1) or 0) + (br._G.UnitCombatReach(unit2) or 0)), z2 - z1
+end
+
+-- Invalidate the cached class/spec/meleeSpell when the player changes specialization.
+-- Called by Core.lua after a spec change (or on first-use via lazy init in getDistanceCalc).
+function range:invalidateMeleeSpellCache()
+    _cachedClass = nil
+    _cachedSpec  = nil
+    _cachedMeleeSpell = nil
+    _cachedMeleeSpellName = nil
 end

@@ -13,6 +13,7 @@ local lastTrackerUpdate = 0
 local OM_UPDATE_INTERVAL = 0.25 -- Update every 0.25 seconds
 local TRACKER_UPDATE_INTERVAL = 0.05
 local scanOffset = 1 -- Used for batched scanning when object count is high
+local addedSet = {} -- Reusable set for getEnemies duplicate tracking (avoid per-call allocation)
 
 -- Tracker list reuse (avoid O(n^2) duplicate checks)
 br.engines.tracker = br.engines.tracker or {}
@@ -341,31 +342,31 @@ function enemiesEngineFunctions:getEnemies(thisUnit, radius, checkNoCombat, faci
 	-- 	end
 	-- end
 	if br.engines.enemiesEngine.storedTables[checkNoCombat] ~= nil then
-		if checkNoCombat == false then
-			if br.engines.enemiesEngine.storedTables[checkNoCombat][thisUnit] ~= nil then
-				if br.engines.enemiesEngine.storedTables[checkNoCombat][thisUnit][radius] ~= nil then
-					if br.engines.enemiesEngine.storedTables[checkNoCombat][thisUnit][radius][facing] ~= nil then
-						local cachedTable = br.engines.enemiesEngine.storedTables[checkNoCombat][thisUnit][radius][facing]
-						-- Combat-reactive cache duration: much shorter in combat for higher reactivity
-						local cacheExpiration = br._G.UnitAffectingCombat("player") and 0.02 or 0.05
-						-- Invalidate cache if player moved since cache creation (prevents stale AoE/position info)
-						-- Use the position cached by enemiesEngine:Update() to avoid a redundant ObjectPosition call
-						local px = br.engines.enemiesEngine.playerPosX
-						local py = br.engines.enemiesEngine.playerPosY
-						local pz = br.engines.enemiesEngine.playerPosZ
-						local movedTooFar = false
-						if cachedTable._playerPos and px and py and pz then
-							local dx = cachedTable._playerPos.x - px
-							local dy = cachedTable._playerPos.y - py
-							local dz = cachedTable._playerPos.z - pz
-							local moved = math.sqrt((dx * dx) + (dy * dy) + (dz * dz))
-							-- Invalidate cache on significant movement (2.0 yards).
-							-- 0.5 was too tight -- normal melee repositioning triggered constant cache rebuilds.
-							if moved > 2.0 then movedTooFar = true end
-						end
-						if cachedTable._timestamp and (br._G.GetTime() - cachedTable._timestamp) < cacheExpiration and not movedTooFar then
-							return cachedTable
-						end
+		if br.engines.enemiesEngine.storedTables[checkNoCombat][thisUnit] ~= nil then
+			if br.engines.enemiesEngine.storedTables[checkNoCombat][thisUnit][radius] ~= nil then
+				if br.engines.enemiesEngine.storedTables[checkNoCombat][thisUnit][radius][facing] ~= nil then
+					local cachedTable = br.engines.enemiesEngine.storedTables[checkNoCombat][thisUnit][radius][facing]
+					-- Combat-reactive cache duration: much shorter in combat for higher reactivity
+					local cacheExpiration = br._G.UnitAffectingCombat("player") and 0.02 or 0.05
+					-- Slightly longer TTL when checkNoCombat is true (out-of-combat queries are less time-sensitive)
+					if checkNoCombat then cacheExpiration = 0.1 end
+					-- Invalidate cache if player moved since cache creation (prevents stale AoE/position info)
+					-- Use the position cached by enemiesEngine:Update() to avoid a redundant ObjectPosition call
+					local px = br.engines.enemiesEngine.playerPosX
+					local py = br.engines.enemiesEngine.playerPosY
+					local pz = br.engines.enemiesEngine.playerPosZ
+					local movedTooFar = false
+					if cachedTable._playerPosX and px and py and pz then
+						local dx = cachedTable._playerPosX - px
+						local dy = cachedTable._playerPosY - py
+						local dz = cachedTable._playerPosZ - pz
+						local moved = math.sqrt((dx * dx) + (dy * dy) + (dz * dz))
+						-- Invalidate cache on significant movement (2.0 yards).
+						-- 0.5 was too tight -- normal melee repositioning triggered constant cache rebuilds.
+						if moved > 2.0 then movedTooFar = true end
+					end
+					if cachedTable._timestamp and (br._G.GetTime() - cachedTable._timestamp) < cacheExpiration and not movedTooFar then
+						return cachedTable
 					end
 				end
 			end
@@ -416,7 +417,7 @@ function enemiesEngineFunctions:getEnemies(thisUnit, radius, checkNoCombat, faci
 	-- Fast-path when checking around the player: use precomputed .range where available
 	if thisUnit == "player" then
 		local now = br._G.GetTime()
-		local addedSet = {} -- O(1) hash set replaces O(n) GetUnitIsUnit duplicate scan
+		table.wipe(addedSet) -- O(1) hash set replaces O(n) GetUnitIsUnit duplicate scan
 		for _, v in pairs(enemyTable) do
 			local vUnit = v and v.unit
 			if vUnit and not unitFuncs:GetUnitIsDeadOrGhost(vUnit) and dummyAllowed(vUnit) and not addedSet[vUnit] then
@@ -471,10 +472,11 @@ function enemiesEngineFunctions:getEnemies(thisUnit, radius, checkNoCombat, faci
 		if br.engines.enemiesEngine.storedTables[checkNoCombat][thisUnit] == nil then br.engines.enemiesEngine.storedTables[checkNoCombat][thisUnit] = {} end
 		if br.engines.enemiesEngine.storedTables[checkNoCombat][thisUnit][radius] == nil then br.engines.enemiesEngine.storedTables[checkNoCombat][thisUnit][radius] = {} end
 		-- FIXED: Add timestamp to cached table so cache expiration check works properly
-		local px, py, pz = br._G.ObjectPosition("player")
 		enemiesTable._timestamp = br._G.GetTime()
-		-- store player position at cache time to detect movement-based invalidation
-		enemiesTable._playerPos = { x = px, y = py, z = pz }
+		-- store player position at cache time to detect movement-based invalidation (flat fields, no sub-table alloc)
+		enemiesTable._playerPosX = br.engines.enemiesEngine.playerPosX
+		enemiesTable._playerPosY = br.engines.enemiesEngine.playerPosY
+		enemiesTable._playerPosZ = br.engines.enemiesEngine.playerPosZ
 		br.engines.enemiesEngine.storedTables[checkNoCombat][thisUnit][radius][facing] = enemiesTable
 		--print("Made Table Unit: "..UnitName(thisUnit).." Radius: "..radius.." CombatCheck: "..tostring(checkNoCombat))
 	end
@@ -621,9 +623,7 @@ local function getUnitCoeficient(unit)
         return cached.value
     end
 
-    local startTime = br._G.debugprofilestop()
     local coef = 0
-	-- if distance == nil then distance = br.functions.range:getDistance("player",unit) end
 	local distance = br.functions.range:getDistance("player", unit)
 	-- check if unit is valid
 	if br.functions.unit:GetObjectExists(unit) then
@@ -714,7 +714,20 @@ local function getUnitCoeficient(unit)
 	return coef
 end
 
+-- compare() is used by table.sort in findBestUnit.
+-- Pre-computed proxies are stored in _compareData to avoid calling live APIs per-comparison.
+local _compareData = {}
 local function compare(a, b)
+	local da = _compareData[a]
+	local db = _compareData[b]
+	if da and db then
+		if da.hp == db.hp then
+			return da.dist < db.dist
+		else
+			return da.hp < db.hp
+		end
+	end
+	-- Fallback (should not normally be reached)
 	if br._G.UnitHealth(a) == br._G.UnitHealth(b) then
 		return br.functions.range:getDistance(a) < br.functions.range:getDistance(b)
 	else
@@ -722,253 +735,8 @@ local function compare(a, b)
 	end
 end
 
--- local bestUnitCache = {}
--- -- Shorten best unit cache to improve target re-evaluation frequency
--- local BEST_UNIT_CACHE_TIME = 0.12
--- -- Finds the "best" unit for a given range and optional facing
--- local function findBestUnit(range, facing)
--- 	local tsort = table.sort
--- 	local startTime = br._G.debugprofilestop()
--- 	local bestUnitCoef
--- 	local bestUnit = nil
--- 	local now = br._G.GetTime()
---     local cacheKey = range .. "_" .. tostring(facing)
---     local cached = bestUnitCache[cacheKey]
-
--- 	-- Validate cached unit still exists before returning
---     if cached and (now - cached.time) < BEST_UNIT_CACHE_TIME then
--- 		if cached.unit and br.functions.unit:GetObjectExists(cached.unit)
--- 			and not br.functions.unit:GetUnitIsDeadOrGhost(cached.unit) then
--- 			-- Don't use cached dummies - they shouldn't be auto-selected
--- 			if br.functions.unit:isDummy(cached.unit) then
--- 				bestUnitCache[cacheKey] = nil
--- 				-- Don't return, fall through to recalculate
--- 			else
--- 				-- Additional validation for cached unit
--- 				local stillValid = true
--- 				if br.functions.misc:getOptionCheck("Safe Damage Check") and not enemiesEngineFunctions:isSafeToAttack(cached.unit) then
--- 					stillValid = false
--- 				end
--- 				if stillValid then
--- 					return cached.unit
--- 				end
--- 			end
--- 		end
--- 		-- Cached unit invalid, clear cache entry
--- 		bestUnitCache[cacheKey] = nil
---     end
-
--- 	local enemyList = enemiesEngineFunctions:getEnemies("player", range, false, facing)
-
--- 	-- Early exit if no enemies
--- 	if #enemyList == 0 then
--- 		bestUnitCache[cacheKey] = { unit = nil, time = now }
--- 		br.debug.cpu:updateDebug(startTime, "enemiesEngine.findBestUnit")
--- 		return nil
--- 	end
-
--- 	-- Cache option checks to avoid repeated function calls (moved before single-target optimization)
--- 	local dontBreakCC = br.functions.misc:getOptionCheck("Don't break CCs")
--- 	local safeDamageCheck = br.functions.misc:getOptionCheck("Safe Damage Check")
--- 	local wiseTargetEnabled = br.functions.misc:getOptionCheck("Wise Target")
--- 	local wiseTargetMode = wiseTargetEnabled and br.functions.misc:getOptionValue("Wise Target") == 4
--- 	local avoidShields = br.functions.misc:getOptionCheck("Avoid Shields")
-
--- 	-- Single target optimization - skip coefficient calculation
--- 	if #enemyList == 1 then
--- 		local onlyUnit = enemyList[1]
--- 		-- Still need to validate single enemy isn't a dummy/unsafe
--- 		-- Dummies should not be auto-selected by dynamic targeting
--- 		if br.functions.unit:isDummy(onlyUnit) then
--- 			bestUnitCache[cacheKey] = { unit = nil, time = now }
--- 			br.debug.cpu:updateDebug(startTime, "enemiesEngine.findBestUnit")
--- 			return nil
--- 		end
--- 		if safeDamageCheck and not enemiesEngineFunctions:isSafeToAttack(onlyUnit) then
--- 			bestUnitCache[cacheKey] = { unit = nil, time = now }
--- 			br.debug.cpu:updateDebug(startTime, "enemiesEngine.findBestUnit")
--- 			return nil
--- 		end
--- 		bestUnitCache[cacheKey] = { unit = onlyUnit, time = now }
--- 		br.debug.cpu:updateDebug(startTime, "enemiesEngine.findBestUnit")
--- 		return onlyUnit
--- 	end
-
--- 	-- Limit processing to prevent long loops
---     local maxProcess = math.min(#enemyList, 20)
---     if #enemyList > maxProcess then
---         -- Only process subset for performance
---         local subset = {}
---         for i = 1, maxProcess do
---             subset[i] = enemyList[i]
---         end
---         enemyList = subset
---     end
-
--- 	-- Single sort operation (remove duplicate sort)
--- 	tsort(enemyList, compare)
-
--- 	local currHP
--- 	for i = 1, #enemyList do
--- 		local thisUnit = enemyList[i]
--- 		local unitID = br.functions.unit:GetObjectExists(thisUnit) and br.functions.unit:GetObjectID(thisUnit) or 0
-
--- 		-- Special case for specific boss mechanics
--- 		if ((unitID == 135360 or unitID == 135358 or unitID == 135359) and br.functions.aura:UnitBuffID(thisUnit, 260805))
--- 			or (unitID ~= 135360 and unitID ~= 135358 and unitID ~= 135359) then
-
--- 			-- Skip dummies from dynamic targeting - they should not be auto-selected
--- 			if br.functions.unit:isDummy(thisUnit) then
--- 				-- Skip this unit
--- 			else
--- 				-- Expensive checks - only if option enabled
--- 				local isCC = dontBreakCC and #enemyList > 1 and br.functions.misc:isLongTimeCCed(thisUnit) or false
--- 				local isSafe = (safeDamageCheck and enemiesEngineFunctions:isSafeToAttack(thisUnit)) or not safeDamageCheck or false
-
--- 				if not isCC and isSafe then
--- 					local coeficient = getUnitCoeficient(thisUnit) or 0
-
--- 					-- Wise target absolute lowest HP mode
--- 					if wiseTargetMode then
--- 						if currHP == nil or br._G.UnitHealth(thisUnit) < currHP then
--- 							currHP = br._G.UnitHealth(thisUnit)
--- 							coeficient = coeficient + 100
--- 						end
--- 					end
-
--- 					if coeficient >= 0 and (bestUnitCoef == nil or coeficient > bestUnitCoef) then
--- 						bestUnitCoef = coeficient
--- 						bestUnit = thisUnit
--- 					end
--- 				end
--- 			end -- Close the else block for dummy/shield check
--- 		end
--- 	end
-
--- 	bestUnitCache[cacheKey] = { unit = bestUnit, time = now }
--- 	-- Debugging
--- 	br.debug.cpu:updateDebug(startTime, "enemiesEngine.findBestUnit")
--- 	return bestUnit
--- end
-
--- -- Sets Target by attempting to find the best unit else defaults to target
--- function enemiesEngineFunctions:dynamicTarget(range, facing)
--- 	if range == nil or range > 100 then return nil end
--- 	local startTime = br._G.debugprofilestop()
--- 	facing = facing or false
--- 	local bestUnit = nil
--- 	local tarDist = br.functions.unit:GetObjectExists("target") and br.functions.range:getDistance("target") or 99
--- 	local bestDist
--- 	local inCombat = br._G.UnitAffectingCombat("player")
--- 	local autoTargetDynamic = br.functions.misc:isChecked("Target Dynamic Target")
-
--- 	-- Determine if the current target is valid for our purposes.
--- 	local targetExists = br.functions.unit:GetUnitExists("target")
--- 	local targetFacingOK = (not facing) or br.functions.unit:getFacing("player", "target")
--- 	local targetInRange = targetExists and tarDist < range
--- 	local targetValid = targetExists
--- 		and not br.functions.unit:GetUnitIsDeadOrGhost("target")
--- 		and targetInRange
--- 		and targetFacingOK
--- 		and br.functions.misc:isValidUnit("target")
--- 	local notSafe = br.functions.misc:getOptionCheck("Safe Damage Check") and not enemiesEngineFunctions:isSafeToAttack("target") or false
--- 	if targetValid and notSafe then
--- 		targetValid = false
--- 	end
-
--- 	-- Stick to a valid current target unless the user explicitly wants to follow the dynamic target.
--- 	if targetValid and not autoTargetDynamic then
--- 		bestUnit = "target"
--- 	else
-
--- 		if br.functions.misc:isChecked("Dynamic Targetting") then
--- 			-- Wise Target Frequency: "Only on Target Death" mode (option value 2)
--- 			if br.functions.misc:getOptionValue("Wise Target Frequency") == 2 then
--- 				-- Stick with current target if it exists, is valid, alive, and in range
--- 				if br.functions.unit:GetObjectExists("target")
--- 					and not br.functions.unit:GetUnitIsDeadOrGhost("target")
--- 					and tarDist < range
--- 					and (not facing or br.functions.unit:getFacing("player", "target"))
--- 					and br.functions.misc:isValidUnit("target")
--- 				then
--- 					bestUnit = "target"
--- 				else
--- 					-- Only recalculate when target is dead/invalid
--- 					bestUnit = findBestUnit(range, facing)
--- 				end
--- 			-- Default mode: recalculate based on combat/setting
--- 			elseif br.functions.misc:getOptionValue("Dynamic Targetting") == 2
--- 				or (br._G.UnitAffectingCombat("player") and br.functions.misc:getOptionValue("Dynamic Targetting") == 1)
--- 				and (bestUnit == nil or (br.functions.unit:GetUnitIsUnit(bestUnit, "target") and tarDist >= range))
--- 			then
--- 				bestUnit = findBestUnit(range, facing)
--- 			end
--- 		end
-
--- 		if (not br.functions.misc:isChecked("Dynamic Targetting") or bestUnit == nil)
--- 			and (tarDist < range or br.functions.unit:GetUnitExists("target"))
--- 			and (not facing or (facing and br.functions.unit:getFacing("player", "target"))) and br.functions.misc:isValidUnit("target")
--- 		then
--- 			bestUnit = "target"
--- 		end
-
--- 		-- If we still don't have a unit and we're in combat and need one (invalid target OR forcing dynamic), find one.
--- 		if bestUnit == nil and inCombat and (autoTargetDynamic or not targetValid) then
--- 			bestUnit = findBestUnit(range, facing)
--- 		end
--- 	end
-
--- 	-- If we have a candidate bestUnit, validate it is actually within range.
--- 	if bestUnit ~= nil and bestUnit ~= "target" then
--- 		bestDist = br.functions.range:getDistance(bestUnit)
--- 		if bestDist == nil or bestDist >= range then
--- 			bestUnit = nil
--- 		elseif not br.functions.misc:isValidUnit(bestUnit) then
--- 			bestUnit = nil
--- 		end
--- 	end
-
--- 	-- Optional: keep the WoW target in sync with the dynamic target.
--- 	-- Targeting rules:
--- 	-- 1) If "Target Dynamic Target" is enabled: always target bestUnit (when one exists).
--- 	-- 2) If disabled: only target bestUnit when our current target is no longer valid.
--- 	if inCombat then
--- 		-- Decide whether we should retarget.
--- 		local wantRetarget = autoTargetDynamic or (not br.functions.misc:isValidUnit(bestUnit)) or notSafe
-
--- 		-- Only do anything if we have a valid dynamic target candidate and it's not already our target.
--- 		if wantRetarget
--- 			and bestUnit ~= nil
--- 			and br.functions.unit:GetObjectExists(bestUnit)
--- 			and not br.functions.unit:GetUnitIsUnit(bestUnit, "target")
--- 		then
--- 			local shouldTarget = true
--- 			-- -- Hard gate: don't auto-target units that aren't currently valid/engaged.
--- 			-- if shouldTarget and not br.functions.misc:isValidUnit(bestUnit) then
--- 			-- 	shouldTarget = false
--- 			-- end
--- 			-- Never auto-target dummies.
--- 			if br.functions.unit:isDummy(bestUnit) then
--- 				shouldTarget = false
--- 			end
--- 			-- -- Respect Safe Damage Check for the chosen unit.
--- 			-- if shouldTarget and br.functions.misc:getOptionCheck("Safe Damage Check") and not enemiesEngineFunctions:isSafeToAttack(bestUnit) then
--- 			-- 	shouldTarget = false
--- 			-- end
--- 			-- Optional: don't auto-target explosives unless facing is not required (keeps previous intent).
--- 			if shouldTarget and (not facing) and br.functions.unit:isExplosive(bestUnit) then
--- 				shouldTarget = false
--- 			end
--- 			if shouldTarget then
--- 				print("Dynamic Targeting: Switching target to " .. (br.functions.unit:GetUnitName(bestUnit) or "unknown"))
--- 				br._G.TargetUnit(bestUnit)
--- 			end
--- 		end
--- 	end
--- 	-- Debugging
--- 	br.debug.cpu:updateDebug(startTime, "enemiesEngine.dynamicTarget")
--- 	return bestUnit
--- end
+local bestUnitCache = {}
+local BEST_UNIT_CACHE_TIME = 0.12
 
 -- Finds the "best" unit for a given range and optional facing
 local function findBestUnit(range, facing)
@@ -976,46 +744,116 @@ local function findBestUnit(range, facing)
 	local startTime = br._G.debugprofilestop()
 	local bestUnitCoef
 	local bestUnit = nil
+	local now = br._G.GetTime()
+	local cacheKey = range .. "_" .. tostring(facing)
+	local cached = bestUnitCache[cacheKey]
+
+	-- Validate cached unit still exists before returning
+	if cached and (now - cached.time) < BEST_UNIT_CACHE_TIME then
+		if cached.unit and br.functions.unit:GetObjectExists(cached.unit)
+			and not br.functions.unit:GetUnitIsDeadOrGhost(cached.unit) then
+			-- Don't use cached dummies - they shouldn't be auto-selected
+			if br.functions.unit:isDummy(cached.unit) then
+				bestUnitCache[cacheKey] = nil
+			else
+				local stillValid = true
+				if br.functions.misc:getOptionCheck("Safe Damage Check") and not enemiesEngineFunctions:isSafeToAttack(cached.unit) then
+					stillValid = false
+				end
+				if stillValid then
+					return cached.unit
+				end
+			end
+		end
+		bestUnitCache[cacheKey] = nil
+	end
+
 	local enemyList = enemiesEngineFunctions:getEnemies("player", range, false, facing)
-	if bestUnit ~= nil and br.engines.enemiesEngine.enemy[bestUnit] == nil then bestUnit = nil end
-	if bestUnit == nil
-	--		or GetTime() > lastCheckTime
-	then
-		-- for k, v in pairs(enemyList) do
-		if #enemyList > 0 then
-			local currHP
-			tsort(enemyList, compare)
-			for i = 1, #enemyList do
-				local thisUnit = enemyList[i]
-				local unitID = br.functions.unit:GetObjectExists(thisUnit) and br.functions.unit:GetObjectID(thisUnit) or 0
-				if ((unitID == 135360 or unitID == 135358 or unitID == 135359)
-					and br.functions.aura:UnitBuffID(thisUnit, 260805)) or (unitID ~= 135360 and unitID ~= 135358 and unitID ~= 135359)
-				then
-					local isCC = br.functions.misc:getOptionCheck("Don't break CCs") and #enemyList > 1 and br.functions.misc:isLongTimeCCed(thisUnit) or false
-					local isSafe = (br.functions.misc:getOptionCheck("Safe Damage Check") and enemiesEngineFunctions:isSafeToAttack(thisUnit)) or
-						not br.functions.misc:getOptionCheck("Safe Damage Check") or false
-					-- local thisUnit = v.unit
-					-- local distance = br.getDistance(thisUnit)
-					-- if distance < range then
-					if not isCC and isSafe then
-						local coeficient = getUnitCoeficient(thisUnit) or 0
-						if br.functions.misc:getOptionCheck("Wise Target") == true and br.functions.misc:getOptionValue("Wise Target") == 4 then -- abs Lowest
-							if currHP == nil or br.functions.unit:UnitHealth(thisUnit) < currHP then
-								currHP = br.functions.unit:UnitHealth(thisUnit)
-								coeficient = coeficient + 100
-							end
-						end
-						if coeficient >= 0 and (bestUnitCoef == nil or coeficient > bestUnitCoef) then
-							bestUnitCoef = coeficient
-							bestUnit = thisUnit
+
+	if #enemyList == 0 then
+		bestUnitCache[cacheKey] = { unit = nil, time = now }
+		br.debug.cpu:updateDebug(startTime, "enemiesEngine.findBestUnit")
+		return nil
+	end
+
+	-- Cache option checks to avoid repeated calls inside the loop
+	local dontBreakCC = br.functions.misc:getOptionCheck("Don't break CCs")
+	local safeDamageCheck = br.functions.misc:getOptionCheck("Safe Damage Check")
+	local wiseTargetEnabled = br.functions.misc:getOptionCheck("Wise Target")
+	local wiseTargetMode = wiseTargetEnabled and br.functions.misc:getOptionValue("Wise Target") == 4
+
+	-- Single target optimization: skip coefficient calculation when only one enemy
+	if #enemyList == 1 then
+		local onlyUnit = enemyList[1]
+		if br.functions.unit:isDummy(onlyUnit) then
+			bestUnitCache[cacheKey] = { unit = nil, time = now }
+			br.debug.cpu:updateDebug(startTime, "enemiesEngine.findBestUnit")
+			return nil
+		end
+		if safeDamageCheck and not enemiesEngineFunctions:isSafeToAttack(onlyUnit) then
+			bestUnitCache[cacheKey] = { unit = nil, time = now }
+			br.debug.cpu:updateDebug(startTime, "enemiesEngine.findBestUnit")
+			return nil
+		end
+		bestUnitCache[cacheKey] = { unit = onlyUnit, time = now }
+		br.debug.cpu:updateDebug(startTime, "enemiesEngine.findBestUnit")
+		return onlyUnit
+	end
+
+	-- Pre-compute health + distance for each unit so compare() does no API calls
+	for _, u in ipairs(enemyList) do
+		_compareData[u] = { hp = br._G.UnitHealth(u), dist = br.functions.range:getDistance(u) or 999 }
+	end
+
+	-- Limit processing to prevent long loops in very large pulls
+	local maxProcess = math.min(#enemyList, 20)
+	if #enemyList > maxProcess then
+		local subset = {}
+		for i = 1, maxProcess do
+			subset[i] = enemyList[i]
+		end
+		enemyList = subset
+	end
+
+	tsort(enemyList, compare)
+
+	local currHP
+	for i = 1, #enemyList do
+		local thisUnit = enemyList[i]
+		local unitID = br.functions.unit:GetObjectExists(thisUnit) and br.functions.unit:GetObjectID(thisUnit) or 0
+
+		if ((unitID == 135360 or unitID == 135358 or unitID == 135359) and br.functions.aura:UnitBuffID(thisUnit, 260805))
+			or (unitID ~= 135360 and unitID ~= 135358 and unitID ~= 135359)
+		then
+			if not br.functions.unit:isDummy(thisUnit) then
+				local isCC = dontBreakCC and #enemyList > 1 and br.functions.misc:isLongTimeCCed(thisUnit) or false
+				local isSafe = (safeDamageCheck and enemiesEngineFunctions:isSafeToAttack(thisUnit)) or not safeDamageCheck or false
+
+				if not isCC and isSafe then
+					local coeficient = getUnitCoeficient(thisUnit) or 0
+
+					if wiseTargetMode then
+						if currHP == nil or br._G.UnitHealth(thisUnit) < currHP then
+							currHP = br._G.UnitHealth(thisUnit)
+							coeficient = coeficient + 100
 						end
 					end
+
+					if coeficient >= 0 and (bestUnitCoef == nil or coeficient > bestUnitCoef) then
+						bestUnitCoef = coeficient
+						bestUnit = thisUnit
+					end
 				end
-				--			lastCheckTime = GetTime() + 1
 			end
 		end
 	end
-	-- Debugging
+
+	-- Clean up pre-compute proxy table
+	for _, u in ipairs(enemyList) do
+		_compareData[u] = nil
+	end
+
+	bestUnitCache[cacheKey] = { unit = bestUnit, time = now }
 	br.debug.cpu:updateDebug(startTime, "enemiesEngine.findBestUnit")
 	return bestUnit
 end
@@ -1028,27 +866,94 @@ function enemiesEngineFunctions:dynamicTarget(range, facing)
 	local bestUnit = nil
 	local tarDist = br.functions.unit:GetObjectExists("target") and br.functions.range:getDistance("target") or 99
 	local bestDist
-	if br.functions.misc:isChecked("Dynamic Targetting") then
-		if br.functions.misc:getOptionValue("Dynamic Targetting") == 2 or (br.functions.combat:UnitAffectingCombat("player") and br.functions.misc:getOptionValue("Dynamic Targetting") == 1)
-			and (bestUnit == nil or (br.functions.unit:GetUnitIsUnit(bestUnit, "target") and tarDist >= range))
+	local inCombat = br._G.UnitAffectingCombat("player")
+	local autoTargetDynamic = br.functions.misc:isChecked("Target Dynamic Target")
+
+	-- Determine if the current target is valid for our purposes.
+	local targetExists = br.functions.unit:GetUnitExists("target")
+	local targetFacingOK = (not facing) or br.functions.unit:getFacing("player", "target")
+	local targetInRange = targetExists and tarDist < range
+	local targetValid = targetExists
+		and not br.functions.unit:GetUnitIsDeadOrGhost("target")
+		and targetInRange
+		and targetFacingOK
+		and br.functions.misc:isValidUnit("target")
+	local notSafe = br.functions.misc:getOptionCheck("Safe Damage Check") and not enemiesEngineFunctions:isSafeToAttack("target") or false
+	if targetValid and notSafe then
+		targetValid = false
+	end
+
+	-- Stick to a valid current target unless the user explicitly wants to follow the dynamic target.
+	if targetValid and not autoTargetDynamic then
+		bestUnit = "target"
+	else
+		if br.functions.misc:isChecked("Dynamic Targetting") then
+			-- Wise Target Frequency: "Only on Target Death" mode (option value 2)
+			if br.functions.misc:getOptionValue("Wise Target Frequency") == 2 then
+				-- Stick with current target if it exists, is valid, alive, and in range
+				if br.functions.unit:GetObjectExists("target")
+					and not br.functions.unit:GetUnitIsDeadOrGhost("target")
+					and tarDist < range
+					and (not facing or br.functions.unit:getFacing("player", "target"))
+					and br.functions.misc:isValidUnit("target")
+				then
+					bestUnit = "target"
+				else
+					-- Only recalculate when target is dead/invalid
+					bestUnit = findBestUnit(range, facing)
+				end
+			-- Default mode: recalculate based on combat/setting
+			elseif br.functions.misc:getOptionValue("Dynamic Targetting") == 2
+				or (inCombat and br.functions.misc:getOptionValue("Dynamic Targetting") == 1)
+				and (bestUnit == nil or (br.functions.unit:GetUnitIsUnit(bestUnit, "target") and tarDist >= range))
+			then
+				bestUnit = findBestUnit(range, facing)
+			end
+		end
+
+		if (not br.functions.misc:isChecked("Dynamic Targetting") or bestUnit == nil)
+			and (tarDist < range or br.functions.unit:GetUnitExists("target"))
+			and (not facing or (facing and br.functions.unit:getFacing("player", "target")))
+			and br.functions.misc:isValidUnit("target")
 		then
+			bestUnit = "target"
+		end
+
+		-- If we still don't have a unit and we're in combat and need one (invalid target OR forcing dynamic), find one.
+		if bestUnit == nil and inCombat and (autoTargetDynamic or not targetValid) then
 			bestUnit = findBestUnit(range, facing)
 		end
 	end
-	if (not br.functions.misc:isChecked("Dynamic Targetting") or bestUnit == nil) --and tarDist < range
-		and (not facing or (facing and br.functions.unit:getFacing("player", "target"))) and br.functions.misc:isValidUnit("target")
-	then
-		bestUnit = "target"
+
+	-- If we have a candidate bestUnit, validate it is actually within range.
+	if bestUnit ~= nil and bestUnit ~= "target" then
+		bestDist = br.functions.range:getDistance(bestUnit)
+		if bestDist == nil or bestDist >= range then
+			bestUnit = nil
+		elseif not br.functions.misc:isValidUnit(bestUnit) then
+			bestUnit = nil
+		end
 	end
-	bestDist = br.functions.range:getDistance(bestUnit) or 99
-	if bestDist < range and not br.functions.unit:GetUnitIsUnit(bestUnit, "target") then
-		if ((br.functions.unit:GetUnitIsDeadOrGhost("target") and not br.functions.unit:GetUnitIsFriend("target", "player")) or (not br.functions.unit:GetObjectExists("target") and br.functions.combat:hasThreat(bestUnit))
-				or ((br.functions.misc:isChecked("Target Dynamic Target") and br.functions.unit:GetObjectExists("target"))))
-			or (br.functions.misc:getOptionCheck("Forced Burn") and enemiesEngineFunctions:isBurnTarget(bestUnit) > 0 and br.functions.unit:GetObjectExists(bestUnit)
-				and ((not facing and not br.functions.unit:isExplosive(bestUnit)) or (facing and br.functions.unit:getFacing("player", bestUnit))))
-			or (br.functions.misc:getOptionCheck("Safe Damage Check") and not enemiesEngineFunctions:isSafeToAttack("target"))
+
+	-- Optional: keep the WoW target in sync with the dynamic target.
+	if inCombat then
+		local wantRetarget = autoTargetDynamic or (not br.functions.misc:isValidUnit(bestUnit)) or notSafe
+
+		if wantRetarget
+			and bestUnit ~= nil
+			and br.functions.unit:GetObjectExists(bestUnit)
+			and not br.functions.unit:GetUnitIsUnit(bestUnit, "target")
 		then
-			if bestUnit ~= nil then
+			local shouldTarget = true
+			-- Never auto-target dummies.
+			if br.functions.unit:isDummy(bestUnit) then
+				shouldTarget = false
+			end
+			-- Don't auto-target explosives unless facing is not required.
+			if shouldTarget and (not facing) and br.functions.unit:isExplosive(bestUnit) then
+				shouldTarget = false
+			end
+			if shouldTarget then
 				br._G.TargetUnit(bestUnit)
 			end
 		end

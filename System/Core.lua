@@ -102,6 +102,10 @@ local function updateRotationOnSpecChange()
     br.rotationChanged = true
     br._G.wipe(br.slashCommands.commandHelp)
     br.slashCommands:slashHelpList()
+    -- Invalidate cached melee spell so getDistanceCalc picks up the new spec.
+    if br.functions and br.functions.range and br.functions.range.invalidateMeleeSpellCache then
+        br.functions.range:invalidateMeleeSpellCache()
+    end
 end
 
 -- collectGarbage should only be set when rotation explicitly changes

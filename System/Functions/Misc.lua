@@ -1,6 +1,8 @@
 local _, br = ...
 br.functions.misc = {}
 local misc = br.functions.misc
+local isValidUnitCache = {}
+local lastIsValidUnitCleanup = 0
 -- getLatency()
 function misc:getLatency()
 	-- local lag = ((select(3,GetNetStats()) + select(4,GetNetStats())) / 1000)
@@ -589,24 +591,21 @@ function misc:enemyListCheck(Unit)
 	local unitReaction = br._G.UnitReaction(Unit, "player") or 5
 	local isHostileQuestNPC = createdByPlayer and unitReaction < 4 -- Hostile/Unfriendly reaction
 
-	-- Debug output to identify which check is failing
-	local checks = {
-		exists = br.functions.unit:GetObjectExists(Unit),
-		notDead = not br.functions.unit:GetUnitIsDeadOrGhost(Unit),
-		canAttack = br._G.UnitCanAttack("player", Unit),
-		hasHealth = br._G.UnitHealth(Unit) > 0,
-		inRange = distance < 50,
-		notCritter = not br.functions.unit:isCritter(Unit),
-		mcCheck = mcCheck,
-		notPet = not br.functions.unit:GetUnitIsUnit(Unit, "pet"),
-		creatorCheck = (not createdByPlayer or isHostileQuestNPC),
-		notWaterEle = br.functions.unit:GetObjectID(Unit) ~= 11492,
-	}
+	-- Perform all cheap checks as individual locals (no table allocation in this hot path)
+	local checkExists   = br.functions.unit:GetObjectExists(Unit)
+	local checkNotDead  = not br.functions.unit:GetUnitIsDeadOrGhost(Unit)
+	local checkCanAttack = br._G.UnitCanAttack("player", Unit)
+	local checkHasHealth = br._G.UnitHealth(Unit) > 0
+	local checkInRange   = distance < 50
+	local checkNotCritter = not br.functions.unit:isCritter(Unit)
+	local checkNotPet    = not br.functions.unit:GetUnitIsUnit(Unit, "pet")
+	local checkCreator   = (not createdByPlayer or isHostileQuestNPC)
+	local checkNotWaterEle = br.functions.unit:GetObjectID(Unit) ~= 11492
 
 	-- Expensive LoS check only done if other checks pass (early exit optimization)
-	local basicChecks = checks.exists and checks.notDead and checks.canAttack and checks.hasHealth
-		and checks.inRange and checks.notCritter and checks.mcCheck and checks.notPet
-		and checks.creatorCheck and checks.notWaterEle
+	local basicChecks = checkExists and checkNotDead and checkCanAttack and checkHasHealth
+		and checkInRange and checkNotCritter and mcCheck and checkNotPet
+		and checkCreator and checkNotWaterEle
 
 	if not basicChecks then
 		return false -- Early exit before expensive LoS check
@@ -641,19 +640,6 @@ function misc:enemyListCheck(Unit)
 		and ((Unit ~= 131824 and Unit ~= 131823 and Unit ~= 131825) or ((br.functions.aura:UnitBuffID(Unit, 260805)
 			or br.functions.unit:GetUnitIsUnit(Unit, "target")) and (Unit == 131824 or Unit == 131823 or Unit == 131825)))
 
-	-- if not allPass and br.functions.misc:isChecked("Enemy List Debug") then
-	-- 	local unitName = br._G.UnitName(Unit) or "Unknown"
-	-- 	br._G.print("[EnemyListCheck] FAILED for " .. unitName .. " (Dist: " .. string.format("%.1f", distance) .. ")")
-	-- 	for k, v in pairs(checks) do
-	-- 		if not v then
-	-- 			br._G.print("  - " .. k .. ": FAILED")
-	-- 		end
-	-- 	end
-	-- 	if not checks.los and not br._G.UnitAffectingCombat(Unit) then
-	-- 		br._G.print("  - NO LoS AND not in combat")
-	-- 	end
-	-- end
-
 	return allPass
 end
 
@@ -661,6 +647,9 @@ function misc:isValidUnit(Unit)
 	if Unit == nil then
 		return false
 	end
+
+	local now = br._G.GetTime()
+	local guid = br._G.UnitGUID(Unit)
 
 	-- PRIORITY: Units in damaged table bypass most validation checks
 	-- These are units actively in combat with our group (attacking or being attacked)
@@ -673,6 +662,21 @@ function misc:isValidUnit(Unit)
 		-- Direct pointer lookup - ObjectPointer() should match GetObjectWithGUID() for same unit
 		if unitPointer and br.engines.enemiesEngine.damaged[unitPointer] ~= nil then
 			return true
+		end
+	end
+
+	-- Short-circuit cache for the expensive validation path (TTL: 0.05s combat, 0.10s out-of-combat)
+	if guid then
+		if now - lastIsValidUnitCleanup > 1.0 then
+			for k, v in pairs(isValidUnitCache) do
+				if now - v.time > 0.5 then isValidUnitCache[k] = nil end
+			end
+			lastIsValidUnitCleanup = now
+		end
+		local cached = isValidUnitCache[guid]
+		if cached then
+			local ttl = br._G.UnitAffectingCombat("player") and 0.05 or 0.10
+			if now - cached.time < ttl then return cached.value end
 		end
 	end
 
@@ -708,6 +712,7 @@ function misc:isValidUnit(Unit)
 
 	-- Early exit for PvP debuffs (special case)
 	if playerTarget and (br.functions.aura:UnitDebuffID("player", 320102) or br.functions.aura:UnitDebuffID(Unit, 424495)) and br._G.UnitIsPlayer(Unit) then
+		if guid then isValidUnitCache[guid] = { value = true, time = now } end
 		return true
 	end
 
@@ -724,6 +729,7 @@ function misc:isValidUnit(Unit)
 
 	-- Fast path for special units (dummy/burn) - skip most checks
 	if passedEnemyCheck and mcCheck and not isCC and (dummyEligible or burnUnit) then
+		if guid then isValidUnitCache[guid] = { value = true, time = now } end
 		return true
 	end
 
@@ -734,9 +740,12 @@ function misc:isValidUnit(Unit)
 	then
 		-- Valid if any threat condition is met:
 		-- Player target, unit targeting us, burn target, proving grounds, or has group threat
-		return playerTarget or targeting or burnUnit or br.functions.misc:isInProvingGround() or hasThreat
+		local result = playerTarget or targeting or burnUnit or br.functions.misc:isInProvingGround() or hasThreat
+		if guid then isValidUnitCache[guid] = { value = result, time = now } end
+		return result
 	end
 
+	if guid then isValidUnitCache[guid] = { value = false, time = now } end
 	return false
 end
 
