@@ -55,6 +55,16 @@ br.lists.spells.SHAMAN.Shared = {
                 windwallTotem           = {15107,15111,15112,25577},
                 wrathOfAirTotem         = 3738,
             },
+            imbues        = {
+                windfuryWeapon    = {283, 284, 525, 1669, 2636,                   -- r1-r5 enchant IDs (lvl 30-68)
+                                     spells = {8232, 8235, 10486, 16362, 25505}}, -- r1-r5 spell IDs
+                flametongueWeapon = {5, 4, 3, 523, 1665, 1666, 2634,              -- r1-r7 enchant IDs (lvl 10-64)
+                                     spells = {8024, 8027, 8030, 16339, 16341, 16342, 25489}},
+                frostbrandWeapon  = {2, 12, 524, 1667, 1668, 2635,                -- r1-r6 enchant IDs (lvl 20-66)
+                                     spells = {8033, 8038, 10456, 16355, 16356, 25500}},
+                rockbiterWeapon   = {29, 6, 1, 503, 1663, 683, 1664, 2632, 2633,  -- r1-r9 enchant IDs (lvl 1-70)
+                                     spells = {8017, 8018, 8019, 10399, 16314, 16315, 16316, 25479, 25485}},
+            },
             buffs         = {
                 -- ancestralSwiftness  = 16188,
                 -- astralShift         = 108271,

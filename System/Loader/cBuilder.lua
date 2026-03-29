@@ -185,6 +185,13 @@ function cBuilder:new(spec, specName)
                     if spellType == 'items' then
                         self.items = self.items or {}
                         self.items[spellRef] = spellID
+                    elseif spellType == 'imbues' then
+                        -- Imbue values are enchant IDs, not spell IDs — skip GetSpellInfo validation
+                        local existingSource = self.spellSource[spellType][spellRef]
+                        if existingSource ~= "spec" or origin == "spec" then
+                            self.spells[spellType][spellRef] = spellID
+                            self.spellSource[spellType][spellRef] = origin or "shared"
+                        end
                     else
                         -- Check if br.api.wow.GetSpellInfo returns a valid spell name
                         local name, _, _, _, _, _, gsiSpellID = br.api.wow.GetSpellInfo(spellID)
@@ -251,6 +258,9 @@ function cBuilder:new(spec, specName)
         getSpells(sharedClassSpells, "sharedClass")
         -- Spec Spells - Don't Load on Initial Levels
         if br.lists.spells[playerClass][spec] ~= nil then getSpells(specSpells, "spec") end
+
+        -- Expose imbues directly on br.player for clean profile access (br.player.imbues)
+        self.imbues = self.spells.imbues or {}
 
         -- Ending the Race War!
         if self.spells.abilities["racial"] == nil then

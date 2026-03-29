@@ -60,9 +60,9 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Buffs")
         -- Shield's Up
         br.ui:createDropdownWithout(section, "Shield's Up", {"Lightning Shield", "Water Shield", "None"}, 1)
-        -- Weapon's Online
-        br.ui:createDropdownWithout(section, "MH Weapon's Online", {"Rockbiter Weapon", "Flametongue Weapon", "Frostbrand Weapon", "None"}, 1)
-        br.ui:createDropdownWithout(section, "OH Weapon's Online", {"Rockbiter Weapon", "Flametongue Weapon", "Frostbrand Weapon", "None"}, 2)
+        -- Weapon's Online (index matches imbueKeys table; option 5 = None / off)
+        br.ui:createDropdownWithout(section, "MH Weapon's Online", {"Rockbiter Weapon", "Flametongue Weapon", "Frostbrand Weapon", "Windfury Weapon", "None"}, 1)
+        br.ui:createDropdownWithout(section, "OH Weapon's Online", {"Rockbiter Weapon", "Flametongue Weapon", "Frostbrand Weapon", "Windfury Weapon", "None"}, 2)
         -- Water Shield Swap At
         br.ui:createSpinnerWithout(section, "Water Shield Swap At", 30, 0, 100, 5, "|cffFFFFFFMana Percent to Swap to Water Shield")
         br.ui:checkSectionState(section)
@@ -126,7 +126,10 @@ local unit
 local units
 local spell
 local totem
+local imbues
 local var = {}
+-- Ordered by dropdown index; index 5 (None) resolves to nil → skips imbue logic
+local imbueKeys = { "rockbiterWeapon", "flametongueWeapon", "frostbrandWeapon", "windfuryWeapon" }
 -- General Locals - Common Non-BR API Locals used in profiles
 local haltProfile
 local profileStop
@@ -152,16 +155,24 @@ actionList.Extra = function()
     then
         if cast.lightningShield() then ui.debug("Casting Lightning Shield [Extra]") return true end
     end
-    -- * Rockbiter Weapon
-    if ui.value("MH Weapon's Online") == 1 and cast.able.rockbiterWeapon()
-        and not (unit.weaponImbue.exists(29) or unit.weaponImbue.exists(6))
-    then
-        if cast.rockbiterWeapon("player") then ui.debug("Casting Rockbiter Weapon - Main [Extra]") return true end
-    end
-    if ui.value("OH Weapon's Online") == 1 and cast.able.rockbiterWeapon()
-        and not (unit.weaponImbue.exists(29,true) or unit.weaponImbue.exists(6,true))
-    then
-        if cast.rockbiterWeapon("player") then ui.debug("Casting Rockbiter Weapon - Off [Extra]") return true end
+    -- * Weapon Imbues
+    -- imbueKeys maps each dropdown position to the spell name used by cast/imbues.
+    -- ui.value() returns the selected dropdown index (1=Rockbiter, 2=Flametongue, etc.).
+    -- If the player chose "None" (index 5), imbueKeys[5] is nil and the whole block is skipped.
+    -- cast.able[key]() returns false for spells not yet learned, so unlearned weapons
+    -- (e.g. Windfury at low level) are silently skipped until the spell is known.
+    -- imbues[key] holds the enchant ID table used to detect the current weapon imbue.
+    do
+        -- Main Hand
+        local mhKey = imbueKeys[ui.value("MH Weapon's Online")]
+        if mhKey and cast.able[mhKey]() and not unit.weaponImbue.exists(imbues[mhKey]) then
+            if cast[mhKey]("player") then ui.debug("Casting " .. mhKey .. " - Main Hand [Extra]") return true end
+        end
+        -- Off Hand
+        local ohKey = imbueKeys[ui.value("OH Weapon's Online")]
+        if ohKey and cast.able[ohKey]() and not unit.weaponImbue.exists(imbues[ohKey], true) then
+            if cast[ohKey]("player") then ui.debug("Casting " .. ohKey .. " - Off Hand [Extra]") return true end
+        end
     end
     -- * Purge
     if ui.checked("Purge") and cast.able.purge() and cast.dispel.purge("target") and not unit.isBoss() and unit.exists("target") then
@@ -399,6 +410,7 @@ local function runRotation()
     units       = br.player.units
     spell       = br.player.spell
     totem       = br.player.totem
+    imbues      = br.player.imbues
     -- General Locals
     profileStop = profileStop or false
     haltProfile = (unit.inCombat() and profileStop) or ui.pause() or ui.mode.rotation == 4 or unit.id("target") == 156716

@@ -18,6 +18,9 @@ br.lists.spells.SHAMAN.Shared = {
                 waterWalking      = 546,
                 skyfury           = 462854,
             },
+            -- imbues: Retail weapon imbues (Windfury 33757, Flametongue 318038) use
+            -- Dummy/server-script effects with no GetWeaponEnchantInfo() enchant IDs.
+            -- unit.weaponImbue.exists() is not applicable in Retail.
             buffs         = {
                 astralShift        = 108271,
                 earthShield        = 974,

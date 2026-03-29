@@ -45,6 +45,16 @@ br.lists.spells.SHAMAN.Shared = {
                 waterWalking        = 546,
                 windShear           = 57994,
             },
+            imbues        = {
+                windfuryWeapon    = {283, 284, 525,                    -- r1-r3 enchant IDs (lvl 30-60)
+                                     spells = {8232, 8235, 10486}},   -- r1-r3 spell IDs
+                flametongueWeapon = {5, 4, 3, 523, 1665, 1666,        -- r1-r6 enchant IDs (lvl 10-60)
+                                     spells = {8024, 8027, 8030, 16339, 16341, 16342}},
+                frostbrandWeapon  = {2, 12, 524, 1667, 1668,          -- r1-r5 enchant IDs (lvl 20-60)
+                                     spells = {8033, 8038, 10456, 16355, 16356}},
+                rockbiterWeapon   = {29, 6, 1, 503, 1663,             -- r1-r5 enchant IDs (lvl 1-60)
+                                     spells = {8017, 8018, 8019, 10399, 16314}},
+            },
             buffs         = {
                 ancestralSwiftness  = 16188,
                 astralShift         = 108271,

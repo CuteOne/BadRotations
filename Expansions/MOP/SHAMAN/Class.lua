@@ -45,6 +45,12 @@ br.lists.spells.SHAMAN.Shared = {
                 waterWalking        = 546,
                 windShear           = 57994,
             },
+            imbues        = {
+                windfuryWeapon    = 283,   -- r1 (spell 8232)
+                flametongueWeapon = 5,     -- r1 (spell 8024)
+                earthlivingWeapon = 3345,  -- r1 (spell 51730)
+                -- Note: Frostbrand and Rockbiter removed in Cataclysm 4.0.1
+            },
             buffs         = {
                 ancestralSwiftness  = 16188,
                 astralShift         = 108271,

@@ -801,6 +801,22 @@ br.api.unit = function(self)
         local hasMain, _, _, mainId, hasOff, _, _, offId = GetWeaponEnchantInfo()
         if offHand == nil then offHand = false end
         if type(imbueId) == "table" then
+            -- If parallel spell rank data is embedded, check only the highest known rank
+            -- so that a freshly-learned higher rank triggers reapplication.
+            if imbueId.spells and br.functions.spell and br.functions.spell.getHighestKnownRank then
+                local highestSpellId = br.functions.spell:getHighestKnownRank(imbueId.spells)
+                local targetId = nil
+                for i = 1, #imbueId.spells do
+                    if imbueId.spells[i] == highestSpellId then
+                        targetId = imbueId[i]
+                        break
+                    end
+                end
+                if targetId == nil then return false end
+                if offHand then return hasOff and offId == targetId or false end
+                return hasMain and mainId == targetId or false
+            end
+            -- Fallback: no rank data — any matching enchant ID satisfies the check
             for i = 1, #imbueId do
                 if (offHand and hasOff) and offId == imbueId[i] then return true end
                 if (not offHand and hasMain) and mainId == imbueId[i] then return true end
