@@ -51,8 +51,25 @@ local function createOptions()
         --- TOTEM MANAGEMENT ---
         --------------------------
         section = br.ui:createSection(br.ui.window.profile, "Totem Management")
-            -- Earth Totems
+            -- Searing Totem (always-on fire slot)
+            br.ui:createCheckbox(section, "Searing Totem",
+                "|cffFFFFFFMaintain Searing Totem in the fire slot.")
+            -- AoE Fire Totem — overrides Searing when enemy count meets threshold
+            br.ui:createDropdownWithout(section, "AoE Fire Totem", {"Magma Totem", "Fire Nova Totem", "None"}, 1,
+                "|cffFFFFFFOverrides Searing Totem when enemies within 8 yards meets threshold.")
+            br.ui:createSpinnerWithout(section, "AoE Fire At", 3, 2, 10, 1,
+                "|cffFFFFFFEnemy count within 8 yards to trigger AoE fire override.")
+            -- Air Totem
+            br.ui:createDropdownWithout(section, "Air Totem", {"Windfury Totem", "Grace of Air Totem", "None"}, 1,
+                "|cffFFFFFFAir totem to maintain.")
+            -- Tremor Totem (reactive — drops on fear or charm)
+            br.ui:createCheckbox(section, "Tremor Totem",
+                "|cffFFFFFFReactively drop Tremor Totem when fear or charm is detected on the player.")
+            -- Earth Totem (always-on)
             br.ui:createDropdownWithout(section, "Earth Totem", {"Stoneskin Totem", "Strength of Earth Totem", "None"}, 1)
+            -- Mana Spring Totem (always-on water slot)
+            br.ui:createCheckbox(section, "Mana Spring Totem",
+                "|cffFFFFFFMaintain Mana Spring Totem in the water slot.")
         br.ui:checkSectionState(section)
         ---------------------
         --- BUFF OPTIONS ---
@@ -76,7 +93,7 @@ local function createOptions()
             br.ui:createSpinner(section, "Healing Wave", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
             -- Stoneclaw Totem
             br.ui:createSpinner(section, "Stoneclaw Totem Defensive", 45, 0, 100, 5,
-                "|cffFFFFFFHealth Percent to Cast At (requires Earth Totem = Stoneclaw Totem and no tank nearby)")
+                "|cffFFFFFFHealth Percent to Cast At (requires no tank nearby)")
             -- OOC Healing
             br.ui:createCheckbox(section, "OOC Healing",
                 "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFout of combat healing|cffFFBB00.")
@@ -127,9 +144,8 @@ local units
 local spell
 local totem
 local imbues
+local imbueKeys = { "rockbiterWeapon", "flametongueWeapon", "frostbrandWeapon", "windfuryWeapon" } -- index matches MH/OH dropdown (1-4); index 5 = None
 local var = {}
--- Ordered by dropdown index; index 5 (None) resolves to nil → skips imbue logic
-local imbueKeys = { "rockbiterWeapon", "flametongueWeapon", "frostbrandWeapon", "windfuryWeapon" }
 -- General Locals - Common Non-BR API Locals used in profiles
 local haltProfile
 local profileStop
@@ -155,25 +171,24 @@ actionList.Extra = function()
     then
         if cast.lightningShield() then ui.debug("Casting Lightning Shield [Extra]") return true end
     end
-    -- * Weapon Imbues
-    -- imbueKeys maps each dropdown position to the spell name used by cast/imbues.
-    -- ui.value() returns the selected dropdown index (1=Rockbiter, 2=Flametongue, etc.).
-    -- If the player chose "None" (index 5), imbueKeys[5] is nil and the whole block is skipped.
-    -- cast.able[key]() returns false for spells not yet learned, so unlearned weapons
-    -- (e.g. Windfury at low level) are silently skipped until the spell is known.
-    -- imbues[key] holds the enchant ID table used to detect the current weapon imbue.
-    do
-        -- Main Hand
-        local mhKey = imbueKeys[ui.value("MH Weapon's Online")]
-        if mhKey and cast.able[mhKey]() and not unit.weaponImbue.exists(imbues[mhKey]) then
-            if cast[mhKey]("player") then ui.debug("Casting " .. mhKey .. " - Main Hand [Extra]") return true end
-        end
-        -- Off Hand
-        local ohKey = imbueKeys[ui.value("OH Weapon's Online")]
-        if ohKey and cast.able[ohKey]() and not unit.weaponImbue.exists(imbues[ohKey], true) then
-            if cast[ohKey]("player") then ui.debug("Casting " .. ohKey .. " - Off Hand [Extra]") return true end
+    -- * Main Hand Weapon Imbue
+    local mhImbueSpell = imbueKeys[ui.value("MH Weapon's Online")]
+    if mhImbueSpell and unit.weaponImbue.needed(imbues[mhImbueSpell]) and cast.able[mhImbueSpell]() then
+        if cast[mhImbueSpell]("player") then
+            ui.debug("Casting " .. unit.weaponImbue.spellName(mhImbueSpell) .. " - Main Hand [Extra]")
+            return true
         end
     end
+    -- * Off Hand Weapon Imbue
+    local ohImbueSpell = imbueKeys[ui.value("OH Weapon's Online")]
+    if ohImbueSpell and unit.weaponImbue.needed(imbues[ohImbueSpell], true) and cast.able[ohImbueSpell]() then
+        if cast[ohImbueSpell]("player") then
+            ui.debug("Casting " .. unit.weaponImbue.spellName(ohImbueSpell) .. " - Off Hand [Extra]")
+            return true
+        end
+    end
+
+
     -- * Purge
     if ui.checked("Purge") and cast.able.purge() and cast.dispel.purge("target") and not unit.isBoss() and unit.exists("target") then
         if cast.purge() then ui.debug("Casting Purge [Extra]") return true end
@@ -239,49 +254,104 @@ end -- End Action List - Cooldowns
 
 -- Action List - Totem Management
 actionList.TotemManagement = function()
-    -- * Fire Totems
-    -- Searing Totem
-    if cast.able.searingTotem() and ui.useST(10,2)
-        and (unit.inCombat() or (unit.valid("target") and unit.distance("target") < 20))
-        and not totem.fire.searing.exists() and unit.standingTime() > 1
+    local standing      = unit.standingTime() > 1
+    -- totem.*.distance() always measures from the PLAYER to the totem (API limitation).
+    --   Buff totems (Air/Earth/Water): re-drop when totem.distance() > X — correct, since
+    --     the buff radiates from the totem and must stay near the player/group.
+    --   Attack totems (Searing/Magma): only re-drop on expiry. At 60s (Searing) and 20s
+    --     (Magma) duration the GCD and rotation interrupt from a movement re-drop is always
+    --     a net DPS loss; let the totem expire naturally then re-place.
+    local buffTrigger   = unit.inCombat() or unit.valid("target")
+    local attackTrigger = unit.inCombat() or (unit.valid("target") and unit.distance("target") < 30)
+
+    -- *** FIRE TOTEMS ***
+    -- Determine if the AoE fire override is active (enough enemies in 8-yard range)
+    local aoeFireActive = ui.value("AoE Fire Totem") ~= 3
+        and #enemies.yards8 >= ui.value("AoE Fire At")
+    -- Nil-safe existence checks: sub-tables are nil when the spell is not known/populated.
+    local magmaExists    = totem.fire.magma    and totem.fire.magma.exists    and totem.fire.magma.exists()
+    local searingExists  = totem.fire.searing  and totem.fire.searing.exists  and totem.fire.searing.exists()
+    local fireNovaExists = totem.fire.fireNova and totem.fire.fireNova.exists and totem.fire.fireNova.exists()
+    -- Magma Totem (AoE override, option 1) — re-drop only on expiry
+    if aoeFireActive and ui.value("AoE Fire Totem") == 1 and attackTrigger and standing
+        and cast.able.magmaTotem("player") and not magmaExists
     then
-        if cast.searingTotem() then ui.debug("Casting Searing Totem [Totem Management]") return true end
+        if cast.magmaTotem("player") then ui.debug("Casting Magma Totem [Totem Management]") return true end
     end
-    -- Fire Nova Totem
-    if cast.able.fireNovaTotem("player","aoe",1,10) and ui.useAOE(10,2)
-        and (unit.inCombat() or (unit.valid("target") and unit.distance("target") < 20))
-        and not totem.fire.fireNova.exists() and unit.standingTime() > 1
+    -- Fire Nova Totem (AoE override, option 2) — re-drop only on expiry
+    if aoeFireActive and ui.value("AoE Fire Totem") == 2 and attackTrigger and standing
+        and cast.able.fireNovaTotem("player","aoe",1,10) and not fireNovaExists
     then
         if cast.fireNovaTotem("player","aoe",1,10) then ui.debug("Casting Fire Nova Totem [Totem Management]") return true end
     end
-    -- * Earth Totems
-    -- Stoneclaw Totem
-    if ui.checked("Stoneclaw Totem Defensive") and ui.value("Earth Totem") == 2 and cast.able.stoneclawTotem()
-        and unit.inCombat() and unit.hp("player") <= ui.value("Stoneclaw Totem Defensive") and unit.standingTime() > 1
+    -- Searing Totem (always-on; only when AoE override is not active) — re-drop only on expiry
+    if ui.checked("Searing Totem") and not aoeFireActive and attackTrigger and standing
+        and cast.able.searingTotem("player") and not searingExists
+    then
+        if cast.searingTotem("player") then ui.debug("Casting Searing Totem [Totem Management]") return true end
+    end
+
+    -- *** AIR TOTEM ***
+    -- Windfury Totem (option 1) — highest-value melee group buff in TBC
+    if ui.value("Air Totem") == 1 and buffTrigger and standing
+        and cast.able.windfuryTotem("player")
+        and (not totem.air.windfury.exists() or totem.air.windfury.distance() > 30)
+    then
+        if cast.windfuryTotem("player") then ui.debug("Casting Windfury Totem [Totem Management]") return true end
+    end
+    -- Grace of Air Totem (option 2) — agility-based alternative
+    if ui.value("Air Totem") == 2 and buffTrigger and standing
+        and cast.able.graceOfAirTotem("player")
+        and (not totem.air.graceOfAir.exists() or totem.air.graceOfAir.distance() > 30)
+    then
+        if cast.graceOfAirTotem("player") then ui.debug("Casting Grace of Air Totem [Totem Management]") return true end
+    end
+
+    -- *** EARTH TOTEMS ***
+    -- Stoneclaw Totem (defensive reactive — HP threshold, evaluated before always-on earth)
+    if ui.checked("Stoneclaw Totem Defensive") and cast.able.stoneclawTotem("player")
+        and unit.inCombat() and unit.hp("player") <= ui.value("Stoneclaw Totem Defensive") and standing
     then
         local tankInRange = unit.isTankInRange()
         local stoneclawExists = totem.earth.stoneclaw and totem.earth.stoneclaw.exists and totem.earth.stoneclaw.exists()
         local stoneclawDistance = (totem.earth.stoneclaw and totem.earth.stoneclaw.distance and totem.earth.stoneclaw.distance()) or 99
         if not tankInRange and enemies.yards15 > 0 and (not stoneclawExists or stoneclawDistance > 15) then
-            if cast.stoneclawTotem() then
+            if cast.stoneclawTotem("player") then
                 ui.debug("Casting Stoneclaw Totem [Totem Management]")
                 return true
             end
         end
     end
-    -- Stoneskin Totem
-    if ui.value("Earth Totem") == 1 and cast.able.stoneskinTotem()
-        and (unit.inCombat() or (unit.valid("target") and unit.distance("target") < 20))
-        and (not totem.earth.stoneskin.exists() or totem.earth.stoneskin.distance() > 20) and unit.standingTime() > 1
+    -- Tremor Totem (reactive CC override — drops before always-on earth totem)
+    -- TODO: add fear/sleep detection when a confirmed TBC API is available; currently covers charm only
+    local tremorNeeded = ui.checked("Tremor Totem") and unit.charmed("player")
+    if tremorNeeded and buffTrigger and standing
+        and cast.able.tremorTotem("player") and not totem.earth.tremor.exists()
     then
-        if cast.stoneskinTotem() then ui.debug("Casting Stoneskin Totem [Totem Management]") return true end
+        if cast.tremorTotem("player") then ui.debug("Casting Tremor Totem [Totem Management]") return true end
     end
-    -- Strength of Earth Totem
-    if ui.value("Earth Totem") == 2 and cast.able.strengthOfEarthTotem()
-        and (unit.inCombat() or (unit.valid("target") and unit.distance("target") < 20))
-        and (not totem.earth.strengthOfEarth.exists() or totem.earth.strengthOfEarth.distance() > 20) and unit.standingTime() > 1
+    -- Stoneskin Totem (always-on, option 1; yields to Tremor when CC is active)
+    if not tremorNeeded and ui.value("Earth Totem") == 1 and buffTrigger and standing
+        and cast.able.stoneskinTotem("player")
+        and (not totem.earth.stoneskin.exists() or totem.earth.stoneskin.distance() > 20)
     then
-        if cast.strengthOfEarthTotem() then ui.debug("Casting Strength of Earth Totem [Totem Management]") return true end
+        if cast.stoneskinTotem("player") then ui.debug("Casting Stoneskin Totem [Totem Management]") return true end
+    end
+    -- Strength of Earth Totem (always-on, option 2; yields to Tremor when CC is active)
+    if not tremorNeeded and ui.value("Earth Totem") == 2 and buffTrigger and standing
+        and cast.able.strengthOfEarthTotem("player")
+        and (not totem.earth.strengthOfEarth.exists() or totem.earth.strengthOfEarth.distance() > 20)
+    then
+        if cast.strengthOfEarthTotem("player") then ui.debug("Casting Strength of Earth Totem [Totem Management]") return true end
+    end
+
+    -- *** WATER TOTEM ***
+    -- Mana Spring Totem (always-on; drops on target acquisition like other buff totems)
+    if ui.checked("Mana Spring Totem") and buffTrigger and standing
+        and cast.able.manaSpringTotem("player")
+        and (not totem.water.manaSpring.exists() or totem.water.manaSpring.distance() > 30)
+    then
+        if cast.manaSpringTotem("player") then ui.debug("Casting Mana Spring Totem [Totem Management]") return true end
     end
 end -- End Action List - Totem Management
 
@@ -421,6 +491,7 @@ local function runRotation()
     units.get(40, true) -- Makes a variable called, units.dyn40AOE
     -- Enemies
     enemies.get(5)      -- Makes a varaible called, enemies.yards5
+    enemies.get(8)      -- Makes a variable called,  enemies.yards8
     enemies.get(15)     -- Makes a varaible called, enemies.yards15
     enemies.get(20)     -- Makes a variable called, enemies.yards20
     -- enemies.get(20, "player", true)        -- makes enemies.yards20nc

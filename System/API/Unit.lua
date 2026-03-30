@@ -812,15 +812,24 @@ br.api.unit = function(self)
                         break
                     end
                 end
-                if targetId == nil then return false end
-                if offHand then return hasOff and offId == targetId or false end
-                return hasMain and mainId == targetId or false
+                -- Strict rank check: if the exact highest-rank enchant is present, return immediately.
+                if targetId ~= nil then
+                    if offHand and hasOff and offId == targetId then return true end
+                    if not offHand and hasMain and mainId == targetId then return true end
+                end
+                -- Strict rank not matched; fall through to any-match below to prevent
+                -- spurious reapplication when enchant IDs don't perfectly align with game data.
             end
-            -- Fallback: no rank data — any matching enchant ID satisfies the check
+            -- Any matching enchant ID from the table satisfies the check
             for i = 1, #imbueId do
                 if (offHand and hasOff) and offId == imbueId[i] then return true end
                 if (not offHand and hasMain) and mainId == imbueId[i] then return true end
             end
+            -- ID matching failed (IDs may be nil, zero, or incorrect for this game version).
+            -- Fall back to presence-only: if any enchant exists on the configured hand,
+            -- accept it rather than looping with endless reapplication attempts.
+            if not offHand and hasMain then return true end
+            if offHand     and hasOff  then return true end
             return false
         end
         if imbueId == nil then
@@ -829,6 +838,24 @@ br.api.unit = function(self)
         if offHand and hasOff and offId == imbueId then return true end
         if not offHand and hasMain and mainId == imbueId then return true end
         return false
+    end
+
+    --- Check if a weapon imbue is missing (needs to be applied)
+    -- @function unit.weaponImbue.needed
+    -- @param imbueId The ID of the imbue to check for
+    -- @param offHand Boolean whether to check offhand (true) or main hand (false, default)
+    -- @return boolean True if the imbue is NOT currently applied to the specified weapon
+    unit.weaponImbue.needed = function(imbueId, offHand)
+        return not unit.weaponImbue.exists(imbueId, offHand)
+    end
+
+    --- Get the display name of a weapon imbue spell
+    -- @function unit.weaponImbue.spellName
+    -- @param spellKey The spell key string (e.g. "rockbiterWeapon") used in br.player.spells
+    -- @return string The localised spell name, or the key as a fallback
+    unit.weaponImbue.spellName = function(spellKey)
+        local spellID = br.player.spells and br.player.spells[spellKey]
+        return (spellID and br.api.wow.GetSpellInfo(spellID)) or spellKey
     end
 
     --- Get weapon imbue remaining time

@@ -904,10 +904,12 @@ local rangeDelayTimers -- Track when spells first become in range
 -- Gate debug message throttle: emit at most once per 2s per spell to avoid flooding chat.
 local gateDebugThrottle = {}
 local GATE_DEBUG_THROTTLE_SECS = 2.0
+local gateDebugSilentUntil = 0 -- suppresses gate debug for N seconds after castTimers reset
 
 local function emitGateDebug(spellID, spellName, reason, detail)
 	if not shouldPrintCastDebug() then return end
 	local now = br._G.GetTime()
+	if now < gateDebugSilentUntil then return end
 	local key = spellID .. reason
 	if gateDebugThrottle[key] and now < gateDebugThrottle[key] then return end
 	gateDebugThrottle[key] = now + GATE_DEBUG_THROTTLE_SECS
@@ -1143,13 +1145,16 @@ local GATE_FUNCTIONS = {
 
 -- runGates: execute all gate functions in order.
 -- Returns true on full pass, or false with the failing reason code.
-local function runGates(ctx, thisUnit, castType)
+-- isAbleCheck: when true (cast.able calls), gate failures are expected and not printed.
+local function runGates(ctx, thisUnit, castType, isAbleCheck)
 	local allTalents = br.player and br.player.spells and br.player.spells.talents
 	local allSpells  = br.player and br.player.spells
 	for _, gateFn in ipairs(GATE_FUNCTIONS) do
 		local pass, reason, detail = gateFn(ctx, thisUnit, castType, allTalents, allSpells)
 		if not pass then
-			emitGateDebug(ctx.spellID, ctx.spellName, reason, detail)
+			if not isAbleCheck then
+				emitGateDebug(ctx.spellID, ctx.spellName, reason, detail)
+			end
 			return false, reason
 		end
 	end
@@ -1419,8 +1424,11 @@ function cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellI
 
 	if ctx == nil then
 		-- Initialise shared tables on first use.
-		if castTimers == nil then castTimers = {} end
-		if castTimers[spellID] == nil then castTimers[spellID] = br._G.GetTime() end
+		if castTimers == nil then
+			castTimers = {}
+			gateDebugSilentUntil = br._G.GetTime() + 5 -- suppress gate debug burst after reload
+		end
+		if castTimers[spellID] == nil then castTimers[spellID] = 0 end -- 0 so t < GetTime() is immediately true
 		if rangeDelayTimers == nil then rangeDelayTimers = {} end
 
 		ctx = buildSpellContext(spellID, predict, predictPad, castType, effectRng)
@@ -1445,7 +1453,7 @@ function cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellI
 
 	-- ── Step 7: Run gate checks (skipped on cache hit or empowered bypass) ───
 	if not gatesPassed and not isEmpoweredBypass then
-		local passed, _ = runGates(ctx, thisUnit, castType)
+		local passed, _ = runGates(ctx, thisUnit, castType, debug)
 		if not passed then return false end
 		-- Cache the passing context so cast.X() in the same tick skips re-running.
 		if debug then

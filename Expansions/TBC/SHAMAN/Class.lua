@@ -62,7 +62,7 @@ br.lists.spells.SHAMAN.Shared = {
                                      spells = {8024, 8027, 8030, 16339, 16341, 16342, 25489}},
                 frostbrandWeapon  = {2, 12, 524, 1667, 1668, 2635,                -- r1-r6 enchant IDs (lvl 20-66)
                                      spells = {8033, 8038, 10456, 16355, 16356, 25500}},
-                rockbiterWeapon   = {29, 6, 1, 503, 1663, 683, 1664, 2632, 2633,  -- r1-r9 enchant IDs (lvl 1-70)
+                rockbiterWeapon   = {29, 6, 3029, 503, 1663, 683, 1664, 2632, 2633,  -- r1-r9 enchant IDs (lvl 1-70); r3 confirmed via /dump GetWeaponEnchantInfo()
                                      spells = {8017, 8018, 8019, 10399, 16314, 16315, 16316, 25479, 25485}},
             },
             buffs         = {
