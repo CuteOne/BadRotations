@@ -76,7 +76,7 @@ local function createOptions()
         -- Last Form
         br.ui:createCheckbox(section, "Last Form", "|cffFFFFFFEnable/Disable Returning to Last Form")
         -- Energy Threshold
-        br.ui:createSpinner(section, "Energy", 20, 1, 100, 1, "|cffFFFFFFMin energy — shifts if below this and next tick is >1s away")
+        br.ui:createSpinner(section, "Energy", 35, 1, 100, 1, "|cffFFFFFFShift when energy drops below this. 35 = no Wolfshead (auto); 40 = Wolfshead Helm (auto-detected and raised). Covers the gap between post-ability energy and the cost of the next builder.")
         -- Rage Threshold
         br.ui:createSpinner(section, "Rage", 10, 1, 100, 1, "|cffFFFFFFBear Form Rage Threshold to Break Form")
         br.ui:checkSectionState(section)
@@ -207,12 +207,15 @@ local actionList = {}
 --- Functions --- -- List all profile specific custom functions here
 -----------------
 -- Time (seconds) until the next discrete energy tick (+20 every 2s).
--- Detected by polling: whenever current energy jumps by >=15, a tick fired.
+-- Detected by polling: whenever current energy jumps by 15-25, a tick fired.
+-- Upper bound of 25 filters out powershifts (which give +25 to +60) so they
+-- don't falsely reset the 2s countdown and produce a stale tick estimate.
 local function timeToNextEnergyTick()
     if var.lastEnergyTickTime == nil then var.lastEnergyTickTime = 0 end
     if var.lastEnergyObserved == nil then var.lastEnergyObserved = 0 end
     local current = br.player.power.energy() or 0
-    if current >= var.lastEnergyObserved + 15 then
+    local energyJump = current - var.lastEnergyObserved
+    if energyJump >= 15 and energyJump <= 25 then
         var.lastEnergyTickTime = br._G.GetTime()
     end
     var.lastEnergyObserved = current
@@ -400,28 +403,6 @@ var.keepAquatic = function()
         and (not unit.exists("target") or unit.friend("target"))
 end
 
--- Safe to Cower: only drop threat if a Warrior or Paladin is alive and within range.
--- TBC has no role system, so we use class as a proxy for reliable tank presence.
--- If no such player is nearby, keeping aggro on ourselves is safer than handing it to a healer.
-local COWER_SAFE_TANK_CLASS = { WARRIOR = true, PALADIN = true }
-local function safeToCower(range)
-    range = range or 40
-    if #br.engines.healingEngine.friend < 2 then return false end
-    for i = 1, #br.engines.healingEngine.friend do
-        local f = br.engines.healingEngine.friend[i]
-        if not unit.isUnit(f.unit, "player")
-            and not unit.deadOrGhost(f.unit)
-            and unit.distance(f.unit) < range
-        then
-            local _, classTag = br._G.UnitClass(f.unit)
-            if classTag and COWER_SAFE_TANK_CLASS[classTag] then
-                return true
-            end
-        end
-    end
-    return false
-end
-
 --------------------
 --- Action Lists ---
 --------------------
@@ -575,7 +556,7 @@ actionList.Defensive = function()
         end
         -- Faerie Fire (Caster)
         if ui.checked("Faerie Fire") and cast.able.faerieFire("target") and not buff.prowl.exists() and var.formValue == 1
-            and unit.exists("target") and unit.enemy("target") and unit.canAttack("target") and not debuff.faerieFire.exists("target")
+            and unit.exists("target") and unit.enemy("target") and unit.canAttack("target") and not debuff.faerieFire.exists("target", "any") and not debuff.faerieFireFeral.exists("target", "any")
             and not (buff.catForm.exists() or buff.bearForm.exists())
             and unit.distance("target") > 8 and mana() > cast.cost.faerieFire() + var.formCost
         then
@@ -900,6 +881,13 @@ actionList.BearForm = function()
             return true
         end
     end
+    -- Mangle (highest priority — applies +30% bleed debuff, highest threat/DPS)
+    if cast.able.mangleBear("target") then--and not debuff.mangleBear.exists("target") then
+        if cast.mangleBear("target") then
+            ui.debug("Casting Mangle")
+            return true
+        end
+    end
     -- Swipe (multi-target)
     if cast.able.swipe() and ui.useAOE(8,3) then
         if cast.swipe() then
@@ -911,13 +899,6 @@ actionList.BearForm = function()
     if cast.able.maul("target") and (ui.useST(8,3) or not spell.swipe.known()) then
         if cast.maul("target") then
             ui.debug("Casting Maul")
-            return true
-        end
-    end
-    -- Mangle
-    if cast.able.mangleBear("target") then--and not debuff.mangleBear.exists("target") then
-        if cast.mangleBear("target") then
-            ui.debug("Casting Mangle")
             return true
         end
     end
@@ -940,7 +921,7 @@ actionList.CatOpener = function()
 
     local isStealth = buff.prowl.exists()
     local behindTarget = isBehind("target", "player")
-    local mangleDebuffUp = debuff.mangleCat.exists("target") or debuff.mangleBear.exists("target")
+    local mangleDebuffUp = debuff.mangleCat.exists("target","any") or debuff.mangleBear.exists("target","any")
 
     -- Stealth Opener
     if isStealth then
@@ -1028,7 +1009,7 @@ actionList.CatForm = function()
         -- only reliable tanks. If none is present (dead or out of range) it is safer to keep
         -- aggro on ourselves rather than risk handing it to a healer or caster.
         if ui.checked("Cower") and cast.able.cower() and energy() >= 20 and unit.inGroup()
-            and unit.threatStatus() >= 2 and safeToCower()
+            and unit.threatStatus() >= 2 and unit.isTankInRange()
         then
             if cast.cower() then
                 ui.debug("Casting Cower [Threat Reduction]")
@@ -1036,17 +1017,21 @@ actionList.CatForm = function()
             end
         end
         -- Ferocious Bite - Finish Him!
-        local finish = ferociousBiteFinish("target")
-        if cast.able.ferociousBite("target") and energy() >= 35 and finish then
-            if cast.ferociousBite("target") then
+        -- Only fire when we can't fit a builder first (energy < builder floor).
+        -- If energy >= 40 (Mangle cost) a builder should come before FB to avoid
+        -- sinking excess energy into FB damage rather than generating a combo point.
+        local finish = ferociousBiteFinish(units.dyn5)
+        if cast.able.ferociousBite(units.dyn5) and energy() >= 35 and finish then
+            if cast.ferociousBite(units.dyn5) then
                 ui.debug("Casting Ferocious Bite [Finish Him!]")
                 return true
             end
         end
 
-        -- Tiger's Fury (opener only - first 6s of combat so it doesn't interrupt the mid-fight rotation)
+        -- Tiger's Fury — use on cooldown when energy is high enough that the 30-energy cost
+        -- won't starve the next ability (>= 60 leaves >= 30 after cast, enough for Rake/Mangle).
         if ui.checked("Tiger's Fury") and cast.able.tigersFury() and buff.catForm.exists()
-            and not buff.tigersFury.exists() and unit.combatTime() < 6
+            and not buff.tigersFury.exists() and energy() == 100
         then
             if cast.tigersFury() then
                 ui.debug("Casting Tiger's Fury")
@@ -1055,108 +1040,114 @@ actionList.CatForm = function()
         end
 
         -- Faerie Fire (Feral)
-        if ui.checked("Faerie Fire") and cast.able.faerieFireFeral("target") and unit.valid("target")
+        if ui.checked("Faerie Fire") and cast.able.faerieFireFeral(units.dyn5) and unit.valid(units.dyn5)
             and not buff.prowl.exists()
-            and not debuff.faerieFireFeral.exists("target")
-            and not unit.isElemental("target")
-            and unit.ttd("target") > cd.global.remain()
+            and not debuff.faerieFireFeral.exists(units.dyn5, "any") and not debuff.faerieFire.exists(units.dyn5, "any")
+            and not unit.isElemental(units.dyn5)
+            and unit.ttd(units.dyn5) > cd.global.remain()
         then
-            if cast.faerieFireFeral("target") then
+            if cast.faerieFireFeral(units.dyn5) then
                 ui.debug("Casting Faerie Fire (Feral)")
                 return true
             end
         end
 
         -- 5 Combo Points - Finishers
-        if comboPoints() >= 4 and not finish then
+        if comboPoints() >= 4 and not buff.clearcasting.exists() and not finish then
             -- Rip
-            if ui.checked("Rip") and cast.able.rip("target") and unit.ttd("target") > 6 and not debuff.rip.exists("target") then
-                if cast.rip("target") then
+            if ui.checked("Rip") and cast.able.rip(units.dyn5) and unit.ttd(units.dyn5) > 6 and not debuff.rip.exists(units.dyn5) then
+                if cast.rip(units.dyn5) then
                     ui.debug("Casting Rip")
                     return true
                 end
             end
             -- Ferocious Bite (Rip running or not worth applying)
-            if cast.able.ferociousBite("target") and energy() >= 35
-                and (not spell.rip.known() or debuff.rip.exists("target") or unit.ttd("target") <= 6)
+            -- Cap at < 40 energy so we don't sink energy a builder could use into FB's bonus damage.
+            -- Above 40 the builder comes first; the finisher block re-evaluates next tick.
+            if cast.able.ferociousBite(units.dyn5) and energy() >= 35 and energy() < 40
+                and (not spell.rip.known() or debuff.rip.exists(units.dyn5) or unit.ttd(units.dyn5) <= 6)
             then
-                if cast.ferociousBite("target") then
+                if cast.ferociousBite(units.dyn5) then
                     ui.debug("Casting Ferocious Bite")
                     return true
                 end
             end
         end
 
+        -- Powershift for Energy — fires before builders so a low energy bar triggers a shift
+        -- instead of a cheaper builder cast that would delay the next shift cycle.
+        -- Logic mirrors NerdEgghead TBC_cat_sim / wowsims:
+        --   shift when energy <= hard floor (10), OR
+        --   when energy < threshold AND the next tick is more than 1s away.
+        -- Threshold: 35 without Wolfshead (post-shift=40), 40 with Wolfshead (post-shift=60).
+        if ui.checked("Powershifting") and cast.able.catForm() and unit.inCombat()
+            and not buff.clearcasting.exists()
+            and mana() >= var.formCost  -- mana gate: never shift when OOM
+        then
+            local tickIn = timeToNextEnergyTick()
+            local threshold = var.shiftEnergyThreshold
+            if energy() <= 10 or (energy() < threshold and tickIn > 1.0) then
+                local postShift = var.hasWolfshead and 60 or 40
+                if cast.macro("/cast !"..spell.catForm.name()) then
+                    ui.debug(string.format(
+                        "Powershift for Energy (energy=%d, threshold=%d, tick in %.2fs, will have ~%d)",
+                        energy(), threshold, tickIn, postShift
+                    ))
+                    return true
+                end
+            end
+            -- energy < threshold but tickIn <= 1.0: wait for the tick, do nothing
+        end
+
         -- Combo Point Builders
-        if (comboPoints() < 5 or energy() >= 60 or buff.clearcasting.exists()) and not finish then
+        if (comboPoints() < 5 or buff.clearcasting.exists() or energy() >= 40) and not finish then
             -- Ravage (from Prowl)
-            local behindRavage = isBehind("target", "player")
-            if cast.able.ravage("target") and buff.prowl.exists() and behindRavage then
-                if cast.ravage("target") then
+            local behindRavage = isBehind(units.dyn5, "player")
+            if cast.able.ravage(units.dyn5) and buff.prowl.exists() and behindRavage then
+                if cast.ravage(units.dyn5) then
                     ui.debug("Casting Ravage")
                     return true
                 end
             end
-            -- Rake
-            if ui.checked("Rake") and cast.able.rake("target") and debuff.rake.refresh("target")
-                and (unit.ttd("target") > 9 or not spell.ferociousBite.known())
-                and not buff.clearcasting.exists()
+            -- Mangle
+            local behindDyn5 = isBehind(units.dyn5, "player")
+            if cast.able.mangleCat(units.dyn5) and (not behindDyn5 or not spell.shred.known()
+                or (debuff.mangleCat.refresh(units.dyn5,"any") and not debuff.mangleBear.exists(units.dyn5,"any")))
             then
-                if cast.rake("target") then
-                    ui.debug("Casting Rake")
+                if cast.mangleCat(units.dyn5) then
+                    ui.debug("Casting Mangle")
                     return true
                 end
             end
-            -- Mangle
-            local behindDyn5 = isBehind("target", "player")
-            if cast.able.mangleCat("target") and (not behindDyn5 or not spell.shred.known()
-                or (debuff.mangleCat.refresh("target","any") and not debuff.mangleBear.exists("target","any"))
-            ) then
-                if cast.mangleCat("target") then
-                    ui.debug("Casting Mangle")
+            -- Rake
+            if ui.checked("Rake") and cast.able.rake(units.dyn5) and debuff.rake.refresh(units.dyn5)
+                and (unit.ttd(units.dyn5) > 9 or not spell.ferociousBite.known())
+                and not buff.clearcasting.exists()
+            then
+                if cast.rake(units.dyn5) then
+                    ui.debug("Casting Rake")
                     return true
                 end
             end
             -- Shred (from behind)
             local triedShred = false
-            if behindDyn5 and cast.able.shred("target")
-                and (debuff.mangleCat.exists("target") or debuff.mangleBear.exists("target") or not spell.mangleCat.known())
+            if cast.able.shred(units.dyn5)
+                and (debuff.mangleCat.exists(units.dyn5,"any") or debuff.mangleBear.exists(units.dyn5,"any") or not spell.mangleCat.known())
             then
-                if not unit.facing("target", "player") then
-                    triedShred = true
-                    if cast.shred("target") then
+                if not unit.facing(units.dyn5, "player") then
+                    if cast.shred(units.dyn5) then
                         ui.debug("Casting Shred")
                         return true
                     end
                 end
             end
             -- Claw (not behind)
-            if cast.able.claw("target") and (not spell.shred.known() or not behindDyn5) and not spell.mangleCat.known() then
-                if cast.claw("target") then
+            if cast.able.claw(units.dyn5) and (not spell.shred.known() or not behindDyn5) and not spell.mangleCat.known() then
+                if cast.claw(units.dyn5) then
                     ui.debug("Casting Claw")
                     return true
                 end
             end
-        end
-        -- Powershift for Energy (Cat Form with Furor talent)
-        -- Runs last so finishers and builders are always preferred over shifting.
-        -- Logic mirrors wowsims: only shift when energy is low AND the next tick is far away.
-        if ui.checked("Powershifting") and cast.able.catForm() and unit.inCombat()
-            and not buff.clearcasting.exists()
-        then
-            -- Mana gate: don't shift if we can't sustain it
-            -- if mana() >= var.formCost then--* 1.5 then
-                local tickIn = timeToNextEnergyTick()
-                local threshold = ui.value("Energy")
-                if energy() <= 10 or (energy() < threshold and tickIn > 1.0) then
-                    -- Shift immediately: energy floor hit, or tick is too far away
-                    if cast.macro("/cast !"..spell.catForm.name()) then
-                        ui.debug("Powershift for Energy (tick in "..string.format("%.2f", tickIn).."s)")
-                        return true
-                    end
-                end
-                -- energy() < threshold but tickIn <= 1.0: wait for the tick, do nothing
-            -- end
         end
     end
 end -- End Action List - Cat Form
@@ -1271,7 +1262,7 @@ actionList.PreCombat = function()
                 end
                 -- Auto Attack (do not break Prowl)
                 if not buff.prowl.exists() and not cast.auto.autoAttack() and unit.valid("target") and not unit.deadOrGhost("target") and unit.distance("target") < 5 then
-                    br._G.StartAttack()
+                    unit.startAttack()
                     ui.debug("Casting Auto Attack [Precombat]")
                     return true
                 end
@@ -1288,7 +1279,7 @@ actionList.Combat = function()
         ------------------------
         -- Start Attack (do not break Prowl)
         if not buff.prowl.exists() and unit.exists("target") and not cast.auto.autoAttack() and not unit.deadOrGhost("target") then
-            br._G.StartAttack()
+            unit.startAttack()
             ui.debug("Casting Auto Attack")
             return true
         end
@@ -1296,29 +1287,30 @@ actionList.Combat = function()
         -- Call Action List - Cooldowns
         if actionList.Cooldowns() then return true end
 
-        -- Wait for swing if in melee range
-        -- if unit.exists("target") and unit.distance("target") < 5 and
-        --     (var.formValue == 2 and buff.catForm.exists()
-        --     or var.formValue == 3 and (buff.bearForm.exists() or buff.direBearForm.exists()))
-        -- then
-        --     local swing = br.swingTimer
-        --     -- ui.debug("Swing Timer: " .. tostring(swing) .. " | Distance: " .. tostring(unit.distance("target")))
-        --     local waitThreshold = 0.15 -- seconds; tune between 0.15-0.30
-        --     if swing and swing > 0 and swing < waitThreshold then
-        --         if not br.waitingForSwing then
-        --             br.waitingForSwing = true
-        --             br.waitingForSwingTimeout = br._G.GetTime() + 1.5 -- safety timeout
-        --             ui.debug("Waiting for swing: " .. br.functions.misc:round2(swing,2) .. "s")
-        --         end
-        --         -- clear waiting flag if swing occurred or timeout expired
-        --         if br.swingTimer == 0 or (br.waitingForSwingTimeout and br._G.GetTime() >= br.waitingForSwingTimeout) then
-        --             br.waitingForSwing = false
-        --             br.waitingForSwingTimeout = nil
-        --         else
-        --             return true
-        --         end
-        --     end
-        -- end
+        -- Wait for melee swing before spending energy on abilities in Cat/Bear form.
+        -- Ensures the auto-attack isn't clipped by cast GCD, maximising physical DPS.
+        if unit.exists("target") and unit.distance("target") < 5 and
+            (var.formValue == 2 and buff.catForm.exists()
+            or var.formValue == 3 and (buff.bearForm.exists() or buff.direBearForm.exists()))
+        then
+            local sw = br.player.swing and br.player.swing.mh
+            local swing = sw and sw.timer or 0
+            local waitThreshold = 0.20  -- 200ms window covers typical latency
+            if swing > 0 and swing < waitThreshold then
+                -- Arm a safety timeout so we never stall indefinitely
+                if not sw.waiting then
+                    sw.waiting     = true
+                    sw.waitTimeout = br._G.GetTime() + 1.5
+                end
+                -- Release once the swing lands or the timeout expires
+                if sw.timer == 0 or (sw.waitTimeout and br._G.GetTime() >= sw.waitTimeout) then
+                    sw.waiting     = false
+                    sw.waitTimeout = nil
+                else
+                    return true
+                end
+            end
+        end
 
         -- Call Action List - Bear Form
         if var.formValue == 3 and (buff.bearForm.exists() or buff.direBearForm.exists()) and unit.exists("target") and unit.distance("target") < 5 then
@@ -1326,7 +1318,7 @@ actionList.Combat = function()
         end
 
         -- Call Action List - Cat Form
-        if var.formValue == 2 and unit.exists("target") and unit.distance("target") < 5 then
+        if var.formValue == 2 and units.dyn5 ~= nil and unit.distance(units.dyn5) < 5 then
             if buff.prowl.exists() then
                 -- While prowled, only CatOpener runs; CatForm is never called.
                 -- If CatOpener returns false (still repositioning), we yield and
@@ -1374,11 +1366,22 @@ local function runRotation()
     if not br.player.localTrinkets then br.player.localTrinkets = true end
     if ui.mode.forms == 2 then var.formCost = cast.cost.catForm() end
     if ui.mode.forms == 3 then var.formCost = spell.direBearForm.known() and cast.cost.direBearForm() or cast.cost.bearForm() end
+    -- Wolfshead Helm (item 8345) detection: shifts grant +60 energy instead of +40, raising the optimal shift threshold.
+    var.hasWolfshead = (br._G.GetInventoryItemID and br._G.GetInventoryItemID("player", 1) == 8345)
+    -- Derive the effective powershift threshold.
+    -- Default 35 covers the gap between post-Rip/post-Bite energy (~25) and the min builder cost (Rake=35, Mangle=40).
+    -- With Wolfshead (post-shift=60 vs no-Wolfshead post-shift=40), the break-even threshold rises to 40.
+    -- Auto-raise to 40 for Wolfshead unless the player has explicitly set a higher value (respects overrides >= 40).
+    var.shiftEnergyThreshold = ui.value("Energy")
+    if var.hasWolfshead and var.shiftEnergyThreshold < 40 then
+        var.shiftEnergyThreshold = 40
+    end
     -- Units
     units.get(5)        -- Makes a variable called, "target"
     units.get(40, true) -- Makes a variable called, units.dyn40AOE
     -- Enemies
     enemies.get(5, "player", false, true) -- Makes a variable called, enemies.yards5f
+    enemies.get(10)     -- Makes a variable called, enemies.yards10 (BearForm/Defensive checks)
     enemies.get(20)     -- Makes a varaible called, enemies.yards20
     enemies.get(20, "player", true)        -- makes enemies.yards20nc
     enemies.get(40)     -- Makes a varaible called, enemies.yards40

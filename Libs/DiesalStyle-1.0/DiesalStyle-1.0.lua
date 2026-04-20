@@ -1,5 +1,5 @@
 -- $Id: DiesalStyle-1.0.lua 61 2017-03-28 23:13:41Z diesal2010 $
-local MAJOR, MINOR = "DiesalStyle-1.0", "$Rev: 61 $"
+local MAJOR, MINOR = "DiesalStyle-1.0", "$Rev: 100 $"
 local DiesalStyle, oldminor = LibStub:NewLibrary(MAJOR, MINOR)
 if not DiesalStyle then return end -- No Upgrade needed.
 -- ~~| Libraries |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -31,7 +31,7 @@ local Colors = DiesalStyle.Colors
 local Formatters = DiesalStyle.Formatters
 -- ~~| Locals |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 local OUTLINES = { '_LEFT', '_RIGHT', '_TOP', '_BOTTOM' }
-local MEDIA_PATH = DiesalStyle.MediaPath or (AddonName == 'BadRotations' and string.format("Interface\\AddOns\\Media\\"))
+local MEDIA_PATH = DiesalStyle.MediaPath
 or (type(AddonName) ~= 'string' and string.format("Interface\\AddOns\\Media\\"))
 or (AddonName == 'DiesalLibs' and string.format("Interface\\AddOns\\%s\\%s\\Media\\", AddonName, MAJOR))
 or string.format("Interface\\AddOns\\%s\\Libs\\%s\\Media\\", AddonName, MAJOR)
@@ -977,7 +977,11 @@ function DiesalStyle:StyleFont(fontInstance, name, style)
   style.red, style.green, style.blue = DiesalTools.GetColor(style.color)
   -- ~~ Set Settings ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   style.filename = style.filename or filename
-  style.fontSize = style.fontSize or fontSize
+  -- Only keep fontSize if it is a valid positive number; bad values (negative/zero)
+  -- can appear when GetFont() is called before the first layout pass.
+  if not (type(style.fontSize) == 'number' and style.fontSize > 0) then
+    style.fontSize = (type(fontSize) == 'number' and fontSize > 0) and fontSize or nil
+  end
   style.flags = style.flags or flags
 
   style.red = style.red or red
@@ -986,7 +990,9 @@ function DiesalStyle:StyleFont(fontInstance, name, style)
   style.alpha = style.alpha or alpha
   style.lineSpacing = style.lineSpacing or lineSpacing
   -- ~~ Apply Settings ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  fontInstance:SetFont(style.filename, style.fontSize, style.flags)
+  -- Guard: SetFont requires a positive height; fall back to 10 if still invalid.
+  local safeFontSize = (type(style.fontSize) == 'number' and style.fontSize > 0) and style.fontSize or 10
+  fontInstance:SetFont(style.filename, safeFontSize, style.flags)
   fontInstance:SetTextColor(style.red, style.green, style.blue, style.alpha)
   fontInstance:SetSpacing(style.lineSpacing)
 

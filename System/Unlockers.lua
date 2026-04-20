@@ -28,10 +28,10 @@ function unlockers:loadUnlockerAPI()
         --     end
         -- end
         end
-        -- UPDATE MEDIA PATH to use the copied Media folder in Interface\AddOns
+        -- UPDATE MEDIA PATH to Libs/DiesalStyle-1.0/Media inside the BR scripts folder
         local DiesalStyle = LibStub("DiesalStyle-1.0")
-        -- Use Interface\AddOns\Media\ which is copied during installation
-        local newPath = "Interface\\AddOns\\Media\\"
+        -- Files live in the repo itself; no separate copy-to-AddOns step required
+        local newPath = "Interface\\AddOns\\BadRotations\\Libs\\DiesalStyle-1.0\\Media\\"
         if DiesalStyle.SetMediaPath then
             print("BadRotations: Unlocker loaded, updating Media path for DiesalStyle.")
             DiesalStyle:SetMediaPath(newPath)

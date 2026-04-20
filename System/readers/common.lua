@@ -2,14 +2,48 @@ local _, br = ...
 br.readers.common = br.readers.common or {}
 local common = br.readers.common
 
+-- Pre-register all event frames at module load time to avoid ADDON_ACTION_FORBIDDEN in NnLua runtime context
+local _bagUpdateFrame   = br._G.CreateFrame("Frame"); _bagUpdateFrame:RegisterEvent("BAG_UPDATE")
+local _locFrame         = br._G.CreateFrame("Frame"); _locFrame:RegisterEvent("LOSS_OF_CONTROL_UPDATE")
+local _lfgFrame         = br._G.CreateFrame("Frame"); _lfgFrame:RegisterEvent("LFG_PROPOSAL_SHOW")
+local _merchantFrame    = br._G.CreateFrame("Frame"); _merchantFrame:RegisterEvent("MERCHANT_SHOW")
+local _regenDisFrame    = br._G.CreateFrame("Frame"); _regenDisFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
+local _regenEnFrame     = br._G.CreateFrame("Frame"); _regenEnFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+local _uiErrFrame       = br._G.CreateFrame("Frame"); _uiErrFrame:RegisterEvent("UI_ERROR_MESSAGE")
+local _superFrame       = br._G.CreateFrame("Frame")
+_superFrame:RegisterEvent("CHAT_MSG_ADDON")
+_superFrame:RegisterEvent("PLAYER_STARTED_MOVING")
+_superFrame:RegisterEvent("PLAYER_STOPPED_MOVING")
+_superFrame:RegisterEvent("PLAYER_TOTEM_UPDATE")
+_superFrame:RegisterEvent("UNIT_AURA")
+_superFrame:RegisterEvent("UNIT_SPELLCAST_START")
+_superFrame:RegisterEvent("UNIT_SPELLCAST_SENT")
+_superFrame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
+_superFrame:RegisterEvent("UNIT_SPELLCAST_FAILED")
+_superFrame:RegisterEvent("UNIT_SPELLCAST_STOP")
+_superFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP")
+_superFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START")
+_superFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_UPDATE")
+_superFrame:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
+_superFrame:RegisterEvent("UNIT_POWER_UPDATE")
+_superFrame:RegisterEvent("ENCOUNTER_START")
+_superFrame:RegisterEvent("ENCOUNTER_END")
+_superFrame:RegisterUnitEvent("AZERITE_ESSENCE_ACTIVATED")
+_superFrame:RegisterUnitEvent("PLAYER_EQUIPMENT_CHANGED")
+_superFrame:RegisterUnitEvent("PLAYER_LEVEL_UP")
+_superFrame:RegisterUnitEvent("PLAYER_TALENT_UPDATE")
+_superFrame:RegisterUnitEvent("TRAIT_CONFIG_UPDATED")
+_superFrame:RegisterUnitEvent("UI_ERROR_MESSAGE")
+_superFrame:RegisterEvent("LOADING_SCREEN_ENABLED")
+_superFrame:RegisterEvent("LOADING_SCREEN_DISABLED")
+
 function common:commonReaders()
 	---------------
 	--[[ Readers ]]
 	---------------
 	-----------------------
 	--[[ Bag Update ]]
-	local Frame = br._G.CreateFrame("Frame")
-	Frame:RegisterEvent("BAG_UPDATE")
+	local Frame = _bagUpdateFrame  -- pre-registered at module load time
 	local function BagUpdate(_, event, _)
 		if event == "BAG_UPDATE" and br.player then
 			br.player.bagsUpdated = true
@@ -18,16 +52,14 @@ function common:commonReaders()
 	Frame:SetScript("OnEvent", BagUpdate)
 	-----------------------
 	--[[ Loss of control ]]
-	local frame = br._G.CreateFrame("Frame")
-	frame:RegisterEvent("LOSS_OF_CONTROL_UPDATE")
+	local frame = _locFrame  -- pre-registered at module load time
 	local function lostControl(_, _, ...)
 		-- Print(...)
 	end
 	frame:SetScript("OnEvent", lostControl)
 	----------------
 	--[[ Auto Join]]
-	Frame = br._G.CreateFrame("Frame")
-	Frame:RegisterEvent("LFG_PROPOSAL_SHOW")
+	Frame = _lfgFrame  -- pre-registered at module load time
 	local function MerchantShow_AutoJoin(_, event, _)
 		if br.functions.misc:getOptionCheck("Accept Queues") == true then
 			if event == "LFG_PROPOSAL_SHOW" then
@@ -87,8 +119,7 @@ function common:commonReaders()
 	)
 	-----------------------
 	--[[ Merchant Show --]]
-	Frame = br._G.CreateFrame("Frame")
-	Frame:RegisterEvent("MERCHANT_SHOW")
+	Frame = _merchantFrame  -- pre-registered at module load time
 	local function MerchantShow_AutoSellRepair(_, event, _)
 		if event == "MERCHANT_SHOW" then
 			if br.functions.misc:getOptionCheck("Auto-Sell/Repair") then
@@ -99,8 +130,7 @@ function common:commonReaders()
 	Frame:SetScript("OnEvent", MerchantShow_AutoSellRepair)
 	-------------------------
 	--[[ Entering Combat --]]
-	Frame = br._G.CreateFrame("Frame")
-	Frame:RegisterEvent("PLAYER_REGEN_DISABLED")
+	Frame = _regenDisFrame  -- pre-registered at module load time
 	local function EnteringCombat(_, event, _)
 		if event == "PLAYER_REGEN_DISABLED" then
 			-- here we should manage stats snapshots
@@ -115,8 +145,7 @@ function common:commonReaders()
 	Frame:SetScript("OnEvent", EnteringCombat)
 	-----------------------
 	--[[ Leaving Combat --]]
-	Frame = br._G.CreateFrame("Frame")
-	Frame:RegisterEvent("PLAYER_REGEN_ENABLED")
+	Frame = _regenEnFrame  -- pre-registered at module load time
 	local function LeavingCombat(_, event, _)
 		if event == "PLAYER_REGEN_ENABLED" then
 			-- start loot manager
@@ -148,8 +177,7 @@ function common:commonReaders()
 	Frame:SetScript("OnEvent", LeavingCombat)
 	---------------------------
 	--[[ UI Error Messages --]]
-	Frame = br._G.CreateFrame("Frame")
-	Frame:RegisterEvent("UI_ERROR_MESSAGE")
+	Frame = _uiErrFrame  -- pre-registered at module load time
 	local function UiErrorMessages(_, _, errorType, _)
 		br.lastError = br._G.GetGameMessageInfo(errorType)
 		br.lastErrorTime = br._G.GetTime()
@@ -267,45 +295,25 @@ function common:commonReaders()
 
 	---------------------------
 	--[[ Combat Log Reader --]]
-	local superReaderFrame = br._G.CreateFrame("Frame")
-	superReaderFrame:RegisterEvent("CHAT_MSG_ADDON")
-	superReaderFrame:RegisterEvent("PLAYER_STARTED_MOVING")
-	superReaderFrame:RegisterEvent("PLAYER_STOPPED_MOVING")
-	superReaderFrame:RegisterEvent("PLAYER_TOTEM_UPDATE")
-	superReaderFrame:RegisterEvent("UNIT_AURA")
-	superReaderFrame:RegisterEvent("UNIT_SPELLCAST_START")
-	superReaderFrame:RegisterEvent("UNIT_SPELLCAST_SENT")
-	superReaderFrame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
-	superReaderFrame:RegisterEvent("UNIT_SPELLCAST_FAILED")
-	superReaderFrame:RegisterEvent("UNIT_SPELLCAST_STOP")
-	superReaderFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP")
-	superReaderFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START")
-	superReaderFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_UPDATE")
+	local superReaderFrame = _superFrame  -- pre-registered at module load time; all RegisterEvent calls are above at module scope
 	-- superReaderFrame:RegisterEvent("UNIT_SPELLCAST_EMPOWER_START")
 	-- superReaderFrame:RegisterEvent("UNIT_SPELLCAST_EMPOWER_STOP")
 	-- superReaderFrame:RegisterEvent("UNIT_SPELLCAST_EMPOWER_UPDATE")
-	superReaderFrame:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
-	superReaderFrame:RegisterEvent("UNIT_POWER_UPDATE")
-	superReaderFrame:RegisterEvent("ENCOUNTER_START")
-	superReaderFrame:RegisterEvent("ENCOUNTER_END")
 	-- superReaderFrame:RegisterUnitEvent("AZERITE_EMPOWERED_ITEM_SELECTION_UPDATED")
-	superReaderFrame:RegisterUnitEvent("AZERITE_ESSENCE_ACTIVATED")
-	superReaderFrame:RegisterUnitEvent("PLAYER_EQUIPMENT_CHANGED")
-	superReaderFrame:RegisterUnitEvent("PLAYER_LEVEL_UP")
-	superReaderFrame:RegisterUnitEvent("PLAYER_TALENT_UPDATE")
-	superReaderFrame:RegisterUnitEvent("TRAIT_CONFIG_UPDATED")
-	superReaderFrame:RegisterUnitEvent("UI_ERROR_MESSAGE")
-	superReaderFrame:RegisterEvent("LOADING_SCREEN_ENABLED")
-	superReaderFrame:RegisterEvent("LOADING_SCREEN_DISABLED")
 	local function SuperReader(_, event, ...)
 		-- Aura Max Stacks
 		if event == "UNIT_AURA" then
 			local unitTarget, updateInfo = ...
 			if updateInfo and updateInfo.addedAuras then
+				br.readers.common.auraMaxStacks = br.readers.common.auraMaxStacks or {}
 				for _, aura in ipairs(updateInfo.addedAuras) do
-					br.readers.common.auraMaxStacks = br.readers.common.auraMaxStacks or {}
-					br.readers.common.auraMaxStacks[aura.spellId] = br.readers.common.auraMaxStacks[aura.spellId] or {}
-					br.readers.common.auraMaxStacks[aura.spellId][unitTarget] = aura.maxCharges or 0
+					-- aura fields from UNIT_AURA updateInfo may be secret-tainted (e.g. by Details);
+					-- pcall guards against "table index is secret" on aura.spellId
+					pcall(function()
+						local sid = aura.spellId
+						br.readers.common.auraMaxStacks[sid] = br.readers.common.auraMaxStacks[sid] or {}
+						br.readers.common.auraMaxStacks[sid][unitTarget] = aura.maxCharges or 0
+					end)
 				end
 			end
 		end

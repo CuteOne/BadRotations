@@ -93,6 +93,7 @@ br.lists.heroSpec = {
         aldrachiReaver = 35
     },
     DRUID = {
+        -- TODO: verify Midnight hero spec IDs (current values are War Within)
         druidOfTheClaw = 21,
         wildstalker = 22,
         keeperOfTheGrove = 23,

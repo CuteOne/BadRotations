@@ -88,18 +88,20 @@ function cBuilder:loadProfiles()
     local list = br.loader.rotations[specID]
     local matchedProfiles = list and #list or 0
 
-    -- Warn if no profiles matched for this expansion
-    if matchedProfiles == 0 and #profiles > 0 then
-        br._G.print("|cffFF0000BadRotations:|r Found " .. #profiles .. " profile(s) but none matched for " .. br.api.expansion .. " expansion!")
-        br._G.print("|cffFFFF00Create a Retail rotation or change profile expansion markers.|r")
-    end
-
     -- Track per-spec no-rotation state so callers can avoid retrying
     br.loader.noRotationsFound = br.loader.noRotationsFound or {}
+    br.loader.noRotationsFoundWarned = br.loader.noRotationsFoundWarned or {}
     if matchedProfiles == 0 then
         br.loader.noRotationsFound[specID] = true
+        -- Warn once per spec per session (login / reload / spec change)
+        if not br.loader.noRotationsFoundWarned[specID] and #profiles > 0 then
+            br.loader.noRotationsFoundWarned[specID] = true
+            br._G.print("|cffFF0000BadRotations:|r Found " .. #profiles .. " profile(s) but none matched for " .. br.api.expansion .. " expansion!")
+            br._G.print("|cffFFFF00Create a Retail rotation or change profile expansion markers.|r")
+        end
     else
         br.loader.noRotationsFound[specID] = nil
+        br.loader.noRotationsFoundWarned[specID] = nil
     end
 end
 
@@ -131,7 +133,10 @@ function cBuilder:new(spec, specName)
     self.profile = specName
 
     -- Mandatory !
-    if br.loader.rotations[spec] == nil then
+    -- Skip loadProfiles if we already know no rotations exist for this spec
+    -- (prevents per-frame spam when the expansion/ID doesn't match any file).
+    local alreadyChecked = br.loader.noRotationsFound and br.loader.noRotationsFound[spec]
+    if br.loader.rotations[spec] == nil and not alreadyChecked then
         cBuilder:loadProfiles()
         br.rotationChanged = true
     end
@@ -212,17 +217,21 @@ function cBuilder:new(spec, specName)
                         else
                             -- If spellID is a table, then it is a list of spellIDs, so we need to check each one
                             for spellRef, id in pairs(spellID) do
-                                local name, _, _, _, _, _, gsiSpellID = br.api.wow.GetSpellInfo(id)
-                                if (not name or gsiSpellID ~= id) then
-                                    local warnKey = spellType .. "_" .. spellRef .. "_" .. tostring(id)
-                                    if not warnedOnce[warnKey] then
-                                        warnedOnce[warnKey] = true
-                                        br._G.print("|cffff0000"..spellType..": |r" ..
-                                            spellRef ..
-                                            "|cffff0000 with ID: |r" ..
-                                            id .. "|cffff0000 is not valid in the list of "..spellType.." Spell List.")
+                                if type(id) == "number" then
+                                    local name, _, _, _, _, _, gsiSpellID = br.api.wow.GetSpellInfo(id)
+                                    if (not name or gsiSpellID ~= id) then
+                                        local warnKey = spellType .. "_" .. spellRef .. "_" .. tostring(id)
+                                        if not warnedOnce[warnKey] then
+                                            warnedOnce[warnKey] = true
+                                            br._G.print("|cffff0000"..spellType..": |r" ..
+                                                spellRef ..
+                                                "|cffff0000 with ID: |r" ..
+                                                id .. "|cffff0000 is not valid in the list of "..spellType.." Spell List.")
+                                        end
                                     end
                                 end
+                                -- if id is a table (e.g. totem sub-entries with ranked spell arrays),
+                                -- skip validation — ranked IDs are resolved at runtime
                             end
                         end
                         -- Assign spell to br.player.spells for the spell type

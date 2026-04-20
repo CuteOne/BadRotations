@@ -28,13 +28,15 @@ local function addLine(tooltip, id, type, noEmptyLine)
 	-- Check if we already added to this tooltip. Happens on the talent frame
 	for i = 1, 15 do
 		local frame = _G[tooltip:GetName() .. "TextLeft" .. i]
-		local text
 		if frame then
-			text = frame:GetText()
-		end
-		if text and text == type then
-			found = true
-			break
+			local ok, match = pcall(function()
+				local text = frame:GetText()
+				return text and text == type
+			end)
+			if ok and match then
+				found = true
+				break
+			end
 		end
 	end
 	if not found then
@@ -194,7 +196,8 @@ function tooltips:targetValidationDebugHandler(tooltip)
 	local reaction = br.functions.unit:GetUnitReaction(unit, "player") or 10
 	local isCC = br.functions.misc:getOptionCheck("Don't break CCs") and br.functions.misc:isLongTimeCCed(unitGUID)
 	local isTapped = br._G.UnitIsTapDenied(unit)
-	local hasDamagedTapped = isTapped and br.engines.enemiesEngine.damaged[br._G.ObjectPointer(unit)] ~= nil
+	local _opOk, _opPtr = pcall(br._G.ObjectPointer, unit)
+	local hasDamagedTapped = isTapped and _opOk and _opPtr ~= nil and br.engines.enemiesEngine.damaged[_opPtr] ~= nil
 	local inUnitsTable = br.engines.enemiesEngine.units[unitGUID] ~= nil
 	local isFriend = br.functions.unit:GetUnitIsFriend(unit, "player")
 	local isCharmed = br._G.UnitIsCharmed(unit)
@@ -346,7 +349,7 @@ end
 -- Register tooltip hook (uses compatibility wrapper for Retail vs Classic)
 if br.api and br.api.wow and br.api.wow.HookTooltipSetUnit then
 	br.api.wow.HookTooltipSetUnit(unitTooltipHandler)
-	br.api.wow.HookTooltipSetUnit(function(tooltip) tooltips:targetValidationDebugHandler(tooltip) end)
+	br.api.wow.HookTooltipSetUnit(function(tooltip) pcall(tooltips.targetValidationDebugHandler, tooltips, tooltip) end)
 end
 -- Items
 local function attachItemTooltip(self)

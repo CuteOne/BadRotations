@@ -5,8 +5,9 @@ local _, br = ...
 if not br.isClassic then return end
 
 -- Capability flags for Classic
-br.api.hasSpellRanks = true   -- spells have rank-specific IDs
-br.api.hasSubSpecs   = false  -- no talent specialization subfolders
+br.api.hasSpellRanks = true        -- spells have rank-specific IDs
+br.api.hasSubSpecs   = false       -- no talent specialization subfolders
+br.api.comboPointsOnTarget = true  -- combo points are stored on the target, lost on switch
 br.api.expansion = "Classic"
 
 local api = br.api.wow

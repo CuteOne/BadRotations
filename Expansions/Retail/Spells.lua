@@ -10,7 +10,7 @@ br.lists.racials = {
     Dwarf              = 20594,  -- Stoneform
     Gnome              = 20589,  -- Escape Artist
     Human              = 59752,  -- Every Man for Himself
-    NightElf           = 20580,  -- Shadowmeld
+    NightElf           = 58984,  -- Shadowmeld
     Worgen             = 68992,  -- Darkflight
     -- Horde
     Goblin             = 69041,  -- Rocket Barrage

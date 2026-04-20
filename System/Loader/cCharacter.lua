@@ -238,6 +238,7 @@ function cCharacter:new()
 			if self.inCombatPrevious and not self.inCombat then
 				if self.ui and self.ui.debug then
 					self.ui.debug("Combat Ended")
+					self.ui.debug("============")
 				end
 			end
 		end
@@ -265,6 +266,12 @@ function cCharacter:new()
 
 		-- Halt all rotations during loading screens and transitions
 		if br.disableControl or br.disablePulse then
+			return
+		end
+
+		-- Suppress rotation for a short grace period after a zone transition so that
+		-- aura/buff data has time to propagate before action lists query it.
+		if br.zoneGraceEnd and br._G.GetTime() < br.zoneGraceEnd then
 			return
 		end
 

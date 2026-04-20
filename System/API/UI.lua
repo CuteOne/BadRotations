@@ -340,6 +340,38 @@ br.api.ui = function(self)
         end
     end
 
+    if ui.fightStyle == nil then
+        ui.fightStyle = {}
+    end
+    if ui.fightStyle.patchwerk == nil then
+        --- Returns true when not in a 5-man party instance (raid, outdoor, etc.).
+        -- @function ui.fightStyle.patchwerk
+        -- @return boolean
+        ui.fightStyle.patchwerk = function()
+            return self.instance ~= "party"
+        end
+    end
+    if ui.fightStyle.dungeonRoute == nil then
+        --- Returns true when inside an active Mythic+ key run.
+        -- @function ui.fightStyle.dungeonRoute
+        -- @return boolean
+        ui.fightStyle.dungeonRoute = function()
+            return self.instance == "party"
+                and br._G.C_ChallengeMode ~= nil
+                and br._G.C_ChallengeMode.GetActiveChallengeMapID() ~= nil
+        end
+    end
+    if ui.fightStyle.dungeonSlice == nil then
+        --- Returns true when inside a regular (non-Mythic+) 5-man dungeon.
+        -- @function ui.fightStyle.dungeonSlice
+        -- @return boolean
+        ui.fightStyle.dungeonSlice = function()
+            return self.instance == "party"
+                and not (br._G.C_ChallengeMode ~= nil
+                    and br._G.C_ChallengeMode.GetActiveChallengeMapID() ~= nil)
+        end
+    end
+
     if ui.setToggle == nil then
         --- Sets a toggle to the specified value and updates the UI
         -- @function ui.setToggle

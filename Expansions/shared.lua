@@ -188,9 +188,9 @@ do
 
     api.FindAuraByName = function(spellName, unit, filter)
         if not spellName or not unit then return nil end
-        if _G.AuraUtil and _G.AuraUtil.FindAuraByName then
-            return _G.AuraUtil.FindAuraByName(spellName, unit, filter)
-        end
+        -- Skip _G.AuraUtil.FindAuraByName: it internally calls GetAuraDataBySpellName which
+        -- rejects object pointers in Midnight. api.GetXxxDataByIndex already handles unit
+        -- conversion correctly per expansion (including NN ObjectUnit wrapping on Retail).
         local upFilter = filter and string.upper(filter) or nil
         local hasPlayer  = upFilter and string.find(upFilter, "PLAYER",  1, true)
         local hasHelpful = upFilter and string.find(upFilter, "HELPFUL", 1, true)
@@ -279,6 +279,14 @@ do
         cs.IsSpellInRange = function(spellName, unit)
             if _G.IsSpellInRange then return _G.IsSpellInRange(spellName, unit) end
             return nil
+        end
+    end
+
+    -- IsAutoRepeatSpell: Retail uses C_Spell.IsAutoRepeatSpell; Classic/TBC expose
+    -- it as a top-level global.  Polyfill so gateAutoRepeat never calls a nil function.
+    if not (_G.C_Spell and _G.C_Spell.IsAutoRepeatSpell) then
+        cs.IsAutoRepeatSpell = function(spellName)
+            return _G.IsAutoRepeatSpell and _G.IsAutoRepeatSpell(spellName) or false
         end
     end
 end

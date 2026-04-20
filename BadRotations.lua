@@ -71,6 +71,8 @@ br.unlockers = {}
 -- Other Initialization
 br.data = {}
 br.data.settings = {}
+br.data.tracker = {}
+br.data.ui = {}
 br.loader.addonName = "BadRotations"
 br.loader.rotations = {}
 br.loader.selectedSpec = "None"
@@ -82,12 +84,6 @@ br.loader.settingsFile = "None.lua"
 
 -- Run
 function br.Run()
-	if br.loader.selectedSpec == nil then
-		br.loader.selectedSpecID, br.loader.selectedSpec = br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization())
-		if br.loader.selectedSpec == "" then
-			br.loader.selectedSpec = "Initial"
-		end
-	end
 	-- add minimap fire icon
 	br.ui:MinimapButton()
 	-- Build up pulse frame (hearth)
@@ -117,18 +113,7 @@ function br.load()
 	if br.loader.selectedSpec == "" then
 		br.loader.selectedSpec = "Initial"
 	end
-	if br.data == nil then
-		br.data = {}
-	end
-	if br.data.tracker == nil then
-		br.data.tracker = {}
-	end
-	if br.data.settings == nil then
-		br.data.settings = {}
-	end
-	if br.data.ui == nil then
-		br.data.ui = {}
-	end
+	br.loader.selectedSpec = br.ui.settingsManagement:normalizeSpecKey(br.loader.selectedSpec)
 	if br.data.settings[br.loader.selectedSpec] == nil then
 		br.data.settings[br.loader.selectedSpec] = {}
 	end
@@ -137,7 +122,7 @@ function br.load()
 		print(br.ui.colors.class .. "[BadRotations] |cffFFFFFFInitializing Please Wait...")
 	end
 	if not loadedIn then
-		if br.engines.enemiesEngine.damaged == nil then
+		if br.engines.enemiesEngine and br.engines.enemiesEngine.damaged == nil then
 			br.engines.enemiesEngine.damaged = {}
 		end
 		-- br.bagsUpdated = true
@@ -161,6 +146,8 @@ local function OnEvent(self, event)
 	end
 	if event == "LOADING_SCREEN_DISABLED" then
 		br.disablePulse = false
+		-- Give aura/buff data a few ticks to propagate before rotations run again.
+		br.zoneGraceEnd = br._G.GetTime() + 3
 	end
 	if event == "PLAYER_LOGOUT" then
 		-- Attempt to save settings and UI state on logout regardless of unlock status.

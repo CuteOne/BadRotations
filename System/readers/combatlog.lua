@@ -10,6 +10,9 @@ br.readers.combatLog.debuffTracker = {}
 br.readers.combatLog.enraged = {}
 local combatLog = br.readers.combatLog
 
+-- Pre-register at module load time to avoid ADDON_ACTION_FORBIDDEN in NnLua runtime context
+local combatLogFrame = br._G.CreateFrame("Frame")
+combatLogFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 
 -- will update the br.read.enraged list
 function combatLog:enrageReader(...)
@@ -61,8 +64,7 @@ end
 function combatLog:combatLog()
     ---------------------------
     --[[ Combat Log Reader --]]
-    local frame = br._G.CreateFrame("Frame")
-    frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+    local frame = combatLogFrame  -- frame pre-registered at module load time
     local function reader(self, event, ...)
         -- this reader intend to hold all the combatlog related stuff. this is gonna be used
         -- with as few checks as possible per class/spec as in raiding environment we have already enough to check
@@ -291,41 +293,68 @@ function combatLog:common(...)
     end
     --
     ---------------------
-    --[[ Swing Timer ]]
-    if br.swingTimer == nil then
-        br.swingTimer = 0
-    end
-    if br.nextMH == nil then
-        br.nextMH = br._G.GetTime() + (br._G.UnitAttackSpeed("player") or 0)
-    end
+    --[[ Swing Timers ]]
+    -- Initialise the combined swing table on br.player.
+    -- br.player may not be populated yet on the very first CLEU event;
+    -- guard defensively and skip silently when it isn't.
+    if br.player then
+        br.player.swing = br.player.swing or {}
+        local sw = br.player.swing
 
-    -- Initialize swing timer when Attack spell is cast (6603 = Attack in Classic/Retail)
-    if param == "SPELL_CAST_SUCCESS" and source == guid and spell == 6603 then
-        local speed = br._G.UnitAttackSpeed("player") or 0
-        if speed > 0 then
-            -- Start swing timer with initial delay (first swing takes full weapon speed)
-            br.lastMH = br._G.GetTime()
-            br.nextMH = br.lastMH + speed
+        -- Melee (main-hand) sub-table
+        sw.mh = sw.mh or { timer = 0, next = 0, last = 0, speed = 0 }
+        if sw.mh.next == 0 then
+            local initSpeed = br._G.UnitAttackSpeed("player") or 0
+            sw.mh.next  = br._G.GetTime() + initSpeed
+            sw.mh.speed = initSpeed
         end
-    end
 
-    -- Reset swing timer on both damage and misses (important for Classic)
-    if (param == "SWING_DAMAGE" or param == "SWING_MISSED") and source == guid then
-        br.swingTimer = 0
-        br.lastMH = br._G.GetTime()
-        local speed = br._G.UnitAttackSpeed("player") or 0
-        if speed > 0 then
-            br.nextMH = br.lastMH + speed
+        -- Ranged (auto-shot) sub-table
+        sw.ranged = sw.ranged or { timer = 0, next = 0, last = 0, speed = 0 }
+
+        -- Melee: start timer when the player begins auto-attacking (spell 6603 = Attack)
+        if param == "SPELL_CAST_SUCCESS" and source == guid and spell == 6603 then
+            local speed = br._G.UnitAttackSpeed("player") or 0
+            if speed > 0 then
+                sw.mh.last  = br._G.GetTime()
+                sw.mh.next  = sw.mh.last + speed
+                sw.mh.speed = speed
+            end
         end
-    end
 
-    -- Update swing timer every event
-    if br.nextMH and br._G.GetTime() then
-        local remaining = br.nextMH - br._G.GetTime()
-        if remaining < 0 then
-            br.swingTimer = 0
-        else
-            br.swingTimer = remaining
+        -- Melee: reset on each swing (hit or miss)
+        if (param == "SWING_DAMAGE" or param == "SWING_MISSED") and source == guid then
+            local speed = br._G.UnitAttackSpeed("player") or 0
+            sw.mh.last  = br._G.GetTime()
+            sw.mh.speed = speed
+            sw.mh.timer = 0
+            if speed > 0 then
+                sw.mh.next = sw.mh.last + speed
+            end
+        end
+
+        -- Ranged: auto-shot fires as SPELL_CAST_SUCCESS with spellId 75.
+        -- UnitRangedDamage("player") returns: lo, hi, speed
+        if param == "SPELL_CAST_SUCCESS" and source == guid and spell == 75 then
+            local _, _, rangedSpeed = br._G.UnitRangedDamage("player")
+            rangedSpeed = rangedSpeed or 0
+            if rangedSpeed > 0 then
+                sw.ranged.last  = br._G.GetTime()
+                sw.ranged.next  = sw.ranged.last + rangedSpeed
+                sw.ranged.speed = rangedSpeed
+                sw.ranged.timer = rangedSpeed  -- just fired; full cycle ahead
+            end
+        end
+
+        -- Update both countdown timers every CLEU event
+        local now = br._G.GetTime()
+        if sw.mh.next > 0 then
+            local mhRemain = sw.mh.next - now
+            sw.mh.timer = mhRemain > 0 and mhRemain or 0
+        end
+        if sw.ranged.next > 0 then
+            local rRemain = sw.ranged.next - now
+            sw.ranged.timer = rRemain > 0 and rRemain or 0
         end
     end
     -----------------------------------
@@ -424,6 +453,22 @@ function combatLog:common(...)
                     end
                 end
             end
+        end
+    end
+    ---------------------------------
+    --[[Cast Failed Reason Capture]]
+    -- Store the WoW server failure reason string so the cast debug system can report it.
+    -- spellType at CLEU position 15 is the failedType string for SPELL_CAST_FAILED events
+    -- (e.g. "Out of range", "Not enough mana", "Interrupted").
+    -- Use sourceName (player character name) rather than source GUID alone: on TBC private
+    -- servers pet ability failures can fire with the player's GUID as source, so the name
+    -- check is the reliable discriminator between player and pet cast failures.
+    if param == "SPELL_CAST_FAILED" and sourceName == br._G.UnitName("player") then
+        if br.functions.lastCast and br.functions.lastCast.lastCastTable then
+            if not br.functions.lastCast.lastCastTable.lastFailedReason then
+                br.functions.lastCast.lastCastTable.lastFailedReason = {}
+            end
+            br.functions.lastCast.lastCastTable.lastFailedReason[spell] = spellType
         end
     end
     ---------------------
@@ -786,7 +831,7 @@ function combatLog:Druid(...)
         br.shroomsTable[1].z = nil
     end
     if
-        (param == "UNIT_DIED" or param == "UNIT_DESTROYED" or br._G.GetTotemInfo(1) ~= true) and br.shroomsTable ~= nil and
+        (param == "UNIT_DIED" or param == "UNIT_DESTROYED") and br.shroomsTable ~= nil and
         br.shroomsTable[1].guid == destination
     then
         br.shroomsTable[1] = {}

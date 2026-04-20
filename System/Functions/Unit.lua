@@ -486,10 +486,33 @@ end
 function unit:isTankInRange(range)
 	if range == nil then range = 40 end
 	if #br.engines.healingEngine.friend > 1 then
+		-- Primary: role-based detection (Cataclysm+)
 		for i = 1, #br.engines.healingEngine.friend do
 			local friend = br.engines.healingEngine.friend[i]
-			if friend.GetRole() == "TANK" and not br.functions.unit:GetUnitIsDeadOrGhost(friend.unit) and br.functions.range:getDistance(friend.unit) < range then
+			if friend.GetRole() == "TANK"
+				and not br.functions.unit:GetUnitIsDeadOrGhost(friend.unit)
+				and br.functions.range:getDistance(friend.unit) < range
+			then
 				return true, friend.unit
+			end
+		end
+		-- Fallback: class-based detection for expansions without a role system (TBC, Classic).
+		-- Activates when UnitGroupRolesAssigned returns "NONE" for the player, indicating the
+		-- role API is unavailable. Warrior, Paladin, and Druid are valid tank classes in both.
+		local uigra = br._G.UnitGroupRolesAssigned
+		if uigra and uigra("player") == "NONE" then
+			local tankClass = { WARRIOR = true, PALADIN = true, DRUID = true }
+			for i = 1, #br.engines.healingEngine.friend do
+				local friend = br.engines.healingEngine.friend[i]
+				if not br._G.UnitIsUnit(friend.unit, "player")
+					and not br.functions.unit:GetUnitIsDeadOrGhost(friend.unit)
+					and br.functions.range:getDistance(friend.unit) < range
+				then
+					local _, classTag = br._G.UnitClass(friend.unit)
+					if classTag and tankClass[classTag] then
+						return true, friend.unit
+					end
+				end
 			end
 		end
 	end

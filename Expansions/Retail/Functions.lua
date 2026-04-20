@@ -43,8 +43,9 @@ end
 -- UnitAura wrapper
 -- Retail: C_UnitAuras.GetAuraDataByIndex, returns table
 api.UnitAura = function(unit, index, filter)
-    if C_UnitAuras and C_UnitAuras.GetAuraDataByIndex then
-        local auraData = C_UnitAuras.GetAuraDataByIndex(unit, index, filter)
+    local cua = br._G.C_UnitAuras
+    if cua and cua.GetAuraDataByIndex then
+        local auraData = cua.GetAuraDataByIndex(unit, index, filter)
         if auraData and AuraUtil and AuraUtil.UnpackAuraData then
             return AuraUtil.UnpackAuraData(auraData)
         end
@@ -67,9 +68,12 @@ end
 
 -- GetAuraDataByIndex wrapper
 -- Retail: C_UnitAuras.GetAuraDataByIndex
+-- br._G.C_UnitAuras is the nn.lua proxy on NN (applies ObjectUnit conversion) and falls
+-- through to the real C_UnitAuras on ICC/Tinkr (which pass standard unit tokens).
 api.GetAuraDataByIndex = function(unit, index, filter)
-    if _G.C_UnitAuras and _G.C_UnitAuras.GetAuraDataByIndex then
-        return _G.C_UnitAuras.GetAuraDataByIndex(unit, index, filter)
+    local cua = br._G.C_UnitAuras
+    if cua and cua.GetAuraDataByIndex then
+        return cua.GetAuraDataByIndex(unit, index, filter)
     end
     return nil
 end
@@ -77,8 +81,9 @@ end
 -- GetDebuffDataByIndex wrapper
 -- Retail: C_UnitAuras.GetDebuffDataByIndex
 api.GetDebuffDataByIndex = function(unit, index, filter)
-    if _G.C_UnitAuras and _G.C_UnitAuras.GetDebuffDataByIndex then
-        return _G.C_UnitAuras.GetDebuffDataByIndex(unit, index, filter)
+    local cua = br._G.C_UnitAuras
+    if cua and cua.GetDebuffDataByIndex then
+        return cua.GetDebuffDataByIndex(unit, index, filter)
     end
     return nil
 end
@@ -86,8 +91,9 @@ end
 -- GetBuffDataByIndex wrapper
 -- Retail: C_UnitAuras.GetBuffDataByIndex
 api.GetBuffDataByIndex = function(unit, index, filter)
-    if _G.C_UnitAuras and _G.C_UnitAuras.GetBuffDataByIndex then
-        return _G.C_UnitAuras.GetBuffDataByIndex(unit, index, filter)
+    local cua = br._G.C_UnitAuras
+    if cua and cua.GetBuffDataByIndex then
+        return cua.GetBuffDataByIndex(unit, index, filter)
     end
     return nil
 end

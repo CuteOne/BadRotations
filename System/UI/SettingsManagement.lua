@@ -15,6 +15,23 @@ local function getFolderClassName(class)
 	return formatClass
 end
 
+-- Returns the formatted class folder name for the current player (e.g. "Shaman", "Death Knight").
+-- Used by TBC/Classic where hasSubSpecs = false: settings are keyed by class, not spec.
+local function getClassFolderName()
+	return getFolderClassName(select(2, br._G.UnitClass("player")))
+end
+
+-- Normalizes a raw spec name from C_SpecializationInfo for use as a settings key / folder.
+-- Retail/MOP (hasSubSpecs = true)  → returns rawSpec unchanged ("Blood", "Enhancement", …).
+-- TBC/Classic  (hasSubSpecs = false) → returns the formatted class name ("Shaman", "Death Knight", …)
+-- so all specs share one folder and the key is stable across respecs.
+function settingsManagement:normalizeSpecKey(rawSpec)
+	if not br.api.hasSubSpecs then
+		return getClassFolderName()
+	end
+	return rawSpec
+end
+
 local function checkDirectory(dir)
 	if not br._G.DirectoryExists(dir) then
 		br._G.CreateDirectory(dir)
@@ -207,6 +224,9 @@ function settingsManagement:defaultSettings()
 		br.ui:closeWindow("config")
 	end)
 	-- Settings Per Spec
+	if br.data.settings[br.loader.selectedSpec] == nil then
+		br.data.settings[br.loader.selectedSpec] = {}
+	end
 	if br.data.settings[br.loader.selectedSpec].toggles == nil then
 		br.data.settings[br.loader.selectedSpec].toggles = {}
 	end
@@ -335,11 +355,18 @@ function settingsManagement:checkDirectories(folder, class, spec, profile, insta
 	end
 
 	-- Set the Spec Directory
-	if spec == nil then
-		spec = br.loader.selectedSpec
-	end
-	if spec == nil then
-		spec = "Initial"
+	-- TBC/Classic have no sub-specializations: always use the class name as the spec folder
+	-- so settings live at Settings/Shaman/Shaman/Profile/ (not Settings/Shaman/Enhancement/Profile/).
+	-- This matches the rotation folder layout where hasSubSpecs = false uses the class folder.
+	if not br.api.hasSubSpecs then
+		spec = getFolderClassName(class)
+	else
+		if spec == nil then
+			spec = br.loader.selectedSpec
+		end
+		if spec == nil or spec == "" then
+			spec = "Initial"
+		end
 	end
 	local specDir = classDir .. spec .. sep
 	checkDirectory(specDir)
@@ -621,6 +648,39 @@ function settingsManagement:loadSettings(folder, class, spec, profile, instance)
 				profileFound = true
 			end
 		end
+
+		-- Migration: for TBC/Classic (hasSubSpecs = false), settings were previously saved under
+		-- the API spec name (e.g. Settings/Shaman/Enhancement/Profile/) before this fix.
+		-- If nothing was found at the new class-based path, look for the old spec-keyed files
+		-- and load from there. After loading, re-save to the new path so migration is permanent.
+		local migratedFromOldPath = false
+		if not fileFound and not br.api.hasSubSpecs then
+			local rawSpec = select(2, br._G.C_SpecializationInfo.GetSpecializationInfo(
+				br._G.C_SpecializationInfo.GetSpecialization()))
+			local resolvedClass = class or select(2, br._G.UnitClass("player"))
+			local resolvedProfile = profile or br.loader.selectedProfileName
+			-- Only attempt if the raw API spec differs from the class folder name (i.e. truly a spec name)
+			if rawSpec and rawSpec ~= "" and rawSpec ~= getFolderClassName(resolvedClass) then
+				local wowDir = br._G.GetWoWDirectory() or ""
+				local mainDir = wowDir:match('_retail_')
+					and (wowDir .. sep .. "Interface" .. sep .. "AddOns" .. sep .. br.loader.addonName .. sep .. "Settings" .. sep)
+					or  (wowDir .. sep .. br.loader.addonName .. sep .. "Settings" .. sep)
+				local folderPart = folder and (folder .. sep) or ""
+				local oldDir = mainDir .. folderPart .. getFolderClassName(resolvedClass) .. sep .. rawSpec .. sep .. resolvedProfile .. sep
+				if settingsManagement:findFileInFolder("savedSettings.lua", oldDir) then
+					brdata = tableLoad(oldDir .. "savedSettings.lua")
+					if brdata then
+						fileFound = true
+						migratedFromOldPath = true
+						br._G.print("|cffFFDD00[BR] Migrating settings from old path:|r " .. oldDir)
+					end
+					if settingsManagement:findFileInFolder("savedProfile.lua", oldDir) then
+						brprofile = tableLoad(oldDir .. "savedProfile.lua")
+						if brprofile then profileFound = true end
+					end
+				end
+			end
+		end
 		if fileFound then
 			br.ui:closeWindow("all")
 			br.data = settingsManagement:deepcopy(brdata)
@@ -631,6 +691,14 @@ function settingsManagement:loadSettings(folder, class, spec, profile, instance)
 				settingsManagement.profile = settingsManagement:deepcopy(brprofile)
 			end
 			br._G.print("Loaded Settings for Profile " .. tostring(profile))
+			-- Migration: immediately re-save to the new class-based path so the old spec-keyed
+			-- files are no longer needed. Next load will find the file at the correct path.
+			if migratedFromOldPath then
+				br._G.C_Timer.After(0, function()
+					settingsManagement:saveSettings(folder, class, nil, profile, instance)
+					br._G.print("|cffFFDD00[BR] Settings migrated to new path. Migration complete.|r")
+				end)
+			end
 		end
 		if not fileFound then
 			if br.loader.selectedProfileName ~= "None" then
@@ -640,10 +708,13 @@ function settingsManagement:loadSettings(folder, class, spec, profile, instance)
 			end
 		end
 
-		if spec == nil then
+		-- Resolve settings data key: TBC/Classic use class name; Retail/MOP use spec name.
+		if not br.api.hasSubSpecs then
+			spec = getClassFolderName()
+		elseif spec == nil then
 			spec = br.loader.selectedSpec
 		end
-		if spec == "" then
+		if spec == nil or spec == "" then
 			spec = "Initial"
 		end
 		if br.data.settings == nil then br.data.settings = {} end
@@ -783,8 +854,9 @@ end
 
 function settingsManagement:saveLastProfileTracker()
 	local saveDir = settingsManagement:checkDirectories(nil, nil, nil, "Tracker")
-	local specID = br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization()) or br.loader.selectedSpecID
-	if specID == 0 and br.loader.selectedSpecID ~= nil then specID = br.loader.selectedSpecID end
+	local specID = br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization())
+	specID = specID or 0
+	if specID == 0 then specID = br.loader.selectedSpecID or 0 end
 	if br.data ~= nil and br.data.settings ~= nil and br.data.settings[br.loader.selectedSpec] ~= nil and specID ~= 0 then
 		if br.data.tracker ~= nil then
 			if br.data.tracker[br.loader.selectedSpec] == nil then

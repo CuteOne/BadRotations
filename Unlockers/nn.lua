@@ -207,7 +207,7 @@ local globalCacheList =
 	"UnitName",
 	"UnitOnTaxi",
 	-- "UnitPhaseReason",
-	"UnitInPhase",
+	-- "UnitInPhase", -- Not Provided in Build 66709; fallback handled in Expansions/Retail/Functions.lua
 	"UnitPlayerControlled",
 	"UnitPlayerOrPetInParty",
 	"UnitPlayerOrPetInRaid",
@@ -571,6 +571,21 @@ function br.unlockers:NNUnlock()
 	b.UnitDebuff = function(unit, index, filter)
 		return UnwrapAuraTable(C_UnitAuras.GetDebuffDataByIndex(ObjectUnit(unit), index, filter))
 	end
+
+	-- Proxy C_UnitAuras so that index-based aura lookups apply ObjectUnit conversion and
+	-- UnwrapAuraTable, matching UnitAura/UnitBuff/UnitDebuff above. All other C_UnitAuras
+	-- methods pass through to the real namespace unchanged.
+	b.C_UnitAuras = setmetatable({
+		GetAuraDataByIndex = function(unit, index, filter)
+			return UnwrapAuraTable(C_UnitAuras.GetAuraDataByIndex(ObjectUnit(unit), index, filter))
+		end,
+		GetBuffDataByIndex = function(unit, index, filter)
+			return UnwrapAuraTable(C_UnitAuras.GetBuffDataByIndex(ObjectUnit(unit), index, filter))
+		end,
+		GetDebuffDataByIndex = function(unit, index, filter)
+			return UnwrapAuraTable(C_UnitAuras.GetDebuffDataByIndex(ObjectUnit(unit), index, filter))
+		end,
+	}, { __index = C_UnitAuras })
 
 	b.CombatLogGetCurrentEventInfo = function()
 		return unwrap(CombatLogGetCurrentEventInfo())

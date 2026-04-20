@@ -44,13 +44,15 @@ br.api.talent = function(talent, name, id, allTalents, spellList)
     end
     -- No matching talent for listed talent id, report to dev (only for actual specs, not Initial profiles)
     if (not talentFound or allTalents[id] == nil) then
-
-        local spec = br._G.GetSpecializationInfo(br._G.GetSpecialization()) or 0
-        if spec < 1400 then
-            br._G.print("|cffff0000No talent found for: |r" ..
-                name ..
-                " (" ..
-                id .. ") |cffff0000in the talent spell list, please notify profile developer to remove from the list.")
+        -- GetSpecialization() only exists in Retail/MoP; guard against nil in TBC/Classic/Wrath
+        if br._G.GetSpecialization then
+            local spec = br._G.GetSpecializationInfo(br._G.GetSpecialization()) or 0
+            if spec < 1400 then
+                br._G.print("|cffff0000No talent found for: |r" ..
+                    name ..
+                    " (" ..
+                    id .. ") |cffff0000in the talent spell list, please notify profile developer to remove from the list.")
+            end
         end
         return
     end

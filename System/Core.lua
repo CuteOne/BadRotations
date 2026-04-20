@@ -2,6 +2,9 @@ local _, br = ...
 br.engines = br.engines or {}
 local engines = br.engines
 
+local Print  = print
+local LibDraw -- assigned lazily on first Update call (LibStub must be registered first)
+
 function engines:getUpdateRate()
     local updateRate = br.functions.misc:getOptionValue("Bot Update Rate") or 0.1
 
@@ -89,10 +92,10 @@ local function updateRotationOnSpecChange()
     br.ui:closeWindow("all")
     br.ui.settingsManagement:saveSettings(nil, nil, br.loader.selectedSpec, br.loader.selectedProfileName)
     -- Update Selected Spec/Profile
-    br.loader.selectedSpec = select(2, br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization()))
-    br.loader.selectedSpecID = br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization())
+    local specID, specName = br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization())
+    br.loader.selectedSpecID = specID
+    br.loader.selectedSpec = br.ui.settingsManagement:normalizeSpecKey(specName)
     br.loader.cBuilder:loadProfiles()
-    local specID = br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization())
     if not (br.loader.noRotationsFound and br.loader.noRotationsFound[specID]) then
         br.ui.settingsManagement:loadLastProfileTracker()
     end
@@ -111,10 +114,9 @@ end
 -- collectGarbage should only be set when rotation explicitly changes
 local collectGarbage = false
 local initialized = false
-function engines:Update(self)
+function engines.Update(frame, elapsed)
     local startTime = br._G.debugprofilestop()
-    local LibDraw = br._G.LibStub("LibDraw-BR")
-    local Print = br._G["print"]
+    LibDraw = LibDraw or br._G.LibStub("LibDraw-BR")
     -- Check for Unlocker
     if not br.unlocked then
         br.unlocked = br.unlockers:loadUnlockerAPI()
@@ -134,18 +136,14 @@ function engines:Update(self)
             Print("|cffFFFFFFCannot Start... |cffFF1100BR |cffFFFFFFcan not complete loading. Please check requirements.")
         end
         return false
-    elseif br.unlocked then--and br._G.GetObjectCount() ~= nil then
-        -- Load Expansion Spell Lists
-        if br.lists.spells == nil then
-            br.lists:loadExpansionSpells()
-        end
+    else -- br.unlocked guaranteed true here
         br.functions.misc:devMode()
         -- Check BR Out of Date
         -- br.unlockers:checkBrOutOfDate()
-        -- Load Saved Settings
-        br.ui.settingsManagement:loadSavedSettings()
-        -- Initialization Complete
+        -- One-time initialization: load spell lists, saved settings, show banner
         if not initialized then
+            br.lists:loadExpansionSpells()
+            br.ui.settingsManagement:loadSavedSettings()
             br.ui.chatOverlay:Show("-= BadRotations Loaded =-")
             br._G.print("Initialization Complete.")
             initialized = true
@@ -185,10 +183,9 @@ function engines:Update(self)
                     br._G.CastSpellByID(br.botSpell, br.botUnit)
                     br.castID = false
                 end
-                local playerSpec = br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization())
-                if playerSpec == "" then
-                    playerSpec = "Initial"
-                end
+                local playerSpecID, playerSpecName = br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization())
+                if playerSpecName == "" then playerSpecName = "Initial" end
+                local thisSpec = br.ui.settingsManagement:normalizeSpecKey(playerSpecName)
                 -- Initialize Player
                 if br.player == nil or br.player.profile ~= br.loader.selectedSpec or br.rotationChanged then
                     -- Load Last Profile Tracker
@@ -196,24 +193,20 @@ function engines:Update(self)
                     br.loader.selectedProfile = br.data.settings[br.loader.selectedSpec]["RotationDrop"] or 1
                     -- Load Profile
                     -- br.loaded = false
-                    br.player = br.loader.cBuilder:new(playerSpec, br.loader.selectedSpec)
+                    br.player = br.loader.cBuilder:new(playerSpecID, br.loader.selectedSpec)
                     if br.player ~= nil then
                         setmetatable(br.player, {
                             __index = br.loader
                         })
-                        br.ui:closeWindow("profile")
-                        br.player:createOptions()
-                        br.player:createToggles()
-
-                        br.player:update()
                         if br.rotationChanged then
                             br.ui.settingsManagement:saveLastProfileTracker()
                             br.ui.settingsManagement:loadSettings(nil, br.player.class, br.loader.selectedSpec, br.loader.selectedProfileName)
-                            br.ui:closeWindow("profile")
-                            br.player:createOptions()
-                            br.player:createToggles()
                             collectGarbage = true
                         end
+                        br.ui:closeWindow("profile")
+                        br.player:createOptions()
+                        br.player:createToggles()
+                        br.player:update()
                         br.rotationChanged = false
                         br._G.print("Profile Load Complete")
                     end
@@ -259,7 +252,6 @@ function engines:Update(self)
                 -- Auto Loot
                 br.engines.lootEngine:autoLoot()
                 -- Close windows and swap br.loader.selectedSpec on Spec Change
-                local thisSpec = select(2, br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization()))
                 if thisSpec ~= "" and thisSpec ~= br.loader.selectedSpec then
                     updateRotationOnSpecChange()
                 end

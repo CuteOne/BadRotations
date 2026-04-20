@@ -171,7 +171,7 @@ br.api.unit = function(self)
     -- @param thisUnit The unit to check
     -- @return boolean True if the unit is charmed
     unit.charmed = function(thisUnit)
-        return br.functions.unit:UnitIsCharmed(thisUnit)
+        return br._G.UnitIsCharmed(thisUnit)
     end
 
     --- Clear current target
@@ -218,6 +218,16 @@ br.api.unit = function(self)
     unit.dualWielding = function()
         local IsDualWielding = br._G["IsDualWielding"]
         return IsDualWielding()
+    end
+
+    --- Get the player's current ranged attack speed in seconds.
+    -- Reads the live haste-modified speed from UnitRangedDamage so it reflects
+    -- Rapid Fire, Quiver haste, and other modifiers automatically.
+    -- @function unit.rangedAttackSpeed
+    -- @return number Ranged weapon speed in seconds, or 0 if unavailable
+    unit.rangedAttackSpeed = function()
+        local _, _, speed = br._G.UnitRangedDamage("player")
+        return speed or 0
     end
 
     --- Check if a unit is an enemy
@@ -678,6 +688,14 @@ br.api.unit = function(self)
         return #br.engines.healingEngine.friend > 1
     end
 
+    --- Get number of members in the current group (including player; 0 if solo)
+    -- @function unit.groupCount
+    -- @return number Total group member count
+    unit.groupCount = function()
+        local GetNumGroupMembers = br._G["GetNumGroupMembers"]
+        return GetNumGroupMembers()
+    end
+
     --- Get player's spell haste percentage
     -- @function unit.spellHaste
     -- @return number Spell haste percentage
@@ -728,6 +746,15 @@ br.api.unit = function(self)
         local UnitIsOnTaxi = br._G["UnitOnTaxi"]
         if thisUnit == nil then thisUnit = "player" end
         return UnitIsOnTaxi(thisUnit)
+    end
+
+    --- Get the current target of a unit
+    -- @function unit.target
+    -- @param thisUnit The unit whose target to get
+    -- @return string|nil Unit token of thisUnit's current target, or nil if none
+    unit.target = function(thisUnit)
+        local UnitTarget = br._G["UnitTarget"]
+        return UnitTarget(thisUnit)
     end
 
     --- Check if a unit has threat

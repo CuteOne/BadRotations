@@ -1305,7 +1305,7 @@ actionList.Combat = function()
 
         -- Wait for swing if in melee range
         if unit.exists(units.dyn5) and unit.distance(units.dyn5) < 5 then
-            local swing = br.swingTimer
+            local swing = (br.player.swing and br.player.swing.mh and br.player.swing.mh.timer) or 0
             -- ui.debug("Swing Timer: " .. tostring(swing) .. " | Distance: " .. tostring(unit.distance(units.dyn5)))
             if swing and swing > 0 and swing < 0.3 then
                 -- ui.debug("Waiting for swing: " .. br.functions.misc:round2(swing) .. "s")

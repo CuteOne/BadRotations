@@ -92,7 +92,7 @@ function toggles:TogglesFrame()
 		"OnEnter",
 		function()
 			br._G.GameTooltip:SetOwner(toggles.mainButton, 0, 0)
-			if br.data.settings[br.loader.selectedSpec].toggles["Power"] == 1 then
+			if br.data.settings[br.loader.selectedSpec] ~= nil and br.data.settings[br.loader.selectedSpec].toggles ~= nil and br.data.settings[br.loader.selectedSpec].toggles["Power"] == 1 then
 				br._G.GameTooltip:SetText(
 					"|cffFF0000Disable BadRotations \n|cffFFDD11Hold Left Alt and scroll mouse to adjust size.",
 					225 / 255,

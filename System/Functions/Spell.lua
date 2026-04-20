@@ -339,27 +339,30 @@ function spell:getSpellRange(spellID, option)
 end
 
 function spell:isSpellInSpellbook(spellID, spellType)
-	local spellSlot = br._G.FindSpellBookSlotBySpellID(spellID, spellType == "pet" and true or false)
+	local spellSlot = br._G.FindSpellBookSlotBySpellID
+		and br._G.FindSpellBookSlotBySpellID(spellID, spellType == "pet" and true or false)
 	if spellSlot then
+		-- Enum.SpellBookSpellBank does not exist on Classic-era clients (TBC, Classic).
+		-- Fall back to the WoW global string constants "PET" / "SPELL" in that case.
+		local petBank    = (Enum and Enum.SpellBookSpellBank and Enum.SpellBookSpellBank.Pet)    or "PET"
+		local playerBank = (Enum and Enum.SpellBookSpellBank and Enum.SpellBookSpellBank.Player) or "SPELL"
+		local bank = (spellType == "pet") and petBank or playerBank
+
 		-- Try modern API first if available
 		if br._G.C_SpellBook and br._G.C_SpellBook.GetSpellBookItemInfo then
-			local spellBookItemInfo = br._G.C_SpellBook.GetSpellBookItemInfo(spellSlot, spellType == "pet" and Enum.SpellBookSpellBank.Pet or Enum.SpellBookSpellBank.Player)
+			local spellBookItemInfo = br._G.C_SpellBook.GetSpellBookItemInfo(spellSlot, bank)
 			if spellBookItemInfo and spellBookItemInfo.actionID then
 				return spellBookItemInfo.actionID == spellID
 			end
 		end
-		-- Older API fallback
+		-- Older API fallback (TBC / Classic: GetSpellBookItemInfo(slot, "PET" | "SPELL"))
 		if br._G.GetSpellBookItemInfo then
-			local itemType, id = br._G.GetSpellBookItemInfo(spellSlot, (spellType == "pet" and Enum.SpellBookSpellBank.Pet or Enum.SpellBookSpellBank.Player))
+			local itemType, id = br._G.GetSpellBookItemInfo(spellSlot, bank)
 			if id == spellID then return true end
 		end
-		-- Fallback: try resolving via spell link/name
-		local spellName = (br._G.C_Spell and br._G.C_Spell.GetSpellName and br._G.C_Spell.GetSpellName(spellID)) or br.api.wow.GetSpellInfo(spellID)
-		if spellName then
-			local link = (br._G.C_Spell and br._G.C_Spell.GetSpellLink and br._G.C_Spell.GetSpellLink(spellName)) or br._G.GetSpellLink(spellID)
-			local currentSpellId = tonumber(link and link:gsub("|", "||"):match("spell:(%d+)"))
-			return currentSpellId == spellID
-		end
+		-- FindSpellBookSlotBySpellID returned a slot for this exact spell ID, so the
+		-- spell IS in the book even if the secondary ID-verify calls above can't confirm.
+		return true
 	end
 	return false
 end
@@ -562,18 +565,22 @@ function spell:getRacial(thisRace)
     local r = (br.lists and br.lists.racials) or {}
 
     -- Three racials have IDs that vary by rank/level and must be resolved dynamically.
+    -- In Classic/TBC, GetSpellInfo(GetSpellInfo(id)) resolved the highest known rank by name.
+    -- In Retail, C_Spell.GetSpellInfo does not accept name-string lookups, so the double-lookup
+    -- returns nil and falls back to the player's own racial.  Use a direct lookup instead;
+    -- retail has no spell ranks so baseID is already the canonical spell ID.
     local BloodElfRacial, DraeneiRacial, OrcRacial
     if race == "BloodElf" or race == thisRace then
         local baseID = r._bloodElfBase or 69179
-        BloodElfRacial = select(7, br.api.wow.GetSpellInfo(br.api.wow.GetSpellInfo(baseID)))
+        BloodElfRacial = select(7, br.api.wow.GetSpellInfo(baseID))
     end
     if race == "Draenei" or race == thisRace then
         local baseID = r._draeneiBase or 28880
-        DraeneiRacial = select(7, br.api.wow.GetSpellInfo(br.api.wow.GetSpellInfo(baseID)))
+        DraeneiRacial = select(7, br.api.wow.GetSpellInfo(baseID))
     end
     if race == "Orc" or race == thisRace then
         local baseID = r._orcBase or 33702
-        OrcRacial = select(7, br.api.wow.GetSpellInfo(br.api.wow.GetSpellInfo(baseID)))
+        OrcRacial = select(7, br.api.wow.GetSpellInfo(baseID))
     end
 
     local racialSpells = {

@@ -6,6 +6,7 @@ lastCast.lastCastTable = {}
 lastCast.lastCastTable.tracker = {}
 lastCast.lastCastTable.castTime = {}
 lastCast.lastCastTable.failedTime = {}
+lastCast.lastCastTable.lastFailedReason = {}
 local tracker = lastCast.lastCastTable.tracker
 local castTime = lastCast.lastCastTable.castTime
 local failedTime = lastCast.lastCastTable.failedTime

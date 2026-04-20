@@ -412,15 +412,8 @@ function misc:isLongTimeCCed(Unit)
 	end
 	local longTimeCC = br.lists.longCC
 	for i = 1, 40 do
-		-- local debuffSpellID = select(10, br._G.UnitDebuff(Unit, i))
-		local auraInfo = br._G.C_UnitAuras.GetDebuffDataByIndex(Unit, i)
+		local auraInfo = br.api.wow.GetDebuffDataByIndex(Unit, i)
 		if auraInfo and longTimeCC[tonumber(auraInfo.spellId)] == true then return true end
-		-- if debuffSpellID == nil then
-		-- 	return false
-		-- end
-		-- if longTimeCC[tonumber(debuffSpellID)] == true then
-		-- 	return true
-		-- end
 	end
 	return false
 end

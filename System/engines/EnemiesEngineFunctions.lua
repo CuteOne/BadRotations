@@ -48,7 +48,8 @@ function enemiesEngineFunctions:updateOM()
 	-- Separate tracker updates from OM updates
 	local misc = br.functions.misc
 	local shouldUpdateTracker = misc:isChecked("Enable Tracker") and (now - lastTrackerUpdate) >= TRACKER_UPDATE_INTERVAL
-    local shouldUpdateOM = (now - lastOMUpdate) >= OM_UPDATE_INTERVAL
+    local omUpdateInterval = br._G.IsInRaid() and 0.50 or OM_UPDATE_INTERVAL
+    local shouldUpdateOM = (now - lastOMUpdate) >= omUpdateInterval
 
 	-- Skip building tracker list if no tracker mode is active
 	local trackerModeActive = false
@@ -93,6 +94,7 @@ function enemiesEngineFunctions:updateOM()
 	local ObjectName = br._G.ObjectName
 	local ObjectID = br._G.ObjectID
 	local UnitGUID = br._G.UnitGUID
+	local UnitCanAttack = br._G.UnitCanAttack
 	local tinsert = br._G.tinsert
 
 	--[[
@@ -141,14 +143,20 @@ function enemiesEngineFunctions:updateOM()
 	end
 
 	-- High object count optimization
-	if totalObjects > 300 then
+	if totalObjects > 150 then
 		-- Limit objects scanned per update based on object density
 		if totalObjects > 450 then
 			objectsPerScan = 150 -- Very high density: scan 1/3 per update
 		elseif totalObjects > 350 then
 			objectsPerScan = 200 -- High density: scan ~half per update
-		else
+		elseif totalObjects > 250 then
 			objectsPerScan = 250 -- Moderate-high: scan most per update
+		else
+			objectsPerScan = math.floor(total * 0.65) -- ~65% per cycle for 150-250 object range
+		end
+		-- In raids, cap further to spread load across additional frames
+		if br._G.IsInRaid() then
+			objectsPerScan = math.min(objectsPerScan, 180)
 		end
 
 		-- Additionally skip distant objects if performance is struggling
@@ -208,12 +216,15 @@ function enemiesEngineFunctions:updateOM()
 					-- Final validation checks (critter check, etc)
 					-- NOTE: We always allow batched inserts. `skipOMInsert` only reduces scan budget.
 					if shouldProcess and omIndex[thisUnit] == nil and not br.functions.unit:isCritter(thisUnit)
-						--and (not br._G.UnitIsFriend("player", thisUnit) or string.match(br._G.UnitGUID(thisUnit), "Pet"))
+						and (UnitCanAttack("player", thisUnit) or (UnitGUID(thisUnit) and string.match(UnitGUID(thisUnit), "Pet")))
 					then
 						local enemyUnit = br.engines.enemiesEngine.unitSetup:new(thisUnit)
 						if enemyUnit then
-							tinsert(om, enemyUnit)
-							omIndex[enemyUnit.unit] = #om
+							local maxOMSize = br._G.IsInRaid() and 120 or (br._G.GetNumGroupMembers() > 0 and 200 or 300)
+							if #om < maxOMSize then
+								tinsert(om, enemyUnit)
+								omIndex[enemyUnit.unit] = #om
+							end
 						end
 					end
 				end
@@ -361,9 +372,10 @@ function enemiesEngineFunctions:getEnemies(thisUnit, radius, checkNoCombat, faci
 						local dy = cachedTable._playerPosY - py
 						local dz = cachedTable._playerPosZ - pz
 						local moved = math.sqrt((dx * dx) + (dy * dy) + (dz * dz))
-						-- Invalidate cache on significant movement (2.0 yards).
-						-- 0.5 was too tight -- normal melee repositioning triggered constant cache rebuilds.
-						if moved > 2.0 then movedTooFar = true end
+						-- Invalidate cache on significant movement.
+						-- Relaxed threshold in raids for large-radius queries (open rooms like Maiden of Virtue).
+						local moveThreshold = (br._G.IsInRaid() and radius and radius > 20) and 3.0 or 2.0
+						if moved > moveThreshold then movedTooFar = true end
 					end
 					if cachedTable._timestamp and (br._G.GetTime() - cachedTable._timestamp) < cacheExpiration and not movedTooFar then
 						return cachedTable
@@ -883,6 +895,16 @@ function enemiesEngineFunctions:dynamicTarget(range, facing)
 		targetValid = false
 	end
 
+	-- Combo Point Lock: if the player has combo points on the current valid target, do not
+	-- switch away. In Classic/TBC, combo points are stored on the target and lost on any switch.
+	-- Bears and non-CP classes naturally have GetComboPoints()==0, so this never fires for them.
+	if br.api and br.api.comboPointsOnTarget and targetValid then
+		local cp = br._G.GetComboPoints and tonumber(br._G.GetComboPoints("player", "target")) or 0
+		if cp > 0 then
+			return "target"
+		end
+	end
+
 	-- Stick to a valid current target unless the user explicitly wants to follow the dynamic target.
 	if targetValid and not autoTargetDynamic then
 		bestUnit = "target"
@@ -937,7 +959,7 @@ function enemiesEngineFunctions:dynamicTarget(range, facing)
 
 	-- Optional: keep the WoW target in sync with the dynamic target.
 	if inCombat then
-		local wantRetarget = autoTargetDynamic or (not br.functions.misc:isValidUnit(bestUnit)) or notSafe
+		local wantRetarget = autoTargetDynamic or not targetExists or (not br.functions.misc:isValidUnit(bestUnit)) or notSafe
 
 		if wantRetarget
 			and bestUnit ~= nil

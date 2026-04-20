@@ -189,7 +189,8 @@ function br.ui:closeWindow(windowName)
                             for m, _ in pairs(br.data.settings[tostring(l)]) do
                                 if m == k then
                                     if
-                                        br.data.settings[br.loader.selectedSpec].toggles ~= nil and
+                                        br.data.settings[br.loader.selectedSpec] ~= nil and
+                                            br.data.settings[br.loader.selectedSpec].toggles ~= nil and
                                             br.data.settings[br.loader.selectedSpec].toggles["Power"] ~= 1
                                      then
                                         if br.data.settings[l][m].active == nil or br.data.settings[l][m].active then

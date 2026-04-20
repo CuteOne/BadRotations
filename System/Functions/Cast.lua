@@ -894,6 +894,36 @@ local castTimers
 local rangeDelayTimers -- Track when spells first become in range
 
 -- ─────────────────────────────────────────────────────────────────────────────
+-- SECTION: Pet action bar cache
+--
+-- FindSpellBookSlotBySpellID and IsSpellKnown(id, true) do not exist on
+-- TBC Classic 2.5.x clients, making it impossible to determine whether a pet
+-- knows a spell through the standard spell-knowledge APIs.
+-- Instead we scan the pet action bar (GetPetActionInfo) by name — this is the
+-- only reliable TBC-compatible way to discover pet spell knowledge.
+-- The cache is rebuilt at most once every 5 seconds (the bar never changes
+-- mid-fight except when the pet learns a new rank between pulls).
+-- ─────────────────────────────────────────────────────────────────────────────
+local petBarCache     = nil  -- map: ability name → slot index
+local petBarCacheTime = 0
+
+local function getPetBarSlot(spellName)
+	if not spellName then return nil end
+	local now = br._G.GetTime()
+	if not petBarCache or now - petBarCacheTime > 5 then
+		petBarCache     = {}
+		petBarCacheTime = now
+		if br._G.NUM_PET_ACTION_SLOTS then
+			for i = 1, br._G.NUM_PET_ACTION_SLOTS do
+				local name = br._G.GetPetActionInfo(i)
+				if name then petBarCache[name] = i end
+			end
+		end
+	end
+	return petBarCache[spellName]
+end
+
+-- ─────────────────────────────────────────────────────────────────────────────
 -- SECTION: createCastFunction infrastructure
 --
 -- These module-level helpers are shared across every createCastFunction call.
@@ -945,7 +975,14 @@ local function buildSpellContext(spellID, predict, predictPad, castType, effectR
 
 	-- Normalise ranges.
 	minRange = minRange or 0
-	if not maxRange or maxRange == 0 then maxRange = tonumber(effectRng) else maxRange = tonumber(maxRange) end
+	if not maxRange or maxRange == 0 then
+		-- For castType "pet", maxRange=0 from the API is the literal melee range —
+		-- preserve it so checkRange uses `distance <= 5` (melee test).  For all
+		-- other cast types, 0 means "range unspecified" so we substitute effectRng.
+		maxRange = (castType == "pet") and 0 or tonumber(effectRng)
+	else
+		maxRange = tonumber(maxRange)
+	end
 
 	-- Snapshot values that are used in multiple gate checks.
 	local spellCD    = br.functions.spell:getSpellCD(spellID) or 0
@@ -1040,6 +1077,24 @@ local function gateDiesSoon(ctx, thisUnit, castType, allTalents, allSpells) -- l
 end
 
 local function gateUsable(ctx, thisUnit, castType, allTalents, allSpells) -- luacheck: ignore 212
+	-- Pet abilities live in the pet spellbook; C_Spell.IsSpellUsable on the player
+	-- returns false regardless of the actual pet cooldown/focus state — check focus directly.
+	if castType == "pet" then
+		-- getSpellCost uses C_Spell.GetSpellPowerCost which returns the spell's resource cost
+		-- and power type from the spell definition, even for pet ability IDs.
+		-- If the API returns 0 (e.g. not exposed for this spell), the check is skipped safely.
+		local minCost, _, powerType = br.functions.power:getSpellCost(ctx.spellID)
+		if minCost and minCost > 0 then
+			local petPower = powerType
+				and (br._G.UnitPower("pet", powerType) or 0)
+				or  (br._G.UnitPower("pet") or 0)
+			if petPower < minCost then
+				return false, "NOT_USABLE",
+					string.format("pet focus %d < cost %d", petPower, minCost)
+			end
+		end
+		return true
+	end
 	-- IsSpellUsable returns false when the player lacks resources, wrong form, etc.
 	-- nil means "usable but no resource requirement" — treat as pass.
 	if ctx.isUsable ~= false then return true end
@@ -1048,6 +1103,32 @@ local function gateUsable(ctx, thisUnit, castType, allTalents, allSpells) -- lua
 end
 
 local function gateCooldownTimer(ctx, thisUnit, castType, allTalents, allSpells) -- luacheck: ignore 212
+	-- Pet abilities: GetSpellCooldown does not reflect pet bar state from the player
+	-- side.  Use GetPetActionCooldown on the actual bar slot — the only TBC-compatible
+	-- source of truth for per-ability cooldown state.
+	if castType == "pet" then
+		local slot = getPetBarSlot(ctx.spellName)
+		if slot and br._G.GetPetActionCooldown then
+			local cdStart, cdDuration = br._G.GetPetActionCooldown(slot)
+			if cdStart and cdDuration and cdDuration > 0
+					and (cdStart + cdDuration) > br._G.GetTime() then
+				return false, "PET_ON_COOLDOWN",
+					string.format("petCD=%.2fs remaining", (cdStart + cdDuration) - br._G.GetTime())
+			end
+		end
+		-- castTimers fallback: covers CastPetAction attempts where the game did not apply a
+		-- bar cooldown (e.g. pet was out of range so the ability queued but never executed).
+		-- The dispatch always writes castTimers, so this prevents rapid-fire retries even
+		-- when GetPetActionCooldown still reports 0 on the same or next tick.
+		if castTimers then
+			local t = castTimers[ctx.spellID]
+			if t and t > br._G.GetTime() then
+				return false, "PET_CAST_TIMER",
+					string.format("pet cast timer expires in %.2fs", t - br._G.GetTime())
+			end
+		end
+		return true
+	end
 	if castTimers == nil then return true end -- not yet initialised; pass
 	local t = castTimers[ctx.spellID]
 	if t == nil or t < br._G.GetTime() then
@@ -1076,8 +1157,23 @@ end
 
 local function gateKnownTalent(ctx, thisUnit, castType, allTalents, allSpells) -- luacheck: ignore 212
 	-- Known check.
+	-- For pet castType, scan the pet action bar by name — the only TBC-compatible
+	-- way to verify the pet actually has this ability (spell-knowledge APIs that
+	-- accept isPetSpell do not exist on TBC Classic 2.5.x).
+	if castType == "pet" then
+		if not getPetBarSlot(ctx.spellName) then
+			return false, "NOT_KNOWN",
+				"Pet ability '" .. tostring(ctx.spellName) .. "' not found on pet action bar"
+		end
+		-- Talent table not applicable for pet spells.
+		return true
+	end
 	local isCondemn = allSpells and (ctx.spellID == allSpells.condemn or ctx.spellID == allSpells.condemnMassacre)
-	if not br.functions.spell:isKnown(ctx.spellID) and castType ~= "known" and not isCondemn then
+	local isKnownOrPet = br.functions.spell:isKnown(ctx.spellID)
+		or (castType == "pet" and (
+			(br._G.IsSpellKnown and br._G.IsSpellKnown(ctx.spellID, true))
+			or br.functions.spell:isSpellInSpellbook(ctx.spellID, "pet")))
+	if not isKnownOrPet and castType ~= "known" and not isCondemn then
 		return false, "NOT_KNOWN",
 			"isKnown=false castType=" .. tostring(castType)
 	end
@@ -1109,13 +1205,45 @@ local function gateHardCC(ctx, thisUnit, castType, allTalents, allSpells) -- lua
 	return true
 end
 
+-- Returns true if spellID maps to a shapeshift/stance toggle button.
+-- These report IsCurrentSpell=true while the form is *active*, but the player
+-- can legitimately force-recast them (e.g. powershift via "/cast !Cat Form") —
+-- blocking them here would silently break that pattern.
+-- Cache is rebuilt whenever the form count changes (talent respec / level-up).
+local shapeshiftFormCache = nil
+local function isShapeshiftFormSpell(spellID)
+	if not br._G.GetNumShapeshiftForms or not br._G.GetShapeshiftFormInfo then
+		return false
+	end
+	local count = br._G.GetNumShapeshiftForms()
+	if not shapeshiftFormCache or shapeshiftFormCache.count ~= count then
+		shapeshiftFormCache = { count = count }
+		for i = 1, count do
+			local _, _, _, formSpellID = br._G.GetShapeshiftFormInfo(i)
+			if formSpellID then
+				shapeshiftFormCache[formSpellID] = true
+			end
+		end
+	end
+	return shapeshiftFormCache[spellID] == true
+end
+
 local function gateAutoRepeat(ctx, thisUnit, castType, allTalents, allSpells) -- luacheck: ignore 212
 	local spellName = ctx.spellName
 	if br._G.C_Spell.IsAutoRepeatSpell(spellName) then
 		return false, "AUTO_REPEAT", "IsAutoRepeatSpell=true"
 	end
-	if ctx.spellID == 6603 and br._G.C_Spell.IsCurrentSpell(ctx.spellID) then
-		return false, "AUTO_REPEAT", "auto-shoot (6603) IsCurrentSpell=true"
+	-- Block any non-pet spell that IsCurrentSpell reports as already active/queued
+	-- (e.g. Heroic Strike / Maul / Raptor Strike sitting in the melee queue).
+	-- Exception: shapeshift/stance toggle spells report IsCurrentSpell=true while
+	-- the form is active, but they are safe to force-recast with the ! prefix —
+	-- do not block those here.
+	-- Skipped for pet castType: pet abilities are not current player spells, and
+	-- auto-cast enabled pet abilities could spuriously match on some clients.
+	if castType ~= "pet" and br._G.IsCurrentSpell and br._G.IsCurrentSpell(ctx.spellID) then
+		if not isShapeshiftFormSpell(ctx.spellID) then
+			return false, "CURRENT_SPELL", "IsCurrentSpell=true (already queued)"
+		end
 	end
 	return true
 end
@@ -1232,6 +1360,36 @@ local function castingSpell(ctx, thisUnit, castType, printReport, debug)
 		castName = br.api.wow.GetSpellInfo(br.player.spells.execute)
 	end
 
+	-- Pet ability dispatch: CastSpellByName cannot activate pet action bar abilities.
+	-- Scan the pet action bar for a slot matching the spell name and use CastPetAction.
+	if castType == "pet" then
+		if br._G.NUM_PET_ACTION_SLOTS then
+			for i = 1, br._G.NUM_PET_ACTION_SLOTS do
+				local slotName = br._G.GetPetActionInfo(i)
+				if slotName == castName then
+					br._G.CastPetAction(i)
+					-- Read the cooldown the game just applied to the bar slot.
+					-- GetPetActionCooldown is updated synchronously after CastPetAction,
+					-- so cdDuration reflects the real ability cooldown on TBC Classic.
+					local cdStart, cdDuration
+					if br._G.GetPetActionCooldown then
+						cdStart, cdDuration = br._G.GetPetActionCooldown(i)
+					end
+					local petCDSec = (cdDuration and cdDuration > 0) and cdDuration
+						or (ctx.baseCooldown > 0 and ctx.baseCooldown / 1000)
+						or 8  -- fallback: most pet abilities are 8–10 s
+					castTimers[ctx.spellID] = br._G.GetTime() + math.max(petCDSec, 1)
+					setCastIntentLock(ctx.spellID, 0.5)
+					br.ui.toggles.mainButton:SetNormalTexture(ctx.icon)
+					br.lastSpellCast   = ctx.spellID
+					br.lastSpellTarget = br._G.UnitGUID(thisUnit)
+					return true
+				end
+			end
+		end
+		return printReport(false, "PET_SLOT_NOT_FOUND", castName)
+	end
+
 	br._G.CastSpellByName(castName, thisUnit)
 	if br._G.IsAoEPending() then
 		local X, Y, Z = br._G.ObjectPosition(thisUnit)
@@ -1289,9 +1447,12 @@ local function resolveUnit(ctx, thisUnit, castType)
 end
 
 -- checkUnitValidity: returns true when the unit is acceptable to cast on.
-local function checkUnitValidity(thisUnit)
+local function checkUnitValidity(thisUnit, castType)
 	if br.functions.unit:GetUnitIsUnit(thisUnit, "player")    then return true end
 	if br.functions.unit:GetUnitIsFriend(thisUnit, "player")  then return true end
+	if castType == "pet" then
+		return br._G.UnitExists(thisUnit) == true
+	end
 	if br.engines.enemiesEngine.units[thisUnit] ~= nil         then return true end
 	if br.functions.misc:getLineOfSight("player", thisUnit)    then return true end
 	return false
@@ -1300,30 +1461,40 @@ end
 -- checkRange: range check with API + moving-hysteresis guard + distance fallback.
 local function checkRange(ctx, thisUnit, castType)
 	if thisUnit == "player" then return true end
-	local spellInRange = br._G.C_Spell.IsSpellInRange(ctx.spellName, thisUnit)
-	if spellInRange == false then
-		local timerKey = ctx.spellID .. "_" .. (br._G.UnitGUID(thisUnit) or thisUnit)
-		rangeDelayTimers[timerKey] = nil
-		return false
-	end
-	if spellInRange == true then
-		if br.functions.misc:isMoving("player") and ctx.maxRange > 0 then
-			local now      = br._G.GetTime()
+	-- For pet castType, IsSpellInRange evaluates from the PLAYER's position — not the
+	-- pet's — so it cannot reliably gate melee or short-range pet abilities.  Skip the
+	-- API check entirely for pet spells and always measure pet-to-target distance directly.
+	if castType ~= "pet" then
+		local spellInRange = br._G.C_Spell.IsSpellInRange(ctx.spellName, thisUnit)
+		if spellInRange == false then
 			local timerKey = ctx.spellID .. "_" .. (br._G.UnitGUID(thisUnit) or thisUnit)
-			if rangeDelayTimers[timerKey] == nil then
-				rangeDelayTimers[timerKey] = now
-				return false
-			end
-			if (now - rangeDelayTimers[timerKey]) < 0.5 then
-				return false
-			end
+			rangeDelayTimers[timerKey] = nil
+			return false
 		end
-		return true
+		if spellInRange == true then
+			if br.functions.misc:isMoving("player") and ctx.maxRange > 0 then
+				local now      = br._G.GetTime()
+				local timerKey = ctx.spellID .. "_" .. (br._G.UnitGUID(thisUnit) or thisUnit)
+				if rangeDelayTimers[timerKey] == nil then
+					rangeDelayTimers[timerKey] = now
+					return false
+				end
+				if (now - rangeDelayTimers[timerKey]) < 0.5 then
+					return false
+				end
+			end
+			return true
+		end
 	end
-	-- nil from IsSpellInRange: fall back to manual distance.
+	-- nil from IsSpellInRange (or pet castType): measure distance directly.
+	-- For pet castType, getDistance(pettarget, "pet") measures pet-to-target distance.
 	local distance = (castType == "pet")
 		and br.functions.range:getDistance(thisUnit, "pet")
 		or  br.functions.range:getDistance(thisUnit)
+
+	-- Melee spells (maxRange == 0) would produce distance < -1.5 which is always false.
+	-- Treat as in-range when within 5 yards (standard melee reach).
+	if ctx.maxRange == 0 then return distance <= 5 end
 	return (distance >= ctx.minRange and distance < ctx.maxRange - 1.5)
 end
 
@@ -1334,7 +1505,7 @@ end
 local function dispatchAoE(ctx, thisUnit, castType, minUnits, effectRng, enemies, printReport, debug)
 	local enemyCount = enemies
 		or ((castType == "ground" or castType == "aoe") and #br.engines.enemiesEngineFunctions:getEnemies("player", ctx.maxRange))
-		or (castType == "cone"      and br.engines.enemiesEngineFunctions:getEnemiesInCone(180, effectRng))
+		or (castType == "cone"      and br.engines.enemiesEngineFunctions:getEnemiesInCone(effectRng, ctx.maxRange))
 		or (castType == "rect"      and br.engines.enemiesEngineFunctions:getEnemiesInRect(effectRng, ctx.maxRange))
 		or (castType == "targetAOE" and #br.engines.enemiesEngineFunctions:getEnemies(thisUnit, effectRng))
 		or 0
@@ -1350,8 +1521,10 @@ local function dispatchAoE(ctx, thisUnit, castType, minUnits, effectRng, enemies
 end
 
 local function dispatchST(ctx, thisUnit, castType, minUnits, enemies, printReport, debug)
-	local facingOk = (castType == "norm" and br.functions.unit:getFacing("player", thisUnit))
-		or (castType == "pet" and br.functions.unit:getFacing("pet", thisUnit))
+	-- getFacing returns true/false/nil. nil means "can't determine" (no unlocker, or positions
+	-- unavailable). Treat nil as OK — only block when the API definitively says not facing.
+	local facingOk = (castType == "norm" and br.functions.unit:getFacing("player", thisUnit) ~= false)
+		or (castType == "pet" and br.functions.unit:getFacing("pet", thisUnit) ~= false)
 		or ctx.spellType == "Helpful"
 		or ctx.spellType == "Unknown"
 	if not facingOk then return false end
@@ -1386,10 +1559,23 @@ function cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellI
 							   debug)
 	-- ── Step 1: Resolve spell ID table → single spellID ──────────────────────
 	if type(spellID) == "table" then
-		for i = #spellID, 1, -1 do
-			if br.functions.spell:isKnown(spellID[i]) then
-				spellID = spellID[i]
-				break
+		if castType == "pet" then
+			-- TBC Classic does not expose FindSpellBookSlotBySpellID or a pet-aware
+			-- IsSpellKnown.  Scan the pet action bar by name to find which rank the
+			-- pet knows: GetPetActionInfo always exposes the pet's current learned rank.
+			for i = #spellID, 1, -1 do
+				local name = br.api.wow.GetSpellInfo(spellID[i])
+				if name and getPetBarSlot(name) then
+					spellID = spellID[i]
+					break
+				end
+			end
+		else
+			for i = #spellID, 1, -1 do
+				if br.functions.spell:isKnown(spellID[i]) then
+					spellID = spellID[i]
+					break
+				end
 			end
 		end
 	end
@@ -1538,7 +1724,15 @@ function cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellI
 			elseif debugReason == "No Control" then
 				br.player.ui.debug(prefix .. ctx.spellName .. " — player is crowd controlled.")
 			elseif debugReason == "Cast Failed" then
-				br.player.ui.debug(prefix .. ctx.spellName .. " — no GCD/cast/channel signal after cast attempt.")
+				local wowReason = br.functions.lastCast
+					and br.functions.lastCast.lastCastTable
+					and br.functions.lastCast.lastCastTable.lastFailedReason
+					and br.functions.lastCast.lastCastTable.lastFailedReason[ctx.spellID]
+				if wowReason and wowReason ~= "" then
+					br.player.ui.debug(prefix .. ctx.spellName .. " — WoW rejected: " .. wowReason)
+				else
+					br.player.ui.debug(prefix .. ctx.spellName .. " — no GCD/cast/channel signal after cast attempt.")
+				end
 			else
 				br._G.print("|cffFF0000Error: |r " .. prefix ..
 					ctx.spellName .. " ID:" .. spellID ..
@@ -1589,7 +1783,7 @@ function cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellI
 	end
 
 	-- ── Step 13: Unit validity check ──────────────────────────────────────────
-	if not checkUnitValidity(thisUnit) then
+	if not checkUnitValidity(thisUnit, castType) then
 		return printReport(false, "Invalid Unit")
 	end
 

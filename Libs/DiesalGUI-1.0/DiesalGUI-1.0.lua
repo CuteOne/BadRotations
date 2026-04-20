@@ -1,5 +1,5 @@
 -- $Id: DiesalGUI-1.0.lua 61 2017-03-28 23:13:41Z diesal2010 $
-local MAJOR, MINOR = "DiesalGUI-1.0", "$Rev: 61 $"
+local MAJOR, MINOR = "DiesalGUI-1.0", "$Rev: 100 $"
 local DiesalGUI, oldminor = LibStub:NewLibrary(MAJOR, MINOR)
 if not DiesalGUI then return end -- No Upgrade needed.
 -- ~~| Libraries |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

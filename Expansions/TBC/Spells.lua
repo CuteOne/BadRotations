@@ -2192,6 +2192,7 @@ br.lists.spells = {
                 -- stormbringer                = 201845,
             },
             debuffs   = {
+                stormstrike                 = 17364,
                 -- doomWinds                   = 335904,
                 -- lashingFlames = 334168,
             },

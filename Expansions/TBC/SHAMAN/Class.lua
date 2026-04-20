@@ -44,6 +44,8 @@ br.lists.spells.SHAMAN.Shared = {
                 stoneclawTotem          = {5730,6390,6391,6392,10427,10428,25525},
                 stoneskinTotem          = {8071,8154,8155,10406,10407,10408,25508,25509},
                 strengthOfEarthTotem    = {8075,8160,8161,10442,25361,25528},
+                shamanisticRage         = 30823,
+                stormstrike             = 17364,
                 totemicRecall           = 36936,
                 tranquilAirTotem        = 25908,
                 tremorTotem             = 8143,
@@ -71,8 +73,9 @@ br.lists.spells.SHAMAN.Shared = {
                 -- earthShield        = 974,
                 -- flametongueWeapon   = 8024,
                 -- flameShock          = 8050,
-                -- ghostWolf           = 2645,
+                ghostWolf           = 2645,
                 lightningShield     = {324,325,905,945,8134,10431,10432,25469,25472},
+                shamanisticRage         = 30823,
                 -- skyfury            = 462854,
                 -- spiritwalkersGrace = 79206,
                 -- unleashFlame        = 73683,
@@ -83,6 +86,7 @@ br.lists.spells.SHAMAN.Shared = {
                 flameShock              = {8050,8052,8053,10447,10448,29228,25457},
                 -- frostShock = 196840,
                 -- hex        = 51514,
+                stormstrike             = 17364,
             },
             glyphs        = {
 
@@ -102,6 +106,7 @@ br.lists.spells.SHAMAN.Shared = {
                 -- primalElementalist   = 117013,
                 -- rushingStreams       = 147074,
                 -- stoneBulwarkTotem    = 108270,
+                stormstrike             = 17364,
                 -- totemicPersistence   = 108284,
                 -- totemicProjection    = 108287,
                 -- unleashedFury        = 117012,
@@ -109,10 +114,10 @@ br.lists.spells.SHAMAN.Shared = {
             },
             totem = {
                 air = {
-                    -- stormlashTotem = 120668,
-                    -- windwalkTotem = 108273,
-                    -- capacitorTotem = 108269,
-                    -- groundingTotem = 8177,
+                    graceOfAirTotem  = {8835,10627,25359},
+                    tranquilAirTotem = 25908,
+                    windfuryTotem    = {8512,10613,10614,25585,25587},
+                    wrathOfAirTotem  = 3738,
                 },
                 earth = {
                     earthbindTotem = 2484,
@@ -126,14 +131,12 @@ br.lists.spells.SHAMAN.Shared = {
                 fire = {
                     -- fireElementalTotem = 2894,
                     fireNovaTotem = 1535,
-                    -- flameShock = 8050,
-                    -- magmaTotem = 8190,
-                    searingTotem = 3599,
+                    magmaTotem    = {8190,10585,10586,10587,25552},
+                    searingTotem  = {3599,6363,6364,6365,10437,10438,25533},
                 },
                 water = {
-                    -- healingStreamTotem = 5394,
-                    -- healingTideTotem = 108280,
-                    -- manaTideTotem = 16191,
+                    healingStreamTotem = {5394,6375,6377,10462,10463,25567},
+                    manaSpringTotem    = {5675,10495,10496,10497,25570},
                 },
             }
         }

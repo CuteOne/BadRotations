@@ -375,8 +375,16 @@ if not enemiesEngine.metaTable2 then
 			end
 
 			if self.isValidUnit == true then
-				local shouldUpdateDebuffs = br._G.UnitAffectingCombat("player") and
-					(self.distance < 40 or br.functions.unit:GetUnitIsUnit(self.unit, "target"))
+				-- Cached LoS: TraceLine is expensive; gate behind a per-unit TTL rather than calling every pulse.
+				-- Unit stays in enemiesEngine.enemy when out of LoS — rotation can still count it and reposition.
+				local losTTL = UnitAffectingCombat("player") and 0.5 or 1.0
+				if self.losRefresh == nil or GetTime() > (self.losRefresh + losTTL) then
+					self.los = br.functions.misc:getLineOfSight("player", self.unit)
+					self.losRefresh = GetTime()
+				end
+				local shouldUpdateDebuffs = UnitAffectingCombat("player") and
+					(self.distance < 40 or br.functions.unit:GetUnitIsUnit(self.unit, "target")) and
+					(self.los ~= false)
 				if shouldUpdateDebuffs then
 					self.debuffs = self:UpdateDebuffs(self.debuffs, self.unit)
 				end

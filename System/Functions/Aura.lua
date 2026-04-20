@@ -59,11 +59,10 @@ function aura:UnitBuffID(unit, spellID, filter)
 	end
 	if exactSearch then
 		for i = 1, 40 do
-			local buffName, _, _, _, _, _, _, _, _, buffSpellID = aura:UnitBuff(unit, i, "player")
-			-- print("Unit: " .. tostring(unit) .. ", Spell: " .. tostring(spellName) .. ", ID: " .. tostring(spellID) .. ", Buff: " .. tostring(buffName) .. ", BuffID: " .. tostring(buffSpellID))
-			if buffName == nil then return nil end
-			if buffSpellID == spellID then
-				return aura:UnitBuff(unit, i)
+			local auraInfo = br.api.wow.GetBuffDataByIndex(unit, i, "player")
+			if not auraInfo then return nil end
+			if auraInfo.spellId == spellID then
+				return br.api.wow.GetBuffDataByIndex(unit, i)
 			end
 		end
 	else
@@ -166,7 +165,7 @@ function aura:UnitDebuffID(unit, spellID, filter)
                     local auraInfo = br.api.wow.GetDebuffDataByIndex(unit, i, "HARMFUL|PLAYER")
                     if auraInfo and auraInfo.name == spellName then return auraInfo end
                 end
-                return nil -- Don't fall through to non-player filter if PLAYER was specified
+                return nil
             end
             for i = 1, 40 do
                 local auraInfo = br.api.wow.GetDebuffDataByIndex(unit, i, "HARMFUL")
