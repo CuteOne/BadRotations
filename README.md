@@ -120,7 +120,7 @@ Raidable means if its good to raid with.
 
 |rotation|     author     | patch |coverage|status |  readiness  |last updated|
 |--------|----------------|:-----:|:------:|:-----:|:-----------:|-----------:|
-|CuteOne |Ashley (CuteOne)|Unknown|Unknown |Unknown|:interrobang:|  04/20/2026|
+|CuteOne |Ashley (CuteOne)|Unknown|Unknown |Unknown|:interrobang:|  04/21/2026|
 |CuteOne |Ashley (CuteOne)|Unknown|Unknown |Unknown|:interrobang:|  04/20/2026|
 
 - Feral
