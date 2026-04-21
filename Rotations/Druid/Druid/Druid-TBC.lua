@@ -409,26 +409,55 @@ end
 
 -- Action List - Extra
 actionList.Extra = function()
-    -- Mark of the Wild
-    if ui.checked("Mark of the Wild") and not unit.flying() and not buff.prowl.exists()
-        and mana() > cast.cost.markOfTheWild() + var.formCost
-    then
-        var.markUnit = getBuffUnitOption("Mark of the Wild")
-        if cast.able.markOfTheWild(var.markUnit) and buff.markOfTheWild.refresh(var.markUnit)
-            and not unit.inCombat() and not unit.resting() and unit.distance(var.markUnit) < 40
-            and (var.markUnit == "player" or unit.player(var.markUnit)) and unit.friend(var.markUnit)
-            and not buff.giftOfTheWild.exists(var.markUnit)
-        then
-            -- Cancel form if needed to buff
-            local needsCancel = buff.catForm.exists() or buff.bearForm.exists() or buff.travelForm.exists() or buff.aquaticForm.exists()
-            if needsCancel then
-                if safeCancelForm(spell.markOfTheWild, "Mark of the Wild") then
-                    return true
+    -- Gift of the Wild (group buff, reagent required)
+    if ui.checked("Mark of the Wild") and not unit.flying() and not buff.prowl.exists() then
+        local inGroup = unit.inGroup()
+        local hasGift = spell.giftOfTheWild and spell.giftOfTheWild.known and spell.giftOfTheWild.known()
+        local hasReagent = unit.hasItem and unit.hasItem("Wild Thornroot")
+        if inGroup and hasGift and hasReagent and mana() > cast.cost.giftOfTheWild() + var.formCost then
+            -- Check if anyone in group needs the buff
+            local needsGift = false
+            for i = 1, #br.engines.healingEngine.friend do
+                local u = br.engines.healingEngine.friend[i].unit
+                if buff.markOfTheWild.refresh(u) and not buff.giftOfTheWild.exists(u) and unit.distance(u) < 40 then
+                    needsGift = true
+                    break
                 end
-            else
-                if cast.markOfTheWild(var.markUnit) then
-                    ui.debug("Casting Mark of the Wild")
-                    return true
+            end
+            if needsGift and cast.able.giftOfTheWild and cast.able.giftOfTheWild("player") then
+                -- Cancel form if needed to buff
+                local needsCancel = buff.catForm.exists() or buff.bearForm.exists() or buff.travelForm.exists() or buff.aquaticForm.exists()
+                if needsCancel then
+                    if safeCancelForm(spell.giftOfTheWild, "Gift of the Wild") then
+                        return true
+                    end
+                else
+                    if cast.giftOfTheWild and cast.giftOfTheWild("player") then
+                        ui.debug("Casting Gift of the Wild")
+                        return true
+                    end
+                end
+            end
+        end
+        -- Fallback to Mark of the Wild (single buff or no reagent)
+        if mana() > cast.cost.markOfTheWild() + var.formCost then
+            var.markUnit = getBuffUnitOption("Mark of the Wild")
+            if cast.able.markOfTheWild(var.markUnit) and buff.markOfTheWild.refresh(var.markUnit)
+                and not unit.inCombat() and not unit.resting() and unit.distance(var.markUnit) < 40
+                and (var.markUnit == "player" or unit.player(var.markUnit)) and unit.friend(var.markUnit)
+                and not buff.giftOfTheWild.exists(var.markUnit)
+            then
+                -- Cancel form if needed to buff
+                local needsCancel = buff.catForm.exists() or buff.bearForm.exists() or buff.travelForm.exists() or buff.aquaticForm.exists()
+                if needsCancel then
+                    if safeCancelForm(spell.markOfTheWild, "Mark of the Wild") then
+                        return true
+                    end
+                else
+                    if cast.markOfTheWild(var.markUnit) then
+                        ui.debug("Casting Mark of the Wild")
+                        return true
+                    end
                 end
             end
         end
