@@ -34096,9 +34096,9 @@ read_globals = {
             'GetSpellBookItemLossOfControlCooldown',
             'GetSpellBookItemName',
             'GetSpellBookItemPowerCost',
-            'GetSpellBookItemTexture'
+            'GetSpellBookItemTexture',
             'GetSpellBookItemTradeSkillLink',
-            'GetSpellBookItemType'
+            'GetSpellBookItemType',
             'GetSpellBookSkillLineInfo',
             'GetTrackedNameplateCooldownSpells',
             'HasPetSpells',
@@ -34108,7 +34108,7 @@ read_globals = {
             'IsRangedAutoAttackSpellBookItem',
             'IsSpellBookItemHarmful',
             'IsSpellBookItemHelpful',
-            'IsSpellBookItemInRange'
+            'IsSpellBookItemInRange',
             'IsSpellBookItemPassive',
             'IsSpellBookItemUsable',
             'PickupSpellBookItem',
