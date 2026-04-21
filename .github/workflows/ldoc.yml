@@ -4,10 +4,16 @@ on:
   push:
     branches:
       - master
+    paths:
+      - '**.lua'
+      - 'config.ld'
+      - '.github/assets/**'
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
     - name: Checkout code
@@ -19,15 +25,15 @@ jobs:
         python-version: '3.x'
 
     - name: Install Python dependencies
-      run: pip install beautifulsoup4
+      run: pip install -r .github/scripts/requirements.txt
 
     - name: Setup Lua
-      uses: leafo/gh-actions-lua@v10
+      uses: leafo/gh-actions-lua@35bcb06abec04ec87df82e08caa84d545348536e # v10
       with:
         luaVersion: "5.1"
 
     - name: Setup Lua Rocks
-      uses: leafo/gh-actions-luarocks@v4
+      uses: leafo/gh-actions-luarocks@e65774a6386cb4f24e293dca7fc4ff89165b64c5 # v4
 
     - name: Setup dependencies
       run: luarocks install ldoc
@@ -42,7 +48,7 @@ jobs:
       run: cp .github/assets/css/ldoc.css ./docs/
 
     - name: Deploy to GitHub Pages
-      uses: JamesIves/github-pages-deploy-action@v4
+      uses: JamesIves/github-pages-deploy-action@d92aa235d04922e8f08b40ce78cc5442fcfbfa2f # v4
       with:
         branch: gh-pages
         folder: docs
