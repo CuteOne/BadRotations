@@ -35,7 +35,8 @@ jobs:
 
     - name: Skip if no Lua files changed
       if: steps.changed-files.outputs.any_changed != 'true'
-      run: echo "No Lua files changed, skipping linter." && exit 0
+      run: echo "No Lua files changed, skipping linter."
+      continue-on-error: true
 
     - name: List changed files
       env:
