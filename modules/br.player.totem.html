@@ -1,0 +1,479 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<head>
+<title>Reference</title>
+<link href="../ldoc.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div id="container">
+<div id="product">
+<div id="product_logo"></div>
+<div id="product_name"><big><b></b></big></div>
+<div id="product_description"></div>
+</div> <!-- id="product" -->
+<div id="main">
+<!-- Menu -->
+<div id="navigation">
+<br/>
+<h1>BadRotations</h1>
+<ul>
+<li><a href="../index.html">Index</a></li>
+</ul>
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+<li><a href="../modules/br.player.buff.html">br.player.buff</a></li>
+<li><a href="../modules/br.player.cd.html">br.player.cd</a></li>
+<li><a href="../modules/br.player.cast.html">br.player.cast</a></li>
+<li><a href="../modules/br.player.charges.html">br.player.charges</a></li>
+<li><a href="../modules/br.player.debuff.html">br.player.debuff</a></li>
+<li><a href="../modules/br.player.enemies.html">br.player.enemies</a></li>
+<li><a href="../modules/br.player.equiped.html">br.player.equiped</a></li>
+<li><a href="../modules/br.player.glyph.html">br.player.glyph</a></li>
+<li><a href="../modules/br.player.has.html">br.player.has</a></li>
+<li><a href="../modules/br.player.module.html">br.player.module</a></li>
+<li><a href="../modules/br.player.pets.html">br.player.pets</a></li>
+<li><a href="../modules/br.player.power.html">br.player.power</a></li>
+<li><a href="../modules/br.player.spell.html">br.player.spell</a></li>
+<li><a href="../modules/br.player.talent.html">br.player.talent</a></li>
+<li><strong>br.player.totem</strong></li>
+<li><a href="../modules/br.player.ui.html">br.player.ui</a></li>
+<li><a href="../modules/Unit.html">Unit</a></li>
+<li><a href="../modules/br.player.units.html">br.player.units</a></li>
+<li><a href="../modules/br.player.use.html">br.player.use</a></li>
+</ul>
+</div>
+<div id="content">
+<h1>Module <code>br.player.totem</code></h1>
+<p>Totem handling functions for BadRotations.</p>
+<p>
+ Totem functions are stored in br.player.totem and can be utilized by `local totem = br.player.totem` in your profile.
+<p> This module provides a hierarchical API for totem checks:
+ - totem.active(candidate)       -&gt; checks if any totem matching candidate is active
+ - totem.fire.active()           -&gt; checks if any fire totem is active in slot 1
+ - totem.fire.searingTotem.active() -&gt; checks if searing totem specifically is active
+<p> Slot indices: 1 = Fire, 2 = Earth, 3 = Water, 4 = Air.</p>
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+<tr>
+<td class="name" nowrap=""><a href="#totem.element.totemName.active">totem.element.totemName.active ()</a></td>
+<td class="summary">Check if this specific totem is active.</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#totem.element.totemName.exists">totem.element.totemName.exists ()</a></td>
+<td class="summary">Alias for active.</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#totem.element.totemName.remain">totem.element.totemName.remain ()</a></td>
+<td class="summary">Get remaining time for this specific totem.</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#totem.element.totemName.duration">totem.element.totemName.duration ()</a></td>
+<td class="summary">Get duration for this specific totem.</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#totem.element.totemName.distance">totem.element.totemName.distance ()</a></td>
+<td class="summary">Get distance to this specific totem.</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#totem.element.totemName.name">totem.element.totemName.name ()</a></td>
+<td class="summary">Get the name of this totem if active.</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#totem.element.active">totem.element.active ()</a></td>
+<td class="summary">Check if any totem in this element slot is active.</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#totem.element.exists">totem.element.exists ()</a></td>
+<td class="summary">Alias for active.</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#totem.element.name">totem.element.name ()</a></td>
+<td class="summary">Get the name of the active totem in this slot.</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#totem.element.remain">totem.element.remain ()</a></td>
+<td class="summary">Get remaining time for the active totem in this slot.</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#totem.element.duration">totem.element.duration ()</a></td>
+<td class="summary">Get duration for the active totem in this slot.</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#totem.element.distance">totem.element.distance ()</a></td>
+<td class="summary">Get distance to the active totem in this slot.</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#totem.element.is">totem.element.is (candidates)</a></td>
+<td class="summary">Check if the active totem matches any of the provided candidates.</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#get">totem.get (slot)</a></td>
+<td class="summary">Returns raw slot info as reported by GetTotemInfo.</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#remain">totem.remain (slot)</a></td>
+<td class="summary">Returns remaining time for a slot (seconds), or 0.</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#distance">totem.distance (slotOrCandidate)</a></td>
+<td class="summary">Returns distance from player to the active totem in a slot.</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#is">totem.is (slot, candidates)</a></td>
+<td class="summary">Returns true if the specified slot currently matches any provided totem.</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#active">totem.active (candidate)</a></td>
+<td class="summary">Returns true if the specified totem is currently active in any slot.</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#exists">totem.exists (candidate)</a></td>
+<td class="summary">Alias for active.</td>
+</tr>
+</table>
+<br/>
+<br/>
+<h2 class="section-header"><a name="Functions"></a>Functions</h2>
+<dl class="function">
+<dt>
+<a name="totem.element.totemName.active"></a>
+<strong>totem.element.totemName.active ()</strong>
+</dt>
+<dd>
+    Check if this specific totem is active.
+
+
+
+    <h3>Returns:</h3>
+<ol>
+<span class="types"><span class="type">boolean</span></span>
+</ol>
+</dd>
+<dt>
+<a name="totem.element.totemName.exists"></a>
+<strong>totem.element.totemName.exists ()</strong>
+</dt>
+<dd>
+    Alias for active.
+
+
+
+    <h3>Returns:</h3>
+<ol>
+<span class="types"><span class="type">boolean</span></span>
+</ol>
+</dd>
+<dt>
+<a name="totem.element.totemName.remain"></a>
+<strong>totem.element.totemName.remain ()</strong>
+</dt>
+<dd>
+    Get remaining time for this specific totem.
+
+
+
+    <h3>Returns:</h3>
+<ol>
+<span class="types"><span class="type">number</span></span>
+</ol>
+</dd>
+<dt>
+<a name="totem.element.totemName.duration"></a>
+<strong>totem.element.totemName.duration ()</strong>
+</dt>
+<dd>
+    Get duration for this specific totem.
+
+
+
+    <h3>Returns:</h3>
+<ol>
+<span class="types"><span class="type">number</span></span>
+</ol>
+</dd>
+<dt>
+<a name="totem.element.totemName.distance"></a>
+<strong>totem.element.totemName.distance ()</strong>
+</dt>
+<dd>
+    Get distance to this specific totem.
+
+
+
+    <h3>Returns:</h3>
+<ol>
+<span class="types"><span class="type">number</span></span>
+</ol>
+</dd>
+<dt>
+<a name="totem.element.totemName.name"></a>
+<strong>totem.element.totemName.name ()</strong>
+</dt>
+<dd>
+    Get the name of this totem if active.
+
+
+
+    <h3>Returns:</h3>
+<ol>
+<span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a> or <span class="type">nil</span></span>
+</ol>
+</dd>
+<dt>
+<a name="totem.element.active"></a>
+<strong>totem.element.active ()</strong>
+</dt>
+<dd>
+    Check if any totem in this element slot is active.
+
+
+
+    <h3>Returns:</h3>
+<ol>
+<span class="types"><span class="type">boolean</span></span>
+</ol>
+</dd>
+<dt>
+<a name="totem.element.exists"></a>
+<strong>totem.element.exists ()</strong>
+</dt>
+<dd>
+    Alias for active.
+
+
+
+    <h3>Returns:</h3>
+<ol>
+<span class="types"><span class="type">boolean</span></span>
+</ol>
+</dd>
+<dt>
+<a name="totem.element.name"></a>
+<strong>totem.element.name ()</strong>
+</dt>
+<dd>
+    Get the name of the active totem in this slot.
+
+
+
+    <h3>Returns:</h3>
+<ol>
+<span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a> or <span class="type">nil</span></span>
+</ol>
+</dd>
+<dt>
+<a name="totem.element.remain"></a>
+<strong>totem.element.remain ()</strong>
+</dt>
+<dd>
+    Get remaining time for the active totem in this slot.
+
+
+
+    <h3>Returns:</h3>
+<ol>
+<span class="types"><span class="type">number</span></span>
+</ol>
+</dd>
+<dt>
+<a name="totem.element.duration"></a>
+<strong>totem.element.duration ()</strong>
+</dt>
+<dd>
+    Get duration for the active totem in this slot.
+
+
+
+    <h3>Returns:</h3>
+<ol>
+<span class="types"><span class="type">number</span></span>
+</ol>
+</dd>
+<dt>
+<a name="totem.element.distance"></a>
+<strong>totem.element.distance ()</strong>
+</dt>
+<dd>
+    Get distance to the active totem in this slot.
+
+
+
+    <h3>Returns:</h3>
+<ol>
+<span class="types"><span class="type">number</span></span>
+</ol>
+</dd>
+<dt>
+<a name="totem.element.is"></a>
+<strong>totem.element.is (candidates)</strong>
+</dt>
+<dd>
+    Check if the active totem matches any of the provided candidates.
+
+
+    <h3>Parameters:</h3>
+<ul>
+<li><span class="parameter">candidates</span>
+<span class="types"><span class="type">...</span></span>
+</li>
+</ul>
+<h3>Returns:</h3>
+<ol>
+<span class="types"><span class="type">boolean</span></span>
+</ol>
+</dd>
+<dt>
+<a name="get"></a>
+<strong>totem.get (slot)</strong>
+</dt>
+<dd>
+    Returns raw slot info as reported by GetTotemInfo.
+
+
+    <h3>Parameters:</h3>
+<ul>
+<li><span class="parameter">slot</span>
+<span class="types"><span class="type">number</span></span>
+         Totem slot (1-4)
+        </li>
+</ul>
+<h3>Returns:</h3>
+<ol>
+<li>
+<span class="types"><span class="type">boolean</span></span>
+        haveTotem</li>
+<li>
+<span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a> or <span class="type">nil</span></span>
+        name</li>
+<li>
+<span class="types"><span class="type">number</span></span>
+        startTime</li>
+<li>
+<span class="types"><span class="type">number</span></span>
+        duration</li>
+<li>
+<span class="types"><span class="type">number</span> or <span class="type">nil</span></span>
+        icon</li>
+</ol>
+</dd>
+<dt>
+<a name="remain"></a>
+<strong>totem.remain (slot)</strong>
+</dt>
+<dd>
+    Returns remaining time for a slot (seconds), or 0.
+
+
+    <h3>Parameters:</h3>
+<ul>
+<li><span class="parameter">slot</span>
+<span class="types"><span class="type">number</span></span>
+         Totem slot (1-4)
+        </li>
+</ul>
+<h3>Returns:</h3>
+<ol>
+<span class="types"><span class="type">number</span></span>
+</ol>
+</dd>
+<dt>
+<a name="distance"></a>
+<strong>totem.distance (slotOrCandidate)</strong>
+</dt>
+<dd>
+    Returns distance from player to the active totem in a slot.
+ Returns 999 if no totem is active or the object can't be located.
+
+
+    <h3>Parameters:</h3>
+<ul>
+<li><span class="parameter">slotOrCandidate</span>
+<span class="types"><span class="type">number</span> or <a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         Totem slot (1-4) or totem spell key/id/name
+        </li>
+</ul>
+<h3>Returns:</h3>
+<ol>
+<span class="types"><span class="type">number</span></span>
+</ol>
+</dd>
+<dt>
+<a name="is"></a>
+<strong>totem.is (slot, candidates)</strong>
+</dt>
+<dd>
+    Returns true if the specified slot currently matches any provided totem.
+ Candidates can be spell IDs (number), spell keys from br.player.spells (string), or literal localized names (string).
+
+
+    <h3>Parameters:</h3>
+<ul>
+<li><span class="parameter">slot</span>
+<span class="types"><span class="type">number</span></span>
+         Totem slot (1-4)
+        </li>
+<li><span class="parameter">candidates</span>
+<span class="types"><span class="type">...</span></span>
+</li>
+</ul>
+<h3>Returns:</h3>
+<ol>
+<span class="types"><span class="type">boolean</span></span>
+</ol>
+</dd>
+<dt>
+<a name="active"></a>
+<strong>totem.active (candidate)</strong>
+</dt>
+<dd>
+    Returns true if the specified totem is currently active in any slot.
+ Candidate can be a spell key, spell ID, or localized name.
+
+
+    <h3>Parameters:</h3>
+<ul>
+<li><span class="parameter">candidate</span>
+<span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a> or <span class="type">number</span></span>
+</li>
+</ul>
+<h3>Returns:</h3>
+<ol>
+<span class="types"><span class="type">boolean</span></span>
+</ol>
+</dd>
+<dt>
+<a name="exists"></a>
+<strong>totem.exists (candidate)</strong>
+</dt>
+<dd>
+    Alias for active.
+
+
+    <h3>Parameters:</h3>
+<ul>
+<li><span class="parameter">candidate</span>
+<span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a> or <span class="type">number</span></span>
+</li>
+</ul>
+<h3>Returns:</h3>
+<ol>
+<span class="types"><span class="type">boolean</span></span>
+</ol>
+</dd>
+</dl>
+</p></p></div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2026-04-21 01:06:57 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

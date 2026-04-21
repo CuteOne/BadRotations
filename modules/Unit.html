@@ -39,23 +39,21 @@
 
 <h2>Modules</h2>
 <ul class="nowrap">
-  <li><a href="../modules/br.player.anima.html">br.player.anima</a></li>
   <li><a href="../modules/br.player.buff.html">br.player.buff</a></li>
   <li><a href="../modules/br.player.cd.html">br.player.cd</a></li>
   <li><a href="../modules/br.player.cast.html">br.player.cast</a></li>
   <li><a href="../modules/br.player.charges.html">br.player.charges</a></li>
-  <li><a href="../modules/br.player.conduit.html">br.player.conduit</a></li>
-  <li><a href="../modules/br.player.covenant.html">br.player.covenant</a></li>
   <li><a href="../modules/br.player.debuff.html">br.player.debuff</a></li>
   <li><a href="../modules/br.player.enemies.html">br.player.enemies</a></li>
   <li><a href="../modules/br.player.equiped.html">br.player.equiped</a></li>
-  <li><a href="../modules/br.player.essence.html">br.player.essence</a></li>
+  <li><a href="../modules/br.player.glyph.html">br.player.glyph</a></li>
   <li><a href="../modules/br.player.has.html">br.player.has</a></li>
   <li><a href="../modules/br.player.module.html">br.player.module</a></li>
   <li><a href="../modules/br.player.pets.html">br.player.pets</a></li>
   <li><a href="../modules/br.player.power.html">br.player.power</a></li>
   <li><a href="../modules/br.player.spell.html">br.player.spell</a></li>
   <li><a href="../modules/br.player.talent.html">br.player.talent</a></li>
+  <li><a href="../modules/br.player.totem.html">br.player.totem</a></li>
   <li><a href="../modules/br.player.ui.html">br.player.ui</a></li>
   <li><strong>Unit</strong></li>
   <li><a href="../modules/br.player.units.html">br.player.units</a></li>
@@ -91,8 +89,24 @@
 	<td class="summary">Check if a unit can be attacked</td>
 	</tr>
 	<tr>
+	<td class="name" nowrap><a href="#unit.canFly">unit.canFly ()</a></td>
+	<td class="summary">Check if player can fly</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#unit.cancelForm">unit.cancelForm ()</a></td>
 	<td class="summary">Cancel current shapeshift form</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.formBreakManaRequired">unit.formBreakManaRequired (outOfFormSpell, returnFormSpell, treatOutSpellAsFree)</a></td>
+	<td class="summary">Calculate mana required to safely break form for a spell and shift back.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.canCancelFormFor">unit.canCancelFormFor (outOfFormSpell, returnFormSpell, treatOutSpellAsFree)</a></td>
+	<td class="summary">Check if it's safe to cancel form (enough mana to cast the spell and shift back).</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.cancelFormFor">unit.cancelFormFor (outOfFormSpell, returnFormSpell, treatOutSpellAsFree)</a></td>
+	<td class="summary">Cancel form only if safe to do so.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#unit.casting">unit.casting (thisUnit, spellID)</a></td>
@@ -131,6 +145,10 @@
 	<td class="summary">Check if player is dual wielding weapons</td>
 	</tr>
 	<tr>
+	<td class="name" nowrap><a href="#unit.rangedAttackSpeed">unit.rangedAttackSpeed ()</a></td>
+	<td class="summary">Get the player's current ranged attack speed in seconds.</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#unit.enemy">unit.enemy (thisUnit, playerUnit)</a></td>
 	<td class="summary">Check if a unit is an enemy</td>
 	</tr>
@@ -143,12 +161,20 @@
 	<td class="summary">Check if a unit is facing another unit</td>
 	</tr>
 	<tr>
+	<td class="name" nowrap><a href="#unit.isBehind">unit.isBehind (thisUnit, otherUnit, degrees)</a></td>
+	<td class="summary">Check if a unit is behind another unit</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#unit.falling">unit.falling ()</a></td>
 	<td class="summary">Check if a unit is falling</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#unit.fallTime">unit.fallTime ()</a></td>
 	<td class="summary">Get time the player has been falling</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.fallDist">unit.fallDist ()</a></td>
+	<td class="summary">Get the distance the player has fallen</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#unit.flying">unit.flying ()</a></td>
@@ -161,6 +187,14 @@
 	<tr>
 	<td class="name" nowrap><a href="#unit.formCount">unit.formCount ()</a></td>
 	<td class="summary">Get number of available shapeshift forms</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.formInfo">unit.formInfo (formIndex)</a></td>
+	<td class="summary">Get information about a specific shapeshift form</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.formActive">unit.formActive (spellID)</a></td>
+	<td class="summary">Check if a specific form is active or if any form is active</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#unit.friend">unit.friend (thisUnit, playerUnit)</a></td>
@@ -219,8 +253,16 @@
 	<td class="summary">Check if a unit is a training dummy</td>
 	</tr>
 	<tr>
+	<td class="name" nowrap><a href="#unit.isElemental">unit.isElemental (thisUnit)</a></td>
+	<td class="summary">Check if a unit is an Elemental</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#unit.isExplosive">unit.isExplosive (thisUnit)</a></td>
 	<td class="summary">Check if a unit is an explosive orb (M+ affix)</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.isFleeing">unit.isFleeing (thisUnit)</a></td>
+	<td class="summary">Check if a unit is fleeing</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#unit.isTanking">unit.isTanking (thisUnit)</a></td>
@@ -287,6 +329,14 @@
 	<td class="summary">Check if player is solo (no group)</td>
 	</tr>
 	<tr>
+	<td class="name" nowrap><a href="#unit.inGroup">unit.inGroup ()</a></td>
+	<td class="summary">Check if player is in a group (party or raid)</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.groupCount">unit.groupCount ()</a></td>
+	<td class="summary">Get number of members in the current group (including player; 0 if solo)</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#unit.spellHaste">unit.spellHaste ()</a></td>
 	<td class="summary">Get player's spell haste percentage</td>
 	</tr>
@@ -311,8 +361,16 @@
 	<td class="summary">Check if a unit is on a taxi</td>
 	</tr>
 	<tr>
+	<td class="name" nowrap><a href="#unit.target">unit.target (thisUnit)</a></td>
+	<td class="summary">Get the current target of a unit</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#unit.threat">unit.threat (thisUnit)</a></td>
 	<td class="summary">Check if a unit has threat</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.threatStatus">unit.threatStatus ()</a></td>
+	<td class="summary">Get the player's current threat status</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#unit.ttd">unit.ttd (thisUnit, percent)</a></td>
@@ -335,12 +393,32 @@
 	<td class="summary">Check if a weapon imbue exists</td>
 	</tr>
 	<tr>
+	<td class="name" nowrap><a href="#unit.weaponImbue.needed">unit.weaponImbue.needed (imbueId, offHand)</a></td>
+	<td class="summary">Check if a weapon imbue is missing (needs to be applied)</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.weaponImbue.spellName">unit.weaponImbue.spellName (spellKey)</a></td>
+	<td class="summary">Get the display name of a weapon imbue spell</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#unit.weaponImbue.remain">unit.weaponImbue.remain (imbueId, offHand)</a></td>
 	<td class="summary">Get weapon imbue remaining time</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#unit.weaponImbue.charges">unit.weaponImbue.charges (imbueId, offHand)</a></td>
 	<td class="summary">Get weapon imbue charges</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.attackPower">unit.attackPower (thisUnit)</a></td>
+	<td class="summary">Get player's attack power</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.critChance">unit.critChance (thisUnit)</a></td>
+	<td class="summary">Get player's critical strike chance</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unit.weaponDamage">unit.weaponDamage (thisUnit)</a></td>
+	<td class="summary">Get player's average weapon damage</td>
 	</tr>
 </table>
 
@@ -430,6 +508,25 @@
 
 </dd>
     <dt>
+    <a name = "unit.canFly"></a>
+    <strong>unit.canFly ()</strong>
+    </dt>
+    <dd>
+    Check if player can fly
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean True if the player can fly in the current area
+    </ol>
+
+
+
+
+</dd>
+    <dt>
     <a name = "unit.cancelForm"></a>
     <strong>unit.cancelForm ()</strong>
     </dt>
@@ -442,6 +539,105 @@
     <ol>
 
         nil
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.formBreakManaRequired"></a>
+    <strong>unit.formBreakManaRequired (outOfFormSpell, returnFormSpell, treatOutSpellAsFree)</strong>
+    </dt>
+    <dd>
+    Calculate mana required to safely break form for a spell and shift back.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">outOfFormSpell</span>
+         Spell reference (id/name/spell table) you intend to cast after breaking form.
+        </li>
+        <li><span class="parameter">returnFormSpell</span>
+         Spell reference (id/name/spell table) to shift back into.
+        </li>
+        <li><span class="parameter">treatOutSpellAsFree</span>
+         If true, treat out-of-form spell cost as 0 (e.g., Clearcasting).
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+           <span class="types"><span class="type">number</span></span>
+        requiredMana Total mana needed (out spell + return form).</li>
+        <li>
+           <span class="types"><span class="type">number</span></span>
+        currentMana Current player mana.</li>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.canCancelFormFor"></a>
+    <strong>unit.canCancelFormFor (outOfFormSpell, returnFormSpell, treatOutSpellAsFree)</strong>
+    </dt>
+    <dd>
+    Check if it's safe to cancel form (enough mana to cast the spell and shift back).
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">outOfFormSpell</span>
+         Spell reference (id/name/spell table) you intend to cast after breaking form.
+        </li>
+        <li><span class="parameter">returnFormSpell</span>
+         Spell reference (id/name/spell table) to shift back into.
+        </li>
+        <li><span class="parameter">treatOutSpellAsFree</span>
+         If true, treat out-of-form spell cost as 0 (e.g., Clearcasting).
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">boolean</span></span>
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.cancelFormFor"></a>
+    <strong>unit.cancelFormFor (outOfFormSpell, returnFormSpell, treatOutSpellAsFree)</strong>
+    </dt>
+    <dd>
+    Cancel form only if safe to do so.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">outOfFormSpell</span>
+         Spell reference (id/name/spell table) you intend to cast after breaking form.
+        </li>
+        <li><span class="parameter">returnFormSpell</span>
+         Spell reference (id/name/spell table) to shift back into.
+        </li>
+        <li><span class="parameter">treatOutSpellAsFree</span>
+         If true, treat out-of-form spell cost as 0 (e.g., Clearcasting).
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">boolean</span></span>
+        True if the form was cancelled.
     </ol>
 
 
@@ -656,6 +852,27 @@
 
 </dd>
     <dt>
+    <a name = "unit.rangedAttackSpeed"></a>
+    <strong>unit.rangedAttackSpeed ()</strong>
+    </dt>
+    <dd>
+    Get the player's current ranged attack speed in seconds.
+ Reads the live haste-modified speed from UnitRangedDamage so it reflects
+ Rapid Fire, Quiver haste, and other modifiers automatically.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number Ranged weapon speed in seconds, or 0 if unavailable
+    </ol>
+
+
+
+
+</dd>
+    <dt>
     <a name = "unit.enemy"></a>
     <strong>unit.enemy (thisUnit, playerUnit)</strong>
     </dt>
@@ -740,6 +957,37 @@
 
 </dd>
     <dt>
+    <a name = "unit.isBehind"></a>
+    <strong>unit.isBehind (thisUnit, otherUnit, degrees)</strong>
+    </dt>
+    <dd>
+    Check if a unit is behind another unit
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit being checked for facing (typically the target), defaults to "target" if nil
+        </li>
+        <li><span class="parameter">otherUnit</span>
+         The reference unit (typically "player"), defaults to "player" if nil
+        </li>
+        <li><span class="parameter">degrees</span>
+         Optional angle in degrees for the facing cone, defaults to normal game value
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean True if thisUnit is NOT facing otherUnit within the given degrees
+    </ol>
+
+
+
+
+</dd>
+    <dt>
     <a name = "unit.falling"></a>
     <strong>unit.falling ()</strong>
     </dt>
@@ -771,6 +1019,25 @@
     <ol>
 
         number Time in seconds player has been falling
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.fallDist"></a>
+    <strong>unit.fallDist ()</strong>
+    </dt>
+    <dd>
+    Get the distance the player has fallen
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number Distance in yards the player has fallen
     </ol>
 
 
@@ -828,6 +1095,56 @@
     <ol>
 
         number Count of available shapeshift forms
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.formInfo"></a>
+    <strong>unit.formInfo (formIndex)</strong>
+    </dt>
+    <dd>
+    Get information about a specific shapeshift form
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">formIndex</span>
+         The index of the form (1-based)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        texture, isActive, isCastable, spellID
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.formActive"></a>
+    <strong>unit.formActive (spellID)</strong>
+    </dt>
+    <dd>
+    Check if a specific form is active or if any form is active
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">spellID</span>
+         Optional spell ID to check for a specific form. If nil, checks if any form is active
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean True if the specified form (or any form if no spellID provided) is active
     </ol>
 
 
@@ -1191,6 +1508,31 @@
 
 </dd>
     <dt>
+    <a name = "unit.isElemental"></a>
+    <strong>unit.isElemental (thisUnit)</strong>
+    </dt>
+    <dd>
+    Check if a unit is an Elemental
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit to check, defaults to "target" if nil
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean True if the unit is an Elemental
+    </ol>
+
+
+
+
+</dd>
+    <dt>
     <a name = "unit.isExplosive"></a>
     <strong>unit.isExplosive (thisUnit)</strong>
     </dt>
@@ -1209,6 +1551,31 @@
     <ol>
 
         boolean True if the unit is an explosive orb
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.isFleeing"></a>
+    <strong>unit.isFleeing (thisUnit)</strong>
+    </dt>
+    <dd>
+    Check if a unit is fleeing
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit to check
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean True if the unit is fleeing
     </ol>
 
 
@@ -1586,6 +1953,44 @@
 
 </dd>
     <dt>
+    <a name = "unit.inGroup"></a>
+    <strong>unit.inGroup ()</strong>
+    </dt>
+    <dd>
+    Check if player is in a group (party or raid)
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean True if player is in a group
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.groupCount"></a>
+    <strong>unit.groupCount ()</strong>
+    </dt>
+    <dd>
+    Get number of members in the current group (including player; 0 if solo)
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number Total group member count
+    </ol>
+
+
+
+
+</dd>
+    <dt>
     <a name = "unit.spellHaste"></a>
     <strong>unit.spellHaste ()</strong>
     </dt>
@@ -1706,6 +2111,31 @@
 
 </dd>
     <dt>
+    <a name = "unit.target"></a>
+    <strong>unit.target (thisUnit)</strong>
+    </dt>
+    <dd>
+    Get the current target of a unit
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit whose target to get
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        string|nil Unit token of thisUnit's current target, or nil if none
+    </ol>
+
+
+
+
+</dd>
+    <dt>
     <a name = "unit.threat"></a>
     <strong>unit.threat (thisUnit)</strong>
     </dt>
@@ -1724,6 +2154,26 @@
     <ol>
 
         boolean True if the unit has threat
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.threatStatus"></a>
+    <strong>unit.threatStatus ()</strong>
+    </dt>
+    <dd>
+    Get the player's current threat status
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number Threat status: 0=no/low threat, 1=high threat (not primary target),
+   2=primary target (another unit has 100%+ threat), 3=primary target (sole aggro)
     </ol>
 
 
@@ -1865,6 +2315,59 @@
 
 </dd>
     <dt>
+    <a name = "unit.weaponImbue.needed"></a>
+    <strong>unit.weaponImbue.needed (imbueId, offHand)</strong>
+    </dt>
+    <dd>
+    Check if a weapon imbue is missing (needs to be applied)
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">imbueId</span>
+         The ID of the imbue to check for
+        </li>
+        <li><span class="parameter">offHand</span>
+         Boolean whether to check offhand (true) or main hand (false, default)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean True if the imbue is NOT currently applied to the specified weapon
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.weaponImbue.spellName"></a>
+    <strong>unit.weaponImbue.spellName (spellKey)</strong>
+    </dt>
+    <dd>
+    Get the display name of a weapon imbue spell
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">spellKey</span>
+         The spell key string (e.g. "rockbiterWeapon") used in br.player.spells
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        string The localised spell name, or the key as a fallback
+    </ol>
+
+
+
+
+</dd>
+    <dt>
     <a name = "unit.weaponImbue.remain"></a>
     <strong>unit.weaponImbue.remain (imbueId, offHand)</strong>
     </dt>
@@ -1920,6 +2423,81 @@
 
 
 </dd>
+    <dt>
+    <a name = "unit.attackPower"></a>
+    <strong>unit.attackPower (thisUnit)</strong>
+    </dt>
+    <dd>
+    Get player's attack power
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit to check, defaults to "player" if nil
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number Total attack power (base + positive buffs + negative buffs)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.critChance"></a>
+    <strong>unit.critChance (thisUnit)</strong>
+    </dt>
+    <dd>
+    Get player's critical strike chance
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit to check, defaults to "player" if nil
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number Critical strike chance percentage
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unit.weaponDamage"></a>
+    <strong>unit.weaponDamage (thisUnit)</strong>
+    </dt>
+    <dd>
+    Get player's average weapon damage
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">thisUnit</span>
+         The unit to check, defaults to "player" if nil
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number Average weapon damage
+    </ol>
+
+
+
+
+</dd>
 </dl>
 
 
@@ -1927,7 +2505,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
-<i style="float:right;">Last updated 2025-10-23 22:02:20 </i>
+<i style="float:right;">Last updated 2026-04-21 01:06:57 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

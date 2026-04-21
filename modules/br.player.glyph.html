@@ -28,23 +28,21 @@
 </ul>
 <h2>Modules</h2>
 <ul class="nowrap">
-<li><strong>br.player.anima</strong></li>
 <li><a href="../modules/br.player.buff.html">br.player.buff</a></li>
 <li><a href="../modules/br.player.cd.html">br.player.cd</a></li>
 <li><a href="../modules/br.player.cast.html">br.player.cast</a></li>
 <li><a href="../modules/br.player.charges.html">br.player.charges</a></li>
-<li><a href="../modules/br.player.conduit.html">br.player.conduit</a></li>
-<li><a href="../modules/br.player.covenant.html">br.player.covenant</a></li>
 <li><a href="../modules/br.player.debuff.html">br.player.debuff</a></li>
 <li><a href="../modules/br.player.enemies.html">br.player.enemies</a></li>
 <li><a href="../modules/br.player.equiped.html">br.player.equiped</a></li>
-<li><a href="../modules/br.player.essence.html">br.player.essence</a></li>
+<li><strong>br.player.glyph</strong></li>
 <li><a href="../modules/br.player.has.html">br.player.has</a></li>
 <li><a href="../modules/br.player.module.html">br.player.module</a></li>
 <li><a href="../modules/br.player.pets.html">br.player.pets</a></li>
 <li><a href="../modules/br.player.power.html">br.player.power</a></li>
 <li><a href="../modules/br.player.spell.html">br.player.spell</a></li>
 <li><a href="../modules/br.player.talent.html">br.player.talent</a></li>
+<li><a href="../modules/br.player.totem.html">br.player.totem</a></li>
 <li><a href="../modules/br.player.ui.html">br.player.ui</a></li>
 <li><a href="../modules/Unit.html">Unit</a></li>
 <li><a href="../modules/br.player.units.html">br.player.units</a></li>
@@ -52,20 +50,32 @@
 </ul>
 </div>
 <div id="content">
-<h1>Module <code>br.player.anima</code></h1>
-<p>These functions help in retrieving information about anima powers gained in Torghast *Shadowlands*.</p>
+<h1>Module <code>br.player.glyph</code></h1>
+<p>Glyph handling functions for BadRotations.</p>
 <p>
- Anima functions are stored in br.player.anima and can be utilized by `local anima = br.player.anima` in your profile.
- `spell` in the function represent the name in the animas list (Spec, Shared Class, Shared Global Lists) defined in System/List/Spells.lua</p>
+ Glyph functions are stored in br.player.glyph and can be utilized by `local glyph = br.player.glyph` in your profile.
+<p> NOTE: On modern retail clients the classic glyph socket API may not exist; in that case glyph checks return false.</p>
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 <tr>
-<td class="name" nowrap=""><a href="#anima.spell.exists">anima.spell.exists ()</a></td>
-<td class="summary">Check if a specific anima power exists.</td>
+<td class="name" nowrap=""><a href="#available">glyph.available ()</a></td>
+<td class="summary">Returns whether glyph API is available on this client.</td>
 </tr>
 <tr>
-<td class="name" nowrap=""><a href="#anima.spell.rank">anima.spell.rank ()</a></td>
-<td class="summary">Get the rank of a specific anima power.</td>
+<td class="name" nowrap=""><a href="#socketCount">glyph.socketCount ()</a></td>
+<td class="summary">Returns how many glyph sockets we can scan.</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#has">glyph.has (glyphSpellId)</a></td>
+<td class="summary">Returns true if the given glyph spellId is socketed.</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#glyph.k.id">glyph.k.id ()</a></td>
+<td class="summary">Returns the glyph spellId.</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#glyph.k.enabled">glyph.k.enabled ()</a></td>
+<td class="summary">Returns true if this glyph is socketed.</td>
 </tr>
 </table>
 <br/>
@@ -73,41 +83,86 @@
 <h2 class="section-header"><a name="Functions"></a>Functions</h2>
 <dl class="function">
 <dt>
-<a name="anima.spell.exists"></a>
-<strong>anima.spell.exists ()</strong>
+<a name="available"></a>
+<strong>glyph.available ()</strong>
 </dt>
 <dd>
-    Check if a specific anima power exists.
+    Returns whether glyph API is available on this client.
 
 
 
     <h3>Returns:</h3>
 <ol>
-<span class="types"><span class="type">bool</span></span>
-        True if the anima power exists, false otherwise.
-    </ol>
+<span class="types"><span class="type">boolean</span></span>
+</ol>
 </dd>
 <dt>
-<a name="anima.spell.rank"></a>
-<strong>anima.spell.rank ()</strong>
+<a name="socketCount"></a>
+<strong>glyph.socketCount ()</strong>
 </dt>
 <dd>
-    Get the rank of a specific anima power.
+    Returns how many glyph sockets we can scan.
 
 
 
     <h3>Returns:</h3>
 <ol>
 <span class="types"><span class="type">number</span></span>
-        The rank of the anima power.
-    </ol>
+</ol>
+</dd>
+<dt>
+<a name="has"></a>
+<strong>glyph.has (glyphSpellId)</strong>
+</dt>
+<dd>
+    Returns true if the given glyph spellId is socketed.
+
+
+    <h3>Parameters:</h3>
+<ul>
+<li><span class="parameter">glyphSpellId</span>
+<span class="types"><span class="type">number</span></span>
+</li>
+</ul>
+<h3>Returns:</h3>
+<ol>
+<span class="types"><span class="type">boolean</span></span>
+</ol>
+</dd>
+<dt>
+<a name="glyph.k.id"></a>
+<strong>glyph.k.id ()</strong>
+</dt>
+<dd>
+    Returns the glyph spellId.
+
+
+
+    <h3>Returns:</h3>
+<ol>
+<span class="types"><span class="type">number</span></span>
+</ol>
+</dd>
+<dt>
+<a name="glyph.k.enabled"></a>
+<strong>glyph.k.enabled ()</strong>
+</dt>
+<dd>
+    Returns true if this glyph is socketed.
+
+
+
+    <h3>Returns:</h3>
+<ol>
+<span class="types"><span class="type">boolean</span></span>
+</ol>
 </dd>
 </dl>
-</div> <!-- id="content" -->
+</p></div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
-<i style="float:right;">Last updated 2025-10-23 22:02:20 </i>
+<i style="float:right;">Last updated 2026-04-21 01:06:57 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

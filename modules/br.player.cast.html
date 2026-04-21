@@ -28,23 +28,21 @@
 </ul>
 <h2>Modules</h2>
 <ul class="nowrap">
-<li><a href="../modules/br.player.anima.html">br.player.anima</a></li>
 <li><a href="../modules/br.player.buff.html">br.player.buff</a></li>
 <li><a href="../modules/br.player.cd.html">br.player.cd</a></li>
 <li><strong>br.player.cast</strong></li>
 <li><a href="../modules/br.player.charges.html">br.player.charges</a></li>
-<li><a href="../modules/br.player.conduit.html">br.player.conduit</a></li>
-<li><a href="../modules/br.player.covenant.html">br.player.covenant</a></li>
 <li><a href="../modules/br.player.debuff.html">br.player.debuff</a></li>
 <li><a href="../modules/br.player.enemies.html">br.player.enemies</a></li>
 <li><a href="../modules/br.player.equiped.html">br.player.equiped</a></li>
-<li><a href="../modules/br.player.essence.html">br.player.essence</a></li>
+<li><a href="../modules/br.player.glyph.html">br.player.glyph</a></li>
 <li><a href="../modules/br.player.has.html">br.player.has</a></li>
 <li><a href="../modules/br.player.module.html">br.player.module</a></li>
 <li><a href="../modules/br.player.pets.html">br.player.pets</a></li>
 <li><a href="../modules/br.player.power.html">br.player.power</a></li>
 <li><a href="../modules/br.player.spell.html">br.player.spell</a></li>
 <li><a href="../modules/br.player.talent.html">br.player.talent</a></li>
+<li><a href="../modules/br.player.totem.html">br.player.totem</a></li>
 <li><a href="../modules/br.player.ui.html">br.player.ui</a></li>
 <li><a href="../modules/Unit.html">Unit</a></li>
 <li><a href="../modules/br.player.units.html">br.player.units</a></li>
@@ -136,6 +134,10 @@
 <td class="summary">Gets the GetTime() value the last cast of this spell occurred.</td>
 </tr>
 <tr>
+<td class="name" nowrap=""><a href="#macro">cast.macro (macroText)</a></td>
+<td class="summary">Runs the macro text passed to it.</td>
+</tr>
+<tr>
 <td class="name" nowrap=""><a href="#cast.noControl.spell">cast.noControl.spell ()</a></td>
 <td class="summary">Checks if the spell can free you of a "no control" effect.</td>
 </tr>
@@ -148,7 +150,7 @@
 <td class="summary">Resets cast special opener condition if failed to cast.</td>
 </tr>
 <tr>
-<td class="name" nowrap=""><a href="#cast.pool.spell">cast.pool.spell (specificAmt, multiplier)</a></td>
+<td class="name" nowrap=""><a href="#cast.pool.spell">cast.pool.spell (altPower, specificAmt, multiplier)</a></td>
 <td class="summary">Checks if specified power requirements are not met.</td>
 </tr>
 <tr>
@@ -178,6 +180,14 @@
 <tr>
 <td class="name" nowrap=""><a href="#wait">cast.wait (condition)</a></td>
 <td class="summary">Checks if the provided condition is true else it waits for 0.1sec.</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#cast.rank.spell">cast.rank.spell (rankNum, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)</a></td>
+<td class="summary">Cast a specific rank of a spell (Classic WoW only).</td>
+</tr>
+<tr>
+<td class="name" nowrap=""><a href="#cast.maxRank.spell">cast.maxRank.spell ()</a></td>
+<td class="summary">Get the highest known rank number for this spell.</td>
 </tr>
 </table>
 <br/>
@@ -694,6 +704,26 @@
 </ol>
 </dd>
 <dt>
+<a name="macro"></a>
+<strong>cast.macro (macroText)</strong>
+</dt>
+<dd>
+    Runs the macro text passed to it.
+
+
+    <h3>Parameters:</h3>
+<ul>
+<li><span class="parameter">macroText</span>
+<span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         The macro text to be run.
+        </li>
+</ul>
+<h3>Returns:</h3>
+<ol>
+<span class="types"><span class="type">boolean</span></span>
+</ol>
+</dd>
+<dt>
 <a name="cast.noControl.spell"></a>
 <strong>cast.noControl.spell ()</strong>
 </dt>
@@ -765,7 +795,7 @@
 </dd>
 <dt>
 <a name="cast.pool.spell"></a>
-<strong>cast.pool.spell (specificAmt, multiplier)</strong>
+<strong>cast.pool.spell (altPower, specificAmt, multiplier)</strong>
 </dt>
 <dd>
     Checks if specified power requirements are not met.
@@ -773,19 +803,21 @@
 
     <h3>Parameters:</h3>
 <ul>
+<li><span class="parameter">altPower</span>
+         boolean Set to "true" to return alternate power cost. Defaults to false if not provided.
+        </li>
 <li><span class="parameter">specificAmt</span>
-<span class="types"><span class="type">number</span></span>
-         Set to specified power amount. Defaults to 0 if not provided.
+         number Set to specified power amount. Defaults to 0 if not provided.
         </li>
 <li><span class="parameter">multiplier</span>
-<span class="types"><span class="type">number</span></span>
-         Set to specified power multiplier. Defaults to 1 if not provided.
+         number Set to specified power multiplier. Defaults to 1 if not provided.
         </li>
 </ul>
 <h3>Returns:</h3>
 <ol>
-<span class="types"><span class="type">boolean</span></span>
-</ol>
+
+        boolean
+    </ol>
 </dd>
 <dt>
 <a name="cast.range.spell"></a>
@@ -914,12 +946,91 @@
 <span class="types"><span class="type">boolean</span></span>
 </ol>
 </dd>
+<dt>
+<a name="cast.rank.spell"></a>
+<strong>cast.rank.spell (rankNum, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)</strong>
+</dt>
+<dd>
+    Cast a specific rank of a spell (Classic WoW only).
+ Allows casting a lower rank of a spell for mana efficiency or specific mechanics.
+
+
+    <h3>Parameters:</h3>
+<ul>
+<li><span class="parameter">rankNum</span>
+<span class="types"><span class="type">number</span></span>
+         The rank number to cast (1-based index, e.g., 1 for Rank 1, 2 for Rank 2)
+        </li>
+<li><span class="parameter">thisUnit</span>
+<span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         The target unit for the spell. Can be standard WoW units, dynamic units, or special parameters.
+        </li>
+<li><span class="parameter">castType</span>
+<span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         Defines the type of AoE or special cast conditions.
+        </li>
+<li><span class="parameter">minUnits</span>
+<span class="types"><span class="type">number</span></span>
+         Minimum number of units needed to be hit by AoE spell.
+        </li>
+<li><span class="parameter">effectRng</span>
+<span class="types"><span class="type">number</span></span>
+         The AoE's effect range.
+        </li>
+<li><span class="parameter">predict</span>
+<span class="types"><span class="type">boolean</span></span>
+         If true, will attempt to predict enemy movements for ground location AoE spells.
+        </li>
+<li><span class="parameter">predictPad</span>
+<span class="types"><span class="type">boolean</span></span>
+         Pads the prediction cast time. 'predict' must be true.
+        </li>
+<li><span class="parameter">enemies</span>
+<span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         A table of enemy units that the spell should be cast on.
+        </li>
+</ul>
+<h3>Returns:</h3>
+<ol>
+<span class="types"><span class="type">boolean</span></span>
+</ol>
+<h3>Usage:</h3>
+<ul>
+<pre class="example"><span class="comment">-- Cast Rank 1 Healing Touch for mana efficiency
+</span><span class="keyword">if</span> cast.rank.<span class="function-name">healingTouch</span>(<span class="number">1</span>, <span class="string">"target"</span>) <span class="keyword">then</span> <span class="keyword">return</span> <span class="keyword">true</span> <span class="keyword">end</span>
+
+<span class="comment">-- Cast Rank 3 Rejuvenation
+</span><span class="keyword">if</span> cast.rank.<span class="function-name">rejuvenation</span>(<span class="number">3</span>, <span class="string">"target"</span>) <span class="keyword">then</span> <span class="keyword">return</span> <span class="keyword">true</span> <span class="keyword">end</span></pre>
+</ul>
+</dd>
+<dt>
+<a name="cast.maxRank.spell"></a>
+<strong>cast.maxRank.spell ()</strong>
+</dt>
+<dd>
+    Get the highest known rank number for this spell.
+
+
+
+    <h3>Returns:</h3>
+<ol>
+<span class="types"><span class="type">number</span></span>
+        The highest rank number the player knows (1-based), or 0 if none
+    </ol>
+<h3>Usage:</h3>
+<ul>
+<pre class="example"><span class="keyword">local</span> knownRank = cast.maxRank.<span class="function-name">healingTouch</span>()
+<span class="keyword">if</span> knownRank &gt;= <span class="number">5</span> <span class="keyword">then</span>
+    <span class="comment">-- Player knows at least Rank 5
+</span><span class="keyword">end</span></pre>
+</ul>
+</dd>
 </dl>
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
-<i style="float:right;">Last updated 2025-10-23 22:02:20 </i>
+<i style="float:right;">Last updated 2026-04-21 01:06:57 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
