@@ -39,6 +39,7 @@ jobs:
       continue-on-error: true
 
     - name: List changed files
+      if: steps.changed-files.outputs.any_changed == 'true'
       env:
         CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
       run: |
