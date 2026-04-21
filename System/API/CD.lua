@@ -148,10 +148,10 @@ br.api.itemCD = function(self, item, id)
     -- @section cd.slot
     cd.slot = cd.slot or {}
 
-    --- This function gets the base cooldown of a given item spell from an inventory slot, specific to the player character in game.
-    -- @param slotID - The ID of the inventory slot.
-    -- @return number - The base cooldown of the item spell divided by 1000.
-    -- This division is done to convert the time from milliseconds to seconds.
+    --- Gets the base cooldown of a given item spell from an inventory slot (in seconds).
+    -- @function cd.slot.duration
+    -- @param slotID number The ID of the inventory slot.
+    -- @return number The base cooldown of the item spell divided by 1000.
     -- @within cd.slot
     cd.slot.duration = function(slotID)
         if slotID == nil then return nil end
@@ -159,9 +159,10 @@ br.api.itemCD = function(self, item, id)
         return duration
     end
 
-    --- This function returnsif the item slot is on cooldown or note
-    -- @para, slotID - The ID of the inventory slot.
-    -- @retrn boolean - Inventory slot is on cooldown or not.
+    --- Checks if the item slot is on cooldown or not.
+    -- @function cd.slot.exists
+    -- @param slotID number The ID of the inventory slot.
+    -- @return boolean Inventory slot is on cooldown or not.
     -- @within cd.slot
     cd.slot.exists = function(slotID)
         if slotID == nil then return false end
@@ -170,7 +171,7 @@ br.api.itemCD = function(self, item, id)
 
     --- Gets the time remaining on the equipment slot item cooldown or 0 if not.
     -- @function cd.slot.remain
-    -- @param slotID - The ID of the equipment slot to check.
+    -- @param slotID number The ID of the equipment slot to check.
     -- @return number
     -- @within cd.slot
     cd.slot.remain = function(slotID)
@@ -189,9 +190,9 @@ br.api.itemCD = function(self, item, id)
         end
     end
 
-    --- Gets the time remaining on the equipment slot item cooldown or 0 if not.
+    --- Gets the time remaining on the equipment slot item cooldown or 0 if not (alias for cd.slot.remain).
     -- @function cd.slot.remains
-    -- @param slotID - The ID of the equipment slot to check.
+    -- @param slotID number The ID of the equipment slot to check.
     -- @return number
     -- @within cd.slot
     -- @see cd.slot.remain
@@ -199,10 +200,10 @@ br.api.itemCD = function(self, item, id)
         return cd.slot.remain(slotID)
     end
 
-    --- Returns if the item slot is off CD or not
+    --- Checks if the item slot is off cooldown or not.
     -- @function cd.slot.ready
-    -- @param slotID - The ID of the equipment slot to check.
-    -- @return number
+    -- @param slotID number The ID of the equipment slot to check.
+    -- @return boolean True if the slot is ready (not on cooldown).
     -- @within cd.slot
     cd.slot.ready = function(slotID)
         return cd.slot.remain(slotID) == 0
