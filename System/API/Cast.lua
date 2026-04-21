@@ -289,10 +289,10 @@ br.api.cast = function(self, spell, id)
 
     --- Checks if specified power requirements are not met.
     -- @function cast.pool.spell
-    -- @boolean altPower Set to "true" to return alternate power cost. Defaults to false if not provided.
-    -- @number specificAmt Set to specified power amount. Defaults to 0 if not provided.
-    -- @number multiplier Set to specified power multiplier. Defaults to 1 if not provided.
-    -- @treturn boolean
+    -- @param altPower boolean Set to "true" to return alternate power cost. Defaults to false if not provided.
+    -- @param specificAmt number Set to specified power amount. Defaults to 0 if not provided.
+    -- @param multiplier number Set to specified power multiplier. Defaults to 1 if not provided.
+    -- @return boolean
     cast.pool[spell] = function(altPower, specificAmt, multiplier)
         local powerType = select(2, br._G.UnitPowerType("player")):lower()
         local power = br.player.power

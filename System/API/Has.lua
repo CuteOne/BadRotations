@@ -15,7 +15,7 @@ br.api.has = function(self,item,id)
     --- Checks if item is in your bags or not.
     -- Note: `item` here refers to the name in the item list defined in System/List/Items.lua
     -- @function has.item
-    -- @treturn boolean
+    -- @return boolean
     has[item] = function()
         if type(id) == "table" then
             return br.functions.item:getHighestHeldRank(id) ~= nil

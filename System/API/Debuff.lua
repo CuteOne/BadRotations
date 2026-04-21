@@ -273,10 +273,10 @@ br.api.debuffs = function(debuff, k, v)
         return (spec == 103 or spec == 259) and debuff.bleed[thisUnit] or 0
     end
 
-    --- Gets the number of debuff ticks remaining until it expores on the specified unit.
+    --- Gets the number of debuff ticks remaining until it expires on the specified unit.
     -- @function debuff.spell.ticksRemain
-    -- string[opt="target"] thisUnit The unit to check the remaining ticks on.
-    -- @treturn number
+    -- @param thisUnit string|nil The unit to check the remaining ticks on (optional, default "target").
+    -- @return number
     debuff.ticksRemain = function(thisUnit)
         local haste = br._G.UnitSpellHaste("player")
         local hasteMultiplier = 1 + (haste / 100)
@@ -298,8 +298,8 @@ br.api.debuffs = function(debuff, k, v)
 
     --- Gets the number of debuff ticks that will be gained by reapplying the debuff to the specified unit.
     -- @function debuff.spell.ticksGainedOnRefresh
-    -- string[opt="target"] thisUnit The unit to check the ticks gained by reapplying the debuff on.
-    -- @treturn number
+    -- @param thisUnit string|nil The unit to check the ticks gained by reapplying the debuff on (optional, default "target").
+    -- @return number
     debuff.ticksGainedOnRefresh = function(thisUnit)
         local haste = br._G.UnitSpellHaste("player")
         local hasteMultiplier = 1 + (haste / 100)

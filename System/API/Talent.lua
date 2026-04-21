@@ -54,7 +54,7 @@ br.api.talent = function(talent, name, id, allTalents, spellList)
                     id .. ") |cffff0000in the talent spell list, please notify profile developer to remove from the list.")
             end
         end
-        return
+        return nil
     end
     ------------------
     --- Talent API ---

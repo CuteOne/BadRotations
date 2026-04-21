@@ -29,7 +29,7 @@ br.api.ui = function(self)
     -- @number[opt=3] minUnits - Minimum number of units required to treat this as AOE.
     -- @number[opt] enemyCount - A precomputed enemy count (e.g. `#enemies.yards8`) provided by the caller.
     -- @return boolean - Returns true based on selected option and current combat conditions
-    -- @example
+    -- @usage
     -- -- Preferred (profile-controlled): compute a count and pass it
     -- local use = ui.alwaysCdAoENever("Bladestorm", 3, #enemies.yards8)
     --

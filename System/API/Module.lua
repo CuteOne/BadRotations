@@ -346,8 +346,8 @@ br.api.module = function(self)
 
     --- Racial Module - Attempts to use the racial ability based on the options set in the Profile Options.
     --- @function module.Racial
-    --- @bool[opt] section If set will generate the options for this module in the Profile Options. Otherwise, will run the module.
-    --- @unit[opt] thisUnit If set will use the racial on the specified unit. Otherwise, will use on player or appropriate target.
+    --- @param section boolean|nil If set will generate the options for this module in the Profile Options. Otherwise, will run the module.
+    --- @param thisUnit string|nil If set will use the racial on the specified unit. Otherwise, will use on player or appropriate target.
     module.Racial = function(section,thisUnit)
         local race = unit.race()
         local alwaysCdAoENever = { "Always", "|cff008000AOE", "|cffffff00AOE/CD", "|cff0000ffCD", "|cffff0000Never" }

@@ -13,8 +13,8 @@ br.api.cd = function(self, spell, id)
     self.cd = self.cd or {}
     local cd = self.cd
 
-    --- Spell Cooldown Functions - [spell] denotes placeholder for name of spell listed in System/Lists/Spells.lua
-    -- @section cd[spell]
+    --- Spell Cooldown Functions
+    -- @section cd.spell
     cd[spell] = cd[spell] or {}
 
     --- Checks if spell is on cooldown or not.
@@ -113,8 +113,8 @@ br.api.itemCD = function(self, item, id)
     --if self[item] == nil then self[item] = {} end
     local cd = self
 
-    --- Item Cooldown Functions - [item] denotes placeholder for name of item listed in System/Lists/Items.lua
-    -- @section cd[item]
+    --- Item Cooldown Functions
+    -- @section cd.item
     cd[item] = cd[item] or {}
 
     --- Checks if item is on cooldown or not.
