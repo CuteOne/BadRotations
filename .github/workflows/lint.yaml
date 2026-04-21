@@ -64,5 +64,9 @@ jobs:
         CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
       shell: bash
       run: |
-        mapfile -t files <<< "$CHANGED_FILES"
+        mapfile -t files < <(echo "$CHANGED_FILES" | sed '/^\s*$/d')
+        if [ "${#files[@]}" -eq 0 ]; then
+          echo "No Lua files to check."
+          exit 0
+        fi
         luacheck --codes --ranges "${files[@]}"

@@ -68,7 +68,11 @@ jobs:
       shell: bash
       continue-on-error: true
       run: |
-        mapfile -t files <<< "$CHANGED_FILES"
+        mapfile -t files < <(echo "$CHANGED_FILES" | sed '/^\s*$/d')
+        if [ "${#files[@]}" -eq 0 ]; then
+          echo "No Lua files to check."
+          exit 0
+        fi
         luacheck --codes --ranges --formatter JUnit -q "${files[@]}" > luacheck_${{ github.sha }}.xml || true
 
     - name: Upload results to workflow
