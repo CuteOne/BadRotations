@@ -67,7 +67,7 @@ local function onSetHyperlink(self, link)
 		addLine(self, id, types.item)
 	end
 end
-hooksecurefunc(ItemRefTooltip, "SetHyperlink", onSetHyperlink)
+hooksecurefunc(_G.ItemRefTooltip, "SetHyperlink", onSetHyperlink)
 hooksecurefunc(GameTooltip, "SetHyperlink", onSetHyperlink)
 -- Spells
 hooksecurefunc(
@@ -353,7 +353,7 @@ if br.api and br.api.wow and br.api.wow.HookTooltipSetUnit then
 end
 -- Items
 local function attachItemTooltip(self)
-	if (self == GameTooltip or self == ItemRefTooltip) then
+	if (self == GameTooltip or self == _G.ItemRefTooltip) then
 		local link = select(2, self:GetItem())
 		if link then
 			local id = select(3, strfind(link, "^|%x+|Hitem:(%-?%d+):(%d+):(%d+).*"))
