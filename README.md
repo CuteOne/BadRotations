@@ -89,8 +89,8 @@ Raidable means if its good to raid with.
 
 | rotation  |   author    | patch |coverage|  status   |  readiness  |last updated|
 |-----------|-------------|:-----:|:------:|:---------:|:-----------:|-----------:|
-|BrewDKFrost|BrewingCoder |10.2.6 |   0%   |Development|:interrobang:|  03/27/2026|
 |CuteOne    |ph34rt3hcute1|Unknown|Unknown |  Unknown  |:interrobang:|  03/27/2026|
+|BrewDKFrost|BrewingCoder |10.2.6 |   0%   |Development|:interrobang:|  03/27/2026|
 
 - Unholy
 
@@ -118,17 +118,17 @@ Raidable means if its good to raid with.
 
 - Druid
 
-|rotation|     author     | patch |coverage|status |  readiness  |last updated|
-|--------|----------------|:-----:|:------:|:-----:|:-----------:|-----------:|
-|CuteOne |Ashley (CuteOne)|Unknown|Unknown |Unknown|:interrobang:|  04/21/2026|
-|CuteOne |Ashley (CuteOne)|Unknown|Unknown |Unknown|:interrobang:|  04/20/2026|
+|rotation|author |patch|coverage|status|  readiness  |last updated|
+|--------|-------|:---:|:------:|:----:|:-----------:|-----------:|
+|CuteOne |CuteOne|2.5.5|  100%  | Full |:interrobang:|  05/26/2026|
+|CuteOne |CuteOne|1.12 |  100%  | Full |:interrobang:|  05/26/2026|
 
 - Feral
 
 |rotation|author |patch |coverage|status|  readiness  |last updated|
 |--------|-------|:----:|:------:|:----:|:-----------:|-----------:|
-|CuteOne |CuteOne|11.0.2|  100%  | Full |:interrobang:|  04/20/2026|
-|CuteOne |CuteOne|11.0.2|  100%  | Full |:interrobang:|  03/27/2026|
+|CuteOne |CuteOne|12.0.0|  100%  | Full |:interrobang:|  05/26/2026|
+|CuteOne |CuteOne|5.4.8 |  100%  | Full |:interrobang:|  05/26/2026|
 
 
 ### Evoker
@@ -152,7 +152,7 @@ Raidable means if its good to raid with.
 
 |rotation|     author     | patch |coverage|status |    readiness     |last updated|
 |--------|----------------|:-----:|:------:|:-----:|:----------------:|-----------:|
-|CuteOne |CuteOne         | 2.5.1 |  90%   | Full  |:white_check_mark:|  04/20/2026|
+|CuteOne |CuteOne         | 2.5.1 |  90%   | Full  |:white_check_mark:|  05/26/2026|
 |CuteOne |Ashley (CuteOne)|Unknown|Unknown |Unknown|  :interrobang:   |  03/27/2026|
 
 - Marksmanship
@@ -227,7 +227,7 @@ Raidable means if its good to raid with.
 
 |rotation|     author     | patch |coverage|status |  readiness  |last updated|
 |--------|----------------|:-----:|:------:|:-----:|:-----------:|-----------:|
-|CuteOne |Ashley (CuteOne)|Unknown|Unknown |Unknown|:interrobang:|  04/20/2026|
+|CuteOne |Ashley (CuteOne)|Unknown|Unknown |Unknown|:interrobang:|  05/26/2026|
 
 
 ### Warlock
@@ -263,6 +263,6 @@ Raidable means if its good to raid with.
 
 |    rotation    |   author   |patch |coverage|status |    readiness     |last updated|
 |----------------|------------|:----:|:------:|:-----:|:----------------:|-----------:|
-|BrewFuryLeveling|BrewingCoder|10.2.6|  20%   |Limited|  :interrobang:   |  03/27/2026|
 |CuteOne         |CuteOne     |11.0.2|  100%  |Limited|:heavy_check_mark:|  03/27/2026|
+|BrewFuryLeveling|BrewingCoder|10.2.6|  20%   |Limited|  :interrobang:   |  03/27/2026|
 
