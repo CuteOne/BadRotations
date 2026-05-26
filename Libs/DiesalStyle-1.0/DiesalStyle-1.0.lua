@@ -64,40 +64,30 @@ end
 local function addMedia(mediaType, name, mediaFile)
   Media[mediaType] = Media[mediaType] or {}
 
-  -- Use default path if MediaPath is not set (initial load)
+  -- Build a list of candidate paths to try in order:
+  --   [1] the current MediaPath (may be scripts-relative for Tinkr/NoName)
+  --   [2] the standard addon fallback path (provided by the host addon via SetMediaPath)
   local basePath = DiesalStyle.MediaPath or "Interface\\AddOns\\Media\\"
-  local fullPath = basePath .. mediaFile
+  local candidates = { basePath .. mediaFile }
 
-  -- Store both the absolute and converted paths for maximum compatibility
-  Media[mediaType][name] = {
-    absolute = fullPath,
-    relative = toWoWPath(fullPath)
-  }
+  local fallbackPath = DiesalStyle.FallbackMediaPath
+  if fallbackPath and fallbackPath ~= basePath then
+    candidates[#candidates + 1] = fallbackPath .. mediaFile
+  end
+
+  Media[mediaType][name] = candidates
 end
 local function getMedia(mediaType, name)
-  if not Media[mediaType] then
-    return nil
-  end
-  if not Media[mediaType][name] then
-    return nil
-  end
-
-  local mediaEntry = Media[mediaType][name]
-
-  -- If it's the new table format with absolute/relative paths
-  if type(mediaEntry) == "table" then
-    -- Return the absolute path for unlockers to try first
-    return mediaEntry.absolute, mediaEntry.relative
-  end
-
-  -- Old format (string path)
-  return mediaEntry
+  if not Media[mediaType] then return nil end
+  return Media[mediaType][name]  -- returns the candidates list (or nil)
 end
 
--- Helper function for LibSharedMedia - returns only the first path
+-- Helper function for LibSharedMedia - returns the first candidate path
 local function getMediaPath(mediaType, name)
-  local absolute, relative = getMedia(mediaType, name)
-  return absolute or relative
+  local candidates = getMedia(mediaType, name)
+  if not candidates then return nil end
+  if type(candidates) == 'table' then return candidates[1] end
+  return candidates  -- old format string
 end
 
 local function newTexture()
@@ -114,12 +104,12 @@ local function releaseTexture(texture)
   -- reset texture
   texture:ClearAllPoints()
   texture:SetDrawLayer("ARTWORK", 0)
-  -- texture:SetTexCoord(0,1,0,1)
   -- specific order based on testing! for a close as possible full texture reset
+  texture:SetTexCoord(0,1,0,1)
   -- texture:SetGradientAlpha('HORIZONTAL',1,1,1,1,1,1,1,1)
   -- texture:SetColorTexture(0,0,0,0)
-  -- texture:SetTexture()
-  -- texture:SetVertexColor(1,1,1,1)
+  texture:SetTexture()
+  texture:SetVertexColor(1,1,1,1)
 
   texture:SetParent(TextureFrame)
   texture:Hide()
@@ -154,8 +144,11 @@ end
 local function formatFile(file)
   if type(file) ~= 'string' and type(file) ~= 'number' then return end
 
-  -- Use getMediaPath to extract the actual path string from the media table
-  return getMediaPath('texture', file) or file
+  -- Return the full candidates list so StyleTexture can try each in order.
+  -- If the name is not in the media table, wrap the literal path in a list.
+  local candidates = getMedia('texture', file)
+  if candidates then return candidates end
+  return { file }
 end
 local function formatPosition(position)
   if type(position) ~= 'table' and type(position) ~= 'number' then return end
@@ -197,6 +190,25 @@ local function setGradient(texture, orientation, r1, g1, b1, a1, r2, g2, b2, a2)
     errorhandler('error in "' ..
       (texture.style.name or 'texture') .. '" ' .. texture.style.mode .. ' or alpha setting.')
   end
+end
+-- Try each candidate path in order until SetTexture succeeds (GetTexture ~= nil).
+local function setTextureWithFallback(texture, candidates, hTile, vTile)
+  if type(candidates) ~= 'table' then
+    texture:SetTexture(candidates, hTile, vTile)
+    return candidates
+  end
+  -- Clear any stale texture from a recycled pool entry so GetTexture() accurately
+  -- reflects whether each candidate actually loaded.
+  texture:SetTexture()
+  for _, path in ipairs(candidates) do
+    texture:SetTexture(path, hTile, vTile)
+    if texture:GetTexture() ~= nil then
+      return path
+    end
+    texture:SetTexture()  -- clear before next attempt
+  end
+  -- Nothing worked; leave texture empty for fallback_image handling
+  return nil
 end
 -- ~~| Media |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 do   -- | Set Colors |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -586,15 +598,15 @@ do -- | Set Fonts |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     end
   end
 
-  local calibribPath = getMedia('font', 'calibrib')
+  local calibribPath = getMediaPath('font', 'calibrib')
   safeSetFont(DiesalFontNormal, calibribPath or "Fonts\\FRIZQT__.TTF", 11, '')
 
-  local standard0755Path = getMedia('font', 'Standard0755')
+  local standard0755Path = getMediaPath('font', 'Standard0755')
   safeSetFont(DiesalFontPixel, standard0755Path or "Fonts\\FRIZQT__.TTF", 8, '')
   safeSetFont(DiesalFontPixelOutLine, standard0755Path or "Fonts\\FRIZQT__.TTF", 8, "OUTLINE, MONOCHROME")
   if DiesalFontPixelOutLine then DiesalFontPixelOutLine:SetSpacing(2) end
 
-  local fffIntelligentPath = getMedia('font', 'FFF Intelligent Thin Condensed')
+  local fffIntelligentPath = getMediaPath('font', 'FFF Intelligent Thin Condensed')
   safeSetFont(DiesalFontPixel2, fffIntelligentPath or "Fonts\\FRIZQT__.TTF", 8, "OUTLINE, MONOCHROME")
 end
 -- ~~| DiesalStyle API |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -657,7 +669,7 @@ function DiesalStyle:StyleTexture(texture, style)
   -- Image ~~~~~~~~~~~~~~~~~~~~~~~~~
   if style.image and type(style.image) == 'table' then
     texture.style.image = {
-      file = formatFile(style.image[1]),
+      file = formatFile(style.image[1]),  -- now a candidates list
       coords = formatCoords(style.image[2]),
       color = style.image[3],
       tiling = { style.image[4], style.image[5] },
@@ -684,6 +696,10 @@ function DiesalStyle:StyleTexture(texture, style)
     texture.style.image.coords = formatCoords(style.image_coords) or texture.style.image.coords or { 0, 1, 0, 1 }
     texture.style.image.color  = style.image_color or texture.style.image.color
     texture.style.image.tiling = style.image_tiling or texture.style.image.tiling
+  end
+  -- fallback_image: optional standalone WoW texture used when the primary image candidates all fail
+  if style.fallback_image then
+    texture.style.fallback_image = style.fallback_image
   end
   -- | Apply Settings |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -713,8 +729,16 @@ function DiesalStyle:StyleTexture(texture, style)
     -- apply settings
     texture:SetTexCoord(texture.style.image.coords[1], texture.style.image.coords[2], texture.style.image.coords[3],
       texture.style.image.coords[4])
-    texture:SetTexture(texture.style.image.file, texture.style.image.tiling and texture.style.image.tiling[1],
+    setTextureWithFallback(texture, texture.style.image.file,
+      texture.style.image.tiling and texture.style.image.tiling[1],
       texture.style.image.tiling and texture.style.image.tiling[2])
+    -- If all sheet candidates failed, try the per-style WoW built-in fallback
+    if texture:GetTexture() == nil and texture.style.fallback_image then
+      local fb = texture.style.fallback_image
+      texture:SetTexCoord(fb.coords and fb.coords[1] or 0, fb.coords and fb.coords[2] or 1,
+        fb.coords and fb.coords[3] or 0, fb.coords and fb.coords[4] or 1)
+      texture:SetTexture(fb.file)
+    end
     texture:SetHorizTile(texture.style.image.tiling[1])
     texture:SetVertTile(texture.style.image.tiling[2])
     local r, g, b = GetBlizzColorValues(texture.style.image.color)
@@ -1114,12 +1138,18 @@ function DiesalStyle:AddMedia(mediaType, name, mediaFile)
   addMedia(mediaType, name, mediaFile)
 end
 
-function DiesalStyle:SetMediaPath(newPath)
-  -- Ensure the path ends with a backslash
+function DiesalStyle:SetMediaPath(newPath, fallbackPath)
+  -- Ensure the paths end with a backslash
   if not newPath:match("\\$") then
     newPath = newPath .. "\\"
   end
   DiesalStyle.MediaPath = newPath
+  if fallbackPath then
+    if not fallbackPath:match("\\$") then
+      fallbackPath = fallbackPath .. "\\"
+    end
+    DiesalStyle.FallbackMediaPath = fallbackPath
+  end
 end
 
 function DiesalStyle:GetMediaPath()
@@ -1234,16 +1264,16 @@ function DiesalStyle:ReinitializeFonts()
   end
 
   -- Reinitialize all global fonts with the new media paths
-  local calibribAbs, calibribRel = getMedia('font', 'calibrib')
-  safeSetFont(DiesalFontNormal, calibribAbs, calibribRel, 11, '')
+  local calibribCandidates = getMedia('font', 'calibrib') or {}
+  safeSetFont(DiesalFontNormal, calibribCandidates[1], calibribCandidates[2], 11, '')
 
-  local standard0755Abs, standard0755Rel = getMedia('font', 'Standard0755')
-  safeSetFont(DiesalFontPixel, standard0755Abs, standard0755Rel, 8, '')
-  safeSetFont(DiesalFontPixelOutLine, standard0755Abs, standard0755Rel, 8, "OUTLINE, MONOCHROME")
+  local standard0755Candidates = getMedia('font', 'Standard0755') or {}
+  safeSetFont(DiesalFontPixel, standard0755Candidates[1], standard0755Candidates[2], 8, '')
+  safeSetFont(DiesalFontPixelOutLine, standard0755Candidates[1], standard0755Candidates[2], 8, "OUTLINE, MONOCHROME")
   if DiesalFontPixelOutLine then DiesalFontPixelOutLine:SetSpacing(2) end
 
-  local fffIntelligentAbs, fffIntelligentRel = getMedia('font', 'FFF Intelligent Thin Condensed')
-  safeSetFont(DiesalFontPixel2, fffIntelligentAbs, fffIntelligentRel, 8, "OUTLINE, MONOCHROME")
+  local fffIntelligentCandidates = getMedia('font', 'FFF Intelligent Thin Condensed') or {}
+  safeSetFont(DiesalFontPixel2, fffIntelligentCandidates[1], fffIntelligentCandidates[2], 8, "OUTLINE, MONOCHROME")
 end
 
 -- deprecated

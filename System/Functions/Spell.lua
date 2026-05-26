@@ -268,7 +268,7 @@ function spell:getSpellCD(SpellID)
 end
 
 function spell:getGlobalCD(max)
-	local currentSpecName = select(2, br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization()))
+	local currentSpecName = br.loader.selectedSpec
 	if currentSpecName == "" then currentSpecName = "Initial" end
 	if max == true then
 		if currentSpecName == "Feral" or currentSpecName == "Brewmaster" or currentSpecName == "Windwalker" or br._G.UnitClass("player") == "Rogue" then

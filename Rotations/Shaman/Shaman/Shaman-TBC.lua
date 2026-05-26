@@ -76,6 +76,12 @@ local function createOptions()
             -- Water Totem
             br.ui:createDropdownWithout(section, "Water Totem", {"Mana Spring Totem", "Healing Stream Totem", "None"}, 1,
                 "|cffFFFFFFWater totem to maintain.")
+            -- Buff Totem Mana Floor (Option B)
+            br.ui:createSpinnerWithout(section, "Buff Totem Min Mana", 60, 0, 100, 5,
+                "|cffFFFFFFSkip Air/Earth/Water buff totems below this mana % in combat. (0 = always drop)")
+            -- Buff Totem TTD Gate (Option A)
+            br.ui:createSpinnerWithout(section, "Buff Totem Min TTD", 12, 0, 60, 3,
+                "|cffFFFFFFSkip buff totems when target TTD is below this many seconds. (0 = always drop)")
         br.ui:checkSectionState(section)
         ---------------------
         --- BUFF OPTIONS ---
@@ -103,9 +109,18 @@ local function createOptions()
             -- OOC Healing
             br.ui:createCheckbox(section, "OOC Healing",
                 "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFout of combat healing|cffFFBB00.")
-            -- Shamanistic Rage
-            br.ui:createSpinnerWithout(section, "Shamanistic Rage", 30, 0, 100, 5,
-                "|cffFFFFFFMana Percent to Cast At")
+            -- Shamanistic Rage (defensive — DR benefit, no melee requirement)
+            br.ui:createSpinnerWithout(section, "Shamanistic Rage HP", 50, 0, 100, 5,
+                "|cffFFFFFFHealth Percent to Cast At (0 = disabled)")
+        br.ui:checkSectionState(section)
+        --------------------------
+        --- COOLDOWN OPTIONS ---
+        --------------------------
+        section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
+            -- Shamanistic Rage (mana recovery — requires melee targets and enough TTD to benefit)
+            br.ui:createDropdownWithout(section, "Shamanistic Rage Mana",
+                {"Always", "|cff008000AOE", "|cffffff00AOE/CD", "|cff0000ffCD", "|cffff0000Never"}, 4,
+                "|cffFFFFFFWhen to use for mana recovery (requires melee targets with TTD > 10s)")
         br.ui:checkSectionState(section)
         -------------------------
         --- Interrupt Options ---
@@ -174,12 +189,12 @@ local actionList = {}
 -- Action List - Extra
 actionList.Extra = function()
     -- * Lightning Shield (maintain above the swap-to-Water-Shield mana threshold)
-    if ui.value("Shield's Up") == 1 and cast.able.lightningShield()
-        and not buff.lightningShield.exists()
-        and mana.percent() > ui.value("Water Shield Swap At")
-    then
-        if cast.lightningShield("player") then ui.debug("Casting Lightning Shield [Extra]") return true end
-    end
+    -- if ui.value("Shield's Up") == 1 and cast.able.lightningShield()
+    --     and not buff.lightningShield.exists()
+    --     and mana.percent() > ui.value("Water Shield Swap At")
+    -- then
+    --     if cast.lightningShield("player") then ui.debug("Casting Lightning Shield [Extra]") return true end
+    -- end
     -- * Water Shield (preferred shield OR mana at/below the swap threshold)
     if cast.able.waterShield() and not buff.waterShield.exists()
         and (ui.value("Shield's Up") == 2
@@ -255,6 +270,13 @@ actionList.Defensive = function()
                 end
             end
         end
+        -- * Shamanistic Rage (defensive — DR is unconditional, no melee target required)
+        if ui.value("Shamanistic Rage HP") > 0
+            and cast.able.shamanisticRage("player")
+            and unit.inCombat() and unit.hp("player") <= ui.value("Shamanistic Rage HP")
+        then
+            if cast.shamanisticRage("player") then ui.debug("Casting Shamanistic Rage [Defensive]") return true end
+        end
     end
 end -- End Action List - Defensive
 
@@ -284,9 +306,10 @@ actionList.Cooldowns = function()
         -- use_items
         module.BasicTrinkets()
     end
-    -- * Shamanistic Rage (mana recovery — fire when mana falls to/below the threshold)
+    -- * Shamanistic Rage (mana recovery — requires melee targets to swing at and enough TTD to recoup mana through hits)
     if cast.able.shamanisticRage("player")
-        and mana.percent() <= ui.value("Shamanistic Rage") and unit.inCombat() and #enemies.yards5 > 0 and unit.ttdGroup(20) > 10
+        and unit.inCombat() and #enemies.yards5 > 0 and unit.ttdGroup(20) > 10
+        and ui.alwaysCdAoENever("Shamanistic Rage Mana", 1, #enemies.yards5)
     then
         if cast.shamanisticRage("player") then ui.debug("Casting Shamanistic Rage [Cooldowns]") return true end
     end
@@ -304,6 +327,10 @@ actionList.TotemManagement = function()
     --     a net DPS loss; let the totem expire naturally then re-place.
     local buffTrigger   = unit.inCombat() or unit.valid("target")
     local attackTrigger = unit.inCombat() or (unit.valid("target") and unit.distance("target") < 30)
+    -- Buff totem gates: only enforce in combat (OOC pre-pull drops are always allowed).
+    -- 0 disables each gate. Fire totems (Searing) are exempt — cheap and always worth casting.
+    local buffManaOk = not inCombat or ui.value("Buff Totem Min Mana") == 0 or mana.percent() >= ui.value("Buff Totem Min Mana")
+    local buffTTDOk  = not inCombat or ui.value("Buff Totem Min TTD")  == 0 or unit.ttd(units.dyn5) >= ui.value("Buff Totem Min TTD")
 
     -- *** FIRE TOTEMS ***
     -- Determine if the AoE fire override is active (enough enemies in 8-yard range)
@@ -358,7 +385,7 @@ actionList.TotemManagement = function()
         inCombat and totem.air.remain() == 0
         or (not inCombat and airDist > airRedropDist and totem.air.remain() < 60)
     )
-    if totemTwisting and mana.percent() > 40 then
+    if totemTwisting and buffManaOk and buffTTDOk then
         -- Totem Twisting: WF applies a 10s weapon enchant that persists after the totem is replaced.
         -- Cycle: drop WF → drop GoA (enchant still ticking) → re-drop WF at ~9s → repeat.
         -- Mana floor: below 40% mana fall back to static air totem to conserve resources.
@@ -376,25 +403,25 @@ actionList.TotemManagement = function()
         end
     else
         -- Static air totem — honour the Air Totem dropdown (also used as twisting fallback below mana floor)
-        if ui.value("Air Totem") == 1 and buffTrigger and standing
+        if ui.value("Air Totem") == 1 and buffTrigger and standing and buffManaOk and buffTTDOk
             and cast.able.windfuryTotem("player")
             and (not airActive or airNeedsRedrop)
         then
             if cast.windfuryTotem("player") then ui.debug("Casting Windfury Totem [Totem Management]") return true end
         end
-        if ui.value("Air Totem") == 2 and buffTrigger and standing
+        if ui.value("Air Totem") == 2 and buffTrigger and standing and buffManaOk and buffTTDOk
             and cast.able.graceOfAirTotem("player")
             and (not airActive or airNeedsRedrop)
         then
             if cast.graceOfAirTotem("player") then ui.debug("Casting Grace of Air Totem [Totem Management]") return true end
         end
-        if ui.value("Air Totem") == 3 and buffTrigger and standing
+        if ui.value("Air Totem") == 3 and buffTrigger and standing and buffManaOk and buffTTDOk
             and cast.able.wrathOfAirTotem("player")
             and (not airActive or airNeedsRedrop)
         then
             if cast.wrathOfAirTotem("player") then ui.debug("Casting Wrath of Air Totem [Totem Management]") return true end
         end
-        if ui.value("Air Totem") == 4 and buffTrigger and standing
+        if ui.value("Air Totem") == 4 and buffTrigger and standing and buffManaOk and buffTTDOk
             and cast.able.tranquilAirTotem("player")
             and (not airActive or airNeedsRedrop)
         then
@@ -436,14 +463,14 @@ actionList.TotemManagement = function()
         or (not inCombat and earthDist > earthRedropDist and totem.earth.remain() < 60)
     )
     -- Stoneskin Totem (always-on, option 1; yields to Tremor when CC is active)
-    if not tremorNeeded and ui.value("Earth Totem") == 1 and buffTrigger and standing
+    if not tremorNeeded and ui.value("Earth Totem") == 1 and buffTrigger and standing and buffManaOk and buffTTDOk
         and cast.able.stoneskinTotem("player")
         and (not earthName:find("Stoneskin") or earthNeedsRedrop)
     then
         if cast.stoneskinTotem("player") then ui.debug("Casting Stoneskin Totem [Totem Management]") return true end
     end
     -- Strength of Earth Totem (always-on, option 2; yields to Tremor when CC is active)
-    if not tremorNeeded and ui.value("Earth Totem") == 2 and buffTrigger and standing
+    if not tremorNeeded and ui.value("Earth Totem") == 2 and buffTrigger and standing and buffManaOk and buffTTDOk
         and cast.able.strengthOfEarthTotem("player")
         and (not earthName:find("Strength") or earthNeedsRedrop)
     then
@@ -458,13 +485,13 @@ actionList.TotemManagement = function()
         inCombat and totem.water.remain() == 0
         or (not inCombat and waterDist > waterRedropDist and totem.water.remain() < 60)
     )
-    if ui.value("Water Totem") == 1 and buffTrigger and standing
+    if ui.value("Water Totem") == 1 and buffTrigger and standing and buffManaOk and buffTTDOk
         and cast.able.manaSpringTotem("player")
         and (not waterName:find("Mana Spring") or waterNeedsRedrop)
     then
         if cast.manaSpringTotem("player") then ui.debug("Casting Mana Spring Totem [Totem Management]") return true end
     end
-    if ui.value("Water Totem") == 2 and buffTrigger and standing
+    if ui.value("Water Totem") == 2 and buffTrigger and standing and buffManaOk and buffTTDOk
         and cast.able.healingStreamTotem("player")
         and (not waterName:find("Healing Stream") or waterNeedsRedrop)
     then
@@ -661,6 +688,7 @@ local function runRotation()
         -----------------------------
         --- In Combat - Rotations ---
         -----------------------------
+        if unit.inCombat() and actionList.Interrupts() then return true end
         if actionList.Combat() then return true end
         ----------------------------------------------------------
         --- Totem Refresh (in combat — expired slots only,     ---

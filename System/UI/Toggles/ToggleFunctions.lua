@@ -289,6 +289,9 @@ function br.ui:CreateButton(Name, x, y)
 		local Icon
 		-- local Name = string.upper(Name)
 		-- todo: extend to use spec + profile specific variable; ATM it shares between profile AND spec, -> global for char
+		if br.data.settings[br.loader.selectedSpec].toggles == nil then
+			br.data.settings[br.loader.selectedSpec].toggles = {}
+		end
 		local toggleIndex = br.data.settings[br.loader.selectedSpec].toggles[Name]
 		if toggleIndex == nil or toggleIndex > #br.ui.toggles[Name] or toggleIndex == 0 then
 			toggleIndex = 1

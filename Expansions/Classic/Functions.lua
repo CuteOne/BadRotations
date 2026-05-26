@@ -5,9 +5,10 @@ local _, br = ...
 if not br.isClassic then return end
 
 -- Capability flags for Classic
-br.api.hasSpellRanks = true        -- spells have rank-specific IDs
-br.api.hasSubSpecs   = false       -- no talent specialization subfolders
-br.api.comboPointsOnTarget = true  -- combo points are stored on the target, lost on switch
+br.api.hasSpellRanks          = true   -- spells have rank-specific IDs
+br.api.hasSubSpecs            = false  -- no talent specialization subfolders
+br.api.comboPointsOnTarget    = true   -- combo points are stored on the target, lost on switch
+br.api.hasCharmBreakTracking  = false  -- C_LossOfControl not available on Classic clients
 br.api.expansion = "Classic"
 
 local api = br.api.wow
@@ -80,7 +81,4 @@ api.getTalentInfo = function(spec, spellTalents)
 end
 
 -- Print version info on load
-if br.api.compat.getVersionInfo then
-    local versionInfo = br.api.compat:getVersionInfo()
-    print("|cffA330C9BadRotations|r |cffFFFFFFAPI:|r Classic compatibility layer loaded (Build: " .. versionInfo.build .. ")")
-end
+br.api.printCompatLoaded()

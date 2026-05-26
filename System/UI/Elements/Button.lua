@@ -104,7 +104,7 @@ function br.ui:createSaveButton(parent, buttonName, x, y)
                         newWindow:Hide()
                         parent:Hide()
                         parent:Release()
-                        br.rotationChanged = true
+                        br.loader.rotationChanged = true
                     end
                 end
             )
@@ -135,7 +135,7 @@ function br.ui:createSaveButton(parent, buttonName, x, y)
                         newWindow:Hide()
                         parent:Hide()
                         parent:Release()
-                        br.rotationChanged = true
+                        br.loader.rotationChanged = true
                     end
                 end
             )
@@ -172,7 +172,7 @@ function br.ui:createDeleteButton(parent, buttonName, x, y)
                         br.ui.settingsManagement:store(br.loader.selectedSpec .. "_" .. "profile", "default")
                         parent:Hide()
                         parent:Release()
-                        br.rotationChanged = true
+                        br.loader.rotationChanged = true
                     end
                 end
             else
@@ -211,7 +211,7 @@ function br.ui:createLoadButton(parent, buttonName, x, y)
                         if v.key == br.profileDropValue then
                             br.data.settings[br.loader.selectedSpec] = br.ui.settingsManagement:deepcopy(v.text)
                             br._G.print(v.key .. " profile found!")
-                            br.rotationChanged = true
+                            br.loader.rotationChanged = true
                             break
                         end
                     end
@@ -275,7 +275,7 @@ function br.ui:createImportButton(parent, buttonName, x, y)
     importButton:SetEventListener(
         "OnClick",
         function()
-            br.data.loadedSettings = false
+            br.data.loadedSettings = nil
             br.ui.settingsManagement:loadSettings("Exported Settings", nil, br.loader.selectedSpec, br.loader.selectedProfileName)
             br._G.ReloadUI()
             -- -- Load settings file matching profile to br.data

@@ -40,8 +40,11 @@ br.lists.spells.Shared = {
                 autoShot       = 75,
                 giftOfTheNaaru = br.functions.spell:getRacial("Draenei"), --select(7, GetSpellInfo(GetSpellInfo(28880))),
                 global         = 61304,
-                heartOfAzeroth = 296208,  -- used for isActiveEssence icon comparison
-                latentArcana   = 296971,
+                heartOfAzeroth            = 296208,  -- used for isActiveEssence icon comparison
+                cyclotronicBlast          = 293491,  -- BFA Innovative Mechanocompendium essence cast
+                focusedAzeriteBeam        = 295258,  -- BFA Condensed Life-Force essence cast
+                focusedAzeriteBeamChannel = 295261,  -- BFA Condensed Life-Force follow-up channel (hasted)
+                latentArcana              = 296971,
                 lightsJudgment = 255647,
                 quakingPalm    = 107079,
                 racial         = br.functions.spell:getRacial(),
@@ -98,6 +101,7 @@ br.lists.spells.Shared = {
                 netherwinds                    = 160452,
                 norgannonsForesight            = 236373,
                 overchargeMana                 = 299624,
+                potionOfReplenishment          = 252753, -- BFA mana channel (registered as debuff); player is channeling mana
                 potionOfBurstingBlood          = 265514,
                 potionOfFocusedResolve         = 298317,
                 prolongedPower                 = 229206,
@@ -122,6 +126,14 @@ br.lists.spells.Shared = {
                 phialOfGlacialFury             = 373257,
                 phialOfTepidVersatility        = 371172,
                 icedPhialOfCorruptingRage      = 374000,
+                -- WoD Draenor/Nagrand combat mounts — allow spellcasting while mounted
+                divineSteed               = 190784, -- Paladin mobility cooldown (briefly triggers IsMounted during combat)
+                nagrandTalbuk             = 164222, -- WoD Nagrand Talbuk (Draenor zone combat mount)
+                nagrandClefthoof          = 165803, -- WoD Nagrand Clefthoof (Draenor zone combat mount)
+                nagrandRidingClefthoof    = 157059, -- WoD Nagrand Riding Clefthoof (Draenor zone combat mount)
+                nagrandGoat               = 157060, -- WoD Nagrand Goat (Draenor zone combat mount)
+                -- Rogue group utility
+                shroudOfConcealment       = 114018, -- Group stealth (MOP+); all players in party are stealthed
                 domineeringArrogance           = 411661,
 
             },

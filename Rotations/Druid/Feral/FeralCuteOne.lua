@@ -1,7 +1,7 @@
 -------------------------------------------------------
 -- Author = CuteOne
--- Patch = 11.0.2
---    Patch should be the latest patch you've updated the rotation for (i.e., 9.2.5)
+-- Patch = 12.0.0
+--    Patch should be the latest patch you've updated the rotation for (i.e., 12.0.0)
 -- Coverage = 100%
 --    Coverage should be your estimated percent coverage for class mechanics (i.e., 100%)
 -- Status = Full

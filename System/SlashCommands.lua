@@ -3,18 +3,6 @@ br.slashCommands = br.slashCommands or {}
 local slashCommands = br.slashCommands
 
 -- Slash Commands
----------------------------------
-function br._G.print(msg)
-	if msg == nil then
-		return
-	end
-	local color = ""
-	if br.ui and br.ui.colors and br.ui.colors.class then
-		color = br.ui.colors.class
-	end
-	print(color .. "[BadRotations] |r" .. tostring(msg))
-end
-
 br.slashCommands.commandHelp = { "|cffFF0000Slash Commands" }
 function slashCommands:SlashCommandHelp(cmd, msg)
 	if cmd == nil then

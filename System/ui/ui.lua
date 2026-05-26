@@ -81,20 +81,22 @@ br.ui.buttonStyleSheet = {
     }
 }
 br.ui.arrowRight = {
-    type = "texture",
-    offset = { -2, nil, -2, nil },
-    height = 16,
-    width = 16,
-    alpha = .7,
-    image = { "DiesalGUIcons", { 7, 5, 16, 256, 128 } }
+    type           = "texture",
+    position       = { -2, nil, -2, nil },
+    height         = 16,
+    width          = 16,
+    alpha          = .7,
+    image          = { "DiesalGUIcons", { 7, 5, 16, 256, 128 } },
+    fallback_image = { file = "Interface\\Buttons\\Arrow-Right-Up", coords = { 0, 1, 0, 1 } },
 }
 br.ui.arrowLeft = {
-    type = "texture",
-    offset = { -2, nil, -2, nil },
-    height = 16,
-    width = 16,
-    alpha = .7,
-    image = { "DiesalGUIcons", { 8, 5, 16, 256, 128 } }
+    type           = "texture",
+    position       = { -2, nil, -2, nil },
+    height         = 16,
+    width          = 16,
+    alpha          = .7,
+    image          = { "DiesalGUIcons", { 8, 5, 16, 256, 128 } },
+    fallback_image = { file = "Interface\\Buttons\\Arrow-Left-Up", coords = { 0, 1, 0, 1 } },
 }
 br.ui.messageStylesheet = {
     ["track-background"] = {

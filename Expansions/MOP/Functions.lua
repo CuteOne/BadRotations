@@ -5,6 +5,7 @@ local _, br = ...
 if not br.isMOP then return end
 
 -- Capability flags for MoP Classic
+br.api.hasCharmBreakTracking  = false  -- C_LossOfControl not available on MOP clients
 br.api.expansion = "MOP"
 
 local api = br.api.wow
@@ -44,7 +45,4 @@ end
 
 
 -- Print version info on load
-if br.api.compat.getVersionInfo then
-    local versionInfo = br.api.compat:getVersionInfo()
-    print("|cffA330C9BadRotations|r |cffFFFFFFAPI:|r MoP Classic compatibility layer loaded (Build: " .. versionInfo.build .. ")")
-end
+br.api.printCompatLoaded()

@@ -10,7 +10,7 @@ local healingEngine = br.engines.healingEngine
 -- local LGIST = br._G.LibStub("LibGroupInSpecT-1.1")
 if not healingEngine.metaTable1 then
 	-- localizing the commonly used functions while inside loops
-	local getDistance, tinsert, tremove, UnitClass, GetUnitIsUnit = br.getDistance, br._G.tinsert, br._G.tremove, br._G.UnitClass, br.GetUnitIsUnit
+	local getDistance, tinsert, tremove, UnitClass, GetUnitIsUnit = br.functions.range.getDistance, br._G.tinsert, br._G.tremove, br._G.UnitClass, br.functions.unit.GetUnitIsUnit
 	local UnitHealth, UnitHealthMax = br._G.UnitHealth, br._G.UnitHealthMax
 	local GetTime, UnitDebuffID = br._G.GetTime, br.UnitDebuffID
 	br.engines.healingEngine.friend = {} -- This is our main Table that the world will see

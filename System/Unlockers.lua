@@ -18,23 +18,31 @@ function unlockers:loadUnlockerAPI()
     end
 
     if unlocked then
-        -- Set Spell Queue Window
-        --if class == 8 or class == 9 then
-        if unlocked and self.prevQueueWindow ~= 400 then
-            br._G.RunMacroText("/console SpellQueueWindow 400")
-        --else
-        --     if unlocked and self.prevQueueWindow ~= 0 then
-        --         br._G.RunMacroText("/console SpellQueueWindow 0")
-        --     end
-        -- end
-        end
-        -- UPDATE MEDIA PATH to Libs/DiesalStyle-1.0/Media inside the BR scripts folder
+        -- Set Spell Queue Window to 400ms for smoother cast queueing.
+        -- Save the player's original value first so we can restore it on logout.
+        br.unlockers.origQueueWindow = br._G.C_CVar and br._G.C_CVar.GetCVar("SpellQueueWindow")
+        br._G.RunMacroText("/console SpellQueueWindow 400")
+        -- UPDATE MEDIA PATH: derive from the unlocker's reported directory so that
+        -- BadRotations is fully self-contained (no WoW AddOns folder required).
+        -- Each unlocker sets br._G.GetWoWDirectory to its script root:
+        --   Tinkr   -> "scripts"
+        --   NoName  -> "\\scripts"
+        --   Daemonic-> absolute path, e.g. "C:\WoW\_retail_\Interface\AddOns"
         local DiesalStyle = LibStub("DiesalStyle-1.0")
-        -- Files live in the repo itself; no separate copy-to-AddOns step required
-        local newPath = "Interface\\AddOns\\BadRotations\\Libs\\DiesalStyle-1.0\\Media\\"
         if DiesalStyle.SetMediaPath then
-            print("BadRotations: Unlocker loaded, updating Media path for DiesalStyle.")
-            DiesalStyle:SetMediaPath(newPath)
+            local newPath
+            local wowDir = br._G.GetWoWDirectory and br._G.GetWoWDirectory()
+            if wowDir then
+                -- Normalize: forward-slash -> backslash, strip leading/trailing backslashes
+                local dir = tostring(wowDir):gsub("/", "\\"):gsub("^\\+", ""):gsub("\\+$", "")
+                newPath = dir .. "\\BadRotations\\Libs\\DiesalStyle-1.0\\Media\\"
+            else
+                -- Fallback for a standard WoW addon installation
+                newPath = "Interface\\AddOns\\BadRotations\\Libs\\DiesalStyle-1.0\\Media\\"
+            end
+            -- br._G.print("Unlocker loaded, media path: " .. newPath)
+            local addonPath = "Interface\\AddOns\\BadRotations\\Libs\\DiesalStyle-1.0\\Media\\"
+            DiesalStyle:SetMediaPath(newPath, addonPath)
             DiesalStyle:ReloadMedia()
         end
     end

@@ -159,7 +159,7 @@ function cCharacter:new()
 		self.health = br.functions.unit:getHP("player")
 		self.instance = select(2, br._G.IsInInstance())
 		self.level = br._G.UnitLevel("player") -- TODO: EVENT - UNIT_LEVEL
-		self.spec = select(2, br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization())) or "None"
+		self.spec = br.loader.selectedSpec or "None"
 		self.currentPet = br._G.UnitCreatureFamily("pet") or "None"
 		if self.currentPet ~= "None" then
 			self.petId = tonumber(br._G.UnitGUID("pet"):match("-(%d+)-%x+$"), 10)
@@ -251,7 +251,7 @@ function cCharacter:new()
 	function self.getRotation()
 		self.selectedRotation = br.loader.selectedProfile
 
-		if br.rotationChanged then
+		if br.loader.rotationChanged then
 			self.createOptions()
 			self.createToggles()
 			br.ui.window.profile.parent:Show()

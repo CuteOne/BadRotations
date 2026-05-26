@@ -1,3 +1,17 @@
+-------------------------------------------------------
+-- Author = CuteOne
+-- Patch = 2.5.5
+--    Patch should be the latest patch you've updated the rotation for (i.e., 2.5.5)
+-- Coverage = 100%
+--    Coverage should be your estimated percent coverage for class mechanics (i.e., 100%)
+-- Status = Full
+--    Status should be one of: Full, Limited, Sporadic, Inactive, Unknown
+-- Readiness = Untested
+--    Readiness should be one of: Raid, NoRaid, Basic, Development, Untested
+-------------------------------------------------------
+-- Required: Fill above fields to populate README.md --
+-------------------------------------------------------
+
 local rotationName = "CuteOne" -- Change to name of profile listed in options drop down
 
 ---------------
@@ -64,6 +78,12 @@ local function createOptions()
         br.ui:createCheckbox(section, "Powershifting", "|cffFFFFFFFeral DPS In-Form Shifting for Energy")
         -- Cower
         br.ui:createCheckbox(section, "Cower", "|cffFFFFFFUse Cower (20 energy) to drop threat when being attacked while a tank is alive and nearby")
+        -- Mangle Trick
+        br.ui:createCheckbox(section, "Mangle Trick", "|cffFFFFFFAt energy 60-61 with tick <1s away, cast Mangle instead of Shred to enable a double-Mangle combo-point cycle (advanced, Wolfshead recommended).")
+        -- Rake/Bite Tricks
+        br.ui:createCheckbox(section, "Rake/Bite Tricks", "|cffFFFFFFWith Wolfshead at 35-39 energy and tick >1s away, cast Rake (no debuff) or Ferocious Bite (2+ CPs) instead of powershifting (advanced).")
+        -- Biteweave
+        br.ui:createCheckbox(section, "Biteweave", "|cffFF4444[TBC sub-optimal]|cffFFFFFF FB bonus energy converts at ~1-5 dmg/energy vs a wasted-CP Shred's ~35-45 dmg/energy. Enabling this intercepts and replaces what would otherwise be a Shred, for a net DPS loss. Enable only for personal preference.")
         br.ui:checkSectionState(section)
         --------------------------
         --- FORM MANAGEMENT ---
@@ -744,12 +764,12 @@ actionList.Interrupts = function()
                 thisUnit = enemies.yards5f[i]
                 if unit.interruptable(thisUnit, ui.value("Interrupt At")) then
                     -- Bash is Bear Form only in Classic; shift first if needed.
-                    if not buff.bearForm.exists() and cast.able.bearForm() then
-                        if cast.bearForm() then
-                            ui.debug("Shifting to Bear Form for Bash interrupt")
-                            return true
-                        end
-                    end
+                    -- if not buff.bearForm.exists() and cast.able.bearForm() then
+                    --     if cast.bearForm() then
+                    --         ui.debug("Shifting to Bear Form for Bash interrupt")
+                    --         return true
+                    --     end
+                    -- end
                     if (buff.bearForm.exists() or buff.direBearForm.exists()) and cast.able.bash(thisUnit) then
                         if cast.bash(thisUnit) then
                             ui.debug("Casting Bash on " .. unit.name(thisUnit))
@@ -939,13 +959,15 @@ actionList.CatOpener = function()
     if not unit.valid("target") or unit.deadOrGhost("target") or unit.distance("target") >= 5 then return false end
     if unit.player("target") then return false end
 
-    -- Tiger's Fury gating: if enabled+known and we're at full energy, cast it before opening.
-    if ui.checked("Tiger's Fury") and spell.tigersFury.known() and energy()== 100 and not buff.tigersFury.exists() then
-        if cast.able.tigersFury() and cast.tigersFury() then
+    -- Tiger's Fury pre-opener: buff Ravage/opener damage if TF is ready (costs 30 energy, +40% dmg for 6s).
+    -- Do not block the opener if TF is on cooldown — proceed immediately in that case.
+    if ui.checked("Tiger's Fury") and spell.tigersFury.known() and not buff.tigersFury.exists()
+        and energy() >= 30 and cast.able.tigersFury()
+    then
+        if cast.tigersFury() then
             ui.debug("Casting Tiger's Fury [Opener]")
             return true
         end
-        return false
     end
 
     local isStealth = buff.prowl.exists()
@@ -1045,25 +1067,34 @@ actionList.CatForm = function()
                 return true
             end
         end
-        -- Ferocious Bite - Finish Him!
-        -- Only fire when we can't fit a builder first (energy < builder floor).
-        -- If energy >= 40 (Mangle cost) a builder should come before FB to avoid
-        -- sinking excess energy into FB damage rather than generating a combo point.
-        local finish = ferociousBiteFinish(units.dyn5)
-        if cast.able.ferociousBite(units.dyn5) and energy() >= 35 and finish then
-            if cast.ferociousBite(units.dyn5) then
-                ui.debug("Casting Ferocious Bite [Finish Him!]")
+        -- Tiger's Fury — use on cooldown at <= 35 energy (at or below Rake cost).
+        -- TF costs 30 energy and gives +40% dmg for 6s; at 36-39 energy Rake is preferred
+        -- (bleed+CP > TF boost value per wowsims), and at 36-39 with Wolfshead the powershift
+        -- fires instead (shift gives 60 energy, outweighing TF's buff value).
+        -- Gate on !clearcasting: don't burn 30 energy when a free OoC proc is available.
+        if ui.checked("Tiger's Fury") and cast.able.tigersFury() and buff.catForm.exists()
+            and not buff.tigersFury.exists() and energy() <= 35 and not buff.clearcasting.exists()
+        then
+            if cast.tigersFury() then
+                ui.debug("Casting Tiger's Fury")
                 return true
             end
         end
 
-        -- Tiger's Fury — use on cooldown when energy is high enough that the 30-energy cost
-        -- won't starve the next ability (>= 60 leaves >= 30 after cast, enough for Rake/Mangle).
-        if ui.checked("Tiger's Fury") and cast.able.tigersFury() and buff.catForm.exists()
-            and not buff.tigersFury.exists() and energy() == 100
-        then
-            if cast.tigersFury() then
-                ui.debug("Casting Tiger's Fury")
+        -- Pre-compute flags reused by multiple checks below.
+        local finish    = ferociousBiteFinish(units.dyn5)
+        -- biteAtEnd: target dies before Rip completes all ticks — skip Rip, use FB instead.
+        -- No energy cap on this path: a dying target should receive excess energy as FB bonus damage.
+        local biteAtEnd = comboPoints() >= 5 and unit.ttd(units.dyn5) < 6
+        -- tickIn: seconds until the next 2-second energy tick; reused by tricks and powershift gate.
+        local tickIn    = timeToNextEnergyTick()
+        -- Ferocious Bite - Finish Him! (execute: min damage >= target HP, any CP count)
+        -- Only fire when we can't fit a builder first (energy < builder floor).
+        -- If energy >= 40 (Mangle cost) a builder should come before FB to avoid
+        -- sinking excess energy into FB damage rather than generating a combo point.
+        if cast.able.ferociousBite(units.dyn5) and energy() >= 35 and finish then
+            if cast.ferociousBite(units.dyn5) then
+                ui.debug("Casting Ferocious Bite [Finish Him!]")
                 return true
             end
         end
@@ -1082,22 +1113,74 @@ actionList.CatForm = function()
         end
 
         -- 5 Combo Points - Finishers
-        if comboPoints() >= 4 and not buff.clearcasting.exists() and not finish then
-            -- Rip
-            if ui.checked("Rip") and cast.able.rip(units.dyn5) and unit.ttd(units.dyn5) > 6 and not debuff.rip.exists(units.dyn5) then
+        if comboPoints() >= 5 and not buff.clearcasting.exists() and not finish then
+            -- biteAtEnd: target dying (<6s TTD) — skip Rip (ticks won't complete) and dump
+            -- excess energy into FB bonus damage. No energy cap on this path.
+            if biteAtEnd and cast.able.ferociousBite(units.dyn5) and energy() >= 35 then
+                if cast.ferociousBite(units.dyn5) then
+                    ui.debug("Casting Ferocious Bite [Fight End]")
+                    return true
+                end
+            end
+            -- Rip: apply when missing, or refresh at <= 2s remaining before it falls off entirely.
+            -- Gate on ttd > 6 (matches biteAtEnd threshold) and energy >= 30 so we never apply
+            -- Rip and be immediately stuck unable to cast a single builder.
+            if ui.checked("Rip") and cast.able.rip(units.dyn5) and unit.ttd(units.dyn5) > 6
+                and (not debuff.rip.exists(units.dyn5) or debuff.rip.remain(units.dyn5) <= 2)
+                and not biteAtEnd and energy() >= 30
+            then
                 if cast.rip(units.dyn5) then
                     ui.debug("Casting Rip")
                     return true
                 end
             end
-            -- Ferocious Bite (Rip running or not worth applying)
-            -- Cap at < 40 energy so we don't sink energy a builder could use into FB's bonus damage.
-            -- Above 40 the builder comes first; the finisher block re-evaluates next tick.
+            -- Ferocious Bite (Rip not learned, or target dying at TTD <= 6).
+            -- Do NOT include "Rip is running" as a trigger: FB bonus energy converts at
+            -- ~1-5 dmg/energy in TBC vs a wasted-CP Shred's ~35-45 dmg/energy. When Rip is
+            -- running and energy >= 40 the builder block already fires a wasted-CP Shred, which
+            -- is strictly better. This path only covers early levels (no Rip) or execute windows.
             if cast.able.ferociousBite(units.dyn5) and energy() >= 35 and energy() < 40
-                and (not spell.rip.known() or debuff.rip.exists(units.dyn5) or unit.ttd(units.dyn5) <= 6)
+                and (not spell.rip.known() or unit.ttd(units.dyn5) <= 6)
             then
                 if cast.ferociousBite(units.dyn5) then
                     ui.debug("Casting Ferocious Bite")
+                    return true
+                end
+            end
+        end
+
+        -- Biteweave: while Rip is active at 5 CPs, use Ferocious Bite at 35-56 energy to
+        -- spend energy productively rather than letting it cap out.
+        -- At energy >= 57+cutoffMod (cutoffMod=20 when tick >1s), Shred is more efficient;
+        -- fall through to the builder block which handles it naturally.
+        if ui.checked("Biteweave") and debuff.rip.exists(units.dyn5) and comboPoints() >= 5
+            and not finish and not biteAtEnd and cast.able.ferociousBite(units.dyn5)
+            and energy() >= 35
+        then
+            local cutoffMod = (tickIn > 1.0) and 20 or 0
+            if energy() < (57 + cutoffMod) then
+                if cast.ferociousBite(units.dyn5) then
+                    ui.debug("Casting Ferocious Bite [Biteweave]")
+                    return true
+                end
+            end
+            -- energy >= 57+cutoffMod: Shred is more efficient; fall through to builder block
+        end
+
+        -- Rake/Bite Tricks: when energy is 35-39 and the next tick is >1s away (would
+        -- otherwise powershift with Wolfshead threshold=40), spend it on a useful action.
+        if ui.checked("Rake/Bite Tricks") and tickIn > 1.0 and energy() >= 35 and energy() <= 39 then
+            -- Rake Trick: apply Rake if the debuff is missing (35 energy)
+            if ui.checked("Rake") and cast.able.rake(units.dyn5) and not debuff.rake.exists(units.dyn5) then
+                if cast.rake(units.dyn5) then
+                    ui.debug("Casting Rake [Rake Trick]")
+                    return true
+                end
+            end
+            -- Bite Trick: Ferocious Bite at 2+ CPs instead of shifting
+            if cast.able.ferociousBite(units.dyn5) and comboPoints() >= 2 and not buff.clearcasting.exists() then
+                if cast.ferociousBite(units.dyn5) then
+                    ui.debug("Casting Ferocious Bite [Bite Trick]")
                     return true
                 end
             end
@@ -1110,12 +1193,12 @@ actionList.CatForm = function()
         --   when energy < threshold AND the next tick is more than 1s away.
         -- Threshold: 35 without Wolfshead (post-shift=40), 40 with Wolfshead (post-shift=60).
         if ui.checked("Powershifting") and cast.able.catForm() and unit.inCombat()
-            and not buff.clearcasting.exists()
             and mana() >= var.formCost  -- mana gate: never shift when OOM
         then
-            local tickIn = timeToNextEnergyTick()
             local threshold = var.shiftEnergyThreshold
-            if energy() <= 10 or (energy() < threshold and tickIn > 1.0) then
+            if energy() <= 10                                                                              -- hard floor: always shift regardless of OoC
+                or (energy() < threshold and tickIn > 1.0 and not buff.clearcasting.exists())             -- soft: hold shift to spend free OoC proc instead
+            then
                 local postShift = var.hasWolfshead and 60 or 40
                 if cast.macro("/cast !"..spell.catForm.name()) then
                     ui.debug(string.format(
@@ -1139,9 +1222,14 @@ actionList.CatForm = function()
                 end
             end
             -- Mangle
+            -- Gate the entire block on not mangleBear: Bear Mangle (rank 4) > Cat Mangle (rank 1);
+            -- applying Cat Mangle when Bear Mangle is active triggers "A more powerful spell is already active".
+            -- When Bear Mangle is up, fall through to Rake as the facing-target builder instead.
             local behindDyn5 = isBehind(units.dyn5, "player")
-            if cast.able.mangleCat(units.dyn5) and (not behindDyn5 or not spell.shred.known()
-                or (debuff.mangleCat.refresh(units.dyn5,"any") and not debuff.mangleBear.exists(units.dyn5,"any")))
+            if cast.able.mangleCat(units.dyn5) and not debuff.mangleBear.exists(units.dyn5,"any")
+                and (not behindDyn5 or not spell.shred.known()
+                    or debuff.mangleCat.refresh(units.dyn5,"any")
+                    or debuff.mangleCat.remain(units.dyn5,"any") <= tickIn)
             then
                 if cast.mangleCat(units.dyn5) then
                     ui.debug("Casting Mangle")
@@ -1158,12 +1246,24 @@ actionList.CatForm = function()
                     return true
                 end
             end
-            -- Shred (from behind)
-            local triedShred = false
+            -- Mangle Trick: at energy 60-61 with tick <=1s, cast Mangle instead of Shred to
+            -- enable a double-Mangle cycle (Mangle → tick → Mangle) for higher combo point rate.
+            if ui.checked("Mangle Trick") and cast.able.mangleCat(units.dyn5) and behindDyn5 and spell.shred.known()
+                and not debuff.mangleBear.exists(units.dyn5,"any") then
+                local mangleCost = (cast.cost.mangleCat and cast.cost.mangleCat()) or 40
+                if energy() >= (2 * mangleCost - 20) and energy() < (22 + mangleCost) and tickIn <= 1.0 then
+                    if cast.mangleCat(units.dyn5) then
+                        ui.debug("Casting Mangle [Mangle Trick]")
+                        return true
+                    end
+                end
+            end
+            -- Shred (from behind): use isBehind (strict back arc) to avoid wasting a GCD on
+            -- a side-angle attempt that the server would deny. behindDyn5 is already computed above.
             if cast.able.shred(units.dyn5)
                 and (debuff.mangleCat.exists(units.dyn5,"any") or debuff.mangleBear.exists(units.dyn5,"any") or not spell.mangleCat.known())
             then
-                if not unit.facing(units.dyn5, "player") then
+                if behindDyn5 then
                     if cast.shred(units.dyn5) then
                         ui.debug("Casting Shred")
                         return true
@@ -1316,6 +1416,9 @@ actionList.Combat = function()
         -- Call Action List - Cooldowns
         if actionList.Cooldowns() then return true end
 
+        -- Call Action List - Interrupts
+        if actionList.Interrupts() then return true end
+
         -- Wait for melee swing before spending energy on abilities in Cat/Bear form.
         -- Ensures the auto-attack isn't clipped by cast GCD, maximising physical DPS.
         if unit.exists("target") and unit.distance("target") < 5 and
@@ -1410,6 +1513,7 @@ local function runRotation()
     units.get(40, true) -- Makes a variable called, units.dyn40AOE
     -- Enemies
     enemies.get(5, "player", false, true) -- Makes a variable called, enemies.yards5f
+    enemies.get(8)      -- Makes a variable called, enemies.yards8 (BearForm Swipe AoE threshold)
     enemies.get(10)     -- Makes a variable called, enemies.yards10 (BearForm/Defensive checks)
     enemies.get(20)     -- Makes a varaible called, enemies.yards20
     enemies.get(20, "player", true)        -- makes enemies.yards20nc

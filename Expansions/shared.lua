@@ -7,6 +7,15 @@ local _, br = ...
 
 local api = br.api.wow
 
+-- C_LossOfControl (loss-of-control / charm-break tracking) was introduced in WoD 6.0.
+-- Not available on Classic, TBC, or MOP Classic clients.
+-- Set true only in Retail/Functions.lua.
+br.api.hasCharmBreakTracking = false
+
+-- BFA trinket/essence channels (Focused Azerite Beam, Cyclotronic Blast, Azshara's Font
+-- of Power) require a follow-up channel lock after casting. Retail only.
+br.api.hasBFAItemChannels = false
+
 -- IsPassiveSpell: C_Spell.IsSpellPassive with _G.IsPassiveSpell fallback.
 -- Retail overrides this (no _G fallback needed on modern clients).
 api.IsPassiveSpell = function(spellID)
@@ -315,4 +324,15 @@ api.GetGCDSpellID = function()
         return form == 1 and gcdSpell.CAT or gcdSpell.NONE
     end
     return gcdSpell or 5176
+end
+
+-- Print the standard compatibility-layer banner. Called at the end of each
+-- expansion's Functions.lua once br.api.expansion has been set.
+-- Uses raw _G.print directly: br._G and br._G.print are not yet initialised
+-- at expansion-file load time (BadRotations.lua runs later in the TOC).
+br.api.printCompatLoaded = function()
+    if br.api.compat and br.api.compat.getVersionInfo then
+        local versionInfo = br.api.compat:getVersionInfo()
+        print("|cffA330C9[BadRotations] |r API: " .. br.api.expansion .. " compatibility layer loaded (Build: " .. versionInfo.build .. ")")
+    end
 end

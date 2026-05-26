@@ -54,7 +54,7 @@ function br.ui:createRotationDropdown(parent, itemlist, tooltip)
                 br.ui.settingsManagement:saveSettings(nil, nil, br.loader.selectedSpec, br.loader.selectedProfileName)
                 br.ui.settingsManagement:saveLastProfileTracker()
             end
-            br.rotationChanged = true
+            br.loader.rotationChanged = true
         end
     )
     -- Event: Tooltip

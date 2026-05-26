@@ -112,6 +112,7 @@ br.lists.spells.HUNTER.Shared = {
         wyvernSting   = {19386, 24131, 24132, 27068},
         screech       = {24423, 24577, 24578, 24579, 27051}, -- Carrion Bird/Bat/Owl melee-AP debuff (any rank)
         scorpidPoison = {24640, 24583, 24586, 24587, 27060},  -- Scorpid AP-reducing poison (any rank)
+        aimedShot     = {19434, 20900, 20901, 20902, 20903, 20904, 20905, 27065}, -- Aimed Shot debuff: +240 ranged damage taken (R1-R8)
     },
     glyphs     = {},
     interrupts = {

@@ -36,6 +36,10 @@ _superFrame:RegisterUnitEvent("TRAIT_CONFIG_UPDATED")
 _superFrame:RegisterUnitEvent("UI_ERROR_MESSAGE")
 _superFrame:RegisterEvent("LOADING_SCREEN_ENABLED")
 _superFrame:RegisterEvent("LOADING_SCREEN_DISABLED")
+-- Fired when the local player changes specialization (all supported expansions).
+-- Sets a dirty flag so Core.lua re-evaluates the spec on the next pulse tick
+-- instead of calling getEffectiveSpecID() on every tick.
+_superFrame:RegisterEvent("ACTIVE_PLAYER_SPECIALIZATION_CHANGED")
 
 function common:commonReaders()
 	---------------
@@ -339,7 +343,7 @@ function common:commonReaders()
 		end
 		-- Update Player Info
 		-- if event == "PLAYER_TALENT_UPDATE" and select(2, GetSpecializationInfo(GetSpecialization())) == br.loader.selectedSpec then
-		-- 	br.rotationChanged = true
+		-- 	br.loader.rotationChanged = true
 		-- end
 		if event == "PLAYER_TALENT_UPDATE" or event == "PLAYER_LEVEL_UP" or event == "PLAYER_EQUIPMENT_CHANGED" --[[or event == "AZERITE_EMPOWERED_ITEM_SELECTION_UPDATED"]] or event == "TRAIT_CONFIG_UPDATED" then
 			if br.player then
@@ -579,6 +583,9 @@ function common:commonReaders()
 		end
 		if event == "LOADING_SCREEN_DISABLED" and br.disableControl == true then
 			br.disableControl = false
+		end
+		if event == "ACTIVE_PLAYER_SPECIALIZATION_CHANGED" then
+			br.loader.specDirty = true
 		end
 	end
 	superReaderFrame:SetScript("OnEvent", SuperReader)

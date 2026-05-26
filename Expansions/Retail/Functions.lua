@@ -5,10 +5,28 @@ local _, br = ...
 if not br.isRetail then return end
 
 -- Capability flags for Retail
-br.api.hasHeroTalentTrees = true
-br.api.expansion          = "Retail"
+br.api.hasHeroTalentTrees     = true   -- hero talent trees (Dragonflight+)
+br.api.hasCharmBreakTracking  = true   -- C_LossOfControl available; charm-break spells can fire while charmed
+br.api.hasBFAItemChannels     = true   -- BFA trinket/essence follow-up channel lock (Azerite Beam, Cyclotronic, Azshara)
+br.api.expansion              = "Retail"
 
 local api = br.api.wow
+
+
+
+-- Returns the effective spec id for the player (forces Initial for all classes below level 10 in Retail)
+br.api.getEffectiveSpecID = function()
+    local class  = select(2, br._G.UnitClass("player"))
+    local level  = br._G.UnitLevel("player")
+    local specID = br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization())
+    if level and level < 10
+        and class and br.lists and br.lists.spec
+        and br.lists.spec[class] and br.lists.spec[class].Initial
+    then
+        return br.lists.spec[class].Initial
+    end
+    return specID
+end
 
 -- GetSpellInfo wrapper
 -- Retail: C_Spell.GetSpellInfo returns a table
@@ -182,10 +200,7 @@ api.GetQuestLogTitle = function(questLogIndex)
 end
 
 -- Print version info on load
-if br.api.compat.getVersionInfo then
-    local versionInfo = br.api.compat:getVersionInfo()
-    print("|cffA330C9BadRotations|r |cffFFFFFFAPI:|r Retail compatibility layer loaded (Build: " .. versionInfo.build .. ")")
-end
+br.api.printCompatLoaded()
 
 -- Talent System - Retail uses C_Traits API (Dragonflight talent trees)
 api.getTalentInfo = function(spec, spellTalents)

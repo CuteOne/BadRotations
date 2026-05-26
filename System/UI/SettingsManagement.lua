@@ -268,18 +268,24 @@ settingsManagement.initializeSettings = false
 function settingsManagement:loadSavedSettings()
 	-- Run initialization either when explicitly requested via initializeSettings
 	-- or when settings have not yet been loaded (e.g. on login) or a rotation changed
-	if settingsManagement.initializeSettings or (not (br.data and br.data.loadedSettings) or br.rotationChanged) then
+	if settingsManagement.initializeSettings or (not (br.data and br.data.loadedSettings) or br.loader.rotationChanged) then
 		br.loader.cBuilder:loadProfiles()
-		local specID = br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization())
+		local specID = br.loader.selectedSpecID
 		if not (br.loader.noRotationsFound and br.loader.noRotationsFound[specID]) then
 			settingsManagement:loadLastProfileTracker()
 		end
-		if br.data.settings[br.loader.selectedSpec]["RotationDropValue"] then
-			settingsManagement:loadSettings(nil, nil, nil, br.data.settings[br.loader.selectedSpec]["RotationDropValue"])
-		elseif br.loader.rotations[br.loader.selectedSpec] then
-			settingsManagement:loadSettings(nil, nil, nil, br.loader.rotations[br.loader.selectedSpec][1].name)
+		local specID = br.loader.selectedSpecID
+		local profileToLoad = br.data.settings[br.loader.selectedSpec]["RotationDropValue"]
+		if not profileToLoad then
+			-- Fall back to the first available rotation for this spec
+			if br.loader.rotations and br.loader.rotations[specID] then
+				profileToLoad = br.loader.rotations[specID][1].name
+			end
+		end
+		if profileToLoad then
+			settingsManagement:loadSettings(nil, nil, nil, profileToLoad)
 		else
-			if not br.loader.rotations[br.loader.selectedSpec] then
+			if not br.loader.rotations or not br.loader.rotations[specID] then
 				settingsManagement.initializeSettings = false
 				return
 			end
@@ -616,150 +622,184 @@ function settingsManagement:cleanSettings()
 				br.data.collectGarbage = false -- Prevent re-running cleanup
 				settingsManagement:saveSettings(nil, nil, br.loader.selectedSpec, br.loader.selectedProfileName)
 			end
-			br._G.print("UI Load Complete")
 		end
 	end
 end-- Load Settings
 function settingsManagement:loadSettings(folder, class, spec, profile, instance)
-	if br.unlocked and (not br.data.loadedSettings or br.rotationChanged) then
-		local loadDir = settingsManagement:checkDirectories(folder, class, spec, profile, instance)
-		if not loadDir then
-			br._G.print("No settings directory found for " .. profile .. "!")
-			return
+	if not br.unlocked then return end
+	-- Normalize nil spec so all callers produce a consistent dedup key.
+	if spec == nil then
+		spec = br.loader.selectedSpec
+	end
+	if not spec or spec == "" then spec = "Initial" end
+	-- Only reload if not already loaded for this spec/profile.
+	if settingsManagement._lastLoadedSpec == spec and settingsManagement._lastLoadedProfile == profile then
+		return
+	end
+	settingsManagement._lastLoadedSpec    = spec
+	settingsManagement._lastLoadedProfile = profile
+	local loadDir = settingsManagement:checkDirectories(folder, class, spec, profile, instance)
+	if not loadDir then
+		br._G.print("No settings directory found for " .. profile .. "!")
+		return
+	end
+	local brdata
+	local brprofile
+	local fileFound = false
+	local profileFound = false
+	-- Load Settings
+	if settingsManagement:findFileInFolder("savedSettings.lua", loadDir) then
+		--br._G.print("Loading Settings File From Directory: " .. loadDir)
+		brdata = tableLoad(loadDir .. "savedSettings.lua")
+		if brdata then
+			fileFound = true
 		end
-		local brdata
-		local brprofile
-		local fileFound = false
-		local profileFound = false
-		-- Load Settings
-		if settingsManagement:findFileInFolder("savedSettings.lua", loadDir) then
-			--br._G.print("Loading Settings File From Directory: " .. loadDir)
-			brdata = tableLoad(loadDir .. "savedSettings.lua")
-			if brdata then
-				fileFound = true
-			end
+	end
+	-- Load Profile
+	if settingsManagement:findFileInFolder("savedProfile.lua", loadDir) then
+		-- Print("Loading Saved Profiles")
+		-- Print("From Directory: "..loadDir)
+		brprofile = tableLoad(loadDir .. "savedProfile.lua")
+		if brprofile then
+			profileFound = true
 		end
-		-- Load Profile
-		if settingsManagement:findFileInFolder("savedProfile.lua", loadDir) then
-			-- Print("Loading Saved Profiles")
-			-- Print("From Directory: "..loadDir)
-			brprofile = tableLoad(loadDir .. "savedProfile.lua")
-			if brprofile then
-				profileFound = true
-			end
-		end
+	end
 
-		-- Migration: for TBC/Classic (hasSubSpecs = false), settings were previously saved under
-		-- the API spec name (e.g. Settings/Shaman/Enhancement/Profile/) before this fix.
-		-- If nothing was found at the new class-based path, look for the old spec-keyed files
-		-- and load from there. After loading, re-save to the new path so migration is permanent.
-		local migratedFromOldPath = false
-		if not fileFound and not br.api.hasSubSpecs then
-			local rawSpec = select(2, br._G.C_SpecializationInfo.GetSpecializationInfo(
-				br._G.C_SpecializationInfo.GetSpecialization()))
-			local resolvedClass = class or select(2, br._G.UnitClass("player"))
-			local resolvedProfile = profile or br.loader.selectedProfileName
-			-- Only attempt if the raw API spec differs from the class folder name (i.e. truly a spec name)
-			if rawSpec and rawSpec ~= "" and rawSpec ~= getFolderClassName(resolvedClass) then
-				local wowDir = br._G.GetWoWDirectory() or ""
-				local mainDir = wowDir:match('_retail_')
-					and (wowDir .. sep .. "Interface" .. sep .. "AddOns" .. sep .. br.loader.addonName .. sep .. "Settings" .. sep)
-					or  (wowDir .. sep .. br.loader.addonName .. sep .. "Settings" .. sep)
-				local folderPart = folder and (folder .. sep) or ""
-				local oldDir = mainDir .. folderPart .. getFolderClassName(resolvedClass) .. sep .. rawSpec .. sep .. resolvedProfile .. sep
-				if settingsManagement:findFileInFolder("savedSettings.lua", oldDir) then
-					brdata = tableLoad(oldDir .. "savedSettings.lua")
-					if brdata then
-						fileFound = true
-						migratedFromOldPath = true
-						br._G.print("|cffFFDD00[BR] Migrating settings from old path:|r " .. oldDir)
-					end
-					if settingsManagement:findFileInFolder("savedProfile.lua", oldDir) then
-						brprofile = tableLoad(oldDir .. "savedProfile.lua")
-						if brprofile then profileFound = true end
-					end
+	-- Migration: for TBC/Classic (hasSubSpecs = false), settings were previously saved under
+	-- the API spec name (e.g. Settings/Shaman/Enhancement/Profile/) before this fix.
+	-- If nothing was found at the new class-based path, look for the old spec-keyed files
+	-- and load from there. After loading, re-save to the new path so migration is permanent.
+	local migratedFromOldPath = false
+	if not fileFound and not br.api.hasSubSpecs then
+		local rawSpec = select(2, br._G.C_SpecializationInfo.GetSpecializationInfo(
+			br._G.C_SpecializationInfo.GetSpecialization()))
+		local resolvedClass = class or select(2, br._G.UnitClass("player"))
+		local resolvedProfile = profile or br.loader.selectedProfileName
+		-- Only attempt if the raw API spec differs from the class folder name (i.e. truly a spec name)
+		if rawSpec and rawSpec ~= "" and rawSpec ~= getFolderClassName(resolvedClass) then
+			local wowDir = br._G.GetWoWDirectory() or ""
+			local mainDir = wowDir:match('_retail_')
+				and (wowDir .. sep .. "Interface" .. sep .. "AddOns" .. sep .. br.loader.addonName .. sep .. "Settings" .. sep)
+				or  (wowDir .. sep .. br.loader.addonName .. sep .. "Settings" .. sep)
+			local folderPart = folder and (folder .. sep) or ""
+			local oldDir = mainDir .. folderPart .. getFolderClassName(resolvedClass) .. sep .. rawSpec .. sep .. resolvedProfile .. sep
+			if settingsManagement:findFileInFolder("savedSettings.lua", oldDir) then
+				brdata = tableLoad(oldDir .. "savedSettings.lua")
+				if brdata then
+					fileFound = true
+					migratedFromOldPath = true
+					br._G.print("|cffFFDD00[BR] Migrating settings from old path:|r " .. oldDir)
+				end
+				if settingsManagement:findFileInFolder("savedProfile.lua", oldDir) then
+					brprofile = tableLoad(oldDir .. "savedProfile.lua")
+					if brprofile then profileFound = true end
 				end
 			end
 		end
-		if fileFound then
-			br.ui:closeWindow("all")
-			br.data = settingsManagement:deepcopy(brdata)
-			-- Clear br.data.ui from loaded settings - it should NOT be loaded from disk
-			-- It will be rebuilt when UI is created and populated as pages are visited
-			br.data.ui = nil
-			if profileFound then
-				settingsManagement.profile = settingsManagement:deepcopy(brprofile)
-			end
-			br._G.print("Loaded Settings for Profile " .. tostring(profile))
-			-- Migration: immediately re-save to the new class-based path so the old spec-keyed
-			-- files are no longer needed. Next load will find the file at the correct path.
-			if migratedFromOldPath then
-				br._G.C_Timer.After(0, function()
-					settingsManagement:saveSettings(folder, class, nil, profile, instance)
-					br._G.print("|cffFFDD00[BR] Settings migrated to new path. Migration complete.|r")
-				end)
-			end
+	end
+	if fileFound then
+		br.ui:closeWindow("all")
+		-- Preserve essential global UI settings that may be absent in sparse settings files
+		-- (e.g. profile "None" or migrated files that only contain per-spec data).
+		local prevSettings = br.data and br.data.settings
+		local prevButtonSize    = prevSettings and prevSettings.buttonSize
+		local prevMainButton    = prevSettings and prevSettings.mainButton
+		local prevMinimapButton = prevSettings and prevSettings.minimapButton
+		local prevFont          = prevSettings and prevSettings.font
+		local prevFontsize      = prevSettings and prevSettings.fontsize
+		br.data = settingsManagement:deepcopy(brdata)
+		-- Restore global UI settings if the loaded file did not include them
+		if br.data.settings then
+			br.data.settings.buttonSize    = br.data.settings.buttonSize    or prevButtonSize    or 32
+			br.data.settings.mainButton    = br.data.settings.mainButton    or prevMainButton
+			br.data.settings.minimapButton = br.data.settings.minimapButton or prevMinimapButton
+			br.data.settings.font          = br.data.settings.font          or prevFont          or "Fonts/arialn.ttf"
+			br.data.settings.fontsize      = br.data.settings.fontsize      or prevFontsize      or 16
 		end
-		if not fileFound then
-			if br.loader.selectedProfileName ~= "None" then
-				br._G.print("No File Called 'savedSettings.lua' Found In " .. loadDir)
-			else
-				br._G.print("No pre-existing settings to load.")
-			end
+		-- Clear br.data.ui from loaded settings - it should NOT be loaded from disk
+		-- It will be rebuilt when UI is created and populated as pages are visited
+		br.data.ui = nil
+		-- Safety: never persist loadedSettings from disk
+		br.data.loadedSettings = nil
+		if profileFound then
+			settingsManagement.profile = settingsManagement:deepcopy(brprofile)
 		end
-
-		-- Resolve settings data key: TBC/Classic use class name; Retail/MOP use spec name.
-		if not br.api.hasSubSpecs then
-			spec = getClassFolderName()
-		elseif spec == nil then
-			spec = br.loader.selectedSpec
-		end
-		if spec == nil or spec == "" then
-			spec = "Initial"
-		end
-		if br.data.settings == nil then br.data.settings = {} end
-		if br.data.settings[spec] == nil then br.data.settings[spec] = {} end
-		if br.data.settings[spec].config == nil then
-			br.data.settings[spec].config = {}
-		end
-		local initialLoad = br.data.settings[spec].config.initialLoad or false
-		if initialLoad then
-			br.ui:closeWindow("config")
-		else
-			br.ui:toggleWindow("config")
-			br.data.settings[spec].config.initialLoad = true
-		end
-
-		-- After config window is created and toggled, build all pages and run cleanup
-		-- By setting pageDD.value before calling each page function, the pages will
-		-- properly register in br.data.ui, allowing cleanup to detect duplicates/orphans
-		if fileFound then
-			br._G.C_Timer.After(1.0, function()
-				-- Ensure config window exists and is shown before building pages
-				if br.ui.window.config and br.ui.window.config.frame then
-					if not br.ui.window.config.frame:IsShown() then
-						br.ui:toggleWindow("config")
-					end
-				else
-					-- Window doesn't exist yet, create and show it
-					if br.ui.window.config == nil then br.ui.window.config = {} end
-					if br.ui.window.config.frame == nil then br.ui:createConfigWindow() end
-					br.ui:toggleWindow("config")
-				end
-
-				if settingsManagement:buildAllUIPages() then
-					settingsManagement:cleanSettings()
-				end
-
-				-- Close the window if it was initially closed
-				if initialLoad then
-					br.ui:closeWindow("config")
-				end
+		br._G.print("Loaded Settings for Profile " .. tostring(profile))
+		-- Migration: immediately re-save to the new class-based path so the old spec-keyed
+		-- files are no longer needed. Next load will find the file at the correct path.
+		if migratedFromOldPath then
+			br._G.C_Timer.After(0, function()
+				settingsManagement:saveSettings(folder, class, nil, profile, instance)
+				br._G.print("|cffFFDD00[BR] Settings migrated to new path. Migration complete.|r")
 			end)
 		end
-
-		br.data.loadedSettings = true
 	end
+	if not fileFound then
+		if br.loader.selectedProfileName ~= "None" then
+			br._G.print("No File Called 'savedSettings.lua' Found In " .. loadDir)
+		else
+			br._G.print("No pre-existing settings to load.")
+		end
+	end
+
+	-- Resolve settings data key: TBC/Classic use class name; Retail/MOP use spec name.
+	if not br.api.hasSubSpecs then
+		spec = getClassFolderName()
+	elseif spec == nil then
+		spec = br.loader.selectedSpec
+	end
+	if spec == nil or spec == "" then
+		spec = "Initial"
+	end
+	if br.data.settings == nil then br.data.settings = {} end
+	if br.data.settings[spec] == nil then br.data.settings[spec] = {} end
+	if br.data.settings[spec].config == nil then
+		br.data.settings[spec].config = {}
+	end
+	local initialLoad = br.data.settings[spec].config.initialLoad or false
+	if initialLoad then
+		br.ui:closeWindow("config")
+	else
+		br.ui:toggleWindow("config")
+		br.data.settings[spec].config.initialLoad = true
+	end
+
+	-- After config window is created and toggled, build all pages and run cleanup
+	-- By setting pageDD.value before calling each page function, the pages will
+	-- properly register in br.data.ui, allowing cleanup to detect duplicates/orphans
+	if fileFound then
+		if settingsManagement._pendingUILoadTimer then
+			settingsManagement._pendingUILoadTimer:Cancel()
+			settingsManagement._pendingUILoadTimer = nil
+		end
+		settingsManagement._pendingUILoadTimer = br._G.C_Timer.NewTimer(1.0, function()
+			settingsManagement._pendingUILoadTimer = nil
+			-- Ensure config window exists and is shown before building pages
+			if br.ui.window.config and br.ui.window.config.frame then
+				if not br.ui.window.config.frame:IsShown() then
+					br.ui:toggleWindow("config")
+				end
+			else
+				-- Window doesn't exist yet, create and show it
+				if br.ui.window.config == nil then br.ui.window.config = {} end
+				if br.ui.window.config.frame == nil then br.ui:createConfigWindow() end
+				br.ui:toggleWindow("config")
+			end
+
+			if settingsManagement:buildAllUIPages() then
+				settingsManagement:cleanSettings()
+			end
+
+			-- Close the window if it was initially closed
+			if initialLoad then
+				br.ui:closeWindow("config")
+			end
+			br._G.print("UI Load Complete")
+		end)
+	end
+	-- Mark settings as loaded so loadSavedSettings does not re-run unnecessarily.
+	if br.data then br.data.loadedSettings = true end
+
 end
 
 -- Save Settings
@@ -799,7 +839,7 @@ function settingsManagement:loadLastProfileTracker()
 	local selectedProfile = br.loader.selectedSpec
 	if settingsManagement:findFileInFolder("lastProfileTracker.lua", loadDir) then
 		local tracker = tableLoad(loadDir .. "lastProfileTracker.lua")
-		local specID = br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization())
+		local specID = br.loader.selectedSpecID
 		if br.data == nil then
 			br.data = {}
 		end
@@ -854,7 +894,7 @@ end
 
 function settingsManagement:saveLastProfileTracker()
 	local saveDir = settingsManagement:checkDirectories(nil, nil, nil, "Tracker")
-	local specID = br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization())
+	local specID = br.loader.selectedSpecID
 	specID = specID or 0
 	if specID == 0 then specID = br.loader.selectedSpecID or 0 end
 	if br.data ~= nil and br.data.settings ~= nil and br.data.settings[br.loader.selectedSpec] ~= nil and specID ~= 0 then

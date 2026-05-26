@@ -267,6 +267,7 @@ end
 
 -- if hasNoControl(12345) == true then
 function combat:hasNoControl(spellID)
+	if not br._G.C_LossOfControl then return false end
 	local event
 	local eventIndex = br._G.C_LossOfControl.GetActiveLossOfControlDataCount()
 	if eventIndex > 0 then
@@ -285,6 +286,7 @@ end
 -- Returns true if the player is under a "hard" loss-of-control effect (typically prevents casting/attacking).
 -- Also returns the matching event table (or nil).
 function combat:hasHardControl()
+	if not br._G.C_LossOfControl then return false, nil end
 	local hardTypes = {
 		STUN = true,
 		STUN_MECHANIC = true,
@@ -315,6 +317,7 @@ end
 -- Returns true if the player cannot cast *this* spell due to hard loss of control.
 -- Allows "regain control" spells (e.g., freedom/berserker rage) via canRegainControl().
 function combat:cannotCast(spellID)
+	if not br._G.C_LossOfControl then return false end
 	local hard, event = combat:hasHardControl()
 	if not hard or not event or not event.locType then
 		return false

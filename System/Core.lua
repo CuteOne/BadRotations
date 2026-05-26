@@ -17,6 +17,17 @@ function engines:getUpdateRate()
     return updateRate
 end
 
+-- Returns true when BR is unlocked and the Power toggle is on.
+-- Used by sub-engine update callbacks to gate their work behind the same
+-- condition as the main pulse engine.
+local function isPowerEnabled()
+    if not br.unlocked then return false end
+    local toggles = br.data and br.data.settings
+        and br.data.settings[br.loader.selectedSpec]
+        and br.data.settings[br.loader.selectedSpec].toggles
+    return toggles ~= nil and toggles["Power"] == 1
+end
+
 -- Main Engine
 function engines:Main()
     if engines.Pulse_Engine == nil then
@@ -28,26 +39,12 @@ end
 
 -- Object Manager Engine
 local function ObjectManagerUpdate(self, elapsed)
-    if br.unlocked then
-        if br.data ~= nil and br.data.settings ~= nil and br.data.settings[br.loader.selectedSpec] ~= nil
-            and br.data.settings[br.loader.selectedSpec].toggles ~= nil
-        then
-            if br.data.settings[br.loader.selectedSpec].toggles["Power"] ~= nil
-                and br.data.settings[br.loader.selectedSpec].toggles["Power"] == 1
-            then
-                self.omElapsed = (self.omElapsed or 0) + (elapsed or 0)
-                local omInterval = math.max(0.05, engines:getUpdateRate())
-                if self.omElapsed < omInterval then
-                    return
-                end
-                self.omElapsed = 0
-                -- attempt to update objects every frame
-                -- updates for each object will be spread out randomly
-                engines.enemiesEngineFunctions:updateOM()
-                engines.enemiesEngine:Update()
-            end
-        end
-    end
+    if not isPowerEnabled() then return end
+    self.omElapsed = (self.omElapsed or 0) + (elapsed or 0)
+    if self.omElapsed < math.max(0.05, engines:getUpdateRate()) then return end
+    self.omElapsed = 0
+    engines.enemiesEngineFunctions:updateOM()
+    engines.enemiesEngine:Update()
 end
 
 function engines:ObjectManager()
@@ -60,24 +57,11 @@ end
 
 -- Object Tracker
 local function ObjectTrackerUpdate(self, elapsed)
-    if br.unlocked then
-        if br.data ~= nil and br.data.settings ~= nil and br.data.settings[br.loader.selectedSpec] ~= nil
-            and br.data.settings[br.loader.selectedSpec].toggles ~= nil
-        then
-            if br.data.settings[br.loader.selectedSpec].toggles["Power"] ~= nil
-                and br.data.settings[br.loader.selectedSpec].toggles["Power"] == 1
-            then
-                self.trackerElapsed = (self.trackerElapsed or 0) + (elapsed or 0)
-                local trackerInterval = math.max(0.10, engines:getUpdateRate())
-                if self.trackerElapsed < trackerInterval then
-                    return
-                end
-                self.trackerElapsed = 0
-                -- Tracker
-                engines.tracker:objectTracker()
-            end
-        end
-    end
+    if not isPowerEnabled() then return end
+    self.trackerElapsed = (self.trackerElapsed or 0) + (elapsed or 0)
+    if self.trackerElapsed < math.max(0.10, engines:getUpdateRate()) then return end
+    self.trackerElapsed = 0
+    engines.tracker:objectTracker()
 end
 
 function engines:ObjectTracker()
@@ -88,21 +72,20 @@ function engines:ObjectTracker()
     end
 end
 
-local function updateRotationOnSpecChange()
+local function updateRotationOnSpecChange(newSpecID, newSpecName)
     br.ui:closeWindow("all")
     br.ui.settingsManagement:saveSettings(nil, nil, br.loader.selectedSpec, br.loader.selectedProfileName)
-    -- Update Selected Spec/Profile
-    local specID, specName = br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization())
-    br.loader.selectedSpecID = specID
-    br.loader.selectedSpec = br.ui.settingsManagement:normalizeSpecKey(specName)
+    -- Update Selected Spec/Profile using the already-computed values from engines.Update
+    br.loader.selectedSpecID = newSpecID
+    br.loader.selectedSpec   = newSpecName
     br.loader.cBuilder:loadProfiles()
-    if not (br.loader.noRotationsFound and br.loader.noRotationsFound[specID]) then
+    if not (br.loader.noRotationsFound and br.loader.noRotationsFound[newSpecID]) then
         br.ui.settingsManagement:loadLastProfileTracker()
     end
-    br.data.loadedSettings = false
+    br.data.loadedSettings = nil
     -- Load Default Settings
     br.ui.settingsManagement:defaultSettings()
-    br.rotationChanged = true
+    br.loader.rotationChanged = true
     br._G.wipe(br.slashCommands.commandHelp)
     br.slashCommands:slashHelpList()
     -- Invalidate cached melee spell so getDistanceCalc picks up the new spec.
@@ -114,6 +97,10 @@ end
 -- collectGarbage should only be set when rotation explicitly changes
 local collectGarbage = false
 local initialized = false
+local profileLoadAttempts = 0
+-- Seeded true so the first pulse tick always resolves spec ID/name.
+-- Thereafter only ACTIVE_PLAYER_SPECIALIZATION_CHANGED resets it.
+br.loader.specDirty = true
 function engines.Update(frame, elapsed)
     local startTime = br._G.debugprofilestop()
     LibDraw = LibDraw or br._G.LibStub("LibDraw-BR")
@@ -183,43 +170,75 @@ function engines.Update(frame, elapsed)
                     br._G.CastSpellByID(br.botSpell, br.botUnit)
                     br.castID = false
                 end
-                local playerSpecID, playerSpecName = br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization())
-                if playerSpecName == "" then playerSpecName = "Initial" end
-                local thisSpec = br.ui.settingsManagement:normalizeSpecKey(playerSpecName)
+                -- Spec change detection: only re-query the API when the
+                -- ACTIVE_PLAYER_SPECIALIZATION_CHANGED event has fired (or on
+                -- the very first tick where specDirty is pre-seeded to true).
+                if br.loader.specDirty then
+                    br.loader.specDirty = false
+                    local playerSpecID = (br.api and br.api.getEffectiveSpecID and br.api.getEffectiveSpecID())
+                        or br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization())
+                    local playerSpecName = select(2, br._G.GetSpecializationInfoForSpecID(playerSpecID)) or "Initial"
+                    if playerSpecName == "" then playerSpecName = "Initial" end
+                    local thisSpec = br.ui.settingsManagement:normalizeSpecKey(playerSpecName)
+                    -- Cache resolved values for use later this tick
+                    br.loader._resolvedSpecID   = playerSpecID
+                    br.loader._resolvedSpecName = thisSpec
+                end
+                local playerSpecID = br.loader._resolvedSpecID   or br.loader.selectedSpecID
+                local thisSpec     = br.loader._resolvedSpecName or br.loader.selectedSpec
                 -- Initialize Player
-                if br.player == nil or br.player.profile ~= br.loader.selectedSpec or br.rotationChanged then
-                    -- Load Last Profile Tracker
-                    -- br:loadLastProfileTracker()
+                if br.player == nil or br.player.profile ~= br.loader.selectedSpec or br.loader.rotationChanged then
+                    -- Always complete the data load so the rotation can execute in combat.
+                    -- Only createOptions/createToggles (secure frames) are deferred until out of combat.
+                    profileLoadAttempts = profileLoadAttempts + 1
                     br.loader.selectedProfile = br.data.settings[br.loader.selectedSpec]["RotationDrop"] or 1
-                    -- Load Profile
-                    -- br.loaded = false
                     br.player = br.loader.cBuilder:new(playerSpecID, br.loader.selectedSpec)
                     if br.player ~= nil then
                         setmetatable(br.player, {
                             __index = br.loader
                         })
-                        if br.rotationChanged then
+                        if br.loader.rotationChanged then
                             br.ui.settingsManagement:saveLastProfileTracker()
                             br.ui.settingsManagement:loadSettings(nil, br.player.class, br.loader.selectedSpec, br.loader.selectedProfileName)
                             collectGarbage = true
                         end
-                        br.ui:closeWindow("profile")
-                        br.player:createOptions()
-                        br.player:createToggles()
+                        br.loader.rotationChanged = false
+                        profileLoadAttempts = 0 -- reset on success
+                        if br._G.InCombatLockdown() then
+                            -- Defer UI-only setup; rotation logic runs via update() below
+                            if not br.loader._uiPending then
+                                br.loader._uiPending = true
+                                br._G.print("[BadRotations] Rotation loaded. Toggle bar setup deferred until after combat.")
+                            end
+                        else
+                            br.loader._uiPending = nil
+                            br.ui:closeWindow("profile")
+                            br.player:createOptions()
+                            br.player:createToggles()
+                            br._G.print("Profile Load Complete")
+                        end
                         br.player:update()
-                        br.rotationChanged = false
-                        br._G.print("Profile Load Complete")
+                    else
+                        if profileLoadAttempts > 5 then return false end
                     end
+                end
+                -- Apply deferred UI setup once out of combat
+                if br.loader._uiPending and not br._G.InCombatLockdown() and br.player ~= nil then
+                    br.loader._uiPending = nil
+                    br.ui:closeWindow("profile")
+                    br.player:createOptions()
+                    br.player:createToggles()
+                    br._G.print("Profile Load Complete (deferred from combat).")
                 end
                 -- Queue Casting
-                if (br.functions.misc:isChecked("Queue Casting") or (br.player ~= nil and br.player.queue ~= 0)) and
-                    not br._G.UnitChannelInfo("player") then
-                    if br.functions.cast:castQueue() then
-                        return
-                    end
+                if (br.functions.misc:isChecked("Queue Casting") or (br.player ~= nil and br.player.queue ~= 0))
+                    and not br._G.UnitChannelInfo("player")
+                then
+                    if br.functions.cast:castQueue() then return end
                 end
-                if (not br.functions.misc:isChecked("Queue Casting") or br.functions.unit:GetUnitIsDeadOrGhost("player") or
-                        not br._G.UnitAffectingCombat("player")) and br.player ~= nil and #br.player.queue ~= 0 then
+                if (not br.functions.misc:isChecked("Queue Casting") or br.functions.unit:GetUnitIsDeadOrGhost("player")
+                    or not br._G.UnitAffectingCombat("player")) and br.player ~= nil and #br.player.queue ~= 0 
+                then
                     br._G.wipe(br.player.queue)
                     if not br.functions.misc:isChecked("Mute Queue") then
                         if not br.functions.misc:isChecked("Queue Casting") then
@@ -253,7 +272,7 @@ function engines.Update(frame, elapsed)
                 br.engines.lootEngine:autoLoot()
                 -- Close windows and swap br.loader.selectedSpec on Spec Change
                 if thisSpec ~= "" and thisSpec ~= br.loader.selectedSpec then
-                    updateRotationOnSpecChange()
+                    updateRotationOnSpecChange(playerSpecID, thisSpec)
                 end
                 -- Show Main Button
                 if br.data.settings ~= nil and br.data.settings[br.loader.selectedSpec].toggles["Main"] ~= 1 and
@@ -292,18 +311,21 @@ function engines.Update(frame, elapsed)
                 br.misc.ProfessionHelper:ProfessionHelper()
                 -- Rotation Log
                 br.ui:toggleDebugWindow()
-                -- Collect Garbage - only when rotation actually changed, not on every profile init
+                -- Recreate windows when the rotation changed. cleanSettings is deferred
+                -- to the UILoadCallback timer (1 s later) so it runs after buildAllUIPages.
                 if collectGarbage then
-                    -- Ensure we have all the settings recorded
                     br.ui:recreateWindows()
-                    -- Delete old settings only when rotation changed to prevent wiping on toggle
-                    br.ui.settingsManagement:cleanSettings()
-                    -- Set flag to prevent un-needed runs
                     collectGarbage = false
                 end
             end -- End Update Check
         elseif br.player ~= nil then
-            updateRotationOnSpecChange()
+            -- Settings not yet ready; re-derive spec so updateRotationOnSpecChange has
+            -- the correct values without waiting for the next rate-limited tick.
+            local fbSpecID = (br.api and br.api.getEffectiveSpecID and br.api.getEffectiveSpecID())
+                or br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization())
+            local fbSpecName = br.ui.settingsManagement:normalizeSpecKey(
+                select(2, br._G.GetSpecializationInfoForSpecID(fbSpecID)) or "Initial")
+            updateRotationOnSpecChange(fbSpecID, fbSpecName)
         end -- End Settings Loaded Check
     end -- End Unlock Check
     br.debug.cpu:updateDebug(startTime, "pulse")

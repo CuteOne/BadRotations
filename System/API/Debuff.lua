@@ -12,7 +12,7 @@ if br.api == nil then br.api = {} end
 -- Local function needed to facilitate debuff.calc
 local function getSnapshotValue(dot)
     -- Feral Bleeds
-    if br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization()) == 103 then
+    if br.loader.selectedSpecID == 103 then
         local multiplier = 1.00
 
         -- Each buff only fires if it exists in the current expansion's spell list.
@@ -45,7 +45,7 @@ local function getSnapshotValue(dot)
         end
     end
     -- Assassination Bleeds
-    -- if br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization()) == 259 then
+    -- if br.loader.selectedSpecID == 259 then
     --     local multiplier = 1
     --     if br.player.buff.stealth.exists() and br.player.talent.nightstalker and (dot == br.player.spells.debuffs.rupture
     --             or dot == br.player.spells.debuffs.garrote) then
@@ -73,7 +73,7 @@ local baseTickTimes = {
 }
 
 br.api.debuffs = function(debuff, k, v)
-    local spec = br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization())
+    local spec = br.loader.selectedSpecID
     if type(v) == "table" then v = br.functions.spell:getHighestKnownRank(v) end
 
     --- Checks if a debuff exists on a unit.

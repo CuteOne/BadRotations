@@ -38,6 +38,14 @@ local loadedIn = false
 local _br_loaded = false
 br._G = setmetatable({}, { __index = _G })
 
+-- br._G.print: tagged chat print used throughout BR.
+-- Defined immediately after br._G so every subsequent file can use it.
+function br._G.print(msg)
+	if msg == nil then return end
+	local color = (br.ui and br.ui.colors and br.ui.colors.class) or ""
+	print(color .. "[BadRotations] |r" .. tostring(msg))
+end
+
 -- WoW API Compatibility Layer
 -- Expansion-specific API wrappers are loaded via Expansions/wowapi.lua -> Expansions/<name>/Functions.lua
 -- This allows all API differences to be managed in one place per expansion
@@ -74,6 +82,7 @@ br.data.settings = {}
 br.data.tracker = {}
 br.data.ui = {}
 br.loader.addonName = "BadRotations"
+br.loader.rotationChanged = true
 br.loader.rotations = {}
 br.loader.selectedSpec = "None"
 br.loader.selectedSpecID = 0
@@ -109,17 +118,23 @@ function br.load()
 	if _br_loaded then return end
 	_br_loaded = true
 	-- Update Selected Spec
-	br.loader.selectedSpecID, br.loader.selectedSpec = br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization())
+	br.loader.selectedSpecID = (br.api and br.api.getEffectiveSpecID and br.api.getEffectiveSpecID())
+        or br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization())
+	br.loader.selectedSpec = select(2, br._G.GetSpecializationInfoForSpecID(br.loader.selectedSpecID)) or "Initial"
 	if br.loader.selectedSpec == "" then
 		br.loader.selectedSpec = "Initial"
 	end
 	br.loader.selectedSpec = br.ui.settingsManagement:normalizeSpecKey(br.loader.selectedSpec)
+	-- Pre-seed the cached spec values used by the dirty-flag path in Core.lua
+	-- so the first pulse tick has valid data before specDirty is evaluated.
+	br.loader._resolvedSpecID   = br.loader.selectedSpecID
+	br.loader._resolvedSpecName = br.loader.selectedSpec
 	if br.data.settings[br.loader.selectedSpec] == nil then
 		br.data.settings[br.loader.selectedSpec] = {}
 	end
 	if not br.unlocked then
 		br.ui.settingsManagement.initializeSettings = true
-		print(br.ui.colors.class .. "[BadRotations] |cffFFFFFFInitializing Please Wait...")
+		br._G.print("Initializing Please Wait...")
 	end
 	if not loadedIn then
 		if br.engines.enemiesEngine and br.engines.enemiesEngine.damaged == nil then
@@ -152,11 +167,9 @@ local function OnEvent(self, event)
 	if event == "PLAYER_LOGOUT" then
 		-- Attempt to save settings and UI state on logout regardless of unlock status.
 		-- Guard calls to avoid errors if subsystems are not available.
-		-- Return queue window to previous setting if possible
-		if br._G and br._G.C_CVar and br._G.GetCVar and br._G.RunMacroText then
-			if br._G.C_CVar.GetCVar("SpellQueueWindow") == "0" then
-				br._G.RunMacroText("/console SpellQueueWindow " .. br._G.GetCVar("SpellQueueWindow"))
-			end
+		-- Restore SpellQueueWindow to the value BR saved before changing it.
+		if br._G and br._G.RunMacroText and br.unlockers and br.unlockers.origQueueWindow then
+			br._G.RunMacroText("/console SpellQueueWindow " .. br.unlockers.origQueueWindow)
 		end
 		if br.ui and br.ui.settingsManagement then
 			br.ui:saveWindowPosition()

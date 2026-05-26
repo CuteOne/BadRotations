@@ -5,9 +5,10 @@ local _, br = ...
 if not br.isBC then return end
 
 -- Capability flags for TBC
-br.api.hasSpellRanks = true        -- spells have rank-specific IDs
-br.api.hasSubSpecs   = false       -- no talent specialization subfolders
-br.api.comboPointsOnTarget = true  -- combo points are stored on the target, lost on switch
+br.api.hasSpellRanks          = true   -- spells have rank-specific IDs
+br.api.hasSubSpecs            = false  -- no talent specialization subfolders
+br.api.comboPointsOnTarget    = true   -- combo points are stored on the target, lost on switch
+br.api.hasCharmBreakTracking  = false  -- C_LossOfControl not available on TBC clients
 br.api.expansion = "TBC"
 
 local api = br.api.wow
@@ -117,7 +118,4 @@ if not _G.FindSpellOverrideByID then
 end
 
 -- Print version info on load
-if br.api.compat.getVersionInfo then
-    local versionInfo = br.api.compat:getVersionInfo()
-    print("|cffA330C9BadRotations|r |cffFFFFFFAPI:|r TBC compatibility layer loaded (Build: " .. versionInfo.build .. ")")
-end
+br.api.printCompatLoaded()

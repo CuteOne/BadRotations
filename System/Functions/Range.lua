@@ -27,7 +27,7 @@ local _cachedMeleeSpellName = nil  -- resolved spell name for C_Spell.IsSpellInR
 
 local function refreshMeleeSpellCache()
     _cachedClass = select(2, br._G.UnitClass("player"))
-    _cachedSpec  = br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization())
+    _cachedSpec  = br.loader.selectedSpecID
     _cachedMeleeSpell = nil
     -- Resolve which melee spell represents "in melee range" for this class/spec.
     -- Bear/Cat form overrides are handled dynamically each call because form can change.

@@ -1,3 +1,17 @@
+-------------------------------------------------------
+-- Author = CuteOne
+-- Patch = 1.12
+--    Patch should be the latest patch you've updated the rotation for (i.e., 1.12)
+-- Coverage = 100%
+--    Coverage should be your estimated percent coverage for class mechanics (i.e., 100%)
+-- Status = Full
+--    Status should be one of: Full, Limited, Sporadic, Inactive, Unknown
+-- Readiness = Untested
+--    Readiness should be one of: Raid, NoRaid, Basic, Development, Untested
+-------------------------------------------------------
+-- Required: Fill above fields to populate README.md --
+-------------------------------------------------------
+
 local rotationName = "CuteOne" -- Change to name of profile listed in options drop down
 
 ---------------

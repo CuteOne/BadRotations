@@ -33,8 +33,8 @@ local function loadFile(profile, file, support)
     local custom_env = setmetatable({ br = br }, { __index = _G })
     local func, errorMessage = br._G.loadstring(profile, file);
     if not func then
-        print("Error: " .. file .. " Cannot Load.  Please inform devs!")
-        print("Load Error Message: " .. tostring(errorMessage))
+        br._G.print("Error: " .. file .. " Cannot Load.  Please inform devs!")
+        br._G.print("Load Error Message: " .. tostring(errorMessage))
         errorhandler(errorMessage)
         return false
     end
@@ -49,8 +49,8 @@ local function loadFile(profile, file, support)
 
     local success = xpcall(func, captureError);
     if not success then
-        print('Error: ' .. file .. ' Cannot Run.  Please inform devs!')
-        print("Run Error Message: " .. tostring(actualError))
+        br._G.print('Error: ' .. file .. ' Cannot Run.  Please inform devs!')
+        br._G.print("Run Error Message: " .. tostring(actualError))
         return false
     end
     return true
@@ -60,7 +60,7 @@ end
 function cBuilder:loadProfiles()
     -- Search each Profile in the Spec Folder
     br._G.wipe(br.loader.rotations)
-    local specID = br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization())
+    local specID = br.loader.selectedSpecID 
     local IDLength = math.floor(math.log10(specID) + 1)
     local folderSpec = getFolderSpecName(class, specID)
     local path = getFilesLocation() .. sep .. 'Rotations' .. sep .. getFolderClassName(class) .. sep .. folderSpec .. sep
@@ -138,7 +138,6 @@ function cBuilder:new(spec, specName)
     local alreadyChecked = br.loader.noRotationsFound and br.loader.noRotationsFound[spec]
     if br.loader.rotations[spec] == nil and not alreadyChecked then
         cBuilder:loadProfiles()
-        br.rotationChanged = true
     end
 
     if not loadRotations then
@@ -151,13 +150,10 @@ function cBuilder:new(spec, specName)
             self.rotation = br.loader.rotations[spec][1]
             loadRotations = true
         else
-            if not loadRotations then
-                br._G.print("No Rotations Found!")
-                self.rotation = {}
-                -- Mark that this spec currently has no rotations to avoid repeated load attempts
-                br.loader.noRotationsFound = br.loader.noRotationsFound or {}
-                br.loader.noRotationsFound[spec] = true
-            end
+            br._G.print("No Rotations Found!")
+            self.rotation = {}
+            br.loader.noRotationsFound = br.loader.noRotationsFound or {}
+            br.loader.noRotationsFound[spec] = true
             return
         end
     end
@@ -656,7 +652,7 @@ function cBuilder:new(spec, specName)
         end
     end
 
-    if spec == br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization()) and (self.talent == nil or self.cast == nil) then
+    if spec == br.loader.selectedSpecID  and (self.talent == nil or self.cast == nil) then
         getSpellsForSpec(spec); --[[getTalentInfo(); getAzeriteTraitInfo();]] getFunctions(); self.updatePlayer = false
     end
     ------------------
@@ -673,7 +669,7 @@ function cBuilder:new(spec, specName)
     --------------
 
     function self:update()
-        if spec == br._G.C_SpecializationInfo.GetSpecializationInfo(br._G.C_SpecializationInfo.GetSpecialization()) then
+        if spec == br.loader.selectedSpecID then
             -- Call baseUpdate()
             if not br._G.UnitAffectingCombat("player") then self.updateOOC() end
             self.baseUpdate()

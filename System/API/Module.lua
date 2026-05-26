@@ -177,6 +177,7 @@ br.api.module = function(self)
             -- Gift of the Naaru
             if ui.checked("Gift of the Naaru") and unit.race() == "Draenei"
                 and unit.inCombat() and unit.hp() <= ui.value("Gift of the Naaru")
+                and cast.able.racial()
             then
                 if cast.racial() then
                     ui.debug("Casting Gift of the Naaru")

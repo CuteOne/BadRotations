@@ -106,7 +106,7 @@ br.lists.spells.SHAMAN.Shared = {
                 -- primalElementalist   = 117013,
                 -- rushingStreams       = 147074,
                 -- stoneBulwarkTotem    = 108270,
-                stormstrike             = 17364,
+                -- stormstrike is a baseline Enhancement ability in TBC, not a talent
                 -- totemicPersistence   = 108284,
                 -- totemicProjection    = 108287,
                 -- unleashedFury        = 117012,

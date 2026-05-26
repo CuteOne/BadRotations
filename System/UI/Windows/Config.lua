@@ -215,7 +215,7 @@ function br.ui:createConfigWindow()
                 profileSettings[br.functions.misc:getValue("Select Settings")])
         end
         local loadProfile = function()
-            br.data.loadedSettings = false
+            br.data.loadedSettings = nil
             local loadDir =
                 br.ui.settingsManagement:checkDirectories("Profile Settings", br.player.class, br.loader.selectedSpec, br.loader.selectedProfileName,
                     profileSettings[br.functions.misc:getValue("Select Settings")])
@@ -226,7 +226,7 @@ function br.ui:createConfigWindow()
             if loadDir and br.ui.settingsManagement:findFileInFolder("savedSettings.lua", loadDir) then
                 br.ui.settingsManagement:loadSettings("Profile Settings", br.player.class, br.loader.selectedSpec, br.loader.selectedProfileName,
                     profileSettings[br.functions.misc:getValue("Select Settings")])
-                br.rotationChanged = true
+                br.loader.rotationChanged = true
             else
                 br._G.print("You don't have saved setting for :" .. profileSettings[br.functions.misc:getValue("Select Settings")])
             end

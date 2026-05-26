@@ -87,7 +87,7 @@ local function createOptions()
             "|cffFFFFFFWho to cast Misdirection on.")
         -- Sting selection (mutually exclusive: only one sting per target at a time)
         br.ui:createDropdownWithout(section, "Sting",
-            { "None", "Serpent Sting", "Scorpid Sting", "Wyvern Sting" }, 1,
+            { "None", "Serpent Sting", "Scorpid Sting", "Wyvern Sting" }, 2,
             "|cffFFFFFFWhich sting to use. Serpent: sustained DoT (leveling). Scorpid: -AP debuff (physical bosses). Wyvern: CC sleep via interrupts section (Survival talent). One sting per target.")
         -- Wing Clip
         br.ui:createCheckbox(section, "Wing Clip",
@@ -99,14 +99,14 @@ local function createOptions()
         --------------------
         section = br.ui:createSection(br.ui.window.profile, "Aspects")
         -- Viper Threshold
-        br.ui:createSpinner(section, "Viper Threshold", 20, 5, 60, 5,
+        br.ui:createSpinner(section, "Viper Threshold", 30, 5, 60, 5,
             "|cffFFFFFFMana % to enter Aspect of the Viper for mana recovery.")
         -- Viper Recovery
         br.ui:createSpinner(section, "Viper Recovery", 90, 60, 95, 5,
             "|cffFFFFFFMana % to leave Aspect of the Viper and return to the normal aspect.")
         -- Aspect of the Wild
         br.ui:createCheckbox(section, "Aspect of the Wild",
-            "|cffFFFFFFUse Aspect of the Wild (+Nature resistance) when available. Overrides Hawk while active.")
+            "|cffFFFFFFUse Aspect of the Wild (+Nature resistance) when available. Overrides Hawk while active. Primarily useful in Nature-damage heavy encounters (e.g. Lady Vashj, Morogrim, Hydross).")
         -- Monkey in Melee
         br.ui:createCheckbox(section, "Monkey in Melee",
             "|cffFFFFFFSwap to Aspect of the Monkey when any enemy is within 5y, boosting dodge chance and Mongoose Bite procs. Returns to Hawk immediately once no enemies are in melee range.")
@@ -146,7 +146,7 @@ local function createOptions()
         br.ui:createSpinner(section, "Explosive Trap Threshold", 4, 2, 20, 1,
             "|cffFFFFFFMinimum melee-range enemies to use Explosive Trap.")
         -- Volley threshold
-        br.ui:createSpinner(section, "Volley Threshold", 5, 2, 20, 1,
+        br.ui:createSpinner(section, "Volley Threshold", 3, 2, 20, 1,
             "|cffFFFFFFMinimum ranged enemies to channel Volley.")
         -- Immolation Trap (ST counterpart to Explosive Trap)
         br.ui:createCheckbox(section, "Immolation Trap",
@@ -158,8 +158,8 @@ local function createOptions()
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
         -- Frost Trap
-        br.ui:createCheckbox(section, "Frost Trap",
-            "|cffFFFFFFDrop Frost Trap when 2+ enemies reach melee range to slow pursuers and create kiting distance.")
+        br.ui:createSpinner(section, "Frost Trap Threshold", 2, 0, 10, 1,
+            "|cffFFFFFFMinimum enemies in melee range to drop Frost Trap to slow pursuers. Set to 0 to disable. For solo kiting use 1.")
         -- Feign Death
         br.ui:createSpinner(section, "Feign Death", 20, 5, 60, 5,
             "|cffFFFFFFHealth % to use Feign Death as a defensive (drops threat + avoids death).")
@@ -236,24 +236,42 @@ end
 
 -- Action List - Aspects
 -- Desired-state model: compute the single correct aspect each tick and apply it if not active.
--- Priority: Viper (low mana) > Monkey (combat+melee) > Wild (option) > Hawk (default) >
---           Pack (grouped OOC, moving) > Cheetah (solo OOC, moving) > Monkey (leveling fallback)
+-- Priority: Viper (low mana) > Monkey (combat+melee) > Wild (in-combat) > Hawk (in-combat) >
+--           Pack (grouped OOC, moving) > Cheetah (solo OOC, moving) > Wild (OOC, stationary) >
+--           Hawk (OOC, stationary) > Monkey (leveling fallback)
 --
 -- Design notes:
---   Intent resolution uses only stable game-state booleans — no cast.able.* anywhere. cast.able
---   returns false during the GCD, which would corrupt desired state and create oscillation.
+--   Intent resolution uses only stable game-state booleans — no cast.able.* in the wantX
+--   variables. cast.able returns false during the GCD; using it in intent logic would corrupt
+--   desired state and create oscillation.
 --
---   The apply block also omits cast.able. Aspects are instant self-casts with no cooldown, so
---   the only guard needed is "not already active". If cast.X() returns false for a transient
---   reason (e.g. currently channeling), the function returns nil and retries next tick.
+--   The apply block DOES use cast.able to prevent aspect swaps mid-GCD. Aspects are instant
+--   but still consume a GCD — waiting for a free GCD is correct; it mirrors what a human does
+--   (you don't interrupt a Steady Shot cast to swap aspects). The rotation retries next tick.
 --   Since Aspects runs first in runRotation, it wins the first free GCD over any combat shot.
 --
---   inMelee uses a 2s hysteresis window (var.lastMeleeTime) to absorb positional jitter at
+--   Wild appears twice in the priority chain:
+--     - In-combat: Wild > Hawk (Nature resist is the point; you'd keep it up in combat).
+--     - OOC stationary: Wild > Hawk (pre-pull prep or resting; still worth keeping active).
+--     - OOC moving (movingLong): Pack/Cheetah > Wild (travel speed is more valuable than
+--       Nature resist while running between packs; Wild reapplies when you stop or engage).
+--
+--   inMelee uses a 1s hysteresis window (var.lastMeleeTime) to absorb positional jitter at
 --   the 5y boundary. Without it, server position updates can flip inMelee on alternating ticks.
+--   1s is enough to cover sub-0.5s jitter while still snapping back to Hawk promptly after
+--   kiting tools (Frost Trap, Disengage, Wing Clip) create genuine distance.
 --
 --   inGroup uses unit.groupCount() > 0 rather than unit.inGroup() because the latter is backed
 --   by the healing engine friend list which may include the player and return > 1 when solo.
 actionList.Aspects = function()
+    -- Wait for the buff scanner to stabilize after a taxi landing or dismount.
+    -- var.dismountTime is set the tick unit.mounted() transitions false→true→false,
+    -- captured outside the haltProfile gate so it fires even while the profile is
+    -- paused (which it is for the duration of the flight). Without this delay,
+    -- Aspects fires on the first free tick while aura data is still stale, producing
+    -- a spurious re-cast of the aspect that was already active.
+    if var.dismountTime and (ui.time() - var.dismountTime) < 2.0 then return end
+
     local now      = ui.time()
     local inCombat = unit.inCombat()
     local inGroup  = unit.groupCount() > 0
@@ -261,7 +279,7 @@ actionList.Aspects = function()
 
     -- Update hysteresis timestamp while enemies are actively in melee range
     if inMelee then var.lastMeleeTime = now end
-    local inMeleeRecent = inMelee or (now - (var.lastMeleeTime or 0)) < 2.0
+    local inMeleeRecent = inMelee or (now - (var.lastMeleeTime or 0)) < 1.0
 
     local movingDuration = unit.moving() and var.moveStart and (ui.time() - var.moveStart) or 0
     local movingLong     = movingDuration >= ui.value("Travel Delay")
@@ -330,14 +348,20 @@ actionList.Aspects = function()
         desired = "viper"
     elseif wantMonkey then
         desired = "monkey"
-    elseif wantWild then
+    elseif wantWild and inCombat then
+        -- In combat: Wild beats Hawk (Nature resist has active value; keep it up)
         desired = "wild"
     elseif inCombat then
         desired = "hawk"
     elseif wantPack then
+        -- OOC grouped + moving: travel speed beats Nature resist between packs
         desired = "pack"
     elseif wantCheetah then
+        -- OOC solo + moving: travel speed beats Nature resist between mobs
         desired = "cheetah"
+    elseif wantWild then
+        -- OOC stationary: Wild is fine (pre-pull prep or resting; reapply if it fell off)
+        desired = "wild"
     elseif spell.aspectOfTheHawk.known() then
         desired = "hawk"
     else
@@ -381,6 +405,20 @@ end
 -- Action List - Extra (out of combat maintenance)
 actionList.Extra = function()
     ---------------------------------------------------------------
+    --- Concussive Shot (fleeing target — stop chain pulls while leveling)
+    ---------------------------------------------------------------
+    if unit.valid("target") and not unit.friend("target")
+        and unit.moving("target") and unit.hp("target") < 20
+        and not debuff.concussiveShot.exists("target")
+        and cast.able.concussiveShot("target")
+    then
+        if cast.concussiveShot("target") then
+            ui.debug("Casting Concussive Shot [Extra - Fleeing]")
+            return true
+        end
+    end
+
+    ---------------------------------------------------------------
     --- Trueshot Aura (MM talent; gatekept by cast.able)
     ---------------------------------------------------------------
     if not buff.trueShotAura.exists() and cast.able.trueShotAura() then
@@ -397,7 +435,8 @@ actionList.Extra = function()
         local hmACN    = wantHuntersMark()
         local hmAble   = cast.able.huntersMark("target")
         local hmDebuff = debuff.huntersMark.exists("target")
-        if hmACN and hmAble and not hmDebuff then
+        local hmTTD    = not unit.inCombat() or unit.ttd("target") > 12
+        if hmACN and hmAble and not hmDebuff and hmTTD then
             if cast.huntersMark("target") then
                 ui.debug("Casting Hunter's Mark [Extra]")
                 return true
@@ -409,8 +448,8 @@ end
 -- Action List - Defensive
 actionList.Defensive = function()
     if ui.useDefensive() then
-        -- Frost Trap (kite slow; drop at player's feet when 2+ enemies reach melee range)
-        if ui.checked("Frost Trap") and #enemies.yards8 >= 2
+        -- Frost Trap (kite slow; configurable enemy count threshold)
+        if ui.value("Frost Trap Threshold") > 0 and #enemies.yards8 >= ui.value("Frost Trap Threshold")
             and cast.able.frostTrap() and not unit.moving()
         then
             if cast.frostTrap() then
@@ -434,6 +473,19 @@ end
 -- Action List - Interrupts / CC
 actionList.Interrupts = function()
     if ui.useInterrupt() and ui.delay("Interrupts", unit.gcd(true)) then
+        -- Viper Sting: drain mana off casting enemies (SV/ranged utility; not a CC break)
+        if ui.checked("Viper Sting") and unit.valid(units.dyn40)
+            and not unit.friend(units.dyn40)
+            and unit.isCasting(units.dyn40)
+            and mana.percent() > 60
+            and not debuff.viperSting.exists(units.dyn40)
+            and cast.able.viperSting(units.dyn40)
+        then
+            if cast.viperSting(units.dyn40) then
+                ui.debug("Casting Viper Sting [Interrupts]")
+                return true
+            end
+        end
         -- Distracting Shot: redirect aggro off a friendly to the player
         if ui.checked("Distracting Shot") then
             for i = 1, #enemies.yards40 do
@@ -461,9 +513,10 @@ actionList.Interrupts = function()
                         return true
                     end
                 end
-                -- Scatter Shot (MM talent — 4s disorient; follow-up when Silencing is on CD)
+                -- Scatter Shot (MM talent — 4s disorient; follow-up when Silencing is on CD; solo only)
                 if ui.checked("Scatter Shot") and cast.able.scatterShot(thisUnit)
                     and cd.silencingShot.remains() > 0
+                    and #enemies.yards40 == 1
                 then
                     if cast.scatterShot(thisUnit) then
                         ui.debug("Casting Scatter Shot on " .. unit.name(thisUnit) .. " [Interrupts]")
@@ -478,8 +531,10 @@ actionList.Interrupts = function()
                     end
                 end
                 -- Freezing Trap (CC — 2s arming delay in TBC; only off CD, target not in melee)
+                -- Guard: only freeze a unit other than the main target, or when solo (only 1 enemy)
                 if ui.checked("Freezing Trap") and cast.able.freezingTrap()
                     and unit.distance(thisUnit) > 5 and cd.freezingTrap.remains() == 0
+                    and (not unit.isUnit(thisUnit, units.dyn40) or #enemies.yards40 == 1)
                 then
                     if cast.freezingTrap() then
                         ui.debug("Casting Freezing Trap [Interrupts]")
@@ -506,18 +561,40 @@ actionList.Cooldowns = function()
     -- Basic Trinkets
     module.BasicTrinkets()
 
-    -- Rapid Fire
+    -- Rapid Fire — coordinate with Bestial Wrath for BM burst window.
+    -- If BW is ready or coming off CD within 3s, delay RF so both fire together.
+    -- If BW is not known (non-BM), fire RF freely.
     if ui.alwaysCdNever("Rapid Fire") and cast.able.rapidFire() then
-        if cast.rapidFire() then
-            ui.debug("Casting Rapid Fire [Cooldowns]")
-            return true
+        local bwKnown  = spell.bestialWrath.known()
+        local bwReady  = bwKnown and cast.able.bestialWrath()
+        local bwSoon   = bwKnown and not bwReady and cd.bestialWrath.remain() <= 3
+        if not bwKnown then
+            -- Non-BM: no coordination needed
+            if cast.rapidFire() then
+                ui.debug("Casting Rapid Fire [Cooldowns]")
+                return true
+            end
+        elseif bwReady then
+            -- BM: BW ready — fire BW first (handled below), RF on next frame
+            -- fall through to BW block
+        elseif not bwSoon then
+            -- BM: BW is not close — fire RF now
+            if cast.rapidFire() then
+                ui.debug("Casting Rapid Fire [Cooldowns]")
+                return true
+            end
         end
+        -- bwSoon: hold RF, let it fire once BW is off CD
     end
 
     -- Bestial Wrath (BM talent — cast.able is false unless specced BM)
     if ui.alwaysCdNever("Bestial Wrath") and cast.able.bestialWrath() then
         if cast.bestialWrath() then
             ui.debug("Casting Bestial Wrath [Cooldowns]")
+            -- Immediately pair with Rapid Fire if it's also ready
+            if cast.able.rapidFire() and ui.alwaysCdNever("Rapid Fire") then
+                cast.rapidFire()
+            end
             return true
         end
     end
@@ -561,6 +638,7 @@ actionList.Cooldowns = function()
         if mdResolved then
             if cast.misdirection(mdResolved) then
                 ui.debug("Casting Misdirection on " .. unit.name(mdResolved) .. " [Cooldowns]")
+                var.mdJustCast = true
                 return true
             end
         end
@@ -628,6 +706,24 @@ actionList.PreCombat = function()
                     end
                 end
 
+                -- Pre-pull sting (free DoT tick before combat starts)
+                local stingChoice = ui.value("Sting")
+                if stingChoice == 2 and cast.able.serpentSting("target")
+                    and not debuff.serpentSting.exists("target")
+                then
+                    if cast.serpentSting("target") then
+                        ui.debug("Casting Serpent Sting [PreCombat]")
+                        return true
+                    end
+                elseif stingChoice == 3 and cast.able.scorpidSting("target")
+                    and not debuff.scorpidSting.exists("target")
+                then
+                    if cast.scorpidSting("target") then
+                        ui.debug("Casting Scorpid Sting [PreCombat]")
+                        return true
+                    end
+                end
+
                 -- Aimed Shot pre-pull (3s cast; time it to finish as the pull timer hits 0)
                 if cast.able.aimedShot("target") and not unit.moving() then
                     if cast.aimedShot("target") then
@@ -655,12 +751,20 @@ actionList.PetManagement = br.loader.rotations.support["PetTBC"].run
 -- Provides melee DPS and escape tools while the Hunter re-ranges.
 -- Priority: Mongoose Bite (after dodge) > Raptor Strike (swing bonus) > Counterattack (after parry) > Wing Clip (moving) > Disengage (escape)
 actionList.Melee = function()
-    if not unit.exists(units.dyn5) or unit.distance(units.dyn5) >= 5 then return false end
+    if not unit.exists(units.dyn5) or unit.distance(units.dyn5) >= 5 then
+        var.inMeleeRange = false
+        return false
+    end
 
-    -- Ensure melee auto-attack is running. Placed here without returning so all ability
-    -- checks execute on this same frame. Calling startAttack() repeatedly is idempotent.
+    -- Ensure melee auto-attack is running. Only call StartAttack() once per engagement;
+    -- repeated calls every tick can interfere with the Auto Shot active state and
+    -- prevent it from resuming when the Hunter returns to ranged distance.
     if unit.valid(units.dyn5) and not unit.deadOrGhost(units.dyn5) then
-        unit.startAttack()
+        if not var.inMeleeRange then
+            var.inMeleeRange  = true
+            var.lastMeleeTime = br._G.GetTime()
+            unit.startAttack()
+        end
     end
 
     -- Mongoose Bite: instant; proc-based, only usable after dodging (game engine enforces via cast.able)
@@ -732,6 +836,26 @@ actionList.Ranged = function()
     local steadyTime = cast.time.steadyShot and cast.time.steadyShot() or 2.0
 
     ---------------------------------------------------------------
+    --- Misdirection burst: follow Misdirection with a high-damage shot
+    --- to deliver maximum threat on the chosen target
+    ---------------------------------------------------------------
+    if var.mdJustCast then
+        if cast.able.aimedShot(units.dyn40) and not unit.moving() then
+            var.mdJustCast = false
+            if cast.aimedShot(units.dyn40) then
+                ui.debug("Casting Aimed Shot [Ranged - MD Burst]")
+                return true
+            end
+        elseif cast.able.multiShot(units.dyn40, "targetAOE", 1, 8) then
+            var.mdJustCast = false
+            if cast.multiShot(units.dyn40, "targetAOE", 1, 8) then
+                ui.debug("Casting Multi-Shot [Ranged - MD Burst]")
+                return true
+            end
+        end
+    end
+
+    ---------------------------------------------------------------
     --- AoE Branch
     ---------------------------------------------------------------
     if isAoE then
@@ -771,7 +895,7 @@ actionList.Ranged = function()
     ---------------------------------------------------------------
     local stingChoice = ui.value("Sting")
     if stingChoice == 3 and cast.able.scorpidSting(units.dyn40)
-        and not debuff.scorpidSting.exists(units.dyn40)
+        and (not debuff.scorpidSting.exists(units.dyn40) or debuff.scorpidSting.remain(units.dyn40) < 3)
         and unit.ttd(units.dyn40) > 6
     then
         if cast.scorpidSting(units.dyn40) then
@@ -780,7 +904,7 @@ actionList.Ranged = function()
         end
     end
     if stingChoice == 2 and cast.able.serpentSting(units.dyn40)
-        and not debuff.serpentSting.exists(units.dyn40)
+        and (not debuff.serpentSting.exists(units.dyn40) or debuff.serpentSting.remain(units.dyn40) < 3)
         and unit.ttd(units.dyn40) > 6
     then
         if cast.serpentSting(units.dyn40) then
@@ -798,6 +922,7 @@ actionList.Ranged = function()
         and cast.able.aimedShot(units.dyn40) and not unit.moving()
         and not debuff.aimedShot.exists(units.dyn40)
         and unit.ttd(units.dyn40) > 8
+        and autoTimer >= 1.5
     then
         if cast.aimedShot(units.dyn40) then
             ui.debug("Casting Aimed Shot [Ranged - Debuff]")
@@ -845,7 +970,9 @@ actionList.Ranged = function()
     --- will finish before the next auto fires, preventing clipping.
     ---------------------------------------------------------------
     if cast.able.steadyShot(units.dyn40) and not unit.moving() then
-        local safeToSteady = autoTimer >= (steadyTime - 0.15) or autoTimer == 999
+        -- Add a small random jitter (50-150ms) to avoid machine-perfect timing
+        local steadyJitter = math.random(50, 150) * 0.001
+        local safeToSteady = autoTimer >= (steadyTime + steadyJitter - 0.15) or autoTimer == 999
         if safeToSteady then
             if cast.steadyShot(units.dyn40) then
                 ui.debug("Casting Steady Shot [Ranged] (auto=" .. string.format("%.2f", autoTimer) .. "s)")
@@ -882,11 +1009,39 @@ actionList.Ranged = function()
 
     ---------------------------------------------------------------
     --- Auto Shot (engage ranged auto-attack)
+    --- Also handles stuck-state recovery after melee transitions:
+    --- IsAutoRepeatSpell returns true (button glowing) even when shots
+    --- stop firing, preventing gateAutoRepeat from allowing a restart.
+    --- Detect this by comparing time-since-last-shot against ranged
+    --- weapon speed; force a toggle-off so the next tick re-engages.
     ---------------------------------------------------------------
-    if cast.able.autoShot(units.dyn40) and targetDist > 8 then
-        if cast.autoShot(units.dyn40) then
-            ui.debug("Casting Auto Shot [Ranged]")
-            return true
+    if targetDist > 8 then
+        local sw           = br.player.swing and br.player.swing.ranged
+        local rangedSpeed  = sw and sw.speed and sw.speed > 0 and sw.speed or 2.5
+        local timeSinceShot = sw and sw.last and sw.last > 0
+            and (br._G.GetTime() - sw.last) or nil
+        -- Stuck: Auto Shot is "active" but hasn't fired for > one full cycle + 1.5 s
+        -- after a recent melee engagement (var.lastMeleeTime set by Melee branch).
+        local autoShotStuck = cast.auto.autoShot()
+            and timeSinceShot ~= nil
+            and timeSinceShot > (rangedSpeed + 1.5)
+            and var.lastMeleeTime ~= nil
+            and (br._G.GetTime() - var.lastMeleeTime) <= 30
+        if autoShotStuck then
+            -- Toggle Auto Shot off.  gateAutoRepeat is bypassed here intentionally:
+            -- IsAutoRepeatSpell=true even though nothing is firing.  On the next tick
+            -- IsAutoRepeatSpell will be false and cast.autoShot restarts it normally.
+            local autoName = br.api.wow.GetSpellInfo(spell.autoShot)
+            if autoName then
+                br._G.CastSpellByName(autoName)
+                ui.debug("Auto Shot [Re-engage toggle — stuck after melee]")
+                return true
+            end
+        elseif cast.able.autoShot(units.dyn40) then
+            if cast.autoShot(units.dyn40) then
+                ui.debug("Casting Auto Shot [Ranged]")
+                return true
+            end
         end
     end
 end
@@ -914,7 +1069,7 @@ actionList.Combat = function()
         ---------------------------------------------------------------
         -- Explosive Trap (AoE burst; configurable enemy count threshold)
         if isAoE and aoeCount >= ui.value("Explosive Trap Threshold")
-            and cast.able.explosiveTrap() and targetDist < 8
+            and cast.able.explosiveTrap()
         then
             if cast.explosiveTrap() then
                 ui.debug("Casting Explosive Trap [Combat]")
@@ -923,7 +1078,7 @@ actionList.Combat = function()
         end
         -- Immolation Trap (ST fire DoT; inverse counterpart to Explosive Trap)
         if not isAoE and ui.checked("Immolation Trap")
-            and cast.able.immolationTrap() and targetDist < 8 and not unit.moving()
+            and cast.able.immolationTrap() and targetDist < 15
         then
             if cast.immolationTrap() then
                 ui.debug("Casting Immolation Trap [Combat]")
@@ -996,6 +1151,18 @@ local function runRotation()
         var.moveStart = nil
     end
     var.wasMoving = isMovingNow
+
+    -- Track dismount transitions every frame, before the halt check.
+    -- haltProfile is true while mounted (ui.pause()), so this must run outside that
+    -- gate to capture the exact tick the player lands. var.dismountTime is used by
+    -- actionList.Aspects to delay aspect application until the buff scanner is stable.
+    local isMountedNow = unit.mounted()
+    if var.wasMounted and not isMountedNow then
+        var.dismountTime = ui.time()
+    elseif isMountedNow then
+        var.dismountTime = nil  -- clear while airborne; countdown only starts on landing
+    end
+    var.wasMounted = isMountedNow
 
     ---------------------
     --- Begin Profile ---

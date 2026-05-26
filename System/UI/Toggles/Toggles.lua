@@ -68,7 +68,6 @@ function toggles:TogglesFrame()
 					225 / 255
 				)
 				mainButtonFrame.texture:SetTexture(toggles.genericIconOff)
-
 			else
 				br.data.settings[br.loader.selectedSpec].toggles["Power"] = 1
 				-- on/off switch
@@ -84,8 +83,9 @@ function toggles:TogglesFrame()
 				)
 				toggles.mainButton:SetNormalTexture(toggles.backIconOn)
 				mainButtonFrame.texture:SetTexture(toggles.genericIconOn)
-
 			end
+			-- Persist toggle state immediately
+			br.ui.settingsManagement:saveSettings(nil, nil, br.loader.selectedSpec, br.loader.selectedProfileName)
 		end
 	)
 	toggles.mainButton:SetScript(
