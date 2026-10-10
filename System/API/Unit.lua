@@ -108,17 +108,19 @@ br.api.unit = function(self)
         return br.functions.unit:cancelShapeshiftForm()
     end
 
-    --- Cancel form only if safe to do so.
+    --- Leave the current shapeshift form to cast a spell, when a player would: not while stealthed,
+    -- not while tanking in a bear form, and only with the mana to cast it and shift back. In an
+    -- emergency it leaves regardless. Shows "Cancel Form [<spell>]" in profile debug once, when the
+    -- cancel is sent.
     -- @function unit.cancelFormFor
-    -- @param outOfFormSpell Spell reference (id/name/spell table) you intend to cast after breaking form.
-    -- @param returnFormSpell Spell reference (id/name/spell table) to shift back into.
-    -- @param treatOutSpellAsFree If true, treat out-of-form spell cost as 0 (e.g., Clearcasting).
+    -- @param outOfFormSpell Spell to cast once out of form (id/name/spell table).
+    -- @param treatOutSpellAsFree If true, that spell costs nothing this time (e.g. Clearcasting).
+    -- @param emergency If true, leave form regardless (e.g. an emergency heal).
     -- @treturn boolean True while the form is being left: cancelled now, or a cancel still on its way
-    --   (keep waiting rather than acting as if still in form). Shows "Cancel Form [<spell>]" in
-    --   profile debug once, when the cancel is sent.
-    unit.cancelFormFor = function(outOfFormSpell, returnFormSpell, treatOutSpellAsFree)
+    --   (keep waiting rather than acting as if still in form).
+    unit.cancelFormFor = function(outOfFormSpell, treatOutSpellAsFree, emergency)
         if br.functions.unit:isFormCancelPending() then return true end
-        if not unit.canCancelFormFor(outOfFormSpell, returnFormSpell, treatOutSpellAsFree) then
+        if not br.functions.unit:shouldLeaveFormFor(outOfFormSpell, treatOutSpellAsFree, emergency) then
             return false
         end
         if not unit.cancelForm() then return false end
@@ -377,11 +379,7 @@ br.api.unit = function(self)
     -- @function unit.getCurrentFormSpellID
     -- @return number|nil Spell ID of the current form, or nil if no form is active.
     unit.getCurrentFormSpellID = function()
-        if not br._G.GetShapeshiftForm or not br._G.GetShapeshiftFormInfo then return nil end
-        local formIndex = br._G.GetShapeshiftForm()
-        if formIndex == 0 then return nil end
-        local _, _, _, formSpellID = br._G.GetShapeshiftFormInfo(formIndex)
-        return formSpellID
+        return br.functions.unit:getFormSpellID()
     end
 
     --- Get number of members in the current group (including player; 0 if solo)

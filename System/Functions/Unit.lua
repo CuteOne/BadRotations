@@ -769,6 +769,36 @@ function unit:isFormCancelPending()
 	return br._G.GetTime() - formCancelSentAt < roundTripHold() and (br._G.GetShapeshiftForm() or 0) ~= 0
 end
 
+--- The spell ID of the player's current shapeshift form, or nil when not in one.
+function unit:getFormSpellID()
+	if not br._G.GetShapeshiftForm or not br._G.GetShapeshiftFormInfo then return nil end
+	local formIndex = br._G.GetShapeshiftForm() or 0
+	if formIndex == 0 then return nil end
+	local _, _, _, formSpellID = br._G.GetShapeshiftFormInfo(formIndex)
+	return formSpellID
+end
+
+local BEAR_FORMS = { [5487] = true, [9634] = true } -- Bear Form, Dire Bear Form
+
+--- Whether leaving the current form to cast a spell is what a player would do now. Returns the answer
+-- and, when it's no, why. A player stays in form when stealthed (leaving breaks Prowl), when tanking
+-- in a bear form, or without the mana to cast the spell and shift back into the current form; in an
+-- emergency (about to die) none of that matters.
+-- @param outOfFormSpell     the spell to cast once out of form (spell ID, list of rank IDs, or spell)
+-- @param treatOutSpellAsFree true when that spell costs nothing this time (e.g. Clearcasting)
+-- @param emergency          true to leave form regardless
+function unit:shouldLeaveFormFor(outOfFormSpell, treatOutSpellAsFree, emergency)
+	local formSpellID = unit:getFormSpellID()
+	if formSpellID == nil then return false, "not in a form" end
+	if emergency then return true end
+	if br._G.IsStealthed and br._G.IsStealthed() then return false, "stealthed" end
+	if BEAR_FORMS[formSpellID] and (br._G.UnitThreatSituation("player") or 0) >= 2 then return false, "tanking" end
+	local power = br.functions.power
+	local needed = power:getManaCostFromRef(outOfFormSpell, treatOutSpellAsFree) + power:getManaCostFromRef(formSpellID, false)
+	if needed > 0 and (br._G.UnitPower("player", 0) or 0) < needed then return false, "not enough mana to shift back" end
+	return true
+end
+
 --- Cancels the player's shapeshift form, unless the player isn't in one or a cancel is already on
 -- its way. Returns true when a cancel was sent now.
 function unit:cancelShapeshiftForm()
