@@ -170,12 +170,68 @@ local function paddedWords(text)
 	return " " .. text:lower():gsub("[^%w']+", " "):gsub("^ +", ""):gsub(" +$", "") .. " "
 end
 
+local function splitWords(text)
+	local words = {}
+	for w in text:gmatch("[%w']+") do
+		words[#words + 1] = w
+	end
+	return words
+end
+
+-- What a word may be without a plural ending: without "es" and without "s" ("boxes" -> "box",
+-- "boxe"; "snakes" -> "snak", "snake"; "reeds" -> "reed"). Either may be nil.
+local function singularForms(word)
+	local withoutEs = word:sub(-2) == "es" and #word > 3 and word:sub(1, -3) or nil
+	local withoutS = word:sub(-1) == "s" and #word > 2 and word:sub(1, -2) or nil
+	return withoutEs, withoutS
+end
+
+-- The same word once plural endings are allowed for ("snake" / "snakes", "box" / "boxes")
+local function sameWordOrPlural(a, b)
+	if a == b then return true end
+	local aEs, aS = singularForms(a)
+	if aEs == b or aS == b then return true end
+	local bEs, bS = singularForms(b)
+	return bEs == a or bS == a
+end
+
+-- Same word, singular/plural of it, or (allowFuzzy) a word from the same stem: both at least 5
+-- letters and sharing all but the last 2 letters of the shorter one ("fungus" / "fungal", but not
+-- "grouper" / "groundling")
+local function wordsRelated(a, b, allowFuzzy)
+	if sameWordOrPlural(a, b) then return true end
+	if not allowFuzzy or #a < 5 or #b < 5 then return false end
+	local need = math.min(#a, #b) - 2
+	return a:sub(1, need) == b:sub(1, need)
+end
+
+-- True when every word of an objective's subject (or a word from the same stem) is in the name, in
+-- any order. Stems only count for subjects of two or more words, so one loose word can't match
+-- broadly ("lunar fungus" matches "Lunar Fungal Bloom").
+local function subjectWordsInName(subjectWords, name)
+	local nameWords = splitWords(name)
+	if #subjectWords == 0 or #nameWords == 0 then return false end
+	local allowFuzzy = #subjectWords >= 2
+	for i = 1, #subjectWords do
+		local matched = false
+		for j = 1, #nameWords do
+			if wordsRelated(subjectWords[i], nameWords[j], allowFuzzy) then
+				matched = true
+				break
+			end
+		end
+		if not matched then return false end
+	end
+	return true
+end
+
 -- The forms an objective's subject may take in a name: as written, and singular/plural of its
 -- last word ("whitepetal reeds" also matches "Whitepetal Reed", "murloc" also "Murlocs")
 local function subjectForms(subject)
 	local forms = { subject, subject .. "s", subject .. "es" }
-	if subject:sub(-2) == "es" then forms[#forms + 1] = subject:sub(1, -3) end
-	if subject:sub(-1) == "s" then forms[#forms + 1] = subject:sub(1, -2) end
+	local withoutEs, withoutS = singularForms(subject)
+	forms[#forms + 1] = withoutEs
+	forms[#forms + 1] = withoutS
 	return forms
 end
 
@@ -183,7 +239,9 @@ end
 -- contains the objective's subject as whole words ("Rabid Thistle Bear" for "Rabid Thistle Bear
 -- slain", "School of Darkshore Grouper" for "Darkshore Grouper"). Only the parsed subject counts,
 -- not the free text of event/description objectives ("Find a corrupt furbolg camp"), and a name that
--- is only part of the subject doesn't ("Thistle Bear" is not a "Rabid Thistle Bear").
+-- is only part of the subject doesn't ("Thistle Bear" is not a "Rabid Thistle Bear"). Failing that,
+-- the subject's words may appear in any order or as a word from the same stem ("Lunar Fungal Bloom"
+-- for "Lunar Fungus"; see subjectWordsInName).
 local function matchesObjective(name)
 	if #name < 3 then return false end
 	local words = paddedWords(name)
@@ -195,6 +253,8 @@ local function matchesObjective(name)
 					if words:find(" " .. form .. " ", 1, true) then return true end
 				end
 			end
+			local subjectWords = objectives[i].words
+			if subjectWords and subjectWordsInName(subjectWords, name) then return true end
 		end
 	end
 	return false
@@ -405,7 +465,8 @@ local function addObjective(questId, text)
 		questTracker.objectives[questId] = list
 	end
 	local name = parseObjectiveName(text)
-	list[#list + 1] = { text = text:lower(), name = name, forms = name and subjectForms(paddedWords(name):sub(2, -2)) }
+	list[#list + 1] = { text = text:lower(), name = name, forms = name and subjectForms(paddedWords(name):sub(2, -2)),
+		words = name and splitWords(name) }
 	questTracker.objectiveCount = questTracker.objectiveCount + 1
 	if name then addNameVariations(name, questTracker.cache) end
 end
