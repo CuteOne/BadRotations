@@ -8,19 +8,28 @@ from datetime import datetime
 import re
 
 
+# Rotation metadata comes from the br.loader.registerRotation({ ... }) table in each rotation file.
+REGISTER_BLOCK = re.compile(r"br\.loader\.registerRotation\s*\(\s*\{(.*?)\}\s*\)", re.S)
+
+
+def register_field(name: str) -> re.Pattern:
+    return re.compile(r"\b" + name + r"\s*=\s*\"([^\"]*)\"")
+
+
 FIELDS = {
     "Rotation": {
-        "regex": re.compile(r"local rotationName\s*=\s*\"(.+)\""),
-        "default": lambda _, file: file.rstrip(".lua"),
+        # name = "Literal" in the table, or the profile's local rotationName
+        "regex": [register_field("name"), re.compile(r"local rotationName\s*=\s*\"(.+?)\"")],
+        "default": lambda _, file: file.stem,
     },
     "Author": {
-        "regex": re.compile(r"-- Author =(.+)"),
+        "regex": [register_field("author")],
         "default": lambda repo, file: get_first_committer(repo, file),
     },
-    "Patch": {"regex": re.compile(r"-- Patch =(.+)"), "default": "Unknown"},
-    "Coverage": {"regex": re.compile(r"-- Coverage =(.+)"), "default": "Unknown"},
-    "Status": {"regex": re.compile(r"-- Status =(.+)"), "default": "Unknown"},
-    "Readiness": {"regex": re.compile(r"-- Readiness =(.+)"), "default": "Untested"},
+    "Patch": {"regex": [register_field("patch")], "default": "Unknown"},
+    "Coverage": {"regex": [register_field("coverage")], "default": "Unknown"},
+    "Status": {"regex": [register_field("status")], "default": "Unknown"},
+    "Readiness": {"regex": [register_field("readiness")], "default": "Untested"},
 }
 IN_FILTER = re.compile(r"[\[\]<>]+", re.UNICODE)
 ORDERED_CLASSES = (
@@ -84,16 +93,24 @@ def build_rotation_entry(
     repo: Repo, repo_dir: PosixPath, rotation: PosixPath
 ) -> Dict[str, str]:
     script = rotation.read_text()
+    block = REGISTER_BLOCK.search(script)
+    register = block.group(1) if block else ""
     result = {}
 
     for field, action in FIELDS.items():
-        if (search := action["regex"].search(script)) == None:
+        search = None
+        for i, regex in enumerate(action["regex"]):
+            # Registration fields are read from the table; fallbacks search the whole file
+            search = regex.search(register if i == 0 else script)
+            if search:
+                break
+        if search is None:
             if callable(action["default"]):
                 result[field] = action["default"](repo, rotation)
             else:
                 result[field] = action["default"]
         else:
-            result[field] = search.group(1).lstrip()
+            result[field] = search.group(1).strip()
 
         if field == "Readiness":
             try:

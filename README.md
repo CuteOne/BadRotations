@@ -10,6 +10,8 @@ Little How-To for the first run: <https://gyazo.com/d11da29a9d7dba4c93e5b65c008c
 
 Also be sure to check the Wiki: <https://github.com/CuteOne/BadRotations/wiki>
 
+**Icons and fonts:** copy the `Media` folder from `3rd Party Files` into your game's `Interface\AddOns` folder, so you have `World of Warcraft\<game version>\Interface\AddOns\Media`. WoW can only load images and fonts from its own `Interface` folder, so without this BadRotations' windows show no icons and use the game's default font. BadRotations itself still runs from wherever your unlocker loads it.
+
 ## About
 
 BadRotations Maintained By: CuteOne
