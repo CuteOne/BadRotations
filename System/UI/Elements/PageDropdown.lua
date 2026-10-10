@@ -1,7 +1,13 @@
 local DiesalGUI = _G.LibStub("DiesalGUI-1.0")
 local _, br = ...
--- Dropdown for pages
--- todo: save last active page and restore
+-- The br.ui.window key ("config", "profile", ...) of a window, for remembering its page
+local function windowKey(window)
+    for key, thisWindow in pairs(br.ui.window) do
+        if thisWindow == window then return key end
+    end
+end
+
+-- Dropdown for pages. Each window remembers the page it was on (br.data.settings[spec][window].page).
 function br.ui:createPagesDropdown(window, menuPages)
     if br.loader.selectedSpec == nil or br.loader.selectedProfile == nil then
         br._G.print("Error: selectedSpec or selectedProfile is nil")
@@ -21,7 +27,19 @@ function br.ui:createPagesDropdown(window, menuPages)
     data["PageList"] = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["PageList"] or {}
     if br.data.ui == nil then br.data.ui = {} end
     br.data.ui["PageList"] = br.data.ui["PageList"] or {}
-    window.pages = menuPages
+    -- Each page restores the collapsed/expanded state of the last section br.ui:section made on it
+    window.pages = {}
+    for i, page in ipairs(menuPages) do
+        local build = page[2]
+        window.pages[i] = {
+            [1] = page[1],
+            [2] = function(...)
+                local ok, err = pcall(build, ...)
+                br.ui:closeSection()
+                if not ok then error(err, 0) end
+            end,
+        }
+    end
     window.pageDD = DiesalGUI:Create("Dropdown")
     local newDropdown = window.pageDD
     newDropdown:SetParent(window.parent.header)
@@ -80,6 +98,9 @@ function br.ui:createPagesDropdown(window, menuPages)
     -- end
     -- newDropdown:ApplySettings()
     -- window.parent:AddChild(newDropdown)
+    -- This window's own settings (position, open state and the page it was on)
+    local windowName = windowKey(window)
+    local windowSettings = windowName and br.data.settings[br.loader.selectedSpec][windowName]
     newDropdown:SetEventListener(
         "OnValueChanged",
         function(this, event, key, value, selection)
@@ -88,22 +109,14 @@ function br.ui:createPagesDropdown(window, menuPages)
             window.currentPageName = value
             if key ~= nil then
                 window.pages[key][2]()
+                if windowSettings then windowSettings.page = key end
             end
-            --Print(key.." - "..tostring(value))
-            br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["currentPage"] = window.currentPage
-            br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["totalPages"] = #window.pages
-            br.data.ui["currentPage"] = window.currentPage
-            br.data.ui["totalPages"] = #window.pages
         end
     )
 
-    -- Determine which page to show
-    local pageToShow = 1
-    if br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile] ~= nil and
-        br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["currentPage"] ~= nil
-    then
-        pageToShow = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["currentPage"]
-    end
+    -- The page this window was on, or the first when that page doesn't exist (any more)
+    local pageToShow = windowSettings and windowSettings.page or 1
+    if window.pages[pageToShow] == nil then pageToShow = 1 end
 
     -- Set the dropdown value
     newDropdown:SetValue(pageToShow)

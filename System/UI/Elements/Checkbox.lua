@@ -47,7 +47,7 @@ function br.ui:createCheckbox(parent, text, tooltip, checked)
     --------------
     ---BR Stuff---
     --------------
-    local activePage = parent.settings.sectionName or ""
+    local activePage = parent.settings.storageName or parent.settings.sectionName or ""
     -- Fallback: try the window page dropdown if sectionName isn't available
     if activePage == "" and parent.settings.parentObject and parent.settings.parentObject.pageDD then
         local pdd = parent.settings.parentObject.pageDD
@@ -73,6 +73,7 @@ function br.ui:createCheckbox(parent, text, tooltip, checked)
         br._G.tinsert(pageList, activePage)
     end
     local value = text .. " Check"
+    br.functions.misc:registerOption(activePage, value, checked and true or false)
 
     -- Read check value from config, false if nothing found
     -- Set default
@@ -156,4 +157,21 @@ function br.ui:createCheckbox(parent, text, tooltip, checked)
     parent:AddChild(checkBox)
 
     return checkBox
+end
+
+---@class br.ui.CheckboxOptions
+---@field checked? boolean Starts ticked for new settings (false)
+---@field tip? string Tooltip
+local CHECKBOX_FIELDS = { checked = "boolean", tip = "string" }
+
+--- Adds a checkbox. Read it in the rotation with ui.checked(name).
+---@param section table The section from br.ui:section
+---@param name string The option's name
+---@param options? br.ui.CheckboxOptions
+function br.ui:checkbox(section, name, options)
+    local elementOptions = br.ui.elementOptions
+    if not elementOptions.ready("checkbox", section, name) then return end
+    options = elementOptions.check("checkbox \"" .. name .. "\"", options, CHECKBOX_FIELDS)
+    if options == nil then return end
+    return br.ui:createCheckbox(section, name, elementOptions.white(options.tip), options.checked)
 end

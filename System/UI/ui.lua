@@ -80,24 +80,6 @@ br.ui.buttonStyleSheet = {
         color = "b8c2cc"
     }
 }
-br.ui.arrowRight = {
-    type           = "texture",
-    position       = { -2, nil, -2, nil },
-    height         = 16,
-    width          = 16,
-    alpha          = .7,
-    image          = { "DiesalGUIcons", { 7, 5, 16, 256, 128 } },
-    fallback_image = { file = "Interface\\Buttons\\Arrow-Right-Up", coords = { 0, 1, 0, 1 } },
-}
-br.ui.arrowLeft = {
-    type           = "texture",
-    position       = { -2, nil, -2, nil },
-    height         = 16,
-    width          = 16,
-    alpha          = .7,
-    image          = { "DiesalGUIcons", { 8, 5, 16, 256, 128 } },
-    fallback_image = { file = "Interface\\Buttons\\Arrow-Left-Up", coords = { 0, 1, 0, 1 } },
-}
 br.ui.messageStylesheet = {
     ["track-background"] = {
         type = "texture",

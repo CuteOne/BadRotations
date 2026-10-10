@@ -52,3 +52,11 @@ function br.ui:createText(parent, text, isCheckbox)
 
     return label
 end
+
+--- Adds a line of text (an empty string adds a gap).
+---@param section table The section from br.ui:section
+---@param text string
+function br.ui:text(section, text)
+    if not br.ui.elementOptions.ready("text", section, "text") then return end
+    return br.ui:createText(section, tostring(text or ""))
+end

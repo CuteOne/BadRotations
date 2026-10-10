@@ -4,12 +4,26 @@ local DiesalStyle = _G.LibStub("DiesalStyle-1.0")
 local Colors = DiesalStyle.Colors
 local _, br = ...
 function br.ui:createScrollingEditBox(parent, text, content, tooltip, width, height, hideCheckbox)
-    local activePageIdx = parent.settings.parentObject.pageDD.value
-    local activePage = parent.settings.parentObject.pageDD.settings.list[activePageIdx]
+    -- The window page this is on (edit boxes used to be saved under it)
+    local windowPage = ""
+    local pageDD = parent.settings.parentObject and parent.settings.parentObject.pageDD
+    if pageDD and pageDD.value and pageDD.settings and pageDD.settings.list then
+        windowPage = pageDD.settings.list[pageDD.value] or ""
+    end
+    -- Saved under the section's storage name, like every other option
+    local activePage = parent.settings.storageName or parent.settings.sectionName or windowPage
     if br.data.ui[activePage] == nil then br.data.ui[activePage] = {} end
-    br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile][activePage] = br.data.settings[br.loader.selectedSpec]
-        [br.loader.selectedProfile][activePage] or {}
-    local data = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile][activePage]
+    local profileSettings = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]
+    profileSettings[activePage] = profileSettings[activePage] or {}
+    local data = profileSettings[activePage]
+    -- Move a value saved under the window page's name before this changed
+    local oldData = windowPage ~= activePage and profileSettings[windowPage] or nil
+    if type(oldData) == "table" then
+        local key = text .. " EditBox"
+        if data[key] == nil and oldData[key] ~= nil then data[key] = oldData[key] end
+        oldData[key] = nil
+        if next(oldData) == nil then profileSettings[windowPage] = nil end
+    end
 
     -- Ensure the active page is registered in the profile PageList so
     -- option lookups (findOption) can locate values immediately.
@@ -110,10 +124,12 @@ function br.ui:createScrollingEditBox(parent, text, content, tooltip, width, hei
     ---BR Stuff---
     --------------
     -- Read number from config or set default
+    br.functions.misc:registerOption(activePage, text .. " EditBox", content)
     if data[text .. " EditBox"] == nil then
         data[text .. " EditBox"] = content
-        br.data.ui[activePage][text .. " EditBox"] = content
     end
+    -- Listed in the UI mirror like every other option, so clean-up keeps the saved text
+    br.data.ui[activePage][text .. " EditBox"] = data[text .. " EditBox"]
     local state = data[text .. " EditBox"]
     input:SetText(state)
     input:SetWidth(width)

@@ -1,8 +1,9 @@
 local DiesalGUI = _G.LibStub("DiesalGUI-1.0")
 local DiesalTools = _G.LibStub("DiesalTools-1.0")
 local _, br = ...
-function br.ui:createSpinner(parent, text, number, min, max, step, tooltip, tooltipSpin, hideCheckbox)
-    local activePage = parent.settings.sectionName or ""
+-- checked (optional): default state of the option's checkbox for new settings
+function br.ui:createSpinner(parent, text, number, min, max, step, tooltip, tooltipSpin, hideCheckbox, checked)
+    local activePage = parent.settings.storageName or parent.settings.sectionName or ""
     if activePage == "" then
         if parent and parent.settings and parent.settings.parentObject and parent.settings.parentObject.pageDD then
             local pdd = parent.settings.parentObject.pageDD
@@ -42,7 +43,7 @@ function br.ui:createSpinner(parent, text, number, min, max, step, tooltip, tool
     -------------------------------
     --------Create CheckBox--------
     -------------------------------
-    local checkBox = br.ui:createCheckbox(parent, text, tooltip)
+    local checkBox = br.ui:createCheckbox(parent, text, tooltip, checked)
     if hideCheckbox then
         local check = data[text .. " Check"]
         if check == 0 then
@@ -88,6 +89,7 @@ function br.ui:createSpinner(parent, text, number, min, max, step, tooltip, tool
     ---BR Stuff---
     --------------
     -- Read number from config or set default
+    br.functions.misc:registerOption(activePage, text .. " Status", number)
     if data[text .. " Status"] == nil then
         data[text .. " Status"] = number
     end
@@ -143,21 +145,30 @@ function br.ui:createSpinner(parent, text, number, min, max, step, tooltip, tool
 end
 
 -- Spinner Object : {number, min, max, step, tooltip}
-function br.ui:createDoubleSpinner(parent, text, spinner1, spinner2, hideCheckbox)
-    local activePageIdx = 1
-    local activePage = ""
+-- checked (optional): default state of the option's checkbox for new settings
+function br.ui:createDoubleSpinner(parent, text, spinner1, spinner2, hideCheckbox, checked)
+    -- The window page this is on (double spinners used to be saved under it)
+    local windowPage = ""
     if parent and parent.settings and parent.settings.parentObject and parent.settings.parentObject.pageDD then
         local pdd = parent.settings.parentObject.pageDD
         if pdd.value and pdd.settings and pdd.settings.list and pdd.settings.list[pdd.value] then
-            activePageIdx = pdd.value
-            activePage = pdd.settings.list[activePageIdx]
+            windowPage = pdd.settings.list[pdd.value]
         end
     end
-    -- string.gsub(parent.settings.parentObject.pageDD.settings.list[activePageIdx], " Options", "")
-    -- activePage = string.gsub(activePage, " ", "")
-    br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile][activePage] = br.data.settings[br.loader.selectedSpec]
-        [br.loader.selectedProfile][activePage] or {}
-    local data = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile][activePage]
+    -- Saved under the section's storage name, like every other option
+    local activePage = parent.settings.storageName or parent.settings.sectionName or windowPage
+    local profileSettings = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]
+    profileSettings[activePage] = profileSettings[activePage] or {}
+    local data = profileSettings[activePage]
+    -- Move values saved under the window page's name before this changed
+    local oldData = windowPage ~= activePage and profileSettings[windowPage] or nil
+    if type(oldData) == "table" then
+        for _, key in ipairs({ text .. " 1Status", text .. " 2Status" }) do
+            if data[key] == nil and oldData[key] ~= nil then data[key] = oldData[key] end
+            oldData[key] = nil
+        end
+        if next(oldData) == nil then profileSettings[windowPage] = nil end
+    end
     -------------------------------
     ----Need to calculate Y Pos----
     -------------------------------
@@ -172,7 +183,7 @@ function br.ui:createDoubleSpinner(parent, text, spinner1, spinner2, hideCheckbo
     -------------------------------
     --------Create CheckBox--------
     -------------------------------
-    local checkBox = br.ui:createCheckbox(parent, text, "Enable auto usage of this spell")
+    local checkBox = br.ui:createCheckbox(parent, text, "Enable auto usage of this spell", checked)
     if hideCheckbox then
         local check = data[text .. " Check"]
         if check == 0 then
@@ -235,6 +246,8 @@ function br.ui:createDoubleSpinner(parent, text, spinner1, spinner2, hideCheckbo
     ---BR Stuff---
     --------------
     -- Read number from config or set default
+    br.functions.misc:registerOption(activePage, text .. " 1Status", spinner1.number)
+    br.functions.misc:registerOption(activePage, text .. " 2Status", spinner2.number)
     if data[text .. " 1Status"] == nil then
         data[text .. " 1Status"] = spinner1.number
     end
@@ -317,4 +330,68 @@ end
 
 function br.ui:createSpinnerWithout(parent, text, number, min, max, step, tooltip, tooltipSpin)
     return br.ui:createSpinner(parent, text, number, min, max, step, tooltip, tooltipSpin, true)
+end
+
+---@class br.ui.SpinnerOptions
+---@field value? number Starting value for new settings (min)
+---@field min? number Lowest value (0)
+---@field max? number Highest value (100)
+---@field step? number Change per click (5)
+---@field checkbox? boolean false leaves out the checkbox in front of it (true)
+---@field checked? boolean The checkbox starts ticked for new settings (false)
+---@field tip? string Tooltip
+---@field boxTip? string Tooltip for the number box alone (tip)
+local SPINNER_FIELDS = { value = "number", min = "number", max = "number", step = "number", checkbox = "boolean",
+    checked = "boolean", tip = "string", boxTip = "string" }
+
+--- Adds a number spinner, with a checkbox unless checkbox = false. Read it in the rotation with
+--- ui.value(name) (and ui.checked(name) for the checkbox).
+---@param section table The section from br.ui:section
+---@param name string The option's name
+---@param options? br.ui.SpinnerOptions
+function br.ui:spinner(section, name, options)
+    local elementOptions = br.ui.elementOptions
+    if not elementOptions.ready("spinner", section, name) then return end
+    options = elementOptions.check("spinner \"" .. name .. "\"", options, SPINNER_FIELDS)
+    if options == nil then return end
+    local white = elementOptions.white
+    local min = options.min or 0
+    return br.ui:createSpinner(section, name, options.value or min, min, options.max or 100, options.step or 5,
+        white(options.tip), white(options.boxTip), options.checkbox == false, options.checked)
+end
+
+---@class br.ui.DoubleSpinnerPart
+---@field value? number Starting value for new settings (min)
+---@field min? number Lowest value (0)
+---@field max? number Highest value (100)
+---@field step? number Change per click (5)
+---@field tip? string Tooltip for this spinner
+local PART_FIELDS = { value = "number", min = "number", max = "number", step = "number", tip = "string" }
+
+---@class br.ui.DoubleSpinnerOptions
+---@field first br.ui.DoubleSpinnerPart The left spinner
+---@field second br.ui.DoubleSpinnerPart The right spinner
+---@field checkbox? boolean false leaves out the checkbox in front of them (true)
+---@field checked? boolean The checkbox starts ticked for new settings (false)
+local DOUBLE_FIELDS = { first = "table", second = "table", checkbox = "boolean", checked = "boolean" }
+
+--- Adds two number spinners on one line, with a checkbox unless checkbox = false.
+---@param section table The section from br.ui:section
+---@param name string The option's name
+---@param options br.ui.DoubleSpinnerOptions
+function br.ui:doubleSpinner(section, name, options)
+    local elementOptions = br.ui.elementOptions
+    if not elementOptions.ready("doubleSpinner", section, name) then return end
+    local what = "doubleSpinner \"" .. name .. "\""
+    options = elementOptions.check(what, options, DOUBLE_FIELDS, { "first", "second" })
+    if options == nil then return end
+    local spinners = {}
+    for i, which in ipairs({ "first", "second" }) do
+        local part = elementOptions.check(what .. " " .. which, options[which], PART_FIELDS)
+        if part == nil then return end
+        local min = part.min or 0
+        spinners[i] = { number = part.value or min, min = min, max = part.max or 100, step = part.step or 5,
+            tooltip = elementOptions.white(part.tip) }
+    end
+    return br.ui:createDoubleSpinner(section, name, spinners[1], spinners[2], options.checkbox == false, options.checked)
 end

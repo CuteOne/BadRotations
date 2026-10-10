@@ -7,10 +7,13 @@ function br.ui:createDebugWindow()
     br.ui.window.debug.parent.closeButton:SetScript(
         "OnClick",
         function()
-            if br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile] ~= nil and br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["Debug"] ~= nil then
-                br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]["Debug"]["Rotation Log Check"] = false
-                if br.data.ui["Debug"] == nil then br.data.ui["Debug"] = {} end
-                br.data.ui["Debug"]["Rotation Log Check"] = false
+            -- "Rotation Log" is a Bot Options checkbox on the "Bot Options/Debug Options" page
+            local profileSettings = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]
+            if profileSettings ~= nil and profileSettings["Bot Options/Debug Options"] ~= nil then
+                profileSettings["Bot Options/Debug Options"]["Rotation Log Check"] = false
+                if br.data.ui ~= nil and br.data.ui["Bot Options/Debug Options"] ~= nil then
+                    br.data.ui["Bot Options/Debug Options"]["Rotation Log Check"] = false
+                end
             end
             if br.ui.rotationLog ~= nil then
                 br.ui.rotationLog:SetChecked(false)

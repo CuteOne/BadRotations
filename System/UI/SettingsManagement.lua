@@ -4,15 +4,7 @@ local settingsManagement = br.ui.settingsManagement
 local sep = IsMacClient() and "/" or "\\"
 
 local function getFolderClassName(class)
-	if class == nil then class = "" end
-	local formatClass = class:sub(1, 1):upper() .. class:sub(2):lower()
-	if formatClass == "Deathknight" then
-		formatClass = "Death Knight"
-	end
-	if formatClass == "Demonhunter" then
-		formatClass = "Demon Hunter"
-	end
-	return formatClass
+	return br.functions.misc:getClassFolderName(class)
 end
 
 -- Returns the formatted class folder name for the current player (e.g. "Shaman", "Death Knight").
@@ -213,16 +205,6 @@ end
 
 -- Default Settings
 function settingsManagement:defaultSettings()
-	br._G.C_Timer.After(2, function()
-		if br.ui.window.config == nil then
-			br.ui.window.config = {}
-		end
-		if br.ui.window.config.frame == nil then
-			br.ui:createConfigWindow()
-		end
-		br.ui:toggleWindow("config")
-		br.ui:closeWindow("config")
-	end)
 	-- Settings Per Spec
 	if br.data.settings[br.loader.selectedSpec] == nil then
 		br.data.settings[br.loader.selectedSpec] = {}
@@ -261,71 +243,6 @@ function settingsManagement:defaultSettings()
 			}
 		}
 	end
-end
-
--- Load Saved Settings
-settingsManagement.initializeSettings = false
-function settingsManagement:loadSavedSettings()
-	-- Run initialization either when explicitly requested via initializeSettings
-	-- or when settings have not yet been loaded (e.g. on login) or a rotation changed
-	if settingsManagement.initializeSettings or (not (br.data and br.data.loadedSettings) or br.loader.rotationChanged) then
-		br.loader.cBuilder:loadProfiles()
-		local specID = br.loader.selectedSpecID
-		if not (br.loader.noRotationsFound and br.loader.noRotationsFound[specID]) then
-			settingsManagement:loadLastProfileTracker()
-		end
-		local specID = br.loader.selectedSpecID
-		local profileToLoad = br.data.settings[br.loader.selectedSpec]["RotationDropValue"]
-		if not profileToLoad then
-			-- Fall back to the first available rotation for this spec
-			if br.loader.rotations and br.loader.rotations[specID] then
-				profileToLoad = br.loader.rotations[specID][1].name
-			end
-		end
-		if profileToLoad then
-			settingsManagement:loadSettings(nil, nil, nil, profileToLoad)
-		else
-			if not br.loader.rotations or not br.loader.rotations[specID] then
-				settingsManagement.initializeSettings = false
-				return
-			end
-		end
-		settingsManagement:defaultSettings()
-		-- Build the Toggles
-		br.ui.toggles:TogglesFrame()
-		-- Restore Minimap Button Position (validate values and anchor to Minimap)
-		do
-			local mx = br.data.settings.minimapButton and br.data.settings.minimapButton.pos and br.data.settings.minimapButton.pos.x
-			local my = br.data.settings.minimapButton and br.data.settings.minimapButton.pos and br.data.settings.minimapButton.pos.y
-			if br.ui.minimapButton and br.ui.minimapButton.frame then
-				br.ui.minimapButton.frame:ClearAllPoints()
-				if type(mx) == "number" and type(my) == "number" and br._G.Minimap then
-					br.ui.minimapButton.frame:SetPoint("CENTER", br._G.Minimap, "CENTER", mx, my)
-				else
-					-- Fallback to sensible defaults if saved data is invalid
-					br.ui.minimapButton.frame:SetPoint("CENTER", br._G.Minimap or br._G.UIParent, "CENTER", 75.70, -6.63)
-				end
-			end
-		end
-		settingsManagement.initializeSettings = false
-	end
-end
-
-settingsManagement.profile = settingsManagement.profile or {}
-function settingsManagement:store(key, value)
-	if settingsManagement.profile == nil then
-		settingsManagement.profile = {}
-	end
-	settingsManagement.profile[key] = value
-	return true
-end
-
-function settingsManagement:fetch(key, default)
-	if settingsManagement.profile == nil then
-		settingsManagement.profile = {}
-	end
-	local value = settingsManagement.profile[key]
-	return value == nil and default or value
 end
 
 -- Check Directories
@@ -410,92 +327,36 @@ function settingsManagement:deepcopy(orig)
 	return copy
 end
 
--- Build all UI window pages programmatically for cleanup purposes
--- This forces all pages to register in br.data.ui by temporarily setting the page dropdown
-function settingsManagement:buildAllUIPages()
-	if not br.ui or not br.ui.window then
+--- Runs every window page once without building frames (br.ui.elementOptions.withoutFrames), so
+-- every option registers its page and default and appears in br.data.ui for cleanSettings.
+-- Returns true only when every page ran: clean-up must never judge from a partial list.
+function settingsManagement:registerAllOptions()
+	if not br.ui or not br.ui.window then return false end
+	local pagesRun, failedPages = 0, {}
+	for _, window in pairs(br.ui.window) do
+		if type(window) == "table" and window.pages then
+			for _, page in ipairs(window.pages) do
+				if type(page[2]) == "function" then
+					local ok, err = br.ui.elementOptions.withoutFrames(page[2])
+					if ok then
+						pagesRun = pagesRun + 1
+					else
+						failedPages[#failedPages + 1] = tostring(page[1]) .. " (" .. tostring(err):sub(1, 80) .. ")"
+					end
+				end
+			end
+		end
+	end
+	if #failedPages > 0 then
+		br._G.print("|cffFF8800[registerAllOptions] " .. #failedPages .. " pages failed to load - settings clean-up skipped|r")
+		for _, failMsg in ipairs(failedPages) do br._G.print("|cffFF8800  - " .. failMsg .. "|r") end
 		return false
 	end
-
-	local totalPagesBuilt = 0
-	local failedPages = {}
-
-	-- Iterate through all windows in br.ui.window
-	for windowName, window in pairs(br.ui.window) do
-		if type(window) == "table" and window.pages and window.parent then
-			local pagesBuilt = 0
-			local pageDD = window.pageDD
-
-			if pageDD then
-				-- Save the current page index so we can restore it later
-				local originalPageIdx = pageDD.value or 1
-
-				for i = 1, #window.pages do
-					local page = window.pages[i]
-					local pageFunction = page[2]
-
-					if type(pageFunction) == "function" then
-						-- Set the page dropdown to this page index so activePage resolves correctly
-						pageDD.value = i
-
-						-- Mirror normal page switching behavior to prevent UI from accumulating
-						-- elements from multiple pages in the currently visible window.
-						if window.ReleaseChildren then
-							window:ReleaseChildren()
-						end
-
-						-- Call the page function to create all UI elements
-						local success, err = pcall(pageFunction)
-						if success then
-							pagesBuilt = pagesBuilt + 1
-						else
-							table.insert(failedPages, page[1] .. " (" .. tostring(err):sub(1, 50) .. ")")
-						end
-					end
-				end
-
-				-- Restore and rebuild original page so the window doesn't show a merged UI.
-				pageDD.value = originalPageIdx
-				if window.ReleaseChildren then
-					window:ReleaseChildren()
-				end
-				if window.pages[originalPageIdx] and type(window.pages[originalPageIdx][2]) == "function" then
-					pcall(window.pages[originalPageIdx][2])
-				end
-			else
-				-- Fallback for windows without pageDD - just try calling functions directly
-				for i = 1, #window.pages do
-					local page = window.pages[i]
-					local pageFunction = page[2]
-					if type(pageFunction) == "function" then
-						if window.ReleaseChildren then
-							window:ReleaseChildren()
-						end
-						local success, err = pcall(pageFunction)
-						if success then pagesBuilt = pagesBuilt + 1 end
-					end
-				end
-			end
-
-			if pagesBuilt > 0 then
-				totalPagesBuilt = totalPagesBuilt + pagesBuilt
-			end
-		end
-	end
-
-	if totalPagesBuilt > 0 then
-		-- br._G.print("Loading UI (" .. totalPagesBuilt .. " pages)...")
-		if #failedPages > 0 then
-			br._G.print("|cffFF8800[buildAllUIPages] " .. #failedPages .. " pages failed to build|r")
-			for _, failMsg in ipairs(failedPages) do
-				br._G.print("|cffFF8800  - " .. failMsg .. "|r")
-			end
-		end
-		return true
-	end
-
-	return false
+	return pagesRun > 0
 end
+
+-- More removals than this in one clean-up are treated as a malfunction and undone
+local CLEANUP_MAX_REMOVED = 50
 
 function settingsManagement:cleanSettings()
 	if br.data and br.data.settings then
@@ -505,11 +366,6 @@ function settingsManagement:cleanSettings()
 			br._G.print("|cffFF8800[cleanSettings] System toggled off - skipping cleanup|r")
 			return
 		end
-
-		-- Force all window pages to be created so we have complete UI registry
-		-- This is called here in case cleanSettings is invoked manually (e.g., before export)
-		-- If already built during loadSettings, this will be very fast
-		-- settingsManagement:buildAllUIPages()
 
 		-- Check if br.data.ui exists and has actual page data before attempting cleanup
 		-- This prevents cleaning when UI hasn't been fully initialized yet
@@ -532,9 +388,17 @@ function settingsManagement:cleanSettings()
 			return
 		end
 
+		-- Single removedItems list shared across Phase 1 (Block A below) and
+		-- Phase 2/3 (Block B further down). Previously each block had its own
+		-- local, so Phase 1's entries died at Block A's `end` and were silently
+		-- dropped before the length check + save-back at the end of Block B —
+		-- misplaced-only cleanups never persisted.
+		local removedItems = {}
+		-- Kept to put everything back if the clean-up looks like a malfunction (see below)
+		local slotBefore = br.data.settings[br.loader.selectedSpec] and settingsManagement:deepcopy(br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile])
+
 		if uiPageCount >= 3 then
 			local settings = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]
-			local removedItems = {}
 
 			-- ========================================
 			-- PHASE 1: Remove duplicate/misplaced options
@@ -573,10 +437,12 @@ function settingsManagement:cleanSettings()
 			br._G.print("|cffFFDD00[cleanSettings] Skipping duplicate check - only " .. uiPageCount .. " pages built (need 3+)|r")
 		end
 
+		-- Note: this gate is redundant with Block A above (L543 already indexed
+		-- the same path unguarded); restructuring requires preserving that the
+		-- two blocks always run together, since the shared `removedItems` is
+		-- lifted to outer scope.
 		if br.data.settings[br.loader.selectedSpec] and br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile] then
 			local settings = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]
----@diagnostic disable-next-line: undefined-global
-			local removedItems = removedItems or {}
 
 			-- ========================================
 			-- PHASE 2: Remove orphaned options
@@ -616,209 +482,56 @@ function settingsManagement:cleanSettings()
 				end
 			end
 
+			-- A real clean-up removes a handful of leftovers; this many means options failed to register
+			if #removedItems > CLEANUP_MAX_REMOVED then
+				br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile] = slotBefore
+				br._G.print("|cffFF0000Settings Cleanup skipped:|r it would have removed " .. #removedItems
+					.. " settings, which looks like a problem rather than leftovers. Nothing was changed.")
+				return
+			end
 			if #removedItems > 0 then
 				br._G.print("|cffFFDD00Settings Cleanup: Removed " .. #removedItems .. " duplicate/orphaned setting(s)|r")
 				-- Save immediately so cleaned settings persist
 				br.data.collectGarbage = false -- Prevent re-running cleanup
-				settingsManagement:saveSettings(nil, nil, br.loader.selectedSpec, br.loader.selectedProfileName)
+				settingsManagement:saveSettings()
 			end
 		end
 	end
-end-- Load Settings
-function settingsManagement:loadSettings(folder, class, spec, profile, instance)
-	if not br.unlocked then return end
-	-- Normalize nil spec so all callers produce a consistent dedup key.
-	if spec == nil then
-		spec = br.loader.selectedSpec
-	end
-	if not spec or spec == "" then spec = "Initial" end
-	-- Only reload if not already loaded for this spec/profile.
-	if settingsManagement._lastLoadedSpec == spec and settingsManagement._lastLoadedProfile == profile then
-		return
-	end
-	settingsManagement._lastLoadedSpec    = spec
-	settingsManagement._lastLoadedProfile = profile
-	local loadDir = settingsManagement:checkDirectories(folder, class, spec, profile, instance)
-	if not loadDir then
-		br._G.print("No settings directory found for " .. profile .. "!")
-		return
-	end
-	local brdata
-	local brprofile
-	local fileFound = false
-	local profileFound = false
-	-- Load Settings
-	if settingsManagement:findFileInFolder("savedSettings.lua", loadDir) then
-		--br._G.print("Loading Settings File From Directory: " .. loadDir)
-		brdata = tableLoad(loadDir .. "savedSettings.lua")
-		if brdata then
-			fileFound = true
-		end
-	end
-	-- Load Profile
-	if settingsManagement:findFileInFolder("savedProfile.lua", loadDir) then
-		-- Print("Loading Saved Profiles")
-		-- Print("From Directory: "..loadDir)
-		brprofile = tableLoad(loadDir .. "savedProfile.lua")
-		if brprofile then
-			profileFound = true
-		end
-	end
-
-	-- Migration: for TBC/Classic (hasSubSpecs = false), settings were previously saved under
-	-- the API spec name (e.g. Settings/Shaman/Enhancement/Profile/) before this fix.
-	-- If nothing was found at the new class-based path, look for the old spec-keyed files
-	-- and load from there. After loading, re-save to the new path so migration is permanent.
-	local migratedFromOldPath = false
-	if not fileFound and not br.api.hasSubSpecs then
-		local rawSpec = select(2, br._G.C_SpecializationInfo.GetSpecializationInfo(
-			br._G.C_SpecializationInfo.GetSpecialization()))
-		local resolvedClass = class or select(2, br._G.UnitClass("player"))
-		local resolvedProfile = profile or br.loader.selectedProfileName
-		-- Only attempt if the raw API spec differs from the class folder name (i.e. truly a spec name)
-		if rawSpec and rawSpec ~= "" and rawSpec ~= getFolderClassName(resolvedClass) then
-			local wowDir = br._G.GetWoWDirectory() or ""
-			local mainDir = wowDir:match('_retail_')
-				and (wowDir .. sep .. "Interface" .. sep .. "AddOns" .. sep .. br.loader.addonName .. sep .. "Settings" .. sep)
-				or  (wowDir .. sep .. br.loader.addonName .. sep .. "Settings" .. sep)
-			local folderPart = folder and (folder .. sep) or ""
-			local oldDir = mainDir .. folderPart .. getFolderClassName(resolvedClass) .. sep .. rawSpec .. sep .. resolvedProfile .. sep
-			if settingsManagement:findFileInFolder("savedSettings.lua", oldDir) then
-				brdata = tableLoad(oldDir .. "savedSettings.lua")
-				if brdata then
-					fileFound = true
-					migratedFromOldPath = true
-					br._G.print("|cffFFDD00[BR] Migrating settings from old path:|r " .. oldDir)
-				end
-				if settingsManagement:findFileInFolder("savedProfile.lua", oldDir) then
-					brprofile = tableLoad(oldDir .. "savedProfile.lua")
-					if brprofile then profileFound = true end
-				end
-			end
-		end
-	end
-	if fileFound then
-		br.ui:closeWindow("all")
-		-- Preserve essential global UI settings that may be absent in sparse settings files
-		-- (e.g. profile "None" or migrated files that only contain per-spec data).
-		local prevSettings = br.data and br.data.settings
-		local prevButtonSize    = prevSettings and prevSettings.buttonSize
-		local prevMainButton    = prevSettings and prevSettings.mainButton
-		local prevMinimapButton = prevSettings and prevSettings.minimapButton
-		local prevFont          = prevSettings and prevSettings.font
-		local prevFontsize      = prevSettings and prevSettings.fontsize
-		br.data = settingsManagement:deepcopy(brdata)
-		-- Restore global UI settings if the loaded file did not include them
-		if br.data.settings then
-			br.data.settings.buttonSize    = br.data.settings.buttonSize    or prevButtonSize    or 32
-			br.data.settings.mainButton    = br.data.settings.mainButton    or prevMainButton
-			br.data.settings.minimapButton = br.data.settings.minimapButton or prevMinimapButton
-			br.data.settings.font          = br.data.settings.font          or prevFont          or "Fonts/arialn.ttf"
-			br.data.settings.fontsize      = br.data.settings.fontsize      or prevFontsize      or 16
-		end
-		-- Clear br.data.ui from loaded settings - it should NOT be loaded from disk
-		-- It will be rebuilt when UI is created and populated as pages are visited
-		br.data.ui = nil
-		-- Safety: never persist loadedSettings from disk
-		br.data.loadedSettings = nil
-		if profileFound then
-			settingsManagement.profile = settingsManagement:deepcopy(brprofile)
-		end
-		br._G.print("Loaded Settings for Profile " .. tostring(profile))
-		-- Migration: immediately re-save to the new class-based path so the old spec-keyed
-		-- files are no longer needed. Next load will find the file at the correct path.
-		if migratedFromOldPath then
-			br._G.C_Timer.After(0, function()
-				settingsManagement:saveSettings(folder, class, nil, profile, instance)
-				br._G.print("|cffFFDD00[BR] Settings migrated to new path. Migration complete.|r")
-			end)
-		end
-	end
-	if not fileFound then
-		if br.loader.selectedProfileName ~= "None" then
-			br._G.print("No File Called 'savedSettings.lua' Found In " .. loadDir)
-		else
-			br._G.print("No pre-existing settings to load.")
-		end
-	end
-
-	-- Resolve settings data key: TBC/Classic use class name; Retail/MOP use spec name.
-	if not br.api.hasSubSpecs then
-		spec = getClassFolderName()
-	elseif spec == nil then
-		spec = br.loader.selectedSpec
-	end
-	if spec == nil or spec == "" then
-		spec = "Initial"
-	end
-	if br.data.settings == nil then br.data.settings = {} end
-	if br.data.settings[spec] == nil then br.data.settings[spec] = {} end
-	if br.data.settings[spec].config == nil then
-		br.data.settings[spec].config = {}
-	end
-	local initialLoad = br.data.settings[spec].config.initialLoad or false
-	if initialLoad then
-		br.ui:closeWindow("config")
-	else
-		br.ui:toggleWindow("config")
-		br.data.settings[spec].config.initialLoad = true
-	end
-
-	-- After config window is created and toggled, build all pages and run cleanup
-	-- By setting pageDD.value before calling each page function, the pages will
-	-- properly register in br.data.ui, allowing cleanup to detect duplicates/orphans
-	if fileFound then
-		if settingsManagement._pendingUILoadTimer then
-			settingsManagement._pendingUILoadTimer:Cancel()
-			settingsManagement._pendingUILoadTimer = nil
-		end
-		settingsManagement._pendingUILoadTimer = br._G.C_Timer.NewTimer(1.0, function()
-			settingsManagement._pendingUILoadTimer = nil
-			-- Ensure config window exists and is shown before building pages
-			if br.ui.window.config and br.ui.window.config.frame then
-				if not br.ui.window.config.frame:IsShown() then
-					br.ui:toggleWindow("config")
-				end
-			else
-				-- Window doesn't exist yet, create and show it
-				if br.ui.window.config == nil then br.ui.window.config = {} end
-				if br.ui.window.config.frame == nil then br.ui:createConfigWindow() end
-				br.ui:toggleWindow("config")
-			end
-
-			if settingsManagement:buildAllUIPages() then
-				settingsManagement:cleanSettings()
-			end
-
-			-- Close the window if it was initially closed
-			if initialLoad then
-				br.ui:closeWindow("config")
-			end
-			br._G.print("UI Load Complete")
-		end)
-	end
-	-- Mark settings as loaded so loadSavedSettings does not re-run unnecessarily.
-	if br.data then br.data.loadedSettings = true end
-
 end
 
--- Save Settings
-function settingsManagement:saveSettings(folder, class, spec, profile, instance, wipe)
-	local saveDir = settingsManagement:checkDirectories(folder, class, spec, profile, instance)
-	if not saveDir then
-		br._G.print("No settings directory found for " .. profile .. "!")
-		return
+-- Number of backups kept per settings file (savedSettings.lua.bak1 is the newest)
+local SETTINGS_BACKUPS = 3
+-- Below this many saved values a file is too small for the emptied-settings guard to judge
+local GUARD_MIN_VALUES = 40
+
+-- Counts the non-table values in a settings tree (shared/cyclic tables are counted once)
+local function countValues(t, seen)
+	if type(t) ~= "table" then return 0 end
+	seen = seen or {}
+	if seen[t] then return 0 end
+	seen[t] = true
+	local n = 0
+	for _, v in pairs(t) do
+		if type(v) == "table" then
+			n = n + countValues(v, seen)
+		else
+			n = n + 1
+		end
 	end
-	-- if spec then
-    --     cleanOrphanedSettings(spec)
-    -- end
-	local brdata = wipe and {} or settingsManagement:deepcopy(br.data)
-	local brprofile = wipe and {} or settingsManagement:deepcopy(settingsManagement.profile)
-	br._G.print("Saving Profiles and Settings to Directory: " .. tostring(saveDir))
-	-- Save Files
-	tableSave(brdata, saveDir .. "savedSettings.lua")
-	tableSave(brprofile, saveDir .. "savedProfile.lua")
-	br._G.print("Saved Settings for Profile " .. profile)
+	return n
+end
+
+-- Keeps the previous SETTINGS_BACKUPS versions of a file as <file>.bak1 .. .bakN
+local function rotateBackups(path)
+	local current = br._G.ReadFile(path)
+	if current == nil or current == "" then return end
+	for i = SETTINGS_BACKUPS - 1, 1, -1 do
+		local older = br._G.ReadFile(path .. ".bak" .. i)
+		if older ~= nil and older ~= "" then
+			br._G.WriteFile(path .. ".bak" .. (i + 1), older, false)
+		end
+	end
+	br._G.WriteFile(path .. ".bak1", current, false)
 end
 
 settingsManagement.fileList = {}
@@ -834,108 +547,541 @@ function settingsManagement:findFileInFolder(file, folder)
 	return false
 end
 
-function settingsManagement:loadLastProfileTracker()
-	local loadDir = settingsManagement:checkDirectories(nil, nil, nil, "Tracker")
-	local selectedProfile = br.loader.selectedSpec
-	if settingsManagement:findFileInFolder("lastProfileTracker.lua", loadDir) then
-		local tracker = tableLoad(loadDir .. "lastProfileTracker.lua")
-		local specID = br.loader.selectedSpecID
-		if br.data == nil then
-			br.data = {}
-		end
-		if br.data.settings == nil then
-			br.data.settings = {}
-		end
-		if br.data.settings[selectedProfile] == nil then
-			br.data.settings[selectedProfile] = {}
-		end
-		if tracker ~= nil then
-			br.data.tracker = tracker
-		end
-		if br.data.tracker[selectedProfile] == nil then
-			br.data.tracker[selectedProfile] = {}
-		end
-		local rotationFound = false
-		local trackerName = br.data.tracker[br.loader.selectedSpec]["RotationDropValue"]
-		local specSettings = br.data.settings[br.loader.selectedSpec]
-		-- If rotations are not yet available, print once and mark to avoid repeated retries
-		if not br.loader.rotations[specID] then
-			br.loader.noRotationsFound = br.loader.noRotationsFound or {}
-			if not br.loader.noRotationsFound[specID] then
-				print("No rotations found for specID " .. specID)
-				br.loader.noRotationsFound[specID] = true
-			end
-			return
-		end
-		if trackerName then
-			for i = 1, #br.loader.rotations[specID] do
-				if br.loader.rotations[specID][i].name == trackerName then
-					br.loader.selectedProfileName = trackerName
-					specSettings["RotationDropValue"] = trackerName
-					specSettings["RotationDrop"] = i
-					rotationFound = true
-					-- br._G.print("Found Last Used From Tracker: " .. trackerName)
-					break
-				end
-			end
-		end
-		if not rotationFound then
-			br._G.print("No Matching Rotation Found In Tracker, Defaulting to " .. br.loader.rotations[specID][1].name)
-			specSettings["RotationDropValue"] = br.loader.rotations[specID][1].name
-			specSettings["RotationDrop"] = 1
-		end
-		-- br._G.print("Tracker Load - Last Profile: " .. tostring(br.data.settings[selectedProfile]["RotationDrop"]))
-		-- br._G.print("Tracker Load - Last Profile Name: " .. tostring(br.data.settings[selectedProfile]["RotationDropValue"]))
-	else
-		br._G.print("No Tracker found for " .. selectedProfile .. "! Creating Tracker....")
+--------------------------------------------------------------------------
+-- Settings storage (S2)
+--
+-- In memory BR keeps one table per spec/profile slot (br.data.settings[spec][slot]) holding every
+-- options page. On disk that table is split by owner:
+--   Settings/Characters/<Realm>-<Name>/BotOptions.lua            Bot Options pages, window layout, buttons
+--   Settings/Characters/<Realm>-<Name>/<Spec>/BaseOptions.lua    Base Options pages
+--   Settings/<Class>/<Spec>/<Profile>/settings.lua               Rotation pages + toggles
+--   Settings/<Class>/<Spec>/selection.lua                        selected profile
+--   Settings/Characters/index.lua                                class/specs/last use per character
+-- Pages are routed by their storage name: "Bot Options/..." and "Base Options/..." prefixes
+-- (set by br.ui:createSection), everything else belongs to the rotation profile.
+--------------------------------------------------------------------------
+
+-- Bot Options sections that existed before storage names were prefixed (used by the migration)
+local LEGACY_BOT_SECTIONS = {
+	["Debug Info"] = true, ["Debug Options"] = true, ["Developer Options"] = true, ["Dungeon Helpers"] = true,
+	["Enemies Engine"] = true, ["Export/Import from Settings Folder"] = true,
+	["Healing Engine"] = true, ["Healing Options"] = true, ["Load Saved Profiles"] = true,
+	["Main Settings"] = true, ["Other Features"] = true, ["Smart Queue"] = true,
+}
+local LEGACY_BASE_SECTIONS = { ["Base Options"] = true, ["Module Options"] = true }
+-- Before S2 the Bot Options "General" section and a rotation's own "General" section shared one
+-- page; these are the Bot Options ones (everything else on that page belongs to the rotation).
+local LEGACY_BOT_GENERAL_OPTIONS = {
+	["Auto Delay"] = true, ["Queue Casting"] = true, ["Auto Loot"] = true, ["Auto-Sell/Repair"] = true,
+	["Accept Queues"] = true, ["Overlay Messages"] = true, ["Notify Not Unlocked"] = true,
+	["Reset Options"] = true, ["Reset Saved Profiles"] = true, ["Auto Check for Updates"] = true,
+	["Bot Update Rate"] = true,
+}
+
+-- Splits a legacy slot's shared "General" page into "Bot Options/General" and the rotation's "General"
+local function splitLegacyGeneral(slot)
+	local general = slot["General"]
+	if type(general) ~= "table" then return slot end
+	local copy = {}
+	for k, v in pairs(slot) do copy[k] = v end
+	local bot, rotation = {}, {}
+	for key, value in pairs(general) do
+		local option = type(key) == "string" and (key:gsub(" Check$", ""):gsub(" Status$", ""):gsub(" Drop$", ""):gsub(" EditBox$", "")) or key
+		if LEGACY_BOT_GENERAL_OPTIONS[option] then bot[key] = value else rotation[key] = value end
 	end
-	settingsManagement:saveLastProfileTracker()
+	copy["Bot Options/General"] = bot
+	copy["General"] = rotation
+	return copy
+end
+-- Global UI values kept in br.data.settings (saved with the character's Bot Options)
+local GLOBAL_UI_KEYS = { "font", "fontsize", "buttonSize", "wiped", "mainButton", "minimapButton" }
+-- Per-spec window layout tables in br.data.settings[spec] (saved with the character's Bot Options)
+local WINDOW_KEYS = { "config", "profile", "debug" }
+-- Per-spec keys that belong to the selection / profile rather than to a page
+local SPEC_RESERVED = { toggles = true, RotationDrop = true, RotationDropValue = true, config = true, profile = true, debug = true }
+
+local function settingsRoot()
+	local base, s = br.functions.misc:getAddonPath()
+	local root = base .. s .. "Settings" .. s
+	checkDirectory(root)
+	return root, s
 end
 
-function settingsManagement:saveLastProfileTracker()
-	local saveDir = settingsManagement:checkDirectories(nil, nil, nil, "Tracker")
-	local specID = br.loader.selectedSpecID
-	specID = specID or 0
-	if specID == 0 then specID = br.loader.selectedSpecID or 0 end
-	if br.data ~= nil and br.data.settings ~= nil and br.data.settings[br.loader.selectedSpec] ~= nil and specID ~= 0 then
-		if br.data.tracker ~= nil then
-			if br.data.tracker[br.loader.selectedSpec] == nil then
-				br.data.tracker[br.loader.selectedSpec] = {}
-			end
-			if br.data.settings[br.loader.selectedSpec]["RotationDropValue"] then
-				local rotationFound = false
-				for i = 1, #br.loader.rotations[specID] do
-					if br.loader.rotations[specID][i].name == br.data.settings[br.loader.selectedSpec]["RotationDropValue"] then
-						br.data.tracker[br.loader.selectedSpec]["RotationDropValue"] = br.data.settings[br.loader.selectedSpec]
-							["RotationDropValue"]
-						br.data.tracker[br.loader.selectedSpec]["RotationDrop"] = i
-						rotationFound = true
-						break
-					end
-				end
-				if not rotationFound then
-					br.data.tracker[br.loader.selectedSpec]["RotationDropValue"] = br.loader.rotations[specID][1].name
-					br.data.tracker[br.loader.selectedSpec]["RotationDrop"] = 1
-				end
-			elseif br.loader.rotations and br.loader.rotations[specID] and br.loader.rotations[specID][1] and br.loader.rotations[specID][1].name ~= nil then
-				br.data.settings[br.loader.selectedSpec]["RotationDropValue"] = br.loader.rotations[specID][1].name
-				br.data.tracker[br.loader.selectedSpec]["RotationDropValue"] = br.loader.rotations[specID][1].name
-				br.data.settings[br.loader.selectedSpec]["RotationDrop"] = 1
-				br.data.tracker[br.loader.selectedSpec]["RotationDrop"] = 1
-			else
-				br.data.settings[br.loader.selectedSpec]["RotationDropValue"] = ""
-				br.data.tracker[br.loader.selectedSpec]["RotationDropValue"] = ""
-				br.data.settings[br.loader.selectedSpec]["RotationDrop"] = 1
-				br.data.tracker[br.loader.selectedSpec]["RotationDrop"] = 1
+-- "<Realm>-<Name>" folder key for the current character
+local function characterKey()
+	local name = br._G.UnitName("player") or "Unknown"
+	local realm = (br._G.GetRealmName and br._G.GetRealmName()) or "Realm"
+	return (realm .. "-" .. name):gsub("[\\/:%*%?\"<>|]", "_")
+end
+
+local function characterDir(key)
+	local root, s = settingsRoot()
+	local dir = root .. "Characters" .. s
+	checkDirectory(dir)
+	dir = dir .. (key or characterKey()) .. s
+	checkDirectory(dir)
+	return dir, s
+end
+
+local function botOptionsPath(key)
+	return characterDir(key) .. "BotOptions.lua"
+end
+
+local function baseOptionsPath(specKey, key)
+	local dir, s = characterDir(key)
+	dir = dir .. specKey .. s
+	checkDirectory(dir)
+	return dir .. "BaseOptions.lua"
+end
+
+local function indexPath()
+	local root, s = settingsRoot()
+	checkDirectory(root .. "Characters" .. s)
+	return root .. "Characters" .. s .. "index.lua"
+end
+
+-- Settings/<Class>/<Spec>/ folder for the current class and spec
+local function specDir()
+	local profileDir = settingsManagement:checkDirectories(nil, nil, nil, "Tracker") -- returns the class folder
+	local spec = br.loader.selectedSpec
+	if spec == nil or spec == "" then spec = "Initial" end
+	local dir = profileDir .. spec .. sep
+	checkDirectory(dir)
+	return dir
+end
+
+-- Which file a page/section key belongs to: "bot", "base" or "profile"
+local function scopeOf(key)
+	if type(key) ~= "string" then return "profile" end
+	if key:sub(1, 12) == "Bot Options/" then return "bot" end
+	if key:sub(1, 13) == "Base Options/" then return "base" end
+	return "profile"
+end
+
+-- Maps a pre-S2 page/section key to its storage name (Bot/Base sections gain their prefix)
+local function legacyStorageName(key)
+	local page, suffix = key, ""
+	if key:sub(-8) == " Section" then page, suffix = key:sub(1, -9), " Section" end
+	if LEGACY_BOT_SECTIONS[page] then return "Bot Options/" .. page .. suffix end
+	if LEGACY_BASE_SECTIONS[page] then return "Base Options/" .. page .. suffix end
+	return key
+end
+
+local function isEmptyTable(t)
+	return type(t) == "table" and next(t) == nil
+end
+
+-- Splits one profile slot table into { bot, base, profile } parts.
+-- rename: optional function(key) -> storage key (the migration maps legacy names)
+local function splitSlot(slot, rename)
+	local parts = {
+		bot = { pages = {}, sections = {} },
+		base = { pages = {}, sections = {} },
+		profile = { pages = {}, sections = {}, other = {} },
+	}
+	for key, value in pairs(slot or {}) do
+		if key ~= "PageList" and type(key) == "string" then
+			local storageKey = rename and rename(key) or key
+			local part = parts[scopeOf(storageKey)]
+			if type(value) == "table" then
+				if not isEmptyTable(value) then part.pages[storageKey] = settingsManagement:deepcopy(value) end
+			elseif storageKey:sub(-8) == " Section" then
+				part.sections[storageKey] = value
+			elseif part.other then
+				part.other[storageKey] = value
 			end
 		end
-	elseif specID ~= 0 then
-		br._G.print("Nothing found, recreating tracker")
-		br.data.tracker = {}
-		br.data.tracker[br.loader.selectedSpec] = {}
-		br.data.tracker[br.loader.selectedSpec]["RotationDrop"] = 1
-		br.data.tracker[br.loader.selectedSpec]["RotationDropValue"] = br.loader.rotations[specID][1].name
 	end
-	-- br._G.print("Saving Tracker to Directory: " .. tostring(saveDir))
-	tableSave(br.data.tracker, saveDir .. "lastProfileTracker.lua")
+	return parts
+end
+
+local function mergeInto(slot, part)
+	if not part then return end
+	for k, v in pairs(part.pages or {}) do slot[k] = settingsManagement:deepcopy(v) end
+	for k, v in pairs(part.sections or {}) do slot[k] = v end
+	for k, v in pairs(part.other or {}) do slot[k] = v end
+end
+
+-- Builds the character file contents (Bot Options pages + layout) from in-memory/legacy data
+local function buildBotFile(botPart, globalSettings, specSettings)
+	local file = { pages = botPart.pages, sections = botPart.sections, ui = {}, windows = {} }
+	for _, k in ipairs(GLOBAL_UI_KEYS) do
+		if globalSettings and globalSettings[k] ~= nil then file.ui[k] = settingsManagement:deepcopy(globalSettings[k]) end
+	end
+	for _, k in ipairs(WINDOW_KEYS) do
+		if specSettings and specSettings[k] ~= nil then file.windows[k] = settingsManagement:deepcopy(specSettings[k]) end
+	end
+	return file
+end
+
+-- Below this many reverted options a save is never treated as "reset to defaults"
+local GUARD_MIN_REVERTED = 10
+
+-- Counts options that are customised on disk but back at their registered default in memory.
+-- Needs the option index (complete once startup reaches RUNNING); returns reverted, customised.
+local function countReverted(newPages, diskPages)
+	if not (br.loader.bootstrap and br.loader.bootstrap.stage == "RUNNING") then return 0, 0 end
+	local defaults = br.functions.misc:getOptionDefaults()
+	local reverted, customised = 0, 0
+	for page, diskValues in pairs(diskPages or {}) do
+		local pageDefaults = defaults[page]
+		if type(diskValues) == "table" and pageDefaults then
+			local newValues = (newPages and newPages[page]) or {}
+			for key, diskValue in pairs(diskValues) do
+				local default = pageDefaults[key]
+				if default ~= nil and diskValue ~= default then
+					customised = customised + 1
+					if newValues[key] == default then reverted = reverted + 1 end
+				end
+			end
+		end
+	end
+	return reverted, customised
+end
+
+-- Writes a settings file with the S0 protections: backups, and refusing to replace a full file
+-- with a mostly empty one (unless allowEmpty, used for a deliberate reset). With the option index
+-- available it also refuses a save where most customised options went back to their defaults.
+local function writeSettingsFile(path, data, label, allowEmpty)
+	if not allowEmpty then
+		local onDisk = tableLoad(path)
+		local reverted, customised = countReverted(data.pages, onDisk and onDisk.pages)
+		if reverted >= GUARD_MIN_REVERTED and reverted >= customised / 2 then
+			br._G.print("|cffFF0000Settings not saved (" .. label .. "):|r " .. reverted .. " of your " .. customised
+				.. " customised options are back at their defaults, which looks like settings were lost. Use Reset Options to reset on purpose.")
+			return false
+		end
+		local diskCount = countValues(onDisk)
+		local newCount = countValues(data)
+		if diskCount >= GUARD_MIN_VALUES and newCount < diskCount / 2 then
+			br._G.print("|cffFF0000Settings not saved (" .. label .. "):|r the current settings (" .. newCount
+				.. " values) look emptied compared with the saved file (" .. diskCount .. " values).")
+			return false
+		end
+	end
+	rotateBackups(path)
+	tableSave(data, path)
+	return true
+end
+
+-- Records this character's class, spec and time of save (used to seed new characters)
+local function touchIndex(specKey)
+	local path = indexPath()
+	local index = tableLoad(path) or {}
+	local key = characterKey()
+	local entry = index[key] or {}
+	local now = br._G.time()
+	entry.class = select(2, br._G.UnitClass("player"))
+	entry.lastUsed = now
+	entry.specs = entry.specs or {}
+	entry.specs[specKey] = now
+	index[key] = entry
+	tableSave(index, path)
+end
+
+-- Picks another character to copy settings from: same class first, then any; most recent first.
+-- wantSpec: prefer characters that have used this spec (for Base Options)
+local function pickSeedCharacter(wantSpec)
+	local index = tableLoad(indexPath()) or {}
+	local me = characterKey()
+	local myClass = select(2, br._G.UnitClass("player"))
+	local best, bestScore
+	for key, entry in pairs(index) do
+		if key ~= me and type(entry) == "table" then
+			local score = (entry.lastUsed or 0)
+			if entry.class == myClass then score = score + 2e9 end
+			if wantSpec and entry.specs and entry.specs[wantSpec] then score = score + 1e9 end
+			if not bestScore or score > bestScore then best, bestScore = key, score end
+		end
+	end
+	return best
+end
+
+local function loadBotFile()
+	local path = botOptionsPath()
+	local file = tableLoad(path)
+	if file then return file end
+	local source = pickSeedCharacter()
+	if source then
+		file = tableLoad(botOptionsPath(source))
+		if file then
+			br._G.print("|cffFFDD00New character: copied Bot Options from " .. source .. ".|r")
+			return file
+		end
+	end
+	return nil
+end
+
+local function loadBaseFile(specKey)
+	local file = tableLoad(baseOptionsPath(specKey))
+	if file then return file end
+	-- This character's most recently used other spec
+	local index = tableLoad(indexPath()) or {}
+	local mine = index[characterKey()]
+	if mine and mine.specs then
+		local bestSpec, bestTime
+		for spec, t in pairs(mine.specs) do
+			if spec ~= specKey and (not bestTime or t > bestTime) then bestSpec, bestTime = spec, t end
+		end
+		if bestSpec then
+			file = tableLoad(baseOptionsPath(bestSpec))
+			if file then
+				br._G.print("|cffFFDD00New spec: copied Base Options from your " .. bestSpec .. " settings.|r")
+				return file
+			end
+		end
+	end
+	-- Another character (same class/spec preferred)
+	local source = pickSeedCharacter(specKey)
+	if source then
+		local entry = index[source]
+		local sourceSpec = (entry and entry.specs and entry.specs[specKey]) and specKey or nil
+		if not sourceSpec and entry and entry.specs then
+			local t
+			for spec, used in pairs(entry.specs) do
+				if not t or used > t then sourceSpec, t = spec, used end
+			end
+		end
+		if sourceSpec then
+			file = tableLoad(baseOptionsPath(sourceSpec, source))
+			if file then
+				br._G.print("|cffFFDD00New character: copied Base Options from " .. source .. ".|r")
+				return file
+			end
+		end
+	end
+	return nil
+end
+
+-- The three settings files ({ bot, base, profile }) from a pre-S2 savedSettings.lua (a dump of br.data)
+local function legacyFiles(old, specKey)
+	local oldSpec = old.settings and old.settings[specKey] or {}
+	local slot = splitLegacyGeneral(oldSpec[oldSpec.RotationDrop or 1] or oldSpec[1] or {})
+	local parts = splitSlot(slot, legacyStorageName)
+	parts.profile.toggles = settingsManagement:deepcopy(oldSpec.toggles or {})
+	return {
+		bot = buildBotFile(parts.bot, old.settings, oldSpec),
+		base = { pages = parts.base.pages, sections = parts.base.sections },
+		profile = parts.profile,
+	}
+end
+
+-- The three settings files ({ bot, base, profile }) for the settings in memory
+local function currentFiles()
+	local specSettings = br.data.settings[br.loader.selectedSpec] or {}
+	local parts = splitSlot(specSettings[br.loader.selectedProfile] or {})
+	parts.profile.toggles = settingsManagement:deepcopy(specSettings.toggles or {})
+	return {
+		bot = buildBotFile(parts.bot, br.data.settings, specSettings),
+		base = { pages = parts.base.pages, sections = parts.base.sections },
+		profile = parts.profile,
+	}
+end
+
+-- One-time conversion of a pre-S2 profile folder (savedSettings.lua + class tracker) to the new
+-- files. The old files are left untouched. Bot/Base files are only written if this character
+-- doesn't have them yet.
+local function migrateProfileFolder(profileDir, specKey)
+	local newPath = profileDir .. "settings.lua"
+	if tableLoad(newPath) then return end
+	local old = tableLoad(profileDir .. "savedSettings.lua")
+	if not old or not old.settings then return end
+	local files = legacyFiles(old, specKey)
+	tableSave(files.profile, newPath)
+	if not tableLoad(botOptionsPath()) then tableSave(files.bot, botOptionsPath()) end
+	local basePath = baseOptionsPath(specKey)
+	if not tableLoad(basePath) then tableSave(files.base, basePath) end
+	br._G.print("|cffFFDD00Settings for this profile were converted to the new format (old savedSettings.lua kept).|r")
+end
+
+--- Loads a profile's settings (and this character's Bot/Base Options) into memory.
+-- @param profile the rotation profile name
+function settingsManagement:loadSettings(profile)
+	if not br.unlocked then return end
+	local spec = br.loader.selectedSpec
+	if not spec or spec == "" then spec = "Initial" end
+	-- Only reload if not already loaded for this spec/profile (keeps in-memory data otherwise)
+	if settingsManagement._lastLoadedSpec == spec and settingsManagement._lastLoadedProfile == profile then
+		return
+	end
+	settingsManagement._lastLoadedSpec = spec
+	settingsManagement._lastLoadedProfile = profile
+	local profileDir = settingsManagement:checkDirectories(nil, nil, spec, profile)
+	if not profileDir then
+		br._G.print("No settings directory found for " .. tostring(profile) .. "!")
+		return
+	end
+	local specKey = br.loader.selectedSpec
+	migrateProfileFolder(profileDir, specKey)
+
+	local botFile = loadBotFile() or {}
+	local baseFile = loadBaseFile(specKey) or {}
+	local profileFile = tableLoad(profileDir .. "settings.lua") or {}
+
+	br.ui:closeWindow("all")
+	br.data.settings = br.data.settings or {}
+	for _, k in ipairs(GLOBAL_UI_KEYS) do
+		if botFile.ui and botFile.ui[k] ~= nil then br.data.settings[k] = settingsManagement:deepcopy(botFile.ui[k]) end
+	end
+	-- Rebuild this spec's table, keeping the current selection
+	local previous = br.data.settings[specKey] or {}
+	local specSettings = {
+		RotationDrop = previous.RotationDrop,
+		RotationDropValue = previous.RotationDropValue,
+		toggles = settingsManagement:deepcopy(profileFile.toggles or {}),
+	}
+	for _, k in ipairs(WINDOW_KEYS) do
+		if botFile.windows and botFile.windows[k] ~= nil then specSettings[k] = settingsManagement:deepcopy(botFile.windows[k]) end
+	end
+	local slot = {}
+	mergeInto(slot, botFile)
+	mergeInto(slot, baseFile)
+	mergeInto(slot, profileFile)
+	specSettings[specSettings.RotationDrop or 1] = slot
+	br.data.settings[specKey] = specSettings
+	-- The UI mirror is rebuilt as pages are created
+	br.data.ui = nil
+	br._G.print("Loaded Settings for Profile " .. tostring(profile))
+end
+
+--- Saves the current settings: the character's Bot/Base Options files and the profile's settings
+-- file. wipe = true resets them (the "Reset Options" path).
+function settingsManagement:saveSettings(wipe)
+	local profile = br.loader.selectedProfileName
+	-- "None" means no rotation is loaded; saving it would only store defaults (and create a folder)
+	if profile == nil or profile == "" or profile == "None" then
+		br._G.print("|cffFFDD00Settings not saved: no rotation profile is loaded.|r")
+		return
+	end
+	local profileDir = settingsManagement:checkDirectories(nil, nil, br.loader.selectedSpec, profile)
+	if not profileDir then
+		br._G.print("No settings directory found for " .. profile .. "!")
+		return
+	end
+	local specKey = br.loader.selectedSpec
+	local files = wipe and { bot = {}, base = {}, profile = {} } or currentFiles()
+	br._G.print("Saving Profiles and Settings to Directory: " .. tostring(profileDir))
+	writeSettingsFile(botOptionsPath(), files.bot, "Bot Options", wipe)
+	writeSettingsFile(baseOptionsPath(specKey), files.base, "Base Options", wipe)
+	writeSettingsFile(profileDir .. "settings.lua", files.profile, profile, wipe)
+	touchIndex(specKey)
+	br._G.print("Saved Settings for Profile " .. profile)
+end
+
+---------------------
+--- Snapshots (copies of the settings files: Load Saved Profiles, Export/Import)
+---------------------
+local SNAPSHOT_FILES = { bot = "BotOptions.lua", base = "BaseOptions.lua", profile = "settings.lua" }
+
+local function ensureDir(dir)
+	checkDirectory(dir)
+	return dir
+end
+
+--- Folder for one of this profile's named snapshots ("Solo", "Raid", ...):
+-- Settings/<Class>/<Spec>/<Profile>/Snapshots/<name>/
+function settingsManagement:snapshotDir(name)
+	local profileDir = settingsManagement:checkDirectories(nil, nil, br.loader.selectedSpec, br.loader.selectedProfileName)
+	return ensureDir(ensureDir(profileDir .. "Snapshots" .. sep) .. name .. sep)
+end
+
+--- Where a snapshot saved before the settings rework would be (Settings/Profile Settings/...), or nil
+-- when there are none (so no folders are created for it).
+function settingsManagement:legacySnapshotDir(name)
+	if not br._G.DirectoryExists(settingsRoot() .. "Profile Settings") then return nil end
+	return settingsManagement:checkDirectories("Profile Settings", nil, br.loader.selectedSpec, br.loader.selectedProfileName, name)
+end
+
+--- Folder Export writes to and Import reads from: Settings/Exported Settings/<Class>/<Spec>/<Profile>/
+function settingsManagement:exportDir()
+	return settingsManagement:checkDirectories("Exported Settings", nil, br.loader.selectedSpec, br.loader.selectedProfileName)
+end
+
+--- Saves the current settings into a snapshot folder.
+-- @param dir   the folder (snapshotDir / exportDir)
+-- @param parts which files: any of "bot" (Bot Options), "base" (Base Options), "profile" (Rotation Options + toggles)
+-- @param label shown in chat
+function settingsManagement:saveSnapshot(dir, parts, label)
+	local files = currentFiles()
+	for _, part in ipairs(parts) do
+		writeSettingsFile(dir .. SNAPSHOT_FILES[part], files[part], label, true)
+	end
+	br._G.print("Saved " .. label .. " to " .. dir)
+end
+
+--- Replaces the current settings with a snapshot's files and reloads the profile. The replaced files
+-- are kept as .bak1. Old-format snapshots (savedSettings.lua) are read too.
+-- @param dir   the folder (snapshotDir / exportDir); legacyDir (optional) is where an old-format
+--              snapshot of the same settings may be
+-- @param parts which files: any of "bot", "base", "profile"
+-- @return true when something was loaded
+function settingsManagement:loadSnapshot(dir, parts, label, legacyDir)
+	local specKey = br.loader.selectedSpec
+	local files = {}
+	for _, part in ipairs(parts) do files[part] = tableLoad(dir .. SNAPSHOT_FILES[part]) end
+	if next(files) == nil then
+		local old = tableLoad(dir .. "savedSettings.lua") or (legacyDir and tableLoad(legacyDir .. "savedSettings.lua"))
+		if old and old.settings then
+			local converted = legacyFiles(old, specKey)
+			for _, part in ipairs(parts) do files[part] = converted[part] end
+		end
+	end
+	if next(files) == nil then
+		br._G.print("|cffFFDD00No saved " .. label .. " found.|r")
+		return false
+	end
+	local profileDir = settingsManagement:checkDirectories(nil, nil, specKey, br.loader.selectedProfileName)
+	local live = { bot = botOptionsPath(), base = baseOptionsPath(specKey), profile = profileDir .. "settings.lua" }
+	for part, data in pairs(files) do writeSettingsFile(live[part], data, label, true) end
+	-- Read the files back on the next startup step instead of keeping what is in memory
+	settingsManagement._lastLoadedSpec, settingsManagement._lastLoadedProfile = nil, nil
+	br.loader.bootstrap:reloadProfile()
+	br._G.print("Loaded " .. label .. ".")
+	return true
+end
+
+--- Reads which profile is selected for this spec (Settings/<Class>/<Spec>/selection.lua) and sets
+-- br.loader.selectedProfileName plus the in-memory RotationDrop/RotationDropValue. Falls back to the
+-- pre-S2 class tracker once, then to the first rotation.
+function settingsManagement:loadSelection()
+	local specID = br.loader.selectedSpecID
+	local rotations = br.loader.rotations[specID]
+	if rotations == nil or #rotations == 0 then return end
+	local specKey = br.loader.selectedSpec
+	br.data.settings[specKey] = br.data.settings[specKey] or {}
+	local specSettings = br.data.settings[specKey]
+
+	local selection = tableLoad(specDir() .. "selection.lua")
+	local name = selection and selection.profile
+	if name == nil then
+		local tracker = tableLoad(settingsManagement:checkDirectories(nil, nil, nil, "Tracker") .. "lastProfileTracker.lua")
+		name = tracker and tracker[specKey] and tracker[specKey]["RotationDropValue"]
+	end
+	local index
+	for i = 1, #rotations do
+		if rotations[i].name == name then index = i break end
+	end
+	if index == nil then
+		if name ~= nil and name ~= "" then
+			br._G.print("Last used rotation \"" .. tostring(name) .. "\" not found, defaulting to " .. rotations[1].name)
+		end
+		index = 1
+	end
+	br.loader.selectedProfileName = rotations[index].name
+	specSettings["RotationDropValue"] = rotations[index].name
+	specSettings["RotationDrop"] = index
+end
+
+--- Saves the selected profile for this spec. Skipped when the spec has no rotations, so a broken
+-- profile never overwrites the last good selection.
+function settingsManagement:saveSelection()
+	local rotations = br.loader.rotations and br.loader.rotations[br.loader.selectedSpecID]
+	if rotations == nil or #rotations == 0 then return end
+	local name = br.loader.selectedProfileName
+	local valid = false
+	for i = 1, #rotations do
+		if rotations[i].name == name then valid = true break end
+	end
+	if not valid then return end
+	tableSave({ profile = name }, specDir() .. "selection.lua")
 end

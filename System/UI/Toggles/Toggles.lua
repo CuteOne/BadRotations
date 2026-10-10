@@ -85,7 +85,7 @@ function toggles:TogglesFrame()
 				mainButtonFrame.texture:SetTexture(toggles.genericIconOn)
 			end
 			-- Persist toggle state immediately
-			br.ui.settingsManagement:saveSettings(nil, nil, br.loader.selectedSpec, br.loader.selectedProfileName)
+			br.ui.settingsManagement:saveSettings()
 		end
 	)
 	toggles.mainButton:SetScript(
@@ -135,7 +135,7 @@ function toggles:TogglesFrame()
 			br.data.settings.mainButton.pos.y = y
 			br.data.settings.mainButton.pos.anchor = anchor
 			-- Persist updated position immediately
-			br.ui.settingsManagement:saveSettings(nil, nil, br.loader.selectedSpec, br.loader.selectedProfileName)
+			br.ui.settingsManagement:saveSettings()
 			toggles.mainButton:StopMovingOrSizing()
 		end
 	)

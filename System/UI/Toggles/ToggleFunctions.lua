@@ -430,3 +430,91 @@ function br.ui:CreateButton(Name, x, y)
 		)
 	end
 end
+
+-- Toggles made with br.ui:toggle for the current rotation (for the Toggle Keys section)
+local declaredToggles = {}
+
+---@class br.ui.ToggleMode
+---@field name string Shown on the button
+---@field icon? string|number|table A spell from the class spell list (e.g. "swipe"), or a spell/item ID
+---@field overlay? string Shown in the middle of the screen when picked (name)
+---@field tip? string Tooltip
+---@field highlight? boolean Lights up the button's border (only the first mode)
+local MODE_FIELDS = { name = "string", icon = "string/number/table", overlay = "string", tip = "string",
+    highlight = "boolean" }
+
+---@class br.ui.ToggleOptions
+---@field modes br.ui.ToggleMode[] The modes in click order; the first is the default
+---@field key? string Keybind that cycles it, from br.ui.dropOptions.Toggle (None)
+---@field row? number Button row (0)
+---@field col? number Button column (the next free one in its row)
+local TOGGLE_FIELDS = { modes = "table", key = "string", row = "number", col = "number" }
+
+--- Adds a button to the toggle bar. Read it in the rotation with ui.mode.<name>, e.g.
+--- ui.mode.rotation == 1. Its keybind goes in the Toggle Keys section BR adds to the options.
+---@param name string The toggle's name
+---@param options br.ui.ToggleOptions
+function br.ui:toggle(name, options)
+    local elementOptions = br.ui.elementOptions
+    if type(name) ~= "string" or name == "" then
+        return elementOptions.problem("toggle() needs a name first, e.g. br.ui:toggle(\"Rotation\", { modes = { ... } })")
+    end
+    local what = "toggle \"" .. name .. "\""
+    options = elementOptions.check(what, options, TOGGLE_FIELDS, { "modes" })
+    if options == nil then return end
+    local key = options.key
+    if key ~= nil and not elementOptions.indexOf(br.ui.dropOptions.Toggle, key) then
+        elementOptions.problem(what .. ": key \"" .. key .. "\" is not one of " .. table.concat(br.ui.dropOptions.Toggle, ", "))
+        key = nil
+    end
+    local modes = {}
+    for i, given in ipairs(options.modes) do
+        local mode = elementOptions.check(what .. " mode " .. i, given, MODE_FIELDS, { "name" })
+        if mode == nil then return end
+        local icon = mode.icon
+        if type(icon) == "string" then
+            icon = br.player and br.player.spells and br.player.spells[icon]
+            if icon == nil then
+                elementOptions.notice(what .. " mode \"" .. mode.name .. "\": no spell named \"" .. mode.icon .. "\" for its icon")
+            end
+        end
+        local highlight = i == 1
+        if mode.highlight ~= nil then highlight = mode.highlight end
+        modes[i] = { mode = mode.name, value = i, overlay = mode.overlay or mode.name, tip = mode.tip or "",
+            highlight = highlight and 1 or 0, icon = icon }
+    end
+    if #modes == 0 then return elementOptions.problem(what .. " needs at least one mode") end
+    local row = options.row or 0
+    local col = options.col
+    if col == nil then
+        col = 1
+        for _, other in ipairs(declaredToggles) do
+            if other.row == row and other.col >= col then col = other.col + 1 end
+        end
+    end
+    declaredToggles[#declaredToggles + 1] = { name = name, key = key, row = row, col = col }
+    br.ui:createToggle(modes, name, col, row)
+end
+
+--- Forgets the toggles made with br.ui:toggle (a rotation's toggles are about to be created).
+function br.ui:forgetToggles()
+    declaredToggles = {}
+end
+
+--- True when toggles made with br.ui:toggle need a Toggle Keys section.
+function br.ui:hasToggleKeys()
+    return #declaredToggles > 0
+end
+
+--- Adds the "Toggle Keys" section: a keybind dropdown for each toggle made with br.ui:toggle, read
+--- by misc:UpdateToggle as "<name> Mode".
+function br.ui:toggleKeys()
+    if #declaredToggles == 0 then return end
+    local keys = br.ui.dropOptions.Toggle
+    local section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
+    for _, toggle in ipairs(declaredToggles) do
+        br.ui:createDropdownWithout(section, toggle.name .. " Mode", keys, br.ui.elementOptions.indexOf(keys, toggle.key or "None"),
+            br.ui.elementOptions.white("Key that cycles the " .. toggle.name .. " toggle"))
+    end
+    br.ui:checkSectionState(section)
+end

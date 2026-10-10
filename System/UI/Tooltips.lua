@@ -90,17 +90,22 @@ hooksecurefunc(
 		end
 	end
 )
-hooksecurefunc(
-	br._G.GameTooltip,
-	"SetUnitAura",
-	function(self, ...)
-		local unitAura = br._G.C_UnitAuras.GetAuraDataByIndex(...) --UnitAura(...)
-		local id = unitAura and unitAura.spellId or nil
-		if id then
-			addLine(self, id, types.spell)
+-- GameTooltip:SetUnitAura is the consolidated Shadowlands-era script point;
+-- doesn't exist on TBC/Classic/MoP, where the sibling SetUnitBuff/SetUnitDebuff
+-- hooks above already cover aura tooltips via the older API.
+if br._G.GameTooltip.SetUnitAura then
+	hooksecurefunc(
+		br._G.GameTooltip,
+		"SetUnitAura",
+		function(self, ...)
+			local unitAura = br.api.wow.GetAuraDataByIndex(...)
+			local id = unitAura and unitAura.spellId or nil
+			if id then
+				addLine(self, id, types.spell)
+			end
 		end
-	end
-)
+	)
+end
 hooksecurefunc(
 	"SetItemRef",
 	function(link, ...)

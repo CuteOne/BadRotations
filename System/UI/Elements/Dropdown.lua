@@ -1,8 +1,9 @@
 local DiesalGUI = _G.LibStub("DiesalGUI-1.0")
 local DiesalTools = _G.LibStub("DiesalTools-1.0")
 local _, br = ...
-function br.ui:createDropdown(parent, text, itemlist, default, tooltip, tooltipDrop, hideCheckbox)
-    local activePage = parent.settings.sectionName or ""
+-- checked (optional): default state of the option's checkbox for new settings
+function br.ui:createDropdown(parent, text, itemlist, default, tooltip, tooltipDrop, hideCheckbox, checked)
+    local activePage = parent.settings.storageName or parent.settings.sectionName or ""
     if activePage == "" then
         if parent and parent.settings and parent.settings.parentObject and parent.settings.parentObject.pageDD then
             local pdd = parent.settings.parentObject.pageDD
@@ -42,7 +43,7 @@ function br.ui:createDropdown(parent, text, itemlist, default, tooltip, tooltipD
     -------------------------------
     --------Create CheckBox--------
     -------------------------------
-    local checkBox = br.ui:createCheckbox(parent, text, tooltip)
+    local checkBox = br.ui:createCheckbox(parent, text, tooltip, checked)
     if hideCheckbox then
         local check = data[text .. " Check"]
         if check == 0 then
@@ -75,6 +76,7 @@ function br.ui:createDropdown(parent, text, itemlist, default, tooltip, tooltipD
     ---BR Stuff---
     --------------
     local value = text .. " Drop"
+    br.functions.misc:registerOption(activePage, value, default)
 
     -- Read from config or set default
     if data[value] == nil then
@@ -155,36 +157,44 @@ function br.ui:createDropdownWithout(parent, text, itemlist, default, tooltip, t
     return br.ui:createDropdown(parent, text, itemlist, default, tooltip, tooltipDrop, true)
 end
 
-function br.ui:createProfileDropdown(parent)
-    -------------------------------
-    ----Need to calculate Y Pos----
-    -------------------------------
-    local Y = -5
-    for i = 1, #parent.children do
-        if parent.children[i].type ~= "Spinner" and parent.children[i].type ~= "Dropdown" then
-            Y = Y - parent.children[i].frame:GetHeight() * 1.2
-        end
-    end
-    Y = DiesalTools.Round(Y)
+---@class br.ui.DropdownOptions
+---@field choices string[]|string The choices, or the name of a br.ui.dropOptions list (e.g. "AlwaysCdNever")
+---@field value? string|number Default choice for new settings, by its text or position (the first)
+---@field checkbox? boolean false leaves out the checkbox in front of it (true)
+---@field checked? boolean The checkbox starts ticked for new settings (false)
+---@field tip? string Tooltip
+---@field boxTip? string Tooltip for the dropdown box alone (tip)
+local DROPDOWN_FIELDS = { choices = "table/string", value = "string/number", checkbox = "boolean",
+    checked = "boolean", tip = "string", boxTip = "string" }
 
-    local profiles = br.ui.settingsManagement:fetch(br.loader.selectedSpec .. "_" .. "profiles", { { key = "default", text = "Default" } })
-    -- local selectedProfile = br.ui.settingsManagement:fetch(br.loader.selectedSpec .. "_" .. "profile", "default")
-    local profile_drop = DiesalGUI:Create("Dropdown")
-    parent:AddChild(profile_drop)
-    profile_drop:SetParent(parent.content)
-    profile_drop:SetPoint("TOPLEFT", parent.content, "TOPLEFT", 1, Y)
-    profile_drop:SetHeight(18)
-    profile_drop:SetWidth(200)
-    local list = {}
-    for i, value in pairs(profiles) do
-        list[value.key] = value.key
-    end
-    profile_drop:SetList(list)
-    profile_drop:SetValue(br.ui.settingsManagement:fetch(br.loader.selectedSpec .. "_" .. "profile", "Default Profile"))
-    profile_drop:SetEventListener(
-        "OnValueChanged",
-        function(this, event, key, value, selection)
-            br.profileDropValue = key
+--- Adds a dropdown, with a checkbox unless checkbox = false. Read it in the rotation with
+--- ui.value(name), which gives the chosen position (and ui.checked(name) for the checkbox).
+---@param section table The section from br.ui:section
+---@param name string The option's name
+---@param options br.ui.DropdownOptions
+function br.ui:dropdown(section, name, options)
+    local elementOptions = br.ui.elementOptions
+    if not elementOptions.ready("dropdown", section, name) then return end
+    local what = "dropdown \"" .. name .. "\""
+    options = elementOptions.check(what, options, DROPDOWN_FIELDS, { "choices" })
+    if options == nil then return end
+    local choices = options.choices
+    if type(choices) == "string" then
+        choices = br.ui.dropOptions[choices]
+        if choices == nil then
+            return elementOptions.problem(what .. ": there is no br.ui.dropOptions list named \"" .. options.choices .. "\"")
         end
-    )
+    end
+    if #choices == 0 then return elementOptions.problem(what .. " needs at least one choice") end
+    local default = options.value or 1
+    if type(default) == "string" then default = elementOptions.indexOf(choices, default) end
+    if default == nil or choices[default] == nil then
+        local shownValue = type(options.value) == "string" and ("\"" .. options.value .. "\"") or tostring(options.value)
+        return elementOptions.problem(what .. ": value " .. shownValue .. " is not one of its choices")
+    end
+    local white = elementOptions.white
+    local shown = {}
+    for i, choice in ipairs(choices) do shown[i] = white(choice) end
+    return br.ui:createDropdown(section, name, shown, default, white(options.tip), white(options.boxTip),
+        options.checkbox == false, options.checked)
 end
