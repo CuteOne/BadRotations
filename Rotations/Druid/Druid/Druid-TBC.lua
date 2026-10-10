@@ -1,203 +1,142 @@
--------------------------------------------------------
--- Author = CuteOne
--- Patch = 2.5.5
---    Patch should be the latest patch you've updated the rotation for (i.e., 2.5.5)
--- Coverage = 100%
---    Coverage should be your estimated percent coverage for class mechanics (i.e., 100%)
--- Status = Full
---    Status should be one of: Full, Limited, Sporadic, Inactive, Unknown
--- Readiness = Untested
---    Readiness should be one of: Raid, NoRaid, Basic, Development, Untested
--------------------------------------------------------
--- Required: Fill above fields to populate README.md --
--------------------------------------------------------
-
 local rotationName = "CuteOne" -- Change to name of profile listed in options drop down
 
 ---------------
 --- Toggles ---
 ---------------
-local function createToggles() -- Define custom toggles
-    -- Rotation Button
-    local RotationModes = {
-        [1] = { mode = "Auto", value = 1, overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range.", highlight = 1, icon = br.player.spells.swipe },
-        [2] = { mode = "Multi", value = 2, overlay = "Multiple Target Rotation", tip = "Forces Multiple Target Rotation.", highlight = 0, icon = br.player.spells.swipe },
-        [3] = { mode = "Single", value = 3, overlay = "Single Target Rotation", tip = "Forces Single Target Rotation.", highlight = 0, icon = br.player.spells.shred },
-        [4] = { mode = "Off", value = 4, overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spells.healingTouch }
-    };
-    br.ui:createToggle(RotationModes, "Rotation", 1, 0)
-    -- Cooldown Button
-    local CooldownModes = {
-        [1] = { mode = "Auto", value = 1, overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spells.tigersFury },
-        [2] = { mode = "On", value = 2, overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spells.tigersFury },
-        [3] = { mode = "Off", value = 3, overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spells.tigersFury }
-    };
-    br.ui:createToggle(CooldownModes, "Cooldown", 2, 0)
-    -- Defensive Button
-    local DefensiveModes = {
-        [1] = { mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spells.healingTouch },
-        [2] = { mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spells.healingTouch }
-    };
-    br.ui:createToggle(DefensiveModes, "Defensive", 3, 0)
-    -- Interrupt Button
-    local InterruptModes = {
-        [1] = { mode = "On", value = 1, overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spells.bash },
-        [2] = { mode = "Off", value = 2, overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spells.bash }
-    };
-    br.ui:createToggle(InterruptModes, "Interrupt", 4, 0)
-    -- Form Button
-    local FormModes = {
-        [1] = { mode = "Caster", value = 1, overlay = "Caster Form", tip = "Will force and use Caster Form", highlight = 1, icon = br.player.spells.moonkinForm },
-        [2] = { mode = "Cat", value = 2, overlay = "Cat Form", tip = "Will force and use Cat Form", highlight = 0, icon = br.player.spells.catForm },
-        [3] = { mode = "Bear", value = 3, overlay = "Bear Form", tip = "Will force and use Bear Form", highlight = 0, icon = br.player.spells.bearForm }
-    };
-    br.ui:createToggle(FormModes, "Forms", 5, 0)
-    -- Prowl Button
-    local ProwlModes = {
-        [1] = { mode = "On", value = 1, overlay = "Prowl Enabled", tip = "Rotation will use Prowl", highlight = 1, icon = br.player.spells.prowl },
-        [2] = { mode = "Off", value = 2, overlay = "Prowl Disabled", tip = "Rotation will not use Prowl", highlight = 0, icon = br.player.spells.prowl }
-    };
-    br.ui:createToggle(ProwlModes, "Prowl", 6, 0)
+local function toggles()
+    br.ui:toggle("Rotation", { key = "RightShift", modes = {
+        { name = "Auto", icon = "swipe", overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range." },
+        { name = "Multi", icon = "swipe", overlay = "Multiple Target Rotation", tip = "Forces Multiple Target Rotation." },
+        { name = "Single", icon = "shred", overlay = "Single Target Rotation", tip = "Forces Single Target Rotation." },
+        { name = "Off", icon = "healingTouch", overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation" },
+    } })
+    br.ui:toggle("Cooldown", { key = "RightCtrl", modes = {
+        { name = "Auto", icon = "tigersFury", overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection." },
+        { name = "On", icon = "tigersFury", overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target." },
+        { name = "Off", icon = "tigersFury", overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used." },
+    } })
+    br.ui:toggle("Defensive", { modes = {
+        { name = "On", icon = "healingTouch", overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns." },
+        { name = "Off", icon = "healingTouch", overlay = "Defensive Disabled", tip = "No Defensives will be used." },
+    } })
+    br.ui:toggle("Interrupt", { modes = {
+        { name = "On", icon = "bash", overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts." },
+        { name = "Off", icon = "bash", overlay = "Interrupts Disabled", tip = "No Interrupts will be used." },
+    } })
+    br.ui:toggle("Forms", { modes = {
+        { name = "Caster", icon = "moonkinForm", overlay = "Caster Form", tip = "Will force and use Caster Form" },
+        { name = "Cat", icon = "catForm", overlay = "Cat Form", tip = "Will force and use Cat Form" },
+        { name = "Bear", icon = "bearForm", overlay = "Bear Form", tip = "Will force and use Bear Form" },
+    } })
+    br.ui:toggle("Prowl", { modes = {
+        { name = "On", icon = "prowl", overlay = "Prowl Enabled", tip = "Rotation will use Prowl" },
+        { name = "Off", icon = "prowl", overlay = "Prowl Disabled", tip = "Rotation will not use Prowl" },
+    } })
 end
 ---------------
 --- OPTIONS ---
 ---------------
-local function createOptions()
-    local optionTable
-
-    local function rotationOptions()
-        local section
-        -----------------------
-        --- GENERAL OPTIONS ---
-        -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "General")
-        br.ui:createSpinnerWithout(section, "Shift Wait Time", 2, 0, 5, 1,
-            "|cffFFFFFFTime in seconds the profile will wait while moving to shift. Combat is instant!")
-        br.ui:createCheckbox(section, "Behind Debug", "|cffFFFFFFDebug behind/facing checks for Shred/Ravage.")
-        -- Powershifting
-        br.ui:createCheckbox(section, "Powershifting", "|cffFFFFFFFeral DPS In-Form Shifting for Energy")
-        -- Cower
-        br.ui:createCheckbox(section, "Cower", "|cffFFFFFFUse Cower (20 energy) to drop threat when being attacked while a tank is alive and nearby")
-        -- Mangle Trick
-        br.ui:createCheckbox(section, "Mangle Trick", "|cffFFFFFFAt energy 60-61 with tick <1s away, cast Mangle instead of Shred to enable a double-Mangle combo-point cycle (advanced, Wolfshead recommended).")
-        -- Rake/Bite Tricks
-        br.ui:createCheckbox(section, "Rake/Bite Tricks", "|cffFFFFFFWith Wolfshead at 35-39 energy and tick >1s away, cast Rake (no debuff) or Ferocious Bite (2+ CPs) instead of powershifting (advanced).")
-        -- Biteweave
-        br.ui:createCheckbox(section, "Biteweave", "|cffFF4444[TBC sub-optimal]|cffFFFFFF FB bonus energy converts at ~1-5 dmg/energy vs a wasted-CP Shred's ~35-45 dmg/energy. Enabling this intercepts and replaces what would otherwise be a Shred, for a net DPS loss. Enable only for personal preference.")
-        br.ui:checkSectionState(section)
-        --------------------------
-        --- FORM MANAGEMENT ---
-        --------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Form Management")
-        -- Aquatic Form
-        br.ui:createCheckbox(section, "Aquatic Form", "|cffFFFFFFEnable/Disable Using Aquatic Form")
-        -- Travel Form
-        br.ui:createCheckbox(section, "Travel Form", "|cffFFFFFFEnable/Disable Using Travel Form")
-        -- Last Form
-        br.ui:createCheckbox(section, "Last Form", "|cffFFFFFFEnable/Disable Returning to Last Form")
-        -- Energy Threshold
-        br.ui:createSpinner(section, "Energy", 35, 1, 100, 1, "|cffFFFFFFShift when energy drops below this. 35 = no Wolfshead (auto); 40 = Wolfshead Helm (auto-detected and raised). Covers the gap between post-ability energy and the cost of the next builder.")
-        -- Rage Threshold
-        br.ui:createSpinner(section, "Rage", 10, 1, 100, 1, "|cffFFFFFFBear Form Rage Threshold to Break Form")
-        br.ui:checkSectionState(section)
-        ----------------------
-        --- BLEED OPTIONS ---
-        ----------------------
-        section = br.ui:createSection(br.ui.window.profile, "Bleeds")
-        -- Rake
-        br.ui:createCheckbox(section, "Rake", "|cffFFFFFFEnable/Disable Using Rake")
-        -- Rip
-        br.ui:createCheckbox(section, "Rip", "|cffFFFFFFEnable/Disable Using Rip")
-        br.ui:checkSectionState(section)
-        ---------------------
-        --- BUFF OPTIONS ---
-        ---------------------
-        section = br.ui:createSection(br.ui.window.profile, "Buffs")
-        -- Self-Innervate
-        br.ui:createCheckbox(section, "Self-Innervate", "|cffFFFFFFEnable/Disable Using Innervate on Self")
-        -- Mark of the Wild
-        br.ui:createDropdown(section, "Mark of the Wild",
-            { "|cffFFFFFFPlayer", "|cffFFFFFFTarget", "|cffFFFFFFMouseover", "|cffFFFFFFFocus", "|cffFFFFFFGroup" }, 1,
-            "|cffFFFFFFSet how to use Mark of the Wild")
-        -- Omen of Clarity
-        br.ui:createDropdown(section, "Omen of Clarity",
-            { "|cffFFFFFFAny", "|cffFFFFFFFocus DPS", "|cffFFFFFFFocus Healing", "|cffFFFFFFNone" }, 1,
-            "|cffFFFFFFSelect how to use Omen of Clarity procs")
-        -- Thorns
-        br.ui:createDropdown(section, "Thorns",
-            { "|cffFFFFFFPlayer", "|cffFFFFFFTarget", "|cffFFFFFFMouseover", "|cffFFFFFFFocus", "|cffFFFFFFGroup" }, 1,
-            "|cffFFFFFFSet how to use Thorns")
-        -- Tiger's Fury
-        br.ui:createCheckbox(section, "Tiger's Fury", "|cffFFFFFFEnable/Disable Using Tiger's Fury")
-        br.ui:checkSectionState(section)
-        -------------------------
-        --- DEFENSIVE OPTIONS ---
-        -------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Defensive")
-        -- Self-Heal In Group
-        br.ui:createCheckbox(section, "Self Heal In Group", "|cffFFFFFFEnable/Disable Healing Self while Grouped")
-        -- Healing Touch
-        br.ui:createSpinner(section, "Healing Touch", 40, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-        -- Regrowth
-        br.ui:createSpinner(section, "Regrowth", 60, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-        -- Rejuvenation
-        br.ui:createSpinner(section, "Rejuvenation", 80, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-        -- Barkskin
-        br.ui:createSpinner(section, "Barkskin", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-        -- Abolish Poison
-        br.ui:createCheckbox(section, "Abolish Poison", "|cffFFFFFFEnable/Disable Using Abolish Poison")
-        -- Cure Poison
-        br.ui:createCheckbox(section, "Cure Poison", "|cffFFFFFFEnable/Disable Using Cure Poison")
-        -- Remove Curse
-        br.ui:createCheckbox(section, "Remove Curse", "|cffFFFFFFEnable/Disable Using Remove Curse")
-        -- Entangling Roots
-        br.ui:createCheckbox(section, "Entangling Roots", "|cffFFFFFFEnable/Disable Using Entangling Roots on fleeing enemies")
-        -- Faerie Fire
-        br.ui:createCheckbox(section, "Faerie Fire", "|cffFFFFFFEnable/Disable Using Faerie Fire/Faerie Fire Feral")
-        -- Nature's Grasp
-        br.ui:createCheckbox(section, "Nature's Grasp", "|cffFFFFFFEnable/Disable Using Nature's Grasp")
-        -- -- Health Potion
-        -- br.ui:createCheckbox(section, "Health Potion", "|cffFFFFFFEnable/Disable Using Health Potion")
-        -- -- Mana Potion
-        -- br.ui:createCheckbox(section, "Mana Potion", "|cffFFFFFFEnable/Disable Using Mana Potion")
-        -- Bash
-        br.ui:createSpinner(section, "Bash", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-        br.ui:checkSectionState(section)
-        -------------------------
-        --- Interrupt Options ---
-        -------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Interrupts")
-        -- Bash
-        br.ui:createCheckbox(section, "Bash - Int")
-        -- Maim
-        br.ui:createCheckbox(section, "Maim")
-        -- Interrupt Percentage
-        br.ui:createSpinnerWithout(section, "Interrupt At", 0, 0, 95, 5,
-            "|cffFFFFFFCast Percent to Cast At (0 is random)")
-        br.ui:checkSectionState(section)
-        ----------------------
-        --- TOGGLE OPTIONS ---
-        ----------------------
-        section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
-        -- Single/Multi Toggle
-        br.ui:createDropdownWithout(section, "Rotation Mode", br.ui.dropOptions.Toggle, 4)
-        -- Cooldown Key Toggle
-        br.ui:createDropdownWithout(section, "Cooldown Mode", br.ui.dropOptions.Toggle, 3)
-        -- Defensive Key Toggle
-        br.ui:createDropdownWithout(section, "Defensive Mode", br.ui.dropOptions.Toggle, 6)
-        -- Interrupt Key Toggle
-        br.ui:createDropdownWithout(section, "Interrupt Mode", br.ui.dropOptions.Toggle, 6)
-        -- Forms Key Toggle
-        br.ui:createDropdownWithout(section, "Forms Mode", br.ui.dropOptions.Toggle, 6)
-        -- Prowl Key Toggle
-        br.ui:createDropdownWithout(section, "Prowl Mode", br.ui.dropOptions.Toggle, 6)
-        br.ui:checkSectionState(section)
-    end
-    optionTable = { {
-        [1] = "Rotation Options",
-        [2] = rotationOptions,
-    } }
-    return optionTable
+local function options()
+    local section
+    -----------------------
+    --- GENERAL OPTIONS ---
+    -----------------------
+    section = br.ui:section("General")
+    br.ui:spinner(section, "Shift Wait Time", { value = 2, max = 5, step = 1, checkbox = false,
+        tip = "Time in seconds the profile will wait while moving to shift. Combat is instant!" })
+    br.ui:checkbox(section, "Behind Debug", { tip = "Debug behind/facing checks for Shred/Ravage." })
+    -- Powershifting
+    br.ui:checkbox(section, "Powershifting", { tip = "Feral DPS In-Form Shifting for Energy" })
+    -- Cower
+    br.ui:checkbox(section, "Cower", { tip = "Use Cower (20 energy) to drop threat when being attacked while a tank is alive and nearby" })
+    -- Mangle Trick
+    br.ui:checkbox(section, "Mangle Trick", { tip = "At energy 60-61 with tick <1s away, cast Mangle instead of Shred to enable a double-Mangle combo-point cycle (advanced, Wolfshead recommended)." })
+    -- Rake/Bite Tricks
+    br.ui:checkbox(section, "Rake/Bite Tricks", { tip = "With Wolfshead at 35-39 energy and tick >1s away, cast Rake (no debuff) or Ferocious Bite (2+ CPs) instead of powershifting (advanced)." })
+    -- Biteweave
+    br.ui:checkbox(section, "Biteweave", { tip = "|cffFF4444[TBC sub-optimal]|cffFFFFFF FB bonus energy converts at ~1-5 dmg/energy vs a wasted-CP Shred's ~35-45 dmg/energy. Enabling this intercepts and replaces what would otherwise be a Shred, for a net DPS loss. Enable only for personal preference." })
+    --------------------------
+    --- FORM MANAGEMENT ---
+    --------------------------
+    section = br.ui:section("Form Management")
+    -- Aquatic Form
+    br.ui:checkbox(section, "Aquatic Form", { tip = "Enable/Disable Using Aquatic Form" })
+    -- Travel Form
+    br.ui:checkbox(section, "Travel Form", { tip = "Enable/Disable Using Travel Form" })
+    -- Last Form
+    br.ui:checkbox(section, "Last Form", { tip = "Enable/Disable Returning to Last Form" })
+    -- Energy Threshold
+    br.ui:spinner(section, "Energy", { value = 35, min = 1, step = 1,
+        tip = "Shift when energy drops below this. 35 = no Wolfshead (auto); 40 = Wolfshead Helm (auto-detected and raised). Covers the gap between post-ability energy and the cost of the next builder." })
+    -- Rage Threshold
+    br.ui:spinner(section, "Rage", { value = 10, min = 1, step = 1, tip = "Bear Form Rage Threshold to Break Form" })
+    ----------------------
+    --- BLEED OPTIONS ---
+    ----------------------
+    section = br.ui:section("Bleeds")
+    -- Rake
+    br.ui:checkbox(section, "Rake", { tip = "Enable/Disable Using Rake" })
+    -- Rip
+    br.ui:checkbox(section, "Rip", { tip = "Enable/Disable Using Rip" })
+    ---------------------
+    --- BUFF OPTIONS ---
+    ---------------------
+    section = br.ui:section("Buffs")
+    -- Self-Innervate
+    br.ui:checkbox(section, "Self-Innervate", { tip = "Enable/Disable Using Innervate on Self" })
+    -- Mark of the Wild
+    br.ui:dropdown(section, "Mark of the Wild", { choices = { "Player", "Target", "Mouseover", "Focus", "Group" }, value = "Player",
+        tip = "Set how to use Mark of the Wild" })
+    -- Omen of Clarity
+    br.ui:dropdown(section, "Omen of Clarity", { choices = { "Any", "Focus DPS", "Focus Healing", "None" }, value = "Any",
+        tip = "Select how to use Omen of Clarity procs" })
+    -- Thorns
+    br.ui:dropdown(section, "Thorns", { choices = { "Player", "Target", "Mouseover", "Focus", "Group" }, value = "Player",
+        tip = "Set how to use Thorns" })
+    -- Tiger's Fury
+    br.ui:checkbox(section, "Tiger's Fury", { tip = "Enable/Disable Using Tiger's Fury" })
+    -------------------------
+    --- DEFENSIVE OPTIONS ---
+    -------------------------
+    section = br.ui:section("Defensive")
+    -- Self-Heal In Group
+    br.ui:checkbox(section, "Self Heal In Group", { tip = "Enable/Disable Healing Self while Grouped" })
+    -- Healing Touch
+    br.ui:spinner(section, "Healing Touch", { value = 40, tip = "Health Percent to Cast At" })
+    -- Regrowth
+    br.ui:spinner(section, "Regrowth", { value = 60, tip = "Health Percent to Cast At" })
+    -- Rejuvenation
+    br.ui:spinner(section, "Rejuvenation", { value = 80, tip = "Health Percent to Cast At" })
+    -- Barkskin
+    br.ui:spinner(section, "Barkskin", { value = 50, tip = "Health Percent to Cast At" })
+    -- Abolish Poison
+    br.ui:checkbox(section, "Abolish Poison", { tip = "Enable/Disable Using Abolish Poison" })
+    -- Cure Poison
+    br.ui:checkbox(section, "Cure Poison", { tip = "Enable/Disable Using Cure Poison" })
+    -- Remove Curse
+    br.ui:checkbox(section, "Remove Curse", { tip = "Enable/Disable Using Remove Curse" })
+    -- Entangling Roots
+    br.ui:checkbox(section, "Entangling Roots", { tip = "Enable/Disable Using Entangling Roots on fleeing enemies" })
+    -- Faerie Fire
+    br.ui:checkbox(section, "Faerie Fire", { tip = "Enable/Disable Using Faerie Fire/Faerie Fire Feral" })
+    -- Nature's Grasp
+    br.ui:checkbox(section, "Nature's Grasp", { tip = "Enable/Disable Using Nature's Grasp" })
+    -- -- Health Potion
+    -- br.ui:createCheckbox(section, "Health Potion", "|cffFFFFFFEnable/Disable Using Health Potion")
+    -- -- Mana Potion
+    -- br.ui:createCheckbox(section, "Mana Potion", "|cffFFFFFFEnable/Disable Using Mana Potion")
+    -- Bash
+    br.ui:spinner(section, "Bash", { value = 50, tip = "Health Percent to Cast At" })
+    -------------------------
+    --- Interrupt Options ---
+    -------------------------
+    section = br.ui:section("Interrupts")
+    -- Bash
+    br.ui:checkbox(section, "Bash - Int")
+    -- Maim
+    br.ui:checkbox(section, "Maim")
+    -- Interrupt Percentage
+    br.ui:spinner(section, "Interrupt At", { value = 0, max = 95, checkbox = false, tip = "Cast Percent to Cast At (0 is random)" })
 end
 
 --------------
@@ -211,6 +150,7 @@ local comboPoints
 local debuff
 local enemies
 local energy
+local has
 local rage
 local mana
 local module
@@ -264,42 +204,48 @@ end
 --     return false
 -- end
 
+-- Cache for ferociousBiteFinish's parsed damage values. Key: spellID..":"..cp.
+-- Rank-change invalidation: spell.X.id() re-reads the spellbook each call
+-- (verified at AUDIT.md L23 plan session — Spell.lua:29-33 + Spell.lua:657-672),
+-- so post-level-up the new rank's spell ID produces a fresh cache key and old
+-- entries become orphaned (harmless).
+-- Locale-sensitivity assumption inherited from desc:find() below — wrong on
+-- non-English clients; /reload purges this module-scope cache so locale
+-- change can't outlast it.
+local ferociousBiteCache = {}
+
 -- Ferocious Bite Finish
 local function ferociousBiteFinish(thisUnit)
-    local desc = br._G.C_Spell.GetSpellDescription(spell.ferociousBite.id()) or ""
-    if desc == "" then return false end
-
-    local finishHim = false
     if thisUnit == nil then thisUnit = "target" end
     if comboPoints() <= 0 or unit.isDummy(thisUnit) then return false end
 
-    local comboStart = desc:find(" " .. comboPoints() .. " ", 1, true)
-    if comboStart == nil then return false end
+    local spellID = spell.ferociousBite.id()
+    if spellID == 0 then return false end
+    local cp = comboPoints()
+    local cacheKey = spellID .. ":" .. cp
 
-    local damageList = desc:sub(comboStart + 2)
-    local colonPos = damageList:find(": ", 1, true)
-    if colonPos == nil then return false end
-    damageList = damageList:sub(colonPos + 2)
+    local lower = ferociousBiteCache[cacheKey]
+    if lower == nil then
+        local desc = br._G.C_Spell.GetSpellDescription(spellID) or ""
+        if desc == "" then ferociousBiteCache[cacheKey] = false; return false end
+        local comboStart = desc:find(" " .. cp .. " ", 1, true)
+        if comboStart == nil then ferociousBiteCache[cacheKey] = false; return false end
+        local damageList = desc:sub(comboStart + 2)
+        local colonPos = damageList:find(": ", 1, true)
+        if colonPos == nil then ferociousBiteCache[cacheKey] = false; return false end
+        damageList = damageList:sub(colonPos + 2)
+        local spacePos = damageList:find(" ", 1, true) or (#damageList + 1)
+        local token = damageList:sub(1, spacePos - 1):gsub(",", "")
+        local low = token:match("^(%d+)%-%d+$") or token:match("^(%d+)$")
+        lower = tonumber(low)
+        ferociousBiteCache[cacheKey] = lower or false
+    end
 
-    local spacePos = damageList:find(" ", 1, true) or (#damageList + 1)
-    local token = damageList:sub(1, spacePos - 1):gsub(",", "")
-
-    local low = token:match("^(%d+)%-%d+$") or token:match("^(%d+)$")
-    local lower = tonumber(low)
-    if lower == nil then return false end
-
-    finishHim = lower >= (unit.health(thisUnit) or 0)
-    return finishHim
+    if lower == false or lower == nil then return false end
+    return lower >= (unit.health(thisUnit) or 0)
 end
 
 -- Time Moving
-local function timeMoving()
-    if var.moveTimer == nil then var.moveTimer = br._G.GetTime() end
-    if not unit.moving() then
-        var.moveTimer = br._G.GetTime()
-    end
-    return br._G.GetTime() - var.moveTimer
-end
 
 -- Behind check (nil-safe)
 -- Prefer the engine API so all profiles share the same fix/behavior.
@@ -354,65 +300,69 @@ local function safeCancelForm(outOfFormSpellRef, reason, treatOutSpellAsFree)
     return true
 end
 
--- In Aggro Range Check
-local function inAggroRange(offset)
-    offset = offset or 5
-    for i = 1, #enemies.yards20nc do
-        local thisUnit = enemies.yards20nc[i]
-        local threatRange = math.max((20 + (unit.level(thisUnit) - unit.level())), 5) + offset
-        --local react = unit.reaction(thisUnit) or 10
-        if unit.distance(thisUnit) < threatRange and not unit.friend(thisUnit) then--(react < 3 or (unit.isUnit("target", thisUnit) and react == 4)) then
-            -- ui.debug("Unit in Aggro Range: " .. unit.name(thisUnit) .. " at distance " .. tostring(unit.distance(thisUnit)) .. " with threat range " .. tostring(threatRange))
+-- True when a party/raid member (not us) is in combat and currently targeting thisUnit —
+-- i.e. our group has already engaged it. Lets us pre-emptively Prowl to open from stealth
+-- on a mob the group pulled (even while it's in combat). Solo players short-circuit.
+local function engagedByGroup(thisUnit)
+    local n = unit.groupCount()
+    if n <= 1 then return false end
+    local inRaid = br._G.IsInRaid()
+    local prefix = inRaid and "raid" or "party"
+    -- Raid tokens are raid1..raidN (include us, filtered out below); party tokens are
+    -- party1..party(N-1) with the player addressed separately as "player".
+    local last = inRaid and n or (n - 1)
+    for i = 1, last do
+        local member = prefix .. i
+        if not unit.isUnit(member, "player")
+            and br._G.UnitAffectingCombat(member)
+            and unit.isUnit(member .. "target", thisUnit)
+        then
             return true
         end
     end
     return false
 end
 
-local getBuffUnitOption = function(option)
-    local thisTar = ui.value(option)
-    local thisUnit
-    if thisTar == 1 then
-        thisUnit = "player"
-    end
-    if thisTar == 2 then
-        thisUnit = "target"
-        if not unit.exists(thisUnit) then
-            thisUnit = "player"
-        end
-    end
-    if thisTar == 3 then
-        thisUnit = "mouseover"
-        if not unit.exists(thisUnit) then
-            thisUnit = "player"
-        end
-    end
-    if thisTar == 4 then
-        thisUnit = "focus"
-        if not unit.exists(thisUnit) then
-            thisUnit = "player"
-        end
-    end
-    if thisTar == 5 then
-        thisUnit = "player"
-        if #br.engines.healingEngine.friend > 1 then
-            for i = 1, #br.engines.healingEngine.friend do
-                local nextUnit = br.engines.healingEngine.friend[i].unit
-                local needsBuff = false
-                if option == "Mark of the Wild" then
-                    needsBuff = buff.markOfTheWild.refresh(nextUnit)
-                elseif option == "Thorns" then
-                    needsBuff = buff.thorns.refresh(nextUnit)
-                end
-                if needsBuff and unit.distance(nextUnit) < 40 then
-                    thisUnit = nextUnit
-                    break
+-- Aggro/proximity radius for a mob, scaled by level difference (a mob's aggro range grows
+-- ~1y per level it is above us and shrinks per level below, floored at 5y). The +offset
+-- buffer (default 5) makes callers fire just BEFORE we would cross into that radius — e.g.
+-- pre-emptive Prowl happens a few yards before proximity aggro, not after.
+local function aggroRadius(thisUnit, offset)
+    return math.max((20 + (unit.level(thisUnit) - unit.level())), 5) + (offset or 5)
+end
+
+-- In Aggro Range Check
+-- Drives auto-Prowl, auto-shapeshift, and "keep travel/aquatic form". Returns true when a
+-- mob that would actually proximity-aggro us is within its (level-scaled) aggro radius:
+--   * fresh hostile — unit.enemy (UnitIsEnemy → hostile only, excludes neutral) AND not
+--     already in combat, so it will proximity-aggro us. Raw UnitAffectingCombat is used
+--     instead of unit.inCombat() (the latter ORs in player-only options like "Ignore
+--     Combat"/tank-aggro that would misreport a mob).
+--   * group-engaged — a party/raid member already pulled it; we want to open from stealth
+--     too even though it's in combat (with our group).
+-- A NEUTRAL mob we have targeted is intentionally NOT counted here: neutrals don't
+-- proximity-aggro, so Prowl for them is deferred to near-melee in the PreCombat prowl gate.
+-- (The old `not unit.friend()` test wrongly counted every neutral mob and every mob fighting
+-- someone outside our group.)
+local function inAggroRange(offset)
+    offset = offset or 5
+    for i = 1, #enemies.yards20nc do
+        local thisUnit = enemies.yards20nc[i]
+        if unit.canAttack(thisUnit) and not unit.deadOrGhost(thisUnit) then
+            local freshHostile = unit.enemy(thisUnit) and not br._G.UnitAffectingCombat(thisUnit)
+            if freshHostile or engagedByGroup(thisUnit) then
+                if unit.distance(thisUnit) < aggroRadius(thisUnit, offset) then
+                    -- ui.debug("Prowl trigger: " .. unit.name(thisUnit) .. " at " .. tostring(unit.distance(thisUnit)) .. "y")
+                    return true
                 end
             end
         end
     end
-    return thisUnit
+    return false
 end
+
+local function needsMarkOfTheWild(thisUnit) return buff.markOfTheWild.refresh(thisUnit) end
+local function needsThorns(thisUnit) return buff.thorns.refresh(thisUnit) end
 
 -- Keep Aquatic Form while swimming unless danger/enemy target.
 var.keepAquatic = function()
@@ -433,13 +383,13 @@ actionList.Extra = function()
     if ui.checked("Mark of the Wild") and not unit.flying() and not buff.prowl.exists() then
         local inGroup = unit.inGroup()
         local hasGift = spell.giftOfTheWild and spell.giftOfTheWild.known and spell.giftOfTheWild.known()
-        local hasReagent = unit.hasItem and unit.hasItem("Wild Thornroot")
+        local hasReagent = has.item(17026) -- Wild Thornroot
         if inGroup and hasGift and hasReagent and mana() > cast.cost.giftOfTheWild() + var.formCost then
             -- Check if anyone in group needs the buff
             local needsGift = false
             for i = 1, #br.engines.healingEngine.friend do
                 local u = br.engines.healingEngine.friend[i].unit
-                if buff.markOfTheWild.refresh(u) and not buff.giftOfTheWild.exists(u) and unit.distance(u) < 40 then
+                if buff.markOfTheWild.refresh(u) and not buff.giftOfTheWild.exists(u, "") and unit.distance(u) < 40 then
                     needsGift = true
                     break
                 end
@@ -461,11 +411,11 @@ actionList.Extra = function()
         end
         -- Fallback to Mark of the Wild (single buff or no reagent)
         if mana() > cast.cost.markOfTheWild() + var.formCost then
-            var.markUnit = getBuffUnitOption("Mark of the Wild")
+            var.markUnit = ui.buffUnit("Mark of the Wild", needsMarkOfTheWild, 40)
             if cast.able.markOfTheWild(var.markUnit) and buff.markOfTheWild.refresh(var.markUnit)
                 and not unit.inCombat() and not unit.resting() and unit.distance(var.markUnit) < 40
                 and (var.markUnit == "player" or unit.player(var.markUnit)) and unit.friend(var.markUnit)
-                and not buff.giftOfTheWild.exists(var.markUnit)
+                and not buff.giftOfTheWild.exists(var.markUnit, "")
             then
                 -- Cancel form if needed to buff
                 local needsCancel = buff.catForm.exists() or buff.bearForm.exists() or buff.travelForm.exists() or buff.aquaticForm.exists()
@@ -484,7 +434,7 @@ actionList.Extra = function()
     end
     -- Thorns
     if ui.checked("Thorns") and not unit.flying() and not buff.prowl.exists() and mana() > cast.cost.thorns() + var.formCost then
-        var.thornUnit = getBuffUnitOption("Thorns")
+        var.thornUnit = ui.buffUnit("Thorns", needsThorns, 40)
         if cast.able.thorns(var.thornUnit) and buff.thorns.refresh(var.thornUnit)
             and not unit.inCombat() and not unit.resting() and unit.distance(var.thornUnit) < 40
             and (var.thornUnit == "player" or unit.player(var.thornUnit))
@@ -757,38 +707,33 @@ actionList.Interrupts = function()
     if ui.useInterrupt() and ui.delay("Interrupts", unit.gcd(true))
         -- and not (buff.prowl.exists() or buff.shadowmeld.exists())
     then
-        local thisUnit
-        -- * Bash
-        if ui.checked("Bash - Int") then
-            for i = 1, #enemies.yards5f do
-                thisUnit = enemies.yards5f[i]
-                if unit.interruptable(thisUnit, ui.value("Interrupt At")) then
-                    -- Bash is Bear Form only in Classic; shift first if needed.
-                    -- if not buff.bearForm.exists() and cast.able.bearForm() then
-                    --     if cast.bearForm() then
-                    --         ui.debug("Shifting to Bear Form for Bash interrupt")
-                    --         return true
-                    --     end
-                    -- end
-                    if (buff.bearForm.exists() or buff.direBearForm.exists()) and cast.able.bash(thisUnit) then
-                        if cast.bash(thisUnit) then
-                            ui.debug("Casting Bash on " .. unit.name(thisUnit))
-                            return true
-                        end
+        -- Outer-guards hoisted to function-top: these are per-call decisions, not
+        -- per-iteration. Merging the two parallel yards5f loops into one shares
+        -- the interruptable check across both spells. See AUDIT.md L24.
+        --
+        -- USER-FACING BEHAVIOR CHANGE: Interrupt threshold (ui.value) is read once
+        -- per call instead of per enemy. UI value changes mid-pulse now apply on
+        -- the next pulse rather than mid-loop. Same category as L01's accurate
+        -- counts and L08's cast-gate behavior on Classic-era — small, defensible,
+        -- documented so a future user report can find the change.
+        local bashEnabled = ui.checked("Bash - Int")
+        local maimEnabled = ui.checked("Maim") and buff.catForm.exists() and comboPoints() > 0 and energy() >= 35
+        if not bashEnabled and not maimEnabled then return end
+        local interruptAt = ui.value("Interrupt At")
+        local isBearForm  = buff.bearForm.exists() or buff.direBearForm.exists()
+
+        for i = 1, #enemies.yards5f do
+            local thisUnit = enemies.yards5f[i]
+            if unit.interruptable(thisUnit, interruptAt) then
+                if bashEnabled and isBearForm and cast.able.bash(thisUnit) then
+                    if cast.bash(thisUnit) then
+                        ui.debug("Casting Bash on " .. unit.name(thisUnit))
+                        return true
                     end
-                end
-            end
-        end
-        -- * Maim
-        if ui.checked("Maim") and buff.catForm.exists() and comboPoints() > 0 and energy() >= 35 then
-            for i = 1, #enemies.yards5f do
-                thisUnit = enemies.yards5f[i]
-                if unit.interruptable(thisUnit, ui.value("Interrupt At")) then
-                    if cast.able.maim(thisUnit) then
-                        if cast.maim(thisUnit) then
-                            ui.debug("Casting Maim on " .. unit.name(thisUnit))
-                            return true
-                        end
+                elseif maimEnabled and cast.able.maim(thisUnit) then
+                    if cast.maim(thisUnit) then
+                        ui.debug("Casting Maim on " .. unit.name(thisUnit))
+                        return true
                     end
                 end
             end
@@ -819,7 +764,7 @@ actionList.FormManagement = function()
     -- Aquatic Form
     if ui.checked("Aquatic Form") and not unit.inCombat() and cast.able.aquaticForm()
         and br._G.IsSwimming() and not buff.aquaticForm.exists() and not buff.prowl.exists()
-        and unit.moving() and timeMoving() > 2 and not inAggroRange()
+        and unit.moving() and unit.movingTime() > 2 and not inAggroRange()
     then
         if buff.catForm.exists() or buff.bearForm.exists() or buff.travelForm.exists() then
             if safeCancelForm(spell.aquaticForm, "Swimming") then
@@ -836,7 +781,7 @@ actionList.FormManagement = function()
     if ui.checked("Travel Form") and not unit.inCombat() and not br._G.IsMounted()
         and not br._G.IsSwimming() and not br._G.IsFalling() and cast.able.travelForm()
         and not buff.travelForm.exists() and not buff.prowl.exists()
-        and unit.moving() and timeMoving() > 2 and not inAggroRange()
+        and unit.moving() and unit.movingTime() > 2 and not inAggroRange()
     then
         if buff.catForm.exists() or buff.bearForm.exists() then
             if safeCancelForm(spell.travelForm, "Travel") then
@@ -851,7 +796,7 @@ actionList.FormManagement = function()
 
     -- Auto Shapeshift
     if not var.keepAquatic() --and not needsFormBreak()
-        and ((unit.moving() and timeMoving() > ui.value("Shift Wait Time")) or unit.inCombat() or inAggroRange(5))
+        and ((unit.moving() and unit.movingTime() > ui.value("Shift Wait Time")) or unit.inCombat() or inAggroRange(5))
     then
         -- Bear Form
         if var.formValue == 3 and (spell.bearForm.known() or spell.direBearForm.known())
@@ -959,7 +904,8 @@ actionList.CatOpener = function()
     if not unit.valid("target") or unit.deadOrGhost("target") or unit.distance("target") >= 5 then return false end
     if unit.player("target") then return false end
 
-    -- Tiger's Fury pre-opener: buff Ravage/opener damage if TF is ready (costs 30 energy, +40% dmg for 6s).
+    -- Tiger's Fury pre-opener: buff Ravage/opener damage if TF is ready (costs 30 energy;
+    -- adds flat physical damage per hit for 6s — TBC TF gives no energy return).
     -- Do not block the opener if TF is on cooldown — proceed immediately in that case.
     if ui.checked("Tiger's Fury") and spell.tigersFury.known() and not buff.tigersFury.exists()
         and energy() >= 30 and cast.able.tigersFury()
@@ -1055,6 +1001,20 @@ end
 -- Action List - Cat Form
 actionList.CatForm = function()
     if unit.inCombat("player") and buff.catForm.exists() then
+        -- Per-tick state hoists for the CatForm action list. Each query below is
+        -- called 3-6 times throughout the function with identical arguments;
+        -- hoisting collapses each cluster to a single call per pass. Scope
+        -- intentionally extended beyond L22's original "aura-scan reduction"
+        -- wording — cp (4 sites) and clearcasting (6 sites) are higher-repetition
+        -- than mangleBearUp (3 sites) so they're the more impactful instance of
+        -- the same pattern. Skipped: energy() (12+ sites, different freshness
+        -- shape), buff.catForm (only 2 sites, marginal), debuff.mangleCat.*
+        -- (3 different API methods called once each, no redundancy). See
+        -- AUDIT.md L22 for the scope-extension rationale.
+        local cp           = comboPoints()
+        local clearcasting = buff.clearcasting.exists()
+        local ttd          = unit.ttd(units.dyn5)
+        local mangleBearUp = debuff.mangleBear.exists(units.dyn5, "any")
         -- Cower (threat reduction)
         -- Only drop threat if a Warrior or Paladin is alive and nearby — in TBC these are the
         -- only reliable tanks. If none is present (dead or out of range) it is safer to keep
@@ -1068,12 +1028,13 @@ actionList.CatForm = function()
             end
         end
         -- Tiger's Fury — use on cooldown at <= 35 energy (at or below Rake cost).
-        -- TF costs 30 energy and gives +40% dmg for 6s; at 36-39 energy Rake is preferred
-        -- (bleed+CP > TF boost value per wowsims), and at 36-39 with Wolfshead the powershift
-        -- fires instead (shift gives 60 energy, outweighing TF's buff value).
+        -- TF costs 30 energy and adds flat physical damage per hit for 6s (rank-based,
+        -- e.g. +40 at max rank in 2.5.x; it is NOT an energy return — that's WotLK).
+        -- At 36-39 energy Rake is preferred (bleed+CP > TF flat bonus per wowsims), and
+        -- at 36-39 with Wolfshead the powershift fires instead (shift gives 60 energy).
         -- Gate on !clearcasting: don't burn 30 energy when a free OoC proc is available.
         if ui.checked("Tiger's Fury") and cast.able.tigersFury() and buff.catForm.exists()
-            and not buff.tigersFury.exists() and energy() <= 35 and not buff.clearcasting.exists()
+            and not buff.tigersFury.exists() and energy() <= 35 and not clearcasting
         then
             if cast.tigersFury() then
                 ui.debug("Casting Tiger's Fury")
@@ -1085,7 +1046,7 @@ actionList.CatForm = function()
         local finish    = ferociousBiteFinish(units.dyn5)
         -- biteAtEnd: target dies before Rip completes all ticks — skip Rip, use FB instead.
         -- No energy cap on this path: a dying target should receive excess energy as FB bonus damage.
-        local biteAtEnd = comboPoints() >= 5 and unit.ttd(units.dyn5) < 6
+        local biteAtEnd = cp >= 5 and ttd < 6
         -- tickIn: seconds until the next 2-second energy tick; reused by tricks and powershift gate.
         local tickIn    = timeToNextEnergyTick()
         -- Ferocious Bite - Finish Him! (execute: min damage >= target HP, any CP count)
@@ -1099,21 +1060,8 @@ actionList.CatForm = function()
             end
         end
 
-        -- Faerie Fire (Feral)
-        if ui.checked("Faerie Fire") and cast.able.faerieFireFeral(units.dyn5) and unit.valid(units.dyn5)
-            and not buff.prowl.exists()
-            and not debuff.faerieFireFeral.exists(units.dyn5, "any") and not debuff.faerieFire.exists(units.dyn5, "any")
-            and not unit.isElemental(units.dyn5)
-            and unit.ttd(units.dyn5) > cd.global.remain()
-        then
-            if cast.faerieFireFeral(units.dyn5) then
-                ui.debug("Casting Faerie Fire (Feral)")
-                return true
-            end
-        end
-
         -- 5 Combo Points - Finishers
-        if comboPoints() >= 5 and not buff.clearcasting.exists() and not finish then
+        if cp >= 5 and not clearcasting and not finish then
             -- biteAtEnd: target dying (<6s TTD) — skip Rip (ticks won't complete) and dump
             -- excess energy into FB bonus damage. No energy cap on this path.
             if biteAtEnd and cast.able.ferociousBite(units.dyn5) and energy() >= 35 then
@@ -1125,7 +1073,7 @@ actionList.CatForm = function()
             -- Rip: apply when missing, or refresh at <= 2s remaining before it falls off entirely.
             -- Gate on ttd > 6 (matches biteAtEnd threshold) and energy >= 30 so we never apply
             -- Rip and be immediately stuck unable to cast a single builder.
-            if ui.checked("Rip") and cast.able.rip(units.dyn5) and unit.ttd(units.dyn5) > 6
+            if ui.checked("Rip") and cast.able.rip(units.dyn5) and ttd > 6
                 and (not debuff.rip.exists(units.dyn5) or debuff.rip.remain(units.dyn5) <= 2)
                 and not biteAtEnd and energy() >= 30
             then
@@ -1140,7 +1088,7 @@ actionList.CatForm = function()
             -- running and energy >= 40 the builder block already fires a wasted-CP Shred, which
             -- is strictly better. This path only covers early levels (no Rip) or execute windows.
             if cast.able.ferociousBite(units.dyn5) and energy() >= 35 and energy() < 40
-                and (not spell.rip.known() or unit.ttd(units.dyn5) <= 6)
+                and (not spell.rip.known() or ttd <= 6)
             then
                 if cast.ferociousBite(units.dyn5) then
                     ui.debug("Casting Ferocious Bite")
@@ -1153,7 +1101,7 @@ actionList.CatForm = function()
         -- spend energy productively rather than letting it cap out.
         -- At energy >= 57+cutoffMod (cutoffMod=20 when tick >1s), Shred is more efficient;
         -- fall through to the builder block which handles it naturally.
-        if ui.checked("Biteweave") and debuff.rip.exists(units.dyn5) and comboPoints() >= 5
+        if ui.checked("Biteweave") and debuff.rip.exists(units.dyn5) and cp >= 5
             and not finish and not biteAtEnd and cast.able.ferociousBite(units.dyn5)
             and energy() >= 35
         then
@@ -1178,7 +1126,7 @@ actionList.CatForm = function()
                 end
             end
             -- Bite Trick: Ferocious Bite at 2+ CPs instead of shifting
-            if cast.able.ferociousBite(units.dyn5) and comboPoints() >= 2 and not buff.clearcasting.exists() then
+            if cast.able.ferociousBite(units.dyn5) and cp >= 2 and not clearcasting then
                 if cast.ferociousBite(units.dyn5) then
                     ui.debug("Casting Ferocious Bite [Bite Trick]")
                     return true
@@ -1197,10 +1145,10 @@ actionList.CatForm = function()
         then
             local threshold = var.shiftEnergyThreshold
             if energy() <= 10                                                                              -- hard floor: always shift regardless of OoC
-                or (energy() < threshold and tickIn > 1.0 and not buff.clearcasting.exists())             -- soft: hold shift to spend free OoC proc instead
+                or (energy() < threshold and tickIn > 1.0 and not clearcasting)                            -- soft: hold shift to spend free OoC proc instead
             then
                 local postShift = var.hasWolfshead and 60 or 40
-                if cast.macro("/cast !"..spell.catForm.name()) then
+                if cast.macro("/cast !"..spell.catForm.name(), spell.catForm.id()) then
                     ui.debug(string.format(
                         "Powershift for Energy (energy=%d, threshold=%d, tick in %.2fs, will have ~%d)",
                         energy(), threshold, tickIn, postShift
@@ -1211,35 +1159,56 @@ actionList.CatForm = function()
             -- energy < threshold but tickIn <= 1.0: wait for the tick, do nothing
         end
 
+        -- Faerie Fire (Feral): applies the armor debuff (free, instant). Placed below
+        -- the finishers and powershift so it never delays a ready Rip, but above the
+        -- builders since the 40s raid-wide armor reduction outvalues a single Shred.
+        -- The exists() checks already skip it when any druid's Faerie Fire is up (the
+        -- only debuff it conflicts with; it stacks with Sunder/Expose/Curse of Recklessness).
+        if ui.checked("Faerie Fire") and cast.able.faerieFireFeral(units.dyn5) and unit.valid(units.dyn5)
+            and not buff.prowl.exists()
+            and not debuff.faerieFireFeral.exists(units.dyn5, "any") and not debuff.faerieFire.exists(units.dyn5, "any")
+            and not unit.isElemental(units.dyn5)
+            and ttd > cd.global.remain()
+        then
+            if cast.faerieFireFeral(units.dyn5) then
+                ui.debug("Casting Faerie Fire (Feral)")
+                return true
+            end
+        end
+
         -- Combo Point Builders
-        if (comboPoints() < 5 or buff.clearcasting.exists() or energy() >= 40) and not finish then
+        if (cp < 5 or clearcasting or energy() >= 40) and not finish then
+            -- behindDyn5 hoisted to top of Builders block — used by Ravage, Mangle,
+            -- Mangle Trick, and Shred. Previously declared twice (once as behindRavage
+            -- for Ravage, once as behindDyn5 for the rest); the duplicate isBehind call
+            -- was an incomplete hoist. See AUDIT.md L22 fold-in note.
+            local behindDyn5 = isBehind(units.dyn5, "player")
             -- Ravage (from Prowl)
-            local behindRavage = isBehind(units.dyn5, "player")
-            if cast.able.ravage(units.dyn5) and buff.prowl.exists() and behindRavage then
+            if cast.able.ravage(units.dyn5) and buff.prowl.exists() and behindDyn5 then
                 if cast.ravage(units.dyn5) then
                     ui.debug("Casting Ravage")
                     return true
                 end
             end
-            -- Mangle
+            -- Mangle (maintain the +30% bleed debuff)
             -- Gate the entire block on not mangleBear: Bear Mangle (rank 4) > Cat Mangle (rank 1);
             -- applying Cat Mangle when Bear Mangle is active triggers "A more powerful spell is already active".
-            -- When Bear Mangle is up, fall through to Rake as the facing-target builder instead.
-            local behindDyn5 = isBehind(units.dyn5, "player")
-            if cast.able.mangleCat(units.dyn5) and not debuff.mangleBear.exists(units.dyn5,"any")
-                and (not behindDyn5 or not spell.shred.known()
-                    or debuff.mangleCat.refresh(units.dyn5,"any")
+            -- This high-priority check only applies/refreshes the debuff. Pure filler
+            -- Mangle (when we can't Shred) is handled below, *after* Rake, so Rake's
+            -- bleed isn't starved when attacking from the front with the debuff already up.
+            if cast.able.mangleCat(units.dyn5) and not mangleBearUp
+                and (debuff.mangleCat.refresh(units.dyn5,"any")
                     or debuff.mangleCat.remain(units.dyn5,"any") <= tickIn)
             then
                 if cast.mangleCat(units.dyn5) then
-                    ui.debug("Casting Mangle")
+                    ui.debug("Casting Mangle [Debuff]")
                     return true
                 end
             end
             -- Rake
             if ui.checked("Rake") and cast.able.rake(units.dyn5) and debuff.rake.refresh(units.dyn5)
-                and (unit.ttd(units.dyn5) > 9 or not spell.ferociousBite.known())
-                and not buff.clearcasting.exists()
+                and (ttd > 9 or not spell.ferociousBite.known())
+                and not clearcasting
             then
                 if cast.rake(units.dyn5) then
                     ui.debug("Casting Rake")
@@ -1249,7 +1218,7 @@ actionList.CatForm = function()
             -- Mangle Trick: at energy 60-61 with tick <=1s, cast Mangle instead of Shred to
             -- enable a double-Mangle cycle (Mangle → tick → Mangle) for higher combo point rate.
             if ui.checked("Mangle Trick") and cast.able.mangleCat(units.dyn5) and behindDyn5 and spell.shred.known()
-                and not debuff.mangleBear.exists(units.dyn5,"any") then
+                and not mangleBearUp then
                 local mangleCost = (cast.cost.mangleCat and cast.cost.mangleCat()) or 40
                 if energy() >= (2 * mangleCost - 20) and energy() < (22 + mangleCost) and tickIn <= 1.0 then
                     if cast.mangleCat(units.dyn5) then
@@ -1261,13 +1230,24 @@ actionList.CatForm = function()
             -- Shred (from behind): use isBehind (strict back arc) to avoid wasting a GCD on
             -- a side-angle attempt that the server would deny. behindDyn5 is already computed above.
             if cast.able.shred(units.dyn5)
-                and (debuff.mangleCat.exists(units.dyn5,"any") or debuff.mangleBear.exists(units.dyn5,"any") or not spell.mangleCat.known())
+                and (debuff.mangleCat.exists(units.dyn5,"any") or mangleBearUp or not spell.mangleCat.known())
             then
                 if behindDyn5 then
                     if cast.shred(units.dyn5) then
                         ui.debug("Casting Shred")
                         return true
                     end
+                end
+            end
+            -- Mangle (filler): when we can't Shred (not behind, or Shred unknown) and the
+            -- bleed debuff is already maintained above, Mangle is the best remaining builder
+            -- ahead of Claw. Ordered after Rake/Shred so it never starves them.
+            if cast.able.mangleCat(units.dyn5) and not mangleBearUp
+                and (not behindDyn5 or not spell.shred.known())
+            then
+                if cast.mangleCat(units.dyn5) then
+                    ui.debug("Casting Mangle [Filler]")
+                    return true
                 end
             end
             -- Claw (not behind)
@@ -1317,9 +1297,24 @@ end -- End Action List - Caster Form
 actionList.PreCombat = function()
     if not unit.inCombat() and not (unit.flying() or unit.mounted()) then
         if not (buff.prowl.exists() or buff.shadowmeld.exists()) then
-            -- Prowl
-            if cast.able.prowl("player") and buff.catForm.exists() --[[and autoProwl()]] and ui.mode.prowl == 1
-                and inAggroRange() and not buff.prowl.exists() and not unit.resting() and not unit.deadOrGhost("target")
+            -- Prowl — start every engage from stealth whenever we are able. Two triggers:
+            --   * inAggroRange() — a hostile mob (incl. one our group pulled) is about to
+            --     proximity-aggro us, so stealth before the pull.
+            --   * our target — Prowl to open from stealth, timed by whether it can aggro us
+            --     on approach. A HOSTILE target uses its level-scaled aggroRadius (via
+            --     unit.distance("target"), which works past the 20y yards20nc scan), so we
+            --     stealth just before crossing it. A NEUTRAL target won't aggro on approach,
+            --     so we wait until ~8y (just before the <5y opener) instead of eating Prowl's
+            --     move-speed penalty across the whole approach — and if a hostile threat is
+            --     also present, inAggroRange() above prowls us early anyway.
+            -- cast.able.prowl enforces known / off-cooldown / correct-form ("if we are able"),
+            -- and this runs out of combat before the opener, so we never engage unstealthed
+            -- when we could have stealthed first. unit.valid accepts neutral targets.
+            if cast.able.prowl("player") and buff.catForm.exists() and ui.mode.prowl == 1
+                and not buff.prowl.exists() and not unit.resting() and not unit.deadOrGhost("target")
+                and (inAggroRange()
+                    or (unit.valid("target")
+                        and unit.distance("target") < (unit.enemy("target") and aggroRadius("target") or 8)))
             then
                 if cast.prowl("player") then
                     ui.debug("Casting Prowl [Precombat]")
@@ -1478,6 +1473,7 @@ local function runRotation()
     -- BR API Locals
     buff        = br.player.buff
     cast        = br.player.cast
+    has         = br.player.has
     cd          = br.player.cd
     comboPoints = br.player.power.comboPoints
     debuff      = br.player.debuff
@@ -1515,9 +1511,7 @@ local function runRotation()
     enemies.get(5, "player", false, true) -- Makes a variable called, enemies.yards5f
     enemies.get(8)      -- Makes a variable called, enemies.yards8 (BearForm Swipe AoE threshold)
     enemies.get(10)     -- Makes a variable called, enemies.yards10 (BearForm/Defensive checks)
-    enemies.get(20)     -- Makes a varaible called, enemies.yards20
-    enemies.get(20, "player", true)        -- makes enemies.yards20nc
-    enemies.get(40)     -- Makes a varaible called, enemies.yards40
+    enemies.get(20, "player", true)        -- makes enemies.yards20nc (inAggroRange)
 
     if not unit.inCombat() and not unit.exists("target") then
         if var.profileStop then var.profileStop = false end
@@ -1560,13 +1554,16 @@ local function runRotation()
     end         -- Pause
     return true
 end             -- End runRotation
-local id = 283 -- Change to the spec id profile is for.
-br.loader.rotations[id] = br.loader.rotations[id] or {}
-if br.api.expansion == "TBC" then
-    br._G.tinsert(br.loader.rotations[id], {
-    name = rotationName,
-    toggles = createToggles,
-    options = createOptions,
-    run = runRotation,
-    })
-end
+br.loader.registerRotation({
+    name      = rotationName,
+    specID    = 283,
+    expansion = "TBC",
+    author    = "CuteOne",
+    patch     = "2.5.5",
+    coverage  = "100%",
+    status    = "Full",
+    readiness = "Untested",
+    toggles   = toggles,
+    options   = options,
+    run       = runRotation,
+})

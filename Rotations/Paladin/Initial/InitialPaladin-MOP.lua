@@ -3,85 +3,53 @@ local rotationName = "Initial"
 ---------------
 --- Toggles ---
 ---------------
-local function createToggles()
-    -- Rotation Button
-    local RotationModes = {
-        [1] = { mode = "On", value = 1, overlay = "Rotation Enabled", tip = "Enables Rotation", highlight = 1, icon = br.player.spells.crusaderStrike },
-        [2] = { mode = "Off", value = 2, overlay = "Rotation Disabled", tip = "Disables Rotation", highlight = 0, icon = br.player.spells.crusaderStrike }
-    };
-    br.ui:createToggle(RotationModes, "Rotation", 1, 0)
-    -- Defensive Button
-    local DefensiveModes = {
-        [1] = { mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Enables Defensive", highlight = 1, icon = br.player.spells.flashOfLight },
-        [2] = { mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "Disables Defensive", highlight = 0, icon = br.player.spells.flashOfLight }
-    };
-    br.ui:createToggle(DefensiveModes, "Defensive", 2, 0)
-    -- Interrupt Button
-    local InterruptModes = {
-        [1] = { mode = "On", value = 1, overlay = "Interrupt Enabled", tip = "Enables Interrupt", highlight = 1, icon = br.player.spells.hammerOfJustice },
-        [2] = { mode = "Off", value = 2, overlay = "Interrupt Disabled", tip = "Disables Interrupt", highlight = 0, icon = br.player.spells.hammerOfJustice }
-    };
-    br.ui:createToggle(InterruptModes, "Interrupt", 3, 0)
+local function toggles()
+    br.ui:toggle("Rotation", { key = "RightShift", modes = {
+        { name = "On", icon = "crusaderStrike", overlay = "Rotation Enabled", tip = "Enables Rotation" },
+        { name = "Off", icon = "crusaderStrike", overlay = "Rotation Disabled", tip = "Disables Rotation" },
+    } })
+    br.ui:toggle("Defensive", { modes = {
+        { name = "On", icon = "flashOfLight", overlay = "Defensive Enabled", tip = "Enables Defensive" },
+        { name = "Off", icon = "flashOfLight", overlay = "Defensive Disabled", tip = "Disables Defensive" },
+    } })
+    br.ui:toggle("Interrupt", { modes = {
+        { name = "On", icon = "hammerOfJustice", overlay = "Interrupt Enabled", tip = "Enables Interrupt" },
+        { name = "Off", icon = "hammerOfJustice", overlay = "Interrupt Disabled", tip = "Disables Interrupt" },
+    } })
 end
 
 ---------------
 --- OPTIONS ---
 ---------------
-local function createOptions()
-    local optionTable
-    local function rotationOptions()
-        local section
-        -----------------------
-        --- GENERAL OPTIONS ---
-        -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "General")
-        -- Seal of Command
-        br.ui:createCheckbox(section, "Seal of Command")
-        br.ui:checkSectionState(section)
-        ------------------------
-        --- COOLDOWN OPTIONS ---
-        ------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Cooldown")
+local function options()
+    local section
+    -----------------------
+    --- GENERAL OPTIONS ---
+    -----------------------
+    section = br.ui:section("General")
+    -- Seal of Command
+    br.ui:checkbox(section, "Seal of Command")
+    ------------------------
+    --- COOLDOWN OPTIONS ---
+    ------------------------
+    section = br.ui:section("Cooldown")
 
-        br.ui:checkSectionState(section)
-        -------------------------
-        --- DEFENSIVE OPTIONS ---
-        -------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Defensive")
-        -- Hammer of Justice
-        br.ui:createSpinner(section, "Hammer of Justice - Defensive", 30, 0, 100, 5,
-            "|cffFFFFFFHealth Percent to Cast At")
-       -- Word of Glory
-        br.ui:createSpinner(section, "Word of Glory", 40, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-        br.ui:checkSectionState(section)
-        -------------------------
-        --- INTERRUPT OPTIONS ---
-        -------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Interrupts")
-        -- Hammer of Justice
-        br.ui:createCheckbox(section, "Hammer of Justice")
-        -- Interrupt Percentage
-        br.ui:createSpinnerWithout(section, "Interrupt At", 0, 0, 95, 5, "|cffFFBB00Cast Percentage to use at.")
-        br.ui:checkSectionState(section)
-        ----------------------
-        --- TOGGLE OPTIONS ---
-        ----------------------
-        section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
-        -- Single/Multi Toggle
-        br.ui:createDropdownWithout(section, "Rotation Mode", br.ui.dropOptions.Toggle, 4)
-        --Cooldown Key Toggle
-        br.ui:createDropdownWithout(section, "Cooldown Mode", br.ui.dropOptions.Toggle, 6)
-        --Defensive Key Toggle
-        br.ui:createDropdownWithout(section, "Defensive Mode", br.ui.dropOptions.Toggle, 6)
-        -- Interrupts Key Toggle
-        br.ui:createDropdownWithout(section, "Interrupt Mode", br.ui.dropOptions.Toggle, 6)
-        br.ui:checkSectionState(section)
-    end
-    optionTable = { {
-        [1] = "Rotation Options",
-        [2] = rotationOptions,
-    } }
-    return optionTable
+    -------------------------
+    --- DEFENSIVE OPTIONS ---
+    -------------------------
+    section = br.ui:section("Defensive")
+    -- Hammer of Justice
+    br.ui:spinner(section, "Hammer of Justice - Defensive", { value = 30, tip = "Health Percent to Cast At" })
+   -- Word of Glory
+    br.ui:spinner(section, "Word of Glory", { value = 40, tip = "Health Percent to Cast At" })
+    -------------------------
+    --- INTERRUPT OPTIONS ---
+    -------------------------
+    section = br.ui:section("Interrupts")
+    -- Hammer of Justice
+    br.ui:checkbox(section, "Hammer of Justice")
+    -- Interrupt Percentage
+    br.ui:spinner(section, "Interrupt At", { value = 0, max = 95, checkbox = false, tip = "|cffFFBB00Cast Percentage to use at." })
 end
 
 --------------
@@ -291,13 +259,11 @@ local function runRotation()
         end
     end -- Pause
 end -- End runRotation
-local id = 1451
-br.loader.rotations[id] = br.loader.rotations[id] or {}
-if br.api.expansion == "MOP" then
-    br._G.tinsert(br.loader.rotations[id], {
-    name = rotationName,
-    toggles = createToggles,
-    options = createOptions,
-    run = runRotation,
-    })
-end
+br.loader.registerRotation({
+    name      = rotationName,
+    specID    = 1451,
+    expansion = "MOP",
+    toggles   = toggles,
+    options   = options,
+    run       = runRotation,
+})

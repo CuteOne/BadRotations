@@ -3,114 +3,79 @@ local rotationName = "Initial"
 ---------------
 --- Toggles ---
 ---------------
-local function createToggles()
-    -- Rotation Button
-    local RotationModes = {
-        [1] = { mode = "On", value = 1, overlay = "Rotation Enabled", tip = "Enables Rotation", highlight = 1, icon = br.player.spells.tigerPalm },
-        [2] = { mode = "Off", value = 2, overlay = "Rotation Disabled", tip = "Disables Rotation", highlight = 0, icon = br.player.spells.tigerPalm }
-    };
-    br.ui:createToggle(RotationModes, "Rotation", 1, 0)
-    -- Cooldown Button
-    local CooldownModes = {
-        [1] = { mode = "Auto", value = 1, overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spells.touchOfDeath },
-        [2] = { mode = "On", value = 1, overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spells.touchOfDeath },
-        [3] = { mode = "Off", value = 3, overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spells.touchOfDeath }
-    };
-    br.ui:createToggle(CooldownModes, "Cooldown", 2, 0)
-    -- Defensive Button
-    local DefensiveModes = {
-        [1] = { mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Enables Defensive", highlight = 1, icon = br.player.spells.vivify },
-        [2] = { mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "Disables Defensive", highlight = 0, icon = br.player.spells.vivify }
-    };
-    br.ui:createToggle(DefensiveModes, "Defensive", 3, 0)
-    -- Interrupt Button
-    local InterruptModes = {
-        [1] = { mode = "On", value = 1, overlay = "Interrupt Enabled", tip = "Enables Interrupt", highlight = 1, icon = br.player.spells.legSweep },
-        [2] = { mode = "Off", value = 2, overlay = "Interrupt Disabled", tip = "Interrupt Defensive", highlight = 0, icon = br.player.spells.legSweep }
-    };
-    br.ui:createToggle(InterruptModes, "Interrupt", 4, 0)
+local function toggles()
+    br.ui:toggle("Rotation", { key = "RightShift", modes = {
+        { name = "On", icon = "tigerPalm", overlay = "Rotation Enabled", tip = "Enables Rotation" },
+        { name = "Off", icon = "tigerPalm", overlay = "Rotation Disabled", tip = "Disables Rotation" },
+    } })
+    br.ui:toggle("Cooldown", { modes = {
+        { name = "Auto", icon = "touchOfDeath", overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection." },
+        { name = "On", icon = "touchOfDeath", overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target." },
+        { name = "Off", icon = "touchOfDeath", overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used." },
+    } })
+    br.ui:toggle("Defensive", { modes = {
+        { name = "On", icon = "vivify", overlay = "Defensive Enabled", tip = "Enables Defensive" },
+        { name = "Off", icon = "vivify", overlay = "Defensive Disabled", tip = "Disables Defensive" },
+    } })
+    br.ui:toggle("Interrupt", { modes = {
+        { name = "On", icon = "legSweep", overlay = "Interrupt Enabled", tip = "Enables Interrupt" },
+        { name = "Off", icon = "legSweep", overlay = "Interrupt Disabled", tip = "Interrupt Defensive" },
+    } })
 end
 
 ---------------
 --- OPTIONS ---
 ---------------
-local function createOptions()
-    local optionTable
-    local function rotationOptions()
-        local section
-        -----------------------
-        --- GENERAL OPTIONS ---
-        -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "General")
-        -- Crackling Jade lightning
-        br.ui:createCheckbox(section, "Crackling Jade Lightning")
-        br.ui:createSpinnerWithout(section, "Cancel CJL Range", 10, 5, 40, 5,
-            "|cffFFFFFFCancels Crackling Jade Lightning below this range in yards.")
-        -- Roll
-        br.ui:createCheckbox(section, "Roll")
-        br.ui:checkSectionState(section)
-        ------------------------
-        --- COOLDOWN OPTIONS ---
-        ------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Cooldown")
-        -- Touch of Death
-        br.ui:createDropdownWithout(section, "Touch of Death", { "Always", "|cff0000ffCD", "|cffff0000Never" }, 2,
-            "|cffFFFFFFWhen to use Touch of Death")
-        -- Trinkets
-        br.player.module.BasicTrinkets(nil, section)
-        br.ui:checkSectionState(section)
-        -------------------------
-        --- DEFENSIVE OPTIONS ---
-        -------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Defensive")
-        -- Expel Harm
-        br.ui:createSpinner(section, "Expel Harm", 40, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-        -- Healthstone / Potion
-        br.ui:createSpinner(section, "Healthstone/Potion", 30, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-        -- Heirloom Neck
-        br.ui:createSpinner(section, "Heirloom Neck", 80, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-        -- Leg Sweep
-        br.ui:createSpinner(section, "Leg Sweep - HP", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-        br.ui:createSpinner(section, "Leg Sweep - AoE", 5, 0, 10, 1, "|cffFFFFFFNumber of Units in 5 Yards to Cast At")
-        -- Vivify
-        br.ui:createSpinner(section, "Vivify", 60, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-        -- Target Heal Key
-        br.ui:createDropdownWithout(section, "Target Heal Key", br.ui.dropOptions.Toggle, 2)
-        br.ui:checkSectionState(section)
-        -------------------------
-        --- INTERRUPT OPTIONS ---
-        -------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Interrupts")
-        -- Pandaren Racial
-        if select(2, UnitRace("player")) == "Pandaren" then
-            br.ui:createCheckbox(section, "Quaking Palm", "|cffFFBB00Pandaren Racial")
-        end
-        -- Leg Sweep
-        br.ui:createCheckbox(section, "Leg Sweep")
-        -- Interrupt Percentage
-        br.ui:createSpinnerWithout(section, "Interrupt At", 0, 0, 95, 5, "|cffFFBB00Cast Percentage to use at.")
-        br.ui:checkSectionState(section)
-        ----------------------
-        --- TOGGLE OPTIONS ---
-        ----------------------
-        section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
-        -- Single/Multi Toggle
-        br.ui:createDropdownWithout(section, "Rotation Mode", br.ui.dropOptions.Toggle, 4)
-        -- Cooldown Key Toggle
-        br.ui:createDropdownWithout(section, "Cooldown Mode", br.ui.dropOptions.Toggle, 6)
-        -- Defensive Key Toggle
-        br.ui:createDropdownWithout(section, "Defensive Mode", br.ui.dropOptions.Toggle, 6)
-        -- Interrupts Key Toggle
-        br.ui:createDropdownWithout(section, "Interrupt Mode", br.ui.dropOptions.Toggle, 6)
-        -- Pause Toggle
-        br.ui:createDropdown(section, "Pause Mode", br.ui.dropOptions.Toggle, 6)
-        br.ui:checkSectionState(section)
+local function options()
+    local section
+    -----------------------
+    --- GENERAL OPTIONS ---
+    -----------------------
+    section = br.ui:section("General")
+    -- Crackling Jade lightning
+    br.ui:checkbox(section, "Crackling Jade Lightning")
+    br.ui:spinner(section, "Cancel CJL Range", { value = 10, min = 5, max = 40, checkbox = false,
+        tip = "Cancels Crackling Jade Lightning below this range in yards." })
+    -- Roll
+    br.ui:checkbox(section, "Roll")
+    ------------------------
+    --- COOLDOWN OPTIONS ---
+    ------------------------
+    section = br.ui:section("Cooldown")
+    -- Touch of Death
+    br.ui:dropdown(section, "Touch of Death", { choices = { "Always", "|cff0000ffCD", "|cffff0000Never" }, value = "CD", checkbox = false,
+        tip = "When to use Touch of Death" })
+    -- Trinkets
+    br.player.module.BasicTrinkets(nil, section)
+    -------------------------
+    --- DEFENSIVE OPTIONS ---
+    -------------------------
+    section = br.ui:section("Defensive")
+    -- Expel Harm
+    br.ui:spinner(section, "Expel Harm", { value = 40, tip = "Health Percent to Cast At" })
+    -- Healthstone / Potion
+    br.ui:spinner(section, "Healthstone/Potion", { value = 30, tip = "Health Percent to Cast At" })
+    -- Heirloom Neck
+    br.ui:spinner(section, "Heirloom Neck", { value = 80, tip = "Health Percent to Cast At" })
+    -- Leg Sweep
+    br.ui:spinner(section, "Leg Sweep - HP", { value = 50, tip = "Health Percent to Cast At" })
+    br.ui:spinner(section, "Leg Sweep - AoE", { value = 5, max = 10, step = 1, tip = "Number of Units in 5 Yards to Cast At" })
+    -- Vivify
+    br.ui:spinner(section, "Vivify", { value = 60, tip = "Health Percent to Cast At" })
+    -- Target Heal Key
+    br.ui:dropdown(section, "Target Heal Key", { choices = "Toggle", value = "LeftShift", checkbox = false })
+    -------------------------
+    --- INTERRUPT OPTIONS ---
+    -------------------------
+    section = br.ui:section("Interrupts")
+    -- Pandaren Racial
+    if select(2, UnitRace("player")) == "Pandaren" then
+        br.ui:checkbox(section, "Quaking Palm", { tip = "|cffFFBB00Pandaren Racial" })
     end
-    optionTable = { {
-        [1] = "Rotation Options",
-        [2] = rotationOptions,
-    } }
-    return optionTable
+    -- Leg Sweep
+    br.ui:checkbox(section, "Leg Sweep")
+    -- Interrupt Percentage
+    br.ui:spinner(section, "Interrupt At", { value = 0, max = 95, checkbox = false, tip = "|cffFFBB00Cast Percentage to use at." })
 end
 
 --------------
@@ -309,6 +274,8 @@ end         -- End Action List - Combat
 --- ROTATION ---
 ----------------
 local function runRotation()
+    -- This profile handles racials itself; skip the shared Racial module
+    if not br.player.localRacial then br.player.localRacial = true end
     ---------------------
     --- Define Locals ---
     ---------------------
@@ -377,13 +344,11 @@ local function runRotation()
         end
     end -- Pause
 end     -- End runRotation
-local id = 1450
-br.loader.rotations[id] = br.loader.rotations[id] or {}
-if br.api.expansion == "MOP" then
-    br._G.tinsert(br.loader.rotations[id], {
-    name = rotationName,
-    toggles = createToggles,
-    options = createOptions,
-    run = runRotation,
-    })
-end
+br.loader.registerRotation({
+    name      = rotationName,
+    specID    = 1450,
+    expansion = "MOP",
+    toggles   = toggles,
+    options   = options,
+    run       = runRotation,
+})

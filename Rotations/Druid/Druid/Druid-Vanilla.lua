@@ -1,191 +1,137 @@
--------------------------------------------------------
--- Author = CuteOne
--- Patch = 1.12
---    Patch should be the latest patch you've updated the rotation for (i.e., 1.12)
--- Coverage = 100%
---    Coverage should be your estimated percent coverage for class mechanics (i.e., 100%)
--- Status = Full
---    Status should be one of: Full, Limited, Sporadic, Inactive, Unknown
--- Readiness = Untested
---    Readiness should be one of: Raid, NoRaid, Basic, Development, Untested
--------------------------------------------------------
--- Required: Fill above fields to populate README.md --
--------------------------------------------------------
-
 local rotationName = "CuteOne" -- Change to name of profile listed in options drop down
 
 ---------------
 --- Toggles ---
 ---------------
-local function createToggles() -- Define custom toggles
-    -- Rotation Button
-    local RotationModes = {
-        [1] = { mode = "Auto", value = 1, overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range.", highlight = 1, icon = br.player.spells.swipe },
-        [2] = { mode = "Multi", value = 2, overlay = "Multiple Target Rotation", tip = "Forces Multiple Target Rotation.", highlight = 0, icon = br.player.spells.swipe },
-        [3] = { mode = "Single", value = 3, overlay = "Single Target Rotation", tip = "Forces Single Target Rotation.", highlight = 0, icon = br.player.spells.shred },
-        [4] = { mode = "Off", value = 4, overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spells.healingTouch }
-    };
-    br.ui:createToggle(RotationModes, "Rotation", 1, 0)
-    -- Defensive Button
-    local DefensiveModes = {
-        [1] = { mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spells.healingTouch },
-        [2] = { mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spells.healingTouch }
-    };
-    br.ui:createToggle(DefensiveModes, "Defensive", 2, 0)
-    -- Interrupt Button
-    local InterruptModes = {
-        [1] = { mode = "On", value = 1, overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spells.bash },
-        [2] = { mode = "Off", value = 2, overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spells.bash }
-    };
-    br.ui:createToggle(InterruptModes, "Interrupt", 3, 0)
-    -- Form Button
-    local FormModes = {
-        [1] = { mode = "Caster", value = 1, overlay = "Caster Form", tip = "Will force and use Caster Form", highlight = 1, icon = br.player.spells.moonkinForm },
-        [2] = { mode = "Cat", value = 2, overlay = "Cat Form", tip = "Will force and use Cat Form", highlight = 0, icon = br.player.spells.catForm },
-        [3] = { mode = "Bear", value = 3, overlay = "Bear Form", tip = "Will force and use Bear Form", highlight = 0, icon = br.player.spells.bearForm }
-    };
-    br.ui:createToggle(FormModes, "Forms", 4, 0)
-    -- Prowl Button
-    local ProwlModes = {
-        [1] = { mode = "On", value = 1, overlay = "Prowl Enabled", tip = "Rotation will use Prowl", highlight = 1, icon = br.player.spells.prowl },
-        [2] = { mode = "Off", value = 2, overlay = "Prowl Disabled", tip = "Rotation will not use Prowl", highlight = 0, icon = br.player.spells.prowl }
-    };
-    br.ui:createToggle(ProwlModes, "Prowl", 5, 0)
+local function toggles()
+    br.ui:toggle("Rotation", { key = "RightShift", modes = {
+        { name = "Auto", icon = "swipe", overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range." },
+        { name = "Multi", icon = "swipe", overlay = "Multiple Target Rotation", tip = "Forces Multiple Target Rotation." },
+        { name = "Single", icon = "shred", overlay = "Single Target Rotation", tip = "Forces Single Target Rotation." },
+        { name = "Off", icon = "healingTouch", overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation" },
+    } })
+    br.ui:toggle("Cooldown", { key = "RightCtrl", modes = {
+        { name = "Auto", icon = "innervate", overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection." },
+        { name = "On", icon = "innervate", overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target." },
+        { name = "Off", icon = "innervate", overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used." },
+    } })
+    br.ui:toggle("Defensive", { modes = {
+        { name = "On", icon = "healingTouch", overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns." },
+        { name = "Off", icon = "healingTouch", overlay = "Defensive Disabled", tip = "No Defensives will be used." },
+    } })
+    br.ui:toggle("Interrupt", { modes = {
+        { name = "On", icon = "bash", overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts." },
+        { name = "Off", icon = "bash", overlay = "Interrupts Disabled", tip = "No Interrupts will be used." },
+    } })
+    br.ui:toggle("Forms", { modes = {
+        { name = "Caster", icon = "moonkinForm", overlay = "Caster Form", tip = "Will force and use Caster Form" },
+        { name = "Cat", icon = "catForm", overlay = "Cat Form", tip = "Will force and use Cat Form" },
+        { name = "Bear", icon = "bearForm", overlay = "Bear Form", tip = "Will force and use Bear Form" },
+    } })
+    br.ui:toggle("Prowl", { modes = {
+        { name = "On", icon = "prowl", overlay = "Prowl Enabled", tip = "Rotation will use Prowl" },
+        { name = "Off", icon = "prowl", overlay = "Prowl Disabled", tip = "Rotation will not use Prowl" },
+    } })
 end
 
 ---------------
 --- OPTIONS ---
 ---------------
-local function createOptions()
-    local optionTable
-
-    local function rotationOptions()
-        local section
-        -----------------------
-        --- GENERAL OPTIONS ---
-        -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "General")
-        br.ui:createSpinnerWithout(section, "Shift Wait Time", 2, 0, 5, 1,
-            "|cffFFFFFFTime in seconds the profile will wait while moving to shift. Combat is instant!")
-        br.ui:createCheckbox(section, "Behind Debug", "|cffFFFFFFDebug behind/facing checks for Shred/Ravage.")
-        -- Powershifting
-        br.ui:createCheckbox(section, "Powershifting", "|cffFFFFFFFeral DPS In-Form Shifting for Energy")
-        -- Prowl
-        br.ui:createCheckbox(section, "Prowl", "|cffFFFFFFUses Prowl when near aggro range")
-        -- Cat Opener
-        br.ui:createDropdown(section, "Cat Opener",
-            { "|cffFFFFFFPounce", "|cffFFFFFFRavage", "|cffFFFFFFShred", "|cffFFFFFFRake" }, 2,
-            "|cffFFFFFFSelect Spell to Open with from Stealth")
-        br.ui:checkSectionState(section)
-        --------------------------
-        --- FORM MANAGEMENT ---
-        --------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Form Management")
-        -- Aquatic Form
-        br.ui:createCheckbox(section, "Aquatic Form", "|cffFFFFFFEnable/Disable Using Aquatic Form")
-        -- Travel Form
-        br.ui:createCheckbox(section, "Travel Form", "|cffFFFFFFEnable/Disable Using Travel Form")
-        -- Last Form
-        br.ui:createCheckbox(section, "Last Form", "|cffFFFFFFEnable/Disable Returning to Last Form")
-        -- Energy Threshold
-        br.ui:createSpinner(section, "Energy", 30, 1, 100, 1, "|cffFFFFFFCat Form Energy Threshold to Break Form")
-        -- Rage Threshold
-        br.ui:createSpinner(section, "Rage", 10, 1, 100, 1, "|cffFFFFFFBear Form Rage Threshold to Break Form")
-        br.ui:checkSectionState(section)
-        ----------------------
-        --- BLEED OPTIONS ---
-        ----------------------
-        section = br.ui:createSection(br.ui.window.profile, "Bleeds")
-        -- Rake
-        br.ui:createCheckbox(section, "Rake", "|cffFFFFFFEnable/Disable Using Rake")
-        -- Rip
-        br.ui:createCheckbox(section, "Rip", "|cffFFFFFFEnable/Disable Using Rip")
-        br.ui:checkSectionState(section)
-        ---------------------
-        --- BUFF OPTIONS ---
-        ---------------------
-        section = br.ui:createSection(br.ui.window.profile, "Buffs")
-        -- Self-Innervate
-        br.ui:createCheckbox(section, "Self-Innervate", "|cffFFFFFFEnable/Disable Using Innervate on Self")
-        -- Mark of the Wild
-        br.ui:createDropdown(section, "Mark of the Wild",
-            { "|cffFFFFFFPlayer", "|cffFFFFFFTarget", "|cffFFFFFFMouseover", "|cffFFFFFFFocus", "|cffFFFFFFGroup" }, 1,
-            "|cffFFFFFFSet how to use Mark of the Wild")
-        -- Omen of Clarity
-        br.ui:createDropdown(section, "Omen of Clarity",
-            { "|cffFFFFFFAny", "|cffFFFFFFFocus DPS", "|cffFFFFFFFocus Healing", "|cffFFFFFFNone" }, 1,
-            "|cffFFFFFFSelect how to use Omen of Clarity procs")
-        -- Thorns
-        br.ui:createDropdown(section, "Thorns",
-            { "|cffFFFFFFPlayer", "|cffFFFFFFTarget", "|cffFFFFFFMouseover", "|cffFFFFFFFocus", "|cffFFFFFFGroup" }, 1,
-            "|cffFFFFFFSet how to use Thorns")
-        -- Tiger's Fury
-        br.ui:createCheckbox(section, "Tiger's Fury", "|cffFFFFFFEnable/Disable Using Tiger's Fury")
-        br.ui:checkSectionState(section)
-        -------------------------
-        --- DEFENSIVE OPTIONS ---
-        -------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Defensive")
-        -- Self-Heal In Group
-        br.ui:createCheckbox(section, "Self Heal In Group", "|cffFFFFFFEnable/Disable Healing Self while Grouped")
-        -- Healing Touch
-        br.ui:createSpinner(section, "Healing Touch", 40, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-        -- Regrowth
-        br.ui:createSpinner(section, "Regrowth", 60, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-        -- Rejuvenation
-        br.ui:createSpinner(section, "Rejuvenation", 80, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-        -- Barkskin
-        br.ui:createSpinner(section, "Barkskin", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-        -- Abolish Poison
-        br.ui:createCheckbox(section, "Abolish Poison", "|cffFFFFFFEnable/Disable Using Abolish Poison")
-        -- Cure Poison
-        br.ui:createCheckbox(section, "Cure Poison", "|cffFFFFFFEnable/Disable Using Cure Poison")
-        -- Remove Curse
-        br.ui:createCheckbox(section, "Remove Curse", "|cffFFFFFFEnable/Disable Using Remove Curse")
-        -- Entangling Roots
-        br.ui:createCheckbox(section, "Entangling Roots", "|cffFFFFFFEnable/Disable Using Entangling Roots on fleeing enemies")
-        -- Faerie Fire
-        br.ui:createCheckbox(section, "Faerie Fire", "|cffFFFFFFEnable/Disable Using Faerie Fire/Faerie Fire Feral")
-        -- Nature's Grasp
-        br.ui:createCheckbox(section, "Nature's Grasp", "|cffFFFFFFEnable/Disable Using Nature's Grasp")
-        -- -- Health Potion
-        -- br.ui:createCheckbox(section, "Health Potion", "|cffFFFFFFEnable/Disable Using Health Potion")
-        -- -- Mana Potion
-        -- br.ui:createCheckbox(section, "Mana Potion", "|cffFFFFFFEnable/Disable Using Mana Potion")
-        -- Bash
-        br.ui:createSpinner(section, "Bash", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-        br.ui:checkSectionState(section)
-        -------------------------
-        --- Interrupt Options ---
-        -------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Interrupts")
-        -- Bash
-        br.ui:createCheckbox(section, "Bash - Int")
-        -- Interrupt Percentage
-        br.ui:createSpinnerWithout(section, "Interrupt At", 0, 0, 95, 5,
-            "|cffFFFFFFCast Percent to Cast At (0 is random)")
-        br.ui:checkSectionState(section)
-        ----------------------
-        --- TOGGLE OPTIONS ---
-        ----------------------
-        section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
-        -- Single/Multi Toggle
-        br.ui:createDropdownWithout(section, "Rotation Mode", br.ui.dropOptions.Toggle, 4)
-        -- Defensive Key Toggle
-        br.ui:createDropdownWithout(section, "Defensive Mode", br.ui.dropOptions.Toggle, 6)
-        -- Interrupt Key Toggle
-        br.ui:createDropdownWithout(section, "Interrupt Mode", br.ui.dropOptions.Toggle, 6)
-        -- Forms Key Toggle
-        br.ui:createDropdownWithout(section, "Forms Mode", br.ui.dropOptions.Toggle, 6)
-        -- Prowl Key Toggle
-        br.ui:createDropdownWithout(section, "Prowl Mode", br.ui.dropOptions.Toggle, 6)
-        br.ui:checkSectionState(section)
-    end
-    optionTable = { {
-        [1] = "Rotation Options",
-        [2] = rotationOptions,
-    } }
-    return optionTable
+local function options()
+    local section
+    -----------------------
+    --- GENERAL OPTIONS ---
+    -----------------------
+    section = br.ui:section("General")
+    br.ui:spinner(section, "Shift Wait Time", { value = 2, max = 5, step = 1, checkbox = false,
+        tip = "Time in seconds the profile will wait while moving to shift. Combat is instant!" })
+    br.ui:checkbox(section, "Behind Debug", { tip = "Debug behind/facing checks for Shred/Ravage." })
+    -- Powershifting
+    br.ui:checkbox(section, "Powershifting", { tip = "Feral DPS In-Form Shifting for Energy" })
+    -- Prowl
+    br.ui:checkbox(section, "Prowl", { tip = "Uses Prowl when near aggro range" })
+    -- Cat Opener
+    br.ui:dropdown(section, "Cat Opener", { choices = { "Pounce", "Ravage", "Shred", "Rake" }, value = "Ravage",
+        tip = "Select Spell to Open with from Stealth" })
+    --------------------------
+    --- FORM MANAGEMENT ---
+    --------------------------
+    section = br.ui:section("Form Management")
+    -- Aquatic Form
+    br.ui:checkbox(section, "Aquatic Form", { tip = "Enable/Disable Using Aquatic Form" })
+    -- Travel Form
+    br.ui:checkbox(section, "Travel Form", { tip = "Enable/Disable Using Travel Form" })
+    -- Last Form
+    br.ui:checkbox(section, "Last Form", { tip = "Enable/Disable Returning to Last Form" })
+    -- Energy Threshold
+    br.ui:spinner(section, "Energy", { value = 30, min = 1, step = 1, tip = "Cat Form Energy Threshold to Break Form" })
+    -- Rage Threshold
+    br.ui:spinner(section, "Rage", { value = 10, min = 1, step = 1, tip = "Bear Form Rage Threshold to Break Form" })
+    ----------------------
+    --- BLEED OPTIONS ---
+    ----------------------
+    section = br.ui:section("Bleeds")
+    -- Rake
+    br.ui:checkbox(section, "Rake", { tip = "Enable/Disable Using Rake" })
+    -- Rip
+    br.ui:checkbox(section, "Rip", { tip = "Enable/Disable Using Rip" })
+    ---------------------
+    --- BUFF OPTIONS ---
+    ---------------------
+    section = br.ui:section("Buffs")
+    -- Self-Innervate
+    br.ui:checkbox(section, "Self-Innervate", { tip = "Enable/Disable Using Innervate on Self" })
+    -- Mark of the Wild
+    br.ui:dropdown(section, "Mark of the Wild", { choices = { "Player", "Target", "Mouseover", "Focus", "Group" }, value = "Player",
+        tip = "Set how to use Mark of the Wild" })
+    -- Omen of Clarity
+    br.ui:dropdown(section, "Omen of Clarity", { choices = { "Any", "Focus DPS", "Focus Healing", "None" }, value = "Any",
+        tip = "Select how to use Omen of Clarity procs" })
+    -- Thorns
+    br.ui:dropdown(section, "Thorns", { choices = { "Player", "Target", "Mouseover", "Focus", "Group" }, value = "Player",
+        tip = "Set how to use Thorns" })
+    -- Tiger's Fury
+    br.ui:checkbox(section, "Tiger's Fury", { tip = "Enable/Disable Using Tiger's Fury" })
+    -------------------------
+    --- DEFENSIVE OPTIONS ---
+    -------------------------
+    section = br.ui:section("Defensive")
+    -- Self-Heal In Group
+    br.ui:checkbox(section, "Self Heal In Group", { tip = "Enable/Disable Healing Self while Grouped" })
+    -- Healing Touch
+    br.ui:spinner(section, "Healing Touch", { value = 40, tip = "Health Percent to Cast At" })
+    -- Regrowth
+    br.ui:spinner(section, "Regrowth", { value = 60, tip = "Health Percent to Cast At" })
+    -- Rejuvenation
+    br.ui:spinner(section, "Rejuvenation", { value = 80, tip = "Health Percent to Cast At" })
+    -- Barkskin
+    br.ui:spinner(section, "Barkskin", { value = 50, tip = "Health Percent to Cast At" })
+    -- Abolish Poison
+    br.ui:checkbox(section, "Abolish Poison", { tip = "Enable/Disable Using Abolish Poison" })
+    -- Cure Poison
+    br.ui:checkbox(section, "Cure Poison", { tip = "Enable/Disable Using Cure Poison" })
+    -- Remove Curse
+    br.ui:checkbox(section, "Remove Curse", { tip = "Enable/Disable Using Remove Curse" })
+    -- Entangling Roots
+    br.ui:checkbox(section, "Entangling Roots", { tip = "Enable/Disable Using Entangling Roots on fleeing enemies" })
+    -- Faerie Fire
+    br.ui:checkbox(section, "Faerie Fire", { tip = "Enable/Disable Using Faerie Fire/Faerie Fire Feral" })
+    -- Nature's Grasp
+    br.ui:checkbox(section, "Nature's Grasp", { tip = "Enable/Disable Using Nature's Grasp" })
+    -- -- Health Potion
+    -- br.ui:createCheckbox(section, "Health Potion", "|cffFFFFFFEnable/Disable Using Health Potion")
+    -- -- Mana Potion
+    -- br.ui:createCheckbox(section, "Mana Potion", "|cffFFFFFFEnable/Disable Using Mana Potion")
+    -- Bash
+    br.ui:spinner(section, "Bash", { value = 50, tip = "Health Percent to Cast At" })
+    -------------------------
+    --- Interrupt Options ---
+    -------------------------
+    section = br.ui:section("Interrupts")
+    -- Bash
+    br.ui:checkbox(section, "Bash - Int")
+    -- Interrupt Percentage
+    br.ui:spinner(section, "Interrupt At", { value = 0, max = 95, checkbox = false, tip = "Cast Percent to Cast At (0 is random)" })
 end
 
 --------------
@@ -212,7 +158,6 @@ local profileStop
 -- Profile Specific Locals - Any custom to profile locals
 local actionList = {}
 local fbMaxEnergy
-local movingTimer
 local lastForm
 local lastFormBuff = false
 local freeDPS
@@ -225,56 +170,48 @@ local needsHealing
 -----------------
 -- AutoProwl
 local function autoProwl()
-    if not unit.inCombat() and not buff.prowl.exists() then
-        if #enemies.yards20 > 0 then return true end
-        if #enemies.yards20nc > 0 then
-            for i = 1, #enemies.yards20nc do
-                local thisUnit = enemies.yards20nc[i]
-                local threatRange = math.max((20 + (unit.level(thisUnit) - unit.level())), 5)
-                local react = unit.reaction(thisUnit) or 10
-                if unit.distance(thisUnit) < threatRange and (react < 4 or (unit.isUnit("target", thisUnit) and react == 4)) and unit.enemy(thisUnit) and unit.canAttack(thisUnit) then
-                    return true
-                end
-            end
-        end
-        -- if unit.isDummy("target") and unit.distance("target") < 20 then return true end
-    end
-    return false
+    if unit.inCombat() or buff.prowl.exists() then return false end
+    return #enemies.yards20 > 0 or unit.anyInAggroRange(0, 20)
 end
+-- Cache for ferociousBiteFinish's parsed damage values. Key: spellID..":"..cp.
+-- Rank-change invalidation: spell.X.id() re-reads the spellbook each call
+-- (verified at AUDIT.md L23 plan session — Spell.lua:29-33 + Spell.lua:657-672),
+-- so post-level-up the new rank's spell ID produces a fresh cache key and old
+-- entries become orphaned (harmless).
+-- Locale-sensitivity assumption inherited from desc:find() below — wrong on
+-- non-English clients; /reload purges this module-scope cache so locale
+-- change can't outlast it.
+local ferociousBiteCache = {}
+
 -- Ferocious Bite Finish
 local function ferociousBiteFinish(thisUnit)
-    local desc = br._G.C_Spell.GetSpellDescription(spell.ferociousBite.id()) or ""
-    if desc == "" then return false end
-
-    local finishHim = false
     if thisUnit == nil then thisUnit = units.dyn5 end
     if comboPoints <= 0 or unit.isDummy(thisUnit) then return false end
 
-    local comboStart = desc:find(" " .. comboPoints .. " ", 1, true)
-    if comboStart == nil then return false end
+    local spellID = spell.ferociousBite.id()
+    if spellID == 0 then return false end
+    local cp = comboPoints
+    local cacheKey = spellID .. ":" .. cp
 
-    local damageList = desc:sub(comboStart + 2)
-    local colonPos = damageList:find(": ", 1, true)
-    if colonPos == nil then return false end
-    damageList = damageList:sub(colonPos + 2)
-
-    local spacePos = damageList:find(" ", 1, true) or (#damageList + 1)
-    local token = damageList:sub(1, spacePos - 1):gsub(",", "")
-
-    local low = token:match("^(%d+)%-%d+$") or token:match("^(%d+)$")
-    local lower = tonumber(low)
-    if lower == nil then return false end
-
-    finishHim = lower >= (unit.health(thisUnit) or 0)
-    return finishHim
-end
--- Time Moving
-local function timeMoving()
-    if movingTimer == nil then movingTimer = br._G.GetTime() end
-    if not unit.moving() then
-        movingTimer = br._G.GetTime()
+    local lower = ferociousBiteCache[cacheKey]
+    if lower == nil then
+        local desc = br._G.C_Spell.GetSpellDescription(spellID) or ""
+        if desc == "" then ferociousBiteCache[cacheKey] = false; return false end
+        local comboStart = desc:find(" " .. cp .. " ", 1, true)
+        if comboStart == nil then ferociousBiteCache[cacheKey] = false; return false end
+        local damageList = desc:sub(comboStart + 2)
+        local colonPos = damageList:find(": ", 1, true)
+        if colonPos == nil then ferociousBiteCache[cacheKey] = false; return false end
+        damageList = damageList:sub(colonPos + 2)
+        local spacePos = damageList:find(" ", 1, true) or (#damageList + 1)
+        local token = damageList:sub(1, spacePos - 1):gsub(",", "")
+        local low = token:match("^(%d+)%-%d+$") or token:match("^(%d+)$")
+        lower = tonumber(low)
+        ferociousBiteCache[cacheKey] = lower or false
     end
-    return br._G.GetTime() - movingTimer
+
+    if lower == false or lower == nil then return false end
+    return lower >= (unit.health(thisUnit) or 0)
 end
 
 -- Behind check (nil-safe)
@@ -391,70 +328,15 @@ local function powershift()
     return false
 end
 
--- In Aggro Range Check
-local function inAggroRange(offset)
-    offset = offset or 0
-    for i = 1, #enemies.yards40 do
-        local thisUnit = enemies.yards40[i]
-        local threatRange = math.max((20 + (unit.level(thisUnit) - unit.level())), 5) + offset
-        local react = unit.reaction(thisUnit) or 10
-        if unit.distance(thisUnit) < threatRange and (react < 4 or (unit.isUnit("target", thisUnit) and react == 4)) then
-            return true
-        end
-    end
-    return false
-end
 
-local getBuffUnitOption = function(option)
-    local thisTar = ui.value(option)
-    local thisUnit
-    if thisTar == 1 then
-        thisUnit = "player"
-    end
-    if thisTar == 2 then
-        thisUnit = "target"
-        if not unit.exists(thisUnit) then
-            thisUnit = "player"
-        end
-    end
-    if thisTar == 3 then
-        thisUnit = "mouseover"
-        if not unit.exists(thisUnit) then
-            thisUnit = "player"
-        end
-    end
-    if thisTar == 4 then
-        thisUnit = "focus"
-        if not unit.exists(thisUnit) then
-            thisUnit = "player"
-        end
-    end
-    if thisTar == 5 then
-        thisUnit = "player"
-        if #br.engines.healingEngine.friend > 1 then
-            for i = 1, #br.engines.healingEngine.friend do
-                local nextUnit = br.engines.healingEngine.friend[i].unit
-                local needsBuff = false
-                if option == "Mark of the Wild" then
-                    needsBuff = buff.markOfTheWild.refresh(nextUnit)
-                elseif option == "Thorns" then
-                    needsBuff = buff.thorns.refresh(nextUnit)
-                end
-                if needsBuff and unit.distance(nextUnit) < 40 then
-                    thisUnit = nextUnit
-                    break
-                end
-            end
-        end
-    end
-    return thisUnit
-end
+local function needsMarkOfTheWild(thisUnit) return buff.markOfTheWild.refresh(thisUnit) end
+local function needsThorns(thisUnit) return buff.thorns.refresh(thisUnit) end
 
 -- Check if we need to cast anything that requires breaking form
 local function needsFormBreak()
     -- Buffs
     if ui.checked("Mark of the Wild") then
-        var.markUnit = getBuffUnitOption("Mark of the Wild")
+        var.markUnit = ui.buffUnit("Mark of the Wild", needsMarkOfTheWild, 40)
         if cast.able.markOfTheWild(var.markUnit) and buff.markOfTheWild.refresh(var.markUnit)
             and not unit.inCombat() and not unit.resting() and unit.distance(var.markUnit) < 40
             and (var.markUnit == "player" or unit.player(var.markUnit))
@@ -463,7 +345,7 @@ local function needsFormBreak()
         end
     end
     if ui.checked("Thorns") then
-        var.thornUnit = getBuffUnitOption("Thorns")
+        var.thornUnit = ui.buffUnit("Thorns", needsThorns, 40)
         if cast.able.thorns(var.thornUnit) and buff.thorns.refresh(var.thornUnit)
             and not unit.inCombat() and not unit.resting() and unit.distance(var.thornUnit) < 40
             and (var.thornUnit == "player" or unit.player(var.thornUnit))
@@ -481,17 +363,17 @@ local function needsFormBreak()
     if ui.useDefensive() then
         -- Dispels
         if ui.checked("Abolish Poison") and cast.able.abolishPoison("player")
-            and not buff.abolishPoison.exists("player") and unit.hasDispel("player", spell.abolishPoison)
+            and not buff.abolishPoison.exists("player") and cast.dispel.abolishPoison("player")
         then
             return true
         end
         if ui.checked("Cure Poison") and cast.able.curePoison("player")
-            and not ui.checked("Abolish Poison") and unit.hasDispel("player", spell.curePoison)
+            and not ui.checked("Abolish Poison") and cast.dispel.curePoison("player")
         then
             return true
         end
         if ui.checked("Remove Curse") and cast.able.removeCurse("player")
-            and not unit.inCombat() and unit.hasDispel("player", spell.removeCurse)
+            and not unit.inCombat() and cast.dispel.removeCurse("player")
         then
             return true
         end
@@ -567,7 +449,7 @@ actionList.Extra = function()
     -- Aquatic Form
     if ui.checked("Aquatic Form") and not unit.inCombat() and cast.able.aquaticForm()
         and br._G.IsSwimming() and not buff.aquaticForm.exists() and not buff.prowl.exists()
-        and unit.moving() and timeMoving() > 2 and not inAggroRange()
+        and unit.moving() and unit.movingTime() > 2 and not unit.anyInAggroRange()
         and not (buff.markOfTheWild.refresh() and ui.checked("Mark of the Wild"))
         and not (buff.thorns.refresh() and ui.checked("Thorns"))
     then
@@ -586,7 +468,7 @@ actionList.Extra = function()
     if ui.checked("Travel Form") and not unit.inCombat() and not br._G.IsMounted()
         and not br._G.IsSwimming() and not br._G.IsFalling() and cast.able.travelForm()
         and not buff.travelForm.exists() and not buff.prowl.exists()
-        and unit.moving() and timeMoving() > 2 and not inAggroRange()
+        and unit.moving() and unit.movingTime() > 2 and not unit.anyInAggroRange()
         and not (buff.markOfTheWild.refresh() and ui.checked("Mark of the Wild"))
         and not (buff.thorns.refresh() and ui.checked("Thorns"))
     then
@@ -615,12 +497,12 @@ actionList.Extra = function()
     local keepAquatic = ui.checked("Aquatic Form")
         and br._G.IsSwimming()
         and buff.aquaticForm.exists()
-        and not inAggroRange()
+        and not unit.anyInAggroRange()
         and (not unit.exists("target") or unit.friend("target"))
 
     -- Auto Shapeshift
     if not keepAquatic and not needsFormBreak()
-        and ((unit.moving() and timeMoving() > ui.value("Shift Wait Time")) or unit.inCombat() or inAggroRange(5))
+        and ((unit.moving() and unit.movingTime() > ui.value("Shift Wait Time")) or unit.inCombat() or unit.anyInAggroRange(5))
     then
         local formValue = ui.mode.forms
         -- Bear Form
@@ -657,7 +539,7 @@ actionList.Extra = function()
     end
     -- Mark of the Wild
     if ui.checked("Mark of the Wild") then
-        var.markUnit = getBuffUnitOption("Mark of the Wild")
+        var.markUnit = ui.buffUnit("Mark of the Wild", needsMarkOfTheWild, 40)
         if cast.able.markOfTheWild(var.markUnit) and buff.markOfTheWild.refresh(var.markUnit)
             and not unit.inCombat() and not unit.resting() and unit.distance(var.markUnit) < 40
             and (var.markUnit == "player" or unit.player(var.markUnit))
@@ -678,7 +560,7 @@ actionList.Extra = function()
     end
     -- Thorns
     if ui.checked("Thorns") then
-        var.thornUnit = getBuffUnitOption("Thorns")
+        var.thornUnit = ui.buffUnit("Thorns", needsThorns, 40)
         if cast.able.thorns(var.thornUnit) and buff.thorns.refresh(var.thornUnit)
             and not unit.inCombat() and not unit.resting() and unit.distance(var.thornUnit) < 40
             and (var.thornUnit == "player" or unit.player(var.thornUnit))
@@ -721,7 +603,7 @@ actionList.Defensive = function()
     if ui.useDefensive() then
         -- Abolish Poison
         if ui.checked("Abolish Poison") and cast.able.abolishPoison("player")
-            and not buff.abolishPoison.exists("player") and unit.hasDispel("player", spell.abolishPoison)
+            and not buff.abolishPoison.exists("player") and cast.dispel.abolishPoison("player")
         then
             if buff.catForm.exists() or buff.bearForm.exists() then
                 if safeCancelForm(spell.abolishPoison, "Abolish Poison") then
@@ -736,7 +618,7 @@ actionList.Defensive = function()
         end
         -- Cure Poison
         if ui.checked("Cure Poison") and cast.able.curePoison("player")
-            and (not ui.checked("Abolish Poison") --[[or not spell.known.abolishPoison()]]) and unit.hasDispel("player", spell.curePoison)
+            and (not ui.checked("Abolish Poison") --[[or not spell.known.abolishPoison()]]) and cast.dispel.curePoison("player")
         then
             if buff.catForm.exists() or buff.bearForm.exists() then
                 if safeCancelForm(spell.curePoison, "Cure Poison") then
@@ -751,7 +633,7 @@ actionList.Defensive = function()
         end
         -- Remove Curse
         if ui.checked("Remove Curse") and cast.able.removeCurse("player")
-            and not unit.inCombat() and unit.hasDispel("player", spell.removeCurse)
+            and not unit.inCombat() and cast.dispel.removeCurse("player")
         then
             if buff.catForm.exists() or buff.bearForm.exists() then
                 if safeCancelForm(spell.removeCurse, "Remove Curse") then
@@ -1332,9 +1214,9 @@ actionList.Combat = function()
 
         -- Last Form restoration
         if ui.checked("Last Form") and lastForm ~= nil
-            and (((unit.moving() and timeMoving() > 2 and (not spell.travelForm.known() or not ui.checked("Travel Form")))
-                or (unit.inCombat() or inAggroRange(5)) and ((unit.exists("target") and not unit.friend("target")) or not unit.exists("target")))
-            and not lastFormBuff and not (buff.aquaticForm.exists() or buff.travelForm.exists() or inAggroRange(5)))
+            and (((unit.moving() and unit.movingTime() > 2 and (not spell.travelForm.known() or not ui.checked("Travel Form")))
+                or (unit.inCombat() or unit.anyInAggroRange(5)) and ((unit.exists("target") and not unit.friend("target")) or not unit.exists("target")))
+            and not lastFormBuff and not (buff.aquaticForm.exists() or buff.travelForm.exists() or unit.anyInAggroRange(5)))
         then
             if cast.able.catForm() and lastForm == spell.catForm then
                 if cast.catForm() then
@@ -1459,13 +1341,16 @@ local function runRotation()
     end         -- Pause
     return true
 end             -- End runRotation
-local id = 283 -- Change to the spec id profile is for.
-br.loader.rotations[id] = br.loader.rotations[id] or {}
-if br.api.expansion == "Classic" then
-    br._G.tinsert(br.loader.rotations[id], {
-    name = rotationName,
-    toggles = createToggles,
-    options = createOptions,
-    run = runRotation,
-    })
-end
+br.loader.registerRotation({
+    name      = rotationName,
+    specID    = 283,
+    expansion = "Classic",
+    author    = "CuteOne",
+    patch     = "1.12",
+    coverage  = "100%",
+    status    = "Full",
+    readiness = "Untested",
+    toggles   = toggles,
+    options   = options,
+    run       = runRotation,
+})

@@ -1,156 +1,106 @@
--------------------------------------------------------
--- Author = ChefLyfe
--- Patch = 11.0.2
---    Patch should be the latest patch you've updated the rotation for (i.e., 9.2.5)
--- Coverage = 70%
---    Coverage should be your estimated percent coverage for class mechanics (i.e., 100%)
--- Status = Limited
---    Status should be one of: Full, Limited, Sporadic, Inactive, Unknown
--- Readiness = Basic
---    Readiness should be one of: Raid, NoRaid, Basic, Development, Untested
--------------------------------------------------------
--- Required: Fill above fields to populate README.md --
--------------------------------------------------------
-
 local rotationName = "ChefLyfe"
 
 ---------------
 --- Toggles ---
 ---------------
-local function createToggles()
-    -- Rotation Button
-    local rotationButton = {
-        [1] = { mode = "Auto", value = 1, overlay = "Automatic Rotation", tip = "Enables DPS Rotation", highlight = 1, icon = br.player.spells.deathStrike},
-        [2] = { mode = "Off", value = 2, overlay = "DPS Rotation Disabled", tip = "Disables DPS Rotation", highlight = 0, icon = br.player.spells.deathStrike}
-    }
-    br.ui:createToggle(rotationButton, "Rotation", 1, 0)
-    -- Cooldown Button
-    local cooldownButton = {
-        [1] = { mode = "Auto", value = 1, overlay = "Automatic Cooldowns", tip = "Automatic Cooldown Usage", highlight = 1, icon = br.player.spells.vampiricBlood},
-        [2] = { mode = "On", value = 2, overlay = "Enabled Cooldowns", tip = "Cooldown Usage Enabled", highlight = 0, icon = br.player.spells.vampiricBlood},
-        [3] = { mode = "Off", value = 3, overlay = "Disabled Cooldowns", tip = "No Cooldowns will be used", highlight = 0, icon = br.player.spells.vampiricBlood}
-    }
-    br.ui:createToggle(cooldownButton, "Cooldown", 2, 0)
-    -- Defensive Button
-    local defensiveButton = {
-        [1] = { mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Will use defensive abilities", highlight = 1, icon = br.player.spells.iceboundFortitude},
-        [2] = { mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "Will not use defensive abilities", highlight = 0, icon = br.player.spells.iceboundFortitude}
-    }
-    br.ui:createToggle(defensiveButton, "Defensive", 3, 0)
-    -- Interrupt Button
-    local interruptButton = {
-        [1] = { mode = "On", value = 1, overlay = "Interrupts Enabled", tip = "Will use interrupts", highlight = 1, icon = br.player.spells.mindFreeze},
-        [2] = { mode = "Off", value = 2, overlay = "Interrupts Disabled", tip = "Will not use interrupts", highlight = 0, icon = br.player.spells.mindFreeze}
-    }
-    br.ui:createToggle(interruptButton, "Interrupt", 4, 0)
+local function toggles()
+    br.ui:toggle("Rotation", { key = "RightShift", modes = {
+        { name = "Auto", icon = "deathStrike", overlay = "Automatic Rotation", tip = "Enables DPS Rotation" },
+        { name = "Off", icon = "deathStrike", overlay = "DPS Rotation Disabled", tip = "Disables DPS Rotation" },
+    } })
+    br.ui:toggle("Cooldown", { key = "RightCtrl", modes = {
+        { name = "Auto", icon = "vampiricBlood", overlay = "Automatic Cooldowns", tip = "Automatic Cooldown Usage" },
+        { name = "On", icon = "vampiricBlood", overlay = "Enabled Cooldowns", tip = "Cooldown Usage Enabled" },
+        { name = "Off", icon = "vampiricBlood", overlay = "Disabled Cooldowns", tip = "No Cooldowns will be used" },
+    } })
+    br.ui:toggle("Defensive", { modes = {
+        { name = "On", icon = "iceboundFortitude", overlay = "Defensive Enabled", tip = "Will use defensive abilities" },
+        { name = "Off", icon = "iceboundFortitude", overlay = "Defensive Disabled", tip = "Will not use defensive abilities" },
+    } })
+    br.ui:toggle("Interrupt", { modes = {
+        { name = "On", icon = "mindFreeze", overlay = "Interrupts Enabled", tip = "Will use interrupts" },
+        { name = "Off", icon = "mindFreeze", overlay = "Interrupts Disabled", tip = "Will not use interrupts" },
+    } })
 end
 
 ---------------
 --- OPTIONS ---
 ---------------
-local function createOptions()
-    local optionTable
-
-    local function rotationOptions()
-        local section
-        -----------------------
-        --- GENERAL OPTIONS --- -- Define General Options
-        -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "General")
-            -- Leveling Mode
-            br.ui:createCheckbox(section, "Leveling Mode", "Enable optimal rotation for leveling characters", true)
-            -- Pre-Pull Timer
-            br.ui:createSpinner(section, "Pre-Pull Timer", 5, 1, 10, 1, "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
-            -- Death Grip Usage
-            br.ui:createDropdownWithout(section, "Death Grip Usage", {
-                "Off", "Interrupt", "Taunt", "Both"
-            }, 3, "Select how to use Death Grip")
-            
-            -- Death Grip Range
-            br.ui:createSpinner(section, "Death Grip Range", 25, 5, 40, 5, "|cffFFFFFFSet to desired range for Death Grip usage. Min: 5 / Max: 40 / Interval: 5")
-            
-            -- Death Grip Target Options
-            br.ui:createDropdownWithout(section, "Death Grip Target", {
-                "Any", "Caster", "Healer"
-            }, 1, "Select priority targets for Death Grip")
-            -- Bone Shield Stacks
-            br.ui:createSpinner(section, "Bone Shield Stacks", 7, 1, 10, 1, "|cffFFFFFFSet to desired minimum Bone Shield stacks. Min: 1 / Max: 10 / Interval: 1")
-            -- Anti-Magic Shell
-            br.ui:createCheckbox(section, "Anti-Magic Shell")
-            -- Dancing Rune Weapon
-            br.ui:createCheckbox(section, "Dancing Rune Weapon")
-            -- Hero Tree Selection
-            br.ui:createDropdownWithout(section, "Hero Tree", {
-                "Deathbringer", "Sanlayn"
-            }, 1, "Select your Hero Tree specialization")
-            -- Debug Info
-            br.ui:createCheckbox(section, "Show Debug Info", "Show detailed level and ability info in chat")
-            -- Basic Trinkets Module
-            br.player.module.BasicTrinkets(nil, section)
-        br.ui:checkSectionState(section)
-        ------------------------
-        --- COOLDOWN OPTIONS --- -- Define Cooldown Options
-        ------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
-            -- Vampiric Blood HP
-            br.ui:createSpinner(section, "Vampiric Blood", 50, 0, 100, 5, "|cffFFFFFFHP Percent to Cast At")
-            -- Icebound Fortitude HP
-            br.ui:createSpinner(section, "Icebound Fortitude", 30, 0, 100, 5, "|cffFFFFFFHP Percent to Cast At")
-            -- Tombstone HP
-            br.ui:createSpinner(section, "Tombstone", 60, 0, 100, 5, "|cffFFFFFFHP Percent to Cast At")
-            -- Bonestorm
-            br.ui:createCheckbox(section, "Bonestorm", "Use Bonestorm when available")
-            -- Abomination Limb
-            br.ui:createCheckbox(section, "Abomination Limb", "Use Abomination Limb when available")
-            -- Potion Usage
-            br.ui:createCheckbox(section, "Potion", "Use Potion with Dancing Rune Weapon")
-        br.ui:checkSectionState(section)
-        -------------------------
-        --- DEFENSIVE OPTIONS --- -- Define Defensive Options
-        -------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Defensive")
-            -- Basic Healing Module
-            br.player.module.BasicHealing(section)
-            -- Death Strike Low HP
-            br.ui:createSpinner(section, "Death Strike Low HP", 50, 0, 100, 5, "|cffFFFFFFHP Percent to Cast At")
-            -- Death Strike High RP
-            br.ui:createSpinner(section, "Death Strike High RP", 80, 0, 100, 5, "|cffFFFFFFRP Percent to Cast At")
-            -- Death Strike with Coagulopathy
-            br.ui:createCheckbox(section, "Death Strike with Coagulopathy", "Prioritize Death Strike when Coagulopathy buff is active")
-        br.ui:checkSectionState(section)
-        -------------------------
-        --- INTERRUPT OPTIONS --- -- Define Interrupt Options
-        -------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Interrupts")
-            -- Interrupt Percentage
-            br.ui:createSpinner(section, "Interrupt At", 0, 0, 95, 5, "|cffFFFFFFCast Percentage to use at.")
-            -- Mind Freeze
-            br.ui:createCheckbox(section, "Mind Freeze")
-            -- Asphyxiate
-            br.ui:createCheckbox(section, "Asphyxiate")
-            br.ui:createText(section, "Death Grip can be configured in the General section")
-        br.ui:checkSectionState(section)
-        ----------------------
-        --- TOGGLE OPTIONS --- -- Define Toggle Options
-        ----------------------
-        section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
-            -- Single/Multi Toggle
-            br.ui:createDropdown(section, "Rotation Mode", br.ui.dropOptions.Toggle, 4)
-            --Cooldown Key Toggle
-            br.ui:createDropdown(section, "Cooldown Mode", br.ui.dropOptions.Toggle, 3)
-            --Defensive Key Toggle
-            br.ui:createDropdown(section, "Defensive Mode", br.ui.dropOptions.Toggle, 6)
-            -- Interrupts Key Toggle
-            br.ui:createDropdown(section, "Interrupt Mode", br.ui.dropOptions.Toggle, 6)
-            -- Pause Toggle
-            br.ui:createDropdown(section, "Pause Mode", br.ui.dropOptions.Toggle, 6)
-        br.ui:checkSectionState(section)
-    end
-    optionTable = {{
-        [1] = "Rotation Options",
-        [2] = rotationOptions,
-    }}
-    return optionTable
+local function options()
+    local section
+    -----------------------
+    --- GENERAL OPTIONS --- -- Define General Options
+    -----------------------
+    section = br.ui:section("General")
+        -- Leveling Mode
+        br.ui:checkbox(section, "Leveling Mode", { checked = true, tip = "Enable optimal rotation for leveling characters" })
+        -- Pre-Pull Timer
+        br.ui:spinner(section, "Pre-Pull Timer", { value = 5, min = 1, max = 10, step = 1,
+            tip = "Set to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1" })
+        -- Death Grip Usage
+        br.ui:dropdown(section, "Death Grip Usage", { choices = { "Off", "Interrupt", "Taunt", "Both" }, value = "Taunt", checkbox = false,
+            tip = "Select how to use Death Grip" })
+        
+        -- Death Grip Range
+        br.ui:spinner(section, "Death Grip Range", { value = 25, min = 5, max = 40,
+            tip = "Set to desired range for Death Grip usage. Min: 5 / Max: 40 / Interval: 5" })
+        
+        -- Death Grip Target Options
+        br.ui:dropdown(section, "Death Grip Target", { choices = { "Any", "Caster", "Healer" }, value = "Any", checkbox = false,
+            tip = "Select priority targets for Death Grip" })
+        -- Bone Shield Stacks
+        br.ui:spinner(section, "Bone Shield Stacks", { value = 7, min = 1, max = 10, step = 1,
+            tip = "Set to desired minimum Bone Shield stacks. Min: 1 / Max: 10 / Interval: 1" })
+        -- Anti-Magic Shell
+        br.ui:checkbox(section, "Anti-Magic Shell")
+        -- Dancing Rune Weapon
+        br.ui:checkbox(section, "Dancing Rune Weapon")
+        -- Hero Tree Selection
+        br.ui:dropdown(section, "Hero Tree", { choices = { "Deathbringer", "Sanlayn" }, value = "Deathbringer", checkbox = false,
+            tip = "Select your Hero Tree specialization" })
+        -- Debug Info
+        br.ui:checkbox(section, "Show Debug Info", { tip = "Show detailed level and ability info in chat" })
+        -- Basic Trinkets Module
+        br.player.module.BasicTrinkets(nil, section)
+    ------------------------
+    --- COOLDOWN OPTIONS --- -- Define Cooldown Options
+    ------------------------
+    section = br.ui:section("Cooldowns")
+        -- Vampiric Blood HP
+        br.ui:spinner(section, "Vampiric Blood", { value = 50, tip = "HP Percent to Cast At" })
+        -- Icebound Fortitude HP
+        br.ui:spinner(section, "Icebound Fortitude", { value = 30, tip = "HP Percent to Cast At" })
+        -- Tombstone HP
+        br.ui:spinner(section, "Tombstone", { value = 60, tip = "HP Percent to Cast At" })
+        -- Bonestorm
+        br.ui:checkbox(section, "Bonestorm", { tip = "Use Bonestorm when available" })
+        -- Abomination Limb
+        br.ui:checkbox(section, "Abomination Limb", { tip = "Use Abomination Limb when available" })
+        -- Potion Usage
+        br.ui:checkbox(section, "Potion", { tip = "Use Potion with Dancing Rune Weapon" })
+    -------------------------
+    --- DEFENSIVE OPTIONS --- -- Define Defensive Options
+    -------------------------
+    section = br.ui:section("Defensive")
+        -- Basic Healing Module
+        br.player.module.BasicHealing(section)
+        -- Death Strike Low HP
+        br.ui:spinner(section, "Death Strike Low HP", { value = 50, tip = "HP Percent to Cast At" })
+        -- Death Strike High RP
+        br.ui:spinner(section, "Death Strike High RP", { value = 80, tip = "RP Percent to Cast At" })
+        -- Death Strike with Coagulopathy
+        br.ui:checkbox(section, "Death Strike with Coagulopathy", { tip = "Prioritize Death Strike when Coagulopathy buff is active" })
+    -------------------------
+    --- INTERRUPT OPTIONS --- -- Define Interrupt Options
+    -------------------------
+    section = br.ui:section("Interrupts")
+        -- Interrupt Percentage
+        br.ui:spinner(section, "Interrupt At", { value = 0, max = 95, tip = "Cast Percentage to use at." })
+        -- Mind Freeze
+        br.ui:checkbox(section, "Mind Freeze")
+        -- Asphyxiate
+        br.ui:checkbox(section, "Asphyxiate")
+        br.ui:text(section, "Death Grip can be configured in the General section")
 end
 
 --------------
@@ -602,6 +552,8 @@ end -- End Action List - High Priority
 --- ROTATION ---
 ----------------
 local function runRotation()
+    -- This profile handles racials itself; skip the shared Racial module
+    if not br.player.localRacial then br.player.localRacial = true end
     -----------------------------
     --- INITIALIZATION  START ---
     -----------------------------
@@ -749,13 +701,16 @@ local function runRotation()
     end -- End In Combat Rotation
 end -- End runRotation
 
-local id = 250 -- Blood Death Knight spec ID
-br.loader.rotations[id] = br.loader.rotations[id] or {}
-if br.api.expansion == "MOP" then
-    br._G.tinsert(br.loader.rotations[id], {
-    name = rotationName,
-    toggles = createToggles,
-    options = createOptions,
-    run = runRotation,
-    })
-end
+br.loader.registerRotation({
+    name      = rotationName,
+    specID    = 250, -- Blood Death Knight spec ID
+    expansion = "MOP",
+    author    = "ChefLyfe",
+    patch     = "11.0.2",
+    coverage  = "70%",
+    status    = "Limited",
+    readiness = "Basic",
+    toggles   = toggles,
+    options   = options,
+    run       = runRotation,
+})

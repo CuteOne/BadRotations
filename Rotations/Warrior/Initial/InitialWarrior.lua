@@ -3,88 +3,62 @@ local rotationName = "Initial"
 ---------------
 --- Toggles ---
 ---------------
-local function createToggles()
-    -- Rotation Button
-    local RotationModes = {
-        [1] = { mode = "On", value = 1, overlay = "Rotation Enabled", tip = "Enable Rotation", highlight = 1, icon = br.player.spells.slam },
-        [2] = { mode = "Off", value = 4, overlay = "Rotation Disabled", tip = "Disable Rotation", highlight = 0, icon = br.player.spells.victoryRush }
-    };
-    br.ui:createToggle(RotationModes, "Rotation", 1, 0)
-    -- Defensive Button
-    local DefensiveModes = {
-        [1] = { mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spells.shieldBlock },
-        [2] = { mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spells.shieldBlock }
-    };
-    br.ui:createToggle(DefensiveModes, "Defensive", 2, 0)
-    -- Movement Button
-    local MoverModes = {
-        [1] = { mode = "On", value = 1, overlay = "Mover Enabled", tip = "Will use Charge.", highlight = 1, icon = br.player.spells.charge },
-        [2] = { mode = "Off", value = 2, overlay = "Mover Disabled", tip = "Will NOT use Charge.", highlight = 0, icon = br.player.spells.charge }
-    };
-    br.ui:createToggle(MoverModes, "Mover", 3, 0)
+local function toggles()
+    br.ui:toggle("Rotation", { modes = {
+        { name = "On", icon = "slam", overlay = "Rotation Enabled", tip = "Enable Rotation" },
+        { name = "Off", icon = "victoryRush", overlay = "Rotation Disabled", tip = "Disable Rotation" },
+    } })
+    br.ui:toggle("Defensive", { modes = {
+        { name = "On", icon = "shieldBlock", overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns." },
+        { name = "Off", icon = "shieldBlock", overlay = "Defensive Disabled", tip = "No Defensives will be used." },
+    } })
+    br.ui:toggle("Interrupt", { modes = {
+        { name = "On", icon = "pummel", overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts." },
+        { name = "Off", icon = "pummel", overlay = "Interrupts Disabled", tip = "No Interrupts will be used." },
+    } })
+    br.ui:toggle("Mover", { modes = {
+        { name = "On", icon = "charge", overlay = "Mover Enabled", tip = "Will use Charge." },
+        { name = "Off", icon = "charge", overlay = "Mover Disabled", tip = "Will NOT use Charge." },
+    } })
 end
 
 ---------------
 --- OPTIONS ---
 ---------------
-local function createOptions()
-    local optionTable
-
-    local function rotationOptions()
-        local section
-        -----------------------
-        --- GENERAL OPTIONS ---
-        -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "General")
-        -- Basic Trinket Module
-        -- br.player.module.BasicTrinkets(nil, section)
-        -- Battle Shout
-        -- br.ui:createCheckbox(section, "Battle Shout")
-        -- Charge
-        br.ui:createCheckbox(section, "Charge")
-        -- Hamstring
-        -- br.ui:createCheckbox(section, "Hamstring")
-        -- Heroic Throw
-        -- br.ui:createCheckbox(section, "Heroic Throw")
-        -- Victory Rush
-        br.ui:createCheckbox(section, "Victory Rush")
-        br.ui:checkSectionState(section)
-        -------------------------
-        --- DEFENSIVE OPTIONS ---
-        -------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Defensive")
-        -- Basic Healing Module
-        -- br.player.module.BasicHealing(section)
-        -- Shield Block
-        -- br.ui:createSpinner(section, "Shield Block", 30, 0, 100, 5, "|cffFFFFFFPet Health Percent to Cast At")
-        br.ui:checkSectionState(section)
-        -------------------------
-        --- INTERRUPT OPTIONS ---
-        -------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Interrupt")
-        -- Pummel
-        -- br.ui:createCheckbox(section, "Pummel", "|cffFFFFFFUse Pummel")
-        -- Interrupt Percentage
-        br.ui:createSpinnerWithout(section, "Interrupt At", 0, 0, 95, 5,
-            "|cffFFFFFFCast Percent to Cast At (0 is random)")
-        br.ui:checkSectionState(section)
-        ----------------------
-        --- TOGGLE OPTIONS ---
-        ----------------------
-        section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
-        -- Single/Multi Toggle
-        br.ui:createDropdownWithout(section, "Rotation Mode", br.ui.dropOptions.Toggle, 6)
-        -- Defensive Key Toggle
-        br.ui:createDropdownWithout(section, "Defensive Mode", br.ui.dropOptions.Toggle, 6)
-        -- Interrupts Key Toggle
-        br.ui:createDropdownWithout(section, "Interrupt Mode", br.ui.dropOptions.Toggle, 6)
-        br.ui:checkSectionState(section)
-    end
-    optionTable = { {
-        [1] = "Rotation Options",
-        [2] = rotationOptions,
-    } }
-    return optionTable
+local function options()
+    local section
+    -----------------------
+    --- GENERAL OPTIONS ---
+    -----------------------
+    section = br.ui:section("General")
+    -- Basic Trinket Module
+    -- br.player.module.BasicTrinkets(nil, section)
+    -- Battle Shout
+    -- br.ui:createCheckbox(section, "Battle Shout")
+    -- Charge
+    br.ui:checkbox(section, "Charge")
+    -- Hamstring
+    -- br.ui:createCheckbox(section, "Hamstring")
+    -- Heroic Throw
+    -- br.ui:createCheckbox(section, "Heroic Throw")
+    -- Victory Rush
+    br.ui:checkbox(section, "Victory Rush")
+    -------------------------
+    --- DEFENSIVE OPTIONS ---
+    -------------------------
+    section = br.ui:section("Defensive")
+    -- Basic Healing Module
+    -- br.player.module.BasicHealing(section)
+    -- Shield Block
+    -- br.ui:createSpinner(section, "Shield Block", 30, 0, 100, 5, "|cffFFFFFFPet Health Percent to Cast At")
+    -------------------------
+    --- INTERRUPT OPTIONS ---
+    -------------------------
+    section = br.ui:section("Interrupt")
+    -- Pummel
+    -- br.ui:createCheckbox(section, "Pummel", "|cffFFFFFFUse Pummel")
+    -- Interrupt Percentage
+    br.ui:spinner(section, "Interrupt At", { value = 0, max = 95, checkbox = false, tip = "Cast Percent to Cast At (0 is random)" })
 end
 
 --------------
@@ -333,13 +307,11 @@ local function runRotation()
         if actionList.Combat() then return true end
     end         -- Pause
 end             -- End runRotation
-local id = 1446 -- Change to the spec id profile is for.
-br.loader.rotations[id] = br.loader.rotations[id] or {}
-if br.api.expansion == "MOP" then
-    br._G.tinsert(br.loader.rotations[id], {
-    name = rotationName,
-    toggles = createToggles,
-    options = createOptions,
-    run = runRotation,
-    })
-end
+br.loader.registerRotation({
+    name      = rotationName,
+    specID    = 1446,
+    expansion = "MOP",
+    toggles   = toggles,
+    options   = options,
+    run       = runRotation,
+})

@@ -1,95 +1,56 @@
--------------------------------------------------------
--- Author = BrewingCoder
--- Patch = 10.2.6
--- Coverage = 0%
--- Status = Development
--- Readiness = Development
--------------------------------------------------------
 local rotationName = "BrewDKFrost"
 
 ---------------
 --- Toggles ---
 ---------------
-local function createToggles()
-    -- Rotation Button
-    local RotationModes = {
-        [1] = { mode = "On", value = 1, overlay = "Rotation Enabled", tip = "Enable Rotation", highlight = 1, icon = br.player.spells.runeStrike },
-        [2] = { mode = "Off", value = 4, overlay = "Rotation Disabled", tip = "Disable Rotation", highlight = 0, icon = br.player.spells.runeStrike }
-    };
-    br.ui:createToggle(RotationModes, "Rotation", 1, 0)
-    -- Defensive Button
-    local DefensiveModes = {
-        [1] = { mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spells.deathStrike },
-        [2] = { mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spells.deathStrike }
-    };
-    br.ui:createToggle(DefensiveModes, "Defensive", 2, 0)
-    -- Interrupt Button
-    local InterruptModes = {
-        [1] = { mode = "On", value = 1, overlay = "Interrupt Enabled", tip = "Enabled Interrupt", highlight = 1, icon = br.player.spells.mindFreeze },
-        [2] = { mode = "Off", value = 2, overlay = "Interrupt Disabled", tip = "Disable Interrupt", highlight = 0, icon = br.player.spells.mindFreeze }
-    };
-    br.ui:createToggle(InterruptModes, "Interrupt", 3, 0)
+local function toggles()
+    br.ui:toggle("Rotation", { key = "RightShift", modes = {
+        { name = "On", icon = "runeStrike", overlay = "Rotation Enabled", tip = "Enable Rotation" },
+        { name = "Off", icon = "runeStrike", overlay = "Rotation Disabled", tip = "Disable Rotation" },
+    } })
+    br.ui:toggle("Defensive", { modes = {
+        { name = "On", icon = "deathStrike", overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns." },
+        { name = "Off", icon = "deathStrike", overlay = "Defensive Disabled", tip = "No Defensives will be used." },
+    } })
+    br.ui:toggle("Interrupt", { modes = {
+        { name = "On", icon = "mindFreeze", overlay = "Interrupt Enabled", tip = "Enabled Interrupt" },
+        { name = "Off", icon = "mindFreeze", overlay = "Interrupt Disabled", tip = "Disable Interrupt" },
+    } })
 end
 
 ---------------
 --- OPTIONS ---
 ---------------
-local function createOptions()
-    local optionTable
-
-    local function rotationOptions()
-        local section
-        -----------------------
-        --- GENERAL OPTIONS ---
-        -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "General")
-        -- Death Grip
-        br.ui:createCheckbox(section, "Death Grip")
-        -- Trinkets
-        br.ui:createCheckbox(section, "Trinkets")
-        br.ui:checkSectionState(section)
-        -------------------------
-        --- DEFENSIVE OPTIONS ---
-        -------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Defensive")
-        -- Basic Healing Module
-        br.player.module.BasicHealing(section)
-        -- Anti-Magic Shell
-        br.ui:createSpinner(section, "Anti-Magic Shell", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to use at.")
-        -- Death Strike
-        br.ui:createSpinner(section, "Death Strike", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-        br.ui:checkSectionState(section)
-        -------------------------
-        --- INTERRUPT OPTIONS ---
-        -------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Interrupt")
-        -- Death Grip
-        br.ui:createCheckbox(section, "Death Grip - Int")
-        -- Mind Freeze
-        br.ui:createCheckbox(section, "Mind Freeze")
-        -- "Interrupt At"
-        br.ui:createSpinnerWithout(section, "Interrupt At", 0, 0, 95, 5,
-            "|cffFFFFFFCast Percent to Cast At (0 is random)")
-        br.ui:checkSectionState(section)
-        ----------------------
-        --- TOGGLE OPTIONS ---
-        ----------------------
-        section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
-        -- Single/Multi Toggle
-        br.ui:createDropdownWithout(section, "Rotation Mode", br.ui.dropOptions.Toggle, 4)
-        -- Defensive Key Toggle
-        br.ui:createDropdownWithout(section, "Defensive Mode", br.ui.dropOptions.Toggle, 6)
-        -- Interrupt Key Toggle
-        br.ui:createDropdownWithout(section, "Interrupt Mode", br.ui.dropOptions.Toggle, 6)
-        -- Pause Toggle
-        br.ui:createDropdown(section, "Pause Mode", br.ui.dropOptions.Toggle, 6)
-        br.ui:checkSectionState(section)
-    end
-    optionTable = { {
-        [1] = "Rotation Options",
-        [2] = rotationOptions,
-    } }
-    return optionTable
+local function options()
+    local section
+    -----------------------
+    --- GENERAL OPTIONS ---
+    -----------------------
+    section = br.ui:section("General")
+    -- Death Grip
+    br.ui:checkbox(section, "Death Grip")
+    -- Trinkets
+    br.ui:checkbox(section, "Trinkets")
+    -------------------------
+    --- DEFENSIVE OPTIONS ---
+    -------------------------
+    section = br.ui:section("Defensive")
+    -- Basic Healing Module
+    br.player.module.BasicHealing(section)
+    -- Anti-Magic Shell
+    br.ui:spinner(section, "Anti-Magic Shell", { value = 50, tip = "Health Percent to use at." })
+    -- Death Strike
+    br.ui:spinner(section, "Death Strike", { value = 50, tip = "Health Percent to Cast At" })
+    -------------------------
+    --- INTERRUPT OPTIONS ---
+    -------------------------
+    section = br.ui:section("Interrupt")
+    -- Death Grip
+    br.ui:checkbox(section, "Death Grip - Int")
+    -- Mind Freeze
+    br.ui:checkbox(section, "Mind Freeze")
+    -- "Interrupt At"
+    br.ui:spinner(section, "Interrupt At", { value = 0, max = 95, checkbox = false, tip = "Cast Percent to Cast At (0 is random)" })
 end
 
 --------------
@@ -326,13 +287,16 @@ local function runRotation()
         end
     end         -- Pause
 end             -- End runRotation
-local id = 0
-br.loader.rotations[id] = br.loader.rotations[id] or {}
-if br.api.expansion == "MOP" then
-    br._G.tinsert(br.loader.rotations[id], {
-    name = rotationName,
-    toggles = createToggles,
-    options = createOptions,
-    run = runRotation,
-    })
-end
+br.loader.registerRotation({
+    name      = rotationName,
+    specID    = 0,
+    expansion = "MOP",
+    author    = "BrewingCoder",
+    patch     = "10.2.6",
+    coverage  = "0%",
+    status    = "Development",
+    readiness = "Development",
+    toggles   = toggles,
+    options   = options,
+    run       = runRotation,
+})

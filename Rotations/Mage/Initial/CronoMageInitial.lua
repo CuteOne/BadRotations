@@ -3,75 +3,42 @@ local rotationName = "Crono" -- Change to name of profile listed in options drop
 ---------------
 --- Toggles ---
 ---------------
-local function createToggles()
-    -- Rotation Button
-    local RotationModes = {
-        [1] = { mode = "Auto", value = 1, overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spells.arcaneExplosion },
-        [2] = { mode = "Sing", value = 2, overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spells.frostbolt }
-    }
-    br.ui:createToggle(RotationModes, "Rotation", 1, 0)
-
-    -- Defensive Button
-    local DefensiveModes = {
-        [1] = { mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spells.frostNova },
-        [2] = { mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spells.frostNova }
-    }
-    br.ui:createToggle(DefensiveModes, "Defensive", 2, 0)
-
-    -- Interrupt Button
-    local InterruptModes = {
-        [1] = { mode = "On", value = 1, overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spells.counterspell },
-        [2] = { mode = "Off", value = 2, overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spells.counterspell }
-    }
-    br.ui:createToggle(InterruptModes, "Interrupt", 3, 0)
+local function toggles()
+    br.ui:toggle("Rotation", { key = "RightShift", modes = {
+        { name = "Auto", icon = "arcaneExplosion", overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range." },
+        { name = "Sing", icon = "frostbolt", overlay = "Single Target Rotation", tip = "Single target rotation used." },
+    } })
+    br.ui:toggle("Defensive", { modes = {
+        { name = "On", icon = "frostNova", overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns." },
+        { name = "Off", icon = "frostNova", overlay = "Defensive Disabled", tip = "No Defensives will be used." },
+    } })
+    br.ui:toggle("Interrupt", { modes = {
+        { name = "On", icon = "counterspell", overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts." },
+        { name = "Off", icon = "counterspell", overlay = "Interrupts Disabled", tip = "No Interrupts will be used." },
+    } })
 end
 
 ---------------
 --- OPTIONS ---
 ---------------
-local function createOptions()
-    local optionTable
+local function options()
+    local section
+    -----------------------
+    --- GENERAL OPTIONS --- -- Define General Options
+    -----------------------
+    section = br.ui:section("General")
 
-    local function rotationOptions()
-        local section
-        -----------------------
-        --- GENERAL OPTIONS --- -- Define General Options
-        -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "General")
+    -------------------------
+    --- DEFENSIVE OPTIONS --- -- Define Defensive Options
+    -------------------------
+    section = br.ui:section("Defensive")
 
-        br.ui:checkSectionState(section)
-        -------------------------
-        --- DEFENSIVE OPTIONS --- -- Define Defensive Options
-        -------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Defensive")
-
-        br.ui:checkSectionState(section)
-        -------------------------
-        --- INTERRUPT OPTIONS --- -- Define Interrupt Options
-        -------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Interrupts")
-        -- Interrupt Percentage
-        br.ui:createSpinner(section, "Interrupt At", 0, 0, 95, 5, "|cffFFBB00Cast Percentage to use at.")
-        br.ui:checkSectionState(section)
-        ----------------------
-        --- TOGGLE OPTIONS --- -- Degine Toggle Options
-        ----------------------
-        section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
-        -- Single/Multi Toggle
-        br.ui:createDropdown(section, "Rotation Mode", br.ui.dropOptions.Toggle, 4)
-        --Defensive Key Toggle
-        br.ui:createDropdown(section, "Defensive Mode", br.ui.dropOptions.Toggle, 6)
-        -- Interrupts Key Toggle
-        br.ui:createDropdown(section, "Interrupt Mode", br.ui.dropOptions.Toggle, 6)
-        -- Pause Toggle
-        br.ui:createDropdown(section, "Pause Mode", br.ui.dropOptions.Toggle, 6)
-        br.ui:checkSectionState(section)
-    end
-    optionTable = { {
-        [1] = "Rotation Options",
-        [2] = rotationOptions,
-    } }
-    return optionTable
+    -------------------------
+    --- INTERRUPT OPTIONS --- -- Define Interrupt Options
+    -------------------------
+    section = br.ui:section("Interrupts")
+    -- Interrupt Percentage
+    br.ui:spinner(section, "Interrupt At", { value = 0, max = 95, tip = "|cffFFBB00Cast Percentage to use at." })
 end
 
 --------------
@@ -250,13 +217,11 @@ local function runRotation()
         end
     end         -- Pause
 end             -- End runRotation
-local id = 0 --1449 -- Change to the spec id profile is for. Spec ID can be found at: https://wowpedia.fandom.com/wiki/SpecializationID
-br.loader.rotations[id] = br.loader.rotations[id] or {}
-if br.api.expansion == "MOP" then
-    br._G.tinsert(br.loader.rotations[id], {
-    name = rotationName,
-    toggles = createToggles,
-    options = createOptions,
-    run = runRotation,
-    })
-end
+br.loader.registerRotation({
+    name      = rotationName,
+    specID    = 0, --1449 -- Change to the spec id profile is for. Spec ID can be found at: https://wowpedia.fandom.com/wiki/SpecializationID
+    expansion = "MOP",
+    toggles   = toggles,
+    options   = options,
+    run       = runRotation,
+})

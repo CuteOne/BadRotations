@@ -1,155 +1,120 @@
--------------------------------------------------------
--- Author = CuteOne
--- Patch = 11.0.2
---    Patch should be the latest patch you've updated the rotation for (i.e., 9.2.5)
--- Coverage = 100%
---    Coverage should be your estimated percent coverage for class mechanics (i.e., 100%)
--- Status = Limited
---    Status should be one of: Full, Limited, Sporadic, Inactive, Unknown
--- Readiness = NoRaid
---    Readiness should be one of: Raid, NoRaid, Basic, Development, Untested
--------------------------------------------------------
--- Required: Fill above fields to populate README.md --
--------------------------------------------------------
-
 local rotationName = "CuteOne"
 ---------------
 --- Toggles ---
 ---------------
-local function createToggles()
-    -- Rotation Button
-    local RotationModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spells.stormstrike },
-        [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spells.fireNova },
-        [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spells.stormstrike },
-        [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spells.healingSurge }
-    };
-    br.ui:createToggle(RotationModes, "Rotation", 1, 0)
-    -- Cooldown Button
-    local CooldownModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spells.feralSpirit },
-        [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spells.feralSpirit },
-        [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spells.feralSpirit }
-    };
-    br.ui:createToggle(CooldownModes,"Cooldown",2,0)
-    -- Defensive Button
-    local DefensiveModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spells.astralShift },
-        [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spells.astralShift }
-    };
-    br.ui:createToggle(DefensiveModes,"Defensive",3,0)
-    -- Interrupt Button
-    local InterruptModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spells.windShear },
-        [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spells.windShear }
-    };
-    br.ui:createToggle(InterruptModes,"Interrupt",4,0)
+local function toggles()
+    br.ui:toggle("Rotation", { key = "RightShift", modes = {
+        { name = "Auto", icon = "stormstrike", overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range." },
+        { name = "Mult", icon = "fireNova", overlay = "Multiple Target Rotation", tip = "Multiple target rotation used." },
+        { name = "Sing", icon = "stormstrike", overlay = "Single Target Rotation", tip = "Single target rotation used." },
+        { name = "Off", icon = "healingSurge", overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation" },
+    } })
+    br.ui:toggle("Cooldown", { key = "RightCtrl", modes = {
+        { name = "Auto", icon = "feralSpirit", overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection." },
+        { name = "On", icon = "feralSpirit", overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target." },
+        { name = "Off", icon = "feralSpirit", overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used." },
+    } })
+    br.ui:toggle("Defensive", { modes = {
+        { name = "On", icon = "astralShift", overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns." },
+        { name = "Off", icon = "astralShift", overlay = "Defensive Disabled", tip = "No Defensives will be used." },
+    } })
+    br.ui:toggle("Interrupt", { modes = {
+        { name = "On", icon = "windShear", overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts." },
+        { name = "Off", icon = "windShear", overlay = "Interrupts Disabled", tip = "No Interrupts will be used." },
+    } })
 end
 
 ---------------
 --- OPTIONS ---
 ---------------
-local function createOptions()
-    local optionTable
-
-    local function rotationOptions()
-        local section
-        local alwaysCdNever = {"|cff00FF00Always","|cffFFFF00Cooldowns","|cffFF0000Never"}
-        -- General Options
-        section = br.ui:createSection(br.ui.window.profile, "General")
-            -- Dummy DPS Test
-            br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
-            -- Pre-Pull Timer
-            br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
-            -- Ghost Wolf
-            br.ui:createDropdownWithout(section,"Ghost Wolf", {"|cff00FF00Always","|cffFFFF00OoC Only","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Ghost Wolf.")
-            -- Feral Lunge
-            br.ui:createCheckbox(section,"Feral Lunge")
-            -- Lightning Bolt OOC
-            br.ui:createCheckbox(section,"Lightning Bolt Out of Combat")
-            -- Lightning Filler
-            br.ui:createCheckbox(section,"Lightning Filler","Select to use LB/CL when all other abilities are on CD and can cast before any available.")
-            -- Lightning Shield
-            br.ui:createCheckbox(section, "Lightning Shield")
-            -- Water Shield
-            br.ui:createSpinner(section, "Water Shield", 30, 0, 100, 5, "|cffFFFFFFMana percent to swap to Water Shield.")
-            -- Spirit Walk
-            br.ui:createCheckbox(section,"Spirit Walk")
-            -- Water Walking
-            br.ui:createCheckbox(section,"Water Walking")
-            -- Weapon Imbues
-            br.ui:createCheckbox(section,"Windfury Weapon")
-            br.ui:createCheckbox(section,"Flametongue Weapon")
-        br.ui:checkSectionState(section)
-        -- Cooldown Options
-        section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
-            -- Ascendance
-            br.ui:createDropdownWithout(section,"Ascendance", alwaysCdNever, 1, "|cffFFFFFFWhen to use Ascendance.")
-            -- Ancestral Swiftness
-            br.ui:createDropdownWithout(section,"Ancestral Swiftness", alwaysCdNever, 1, "|cffFFFFFFWhen to use Ancestral Swiftness.")
-            -- Earth Elemental Totem
-            br.ui:createDropdownWithout(section,"Earth Elemental", alwaysCdNever, 1, "|cffFFFFFFWhen to use Earth Elemental.")
-            -- Elemental Mastery
-            br.ui:createDropdownWithout(section,"Elemental Mastery", alwaysCdNever, 1, "|cffFFFFFFWhen to use Elemental Mastery.")
-            -- Feral Spirit
-            br.ui:createDropdownWithout(section,"Feral Spirit", alwaysCdNever, 1, "|cffFFFFFFWhen to use Feral Spirit.")
-            -- Fire Elemental Totem
-            br.ui:createDropdownWithout(section,"Fire Elemental", alwaysCdNever, 1, "|cffFFFFFFWhen to use Fire Elemental Totem.")
-            -- Stormlash Totem
-            br.ui:createDropdownWithout(section,"Stormlash", alwaysCdNever, 1, "|cffFFFFFFWhen to use Stormlash Totem.")
-        br.ui:checkSectionState(section)
-        -- Defensive Options
-        section = br.ui:createSection(br.ui.window.profile, "Defensive")
-            -- Ancestral Spirit
-            br.ui:createDropdown(section, "Ancestral Spirit", {"|cffFFFF00Selected Target","|cffFF0000Mouseover Target"}, 1, "|ccfFFFFFFTarget to Cast On")
-            -- Astral Shift
-            br.ui:createSpinner(section, "Astral Shift",  40,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-            -- Cleanse Spirit
-            br.ui:createDropdown(section, "Cleanse Spirit", {"|cff00FF00Player Only","|cffFFFF00Selected Target","|cffFF0000Mouseover Target"}, 1, "|ccfFFFFFFTarget to Cast On")
-            -- Healing Surge
-            br.ui:createSpinner(section, "Healing Surge",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-            br.ui:createSpinnerWithout(section, "Healing Surge OoC",  90,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-            -- Auto/Insta-Heal
-            br.ui:createDropdownWithout(section, "Heal Target", { "|cffFFDD11LowestHP", "|cffFFDD11Player"},  1,  "|cffFFFFFFSelect Target to Heal")
-            br.ui:createDropdownWithout(section, "Instant Behavior", {"|cff00FF00Always","|cffFFFF00Combat Only","|cffFF0000Never"}, 2, "|cffFFFFFFSelect how to use Instant Heal proc.")
-            -- Healing Steam Totem
-            br.ui:createSpinner(section, "Healing Stream Totem", 35, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-            br.ui:createCheckbox(section, "Use HST While Solo")
-            br.ui:createSpinnerWithout(section, "Healing Stream Totem - Min Units", 1, 0, 5, 1, "|cffFFFFFFNumber of Units below HP Level to Cast At")
-            -- Lightning Surge Totem
-            br.ui:createSpinner(section, "Capacitor Totem - HP", 30, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-            br.ui:createSpinner(section, "Capacitor Totem - AoE", 5, 0, 10, 1, "|cffFFFFFFNumber of Units in 5 Yards to Cast At")
-            -- Purge
-            br.ui:createCheckbox(section,"Purge")
-        br.ui:checkSectionState(section)
-        -- Interrupt Options
-        section = br.ui:createSection(br.ui.window.profile, "Interrupts")
-            -- Wind Shear
-            br.ui:createCheckbox(section,"Wind Shear")
-            -- Hex
-            br.ui:createCheckbox(section,"Hex")
-            -- Lightning Surge Totem
-            br.ui:createCheckbox(section,"Capacitor Totem")
-            -- Interrupt Percentage
-            br.ui:createSpinnerWithout(section, "Interrupt At",  0,  0,  95,  5,  "|cffFFFFFFCast Percent to Cast At")
-        br.ui:checkSectionState(section)
-        -- Toggle Key Options
-        section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
-            -- Single/Multi Toggle
-            br.ui:createDropdownWithout(section, "Rotation Mode", br.ui.dropOptions.Toggle,  4)
-            -- Cooldown Key Toggle
-            br.ui:createDropdownWithout(section, "Cooldown Mode", br.ui.dropOptions.Toggle,  3)
-            -- Defensive Key Toggle
-            br.ui:createDropdownWithout(section, "Defensive Mode", br.ui.dropOptions.Toggle,  6)
-            -- Interrupts Key Toggle
-            br.ui:createDropdownWithout(section, "Interrupt Mode", br.ui.dropOptions.Toggle,  6)
-        br.ui:checkSectionState(section)
-    end
-    optionTable = {{
-        [1] = "Rotation Options",
-        [2] = rotationOptions,
-    }}
-    return optionTable
+local function options()
+    local section
+    local alwaysCdNever = {"|cff00FF00Always","|cffFFFF00Cooldowns","|cffFF0000Never"}
+    -- General Options
+    section = br.ui:section("General")
+        -- Dummy DPS Test
+        br.ui:spinner(section, "DPS Testing", { value = 5, min = 5, max = 60,
+            tip = "Set to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5" })
+        -- Pre-Pull Timer
+        br.ui:spinner(section, "Pre-Pull Timer", { value = 5, min = 1, max = 10, step = 1,
+            tip = "Set to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1" })
+        -- Ghost Wolf
+        br.ui:dropdown(section, "Ghost Wolf", { choices = { "|cff00FF00Always", "|cffFFFF00OoC Only", "|cffFF0000Never" }, value = "Always", checkbox = false,
+            tip = "When to use Ghost Wolf." })
+        -- Feral Lunge
+        br.ui:checkbox(section, "Feral Lunge")
+        -- Lightning Bolt OOC
+        br.ui:checkbox(section, "Lightning Bolt Out of Combat")
+        -- Lightning Filler
+        br.ui:checkbox(section, "Lightning Filler", { tip = "Select to use LB/CL when all other abilities are on CD and can cast before any available." })
+        -- Lightning Shield
+        br.ui:checkbox(section, "Lightning Shield")
+        -- Water Shield
+        br.ui:spinner(section, "Water Shield", { value = 30, tip = "Mana percent to swap to Water Shield." })
+        -- Spirit Walk
+        br.ui:checkbox(section, "Spirit Walk")
+        -- Water Walking
+        br.ui:checkbox(section, "Water Walking")
+        -- Weapon Imbues
+        br.ui:checkbox(section, "Windfury Weapon")
+        br.ui:checkbox(section, "Flametongue Weapon")
+    -- Cooldown Options
+    section = br.ui:section("Cooldowns")
+        -- Ascendance
+        br.ui:dropdown(section, "Ascendance", { choices = alwaysCdNever, value = 1, checkbox = false, tip = "When to use Ascendance." })
+        -- Ancestral Swiftness
+        br.ui:dropdown(section, "Ancestral Swiftness", { choices = alwaysCdNever, value = 1, checkbox = false,
+            tip = "When to use Ancestral Swiftness." })
+        -- Earth Elemental Totem
+        br.ui:dropdown(section, "Earth Elemental", { choices = alwaysCdNever, value = 1, checkbox = false, tip = "When to use Earth Elemental." })
+        -- Elemental Mastery
+        br.ui:dropdown(section, "Elemental Mastery", { choices = alwaysCdNever, value = 1, checkbox = false,
+            tip = "When to use Elemental Mastery." })
+        -- Feral Spirit
+        br.ui:dropdown(section, "Feral Spirit", { choices = alwaysCdNever, value = 1, checkbox = false, tip = "When to use Feral Spirit." })
+        -- Fire Elemental Totem
+        br.ui:dropdown(section, "Fire Elemental", { choices = alwaysCdNever, value = 1, checkbox = false,
+            tip = "When to use Fire Elemental Totem." })
+        -- Stormlash Totem
+        br.ui:dropdown(section, "Stormlash", { choices = alwaysCdNever, value = 1, checkbox = false, tip = "When to use Stormlash Totem." })
+    -- Defensive Options
+    section = br.ui:section("Defensive")
+        -- Ancestral Spirit
+        br.ui:dropdown(section, "Ancestral Spirit", { choices = { "|cffFFFF00Selected Target", "|cffFF0000Mouseover Target" }, value = "Selected Target",
+            tip = "|ccfFFFFFFTarget to Cast On" })
+        -- Astral Shift
+        br.ui:spinner(section, "Astral Shift", { value = 40, tip = "Health Percent to Cast At" })
+        -- Cleanse Spirit
+        br.ui:dropdown(section, "Cleanse Spirit", { choices = { "|cff00FF00Player Only", "|cffFFFF00Selected Target", "|cffFF0000Mouseover Target" }, value = "Player Only",
+            tip = "|ccfFFFFFFTarget to Cast On" })
+        -- Healing Surge
+        br.ui:spinner(section, "Healing Surge", { value = 50, tip = "Health Percent to Cast At" })
+        br.ui:spinner(section, "Healing Surge OoC", { value = 90, checkbox = false, tip = "Health Percent to Cast At" })
+        -- Auto/Insta-Heal
+        br.ui:dropdown(section, "Heal Target", { choices = { "|cffFFDD11LowestHP", "|cffFFDD11Player" }, value = "LowestHP", checkbox = false,
+            tip = "Select Target to Heal" })
+        br.ui:dropdown(section, "Instant Behavior", { choices = { "|cff00FF00Always", "|cffFFFF00Combat Only", "|cffFF0000Never" }, value = "Combat Only", checkbox = false,
+            tip = "Select how to use Instant Heal proc." })
+        -- Healing Steam Totem
+        br.ui:spinner(section, "Healing Stream Totem", { value = 35, tip = "Health Percent to Cast At" })
+        br.ui:checkbox(section, "Use HST While Solo")
+        br.ui:spinner(section, "Healing Stream Totem - Min Units", { value = 1, max = 5, step = 1, checkbox = false,
+            tip = "Number of Units below HP Level to Cast At" })
+        -- Lightning Surge Totem
+        br.ui:spinner(section, "Capacitor Totem - HP", { value = 30, tip = "Health Percent to Cast At" })
+        br.ui:spinner(section, "Capacitor Totem - AoE", { value = 5, max = 10, step = 1, tip = "Number of Units in 5 Yards to Cast At" })
+        -- Purge
+        br.ui:checkbox(section, "Purge")
+    -- Interrupt Options
+    section = br.ui:section("Interrupts")
+        -- Wind Shear
+        br.ui:checkbox(section, "Wind Shear")
+        -- Hex
+        br.ui:checkbox(section, "Hex")
+        -- Lightning Surge Totem
+        br.ui:checkbox(section, "Capacitor Totem")
+        -- Interrupt Percentage
+        br.ui:spinner(section, "Interrupt At", { value = 0, max = 95, checkbox = false, tip = "Cast Percent to Cast At" })
 end
 
 --------------
@@ -908,6 +873,8 @@ end -- End Action List - Combat
 --- ROTATION ---
 ----------------
 local function runRotation()
+    -- This profile handles racials itself; skip the shared Racial module
+    if not br.player.localRacial then br.player.localRacial = true end
     --------------
     --- Locals ---
     --------------
@@ -1012,13 +979,16 @@ local function runRotation()
         if actionList.Combat() then return true end
     end --End Rotation Logic
 end -- End runRotation
-local id = 263
-br.loader.rotations[id] = br.loader.rotations[id] or {}
-if br.api.expansion == "MOP" then
-    br._G.tinsert(br.loader.rotations[id], {
-    name = rotationName,
-    toggles = createToggles,
-    options = createOptions,
-    run = runRotation,
-    })
-end
+br.loader.registerRotation({
+    name      = rotationName,
+    specID    = 263,
+    expansion = "MOP",
+    author    = "CuteOne",
+    patch     = "11.0.2",
+    coverage  = "100%",
+    status    = "Limited",
+    readiness = "NoRaid",
+    toggles   = toggles,
+    options   = options,
+    run       = runRotation,
+})

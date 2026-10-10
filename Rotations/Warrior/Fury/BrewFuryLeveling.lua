@@ -1,10 +1,3 @@
--------------------------------------------------------
--- Author = BrewingCoder
--- Patch = 10.2.6
--- Coverage = 20%
--- Status = Limited
--- Readiness = PVE Leveling
--------------------------------------------------------
 local rotationName = "BrewFuryLeveling"
 
 local colors = {
@@ -41,85 +34,59 @@ local text = {
     }
 }
 
-local function createToggles()
-    local RotationModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range.", highlight = 1, icon = br.player.spells.whirlwind },
-        [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spells.bladestorm },
-        [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spells.ragingBlow },
-        [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spells.enragedRegeneration}
-    };
-    br.ui:createToggle(RotationModes,"Rotation",1,0)
-    local CooldownModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spells.recklessness },
-        [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spells.recklessness },
-        [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spells.recklessness }
-    };
-    br.ui:createToggle(CooldownModes,"Cooldown",2,0)
-    local DefensiveModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spells.enragedRegeneration },
-        [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spells.enragedRegeneration }
-    };
-    br.ui:createToggle(DefensiveModes,"Defensive",3,0)
-    local InterruptModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spells.pummel },
-        [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spells.pummel }
-    };
-    br.ui:createToggle(InterruptModes,"Interrupt",4,0)
-    local DebugModes = {
-        [1] = { mode = "ON", value = 1 , overlay = "Debugs On", tip = "Debug Messages On", highlight = 1, icon =200733 },
-        [2] = { mode = "OFF", value = 0 , overlay = "Debugs Off", tip = "Debug Messages Off", highlight = 0, icon =200733 },
-    }
-    br.ui:createToggle(DebugModes,"Debugs",5,0)
-    local HeroicLeap = {
-        [1] = { mode = "ON", value = 1 , overlay = "Heroic Leap On", tip = "Heroic Leap On", highlight = 1, icon=br.player.spells.heroicLeap },
-        [2] = { mode = "OFF", value = 0 , overlay = "Heroic Leap Off", tip = "Heroic Leap Off", highlight = 0, icon=br.player.spells.heroicLeap },
-    }
-    br.ui:createToggle(HeroicLeap,"HeroicLeap",4,1)
-    local Charge = {
-        [1] = { mode = "ON", value = 1 , overlay = "Charge On", tip = "Charge On", highlight = 1, icon=br.player.spells.charge },
-        [2] = { mode = "OFF", value = 0 , overlay = "Charge Off", tip = "Charge Off", highlight = 0, icon=br.player.spells.charge },
-    }
-    br.ui:createToggle(Charge,"Charge",3,1)
+local function toggles()
+    br.ui:toggle("Rotation", { key = "RightShift", modes = {
+        { name = "Auto", icon = "whirlwind", overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range." },
+        { name = "Mult", icon = "bladestorm", overlay = "Multiple Target Rotation", tip = "Multiple target rotation used." },
+        { name = "Sing", icon = "ragingBlow", overlay = "Single Target Rotation", tip = "Single target rotation used." },
+        { name = "Off", icon = "enragedRegeneration", overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation" },
+    } })
+    br.ui:toggle("Cooldown", { key = "RightCtrl", modes = {
+        { name = "Auto", icon = "recklessness", overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection." },
+        { name = "On", icon = "recklessness", overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target." },
+        { name = "Off", icon = "recklessness", overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used." },
+    } })
+    br.ui:toggle("Defensive", { modes = {
+        { name = "On", icon = "enragedRegeneration", overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns." },
+        { name = "Off", icon = "enragedRegeneration", overlay = "Defensive Disabled", tip = "No Defensives will be used." },
+    } })
+    br.ui:toggle("Interrupt", { modes = {
+        { name = "On", icon = "pummel", overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts." },
+        { name = "Off", icon = "pummel", overlay = "Interrupts Disabled", tip = "No Interrupts will be used." },
+    } })
+    br.ui:toggle("Debugs", { modes = {
+        { name = "ON", icon = 200733, overlay = "Debugs On", tip = "Debug Messages On" },
+        { name = "OFF", icon = 200733, overlay = "Debugs Off", tip = "Debug Messages Off" },
+    } })
+    br.ui:toggle("HeroicLeap", { row = 1, col = 4, modes = {
+        { name = "ON", icon = "heroicLeap", overlay = "Heroic Leap On", tip = "Heroic Leap On" },
+        { name = "OFF", icon = "heroicLeap", overlay = "Heroic Leap Off", tip = "Heroic Leap Off" },
+    } })
+    br.ui:toggle("Charge", { row = 1, col = 3, modes = {
+        { name = "ON", icon = "charge", overlay = "Charge On", tip = "Charge On" },
+        { name = "OFF", icon = "charge", overlay = "Charge Off", tip = "Charge Off" },
+    } })
 end
 
 
-local function createOptions()
-    local optionTable
+local function options()
+    local section
+    -----------------------
+    --- GENERAL OPTIONS --- -- Define General Options
+    -----------------------
+    section = br.ui:section("General")
 
-    local function rotationOptions()
-        local section
-        -----------------------
-        --- GENERAL OPTIONS --- -- Define General Options
-        -----------------------
-        section = br.ui:createSection(br.ui.window.profile,  "General")
-        br.ui:checkSectionState(section)
+    section = br.ui:section(text.cooldowns.cooldowns)
+        br.ui:checkbox(section, text.cooldowns.useCooldowns)
+        br.ui:spinner(section, text.cooldowns.numberOfMobs, { value = 2, min = 2, max = 10, step = 1,
+            tip = "|cffFFBB00Number of enemies to use cooldowns on." })
+        br.ui:checkbox(section, text.cooldowns.enragedRegeneration)
 
-        section = br.ui:createSection(br.ui.window.profile,  text.cooldowns.cooldowns)
-            br.ui:createCheckbox(section,  text.cooldowns.useCooldowns)
-            br.ui:createSpinner(section,  text.cooldowns.numberOfMobs, 2,  2,  10,  1,  "|cffFFBB00Number of enemies to use cooldowns on.")
-            br.ui:createCheckbox(section,  text.cooldowns.enragedRegeneration)
-        br.ui:checkSectionState(section)
-
-        section = br.ui:createSection(br.ui.window.profile, text.defensive.defensive)
-            br.ui:createCheckbox(section,  text.defensive.useSpellReflection)
-            br.ui:createCheckbox(section,  text.defensive.usePummel)
-            br.ui:createCheckbox(section,  text.defensive.beserkerRage)
-            br.ui:createSpinner(section,  colors.orange .. "Interrupt At",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")
-        br.ui:checkSectionState(section)
-
-        section = br.ui:createSection(br.ui.window.profile,  "Toggle Keys")
-            br.ui:createDropdown(section,  "Rotation Mode", br.ui.dropOptions.Toggle,  4)
-            br.ui:createDropdown(section,  "Cooldown Mode", br.ui.dropOptions.Toggle,  3)
-            br.ui:createDropdown(section,  "Defensive Mode", br.ui.dropOptions.Toggle,  6)
-            br.ui:createDropdown(section,  "Interrupt Mode", br.ui.dropOptions.Toggle,  6)
-            br.ui:createDropdown(section,  "Pause Mode", br.ui.dropOptions.Toggle,  6)
-        br.ui:checkSectionState(section)
-    end
-    optionTable = {{
-        [1] = "Rotation Options",
-        [2] = rotationOptions,
-    }}
-    return optionTable
+    section = br.ui:section(text.defensive.defensive)
+        br.ui:checkbox(section, text.defensive.useSpellReflection)
+        br.ui:checkbox(section, text.defensive.usePummel)
+        br.ui:checkbox(section, text.defensive.beserkerRage)
+        br.ui:spinner(section, colors.orange .. "Interrupt At", { value = 0, max = 95, tip = "|cffFFBB00Cast Percentage to use at." })
 end
 
 --------------
@@ -428,13 +395,16 @@ local function runRotation() -- This is the main profile loop, any below this po
         end -- End In Combat Rotation
     end -- Pause
 end -- End runRotation
-local id = 72 -- Change to the spec id profile is for. Spec ID can be found at: https://wowpedia.fandom.com/wiki/SpecializationID
-br.loader.rotations[id] = br.loader.rotations[id] or {}
-if br.api.expansion == "MOP" then
-    br._G.tinsert(br.loader.rotations[id], {
-    name = rotationName,
-    toggles = createToggles,
-    options = createOptions,
-    run = runRotation,
-    })
-end
+br.loader.registerRotation({
+    name      = rotationName,
+    specID    = 72,
+    expansion = "MOP",
+    author    = "BrewingCoder",
+    patch     = "10.2.6",
+    coverage  = "20%",
+    status    = "Limited",
+    readiness = "PVE Leveling",
+    toggles   = toggles,
+    options   = options,
+    run       = runRotation,
+})

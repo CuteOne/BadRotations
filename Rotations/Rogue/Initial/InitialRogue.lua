@@ -3,82 +3,50 @@ local rotationName = "Initial"
 ---------------
 --- Toggles ---
 ---------------
-local function createToggles()
-    -- Rotation Button
-    local RotationModes = {
-        [1] = { mode = "On", value = 1, overlay = "Rotation Enabled", tip = "Enable Rotation", highlight = 1, icon = br.player.spells.sinisterStrike },
-        [2] = { mode = "Off", value = 4, overlay = "Rotation Disabled", tip = "Disable Rotation", highlight = 0, icon = br.player.spells.sinisterStrike }
-    };
-    br.ui:createToggle(RotationModes, "Rotation", 1, 0)
-    -- Defensive Button
-    local DefensiveModes = {
-        [1] = { mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spells.evasion },
-        [2] = { mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spells.evasion }
-    };
-    br.ui:createToggle(DefensiveModes, "Defensive", 2, 0)
-    -- Interrupts Button
-    local InterruptModes = {
-        [1] = { mode = "On", value = 1, overlay = "Interrupts Enabled", tip = "Use Interrupt Abilities", highlight = 1, icon = br.player.spells.kick },
-        [2] = { mode = "Off", value = 2, overlay = "Interrupts Disabled", tip = "Do Not Use Interrupt Abilities", highlight = 0, icon = br.player.spells.kick }
-    };
-    br.ui:createToggle(InterruptModes, "Interrupt", 3, 0)
+local function toggles()
+    br.ui:toggle("Rotation", { modes = {
+        { name = "On", icon = "sinisterStrike", overlay = "Rotation Enabled", tip = "Enable Rotation" },
+        { name = "Off", icon = "sinisterStrike", overlay = "Rotation Disabled", tip = "Disable Rotation" },
+    } })
+    br.ui:toggle("Defensive", { modes = {
+        { name = "On", icon = "evasion", overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns." },
+        { name = "Off", icon = "evasion", overlay = "Defensive Disabled", tip = "No Defensives will be used." },
+    } })
+    br.ui:toggle("Interrupt", { modes = {
+        { name = "On", icon = "kick", overlay = "Interrupts Enabled", tip = "Use Interrupt Abilities" },
+        { name = "Off", icon = "kick", overlay = "Interrupts Disabled", tip = "Do Not Use Interrupt Abilities" },
+    } })
 end
 
 ---------------
 --- OPTIONS ---
 ---------------
-local function createOptions()
-    local optionTable
-
-    local function rotationOptions()
-        local section
-        -----------------------
-        --- GENERAL OPTIONS ---
-        -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "General")
-        -- Eviscerate Execute
-        br.ui:createDropdownWithout(section, "Eviscerate Execute",
-            { "|cffFFFF00Enabled Notify", "|cff00FF00Enabled", "|cffFF0000Disabled" }, 2,
-            "Options for using Eviscerate when the damage from it will kill the unit.")
-        -- Stealth
-        br.ui:createCheckbox(section, "Stealth", "|cffFFFFFFWill use stealth at all times.")
-        -- Stealth Breaker
-        br.ui:createDropdownWithout(section, "Stealth Breaker",
-            { "|cff00FF00Ambush", "|cffFF0000Sinister Strike" }, 3,
-            "|cffFFFFFFSet what to break Stealth with.")
-        br.ui:checkSectionState(section)
-        -------------------------
-        --- DEFENSIVE OPTIONS ---
-        -------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Defensive")
-        -- Evasion
-        br.ui:createSpinner(section, "Evasion", 70, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-        br.ui:checkSectionState(section)
-        -------------------------
-        --- INTERRUPT OPTIONS ---
-        -------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Interrupt")
-        -- Interrupt Percentage
-        br.ui:createSpinnerWithout(section, "Interrupt At", 0, 0, 95, 5,
-            "|cffFFFFFFCast Percent to Cast At (0 is random)")
-        br.ui:checkSectionState(section)
-        ----------------------
-        --- TOGGLE OPTIONS ---
-        ----------------------
-        section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
-        -- Single/Multi Toggle
-        br.ui:createDropdownWithout(section, "Rotation Mode", br.ui.dropOptions.Toggle, 6)
-        -- Defensive Key Toggle
-        br.ui:createDropdownWithout(section, "Defensive Mode", br.ui.dropOptions.Toggle, 6)
-        -- Interrupts Key Toggle
-        br.ui:createDropdownWithout(section, "Interrupt Mode", br.ui.dropOptions.Toggle, 6)
-        br.ui:checkSectionState(section)
-    end
-    optionTable = { {
-        [1] = "Rotation Options",
-        [2] = rotationOptions,
-    } }
-    return optionTable
+local function options()
+    local section
+    -----------------------
+    --- GENERAL OPTIONS ---
+    -----------------------
+    section = br.ui:section("General")
+    -- Eviscerate Execute
+    br.ui:dropdown(section, "Eviscerate Execute", { choices = { "|cffFFFF00Enabled Notify", "|cff00FF00Enabled", "|cffFF0000Disabled" }, value = "Enabled", checkbox = false,
+        tip = "Options for using Eviscerate when the damage from it will kill the unit." })
+    -- Stealth
+    br.ui:checkbox(section, "Stealth", { tip = "Will use stealth at all times." })
+    -- Stealth Breaker
+    br.ui:dropdown(section, "Stealth Breaker", { choices = { "|cff00FF00Ambush", "|cffFF0000Sinister Strike" }, checkbox = false,
+        tip = "Set what to break Stealth with." })
+    -------------------------
+    --- DEFENSIVE OPTIONS ---
+    -------------------------
+    section = br.ui:section("Defensive")
+    -- Evasion
+    br.ui:spinner(section, "Evasion", { value = 70, tip = "Health Percent to Cast At" })
+    -------------------------
+    --- INTERRUPT OPTIONS ---
+    -------------------------
+    section = br.ui:section("Interrupt")
+    -- Interrupt Percentage
+    br.ui:spinner(section, "Interrupt At", { value = 0, max = 95, checkbox = false, tip = "Cast Percent to Cast At (0 is random)" })
 end
 
 --------------
@@ -307,13 +275,11 @@ local function runRotation()
         end
     end         -- Pause
 end             -- End runRotation
-local id = 1453 -- Change to the spec id profile is for.
-br.loader.rotations[id] = br.loader.rotations[id] or {}
-if br.api.expansion == "MOP" then
-    br._G.tinsert(br.loader.rotations[id], {
-    name = rotationName,
-    toggles = createToggles,
-    options = createOptions,
-    run = runRotation,
-    })
-end
+br.loader.registerRotation({
+    name      = rotationName,
+    specID    = 1453,
+    expansion = "MOP",
+    toggles   = toggles,
+    options   = options,
+    run       = runRotation,
+})

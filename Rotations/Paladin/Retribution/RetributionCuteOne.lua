@@ -1,189 +1,132 @@
--------------------------------------------------------
--- Author = CuteOne
--- Patch = 10.2
---    Patch should be the latest patch you've updated the rotation for (i.e., 9.2.5)
--- Coverage = 90%
---    Coverage should be your estimated percent coverage for class mechanics (i.e., 100%)
--- Status = Sporadic
---    Status should be one of: Full, Limited, Sporadic, Inactive, Unknown
--- Readiness = Development
---    Readiness should be one of: Raid, NoRaid, Basic, Development, Untested
--------------------------------------------------------
--- Required: Fill above fields to populate README.md --
--------------------------------------------------------
-
 local rotationName = "CuteOne"
 ---------------
 --- Toggles ---
 ---------------
-local function createToggles()
-    -- Rotation Button
-    local RotationModes = {
-        [1] = { mode = "Auto", value = 1, overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spells.consecration },
-        [2] = { mode = "Mult", value = 2, overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spells.consecration },
-        [3] = { mode = "Sing", value = 3, overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spells.crusaderStrike },
-        [4] = { mode = "Off", value = 4, overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spells.flashOfLight }
-    }
-    br.ui:createToggle(RotationModes, "Rotation", 1, 0)
-    -- Cooldown Button
-    local CooldownModes = {
-        [1] = { mode = "Auto", value = 1, overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spells.avengingWrath },
-        [2] = { mode = "On", value = 1, overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spells.avengingWrath },
-        [3] = { mode = "Off", value = 3, overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spells.avengingWrath }
-    }
-    br.ui:createToggle(CooldownModes, "Cooldown", 2, 0)
-    -- Defensive Button
-    local DefensiveModes = {
-        [1] = { mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spells.flashOfLight },
-        [2] = { mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spells.flashOfLight }
-    }
-    br.ui:createToggle(DefensiveModes, "Defensive", 3, 0)
-    -- Interrupt Button
-    local InterruptModes = {
-        [1] = { mode = "On", value = 1, overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spells.hammerOfJustice },
-        [2] = { mode = "Off", value = 2, overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spells.hammerOfJustice }
-    }
-    br.ui:createToggle(InterruptModes, "Interrupt", 4, 0)
-    -- Aura
-    local AuraModes = {
-        [1] = { mode = "Con", value = 1, overlay = "Concentration Aura", tip = "Use Concentration Aura", highlight = 0, icon = br.player.spells.concentrationAura },
-        [2] = { mode = "Dev", value = 2, overlay = "Devotion Aura", tip = "Use Devotion Aura", highlight = 0, icon = br.player.spells.devotionAura },
-        [3] = { mode = "Ret", value = 2, overlay = "Retribution Aura", tip = "Use Retribution Aura", highlight = 0, icon = br.player.spells.retributionAura }
-    }
-    br.ui:createToggle(AuraModes, "Aura", 5, 0)
+local function toggles()
+    br.ui:toggle("Rotation", { key = "RightShift", modes = {
+        { name = "Auto", icon = "consecration", overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range." },
+        { name = "Mult", icon = "consecration", overlay = "Multiple Target Rotation", tip = "Multiple target rotation used." },
+        { name = "Sing", icon = "crusaderStrike", overlay = "Single Target Rotation", tip = "Single target rotation used." },
+        { name = "Off", icon = "flashOfLight", overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation" },
+    } })
+    br.ui:toggle("Cooldown", { key = "RightCtrl", modes = {
+        { name = "Auto", icon = "avengingWrath", overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection." },
+        { name = "On", icon = "avengingWrath", overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target." },
+        { name = "Off", icon = "avengingWrath", overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used." },
+    } })
+    br.ui:toggle("Defensive", { modes = {
+        { name = "On", icon = "flashOfLight", overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns." },
+        { name = "Off", icon = "flashOfLight", overlay = "Defensive Disabled", tip = "No Defensives will be used." },
+    } })
+    br.ui:toggle("Interrupt", { modes = {
+        { name = "On", icon = "hammerOfJustice", overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts." },
+        { name = "Off", icon = "hammerOfJustice", overlay = "Interrupts Disabled", tip = "No Interrupts will be used." },
+    } })
+    br.ui:toggle("Aura", { modes = {
+        { name = "Con", icon = "concentrationAura", overlay = "Concentration Aura", tip = "Use Concentration Aura", highlight = false },
+        { name = "Dev", icon = "devotionAura", overlay = "Devotion Aura", tip = "Use Devotion Aura" },
+        { name = "Ret", icon = "retributionAura", overlay = "Retribution Aura", tip = "Use Retribution Aura" },
+    } })
 end
 ---------------
 --- OPTIONS ---
 ---------------
-local function createOptions()
-    local optionTable
-
-    local function rotationOptions()
-        local section
-        local alwaysCdNever = { "|cff00FF00Always", "|cffFFFF00Cooldowns", "|cffFF0000Never" }
-        local alwaysCdAoENever = { "Always", "|cff008000AOE", "|cffffff00AOE/CD", "|cff0000ffCD", "|cffff0000Never" }
-        local playTarMouseFocLow = { "|cffFFFFFFPlayer", "|cffFFFFFFTarget", "|cffFFFFFFMouseover", "|cffFFFFFFFocus",
-            "|cffFFFFFFLowest" }
-        -----------------------
-        --- GENERAL OPTIONS ---
-        -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "General")
-        -- Dummy DPS Test
-        br.ui:createSpinner(section, "DPS Testing", 5, 5, 60, 5,
-            "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
-        -- Blessing of Freedom
-        br.ui:createDropdown(section, "Blessing of Freedom", playTarMouseFocLow, 1, "|cffFFFFFFTarget to Cast On")
-        -- Divine Storm Units
-        br.ui:createSpinnerWithout(section, "Divine Storm Units", 2, 1, 5, 1, "|cffFFBB00Units to use Divine Storm.")
-        br.ui:checkSectionState(section)
-        ------------------------
-        --- COOLDOWN OPTIONS ---
-        ------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
-        -- Potion
-        br.player.module.CombatPotionUp(section)
-        -- Phial
-        br.player.module.PhialUp(section)
-        -- Imbue
-        br.player.module.ImbueUp(section)
-        -- Trinkets
-        br.player.module.BasicTrinkets(nil, section)
-        -- Racial
-        br.ui:createDropdownWithout(section, "Racial", alwaysCdAoENever, 3, "|cffFFFFFFSet mode to use.")
-        -- Avenging Wrath
-        br.ui:createDropdownWithout(section, "Avenging Wrath", alwaysCdNever, 2, "|cffFFFFFFSet mode to use.")
-        -- Crusade
-        br.ui:createDropdownWithout(section, "Crusade", alwaysCdNever, 2, "|cffFFFFFFSet mode to use.")
-        -- Execution Sentence
-        br.ui:createDropdownWithout(section, "Execution Sentence", alwaysCdNever, 2, "|cffFFFFFFSet mode to use.")
-        -- Final Reckoning
-        br.ui:createDropdownWithout(section, "Final Reckoning", alwaysCdNever, 2, "|cffFFFFFFSet mode to use.")
-        -- Shield of Vengeance
-        br.ui:createDropdownWithout(section, "Shield of Vengeance - CD", alwaysCdNever, 2, "|cffFFFFFFSet mode to use.")
-        -- Wake of Ashes
-        br.ui:createDropdownWithout(section, "Wake of Ashes", alwaysCdNever, 2, "|cffFFFFFFSet mode to use.")
-        br.ui:checkSectionState(section)
-        -------------------------
-        --- DEFENSIVE OPTIONS ---
-        -------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Defensive")
-        -- Basic Healing Module
-        br.player.module.BasicHealing(section)
-        -- Blessing of Protection
-        br.ui:createSpinner(section, "Blessing of Protection", 30, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
-        br.ui:createDropdownWithout(section, "Blessing of Protection Target", playTarMouseFocLow, 5,
-            "|cffFFFFFFTarget for Blessing of Protection")
-        -- Blessing of Sacrifice
-        br.ui:createDropdown(section, "Blessing of Sacrifice", playTarMouseFocLow, 5,
-            "|cffFFFFFFTarget for Blessing of Sacrifice")
-        br.ui:createSpinnerWithout(section, "Friendly HP", 30, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
-        br.ui:createSpinnerWithout(section, "Personal HP Limit", 80, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
-        -- Blinding Light
-        br.ui:createSpinner(section, "Blinding Light", 40, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
-        br.ui:createSpinnerWithout(section, "Blinding Light Units", 3, 1, 5, 1, "|cffFFFFFFUnits to Cast On")
-        -- Cleanse Toxin
-        br.ui:createDropdown(section, "Cleanse Toxins", playTarMouseFocLow, 1, "|cffFFFFFFTarget to Cast On")
-        -- Divine Shield
-        br.ui:createSpinner(section, "Divine Shield", 35, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
-        -- Flash of Light
-        br.ui:createSpinner(section, "Flash of Light", 50, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
-        br.ui:createDropdownWithout(section, "Flash of Light Target", playTarMouseFocLow, 5,
-            "|cffFFFFFFTarget for Flash of Light")
-        -- Hammer of Justice
-        br.ui:createSpinner(section, "Hammer of Justice - HP", 40, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
-        -- Justicar's Vengeance
-        br.ui:createSpinner(section, "Justicar's Vengeance", 45, 0, 100, 5,
-            "|cffFFBB00Health Percentage to use at over Templar's Verdict.")
-        -- Lay On Hands
-        br.ui:createSpinner(section, "Lay On Hands", 20, 0, 100, 5, "", "Health Percentage to use at")
-        br.ui:createDropdownWithout(section, "Lay on Hands Target", playTarMouseFocLow, 5,
-            "|cffFFFFFFTarget for Lay On Hands")
-        -- Redemption
-        br.ui:createDropdown(section, "Redemption", { "|cffFFFFFFTarget", "|cffFFFFFFMouseover", "|cffFFFFFFFocus" }, 1,
-            "|cffFFFFFFTarget to Cast On")
-        -- Shield of Vengeance
-        br.ui:createSpinner(section, "Shield of Vengeance", 55, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
-        -- Turn Evil
-        br.ui:createCheckbox(section, "Turn Evil")
-        -- Word of Glory
-        br.ui:createSpinner(section, "Word of Glory", 30, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
-        br.ui:checkSectionState(section)
-        -------------------------
-        --- INTERRUPT OPTIONS ---
-        -------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Interrupts")
-        -- Blinding Light
-        br.ui:createCheckbox(section, "Blinding Light - Int")
-        -- Hammer of Justice
-        br.ui:createCheckbox(section, "Hammer of Justice")
-        -- Rebuke
-        br.ui:createCheckbox(section, "Rebuke")
-        -- Interrupt Percentage
-        br.ui:createSpinnerWithout(section, "Interrupt At", 0, 0, 95, 5, "|cffFFBB00Cast Percentage to use at.")
-        br.ui:checkSectionState(section)
-        ----------------------
-        --- TOGGLE OPTIONS ---
-        ----------------------
-        section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
-        -- Single/Multi Toggle
-        br.ui:createDropdownWithout(section, "Rotation Mode", br.ui.dropOptions.Toggle, 4)
-        --Cooldown Key Toggle
-        br.ui:createDropdownWithout(section, "Cooldown Mode", br.ui.dropOptions.Toggle, 3)
-        --Defensive Key Toggle
-        br.ui:createDropdownWithout(section, "Defensive Mode", br.ui.dropOptions.Toggle, 6)
-        -- Interrupts Key Toggle
-        br.ui:createDropdownWithout(section, "Interrupt Mode", br.ui.dropOptions.Toggle, 6)
-        -- Wake of Ashes Key Toggle
-        br.ui:createDropdownWithout(section, "Wake Mode", br.ui.dropOptions.Toggle, 6)
-        br.ui:checkSectionState(section)
-    end
-    optionTable = {
-        {
-            [1] = "Rotation Options",
-            [2] = rotationOptions
-        }
-    }
-    return optionTable
+local function options()
+    local section
+    local alwaysCdNever = { "|cff00FF00Always", "|cffFFFF00Cooldowns", "|cffFF0000Never" }
+    local alwaysCdAoENever = { "Always", "|cff008000AOE", "|cffffff00AOE/CD", "|cff0000ffCD", "|cffff0000Never" }
+    local playTarMouseFocLow = { "|cffFFFFFFPlayer", "|cffFFFFFFTarget", "|cffFFFFFFMouseover", "|cffFFFFFFFocus",
+        "|cffFFFFFFLowest" }
+    -----------------------
+    --- GENERAL OPTIONS ---
+    -----------------------
+    section = br.ui:section("General")
+    -- Dummy DPS Test
+    br.ui:spinner(section, "DPS Testing", { value = 5, min = 5, max = 60,
+        tip = "Set to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5" })
+    -- Blessing of Freedom
+    br.ui:dropdown(section, "Blessing of Freedom", { choices = playTarMouseFocLow, value = 1, tip = "Target to Cast On" })
+    -- Divine Storm Units
+    br.ui:spinner(section, "Divine Storm Units", { value = 2, min = 1, max = 5, step = 1, checkbox = false,
+        tip = "|cffFFBB00Units to use Divine Storm." })
+    ------------------------
+    --- COOLDOWN OPTIONS ---
+    ------------------------
+    section = br.ui:section("Cooldowns")
+    -- Potion
+    br.player.module.CombatPotionUp(section)
+    -- Phial
+    br.player.module.PhialUp(section)
+    -- Imbue
+    br.player.module.ImbueUp(section)
+    -- Trinkets
+    br.player.module.BasicTrinkets(nil, section)
+    -- Racial
+    br.ui:dropdown(section, "Racial", { choices = alwaysCdAoENever, value = 3, checkbox = false, tip = "Set mode to use." })
+    -- Avenging Wrath
+    br.ui:dropdown(section, "Avenging Wrath", { choices = alwaysCdNever, value = 2, checkbox = false, tip = "Set mode to use." })
+    -- Crusade
+    br.ui:dropdown(section, "Crusade", { choices = alwaysCdNever, value = 2, checkbox = false, tip = "Set mode to use." })
+    -- Execution Sentence
+    br.ui:dropdown(section, "Execution Sentence", { choices = alwaysCdNever, value = 2, checkbox = false, tip = "Set mode to use." })
+    -- Final Reckoning
+    br.ui:dropdown(section, "Final Reckoning", { choices = alwaysCdNever, value = 2, checkbox = false, tip = "Set mode to use." })
+    -- Shield of Vengeance
+    br.ui:dropdown(section, "Shield of Vengeance - CD", { choices = alwaysCdNever, value = 2, checkbox = false, tip = "Set mode to use." })
+    -- Wake of Ashes
+    br.ui:dropdown(section, "Wake of Ashes", { choices = alwaysCdNever, value = 2, checkbox = false, tip = "Set mode to use." })
+    -------------------------
+    --- DEFENSIVE OPTIONS ---
+    -------------------------
+    section = br.ui:section("Defensive")
+    -- Basic Healing Module
+    br.player.module.BasicHealing(section)
+    -- Blessing of Protection
+    br.ui:spinner(section, "Blessing of Protection", { value = 30, tip = "|cffFFBB00Health Percentage to use at." })
+    br.ui:dropdown(section, "Blessing of Protection Target", { choices = playTarMouseFocLow, value = 5, checkbox = false,
+        tip = "Target for Blessing of Protection" })
+    -- Blessing of Sacrifice
+    br.ui:dropdown(section, "Blessing of Sacrifice", { choices = playTarMouseFocLow, value = 5, tip = "Target for Blessing of Sacrifice" })
+    br.ui:spinner(section, "Friendly HP", { value = 30, checkbox = false, tip = "|cffFFBB00Health Percentage to use at." })
+    br.ui:spinner(section, "Personal HP Limit", { value = 80, checkbox = false, tip = "|cffFFBB00Health Percentage to use at." })
+    -- Blinding Light
+    br.ui:spinner(section, "Blinding Light", { value = 40, tip = "|cffFFBB00Health Percentage to use at." })
+    br.ui:spinner(section, "Blinding Light Units", { value = 3, min = 1, max = 5, step = 1, checkbox = false, tip = "Units to Cast On" })
+    -- Cleanse Toxin
+    br.ui:dropdown(section, "Cleanse Toxins", { choices = playTarMouseFocLow, value = 1, tip = "Target to Cast On" })
+    -- Divine Shield
+    br.ui:spinner(section, "Divine Shield", { value = 35, tip = "|cffFFBB00Health Percentage to use at." })
+    -- Flash of Light
+    br.ui:spinner(section, "Flash of Light", { value = 50, tip = "|cffFFBB00Health Percentage to use at." })
+    br.ui:dropdown(section, "Flash of Light Target", { choices = playTarMouseFocLow, value = 5, checkbox = false,
+        tip = "Target for Flash of Light" })
+    -- Hammer of Justice
+    br.ui:spinner(section, "Hammer of Justice - HP", { value = 40, tip = "|cffFFBB00Health Percentage to use at." })
+    -- Justicar's Vengeance
+    br.ui:spinner(section, "Justicar's Vengeance", { value = 45, tip = "|cffFFBB00Health Percentage to use at over Templar's Verdict." })
+    -- Lay On Hands
+    br.ui:spinner(section, "Lay On Hands", { value = 20, tip = "", boxTip = "Health Percentage to use at" })
+    br.ui:dropdown(section, "Lay on Hands Target", { choices = playTarMouseFocLow, value = 5, checkbox = false, tip = "Target for Lay On Hands" })
+    -- Redemption
+    br.ui:dropdown(section, "Redemption", { choices = { "Target", "Mouseover", "Focus" }, value = "Target", tip = "Target to Cast On" })
+    -- Shield of Vengeance
+    br.ui:spinner(section, "Shield of Vengeance", { value = 55, tip = "|cffFFBB00Health Percentage to use at." })
+    -- Turn Evil
+    br.ui:checkbox(section, "Turn Evil")
+    -- Word of Glory
+    br.ui:spinner(section, "Word of Glory", { value = 30, tip = "|cffFFBB00Health Percentage to use at." })
+    -------------------------
+    --- INTERRUPT OPTIONS ---
+    -------------------------
+    section = br.ui:section("Interrupts")
+    -- Blinding Light
+    br.ui:checkbox(section, "Blinding Light - Int")
+    -- Hammer of Justice
+    br.ui:checkbox(section, "Hammer of Justice")
+    -- Rebuke
+    br.ui:checkbox(section, "Rebuke")
+    -- Interrupt Percentage
+    br.ui:spinner(section, "Interrupt At", { value = 0, max = 95, checkbox = false, tip = "|cffFFBB00Cast Percentage to use at." })
 end
 
 local debugprofilestop = br._G["debugprofilestop"]
@@ -1003,6 +946,8 @@ end -- End Action List - Combat
 --- ROTATION ---
 ----------------
 local runRotation = function()
+    -- This profile handles racials itself; skip the shared Racial module
+    if not br.player.localRacial then br.player.localRacial = true end
     -----------------
     --- Variables ---
     -----------------
@@ -1183,13 +1128,16 @@ local runRotation = function()
         -- end -- End In Combat
     end -- End Profile
 end -- runRotation
-local id = 70
-br.loader.rotations[id] = br.loader.rotations[id] or {}
-if br.api.expansion == "Retail" then
-    br._G.tinsert(br.loader.rotations[id], {
-        name = rotationName,
-        toggles = createToggles,
-        options = createOptions,
-        run = runRotation
-    })
-end
+br.loader.registerRotation({
+    name      = rotationName,
+    specID    = 70,
+    expansion = "Retail",
+    author    = "CuteOne",
+    patch     = "10.2",
+    coverage  = "90%",
+    status    = "Sporadic",
+    readiness = "Development",
+    toggles   = toggles,
+    options   = options,
+    run       = runRotation,
+})

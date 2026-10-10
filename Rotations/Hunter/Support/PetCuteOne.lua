@@ -28,49 +28,41 @@ br.loader.rotations.support["PetCuteOne"] = {
     options = function()
         local alwaysCdAoENever = { "Always", "|cff008000AOE", "|cffffff00AOE/CD", "|cff0000ffCD", "|cffff0000Never" }
         -- Pet Options
-        local section = br.ui:createSection(br.ui.window.profile, "Pet")
+        local section = br.ui:section("Pet")
         -- Pet Target
-        br.ui:createDropdownWithout(section, "Pet Target", { "Dynamic Unit", "Only Target", "Any Unit", "Assist" }, 1,
-            "Select how you want pet to acquire targets.")
+        br.ui:dropdown(section, "Pet Target", { choices = { "Dynamic Unit", "Only Target", "Any Unit", "Assist" }, value = "Dynamic Unit", checkbox = false,
+            tip = "Select how you want pet to acquire targets." })
         -- Auto Attack/Passive
-        br.ui:createCheckbox(section, "Auto Attack/Passive")
+        br.ui:checkbox(section, "Auto Attack/Passive")
         -- Spec Ability
-        br.ui:createCheckbox(section, "Master's Call - Cunning", "|cffFFFFFFSelect to use. - Cunning Pets Only")
+        br.ui:checkbox(section, "Master's Call - Cunning", { tip = "Select to use. - Cunning Pets Only" })
         --br.ui:createDropdownWithout(section,"Primal Rage - Ferocity", alwaysCdAoENever, 1, "|cffFFFFFFSelect when to use - Ferocity Pets Only")
-        br.ui:createSpinner(section, "Survival of the Fittest - Tenacity", 20, 0, 100, 5,
-            "|cffFFFFFFHealth Percent to Cast - Tenacity Pets Only")
+        br.ui:spinner(section, "Survival of the Fittest - Tenacity", { value = 20, tip = "Health Percent to Cast - Tenacity Pets Only" })
         -- Attack Ability
-        br.ui:createCheckbox(section, "Use Attack Ability", "|cffFFFFFFPet will use Bite/Claw/Smack")
+        br.ui:checkbox(section, "Use Attack Ability", { tip = "Pet will use Bite/Claw/Smack" })
         -- Defense Ability
-        br.ui:createSpinner(section, "Use Defense Ability", 30, 0, 100, 5,
-            "|cffFFFFFFHealth Percent to Cast it's Defense/Dodge Ability")
+        br.ui:spinner(section, "Use Defense Ability", { value = 30, tip = "Health Percent to Cast it's Defense/Dodge Ability" })
         -- Debuff Ability
-        br.ui:createCheckbox(section, "Use Debuff Ability",
-            "|cffFFFFFFPet will use ability that debuffs the target with Mortal Wounds, if available.")
+        br.ui:checkbox(section, "Use Debuff Ability", { tip = "Pet will use ability that debuffs the target with Mortal Wounds, if available." })
         -- Heal Ability
-        br.ui:createSpinner(section, "Use Heal Ability", 30, 0, 100, 5,
-            "|cffFFFFFFHealth Percent to Cast it's Heal Ability **Not all have heals**")
+        br.ui:spinner(section, "Use Heal Ability", { value = 30, tip = "Health Percent to Cast it's Heal Ability **Not all have heals**" })
         -- Purge Ability
-        br.ui:createDropdown(section, "Use Purge Ability", { "Every Unit", "Only Target" }, 2,
-            "Select if you want Purge only Target or every Unit arround the Pet")
+        br.ui:dropdown(section, "Use Purge Ability", { choices = { "Every Unit", "Only Target" }, value = "Only Target",
+            tip = "Select if you want Purge only Target or every Unit arround the Pet" })
         -- Utility Ability
-        br.ui:createCheckbox(section, "Use Utility Ability",
-            "|cffFFFFFFPet will use Slow Fall / Water Walking, if available.")
+        br.ui:checkbox(section, "Use Utility Ability", { tip = "Pet will use Slow Fall / Water Walking, if available." })
         -- Auto Growl
-        br.ui:createCheckbox(section, "Auto Growl",
-            "|cffFFFFFFPet will growl any valid enemy it does not have threat on, disables if tank nearby.")
+        br.ui:checkbox(section, "Auto Growl", { tip = "Pet will growl any valid enemy it does not have threat on, disables if tank nearby." })
         -- Dash
-        br.ui:createCheckbox(section, "Dash")
+        br.ui:checkbox(section, "Dash")
         -- Fetch
-        br.ui:createCheckbox(section, "Fetch", "|cffFFFFFFPet will fetch loot, if available.")
+        br.ui:checkbox(section, "Fetch", { tip = "Pet will fetch loot, if available." })
         -- Mend Pet
-        br.ui:createSpinner(section, "Mend Pet", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
+        br.ui:spinner(section, "Mend Pet", { value = 50, tip = "Health Percent to Cast At" })
         -- Play Dead / Wake Up
-        br.ui:createSpinner(section, "Play Dead / Wake Up", 25, 0, 100, 5,
-            "|cffFFFFFFHealth Percent to Cast At, if available.")
+        br.ui:spinner(section, "Play Dead / Wake Up", { value = 25, tip = "Health Percent to Cast At, if available." })
         -- Stealth
-        br.ui:createCheckbox(section, "Stealth", "|cffFFFFFFPet will use Prowl or Spirit Walk, if available.")
-        br.ui:checkSectionState(section)
+        br.ui:checkbox(section, "Stealth", { tip = "Pet will use Prowl or Spirit Walk, if available." })
     end,
     run = function()
         local function getCurrentPetMode()

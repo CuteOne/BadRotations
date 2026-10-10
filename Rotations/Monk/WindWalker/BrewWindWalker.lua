@@ -1,10 +1,3 @@
--------------------------------------------------------
--- Author = BrewingCoder
--- Patch = 10.2.5
--- Coverage = 95%
--- Status = Limited
--- Readiness = Development
--------------------------------------------------------
 local rotationName = "BrewWindWalker"
 local colors = {
     blue    = "|cff4285F4",
@@ -52,92 +45,61 @@ local text = {
     }
 }
 
-local function createToggles()
-    local RotationModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range.", highlight = 1, icon = br.player.spells.whirlwind },
-        [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spells.bladestorm },
-        [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spells.ragingBlow },
-        [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spells.enragedRegeneration}
-    };
-    br.ui:createToggle(RotationModes,"Rotation",1,0)
-    local CooldownModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spells.touchOfKarma },
-        [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spells.fortifyingBrew },
-        [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spells.touchOfDeath }
-    };
-    br.ui:createToggle(CooldownModes,"Cooldown",2,0)
-    local DefensiveModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spells.vivify },
-        [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spells.vivify }
-    };
-    br.ui:createToggle(DefensiveModes,"Defensive",3,0)
-    local InterruptModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spells.tigersLust },
-        [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spells.tigersLust }
-    };
-    br.ui:createToggle(InterruptModes,"Interrupt",4,0)
-    local DebugModes = {
-            [1] = { mode = "ON", value = 1 , overlay = "Debugs On", tip = "Debug Messages On", highlight = 1, icon =200733 },
-            [2] = { mode = "OFF", value = 0 , overlay = "Debugs Off", tip = "Debug Messages Off", highlight = 0, icon =200733 },
-        }
-    br.ui:createToggle(DebugModes,"Debugs",5,0)
+local function toggles()
+    br.ui:toggle("Rotation", { key = "RightShift", modes = {
+        { name = "Auto", icon = "whirlwind", overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range." },
+        { name = "Mult", icon = "bladestorm", overlay = "Multiple Target Rotation", tip = "Multiple target rotation used." },
+        { name = "Sing", icon = "ragingBlow", overlay = "Single Target Rotation", tip = "Single target rotation used." },
+        { name = "Off", icon = "enragedRegeneration", overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation" },
+    } })
+    br.ui:toggle("Cooldown", { key = "RightCtrl", modes = {
+        { name = "Auto", icon = "touchOfKarma", overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection." },
+        { name = "On", icon = "fortifyingBrew", overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target." },
+        { name = "Off", icon = "touchOfDeath", overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used." },
+    } })
+    br.ui:toggle("Defensive", { modes = {
+        { name = "On", icon = "vivify", overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns." },
+        { name = "Off", icon = "vivify", overlay = "Defensive Disabled", tip = "No Defensives will be used." },
+    } })
+    br.ui:toggle("Interrupt", { modes = {
+        { name = "On", icon = "tigersLust", overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts." },
+        { name = "Off", icon = "tigersLust", overlay = "Interrupts Disabled", tip = "No Interrupts will be used." },
+    } })
+    br.ui:toggle("Debugs", { modes = {
+        { name = "ON", icon = 200733, overlay = "Debugs On", tip = "Debug Messages On" },
+        { name = "OFF", icon = 200733, overlay = "Debugs Off", tip = "Debug Messages Off" },
+    } })
 end
 
-local function createOptions()
-
-    local optionTable
-
-    local function rotationOptions()
-        local section
-        section = br.ui:createSection(br.ui.window.profile,  text.options.title)
-            br.ui:createCheckbox(section,text.options.touchOfDeath)
-            br.ui:createCheckbox(section,text.options.useDisable)
-            br.ui:createCheckbox(section,text.options.PullAllTargets)
-            br.ui:createSpinner(section,text.options.aoeNumber,4,1,10,1,"|cffFFBB00Number of enemies in front to enable AOE routines")
-        br.ui:checkSectionState(section)
-        section = br.ui:createSection(br.ui.window.profile,"Consumables")
-            br.ui:createCheckbox(section,text.consumables.onlyUseConsumablesInRaid)
-            br.player.module.PhialUp(section)
-            br.player.module.CombatPotionUp(section)
-            br.player.module.ImbueUp(section)
-            br.player.module.BasicHealing(section)
-        br.ui:checkSectionState(section)
-        section = br.ui:createSection(br.ui.window.profile,text.interrupts.title)
-            br.ui:createSpinner(section, colors.yellow .. "Interrupt At",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")
-            br.ui:createCheckbox(section,text.interrupts.useSpearHandStrike)
-            br.ui:createCheckbox(section,text.interrupts.useLegSweep)
-        br.ui:checkSectionState(section)
-        section = br.ui:createSection(br.ui.window.profile,  text.cooldowns.title)
-            br.ui:createSpinner(section,text.cooldowns.aoeOverrideCoolowns,4,2,10,1,"|cffFFBB00Number of Targets to allow CDs")
-            br.ui:createCheckbox(section,text.cooldowns.fortifyingBrew)
-            br.ui:createCheckbox(section,text.cooldowns.invokeXuenTheWhiteTiger)
-            br.ui:createCheckbox(section,text.cooldowns.summonWhiteStatuue)
-            br.ui:createCheckbox(section,text.cooldowns.touchOfKarma)
-            br.ui:createCheckbox(section,text.cooldowns.useSerenity)
-        br.ui:checkSectionState(section)
-        section = br.ui:createSection(br.ui.window.profile,text.defensive.title)
-                br.ui:createCheckbox(section,text.defensive.useDetox)
-                br.ui:createCheckbox(section,text.defensive.useDetoxOnParty)
-        br.ui:checkSectionState(section)
-
-        section = br.ui:createSection(br.ui.window.profile,  "Toggle Keys")
-            -- Single/Multi Toggle
-            br.ui:createDropdown(section,  "Rotation Mode", br.ui.dropOptions.Toggle,  4)
-            --Cooldown Key Toggle
-            br.ui:createDropdown(section,  "Cooldown Mode", br.ui.dropOptions.Toggle,  3)
-            --Defensive Key Toggle
-            br.ui:createDropdown(section,  "Defensive Mode", br.ui.dropOptions.Toggle,  6)
-            -- Interrupts Key Toggle
-            br.ui:createDropdown(section,  "Interrupt Mode", br.ui.dropOptions.Toggle,  6)
-            -- Pause Toggle
-            br.ui:createDropdown(section,  "Pause Mode", br.ui.dropOptions.Toggle,  6)
-        br.ui:checkSectionState(section)
-    end
-    optionTable = {{
-        [1] = "Rotation Options",
-        [2] = rotationOptions,
-    }}
-    return optionTable
+local function options()
+    local section
+    section = br.ui:section(text.options.title)
+        br.ui:checkbox(section, text.options.touchOfDeath)
+        br.ui:checkbox(section, text.options.useDisable)
+        br.ui:checkbox(section, text.options.PullAllTargets)
+        br.ui:spinner(section, text.options.aoeNumber, { value = 4, min = 1, max = 10, step = 1,
+            tip = "|cffFFBB00Number of enemies in front to enable AOE routines" })
+    section = br.ui:section("Consumables")
+        br.ui:checkbox(section, text.consumables.onlyUseConsumablesInRaid)
+        br.player.module.PhialUp(section)
+        br.player.module.CombatPotionUp(section)
+        br.player.module.ImbueUp(section)
+        br.player.module.BasicHealing(section)
+    section = br.ui:section(text.interrupts.title)
+        br.ui:spinner(section, colors.yellow .. "Interrupt At", { value = 0, max = 95, tip = "|cffFFBB00Cast Percentage to use at." })
+        br.ui:checkbox(section, text.interrupts.useSpearHandStrike)
+        br.ui:checkbox(section, text.interrupts.useLegSweep)
+    section = br.ui:section(text.cooldowns.title)
+        br.ui:spinner(section, text.cooldowns.aoeOverrideCoolowns, { value = 4, min = 2, max = 10, step = 1,
+            tip = "|cffFFBB00Number of Targets to allow CDs" })
+        br.ui:checkbox(section, text.cooldowns.fortifyingBrew)
+        br.ui:checkbox(section, text.cooldowns.invokeXuenTheWhiteTiger)
+        br.ui:checkbox(section, text.cooldowns.summonWhiteStatuue)
+        br.ui:checkbox(section, text.cooldowns.touchOfKarma)
+        br.ui:checkbox(section, text.cooldowns.useSerenity)
+    section = br.ui:section(text.defensive.title)
+            br.ui:checkbox(section, text.defensive.useDetox)
+            br.ui:checkbox(section, text.defensive.useDetoxOnParty)
 end
 
 --------------
@@ -825,13 +787,16 @@ end
         end -- End In Combat Rotation
     end -- Pause
 end -- End runRotation
-local id = 0 -- Change to the spec id profile is for. Spec ID can be found at: https://wowpedia.fandom.com/wiki/SpecializationID
-br.loader.rotations[id] = br.loader.rotations[id] or {}
-if br.api.expansion == "MOP" then
-    br._G.tinsert(br.loader.rotations[id], {
-    name = rotationName,
-    toggles = createToggles,
-    options = createOptions,
-    run = runRotation,
-    })
-end
+br.loader.registerRotation({
+    name      = rotationName,
+    specID    = 0,
+    expansion = "MOP",
+    author    = "BrewingCoder",
+    patch     = "10.2.5",
+    coverage  = "95%",
+    status    = "Limited",
+    readiness = "Development",
+    toggles   = toggles,
+    options   = options,
+    run       = runRotation,
+})

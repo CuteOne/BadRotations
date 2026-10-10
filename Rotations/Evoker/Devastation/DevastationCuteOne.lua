@@ -1,238 +1,110 @@
--------------------------------------------------------
--- Author = CuteOne
--- Patch = 10.0
---    Patch should be the latest patch you've updated the rotation for (i.e., 9.2.5)
--- Coverage = 95%
---    Coverage should be your estimated percent coverage for class mechanics (i.e., 100%)
--- Status = Full
---    Status should be one of: Full, Limited, Sporadic, Inactive, Unknown
--- Readiness = Basic
---    Readiness should be one of: Raid, NoRaid, Basic, Development, Untested
--------------------------------------------------------
--- Required: Fill above fields to populate README.md --
--------------------------------------------------------
-
 local rotationName = "CuteOne" -- Change to name of profile listed in options drop down
 
 ---------------
 --- Toggles ---
 ---------------
 
-local function createToggles() -- Define custom toggles
-    -- Rotation Button
-    local RotationModes = {
-        [1] = {
-            mode = "Auto",
-            value = 1,
-            overlay = "Automatic Rotation",
-            tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range.",
-            highlight = 1,
-            icon = br.player.spells.disintegrate
-        },
-        [2] = {
-            mode = "Mult",
-            value = 2,
-            overlay = "Multiple Target Rotation",
-            tip = "Multiple target rotation used.",
-            highlight = 1,
-            icon = br.player.spells.azureStrike
-        },
-        [3] = {
-            mode = "Sing",
-            value = 3,
-            overlay = "Single Target Rotation",
-            tip = "Single target rotation used.",
-            highlight = 1,
-            icon = br.player.spells.livingFlame
-        },
-        [4] = {
-            mode = "Off",
-            value = 4,
-            overlay = "DPS Rotation Disabled",
-            tip = "Disable DPS Rotation",
-            highlight = 0,
-            icon = br.player.spells.blessingOfTheBronze
-        }
-    };
-    br.ui:createToggle(RotationModes, "Rotation", 1, 0)
-    -- Cooldown Button
-    local CooldownModes = {
-        [1] = {
-            mode = "Auto",
-            value = 1,
-            overlay = "Cooldowns Automated",
-            tip = "Automatic Cooldowns - Boss Detection.",
-            highlight = 1,
-            icon = br.player.spells.furyOfTheAspects
-        },
-        [2] = {
-            mode = "On",
-            value = 2,
-            overlay = "Cooldowns Enabled",
-            tip = "Cooldowns used regardless of target.",
-            highlight = 0,
-            icon = br.player.spells.furyOfTheAspects
-        },
-        [3] = {
-            mode = "Off",
-            value = 3,
-            overlay = "Cooldowns Disabled",
-            tip = "No Cooldowns will be used.",
-            highlight = 0,
-            icon = br.player.spells.furyOfTheAspects
-        }
-    };
-    br.ui:createToggle(CooldownModes, "Cooldown", 2, 0)
-    -- Defensive Button
-    local DefensiveModes = {
-        [1] = {
-            mode = "On",
-            value = 1,
-            overlay = "Defensive Enabled",
-            tip = "Includes Defensive Cooldowns.",
-            highlight = 1,
-            icon = br.player.spells.livingFlame
-        },
-        [2] = {
-            mode = "Off",
-            value = 2,
-            overlay = "Defensive Disabled",
-            tip = "No Defensives will be used.",
-            highlight = 0,
-            icon = br.player.spells.livingFlame
-        }
-    };
-    br.ui:createToggle(DefensiveModes, "Defensive", 3, 0)
-    -- Interrupt Button
-    local InterruptModes = {
-        [1] = {
-            mode = "On",
-            value = 1,
-            overlay = "Interrupts Enabled",
-            tip = "Includes Basic Interrupts.",
-            highlight = 1,
-            icon = br.player.spells.tailSwipe
-        },
-        [2] = {
-            mode = "Off",
-            value = 2,
-            overlay = "Interrupts Disabled",
-            tip = "No Interrupts will be used.",
-            highlight = 0,
-            icon = br.player.spells.tailSwipe
-        }
-    };
-    br.ui:createToggle(InterruptModes, "Interrupt", 4, 0)
+local function toggles()
+    br.ui:toggle("Rotation", { key = "RightShift", modes = {
+        { name = "Auto", icon = "disintegrate", overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range." },
+        { name = "Mult", icon = "azureStrike", overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = true },
+        { name = "Sing", icon = "livingFlame", overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = true },
+        { name = "Off", icon = "blessingOfTheBronze", overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation" },
+    } })
+    br.ui:toggle("Cooldown", { key = "RightCtrl", modes = {
+        { name = "Auto", icon = "furyOfTheAspects", overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection." },
+        { name = "On", icon = "furyOfTheAspects", overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target." },
+        { name = "Off", icon = "furyOfTheAspects", overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used." },
+    } })
+    br.ui:toggle("Defensive", { modes = {
+        { name = "On", icon = "livingFlame", overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns." },
+        { name = "Off", icon = "livingFlame", overlay = "Defensive Disabled", tip = "No Defensives will be used." },
+    } })
+    br.ui:toggle("Interrupt", { modes = {
+        { name = "On", icon = "tailSwipe", overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts." },
+        { name = "Off", icon = "tailSwipe", overlay = "Interrupts Disabled", tip = "No Interrupts will be used." },
+    } })
 end
 
 ---------------
 --- OPTIONS ---
 ---------------
-local function createOptions()
-    local optionTable
-
-    local function rotationOptions()
-        local section
-        local alwaysCdNever = { "Always", "|cff0000ffCD", "|cffff0000Never" }
-        local alwaysCdAoENever = { "Always", "|cff008000AOE", "|cffffff00AOE/CD", "|cff0000ffCD", "|cffff0000Never" }
-        -----------------------
-        --- GENERAL OPTIONS --- -- Define General Options
-        -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "General")
-        br.ui:createSpinner(section, "DPS Testing", 5, 5, 60, 5,
-            "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
-        -- Blessing of the Bronze
-        br.ui:createCheckbox(section, "Blessing of the Bronze")
-        -- Source of Magic
-        br.ui:createCheckbox(section, "Source of Magic on Focus", "|cffFFFFFFWill cast Source of Magic Ability on Focus.")
-        -- Stage Limiter
-        br.ui:createCheckbox(section, "Empower Stage Limiter", "|cffFFFFFFEnable to set maximum stages to Empower to.")
-        br.ui:createSpinnerWithout(section, "Fire Breath Stage Limit", 4, 1, 4, 1, "")
-        br.ui:createSpinnerWithout(section, "Eternity Surge Stage Limit", 4, 1, 4, 1, "")
-        -- Visage
-        br.ui:createCheckbox(section, "Maintain Visage", "|cffFFFFFFWill use Visage Ability whenever possible.")
-        br.ui:checkSectionState(section)
-        ------------------------
-        --- COOLDOWN OPTIONS --- -- Define Cooldown Options
-        ------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
-        -- Eternity Surge
-        br.ui:createDropdownWithout(section, "Eternity Surge", alwaysCdAoENever, 1,
-            "|cffFFFFFFWhen to use Eternity Surge.")
-        -- Deep Breath
-        br.ui:createDropdownWithout(section, "Deep Breath", alwaysCdAoENever, 3,
-            "|cffFFFFFFWhen to use Deep Breath Ability.")
-        -- Dragonrage
-        br.ui:createDropdownWithout(section, "Dragonrage", alwaysCdAoENever, 3,
-            "|cffFFFFFFWhen to use Dragonrage Ability.")
-        -- Flame Breath
-        br.ui:createDropdownWithout(section, "Fire Breath", alwaysCdAoENever, 1, "|cffFFFFFFWhen to use Fire Breath.")
-        -- Tip the Scales
-        br.ui:createDropdownWithout(section, "Tip the Scales", alwaysCdAoENever, 3,
-            "|cffFFFFFFWhen to use Tip the Scales Ability.")
-        br.ui:checkSectionState(section)
-        -------------------------
-        --- DEFENSIVE OPTIONS --- -- Define Defensive Options
-        -------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Defensive")
-        -- Cauterizing Flame
-        br.ui:createCheckbox(section, "Cauterizing Flame")
-        br.ui:createDropdownWithout(section, "Cauterizing Flame - Target",
-            { "|cff00FF00Player", "|cffFFFF00Target", "|cffFF0000Mouseover" }, 1, "|cffFFFFFFTarget to cast on")
-        -- Emerald Blossom
-        br.ui:createSpinner(section, "Emerald Blossom", 35, 0, 99, 5, "Use Emerald Blossom to Heal below this threshold")
-        -- Expunge
-        br.ui:createCheckbox(section, "Expunge")
-        br.ui:createDropdownWithout(section, "Expunge - Target",
-            { "|cff00FF00Player", "|cffFFFF00Target", "|cffFF0000Mouseover" }, 1, "|cffFFFFFFTarget to cast on")
-        -- Living Flame
-        br.ui:createSpinner(section, "Living Flame Heal", 45, 0, 99, 5, "Use Living Flame to Heal below this threshold")
-        br.ui:createSpinnerWithout(section, "Living Flame OoC", 80, 0, 99, 5,
-            "Use Living Flame to Heal Out of Combat below this threshold")
-        -- Obsidian Scales
-        br.ui:createSpinner(section, "Obsidian Scales", 50, 0, 99, 5, "|cffFFFFFFHealth Percent to Cast At")
-        -- Renewing Blaze
-        br.ui:createSpinner(section, "Renewing Blaze", 40, 0, 99, 5, "|cffFFFFFFHealth Percent to Cast At")
-        -- Return
-        br.ui:createCheckbox(section, "Return")
-        br.ui:createDropdownWithout(section, "Return - Target", { "|cff00FF00Target", "|cffFF0000Mouseover" }, 1,
-            "|cffFFFFFFTarget to cast on")
-        -- Verdant Embrace
-        br.ui:createSpinner(section, "Verdant Embrace", 55, 0, 99, 5, "Use Verdant Embrace to Heal below this threshold")
-        -- Wing Buffet
-        br.ui:createSpinner(section, "Wing Buffet - HP", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-        br.ui:createSpinner(section, "Wing Buffet - AoE", 5, 0, 10, 1, "|cffFFFFFFNumber of Units in 5 Yards to Cast At")
-        br.ui:checkSectionState(section)
-        -------------------------
-        --- INTERRUPT OPTIONS --- -- Define Interrupt Options
-        -------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Interrupts")
-        -- Quell
-        br.ui:createCheckbox(section, "Quell")
-        -- Tail Swipe
-        br.ui:createCheckbox(section, "Tail Swipe")
-        -- Interrupt Percentage
-        br.ui:createSpinnerWithout(section, "InterruptAt", 0, 0, 95, 5, "|cffFFBB00Cast Percentage to use at.")
-        br.ui:checkSectionState(section)
-        ----------------------
-        --- TOGGLE OPTIONS --- -- Degine Toggle Options
-        ----------------------
-        section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
-        -- Single/Multi Toggle
-        br.ui:createDropdownWithout(section, "Rotation Mode", br.ui.dropOptions.Toggle, 4)
-        -- Cooldown Key Toggle
-        br.ui:createDropdownWithout(section, "Cooldown Mode", br.ui.dropOptions.Toggle, 3)
-        -- Defensive Key Toggle
-        br.ui:createDropdownWithout(section, "Defensive Mode", br.ui.dropOptions.Toggle, 6)
-        -- Interrupts Key Toggle
-        br.ui:createDropdownWithout(section, "Interrupt Mode", br.ui.dropOptions.Toggle, 6)
-        br.ui:checkSectionState(section)
-    end
-    optionTable = { {
-        [1] = "Rotation Options",
-        [2] = rotationOptions
-    } }
-    return optionTable
+local function options()
+    local section
+    local alwaysCdNever = { "Always", "|cff0000ffCD", "|cffff0000Never" }
+    local alwaysCdAoENever = { "Always", "|cff008000AOE", "|cffffff00AOE/CD", "|cff0000ffCD", "|cffff0000Never" }
+    -----------------------
+    --- GENERAL OPTIONS --- -- Define General Options
+    -----------------------
+    section = br.ui:section("General")
+    br.ui:spinner(section, "DPS Testing", { value = 5, min = 5, max = 60,
+        tip = "Set to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5" })
+    -- Blessing of the Bronze
+    br.ui:checkbox(section, "Blessing of the Bronze")
+    -- Source of Magic
+    br.ui:checkbox(section, "Source of Magic on Focus", { tip = "Will cast Source of Magic Ability on Focus." })
+    -- Stage Limiter
+    br.ui:checkbox(section, "Empower Stage Limiter", { tip = "Enable to set maximum stages to Empower to." })
+    br.ui:spinner(section, "Fire Breath Stage Limit", { value = 4, min = 1, max = 4, step = 1, checkbox = false, tip = "" })
+    br.ui:spinner(section, "Eternity Surge Stage Limit", { value = 4, min = 1, max = 4, step = 1, checkbox = false, tip = "" })
+    -- Visage
+    br.ui:checkbox(section, "Maintain Visage", { tip = "Will use Visage Ability whenever possible." })
+    ------------------------
+    --- COOLDOWN OPTIONS --- -- Define Cooldown Options
+    ------------------------
+    section = br.ui:section("Cooldowns")
+    -- Eternity Surge
+    br.ui:dropdown(section, "Eternity Surge", { choices = alwaysCdAoENever, value = 1, checkbox = false, tip = "When to use Eternity Surge." })
+    -- Deep Breath
+    br.ui:dropdown(section, "Deep Breath", { choices = alwaysCdAoENever, value = 3, checkbox = false, tip = "When to use Deep Breath Ability." })
+    -- Dragonrage
+    br.ui:dropdown(section, "Dragonrage", { choices = alwaysCdAoENever, value = 3, checkbox = false, tip = "When to use Dragonrage Ability." })
+    -- Flame Breath
+    br.ui:dropdown(section, "Fire Breath", { choices = alwaysCdAoENever, value = 1, checkbox = false, tip = "When to use Fire Breath." })
+    -- Tip the Scales
+    br.ui:dropdown(section, "Tip the Scales", { choices = alwaysCdAoENever, value = 3, checkbox = false,
+        tip = "When to use Tip the Scales Ability." })
+    -------------------------
+    --- DEFENSIVE OPTIONS --- -- Define Defensive Options
+    -------------------------
+    section = br.ui:section("Defensive")
+    -- Cauterizing Flame
+    br.ui:checkbox(section, "Cauterizing Flame")
+    br.ui:dropdown(section, "Cauterizing Flame - Target", { choices = { "|cff00FF00Player", "|cffFFFF00Target", "|cffFF0000Mouseover" }, value = "Player", checkbox = false,
+        tip = "Target to cast on" })
+    -- Emerald Blossom
+    br.ui:spinner(section, "Emerald Blossom", { value = 35, max = 99, tip = "Use Emerald Blossom to Heal below this threshold" })
+    -- Expunge
+    br.ui:checkbox(section, "Expunge")
+    br.ui:dropdown(section, "Expunge - Target", { choices = { "|cff00FF00Player", "|cffFFFF00Target", "|cffFF0000Mouseover" }, value = "Player", checkbox = false,
+        tip = "Target to cast on" })
+    -- Living Flame
+    br.ui:spinner(section, "Living Flame Heal", { value = 45, max = 99, tip = "Use Living Flame to Heal below this threshold" })
+    br.ui:spinner(section, "Living Flame OoC", { value = 80, max = 99, checkbox = false,
+        tip = "Use Living Flame to Heal Out of Combat below this threshold" })
+    -- Obsidian Scales
+    br.ui:spinner(section, "Obsidian Scales", { value = 50, max = 99, tip = "Health Percent to Cast At" })
+    -- Renewing Blaze
+    br.ui:spinner(section, "Renewing Blaze", { value = 40, max = 99, tip = "Health Percent to Cast At" })
+    -- Return
+    br.ui:checkbox(section, "Return")
+    br.ui:dropdown(section, "Return - Target", { choices = { "|cff00FF00Target", "|cffFF0000Mouseover" }, value = "Target", checkbox = false,
+        tip = "Target to cast on" })
+    -- Verdant Embrace
+    br.ui:spinner(section, "Verdant Embrace", { value = 55, max = 99, tip = "Use Verdant Embrace to Heal below this threshold" })
+    -- Wing Buffet
+    br.ui:spinner(section, "Wing Buffet - HP", { value = 50, tip = "Health Percent to Cast At" })
+    br.ui:spinner(section, "Wing Buffet - AoE", { value = 5, max = 10, step = 1, tip = "Number of Units in 5 Yards to Cast At" })
+    -------------------------
+    --- INTERRUPT OPTIONS --- -- Define Interrupt Options
+    -------------------------
+    section = br.ui:section("Interrupts")
+    -- Quell
+    br.ui:checkbox(section, "Quell")
+    -- Tail Swipe
+    br.ui:checkbox(section, "Tail Swipe")
+    -- Interrupt Percentage
+    br.ui:spinner(section, "InterruptAt", { value = 0, max = 95, checkbox = false, tip = "|cffFFBB00Cast Percentage to use at." })
 end
 
 --------------
@@ -1245,13 +1117,16 @@ local function runRotation()
         if actionList.Combat() then return true end
     end         -- Pause
 end             -- End runRotation
-local id = 1467 -- Change to the spec id profile is for.
-br.loader.rotations[id] = br.loader.rotations[id] or {}
-if br.api.expansion == "MOP" then
-    br._G.tinsert(br.loader.rotations[id], {
-    name = rotationName,
-    toggles = createToggles,
-    options = createOptions,
-    run = runRotation
-    })
-end
+br.loader.registerRotation({
+    name      = rotationName,
+    specID    = 1467,
+    expansion = "MOP",
+    author    = "CuteOne",
+    patch     = "10.0",
+    coverage  = "95%",
+    status    = "Full",
+    readiness = "Basic",
+    toggles   = toggles,
+    options   = options,
+    run       = runRotation,
+})

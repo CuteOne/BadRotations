@@ -1,164 +1,108 @@
--------------------------------------------------------
--- Author = CuteOne
--- Patch = 5.4.8 (Mists of Pandaria)
---    Patch should be the latest patch you've updated the rotation for (i.e., 9.2.5)
--- Coverage = 100%
---    Coverage should be your estimated percent coverage for class mechanics (i.e., 100%)
--- Status = Full
---    Status should be one of: Full, Limited, Sporadic, Inactive, Unknown
--- Readiness = Basic
---    Readiness should be one of: Raid, NoRaid, Basic, Development, Untested
--------------------------------------------------------
--- Required: Fill above fields to populate README.md --
--------------------------------------------------------
-
 local rotationName = "CuteOne"
 
 ---------------
 --- Toggles ---
 ---------------
-local function createToggles()
-    -- Rotation Button
-    local RotationModes = {
-        [1] = { mode = "Auto", value = 1, overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spells.fanOfKnives },
-        [2] = { mode = "Mult", value = 2, overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spells.fanOfKnives },
-        [3] = { mode = "Sing", value = 3, overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spells.backstab },
-        [4] = { mode = "Off", value = 4, overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spells.stealth }
-    }
-    br.ui:createToggle(RotationModes, "Rotation", 1, 0)
-    -- Cooldown Button
-    local CooldownModes = {
-        [1] = { mode = "Auto", value = 1, overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spells.shadowBlades },
-        [2] = { mode = "On", value = 2, overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spells.shadowBlades },
-        [3] = { mode = "Off", value = 3, overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spells.shadowBlades }
-    }
-    br.ui:createToggle(CooldownModes, "Cooldown", 2, 0)
-    -- Defensive Button
-    local DefensiveModes = {
-        [1] = { mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spells.evasion },
-        [2] = { mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spells.evasion }
-    }
-    br.ui:createToggle(DefensiveModes, "Defensive", 3, 0)
-    -- Interrupt Button
-    local InterruptModes = {
-        [1] = { mode = "On", value = 1, overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spells.kick },
-        [2] = { mode = "Off", value = 2, overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spells.kick }
-    }
-    br.ui:createToggle(InterruptModes, "Interrupt", 4, 0)
-    -- Pick Pocket Button
-    local PickPocketModes = {
-        [1] = { mode = "Auto", value = 1, overlay = "Pick Pocket Auto", tip = "Automatically Pick Pocket before engaging, minimal delay.", highlight = 1, icon = br.player.spells.pickPocket },
-        [2] = { mode = "Only", value = 2, overlay = "Pick Pocket Only", tip = "Only Pick Pocket targets (Sap > Pick Pocket > Clear Target).", highlight = 0, icon = br.player.spells.pickPocket },
-        [3] = { mode = "Off", value = 3, overlay = "Pick Pocket Disabled", tip = "Never Pick Pocket.", highlight = 0, icon = br.player.spells.pickPocket }
-    }
-    br.ui:createToggle(PickPocketModes, "PickPocket", 5, 0)
+local function toggles()
+    br.ui:toggle("Rotation", { key = "RightShift", modes = {
+        { name = "Auto", icon = "fanOfKnives", overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range." },
+        { name = "Mult", icon = "fanOfKnives", overlay = "Multiple Target Rotation", tip = "Multiple target rotation used." },
+        { name = "Sing", icon = "backstab", overlay = "Single Target Rotation", tip = "Single target rotation used." },
+        { name = "Off", icon = "stealth", overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation" },
+    } })
+    br.ui:toggle("Cooldown", { key = "RightCtrl", modes = {
+        { name = "Auto", icon = "shadowBlades", overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection." },
+        { name = "On", icon = "shadowBlades", overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target." },
+        { name = "Off", icon = "shadowBlades", overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used." },
+    } })
+    br.ui:toggle("Defensive", { modes = {
+        { name = "On", icon = "evasion", overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns." },
+        { name = "Off", icon = "evasion", overlay = "Defensive Disabled", tip = "No Defensives will be used." },
+    } })
+    br.ui:toggle("Interrupt", { modes = {
+        { name = "On", icon = "kick", overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts." },
+        { name = "Off", icon = "kick", overlay = "Interrupts Disabled", tip = "No Interrupts will be used." },
+    } })
+    br.ui:toggle("PickPocket", { modes = {
+        { name = "Auto", icon = "pickPocket", overlay = "Pick Pocket Auto", tip = "Automatically Pick Pocket before engaging, minimal delay." },
+        { name = "Only", icon = "pickPocket", overlay = "Pick Pocket Only", tip = "Only Pick Pocket targets (Sap > Pick Pocket > Clear Target)." },
+        { name = "Off", icon = "pickPocket", overlay = "Pick Pocket Disabled", tip = "Never Pick Pocket." },
+    } })
 end
 
 ---------------
 --- OPTIONS ---
 ---------------
-local function createOptions()
-    local optionTable
-
-    local function rotationOptions()
-        local section
-        -----------------------
-        --- GENERAL OPTIONS ---
-        -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "General")
-        -- Dummy DPS Test
-        br.ui:createSpinner(section, "DPS Testing", 5, 5, 60, 5,
-            "|cffFFFFFFSet to desired time for test in minutes. Min: 5 / Max: 60 / Interval: 5")
-        -- Auto Stealth
-        br.ui:createCheckbox(section, "Auto Stealth")
-        -- Stealth Breaker
-        br.ui:createDropdownWithout(section, "Stealth Breaker",
-            { "|cff00FF00Ambush", "|cffFF0000Hemorrhage" }, 1,
-            "|cffFFFFFFSet what to break Stealth with.")
-        -- Poisons
-        br.ui:createDropdownWithout(section, "Lethal Poison", { "|cffFFFFFFInstant", "|cffFFFFFFDeadly", "|cffFFFFFFWound" }, 2,
-            "|cffFFFFFFSelect Lethal Poison to use.")
-        br.ui:createDropdownWithout(section, "Non-Lethal Poison", { "|cffFFFFFFNone", "|cffFFFFFFCrippling", "|cffFFFFFFMind-Numbing", "|cffFFFFFFParalytic" }, 2,
-            "|cffFFFFFFSelect Non-Lethal Poison to use.")
-        br.ui:checkSectionState(section)
-        ------------------------
-        --- COOLDOWN OPTIONS ---
-        ------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
-        -- Shadowstep
-        br.ui:createCheckbox(section, "Shadowstep")
-        -- Shadow Blades
-        br.ui:createDropdownWithout(section, "Shadow Blades", br.ui.dropOptions.AlwaysCdAoeNever,
-            2, "|cffFFFFFFWhen to use Shadow Blades.")
-        -- Shadow Dance
-        br.ui:createDropdownWithout(section, "Shadow Dance", br.ui.dropOptions.AlwaysCdAoeNever,
-            2, "|cffFFFFFFWhen to use Shadow Dance.")
-        -- Vanish
-        br.ui:createDropdownWithout(section, "Vanish", br.ui.dropOptions.AlwaysCdAoeNever,
-            2, "|cffFFFFFFWhen to use Vanish.")
-        -- Preparation
-        br.ui:createCheckbox(section, "Preparation")
-        -- Premeditation
-        br.ui:createCheckbox(section, "Premeditation")
-        -- Marked for Death
-        br.ui:createCheckbox(section, "Marked for Death")
-        -- Use Racial
-        br.ui:createCheckbox(section, "Use Racial")
-        -- Use Combat Potion
-        br.ui:createCheckbox(section, "Use Combat Potion")
-        -- Trinkets
-        br.player.module.BasicTrinkets(section)
-        br.ui:checkSectionState(section)
-        -------------------------
-        --- DEFENSIVE OPTIONS ---
-        -------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Defensive")
-        -- Cloak of Shadows
-        br.ui:createCheckbox(section, "Cloak of Shadows")
-        -- Combat Readiness
-        br.ui:createSpinner(section, "Combat Readiness", 40, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-        -- Evasion
-        br.ui:createSpinner(section, "Evasion", 35, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-        -- Feint
-        br.ui:createSpinner(section, "Feint", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-        -- Recuperate
-        br.ui:createSpinner(section, "Recuperate", 60, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-        br.ui:checkSectionState(section)
-        -------------------------
-        --- INTERRUPT OPTIONS ---
-        -------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Interrupts")
-        -- Kick
-        br.ui:createCheckbox(section, "Kick")
-        -- Kidney Shot
-        br.ui:createCheckbox(section, "Kidney Shot")
-        -- Gouge
-        br.ui:createCheckbox(section, "Gouge")
-        -- Interrupt Percentage
-        br.ui:createSpinnerWithout(section, "Interrupt At", 0, 0, 95, 5,
-            "|cffFFFFFFCast Percentage to use at. (0 is random)")
-        br.ui:checkSectionState(section)
-        ----------------------
-        --- TOGGLE OPTIONS ---
-        ----------------------
-        section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
-        -- Single/Multi Toggle
-        br.ui:createDropdownWithout(section, "Rotation Mode", br.ui.dropOptions.Toggle, 4)
-        -- Cooldown Key Toggle
-        br.ui:createDropdownWithout(section, "Cooldown Mode", br.ui.dropOptions.Toggle, 3)
-        -- Defensive Key Toggle
-        br.ui:createDropdownWithout(section, "Defensive Mode", br.ui.dropOptions.Toggle, 6)
-        -- Interrupts Key Toggle
-        br.ui:createDropdownWithout(section, "Interrupt Mode", br.ui.dropOptions.Toggle, 6)
-        -- Pick Pocket Key Toggle
-        br.ui:createDropdownWithout(section, "Pick Pocket Mode", br.ui.dropOptions.Toggle, 6)
-        br.ui:checkSectionState(section)
-    end
-    optionTable = { {
-        [1] = "Rotation Options",
-        [2] = rotationOptions,
-    } }
-    return optionTable
+local function options()
+    local section
+    -----------------------
+    --- GENERAL OPTIONS ---
+    -----------------------
+    section = br.ui:section("General")
+    -- Dummy DPS Test
+    br.ui:spinner(section, "DPS Testing", { value = 5, min = 5, max = 60,
+        tip = "Set to desired time for test in minutes. Min: 5 / Max: 60 / Interval: 5" })
+    -- Auto Stealth
+    br.ui:checkbox(section, "Auto Stealth")
+    -- Stealth Breaker
+    br.ui:dropdown(section, "Stealth Breaker", { choices = { "|cff00FF00Ambush", "|cffFF0000Hemorrhage" }, value = "Ambush", checkbox = false,
+        tip = "Set what to break Stealth with." })
+    -- Poisons
+    br.ui:dropdown(section, "Lethal Poison", { choices = { "Instant", "Deadly", "Wound" }, value = "Deadly", checkbox = false,
+        tip = "Select Lethal Poison to use." })
+    br.ui:dropdown(section, "Non-Lethal Poison", { choices = { "None", "Crippling", "Mind-Numbing", "Paralytic" }, value = "Crippling", checkbox = false,
+        tip = "Select Non-Lethal Poison to use." })
+    ------------------------
+    --- COOLDOWN OPTIONS ---
+    ------------------------
+    section = br.ui:section("Cooldowns")
+    -- Shadowstep
+    br.ui:checkbox(section, "Shadowstep")
+    -- Shadow Blades
+    br.ui:dropdown(section, "Shadow Blades", { choices = "AlwaysCdAoeNever", value = "AOE", checkbox = false,
+        tip = "When to use Shadow Blades." })
+    -- Shadow Dance
+    br.ui:dropdown(section, "Shadow Dance", { choices = "AlwaysCdAoeNever", value = "AOE", checkbox = false, tip = "When to use Shadow Dance." })
+    -- Vanish
+    br.ui:dropdown(section, "Vanish", { choices = "AlwaysCdAoeNever", value = "AOE", checkbox = false, tip = "When to use Vanish." })
+    -- Preparation
+    br.ui:checkbox(section, "Preparation")
+    -- Premeditation
+    br.ui:checkbox(section, "Premeditation")
+    -- Marked for Death
+    br.ui:checkbox(section, "Marked for Death")
+    -- Use Racial
+    br.ui:checkbox(section, "Use Racial")
+    -- Use Combat Potion
+    br.ui:checkbox(section, "Use Combat Potion")
+    -- Trinkets
+    br.player.module.BasicTrinkets(section)
+    -------------------------
+    --- DEFENSIVE OPTIONS ---
+    -------------------------
+    section = br.ui:section("Defensive")
+    -- Cloak of Shadows
+    br.ui:checkbox(section, "Cloak of Shadows")
+    -- Combat Readiness
+    br.ui:spinner(section, "Combat Readiness", { value = 40, tip = "Health Percent to Cast At" })
+    -- Evasion
+    br.ui:spinner(section, "Evasion", { value = 35, tip = "Health Percent to Cast At" })
+    -- Feint
+    br.ui:spinner(section, "Feint", { value = 50, tip = "Health Percent to Cast At" })
+    -- Recuperate
+    br.ui:spinner(section, "Recuperate", { value = 60, tip = "Health Percent to Cast At" })
+    -------------------------
+    --- INTERRUPT OPTIONS ---
+    -------------------------
+    section = br.ui:section("Interrupts")
+    -- Kick
+    br.ui:checkbox(section, "Kick")
+    -- Kidney Shot
+    br.ui:checkbox(section, "Kidney Shot")
+    -- Gouge
+    br.ui:checkbox(section, "Gouge")
+    -- Interrupt Percentage
+    br.ui:spinner(section, "Interrupt At", { value = 0, max = 95, checkbox = false, tip = "Cast Percentage to use at. (0 is random)" })
 end
 
 --------------
@@ -1170,6 +1114,8 @@ end -- End Action List - Combat
 --- ROTATION ---
 ----------------
 local function runRotation()
+    -- This profile handles racials itself; skip the shared Racial module
+    if not br.player.localRacial then br.player.localRacial = true end
     --------------
     --- Locals ---
     --------------
@@ -1264,13 +1210,16 @@ local function runRotation()
     end
 end -- runRotation
 
-local id = 261
-br.loader.rotations[id] = br.loader.rotations[id] or {}
-if br.api.expansion == "MOP" then
-    br._G.tinsert(br.loader.rotations[id], {
-    name = rotationName,
-    toggles = createToggles,
-    options = createOptions,
-    run = runRotation,
-    })
-end
+br.loader.registerRotation({
+    name      = rotationName,
+    specID    = 261,
+    expansion = "MOP",
+    author    = "CuteOne",
+    patch     = "5.4.8 (Mists of Pandaria)",
+    coverage  = "100%",
+    status    = "Full",
+    readiness = "Basic",
+    toggles   = toggles,
+    options   = options,
+    run       = runRotation,
+})

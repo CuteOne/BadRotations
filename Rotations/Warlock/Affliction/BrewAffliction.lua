@@ -1,10 +1,3 @@
--------------------------------------------------------
--- Author = BrewingCoder
--- Patch = 10.2.6
--- Coverage = 50%
--- Status = Development
--- Readiness = Development
--------------------------------------------------------
 local rotationName = "BrewAffliction"
 
 local colors = {
@@ -21,29 +14,23 @@ local colors = {
     orange  = "|cffff8000"
 }
 
-local function createToggles()
-    local RotationModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Rotation Enabled", tip = "Enable Rotation", highlight = 1, icon = br.player.spells.unendingResolve },
-        [2] = {  mode = "Off", value = 4 , overlay = "Rotation Disabled", tip = "Disable Rotation", highlight = 0, icon = br.player.spells.unendingResolve }
-    };
-    br.ui:createToggle(RotationModes,"Rotation",1,0)
-
-    local AOEMode
-
-    local DefensiveModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spells.unendingResolve},
-        [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spells.unendingResolve}
-    };
-    br.ui:createToggle(DefensiveModes,"Defensive",2,0)
-    local PetSummonModes = {
-        [1] = { mode = "1", value = 1 , overlay = "Imp", tip = "Summon Imp", highlight = 1, icon = br.player.spells.summonImp },
-        [2] = { mode = "2", value = 2 ,overlay = "Voidwalker", tip = "Summon Voidwalker", highlight = 1, icon = br.player.spells.summonVoidwalker },
-        [3] = { mode = "3", value = 3 , overlay = "Felhunter", tip = "Summon Felhunter", highlight = 1, icon = br.player.spells.summonFelhunter },
-        [4] = { mode = "4", value = 4 , overlay = "Sayaad", tip = "Summon Sayaad", highlight = 1, icon = br.player.spells.summonSuccubus },
-        [5] = { mode = "5", value = 5 , overlay = "Felguard", tip = "Summon Felguard", highlight = 1, icon = br.player.spells.summonFelguard},
-        [6] = { mode = "6", value = 6 , overlay = "None", tip = "Do Not Summon", highlight = 0, icon = br.player.spells.fear}
-    }
-    br.ui:createToggle(PetSummonModes,"PetSummon",3,0)
+local function toggles()
+    br.ui:toggle("Rotation", { key = "RightShift", modes = {
+        { name = "On", icon = "unendingResolve", overlay = "Rotation Enabled", tip = "Enable Rotation" },
+        { name = "Off", icon = "unendingResolve", overlay = "Rotation Disabled", tip = "Disable Rotation" },
+    } })
+    br.ui:toggle("Defensive", { modes = {
+        { name = "On", icon = "unendingResolve", overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns." },
+        { name = "Off", icon = "unendingResolve", overlay = "Defensive Disabled", tip = "No Defensives will be used." },
+    } })
+    br.ui:toggle("PetSummon", { modes = {
+        { name = "1", icon = "summonImp", overlay = "Imp", tip = "Summon Imp" },
+        { name = "2", icon = "summonVoidwalker", overlay = "Voidwalker", tip = "Summon Voidwalker", highlight = true },
+        { name = "3", icon = "summonFelhunter", overlay = "Felhunter", tip = "Summon Felhunter", highlight = true },
+        { name = "4", icon = "summonSuccubus", overlay = "Sayaad", tip = "Summon Sayaad", highlight = true },
+        { name = "5", icon = "summonFelguard", overlay = "Felguard", tip = "Summon Felguard", highlight = true },
+        { name = "6", icon = "fear", overlay = "None", tip = "Do Not Summon" },
+    } })
 end
 
 local function PetId()
@@ -63,52 +50,29 @@ local pets = {
 }
 
 
-local function createOptions()
-    local optionTable
-
-    local function rotationOptions()
-        local section
-        -----------------------
-        --- GENERAL OPTIONS ---
-        -----------------------
-        section = br.ui:createSection(br.ui.window.profile,  "General")
-            -- Corruption
-            br.ui:createCheckbox(section, "Use Corruption")
-            -- Curse of Weakness
-            br.ui:createCheckbox(section, "Use Curse of Weakness")
-        br.ui:checkSectionState(section)
-        -------------------------
-        --- DEFENSIVE OPTIONS ---
-        -------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Defensive")
-            -- Drain Life
-            br.ui:createSpinner(section, "Drain Life", 40, 0, 100, 5, "|cffFFFFFFPet Health Percent to Cast At")
-            -- Health Funnel
-            br.ui:createSpinner(section, "Health Funnel", 30, 0, 95, 5, "|cffFFFFFFPet Health Percent to Cast At")
-            br.ui:createSpinnerWithout(section, "Player Limit", 70, 0, 100, 5, "|cffFFFFFFHealth Percent to not use below.")
-            -- Healthstone
-            br.ui:createSpinner(section, "Healthstone",  60,  0,  95,  5,  "|cffFFFFFFHealth Percent to Cast At")
-            -- Unending Resolve
-            br.ui:createSpinner(section, "Unending Resolve", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-
-        br.ui:checkSectionState(section)
-        ----------------------
-        --- TOGGLE OPTIONS ---
-        ----------------------
-        section = br.ui:createSection(br.ui.window.profile,  "Toggle Keys")
-            -- Single/Multi Toggle
-            br.ui:createDropdownWithout(section,  "Rotation Mode", br.ui.dropOptions.Toggle,  4)
-            --Defensive Key Toggle
-            br.ui:createDropdownWithout(section,  "Defensive Mode", br.ui.dropOptions.Toggle,  6)
-            -- Pause Toggle
-            br.ui:createDropdown(section,  "Pause Mode", br.ui.dropOptions.Toggle,  6)
-        br.ui:checkSectionState(section)
-    end
-    optionTable = {{
-        [1] = "Rotation Options",
-        [2] = rotationOptions,
-    }}
-    return optionTable
+local function options()
+    local section
+    -----------------------
+    --- GENERAL OPTIONS ---
+    -----------------------
+    section = br.ui:section("General")
+        -- Corruption
+        br.ui:checkbox(section, "Use Corruption")
+        -- Curse of Weakness
+        br.ui:checkbox(section, "Use Curse of Weakness")
+    -------------------------
+    --- DEFENSIVE OPTIONS ---
+    -------------------------
+    section = br.ui:section("Defensive")
+        -- Drain Life
+        br.ui:spinner(section, "Drain Life", { value = 40, tip = "Pet Health Percent to Cast At" })
+        -- Health Funnel
+        br.ui:spinner(section, "Health Funnel", { value = 30, max = 95, tip = "Pet Health Percent to Cast At" })
+        br.ui:spinner(section, "Player Limit", { value = 70, checkbox = false, tip = "Health Percent to not use below." })
+        -- Healthstone
+        br.ui:spinner(section, "Healthstone", { value = 60, max = 95, tip = "Health Percent to Cast At" })
+        -- Unending Resolve
+        br.ui:spinner(section, "Unending Resolve", { value = 50, tip = "Health Percent to Cast At" })
 end
 
 local cast
@@ -233,8 +197,8 @@ local function runRotation()
     var                                           = br.player.variables
     equiped                                       = br.player.equiped
     enemies                                       = br.player.enemies
-    var.inRaid                                    = br.player.instance=="raid"
-    var.inInstance                                = br.player.instance=="party"
+    var.inRaid                                    = br.player.unit.instance()=="raid"
+    var.inInstance                                = br.player.unit.instance()=="party"
     activePet                                     = PetId()
 
     var.demonicTyrant = false
@@ -323,13 +287,16 @@ local function runRotation()
         end
     end
 end
-local id = 265  -- Affliction Warlock
-br.loader.rotations[id] = br.loader.rotations[id] or {}
-if br.api.expansion == "MOP" then
-    br._G.tinsert(br.loader.rotations[id], {
-    name = rotationName,
-    toggles = createToggles,
-    options = createOptions,
-    run = runRotation,
-    })
-end
+br.loader.registerRotation({
+    name      = rotationName,
+    specID    = 265, -- Affliction Warlock
+    expansion = "MOP",
+    author    = "BrewingCoder",
+    patch     = "10.2.6",
+    coverage  = "50%",
+    status    = "Development",
+    readiness = "Development",
+    toggles   = toggles,
+    options   = options,
+    run       = runRotation,
+})

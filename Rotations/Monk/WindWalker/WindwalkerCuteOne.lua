@@ -3,161 +3,121 @@ local rotationName = "CuteOne"
 ---------------
 --- Toggles ---
 ---------------
-local function createToggles()
-    -- Rotation Button
-    local RotationModes = {
-        [1] = { mode = "Auto", value = 1, overlay = "Automatic Rotation Enabled", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spells.spinningCraneKick },
-        [2] = { mode = "AOE", value = 2, overlay = "AOE Rotation Enabled", tip = "AOE Rotation Used", highlight = 0, icon = br.player.spells.spinningCraneKick },
-        [3] = { mode = "Single", value = 3, overlay = "Single Target Rotation Enabled", tip = "Single Target Rotation Used", highlight = 0, icon = br.player.spells.tigerPalm },
-        [4] = { mode = "Off", value = 4, overlay = "Rotation Disabled", tip = "No Rotation will be used.", highlight = 0, icon = br.player.spells.expelHarm }
-    };
-    br.ui:createToggle(RotationModes, "Rotation", 1, 0)
-    -- Cooldown Button
-    local CooldownModes = {
-        [1] = { mode = "Auto", value = 1, overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spells.touchOfDeath },
-        [2] = { mode = "On", value = 1, overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spells.touchOfDeath },
-        [3] = { mode = "Off", value = 3, overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spells.touchOfDeath }
-    };
-    br.ui:createToggle(CooldownModes, "Cooldown", 2, 0)
-    -- Defensive Button
-    local DefensiveModes = {
-        [1] = { mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Enables Defensive", highlight = 1, icon = br.player.spells.expelHarm },
-        [2] = { mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "Disables Defensive", highlight = 0, icon = br.player.spells.expelHarm }
-    };
-    br.ui:createToggle(DefensiveModes, "Defensive", 3, 0)
-    -- Interrupt Button
-    local InterruptModes = {
-        [1] = { mode = "On", value = 1, overlay = "Interrupt Enabled", tip = "Enables Interrupt", highlight = 1, icon = br.player.spells.legSweep },
-        [2] = { mode = "Off", value = 2, overlay = "Interrupt Disabled", tip = "Interrupt Defensive", highlight = 0, icon = br.player.spells.legSweep }
-    };
-    br.ui:createToggle(InterruptModes, "Interrupt", 4, 0)
-    -- Storm, Earth, and Fire Button
-    local SEFModes = {
-        [1] = { mode = "On", value = 1, overlay = "Storm, Earth, and Fire Enabled", tip = "Enables Storm, Earth, and Fire", highlight = 1, icon = br.player.spells.stormEarthAndFire },
-        [2] = { mode = "Off", value = 2, overlay = "Storm, Earth, and Fire Disabled", tip = "Disables Storm, Earth, and Fire", highlight = 0, icon = br.player.spells.stormEarthAndFire }
-    };
-    br.ui:createToggle(SEFModes, "StormEarthAndFire", 5, 0)
-    -- Flying Serpent Kick Button
-    local FSKModes = {
-        [1] = { mode = "On", value = 1, overlay = "Auto Flying Serpent Kick Enabled", tip = "Enables Flying Serpent Kick", highlight = 1, icon = br.player.spells.flyingSerpentKick },
-        [2] = { mode = "Off", value = 2, overlay = "Auto Flying Serpent Kick Disabled", tip = "Disables Flying Serpent Kick", highlight = 0, icon = br.player.spells.flyingSerpentKick }
-    };
-    br.ui:createToggle(FSKModes, "FlyingSerpentKick", 6, 0)
-    -- Chi Builder
-    local ChiBuilderModes = {
-        [1] = { mode = "On", value = 1, overlay = "Chi Builder Enabled", tip = "Enables Chi Builder", highlight = 1, icon = br.player.spells.expelHarm },
-        [2] = { mode = "Off", value = 2, overlay = "Chi Builder Disabled", tip = "Disables Chi Builder", highlight = 0, icon = br.player.spells.expelHarm }
-    };
-    br.ui:createToggle(ChiBuilderModes, "ChiBuilder", 7, 0)
+local function toggles()
+    br.ui:toggle("Rotation", { key = "RightShift", modes = {
+        { name = "Auto", icon = "spinningCraneKick", overlay = "Automatic Rotation Enabled", tip = "Swaps between Single and Multiple based on number of targets in range." },
+        { name = "AOE", icon = "spinningCraneKick", overlay = "AOE Rotation Enabled", tip = "AOE Rotation Used" },
+        { name = "Single", icon = "tigerPalm", overlay = "Single Target Rotation Enabled", tip = "Single Target Rotation Used" },
+        { name = "Off", icon = "expelHarm", overlay = "Rotation Disabled", tip = "No Rotation will be used." },
+    } })
+    br.ui:toggle("Cooldown", { modes = {
+        { name = "Auto", icon = "touchOfDeath", overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection." },
+        { name = "On", icon = "touchOfDeath", overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target." },
+        { name = "Off", icon = "touchOfDeath", overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used." },
+    } })
+    br.ui:toggle("Defensive", { modes = {
+        { name = "On", icon = "expelHarm", overlay = "Defensive Enabled", tip = "Enables Defensive" },
+        { name = "Off", icon = "expelHarm", overlay = "Defensive Disabled", tip = "Disables Defensive" },
+    } })
+    br.ui:toggle("Interrupt", { modes = {
+        { name = "On", icon = "legSweep", overlay = "Interrupt Enabled", tip = "Enables Interrupt" },
+        { name = "Off", icon = "legSweep", overlay = "Interrupt Disabled", tip = "Interrupt Defensive" },
+    } })
+    br.ui:toggle("StormEarthAndFire", { modes = {
+        { name = "On", icon = "stormEarthAndFire", overlay = "Storm, Earth, and Fire Enabled", tip = "Enables Storm, Earth, and Fire" },
+        { name = "Off", icon = "stormEarthAndFire", overlay = "Storm, Earth, and Fire Disabled", tip = "Disables Storm, Earth, and Fire" },
+    } })
+    br.ui:toggle("FlyingSerpentKick", { modes = {
+        { name = "On", icon = "flyingSerpentKick", overlay = "Auto Flying Serpent Kick Enabled", tip = "Enables Flying Serpent Kick" },
+        { name = "Off", icon = "flyingSerpentKick", overlay = "Auto Flying Serpent Kick Disabled", tip = "Disables Flying Serpent Kick" },
+    } })
+    br.ui:toggle("ChiBuilder", { modes = {
+        { name = "On", icon = "expelHarm", overlay = "Chi Builder Enabled", tip = "Enables Chi Builder" },
+        { name = "Off", icon = "expelHarm", overlay = "Chi Builder Disabled", tip = "Disables Chi Builder" },
+    } })
 end
 
 ---------------
 --- OPTIONS ---
 ---------------
-local function createOptions()
-    local optionTable
-    local function rotationOptions()
-        local section
-        -----------------------
-        --- GENERAL OPTIONS ---
-        -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "General")
-            -- Dummy DPS Test
-            br.ui:createSpinner(section, "DPS Testing", 5, 5, 60, 5,
-                "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
-            -- Crackling Jade lightning
-            br.ui:createCheckbox(section, "Crackling Jade Lightning")
-            br.ui:createSpinnerWithout(section, "Cancel CJL Range", 10, 5, 40, 5,
-                "|cffFFFFFFCancels Crackling Jade Lightning below this range in yards.")
-            -- Grapple Weapon
-            br.ui:createCheckbox(section, "Grapple Weapon", "|cffFFFFFFAutomatically disarms dangerous melee enemies in PvE.")
-            -- Legacy of the Emperor
-            br.ui:createDropdown(section, "Legacy of the Emperor",
-                { "|cffFFFFFFPlayer", "|cffFFFFFFTarget", "|cffFFFFFFMouseover", "|cffFFFFFFFocus", "|cffFFFFFFGroup" }, 1,
-                "|cffFFFFFFSet how to use Legacy of the Emperor")
-            -- Legacy of the White Tiger
-            br.ui:createDropdown(section, "Legacy of the White Tiger",
-                { "|cffFFFFFFPlayer", "|cffFFFFFFTarget", "|cffFFFFFFMouseover", "|cffFFFFFFFocus", "|cffFFFFFFGroup" }, 1,
-                "|cffFFFFFFSet how to use Legacy of the White Tiger")
-            -- Roll
-            br.ui:createCheckbox(section, "Roll")
-        br.ui:checkSectionState(section)
-        ------------------------
-        --- COOLDOWN OPTIONS ---
-        ------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Cooldown")
-            -- Invoke Xuen the White Tiger
-            br.ui:createDropdownWithout(section, "Invoke Xuen", br.ui.dropOptions.AlwaysCdAoeNever,
-                3, "|cffFFFFFFWhen to use Invoke Xuen the White Tiger")
-            -- Touch of Death
-            br.ui:createDropdownWithout(section, "Touch of Death", br.ui.dropOptions.AlwaysCdAoeNever, 3, "|cffFFFFFFWhen to use Touch of Death")
-        br.ui:checkSectionState(section)
-        -------------------------
-        --- DEFENSIVE OPTIONS ---
-        -------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Defensive")
-            -- Dampen Harm / Diffuse Magic
-            br.ui:createSpinner(section, "Dampen Harm / Diffuse Magic", 60, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-            -- Detox
-            br.ui:createCheckbox(section, "Detox")
-            br.ui:createDropdownWithout(section, "Detox - Target",
-                { "|cff00FF00Player", "|cffFFFF00Target", "|cffFF0000Mouseover" }, 1, "|cffFFFFFFTarget to cast on")
-            -- Disable
-            br.ui:createCheckbox(section, "Disable", "|cffFFFFFFDisables all defensive abilities.")
-            -- Expel Harm
-            br.ui:createSpinner(section, "Expel Harm", 40, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-            -- Fortifying Brew
-            br.ui:createSpinner(section, "Fortifying Brew", 30, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-            -- Healing Sphere
-            br.ui:createSpinner(section, "Healing Sphere", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-            br.ui:createDropdownWithout(section, "Healing Sphere - Target",
-                { "|cff00FF00Self", "|cffFFFF00Lowest" }, 1, "|cffFFFFFFTarget to cast Healing Sphere on")
-            -- Leg Sweep
-            br.ui:createSpinner(section, "Leg Sweep - HP", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-            br.ui:createSpinner(section, "Leg Sweep - AoE", 5, 0, 10, 1, "|cffFFFFFFNumber of Units in 5 Yards to Cast At")
-            -- Nimble Brew
-            br.ui:createCheckbox(section, "Nimble Brew")
-            -- Resuscitate
-            br.ui:createCheckbox(section, "Resuscitate")
-            br.ui:createDropdownWithout(section, "Resuscitate - Target", { "|cff00FF00Target", "|cffFF0000Mouseover" }, 1,
-                "|cffFFFFFFTarget to cast on")
-            -- Touch of Karma
-            br.ui:createSpinner(section, "Touch of Karma", 60, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-            -- Tiger's Lust
-            br.ui:createCheckbox(section, "Tiger's Lust", "|cffFFFFFFAuto-cast Tiger's Lust to free movement impairment.")
-        br.ui:checkSectionState(section)
-        -------------------------
-        --- INTERRUPT OPTIONS ---
-        -------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Interrupts")
-            -- Leg Sweep
-            br.ui:createCheckbox(section, "Leg Sweep")
-            -- Paralysis
-            br.ui:createCheckbox(section, "Paralysis")
-            -- Spear Hand Strike
-            br.ui:createCheckbox(section, "Spear Hand Strike")
-            -- Interrupt Percentage
-            br.ui:createSpinnerWithout(section, "Interrupt At", 0, 0, 95, 5, "|cffFFBB00Cast Percentage to use at.")
-        br.ui:checkSectionState(section)
-        ----------------------
-        --- TOGGLE OPTIONS ---
-        ----------------------
-        section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
-            -- Single/Multi Toggle
-            br.ui:createDropdownWithout(section, "Rotation Mode", br.ui.dropOptions.Toggle, 4)
-            -- Cooldown Key Toggle
-            br.ui:createDropdownWithout(section, "Cooldown Mode", br.ui.dropOptions.Toggle, 6)
-            -- Defensive Key Toggle
-            br.ui:createDropdownWithout(section, "Defensive Mode", br.ui.dropOptions.Toggle, 6)
-            -- Interrupts Key Toggle
-            br.ui:createDropdownWithout(section, "Interrupt Mode", br.ui.dropOptions.Toggle, 6)
-        br.ui:checkSectionState(section)
-    end
-    optionTable = { {
-        [1] = "Rotation Options",
-        [2] = rotationOptions,
-    } }
-    return optionTable
+local function options()
+    local section
+    -----------------------
+    --- GENERAL OPTIONS ---
+    -----------------------
+    section = br.ui:section("General")
+        -- Dummy DPS Test
+        br.ui:spinner(section, "DPS Testing", { value = 5, min = 5, max = 60,
+            tip = "Set to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5" })
+        -- Crackling Jade lightning
+        br.ui:checkbox(section, "Crackling Jade Lightning")
+        br.ui:spinner(section, "Cancel CJL Range", { value = 10, min = 5, max = 40, checkbox = false,
+            tip = "Cancels Crackling Jade Lightning below this range in yards." })
+        -- Grapple Weapon
+        br.ui:checkbox(section, "Grapple Weapon", { tip = "Automatically disarms dangerous melee enemies in PvE." })
+        -- Legacy of the Emperor
+        br.ui:dropdown(section, "Legacy of the Emperor", { choices = { "Player", "Target", "Mouseover", "Focus", "Group" }, value = "Player",
+            tip = "Set how to use Legacy of the Emperor" })
+        -- Legacy of the White Tiger
+        br.ui:dropdown(section, "Legacy of the White Tiger", { choices = { "Player", "Target", "Mouseover", "Focus", "Group" }, value = "Player",
+            tip = "Set how to use Legacy of the White Tiger" })
+        -- Roll
+        br.ui:checkbox(section, "Roll")
+    ------------------------
+    --- COOLDOWN OPTIONS ---
+    ------------------------
+    section = br.ui:section("Cooldown")
+        -- Invoke Xuen the White Tiger
+        br.ui:dropdown(section, "Invoke Xuen", { choices = "AlwaysCdAoeNever", value = "AOE/CD", checkbox = false,
+            tip = "When to use Invoke Xuen the White Tiger" })
+        -- Touch of Death
+        br.ui:dropdown(section, "Touch of Death", { choices = "AlwaysCdAoeNever", value = "AOE/CD", checkbox = false,
+            tip = "When to use Touch of Death" })
+    -------------------------
+    --- DEFENSIVE OPTIONS ---
+    -------------------------
+    section = br.ui:section("Defensive")
+        -- Dampen Harm / Diffuse Magic
+        br.ui:spinner(section, "Dampen Harm / Diffuse Magic", { value = 60, tip = "Health Percent to Cast At" })
+        -- Detox
+        br.ui:checkbox(section, "Detox")
+        br.ui:dropdown(section, "Detox - Target", { choices = { "|cff00FF00Player", "|cffFFFF00Target", "|cffFF0000Mouseover" }, value = "Player", checkbox = false,
+            tip = "Target to cast on" })
+        -- Disable
+        br.ui:checkbox(section, "Disable", { tip = "Disables all defensive abilities." })
+        -- Expel Harm
+        br.ui:spinner(section, "Expel Harm", { value = 40, tip = "Health Percent to Cast At" })
+        -- Fortifying Brew
+        br.ui:spinner(section, "Fortifying Brew", { value = 30, tip = "Health Percent to Cast At" })
+        -- Healing Sphere
+        br.ui:spinner(section, "Healing Sphere", { value = 50, tip = "Health Percent to Cast At" })
+        br.ui:dropdown(section, "Healing Sphere - Target", { choices = { "|cff00FF00Self", "|cffFFFF00Lowest" }, value = "Self", checkbox = false,
+            tip = "Target to cast Healing Sphere on" })
+        -- Leg Sweep
+        br.ui:spinner(section, "Leg Sweep - HP", { value = 50, tip = "Health Percent to Cast At" })
+        br.ui:spinner(section, "Leg Sweep - AoE", { value = 5, max = 10, step = 1, tip = "Number of Units in 5 Yards to Cast At" })
+        -- Nimble Brew
+        br.ui:checkbox(section, "Nimble Brew")
+        -- Resuscitate
+        br.ui:checkbox(section, "Resuscitate")
+        br.ui:dropdown(section, "Resuscitate - Target", { choices = { "|cff00FF00Target", "|cffFF0000Mouseover" }, value = "Target", checkbox = false,
+            tip = "Target to cast on" })
+        -- Touch of Karma
+        br.ui:spinner(section, "Touch of Karma", { value = 60, tip = "Health Percent to Cast At" })
+        -- Tiger's Lust
+        br.ui:checkbox(section, "Tiger's Lust", { tip = "Auto-cast Tiger's Lust to free movement impairment." })
+    -------------------------
+    --- INTERRUPT OPTIONS ---
+    -------------------------
+    section = br.ui:section("Interrupts")
+        -- Leg Sweep
+        br.ui:checkbox(section, "Leg Sweep")
+        -- Paralysis
+        br.ui:checkbox(section, "Paralysis")
+        -- Spear Hand Strike
+        br.ui:checkbox(section, "Spear Hand Strike")
+        -- Interrupt Percentage
+        br.ui:spinner(section, "Interrupt At", { value = 0, max = 95, checkbox = false, tip = "|cffFFBB00Cast Percentage to use at." })
 end
 
 --------------
@@ -893,6 +853,8 @@ var.grappleWeaponErrorFrame:SetScript("OnEvent", function(self, event, errorType
 end)
 
 local function runRotation()
+    -- This profile handles racials itself; skip the shared Racial module
+    if not br.player.localRacial then br.player.localRacial = true end
     ---------------------
     --- Define Locals ---
     ---------------------
@@ -971,13 +933,11 @@ local function runRotation()
         end
     end -- Pause
 end     -- End runRotation
-local id = 269
-br.loader.rotations[id] = br.loader.rotations[id] or {}
-if br.api.expansion == "MOP" then
-    br._G.tinsert(br.loader.rotations[id], {
-    name = rotationName,
-    toggles = createToggles,
-    options = createOptions,
-    run = runRotation,
-    })
-end
+br.loader.registerRotation({
+    name      = rotationName,
+    specID    = 269,
+    expansion = "MOP",
+    toggles   = toggles,
+    options   = options,
+    run       = runRotation,
+})

@@ -3,85 +3,55 @@ local rotationName = "Initial"
 ---------------
 --- Toggles ---
 ---------------
-local function createToggles()
-    -- Rotation Button
-    local RotationModes = {
-        [1] = { mode = "On", value = 1, overlay = "Rotation Enabled", tip = "Enable Rotation", highlight = 1, icon = br.player.spells.chaosStrike },
-        [2] = { mode = "Off", value = 4, overlay = "Rotation Disabled", tip = "Disable Rotation", highlight = 0, icon = br.player.spells.chaosStrike }
-    };
-    br.ui:createToggle(RotationModes, "Rotation", 1, 0)
-    -- Defensive Button
-    local DefensiveModes = {
-        [1] = { mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = select(2, br._G.GetItemSpell(br.player.items.legionHealthstone)) },
-        [2] = { mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = select(2, br._G.GetItemSpell(br.player.items.legionHealthstone)) }
-    };
-    br.ui:createToggle(DefensiveModes, "Defensive", 2, 0)
-    -- Cooldown Button
-    local CooldownModes = {
-        [1] = { mode = "On", value = 1, overlay = "Cooldown Enabled", tip = "Includes Offensive Cooldowns.", highlight = 1, icon = br.player.spells.metamorphosis },
-        [2] = { mode = "Off", value = 2, overlay = "Cooldown Disabled", tip = "No Offensive Cooldowns Used.", highlight = 0, icon = br.player.spells.metamorphosis },
-    };
-    br.ui:createToggle(CooldownModes, "Cooldown", 3, 0)
+local function toggles()
+    br.ui:toggle("Rotation", { key = "RightShift", modes = {
+        { name = "On", icon = "chaosStrike", overlay = "Rotation Enabled", tip = "Enable Rotation" },
+        { name = "Off", icon = "chaosStrike", overlay = "Rotation Disabled", tip = "Disable Rotation" },
+    } })
+    br.ui:toggle("Defensive", { modes = {
+        { name = "On", icon = select(2, br._G.GetItemSpell(br.player.items.legionHealthstone)), overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns." },
+        { name = "Off", icon = select(2, br._G.GetItemSpell(br.player.items.legionHealthstone)), overlay = "Defensive Disabled", tip = "No Defensives will be used." },
+    } })
+    br.ui:toggle("Cooldown", { modes = {
+        { name = "On", icon = "metamorphosis", overlay = "Cooldown Enabled", tip = "Includes Offensive Cooldowns." },
+        { name = "Off", icon = "metamorphosis", overlay = "Cooldown Disabled", tip = "No Offensive Cooldowns Used." },
+    } })
 end
 
 ---------------
 --- OPTIONS ---
 ---------------
-local function createOptions()
-    local optionTable
-
-    local function rotationOptions()
-        local section
-        local alwaysCdNever = { "|cff0000FFAlways", "|cffFFFFFFCD Only", "|cffFF0000Never" }
-        -----------------------
-        --- GENERAL OPTIONS ---
-        -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "General")
-        -- Inquisitor's Menacing Eye
-        br.ui:createCheckbox(section, "Inquisitor's Menacing Eye")
-        -- Sigil of Flame
-        br.ui:createCheckbox(section, "Sigil of Flame")
-        -- Torment
-        br.ui:createCheckbox(section, "Torment")
-        br.ui:checkSectionState(section)
-        ------------------------
-        --- COOLDOWN OPTIONS ---
-        ------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
-        -- Basic Trinkets Module
-        br.player.module.BasicTrinkets(nil, section)
-        -- Fel Crystal Fragments
-        br.ui:createDropdownWithout(section, "Fel Crystal Fragments", alwaysCdNever, 1,
-            "|cffFFBB00When to use Fel Crystal Fragments.")
-        -- Twisted Heard
-        br.ui:createDropdownWithout(section, "Twisted Heart", alwaysCdNever, 1, "|cffFFBB00When to use Twisted Heart.")
-        br.ui:checkSectionState(section)
-        -------------------------
-        --- DEFENSIVE OPTIONS ---
-        -------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Defensive")
-        -- Basic Healing Module
-        br.player.module.BasicHealing(section)
-        br.ui:checkSectionState(section)
-        ----------------------
-        --- TOGGLE OPTIONS ---
-        ----------------------
-        section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
-        -- Single/Multi Toggle
-        br.ui:createDropdownWithout(section, "Rotation Mode", br.ui.dropOptions.Toggle, 4)
-        --Defensive Key Toggle
-        br.ui:createDropdownWithout(section, "Defensive Mode", br.ui.dropOptions.Toggle, 6)
-        -- Cooldown Key Toggle
-        br.ui:createDropdownWithout(section, "Cooldown Mode", br.ui.dropOptions.Toggle, 6)
-        -- Pause Toggle
-        br.ui:createDropdown(section, "Pause Mode", br.ui.dropOptions.Toggle, 6)
-        br.ui:checkSectionState(section)
-    end
-    optionTable = { {
-        [1] = "Rotation Options",
-        [2] = rotationOptions,
-    } }
-    return optionTable
+local function options()
+    local section
+    local alwaysCdNever = { "|cff0000FFAlways", "|cffFFFFFFCD Only", "|cffFF0000Never" }
+    -----------------------
+    --- GENERAL OPTIONS ---
+    -----------------------
+    section = br.ui:section("General")
+    -- Inquisitor's Menacing Eye
+    br.ui:checkbox(section, "Inquisitor's Menacing Eye")
+    -- Sigil of Flame
+    br.ui:checkbox(section, "Sigil of Flame")
+    -- Torment
+    br.ui:checkbox(section, "Torment")
+    ------------------------
+    --- COOLDOWN OPTIONS ---
+    ------------------------
+    section = br.ui:section("Cooldowns")
+    -- Basic Trinkets Module
+    br.player.module.BasicTrinkets(nil, section)
+    -- Fel Crystal Fragments
+    br.ui:dropdown(section, "Fel Crystal Fragments", { choices = alwaysCdNever, value = 1, checkbox = false,
+        tip = "|cffFFBB00When to use Fel Crystal Fragments." })
+    -- Twisted Heard
+    br.ui:dropdown(section, "Twisted Heart", { choices = alwaysCdNever, value = 1, checkbox = false,
+        tip = "|cffFFBB00When to use Twisted Heart." })
+    -------------------------
+    --- DEFENSIVE OPTIONS ---
+    -------------------------
+    section = br.ui:section("Defensive")
+    -- Basic Healing Module
+    br.player.module.BasicHealing(section)
 end
 
 --------------
@@ -270,13 +240,11 @@ local function runRotation()
         if actionList.Combat() then return end
     end -- Pause
 end     -- End runRotation
-local id = 1456
-br.loader.rotations[id] = br.loader.rotations[id] or {}
-if br.api.expansion == "MOP" then
-    br._G.tinsert(br.loader.rotations[id], {
-    name = rotationName,
-    toggles = createToggles,
-    options = createOptions,
-    run = runRotation,
-    })
-end
+br.loader.registerRotation({
+    name      = rotationName,
+    specID    = 1456,
+    expansion = "MOP",
+    toggles   = toggles,
+    options   = options,
+    run       = runRotation,
+})

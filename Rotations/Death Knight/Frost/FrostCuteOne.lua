@@ -3,125 +3,88 @@ local rotationName = "CuteOne"
 ---------------
 --- Toggles ---
 ---------------
-local function createToggles()
-    -- Rotation Button
-    local RotationModes = {
-        [1] = { mode = "Auto", value = 1, overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spells.howlingBlast },
-        [2] = { mode = "Mult", value = 2, overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spells.howlingBlast },
-        [3] = { mode = "Sing", value = 3, overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spells.frostStrike },
-        [4] = { mode = "Off", value = 4, overlay = "DPS Rotation Disabled", tip = "Disarm DPS Rotation", highlight = 0, icon = br.player.spells.deathStrike }
-    };
-    br.ui:createToggle(RotationModes, "Rotation", 1, 0)
-    -- Cooldown Button
-    local CooldownModes = {
-        [1] = { mode = "Auto", value = 1, overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spells.empowerRuneWeapon },
-        [2] = { mode = "On", value = 2, overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 1, icon = br.player.spells.empowerRuneWeapon },
-        [3] = { mode = "Off", value = 3, overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spells.empowerRuneWeapon }
-    };
-    br.ui:createToggle(CooldownModes, "Cooldown", 2, 0)
-    -- Defensive Button
-    local DefensiveModes = {
-        [1] = { mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spells.iceboundFortitude },
-        [2] = { mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spells.iceboundFortitude }
-    };
-    br.ui:createToggle(DefensiveModes, "Defensive", 3, 0)
-    -- Interrupt Button
-    local InterruptModes = {
-        [1] = { mode = "On", value = 1, overlay = "Interrupt Enabled", tip = "Enabled Interrupt", highlight = 1, icon = br.player.spells.mindFreeze },
-        [2] = { mode = "Off", value = 2, overlay = "Interrupt Disabled", tip = "Disable Interrupt", highlight = 0, icon = br.player.spells.mindFreeze }
-    };
-    br.ui:createToggle(InterruptModes, "Interrupt", 4, 0)
+local function toggles()
+    br.ui:toggle("Rotation", { key = "RightShift", modes = {
+        { name = "Auto", icon = "howlingBlast", overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range." },
+        { name = "Mult", icon = "howlingBlast", overlay = "Multiple Target Rotation", tip = "Multiple target rotation used." },
+        { name = "Sing", icon = "frostStrike", overlay = "Single Target Rotation", tip = "Single target rotation used." },
+        { name = "Off", icon = "deathStrike", overlay = "DPS Rotation Disabled", tip = "Disarm DPS Rotation" },
+    } })
+    br.ui:toggle("Cooldown", { key = "RightCtrl", modes = {
+        { name = "Auto", icon = "empowerRuneWeapon", overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection." },
+        { name = "On", icon = "empowerRuneWeapon", overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = true },
+        { name = "Off", icon = "empowerRuneWeapon", overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used." },
+    } })
+    br.ui:toggle("Defensive", { modes = {
+        { name = "On", icon = "iceboundFortitude", overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns." },
+        { name = "Off", icon = "iceboundFortitude", overlay = "Defensive Disabled", tip = "No Defensives will be used." },
+    } })
+    br.ui:toggle("Interrupt", { modes = {
+        { name = "On", icon = "mindFreeze", overlay = "Interrupt Enabled", tip = "Enabled Interrupt" },
+        { name = "Off", icon = "mindFreeze", overlay = "Interrupt Disabled", tip = "Disable Interrupt" },
+    } })
 end
 
 ---------------
 --- OPTIONS ---
 ---------------
-local function createOptions()
-    local optionTable
-
-    local function rotationOptions()
-        local section
-        -----------------------
-        --- GENERAL OPTIONS ---
-        -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "General")
-        -- Dummy DPS Test
-        br.ui:createSpinner(section, "DPS Testing", 5, 5, 60, 5,
-            "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
-        -- Death Grip
-        br.ui:createCheckbox(section, "Death Grip")
-        -- Horn of Winter
-        br.ui:createCheckbox(section, "Horn of Winter")
-        -- Lichborne: allow breaking CC and enable self-heal via Death Coil
-        br.ui:createCheckbox(section, "Lichborne")
-        br.ui:createSpinnerWithout(section, "Lichborne Heal At", 35, 0, 95, 5,
-            "|cffFFFFFFHealth percent to cast Lichborne+Death Coil on yourself")
-        br.ui:checkSectionState(section)
-        ------------------------
-        --- COOLDOWN OPTIONS ---
-        ------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
-        local alwaysCdNever = { "Always", "|cff0000ffCD", "|cffff0000Never" }
-        local alwaysCdAoENever = { "Always", "|cff008000AOE", "|cffffff00AOE/CD", "|cff0000ffCD", "|cffff0000Never" }
-        -- Army of the Dead
-        br.ui:createDropdownWithout(section, "Army of the Dead", alwaysCdAoENever, 3, "|cffFFFFFFWhen to use Army of the Dead.")
-        -- Empower Rune Weapon
-        br.ui:createDropdownWithout(section, "Empower Rune Weapon", alwaysCdAoENever, 3, "|cffFFFFFFWhen to use Empower Rune Weapon.")
-        -- Pillar of Frost
-        br.ui:createDropdownWithout(section, "Pillar of Frost", alwaysCdAoENever, 3, "|cffFFFFFFWhen to use Pillar of Frost.")
-        -- Raise Dead
-        br.ui:createDropdownWithout(section, "Raise Dead", alwaysCdAoENever, 3, "|cffFFFFFFWhen to use Raise Dead.")
-        br.ui:checkSectionState(section)
-        -------------------------
-        --- DEFENSIVE OPTIONS ---
-        -------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Defensive")
-        -- Death Strike
-        br.ui:createSpinner(section, "Death Strike", 50, 0, 95, 5,
-            "|cffFFFFFFHealth Percent to Cast At")
-        -- Death Pact
-        br.ui:createSpinner(section, "Death Pact", 30, 0, 95, 5,
-            "|cffFFFFFFHealth Percent to Cast Death Pact At")
-        -- Raise Dead to enable Death Pact
-        br.ui:createSpinner(section, "Death Pact Raise Dead", 30, 0, 95, 5,
-            "|cffFFFFFFHealth Percent to Cast Raise Dead and Death Pact At")
-        -- Icebound Fortitude
-        br.ui:createSpinner(section, "Icebound Fortitude", 40, 0, 95, 5,
-            "|cffFFFFFFHealth Percent to Cast At")
-        br.ui:checkSectionState(section)
-        -------------------------
-        --- INTERRUPT OPTIONS ---
-        -------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Interrupt")
-        -- Death Grip (Interrupt)
-        br.ui:createCheckbox(section, "Death Grip (Interrupt)")
-        -- Mind Freeze
-        br.ui:createCheckbox(section, "Mind Freeze")
-        -- Strangulate
-        br.ui:createCheckbox(section, "Strangulate")
-        -- "Interrupt At"
-        br.ui:createSpinnerWithout(section, "Interrupt At", 0, 0, 95, 5,
-            "|cffFFFFFFCast Percent to Cast At (0 is random)")
-        br.ui:checkSectionState(section)
-        ----------------------
-        --- TOGGLE OPTIONS ---
-        ----------------------
-        section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
-        -- Single/Multi Toggle
-        br.ui:createDropdownWithout(section, "Rotation Mode", br.ui.dropOptions.Toggle, 4)
-        -- Cooldown Key Toggle
-        br.ui:createDropdownWithout(section, "Cooldown Mode", br.ui.dropOptions.Toggle, 3)
-        -- Defensive Key Toggle
-        br.ui:createDropdownWithout(section, "Defensive Mode", br.ui.dropOptions.Toggle, 6)
-        -- Interrupt Key Toggle
-        br.ui:createDropdownWithout(section, "Interrupt Mode", br.ui.dropOptions.Toggle, 6)
-        br.ui:checkSectionState(section)
-    end
-    optionTable = { {
-        [1] = "Rotation Options",
-        [2] = rotationOptions,
-    } }
-    return optionTable
+local function options()
+    local section
+    -----------------------
+    --- GENERAL OPTIONS ---
+    -----------------------
+    section = br.ui:section("General")
+    -- Dummy DPS Test
+    br.ui:spinner(section, "DPS Testing", { value = 5, min = 5, max = 60,
+        tip = "Set to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5" })
+    -- Death Grip
+    br.ui:checkbox(section, "Death Grip")
+    -- Horn of Winter
+    br.ui:checkbox(section, "Horn of Winter")
+    -- Lichborne: allow breaking CC and enable self-heal via Death Coil
+    br.ui:checkbox(section, "Lichborne")
+    br.ui:spinner(section, "Lichborne Heal At", { value = 35, max = 95, checkbox = false,
+        tip = "Health percent to cast Lichborne+Death Coil on yourself" })
+    ------------------------
+    --- COOLDOWN OPTIONS ---
+    ------------------------
+    section = br.ui:section("Cooldowns")
+    local alwaysCdNever = { "Always", "|cff0000ffCD", "|cffff0000Never" }
+    local alwaysCdAoENever = { "Always", "|cff008000AOE", "|cffffff00AOE/CD", "|cff0000ffCD", "|cffff0000Never" }
+    -- Army of the Dead
+    br.ui:dropdown(section, "Army of the Dead", { choices = alwaysCdAoENever, value = 3, checkbox = false,
+        tip = "When to use Army of the Dead." })
+    -- Empower Rune Weapon
+    br.ui:dropdown(section, "Empower Rune Weapon", { choices = alwaysCdAoENever, value = 3, checkbox = false,
+        tip = "When to use Empower Rune Weapon." })
+    -- Pillar of Frost
+    br.ui:dropdown(section, "Pillar of Frost", { choices = alwaysCdAoENever, value = 3, checkbox = false, tip = "When to use Pillar of Frost." })
+    -- Raise Dead
+    br.ui:dropdown(section, "Raise Dead", { choices = alwaysCdAoENever, value = 3, checkbox = false, tip = "When to use Raise Dead." })
+    -------------------------
+    --- DEFENSIVE OPTIONS ---
+    -------------------------
+    section = br.ui:section("Defensive")
+    -- Death Strike
+    br.ui:spinner(section, "Death Strike", { value = 50, max = 95, tip = "Health Percent to Cast At" })
+    -- Death Pact
+    br.ui:spinner(section, "Death Pact", { value = 30, max = 95, tip = "Health Percent to Cast Death Pact At" })
+    -- Raise Dead to enable Death Pact
+    br.ui:spinner(section, "Death Pact Raise Dead", { value = 30, max = 95, tip = "Health Percent to Cast Raise Dead and Death Pact At" })
+    -- Icebound Fortitude
+    br.ui:spinner(section, "Icebound Fortitude", { value = 40, max = 95, tip = "Health Percent to Cast At" })
+    -------------------------
+    --- INTERRUPT OPTIONS ---
+    -------------------------
+    section = br.ui:section("Interrupt")
+    -- Death Grip (Interrupt)
+    br.ui:checkbox(section, "Death Grip (Interrupt)")
+    -- Mind Freeze
+    br.ui:checkbox(section, "Mind Freeze")
+    -- Strangulate
+    br.ui:checkbox(section, "Strangulate")
+    -- "Interrupt At"
+    br.ui:spinner(section, "Interrupt At", { value = 0, max = 95, checkbox = false, tip = "Cast Percent to Cast At (0 is random)" })
 end
 
 --------------
@@ -733,13 +696,11 @@ local function runRotation()
         if actionList.Combat() then return true end
     end -- Pause
 end     -- End runRotation
-local id = 251
-br.loader.rotations[id] = br.loader.rotations[id] or {}
-if br.api.expansion == "MOP" then
-    br._G.tinsert(br.loader.rotations[id], {
-    name = rotationName,
-    toggles = createToggles,
-    options = createOptions,
-    run = runRotation,
-    })
-end
+br.loader.registerRotation({
+    name      = rotationName,
+    specID    = 251,
+    expansion = "MOP",
+    toggles   = toggles,
+    options   = options,
+    run       = runRotation,
+})

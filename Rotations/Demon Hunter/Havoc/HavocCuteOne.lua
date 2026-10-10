@@ -1,176 +1,122 @@
-------------------------------------------------------
--- Author = CuteOne
--- Patch = 10.2
---    Patch should be the latest patch you've updated the rotation for (i.e., 9.2.5)
--- Coverage = 100%
---    Coverage should be your estimated percent coverage for class mechanics (i.e., 100%)
--- Status = Full
---    Status should be one of: Full, Limited, Sporadic, Inactive, Unknown
--- Readiness = Untested
---    Readiness should be one of: Raid, NoRaid, Basic, Development, Untested
--------------------------------------------------------
--- Required: Fill above fields to populate README.md --
--------------------------------------------------------
-
 local rotationName = "CuteOne"
 ---------------
 --- Toggles ---
 ---------------
-local function createToggles()
-    -- Rotation Button
-    local RotationModes = {
-        [1] = { mode = "Auto", value = 1, overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spells.bladeDance },
-        [2] = { mode = "Mult", value = 2, overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spells.bladeDance },
-        [3] = { mode = "Sing", value = 3, overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spells.chaosStrike },
-        [4] = { mode = "Off", value = 4, overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spells.spectralSight }
-    };
-    br.ui:createToggle(RotationModes, "Rotation", 1, 0)
-    -- Cooldown Button
-    local CooldownModes = {
-        [1] = { mode = "Auto", value = 1, overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spells.metamorphosis },
-        [2] = { mode = "On", value = 2, overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spells.metamorphosis },
-        [3] = { mode = "Off", value = 3, overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spells.metamorphosis }
-    };
-    br.ui:createToggle(CooldownModes, "Cooldown", 2, 0)
-    -- Defensive Button
-    local DefensiveModes = {
-        [1] = { mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spells.darkness },
-        [2] = { mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spells.darkness }
-    };
-    br.ui:createToggle(DefensiveModes, "Defensive", 3, 0)
-    -- Interrupt Button
-    local InterruptModes = {
-        [1] = { mode = "On", value = 1, overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spells.consumeMagic },
-        [2] = { mode = "Off", value = 2, overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spells.consumeMagic }
-    };
-    br.ui:createToggle(InterruptModes, "Interrupt", 4, 0)
-    -- Mover
-    local MoverModes = {
-        [1] = { mode = "AC", value = 1, overlay = "Movement Animation Cancel Enabled", tip = "Will Cancel Movement Animation.", highlight = 1, icon = br.player.spells.felRush },
-        [2] = { mode = "On", value = 2, overlay = "Auto Movement Enabled", tip = "Will Cast Movement Abilities.", highlight = 0, icon = br.player.spells.felRush },
-        [3] = { mode = "Off", value = 3, overlay = "Auto Movement Disabled", tip = "Will NOT Cast Movement Abilities", highlight = 0, icon = br.player.spells.felRush }
-    };
-    br.ui:createToggle(MoverModes, "Mover", 5, 0)
-    -- Hold Eye Beam
-    local EyeBeamModes = {
-        [1] = { mode = "On", value = 1, overlay = "Use Eye beam", tip = "Use Eye beam", highlight = 1, icon = br.player.spells.eyeBeam },
-        [2] = { mode = "Off", value = 2, overlay = "Don't use Eye beam", tip = "Don't use Eye beam", highlight = 0, icon = br.player.spells.eyeBeam }
-    };
-    br.ui:createToggle(EyeBeamModes, "EyeBeam", 6, 0)
-    -- Hold Fel Barrage
-    local FelBarrageModes = {
-        [1] = { mode = "On", value = 1, overlay = "Use Fel Barrage", tip = "Use Fel Barrage", highlight = 1, icon = br.player.spells.felBarrage },
-        [2] = { mode = "Off", value = 2, overlay = "Don't use Fel Barrage", tip = "Don't use Fel Barrage", highlight = 0, icon = br.player.spells.felBarrage }
-    };
-    br.ui:createToggle(FelBarrageModes, "FelBarrage", 7, 0)
+local function toggles()
+    br.ui:toggle("Rotation", { key = "RightShift", modes = {
+        { name = "Auto", icon = "bladeDance", overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range." },
+        { name = "Mult", icon = "bladeDance", overlay = "Multiple Target Rotation", tip = "Multiple target rotation used." },
+        { name = "Sing", icon = "chaosStrike", overlay = "Single Target Rotation", tip = "Single target rotation used." },
+        { name = "Off", icon = "spectralSight", overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation" },
+    } })
+    br.ui:toggle("Cooldown", { key = "RightCtrl", modes = {
+        { name = "Auto", icon = "metamorphosis", overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection." },
+        { name = "On", icon = "metamorphosis", overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target." },
+        { name = "Off", icon = "metamorphosis", overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used." },
+    } })
+    br.ui:toggle("Defensive", { modes = {
+        { name = "On", icon = "darkness", overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns." },
+        { name = "Off", icon = "darkness", overlay = "Defensive Disabled", tip = "No Defensives will be used." },
+    } })
+    br.ui:toggle("Interrupt", { modes = {
+        { name = "On", icon = "consumeMagic", overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts." },
+        { name = "Off", icon = "consumeMagic", overlay = "Interrupts Disabled", tip = "No Interrupts will be used." },
+    } })
+    br.ui:toggle("Mover", { modes = {
+        { name = "AC", icon = "felRush", overlay = "Movement Animation Cancel Enabled", tip = "Will Cancel Movement Animation." },
+        { name = "On", icon = "felRush", overlay = "Auto Movement Enabled", tip = "Will Cast Movement Abilities." },
+        { name = "Off", icon = "felRush", overlay = "Auto Movement Disabled", tip = "Will NOT Cast Movement Abilities" },
+    } })
+    br.ui:toggle("EyeBeam", { modes = {
+        { name = "On", icon = "eyeBeam", overlay = "Use Eye beam", tip = "Use Eye beam" },
+        { name = "Off", icon = "eyeBeam", overlay = "Don't use Eye beam", tip = "Don't use Eye beam" },
+    } })
+    br.ui:toggle("FelBarrage", { modes = {
+        { name = "On", icon = "felBarrage", overlay = "Use Fel Barrage", tip = "Use Fel Barrage" },
+        { name = "Off", icon = "felBarrage", overlay = "Don't use Fel Barrage", tip = "Don't use Fel Barrage" },
+    } })
 end
 
 ---------------
 --- OPTIONS ---
 ---------------
-local function createOptions()
-    local optionTable
-
-    local function rotationOptions()
-        local section
-        local alwaysCdNever = { "|cff0000FFAlways", "|cffFFFFFFCD Only", "|cffFF0000Never" }
-        local alwaysCdAoENever = { "Always", "|cff008000AOE", "|cffffff00AOE/CD", "|cff0000ffCD", "|cffff0000Never" }
-        -- General Options
-        section = br.ui:createSection(br.ui.window.profile, "General")
-        -- APL
-        br.ui:createDropdownWithout(section, "APL Mode", { "|cffFFFFFFSimC" }, 1, "|cffFFFFFFSet APL Mode to use.")
-        -- Dummy DPS Test
-        br.ui:createSpinner(section, "DPS Testing", 5, 5, 60, 5,
-            "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
-        -- Pre-Pull Timer
-        -- br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
-        -- M+ Meta Pre-Pull Timer
-        -- br.ui:createSpinner(section, "M+ Pre-Pull",  3,  1,  10,  1,  "|cffFFFFFFSet to desired time to Meta Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
-        -- Auto Engage
-        br.ui:createCheckbox(section, "Auto Engage")
-        -- Eye Beam Targets
-        -- br.ui:createDropdownWithout(section,"Eye Beam Usage",{"|cff00FF00Per APL","|cffFFFFFFAoE Only","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Eye Beam.")
-        br.ui:createSpinnerWithout(section, "Units To AoE", 3, 1, 10, 1,
-            "|cffFFBB00Number of Targets to use AoE spells on.")
-        -- Fel Rush Charge Hold
-        br.ui:createSpinnerWithout(section, "Hold Fel Rush Charge", 1, 0, 2, 1,
-            "|cffFFBB00Number of Fel Rush charges the bot will hold for manual use.");
-        -- Fel Rush Only In Melee
-        br.ui:createCheckbox(section, "Fel Rush Only In Melee")
-        -- Fel Rush After Vengeful Retreat
-        br.ui:createCheckbox(section, "Auto Fel Rush After Retreat")
-        -- Throw Glaive
-        br.ui:createCheckbox(section, "Throw Glaive")
-        -- Vengeful Retreat
-        br.ui:createCheckbox(section, "Vengeful Retreat")
-        -- Glide Fall Time
-        br.ui:createSpinner(section, "Glide", 2, 0, 10, 1, "|cffFFBB00Seconds until Glide will be used while falling.")
-        br.ui:checkSectionState(section)
-        -- Cooldown Options
-        section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
-        -- Augment Rune
-        br.ui:createCheckbox(section, "Augment Rune")
-        -- Potion
-        br.ui:createCheckbox(section, "Potion")
-        -- Racial
-        br.ui:createDropdownWithout(section, "Racial", alwaysCdNever, 1, "|cffFFBB00When to use Racial.")
-        -- Metamorphosis
-        br.ui:createDropdownWithout(section, "Metamorphosis", alwaysCdAoENever, 1, "|cffFFBB00When to use Metamorphosis.")
-        -- br.ui:createCheckbox(section,"Metamorphosis M+ Pre-pull","Uses Meta during M+ pre-pull, regardless of CD setting.")
-        -- The Hunt
-        br.ui:createDropdownWithout(section, "The Hunt", alwaysCdAoENever, 1, "|cffFFBB00When to use The Hunt.")
-        -- Elysian Decree
-        br.ui:createDropdownWithout(section, "Elysian Decree", alwaysCdAoENever, 1,
-            "|cffFFBB00When to use Elysian Decree.")
-        br.ui:checkSectionState(section)
-        -- Defensive Options
-        section = br.ui:createSection(br.ui.window.profile, "Defensive")
-        -- Blur
-        br.ui:createSpinner(section, "Blur", 50, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
-        -- Darkness
-        br.ui:createSpinner(section, "Darkness", 30, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
-        -- Chaos Nova
-        br.ui:createSpinner(section, "Chaos Nova - HP", 30, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
-        br.ui:createSpinner(section, "Chaos Nova - AoE", 3, 1, 10, 1, "|cffFFBB00Number of Targets to use at.")
-        -- Consume Magic
-        br.ui:createCheckbox(section, "Consume Magic")
-        -- Sigil of Misery
-        br.ui:createSpinner(section, "Sigil of Misery - HP", 50, 0, 100, 5, "|cffFFBB00Health Percentage to use at.");
-        br.ui:createSpinner(section, "Sigil of Misery - AoE", 3, 0, 10, 1,
-            "|cffFFFFFFNumber of Units in 8 Yards to Cast At")
-        br.ui:checkSectionState(section)
-        -- Interrupt Options
-        section = br.ui:createSection(br.ui.window.profile, "Interrupts")
-        -- Chaos Nova
-        br.ui:createCheckbox(section, "Chaos Nova")
-        -- Disrupt
-        br.ui:createCheckbox(section, "Disrupt")
-        -- Fel Eruption
-        br.ui:createCheckbox(section, "Fel Eruption")
-        -- Sigil of Misery
-        br.ui:createCheckbox(section, "Sigil of Misery")
-        -- Interrupt Percentage
-        br.ui:createSpinnerWithout(section, "Interrupt At", 0, 0, 95, 5, "|cffFFFFFFCast Percent to Cast At")
-        br.ui:checkSectionState(section)
-        -- Toggle Key Options
-        section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
-        -- Single/Multi Toggle
-        br.ui:createDropdownWithout(section, "Rotation Mode", br.ui.dropOptions.Toggle, 4)
-        -- Cooldown Key Toggle
-        br.ui:createDropdownWithout(section, "Cooldown Mode", br.ui.dropOptions.Toggle, 3)
-        -- Defensive Key Toggle
-        br.ui:createDropdownWithout(section, "Defensive Mode", br.ui.dropOptions.Toggle, 6)
-        -- Interrupts Key Toggle
-        br.ui:createDropdownWithout(section, "Interrupt Mode", br.ui.dropOptions.Toggle, 6)
-        -- Mover Key Toggle
-        br.ui:createDropdownWithout(section, "Mover Mode", br.ui.dropOptions.Toggle, 6)
-        br.ui:checkSectionState(section)
-    end
-    optionTable = { {
-        [1] = "Rotation Options",
-        [2] = rotationOptions,
-    } }
-    return optionTable
+local function options()
+    local section
+    local alwaysCdNever = { "|cff0000FFAlways", "|cffFFFFFFCD Only", "|cffFF0000Never" }
+    local alwaysCdAoENever = { "Always", "|cff008000AOE", "|cffffff00AOE/CD", "|cff0000ffCD", "|cffff0000Never" }
+    -- General Options
+    section = br.ui:section("General")
+    -- APL
+    br.ui:dropdown(section, "APL Mode", { choices = { "SimC" }, value = "SimC", checkbox = false, tip = "Set APL Mode to use." })
+    -- Dummy DPS Test
+    br.ui:spinner(section, "DPS Testing", { value = 5, min = 5, max = 60,
+        tip = "Set to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5" })
+    -- Pre-Pull Timer
+    -- br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
+    -- M+ Meta Pre-Pull Timer
+    -- br.ui:createSpinner(section, "M+ Pre-Pull",  3,  1,  10,  1,  "|cffFFFFFFSet to desired time to Meta Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
+    -- Auto Engage
+    br.ui:checkbox(section, "Auto Engage")
+    -- Eye Beam Targets
+    -- br.ui:createDropdownWithout(section,"Eye Beam Usage",{"|cff00FF00Per APL","|cffFFFFFFAoE Only","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Eye Beam.")
+    br.ui:spinner(section, "Units To AoE", { value = 3, min = 1, max = 10, step = 1, checkbox = false,
+        tip = "|cffFFBB00Number of Targets to use AoE spells on." })
+    -- Fel Rush Charge Hold
+    br.ui:spinner(section, "Hold Fel Rush Charge", { value = 1, max = 2, step = 1, checkbox = false,
+        tip = "|cffFFBB00Number of Fel Rush charges the bot will hold for manual use." });
+    -- Fel Rush Only In Melee
+    br.ui:checkbox(section, "Fel Rush Only In Melee")
+    -- Fel Rush After Vengeful Retreat
+    br.ui:checkbox(section, "Auto Fel Rush After Retreat")
+    -- Throw Glaive
+    br.ui:checkbox(section, "Throw Glaive")
+    -- Vengeful Retreat
+    br.ui:checkbox(section, "Vengeful Retreat")
+    -- Glide Fall Time
+    br.ui:spinner(section, "Glide", { value = 2, max = 10, step = 1, tip = "|cffFFBB00Seconds until Glide will be used while falling." })
+    -- Cooldown Options
+    section = br.ui:section("Cooldowns")
+    -- Augment Rune
+    br.ui:checkbox(section, "Augment Rune")
+    -- Potion
+    br.ui:checkbox(section, "Potion")
+    -- Racial
+    br.ui:dropdown(section, "Racial", { choices = alwaysCdNever, value = 1, checkbox = false, tip = "|cffFFBB00When to use Racial." })
+    -- Metamorphosis
+    br.ui:dropdown(section, "Metamorphosis", { choices = alwaysCdAoENever, value = 1, checkbox = false,
+        tip = "|cffFFBB00When to use Metamorphosis." })
+    -- br.ui:createCheckbox(section,"Metamorphosis M+ Pre-pull","Uses Meta during M+ pre-pull, regardless of CD setting.")
+    -- The Hunt
+    br.ui:dropdown(section, "The Hunt", { choices = alwaysCdAoENever, value = 1, checkbox = false, tip = "|cffFFBB00When to use The Hunt." })
+    -- Elysian Decree
+    br.ui:dropdown(section, "Elysian Decree", { choices = alwaysCdAoENever, value = 1, checkbox = false,
+        tip = "|cffFFBB00When to use Elysian Decree." })
+    -- Defensive Options
+    section = br.ui:section("Defensive")
+    -- Blur
+    br.ui:spinner(section, "Blur", { value = 50, tip = "|cffFFBB00Health Percentage to use at." })
+    -- Darkness
+    br.ui:spinner(section, "Darkness", { value = 30, tip = "|cffFFBB00Health Percentage to use at." })
+    -- Chaos Nova
+    br.ui:spinner(section, "Chaos Nova - HP", { value = 30, tip = "|cffFFBB00Health Percentage to use at." })
+    br.ui:spinner(section, "Chaos Nova - AoE", { value = 3, min = 1, max = 10, step = 1, tip = "|cffFFBB00Number of Targets to use at." })
+    -- Consume Magic
+    br.ui:checkbox(section, "Consume Magic")
+    -- Sigil of Misery
+    br.ui:spinner(section, "Sigil of Misery - HP", { value = 50, tip = "|cffFFBB00Health Percentage to use at." });
+    br.ui:spinner(section, "Sigil of Misery - AoE", { value = 3, max = 10, step = 1, tip = "Number of Units in 8 Yards to Cast At" })
+    -- Interrupt Options
+    section = br.ui:section("Interrupts")
+    -- Chaos Nova
+    br.ui:checkbox(section, "Chaos Nova")
+    -- Disrupt
+    br.ui:checkbox(section, "Disrupt")
+    -- Fel Eruption
+    br.ui:checkbox(section, "Fel Eruption")
+    -- Sigil of Misery
+    br.ui:checkbox(section, "Sigil of Misery")
+    -- Interrupt Percentage
+    br.ui:spinner(section, "Interrupt At", { value = 0, max = 95, checkbox = false, tip = "Cast Percent to Cast At" })
 end
 
 --------------
@@ -1341,6 +1287,8 @@ end -- End Action List - MetaEnd
 --- ROTATION ---
 ----------------
 local function runRotation()
+    -- This profile handles racials itself; skip the shared Racial module
+    if not br.player.localRacial then br.player.localRacial = true end
     --------------
     --- BR API ---
     --------------
@@ -1459,13 +1407,16 @@ local function runRotation()
         end
     end --End Rotation Logic
 end     -- End runRotation
-local id = 577
-br.loader.rotations[id] = br.loader.rotations[id] or {}
-if br.api.expansion == "MOP" then
-    br._G.tinsert(br.loader.rotations[id], {
-    name = rotationName,
-    toggles = createToggles,
-    options = createOptions,
-    run = runRotation,
-    })
-end
+br.loader.registerRotation({
+    name      = rotationName,
+    specID    = 577,
+    expansion = "MOP",
+    author    = "CuteOne",
+    patch     = "10.2",
+    coverage  = "100%",
+    status    = "Full",
+    readiness = "Untested",
+    toggles   = toggles,
+    options   = options,
+    run       = runRotation,
+})

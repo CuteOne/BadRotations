@@ -1,10 +1,3 @@
--------------------------------------------------------
--- Author = BrewingCoder
--- Patch = 10.2.5
--- Coverage = 90%
--- Status = Limited,Hardcoded Vals
--- Readiness = Development
--------------------------------------------------------
 local rotationName = "BrewBrewMaster" -- Change to name of profile listed in options drop down
 local colors = {
     blue    = "|cff4285F4",
@@ -54,123 +47,87 @@ local text2 = {
 }
 
 
-local function createToggles()
-    local Content = {
-        [1] = { mode = "Norm", value = 1 , overlay = "Normal Dungeon", tip = "Swaps between Modes", highlight = 1, icon = br.player.spells.weaponsOfOrder },
-        [2] = { mode = "Hero", value = 2 , overlay = "Raid/Heroic Dungeon", tip = "Heroic Dungeon or Raid Settings", highlight = 1, icon = br.player.spells.breathOfFire },
-        [3] = { mode = "OFF", value = 2 , overlay = "OFF", tip = "Mode Settings", highlight = 0, icon = br.player.spells.weaponsOfOrder },
-    };
-    br.ui:createToggle(Content,"Rotation",1,0)
-   local CooldownModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spells.recklessness },
-        [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spells.recklessness },
-        [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spells.recklessness }
-    };
-    br.ui:createToggle(CooldownModes,"Cooldown",2,0)
-    local InterruptModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spells.spearHandStrike },
-        [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spells.spearHandStrike }
-    };
-    br.ui:createToggle(InterruptModes,"Interrupt",3,0)
-    local DebugModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Debug Enabled", tip = "Show Rotation Debug", highlight = 1, icon = br.player.spells.paralysis },
-        [2] = { mode = "Off", value = 2 , overlay = "Debug Disabled", tip = "Do Not Show Rotation Debug", highlight = 0, icon = br.player.spells.paralysis }
-    }
-    br.ui:createToggle(DebugModes,"DebugMode",4,0)
+local function toggles()
+    br.ui:toggle("Rotation", { modes = {
+        { name = "Norm", icon = "weaponsOfOrder", overlay = "Normal Dungeon", tip = "Swaps between Modes" },
+        { name = "Hero", icon = "breathOfFire", overlay = "Raid/Heroic Dungeon", tip = "Heroic Dungeon or Raid Settings", highlight = true },
+        { name = "OFF", icon = "weaponsOfOrder", tip = "Mode Settings" },
+    } })
+    br.ui:toggle("Cooldown", { modes = {
+        { name = "Auto", icon = "recklessness", overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection." },
+        { name = "On", icon = "recklessness", overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target." },
+        { name = "Off", icon = "recklessness", overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used." },
+    } })
+    br.ui:toggle("Interrupt", { modes = {
+        { name = "On", icon = "spearHandStrike", overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts." },
+        { name = "Off", icon = "spearHandStrike", overlay = "Interrupts Disabled", tip = "No Interrupts will be used." },
+    } })
+    br.ui:toggle("DebugMode", { modes = {
+        { name = "On", icon = "paralysis", overlay = "Debug Enabled", tip = "Show Rotation Debug" },
+        { name = "Off", icon = "paralysis", overlay = "Debug Disabled", tip = "Do Not Show Rotation Debug" },
+    } })
 end
 
-local function createOptions()
-    local optionTable
-    local function welcome()
-        local section = br.ui:createSection(br.ui.window.profile, "Welcome")
-        br.ui:createText(section, colors.green    .. "NORM".. colors.blue .." Normal level Dungeoning ")
-        br.ui:createText(section, colors.green    .. "HERO".. colors.blue .." Heroic Level Dungeoning ")
-        br.ui:createText(section, "")
-        br.ui:createText(section, colors.blue     .. "Written by BrewingCoder")
-        br.ui:createText(section, colors.blue     .. "Updated for Retail 10.2.5")
-        br.ui:createText(section, colors.blue     .. "Setup to easily switch between Dungeon and Raid levels")
-        br.ui:createText(section, "")
-        br.ui:createText(section, colors.blue     .. "I love to tank it up. ")
-        br.ui:createText(section, colors.blue     .. "Please let me know how I can make this better! - BrewingCoder")
-        br.ui:checkSectionState(section)
-    end
-    local function consumables()
-        local section = br.ui:createSection(br.ui.window.profile,"Consumables")
-            br.ui:createCheckbox(section, text.options.consumeOnlyInDungeon)
-            br.player.module.ImbueUp(section)
-            br.player.module.PhialUp(section)
-        br.ui:checkSectionState(section)
-    end
-    local function normalDungeonSettings()
-        local section = br.ui:createSection(br.ui.window.profile,text.preCombat.options)
-            br.ui:createText(section,"Normal | Pre-Combat")
-            br.ui:createCheckbox(section,text.preCombat.rollToEngage,"Enable Rolling to Engage target if Facing")
-            br.ui:createCheckbox(section,text.preCombat.chiTorpedoToEngage,"Enable chiTorpedo to Engage if Facing")
-            br.ui:createCheckbox(section,text.preCombat.trancedenceSwapOnBoss,"Use Transcendence to engage, then return to original location")
-        br.ui:checkSectionState(section)
-        section = br.ui:createSection(br.ui.window.profile,text.interrupts.options)
-            br.ui:createText(section,"Normal | Interrupts")
-            br.ui:createSpinner(section,text.interrupts.spearHandStrike,0,0,95,5,"Use Spear Hand Strike")
-            br.ui:createSpinner(section,text.interrupts.legSweep,0,0,95,5,"Use Leg Sweep")
-            br.ui:createSpinner(section,text.interrupts.ringOfPeace,0,0,95,5,"Use Ring of Peace")
-        br.ui:checkSectionState(section)
-    end
-    local function rotationOptions()
-        local section
-        -----------------------
-        --- GENERAL OPTIONS --- -- Define General Options
-        -----------------------
-        section = br.ui:createSection(br.ui.window.profile,  "General")
-
-        br.ui:checkSectionState(section)
-        ------------------------
-        --- COOLDOWN OPTIONS --- -- Define Cooldown Options
-        ------------------------
-        section = br.ui:createSection(br.ui.window.profile,  "Cooldowns")
-
-        br.ui:checkSectionState(section)
-        -------------------------
-        --- DEFENSIVE OPTIONS --- -- Define Defensive Options
-        -------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Defensive")
-
-        br.ui:checkSectionState(section)
-        -------------------------
-        --- INTERRUPT OPTIONS --- -- Define Interrupt Options
-        -------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Interrupts")
-            -- Interrupt Percentage
-            br.ui:createSpinner(section,  "Interrupt At",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")
-        br.ui:checkSectionState(section)
-        ----------------------
-        --- TOGGLE OPTIONS --- -- Degine Toggle Options
-        ----------------------
-        section = br.ui:createSection(br.ui.window.profile,  "Toggle Keys")
-            -- Single/Multi Toggle
-            br.ui:createDropdown(section,  "Rotation Mode", br.ui.dropOptions.Toggle,  4)
-            --Cooldown Key Toggle
-            br.ui:createDropdown(section,  "Cooldown Mode", br.ui.dropOptions.Toggle,  3)
-            --Defensive Key Toggle
-            br.ui:createDropdown(section,  "Defensive Mode", br.ui.dropOptions.Toggle,  6)
-            -- Interrupts Key Toggle
-            br.ui:createDropdown(section,  "Interrupt Mode", br.ui.dropOptions.Toggle,  6)
-            -- Pause Toggle
-            br.ui:createDropdown(section,  "Pause Mode", br.ui.dropOptions.Toggle,  6)
-        br.ui:checkSectionState(section)
-    end
-    optionTable = {{
-        [1] = "Welcome",
-        [2] = welcome,
-    },
-    {   [1] = "Consumables",
-        [2] = consumables
-    },
-    {
-        [1] = "Normal Dungeon",
-        [2] = normalDungeonSettings
-    }}
-    return optionTable
+local function welcome()
+    local section = br.ui:section("Welcome")
+    br.ui:text(section, colors.green    .. "NORM".. colors.blue .." Normal level Dungeoning ")
+    br.ui:text(section, colors.green    .. "HERO".. colors.blue .." Heroic Level Dungeoning ")
+    br.ui:text(section, "")
+    br.ui:text(section, colors.blue     .. "Written by BrewingCoder")
+    br.ui:text(section, colors.blue     .. "Updated for Retail 10.2.5")
+    br.ui:text(section, colors.blue     .. "Setup to easily switch between Dungeon and Raid levels")
+    br.ui:text(section, "")
+    br.ui:text(section, colors.blue     .. "I love to tank it up. ")
+    br.ui:text(section, colors.blue     .. "Please let me know how I can make this better! - BrewingCoder")
 end
+local function consumables()
+    local section = br.ui:section("Consumables")
+        br.ui:checkbox(section, text.options.consumeOnlyInDungeon)
+        br.player.module.ImbueUp(section)
+        br.player.module.PhialUp(section)
+end
+local function normalDungeonSettings()
+    local section = br.ui:section(text.preCombat.options)
+        br.ui:text(section, "Normal | Pre-Combat")
+        br.ui:checkbox(section, text.preCombat.rollToEngage, { tip = "Enable Rolling to Engage target if Facing" })
+        br.ui:checkbox(section, text.preCombat.chiTorpedoToEngage, { tip = "Enable chiTorpedo to Engage if Facing" })
+        br.ui:checkbox(section, text.preCombat.trancedenceSwapOnBoss, { tip = "Use Transcendence to engage, then return to original location" })
+    section = br.ui:section(text.interrupts.options)
+        br.ui:text(section, "Normal | Interrupts")
+        br.ui:spinner(section, text.interrupts.spearHandStrike, { value = 0, max = 95, tip = "Use Spear Hand Strike" })
+        br.ui:spinner(section, text.interrupts.legSweep, { value = 0, max = 95, tip = "Use Leg Sweep" })
+        br.ui:spinner(section, text.interrupts.ringOfPeace, { value = 0, max = 95, tip = "Use Ring of Peace" })
+end
+local function rotationOptions()
+    local section
+    -----------------------
+    --- GENERAL OPTIONS --- -- Define General Options
+    -----------------------
+    section = br.ui:section("General")
+
+    ------------------------
+    --- COOLDOWN OPTIONS --- -- Define Cooldown Options
+    ------------------------
+    section = br.ui:section("Cooldowns")
+
+    -------------------------
+    --- DEFENSIVE OPTIONS --- -- Define Defensive Options
+    -------------------------
+    section = br.ui:section("Defensive")
+
+    -------------------------
+    --- INTERRUPT OPTIONS --- -- Define Interrupt Options
+    -------------------------
+    section = br.ui:section("Interrupts")
+        -- Interrupt Percentage
+        br.ui:spinner(section, "Interrupt At", { value = 0, max = 95, tip = "|cffFFBB00Cast Percentage to use at." })
+end
+-- The option pages, in order: { page name, function that builds it }
+local options = {
+    { "Welcome", welcome },
+    { "Consumables", consumables },
+    { "Normal Dungeon", normalDungeonSettings },
+}
 
 local debugMessage = function(message)
     print(colors.red.. date() .. colors.white .. ": ".. message)
@@ -219,13 +176,13 @@ end
 actionList.Extra = function()
     if (
         ui.checked(text.options.consumeOnlyInDungeon) and
-        (br.player.instance=="raid" or br.player.instance=="party")) or
+        (br.player.unit.instance()=="raid" or br.player.unit.instance()=="party")) or
         not ui.checked(text.options.consumeOnlyInDungeon) then
             module.ImbueUp()
     end
     if (
         ui.checked(text.options.consumeOnlyInDungeon) and
-        (br.player.instance=="raid" or br.player.instance=="party")) or
+        (br.player.unit.instance()=="raid" or br.player.unit.instance()=="party")) or
         not ui.checked(text.options.consumeOnlyInDungeon) then
             module.PhialUp()
     end
@@ -642,13 +599,16 @@ local function runRotation() -- This is the main profile loop, any below this po
         --end -- End In Combat Rotation
     end -- Pause
 end -- End runRotation
-local id = 268 -- Change to the spec id profile is for. Spec ID can be found at: https://wowpedia.fandom.com/wiki/SpecializationID
-br.loader.rotations[id] = br.loader.rotations[id] or {}
-if br.api.expansion == "MOP" then
-    br._G.tinsert(br.loader.rotations[id], {
-    name = rotationName,
-    toggles = createToggles,
-    options = createOptions,
-    run = runRotation,
-    })
-end
+br.loader.registerRotation({
+    name      = rotationName,
+    specID    = 268,
+    expansion = "MOP",
+    author    = "BrewingCoder",
+    patch     = "10.2.5",
+    coverage  = "90%",
+    status    = "Limited,Hardcoded Vals",
+    readiness = "Development",
+    toggles   = toggles,
+    options   = options,
+    run       = runRotation,
+})

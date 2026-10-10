@@ -3,63 +3,38 @@ local rotationName = "Initial"
 ---------------
 --- Toggles ---
 ---------------
-local function createToggles()
-    -- Rotation Button
-    local RotationModes = {
-        [1] = { mode = "On", value = 1, overlay = "DPS Rotation Enabled", tip = "Enable DPS Rotation", highlight = 1, icon = br.player.spells.lightningBolt },
-        [2] = { mode = "Off", value = 2, overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spells.primalStrike }
-    };
-    br.ui:createToggle(RotationModes, "Rotation", 1, 0)
-    -- Defensive Button
-    local DefensiveModes = {
-        [1] = { mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spells.healingSurge },
-        [2] = { mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spells.healingSurge }
-    };
-    br.ui:createToggle(DefensiveModes, "Defensive", 2, 0)
+local function toggles()
+    br.ui:toggle("Rotation", { key = "RightShift", modes = {
+        { name = "On", icon = "lightningBolt", overlay = "DPS Rotation Enabled", tip = "Enable DPS Rotation" },
+        { name = "Off", icon = "primalStrike", overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation" },
+    } })
+    br.ui:toggle("Defensive", { modes = {
+        { name = "On", icon = "healingSurge", overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns." },
+        { name = "Off", icon = "healingSurge", overlay = "Defensive Disabled", tip = "No Defensives will be used." },
+    } })
 end
 
 ---------------
 --- OPTIONS ---
 ---------------
-local function createOptions()
-    local optionTable
-
-    local function rotationOptions()
-        local section
-        -----------------------
-        --- GENERAL OPTIONS ---
-        -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "General")
-        -- Flametongue Weapon
-        br.ui:createCheckbox(section, "Flametongue Weapon", "|cff0070deCheck this to keep flametongue weapon enchant up.")
-        -- Lightning Shield
-        br.ui:createCheckbox(section, "Lightning Shield", "|cff0070deCheck this to keep lightning shield up.")
-        br.ui:checkSectionState(section)
-        -------------------------
-        --- DEFENSIVE OPTIONS ---
-        -------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Defensive")
-        -- Healing Surge
-        br.ui:createSpinner(section, "Healing Surge", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-        -- OOC Healing
-        br.ui:createCheckbox(section, "OOC Healing",
-            "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFout of combat healing|cffFFBB00.")
-        br.ui:checkSectionState(section)
-        ----------------------
-        --- TOGGLE OPTIONS ---
-        ----------------------
-        section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
-        -- Single/Multi Toggle
-        br.ui:createDropdownWithout(section, "Rotation Mode", br.ui.dropOptions.Toggle, 4)
-        --Defensive Key Toggle
-        br.ui:createDropdownWithout(section, "Defensive Mode", br.ui.dropOptions.Toggle, 6)
-        br.ui:checkSectionState(section)
-    end
-    optionTable = { {
-        [1] = "Rotation Options",
-        [2] = rotationOptions,
-    } }
-    return optionTable
+local function options()
+    local section
+    -----------------------
+    --- GENERAL OPTIONS ---
+    -----------------------
+    section = br.ui:section("General")
+    -- Flametongue Weapon
+    br.ui:checkbox(section, "Flametongue Weapon", { tip = "|cff0070deCheck this to keep flametongue weapon enchant up." })
+    -- Lightning Shield
+    br.ui:checkbox(section, "Lightning Shield", { tip = "|cff0070deCheck this to keep lightning shield up." })
+    -------------------------
+    --- DEFENSIVE OPTIONS ---
+    -------------------------
+    section = br.ui:section("Defensive")
+    -- Healing Surge
+    br.ui:spinner(section, "Healing Surge", { value = 50, tip = "Health Percent to Cast At" })
+    -- OOC Healing
+    br.ui:checkbox(section, "OOC Healing", { tip = "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFout of combat healing|cffFFBB00." })
 end
 
 --------------
@@ -288,13 +263,11 @@ local function runRotation()
     end     -- Pause
     return true
 end         -- End runRotation
-local id = 1444
-br.loader.rotations[id] = br.loader.rotations[id] or {}
-if br.api.expansion == "MOP" then
-    br._G.tinsert(br.loader.rotations[id], {
-    name = rotationName,
-    toggles = createToggles,
-    options = createOptions,
-    run = runRotation,
-    })
-end
+br.loader.registerRotation({
+    name      = rotationName,
+    specID    = 1444,
+    expansion = "MOP",
+    toggles   = toggles,
+    options   = options,
+    run       = runRotation,
+})

@@ -1,180 +1,118 @@
--------------------------------------------------------
--- Author = CuteOne
--- Patch = 11.0.2
---    Patch should be the latest patch you've updated the rotation for (i.e., 9.2.5)
--- Coverage = 100%
---    Coverage should be your estimated percent coverage for class mechanics (i.e., 100%)
--- Status = Limited
---    Status should be one of: Full, Limited, Sporadic, Inactive, Unknown
--- Readiness = Basic
---    Readiness should be one of: Raid, NoRaid, Basic, Development, Untested
--------------------------------------------------------
--- Required: Fill above fields to populate README.md --
--------------------------------------------------------
-
 local rotationName = "CuteOne"
 
 ---------------
 --- Toggles ---
 ---------------
-local function createToggles()
-    -- Rotation Button
-    local RotationModes = {
-        [1] = { mode = "Auto", value = 1, overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spells.cleave },
-        [2] = { mode = "Mult", value = 2, overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spells.whirlwind },
-        [3] = { mode = "Sing", value = 3, overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spells.mortalStrike },
-        [4] = { mode = "Off", value = 4, overlay = "DPS Rotation Disabled", tip = "Disarm DPS Rotation", highlight = 0, icon = br.player.spells.victoryRush }
-    };
-    br.ui:createToggle(RotationModes, "Rotation", 1, 0)
-    -- Cooldown Button
-    local CooldownModes = {
-        [1] = { mode = "Auto", value = 1, overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spells.avatar },
-        [2] = { mode = "On", value = 2, overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 1, icon = br.player.spells.avatar },
-        [3] = { mode = "Off", value = 3, overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spells.avatar }
-    };
-    br.ui:createToggle(CooldownModes, "Cooldown", 2, 0)
-    -- Defensive Button
-    local DefensiveModes = {
-        [1] = { mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spells.dieByTheSword },
-        [2] = { mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spells.dieByTheSword }
-    };
-    br.ui:createToggle(DefensiveModes, "Defensive", 3, 0)
-    -- Interrupt Button
-    local InterruptModes = {
-        [1] = { mode = "On", value = 1, overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spells.pummel },
-        [2] = { mode = "Off", value = 2, overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spells.pummel }
-    };
-    br.ui:createToggle(InterruptModes, "Interrupt", 4, 0)
-    -- Movement Button
-    local MoverModes = {
-        [1] = { mode = "On", value = 1, overlay = "Mover Enabled", tip = "Will use Charge/Heroic Leap.", highlight = 1, icon = br.player.spells.charge },
-        [2] = { mode = "Off", value = 2, overlay = "Mover Disabled", tip = "Will NOT use Charge/Heroic Leap.", highlight = 0, icon = br.player.spells.charge }
-    };
-    br.ui:createToggle(MoverModes, "Mover", 5, 0)
+local function toggles()
+    br.ui:toggle("Rotation", { key = "RightShift", modes = {
+        { name = "Auto", icon = "cleave", overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range." },
+        { name = "Mult", icon = "whirlwind", overlay = "Multiple Target Rotation", tip = "Multiple target rotation used." },
+        { name = "Sing", icon = "mortalStrike", overlay = "Single Target Rotation", tip = "Single target rotation used." },
+        { name = "Off", icon = "victoryRush", overlay = "DPS Rotation Disabled", tip = "Disarm DPS Rotation" },
+    } })
+    br.ui:toggle("Cooldown", { key = "RightCtrl", modes = {
+        { name = "Auto", icon = "avatar", overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection." },
+        { name = "On", icon = "avatar", overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = true },
+        { name = "Off", icon = "avatar", overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used." },
+    } })
+    br.ui:toggle("Defensive", { modes = {
+        { name = "On", icon = "dieByTheSword", overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns." },
+        { name = "Off", icon = "dieByTheSword", overlay = "Defensive Disabled", tip = "No Defensives will be used." },
+    } })
+    br.ui:toggle("Interrupt", { modes = {
+        { name = "On", icon = "pummel", overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts." },
+        { name = "Off", icon = "pummel", overlay = "Interrupts Disabled", tip = "No Interrupts will be used." },
+    } })
+    br.ui:toggle("Mover", { modes = {
+        { name = "On", icon = "charge", overlay = "Mover Enabled", tip = "Will use Charge/Heroic Leap." },
+        { name = "Off", icon = "charge", overlay = "Mover Disabled", tip = "Will NOT use Charge/Heroic Leap." },
+    } })
 end
 
 ---------------
 --- OPTIONS ---
 ---------------
-local function createOptions()
-    local optionTable
-
-    local function rotationOptions()
-        local section
-        -----------------------
-        --- GENERAL OPTIONS ---
-        -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "General")
-        -- Dummy DPS Test
-        br.ui:createSpinner(section, "DPS Testing", 5, 5, 60, 5,
-            "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
-        -- Pre-Pull Timer
-        br.ui:createSpinner(section, "Pre-Pull Timer", 5, 1, 10, 1,
-            "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
-        -- Battle Cry
-        br.ui:createCheckbox(section, "Battle Shout")
-        -- Berserker Rage
-        br.ui:createCheckbox(section, "Berserker Rage", "Check to use Berserker Rage")
-        -- Charge
-        br.ui:createCheckbox(section, "Charge", "Check to use Charge")
-        -- Heroic Leap
-        br.ui:createCheckbox(section, "Heroic Leap", "Check to use Heroic Leap")
-        -- Heroic Throw
-        br.ui:createCheckbox(section, "Heroic Throw", "Check to use Heroic Throw out of range")
-        -- Piercing Howl
-        br.ui:createCheckbox(section, "Piercing Howl", "Use Piercing Howl on moving enemies not facing you.")
-        -- Taunt
-        br.ui:createCheckbox(section, "Solo Taunt", "Only uses Taunt when not in a group.")
-        br.ui:checkSectionState(section)
-        ------------------------
-        --- COOLDOWN OPTIONS ---
-        ------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
-        local alwaysCdNever = { "Always", "|cff0000ffCD", "|cffff0000Never" }
-        local alwaysCdAoENever = { "Always", "|cff008000AOE", "|cffffff00AOE/CD", "|cff0000ffCD", "|cffff0000Never" }
-        -- Avatar
-        br.ui:createDropdownWithout(section, "Avatar", alwaysCdNever, 2, "|cffFFFFFFWhen to use Avatar.")
-        -- Bladestorm
-        br.ui:createDropdownWithout(section, "Bladestorm", alwaysCdAoENever, 3, "|cffFFFFFFWhen to use Bladestorm.")
-        -- Bloodbath
-        br.ui:createDropdownWithout(section, "Bloodbath", alwaysCdNever, 2,
-            "|cffFFFFFFWhen to use Bloodbath.")
-        -- Colossus Smash
-        br.ui:createDropdownWithout(section, "Colossus Smash", alwaysCdNever, 1,
-            "|cffFFFFFFWhen to use Colossus Smash.")
-        -- Dragon Roar
-        br.ui:createDropdownWithout(section, "Dragon Roar", alwaysCdAoENever, 3,
-            "|cffFFFFFFWhen to use Dragon Roar.")
-        -- Recklessness
-        br.ui:createDropdownWithout(section, "Recklessness", alwaysCdAoENever, 3,
-            "|cffFFFFFFWhen to use Recklessness.")
-        -- Skull Banner
-        br.ui:createDropdownWithout(section, "Skull Banner", alwaysCdNever, 2,
-            "|cffFFFFFFWhen to use Skull Banner.")
-        -- Shattering Throw
-        br.ui:createDropdownWithout(section, "Shattering Throw", alwaysCdNever, 2,
-            "|cffFFFFFFWhen to use Shattering Throw.")
-        -- Storm Bolt
-        br.ui:createDropdownWithout(section, "Storm Bolt", alwaysCdNever, 2,
-            "|cffFFFFFFWhen to use Storm Bolt.")
-        br.ui:checkSectionState(section)
-        -------------------------
-        --- DEFENSIVE OPTIONS ---
-        -------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Defensive")
-        local defTooltip = "|cffFFBB00Health Percentage to use at."
-        -- Defensive Stance
-        br.ui:createSpinner(section, "Defensive Stance", 60, 0, 100, 5, defTooltip)
-        -- Disarm (CC fleeing enemies)
-        br.ui:createCheckbox(section, "Disarm", "Use Disarm on fleeing enemies")
-        -- Die By The Sword
-        br.ui:createSpinner(section, "Die By The Sword", 60, 0, 100, 5, defTooltip)
-        -- Intimidating Shout
-        br.ui:createSpinner(section, "Intimidating Shout", 60, 0, 100, 5, defTooltip)
-        -- Rallying Cry
-        br.ui:createSpinner(section, "Rallying Cry", 60, 0, 100, 5, defTooltip)
-        -- Shield Wall
-        br.ui:createSpinner(section, "Shield Wall", 30, 0, 100, 5, defTooltip)
-        -- Victory Rush
-        br.ui:createSpinner(section, "Victory Rush", 60, 0, 100, 5, defTooltip)
-        br.ui:checkSectionState(section)
-        -------------------------
-        --- INTERRUPT OPTIONS ---
-        -------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Interrupts")
-        -- Pummel
-        br.ui:createCheckbox(section, "Pummel")
-        -- Intimidating Shout
-        br.ui:createCheckbox(section, "Intimidating Shout - Int")
-        -- Storm Bolt Logic
-        br.ui:createCheckbox(section, "Storm Bolt - Int", "Stun specific Spells and Mobs")
-        -- Interrupt Percentage
-        br.ui:createSpinner(section, "Interrupt At", 70, 0, 95, 5, "|cffFFBB00Cast Percentage to use at.")
-        br.ui:checkSectionState(section)
-        ----------------------
-        --- TOGGLE OPTIONS ---
-        ----------------------
-        section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
-        -- Single/Multi Toggle
-        br.ui:createDropdownWithout(section, "Rotation Mode", br.ui.dropOptions.Toggle, 4)
-        --Cooldown Key Toggle
-        br.ui:createDropdownWithout(section, "Cooldown Mode", br.ui.dropOptions.Toggle, 3)
-        --Defensive Key Toggle
-        br.ui:createDropdownWithout(section, "Defensive Mode", br.ui.dropOptions.Toggle, 6)
-        -- Interrupts Key Toggle
-        br.ui:createDropdownWithout(section, "Interrupt Mode", br.ui.dropOptions.Toggle, 6)
-        -- Mover Toggle
-        br.ui:createDropdownWithout(section, "Mover Mode", br.ui.dropOptions.Toggle, 6)
-        -- Pause Toggle
-        -- br.ui:createDropdown(section, "Pause Mode", br.ui.dropOptions.Toggle, 6)
-        br.ui:checkSectionState(section)
-    end
-    optionTable = {
-        {
-            [1] = "Rotation Options",
-            [2] = rotationOptions,
-        } }
-    return optionTable
+local function options()
+    local section
+    -----------------------
+    --- GENERAL OPTIONS ---
+    -----------------------
+    section = br.ui:section("General")
+    -- Dummy DPS Test
+    br.ui:spinner(section, "DPS Testing", { value = 5, min = 5, max = 60,
+        tip = "Set to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5" })
+    -- Pre-Pull Timer
+    br.ui:spinner(section, "Pre-Pull Timer", { value = 5, min = 1, max = 10, step = 1,
+        tip = "Set to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1" })
+    -- Battle Cry
+    br.ui:checkbox(section, "Battle Shout")
+    -- Berserker Rage
+    br.ui:checkbox(section, "Berserker Rage", { tip = "Check to use Berserker Rage" })
+    -- Charge
+    br.ui:checkbox(section, "Charge", { tip = "Check to use Charge" })
+    -- Heroic Leap
+    br.ui:checkbox(section, "Heroic Leap", { tip = "Check to use Heroic Leap" })
+    -- Heroic Throw
+    br.ui:checkbox(section, "Heroic Throw", { tip = "Check to use Heroic Throw out of range" })
+    -- Piercing Howl
+    br.ui:checkbox(section, "Piercing Howl", { tip = "Use Piercing Howl on moving enemies not facing you." })
+    -- Taunt
+    br.ui:checkbox(section, "Solo Taunt", { tip = "Only uses Taunt when not in a group." })
+    ------------------------
+    --- COOLDOWN OPTIONS ---
+    ------------------------
+    section = br.ui:section("Cooldowns")
+    local alwaysCdNever = { "Always", "|cff0000ffCD", "|cffff0000Never" }
+    local alwaysCdAoENever = { "Always", "|cff008000AOE", "|cffffff00AOE/CD", "|cff0000ffCD", "|cffff0000Never" }
+    -- Avatar
+    br.ui:dropdown(section, "Avatar", { choices = alwaysCdNever, value = 2, checkbox = false, tip = "When to use Avatar." })
+    -- Bladestorm
+    br.ui:dropdown(section, "Bladestorm", { choices = alwaysCdAoENever, value = 3, checkbox = false, tip = "When to use Bladestorm." })
+    -- Bloodbath
+    br.ui:dropdown(section, "Bloodbath", { choices = alwaysCdNever, value = 2, checkbox = false, tip = "When to use Bloodbath." })
+    -- Colossus Smash
+    br.ui:dropdown(section, "Colossus Smash", { choices = alwaysCdNever, value = 1, checkbox = false, tip = "When to use Colossus Smash." })
+    -- Dragon Roar
+    br.ui:dropdown(section, "Dragon Roar", { choices = alwaysCdAoENever, value = 3, checkbox = false, tip = "When to use Dragon Roar." })
+    -- Recklessness
+    br.ui:dropdown(section, "Recklessness", { choices = alwaysCdAoENever, value = 3, checkbox = false, tip = "When to use Recklessness." })
+    -- Skull Banner
+    br.ui:dropdown(section, "Skull Banner", { choices = alwaysCdNever, value = 2, checkbox = false, tip = "When to use Skull Banner." })
+    -- Shattering Throw
+    br.ui:dropdown(section, "Shattering Throw", { choices = alwaysCdNever, value = 2, checkbox = false, tip = "When to use Shattering Throw." })
+    -- Storm Bolt
+    br.ui:dropdown(section, "Storm Bolt", { choices = alwaysCdNever, value = 2, checkbox = false, tip = "When to use Storm Bolt." })
+    -------------------------
+    --- DEFENSIVE OPTIONS ---
+    -------------------------
+    section = br.ui:section("Defensive")
+    local defTooltip = "|cffFFBB00Health Percentage to use at."
+    -- Defensive Stance
+    br.ui:spinner(section, "Defensive Stance", { value = 60, tip = defTooltip })
+    -- Disarm (CC fleeing enemies)
+    br.ui:checkbox(section, "Disarm", { tip = "Use Disarm on fleeing enemies" })
+    -- Die By The Sword
+    br.ui:spinner(section, "Die By The Sword", { value = 60, tip = defTooltip })
+    -- Intimidating Shout
+    br.ui:spinner(section, "Intimidating Shout", { value = 60, tip = defTooltip })
+    -- Rallying Cry
+    br.ui:spinner(section, "Rallying Cry", { value = 60, tip = defTooltip })
+    -- Shield Wall
+    br.ui:spinner(section, "Shield Wall", { value = 30, tip = defTooltip })
+    -- Victory Rush
+    br.ui:spinner(section, "Victory Rush", { value = 60, tip = defTooltip })
+    -------------------------
+    --- INTERRUPT OPTIONS ---
+    -------------------------
+    section = br.ui:section("Interrupts")
+    -- Pummel
+    br.ui:checkbox(section, "Pummel")
+    -- Intimidating Shout
+    br.ui:checkbox(section, "Intimidating Shout - Int")
+    -- Storm Bolt Logic
+    br.ui:checkbox(section, "Storm Bolt - Int", { tip = "Stun specific Spells and Mobs" })
+    -- Interrupt Percentage
+    br.ui:spinner(section, "Interrupt At", { value = 70, max = 95, tip = "|cffFFBB00Cast Percentage to use at." })
 end
 
 --------------
@@ -978,13 +916,16 @@ local function runRotation()
         if actionList.Combat() then return true end
     end -- Pause
 end     -- runRotation
-local id = 71
-br.loader.rotations[id] = br.loader.rotations[id] or {}
-if br.api.expansion == "MOP" then
-    br._G.tinsert(br.loader.rotations[id], {
-    name = rotationName,
-    toggles = createToggles,
-    options = createOptions,
-    run = runRotation,
-    })
-end
+br.loader.registerRotation({
+    name      = rotationName,
+    specID    = 71,
+    expansion = "MOP",
+    author    = "CuteOne",
+    patch     = "11.0.2",
+    coverage  = "100%",
+    status    = "Limited",
+    readiness = "Basic",
+    toggles   = toggles,
+    options   = options,
+    run       = runRotation,
+})

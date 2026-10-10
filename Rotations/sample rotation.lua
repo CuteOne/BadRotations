@@ -3,90 +3,64 @@ local rotationName = "CuteOne" -- Change to name of profile listed in options dr
 ---------------
 --- Toggles ---
 ---------------
-local function createToggles() -- Define custom toggles, these are the buttons from the toggle bar
-    -- Rotation Button
-    local RotationModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range.", highlight = 1, icon = br.player.spells.whirlwind },
-        [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spells.bladestorm },
-        [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spells.ragingBlow },
-        [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spells.enragedRegeneration}
-    };
-    br.ui:createToggle(RotationModes,"Rotation",1,0)
-    -- Cooldown Button
-    local CooldownModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spells.recklessness },
-        [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spells.recklessness },
-        [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spells.recklessness }
-    };
-    br.ui:createToggle(CooldownModes,"Cooldown",2,0)
-    -- Defensive Button
-    local DefensiveModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spells.enragedRegeneration },
-        [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spells.enragedRegeneration }
-    };
-    br.ui:createToggle(DefensiveModes,"Defensive",3,0)
-    -- Interrupt Button
-    local InterruptModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spells.pummel },
-        [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spells.pummel }
-    };
-    br.ui:createToggle(InterruptModes,"Interrupt",4,0)
+-- The buttons on the toggle bar. br.ui:toggle(name, { modes = { ... } }) adds one; each click moves
+-- to the next mode and the first mode is the default. Read the current mode in the rotation with
+-- ui.mode.<name>, e.g. ui.mode.rotation == 1 for "Auto".
+-- key (optional) is a keybind that also cycles the toggle; BR lists it in a "Toggle Keys" section.
+-- Every field (icon, overlay, tip, highlight, row, col, ...) is described in
+-- System/UI/Toggles/ToggleFunctions.lua.
+local function toggles()
+    br.ui:toggle("Rotation", { key = "RightShift", modes = {
+        { name = "Auto", icon = "whirlwind",           overlay = "Automatic Rotation",       tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range." },
+        { name = "Mult", icon = "bladestorm",          overlay = "Multiple Target Rotation", tip = "Multiple target rotation used." },
+        { name = "Sing", icon = "ragingBlow",          overlay = "Single Target Rotation",   tip = "Single target rotation used." },
+        { name = "Off",  icon = "enragedRegeneration", overlay = "DPS Rotation Disabled",    tip = "Disable DPS Rotation" },
+    } })
+    br.ui:toggle("Cooldown", { key = "RightCtrl", modes = {
+        { name = "Auto", icon = "recklessness", overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection." },
+        { name = "On",   icon = "recklessness", overlay = "Cooldowns Enabled",   tip = "Cooldowns used regardless of target." },
+        { name = "Off",  icon = "recklessness", overlay = "Cooldowns Disabled",  tip = "No Cooldowns will be used." },
+    } })
+    br.ui:toggle("Defensive", { modes = {
+        { name = "On",  icon = "enragedRegeneration", overlay = "Defensive Enabled",  tip = "Includes Defensive Cooldowns." },
+        { name = "Off", icon = "enragedRegeneration", overlay = "Defensive Disabled", tip = "No Defensives will be used." },
+    } })
+    br.ui:toggle("Interrupt", { modes = {
+        { name = "On",  icon = "pummel", overlay = "Interrupts Enabled",  tip = "Includes Basic Interrupts." },
+        { name = "Off", icon = "pummel", overlay = "Interrupts Disabled", tip = "No Interrupts will be used." },
+    } })
 end
 
 ---------------
---- OPTIONS ---
+--- Options ---
 ---------------
-local function createOptions()
-    local optionTable
+-- The Rotation Options page. br.ui:section(name) starts a collapsible group and returns it; pass it
+-- to each option after it. Each option takes the section, its name, then only the settings you want
+-- to change from the defaults:
+--   br.ui:checkbox(section, name, { checked, tip })
+--   br.ui:spinner(section, name, { value, min, max, step, checkbox, checked, tip, boxTip })
+--   br.ui:dropdown(section, name, { choices, value, checkbox, checked, tip, boxTip })
+--   br.ui:doubleSpinner(section, name, { first = { value, ... }, second = { value, ... }, checkbox, checked })
+--   br.ui:text(section, text)
+-- Spinners and dropdowns have a checkbox in front of them unless checkbox = false; checked = true
+-- starts a checkbox ticked. Every field and its default is described in System/UI/Elements.
+-- Read them in the rotation with ui.checked("Name") and ui.value("Name").
+-- Module options (e.g. br.player.module.BasicHealing(section)) and any br.ui:create... call can go
+-- between these. For more than one page, make options a list instead:
+--   local options = { { "Page Name", buildFunction }, { "Other Page", otherFunction } }
+local function options()
+    local section = br.ui:section("General")
+    br.ui:checkbox(section, "Example Checkbox", { tip = "Ticked or not - read with ui.checked(\"Example Checkbox\")" })
 
-    local function rotationOptions()
-        local section
-        -----------------------
-        --- GENERAL OPTIONS --- -- Define General Options
-        -----------------------
-        section = br.ui:createSection(br.ui.window.profile,  "General")
+    section = br.ui:section("Cooldowns")
+    br.ui:dropdown(section, "Example Cooldown", { choices = "AlwaysCdNever", value = "Cooldowns", checkbox = false,
+        tip = "When to use it - read with ui.value(\"Example Cooldown\") (1 = Always, 2 = Cooldowns, 3 = Never)" })
 
-        br.ui:checkSectionState(section)
-        ------------------------
-        --- COOLDOWN OPTIONS --- -- Define Cooldown Options
-        ------------------------
-        section = br.ui:createSection(br.ui.window.profile,  "Cooldowns")
+    section = br.ui:section("Defensive")
+    br.ui:spinner(section, "Example Defensive", { value = 40, checked = true, tip = "Health Percent to Cast At" })
 
-        br.ui:checkSectionState(section)
-        -------------------------
-        --- DEFENSIVE OPTIONS --- -- Define Defensive Options
-        -------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Defensive")
-
-        br.ui:checkSectionState(section)
-        -------------------------
-        --- INTERRUPT OPTIONS --- -- Define Interrupt Options
-        -------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Interrupts")
-            -- Interrupt Percentage
-            br.ui:createSpinner(section,  "Interrupt At",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")
-        br.ui:checkSectionState(section)
-        ----------------------
-        --- TOGGLE OPTIONS --- -- Degine Toggle Options
-        ----------------------
-        section = br.ui:createSection(br.ui.window.profile,  "Toggle Keys")
-            -- Single/Multi Toggle
-            br.ui:createDropdown(section,  "Rotation Mode", br.ui.dropOptions.Toggle,  4)
-            --Cooldown Key Toggle
-            br.ui:createDropdown(section,  "Cooldown Mode", br.ui.dropOptions.Toggle,  3)
-            --Defensive Key Toggle
-            br.ui:createDropdown(section,  "Defensive Mode", br.ui.dropOptions.Toggle,  6)
-            -- Interrupts Key Toggle
-            br.ui:createDropdown(section,  "Interrupt Mode", br.ui.dropOptions.Toggle,  6)
-            -- Pause Toggle
-            br.ui:createDropdown(section,  "Pause Mode", br.ui.dropOptions.Toggle,  6)
-        br.ui:checkSectionState(section)
-    end
-    optionTable = {{
-        [1] = "Rotation Options",
-        [2] = rotationOptions,
-    }}
-    return optionTable
+    section = br.ui:section("Interrupts")
+    br.ui:spinner(section, "Interrupt At", { value = 0, max = 95, checkbox = false, tip = "|cffFFBB00Cast Percentage to use at." })
 end
 
 --------------
@@ -242,12 +216,24 @@ local function runRotation() -- This is the main profile loop, any below this po
         end -- End In Combat Rotation
     end -- Pause
 end -- End runRotation
-local id = 000 -- Change to the spec id profile is for. Spec ID can be found at: https://wowpedia.fandom.com/wiki/SpecializationID
--- DO NOT EDIT ANYTHING BELOW THIS LINE, WILL BREAK PROFILE --
-br.loader.rotations[id] = br.loader.rotations[id] or {}
-tinsert(br.loader.rotations[id],{
-    name = rotationName,
-    toggles = createToggles,
-    options = createOptions,
-    run = runRotation,
+-------------------------
+--- REGISTER ROTATION ---
+-------------------------
+-- Registers this profile with BadRotations. Any .lua file in Rotations/<Class>/<Spec>/ (or
+-- Rotations/<Class>/<Class>/ on expansions without specs) is loaded automatically; BR offers the
+-- rotation only when specID and expansion match the player.
+br.loader.registerRotation({
+    name      = rotationName,   -- Shown in the rotation dropdown; must be unique for the spec
+    specID    = 000,            -- Spec ID(s) this is for: https://wowpedia.fandom.com/wiki/SpecializationID
+                                -- (a list like { 103, 104 } also works)
+    expansion = "Retail",       -- "Retail", "MOP", "TBC", "Classic" or "Forever" (or a list of them)
+    -- README metadata (optional, shown in README.md):
+    author    = "YourName",
+    patch     = "12.0.0",       -- Latest patch you've updated the rotation for
+    coverage  = "100%",         -- Estimated percent coverage of class mechanics
+    status    = "Full",         -- Full, Limited, Sporadic, Inactive or Unknown
+    readiness = "Untested",     -- Raid, NoRaid, Basic, Development or Untested
+    toggles   = toggles,        -- The toggles function above
+    options   = options,        -- The options function above (or a list of pages)
+    run       = runRotation,
 })

@@ -1,104 +1,61 @@
--------------------------------------------------------
--- Author = BrewingCoder
--- Patch = 10.2.6
--- Coverage = 75%
--- Status = Limited
--- Readiness = Development
--------------------------------------------------------
 local rotationName = "BrewBeastMaster" -- Change to name of profile listed in options drop down
-br.loader.cBuilder:loadSupport("PetCuteOne")
+br.loader.profileLoader:loadSupport("PetCuteOne")
 
 ---------------
 --- Toggles ---
 ---------------
-local function createToggles()
-    -- Rotation Button
-    local RotationModes = {
-        [1] = { mode = "On", value = 1, overlay = "Rotation Enabled", tip = "Enables Rotation", highlight = 1, icon = br.player.spells.steadyShot },
-        [2] = { mode = "Off", value = 2, overlay = "Rotation Disabled", tip = "Disables Rotation", highlight = 0, icon = br.player.spells.steadyShot }
-    };
-    br.ui:createToggle(RotationModes, "Rotation", 1, 0)
-    -- Defensive Button
-    local DefensiveModes = {
-        [1] = { mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Enables Defensive", highlight = 1, icon = br.player.spells.exhilaration },
-        [2] = { mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "Disables Defensive", highlight = 0, icon = br.player.spells.exhilaration }
-    };
-    br.ui:createToggle(DefensiveModes, "Defensive", 2, 0)
-    -- Interrupt Button
-    local InterruptModes = {
-        [1] = { mode = "On", value = 1, overlay = "Interrupt Enabled", tip = "Enables Interrupt", highlight = 1, icon = br.player.spells.freezingTrap },
-        [2] = { mode = "Off", value = 2, overlay = "Interrupt Disabled", tip = "Disables Interrupt", highlight = 0, icon = br.player.spells.freezingTrap }
-    };
-    br.ui:createToggle(InterruptModes, "Interrupt", 3, 0)
-    -- Pet summon
-    local PetSummonModes = {
-        [1] = { mode = "1", value = 1, overlay = "Summon Pet 1", tip = "Summon Pet 1", highlight = 1, icon = br.player.spells.callPet1 },
-        [2] = { mode = "2", value = 2, overlay = "Summon Pet 2", tip = "Summon Pet 2", highlight = 1, icon = br.player.spells.callPet2 },
-        [3] = { mode = "3", value = 3, overlay = "Summon Pet 3", tip = "Summon Pet 3", highlight = 1, icon = br.player.spells.callPet3 },
-        [4] = { mode = "4", value = 4, overlay = "Summon Pet 4", tip = "Summon Pet 4", highlight = 1, icon = br.player.spells.callPet4 },
-        [5] = { mode = "5", value = 5, overlay = "Summon Pet 5", tip = "Summon Pet 5", highlight = 1, icon = br.player.spells.callPet5 },
-        [6] = { mode = "None", value = 6, overlay = "No pet", tip = "Dont Summon any Pet", highlight = 0, icon = br.player.spells.callPet }
-    };
-    br.ui:createToggle(PetSummonModes, "PetSummon", 4, 0)
+local function toggles()
+    br.ui:toggle("Rotation", { key = "RightShift", modes = {
+        { name = "On", icon = "steadyShot", overlay = "Rotation Enabled", tip = "Enables Rotation" },
+        { name = "Off", icon = "steadyShot", overlay = "Rotation Disabled", tip = "Disables Rotation" },
+    } })
+    br.ui:toggle("Defensive", { modes = {
+        { name = "On", icon = "exhilaration", overlay = "Defensive Enabled", tip = "Enables Defensive" },
+        { name = "Off", icon = "exhilaration", overlay = "Defensive Disabled", tip = "Disables Defensive" },
+    } })
+    br.ui:toggle("Interrupt", { modes = {
+        { name = "On", icon = "freezingTrap", overlay = "Interrupt Enabled", tip = "Enables Interrupt" },
+        { name = "Off", icon = "freezingTrap", overlay = "Interrupt Disabled", tip = "Disables Interrupt" },
+    } })
+    br.ui:toggle("PetSummon", { modes = {
+        { name = "1", icon = "callPet1", overlay = "Summon Pet 1", tip = "Summon Pet 1" },
+        { name = "2", icon = "callPet2", overlay = "Summon Pet 2", tip = "Summon Pet 2", highlight = true },
+        { name = "3", icon = "callPet3", overlay = "Summon Pet 3", tip = "Summon Pet 3", highlight = true },
+        { name = "4", icon = "callPet4", overlay = "Summon Pet 4", tip = "Summon Pet 4", highlight = true },
+        { name = "5", icon = "callPet5", overlay = "Summon Pet 5", tip = "Summon Pet 5", highlight = true },
+        { name = "None", icon = "callPet", overlay = "No pet", tip = "Dont Summon any Pet" },
+    } })
 end
 
 
 ---------------
 --- OPTIONS ---
 ---------------
-local function createOptions()
-    local optionTable
+local function options()
+    local section
+    -----------------------
+    --- GENERAL OPTIONS --- -- Define General Options
+    -----------------------
+    section = br.ui:section("General")
 
-    local function rotationOptions()
-        local section
-        -----------------------
-        --- GENERAL OPTIONS --- -- Define General Options
-        -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "General")
 
-        br.ui:checkSectionState(section)
+    br.loader.rotations.support["PetCuteOne"].options()
+    ------------------------
+    --- COOLDOWN OPTIONS --- -- Define Cooldown Options
+    ------------------------
+    section = br.ui:section("Cooldowns")
 
-        br.loader.rotations.support["PetCuteOne"].options()
-        ------------------------
-        --- COOLDOWN OPTIONS --- -- Define Cooldown Options
-        ------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
+    -------------------------
+    --- DEFENSIVE OPTIONS --- -- Define Defensive Options
+    -------------------------
+    section = br.ui:section("Defensive")
 
-        br.ui:checkSectionState(section)
-        -------------------------
-        --- DEFENSIVE OPTIONS --- -- Define Defensive Options
-        -------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Defensive")
-
-        br.ui:checkSectionState(section)
-        -------------------------
-        --- INTERRUPT OPTIONS --- -- Define Interrupt Options
-        -------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Interrupts")
-        -- Interrupt Percentage
-        br.ui:createSpinner(section, "Interrupt At", 0, 0, 95, 5, "|cffFFBB00Cast Percentage to use at.")
-        br.ui:checkSectionState(section)
-        ----------------------
-        --- TOGGLE OPTIONS --- -- Degine Toggle Options
-        ----------------------
-        section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
-        -- Single/Multi Toggle
-        br.ui:createDropdown(section, "Rotation Mode", br.ui.dropOptions.Toggle, 4)
-        --Cooldown Key Toggle
-        br.ui:createDropdown(section, "Cooldown Mode", br.ui.dropOptions.Toggle, 3)
-        --Defensive Key Toggle
-        br.ui:createDropdown(section, "Defensive Mode", br.ui.dropOptions.Toggle, 6)
-        -- Interrupts Key Toggle
-        br.ui:createDropdown(section, "Interrupt Mode", br.ui.dropOptions.Toggle, 6)
-        -- Pause Toggle
-        br.ui:createDropdown(section, "Pause Mode", br.ui.dropOptions.Toggle, 6)
-        br.ui:checkSectionState(section)
-    end
-    optionTable = { {
-        [1] = "Rotation Options",
-        [2] = rotationOptions,
-    } }
-    return optionTable
+    -------------------------
+    --- INTERRUPT OPTIONS --- -- Define Interrupt Options
+    -------------------------
+    section = br.ui:section("Interrupts")
+    -- Interrupt Percentage
+    br.ui:spinner(section, "Interrupt At", { value = 0, max = 95, tip = "|cffFFBB00Cast Percentage to use at." })
 end
 
 --------------
@@ -297,13 +254,16 @@ local function runRotation() -- This is the main profile loop, any below this po
         end         -- End In Combat Rotation
     end             -- Pause
 end                 -- End runRotation
-local id = 253      -- Change to the spec id profile is for. Spec ID can be found at: https://wowpedia.fandom.com/wiki/SpecializationID
-br.loader.rotations[id] = br.loader.rotations[id] or {}
-if br.api.expansion == "MOP" then
-    br._G.tinsert(br.loader.rotations[id], {
-    name = rotationName,
-    toggles = createToggles,
-    options = createOptions,
-    run = runRotation,
-    })
-end
+br.loader.registerRotation({
+    name      = rotationName,
+    specID    = 253,
+    expansion = "MOP",
+    author    = "BrewingCoder",
+    patch     = "10.2.6",
+    coverage  = "75%",
+    status    = "Limited",
+    readiness = "Development",
+    toggles   = toggles,
+    options   = options,
+    run       = runRotation,
+})

@@ -3,83 +3,51 @@ local rotationName = "Initial Druid" -- Change to name of profile listed in opti
 ---------------
 --- Toggles ---
 ---------------
-local function createToggles() -- Define custom toggles
-    -- Rotation Button
-    local RotationModes = {
-        [1] = { mode = "Auto", value = 1, overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range.", highlight = 1, icon = br.player.spells.wrath },
-        [2] = { mode = "Off", value = 2, overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spells.regrowth }
-    };
-    br.ui:createToggle(RotationModes, "Rotation", 1, 0)
-    -- Defensive Button
-    local DefensiveModes = {
-        [1] = { mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spells.regrowth },
-        [2] = { mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spells.regrowth }
-    };
-    br.ui:createToggle(DefensiveModes, "Defensive", 2, 0)
-    -- Cooldown Button
-    local CooldownModes = {
-        [1] = { mode = "On", value = 1, overlay = "Cooldown Enabled", tip = "Includes Offensive Cooldowns.", highlight = 1, icon = br.player.spells.rebirth },
-        [2] = { mode = "Off", value = 2, overlay = "Cooldown Disabled", tip = "No Offensive Cooldowns Used.", highlight = 0, icon = br.player.spells.rebirth },
-    };
-    br.ui:createToggle(CooldownModes, "Cooldown", 3, 0)
-    -- Form Button
-    local FormModes = {
-        [1] = { mode = "Caster", value = 1, overlay = "Caster Form", tip = "Will force and use Caster Form", highlight = 1, icon = br.player.spells.moonkinForm },
-        [2] = { mode = "Cat", value = 2, overlay = "Cat Form", tip = "Will force and use Cat Form", highlight = 0, icon = br.player.spells.catForm },
-        [3] = { mode = "Bear", value = 3, overlay = "Bear Form", tip = "Will force and use Bear Form", highlight = 0, icon = br.player.spells.bearForm }
-    };
-    br.ui:createToggle(FormModes, "Forms", 4, 0)
+local function toggles()
+    br.ui:toggle("Rotation", { key = "RightShift", modes = {
+        { name = "Auto", icon = "wrath", overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range." },
+        { name = "Off", icon = "regrowth", overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation" },
+    } })
+    br.ui:toggle("Defensive", { modes = {
+        { name = "On", icon = "regrowth", overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns." },
+        { name = "Off", icon = "regrowth", overlay = "Defensive Disabled", tip = "No Defensives will be used." },
+    } })
+    br.ui:toggle("Cooldown", { modes = {
+        { name = "On", icon = "rebirth", overlay = "Cooldown Enabled", tip = "Includes Offensive Cooldowns." },
+        { name = "Off", icon = "rebirth", overlay = "Cooldown Disabled", tip = "No Offensive Cooldowns Used." },
+    } })
+    br.ui:toggle("Forms", { modes = {
+        { name = "Caster", icon = "moonkinForm", overlay = "Caster Form", tip = "Will force and use Caster Form" },
+        { name = "Cat", icon = "catForm", overlay = "Cat Form", tip = "Will force and use Cat Form" },
+        { name = "Bear", icon = "bearForm", overlay = "Bear Form", tip = "Will force and use Bear Form" },
+    } })
 end
 
 ---------------
 --- OPTIONS ---
 ---------------
-local function createOptions()
-    local optionTable
+local function options()
+    local section
+    -----------------------
+    --- GENERAL OPTIONS ---
+    -----------------------
+    section = br.ui:section("General")
+    br.ui:spinner(section, "Shift Wait Time", { value = 2, max = 5, step = 1, checkbox = false,
+        tip = "Time in seconds the profile will wait while moving to shift. Combat is instant!" })
+    -- Mark of the Wild
+    br.ui:dropdown(section, "Mark of the Wild", { choices = { "Player", "Target", "Mouseover", "Focus", "Group" }, value = "Player",
+        tip = "Set how to use Mark of the Wild" })
+    ------------------------
+    --- COOLDOWN OPTIONS ---
+    ------------------------
+    section = br.ui:section("Cooldowns")
 
-    local function rotationOptions()
-        local section
-        -----------------------
-        --- GENERAL OPTIONS ---
-        -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "General")
-        br.ui:createSpinnerWithout(section, "Shift Wait Time", 2, 0, 5, 1,
-            "|cffFFFFFFTime in seconds the profile will wait while moving to shift. Combat is instant!")
-        -- Mark of the Wild
-        br.ui:createDropdown(section, "Mark of the Wild",
-            { "|cffFFFFFFPlayer", "|cffFFFFFFTarget", "|cffFFFFFFMouseover", "|cffFFFFFFFocus", "|cffFFFFFFGroup" }, 1,
-            "|cffFFFFFFSet how to use Mark of the Wild")
-        br.ui:checkSectionState(section)
-        ------------------------
-        --- COOLDOWN OPTIONS ---
-        ------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
-
-        br.ui:checkSectionState(section)
-        -------------------------
-        --- DEFENSIVE OPTIONS ---
-        -------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Defensive")
-        -- Regrowth
-        br.ui:createSpinner(section, "Regrowth", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-        br.ui:checkSectionState(section)
-        ----------------------
-        --- TOGGLE OPTIONS ---
-        ----------------------
-        section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
-        -- Single/Multi Toggle
-        br.ui:createDropdownWithout(section, "Rotation Mode", br.ui.dropOptions.Toggle, 4)
-        --Defensive Key Toggle
-        br.ui:createDropdownWithout(section, "Defensive Mode", br.ui.dropOptions.Toggle, 6)
-        -- Cooldown Key Toggle
-        br.ui:createDropdownWithout(section, "Cooldown Mode", br.ui.dropOptions.Toggle, 6)
-        br.ui:checkSectionState(section)
-    end
-    optionTable = { {
-        [1] = "Rotation Options",
-        [2] = rotationOptions,
-    } }
-    return optionTable
+    -------------------------
+    --- DEFENSIVE OPTIONS ---
+    -------------------------
+    section = br.ui:section("Defensive")
+    -- Regrowth
+    br.ui:spinner(section, "Regrowth", { value = 50, tip = "Health Percent to Cast At" })
 end
 
 --------------
@@ -105,7 +73,6 @@ local profileStop
 -- Profile Specific Locals - Any custom to profile locals
 local actionList = {}
 local fbMaxEnergy
-local movingTimer
 
 -----------------
 --- Functions --- -- List all profile specific custom functions here
@@ -130,14 +97,6 @@ local function ferociousBiteFinish(thisUnit)
         finishHim = tonumber(damage) >= unit.health(thisUnit)
     end
     return finishHim
-end
--- Time Moving
-local function timeMoving()
-    if movingTimer == nil then movingTimer = br._G.GetTime() end
-    if not unit.moving() then
-        movingTimer = br._G.GetTime()
-    end
-    return br._G.GetTime() - movingTimer
 end
 
 local getMarkUnitOption = function(option)
@@ -176,7 +135,7 @@ end
 -- Action List - Extra
 actionList.Extra = function()
     -- Auto Shapeshift
-    if (not buff.travelForm.exists() and unit.moving() and timeMoving() > ui.value("Shift Wait Time")) or unit.inCombat()
+    if (not buff.travelForm.exists() and unit.moving() and unit.movingTime() > ui.value("Shift Wait Time")) or unit.inCombat()
         or (unit.exists("target") and (unit.id("target") == 164577 or unit.id("target") == 166906) and unit.canAttack("player", "target"))
     then
         local formValue = ui.mode.forms
@@ -429,13 +388,11 @@ local function runRotation()
     end         -- Pause
     return true
 end             -- End runRotation
-local id = 1447 -- Change to the spec id profile is for.
-br.loader.rotations[id] = br.loader.rotations[id] or {}
-if br.api.expansion == "Retail" then
-    br._G.tinsert(br.loader.rotations[id], {
-    name = rotationName,
-    toggles = createToggles,
-    options = createOptions,
-    run = runRotation,
-    })
-end
+br.loader.registerRotation({
+    name      = rotationName,
+    specID    = 1447,
+    expansion = "Retail",
+    toggles   = toggles,
+    options   = options,
+    run       = runRotation,
+})

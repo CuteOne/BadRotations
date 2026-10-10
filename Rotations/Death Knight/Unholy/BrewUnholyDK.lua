@@ -1,10 +1,3 @@
--------------------------------------------------------
--- Author = BrewingCoder
--- Patch = 10.2.5
--- Coverage = 90%
--- Status = Limited
--- Readiness = Development
--------------------------------------------------------
 local rotationName = "BrewUnholyDK"
 
 local colors = {
@@ -35,110 +28,73 @@ local text = {
 
 }
 
-local function createToggles()
-    local RotationModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range.", highlight = 1, icon = br.player.spells.darkCommand },
-        [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spells.heartStrike },
-        [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spells.iceboundFortitude },
-        [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spells.bloodTap}
-    };
-    br.ui:createToggle(RotationModes,"Rotation",1,0)
-
-    local AutoPullModes = {
-        [1] = { mode = "On", value =1, overlay = "Auto Pull Enabled", tip = "Auto Pull Enemies", highlight = 1, icon = br.player.spells.deathGrip},
-        [2] = { mode = "Off", value = 2, overlay = "Auto Pull Disabled", tip = "Do Not AutoPull Enemies", highlight=0, icon=br.player.spells.deathGrip}
-    };
-    br.ui:createToggle(AutoPullModes,"Autopull",2,0)
-
-
-    -- Cooldown Button
-    local CooldownModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spells.antiMagicShell },
-        [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spells.deathsAdvance},
-        [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spells.antiMagicShell }
-    };
-    br.ui:createToggle(CooldownModes,"Cooldown",3,0)
-    -- Defensive Button
-    local DefensiveModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spells.lichborne },
-        [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spells.lichborne }
-    };
-    br.ui:createToggle(DefensiveModes,"Defensive",4,0)
-    -- Interrupt Button
-    local InterruptModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spells.mindFreeze },
-        [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spells.mindFreeze }
-    };
-    br.ui:createToggle(InterruptModes,"Interrupt",5,0)
+local function toggles()
+    br.ui:toggle("Rotation", { key = "RightShift", modes = {
+        { name = "Auto", icon = "darkCommand", overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range." },
+        { name = "Mult", icon = "heartStrike", overlay = "Multiple Target Rotation", tip = "Multiple target rotation used." },
+        { name = "Sing", icon = "iceboundFortitude", overlay = "Single Target Rotation", tip = "Single target rotation used." },
+        { name = "Off", icon = "bloodTap", overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation" },
+    } })
+    br.ui:toggle("Autopull", { modes = {
+        { name = "On", icon = "deathGrip", overlay = "Auto Pull Enabled", tip = "Auto Pull Enemies" },
+        { name = "Off", icon = "deathGrip", overlay = "Auto Pull Disabled", tip = "Do Not AutoPull Enemies" },
+    } })
+    br.ui:toggle("Cooldown", { key = "RightCtrl", modes = {
+        { name = "Auto", icon = "antiMagicShell", overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection." },
+        { name = "On", icon = "deathsAdvance", overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target." },
+        { name = "Off", icon = "antiMagicShell", overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used." },
+    } })
+    br.ui:toggle("Defensive", { modes = {
+        { name = "On", icon = "lichborne", overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns." },
+        { name = "Off", icon = "lichborne", overlay = "Defensive Disabled", tip = "No Defensives will be used." },
+    } })
+    br.ui:toggle("Interrupt", { modes = {
+        { name = "On", icon = "mindFreeze", overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts." },
+        { name = "Off", icon = "mindFreeze", overlay = "Interrupts Disabled", tip = "No Interrupts will be used." },
+    } })
 end
 
 
-local function createOptions()
-    local optionTable
-    local function rotationOptions()
-        local section
-        -----------------------
-        --- GENERAL OPTIONS --- -- Define General Options
-        -----------------------
-        section = br.ui:createSection(br.ui.window.profile,  "General")
-                    br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
-                    br.ui:createCheckbox(section, "Auto Engage")
-                    br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
+local function options()
+    local section
+    -----------------------
+    --- GENERAL OPTIONS --- -- Define General Options
+    -----------------------
+    section = br.ui:section("General")
+                br.ui:spinner(section, "DPS Testing", { value = 5, min = 5, max = 60,
+                    tip = "Set to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5" })
+                br.ui:checkbox(section, "Auto Engage")
+                br.ui:spinner(section, "Pre-Pull Timer", { value = 5, min = 1, max = 10, step = 1,
+                    tip = "Set to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1" })
 
-        br.ui:checkSectionState(section)
-        section = br.ui:createSection(br.ui.window.profile,  "Cooldowns")
-           br.ui:createCheckbox(section,text.options.onlyUseGargAODonBoss)
-        br.ui:checkSectionState(section)
-        section = br.ui:createSection(br.ui.window.profile,"AOE")
-            br.ui:createCheckbox(section,text.aoe.aoeUseGargAODonBoss)
-            br.ui:createSpinnerWithout(section,text.aoe.aoeCount,3,1,10,1,"|cffFFFFFFNumber of targets within 8 yards to start using AOE routine")
-        br.ui:checkSectionState(section)
-        -------------------------
-        --- DEFENSIVE OPTIONS --- -- Define Defensive Options
-        -------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Defensive")
-        br.ui:checkSectionState(section)
+    section = br.ui:section("Cooldowns")
+       br.ui:checkbox(section, text.options.onlyUseGargAODonBoss)
+    section = br.ui:section("AOE")
+        br.ui:checkbox(section, text.aoe.aoeUseGargAODonBoss)
+        br.ui:spinner(section, text.aoe.aoeCount, { value = 3, min = 1, max = 10, step = 1, checkbox = false,
+            tip = "Number of targets within 8 yards to start using AOE routine" })
+    -------------------------
+    --- DEFENSIVE OPTIONS --- -- Define Defensive Options
+    -------------------------
+    section = br.ui:section("Defensive")
 
-        section = br.ui:createSection(br.ui.window.profile,"Potions,Phials,and Runes")
-            br.ui:createCheckbox(section,text.options.onlyUseConsumablesInRaid)
-            br.player.module.PhialUp(section)
-            br.player.module.ImbueUp(section)
-            br.player.module.CombatPotionUp(section)
-            br.ui:createCheckbox(section,text.options.useCombatPotWhenCDsActive)
-            br.ui:createCheckbox(section,text.options.onlyUseCombatPotOnBoss)
-            br.player.module.BasicHealing(section)
-        br.ui:checkSectionState(section)
-        -------------------------
-        --- INTERRUPT OPTIONS --- -- Define Interrupt Options
-        -------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Interrupts")
-            -- Mind Freeze
-            br.ui:createCheckbox(section,"Mind Freeze")
-            br.ui:createCheckbox(section,"Use Death Grip as Interrupt")
-            -- Interrupt Percentage
-            br.ui:createSpinner(section,  "Interrupt At",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")
-        br.ui:checkSectionState(section)
-        ----------------------
-        --- TOGGLE OPTIONS --- -- Degine Toggle Options
-        ----------------------
-        section = br.ui:createSection(br.ui.window.profile,  "Toggle Keys")
-            -- Single/Multi Toggle
-            br.ui:createDropdown(section,  "Rotation Mode", br.ui.dropOptions.Toggle,  4)
-            --Cooldown Key Toggle
-            br.ui:createDropdown(section,  "Cooldown Mode", br.ui.dropOptions.Toggle,  3)
-            --Defensive Key Toggle
-            br.ui:createDropdown(section,  "Defensive Mode", br.ui.dropOptions.Toggle,  6)
-            -- Interrupts Key Toggle
-            br.ui:createDropdown(section,  "Interrupt Mode", br.ui.dropOptions.Toggle,  6)
-            -- Pause Toggle
-            br.ui:createDropdown(section,  "Pause Mode", br.ui.dropOptions.Toggle,  6)
-        br.ui:checkSectionState(section)
-    end
-    optionTable = {{
-        [1] = "Rotation Options",
-        [2] = rotationOptions,
-    }}
-    return optionTable
+    section = br.ui:section("Potions,Phials,and Runes")
+        br.ui:checkbox(section, text.options.onlyUseConsumablesInRaid)
+        br.player.module.PhialUp(section)
+        br.player.module.ImbueUp(section)
+        br.player.module.CombatPotionUp(section)
+        br.ui:checkbox(section, text.options.useCombatPotWhenCDsActive)
+        br.ui:checkbox(section, text.options.onlyUseCombatPotOnBoss)
+        br.player.module.BasicHealing(section)
+    -------------------------
+    --- INTERRUPT OPTIONS --- -- Define Interrupt Options
+    -------------------------
+    section = br.ui:section("Interrupts")
+        -- Mind Freeze
+        br.ui:checkbox(section, "Mind Freeze")
+        br.ui:checkbox(section, "Use Death Grip as Interrupt")
+        -- Interrupt Percentage
+        br.ui:spinner(section, "Interrupt At", { value = 0, max = 95, tip = "|cffFFBB00Cast Percentage to use at." })
 end
 
 local debugMessage = function(message)
@@ -776,8 +732,8 @@ local function runRotation() -- This is the main profile loop, any below this po
     runicPower                                    = br.player.power.runicPower()
     pet                                           = br.player.pet
     runicPowerMax                                 = UnitPowerMax("player",6)
-    var.inRaid                                    = br.player.instance=="raid"
-    var.inParty                                   = br.player.instance=="party"
+    var.inRaid                                    = br.player.unit.instance()=="raid"
+    var.inParty                                   = br.player.unit.instance()=="party"
     var.healPot                                   =
     units.get(5) -- Makes a variable called, units.dyn5
     units.get(40) -- Makes a variable called, units.dyn40
@@ -1036,13 +992,16 @@ local function runRotation() -- This is the main profile loop, any below this po
         end -- End In Combat Rotation
     end -- Pause
 end -- End runRotation
-local id = 252
-br.loader.rotations[id] = br.loader.rotations[id] or {}
-if br.api.expansion == "MOP" then
-    br._G.tinsert(br.loader.rotations[id], {
-    name = rotationName,
-    toggles = createToggles,
-    options = createOptions,
-    run = runRotation,
-    })
-end
+br.loader.registerRotation({
+    name      = rotationName,
+    specID    = 252,
+    expansion = "MOP",
+    author    = "BrewingCoder",
+    patch     = "10.2.5",
+    coverage  = "90%",
+    status    = "Limited",
+    readiness = "Development",
+    toggles   = toggles,
+    options   = options,
+    run       = runRotation,
+})

@@ -1,105 +1,73 @@
 local rotationName = "Initial"
-br.loader.cBuilder:loadSupport("PetCuteOne")
+br.loader.profileLoader:loadSupport("PetCuteOne")
 
 ---------------
 --- Toggles ---
 ---------------
-local function createToggles()
-    -- Rotation Button
-    local RotationModes = {
-        [1] = { mode = "On", value = 1, overlay = "Rotation Enabled", tip = "Enables Rotation", highlight = 1, icon = br.player.spells.steadyShot },
-        [2] = { mode = "Off", value = 2, overlay = "Rotation Disabled", tip = "Disables Rotation", highlight = 0, icon = br.player.spells.steadyShot }
-    };
-    br.ui:createToggle(RotationModes, "Rotation", 1, 0)
-    -- Defensive Button
-    local DefensiveModes = {
-        [1] = { mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Enables Defensive", highlight = 1, icon = br.player.spells.exhilaration },
-        [2] = { mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "Disables Defensive", highlight = 0, icon = br.player.spells.exhilaration }
-    };
-    br.ui:createToggle(DefensiveModes, "Defensive", 2, 0)
-    -- Interrupt Button
-    local InterruptModes = {
-        [1] = { mode = "On", value = 1, overlay = "Interrupt Enabled", tip = "Enables Interrupt", highlight = 1, icon = br.player.spells.freezingTrap },
-        [2] = { mode = "Off", value = 2, overlay = "Interrupt Disabled", tip = "Disables Interrupt", highlight = 0, icon = br.player.spells.freezingTrap }
-    };
-    br.ui:createToggle(InterruptModes, "Interrupt", 3, 0)
-    -- Pet summon
-    local PetSummonModes = {
-        [1] = { mode = "1", value = 1, overlay = "Summon Pet 1", tip = "Summon Pet 1", highlight = 1, icon = br.player.spells.callPet1 },
-        [2] = { mode = "2", value = 2, overlay = "Summon Pet 2", tip = "Summon Pet 2", highlight = 1, icon = br.player.spells.callPet2 },
-        [3] = { mode = "3", value = 3, overlay = "Summon Pet 3", tip = "Summon Pet 3", highlight = 1, icon = br.player.spells.callPet3 },
-        [4] = { mode = "4", value = 4, overlay = "Summon Pet 4", tip = "Summon Pet 4", highlight = 1, icon = br.player.spells.callPet4 },
-        [5] = { mode = "5", value = 5, overlay = "Summon Pet 5", tip = "Summon Pet 5", highlight = 1, icon = br.player.spells.callPet5 },
-        [6] = { mode = "None", value = 6, overlay = "No pet", tip = "Dont Summon any Pet", highlight = 0, icon = br.player.spells.callPet }
-    };
-    br.ui:createToggle(PetSummonModes, "PetSummon", 4, 0)
+local function toggles()
+    br.ui:toggle("Rotation", { key = "RightShift", modes = {
+        { name = "On", icon = "steadyShot", overlay = "Rotation Enabled", tip = "Enables Rotation" },
+        { name = "Off", icon = "steadyShot", overlay = "Rotation Disabled", tip = "Disables Rotation" },
+    } })
+    br.ui:toggle("Defensive", { modes = {
+        { name = "On", icon = "exhilaration", overlay = "Defensive Enabled", tip = "Enables Defensive" },
+        { name = "Off", icon = "exhilaration", overlay = "Defensive Disabled", tip = "Disables Defensive" },
+    } })
+    br.ui:toggle("Interrupt", { modes = {
+        { name = "On", icon = "freezingTrap", overlay = "Interrupt Enabled", tip = "Enables Interrupt" },
+        { name = "Off", icon = "freezingTrap", overlay = "Interrupt Disabled", tip = "Disables Interrupt" },
+    } })
+    br.ui:toggle("PetSummon", { modes = {
+        { name = "1", icon = "callPet1", overlay = "Summon Pet 1", tip = "Summon Pet 1" },
+        { name = "2", icon = "callPet2", overlay = "Summon Pet 2", tip = "Summon Pet 2", highlight = true },
+        { name = "3", icon = "callPet3", overlay = "Summon Pet 3", tip = "Summon Pet 3", highlight = true },
+        { name = "4", icon = "callPet4", overlay = "Summon Pet 4", tip = "Summon Pet 4", highlight = true },
+        { name = "5", icon = "callPet5", overlay = "Summon Pet 5", tip = "Summon Pet 5", highlight = true },
+        { name = "None", icon = "callPet", overlay = "No pet", tip = "Dont Summon any Pet" },
+    } })
 end
 
 ---------------
 --- OPTIONS ---
 ---------------
-local function createOptions()
-    local optionTable
-    local function rotationOptions()
-        local section
-        -----------------------
-        --- GENERAL OPTIONS ---
-        -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "General")
-        -- Hunter's Mark
-        br.ui:createCheckbox(section, "Hunter's Mark")
-        -- Basic Trinkets Module
-        br.player.module.BasicTrinkets(nil, section)
-        br.ui:checkSectionState(section)
-        -------------------
-        --- PET OPTIONS ---
-        -------------------
-        br.loader.rotations.support["PetCuteOne"].options()
-        -------------------------
-        --- DEFENSIVE OPTIONS ---
-        -------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Defensive")
-        -- Basic Healing Module
-        br.player.module.BasicHealing(section)
-        -- Aspect of the Turtle
-        br.ui:createSpinner(section, "Aspect of the Turtle", 25, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-        -- Disengage
-        br.ui:createCheckbox(section, "Disengage")
-        -- Exhilaration
-        br.ui:createSpinner(section, "Exhilaration", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-        -- Feign Death
-        br.ui:createSpinner(section, "Feign Death", 30, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-        -- Wing Clip
-        br.ui:createCheckbox(section, "Wing Clip")
-        br.ui:checkSectionState(section)
-        -------------------------
-        --- INTERRUPT OPTIONS ---
-        -------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Interrupts")
-        -- Freezing Trap
-        br.ui:createCheckbox(section, "Freezing Trap")
-        -- Interrupt Percentage
-        br.ui:createSpinnerWithout(section, "Interrupt At", 0, 0, 95, 5, "|cffFFBB00Cast Percentage to use at.")
-        br.ui:checkSectionState(section)
-        ----------------------
-        --- TOGGLE OPTIONS ---
-        ----------------------
-        section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
-        -- Single/Multi Toggle
-        br.ui:createDropdownWithout(section, "Rotation Mode", br.ui.dropOptions.Toggle, 4)
-        --Defensive Key Toggle
-        br.ui:createDropdownWithout(section, "Defensive Mode", br.ui.dropOptions.Toggle, 6)
-        -- Interrupts Key Toggle
-        br.ui:createDropdownWithout(section, "Interrupt Mode", br.ui.dropOptions.Toggle, 6)
-        -- Pause Toggle
-        br.ui:createDropdown(section, "Pause Mode", br.ui.dropOptions.Toggle, 6)
-        br.ui:checkSectionState(section)
-    end
-    optionTable = { {
-        [1] = "Rotation Options",
-        [2] = rotationOptions,
-    } }
-    return optionTable
+local function options()
+    local section
+    -----------------------
+    --- GENERAL OPTIONS ---
+    -----------------------
+    section = br.ui:section("General")
+    -- Hunter's Mark
+    br.ui:checkbox(section, "Hunter's Mark")
+    -- Basic Trinkets Module
+    br.player.module.BasicTrinkets(nil, section)
+    -------------------
+    --- PET OPTIONS ---
+    -------------------
+    br.loader.rotations.support["PetCuteOne"].options()
+    -------------------------
+    --- DEFENSIVE OPTIONS ---
+    -------------------------
+    section = br.ui:section("Defensive")
+    -- Basic Healing Module
+    br.player.module.BasicHealing(section)
+    -- Aspect of the Turtle
+    br.ui:spinner(section, "Aspect of the Turtle", { value = 25, tip = "Health Percent to Cast At" })
+    -- Disengage
+    br.ui:checkbox(section, "Disengage")
+    -- Exhilaration
+    br.ui:spinner(section, "Exhilaration", { value = 50, tip = "Health Percent to Cast At" })
+    -- Feign Death
+    br.ui:spinner(section, "Feign Death", { value = 30, tip = "Health Percent to Cast At" })
+    -- Wing Clip
+    br.ui:checkbox(section, "Wing Clip")
+    -------------------------
+    --- INTERRUPT OPTIONS ---
+    -------------------------
+    section = br.ui:section("Interrupts")
+    -- Freezing Trap
+    br.ui:checkbox(section, "Freezing Trap")
+    -- Interrupt Percentage
+    br.ui:spinner(section, "Interrupt At", { value = 0, max = 95, checkbox = false, tip = "|cffFFBB00Cast Percentage to use at." })
 end
 
 --------------
@@ -342,13 +310,11 @@ local function runRotation()
         end
     end         -- Pause
 end             -- End runRotation
-local id = 1448
-br.loader.rotations[id] = br.loader.rotations[id] or {}
-if br.api.expansion == "MOP" then
-    br._G.tinsert(br.loader.rotations[id], {
-    name = rotationName,
-    toggles = createToggles,
-    options = createOptions,
-    run = runRotation,
-    })
-end
+br.loader.registerRotation({
+    name      = rotationName,
+    specID    = 1448,
+    expansion = "MOP",
+    toggles   = toggles,
+    options   = options,
+    run       = runRotation,
+})

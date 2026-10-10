@@ -1,183 +1,126 @@
--------------------------------------------------------
--- Author = CuteOne
--- Patch = 11.0.2
---    Patch should be the latest patch you've updated the rotation for (i.e., 9.2.5)
--- Coverage = 100%
---    Coverage should be your estimated percent coverage for class mechanics (i.e., 100%)
--- Status = Limited
---    Status should be one of: Full, Limited, Sporadic, Inactive, Unknown
--- Readiness = Raid
---    Readiness should be one of: Raid, NoRaid, Basic, Development, Untested
--------------------------------------------------------
--- Required: Fill above fields to populate README.md --
--------------------------------------------------------
-
 local rotationName = "CuteOne"
-br.loader.cBuilder:loadSupport("PetCuteOne")
+br.loader.profileLoader:loadSupport("PetCuteOne")
 ---------------
 --- Toggles ---
 ---------------
-local function createToggles()
-    -- Rotation Button
-    local RotationModes = {
-        [1] = { mode = "Auto", value = 1, overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spells.aimedShot },
-        [2] = { mode = "Mult", value = 2, overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spells.multishot },
-        [3] = { mode = "Sing", value = 3, overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spells.arcaneShot },
-        [4] = { mode = "Off", value = 4, overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spells.aspectOfTheCheetah }
-    };
-    br.ui:createToggle(RotationModes, "Rotation", 1, 0)
-    -- Cooldown Button
-    local CooldownModes = {
-        [1] = { mode = "Auto", value = 1, overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spells.trueshot },
-        [2] = { mode = "On", value = 1, overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spells.trueshot },
-        [3] = { mode = "Off", value = 3, overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spells.trueshot }
-    };
-    br.ui:createToggle(CooldownModes, "Cooldown", 2, 0)
-    -- Defensive Button
-    local DefensiveModes = {
-        [1] = { mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spells.aspectOfTheTurtle },
-        [2] = { mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spells.aspectOfTheTurtle }
-    };
-    br.ui:createToggle(DefensiveModes, "Defensive", 3, 0)
-    -- Interrupt Button
-    local InterruptModes = {
-        [1] = { mode = "On", value = 1, overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spells.counterShot },
-        [2] = { mode = "Off", value = 2, overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spells.counterShot }
-    };
-    br.ui:createToggle(InterruptModes, "Interrupt", 4, 0)
-    -- MD Button
-    local MisdirectionModes = {
-        [1] = { mode = "On", value = 1, overlay = "Misdirection Enabled", tip = "Misdirection Enabled", highlight = 1, icon = br.player.spells.misdirection },
-        [2] = { mode = "Off", value = 2, overlay = "Misdirection Disabled", tip = "Misdirection Disabled", highlight = 0, icon = br.player.spells.misdirection }
-    };
-    br.ui:createToggle(MisdirectionModes, "Misdirection", 5, 0)
-    -- Volley Button
-    local VolleyModes = {
-        [1] = { mode = "On", value = 1, overlay = "Volley Enabled", tip = "Volley Enabled", highlight = 1, icon = br.player.spells.volley },
-        [2] = { mode = "Off", value = 2, overlay = "Volley Disabled", tip = "Volley Disabled", highlight = 0, icon = br.player.spells.volley }
-    };
-    br.ui:createToggle(VolleyModes, "Volley", 6, 0)
-    --Pet summon
-    local PetSummonModes = {
-        [1] = { mode = "1", value = 1, overlay = "Summon Pet 1", tip = "Summon Pet 1", highlight = 1, icon = br.player.spells.callPet1 },
-        [2] = { mode = "2", value = 2, overlay = "Summon Pet 2", tip = "Summon Pet 2", highlight = 1, icon = br.player.spells.callPet2 },
-        [3] = { mode = "3", value = 3, overlay = "Summon Pet 3", tip = "Summon Pet 3", highlight = 1, icon = br.player.spells.callPet3 },
-        [4] = { mode = "4", value = 4, overlay = "Summon Pet 4", tip = "Summon Pet 4", highlight = 1, icon = br.player.spells.callPet4 },
-        [5] = { mode = "5", value = 5, overlay = "Summon Pet 5", tip = "Summon Pet 5", highlight = 1, icon = br.player.spells.callPet5 },
-        [6] = { mode = "None", value = 6, overlay = "No pet", tip = "Dont Summon any Pet", highlight = 0, icon = br.player.spells.talents.loneWolf }
-    };
-    br.ui:createToggle(PetSummonModes, "PetSummon", 7, 0)
+local function toggles()
+    br.ui:toggle("Rotation", { modes = {
+        { name = "Auto", icon = "aimedShot", overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range." },
+        { name = "Mult", icon = "multishot", overlay = "Multiple Target Rotation", tip = "Multiple target rotation used." },
+        { name = "Sing", icon = "arcaneShot", overlay = "Single Target Rotation", tip = "Single target rotation used." },
+        { name = "Off", icon = "aspectOfTheCheetah", overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation" },
+    } })
+    br.ui:toggle("Cooldown", { modes = {
+        { name = "Auto", icon = "trueshot", overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection." },
+        { name = "On", icon = "trueshot", overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target." },
+        { name = "Off", icon = "trueshot", overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used." },
+    } })
+    br.ui:toggle("Defensive", { modes = {
+        { name = "On", icon = "aspectOfTheTurtle", overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns." },
+        { name = "Off", icon = "aspectOfTheTurtle", overlay = "Defensive Disabled", tip = "No Defensives will be used." },
+    } })
+    br.ui:toggle("Interrupt", { modes = {
+        { name = "On", icon = "counterShot", overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts." },
+        { name = "Off", icon = "counterShot", overlay = "Interrupts Disabled", tip = "No Interrupts will be used." },
+    } })
+    br.ui:toggle("Misdirection", { modes = {
+        { name = "On", icon = "misdirection", overlay = "Misdirection Enabled", tip = "Misdirection Enabled" },
+        { name = "Off", icon = "misdirection", overlay = "Misdirection Disabled", tip = "Misdirection Disabled" },
+    } })
+    br.ui:toggle("Volley", { modes = {
+        { name = "On", icon = "volley", overlay = "Volley Enabled", tip = "Volley Enabled" },
+        { name = "Off", icon = "volley", overlay = "Volley Disabled", tip = "Volley Disabled" },
+    } })
+    br.ui:toggle("PetSummon", { modes = {
+        { name = "1", icon = "callPet1", overlay = "Summon Pet 1", tip = "Summon Pet 1" },
+        { name = "2", icon = "callPet2", overlay = "Summon Pet 2", tip = "Summon Pet 2", highlight = true },
+        { name = "3", icon = "callPet3", overlay = "Summon Pet 3", tip = "Summon Pet 3", highlight = true },
+        { name = "4", icon = "callPet4", overlay = "Summon Pet 4", tip = "Summon Pet 4", highlight = true },
+        { name = "5", icon = "callPet5", overlay = "Summon Pet 5", tip = "Summon Pet 5", highlight = true },
+        { name = "None", icon = br.player.spells.talents.loneWolf, overlay = "No pet", tip = "Dont Summon any Pet" },
+    } })
 end
 
 ---------------
 --- OPTIONS ---
 ---------------
-local function createOptions()
-    local optionTable
-
-    local function rotationOptions()
-        local section
-        local alwaysCdNever = { "Always", "|cff0000ffCD", "|cffff0000Never" }
-        local alwaysCdAoENever = { "Always", "|cff008000AOE", "|cffffff00AOE/CD", "|cff0000ffCD", "|cffff0000Never" }
-        -----------------------
-        --- General Options ---
-        -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "General")
-        -- Dummy DPS Test
-        br.ui:createSpinner(section, "DPS Testing", 5, 5, 60, 5,
-            "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
-        -- Hunter's Mark
-        br.ui:createDropdownWithout(section, "Hunter's Mark", alwaysCdNever, 2, "|cffFFFFFFWhen to use Hunter's Mark")
-        -- Misdirection
-        br.ui:createDropdownWithout(section, "Misdirection", { "|cff00FF00Tank", "|cffFFFF00Focus", "|cffFF0000Pet" }, 1,
-            "|cffFFFFFFWho to use Misdirection on.")
-        -- Tar Trap
-        br.ui:createCheckbox(section, "Tar Trap")
-        -- Volly Units
-        br.ui:createSpinnerWithout(section, "Volley Units", 3, 1, 5, 1,
-            "|cffFFFFFFSet minimal number of units to cast Volley on")
-        br.ui:checkSectionState(section)
-        -------------------
-        --- Pet Options ---
-        -------------------
-        br.loader.rotations.support["PetCuteOne"].options()
-        ------------------------
-        --- Cooldown Options ---
-        ------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
-        -- Module: Combat Potion Up
-        br.player.module.CombatPotionUp(section)
-        -- Racial
-        br.ui:createCheckbox(section, "Racial")
-        -- Barrage
-        br.ui:createDropdownWithout(section, "Barrage", alwaysCdAoENever, 1, "|cffFFFFFFSet when to use ability.")
-        -- Explosive Shot
-        br.ui:createDropdownWithout(section, "Explosive Shot", alwaysCdAoENever, 1, "|cffFFFFFFSet when to use ability.")
-        -- Salvo
-        br.ui:createDropdownWithout(section, "Salvo", alwaysCdAoENever, 1, "|cffFFFFFFSet when to use ability.")
-        -- Trueshot
-        br.ui:createDropdownWithout(section, "Trueshot", alwaysCdAoENever, 1, "|cffFFFFFFSet when to use ability.")
-        -- Volley
-        br.ui:createDropdownWithout(section, "Volley", alwaysCdAoENever, 1, "|cffFFFFFFSet when to use ability.")
-        -- Wailing Arrow
-        br.ui:createDropdownWithout(section, "Wailing Arrow", alwaysCdAoENever, 1, "|cffFFFFFFSet when to use ability.")
-        br.ui:checkSectionState(section)
-        -------------------------
-        --- Defensive Options ---
-        -------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Defensive")
-        -- Aspect of the Turtle
-        br.ui:createSpinner(section, "Aspect Of The Turtle", 60, 0, 100, 5, "|cffFFBB00Health Percentage to use at.");
-        -- Bursting Shot
-        br.ui:createSpinner(section, "Bursting Shot", 1, 1, 10, 1, "|cffFFBB00Number of Enemies within 8yrds to use at.")
-        -- Concussive Shot
-        br.ui:createSpinner(section, "Concussive Shot", 10, 5, 40, 5, "|cffFFBB00Minmal range to use at.")
-        -- Disengage
-        br.ui:createSpinner(section, "Disengage", 5, 5, 40, 5, "|cffFFBB00Minmal range to use at.")
-        -- Exhilaration
-        br.ui:createSpinner(section, "Exhilaration", 60, 0, 100, 5, "|cffFFBB00Health Percentage to use at.");
-        -- Feign Death
-        br.ui:createSpinner(section, "Feign Death", 30, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
-        -- Survival of the Fittest
-        br.ui:createSpinner(section, "Survival of the Fittest", 35, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
-        -- Tranquilizing Shot
-        br.ui:createDropdown(section, "Tranquilizing Shot", { "|cff00FF00Any", "|cffFFFF00Target" }, 2,
-            "|cffFFFFFFHow to use Tranquilizing Shot.")
-        br.ui:checkSectionState(section)
-        -------------------------
-        --- Interrupt Options ---
-        -------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Interrupts")
-        -- Counter Shot
-        br.ui:createCheckbox(section, "Counter Shot")
-        -- Freezing Trap
-        br.ui:createCheckbox(section, "Freezing Trap")
-        -- Interrupt Percentage
-        br.ui:createSpinnerWithout(section, "Interrupt At", 0, 0, 95, 5, "|cffFFFFFFCast Percent to Cast At")
-        br.ui:checkSectionState(section)
-        --------------------------
-        --- Toggle Key Options ---
-        --------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
-        -- Single/Multi Toggle
-        br.ui:createDropdownWithout(section, "Rotation Mode", br.ui.dropOptions.Toggle, 6)
-        -- Cooldown Key Toggle
-        br.ui:createDropdownWithout(section, "Cooldown Mode", br.ui.dropOptions.Toggle, 6)
-        -- Defensive Key Toggle
-        br.ui:createDropdownWithout(section, "Defensive Mode", br.ui.dropOptions.Toggle, 6)
-        -- Interrupts Key Toggle
-        br.ui:createDropdownWithout(section, "Interrupt Mode", br.ui.dropOptions.Toggle, 6)
-        -- Volley Key Toggle
-        br.ui:createDropdownWithout(section, "Volley Mode", br.ui.dropOptions.Toggle, 6)
-        -- Pause Toggle
-        br.ui:createDropdown(section, "Pause Mode", br.ui.dropOptions.Toggle, 6)
-        br.ui:checkSectionState(section)
-    end
-    optionTable = { {
-        [1] = "Rotation Options",
-        [2] = rotationOptions,
-    } }
-    return optionTable
+local function options()
+    local section
+    local alwaysCdNever = { "Always", "|cff0000ffCD", "|cffff0000Never" }
+    local alwaysCdAoENever = { "Always", "|cff008000AOE", "|cffffff00AOE/CD", "|cff0000ffCD", "|cffff0000Never" }
+    -----------------------
+    --- General Options ---
+    -----------------------
+    section = br.ui:section("General")
+    -- Dummy DPS Test
+    br.ui:spinner(section, "DPS Testing", { value = 5, min = 5, max = 60,
+        tip = "Set to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5" })
+    -- Hunter's Mark
+    br.ui:dropdown(section, "Hunter's Mark", { choices = alwaysCdNever, value = 2, checkbox = false, tip = "When to use Hunter's Mark" })
+    -- Misdirection
+    br.ui:dropdown(section, "Misdirection", { choices = { "|cff00FF00Tank", "|cffFFFF00Focus", "|cffFF0000Pet" }, value = "Tank", checkbox = false,
+        tip = "Who to use Misdirection on." })
+    -- Tar Trap
+    br.ui:checkbox(section, "Tar Trap")
+    -- Volly Units
+    br.ui:spinner(section, "Volley Units", { value = 3, min = 1, max = 5, step = 1, checkbox = false,
+        tip = "Set minimal number of units to cast Volley on" })
+    -------------------
+    --- Pet Options ---
+    -------------------
+    br.loader.rotations.support["PetCuteOne"].options()
+    ------------------------
+    --- Cooldown Options ---
+    ------------------------
+    section = br.ui:section("Cooldowns")
+    -- Module: Combat Potion Up
+    br.player.module.CombatPotionUp(section)
+    -- Racial
+    br.ui:checkbox(section, "Racial")
+    -- Barrage
+    br.ui:dropdown(section, "Barrage", { choices = alwaysCdAoENever, value = 1, checkbox = false, tip = "Set when to use ability." })
+    -- Explosive Shot
+    br.ui:dropdown(section, "Explosive Shot", { choices = alwaysCdAoENever, value = 1, checkbox = false, tip = "Set when to use ability." })
+    -- Salvo
+    br.ui:dropdown(section, "Salvo", { choices = alwaysCdAoENever, value = 1, checkbox = false, tip = "Set when to use ability." })
+    -- Trueshot
+    br.ui:dropdown(section, "Trueshot", { choices = alwaysCdAoENever, value = 1, checkbox = false, tip = "Set when to use ability." })
+    -- Volley
+    br.ui:dropdown(section, "Volley", { choices = alwaysCdAoENever, value = 1, checkbox = false, tip = "Set when to use ability." })
+    -- Wailing Arrow
+    br.ui:dropdown(section, "Wailing Arrow", { choices = alwaysCdAoENever, value = 1, checkbox = false, tip = "Set when to use ability." })
+    -------------------------
+    --- Defensive Options ---
+    -------------------------
+    section = br.ui:section("Defensive")
+    -- Aspect of the Turtle
+    br.ui:spinner(section, "Aspect Of The Turtle", { value = 60, tip = "|cffFFBB00Health Percentage to use at." });
+    -- Bursting Shot
+    br.ui:spinner(section, "Bursting Shot", { value = 1, min = 1, max = 10, step = 1,
+        tip = "|cffFFBB00Number of Enemies within 8yrds to use at." })
+    -- Concussive Shot
+    br.ui:spinner(section, "Concussive Shot", { value = 10, min = 5, max = 40, tip = "|cffFFBB00Minmal range to use at." })
+    -- Disengage
+    br.ui:spinner(section, "Disengage", { value = 5, min = 5, max = 40, tip = "|cffFFBB00Minmal range to use at." })
+    -- Exhilaration
+    br.ui:spinner(section, "Exhilaration", { value = 60, tip = "|cffFFBB00Health Percentage to use at." });
+    -- Feign Death
+    br.ui:spinner(section, "Feign Death", { value = 30, tip = "|cffFFBB00Health Percentage to use at." })
+    -- Survival of the Fittest
+    br.ui:spinner(section, "Survival of the Fittest", { value = 35, tip = "|cffFFBB00Health Percentage to use at." })
+    -- Tranquilizing Shot
+    br.ui:dropdown(section, "Tranquilizing Shot", { choices = { "|cff00FF00Any", "|cffFFFF00Target" }, value = "Target",
+        tip = "How to use Tranquilizing Shot." })
+    -------------------------
+    --- Interrupt Options ---
+    -------------------------
+    section = br.ui:section("Interrupts")
+    -- Counter Shot
+    br.ui:checkbox(section, "Counter Shot")
+    -- Freezing Trap
+    br.ui:checkbox(section, "Freezing Trap")
+    -- Interrupt Percentage
+    br.ui:spinner(section, "Interrupt At", { value = 0, max = 95, checkbox = false, tip = "Cast Percent to Cast At" })
 end
 
 --------------
@@ -868,6 +811,8 @@ end -- End Action List - Combat
 --- ROTATION ---
 ----------------
 local function runRotation()
+    -- This profile handles racials itself; skip the shared Racial module
+    if not br.player.localRacial then br.player.localRacial = true end
     --------------------------------------
     --- Load Additional Rotation Files ---
     --------------------------------------
@@ -994,13 +939,16 @@ local function runRotation()
         end --End In Combat
     end     --End Rotation Logic
 end         -- End runRotation
-local id = 254
-br.loader.rotations[id] = br.loader.rotations[id] or {}
-if br.api.expansion == "MOP" then
-    br._G.tinsert(br.loader.rotations[id], {
-    name = rotationName,
-    toggles = createToggles,
-    options = createOptions,
-    run = runRotation,
-    })
-end
+br.loader.registerRotation({
+    name      = rotationName,
+    specID    = 254,
+    expansion = "MOP",
+    author    = "CuteOne",
+    patch     = "11.0.2",
+    coverage  = "100%",
+    status    = "Limited",
+    readiness = "Raid",
+    toggles   = toggles,
+    options   = options,
+    run       = runRotation,
+})

@@ -9,7 +9,7 @@
 -- Covers the TBC pet system: single pet slot, no pet talent specs,
 -- TBC-era abilities and all pet family special abilities.
 -- Does NOT replace PetCuteOne (Retail).
--- Loaded via: br.loader.cBuilder:loadSupport("Pet")
+-- Loaded via: br.loader.profileLoader:loadSupport("Pet")
 -------------------------------------------------------
 
 -- BR API Locals
@@ -42,79 +42,62 @@ local PET_CALL_TIMEOUT      = 10     -- Seconds to wait for a called pet before 
 
 br.loader.rotations.support["PetTBC"] = {
     options = function()
-        local section = br.ui:createSection(br.ui.window.profile, "Pet")
+        local section = br.ui:section("Pet")
 
         -- Pet Mode: controls the WoW pet stance applied once on change
-        br.ui:createDropdownWithout(section, "Pet Mode", { "Aggressive", "Defensive", "Passive" }, 1,
-            "|cffFFFFFFAggressive: pet attacks nearby enemies. Defensive: responds to attacks on you/pet. Passive: player-directed only.")
+        br.ui:dropdown(section, "Pet Mode", { choices = { "Aggressive", "Defensive", "Passive" }, value = "Aggressive", checkbox = false,
+            tip = "Aggressive: pet attacks nearby enemies. Defensive: responds to attacks on you/pet. Passive: player-directed only." })
 
         -- Summoning
-        br.ui:createCheckbox(section, "Summon Pet",
-            "|cffFFFFFFCall and maintain your active pet. Revives or re-calls if dead or missing.")
+        br.ui:checkbox(section, "Summon Pet", { tip = "Call and maintain your active pet. Revives or re-calls if dead or missing." })
 
         -- Healing
-        br.ui:createSpinner(section, "Mend Pet", 60, 0, 100, 5,
-            "|cffFFFFFFHealth % below which Mend Pet is cast.")
+        br.ui:spinner(section, "Mend Pet", { value = 60, tip = "Health % below which Mend Pet is cast." })
 
         -- ── Family Special Abilities ──────────────────────────────────────────
 
         -- Furious Howl (Wolf) — short-CD party +physical damage buff; highest DPS priority
-        br.ui:createCheckbox(section, "Furious Howl",
-            "|cffFFFFFFWolf only. Buffs the physical damage of the next attack for all nearby party members. Use on cooldown.")
+        br.ui:checkbox(section, "Furious Howl", { tip = "Wolf only. Buffs the physical damage of the next attack for all nearby party members. Use on cooldown." })
 
         -- Screech (Bat / Owl / Carrion Bird) — AoE attack-speed debuff on 2+ targets near pet
-        br.ui:createCheckbox(section, "Screech",
-            "|cffFFFFFFBat/Owl/Carrion Bird only. AoE melee attack-power debuff. Fires when 2+ enemies are within 8 yards of the pet.")
+        br.ui:checkbox(section, "Screech", { tip = "Bat/Owl/Carrion Bird only. AoE melee attack-power debuff. Fires when 2+ enemies are within 8 yards of the pet." })
 
         -- Thunderstomp (Gorilla) — AoE threat builder on 2+ targets near pet
-        br.ui:createCheckbox(section, "Thunderstomp",
-            "|cffFFFFFFGorilla only. AoE Nature damage + threat builder. Fires when 2+ enemies are within 8 yards of the pet.")
+        br.ui:checkbox(section, "Thunderstomp", { tip = "Gorilla only. AoE Nature damage + threat builder. Fires when 2+ enemies are within 8 yards of the pet." })
 
         -- Fire Breath (Dragonhawk) — ranged fire damage on CD
-        br.ui:createCheckbox(section, "Fire Breath",
-            "|cffFFFFFFDragonhawk only. Ranged fire damage ability used on cooldown.")
+        br.ui:checkbox(section, "Fire Breath", { tip = "Dragonhawk only. Ranged fire damage ability used on cooldown." })
 
         -- Shell Shield (Turtle) — large defensive CD triggered at pet health threshold
-        br.ui:createCheckbox(section, "Shell Shield",
-            "|cffFFFFFFTurtle only. Reduces pet damage taken by 50%. Activates below the configured health %.")
-        br.ui:createSpinner(section, "Shell Shield HP", 40, 0, 100, 5,
-            "|cffFFFFFFPet health % at which Shell Shield is activated.")
+        br.ui:checkbox(section, "Shell Shield", { tip = "Turtle only. Reduces pet damage taken by 50%. Activates below the configured health %." })
+        br.ui:spinner(section, "Shell Shield HP", { value = 40, tip = "Pet health % at which Shell Shield is activated." })
 
         -- Charge (Boar only) — gap-closing charge when pet is out of melee
-        br.ui:createCheckbox(section, "Charge",
-            "|cffFFFFFFBoar only (Crab has no abilities in TBC). Gap-closing charge + immobilize when the pet is more than 10 yards from its target.")
+        br.ui:checkbox(section, "Charge", { tip = "Boar only (Crab has no abilities in TBC). Gap-closing charge + immobilize when the pet is more than 10 yards from its target." })
 
         -- Gore (Boar / Ravager) — stacking bleed on CD
-        br.ui:createCheckbox(section, "Gore",
-            "|cffFFFFFFBoar/Ravager only. Stacking bleed attack used on cooldown.")
+        br.ui:checkbox(section, "Gore", { tip = "Boar/Ravager only. Stacking bleed attack used on cooldown." })
 
         -- Scorpid Poison (Scorpid) — stacking AP-reducing poison on CD
-        br.ui:createCheckbox(section, "Scorpid Poison",
-            "|cffFFFFFFScorpid only. Stacking poison that reduces the target's attack power. Used on cooldown.")
+        br.ui:checkbox(section, "Scorpid Poison", { tip = "Scorpid only. Stacking poison that reduces the target's attack power. Used on cooldown." })
 
         -- ── Core Abilities ────────────────────────────────────────────────────
 
         -- Lightning Breath — higher DPE than basic attacks; fires before Bite/Claw
-        br.ui:createCheckbox(section, "Lightning Breath",
-            "|cffFFFFFFWind Serpent only. Ranged nature attack. Prioritised over Bite/Claw due to higher damage-per-energy.")
+        br.ui:checkbox(section, "Lightning Breath", { tip = "Wind Serpent only. Ranged nature attack. Prioritised over Bite/Claw due to higher damage-per-energy." })
 
         -- Pet Attack Ability — Bite / Claw basic energy dump
-        br.ui:createCheckbox(section, "Pet Attack Ability",
-            "|cffFFFFFFPet uses Bite or Claw as its primary melee energy-dump attack.")
+        br.ui:checkbox(section, "Pet Attack Ability", { tip = "Pet uses Bite or Claw as its primary melee energy-dump attack." })
 
         -- Auto Growl — manual per-target threat management
-        br.ui:createCheckbox(section, "Auto Growl",
-            "|cffFFFFFFPet taunts enemies it does not hold threat on. Automatically suppressed when a tank is in range.")
+        br.ui:checkbox(section, "Auto Growl", { tip = "Pet taunts enemies it does not hold threat on. Automatically suppressed when a tank is in range." })
 
         -- Dash — gap closer when pet is chasing its target
-        br.ui:createCheckbox(section, "Dash",
-            "|cffFFFFFFUse Dash when the pet is moving and farther than 15 yards from its target.")
+        br.ui:checkbox(section, "Dash", { tip = "Use Dash when the pet is moving and farther than 15 yards from its target." })
 
         -- Dive (Bat / Owl / Carrion Bird) — aerial dash equivalent
-        br.ui:createCheckbox(section, "Dive",
-            "|cffFFFFFFBat/Owl/Carrion Bird only. Speed burst used when the pet is moving and farther than 15 yards from its target.")
+        br.ui:checkbox(section, "Dive", { tip = "Bat/Owl/Carrion Bird only. Speed burst used when the pet is moving and farther than 15 yards from its target." })
 
-        br.ui:checkSectionState(section)
     end,
 
     run = function()

@@ -1,192 +1,130 @@
--------------------------------------------------------
--- Author = CuteOne
--- Patch = 5.4.8
---    Patch should be the latest patch you've updated the rotation for (i.e., 5.4.8)
--- Coverage = 100%
---    Coverage should be your estimated percent coverage for class mechanics (i.e., 100%)
--- Status = Full
---    Status should be one of: Full, Limited, Sporadic, Inactive, Unknown
--- Readiness = Untested
---    Readiness should be one of: Raid, NoRaid, Basic, Development, Untested
--------------------------------------------------------
--- Required: Fill above fields to populate README.md --
--------------------------------------------------------
 local rotationName = "CuteOne"
 ---------------
 --- Toggles ---
 ---------------
-local function createToggles()
-    -- Rotation Button
-    local RotationModes = {
-        [1] = { mode = "Auto", value = 1, overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spells.swipe },
-        [2] = { mode = "Mult", value = 2, overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spells.swipe },
-        [3] = { mode = "Sing", value = 3, overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spells.mangle },
-        [4] = { mode = "Off", value = 4, overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spells.rejuvenation }
-    };
-    br.ui:createToggle(RotationModes, "Rotation", 1, 0)
-    -- Cooldown Button
-    local CooldownModes = {
-        [1] = { mode = "Auto", value = 1, overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spells.berserk },
-        [2] = { mode = "On", value = 2, overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spells.berserk },
-        [3] = { mode = "Off", value = 3, overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spells.berserk }
-    };
-    br.ui:createToggle(CooldownModes, "Cooldown", 2, 0)
-    -- Defensive Button
-    local DefensiveModes = {
-        [1] = { mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spells.barkskin },
-        [2] = { mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spells.barkskin }
-    };
-    br.ui:createToggle(DefensiveModes, "Defensive", 3, 0)
-    -- Interrupt Button
-    local InterruptModes = {
-        [1] = { mode = "On", value = 1, overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spells.skullBash },
-        [2] = { mode = "Off", value = 2, overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spells.skullBash }
-    };
-    br.ui:createToggle(InterruptModes, "Interrupt", 4, 0)
-    -- Prowl Button
-    local ProwlModes = {
-        [1] = { mode = "On", value = 1, overlay = "Prowl Enabled", tip = "Rotation will use Prowl", highlight = 1, icon = br.player.spells.prowl },
-        [2] = { mode = "Off", value = 2, overlay = "Prowl Disabled", tip = "Rotation will not use Prowl", highlight = 0, icon = br.player.spells.prowl }
-    };
-    br.ui:createToggle(ProwlModes, "Prowl", 5, 0)
-    -- Boss Pull Button
-    local BossPullModes = {
-        [1] = { mode = "On", value = 1, overlay = "Boss Pre-Pull Active", tip = "Raid Boss Pre-Pull. Auto-disables on combat.", highlight = 1, icon = br.player.items.virmensBite },
-        [2] = { mode = "Off", value = 2, overlay = "Boss Pre-Pull Disabled", tip = "Normal rotation", highlight = 0, icon = br.player.items.virmensBite }
-    };
-    br.ui:createToggle(BossPullModes, "BossPull", 6, 0)
+local function toggles()
+    br.ui:toggle("Rotation", { key = "RightShift", modes = {
+        { name = "Auto", icon = "swipe", overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range." },
+        { name = "Mult", icon = "swipe", overlay = "Multiple Target Rotation", tip = "Multiple target rotation used." },
+        { name = "Sing", icon = "mangle", overlay = "Single Target Rotation", tip = "Single target rotation used." },
+        { name = "Off", icon = "rejuvenation", overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation" },
+    } })
+    br.ui:toggle("Cooldown", { key = "RightCtrl", modes = {
+        { name = "Auto", icon = "berserk", overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection." },
+        { name = "On", icon = "berserk", overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target." },
+        { name = "Off", icon = "berserk", overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used." },
+    } })
+    br.ui:toggle("Defensive", { modes = {
+        { name = "On", icon = "barkskin", overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns." },
+        { name = "Off", icon = "barkskin", overlay = "Defensive Disabled", tip = "No Defensives will be used." },
+    } })
+    br.ui:toggle("Interrupt", { modes = {
+        { name = "On", icon = "skullBash", overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts." },
+        { name = "Off", icon = "skullBash", overlay = "Interrupts Disabled", tip = "No Interrupts will be used." },
+    } })
+    br.ui:toggle("Prowl", { modes = {
+        { name = "On", icon = "prowl", overlay = "Prowl Enabled", tip = "Rotation will use Prowl" },
+        { name = "Off", icon = "prowl", overlay = "Prowl Disabled", tip = "Rotation will not use Prowl" },
+    } })
+    br.ui:toggle("BossPull", { modes = {
+        { name = "On", icon = br.player.items.virmensBite, overlay = "Boss Pre-Pull Active", tip = "Raid Boss Pre-Pull. Auto-disables on combat." },
+        { name = "Off", icon = br.player.items.virmensBite, overlay = "Boss Pre-Pull Disabled", tip = "Normal rotation" },
+    } })
 end
 
 ---------------
 --- OPTIONS ---
 ---------------
-local function createOptions()
-    local optionTable
-
-    local function rotationOptions()
-        local section
-        -----------------------
-        --- General Options ---
-        -----------------------
-        section = br.ui:createSection(br.ui.window.profile, "General")
-        -- Death Cat
-        br.ui:createCheckbox(section, "Death Cat Mode",
-            "|cff15FF00Enable|cffFFFFFF/|cffD60000Disable |cffFFFFFFthis mode when running through low level content where you 1 hit kill mobs.")
-        -- Fire Cat
-        br.ui:createCheckbox(section, "Perma Fire Cat",
-            "|cff15FF00Enable|cffFFFFFF/|cffD60000Disable |cffFFFFFFautomatic use of Fandrel's Seed Pouch or Burning Seeds.")
-        -- Dummy DPS Test
-        br.ui:createSpinner(section, "DPS Testing", 5, 5, 60, 5,
-            "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
-        -- Ferocious Bite Execute
-        br.ui:createDropdownWithout(section, "Ferocious Bite Execute",
-            { "|cffFFFF00Enabled Notify", "|cff00FF00Enabled", "|cffFF0000Disabled" }, 2,
-            "Options for using Ferocious Bite when the damage from it will kill the unit.")
-        -- Pre-Pull Timer
-        br.ui:createSpinner(section, "Pre-Pull Timer", 5, 1, 10, 1,
-            "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
-        -- Auto Shapeshifts
-        br.ui:createCheckbox(section, "Auto Shapeshifts",
-            "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Shapeshifting to best form for situation.|cffFFBB00.")
-        -- Fall Timer
-        br.ui:createSpinnerWithout(section, "Fall Timer", 2, 1, 5, 0.25,
-            "|cffFFFFFFSet to desired time to wait until shifting to Flight/Cat Form form when falling (in secs).")
-        -- Break Crowd Control
-        br.ui:createCheckbox(section, "Break Crowd Control",
-            "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Shapeshifting to break crowd control.|cffFFBB00.")
-        -- Wild Charge
-        br.ui:createCheckbox(section, "Wild Charge",
-            "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Charge usage.|cffFFBB00.")
-        -- Mark of the Wild
-        br.ui:createDropdown(section, "Mark of the Wild",
-            { "|cffFFFFFFPlayer", "|cffFFFFFFTarget", "|cffFFFFFFMouseover", "|cffFFFFFFFocus", "|cffFFFFFFGroup" }, 1,
-            "|cffFFFFFFSet how to use Mark of the Wild")
-        br.ui:checkSectionState(section)
-        ------------------------
-        --- Cooldown Options ---
-        ------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
-        -- Tiger's Fury
-        br.ui:createCheckbox(section, "Tiger's Fury")
-        -- Berserk / Incarnation: King of the Jungle
-        br.ui:createDropdownWithout(section, "Berserk/Incarnation", br.ui.dropOptions.AlwaysCdAoeNever,
-            2, "|cffFFFFFFSet when to use Berserk/Incarnation")
-        br.ui:checkSectionState(section)
-        -------------------------
-        --- Defensive Options ---
-        -------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Defensive")
-        -- Barkskin
-        br.ui:createSpinner(section, "Barkskin", 55, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-        -- Natures Vigil
-        br.ui:createDropdownWithout(section, "Nature's Vigil",
-            { "|cff00FF00Always", "|cffFFFF00Cooldowns", "|cffFF0000Never" }, 2,
-            "|cffFFFFFFSet when to use Nature's Vigil")
-        -- Rebirth
-        br.ui:createCheckbox(section, "Rebirth")
-        br.ui:createDropdownWithout(section, "Rebirth - Target", { "|cff00FF00Target", "|cffFF0000Mouseover" }, 1,
-            "|cffFFFFFFTarget to cast on")
-        -- Healing Touch
-        br.ui:createSpinner(section, "Healing Touch", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-        br.ui:createDropdownWithout(section, "Healing Touch - OoC", { "|cff00FF00Break Form", "|cffFF0000Keep Form" }, 1,
-            "|cffFFFFFFSelect if Healing Touch is allowed to break shapeshift to heal out of combat.")
-        br.ui:createDropdownWithout(section, "Healing Touch - InC", { "|cff00FF00Immediately", "|cffFF0000Save For DoC" }, 1,
-            "|cffFFFFFFSelect if Predatory Swiftness is used when available or saved for Bloodtalons.")
-        -- Rejuvenation
-        br.ui:createSpinner(section, "Rejuvenation", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-        -- Remove Corruption
-        br.ui:createCheckbox(section, "Remove Corruption")
-        br.ui:createDropdownWithout(section, "Remove Corruption - Target",
-            { "|cff00FF00Player", "|cffFFFF00Target", "|cffFF0000Mouseover" }, 1, "|cffFFFFFFTarget to cast on")
-        -- Renewal
-        br.ui:createSpinner(section, "Renewal", 75, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-        -- Revive
-        br.ui:createCheckbox(section, "Revive")
-        br.ui:createDropdownWithout(section, "Revive - Target", { "|cff00FF00Target", "|cffFF0000Mouseover" }, 1,
-            "|cffFFFFFFTarget to cast on")
-        -- Soothe
-        br.ui:createCheckbox(section, "Soothe")
-        -- Survival Instincts
-        br.ui:createSpinner(section, "Survival Instincts", 40, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-        -- Auto-Heal
-        br.ui:createDropdownWithout(section, "Auto Heal", { "|cffFFDD11LowestHP", "|cffFFDD11Player" }, 1,
-            "|cffFFFFFFSelect Target to Auto-Heal")
-        br.ui:checkSectionState(section)
-        -------------------------
-        --- Interrupt Options ---
-        -------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Interrupts")
-        -- Skull Bash
-        br.ui:createCheckbox(section, "Skull Bash")
-        -- Mighty Bash
-        br.ui:createCheckbox(section, "Mighty Bash")
-        -- Maim
-        br.ui:createCheckbox(section, "Maim")
-        -- Interrupt Percentage
-        br.ui:createSpinnerWithout(section, "Interrupt At", 0, 0, 95, 5,
-            "|cffFFFFFFCast Percent to Cast At (0 is random)")
-        br.ui:checkSectionState(section)
-        --------------------------
-        --- Toggle Key Options ---
-        --------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
-        -- Single/Multi Toggle
-        br.ui:createDropdownWithout(section, "Rotation Mode", br.ui.dropOptions.Toggle, 4)
-        -- Cooldown Key Toggle
-        br.ui:createDropdownWithout(section, "Cooldown Mode", br.ui.dropOptions.Toggle, 3)
-        -- Defensive Key Toggle
-        br.ui:createDropdownWithout(section, "Defensive Mode", br.ui.dropOptions.Toggle, 6)
-        -- Interrupts Key Toggle
-        br.ui:createDropdownWithout(section, "Interrupt Mode", br.ui.dropOptions.Toggle, 6)
-        -- Prowl Toggle
-        br.ui:createDropdownWithout(section, "Prowl Mode", br.ui.dropOptions.Toggle, 6)
-        br.ui:checkSectionState(section)
-    end
-    optionTable = { {
-        [1] = "Rotation Options",
-        [2] = rotationOptions,
-    } }
-    return optionTable
+local function options()
+    local section
+    -----------------------
+    --- General Options ---
+    -----------------------
+    section = br.ui:section("General")
+    -- Death Cat
+    br.ui:checkbox(section, "Death Cat Mode", { tip = "|cff15FF00Enable|cffFFFFFF/|cffD60000Disable |cffFFFFFFthis mode when running through low level content where you 1 hit kill mobs." })
+    -- Fire Cat
+    br.ui:checkbox(section, "Perma Fire Cat", { tip = "|cff15FF00Enable|cffFFFFFF/|cffD60000Disable |cffFFFFFFautomatic use of Fandrel's Seed Pouch or Burning Seeds." })
+    -- Dummy DPS Test
+    br.ui:spinner(section, "DPS Testing", { value = 5, min = 5, max = 60,
+        tip = "Set to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5" })
+    -- Ferocious Bite Execute
+    br.ui:dropdown(section, "Ferocious Bite Execute", { choices = { "|cffFFFF00Enabled Notify", "|cff00FF00Enabled", "|cffFF0000Disabled" }, value = "Enabled", checkbox = false,
+        tip = "Options for using Ferocious Bite when the damage from it will kill the unit." })
+    -- Pre-Pull Timer
+    br.ui:spinner(section, "Pre-Pull Timer", { value = 5, min = 1, max = 10, step = 1,
+        tip = "Set to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1" })
+    -- Auto Shapeshifts
+    br.ui:checkbox(section, "Auto Shapeshifts", { tip = "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Shapeshifting to best form for situation.|cffFFBB00." })
+    -- Fall Timer
+    br.ui:spinner(section, "Fall Timer", { value = 2, min = 1, max = 5, step = 0.25, checkbox = false,
+        tip = "Set to desired time to wait until shifting to Flight/Cat Form form when falling (in secs)." })
+    -- Break Crowd Control
+    br.ui:checkbox(section, "Break Crowd Control", { tip = "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Shapeshifting to break crowd control.|cffFFBB00." })
+    -- Wild Charge
+    br.ui:checkbox(section, "Wild Charge", { tip = "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Charge usage.|cffFFBB00." })
+    -- Mark of the Wild
+    br.ui:dropdown(section, "Mark of the Wild", { choices = { "Player", "Target", "Mouseover", "Focus", "Group" }, value = "Player",
+        tip = "Set how to use Mark of the Wild" })
+    ------------------------
+    --- Cooldown Options ---
+    ------------------------
+    section = br.ui:section("Cooldowns")
+    -- Tiger's Fury
+    br.ui:checkbox(section, "Tiger's Fury")
+    -- Berserk / Incarnation: King of the Jungle
+    br.ui:dropdown(section, "Berserk/Incarnation", { choices = "AlwaysCdAoeNever", value = "AOE", checkbox = false,
+        tip = "Set when to use Berserk/Incarnation" })
+    -------------------------
+    --- Defensive Options ---
+    -------------------------
+    section = br.ui:section("Defensive")
+    -- Barkskin
+    br.ui:spinner(section, "Barkskin", { value = 55, tip = "Health Percent to Cast At" })
+    -- Natures Vigil
+    br.ui:dropdown(section, "Nature's Vigil", { choices = { "|cff00FF00Always", "|cffFFFF00Cooldowns", "|cffFF0000Never" }, value = "Cooldowns", checkbox = false,
+        tip = "Set when to use Nature's Vigil" })
+    -- Rebirth
+    br.ui:checkbox(section, "Rebirth")
+    br.ui:dropdown(section, "Rebirth - Target", { choices = { "|cff00FF00Target", "|cffFF0000Mouseover" }, value = "Target", checkbox = false,
+        tip = "Target to cast on" })
+    -- Healing Touch
+    br.ui:spinner(section, "Healing Touch", { value = 50, tip = "Health Percent to Cast At" })
+    br.ui:dropdown(section, "Healing Touch - OoC", { choices = { "|cff00FF00Break Form", "|cffFF0000Keep Form" }, value = "Break Form", checkbox = false,
+        tip = "Select if Healing Touch is allowed to break shapeshift to heal out of combat." })
+    br.ui:dropdown(section, "Healing Touch - InC", { choices = { "|cff00FF00Immediately", "|cffFF0000Save For DoC" }, value = "Immediately", checkbox = false,
+        tip = "Select if Predatory Swiftness is used when available or saved for Bloodtalons." })
+    -- Rejuvenation
+    br.ui:spinner(section, "Rejuvenation", { value = 50, tip = "Health Percent to Cast At" })
+    -- Remove Corruption
+    br.ui:checkbox(section, "Remove Corruption")
+    br.ui:dropdown(section, "Remove Corruption - Target", { choices = { "|cff00FF00Player", "|cffFFFF00Target", "|cffFF0000Mouseover" }, value = "Player", checkbox = false,
+        tip = "Target to cast on" })
+    -- Renewal
+    br.ui:spinner(section, "Renewal", { value = 75, tip = "Health Percent to Cast At" })
+    -- Revive
+    br.ui:checkbox(section, "Revive")
+    br.ui:dropdown(section, "Revive - Target", { choices = { "|cff00FF00Target", "|cffFF0000Mouseover" }, value = "Target", checkbox = false,
+        tip = "Target to cast on" })
+    -- Soothe
+    br.ui:checkbox(section, "Soothe")
+    -- Survival Instincts
+    br.ui:spinner(section, "Survival Instincts", { value = 40, tip = "Health Percent to Cast At" })
+    -- Auto-Heal
+    br.ui:dropdown(section, "Auto Heal", { choices = { "|cffFFDD11LowestHP", "|cffFFDD11Player" }, value = "LowestHP", checkbox = false,
+        tip = "Select Target to Auto-Heal" })
+    -------------------------
+    --- Interrupt Options ---
+    -------------------------
+    section = br.ui:section("Interrupts")
+    -- Skull Bash
+    br.ui:checkbox(section, "Skull Bash")
+    -- Mighty Bash
+    br.ui:checkbox(section, "Mighty Bash")
+    -- Maim
+    br.ui:checkbox(section, "Maim")
+    -- Interrupt Percentage
+    br.ui:spinner(section, "Interrupt At", { value = 0, max = 95, checkbox = false, tip = "Cast Percent to Cast At (0 is random)" })
 end
 
 --------------
@@ -253,21 +191,8 @@ end
 
 -- * AutoProwl
 local function autoProwl()
-    if not unit.inCombat() and not buff.prowl.exists() then
-        if #enemies.yards20 > 0 then return true end
-        if #enemies.yards20nc > 0 then
-            for i = 1, #enemies.yards20nc do
-                local thisUnit = enemies.yards20nc[i]
-                local threatRange = math.max((20 + (unit.level(thisUnit) - unit.level())), 5)
-                local react = unit.reaction(thisUnit) or 10
-                if unit.distance(thisUnit) < threatRange and (react < 4 or (unit.isUnit("target", thisUnit) and react == 4)) and unit.enemy(thisUnit) and unit.canAttack(thisUnit) then
-                    return true
-                end
-            end
-        end
-        -- if unit.isDummy("target") and unit.distance("target") < 20 then return true end
-    end
-    return false
+    if unit.inCombat() or buff.prowl.exists() then return false end
+    return #enemies.yards20 > 0 or unit.anyInAggroRange(0, 20)
 end
 -- * Ferocious Bite Finish
 local function ferociousBiteFinish(thisUnit)
@@ -614,7 +539,7 @@ actionList.Defensive = function()
         end
         -- * PowerShift - Breaks Crowd Control (R.I.P Powershifting)
         if ui.checked("Break Crowd Control") and cast.able.catForm() and cast.noControl.catForm() then
-            if cast.macro("/cast !Cat Form") then
+            if cast.macro("/cast !Cat Form", spell.catForm.id()) then
                 ui.debug("Casting Cat Form [Breaking CC]")
                 return true
             end
@@ -1792,6 +1717,8 @@ end -- End Action List - Filler
 --- ROTATION ---
 ----------------
 local function runRotation()
+    -- This profile handles racials itself; skip the shared Racial module
+    if not br.player.localRacial then br.player.localRacial = true end
     --------------
     --- Locals ---
     --------------
@@ -1950,13 +1877,16 @@ local function runRotation()
     end --End Rotation Logic
 end -- End runRotation
 
-local id = 103
-br.loader.rotations[id] = br.loader.rotations[id] or {}
-if br.api.expansion == "MOP" then
-    br._G.tinsert(br.loader.rotations[id], {
-    name = rotationName,
-    toggles = createToggles,
-    options = createOptions,
-    run = runRotation,
-    })
-end
+br.loader.registerRotation({
+    name      = rotationName,
+    specID    = 103,
+    expansion = "MOP",
+    author    = "CuteOne",
+    patch     = "5.4.8",
+    coverage  = "100%",
+    status    = "Full",
+    readiness = "Untested",
+    toggles   = toggles,
+    options   = options,
+    run       = runRotation,
+})

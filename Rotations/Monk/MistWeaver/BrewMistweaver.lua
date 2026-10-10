@@ -1,10 +1,3 @@
--------------------------------------------------------
--- Author = BrewingCoder/SinWeaver/Lylo
--- Patch = 10.2.5
--- Coverage = 100%
--- Status = Full
--- Readiness = Raid
--------------------------------------------------------
 local rotationName = "BrewMistWeaver" -- Change to name of profile listed in options drop down
 
 local colors = {
@@ -192,48 +185,41 @@ local text2 = {
     }
 }
 
-local function createToggles()
-    local Content = {
-        [1] = { mode = "5P", value = 1, overlay = "5 Players Mode", tip = "Dungeon Settings", highlight = 1, icon = 388031 },
-        [2] = { mode = "20P", value = 2, overlay = "20 Players Mode", tip = "Raid Settings", highlight = 1, icon = 388615 }
-    }
-    br.ui:createToggle(Content, "Content", 1, 0)
-    local CooldownModes = {
-        [1] = { mode = "Auto", value = 1, overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spells.lifeCocoon },
-        [2] = { mode = "On", value = 1, overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 1, icon = br.player.spells.lifeCocoon },
-        [3] = { mode = "Off", value = 3, overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spells.lifeCocoon }
-    }
-    br.ui:createToggle(CooldownModes, "Cooldown", 2, 0)
-    local ThunderFocusTeaModes = {
-        [1] = { mode = "Auto", value = 1, overlay = "Thunder Focus Tea Mode Auto", tip = "Thunder Focus Tea Mode Auto", highlight = 1, icon = br.player.spells.thunderFocusTea },
-        [2] = { mode = "EM", value = 2, overlay = "Thunder Focus Tea Mode - Enveloping Mist", tip = "Thunder Focus Tea Mode - Enveloping Mist", highlight = 1, icon = br.player.spells.envelopingMist },
-        [3] = { mode = "VVF", value = 3, overlay = "Thunder Focus Tea Mode - Vivify", tip = "Thunder Focus Tea Mode - Vivify", highlight = 1, icon = br.player.spells.vivify },
-        [4] = { mode = "RM", value = 4, overlay = "Thunder Focus Tea Mode - Renewing Mist", tip = "Thunder Focus Tea Mode - Renewing Mist", highlight = 1, icon = br.player.spells.renewingMist },
-        [5] = { mode = "RSK", value = 5, overlay = "Thunder Focus Tea Mode - Rising Sun Kick", tip = "Thunder Focus Tea Mode - Rising Sun Kick", highlight = 1, icon = br.player.spells.risingSunKick }
-    }
-    br.ui:createToggle(ThunderFocusTeaModes, "ThunderFocusTea", 3, 0)
-    local DPSModes = {
-        [1] = { mode = "Auto", value = 1, overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spells.tigerPalm },
-        [2] = { mode = "Mult", value = 2, overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 1, icon = br.player.spells.spinningCraneKick },
-        [3] = { mode = "Sing", value = 3, overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 1, icon = br.player.spells.tigerPalm },
-        [4] = { mode = "Off", value = 4, overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spells.vivify }
-    }
-    br.ui:createToggle(DPSModes, "DPS", 4, 0)
-    local InterruptModes = {
-        [1] = { mode = "On", value = 1, overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spells.paralysis },
-        [2] = { mode = "Off", value = 2, overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spells.paralysis }
-    }
-    br.ui:createToggle(InterruptModes, "Interrupt", 5, 0)
-    local DetoxModes = {
-        [1] = { mode = "On", value = 1, overlay = "Detox Enabled", tip = "Detox Enabled", highlight = 1, icon = br.player.spells.detox },
-        [2] = { mode = "Off", value = 2, overlay = "Detox Disabled", tip = "Detox Disabled", highlight = 0, icon = br.player.spells.detox }
-    }
-    br.ui:createToggle(DetoxModes, "Detox", 6, 0)
-    local RollModes = {
-        [1] = { mode = "On", value = 1, overlay = "Auto Roll Enabed", tip = "Auto Roll enabled", highlight = 1, icon = br.player.spells.roll },
-        [2] = { mode = "Off", value = 2, overlay = "Auto Roll Disabled", tip = "Auto Roll Disabled", highlight = 0, icon = br.player.spells.roll },
-    }
-    br.ui:createToggle(RollModes, "RollMode", 7, 0)
+local function toggles()
+    br.ui:toggle("Content", { modes = {
+        { name = "5P", icon = 388031, overlay = "5 Players Mode", tip = "Dungeon Settings" },
+        { name = "20P", icon = 388615, overlay = "20 Players Mode", tip = "Raid Settings", highlight = true },
+    } })
+    br.ui:toggle("Cooldown", { modes = {
+        { name = "Auto", icon = "lifeCocoon", overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection." },
+        { name = "On", icon = "lifeCocoon", overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = true },
+        { name = "Off", icon = "lifeCocoon", overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used." },
+    } })
+    br.ui:toggle("ThunderFocusTea", { modes = {
+        { name = "Auto", icon = "thunderFocusTea", overlay = "Thunder Focus Tea Mode Auto", tip = "Thunder Focus Tea Mode Auto" },
+        { name = "EM", icon = "envelopingMist", overlay = "Thunder Focus Tea Mode - Enveloping Mist", tip = "Thunder Focus Tea Mode - Enveloping Mist", highlight = true },
+        { name = "VVF", icon = "vivify", overlay = "Thunder Focus Tea Mode - Vivify", tip = "Thunder Focus Tea Mode - Vivify", highlight = true },
+        { name = "RM", icon = "renewingMist", overlay = "Thunder Focus Tea Mode - Renewing Mist", tip = "Thunder Focus Tea Mode - Renewing Mist", highlight = true },
+        { name = "RSK", icon = "risingSunKick", overlay = "Thunder Focus Tea Mode - Rising Sun Kick", tip = "Thunder Focus Tea Mode - Rising Sun Kick", highlight = true },
+    } })
+    br.ui:toggle("DPS", { modes = {
+        { name = "Auto", icon = "tigerPalm", overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range." },
+        { name = "Mult", icon = "spinningCraneKick", overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = true },
+        { name = "Sing", icon = "tigerPalm", overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = true },
+        { name = "Off", icon = "vivify", overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation" },
+    } })
+    br.ui:toggle("Interrupt", { modes = {
+        { name = "On", icon = "paralysis", overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts." },
+        { name = "Off", icon = "paralysis", overlay = "Interrupts Disabled", tip = "No Interrupts will be used." },
+    } })
+    br.ui:toggle("Detox", { modes = {
+        { name = "On", icon = "detox", overlay = "Detox Enabled", tip = "Detox Enabled" },
+        { name = "Off", icon = "detox", overlay = "Detox Disabled", tip = "Detox Disabled" },
+    } })
+    br.ui:toggle("RollMode", { modes = {
+        { name = "On", icon = "roll", overlay = "Auto Roll Enabed", tip = "Auto Roll enabled" },
+        { name = "Off", icon = "roll", overlay = "Auto Roll Disabled", tip = "Auto Roll Disabled" },
+    } })
 end
 
 local labels = {
@@ -254,270 +240,259 @@ local labels = {
 ---------------
 --- OPTIONS ---
 ---------------
-local function createOptions()
-    local optionTable
-    local function welcome()
-        local section = br.ui:createSection(br.ui.window.profile, "Welcome")
-        br.ui:createText(section, colors.green .. "5P" .. colors.blue .. " (5 Players) mode is for Dungeoning ")
-        br.ui:createText(section, colors.green .. "20P" .. colors.blue .. " (20 Players) mode is for Raiding ")
-        br.ui:createText(section, "")
-        br.ui:createText(section, colors.blue .. "Based on SinWeaver/Lylo's old profile")
-        br.ui:createText(section, colors.blue .. "Updated for Retail 10.2.5")
-        br.ui:createText(section, colors.blue .. "Setup to easily switch between Dungeon vs Raid")
-        br.ui:createText(section, "")
-        br.ui:createText(section, colors.blue .. "Still a Major WIP, Healing is only a hobby, I love to tank it up. ")
-        br.ui:createText(section, colors.blue .. "Please let me know how I can make this better! - BrewingCoder")
-        br.ui:checkSectionState(section)
-    end
-    local function dungeonsettings()
-        local section = br.ui:createSection(br.ui.window.profile, text.heal.options)
-        br.ui:createText(section, "5P | CDs - Options")
-        br.ui:createSpinner(section, text.heal.lifeCocoon, 30, 1, 100, 5, "Enable auto usage of this spell",
-            "Health of unit to cast spell")
-        br.ui:createDropdownWithout(section, text.heal.lifeCocoonMode,
-            { colors.blue .. "Any", colors.green .. "Tank", colors.red .. "Tank/Healer" }, 2,
-            "Use ability only on selected type " .. colors.green .. "(default: Tank)")
-        br.ui:createDoubleSpinner(section, text.heal.revival,
-            { number = 2, min = 1, max = 40, step = 1, tooltip = "Amount of friends under health to cast spell" },
-            { number = 50, min = 1, max = 100, step = 5, tooltip = "Health of friends to cast spell" }, false)
-        br.ui:createDoubleSpinner(section, text.heal.invokeYulonTheJadeSerpent,
-            { number = 2, min = 1, max = 40, step = 1, tooltip = "Amount of friends under health to cast spell" },
-            { number = 70, min = 1, max = 100, step = 5, tooltip = "Health of friends to cast spell" }, false)
-        br.ui:createDoubleSpinner(section, text.heal.invokeChiJiTheRedCrane,
-            { number = 2, min = 1, max = 40, step = 1, tooltip = "Amount of friends under health to cast spell" },
-            { number = 70, min = 1, max = 100, step = 5, tooltip = "Health of friends to cast spell" }, false)
-        br.ui:createText(section, "5P | Thunder Focus Tea - Options")
-        br.ui:createSpinner(section, text.heal.thunderFocusTea.envelopingMist, 50, 1, 100, 1,
-            "Enable auto usage of this spell", "Health of unit to cast spell")
-        br.ui:createDoubleSpinner(section, text.heal.thunderFocusTea.vivify,
-            { number = 80, min = 1, max = 100, step = 1, tooltip = "Mana of player to cast spell" },
-            { number = 70, min = 1, max = 100, step = 5, tooltip = "Health of friends to cast spell" }, false)
-        br.ui:createSpinner(section, text.heal.thunderFocusTea.renewingMist, 90, 1, 100, 1,
-            "Enable auto usage of this spell", "Health of unit to cast spell")
-        br.ui:createCheckbox(section, text.heal.thunderFocusTea.risingSunKick, "Enable auto usage of this spell")
-        br.ui:createText(section, "5P | Soothing Mist - Options")
-        br.ui:createSpinner(section, text.heal.soothingMist.soothingMist, 85, 1, 100, 1,
-            "Enable auto usage of this spell", "Health of unit to cast spell")
-        br.ui:createSpinner(section, text.heal.soothingMist.envelopingMist, 80, 1, 100, 1,
-            "Enable auto usage of this spell", "Health of unit to cast spell")
-        br.ui:createSpinner(section, text.heal.soothingMist.vivify, 75, 1, 100, 1, "Enable auto usage of this spell",
-            "Health of unit to cast spell")
-        br.ui:createDoubleSpinner(section, text.heal.soothingMist.vivifyAoE,
-            { number = 2, min = 1, max = 40, step = 1, tooltip = "Amount of friends with renewing mist buff" },
-            { number = 70, min = 1, max = 100, step = 5, tooltip = "Health of friends to cast spell" }, false)
-        br.ui:createSpinner(section, text.heal.soothingMist.expelHarm, 75, 1, 100, 1, "Enable auto usage of this spell",
-            "Health of unit to cast spell")
-        br.ui:createText(section, "5P | Other - Options")
-
-        br.ui:createDoubleSpinner(section, text.heal.sheilunsGift,
-            { number = 2, min = 1, max = 10, step = 1, tooltip =
-            "Enable casting sheilun's gift when [x] number of mists exist" },
-            { number = 85, min = 1, max = 100, step = 5, tooltip = "Health of friend to cast spell" }, false)
-
-        br.ui:createSpinner(section, text.heal.renewingMist, 100, 1, 100, 1, "Enable auto usage of this spell",
-            "Health of unit to cast spell")
-        br.ui:createSpinner(section, text.heal.vivify, 80, 1, 100, 1, "Enable auto usage of this spell",
-            "Health of unit to cast spell")
-        br.ui:createSpinner(section, text.heal.envelopingMist, 70, 1, 100, 1, "Enable auto usage of this spell",
-            "Health of unit to cast spell")
-        br.ui:createCheckbox(section, text.heal.chiWave, "Enable auto usage of this spell")
-        br.ui:createDoubleSpinner(section, text.heal.chiBurst,
-            { number = 2, min = 1, max = 40, step = 1, tooltip = "Amount of friends under health to cast spell" },
-            { number = 85, min = 1, max = 100, step = 5, tooltip = "Health of friends to cast spell" }, false)
-        br.ui:createDoubleSpinner(section, text.heal.refreshingJadeWind,
-            { number = 2, min = 1, max = 40, step = 1, tooltip = "Amount of friends under health to cast spell" },
-            { number = 75, min = 1, max = 100, step = 5, tooltip = "Health of friends to cast spell" }, false)
-        br.ui:createDoubleSpinner(section, text.heal.essenceFont,
-            { number = 2, min = 1, max = 40, step = 1, tooltip = "Amount of friends under health to cast spell" },
-            { number = 70, min = 1, max = 100, step = 5, tooltip = "Health of friends to cast spell" }, false)
-        br.ui:createDoubleSpinner(section, text.heal.envelopingBreath,
-            { number = 2, min = 1, max = 40, step = 1, tooltip = "Amount of friends under health to cast spell" },
-            { number = 70, min = 1, max = 100, step = 5, tooltip = "Health of friends to cast spell" }, false)
-        br.ui:createDoubleSpinner(section, text.heal.faelineStomp,
-            { number = 2, min = 1, max = 40, step = 1, tooltip = "Amount of friends under health to cast spell" },
-            { number = 95, min = 1, max = 100, step = 5, tooltip = "Health of friends to cast spell" }, false)
-        br.ui:createSpinner(section, text.heal.zenPulse, 90, 1, 100, 1, "Enable auto usage of this spell",
-            "Health of unit to cast spell")
-        br.ui:checkSectionState(section)
-
-
-        section = br.ui:createSection(br.ui.window.profile, text.utility.options)
-        br.ui:createCheckbox(section, text.utility.tigersLust, "Enable auto usage of this spell on player or allies")
-        br.ui:createSpinner(section, text.utility.manaTea, 60, 1, 100, 5, "Mana of player to cast spell")
-        br.ui:createCheckbox(section, text.utility.manaTeaWithYulon,
-            "Enable auto usage of this spell when Yulon is activated")
-        br.ui:createDropdown(section, text.utility.summonJadeSerpentStatue, { "Around Tank", "Around Player" }, 2,
-            "Enable usage of this spell around option", "Select")
-        br.ui:createSpinner(section, text.utility.arcaneTorrent, 70, 1, 100, 5, "Mana of player to cast spell")
-        br.ui:createCheckbox(section, text.utility.ringOfPeace, "Enable auto usage of this spell to interrupt")
-        br.ui:createCheckbox(section, text.utility.spearHandStrike, "Enable auto usage of this spell to interrupt")
-        br.ui:checkSectionState(section)
-
-
-        section = br.ui:createSection(br.ui.window.profile, text.selfDefense.options)
-        br.ui:createSpinner(section, text.selfDefense.healingElixirOrDiffuseMagicOrDampenHarm, 65, 1, 100, 05,
-            "Enable auto usage of this spell", "Health of player to cast spell")
-        br.ui:createSpinner(section, text.selfDefense.fortifyingBrew, 65, 1, 100, 05, "Enable auto usage of this spell",
-            "Health of player to cast spell")
-        br.ui:createDoubleSpinner(section, text.selfDefense.legSweep,
-            { number = 2, min = 1, max = 40, step = 1, tooltip = "Number of Units in 5 Yards to Cast At" },
-            { number = 70, min = 1, max = 100, step = 5, tooltip = "or Health Percent to Cast At" }, false)
-        br.ui:createSpinner(section, text.selfDefense.expelHarm, 40, 0, 100, 05, "Enable auto usage of this spell",
-            "Health Percent to Cast At")
-        br.ui:checkSectionState(section)
-
-        section = br.ui:createSection(br.ui.window.profile, text.damage.options)
-        br.ui:createSpinnerWithout(section, text.damage.dpsThreshold, 85, 1, 100, 5,
-            "Lowest friend HP has to be higher then")
-        br.ui:createSpinnerWithout(section, text.damage.chiJiDpsThreshold, 60, 1, 100, 5,
-            "Lowest friend HP has to be higher then")
-
-        br.ui:createCheckbox(section, text.damage.cracklingJadeLightning, "Enable auto usage of this spell")
-        br.ui:createDropdown(section, text.damage.touchOfDeath,
-            { colors.blue .. "Always", colors.green .. "Bosses", colors.red .. "Never" }, 2,
-            "Enable auto usage of this spell.", "Select")
-        br.ui:checkSectionState(section)
-    end
-    local function raidsettings()
-        local section = br.ui:createSection(br.ui.window.profile, text2.heal2.options2)
-        br.ui:createText(section, "20P | CDs - Options")
-        br.ui:createSpinner(section, text2.heal2.lifeCocoon2, 30, 1, 100, 5, "Enable auto usage of this spell",
-            "Health of unit to cast spell")
-        br.ui:createDropdownWithout(section, text2.heal2.lifeCocoonMode2,
-            { colors.blue .. "Any", colors.green .. "Tank", colors.red .. "Tank/Healer" }, 2,
-            "Use ability only on selected type " .. colors.green .. "(default: Tank)")
-        br.ui:createDoubleSpinner(section, text2.heal2.revival2,
-            { number = 2, min = 1, max = 40, step = 1, tooltip = "Amount of friends under health to cast spell" },
-            { number = 50, min = 1, max = 100, step = 5, tooltip = "Health of friends to cast spell" }, false)
-        br.ui:createDoubleSpinner(section, text2.heal2.invokeYulonTheJadeSerpent2,
-            { number = 2, min = 1, max = 40, step = 1, tooltip = "Amount of friends under health to cast spell" },
-            { number = 70, min = 1, max = 100, step = 5, tooltip = "Health of friends to cast spell" }, false)
-        br.ui:createDoubleSpinner(section, text2.heal2.invokeChiJiTheRedCrane2,
-            { number = 2, min = 1, max = 40, step = 1, tooltip = "Amount of friends under health to cast spell" },
-            { number = 70, min = 1, max = 100, step = 5, tooltip = "Health of friends to cast spell" }, false)
-        br.ui:createText(section, "20P | Thunder Focus Tea - Options")
-        br.ui:createSpinner(section, text2.heal2.thunderFocusTea2.envelopingMist2, 50, 1, 100, 1,
-            "Enable auto usage of this spell", "Health of unit to cast spell")
-        br.ui:createDoubleSpinner(section, text2.heal2.thunderFocusTea2.vivify2,
-            { number = 80, min = 1, max = 100, step = 1, tooltip = "Mana of player to cast spell" },
-            { number = 70, min = 1, max = 100, step = 5, tooltip = "Health of friends to cast spell" }, false)
-        br.ui:createSpinner(section, text2.heal2.thunderFocusTea2.renewingMist2, 90, 1, 100, 1,
-            "Enable auto usage of this spell", "Health of unit to cast spell")
-        br.ui:createCheckbox(section, text2.heal2.thunderFocusTea2.risingSunKick2, "Enable auto usage of this spell")
-        br.ui:createText(section, "20P | Soothing Mist - Options")
-        br.ui:createSpinner(section, text2.heal2.soothingMist2.soothingMist2, 85, 1, 100, 1,
-            "Enable auto usage of this spell", "Health of unit to cast spell")
-        br.ui:createSpinner(section, text2.heal2.soothingMist2.envelopingMist2, 80, 1, 100, 1,
-            "Enable auto usage of this spell", "Health of unit to cast spell")
-        br.ui:createSpinner(section, text2.heal2.soothingMist2.vivify2, 75, 1, 100, 1, "Enable auto usage of this spell",
-            "Health of unit to cast spell")
-        br.ui:createDoubleSpinner(section, text2.heal2.soothingMist2.vivifyAoE2,
-            { number = 3, min = 1, max = 40, step = 1, tooltip = "Amount of friends with renewing mist buff" },
-            { number = 70, min = 1, max = 100, step = 5, tooltip = "Health of friends to cast spell" }, false)
-        br.ui:createSpinner(section, text2.heal2.soothingMist2.expelHarm2, 75, 1, 100, 1,
-            "Enable auto usage of this spell", "Health of unit to cast spell")
-        br.ui:createText(section, "20P | Other - Options")
-        -- br.ui:createDoubleSpinner(section, text2.heal.sheilunsGift2,
-        -- {number = 2,min = 1,max = 10,step = 1,tooltip = "Enable casting sheilun's gift when [x] number of mists exist"},
-        -- {number = 85,min = 1,max = 100,step = 5,tooltip ="Health of friend to cast spell"},false)
-
-        br.ui:createSpinner(section, text2.heal2.renewingMist2, 94, 1, 100, 1, "Enable auto usage of this spell",
-            "Health of unit to cast spell")
-        br.ui:createSpinner(section, text2.heal2.vivify2, 80, 1, 100, 1, "Enable auto usage of this spell",
-            "Health of unit to cast spell")
-        br.ui:createSpinner(section, text2.heal2.envelopingMist2, 70, 1, 100, 1, "Enable auto usage of this spell",
-            "Health of unit to cast spell")
-        br.ui:createCheckbox(section, text2.heal2.chiWave2, "Enable auto usage of this spell")
-        br.ui:createDoubleSpinner(section, text2.heal2.chiBurst2,
-            { number = 3, min = 1, max = 40, step = 1, tooltip = "Amount of friends under health to cast spell" },
-            { number = 85, min = 1, max = 100, step = 5, tooltip = "Health of friends to cast spell" }, false)
-        br.ui:createDoubleSpinner(section, text2.heal2.refreshingJadeWind2,
-            { number = 3, min = 1, max = 40, step = 1, tooltip = "Amount of friends under health to cast spell" },
-            { number = 75, min = 1, max = 100, step = 5, tooltip = "Health of friends to cast spell" }, false)
-        br.ui:createDoubleSpinner(section, text2.heal2.essenceFont2,
-            { number = 3, min = 1, max = 40, step = 1, tooltip = "Amount of friends under health to cast spell" },
-            { number = 70, min = 1, max = 100, step = 5, tooltip = "Health of friends to cast spell" }, false)
-        br.ui:createDoubleSpinner(section, text2.heal2.envelopingBreath2,
-            { number = 3, min = 1, max = 40, step = 1, tooltip = "Amount of friends under health to cast spell" },
-            { number = 70, min = 1, max = 100, step = 5, tooltip = "Health of friends to cast spell" }, false)
-        br.ui:createDoubleSpinner(section, text2.heal2.faelineStomp2,
-            { number = 2, min = 1, max = 40, step = 1, tooltip = "Amount of friends under health to cast spell" },
-            { number = 95, min = 1, max = 100, step = 5, tooltip = "Health of friends to cast spell" }, false)
-        br.ui:createSpinner(section, text2.heal2.zenPulse2, 90, 1, 100, 1, "Enable auto usage of this spell",
-            "Health of unit to cast spell")
-        br.ui:checkSectionState(section)
-
-
-        section = br.ui:createSection(br.ui.window.profile, text2.utility2.options2)
-        br.ui:createCheckbox(section, text2.utility2.tigersLust2, "Enable auto usage of this spell on player or allies")
-        br.ui:createSpinner(section, text2.utility2.manaTea2, 60, 1, 100, 5, "Mana of player to cast spell")
-        br.ui:createCheckbox(section, text2.utility2.manaTeaWithYulon2,
-            "Enable auto usage of this spell when Yulon is activated")
-        br.ui:createDropdown(section, text2.utility2.summonJadeSerpentStatue2, { "Around Tank", "Around Player" }, 2,
-            "Enable usage of this spell around option", "Select")
-        br.ui:createSpinner(section, text2.utility2.arcaneTorrent2, 70, 1, 100, 5, "Mana of player to cast spell")
-        br.ui:createCheckbox(section, text2.utility2.ringOfPeace2, "Enable auto usage of this spell to interrupt")
-        br.ui:createCheckbox(section, text2.utility2.spearHandStrike2, "Enable auto usage of this spell to interrupt")
-        br.ui:checkSectionState(section)
-
-
-        section = br.ui:createSection(br.ui.window.profile, text2.selfDefense2.options2)
-        br.ui:createSpinner(section, text2.selfDefense2.healingElixirOrDiffuseMagicOrDampenHarm2, 65, 1, 100, 05,
-            "Enable auto usage of this spell", "Health of player to cast spell")
-        br.ui:createSpinner(section, text2.selfDefense2.fortifyingBrew2, 65, 1, 100, 05,
-            "Enable auto usage of this spell", "Health of player to cast spell")
-        br.ui:createDoubleSpinner(section, text2.selfDefense2.legSweep2,
-            { number = 2, min = 1, max = 40, step = 1, tooltip = "Number of Units in 5 Yards to Cast At" },
-            { number = 70, min = 1, max = 100, step = 5, tooltip = "or Health Percent to Cast At" }, false)
-        br.ui:createSpinner(section, text2.selfDefense2.expelHarm2, 40, 0, 100, 05, "Enable auto usage of this spell",
-            "Health Percent to Cast At")
-        br.ui:checkSectionState(section)
-
-        section = br.ui:createSection(br.ui.window.profile, text2.damage2.options2)
-        br.ui:createSpinnerWithout(section, text2.damage2.dpsThreshold2, 85, 1, 100, 5,
-            "Lowest friend HP has to be higher then")
-        br.ui:createSpinnerWithout(section, text2.damage2.chiJiDpsThreshold2, 60, 1, 100, 5,
-            "Lowest friend HP has to be higher then")
-
-        br.ui:createCheckbox(section, text2.damage2.cracklingJadeLightning2, "Enable auto usage of this spell")
-        br.ui:createDropdown(section, text2.damage2.touchOfDeath2,
-            { colors.blue .. "Always", colors.green .. "Bosses", colors.red .. "Never" }, 2,
-            "Enable auto usage of this spell.", "Select")
-        br.ui:checkSectionState(section)
-    end
-    local function consumables()
-        local section = br.ui:createSection(br.ui.window.profile, "Consumables")
-        br.ui:createCheckbox(section, text.consumables.consumeOnlyInDungeon)
-        br.player.module.ImbueUp(section)
-        br.player.module.PhialUp(section)
-        br.player.module.CombatPotionUp(section)
-        br.ui:createCheckbox(section, text.consumables.onlyUseCombatPotOnBoss)
-        br.player.module.BasicHealing(section)
-        br.ui:checkSectionState(section)
-    end
-    optionTable = {
-        {
-            [1] = "Welcome",
-            [2] = welcome,
-        },
-        {
-            [1] = "Consumables",
-            [2] = consumables
-        },
-        {
-            [1] = "Dungeon Settings",
-            [2] = dungeonsettings,
-        },
-        {
-            [1] = "Raid Settings",
-            [2] = raidsettings,
-        }
-    }
-    return optionTable
+local function welcome()
+    local section = br.ui:section("Welcome")
+    br.ui:text(section, colors.green .. "5P" .. colors.blue .. " (5 Players) mode is for Dungeoning ")
+    br.ui:text(section, colors.green .. "20P" .. colors.blue .. " (20 Players) mode is for Raiding ")
+    br.ui:text(section, "")
+    br.ui:text(section, colors.blue .. "Based on SinWeaver/Lylo's old profile")
+    br.ui:text(section, colors.blue .. "Updated for Retail 10.2.5")
+    br.ui:text(section, colors.blue .. "Setup to easily switch between Dungeon vs Raid")
+    br.ui:text(section, "")
+    br.ui:text(section, colors.blue .. "Still a Major WIP, Healing is only a hobby, I love to tank it up. ")
+    br.ui:text(section, colors.blue .. "Please let me know how I can make this better! - BrewingCoder")
 end
+local function dungeonsettings()
+    local section = br.ui:section(text.heal.options)
+    br.ui:text(section, "5P | CDs - Options")
+    br.ui:spinner(section, text.heal.lifeCocoon, { value = 30, min = 1,
+        tip = "Enable auto usage of this spell", boxTip = "Health of unit to cast spell" })
+    br.ui:dropdown(section, text.heal.lifeCocoonMode, { choices = { colors.blue .. "Any", colors.green .. "Tank", colors.red .. "Tank/Healer" }, value = 2, checkbox = false,
+        tip = "Use ability only on selected type " .. colors.green .. "(default: Tank)" })
+    br.ui:doubleSpinner(section, text.heal.revival, {
+        first = { value = 2, min = 1, max = 40, step = 1, tip = "Amount of friends under health to cast spell" },
+        second = { value = 50, min = 1, tip = "Health of friends to cast spell" },
+    })
+    br.ui:doubleSpinner(section, text.heal.invokeYulonTheJadeSerpent, {
+        first = { value = 2, min = 1, max = 40, step = 1, tip = "Amount of friends under health to cast spell" },
+        second = { value = 70, min = 1, tip = "Health of friends to cast spell" },
+    })
+    br.ui:doubleSpinner(section, text.heal.invokeChiJiTheRedCrane, {
+        first = { value = 2, min = 1, max = 40, step = 1, tip = "Amount of friends under health to cast spell" },
+        second = { value = 70, min = 1, tip = "Health of friends to cast spell" },
+    })
+    br.ui:text(section, "5P | Thunder Focus Tea - Options")
+    br.ui:spinner(section, text.heal.thunderFocusTea.envelopingMist, { value = 50, min = 1, step = 1,
+        tip = "Enable auto usage of this spell", boxTip = "Health of unit to cast spell" })
+    br.ui:doubleSpinner(section, text.heal.thunderFocusTea.vivify, {
+        first = { value = 80, min = 1, step = 1, tip = "Mana of player to cast spell" },
+        second = { value = 70, min = 1, tip = "Health of friends to cast spell" },
+    })
+    br.ui:spinner(section, text.heal.thunderFocusTea.renewingMist, { value = 90, min = 1, step = 1,
+        tip = "Enable auto usage of this spell", boxTip = "Health of unit to cast spell" })
+    br.ui:checkbox(section, text.heal.thunderFocusTea.risingSunKick, { tip = "Enable auto usage of this spell" })
+    br.ui:text(section, "5P | Soothing Mist - Options")
+    br.ui:spinner(section, text.heal.soothingMist.soothingMist, { value = 85, min = 1, step = 1,
+        tip = "Enable auto usage of this spell", boxTip = "Health of unit to cast spell" })
+    br.ui:spinner(section, text.heal.soothingMist.envelopingMist, { value = 80, min = 1, step = 1,
+        tip = "Enable auto usage of this spell", boxTip = "Health of unit to cast spell" })
+    br.ui:spinner(section, text.heal.soothingMist.vivify, { value = 75, min = 1, step = 1,
+        tip = "Enable auto usage of this spell", boxTip = "Health of unit to cast spell" })
+    br.ui:doubleSpinner(section, text.heal.soothingMist.vivifyAoE, {
+        first = { value = 2, min = 1, max = 40, step = 1, tip = "Amount of friends with renewing mist buff" },
+        second = { value = 70, min = 1, tip = "Health of friends to cast spell" },
+    })
+    br.ui:spinner(section, text.heal.soothingMist.expelHarm, { value = 75, min = 1, step = 1,
+        tip = "Enable auto usage of this spell", boxTip = "Health of unit to cast spell" })
+    br.ui:text(section, "5P | Other - Options")
+
+    br.ui:doubleSpinner(section, text.heal.sheilunsGift, {
+        first = { value = 2, min = 1, max = 10, step = 1, tip = "Enable casting sheilun's gift when [x] number of mists exist" },
+        second = { value = 85, min = 1, tip = "Health of friend to cast spell" },
+    })
+
+    br.ui:spinner(section, text.heal.renewingMist, { value = 100, min = 1, step = 1,
+        tip = "Enable auto usage of this spell", boxTip = "Health of unit to cast spell" })
+    br.ui:spinner(section, text.heal.vivify, { value = 80, min = 1, step = 1,
+        tip = "Enable auto usage of this spell", boxTip = "Health of unit to cast spell" })
+    br.ui:spinner(section, text.heal.envelopingMist, { value = 70, min = 1, step = 1,
+        tip = "Enable auto usage of this spell", boxTip = "Health of unit to cast spell" })
+    br.ui:checkbox(section, text.heal.chiWave, { tip = "Enable auto usage of this spell" })
+    br.ui:doubleSpinner(section, text.heal.chiBurst, {
+        first = { value = 2, min = 1, max = 40, step = 1, tip = "Amount of friends under health to cast spell" },
+        second = { value = 85, min = 1, tip = "Health of friends to cast spell" },
+    })
+    br.ui:doubleSpinner(section, text.heal.refreshingJadeWind, {
+        first = { value = 2, min = 1, max = 40, step = 1, tip = "Amount of friends under health to cast spell" },
+        second = { value = 75, min = 1, tip = "Health of friends to cast spell" },
+    })
+    br.ui:doubleSpinner(section, text.heal.essenceFont, {
+        first = { value = 2, min = 1, max = 40, step = 1, tip = "Amount of friends under health to cast spell" },
+        second = { value = 70, min = 1, tip = "Health of friends to cast spell" },
+    })
+    br.ui:doubleSpinner(section, text.heal.envelopingBreath, {
+        first = { value = 2, min = 1, max = 40, step = 1, tip = "Amount of friends under health to cast spell" },
+        second = { value = 70, min = 1, tip = "Health of friends to cast spell" },
+    })
+    br.ui:doubleSpinner(section, text.heal.faelineStomp, {
+        first = { value = 2, min = 1, max = 40, step = 1, tip = "Amount of friends under health to cast spell" },
+        second = { value = 95, min = 1, tip = "Health of friends to cast spell" },
+    })
+    br.ui:spinner(section, text.heal.zenPulse, { value = 90, min = 1, step = 1,
+        tip = "Enable auto usage of this spell", boxTip = "Health of unit to cast spell" })
 
 
-function PartyPlayers(t)
+    section = br.ui:section(text.utility.options)
+    br.ui:checkbox(section, text.utility.tigersLust, { tip = "Enable auto usage of this spell on player or allies" })
+    br.ui:spinner(section, text.utility.manaTea, { value = 60, min = 1, tip = "Mana of player to cast spell" })
+    br.ui:checkbox(section, text.utility.manaTeaWithYulon, { tip = "Enable auto usage of this spell when Yulon is activated" })
+    br.ui:dropdown(section, text.utility.summonJadeSerpentStatue, { choices = { "Around Tank", "Around Player" }, value = "Around Player",
+        tip = "Enable usage of this spell around option", boxTip = "Select" })
+    br.ui:spinner(section, text.utility.arcaneTorrent, { value = 70, min = 1, tip = "Mana of player to cast spell" })
+    br.ui:checkbox(section, text.utility.ringOfPeace, { tip = "Enable auto usage of this spell to interrupt" })
+    br.ui:checkbox(section, text.utility.spearHandStrike, { tip = "Enable auto usage of this spell to interrupt" })
+
+
+    section = br.ui:section(text.selfDefense.options)
+    br.ui:spinner(section, text.selfDefense.healingElixirOrDiffuseMagicOrDampenHarm, { value = 65, min = 1,
+        tip = "Enable auto usage of this spell", boxTip = "Health of player to cast spell" })
+    br.ui:spinner(section, text.selfDefense.fortifyingBrew, { value = 65, min = 1,
+        tip = "Enable auto usage of this spell", boxTip = "Health of player to cast spell" })
+    br.ui:doubleSpinner(section, text.selfDefense.legSweep, {
+        first = { value = 2, min = 1, max = 40, step = 1, tip = "Number of Units in 5 Yards to Cast At" },
+        second = { value = 70, min = 1, tip = "or Health Percent to Cast At" },
+    })
+    br.ui:spinner(section, text.selfDefense.expelHarm, { value = 40,
+        tip = "Enable auto usage of this spell", boxTip = "Health Percent to Cast At" })
+
+    section = br.ui:section(text.damage.options)
+    br.ui:spinner(section, text.damage.dpsThreshold, { value = 85, min = 1, checkbox = false, tip = "Lowest friend HP has to be higher then" })
+    br.ui:spinner(section, text.damage.chiJiDpsThreshold, { value = 60, min = 1, checkbox = false,
+        tip = "Lowest friend HP has to be higher then" })
+
+    br.ui:checkbox(section, text.damage.cracklingJadeLightning, { tip = "Enable auto usage of this spell" })
+    br.ui:dropdown(section, text.damage.touchOfDeath, { choices = { colors.blue .. "Always", colors.green .. "Bosses", colors.red .. "Never" }, value = 2,
+        tip = "Enable auto usage of this spell.", boxTip = "Select" })
+end
+local function raidsettings()
+    local section = br.ui:section(text2.heal2.options2)
+    br.ui:text(section, "20P | CDs - Options")
+    br.ui:spinner(section, text2.heal2.lifeCocoon2, { value = 30, min = 1,
+        tip = "Enable auto usage of this spell", boxTip = "Health of unit to cast spell" })
+    br.ui:dropdown(section, text2.heal2.lifeCocoonMode2, { choices = { colors.blue .. "Any", colors.green .. "Tank", colors.red .. "Tank/Healer" }, value = 2, checkbox = false,
+        tip = "Use ability only on selected type " .. colors.green .. "(default: Tank)" })
+    br.ui:doubleSpinner(section, text2.heal2.revival2, {
+        first = { value = 2, min = 1, max = 40, step = 1, tip = "Amount of friends under health to cast spell" },
+        second = { value = 50, min = 1, tip = "Health of friends to cast spell" },
+    })
+    br.ui:doubleSpinner(section, text2.heal2.invokeYulonTheJadeSerpent2, {
+        first = { value = 2, min = 1, max = 40, step = 1, tip = "Amount of friends under health to cast spell" },
+        second = { value = 70, min = 1, tip = "Health of friends to cast spell" },
+    })
+    br.ui:doubleSpinner(section, text2.heal2.invokeChiJiTheRedCrane2, {
+        first = { value = 2, min = 1, max = 40, step = 1, tip = "Amount of friends under health to cast spell" },
+        second = { value = 70, min = 1, tip = "Health of friends to cast spell" },
+    })
+    br.ui:text(section, "20P | Thunder Focus Tea - Options")
+    br.ui:spinner(section, text2.heal2.thunderFocusTea2.envelopingMist2, { value = 50, min = 1, step = 1,
+        tip = "Enable auto usage of this spell", boxTip = "Health of unit to cast spell" })
+    br.ui:doubleSpinner(section, text2.heal2.thunderFocusTea2.vivify2, {
+        first = { value = 80, min = 1, step = 1, tip = "Mana of player to cast spell" },
+        second = { value = 70, min = 1, tip = "Health of friends to cast spell" },
+    })
+    br.ui:spinner(section, text2.heal2.thunderFocusTea2.renewingMist2, { value = 90, min = 1, step = 1,
+        tip = "Enable auto usage of this spell", boxTip = "Health of unit to cast spell" })
+    br.ui:checkbox(section, text2.heal2.thunderFocusTea2.risingSunKick2, { tip = "Enable auto usage of this spell" })
+    br.ui:text(section, "20P | Soothing Mist - Options")
+    br.ui:spinner(section, text2.heal2.soothingMist2.soothingMist2, { value = 85, min = 1, step = 1,
+        tip = "Enable auto usage of this spell", boxTip = "Health of unit to cast spell" })
+    br.ui:spinner(section, text2.heal2.soothingMist2.envelopingMist2, { value = 80, min = 1, step = 1,
+        tip = "Enable auto usage of this spell", boxTip = "Health of unit to cast spell" })
+    br.ui:spinner(section, text2.heal2.soothingMist2.vivify2, { value = 75, min = 1, step = 1,
+        tip = "Enable auto usage of this spell", boxTip = "Health of unit to cast spell" })
+    br.ui:doubleSpinner(section, text2.heal2.soothingMist2.vivifyAoE2, {
+        first = { value = 3, min = 1, max = 40, step = 1, tip = "Amount of friends with renewing mist buff" },
+        second = { value = 70, min = 1, tip = "Health of friends to cast spell" },
+    })
+    br.ui:spinner(section, text2.heal2.soothingMist2.expelHarm2, { value = 75, min = 1, step = 1,
+        tip = "Enable auto usage of this spell", boxTip = "Health of unit to cast spell" })
+    br.ui:text(section, "20P | Other - Options")
+    -- br.ui:createDoubleSpinner(section, text2.heal.sheilunsGift2,
+    -- {number = 2,min = 1,max = 10,step = 1,tooltip = "Enable casting sheilun's gift when [x] number of mists exist"},
+    -- {number = 85,min = 1,max = 100,step = 5,tooltip ="Health of friend to cast spell"},false)
+
+    br.ui:spinner(section, text2.heal2.renewingMist2, { value = 94, min = 1, step = 1,
+        tip = "Enable auto usage of this spell", boxTip = "Health of unit to cast spell" })
+    br.ui:spinner(section, text2.heal2.vivify2, { value = 80, min = 1, step = 1,
+        tip = "Enable auto usage of this spell", boxTip = "Health of unit to cast spell" })
+    br.ui:spinner(section, text2.heal2.envelopingMist2, { value = 70, min = 1, step = 1,
+        tip = "Enable auto usage of this spell", boxTip = "Health of unit to cast spell" })
+    br.ui:checkbox(section, text2.heal2.chiWave2, { tip = "Enable auto usage of this spell" })
+    br.ui:doubleSpinner(section, text2.heal2.chiBurst2, {
+        first = { value = 3, min = 1, max = 40, step = 1, tip = "Amount of friends under health to cast spell" },
+        second = { value = 85, min = 1, tip = "Health of friends to cast spell" },
+    })
+    br.ui:doubleSpinner(section, text2.heal2.refreshingJadeWind2, {
+        first = { value = 3, min = 1, max = 40, step = 1, tip = "Amount of friends under health to cast spell" },
+        second = { value = 75, min = 1, tip = "Health of friends to cast spell" },
+    })
+    br.ui:doubleSpinner(section, text2.heal2.essenceFont2, {
+        first = { value = 3, min = 1, max = 40, step = 1, tip = "Amount of friends under health to cast spell" },
+        second = { value = 70, min = 1, tip = "Health of friends to cast spell" },
+    })
+    br.ui:doubleSpinner(section, text2.heal2.envelopingBreath2, {
+        first = { value = 3, min = 1, max = 40, step = 1, tip = "Amount of friends under health to cast spell" },
+        second = { value = 70, min = 1, tip = "Health of friends to cast spell" },
+    })
+    br.ui:doubleSpinner(section, text2.heal2.faelineStomp2, {
+        first = { value = 2, min = 1, max = 40, step = 1, tip = "Amount of friends under health to cast spell" },
+        second = { value = 95, min = 1, tip = "Health of friends to cast spell" },
+    })
+    br.ui:spinner(section, text2.heal2.zenPulse2, { value = 90, min = 1, step = 1,
+        tip = "Enable auto usage of this spell", boxTip = "Health of unit to cast spell" })
+
+
+    section = br.ui:section(text2.utility2.options2)
+    br.ui:checkbox(section, text2.utility2.tigersLust2, { tip = "Enable auto usage of this spell on player or allies" })
+    br.ui:spinner(section, text2.utility2.manaTea2, { value = 60, min = 1, tip = "Mana of player to cast spell" })
+    br.ui:checkbox(section, text2.utility2.manaTeaWithYulon2, { tip = "Enable auto usage of this spell when Yulon is activated" })
+    br.ui:dropdown(section, text2.utility2.summonJadeSerpentStatue2, { choices = { "Around Tank", "Around Player" }, value = "Around Player",
+        tip = "Enable usage of this spell around option", boxTip = "Select" })
+    br.ui:spinner(section, text2.utility2.arcaneTorrent2, { value = 70, min = 1, tip = "Mana of player to cast spell" })
+    br.ui:checkbox(section, text2.utility2.ringOfPeace2, { tip = "Enable auto usage of this spell to interrupt" })
+    br.ui:checkbox(section, text2.utility2.spearHandStrike2, { tip = "Enable auto usage of this spell to interrupt" })
+
+
+    section = br.ui:section(text2.selfDefense2.options2)
+    br.ui:spinner(section, text2.selfDefense2.healingElixirOrDiffuseMagicOrDampenHarm2, { value = 65, min = 1,
+        tip = "Enable auto usage of this spell", boxTip = "Health of player to cast spell" })
+    br.ui:spinner(section, text2.selfDefense2.fortifyingBrew2, { value = 65, min = 1,
+        tip = "Enable auto usage of this spell", boxTip = "Health of player to cast spell" })
+    br.ui:doubleSpinner(section, text2.selfDefense2.legSweep2, {
+        first = { value = 2, min = 1, max = 40, step = 1, tip = "Number of Units in 5 Yards to Cast At" },
+        second = { value = 70, min = 1, tip = "or Health Percent to Cast At" },
+    })
+    br.ui:spinner(section, text2.selfDefense2.expelHarm2, { value = 40,
+        tip = "Enable auto usage of this spell", boxTip = "Health Percent to Cast At" })
+
+    section = br.ui:section(text2.damage2.options2)
+    br.ui:spinner(section, text2.damage2.dpsThreshold2, { value = 85, min = 1, checkbox = false, tip = "Lowest friend HP has to be higher then" })
+    br.ui:spinner(section, text2.damage2.chiJiDpsThreshold2, { value = 60, min = 1, checkbox = false,
+        tip = "Lowest friend HP has to be higher then" })
+
+    br.ui:checkbox(section, text2.damage2.cracklingJadeLightning2, { tip = "Enable auto usage of this spell" })
+    br.ui:dropdown(section, text2.damage2.touchOfDeath2, { choices = { colors.blue .. "Always", colors.green .. "Bosses", colors.red .. "Never" }, value = 2,
+        tip = "Enable auto usage of this spell.", boxTip = "Select" })
+end
+local function consumables()
+    local section = br.ui:section("Consumables")
+    br.ui:checkbox(section, text.consumables.consumeOnlyInDungeon)
+    br.player.module.ImbueUp(section)
+    br.player.module.PhialUp(section)
+    br.player.module.CombatPotionUp(section)
+    br.ui:checkbox(section, text.consumables.onlyUseCombatPotOnBoss)
+    br.player.module.BasicHealing(section)
+end
+-- The option pages, in order: { page name, function that builds it }
+local options = {
+    { "Welcome", welcome },
+    { "Consumables", consumables },
+    { "Dungeon Settings", dungeonsettings },
+    { "Raid Settings", raidsettings },
+}
+
+
+local function PartyPlayers(t)
     return setmetatable(t, { __index = table })
 end
 
@@ -2068,11 +2043,11 @@ local actionList = {
 
 
 actionList.Extra = function()
-    if (ui.checked(text.consumables.consumeOnlyInDungeon) and (br.player.instance == "raid" or br.player.instance == "party")) or
+    if (ui.checked(text.consumables.consumeOnlyInDungeon) and (br.player.unit.instance() == "raid" or br.player.unit.instance() == "party")) or
         not ui.checked(text.consumables.consumeOnlyInDungeon) then
         if module.ImbueUp() then return true end
     end
-    if (ui.checked(text.consumables.consumeOnlyInDungeon) and (br.player.instance == "raid" or br.player.instance == "party")) or
+    if (ui.checked(text.consumables.consumeOnlyInDungeon) and (br.player.unit.instance() == "raid" or br.player.unit.instance() == "party")) or
         not ui.checked(text.consumables.consumeOnlyInDungeon) then
         if module.PhialUp() then return true end
     end
@@ -2167,7 +2142,7 @@ local function runRotation()
         }
     end
     player                    = {
-        hp         = br.player.health,
+        hp         = br.player.unit.hp(),
         unit       = "player",
         mana       = br.player.power.mana.percent(),
         race       = br.player.unit.race(),
@@ -2175,7 +2150,7 @@ local function runRotation()
         isMounted  = IsMounted(),
         isMoving   = br.functions.misc:isMoving("player"),
         isDrinking = br.functions.aura:getBuffRemain("player", 308433) > 0 or br.functions.aura:getBuffRemain("player", 167152) > 0,
-        inCombat   = br.player.inCombat
+        inCombat   = br.player.unit.inCombat()
     }
     spell                     = br.player.spells
     talent                    = br.player.talent
@@ -2284,13 +2259,16 @@ local function runRotation()
         end
     end
 end            -- End runRotation
-local id = 270 -- Change to the spec id profile is for. Spec ID can be found at: https://wowpedia.fandom.com/wiki/SpecializationID
-br.loader.rotations[id] = br.loader.rotations[id] or {}
-if br.api.expansion == "MOP" then
-    br._G.tinsert(br.loader.rotations[id], {
-    name = rotationName,
-    toggles = createToggles,
-    options = createOptions,
-    run = runRotation,
-    })
-end
+br.loader.registerRotation({
+    name      = rotationName,
+    specID    = 270,
+    expansion = "MOP",
+    author    = "BrewingCoder/SinWeaver/Lylo",
+    patch     = "10.2.5",
+    coverage  = "100%",
+    status    = "Full",
+    readiness = "Raid",
+    toggles   = toggles,
+    options   = options,
+    run       = runRotation,
+})
