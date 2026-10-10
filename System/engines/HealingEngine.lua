@@ -303,9 +303,15 @@ if not healingEngine.metaTable1 then
 				return br._G.UnitGroupRolesAssigned(o.unit)
 			end
 		end
-		-- sets actual position of unit in engine, shouldnt refresh more than once/sec
+		-- Position of the member, or 0, 0, 0 when out of sight. Line of sight is a trace, so it's
+		-- rechecked on its own timer (0.5 s in combat, 1 s out); the position is read every update.
 		function o:GetPosition()
-			if br.functions.unit:GetUnitIsVisible(o.unit) and br.functions.misc:getLineOfSight("player",o.unit) then
+			local now = GetTime()
+			if o.losAt == nil or now > o.losAt + (br._G.UnitAffectingCombat("player") and 0.5 or 1.0) then
+				o.los = br.functions.misc:getLineOfSight("player", o.unit)
+				o.losAt = now
+			end
+			if br.functions.unit:GetUnitIsVisible(o.unit) and o.los then
 				o.refresh = GetTime()
 				local x, y, z = br.functions.unit:GetObjectPosition(o.unit)
 				x = math.ceil(x * 100) / 100
@@ -333,118 +339,33 @@ if not healingEngine.metaTable1 then
 		end
 		-- Updating the values of the Unit
 		function o:UpdateUnit()
-			if br.functions.misc:isChecked("Debug Timers") then
-				local startTime
-				local debugprofilestop = br._G.debugprofilestop
-
-				-- assign Name of unit
-				startTime = debugprofilestop()
-				o.name = br._G.UnitName(o.unit)
-				br.debug.cpu.healingEngine.UnitName = debugprofilestop() - startTime
-
-				-- assign real GUID of unit
-				startTime = debugprofilestop()
-				o.guid = o:nGUID()
-				br.debug.cpu.healingEngine.nGUID = debugprofilestop() - startTime
-
-				-- assign unit role
-				startTime = debugprofilestop()
-				o.role = o:GetRole()
-				br.debug.cpu.healingEngine.GetRole = debugprofilestop() - startTime
-
-				-- subgroup number
-				startTime = debugprofilestop()
-				o.subgroup = o:getUnitGroupNumber()
-				br.debug.cpu.healingEngine.getUnitGroupNumber = debugprofilestop() - startTime
-
-				-- Short GUID of unit for the SetupTable
-				o.guidsh = select(2, o:nGUID())
-
-				-- set to true if unit should be dispelled
-				startTime = debugprofilestop()
-				--o.dispel = o:Dispel(o.unit)
-				br.debug.cpu.healingEngine.Dispel = debugprofilestop() - startTime
-
-				-- distance to player
-				startTime = debugprofilestop()
-				o.distance = o:getUnitDistance()
-				br.debug.cpu.healingEngine.getUnitDistance = debugprofilestop() - startTime
-
-				-- Unit's threat situation(1-4)
-				startTime = debugprofilestop()
-				o.threat = br._G.UnitThreatSituation(o.unit)
-				br.debug.cpu.healingEngine.UnitThreatSituation = debugprofilestop() - startTime
-
-				-- Unit HP absolute
-				startTime = debugprofilestop()
-				o.hpabs = UnitHealth(o.unit)
-				br.debug.cpu.healingEngine.UnitHealth = debugprofilestop() - startTime
-
-				-- Unit HP missing absolute
-				startTime = debugprofilestop()
-				o.hpmissing = UnitHealthMax(o.unit) - UnitHealth(o.unit)
-				br.debug.cpu.healingEngine.hpMissing = debugprofilestop() - startTime
-
-				-- Unit HP
-				startTime = debugprofilestop()
-				--o.hp = o:CalcHP()
-				--o.absorb = select(3, o:CalcHP())
-				br.debug.cpu.healingEngine.absorb = debugprofilestop() - startTime
-
-				-- Target's target
-				o.target = tostring(o.unit) .. "target"
-
-				-- Unit Class
-				startTime = debugprofilestop()
-				o.class = o:GetClass()
-				br.debug.cpu.healingEngine.GetClass = debugprofilestop() - startTime
-
-				-- Unit is player
-				startTime = debugprofilestop()
-				o.isPlayer = br._G.UnitIsPlayer(o.unit)
-				br.debug.cpu.healingEngine.UnitIsPlayer = debugprofilestop() - startTime
-
-				-- precise unit position
-				startTime = debugprofilestop()
-				o.x, o.y, o.z = o:GetPosition()
-				br.debug.cpu.healingEngine.GetPosition = debugprofilestop() - startTime
-
-				--debug
-				startTime = debugprofilestop()
-				o.hp, _, o.absorb = o:CalcHP()
-				br.debug.cpu.healingEngine.absorbANDhp = debugprofilestop() - startTime
-			else
-				-- assign Name of unit
+			local startTime = br._G.debugprofilestop()
+			local now = GetTime()
+			-- Facts that rarely change (name, GUID, role, group, class, player or not): once a second
+			if o.factsAt == nil or now - o.factsAt >= 1 or o.guidsh == "" then
+				o.factsAt = now
 				o.name = o.unit and br._G.UnitName(o.unit) or "None"
-				-- assign real GUID of unit and Short GUID of unit for the SetupTable
 				o.guid, o.guidsh = o:nGUID()
-				-- assign unit role
 				o.role = o:GetRole()
-				-- subgroup number
 				o.subgroup = o:getUnitGroupNumber()
-				-- set to true if unit should be dispelled
-				--o.dispel = o:Dispel(o.unit)
-				-- distance to player
-				o.distance = o:getUnitDistance()
-				-- Unit's threat situation(1-4)
-				o.threat = br._G.UnitThreatSituation(o.unit)
-				-- Unit HP absolute
-				o.hpabs = UnitHealth(o.unit)
-				-- Unit HP missing absolute
-				o.hpmissing = UnitHealthMax(o.unit) - UnitHealth(o.unit)
-				-- Unit HP and Absorb
-				o.hp, _, o.absorb = o:CalcHP()
-				-- Target's target
-				o.target = tostring(o.unit) .. "target"
-				-- Unit Class
 				o.class = o:GetClass()
-				-- Unit is player
 				o.isPlayer = br._G.UnitIsPlayer(o.unit)
-				-- precise unit position
-				o.x, o.y, o.z = o:GetPosition()
+				o.target = tostring(o.unit) .. "target"
 			end
+			-- distance to player
+			o.distance = o:getUnitDistance()
+			-- Unit's threat situation(1-4)
+			o.threat = br._G.UnitThreatSituation(o.unit)
+			-- Unit HP absolute and missing
+			o.hpabs = UnitHealth(o.unit)
+			o.hpmissing = UnitHealthMax(o.unit) - o.hpabs
+			-- Unit HP and Absorb
+			o.hp, _, o.absorb = o:CalcHP()
+			-- precise unit position
+			o.x, o.y, o.z = o:GetPosition()
 			-- add unit to setup cache
-			healingEngine.memberSetup.cache[select(2, br.functions.unit:getGUID(o.unit))] = o -- Add unit to SetupTable
+			if o.guidsh ~= "" then healingEngine.memberSetup.cache[o.guidsh] = o end
+			br.debug.cpu:updateDebug(startTime, "healingEngine.updateUnit")
 		end
 		-- Adding the user and functions we just created to this cached version in case we need it again
 		-- This will also serve as a good check for if the unit is already in the table easily
