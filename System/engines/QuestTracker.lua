@@ -322,6 +322,8 @@ function questTracker:isQuestUnit(unit)
 	if not isAliveOrFriend(unit) then return false end
 
 	local guid = getGuid(unit)
+	-- Players and their pets are never quest targets (hunter pets named "Cat" used to match)
+	if guid and (guid:find("^Pet%-") or guid:find("^Player%-")) then return false end
 	local hasTooltipData = br._G.C_TooltipInfo and br._G.C_TooltipInfo.GetHyperlink
 
 	-- The tooltip names the quest and its progress, so it is the only check that knows a quest is done
