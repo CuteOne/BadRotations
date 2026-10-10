@@ -671,6 +671,29 @@ function spell:getKnownRank(spellIDOrTable)
     return 0
 end
 
+-- Check whether a spell ID is a spell list entry or one of its ranks
+-- @param spellID - The spell ID to look for
+-- @param spellIDOrTable - A spell ID (number) or table of spell IDs {rank1, rank2, ...}
+-- @return boolean - True when spellID is the entry (or one of its ranks)
+function spell:isRankOf(spellID, spellIDOrTable)
+    if type(spellIDOrTable) ~= "table" then
+        return spellIDOrTable == spellID
+    end
+    for _, rankID in ipairs(spellIDOrTable) do
+        if rankID == spellID then return true end
+    end
+    return false
+end
+
+-- Check whether a shapeshift form is a tanking form (Bear Form or Dire Bear Form in the spell list)
+-- @param formSpellID - The form's spell ID
+-- @return boolean
+function spell:isTankForm(formSpellID)
+    local spells = br.player and br.player.spells
+    if spells == nil or formSpellID == nil then return false end
+    return spell:isRankOf(formSpellID, spells.bearForm) or spell:isRankOf(formSpellID, spells.direBearForm)
+end
+
 -- Look up a spell ID from br.lists.spells by key name.
 -- Recursively searches all class/spec/type subtables for the key.
 -- If the found value is a rank table (Classic), returns the highest known rank.
