@@ -778,7 +778,22 @@ function unit:getFormSpellID()
 	return formSpellID
 end
 
-local BEAR_FORMS = { [5487] = true, [9634] = true } -- Bear Form, Dire Bear Form
+-- True when spellID is the spell list entry spellRef: a single ID or a list of rank IDs
+local function isSpellRef(spellRef, spellID)
+	if type(spellRef) == "table" then
+		for _, id in ipairs(spellRef) do
+			if id == spellID then return true end
+		end
+		return false
+	end
+	return spellRef == spellID
+end
+
+-- True when formSpellID is a tanking form (Bear Form or Dire Bear Form, from the spell list)
+local function isTankForm(formSpellID)
+	local spells = br.player and br.player.spells
+	return spells ~= nil and (isSpellRef(spells.bearForm, formSpellID) or isSpellRef(spells.direBearForm, formSpellID))
+end
 
 --- Whether leaving the current form to cast a spell is what a player would do now. Returns the answer
 -- and, when it's no, why. A player stays in form when stealthed (leaving breaks Prowl), when tanking
@@ -792,7 +807,7 @@ function unit:shouldLeaveFormFor(outOfFormSpell, treatOutSpellAsFree, emergency)
 	if formSpellID == nil then return false, "not in a form" end
 	if emergency then return true end
 	if br._G.IsStealthed and br._G.IsStealthed() then return false, "stealthed" end
-	if BEAR_FORMS[formSpellID] and (br._G.UnitThreatSituation("player") or 0) >= 2 then return false, "tanking" end
+	if isTankForm(formSpellID) and (br._G.UnitThreatSituation("player") or 0) >= 2 then return false, "tanking" end
 	local power = br.functions.power
 	local needed = power:getManaCostFromRef(outOfFormSpell, treatOutSpellAsFree) + power:getManaCostFromRef(formSpellID, false)
 	if needed > 0 and (br._G.UnitPower("player", 0) or 0) < needed then return false, "not enough mana to shift back" end
