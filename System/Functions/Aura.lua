@@ -784,3 +784,108 @@ function aura:hasBloodLustRemain()
 		return 0
 	end
 end
+
+-- Snapshot strength of a bleed/DoT (Feral) used by debuff.calc; 0 when not applicable.
+-- local value = br.functions.aura:getSnapshotValue(br.player.spells.debuffs.rip)
+function aura:getSnapshotValue(dot)
+	-- Feral Bleeds
+	if br.loader.selectedSpecID == 103 then
+		local multiplier = 1.00
+
+		-- Each buff only fires if it exists in the current expansion's spell list.
+		-- Spells absent from the list leave br.player.buff[name] nil, so the nil-guard
+		-- prevents both errors and false positives without any expansion flag checks.
+		if br.player.buff.tigersFury               and br.player.buff.tigersFury.exists()               then multiplier = multiplier * 1.15 end
+		if br.player.buff.dreamOfCenarius          and br.player.buff.dreamOfCenarius.exists()          then multiplier = multiplier * 1.30 end
+		if br.player.buff.bloodtalons              and br.player.buff.bloodtalons.exists()              then multiplier = multiplier * 1.30 end
+		if br.player.buff.savageRoar               and br.player.buff.savageRoar.exists()               then multiplier = multiplier * 1.45 end
+
+		-- Get Attack Power for actual damage calculations
+		local base, posBuff, negBuff = br._G.UnitAttackPower("player")
+		local ap = base + posBuff + negBuff
+
+		-- * Rip: 768% AP over 16 seconds (8 ticks, one every 2 seconds)
+		if dot == br.player.spells.debuffs.rip then
+			return ((7.68 * ap) / 8) * multiplier
+		end
+		-- * Rake: 155% AP over 15 seconds (9 ticks, one every 3 seconds)
+		if dot == br.player.spells.debuffs.rake then
+			local rakeMultiplier = 1.0
+			-- Incarnation/Prowl/Shadowmeld bonus — only present on expansions that have them
+			if (br.player.buff.incarnationAvatarOfAshamane and br.player.buff.incarnationAvatarOfAshamane.exists())
+				or (br.player.buff.prowl        and br.player.buff.prowl.exists())
+				or (br.player.buff.shadowmeld   and br.player.buff.shadowmeld.exists())
+			then
+				rakeMultiplier = 2.0
+			end
+			return ((0.155 * ap) / 9) * multiplier * rakeMultiplier
+		end
+	end
+	-- Assassination Bleeds
+	-- if br.loader.selectedSpecID == 259 then
+	--     local multiplier = 1
+	--     if br.player.buff.stealth.exists() and br.player.talent.nightstalker and (dot == br.player.spells.debuffs.rupture
+	--             or dot == br.player.spells.debuffs.garrote) then
+	--         multiplier = 1.5
+	--     end
+	--     if (br.player.buff.stealth.exists() or br.player.buff.vanish.exists()
+	--             or (br.player.buff.subterfuge.exists() and br.player.buff.subterfuge.remain() >= 0.1
+	--                 and br.player.buff.subterfuge.remain() >= br.functions.spell:getSpellCD(61304)))
+	--         and dot == br.player.spells.debuffs.garrote and br.player.talent.subterfuge
+	--     then
+	--         multiplier = 1.8
+	--     end
+	--     return multiplier
+	-- end
+	return 0
+end
+
+-- Base tick interval (seconds) for DoTs used by debuff.ticksGainedOnRefresh.
+local baseTickTimes = {
+	rake = 3,
+	rip = 2,
+	moonfire = 2,
+	moonfireFeral = 2,
+	thrashCat = 3,
+}
+-- local tick = br.functions.aura:getBaseTickTime("rake")
+function aura:getBaseTickTime(key)
+	return baseTickTimes[key] or 3
+end
+
+-- Bleed snapshot upkeep for Feral (103) and Assassination (259), run each tick. The combat
+-- log reader records snapshots in debuff.X.bleed / debuff.X.exsa; this drops dead units and
+-- zeroes snapshots for bleeds that are no longer applied.
+-- br.functions.aura:cleanBleedSnapshots(br.player.debuff, br.loader.selectedSpecID)
+local bleedSnapshotKeys = { rake = true, rip = true, rupture = true, garrote = true, crimsonTempest = true }
+local exsanguinateKeys = { crimsonTempest = true, garrote = true, rupture = true }
+function aura:cleanBleedSnapshots(debuff, spec)
+	if debuff == nil or (spec ~= 103 and spec ~= 259) then return end
+	for k in pairs(bleedSnapshotKeys) do
+		local thisDebuff = debuff[k]
+		if thisDebuff then
+			if thisDebuff.bleed == nil then thisDebuff.bleed = {} end
+			for thisUnit in pairs(thisDebuff.bleed) do
+				if br.functions.unit:GetUnitIsDeadOrGhost(thisUnit) then
+					thisDebuff.bleed[thisUnit] = nil
+				elseif not thisDebuff.exists(thisUnit, "EXACT") then
+					thisDebuff.bleed[thisUnit] = 0
+				end
+			end
+		end
+	end
+	if spec ~= 259 then return end
+	for k in pairs(exsanguinateKeys) do
+		local thisDebuff = debuff[k]
+		if thisDebuff then
+			if thisDebuff.exsa == nil then thisDebuff.exsa = {} end
+			for thisUnit in pairs(thisDebuff.exsa) do
+				if br.functions.unit:GetUnitIsDeadOrGhost(thisUnit) then
+					thisDebuff.exsa[thisUnit] = nil
+				elseif not thisDebuff.exists(thisUnit) then
+					thisDebuff.exsa[thisUnit] = false
+				end
+			end
+		end
+	end
+end

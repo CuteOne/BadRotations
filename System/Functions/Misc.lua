@@ -245,9 +245,53 @@ function misc:getLineOfSight(Unit1, Unit2)
 			return true
 		end
 	else
-		-- br._G.print("Really Skipped it all")
-		return true
+		-- TraceLine returned a hit position: something blocks the line.
+		return false
 	end
+end
+
+-- Line of sight from the player to a world point, for ground-targeted spells. Traces
+-- at the same height above both ends as getLineOfSight, as if a unit stood there.
+-- if br.functions.misc:canSeePosition(x, y, z) then
+function misc:canSeePosition(X2, Y2, Z2)
+	if X2 == nil or Y2 == nil or Z2 == nil then return false end
+	local X1, Y1, Z1 = br.functions.unit:GetObjectPosition("player")
+	if X1 == nil then return false end
+	return br._G.TraceLine(X1, Y1, Z1 + 2.25, X2, Y2, Z2 + 2.25, bit.bor(0x10, 0x100)) == nil
+end
+
+-- Cached player -> unit line of sight, keyed by GUID so unit tokens and object
+-- pointers share entries. TraceLine is costly; cast checks hit the same few units
+-- every tick. A stale "visible" costs one rejected cast, which the cast module's
+-- rejection memory then catches.
+local losCache = {}
+local LOS_CACHE_TTL = 0.25
+local LOS_CACHE_PRUNE_INTERVAL = 10
+local losCacheNextPrune = 0
+
+-- if br.functions.misc:canSee("target") then
+function misc:canSee(Unit)
+	if Unit == nil then return false end
+	if br.functions.unit:GetUnitIsUnit(Unit, "player") then return true end
+	local guid = br._G.UnitGUID(Unit)
+	if guid == nil then return misc:getLineOfSight("player", Unit) end
+	local now = br._G.GetTime()
+	-- Drop expired entries now and then so the cache doesn't grow across a session.
+	if now >= losCacheNextPrune then
+		losCacheNextPrune = now + LOS_CACHE_PRUNE_INTERVAL
+		for k, v in pairs(losCache) do
+			if now >= v.expires then losCache[k] = nil end
+		end
+	end
+	local entry = losCache[guid]
+	if entry and now < entry.expires then return entry.los end
+	local los = misc:getLineOfSight("player", Unit)
+	if entry then
+		entry.los, entry.expires = los, now + LOS_CACHE_TTL
+	else
+		losCache[guid] = { los = los, expires = now + LOS_CACHE_TTL }
+	end
+	return los
 end
 
 -- if getGround("target"[,"target"]) then
@@ -309,9 +353,9 @@ end
 function misc:hasEmptySlots()
 	local openSlots = 0
 	for i = 0, 4 do       --Let's look at each bag
-		local numBagSlots = C_Container.GetContainerNumSlots(i)
+		local numBagSlots = br._G.C_Container.GetContainerNumSlots(i)
 		if numBagSlots > 0 then -- Only look for slots if bag present
-			openSlots = openSlots + select(1, C_Container.GetContainerNumFreeSlots(i))
+			openSlots = openSlots + select(1, br._G.C_Container.GetContainerNumFreeSlots(i))
 		end
 	end
 	if openSlots > 0 then
@@ -431,30 +475,6 @@ function misc:isMoving(Unit)
 	return br._G.GetUnitSpeed(Unit) > 0
 end
 
--- if IsMovingTime(5) then
-function misc:IsMovingTime(time)
-	if time == nil then
-		time = 1
-	end
-	if br._G.GetUnitSpeed("player") > 0 then
-		if br.functions.misc.isRunning == nil then
-			br.functions.misc.isRunning = br._G.GetTime()
-			br.functions.misc.isStanding = nil
-		end
-		if br._G.GetTime() - br.functions.misc.isRunning > time then
-			return true
-		end
-	else
-		if br.functions.misc.isStanding == nil then
-			br.functions.misc.isStanding = br._G.GetTime()
-			br.functions.misc.isRunning = nil
-		end
-		if br._G.GetTime() - br.functions.misc.isStanding > time then
-			return false
-		end
-	end
-end
-
 function misc:isPlayer(Unit)
 	if br.functions.unit:GetUnitExists(Unit) ~= true then
 		return false
@@ -476,40 +496,10 @@ function misc:isPlayer(Unit)
 	end
 end
 
-function misc:getStandingTime()
-	return br.readers.common.DontMoveStartTime and br._G.GetTime() - br.readers.common.DontMoveStartTime or nil
-end
-
---
+-- True if the player has stood still (and isn't falling) for at least Seconds.
+-- if br.functions.misc:isStanding(2) then
 function misc:isStanding(Seconds)
-	return br._G.IsFalling() == false and br.readers.common.DontMoveStartTime and br.functions.misc:getStandingTime() >= Seconds or false
-end
-
--- if IsStandingTime(5) then
-function misc:IsStandingTime(time, unit)
-	if time == nil then
-		time = 1
-	end
-	if unit == nil then
-		unit = "player"
-	end
-	if not br._G.IsFalling() and br._G.GetUnitSpeed(unit) == 0 then
-		if br.functions.misc.isStanding == nil then
-			br.functions.misc.isStanding = br.GetTime()
-			br.functions.misc.isRunning = nil
-		end
-		if br._G.GetTime() - br.functions.misc.isStanding > time then
-			return true
-		end
-	else
-		if br.functions.misc.isRunning == nil then
-			br.functions.misc.isRunning = br._G.GetTime()
-			br.functions.misc.isStanding = nil
-		end
-		if br._G.GetTime() - br.functions.misc.isRunning > time then
-			return false
-		end
-	end
+	return not br._G.IsFalling() and misc:getStandingTime() >= (Seconds or 0)
 end
 
 -- if isValidTarget("target") then
@@ -804,6 +794,24 @@ end
 -- set skipCastingCheck to true, to not check if player is casting
 -- (useful if you want to use off-cd stuff, or spells which can be cast while other is casting)
 misc.pauseCast = br._G.GetTime()
+
+-- Channels the player can freely act through — moving, attacking, or casting does NOT
+-- cancel them — so the rotation must NOT pause while they tick (otherwise we just stand
+-- there taking damage until the channel's own timer ends).
+--
+-- Opt-in per spell on purpose: the default "pause during any channel" behavior is correct
+-- for normal channels, where acting would clip them. Reference each by its spell-list name
+-- (the actual ID lives in br.lists.spells.Shared.Shared.abilities — e.g. fumping = 39238 in
+-- Expansions/TBC/Global.lua). To capture a new channel's ID, run this WHILE channeling it:
+--     /run print((select(8, UnitChannelInfo("player"))))
+local nonBlockingChannelNames = {
+	"fumping", -- Fumper (item 31810, TBC quest "Fumping"): surfaces a hostile bone sifter
+}
+-- Resolved { [spellID] = true } lookup, built lazily on first pause() call (the spell lists
+-- load after this file). Names absent on the active expansion resolve to nil and are
+-- skipped, so this is safe to share across Classic/TBC/MOP/Retail.
+local nonBlockingChannels
+
 function misc:pause(skipCastingCheck)
 	-- Cache GetTime() once — used repeatedly below.
 	local now = br._G.GetTime()
@@ -814,6 +822,15 @@ function misc:pause(skipCastingCheck)
 	local sa    = br.lists.spells.Shared.Shared.abilities  -- Shared.abilities
 	local sd    = br.lists.spells.Shared.Shared.debuffs    -- Shared.debuffs
 	local items = br.lists.items
+
+	-- Resolve the act-through-channel ID set once, now that the spell lists are loaded.
+	if nonBlockingChannels == nil and sa then
+		nonBlockingChannels = {}
+		for i = 1, #nonBlockingChannelNames do
+			local id = sa[nonBlockingChannelNames[i]]
+			if id then nonBlockingChannels[id] = true end
+		end
+	end
 
 	-- ── Fast-path exits (cheapest checks first) ────────────────────────────
 	-- Dead (health = 0 or ghost-running). UnitIsDeadOrGhost is more thorough
@@ -917,7 +934,11 @@ function misc:pause(skipCastingCheck)
 
 	-- Casting / channeling a spell (with latency window handled in the then-block).
 	local isCasting   = not skipCastingCheck and br._G.UnitCastingInfo("player") ~= nil
-	local isChanneling = not skipCastingCheck and br._G.UnitChannelInfo("player") ~= nil
+	-- Channeling pauses the rotation EXCEPT for act-through channels (nonBlockingChannels):
+	-- those let us move/attack/cast without clipping them, so we keep running and fight back.
+	local channelName, _, _, _, _, _, _, channelSpellID = br._G.UnitChannelInfo("player")
+	local isChanneling = not skipCastingCheck and channelName ~= nil
+		and not (channelSpellID and nonBlockingChannels and nonBlockingChannels[channelSpellID])
 
 	-- Dead, eating, drinking, specific channeled debuffs/buffs.
 	-- 252753 = Potion of Replenishment (BFA mana channel — registered as a debuff).
@@ -958,14 +979,22 @@ function misc:pause(skipCastingCheck)
 			return false
 		end
 
-		-- Casting: return true only while more than 100 ms remains (latency window).
-		-- Once we're within 100 ms of the end-time the next queued spell can go out.
+		-- Casting: stay paused until the cast is inside the spell queue window, then
+		-- run the profile once to pre-cast whatever it ranks highest. After that
+		-- choice is sent, stay paused until this cast ends so nothing replaces it.
+		-- Only in combat: a pull spell's window falls before its bolt lands, so out of
+		-- combat the profile would pre-cast a second pull spell instead of letting the
+		-- first decision after the pull use its in-combat priorities.
 		if isCasting then
-			local _, _, _, _, endTime = br._G.UnitCastingInfo("player")
-			if (endTime / 1000 - now) > 0.1 then
+			local _, _, _, _, endTime, _, castID = br._G.UnitCastingInfo("player")
+			local window = br._G.UnitAffectingCombat("player") and br.functions.cast:getQueueWindow() or 0
+			if (endTime / 1000 - now) > window then
 				return true
 			end
-			-- Within latency window — fall through and allow the next cast.
+			if br.functions.cast:isQueuedBehind(castID, endTime) then
+				return true
+			end
+			-- Inside the queue window and nothing pre-cast yet — fall through.
 		else
 			br.ui.chatOverlay:Show("Profile Paused")
 			return true
@@ -990,177 +1019,71 @@ function misc:spellDebug(Message)
 	end
 end
 
-local reportFindings = {}
-local addFindings = function(thisOption, thisPage, thisTimes)
-	local alreadyReported = false
-	if reportFindings[thisOption] == nil then
-		reportFindings[thisOption] = {}
-		reportFindings[thisOption]["Findings"] = {}
-		reportFindings[thisOption].reported = false
+-- Option index: where each option lives (storage page) and its default, recorded by the UI
+-- elements as they are created (br.ui:createCheckbox / createSpinner / createDropdown / ...).
+-- Lookups go straight to the option's page instead of searching every page.
+local optionIndex = {}      -- [option key, e.g. "Auto Loot Check"] = page
+local optionDefaults = {}   -- [page] = { [option key] = default }
+local fallbackPages = {}    -- pages found by searching before the option was registered
+local warnedDuplicates = {}
+
+--- Records an option's page and default (called by the UI elements).
+-- The first page an option is created on wins; another page with the same option is reported once.
+function misc:registerOption(page, key, default)
+	if page == nil or key == nil then return end
+	optionDefaults[page] = optionDefaults[page] or {}
+	optionDefaults[page][key] = default
+	local known = optionIndex[key]
+	if known == nil then
+		optionIndex[key] = page
+	elseif known ~= page and not warnedDuplicates[key] then
+		warnedDuplicates[key] = true
+		br._G.print("|cffFF8800Option \"" .. key .. "\" exists on pages \"" .. known .. "\" and \"" .. page
+			.. "\"; using \"" .. known .. "\". Rename one of them.|r")
 	end
-	if #reportFindings[thisOption].Findings == 0 then
-		tinsert(reportFindings[thisOption].Findings, { option = thisOption, page = thisPage, timesFound = thisTimes })
-	else
-		for i = 1, #reportFindings[thisOption].Findings do
-			local report = reportFindings[thisOption].Findings[i]
-			if report.option == thisOption and report.page == thisPage then
-				-- print("Already Reported")
-				alreadyReported = true
-				return
-			end
-		end
-		if not alreadyReported then
-			tinsert(reportFindings[thisOption].Findings, { option = thisOption, page = thisPage, timesFound = thisTimes })
-		end
-	end
-	-- reportFindings[thisOption].option = thisOption
-	-- reportFindings[thisOption].page = thisPage
-	-- reportFindings[thisOption].timesFound = thisTimes
 end
--- lightweight per-tick cache to avoid repeated heavy searches that can cause "script ran too long"
--- local findOptionCache = {}
--- local findOptionCacheTime = 0
 
--- local function findOption(Value, Page, Type)
---     -- clear cache each ~frame (small delta) to avoid stale UI changes while still preventing hot-loop reevaluation
---     local now = br._G.GetTime()
---     if now - findOptionCacheTime > 0.05 then
---         findOptionCache = {}
---         findOptionCacheTime = now
---     end
+--- Clears the option index (a new profile's pages are about to be built).
+function misc:resetOptionIndex()
+	optionIndex = {}
+	optionDefaults = {}
+	fallbackPages = {}
+end
 
---     local key = tostring(Value) .. "|" .. tostring(Page or "") .. "|" .. tostring(Type or "")
---     if findOptionCache[key] ~= nil then
---         return findOptionCache[key]
---     end
+--- Page -> { option key -> default } for every registered option (used by the save guard).
+function misc:getOptionDefaults()
+	return optionDefaults
+end
 
---     -- Assume we are checking Rotation Options, if not specified.
---     if Page == nil then
---         Page = "Rotation Options"
---     end
---     if Type == nil then Type = " Check" end
-
---     if br.data and br.data.settings then
---         if br.data.settings[br.loader.selectedSpec] and br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile] then
---             local settings = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]
---             local option = Value .. Type
---             -- Attempt to find the option using the provided Page (or default page: "Rotation")
---             if settings[Page] and settings[Page][option] ~= nil then
---                 local res = settings[Page][option] -- Found requested option
---                 findOptionCache[key] = res
---                 return res
---             end
---             -- If no Page was provided, and not in the default location, look for it.
---             local timesFound = 0
---             local foundOption
---             if settings and settings["PageList"] then
---                 for i = 1, #settings["PageList"] do
---                     local thisPage = settings["PageList"][i]
---                     if thisPage and settings[thisPage] and settings[thisPage][option] ~= nil then
---                         timesFound = timesFound + 1
---                         foundOption = settings[thisPage][option]
---                         addFindings(option, thisPage, timesFound)
---                     end
---                 end
---                 -- br.report = reportFindings
---                 if reportFindings[option] and #reportFindings[option].Findings ~= 1 and not reportFindings[option].reported then
---                     if #reportFindings[option].Findings == 0 then
---                         br._G.print("No option found for: " .. tostring(option))
---                         reportFindings[option].reported = true
---                     end
---                     if #reportFindings[option].Findings > 1 then
---                         for i = 1, #reportFindings[option].Findings do
---                             local report = reportFindings[option].Findings[i]
---                             br._G.print("Found Option: " ..
---                                 tostring(report.option) ..
---                                 " on Page: " ..
---                                 tostring(report.page))
---                         end
---                         reportFindings[option].reported = true
---                     end
---                 elseif reportFindings[option] ~= nil and reportFindings[option].Findings ~= nil and #reportFindings[option].Findings == 1 then
---                     local thisOption = reportFindings[option].Findings[1]
---                     if settings and settings[thisOption.page] and settings[thisOption.page][thisOption.option] then
---                         local res = settings[thisOption.page][thisOption.option]
---                         findOptionCache[key] = res
---                         return res
---                     end
---                 end
---             end
---         end
---     end
-
---     local final = (Type == " Check") and false or 0
---     findOptionCache[key] = final
---     return final
--- end
 local function findOption(Value, Page, Type)
-	-- Assume we are checking Rotation Options, if not specified.
-	if Page == nil then
-		Page = "Rotation Options"
-		-- else
-		-- 	Page = string.gsub(Page, " ", "")
-		-- 	Page = string.gsub(Page, "Options", "")
-	end
-	-- print("Looking in: " .. tostring(Page))
 	if Type == nil then Type = " Check" end
-	if br.data and br.data.settings then
-		if br.data.settings[br.loader.selectedSpec] and br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile] then
-			local settings = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]
-					-- Defensive: if Value is nil, return default based on Type to avoid concatenation errors
-					if Value == nil then
-						if Type == " Check" then return false else return 0 end
-					end
-					local option = Value .. Type
-			-- Attempt to find the option using the provided Page (or default page: "Rotation")
-			if settings[Page] and settings[Page][option] ~= nil then
-				-- print("Found Option: \"" .. tostring(option) .. "\" within Page: \"" .. tostring(Page) .. "\"")
-				return settings[Page][option] -- Found requested option
-			end
-			-- If no Page was provided, and not in the default location, look for it.
-			local timesFound = 0
-			local foundOption
-			if settings and settings["PageList"] then
-				for i = 1, #settings["PageList"] do
-					local thisPage = settings["PageList"][i]
-					-- print("Searching on Page: " .. tostring(thisPage) .. " for Option: " .. tostring(option))
-					if thisPage and settings[thisPage] and settings[thisPage][option] ~= nil then
-						-- print("Found Option: \"" .. tostring(option) .. "\" within Page: \"" .. tostring(thisPage) .. "\"")
-						timesFound = timesFound + 1
-						foundOption = settings[thisPage][option] -- Found requested option
-						addFindings(option, thisPage, timesFound)
-					end
-				end
-				-- br.report = reportFindings
-				if reportFindings[option] and #reportFindings[option].Findings ~= 1 and not reportFindings[option].reported then
-					if #reportFindings[option].Findings == 0 then
-						br._G.print("No option found for: " .. tostring(option))
-						reportFindings[option].reported = true
-					end
-					if #reportFindings[option].Findings > 1 then
-						for i = 1, #reportFindings[option].Findings do
-							local report = reportFindings[option].Findings[i]
-							br._G.print("Found Option: " ..
-								tostring(report.option) ..
-								" on Page: " ..
-								tostring(report.page))
-						end
-						reportFindings[option].reported = true
-					end
-				elseif reportFindings[option] ~= nil and reportFindings[option].Findings ~= nil and #reportFindings[option].Findings == 1 then
-					local thisOption = reportFindings[option].Findings[1]
-					if settings and settings[thisOption.page] and settings[thisOption.page][thisOption.option] then
-						return settings[thisOption.page][thisOption.option]
-					end
-				end
-			end
+	local notFound = 0
+	if Type == " Check" then notFound = false end
+	-- A nil or secret option name can't be a real option
+	if Value == nil or (issecretvalue and issecretvalue(Value)) then return notFound end
+	local specSettings = br.data and br.data.settings and br.data.settings[br.loader.selectedSpec]
+	local settings = specSettings and specSettings[br.loader.selectedProfile]
+	if settings == nil then return notFound end
+	local option = Value .. Type
+	-- An explicit page that holds the option
+	if Page ~= nil and settings[Page] ~= nil and settings[Page][option] ~= nil then
+		return settings[Page][option]
+	end
+	-- The page the option was created on (or found on earlier)
+	local page = optionIndex[option] or fallbackPages[option]
+	if page ~= nil then
+		local pageSettings = settings[page]
+		if pageSettings ~= nil and pageSettings[option] ~= nil then return pageSettings[option] end
+		if optionIndex[option] ~= nil then return notFound end
+	end
+	-- Not registered yet (UI not built, or Power off): find it once and remember the page
+	for pageName, pageSettings in pairs(settings) do
+		if type(pageSettings) == "table" and pageName ~= "PageList" and pageSettings[option] ~= nil then
+			fallbackPages[option] = pageName
+			return pageSettings[option]
 		end
 	end
-	if Type == " Check" then
-		return false
-	else
-		return 0
-	end
+	return notFound
 end
 
 -- if br.functions.misc:isChecked("Debug") then
@@ -1482,4 +1405,98 @@ function misc:AcceptQueues()
 			-- randomReady = nil
 		end
 	end
+end
+
+-- Seconds the player has been moving (0 while standing still).
+-- if br.functions.misc:getMovingTime() > 2 then
+local movingTimer
+function misc:getMovingTime()
+	local now = br._G.GetTime()
+	if movingTimer == nil or br._G.GetUnitSpeed("player") == 0 then movingTimer = now end
+	return now - movingTimer
+end
+
+-- Seconds the player has been standing still (0 while moving).
+-- if br.functions.misc:getStandingTime() > 2 then
+local standingTimer
+function misc:getStandingTime()
+	local now = br._G.GetTime()
+	if standingTimer == nil or br._G.GetUnitSpeed("player") > 0 then standingTimer = now end
+	return now - standingTimer
+end
+
+-- Stores an enemies list on the player as enemies.yards<range><tags> (used by the Enemies API).
+-- Tags: t/f/p/m... for the center unit, nc for no-combat check, f for facing, r/c for rect/cone.
+function misc:setEnemiesVariable(self, unit, range, checkNoCombat, facing, type, table, count)
+	if unit == nil then unit = "player" end
+	if range == nil then range = 5 end
+	if checkNoCombat == nil then checkNoCombat = false end
+	if facing == nil then facing = false end
+	if type == nil then type = "" end
+	if table == nil then table = {} end
+	if count == nil then count = #table end
+	-- Build enemies.yards variable
+	local insertTable = "yards" ..
+		range ..
+		type -- Ex: enemies.yards8 (returns all enemies around player in 8yrds), Adds Table Type (r for Rect, c for Cone, blank for Normal)
+	if unit ~= "player" then
+		-- letter tag on end based on type of unit passed, if target or enemy unit then "t" otherwise first letter of what is passed in: f - "focus", p - "pet", m - "mouseover", etc
+		if br.engines.enemiesEngine.units[unit] ~= nil then
+			insertTable = insertTable .. "t" -- Ex: enemies.yards8t (returns all enemies around target in 8yrds)
+		else
+			insertTable = insertTable ..
+				unit:sub(1, 1) -- Ex: enemies.yards8f (returns all enemies around "focus" in 8yrds)
+		end
+	end
+	if checkNoCombat then insertTable = insertTable .. "nc" end -- Ex: enemies.yards8tnc (returns all units around target in 8yrds)
+	if facing then insertTable = insertTable .. "f" end         -- Ex: enemies.yards8tncf (returns all units the target is facing in 8yrds)
+	if self.enemies[insertTable] == nil then self.enemies[insertTable] = {} else br._G.wipe(self.enemies[insertTable]) end
+	if count > 0 then br.functions.custom:insertTableIntoTable(self.enemies[insertTable], table) end
+end
+
+-- Reads a module option: from "Rotation Options" when the profile defines that page, otherwise
+-- from "Base Options" (option lookups search the other pages when not found on the first).
+-- if br.functions.misc:getModuleOption("Use Racial", "Check") then
+function misc:getModuleOption(option, optionType)
+	local settings = br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]
+	local page = (settings ~= nil and settings["Rotation Options"] ~= nil) and "Rotation Options" or "Base Options"
+	if optionType == "Check" then return misc:isChecked(option, page) end
+	if optionType == "Value" then return misc:getOptionValue(option, page) end
+end
+
+-- Class folder name used under Rotations/ and Settings/ (e.g. "Druid", "Death Knight").
+-- local folder = br.functions.misc:getClassFolderName("DEATHKNIGHT")
+function misc:getClassFolderName(class)
+	if class == nil then class = "" end
+	local formatClass = class:sub(1, 1):upper() .. class:sub(2):lower()
+	if formatClass == "Deathknight" then formatClass = "Death Knight" end
+	if formatClass == "Demonhunter" then formatClass = "Demon Hunter" end
+	return formatClass
+end
+
+-- BadRotations' folder on disk and the path separator for this OS.
+-- local path, sep = br.functions.misc:getAddonPath()
+function misc:getAddonPath()
+	local sep = br._G.IsMacClient() and "/" or "\\"
+	local wowDir = br._G.GetWoWDirectory() or ""
+	if wowDir:match('_retail_') then
+		return wowDir .. sep .. 'Interface' .. sep .. 'AddOns' .. sep .. br.loader.addonName, sep
+	end
+	return wowDir .. sep .. br.loader.addonName, sep
+end
+
+-- Warns once per profile when the rotation relies on a toggle it never created (e.g. it calls
+-- ui.useCDs() without a "Cooldown" toggle, so cooldowns would silently never be used).
+-- Only checks once startup has finished, so a toggle bar deferred by combat isn't reported.
+-- br.functions.misc:warnMissingToggle("Cooldown", "cooldowns", "ui.useCDs()")
+local warnedMissingToggles = {}
+function misc:warnMissingToggle(toggleName, purpose, apiCall)
+	if not (br.loader.bootstrap and br.loader.bootstrap.stage == "RUNNING") then return end
+	if br.ui.toggles and br.ui.toggles[toggleName] ~= nil then return end
+	local profile = tostring(br.loader.selectedProfileName)
+	local key = profile .. "|" .. toggleName
+	if warnedMissingToggles[key] then return end
+	warnedMissingToggles[key] = true
+	br._G.print("|cffFF8800" .. profile .. " uses " .. purpose .. " (" .. apiCall .. ") but has no \"" .. toggleName
+		.. "\" toggle, so " .. purpose .. " will never be used. Add a " .. toggleName .. " toggle to the profile.|r")
 end

@@ -636,3 +636,120 @@ function unit:isDrinking(Unit)
 	end
 	return false
 end
+-- Aggro radius of a unit against the player: 20 yards, +/- 1 per level difference, minimum 5.
+-- if br.functions.unit:getAggroRange("target") > 15 then
+function unit:getAggroRange(thisUnit)
+	if thisUnit == nil then thisUnit = "target" end
+	local thisLevel = br._G.UnitLevel(thisUnit) or 0
+	local playerLevel = br._G.UnitLevel("player") or 0
+	-- UnitLevel returns -1 for skull-level units; treat them as far above the player
+	if thisLevel < 0 then thisLevel = playerLevel + 10 end
+	return math.max(20 + (thisLevel - playerLevel), 5)
+end
+
+-- True if thisUnit would aggro on the player: hostile (or neutral and targeted) and within
+-- its aggro radius plus offset yards.
+-- if br.functions.unit:isInAggroRange("target", 5) then
+function unit:isInAggroRange(thisUnit, offset)
+	if thisUnit == nil then thisUnit = "target" end
+	if not unit:GetObjectExists(thisUnit) or unit:GetUnitIsDeadOrGhost(thisUnit)
+		or not br._G.UnitCanAttack("player", thisUnit)
+	then
+		return false
+	end
+	local reaction = unit:GetUnitReaction(thisUnit, "player") or 10
+	if not (reaction < 4 or (reaction == 4 and unit:GetUnitIsUnit("target", thisUnit))) then
+		return false
+	end
+	local distance = br.functions.range:getDistance("player", thisUnit)
+	return distance ~= nil and distance < unit:getAggroRange(thisUnit) + (offset or 0)
+end
+
+-- True if any enemy (in combat or not) within radius yards would aggro on the player.
+-- if br.functions.unit:anyInAggroRange(5) then
+function unit:anyInAggroRange(offset, radius)
+	local nearby = br.engines.enemiesEngineFunctions:getEnemies("player", radius or 40, true)
+	for i = 1, #nearby do
+		if unit:isInAggroRange(nearby[i], offset) then return true end
+	end
+	return false
+end
+
+-- True if thisUnit is moving away from fromUnit while fromUnit faces it (being chased).
+-- Unknown facing (nil) never counts as fleeing.
+-- if br.functions.unit:isFleeingFrom("player", "target") then
+function unit:isFleeingFrom(thisUnit, fromUnit)
+	if thisUnit == nil then thisUnit = "player" end
+	if fromUnit == nil then fromUnit = "target" end
+	if (br._G.GetUnitSpeed(thisUnit) or 0) <= 0 then return false end
+	return unit:getFacing(thisUnit, fromUnit) == false and unit:getFacing(fromUnit, thisUnit) == true
+end
+
+-- Picks the unit to buff from a "Player/Target/Mouseover/Focus/Group" option value.
+-- needsBuff(unit) decides which group member to pick; missing units fall back to the player.
+-- local thisUnit = br.functions.unit:getBuffUnit(2, function(u) return true end, 30)
+function unit:getBuffUnit(choice, needsBuff, range)
+	range = range or 40
+	if choice == 2 and unit:GetUnitExists("target") then return "target" end
+	if choice == 3 and unit:GetUnitExists("mouseover") then return "mouseover" end
+	if choice == 4 and unit:GetUnitExists("focus") then return "focus" end
+	if choice == 5 and needsBuff ~= nil then
+		local friends = br.engines.healingEngine.friend
+		if friends ~= nil and #friends > 1 then
+			for i = 1, #friends do
+				local nextUnit = friends[i].unit
+				if needsBuff(nextUnit) and (br.functions.range:getDistance("player", nextUnit) or 99) < range then
+					return nextUnit
+				end
+			end
+		end
+	end
+	return "player"
+end
+
+-- True if the player's class uses mana (decided by class, so no secret power reads are needed).
+-- if br.functions.unit:usesMana() then
+local noManaClasses = { WARRIOR = true, ROGUE = true, DEATHKNIGHT = true, DEMONHUNTER = true }
+function unit:usesMana()
+	local _, playerClass = br._G.UnitClass("player")
+	return not noManaClasses[playerClass]
+end
+
+-- True while the player has an active loss of control effect in the given category:
+-- "fearCharm" (fear, charm, possess, confuse), "anyCC" (fearCharm plus stuns) or "rooted".
+-- Returns false where C_LossOfControl is unavailable.
+-- if br.functions.unit:hasLossOfControl("rooted") then
+local lossOfControlTypes = {
+	fearCharm = { FEAR = true, FEAR_MECHANIC = true, CHARM = true, POSSESS = true, CONFUSE = true },
+	anyCC = { STUN = true, STUN_MECHANIC = true, FEAR = true, FEAR_MECHANIC = true, CHARM = true, POSSESS = true, CONFUSE = true },
+	rooted = { ROOT = true },
+}
+function unit:hasLossOfControl(category)
+	local types = lossOfControlTypes[category]
+	local LoC = br._G.C_LossOfControl
+	if types == nil or LoC == nil or LoC.GetActiveLossOfControlDataCount == nil then return false end
+	for i = 1, LoC.GetActiveLossOfControlDataCount() do
+		local data = LoC.GetActiveLossOfControlData(i)
+		if data and types[data.locType] then return true end
+	end
+	return false
+end
+
+-- The player's highest primary stat: "Strength", "Agility" or "Intellect".
+-- Stats are secret in combat on some clients, so call this out of combat (e.g. when building options).
+-- local stat = br.functions.unit:getPrimaryStat()
+function unit:getPrimaryStat()
+	local stats = {
+		Strength = select(2, br._G.UnitStat("player", 1)),
+		Agility = select(2, br._G.UnitStat("player", 2)),
+		Intellect = select(2, br._G.UnitStat("player", 4)),
+	}
+	local highestStat, highestValue = "", 0
+	for statName, statValue in pairs(stats) do
+		if statValue > highestValue then
+			highestValue = statValue
+			highestStat = statName
+		end
+	end
+	return highestStat
+end

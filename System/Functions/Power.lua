@@ -365,3 +365,16 @@ function power:hasResources(spell, offset)
 		return true
 	end
 end
+
+-- Mana cost of a spell reference (id, name, or BR spell table); 0 if free, not mana, or treatAsFree.
+-- local cost = br.functions.power:getManaCostFromRef(br.player.spell.regrowth)
+function power:getManaCostFromRef(spellRef, treatAsFree)
+	if treatAsFree then return 0 end
+	local id = br.functions.spell:getSpellIdFromRef(spellRef)
+	if id == nil then return 0 end
+	local cost, _, costType = br.functions.power:getSpellCost(id)
+	if not cost or cost <= 0 then return 0 end
+	-- Mana is power type 0.
+	if costType ~= 0 then return 0 end
+	return cost
+end

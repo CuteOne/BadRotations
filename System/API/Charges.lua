@@ -11,32 +11,27 @@ br.api.charges = function(self, spell, id)
     if self[spell] == nil then self[spell] = {} end
     local charges = self[spell]
 
-    --- Checks if spell has charges or not.
-    -- @function charges.spell.exists
-    -- @return boolean
-    charges.exists = function()
-        local spellID = type(id) == "table" and (br.functions.spell and br.functions.spell.getHighestKnownRank and br.functions.spell:getHighestKnownRank(id) or id[1]) or id
-        return br.functions.spell:getCharges(spellID) >= 1
-    end
-
     --- Gets the number of charges remaining on spell.
     -- @function charges.spell.count
     -- @return number
     charges.count = function()
-        local spellID = type(id) == "table" and (br.functions.spell and br.functions.spell.getHighestKnownRank and br.functions.spell:getHighestKnownRank(id) or id[1]) or id
+        local spellID = br.functions.spell:resolveRank(id)
         return br.functions.spell:getCharges(spellID)
     end
 
-    charges.spellCount = function()
-        local spellID = type(id) == "table" and (br.functions.spell and br.functions.spell.getHighestKnownRank and br.functions.spell:getHighestKnownRank(id) or id[1]) or id
-        return br._G.C_Spell.GetSpellCastCount(spellID)
+    --- Checks if spell has charges or not.
+    -- @function charges.spell.exists
+    -- @return boolean
+    charges.exists = function()
+        local spellID = br.functions.spell:resolveRank(id)
+        return br.functions.spell:getCharges(spellID) >= 1
     end
 
     --- Gets the number of charges remaining on spell as a fraction. (e.g. 1.5 charges remaining)
     -- @function charges.spell.frac
     -- @return number
     charges.frac = function()
-        local spellID = type(id) == "table" and (br.functions.spell and br.functions.spell.getHighestKnownRank and br.functions.spell:getHighestKnownRank(id) or id[1]) or id
+        local spellID = br.functions.spell:resolveRank(id)
         return br.functions.spell:getChargesFrac(spellID)
     end
 
@@ -44,7 +39,7 @@ br.api.charges = function(self, spell, id)
     -- @function charges.spell.max
     -- @return number
     charges.max = function()
-        local spellID = type(id) == "table" and (br.functions.spell and br.functions.spell.getHighestKnownRank and br.functions.spell:getHighestKnownRank(id) or id[1]) or id
+        local spellID = br.functions.spell:resolveRank(id)
         return br.functions.spell:getChargesFrac(spellID, true)
     end
 
@@ -53,7 +48,7 @@ br.api.charges = function(self, spell, id)
     -- @bool[opt] chargeMax If true, returns the time remaining until all charges are available.
     -- @return number
     charges.recharge = function(chargeMax)
-        local spellID = type(id) == "table" and (br.functions.spell and br.functions.spell.getHighestKnownRank and br.functions.spell:getHighestKnownRank(id) or id[1]) or id
+        local spellID = br.functions.spell:resolveRank(id)
         if chargeMax then
             return br.functions.spell:getRecharge(spellID, true)
         else
@@ -61,11 +56,16 @@ br.api.charges = function(self, spell, id)
         end
     end
 
+    charges.spellCount = function()
+        local spellID = br.functions.spell:resolveRank(id)
+        return br._G.C_Spell.GetSpellCastCount(spellID)
+    end
+
     --- Gets the total time remaining until all charges are available.
     -- @function charges.spell.timeTillFull
     -- @return number
     charges.timeTillFull = function()
-        local spellID = type(id) == "table" and (br.functions.spell and br.functions.spell.getHighestKnownRank and br.functions.spell:getHighestKnownRank(id) or id[1]) or id
+        local spellID = br.functions.spell:resolveRank(id)
         return br.functions.spell:getFullRechargeTime(spellID)
     end
 end
@@ -74,17 +74,17 @@ br.api.itemCharges = function(self, item, id)
     if self[item] == nil then self[item] = {} end
     local charges = self[item]
 
-    --- Checks if item has charges or not.
-    -- @function charges.item.exists
-    -- @return boolean
-    charges.exists = function()
-        return br.functions.item.itemCharges(id) > 0
-    end
-
     --- Gets the number of charges remaining on item.
     -- @function charges.item.count
     -- @return number
     charges.count = function()
         return br.functions.item.itemCharges(id)
+    end
+
+    --- Checks if item has charges or not.
+    -- @function charges.item.exists
+    -- @return boolean
+    charges.exists = function()
+        return br.functions.item.itemCharges(id) > 0
     end
 end

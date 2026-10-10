@@ -9,19 +9,12 @@ br.api.ui = function(self)
     local ui = self.ui
     if ui ~= nil and ui.mode == nil then ui.mode = {} end
 
-    --- Checks if the passed option is set to "Always, CD, or Never"
-    -- @function ui.alwaysCdNever
-    -- @string thisOption - Name of the option from the defined profile options.
-    -- @return boolean - Returns true if the option is set to Always or if CD is selected and CDs are enabled
-    ui.alwaysCdNever = function(thisOption)
-        -- Option Dropdown Requires
-        -- {"|cff008000Always", "|cff0000ffCD", "|cffff0000Never"}
-        local settings = br.data.settings[br.loader.selectedSpec] and br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]
-        if not settings or settings["Rotation Options"] == nil then return false end
-
-        local optVal = settings["Rotation Options"][thisOption] ~= nil and ui.value(thisOption, "Rotation Options") or ui.value(thisOption, "Base Options")
-        return optVal == 1 or (optVal == 2 and ui.useCDs())
-    end
+    -- if ui.print == nil then
+    --     ui.print = function(text)
+    --         local Print = br._G["Print"]
+    --         return Print(text)
+    --     end
+    -- end
 
     --- Checks if the passed option is set to "Always, AOE/CD, CD, or Never"
     -- @function ui.alwaysCdAoENever
@@ -76,6 +69,30 @@ br.api.ui = function(self)
         if useTarget == nil then useTarget = "player" end
         local _, enemyCount = self.enemies.get(range, useTarget)
         return ui.alwaysCdAoENever(thisOption, minUnits, enemyCount)
+    end
+
+    --- Checks if the passed option is set to "Always, CD, or Never"
+    -- @function ui.alwaysCdNever
+    -- @string thisOption - Name of the option from the defined profile options.
+    -- @return boolean - Returns true if the option is set to Always or if CD is selected and CDs are enabled
+    ui.alwaysCdNever = function(thisOption)
+        -- Option Dropdown Requires
+        -- {"|cff008000Always", "|cff0000ffCD", "|cffff0000Never"}
+        local settings = br.data.settings[br.loader.selectedSpec] and br.data.settings[br.loader.selectedSpec][br.loader.selectedProfile]
+        if not settings or settings["Rotation Options"] == nil then return false end
+
+        local optVal = settings["Rotation Options"][thisOption] ~= nil and ui.value(thisOption, "Rotation Options") or ui.value(thisOption, "Base Options")
+        return optVal == 1 or (optVal == 2 and ui.useCDs())
+    end
+
+    --- Gets the unit to buff from a "Player/Target/Mouseover/Focus/Group" dropdown option.
+    -- @function ui.buffUnit
+    -- @string thisOption - Name of the dropdown option.
+    -- @param needsBuff - function(unit) returning true if that group member needs the buff (Group mode).
+    -- @number[opt=40] range - Maximum range for group members.
+    -- @return string - Unit token; falls back to "player" when the chosen unit doesn't exist.
+    ui.buffUnit = function(thisOption, needsBuff, range)
+        return br.functions.unit:getBuffUnit(ui.value(thisOption), needsBuff, range)
     end
 
     if ui.chatOverlay == nil then
@@ -189,13 +206,6 @@ br.api.ui = function(self)
         end
     end
 
-    -- if ui.print == nil then
-    --     ui.print = function(text)
-    --         local Print = br._G["Print"]
-    --         return Print(text)
-    --     end
-    -- end
-
     if ui.pullTimer == nil then
         --- Returns the time remaining on the pull timer (DBM/BigWigs)
         -- @function ui.pullTimer
@@ -268,6 +278,7 @@ br.api.ui = function(self)
         -- @function ui.useCDs
         -- @return boolean - Returns true if cooldowns should be used
         ui.useCDs = function()
+            if ui.mode.cooldown == nil then br.functions.misc:warnMissingToggle("Cooldown", "cooldowns", "ui.useCDs()") end
             local hasBloodLust = br._G["hasBloodLust"]
             return (ui.mode.cooldown == 1 and br.functions.unit:isBoss())
                 or ui.mode.cooldown == 2
@@ -280,6 +291,7 @@ br.api.ui = function(self)
         -- @function ui.useDefensive
         -- @return boolean - Returns true if defensive abilities should be used
         ui.useDefensive = function()
+            if ui.mode.defensive == nil then br.functions.misc:warnMissingToggle("Defensive", "defensives", "ui.useDefensive()") end
             return ui.mode.defensive == 1
         end
     end
@@ -289,6 +301,7 @@ br.api.ui = function(self)
         -- @function ui.useInterrupt
         -- @return boolean - Returns true if interrupts should be used
         ui.useInterrupt = function()
+            if ui.mode.interrupt == nil then br.functions.misc:warnMissingToggle("Interrupt", "interrupts", "ui.useInterrupt()") end
             return ui.mode.interrupt == 1
         end
     end
@@ -343,32 +356,35 @@ br.api.ui = function(self)
     if ui.fightStyle == nil then
         ui.fightStyle = {}
     end
-    if ui.fightStyle.patchwerk == nil then
-        --- Returns true when not in a 5-man party instance (raid, outdoor, etc.).
-        -- @function ui.fightStyle.patchwerk
-        -- @return boolean
-        ui.fightStyle.patchwerk = function()
-            return self.instance ~= "party"
-        end
-    end
+
     if ui.fightStyle.dungeonRoute == nil then
         --- Returns true when inside an active Mythic+ key run.
         -- @function ui.fightStyle.dungeonRoute
         -- @return boolean
         ui.fightStyle.dungeonRoute = function()
-            return self.instance == "party"
+            return self.state.instance == "party"
                 and br._G.C_ChallengeMode ~= nil
                 and br._G.C_ChallengeMode.GetActiveChallengeMapID() ~= nil
         end
     end
+
     if ui.fightStyle.dungeonSlice == nil then
         --- Returns true when inside a regular (non-Mythic+) 5-man dungeon.
         -- @function ui.fightStyle.dungeonSlice
         -- @return boolean
         ui.fightStyle.dungeonSlice = function()
-            return self.instance == "party"
+            return self.state.instance == "party"
                 and not (br._G.C_ChallengeMode ~= nil
                     and br._G.C_ChallengeMode.GetActiveChallengeMapID() ~= nil)
+        end
+    end
+
+    if ui.fightStyle.patchwerk == nil then
+        --- Returns true when not in a 5-man party instance (raid, outdoor, etc.).
+        -- @function ui.fightStyle.patchwerk
+        -- @return boolean
+        ui.fightStyle.patchwerk = function()
+            return self.state.instance ~= "party"
         end
     end
 

@@ -41,10 +41,10 @@ end
 -- if canTrinket(13) then
 function item:canTrinket(trinketSlot)
 	if trinketSlot == 13 or trinketSlot == 14 then
-		if trinketSlot == 13 and select(3, br._G.GetInventoryItemCooldown("player", 13)) == 1 and br._G.GetInventoryItemCooldown("player", 13) <= br.player.gcdMax then
+		if trinketSlot == 13 and select(3, br._G.GetInventoryItemCooldown("player", 13)) == 1 and br._G.GetInventoryItemCooldown("player", 13) <= br.player.state.gcdMax then
 			return true
 		end
-		if trinketSlot == 14 and select(3, br._G.GetInventoryItemCooldown("player", 14)) == 1 and br._G.GetInventoryItemCooldown("player", 14) <= br.player.gcdMax then
+		if trinketSlot == 14 and select(3, br._G.GetInventoryItemCooldown("player", 14)) == 1 and br._G.GetInventoryItemCooldown("player", 14) <= br.player.state.gcdMax then
 			return true
 		end
 	else
@@ -61,10 +61,10 @@ function item:hasItem(itemID)
 	end
 	local itemFound = false
 	for i = 0, 4 do          --Let's look at each bag
-		local numBagSlots = C_Container.GetContainerNumSlots(i)
+		local numBagSlots = br._G.C_Container.GetContainerNumSlots(i)
 		if numBagSlots > 0 then -- Only look for slots if bag present
 			for x = 1, numBagSlots do --Let's look at each bag slot
-				local bagItemID = C_Container.GetContainerItemID(i, x)
+				local bagItemID = br._G.C_Container.GetContainerItemID(i, x)
 				if tostring(bagItemID) == tostring(itemID) then
 					itemFound = true
 				end
@@ -140,49 +140,14 @@ function item:useItemGround(Unit, itemID, maxDistance, minDistance, radius)
 	return false
 end
 
+-- True if a usable healing potion is in the bags.
 function item:hasHealthPot()
-	local locale = br._G.GetLocale()
-	if locale ~= "enUS" and locale ~= "enGB" then
-		local abyssalHealingPotion = br.functions.item:getHighestItemID("abyssalHealingPotion") or 169451
-		if br.functions.item:hasItem(abyssalHealingPotion) then
-			return true
-		end
-	end
-	local potion = br.player.potion
-	if potion.health == nil then
-		return false
-	end
-	if potion.health[1] == nil and potion.rejuve[1] == nil then
-		return false
-	else
-		return true
-	end
+	return item:getBestPotion("Heal") ~= nil
 end
 
+-- Item ID of the best usable healing potion in the bags, or 0.
 function item:getHealthPot()
-	local locale = br._G.GetLocale()
-	if locale ~= "enUS" and locale ~= "enGB" then
-		local coastalHealingPotion = br.functions.item:getHighestItemID("coastalHealingPotion") or 171267
-		if br.functions.item:hasItem(coastalHealingPotion) then
-			return coastalHealingPotion
-		end
-	end
-	local potion = br.player.potion
-	if potion ~= nil then
-		if potion.health ~= nil then
-			if potion.health[1] ~= nil then
-				return potion.health[1].itemID
-			elseif potion.rejuve[1] ~= nil then
-				return potion.rejuve[1].itemID
-			else
-				return 0
-			end
-		else
-			return 0
-		end
-	else
-		return 0
-	end
+	return item:getBestPotion("Heal") or 0
 end
 
 -- if TierScan("T17")>=2 then
@@ -260,4 +225,49 @@ function item:getHighestItemID(key)
         return br.functions.item:getHighestHeldRank(v)
     end
     return v
+end
+
+-- True if the item has matchStat (a GetItemStats key), or any DPS stat when matchStat is nil.
+-- if br.functions.item:hasDPSStats(itemLink, "ITEM_MOD_AGILITY_SHORT") then
+function item:hasDPSStats(itemLink, matchStat)
+	local stats = br._G.GetItemStats(itemLink) or {}
+
+	-- Define the stats that contribute to DPS.
+	local dpsStats = {"ITEM_MOD_AGILITY_SHORT", "ITEM_MOD_STRENGTH_SHORT", "ITEM_MOD_INTELLECT_SHORT",
+						"ITEM_MOD_CRIT_RATING_SHORT", "ITEM_MOD_HASTE_RATING_SHORT",
+						"ITEM_MOD_MASTERY_RATING_SHORT", "ITEM_MOD_VERSATILITY"}
+
+	-- If a desired stat is specified, check if the item has that stat.
+	if matchStat then return stats[matchStat] end
+
+	-- If no desired stat is specified, check if the item has any DPS stats.
+	for _, stat in ipairs(dpsStats) do
+		if stats[stat] then return true end
+	end
+
+	return false
+end
+
+-- Best usable potion in the bags whose name contains both nameMatch and "Potion" (e.g. "Heal", "Mana").
+-- Matches the Consumable item class and the name, since localized subtype strings differ between flavors.
+-- local potion = br.functions.item:getBestPotion("Heal")
+function item:getBestPotion(nameMatch)
+	local candidates = {}
+	for bag = 0, 4 do
+		for slot = 1, br._G.C_Container.GetContainerNumSlots(bag) do
+			local itemID = br._G.C_Container.GetContainerItemID(bag, slot)
+			if itemID ~= nil then
+				local itemName, _, _, itemLevel = br._G.C_Item.GetItemInfo(itemID)
+				local classID = select(6, br._G.C_Item.GetItemInfoInstant(itemID))
+				if itemName and classID == 0 and itemName:find("Potion", 1, true) and itemName:find(nameMatch, 1, true) then
+					candidates[#candidates + 1] = { itemID = itemID, itemLevel = itemLevel or 0 }
+				end
+			end
+		end
+	end
+	table.sort(candidates, function(a, b) return a.itemLevel > b.itemLevel end)
+	for i = 1, #candidates do
+		if item:canUseItem(candidates[i].itemID) then return candidates[i].itemID end
+	end
+	return nil
 end

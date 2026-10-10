@@ -2,61 +2,6 @@ local _, br = ...
 br.functions.spell = br.functions.spell or {}
 local spell = br.functions.spell
 
-function spell:castInterrupt(SpellID, Percent, Unit)
-	Percent = br._G.Math.min(Percent + math.random(-6, 6), 99)
-	if Unit == nil then Unit = "target" end
-	if br.functions.unit:GetObjectExists(Unit) then
-		local _, _, _, castStartTime, castEndTime, _, _, castInterruptable = br._G.UnitCastingInfo(Unit)
-		local channelName, _, _, channelStartTime, channelEndTime, _, channelInterruptable = br._G.UnitChannelInfo(Unit)
-		-- first make sure we will be able to cast the spellID
-		if br.functions.cast:canCast(SpellID, false, false, Unit) == true then
-			-- make sure we cover melee range
-			local allowedDistance = select(6, br.api.wow.GetSpellInfo(SpellID))
-			if allowedDistance < 5 then
-				allowedDistance = 5
-			end
-			--check for cast
-			if channelName ~= nil then
-				--target is channeling a spell that is interruptable
-				--load the channel variables into the cast variables to make logic a little easier.
-				_ = channelName
-				castStartTime = channelStartTime
-				castEndTime = channelEndTime
-				castInterruptable = channelInterruptable
-			end
-			--This is actually Not Interruptable... so lets swap it around to use in the positive.
-			if castInterruptable == false then
-				castInterruptable = true
-			else
-				castInterruptable = false
-			end
-			--we can't attack the target.
-			if br._G.UnitCanAttack("player", Unit) == nil then
-				return false
-			end
-			if castInterruptable then
-				--target is casting something that is interruptable.
-				--the following 2 variables are named logically... value is in seconds.
-				local timeSinceStart = (br._G.GetTime() * 1000 - castStartTime) / 1000
-				-- local timeLeft = ((br._G.GetTime() * 1000 - castEndTime) * -1) / 1000
-				local castTime = castEndTime - castStartTime
-				local currentPercent = timeSinceStart / castTime * 100000
-				--interrupt percentage check
-				if currentPercent >= Percent then
-					return false
-				end
-				--cast the spell
-				if br.functions.range:getDistance("player", Unit) < allowedDistance then
-					if br.functions.cast:castSpell(Unit, SpellID, false, false) then
-						return true
-					end
-				end
-			end
-		end
-	end
-	return false
-end
-
 -- br.functions.spell:canInterrupt("target",20)
 function spell:canInterrupt(unit, percentint)
 	unit = unit or "target"
@@ -142,8 +87,10 @@ function spell:canInterrupt(unit, percentint)
 		end
 		-- Return when interrupt time is met
 		if ((whitelistOnly and onWhitelist) or not whitelistOnly)
-			or not (br.player.instance == "party" or br.player.instance == "raid" or br.player.instance == "scenario")
+			or not (br.player.state.instance == "party" or br.player.state.instance == "raid" or br.player.state.instance == "scenario")
 		then
+			-- Nothing interruptible is being cast; also avoids 0/0, which raises "Division by zero" on Forever
+			if not interruptable or castDuration <= 0 then return false end
 			local ttd = br.engines.ttdTable:getTTD(unit)
 			local withinsCastPercent = math.ceil((castTimeRemain / castDuration) * 100) <= castPercent
 			-- ttdTable returns negative values when unknown/unreliable; don't block interrupts in that case.
@@ -303,7 +250,7 @@ function spell:getCastingRegen(spellID)
 	local tooltip = tonumber(generates:sub(-2)) or 0
 	-- Get the "execute time" of the spell (larger of GCD or the cast time).
 	local castTime = br.functions.cast:getCastTime(spellID) or 0
-	local gcd = br.player.gcdMax
+	local gcd = br.player.state.gcdMax
 	local castSeconds = (castTime > gcd) and castTime or gcd
 	power = power + regenRate * castSeconds + tooltip
 
@@ -368,35 +315,56 @@ function spell:isSpellInSpellbook(spellID, spellType)
 end
 
 function spell:getSpellInSpellBook(spellID, spellType)
+	-- Cross-expansion guards: Enum.SpellBookSpellBank and Enum.SpellBookItemType
+	-- don't exist on TBC/Classic. Same pattern as the sibling isSpellInSpellbook
+	-- above (L347-348) — fall back to the string constants that the legacy
+	-- _G.GetSpellBookItemInfo accepts for the bank arg and returns for the
+	-- type field.
+	local petBank    = (Enum and Enum.SpellBookSpellBank and Enum.SpellBookSpellBank.Pet)        or "PET"
+	local playerBank = (Enum and Enum.SpellBookSpellBank and Enum.SpellBookSpellBank.Player)     or "SPELL"
+	local typeSpell  = (Enum and Enum.SpellBookItemType  and Enum.SpellBookItemType.Spell)       or "SPELL"
+	local typeFuture = (Enum and Enum.SpellBookItemType  and Enum.SpellBookItemType.FutureSpell) or "FUTURESPELL"
+	local typeFlyout = (Enum and Enum.SpellBookItemType  and Enum.SpellBookItemType.Flyout)      or "FLYOUT"
+	-- Resolve bank once at function-entry. Previously this was re-evaluated each
+	-- inner-loop iteration against `local spellType, id` (the old L375) which
+	-- shadowed the parameter — the "pet" branch was therefore unreachable.
+	-- Hoisting removes the shadow's effect on bank selection.
+	local bank = (spellType == "pet") and petBank or playerBank
 	for i = 1, br._G.GetNumSpellTabs() do
 		local name, texture, offset, numSlots, isGuild, offspecID = br._G.GetSpellTabInfo(i)
 		-- local offset, numSlots = skillLineInfo.itemIndexOffset, skillLineInfo.numSpellBookItems
 		for j = offset + 1, offset + numSlots do
-			local spellType, id
+			local itemType, id  -- renamed: no longer shadows the parameter
 			if br._G.GetSpellBookItemInfo then
-				spellType, id = br._G.GetSpellBookItemInfo(j, (spellType == "pet" and Enum.SpellBookSpellBank.Pet or Enum.SpellBookSpellBank.Player))
+				itemType, id = br._G.GetSpellBookItemInfo(j, bank)
 			elseif br._G.C_SpellBook and br._G.C_SpellBook.GetSpellBookItemInfo then
-				local info = br._G.C_SpellBook.GetSpellBookItemInfo(j, (spellType == "pet" and Enum.SpellBookSpellBank.Pet or Enum.SpellBookSpellBank.Player))
+				local info = br._G.C_SpellBook.GetSpellBookItemInfo(j, bank)
 				-- try to map modern return to older variables
 				if info then
-					spellType = info.itemType
+					itemType = info.itemType
 					id = info.actionID
 				end
 			end
 			-- local spellType, id = spellBookItemInfo.itemType, spellBookItemInfo.actionID
+			-- Note: Classic-era _G.GetSpellBookItemInfo also returns "PETACTION"
+			-- for entries in the pet spellbook. The branches below don't handle
+			-- it (spellName / typeLabel stay nil); if you resurrect the
+			-- commented-out caller below this function (currently around L429,
+			-- search for "spellInBookType"), add a fourth branch here for it.
 			local spellName
-			if spellType == Enum.SpellBookItemType.Spell then
+			local typeLabel
+			if itemType == typeSpell then
 				spellName = br._G.C_Spell.GetSpellName(id)
-				spellType = "Spell"
-			elseif spellType == Enum.SpellBookItemType.FutureSpell then
+				typeLabel = "Spell"
+			elseif itemType == typeFuture then
 				spellName = br._G.C_Spell.GetSpellName(id)
-				spellType = "Future Spell"
-			elseif spellType == Enum.SpellBookItemType.Flyout then
+				typeLabel = "Future Spell"
+			elseif itemType == typeFlyout then
 				spellName = GetFlyoutInfo(id)
-				spellType = "Flyout"
+				typeLabel = "Flyout"
 			end
 			if id == spellID then
-				return i, j, spellType, id, spellName
+				return i, j, typeLabel, id, spellName
 			end
 		end
 	end
@@ -587,14 +555,14 @@ function spell:getRacial(thisRace)
         -- Alliance
         Dwarf              = r.Dwarf,              -- Stoneform
         Gnome              = r.Gnome,              -- Escape Artist
-        Draenei            = DraeneiRacial,        -- Gift of the Naaru
+        Draenei            = r.Draenei or DraeneiRacial, -- Gift of the Naaru
         Human              = r.Human,              -- Every Man for Himself
         NightElf           = r.NightElf,           -- Shadowmeld
         Worgen             = r.Worgen,             -- Darkflight
         -- Horde
-        BloodElf           = BloodElfRacial,       -- Arcane Torrent
+        BloodElf           = r.BloodElf or BloodElfRacial, -- Arcane Torrent
         Goblin             = r.Goblin,             -- Rocket Barrage
-        Orc                = OrcRacial,            -- Blood Fury
+        Orc                = r.Orc or OrcRacial,   -- Blood Fury
         Tauren             = r.Tauren,             -- War Stomp
         Troll              = r.Troll,              -- Berserking
         Scourge            = r.Scourge,            -- Will of the Forsaken
@@ -612,18 +580,11 @@ function spell:getRacial(thisRace)
         Vulpera            = r.Vulpera,            -- Bag of Tricks
         Mechagnome         = r.Mechagnome,         -- Hyper Organic Light Originator
     }
-    local classicRacialSpells = {
-        Draenei  = DraeneiRacial, -- Gift of the Naaru
-        NightElf = r.NightElf,   -- Shadowmeld
-    }
-
-    if not br.api.hasSubSpecs then
-        if thisRace ~= nil and classicRacialSpells[thisRace] ~= nil then return classicRacialSpells[thisRace] end
-        return classicRacialSpells[race]
-    else
-        if thisRace ~= nil and racialSpells[thisRace] ~= nil then return racialSpells[thisRace] end
-        return racialSpells[race]
-    end
+    -- Every expansion reads the same map from its own br.lists.racials. Classic-era clients
+    -- used to read a separate table holding only Draenei and Night Elf, so cast.racial()
+    -- never resolved for any other race there. Races an expansion doesn't list stay nil.
+    if thisRace ~= nil and racialSpells[thisRace] ~= nil then return racialSpells[thisRace] end
+    return racialSpells[race]
 end
 
 -- ===========================
@@ -732,4 +693,56 @@ function spell:getHighestSpellID(key)
         return nil
     end
     return search(br.lists.spells)
+end
+
+-- Resolve a spell reference (id, name, or BR spell table with .id) to an id or name.
+-- local id = br.functions.spell:getSpellIdFromRef(br.player.spell.regrowth)
+function spell:getSpellIdFromRef(spellRef)
+	if spellRef == nil then return nil end
+	local refType = type(spellRef)
+	if refType == "number" or refType == "string" then
+		return spellRef
+	end
+	if refType == "table" then
+		if type(spellRef.id) == "function" then
+			local ok, value = pcall(spellRef.id)
+			if ok and value ~= nil then
+				return value
+			end
+		elseif type(spellRef.id) == "number" then
+			return spellRef.id
+		end
+	end
+	return nil
+end
+
+-- Spell list key of a race's utility racial (e.g. "stoneform"), or nil. Race is UnitRace's token;
+-- "Scourge" is accepted for Undead.
+-- local key = br.functions.spell:getRacialKey("Dwarf")
+local racialKeys = {
+	BloodElf = "arcaneTorrent", Draenei = "giftOfTheNaaru", Dwarf = "stoneform", Gnome = "escapeArtist",
+	Goblin = "rocketBarrage", Human = "willToSurvive", NightElf = "shadowmeld", Pandaren = "quakingPalm",
+	Tauren = "warStomp", Undead = "willOfTheForsaken", Scourge = "willOfTheForsaken", Worgen = "darkflight",
+}
+function spell:getRacialKey(race)
+	return racialKeys[race]
+end
+
+-- Name of the race's damage racial (cast.racial), or nil if the race has none on this client.
+-- local name = br.functions.spell:getDamageRacialName("Troll")
+function spell:getDamageRacialName(race)
+	if race == "Orc" then return "Blood Fury" end
+	if race == "Troll" then return "Berserking" end
+	if br.isForever then
+		if race == "NightElf" then return "Elune's Light" end
+		if race == "Gnome" then return "Eureka!" end
+	end
+	return nil
+end
+
+-- Highest known rank from a table of rank IDs (first rank if none known); non-tables pass through.
+-- local id = br.functions.spell:resolveRank({ 5176, 5177, 5178 })
+function spell:resolveRank(id)
+	if type(id) ~= "table" then return id end
+	return spell:getHighestKnownRank(id) or id[1]
 end

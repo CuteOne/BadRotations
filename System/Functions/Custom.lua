@@ -87,7 +87,7 @@ function custom:castGroundAtUnit(spellID, radius, minUnits, maxRange, minRange, 
             for _, minUnit in pairs(minEnemies) do
                 if minUnit == maxUnit then
                     minUnitInMaxEnemies = true
-                    return
+                    break
                 end
             end
             if not minUnitInMaxEnemies then
@@ -99,7 +99,9 @@ function custom:castGroundAtUnit(spellID, radius, minUnits, maxRange, minRange, 
     local enemiesInRadius        = #br.engines.enemiesEngineFunctions:getEnemies(unit, radius)
     local visibleEnemiesInRadius = #br.engines.enemiesEngineFunctions:getEnemies(unit, radius, true)
 
-    if br.functions.custom:getUnits(unit, allUnitsInRange, radius - 3) >= minUnits and enemiesInRadius >= visibleEnemiesInRadius then
+    if br.functions.custom:getUnits(unit, allUnitsInRange, radius - 3) >= minUnits and enemiesInRadius >= visibleEnemiesInRadius
+        and br.functions.cast:isUnitVisible(unit)
+    then
         local X1, Y1, Z1 = br.functions.unit:GetObjectPosition(unit)
         return br.functions.cast:castAtPosition(X1, Y1, Z1, spellID)
     end
@@ -432,6 +434,9 @@ function custom:castGroundAtBestLocation(spellID, radius, minUnits, maxRange, mi
 
     -- If we found a best cluster, try snapping the cast to the centroid of the covered group.
     -- This keeps the same hit count when possible, and avoids placing the pack on the edge.
+    -- Only the final point is LoS-traced (tracing every candidate would be hundreds of traces);
+    -- if the centroid is hidden we keep the candidate point, and if that's hidden too we don't cast.
+    local candidateLocation = bestLocation
     if bestCentroid and inSpellRange(bestCentroid.x, bestCentroid.y, bestCentroid.z) then
         local centroidCount = 0
         for j = 1, #points do
@@ -446,6 +451,15 @@ function custom:castGroundAtBestLocation(spellID, radius, minUnits, maxRange, mi
     end
 
     if bestLocation and bestCount >= minUnits then
+        local misc = br.functions.misc
+        if not misc:canSeePosition(bestLocation.x, bestLocation.y, bestLocation.z) then
+            if candidateLocation == bestLocation
+                or not misc:canSeePosition(candidateLocation.x, candidateLocation.y, candidateLocation.z)
+            then
+                return false
+            end
+            bestLocation = candidateLocation
+        end
         return br.functions.cast:castAtPosition(bestLocation.x, bestLocation.y, bestLocation.z, spellID)
     end
 
@@ -519,94 +533,6 @@ function custom:getThreat()
     -- 2 - Unit is mobUnit's primary target, and another unit has 100% or higher raw threat (default UI shows orange indicator)
     -- 3 - Unit is mobUnit's primary target, and no other unit has 100% or higher raw threat (default UI shows red indicator)
     return 0
-end
-
-function custom:RaidBuff(BuffSlot, myBuffSpellID)
-    -- description:
-    -- check for raidbuff and cast if missing
-
-    -- returns:
-    -- true:    someone was without buff and spell casted
-    -- false:   "BuffSlot" or "myBuffSpellID" is missing
-    -- nil:     all raidmembers in range are buffed
-
-    -- example:
-    -- Check for Stamina as Priest:
-    -- Buffslot Stamina: 2
-    -- Power Word: Fortitude Spell ID: 21562
-    -- RaidBuff(2,21562)
-    -- Buffslots:
-    -- 1 Stats
-    -- 2 Stamina
-    -- 3 Attack Power
-    -- 4 Haste
-    -- 5 Spell Power
-    -- 6 Critical Strike
-    -- 7 Mastery
-    -- 8 Multistrike
-    -- 9 Versatility
-
-    if BuffSlot == nil or myBuffSpellID == nil then return false end
-
-    local id = BuffSlot
-    local SpellID = myBuffSpellID
-    local bufftable = {
-        stats = { 1126, 115921, 116781, 20217, 160206, 159988, 160017, 90363, 160077 },
-        stamina = { 21562, 166928, 469, 160199, 50256, 160003, 90364 },
-        attackPower = { 57330, 19506, 6673 },
-        spellPower = { 1459, 61316, 109773, 160205, 128433, 90364, 126309 },
-        mastery = { 155522, 24907, 19740, 116956, 160198, 93435, 160039, 128997, 160073 },
-        haste = { 55610, 49868, 113742, 116956, 160203, 128432, 160003, 135670, 160074 },
-        crit = { 17007, 1459, 61316, 116781, 160200, 90309, 126373, 160052, 90363, 126309, 24604 },
-        multistrike = { 166916, 49868, 113742, 109773, 172968, 50519, 57386, 58604, 54889, 24844 },
-        versatility = { 55610, 1126, 167187, 167188, 172967, 159735, 35290, 57386, 160045, 50518, 173035, 160007 }
-    }
-    local chosenTable
-    if id == 1 then
-        chosenTable = bufftable.stats
-    elseif id == 2 then
-        chosenTable = bufftable.stamina
-    elseif id == 3 then
-        chosenTable = bufftable.attackPower
-    elseif id == 4 then
-        chosenTable = bufftable.spellPower
-    elseif id == 5 then
-        chosenTable = bufftable.mastery
-    elseif id == 6 then
-        chosenTable = bufftable.haste
-    elseif id == 7 then
-        chosenTable = bufftable.crit
-    elseif id == 8 then
-        chosenTable = bufftable.multistrike
-    elseif id == 9 then
-        chosenTable = bufftable.versatility
-    end
-
-
-    if br._G.GetNumGroupMembers() == 0 then
-        if not br._G.UnitIsDeadOrGhost("player") then
-            if not br._G.GetRaidBuffTrayAuraInfo(id) then
-                if br.functions.cast:castSpell("player", SpellID) then return true end
-            end
-        end
-    else
-        if br._G.UnitIsDeadOrGhost("player") then
-            return false
-        else
-            for index = 1, br._G.GetNumGroupMembers() do
-                local _, _, _, _, _, _, _, online, isDead, _, _ = br._G.GetRaidRosterInfo(index)
-                if online and not isDead and br._G.C_Spell.IsSpellInRange(select(1, br.api.wow.GetSpellInfo(SpellID)), "raid" .. index) == true then
-                    -- local playerBuffed=false
-                    for auraIndex = 1, #chosenTable do
-                        if br.functions.aura:getBuffRemain("raid" .. index, chosenTable[auraIndex]) > 0 then break end
-                        if br.functions.aura:getBuffRemain("raid" .. index, chosenTable[auraIndex]) <= 0 then
-                            if br.functions.cast:castSpell("player", SpellID, true, false) then return true end
-                        end
-                    end
-                end
-            end
-        end
-    end
 end
 
 function custom:getUnitCluster(minUnits, maxRange, radius)

@@ -9,6 +9,7 @@ br.api.pets = function(pet,k,v,brplayer)
     -- Active Pet - EX: br.player.pet.active.exists()
     local petList = pet
     local pet = brplayer.pet
+
     if pet.active == nil then
         pet.active = {}
 
@@ -46,6 +47,15 @@ br.api.pets = function(pet,k,v,brplayer)
     -- All Pets - EX: br.player.pet.imp.exists()
 
     ---
+    -- Checks if the specific pet type is active
+    -- @function br.player.pet.active
+    -- @return boolean True if this pet type is active, false otherwise
+    -- @usage local hasImp = br.player.pet.imp.active()
+    pet.active = function()
+        return pet.count() > 0
+    end
+
+    ---
     -- Counts specific pets matching the current pet ID
     -- @function br.player.pet.count
     -- @return number The count of matching pets
@@ -57,15 +67,6 @@ br.api.pets = function(pet,k,v,brplayer)
             if v == listID then count = count + 1 end
         end
         return count
-    end
-
-    ---
-    -- Checks if the specific pet type is active
-    -- @function br.player.pet.active
-    -- @return boolean True if this pet type is active, false otherwise
-    -- @usage local hasImp = br.player.pet.imp.active()
-    pet.active = function()
-        return pet.count() > 0
     end
 
     ---

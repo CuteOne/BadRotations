@@ -17,13 +17,30 @@ br.api.cd = function(self, spell, id)
     -- @section cd.spell
     cd[spell] = cd[spell] or {}
 
+    --- Gets the total time of the spell cooldown
+    -- @function cd.spell.duration
+    -- @return number
+    -- @within cd.spell
+    cd[spell].duration = function()
+        -- Special handling for global CD in Classic
+        local spellID = br.functions.spell:resolveRank(id)
+        if spell == "global" and br.api.wow.GetGCDSpellID then
+            spellID = br.api.wow.GetGCDSpellID()
+        end
+        local level = br._G.UnitLevel("player")
+        local spellLevel = br._G.C_Spell.GetSpellLevelLearned(spellID) or 1
+        if level < spellLevel then return 0 end
+        local spellCD = br._G.C_Spell.GetSpellCooldown(spellID)
+        return spellCD and spellCD.duration or 0
+    end
+
     --- Checks if spell is on cooldown or not.
     -- @function cd.spell.exists
     -- @return boolean
     -- @within cd.spell
     cd[spell].exists = function()
         -- Special handling for global CD in Classic
-        local spellID = type(id) == "table" and (br.functions.spell and br.functions.spell.getHighestKnownRank and br.functions.spell:getHighestKnownRank(id) or id[1]) or id
+        local spellID = br.functions.spell:resolveRank(id)
         if spell == "global" and br.api.wow.GetGCDSpellID then
             spellID = br.api.wow.GetGCDSpellID()
         end
@@ -34,13 +51,38 @@ br.api.cd = function(self, spell, id)
         return spellCD > 0
     end
 
+    --- Gets the duration of the spells Global Cooldown.
+    -- @function cd.spell.prevgcd
+    -- @return number
+    -- @within cd.spell
+    cd[spell].prevgcd = function()
+        local spellID = br.functions.spell:resolveRank(id)
+        return select(2, br._G.GetSpellBaseCooldown(spellID))
+    end
+
+    --- Checks if the spell is not on cooldown or is (opposite of cd.spell.exists()).
+    -- @function cd.spell.ready
+    -- @return boolean
+    -- @within cd.spell
+    cd[spell].ready = function()
+        -- Special handling for global CD in Classic
+        local spellID = br.functions.spell:resolveRank(id)
+        if spell == "global" and br.api.wow.GetGCDSpellID then
+            spellID = br.api.wow.GetGCDSpellID()
+        end
+        local level = br._G.UnitLevel("player")
+        local spellLevel = br._G.C_Spell.GetSpellLevelLearned(spellID) or 1
+        if level < spellLevel then return false end
+        return br.functions.spell:getSpellCD(spellID) == 0
+    end
+
     --- Gets the time remaining on spell cooldown or 0 if not.
     -- @function cd.spell.remain
     -- @return number
     -- @within cd.spell
     cd[spell].remain = function()
         -- Special handling for global CD in Classic
-        local spellID = type(id) == "table" and (br.functions.spell and br.functions.spell.getHighestKnownRank and br.functions.spell:getHighestKnownRank(id) or id[1]) or id
+        local spellID = br.functions.spell:resolveRank(id)
         if spell == "global" and br.api.wow.GetGCDSpellID then
             spellID = br.api.wow.GetGCDSpellID()
         end
@@ -56,7 +98,7 @@ br.api.cd = function(self, spell, id)
     -- @within cd.spell
     cd[spell].remains = function()
         -- Special handling for global CD in Classic
-        local spellID = type(id) == "table" and (br.functions.spell and br.functions.spell.getHighestKnownRank and br.functions.spell:getHighestKnownRank(id) or id[1]) or id
+        local spellID = br.functions.spell:resolveRank(id)
         if spell == "global" and br.api.wow.GetGCDSpellID then
             spellID = br.api.wow.GetGCDSpellID()
         end
@@ -64,48 +106,6 @@ br.api.cd = function(self, spell, id)
         local spellLevel = br._G.C_Spell.GetSpellLevelLearned(spellID) or 1
         if level < spellLevel then return 99 end
         return br.functions.spell:getSpellCD(spellID)
-    end
-
-    --- Gets the total time of the spell cooldown
-    -- @function cd.spell.duration
-    -- @return number
-    -- @within cd.spell
-    cd[spell].duration = function()
-        -- Special handling for global CD in Classic
-        local spellID = type(id) == "table" and (br.functions.spell and br.functions.spell.getHighestKnownRank and br.functions.spell:getHighestKnownRank(id) or id[1]) or id
-        if spell == "global" and br.api.wow.GetGCDSpellID then
-            spellID = br.api.wow.GetGCDSpellID()
-        end
-        local level = br._G.UnitLevel("player")
-        local spellLevel = br._G.C_Spell.GetSpellLevelLearned(spellID) or 1
-        if level < spellLevel then return 0 end
-        local spellCD = br._G.C_Spell.GetSpellCooldown(spellID)
-        return spellCD and spellCD.duration or 0
-    end
-
-    --- Checks if the spell is not on cooldown or is (opposite of cd.spell.exists()).
-    -- @function cd.spell.ready
-    -- @return boolean
-    -- @within cd.spell
-    cd[spell].ready = function()
-        -- Special handling for global CD in Classic
-        local spellID = type(id) == "table" and (br.functions.spell and br.functions.spell.getHighestKnownRank and br.functions.spell:getHighestKnownRank(id) or id[1]) or id
-        if spell == "global" and br.api.wow.GetGCDSpellID then
-            spellID = br.api.wow.GetGCDSpellID()
-        end
-        local level = br._G.UnitLevel("player")
-        local spellLevel = br._G.C_Spell.GetSpellLevelLearned(spellID) or 1
-        if level < spellLevel then return false end
-        return br.functions.spell:getSpellCD(spellID) == 0
-    end
-
-    --- Gets the duration of the spells Global Cooldown.
-    -- @function cd.spell.prevgcd
-    -- @return number
-    -- @within cd.spell
-    cd[spell].prevgcd = function()
-        local spellID = type(id) == "table" and (br.functions.spell and br.functions.spell.getHighestKnownRank and br.functions.spell:getHighestKnownRank(id) or id[1]) or id
-        return select(2, br._G.GetSpellBaseCooldown(spellID))
     end
 end
 
@@ -116,6 +116,18 @@ br.api.itemCD = function(self, item, id)
     --- Item Cooldown Functions
     -- @section cd.item
     cd[item] = cd[item] or {}
+
+    --- Equipment Slot Cooldown Functions
+    -- @section cd.slot
+    cd.slot = cd.slot or {}
+
+    --- Gets the total cooldown time of the item in seconds.
+    -- @function cd.item.duration
+    -- @return number
+    -- @within cd.item
+    cd[item].duration = function()
+        return br._G.GetSpellBaseCooldown(select(2, br._G.GetItemSpell(id))) / 1000
+    end
 
     --- Checks if item is on cooldown or not.
     -- @function cd.item.exists
@@ -136,18 +148,6 @@ br.api.itemCD = function(self, item, id)
         return 0
     end
 
-    --- Gets the total cooldown time of the item in seconds.
-    -- @function cd.item.duration
-    -- @return number
-    -- @within cd.item
-    cd[item].duration = function()
-        return br._G.GetSpellBaseCooldown(select(2, br._G.GetItemSpell(id))) / 1000
-    end
-
-    --- Equipment Slot Cooldown Functions
-    -- @section cd.slot
-    cd.slot = cd.slot or {}
-
     --- Gets the base cooldown of a given item spell from an inventory slot (in seconds).
     -- @function cd.slot.duration
     -- @param slotID number The ID of the inventory slot.
@@ -167,6 +167,15 @@ br.api.itemCD = function(self, item, id)
     cd.slot.exists = function(slotID)
         if slotID == nil then return false end
         return cd.slot.remain(slotID) > 0
+    end
+
+    --- Checks if the item slot is off cooldown or not.
+    -- @function cd.slot.ready
+    -- @param slotID number The ID of the equipment slot to check.
+    -- @return boolean True if the slot is ready (not on cooldown).
+    -- @within cd.slot
+    cd.slot.ready = function(slotID)
+        return cd.slot.remain(slotID) == 0
     end
 
     --- Gets the time remaining on the equipment slot item cooldown or 0 if not.
@@ -198,14 +207,5 @@ br.api.itemCD = function(self, item, id)
     -- @see cd.slot.remain
     cd.slot.remains = function(slotID)
         return cd.slot.remain(slotID)
-    end
-
-    --- Checks if the item slot is off cooldown or not.
-    -- @function cd.slot.ready
-    -- @param slotID number The ID of the equipment slot to check.
-    -- @return boolean True if the slot is ready (not on cooldown).
-    -- @within cd.slot
-    cd.slot.ready = function(slotID)
-        return cd.slot.remain(slotID) == 0
     end
 end

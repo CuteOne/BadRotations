@@ -37,6 +37,19 @@ br.api.buffs = function(buff, k, v)
         return tonumber(br.functions.aura:getBuffCount(v))
     end
 
+    --- Check if a buff does NOT exists -- added for readablity into SIMC converted rotations
+    -- @function buff.spell.down
+    -- @string[opt="player"] thisUnit The unit to check.
+    -- @string[opt="player"] sourceUnit The source of the buff.
+    -- @treturn boolean
+    buff.down = function(thisUnit, sourceUnit)
+        if k == "bloodLust" then
+            v = br.functions.aura:getLustID()
+            if v == 0 then return true end
+        end
+        return not buff.exists(thisUnit, sourceUnit)
+    end
+
     --- Get the duration of a buff.
     -- @function buff.spell.duration
     -- @string[opt="player"] thisUnit The unit to check.
@@ -67,19 +80,6 @@ br.api.buffs = function(buff, k, v)
         return br.functions.aura:UnitBuffID(thisUnit, v, sourceUnit) ~= nil
     end
 
-    --- Check if a buff does NOT exists -- added for readablity into SIMC converted rotations
-    -- @function buff.spell.down
-    -- @string[opt="player"] thisUnit The unit to check.
-    -- @string[opt="player"] sourceUnit The source of the buff.
-    -- @treturn boolean
-    buff.down = function(thisUnit, sourceUnit)
-        if k == "bloodLust" then
-            v = br.functions.aura:getLustID()
-            if v == 0 then return true end
-        end
-        return not buff.exists(thisUnit, sourceUnit)
-    end
-
     --- Check if a buff can be reacted to.
     -- @function buff.spell.react
     -- @string[opt="player"] thisUnit The unit to check.
@@ -93,6 +93,35 @@ br.api.buffs = function(buff, k, v)
             if v == 0 then return false end
         end
         return br.functions.aura:getBuffReact(thisUnit, v, sourceUnit)
+    end
+
+    --- Check if a buff should be refreshed.
+    -- @function buff.spell.refresh
+    -- @string[opt="player"] thisUnit The unit to check.
+    -- @string[opt="player"] sourceUnit The source of the buff.
+    -- @treturn boolean
+    buff.refresh = function(thisUnit, sourceUnit)
+        if thisUnit == nil then thisUnit = 'player' end
+        if k == "bloodLust" then
+            v = br.functions.aura:getLustID()
+            if v == 0 then return false end
+        end
+        -- A stronger aura already holds this slot, so the game refuses a recast.
+        if br.functions.cast:isAuraBounced(v, thisUnit) then return false end
+
+        -- Classic: when sourceUnit is omitted, treat refresh checks as "any source".
+        -- Also: don't attempt to refresh a buff that exists in a higher rank (same name, different spellId).
+        if (br.api.hasSpellRanks and sourceUnit == nil) then
+            local auraInfo = br.functions.aura:UnitBuffID(thisUnit, v)
+            if auraInfo and auraInfo.spellId and auraInfo.spellId > v then
+                return false
+            end
+            local remain = math.abs(br.functions.aura:getBuffRemain(thisUnit, v))
+            local duration = br.functions.aura:getBuffDuration(thisUnit, v)
+            return remain <= duration * 0.3
+        end
+
+        return buff.remain(thisUnit, sourceUnit) <= buff.duration(thisUnit, sourceUnit) * 0.3
     end
 
     --- Get the remaining time of a buff.
@@ -123,33 +152,6 @@ br.api.buffs = function(buff, k, v)
             if v == 0 then return 0 end
         end
         return math.abs(br.functions.aura:getBuffRemain(thisUnit, v, sourceUnit))
-    end
-
-    --- Check if a buff should be refreshed.
-    -- @function buff.spell.refresh
-    -- @string[opt="player"] thisUnit The unit to check.
-    -- @string[opt="player"] sourceUnit The source of the buff.
-    -- @treturn boolean
-    buff.refresh = function(thisUnit, sourceUnit)
-        if thisUnit == nil then thisUnit = 'player' end
-        if k == "bloodLust" then
-            v = br.functions.aura:getLustID()
-            if v == 0 then return false end
-        end
-
-        -- Classic: when sourceUnit is omitted, treat refresh checks as "any source".
-        -- Also: don't attempt to refresh a buff that exists in a higher rank (same name, different spellId).
-        if (br.api.hasSpellRanks and sourceUnit == nil) then
-            local auraInfo = br.functions.aura:UnitBuffID(thisUnit, v)
-            if auraInfo and auraInfo.spellId and auraInfo.spellId > v then
-                return false
-            end
-            local remain = math.abs(br.functions.aura:getBuffRemain(thisUnit, v))
-            local duration = br.functions.aura:getBuffDuration(thisUnit, v)
-            return remain <= duration * 0.3
-        end
-
-        return buff.remain(thisUnit, sourceUnit) <= buff.duration(thisUnit, sourceUnit) * 0.3
     end
 
     --- Get the stack count of a buff.

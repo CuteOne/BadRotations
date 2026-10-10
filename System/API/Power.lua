@@ -147,40 +147,62 @@ br.api.power = function(power,powerType,powerIndex)
     -- Convenience rune helpers for Death Knight (rune-type specific)
     if isDKRunes then
         power[powerType].runes = power[powerType].runes or {}
-        power[powerType].runes.count = function(rtype)
-            return br.functions.power:getRuneCount(rtype)
-        end
-        power[powerType].runes.percent = function(rtype)
-            return br.functions.power:getRunePercent(rtype)
-        end
-        power[powerType].runes.info = function()
-            return br.functions.power:getRuneObjects()
-        end
-        power[powerType].runes.recharge = function(index)
-            return br.functions.power:runeRecharge(index)
-        end
+
+        power[powerType].blood = function() return power[powerType].runes.blood() end
+
+        power[powerType].bloodPercent = function() return power[powerType].runes.bloodPercent() end
+
+        power[powerType].death = function() return power[powerType].runes.death() end
+
+        power[powerType].deathPercent = function() return power[powerType].runes.deathPercent() end
+
+        -- Top-level aliases so callers can use br.player.power.runes.<type>() directly
+        power[powerType].frost = function() return power[powerType].runes.frost() end
+
+        power[powerType].frostPercent = function() return power[powerType].runes.frostPercent() end
+
+        power[powerType].runes.blood = function() return power[powerType].runes.count("blood") end
+
+        power[powerType].runes.bloodPercent = function() return power[powerType].runes.percent("blood") end
+
         power[powerType].runes.cdPercent = function(index)
             return br.functions.power:runeCDPercent(index)
         end
+
+        power[powerType].runes.count = function(rtype)
+            return br.functions.power:getRuneCount(rtype)
+        end
+
+        power[powerType].runes.death = function() return power[powerType].runes.count("death") end
+
+        power[powerType].runes.deathPercent = function() return power[powerType].runes.percent("death") end
+
+        power[powerType].runes.frost = function() return power[powerType].runes.count("frost") end
+
+        power[powerType].runes.frostPercent = function() return power[powerType].runes.percent("frost") end
+
+        power[powerType].runes.info = function()
+            return br.functions.power:getRuneObjects()
+        end
+
+        power[powerType].runes.percent = function(rtype)
+            return br.functions.power:getRunePercent(rtype)
+        end
+
+        power[powerType].runes.recharge = function(index)
+            return br.functions.power:runeRecharge(index)
+        end
+
         power[powerType].runes.timeTill = function(n)
             return br.functions.power:runeTimeTill(n)
         end
-        power[powerType].runes.frost = function() return power[powerType].runes.count("frost") end
+
         power[powerType].runes.unholy = function() return power[powerType].runes.count("unholy") end
-        power[powerType].runes.blood = function() return power[powerType].runes.count("blood") end
-        power[powerType].runes.death = function() return power[powerType].runes.count("death") end
-        power[powerType].runes.frostPercent = function() return power[powerType].runes.percent("frost") end
+
         power[powerType].runes.unholyPercent = function() return power[powerType].runes.percent("unholy") end
-        power[powerType].runes.bloodPercent = function() return power[powerType].runes.percent("blood") end
-        power[powerType].runes.deathPercent = function() return power[powerType].runes.percent("death") end
-        -- Top-level aliases so callers can use br.player.power.runes.<type>() directly
-        power[powerType].frost = function() return power[powerType].runes.frost() end
+
         power[powerType].unholy = function() return power[powerType].runes.unholy() end
-        power[powerType].blood = function() return power[powerType].runes.blood() end
-        power[powerType].death = function() return power[powerType].runes.death() end
-        power[powerType].frostPercent = function() return power[powerType].runes.frostPercent() end
+
         power[powerType].unholyPercent = function() return power[powerType].runes.unholyPercent() end
-        power[powerType].bloodPercent = function() return power[powerType].runes.bloodPercent() end
-        power[powerType].deathPercent = function() return power[powerType].runes.deathPercent() end
     end
 end

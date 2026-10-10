@@ -32,72 +32,21 @@ br.api.cast = function(self, spell, id)
     if cast.timeSinceLast == nil then cast.timeSinceLast = {} end
     local resolvedID = type(id) == "table" and (br.functions.spell and br.functions.spell.getHighestKnownRank and br.functions.spell:getHighestKnownRank(id) or id[1]) or id
 
-    --- Cast a spell based on various parameters.
-    -- The function name is dynamically generated based on the spell name.
-    -- For example, for a spell named "thisSpell", the function would be `cast.thisSpell()`.
-    -- @function cast.spell
-    -- @string thisUnit The target unit for the spell. Can be standard WoW units, dynamic units, or special parameters like "best", "playerGround", etc.
-    -- @string castType Defines the type of AoE or special cast conditions.
-    -- @number minUnits Minimum number of units needed to be hit by AoE spell.
-    -- @number effectRng The AoE's effect range.
-    -- @bool predict If true, will attempt to predict enemy movements for ground location AoE spells.
-    -- @bool predictPad Pads the prediction cast time. 'predict' must be true.
-    -- @tab enemies A table of enemy units that the spell should be cast on.
-    -- @treturn boolean
-    cast[spell] = function(thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)
-        return br.functions.cast:createCastFunction(thisUnit, castType, minUnits, effectRng, id, spell, predict, predictPad, enemies)
-    end
+    -- ===========================
+    -- SPELL RANK SYSTEM (CLASSIC)
+    -- ===========================
 
-    --- Cast a spell by its ID based on various parameters.
-    -- @function cast.id
-    -- @number spellID The ID of the spell to cast.
-    -- @string thisUnit The target unit for the spell. Can be standard WoW units, dynamic units, or special parameters.
-    -- @string castType Defines the type of AoE or special cast conditions.
-    -- @number minUnits Minimum number of units needed to be hit by AoE spell.
-    -- @number effectRng The AoE's effect range.
-    -- @bool predict If true, will attempt to predict enemy movements for ground location AoE spells.
-    -- @bool predictPad Pads the prediction cast time. 'predict' must be true.
-    -- @tab enemies A table of enemy units that the spell should be cast on.
-    -- @treturn boolean
-    cast.id = function(spellID, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)
-        if type(spellID) == "table" then spellID = (br.functions.spell and br.functions.spell.getHighestKnownRank and br.functions.spell:getHighestKnownRank(spellID)) or spellID[1] end
-        return br.functions.cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellID, spell, predict, predictPad,
-            enemies)
-    end
+    if cast.rank == nil then cast.rank = {} end
 
-    --- Cast a spell by its Name based on various parameters.
-    -- @function cast.name
-    -- @string spellName The name of the spell to cast.
-    -- @string thisUnit The target unit for the spell. Can be standard WoW units, dynamic units, or special parameters.
-    -- @string castType Defines the type of AoE or special cast conditions.
-    -- @number minUnits Minimum number of units needed to be hit by AoE spell.
-    -- @number effectRng The AoE's effect range.
-    -- @bool predict If true, will attempt to predict enemy movements for ground location AoE spells.
-    -- @bool predictPad Pads the prediction cast time. 'predict' must be true.
-    -- @tab enemies A table of enemy units that the spell should be cast on.
-    -- @treturn boolean
-    cast.name = function(spellName, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)
-        local _, _, _, _, _, _, spellID = br.api.wow.GetSpellInfo(spellName)
-        return br.functions.cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellID, spell, predict, predictPad,
-            enemies)
-    end
-
-
-    --- Checks if a spell can be cast based on various parameters.
-    -- The function name is dynamically generated based on the spell name.
-    -- @function cast.able.spell
-    -- @string thisUnit The target unit for the spell. Can be standard WoW units, dynamic units, or special parameters.
-    -- @string castType Defines the type of AoE or special cast conditions.
-    -- @number minUnits Minimum number of units needed to be hit by AoE spell.
-    -- @number effectRng The AoE's effect range.
-    -- @bool predict If true, will attempt to predict enemy movements for ground location AoE spells.
-    -- @bool predictPad Pads the prediction cast time. 'predict' must be true.
-    -- @tab enemies A table of enemy units that the spell should be cast on.
-    -- @treturn boolean
-    cast.able[spell] = function(thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)
-        return br.functions.cast:createCastFunction(thisUnit, castType, minUnits, effectRng, id, spell, predict, predictPad, enemies,
-            true)
-    end
+    --- Get the highest known rank number for this spell.
+    -- @function cast.maxRank.spell
+    -- @treturn number The highest rank number the player knows (1-based), or 0 if none
+    -- @usage
+    -- local knownRank = cast.maxRank.healingTouch()
+    -- if knownRank >= 5 then
+    --     -- Player knows at least Rank 5
+    -- end
+    cast.maxRank = cast.maxRank or {}
 
     --- Checks if a spell can be cast by its ID based on various parameters.
     -- @function cast.able.id
@@ -130,6 +79,22 @@ br.api.cast = function(self, spell, id)
         local _, _, _, _, _, _, spellID = br.api.wow.GetSpellInfo(spellName)
         return br.functions.cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellID, spell, predict, predictPad,
             enemies, true)
+    end
+
+    --- Checks if a spell can be cast based on various parameters.
+    -- The function name is dynamically generated based on the spell name.
+    -- @function cast.able.spell
+    -- @string thisUnit The target unit for the spell. Can be standard WoW units, dynamic units, or special parameters.
+    -- @string castType Defines the type of AoE or special cast conditions.
+    -- @number minUnits Minimum number of units needed to be hit by AoE spell.
+    -- @number effectRng The AoE's effect range.
+    -- @bool predict If true, will attempt to predict enemy movements for ground location AoE spells.
+    -- @bool predictPad Pads the prediction cast time. 'predict' must be true.
+    -- @tab enemies A table of enemy units that the spell should be cast on.
+    -- @treturn boolean
+    cast.able[spell] = function(thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)
+        return br.functions.cast:createCastFunction(thisUnit, castType, minUnits, effectRng, id, spell, predict, predictPad, enemies,
+            true)
     end
 
     --- Checks if the spell is the one currently being cast.
@@ -173,6 +138,13 @@ br.api.cast = function(self, spell, id)
         end
     end
 
+    --- Gets the spell id of the current (or previously) cast spell by the API.
+    -- @function cast.current.id
+    -- @treturn number
+    cast.current.id = function()
+        return br.botSpell
+    end
+
     --- Gets the currently cast spell for the target (Alternate to br.player.cast.active.spell()).
     -- @function cast.current.spell
     -- @string thisUnit Acceptable parameters: nil (defaults to "player"), standard WoW units, or dynamic units.
@@ -180,13 +152,6 @@ br.api.cast = function(self, spell, id)
     cast.current[spell] = function(thisUnit)
         if thisUnit == nil then thisUnit = "player" end
         return br.functions.cast:isCastingSpell(resolvedID, thisUnit)
-    end
-
-    --- Gets the spell id of the current (or previously) cast spell by the API.
-    -- @function cast.current.id
-    -- @treturn number
-    cast.current.id = function()
-        return br.botSpell
     end
 
     --- Checks if the spell is capable of dispelling the target.
@@ -212,6 +177,23 @@ br.api.cast = function(self, spell, id)
         local CastShapeshiftForm = br._G["CastShapeshiftForm"]
         if formIndex == nil then formIndex = 0 end
         return CastShapeshiftForm(formIndex)
+    end
+
+    --- Cast a spell by its ID based on various parameters.
+    -- @function cast.id
+    -- @number spellID The ID of the spell to cast.
+    -- @string thisUnit The target unit for the spell. Can be standard WoW units, dynamic units, or special parameters.
+    -- @string castType Defines the type of AoE or special cast conditions.
+    -- @number minUnits Minimum number of units needed to be hit by AoE spell.
+    -- @number effectRng The AoE's effect range.
+    -- @bool predict If true, will attempt to predict enemy movements for ground location AoE spells.
+    -- @bool predictPad Pads the prediction cast time. 'predict' must be true.
+    -- @tab enemies A table of enemy units that the spell should be cast on.
+    -- @treturn boolean
+    cast.id = function(spellID, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)
+        if type(spellID) == "table" then spellID = (br.functions.spell and br.functions.spell.getHighestKnownRank and br.functions.spell:getHighestKnownRank(spellID)) or spellID[1] end
+        return br.functions.cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellID, spell, predict, predictPad,
+            enemies)
     end
 
     --- Checks if the spell is currently in flight to the target.
@@ -249,13 +231,48 @@ br.api.cast = function(self, spell, id)
         return br.functions.lastCast.lastCastTable.castTime[resolvedID]
     end
 
-    --- Runs the macro text passed to it.
+    --- Runs the macro text passed to it. Optionally integrates with the cast gate's
+    -- throttle infrastructure when an associated spell ID is supplied.
     -- @function cast.macro
     -- @string macroText The macro text to be run.
-    -- @treturn boolean
-    cast.macro = function(macroText)
+    -- @int[opt] associatedSpellID Spell ID representing the intent of this macro. When
+    --   passed, the cast gate writes castTimers + castIntentLocks for this spell ID so
+    --   the next tick's gateDoubleCast / gateCooldownTimer blocks immediate re-fires
+    --   through the same mechanism createCastFunction uses. Callers that don't pass
+    --   this argument retain the original unprotected behavior (backward-compatible).
+    -- @number[opt=0.5] lockDuration Throttle window in seconds. Defaults to 0.5s
+    --   (matches the createCastFunction success-path convention).
+    -- @treturn boolean Always true.
+    cast.macro = function(macroText, associatedSpellID, lockDuration)
         br._G.RunMacroText(macroText)
+        if associatedSpellID then
+            local duration = lockDuration or 0.5
+            br.functions.cast:setCastTimer(associatedSpellID, duration)
+            br.functions.cast:setCastIntentLock(associatedSpellID, duration)
+        end
         return true
+    end
+
+    cast.maxRank[spell] = function()
+        if not br.api.hasSpellRanks then return 1 end
+        return br.functions.spell:getKnownRank(id)
+    end
+
+    --- Cast a spell by its Name based on various parameters.
+    -- @function cast.name
+    -- @string spellName The name of the spell to cast.
+    -- @string thisUnit The target unit for the spell. Can be standard WoW units, dynamic units, or special parameters.
+    -- @string castType Defines the type of AoE or special cast conditions.
+    -- @number minUnits Minimum number of units needed to be hit by AoE spell.
+    -- @number effectRng The AoE's effect range.
+    -- @bool predict If true, will attempt to predict enemy movements for ground location AoE spells.
+    -- @bool predictPad Pads the prediction cast time. 'predict' must be true.
+    -- @tab enemies A table of enemy units that the spell should be cast on.
+    -- @treturn boolean
+    cast.name = function(spellName, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)
+        local _, _, _, _, _, _, spellID = br.api.wow.GetSpellInfo(spellName)
+        return br.functions.cast:createCastFunction(thisUnit, castType, minUnits, effectRng, spellID, spell, predict, predictPad,
+            enemies)
     end
 
     --- Checks if the spell can free you of a "no control" effect.
@@ -310,6 +327,41 @@ br.api.cast = function(self, spell, id)
         return br.functions.spell:getSpellRange(resolvedID)
     end
 
+    --- Cast a specific rank of a spell (Classic WoW only).
+    -- Allows casting a lower rank of a spell for mana efficiency or specific mechanics.
+    -- @function cast.rank.spell
+    -- @number rankNum The rank number to cast (1-based index, e.g., 1 for Rank 1, 2 for Rank 2)
+    -- @string thisUnit The target unit for the spell. Can be standard WoW units, dynamic units, or special parameters.
+    -- @string castType Defines the type of AoE or special cast conditions.
+    -- @number minUnits Minimum number of units needed to be hit by AoE spell.
+    -- @number effectRng The AoE's effect range.
+    -- @bool predict If true, will attempt to predict enemy movements for ground location AoE spells.
+    -- @bool predictPad Pads the prediction cast time. 'predict' must be true.
+    -- @tab enemies A table of enemy units that the spell should be cast on.
+    -- @treturn boolean
+    -- @usage
+    -- -- Cast Rank 1 Healing Touch for mana efficiency
+    -- if cast.rank.healingTouch(1, "target") then return true end
+    --
+    -- -- Cast Rank 3 Rejuvenation
+    -- if cast.rank.rejuvenation(3, "target") then return true end
+    cast.rank[spell] = function(rankNum, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)
+        if not br.api.hasSpellRanks then
+            -- In non-Classic, just use the regular spell (no ranks)
+            return br.functions.cast:createCastFunction(thisUnit, castType, minUnits, effectRng, id, spell, predict, predictPad, enemies)
+        end
+
+        -- Get the specific rank spell ID from the spell definition (id might be a table)
+        local rankID = br.functions.spell:getSpellRank(id, rankNum)
+        if not rankID then
+            -- Rank doesn't exist, fallback to base ID
+            rankID = type(id) == "table" and id[1] or id
+        end
+
+        -- Cast the specific rank
+        return br.functions.cast:createCastFunction(thisUnit, castType, minUnits, effectRng, rankID, spell, predict, predictPad, enemies)
+    end
+
     --- Gets the amount of power spell will generate when cast.
     -- @function cast.regen.spell
     -- @treturn number
@@ -326,6 +378,22 @@ br.api.cast = function(self, spell, id)
     -- @treturn boolean
     cast.safe[spell] = function(thisUnit, aoeType, minUnits, effectRng)
         return br.functions.range:isSafeToAoE(resolvedID, thisUnit, effectRng, minUnits, aoeType)
+    end
+
+    --- Cast a spell based on various parameters.
+    -- The function name is dynamically generated based on the spell name.
+    -- For example, for a spell named "thisSpell", the function would be `cast.thisSpell()`.
+    -- @function cast.spell
+    -- @string thisUnit The target unit for the spell. Can be standard WoW units, dynamic units, or special parameters like "best", "playerGround", etc.
+    -- @string castType Defines the type of AoE or special cast conditions.
+    -- @number minUnits Minimum number of units needed to be hit by AoE spell.
+    -- @number effectRng The AoE's effect range.
+    -- @bool predict If true, will attempt to predict enemy movements for ground location AoE spells.
+    -- @bool predictPad Pads the prediction cast time. 'predict' must be true.
+    -- @tab enemies A table of enemy units that the spell should be cast on.
+    -- @treturn boolean
+    cast[spell] = function(thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)
+        return br.functions.cast:createCastFunction(thisUnit, castType, minUnits, effectRng, id, spell, predict, predictPad, enemies)
     end
 
     --- Gets the cast time of player's spell. If the spell has no cast time, it returns the global cooldown.
@@ -363,60 +431,5 @@ br.api.cast = function(self, spell, id)
         else
             return true
         end
-    end
-
-    -- ===========================
-    -- SPELL RANK SYSTEM (CLASSIC)
-    -- ===========================
-
-    if cast.rank == nil then cast.rank = {} end
-
-    --- Cast a specific rank of a spell (Classic WoW only).
-    -- Allows casting a lower rank of a spell for mana efficiency or specific mechanics.
-    -- @function cast.rank.spell
-    -- @number rankNum The rank number to cast (1-based index, e.g., 1 for Rank 1, 2 for Rank 2)
-    -- @string thisUnit The target unit for the spell. Can be standard WoW units, dynamic units, or special parameters.
-    -- @string castType Defines the type of AoE or special cast conditions.
-    -- @number minUnits Minimum number of units needed to be hit by AoE spell.
-    -- @number effectRng The AoE's effect range.
-    -- @bool predict If true, will attempt to predict enemy movements for ground location AoE spells.
-    -- @bool predictPad Pads the prediction cast time. 'predict' must be true.
-    -- @tab enemies A table of enemy units that the spell should be cast on.
-    -- @treturn boolean
-    -- @usage
-    -- -- Cast Rank 1 Healing Touch for mana efficiency
-    -- if cast.rank.healingTouch(1, "target") then return true end
-    --
-    -- -- Cast Rank 3 Rejuvenation
-    -- if cast.rank.rejuvenation(3, "target") then return true end
-    cast.rank[spell] = function(rankNum, thisUnit, castType, minUnits, effectRng, predict, predictPad, enemies)
-        if not br.api.hasSpellRanks then
-            -- In non-Classic, just use the regular spell (no ranks)
-            return br.functions.cast:createCastFunction(thisUnit, castType, minUnits, effectRng, id, spell, predict, predictPad, enemies)
-        end
-
-        -- Get the specific rank spell ID from the spell definition (id might be a table)
-        local rankID = br.functions.spell:getSpellRank(id, rankNum)
-        if not rankID then
-            -- Rank doesn't exist, fallback to base ID
-            rankID = type(id) == "table" and id[1] or id
-        end
-
-        -- Cast the specific rank
-        return br.functions.cast:createCastFunction(thisUnit, castType, minUnits, effectRng, rankID, spell, predict, predictPad, enemies)
-    end
-
-    --- Get the highest known rank number for this spell.
-    -- @function cast.maxRank.spell
-    -- @treturn number The highest rank number the player knows (1-based), or 0 if none
-    -- @usage
-    -- local knownRank = cast.maxRank.healingTouch()
-    -- if knownRank >= 5 then
-    --     -- Player knows at least Rank 5
-    -- end
-    cast.maxRank = cast.maxRank or {}
-    cast.maxRank[spell] = function()
-        if not br.api.hasSpellRanks then return 1 end
-        return br.functions.spell:getKnownRank(id)
     end
 end

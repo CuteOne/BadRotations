@@ -111,6 +111,7 @@ function combat:getNumEnemies(Unit, Radius)
 end
 
 function combat:isIncapacitated(spellID)
+	if not br._G.C_LossOfControl then return false end
 	-- Initialize tracking table if it doesn't exist
 	if not br.incapacitationTracker then
 		br.incapacitationTracker = {}
@@ -506,4 +507,32 @@ function combat:isAggroed(unit)
 		end
 	end
 	return false
+end
+
+-- True if a tank in the player's party/raid within 40 yards is in combat.
+-- if br.functions.combat:isTankInCombat() then
+function combat:isTankInCombat()
+	local instance = select(2, br._G.IsInInstance())
+	if instance ~= "raid" and instance ~= "party" then return false end
+	local tanksTable = br.engines.healingEngineFunctions:getTanksTable()
+	if tanksTable == nil then return false end
+	for i = 1, #tanksTable do
+		if br._G.UnitAffectingCombat(tanksTable[i].unit) and tanksTable[i].distance < 40 then
+			return true
+		end
+	end
+	return false
+end
+
+-- BR's notion of "in combat". For the player this also honours the "Ignore Combat" and
+-- "Tank Aggro = Player Aggro" options, and treats the player as in combat while grouped
+-- and the target is in combat. Other units only use UnitAffectingCombat.
+-- if br.functions.combat:isInCombat("player") then
+function combat:isInCombat(thisUnit)
+	if thisUnit == nil then thisUnit = "player" end
+	if br._G.UnitAffectingCombat(thisUnit) then return true end
+	if not br.functions.unit:GetUnitIsUnit(thisUnit, "player") then return false end
+	return br.functions.misc:isChecked("Ignore Combat")
+		or (br.functions.misc:isChecked("Tank Aggro = Player Aggro") and combat:isTankInCombat())
+		or (br._G.GetNumGroupMembers() > 1 and br._G.UnitAffectingCombat("target"))
 end

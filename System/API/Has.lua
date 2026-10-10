@@ -12,6 +12,8 @@ br.api.has = function(self,item,id)
 
     --- ### Item Has Functions
 
+    if has.stats == nil then has.stats = {} end
+
     --- Checks if item is in your bags or not.
     -- Note: `item` here refers to the name in the item list defined in System/List/Items.lua
     -- @function has.item
@@ -35,8 +37,6 @@ br.api.has = function(self,item,id)
         end
     end
 
-    if has.stats == nil then has.stats = {} end
-
     --- Checks if an inventory item has any of chosen DPS stats.
     -- @function has.stats.dps
     -- @tparam itemSlot The slot number in the player's inventory where the item is located.
@@ -55,38 +55,18 @@ br.api.has = function(self,item,id)
             versatility = "ITEM_MOD_VERSATILITY"
         }
 
-        local function hasDPSStats(itemLink, matchStat)
-            local stats = br._G.GetItemStats(itemLink) or {}
-
-            -- Define the stats that contribute to DPS.
-            local dpsStats = {"ITEM_MOD_AGILITY_SHORT", "ITEM_MOD_STRENGTH_SHORT", "ITEM_MOD_INTELLECT_SHORT",
-                                "ITEM_MOD_CRIT_RATING_SHORT", "ITEM_MOD_HASTE_RATING_SHORT",
-                                "ITEM_MOD_MASTERY_RATING_SHORT", "ITEM_MOD_VERSATILITY"}
-
-            -- If a desired stat is specified, check if the item has that stat.
-            if matchStat then return stats[matchStat] end
-
-            -- If no desired stat is specified, check if the item has any DPS stats.
-            for _, stat in ipairs(dpsStats) do
-                if stats[stat] then return true end
-            end
-
-            return false
-        end
-
         local itemLink = br._G.GetInventoryItemLink("player", itemSlot)
         if itemLink then
             local statStr = statMap[desiredStat]
 
             if statStr or desiredStat == "anyDps" then
-                return hasDPSStats(itemLink, statStr)
+                return br.functions.item:hasDPSStats(itemLink, statStr)
             else
                 -- If desiredStat isn't found in the map, check for any DPS stat.
-                return hasDPSStats(itemLink)
+                return br.functions.item:hasDPSStats(itemLink)
             end
         end
 
         return false
     end
-
 end
