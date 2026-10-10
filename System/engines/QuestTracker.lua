@@ -165,15 +165,35 @@ local function isAliveOrFriend(unit)
 	return not br.functions.unit:GetUnitIsDeadOrGhost(unit) or br.functions.unit:GetUnitIsFriend("player", unit)
 end
 
--- True when `name` (lowercase) is what one of the active objectives is about.
--- Compares both directions so "Whitepetal Reed" (object) matches "Whitepetal Reeds" (objective).
+-- Lowercase words separated by single spaces, padded so whole words can be found with " word "
+local function paddedWords(text)
+	return " " .. text:lower():gsub("[^%w']+", " "):gsub("^ +", ""):gsub(" +$", "") .. " "
+end
+
+-- The forms an objective's subject may take in a name: as written, and singular/plural of its
+-- last word ("whitepetal reeds" also matches "Whitepetal Reed", "murloc" also "Murlocs")
+local function subjectForms(subject)
+	local forms = { subject, subject .. "s", subject .. "es" }
+	if subject:sub(-2) == "es" then forms[#forms + 1] = subject:sub(1, -3) end
+	if subject:sub(-1) == "s" then forms[#forms + 1] = subject:sub(1, -2) end
+	return forms
+end
+
+-- True when `name` (a unit or object name) is what one of the active objectives is about: the name
+-- contains the objective's subject as whole words ("Rabid Thistle Bear" for "Rabid Thistle Bear
+-- slain", "School of Darkshore Grouper" for "Darkshore Grouper"). Only the parsed subject counts,
+-- not the free text of event/description objectives ("Find a corrupt furbolg camp"), and a name that
+-- is only part of the subject doesn't ("Thistle Bear" is not a "Rabid Thistle Bear").
 local function matchesObjective(name)
 	if #name < 3 then return false end
+	local words = paddedWords(name)
 	for _, objectives in pairs(questTracker.objectives) do
 		for i = 1, #objectives do
-			local o = objectives[i]
-			if o.text:find(name, 1, true) or (o.name and (name:find(o.name, 1, true) or o.name:find(name, 1, true))) then
-				return true
+			local forms = objectives[i].forms
+			if forms then
+				for _, form in ipairs(forms) do
+					if words:find(" " .. form .. " ", 1, true) then return true end
+				end
 			end
 		end
 	end
@@ -383,7 +403,7 @@ local function addObjective(questId, text)
 		questTracker.objectives[questId] = list
 	end
 	local name = parseObjectiveName(text)
-	list[#list + 1] = { text = text:lower(), name = name }
+	list[#list + 1] = { text = text:lower(), name = name, forms = name and subjectForms(paddedWords(name):sub(2, -2)) }
 	questTracker.objectiveCount = questTracker.objectiveCount + 1
 	if name then addNameVariations(name, questTracker.cache) end
 end
