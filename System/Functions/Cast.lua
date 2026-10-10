@@ -1251,7 +1251,7 @@ local function castingSpell(ctx, thisUnit, castType, printReport, debug)
 		-- Sent, but nothing showed it starting yet (off-GCD spells, or the server's reply is still on
 		-- its way). Hold the spell for a server round trip so it isn't sent a second time before the
 		-- reply arrives.
-		local hold = math.max(0.20, ctx.latency * 2 + 0.10)
+		local hold = br.functions.misc:getRoundTripHold(ctx.latency)
 		castTimers[ctx.spellID] = br._G.GetTime() + hold
 		setCastIntentLock(ctx.spellID, hold)
 		return true -- queued / not yet confirmed; do not spam CAST_FAILED

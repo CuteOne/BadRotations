@@ -756,17 +756,13 @@ end
 
 -- When BR last cancelled the player's shapeshift form. The form's buff only goes once the server
 -- replies, so for a round trip the form still looks active and a rotation would cancel it again.
+-- Kept apart from the cast throttles (castTimers / intent locks): a cancel isn't a cast, and locking
+-- the form's spell would also block casting that form and be cleared by unrelated cast errors.
 local formCancelSentAt = -math.huge
-
--- A server round trip plus a margin (the same hold the cast system uses for unconfirmed casts)
-local function roundTripHold()
-	local latency = (select(3, br._G.GetNetStats()) or 0) / 1000
-	return math.max(0.20, latency * 2 + 0.10)
-end
 
 --- True while a form cancel BR sent is still on its way (sent within a round trip, form still on).
 function unit:isFormCancelPending()
-	return br._G.GetTime() - formCancelSentAt < roundTripHold() and (br._G.GetShapeshiftForm() or 0) ~= 0
+	return br._G.GetTime() - formCancelSentAt < br.functions.misc:getRoundTripHold() and (br._G.GetShapeshiftForm() or 0) ~= 0
 end
 
 --- The spell ID of the player's current shapeshift form, or nil when not in one.
@@ -791,7 +787,7 @@ function unit:shouldLeaveFormFor(outOfFormSpell, treatOutSpellAsFree, emergency)
 	if formSpellID == nil then return false, "not in a form" end
 	if emergency then return true end
 	if br._G.IsStealthed and br._G.IsStealthed() then return false, "stealthed" end
-	if br.functions.spell:isTankForm(formSpellID) and (br._G.UnitThreatSituation("player") or 0) >= 2 then return false, "tanking" end
+	if br.functions.spell:isTankForm(formSpellID) and br.functions.combat:isTanking() then return false, "tanking" end
 	local power = br.functions.power
 	local needed = power:getManaCostFromRef(outOfFormSpell, treatOutSpellAsFree) + power:getManaCostFromRef(formSpellID, false)
 	if needed > 0 and (br._G.UnitPower("player", 0) or 0) < needed then return false, "not enough mana to shift back" end
