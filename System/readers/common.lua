@@ -39,6 +39,8 @@ _superFrame:RegisterEvent("LOADING_SCREEN_DISABLED")
 -- Sets a dirty flag so Core.lua re-evaluates the spec on the next pulse tick
 -- instead of calling getEffectiveSpecID() on every tick.
 _superFrame:RegisterEvent("ACTIVE_PLAYER_SPECIALIZATION_CHANGED")
+-- Fired when the spellbook changes (a spell learned at a trainer or on level-up, talents, spec).
+_superFrame:RegisterEvent("SPELLS_CHANGED")
 
 function common:commonReaders()
 	---------------
@@ -556,6 +558,12 @@ function common:commonReaders()
 		end
 		if event == "ACTIVE_PLAYER_SPECIALIZATION_CHANGED" then
 			br.loader.specDirty = true
+		end
+		-- Spells known, spell types and talents the cast system remembers
+		if event == "SPELLS_CHANGED" or event == "PLAYER_TALENT_UPDATE" or event == "TRAIT_CONFIG_UPDATED"
+			or event == "PLAYER_LEVEL_UP" or event == "ACTIVE_PLAYER_SPECIALIZATION_CHANGED"
+		then
+			br.functions.cast:clearSpellFacts()
 		end
 	end
 	superReaderFrame:SetScript("OnEvent", SuperReader)

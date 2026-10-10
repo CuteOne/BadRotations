@@ -15,10 +15,15 @@ function misc:getLatency()
 	return lag
 end
 
+-- Home latency (to the realm server) in seconds, unclamped.
+function misc:getHomeLatency()
+	return (select(3, br._G.GetNetStats()) or 0) / 1000
+end
+
 -- How long to wait for the server to answer something BR sent: a round trip plus a margin.
 -- @param latency home latency in seconds; read from the client when not given
 function misc:getRoundTripHold(latency)
-	latency = latency or (select(3, br._G.GetNetStats()) or 0) / 1000
+	latency = latency or misc:getHomeLatency()
 	return math.max(0.20, latency * 2 + 0.10)
 end
 
