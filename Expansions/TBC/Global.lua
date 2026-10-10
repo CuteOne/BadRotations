@@ -1,20 +1,49 @@
 local _, br = ...
 if br.lists == nil then br.lists = {} end
 
+-- Spell 99 is Retail's Incapacitating Roar in the shared long-CC list, but here it's
+-- Demoralizing Roar (Rank 1). Left in, every mob a bear Roars reads as crowd
+-- controlled, and "Don't break CCs" drops it as a target for the rest of the fight.
+if br.lists.longCC then br.lists.longCC[99] = nil end
+
+-- The shared long-CC list only carries Rank 1 IDs, so "Don't break CCs" missed every
+-- higher rank. Each ID below was checked against Wowhead's TBC database (2026-10-05).
+if br.lists.longCC then
+    for _, id in ipairs({
+        1062, 5195, 5196, 9852, 9853, 26989, -- Entangling Roots (Rank 2-7)
+        18657, 18658,                   -- Hibernate (Rank 2-3)
+        14308, 14309,                   -- Freezing Trap Effect (Rank 2-3)
+        24132, 24133, 27068,            -- Wyvern Sting (Rank 2-4)
+        19503,                          -- Scatter Shot
+        12824, 12825, 12826,            -- Polymorph (Rank 2-4)
+        33041, 33042, 33043,            -- Dragon's Breath (Rank 2-4)
+        8124, 10888, 10890,             -- Psychic Scream (Rank 2-4)
+        9485, 10955,                    -- Shackle Undead (Rank 2-3)
+        1777, 8629, 11285, 11286, 38764, -- Gouge (Rank 2-6)
+        2070, 11297, 30980,             -- Sap (Rank 2-4)
+        5782, 6213, 6215,               -- Fear (Rank 1-3)
+        17928,                          -- Howl of Terror (Rank 2)
+        18647,                          -- Banish (Rank 2)
+    }) do
+        br.lists.longCC[id] = true
+    end
+end
+
+-- Several TBC racials are a different spell per class (checked against Wowhead's TBC
+-- database, 2026-10-05).
+local playerClass = select(2, br._G.UnitClass("player"))
+local berserkingID    = ({ WARRIOR = 26296, ROGUE = 26297 })[playerClass] or 20554
+local arcaneTorrentID = (playerClass == "ROGUE") and 25046 or 28730
+local bloodFuryID     = ({ SHAMAN = 33697, WARLOCK = 33702 })[playerClass] or 20572
+
+-- cast.racial() is the race's damage racial, so a profile can use it SimC-style ("use
+-- racial on cooldown for DPS") without checking race. Races with no damage racial are
+-- left out: their racial resolves to 0, which BR treats as "nothing to cast". Every
+-- racial also has its own key in the abilities table below.
 br.lists.racials = {
-    -- Alliance
-    Dwarf    = 20594,  -- Stoneform
-    Gnome    = 20589,  -- Escape Artist
-    Human    = 59752,  -- Every Man for Himself
-    NightElf = 20580,  -- Shadowmeld
-    -- Horde
-    Tauren   = 20549,  -- War Stomp
-    Troll    = 26297,  -- Berserking
-    Scourge  = 7744,   -- Will of the Forsaken
-    -- Dynamic lookup base IDs
-    _bloodElfBase = 69179,
-    _draeneiBase  = 28880,
-    _orcBase      = 33702,
+    Troll    = berserkingID,    -- Berserking
+    BloodElf = arcaneTorrentID, -- Arcane Torrent (mana/energy return)
+    Orc      = bloodFuryID,     -- Blood Fury
 }
 
 br.lists.spells = {}
@@ -23,11 +52,22 @@ br.lists.spells.Shared = {
         abilities        = {
             autoAttack     = 6603,
             autoShot       = 75,
-            giftOfTheNaaru = br.functions.spell:getRacial("Draenei"), --select(7, GetSpellInfo(GetSpellInfo(28880))),
+            fumping        = 39238, -- Fumper (item 31810) channel for the quest "Fumping"; act-through (see misc:pause nonBlockingChannels)
             global         = 5176, -- Classic uses class-specific GCD spells, but we use a default here
-            quakingPalm    = br.functions.spell:getRacial("Pandaren"),
             racial         = br.functions.spell:getRacial(),
-            shadowmeld     = br.functions.spell:getRacial("NightElf"),
+            -- Each racial by name, for profiles that want a specific one. Only the
+            -- player's own race will be known.
+            arcaneTorrent     = arcaneTorrentID, -- Blood Elf
+            berserking        = berserkingID,    -- Troll
+            bloodFury         = bloodFuryID,     -- Orc
+            cannibalize       = 20577, -- Undead
+            escapeArtist      = 20589, -- Gnome
+            giftOfTheNaaru    = 28880, -- Draenei
+            perception        = 20600, -- Human (Every Man for Himself, 59752, arrived in WotLK)
+            shadowmeld        = 20580, -- Night Elf
+            stoneform         = 20594, -- Dwarf
+            warStomp          = 20549, -- Tauren
+            willOfTheForsaken = 7744,  -- Undead
         },
         buffs            = {
             racial                         = br.functions.spell:getRacial(),

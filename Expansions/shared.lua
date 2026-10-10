@@ -300,6 +300,280 @@ do
     end
 end
 
+-- C_AddOns namespace shims.
+-- C_AddOns is the Retail 10.x+ namespace. Legacy globals IsAddOnLoaded /
+-- GetAddOnMetadata exist on every Classic-era client; on Retail 11.x+ the
+-- globals were removed but the native namespace covers us. Guards ensure the
+-- shim is only installed when the native method is absent.
+--
+-- IsAddOnLoaded normalises the loaded flag to a boolean so callers see the
+-- Retail contract (true/false) regardless of client — the legacy global
+-- returns 1/nil.
+--
+-- Proxy snapshot: br.api.wow.C_AddOns's __index captures _G.C_AddOns by
+-- reference at wowapi.lua load time, so later mutations to that table are
+-- live. The only stale case is _G.C_AddOns being nil at load and being
+-- created afterward (e.g. by an unlocker) — a grep of Unlockers/ rules this
+-- out as of writing.
+do
+    local ca = br.api.wow.C_AddOns
+
+    if not (_G.C_AddOns and _G.C_AddOns.IsAddOnLoaded) then
+        ca.IsAddOnLoaded = function(name)
+            if _G.IsAddOnLoaded then
+                local loaded, finished = _G.IsAddOnLoaded(name)
+                return loaded ~= nil and loaded ~= false, finished
+            end
+            -- Neither C_AddOns.IsAddOnLoaded nor the legacy global exists: treat as not loaded.
+            return false
+        end
+    end
+
+    if not (_G.C_AddOns and _G.C_AddOns.GetAddOnMetadata) then
+        ca.GetAddOnMetadata = function(name, field)
+            if _G.GetAddOnMetadata then return _G.GetAddOnMetadata(name, field) end
+            return nil
+        end
+    end
+end
+
+-- C_SpecializationInfo namespace shims.
+-- C_SpecializationInfo is the Retail namespace; on Classic-era clients the
+-- equivalents are top-level globals (GetSpecialization, GetActiveSpecGroup,
+-- GetSpecializationInfo) that exist from MoP onward. Pre-MoP clients (original
+-- Classic, TBC Classic) have no spec system at all — the shims fall through to
+-- safe defaults that callers already tolerate.
+--
+-- Fallback semantics, verified against every non-Expansions/ callsite:
+--   GetSpecialization   -> nil. All callers test the result with `== N`; nil
+--                          ≠ N short-circuits Retail-spec-keyed branches,
+--                          which is the correct behaviour on no-spec clients.
+--                          Returning 1 would wrongly fire spec-1 branches
+--                          (e.g. Holy Paladin code) for every class.
+--   GetActiveSpecGroup  -> 1. Only live caller is misc:getTalent (Necrotic
+--                          Plague handler, DK-only). DKs don't exist pre-Wrath
+--                          so this fallback is never actually reached; on
+--                          Wrath+ the legacy _G.GetActiveSpecGroup exists and
+--                          the polyfill defers to it. The 1 is a defensive
+--                          placeholder for any future caller, not a load-
+--                          bearing value today.
+--   GetSpecializationInfo -> nil. Callers `select(2, …)` for the spec name,
+--                            which BadRotations.lua:124 already normalises
+--                            (empty/nil → "Initial").
+--
+-- Proxy snapshot caveat is identical to C_AddOns above; no unlocker writes
+-- _G.C_SpecializationInfo, so the "nil-at-load then created later" stale case
+-- is ruled out by the same grep.
+do
+    local cs = br.api.wow.C_SpecializationInfo
+
+    if not (_G.C_SpecializationInfo and _G.C_SpecializationInfo.GetSpecialization) then
+        cs.GetSpecialization = function()
+            if _G.GetSpecialization then return _G.GetSpecialization() end
+            -- Neither C_SpecializationInfo.GetSpecialization nor the legacy global exists
+            -- (original Classic / TBC have no spec system): return nil so == N checks fail.
+            return nil
+        end
+    end
+
+    if not (_G.C_SpecializationInfo and _G.C_SpecializationInfo.GetActiveSpecGroup) then
+        cs.GetActiveSpecGroup = function()
+            if _G.GetActiveSpecGroup then return _G.GetActiveSpecGroup() end
+            -- Pre-Wrath: no dual-spec system. Defensive placeholder; the sole live
+            -- caller (misc:getTalent) is DK-only and unreachable on pre-Wrath clients.
+            return 1
+        end
+    end
+
+    if not (_G.C_SpecializationInfo and _G.C_SpecializationInfo.GetSpecializationInfo) then
+        cs.GetSpecializationInfo = function(specIndex)
+            if _G.GetSpecializationInfo then return _G.GetSpecializationInfo(specIndex) end
+            -- No spec system on the client: return nil so callers' select(2, …)
+            -- produces nil, which downstream code already normalises to "Initial".
+            return nil
+        end
+    end
+end
+
+-- C_Container namespace shims.
+-- C_Container is the Retail 10.x+ namespace. Most methods are pure namespace
+-- moves with identical signatures; the only shape change is
+-- GetContainerItemInfo, which returns a table on Retail and a flat multi-
+-- return on every Classic-era client. The shim translates the multi-return
+-- into the documented modern table-field names so callsite code reads the
+-- same on every client.
+--
+-- Proxy already exists at wowapi.lua:51; this block only adds method shims.
+-- Proxy snapshot caveat is identical to C_AddOns / C_SpecializationInfo
+-- above; grep of Unlockers/ shows nothing rawsets _G.C_Container, so the
+-- nil-at-load case is ruled out.
+do
+    local cc = br.api.wow.C_Container
+
+    if not (_G.C_Container and _G.C_Container.GetContainerNumSlots) then
+        cc.GetContainerNumSlots = function(bagID)
+            if _G.GetContainerNumSlots then return _G.GetContainerNumSlots(bagID) end
+            -- Neither C_Container.GetContainerNumSlots nor the legacy global exists.
+            return 0
+        end
+    end
+
+    if not (_G.C_Container and _G.C_Container.GetContainerNumFreeSlots) then
+        cc.GetContainerNumFreeSlots = function(bagID)
+            if _G.GetContainerNumFreeSlots then return _G.GetContainerNumFreeSlots(bagID) end
+            return 0
+        end
+    end
+
+    if not (_G.C_Container and _G.C_Container.GetContainerItemID) then
+        cc.GetContainerItemID = function(bagID, slot)
+            if _G.GetContainerItemID then return _G.GetContainerItemID(bagID, slot) end
+            return nil
+        end
+    end
+
+    if not (_G.C_Container and _G.C_Container.GetContainerItemLink) then
+        cc.GetContainerItemLink = function(bagID, slot)
+            if _G.GetContainerItemLink then return _G.GetContainerItemLink(bagID, slot) end
+            return nil
+        end
+    end
+
+    -- GetContainerItemInfo translates the legacy 11-value multi-return into the
+    -- modern table shape. Field names match the documented Retail return so
+    -- callers (LootEngineFunctions.lua reads `.stackCount`; Module.lua reads
+    -- `.itemID`) work identically on every client. Empty slots return nil to
+    -- match the modern contract; verified callsites either nil-check (Module.lua:93)
+    -- or are gated by an upstream GetContainerItemLink check (LootEngineFunctions.lua:11, 35).
+    if not (_G.C_Container and _G.C_Container.GetContainerItemInfo) then
+        cc.GetContainerItemInfo = function(bagID, slot)
+            if not _G.GetContainerItemInfo then return nil end
+            local texture, itemCount, locked, quality, readable, lootable,
+                  itemLink, isFiltered, noValue, itemID, isBound = _G.GetContainerItemInfo(bagID, slot)
+            if texture == nil then return nil end  -- empty slot: no item
+            return {
+                iconFileID  = texture,
+                stackCount  = itemCount,
+                isLocked    = locked,
+                quality     = quality,
+                isReadable  = readable,
+                hasLoot     = lootable,
+                hyperlink   = itemLink,
+                isFiltered  = isFiltered,
+                hasNoValue  = noValue,
+                itemID      = itemID,
+                isBound     = isBound,
+            }
+        end
+    end
+
+    if not (_G.C_Container and _G.C_Container.GetItemCooldown) then
+        cc.GetItemCooldown = function(itemID)
+            -- The legacy global is deprecated on Retail; this branch only runs on
+            -- Classic-era clients where it isn't deprecated and is the only option.
+            ---@diagnostic disable-next-line: deprecated
+            if _G.GetItemCooldown then return _G.GetItemCooldown(itemID) end
+            -- No legacy global either: report "no cooldown" so == 0 checks pass safely.
+            return 0, 0, 0
+        end
+    end
+
+    if not (_G.C_Container and _G.C_Container.PickupContainerItem) then
+        cc.PickupContainerItem = function(bagID, slot)
+            -- The legacy global is deprecated on Retail; this branch only runs on
+            -- Classic-era clients where it isn't deprecated and is the only option.
+            ---@diagnostic disable-next-line: deprecated
+            if _G.PickupContainerItem then return _G.PickupContainerItem(bagID, slot) end
+        end
+    end
+end
+
+-- C_Item namespace shims.
+-- C_Item is the Retail 10.x+ namespace. All four methods used in the codebase
+-- are pure namespace moves with identical signatures to their legacy globals,
+-- except GetItemIconByID which is named GetItemIcon as a legacy global. Guards
+-- ensure the shim is only installed when the native method is absent.
+--
+-- All four legacy globals (GetItemIcon, GetItemSpell, GetItemCount, GetItemInfo)
+-- are formally deprecated on Retail in favour of the C_Item namespace; the
+-- `---@diagnostic disable-next-line: deprecated` directives below silence the
+-- language server warning, since these branches only run on Classic-era clients
+-- where the globals aren't deprecated and are the only available form.
+--
+-- Proxy snapshot: br.api.wow.C_Item's __index captures _G.C_Item by reference
+-- at wowapi.lua load time. The only stale case is _G.C_Item being nil at load
+-- and being created afterward by an unlocker — daemonic.lua:249 reads
+-- _G.C_Item["UseItemByName"] but doesn't rawset _G.C_Item, so the stale case
+-- is ruled out by grep of Unlockers/.
+do
+    local ci = br.api.wow.C_Item
+
+    if not (_G.C_Item and _G.C_Item.GetItemIconByID) then
+        ci.GetItemIconByID = function(itemID)
+            ---@diagnostic disable-next-line: deprecated
+            if _G.GetItemIcon then return _G.GetItemIcon(itemID) end
+            -- Neither C_Item.GetItemIconByID nor the legacy global exists.
+            return nil
+        end
+    end
+
+    if not (_G.C_Item and _G.C_Item.GetItemSpell) then
+        ci.GetItemSpell = function(itemID)
+            ---@diagnostic disable-next-line: deprecated
+            if _G.GetItemSpell then return _G.GetItemSpell(itemID) end
+            return nil
+        end
+    end
+
+    if not (_G.C_Item and _G.C_Item.GetItemCount) then
+        ci.GetItemCount = function(itemID, includeBank, includeUses, includeReagentBank)
+            ---@diagnostic disable-next-line: deprecated
+            if _G.GetItemCount then return _G.GetItemCount(itemID, includeBank, includeUses, includeReagentBank) end
+            return 0
+        end
+    end
+
+    if not (_G.C_Item and _G.C_Item.GetItemInfo) then
+        ci.GetItemInfo = function(itemID)
+            ---@diagnostic disable-next-line: deprecated
+            if _G.GetItemInfo then return _G.GetItemInfo(itemID) end
+            return nil
+        end
+    end
+end
+
+-- C_Map namespace shim.
+-- C_Map is the Legion 7.0+ namespace using the uiMapID number space.
+-- Categorically different from the other polyfills in this file: there is no
+-- serviceable legacy fallback. Pre-Legion APIs (GetCurrentMapAreaID, GetMapInfo,
+-- SetMapToCurrentZone) used a different mapID number space that doesn't align
+-- with uiMapIDs, and they were removed in 7.0 anyway. Every zone referenced
+-- in System/Lists/Maps.lua is Retail-only content (Draenor, Legion zones,
+-- Shadowlands zones, Proving Grounds) — none can match a pre-Legion mapID
+-- via any plausible translation because the zones don't exist on those clients.
+--
+-- Shape: "polyfill admits it can't translate; caller-tolerance verified."
+-- Only GetBestMapForUnit is polyfilled; other C_Map methods aren't covered
+-- here and would crash if called on a Classic-era client (the proxy provides
+-- namespace-level access but not method-level safety). All 9 GetBestMapForUnit
+-- callsites verified during L11 survey to tolerate a nil return — 7 tContains
+-- predicates return false (correct: player isn't in a Retail zone on a
+-- Classic-era client); 1 == 480 check returns false (correct: Proving Grounds
+-- doesn't exist or has different ID); 1 if(mapId) guard skips the world-quest
+-- scan block (correct: C_TaskQuest doesn't exist on those clients either).
+do
+    local cm = br.api.wow.C_Map
+
+    if not (_G.C_Map and _G.C_Map.GetBestMapForUnit) then
+        cm.GetBestMapForUnit = function(_)
+            -- No legacy fallback: pre-Legion mapID space differs from uiMapID
+            -- and delegating would return a plausible-looking wrong-number-space
+            -- answer rather than the honest "no value" that callers handle.
+            return nil
+        end
+    end
+end
+
 -- GCDSpells: class-specific fallback spells used to detect the GCD on Classic-era clients.
 -- Spell 61304 (the canonical Retail GCD probe) does not exist before Wrath.
 -- Retail has its own GCD detection and does not use this table.

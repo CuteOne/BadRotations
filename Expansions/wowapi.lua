@@ -7,6 +7,7 @@ br.api = br.api or {}
 br.api.compat = {}
 
 -- Detect WoW version
+br.isForever = (WOW_PROJECT_ID == WOW_PROJECT_CAMELOT)
 br.isRetail = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE)
 br.isMOP = (WOW_PROJECT_ID == WOW_PROJECT_MISTS_CLASSIC)
 br.isCata = (WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC)  -- detected but no expansion file; unsupported
@@ -14,7 +15,7 @@ br.isWrath = (WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC)    -- detected but no
 br.isBC = (WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC)
 br.isClassic = (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC)
 
--- br.api.expansion is set by each Expansions/<name>/Functions.lua to its short key ("Retail", "MOP", "TBC", "Classic").
+-- br.api.expansion is set by each Expansions/<name>/Functions.lua to its short key ("Retail", "MOP", "TBC", "Classic", "Forever").
 -- Defaults to "Unknown" for unsupported clients (Cata, Wrath, etc.).
 br.api.expansion = "Unknown"
 
@@ -40,13 +41,17 @@ br.api.hasSpellRanks        = false  -- true on Classic/TBC: spell IDs are rank-
 br.api.hasSubSpecs          = true   -- false on Classic/TBC: no talent specialization subfolders
 br.api.hasHeroTalentTrees   = false  -- true only on Retail (War Within+)
 
--- Namespace proxy tables for br._G.C_Spell.X / C_Container.X / C_SpellBook.X calls.
+-- Namespace proxy tables for br._G.C_Spell.X / C_Container.X / C_SpellBook.X / C_AddOns.X / C_SpecializationInfo.X / C_Item.X / C_Map.X calls.
 -- br._G.__index returns br.api.wow[name] when a key is not rawset on br._G, so these
 -- proxies intercept every br._G.C_Spell.* call and check for an expansion shim first,
 -- then fall through to the real WoW global. Expansion files assign into br.api.wow.C_Spell
 -- (etc.) to polyfill methods that are missing or differ on their client version.
 -- The NN unlocker writes br._G.C_Spell = nnProxy directly (rawset), which takes priority
 -- over this proxy via rawget and bypasses __index entirely.
-br.api.wow.C_Spell     = setmetatable({}, { __index = _G.C_Spell     or {} })
-br.api.wow.C_Container = setmetatable({}, { __index = _G.C_Container or {} })
-br.api.wow.C_SpellBook = setmetatable({}, { __index = _G.C_SpellBook or {} })
+br.api.wow.C_Spell              = setmetatable({}, { __index = _G.C_Spell              or {} })
+br.api.wow.C_Container          = setmetatable({}, { __index = _G.C_Container          or {} })
+br.api.wow.C_SpellBook          = setmetatable({}, { __index = _G.C_SpellBook          or {} })
+br.api.wow.C_AddOns             = setmetatable({}, { __index = _G.C_AddOns             or {} })
+br.api.wow.C_SpecializationInfo = setmetatable({}, { __index = _G.C_SpecializationInfo or {} })
+br.api.wow.C_Item               = setmetatable({}, { __index = _G.C_Item               or {} })
+br.api.wow.C_Map                = setmetatable({}, { __index = _G.C_Map                or {} })

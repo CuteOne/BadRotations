@@ -1,10 +1,44 @@
 local _, br = ...
 if br.lists == nil then br.lists = {} end
 
+-- Spell 99 is Retail's Incapacitating Roar in the shared long-CC list, but here it's
+-- Demoralizing Roar (Rank 1). Left in, every mob a bear Roars reads as crowd
+-- controlled, and "Don't break CCs" drops it as a target for the rest of the fight.
+if br.lists.longCC then br.lists.longCC[99] = nil end
+
+-- The shared long-CC list only carries Rank 1 IDs, so "Don't break CCs" missed every
+-- higher rank. Each ID below was checked against Wowhead's Classic database (2026-10-05).
+if br.lists.longCC then
+    for _, id in ipairs({
+        1062, 5195, 5196, 9852, 9853,   -- Entangling Roots (Rank 2-6)
+        18657, 18658,                   -- Hibernate (Rank 2-3)
+        14308, 14309,                   -- Freezing Trap Effect (Rank 2-3)
+        24132, 24133,                   -- Wyvern Sting (Rank 2-3)
+        19503,                          -- Scatter Shot
+        12824, 12825, 12826,            -- Polymorph (Rank 2-4)
+        8124, 10888, 10890,             -- Psychic Scream (Rank 2-4)
+        9485, 10955,                    -- Shackle Undead (Rank 2-3)
+        1777, 8629, 11285, 11286,       -- Gouge (Rank 2-5)
+        2070, 11297,                    -- Sap (Rank 2-3)
+        5782, 6213, 6215,               -- Fear (Rank 1-3)
+        17928,                          -- Howl of Terror (Rank 2)
+        18647,                          -- Banish (Rank 2)
+    }) do
+        br.lists.longCC[id] = true
+    end
+end
+
+-- Racial IDs checked against Wowhead's Classic database (2026-10-05).
+local playerClass = select(2, br._G.UnitClass("player"))
+local berserkingID = ({ WARRIOR = 26296, ROGUE = 26297 })[playerClass] or 20554
+
+-- cast.racial() is the race's damage racial, so a profile can use it SimC-style ("use
+-- racial on cooldown for DPS") without checking race. Races with no damage racial are
+-- left out: their racial resolves to 0, which BR treats as "nothing to cast". Every
+-- racial also has its own key in the abilities table below.
 br.lists.racials = {
-    NightElf     = 20580, -- Shadowmeld
-    -- Dynamic lookup base IDs
-    _draeneiBase = 28880, -- Gift of the Naaru
+    Orc   = 20572,        -- Blood Fury
+    Troll = berserkingID, -- Berserking (a different spell per power type)
 }
 
 br.lists.spells = {}
@@ -13,14 +47,19 @@ br.lists.spells.Shared = {
             abilities        = {
                 autoAttack     = 6603,
                 autoShot       = 75,
-                giftOfTheNaaru = br.functions.spell:getRacial("Draenei"), --select(7, GetSpellInfo(GetSpellInfo(28880))),
                 global         = 5176, -- Classic uses class-specific GCD spells, but we use a default here
-                -- latentArcana   = 296971,
-                -- lightsJudgment = 255647,
-                quakingPalm    = br.functions.spell:getRacial("Pandaren"),
                 racial         = br.functions.spell:getRacial(),
-                shadowmeld     = br.functions.spell:getRacial("NightElf"),
-                -- twoForms      = 68996,
+                -- Each racial by name, for profiles that want a specific one. Only the
+                -- player's own race will be known.
+                berserking        = berserkingID, -- Troll
+                bloodFury         = 20572, -- Orc
+                cannibalize       = 20577, -- Undead
+                escapeArtist      = 20589, -- Gnome
+                perception        = 20600, -- Human
+                shadowmeld        = 20580, -- Night Elf
+                stoneform         = 20594, -- Dwarf
+                warStomp          = 20549, -- Tauren
+                willOfTheForsaken = 7744,  -- Undead
             },
             buffs            = {
                 -- ancientHysteria                = 90355,
