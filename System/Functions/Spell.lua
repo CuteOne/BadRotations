@@ -727,6 +727,10 @@ function spell:getSpellIdFromRef(spellRef)
 		return spellRef
 	end
 	if refType == "table" then
+		-- A spell list entry with ranks ({rank1ID, rank2ID, ...}): the highest rank the player knows
+		if type(spellRef[1]) == "number" then
+			return spell:getHighestKnownRank(spellRef)
+		end
 		if type(spellRef.id) == "function" then
 			local ok, value = pcall(spellRef.id)
 			if ok and value ~= nil then

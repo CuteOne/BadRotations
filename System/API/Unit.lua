@@ -124,8 +124,8 @@ br.api.unit = function(self)
             return false
         end
         if not unit.cancelForm() then return false end
-        local spellRef = type(outOfFormSpell) == "table" and outOfFormSpell[1] or outOfFormSpell
-        br.functions.misc:addonDebug("Cancel Form [" .. tostring(br.api.wow.GetSpellInfo(spellRef) or spellRef) .. "]")
+        local spellRef = br.functions.spell:getSpellIdFromRef(outOfFormSpell)
+        br.functions.misc:addonDebug("Cancel Form [" .. tostring(spellRef and br.api.wow.GetSpellInfo(spellRef) or spellRef) .. "]")
         return true
     end
 
