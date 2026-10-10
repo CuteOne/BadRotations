@@ -90,6 +90,9 @@ end
 -- end
 function unit:GetObjectID(Unit)
 	if br.unlocked and br.functions.unit:GetObjectExists(Unit) then
+		-- units the enemies engine tracks already have their NPC ID on record
+		local record = br.engines.enemiesEngine and br.engines.enemiesEngine.records and br.engines.enemiesEngine.records[Unit]
+		if record and record.id then return record.id end
 		return br._G.ObjectID(Unit)
 	else
 		return 0
@@ -472,13 +475,8 @@ function unit:isDummy(Unit)
 	if Unit == nil then
 		Unit = "target"
 	end
-	if br.functions.unit:GetObjectExists(Unit) then
-		local dummies = br.lists.dummies
-		local objectID = br.functions.unit:GetObjectID(Unit)
-		-- if dummies[tonumber(string.match(UnitGUID(Unit),"-(%d+)-%x+$"))] then --~= nil
-		return dummies[objectID] ~= nil
-	end
-	return false
+	-- GetObjectID is 0 for a unit that doesn't exist, and 0 is never a dummy
+	return br.lists.dummies[br.functions.unit:GetObjectID(Unit)] ~= nil
 end
 
 -- if isEnemy([Unit])

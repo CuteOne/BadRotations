@@ -34,10 +34,10 @@ end
 -- invalidation (TTL + player-movement threshold) so the partition cache and
 -- storedTables stay in sync — a partition derivation is correctness-equivalent
 -- to a fresh full scan within this window.
-local function isPartitionCacheValid(pCache, radius)
+local function isPartitionCacheValid(pCache, radius, now, inCombat, inRaid)
 	if not pCache then return false end
-	local cacheExpiration = br._G.UnitAffectingCombat("player") and 0.1 or 0.15
-	if (br._G.GetTime() - pCache.timestamp) > cacheExpiration then return false end
+	local cacheExpiration = inCombat and 0.1 or 0.15
+	if (now - pCache.timestamp) > cacheExpiration then return false end
 	local px = br.engines.enemiesEngine.playerPosX
 	local py = br.engines.enemiesEngine.playerPosY
 	local pz = br.engines.enemiesEngine.playerPosZ
@@ -46,7 +46,7 @@ local function isPartitionCacheValid(pCache, radius)
 		local dy = pCache.playerPosY - py
 		local dz = pCache.playerPosZ - pz
 		local moved = math.sqrt((dx * dx) + (dy * dy) + (dz * dz))
-		local moveThreshold = (br._G.IsInRaid() and radius and radius > 20) and 3.0 or 2.0
+		local moveThreshold = (inRaid and radius and radius > 20) and 3.0 or 2.0
 		if moved > moveThreshold then return false end
 	end
 	return true
@@ -168,13 +168,14 @@ function enemiesEngineFunctions:getEnemies(thisUnit, radius, checkNoCombat, faci
 	local thisEnemy, distance
 	if checkNoCombat == nil then checkNoCombat = false end
 	if facing == nil then facing = false end
+	local now, inCombat, inRaid = br._G.GetTime(), br._G.UnitAffectingCombat("player"), br._G.IsInRaid()
 	if storedTables[checkNoCombat] ~= nil then
 		if storedTables[checkNoCombat][thisUnit] ~= nil then
 			if storedTables[checkNoCombat][thisUnit][radius] ~= nil then
 				if storedTables[checkNoCombat][thisUnit][radius][facing] ~= nil then
 					local cachedTable = storedTables[checkNoCombat][thisUnit][radius][facing]
 					-- Combat-reactive cache duration: much shorter in combat for higher reactivity
-					local cacheExpiration = br._G.UnitAffectingCombat("player") and 0.1 or 0.15
+					local cacheExpiration = inCombat and 0.1 or 0.15
 					-- Slightly longer TTL when checkNoCombat is true (out-of-combat queries are less time-sensitive)
 					if checkNoCombat then cacheExpiration = 0.1 end
 					-- Invalidate cache if player moved since cache creation (prevents stale AoE/position info)
@@ -190,10 +191,10 @@ function enemiesEngineFunctions:getEnemies(thisUnit, radius, checkNoCombat, faci
 						local moved = math.sqrt((dx * dx) + (dy * dy) + (dz * dz))
 						-- Invalidate cache on significant movement.
 						-- Relaxed threshold in raids for large-radius queries (open rooms like Maiden of Virtue).
-						local moveThreshold = (br._G.IsInRaid() and radius and radius > 20) and 3.0 or 2.0
+						local moveThreshold = (inRaid and radius and radius > 20) and 3.0 or 2.0
 						if moved > moveThreshold then movedTooFar = true end
 					end
-					if cachedTable._timestamp and (br._G.GetTime() - cachedTable._timestamp) < cacheExpiration and not movedTooFar then
+					if cachedTable._timestamp and (now - cachedTable._timestamp) < cacheExpiration and not movedTooFar then
 						return cachedTable
 					end
 				end
@@ -215,7 +216,7 @@ function enemiesEngineFunctions:getEnemies(thisUnit, radius, checkNoCombat, faci
 	-- Quick guard: when not requesting `checkNoCombat`, avoid returning enemies
 	-- while the player is not in combat and the requested unit (or player's target)
 	-- isn't a valid unit. This prevents accidental population outside combat.
-	if not checkNoCombat and not br._G.UnitAffectingCombat("player") then
+	if not checkNoCombat and not inCombat then
 		local unitToCheck = thisUnit or "player"
 		local validRequest = false
 		if unitToCheck == "player" then
@@ -248,7 +249,7 @@ function enemiesEngineFunctions:getEnemies(thisUnit, radius, checkNoCombat, faci
 	if thisUnit == "player" then
 		local sourceKey = checkNoCombat and "units" or "enemy"
 		local pCache = partitionCache[sourceKey]
-		if not (isPartitionCacheValid(pCache, radius) and pCache.maxRadius >= radius) then
+		if not (isPartitionCacheValid(pCache, radius, now, inCombat, inRaid) and pCache.maxRadius >= radius) then
 			-- Cache miss, expired, moved, or radius wider than cached: rebuild.
 			-- Widen to max(requested radius, prior cache max) so we don't shrink
 			-- the cache if a smaller-radius call follows a larger one.
@@ -270,7 +271,7 @@ function enemiesEngineFunctions:getEnemies(thisUnit, radius, checkNoCombat, faci
 
 	-- FIXED: If still empty and no target, check for enemies with threat on player/group (e.g., mobs attacking you)
 	-- This catches enemies that haven't been validated yet but are actively engaging the player
-	if #enemiesTable == 0 and not checkNoCombat and br._G.UnitAffectingCombat("player") then
+	if #enemiesTable == 0 and not checkNoCombat and inCombat then
 		-- Check all units in the broader units table (includes unvalidated units).
 		-- Cap on accepted units (not loop iterations) — bounds the per-fire cost
 		-- to (fallbackCap × per-entry ops). See AUDIT.md L19 for cap-value
@@ -284,7 +285,6 @@ function enemiesEngineFunctions:getEnemies(thisUnit, radius, checkNoCombat, faci
 		-- the lexical association between cap and the fallback it bounds.
 		local fallbackCount = 0
 		local fallbackCap = 30
-		local now = br._G.GetTime()
 		for _, v in pairs(br.engines.enemiesEngine.units) do
 			if fallbackCount >= fallbackCap then break end
 			local thisEnemy = v.unit
@@ -310,7 +310,7 @@ function enemiesEngineFunctions:getEnemies(thisUnit, radius, checkNoCombat, faci
 		if storedTables[checkNoCombat][thisUnit] == nil then storedTables[checkNoCombat][thisUnit] = {} end
 		if storedTables[checkNoCombat][thisUnit][radius] == nil then storedTables[checkNoCombat][thisUnit][radius] = {} end
 		-- FIXED: Add timestamp to cached table so cache expiration check works properly
-		enemiesTable._timestamp = br._G.GetTime()
+		enemiesTable._timestamp = now
 		-- store player position at cache time to detect movement-based invalidation (flat fields, no sub-table alloc)
 		enemiesTable._playerPosX = br.engines.enemiesEngine.playerPosX
 		enemiesTable._playerPosY = br.engines.enemiesEngine.playerPosY

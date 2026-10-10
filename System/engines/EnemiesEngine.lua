@@ -476,7 +476,9 @@ function engine:Update()
 			local delay = ((math.random() * 0.25) + 0.75) * updateRate * raidMultiplier
 			if record.candidateAt == nil or engine.units[record.unit] == nil then delay = delay * 0.25 end
 			record.nextUpdate = now + delay
-			if not br.functions.unit:GetUnitIsVisible(record.unit) then
+			-- Gone, or the pointer now belongs to a different unit (its record's facts would be wrong):
+			-- forget it; the scan picks a new unit up again
+			if not br.functions.unit:GetUnitIsVisible(record.unit) or br._G.UnitGUID(record.unit) ~= record.guid then
 				forget(record) -- the last record was swapped into slot i: process it next
 			else
 				record:update(now, inCombat, hasGroup, engine.fps)
