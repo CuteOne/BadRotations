@@ -96,9 +96,15 @@ E.castTimers = nil -- per-spell cast throttle; created on first createCastFuncti
 -- another unit straight away.
 function cast:handleCastError(message)
 	if type(message) ~= "string" then return end
+	if not (br.botSpell and br.botGUID and br.botCastTime) then return end
+	-- With Cast Debug on, show every game error that follows a BR cast closely, so a cast that was
+	-- sent but refused by the server (shapeshifted, no mana, ...) shows why instead of only "Casting".
+	if (br._G.GetTime() - br.botCastTime) <= REJECT_ATTRIBUTION_WINDOW and E.shouldPrintCastDebug() then
+		br.player.ui.debug("[CAST FAIL][SERVER] " .. tostring(br.api.wow.GetSpellInfo(br.botSpell))
+			.. " — game said: " .. message)
+	end
 	local kind = rejectionKindForError(message)
 	if not kind then return end
-	if not (br.botSpell and br.botGUID and br.botCastTime) then return end
 	if kind ~= "aura" and (br._G.GetTime() - br.botCastTime) > REJECT_ATTRIBUTION_WINDOW then return end
 	cast:setRejected(kind, br.botSpell, br.botGUID)
 	if E.castTimers then E.castTimers[br.botSpell] = nil end
