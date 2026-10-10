@@ -1,0 +1,371 @@
+local _, br = ...
+br.functions.cast = br.functions.cast or {}
+local cast = br.functions.cast
+-- State and helpers shared by the files in System/Functions/Cast (internal, not for profiles)
+cast.internal = cast.internal or {}
+local E = cast.internal
+
+-- Shared state and tracking: cast rejection memory, unit visibility, the queue window,
+-- intent locks and checking that a cast started.
+
+local castIntentLocks = {} -- Tracks cast intent to prevent multiple cast.able() checks succeeding
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- SECTION: Cast rejection memory
+--
+-- When the game refuses a BR cast, remember why so the rotation stops retrying
+-- it and falls through to something it can actually do. This works from
+-- UI_ERROR_MESSAGE, so it needs no combat log and catches whatever the LoS trace
+-- and facing math get wrong.
+--   aura   - "A more powerful spell is already active": this spell, this unit.
+--   los    - "Target not in line of sight": every spell on this unit.
+--   facing - "Target needs to be in front of you": harmful spells on this unit.
+--   range  - "Out of range": this spell, this unit.
+-- ─────────────────────────────────────────────────────────────────────────────
+local REJECT_DURATION = { aura = 30, los = 1.0, facing = 0.5, range = 0.5 }
+local UNIT_WIDE_REJECT = { los = true, facing = true }
+-- Only attribute an error to BR's last cast if that cast was this recent; older
+-- errors most likely came from the player's own button presses.
+local REJECT_ATTRIBUTION_WINDOW = 1.0
+local rejections = {}
+
+local function rejectionKey(kind, spellID, guid)
+	if not guid then return nil end
+	if UNIT_WIDE_REJECT[kind] then return kind .. ":" .. guid end
+	local name = spellID and br.api.wow.GetSpellInfo(spellID)
+	if not name then return nil end
+	return kind .. ":" .. name .. ":" .. guid
+end
+
+-- Record that the game refused spellID on the unit with this GUID.
+function cast:setRejected(kind, spellID, guid)
+	local key = rejectionKey(kind, spellID, guid)
+	if key then rejections[key] = br._G.GetTime() + (REJECT_DURATION[kind] or 0.5) end
+end
+
+-- True while a recent cast of spellID on thisUnit was refused for this reason.
+function cast:isRejected(kind, spellID, thisUnit)
+	local key = rejectionKey(kind, spellID, thisUnit and br._G.UnitGUID(thisUnit))
+	if not key then return false end
+	local expires = rejections[key]
+	if expires and br._G.GetTime() < expires then return true end
+	rejections[key] = nil
+	return false
+end
+
+-- Kept for existing callers (Buff.lua).
+function cast:setAuraBounced(spellID, guid) cast:setRejected("aura", spellID, guid) end
+function cast:isAuraBounced(spellID, thisUnit) return cast:isRejected("aura", spellID, thisUnit or "player") end
+
+-- Remember which spell BR last sent and at whom, so UI errors can be pinned on it.
+function E.recordBotCast(spellID, thisUnit)
+	br.botCast     = true
+	br.botSpell    = spellID
+	br.botUnit     = thisUnit
+	br.botGUID     = br._G.UnitGUID(thisUnit)
+	br.botCastTime = br._G.GetTime()
+end
+
+local function errorText(globalName, fallback)
+	local text = br._G[globalName]
+	if type(text) == "string" and text ~= "" then return text end
+	return fallback
+end
+
+local function rejectionKindForError(message)
+	if message == errorText("SPELL_FAILED_AURA_BOUNCED", "A more powerful spell is already active.") then return "aura" end
+	if message == errorText("SPELL_FAILED_LINE_OF_SIGHT", "Target not in line of sight") then return "los" end
+	if message == errorText("SPELL_FAILED_UNIT_NOT_INFRONT", "Target needs to be in front of you.")
+		or message == errorText("SPELL_FAILED_NOT_INFRONT", "You must be in front of your target.")
+		or message == errorText("ERR_BADATTACKFACING", "You are facing the wrong way!")
+	then
+		return "facing"
+	end
+	if message == errorText("SPELL_FAILED_OUT_OF_RANGE", "Out of range.")
+		or message == errorText("ERR_OUT_OF_RANGE", "Out of range.")
+	then
+		return "range"
+	end
+	return nil
+end
+
+E.castTimers = nil -- per-spell cast throttle; created on first createCastFunction call
+
+-- Called from the UI_ERROR_MESSAGE reader. Records the refusal against BR's most
+-- recent cast and frees that spell's throttles so the rotation can use it on
+-- another unit straight away.
+function cast:handleCastError(message)
+	if type(message) ~= "string" then return end
+	local kind = rejectionKindForError(message)
+	if not kind then return end
+	if not (br.botSpell and br.botGUID and br.botCastTime) then return end
+	if kind ~= "aura" and (br._G.GetTime() - br.botCastTime) > REJECT_ATTRIBUTION_WINDOW then return end
+	cast:setRejected(kind, br.botSpell, br.botGUID)
+	if E.castTimers then E.castTimers[br.botSpell] = nil end
+	castIntentLocks[br.botSpell] = nil
+end
+
+-- One visibility rule for every cast path: the player always passes; any other
+-- unit, friend or enemy, needs line of sight and must not have just been refused
+-- by the game for being out of it.
+function E.isUnitVisible(thisUnit)
+	if thisUnit == nil then return false end
+	if br.functions.unit:GetUnitIsUnit(thisUnit, "player") then return true end
+	if cast:isRejected("los", nil, thisUnit) then return false end
+	return br.functions.misc:canSee(thisUnit)
+end
+
+-- Same rule for callers outside this module (target selection), so a unit the cast
+-- gate would refuse is never picked as the target in the first place.
+function cast:isUnitVisible(thisUnit)
+	return E.isUnitVisible(thisUnit)
+end
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- SECTION: Pre-casting (spell queue window)
+--
+-- Near the end of a cast the client accepts the next spell and fires it the
+-- moment the current cast ends. The rotation is paused for most of a cast and
+-- re-runs, top to bottom, once the cast is inside the queue window; whatever
+-- the profile ranks highest at that moment is pre-cast, which may be the same
+-- spell again (Wrath -> Wrath) or something else (Moonfire needing a refresh).
+-- One decision per cast: after pre-casting, the rotation waits for the current
+-- cast to end, so a later, lower-priority line can't replace the queued spell.
+-- ─────────────────────────────────────────────────────────────────────────────
+
+-- Values that can't change within a frame (GetTime is fixed for the whole frame), read once per
+-- frame instead of once per cast attempt. The live GCD isn't one: a cast earlier in the frame starts it.
+local frameValues = {}
+function E.getFrameValues()
+	local now = br._G.GetTime()
+	if frameValues.at ~= now then
+		frameValues.at         = now
+		frameValues.updateRate = br.engines:getUpdateRate()
+		frameValues.latency    = br.functions.misc:getHomeLatency()
+		frameValues.gcdMax     = br.functions.spell:getGlobalCD(true)
+	end
+	return frameValues
+end
+
+local spellQueueWindow, spellQueueWindowReadAt = 0.4, nil
+local SPELL_QUEUE_WINDOW_REFRESH = 5
+
+-- The client's effective queue window in seconds. C_Spell.GetSpellQueueWindow
+-- reports the value in effect (a CVar read may not be, on Forever).
+local function getSpellQueueWindow()
+	local now = br._G.GetTime()
+	if spellQueueWindowReadAt == nil or now - spellQueueWindowReadAt > SPELL_QUEUE_WINDOW_REFRESH then
+		spellQueueWindowReadAt = now
+		local ms
+		if br._G.C_Spell and br._G.C_Spell.GetSpellQueueWindow then
+			ms = tonumber(br._G.C_Spell.GetSpellQueueWindow())
+		elseif br._G.GetSpellQueueWindow then
+			ms = tonumber(br._G.GetSpellQueueWindow())
+		elseif br._G.C_CVar and br._G.C_CVar.GetCVar then
+			ms = tonumber(br._G.C_CVar.GetCVar("SpellQueueWindow"))
+		end
+		if ms then spellQueueWindow = ms / 1000 end
+	end
+	return spellQueueWindow
+end
+
+-- How long before the current cast ends the rotation chooses (and pre-casts) the
+-- next spell. As late as possible so the choice sees fresh debuff/resource state,
+-- but wide enough that at least one rotation tick lands inside it, and never wider
+-- than the client will actually queue.
+function cast:getQueueWindow()
+	local updateRate = E.getFrameValues().updateRate or 0.1
+	return math.min(getSpellQueueWindow(), math.max(0.2, updateRate * 2))
+end
+
+E.queuedBehindCast = nil -- castID (or end time) of the cast we've pre-cast behind
+
+function E.currentCastKey()
+	local name, _, _, _, endTime, _, castID = br._G.UnitCastingInfo("player")
+	if name == nil then return nil end
+	return castID or endTime
+end
+
+-- True once the rotation has pre-cast its next spell behind this cast.
+function cast:isQueuedBehind(castID, endTime)
+	local key = castID or endTime
+	return key ~= nil and key == E.queuedBehindCast
+end
+
+function E.shouldPrintCastDebug()
+	return br.functions.misc and (br.functions.misc:isChecked("Cast Debug") or br.functions.misc:isChecked("Display Failcasts"))
+end
+
+function E.setCastIntentLock(spellID, duration)
+	if spellID == nil then return end
+	if duration == nil then duration = 0.15 end
+	castIntentLocks[spellID] = br._G.GetTime() + duration
+end
+
+function E.isCastIntentLocked(spellID)
+	if spellID == nil then return false end
+	return castIntentLocks[spellID] ~= nil and br._G.GetTime() < castIntentLocks[spellID]
+end
+
+function E.getSameSpellCastRemain(spellID)
+	local now = br._G.GetTime()
+	local _, _, _, _, castEndTime, _, _, _, castingSpellID = br._G.UnitCastingInfo("player")
+	if castingSpellID == spellID and castEndTime and castEndTime > 0 then
+		return math.max(0, (castEndTime / 1000) - now)
+	end
+	local _, _, _, _, channelEndTime, _, _, channelingSpellID = br._G.UnitChannelInfo("player")
+	if channelingSpellID == spellID and channelEndTime and channelEndTime > 0 then
+		return math.max(0, (channelEndTime / 1000) - now)
+	end
+	return 0
+end
+
+-- True while the player is casting spellID with more than the queue window left.
+-- Inside the window the same spell may be pre-cast behind itself (Wrath -> Wrath).
+-- Channels are excluded: they're never pre-cast behind themselves.
+function E.isCastingOutsideQueueWindow(spellID)
+	local _, _, _, _, _, _, _, channelSpellID = br._G.UnitChannelInfo("player")
+	if channelSpellID ~= nil and channelSpellID == spellID then return true end
+	return E.getSameSpellCastRemain(spellID) > cast:getQueueWindow()
+end
+
+function E.takeCastStartSnapshot(spellID)
+	local spellCdBefore = 0
+	if br.functions.spell and br.functions.spell.getSpellCD then
+		spellCdBefore = br.functions.spell:getSpellCD(spellID) or 0
+	end
+	local currentSpellBefore = false
+	if br._G.IsCurrentSpell then
+		currentSpellBefore = br._G.IsCurrentSpell(spellID) == true
+	end
+	local buffBefore = false
+	if br.functions.aura and br.functions.aura.UnitBuffID then
+		buffBefore = br.functions.aura:UnitBuffID("player", spellID) ~= nil
+	end
+	return {
+		timeNow = br._G.GetTime(),
+		gcdBefore = br.functions.spell:getGlobalCD(),
+		castingBefore = br._G.UnitCastingInfo("player") ~= nil,
+		channelingBefore = br._G.UnitChannelInfo("player") ~= nil,
+		prevLastCastTime = (br.functions.lastCast and br.functions.lastCast.lastCastTable and br.functions.lastCast.lastCastTable.castTime and br.functions.lastCast.lastCastTable.castTime[spellID]) or 0,
+		spellCdBefore = spellCdBefore,
+		currentSpellBefore = currentSpellBefore,
+		buffBefore = buffBefore,
+	}
+end
+
+-- verifyCastStarted: two-stage synchronous cast confirmation.
+--
+-- Stage 1 (immediate, synchronous): Checks snapshot deltas that update in the same
+-- frame the cast fires — GCD tick, UnitCastingInfo/UnitChannelInfo starting a new cast,
+-- spell cooldown appearing, IsCurrentSpell toggling, or a self-buff appearing.
+-- Any of these signals confirms success without waiting for events.
+--
+-- Stage 2 (deferred event fallback): If no synchronous signal is observed but
+-- lastCastTable.castTime[spellID] was updated (populated by UNIT_SPELLCAST_* events),
+-- that event-driven confirmation is accepted as success on the next check.
+--
+-- 'inconclusive' is returned when no signal has arrived in either stage yet.
+-- The caller should throttle retries but not emit a CAST_FAILED message.
+function E.verifyCastStarted(spellID, snapshot, expectedSpellName)
+	expectedSpellName = expectedSpellName or br.api.wow.GetSpellInfo(spellID)
+	local gcdAfter = br.functions.spell:getGlobalCD()
+	local castNameAfter, _, _, _, _, _, _, _, castSpellIdAfter = br._G.UnitCastingInfo("player")
+	local channelNameAfter, _, _, _, _, _, _, _, channelSpellIdAfter = br._G.UnitChannelInfo("player")
+	local castingAfter = castNameAfter ~= nil
+	local channelingAfter = channelNameAfter ~= nil
+	local spellCdAfter = (br.functions.spell and br.functions.spell.getSpellCD) and (br.functions.spell:getSpellCD(spellID) or 0) or 0
+	local currentSpellAfter = br._G.IsCurrentSpell and (br._G.IsCurrentSpell(spellID) == true) or false
+	local buffAfter = (br.functions.aura and br.functions.aura.UnitBuffID) and (br.functions.aura:UnitBuffID("player", spellID) ~= nil) or false
+	local failedAt = (br.functions.lastCast and br.functions.lastCast.lastCastTable and br.functions.lastCast.lastCastTable.failedTime and br.functions.lastCast.lastCastTable.failedTime[spellID]) or 0
+	local recentlyFailed = failedAt ~= 0 and (br._G.GetTime() - failedAt) < 0.20
+
+	local startedNewCast = castingAfter and not snapshot.castingBefore
+	local startedNewChannel = channelingAfter and not snapshot.channelingBefore
+	local startedAnyNew = startedNewCast or startedNewChannel
+
+	local function matchesExpected(observedName, observedSpellId)
+		if observedSpellId ~= nil and observedSpellId ~= 0 then
+			return observedSpellId == spellID
+		end
+		if observedName ~= nil and expectedSpellName ~= nil then
+			return observedName == expectedSpellName
+		end
+		return true -- Can't determine; don't block.
+	end
+
+	local observedName = startedNewCast and castNameAfter or (startedNewChannel and channelNameAfter or nil)
+	local observedSpellId = startedNewCast and castSpellIdAfter or (startedNewChannel and channelSpellIdAfter or nil)
+	local spellMatches = (not startedAnyNew) or matchesExpected(observedName, observedSpellId)
+
+	local cooldownStarted = spellCdAfter > (snapshot.spellCdBefore or 0)
+	local buffGained = buffAfter and not (snapshot.buffBefore == true)
+	local currentSpellChangedOn = currentSpellAfter and not (snapshot.currentSpellBefore == true)
+	local currentSpellAlreadyOn = (spellID == 6603) and currentSpellAfter
+	local startedOffGcdEffect = cooldownStarted or buffGained or currentSpellChangedOn or currentSpellAlreadyOn
+
+	local castSucceeded = (gcdAfter > snapshot.gcdBefore) or startedAnyNew or startedOffGcdEffect
+	if startedAnyNew and not spellMatches then
+		castSucceeded = false
+	end
+
+	local newLastCastTime = (br.functions.lastCast and br.functions.lastCast.lastCastTable and br.functions.lastCast.lastCastTable.castTime and br.functions.lastCast.lastCastTable.castTime[spellID])
+	if not castSucceeded and newLastCastTime and newLastCastTime ~= 0 and newLastCastTime ~= snapshot.prevLastCastTime and (br._G.GetTime() - newLastCastTime) < 1 then
+		castSucceeded = true
+	end
+
+	local noObservableSignals = (gcdAfter == snapshot.gcdBefore)
+		and (not startedAnyNew)
+		and (not startedOffGcdEffect)
+		and ((newLastCastTime or 0) == (snapshot.prevLastCastTime or 0))
+		and (spellCdAfter == (snapshot.spellCdBefore or 0))
+		and (buffAfter == (snapshot.buffBefore == true))
+		and (currentSpellAfter == (snapshot.currentSpellBefore == true))
+
+	if not castSucceeded and recentlyFailed then
+		castSucceeded = false
+	end
+
+	local inconclusive = (not castSucceeded) and (not recentlyFailed) and noObservableSignals
+
+	return castSucceeded, {
+		gcdAfter = gcdAfter,
+		castingAfter = castingAfter,
+		channelingAfter = channelingAfter,
+		startedNewCast = startedNewCast,
+		startedNewChannel = startedNewChannel,
+		spellMatches = spellMatches,
+		castNameAfter = castNameAfter,
+		castSpellIdAfter = castSpellIdAfter,
+		channelNameAfter = channelNameAfter,
+		channelSpellIdAfter = channelSpellIdAfter,
+		newLastCastTime = newLastCastTime,
+		spellCdBefore = snapshot.spellCdBefore,
+		spellCdAfter = spellCdAfter,
+		currentSpellBefore = snapshot.currentSpellBefore,
+		currentSpellAfter = currentSpellAfter,
+		buffBefore = snapshot.buffBefore,
+		buffAfter = buffAfter,
+		cooldownStarted = cooldownStarted,
+		buffGained = buffGained,
+		currentSpellChangedOn = currentSpellChangedOn,
+		currentSpellAlreadyOn = currentSpellAlreadyOn,
+		recentlyFailed = recentlyFailed,
+		failedAt = failedAt,
+		inconclusive = inconclusive,
+		noObservableSignals = noObservableSignals,
+	}
+end
+
+local function printCastFailedDetails(prefix, spellID, spellName, snapshot, details)
+	br._G.print(prefix .. "Failed cast attempt: SpellID=" .. tostring(spellID) .. " Name=" .. tostring(spellName))
+	br._G.print("  GCD before/after: " .. tostring(snapshot.gcdBefore) .. " -> " .. tostring(details.gcdAfter))
+	br._G.print("  Casting before/after: " .. tostring(snapshot.castingBefore) .. " -> " .. tostring(details.castingAfter))
+	br._G.print("  Channeling before/after: " .. tostring(snapshot.channelingBefore) .. " -> " .. tostring(details.channelingAfter))
+	br._G.print("  PrevLastCastTime/newLastCastTime: " .. tostring(snapshot.prevLastCastTime) .. " -> " .. tostring(details.newLastCastTime))
+	br._G.print("  SpellCD before/after: " .. tostring(snapshot.spellCdBefore) .. " -> " .. tostring(details.spellCdAfter))
+	br._G.print("  IsCurrentSpell before/after: " .. tostring(snapshot.currentSpellBefore) .. " -> " .. tostring(details.currentSpellAfter))
+	br._G.print("  SelfBuff before/after: " .. tostring(snapshot.buffBefore) .. " -> " .. tostring(details.buffAfter))
+	br._G.print("  RecentlyFailed/failedAt: " .. tostring(details.recentlyFailed) .. " -> " .. tostring(details.failedAt))
+	br._G.print("  Inconclusive/noSignals: " .. tostring(details.inconclusive) .. " -> " .. tostring(details.noObservableSignals))
+end

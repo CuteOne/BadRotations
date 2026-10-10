@@ -73,7 +73,11 @@ System\SlashCommands.lua
 
 System\Functions\Action.lua
 System\Functions\Aura.lua
-System\Functions\Cast.lua
+System\Functions\Cast\Tracking.lua
+System\Functions\Cast\Helpers.lua
+System\Functions\Cast\Gates.lua
+System\Functions\Cast\Dispatch.lua
+System\Functions\Cast\CastFunction.lua
 System\Functions\Combat.lua
 System\Functions\Custom.lua
 System\Functions\InFlight.lua
